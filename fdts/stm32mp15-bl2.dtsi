@@ -22,10 +22,6 @@
 		/delete-node/ stgen@5c008000;
 		/delete-node/ i2c@5c009000;
 		/delete-node/ tamp@5c00a000;
-
-		pin-controller@50002000 {
-			/delete-node/ rtc-out2-rmp-pins-0;
-		};
 	};
 
 #if !STM32MP_USE_STM32IMAGE

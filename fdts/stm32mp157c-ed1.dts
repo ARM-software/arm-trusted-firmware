@@ -20,7 +20,6 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-
 	memory@c0000000 {
 		device_type = "memory";
 		reg = <0xC0000000 0x40000000>;
@@ -52,7 +51,7 @@
 };
 
 &cryp1 {
-	status="okay";
+	status = "okay";
 };
 
 &hash1 {

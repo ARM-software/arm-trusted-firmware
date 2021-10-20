@@ -141,7 +141,6 @@
 				regulator-name = "vdd_usb";
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
-				regulator-always-on;
 			};
 
 			vdda: ldo5 {
@@ -319,13 +318,13 @@
 
 &uart7 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&uart7_pins_b>;
+	pinctrl-0 = <&uart7_pins_c>;
 	status = "disabled";
 };
 
 &usart3 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&usart3_pins_b>;
+	pinctrl-0 = <&usart3_pins_c>;
 	uart-has-rtscts;
 	status = "disabled";
 };
