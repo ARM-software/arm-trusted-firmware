@@ -4,8 +4,82 @@ Realm Management Extension (RME)
 
 FEAT_RME (or RME for short) is an Armv9-A extension and is one component of the
 `Arm Confidential Compute Architecture (Arm CCA)`_. TF-A supports RME starting
-from version 2.6. This document provides instructions on how to build and run
-TF-A with RME.
+from version 2.6. This chapter discusses the changes to TF-A to support RME and
+provides instructions on how to build and run TF-A with RME.
+
+RME support in TF-A
+---------------------
+
+The following diagram shows an Arm CCA software architecture with TF-A as the
+EL3 firmware. In the Arm CCA architecture there are two additional security
+states and address spaces: ``Root`` and ``Realm``. TF-A firmware runs in the
+Root world. In the realm world, a Realm Management Monitor firmware (RMM)
+manages the execution of Realm VMs and their interaction with the hypervisor.
+
+.. image:: ../resources/diagrams/arm-cca-software-arch.png
+
+RME is the hardware extension to support Arm CCA. To support RME, various
+changes have been introduced to TF-A. We discuss those changes below.
+
+Changes to translation tables library
+***************************************
+RME adds Root and Realm Physical address spaces. To support this, two new
+memory type macros, ``MT_ROOT`` and ``MT_REALM``, have been added to the
+:ref:`Translation (XLAT) Tables Library`. These macros are used to configure
+memory regions as Root or Realm respectively.
+
+.. note::
+
+ Only version 2 of the translation tables library supports the new memory
+ types.
+
+Changes to context management
+*******************************
+A new CPU context for the Realm world has been added. The existing
+:ref:`CPU context management API<PSCI Library Integration guide for Armv8-A
+AArch32 systems>` can be used to manage Realm context.
+
+Boot flow changes
+*******************
+In a typical TF-A boot flow, BL2 runs at Secure-EL1. However when RME is
+enabled, TF-A runs in the Root world at EL3. Therefore, the boot flow is
+modified to run BL2 at EL3 when RME is enabled. In addition to this, a
+Realm-world firmware (RMM) is loaded by BL2 in the Realm physical address
+space.
+
+The boot flow when RME is enabled looks like the following:
+
+1. BL1 loads and executes BL2 at EL3
+2. BL2 loads images including RMM
+3. BL2 transfers control to BL31
+4. BL31 initializes SPM (if SPM is enabled)
+5. BL31 initializes RMM
+6. BL31 transfers control to Normal-world software
+
+Granule Protection Tables (GPT) library
+*****************************************
+Isolation between the four physical address spaces is enforced by a process
+called Granule Protection Check (GPC) performed by the MMU downstream any
+address translation. GPC makes use of Granule Protection Table (GPT) in the
+Root world that describes the physical address space assignment of every
+page (granule). A GPT library that provides APIs to initialize GPTs and to
+transition granules between different physical address spaces has been added.
+More information about the GPT library can be found in the
+:ref:`Granule Protection Tables Library` chapter.
+
+RMM Dispatcher (RMMD)
+************************
+RMMD is a new standard runtime service that handles the switch to the Realm
+world. It initializes the RMM and handles Realm Management Interface (RMI)
+SMC calls from Non-secure and Realm worlds.
+
+Test Realm Payload (TRP)
+*************************
+TRP is a small test payload that runs at R-EL2 and implements a subset of
+the Realm Management Interface (RMI) commands to primarily test EL3 firmware
+and the interface between R-EL2 and EL3. When building TF-A with RME enabled,
+if a path to an RMM image is not provided, TF-A builds the TRP by default
+and uses it as RMM image.
 
 Building and running TF-A with RME
 ------------------------------------
@@ -25,11 +99,8 @@ TF-A. You can use the following command to clone TF-A.
 
  git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 
-To run the tests, you need an FVP model. You can download a model that supports
-RME from the `Arm Architecture Models website`_. Please select the
-*Base RevC AEM FVP* model. After extracting the downloaded file, you should be able to
-find the *FVP_Base_RevC-2xAEMvA* binary. The instructions below have been tested
-with model version 11.15 revision 18.
+To run the tests, you need an FVP model. Please use the :ref:`latest version
+<Arm Fixed Virtual Platforms (FVP)>` of *FVP_Base_RevC-2xAEMvA* model.
 
 .. note::
 
@@ -64,9 +135,7 @@ This produces a TF-A Tests binary (*tftf.bin*) in the *build/fvp/debug* director
  all fip
 
 This produces *bl1.bin* and *fip.bin* binaries in the *build/fvp/debug* directory.
-The above command also builds a Test Realm Payload (TRP), which is a small test
-payload that implements Realm Monitor Management (RMM) functionalities and runs
-in the realm world (R-EL2). The TRP binary is packaged in *fip.bin*.
+The above command also builds TRP. The TRP binary is packaged in *fip.bin*.
 
 Four-world execution with Hafnium and TF-A Tests
 ****************************************************

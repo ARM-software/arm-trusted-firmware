@@ -6,6 +6,11 @@ Introduction
 ************************
 This document provides a generic threat model for TF-A firmware.
 
+.. note::
+
+ This threat model doesn't consider Root and Realm worlds introduced by
+ :ref:`Realm Management Extension (RME)`.
+
 ************************
 Target of Evaluation
 ************************
@@ -22,8 +27,10 @@ assumptions:
 - All TF-A images are run from either ROM or on-chip trusted SRAM. This means
   TF-A is not vulnerable to an attacker that can probe or tamper with off-chip
   memory.
+
 - Trusted boot is enabled. This means an attacker can't boot arbitrary images
   that are not approved by platform providers.
+
 - There is no Secure-EL2. We don't consider threats that may come with
   Secure-EL2 software.
 

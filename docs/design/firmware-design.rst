@@ -26,6 +26,13 @@ tables. The details of this library can be found in
 
 TF-A can be built to support either AArch64 or AArch32 execution state.
 
+.. note::
+
+ The descriptions in this chapter are for the Arm TrustZone architecture.
+ For changes to the firmware design for the
+ `Arm Confidential Compute Architecture (Arm CCA)`_ please refer to the
+ chapter :ref:`Realm Management Extension (RME)`.
+
 Cold boot
 ---------
 
@@ -2722,7 +2729,7 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 
 --------------
 
-*Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.*
 
 .. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMCCC: https://developer.arm.com/docs/den0028/latest
@@ -2731,5 +2738,6 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 .. _Arm ARM: https://developer.arm.com/docs/ddi0487/latest
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 .. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
+.. _Arm Confidential Compute Architecture (Arm CCA): https://www.arm.com/why-arm/architecture/security-features/arm-confidential-compute-architecture
 
 .. |Image 1| image:: ../resources/diagrams/rt-svc-descs-layout.png

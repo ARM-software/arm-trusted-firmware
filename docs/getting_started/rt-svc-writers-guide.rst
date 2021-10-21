@@ -200,13 +200,13 @@ The handler is responsible for:
        SMC_RET1(handle, SMC_UNK);
 
 #. Determining if the requested function is valid for the calling security
-   state. SMC Calls can be made from both the normal and trusted worlds and
+   state. SMC Calls can be made from Non-secure, Secure or Realm worlds and
    the framework will forward all calls to the service handler.
 
    The ``flags`` parameter to this function indicates the caller security state
-   in bit[0], where a value of ``1`` indicates a non-secure caller. The
-   ``is_caller_secure(flags)`` and ``is_caller_non_secure(flags)`` can be used to
-   test this condition.
+   in bits 0 and 5. The ``is_caller_secure(flags)``, ``is_caller_non_secure(flags)``
+   and ``is_caller_realm(flags)`` helper functions can be used to determine whether
+   the caller's security state is Secure, Non-secure or Realm respectively.
 
    If invalid, the request should be completed with:
 
@@ -314,7 +314,7 @@ provide this information....
 
 --------------
 
-*Copyright (c) 2014-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2021, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMCCC: https://developer.arm.com/docs/den0028/latest
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf

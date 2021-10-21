@@ -92,6 +92,14 @@ In systems where 3rd level images are provided by different vendors, the
 abbreviated name should identify the vendor as well as the image
 function. For example, ``AP_BL3_ARM_RAS``.
 
+Realm Monitor Management Firmware: ``RMM``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the Realm-EL2 firmware. It is required if
+:ref:`Realm Management Extension (RME)` feature is enabled. If a path to RMM
+image is not provided, TF-A builds Test Realm Payload (TRP) image by default
+and uses it as the RMM image.
+
 SCP Boot ROM: ``SCP_BL1`` (previously ``BL0``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
