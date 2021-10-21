@@ -120,7 +120,7 @@ Common build options
    |   4   |     bti      |   N   |  Y  |
    +-------+--------------+-------+-----+
 
-   This option defaults to 0 and this is an experimental feature.
+   This option defaults to 0.
    Note that Pointer Authentication is enabled for Non-secure world
    irrespective of the value of this option if the CPU supports it.
 
@@ -181,7 +181,7 @@ Common build options
 -  ``CTX_INCLUDE_PAUTH_REGS``: Boolean option that, when set to 1, enables
    Pointer Authentication for Secure world. This will cause the ARMv8.3-PAuth
    registers to be included when saving and restoring the CPU context as
-   part of world switch. Default value is 0 and this is an experimental feature.
+   part of world switch. Default value is 0.
    Note that Pointer Authentication is enabled for Non-secure world irrespective
    of the value of this flag if the CPU supports it.
 
@@ -192,7 +192,7 @@ Common build options
    authenticated decryption algorithm to be used to decrypt firmware/s during
    boot. It accepts 2 values: ``aes_gcm`` and ``none``. The default value of
    this flag is ``none`` to disable firmware decryption which is an optional
-   feature as per TBBR. Also, it is an experimental feature.
+   feature as per TBBR.
 
 -  ``DISABLE_BIN_GENERATION``: Boolean option to disable the generation
    of the binary image. If set to 1, then only the ELF image is built.
@@ -312,20 +312,18 @@ Common build options
    component of the option ``-fstack-protector-$ENABLE_STACK_PROTECTOR``.
 
 -  ``ENCRYPT_BL31``: Binary flag to enable encryption of BL31 firmware. This
-   flag depends on ``DECRYPTION_SUPPORT`` build flag which is marked as
-   experimental.
+   flag depends on ``DECRYPTION_SUPPORT`` build flag.
 
 -  ``ENCRYPT_BL32``: Binary flag to enable encryption of Secure BL32 payload.
-   This flag depends on ``DECRYPTION_SUPPORT`` build flag which is marked as
-   experimental.
+   This flag depends on ``DECRYPTION_SUPPORT`` build flag.
 
 -  ``ENC_KEY``: A 32-byte (256-bit) symmetric key in hex string format. It could
    either be SSK or BSSK depending on ``FW_ENC_STATUS`` flag. This value depends
-   on ``DECRYPTION_SUPPORT`` build flag which is marked as experimental.
+   on ``DECRYPTION_SUPPORT`` build flag.
 
 -  ``ENC_NONCE``: A 12-byte (96-bit) encryption nonce or Initialization Vector
    (IV) in hex string format. This value depends on ``DECRYPTION_SUPPORT``
-   build flag which is marked as experimental.
+   build flag.
 
 -  ``ERROR_DEPRECATED``: This option decides whether to treat the usage of
    deprecated platform APIs, helper functions or drivers within Trusted
@@ -364,8 +362,7 @@ Common build options
      1: Encryption is done with Binding Secret Symmetric Key (BSSK) which is
         unique per device.
 
-   This flag depends on ``DECRYPTION_SUPPORT`` build flag which is marked as
-   experimental.
+   This flag depends on ``DECRYPTION_SUPPORT`` build flag.
 
 -  ``GENERATE_COT``: Boolean flag used to build and execute the ``cert_create``
    tool to create certificates as per the Chain of Trust described in
@@ -484,8 +481,7 @@ Common build options
    in order to provide trust that the code taking the measurements and recording
    them has not been tampered with.
 
-   This option defaults to 0 and is an experimental feature in the stage of
-   development.
+   This option defaults to 0.
 
 -  ``NON_TRUSTED_WORLD_KEY``: This option is used when ``GENERATE_COT=1``. It
    specifies the file that contains the Non-Trusted World private key in PEM
@@ -695,26 +691,25 @@ Common build options
 -  ``ARM_IO_IN_DTB``: This flag determines whether to use IO based on the
    firmware configuration framework. This will move the io_policies into a
    configuration device tree, instead of static structure in the code base.
-   This is currently an experimental feature.
 
 -  ``COT_DESC_IN_DTB``: This flag determines whether to create COT descriptors
    at runtime using fconf. If this flag is enabled, COT descriptors are
    statically captured in tb_fw_config file in the form of device tree nodes
    and properties. Currently, COT descriptors used by BL2 are moved to the
    device tree and COT descriptors used by BL1 are retained in the code
-   base statically. This is currently an experimental feature.
+   base statically.
 
 -  ``SDEI_IN_FCONF``: This flag determines whether to configure SDEI setup in
    runtime using firmware configuration framework. The platform specific SDEI
    shared and private events configuration is retrieved from device tree rather
-   than static C structures at compile time. This is currently an experimental
-   feature and is only supported if SDEI_SUPPORT build flag is enabled.
+   than static C structures at compile time. This is only supported if
+   SDEI_SUPPORT build flag is enabled.
 
 -  ``SEC_INT_DESC_IN_FCONF``: This flag determines whether to configure Group 0
    and Group1 secure interrupts using the firmware configuration framework. The
    platform specific secure interrupt property descriptor is retrieved from
    device tree in runtime rather than depending on static C structure at compile
-   time. This is currently an experimental feature.
+   time.
 
 -  ``USE_ROMLIB``: This flag determines whether library at ROM will be used.
    This feature creates a library of functions to be placed in ROM and thus

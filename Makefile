@@ -150,8 +150,6 @@ endif
 ifeq (${USE_SPINLOCK_CAS},1)
 ifneq (${ARCH},aarch64)
         $(error USE_SPINLOCK_CAS requires AArch64)
-else
-        $(info USE_SPINLOCK_CAS is an experimental feature)
 endif
 endif
 
@@ -525,7 +523,6 @@ ifneq (${SPD},none)
     endif
 
     ifeq (${SPD},spmd)
-        $(warning "SPMD is an experimental feature")
         # SPMD is located in std_svc directory
         SPD_DIR := std_svc
 
@@ -731,12 +728,7 @@ endif
 
 # SDEI_IN_FCONF is only supported when SDEI_SUPPORT is enabled.
 ifeq ($(SDEI_SUPPORT)-$(SDEI_IN_FCONF),0-1)
-$(error "SDEI_IN_FCONF is an experimental feature and is only supported when \
-	SDEI_SUPPORT is enabled")
-endif
-
-ifeq ($(COT_DESC_IN_DTB),1)
-    $(info CoT in device tree is an experimental feature)
+$(error "SDEI_IN_FCONF is only supported when SDEI_SUPPORT is enabled")
 endif
 
 # If pointer authentication is used in the firmware, make sure that all the
@@ -751,24 +743,12 @@ endif
 ifeq ($(CTX_INCLUDE_PAUTH_REGS),1)
     ifneq (${ARCH},aarch64)
         $(error CTX_INCLUDE_PAUTH_REGS requires AArch64)
-    else
-        $(info CTX_INCLUDE_PAUTH_REGS is an experimental feature)
     endif
-endif
-
-ifeq ($(ENABLE_PAUTH),1)
-    $(info Pointer Authentication is an experimental feature)
-endif
-
-ifeq ($(ENABLE_BTI),1)
-    $(info Branch Protection is an experimental feature)
 endif
 
 ifeq ($(CTX_INCLUDE_MTE_REGS),1)
     ifneq (${ARCH},aarch64)
         $(error CTX_INCLUDE_MTE_REGS requires AArch64)
-    else
-        $(info CTX_INCLUDE_MTE_REGS is an experimental feature)
     endif
 endif
 
@@ -778,8 +758,6 @@ endif
 ifeq ($(MEASURED_BOOT),1)
     ifneq (${TRUSTED_BOARD_BOOT},1)
         $(error MEASURED_BOOT requires TRUSTED_BOARD_BOOT=1)
-    else
-        $(info MEASURED_BOOT is an experimental feature)
     endif
 endif
 
@@ -796,8 +774,6 @@ endif
 ifneq (${DECRYPTION_SUPPORT},none)
     ifeq (${TRUSTED_BOARD_BOOT}, 0)
         $(error TRUSTED_BOARD_BOOT must be enabled for DECRYPTION_SUPPORT to be set)
-    else
-        $(info DECRYPTION_SUPPORT is an experimental feature)
     endif
 endif
 
