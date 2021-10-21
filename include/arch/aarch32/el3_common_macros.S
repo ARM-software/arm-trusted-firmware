@@ -380,10 +380,21 @@
 		 * includes the data and NOBITS sections. This is done to
 		 * safeguard against possible corruption of this memory by
 		 * dirty cache lines in a system cache as a result of use by
-		 * an earlier boot loader stage.
+		 * an earlier boot loader stage. If PIE is enabled however,
+		 * RO sections including the GOT may be modified during
+		 * pie fixup. Therefore, to be on the safe side, invalidate
+		 * the entire image region if PIE is enabled.
 		 * -----------------------------------------------------------------
 		 */
+#if ENABLE_PIE
+#if SEPARATE_CODE_AND_RODATA
+		ldr	r0, =__TEXT_START__
+#else
+		ldr	r0, =__RO_START__
+#endif /* SEPARATE_CODE_AND_RODATA */
+#else
 		ldr	r0, =__RW_START__
+#endif /* ENABLE_PIE */
 		ldr	r1, =__RW_END__
 		sub	r1, r1, r0
 		bl	inv_dcache_range
