@@ -12,4 +12,9 @@
 void erratum_a050426(void);
 #endif
 
+#ifdef ERRATA_SOC_A008850
+void erratum_a008850_early(void);
+void erratum_a008850_post(void);
+#endif
+
 #endif /* ERRATA_LIST_H */

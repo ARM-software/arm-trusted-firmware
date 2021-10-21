@@ -15,6 +15,10 @@ void soc_errata(void)
 	INFO("SoC workaround for Errata A050426 was applied\n");
 	erratum_a050426();
 #endif
+#ifdef ERRATA_SOC_A008850
+	INFO("SoC workaround for Errata A008850 Early-Phase was applied\n");
+	erratum_a008850_early();
+#endif
 	/*
 	 * The following DDR Erratas workaround are implemented in DDR driver,
 	 * but print information here.
