@@ -1195,7 +1195,7 @@ Function : plat_mboot_measure_image()
 ::
 
     Argument : unsigned int, image_info_t *
-    Return   : void
+    Return   : int
 
 When the MEASURED_BOOT flag is enabled:
 
@@ -1204,7 +1204,25 @@ When the MEASURED_BOOT flag is enabled:
 -  On the Arm FVP port, this function measures the given image using its
    passed id and information and then records that measurement in the
    Event Log buffer.
--  This function must return 0 on success, a negative error code otherwise.
+-  This function must return 0 on success, a signed integer error code
+   otherwise.
+
+When the MEASURED_BOOT flag is disabled, this function doesn't do anything.
+
+Function : plat_mboot_measure_critical_data()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int, const void *, size_t
+    Return   : int
+
+When the MEASURED_BOOT flag is enabled:
+
+-  This function measures the given critical data structure and records its
+   measurement using the measured boot backend driver.
+-  This function must return 0 on success, a signed integer error code
+   otherwise.
 
 When the MEASURED_BOOT flag is disabled, this function doesn't do anything.
 
