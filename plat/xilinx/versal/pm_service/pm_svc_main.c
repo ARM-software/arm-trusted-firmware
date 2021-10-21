@@ -135,7 +135,8 @@ static uintptr_t eemi_for_compatibility(uint32_t api_id, uint32_t *pm_arg,
 		uint32_t value;
 
 		ret = pm_api_ioctl(pm_arg[0], pm_arg[1], pm_arg[2],
-				   pm_arg[3], &value, security_flag);
+				   pm_arg[3], pm_arg[4],
+				   &value, security_flag);
 		if (ret == PM_RET_ERROR_NOTSUPPORTED)
 			return (uintptr_t)0;
 
@@ -290,7 +291,7 @@ static uintptr_t eemi_handler(uint32_t api_id, uint32_t *pm_arg,
  * pm_smc_handler() - SMC handler for PM-API calls coming from EL1/EL2.
  * @smc_fid - Function Identifier
  * @x1 - x4 - SMC64 Arguments from kernel
- *	      x3 and x4 are Unused
+ *	      x3 (upper 32-bits) and x4 are Unused
  * @cookie  - Unused
  * @handler - Pointer to caller's context structure
  *
@@ -327,7 +328,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	pm_arg[1] = (uint32_t)(x1 >> 32);
 	pm_arg[2] = (uint32_t)x2;
 	pm_arg[3] = (uint32_t)(x2 >> 32);
-	(void)(x3);
+	pm_arg[4] = (uint32_t)x3;
 	(void)(x4);
 	api_id = smc_fid & FUNCID_NUM_MASK;
 

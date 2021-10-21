@@ -465,6 +465,7 @@ enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
  * @ioctl_id	ID of the requested IOCTL
  * @arg1	Argument 1 to requested IOCTL call
  * @arg2	Argument 2 to requested IOCTL call
+ * @arg3	Argument 3 to requested IOCTL call
  * @value	Returned output value
  * @flag	0 - Call from secure source
  *		1 - Call from non-secure source
@@ -475,8 +476,8 @@ enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
  * of type enum pm_ret_status
  */
 enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
-				uint32_t arg1, uint32_t arg2, uint32_t *value,
-				uint32_t flag)
+				uint32_t arg1, uint32_t arg2, uint32_t arg3,
+				uint32_t *value, uint32_t flag)
 {
 	enum pm_ret_status ret;
 
