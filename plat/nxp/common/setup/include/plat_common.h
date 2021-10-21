@@ -113,7 +113,7 @@ typedef struct {
 
 typedef struct {
 	uint64_t num_dram_regions;
-	uint64_t total_dram_size;
+	int64_t total_dram_size;
 	region_info_t region[NUM_DRAM_REGIONS];
 } dram_regions_info_t;
 
