@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -325,30 +325,6 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 /* Subscribe to PSCI CPU on to initialize RMM on secondary */
 SUBSCRIBE_TO_EVENT(psci_cpu_on_finish, rmmd_cpu_on_finish_handler);
 
-static int gtsi_transition_granule(uint64_t pa,
-					unsigned int src_sec_state,
-					unsigned int target_pas)
-{
-	int ret;
-
-	ret = gpt_transition_pas(pa, PAGE_SIZE_4KB, src_sec_state, target_pas);
-
-	/* Convert TF-A error codes into GTSI error codes */
-	if (ret == -EINVAL) {
-		ERROR("[GTSI] Transition failed: invalid %s\n", "address");
-		ERROR("       PA: 0x%" PRIx64 ", SRC: %d, PAS: %d\n", pa,
-		      src_sec_state, target_pas);
-		ret = GRAN_TRANS_RET_BAD_ADDR;
-	} else if (ret == -EPERM) {
-		ERROR("[GTSI] Transition failed: invalid %s\n", "caller/PAS");
-		ERROR("       PA: 0x%" PRIx64 ", SRC: %d, PAS: %d\n", pa,
-		      src_sec_state, target_pas);
-		ret = GRAN_TRANS_RET_BAD_PAS;
-	}
-
-	return ret;
-}
-
 /*******************************************************************************
  * This function handles all SMCs in the range reserved for GTF.
  ******************************************************************************/
@@ -357,6 +333,7 @@ uint64_t rmmd_gtsi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 				void *handle, uint64_t flags)
 {
 	uint32_t src_sec_state;
+	int ret;
 
 	/* Determine which security state this SMC originated from */
 	src_sec_state = caller_sec_state(flags);
@@ -368,13 +345,27 @@ uint64_t rmmd_gtsi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 	switch (smc_fid) {
 	case SMC_ASC_MARK_REALM:
-		SMC_RET1(handle, gtsi_transition_granule(x1, SMC_FROM_REALM,
-								GPT_GPI_REALM));
+		ret = gpt_delegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
+		break;
 	case SMC_ASC_MARK_NONSECURE:
-		SMC_RET1(handle, gtsi_transition_granule(x1, SMC_FROM_REALM,
-								GPT_GPI_NS));
+		ret = gpt_undelegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
+		break;
 	default:
 		WARN("RMM: Unsupported GTF call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
+
+	if (ret == -EINVAL) {
+		ERROR("[GTSI] Transition failed: invalid %s\n", "address");
+		ERROR("       PA: 0x%"PRIx64 ", SRC: %d, PAS: %d\n", x1,
+		      SMC_FROM_REALM, smc_fid);
+		ret = GRAN_TRANS_RET_BAD_ADDR;
+	} else if (ret == -EPERM) {
+		ERROR("[GTSI] Transition failed: invalid %s\n", "caller/PAS");
+		ERROR("       PA: 0x%"PRIx64 ", SRC: %d, PAS: %d\n", x1,
+		      SMC_FROM_REALM, smc_fid);
+		ret = GRAN_TRANS_RET_BAD_PAS;
+	}
+
+	SMC_RET1(handle, ret);
 }

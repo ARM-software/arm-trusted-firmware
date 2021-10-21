@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
 	.globl	zero_normalmem
 	.globl	zeromem
 	.globl	memcpy16
-	.globl	gpt_tlbi_by_pa
+	.globl	gpt_tlbi_by_pa_ll
 
 	.globl	disable_mmu_el1
 	.globl	disable_mmu_el3
@@ -599,7 +599,7 @@ endfunc fixup_gdt_reloc
  * TODO: Currently only supports size of 4KB,
  * support other sizes as well.
  */
-func gpt_tlbi_by_pa
+func gpt_tlbi_by_pa_ll
 #if ENABLE_ASSERTIONS
 	cmp	x1, #PAGE_SIZE_4KB
 	ASM_ASSERT(eq)
@@ -607,7 +607,7 @@ func gpt_tlbi_by_pa
 	ASM_ASSERT(eq)
 #endif
 	lsr	x0, x0, #FOUR_KB_SHIFT	/* 4KB size encoding is zero */
-	sys	#6, c8, c4, #3, x0 	/* TLBI RPAOS, <Xt> */
+	sys	#6, c8, c4, #7, x0 	/* TLBI RPALOS, <Xt> */
 	dsb	sy
 	ret
-endfunc gpt_tlbi_by_pa
+endfunc gpt_tlbi_by_pa_ll

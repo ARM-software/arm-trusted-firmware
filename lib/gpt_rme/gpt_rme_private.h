@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -105,6 +105,17 @@ typedef enum {
 	PGS_16KB_P =	14U,
 	PGS_64KB_P =	16U
 } gpt_p_val_e;
+
+/*
+ * Internal structure to retrieve the values from get_gpi_info();
+ */
+typedef struct gpi_info {
+	uint64_t gpt_l1_desc;
+	uint64_t *gpt_l1_addr;
+	unsigned int idx;
+	unsigned int gpi_shift;
+	unsigned int gpi;
+} gpi_info_t;
 
 /* Max valid value for PGS. */
 #define GPT_PGS_MAX			(2U)
