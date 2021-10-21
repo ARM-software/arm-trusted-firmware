@@ -181,6 +181,7 @@ With OP-TEE:
 .. code:: bash
 
     make CROSS_COMPILE=arm-none-eabi- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 \
+        AARCH32_SP=optee \
         DTB_FILE_NAME=stm32mp157c-ev1.dtb \
         BL33=<u-boot_directory>/u-boot-nodtb.bin \
         BL33_CFG=<u-boot_directory>/u-boot.dtb \
