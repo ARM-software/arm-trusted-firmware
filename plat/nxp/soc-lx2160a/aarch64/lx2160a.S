@@ -563,14 +563,6 @@ endfunc _soc_sys_reset
  */
 func _soc_sys_off
 
-	/* A-009810: LPM20 entry sequence might cause
-	 * spurious timeout reset request
-	 * workaround: MASK RESET REQ RPTOE
-	 */
-	ldr  x0, =NXP_RESET_ADDR
-	ldr  w1, =RSTRQMR_RPTOE_MASK
-	str  w1, [x0, #RST_RSTRQMR1_OFFSET]
-
 	/* disable sec, QBman, spi and qspi */
 	ldr  x2, =NXP_DCFG_ADDR
 	ldr  x0, =DCFG_DEVDISR1_OFFSET
