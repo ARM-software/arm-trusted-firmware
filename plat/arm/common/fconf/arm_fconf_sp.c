@@ -66,6 +66,15 @@ int fconf_populate_arm_sp(uintptr_t config)
 		}
 
 		arm_sp.uuids[index] = uuid_helper;
+
+		/* Read Load address */
+		err = fdt_read_uint32(dtb, sp_node, "load-address", &val32);
+		if (err < 0) {
+			ERROR("FCONF: cannot read SP load address\n");
+			return -1;
+		}
+		arm_sp.load_addr[index] = val32;
+
 		VERBOSE("FCONF: %s UUID"
 			" %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
 			" load_addr=%lx\n",
@@ -81,14 +90,6 @@ int fconf_populate_arm_sp(uintptr_t config)
 			uuid_helper.uuid_struct.node[2], uuid_helper.uuid_struct.node[3],
 			uuid_helper.uuid_struct.node[4], uuid_helper.uuid_struct.node[5],
 			arm_sp.load_addr[index]);
-
-		/* Read Load address */
-		err = fdt_read_uint32(dtb, sp_node, "load-address", &val32);
-		if (err < 0) {
-			ERROR("FCONF: cannot read SP load address\n");
-			return -1;
-		}
-		arm_sp.load_addr[index] = val32;
 
 		/* Read owner field only for dualroot CoT */
 #if defined(ARM_COT_dualroot)
