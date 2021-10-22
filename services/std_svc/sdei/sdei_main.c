@@ -966,7 +966,7 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 
 	case SDEI_EVENT_REGISTER:
 		x5 = SMC_GET_GP(ctx, CTX_GPREG_X5);
-		SDEI_LOG("> REG(n:%d e:%llx a:%llx f:%x m:%llx)\n", ev_num,
+		SDEI_LOG("> REG(n:0x%x e:%llx a:%llx f:%x m:%llx)\n", ev_num,
 				x2, x3, (int) x4, x5);
 		ret = sdei_event_register(ev_num, x2, x3, x4, x5);
 		SDEI_LOG("< REG:%lld\n", ret);
@@ -979,7 +979,7 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 		SMC_RET1(ctx, ret);
 
 	case SDEI_EVENT_DISABLE:
-		SDEI_LOG("> DISABLE(n:%d)\n", ev_num);
+		SDEI_LOG("> DISABLE(n:0x%x)\n", ev_num);
 		ret = sdei_event_disable(ev_num);
 		SDEI_LOG("< DISABLE:%lld\n", ret);
 		SMC_RET1(ctx, ret);
@@ -1013,19 +1013,19 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 		SMC_RET0(ctx);
 
 	case SDEI_EVENT_STATUS:
-		SDEI_LOG("> STAT(n:%d)\n", ev_num);
+		SDEI_LOG("> STAT(n:0x%x)\n", ev_num);
 		ret = sdei_event_status(ev_num);
 		SDEI_LOG("< STAT:%lld\n", ret);
 		SMC_RET1(ctx, ret);
 
 	case SDEI_EVENT_GET_INFO:
-		SDEI_LOG("> INFO(n:%d, %d)\n", ev_num, (int) x2);
+		SDEI_LOG("> INFO(n:0x%x, %d)\n", ev_num, (int) x2);
 		ret = sdei_event_get_info(ev_num, (int) x2);
 		SDEI_LOG("< INFO:%lld\n", ret);
 		SMC_RET1(ctx, ret);
 
 	case SDEI_EVENT_UNREGISTER:
-		SDEI_LOG("> UNREG(n:%d)\n", ev_num);
+		SDEI_LOG("> UNREG(n:0x%x)\n", ev_num);
 		ret = sdei_event_unregister(ev_num);
 		SDEI_LOG("< UNREG:%lld\n", ret);
 		SMC_RET1(ctx, ret);
@@ -1049,7 +1049,7 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 		SMC_RET1(ctx, ret);
 
 	case SDEI_INTERRUPT_RELEASE:
-		SDEI_LOG("> REL(%d)\n", ev_num);
+		SDEI_LOG("> REL(0x%x)\n", ev_num);
 		ret = sdei_interrupt_release(ev_num);
 		SDEI_LOG("< REL:%lld\n", ret);
 		SMC_RET1(ctx, ret);
@@ -1067,7 +1067,7 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 		SMC_RET1(ctx, ret);
 
 	case SDEI_EVENT_ROUTING_SET:
-		SDEI_LOG("> ROUTE_SET(n:%d f:%llx aff:%llx)\n", ev_num, x2, x3);
+		SDEI_LOG("> ROUTE_SET(n:0x%x f:%llx aff:%llx)\n", ev_num, x2, x3);
 		ret = sdei_event_routing_set(ev_num, x2, x3);
 		SDEI_LOG("< ROUTE_SET:%lld\n", ret);
 		SMC_RET1(ctx, ret);
@@ -1079,7 +1079,7 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 		SMC_RET1(ctx, ret);
 
 	case SDEI_EVENT_SIGNAL:
-		SDEI_LOG("> SIGNAL(e:%d t:%llx)\n", ev_num, x2);
+		SDEI_LOG("> SIGNAL(e:0x%x t:%llx)\n", ev_num, x2);
 		ret = sdei_signal(ev_num, x2);
 		SDEI_LOG("< SIGNAL:%lld\n", ret);
 		SMC_RET1(ctx, ret);
