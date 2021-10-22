@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,6 +44,12 @@ static inline bool is_armv8_3_pauth_present(void)
 
 	/* If any of the fields is not zero, PAuth is present */
 	return (read_id_aa64isar1_el1() & mask) != 0U;
+}
+
+static inline bool is_armv8_4_dit_present(void)
+{
+	return ((read_id_aa64pfr0_el1() >> ID_AA64PFR0_DIT_SHIFT) &
+		ID_AA64PFR0_DIT_MASK) == 1U;
 }
 
 static inline bool is_armv8_4_ttst_present(void)
