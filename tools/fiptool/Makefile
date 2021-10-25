@@ -12,6 +12,8 @@ FIPTOOL ?= fiptool${BIN_EXT}
 PROJECT := $(notdir ${FIPTOOL})
 OBJECTS := fiptool.o tbbr_config.o
 V ?= 0
+OPENSSL_DIR := /usr
+
 
 override CPPFLAGS += -D_GNU_SOURCE -D_XOPEN_SOURCE=700
 HOSTCCFLAGS := -Wall -Werror -pedantic -std=c99
@@ -20,7 +22,7 @@ ifeq (${DEBUG},1)
 else
   HOSTCCFLAGS += -O2
 endif
-LDLIBS := -lcrypto
+LDLIBS := -L${OPENSSL_DIR}/lib -lcrypto
 
 ifeq (${V},0)
   Q := @
@@ -28,7 +30,7 @@ else
   Q :=
 endif
 
-INCLUDE_PATHS := -I../../include/tools_share
+INCLUDE_PATHS := -I../../include/tools_share  -I${OPENSSL_DIR}/include
 
 HOSTCC ?= gcc
 
