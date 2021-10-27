@@ -532,9 +532,9 @@ func fixup_gdt_reloc
 	cmp	x3, x6
 	b.lo	2f
 
-	/* Skip adding offset if address is >= upper limit */
+	/* Skip adding offset if address is > upper limit */
 	cmp	x3, x7
-	b.hs	2f
+	b.hi	2f
 	add	x3, x3, x0
 	str	x3, [x1]
 
@@ -582,9 +582,9 @@ func fixup_gdt_reloc
 	cmp	x4, x6
 	b.lo	2f
 
-	/* Skip adding offset if r_addend entry is >= upper limit */
+	/* Skip adding offset if r_addend entry is > upper limit */
 	cmp	x4, x7
-	b.hs	2f
+	b.hi	2f
 
 	add	x4, x0, x4	/* Diff(S) + r_addend */
 	str	x4, [x3]
