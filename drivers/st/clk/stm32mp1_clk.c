@@ -636,6 +636,13 @@ static const struct stm32mp1_clk_gate *gate_ref(unsigned int idx)
 	return &stm32mp1_clk_gate[idx];
 }
 
+#if defined(IMAGE_BL32)
+static bool gate_is_non_secure(const struct stm32mp1_clk_gate *gate)
+{
+	return gate->secure == N_S;
+}
+#endif
+
 static const struct stm32mp1_clk_sel *clk_sel_ref(unsigned int idx)
 {
 	return &stm32mp1_clk_sel[idx];
@@ -1120,6 +1127,14 @@ static void __stm32mp1_clk_enable(unsigned long id, bool with_refcnt)
 		return;
 	}
 
+#if defined(IMAGE_BL32)
+	if (gate_is_non_secure(gate)) {
+		/* Enable non-secure clock w/o any refcounting */
+		__clk_enable(gate);
+		return;
+	}
+#endif
+
 	stm32mp1_clk_lock(&refcount_lock);
 
 	if (gate_refcounts[i] == 0U) {
@@ -1156,6 +1171,13 @@ static void __stm32mp1_clk_disable(unsigned long id, bool with_refcnt)
 		__clk_disable(gate);
 		return;
 	}
+
+#if defined(IMAGE_BL32)
+	if (gate_is_non_secure(gate)) {
+		/* Don't disable non-secure clocks */
+		return;
+	}
+#endif
 
 	stm32mp1_clk_lock(&refcount_lock);
 
