@@ -218,6 +218,10 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	 * Linux kernel tree, Linux expects the physical address of the device
 	 * tree blob (DTB) in x0, while x1-x3 are reserved for future use and
 	 * must be 0.
+	 * Repurpose the option to load Hafnium hypervisor in the normal world.
+	 * It expects its manifest address in x0. This is essentially the linux
+	 * dts (passed to the primary VM) by adding 'hypervisor' and chosen
+	 * nodes specifying the Hypervisor configuration.
 	 */
 #if RESET_TO_BL31
 	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_PRELOADED_DTB_BASE;
@@ -228,14 +232,6 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	bl33_image_ep_info.args.arg2 = 0U;
 	bl33_image_ep_info.args.arg3 = 0U;
 # endif
-
-#if defined(SPD_spmd)
-	/*
-	 * Hafnium in normal world expects its manifest address in x0, In CI
-	 * configuration manifest is preloaded at 0x80000000(start of DRAM).
-	 */
-	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_DRAM1_BASE;
-#endif
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
