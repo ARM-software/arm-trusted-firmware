@@ -891,8 +891,7 @@ symmetric key/identifier using img_id.
 
 On success the function should return 0 and a negative error code otherwise.
 
-Note that this API depends on ``DECRYPTION_SUPPORT`` build flag which is
-marked as experimental.
+Note that this API depends on ``DECRYPTION_SUPPORT`` build flag.
 
 Function : plat_fwu_set_images_source() [when PSA_FWU_SUPPORT == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -18,8 +18,6 @@
 #include "../common/gic_common_private.h"
 #include "gic600_multichip_private.h"
 
-#warning "GIC-600 Multichip driver is currently experimental and the API may change in future."
-
 /*******************************************************************************
  * GIC-600 multichip operation related helper functions
  ******************************************************************************/
@@ -211,8 +209,6 @@ void gic600_multichip_init(struct gic600_multichip_data *multichip_data)
 	unsigned int i;
 
 	gic600_multichip_validate_data(multichip_data);
-
-	INFO("GIC-600 Multichip driver is experimental\n");
 
 	/*
 	 * Ensure that G0/G1S/G1NS interrupts are disabled. This also ensures

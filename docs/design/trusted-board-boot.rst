@@ -239,9 +239,6 @@ optionally enabled on platforms to implement the optional requirement:
 R060_TBBR_FUNCTION as specified in the `Trusted Board Boot Requirements (TBBR)`_
 document.
 
-Note that due to security considerations and complexity of this feature, it is
-marked as experimental.
-
 Firmware Encryption Tool
 ------------------------
 

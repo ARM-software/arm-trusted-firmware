@@ -2616,8 +2616,6 @@ Armv8.3-A
    ``CTX_INCLUDE_PAUTH_REGS`` to 1. This enables pointer authentication in BL1,
    BL2, BL31, and the TSP if it is used.
 
-   These options are experimental features.
-
    Note that Pointer Authentication is enabled for Non-secure world irrespective
    of the value of these build flags if the CPU supports it.
 
@@ -2629,8 +2627,7 @@ Armv8.5-A
 ~~~~~~~~~
 
 -  Branch Target Identification feature is selected by ``BRANCH_PROTECTION``
-   option set to 1. This option defaults to 0 and this is an experimental
-   feature.
+   option set to 1. This option defaults to 0.
 
 -  Memory Tagging Extension feature is unconditionally enabled for both worlds
    (at EL0 and S-EL0) if it is only supported at EL0. If instead it is
