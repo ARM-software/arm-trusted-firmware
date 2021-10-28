@@ -493,12 +493,13 @@ void bl2_el3_plat_prepare_exit(void)
 	uint16_t boot_itf = stm32mp_get_boot_itf_selected();
 
 	switch (boot_itf) {
-#if STM32MP_USB_PROGRAMMER
+#if STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART:
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB:
 		/* Invalidate the downloaded buffer used with io_memmap */
 		inv_dcache_range(DWL_BUFFER_BASE, DWL_BUFFER_SIZE);
 		break;
-#endif
+#endif /* STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER */
 	default:
 		/* Do nothing in default case */
 		break;

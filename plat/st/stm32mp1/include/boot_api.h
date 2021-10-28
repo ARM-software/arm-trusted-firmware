@@ -39,6 +39,9 @@
 /* Boot occurred on QSPI NOR */
 #define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NOR_QSPI		0x4U
 
+/* Boot occurred on UART */
+#define BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART		0x5U
+
 /* Boot occurred on USB */
 #define BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB		0x6U
 
