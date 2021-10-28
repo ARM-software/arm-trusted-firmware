@@ -89,7 +89,7 @@
  *
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		(0x1D000 + ((CSS_SGI_CHIP_COUNT - 1) * \
+# define PLAT_ARM_MAX_BL2_SIZE		(0x20000 + ((CSS_SGI_CHIP_COUNT - 1) * \
 							0x2000))
 #else
 # define PLAT_ARM_MAX_BL2_SIZE		(0x14000 + ((CSS_SGI_CHIP_COUNT - 1) * \
