@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch.h>
 #include <common/tbbr/tbbr_img_def.h>
 
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
