@@ -57,6 +57,7 @@
 
 &usart3 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&usart3_pins_a>;
+	pinctrl-0 = <&usart3_pins_b>;
+	uart-has-rtscts;
 	status = "disabled";
 };

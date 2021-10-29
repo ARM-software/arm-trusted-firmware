@@ -141,7 +141,6 @@
 				regulator-name = "vdd_usb";
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
-				regulator-always-on;
 			};
 
 			vdda: ldo5 {
@@ -223,7 +222,7 @@
 		CLK_CKPER_HSE
 		CLK_FMC_ACLK
 		CLK_QSPI_ACLK
-		CLK_ETH_DISABLED
+		CLK_ETH_PLL4P
 		CLK_SDMMC12_PLL4P
 		CLK_DSI_DSIPLL
 		CLK_STGEN_HSE
@@ -319,13 +318,13 @@
 
 &uart7 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&uart7_pins_b>;
+	pinctrl-0 = <&uart7_pins_c>;
 	status = "disabled";
 };
 
 &usart3 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&usart3_pins_b>;
+	pinctrl-0 = <&usart3_pins_c>;
 	uart-has-rtscts;
 	status = "disabled";
 };

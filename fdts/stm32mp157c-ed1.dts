@@ -20,7 +20,6 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-
 	memory@c0000000 {
 		device_type = "memory";
 		reg = <0xC0000000 0x40000000>;
@@ -52,7 +51,7 @@
 };
 
 &cryp1 {
-	status="okay";
+	status = "okay";
 };
 
 &hash1 {
@@ -233,7 +232,7 @@
 		CLK_CKPER_HSE
 		CLK_FMC_ACLK
 		CLK_QSPI_ACLK
-		CLK_ETH_DISABLED
+		CLK_ETH_PLL4P
 		CLK_SDMMC12_PLL4P
 		CLK_DSI_DSIPLL
 		CLK_STGEN_HSE
@@ -269,25 +268,33 @@
 
 	/* VCO = 1300.0 MHz => P = 650 (CPU) */
 	pll1: st,pll@0 {
-		cfg = < 2 80 0 0 0 PQR(1,0,0) >;
-		frac = < 0x800 >;
+		compatible = "st,stm32mp1-pll";
+		reg = <0>;
+		cfg = <2 80 0 0 0 PQR(1,0,0)>;
+		frac = <0x800>;
 	};
 
 	/* VCO = 1066.0 MHz => P = 266 (AXI), Q = 533 (GPU), R = 533 (DDR) */
 	pll2: st,pll@1 {
-		cfg = < 2 65 1 0 0 PQR(1,1,1) >;
-		frac = < 0x1400 >;
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
+		cfg = <2 65 1 0 0 PQR(1,1,1)>;
+		frac = <0x1400>;
 	};
 
 	/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
 	pll3: st,pll@2 {
-		cfg = < 1 33 1 16 36 PQR(1,1,1) >;
-		frac = < 0x1a04 >;
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
+		cfg = <1 33 1 16 36 PQR(1,1,1)>;
+		frac = <0x1a04>;
 	};
 
 	/* VCO = 594.0 MHz => P = 99, Q = 74, R = 74 */
 	pll4: st,pll@3 {
-		cfg = < 3 98 5 7 7 PQR(1,1,1) >;
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
+		cfg = <3 98 5 7 7 PQR(1,1,1)>;
 	};
 };
 

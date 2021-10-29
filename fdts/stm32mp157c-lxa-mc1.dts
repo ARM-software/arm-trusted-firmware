@@ -75,7 +75,7 @@
 
 &sdmmc2 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc2_b4_pins_a &mc1_sdmmc2_d47_pins_b>;
+	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_b>;
 	bus-width = <8>;
 	no-1-8-v;
 	no-sd;
@@ -90,18 +90,4 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart4_pins_a>;
 	status = "okay";
-};
-
-&pinctrl {
-	mc1_sdmmc2_d47_pins_b: mc1-sdmmc2-d47-1 {
-		pins {
-			pinmux = <STM32_PINMUX('A', 8, AF9)>,  /* SDMMC2_D4 */
-				 <STM32_PINMUX('A', 9, AF10)>, /* SDMMC2_D5 */
-				 <STM32_PINMUX('C', 6, AF10)>, /* SDMMC2_D6 */
-				 <STM32_PINMUX('C', 7, AF10)>; /* SDMMC2_D7 */
-			slew-rate = <1>;
-			drive-push-pull;
-			bias-disable;
-		};
-	};
 };
