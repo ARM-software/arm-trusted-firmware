@@ -15,6 +15,10 @@ BL32_SOURCES		+=	drivers/st/etzpc/etzpc.c			\
 				plat/st/stm32mp1/stm32mp1_shared_resources.c	\
 				plat/st/stm32mp1/stm32mp1_topology.c
 
+# FDT wrappers
+include common/fdt_wrappers.mk
+BL32_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
+
 # Generic GIC v2
 include drivers/arm/gic/v2/gicv2.mk
 
