@@ -22,12 +22,12 @@
 #warning "xlat_mpu library is currently experimental and its API may change in future."
 
 
-#if LOG_LEVEL < LOG_LEVEL_VERBOSE
-
 void xlat_mmap_print(__unused const mmap_region_t *mmap)
 {
 	/* Empty */
 }
+
+#if LOG_LEVEL < LOG_LEVEL_VERBOSE
 
 void xlat_tables_print(__unused xlat_ctx_t *ctx)
 {
@@ -36,36 +36,48 @@ void xlat_tables_print(__unused xlat_ctx_t *ctx)
 
 #else /* if LOG_LEVEL >= LOG_LEVEL_VERBOSE */
 
-static const char *invalid_descriptors_ommited =
-		"%s(%d invalid descriptors omitted)\n";
-
-void xlat_tables_print(xlat_ctx_t *ctx)
+static void xlat_tables_print_internal(__unused xlat_ctx_t *ctx)
 {
-	const char *xlat_regime_str;
-	int used_page_tables;
+	int region_to_use = 0;
+	uintptr_t region_base;
+	size_t region_size;
+	uint64_t prenr_el2_value = 0U;
 
-	if (ctx->xlat_regime == EL1_EL0_REGIME) {
-		xlat_regime_str = "1&0";
-	} else if (ctx->xlat_regime == EL2_REGIME) {
-		xlat_regime_str = "2";
-	} else {
-		assert(ctx->xlat_regime == EL3_REGIME);
-		xlat_regime_str = "3";
-		/* If no EL3 and EL3 tables generated, then need to know. */
+	/*
+	 * Keep track of how many invalid descriptors are counted in a row.
+	 * Whenever multiple invalid descriptors are found, only the first one
+	 * is printed, and a line is added to inform about how many descriptors
+	 * have been omitted.
+	 */
+
+	/*
+	 * TODO:  Remove this WARN() and comment when these API calls are more
+	 *        completely implemented and tested!
+	 */
+	WARN("%s in this early version of xlat_mpu library may not produce reliable results!",
+	     __func__);
+
+	/*
+	 * Sequence through all regions and print those in-use (PRENR has an
+	 * enable bit for each MPU region, 1 for in-use or 0 for unused):
+	 */
+	prenr_el2_value = read_prenr_el2();
+	for (region_to_use = 0;  region_to_use < N_MPU_REGIONS;
+	     region_to_use++) {
+		if (((prenr_el2_value >> region_to_use) & 1U) == 0U) {
+			continue;
+		}
+		region_base = read_prbar_el2() & PRBAR_PRLAR_ADDR_MASK;
+		region_size = read_prlar_el2() & PRBAR_PRLAR_ADDR_MASK;
+		printf("Address:  0x%llx, size:  0x%llx ",
+			(long long) region_base,
+			(long long) region_size);
 	}
-	VERBOSE("Translation tables state:\n");
-	VERBOSE("  Xlat regime:     EL%s\n", xlat_regime_str);
-	VERBOSE("  Max allowed PA:  0x%llx\n", ctx->pa_max_address);
-	VERBOSE("  Max allowed VA:  0x%lx\n", ctx->va_max_address);
-	VERBOSE("  Max mapped PA:   0x%llx\n", ctx->max_pa);
-	VERBOSE("  Max mapped VA:   0x%lx\n", ctx->max_va);
+}
 
-	VERBOSE("  Initial lookup level: %u\n", ctx->base_level);
-	VERBOSE("  Entries @initial lookup level: %u\n",
-		ctx->base_table_entries);
-
-	xlat_tables_print_internal(ctx, 0U, ctx->base_table,
-				   ctx->base_table_entries, ctx->base_level);
+void xlat_tables_print(__unused xlat_ctx_t *ctx)
+{
+	xlat_tables_print_internal(ctx);
 }
 
 #endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */

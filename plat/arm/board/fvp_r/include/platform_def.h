@@ -210,10 +210,6 @@
 #define PLAT_FVP_R_CCI5XX_CLUS0_SL_PORT	5
 #define PLAT_FVP_R_CCI5XX_CLUS1_SL_PORT	6
 
-/* CCN related constants. Only CCN 502 is currently supported */
-#define PLAT_ARM_CCN_BASE		UL(0xae000000)
-#define PLAT_ARM_CLUSTER_TO_CCN_ID_MAP	1, 5, 7, 11
-
 /* System timer related constants */
 #define PLAT_ARM_NSTIMER_FRAME_ID	U(1)
 
