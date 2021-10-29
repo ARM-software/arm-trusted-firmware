@@ -79,6 +79,31 @@
 			};
 		};
 
+		amus {
+			amu: amu-0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				mpmm_gear0: counter@0 {
+					reg = <0>;
+
+					enable-at-el3;
+				};
+
+				mpmm_gear1: counter@1 {
+					reg = <1>;
+
+					enable-at-el3;
+				};
+
+				mpmm_gear2: counter@2 {
+					reg = <2>;
+
+					enable-at-el3;
+				};
+			};
+		};
+
 		CPU0:cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,armv8";
@@ -87,6 +112,8 @@
 			clocks = <&scmi_dvfs 0>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <406>;
+			amu = <&amu>;
+			supports-mpmm;
 		};
 
 		CPU1:cpu@100 {
@@ -97,6 +124,8 @@
 			clocks = <&scmi_dvfs 0>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <406>;
+			amu = <&amu>;
+			supports-mpmm;
 		};
 
 		CPU2:cpu@200 {
@@ -107,6 +136,8 @@
 			clocks = <&scmi_dvfs 0>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <406>;
+			amu = <&amu>;
+			supports-mpmm;
 		};
 
 		CPU3:cpu@300 {
@@ -117,6 +148,8 @@
 			clocks = <&scmi_dvfs 0>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <406>;
+			amu = <&amu>;
+			supports-mpmm;
 		};
 
 		CPU4:cpu@400 {
@@ -127,6 +160,8 @@
 			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <912>;
+			amu = <&amu>;
+			supports-mpmm;
 		};
 
 		CPU5:cpu@500 {
@@ -137,6 +172,8 @@
 			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <912>;
+			amu = <&amu>;
+			supports-mpmm;
 		};
 
 		CPU6:cpu@600 {
@@ -147,6 +184,8 @@
 			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <912>;
+			amu = <&amu>;
+			supports-mpmm;
 		};
 
 		CPU7:cpu@700 {
@@ -157,6 +196,8 @@
 			clocks = <&scmi_dvfs 2>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <1024>;
+			amu = <&amu>;
+			supports-mpmm;
 		};
 
 	};

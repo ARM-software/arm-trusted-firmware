@@ -253,7 +253,8 @@
 /* HCPTR definitions */
 #define HCPTR_RES1		((U(1) << 13) | (U(1) << 12) | U(0x3ff))
 #define TCPAC_BIT		(U(1) << 31)
-#define TAM_BIT			(U(1) << 30)
+#define TAM_SHIFT		U(30)
+#define TAM_BIT			(U(1) << TAM_SHIFT)
 #define TTA_BIT			(U(1) << 20)
 #define TCP11_BIT		(U(1) << 11)
 #define TCP10_BIT		(U(1) << 10)
@@ -727,8 +728,25 @@
 #define AMEVTYPER1E	p15, 0, c13, c15, 6
 #define AMEVTYPER1F	p15, 0, c13, c15, 7
 
+/* AMCNTENSET0 definitions */
+#define AMCNTENSET0_Pn_SHIFT	U(0)
+#define AMCNTENSET0_Pn_MASK	U(0xffff)
+
+/* AMCNTENSET1 definitions */
+#define AMCNTENSET1_Pn_SHIFT	U(0)
+#define AMCNTENSET1_Pn_MASK	U(0xffff)
+
+/* AMCNTENCLR0 definitions */
+#define AMCNTENCLR0_Pn_SHIFT	U(0)
+#define AMCNTENCLR0_Pn_MASK	U(0xffff)
+
+/* AMCNTENCLR1 definitions */
+#define AMCNTENCLR1_Pn_SHIFT	U(0)
+#define AMCNTENCLR1_Pn_MASK	U(0xffff)
+
 /* AMCR definitions */
-#define AMCR_CG1RZ_BIT		(ULL(1) << 17)
+#define AMCR_CG1RZ_SHIFT	U(17)
+#define AMCR_CG1RZ_BIT		(ULL(1) << AMCR_CG1RZ_SHIFT)
 
 /* AMCFGR definitions */
 #define AMCFGR_NCG_SHIFT	U(28)
@@ -737,6 +755,8 @@
 #define AMCFGR_N_MASK		U(0xff)
 
 /* AMCGCR definitions */
+#define AMCGCR_CG0NC_SHIFT	U(0)
+#define AMCGCR_CG0NC_MASK	U(0xff)
 #define AMCGCR_CG1NC_SHIFT	U(8)
 #define AMCGCR_CG1NC_MASK	U(0xff)
 

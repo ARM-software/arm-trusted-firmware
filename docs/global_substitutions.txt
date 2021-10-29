@@ -1,5 +1,7 @@
 .. |AArch32| replace:: :term:`AArch32`
 .. |AArch64| replace:: :term:`AArch64`
+.. |AMU| replace:: :term:`AMU`
+.. |AMUs| replace:: :term:`AMUs <AMU>`
 .. |API| replace:: :term:`API`
 .. |BTI| replace:: :term:`BTI`
 .. |CoT| replace:: :term:`CoT`
@@ -23,6 +25,7 @@
 .. |Linaro| replace:: :term:`Linaro`
 .. |MMU| replace:: :term:`MMU`
 .. |MPAM| replace:: :term:`MPAM`
+.. |MPMM| replace:: :term:`MPMM`
 .. |MPIDR| replace:: :term:`MPIDR`
 .. |MTE| replace:: :term:`MTE`
 .. |OEN| replace:: :term:`OEN`

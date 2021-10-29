@@ -7,12 +7,14 @@ Components
    :numbered:
 
    spd/index
+   activity-monitors
    arm-sip-service
    debugfs-design
    exception-handling
    fconf/index
    firmware-update
    measured_boot/index
+   mpmm
    platform-interrupt-controller-API
    ras
    romlib-design

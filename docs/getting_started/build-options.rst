@@ -220,6 +220,14 @@ Common build options
    v8.2 implementations also implement an AMU and this option can be used to
    enable this feature on those systems as well. Default is 0.
 
+-  ``ENABLE_AMU_AUXILIARY_COUNTERS``: Enables support for AMU auxiliary counters
+   (also known as group 1 counters). These are implementation-defined counters,
+   and as such require additional platform configuration. Default is 0.
+
+-  ``ENABLE_AMU_FCONF``: Enables configuration of the AMU through FCONF, which
+   allows platforms with auxiliary counters to describe them via the
+   ``HW_CONFIG`` device tree blob. Default is 0.
+
 -  ``ENABLE_ASSERTIONS``: This option controls whether or not calls to ``assert()``
    are compiled out. For debug builds, this option defaults to 1, and calls to
    ``assert()`` are left in place. For release builds, this option defaults to 0
@@ -256,6 +264,16 @@ Common build options
    MPAM registers without trapping into EL3. This option doesn't make use of
    partitioning in EL3, however. Platform initialisation code should configure
    and use partitions in EL3 as required. This option defaults to ``0``.
+
+-  ``ENABLE_MPMM``: Boolean option to enable support for the Maximum Power
+   Mitigation Mechanism supported by certain Arm cores, which allows the SoC
+   firmware to detect and limit high activity events to assist in SoC processor
+   power domain dynamic power budgeting and limit the triggering of whole-rail
+   (i.e. clock chopping) responses to overcurrent conditions. Defaults to ``0``.
+
+-  ``ENABLE_MPMM_FCONF``: Enables configuration of MPMM through FCONF, which
+   allows platforms with cores supporting MPMM to describe them via the
+   ``HW_CONFIG`` device tree blob. Default is 0.
 
 -  ``ENABLE_PIE``: Boolean option to enable Position Independent Executable(PIE)
    support within generic code in TF-A. This option is currently only supported
@@ -913,4 +931,3 @@ Firmware update options
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
 .. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/
-

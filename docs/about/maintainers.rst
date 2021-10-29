@@ -217,6 +217,8 @@ Activity Monitors Unit (AMU) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|G|: `AlexeiFedorov`_
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
 :|F|: lib/extensions/amu/
 
 Memory Partitioning And Monitoring (MPAM) extensions
@@ -325,6 +327,13 @@ System Control and Management Interface (SCMI) Server
 :|G|: `MrVan`_
 :|F|: drivers/scmi-msg
 :|F|: include/drivers/scmi\*
+
+Max Power Mitigation Mechanism (MPMM)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
+:|F|: include/lib/mpmm/
+:|F|: lib/mpmm/
 
 Platform Ports
 ~~~~~~~~~~~~~~

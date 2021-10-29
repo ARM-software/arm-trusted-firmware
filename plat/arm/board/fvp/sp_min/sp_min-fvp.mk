@@ -1,8 +1,10 @@
 #
-# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
+
+include common/fdt_wrappers.mk
 
 # SP_MIN source files specific to FVP platform
 BL32_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
@@ -22,9 +24,10 @@ BL32_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
 # Support for fconf in SP_MIN(BL32)
 # Added separately from the above list for better readability
 ifeq ($(filter 1,${BL2_AT_EL3} ${RESET_TO_SP_MIN}),)
-BL32_SOURCES		+=	common/fdt_wrappers.c				\
-				lib/fconf/fconf.c				\
+BL32_SOURCES		+=	lib/fconf/fconf.c				\
 				plat/arm/board/fvp/fconf/fconf_hw_config_getter.c
+
+BL32_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
 ifeq (${SEC_INT_DESC_IN_FCONF},1)
 BL32_SOURCES		+=	plat/arm/common/fconf/fconf_sec_intr_config.c

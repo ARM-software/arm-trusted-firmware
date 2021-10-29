@@ -572,3 +572,47 @@ uint64_t fdtw_translate_address(const void *dtb, int node,
 	/* Translate the local device address recursively */
 	return fdtw_translate_address(dtb, local_bus_node, global_address);
 }
+
+/*
+ * For every CPU node (`/cpus/cpu@n`) in an FDT, execute a callback passing a
+ * pointer to the FDT and the offset of the CPU node. If the return value of the
+ * callback is negative, it is treated as an error and the loop is aborted. In
+ * this situation, the value of the callback is returned from the function.
+ *
+ * Returns `0` on success, or a negative integer representing an error code.
+ */
+int fdtw_for_each_cpu(const void *dtb,
+		      int (*callback)(const void *dtb, int node, uintptr_t mpidr))
+{
+	int ret = 0;
+	int parent, node = 0;
+
+	parent = fdt_path_offset(dtb, "/cpus");
+	if (parent < 0) {
+		return parent;
+	}
+
+	fdt_for_each_subnode(node, dtb, parent) {
+		const char *name;
+		int len;
+
+		uintptr_t mpidr = 0U;
+
+		name = fdt_get_name(dtb, node, &len);
+		if (strncmp(name, "cpu@", 4) != 0) {
+			continue;
+		}
+
+		ret = fdt_get_reg_props_by_index(dtb, node, 0, &mpidr, NULL);
+		if (ret < 0) {
+			break;
+		}
+
+		ret = callback(dtb, node, mpidr);
+		if (ret < 0) {
+			break;
+		}
+	}
+
+	return ret;
+}

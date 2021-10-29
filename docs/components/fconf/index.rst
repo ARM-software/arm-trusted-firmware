@@ -145,3 +145,5 @@ Properties binding information
   :maxdepth: 1
 
   fconf_properties
+  amu-bindings
+  mpmm-bindings

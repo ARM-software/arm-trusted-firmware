@@ -931,6 +931,8 @@ $(eval $(call assert_booleans,\
         DYN_DISABLE_AUTH \
         EL3_EXCEPTION_HANDLING \
         ENABLE_AMU \
+        ENABLE_AMU_AUXILIARY_COUNTERS \
+        ENABLE_AMU_FCONF \
         AMU_RESTRICT_COUNTERS \
         ENABLE_ASSERTIONS \
         ENABLE_MPAM_FOR_LOWER_ELS \
@@ -989,6 +991,8 @@ $(eval $(call assert_booleans,\
         ENABLE_SYS_REG_TRACE_FOR_NS \
         ENABLE_TRF_FOR_NS \
         ENABLE_FEAT_HCX \
+        ENABLE_MPMM \
+        ENABLE_MPMM_FCONF \
 )))
 
 $(eval $(call assert_numerics,\
@@ -1032,6 +1036,8 @@ $(eval $(call add_defines,\
         DECRYPTION_SUPPORT_${DECRYPTION_SUPPORT} \
         DISABLE_MTPMU \
         ENABLE_AMU \
+        ENABLE_AMU_AUXILIARY_COUNTERS \
+        ENABLE_AMU_FCONF \
         AMU_RESTRICT_COUNTERS \
         ENABLE_ASSERTIONS \
         ENABLE_BTI \
@@ -1095,6 +1101,8 @@ $(eval $(call add_defines,\
         ENABLE_SYS_REG_TRACE_FOR_NS \
         ENABLE_TRF_FOR_NS \
         ENABLE_FEAT_HCX \
+        ENABLE_MPMM \
+        ENABLE_MPMM_FCONF \
 )))
 
 ifeq (${SANITIZE_UB},trap)
@@ -1161,6 +1169,8 @@ $(eval $(call MAKE_LIB,c))
 
 # Expand build macros for the different images
 ifeq (${NEED_BL1},yes)
+BL1_SOURCES := $(sort ${BL1_SOURCES})
+
 $(eval $(call MAKE_BL,bl1))
 endif
 
@@ -1168,6 +1178,8 @@ ifeq (${NEED_BL2},yes)
 ifeq (${BL2_AT_EL3}, 0)
 FIP_BL2_ARGS := tb-fw
 endif
+
+BL2_SOURCES := $(sort ${BL2_SOURCES})
 
 $(if ${BL2}, $(eval $(call TOOL_ADD_IMG,bl2,--${FIP_BL2_ARGS})),\
 	$(eval $(call MAKE_BL,bl2,${FIP_BL2_ARGS})))

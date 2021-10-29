@@ -9,6 +9,17 @@
 
 #include <stdint.h>
 
+#include <lib/cassert.h>
+#include <lib/extensions/amu.h>
+#include <lib/utils_def.h>
+
+#include <platform_def.h>
+
+#define AMU_GROUP0_MAX_COUNTERS		U(16)
+#define AMU_GROUP1_MAX_COUNTERS		U(16)
+
+#define AMU_AMCGCR_CG0NC_MAX		U(16)
+
 uint64_t amu_group0_cnt_read_internal(unsigned int idx);
 void amu_group0_cnt_write_internal(unsigned int idx, uint64_t val);
 

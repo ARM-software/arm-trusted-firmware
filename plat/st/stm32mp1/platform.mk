@@ -154,12 +154,14 @@ $(eval $(call add_defines,\
 PLAT_INCLUDES		:=	-Iplat/st/common/include/
 PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/
 
+include common/fdt_wrappers.mk
 include lib/libfdt/libfdt.mk
 
-PLAT_BL_COMMON_SOURCES	:=	common/fdt_wrappers.c					\
-				common/uuid.c						\
+PLAT_BL_COMMON_SOURCES	:=	common/uuid.c						\
 				plat/st/common/stm32mp_common.c				\
 				plat/st/stm32mp1/stm32mp1_private.c
+
+PLAT_BL_COMMON_SOURCES	+=	${FDT_WRAPPERS_SOURCES}
 
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/uart/aarch32/stm32_console.S
 
