@@ -1,0 +1,85 @@
+/*
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/dts-v1/;
+
+#define	AFF	00
+
+#include "fvp-defs.dtsi"
+#undef POST
+#define	POST \
+	};
+
+/ {
+	compatible = "arm,ffa-core-manifest-1.0";
+	#address-cells = <2>;
+	#size-cells = <1>;
+
+	attribute {
+		spmc_id = <0x8000>;
+		maj_ver = <0x1>;
+		min_ver = <0x1>;
+		exec_state = <0x0>;
+		load_address = <0x0 0x6000000>;
+		entrypoint = <0x0 0x6000000>;
+		binary_size = <0x80000>;
+	};
+
+	hypervisor {
+		compatible = "hafnium,hafnium";
+		vm1 {
+			is_ffa_partition;
+			debug_name = "cactus-primary";
+			load_address = <0x7000000>;
+			vcpu_count = <8>;
+			mem_size = <1048576>;
+		};
+		vm2 {
+			is_ffa_partition;
+			debug_name = "cactus-secondary";
+			load_address = <0x7100000>;
+			vcpu_count = <8>;
+			mem_size = <1048576>;
+		};
+		vm3 {
+			is_ffa_partition;
+			debug_name = "cactus-tertiary";
+			load_address = <0x7200000>;
+			vcpu_count = <1>;
+			mem_size = <1048576>;
+		};
+		vm4 {
+			is_ffa_partition;
+			debug_name = "ivy";
+			load_address = <0x7600000>;
+			vcpu_count = <1>;
+			mem_size = <1048576>;
+		};
+	};
+
+	cpus {
+		#address-cells = <0x2>;
+		#size-cells = <0x0>;
+
+		CPU_0
+
+		/*
+		 * SPMC (Hafnium) requires secondary core nodes are declared
+		 * in descending order.
+		 */
+		CPU_7
+		CPU_6
+		CPU_5
+		CPU_4
+		CPU_3
+		CPU_2
+		CPU_1
+	};
+
+	memory@6000000 {
+		device_type = "memory";
+		reg = <0x0 0x6000000 0x2000000>; /* Trusted DRAM */
+	};
+};

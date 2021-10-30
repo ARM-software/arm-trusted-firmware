@@ -1,0 +1,54 @@
+/*
+ * Copyright (c) 2019-2021, ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <common/tbbr/tbbr_img_def.h>
+
+/dts-v1/;
+
+/ {
+	dtb-registry {
+		compatible = "fconf,dyn_cfg-dtb_registry";
+
+		tb_fw-config {
+			load-address = <0x0 0x4001300>;
+			max-size = <0x1800>;
+			id = <TB_FW_CONFIG_ID>;
+		};
+
+		hw-config {
+			load-address = <0x0 0x82000000>;
+			max-size = <0x01000000>;
+			id = <HW_CONFIG_ID>;
+		};
+
+		/*
+		 * Load SoC and TOS firmware configs at the base of
+		 * non shared SRAM. The runtime checks ensure we don't
+		 * overlap BL2, BL31 or BL32. The NT firmware config
+		 * is loaded at base of DRAM.
+		 */
+		soc_fw-config {
+			load-address = <0x0 0x04001300>;
+			max-size = <0x200>;
+			id = <SOC_FW_CONFIG_ID>;
+		};
+
+/* If required, SPD should enable loading of trusted OS fw config */
+#if defined(SPD_tspd) || defined(SPD_spmd)
+		tos_fw-config {
+			load-address = <0x0 0x04001500>;
+			max-size = <0xB00>;
+			id = <TOS_FW_CONFIG_ID>;
+		};
+#endif
+
+		nt_fw-config {
+			load-address = <0x0 0x80000000>;
+			max-size = <0x200>;
+			id = <NT_FW_CONFIG_ID>;
+		};
+	};
+};

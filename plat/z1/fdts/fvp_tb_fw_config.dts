@@ -1,0 +1,124 @@
+/*
+ * Copyright (c) 2020-2021, ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <lib/libc/cdefs.h>
+
+/dts-v1/;
+
+/ {
+	tb_fw-config {
+		compatible = "arm,tb_fw";
+
+		/* Disable authentication for development */
+		disable_auth = <0x0>;
+
+		/*
+		 * The following two entries are placeholders for Mbed TLS
+		 * heap information. The default values don't matter since
+		 * they will be overwritten by BL1.
+		 * In case of having shared Mbed TLS heap between BL1 and BL2,
+		 * BL1 will populate these two properties with the respective
+		 * info about the shared heap. This info will be available for
+		 * BL2 in order to locate and re-use the heap.
+		 */
+		mbedtls_heap_addr = <0x0 0x0>;
+		mbedtls_heap_size = <0x0>;
+	};
+
+	/*
+	 * UUID's here are UUID RFC 4122 compliant meaning fieds are stored in
+	 * network order (big endian)
+	 */
+
+#if ARM_IO_IN_DTB
+	arm-io_policies {
+		fip-handles {
+			compatible = "arm,io-fip-handle";
+			scp_bl2_uuid = "9766fd3d-89be-e849-ae5d-78a140608213";
+			bl31_uuid = "47d4086d-4cfe-9846-9b95-2950cbbd5a00";
+			bl32_uuid = "05d0e189-53dc-1347-8d2b-500a4b7a3e38";
+			bl32_extra1_uuid = "0b70c29b-2a5a-7840-9f65-0a5682738288";
+			bl32_extra2_uuid = "8ea87bb1-cfa2-3f4d-85fd-e7bba50220d9";
+			bl33_uuid = "d6d0eea7-fcea-d54b-9782-9934f234b6e4";
+			hw_cfg_uuid = "08b8f1d9-c9cf-9349-a962-6fbc6b7265cc";
+			soc_fw_cfg_uuid = "9979814b-0376-fb46-8c8e-8d267f7859e0";
+			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
+			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
+			t_key_cert_uuid = "827ee890-f860-e411-a1b4-777a21b4f94c";
+			scp_fw_key_uuid = "024221a1-f860-e411-8d9b-f33c0e15a014";
+			soc_fw_key_uuid = "8ab8becc-f960-e411-9ad0-eb4822d8dcf8";
+			tos_fw_key_cert_uuid = "9477d603-fb60-e411-85dd-b7105b8cee04";
+			nt_fw_key_cert_uuid = "8ad5832a-fb60-e411-8aaf-df30bbc49859";
+			scp_fw_content_cert_uuid = "44be6f04-5e63-e411-b28b-73d8eaae9656";
+			soc_fw_content_cert_uuid = "e2b20c20-5e63-e411-9ce8-abccf92bb666";
+			tos_fw_content_cert_uuid = "a49f4411-5e63-e411-8728-3f05722af33d";
+			nt_fw_content_cert_uuid = "8ec4c1f3-5d63-e411-a7a9-87ee40b23fa7";
+			sp_content_cert_uuid = "776dfd44-8697-4c3b-91eb-c13e025a2a6f";
+		};
+	};
+#endif /* ARM_IO_IN_DTB */
+
+	secure-partitions {
+		compatible = "arm,sp";
+
+#ifdef ARM_BL2_SP_LIST_DTS
+	#include __XSTRING(ARM_BL2_SP_LIST_DTS)
+#else
+#ifdef OPTEE_SP_FW_CONFIG
+		op-tee {
+			uuid = "486178e0-e7f8-11e3-bc5e-0002a5d5c51b";
+			load-address = <0x6280000>;
+		};
+#else
+		cactus-primary {
+			uuid = "b4b5671e-4a90-4fe1-b81f-fb13dae1dacb";
+			load-address = <0x7000000>;
+			owner = "SiP";
+		};
+
+		cactus-secondary {
+			uuid = "d1582309-f023-47b9-827c-4464f5578fc8";
+			load-address = <0x7100000>;
+			owner = "Plat";
+		};
+
+		cactus-tertiary {
+			uuid = "79b55c73-1d8c-44b9-8593-61e1770ad8d2";
+			load-address = <0x7200000>;
+			owner = "Plat";
+		};
+
+		ivy {
+			uuid = "eaba83d8-baaf-4eaf-8144-f7fdcbe544a7";
+			load-address = <0x7600000>;
+			owner = "Plat";
+		};
+#endif
+#endif /* ARM_BL2_SP_LIST_DTS */
+	};
+
+#if COT_DESC_IN_DTB
+	#include "cot_descriptors.dtsi"
+#endif
+
+#if MEASURED_BOOT
+	#include "event_log.dtsi"
+#endif
+
+};
+
+#if COT_DESC_IN_DTB
+
+#include "../fvp_def.h"
+
+&trusted_nv_counter {
+	reg = <TFW_NVCTR_BASE>;
+};
+
+&non_trusted_nv_counter {
+	reg = <NTFW_CTR_BASE>;
+};
+#endif

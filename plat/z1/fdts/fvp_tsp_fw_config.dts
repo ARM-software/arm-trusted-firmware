@@ -1,0 +1,13 @@
+/*
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+/ {
+#if MEASURED_BOOT
+#include "event_log.dtsi"
+#endif
+};

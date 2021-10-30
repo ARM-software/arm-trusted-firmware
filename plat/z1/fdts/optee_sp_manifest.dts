@@ -1,0 +1,50 @@
+/*
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * This file is a Partition Manifest (PM) for a minimal Secure Partition (SP)
+ * that has additional optional properties defined.
+ *
+ */
+
+/dts-v1/;
+
+/ {
+	compatible = "arm,ffa-manifest-1.0";
+
+	/* Properties */
+	description = "op-tee";
+	ffa-version = <0x00010000>; /* 31:16 - Major, 15:0 - Minor */
+	uuid = <0xe0786148 0xe311f8e7 0x02005ebc 0x1bc5d5a5>;
+	id = <1>;
+	execution-ctx-count = <8>;
+	exception-level = <2>; /* S-EL1 */
+	execution-state = <0>; /* AARCH64 */
+	load-address = <0x6280000>;
+	entrypoint-offset = <0x1000>;
+	xlat-granule = <0>; /* 4KiB */
+	boot-order = <0>;
+	messaging-method = <0x3>; /* Direct request/response supported. */
+	managed-exit;
+	run-time-model = <1>; /* SP pre-emptible. */
+
+	/* Boot protocol */
+	gp-register-num = <0x0>;
+
+	device-regions {
+		compatible = "arm,ffa-manifest-device-regions";
+
+		uart1 {
+			base-address = <0x00000000 0x1c0a0000>;
+			pages-count = <1>;
+			attributes = <0x3>; /* read-write */
+		};
+
+		gicd {
+			base-address = <0x00000000 0x2f000000>;
+			pages-count = <16>;
+			attributes = <0x3>; /* read-write */
+		};
+	};
+};
