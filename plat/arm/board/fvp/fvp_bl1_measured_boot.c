@@ -17,7 +17,8 @@ const event_log_metadata_t fvp_event_log_metadata[] = {
 	{ FW_CONFIG_ID, EVLOG_FW_CONFIG_STRING, PCR_0 },
 	{ TB_FW_CONFIG_ID, EVLOG_TB_FW_CONFIG_STRING, PCR_0 },
 	{ BL2_IMAGE_ID, EVLOG_BL2_STRING, PCR_0 },
-	{ INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
+
+	{ EVLOG_INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
 };
 
 void bl1_plat_mboot_init(void)

@@ -250,11 +250,11 @@ int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 	const event_log_metadata_t *metadata_ptr = plat_metadata_ptr;
 
 	/* Get the metadata associated with this image. */
-	while ((metadata_ptr->id != INVALID_ID) &&
+	while ((metadata_ptr->id != EVLOG_INVALID_ID) &&
 		(metadata_ptr->id != data_id)) {
 		metadata_ptr++;
 	}
-	assert(metadata_ptr->id != INVALID_ID);
+	assert(metadata_ptr->id != EVLOG_INVALID_ID);
 
 	/* Calculate hash */
 	rc = crypto_mod_calc_hash((unsigned int)MBEDTLS_MD_ID,
