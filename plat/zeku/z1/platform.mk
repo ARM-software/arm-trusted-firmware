@@ -4,6 +4,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# add by bruce for compile armv9
+HW_ASSISTED_COHERENCY           := 1
+USE_COHERENT_MEM                := 0
+CTX_INCLUDE_AARCH32_REGS        := 0
+
 include common/fdt_wrappers.mk
 
 # Use the GICv3 driver on the FVP by default
@@ -66,7 +71,7 @@ FVP_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/arm/common/arm_gicv3.c
 
 	ifeq ($(filter 1,${BL2_AT_EL3} ${RESET_TO_BL31} ${RESET_TO_SP_MIN}),)
-		FVP_GIC_SOURCES += plat/arm/board/fvp/fvp_gicv3.c
+		FVP_GIC_SOURCES += plat/zeku/z1/fvp_gicv3.c
 	endif
 
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV2)
@@ -97,14 +102,14 @@ $(error "Incorrect CCN driver chosen on FVP port")
 endif
 
 FVP_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
-				plat/arm/board/fvp/fvp_security.c	\
+				plat/zeku/z1/fvp_security.c	\
 				plat/arm/common/arm_tzc400.c
 
 
-PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
+PLAT_INCLUDES		:=	-Iplat/zeku/z1/include
 
 
-PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/fvp_common.c
+PLAT_BL_COMMON_SOURCES	:=	plat/zeku/z1/fvp_common.c
 
 FVP_CPU_LIBS		:=	lib/cpus/${ARCH}/aem_generic.S
 
