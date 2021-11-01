@@ -9,6 +9,11 @@ HW_ASSISTED_COHERENCY           := 1
 USE_COHERENT_MEM                := 0
 CTX_INCLUDE_AARCH32_REGS        := 0
 
+# add by bruce for crypto test
+MBEDTLS_DIR := plat/zeku/driver/mbedtls
+include drivers/auth/mbedtls/mbedtls_crypto.mk
+
+
 include common/fdt_wrappers.mk
 
 # Use the GICv3 driver on the FVP by default
@@ -157,26 +162,6 @@ endif
 else
 FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S
 endif
-
-BL1_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
-				drivers/arm/sp805/sp805.c			\
-				drivers/delay_timer/delay_timer.c		\
-				drivers/io/io_semihosting.c			\
-				lib/semihosting/semihosting.c			\
-				lib/semihosting/${ARCH}/semihosting_call.S	\
-				plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
-				plat/arm/board/fvp/fvp_bl1_setup.c		\
-				plat/arm/board/fvp/fvp_err.c			\
-				plat/arm/board/fvp/fvp_io_storage.c		\
-				${FVP_CPU_LIBS}					\
-				${FVP_INTERCONNECT_SOURCES}
-
-ifeq (${USE_SP804_TIMER},1)
-BL1_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
-else
-BL1_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
-endif
-
 
 BL2_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				drivers/io/io_semihosting.c			\
@@ -381,11 +366,9 @@ include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
 
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
-BL1_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
 BL2_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
 
 ifeq (${MEASURED_BOOT},1)
-BL1_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
 				plat/arm/board/fvp/fvp_bl1_measured_boot.c
 BL2_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
 				plat/arm/board/fvp/fvp_bl2_measured_boot.c
