@@ -489,15 +489,6 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		 * forward to SPM Core which will handle it if implemented.
 		 */
 
-		/*
-		 * Check if x1 holds a valid FFA fid. This is an
-		 * optimization.
-		 */
-		if (!is_ffa_fid(x1)) {
-			return spmd_ffa_error_return(handle,
-						     FFA_ERROR_NOT_SUPPORTED);
-		}
-
 		/* Forward SMC from Normal world to the SPM Core */
 		if (!secure_origin) {
 			return spmd_smc_forward(smc_fid, secure_origin,
