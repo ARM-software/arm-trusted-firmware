@@ -9,6 +9,7 @@
 const uint8_t axp_chip_id = AXP805_CHIP_ID;
 const char *const axp_compatible = "x-powers,axp805";
 
+#if SUNXI_SETUP_REGULATORS == 1
 /*
  * The "dcdcd" split changes the step size by a factor of 5, not 2;
  * disallow values above the split to maintain accuracy.
@@ -31,3 +32,4 @@ const struct axp_regulator axp_regulators[] = {
 	{"cldo3",  700, 3300, 100, NA, 0x26, 0x11, 6},
 	{}
 };
+#endif
