@@ -45,6 +45,7 @@ LIBMBEDTLS_SRCS		:= $(addprefix ${MBEDTLS_DIR}/library/,	\
 					ecp_curves.c				\
 					ecp.c					\
 					rsa.c					\
+					rsa_internal.c				\
 					x509.c 					\
 					x509_crt.c 				\
 					)

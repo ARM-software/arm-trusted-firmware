@@ -71,9 +71,6 @@
 #endif
 
 #define MBEDTLS_SHA256_C
-#ifdef MBEDTLS_SHA256_C
-#define MBEDTLS_SHA224_C
-#endif
 #if (TF_MBEDTLS_HASH_ALG_ID != TF_MBEDTLS_SHA256)
 #define MBEDTLS_SHA512_C
 #endif
