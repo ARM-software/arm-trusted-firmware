@@ -14,6 +14,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/timer/              \
                  -I${MTK_PLAT}/common/drivers/uart/               \
                  -I${MTK_PLAT}/common/lpm/                        \
+                 -I${MTK_PLAT_SOC}/drivers/apusys/                \
                  -I${MTK_PLAT_SOC}/drivers/dcm                    \
                  -I${MTK_PLAT_SOC}/drivers/dfd                    \
                  -I${MTK_PLAT_SOC}/drivers/dp/                    \
@@ -59,6 +60,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
+                ${MTK_PLAT_SOC}/drivers/apusys/mtk_apusys.c           \
                 ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm.c                 \
                 ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm_utils.c           \
                 ${MTK_PLAT_SOC}/drivers/dfd/plat_dfd.c                \
