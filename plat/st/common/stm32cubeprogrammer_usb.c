@@ -116,7 +116,7 @@ static int dfu_callback_download(uint8_t alt, uintptr_t *buffer, uint32_t *len,
 	dfu->address += *len;
 
 	if (dfu->address - dfu->base > dfu->len) {
-		return  -EIO;
+		return -EIO;
 	}
 
 	return 0;
