@@ -304,8 +304,8 @@ void rcar_pwrc_enable_interrupt_wakeup(uint64_t mpidr)
 	shift_irq = WUP_IRQ_SHIFT + cpu;
 	shift_fiq = WUP_FIQ_SHIFT + cpu;
 
-	mmio_write_32(reg, ~((uint32_t) 1 << shift_irq) &
-		      ~((uint32_t) 1 << shift_fiq));
+	mmio_clrbits_32(reg, ((uint32_t) 1 << shift_irq) |
+		      ((uint32_t) 1 << shift_fiq));
 	rcar_lock_release();
 }
 
@@ -324,7 +324,7 @@ void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr)
 	shift_irq = WUP_IRQ_SHIFT + cpu;
 	shift_fiq = WUP_FIQ_SHIFT + cpu;
 
-	mmio_write_32(reg, ((uint32_t) 1 << shift_irq) |
+	mmio_setbits_32(reg, ((uint32_t) 1 << shift_irq) |
 		      ((uint32_t) 1 << shift_fiq));
 	rcar_lock_release();
 }
