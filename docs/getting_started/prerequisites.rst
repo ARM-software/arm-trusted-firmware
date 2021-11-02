@@ -75,7 +75,7 @@ These tools are optional:
    The standard software package used for debugging software on Arm development
    platforms and |FVP| models.
 
-- Node.js >= 14
+- Node.js >= 16
 
    Highly recommended, and necessary in order to install and use the packaged
    Git hooks and helper tools. Without these tools you will need to rely on the
@@ -98,13 +98,13 @@ The optional packages can be installed using:
     sudo apt install device-tree-compiler
 
 Additionally, to install an up-to-date version of Node.js, you can use the `Node
-Version Manager`_ to install a version of your choosing (we recommend 14, but
+Version Manager`_ to install a version of your choosing (we recommend 16, but
 later LTS versions might offer a more stable experience):
 
 .. code:: shell
 
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | "$SHELL"
-    exec "$SHELL" -ic "nvm install 14; exec $SHELL"
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | "$SHELL"
+    exec "$SHELL" -ic "nvm install 16; exec $SHELL"
 
 .. _Node Version Manager: https://github.com/nvm-sh/nvm#install--update-script
 
