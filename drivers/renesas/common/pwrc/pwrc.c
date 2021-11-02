@@ -156,7 +156,7 @@ IMPORT_SYM(unsigned long, __system_ram_end__, SYSTEM_RAM_END);
 IMPORT_SYM(unsigned long, __SRAM_COPY_START__, SRAM_COPY_START);
 #endif
 
-uint32_t rcar_pwrc_status(uint64_t mpidr)
+uint32_t rcar_pwrc_status(u_register_t mpidr)
 {
 	uint32_t ret = 0;
 	uint64_t cm, cpu;
@@ -188,7 +188,7 @@ done:
 	return ret;
 }
 
-static void scu_power_up(uint64_t mpidr)
+static void scu_power_up(u_register_t mpidr)
 {
 	uintptr_t reg_pwrsr, reg_cpumcr, reg_pwron, reg_pwrer;
 	uint32_t c, sysc_reg_bit;
@@ -243,7 +243,7 @@ static void scu_power_up(uint64_t mpidr)
 		;
 }
 
-void rcar_pwrc_cpuon(uint64_t mpidr)
+void rcar_pwrc_cpuon(u_register_t mpidr)
 {
 	uint32_t res_data, on_data;
 	uintptr_t res_reg, on_reg;
@@ -268,7 +268,7 @@ void rcar_pwrc_cpuon(uint64_t mpidr)
 	rcar_lock_release();
 }
 
-void rcar_pwrc_cpuoff(uint64_t mpidr)
+void rcar_pwrc_cpuoff(u_register_t mpidr)
 {
 	uint32_t c;
 	uintptr_t reg;
@@ -289,7 +289,7 @@ void rcar_pwrc_cpuoff(uint64_t mpidr)
 	rcar_lock_release();
 }
 
-void rcar_pwrc_enable_interrupt_wakeup(uint64_t mpidr)
+void rcar_pwrc_enable_interrupt_wakeup(u_register_t mpidr)
 {
 	uint32_t c, shift_irq, shift_fiq;
 	uintptr_t reg;
@@ -309,7 +309,7 @@ void rcar_pwrc_enable_interrupt_wakeup(uint64_t mpidr)
 	rcar_lock_release();
 }
 
-void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr)
+void rcar_pwrc_disable_interrupt_wakeup(u_register_t mpidr)
 {
 	uint32_t c, shift_irq, shift_fiq;
 	uintptr_t reg;
@@ -331,8 +331,8 @@ void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr)
 
 void rcar_pwrc_all_disable_interrupt_wakeup(void)
 {
-	uint32_t cl, cpu, cpu_num;
-	uint64_t mpidr;
+	uint32_t cpu_num;
+	u_register_t cl, cpu, mpidr;
 
 	const uint32_t cluster[PLATFORM_CLUSTER_COUNT] = {
 		RCAR_CLUSTER_CA57,
@@ -342,8 +342,8 @@ void rcar_pwrc_all_disable_interrupt_wakeup(void)
 	for (cl = 0; cl < PLATFORM_CLUSTER_COUNT; cl++) {
 		cpu_num = rcar_pwrc_get_cpu_num(cluster[cl]);
 		for (cpu = 0; cpu < cpu_num; cpu++) {
-			mpidr = (uint64_t)((cl << MPIDR_AFFINITY_BITS) | cpu);
-			if (mpidr == (uint64_t)rcar_boot_mpidr) {
+			mpidr = ((cl << MPIDR_AFFINITY_BITS) | cpu);
+			if (mpidr == rcar_boot_mpidr) {
 				rcar_pwrc_enable_interrupt_wakeup(mpidr);
 			} else {
 				rcar_pwrc_disable_interrupt_wakeup(mpidr);
@@ -352,7 +352,7 @@ void rcar_pwrc_all_disable_interrupt_wakeup(void)
 	}
 }
 
-void rcar_pwrc_clusteroff(uint64_t mpidr)
+void rcar_pwrc_clusteroff(u_register_t mpidr)
 {
 	uint32_t c, product, cut, reg;
 	uintptr_t dst;
@@ -824,7 +824,7 @@ uint32_t rcar_pwrc_get_cluster(void)
 	return RCAR_CLUSTER_A53A57;
 }
 
-uint32_t rcar_pwrc_get_mpidr_cluster(uint64_t mpidr)
+uint32_t rcar_pwrc_get_mpidr_cluster(u_register_t mpidr)
 {
 	uint32_t c = rcar_pwrc_get_cluster();
 
@@ -877,7 +877,7 @@ done:
 }
 #endif
 
-int32_t rcar_pwrc_cpu_on_check(uint64_t mpidr)
+int32_t rcar_pwrc_cpu_on_check(u_register_t mpidr)
 {
 	uint64_t i;
 	uint64_t j;

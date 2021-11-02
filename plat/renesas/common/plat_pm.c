@@ -42,7 +42,7 @@ extern void plat_rcar_gic_init(void);
 
 static uintptr_t rcar_sec_entrypoint;
 
-static void rcar_program_mailbox(uint64_t mpidr, uint64_t address)
+static void rcar_program_mailbox(u_register_t mpidr, uintptr_t address)
 {
 	mailbox_t *rcar_mboxes = (mailbox_t *) MBOX_BASE;
 	uint64_t linear_id = plat_core_pos_by_mpidr(mpidr);
@@ -75,7 +75,7 @@ static int rcar_pwr_domain_on(u_register_t mpidr)
 static void rcar_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	uint32_t cluster_type = rcar_pwrc_get_cluster();
-	unsigned long mpidr = read_mpidr_el1();
+	u_register_t mpidr = read_mpidr_el1();
 
 	if (CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
 		if (cluster_type == RCAR_CLUSTER_A53A57)
@@ -93,7 +93,7 @@ static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
 #if RCAR_LSI != RCAR_D3
 	uint32_t cluster_type = rcar_pwrc_get_cluster();
 #endif
-	unsigned long mpidr = read_mpidr_el1();
+	u_register_t mpidr = read_mpidr_el1();
 
 	rcar_pwrc_disable_interrupt_wakeup(mpidr);
 	gicv2_cpuif_disable();
@@ -112,7 +112,7 @@ static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
 static void rcar_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	uint32_t cluster_type = rcar_pwrc_get_cluster();
-	unsigned long mpidr = read_mpidr_el1();
+	u_register_t mpidr = read_mpidr_el1();
 
 	if (CORE_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE)
 		return;
@@ -178,7 +178,7 @@ static void __dead2 rcar_system_off(void)
 		ERROR("BL3-1:Failed the SYSTEM-RESET.\n");
 #endif
 #else
-	uint64_t cpu = read_mpidr_el1() & 0x0000ffff;
+	u_register_t cpu = read_mpidr_el1() & 0x0000ffffU;
 	int32_t rtn_on;
 
 	rtn_on = rcar_pwrc_cpu_on_check(cpu);
@@ -271,7 +271,7 @@ static int rcar_validate_power_state(unsigned int power_state,
 #if RCAR_SYSTEM_SUSPEND
 static void rcar_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
-	unsigned long mpidr = read_mpidr_el1() & 0x0000ffffU;
+	u_register_t mpidr = read_mpidr_el1() & 0x0000ffffU;
 	int i;
 
 	if (mpidr != rcar_boot_mpidr)

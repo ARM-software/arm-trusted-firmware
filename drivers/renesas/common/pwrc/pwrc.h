@@ -41,19 +41,19 @@
 extern u_register_t rcar_boot_mpidr;
 
 #ifndef __ASSEMBLER__
-void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr);
-void rcar_pwrc_enable_interrupt_wakeup(uint64_t mpidr);
+void rcar_pwrc_disable_interrupt_wakeup(u_register_t mpidr);
+void rcar_pwrc_enable_interrupt_wakeup(u_register_t mpidr);
 void rcar_pwrc_all_disable_interrupt_wakeup(void);
-void rcar_pwrc_clusteroff(uint64_t mpidr);
-void rcar_pwrc_cpuoff(uint64_t mpidr);
-void rcar_pwrc_cpuon(uint64_t mpidr);
-int32_t rcar_pwrc_cpu_on_check(uint64_t mpidr);
+void rcar_pwrc_clusteroff(u_register_t mpidr);
+void rcar_pwrc_cpuoff(u_register_t mpidr);
+void rcar_pwrc_cpuon(u_register_t mpidr);
+int32_t rcar_pwrc_cpu_on_check(u_register_t mpidr);
 void rcar_pwrc_setup(void);
 
-uint32_t rcar_pwrc_get_cpu_wkr(uint64_t mpidr);
-uint32_t rcar_pwrc_status(uint64_t mpidr);
+uint32_t rcar_pwrc_get_cpu_wkr(u_register_t mpidr);
+uint32_t rcar_pwrc_status(u_register_t mpidr);
 uint32_t rcar_pwrc_get_cluster(void);
-uint32_t rcar_pwrc_get_mpidr_cluster(uint64_t mpidr);
+uint32_t rcar_pwrc_get_mpidr_cluster(u_register_t mpidr);
 uint32_t rcar_pwrc_get_cpu_num(uint32_t cluster_type);
 void rcar_pwrc_restore_timer_state(void);
 void plat_secondary_reset(void);
