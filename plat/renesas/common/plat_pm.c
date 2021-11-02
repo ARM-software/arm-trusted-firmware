@@ -39,7 +39,6 @@
 extern void rcar_pwrc_restore_generic_timer(uint64_t *stack);
 extern void plat_rcar_gic_driver_init(void);
 extern void plat_rcar_gic_init(void);
-extern u_register_t rcar_boot_mpidr;
 
 static uintptr_t rcar_sec_entrypoint;
 
@@ -82,8 +81,8 @@ static void rcar_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		if (cluster_type == RCAR_CLUSTER_A53A57)
 			plat_cci_enable();
 
-	rcar_pwrc_disable_interrupt_wakeup(mpidr);
 	rcar_program_mailbox(mpidr, 0);
+	rcar_pwrc_enable_interrupt_wakeup(mpidr);
 
 	gicv2_cpuif_enable();
 	gicv2_pcpu_distif_init();
@@ -96,6 +95,7 @@ static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
 #endif
 	unsigned long mpidr = read_mpidr_el1();
 
+	rcar_pwrc_disable_interrupt_wakeup(mpidr);
 	gicv2_cpuif_disable();
 	rcar_pwrc_cpuoff(mpidr);
 

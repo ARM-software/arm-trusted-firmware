@@ -329,6 +329,29 @@ void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr)
 	rcar_lock_release();
 }
 
+void rcar_pwrc_all_disable_interrupt_wakeup(void)
+{
+	uint32_t cl, cpu, cpu_num;
+	uint64_t mpidr;
+
+	const uint32_t cluster[PLATFORM_CLUSTER_COUNT] = {
+		RCAR_CLUSTER_CA57,
+		RCAR_CLUSTER_CA53
+	};
+
+	for (cl = 0; cl < PLATFORM_CLUSTER_COUNT; cl++) {
+		cpu_num = rcar_pwrc_get_cpu_num(cluster[cl]);
+		for (cpu = 0; cpu < cpu_num; cpu++) {
+			mpidr = (uint64_t)((cl << MPIDR_AFFINITY_BITS) | cpu);
+			if (mpidr == (uint64_t)rcar_boot_mpidr) {
+				rcar_pwrc_enable_interrupt_wakeup(mpidr);
+			} else {
+				rcar_pwrc_disable_interrupt_wakeup(mpidr);
+			}
+		}
+	}
+}
+
 void rcar_pwrc_clusteroff(uint64_t mpidr)
 {
 	uint32_t c, product, cut, reg;
