@@ -1,4 +1,5 @@
 {
+  "license": "BSD-3-Clause",
   "private": true,
   "scripts": {
     "postinstall": "husky install"
