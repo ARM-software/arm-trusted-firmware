@@ -174,7 +174,7 @@ static void usb_core_set_config(struct usb_handle *pdev, struct usb_setup_req *r
 			pdev->dev_config = cfgidx;
 			pdev->class->de_init(pdev, cfgidx);
 		} else if (cfgidx != pdev->dev_config) {
-			if (pdev->class != NULL) {
+			if (pdev->class == NULL) {
 				usb_core_ctl_error(pdev);
 				return;
 			}
