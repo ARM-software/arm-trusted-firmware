@@ -220,20 +220,17 @@
 #define CTX_TTBR1_EL2		U(0x1a0)
 #define CTX_VDISR_EL2		U(0x1a8)
 #define CTX_VSESR_EL2		U(0x1b0)
-#define CTX_VSTCR_EL2		U(0x1b8)
-#define CTX_VSTTBR_EL2		U(0x1c0)
-#define CTX_SDER32_EL2		U(0x1c8)
-#define CTX_VNCR_EL2		U(0x1d0)
-#define CTX_TRFCR_EL2		U(0x1d8)
+#define CTX_VNCR_EL2		U(0x1b8)
+#define CTX_TRFCR_EL2		U(0x1c0)
 
 // Starting with Armv8.5
-#define CTX_SCXTNUM_EL2		U(0x1e0)
+#define CTX_SCXTNUM_EL2		U(0x1c8)
 
 // Register for FEAT_HCX
-#define CTX_HCRX_EL2            U(0x1e8)
+#define CTX_HCRX_EL2            U(0x1d0)
 
 /* Align to the next 16 byte boundary */
-#define CTX_EL2_SYSREGS_END	U(0x1f0)
+#define CTX_EL2_SYSREGS_END	U(0x1e0)
 
 #endif /* CTX_INCLUDE_EL2_REGS */
 
