@@ -1318,7 +1318,8 @@ checkpatch:		locate-checkpatch
 		echo "    with ${CHECKPATCH_OPTS} option(s)";		\
 	fi
 	${Q}COMMON_COMMIT=$$(git merge-base HEAD ${BASE_COMMIT});	\
-	for commit in `git rev-list $$COMMON_COMMIT..HEAD`; do		\
+	for commit in `git rev-list --no-merges $$COMMON_COMMIT..HEAD`;	\
+	do								\
 		printf "\n[*] Checking style of '$$commit'\n\n";	\
 		git log --format=email "$$commit~..$$commit"		\
 			-- ${CHECK_PATHS} |				\
