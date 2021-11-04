@@ -73,7 +73,7 @@ static void usb_core_get_desc(struct usb_handle *pdev, struct usb_setup_req *req
 		break;
 
 	case USB_DESC_TYPE_CONFIGURATION:
-		pbuf = (uint8_t *)pdev->desc->get_config_desc(&len);
+		pbuf = pdev->desc->get_config_desc(&len);
 		pbuf[1] = USB_DESC_TYPE_CONFIGURATION;
 		break;
 
@@ -112,11 +112,11 @@ static void usb_core_get_desc(struct usb_handle *pdev, struct usb_setup_req *req
 		break;
 
 	case USB_DESC_TYPE_DEVICE_QUALIFIER:
-		pbuf = (uint8_t *)pdev->desc->get_device_qualifier_desc(&len);
+		pbuf = pdev->desc->get_device_qualifier_desc(&len);
 		break;
 
 	case USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION:
-		pbuf = (uint8_t *)pdev->desc->get_config_desc(&len);
+		pbuf = pdev->desc->get_config_desc(&len);
 		pbuf[1] = USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION;
 		break;
 
