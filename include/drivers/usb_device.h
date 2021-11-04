@@ -166,6 +166,8 @@ struct usb_desc {
 	uint8_t *(*get_usr_desc)(uint8_t index, uint16_t *length);
 	uint8_t *(*get_config_desc)(uint16_t *length);
 	uint8_t *(*get_device_qualifier_desc)(uint16_t *length);
+	/* optional: high speed capable device operating at its other speed */
+	uint8_t *(*get_other_speed_config_desc)(uint16_t *length);
 };
 
 /* USB Device handle structure */

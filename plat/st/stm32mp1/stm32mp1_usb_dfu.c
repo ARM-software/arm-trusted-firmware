@@ -338,6 +338,8 @@ static const struct usb_desc dfu_desc = {
 	.get_usr_desc = stm32mp1_get_usr_desc,
 	.get_config_desc = stm32mp1_get_config_desc,
 	.get_device_qualifier_desc = stm32mp1_get_qualifier_desc,
+	/* only HS is supported, as ROM code */
+	.get_other_speed_config_desc = NULL,
 };
 
 static struct usb_handle usb_core_handle;
