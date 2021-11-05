@@ -708,8 +708,12 @@ int gpt_enable(void)
 	/* GPCCR_EL3.PGS */
 	gpccr_el3 |= SET_GPCCR_PGS(gpt_config.pgs);
 
-	/* Set shareability attribute to Outher Shareable */
-	gpccr_el3 |= SET_GPCCR_SH(GPCCR_SH_OS);
+	/*
+	 * Since EL3 maps the L1 region as Inner shareable, use the same
+	 * shareability attribute for GPC as well so that
+	 * GPC fetches are visible to PEs
+	 */
+	gpccr_el3 |= SET_GPCCR_SH(GPCCR_SH_IS);
 
 	/* Outer and Inner cacheability set to Normal memory, WB, RA, WA. */
 	gpccr_el3 |= SET_GPCCR_ORGN(GPCCR_ORGN_WB_RA_WA);
@@ -720,6 +724,7 @@ int gpt_enable(void)
 
 	/* TODO: Configure GPCCR_EL3_GPCP for Fault control. */
 	write_gpccr_el3(gpccr_el3);
+	isb();
 	tlbipaallos();
 	dsb();
 	isb();
@@ -759,7 +764,7 @@ int gpt_init_l0_tables(unsigned int pps, uintptr_t l0_mem_base,
 	int ret;
 	uint64_t gpt_desc;
 
-	/* Ensure that MMU and caches are enabled. */
+	/* Ensure that MMU and Data caches are enabled. */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
 
 	/* Validate other parameters. */
@@ -814,7 +819,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 	int ret;
 	int l1_gpt_cnt;
 
-	/* Ensure that MMU and caches are enabled. */
+	/* Ensure that MMU and Data caches are enabled. */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
 
 	/* PGS is needed for gpt_validate_pas_mappings so check it now. */
@@ -888,6 +893,9 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 
 	/* Make sure that all the entries are written to the memory. */
 	dsbishst();
+	tlbipaallos();
+	dsb();
+	isb();
 
 	return 0;
 }
@@ -907,7 +915,7 @@ int gpt_runtime_init(void)
 {
 	u_register_t reg;
 
-	/* Ensure that MMU and caches are enabled. */
+	/* Ensure that MMU and Data caches are enabled. */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
 
 	/* Ensure GPC are already enabled. */
@@ -1028,6 +1036,9 @@ int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
 	/* Ensure that the tables have been set up before taking requests. */
 	assert(gpt_config.plat_gpt_l0_base != 0U);
 
+	/* Ensure that MMU and data caches are enabled. */
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
+
 	/* Check for address range overflow. */
 	if ((ULONG_MAX - base) < size) {
 		VERBOSE("[GPT] Transition request address overflow!\n");
@@ -1093,18 +1104,18 @@ int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
 	gpt_l1_desc |= ((uint64_t)target_pas << gpi_shift);
 	gpt_l1_addr[idx] = gpt_l1_desc;
 
-	/* Ensure that the write operation happens before the unlock. */
-	dmbishst();
+	/* Ensure that the write operation will be observed by GPC */
+	dsbishst();
 
 	/* Unlock access to the L1 tables. */
 	spin_unlock(&gpt_lock);
 
-	/* Cache maintenance. */
-	clean_dcache_range((uintptr_t)&gpt_l1_addr[idx],
-			   sizeof(uint64_t));
 	gpt_tlbi_by_pa(base, GPT_PGS_ACTUAL_SIZE(gpt_config.p));
 	dsbishst();
-
+	/*
+	 * The isb() will be done as part of context
+	 * synchronization when returning to lower EL
+	 */
 	VERBOSE("[GPT] Granule 0x%llx, GPI 0x%x->0x%x\n", base, gpi,
 		target_pas);
 
