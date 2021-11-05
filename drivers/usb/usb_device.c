@@ -174,7 +174,7 @@ static void usb_core_set_config(struct usb_handle *pdev, struct usb_setup_req *r
 			pdev->dev_config = cfgidx;
 			pdev->class->de_init(pdev, cfgidx);
 		} else if (cfgidx != pdev->dev_config) {
-			if (pdev->class != NULL) {
+			if (pdev->class == NULL) {
 				usb_core_ctl_error(pdev);
 				return;
 			}
@@ -611,6 +611,17 @@ enum usb_status usb_core_handle_it(struct usb_handle *pdev)
 	return USBD_OK;
 }
 
+static void usb_core_start_xfer(struct usb_handle *pdev,
+				void *handle,
+				struct usbd_ep *ep)
+{
+	if (ep->num == 0U) {
+		pdev->driver->ep0_start_xfer(handle, ep);
+	} else {
+		pdev->driver->ep_start_xfer(handle, ep);
+	}
+}
+
 /*
  * usb_core_receive
  *          Receive an amount of data
@@ -640,11 +651,7 @@ enum usb_status usb_core_receive(struct usb_handle *pdev, uint8_t ep_addr,
 	ep->is_in = false;
 	ep->num = num;
 
-	if (num == 0U) {
-		pdev->driver->ep0_start_xfer(hpcd->instance, ep);
-	} else {
-		pdev->driver->ep_start_xfer(hpcd->instance, ep);
-	}
+	usb_core_start_xfer(pdev, hpcd->instance, ep);
 
 	return USBD_OK;
 }
@@ -678,11 +685,7 @@ enum usb_status usb_core_transmit(struct usb_handle *pdev, uint8_t ep_addr,
 	ep->is_in = true;
 	ep->num = num;
 
-	if (num == 0U) {
-		pdev->driver->ep0_start_xfer(hpcd->instance, ep);
-	} else {
-		pdev->driver->ep_start_xfer(hpcd->instance, ep);
-	}
+	usb_core_start_xfer(pdev, hpcd->instance, ep);
 
 	return USBD_OK;
 }
