@@ -159,14 +159,16 @@ $(eval $(call add_defines,\
 PLAT_INCLUDES		:=	-Iplat/st/common/include/
 PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/
 
+ifeq (${STM32MP_USE_STM32IMAGE},1)
 include common/fdt_wrappers.mk
+else
+include lib/fconf/fconf.mk
+endif
 include lib/libfdt/libfdt.mk
 
 PLAT_BL_COMMON_SOURCES	:=	common/uuid.c						\
 				plat/st/common/stm32mp_common.c				\
 				plat/st/stm32mp1/stm32mp1_private.c
-
-PLAT_BL_COMMON_SOURCES	+=	${FDT_WRAPPERS_SOURCES}
 
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/uart/aarch32/stm32_console.S
 
@@ -199,14 +201,16 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				plat/st/stm32mp1/stm32mp1_syscfg.c
 
 ifneq (${STM32MP_USE_STM32IMAGE},1)
+BL2_SOURCES		+=	${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
+
 BL2_SOURCES		+=	drivers/io/io_fip.c					\
-				lib/fconf/fconf.c					\
-				lib/fconf/fconf_dyn_cfg_getter.c			\
 				plat/st/common/bl2_io_storage.c				\
 				plat/st/common/stm32mp_fconf_io.c			\
 				plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\
 				plat/st/stm32mp1/stm32mp1_fconf_firewall.c
 else
+BL2_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
+
 BL2_SOURCES		+=	drivers/io/io_dummy.c					\
 				drivers/st/io/io_stm32image.c				\
 				plat/st/common/bl2_stm32_io_storage.c			\
