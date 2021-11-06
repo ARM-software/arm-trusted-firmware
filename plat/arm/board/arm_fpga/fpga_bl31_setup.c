@@ -13,6 +13,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/extensions/spe.h>
+#include <lib/mmio.h>
 #include <libfdt.h>
 
 #include "fpga_private.h"
@@ -20,6 +21,7 @@
 #include <platform_def.h>
 
 static entry_point_info_t bl33_image_ep_info;
+static unsigned int system_freq;
 volatile uint32_t secondary_core_spinlock;
 
 uintptr_t plat_get_ns_image_entrypoint(void)
@@ -118,18 +120,187 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	}
 }
 
-unsigned int plat_get_syscnt_freq2(void)
-{
-	const void *fdt = (void *)(uintptr_t)FPGA_PRELOADED_DTB_BASE;
-	int node;
+/*
+ * Even though we sell the FPGA UART as an SBSA variant, it is actually
+ * a full fledged PL011. So the baudrate divider registers exist.
+ */
+#ifndef UARTIBRD
+#define UARTIBRD	0x024
+#define UARTFBRD	0x028
+#endif
 
-	node = fdt_node_offset_by_compatible(fdt, 0, "arm,armv8-timer");
-	if (node < 0) {
-		return FPGA_DEFAULT_TIMER_FREQUENCY;
+/* Round an integer to the closest multiple of a value. */
+static unsigned int round_multiple(unsigned int x, unsigned int multiple)
+{
+	if (multiple < 2) {
+		return x;
 	}
 
-	return fdt_read_uint32_default(fdt, node, "clock-frequency",
-				       FPGA_DEFAULT_TIMER_FREQUENCY);
+	return ((x + (multiple / 2 - 1)) / multiple) * multiple;
+}
+
+#define PL011_FRAC_SHIFT	6
+#define FPGA_DEFAULT_BAUDRATE	38400
+#define PL011_OVERSAMPLING	16
+static unsigned int pl011_freq_from_divider(unsigned int divider)
+{
+	unsigned int freq;
+
+	freq = divider * FPGA_DEFAULT_BAUDRATE * PL011_OVERSAMPLING;
+
+	return freq >> PL011_FRAC_SHIFT;
+}
+
+/*
+ * The FPGAs run most peripherals from one main clock, among them the CPUs,
+ * the arch timer, and the UART baud base clock.
+ * The SCP knows this frequency and programs the UART clock divider for a
+ * 38400 bps baudrate. Recalculate the base input clock from there.
+ */
+static unsigned int fpga_get_system_frequency(void)
+{
+	const void *fdt = (void *)(uintptr_t)FPGA_PRELOADED_DTB_BASE;
+	int node, err;
+
+	/*
+	 * If the arch timer DT node has an explicit clock-frequency property
+	 * set, use that, to allow people overriding auto-detection.
+	 */
+	node = fdt_node_offset_by_compatible(fdt, 0, "arm,armv8-timer");
+	if (node >= 0) {
+		uint32_t freq;
+
+		err = fdt_read_uint32(fdt, node, "clock-frequency", &freq);
+		if (err >= 0) {
+			return freq;
+		}
+	}
+
+	node = fdt_node_offset_by_compatible(fdt, 0, "arm,pl011");
+	if (node >= 0) {
+		uintptr_t pl011_base;
+		unsigned int divider;
+
+		err = fdt_get_reg_props_by_index(fdt, node, 0,
+						 &pl011_base, NULL);
+		if (err >= 0) {
+			divider = mmio_read_32(pl011_base + UARTIBRD);
+			divider <<= PL011_FRAC_SHIFT;
+			divider += mmio_read_32(pl011_base + UARTFBRD);
+
+			/*
+			 * The result won't be exact, due to rounding errors,
+			 * but the input frequency was a multiple of 250 KHz.
+			 */
+			return round_multiple(pl011_freq_from_divider(divider),
+					      250000);
+		} else {
+			WARN("Cannot read PL011 MMIO base\n");
+		}
+	} else {
+		WARN("No PL011 DT node\n");
+	}
+
+	/* No PL011 DT node or calculation failed. */
+	return FPGA_DEFAULT_TIMER_FREQUENCY;
+}
+
+unsigned int plat_get_syscnt_freq2(void)
+{
+	if (system_freq == 0U) {
+		system_freq = fpga_get_system_frequency();
+	}
+
+	return system_freq;
+}
+
+static void fpga_dtb_update_clock(void *fdt, unsigned int freq)
+{
+	uint32_t freq_dtb = fdt32_to_cpu(freq);
+	uint32_t phandle;
+	int node, err;
+
+	node = fdt_node_offset_by_compatible(fdt, 0, "arm,pl011");
+	if (node < 0) {
+		WARN("%s(): No PL011 DT node found\n", __func__);
+
+		return;
+	}
+
+	err = fdt_read_uint32(fdt, node, "clocks", &phandle);
+	if (err != 0) {
+		WARN("Cannot find clocks property\n");
+
+		return;
+	}
+
+	node = fdt_node_offset_by_phandle(fdt, phandle);
+	if (node < 0) {
+		WARN("Cannot get phandle\n");
+
+		return;
+	}
+
+	err = fdt_setprop_inplace(fdt, node,
+				  "clock-frequency",
+				  &freq_dtb,
+				  sizeof(freq_dtb));
+	if (err < 0) {
+		WARN("Could not update DT baud clock frequency\n");
+
+		return;
+	}
+}
+
+#define CMDLINE_SIGNATURE	"CMD:"
+
+static int fpga_dtb_set_commandline(void *fdt, const char *cmdline)
+{
+	int chosen;
+	const char *eol;
+	char nul = 0;
+	int slen, err;
+
+	chosen = fdt_add_subnode(fdt, 0, "chosen");
+	if (chosen == -FDT_ERR_EXISTS) {
+		chosen = fdt_path_offset(fdt, "/chosen");
+	}
+
+	if (chosen < 0) {
+		return chosen;
+	}
+
+	/*
+	 * There is most likely an EOL at the end of the
+	 * command line, make sure we terminate the line there.
+	 * We can't replace the EOL with a NUL byte in the
+	 * source, as this is in read-only memory. So we first
+	 * create the property without any termination, then
+	 * append a single NUL byte.
+	 */
+	eol = strchr(cmdline, '\n');
+	if (eol == NULL) {
+		eol = strchr(cmdline, 0);
+	}
+	/* Skip the signature and omit the EOL/NUL byte. */
+	slen = eol - (cmdline + strlen(CMDLINE_SIGNATURE));
+	/*
+	 * Let's limit the size of the property, just in case
+	 * we find the signature by accident. The Linux kernel
+	 * limits to 4096 characters at most (in fact 2048 for
+	 * arm64), so that sounds like a reasonable number.
+	 */
+	if (slen > 4095) {
+		slen = 4095;
+	}
+
+	err = fdt_setprop(fdt, chosen, "bootargs",
+			  cmdline + strlen(CMDLINE_SIGNATURE), slen);
+	if (err != 0) {
+		return err;
+	}
+
+	return fdt_appendprop(fdt, chosen, "bootargs", &nul, 1);
 }
 
 static void fpga_prepare_dtb(void)
@@ -151,55 +322,13 @@ static void fpga_prepare_dtb(void)
 	}
 
 	/* Check for the command line signature. */
-	if (!strncmp(cmdline, "CMD:", 4)) {
-		int chosen;
-
-		INFO("using command line at 0x%x\n", FPGA_PRELOADED_CMD_LINE);
-
-		chosen = fdt_add_subnode(fdt, 0, "chosen");
-		if (chosen == -FDT_ERR_EXISTS) {
-			chosen = fdt_path_offset(fdt, "/chosen");
-		}
-		if (chosen < 0) {
-			ERROR("cannot find /chosen node: %d\n", chosen);
+	if (!strncmp(cmdline, CMDLINE_SIGNATURE, strlen(CMDLINE_SIGNATURE))) {
+		err = fpga_dtb_set_commandline(fdt, cmdline);
+		if (err == 0) {
+			INFO("using command line at 0x%x\n",
+			     FPGA_PRELOADED_CMD_LINE);
 		} else {
-			const char *eol;
-			char nul = 0;
-			int slen;
-
-			/*
-			 * There is most likely an EOL at the end of the
-			 * command line, make sure we terminate the line there.
-			 * We can't replace the EOL with a NUL byte in the
-			 * source, as this is in read-only memory. So we first
-			 * create the property without any termination, then
-			 * append a single NUL byte.
-			 */
-			eol = strchr(cmdline, '\n');
-			if (!eol) {
-				eol = strchr(cmdline, 0);
-			}
-			/* Skip the signature and omit the EOL/NUL byte. */
-			slen = eol - (cmdline + 4);
-
-			/*
-			 * Let's limit the size of the property, just in case
-			 * we find the signature by accident. The Linux kernel
-			 * limits to 4096 characters at most (in fact 2048 for
-			 * arm64), so that sounds like a reasonable number.
-			 */
-			if (slen > 4095) {
-				slen = 4095;
-			}
-			err = fdt_setprop(fdt, chosen, "bootargs",
-					  cmdline + 4, slen);
-			if (!err) {
-				err = fdt_appendprop(fdt, chosen, "bootargs",
-						     &nul, 1);
-			}
-			if (err) {
-				ERROR("Could not set command line: %d\n", err);
-			}
+			ERROR("failed to put command line into DTB: %d\n", err);
 		}
 	}
 
@@ -224,6 +353,7 @@ static void fpga_prepare_dtb(void)
 			INFO("Adjusting GICR DT region to cover %u cores\n",
 			      nr_cores);
 			err = fdt_adjust_gic_redist(fdt, nr_cores,
+						    fpga_get_redist_base(),
 						    fpga_get_redist_size());
 			if (err < 0) {
 				ERROR("Error %d fixing up GIC DT node\n", err);
@@ -231,10 +361,22 @@ static void fpga_prepare_dtb(void)
 		}
 	}
 
+	fpga_dtb_update_clock(fdt, system_freq);
+
 	/* Check whether we support the SPE PMU. Remove the DT node if not. */
 	if (!spe_supported()) {
 		int node = fdt_node_offset_by_compatible(fdt, 0,
 				     "arm,statistical-profiling-extension-v1");
+
+		if (node >= 0) {
+			fdt_del_node(fdt, node);
+		}
+	}
+
+	/* Check whether we have an ITS. Remove the DT node if not. */
+	if (!fpga_has_its()) {
+		int node = fdt_node_offset_by_compatible(fdt, 0,
+							 "arm,gic-v3-its");
 
 		if (node >= 0) {
 			fdt_del_node(fdt, node);

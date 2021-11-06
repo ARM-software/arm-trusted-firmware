@@ -398,6 +398,7 @@ int fdt_add_cpus_node(void *dtb, unsigned int afflv0,
  * fdt_adjust_gic_redist() - Adjust GICv3 redistributor size
  * @dtb: Pointer to the DT blob in memory
  * @nr_cores: Number of CPU cores on this system.
+ * @gicr_base: Base address of the first GICR frame, or ~0 if unchanged
  * @gicr_frame_size: Size of the GICR frame per core
  *
  * On a GICv3 compatible interrupt controller, the redistributor provides
@@ -410,17 +411,19 @@ int fdt_add_cpus_node(void *dtb, unsigned int afflv0,
  * A GICv4 compatible redistributor uses four 64K pages per core, whereas GICs
  * without support for direct injection of virtual interrupts use two 64K pages.
  * The @gicr_frame_size parameter should be 262144 and 131072, respectively.
+ * Also optionally allow adjusting the GICR frame base address, when this is
+ * different due to ITS frames between distributor and redistributor.
  *
  * Return: 0 on success, negative error value otherwise.
  */
 int fdt_adjust_gic_redist(void *dtb, unsigned int nr_cores,
-			  unsigned int gicr_frame_size)
+			  uintptr_t gicr_base, unsigned int gicr_frame_size)
 {
 	int offset = fdt_node_offset_by_compatible(dtb, 0, "arm,gic-v3");
-	uint64_t redist_size_64;
-	uint32_t redist_size_32;
+	uint64_t reg_64;
+	uint32_t reg_32;
 	void *val;
-	int parent;
+	int parent, ret;
 	int ac, sc;
 
 	if (offset < 0) {
@@ -437,13 +440,34 @@ int fdt_adjust_gic_redist(void *dtb, unsigned int nr_cores,
 		return -EINVAL;
 	}
 
+	if (gicr_base != INVALID_BASE_ADDR) {
+		if (ac == 1) {
+			reg_32 = cpu_to_fdt32(gicr_base);
+			val = &reg_32;
+		} else {
+			reg_64 = cpu_to_fdt64(gicr_base);
+			val = &reg_64;
+		}
+		/*
+		 * The redistributor base address is the second address in
+		 * the "reg" entry, so we have to skip one address and one
+		 * size cell.
+		 */
+		ret = fdt_setprop_inplace_namelen_partial(dtb, offset,
+							  "reg", 3,
+							  (ac + sc) * 4,
+							  val, ac * 4);
+		if (ret < 0) {
+			return ret;
+		}
+	}
+
 	if (sc == 1) {
-		redist_size_32 = cpu_to_fdt32(nr_cores * gicr_frame_size);
-		val = &redist_size_32;
+		reg_32 = cpu_to_fdt32(nr_cores * gicr_frame_size);
+		val = &reg_32;
 	} else {
-		redist_size_64 = cpu_to_fdt64(nr_cores *
-					      (uint64_t)gicr_frame_size);
-		val = &redist_size_64;
+		reg_64 = cpu_to_fdt64(nr_cores * (uint64_t)gicr_frame_size);
+		val = &reg_64;
 	}
 
 	/*

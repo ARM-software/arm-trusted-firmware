@@ -26,6 +26,8 @@ void fpga_pwr_gic_off(void);
 unsigned int plat_fpga_calc_core_pos(uint32_t mpid);
 unsigned int fpga_get_nr_gic_cores(void);
 uintptr_t fpga_get_redist_size(void);
+uintptr_t fpga_get_redist_base(void);
+bool fpga_has_its(void);
 
 #endif /* __ASSEMBLER__ */
 

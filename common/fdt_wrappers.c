@@ -35,7 +35,7 @@ int fdt_read_uint32_array(const void *dtb, int node, const char *prop_name,
 	/* Access property and obtain its length (in bytes) */
 	prop = fdt_getprop(dtb, node, prop_name, &value_len);
 	if (prop == NULL) {
-		WARN("Couldn't find property %s in dtb\n", prop_name);
+		VERBOSE("Couldn't find property %s in dtb\n", prop_name);
 		return -FDT_ERR_NOTFOUND;
 	}
 
