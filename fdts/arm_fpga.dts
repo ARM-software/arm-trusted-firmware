@@ -81,7 +81,7 @@
 	dbg_uart: serial@7ff80000 {
 		compatible = "arm,pl011", "arm,primecell";
 		reg = <0x0 0x7ff80000 0x0 0x00001000>;
-		interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <GIC_SPI 415 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&uartclk>, <&bus_refclk>;
 		clock-names = "uartclk", "apb_pclk";
 	};
