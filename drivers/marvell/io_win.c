@@ -7,6 +7,9 @@
 
 /* IO Window unit device driver for Marvell AP807, AP807 and AP810 SoCs */
 
+#include <inttypes.h>
+#include <stdint.h>
+
 #include <common/debug.h>
 #include <drivers/marvell/io_win.h>
 #include <lib/mmio.h>
@@ -44,14 +47,14 @@ static void io_win_check(struct addr_map_win *win)
 	/* check if address is aligned to 1M */
 	if (IS_NOT_ALIGN(win->base_addr, IO_WIN_ALIGNMENT_1M)) {
 		win->base_addr = ALIGN_UP(win->base_addr, IO_WIN_ALIGNMENT_1M);
-		NOTICE("%s: Align up the base address to 0x%llx\n",
+		NOTICE("%s: Align up the base address to 0x%" PRIx64 "\n",
 		       __func__, win->base_addr);
 	}
 
 	/* size parameter validity check */
 	if (IS_NOT_ALIGN(win->win_size, IO_WIN_ALIGNMENT_1M)) {
 		win->win_size = ALIGN_UP(win->win_size, IO_WIN_ALIGNMENT_1M);
-		NOTICE("%s: Aligning size to 0x%llx\n",
+		NOTICE("%s: Aligning size to 0x%" PRIx64 "\n",
 		       __func__, win->win_size);
 	}
 }
@@ -170,7 +173,7 @@ static void dump_io_win(int ap_index)
 								win_id));
 			start = ((uint64_t)alr << ADDRESS_SHIFT);
 			end = (((uint64_t)ahr + 0x10) << ADDRESS_SHIFT);
-			printf("\tio-win %d     0x%016llx 0x%016llx\n",
+			printf("\tio-win %d     0x%016" PRIx64 " 0x%016" PRIx64 "\n",
 			       trgt_id, start, end);
 		}
 	}

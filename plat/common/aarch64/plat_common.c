@@ -5,6 +5,8 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #include <arch_helpers.h>
 #include <drivers/console.h>
@@ -53,7 +55,7 @@ unsigned int platform_core_pos_helper(unsigned long mpidr)
  */
 void plat_sdei_handle_masked_trigger(uint64_t mpidr, unsigned int intr)
 {
-	WARN("Spurious SDEI interrupt %u on masked PE %llx\n", intr, mpidr);
+	WARN("Spurious SDEI interrupt %u on masked PE %" PRIx64 "\n", intr, mpidr);
 }
 
 /*
@@ -93,7 +95,7 @@ void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *co
 	ERROR_NL();
 	ERROR("Unhandled External Abort received on 0x%lx from %s\n",
 		read_mpidr_el1(), get_el_str(level));
-	ERROR("exception reason=%u syndrome=0x%llx\n", ea_reason, syndrome);
+	ERROR("exception reason=%u syndrome=0x%" PRIx64 "\n", ea_reason, syndrome);
 #if HANDLE_EA_EL3_FIRST
 	/* Skip backtrace for lower EL */
 	if (level != MODE_EL3) {

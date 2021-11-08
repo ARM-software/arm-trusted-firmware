@@ -12,6 +12,7 @@
 #define STDINT_H
 
 #include <limits.h>
+#include <stdint_.h>
 
 #define INT8_MAX  CHAR_MAX
 #define INT8_MIN  CHAR_MIN
@@ -24,10 +25,6 @@
 #define INT32_MAX  INT_MAX
 #define INT32_MIN  INT_MIN
 #define UINT32_MAX UINT_MAX
-
-#define INT64_MAX  LLONG_MAX
-#define INT64_MIN  LLONG_MIN
-#define UINT64_MAX ULLONG_MAX
 
 #define INT_LEAST8_MIN  INT8_MIN
 #define INT_LEAST8_MAX  INT8_MAX
@@ -77,12 +74,10 @@
 #define INT8_C(x)  x
 #define INT16_C(x) x
 #define INT32_C(x) x
-#define INT64_C(x) x ## LL
 
 #define UINT8_C(x)  x
 #define UINT16_C(x) x
 #define UINT32_C(x) x ## U
-#define UINT64_C(x) x ## ULL
 
 #define INTMAX_C(x)  x ## LL
 #define UINTMAX_C(x) x ## ULL
@@ -90,32 +85,26 @@
 typedef signed char int8_t;
 typedef short int16_t;
 typedef int int32_t;
-typedef long long int64_t;
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
-typedef unsigned long long uint64_t;
 
 typedef signed char int8_least_t;
 typedef short int16_least_t;
 typedef int int32_least_t;
-typedef long long int64_least_t;
 
 typedef unsigned char uint8_least_t;
 typedef unsigned short uint16_least_t;
 typedef unsigned int uint32_least_t;
-typedef unsigned long long uint64_least_t;
 
 typedef int int8_fast_t;
 typedef int int16_fast_t;
 typedef int int32_fast_t;
-typedef long long int64_fast_t;
 
 typedef unsigned int uint8_fast_t;
 typedef unsigned int uint16_fast_t;
 typedef unsigned int uint32_fast_t;
-typedef unsigned long long uint64_fast_t;
 
 typedef long intptr_t;
 typedef unsigned long uintptr_t;
@@ -129,10 +118,5 @@ typedef unsigned long long uintmax_t;
 
 typedef long register_t;
 typedef unsigned long u_register_t;
-
-#ifdef __aarch64__
-typedef __int128 int128_t;
-typedef unsigned __int128 uint128_t;
-#endif /* __aarch64__ */
 
 #endif /* STDINT_H */

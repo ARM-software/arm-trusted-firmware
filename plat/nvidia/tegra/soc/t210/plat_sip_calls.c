@@ -5,6 +5,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <inttypes.h>
+#include <stdint.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
@@ -71,7 +74,7 @@ int plat_sip_handler(uint32_t smc_fid,
 		case PMC_CRYPTO_OP_0:
 		case PMC_TSC_MULT_0:
 		case PMC_STICKY_BIT:
-			ERROR("%s: error offset=0x%llx\n", __func__, x2);
+			ERROR("%s: error offset=0x%" PRIx64 "\n", __func__, x2);
 			return -EFAULT;
 		default:
 			/* Valid register */

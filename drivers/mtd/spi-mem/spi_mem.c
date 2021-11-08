@@ -5,6 +5,8 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #include <libfdt.h>
 
@@ -150,7 +152,7 @@ int spi_mem_exec_op(const struct spi_mem_op *op)
 	const struct spi_bus_ops *ops = spi_slave.ops;
 	int ret;
 
-	VERBOSE("%s: cmd:%x mode:%d.%d.%d.%d addqr:%llx len:%x\n",
+	VERBOSE("%s: cmd:%x mode:%d.%d.%d.%d addqr:%" PRIx64 " len:%x\n",
 		__func__, op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
 		op->dummy.buswidth, op->data.buswidth,
 		op->addr.val, op->data.nbytes);

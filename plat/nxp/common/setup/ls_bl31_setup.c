@@ -6,6 +6,8 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #ifdef LS_EL3_INTERRUPT_HANDLER
 #include <ls_interrupt_mgmt.h>
@@ -126,7 +128,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 					loc_dram_regions_info->num_dram_regions;
 			dram_regions_info.total_dram_size =
 					loc_dram_regions_info->total_dram_size;
-			VERBOSE("Number of DRAM Regions = %llx\n",
+			VERBOSE("Number of DRAM Regions = %" PRIx64 "\n",
 					dram_regions_info.num_dram_regions);
 
 			for (i = 0; i < dram_regions_info.num_dram_regions;
@@ -135,7 +137,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 					loc_dram_regions_info->region[i].addr;
 				dram_regions_info.region[i].size =
 					loc_dram_regions_info->region[i].size;
-				VERBOSE("DRAM%d Size = %llx\n", i,
+				VERBOSE("DRAM%d Size = %" PRIx64 "\n", i,
 					dram_regions_info.region[i].size);
 			}
 			rcw_porsr1 = bl31_image_ep_info.args.arg4;

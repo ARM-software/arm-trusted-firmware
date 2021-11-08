@@ -5,6 +5,8 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #include <libfdt.h>
 
@@ -234,7 +236,7 @@ static void remove_spintable_memreserve(void *dtb)
 			fdt_del_mem_rsv(dtb, i);
 			return;
 		}
-		WARN("Keeping unknown /memreserve/ region at 0, size: %lld\n",
+		WARN("Keeping unknown /memreserve/ region at 0, size: %" PRId64 "\n",
 		     size);
 	}
 }

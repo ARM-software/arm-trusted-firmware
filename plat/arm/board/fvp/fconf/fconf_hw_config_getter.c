@@ -5,6 +5,9 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
+#include <stdint.h>
+
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <fconf_hw_config_getter.h>
@@ -229,7 +232,7 @@ int fconf_populate_uart_config(uintptr_t config)
 
 	uart_serial_config.uart_base = translated_addr;
 
-	VERBOSE("FCONF: UART serial device base address: %llx\n",
+	VERBOSE("FCONF: UART serial device base address: %" PRIx64 "\n",
 		uart_serial_config.uart_base);
 
 	/*

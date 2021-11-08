@@ -6,8 +6,10 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch_helpers.h>
@@ -172,7 +174,7 @@ static uint64_t trusty_set_fiq_handler(void *handle, uint64_t cpu,
 	struct trusty_cpu_ctx *ctx;
 
 	if (cpu >= (uint64_t)PLATFORM_CORE_COUNT) {
-		ERROR("%s: cpu %lld >= %d\n", __func__, cpu, PLATFORM_CORE_COUNT);
+		ERROR("%s: cpu %" PRId64 " >= %d\n", __func__, cpu, PLATFORM_CORE_COUNT);
 		return (uint64_t)SM_ERR_INVALID_PARAMETERS;
 	}
 
@@ -204,7 +206,7 @@ static uint64_t trusty_fiq_exit(void *handle, uint64_t x1, uint64_t x2, uint64_t
 
 	ret = trusty_context_switch(NON_SECURE, SMC_FC_FIQ_EXIT, 0, 0, 0);
 	if (ret.r0 != 1U) {
-		INFO("%s(%p) SMC_FC_FIQ_EXIT returned unexpected value, %lld\n",
+		INFO("%s(%p) SMC_FC_FIQ_EXIT returned unexpected value, %" PRId64 "\n",
 		       __func__, handle, ret.r0);
 	}
 
@@ -356,7 +358,7 @@ static void trusty_cpu_suspend(uint32_t off)
 
 	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_SUSPEND, off, 0, 0);
 	if (ret.r0 != 0U) {
-		INFO("%s: cpu %d, SMC_FC_CPU_SUSPEND returned unexpected value, %lld\n",
+		INFO("%s: cpu %d, SMC_FC_CPU_SUSPEND returned unexpected value, %" PRId64 "\n",
 		     __func__, plat_my_core_pos(), ret.r0);
 	}
 }
@@ -367,7 +369,7 @@ static void trusty_cpu_resume(uint32_t on)
 
 	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_RESUME, on, 0, 0);
 	if (ret.r0 != 0U) {
-		INFO("%s: cpu %d, SMC_FC_CPU_RESUME returned unexpected value, %lld\n",
+		INFO("%s: cpu %d, SMC_FC_CPU_RESUME returned unexpected value, %" PRId64 "\n",
 		     __func__, plat_my_core_pos(), ret.r0);
 	}
 }

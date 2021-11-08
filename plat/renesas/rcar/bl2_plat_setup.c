@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <libfdt.h>
@@ -622,7 +624,7 @@ static void bl2_add_dram_entry(uint64_t start, uint64_t size)
 
 	return;
 err:
-	NOTICE("BL2: Cannot add memory node [%llx - %llx] to FDT (ret=%i)\n",
+	NOTICE("BL2: Cannot add memory node [%" PRIx64 " - %" PRIx64 "] to FDT (ret=%i)\n",
 		start, start + size - 1, ret);
 	panic();
 }
@@ -638,7 +640,7 @@ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 		if (!size)
 			continue;
 
-		NOTICE("BL2: CH%d: %llx - %llx, %lld %siB\n",
+		NOTICE("BL2: CH%d: %" PRIx64 " - %" PRIx64 ", %" PRId64 " %siB\n",
 			chan, start, start + size - 1,
 			(size >> 30) ? : size >> 20,
 			(size >> 30) ? "G" : "M");

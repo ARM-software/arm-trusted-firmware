@@ -6,7 +6,9 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <platform_def.h>
@@ -130,6 +132,6 @@ void bl31_plat_arch_setup(void)
 			       BL_COHERENT_RAM_BASE,
 			       BL_COHERENT_RAM_END);
 
-	INFO("Boot BL33 from 0x%lx for %llu Bytes\n",
+	INFO("Boot BL33 from 0x%lx for %" PRIu64 " Bytes\n",
 	     bl33_image_ep_info.pc, bl33_image_ep_info.args.arg2);
 }

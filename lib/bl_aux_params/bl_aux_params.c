@@ -3,6 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include <inttypes.h>
+#include <stdint.h>
 
 #include <common/debug.h>
 #include <lib/coreboot.h>
@@ -25,7 +27,7 @@ void bl_aux_params_parse(u_register_t head,
 			break;
 #endif
 		default:
-			ERROR("Ignoring unknown BL aux parameter: 0x%llx",
+			ERROR("Ignoring unknown BL aux parameter: 0x%" PRIx64,
 			      p->type);
 			break;
 		}

@@ -4,6 +4,10 @@
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
  */
+
+#include <inttypes.h>
+#include <stdint.h>
+
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <arch_helpers.h>
@@ -72,7 +76,7 @@ void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 	    syndrome == A53_SERR_INT_AXI_SLVERR_ON_EXTERNAL_ACCESS) {
 		ERROR_NL();
 		ERROR("Ignoring Asynchronous External Abort with"
-		     " syndrome 0x%llx received on 0x%lx from %s\n",
+		     " syndrome 0x%" PRIx64 " received on 0x%lx from %s\n",
 		     syndrome, read_mpidr_el1(), get_el_str(level));
 		ERROR("SError interrupt: AXI SLVERR on external access\n");
 		ERROR("This indicates a bug in pci-aardvark.c driver\n");
