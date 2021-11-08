@@ -311,6 +311,23 @@ ERRATA_A78_1941498	?=0
 # well but there is no workaround for that revision.
 ERRATA_A78_1951500	?=0
 
+# Flag to apply erratum 1821534 workaround during reset. This erratum applies
+# to revisions r0p0 and r1p0 of the A78 cpu.
+ERRATA_A78_1821534	?=0
+
+# Flag to apply erratum 1952683 workaround during reset. This erratum applies
+# to revision r0p0 of the A78 cpu and was fixed in the revision r1p0.
+ERRATA_A78_1952683  ?=0
+
+# Flag to apply erratum 2132060 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
+ERRATA_A78_2132060  ?=0
+
+# Flag to apply erratum 2242635 workaround during reset. This erratum applies
+# to revisions r1p0, r1p1, and r1p2 of the A78 cpu and is open. The issue is
+# present in r0p0 as well but there is no workaround for that revision.
+ERRATA_A78_2242635	?=0
+
 # Flag to apply erratum 1941500 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
 ERRATA_A78_AE_1941500	?=0
@@ -318,18 +335,6 @@ ERRATA_A78_AE_1941500	?=0
 # Flag to apply erratum 1951502 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
 ERRATA_A78_AE_1951502	?=0
-
-# Flag to apply erratum 1821534 workaround during reset. This erratum applies
-# to revisions r0p0 and r1p0 of the A78 cpu.
-ERRATA_A78_1821534	?=0
-
-# Flag to apply erratum 1952683 workaround during reset. This erratum applies
-# to revision r0p0 of the A78 cpu and was fixed in the revision r1p0.
-ERRATA_A78_1952683	?=0
-
-# Flag to apply erratum 2132060 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
-ERRATA_A78_2132060	?=0
 
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
@@ -425,6 +430,11 @@ ERRATA_V1_2139242	?=0
 # to revisions r0p0, r1p0, and r1p1 of the Neoverse V1 cpu and is still open.
 ERRATA_V1_2108267	?=0
 
+# Flag to apply erratum 2216392 workaround during reset. This erratum applies
+# to revisions r1p0 and r1p1 of the Neoverse V1 cpu and is still open. This
+# issue exists in r0p0 as well but there is no workaround for that revision.
+ERRATA_V1_2216392	?=0
+
 # Flag to apply erratum 1987031 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
 ERRATA_A710_1987031	?=0
@@ -460,6 +470,22 @@ ERRATA_N2_2138956	?=0
 # Flag to apply erratum 2138953 workaround during reset. This erratum applies
 # to revision r0p0 of the Neoverse N2 cpu and is still open.
 ERRATA_N2_2138953	?=0
+
+# Flag to apply erratum 2242415 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+ERRATA_N2_2242415	?=0
+
+# Flag to apply erratum 2138958 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+ERRATA_N2_2138958	?=0
+
+# Flag to apply erratum 2242400 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+ERRATA_N2_2242400	?=0
+
+# Flag to apply erratum 2280757 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+ERRATA_N2_2280757	?=0
 
 # Flag to apply erratum 2055002 workaround during reset. This erratum applies
 # to revision r1p0, r2p0 of the Cortex-A710 cpu and is still open.
@@ -714,14 +740,6 @@ $(eval $(call add_define,ERRATA_A78_1941498))
 $(eval $(call assert_boolean,ERRATA_A78_1951500))
 $(eval $(call add_define,ERRATA_A78_1951500))
 
-# Process ERRATA_A78_AE_1941500 flag
-$(eval $(call assert_boolean,ERRATA_A78_AE_1941500))
-$(eval $(call add_define,ERRATA_A78_AE_1941500))
-
-# Process ERRATA_A78_AE_1951502 flag
-$(eval $(call assert_boolean,ERRATA_A78_AE_1951502))
-$(eval $(call add_define,ERRATA_A78_AE_1951502))
-
 # Process ERRATA_A78_1821534 flag
 $(eval $(call assert_boolean,ERRATA_A78_1821534))
 $(eval $(call add_define,ERRATA_A78_1821534))
@@ -733,6 +751,18 @@ $(eval $(call add_define,ERRATA_A78_1952683))
 # Process ERRATA_A78_2132060 flag
 $(eval $(call assert_boolean,ERRATA_A78_2132060))
 $(eval $(call add_define,ERRATA_A78_2132060))
+
+# Process ERRATA_A78_2242635 flag
+$(eval $(call assert_boolean,ERRATA_A78_2242635))
+$(eval $(call add_define,ERRATA_A78_2242635))
+
+# Process ERRATA_A78_AE_1941500 flag
+$(eval $(call assert_boolean,ERRATA_A78_AE_1941500))
+$(eval $(call add_define,ERRATA_A78_AE_1941500))
+
+# Process ERRATA_A78_AE_1951502 flag
+$(eval $(call assert_boolean,ERRATA_A78_AE_1951502))
+$(eval $(call add_define,ERRATA_A78_AE_1951502))
 
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))
@@ -826,6 +856,10 @@ $(eval $(call add_define,ERRATA_V1_2139242))
 $(eval $(call assert_boolean,ERRATA_V1_2108267))
 $(eval $(call add_define,ERRATA_V1_2108267))
 
+# Process ERRATA_V1_2216392 flag
+$(eval $(call assert_boolean,ERRATA_V1_2216392))
+$(eval $(call add_define,ERRATA_V1_2216392))
+
 # Process ERRATA_A710_1987031 flag
 $(eval $(call assert_boolean,ERRATA_A710_1987031))
 $(eval $(call add_define,ERRATA_A710_1987031))
@@ -861,6 +895,22 @@ $(eval $(call add_define,ERRATA_N2_2138956))
 # Process ERRATA_N2_2138953 flag
 $(eval $(call assert_boolean,ERRATA_N2_2138953))
 $(eval $(call add_define,ERRATA_N2_2138953))
+
+# Process ERRATA_N2_2242415 flag
+$(eval $(call assert_boolean,ERRATA_N2_2242415))
+$(eval $(call add_define,ERRATA_N2_2242415))
+
+# Process ERRATA_N2_2138958 flag
+$(eval $(call assert_boolean,ERRATA_N2_2138958))
+$(eval $(call add_define,ERRATA_N2_2138958))
+
+# Process ERRATA_N2_2242400 flag
+$(eval $(call assert_boolean,ERRATA_N2_2242400))
+$(eval $(call add_define,ERRATA_N2_2242400))
+
+# Process ERRATA_N2_2280757 flag
+$(eval $(call assert_boolean,ERRATA_N2_2280757))
+$(eval $(call add_define,ERRATA_N2_2280757))
 
 # Process ERRATA_A710_2055002 flag
 $(eval $(call assert_boolean,ERRATA_A710_2055002))
