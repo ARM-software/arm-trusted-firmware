@@ -60,7 +60,9 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
-                ${MTK_PLAT_SOC}/drivers/apusys/mtk_apusys.c           \
+                ${MTK_PLAT_SOC}/drivers/apusys/apupll.c               \
+                ${MTK_PLAT_SOC}/drivers/apusys/apupwr_clkctl.c        \
+		${MTK_PLAT_SOC}/drivers/apusys/mtk_apusys.c           \
                 ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm.c                 \
                 ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm_utils.c           \
                 ${MTK_PLAT_SOC}/drivers/dfd/plat_dfd.c                \
