@@ -1,0 +1,17 @@
+{{#if title ~}}
+{{ header }}
+
+{{#if commits.length ~}}
+  {{#each commits ~}}
+    {{#tf-a-mdlist 0}}{{> commit root=@root showScope=../topLevel }}{{/tf-a-mdlist ~}}
+  {{/each}}
+
+{{/if ~}}
+
+{{#if sections.length ~}}
+  {{#each sections ~}}
+    {{#tf-a-mdlist 0}}{{> tf-a-commit-section root=@root header=(tf-a-concat "**" title "**") }}{{/tf-a-mdlist}}
+  {{/each}}
+{{/if ~}}
+
+{{/if}}

@@ -1,0 +1,9 @@
+{{> header }}
+
+{{#each (tf-a-notes noteGroups) ~}}
+{{> tf-a-note-section root=@root header=(tf-a-concat "### ⚠ " title) topLevel=true }}
+{{/each ~}}
+
+{{#each (tf-a-commits commitGroups) ~}}
+{{> tf-a-commit-section root=@root header=(tf-a-concat "### " title) topLevel=true }}
+{{/each ~}}
