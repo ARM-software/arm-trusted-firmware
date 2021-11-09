@@ -15,9 +15,7 @@
 
 /* Aggregate of all devices for MMU mapping */
 #define MTK_DEV_RNG0_BASE	IO_PHYS
-#define MTK_DEV_RNG0_SIZE	0x400000
-#define MTK_DEV_RNG1_BASE	(IO_PHYS + 0x1000000)
-#define MTK_DEV_RNG1_SIZE	0xa110000
+#define MTK_DEV_RNG0_SIZE	0x10000000
 #define MTK_DEV_RNG2_BASE	MT_GIC_BASE
 #define MTK_DEV_RNG2_SIZE	0x600000
 
