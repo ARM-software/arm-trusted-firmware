@@ -212,7 +212,7 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0ULL) {
-		ERROR("%s failed (%llu) on CPU%u\n", __func__, rc, linear_id);
+		ERROR("%s failed (%" PRId64 ") on CPU%u\n", __func__, rc, linear_id);
 	}
 
 	ctx->secure_interrupt_ongoing = false;
