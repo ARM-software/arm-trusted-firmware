@@ -1,4 +1,4 @@
-Generic threat model
+Generic Threat Model
 ********************
 
 ************************
