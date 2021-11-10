@@ -6,6 +6,8 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch_helpers.h>
@@ -131,7 +133,7 @@ static int32_t rmm_init(void)
 
 	rc = rmmd_rmm_sync_entry(ctx);
 	if (rc != 0ULL) {
-		ERROR("RMM initialisation failed 0x%llx\n", rc);
+		ERROR("RMM initialisation failed 0x%" PRIx64 "\n", rc);
 		panic();
 	}
 
@@ -301,12 +303,12 @@ static int gtsi_transition_granule(uint64_t pa,
 	/* Convert TF-A error codes into GTSI error codes */
 	if (ret == -EINVAL) {
 		ERROR("[GTSI] Transition failed: invalid %s\n", "address");
-		ERROR("       PA: 0x%llx, SRC: %d, PAS: %d\n", pa,
+		ERROR("       PA: 0x%" PRIx64 ", SRC: %d, PAS: %d\n", pa,
 		      src_sec_state, target_pas);
 		ret = GRAN_TRANS_RET_BAD_ADDR;
 	} else if (ret == -EPERM) {
 		ERROR("[GTSI] Transition failed: invalid %s\n", "caller/PAS");
-		ERROR("       PA: 0x%llx, SRC: %d, PAS: %d\n", pa,
+		ERROR("       PA: 0x%" PRIx64 ", SRC: %d, PAS: %d\n", pa,
 		      src_sec_state, target_pas);
 		ret = GRAN_TRANS_RET_BAD_PAS;
 	}

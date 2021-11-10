@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <limits.h>
 #include <stdint.h>
 
@@ -445,7 +446,7 @@ static void gpt_generate_l0_blk_desc(pas_region_t *pas)
 	/* Generate the needed block descriptors. */
 	for (; idx < end_idx; idx++) {
 		l0_gpt_arr[idx] = gpt_desc;
-		VERBOSE("[GPT] L0 entry (BLOCK) index %u [%p]: GPI = 0x%llx (0x%llx)\n",
+		VERBOSE("[GPT] L0 entry (BLOCK) index %u [%p]: GPI = 0x%" PRIx64 " (0x%" PRIx64 ")\n",
 			idx, &l0_gpt_arr[idx],
 			(gpt_desc >> GPT_L0_BLK_DESC_GPI_SHIFT) &
 			GPT_L0_BLK_DESC_GPI_MASK, l0_gpt_arr[idx]);
@@ -606,7 +607,7 @@ static void gpt_generate_l0_tbl_desc(pas_region_t *pas)
 			l0_gpt_base[l0_idx] = GPT_L0_TBL_DESC(l1_gpt_arr);
 		}
 
-		VERBOSE("[GPT] L0 entry (TABLE) index %u [%p] ==> L1 Addr 0x%llx (0x%llx)\n",
+		VERBOSE("[GPT] L0 entry (TABLE) index %u [%p] ==> L1 Addr 0x%llx (0x%" PRIx64 ")\n",
 			l0_idx, &l0_gpt_base[l0_idx],
 			(unsigned long long)(l1_gpt_arr),
 			l0_gpt_base[l0_idx]);
@@ -1042,7 +1043,7 @@ int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
 	/* Check for address range overflow. */
 	if ((ULONG_MAX - base) < size) {
 		VERBOSE("[GPT] Transition request address overflow!\n");
-		VERBOSE("      Base=0x%llx\n", base);
+		VERBOSE("      Base=0x%" PRIx64 "\n", base);
 		VERBOSE("      Size=0x%lx\n", size);
 		return -EINVAL;
 	}
@@ -1053,7 +1054,7 @@ int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
 	    (size == 0U) ||
 	    ((base + size) >= GPT_PPS_ACTUAL_SIZE(gpt_config.t))) {
 		VERBOSE("[GPT] Invalid granule transition address range!\n");
-		VERBOSE("      Base=0x%llx\n", base);
+		VERBOSE("      Base=0x%" PRIx64 "\n", base);
 		VERBOSE("      Size=0x%lx\n", size);
 		return -EINVAL;
 	}
@@ -1072,7 +1073,7 @@ int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
 	gpt_l0_desc = gpt_l0_base[GPT_L0_IDX(base)];
 	if (GPT_L0_TYPE(gpt_l0_desc) != GPT_L0_TYPE_TBL_DESC) {
 		VERBOSE("[GPT] Granule is not covered by a table descriptor!\n");
-		VERBOSE("      Base=0x%llx\n", base);
+		VERBOSE("      Base=0x%" PRIx64 "\n", base);
 		return -EINVAL;
 	}
 
@@ -1116,7 +1117,7 @@ int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
 	 * The isb() will be done as part of context
 	 * synchronization when returning to lower EL
 	 */
-	VERBOSE("[GPT] Granule 0x%llx, GPI 0x%x->0x%x\n", base, gpi,
+	VERBOSE("[GPT] Granule 0x%" PRIx64 ", GPI 0x%x->0x%x\n", base, gpi,
 		target_pas);
 
 	return 0;
