@@ -361,8 +361,20 @@ static int64_t sdei_event_register(int ev_num,
 		return SDEI_EINVAL;
 
 	/* Private events always target the PE */
-	if (is_event_private(map))
+	if (is_event_private(map)) {
+		/*
+		 * SDEI internally handles private events in the same manner
+		 * as public events with routing mode=RM_PE, since the routing
+		 * mode flag and affinity fields are not used when registering
+		 * a private event, set them here.
+		 */
 		flags = SDEI_REGF_RM_PE;
+		/*
+		 * Kernel may pass 0 as mpidr, as we set flags to
+		 * SDEI_REGF_RM_PE, so set mpidr also.
+		 */
+		mpidr = read_mpidr_el1();
+	}
 
 	se = get_event_entry(map);
 
