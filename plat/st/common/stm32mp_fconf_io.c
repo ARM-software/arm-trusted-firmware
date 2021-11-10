@@ -16,6 +16,7 @@
 #include <tools_share/firmware_image_package.h>
 
 #include <platform_def.h>
+#include <stm32mp_efi.h>
 #include <stm32mp_fconf_getter.h>
 #include <stm32mp_io_storage.h>
 
@@ -29,15 +30,17 @@ static io_block_spec_t gpt_block_spec = {
 /* By default, STM32 platforms load images from the FIP */
 struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 	[FIP_IMAGE_ID] = {
-		&storage_dev_handle,
-		(uintptr_t)&image_block_spec,
-		open_storage
+		.dev_handle = &storage_dev_handle,
+		.image_spec = (uintptr_t)&image_block_spec,
+		.img_type_guid = STM32MP_FIP_GUID,
+		.check = open_storage
 	},
 #if STM32MP_SDMMC || STM32MP_EMMC
 	[GPT_IMAGE_ID] = {
-		&storage_dev_handle,
-		(uintptr_t)&gpt_block_spec,
-		open_storage
+		.dev_handle = &storage_dev_handle,
+		.image_spec = (uintptr_t)&gpt_block_spec,
+		.img_type_guid = NULL_GUID,
+		.check = open_storage
 	},
 #endif
 };

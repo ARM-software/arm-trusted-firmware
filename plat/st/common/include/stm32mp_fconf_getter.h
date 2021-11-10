@@ -10,6 +10,7 @@
 #include <assert.h>
 
 #include <lib/fconf/fconf.h>
+#include <tools_share/uuid.h>
 
 /* IO policies */
 #define stm32mp__io_policies_getter(id) __extension__ ({	\
@@ -20,6 +21,7 @@
 struct plat_io_policy {
 	uintptr_t *dev_handle;
 	uintptr_t image_spec;
+	struct efi_guid img_type_guid;
 	int (*check)(const uintptr_t spec);
 };
 
