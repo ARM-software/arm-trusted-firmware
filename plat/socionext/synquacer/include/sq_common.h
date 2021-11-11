@@ -45,6 +45,7 @@ void sq_mmap_setup(uintptr_t total_base, size_t total_size,
 /* SCMI API for power management by SCP */
 void sq_scmi_off(const struct psci_power_state *target_state);
 void sq_scmi_on(u_register_t mpidr);
+void __dead2 sq_scmi_sys_shutdown(void);
 void __dead2 sq_scmi_sys_reboot(void);
 void __dead2 sq_scmi_system_off(int state);
 /* SCMI API for vendor specific protocol */
