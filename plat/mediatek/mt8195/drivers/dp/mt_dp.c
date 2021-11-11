@@ -3,6 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <inttypes.h>
+
 #include <common/debug.h>
 #include <lib/mmio.h>
 #include <mt_dp.h>
@@ -28,7 +31,7 @@ int32_t dp_secure_handler(uint64_t cmd, uint64_t para, uint32_t *val)
 	uint32_t fldmask = 0UL;
 
 	if ((cmd > DP_ATF_CMD_COUNT) || (val == NULL)) {
-		INFO("dp_secure_handler error cmd 0x%llx\n", cmd);
+		INFO("dp_secure_handler error cmd 0x%" PRIx64 "\n", cmd);
 		return MTK_SIP_E_INVALID_PARAM;
 	}
 
