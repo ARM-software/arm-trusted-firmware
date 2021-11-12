@@ -134,7 +134,7 @@ ENABLE_BTI			:= 0
 ENABLE_PAUTH			:= 0
 
 # Flag to enable access to the HCRX_EL2 register by setting SCR_EL3.HXEn.
-ENABLE_FEAT_HCX                 := 0
+ENABLE_FEAT_HCX			:= 0
 
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
@@ -222,13 +222,13 @@ RESET_TO_BL31			:= 0
 SAVE_KEYS			:= 0
 
 # Software Delegated Exception support
-SDEI_SUPPORT            	:= 0
+SDEI_SUPPORT			:= 0
 
 # True Random Number firmware Interface
-TRNG_SUPPORT            	:= 0
+TRNG_SUPPORT			:= 0
 
 # SMCCC PCI support
-SMC_PCI_SUPPORT            	:= 0
+SMC_PCI_SUPPORT			:= 0
 
 # Whether code and read-only data should be put on separate memory pages. The
 # platform Makefile is free to override this value.
@@ -303,7 +303,7 @@ ENABLE_SPE_FOR_LOWER_ELS	:= 1
 
 # SPE is only supported on AArch64 so disable it on AArch32.
 ifeq (${ARCH},aarch32)
-    override ENABLE_SPE_FOR_LOWER_ELS := 0
+	override ENABLE_SPE_FOR_LOWER_ELS := 0
 endif
 
 # Include Memory Tagging Extension registers in cpu context. This must be set
@@ -316,15 +316,18 @@ ENABLE_AMU_AUXILIARY_COUNTERS	:= 0
 ENABLE_AMU_FCONF		:= 0
 AMU_RESTRICT_COUNTERS		:= 0
 
-# By default, enable Scalable Vector Extension if implemented only for Non-secure
-# lower ELs
-# Note SVE is only supported on AArch64 - therefore do not enable in AArch32
-ifneq (${ARCH},aarch32)
-    ENABLE_SVE_FOR_NS		:= 1
-    ENABLE_SVE_FOR_SWD		:= 0
-else
-    override ENABLE_SVE_FOR_NS	:= 0
-    override ENABLE_SVE_FOR_SWD  := 0
+# Enable SVE for non-secure world by default
+ENABLE_SVE_FOR_NS		:= 1
+ENABLE_SVE_FOR_SWD		:= 0
+
+# SME defaults to disabled
+ENABLE_SME_FOR_NS		:= 0
+ENABLE_SME_FOR_SWD		:= 0
+
+# If SME is enabled then force SVE off
+ifeq (${ENABLE_SME_FOR_NS},1)
+	override ENABLE_SVE_FOR_NS	:= 0
+	override ENABLE_SVE_FOR_SWD	:= 0
 endif
 
 SANITIZE_UB := off
@@ -348,7 +351,7 @@ CTX_INCLUDE_EL2_REGS		:= 0
 SUPPORT_STACK_MEMTAG		:= no
 
 # Select workaround for AT speculative behaviour.
-ERRATA_SPECULATIVE_AT           := 0
+ERRATA_SPECULATIVE_AT		:= 0
 
 # Trap RAS error record access from lower EL
 RAS_TRAP_LOWER_EL_ERR_ACCESS	:= 0
@@ -379,9 +382,9 @@ PSA_FWU_SUPPORT			:= 0
 # Note FEAT_TRBE is only supported on AArch64 - therefore do not enable in
 # AArch32.
 ifneq (${ARCH},aarch32)
-    ENABLE_TRBE_FOR_NS		:= 0
+	ENABLE_TRBE_FOR_NS		:= 0
 else
-    override ENABLE_TRBE_FOR_NS	:= 0
+	override ENABLE_TRBE_FOR_NS	:= 0
 endif
 
 # By default, disable access of trace system registers from NS lower

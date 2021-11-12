@@ -299,6 +299,21 @@ Common build options
    instrumented. Enabling this option enables the ``ENABLE_PMF`` build option
    as well. Default is 0.
 
+-  ``ENABLE_SME_FOR_NS``: Boolean option to enable Scalable Matrix Extension
+   (SME), SVE, and FPU/SIMD for the non-secure world only. These features share
+   registers so are enabled together. Using this option without
+   ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
+   world to trap to EL3. SME is an optional architectural feature for AArch64
+   and TF-A support is experimental. At this time, this build option cannot be
+   used on systems that have SPD=spmd or ENABLE_RME, and attempting to build
+   with these options will fail. Default is 0.
+
+-  ``ENABLE_SME_FOR_SWD``: Boolean option to enable the Scalable Matrix
+   Extension for secure world use along with SVE and FPU/SIMD, ENABLE_SME_FOR_NS
+   must also be set to use this. If enabling this, the secure world MUST
+   handle context switching for SME, SVE, and FPU/SIMD registers to ensure that
+   no data is leaked to non-secure world. This is experimental. Default is 0.
+
 -  ``ENABLE_SPE_FOR_LOWER_ELS`` : Boolean option to enable Statistical Profiling
    extensions. This is an optional architectural feature for AArch64.
    The default is 1 but is automatically disabled when the target architecture
@@ -313,8 +328,8 @@ Common build options
    which are aliased by the SIMD and FP registers. The build option is not
    compatible with the ``CTX_INCLUDE_FPREGS`` build option, and will raise an
    assert on platforms where SVE is implemented and ``ENABLE_SVE_FOR_NS`` set to
-   1. The default is 1 but is automatically disabled when the target
-   architecture is AArch32.
+   1. The default is 1 but is automatically disabled when ENABLE_SME_FOR_NS=1
+   since SME encompasses SVE.
 
 -  ``ENABLE_SVE_FOR_SWD``: Boolean option to enable SVE for the Secure world.
    SVE is an optional architectural feature for AArch64. Note that this option
