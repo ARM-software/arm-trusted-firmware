@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -119,7 +120,7 @@ static void brcm_power_down_common(void)
 		standbywfil2 = CDRU_PROC_EVENT_CLEAR__IH3_CDRU_STANDBYWFIL2;
 		break;
 	default:
-		ERROR("Invalid cluster #%llx\n", MPIDR_AFFLVL1_VAL(mpidr));
+		ERROR("Invalid cluster #%" PRIx64 "\n", MPIDR_AFFLVL1_VAL(mpidr));
 		return;
 	}
 	/* Clear the WFI status bit */

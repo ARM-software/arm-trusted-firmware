@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -344,7 +345,7 @@ void sotp_dump_rows(uint32_t start_row, uint32_t end_row)
 
 	for (rownum = start_row; rownum <= end_row; rownum++) {
 		rowdata = sotp_mem_read(rownum, SOTP_ROW_NO_ECC);
-		INFO("%d 0x%llx\n", rownum, rowdata);
+		INFO("%d 0x%" PRIx64 "\n", rownum, rowdata);
 	}
 }
 #endif

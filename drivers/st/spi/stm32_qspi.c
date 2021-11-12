@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
 
+#include <inttypes.h>
 #include <libfdt.h>
 
 #include <platform_def.h>
@@ -244,7 +245,7 @@ static int stm32_qspi_exec_op(const struct spi_mem_op *op)
 	uint8_t mode = QSPI_CCR_IND_WRITE;
 	int ret;
 
-	VERBOSE("%s: cmd:%x mode:%d.%d.%d.%d addr:%llx len:%x\n",
+	VERBOSE("%s: cmd:%x mode:%d.%d.%d.%d addr:%" PRIx64 " len:%x\n",
 		__func__, op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
 		op->dummy.buswidth, op->data.buswidth,
 		op->addr.val, op->data.nbytes);
