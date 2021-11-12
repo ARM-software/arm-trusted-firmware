@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -31,7 +32,7 @@ static void dump_entries(int num)
 			name[len + j] = ' ';
 		}
 		name[EFI_NAMELEN - 1] = '\0';
-		VERBOSE("%d: %s %llx-%llx\n", i + 1, name, list.list[i].start,
+		VERBOSE("%d: %s %" PRIx64 "-%" PRIx64 "\n", i + 1, name, list.list[i].start,
 			list.list[i].start + list.list[i].length - 4);
 	}
 }
