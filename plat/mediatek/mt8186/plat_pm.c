@@ -361,6 +361,7 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	mcucfg_set_bootaddr(0U, 0U, secure_entrypoint);
 
 	spmc_init();
+	plat_mt_pm = mt_plat_cpu_pm_init();
 
 	return 0;
 }
