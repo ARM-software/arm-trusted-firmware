@@ -112,5 +112,40 @@ void dump_emi_mpu_regions(void)
 
 void emi_mpu_init(void)
 {
+	struct emi_region_info_t region_info;
+
+	/* SCP DRAM */
+	region_info.start = 0x50000000ULL;
+	region_info.end = 0x51400000ULL;
+	region_info.region = 2;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      NO_PROTECTION, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* DSP protect address */
+	region_info.start = 0x60000000ULL;	/* dram base addr */
+	region_info.end = 0x610FFFFFULL;
+	region_info.region = 3;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* Forbidden All */
+	region_info.start = 0x40000000ULL;	/* dram base addr */
+	region_info.end = 0x1FFFF0000ULL;
+	region_info.region = 4;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
 	dump_emi_mpu_regions();
 }
