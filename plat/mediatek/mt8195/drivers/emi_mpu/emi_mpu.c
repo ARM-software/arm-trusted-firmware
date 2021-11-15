@@ -91,7 +91,26 @@ int emi_mpu_set_protection(struct emi_region_info_t *region_info)
 	return 0;
 }
 
+void dump_emi_mpu_regions(void)
+{
+	unsigned long apc[EMI_MPU_DGROUP_NUM], sa, ea;
+
+	int region, i;
+
+	/* Only dump 8 regions(max: EMI_MPU_REGION_NUM --> 32) */
+	for (region = 0; region < 8; ++region) {
+		for (i = 0; i < EMI_MPU_DGROUP_NUM; ++i)
+			apc[i] = mmio_read_32(EMI_MPU_APC(region, i));
+		sa = mmio_read_32(EMI_MPU_SA(region));
+		ea = mmio_read_32(EMI_MPU_EA(region));
+
+		INFO("region %d:\n", region);
+		INFO("\tsa:0x%lx, ea:0x%lx, apc0: 0x%lx apc1: 0x%lx\n",
+		     sa, ea, apc[0], apc[1]);
+	}
+}
+
 void emi_mpu_init(void)
 {
-	/* TODO: more setting for EMI MPU. */
+	dump_emi_mpu_regions();
 }
