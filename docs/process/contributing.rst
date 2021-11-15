@@ -26,22 +26,10 @@ Getting Started
 Making Changes
 --------------
 
+-  Ensure commits adhere to the the project's :ref:`Commit Style`.
+
 -  Make commits of logical units. See these general `Git guidelines`_ for
    contributing to a project.
-
--  Ensure your commit messages comply with the `Conventional Commits`_
-   specification:
-
-   .. code::
-
-       <type>[optional scope]: <description>
-
-       [optional body]
-
-       [optional footer(s)]
-
-   You can use the tooling installed by the optional steps in the
-   :ref:`prerequisites <Prerequisites>` guide to validate this locally.
 
 -  Keep the commits on topic. If you need to fix another bug or make another
    enhancement, please address it on a separate topic branch.
@@ -51,39 +39,6 @@ Making Changes
 
 -  Avoid long commit series. If you do have a long series, consider whether
    some commits should be squashed together or addressed in a separate topic.
-
--  Ensure that each commit in the series has at least one ``Signed-off-by:``
-   line, using your real name and email address. The names in the
-   ``Signed-off-by:`` and ``Commit:`` lines must match. By adding this line the
-   contributor certifies the contribution is made under the terms of the
-   :download:`Developer Certificate of Origin <../../dco.txt>`.
-
-   There might be multiple ``Signed-off-by:`` lines, depending on the history
-   of the patch.
-
-   More details may be found in the `Gerrit Signed-off-by Lines guidelines`_.
-
--  Ensure that each commit also has a unique ``Change-Id:`` line. If you have
-   cloned the repository with the "`Clone with commit-msg hook`" clone method
-   (following the :ref:`Prerequisites` document), this should already be the
-   case.
-
-   More details may be found in the `Gerrit Change-Ids documentation`_.
-
--  Write informative and comprehensive commit messages. A good commit message
-   provides all the background information needed for reviewers to understand
-   the intent and rationale of the patch. This information is also useful for
-   future reference.
-
-   For example:
-
-   -  What does the patch do?
-   -  What motivated it?
-   -  What impact does it have?
-   -  How was it tested?
-   -  Have alternatives been considered? Why did you choose this approach over
-      another one?
-   -  If it fixes an `issue`_, include a reference.
 
 -  Follow the :ref:`Coding Style` and :ref:`Coding Guidelines`.
 
@@ -289,15 +244,11 @@ Binary Components
 
 *Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.*
 
-.. _Conventional Commits: https://www.conventionalcommits.org/en/v1.0.0
 .. _developer.trustedfirmware.org: https://developer.trustedfirmware.org
 .. _review.trustedfirmware.org: https://review.trustedfirmware.org
-.. _issue: https://developer.trustedfirmware.org/project/board/1/
 .. _Trusted Firmware-A: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 .. _Git guidelines: http://git-scm.com/book/ch5-2.html
 .. _Gerrit Uploading Changes documentation: https://review.trustedfirmware.org/Documentation/user-upload.html
-.. _Gerrit Signed-off-by Lines guidelines: https://review.trustedfirmware.org/Documentation/user-signedoffby.html
-.. _Gerrit Change-Ids documentation: https://review.trustedfirmware.org/Documentation/user-changeid.html
 .. _TF-A Tests: https://trustedfirmware-a-tests.readthedocs.io
 .. _Trusted Firmware binary repository: https://review.trustedfirmware.org/admin/repos/tf-binaries
 .. _tf-binaries-readme: https://git.trustedfirmware.org/tf-binaries.git/tree/readme.rst
