@@ -9,6 +9,7 @@
 #define A3700_CONSOLE_H
 
 #include <drivers/console.h>
+#include <platform_def.h>
 
 /* MVEBU UART Registers */
 #define UART_RX_REG		0x00

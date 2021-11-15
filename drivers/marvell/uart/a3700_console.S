@@ -69,6 +69,14 @@ func console_a3700_core_init
 	b.ne	2b
 
 4:
+	/* Reset UART via North Bridge Peripheral */
+	mov_imm	x4, MVEBU_NB_RESET_REG
+	ldr	w3, [x4]
+	bic	w3, w3, #MVEBU_NB_RESET_UART_N
+	str	w3, [x4]
+	orr	w3, w3, #MVEBU_NB_RESET_UART_N
+	str	w3, [x4]
+
 	/* Reset FIFO */
 	mov	w3, #UART_CTRL_RXFIFO_RESET
 	orr	w3, w3, #UART_CTRL_TXFIFO_RESET
