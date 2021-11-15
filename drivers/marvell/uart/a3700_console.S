@@ -44,19 +44,6 @@ func console_a3700_core_init
 	cbz	w1, init_fail
 	cbz	w2, init_fail
 
-	/* Program the baudrate */
-	/* Divisor = Round(Uartclock / (16 * baudrate)) */
-	lsl	w2, w2, #4
-	add	w1, w1, w2, lsr #1
-	udiv	w2, w1, w2
-	and	w2, w2, #0x3ff /* clear all other bits to use default clock */
-
-	str	w2, [x0, #UART_BAUD_REG]/* set baud rate divisor */
-
-	/* Set UART to default 16X scheme */
-	mov	w3, #0
-	str	w3, [x0, #UART_POSSR_REG]
-
 	/*
 	 * Wait for the TX (THR and TSR) to be empty. If wait for 3ms, the TX FIFO is
 	 * still not empty, TX FIFO will reset by all means.
@@ -93,6 +80,19 @@ func console_a3700_core_init
 	sub	w3, w3, #1
 	cmp	w3, #0
 	b.ne	1b
+
+	/* Program the baudrate */
+	/* Divisor = Round(Uartclock / (16 * baudrate)) */
+	lsl	w2, w2, #4
+	add	w1, w1, w2, lsr #1
+	udiv	w2, w1, w2
+	and	w2, w2, #0x3ff /* clear all other bits to use default clock */
+
+	str	w2, [x0, #UART_BAUD_REG]/* set baud rate divisor */
+
+	/* Set UART to default 16X scheme */
+	mov	w3, #0
+	str	w3, [x0, #UART_POSSR_REG]
 
 	/* No Parity, 1 Stop */
 	mov	w3, #0
