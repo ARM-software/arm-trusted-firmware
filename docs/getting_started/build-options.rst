@@ -305,8 +305,8 @@ Common build options
    ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
    world to trap to EL3. SME is an optional architectural feature for AArch64
    and TF-A support is experimental. At this time, this build option cannot be
-   used on systems that have SPD=spmd or ENABLE_RME, and attempting to build
-   with these options will fail. Default is 0.
+   used on systems that have SPD=spmd/SPM_MM or ENABLE_RME, and attempting to
+   build with these options will fail. Default is 0.
 
 -  ``ENABLE_SME_FOR_SWD``: Boolean option to enable the Scalable Matrix
    Extension for secure world use along with SVE and FPU/SIMD, ENABLE_SME_FOR_NS
@@ -329,7 +329,8 @@ Common build options
    compatible with the ``CTX_INCLUDE_FPREGS`` build option, and will raise an
    assert on platforms where SVE is implemented and ``ENABLE_SVE_FOR_NS`` set to
    1. The default is 1 but is automatically disabled when ENABLE_SME_FOR_NS=1
-   since SME encompasses SVE.
+   since SME encompasses SVE. At this time, this build option cannot be used on
+   systems that have SPM_MM enabled.
 
 -  ``ENABLE_SVE_FOR_SWD``: Boolean option to enable SVE for the Secure world.
    SVE is an optional architectural feature for AArch64. Note that this option

@@ -10,6 +10,12 @@ endif
 ifneq (${ARCH},aarch64)
         $(error "Error: SPM_MM is only supported on aarch64.")
 endif
+ifeq (${ENABLE_SVE_FOR_NS},1)
+        $(error "Error: SPM_MM is not compatible with ENABLE_SVE_FOR_NS")
+endif
+ifeq (${ENABLE_SME_FOR_NS},1)
+        $(error "Error: SPM_MM is not compatible with ENABLE_SME_FOR_NS")
+endif
 
 SPM_SOURCES	:=	$(addprefix services/std_svc/spm_mm/,	\
 			${ARCH}/spm_mm_helpers.S			\
