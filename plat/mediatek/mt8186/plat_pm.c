@@ -4,15 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/* common headers */
 #include <assert.h>
-
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/gpio.h>
 #include <lib/psci/psci.h>
 
-/* platform specific headers */
 #include <mt_gic_v3.h>
 #include <mtspmc.h>
 #include <plat/common/platform.h>
