@@ -889,7 +889,7 @@ Function : plat_fwu_set_images_source() [when PSA_FWU_SUPPORT == 1]
 
 ::
 
-    Argument : struct fwu_metadata *metadata
+    Argument : const struct fwu_metadata *metadata
     Return   : void
 
 This function is mandatory when PSA_FWU_SUPPORT is enabled.

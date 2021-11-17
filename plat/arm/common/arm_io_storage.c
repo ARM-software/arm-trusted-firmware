@@ -217,7 +217,7 @@ void arm_set_fip_addr(uint32_t active_fw_bank_idx)
  * bank to get its offset and length, and update these details in the I/O policy
  * of the FIP image.
  ******************************************************************************/
-void plat_fwu_set_images_source(struct fwu_metadata *metadata)
+void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
 {
 	arm_set_fip_addr(metadata->active_index);
 }
