@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2021, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+/ {
+	/* compatible string */
+	compatible = "arm,morello";
+
+	/*
+	 * Place holder for platform-info node with default values.
+	 * The values will be set to the correct values during
+	 * the BL2 stage of boot.
+	 */
+	platform-info {
+		local-ddr-size = <0x0 0x0>;
+#ifdef TARGET_PLATFORM_SOC
+		remote-ddr-size = <0x0 0x0>;
+		remote-chip-count = <0x0>;
+		multichip-mode = <0x0>;
+		scc-config = <0x0>;
+#endif
+	};
+};

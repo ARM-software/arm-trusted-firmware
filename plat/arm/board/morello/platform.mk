@@ -40,8 +40,10 @@ BL1_SOURCES		:=	${MORELLO_CPU_SOURCES}			\
 BL2_SOURCES		:=	${MORELLO_BASE}/morello_security.c	\
 				${MORELLO_BASE}/morello_err.c		\
 				${MORELLO_BASE}/morello_trusted_boot.c	\
+				${MORELLO_BASE}/morello_bl2_setup.c	\
+				${MORELLO_BASE}/morello_image_load.c	\
 				lib/utils/mem_region.c			\
-				${MORELLO_BASE}/morello_bl2_setup.c
+				drivers/arm/css/sds/sds.c
 
 BL31_SOURCES		:=	${MORELLO_CPU_SOURCES}			\
 				${INTERCONNECT_SOURCES}			\
@@ -54,14 +56,18 @@ BL31_SOURCES		:=	${MORELLO_CPU_SOURCES}			\
 FDT_SOURCES		+=	fdts/morello-${TARGET_PLATFORM}.dts		\
 				${MORELLO_BASE}/fdts/morello_fw_config.dts	\
 				${MORELLO_BASE}/fdts/morello_tb_fw_config.dts	\
+				${MORELLO_BASE}/fdts/morello_nt_fw_config.dts
 
 FW_CONFIG		:=	${BUILD_PLAT}/fdts/morello_fw_config.dtb
 TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/morello_tb_fw_config.dtb
+NT_FW_CONFIG		:=	${BUILD_PLAT}/fdts/morello_nt_fw_config.dtb
 
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
+# Add the NT_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 
 MORELLO_FW_NVCTR_VAL	:=	0
 TFW_NVCTR_VAL		:=	${MORELLO_FW_NVCTR_VAL}

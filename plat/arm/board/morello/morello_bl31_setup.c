@@ -204,7 +204,6 @@ void bl31_platform_setup(void)
 {
 	int ret;
 	struct morello_plat_info plat_info;
-	struct morello_plat_info *copy_dest;
 
 	ret = sds_init();
 	if (ret != SDS_OK) {
@@ -241,14 +240,4 @@ void bl31_platform_setup(void)
 #ifdef TARGET_PLATFORM_SOC
 	dmc_ecc_setup(&plat_info);
 #endif
-
-	/*
-	 * Pass platform information to BL33. This method is followed as
-	 * currently there is no BL1/BL2 involved in boot flow of MORELLO.
-	 * When TBBR is implemented for MORELLO, this method should be removed
-	 * and platform information should be passed to BL33 using NT_FW_CONFIG
-	 * passing mechanism.
-	 */
-	copy_dest = (struct morello_plat_info *)MORELLO_PLATFORM_INFO_BASE;
-	*copy_dest = plat_info;
 }
