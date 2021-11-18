@@ -747,6 +747,12 @@ Threat Model
 :|G|: `vwadekar`_
 :|F|: docs/threat_model/
 
+Conventional Changelog Extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
+:|F|: tools/conventional-changelog-tf-a
+
 .. _AlexeiFedorov: https://github.com/AlexeiFedorov
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang

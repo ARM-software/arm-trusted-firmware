@@ -1,0 +1,13 @@
+{{#if isPatch~}}
+  ###
+{{~else~}}
+  ##
+{{~/if}} {{#if @root.linkCompare~}}
+  [{{version}}]({{> compareUrl root=@root}})
+{{~else}}
+  {{~version}}
+{{~/if}}
+{{~#if title}} "{{title}}"
+{{~/if}}
+{{~#if date}} ({{date}})
+{{/if}}

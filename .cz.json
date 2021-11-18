@@ -1,5 +1,826 @@
 {
     "path": "./node_modules/cz-conventional-changelog",
     "maxHeaderWidth": 50,
-    "maxLineWidth": 72
+    "maxLineWidth": 72,
+    "types": [
+        {
+            "type": "feat",
+            "title": "New Features",
+            "description": "A new feature"
+        },
+        {
+            "type": "fix",
+            "title": "Resolved Issues",
+            "description": "A bug fix"
+        },
+        {
+            "type": "build",
+            "title": "Build System",
+            "description": "Changes that affect the build system or external dependencies",
+            "hidden": true
+        },
+        {
+            "type": "ci",
+            "title": "Continuous Integration",
+            "description": "Changes to our CI configuration files and scripts",
+            "hidden": true
+        },
+        {
+            "type": "docs",
+            "title": "Build System",
+            "description": "Documentation-only changes",
+            "hidden": true
+        },
+        {
+            "type": "perf",
+            "title": "Performance Improvements",
+            "description": "A code change that improves performance",
+            "hidden": true
+        },
+        {
+            "type": "refactor",
+            "title": "Code Refactoring",
+            "description": "A code change that neither fixes a bug nor adds a feature",
+            "hidden": true
+        },
+        {
+            "type": "revert",
+            "title": "Reverted Changes",
+            "description": "Changes that revert a previous change",
+            "hidden": true
+        },
+        {
+            "type": "style",
+            "title": "Style",
+            "description": "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc.)",
+            "hidden": true
+        },
+        {
+            "type": "test",
+            "title": "Tests",
+            "description": "Adding missing tests or correcting existing tests",
+            "hidden": true
+        },
+        {
+            "type": "chore",
+            "title": "Miscellaneous",
+            "description": "Any other change",
+            "hidden": true
+        }
+    ],
+    "sections": [
+        {
+            "title": "Architecture",
+            "sections": [
+                {
+                    "title": "Activity Monitors Extension (FEAT_AMU)",
+                    "scopes": ["amu"]
+                },
+                {
+                    "title": "Support for the `HCRX_EL2` register (FEAT_HCX)",
+                    "scopes": ["hcx"]
+                },
+                {
+                    "title": "Memory Partitioning and Monitoring (MPAM) Extension (FEAT_MPAM)",
+                    "scopes": ["mpam"]
+                },
+                {
+                    "title": "Scalable Matrix Extension (FEAT_SME)",
+                    "scopes": ["sme"]
+                },
+                {
+                    "title": "Scalable Vector Extension (FEAT_SVE)",
+                    "scopes": ["sve"]
+                },
+                {
+                    "title": "Trace Buffer Extension (FEAT_TRBE)",
+                    "scopes": ["trbe"]
+                },
+                {
+                    "title": "Self-hosted Trace Extensions (FEAT_TRF)",
+                    "scopes": ["trf", "sys_reg_trace"]
+                }
+            ]
+        },
+        {
+            "title": "Platforms",
+            "sections": [
+                {
+                    "title": "Allwinner",
+                    "scopes": ["allwinner", "plat/allwinner"]
+                },
+                {
+                    "title": "Arm",
+                    "scopes": ["arm", "plat/arm"],
+                    "sections": [
+                        {
+                            "title": "FPGA",
+                            "scopes": ["fpga", "arm_fgpa", "arm_fpga", "plat/arm_fpga"]
+                        },
+                        {
+                            "title": "FVP",
+                            "scopes": ["fvp", "plat/fvp"]
+                        },
+                        {
+                            "title": "FVP-R",
+                            "scopes": ["fvp-r", "fvp_r"]
+                        },
+                        {
+                            "title": "Juno",
+                            "scopes": ["juno"]
+                        },
+                        {
+                            "title": "Morello",
+                            "scopes": ["morello"]
+                        },
+                        {
+                            "title": "RD",
+                            "scopes": ["rd"],
+                            "sections": [
+                                {
+                                    "title": "RD-N2",
+                                    "scopes": ["rdn2", "board/rdn2"]
+                                }
+                            ]
+                        },
+                        {
+                            "title": "SGI",
+                            "scopes": ["sgi", "plat/sgi", "plat/arm/sgi" ]
+                        },
+                        {
+                            "title": "TC",
+                            "scopes": ["tc"],
+                            "sections": [
+                                {
+                                    "title": "TC0",
+                                    "scopes": ["tc0", "plat/tc0"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "Marvell",
+                    "scopes": ["marvell", "plat/marvell"],
+                    "sections": [
+                        {
+                            "title": "Armada",
+                            "scopes": ["armada", "plat/marvell/armada"],
+                            "sections": [
+                                {
+                                    "title": "A3K",
+                                    "scopes": ["a3k", "plat/marvell/a3k"]
+                                },
+                                {
+                                    "title": "A8K",
+                                    "scopes": ["a8k", "plat/marvell/a8k"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "MediaTek",
+                    "scopes": ["mediatek", "plat/mediatek/common", "plat/mediatek"],
+                    "sections": [
+                        {
+                            "title": "MT8183",
+                            "scopes": ["mt8183", "plat/mediatek/mt8183"]
+                        },
+                        {
+                            "title": "MT8192",
+                            "scopes": ["mt8192", "plat/mdeiatek/mt8192"]
+                        },
+                        {
+                            "title": "MT8195",
+                            "scopes": ["mt8195", "plat/mediatek/me8195", "plat/mediatek/mt8195", "plat/mdeiatek/mt8195"]
+                        }
+                    ]
+                },
+                {
+                    "title": "NVIDIA",
+                    "scopes": ["nvidia"],
+                    "sections": [
+                        {
+                            "title": "Tegra",
+                            "scopes": ["tegra", "plat/tegra"],
+                            "sections": [
+                                {
+                                    "title": "Tegra 132",
+                                    "scopes": ["tegra132"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "NXP",
+                    "scopes": ["nxp", "plat/nxp", "plat/nxp/common"],
+                    "sections": [
+                        {
+                            "title": "i.MX",
+                            "scopes": ["imx", "plat/imx", "plat/imx/imx"],
+                            "sections": [
+                                {
+                                    "title": "i.MX 8M",
+                                    "scopes": ["imx8m", "plat/imx8m", "plat/imx/imx8m"],
+                                    "sections": [
+                                        {
+                                            "title": "i.MX 8M Mini",
+                                            "scopes": ["imx8mm", "plat/imx/imx8m/imx8mm"]
+                                        },
+                                        {
+                                            "title": "i.MX 8M Plus",
+                                            "scopes": ["imx8mp", "plat/imx/imx8m/imx8mp"]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "title": "Layerscape",
+                            "scopes": ["layerscape", "docs/nxp/layerscape"],
+                            "sections": [
+                                {
+                                    "title": "LX2",
+                                    "scopes": ["lx2", "plat/nxp/lx2"],
+                                    "sections": [
+                                        {
+                                            "title": "LX216",
+                                            "scopes": ["lx216", "plat/nxp/lx216x"],
+                                            "sections": [
+                                                {
+                                                    "title": "LX2160",
+                                                    "scopes": ["lx2160", "plat/soc-lx2160"]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "title": "LS1028A",
+                                            "scopes": ["ls1028a", "plat/nxp/ls1028a"],
+                                            "sections": [
+                                                {
+                                                    "title": "LS1028ARDB",
+                                                    "scopes": ["ls1028ardb", "plat/nxp/ls1028ardb"]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "QEMU",
+                    "scopes": ["qemu", "plat/qemu"]
+                },
+                {
+                    "title": "QTI",
+                    "scopes": ["qti"],
+                    "sections": [
+                        {
+                            "title": "SC1780",
+                            "scopes": ["sc7180", "plat/qti/sc7180"]
+                        },
+                        {
+                            "title": "SC7280",
+                            "scopes": ["sc7280", "plat/qti/sc7280"]
+                        }
+                    ]
+                },
+                {
+                    "title": "Raspberry Pi",
+                    "scopes": ["rpi"],
+                    "sections": [
+                        {
+                            "title": "Raspberry Pi 4",
+                            "scopes": ["rpi4"]
+                        }
+                    ]
+                },
+                {
+                    "title": "Renesas",
+                    "scopes": ["renesas"],
+                    "sections": [
+                        {
+                            "title": "R-Car",
+                            "scopes": ["rcar", "plat/rcar"],
+                            "sections": [
+                                {
+                                    "title": "R-Car 3",
+                                    "scopes": ["rcar3", "plat/rcar3"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "Rockchip",
+                    "scopes": ["rockchip"],
+                    "sections": [
+                        {
+                            "title": "RK3399",
+                            "scopes": ["rk3399", "rockchip/rk3399", "rk3399/suspend"]
+                        }
+                    ]
+                },
+                {
+                    "title": "Socionext",
+                    "scopes": ["socionext"],
+                    "sections": [
+                        {
+                            "title": "Synquacer",
+                            "scopes": ["synquacer", "plat/synquacer"]
+                        }
+                    ]
+                },
+                {
+                    "title": "ST",
+                    "scopes": ["st", "plat/st"],
+                    "sections": [
+                        {
+                            "title": "ST32MP1",
+                            "scopes": ["stm32mp1", "plat/st/stm32mp1"]
+                        }
+                    ]
+                },
+                {
+                    "title": "Xilinx",
+                    "scopes": ["xilinx", "plat/xilinx"],
+                    "sections": [
+                        {
+                            "title": "Versal",
+                            "scopes": ["versal", "plat/xilinx/versal/include", "plat/xilinx/versal", "plat/versal"]
+                        },
+                        {
+                            "title": "ZynqMP",
+                            "scopes": ["zynqmp", "plat/zynqmp", "plat/xilinx/zynqmp"]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Bootloader Images",
+            "scopes": ["bl", "bl_common"],
+            "sections": [
+                {
+                    "title": "BL1",
+                    "scopes": ["bl1"]
+                },
+                {
+                    "title": "BL2",
+                    "scopes": ["bl2"]
+                }
+            ]
+        },
+        {
+            "title": "Services",
+            "scopes": ["services"],
+            "sections": [
+                {
+                    "title": "FF-A",
+                    "scopes": ["ffa", "ff-a"]
+                },
+                {
+                    "title": "RME",
+                    "scopes": ["rme"]
+                },
+                {
+                    "title": "SPM",
+                    "scopes": ["spm", "spmc", "spmd", "SPMD", "spm_mm"]
+                }
+            ]
+        },
+        {
+            "title": "Libraries",
+            "sections": [
+                {
+                    "title": "CPU Support",
+                    "scopes": ["cpus", "cpu", "errata", "errata_report"]
+                },
+                {
+                    "title": "EL3 Runtime",
+                    "scopes": ["el3-runtime", "el3_runtime"]
+                },
+                {
+                    "title": "FCONF",
+                    "scopes": ["fconf"]
+                },
+                {
+                    "title": "MPMM",
+                    "scopes": ["mpmm"]
+                },
+                {
+                    "title": "OP-TEE",
+                    "scopes": ["optee", "lib/optee"]
+                },
+                {
+                    "title": "PSCI",
+                    "scopes": ["psci"]
+                },
+                {
+                    "title": "GPT",
+                    "scopes": ["gpt", "gpt_rme"]
+                },
+                {
+                    "title": "SMCCC",
+                    "scopes": ["smccc"]
+                },
+                {
+                    "title": "Translation Tables",
+                    "scopes": ["xlat"]
+                }
+            ]
+        },
+        {
+            "title": "Drivers",
+            "sections": [
+                {
+                    "title": "Authentication",
+                    "scopes": ["auth", "driver/auth"],
+                    "sections": [
+                        {
+                            "title": "CryptoCell-713",
+                            "scopes": ["cc-713"]
+                        }
+                    ]
+                },
+                {
+                    "title": "FWU",
+                    "scopes": ["fwu", "fwu_metadata"]
+                },
+                {
+                    "title": "I/O",
+                    "scopes": ["io"],
+                    "sections": [
+                        {
+                            "title": "MTD",
+                            "scopes": ["mtd", "io_mtd"]
+                        }
+                    ]
+                },
+                {
+                    "title": "Measured Boot",
+                    "scopes": ["measured-boot", "measured boot", "measured_boot"]
+                },
+                {
+                    "title": "MMC",
+                    "scopes": ["mmc", "drivers/mmc"]
+                },
+                {
+                    "title": "MTD",
+                    "scopes": ["mtd", "drivers/mtd"],
+                    "sections": [
+                        {
+                            "title": "NAND",
+                            "scopes": ["nand"],
+                            "sections": [
+                                {
+                                    "title": "SPI NAND",
+                                    "scopes": ["spi-nand", "spi_nand"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "SCMI",
+                    "scopes": ["scmi", "scmi_common", "drivers/scmi-msg"]
+                },
+                {
+                    "title": "UFS",
+                    "scopes": ["ufs"]
+                },
+                {
+                    "title": "Arm",
+                    "scopes": ["arm-drivers"],
+                    "sections": [
+                        {
+                            "title": "Ethos-N",
+                            "scopes": ["ethos-n", "drivers/arm/ethosn"]
+                        },
+                        {
+                            "title": "GIC",
+                            "scopes": ["gic"],
+                            "sections": [
+                                {
+                                    "title": "GICv3",
+                                    "scopes": ["gicv3"],
+                                    "sections": [
+                                        {
+                                            "title": "GIC-600AE",
+                                            "scopes": ["gic600ae"]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "title": "TZC",
+                            "scopes": ["tzc"],
+                            "sections": [
+                                {
+                                    "title": "TZC-400",
+                                    "scopes": ["tzc400", "drivers/tzc400"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "Marvell",
+                    "scopes": ["marvell-drivers"],
+                    "sections": [
+                        {
+                            "title": "COMPHY",
+                            "scopes": ["marvell-comphy", "drivers/marvell/comphy"],
+                            "sections": [
+                                {
+                                    "title": "Armada 3700",
+                                    "scopes": ["marvell-comphy-3700", "drivers/marvell/comphy-3700"]
+                                },
+                                {
+                                    "title": "CP110",
+                                    "scopes": ["marvell-comphy-cp110", "drivers/marvell/comphy-cp110"]
+                                }
+                            ]
+                        },
+                        {
+                            "title": "UART",
+                            "scopes": ["marvell-uart", "plat/marvell/uart"]
+                        },
+                        {
+                            "title": "Armada",
+                            "scopes": ["armada-drivers"],
+                            "sections": [
+                                {
+                                    "title": "A3K",
+                                    "scopes": ["a3k-drivers"],
+                                    "sections": [
+                                        {
+                                            "title": "A3720",
+                                            "scopes": ["a3720-uart", "plat/marvell/a3720/uart"]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "MediaTek",
+                    "scopes": ["mediatek-drivers"],
+                    "sections": [
+                        {
+                            "title": "APU",
+                            "scopes": ["mediatek-apu", "plat/mediatek/apu"]
+                        },
+                        {
+                            "title": "EMI MPU",
+                            "scopes": ["mediatek-emi-mpu", "plat/mediatek/mpu"]
+                        },
+                        {
+                            "title": "PMIC Wrapper",
+                            "scopes": ["mediatek-pmic-wrapper", "plat/mediatek/pmic_wrap"]
+                        },
+                        {
+                            "title": "MT8192",
+                            "scopes": ["mt8192-drivers"],
+                            "sections": [
+                                {
+                                    "title": "SPM",
+                                    "scopes": ["mt8192-spm", "mediatek/mt8192/spm"]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "NXP",
+                    "scopes": ["nxp-drivers"],
+                    "sections": [
+                        {
+                            "title": "DCFG",
+                            "scopes": ["nxp-dcfg", "driver/nxp/dcfg"]
+                        },
+                        {
+                            "title": "FLEXSPI",
+                            "scopes": ["flexspi", "include/drivers/flexspi", "driver/nxp/xspi"]
+                        },
+                        {
+                            "title": "SCFG",
+                            "scopes": ["nxp-scfg", "nxp/scfg"]
+                        },
+                        {
+                            "title": "SFP",
+                            "scopes": ["nxp-sfp", "drivers/nxp/sfp"]
+                        }
+                    ]
+                },
+                {
+                    "title": "Renesas",
+                    "scopes": ["renesas-drivers"],
+                    "sections": [
+                        {
+                            "title": "R-Car3",
+                            "scopes": ["rcar3-drivers", "drivers/rcar3"]
+                        }
+                    ]
+                },
+                {
+                    "title": "ST",
+                    "scopes": ["st-drivers", "drivers/st"],
+                    "sections": [
+                        {
+                            "title": "Clock",
+                            "scopes": ["st-clock", "stm32mp_clk", "drivers/st/clk", "stm32mp1_clk"]
+                        },
+                        {
+                            "title": "I/O",
+                            "scopes": ["st-io-drivers"],
+                            "sections": [
+                                {
+                                    "title": "STM32 Image",
+                                    "scopes": ["st-io-stm32image", "io-stm32image", "io_stm32image"]
+                                }
+                            ]
+                        },
+                        {
+                            "title": "SDMMC2",
+                            "scopes": ["st-sdmmc2", "stm32_sdmmc2"]
+                        },
+                        {
+                            "title": "ST PMIC",
+                            "scopes": ["st-pmic", "drivers/st/pmic"]
+                        },
+                        {
+                            "title": "STPMIC1",
+                            "scopes": ["stpmic1"]
+                        },
+                        {
+                            "title": "UART",
+                            "scopes": ["st-uart"],
+                            "sections": [
+                                {
+                                    "title": "STM32 Console",
+                                    "scopes": ["stm32-console", "stm32_console"]
+                                }
+                            ]
+                        },
+                        {
+                            "title": "USB",
+                            "scopes": ["st-usb", "drivers/st/usb"]
+                        }
+                    ]
+                },
+                {
+                    "title": "USB",
+                    "scopes": ["usb", "drivers/usb"]
+                }
+            ]
+        },
+        {
+            "title": "Miscellaneous",
+            "sections": [
+                {
+                    "title": "AArch64",
+                    "scopes": ["aarch64"]
+                },
+                {
+                    "title": "Debug",
+                    "scopes": ["debug", "common/debug"]
+                },
+                {
+                    "title": "CRC32",
+                    "scopes": ["crc32"],
+                    "sections": [
+                        {
+                            "title": "Hardware CRC32",
+                            "scopes": ["hw-crc32", "hw_crc", "hw_crc32"]
+                        },
+                        {
+                            "title": "Software CRC32",
+                            "scopes": ["sw-crc32", "sw_crc32"]
+                        }
+                    ]
+                },
+                {
+                    "title": "DT Bindings",
+                    "scopes": ["dt-bindings"]
+                },
+                {
+                    "title": "FDT Wrappers",
+                    "scopes": ["fdt-wrappers"]
+                },
+                {
+                    "title": "FDTs",
+                    "scopes": ["fdts", "fdt"],
+                    "sections": [
+                        {
+                            "title": "Morello",
+                            "scopes": ["morello-fdts", "fdts/morello"]
+                        },
+                        {
+                            "title": "STM32MP1",
+                            "scopes": ["stm32mp1-fdts", "fdts stm32mp1"]
+                        }
+                    ]
+                },
+                {
+                    "title": "PIE",
+                    "scopes": ["pie"]
+                },
+                {
+                    "title": "Security",
+                    "scopes": ["security"]
+                },
+                {
+                    "title": "SDEI",
+                    "scopes": ["sdei"]
+                },
+                {
+                    "title": "TBBR",
+                    "scopes": ["tbbr"]
+                },
+                {
+                    "title": "NXP",
+                    "sections": [
+                        {
+                            "title": "OCRAM",
+                            "scopes": ["nxp-ocram", "nxp/common/ocram"]
+                        },
+                        {
+                            "title": "PSCI",
+                            "scopes": ["nxp-psci", "plat/nxp/common/psci"]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Documentation",
+            "scopes": ["docs", "doc"],
+            "sections": [
+                {
+                    "title": "Changelog",
+                    "scopes": ["changelog"]
+                },
+                {
+                    "title": "Commit Style",
+                    "scopes": ["commit-style"]
+                },
+                {
+                    "title": "Contribution Guidelines",
+                    "scopes": ["contributing", "contribution-guidelines", "docs-contributing.rst"]
+                },
+                {
+                    "title": "Maintainers",
+                    "scopes": ["maintainers"]
+                },
+                {
+                    "title": "Prerequisites",
+                    "scopes": ["prerequisites"]
+                }
+            ]
+        },
+        {
+            "title": "Build System",
+            "scopes": ["build", "makefile", "Makefile"],
+            "sections": [
+                {
+                    "title": "Git Hooks",
+                    "scopes": ["hooks"]
+                }
+            ]
+        },
+        {
+            "title": "Tools",
+            "sections": [
+                {
+                    "title": "STM32 Image",
+                    "scopes": ["stm32image", "tools/stm32image"]
+                }
+            ]
+        },
+        {
+            "title": "Dependencies",
+            "scopes": ["deps"],
+            "sections": [
+                {
+                    "title": "checkpatch",
+                    "scopes": ["checkpatch"]
+                },
+                {
+                    "title": "libfdt",
+                    "scopes": ["libfdt"]
+                },
+                {
+                    "title": "Node Package Manager (NPM)",
+                    "scopes": ["npm"]
+                }
+            ]
+        }
+    ]
 }

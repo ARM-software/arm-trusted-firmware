@@ -8,6 +8,7 @@ Processes & Policies
 
    security
    platform-compatibility-policy
+   commit-style
    coding-style
    coding-guidelines
    contributing

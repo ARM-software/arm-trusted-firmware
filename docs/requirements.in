@@ -1,0 +1,5 @@
+myst-parser==0.15.2
+pip-tools==6.4.0
+sphinx==4.2.0
+sphinx-rtd-theme==1.0.0
+sphinxcontrib-plantuml==0.22

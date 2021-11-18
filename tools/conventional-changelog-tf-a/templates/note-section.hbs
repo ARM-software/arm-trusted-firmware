@@ -1,0 +1,13 @@
+{{ header }}
+
+{{#if notes.length ~}}
+  {{#each notes ~}}
+    {{#tf-a-mdlist 0}}{{> tf-a-note root=@root showScope=../topLevel }}{{/tf-a-mdlist}}
+  {{/each ~}}
+{{/if ~}}
+
+{{#if sections.length ~}}
+  {{#each sections ~}}
+    {{#tf-a-mdlist 0}}{{> tf-a-note-section root=@root header=(tf-a-concat "**" title "**") }}{{/tf-a-mdlist}}
+  {{/each~}}
+{{/if}}

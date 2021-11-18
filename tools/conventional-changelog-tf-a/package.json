@@ -1,0 +1,12 @@
+{
+  "name": "conventional-changelog-tf-a",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "conventional-changelog-conventionalcommits": "^4.6.1",
+    "execa": "^5.1.1",
+    "lodash": "^4.17.21",
+    "q": "^1.5.1"
+  }
+}

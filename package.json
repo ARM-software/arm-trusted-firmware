@@ -1,13 +1,19 @@
 {
+  "name": "trusted-firmware-a",
+  "version": "2.5.0",
+  "license": "BSD-3-Clause",
   "private": true,
   "scripts": {
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "release": "standard-version -i docs/change-log.md"
   },
   "devDependencies": {
-    "@commitlint/cli": "^11.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/cli": "^14.1.0",
+    "@commitlint/config-conventional": "^14.1.0",
     "commitizen": "^4.2.4",
+    "conventional-changelog-tf-a": "file:tools/conventional-changelog-tf-a",
     "cz-conventional-changelog": "^3.3.0",
-    "husky": "^5.0.4"
+    "husky": "^7.0.4",
+    "standard-version": "^9.3.2"
   }
 }
