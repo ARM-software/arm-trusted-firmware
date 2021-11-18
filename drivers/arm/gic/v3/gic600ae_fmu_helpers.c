@@ -46,17 +46,20 @@
 /* Helper function to wait until FMU is ready to accept the next command */
 static void wait_until_fmu_is_idle(uintptr_t base)
 {
-	uint64_t timeout_ref = timeout_init_us(GICFMU_IDLE_TIMEOUT_US);
+	uint32_t timeout_count = GICFMU_IDLE_TIMEOUT_US;
 	uint64_t status;
 
 	/* wait until status is 'busy' */
 	do {
 		status = (gic_fmu_read_status(base) & BIT(0));
 
-		if (timeout_elapsed(timeout_ref)) {
+		if (timeout_count-- == 0U) {
 			ERROR("GIC600 AE FMU is not responding\n");
 			panic();
 		}
+
+		udelay(1U);
+
 	} while (status == U(0));
 }
 
