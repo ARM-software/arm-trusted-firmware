@@ -547,9 +547,8 @@ Primary core boot-up
 Upon boot-up, BL31 hands over to the SPMC (BL32) on the primary boot physical
 core. The SPMC performs its platform initializations and registers the SPMC
 secondary physical core entry point physical address by the use of the
-FFA_SECONDARY_EP_REGISTER interface (SMC invocation from the SPMC to the SPMD
-at secure physical FF-A instance). This interface is implementation-defined in
-context of FF-A v1.0.
+`FFA_SECONDARY_EP_REGISTER`_ interface (SMC invocation from the SPMC to the SPMD
+at secure physical FF-A instance).
 
 The SPMC then creates secure partitions based on SP packages and manifests. Each
 secure partition is launched in sequence (`SP Boot order`_) on their "primary"
@@ -593,6 +592,67 @@ a NWd FF-A driver has been loaded:
 
 Refer to `Power management`_ for further details.
 
+Notifications
+-------------
+
+The FF-A v1.1 specification `[1]`_ defines notifications as an asynchronous
+communication mechanism with non-blocking semantics. It allows for one FF-A
+endpoint to signal another for service provision, without hindering its current
+progress.
+
+Hafnium currently supports 64 notifications. The IDs of each notification define
+a position in a 64-bit bitmap.
+
+The signaling of notifications can interchangeably happen between NWd and SWd
+FF-A endpoints.
+
+The SPMC is in charge of managing notifications from SPs to SPs, from SPs to
+VMs, and from VMs to SPs. An hypervisor component would only manage
+notifications from VMs to VMs. Given the SPMC has no visibility of the endpoints
+deployed in NWd, the Hypervisor or OS kernel must invoke the interface
+FFA_NOTIFICATION_BITMAP_CREATE to allocate the notifications bitmap per FF-A
+endpoint in the NWd that supports it.
+
+A sender can signal notifications once the receiver has provided it with
+permissions. Permissions are provided by invoking the interface
+FFA_NOTIFICATION_BIND.
+
+Notifications are signaled by invoking FFA_NOTIFICATION_SET. Henceforth
+they are considered to be in a pending sate. The receiver can retrieve its
+pending notifications invoking FFA_NOTIFICATION_GET, which, from that moment,
+are considered to be handled.
+
+Per the FF-A v1.1 spec, each FF-A endpoint must be associated with a scheduler
+that is in charge of donating CPU cycles for notifications handling. The
+FF-A driver calls FFA_NOTIFICATION_INFO_GET to retrieve the information about
+which FF-A endpoints have pending notifications. The receiver scheduler is
+called and informed by the FF-A driver, and it should allocate CPU cycles to the
+receiver.
+
+There are two types of notifications supported:
+- Global, which are targeted to a FF-A endpoint and can be handled within any of
+its execution contexts, as determined by the scheduler of the system.
+- Per-vCPU, which are targeted to a FF-A endpoint and to be handled within a
+a specific execution context, as determined by the sender.
+
+The type of a notification is set when invoking FFA_NOTIFICATION_BIND to give
+permissions to the sender.
+
+Notification signaling resorts to two interrupts:
+- Schedule Receiver Interrupt: Non-secure physical interrupt to be handled by
+the FF-A 'transport' driver within the receiver scheduler. At initialization
+the SPMC (as suggested by the spec) configures a secure SGI, as non-secure, and
+triggers it when there are pending notifications, and the respective receivers
+need CPU cycles to handle them.
+- Notifications Pending Interrupt: Virtual Interrupt to be handled by the
+receiver of the notification. Set when there are pending notifications. For
+per-vCPU the NPI is pended at the handling of FFA_NOTIFICATION_SET interface.
+
+The notifications receipt support is enabled in the partition FF-A manifest.
+
+The subsequent section provides more details about the each one of the
+FF-A interfaces for notifications support.
+
 Mandatory interfaces
 --------------------
 
@@ -602,7 +662,7 @@ The following interfaces are exposed to SPs:
 -  ``FFA_FEATURES``
 -  ``FFA_RX_RELEASE``
 -  ``FFA_RXTX_MAP``
--  ``FFA_RXTX_UNMAP`` (not implemented)
+-  ``FFA_RXTX_UNMAP``
 -  ``FFA_PARTITION_INFO_GET``
 -  ``FFA_ID_GET``
 -  ``FFA_MSG_WAIT``
@@ -615,7 +675,18 @@ The following interfaces are exposed to SPs:
 -  ``FFA_MEM_RETRIEVE_RESP``
 -  ``FFA_MEM_RELINQUISH``
 -  ``FFA_MEM_RECLAIM``
--  ``FFA_SECONDARY_EP_REGISTER``
+
+As part of the support of FF-A v1.1, the following interfaces were added:
+
+ - ``FFA_NOTIFICATION_BITMAP_CREATE``
+ - ``FFA_NOTIFICATION_BITMAP_DESTROY``
+ - ``FFA_NOTIFICATION_BIND``
+ - ``FFA_NOTIFICATION_UNBIND``
+ - ``FFA_NOTIFICATION_SET``
+ - ``FFA_NOTIFICATION_GET``
+ - ``FFA_NOTIFICATION_INFO_GET``
+ - ``FFA_SPM_ID_GET``
+ - ``FFA_SECONDARY_EP_REGISTER``
 
 FFA_VERSION
 ~~~~~~~~~~~
@@ -651,9 +722,9 @@ When invoked from the Hypervisor or OS kernel, the buffers are mapped into the
 SPMC EL2 Stage-1 translation regime and marked as NS buffers in the MMU
 descriptors.
 
-Note:
-
-- FFA_RXTX_UNMAP is not implemented.
+The FFA_RXTX_UNMAP unmaps the RX/TX pair from the translation regime of the
+caller, either it being the Hypervisor or OS kernel, as well as a secure
+partition.
 
 FFA_PARTITION_INFO_GET
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -718,6 +789,81 @@ and responses with the following rules:
 - An SP cannot send a direct request to an Hypervisor or OS kernel.
 - An Hypervisor or OS kernel can send a direct request to an SP.
 - An SP can send a direct response to an Hypervisor or OS kernel.
+
+FFA_NOTIFICATION_BITMAP_CREATE/FFA_NOTIFICATION_BITMAP_DESTROY
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The secure partitions notifications bitmap are statically allocated by the SPMC.
+Hence, this interface is not to be issued by secure partitions.
+
+At initialization, the SPMC is not aware of VMs/partitions deployed in the
+normal world. Hence, the Hypervisor or OS kernel must use both ABIs for SPMC
+to be prepared to handle notifications for the provided VM ID.
+
+FFA_NOTIFICATION_BIND/FFA_NOTIFICATION_UNBIND
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pair of interfaces to manage permissions to signal notifications. Prior to
+handling notifications, an FF-A endpoint must allow a given sender to signal a
+bitmap of notifications.
+
+If the receiver doesn't have notification support enabled in its FF-A manifest,
+it won't be able to bind notifications, hence forbidding it to receive any
+notifications.
+
+FFA_NOTIFICATION_SET/FFA_NOTIFICATION_GET
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the notifications set are per-vCPU, the NPI interrupt is set as pending
+for a given receiver partition.
+
+The FFA_NOTIFICATION_GET will retrieve all pending global notifications and all
+pending per-vCPU notifications targeted to the current vCPU.
+
+Hafnium keeps the global counting of the pending notifications, which is
+incremented and decremented at the handling of FFA_NOTIFICATION_SET and
+FFA_NOTIFICATION_GET, respectively. If the counter reaches zero, prior to SPMC
+triggering the SRI, it won't be triggered.
+
+FFA_NOTIFICATION_INFO_GET
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Hafnium keeps the global counting of pending notifications whose info has been
+retrieved by this interface. The counting is incremented and decremented at the
+handling of FFA_NOTIFICATION_INFO_GET and FFA_NOTIFICATION_GET, respectively.
+It also tracks the notifications whose info has been retrieved individually,
+such that it avoids duplicating returned information for subsequent calls to
+FFA_NOTIFICATION_INFO_GET. For each notification, this state information is
+reset when receiver called FFA_NOTIFICATION_GET to retrieve them.
+
+FFA_SPM_ID_GET
+~~~~~~~~~~~~~~
+
+Returns the FF-A ID allocated to the SPM component (which includes SPMC + SPMD).
+At initialization, the SPMC queries the SPMD for the SPM ID, using this
+same interface, and saves it.
+
+The call emitted at NS and secure physical FF-A instances returns the SPM ID
+specified in the SPMC manifest.
+
+Secure partitions call this interface at the virtual instance, to which the SPMC
+shall return the priorly retrieved SPM ID.
+
+The Hypervisor or OS kernel can issue an FFA_SPM_ID_GET call handled by the
+SPMD, which returns the SPM ID.
+
+FFA_SECONDARY_EP_REGISTER
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the SPMC boots, all secure partitions are initialized on their primary
+Execution Context.
+
+The interface FFA_SECONDARY_EP_REGISTER is to be used by a secure partitions
+from its first execution context, to provide the entry point address for
+secondary execution contexts.
+
+A secondary EC is first resumed either upon invocation of PSCI_CPU_ON from
+the NWd or by invocation of FFA_RUN.
 
 SPMC-SPMD direct requests/responses
 -----------------------------------
