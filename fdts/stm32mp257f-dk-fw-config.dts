@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (c) 2025, STMicroelectronics - All Rights Reserved
+ */
+
+#include "stm32mp25-fw-config.dtsi"
+#include "stm32mp257f-dk-ca35tdcid-fw-config.dtsi"
