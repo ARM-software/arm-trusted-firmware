@@ -18,6 +18,8 @@
 #include <plat_mtk_lpm.h>
 #include <plat_params.h>
 #include <plat_pm.h>
+#include <pmic.h>
+#include <rtc.h>
 
 /*
  * Cluster state request:
@@ -335,6 +337,18 @@ static void plat_get_sys_suspend_power_state(psci_power_state_t *req_state)
 			sizeof(plat_power_state[cpu]));
 }
 
+static void __dead2 plat_mtk_system_off(void)
+{
+	INFO("MTK System Off\n");
+
+	rtc_power_off_sequence();
+	pmic_power_off();
+
+	wfi();
+	ERROR("MTK System Off: operation not handled.\n");
+	panic();
+}
+
 static const plat_psci_ops_t plat_psci_ops = {
 	.cpu_standby			= plat_cpu_standby,
 	.pwr_domain_on			= plat_power_domain_on,
@@ -343,7 +357,8 @@ static const plat_psci_ops_t plat_psci_ops = {
 	.pwr_domain_suspend		= plat_power_domain_suspend,
 	.pwr_domain_suspend_finish	= plat_power_domain_suspend_finish,
 	.validate_power_state		= plat_validate_power_state,
-	.get_sys_suspend_power_state	= plat_get_sys_suspend_power_state
+	.get_sys_suspend_power_state	= plat_get_sys_suspend_power_state,
+	.system_off			= plat_mtk_system_off,
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
