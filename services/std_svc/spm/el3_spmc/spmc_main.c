@@ -90,6 +90,20 @@ struct ns_endpoint_desc *spmc_get_hyp_ctx(void)
 	return &(ns_ep_desc[0]);
 }
 
+/*
+ * Helper function to obtain the RX/TX buffer pair descriptor of the Hypervisor
+ * or OS kernel in the normal world or the last SP that was run.
+ */
+struct mailbox *spmc_get_mbox_desc(bool secure_origin)
+{
+	/* Obtain the RX/TX buffer pair descriptor. */
+	if (secure_origin) {
+		return &(spmc_get_current_sp_ctx()->mailbox);
+	} else {
+		return &(spmc_get_hyp_ctx()->mailbox);
+	}
+}
+
 /******************************************************************************
  * This function returns to the place where spmc_sp_synchronous_entry() was
  * called originally.
