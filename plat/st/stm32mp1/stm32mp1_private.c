@@ -664,6 +664,12 @@ uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags)
 }
 #endif
 
+bool stm32mp_is_wakeup_from_standby(void)
+{
+	/* TODO add source code to determine if platform is waking up from standby mode */
+	return false;
+}
+
 uintptr_t stm32_get_bkpr_boot_mode_addr(void)
 {
 	return tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);

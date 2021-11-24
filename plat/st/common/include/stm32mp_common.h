@@ -77,6 +77,8 @@ uintptr_t get_uart_address(uint32_t instance_nb);
 /* Setup the UART console */
 int stm32mp_uart_console_setup(void);
 
+bool stm32mp_is_wakeup_from_standby(void);
+
 /*
  * Platform util functions for the GPIO driver
  * @bank: Target GPIO bank ID as per DT bindings

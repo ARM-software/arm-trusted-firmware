@@ -290,6 +290,12 @@ void stm32mp_print_boardinfo(void)
 	}
 }
 
+bool stm32mp_is_wakeup_from_standby(void)
+{
+	/* TODO add source code to determine if platform is waking up from standby mode */
+	return false;
+}
+
 uintptr_t stm32_get_bkpr_boot_mode_addr(void)
 {
 	return tamp_bkpr(BKPR_BOOT_MODE);
