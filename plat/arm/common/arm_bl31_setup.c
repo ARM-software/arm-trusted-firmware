@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -163,6 +163,14 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
+
+#if ENABLE_RME
+	/*
+	 * Populate entry point information for RMM.
+	 * Only PC needs to be set as other fields are determined by RMMD.
+	 */
+	rmm_image_ep_info.pc = RMM_BASE;
+#endif /* ENABLE_RME */
 
 #else /* RESET_TO_BL31 */
 

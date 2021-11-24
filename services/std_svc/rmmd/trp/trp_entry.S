@@ -6,6 +6,8 @@
 
 #include <asm_macros.S>
 #include <services/rmmd_svc.h>
+
+#include <platform_def.h>
 #include "trp_private.h"
 
 .global trp_head
@@ -31,6 +33,28 @@
 	 * ---------------------------------------------
 	 */
 trp_head:
+	/*
+	 * Stash arguments from previous boot stage
+	 */
+	mov	x20, x0
+	mov	x21, x1
+	mov	x22, x2
+	mov	x23, x3
+
+	/*
+	 * Validate CPUId before allocating a stack.
+	 */
+	cmp	x20, #PLATFORM_CORE_COUNT
+	b.lo	1f
+
+	mov_imm	x0, RMM_BOOT_COMPLETE
+	mov_imm	x1, E_RMM_BOOT_CPU_ID_OUT_OF_RANGE
+	smc	#0
+
+	/* EL3 should never return back here, so panic if it does */
+	b	trp_panic
+
+1:
 	bl	plat_set_my_stack
 
 	/*
@@ -45,7 +69,6 @@ trp_head:
 	adr	x2, cold_boot_flag
 	str	xzr, [x2]
 
-
 	/* ---------------------------------------------
 	 * Zero out BSS section
 	 * ---------------------------------------------
@@ -54,14 +77,20 @@ trp_head:
 	ldr	x1, =__BSS_SIZE__
 	bl	zeromem
 
+	mov	x0, x20
+	mov	x1, x21
+	mov	x2, x22
+	mov	x3, x23
 	bl	trp_setup
-
 	bl	trp_main
 warm_boot:
-	mov_imm	x0, RMMD_RMI_REQ_COMPLETE
-	mov	x1, xzr
+	mov_imm	x0, RMM_BOOT_COMPLETE
+	mov	x1, xzr /* RMM_BOOT_SUCCESS */
 	smc	#0
 	b	trp_handler
+
+trp_panic:
+	no_ret plat_panic_handler
 
 	/*
 	 * Flag to mark if it is a cold boot.

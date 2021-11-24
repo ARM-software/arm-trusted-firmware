@@ -127,11 +127,7 @@
 #if defined(IMAGE_BL31)
 # if SPM_MM
 #  define PLAT_ARM_MMAP_ENTRIES		10
-#  if ENABLE_RME
-#   define MAX_XLAT_TABLES		11
-#  else
-#   define MAX_XLAT_TABLES		9
-#  endif
+#  define MAX_XLAT_TABLES		9
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	30
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # elif SPMC_AT_EL3

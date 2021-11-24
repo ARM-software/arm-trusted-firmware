@@ -33,6 +33,17 @@
 #include "rmmd_private.h"
 
 /*******************************************************************************
+ * RMM <-> EL3 shared buffer information.
+ ******************************************************************************/
+static size_t shared_buf_size;
+static uintptr_t shared_buf_base;
+
+/*******************************************************************************
+ * RMM boot failure flag
+ ******************************************************************************/
+static bool rmm_boot_failed;
+
+/*******************************************************************************
  * RMM context information.
  ******************************************************************************/
 rmmd_rmm_context_t rmm_context[PLATFORM_CORE_COUNT];
@@ -132,13 +143,10 @@ static void manage_extensions_realm(cpu_context_t *ctx)
  ******************************************************************************/
 static int32_t rmm_init(void)
 {
-
-	uint64_t rc;
-
+	long rc;
 	rmmd_rmm_context_t *ctx = &rmm_context[plat_my_core_pos()];
 
 	INFO("RMM init start.\n");
-	ctx->state = RMM_STATE_RESET;
 
 	/* Enable architecture extensions */
 	manage_extensions_realm(&ctx->cpu_ctx);
@@ -147,12 +155,13 @@ static int32_t rmm_init(void)
 	rmm_el2_context_init(&ctx->cpu_ctx.el2_sysregs_ctx);
 
 	rc = rmmd_rmm_sync_entry(ctx);
-	if (rc != 0ULL) {
-		ERROR("RMM initialisation failed 0x%" PRIx64 "\n", rc);
-		panic();
+	if (rc != E_RMM_BOOT_SUCCESS) {
+		ERROR("RMM init failed: %ld\n", rc);
+		/* Mark the boot as failed for all the CPUs */
+		rmm_boot_failed = true;
+		return 0;
 	}
 
-	ctx->state = RMM_STATE_IDLE;
 	INFO("RMM init end.\n");
 
 	return 1;
@@ -191,6 +200,25 @@ int rmmd_setup(void)
 	rmm_ep_info->spsr = SPSR_64(MODE_EL2,
 					MODE_SP_ELX,
 					DISABLE_ALL_EXCEPTIONS);
+
+	shared_buf_size =
+			plat_rmmd_get_el3_rmm_shared_mem(&shared_buf_base);
+
+	assert((shared_buf_size == SZ_4K) &&
+					((void *)shared_buf_base != NULL));
+
+	/*
+	 * Prepare coldboot arguments for RMM:
+	 * arg0: This CPUID (primary processor).
+	 * arg1: Version for this Boot Interface.
+	 * arg2: PLATFORM_CORE_COUNT.
+	 * arg3: Base address for the EL3 <-> RMM shared area. The boot
+	 *       manifest will be stored at the beginning of this area.
+	 */
+	rmm_ep_info->args.arg0 = linear_id;
+	rmm_ep_info->args.arg1 = RMM_EL3_INTERFACE_VERSION;
+	rmm_ep_info->args.arg2 = PLATFORM_CORE_COUNT;
+	rmm_ep_info->args.arg3 = shared_buf_base;
 
 	/* Initialise RMM context with this entry point information */
 	cm_setup_context(&rmm_ctx->cpu_ctx, rmm_ep_info);
@@ -244,8 +272,13 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 				uint64_t x3, uint64_t x4, void *cookie,
 				void *handle, uint64_t flags)
 {
-	rmmd_rmm_context_t *ctx = &rmm_context[plat_my_core_pos()];
 	uint32_t src_sec_state;
+
+	/* If RMM failed to boot, treat any RMI SMC as unknown */
+	if (rmm_boot_failed) {
+		WARN("RMMD: Failed to boot up RMM. Ignoring RMI call\n");
+		SMC_RET1(handle, SMC_UNK);
+	}
 
 	/* Determine which security state this SMC originated from */
 	src_sec_state = caller_sec_state(flags);
@@ -272,11 +305,6 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 	switch (smc_fid) {
 	case RMMD_RMI_REQ_COMPLETE:
-		if (ctx->state == RMM_STATE_RESET) {
-			VERBOSE("RMMD: running rmmd_rmm_sync_exit\n");
-			rmmd_rmm_sync_exit(x1);
-		}
-
 		return rmmd_smc_forward(REALM, NON_SECURE, x1,
 					x2, x3, x4, 0, handle);
 
@@ -293,11 +321,26 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
  ******************************************************************************/
 static void *rmmd_cpu_on_finish_handler(const void *arg)
 {
-	int32_t rc;
+	long rc;
 	uint32_t linear_id = plat_my_core_pos();
 	rmmd_rmm_context_t *ctx = &rmm_context[linear_id];
 
-	ctx->state = RMM_STATE_RESET;
+	if (rmm_boot_failed) {
+		/* RMM Boot failed on a previous CPU. Abort. */
+		ERROR("RMM Failed to initialize. Ignoring for CPU%d\n",
+								linear_id);
+		return NULL;
+	}
+
+	/*
+	 * Prepare warmboot arguments for RMM:
+	 * arg0: This CPUID.
+	 * arg1 to arg3: Not used.
+	 */
+	rmm_ep_info->args.arg0 = linear_id;
+	rmm_ep_info->args.arg1 = 0ULL;
+	rmm_ep_info->args.arg2 = 0ULL;
+	rmm_ep_info->args.arg3 = 0ULL;
 
 	/* Initialise RMM context with this entry point information */
 	cm_setup_context(&ctx->cpu_ctx, rmm_ep_info);
@@ -309,13 +352,13 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 	rmm_el2_context_init(&ctx->cpu_ctx.el2_sysregs_ctx);
 
 	rc = rmmd_rmm_sync_entry(ctx);
-	if (rc != 0) {
-		ERROR("RMM initialisation failed (%d) on CPU%d\n", rc,
-		      linear_id);
-		panic();
+
+	if (rc != E_RMM_BOOT_SUCCESS) {
+		ERROR("RMM init failed on CPU%d: %ld\n", linear_id, rc);
+		/* Mark the boot as failed for any other booting CPU */
+		rmm_boot_failed = true;
 	}
 
-	ctx->state = RMM_STATE_IDLE;
 	return NULL;
 }
 
@@ -354,6 +397,12 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	uint32_t src_sec_state;
 	int ret;
 
+	/* If RMM failed to boot, treat any RMM-EL3 interface SMC as unknown */
+	if (rmm_boot_failed) {
+		WARN("RMMD: Failed to boot up RMM. Ignoring RMM-EL3 call\n");
+		SMC_RET1(handle, SMC_UNK);
+	}
+
 	/* Determine which security state this SMC originated from */
 	src_sec_state = caller_sec_state(flags);
 
@@ -375,6 +424,11 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	case RMMD_ATTEST_GET_REALM_KEY:
 		ret = rmmd_attest_get_signing_key(x1, &x2, x3);
 		SMC_RET2(handle, ret, x2);
+
+	case RMM_BOOT_COMPLETE:
+		VERBOSE("RMMD: running rmmd_rmm_sync_exit\n");
+		rmmd_rmm_sync_exit(x1);
+
 	default:
 		WARN("RMMD: Unsupported RMM-EL3 call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);

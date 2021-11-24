@@ -2017,7 +2017,7 @@ state. This function must return a pointer to the ``entry_point_info`` structure
 (that was copied during ``bl31_early_platform_setup()``) if the image exists. It
 should return NULL otherwise.
 
-Function : plat_get_cca_attest_token() [mandatory when ENABLE_RME == 1]
+Function : plat_rmmd_get_cca_attest_token() [mandatory when ENABLE_RME == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
@@ -2043,8 +2043,8 @@ The parameters of the function are:
 
 The function returns 0 on success, -EINVAL on failure.
 
-Function : plat_get_cca_realm_attest_key() [mandatory when ENABLE_RME == 1]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function : plat_rmmd_get_cca_realm_attest_key() [mandatory when ENABLE_RME == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -2068,6 +2068,18 @@ The parameters of the function are:
            belongs.
 
 The function returns 0 on success, -EINVAL on failure.
+
+Function : plat_rmmd_get_el3_rmm_shared_mem() [when ENABLE_RME == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+   Argument : uintptr_t *
+   Return   : size_t
+
+This function returns the size of the shared area between EL3 and RMM (or 0 on
+failure). A pointer to the shared area (or a NULL pointer on failure) is stored
+in the pointer passed as argument.
 
 Function : bl31_plat_enable_mmu [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

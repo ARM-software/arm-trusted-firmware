@@ -79,6 +79,7 @@
  *   - SCP TZC DRAM: If present, DRAM reserved for SCP use
  *   - L1 GPT DRAM: Reserved for L1 GPT if RME is enabled
  *   - REALM DRAM: Reserved for Realm world if RME is enabled
+ *   - TF-A <-> RMM SHARED: Area shared for communication between TF-A and RMM
  *   - AP TZC DRAM: The remaining TZC secured DRAM reserved for AP use
  *
  *              RME enabled(64MB)                RME not enabled(16MB)
@@ -87,11 +88,16 @@
  *              |  AP TZC (~28MB)  |             |  AP TZC (~14MB) |
  *              --------------------             -------------------
  *              |                  |             |                 |
- *              |  REALM (32MB)    |             |  EL3 TZC (2MB)  |
- *              --------------------             -------------------
- *              |                  |             |                 |
- *              |  EL3 TZC (3MB)   |             |    SCP TZC      |
- *              --------------------  0xFFFF_FFFF-------------------
+ *              |   REALM (RMM)    |             |  EL3 TZC (2MB)  |
+ *              |   (32MB - 4KB)   |             -------------------
+ *              --------------------             |                 |
+ *              |                  |             |    SCP TZC      |
+ *              |   TF-A <-> RMM   |  0xFFFF_FFFF-------------------
+ *              |   SHARED (4KB)   |
+ *              --------------------
+ *              |                  |
+ *              |  EL3 TZC (3MB)   |
+ *              --------------------
  *              | L1 GPT + SCP TZC |
  *              |       (~1MB)     |
  *  0xFFFF_FFFF --------------------
@@ -106,12 +112,17 @@
  */
 #define ARM_EL3_TZC_DRAM1_SIZE		UL(0x00300000) /* 3MB */
 #define ARM_L1_GPT_SIZE			UL(0x00100000) /* 1MB */
-#define ARM_REALM_SIZE			UL(0x02000000) /* 32MB */
+
+/* 32MB - ARM_EL3_RMM_SHARED_SIZE */
+#define ARM_REALM_SIZE			(UL(0x02000000) -		\
+						ARM_EL3_RMM_SHARED_SIZE)
+#define ARM_EL3_RMM_SHARED_SIZE		(PAGE_SIZE)    /* 4KB */
 #else
 #define ARM_TZC_DRAM1_SIZE		UL(0x01000000) /* 16MB */
 #define ARM_EL3_TZC_DRAM1_SIZE		UL(0x00200000) /* 2MB */
 #define ARM_L1_GPT_SIZE			UL(0)
 #define ARM_REALM_SIZE			UL(0)
+#define ARM_EL3_RMM_SHARED_SIZE		UL(0)
 #endif /* ENABLE_RME */
 
 #define ARM_SCP_TZC_DRAM1_BASE		(ARM_DRAM1_BASE +		\
@@ -128,13 +139,20 @@
 #define ARM_L1_GPT_END			(ARM_L1_GPT_ADDR_BASE +		\
 					ARM_L1_GPT_SIZE - 1U)
 
-#define ARM_REALM_BASE			(ARM_DRAM1_BASE +		\
-					ARM_DRAM1_SIZE -		\
-					(ARM_SCP_TZC_DRAM1_SIZE +	\
-					ARM_EL3_TZC_DRAM1_SIZE +	\
-					ARM_REALM_SIZE +		\
-					ARM_L1_GPT_SIZE))
+#define ARM_REALM_BASE			(ARM_EL3_RMM_SHARED_BASE -	\
+					 ARM_REALM_SIZE)
+
 #define ARM_REALM_END                   (ARM_REALM_BASE + ARM_REALM_SIZE - 1U)
+
+#define ARM_EL3_RMM_SHARED_BASE		(ARM_DRAM1_BASE +		\
+					 ARM_DRAM1_SIZE -		\
+					(ARM_SCP_TZC_DRAM1_SIZE +	\
+					ARM_L1_GPT_SIZE +		\
+					ARM_EL3_RMM_SHARED_SIZE +	\
+					ARM_EL3_TZC_DRAM1_SIZE))
+
+#define ARM_EL3_RMM_SHARED_END		(ARM_EL3_RMM_SHARED_BASE +	\
+					 ARM_EL3_RMM_SHARED_SIZE - 1U)
 #endif /* ENABLE_RME */
 
 #define ARM_EL3_TZC_DRAM1_BASE		(ARM_SCP_TZC_DRAM1_BASE -	\
@@ -148,6 +166,7 @@
 #define ARM_AP_TZC_DRAM1_SIZE		(ARM_TZC_DRAM1_SIZE -		\
 					(ARM_SCP_TZC_DRAM1_SIZE +	\
 					ARM_EL3_TZC_DRAM1_SIZE +	\
+					ARM_EL3_RMM_SHARED_SIZE +	\
 					ARM_REALM_SIZE +		\
 					ARM_L1_GPT_SIZE))
 #define ARM_AP_TZC_DRAM1_END		(ARM_AP_TZC_DRAM1_BASE +	\
@@ -197,6 +216,7 @@
 #define ARM_NS_DRAM1_BASE		ARM_DRAM1_BASE
 #define ARM_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
 					 ARM_TZC_DRAM1_SIZE)
+
 #define ARM_NS_DRAM1_END		(ARM_NS_DRAM1_BASE +		\
 					 ARM_NS_DRAM1_SIZE - 1U)
 #ifdef PLAT_ARM_DRAM1_BASE
@@ -300,6 +320,12 @@
 					ARM_L1_GPT_ADDR_BASE,		\
 					ARM_L1_GPT_SIZE,		\
 					MT_MEMORY | MT_RW | EL3_PAS)
+
+#define ARM_MAP_EL3_RMM_SHARED_MEM					\
+				MAP_REGION_FLAT(			\
+					ARM_EL3_RMM_SHARED_BASE,	\
+					ARM_EL3_RMM_SHARED_SIZE,	\
+					MT_MEMORY | MT_RW | MT_REALM)
 
 #endif /* ENABLE_RME */
 
@@ -595,6 +621,8 @@
 #if ENABLE_RME
 #define RMM_BASE			(ARM_REALM_BASE)
 #define RMM_LIMIT			(RMM_BASE + ARM_REALM_SIZE)
+#define RMM_SHARED_BASE			(ARM_EL3_RMM_SHARED_BASE)
+#define RMM_SHARED_SIZE			(ARM_EL3_RMM_SHARED_SIZE)
 #endif
 
 #if !defined(__aarch64__) || JUNO_AARCH32_EL3_RUNTIME

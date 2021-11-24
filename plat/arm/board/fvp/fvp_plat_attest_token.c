@@ -300,8 +300,8 @@ static uint8_t platform_token[] = {
 	0xB0, 0x3A
 };
 
-int plat_get_cca_attest_token(uintptr_t buf, size_t *len,
-			       uintptr_t hash, size_t hash_size)
+int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
+				   uintptr_t hash, size_t hash_size)
 {
 	(void)hash;
 	(void)hash_size;

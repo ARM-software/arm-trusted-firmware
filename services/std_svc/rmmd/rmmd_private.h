@@ -32,11 +32,6 @@
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 
-typedef enum rmm_state {
-	RMM_STATE_RESET = 0,
-	RMM_STATE_IDLE
-} rmm_state_t;
-
 /*
  * Data structure used by the RMM dispatcher (RMMD) in EL3 to track context of
  * the RMM at R-EL2.
@@ -44,7 +39,6 @@ typedef enum rmm_state {
 typedef struct rmmd_rmm_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
-	rmm_state_t state;
 } rmmd_rmm_context_t;
 
 /* Functions used to enter/exit the RMM synchronously */

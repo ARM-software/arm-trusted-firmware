@@ -101,7 +101,7 @@ int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_len, uint64_t 
 	print_challenge((uint8_t *)temp_buf, challenge_hash_len);
 
 	/* Get the platform token. */
-	err = plat_get_cca_attest_token(va,
+	err = plat_rmmd_get_cca_attest_token(va,
 		buf_len, (uintptr_t)temp_buf, challenge_hash_len);
 
 	if (err != 0) {
@@ -152,7 +152,7 @@ int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_len,
 	}
 
 	/* Get the Realm attestation key. */
-	err = plat_get_cca_realm_attest_key(va, buf_len, (unsigned int)ecc_curve);
+	err = plat_rmmd_get_cca_realm_attest_key(va, buf_len, (unsigned int)ecc_curve);
 	if (err != 0) {
 		ERROR("Failed to get attestation key: %d.\n", err);
 		err =  RMMD_ERR_UNK;
