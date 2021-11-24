@@ -81,6 +81,15 @@ struct secure_partition_desc *spmc_get_sp_ctx(uint16_t id)
 	return NULL;
 }
 
+/*
+ * Helper function to obtain the descriptor of the Hypervisor or OS kernel.
+ * We assume that the first descriptor is reserved for this entity.
+ */
+struct ns_endpoint_desc *spmc_get_hyp_ctx(void)
+{
+	return &(ns_ep_desc[0]);
+}
+
 /******************************************************************************
  * This function returns to the place where spmc_sp_synchronous_entry() was
  * called originally.
