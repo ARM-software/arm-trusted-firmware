@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,6 +92,8 @@
 
 #if (CSS_SGI_PLATFORM_VARIANT == 1)
 #define PLAT_ARM_GICR_BASE		UL(0x30100000)
+#elif (CSS_SGI_PLATFORM_VARIANT == 3)
+#define PLAT_ARM_GICR_BASE		UL(0x30300000)
 #else
 #define PLAT_ARM_GICR_BASE		UL(0x301C0000)
 #endif
