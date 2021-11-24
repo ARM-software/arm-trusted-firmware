@@ -1008,6 +1008,7 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	/* Supported features from both worlds. */
 	case FFA_ERROR:
 	case FFA_SUCCESS_SMC32:
+	case FFA_ID_GET:
 	case FFA_FEATURES:
 	case FFA_VERSION:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
@@ -1043,6 +1044,25 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	default:
 		return spmc_ffa_error_return(handle,
 					FFA_ERROR_NOT_SUPPORTED);
+	}
+}
+
+static uint64_t ffa_id_get_handler(uint32_t smc_fid,
+				   bool secure_origin,
+				   uint64_t x1,
+				   uint64_t x2,
+				   uint64_t x3,
+				   uint64_t x4,
+				   void *cookie,
+				   void *handle,
+				   uint64_t flags)
+{
+	if (secure_origin) {
+		SMC_RET3(handle, FFA_SUCCESS_SMC32, 0x0,
+			 spmc_get_current_sp_ctx()->sp_id);
+	} else {
+		SMC_RET3(handle, FFA_SUCCESS_SMC32, 0x0,
+			 spmc_get_hyp_ctx()->ns_ep_id);
 	}
 }
 
@@ -1441,6 +1461,10 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 	case FFA_VERSION:
 		return ffa_version_handler(smc_fid, secure_origin, x1, x2, x3,
 					   x4, cookie, handle, flags);
+
+	case FFA_ID_GET:
+		return ffa_id_get_handler(smc_fid, secure_origin, x1, x2, x3,
+					  x4, cookie, handle, flags);
 
 	case FFA_FEATURES:
 		return ffa_features_handler(smc_fid, secure_origin, x1, x2, x3,
