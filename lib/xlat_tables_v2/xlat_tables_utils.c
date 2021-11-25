@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -199,7 +200,7 @@ static void xlat_tables_print_internal(xlat_ctx_t *ctx, uintptr_t table_base_va,
 					(uint64_t *)addr_inner,
 					XLAT_TABLE_ENTRIES, level + 1U);
 			} else {
-				printf("%sVA:0x%lx PA:0x%llx size:0x%zx ",
+				printf("%sVA:0x%lx PA:0x%" PRIx64 " size:0x%zx ",
 				       level_spacers[level], table_idx_va,
 				       (uint64_t)(desc & TABLE_ADDR_MASK),
 				       level_size);
