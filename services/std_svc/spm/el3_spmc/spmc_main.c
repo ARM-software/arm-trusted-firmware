@@ -1022,6 +1022,7 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	case FFA_ERROR:
 	case FFA_SUCCESS_SMC32:
 	case FFA_INTERRUPT:
+	case FFA_SPM_ID_GET:
 	case FFA_ID_GET:
 	case FFA_FEATURES:
 	case FFA_VERSION:
@@ -1081,6 +1082,30 @@ static uint64_t ffa_id_get_handler(uint32_t smc_fid,
 		SMC_RET3(handle, FFA_SUCCESS_SMC32, 0x0,
 			 spmc_get_hyp_ctx()->ns_ep_id);
 	}
+}
+
+/*
+ * Enable an SP to query the ID assigned to the SPMC.
+ */
+static uint64_t ffa_spm_id_get_handler(uint32_t smc_fid,
+				       bool secure_origin,
+				       uint64_t x1,
+				       uint64_t x2,
+				       uint64_t x3,
+				       uint64_t x4,
+				       void *cookie,
+				       void *handle,
+				       uint64_t flags)
+{
+	assert(x1 == 0UL);
+	assert(x2 == 0UL);
+	assert(x3 == 0UL);
+	assert(x4 == 0UL);
+	assert(SMC_GET_GP(handle, CTX_GPREG_X5) == 0UL);
+	assert(SMC_GET_GP(handle, CTX_GPREG_X6) == 0UL);
+	assert(SMC_GET_GP(handle, CTX_GPREG_X7) == 0UL);
+
+	SMC_RET3(handle, FFA_SUCCESS_SMC32, 0x0, FFA_SPMC_ID);
 }
 
 static uint64_t ffa_run_handler(uint32_t smc_fid,
@@ -1717,6 +1742,10 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 	case FFA_VERSION:
 		return ffa_version_handler(smc_fid, secure_origin, x1, x2, x3,
 					   x4, cookie, handle, flags);
+
+	case FFA_SPM_ID_GET:
+		return ffa_spm_id_get_handler(smc_fid, secure_origin, x1, x2,
+					     x3, x4, cookie, handle, flags);
 
 	case FFA_ID_GET:
 		return ffa_id_get_handler(smc_fid, secure_origin, x1, x2, x3,
