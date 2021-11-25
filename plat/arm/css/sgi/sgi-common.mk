@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,6 +19,9 @@ HANDLE_EA_EL3_FIRST		:=	0
 CSS_SGI_CHIP_COUNT		:=	1
 
 CSS_SGI_PLATFORM_VARIANT	:=	0
+
+# Do not enable SVE
+ENABLE_SVE_FOR_NS		:=	0
 
 INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/sgi_interconnect.c
 
