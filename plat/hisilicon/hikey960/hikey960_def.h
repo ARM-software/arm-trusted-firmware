@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,14 +21,14 @@
 #define HIKEY960_DRAM_ID	1
 
 /*
- * DDR for OP-TEE (32MB from 0x3E00000-0x3FFFFFFF) is divided in several
+ * DDR for TEE (80MB from 0x3E00000-0x42FFFFFF) is divided into several
  * regions:
- *   - Secure DDR (default is the top 16MB) used by OP-TEE
+ *   - Secure DDR (default is the top 64MB) used by OP-TEE
  *   - Non-secure DDR used by OP-TEE (shared memory and padding) (4MB)
  *   - Secure DDR (4MB aligned on 4MB) for OP-TEE's "Secure Data Path" feature
  *   - Non-secure DDR (8MB) reserved for OP-TEE's future use
  */
-#define DDR_SEC_SIZE			0x01000000
+#define DDR_SEC_SIZE			0x04000000 /* reserve 64MB secure memory */
 #define DDR_SEC_BASE			0x3F000000
 
 #define DDR_SDP_SIZE			0x00400000

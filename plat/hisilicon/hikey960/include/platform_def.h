@@ -117,11 +117,11 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE   (1ULL << 36)
 #define PLAT_PHY_ADDR_SPACE_SIZE    (1ULL << 36)
 
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || defined(IMAGE_BL32)
+#if defined(IMAGE_BL1) || defined(IMAGE_BL32)
 #define MAX_XLAT_TABLES			3
 #endif
 
-#ifdef IMAGE_BL2
+#if defined(IMAGE_BL2) || defined(IMAGE_BL31)
 #define MAX_XLAT_TABLES			4
 #endif
 
