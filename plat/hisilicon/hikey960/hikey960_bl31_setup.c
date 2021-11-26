@@ -33,6 +33,9 @@ static entry_point_info_t bl32_ep_info;
 static entry_point_info_t bl33_ep_info;
 static console_t console;
 
+/* fastboot serial number consumed by Kinibi SPD/LP for gpd.tee.deviceID. */
+uint64_t fastboot_serno;
+
 /******************************************************************************
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
  * interrupts.
@@ -73,6 +76,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	unsigned int id, uart_base;
 	void *from_bl2;
+	plat_params_from_bl2_t *plat_params_from_bl2 = (plat_params_from_bl2_t *) arg1;
 
 	from_bl2 = (void *) arg0;
 
@@ -90,6 +94,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Initialize CCI driver */
 	cci_init(CCI400_REG_BASE, cci_map, ARRAY_SIZE(cci_map));
 	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+
+	/* Fastboot serial number passed from BL2 as a platform parameter */
+	fastboot_serno = plat_params_from_bl2->fastboot_serno;
+	INFO("BL31: fastboot_serno %lx\n", fastboot_serno);
 
 	/*
 	 * Check params passed from BL2 should not be NULL,
