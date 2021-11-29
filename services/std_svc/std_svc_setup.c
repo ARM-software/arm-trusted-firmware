@@ -17,6 +17,7 @@
 #include <services/rmmd_svc.h>
 #include <services/sdei.h>
 #include <services/spm_mm_svc.h>
+#include <services/spmc_svc.h>
 #include <services/spmd_svc.h>
 #include <services/std_svc.h>
 #include <services/trng_svc.h>
@@ -147,8 +148,8 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	 * dispatcher and return its return value
 	 */
 	if (is_ffa_fid(smc_fid)) {
-		return spmd_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
-					handle, flags);
+		return spmd_ffa_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
+					    handle, flags);
 	}
 #endif
 

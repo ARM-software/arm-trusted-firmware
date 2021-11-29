@@ -90,7 +90,9 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 				 uint64_t x2,
 				 uint64_t x3,
 				 uint64_t x4,
-				 void *handle);
+				 void *cookie,
+				 void *handle,
+				 uint64_t flags);
 
 /******************************************************************************
  * Builds an SPMD to SPMC direct message request.
@@ -434,15 +436,15 @@ int spmd_setup(void)
 }
 
 /*******************************************************************************
- * Forward SMC to the other security state
+ * Forward FF-A SMCs to the other security state.
  ******************************************************************************/
-static uint64_t spmd_smc_forward(uint32_t smc_fid,
-				 bool secure_origin,
-				 uint64_t x1,
-				 uint64_t x2,
-				 uint64_t x3,
-				 uint64_t x4,
-				 void *handle)
+uint64_t spmd_smc_switch_state(uint32_t smc_fid,
+			       bool secure_origin,
+			       uint64_t x1,
+			       uint64_t x2,
+			       uint64_t x3,
+			       uint64_t x4,
+			       void *handle)
 {
 	unsigned int secure_state_in = (secure_origin) ? SECURE : NON_SECURE;
 	unsigned int secure_state_out = (!secure_origin) ? SECURE : NON_SECURE;
@@ -475,6 +477,28 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 }
 
 /*******************************************************************************
+ * Forward SMCs to the other security state.
+ ******************************************************************************/
+static uint64_t spmd_smc_forward(uint32_t smc_fid,
+				 bool secure_origin,
+				 uint64_t x1,
+				 uint64_t x2,
+				 uint64_t x3,
+				 uint64_t x4,
+				 void *cookie,
+				 void *handle,
+				 uint64_t flags)
+{
+	if (is_spmc_at_el3() && !secure_origin) {
+		return spmc_smc_handler(smc_fid, secure_origin, x1, x2, x3, x4,
+					cookie, handle, flags);
+	}
+	return spmd_smc_switch_state(smc_fid, secure_origin, x1, x2, x3, x4,
+				     handle);
+
+}
+
+/*******************************************************************************
  * Return FFA_ERROR with specified error code
  ******************************************************************************/
 static uint64_t spmd_ffa_error_return(void *handle, int error_code)
@@ -501,6 +525,10 @@ bool spmd_check_address_in_binary_image(uint64_t address)
  *****************************************************************************/
 static bool spmd_is_spmc_message(unsigned int ep)
 {
+	if (is_spmc_at_el3()) {
+		return false;
+	}
+
 	return ((ffa_endpoint_destination(ep) == SPMD_DIRECT_MSG_ENDPOINT_ID)
 		&& (ffa_endpoint_source(ep) == spmc_attrs.spmc_id));
 }
@@ -516,6 +544,35 @@ static int spmd_handle_spmc_message(unsigned long long msg,
 		msg, parm1, parm2, parm3, parm4);
 
 	return -EINVAL;
+}
+
+/*******************************************************************************
+ * This function forwards FF-A SMCs to either the main SPMD handler or the
+ * SPMC at EL3, depending on the origin security state, if enabled.
+ ******************************************************************************/
+uint64_t spmd_ffa_smc_handler(uint32_t smc_fid,
+			      uint64_t x1,
+			      uint64_t x2,
+			      uint64_t x3,
+			      uint64_t x4,
+			      void *cookie,
+			      void *handle,
+			      uint64_t flags)
+{
+	if (is_spmc_at_el3()) {
+		/*
+		 * If we have an SPMC at EL3 allow handling of the SMC first.
+		 * The SPMC will call back through to SPMD handler if required.
+		 */
+		if (is_caller_secure(flags)) {
+			return spmc_smc_handler(smc_fid,
+						is_caller_secure(flags),
+						x1, x2, x3, x4, cookie,
+						handle, flags);
+		}
+	}
+	return spmd_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
+				handle, flags);
 }
 
 /*******************************************************************************
@@ -559,7 +616,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		}
 
 		return spmd_smc_forward(smc_fid, secure_origin,
-					x1, x2, x3, x4, handle);
+					x1, x2, x3, x4, cookie,
+					handle, flags);
 		break; /* not reached */
 
 	case FFA_VERSION:
@@ -570,9 +628,11 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		 * If caller is non secure and SPMC was initialized,
 		 * return SPMC's version.
 		 * Sanity check to "input_version".
+		 * If the EL3 SPMC is enabled, ignore the SPMC state as
+		 * this is not used.
 		 */
 		if ((input_version & FFA_VERSION_BIT31_MASK) ||
-			(ctx->state == SPMC_STATE_RESET)) {
+		    (!is_spmc_at_el3() && (ctx->state == SPMC_STATE_RESET))) {
 			ret = FFA_ERROR_NOT_SUPPORTED;
 		} else if (!secure_origin) {
 			gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
@@ -627,7 +687,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			 */
 			return spmd_smc_forward(ret, true, FFA_PARAM_MBZ,
 						FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-						FFA_PARAM_MBZ, gpregs);
+						FFA_PARAM_MBZ, cookie, gpregs,
+						flags);
 		} else {
 			ret = MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
 					       FFA_VERSION_MINOR);
@@ -647,7 +708,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		/* Forward SMC from Normal world to the SPM Core */
 		if (!secure_origin) {
 			return spmd_smc_forward(smc_fid, secure_origin,
-						x1, x2, x3, x4, handle);
+						x1, x2, x3, x4, cookie,
+						handle, flags);
 		}
 
 		/*
@@ -743,7 +805,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		} else {
 			/* Forward direct message to the other world */
 			return spmd_smc_forward(smc_fid, secure_origin,
-				x1, x2, x3, x4, handle);
+						x1, x2, x3, x4, cookie,
+						handle, flags);
 		}
 		break; /* Not reached */
 
@@ -753,7 +816,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		} else {
 			/* Forward direct message to the other world */
 			return spmd_smc_forward(smc_fid, secure_origin,
-				x1, x2, x3, x4, handle);
+						x1, x2, x3, x4, cookie,
+						handle, flags);
 		}
 		break; /* Not reached */
 
@@ -808,7 +872,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		 */
 
 		return spmd_smc_forward(smc_fid, secure_origin,
-					x1, x2, x3, x4, handle);
+					x1, x2, x3, x4, cookie,
+					handle, flags);
 		break; /* not reached */
 
 	case FFA_MSG_WAIT:
@@ -831,7 +896,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		}
 
 		return spmd_smc_forward(smc_fid, secure_origin,
-					x1, x2, x3, x4, handle);
+					x1, x2, x3, x4, cookie,
+					handle, flags);
 		break; /* not reached */
 
 	case FFA_NORMAL_WORLD_RESUME:
