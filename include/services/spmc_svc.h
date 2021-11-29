@@ -12,8 +12,10 @@
 
 #include <lib/utils_def.h>
 #include <services/ffa_svc.h>
+#include <services/spm_core_manifest.h>
 
 int spmc_setup(void);
+void spmc_populate_attrs(spmc_manifest_attribute_t *spmc_attrs);
 void *spmc_get_config_addr(void);
 
 void spmc_set_config_addr(uintptr_t soc_fw_config);
