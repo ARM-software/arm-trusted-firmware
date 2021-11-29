@@ -179,6 +179,166 @@ static uint64_t spmc_smc_return(uint32_t smc_fid,
 /*******************************************************************************
  * FF-A ABI Handlers.
  ******************************************************************************/
+
+/*******************************************************************************
+ * Helper function to validate arg2 as part of a direct message.
+ ******************************************************************************/
+static inline bool direct_msg_validate_arg2(uint64_t x2)
+{
+	/*
+	 * We currently only support partition messages, therefore ensure x2 is
+	 * not set.
+	 */
+	if (x2 != (uint64_t) 0) {
+		VERBOSE("Arg2 MBZ for partition messages (0x%lx).\n", x2);
+		return false;
+	}
+	return true;
+}
+
+/*******************************************************************************
+ * Handle direct request messages and route to the appropriate destination.
+ ******************************************************************************/
+static uint64_t direct_req_smc_handler(uint32_t smc_fid,
+				       bool secure_origin,
+				       uint64_t x1,
+				       uint64_t x2,
+				       uint64_t x3,
+				       uint64_t x4,
+				       void *cookie,
+				       void *handle,
+				       uint64_t flags)
+{
+	uint16_t dst_id = ffa_endpoint_destination(x1);
+	struct secure_partition_desc *sp;
+	unsigned int idx;
+
+	/* Check if arg2 has been populated correctly based on message type. */
+	if (!direct_msg_validate_arg2(x2)) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/*
+	 * If called by the secure world it is an invalid call since a
+	 * SP cannot call into the Normal world and there is no other SP to call
+	 * into. If there are other SPs in future then the partition runtime
+	 * model would need to be validated as well.
+	 */
+	if (secure_origin) {
+		VERBOSE("Direct request not supported to the Normal World.\n");
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Check if the SP ID is valid. */
+	sp = spmc_get_sp_ctx(dst_id);
+	if (sp == NULL) {
+		VERBOSE("Direct request to unknown partition ID (0x%x).\n",
+			dst_id);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/*
+	 * Check that the target execution context is in a waiting state before
+	 * forwarding the direct request to it.
+	 */
+	idx = get_ec_index(sp);
+	if (sp->ec[idx].rt_state != RT_STATE_WAITING) {
+		VERBOSE("SP context on core%u is not waiting (%u).\n",
+			idx, sp->ec[idx].rt_model);
+		return spmc_ffa_error_return(handle, FFA_ERROR_BUSY);
+	}
+
+	/*
+	 * Everything checks out so forward the request to the SP after updating
+	 * its state and runtime model.
+	 */
+	sp->ec[idx].rt_state = RT_STATE_RUNNING;
+	sp->ec[idx].rt_model = RT_MODEL_DIR_REQ;
+	return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
+			       handle, cookie, flags, dst_id);
+}
+
+/*******************************************************************************
+ * Handle direct response messages and route to the appropriate destination.
+ ******************************************************************************/
+static uint64_t direct_resp_smc_handler(uint32_t smc_fid,
+					bool secure_origin,
+					uint64_t x1,
+					uint64_t x2,
+					uint64_t x3,
+					uint64_t x4,
+					void *cookie,
+					void *handle,
+					uint64_t flags)
+{
+	uint16_t dst_id = ffa_endpoint_destination(x1);
+	struct secure_partition_desc *sp;
+	unsigned int idx;
+
+	/* Check if arg2 has been populated correctly based on message type. */
+	if (!direct_msg_validate_arg2(x2)) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Check that the response did not originate from the Normal world. */
+	if (!secure_origin) {
+		VERBOSE("Direct Response not supported from Normal World.\n");
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/*
+	 * Check that the response is either targeted to the Normal world or the
+	 * SPMC e.g. a PM response.
+	 */
+	if ((dst_id != FFA_SPMC_ID) && ffa_is_secure_world_id(dst_id)) {
+		VERBOSE("Direct response to invalid partition ID (0x%x).\n",
+			dst_id);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Obtain the SP descriptor and update its runtime state. */
+	sp = spmc_get_sp_ctx(ffa_endpoint_source(x1));
+	if (sp == NULL) {
+		VERBOSE("Direct response to unknown partition ID (0x%x).\n",
+			dst_id);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Sanity check state is being tracked correctly in the SPMC. */
+	idx = get_ec_index(sp);
+	assert(sp->ec[idx].rt_state == RT_STATE_RUNNING);
+
+	/* Ensure SP execution context was in the right runtime model. */
+	if (sp->ec[idx].rt_model != RT_MODEL_DIR_REQ) {
+		VERBOSE("SP context on core%u not handling direct req (%u).\n",
+			idx, sp->ec[idx].rt_model);
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	/* Update the state of the SP execution context. */
+	sp->ec[idx].rt_state = RT_STATE_WAITING;
+
+	/*
+	 * If the receiver is not the SPMC then forward the response to the
+	 * Normal world.
+	 */
+	if (dst_id == FFA_SPMC_ID) {
+		spmc_sp_synchronous_exit(&sp->ec[idx], x4);
+		/* Should not get here. */
+		panic();
+	}
+
+	return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
+			       handle, cookie, flags, dst_id);
+}
+
 /*******************************************************************************
  * This function handles the FFA_MSG_WAIT SMC to allow an SP to relinquish its
  * cycles.
@@ -601,6 +761,16 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 			  uint64_t flags)
 {
 	switch (smc_fid) {
+
+	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
+	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
+		return direct_req_smc_handler(smc_fid, secure_origin, x1, x2,
+					      x3, x4, cookie, handle, flags);
+
+	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
+	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
+		return direct_resp_smc_handler(smc_fid, secure_origin, x1, x2,
+					       x3, x4, cookie, handle, flags);
 
 	case FFA_MSG_WAIT:
 		return msg_wait_handler(smc_fid, secure_origin, x1, x2, x3, x4,
