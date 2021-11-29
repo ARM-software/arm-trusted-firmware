@@ -23,6 +23,8 @@
 #define FFA_SWD_ID_LIMIT	SPMD_DIRECT_MSG_ENDPOINT_ID - 1
 #define FFA_SWD_ID_MASK		0x8000
 
+/* ID 0 is reserved for the normal world entity, (Hypervisor or OS Kernel). */
+#define FFA_NWD_ID		U(0)
 /* First ID is reserved for the SPMC */
 #define FFA_SPMC_ID		U(FFA_SWD_ID_BASE)
 /* SP IDs are allocated after the SPMC ID */

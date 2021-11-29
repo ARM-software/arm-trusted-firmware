@@ -177,6 +177,85 @@ static uint64_t spmc_smc_return(uint32_t smc_fid,
 }
 
 /*******************************************************************************
+ * FF-A ABI Handlers.
+ ******************************************************************************/
+/*******************************************************************************
+ * This function handles the FFA_MSG_WAIT SMC to allow an SP to relinquish its
+ * cycles.
+ ******************************************************************************/
+static uint64_t msg_wait_handler(uint32_t smc_fid,
+				 bool secure_origin,
+				 uint64_t x1,
+				 uint64_t x2,
+				 uint64_t x3,
+				 uint64_t x4,
+				 void *cookie,
+				 void *handle,
+				 uint64_t flags)
+{
+	struct secure_partition_desc *sp;
+	unsigned int idx;
+
+	/*
+	 * Check that the response did not originate from the Normal world as
+	 * only the secure world can call this ABI.
+	 */
+	if (!secure_origin) {
+		VERBOSE("Normal world cannot call FFA_MSG_WAIT.\n");
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
+
+	/* Get the descriptor of the SP that invoked FFA_MSG_WAIT. */
+	sp = spmc_get_current_sp_ctx();
+	if (sp == NULL) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/*
+	 * Get the execution context of the SP that invoked FFA_MSG_WAIT.
+	 */
+	idx = get_ec_index(sp);
+
+	/* Ensure SP execution context was in the right runtime model. */
+	if (sp->ec[idx].rt_model == RT_MODEL_DIR_REQ) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	/* Sanity check the state is being tracked correctly in the SPMC. */
+	assert(sp->ec[idx].rt_state == RT_STATE_RUNNING);
+
+	/*
+	 * Perform a synchronous exit if the partition was initialising. The
+	 * state is updated after the exit.
+	 */
+	if (sp->ec[idx].rt_model == RT_MODEL_INIT) {
+		spmc_sp_synchronous_exit(&sp->ec[idx], x4);
+		/* Should not get here */
+		panic();
+	}
+
+	/* Update the state of the SP execution context. */
+	sp->ec[idx].rt_state = RT_STATE_WAITING;
+
+	/* Resume normal world if a secure interrupt was handled. */
+	if (sp->ec[idx].rt_model == RT_MODEL_INTR) {
+		/* FFA_MSG_WAIT can only be called from the secure world. */
+		unsigned int secure_state_in = SECURE;
+		unsigned int secure_state_out = NON_SECURE;
+
+		cm_el1_sysregs_context_save(secure_state_in);
+		cm_el1_sysregs_context_restore(secure_state_out);
+		cm_set_next_eret_context(secure_state_out);
+		SMC_RET0(cm_get_context(secure_state_out));
+	}
+
+	/* Forward the response to the Normal world. */
+	return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
+			       handle, cookie, flags, FFA_NWD_ID);
+}
+
+/*******************************************************************************
  * This function will parse the Secure Partition Manifest. From manifest, it
  * will fetch details for preparing Secure partition image context and secure
  * partition image boot arguments if any.
@@ -480,6 +559,10 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 			  uint64_t flags)
 {
 	switch (smc_fid) {
+
+	case FFA_MSG_WAIT:
+		return msg_wait_handler(smc_fid, secure_origin, x1, x2, x3, x4,
+					cookie, handle, flags);
 
 	default:
 		WARN("Unsupported FF-A call 0x%08x.\n", smc_fid);
