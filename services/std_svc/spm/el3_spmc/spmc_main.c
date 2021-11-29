@@ -137,6 +137,46 @@ bool is_ffa_secure_id_valid(uint16_t partition_id)
 }
 
 /*******************************************************************************
+ * This function either forwards the request to the other world or returns
+ * with an ERET depending on the source of the call.
+ ******************************************************************************/
+static uint64_t spmc_smc_return(uint32_t smc_fid,
+				bool secure_origin,
+				uint64_t x1,
+				uint64_t x2,
+				uint64_t x3,
+				uint64_t x4,
+				void *handle,
+				void *cookie,
+				uint64_t flags,
+				uint16_t dst_id)
+{
+	/* If the destination is in the normal world always go via the SPMD. */
+	if (ffa_is_normal_world_id(dst_id)) {
+		return spmd_smc_handler(smc_fid, x1, x2, x3, x4,
+					cookie, handle, flags);
+	}
+	/*
+	 * If the caller is secure and we want to return to the secure world,
+	 * ERET directly.
+	 */
+	else if (secure_origin && ffa_is_secure_world_id(dst_id)) {
+		SMC_RET5(handle, smc_fid, x1, x2, x3, x4);
+	}
+	/* If we originated in the normal world then switch contexts. */
+	else if (!secure_origin && ffa_is_secure_world_id(dst_id)) {
+		return spmd_smc_switch_state(smc_fid, secure_origin, x1, x2,
+					     x3, x4, handle);
+	} else {
+		/* Unknown State. */
+		panic();
+	}
+
+	/* Shouldn't be Reached. */
+	return 0;
+}
+
+/*******************************************************************************
  * This function will parse the Secure Partition Manifest. From manifest, it
  * will fetch details for preparing Secure partition image context and secure
  * partition image boot arguments if any.
