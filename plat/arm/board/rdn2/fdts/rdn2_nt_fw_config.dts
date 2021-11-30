@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020 - 2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,5 +18,26 @@
 		platform-id = <0x0>;
 		config-id = <0x0>;
 		multi-chip-mode = <0x0>;
+		/*
+		 * First cell pair: Count of isolated CPUs in the list.
+		 * Rest of the cells: MPID list of the isolated CPUs.
+		 */
+		isolated-cpu-list = <0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0
+				     0x0 0x0>;
 	};
 };
