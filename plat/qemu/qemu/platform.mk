@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -24,6 +24,10 @@ ifeq (${SPD},opteed)
 add-lib-optee 		:= 	yes
 endif
 ifeq ($(AARCH32_SP),optee)
+add-lib-optee 		:= 	yes
+endif
+ifeq ($(SPMC_OPTEE),1)
+$(eval $(call add_define,SPMC_OPTEE))
 add-lib-optee 		:= 	yes
 endif
 
@@ -175,6 +179,10 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				${PLAT_QEMU_COMMON_PATH}/aarch64/plat_helpers.S	\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl31_setup.c		\
 				${QEMU_GIC_SOURCES}
+
+ifeq (${SPD},spmd)
+BL31_SOURCES		+=	plat/qemu/common/qemu_spmd_manifest.c
+endif
 endif
 
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images

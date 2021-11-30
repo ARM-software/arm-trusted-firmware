@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -116,7 +116,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 	   SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2,
 				 image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
-#if defined(SPD_opteed) || defined(AARCH32_SP_OPTEE)
+#if defined(SPD_opteed) || defined(AARCH32_SP_OPTEE) || defined(SPMC_OPTEE)
 	   .image_info.image_base = QEMU_OPTEE_PAGEABLE_LOAD_BASE,
 	   .image_info.image_max_size = QEMU_OPTEE_PAGEABLE_LOAD_SIZE,
 #endif

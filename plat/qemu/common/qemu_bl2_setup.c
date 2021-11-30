@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -144,16 +144,20 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;
 	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
-#if defined(SPD_opteed) || defined(AARCH32_SP_OPTEE)
+#if defined(SPD_opteed) || defined(AARCH32_SP_OPTEE) || defined(SPMC_OPTEE)
 	bl_mem_params_node_t *pager_mem_params = NULL;
 	bl_mem_params_node_t *paged_mem_params = NULL;
+#endif
+#if defined(SPD_spmd)
+	unsigned int mode_rw = MODE_RW_64;
+	uint64_t pagable_part = 0;
 #endif
 
 	assert(bl_mem_params);
 
 	switch (image_id) {
 	case BL32_IMAGE_ID:
-#if defined(SPD_opteed) || defined(AARCH32_SP_OPTEE)
+#if defined(SPD_opteed) || defined(AARCH32_SP_OPTEE) || defined(SPMC_OPTEE)
 		pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
 		assert(pager_mem_params);
 
@@ -166,20 +170,29 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 		if (err != 0) {
 			WARN("OPTEE header parse error.\n");
 		}
+#if defined(SPD_spmd)
+		mode_rw = bl_mem_params->ep_info.args.arg0;
+		pagable_part = bl_mem_params->ep_info.args.arg1;
+#endif
+#endif
 
-#if defined(SPD_opteed)
+#if defined(SPD_spmd)
+		bl_mem_params->ep_info.args.arg0 = ARM_PRELOADED_DTB_BASE;
+		bl_mem_params->ep_info.args.arg1 = pagable_part;
+		bl_mem_params->ep_info.args.arg2 = mode_rw;
+		bl_mem_params->ep_info.args.arg3 = 0;
+#elif defined(SPD_opteed)
 		/*
 		 * OP-TEE expect to receive DTB address in x2.
 		 * This will be copied into x2 by dispatcher.
 		 */
 		bl_mem_params->ep_info.args.arg3 = ARM_PRELOADED_DTB_BASE;
-#else /* case AARCH32_SP_OPTEE */
+#elif defined(AARCH32_SP_OPTEE)
 		bl_mem_params->ep_info.args.arg0 =
 					bl_mem_params->ep_info.args.arg1;
 		bl_mem_params->ep_info.args.arg1 = 0;
 		bl_mem_params->ep_info.args.arg2 = ARM_PRELOADED_DTB_BASE;
 		bl_mem_params->ep_info.args.arg3 = 0;
-#endif
 #endif
 		bl_mem_params->ep_info.spsr = qemu_get_spsr_for_bl32_entry();
 		break;
