@@ -287,4 +287,7 @@
 
 #endif
 
+/* SDS ID for unusable CPU MPID list structure */
+#define SDS_ISOLATED_CPU_LIST_ID		U(128)
+
 #endif /* SGI_BASE_PLATFORM_DEF_H */
