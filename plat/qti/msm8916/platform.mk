@@ -19,6 +19,7 @@ BL31_SOURCES	+=	${GICV2_SOURCES}				\
 			plat/common/plat_gicv2.c			\
 			plat/common/plat_psci_common.c			\
 			plat/qti/msm8916/msm8916_bl31_setup.c		\
+			plat/qti/msm8916/msm8916_cpu_boot.c		\
 			plat/qti/msm8916/msm8916_gicv2.c		\
 			plat/qti/msm8916/msm8916_pm.c			\
 			plat/qti/msm8916/msm8916_topology.c		\

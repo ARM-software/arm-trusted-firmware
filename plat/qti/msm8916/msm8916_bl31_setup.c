@@ -134,6 +134,9 @@ static void msm8916_configure_timer(void)
  */
 #define APCS_GLB_SECURE_STS_NS		BIT_32(0)
 #define APCS_GLB_SECURE_PWR_NS		BIT_32(1)
+#define APCS_BOOT_START_ADDR_SEC	(APCS_CFG + 0x04)
+#define REMAP_EN			BIT_32(0)
+#define APCS_AA64NAA32_REG		(APCS_CFG + 0x0c)
 
 static void msm8916_configure_cpu_pm(void)
 {
@@ -158,6 +161,11 @@ static void msm8916_configure_cpu_pm(void)
 		mmio_write_32(APCS_ALIAS_ACS(cpu), 0);
 		mmio_write_32(APCS_ALIAS_SAW2(cpu), 0);
 	}
+
+	/* Make sure all further warm boots end up in BL31 and aarch64 state */
+	CASSERT((BL31_BASE & 0xffff) == 0, assert_bl31_base_64k_aligned);
+	mmio_write_32(APCS_BOOT_START_ADDR_SEC, BL31_BASE | REMAP_EN);
+	mmio_write_32(APCS_AA64NAA32_REG, 1);
 }
 
 /*
