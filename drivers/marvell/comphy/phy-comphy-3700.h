@@ -180,7 +180,6 @@ enum {
 #define GLOB_PHY_CTRL0_ADDR(unit)	(COMPHY_REG_GLOB_PHY_CTRL0_ADDR * \
 					 PHY_SHFT(unit))
 #define SOFT_RESET			BIT(0)
-#define MODE_REFDIV			0x30
 #define MODE_CORE_CLK_FREQ_SEL		BIT(9)
 #define MODE_PIPE_WIDTH_32		BIT(3)
 #define MODE_REFDIV_OFFSET		4

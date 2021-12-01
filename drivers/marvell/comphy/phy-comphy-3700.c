@@ -886,7 +886,7 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 	/* 11. Release SW reset */
 	reg_set16(GLOB_PHY_CTRL0_ADDR(PCIE) + COMPHY_SD_ADDR,
 		  MODE_CORE_CLK_FREQ_SEL | MODE_PIPE_WIDTH_32,
-		  SOFT_RESET | MODE_REFDIV);
+		  SOFT_RESET | MODE_REFDIV_MASK);
 
 	/* Wait for > 55 us to allow PCLK be enabled */
 	udelay(PLL_SET_DELAY_US);
