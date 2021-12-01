@@ -46,7 +46,7 @@ module.exports = {
         "change-id-exists": [1, "always", "Change-Id:"], /* Warning */
         "signed-off-by-exists": [1, "always", "Signed-off-by:"], /* Warning */
 
-        "scope-case": [2, "always", "kebab-case"], /* Error */
+        "scope-case": [2, "always", "lower-case"], /* Error */
         "scope-enum": [1, "always", scopes] /* Warning */
     },
 };
