@@ -32,6 +32,7 @@ Platform Ports
    qemu
    qemu-sbsa
    qti
+   qti-msm8916
    rpi3
    rpi4
    rcar-gen3
