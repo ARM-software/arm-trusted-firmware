@@ -64,7 +64,7 @@ module.exports = {
     "preset": {
         "name": "tf-a",
         "commitUrlFormat": "https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/{{hash}}",
-        "compareUrlFormat": "https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/{{previousTag}}..{{currentTag}}",
+        "compareUrlFormat": "https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/{{previousTag}}..refs/tags/{{currentTag}}",
         "userUrlFormat": "https://github.com/{{user}}",
 
         "types": types,
