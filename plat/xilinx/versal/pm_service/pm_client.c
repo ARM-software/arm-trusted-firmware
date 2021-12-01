@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2021, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,8 +23,8 @@
 #include "pm_client.h"
 
 #define UNDEFINED_CPUID		(~0)
-#define IRQ_MAX		142
-#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5) + 1)
+#define IRQ_MAX		142U
+#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5U) + 1U)
 
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
@@ -122,36 +122,38 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 	uint8_t pm_wakeup_nodes_set[XPM_NODEIDX_DEV_MAX];
 	uintptr_t isenabler1 = PLAT_VERSAL_GICD_BASE + GICD_ISENABLER + 4;
 
-	zeromem(&pm_wakeup_nodes_set, sizeof(pm_wakeup_nodes_set));
+	zeromem(&pm_wakeup_nodes_set, (u_register_t)sizeof(pm_wakeup_nodes_set));
 
-	for (reg_num = 0; reg_num < NUM_GICD_ISENABLER; reg_num++) {
+	for (reg_num = 0U; reg_num < NUM_GICD_ISENABLER; reg_num++) {
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
 		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
 
-		if (!reg)
+		if (reg == 0U) {
 			continue;
+		}
 
-		while (reg) {
+		while (reg != 0U) {
 			enum pm_device_node_idx node_idx;
-			uint32_t idx, ret, irq, lowest_set = reg & (-reg);
-
+			uint32_t idx, irq, lowest_set = reg & (-reg);
+			enum pm_ret_status ret;
 			idx = __builtin_ctz(lowest_set);
 			irq = base_irq + idx;
 
-			if (irq > IRQ_MAX)
+			if (irq > IRQ_MAX) {
 				break;
+			}
 
 			node_idx = irq_to_pm_node_idx(irq);
 			reg &= ~lowest_set;
 
 			if ((node_idx != XPM_NODEIDX_DEV_MIN) &&
-			    (!pm_wakeup_nodes_set[node_idx])) {
+			    (pm_wakeup_nodes_set[node_idx] == 0U)) {
 				/* Get device ID from node index */
 				device_id = PERIPH_DEVID(node_idx);
 				ret = pm_set_wakeup_source(node_id,
 							   device_id, 1,
 							   SECURE_FLAG);
-				pm_wakeup_nodes_set[node_idx] = !ret;
+				pm_wakeup_nodes_set[node_idx] = (uint8_t)(!ret);
 			}
 		}
 	}
@@ -168,12 +170,13 @@ void pm_client_suspend(const struct pm_proc *proc, unsigned int state)
 {
 	bakery_lock_get(&pm_client_secure_lock);
 
-	if (state == PM_STATE_SUSPEND_TO_RAM)
-		pm_client_set_wakeup_sources(proc->node_id);
+	if (state == PM_STATE_SUSPEND_TO_RAM) {
+		pm_client_set_wakeup_sources((uint32_t)proc->node_id);
+	}
 
 	/* Set powerdown request */
 	mmio_write_32(FPD_APU_PWRCTL, mmio_read_32(FPD_APU_PWRCTL) |
-		      proc->pwrdn_mask);
+		      (uint32_t)proc->pwrdn_mask);
 
 	bakery_lock_release(&pm_client_secure_lock);
 }
@@ -193,7 +196,7 @@ void pm_client_abort_suspend(void)
 
 	/* Clear powerdown request */
 	mmio_write_32(FPD_APU_PWRCTL, mmio_read_32(FPD_APU_PWRCTL) &
-		      ~primary_proc->pwrdn_mask);
+		      ~((uint32_t)primary_proc->pwrdn_mask));
 
 	bakery_lock_release(&pm_client_secure_lock);
 }
@@ -206,9 +209,10 @@ void pm_client_abort_suspend(void)
  */
 static unsigned int pm_get_cpuid(uint32_t nid)
 {
-	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
-		if (pm_procs_all[i].node_id == nid)
+	for (size_t i = 0U; i < ARRAY_SIZE(pm_procs_all); i++) {
+		if (pm_procs_all[i].node_id == nid) {
 			return i;
+		}
 	}
 	return UNDEFINED_CPUID;
 }
@@ -223,8 +227,9 @@ void pm_client_wakeup(const struct pm_proc *proc)
 {
 	unsigned int cpuid = pm_get_cpuid(proc->node_id);
 
-	if (cpuid == UNDEFINED_CPUID)
+	if (cpuid == UNDEFINED_CPUID) {
 		return;
+	}
 
 	bakery_lock_get(&pm_client_secure_lock);
 
@@ -244,8 +249,9 @@ void pm_client_wakeup(const struct pm_proc *proc)
  */
 const struct pm_proc *pm_get_proc(unsigned int cpuid)
 {
-	if (cpuid < ARRAY_SIZE(pm_procs_all))
+	if (cpuid < ARRAY_SIZE(pm_procs_all)) {
 		return &pm_procs_all[cpuid];
+	}
 
 	return NULL;
 }

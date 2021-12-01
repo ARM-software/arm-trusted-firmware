@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2021, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,8 +33,8 @@
 				       XPM_NODESUBCL_DEV_PERIPH, \
 				       XPM_NODETYPE_DEV_PERIPH, (IDX))
 
-#define PM_GET_CALLBACK_DATA		0xa01
-#define PM_GET_TRUSTZONE_VERSION	0xa03
+#define PM_GET_CALLBACK_DATA		0xa01U
+#define PM_GET_TRUSTZONE_VERSION	0xa03U
 
 /* PM API Versions */
 #define PM_API_BASE_VERSION		1U
@@ -88,11 +88,11 @@
 #define PM_LOAD_PDI			0x701U
 
 /* IOCTL IDs for clock driver */
-#define IOCTL_SET_PLL_FRAC_MODE		8
-#define	IOCTL_GET_PLL_FRAC_MODE		9
-#define	IOCTL_SET_PLL_FRAC_DATA		10
-#define	IOCTL_GET_PLL_FRAC_DATA		11
-#define	IOCTL_SET_SGI			25
+#define IOCTL_SET_PLL_FRAC_MODE		8U
+#define	IOCTL_GET_PLL_FRAC_MODE		9U
+#define	IOCTL_SET_PLL_FRAC_DATA		10U
+#define	IOCTL_GET_PLL_FRAC_DATA		11U
+#define	IOCTL_SET_SGI			25U
 
 /* Parameter ID for PLL IOCTLs */
 /* Fractional data portion for PLL */

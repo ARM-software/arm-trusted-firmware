@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,13 +14,13 @@
 #include "pm_svc_main.h"
 
 /* SMC function IDs for SiP Service queries */
-#define VERSAL_SIP_SVC_CALL_COUNT	0x8200ff00
-#define VERSAL_SIP_SVC_UID		0x8200ff01
-#define VERSAL_SIP_SVC_VERSION		0x8200ff03
+#define VERSAL_SIP_SVC_CALL_COUNT	U(0x8200ff00)
+#define VERSAL_SIP_SVC_UID		U(0x8200ff01)
+#define VERSAL_SIP_SVC_VERSION		U(0x8200ff03)
 
 /* SiP Service Calls version numbers */
-#define SIP_SVC_VERSION_MAJOR	0
-#define SIP_SVC_VERSION_MINOR	1
+#define SIP_SVC_VERSION_MAJOR	U(0)
+#define SIP_SVC_VERSION_MINOR	U(1)
 
 /* These macros are used to identify PM calls from the SMC function ID */
 #define PM_FID_MASK	0xf000u
@@ -31,8 +31,8 @@
 
 /* SiP Service UUID */
 DEFINE_SVC_UUID2(versal_sip_uuid,
-		0x2ab9e4ec, 0x93b9, 0x11e7, 0xa0, 0x19,
-		0xdf, 0xe0, 0xdb, 0xad, 0x0a, 0xe0);
+		0x2ab9e4ecU, 0x93b9U, 0x11e7U, 0xa0U, 0x19U,
+		0xdfU, 0xe0U, 0xdbU, 0xadU, 0x0aU, 0xe0U);
 
 /**
  * sip_svc_setup() - Setup SiP Service
@@ -42,7 +42,7 @@ DEFINE_SVC_UUID2(versal_sip_uuid,
 static int32_t sip_svc_setup(void)
 {
 	/* PM implementation as SiP Service */
-	pm_setup();
+	(void)pm_setup();
 
 	return 0;
 }

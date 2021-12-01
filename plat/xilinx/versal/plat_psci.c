@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,19 +21,20 @@ static uintptr_t versal_sec_entry;
 
 static int versal_pwr_domain_on(u_register_t mpidr)
 {
-	unsigned int cpu_id = plat_core_pos_by_mpidr(mpidr);
+	int cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
 
 	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
 
-	if (cpu_id == -1)
+	if (cpu_id == -1) {
 		return PSCI_E_INTERN_FAIL;
+	}
 
-	proc = pm_get_proc(cpu_id);
+	proc = pm_get_proc((unsigned int)cpu_id);
 
 	/* Send request to PMC to wake up selected ACPU core */
-	pm_req_wakeup(proc->node_id, (versal_sec_entry & 0xFFFFFFFF) | 0x1,
-		      versal_sec_entry >> 32, 0, SECURE_FLAG);
+	(void)pm_req_wakeup(proc->node_id, (versal_sec_entry & 0xFFFFFFFFU) | 0x1U,
+			    versal_sec_entry >> 32, 0, SECURE_FLAG);
 
 	/* Clear power down request */
 	pm_client_wakeup(proc);
@@ -53,9 +54,10 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 
 	plat_versal_gic_cpuif_disable();
 
@@ -67,8 +69,8 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 		PM_STATE_SUSPEND_TO_RAM : PM_STATE_CPU_IDLE;
 
 	/* Send request to PMC to suspend this core */
-	pm_self_suspend(proc->node_id, MAX_LATENCY, state, versal_sec_entry,
-			SECURE_FLAG);
+	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, state, versal_sec_entry,
+			      SECURE_FLAG);
 
 	/* APU is to be turned off */
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
@@ -89,9 +91,10 @@ static void versal_pwr_domain_suspend_finish(
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 
 	/* Clear the APU power control register for this cpu */
 	pm_client_wakeup(proc);
@@ -123,11 +126,12 @@ void versal_pwr_domain_on_finish(const psci_power_state_t *target_state)
 static void __dead2 versal_system_off(void)
 {
 	/* Send the power down request to the PMC */
-	pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
-			  pm_get_shutdown_scope(), SECURE_FLAG);
+	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
+				 pm_get_shutdown_scope(), SECURE_FLAG);
 
-	while (1)
+	while (1) {
 		wfi();
+	}
 }
 
 /**
@@ -137,11 +141,12 @@ static void __dead2 versal_system_off(void)
 static void __dead2 versal_system_reset(void)
 {
 	/* Send the system reset request to the PMC */
-	pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
-			  pm_get_shutdown_scope(), SECURE_FLAG);
+	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
+				 pm_get_shutdown_scope(), SECURE_FLAG);
 
-	while (1)
+	while (1) {
 		wfi();
+	}
 }
 
 /**
@@ -154,9 +159,10 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 
 	/* Prevent interrupts from spuriously waking up this cpu */
 	plat_versal_gic_cpuif_disable();
@@ -169,8 +175,8 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
-			SECURE_FLAG);
+	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
+			      SECURE_FLAG);
 }
 
 /**
@@ -187,19 +193,21 @@ static int versal_validate_power_state(unsigned int power_state,
 {
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
-	int pstate = psci_get_pstate_type(power_state);
+	unsigned int pstate = psci_get_pstate_type(power_state);
 
 	assert(req_state);
 
 	/* Sanity check the requested state */
-	if (pstate == PSTATE_TYPE_STANDBY)
+	if (pstate == PSTATE_TYPE_STANDBY) {
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
-	else
+	} else {
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
+	}
 
 	/* We expect the 'state id' to be zero */
-	if (psci_get_pstate_id(power_state))
+	if (psci_get_pstate_id(power_state) != 0U) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	return PSCI_E_SUCCESS;
 }
