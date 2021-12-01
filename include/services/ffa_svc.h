@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef FFA_SVC_H
 #define FFA_SVC_H
+
+#include <stdbool.h>
 
 #include <lib/smccc.h>
 #include <lib/utils_def.h>
@@ -176,6 +178,15 @@
 #define FFA_ENDPOINT_ID_MAX			U(1 << 16)
 
 /*
+ * Reserve endpoint id for the SPMD.
+ */
+#define SPMD_DIRECT_MSG_ENDPOINT_ID		U(FFA_ENDPOINT_ID_MAX - 1)
+
+/* Mask and shift to check valid secure FF-A Endpoint ID. */
+#define SPMC_SECURE_ID_MASK			U(1)
+#define SPMC_SECURE_ID_SHIFT			U(15)
+
+/*
  * Mask for source and destination endpoint id in
  * a direct message request/response.
  */
@@ -207,6 +218,26 @@ static inline uint16_t ffa_endpoint_source(unsigned int ep)
 {
 	return (ep >> FFA_DIRECT_MSG_SOURCE_SHIFT) &
 		FFA_DIRECT_MSG_ENDPOINT_ID_MASK;
+}
+
+/******************************************************************************
+ * FF-A helper functions to determine partition ID world.
+ *****************************************************************************/
+
+/*
+ * Determine if provided ID is in the secure world.
+ */
+static inline bool ffa_is_secure_world_id(uint16_t id)
+{
+	return ((id >> SPMC_SECURE_ID_SHIFT) & SPMC_SECURE_ID_MASK) == 1;
+}
+
+/*
+ * Determine if provided ID is in the normal world.
+ */
+static inline bool ffa_is_normal_world_id(uint16_t id)
+{
+	return !ffa_is_secure_world_id(id);
 }
 
 #endif /* FFA_SVC_H */
