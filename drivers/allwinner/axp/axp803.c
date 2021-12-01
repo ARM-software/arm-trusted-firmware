@@ -10,6 +10,9 @@ const uint8_t axp_chip_id = AXP803_CHIP_ID;
 const char *const axp_compatible = "x-powers,axp803";
 
 const struct axp_regulator axp_regulators[] = {
+	{"aldo1",  700, 3300, 100, NA, 0x28, 0x13, 5},
+	{"aldo2",  700, 3300, 100, NA, 0x29, 0x13, 6},
+	{"aldo3",  700, 3300, 100, NA, 0x2A, 0x13, 7},
 	{"dcdc1", 1600, 3400, 100, NA, 0x20, 0x10, 0},
 	{"dcdc5",  800, 1840,  10, 32, 0x24, 0x10, 4},
 	{"dcdc6",  600, 1520,  10, 50, 0x25, 0x10, 5},
