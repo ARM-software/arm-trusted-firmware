@@ -237,7 +237,7 @@ enum {
 #define GEN_TX_SEL_MASK			(0xF << GEN_TX_SEL_OFFSET)
 #define PHY_RX_INIT_BIT			BIT(30)
 #define SD_SPEED_1_25_G			0x6
-#define SD_SPEED_2_5_G			0x8
+#define SD_SPEED_3_125_G		0x8
 
 /* COMPHY status reg:
  * lane0: PCIe/GbE0 PHY Status 1
