@@ -495,6 +495,10 @@ ERRATA_A710_2055002	?=0
 # to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
 ERRATA_A710_2017096	?=0
 
+# Flag to apply erratum 2083908 workaround during reset. This erratum applies
+# to revision r2p0 of the Cortex-X2 cpu and is still open.
+ERRATA_X2_2083908   ?=0
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 ERRATA_DSU_798953	?=0
@@ -919,6 +923,10 @@ $(eval $(call add_define,ERRATA_A710_2055002))
 # Process ERRATA_A710_2017096 flag
 $(eval $(call assert_boolean,ERRATA_A710_2017096))
 $(eval $(call add_define,ERRATA_A710_2017096))
+
+# Process ERRATA_X2_2083908 flag
+$(eval $(call assert_boolean,ERRATA_X2_2083908))
+$(eval $(call add_define,ERRATA_X2_2083908))
 
 # Process ERRATA_DSU_798953 flag
 $(eval $(call assert_boolean,ERRATA_DSU_798953))
