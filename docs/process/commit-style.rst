@@ -79,11 +79,10 @@ The following `types` are permissible and are strictly enforced:
 +--------------+---------------------------------------------------------------+
 
 The permissible `scopes` are more flexible, and we maintain a list of them in
-our :download:`Commitizen configuration file <../../.cz.json>`. Scopes in this
-file are organized by their changelog section, each of which may have one or
-more accepted scopes, but only the first of which is considered to be "blessed".
-Scopes that are not blessed exist for changes submitted before scope enforcement
-came into effect, and are considered deprecated.
+our :download:`changelog configuration file <../../changelog.yaml>`. Scopes in
+this file are organized by their changelog section, where each changelog section
+has a single scope that is considered to be blessed, and possibly several
+deprecated scopes. Please avoid using deprecated scopes.
 
 While we don't enforce scopes strictly, we do ask that commits use these if they
 can, or add their own if no appropriate one exists (see :ref:`Adding Scopes`).

@@ -8,26 +8,44 @@
 
 "use strict";
 
-const cz = require("./.cz.json");
+const fs = require("fs");
+const yaml = require("js-yaml");
+
 const { "trailer-exists": trailerExists } = require("@commitlint/rules").default;
 
 /*
- * Recursively fetch the project's supported scopes from the Commitizen configuration file. We use
- * permit only the blessed scope for each section to encourage developers to use a consistent scope
- * scheme.
+ * The types and scopes accepted by both Commitlint and Commitizen are defined by the changelog
+ * configuration file - `changelog.yaml` - as they decide which section of the changelog commits
+ * with a given type and scope are placed in.
  */
-function getScopes(sections) {
-    return sections.flatMap(section => {
-        const scopes = section.scopes;
-        const subscopes = getScopes(section.sections || []);
 
-        const scope = scopes ? [ scopes[0] ] : []; /* Only use the blessed scope */
+let changelog;
+
+try {
+    const contents = fs.readFileSync("changelog.yaml", "utf8");
+
+    changelog = yaml.load(contents);
+} catch (err) {
+    console.log(err);
+
+    throw err;
+}
+
+function getTypes(sections) {
+    return sections.map(section => section.type)
+}
+
+function getScopes(subsections) {
+    return subsections.flatMap(subsection => {
+        const scope = subsection.scope ?  [ subsection.scope ] : [];
+        const subscopes = getScopes(subsection.subsections || []);
 
         return scope.concat(subscopes);
     })
 };
 
-const scopes = getScopes(cz.sections); /* Contains every blessed scope */
+const types = getTypes(changelog.sections).sort(); /* Sort alphabetically */
+const scopes = getScopes(changelog.subsections).sort(); /* Sort alphabetically */
 
 module.exports = {
     extends: ["@commitlint/config-conventional"],
@@ -40,13 +58,17 @@ module.exports = {
         },
     ],
     rules: {
-        "header-max-length": [1, "always", cz.maxHeaderWidth], /* Warning */
-        "body-max-line-length": [1, "always", cz.maxLineWidth], /* Warning */
+        "header-max-length": [1, "always", 50], /* Warning */
+        "body-max-line-length": [1, "always", 72], /* Warning */
 
         "change-id-exists": [1, "always", "Change-Id:"], /* Warning */
         "signed-off-by-exists": [1, "always", "Signed-off-by:"], /* Warning */
 
+        "type-case": [2, "always", "lower-case" ], /* Error */
+        "type-enum": [2, "always", types], /* Error */
+
         "scope-case": [2, "always", "lower-case"], /* Error */
+        "scope-empty": [2, "never"], /* Error */
         "scope-enum": [1, "always", scopes] /* Warning */
     },
 };

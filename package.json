@@ -8,12 +8,13 @@
     "release": "standard-version -i docs/change-log.md"
   },
   "devDependencies": {
-    "@commitlint/cli": "^14.1.0",
-    "@commitlint/config-conventional": "^14.1.0",
+    "@commitlint/cli": "^16.1.0",
+    "@commitlint/config-conventional": "^16.0.0",
+    "@commitlint/cz-commitlint": "^16.1.0",
     "commitizen": "^4.2.4",
     "conventional-changelog-tf-a": "file:tools/conventional-changelog-tf-a",
-    "cz-conventional-changelog": "^3.3.0",
     "husky": "^7.0.4",
+    "js-yaml": "^4.1.0",
     "standard-version": "^9.3.2"
   }
 }
