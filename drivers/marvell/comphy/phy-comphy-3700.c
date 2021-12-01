@@ -402,7 +402,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 * 3. Set PHY input port PIN_PU_PLL=0, PIN_PU_RX=0, PIN_PU_TX=0.
 	 */
 	data = PIN_PU_IVREF_BIT | PIN_TX_IDLE_BIT | PIN_RESET_COMPHY_BIT;
-	mask = PIN_RESET_CORE_BIT | PIN_PU_PLL_BIT | PIN_PU_RX_BIT |
+	mask = data | PIN_RESET_CORE_BIT | PIN_PU_PLL_BIT | PIN_PU_RX_BIT |
 		PIN_PU_TX_BIT;
 	offset = MVEBU_COMPHY_REG_BASE + COMPHY_PHY_CFG1_OFFSET(comphy_index);
 	reg_set(offset, data, mask);
@@ -884,9 +884,9 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 	reg_set16(SYNC_PATTERN_REG_ADDR(PCIE) + COMPHY_SD_ADDR, data, mask);
 
 	/* 11. Release SW reset */
-	reg_set16(GLOB_PHY_CTRL0_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  MODE_CORE_CLK_FREQ_SEL | MODE_PIPE_WIDTH_32,
-		  SOFT_RESET | MODE_REFDIV_MASK);
+	data = MODE_CORE_CLK_FREQ_SEL | MODE_PIPE_WIDTH_32;
+	mask = data | SOFT_RESET | MODE_REFDIV_MASK;
+	reg_set16(GLOB_PHY_CTRL0_ADDR(PCIE) + COMPHY_SD_ADDR, data, mask);
 
 	/* Wait for > 55 us to allow PCLK be enabled */
 	udelay(PLL_SET_DELAY_US);
