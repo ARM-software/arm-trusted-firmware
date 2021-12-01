@@ -122,6 +122,10 @@
 #define ID_MMFR4_CNP_LENGTH	U(4)
 #define ID_MMFR4_CNP_MASK	U(0xf)
 
+#define ID_MMFR4_CCIDX_SHIFT	U(24)
+#define ID_MMFR4_CCIDX_LENGTH	U(4)
+#define ID_MMFR4_CCIDX_MASK	U(0xf)
+
 /* ID_PFR0 definitions */
 #define ID_PFR0_AMU_SHIFT	U(20)
 #define ID_PFR0_AMU_LENGTH	U(4)
@@ -174,7 +178,7 @@
 #define SCTLR_AFE_BIT		(U(1) << 29)
 #define SCTLR_TE_BIT		(U(1) << 30)
 #define SCTLR_DSSBS_BIT		(U(1) << 31)
-#define SCTLR_RESET_VAL         (SCTLR_RES1 | SCTLR_NTWE_BIT |		\
+#define SCTLR_RESET_VAL		(SCTLR_RES1 | SCTLR_NTWE_BIT |		\
 				SCTLR_NTWI_BIT | SCTLR_CP15BEN_BIT)
 
 /* SDCR definitions */
@@ -295,7 +299,7 @@
 #define CPACR_CP10_SHIFT	U(20)
 #define CPACR_ENABLE_FP_ACCESS	((U(0x3) << CPACR_CP11_SHIFT) |\
 				 (U(0x3) << CPACR_CP10_SHIFT))
-#define CPACR_RESET_VAL         U(0x0)
+#define CPACR_RESET_VAL		U(0x0)
 
 /* FPEXC definitions */
 #define FPEXC_RES1		((U(1) << 10) | (U(1) << 9) | (U(1) << 8))
@@ -495,13 +499,13 @@
 #define CNTP_CTL		U(0x2c)
 
 /* Physical timer control register bit fields shifts and masks */
-#define CNTP_CTL_ENABLE_SHIFT   0
-#define CNTP_CTL_IMASK_SHIFT    1
-#define CNTP_CTL_ISTATUS_SHIFT  2
+#define CNTP_CTL_ENABLE_SHIFT	0
+#define CNTP_CTL_IMASK_SHIFT	1
+#define CNTP_CTL_ISTATUS_SHIFT	2
 
-#define CNTP_CTL_ENABLE_MASK    U(1)
-#define CNTP_CTL_IMASK_MASK     U(1)
-#define CNTP_CTL_ISTATUS_MASK   U(1)
+#define CNTP_CTL_ENABLE_MASK	U(1)
+#define CNTP_CTL_IMASK_MASK	U(1)
+#define CNTP_CTL_ISTATUS_MASK	U(1)
 
 /* MAIR macros */
 #define MAIR0_ATTR_SET(attr, index)	((attr) << ((index) << U(3)))
@@ -559,6 +563,7 @@
 #define CLIDR		p15, 1, c0, c0, 1
 #define CSSELR		p15, 2, c0, c0, 0
 #define CCSIDR		p15, 1, c0, c0, 0
+#define CCSIDR2		p15, 1, c0, c0, 2
 #define HTCR		p15, 4, c2, c0, 2
 #define HMAIR0		p15, 4, c10, c2, 0
 #define ATS1CPR		p15, 0, c7, c8, 0
