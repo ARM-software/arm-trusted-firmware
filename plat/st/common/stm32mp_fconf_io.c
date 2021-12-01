@@ -27,6 +27,13 @@ static io_block_spec_t gpt_block_spec = {
 };
 #endif
 
+#if (STM32MP_SDMMC || STM32MP_EMMC) && PSA_FWU_SUPPORT
+io_block_spec_t metadata_block_spec = {
+	.offset = 0,    /* To be filled at runtime */
+	.length = 0,    /* To be filled at runtime */
+};
+#endif /* (STM32MP_SDMMC || STM32MP_EMMC) && PSA_FWU_SUPPORT */
+
 /* By default, STM32 platforms load images from the FIP */
 struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 	[FIP_IMAGE_ID] = {
@@ -43,6 +50,20 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		.check = open_storage
 	},
 #endif
+#if (STM32MP_SDMMC || STM32MP_EMMC) && PSA_FWU_SUPPORT
+	[FWU_METADATA_IMAGE_ID] = {
+		.dev_handle = &storage_dev_handle,
+		.image_spec = (uintptr_t)&metadata_block_spec,
+		.img_type_guid = NULL_GUID,
+		.check = open_storage
+	},
+	[BKUP_FWU_METADATA_IMAGE_ID] = {
+		.dev_handle = &storage_dev_handle,
+		.image_spec = (uintptr_t)&metadata_block_spec,
+		.img_type_guid = NULL_GUID,
+		.check = open_storage
+	},
+#endif /* (STM32MP_SDMMC || STM32MP_EMMC) && PSA_FWU_SUPPORT */
 };
 
 #define FCONF_ST_IO_UUID_NUMBER	U(8)

@@ -40,6 +40,9 @@
 #define BL33_BINARY_TYPE		U(0x0)
 #else /* STM32MP_USE_STM32IMAGE */
 #define FIP_IMAGE_NAME			"fip"
+#define METADATA_PART_1			"metadata1"
+#define METADATA_PART_2			"metadata2"
+
 #endif /* STM32MP_USE_STM32IMAGE */
 
 #define STM32MP_PRIMARY_CPU		U(0x0)

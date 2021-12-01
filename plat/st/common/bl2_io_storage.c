@@ -548,4 +548,51 @@ void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
 		image_spec->length = entry->length;
 	}
 }
+
+static int plat_set_image_source(unsigned int image_id,
+				 uintptr_t *handle,
+				 uintptr_t *image_spec,
+				 const char *part_name)
+{
+	struct plat_io_policy *policy;
+	io_block_spec_t *spec;
+	const partition_entry_t *entry = get_partition_entry(part_name);
+
+	if (entry == NULL) {
+		ERROR("Unable to find the %s partition\n", part_name);
+		return -ENOENT;
+	}
+
+	policy = &policies[image_id];
+
+	spec = (io_block_spec_t *)policy->image_spec;
+	spec->offset = entry->start;
+	spec->length = entry->length;
+
+	*image_spec = policy->image_spec;
+	*handle = *policy->dev_handle;
+
+	return 0;
+}
+
+int plat_fwu_set_metadata_image_source(unsigned int image_id,
+				       uintptr_t *handle,
+				       uintptr_t *image_spec)
+{
+	char *part_name;
+
+	assert((image_id == FWU_METADATA_IMAGE_ID) ||
+	       (image_id == BKUP_FWU_METADATA_IMAGE_ID));
+
+	partition_init(GPT_IMAGE_ID);
+
+	if (image_id == FWU_METADATA_IMAGE_ID) {
+		part_name = METADATA_PART_1;
+	} else {
+		part_name = METADATA_PART_2;
+	}
+
+	return plat_set_image_source(image_id, handle, image_spec,
+				     part_name);
+}
 #endif /* (STM32MP_SDMMC || STM32MP_EMMC) && PSA_FWU_SUPPORT */
