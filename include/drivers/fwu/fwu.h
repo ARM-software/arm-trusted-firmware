@@ -11,5 +11,6 @@
 
 void fwu_init(void);
 bool fwu_is_trial_run_state(void);
+const struct fwu_metadata *fwu_get_metadata(void);
 
 #endif /* FWU_H */

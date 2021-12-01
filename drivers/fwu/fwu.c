@@ -157,6 +157,13 @@ bool fwu_is_trial_run_state(void)
 	return trial_run;
 }
 
+const struct fwu_metadata *fwu_get_metadata(void)
+{
+	assert(is_fwu_initialized);
+
+	return &metadata;
+}
+
 /*******************************************************************************
  * Load verified copy of FWU metadata image kept in the platform NV storage
  * into local FWU metadata structure.
