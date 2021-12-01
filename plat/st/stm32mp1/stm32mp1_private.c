@@ -13,6 +13,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <libfdt.h>
 
+#include <plat/common/platform.h>
 #include <platform_def.h>
 
 /* Internal layout of the 32bit OTP word board_id */
@@ -39,6 +40,8 @@
 #define TAMP_BOOT_MODE_BACKUP_REG_ID	U(20)
 #define TAMP_BOOT_MODE_ITF_MASK		U(0x0000FF00)
 #define TAMP_BOOT_MODE_ITF_SHIFT	8
+
+#define TAMP_BOOT_COUNTER_REG_ID	U(21)
 
 #if defined(IMAGE_BL2)
 #define MAP_SEC_SYSRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
@@ -597,3 +600,13 @@ void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
 	*interface = itf >> 4;
 	*instance = itf & 0xFU;
 }
+
+#if !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT
+void stm32mp1_fwu_set_boot_idx(void)
+{
+	clk_enable(RTCAPB);
+	mmio_write_32(tamp_bkpr(TAMP_BOOT_COUNTER_REG_ID),
+		      plat_fwu_get_boot_idx());
+	clk_disable(RTCAPB);
+}
+#endif /* !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT */
