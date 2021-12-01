@@ -194,6 +194,10 @@
                         {
                             "title": "MT8195",
                             "scopes": ["mt8195", "plat/mediatek/me8195", "plat/mediatek/mt8195", "plat/mdeiatek/mt8195"]
+                        },
+                        {
+                            "title": "MT8186",
+                            "scopes": ["mt8186", "plat/mediatek/mt8186"]
                         }
                     ]
                 },
