@@ -322,9 +322,9 @@ static int mvebu_a3700_comphy_sata_power_on(uint8_t comphy_index,
 	/* 2. Select reference clock(25M) and PHY mode (SATA) */
 	offset = COMPHY_POWER_PLL_CTRL + SATAPHY_LANE2_REG_BASE_OFFSET;
 	if (get_ref_clk() == 40)
-		ref_clk = REF_CLOCK_SPEED_40M;
+		ref_clk = REF_FREF_SEL_SERDES_40MHZ;
 	else
-		ref_clk = REF_CLOCK_SPEED_25M;
+		ref_clk = REF_FREF_SEL_SERDES_25MHZ;
 
 	comphy_sata_set_indirect(comphy_indir_regs, offset, ref_clk | PHY_MODE_SATA,
 				 REF_FREF_SEL_MASK | PHY_MODE_MASK);
@@ -457,9 +457,9 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 * REF_FREF_SEL.
 	 */
 	if (get_ref_clk() == 40)
-		data = REF_CLOCK_SPEED_50M;
+		data = REF_FREF_SEL_SERDES_50MHZ;
 	else
-		data = REF_CLOCK_SPEED_25M;
+		data = REF_FREF_SEL_SERDES_25MHZ;
 
 	mask = REF_FREF_SEL_MASK;
 	reg_set16(SGMIIPHY_ADDR(COMPHY_POWER_PLL_CTRL, sd_ip_addr), data, mask);
@@ -701,12 +701,12 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 * accordingly Change RX wait
 	 */
 	if (get_ref_clk() == 40) {
-		ref_clk = REF_CLOCK_SPEED_40M;
+		ref_clk = REF_FREF_SEL_PCIE_USB3_40MHZ;
 		cfg = CFG_PM_RXDLOZ_WAIT_12_UNIT;
 
 	} else {
 		/* 25 MHz */
-		ref_clk = USB3_REF_CLOCK_SPEED_25M;
+		ref_clk = REF_FREF_SEL_PCIE_USB3_25MHZ;
 		cfg = CFG_PM_RXDLOZ_WAIT_7_UNIT;
 	}
 
@@ -859,9 +859,9 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 	 */
 
 	if (get_ref_clk() == 40)
-		ref_clk = REF_CLOCK_SPEED_40M;
+		ref_clk = REF_FREF_SEL_PCIE_USB3_40MHZ;
 	else
-		ref_clk = PCIE_REF_CLOCK_SPEED_25M;
+		ref_clk = REF_FREF_SEL_PCIE_USB3_25MHZ;
 
 	reg_set16(PWR_PLL_CTRL_ADDR(PCIE) + COMPHY_SD_ADDR,
 		  (PU_IVREF_BIT | PU_PLL_BIT | PU_RX_BIT | PU_TX_BIT |
