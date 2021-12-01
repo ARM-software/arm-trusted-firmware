@@ -825,6 +825,10 @@
                     "scopes": ["checkpatch"]
                 },
                 {
+                    "title": "commitlint",
+                    "scopes": ["commitlint"]
+                },
+                {
                     "title": "libfdt",
                     "scopes": ["libfdt"]
                 },

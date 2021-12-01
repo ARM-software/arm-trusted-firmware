@@ -40,8 +40,8 @@ module.exports = {
         },
     ],
     rules: {
-        "body-max-line-length": [1, "always", cz.maxLineWidth], /* Warning */
         "header-max-length": [1, "always", cz.maxHeaderWidth], /* Warning */
+        "body-max-line-length": [1, "always", cz.maxLineWidth], /* Warning */
 
         "change-id-exists": [1, "always", "Change-Id:"], /* Warning */
         "signed-off-by-exists": [1, "always", "Signed-off-by:"], /* Warning */
