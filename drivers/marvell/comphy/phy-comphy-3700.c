@@ -693,7 +693,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 */
 	mask = G3_TX_SSC_AMP_MASK | G3_VREG_RXTX_MAS_ISET_MASK |
 		RSVD_PH03FH_6_0_MASK;
-	usb3_reg_set(reg_base, COMPHY_REG_GEN2_SET_3,
+	usb3_reg_set(reg_base, COMPHY_REG_GEN3_SET_2,
 		     G3_VREG_RXTX_MAS_ISET_60U, mask);
 
 	/*
@@ -769,7 +769,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	/*
 	 * 15. Set capacitor value for FFE gain peaking to 0xF
 	 */
-	usb3_reg_set(reg_base, COMPHY_REG_GEN3_SETTINGS_3,
+	usb3_reg_set(reg_base, COMPHY_REG_GEN2_SETTINGS_3,
 		     COMPHY_GEN_FFE_CAP_SEL_VALUE, COMPHY_GEN_FFE_CAP_SEL_MASK);
 
 	/*
