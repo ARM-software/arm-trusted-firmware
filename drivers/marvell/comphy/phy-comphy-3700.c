@@ -764,7 +764,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	/*
 	 * 14. Set max speed generation to USB3.0 5Gbps
 	 */
-	usb3_reg_set(reg_base, COMPHY_SYNC_MASK_GEN_REG, PHY_GEN_USB3_5G,
+	usb3_reg_set(reg_base, COMPHY_SYNC_MASK_GEN_REG, PHY_GEN_MAX_USB3_5G,
 		     PHY_GEN_MAX_MASK);
 
 	/*
