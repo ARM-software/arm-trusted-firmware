@@ -15,6 +15,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
+#include "msm8916_gicv2.h"
 #include <msm8916_mmap.h>
 #include <platform_def.h>
 #include <uartdm_console.h>
@@ -113,9 +114,87 @@ void bl31_plat_arch_setup(void)
 	enable_mmu_el3(0);
 }
 
+static void msm8916_configure_timer(void)
+{
+	/* Set timer frequency */
+	mmio_write_32(APCS_QTMR + CNTCTLBASE_CNTFRQ, plat_get_syscnt_freq2());
+
+	/* Make frame 0 available to non-secure world */
+	mmio_write_32(APCS_QTMR + CNTNSAR, BIT_32(CNTNSAR_NS_SHIFT(0)));
+	mmio_write_32(APCS_QTMR + CNTACR_BASE(0),
+		      BIT_32(CNTACR_RPCT_SHIFT) | BIT_32(CNTACR_RVCT_SHIFT) |
+		      BIT_32(CNTACR_RFRQ_SHIFT) | BIT_32(CNTACR_RVOFF_SHIFT) |
+		      BIT_32(CNTACR_RWVT_SHIFT) | BIT_32(CNTACR_RWPT_SHIFT));
+}
+
+/*
+ * The APCS register regions always start with a SECURE register that should
+ * be cleared to 0 to only allow secure access. Since BL31 handles most of
+ * the CPU power management, most of them can be cleared to secure access only.
+ */
+#define APCS_GLB_SECURE_STS_NS		BIT_32(0)
+#define APCS_GLB_SECURE_PWR_NS		BIT_32(1)
+
+static void msm8916_configure_cpu_pm(void)
+{
+	unsigned int cpu;
+
+	/* Disallow non-secure access to boot remapper / TCM registers */
+	mmio_write_32(APCS_CFG, 0);
+
+	/*
+	 * Disallow non-secure access to power management registers.
+	 * However, allow STS and PWR since those also seem to control access
+	 * to CPU frequency related registers (e.g. APCS_CMD_RCGR). If these
+	 * bits are not set, CPU frequency control fails in the non-secure world.
+	 */
+	mmio_write_32(APCS_GLB, APCS_GLB_SECURE_STS_NS | APCS_GLB_SECURE_PWR_NS);
+
+	/* Disallow non-secure access to L2 SAW2 */
+	mmio_write_32(APCS_L2_SAW2, 0);
+
+	/* Disallow non-secure access to CPU ACS and SAW2 */
+	for (cpu = 0; cpu < PLATFORM_CORE_COUNT; cpu++) {
+		mmio_write_32(APCS_ALIAS_ACS(cpu), 0);
+		mmio_write_32(APCS_ALIAS_SAW2(cpu), 0);
+	}
+}
+
+/*
+ * MSM8916 has a special "interrupt aggregation logic" in the APPS SMMU,
+ * which allows routing context bank interrupts to one of 3 interrupt numbers
+ * ("TZ/HYP/NS"). Route all interrupts to the non-secure interrupt number
+ * by default to avoid special setup on the non-secure side.
+ */
+#define GCC_SMMU_CFG_CBCR			(GCC_BASE + 0x12038)
+#define GCC_APCS_SMMU_CLOCK_BRANCH_ENA_VOTE	(GCC_BASE + 0x4500c)
+#define SMMU_CFG_CLK_ENA			BIT_32(12)
+#define APPS_SMMU_INTR_SEL_NS			(APPS_SMMU_QCOM + 0x2000)
+#define APPS_SMMU_INTR_SEL_NS_EN_ALL		U(0xffffffff)
+
+static void msm8916_configure_smmu(void)
+{
+	/* Enable SMMU configuration clock to enable register access */
+	mmio_setbits_32(GCC_APCS_SMMU_CLOCK_BRANCH_ENA_VOTE, SMMU_CFG_CLK_ENA);
+	while (mmio_read_32(GCC_SMMU_CFG_CBCR) & CLK_OFF)
+		;
+
+	/* Route all context bank interrupts to non-secure interrupt */
+	mmio_write_32(APPS_SMMU_INTR_SEL_NS, APPS_SMMU_INTR_SEL_NS_EN_ALL);
+
+	/* Disable configuration clock again */
+	mmio_clrbits_32(GCC_APCS_SMMU_CLOCK_BRANCH_ENA_VOTE, SMMU_CFG_CLK_ENA);
+}
+
 void bl31_platform_setup(void)
 {
+	INFO("BL31: Platform setup start\n");
 	generic_delay_timer_init();
+	msm8916_configure_timer();
+	msm8916_gicv2_init();
+	msm8916_configure_cpu_pm();
+	msm8916_configure_smmu();
+	INFO("BL31: Platform setup done\n");
 }
 
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)

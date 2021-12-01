@@ -47,4 +47,11 @@
 /* Timer frequency */
 #define PLAT_SYSCNT_FREQ		19200000
 
+/*
+ * The Qualcomm QGIC2 implementation seems to have PIDR0-4 and PIDR4-7
+ * erroneously swapped for some reason. PIDR2 is actually at 0xFD8.
+ * Override the address in <drivers/arm/gicv2.h> to avoid a failing assert().
+ */
+#define GICD_PIDR2_GICV2		U(0xFD8)
+
 #endif /* PLATFORM_DEF_H */
