@@ -142,7 +142,7 @@ bool fwu_is_trial_run_state(void)
 {
 	bool trial_run = false;
 
-	assert(is_fwu_initialized == true);
+	assert(is_fwu_initialized);
 
 	for (unsigned int i = 0U; i < NR_OF_IMAGES_IN_FW_BANK; i++) {
 		struct fwu_image_entry *entry = &metadata.img_entry[i];
