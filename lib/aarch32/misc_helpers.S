@@ -301,9 +301,9 @@ func fixup_gdt_reloc
 	cmp	r4, r6
 	blo	2f
 
-	/* Skip adding offset if address is >= upper limit */
+	/* Skip adding offset if address is > upper limit */
 	cmp	r4, r7
-	bhs	2f
+	bhi	2f
 
 	add 	r4, r0, r4
 	str	r4, [r3]
