@@ -101,14 +101,6 @@ enum {
 					 PHY_SHFT(unit))
 #define PHY_ISOLATE_MODE		BIT(15)
 
-#define COMPHY_MISC_REG0_ADDR		0x4F
-#define MISC_REG0_ADDR(unit)		(COMPHY_MISC_REG0_ADDR * PHY_SHFT(unit))
-#define CLK100M_125M_EN			BIT(4)
-#define TXDCLK_2X_SEL			BIT(6)
-#define CLK500M_EN			BIT(7)
-#define PHY_REF_CLK_SEL			BIT(10)
-#define MISC_REG0_DEFAULT_VALUE		0xA00D
-
 #define COMPHY_REG_GEN2_SET_2	0x3e
 #define GEN2_SETTING_2_ADDR(unit)	(COMPHY_REG_GEN2_SET_2 * PHY_SHFT(unit))
 #define G2_TX_SSC_AMP_VALUE_20		BIT(14)
@@ -139,6 +131,14 @@ enum {
 					 PHY_SHFT(unit))
 #define IDLE_SYNC_EN			BIT(12)
 #define UNIT_CTRL_DEFAULT_VALUE		0x60
+
+#define COMPHY_MISC_REG0_ADDR		0x4F
+#define MISC_REG0_ADDR(unit)		(COMPHY_MISC_REG0_ADDR * PHY_SHFT(unit))
+#define CLK100M_125M_EN			BIT(4)
+#define TXDCLK_2X_SEL			BIT(6)
+#define CLK500M_EN			BIT(7)
+#define PHY_REF_CLK_SEL			BIT(10)
+#define MISC_REG0_DEFAULT_VALUE		0xA00D
 
 #define COMPHY_MISC_REG1_ADDR		0x73
 #define MISC_REG1_ADDR(unit)		(COMPHY_MISC_REG1_ADDR * PHY_SHFT(unit))
