@@ -34,7 +34,7 @@
 	 *     w1 - Uart clock in Hz
 	 *     w2 - Baud rate
 	 * Out: return 1 on success
-	 * Clobber list : x1, x2, x3
+	 * Clobber list : x1, x2, x3, x4
 	 * -----------------------------------------------
 	 */
 func console_a3700_core_init
@@ -43,6 +43,51 @@ func console_a3700_core_init
 	/* Check baud rate and uart clock for sanity */
 	cbz	w1, init_fail
 	cbz	w2, init_fail
+
+	/*
+	 * Wait for the TX (THR and TSR) to be empty. If wait for 3ms, the TX FIFO is
+	 * still not empty, TX FIFO will reset by all means.
+	 */
+	mov	w4, #30				/* max time out 30 * 100 us */
+2:
+	/* Check whether TX (THR and TSR) is empty */
+	ldr	w3, [x0, #UART_STATUS_REG]
+	and	w3, w3, #UARTLSR_TXEMPTY
+	cmp	w3, #0
+	b.ne	4f
+
+	/* Delay */
+	mov	w3, #60000	/* 60000 cycles of below 3 instructions on 1200 MHz CPU ~~ 100 us */
+3:
+	sub	w3, w3, #1
+	cmp	w3, #0
+	b.ne	3b
+
+	/* Check whether wait timeout expired */
+	sub	w4, w4, #1
+	cmp	w4, #0
+	b.ne	2b
+
+4:
+	/* Reset UART via North Bridge Peripheral */
+	mov_imm	x4, MVEBU_NB_RESET_REG
+	ldr	w3, [x4]
+	bic	w3, w3, #MVEBU_NB_RESET_UART_N
+	str	w3, [x4]
+	orr	w3, w3, #MVEBU_NB_RESET_UART_N
+	str	w3, [x4]
+
+	/* Reset FIFO */
+	mov	w3, #UART_CTRL_RXFIFO_RESET
+	orr	w3, w3, #UART_CTRL_TXFIFO_RESET
+	str	w3, [x0, #UART_CTRL_REG]
+
+	/* Delay */
+	mov	w3, #2000
+1:
+	sub	w3, w3, #1
+	cmp	w3, #0
+	b.ne	1b
 
 	/* Program the baudrate */
 	/* Divisor = Round(Uartclock / (16 * baudrate)) */
@@ -56,43 +101,6 @@ func console_a3700_core_init
 	/* Set UART to default 16X scheme */
 	mov	w3, #0
 	str	w3, [x0, #UART_POSSR_REG]
-
-	/*
-	 * Wait for the TX (THR and TSR) to be empty. If wait for 3ms, the TX FIFO is
-	 * still not empty, TX FIFO will reset by all means.
-	 */
-	mov	w1, #30				/* max time out 30 * 100 us */
-2:
-	/* Check whether TX (THR and TSR) is empty */
-	ldr	w3, [x0, #UART_STATUS_REG]
-	and	w3, w3, #UARTLSR_TXEMPTY
-	cmp	w3, #0
-	b.ne	4f
-
-	/* Delay */
-	mov	w2, #60000	/* 60000 cycles of below 3 instructions on 1200 MHz CPU ~~ 100 us */
-3:
-	sub     w2, w2, #1
-	cmp	w2, #0
-	b.ne	3b
-
-	/* Check whether wait timeout expired */
-	sub     w1, w1, #1
-	cmp	w1, #0
-	b.ne	2b
-
-4:
-	/* Reset FIFO */
-	mov	w3, #UART_CTRL_RXFIFO_RESET
-	orr	w3, w3, #UART_CTRL_TXFIFO_RESET
-	str	w3, [x0, #UART_CTRL_REG]
-
-	/* Delay */
-	mov	w2, #2000
-1:
-	sub     w2, w2, #1
-	cmp	w2, #0
-	b.ne	1b
 
 	/* No Parity, 1 Stop */
 	mov	w3, #0
@@ -118,7 +126,7 @@ endfunc console_a3700_core_init
 	 *     w2 - Baud rate
 	 *     x3 - pointer to empty console_t struct
 	 * Out: return 1 on success, 0 on error
-	 * Clobber list : x0, x1, x2, x6, x7, x14
+	 * Clobber list : x0, x1, x2, x3, x4, x6, x7, x14
 	 * -----------------------------------------------
 	 */
 func console_a3700_register
