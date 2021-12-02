@@ -72,9 +72,6 @@ enum {
 #define SPEED_PLL_MASK			(0x3F << SPEED_PLL_OFFSET)
 #define SPEED_PLL_VALUE_16		(0x10 << SPEED_PLL_OFFSET)
 
-#define COMPHY_RESERVED_REG		0x0E
-#define PHYCTRL_FRM_PIN_BIT		BIT(13)
-
 #define COMPHY_DIG_LOOPBACK_EN		0x23
 #define DIG_LOOPBACK_EN_ADDR(unit)	(COMPHY_DIG_LOOPBACK_EN * \
 					 PHY_SHFT(unit))
@@ -220,6 +217,15 @@ enum {
 					 << CFG_PM_RXDLOZ_WAIT_OFF)
 #define CFG_PM_RXDLOZ_WAIT_7_UNIT	(7 << CFG_PM_RXDLOZ_WAIT_OFF)
 #define CFG_PM_RXDLOZ_WAIT_12_UNIT	(0xC << CFG_PM_RXDLOZ_WAIT_OFF)
+
+/*
+ * This register is not from PHY lane register space. It only exists in the
+ * indirect register space, before the actual PHY lane 2 registers. So the
+ * offset is absolute, not relative to SATAPHY_LANE2_REG_BASE_OFFSET.
+ * It is used only for SATA PHY initialization.
+ */
+#define COMPHY_RESERVED_REG		0x0E
+#define PHYCTRL_FRM_PIN_BIT		BIT(13)
 
 /* SGMII */
 #define COMPHY_PHY_CFG1_OFFSET(lane)	((1 - (lane)) * 0x28)
