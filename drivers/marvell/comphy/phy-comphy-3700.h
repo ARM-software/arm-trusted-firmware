@@ -13,11 +13,11 @@
 #define REG_16_BIT_MASK				0xFFFF
 
 #define COMPHY_SELECTOR_PHY_REG			0xFC
-/* bit0: 0: Lane0 is GBE0; 1: Lane1 is PCIE */
+/* bit0: 0: Lane1 is GbE0; 1: Lane1 is PCIE */
 #define COMPHY_SELECTOR_PCIE_GBE0_SEL_BIT	BIT(0)
-/* bit4: 0: Lane1 is GBE1; 1: Lane1 is USB3 */
+/* bit4: 0: Lane0 is GbE1; 1: Lane0 is USB3 */
 #define COMPHY_SELECTOR_USB3_GBE1_SEL_BIT	BIT(4)
-/* bit8: 0: Lane1 is USB, Lane2 is SATA; 1: Lane2 is USB3 */
+/* bit8: 0: Lane0 is USB3 instead of GbE1, Lane2 is SATA; 1: Lane2 is USB3 */
 #define COMPHY_SELECTOR_USB3_PHY_SEL_BIT	BIT(8)
 
 /* SATA PHY register offset */
