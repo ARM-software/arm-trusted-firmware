@@ -238,8 +238,8 @@ enum {
 #define SD_SPEED_3_125_G		0x8
 
 /* COMPHY status reg:
- * lane0: PCIe/GbE0 PHY Status 1
- * lane1: USB3/GbE1 PHY Status 1
+ * lane0: USB3/GbE1 PHY Status 1
+ * lane1: PCIe/GbE0 PHY Status 1
  */
 #define COMPHY_PHY_STATUS_OFFSET(lane)	(0x18 + (1 - (lane)) * 0x28)
 #define PHY_RX_INIT_DONE_BIT		BIT(0)
