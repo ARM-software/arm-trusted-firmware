@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "postinstall": "husky install",
-    "release": "standard-version -i docs/change-log.md"
+    "release": "standard-version"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",

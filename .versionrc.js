@@ -70,7 +70,24 @@ module.exports = {
         "types": types,
         "sections": sections,
     },
+    "infile": "docs/change-log.md",
+    "skip": {
+        "commit": true,
+        "tag": true
+    },
     "bumpFiles": [
+        {
+            "filename": "package.json",
+            "type": "json"
+        },
+        {
+            "filename": "package-lock.json",
+            "type": "json"
+        },
+        {
+            "filename": "tools/conventional-changelog-tf-a/package.json",
+            "type": "json"
+        },
         {
             "filename": "Makefile",
             "updater": {
