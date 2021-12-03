@@ -32,24 +32,28 @@
 			reg = <0x0 0x0>;
 			device_type = "cpu";
 			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
 		};
 		cpu1@100 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x100>;
 			device_type = "cpu";
 			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
 		};
 		cpu2@10000 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x10000>;
 			device_type = "cpu";
 			enable-method = "psci";
+			clocks = <&scmi_dvfs 1>;
 		};
 		cpu3@10100 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x10100>;
 			device_type = "cpu";
 			enable-method = "psci";
+			clocks = <&scmi_dvfs 1>;
 		};
 	};
 
@@ -166,7 +170,7 @@
 
 		pl0: pipeline@0 {
 			reg = <0>;
-			clocks = <&dpu_pixel_clk>;
+			clocks = <&scmi_clk 1>;
 			clock-names = "pxclk";
 			pl_id = <0>;
 			ports {
@@ -212,11 +216,23 @@
 		clock-output-names = "aclk";
 	};
 
-	dpu_pixel_clk: dpu-pixel-clk {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <148500000>;
-		clock-output-names = "pxclk";
+	firmware {
+		scmi {
+			compatible = "arm,scmi";
+			mbox-names = "tx", "rx";
+			mboxes = <&mailbox 1 0 &mailbox 1 1>;
+			shmem = <&cpu_scp_hpri0 &cpu_scp_hpri1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			scmi_dvfs: protocol@13 {
+				reg = <0x13>;
+				#clock-cells = <1>;
+			};
+			scmi_clk: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+		};
 	};
 };
 
