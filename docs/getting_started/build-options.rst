@@ -246,6 +246,24 @@ Common build options
    builds, but this behaviour can be overridden in each platform's Makefile or
    in the build command line.
 
+-  ``ENABLE_FEAT_AMUv1``: Boolean option to enable access to the HAFGRTR_EL2
+   (Hypervisor Activity Monitors Fine-Grained Read Trap Register) during EL2
+   to EL3 context save/restore operations. It is an optional feature available
+   on v8.4 and onwards and must be set to 1 alongside ``ENABLE_FEAT_FGT``, to
+   access the HAFGRTR_EL2 register. Defaults to ``0``.
+
+-  ``ENABLE_FEAT_ECV``: Boolean option to enable support for the Enhanced Counter
+   Virtualization feature, allowing for access to the CNTPOFF_EL2 (Counter-timer
+   Physical Offset register) during EL2 to EL3 context save/restore operations.
+   Its a mandatory architectural feature in Armv8.6 and defaults to ``1`` for
+   v8.6 or later CPUs.
+
+-  ``ENABLE_FEAT_FGT``: Boolean option to enable support for FGT (Fine Grain Traps)
+   feature allowing for access to the HDFGRTR_EL2 (Hypervisor Debug Fine-Grained
+   Read Trap Register)  during EL2 to EL3 context save/restore operations.
+   Its a mandatory architectural feature in Armv8.6 and defaults to ``1`` for
+   v8.6 or later CPUs.
+
 -  ``ENABLE_FEAT_HCX``: This option sets the bit SCR_EL3.HXEn in EL3 to allow
    access to HCRX_EL2 (extended hypervisor control register) from EL2 as well as
    adding HCRX_EL2 to the EL2 context save/restore operations.
