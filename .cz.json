@@ -93,12 +93,16 @@
                     "scopes": ["sve"]
                 },
                 {
+                    "title": "System Register Trace Extensions (FEAT_ETMv4, FEAT_ETE and FEAT_ETEv1.1)",
+                    "scopes": ["sys-reg-trace", "sys_reg_trace"]
+                },
+                {
                     "title": "Trace Buffer Extension (FEAT_TRBE)",
                     "scopes": ["trbe"]
                 },
                 {
-                    "title": "Self-hosted Trace Extensions (FEAT_TRF)",
-                    "scopes": ["trf", "sys_reg_trace"]
+                    "title": "Self-hosted Trace Extension (FEAT_TRF)",
+                    "scopes": ["trf"]
                 }
             ]
         },
