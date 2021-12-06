@@ -24,4 +24,6 @@ int stm32cubeprog_usb_load(struct usb_handle *usb_core_handle,
 			   uintptr_t ssbl_base,
 			   size_t ssbl_len);
 
+int stm32cubeprog_uart_load(uintptr_t instance, uintptr_t base, size_t len);
+
 #endif /* STM32CUBEPROGRAMMER_H */

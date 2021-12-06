@@ -14,6 +14,7 @@
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp_clkfunc.h>
 
+#define DT_UART_COMPAT		"st,stm32h7-uart"
 /*
  * Get the frequency of an oscillator from its name in device tree.
  * @param name: oscillator name
@@ -296,4 +297,33 @@ int fdt_get_clock_id(int node)
 
 	cuint++;
 	return (int)fdt32_to_cpu(*cuint);
+}
+
+/*
+ * Get the frequency of the specified UART instance.
+ * @param instance: UART interface registers base address.
+ * @return: clock frequency on success, 0 value on failure.
+ */
+unsigned long fdt_get_uart_clock_freq(uintptr_t instance)
+{
+	void *fdt;
+	int node;
+	int clk_id;
+
+	if (fdt_get_address(&fdt) == 0) {
+		return 0UL;
+	}
+
+	/* Check for UART nodes */
+	node = dt_match_instance_by_compatible(DT_UART_COMPAT, instance);
+	if (node < 0) {
+		return 0UL;
+	}
+
+	clk_id = fdt_get_clock_id(node);
+	if (clk_id < 0) {
+		return 0UL;
+	}
+
+	return stm32mp_clk_get_rate((unsigned long)clk_id);
 }

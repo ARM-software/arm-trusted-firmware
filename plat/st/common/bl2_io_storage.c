@@ -99,7 +99,7 @@ static io_mtd_dev_spec_t spi_nand_dev_spec = {
 static const io_dev_connector_t *spi_dev_con;
 #endif
 
-#if STM32MP_USB_PROGRAMMER
+#if STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER
 static const io_dev_connector_t *memmap_dev_con;
 #endif
 
@@ -135,6 +135,9 @@ static void print_boot_device(boot_api_context_t *boot_context)
 		break;
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_QSPI:
 		INFO("Using SPI NAND\n");
+		break;
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART:
+		INFO("Using UART\n");
 		break;
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB:
 		INFO("Using USB\n");
@@ -257,7 +260,7 @@ static void boot_spi_nand(boot_api_context_t *boot_context)
 }
 #endif /* STM32MP_SPI_NAND */
 
-#if STM32MP_USB_PROGRAMMER
+#if STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER
 static void mmap_io_setup(void)
 {
 	int io_result __unused;
@@ -270,6 +273,21 @@ static void mmap_io_setup(void)
 	assert(io_result == 0);
 }
 
+#if STM32MP_UART_PROGRAMMER
+static void stm32cubeprogrammer_uart(void)
+{
+	int ret __unused;
+	boot_api_context_t *boot_context =
+		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
+	uintptr_t uart_base;
+
+	uart_base = get_uart_address(boot_context->boot_interface_instance);
+	ret = stm32cubeprog_uart_load(uart_base, DWL_BUFFER_BASE, DWL_BUFFER_SIZE);
+	assert(ret == 0);
+}
+#endif
+
+#if STM32MP_USB_PROGRAMMER
 static void stm32cubeprogrammer_usb(void)
 {
 	int ret __unused;
@@ -282,6 +300,8 @@ static void stm32cubeprogrammer_usb(void)
 	assert(ret == 0);
 }
 #endif
+#endif /* STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER */
+
 
 void stm32mp_io_setup(void)
 {
@@ -334,8 +354,13 @@ void stm32mp_io_setup(void)
 		boot_spi_nand(boot_context);
 		break;
 #endif
+#if STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER
+#if STM32MP_UART_PROGRAMMER
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART:
+#endif
 #if STM32MP_USB_PROGRAMMER
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB:
+#endif
 		dmbsy();
 		mmap_io_setup();
 		break;
@@ -400,6 +425,16 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 		break;
 #endif
 
+#if STM32MP_UART_PROGRAMMER
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART:
+		if (image_id == FW_CONFIG_ID) {
+			stm32cubeprogrammer_uart();
+			/* FIP loaded at DWL address */
+			image_block_spec.offset = DWL_BUFFER_BASE;
+			image_block_spec.length = DWL_BUFFER_SIZE;
+		}
+		break;
+#endif
 #if STM32MP_USB_PROGRAMMER
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB:
 		if (image_id == FW_CONFIG_ID) {

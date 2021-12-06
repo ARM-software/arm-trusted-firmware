@@ -48,6 +48,11 @@ uint32_t stm32_iwdg_get_otp_config(uint32_t iwdg_inst);
 uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags);
 #endif
 
+#if STM32MP_UART_PROGRAMMER
+/* Get the UART address from its instance number */
+uintptr_t get_uart_address(uint32_t instance_nb);
+#endif
+
 /*
  * Platform util functions for the GPIO driver
  * @bank: Target GPIO bank ID as per DT bindings
