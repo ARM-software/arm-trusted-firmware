@@ -91,7 +91,61 @@ int emi_mpu_set_protection(struct emi_region_info_t *region_info)
 	return 0;
 }
 
+void dump_emi_mpu_regions(void)
+{
+	unsigned long apc[EMI_MPU_DGROUP_NUM], sa, ea;
+
+	int region, i;
+
+	/* Only dump 8 regions(max: EMI_MPU_REGION_NUM --> 32) */
+	for (region = 0; region < 8; ++region) {
+		for (i = 0; i < EMI_MPU_DGROUP_NUM; ++i)
+			apc[i] = mmio_read_32(EMI_MPU_APC(region, i));
+		sa = mmio_read_32(EMI_MPU_SA(region));
+		ea = mmio_read_32(EMI_MPU_EA(region));
+
+		INFO("region %d:\n", region);
+		INFO("\tsa:0x%lx, ea:0x%lx, apc0: 0x%lx apc1: 0x%lx\n",
+		     sa, ea, apc[0], apc[1]);
+	}
+}
+
 void emi_mpu_init(void)
 {
-	/* TODO: more setting for EMI MPU. */
+	struct emi_region_info_t region_info;
+
+	/* SCP DRAM */
+	region_info.start = 0x50000000ULL;
+	region_info.end = 0x51400000ULL;
+	region_info.region = 2;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      NO_PROTECTION, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* DSP protect address */
+	region_info.start = 0x60000000ULL;	/* dram base addr */
+	region_info.end = 0x610FFFFFULL;
+	region_info.region = 3;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* Forbidden All */
+	region_info.start = 0x40000000ULL;	/* dram base addr */
+	region_info.end = 0x1FFFF0000ULL;
+	region_info.region = 4;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	dump_emi_mpu_regions();
 }
