@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include <lib/cassert.h>
+#include <drivers/partition/efi.h>
 
 #if !PLAT_PARTITION_MAX_ENTRIES
 # define PLAT_PARTITION_MAX_ENTRIES	128
@@ -26,8 +27,6 @@ CASSERT((PLAT_PARTITION_BLOCK_SIZE == 512) ||
 	assert_plat_partition_block_size);
 
 #define LEGACY_PARTITION_BLOCK_SIZE	512
-
-#define EFI_NAMELEN			36
 
 typedef struct partition_entry {
 	uint64_t		start;
