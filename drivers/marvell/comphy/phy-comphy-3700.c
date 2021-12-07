@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (C) 2018-2021 Marvell International Ltd.
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
@@ -401,7 +401,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 *    PHY TXP/TXN output to idle state during PHY initialization
 	 * 3. Set PHY input port PIN_PU_PLL=0, PIN_PU_RX=0, PIN_PU_TX=0.
 	 */
-	data = PIN_PU_IVEREF_BIT | PIN_TX_IDLE_BIT | PIN_RESET_COMPHY_BIT;
+	data = PIN_PU_IVREF_BIT | PIN_TX_IDLE_BIT | PIN_RESET_COMPHY_BIT;
 	mask = PIN_RESET_CORE_BIT | PIN_PU_PLL_BIT | PIN_PU_RX_BIT |
 		PIN_PU_TX_BIT;
 	offset = MVEBU_COMPHY_REG_BASE + COMPHY_PHY_CFG1_OFFSET(comphy_index);
