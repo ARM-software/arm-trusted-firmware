@@ -96,16 +96,16 @@ enum {
 #define ISOLATION_CTRL_ADDR(unit)	(COMPHY_ISOLATION_REG * PHY_SHFT(unit))
 #define PHY_ISOLATE_MODE		BIT(15)
 
-#define COMPHY_GEN2_SET_2		0x3e
-#define GEN2_SETTING_2_ADDR(unit)	(COMPHY_GEN2_SET_2 * PHY_SHFT(unit))
+#define COMPHY_GEN2_SET2		0x3e
+#define GEN2_SET2_ADDR(unit)		(COMPHY_GEN2_SET2 * PHY_SHFT(unit))
 #define G2_TX_SSC_AMP_VALUE_20		BIT(14)
 #define G2_TX_SSC_AMP_OFF		9
 #define G2_TX_SSC_AMP_LEN		7
 #define G2_TX_SSC_AMP_MASK		(((1 << G2_TX_SSC_AMP_LEN) - 1) << \
 					 G2_TX_SSC_AMP_OFF)
 
-#define COMPHY_GEN3_SET_2		0x3f
-#define GEN3_SETTING_2_ADDR(unit)	(COMPHY_GEN3_SET_2 * PHY_SHFT(unit))
+#define COMPHY_GEN3_SET2		0x3f
+#define GEN3_SET2_ADDR(unit)		(COMPHY_GEN3_SET2 * PHY_SHFT(unit))
 #define G3_TX_SSC_AMP_OFF		9
 #define G3_TX_SSC_AMP_LEN		7
 #define G3_TX_SSC_AMP_MASK		(((1 << G2_TX_SSC_AMP_LEN) - 1) << \
@@ -138,7 +138,7 @@ enum {
 #define MISC_REG1_ADDR(unit)		(COMPHY_MISC_REG1 * PHY_SHFT(unit))
 #define SEL_BITS_PCIE_FORCE		BIT(15)
 
-#define COMPHY_GEN2_SETTINGS_3		0x112
+#define COMPHY_GEN2_SET3		0x112
 #define COMPHY_GEN_FFE_CAP_SEL_MASK	0xF
 #define COMPHY_GEN_FFE_CAP_SEL_VALUE	0xF
 
