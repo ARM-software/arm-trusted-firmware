@@ -118,6 +118,7 @@ BL31_SOURCES		+=	plat/xilinx/zynqmp/zynqmp_ehf.c			\
 endif
 
 BL31_CPPFLAGS		+=	-fno-jump-tables
+TF_CFLAGS_aarch64	+=	-mbranch-protection=none
 
 ifneq (${RESET_TO_BL31},1)
   $(error "Using BL31 as the reset vector is only one option supported on ZynqMP. Please set RESET_TO_BL31 to 1.")
