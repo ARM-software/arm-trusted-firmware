@@ -725,8 +725,8 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	/*
 	 * 9. Enable idle sync
 	 */
-	data = UNIT_CTRL_DEFAULT_VALUE | IDLE_SYNC_EN;
-	usb3_reg_set(reg_base, COMPHY_UNIT_CTRL, data, REG_16_BIT_MASK);
+	data = IDLE_SYNC_EN_DEFAULT_VALUE | IDLE_SYNC_EN;
+	usb3_reg_set(reg_base, COMPHY_IDLE_SYNC_EN, data, REG_16_BIT_MASK);
 
 	/*
 	 * 10. Enable the output of 500M clock
@@ -839,8 +839,8 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 		   CFG_PM_RXDLOZ_WAIT_MASK));
 
 	/* 5. Enable idle sync */
-	reg_set16(UNIT_CTRL_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  UNIT_CTRL_DEFAULT_VALUE | IDLE_SYNC_EN, REG_16_BIT_MASK);
+	reg_set16(IDLE_SYNC_EN_ADDR(PCIE) + COMPHY_SD_ADDR,
+		  IDLE_SYNC_EN_DEFAULT_VALUE | IDLE_SYNC_EN, REG_16_BIT_MASK);
 
 	/* 6. Enable the output of 100M/125M/500M clock */
 	reg_set16(MISC_REG0_ADDR(PCIE) + COMPHY_SD_ADDR,
