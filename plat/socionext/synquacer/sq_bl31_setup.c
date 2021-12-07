@@ -24,6 +24,20 @@ IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_START__, SPM_SHIM_EXCEPTIONS_START);
 IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_END__,   SPM_SHIM_EXCEPTIONS_END);
 IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_LMA__,   SPM_SHIM_EXCEPTIONS_LMA);
 
+unsigned int plat_get_syscnt_freq2(void)
+{
+	unsigned int counter_base_frequency;
+
+	/* Read the frequency from Frequency modes table */
+	counter_base_frequency = mmio_read_32(SQ_SYS_CNTCTL_BASE + CNTFID_OFF);
+
+	/* The first entry of the frequency modes table must not be 0 */
+	if (counter_base_frequency == 0)
+		panic();
+
+	return counter_base_frequency;
+}
+
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	assert(sec_state_is_valid(type));
@@ -119,6 +133,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 static void sq_configure_sys_timer(void)
 {
 	unsigned int reg_val;
+	unsigned int freq_val = plat_get_syscnt_freq2();
 
 	reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);
 	reg_val |= (1 << CNTACR_RFRQ_SHIFT) | (1 << CNTACR_RVOFF_SHIFT);
@@ -128,6 +143,17 @@ static void sq_configure_sys_timer(void)
 
 	reg_val = (1 << CNTNSAR_NS_SHIFT(PLAT_SQ_NSTIMER_FRAME_ID));
 	mmio_write_32(SQ_SYS_TIMCTL_BASE + CNTNSAR, reg_val);
+
+	/* Initialize CNTFRQ register in CNTCTLBase frame */
+	mmio_write_32(SQ_SYS_TIMCTL_BASE + CNTCTLBASE_CNTFRQ, freq_val);
+
+	/*
+	 * Initialize CNTFRQ register in Non-secure CNTBase frame.
+	 * This is required for SynQuacer, because it does not
+	 * follow ARM ARM in that the value updated in CNTFRQ is not
+	 * reflected in CNTBASEN_CNTFRQ. Hence update the value manually.
+	 */
+	mmio_write_32(SQ_SYS_CNT_BASE_NS + CNTBASEN_CNTFRQ, freq_val);
 }
 
 void bl31_platform_setup(void)
@@ -183,18 +209,4 @@ void bl31_plat_arch_setup(void)
 void bl31_plat_enable_mmu(uint32_t flags)
 {
 	enable_mmu_el3(flags | XLAT_TABLE_NC);
-}
-
-unsigned int plat_get_syscnt_freq2(void)
-{
-	unsigned int counter_base_frequency;
-
-	/* Read the frequency from Frequency modes table */
-	counter_base_frequency = mmio_read_32(SQ_SYS_CNTCTL_BASE + CNTFID_OFF);
-
-	/* The first entry of the frequency modes table must not be 0 */
-	if (counter_base_frequency == 0)
-		panic();
-
-	return counter_base_frequency;
 }
