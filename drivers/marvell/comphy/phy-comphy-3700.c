@@ -315,7 +315,7 @@ static int mvebu_a3700_comphy_sata_power_on(uint8_t comphy_index,
 				 RXD_INVERT_BIT);
 
 	/* 1. Select 40-bit data width width */
-	offset = COMPHY_LOOPBACK_REG0 + SATAPHY_LANE2_REG_BASE_OFFSET;
+	offset = COMPHY_DIG_LOOPBACK_EN + SATAPHY_LANE2_REG_BASE_OFFSET;
 	comphy_sata_set_indirect(comphy_indir_regs, offset, DATA_WIDTH_40BIT,
 				 SEL_DATA_WIDTH_MASK);
 
@@ -352,7 +352,7 @@ static int mvebu_a3700_comphy_sata_power_on(uint8_t comphy_index,
 
 	/* Polling status */
 	mmio_write_32(comphy_indir_regs + COMPHY_LANE2_INDIR_ADDR_OFFSET,
-		      COMPHY_LOOPBACK_REG0 + SATAPHY_LANE2_REG_BASE_OFFSET);
+		      COMPHY_DIG_LOOPBACK_EN + SATAPHY_LANE2_REG_BASE_OFFSET);
 
 	ret = polling_with_timeout(comphy_indir_regs +
 				   COMPHY_LANE2_INDIR_DATA_OFFSET,
@@ -477,7 +477,8 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 */
 	data = DATA_WIDTH_10BIT;
 	mask = SEL_DATA_WIDTH_MASK;
-	reg_set16(SGMIIPHY_ADDR(COMPHY_LOOPBACK_REG0, sd_ip_addr), data, mask);
+	reg_set16(SGMIIPHY_ADDR(COMPHY_DIG_LOOPBACK_EN, sd_ip_addr),
+		  data, mask);
 
 	/*
 	 * 12. As long as DFE function needs to be enabled in any mode,
@@ -737,7 +738,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	/*
 	 * 11. Set 20-bit data width
 	 */
-	usb3_reg_set(reg_base, COMPHY_LOOPBACK_REG0, DATA_WIDTH_20BIT,
+	usb3_reg_set(reg_base, COMPHY_DIG_LOOPBACK_EN, DATA_WIDTH_20BIT,
 		     REG_16_BIT_MASK);
 
 	/*
@@ -1025,7 +1026,7 @@ static int mvebu_a3700_comphy_sata_is_pll_locked(void)
 
 	/* Polling status */
 	mmio_write_32(comphy_indir_regs + COMPHY_LANE2_INDIR_ADDR_OFFSET,
-	       COMPHY_LOOPBACK_REG0 + SATAPHY_LANE2_REG_BASE_OFFSET);
+	       COMPHY_DIG_LOOPBACK_EN + SATAPHY_LANE2_REG_BASE_OFFSET);
 	addr = comphy_indir_regs + COMPHY_LANE2_INDIR_DATA_OFFSET;
 	data = polling_with_timeout(addr, PLL_READY_TX_BIT, PLL_READY_TX_BIT,
 				    COMPHY_PLL_TIMEOUT, REG_32BIT);
