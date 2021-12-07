@@ -450,7 +450,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 */
 	data = 0;
 	mask = PHY_REF_CLK_SEL;
-	reg_set16(SGMIIPHY_ADDR(COMPHY_MISC_REG0_ADDR, sd_ip_addr), data, mask);
+	reg_set16(SGMIIPHY_ADDR(COMPHY_MISC_REG0, sd_ip_addr), data, mask);
 
 	/*
 	 * 9. Set correct reference clock frequency in COMPHY register
@@ -646,39 +646,38 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 */
 	mask = PRD_TXDEEMPH0_MASK | PRD_TXMARGIN_MASK | PRD_TXSWING_MASK |
 		CFG_TX_ALIGN_POS_MASK;
-	usb3_reg_set(reg_base, COMPHY_LANE_CFG0_ADDR, PRD_TXDEEMPH0_MASK,
-		     mask);
+	usb3_reg_set(reg_base, COMPHY_LANE_CFG0, PRD_TXDEEMPH0_MASK, mask);
 
 	/*
 	 * 2. Set BIT0: enable transmitter in high impedance mode
 	 *    Set BIT[3:4]: delay 2 clock cycles for HiZ off latency
 	 *    Set BIT6: Tx detect Rx at HiZ mode
 	 *    Unset BIT15: set to 0 to set USB3 De-emphasize level to -3.5db
-	 *            together with bit 0 of COMPHY_LANE_CFG0_ADDR register
+	 *            together with bit 0 of COMPHY_LANE_CFG0 register
 	 */
 	mask = PRD_TXDEEMPH1_MASK | TX_DET_RX_MODE | GEN2_TX_DATA_DLY_MASK |
 		TX_ELEC_IDLE_MODE_EN;
 	data = TX_DET_RX_MODE | GEN2_TX_DATA_DLY_DEFT | TX_ELEC_IDLE_MODE_EN;
-	usb3_reg_set(reg_base, COMPHY_LANE_CFG1_ADDR, data, mask);
+	usb3_reg_set(reg_base, COMPHY_LANE_CFG1, data, mask);
 
 	/*
 	 * 3. Set Spread Spectrum Clock Enabled
 	 */
-	usb3_reg_set(reg_base, COMPHY_LANE_CFG4_ADDR,
+	usb3_reg_set(reg_base, COMPHY_LANE_CFG4,
 		     SPREAD_SPECTRUM_CLK_EN, SPREAD_SPECTRUM_CLK_EN);
 
 	/*
 	 * 4. Set Override Margining Controls From the MAC:
 	 *    Use margining signals from lane configuration
 	 */
-	usb3_reg_set(reg_base, COMPHY_TEST_MODE_CTRL_ADDR,
+	usb3_reg_set(reg_base, COMPHY_TEST_MODE_CTRL,
 		     MODE_MARGIN_OVERRIDE, REG_16_BIT_MASK);
 
 	/*
 	 * 5. Set Lane-to-Lane Bundle Clock Sampling Period = per PCLK cycles
 	 *    set Mode Clock Source = PCLK is generated from REFCLK
 	 */
-	usb3_reg_set(reg_base, COMPHY_GLOB_CLK_SRC_LO_ADDR, 0x0,
+	usb3_reg_set(reg_base, COMPHY_GLOB_CLK_SRC_LO, 0x0,
 		     (MODE_CLK_SRC | BUNDLE_PERIOD_SEL | BUNDLE_PERIOD_SCALE |
 		      BUNDLE_SAMPLE_CTRL | PLL_READY_DLY));
 
@@ -721,19 +720,19 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	mask = CFG_PM_OSCCLK_WAIT_MASK | CFG_PM_RXDEN_WAIT_MASK |
 		CFG_PM_RXDLOZ_WAIT_MASK;
 	data = CFG_PM_RXDEN_WAIT_1_UNIT  | cfg;
-	usb3_reg_set(reg_base, COMPHY_PWR_MGM_TIM1_ADDR, data, mask);
+	usb3_reg_set(reg_base, COMPHY_PWR_MGM_TIM1, data, mask);
 
 	/*
 	 * 9. Enable idle sync
 	 */
 	data = UNIT_CTRL_DEFAULT_VALUE | IDLE_SYNC_EN;
-	usb3_reg_set(reg_base, COMPHY_UNIT_CTRL_ADDR, data, REG_16_BIT_MASK);
+	usb3_reg_set(reg_base, COMPHY_UNIT_CTRL, data, REG_16_BIT_MASK);
 
 	/*
 	 * 10. Enable the output of 500M clock
 	 */
 	data = MISC_REG0_DEFAULT_VALUE | CLK500M_EN;
-	usb3_reg_set(reg_base, COMPHY_MISC_REG0_ADDR, data, REG_16_BIT_MASK);
+	usb3_reg_set(reg_base, COMPHY_MISC_REG0, data, REG_16_BIT_MASK);
 
 	/*
 	 * 11. Set 20-bit data width
@@ -777,14 +776,13 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 * 16. Release SW reset
 	 */
 	data = MODE_CORE_CLK_FREQ_SEL | MODE_PIPE_WIDTH_32 | MODE_REFDIV_BY_4;
-	usb3_reg_set(reg_base, COMPHY_GLOB_PHY_CTRL0_ADDR, data,
-		     REG_16_BIT_MASK);
+	usb3_reg_set(reg_base, COMPHY_GLOB_PHY_CTRL0, data, REG_16_BIT_MASK);
 
 	/* Wait for > 55 us to allow PCLK be enabled */
 	udelay(PLL_SET_DELAY_US);
 
 	if (comphy_index == COMPHY_LANE2) {
-		data = COMPHY_LANE_STATUS1_ADDR + USB3PHY_LANE2_REG_BASE_OFFSET;
+		data = COMPHY_LANE_STATUS1 + USB3PHY_LANE2_REG_BASE_OFFSET;
 		mmio_write_32(reg_base + COMPHY_LANE2_INDIR_ADDR_OFFSET,
 			      data);
 
