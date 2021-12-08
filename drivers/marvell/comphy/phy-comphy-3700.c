@@ -782,7 +782,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	udelay(PLL_SET_DELAY_US);
 
 	if (comphy_index == COMPHY_LANE2) {
-		data = COMPHY_LANE_STATUS1 + USB3PHY_LANE2_REG_BASE_OFFSET;
+		data = COMPHY_LANE_STAT1 + USB3PHY_LANE2_REG_BASE_OFFSET;
 		mmio_write_32(reg_base + COMPHY_LANE2_INDIR_ADDR_OFFSET,
 			      data);
 
@@ -790,7 +790,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 		ret = polling_with_timeout(addr, TXDCLK_PCLK_EN, TXDCLK_PCLK_EN,
 					   COMPHY_PLL_TIMEOUT, REG_32BIT);
 	} else {
-		ret = polling_with_timeout(LANE_STATUS1_ADDR(USB3) + reg_base,
+		ret = polling_with_timeout(LANE_STAT1_ADDR(USB3) + reg_base,
 					   TXDCLK_PCLK_EN, TXDCLK_PCLK_EN,
 					   COMPHY_PLL_TIMEOUT, REG_16BIT);
 	}
@@ -890,7 +890,7 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 	/* Wait for > 55 us to allow PCLK be enabled */
 	udelay(PLL_SET_DELAY_US);
 
-	ret = polling_with_timeout(LANE_STATUS1_ADDR(PCIE) + COMPHY_SD_ADDR,
+	ret = polling_with_timeout(LANE_STAT1_ADDR(PCIE) + COMPHY_SD_ADDR,
 				   TXDCLK_PCLK_EN, TXDCLK_PCLK_EN,
 				   COMPHY_PLL_TIMEOUT, REG_16BIT);
 	if (ret) {
