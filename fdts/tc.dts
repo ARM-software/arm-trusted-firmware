@@ -206,6 +206,13 @@
 		#size-cells = <2>;
 		ranges;
 
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x8000000>;
+			linux,cma-default;
+		};
+
 		optee@0xfce00000 {
 			reg = <0x00000000 0xfce00000 0 0x00200000>;
 			no-map;
