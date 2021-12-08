@@ -685,16 +685,16 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 * 6. Set G2 Spread Spectrum Clock Amplitude at 4K
 	 */
 	usb3_reg_set(reg_base, COMPHY_GEN2_SET2,
-		     G2_TX_SSC_AMP_VALUE_20, G2_TX_SSC_AMP_MASK);
+		     GS2_TX_SSC_AMP_VALUE_20, GS2_TX_SSC_AMP_MASK);
 
 	/*
 	 * 7. Unset G3 Spread Spectrum Clock Amplitude
 	 *    set G3 TX and RX Register Master Current Select
 	 */
-	mask = G3_TX_SSC_AMP_MASK | G3_VREG_RXTX_MAS_ISET_MASK |
-		RSVD_PH03FH_6_0_MASK;
+	mask = GS2_TX_SSC_AMP_MASK | GS2_VREG_RXTX_MAS_ISET_MASK |
+		GS2_RSVD_6_0_MASK;
 	usb3_reg_set(reg_base, COMPHY_GEN3_SET2,
-		     G3_VREG_RXTX_MAS_ISET_60U, mask);
+		     GS2_VREG_RXTX_MAS_ISET_60U, mask);
 
 	/*
 	 * 8. Check crystal jumper setting and program the Power and PLL Control
@@ -770,7 +770,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 * 15. Set capacitor value for FFE gain peaking to 0xF
 	 */
 	usb3_reg_set(reg_base, COMPHY_GEN2_SET3,
-		     COMPHY_GEN_FFE_CAP_SEL_VALUE, COMPHY_GEN_FFE_CAP_SEL_MASK);
+		     GS3_FFE_CAP_SEL_VALUE, GS3_FFE_CAP_SEL_MASK);
 
 	/*
 	 * 16. Release SW reset
