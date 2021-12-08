@@ -678,8 +678,9 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 *    set Mode Clock Source = PCLK is generated from REFCLK
 	 */
 	usb3_reg_set(reg_base, COMPHY_CLK_SRC_LO, 0x0,
-		     (MODE_CLK_SRC | BUNDLE_PERIOD_SEL | BUNDLE_PERIOD_SCALE |
-		      BUNDLE_SAMPLE_CTRL | PLL_READY_DLY));
+		     (MODE_CLK_SRC | BUNDLE_PERIOD_SEL |
+		      BUNDLE_PERIOD_SCALE_MASK | BUNDLE_SAMPLE_CTRL |
+		      PLL_READY_DLY_MASK));
 
 	/*
 	 * 6. Set G2 Spread Spectrum Clock Amplitude at 4K

@@ -180,9 +180,9 @@ enum {
 #define CLK_SRC_LO_ADDR(unit)		(COMPHY_CLK_SRC_LO * PHY_SHFT(unit))
 #define MODE_CLK_SRC			BIT(0)
 #define BUNDLE_PERIOD_SEL		BIT(1)
-#define BUNDLE_PERIOD_SCALE		(BIT(2) | BIT(3))
+#define BUNDLE_PERIOD_SCALE_MASK	(BIT(2) | BIT(3))
 #define BUNDLE_SAMPLE_CTRL		BIT(4)
-#define PLL_READY_DLY			(BIT(5) | BIT(6) | BIT(7))
+#define PLL_READY_DLY_MASK		(BIT(5) | BIT(6) | BIT(7))
 #define CFG_SEL_20B			BIT(15)
 
 #define COMPHY_PWR_MGM_TIM1		0x1D0
