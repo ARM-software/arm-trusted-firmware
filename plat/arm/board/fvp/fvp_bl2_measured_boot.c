@@ -24,7 +24,8 @@ const event_log_metadata_t fvp_event_log_metadata[] = {
 	{ SCP_BL2_IMAGE_ID, EVLOG_SCP_BL2_STRING, PCR_0 },
 	{ SOC_FW_CONFIG_ID, EVLOG_SOC_FW_CONFIG_STRING, PCR_0 },
 	{ TOS_FW_CONFIG_ID, EVLOG_TOS_FW_CONFIG_STRING, PCR_0 },
-	{ INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
+
+	{ EVLOG_INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
 };
 
 void bl2_plat_mboot_init(void)
