@@ -776,7 +776,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 * 16. Release SW reset
 	 */
 	data = MODE_CORE_CLK_FREQ_SEL | MODE_PIPE_WIDTH_32 | MODE_REFDIV_BY_4;
-	usb3_reg_set(reg_base, COMPHY_GLOB_PHY_CTRL0, data, REG_16_BIT_MASK);
+	usb3_reg_set(reg_base, COMPHY_RST_CLK_CTRL, data, REG_16_BIT_MASK);
 
 	/* Wait for > 55 us to allow PCLK be enabled */
 	udelay(PLL_SET_DELAY_US);
@@ -885,7 +885,7 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 	/* 11. Release SW reset */
 	data = MODE_CORE_CLK_FREQ_SEL | MODE_PIPE_WIDTH_32;
 	mask = data | SOFT_RESET | MODE_REFDIV_MASK;
-	reg_set16(GLOB_PHY_CTRL0_ADDR(PCIE) + COMPHY_SD_ADDR, data, mask);
+	reg_set16(RST_CLK_CTRL_ADDR(PCIE) + COMPHY_SD_ADDR, data, mask);
 
 	/* Wait for > 55 us to allow PCLK be enabled */
 	udelay(PLL_SET_DELAY_US);
