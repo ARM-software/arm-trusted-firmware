@@ -176,9 +176,8 @@ enum {
 #define TEST_MODE_CTRL_ADDR(unit)	(COMPHY_TEST_MODE_CTRL * PHY_SHFT(unit))
 #define MODE_MARGIN_OVERRIDE		BIT(2)
 
-#define COMPHY_GLOB_CLK_SRC_LO		0x1C3
-#define GLOB_CLK_SRC_LO_ADDR(unit)	(COMPHY_GLOB_CLK_SRC_LO * \
-					 PHY_SHFT(unit))
+#define COMPHY_CLK_SRC_LO		0x1C3
+#define CLK_SRC_LO_ADDR(unit)		(COMPHY_CLK_SRC_LO * PHY_SHFT(unit))
 #define MODE_CLK_SRC			BIT(0)
 #define BUNDLE_PERIOD_SEL		BIT(1)
 #define BUNDLE_PERIOD_SCALE		(BIT(2) | BIT(3))

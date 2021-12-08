@@ -677,7 +677,7 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	 * 5. Set Lane-to-Lane Bundle Clock Sampling Period = per PCLK cycles
 	 *    set Mode Clock Source = PCLK is generated from REFCLK
 	 */
-	usb3_reg_set(reg_base, COMPHY_GLOB_CLK_SRC_LO, 0x0,
+	usb3_reg_set(reg_base, COMPHY_CLK_SRC_LO, 0x0,
 		     (MODE_CLK_SRC | BUNDLE_PERIOD_SEL | BUNDLE_PERIOD_SCALE |
 		      BUNDLE_SAMPLE_CTRL | PLL_READY_DLY));
 
@@ -825,7 +825,7 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 		  USE_MAX_PLL_RATE_EN, USE_MAX_PLL_RATE_EN);
 
 	/* 2. Select 20 bit SERDES interface. */
-	reg_set16(GLOB_CLK_SRC_LO_ADDR(PCIE) + COMPHY_SD_ADDR,
+	reg_set16(CLK_SRC_LO_ADDR(PCIE) + COMPHY_SD_ADDR,
 		  CFG_SEL_20B, CFG_SEL_20B);
 
 	/* 3. Force to use reg setting for PCIe mode */
