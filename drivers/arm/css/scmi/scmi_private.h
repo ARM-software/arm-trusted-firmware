@@ -136,7 +136,7 @@ typedef struct mailbox_mem {
 	uint64_t res_b; /* Reserved */
 	uint32_t flags;
 	volatile uint32_t len;
-	uint32_t msg_header;
+	volatile uint32_t msg_header;
 	uint32_t payload[];
 } mailbox_mem_t;
 
