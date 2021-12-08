@@ -450,7 +450,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 */
 	data = 0;
 	mask = PHY_REF_CLK_SEL;
-	reg_set16(SGMIIPHY_ADDR(COMPHY_MISC_REG0, sd_ip_addr), data, mask);
+	reg_set16(SGMIIPHY_ADDR(COMPHY_MISC_CTRL0, sd_ip_addr), data, mask);
 
 	/*
 	 * 9. Set correct reference clock frequency in COMPHY register
@@ -731,8 +731,8 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	/*
 	 * 10. Enable the output of 500M clock
 	 */
-	data = MISC_REG0_DEFAULT_VALUE | CLK500M_EN;
-	usb3_reg_set(reg_base, COMPHY_MISC_REG0, data, REG_16_BIT_MASK);
+	data = MISC_CTRL0_DEFAULT_VALUE | CLK500M_EN;
+	usb3_reg_set(reg_base, COMPHY_MISC_CTRL0, data, REG_16_BIT_MASK);
 
 	/*
 	 * 11. Set 20-bit data width
@@ -829,7 +829,7 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 		  CFG_SEL_20B, CFG_SEL_20B);
 
 	/* 3. Force to use reg setting for PCIe mode */
-	reg_set16(MISC_REG1_ADDR(PCIE) + COMPHY_SD_ADDR,
+	reg_set16(MISC_CTRL1_ADDR(PCIE) + COMPHY_SD_ADDR,
 		  SEL_BITS_PCIE_FORCE, SEL_BITS_PCIE_FORCE);
 
 	/* 4. Change RX wait */
@@ -843,8 +843,8 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 		  IDLE_SYNC_EN_DEFAULT_VALUE | IDLE_SYNC_EN, REG_16_BIT_MASK);
 
 	/* 6. Enable the output of 100M/125M/500M clock */
-	reg_set16(MISC_REG0_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  MISC_REG0_DEFAULT_VALUE | CLK500M_EN | TXDCLK_2X_SEL | CLK100M_125M_EN,
+	reg_set16(MISC_CTRL0_ADDR(PCIE) + COMPHY_SD_ADDR,
+		  MISC_CTRL0_DEFAULT_VALUE | CLK500M_EN | TXDCLK_2X_SEL | CLK100M_125M_EN,
 		  REG_16_BIT_MASK);
 
 	/*
