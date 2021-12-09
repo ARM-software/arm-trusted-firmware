@@ -30,6 +30,7 @@
 #include <services/rmi_svc.h>
 #include <services/rmmd_svc.h>
 #include <smccc_helpers.h>
+#include <lib/extensions/sve.h>
 #include "rmmd_initial_context.h"
 #include "rmmd_private.h"
 
@@ -112,6 +113,26 @@ static void rmm_el2_context_init(el2_sysregs_t *regs)
 }
 
 /*******************************************************************************
+ * Enable architecture extensions on first entry to Realm world.
+ ******************************************************************************/
+static void manage_extensions_realm(cpu_context_t *ctx)
+{
+#if ENABLE_SVE_FOR_NS
+	/*
+	 * Enable SVE and FPU in realm context when it is enabled for NS.
+	 * Realm manager must ensure that the SVE and FPU register
+	 * contexts are properly managed.
+	 */
+	sve_enable(ctx);
+#else
+	/*
+	 * Disable SVE and FPU in realm context when it is disabled for NS.
+	 */
+	sve_disable(ctx);
+#endif /* ENABLE_SVE_FOR_NS */
+}
+
+/*******************************************************************************
  * Jump to the RMM for the first time.
  ******************************************************************************/
 static int32_t rmm_init(void)
@@ -123,6 +144,9 @@ static int32_t rmm_init(void)
 
 	INFO("RMM init start.\n");
 	ctx->state = RMM_STATE_RESET;
+
+	/* Enable architecture extensions */
+	manage_extensions_realm(&ctx->cpu_ctx);
 
 	/* Initialize RMM EL2 context. */
 	rmm_el2_context_init(&ctx->cpu_ctx.el2_sysregs_ctx);
@@ -280,6 +304,9 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 
 	/* Initialise RMM context with this entry point information */
 	cm_setup_context(&ctx->cpu_ctx, rmm_ep_info);
+
+	/* Enable architecture extensions */
+	manage_extensions_realm(&ctx->cpu_ctx);
 
 	/* Initialize RMM EL2 context. */
 	rmm_el2_context_init(&ctx->cpu_ctx.el2_sysregs_ctx);
