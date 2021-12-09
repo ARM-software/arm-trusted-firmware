@@ -24,42 +24,43 @@
 #define ROOT_CORE_ADDR_OFFSET			0x20000000
 #define SPM_WAKEUP_EVENT_MASK_CLEAN_MASK	0xefffffff
 #define	SPM_INIT_DONE_US			20
+#define SPM_WAKEUP_REASON_MISSING		0xdeaddead
 
 static unsigned int mt_spm_bblpm_cnt;
 
 const char *wakeup_src_str[32] = {
-	[0] = "R12_PCM_TIMER",
-	[1] = "R12_RESERVED_DEBUG_B",
-	[2] = "R12_KP_IRQ_B",
-	[3] = "R12_APWDT_EVENT_B",
-	[4] = "R12_APXGPT1_EVENT_B",
-	[5] = "R12_MSDC_WAKEUP_B",
-	[6] = "R12_EINT_EVENT_B",
-	[7] = "R12_IRRX_WAKEUP_B",
-	[8] = "R12_SBD_INTR_WAKEUP_B",
-	[9] = "R12_RESERVE0",
-	[10] = "R12_SC_SSPM2SPM_WAKEUP_B",
-	[11] = "R12_SC_SCP2SPM_WAKEUP_B",
-	[12] = "R12_SC_ADSP2SPM_WAKEUP_B",
-	[13] = "R12_WDT_WAKEUP_B",
-	[14] = "R12_USB_U2_B",
-	[15] = "R12_USB_TOP_B",
-	[16] = "R12_SYS_TIMER_EVENT_B",
-	[17] = "R12_EINT_EVENT_SECURE_B",
-	[18] = "R12_ECE_INT_HDMI_B",
-	[19] = "R12_RESERVE1",
-	[20] = "R12_AFE_IRQ_MCU_B",
-	[21] = "R12_THERM_CTRL_EVENT_B",
-	[22] = "R12_SCP_CIRQ_IRQ_B",
-	[23] = "R12_NNA2INFRA_WAKEUP_B",
-	[24] = "R12_CSYSPWREQ_B",
-	[25] = "R12_RESERVE2",
-	[26] = "R12_PCIE_WAKEUPEVENT_B",
-	[27] = "R12_SEJ_EVENT_B",
-	[28] = "R12_SPM_CPU_WAKEUPEVENT_B",
-	[29] = "R12_APUSYS",
-	[30] = "R12_RESERVE3",
-	[31] = "R12_RESERVE4",
+	[0] = "PCM_TIMER",
+	[1] = "RESERVED_DEBUG_B",
+	[2] = "KEYPAD",
+	[3] = "APWDT",
+	[4] = "APXGPT",
+	[5] = "MSDC",
+	[6] = "EINT",
+	[7] = "IRRX",
+	[8] = "ETHERNET_QOS",
+	[9] = "RESERVE0",
+	[10] = "SSPM",
+	[11] = "SCP",
+	[12] = "ADSP",
+	[13] = "SPM_WDT",
+	[14] = "USB_U2",
+	[15] = "USB_TOP",
+	[16] = "SYS_TIMER",
+	[17] = "EINT_SECURE",
+	[18] = "HDMI",
+	[19] = "RESERVE1",
+	[20] = "AFE",
+	[21] = "THERMAL",
+	[22] = "SYS_CIRQ",
+	[23] = "NNA2INFRA",
+	[24] = "CSYSPWREQ",
+	[25] = "RESERVE2",
+	[26] = "PCIE",
+	[27] = "SEJ",
+	[28] = "SPM_CPU_WAKEUPEVENT",
+	[29] = "APUSYS",
+	[30] = "RESERVE3",
+	[31] = "RESERVE4",
 };
 
 /**************************************
@@ -70,20 +71,26 @@ wake_reason_t __spm_output_wake_reason(int state_id,
 				       const struct wake_status *wakesta)
 {
 	uint32_t i, bk_vtcxo_dur, spm_26m_off_pct = 0U;
+	char *spm_26m_sta = NULL;
 	wake_reason_t wr = WR_UNKNOWN;
 
 	if (wakesta == NULL) {
 		return WR_UNKNOWN;
 	}
 
+	spm_26m_sta = ((wakesta->debug_flag & SPM_DBG_DEBUG_IDX_26M_SLEEP) == 0U) ? "on" : "off";
+
 	if (wakesta->abort != 0U) {
-		ERROR("spmfw flow is aborted: 0x%x, timer_out = %u\n",
-		      wakesta->abort, wakesta->timer_out);
+		ERROR("spmfw flow is aborted: 0x%x, timer_out = %u, 26M(%s)\n",
+		      wakesta->abort, wakesta->timer_out, spm_26m_sta);
+	} else if (wakesta->r12 == SPM_WAKEUP_REASON_MISSING) {
+		WARN("cannot find wake up reason, timer_out = %u, 26M(%s)\n",
+		     wakesta->timer_out, spm_26m_sta);
 	} else {
 		for (i = 0U; i < 32U; i++) {
 			if ((wakesta->r12 & (1U << i)) != 0U) {
-				INFO("wake up by %s, timer_out = %u\n",
-				     wakeup_src_str[i], wakesta->timer_out);
+				INFO("wake up by %s, timer_out = %u, 26M(%s)\n",
+				     wakeup_src_str[i], wakesta->timer_out, spm_26m_sta);
 				wr = WR_WAKE_SRC;
 				break;
 			}
