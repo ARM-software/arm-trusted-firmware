@@ -545,6 +545,23 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 	sp->execution_state = config_32;
 
 	ret = fdt_read_uint32(sp_manifest, node,
+			      "messaging-method", &config_32);
+	if (ret != 0) {
+		ERROR("Missing Secure Partition messaging method.\n");
+		return ret;
+	}
+
+	/* Validate this entry, we currently only support direct messaging. */
+	if ((config_32 & ~(FFA_PARTITION_DIRECT_REQ_RECV |
+			  FFA_PARTITION_DIRECT_REQ_SEND)) != 0U) {
+		WARN("Invalid Secure Partition messaging method (0x%x)\n",
+		     config_32);
+		return -EINVAL;
+	}
+
+	sp->properties = config_32;
+
+	ret = fdt_read_uint32(sp_manifest, node,
 			      "execution-ctx-count", &config_32);
 
 	if (ret != 0) {
