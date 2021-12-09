@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -89,6 +89,21 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 				 uint64_t x3,
 				 uint64_t x4,
 				 void *handle);
+
+/******************************************************************************
+ * Builds an SPMD to SPMC direct message request.
+ *****************************************************************************/
+void spmd_build_spmc_message(gp_regs_t *gpregs, uint8_t target_func,
+			     unsigned long long message)
+{
+	write_ctx_reg(gpregs, CTX_GPREG_X0, FFA_MSG_SEND_DIRECT_REQ_SMC32);
+	write_ctx_reg(gpregs, CTX_GPREG_X1,
+		(SPMD_DIRECT_MSG_ENDPOINT_ID << FFA_DIRECT_MSG_SOURCE_SHIFT) |
+		 spmd_spmc_id_get());
+	write_ctx_reg(gpregs, CTX_GPREG_X2, BIT(31) | target_func);
+	write_ctx_reg(gpregs, CTX_GPREG_X3, message);
+}
+
 
 /*******************************************************************************
  * This function takes an SPMC context pointer and performs a synchronous
@@ -543,8 +558,59 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			(ctx->state == SPMC_STATE_RESET)) {
 			ret = FFA_ERROR_NOT_SUPPORTED;
 		} else if (!secure_origin) {
-			ret = MAKE_FFA_VERSION(spmc_attrs.major_version,
-					       spmc_attrs.minor_version);
+			gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
+			uint64_t rc;
+
+			if (spmc_attrs.major_version == 1 &&
+			    spmc_attrs.minor_version == 0) {
+				ret = MAKE_FFA_VERSION(spmc_attrs.major_version,
+						       spmc_attrs.minor_version);
+				SMC_RET8(handle, (uint32_t)ret,
+					 FFA_TARGET_INFO_MBZ,
+					 FFA_TARGET_INFO_MBZ,
+					 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+					 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+					 FFA_PARAM_MBZ);
+				break;
+			}
+			/* Save non-secure system registers context */
+			cm_el1_sysregs_context_save(NON_SECURE);
+#if SPMD_SPM_AT_SEL2
+			cm_el2_sysregs_context_save(NON_SECURE);
+#endif
+
+			/*
+			 * The incoming request has FFA_VERSION as X0 smc_fid
+			 * and requested version in x1. Prepare a direct request
+			 * from SPMD to SPMC with FFA_VERSION framework function
+			 * identifier in X2 and requested version in X3.
+			 */
+			spmd_build_spmc_message(gpregs,
+						SPMD_FWK_MSG_FFA_VERSION_REQ,
+						input_version);
+
+			rc = spmd_spm_core_sync_entry(ctx);
+
+			if ((rc != 0ULL) ||
+			    (SMC_GET_GP(gpregs, CTX_GPREG_X0) !=
+				FFA_MSG_SEND_DIRECT_RESP_SMC32) ||
+			    (SMC_GET_GP(gpregs, CTX_GPREG_X2) !=
+				(SPMD_FWK_MSG_BIT |
+				 SPMD_FWK_MSG_FFA_VERSION_RESP))) {
+				ERROR("Failed to forward FFA_VERSION\n");
+				ret = FFA_ERROR_NOT_SUPPORTED;
+			} else {
+				ret = SMC_GET_GP(gpregs, CTX_GPREG_X3);
+			}
+
+			/*
+			 * Return here after SPMC has handled FFA_VERSION.
+			 * The returned SPMC version is held in X3.
+			 * Forward this version in X0 to the non-secure caller.
+			 */
+			return spmd_smc_forward(ret, true, FFA_PARAM_MBZ,
+						FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+						FFA_PARAM_MBZ, gpregs);
 		} else {
 			ret = MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
 					       FFA_VERSION_MINOR);
