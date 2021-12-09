@@ -189,6 +189,11 @@ void __dead2 sq_scmi_system_off(int state)
 /*
  * Helper function to reset the system via SCMI.
  */
+void __dead2 sq_scmi_sys_shutdown(void)
+{
+	sq_scmi_system_off(SCMI_SYS_PWR_SHUTDOWN);
+}
+
 void __dead2 sq_scmi_sys_reboot(void)
 {
 	sq_scmi_system_off(SCMI_SYS_PWR_COLD_RESET);

@@ -113,6 +113,9 @@ void sq_pwr_domain_off(const psci_power_state_t *target_state)
 
 void __dead2 sq_system_off(void)
 {
+#if SQ_USE_SCMI_DRIVER
+	sq_scmi_sys_shutdown();
+#else
 	volatile uint32_t *gpio = (uint32_t *)PLAT_SQ_GPIO_BASE;
 
 	/* set PD[9] high to power off the system */
@@ -139,6 +142,7 @@ void __dead2 sq_system_off(void)
 	wfi();
 	ERROR("SQ System Off: operation not handled.\n");
 	panic();
+#endif
 }
 
 void __dead2 sq_system_reset(void)
