@@ -556,6 +556,18 @@ static uint64_t ffa_version_handler(uint32_t smc_fid,
 }
 
 /*******************************************************************************
+ * Helper function to obtain the FF-A version of the calling partition.
+ ******************************************************************************/
+uint32_t get_partition_ffa_version(bool secure_origin)
+{
+	if (secure_origin) {
+		return spmc_get_current_sp_ctx()->ffa_version;
+	} else {
+		return spmc_get_hyp_ctx()->ffa_version;
+	}
+}
+
+/*******************************************************************************
  * This function will parse the Secure Partition Manifest. From manifest, it
  * will fetch details for preparing Secure partition image context and secure
  * partition image boot arguments if any.
