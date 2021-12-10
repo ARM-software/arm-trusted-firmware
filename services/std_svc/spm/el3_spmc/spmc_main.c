@@ -255,6 +255,48 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 			       handle, cookie, flags, FFA_NWD_ID);
 }
 
+static uint64_t ffa_error_handler(uint32_t smc_fid,
+				 bool secure_origin,
+				 uint64_t x1,
+				 uint64_t x2,
+				 uint64_t x3,
+				 uint64_t x4,
+				 void *cookie,
+				 void *handle,
+				 uint64_t flags)
+{
+	struct secure_partition_desc *sp;
+	unsigned int idx;
+
+	/* Check that the response did not originate from the Normal world. */
+	if (!secure_origin) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
+
+	/* Get the descriptor of the SP that invoked FFA_ERROR. */
+	sp = spmc_get_current_sp_ctx();
+	if (sp == NULL) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Get the execution context of the SP that invoked FFA_ERROR. */
+	idx = get_ec_index(sp);
+
+	/*
+	 * We only expect FFA_ERROR to be received during SP initialisation
+	 * otherwise this is an invalid call.
+	 */
+	if (sp->ec[idx].rt_model == RT_MODEL_INIT) {
+		ERROR("SP 0x%x failed to initialize.\n", sp->sp_id);
+		spmc_sp_synchronous_exit(&sp->ec[idx], x2);
+		/* Should not get here. */
+		panic();
+	}
+
+	return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+}
+
 /*******************************************************************************
  * This function will parse the Secure Partition Manifest. From manifest, it
  * will fetch details for preparing Secure partition image context and secure
@@ -562,6 +604,10 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 
 	case FFA_MSG_WAIT:
 		return msg_wait_handler(smc_fid, secure_origin, x1, x2, x3, x4,
+					cookie, handle, flags);
+
+	case FFA_ERROR:
+		return ffa_error_handler(smc_fid, secure_origin, x1, x2, x3, x4,
 					cookie, handle, flags);
 
 	default:
