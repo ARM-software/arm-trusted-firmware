@@ -38,7 +38,7 @@
 /* Number of hashing algorithms supported */
 #define HASH_ALG_COUNT		1U
 
-#define EVLOG_INVALID_ID	MAX_NUMBER_IDS
+#define EVLOG_INVALID_ID	UINT32_MAX
 
 #define MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
 

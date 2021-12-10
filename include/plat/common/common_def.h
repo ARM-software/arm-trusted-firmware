@@ -85,4 +85,12 @@
 #endif /* BL2_IN_XIP_MEM */
 #endif /* SEPARATE_CODE_AND_RODATA */
 
+#if MEASURED_BOOT
+/*
+ * Start critical data Ids from 2^32/2 reserving Ids from 0 to (2^32/2 - 1)
+ * for Images, It is a critical data Id base for all platforms.
+ */
+#define CRITICAL_DATA_ID_BASE	U(0x80000000)
+#endif /* MEASURED_BOOT */
+
 #endif /* COMMON_DEF_H */
