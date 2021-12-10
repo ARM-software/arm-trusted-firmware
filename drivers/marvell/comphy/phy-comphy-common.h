@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (C) 2018-2021 Marvell International Ltd.
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
@@ -147,7 +147,7 @@ static inline void reg_set(uintptr_t addr, uint32_t data, uint32_t mask)
 	debug("<atf>: WR to addr = 0x%lx, data = 0x%x (mask = 0x%x) - ",
 	      addr, data, mask);
 	debug("old value = 0x%x ==> ", mmio_read_32(addr));
-	mmio_clrsetbits_32(addr, mask, data);
+	mmio_clrsetbits_32(addr, mask, data & mask);
 
 	debug("new val 0x%x\n", mmio_read_32(addr));
 }
@@ -159,7 +159,7 @@ static inline void __unused reg_set16(uintptr_t addr, uint16_t data,
 	debug("<atf>: WR to addr = 0x%lx, data = 0x%x (mask = 0x%x) - ",
 	      addr, data, mask);
 	debug("old value = 0x%x ==> ", mmio_read_16(addr));
-	mmio_clrsetbits_16(addr, mask, data);
+	mmio_clrsetbits_16(addr, mask, data & mask);
 
 	debug("new val 0x%x\n", mmio_read_16(addr));
 }
