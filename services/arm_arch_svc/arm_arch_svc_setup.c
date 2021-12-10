@@ -11,18 +11,8 @@
 #include <lib/cpus/wa_cve_2018_3639.h>
 #include <lib/smccc.h>
 #include <services/arm_arch_svc.h>
-#include <services/rmi_svc.h>
-#include <services/rmmd_svc.h>
 #include <smccc_helpers.h>
 #include <plat/common/platform.h>
-
-#if ENABLE_RME
-/* Setup Arm architecture Services */
-static int32_t arm_arch_svc_setup(void)
-{
-	return rmmd_setup();
-}
-#endif
 
 static int32_t smccc_version(void)
 {
@@ -143,16 +133,6 @@ static uintptr_t arm_arch_svc_smc_handler(uint32_t smc_fid,
 		SMC_RET0(handle);
 #endif
 	default:
-#if ENABLE_RME
-		/*
-		 * RMI functions are allocated from the Arch service range. Call
-		 * the RMM dispatcher to handle RMI calls.
-		 */
-		if (is_rmi_fid(smc_fid)) {
-			return rmmd_rmi_handler(smc_fid, x1, x2, x3, x4, cookie,
-						handle, flags);
-		}
-#endif
 		WARN("Unimplemented Arm Architecture Service Call: 0x%x \n",
 			smc_fid);
 		SMC_RET1(handle, SMC_UNK);
@@ -165,10 +145,6 @@ DECLARE_RT_SVC(
 		OEN_ARM_START,
 		OEN_ARM_END,
 		SMC_TYPE_FAST,
-#if ENABLE_RME
-		arm_arch_svc_setup,
-#else
 		NULL,
-#endif
 		arm_arch_svc_smc_handler
 );

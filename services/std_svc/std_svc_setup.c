@@ -15,6 +15,7 @@
 #include <lib/runtime_instr.h>
 #include <services/gtsi_svc.h>
 #include <services/pci_svc.h>
+#include <services/rmi_svc.h>
 #include <services/rmmd_svc.h>
 #include <services/sdei.h>
 #include <services/spm_mm_svc.h>
@@ -58,6 +59,12 @@ static int32_t std_svc_setup(void)
 
 #if defined(SPD_spmd)
 	if (spmd_setup() != 0) {
+		ret = 1;
+	}
+#endif
+
+#if ENABLE_RME
+	if (rmmd_setup() != 0) {
 		ret = 1;
 	}
 #endif
@@ -168,6 +175,11 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	if (is_gtsi_fid(smc_fid)) {
 		return rmmd_gtsi_handler(smc_fid, x1, x2, x3, x4, cookie,
 						handle, flags);
+	}
+
+	if (is_rmi_fid(smc_fid)) {
+		return rmmd_rmi_handler(smc_fid, x1, x2, x3, x4, cookie,
+					handle, flags);
 	}
 #endif
 
