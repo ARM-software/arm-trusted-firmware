@@ -9,6 +9,7 @@
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_iwdg.h>
 #include <libfdt.h>
+#include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <platform_def.h>
@@ -33,6 +34,10 @@
 #define BOARD_ID2VARFG(_id)		(((_id) & BOARD_ID_VARFG_MASK) >> \
 					 BOARD_ID_VARFG_SHIFT)
 #define BOARD_ID2BOM(_id)		((_id) & BOARD_ID_BOM_MASK)
+
+#define TAMP_BOOT_MODE_BACKUP_REG_ID	U(20)
+#define TAMP_BOOT_MODE_ITF_MASK		U(0x0000FF00)
+#define TAMP_BOOT_MODE_ITF_SHIFT	8
 
 #if defined(IMAGE_BL2)
 #define MAP_SEC_SYSRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
@@ -556,3 +561,17 @@ uint32_t stm32mp_get_ddr_ns_size(void)
 	return ddr_ns_size;
 }
 #endif /* STM32MP_USE_STM32IMAGE */
+
+void stm32_save_boot_interface(uint32_t interface, uint32_t instance)
+{
+	uint32_t bkpr_itf_idx = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
+
+	stm32mp_clk_enable(RTCAPB);
+
+	mmio_clrsetbits_32(bkpr_itf_idx,
+			   TAMP_BOOT_MODE_ITF_MASK,
+			   ((interface << 4) | (instance & 0xFU)) <<
+			   TAMP_BOOT_MODE_ITF_SHIFT);
+
+	stm32mp_clk_disable(RTCAPB);
+}

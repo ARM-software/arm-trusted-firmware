@@ -32,7 +32,6 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
-#include <stm32mp1_context.h>
 #include <stm32mp1_dbgmcu.h>
 
 #define RESET_TIMEOUT_US_1MS		1000U
@@ -248,6 +247,9 @@ void bl2_el3_plat_arch_setup(void)
 
 	stm32mp1_syscfg_init();
 
+	stm32_save_boot_interface(boot_context->boot_interface_selected,
+				  boot_context->boot_interface_instance);
+
 #if STM32MP_USB_PROGRAMMER
 	/* Deconfigure all UART RX pins configured by ROM code */
 	stm32mp1_deconfigure_uart_pins();
@@ -317,12 +319,6 @@ skip_console_init:
 	result = stm32mp1_dbgmcu_freeze_iwdg2();
 	if (result != 0) {
 		INFO("IWDG2 freeze error : %i\n", result);
-	}
-
-	if (stm32_save_boot_interface(boot_context->boot_interface_selected,
-				      boot_context->boot_interface_instance) !=
-	    0) {
-		ERROR("Cannot save boot interface\n");
 	}
 
 	stm32mp1_auth_ops.check_key = boot_context->bootrom_ecdsa_check_key;

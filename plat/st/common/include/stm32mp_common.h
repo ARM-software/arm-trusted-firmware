@@ -115,4 +115,7 @@ int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer);
 int stm32mp_map_ddr_non_cacheable(void);
 int stm32mp_unmap_ddr(void);
 
+/* Function to save boot peripheral info */
+void stm32_save_boot_interface(uint32_t interface, uint32_t instance);
+
 #endif /* STM32MP_COMMON_H */
