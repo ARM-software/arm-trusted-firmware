@@ -13,9 +13,18 @@
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/measured_boot/event_log/event_log.h>
-#include <mbedtls/md.h>
 
 #include <plat/common/platform.h>
+
+#if TPM_ALG_ID == TPM_ALG_SHA512
+#define	CRYPTO_MD_ID	CRYPTO_MD_SHA512
+#elif TPM_ALG_ID == TPM_ALG_SHA384
+#define	CRYPTO_MD_ID	CRYPTO_MD_SHA384
+#elif TPM_ALG_ID == TPM_ALG_SHA256
+#define	CRYPTO_MD_ID	CRYPTO_MD_SHA256
+#else
+#  error Invalid TPM algorithm.
+#endif /* TPM_ALG_ID */
 
 /* Running Event Log Pointer */
 static uint8_t *log_ptr;
@@ -245,7 +254,7 @@ void event_log_write_header(void)
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id)
 {
-	unsigned char hash_data[MBEDTLS_MD_MAX_SIZE];
+	unsigned char hash_data[CRYPTO_MD_MAX_SIZE];
 	int rc;
 	const event_log_metadata_t *metadata_ptr = plat_metadata_ptr;
 
@@ -257,8 +266,8 @@ int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 	assert(metadata_ptr->id != EVLOG_INVALID_ID);
 
 	/* Calculate hash */
-	rc = crypto_mod_calc_hash((unsigned int)MBEDTLS_MD_ID,
-				(void *)data_base, data_size, hash_data);
+	rc = crypto_mod_calc_hash(CRYPTO_MD_ID,
+				  (void *)data_base, data_size, hash_data);
 	if (rc != 0) {
 		return rc;
 	}

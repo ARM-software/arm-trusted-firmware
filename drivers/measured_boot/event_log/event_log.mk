@@ -12,34 +12,23 @@ EVENT_LOG_LEVEL         ?= 40
 TPM_HASH_ALG			:=	sha256
 
 ifeq (${TPM_HASH_ALG}, sha512)
-    MBEDTLS_MD_ID		:=	MBEDTLS_MD_SHA512
     TPM_ALG_ID			:=	TPM_ALG_SHA512
     TCG_DIGEST_SIZE		:=	64U
 else ifeq (${TPM_HASH_ALG}, sha384)
-    MBEDTLS_MD_ID		:=	MBEDTLS_MD_SHA384
     TPM_ALG_ID			:=	TPM_ALG_SHA384
     TCG_DIGEST_SIZE		:=	48U
 else
-    MBEDTLS_MD_ID		:=	MBEDTLS_MD_SHA256
     TPM_ALG_ID			:=	TPM_ALG_SHA256
     TCG_DIGEST_SIZE		:=	32U
-endif
+endif #TPM_HASH_ALG
 
-
-# Set definitions for mbed TLS library and Measured Boot driver
+# Set definitions for Measured Boot driver.
 $(eval $(call add_defines,\
     $(sort \
-        MBEDTLS_MD_ID \
         TPM_ALG_ID \
         TCG_DIGEST_SIZE \
         EVENT_LOG_LEVEL \
 )))
-
-ifeq (${HASH_ALG}, sha256)
-    ifneq (${TPM_HASH_ALG}, sha256)
-        $(eval $(call add_define,MBEDTLS_SHA512_C))
-    endif
-endif
 
 MEASURED_BOOT_SRC_DIR	:= drivers/measured_boot/event_log/
 

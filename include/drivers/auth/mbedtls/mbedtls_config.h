@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2015-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -71,8 +71,19 @@
 #endif
 
 #define MBEDTLS_SHA256_C
-#if (TF_MBEDTLS_HASH_ALG_ID != TF_MBEDTLS_SHA256)
+
+/*
+ * If either Trusted Boot or Measured Boot require a stronger algorithm than
+ * SHA-256, pull in SHA-512 support.
+ */
+#if (TF_MBEDTLS_HASH_ALG_ID != TF_MBEDTLS_SHA256) /* TBB hash algo */
+#define	MBEDTLS_SHA512_C
+#else
+   /* TBB uses SHA-256, what about measured boot? */
+#if defined(TF_MBEDTLS_TPM_HASH_ALG_ID) && \
+	(TF_MBEDTLS_TPM_HASH_ALG_ID != TF_MBEDTLS_SHA256)
 #define MBEDTLS_SHA512_C
+#endif
 #endif
 
 #define MBEDTLS_VERSION_C

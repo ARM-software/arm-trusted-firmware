@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -114,8 +114,9 @@ int crypto_mod_verify_hash(void *data_ptr, unsigned int data_len,
  *   data_ptr, data_len: data to be hashed
  *   output: resulting hash
  */
-int crypto_mod_calc_hash(unsigned int alg, void *data_ptr,
-			 unsigned int data_len, unsigned char *output)
+int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
+			 unsigned int data_len,
+			 unsigned char output[CRYPTO_MD_MAX_SIZE])
 {
 	assert(data_ptr != NULL);
 	assert(data_len != 0);
