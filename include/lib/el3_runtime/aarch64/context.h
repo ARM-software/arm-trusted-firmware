@@ -207,8 +207,8 @@
 #define CTX_MPAMVPMV_EL2	U(0x158)
 
 // Starting with Armv8.6
-#define CTX_HAFGRTR_EL2		U(0x160)
-#define CTX_HDFGRTR_EL2		U(0x168)
+#define CTX_HDFGRTR_EL2		U(0x160)
+#define CTX_HAFGRTR_EL2		U(0x168)
 #define CTX_HDFGWTR_EL2		U(0x170)
 #define CTX_HFGITR_EL2		U(0x178)
 #define CTX_HFGRTR_EL2		U(0x180)

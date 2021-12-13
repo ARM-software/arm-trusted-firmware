@@ -267,6 +267,16 @@ ifeq "8.5" "$(word 1, $(sort 8.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
 ENABLE_FEAT_SB		= 	1
 endif
 
+# Determine and enable FEAT_FGT to access HDFGRTR_EL2 register for v8.6 and higher versions.
+ifeq "8.6" "$(word 1, $(sort 8.6 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+ENABLE_FEAT_FGT		=	1
+endif
+
+# Determine and enable FEAT_ECV to access CNTPOFF_EL2 register for v8.6 and higher versions.
+ifeq "8.6" "$(word 1, $(sort 8.6 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+ENABLE_FEAT_ECV		=	1
+endif
+
 ifneq ($(findstring armclang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi $(march64-directive)
@@ -1041,6 +1051,9 @@ $(eval $(call assert_booleans,\
         ENABLE_FEAT_HCX \
         ENABLE_MPMM \
         ENABLE_MPMM_FCONF \
+        ENABLE_FEAT_FGT \
+        ENABLE_FEAT_AMUv1 \
+        ENABLE_FEAT_ECV \
 )))
 
 $(eval $(call assert_numerics,\
@@ -1153,6 +1166,9 @@ $(eval $(call add_defines,\
         ENABLE_FEAT_HCX \
         ENABLE_MPMM \
         ENABLE_MPMM_FCONF \
+        ENABLE_FEAT_FGT \
+        ENABLE_FEAT_AMUv1 \
+        ENABLE_FEAT_ECV \
 )))
 
 ifeq (${SANITIZE_UB},trap)
