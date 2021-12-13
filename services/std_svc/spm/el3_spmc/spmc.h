@@ -37,6 +37,9 @@
 #define FFA_WB_TYPE_S2RAM	0
 #define FFA_WB_TYPE_NOTS2RAM	1
 
+/* FF-A Related helper macros. */
+#define FFA_FEATURES_BIT31_MASK		U(0x1u << 31)
+
 #define FFA_PAGE_SIZE (4096)
 #define FFA_RXTX_PAGE_COUNT_MASK 0x1F
 
