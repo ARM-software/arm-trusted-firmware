@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,15 +40,28 @@ void set_config_info(uintptr_t config_addr, uint32_t config_max_size,
 	dtb_info->config_id = config_id;
 }
 
-struct dyn_cfg_dtb_info_t *dyn_cfg_dtb_info_getter(unsigned int config_id)
+/* Get index of the config_id image */
+unsigned int dyn_cfg_dtb_info_get_index(unsigned int config_id)
 {
 	unsigned int index;
 
 	/* Positions index to the proper config-id */
 	for (index = 0U; index < MAX_DTB_INFO; index++) {
 		if (dtb_infos[index].config_id == config_id) {
-			return &dtb_infos[index];
+			return index;
 		}
+	}
+
+	return FCONF_INVALID_IDX;
+}
+
+struct dyn_cfg_dtb_info_t *dyn_cfg_dtb_info_getter(unsigned int config_id)
+{
+	/* Positions index to the proper config-id */
+	unsigned int index = dyn_cfg_dtb_info_get_index(config_id);
+
+	if (index < MAX_DTB_INFO) {
+		return &dtb_infos[index];
 	}
 
 	WARN("FCONF: Invalid config id %u\n", config_id);
