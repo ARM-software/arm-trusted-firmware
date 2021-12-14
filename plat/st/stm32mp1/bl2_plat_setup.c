@@ -14,14 +14,12 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
-#include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/mmc.h>
 #include <drivers/st/bsec.h>
-#include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32_iwdg.h>
+#include <drivers/st/stm32_uart.h>
 #include <drivers/st/stm32mp_pmic.h>
-#include <drivers/st/stm32mp_reset.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
@@ -32,12 +30,8 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
-#include <stm32mp1_context.h>
 #include <stm32mp1_dbgmcu.h>
 
-#define RESET_TIMEOUT_US_1MS		1000U
-
-static console_t console;
 static struct stm32mp_auth_ops stm32mp1_auth_ops;
 
 static void print_reset_reason(void)
@@ -167,11 +161,9 @@ void bl2_platform_setup(void)
 void bl2_el3_plat_arch_setup(void)
 {
 	int32_t result;
-	struct dt_node_info dt_uart_info;
 	const char *board_model;
 	boot_api_context_t *boot_context =
 		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
-	uint32_t clk_rate;
 	uintptr_t pwr_base;
 	uintptr_t rcc_base;
 
@@ -238,6 +230,16 @@ void bl2_el3_plat_arch_setup(void)
 
 	generic_delay_timer_init();
 
+#if STM32MP_UART_PROGRAMMER
+	/* Disable programmer UART before changing clock tree */
+	if (boot_context->boot_interface_selected ==
+	    BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART) {
+		uintptr_t uart_prog_addr =
+			get_uart_address(boot_context->boot_interface_instance);
+
+		stm32_uart_stop(uart_prog_addr);
+	}
+#endif
 	if (stm32mp1_clk_probe() < 0) {
 		panic();
 	}
@@ -248,44 +250,17 @@ void bl2_el3_plat_arch_setup(void)
 
 	stm32mp1_syscfg_init();
 
-	result = dt_get_stdout_uart_info(&dt_uart_info);
+	stm32_save_boot_interface(boot_context->boot_interface_selected,
+				  boot_context->boot_interface_instance);
 
-	if ((result <= 0) ||
-	    (dt_uart_info.status == 0U) ||
-	    (dt_uart_info.clock < 0) ||
-	    (dt_uart_info.reset < 0)) {
+#if STM32MP_USB_PROGRAMMER
+	/* Deconfigure all UART RX pins configured by ROM code */
+	stm32mp1_deconfigure_uart_pins();
+#endif
+
+	if (stm32mp_uart_console_setup() != 0) {
 		goto skip_console_init;
 	}
-
-	if (dt_set_stdout_pinctrl() != 0) {
-		goto skip_console_init;
-	}
-
-	stm32mp_clk_enable((unsigned long)dt_uart_info.clock);
-
-	if (stm32mp_reset_assert((uint32_t)dt_uart_info.reset,
-				 RESET_TIMEOUT_US_1MS) != 0) {
-		panic();
-	}
-
-	udelay(2);
-
-	if (stm32mp_reset_deassert((uint32_t)dt_uart_info.reset,
-				   RESET_TIMEOUT_US_1MS) != 0) {
-		panic();
-	}
-
-	mdelay(1);
-
-	clk_rate = stm32mp_clk_get_rate((unsigned long)dt_uart_info.clock);
-
-	if (console_stm32_register(dt_uart_info.base, clk_rate,
-				   STM32MP_UART_BAUDRATE, &console) == 0) {
-		panic();
-	}
-
-	console_set_scope(&console, CONSOLE_FLAG_BOOT |
-			  CONSOLE_FLAG_CRASH | CONSOLE_FLAG_TRANSLATE_CRLF);
 
 	stm32mp_print_cpuinfo();
 
@@ -312,12 +287,6 @@ skip_console_init:
 	result = stm32mp1_dbgmcu_freeze_iwdg2();
 	if (result != 0) {
 		INFO("IWDG2 freeze error : %i\n", result);
-	}
-
-	if (stm32_save_boot_interface(boot_context->boot_interface_selected,
-				      boot_context->boot_interface_instance) !=
-	    0) {
-		ERROR("Cannot save boot interface\n");
 	}
 
 	stm32mp1_auth_ops.check_key = boot_context->bootrom_ecdsa_check_key;

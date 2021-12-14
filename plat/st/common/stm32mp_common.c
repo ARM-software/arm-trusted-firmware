@@ -7,17 +7,23 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <platform_def.h>
-
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp_clkfunc.h>
+#include <drivers/st/stm32mp_reset.h>
 #include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <services/arm_arch_svc.h>
 
+#include <platform_def.h>
+
 #define HEADER_VERSION_MAJOR_MASK	GENMASK(23, 16)
+#define RESET_TIMEOUT_US_1MS		1000U
+
+static console_t console;
 
 uintptr_t plat_get_ns_image_entrypoint(void)
 {
@@ -126,6 +132,83 @@ int stm32mp_unmap_ddr(void)
 {
 	return  mmap_remove_dynamic_region(STM32MP_DDR_BASE,
 					   STM32MP_DDR_MAX_SIZE);
+}
+
+#if  defined(IMAGE_BL2)
+static void reset_uart(uint32_t reset)
+{
+	int ret;
+
+	ret = stm32mp_reset_assert(reset, RESET_TIMEOUT_US_1MS);
+	if (ret != 0) {
+		panic();
+	}
+
+	udelay(2);
+
+	ret = stm32mp_reset_deassert(reset, RESET_TIMEOUT_US_1MS);
+	if (ret != 0) {
+		panic();
+	}
+
+	mdelay(1);
+}
+#endif
+
+int stm32mp_uart_console_setup(void)
+{
+	struct dt_node_info dt_uart_info;
+	unsigned int console_flags;
+	uint32_t clk_rate;
+	int result;
+	uint32_t boot_itf __unused;
+	uint32_t boot_instance __unused;
+
+	result = dt_get_stdout_uart_info(&dt_uart_info);
+
+	if ((result <= 0) ||
+	    (dt_uart_info.status == DT_DISABLED) ||
+	    (dt_uart_info.clock < 0) ||
+	    (dt_uart_info.reset < 0)) {
+		return -ENODEV;
+	}
+
+#if STM32MP_UART_PROGRAMMER || !defined(IMAGE_BL2)
+	stm32_get_boot_interface(&boot_itf, &boot_instance);
+
+	if ((boot_itf == BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART) &&
+	    (get_uart_address(boot_instance) == dt_uart_info.base)) {
+		return -EACCES;
+	}
+#endif
+
+#if defined(IMAGE_BL2)
+	if (dt_set_stdout_pinctrl() != 0) {
+		return -ENODEV;
+	}
+#endif
+
+	stm32mp_clk_enable((unsigned long)dt_uart_info.clock);
+
+#if defined(IMAGE_BL2)
+	reset_uart((uint32_t)dt_uart_info.reset);
+#endif
+
+	clk_rate = stm32mp_clk_get_rate((unsigned long)dt_uart_info.clock);
+
+	if (console_stm32_register(dt_uart_info.base, clk_rate,
+				   STM32MP_UART_BAUDRATE, &console) == 0) {
+		panic();
+	}
+
+	console_flags = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH |
+			CONSOLE_FLAG_TRANSLATE_CRLF;
+#if !defined(IMAGE_BL2) && defined(DEBUG)
+	console_flags |= CONSOLE_FLAG_RUNTIME;
+#endif
+	console_set_scope(&console, console_flags);
+
+	return 0;
 }
 
 /*****************************************************************************

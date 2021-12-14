@@ -48,10 +48,13 @@ uint32_t stm32_iwdg_get_otp_config(uint32_t iwdg_inst);
 uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags);
 #endif
 
-#if STM32MP_UART_PROGRAMMER
+#if STM32MP_UART_PROGRAMMER || !defined(IMAGE_BL2)
 /* Get the UART address from its instance number */
 uintptr_t get_uart_address(uint32_t instance_nb);
 #endif
+
+/* Setup the UART console */
+int stm32mp_uart_console_setup(void);
 
 /*
  * Platform util functions for the GPIO driver
@@ -69,6 +72,7 @@ uintptr_t get_uart_address(uint32_t instance_nb);
 uintptr_t stm32_get_gpio_bank_base(unsigned int bank);
 unsigned long stm32_get_gpio_bank_clock(unsigned int bank);
 uint32_t stm32_get_gpio_bank_offset(unsigned int bank);
+bool stm32_gpio_is_secure_at_reset(unsigned int bank);
 
 /* Return node offset for target GPIO bank ID @bank or a FDT error code */
 int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank);
@@ -113,5 +117,9 @@ int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer);
 /* Functions to map DDR in MMU with non-cacheable attribute, and unmap it */
 int stm32mp_map_ddr_non_cacheable(void);
 int stm32mp_unmap_ddr(void);
+
+/* Functions to save and get boot peripheral info */
+void stm32_save_boot_interface(uint32_t interface, uint32_t instance);
+void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
 
 #endif /* STM32MP_COMMON_H */

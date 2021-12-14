@@ -28,6 +28,8 @@ ifeq ($(AARCH32_SP),sp_min)
 TF_CFLAGS		+=	-mfloat-abi=soft
 endif
 
+TF_CFLAGS		+=	-Wsign-compare
+
 # Not needed for Cortex-A7
 WORKAROUND_CVE_2017_5715:=	0
 
@@ -124,13 +126,13 @@ endif
 # Enable flags for C files
 $(eval $(call assert_booleans,\
 	$(sort \
+		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32MP_EMMC \
-		STM32MP_SDMMC \
+		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \
+		STM32MP_SDMMC \
 		STM32MP_SPI_NAND \
 		STM32MP_SPI_NOR \
-		STM32MP_EMMC_BOOT \
-		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_STM32IMAGE \
@@ -138,23 +140,23 @@ $(eval $(call assert_booleans,\
 
 $(eval $(call assert_numerics,\
 	$(sort \
-		STM32_TF_A_COPIES \
 		PLAT_PARTITION_MAX_ENTRIES \
+		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
 )))
 
 $(eval $(call add_defines,\
 	$(sort \
-		STM32_TF_VERSION \
-		STM32MP_EMMC \
-		STM32MP_SDMMC \
-		STM32MP_RAW_NAND \
-		STM32MP_SPI_NAND \
-		STM32MP_SPI_NOR \
-		STM32MP_EMMC_BOOT \
+		PLAT_PARTITION_MAX_ENTRIES \
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_TF_A_COPIES \
-		PLAT_PARTITION_MAX_ENTRIES \
+		STM32_TF_VERSION \
+		STM32MP_EMMC \
+		STM32MP_EMMC_BOOT \
+		STM32MP_RAW_NAND \
+		STM32MP_SDMMC \
+		STM32MP_SPI_NAND \
+		STM32MP_SPI_NOR \
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_STM32IMAGE \
@@ -200,7 +202,6 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				drivers/st/pmic/stpmic1.c				\
 				drivers/st/reset/stm32mp1_reset.c			\
 				plat/st/common/stm32mp_dt.c				\
-				plat/st/stm32mp1/stm32mp1_context.c			\
 				plat/st/stm32mp1/stm32mp1_dbgmcu.c			\
 				plat/st/stm32mp1/stm32mp1_helper.S			\
 				plat/st/stm32mp1/stm32mp1_syscfg.c

@@ -6,12 +6,13 @@
 
 #include <assert.h>
 
+#include <drivers/st/stm32_gpio.h>
+#include <drivers/st/stm32_iwdg.h>
 #include <libfdt.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <platform_def.h>
-
-#include <drivers/st/stm32_iwdg.h>
-#include <lib/xlat_tables/xlat_tables_v2.h>
 
 /* Internal layout of the 32bit OTP word board_id */
 #define BOARD_ID_BOARD_NB_MASK		GENMASK(31, 16)
@@ -33,6 +34,10 @@
 #define BOARD_ID2VARFG(_id)		(((_id) & BOARD_ID_VARFG_MASK) >> \
 					 BOARD_ID_VARFG_SHIFT)
 #define BOARD_ID2BOM(_id)		((_id) & BOARD_ID_BOM_MASK)
+
+#define TAMP_BOOT_MODE_BACKUP_REG_ID	U(20)
+#define TAMP_BOOT_MODE_ITF_MASK		U(0x0000FF00)
+#define TAMP_BOOT_MODE_ITF_SHIFT	8
 
 #if defined(IMAGE_BL2)
 #define MAP_SEC_SYSRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
@@ -120,6 +125,15 @@ uint32_t stm32_get_gpio_bank_offset(unsigned int bank)
 	return bank * GPIO_BANK_OFFSET;
 }
 
+bool stm32_gpio_is_secure_at_reset(unsigned int bank)
+{
+	if (bank == GPIO_BANK_Z) {
+		return true;
+	}
+
+	return false;
+}
+
 unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
 {
 	if (bank == GPIO_BANK_Z) {
@@ -153,7 +167,7 @@ int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank)
 	}
 }
 
-#if STM32MP_UART_PROGRAMMER
+#if STM32MP_UART_PROGRAMMER || !defined(IMAGE_BL2)
 /*
  * UART Management
  */
@@ -176,6 +190,53 @@ uintptr_t get_uart_address(uint32_t instance_nb)
 	}
 
 	return stm32mp1_uart_addresses[instance_nb - 1U];
+}
+#endif
+
+#if STM32MP_USB_PROGRAMMER
+struct gpio_bank_pin_list {
+	uint32_t bank;
+	uint32_t pin;
+};
+
+static const struct gpio_bank_pin_list gpio_list[] = {
+	{	/* USART2_RX: GPIOA3 */
+		.bank = 0U,
+		.pin = 3U,
+	},
+	{	/* USART3_RX: GPIOB12 */
+		.bank = 1U,
+		.pin = 12U,
+	},
+	{	/* UART4_RX: GPIOB2 */
+		.bank = 1U,
+		.pin = 2U,
+	},
+	{	/* UART5_RX: GPIOB4 */
+		.bank = 1U,
+		.pin = 5U,
+	},
+	{	/* USART6_RX: GPIOC7 */
+		.bank = 2U,
+		.pin = 7U,
+	},
+	{	/* UART7_RX: GPIOF6 */
+		.bank = 5U,
+		.pin = 6U,
+	},
+	{	/* UART8_RX: GPIOE0 */
+		.bank = 4U,
+		.pin = 0U,
+	},
+};
+
+void stm32mp1_deconfigure_uart_pins(void)
+{
+	size_t i;
+
+	for (i = 0U; i < ARRAY_SIZE(gpio_list); i++) {
+		set_gpio_reset_cfg(gpio_list[i].bank, gpio_list[i].pin);
+	}
 }
 #endif
 
@@ -500,3 +561,36 @@ uint32_t stm32mp_get_ddr_ns_size(void)
 	return ddr_ns_size;
 }
 #endif /* STM32MP_USE_STM32IMAGE */
+
+void stm32_save_boot_interface(uint32_t interface, uint32_t instance)
+{
+	uint32_t bkpr_itf_idx = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
+
+	stm32mp_clk_enable(RTCAPB);
+
+	mmio_clrsetbits_32(bkpr_itf_idx,
+			   TAMP_BOOT_MODE_ITF_MASK,
+			   ((interface << 4) | (instance & 0xFU)) <<
+			   TAMP_BOOT_MODE_ITF_SHIFT);
+
+	stm32mp_clk_disable(RTCAPB);
+}
+
+void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
+{
+	static uint32_t itf;
+
+	if (itf == 0U) {
+		uint32_t bkpr = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
+
+		stm32mp_clk_enable(RTCAPB);
+
+		itf = (mmio_read_32(bkpr) & TAMP_BOOT_MODE_ITF_MASK) >>
+			TAMP_BOOT_MODE_ITF_SHIFT;
+
+		stm32mp_clk_disable(RTCAPB);
+	}
+
+	*interface = itf >> 4;
+	*instance = itf & 0xFU;
+}
