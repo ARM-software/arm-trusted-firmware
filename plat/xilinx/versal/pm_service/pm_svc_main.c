@@ -237,6 +237,18 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 {
 	switch (api_id) {
 
+	case TF_A_PM_REGISTER_SGI:
+	{
+		int ret;
+
+		ret = pm_register_sgi(pm_arg[0], pm_arg[1]);
+		if (ret != 0) {
+			SMC_RET1(handle, (uint32_t)PM_RET_ERROR_ARGS);
+		}
+
+		SMC_RET1(handle, (uint32_t)PM_RET_SUCCESS);
+	}
+
 	case PM_GET_CALLBACK_DATA:
 	{
 		uint32_t result[4] = {0};
