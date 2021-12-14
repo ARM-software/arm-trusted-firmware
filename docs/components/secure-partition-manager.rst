@@ -533,7 +533,10 @@ SP Boot order
 
 SP manifests provide an optional boot order attribute meant to resolve
 dependencies such as an SP providing a service required to properly boot
-another SP.
+another SP. SPMC boots the SPs in accordance to the boot order attribute,
+lowest to the highest value. If the boot order attribute is absent from the FF-A
+manifest, the SP is treated as if it had the highest boot order value
+(i.e. lowest booting priority).
 
 It is possible for an SP to call into another SP through a direct request
 provided the latter SP has already been booted.
