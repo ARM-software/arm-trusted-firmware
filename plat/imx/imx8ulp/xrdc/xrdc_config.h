@@ -36,22 +36,51 @@ struct xrdc_mda_config imx8ulp_mda[] = {
 	{ 16, 3, MDA_SA_NS }, /* DMA2 */
 };
 
+#ifdef SPD_opteed
+#define TEE_SHM_SIZE 0x400000
+#else
+#define TEE_SHM_SIZE 0x0
+#endif
+
+#if defined(SPD_opteed) || defined(SPD_trusty)
+#define DRAM_MEM_0_START (0x80000000)
+#define DRAM_MEM_0_SIZE (BL32_BASE - 0x80000000)
+
+#define DRAM_MEM_1_START (BL32_BASE)
+#define DRAM_MEM_1_SIZE (BL32_SIZE - TEE_SHM_SIZE)
+
+#define DRAM_MEM_2_START (DRAM_MEM_1_START + DRAM_MEM_1_SIZE)
+#define DRAM_MEM_2_SIZE (0x80000000 - DRAM_MEM_1_SIZE - DRAM_MEM_0_SIZE)
+#endif
+
 struct xrdc_mrc_config imx8ulp_mrc[] = {
-	{ 0, 0, 0x0,         0x30000,    {0, 0, 0, 0, 0, 0, 0, 1}, {0xfff, 0} }, /* ROM1 */
-	{ 1, 0, 0x60000000,  0x10000000, {1, 1, 0, 0, 1, 0, 1, 1}, {0xfff, 0} }, /* Flexspi2 */
-	{ 2, 0, 0x22020000,  0x40000,    {1, 1, 0, 0, 1, 0, 1, 1}, {0xfff, 0} }, /* SRAM2 */
-	{ 3, 0, 0x22010000,  0x10000,    {1, 1, 0, 0, 1, 0, 1, 1}, {0xfff, 0} }, /* SRAM0 */
-	{ 4, 0, 0x80000000,  0x80000000, {1, 1, 0, 0, 1, 0, 1, 1}, {0xfff, 0} }, /* DRAM */
-	{ 5, 0, 0x80000000,  0x80000000, {1, 1, 0, 0, 1, 0, 1, 1}, {0xfff, 0} }, /* DRAM */
-	{ 6, 0, 0x80000000,  0x80000000, {1, 1, 0, 1, 1, 0, 1, 0}, {0xfff, 0} }, /* DRAM for LPAV and RTD*/
-	{ 7, 0, 0x80000000,  0x10000000, {0, 0, 1, 0, 0, 0, 0, 0}, {0xfff, 0} }, /* DRAM for HIFI4 */
-	{ 7, 1, 0x90000000,  0x10000000, {0, 0, 1, 0, 0, 0, 0, 0}, {0xfff, 0} }, /* DRAM for HIFI4 */
-	{ 8, 0, 0x21000000,  0x10000,    {1, 1, 1, 1, 1, 0, 1, 1}, {0xfff, 0} }, /* SRAM1 */
-	{ 9, 0, 0x1ffc0000,  0xc0000,    {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0} }, /* SSRAM for HIFI4 */
-	{ 10, 0, 0x1ffc0000, 0xc0000,    {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0} }, /* SSRAM for LPAV */
-	{ 11, 0, 0x21170000, 0x10000,    {0, 0, 1, 0, 0, 0, 0, 2}, {0xfff, SP(RW) | SU(RW) | NP(RW)} }, /* HIFI4 TCM */
-	{ 11, 1, 0x21180000, 0x10000,    {0, 0, 1, 0, 0, 0, 0, 2}, {SP(RW) | SU(RW) | NP(RW) | NU(RW), SP(RW) | SU(RW) | NP(RW)} }, /* HIFI4 TCM */
-	{ 12, 0, 0x2d400000, 0x100000,   {0, 0, 0, 0, 0, 0, 0, 1}, {SP(RW) | SU(RW) | NP(RW) | NU(RW), 0} }, /* GIC500 */
+	{ 0, 0, 0x0,        0x30000,    {0, 0, 0, 0, 0, 0, 0, 1}, {0xfff, 0} }, /* ROM1 */
+	{ 1, 0, 0x60000000, 0x10000000, {1, 1, 0, 0, 1, 0, 1, 1}, {0xfff, 0} }, /* Flexspi2 */
+	{ 2, 0, 0x22020000, 0x40000,    {1, 1, 0, 0, 1, 0, 1, 1}, {0xfff, 0} }, /* SRAM2 */
+	{ 3, 0, 0x22010000, 0x10000,    {1, 1, 0, 0, 1, 0, 1, 1}, {0xfff, 0} }, /* SRAM0 */
+#if defined(SPD_opteed) || defined(SPD_trusty)
+	{ 4, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, {0, 1, 0, 0, 0, 0, 0, 1}, {0xfff, 0} }, /* DRAM for A35, DMA1, USDHC0*/
+	{ 4, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, {0, 1, 0, 0, 0, 0, 0, 1}, {0xfc0, 0} }, /* TEE DRAM for A35, DMA1, USDHC0*/
+	{ 4, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, {0, 1, 0, 0, 0, 0, 0, 1}, {0xfff, 0} }, /* DRAM for A35, DMA1, USDHC0*/
+	{ 5, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, {0, 1, 0, 0, 0, 0, 0, 0}, {0xfff, 0} }, /* DRAM for NIC_PER */
+	{ 5, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, {0, 1, 0, 0, 0, 0, 0, 0}, {0xfc0, 0} }, /* TEE DRAM for NIC_PER */
+	{ 5, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, {0, 1, 0, 0, 0, 0, 0, 0}, {0xfff, 0} }, /* DRAM for NIC_PER */
+	{ 6, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, {1, 1, 0, 1, 1, 0, 1, 0}, {0xfff, 0} }, /* DRAM for LPAV and RTD*/
+	{ 6, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, {1, 1, 0, 1, 1, 0, 1, 0}, {0xfc0, 0} }, /* TEE DRAM for LPAV and RTD*/
+	{ 6, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, {1, 1, 0, 1, 1, 0, 1, 0}, {0xfff, 0} }, /* DRAM for LPAV and RTD*/
+#else
+	{ 4, 0, 0x80000000, 0x80000000, {0, 1, 0, 0, 0, 0, 0, 1}, {0xfff, 0} }, /* DRAM for A35, DMA1, USDHC0*/
+	{ 5, 0, 0x80000000, 0x80000000, {0, 1, 0, 0, 0, 0, 0, 0}, {0xfff, 0} }, /* DRAM for NIC_PER */
+	{ 6, 0, 0x80000000, 0x80000000, {1, 1, 0, 1, 1, 0, 1, 0}, {0xfff, 0} }, /* DRAM for LPAV and RTD*/
+#endif
+	{ 7, 0, 0x80000000, 0x10000000, {0, 0, 1, 0, 0, 0, 0, 0}, {0xfff, 0} }, /* DRAM for HIFI4 */
+	{ 7, 1, 0x90000000, 0x10000000, {0, 0, 1, 0, 0, 0, 0, 0}, {0xfff, 0} }, /* DRAM for HIFI4 */
+	{ 8, 0, 0x21000000, 0x10000,    {1, 1, 1, 1, 1, 0, 1, 1}, {0xfff, 0} }, /* SRAM1 */
+	{ 9, 0, 0x1ffc0000, 0xc0000,    {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0} }, /* SSRAM for HIFI4 */
+	{ 10, 0, 0x1ffc0000, 0xc0000,   {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0} }, /* SSRAM for LPAV */
+	{ 11, 0, 0x21170000, 0x10000,   {0, 0, 1, 0, 0, 0, 0, 2}, {0xfff, SP(RW) | SU(RW) | NP(RW)} }, /* HIFI4 TCM */
+	{ 11, 1, 0x21180000, 0x10000,   {0, 0, 1, 0, 0, 0, 0, 2}, {SP(RW) | SU(RW) | NP(RW) | NU(RW), SP(RW) | SU(RW) | NP(RW)} }, /* HIFI4 TCM */
+	{ 12, 0, 0x2d400000, 0x100000,  {0, 0, 0, 0, 0, 0, 0, 1}, {SP(RW) | SU(RW) | NP(RW) | NU(RW), 0} }, /* GIC500 */
 };
 
 struct xrdc_pac_msc_config imx8ulp_pdac[] = {
