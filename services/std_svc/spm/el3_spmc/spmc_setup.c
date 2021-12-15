@@ -44,6 +44,12 @@ void spmc_el1_sp_setup(struct secure_partition_desc *sp,
 				DISABLE_ALL_EXCEPTIONS);
 
 	/*
+	 * TF-A Implementation defined behaviour to provide the linear
+	 * core ID in the x4 register.
+	 */
+	ep_info->args.arg4 = (uintptr_t) plat_my_core_pos();
+
+	/*
 	 * Check whether setup is being performed for the primary or a secondary
 	 * execution context. In the latter case, indicate to the SP that this
 	 * is a warm boot.
