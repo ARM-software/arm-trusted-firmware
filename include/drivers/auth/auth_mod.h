@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef AUTH_MOD_H
 #define AUTH_MOD_H
-
-#if TRUSTED_BOARD_BOOT
 
 #include <common/tbbr/cot_def.h>
 #include <common/tbbr/tbbr_img_def.h>
@@ -46,7 +44,13 @@ typedef struct auth_img_desc_s {
 #endif /* COT_DESC_IN_DTB && !IMAGE_BL1 */
 
 /* Public functions */
+#if TRUSTED_BOARD_BOOT
 void auth_mod_init(void);
+#else
+static inline void auth_mod_init(void)
+{
+}
+#endif /* TRUSTED_BOARD_BOOT */
 int auth_mod_get_parent_id(unsigned int img_id, unsigned int *parent_id);
 int auth_mod_verify_img(unsigned int img_id,
 			void *img_ptr,
@@ -84,7 +88,5 @@ extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 	}
 
 #endif
-
-#endif /* TRUSTED_BOARD_BOOT */
 
 #endif /* AUTH_MOD_H */

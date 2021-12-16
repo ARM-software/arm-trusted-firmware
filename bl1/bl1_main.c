@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/auth/auth_mod.h>
+#include <drivers/auth/crypto_mod.h>
 #include <drivers/console.h>
 #include <lib/cpus/errata_report.h>
 #include <lib/utils.h>
@@ -121,10 +122,10 @@ void bl1_main(void)
 	/* Perform remaining generic architectural setup from EL3 */
 	bl1_arch_setup();
 
-#if TRUSTED_BOARD_BOOT
+	crypto_mod_init();
+
 	/* Initialize authentication module */
 	auth_mod_init();
-#endif /* TRUSTED_BOARD_BOOT */
 
 	/* Initialize the measured boot */
 	bl1_plat_mboot_init();

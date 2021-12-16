@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -143,25 +143,6 @@ exit:
 	return io_result;
 }
 
-/*
- * Load an image and flush it out to main memory so that it can be executed
- * later by any CPU, regardless of cache and MMU state.
- */
-static int load_image_flush(unsigned int image_id,
-			    image_info_t *image_data)
-{
-	int rc;
-
-	rc = load_image(image_id, image_data);
-	if (rc == 0) {
-		flush_dcache_range(image_data->image_base,
-				   image_data->image_size);
-	}
-
-	return rc;
-}
-
-
 #if TRUSTED_BOARD_BOOT
 /*
  * This function uses recursion to authenticate the parent images up to the root
@@ -202,30 +183,6 @@ static int load_auth_image_recursive(unsigned int image_id,
 		return -EAUTH;
 	}
 
-	if (is_parent_image == 0) {
-		/*
-		 * Measure the image.
-		 * We do not measure its parents because these only play a role
-		 * in authentication, which is orthogonal to measured boot.
-		 *
-		 * TODO: Change this code if we change our minds about measuring
-		 * certificates.
-		 */
-		rc = plat_mboot_measure_image(image_id, image_data);
-		if (rc != 0) {
-			return rc;
-		}
-
-		/*
-		 * Flush the image to main memory so that it can be executed
-		 * later by any CPU, regardless of cache and MMU state. This
-		 * is only needed for child images, not for the parents
-		 * (certificates).
-		 */
-		flush_dcache_range(image_data->image_base,
-				   image_data->image_size);
-	}
-
 	return 0;
 }
 #endif /* TRUSTED_BOARD_BOOT */
@@ -239,7 +196,7 @@ static int load_auth_image_internal(unsigned int image_id,
 	}
 #endif
 
-	return load_image_flush(image_id, image_data);
+	return load_image(image_id, image_data);
 }
 
 /*******************************************************************************
@@ -265,6 +222,25 @@ int load_auth_image(unsigned int image_id, image_info_t *image_data)
 		err = load_auth_image_internal(image_id, image_data);
 	} while ((err != 0) && (plat_try_next_boot_source() != 0));
 #endif /* PSA_FWU_SUPPORT */
+
+	if (err == 0) {
+		/*
+		 * If loading of the image gets passed (along with its
+		 * authentication in case of Trusted-Boot flow) then measure
+		 * it (if MEASURED_BOOT flag is enabled).
+		 */
+		err = plat_mboot_measure_image(image_id, image_data);
+		if (err != 0) {
+			return err;
+		}
+
+		/*
+		 * Flush the image to main memory so that it can be executed
+		 * later by any CPU, regardless of cache and MMU state.
+		 */
+		flush_dcache_range(image_data->image_base,
+				   image_data->image_size);
+	}
 
 	return err;
 }

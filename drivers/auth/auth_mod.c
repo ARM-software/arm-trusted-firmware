@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -338,9 +338,6 @@ void auth_mod_init(void)
 {
 	/* Check we have a valid CoT registered */
 	assert(cot_desc_ptr != NULL);
-
-	/* Crypto module */
-	crypto_mod_init();
 
 	/* Image parser module */
 	img_parser_init();

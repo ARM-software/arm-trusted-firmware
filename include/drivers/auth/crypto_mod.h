@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,7 +76,14 @@ typedef struct crypto_lib_desc_s {
 } crypto_lib_desc_t;
 
 /* Public functions */
+#if CRYPTO_SUPPORT
 void crypto_mod_init(void);
+#else
+static inline void crypto_mod_init(void)
+{
+}
+#endif /* CRYPTO_SUPPORT */
+
 int crypto_mod_verify_signature(void *data_ptr, unsigned int data_len,
 				void *sig_ptr, unsigned int sig_len,
 				void *sig_alg_ptr, unsigned int sig_alg_len,
@@ -93,7 +100,9 @@ int crypto_mod_auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
 int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 			 unsigned int data_len,
 			 unsigned char output[CRYPTO_MD_MAX_SIZE]);
+#endif /* MEASURED_BOOT */
 
+#if MEASURED_BOOT && TRUSTED_BOARD_BOOT
 /* Macro to register a cryptographic library */
 #define REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash, \
 			    _calc_hash, _auth_decrypt) \
@@ -105,7 +114,7 @@ int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 		.calc_hash = _calc_hash, \
 		.auth_decrypt = _auth_decrypt \
 	}
-#else
+#elif TRUSTED_BOARD_BOOT
 #define REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash, \
 			    _auth_decrypt) \
 	const crypto_lib_desc_t crypto_lib_desc = { \
@@ -115,7 +124,14 @@ int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 		.verify_hash = _verify_hash, \
 		.auth_decrypt = _auth_decrypt \
 	}
-#endif	/* MEASURED_BOOT */
+#elif MEASURED_BOOT
+#define REGISTER_CRYPTO_LIB(_name, _init, _calc_hash) \
+	const crypto_lib_desc_t crypto_lib_desc = { \
+		.name = _name, \
+		.init = _init, \
+		.calc_hash = _calc_hash, \
+	}
+#endif	/* MEASURED_BOOT && TRUSTED_BOARD_BOOT */
 
 extern const crypto_lib_desc_t crypto_lib_desc;
 

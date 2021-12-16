@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,6 +60,7 @@ static void init(void)
 	mbedtls_init();
 }
 
+#if TRUSTED_BOARD_BOOT
 /*
  * Verify a signature.
  *
@@ -218,6 +219,7 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 
 	return CRYPTO_SUCCESS;
 }
+#endif /* TRUSTED_BOARD_BOOT */
 
 #if MEASURED_BOOT
 /*
@@ -366,7 +368,7 @@ static int auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
 /*
  * Register crypto library descriptor
  */
-#if MEASURED_BOOT
+#if MEASURED_BOOT && TRUSTED_BOARD_BOOT
 #if TF_MBEDTLS_USE_AES_GCM
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, calc_hash,
 		    auth_decrypt);
@@ -374,11 +376,13 @@ REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, calc_hash,
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, calc_hash,
 		    NULL);
 #endif
-#else /* MEASURED_BOOT */
+#elif TRUSTED_BOARD_BOOT
 #if TF_MBEDTLS_USE_AES_GCM
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash,
 		    auth_decrypt);
 #else
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, NULL);
 #endif
-#endif /* MEASURED_BOOT */
+#elif MEASURED_BOOT
+REGISTER_CRYPTO_LIB(LIB_NAME, init, calc_hash);
+#endif /* MEASURED_BOOT && TRUSTED_BOARD_BOOT */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/auth/auth_mod.h>
+#include <drivers/auth/crypto_mod.h>
 #include <drivers/console.h>
 #include <drivers/fwu/fwu.h>
 #include <lib/extensions/pauth.h>
@@ -89,10 +90,10 @@ void bl2_main(void)
 	fwu_init();
 #endif /* PSA_FWU_SUPPORT */
 
-#if TRUSTED_BOARD_BOOT
+	crypto_mod_init();
+
 	/* Initialize authentication module */
 	auth_mod_init();
-#endif /* TRUSTED_BOARD_BOOT */
 
 	/* Initialize the Measured Boot backend */
 	bl2_plat_mboot_init();
