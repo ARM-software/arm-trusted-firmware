@@ -139,6 +139,12 @@ ENABLE_FEAT_HCX			:= 0
 # Flag to enable access to the HAFGRTR_EL2 register
 ENABLE_FEAT_AMUv1		:= 0
 
+# Flag to enable access to the HDFGRTR_EL2 register
+ENABLE_FEAT_FGT			:= 0
+
+# Flag to enable access to the CNTPOFF_EL2 register
+ENABLE_FEAT_ECV			:= 0
+
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
 
