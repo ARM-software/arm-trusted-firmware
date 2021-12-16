@@ -15,6 +15,7 @@ based on the data flow diagram and potential threat mitigations.
 
    threat_model
    threat_model_spm
+   threat_model_fvp_r
 
 --------------
 

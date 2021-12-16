@@ -1,4 +1,4 @@
-SPMC threat model
+SPMC Threat Model
 *****************
 
 ************************
