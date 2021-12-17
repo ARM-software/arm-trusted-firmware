@@ -8,8 +8,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include <platform_def.h>
-
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -19,10 +17,10 @@
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32_iwdg.h>
 #include <drivers/st/stm32_uart.h>
-#include <drivers/st/stm32mp_pmic.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
+#include <drivers/st/stm32mp_pmic.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/mmio.h>
@@ -30,6 +28,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
+#include <platform_def.h>
 #include <stm32mp1_dbgmcu.h>
 
 static struct stm32mp_auth_ops stm32mp1_auth_ops;

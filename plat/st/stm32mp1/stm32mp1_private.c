@@ -8,9 +8,9 @@
 
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_iwdg.h>
-#include <libfdt.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <libfdt.h>
 
 #include <platform_def.h>
 
