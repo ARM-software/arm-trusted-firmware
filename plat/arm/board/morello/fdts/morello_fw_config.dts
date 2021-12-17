@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2021, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <common/tbbr/tbbr_img_def.h>
+
+/dts-v1/;
+/ {
+	dtb-registry {
+		compatible = "fconf,dyn_cfg-dtb_registry";
+
+		tb_fw-config {
+			load-address = <0x0 0x4001300>;
+			max-size = <0x200>;
+			id = <TB_FW_CONFIG_ID>;
+		};
+
+		nt_fw-config {
+			load-address = <0x0 0xFEF00000>;
+			max-size = <0x0100000>;
+			id = <NT_FW_CONFIG_ID>;
+		};
+	};
+};

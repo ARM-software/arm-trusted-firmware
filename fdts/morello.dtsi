@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -58,17 +58,17 @@
 				  "mhu_hpri_rx";
 		#mbox-cells = <2>;
 		mbox-name = "ARM-MHU";
-		clocks = <&soc_refclk100mhz>;
+		clocks = <&soc_refclk50mhz>;
 		clock-names = "apb_pclk";
 	};
 
 	sram: sram@45200000 {
 		compatible = "mmio-sram";
-		reg = <0x0 0x45200000 0x0 0x8000>;
+		reg = <0x0 0x06000000 0x0 0x8000>;
 
 		#address-cells = <1>;
 		#size-cells = <1>;
-		ranges = <0 0x0 0x45200000 0x8000>;
+		ranges = <0 0x0 0x06000000 0x8000>;
 
 		cpu_scp_hpri0: scp-shmem@0 {
 			compatible = "arm,scmi-shmem";
@@ -81,10 +81,10 @@
 		};
 	};
 
-	soc_refclk100mhz: refclk100mhz {
+	soc_refclk50mhz: refclk50mhz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <100000000>;
+		clock-frequency = <50000000>;
 		clock-output-names = "apb_pclk";
 	};
 
@@ -99,7 +99,7 @@
 		compatible = "arm,pl011", "arm,primecell";
 		reg = <0x0 0x2a400000 0x0 0x1000>;
 		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&soc_uartclk>, <&soc_refclk100mhz>;
+		clocks = <&soc_uartclk>, <&soc_refclk50mhz>;
 		clock-names = "uartclk", "apb_pclk";
 		status = "okay";
 	};
