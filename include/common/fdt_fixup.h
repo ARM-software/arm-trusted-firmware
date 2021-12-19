@@ -17,5 +17,7 @@ int fdt_add_cpus_node(void *dtb, unsigned int afflv0,
 		      unsigned int afflv1, unsigned int afflv2);
 int fdt_adjust_gic_redist(void *dtb, unsigned int nr_cores, uintptr_t gicr_base,
 			  unsigned int gicr_frame_size);
+int fdt_set_mac_address(void *dtb, unsigned int ethernet_idx,
+			const uint8_t *mac_addr);
 
 #endif /* FDT_FIXUP_H */
