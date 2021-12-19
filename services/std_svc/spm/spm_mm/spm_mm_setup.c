@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -19,6 +19,7 @@
 #include <plat/common/platform.h>
 #include <services/spm_mm_partition.h>
 
+#include "spm_common.h"
 #include "spm_mm_private.h"
 #include "spm_mm_shim_private.h"
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -17,11 +17,10 @@ ifeq (${ENABLE_SME_FOR_NS},1)
         $(error "Error: SPM_MM is not compatible with ENABLE_SME_FOR_NS")
 endif
 
-SPM_SOURCES	:=	$(addprefix services/std_svc/spm_mm/,	\
-			${ARCH}/spm_mm_helpers.S			\
+SPM_MM_SOURCES	:=	$(addprefix services/std_svc/spm/spm_mm/,	\
 			${ARCH}/spm_mm_shim_exceptions.S		\
-			spm_mm_main.c				\
-			spm_mm_setup.c				\
+			spm_mm_main.c					\
+			spm_mm_setup.c					\
 			spm_mm_xlat.c)
 
 
