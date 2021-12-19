@@ -180,6 +180,7 @@ void bl31_platform_setup(void)
 
 	sunxi_pmic_setup(soc_id, fdt);
 
+	/* Change the DTB if the configuration requires so. */
 	sunxi_prepare_dtb(fdt);
 
 	INFO("BL31: Platform setup done\n");
