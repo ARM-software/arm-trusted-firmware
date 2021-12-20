@@ -64,7 +64,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	uint64_t atf_handoff_addr;
 
-	if (VERSAL_CONSOLE_IS(pl011)) {
+	if (VERSAL_CONSOLE_IS(pl011) || (VERSAL_CONSOLE_IS(pl011_1))) {
 		static console_t versal_runtime_console;
 		/* Initialize the console to provide early debug support */
 		int rc = console_pl011_register((unsigned long)VERSAL_UART_BASE,
