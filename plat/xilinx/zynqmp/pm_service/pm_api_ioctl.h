@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,4 +92,5 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 				unsigned int arg1,
 				unsigned int arg2,
 				unsigned int *value);
+enum pm_ret_status atf_ioctl_bitmask(uint32_t *bit_mask);
 #endif /* PM_API_IOCTL_H */

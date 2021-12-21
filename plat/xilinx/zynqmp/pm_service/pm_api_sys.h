@@ -210,5 +210,8 @@ enum pm_ret_status pm_feature_config(unsigned int ioctl_id,
 				     unsigned int config_id,
 				     unsigned int value,
 				     unsigned int *response);
+enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
+				    uint32_t *bit_mask, uint8_t len);
+enum pm_ret_status check_api_dependency(uint8_t id);
 
 #endif /* PM_API_SYS_H */

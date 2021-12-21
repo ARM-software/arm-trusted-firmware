@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,11 +23,8 @@
 #include <plat_private.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
+#include "pm_defs.h"
 #include "pm_ipi.h"
-
-#define PM_GET_CALLBACK_DATA	0xa01
-#define PM_SET_SUSPEND_MODE	0xa02
-#define PM_GET_TRUSTZONE_VERSION	0xa03
 
 /* pm_up = !0 - UP, pm_up = 0 - DOWN */
 static int32_t pm_up, ipi_irq_flag;
@@ -538,6 +535,17 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		ret = pm_ipi_send_sync(primary_proc, payload, ret_payload, 3U);
 		SMC_RET2(handle, (uint64_t)ret | (uint64_t)ret_payload[0] << 32,
 			 (uint64_t)ret_payload[1] | (uint64_t)ret_payload[2] << 32);
+	}
+
+	case PM_FEATURE_CHECK:
+	{
+		uint32_t version;
+		uint32_t bit_mask[2] = {0};
+
+		ret = pm_feature_check(pm_arg[0], &version, bit_mask,
+				       ARRAY_SIZE(bit_mask));
+		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)version << 32),
+			 (uint64_t)bit_mask[0] | ((uint64_t)bit_mask[1] << 32));
 	}
 
 	default:

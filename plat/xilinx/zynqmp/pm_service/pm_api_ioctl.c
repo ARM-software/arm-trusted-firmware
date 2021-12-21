@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -687,4 +687,48 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 	}
 
 	return ret;
+}
+
+/**
+ * pm_update_ioctl_bitmask() -  API to get supported IOCTL ID mask
+ * @bit_mask		Returned bit mask of supported IOCTL IDs
+ */
+enum pm_ret_status atf_ioctl_bitmask(uint32_t *bit_mask)
+{
+	uint8_t supported_ids[] = {
+		IOCTL_GET_RPU_OPER_MODE,
+		IOCTL_SET_RPU_OPER_MODE,
+		IOCTL_RPU_BOOT_ADDR_CONFIG,
+		IOCTL_TCM_COMB_CONFIG,
+		IOCTL_SET_TAPDELAY_BYPASS,
+		IOCTL_SET_SGMII_MODE,
+		IOCTL_SD_DLL_RESET,
+		IOCTL_SET_SD_TAPDELAY,
+		IOCTL_SET_PLL_FRAC_MODE,
+		IOCTL_GET_PLL_FRAC_MODE,
+		IOCTL_SET_PLL_FRAC_DATA,
+		IOCTL_GET_PLL_FRAC_DATA,
+		IOCTL_WRITE_GGS,
+		IOCTL_READ_GGS,
+		IOCTL_WRITE_PGGS,
+		IOCTL_READ_PGGS,
+		IOCTL_ULPI_RESET,
+		IOCTL_SET_BOOT_HEALTH_STATUS,
+		IOCTL_AFI,
+	};
+	uint8_t i, ioctl_id;
+	int ret;
+
+	for (i = 0U; i < ARRAY_SIZE(supported_ids); i++) {
+		ioctl_id = supported_ids[i];
+		if (ioctl_id >= 64U) {
+			return PM_RET_ERROR_NOTSUPPORTED;
+		}
+		ret = check_api_dependency(ioctl_id);
+		if (ret == PM_RET_SUCCESS) {
+			bit_mask[ioctl_id / 32] |= BIT(ioctl_id % 32);
+		}
+	}
+
+	return PM_RET_SUCCESS;
 }

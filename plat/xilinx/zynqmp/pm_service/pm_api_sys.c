@@ -20,6 +20,225 @@
 #include "pm_common.h"
 #include "pm_ipi.h"
 
+#define PM_QUERY_FEATURE_BITMASK ( \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_NAME) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_TOPOLOGY) |	\
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_PARENTS) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_ATTRIBUTES) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_NUM_PINS) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_NUM_FUNCTIONS) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_FUNCTION_NAME) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_FUNCTION_GROUPS) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_PIN_GROUPS) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_NUM_CLOCKS) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_MAX_DIVISOR))
+
+/**
+ * struct eemi_api_dependency - Dependent EEMI APIs which are implemented
+ * on both the ATF and firmware
+ *
+ * @id:		EEMI API id or IOCTL id to be checked
+ * @api_id:	Dependent EEMI API
+ */
+typedef struct __attribute__((packed)) {
+	uint8_t id;
+	uint8_t api_id;
+} eemi_api_dependency;
+
+/* Dependent APIs for ATF to check their version from firmware */
+static const eemi_api_dependency api_dep_table[] = {
+	{
+		.id = PM_SELF_SUSPEND,
+		.api_id = PM_SELF_SUSPEND,
+	},
+	{
+		.id = PM_REQ_WAKEUP,
+		.api_id = PM_REQ_WAKEUP,
+	},
+	{
+		.id = PM_ABORT_SUSPEND,
+		.api_id = PM_ABORT_SUSPEND,
+	},
+	{
+		.id = PM_SET_WAKEUP_SOURCE,
+		.api_id = PM_SET_WAKEUP_SOURCE,
+	},
+	{
+		.id = PM_SYSTEM_SHUTDOWN,
+		.api_id = PM_SYSTEM_SHUTDOWN,
+	},
+	{
+		.id = PM_GET_API_VERSION,
+		.api_id = PM_GET_API_VERSION,
+	},
+	{
+		.id = PM_CLOCK_ENABLE,
+		.api_id = PM_PLL_SET_MODE,
+	},
+	{
+		.id = PM_CLOCK_ENABLE,
+		.api_id = PM_CLOCK_ENABLE,
+	},
+	{
+		.id = PM_CLOCK_DISABLE,
+		.api_id = PM_PLL_SET_MODE,
+	},
+	{
+		.id = PM_CLOCK_DISABLE,
+		.api_id = PM_CLOCK_DISABLE,
+	},
+	{
+		.id = PM_CLOCK_GETSTATE,
+		.api_id = PM_PLL_GET_MODE,
+	},
+	{
+		.id = PM_CLOCK_GETSTATE,
+		.api_id = PM_CLOCK_GETSTATE,
+	},
+	{
+		.id = PM_CLOCK_SETDIVIDER,
+		.api_id = PM_PLL_SET_PARAMETER,
+	},
+	{
+		.id = PM_CLOCK_SETDIVIDER,
+		.api_id = PM_CLOCK_SETDIVIDER,
+	},
+	{
+		.id = PM_CLOCK_GETDIVIDER,
+		.api_id = PM_PLL_GET_PARAMETER,
+	},
+	{
+		.id = PM_CLOCK_GETDIVIDER,
+		.api_id = PM_CLOCK_GETDIVIDER,
+	},
+	{
+		.id = PM_CLOCK_SETPARENT,
+		.api_id = PM_PLL_SET_PARAMETER,
+	},
+	{
+		.id = PM_CLOCK_SETPARENT,
+		.api_id = PM_CLOCK_SETPARENT,
+	},
+	{
+		.id = PM_CLOCK_GETPARENT,
+		.api_id = PM_PLL_GET_PARAMETER,
+	},
+	{
+		.id = PM_CLOCK_GETPARENT,
+		.api_id = PM_CLOCK_GETPARENT,
+	},
+	{
+		.id = PM_PLL_SET_PARAMETER,
+		.api_id = PM_PLL_SET_PARAMETER,
+	},
+	{
+		.id = PM_PLL_GET_PARAMETER,
+		.api_id = PM_PLL_GET_PARAMETER,
+	},
+	{
+		.id = PM_PLL_SET_MODE,
+		.api_id = PM_PLL_SET_MODE,
+	},
+	{
+		.id = PM_PLL_GET_MODE,
+		.api_id = PM_PLL_GET_MODE,
+	},
+	{
+		.id = PM_REGISTER_ACCESS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = PM_REGISTER_ACCESS,
+		.api_id = PM_MMIO_READ,
+	},
+	{
+		.id = PM_FEATURE_CHECK,
+		.api_id = PM_FEATURE_CHECK,
+	},
+	{
+		.id = IOCTL_SET_TAPDELAY_BYPASS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SET_SGMII_MODE,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SD_DLL_RESET,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SET_SD_TAPDELAY,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SET_SD_TAPDELAY,
+		.api_id = PM_MMIO_READ,
+	},
+	{
+		.id = IOCTL_SET_PLL_FRAC_DATA,
+		.api_id = PM_PLL_SET_PARAMETER,
+	},
+	{
+		.id = IOCTL_GET_PLL_FRAC_DATA,
+		.api_id = PM_PLL_GET_PARAMETER,
+	},
+	{
+		.id = IOCTL_WRITE_GGS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_READ_GGS,
+		.api_id = PM_MMIO_READ,
+	},
+	{
+		.id = IOCTL_WRITE_PGGS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_READ_PGGS,
+		.api_id = PM_MMIO_READ,
+	},
+	{
+		.id = IOCTL_ULPI_RESET,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SET_BOOT_HEALTH_STATUS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_AFI,
+		.api_id = PM_MMIO_WRITE,
+	},
+};
+
+/* Expected firmware API version to ATF */
+static const uint8_t atf_expected_ver_id[] = {
+	[PM_SELF_SUSPEND] = FW_API_BASE_VERSION,
+	[PM_REQ_WAKEUP] = FW_API_BASE_VERSION,
+	[PM_ABORT_SUSPEND] = FW_API_BASE_VERSION,
+	[PM_SET_WAKEUP_SOURCE] = FW_API_BASE_VERSION,
+	[PM_SYSTEM_SHUTDOWN] = FW_API_BASE_VERSION,
+	[PM_GET_API_VERSION] = FW_API_BASE_VERSION,
+	[PM_PLL_SET_MODE] = FW_API_BASE_VERSION,
+	[PM_PLL_GET_MODE] = FW_API_BASE_VERSION,
+	[PM_CLOCK_ENABLE] = FW_API_BASE_VERSION,
+	[PM_CLOCK_DISABLE] = FW_API_BASE_VERSION,
+	[PM_CLOCK_GETSTATE] = FW_API_BASE_VERSION,
+	[PM_PLL_SET_PARAMETER] = FW_API_BASE_VERSION,
+	[PM_PLL_GET_PARAMETER] = FW_API_BASE_VERSION,
+	[PM_CLOCK_SETDIVIDER] = FW_API_BASE_VERSION,
+	[PM_CLOCK_GETDIVIDER] = FW_API_BASE_VERSION,
+	[PM_CLOCK_SETPARENT] = FW_API_BASE_VERSION,
+	[PM_CLOCK_GETPARENT] = FW_API_BASE_VERSION,
+	[PM_MMIO_WRITE] = FW_API_BASE_VERSION,
+	[PM_MMIO_READ] = FW_API_BASE_VERSION,
+	[PM_FEATURE_CHECK] = FW_API_VERSION_2,
+};
+
 /* default shutdown/reboot scope is system(2) */
 static unsigned int pm_shutdown_scope = PMF_SHUTDOWN_SUBTYPE_SYSTEM;
 
@@ -496,6 +715,220 @@ enum pm_ret_status pm_ioctl(enum pm_node_id nid,
 			    unsigned int *value)
 {
 	return pm_api_ioctl(nid, ioctl_id, arg1, arg2, value);
+}
+
+/**
+ * fw_api_version() - Returns API version implemented in firmware
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ * @len		Number of words to be returned
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status fw_api_version(uint32_t id, uint32_t *version,
+					 uint32_t len)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	PM_PACK_PAYLOAD2(payload, PM_FEATURE_CHECK, id);
+	return pm_ipi_send_sync(primary_proc, payload, version, len);
+}
+
+/**
+ * check_api_dependency() -  API to check dependent EEMI API version
+ * @id		EEMI API ID to check
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status check_api_dependency(uint8_t id)
+{
+	uint8_t i;
+	uint32_t version;
+	int ret;
+
+	for (i = 0U; i < ARRAY_SIZE(api_dep_table); i++) {
+		if (api_dep_table[i].id == id) {
+			if (api_dep_table[i].api_id == 0U) {
+				break;
+			}
+
+			ret = fw_api_version(api_dep_table[i].api_id,
+					     &version, 1);
+			if (ret != PM_RET_SUCCESS) {
+				return ret;
+			}
+
+			/* Check if fw version matches ATF expected version */
+			if (version != atf_expected_ver_id[api_dep_table[i].api_id]) {
+				return PM_RET_ERROR_NOTSUPPORTED;
+			}
+		}
+	}
+
+	return PM_RET_SUCCESS;
+}
+
+/**
+ * feature_check_atf() - These are API's completely implemented in ATF
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status feature_check_atf(uint32_t api_id, uint32_t *version,
+					    uint32_t *bit_mask)
+{
+	switch (api_id) {
+	case PM_QUERY_DATA:
+		*version = ATF_API_BASE_VERSION;
+		bit_mask[0] = (uint32_t)(PM_QUERY_FEATURE_BITMASK);
+		bit_mask[1] = (uint32_t)(PM_QUERY_FEATURE_BITMASK >> 32);
+		return PM_RET_SUCCESS;
+	case PM_GET_CALLBACK_DATA:
+	case PM_GET_TRUSTZONE_VERSION:
+	case PM_SET_SUSPEND_MODE:
+		*version = ATF_API_BASE_VERSION;
+		return PM_RET_SUCCESS;
+	default:
+		return PM_RET_ERROR_NO_FEATURE;
+	}
+}
+
+/**
+ * get_atf_version_for_partial_apis() - Return ATF version for partially
+ * implemented APIs
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status get_atf_version_for_partial_apis(uint32_t api_id,
+							   uint32_t *version)
+{
+	switch (api_id) {
+	case PM_SELF_SUSPEND:
+	case PM_REQ_WAKEUP:
+	case PM_ABORT_SUSPEND:
+	case PM_SET_WAKEUP_SOURCE:
+	case PM_SYSTEM_SHUTDOWN:
+	case PM_GET_API_VERSION:
+	case PM_CLOCK_ENABLE:
+	case PM_CLOCK_DISABLE:
+	case PM_CLOCK_GETSTATE:
+	case PM_CLOCK_SETDIVIDER:
+	case PM_CLOCK_GETDIVIDER:
+	case PM_CLOCK_SETPARENT:
+	case PM_CLOCK_GETPARENT:
+	case PM_PLL_SET_PARAMETER:
+	case PM_PLL_GET_PARAMETER:
+	case PM_PLL_SET_MODE:
+	case PM_PLL_GET_MODE:
+	case PM_REGISTER_ACCESS:
+		*version = ATF_API_BASE_VERSION;
+		return PM_RET_SUCCESS;
+	case PM_FEATURE_CHECK:
+		*version = FW_API_VERSION_2;
+		return PM_RET_SUCCESS;
+	default:
+		return PM_RET_ERROR_ARGS;
+	}
+}
+
+/**
+ * feature_check_partial() - These are API's partially implemented in
+ * ATF and firmware both
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status feature_check_partial(uint32_t api_id,
+						uint32_t *version)
+{
+	uint32_t status;
+
+	switch (api_id) {
+	case PM_SELF_SUSPEND:
+	case PM_REQ_WAKEUP:
+	case PM_ABORT_SUSPEND:
+	case PM_SET_WAKEUP_SOURCE:
+	case PM_SYSTEM_SHUTDOWN:
+	case PM_GET_API_VERSION:
+	case PM_CLOCK_ENABLE:
+	case PM_CLOCK_DISABLE:
+	case PM_CLOCK_GETSTATE:
+	case PM_CLOCK_SETDIVIDER:
+	case PM_CLOCK_GETDIVIDER:
+	case PM_CLOCK_SETPARENT:
+	case PM_CLOCK_GETPARENT:
+	case PM_PLL_SET_PARAMETER:
+	case PM_PLL_GET_PARAMETER:
+	case PM_PLL_SET_MODE:
+	case PM_PLL_GET_MODE:
+	case PM_REGISTER_ACCESS:
+	case PM_FEATURE_CHECK:
+		status = check_api_dependency(api_id);
+		if (status != PM_RET_SUCCESS) {
+			return status;
+		}
+		return get_atf_version_for_partial_apis(api_id, version);
+	default:
+		return PM_RET_ERROR_NO_FEATURE;
+	}
+}
+
+/**
+ * pm_feature_check() - Returns the supported API version if supported
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ * @bit_mask	Returned supported IOCTL id version
+ * @len		Number of bytes to be returned in bit_mask variable
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
+				    uint32_t *bit_mask, uint8_t len)
+{
+	uint32_t ret_payload[PAYLOAD_ARG_CNT] = {0U};
+	uint32_t status;
+
+	/* Get API version implemented in ATF */
+	status = feature_check_atf(api_id, version, bit_mask);
+	if (status != PM_RET_ERROR_NO_FEATURE) {
+		return status;
+	}
+
+	/* Get API version implemented by firmware and ATF both */
+	status = feature_check_partial(api_id, version);
+	if (status != PM_RET_ERROR_NO_FEATURE) {
+		return status;
+	}
+
+	/* Get API version implemented by firmware */
+	status = fw_api_version(api_id, ret_payload, 3);
+	/* IOCTL call may return failure whose ID is not implemented in
+	 * firmware but implemented in ATF
+	 */
+	if ((api_id != PM_IOCTL) && (status != PM_RET_SUCCESS)) {
+		return status;
+	}
+
+	*version = ret_payload[0];
+
+	/* Update IOCTL bit mask which are implemented in ATF */
+	if (api_id == PM_IOCTL) {
+		if (len < 2) {
+			return PM_RET_ERROR_ARGS;
+		}
+		bit_mask[0] = ret_payload[1];
+		bit_mask[1] = ret_payload[2];
+		/* Get IOCTL's implemented by ATF */
+		status = atf_ioctl_bitmask(bit_mask);
+	} else {
+		/* Requires for MISRA */
+	}
+
+	return status;
 }
 
 /**
