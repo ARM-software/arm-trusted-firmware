@@ -52,31 +52,14 @@ static void unsigned_num_print(char **s, size_t n, size_t *chars_printed,
 	} while (unum > 0U);
 
 	width = i;
-	if (padn > width) {
-		(*chars_printed) += (size_t)padn;
-	} else {
-		(*chars_printed) += (size_t)width;
+	for (i = padn - width; i > 0; i--) {
+		CHECK_AND_PUT_CHAR(*s, n, *chars_printed, padc);
 	}
-
-	if (*chars_printed < n) {
-
-		if (padn > 0) {
-			while (width < padn) {
-				*(*s)++ = padc;
-				padn--;
-			}
-		}
-
-		while (--i >= 0) {
-			*(*s)++ = num_buf[i];
-		}
-
-		if (padn < 0) {
-			while (width < -padn) {
-				*(*s)++ = padc;
-				padn++;
-			}
-		}
+	for (i = width; i > 0; i--) {
+		CHECK_AND_PUT_CHAR(*s, n, *chars_printed, num_buf[i - 1]);
+	}
+	for (i = width + padn; i < 0; i++) {
+		CHECK_AND_PUT_CHAR(*s, n, *chars_printed, padc);
 	}
 }
 
