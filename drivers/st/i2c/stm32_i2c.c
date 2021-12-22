@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <platform_def.h>
 
 #include <common/debug.h>
+#include <drivers/clk.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_i2c.h>
@@ -158,7 +159,7 @@ int stm32_i2c_init(struct i2c_handle_s *hi2c,
 
 	hi2c->i2c_state = I2C_STATE_BUSY;
 
-	stm32mp_clk_enable(hi2c->clock);
+	clk_enable(hi2c->clock);
 
 	/* Disable the selected I2C peripheral */
 	mmio_clrbits_32(hi2c->i2c_base_addr + I2C_CR1, I2C_CR1_PE);
@@ -220,11 +221,11 @@ int stm32_i2c_init(struct i2c_handle_s *hi2c,
 						I2C_ANALOGFILTER_DISABLE);
 	if (rc != 0) {
 		ERROR("Cannot initialize I2C analog filter (%d)\n", rc);
-		stm32mp_clk_disable(hi2c->clock);
+		clk_disable(hi2c->clock);
 		return rc;
 	}
 
-	stm32mp_clk_disable(hi2c->clock);
+	clk_disable(hi2c->clock);
 
 	return rc;
 }
@@ -548,7 +549,7 @@ static int i2c_write(struct i2c_handle_s *hi2c, uint16_t dev_addr,
 		return -EINVAL;
 	}
 
-	stm32mp_clk_enable(hi2c->clock);
+	clk_enable(hi2c->clock);
 
 	hi2c->lock = 1;
 
@@ -648,7 +649,7 @@ static int i2c_write(struct i2c_handle_s *hi2c, uint16_t dev_addr,
 
 bail:
 	hi2c->lock = 0;
-	stm32mp_clk_disable(hi2c->clock);
+	clk_disable(hi2c->clock);
 
 	return rc;
 }
@@ -729,7 +730,7 @@ static int i2c_read(struct i2c_handle_s *hi2c, uint16_t dev_addr,
 		return  -EINVAL;
 	}
 
-	stm32mp_clk_enable(hi2c->clock);
+	clk_enable(hi2c->clock);
 
 	hi2c->lock = 1;
 
@@ -817,7 +818,7 @@ static int i2c_read(struct i2c_handle_s *hi2c, uint16_t dev_addr,
 
 bail:
 	hi2c->lock = 0;
-	stm32mp_clk_disable(hi2c->clock);
+	clk_disable(hi2c->clock);
 
 	return rc;
 }
@@ -882,7 +883,7 @@ bool stm32_i2c_is_device_ready(struct i2c_handle_s *hi2c,
 		return rc;
 	}
 
-	stm32mp_clk_enable(hi2c->clock);
+	clk_enable(hi2c->clock);
 
 	hi2c->lock = 1;
 	hi2c->i2c_mode = I2C_MODE_NONE;
@@ -974,7 +975,7 @@ bool stm32_i2c_is_device_ready(struct i2c_handle_s *hi2c,
 
 bail:
 	hi2c->lock = 0;
-	stm32mp_clk_disable(hi2c->clock);
+	clk_disable(hi2c->clock);
 
 	return rc;
 }

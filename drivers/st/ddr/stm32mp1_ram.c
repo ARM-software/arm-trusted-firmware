@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
+#include <drivers/clk.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ddr_helpers.h>
 #include <drivers/st/stm32mp1_ram.h>
@@ -29,7 +30,7 @@ int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed)
 
 	ddr_enable_clock();
 
-	ddrphy_clk = stm32mp_clk_get_rate(DDRPHYC);
+	ddrphy_clk = clk_get_rate(DDRPHYC);
 
 	VERBOSE("DDR: mem_speed (%d kHz), RCC %ld kHz\n",
 		mem_speed, ddrphy_clk / 1000U);

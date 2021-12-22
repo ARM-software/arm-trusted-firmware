@@ -92,15 +92,6 @@ void stm32mp_print_cpuinfo(void);
 /* Print board information */
 void stm32mp_print_boardinfo(void);
 
-/*
- * Util for clock gating and to get clock rate for stm32 and platform drivers
- * @id: Target clock ID, ID used in clock DT bindings
- */
-bool stm32mp_clk_is_enabled(unsigned long id);
-void stm32mp_clk_enable(unsigned long id);
-void stm32mp_clk_disable(unsigned long id);
-unsigned long stm32mp_clk_get_rate(unsigned long id);
-
 /* Initialise the IO layer and register platform IO devices */
 void stm32mp_io_setup(void);
 

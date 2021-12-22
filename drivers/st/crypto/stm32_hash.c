@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/clk.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32_hash.h>
 #include <drivers/st/stm32mp_reset.h>
@@ -189,7 +190,7 @@ int stm32_hash_update(const uint8_t *buffer, size_t length)
 		return 0;
 	}
 
-	stm32mp_clk_enable(stm32_hash.clock);
+	clk_enable(stm32_hash.clock);
 
 	if (stm32_remain.length != 0U) {
 		uint32_t copysize;
@@ -231,7 +232,7 @@ int stm32_hash_update(const uint8_t *buffer, size_t length)
 	}
 
 exit:
-	stm32mp_clk_disable(stm32_hash.clock);
+	clk_disable(stm32_hash.clock);
 
 	return ret;
 }
@@ -240,12 +241,12 @@ int stm32_hash_final(uint8_t *digest)
 {
 	int ret;
 
-	stm32mp_clk_enable(stm32_hash.clock);
+	clk_enable(stm32_hash.clock);
 
 	if (stm32_remain.length != 0U) {
 		ret = hash_write_data(stm32_remain.buffer);
 		if (ret != 0) {
-			stm32mp_clk_disable(stm32_hash.clock);
+			clk_disable(stm32_hash.clock);
 			return ret;
 		}
 
@@ -260,7 +261,7 @@ int stm32_hash_final(uint8_t *digest)
 
 	ret = hash_get_digest(digest);
 
-	stm32mp_clk_disable(stm32_hash.clock);
+	clk_disable(stm32_hash.clock);
 
 	return ret;
 }
@@ -280,11 +281,11 @@ int stm32_hash_final_update(const uint8_t *buffer, uint32_t length,
 
 void stm32_hash_init(enum stm32_hash_algo_mode mode)
 {
-	stm32mp_clk_enable(stm32_hash.clock);
+	clk_enable(stm32_hash.clock);
 
 	hash_hw_init(mode);
 
-	stm32mp_clk_disable(stm32_hash.clock);
+	clk_disable(stm32_hash.clock);
 
 	zeromem(&stm32_remain, sizeof(stm32_remain));
 }
@@ -321,7 +322,7 @@ int stm32_hash_register(void)
 	stm32_hash.base = hash_info.base;
 	stm32_hash.clock = hash_info.clock;
 
-	stm32mp_clk_enable(stm32_hash.clock);
+	clk_enable(stm32_hash.clock);
 
 	if (hash_info.reset >= 0) {
 		uint32_t id = (uint32_t)hash_info.reset;
@@ -335,7 +336,7 @@ int stm32_hash_register(void)
 		}
 	}
 
-	stm32mp_clk_disable(stm32_hash.clock);
+	clk_disable(stm32_hash.clock);
 
 	return 0;
 }

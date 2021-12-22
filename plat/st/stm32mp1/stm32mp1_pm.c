@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,7 @@
 #include <common/debug.h>
 #include <drivers/arm/gic_common.h>
 #include <drivers/arm/gicv2.h>
-#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/clk.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
@@ -74,7 +74,7 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INVALID_ADDRESS;
 	}
 
-	stm32mp_clk_enable(RTCAPB);
+	clk_enable(RTCAPB);
 
 	cntfrq_core0 = read_cntfrq_el0();
 
@@ -84,7 +84,7 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 	/* Write magic number in backup register */
 	mmio_write_32(bkpr_core1_magic, BOOT_API_A7_CORE1_MAGIC_NUMBER);
 
-	stm32mp_clk_disable(RTCAPB);
+	clk_disable(RTCAPB);
 
 	/* Generate an IT to core 1 */
 	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_0, STM32MP_SECONDARY_CPU);
