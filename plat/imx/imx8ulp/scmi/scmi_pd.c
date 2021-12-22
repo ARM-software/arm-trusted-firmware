@@ -21,6 +21,8 @@
 #define POWER_STATE_ON	(0 << 30)
 #define POWER_STATE_OFF	(1 << 30)
 
+extern bool is_lpav_owned_by_apd(void);
+
 enum {
 	PS0 = 0,
 	PS1 = 1,
@@ -93,6 +95,7 @@ struct power_domain {
 	uint32_t sram_parent;
 	uint64_t bits;
 	uint32_t power_state;
+	bool lpav; /* belong to lpav domain */
 	uint32_t sw_rst_reg; /* pcc sw reset reg offset */
 };
 
@@ -133,7 +136,7 @@ struct power_domain {
 #define PCC_SW_RST	BIT(28)
 
 #define PWR_DOMAIN(_name, _reg, _psw_parent, _sram_parent, \
-		   _bits, _state, _rst_reg) \
+		   _bits, _state, _lpav, _rst_reg) \
 	{ \
 		.name = _name, \
 		.reg = _reg, \
@@ -141,26 +144,27 @@ struct power_domain {
 		.sram_parent = _sram_parent, \
 		.bits = _bits, \
 		.power_state = _state, \
+		.lpav = _lpav, \
 		.sw_rst_reg = _rst_reg, \
 	}
 
 static struct power_domain scmi_power_domains[] = {
-	PWR_DOMAIN("DMA1", IMX8ULP_PD_DMA1, PS6, PS6, SRAM_DMA1, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("FLEXSPI2", IMX8ULP_PD_FLEXSPI2, PS6, PS6, SRAM_FLEXSPI2, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("USB0", IMX8ULP_PD_USB0, PS6, PS6, SRAM_USB0, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("USDHC0", IMX8ULP_PD_USDHC0, PS6, PS6, SRAM_USDHC0, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("USDHC1", IMX8ULP_PD_USDHC1, PS6, PS6, SRAM_USDHC1, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("USDHC2_USB1", IMX8ULP_PD_USDHC2_USB1, PS6, PS6, SRAM_USDHC2_USB1, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("DCNano", IMX8ULP_PD_DCNANO, PS16, PS16, SRAM_DCNANO, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("EPDC", IMX8ULP_PD_EPDC, PS13, PS13, SRAM_EPDC, POWER_STATE_OFF, PCC_EPDC),
-	PWR_DOMAIN("DMA2", IMX8ULP_PD_DMA2, PS16, PS16, SRAM_DMA2, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("GPU2D", IMX8ULP_PD_GPU2D, PS16, PS16, SRAM_GPU2D, POWER_STATE_OFF, PCC_GPU2D),
-	PWR_DOMAIN("GPU3D", IMX8ULP_PD_GPU3D, PS7, PS7, SRAM_GPU3D, POWER_STATE_OFF, PCC_GPU3D),
-	PWR_DOMAIN("HIFI4", IMX8ULP_PD_HIFI4, PS8, PS8, SRAM_HIFI4, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("ISI", IMX8ULP_PD_ISI, PS16, PS16, SRAM_ISI_BUFFER, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("MIPI_CSI", IMX8ULP_PD_MIPI_CSI, PS15, PS16, SRAM_MIPI_CSI_FIFO, POWER_STATE_OFF, PCC_CSI),
-	PWR_DOMAIN("MIPI_DSI", IMX8ULP_PD_MIPI_DSI, PS14, PS16, SRAM_MIPI_DSI_FIFO, POWER_STATE_OFF, 0U),
-	PWR_DOMAIN("PXP", IMX8ULP_PD_PXP, PS13, PS13, SRAM_PXP | SRAM_EPDC, POWER_STATE_OFF, PCC_PXP)
+	PWR_DOMAIN("DMA1", IMX8ULP_PD_DMA1, PS6, PS6, SRAM_DMA1, POWER_STATE_OFF, false, 0U),
+	PWR_DOMAIN("FLEXSPI2", IMX8ULP_PD_FLEXSPI2, PS6, PS6, SRAM_FLEXSPI2, POWER_STATE_OFF, false, 0U),
+	PWR_DOMAIN("USB0", IMX8ULP_PD_USB0, PS6, PS6, SRAM_USB0, POWER_STATE_OFF, false, 0U),
+	PWR_DOMAIN("USDHC0", IMX8ULP_PD_USDHC0, PS6, PS6, SRAM_USDHC0, POWER_STATE_OFF, false, 0U),
+	PWR_DOMAIN("USDHC1", IMX8ULP_PD_USDHC1, PS6, PS6, SRAM_USDHC1, POWER_STATE_OFF, false, 0U),
+	PWR_DOMAIN("USDHC2_USB1", IMX8ULP_PD_USDHC2_USB1, PS6, PS6, SRAM_USDHC2_USB1, POWER_STATE_OFF, false, 0U),
+	PWR_DOMAIN("DCNano", IMX8ULP_PD_DCNANO, PS16, PS16, SRAM_DCNANO, POWER_STATE_OFF, true, 0U),
+	PWR_DOMAIN("EPDC", IMX8ULP_PD_EPDC, PS13, PS13, SRAM_EPDC, POWER_STATE_OFF, true, PCC_EPDC),
+	PWR_DOMAIN("DMA2", IMX8ULP_PD_DMA2, PS16, PS16, SRAM_DMA2, POWER_STATE_OFF, true, 0U),
+	PWR_DOMAIN("GPU2D", IMX8ULP_PD_GPU2D, PS16, PS16, SRAM_GPU2D, POWER_STATE_OFF, true, PCC_GPU2D),
+	PWR_DOMAIN("GPU3D", IMX8ULP_PD_GPU3D, PS7, PS7, SRAM_GPU3D, POWER_STATE_OFF, true, PCC_GPU3D),
+	PWR_DOMAIN("HIFI4", IMX8ULP_PD_HIFI4, PS8, PS8, SRAM_HIFI4, POWER_STATE_OFF, true, 0U),
+	PWR_DOMAIN("ISI", IMX8ULP_PD_ISI, PS16, PS16, SRAM_ISI_BUFFER, POWER_STATE_OFF, true, 0U),
+	PWR_DOMAIN("MIPI_CSI", IMX8ULP_PD_MIPI_CSI, PS15, PS16, SRAM_MIPI_CSI_FIFO, POWER_STATE_OFF, true, PCC_CSI),
+	PWR_DOMAIN("MIPI_DSI", IMX8ULP_PD_MIPI_DSI, PS14, PS16, SRAM_MIPI_DSI_FIFO, POWER_STATE_OFF, true, 0U),
+	PWR_DOMAIN("PXP", IMX8ULP_PD_PXP, PS13, PS13, SRAM_PXP | SRAM_EPDC, POWER_STATE_OFF, true, PCC_PXP)
 };
 
 size_t plat_scmi_pd_count(unsigned int agent_id __unused)
@@ -284,6 +288,17 @@ int32_t plat_scmi_pd_psw(unsigned int index, unsigned int state)
 	return ret;
 }
 
+bool pd_allow_power_off(unsigned int pd_id)
+{
+	if (scmi_power_domains[pd_id].lpav) {
+		if (!is_lpav_owned_by_apd()) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void assert_pcc_reset(unsigned int pcc)
 {
 	/* if sw_rst_reg is valid, assert the pcc reset */
@@ -335,6 +350,10 @@ int32_t plat_scmi_pd_set_state(unsigned int agent_id __unused,
 			return SCMI_DENIED;
 		}
 	} else {
+		if (!pd_allow_power_off(ps_idx)) {
+			return SCMI_DENIED;
+		}
+
 		ret = upwr_pwm_power(NULL, (const uint32_t *)&mem, on);
 		if (ret != 0U) {
 			return SCMI_DENIED;
