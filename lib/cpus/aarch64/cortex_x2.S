@@ -22,6 +22,40 @@
 #endif
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Cortex X2 Errata #2002765.
+	 * This applies to revisions r0p0, r1p0, and r2p0 and
+	 * is open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0, x1, x17
+	 * --------------------------------------------------
+	 */
+func errata_cortex_x2_2002765_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_2002765
+	cbz	x0, 1f
+
+	ldr	x0, =0x6
+	msr	S3_6_C15_C8_0, x0 /* CPUPSELR_EL3 */
+	ldr	x0, =0xF3A08002
+	msr	S3_6_C15_C8_2, x0 /* CPUPOR_EL3 */
+	ldr	x0, =0xFFF0F7FE
+	msr	S3_6_C15_C8_3, x0 /* CPUPMR_EL3 */
+	ldr	x0, =0x40000001003ff
+	msr	S3_6_C15_C8_1, x0 /* CPUPCR_EL3 */
+	isb
+
+1:
+	ret	x17
+endfunc errata_cortex_x2_2002765_wa
+
+func check_errata_2002765
+	/* Applies to r0p0 - r2p0 */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2002765
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Cortex X2 Errata #2083908.
 	 * This applies to revision r2p0 and is open.
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
@@ -80,6 +114,7 @@ func cortex_x2_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
+	report_errata ERRATA_X2_2002765, cortex_x2, 2002765
 	report_errata ERRATA_X2_2083908, cortex_x2, 2083908
 
 	ldp	x8, x30, [sp], #16
@@ -97,6 +132,11 @@ func cortex_x2_reset_func
 	/* Get the CPU revision and stash it in x18. */
 	bl	cpu_get_rev_var
 	mov	x18, x0
+
+#if ERRATA_X2_2002765
+	mov	x0, x18
+	bl	errata_cortex_x2_2002765_wa
+#endif
 
 #if ERRATA_X2_2083908
 	mov	x0, x18
