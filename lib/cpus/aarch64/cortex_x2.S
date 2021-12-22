@@ -305,6 +305,7 @@ func cortex_x2_errata_report
 	report_errata ERRATA_X2_2147715, cortex_x2, 2147715
 	report_errata ERRATA_X2_2216384, cortex_x2, 2216384
 	report_errata WORKAROUND_CVE_2022_23960, cortex_x2, cve_2022_23960
+	report_errata ERRATA_DSU_2313941, cortex_x2, dsu_2313941
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -316,11 +317,14 @@ func cortex_x2_reset_func
 
 	/* Disable speculative loads */
 	msr	SSBS, xzr
-	isb
 
 	/* Get the CPU revision and stash it in x18. */
 	bl	cpu_get_rev_var
 	mov	x18, x0
+
+#if ERRATA_DSU_2313941
+	bl	errata_dsu_2313941_wa
+#endif
 
 #if ERRATA_X2_2002765
 	mov	x0, x18
@@ -367,7 +371,7 @@ func cortex_x2_reset_func
 #endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
 
 	isb
-	ret x19
+	ret	x19
 endfunc cortex_x2_reset_func
 
 	/* ---------------------------------------------

@@ -411,6 +411,7 @@ func cortex_a710_errata_report
 	report_errata ERRATA_A710_2282622, cortex_a710, 2282622
 	report_errata ERRATA_A710_2008768, cortex_a710, 2008768
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a710, cve_2022_23960
+	report_errata ERRATA_DSU_2313941, cortex_a710, dsu_2313941
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -425,6 +426,10 @@ func cortex_a710_reset_func
 
 	bl	cpu_get_rev_var
 	mov	x18, x0
+
+#if ERRATA_DSU_2313941
+	bl	errata_dsu_2313941_wa
+#endif
 
 #if ERRATA_A710_1987031
 	mov	x0, x18

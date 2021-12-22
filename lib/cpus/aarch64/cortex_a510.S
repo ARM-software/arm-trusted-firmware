@@ -301,6 +301,7 @@ func cortex_a510_errata_report
 	report_errata ERRATA_A510_2250311, cortex_a510, 2250311
 	report_errata ERRATA_A510_2218950, cortex_a510, 2218950
 	report_errata ERRATA_A510_2172148, cortex_a510, 2172148
+	report_errata ERRATA_DSU_2313941, cortex_a510, dsu_2313941
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -312,11 +313,14 @@ func cortex_a510_reset_func
 
 	/* Disable speculative loads */
 	msr	SSBS, xzr
-	isb
 
 	/* Get the CPU revision and stash it in x18. */
 	bl	cpu_get_rev_var
 	mov	x18, x0
+
+#if ERRATA_DSU_2313941
+	bl	errata_dsu_2313941_wa
+#endif
 
 #if ERRATA_A510_1922240
 	mov	x0, x18
@@ -353,6 +357,7 @@ func cortex_a510_reset_func
 	bl	errata_cortex_a510_2172148_wa
 #endif
 
+	isb
 	ret	x19
 endfunc cortex_a510_reset_func
 

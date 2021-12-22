@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,6 +32,7 @@
 #define CLUSTERACTLR_EL1	S3_0_C15_C3_3
 
 #define CLUSTERACTLR_EL1_DISABLE_CLOCK_GATING	(ULL(1) << 15)
+#define CLUSTERACTLR_EL1_DISABLE_SCLK_GATING	(ULL(3) << 15)
 
 /********************************************************************
  * Masks applied for DSU errata workarounds

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -614,6 +614,11 @@ ERRATA_DSU_798953	?=0
 # higher DSU power consumption on idle.
 ERRATA_DSU_936184	?=0
 
+# Flag to apply DSU erratum 2313941. This erratum applies to DSUs revisions
+# r0p0, r1p0, r2p0, r2p1, r3p0, r3p1 and is still open. Applying the workaround
+# results in higher DSU power consumption on idle.
+ERRATA_DSU_2313941	?=0
+
 # Process ERRATA_A9_794073 flag
 $(eval $(call assert_boolean,ERRATA_A9_794073))
 $(eval $(call add_define,ERRATA_A9_794073))
@@ -1137,6 +1142,10 @@ $(eval $(call add_define,ERRATA_DSU_798953))
 # Process ERRATA_DSU_936184 flag
 $(eval $(call assert_boolean,ERRATA_DSU_936184))
 $(eval $(call add_define,ERRATA_DSU_936184))
+
+# Process ERRATA_DSU_2313941 flag
+$(eval $(call assert_boolean,ERRATA_DSU_2313941))
+$(eval $(call add_define,ERRATA_DSU_2313941))
 
 # Errata build flags
 ifneq (${ERRATA_A53_843419},0)
