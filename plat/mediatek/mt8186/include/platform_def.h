@@ -15,12 +15,22 @@
 
 /* Aggregate of all devices for MMU mapping */
 #define MTK_DEV_RNG0_BASE	IO_PHYS
-#define MTK_DEV_RNG0_SIZE	0x400000
-#define MTK_DEV_RNG1_BASE	(IO_PHYS + 0x1000000)
-#define MTK_DEV_RNG1_SIZE	0xa110000
+#define MTK_DEV_RNG0_SIZE	0x10000000
 #define MTK_DEV_RNG2_BASE	MT_GIC_BASE
 #define MTK_DEV_RNG2_SIZE	0x600000
 
+#define SPM_BASE		(IO_PHYS + 0x00006000)
+
+/*******************************************************************************
+ * GPIO related constants
+ ******************************************************************************/
+#define GPIO_BASE		(IO_PHYS + 0x00005000)
+#define IOCFG_LT_BASE		(IO_PHYS + 0x00002000)
+#define IOCFG_LM_BASE		(IO_PHYS + 0x00002200)
+#define IOCFG_LB_BASE		(IO_PHYS + 0x00002400)
+#define IOCFG_BL_BASE		(IO_PHYS + 0x00002600)
+#define IOCFG_RB_BASE		(IO_PHYS + 0x00002A00)
+#define IOCFG_RT_BASE		(IO_PHYS + 0x00002C00)
 
 /*******************************************************************************
  * UART related constants
@@ -29,6 +39,28 @@
 
 #define UART_BAUDRATE			115200
 
+/*******************************************************************************
+ * PWRAP related constants
+ ******************************************************************************/
+#define PMIC_WRAP_BASE			(IO_PHYS + 0x0000D000)
+
+/*******************************************************************************
+ * EMI MPU related constants
+ ******************************************************************************/
+#define EMI_MPU_BASE		(IO_PHYS + 0x0021B000)
+
+/*******************************************************************************
+ * GIC-600 & interrupt handling related constants
+ ******************************************************************************/
+/* Base MTK_platform compatible GIC memory map */
+#define BASE_GICD_BASE			MT_GIC_BASE
+#define MT_GIC_RDIST_BASE		(MT_GIC_BASE + 0x40000)
+
+#define SYS_CIRQ_BASE			(IO_PHYS + 0x204000)
+#define CIRQ_REG_NUM			11
+#define CIRQ_IRQ_NUM			326
+#define CIRQ_SPI_START			64
+#define MD_WDT_IRQ_BIT_ID		107
 /*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/

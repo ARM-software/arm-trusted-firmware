@@ -11,10 +11,16 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <drivers/generic_delay_timer.h>
 #include <drivers/ti/uart/uart_16550.h>
 #include <lib/coreboot.h>
 
 /* Platform Includes */
+#include <emi_mpu.h>
+#include <mt_gic_v3.h>
+#include <mt_timer.h>
+#include <mtgpio.h>
+#include <mtk_dcm.h>
 #include <plat_params.h>
 #include <plat_private.h>
 
@@ -79,6 +85,17 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+	dcm_set_default();
+
+	/* Initialize the GIC driver, CPU and distributor interfaces */
+	mt_gic_driver_init();
+	mt_gic_init();
+
+	mt_gpio_init();
+	mt_systimer_init();
+	generic_delay_timer_init();
+
+	emi_mpu_init();
 }
 
 /*******************************************************************************
