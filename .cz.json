@@ -809,6 +809,10 @@
                 {
                     "title": "STM32 Image",
                     "scopes": ["stm32image", "tools/stm32image"]
+                },
+                {
+                    "title": "fiptool",
+                    "scopes": ["fiptool"]
                 }
             ]
         },

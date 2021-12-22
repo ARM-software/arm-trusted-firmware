@@ -537,7 +537,7 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 	for (desc = image_desc_head; desc != NULL; desc = desc->next) {
 		image_t *image = desc->image;
 
-		if (image == NULL)
+		if (image == NULL || (image->toc_e.size == 0ULL))
 			continue;
 		payload_size += image->toc_e.size;
 		entry_offset = (entry_offset + align - 1) & ~(align - 1);
