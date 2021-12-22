@@ -794,9 +794,7 @@ ifeq (${ARCH},aarch32)
     endif
     ifeq (${ENABLE_SVE_FOR_NS},1)
         # Warning instead of error due to CI dependency on this
-        $(warning "ENABLE_SVE_FOR_NS cannot be used with ARCH=aarch32")
-        $(warning "Forced ENABLE_SVE_FOR_NS=0")
-        override ENABLE_SVE_FOR_NS	:= 0
+        $(error "ENABLE_SVE_FOR_NS cannot be used with ARCH=aarch32")
     endif
 endif
 
