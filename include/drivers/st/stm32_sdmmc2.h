@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 #include <drivers/mmc.h>
+#include <drivers/st/regulator.h>
 
 struct stm32_sdmmc2_params {
 	uintptr_t		reg_base;
@@ -24,6 +25,7 @@ struct stm32_sdmmc2_params {
 	unsigned int		reset_id;
 	unsigned int		max_freq;
 	bool			use_dma;
+	struct rdev		*vmmc_regu;
 };
 
 unsigned long long stm32_sdmmc2_mmc_get_device_size(void);

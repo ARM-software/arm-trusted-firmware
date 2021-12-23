@@ -37,6 +37,8 @@ int dt_get_stdout_uart_info(struct dt_node_info *info);
 int dt_match_instance_by_compatible(const char *compatible, uintptr_t address);
 uint32_t dt_get_ddr_size(void);
 uint32_t dt_get_pwr_vdd_voltage(void);
+struct rdev *dt_get_vdd_regulator(void);
+struct rdev *dt_get_cpu_regulator(void);
 const char *dt_get_board_model(void);
 int fdt_get_gpio_bank_pin_count(unsigned int bank);
 

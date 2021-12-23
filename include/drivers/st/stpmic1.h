@@ -103,6 +103,22 @@
 #define BUCK4_PULL_DOWN_SHIFT		6
 #define VREF_DDR_PULL_DOWN_SHIFT	4
 
+/* ICC register */
+#define BUCK1_ICC_SHIFT			0
+#define BUCK2_ICC_SHIFT			1
+#define BUCK3_ICC_SHIFT			2
+#define BUCK4_ICC_SHIFT			3
+#define PWR_SW1_ICC_SHIFT		4
+#define PWR_SW2_ICC_SHIFT		5
+#define BOOST_ICC_SHIFT			6
+
+#define LDO1_ICC_SHIFT			0
+#define LDO2_ICC_SHIFT			1
+#define LDO3_ICC_SHIFT			2
+#define LDO4_ICC_SHIFT			3
+#define LDO5_ICC_SHIFT			4
+#define LDO6_ICC_SHIFT			5
+
 /* Buck Mask reset register */
 #define BUCK1_MASK_RESET		0
 #define BUCK2_MASK_RESET		1
@@ -117,6 +133,10 @@
 #define LDO5_MASK_RESET			4
 #define LDO6_MASK_RESET			5
 #define VREF_DDR_MASK_RESET		6
+
+/* LDO3 Special modes */
+#define LDO3_BYPASS                     BIT(7)
+#define LDO3_DDR_SEL                    31U
 
 /* Main PMIC Control Register (MAIN_CONTROL_REG) */
 #define ICC_EVENT_ENABLED		BIT(4)
@@ -145,9 +165,12 @@
 /* USB Control Register */
 #define BOOST_OVP_DISABLED		BIT(7)
 #define VBUS_OTG_DETECTION_DISABLED	BIT(6)
+#define SW_OUT_DISCHARGE		BIT(5)
+#define VBUS_OTG_DISCHARGE		BIT(4)
 #define OCP_LIMIT_HIGH			BIT(3)
 #define SWIN_SWOUT_ENABLED		BIT(2)
 #define USBSW_OTG_SWITCH_ENABLED	BIT(1)
+#define BOOST_ENABLED			BIT(0)
 
 int stpmic1_powerctrl_on(void);
 int stpmic1_switch_off(void);
@@ -156,11 +179,17 @@ int stpmic1_register_write(uint8_t register_id, uint8_t value);
 int stpmic1_register_update(uint8_t register_id, uint8_t value, uint8_t mask);
 int stpmic1_regulator_enable(const char *name);
 int stpmic1_regulator_disable(const char *name);
-uint8_t stpmic1_is_regulator_enabled(const char *name);
+bool stpmic1_is_regulator_enabled(const char *name);
 int stpmic1_regulator_voltage_set(const char *name, uint16_t millivolts);
+int stpmic1_regulator_levels_mv(const char *name, const uint16_t **levels,
+				size_t *levels_count);
 int stpmic1_regulator_voltage_get(const char *name);
 int stpmic1_regulator_pull_down_set(const char *name);
 int stpmic1_regulator_mask_reset_set(const char *name);
+int stpmic1_regulator_icc_set(const char *name);
+int stpmic1_regulator_sink_mode_set(const char *name);
+int stpmic1_regulator_bypass_mode_set(const char *name);
+int stpmic1_active_discharge_mode_set(const char *name);
 void stpmic1_bind_i2c(struct i2c_handle_s *i2c_handle, uint16_t i2c_addr);
 
 int stpmic1_get_version(unsigned long *version);

@@ -7,16 +7,15 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <libfdt.h>
-
-#include <platform_def.h>
-
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
+#include <drivers/st/regulator.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ram.h>
+#include <libfdt.h>
 
+#include <platform_def.h>
 #include <stm32mp_dt.h>
 
 static void *fdt;
@@ -262,37 +261,46 @@ uint32_t dt_get_ddr_size(void)
  ******************************************************************************/
 uint32_t dt_get_pwr_vdd_voltage(void)
 {
-	int node, pwr_regulators_node;
-	const fdt32_t *cuint;
+	struct rdev *regul = dt_get_vdd_regulator();
+	uint16_t min;
 
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_PWR_COMPAT);
+	if (regul == NULL) {
+		return 0;
+	}
+
+	regulator_get_range(regul, &min, NULL);
+
+	return (uint32_t)min * 1000U;
+}
+
+/*******************************************************************************
+ * This function retrieves VDD supply regulator from DT.
+ * Returns an rdev taken from supply node, NULL otherwise.
+ ******************************************************************************/
+struct rdev *dt_get_vdd_regulator(void)
+{
+	int node = fdt_node_offset_by_compatible(fdt, -1, DT_PWR_COMPAT);
+
 	if (node < 0) {
-		INFO("%s: Cannot read PWR node in DT\n", __func__);
-		return 0;
+		return NULL;
 	}
 
-	pwr_regulators_node = fdt_subnode_offset(fdt, node, "pwr-regulators");
-	if (pwr_regulators_node < 0) {
-		INFO("%s: Cannot read pwr-regulators node in DT\n", __func__);
-		return 0;
-	}
+	return regulator_get_by_supply_name(fdt, node, "vdd");
+}
 
-	cuint = fdt_getprop(fdt, pwr_regulators_node, "vdd-supply", NULL);
-	if (cuint == NULL) {
-		return 0;
-	}
+/*******************************************************************************
+ * This function retrieves CPU supply regulator from DT.
+ * Returns an rdev taken from supply node, NULL otherwise.
+ ******************************************************************************/
+struct rdev *dt_get_cpu_regulator(void)
+{
+	int node = fdt_path_offset(fdt, "/cpus/cpu@0");
 
-	node = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(*cuint));
 	if (node < 0) {
-		return 0;
+		return NULL;
 	}
 
-	cuint = fdt_getprop(fdt, node, "regulator-min-microvolt", NULL);
-	if (cuint == NULL) {
-		return 0;
-	}
-
-	return fdt32_to_cpu(*cuint);
+	return regulator_get_by_supply_name(fdt, node, "cpu");
 }
 
 /*******************************************************************************
