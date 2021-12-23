@@ -94,7 +94,6 @@ void tsp_update_sync_sel1_intr_stats(uint32_t type, uint64_t elr_el3);
 
 
 /* Data structure to keep track of TSP statistics */
-extern spinlock_t console_lock;
 extern work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
 
 /* Vector table of jumps */

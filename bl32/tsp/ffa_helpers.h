@@ -25,6 +25,9 @@ static inline int32_t ffa_error_code(smc_args_t val)
 	return (uint32_t) val._regs[2];
 }
 
+extern uint8_t mem_region_buffer[4096 * 2]  __aligned(PAGE_SIZE);
+#define REGION_BUF_SIZE sizeof(mem_region_buffer)
+
 /** The maximum number of recipients a memory region may be sent to. */
 #define MAX_MEM_SHARE_RECIPIENTS	2U
 
@@ -83,25 +86,31 @@ static inline uint32_t ffa_get_data_access_attr(ffa_mem_perm8_t perm)
 	return ((perm >> FFA_MEM_PERM_DATA_OFFSET) & FFA_MEM_PERM_DATA_MASK);
 }
 
-/**
- * Initialises the given `ffa_mtd` to be used for an
- * `FFA_MEM_RETRIEVE_REQ` by the receiver of a memory transaction.
- *
- * Returns the size of the message written.
- */
-uint32_t ffa_memory_retrieve_request_init(
-	struct ffa_mtd *memory_region, uint64_t handle,
-	ffa_endpoint_id16_t sender, ffa_endpoint_id16_t *test_receivers, uint32_t receiver_count,
-	uint64_t tag, ffa_mtd_flag32_t flags,
-	ffa_mem_perm8_t permissions, ffa_mem_attr16_t attributes);
-
 smc_args_t ffa_mem_frag_rx(uint64_t handle, uint32_t recv_length);
-smc_args_t ffa_mem_retrieve_req(uint32_t descriptor_length,
-				uint32_t fragment_length);
 bool ffa_mem_relinquish(void);
 bool ffa_rx_release(void);
 bool memory_relinquish(struct ffa_mem_relinquish_descriptor *m, uint64_t handle,
 		       ffa_endpoint_id16_t id);
 bool ffa_rxtx_map(uintptr_t send, uintptr_t recv, uint32_t pages);
+bool memory_retrieve(struct mailbox *mb,
+		     struct ffa_mtd **retrieved,
+		     uint64_t handle, ffa_endpoint_id16_t sender,
+		     ffa_endpoint_id16_t *receivers, uint32_t receiver_count,
+		     ffa_mtd_flag32_t flags, uint32_t *frag_length,
+		     uint32_t *total_length);
 
+smc_args_t ffa_msg_send_direct_req(ffa_endpoint_id16_t sender,
+				   ffa_endpoint_id16_t receiver,
+				   uint32_t arg3,
+				   uint32_t arg4,
+				   uint32_t arg5,
+				   uint32_t arg6,
+				   uint32_t arg7);
+smc_args_t *ffa_msg_send_direct_resp(ffa_endpoint_id16_t sender,
+				     ffa_endpoint_id16_t receiver,
+				     uint32_t arg3,
+				     uint32_t arg4,
+				     uint32_t arg5,
+				     uint32_t arg6,
+				     uint32_t arg7);
 #endif /* FFA_HELPERS_H */
