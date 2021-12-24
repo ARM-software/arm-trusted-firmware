@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -89,6 +89,8 @@ endfunc inv_dcache_range
 
 func do_dcsw_op
 	cbz	x3, exit
+	mrs	x12, ID_AA64MMFR2_EL1	// stash FEAT_CCIDX identifier in x12
+	ubfx	x12, x12, #ID_AA64MMFR2_EL1_CCIDX_SHIFT, #ID_AA64MMFR2_EL1_CCIDX_LENGTH
 	adr	x14, dcsw_loop_table	// compute inner loop address
 	add	x14, x14, x0, lsl #5	// inner loop is 8x32-bit instructions
 #if ENABLE_BTI
@@ -108,12 +110,25 @@ loop1:
 	mrs	x1, ccsidr_el1		// read the new ccsidr
 	and	x2, x1, #7		// extract the length of the cache lines
 	add	x2, x2, #4		// add 4 (line length offset)
-	ubfx	x4, x1, #3, #10		// maximum way number
+
+	cbz	x12, 1f			// check for FEAT_CCIDX for Associativity
+	ubfx	x4, x1, #3, #21 	// x4 = associativity CCSIDR_EL1[23:3]
+	b 	2f
+1:
+	ubfx	x4, x1, #3, #10 	// x4 = associativity CCSIDR_EL1[12:3]
+2:
 	clz	w5, w4			// bit position of way size increment
 	lsl	w9, w4, w5		// w9 = aligned max way number
 	lsl	w16, w8, w5		// w16 = way number loop decrement
 	orr	w9, w10, w9		// w9 = combine way and cache number
-	ubfx	w6, w1, #13, #15	// w6 = max set number
+
+	cbz	x12, 3f			// check for FEAT_CCIDX for NumSets
+	ubfx	x6, x1, #32, #24	// x6 (w6) = numsets CCSIDR_EL1[55:32]
+					// ISA will not allow x->w ubfx
+	b	4f
+3:
+	ubfx	w6, w1, #13, #15	// w6 = numsets CCSIDR_EL1[27:13]
+4:
 	lsl	w17, w8, w2		// w17 = set number loop decrement
 	dsb	sy			// barrier before we start this level
 	br	x14			// jump to DC operation specific loop

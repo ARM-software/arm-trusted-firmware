@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,6 +91,8 @@ endfunc inv_dcache_range
 
 func do_dcsw_op
 	push	{r4-r12, lr}
+	ldcopr	r8, ID_MMFR4		// stash FEAT_CCIDX identifier in r8
+	ubfx	r8, r8, #ID_MMFR4_CCIDX_SHIFT, #ID_MMFR4_CCIDX_LENGTH
 	adr	r11, dcsw_loop_table	// compute cache op based on the operation type
 	add	r6, r11, r0, lsl #3	// cache op is 2x32-bit instructions
 loop1:
@@ -105,13 +107,25 @@ loop1:
 	ldcopr	r12, CCSIDR		// read the new ccsidr
 	and	r10, r12, #7		// extract the length of the cache lines
 	add	r10, r10, #4		// add 4 (r10 = line length offset)
-	ubfx	r4, r12, #3, #10	// r4 = maximum way number (right aligned)
+
+	cmp	r8, #0			// check for FEAT_CCIDX for Associativity
+	beq	1f
+	ubfx	r4, r12, #3, #21 	// r4 = associativity CCSIDR[23:3]
+	b	2f
+1:
+	ubfx	r4, r12, #3, #10 	// r4 = associativity CCSIDR[12:3]
+2:
 	clz	r5, r4			// r5 = the bit position of the way size increment
 	mov	r9, r4			// r9 working copy of the aligned max way number
 
 loop2:
-	ubfx	r7, r12, #13, #15	// r7 = max set number (right aligned)
-
+	cmp	r8, #0			// check for FEAT_CCIDX for NumSets
+	beq	3f
+	ldcopr	r12, CCSIDR2		// FEAT_CCIDX numsets is in CCSIDR2
+	ubfx	r7, r12, #0, #24	// r7 = numsets CCSIDR2[23:0]
+	b	loop3
+3:
+	ubfx	r7, r12, #13, #15	// r7 = numsets CCSIDR[27:13]
 loop3:
 	orr	r0, r1, r9, LSL r5	// factor in the way number and cache level into r0
 	orr	r0, r0, r7, LSL r10	// factor in the set number
