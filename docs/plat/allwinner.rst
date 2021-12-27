@@ -26,6 +26,22 @@ To build for machines with an H616 or H313 SoC:
 
     make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_h616 DEBUG=1 bl31
 
+Platform-specific build options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The default build options should generate a working firmware image. There are
+some build options that allow to fine-tune the firmware, or to disable support
+for optional features.
+
+-  ``SUNXI_SETUP_REGULATORS`` : On SoCs that typically ship with a PMIC
+   power management controller, BL31 tries to set up all needed power rails,
+   programming them to their respective voltages. That allows bootloader
+   software like U-Boot to ignore power control via the PMIC.
+   This setting defaults to 1. In some situations that enables too many
+   regulators, or some regulators need to be enabled in a very specific
+   sequence. To avoid problems with those boards, ``SUNXI_SETUP_REGULATORS``
+   can bet set to ``0`` on the build command line, to skip the PMIC setup
+   entirely. Any bootloader or OS would need to setup the PMIC on its own then.
 
 Installation
 ------------
