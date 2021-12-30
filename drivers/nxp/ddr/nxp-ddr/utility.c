@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -33,8 +33,10 @@
 #define CCN_HN_F_SAM_NODEID_DDR0	0x4
 #define CCN_HN_F_SAM_NODEID_DDR1	0xe
 #elif defined(NXP_HAS_CCN508)
-#define CCN_HN_F_SAM_NODEID_DDR0	0x8
-#define CCN_HN_F_SAM_NODEID_DDR1	0x18
+#define CCN_HN_F_SAM_NODEID_DDR0_0	0x3
+#define CCN_HN_F_SAM_NODEID_DDR0_1	0x8
+#define CCN_HN_F_SAM_NODEID_DDR1_0	0x13
+#define CCN_HN_F_SAM_NODEID_DDR1_1	0x18
 #endif
 
 unsigned long get_ddr_freq(struct sysinfo *sys, int ctrl_num)
@@ -166,10 +168,21 @@ int disable_unused_ddrc(struct ddr_info *priv,
 
 	for (i = 0; i < num_hnf_nodes; i++) {
 		val = mmio_read_64((uintptr_t)hnf_sam_ctrl);
+#ifdef NXP_HAS_CCN504
 		nodeid = disable_ddrc == 1 ? CCN_HN_F_SAM_NODEID_DDR1 :
-			 (disable_ddrc == 2 ? CCN_HN_F_SAM_NODEID_DDR0 :
-			  (i < 4 ? CCN_HN_F_SAM_NODEID_DDR0
-				 : CCN_HN_F_SAM_NODEID_DDR1));
+			(disable_ddrc == 2 ? CCN_HN_F_SAM_NODEID_DDR0 :
+			 0x0);   /*Failure condition. never hit */
+#elif defined(NXP_HAS_CCN508)
+		if (disable_ddrc == 1) {
+			nodeid = (i < 2 || i >= 6) ? CCN_HN_F_SAM_NODEID_DDR1_1 :
+				CCN_HN_F_SAM_NODEID_DDR1_0;
+		} else if (disable_ddrc == 2) {
+			nodeid = (i < 2 || i >= 6) ? CCN_HN_F_SAM_NODEID_DDR0_0 :
+				CCN_HN_F_SAM_NODEID_DDR0_1;
+		} else {
+			nodeid = 0; /* Failure condition. never hit */
+		}
+#endif
 		if (nodeid != (val & CCN_HN_F_SAM_NODEID_MASK)) {
 			debug("Setting HN-F node %d\n", i);
 			debug("nodeid = 0x%x\n", nodeid);
