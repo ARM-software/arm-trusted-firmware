@@ -454,6 +454,13 @@
 		>;
 	};
 
+	smmu: smmu@2ce00000 {
+		#iommu-cells = <1>;
+		compatible = "arm,smmu-v3";
+		reg = <0x0 0x2ce00000 0x0 0x20000>;
+		status = "okay";
+	};
+
 	dp0: display@2cc00000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -463,6 +470,9 @@
 		interrupt-names = "DPU";
 		clocks = <&scmi_clk 0>;
 		clock-names = "aclk";
+		iommus = <&smmu 0>, <&smmu 1>, <&smmu 2>, <&smmu 3>,
+			<&smmu 4>, <&smmu 5>, <&smmu 6>, <&smmu 7>,
+			<&smmu 8>, <&smmu 9>;
 		pl0: pipeline@0 {
 			reg = <0>;
 			clocks = <&scmi_clk 1>;
