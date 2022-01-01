@@ -434,6 +434,19 @@
 		clock-names = "mclk", "apb_pclk";
 	};
 
+	gpu: gpu@2d000000 {
+		compatible = "arm,mali-midgard";
+		reg = <0x0 0x2d000000 0x0 0x200000>;
+		interrupts = <0 66 4>, <0 67 4>, <0 65 4>;
+		interrupt-names = "JOB", "MMU", "GPU";
+		clocks = <&soc_refclk100mhz>;
+		clock-names = "clk_mali";
+		operating-points = <
+			/* KHz uV */
+			50000 820000
+		>;
+	};
+
 	dp0: display@2cc00000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
