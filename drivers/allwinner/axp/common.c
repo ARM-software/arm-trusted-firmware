@@ -48,6 +48,7 @@ void axp_power_off(void)
 	axp_setbits(0x32, BIT(7));
 }
 
+#if SUNXI_SETUP_REGULATORS == 1
 /*
  * Retrieve the voltage from a given regulator DTB node.
  * Both the regulator-{min,max}-microvolt properties must be present and
@@ -208,3 +209,4 @@ void axp_setup_regulators(const void *fdt)
 			axp_setbits(0x11, BIT(7));
 	}
 }
+#endif	/* SUNXI_SETUP_REGULATORS */
