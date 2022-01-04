@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited. All rights reserved.
+ * Copyright (c) 2022, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,5 +19,10 @@
  ******************************************************************************/
 #define CORTEX_A510_CPUPWRCTLR_EL1				S3_0_C15_C2_7
 #define CORTEX_A510_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
+
+/*******************************************************************************
+ * Complex auxiliary control register specific definitions
+ ******************************************************************************/
+#define CORTEX_A510_CMPXACTLR_EL1				S3_0_C15_C1_3
 
 #endif /* CORTEX_A510_H */
