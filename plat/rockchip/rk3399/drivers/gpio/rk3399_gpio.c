@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,15 +18,7 @@
 #include <plat_private.h>
 #include <soc.h>
 
-uint32_t gpio_port[] = {
-	GPIO0_BASE,
-	GPIO1_BASE,
-	GPIO2_BASE,
-	GPIO3_BASE,
-	GPIO4_BASE,
-};
-
-struct {
+struct gpio_save {
 	uint32_t swporta_dr;
 	uint32_t swporta_ddr;
 	uint32_t inten;
@@ -64,97 +56,123 @@ static uint32_t store_grf_gpio[(GRF_GPIO2D_HE - GRF_GPIO2A_IOMUX) / 4 + 1];
 #define GET_GPIO_BANK(pin)	((pin % 32) / 8)
 #define GET_GPIO_ID(pin)	((pin % 32) % 8)
 
-/* returns old clock state, enables clock, in order to do GPIO access */
+enum {
+	ENC_ZDZU,
+	ENC_ZUDR,
+	ENC_ZUDZ,
+	NUM_ENC
+};
+
+static const struct port_info {
+	uint32_t clkgate_reg;
+	uint32_t pull_base;
+	uint32_t port_base;
+	/*
+	 * Selects the pull mode encoding per bank,
+	 * first index for pull_type_{hw2sw,sw2hw}
+	 */
+	uint8_t pull_enc[4];
+	uint8_t clkgate_bit;
+	uint8_t max_bank;
+} port_info[] = {
+	{
+		.clkgate_reg = PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
+		.pull_base = PMUGRF_BASE + PMUGRF_GPIO0A_P,
+		.port_base = GPIO0_BASE,
+		.pull_enc = {ENC_ZDZU, ENC_ZDZU},
+		.clkgate_bit = PCLK_GPIO0_GATE_SHIFT,
+		.max_bank = 1,
+	}, {
+		.clkgate_reg = PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
+		.pull_base = PMUGRF_BASE + PMUGRF_GPIO1A_P,
+		.port_base = GPIO1_BASE,
+		.pull_enc = {ENC_ZUDR, ENC_ZUDR, ENC_ZUDR, ENC_ZUDR},
+		.clkgate_bit = PCLK_GPIO1_GATE_SHIFT,
+		.max_bank = 3,
+	}, {
+		.clkgate_reg = CRU_BASE + CRU_CLKGATE_CON(31),
+		.pull_base = GRF_BASE + GRF_GPIO2A_P,
+		.port_base = GPIO2_BASE,
+		.pull_enc = {ENC_ZUDR, ENC_ZUDR, ENC_ZDZU, ENC_ZDZU},
+		.clkgate_bit = PCLK_GPIO2_GATE_SHIFT,
+		.max_bank = 3,
+	}, {
+		.clkgate_reg = CRU_BASE + CRU_CLKGATE_CON(31),
+		.pull_base = GRF_BASE + GRF_GPIO3A_P,
+		.port_base = GPIO3_BASE,
+		.pull_enc = {ENC_ZUDR, ENC_ZUDR, ENC_ZUDR, ENC_ZUDR},
+		.clkgate_bit = PCLK_GPIO3_GATE_SHIFT,
+		.max_bank = 3,
+	}, {
+		.clkgate_reg = CRU_BASE + CRU_CLKGATE_CON(31),
+		.pull_base = GRF_BASE + GRF_GPIO4A_P,
+		.port_base = GPIO4_BASE,
+		.pull_enc = {ENC_ZUDR, ENC_ZUDR, ENC_ZUDR, ENC_ZUDR},
+		.clkgate_bit = PCLK_GPIO4_GATE_SHIFT,
+		.max_bank = 3,
+	}
+};
+
+/*
+ * Mappings between TF-A constants and hardware encodings:
+ * there are 3 different encoding schemes that may differ between
+ * banks of the same port: the corresponding value of the pull_enc array
+ * in port_info is used as the first index
+ */
+static const uint8_t pull_type_hw2sw[NUM_ENC][4] = {
+	[ENC_ZDZU] = {GPIO_PULL_NONE, GPIO_PULL_DOWN, GPIO_PULL_NONE, GPIO_PULL_UP},
+	[ENC_ZUDR] = {GPIO_PULL_NONE, GPIO_PULL_UP, GPIO_PULL_DOWN, GPIO_PULL_REPEATER},
+	[ENC_ZUDZ] = {GPIO_PULL_NONE, GPIO_PULL_UP, GPIO_PULL_DOWN, GPIO_PULL_NONE}
+};
+static const uint8_t pull_type_sw2hw[NUM_ENC][4] = {
+	[ENC_ZDZU] = {
+		[GPIO_PULL_NONE] = 0,
+		[GPIO_PULL_DOWN] = 1,
+		[GPIO_PULL_UP] = 3,
+		[GPIO_PULL_REPEATER] = -1
+	},
+	[ENC_ZUDR] = {
+		[GPIO_PULL_NONE] = 0,
+		[GPIO_PULL_DOWN] = 2,
+		[GPIO_PULL_UP] = 1,
+		[GPIO_PULL_REPEATER] = 3
+	},
+	[ENC_ZUDZ] = {
+		[GPIO_PULL_NONE] = 0,
+		[GPIO_PULL_DOWN] = 2,
+		[GPIO_PULL_UP] = 1,
+		[GPIO_PULL_REPEATER] = -1
+	}
+};
+
+/* Return old clock state, enables clock, in order to do GPIO access */
 static int gpio_get_clock(uint32_t gpio_number)
 {
 	uint32_t port = GET_GPIO_PORT(gpio_number);
-	uint32_t clock_state = 0;
+	assert(port < 5U);
 
-	assert(port < 5);
+	const struct port_info *info = &port_info[port];
 
-	switch (port) {
-	case PMU_GPIO_PORT0:
-		clock_state = (mmio_read_32(PMUCRU_BASE +
-					    CRU_PMU_CLKGATE_CON(1)) >>
-					    PCLK_GPIO0_GATE_SHIFT) & 0x01;
-		mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
-			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
-					      PCLK_GPIO0_GATE_SHIFT));
-		break;
-	case PMU_GPIO_PORT1:
-		clock_state = (mmio_read_32(PMUCRU_BASE +
-					    CRU_PMU_CLKGATE_CON(1)) >>
-					    PCLK_GPIO1_GATE_SHIFT) & 0x01;
-		mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
-			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
-					      PCLK_GPIO1_GATE_SHIFT));
-		break;
-	case GPIO_PORT2:
-		clock_state = (mmio_read_32(CRU_BASE +
-					    CRU_CLKGATE_CON(31)) >>
-					    PCLK_GPIO2_GATE_SHIFT) & 0x01;
-		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
-					      PCLK_GPIO2_GATE_SHIFT));
-		break;
-	case GPIO_PORT3:
-		clock_state = (mmio_read_32(CRU_BASE +
-					    CRU_CLKGATE_CON(31)) >>
-					    PCLK_GPIO3_GATE_SHIFT) & 0x01;
-		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
-					      PCLK_GPIO3_GATE_SHIFT));
-		break;
-	case GPIO_PORT4:
-		clock_state = (mmio_read_32(CRU_BASE +
-					    CRU_CLKGATE_CON(31)) >>
-					    PCLK_GPIO4_GATE_SHIFT) & 0x01;
-		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
-					      PCLK_GPIO4_GATE_SHIFT));
-		break;
-	default:
-		break;
+	if ((mmio_read_32(info->clkgate_reg) & (1U << info->clkgate_bit)) == 0U) {
+		return 0;
 	}
-
-	return clock_state;
+	mmio_write_32(
+		info->clkgate_reg,
+		BITS_WITH_WMASK(0, 1, info->clkgate_bit)
+	);
+	return 1;
 }
 
-/* restores old state of gpio clock */
+/* Restore old state of gpio clock, assuming it is running now */
 void gpio_put_clock(uint32_t gpio_number, uint32_t clock_state)
 {
-	uint32_t port = GET_GPIO_PORT(gpio_number);
-
-	switch (port) {
-	case PMU_GPIO_PORT0:
-		mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
-			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
-					      PCLK_GPIO0_GATE_SHIFT));
-		break;
-	case PMU_GPIO_PORT1:
-		mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
-			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
-					      PCLK_GPIO1_GATE_SHIFT));
-		break;
-	case GPIO_PORT2:
-		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
-					      PCLK_GPIO2_GATE_SHIFT));
-		break;
-	case GPIO_PORT3:
-		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
-					      PCLK_GPIO3_GATE_SHIFT));
-
-		break;
-	case GPIO_PORT4:
-		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
-					      PCLK_GPIO4_GATE_SHIFT));
-		break;
-	default:
-		break;
+	if (clock_state == 0) {
+		return;
 	}
+	uint32_t port = GET_GPIO_PORT(gpio_number);
+	const struct port_info *info = &port_info[port];
+
+	mmio_write_32(info->clkgate_reg, BITS_WITH_WMASK(1, 1, info->clkgate_bit));
 }
 
 static int get_pull(int gpio)
@@ -164,39 +182,16 @@ static int get_pull(int gpio)
 	uint32_t id = GET_GPIO_ID(gpio);
 	uint32_t val, clock_state;
 
-	assert((port < 5) && (bank < 4));
+	assert(port < 5U);
+	const struct port_info *info = &port_info[port];
+
+	assert(bank <= info->max_bank);
 
 	clock_state = gpio_get_clock(gpio);
-
-	if (port == PMU_GPIO_PORT0 || port == PMU_GPIO_PORT1) {
-		val = mmio_read_32(PMUGRF_BASE + PMU_GRF_GPIO0A_P +
-				   port * 16 + bank * 4);
-		val = (val >> (id * 2)) & GPIO_P_MASK;
-	} else {
-		val = mmio_read_32(GRF_BASE + GRF_GPIO2A_P +
-				   (port - 2) * 16 + bank * 4);
-		val = (val >> (id * 2)) & GPIO_P_MASK;
-	}
+	val = (mmio_read_32(info->pull_base + 4 * bank) >> (id * 2)) & GPIO_P_MASK;
 	gpio_put_clock(gpio, clock_state);
 
-	/*
-	 * in gpio0a, gpio0b, gpio2c, gpio2d,
-	 * 00: Z
-	 * 01: pull down
-	 * 10: Z
-	 * 11: pull up
-	 * different with other gpio, so need to correct it
-	 */
-	if (((port == 0) && (bank < 2)) || ((port == 2) && (bank > 1))) {
-		if (val == 3)
-			val = GPIO_PULL_UP;
-		else if (val == 1)
-			val = GPIO_PULL_DOWN;
-		else
-			val = 0;
-	}
-
-	return val;
+	return pull_type_hw2sw[info->pull_enc[bank]][val];
 }
 
 static void set_pull(int gpio, int pull)
@@ -206,36 +201,20 @@ static void set_pull(int gpio, int pull)
 	uint32_t id = GET_GPIO_ID(gpio);
 	uint32_t clock_state;
 
-	assert((port < 5) && (bank < 4));
+	assert(port < 5U);
+	const struct port_info *info = &port_info[port];
+
+	assert(bank <= info->max_bank);
+
+	uint8_t val = pull_type_sw2hw[info->pull_enc[bank]][pull];
+
+	assert(val != (uint8_t)-1);
 
 	clock_state = gpio_get_clock(gpio);
-
-	/*
-	 * in gpio0a, gpio0b, gpio2c, gpio2d,
-	 * 00: Z
-	 * 01: pull down
-	 * 10: Z
-	 * 11: pull up
-	 * different with other gpio, so need to correct it
-	 */
-	if (((port == 0) && (bank < 2)) || ((port == 2) && (bank > 1))) {
-		if (pull == GPIO_PULL_UP)
-			pull = 3;
-		else if (pull == GPIO_PULL_DOWN)
-			pull = 1;
-		else
-			pull = 0;
-	}
-
-	if (port == PMU_GPIO_PORT0 || port == PMU_GPIO_PORT1) {
-		mmio_write_32(PMUGRF_BASE + PMU_GRF_GPIO0A_P +
-			      port * 16 + bank * 4,
-			      BITS_WITH_WMASK(pull, GPIO_P_MASK, id * 2));
-	} else {
-		mmio_write_32(GRF_BASE + GRF_GPIO2A_P +
-			      (port - 2) * 16 + bank * 4,
-			      BITS_WITH_WMASK(pull, GPIO_P_MASK, id * 2));
-	}
+	mmio_write_32(
+		info->pull_base + 4 * bank,
+		BITS_WITH_WMASK(val, GPIO_P_MASK, id * 2)
+	);
 	gpio_put_clock(gpio, clock_state);
 }
 
@@ -256,7 +235,10 @@ static void set_direction(int gpio, int direction)
 	 * but rk3399 gpio direction 1: output, 0: input
 	 * so need to revert direction value
 	 */
-	mmio_setbits_32(gpio_port[port] + SWPORTA_DDR, !direction << num);
+	mmio_setbits_32(
+		port_info[port].port_base + SWPORTA_DDR,
+		((direction == 0) ? 1 : 0) << num
+	);
 	gpio_put_clock(gpio, clock_state);
 }
 
@@ -266,7 +248,7 @@ static int get_direction(int gpio)
 	uint32_t num = GET_GPIO_NUM(gpio);
 	int direction, clock_state;
 
-	assert((port < 5) && (num < 32));
+	assert((port < 5U) && (num < 32U));
 
 	clock_state = gpio_get_clock(gpio);
 
@@ -277,8 +259,9 @@ static int get_direction(int gpio)
 	 * but rk3399 gpio direction 1: output, 0: input
 	 * so need to revert direction value
 	 */
-	direction = !((mmio_read_32(gpio_port[port] +
-				    SWPORTA_DDR) >> num) & 0x1);
+	direction = (((mmio_read_32(
+		port_info[port].port_base + SWPORTA_DDR
+	) >> num) & 1U) == 0) ? 1 : 0;
 	gpio_put_clock(gpio, clock_state);
 
 	return direction;
@@ -293,7 +276,8 @@ static int get_value(int gpio)
 	assert((port < 5) && (num < 32));
 
 	clock_state = gpio_get_clock(gpio);
-	value = (mmio_read_32(gpio_port[port] + EXT_PORTA) >> num) & 0x1;
+	value = (mmio_read_32(port_info[port].port_base + EXT_PORTA) >> num) &
+		0x1U;
 	gpio_put_clock(gpio, clock_state);
 
 	return value;
@@ -305,17 +289,20 @@ static void set_value(int gpio, int value)
 	uint32_t num = GET_GPIO_NUM(gpio);
 	uint32_t clock_state;
 
-	assert((port < 5) && (num < 32));
+	assert((port < 5U) && (num < 32U));
 
 	clock_state = gpio_get_clock(gpio);
-	mmio_clrsetbits_32(gpio_port[port] + SWPORTA_DR, 1 << num,
-							 !!value << num);
+	mmio_clrsetbits_32(
+		port_info[port].port_base + SWPORTA_DR,
+		1 << num,
+		((value == 0) ? 0 : 1) << num
+	);
 	gpio_put_clock(gpio, clock_state);
 }
 
 void plat_rockchip_save_gpio(void)
 {
-	int i;
+	unsigned int i;
 	uint32_t cru_gate_save;
 
 	cru_gate_save = mmio_read_32(CRU_BASE + CRU_CLKGATE_CON(31));
@@ -335,22 +322,18 @@ void plat_rockchip_save_gpio(void)
 	 * register value
 	 */
 	for (i = 2; i < 5; i++) {
-		store_gpio[i - 2].swporta_dr =
-			mmio_read_32(gpio_port[i] + SWPORTA_DR);
-		store_gpio[i - 2].swporta_ddr =
-			mmio_read_32(gpio_port[i] + SWPORTA_DDR);
-		store_gpio[i - 2].inten =
-			mmio_read_32(gpio_port[i] + INTEN);
-		store_gpio[i - 2].intmask =
-			mmio_read_32(gpio_port[i] + INTMASK);
-		store_gpio[i - 2].inttype_level =
-			mmio_read_32(gpio_port[i] + INTTYPE_LEVEL);
-		store_gpio[i - 2].int_polarity =
-			mmio_read_32(gpio_port[i] + INT_POLARITY);
-		store_gpio[i - 2].debounce =
-			mmio_read_32(gpio_port[i] + DEBOUNCE);
-		store_gpio[i - 2].ls_sync =
-			mmio_read_32(gpio_port[i] + LS_SYNC);
+		uint32_t base = port_info[i].port_base;
+
+		store_gpio[i - 2] = (struct gpio_save) {
+			.swporta_dr = mmio_read_32(base + SWPORTA_DR),
+			.swporta_ddr = mmio_read_32(base + SWPORTA_DDR),
+			.inten = mmio_read_32(base + INTEN),
+			.intmask = mmio_read_32(base + INTMASK),
+			.inttype_level = mmio_read_32(base + INTTYPE_LEVEL),
+			.int_polarity = mmio_read_32(base + INT_POLARITY),
+			.debounce = mmio_read_32(base + DEBOUNCE),
+			.ls_sync = mmio_read_32(base + LS_SYNC),
+		};
 	}
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
 			cru_gate_save | REG_SOC_WMSK);
@@ -386,21 +369,17 @@ void plat_rockchip_restore_gpio(void)
 		      BITS_WITH_WMASK(0, 0x07, PCLK_GPIO2_GATE_SHIFT));
 
 	for (i = 2; i < 5; i++) {
-		mmio_write_32(gpio_port[i] + SWPORTA_DR,
-				store_gpio[i - 2].swporta_dr);
-		mmio_write_32(gpio_port[i] + SWPORTA_DDR,
-				store_gpio[i - 2].swporta_ddr);
-		mmio_write_32(gpio_port[i] + INTEN, store_gpio[i - 2].inten);
-		mmio_write_32(gpio_port[i] + INTMASK,
-				store_gpio[i - 2].intmask);
-		mmio_write_32(gpio_port[i] + INTTYPE_LEVEL,
-				store_gpio[i - 2].inttype_level);
-		mmio_write_32(gpio_port[i] + INT_POLARITY,
-				store_gpio[i - 2].int_polarity);
-		mmio_write_32(gpio_port[i] + DEBOUNCE,
-				store_gpio[i - 2].debounce);
-		mmio_write_32(gpio_port[i] + LS_SYNC,
-				store_gpio[i - 2].ls_sync);
+		uint32_t base = port_info[i].port_base;
+		const struct gpio_save *save = &store_gpio[i - 2];
+
+		mmio_write_32(base + SWPORTA_DR, save->swporta_dr);
+		mmio_write_32(base + SWPORTA_DDR, save->swporta_ddr);
+		mmio_write_32(base + INTEN, save->inten);
+		mmio_write_32(base + INTMASK, save->intmask);
+		mmio_write_32(base + INTTYPE_LEVEL, save->inttype_level),
+		mmio_write_32(base + INT_POLARITY, save->int_polarity);
+		mmio_write_32(base + DEBOUNCE, save->debounce);
+		mmio_write_32(base + LS_SYNC, save->ls_sync);
 	}
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
 			cru_gate_save | REG_SOC_WMSK);
