@@ -156,7 +156,6 @@ void bl2_platform_setup(void)
 
 void bl2_el3_plat_arch_setup(void)
 {
-	int32_t result;
 	const char *board_model;
 	boot_api_context_t *boot_context =
 		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
@@ -224,6 +223,16 @@ void bl2_el3_plat_arch_setup(void)
 	/* Disable MCKPROT */
 	mmio_clrbits_32(rcc_base + RCC_TZCR, RCC_TZCR_MCKPROT);
 
+	/*
+	 * Set minimum reset pulse duration to 31ms for discrete power
+	 * supplied boards.
+	 */
+	if (dt_pmic_status() <= 0) {
+		mmio_clrsetbits_32(rcc_base + RCC_RDLSICR,
+				   RCC_RDLSICR_MRD_MASK,
+				   31U << RCC_RDLSICR_MRD_SHIFT);
+	}
+
 	generic_delay_timer_init();
 
 #if STM32MP_UART_PROGRAMMER
@@ -288,11 +297,6 @@ skip_console_init:
 	}
 
 	stm32_iwdg_refresh();
-
-	result = stm32mp1_dbgmcu_freeze_iwdg2();
-	if (result != 0) {
-		INFO("IWDG2 freeze error : %i\n", result);
-	}
 
 	stm32mp1_auth_ops.check_key = boot_context->bootrom_ecdsa_check_key;
 	stm32mp1_auth_ops.verify_signature =
