@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -157,13 +157,17 @@ static void stm32_sdmmc2_init(void)
 	uint32_t clock_div;
 	uint32_t freq = STM32MP_MMC_INIT_FREQ;
 	uintptr_t base = sdmmc2_params.reg_base;
+	int ret;
 
 	if (sdmmc2_params.max_freq != 0U) {
 		freq = MIN(sdmmc2_params.max_freq, freq);
 	}
 
 	if (sdmmc2_params.vmmc_regu != NULL) {
-		regulator_disable(sdmmc2_params.vmmc_regu);
+		ret = regulator_disable(sdmmc2_params.vmmc_regu);
+		if (ret < 0) {
+			panic();
+		}
 	}
 
 	mdelay(VCC_POWER_OFF_DELAY);
@@ -173,7 +177,10 @@ static void stm32_sdmmc2_init(void)
 	mdelay(POWER_CYCLE_DELAY);
 
 	if (sdmmc2_params.vmmc_regu != NULL) {
-		regulator_enable(sdmmc2_params.vmmc_regu);
+		ret = regulator_enable(sdmmc2_params.vmmc_regu);
+		if (ret < 0) {
+			panic();
+		}
 	}
 
 	mdelay(VCC_POWER_ON_DELAY);
