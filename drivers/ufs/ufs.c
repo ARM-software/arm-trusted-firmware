@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -474,7 +474,6 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
 	hd = (utrd_header_t *)utrd->header;
 	resp = (resp_upiu_t *)utrd->resp_upiu;
 	inv_dcache_range((uintptr_t)hd, UFS_DESC_SIZE);
-	inv_dcache_range((uintptr_t)utrd, sizeof(utp_utrd_t));
 	do {
 		data = mmio_read_32(ufs_params.reg_base + IS);
 		if ((data & ~(UFS_INT_UCCS | UFS_INT_UTRCS)) != 0)
