@@ -534,6 +534,11 @@ ERRATA_X2_2216384	?=0
 # to revision r0p0 of the Cortex-A510 cpu and is fixed in r0p1.
 ERRATA_A510_1922240	?=0
 
+# Flag to apply erratum 2288014 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0 of the Cortex-A510 cpu and is
+# fixed in r1p1.
+ERRATA_A510_2288014	?=0
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 ERRATA_DSU_798953	?=0
@@ -994,6 +999,10 @@ $(eval $(call add_define,ERRATA_X2_2216384))
 # Process ERRATA_A510_1922240 flag
 $(eval $(call assert_boolean,ERRATA_A510_1922240))
 $(eval $(call add_define,ERRATA_A510_1922240))
+
+# Process ERRATA_A510_2288014 flag
+$(eval $(call assert_boolean,ERRATA_A510_2288014))
+$(eval $(call add_define,ERRATA_A510_2288014))
 
 # Process ERRATA_DSU_798953 flag
 $(eval $(call assert_boolean,ERRATA_DSU_798953))
