@@ -8,24 +8,67 @@ PSCI runtime services.
 Building TF-A
 -------------
 
-To build for machines with an A64 or H5 SoC:
+There is one build target per supported SoC:
+
++------+-------------------+
+| SoC  | TF-A build target |
++======+===================+
+| A64  | sun50i_a64        |
++------+-------------------+
+| H5   | sun50i_a64        |
++------+-------------------+
+| H6   | sun50i_h6         |
++------+-------------------+
+| H616 | sun50i_h616       |
++------+-------------------+
+| H313 | sun50i_h616       |
++------+-------------------+
+| R329 | sun50i_r329       |
++------+-------------------+
+
+To build with the default settings for a particular SoC:
 
 .. code:: shell
 
-    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_a64 DEBUG=1 bl31
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=<build target> DEBUG=1
 
-To build for machines with an H6 SoC:
+So for instance to build for a board with the Allwinner A64 SoC::
 
-.. code:: shell
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_a64 DEBUG=1
 
-    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_h6 DEBUG=1 bl31
+Platform-specific build options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build for machines with an H616 or H313 SoC:
+The default build options should generate a working firmware image. There are
+some build options that allow to fine-tune the firmware, or to disable support
+for optional features.
 
-.. code:: shell
+-  ``SUNXI_PSCI_USE_NATIVE`` : Support direct control of the CPU cores powerdown
+   and powerup sequence by BL31. This requires either support for a code snippet
+   to be loaded into the ARISC SCP (A64, H5), or the power sequence control
+   registers to be programmed directly (H6, H616). This supports only basic
+   control, like core on/off and system off/reset.
+   This option defaults to 1. If an active SCP supporting the SCPI protocol
+   is detected at runtime, this control scheme will be ignored, and SCPI
+   will be used instead, unless support has been explicitly disabled.
 
-    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_h616 DEBUG=1 bl31
+-  ``SUNXI_PSCI_USE_SCPI`` : Support control of the CPU cores powerdown and
+   powerup sequence by talking to the SCP processor via the SCPI protocol.
+   This allows more advanced power saving techniques, like suspend to RAM.
+   This option defaults to 1 on SoCs that feature an SCP. If no SCP firmware
+   using the SCPI protocol is detected, the native sequence will be used
+   instead. If both native and SCPI methods are included, SCPI will be favoured
+   if SCP support is detected.
 
+-  ``SUNXI_SETUP_REGULATORS`` : On SoCs that typically ship with a PMIC
+   power management controller, BL31 tries to set up all needed power rails,
+   programming them to their respective voltages. That allows bootloader
+   software like U-Boot to ignore power control via the PMIC.
+   This setting defaults to 1. In some situations that enables too many
+   regulators, or some regulators need to be enabled in a very specific
+   sequence. To avoid problems with those boards, ``SUNXI_SETUP_REGULATORS``
+   can bet set to ``0`` on the build command line, to skip the PMIC setup
+   entirely. Any bootloader or OS would need to setup the PMIC on its own then.
 
 Installation
 ------------
