@@ -83,6 +83,9 @@ override CTX_INCLUDE_AARCH32_REGS	:=	0
 
 override ARM_PLAT_MT			:=	1
 
+# Errata workarounds:
+ERRATA_N1_1868343			:=	1
+
 # Select SCMI/SDS drivers instead of SCPI/BOM driver for communicating with the
 # SCP during power management operations and for SCP RAM Firmware transfer.
 CSS_USE_SCMI_SDS_DRIVER			:=	1
