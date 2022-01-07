@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -160,7 +160,7 @@ int stm32mp_uart_console_setup(void)
 {
 	struct dt_node_info dt_uart_info;
 	unsigned int console_flags;
-	uint32_t clk_rate;
+	uint32_t clk_rate = 0U;
 	int result;
 	uint32_t boot_itf __unused;
 	uint32_t boot_instance __unused;
@@ -168,11 +168,16 @@ int stm32mp_uart_console_setup(void)
 	result = dt_get_stdout_uart_info(&dt_uart_info);
 
 	if ((result <= 0) ||
-	    (dt_uart_info.status == DT_DISABLED) ||
-	    (dt_uart_info.clock < 0) ||
+	    (dt_uart_info.status == DT_DISABLED)) {
+		return -ENODEV;
+	}
+
+#if defined(IMAGE_BL2)
+	if ((dt_uart_info.clock < 0) ||
 	    (dt_uart_info.reset < 0)) {
 		return -ENODEV;
 	}
+#endif
 
 #if STM32MP_UART_PROGRAMMER || !defined(IMAGE_BL2)
 	stm32_get_boot_interface(&boot_itf, &boot_instance);
@@ -187,15 +192,13 @@ int stm32mp_uart_console_setup(void)
 	if (dt_set_stdout_pinctrl() != 0) {
 		return -ENODEV;
 	}
-#endif
 
 	clk_enable((unsigned long)dt_uart_info.clock);
 
-#if defined(IMAGE_BL2)
 	reset_uart((uint32_t)dt_uart_info.reset);
-#endif
 
 	clk_rate = clk_get_rate((unsigned long)dt_uart_info.clock);
+#endif
 
 	if (console_stm32_register(dt_uart_info.base, clk_rate,
 				   STM32MP_UART_BAUDRATE, &console) == 0) {
