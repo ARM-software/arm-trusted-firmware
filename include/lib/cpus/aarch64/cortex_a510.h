@@ -13,6 +13,8 @@
  * CPU Extended Control register specific definitions
  ******************************************************************************/
 #define CORTEX_A510_CPUECTLR_EL1				S3_0_C15_C1_4
+#define CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_SHIFT		U(19)
+#define CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_DISABLE	U(1)
 
 /*******************************************************************************
  * CPU Power Control register specific definitions
