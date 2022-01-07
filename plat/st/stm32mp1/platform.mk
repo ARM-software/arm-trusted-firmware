@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,6 +22,10 @@ STM32_TF_VERSION	?=	0
 
 # Enable dynamic memory mapping
 PLAT_XLAT_TABLES_DYNAMIC :=	1
+
+# DDR controller with dual AXI port and 32-bit interface
+STM32MP_DDR_DUAL_AXI_PORT:=	1
+STM32MP_DDR_32BIT_INTERFACE:=	1
 
 ifeq ($(AARCH32_SP),sp_min)
 # Disable Neon support: sp_min runtime may conflict with non-secure world
@@ -127,6 +131,8 @@ endif
 $(eval $(call assert_booleans,\
 	$(sort \
 		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32MP_DDR_32BIT_INTERFACE \
+		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \
@@ -151,6 +157,8 @@ $(eval $(call add_defines,\
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
+		STM32MP_DDR_32BIT_INTERFACE \
+		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \
@@ -195,6 +203,7 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				drivers/st/bsec/bsec.c					\
 				drivers/st/clk/stm32mp_clkfunc.c			\
 				drivers/st/clk/stm32mp1_clk.c				\
+				drivers/st/ddr/stm32mp_ddr.c				\
 				drivers/st/ddr/stm32mp1_ddr_helpers.c			\
 				drivers/st/gpio/stm32_gpio.c				\
 				drivers/st/i2c/stm32_i2c.c				\
@@ -288,7 +297,9 @@ BL2_SOURCES		+=	drivers/st/usb/stm32mp1_usb.c				\
 				plat/st/stm32mp1/stm32mp1_usb_dfu.c
 endif
 
-BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
+BL2_SOURCES		+=	drivers/st/ddr/stm32mp_ddr_test.c			\
+				drivers/st/ddr/stm32mp_ram.c				\
+				drivers/st/ddr/stm32mp1_ddr.c				\
 				drivers/st/ddr/stm32mp1_ram.c
 
 BL2_SOURCES		+=	common/desc_image_load.c				\
