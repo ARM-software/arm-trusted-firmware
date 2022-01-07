@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -134,7 +134,7 @@ with open(gen_file, 'w') as out_file:
         int.from_bytes(y[1], byteorder='little', signed=False),
         int.from_bytes(y[2], byteorder='little', signed=False),
         int.from_bytes(y[3], byteorder='little', signed=False))
-        uuid_std = uuid.UUID(f'{z[0]:04x}{z[1]:04x}{z[2]:04x}{z[3]:04x}')
+        uuid_std = uuid.UUID(f'{z[0]:08x}{z[1]:08x}{z[2]:08x}{z[3]:08x}')
 
         """
         Append FIP_ARGS
