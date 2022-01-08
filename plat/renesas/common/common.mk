@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2021, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2022, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -16,6 +16,11 @@ MULTI_CONSOLE_API		:= 1
 
 CRASH_REPORTING			:= 1
 HANDLE_EA_EL3_FIRST		:= 1
+
+# This option gets enabled automatically if the TRUSTED_BOARD_BOOT
+# is set via root Makefile, but Renesas support Trusted-Boot without
+# Crypto module.
+override CRYPTO_SUPPORT		:= 0
 
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
