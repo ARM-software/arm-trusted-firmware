@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -144,12 +144,10 @@
  * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
  * little space for growth.
  */
-#if TRUSTED_BOARD_BOOT
-#if COT_DESC_IN_DTB
+#if TRUSTED_BOARD_BOOT && COT_DESC_IN_DTB
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1E000) - FVP_BL2_ROMLIB_OPTIMIZATION)
-#else
+#elif CRYPTO_SUPPORT
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1D000) - FVP_BL2_ROMLIB_OPTIMIZATION)
-#endif
 #else
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x13000) - FVP_BL2_ROMLIB_OPTIMIZATION)
 #endif
@@ -187,17 +185,17 @@
  * Size of cacheable stacks
  */
 #if defined(IMAGE_BL1)
-# if TRUSTED_BOARD_BOOT
+# if CRYPTO_SUPPORT
 #  define PLATFORM_STACK_SIZE		UL(0x1000)
 # else
 #  define PLATFORM_STACK_SIZE		UL(0x500)
-# endif
+# endif /* CRYPTO_SUPPORT */
 #elif defined(IMAGE_BL2)
-# if TRUSTED_BOARD_BOOT
+# if CRYPTO_SUPPORT
 #  define PLATFORM_STACK_SIZE		UL(0x1000)
 # else
 #  define PLATFORM_STACK_SIZE		UL(0x600)
-# endif
+# endif /* CRYPTO_SUPPORT */
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE		UL(0x400)
 #elif defined(IMAGE_BL31)

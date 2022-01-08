@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -376,16 +376,16 @@ endif
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
 
-ifeq (${TRUSTED_BOARD_BOOT}, 1)
-BL1_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
-BL2_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
-
 ifeq (${MEASURED_BOOT},1)
 BL1_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
 				plat/arm/board/fvp/fvp_bl1_measured_boot.c
 BL2_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
 				plat/arm/board/fvp/fvp_bl2_measured_boot.c
 endif
+
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+BL1_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
+BL2_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
 
 # FVP being a development platform, enable capability to disable Authentication
 # dynamically if TRUSTED_BOARD_BOOT is set.

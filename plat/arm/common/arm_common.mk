@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -358,10 +358,8 @@ endif
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources
-    AUTH_SOURCES	:=	drivers/auth/auth_mod.c				\
-				drivers/auth/crypto_mod.c			\
-				drivers/auth/img_parser_mod.c			\
-				lib/fconf/fconf_tbbr_getter.c
+    AUTH_SOURCES 	:= 	drivers/auth/auth_mod.c	\
+				drivers/auth/img_parser_mod.c
 
     # Include the selected chain of trust sources.
     ifeq (${COT},tbbr)
@@ -389,6 +387,12 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     $(eval $(call TOOL_ADD_IMG,ns_bl2u,--fwu,FWU_))
 
+    IMG_PARSER_LIB_MK := drivers/auth/mbedtls/mbedtls_x509.mk
+
+    $(info Including ${IMG_PARSER_LIB_MK})
+    include ${IMG_PARSER_LIB_MK}
+endif
+
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
 # flags present in Measured Boot makefile.
@@ -398,20 +402,21 @@ ifeq (${MEASURED_BOOT},1)
     include ${MEASURED_BOOT_MK}
 endif
 
+ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
+    CRYPTO_SOURCES	:=	drivers/auth/crypto_mod.c 	\
+				lib/fconf/fconf_tbbr_getter.c
+    BL1_SOURCES		+=	${CRYPTO_SOURCES}
+    BL2_SOURCES		+=	${CRYPTO_SOURCES}
+
     # We expect to locate the *.mk files under the directories specified below
-ifeq (${ARM_CRYPTOCELL_INTEG},0)
-    CRYPTO_LIB_MK := drivers/auth/mbedtls/mbedtls_crypto.mk
-else
-    CRYPTO_LIB_MK := drivers/auth/cryptocell/cryptocell_crypto.mk
-endif
-    IMG_PARSER_LIB_MK := drivers/auth/mbedtls/mbedtls_x509.mk
+    ifeq (${ARM_CRYPTOCELL_INTEG},0)
+        CRYPTO_LIB_MK := drivers/auth/mbedtls/mbedtls_crypto.mk
+    else
+        CRYPTO_LIB_MK := drivers/auth/cryptocell/cryptocell_crypto.mk
+    endif
 
     $(info Including ${CRYPTO_LIB_MK})
     include ${CRYPTO_LIB_MK}
-
-    $(info Including ${IMG_PARSER_LIB_MK})
-    include ${IMG_PARSER_LIB_MK}
-
 endif
 
 ifeq (${RECLAIM_INIT_CODE}, 1)
@@ -419,4 +424,3 @@ ifeq (${RECLAIM_INIT_CODE}, 1)
         $(error "To reclaim init code xlat tables v2 must be used")
     endif
 endif
-

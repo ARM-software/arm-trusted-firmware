@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -117,10 +117,15 @@ const mmap_region_t plat_arm_mmap[] = {
 #if TRUSTED_BOARD_BOOT
 	/* To access the Root of Trust Public Key registers. */
 	MAP_DEVICE2,
-#if !BL2_AT_EL3
-	ARM_MAP_BL1_RW,
-#endif
 #endif /* TRUSTED_BOARD_BOOT */
+
+#if CRYPTO_SUPPORT && !BL2_AT_EL3
+	/*
+	 * To access shared the Mbed TLS heap while booting the
+	 * system with Crypto support
+	 */
+	ARM_MAP_BL1_RW,
+#endif /* CRYPTO_SUPPORT && !BL2_AT_EL3 */
 #if SPM_MM
 	ARM_SP_IMAGE_MMAP,
 #endif
@@ -444,7 +449,7 @@ void fvp_interconnect_disable(void)
 #endif
 }
 
-#if TRUSTED_BOARD_BOOT
+#if CRYPTO_SUPPORT
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 {
 	assert(heap_addr != NULL);
@@ -452,7 +457,7 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 
 	return arm_get_mbedtls_heap(heap_addr, heap_size);
 }
-#endif
+#endif /* CRYPTO_SUPPORT */
 
 void fvp_timer_init(void)
 {
