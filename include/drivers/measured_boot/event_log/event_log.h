@@ -77,6 +77,7 @@
 #define EVLOG_STM32_STRING		"STM32"
 #define EVLOG_TB_FW_CONFIG_STRING	"TB_FW_CONFIG"
 #define	EVLOG_TOS_FW_CONFIG_STRING	"TOS_FW_CONFIG"
+#define EVLOG_RMM_STRING 		"RMM"
 
 typedef struct {
 	unsigned int id;
