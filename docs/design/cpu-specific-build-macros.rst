@@ -488,6 +488,11 @@ For Cortex-A510, the following errata build flags are defined :
    Cortex-A510 CPU. This needs to be enabled only for revisions r0p0, r0p1 and
    r0p2, it is fixed in r0p3.
 
+-  ``ERRATA_A510_2041909``: This applies errata 2041909 workaround to
+   Cortex-A510 CPU. This needs to be enabled only for revision r0p2 and is fixed
+   in r0p3. The issue is also present in r0p0 and r0p1 but there is no
+   workaround for those revisions.
+
 DSU Errata Workarounds
 ----------------------
 
