@@ -273,4 +273,10 @@ struct el3_lp_desc *get_el3_lp_array(void);
  */
 struct mailbox *spmc_get_mbox_desc(bool secure_origin);
 
+/*
+ * Helper function to obtain the context of an SP with a given partition ID.
+ */
+struct secure_partition_desc *spmc_get_sp_ctx(uint16_t id);
+
+
 #endif /* SPMC_H */

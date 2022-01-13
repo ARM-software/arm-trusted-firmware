@@ -196,8 +196,7 @@ CASSERT(sizeof(struct ffa_emad_v1_0) == 16, assert_ffa_emad_v1_0_size_mismatch);
  * @reserved_24_27:
  *         Reserved bytes 24-27. Must be 0.
  * @emad_count:
- *         Number of entries in @emad. Must be 1 in current implementation.
- *         FFA spec allows more entries.
+ *         Number of entries in @emad.
  * @emad:
  *         Endpoint memory access descriptor array (see @struct ffa_emad_v1_0).
  */
