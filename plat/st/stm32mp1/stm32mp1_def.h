@@ -68,6 +68,7 @@
  ******************************************************************************/
 #define STM32MP_ROM_BASE		U(0x00000000)
 #define STM32MP_ROM_SIZE		U(0x00020000)
+#define STM32MP_ROM_SIZE_2MB_ALIGNED	U(0x00200000)
 
 #define STM32MP_SYSRAM_BASE		U(0x2FFC0000)
 #define STM32MP_SYSRAM_SIZE		U(0x00040000)
@@ -110,15 +111,25 @@ enum ddr_type {
 					 (STM32MP_PARAM_LOAD_SIZE +	\
 					  STM32MP_HEADER_SIZE))
 
-/* BL2 and BL32/sp_min require 4 tables */
-#define MAX_XLAT_TABLES			U(4)		/* 16 KB for mapping */
+/* BL2 and BL32/sp_min require finer granularity tables */
+#if defined(IMAGE_BL2)
+#define MAX_XLAT_TABLES			U(2) /* 8 KB for mapping */
+#endif
+
+#if defined(IMAGE_BL32)
+#define MAX_XLAT_TABLES			U(4) /* 16 KB for mapping */
+#endif
 
 /*
  * MAX_MMAP_REGIONS is usually:
  * BL stm32mp1_mmap size + mmap regions in *_plat_arch_setup
  */
 #if defined(IMAGE_BL2)
-  #define MAX_MMAP_REGIONS		11
+ #if STM32MP_USB_PROGRAMMER
+  #define MAX_MMAP_REGIONS		8
+ #else
+  #define MAX_MMAP_REGIONS		7
+ #endif
 #endif
 
 #define STM32MP_BL33_BASE		(STM32MP_DDR_BASE + U(0x100000))

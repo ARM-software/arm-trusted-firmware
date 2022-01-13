@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -82,7 +82,9 @@
 static const mmap_region_t stm32mp1_mmap[] = {
 	MAP_SEC_SYSRAM,
 	MAP_DEVICE1,
+#if STM32MP_RAW_NAND
 	MAP_DEVICE2,
+#endif
 	{0}
 };
 #endif
