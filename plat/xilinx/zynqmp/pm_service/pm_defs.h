@@ -101,6 +101,8 @@ enum pm_api_id {
 	/* PM Register Access API */
 	PM_REGISTER_ACCESS,
 	PM_EFUSE_ACCESS,
+	PM_FPGA_GET_VERSION,
+	PM_FPGA_GET_FEATURE_LIST,
 	PM_API_MAX
 };
 
