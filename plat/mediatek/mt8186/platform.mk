@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, MediaTek Inc. All rights reserved.
+# Copyright (c) 2021-2022, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -10,7 +10,10 @@ MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/gic600/             \
                  -I${MTK_PLAT}/common/drivers/gpio/             \
+                 -I${MTK_PLAT}/common/drivers/uart/               \
                  -I${MTK_PLAT}/common/drivers/timer/              \
+		 -I${MTK_PLAT}/common/lpm/                        \
+                 -I${MTK_PLAT_SOC}/drivers/spm/                   \
                  -I${MTK_PLAT_SOC}/drivers/dcm/                   \
                  -I${MTK_PLAT_SOC}/drivers/emi_mpu/               \
                  -I${MTK_PLAT_SOC}/drivers/gpio/               \
@@ -47,7 +50,9 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT}/common/mtk_sip_svc.c                      \
                 ${MTK_PLAT}/common/params_setup.c                     \
                 ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
+                ${MTK_PLAT}/common/drivers/uart/uart.c                \
                 ${MTK_PLAT}/common/mtk_cirq.c           	      \
+		${MTK_PLAT}/common/lpm/mt_lp_rm.c                     \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
@@ -58,12 +63,16 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm.c              \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm_cpc.c          \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_mcdi.c                \
+                ${MTK_PLAT_SOC}/drivers/mcdi/mt_lp_irqremain.c        \
                 ${MTK_PLAT_SOC}/drivers/pmic/pmic.c                   \
                 ${MTK_PLAT_SOC}/drivers/rtc/rtc.c                     \
                 ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
                 ${MTK_PLAT_SOC}/plat_pm.c                             \
                 ${MTK_PLAT_SOC}/plat_sip_calls.c                      \
                 ${MTK_PLAT_SOC}/plat_topology.c
+
+# Build SPM drivers
+include ${MTK_PLAT_SOC}/drivers/spm/build.mk
 
 # Configs for A76 and A55
 HW_ASSISTED_COHERENCY := 1

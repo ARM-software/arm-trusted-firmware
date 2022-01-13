@@ -1,0 +1,64 @@
+/*
+ * Copyright (c) 2022, MediaTek Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef MT_SPM_CONSTRAINT_H
+#define MT_SPM_CONSTRAINT_H
+
+#include <mt_lp_rm.h>
+
+#define MT_RM_CONSTRAINT_ALLOW_CPU_BUCK_OFF	BIT(0)
+#define MT_RM_CONSTRAINT_ALLOW_DRAM_S0		BIT(1)
+#define MT_RM_CONSTRAINT_ALLOW_DRAM_S1		BIT(2)
+#define MT_RM_CONSTRAINT_ALLOW_VCORE_LP		BIT(3)
+#define MT_RM_CONSTRAINT_ALLOW_INFRA_PDN	BIT(4)
+#define MT_RM_CONSTRAINT_ALLOW_BUS26M_OFF	BIT(5)
+#define MT_RM_CONSTRAINT_ALLOW_AP_SUSPEND	BIT(6)
+#define MT_RM_CONSTRAINT_ALLOW_BBLPM		BIT(7)
+#define MT_RM_CONSTRAINT_ALLOW_XO_UFS		BIT(8)
+#define MT_RM_CONSTRAINT_ALLOW_GPS_STATE	BIT(9)
+#define MT_RM_CONSTRAINT_ALLOW_LVTS_STATE	BIT(10)
+
+#define MT_SPM_RC_INVALID		(0x0)
+#define MT_SPM_RC_VALID_SW		BIT(0)
+#define MT_SPM_RC_VALID_FW		BIT(1)
+#define MT_SPM_RC_VALID_RESIDNECY	BIT(2)
+#define MT_SPM_RC_VALID_COND_CHECK	BIT(3)
+#define MT_SPM_RC_VALID_COND_LATCH	BIT(4)
+#define MT_SPM_RC_VALID_UFS_H8		BIT(5)
+#define MT_SPM_RC_VALID_FLIGHTMODE	BIT(6)
+#define MT_SPM_RC_VALID_XSOC_BBLPM	BIT(7)
+#define MT_SPM_RC_VALID_TRACE_EVENT	BIT(8)
+
+#define MT_SPM_RC_VALID	(MT_SPM_RC_VALID_SW)
+
+#define IS_MT_RM_RC_READY(status)	\
+	((status & MT_SPM_RC_VALID) == MT_SPM_RC_VALID)
+
+#define MT_SPM_RC_BBLPM_MODE		\
+	(MT_SPM_RC_VALID_UFS_H8 |	\
+	 MT_SPM_RC_VALID_FLIGHTMODE |	\
+	 MT_SPM_RC_VALID_XSOC_BBLPM)
+
+#define IS_MT_SPM_RC_BBLPM_MODE(st)	\
+	((st & (MT_SPM_RC_BBLPM_MODE)) == MT_SPM_RC_BBLPM_MODE)
+
+struct constraint_status {
+	uint16_t id;
+	uint16_t valid;
+	uint32_t cond_block;
+	uint32_t enter_cnt;
+	struct mt_spm_cond_tables *cond_res;
+};
+
+enum MT_SPM_RM_RC_TYPE {
+	MT_RM_CONSTRAINT_ID_BUS26M		= 0U,
+	MT_RM_CONSTRAINT_ID_SYSPLL		= 1U,
+	MT_RM_CONSTRAINT_ID_DRAM		= 2U,
+	MT_RM_CONSTRAINT_ID_CPU_BUCK_LDO	= 3U,
+	MT_RM_CONSTRAINT_ID_ALL			= 4U,
+};
+
+#endif /* MT_SPM_CONSTRAINT_H */

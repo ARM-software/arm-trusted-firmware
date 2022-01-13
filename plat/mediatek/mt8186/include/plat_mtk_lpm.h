@@ -44,5 +44,6 @@ struct mt_lpm_tz {
 };
 
 const struct mt_lpm_tz *mt_plat_cpu_pm_init(void);
+int plat_mt_pm_register(struct mt_lpm_tz *mt_pm);
 
 #endif /* PLAT_MTK_LPM_H */
