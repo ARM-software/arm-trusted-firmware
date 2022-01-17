@@ -10,6 +10,7 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <services/el3_spmc_ffa_memory.h>
 
 #include <plat/common/platform.h>
 #include "qemu_private.h"
@@ -100,7 +101,7 @@ static const mmap_region_t plat_qemu_mmap[] = {
 #if SPM_MM
 	MAP_NS_DRAM0,
 	QEMU_SPM_BUF_EL3_MMAP,
-#else
+#elif !SPMC_AT_EL3
 	MAP_BL32_MEM,
 #endif
 	{0}
@@ -165,5 +166,32 @@ DEFINE_CONFIGURE_MMU_EL(svc_mon)
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 {
 	return get_mbedtls_heap_helper(heap_addr, heap_size);
+}
+#endif
+
+#if SPMC_AT_EL3
+/*
+ * When using the EL3 SPMC implementation allocate the datastore
+ * for tracking shared memory descriptors in normal memory.
+ */
+#define PLAT_SPMC_SHMEM_DATASTORE_SIZE 64 * 1024
+
+uint8_t plat_spmc_shmem_datastore[PLAT_SPMC_SHMEM_DATASTORE_SIZE];
+
+int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
+{
+	*datastore = plat_spmc_shmem_datastore;
+	*size = PLAT_SPMC_SHMEM_DATASTORE_SIZE;
+	return 0;
+}
+
+int plat_spmc_shmem_begin(struct ffa_mtd *desc)
+{
+	return 0;
+}
+
+int plat_spmc_shmem_reclaim(struct ffa_mtd *desc)
+{
+	return 0;
 }
 #endif

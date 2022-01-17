@@ -188,8 +188,8 @@
 
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
-#define MAX_MMAP_REGIONS		11
-#define MAX_XLAT_TABLES			6
+#define MAX_MMAP_REGIONS		(11 + MAX_MMAP_REGIONS_SPMC)
+#define MAX_XLAT_TABLES			(6 + MAX_XLAT_TABLES_SPMC)
 #define MAX_IO_DEVICES			4
 #define MAX_IO_HANDLES			4
 
@@ -280,4 +280,32 @@
  */
 #define	PLAT_EVENT_LOG_MAX_SIZE		UL(0x400)
 
+#if SPMC_AT_EL3
+/*
+ * Number of Secure Partitions supported.
+ * SPMC at EL3, uses this count to configure the maximum number of
+ * supported secure partitions.
+ */
+#define SECURE_PARTITION_COUNT		1
+
+/*
+ * Number of Logical Partitions supported.
+ * SPMC at EL3, uses this count to configure the maximum number of
+ * supported logical partitions.
+ */
+#define MAX_EL3_LP_DESCS_COUNT		0
+
+/*
+ * Number of Normal World Partitions supported.
+ * SPMC at EL3, uses this count to configure the maximum number of
+ * supported normal world partitions.
+ */
+#define NS_PARTITION_COUNT		1
+
+#define MAX_MMAP_REGIONS_SPMC		2
+#define MAX_XLAT_TABLES_SPMC		4
+#else
+#define MAX_MMAP_REGIONS_SPMC		0
+#define MAX_XLAT_TABLES_SPMC		0
+#endif
 #endif /* PLATFORM_DEF_H */
