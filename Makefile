@@ -263,24 +263,6 @@ ENABLE_FEAT_RNG		=	$(if $(findstring rng,${arch-features}),1,0)
 # Determine if FEAT_SB is supported
 ENABLE_FEAT_SB		=	$(if $(findstring sb,${arch-features}),1,0)
 
-ifeq "8.5" "$(word 1, $(sort 8.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-ENABLE_FEAT_SB		= 	1
-endif
-
-# Determine and enable FEAT_FGT to access HDFGRTR_EL2 register for v8.6 and higher versions.
-ifeq "8.6" "$(word 1, $(sort 8.6 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-ENABLE_FEAT_FGT		=	1
-endif
-
-# Determine and enable FEAT_ECV to access CNTPOFF_EL2 register for v8.6 and higher versions.
-ifeq "8.6" "$(word 1, $(sort 8.6 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-ENABLE_FEAT_ECV		=	1
-endif
-
-ifeq "8.4" "$(word 1, $(sort 8.4 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-ENABLE_FEAT_DIT		= 	1
-endif
-
 ifneq ($(findstring armclang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi $(march64-directive)
@@ -474,6 +456,7 @@ endif
 ################################################################################
 # Common sources and include directories
 ################################################################################
+include ${MAKE_HELPERS_DIRECTORY}arch_features.mk
 include lib/compiler-rt/compiler-rt.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
@@ -776,6 +759,10 @@ ifeq ($(PSA_FWU_SUPPORT),1)
     $(info PSA_FWU_SUPPORT is an experimental feature)
 endif
 
+ifeq ($(FEATURE_DETECTION),1)
+    $(info FEATURE_DETECTION is an experimental feature)
+endif
+
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
     ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
         $(error "ALLOW_RO_XLAT_TABLES requires translation tables library v2")
@@ -980,10 +967,7 @@ $(eval $(call assert_booleans,\
         CREATE_KEYS \
         CTX_INCLUDE_AARCH32_REGS \
         CTX_INCLUDE_FPREGS \
-        CTX_INCLUDE_PAUTH_REGS \
-        CTX_INCLUDE_MTE_REGS \
         CTX_INCLUDE_EL2_REGS \
-        CTX_INCLUDE_NEVE_REGS \
         DEBUG \
         DISABLE_MTPMU \
         DYN_DISABLE_AUTH \
@@ -993,11 +977,9 @@ $(eval $(call assert_booleans,\
         ENABLE_AMU_FCONF \
         AMU_RESTRICT_COUNTERS \
         ENABLE_ASSERTIONS \
-        ENABLE_MPAM_FOR_LOWER_ELS \
         ENABLE_PIE \
         ENABLE_PMF \
         ENABLE_PSCI_STAT \
-        ENABLE_RME \
         ENABLE_RUNTIME_INSTRUMENTATION \
         ENABLE_SME_FOR_NS \
         ENABLE_SME_FOR_SWD \
@@ -1017,7 +999,6 @@ $(eval $(call assert_booleans,\
         PL011_GENERIC_UART \
         PROGRAMMABLE_RESET_ADDRESS \
         PSCI_EXTENDED_STATE_ID \
-        RAS_EXTENSION \
         RESET_TO_BL31 \
         SAVE_KEYS \
         SEPARATE_CODE_AND_RODATA \
@@ -1046,20 +1027,13 @@ $(eval $(call assert_booleans,\
         RAS_TRAP_LOWER_EL_ERR_ACCESS \
         COT_DESC_IN_DTB \
         USE_SP804_TIMER \
-        ENABLE_FEAT_RNG \
-        ENABLE_FEAT_SB \
-        ENABLE_FEAT_DIT \
         PSA_FWU_SUPPORT \
         ENABLE_TRBE_FOR_NS \
         ENABLE_SYS_REG_TRACE_FOR_NS \
-        ENABLE_TRF_FOR_NS \
-        ENABLE_FEAT_HCX \
         ENABLE_MPMM \
         ENABLE_MPMM_FCONF \
-        ENABLE_FEAT_FGT \
-        ENABLE_FEAT_AMUv1 \
-        ENABLE_FEAT_ECV \
         SIMICS_BUILD \
+        FEATURE_DETECTION \
 )))
 
 $(eval $(call assert_numerics,\
@@ -1067,9 +1041,30 @@ $(eval $(call assert_numerics,\
         ARM_ARCH_MAJOR \
         ARM_ARCH_MINOR \
         BRANCH_PROTECTION \
+        CTX_INCLUDE_PAUTH_REGS \
+        CTX_INCLUDE_MTE_REGS \
+        CTX_INCLUDE_NEVE_REGS \
+        ENABLE_BTI \
+        ENABLE_PAUTH \
+        ENABLE_FEAT_AMUv1 \
+        ENABLE_FEAT_AMUv1p1 \
+        ENABLE_FEAT_CSV2_2 \
+        ENABLE_FEAT_DIT \
+        ENABLE_FEAT_ECV \
+        ENABLE_FEAT_FGT \
+        ENABLE_FEAT_HCX \
+        ENABLE_FEAT_PAN \
+        ENABLE_FEAT_RNG \
+        ENABLE_FEAT_SB \
+        ENABLE_FEAT_SEL2 \
+        ENABLE_FEAT_VHE \
+        ENABLE_MPAM_FOR_LOWER_ELS \
+        ENABLE_RME \
+        ENABLE_TRF_FOR_NS \
         FW_ENC_STATUS \
         NR_OF_FW_BANKS \
         NR_OF_IMAGES_IN_FW_BANK \
+        RAS_EXTENSION \
 )))
 
 ifdef KEY_SIZE
@@ -1179,6 +1174,12 @@ $(eval $(call add_defines,\
         ENABLE_FEAT_AMUv1 \
         ENABLE_FEAT_ECV \
         SIMICS_BUILD \
+        ENABLE_FEAT_AMUv1p1 \
+        ENABLE_FEAT_SEL2 \
+        ENABLE_FEAT_VHE \
+        ENABLE_FEAT_CSV2_2 \
+        ENABLE_FEAT_PAN \
+        FEATURE_DETECTION \
 )))
 
 ifeq (${SANITIZE_UB},trap)

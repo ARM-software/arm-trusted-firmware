@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -126,6 +126,10 @@ include lib/gpt_rme/gpt_rme.mk
 
 BL31_SOURCES		+=	${GPT_LIB_SRCS}					\
 				${RMMD_SOURCES}
+endif
+
+ifeq ($(FEATURE_DETECTION),1)
+BL31_SOURCES		+=	common/feat_detect.c
 endif
 
 BL31_LINKERFILE		:=	bl31/bl31.ld.S

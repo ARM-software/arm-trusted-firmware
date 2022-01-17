@@ -140,4 +140,88 @@ static inline unsigned int get_armv9_2_feat_rme_support(void)
 		ID_AA64PFR0_FEAT_RME_SHIFT) & ID_AA64PFR0_FEAT_RME_MASK;
 }
 
+/*********************************************************************************
+ * Function to identify the presence of FEAT_SB (Speculation Barrier Instruction)
+ ********************************************************************************/
+static inline bool is_armv8_0_feat_sb_present(void)
+{
+	return (((read_id_aa64isar1_el1() >> ID_AA64ISAR1_SB_SHIFT) &
+		ID_AA64ISAR1_SB_MASK) == ID_AA64ISAR1_SB_SUPPORTED);
+}
+
+/*********************************************************************************
+ * Function to identify the presence of FEAT_CSV2_2 (Cache Speculation Variant 2)
+ ********************************************************************************/
+static inline bool is_armv8_0_feat_csv2_2_present(void)
+{
+	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_CSV2_SHIFT) &
+		ID_AA64PFR0_CSV2_MASK) == ID_AA64PFR0_CSV2_2_SUPPORTED);
+}
+
+/**********************************************************************************
+ * Function to identify the presence of FEAT_SPE (Statistical Profiling Extension)
+ *********************************************************************************/
+static inline bool is_armv8_2_feat_spe_present(void)
+{
+	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_PMS_SHIFT) &
+		ID_AA64DFR0_PMS_MASK) != ID_AA64DFR0_SPE_NOT_SUPPORTED);
+}
+
+/*******************************************************************************
+ * Function to identify the presence of FEAT_SVE (Scalable Vector Extension)
+ ******************************************************************************/
+static inline bool is_armv8_2_feat_sve_present(void)
+{
+	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_SVE_SHIFT) &
+		ID_AA64PFR0_SVE_MASK) == ID_AA64PFR0_SVE_SUPPORTED);
+}
+
+/*******************************************************************************
+ * Function to identify the presence of FEAT_RAS (Reliability,Availability,
+ * and Serviceability Extension)
+ ******************************************************************************/
+static inline bool is_armv8_2_feat_ras_present(void)
+{
+	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_RAS_SHIFT) &
+		ID_AA64PFR0_RAS_MASK) != ID_AA64PFR0_RAS_NOT_SUPPORTED);
+}
+
+/**************************************************************************
+ * Function to identify the presence of FEAT_DIT (Data Independent Timing)
+ *************************************************************************/
+static inline bool is_armv8_4_feat_dit_present(void)
+{
+	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_DIT_SHIFT) &
+		ID_AA64PFR0_DIT_MASK) == ID_AA64PFR0_DIT_SUPPORTED);
+}
+
+/*************************************************************************
+ * Function to identify the presence of FEAT_TRF (TraceLift)
+ ************************************************************************/
+static inline bool is_arm8_4_feat_trf_present(void)
+{
+	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_TRACEFILT_SHIFT) &
+		ID_AA64DFR0_TRACEFILT_MASK) == ID_AA64DFR0_TRACEFILT_SUPPORTED);
+}
+
+/*******************************************************************************
+ * Function to identify the presence of FEAT_AMUv1 (Activity Monitors-
+ * Extension v1)
+ ******************************************************************************/
+static inline bool is_armv8_4_feat_amuv1_present(void)
+{
+	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_AMU_SHIFT) &
+		ID_AA64PFR0_AMU_MASK) >= ID_AA64PFR0_AMU_V1);
+}
+
+/********************************************************************************
+ * Function to identify the presence of FEAT_NV2 (Enhanced Nested Virtualization
+ * Support)
+ *******************************************************************************/
+static inline unsigned int get_armv8_4_feat_nv_support(void)
+{
+	return (((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_NV_SHIFT) &
+		ID_AA64MMFR2_EL1_NV_MASK));
+}
+
 #endif /* ARCH_FEATURES_H */
