@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -30,10 +30,7 @@ $(eval $(call add_defines,\
         EVENT_LOG_LEVEL \
 )))
 
-MEASURED_BOOT_SRC_DIR	:= drivers/measured_boot/event_log/
+EVENT_LOG_SRC_DIR	:= drivers/measured_boot/event_log/
 
-MEASURED_BOOT_SOURCES	:= ${MEASURED_BOOT_SRC_DIR}event_log.c		\
-			   ${MEASURED_BOOT_SRC_DIR}event_print.c
-
-BL2_SOURCES		+= ${MEASURED_BOOT_SOURCES}
-BL1_SOURCES             += ${MEASURED_BOOT_SOURCES}
+EVENT_LOG_SOURCES	:= ${EVENT_LOG_SRC_DIR}event_log.c		\
+			   ${EVENT_LOG_SRC_DIR}event_print.c
