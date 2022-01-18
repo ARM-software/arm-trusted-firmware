@@ -348,6 +348,10 @@ skip_console_init:
 
 	if (dt_pmic_status() > 0) {
 		initialize_pmic();
+		if (pmic_voltages_init() != 0) {
+			ERROR("PMIC voltages init failed\n");
+			panic();
+		}
 		print_pmic_info_and_debug();
 	}
 
