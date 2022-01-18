@@ -329,6 +329,36 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 	return 0;
 }
 
+int pmic_voltages_init(void)
+{
+#if STM32MP13
+	struct rdev *buck1, *buck4;
+	int status;
+
+	buck1 = regulator_get_by_name("buck1");
+	if (buck1 == NULL) {
+		return -ENOENT;
+	}
+
+	buck4 = regulator_get_by_name("buck4");
+	if (buck4 == NULL) {
+		return -ENOENT;
+	}
+
+	status = regulator_set_min_voltage(buck1);
+	if (status != 0) {
+		return status;
+	}
+
+	status = regulator_set_min_voltage(buck4);
+	if (status != 0) {
+		return status;
+	}
+#endif
+
+	return 0;
+}
+
 enum {
 	STPMIC1_BUCK1 = 0,
 	STPMIC1_BUCK2,

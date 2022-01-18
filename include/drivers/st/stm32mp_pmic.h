@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,5 +47,12 @@ static inline void print_pmic_info_and_debug(void)
  * Returns 0 on success, and negative values on errors
  */
 int pmic_ddr_power_init(enum ddr_type ddr_type);
+
+/*
+ * pmic_voltages_init - Update voltages for platform init
+ *
+ * Returns 0 on success, and negative values on errors
+ */
+int pmic_voltages_init(void);
 
 #endif /* STM32MP_PMIC_H */
