@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,12 +10,16 @@
 #include <cortex_a78.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+#include "wa_cve_2022_23960_bhb_vector.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
 #error "cortex_a78 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+#if WORKAROUND_CVE_2022_23960
+	wa_cve_2022_23960_bhb_vector_table CORTEX_A78_BHB_LOOP_COUNT, cortex_a78
+#endif /* WORKAROUND_CVE_2022_23960 */
 
 /* --------------------------------------------------
  * Errata Workaround for A78 Erratum 1688305.
@@ -263,6 +267,15 @@ func check_errata_2242635
 	b	cpu_rev_var_range
 endfunc check_errata_2242635
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A78
 	 * -------------------------------------------------
@@ -327,6 +340,15 @@ func cortex_a78_reset_func
 	msr	CPUAMCNTENSET1_EL0, x0
 #endif
 
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Cortex-A78 generic vectors are overridden to apply errata
+	 * mitigation on exception entry from lower ELs.
+	 */
+	adr	x0, wa_cve_vbar_cortex_a78
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+
 	isb
 	ret	x19
 endfunc cortex_a78_reset_func
@@ -368,6 +390,7 @@ func cortex_a78_errata_report
 	report_errata ERRATA_A78_1952683, cortex_a78, 1952683
 	report_errata ERRATA_A78_2132060, cortex_a78, 2132060
 	report_errata ERRATA_A78_2242635, cortex_a78, 2242635
+	report_errata WORKAROUND_CVE_2022_23960, cortex_a78, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
 	ret

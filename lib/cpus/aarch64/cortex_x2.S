@@ -10,6 +10,7 @@
 #include <cortex_x2.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+#include "wa_cve_2022_23960_bhb_vector.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -20,6 +21,10 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex X2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+#if WORKAROUND_CVE_2022_23960
+	wa_cve_2022_23960_bhb_vector_table CORTEX_X2_BHB_LOOP_COUNT, cortex_x2
+#endif /* WORKAROUND_CVE_2022_23960 */
 
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex X2 Errata #2002765.
@@ -222,6 +227,16 @@ func check_errata_2216384
 	mov	x1, #0x20
 	b	cpu_rev_var_ls
 endfunc check_errata_2216384
+
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
@@ -258,6 +273,7 @@ func cortex_x2_errata_report
 	report_errata ERRATA_X2_2017096, cortex_x2, 2017096
 	report_errata ERRATA_X2_2081180, cortex_x2, 2081180
 	report_errata ERRATA_X2_2216384, cortex_x2, 2216384
+	report_errata WORKAROUND_CVE_2022_23960, cortex_x2, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -305,6 +321,16 @@ func cortex_x2_reset_func
 	bl	errata_x2_2216384_wa
 #endif
 
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Cortex-X2 generic vectors are overridden to apply errata
+         * mitigation on exception entry from lower ELs.
+         */
+	adr	x0, wa_cve_vbar_cortex_x2
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+
+	isb
 	ret x19
 endfunc cortex_x2_reset_func
 
