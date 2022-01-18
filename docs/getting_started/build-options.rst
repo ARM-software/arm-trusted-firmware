@@ -994,6 +994,11 @@ Common build options
   if FEAT_TRF is implemented. This flag can take the values 0 to 2, to align
   with the ``FEATURE_DETECTION`` mechanism. This flag is disabled by default.
 
+- ``PLAT_RSS_NOT_SUPPORTED``: Boolean option to enable the usage of the PSA
+  APIs on platforms that doesn't support RSS (providing Arm CCA HES
+  functionalities). When enabled (``1``), a mocked version of the APIs are used.
+  The default value is 0.
+
 GICv3 driver options
 --------------------
 

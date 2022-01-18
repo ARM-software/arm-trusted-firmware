@@ -55,6 +55,7 @@ static void log_measurement(uint8_t index,
 	INFO(" - locking     : %s\n", lock_measurement ? "true" : "false");
 }
 
+#if !PLAT_RSS_NOT_SUPPORTED
 psa_status_t
 rss_measured_boot_extend_measurement(uint8_t index,
 				     const uint8_t *signer_id,
@@ -102,3 +103,27 @@ rss_measured_boot_extend_measurement(uint8_t index,
 			in_vec, IOVEC_LEN(in_vec),
 			NULL, 0);
 }
+
+#else /* !PLAT_RSS_NOT_SUPPORTED */
+
+psa_status_t
+rss_measured_boot_extend_measurement(uint8_t index,
+				     const uint8_t *signer_id,
+				     size_t signer_id_size,
+				     const uint8_t *version,
+				     size_t version_size,
+				     uint32_t measurement_algo,
+				     const uint8_t *sw_type,
+				     size_t sw_type_size,
+				     const uint8_t *measurement_value,
+				     size_t measurement_value_size,
+				     bool lock_measurement)
+{
+	log_measurement(index, signer_id, signer_id_size,
+			version, measurement_algo, sw_type,
+			measurement_value, measurement_value_size,
+			lock_measurement);
+
+	return PSA_SUCCESS;
+}
+#endif /* !PLAT_RSS_NOT_SUPPORTED */

@@ -460,3 +460,6 @@ ENABLE_TRF_FOR_NS		:= 0
 # SCR_EL3.TWEDEL(4bit) field, when FEAT_TWED is implemented.
 # By default it takes 0, and need to be updated by the platforms.
 TWED_DELAY			:= 0
+
+# By default, disable the mocking of RSS provided services
+PLAT_RSS_NOT_SUPPORTED		:= 0
