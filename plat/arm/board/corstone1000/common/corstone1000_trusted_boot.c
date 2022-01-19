@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -38,7 +38,7 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
  */
 int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
 {
-    *nv_ctr = DIPHDA_FW_NVCTR_VAL;
+    *nv_ctr = CORSTONE1000_FW_NVCTR_VAL;
     return 0;
 }
 

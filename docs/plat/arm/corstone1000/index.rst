@@ -1,7 +1,7 @@
-Diphda Platform
+Corstone1000 Platform
 ==========================
 
-Some of the features of the Diphda platform referenced in TF-A include:
+Some of the features of the Corstone1000 platform referenced in TF-A include:
 
 - Cortex-A35 application processor (64-bit mode)
 - Secure Enclave
@@ -37,7 +37,7 @@ Build Procedure (TF-A only)
       CC=aarch64-none-elf-gcc \
       V=1 \
       BUILD_BASE=<path to the build folder> \
-      PLAT=diphda \
+      PLAT=corstone1000 \
       SPD=spmd \
       SPMD_SPM_AT_SEL2=0 \
       DEBUG=1 \

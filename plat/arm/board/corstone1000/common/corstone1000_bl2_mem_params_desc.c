@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,7 +44,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
 			VERSION_2, entry_point_info_t, SECURE | EXECUTABLE),
 		.ep_info.pc = BL32_BASE,
-			.ep_info.args.arg0 = DIPHDA_TOS_FW_CONFIG_BASE,
+			.ep_info.args.arg0 = CORSTONE1000_TOS_FW_CONFIG_BASE,
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 			VERSION_2, image_info_t, 0),
 		.image_info.image_base = BL32_BASE,
@@ -56,9 +56,9 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	/* Fill TOS_FW_CONFIG related information */
 	{
 		.image_id = TOS_FW_CONFIG_ID,
-		.image_info.image_base = DIPHDA_TOS_FW_CONFIG_BASE,
-		.image_info.image_max_size = DIPHDA_TOS_FW_CONFIG_LIMIT - \
-			DIPHDA_TOS_FW_CONFIG_BASE,
+		.image_info.image_base = CORSTONE1000_TOS_FW_CONFIG_BASE,
+		.image_info.image_max_size = CORSTONE1000_TOS_FW_CONFIG_LIMIT - \
+			CORSTONE1000_TOS_FW_CONFIG_BASE,
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
 			VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,

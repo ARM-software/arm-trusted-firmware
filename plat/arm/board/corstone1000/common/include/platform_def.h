@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,17 +34,17 @@
 #define V2M_IOFPGA_UART0_CLK_IN_HZ		50000000
 #define V2M_IOFPGA_UART1_CLK_IN_HZ		50000000
 
-/* Core/Cluster/Thread counts for diphda */
-#define DIPHDA_CLUSTER_COUNT			U(1)
-#define DIPHDA_MAX_CPUS_PER_CLUSTER		U(4)
-#define DIPHDA_MAX_PE_PER_CPU			U(1)
-#define DIPHDA_PRIMARY_CPU			U(0)
+/* Core/Cluster/Thread counts for corstone1000 */
+#define CORSTONE1000_CLUSTER_COUNT			U(1)
+#define CORSTONE1000_MAX_CPUS_PER_CLUSTER		U(4)
+#define CORSTONE1000_MAX_PE_PER_CPU			U(1)
+#define CORSTONE1000_PRIMARY_CPU			U(0)
 
-#define PLAT_ARM_CLUSTER_COUNT		DIPHDA_CLUSTER_COUNT
+#define PLAT_ARM_CLUSTER_COUNT		CORSTONE1000_CLUSTER_COUNT
 
 #define PLATFORM_CORE_COUNT			(PLAT_ARM_CLUSTER_COUNT *      \
-						DIPHDA_MAX_CPUS_PER_CLUSTER *  \
-						DIPHDA_MAX_PE_PER_CPU)
+						CORSTONE1000_MAX_CPUS_PER_CLUSTER *  \
+						CORSTONE1000_MAX_PE_PER_CPU)
 
 /* UART related constants */
 #define PLAT_ARM_BOOT_UART_BASE		0x1a510000
@@ -85,7 +85,7 @@
  *
  *             BL32 (optee-os)
  *
- * <DIPHDA_TOS_FW_CONFIG_BASE> = 0x20ae000
+ * <CORSTONE1000_TOS_FW_CONFIG_BASE> = 0x20ae000
  *
  *         partition size: 8 KB
  *
@@ -132,7 +132,7 @@
 #define ARM_DRAM1_END				(ARM_DRAM1_BASE +	\
 						ARM_DRAM1_SIZE - 1)
 
-/* DRAM1 and DRAM2 are the same for diphda */
+/* DRAM1 and DRAM2 are the same for corstone1000 */
 #define ARM_DRAM2_BASE			ARM_DRAM1_BASE
 #define ARM_DRAM2_SIZE			ARM_DRAM1_SIZE
 #define ARM_DRAM2_END				ARM_DRAM1_END
@@ -173,13 +173,13 @@
 						PLAT_ARM_MAX_BL31_SIZE)
 #define BL31_LIMIT				BL2_SIGNATURE_BASE
 
-#define DIPHDA_TOS_FW_CONFIG_BASE		(BL31_BASE - \
-						DIPHDA_TOS_FW_CONFIG_SIZE)
-#define DIPHDA_TOS_FW_CONFIG_SIZE		UL(0x00002000)  /* 8 KB */
-#define DIPHDA_TOS_FW_CONFIG_LIMIT		BL31_BASE
+#define CORSTONE1000_TOS_FW_CONFIG_BASE		(BL31_BASE - \
+						CORSTONE1000_TOS_FW_CONFIG_SIZE)
+#define CORSTONE1000_TOS_FW_CONFIG_SIZE		UL(0x00002000)  /* 8 KB */
+#define CORSTONE1000_TOS_FW_CONFIG_LIMIT		BL31_BASE
 
 #define BL32_BASE				ARM_BL_RAM_BASE
-#define PLAT_ARM_MAX_BL32_SIZE		(DIPHDA_TOS_FW_CONFIG_BASE - \
+#define PLAT_ARM_MAX_BL32_SIZE		(CORSTONE1000_TOS_FW_CONFIG_BASE - \
 						BL32_BASE)     /* 688 KB */
 #define BL32_LIMIT				(BL32_BASE + \
 						PLAT_ARM_MAX_BL32_SIZE)
@@ -220,7 +220,7 @@
 /*
  * Define FW_CONFIG area base and limit. Leave enough space for BL2 meminfo.
  * FW_CONFIG is intended to host the device tree. Currently, This area is not
- * used because diphda platform doesn't use a device tree at TF-A level.
+ * used because corstone1000 platform doesn't use a device tree at TF-A level.
  */
 #define ARM_FW_CONFIG_BASE			(ARM_SHARED_RAM_BASE \
 						+ sizeof(meminfo_t))
@@ -261,8 +261,8 @@
 
 #define SYS_COUNTER_FREQ_IN_TICKS	UL(50000000) /* 50MHz */
 
-#define DIPHDA_IRQ_TZ_WDOG			32
-#define DIPHDA_IRQ_SEC_SYS_TIMER		34
+#define CORSTONE1000_IRQ_TZ_WDOG			32
+#define CORSTONE1000_IRQ_SEC_SYS_TIMER		34
 
 #define PLAT_MAX_PWR_LVL			2
 /*
@@ -308,7 +308,7 @@
 
 #define PLATFORM_STACK_SIZE			UL(0x440)
 
-#define DIPHDA_EXTERNAL_FLASH			MAP_REGION_FLAT(	\
+#define CORSTONE1000_EXTERNAL_FLASH			MAP_REGION_FLAT(	\
 						PLAT_ARM_NVM_BASE,	\
 						PLAT_ARM_NVM_SIZE,	\
 						MT_DEVICE | MT_RO | MT_SECURE)
@@ -356,11 +356,11 @@
 						ARM_FW_CONFIG_BASE),   \
 						MT_MEMORY | MT_RW | MT_SECURE)
 
-#define DIPHDA_DEVICE_BASE			(0x1A000000)
-#define DIPHDA_DEVICE_SIZE			(0x26000000)
-#define DIPHDA_MAP_DEVICE			MAP_REGION_FLAT(	\
-						DIPHDA_DEVICE_BASE,	\
-						DIPHDA_DEVICE_SIZE,	\
+#define CORSTONE1000_DEVICE_BASE			(0x1A000000)
+#define CORSTONE1000_DEVICE_SIZE			(0x26000000)
+#define CORSTONE1000_MAP_DEVICE			MAP_REGION_FLAT(	\
+						CORSTONE1000_DEVICE_BASE,	\
+						CORSTONE1000_DEVICE_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
 #define ARM_IRQ_SEC_PHY_TIMER			29
@@ -406,9 +406,9 @@
  */
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	\
 	ARM_G1S_IRQ_PROPS(grp), \
-	INTR_PROP_DESC(DIPHDA_IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY, \
+	INTR_PROP_DESC(CORSTONE1000_IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY, \
 		(grp), GIC_INTR_CFG_LEVEL), \
-	INTR_PROP_DESC(DIPHDA_IRQ_SEC_SYS_TIMER, \
+	INTR_PROP_DESC(CORSTONE1000_IRQ_SEC_SYS_TIMER, \
 		GIC_HIGHEST_SEC_PRIORITY, (grp), GIC_INTR_CFG_LEVEL)
 
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp)

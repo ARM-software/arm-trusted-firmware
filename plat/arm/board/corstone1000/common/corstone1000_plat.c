@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,12 +21,12 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	ARM_MAP_NS_SHARED_RAM,
 	ARM_MAP_NS_DRAM1,
-	DIPHDA_MAP_DEVICE,
-	DIPHDA_EXTERNAL_FLASH,
+	CORSTONE1000_MAP_DEVICE,
+	CORSTONE1000_EXTERNAL_FLASH,
 	{0}
 };
 
-/* diphda only has one always-on power domain and there
+/* corstone1000 only has one always-on power domain and there
  * is no power control present
  */
 void __init plat_arm_pwrc_setup(void)

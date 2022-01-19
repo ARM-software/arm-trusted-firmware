@@ -13,7 +13,7 @@ Arm Development Platforms
    arm_fpga/index
    arm-build-options
    morello/index
-   diphda/index
+   corstone1000/index
 
 This chapter holds documentation related to Arm's development platforms,
 including both software models (FVPs) and hardware development boards
