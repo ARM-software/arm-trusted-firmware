@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -72,7 +72,7 @@
 	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
 	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
 	 */
-	bl	save_gp_pmcr_pauth_regs
+	bl	prepare_el3_entry
 
 	bl	handle_lower_el_ea_esb
 
@@ -210,7 +210,7 @@ exp_from_EL3:
 	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
 	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
 	 */
-	bl	save_gp_pmcr_pauth_regs
+	bl	prepare_el3_entry
 
 #if ENABLE_PAUTH
 	/* Load and program APIAKey firmware key */
@@ -463,7 +463,7 @@ smc_handler64:
 	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
 	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
 	 */
-	bl	save_gp_pmcr_pauth_regs
+	bl	prepare_el3_entry
 
 #if ENABLE_PAUTH
 	/* Load and program APIAKey firmware key */

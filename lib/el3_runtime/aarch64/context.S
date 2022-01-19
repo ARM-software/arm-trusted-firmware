@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,7 @@
 	.global	fpregs_context_save
 	.global	fpregs_context_restore
 #endif
-	.global	save_gp_pmcr_pauth_regs
+	.global	prepare_el3_entry
 	.global	restore_gp_pmcr_pauth_regs
 	.global save_and_update_ptw_el1_sys_regs
 	.global	el3_exit
@@ -683,7 +683,7 @@ endfunc fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
 
 /* ------------------------------------------------------------------
- * The following function is used to save and restore all the general
+ * The following macro is used to save and restore all the general
  * purpose and ARMv8.3-PAuth (if enabled) registers.
  * It also checks if Secure Cycle Counter is not disabled in MDCR_EL3
  * when ARMv8.5-PMU is implemented, and if called from Non-secure
@@ -693,12 +693,10 @@ endfunc fpregs_context_restore
  * when a world switch occurs but that type of implementation is more
  * complex. So currently we will always save and restore these
  * registers on entry and exit of EL3.
- * These are not macros to ensure their invocation fits within the 32
- * instructions per exception vector.
  * clobbers: x18
  * ------------------------------------------------------------------
  */
-func save_gp_pmcr_pauth_regs
+	.macro save_gp_pmcr_pauth_regs
 	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
@@ -770,8 +768,18 @@ func save_gp_pmcr_pauth_regs
 	stp	x28, x29, [x19, #CTX_PACGAKEY_LO]
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 
+	.endm /* save_gp_pmcr_pauth_regs */
+
+/* -----------------------------------------------------------------
+ * This function saves the context preparing entry to el3.
+ * Save all the general purpose and ARMv8.3-PAuth (if enabled)
+ * registers.
+ * -----------------------------------------------------------------
+ */
+func prepare_el3_entry
+	save_gp_pmcr_pauth_regs
 	ret
-endfunc save_gp_pmcr_pauth_regs
+endfunc prepare_el3_entry
 
 /* ------------------------------------------------------------------
  * This function restores ARMv8.3-PAuth (if enabled) and all general
