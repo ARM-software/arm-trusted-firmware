@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
 #include <drivers/st/stm32mp_ddr_test.h>
 #include <lib/mmio.h>
 

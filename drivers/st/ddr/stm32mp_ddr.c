@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32mp_ddr.h>
 #include <drivers/st/stm32mp_ddrctrl_regs.h>
