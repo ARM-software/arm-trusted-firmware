@@ -566,6 +566,9 @@ subsections:
                 deprecated:
                   - spi_nand
 
+      - title: Partition
+        scope: partition
+
       - title: SCMI
         scope: scmi
 
