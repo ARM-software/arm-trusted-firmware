@@ -1062,17 +1062,6 @@ static bool __clk_is_enabled(struct stm32mp1_clk_gate const *gate)
 	return mmio_read_32(rcc_base + gate->offset) & BIT(gate->bit);
 }
 
-unsigned int stm32mp1_clk_get_refcount(unsigned long id)
-{
-	int i = stm32mp1_clk_get_gated_id(id);
-
-	if (i < 0) {
-		panic();
-	}
-
-	return gate_refcounts[i];
-}
-
 /* Oscillators and PLLs are not gated at runtime */
 static bool clock_is_always_on(unsigned long id)
 {
@@ -1101,11 +1090,10 @@ static bool clock_is_always_on(unsigned long id)
 	}
 }
 
-void __stm32mp1_clk_enable(unsigned long id, bool secure)
+static void __stm32mp1_clk_enable(unsigned long id, bool with_refcnt)
 {
 	const struct stm32mp1_clk_gate *gate;
 	int i;
-	unsigned int *refcnt;
 
 	if (clock_is_always_on(id)) {
 		return;
@@ -1118,22 +1106,31 @@ void __stm32mp1_clk_enable(unsigned long id, bool secure)
 	}
 
 	gate = gate_ref(i);
-	refcnt = &gate_refcounts[i];
+
+	if (!with_refcnt) {
+		__clk_enable(gate);
+		return;
+	}
 
 	stm32mp1_clk_lock(&refcount_lock);
 
-	if (stm32mp_incr_shrefcnt(refcnt, secure) != 0) {
+	if (gate_refcounts[i] == 0U) {
 		__clk_enable(gate);
+	}
+
+	gate_refcounts[i]++;
+	if (gate_refcounts[i] == UINT_MAX) {
+		ERROR("Clock %lu refcount reached max value\n", id);
+		panic();
 	}
 
 	stm32mp1_clk_unlock(&refcount_lock);
 }
 
-void __stm32mp1_clk_disable(unsigned long id, bool secure)
+static void __stm32mp1_clk_disable(unsigned long id, bool with_refcnt)
 {
 	const struct stm32mp1_clk_gate *gate;
 	int i;
-	unsigned int *refcnt;
 
 	if (clock_is_always_on(id)) {
 		return;
@@ -1146,11 +1143,21 @@ void __stm32mp1_clk_disable(unsigned long id, bool secure)
 	}
 
 	gate = gate_ref(i);
-	refcnt = &gate_refcounts[i];
+
+	if (!with_refcnt) {
+		__clk_disable(gate);
+		return;
+	}
 
 	stm32mp1_clk_lock(&refcount_lock);
 
-	if (stm32mp_decr_shrefcnt(refcnt, secure) != 0) {
+	if (gate_refcounts[i] == 0U) {
+		ERROR("Clock %lu refcount reached 0\n", id);
+		panic();
+	}
+	gate_refcounts[i]--;
+
+	if (gate_refcounts[i] == 0U) {
 		__clk_disable(gate);
 	}
 
