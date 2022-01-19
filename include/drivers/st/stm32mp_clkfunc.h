@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,8 +14,8 @@
 #include <platform_def.h>
 
 int fdt_osc_read_freq(const char *name, uint32_t *freq);
-bool fdt_osc_read_bool(enum stm32mp_osc_id osc_id, const char *prop_name);
-uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
+bool fdt_clk_read_bool(const char *node_label, const char *prop_name);
+uint32_t fdt_clk_read_uint32_default(const char *node_label,
 				     const char *prop_name,
 				     uint32_t dflt_value);
 

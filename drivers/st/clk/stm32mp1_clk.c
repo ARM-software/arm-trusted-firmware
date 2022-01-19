@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -8,10 +8,6 @@
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
-
-#include <libfdt.h>
-
-#include <platform_def.h>
 
 #include <arch.h>
 #include <arch_helpers.h>
@@ -27,7 +23,10 @@
 #include <lib/mmio.h>
 #include <lib/spinlock.h>
 #include <lib/utils_def.h>
+#include <libfdt.h>
 #include <plat/common/platform.h>
+
+#include <platform_def.h>
 
 #define MAX_HSI_HZ		64000000
 #define USB_PHY_48_MHZ		48000000
@@ -699,7 +698,7 @@ static int stm32mp1_clk_get_gated_id(unsigned long id)
 		}
 	}
 
-	ERROR("%s: clk id %d not found\n", __func__, (uint32_t)id);
+	ERROR("%s: clk id %lu not found\n", __func__, id);
 
 	return -EINVAL;
 }
@@ -1114,7 +1113,7 @@ void __stm32mp1_clk_enable(unsigned long id, bool secure)
 
 	i = stm32mp1_clk_get_gated_id(id);
 	if (i < 0) {
-		ERROR("Clock %d can't be enabled\n", (uint32_t)id);
+		ERROR("Clock %lu can't be enabled\n", id);
 		panic();
 	}
 
@@ -1142,7 +1141,7 @@ void __stm32mp1_clk_disable(unsigned long id, bool secure)
 
 	i = stm32mp1_clk_get_gated_id(id);
 	if (i < 0) {
-		ERROR("Clock %d can't be disabled\n", (uint32_t)id);
+		ERROR("Clock %lu can't be disabled\n", id);
 		panic();
 	}
 
@@ -1351,6 +1350,13 @@ static void stm32mp1_hse_enable(bool bypass, bool digbyp, bool css)
 	if (css) {
 		mmio_write_32(rcc_base + RCC_OCENSETR, RCC_OCENR_HSECSSON);
 	}
+
+#if STM32MP_UART_PROGRAMMER || STM32MP_USB_PROGRAMMER
+	if ((mmio_read_32(rcc_base + RCC_OCENSETR) & RCC_OCENR_HSEBYP) &&
+	    (!(digbyp || bypass))) {
+		panic();
+	}
+#endif
 }
 
 static void stm32mp1_csi_set(bool enable)
@@ -1772,15 +1778,50 @@ static void stm32mp1_pkcs_config(uint32_t pkcs)
 	mmio_clrsetbits_32(address, mask, value);
 }
 
+static int clk_get_pll_settings_from_dt(int plloff, unsigned int *pllcfg,
+					uint32_t *fracv, uint32_t *csg,
+					bool *csg_set)
+{
+	void *fdt;
+	int ret;
+
+	if (fdt_get_address(&fdt) == 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	ret = fdt_read_uint32_array(fdt, plloff, "cfg", (uint32_t)PLLCFG_NB,
+				    pllcfg);
+	if (ret < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	*fracv = fdt_read_uint32_default(fdt, plloff, "frac", 0);
+
+	ret = fdt_read_uint32_array(fdt, plloff, "csg", (uint32_t)PLLCSG_NB,
+				    csg);
+
+	*csg_set = (ret == 0);
+
+	if (ret == -FDT_ERR_NOTFOUND) {
+		ret = 0;
+	}
+
+	return ret;
+}
+
 int stm32mp1_clk_init(void)
 {
 	uintptr_t rcc_base = stm32mp_rcc_base();
+	uint32_t pllfracv[_PLL_NB];
+	uint32_t pllcsg[_PLL_NB][PLLCSG_NB];
 	unsigned int clksrc[CLKSRC_NB];
 	unsigned int clkdiv[CLKDIV_NB];
 	unsigned int pllcfg[_PLL_NB][PLLCFG_NB];
 	int plloff[_PLL_NB];
 	int ret, len;
 	enum stm32mp1_pll_id i;
+	bool pllcsg_set[_PLL_NB];
+	bool pllcfg_valid[_PLL_NB];
 	bool lse_css = false;
 	bool pll3_preserve = false;
 	bool pll4_preserve = false;
@@ -1817,14 +1858,16 @@ int stm32mp1_clk_init(void)
 		snprintf(name, sizeof(name), "st,pll@%d", i);
 		plloff[i] = fdt_rcc_subnode_offset(name);
 
-		if (!fdt_check_node(plloff[i])) {
+		pllcfg_valid[i] = fdt_check_node(plloff[i]);
+		if (!pllcfg_valid[i]) {
 			continue;
 		}
 
-		ret = fdt_read_uint32_array(fdt, plloff[i], "cfg",
-					    (int)PLLCFG_NB, pllcfg[i]);
-		if (ret < 0) {
-			return -FDT_ERR_NOTFOUND;
+		ret = clk_get_pll_settings_from_dt(plloff[i], pllcfg[i],
+						   &pllfracv[i], pllcsg[i],
+						   &pllcsg_set[i]);
+		if (ret != 0) {
+			return ret;
 		}
 	}
 
@@ -1839,22 +1882,24 @@ int stm32mp1_clk_init(void)
 		stm32mp1_lsi_set(true);
 	}
 	if (stm32mp1_osc[_LSE] != 0U) {
+		const char *name = stm32mp_osc_node_label[_LSE];
 		bool bypass, digbyp;
 		uint32_t lsedrv;
 
-		bypass = fdt_osc_read_bool(_LSE, "st,bypass");
-		digbyp = fdt_osc_read_bool(_LSE, "st,digbypass");
-		lse_css = fdt_osc_read_bool(_LSE, "st,css");
-		lsedrv = fdt_osc_read_uint32_default(_LSE, "st,drive",
+		bypass = fdt_clk_read_bool(name, "st,bypass");
+		digbyp = fdt_clk_read_bool(name, "st,digbypass");
+		lse_css = fdt_clk_read_bool(name, "st,css");
+		lsedrv = fdt_clk_read_uint32_default(name, "st,drive",
 						     LSEDRV_MEDIUM_HIGH);
 		stm32mp1_lse_enable(bypass, digbyp, lsedrv);
 	}
 	if (stm32mp1_osc[_HSE] != 0U) {
+		const char *name = stm32mp_osc_node_label[_HSE];
 		bool bypass, digbyp, css;
 
-		bypass = fdt_osc_read_bool(_HSE, "st,bypass");
-		digbyp = fdt_osc_read_bool(_HSE, "st,digbypass");
-		css = fdt_osc_read_bool(_HSE, "st,css");
+		bypass = fdt_clk_read_bool(name, "st,bypass");
+		digbyp = fdt_clk_read_bool(name, "st,digbypass");
+		css = fdt_clk_read_bool(name, "st,css");
 		stm32mp1_hse_enable(bypass, digbyp, css);
 	}
 	/*
@@ -1976,15 +2021,12 @@ int stm32mp1_clk_init(void)
 
 	/* Configure and start PLLs */
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
-		uint32_t fracv;
-		uint32_t csg[PLLCSG_NB];
-
 		if (((i == _PLL3) && pll3_preserve) ||
 		    ((i == _PLL4) && pll4_preserve && !pll4_bootrom)) {
 			continue;
 		}
 
-		if (!fdt_check_node(plloff[i])) {
+		if (!pllcfg_valid[i]) {
 			continue;
 		}
 
@@ -1994,25 +2036,20 @@ int stm32mp1_clk_init(void)
 			continue;
 		}
 
-		fracv = fdt_read_uint32_default(fdt, plloff[i], "frac", 0);
-
-		ret = stm32mp1_pll_config(i, pllcfg[i], fracv);
+		ret = stm32mp1_pll_config(i, pllcfg[i], pllfracv[i]);
 		if (ret != 0) {
 			return ret;
 		}
-		ret = fdt_read_uint32_array(fdt, plloff[i], "csg",
-					    (uint32_t)PLLCSG_NB, csg);
-		if (ret == 0) {
-			stm32mp1_pll_csg(i, csg);
-		} else if (ret != -FDT_ERR_NOTFOUND) {
-			return ret;
+
+		if (pllcsg_set[i]) {
+			stm32mp1_pll_csg(i, pllcsg[i]);
 		}
 
 		stm32mp1_pll_start(i);
 	}
 	/* Wait and start PLLs ouptut when ready */
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
-		if (!fdt_check_node(plloff[i])) {
+		if (!pllcfg_valid[i]) {
 			continue;
 		}
 

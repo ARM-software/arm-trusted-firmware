@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <errno.h>
 
-#include <libfdt.h>
-
-#include <platform_def.h>
-
 #include <common/fdt_wrappers.h>
 #include <drivers/clk.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp_clkfunc.h>
+#include <libfdt.h>
+
+#include <platform_def.h>
 
 #define DT_UART_COMPAT		"st,stm32h7-uart"
 /*
@@ -45,7 +44,8 @@ int fdt_osc_read_freq(const char *name, uint32_t *freq)
 			return ret;
 		}
 
-		if (strncmp(cchar, name, (size_t)ret) == 0) {
+		if ((strncmp(cchar, name, (size_t)ret) == 0) &&
+		    (fdt_get_status(subnode) != DT_DISABLED)) {
 			const fdt32_t *cuint;
 
 			cuint = fdt_getprop(fdt, subnode, "clock-frequency",
@@ -67,20 +67,16 @@ int fdt_osc_read_freq(const char *name, uint32_t *freq)
 
 /*
  * Check the presence of an oscillator property from its id.
- * @param osc_id: oscillator ID
+ * @param node_label: clock node name
  * @param prop_name: property name
  * @return: true/false regarding search result.
  */
-bool fdt_osc_read_bool(enum stm32mp_osc_id osc_id, const char *prop_name)
+bool fdt_clk_read_bool(const char *node_label, const char *prop_name)
 {
 	int node, subnode;
 	void *fdt;
 
 	if (fdt_get_address(&fdt) == 0) {
-		return false;
-	}
-
-	if (osc_id >= NB_OSC) {
 		return false;
 	}
 
@@ -98,8 +94,7 @@ bool fdt_osc_read_bool(enum stm32mp_osc_id osc_id, const char *prop_name)
 			return false;
 		}
 
-		if (strncmp(cchar, stm32mp_osc_node_label[osc_id],
-			    (size_t)ret) != 0) {
+		if (strncmp(cchar, node_label, (size_t)ret) != 0) {
 			continue;
 		}
 
@@ -112,23 +107,19 @@ bool fdt_osc_read_bool(enum stm32mp_osc_id osc_id, const char *prop_name)
 }
 
 /*
- * Get the value of a oscillator property from its ID.
- * @param osc_id: oscillator ID
+ * Get the value of a oscillator property from its name.
+ * @param node_label: oscillator name
  * @param prop_name: property name
  * @param dflt_value: default value
  * @return oscillator value on success, default value if property not found.
  */
-uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
+uint32_t fdt_clk_read_uint32_default(const char *node_label,
 				     const char *prop_name, uint32_t dflt_value)
 {
 	int node, subnode;
 	void *fdt;
 
 	if (fdt_get_address(&fdt) == 0) {
-		return dflt_value;
-	}
-
-	if (osc_id >= NB_OSC) {
 		return dflt_value;
 	}
 
@@ -146,8 +137,7 @@ uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
 			return dflt_value;
 		}
 
-		if (strncmp(cchar, stm32mp_osc_node_label[osc_id],
-			    (size_t)ret) != 0) {
+		if (strncmp(cchar, node_label, (size_t)ret) != 0) {
 			continue;
 		}
 
