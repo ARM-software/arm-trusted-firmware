@@ -500,13 +500,6 @@ NVidia platform ports
 :|F|: lib/cpus/aarch64/denver.S
 :|F|: plat/nvidia/
 
-NXP QorIQ Layerscape platform ports
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Jiafei Pan <jiafei.pan@nxp.com>
-:|G|: `qoriq-open-source`_
-:|F|: docs/plat/ls1043a.rst
-:|F|: plat/layerscape/
-
 NXP i.MX 7 WaRP7 platform port and SoC drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
@@ -538,6 +531,8 @@ NXP QorIQ Layerscape common code for platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Pankaj Gupta <pankaj.gupta@nxp.com>
 :|G|: `pangupta`_
+:|M|: Jiafei Pan <jiafei.pan@nxp.com>
+:|G|: `JiafeiPan`_
 :|F|: docs/plat/nxp/
 :|F|: plat/nxp/
 :|F|: drivers/nxp/
@@ -551,6 +546,20 @@ NXP SoC Part LX2160A and its platform port
 :|F|: plat/nxp/soc-lx2160a/lx2162aqds
 :|F|: plat/nxp/soc-lx2160a/lx2160aqds
 :|F|: plat/nxp/soc-lx2160a/lx2160ardb
+
+NXP SoC Part LS1028A and its platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Jiafei Pan <jiafei.pan@nxp.com>
+:|G|: `JiafeiPan`_
+:|F|: plat/nxp/soc-ls1028a
+:|F|: plat/nxp/soc-ls1028a/ls1028ardb
+
+NXP SoC Part LS1043A and its platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Jiafei Pan <jiafei.pan@nxp.com>
+:|G|: `JiafeiPan`_
+:|F|: plat/nxp/soc-ls1043a
+:|F|: plat/nxp/soc-ls1043a/ls1043ardb
 
 QEMU platform port
 ^^^^^^^^^^^^^^^^^^
@@ -780,7 +789,6 @@ Conventional Changelog Extensions
 .. _niej: https://github.com/niej
 .. _npoushin: https://github.com/npoushin
 .. _prabhakarlad: https://github.com/prabhakarlad
-.. _qoriq-open-source: https://github.com/qoriq-open-source
 .. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
@@ -820,5 +828,6 @@ Conventional Changelog Extensions
 .. _arugan02: https://github.com/arugan02
 .. _uarif1: https://github.com/uarif1
 .. _pangupta: https://github.com/pangupta
+.. _JiafeiPan: https://github.com/JiafeiPan
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/

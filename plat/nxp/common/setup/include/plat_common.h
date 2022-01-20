@@ -113,7 +113,7 @@ typedef struct {
 
 typedef struct {
 	uint64_t num_dram_regions;
-	uint64_t total_dram_size;
+	int64_t total_dram_size;
 	region_info_t region[NUM_DRAM_REGIONS];
 } dram_regions_info_t;
 
@@ -131,9 +131,11 @@ void ls_setup_page_tables(uintptr_t total_base,
 #endif
 );
 
+#define SOC_NAME_MAX_LEN	(20)
+
 /* Structure to define SoC personality */
 struct soc_type {
-	char name[10];
+	char name[SOC_NAME_MAX_LEN];
 	uint32_t version;
 	uint8_t num_clusters;
 	uint8_t cores_per_cluster;

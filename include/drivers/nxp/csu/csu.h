@@ -9,6 +9,8 @@
 #define CSU_H
 
 #define CSU_SEC_ACCESS_REG_OFFSET	(0x0021CU)
+/* Bit mask */
+#define TZASC_BYPASS_MUX_DISABLE        (0x4U)
 
 /* Macros defining access permissions to configure
  * the regions controlled by Central Security Unit.

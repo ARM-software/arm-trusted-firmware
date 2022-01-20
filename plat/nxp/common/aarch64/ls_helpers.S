@@ -6,6 +6,7 @@
  */
 
 #include <asm_macros.S>
+#include <cortex_a53.h>
 #include <drivers/console.h>
 #include <lib/cpus/aarch64/cortex_a72.h>
 
@@ -154,6 +155,31 @@ func plat_core_pos
 endfunc plat_core_pos
 
 #endif
+
+/* this function disables the load-store prefetch of the calling core
+ * Note: this function is for A53 cores ONLY
+ * in:  none
+ * out: none
+ * uses x0
+ */
+func _disable_ldstr_pfetch_A53
+	mrs	x0, CORTEX_A53_CPUACTLR_EL1
+	tst	x0, #CORTEX_A53_CPUACTLR_EL1_L1PCTL
+	b.ne	1f
+	b	2f
+
+.align 6
+1:
+	dsb	sy
+	isb
+	bic	x0, x0, #CORTEX_A53_CPUACTLR_EL1_L1PCTL
+	msr	CORTEX_A53_CPUACTLR_EL1, x0
+	isb
+
+2:
+	ret
+endfunc _disable_ldstr_pfetch_A53
+
 
 /* this function disables the load-store prefetch of the calling core
  * Note: this function is for A72 cores ONLY

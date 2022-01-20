@@ -40,13 +40,58 @@ The integrated GPU and LCD controller enable Human-Machine Interface
 
 Details about LS1028A can be found at `ls1028a`_.
 
-- LS1028ARDB Boards:
+- LS1028ARDB Board:
 
 The LS1028A reference design board (RDB) is a computing, evaluation,
 and development platform that supports industrial IoT applications, human
 machine interface solutions, and industrial networking.
 
 Details about LS1028A RDB board can be found at `ls1028ardb`_.
+
+3. LS1043A
+
+- SoC Overview:
+
+The Layerscape LS1043A processor is NXP's first quad-core, 64-bit Arm®-based
+processor for embedded networking. The LS1023A (two core version) and the
+LS1043A (four core version) deliver greater than 10 Gbps of performance
+in a flexible I/O package supporting fanless designs. This SoC is a
+purpose-built solution for small-form-factor networking and industrial
+applications with BOM optimizations for economic low layer PCB, lower cost
+power supply and single clock design. The new 0.9V versions of the LS1043A
+and LS1023A deliver addition power savings for applications such as Wireless
+LAN and to Power over Ethernet systems.
+
+Details about LS1043A can be found at `ls1043a`_.
+
+- LS1043ARDB Board:
+
+The LS1043A reference design board (RDB) is a computing, evaluation, and
+development platform that supports the Layerscape LS1043A architecture
+processor. The LS1043A-RDB can help shorten your time to market by providing
+the following features:
+
+Memory subsystem:
+	* 2GByte DDR4 SDRAM (32bit bus)
+	* 128 Mbyte NOR flash single-chip memory
+	* 512 Mbyte NAND flash
+	* 16 Mbyte high-speed SPI flash
+	* SD connector to interface with the SD memory card
+
+Ethernet:
+	* XFI 10G port
+	* QSGMII with 4x 1G ports
+	* Two RGMII ports
+
+PCIe:
+	* PCIe2 (Lanes C) to mini-PCIe slot
+	* PCIe3 (Lanes D) to PCIe slot
+
+USB 3.0: two super speed USB 3.0 type A ports
+
+UART: supports two UARTs up to 115200 bps for console
+
+Details about LS1043A RDB board can be found at `ls1043ardb`_.
 
 Table of supported boot-modes by each platform & platform that needs FIP-DDR:
 -----------------------------------------------------------------------------
@@ -59,6 +104,8 @@ Table of supported boot-modes by each platform & platform that needs FIP-DDR:
 |     lx2160ardb      |  yes  |        |       |       |  yes  |   yes       |              |       yes       |
 +---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
 |     ls1028ardb      |  yes  |        |       |       |  yes  |   yes       |              |       no        |
++---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
+|     ls1043ardb      |  yes  |        |  yes  |  yes  |       |             |              |       no        |
 +---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
 
 
@@ -248,6 +295,8 @@ should be modified based on the binary size of the image to be copied.
 
    --  Then reset to alternate bank to boot up ATF.
 
+   Command for lx2160A and ls1028a platforms:
+
    .. code:: shell
 
         qixisreset altbank;
@@ -274,9 +323,55 @@ should be modified based on the binary size of the image to be copied.
 
    --  Then reset to sd/emmc to boot up ATF from sd/emmc as boot-source.
 
+   Command for lx2160A and ls1028a platforms:
+
    .. code:: shell
 
         qixisreset <sd or emmc>;
+
+   Command for ls1043a platform:
+
+   .. code:: shell
+
+        cpld reset <sd or emmc>;
+
+-  Deploy ATF images on IFC nor flash from U-Boot prompt.
+
+   .. code:: shell
+
+        tftp 82000000  $path/bl2_nor.pbl;
+	protect off 64000000 +$filesize; erase 64000000 +$filesize; cp.b 82000000 64000000 $filesize;
+
+        tftp 82000000  $path/fip.bin;
+	protect off 64100000 +$filesize; erase 64100000 +$filesize; cp.b 82000000 64100000 $filesize;
+
+   --  Then reset to alternate bank to boot up ATF.
+
+   Command for ls1043a platform:
+
+   .. code:: shell
+
+        cpld reset altbank;
+
+-  Deploy ATF images on IFC nand flash from U-Boot prompt.
+
+   .. code:: shell
+
+        tftp 82000000  $path/bl2_nand.pbl;
+	nand erase 0x0 $filesize; nand write 82000000 0x0 $filesize;
+
+        tftp 82000000  $path/fip.bin;
+	nand erase 0x100000 $filesize;nand write 82000000 0x100000 $filesize;
+
+   --  Then reset to nand flash to boot up ATF.
+
+   Command for ls1043a platform:
+
+   .. code:: shell
+
+        cpld reset nand;
+
+
 
 Trusted Board Boot:
 ===================
@@ -298,4 +393,6 @@ Refer `nxp-ls-tbbr.rst`_ for detailed user steps.
 .. _lx2160ardb: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-communication-process/layerscape-lx2160a-multicore-communications-processor:LX2160A
 .. _ls1028a: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-processors/layerscape-1028a-applications-processor:LS1028A
 .. _ls1028ardb: https://www.nxp.com/design/qoriq-developer-resources/layerscape-ls1028a-reference-design-board:LS1028ARDB
+.. _ls1043a: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-processors/layerscape-1043a-and-1023a-processors:LS1043A
+.. _ls1043ardb: https://www.nxp.com/design/qoriq-developer-resources/layerscape-ls1043a-reference-design-board:LS1043A-RDB
 .. _nxp-ls-tbbr.rst: ./nxp-ls-tbbr.rst

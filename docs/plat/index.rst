@@ -27,7 +27,6 @@ Platform Ports
    warp7
    imx8
    imx8m
-   ls1043a
    nxp/index
    poplar
    qemu
