@@ -37,6 +37,15 @@ GICV3_SUPPORT_GIC600	:=	1
 ENABLE_SVE_FOR_NS	:=	1
 ENABLE_SVE_FOR_SWD	:=	1
 
+# enable trace buffer control registers access to NS by default
+ENABLE_TRBE_FOR_NS              := 1
+
+# enable trace system registers access to NS by default
+ENABLE_SYS_REG_TRACE_FOR_NS     := 1
+
+# enable trace filter control registers access to NS by default
+ENABLE_TRF_FOR_NS               := 1
+
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
