@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,6 +113,34 @@ func check_errata_2083908
 	b	cpu_rev_var_range
 endfunc check_errata_2083908
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex-X2 Errata 2017096.
+	 * This applies only to revisions r0p0, r1p0 and r2p0
+	 * and is fixed in r2p1.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0, x1, x17
+	 * --------------------------------------------------
+	 */
+func errata_x2_2017096_wa
+	/* Compare x0 against revision r0p0 to r2p0 */
+	mov     x17, x30
+	bl      check_errata_2017096
+	cbz     x0, 1f
+	mrs     x1, CORTEX_X2_CPUECTLR_EL1
+	orr     x1, x1, CORTEX_X2_CPUECTLR_EL1_PFSTIDIS_BIT
+	msr     CORTEX_X2_CPUECTLR_EL1, x1
+
+1:
+	ret     x17
+endfunc errata_x2_2017096_wa
+
+func check_errata_2017096
+	/* Applies to r0p0, r1p0, r2p0 */
+	mov     x1, #0x20
+	b       cpu_rev_var_ls
+endfunc check_errata_2017096
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
@@ -146,6 +174,7 @@ func cortex_x2_errata_report
 	report_errata ERRATA_X2_2002765, cortex_x2, 2002765
 	report_errata ERRATA_X2_2058056, cortex_x2, 2058056
 	report_errata ERRATA_X2_2083908, cortex_x2, 2083908
+	report_errata ERRATA_X2_2017096, cortex_x2, 2017096
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -176,6 +205,11 @@ func cortex_x2_reset_func
 #if ERRATA_X2_2083908
 	mov	x0, x18
 	bl	errata_cortex_x2_2083908_wa
+#endif
+
+#if ERRATA_X2_2017096
+	mov	x0, x18
+	bl	errata_x2_2017096_wa
 #endif
 
 	ret x19

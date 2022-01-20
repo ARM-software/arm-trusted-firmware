@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
 # Copyright (c) 2020-2021, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -497,15 +497,20 @@ ERRATA_A710_2017096	?=0
 
 # Flag to apply erratum 2002765 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
-ERRATA_X2_2002765   ?=0
+ERRATA_X2_2002765	?=0
 
 # Flag to apply erratum 2058056 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
-ERRATA_X2_2058056   ?=0
+ERRATA_X2_2058056	?=0
 
 # Flag to apply erratum 2083908 workaround during reset. This erratum applies
 # to revision r2p0 of the Cortex-X2 cpu and is still open.
-ERRATA_X2_2083908   ?=0
+ERRATA_X2_2083908	?=0
+
+# Flag to apply erratum 2017096 workaround during reset. This erratum applies
+# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
+# r2p1.
+ERRATA_X2_2017096	?=0
 
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
@@ -943,6 +948,10 @@ $(eval $(call add_define,ERRATA_X2_2058056))
 # Process ERRATA_X2_2083908 flag
 $(eval $(call assert_boolean,ERRATA_X2_2083908))
 $(eval $(call add_define,ERRATA_X2_2083908))
+
+# Process ERRATA_X2_2017096 flag
+$(eval $(call assert_boolean,ERRATA_X2_2017096))
+$(eval $(call add_define,ERRATA_X2_2017096))
 
 # Process ERRATA_DSU_798953 flag
 $(eval $(call assert_boolean,ERRATA_DSU_798953))

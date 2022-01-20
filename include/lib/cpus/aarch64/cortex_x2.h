@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
  * CPU Extended Control register specific definitions
  ******************************************************************************/
 #define CORTEX_X2_CPUECTLR_EL1					S3_0_C15_C1_4
+#define CORTEX_X2_CPUECTLR_EL1_PFSTIDIS_BIT			(ULL(1) << 8)
 
 /*******************************************************************************
  * CPU Extended Control register 2 specific definitions
