@@ -141,6 +141,49 @@ func check_errata_2017096
 	b       cpu_rev_var_ls
 endfunc check_errata_2017096
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex-X2 Errata 2081180.
+	 * This applies to revision r0p0, r1p0 and r2p0
+	 * and is fixed in r2p1.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0, x1, x17
+	 * --------------------------------------------------
+	 */
+func errata_x2_2081180_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2081180
+	cbz	x0, 1f
+
+	/* Apply instruction patching sequence */
+	ldr	x0, =0x3
+	msr	CORTEX_X2_IMP_CPUPSELR_EL3, x0
+	ldr	x0, =0xF3A08002
+	msr	CORTEX_X2_IMP_CPUPOR_EL3, x0
+	ldr	x0, =0xFFF0F7FE
+	msr	CORTEX_X2_IMP_CPUPMR_EL3, x0
+	ldr	x0, =0x10002001003FF
+	msr	CORTEX_X2_IMP_CPUPCR_EL3, x0
+	ldr	x0, =0x4
+	msr	CORTEX_X2_IMP_CPUPSELR_EL3, x0
+	ldr	x0, =0xBF200000
+	msr	CORTEX_X2_IMP_CPUPOR_EL3, x0
+	ldr	x0, =0xFFEF0000
+	msr	CORTEX_X2_IMP_CPUPMR_EL3, x0
+	ldr	x0, =0x10002001003F3
+	msr	CORTEX_X2_IMP_CPUPCR_EL3, x0
+	isb
+1:
+	ret	x17
+endfunc errata_x2_2081180_wa
+
+func check_errata_2081180
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2081180
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
@@ -175,6 +218,7 @@ func cortex_x2_errata_report
 	report_errata ERRATA_X2_2058056, cortex_x2, 2058056
 	report_errata ERRATA_X2_2083908, cortex_x2, 2083908
 	report_errata ERRATA_X2_2017096, cortex_x2, 2017096
+	report_errata ERRATA_X2_2081180, cortex_x2, 2081180
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -210,6 +254,11 @@ func cortex_x2_reset_func
 #if ERRATA_X2_2017096
 	mov	x0, x18
 	bl	errata_x2_2017096_wa
+#endif
+
+#if ERRATA_X2_2081180
+	mov	x0, x18
+	bl	errata_x2_2081180_wa
 #endif
 
 	ret x19
