@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include <assert.h>
 #include <errno.h>
 
 #include <common/debug.h>
@@ -142,6 +143,30 @@ spmc_shmem_obj_lookup(struct spmc_shmem_obj_state *state, uint64_t handle)
 	return NULL;
 }
 
+/**
+ * spmc_shmem_obj_get_next - Get the next memory object from an offset.
+ * @offset:     Offset used to track which objects have previously been
+ *              returned.
+ *
+ * Return: the next struct spmc_shmem_obj_state object from the provided
+ *	   offset.
+ *	   %NULL, if there are no more objects.
+ */
+static struct spmc_shmem_obj *
+spmc_shmem_obj_get_next(struct spmc_shmem_obj_state *state, size_t *offset)
+{
+	uint8_t *curr = state->data + *offset;
+
+	if (curr - state->data < state->allocated) {
+		struct spmc_shmem_obj *obj = (struct spmc_shmem_obj *)curr;
+
+		*offset += spmc_shmem_obj_size(obj->desc_size);
+
+		return obj;
+	}
+	return NULL;
+}
+
 static struct ffa_comp_mrd *
 spmc_shmem_obj_get_comp_mrd(struct spmc_shmem_obj *obj)
 {
@@ -162,6 +187,62 @@ spmc_shmem_obj_ffa_constituent_size(struct spmc_shmem_obj *obj)
 		sizeof(struct ffa_cons_mrd);
 }
 
+/*
+ * Compare two memory regions to determine if any range overlaps with another
+ * ongoing memory transaction.
+ */
+static bool
+overlapping_memory_regions(struct ffa_comp_mrd *region1,
+			   struct ffa_comp_mrd *region2)
+{
+	uint64_t region1_start;
+	uint64_t region1_size;
+	uint64_t region1_end;
+	uint64_t region2_start;
+	uint64_t region2_size;
+	uint64_t region2_end;
+
+	assert(region1 != NULL);
+	assert(region2 != NULL);
+
+	if (region1 == region2) {
+		return true;
+	}
+
+	/*
+	 * Check each memory region in the request against existing
+	 * transactions.
+	 */
+	for (size_t i = 0; i < region1->address_range_count; i++) {
+
+		region1_start = region1->address_range_array[i].address;
+		region1_size =
+			region1->address_range_array[i].page_count *
+			PAGE_SIZE_4KB;
+		region1_end = region1_start + region1_size;
+
+		for (size_t j = 0; j < region2->address_range_count; j++) {
+
+			region2_start = region2->address_range_array[j].address;
+			region2_size =
+				region2->address_range_array[j].page_count *
+				PAGE_SIZE_4KB;
+			region2_end = region2_start + region2_size;
+
+			if ((region1_start >= region2_start &&
+			     region1_start < region2_end) ||
+			    (region1_end >= region2_start
+			     && region1_end < region2_end)) {
+				WARN("Overlapping mem regions 0x%lx-0x%lx & 0x%lx-0x%lx\n",
+				     region1_start, region1_end,
+				     region2_start, region2_end);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 /**
  * spmc_shmem_check_obj - Check that counts in descriptor match overall size.
  * @obj:    Object containing ffa_memory_region_descriptor.
@@ -171,6 +252,8 @@ spmc_shmem_obj_ffa_constituent_size(struct spmc_shmem_obj *obj)
  */
 static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj)
 {
+	uint32_t comp_mrd_offset = 0;
+
 	if (obj->desc.emad_count == 0U) {
 		WARN("%s: unsupported attribute desc count %u.\n",
 		     __func__, obj->desc.emad_count);
@@ -246,6 +329,21 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj)
 			return 0;
 		}
 
+		/*
+		 * The offset provided to the composite memory region descriptor
+		 * should be consistent across endpoint descriptors. Store the
+		 * first entry and compare against subsequent entries.
+		 */
+		if (comp_mrd_offset == 0) {
+			comp_mrd_offset = offset;
+		} else {
+			if (comp_mrd_offset != offset) {
+				ERROR("%s: mismatching offsets provided, %u != %u\n",
+				       __func__, offset, comp_mrd_offset);
+				return -EINVAL;
+			}
+		}
+
 		total_page_count = 0;
 
 		for (size_t i = 0; i < count; i++) {
@@ -259,7 +357,47 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj)
 			return -EINVAL;
 		}
 	}
+	return 0;
+}
 
+/**
+ * spmc_shmem_check_state_obj - Check if the descriptor describes memory
+ *				regions that are currently involved with an
+ *				existing memory transactions. This implies that
+ *				the memory is not in a valid state for lending.
+ * @obj:    Object containing ffa_memory_region_descriptor.
+ *
+ * Return: 0 if object is valid, -EINVAL if invalid memory state.
+ */
+static int spmc_shmem_check_state_obj(struct spmc_shmem_obj *obj)
+{
+	size_t obj_offset = 0;
+	struct spmc_shmem_obj *inflight_obj;
+
+	struct ffa_comp_mrd *other_mrd;
+	struct ffa_comp_mrd *requested_mrd = spmc_shmem_obj_get_comp_mrd(obj);
+
+	inflight_obj = spmc_shmem_obj_get_next(&spmc_shmem_obj_state,
+					       &obj_offset);
+
+	while (inflight_obj != NULL) {
+		/*
+		 * Don't compare the transaction to itself or to partially
+		 * transmitted descriptors.
+		 */
+		if ((obj->desc.handle != inflight_obj->desc.handle) &&
+		    (obj->desc_size == obj->desc_filled)) {
+			other_mrd = spmc_shmem_obj_get_comp_mrd(inflight_obj);
+
+			if (overlapping_memory_regions(requested_mrd,
+						       other_mrd)) {
+				return -EINVAL;
+			}
+		}
+
+		inflight_obj = spmc_shmem_obj_get_next(&spmc_shmem_obj_state,
+						       &obj_offset);
+	}
 	return 0;
 }
 
@@ -369,6 +507,12 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 				goto err_bad_desc;
 			}
 		}
+	}
+
+	ret = spmc_shmem_check_state_obj(obj);
+	if (ret) {
+		ERROR("%s: invalid memory region descriptor.\n", __func__);
+		goto err_bad_desc;
 	}
 
 	SMC_RET8(smc_handle, FFA_SUCCESS_SMC32, 0, handle_low, handle_high, 0,
