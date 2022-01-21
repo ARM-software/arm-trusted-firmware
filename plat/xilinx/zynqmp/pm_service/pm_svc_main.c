@@ -262,8 +262,11 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 			uint64_t x4, void *cookie, void *handle, uint64_t flags)
 {
 	enum pm_ret_status ret;
+	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	uint32_t pm_arg[4];
+	uint32_t result[PAYLOAD_ARG_CNT];
+	uint32_t api_id;
 
 	/* Handle case where PM wasn't initialized properly */
 	if (!pm_up)
@@ -273,8 +276,11 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	pm_arg[1] = (uint32_t)(x1 >> 32);
 	pm_arg[2] = (uint32_t)x2;
 	pm_arg[3] = (uint32_t)(x2 >> 32);
+	pm_arg[4] = (uint32_t)x3;
 
-	switch (smc_fid & FUNCID_NUM_MASK) {
+	api_id = smc_fid & FUNCID_NUM_MASK;
+
+	switch (api_id) {
 	/* PM API Functions */
 	case PM_SELF_SUSPEND:
 		ret = pm_self_suspend(pm_arg[0], pm_arg[1], pm_arg[2],
@@ -318,17 +324,9 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		ret = pm_req_node(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
 
-	case PM_RELEASE_NODE:
-		ret = pm_release_node(pm_arg[0]);
-		SMC_RET1(handle, (uint64_t)ret);
-
 	case PM_SET_REQUIREMENT:
 		ret = pm_set_requirement(pm_arg[0], pm_arg[1], pm_arg[2],
 					 pm_arg[3]);
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_SET_MAX_LATENCY:
-		ret = pm_set_max_latency(pm_arg[0], pm_arg[1]);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_API_VERSION:
@@ -348,62 +346,6 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 				 ((uint64_t)pm_ctx.api_version << 32));
 		}
 
-	case PM_SET_CONFIGURATION:
-		ret = pm_set_configuration(pm_arg[0]);
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_INIT_FINALIZE:
-		ret = pm_init_finalize();
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_GET_NODE_STATUS:
-	{
-		uint32_t buff[3];
-
-		ret = pm_get_node_status(pm_arg[0], buff);
-		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)buff[0] << 32),
-			 (uint64_t)buff[1] | ((uint64_t)buff[2] << 32));
-	}
-
-	case PM_GET_OP_CHARACTERISTIC:
-	{
-		uint32_t result;
-
-		ret = pm_get_op_characteristic(pm_arg[0], pm_arg[1], &result);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)result << 32));
-	}
-
-	case PM_REGISTER_NOTIFIER:
-		ret = pm_register_notifier(pm_arg[0], pm_arg[1], pm_arg[2],
-					   pm_arg[3]);
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_RESET_ASSERT:
-		ret = pm_reset_assert(pm_arg[0], pm_arg[1]);
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_RESET_GET_STATUS:
-	{
-		uint32_t reset_status;
-
-		ret = pm_reset_get_status(pm_arg[0], &reset_status);
-		SMC_RET1(handle, (uint64_t)ret |
-			 ((uint64_t)reset_status << 32));
-	}
-
-	/* PM memory access functions */
-	case PM_MMIO_WRITE:
-		ret = pm_mmio_write(pm_arg[0], pm_arg[1], pm_arg[2]);
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_MMIO_READ:
-	{
-		uint32_t value;
-
-		ret = pm_mmio_read(pm_arg[0], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
-	}
-
 	case PM_FPGA_LOAD:
 		ret = pm_fpga_load(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
@@ -416,62 +358,16 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
-	case PM_GET_CHIPID:
-	{
-		uint32_t result[2];
-
-		ret = pm_get_chipid(result);
-		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
-			 result[1]);
-	}
-
 	case PM_SECURE_RSA_AES:
 		ret = pm_secure_rsaaes(pm_arg[0], pm_arg[1], pm_arg[2],
 				       pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_CALLBACK_DATA:
-	{
-		uint32_t result[4] = {0};
-
 		pm_get_callbackdata(result, ARRAY_SIZE(result));
 		SMC_RET2(handle,
 			 (uint64_t)result[0] | ((uint64_t)result[1] << 32),
 			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
-	}
-
-	case PM_PINCTRL_REQUEST:
-		ret = pm_pinctrl_request(pm_arg[0]);
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_PINCTRL_RELEASE:
-		ret = pm_pinctrl_release(pm_arg[0]);
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_PINCTRL_GET_FUNCTION:
-	{
-		uint32_t value = 0;
-
-		ret = pm_pinctrl_get_function(pm_arg[0], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
-	}
-
-	case PM_PINCTRL_SET_FUNCTION:
-		ret = pm_pinctrl_set_function(pm_arg[0], pm_arg[1]);
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_PINCTRL_CONFIG_PARAM_GET:
-	{
-		uint32_t value;
-
-		ret = pm_pinctrl_get_config(pm_arg[0], pm_arg[1], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
-	}
-
-	case PM_PINCTRL_CONFIG_PARAM_SET:
-		ret = pm_pinctrl_set_config(pm_arg[0], pm_arg[1], pm_arg[2]);
-		SMC_RET1(handle, (uint64_t)ret);
-
 	case PM_IOCTL:
 	{
 		uint32_t value;
@@ -568,8 +464,6 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_SECURE_IMAGE:
 	{
-		uint32_t result[2];
-
 		ret = pm_secure_image(pm_arg[0], pm_arg[1], pm_arg[2],
 				      pm_arg[3], &result[0]);
 		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
@@ -637,7 +531,6 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	case PM_FPGA_GET_VERSION:
 	case PM_FPGA_GET_FEATURE_LIST:
 	{
-		uint32_t payload[PAYLOAD_ARG_CNT];
 		uint32_t ret_payload[PAYLOAD_ARG_CNT];
 
 		PM_PACK_PAYLOAD5(payload, smc_fid & FUNCID_NUM_MASK,
@@ -648,8 +541,13 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	}
 
 	default:
-		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
-		SMC_RET1(handle, SMC_UNK);
+		/* Send request to the PMU */
+		PM_PACK_PAYLOAD6(payload, api_id, pm_arg[0], pm_arg[1],
+				 pm_arg[2], pm_arg[3], pm_arg[4]);
+		ret = pm_ipi_send_sync(primary_proc, payload, result,
+				       PAYLOAD_ARG_CNT);
+		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
+			 (uint64_t)result[1] | ((uint64_t)result[2] << 32));
 	}
 }
 

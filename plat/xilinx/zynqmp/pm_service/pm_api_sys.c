@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -273,36 +273,6 @@ enum pm_ret_status pm_set_requirement(enum pm_node_id nid,
 		return pm_ipi_send(primary_proc, payload);
 }
 
-/**
- * pm_release_node() - PM call to release a node
- * @nid		Node id of the slave
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_release_node(enum pm_node_id nid)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD2(payload, PM_RELEASE_NODE, nid);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_set_max_latency() - PM call to set wakeup latency requirements
- * @nid		Node id of the slave
- * @latency	Requested maximum wakeup latency
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_set_max_latency(enum pm_node_id nid,
-				      unsigned int latency)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD3(payload, PM_SET_MAX_LATENCY, nid, latency);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
 /* Miscellaneous API functions */
 
 /**
@@ -318,36 +288,6 @@ enum pm_ret_status pm_get_api_version(unsigned int *version)
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD1(payload, PM_GET_API_VERSION);
 	return pm_ipi_send_sync(primary_proc, payload, version, 1);
-}
-
-/**
- * pm_set_configuration() - PM call to set system configuration
- * @phys_addr	Physical 32-bit address of data structure in memory
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_set_configuration(unsigned int phys_addr)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD2(payload, PM_SET_CONFIGURATION, phys_addr);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_init_finalize() - Call to notify PMU firmware that master has power
- *			management enabled and that it has finished its
- *			initialization
- *
- * @return	Status returned by the PMU firmware
- */
-enum pm_ret_status pm_init_finalize(void)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD1(payload, PM_INIT_FINALIZE);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -367,86 +307,6 @@ enum pm_ret_status pm_get_node_status(enum pm_node_id nid,
 
 	PM_PACK_PAYLOAD2(payload, PM_GET_NODE_STATUS, nid);
 	return pm_ipi_send_sync(primary_proc, payload, ret_buff, 3);
-}
-
-/**
- * pm_register_notifier() - Register the PU to be notified of PM events
- * @nid		Node id of the slave
- * @event	The event to be notified about
- * @wake	Wake up on event
- * @enable	Enable or disable the notifier
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_register_notifier(enum pm_node_id nid,
-					unsigned int event,
-					unsigned int wake,
-					unsigned int enable)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD5(payload, PM_REGISTER_NOTIFIER,
-			 nid, event, wake, enable);
-
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_get_op_characteristic() - PM call to request operating characteristics
- *				of a node
- * @nid		Node id of the slave
- * @type	Type of the operating characteristic
- *		(power, temperature and latency)
- * @result	Returns the operating characteristic for the requested node,
- *		specified by the type
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_get_op_characteristic(enum pm_node_id nid,
-					    enum pm_opchar_type type,
-					    uint32_t *result)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD3(payload, PM_GET_OP_CHARACTERISTIC, nid, type);
-	return pm_ipi_send_sync(primary_proc, payload, result, 1);
-}
-
-/* Direct-Control API functions */
-
-/**
- * pm_reset_assert() - Assert reset
- * @reset	Reset ID
- * @assert	Assert (1) or de-assert (0)
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_reset_assert(unsigned int reset,
-				   unsigned int assert)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD3(payload, PM_RESET_ASSERT, reset, assert);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_reset_get_status() - Get current status of a reset line
- * @reset	Reset ID
- * @reset_status Returns current status of selected reset line
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_reset_get_status(unsigned int reset,
-				       unsigned int *reset_status)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD2(payload, PM_RESET_GET_STATUS, reset);
-	return pm_ipi_send_sync(primary_proc, payload, reset_status, 1);
 }
 
 /**
@@ -615,113 +475,6 @@ void pm_get_callbackdata(uint32_t *data, size_t count)
 
 	pm_ipi_buff_read_callb(data, count);
 	pm_ipi_irq_clear(primary_proc);
-}
-
-/**
- * pm_pinctrl_request() - Request Pin from firmware
- * @pin		Pin number to request
- *
- * This function requests pin from firmware.
- *
- * @return	Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_pinctrl_request(unsigned int pin)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD2(payload, PM_PINCTRL_REQUEST, pin);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_pinctrl_release() - Release Pin from firmware
- * @pin		Pin number to release
- *
- * This function releases pin from firmware.
- *
- * @return	Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_pinctrl_release(unsigned int pin)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD2(payload, PM_PINCTRL_RELEASE, pin);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_pinctrl_get_function() - Read function id set for the given pin
- * @pin		Pin number
- * @fid		ID of function currently set for given pin
- *
- * This function provides the function currently set for the given pin.
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_pinctrl_get_function(unsigned int pin, unsigned int *fid)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD2(payload, PM_PINCTRL_GET_FUNCTION, pin);
-	return pm_ipi_send_sync(primary_proc, payload, fid, 1);
-}
-
-/**
- * pm_pinctrl_set_function() - Set function id set for the given pin
- * @pin		Pin number
- * @fid		ID of function to set for given pin
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_pinctrl_set_function(unsigned int pin, unsigned int fid)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD3(payload, PM_PINCTRL_SET_FUNCTION, pin, fid);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_pinctrl_get_config() - Read value of requested config param for given pin
- * @pin		Pin number
- * @param	Parameter values to be read
- * @value	Buffer for configuration Parameter value
- *
- * This function provides the configuration parameter value for the given pin.
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_pinctrl_get_config(unsigned int pin,
-					 unsigned int param,
-					 unsigned int *value)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD3(payload, PM_PINCTRL_CONFIG_PARAM_GET, pin, param);
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
-}
-
-/**
- * pm_pinctrl_set_config() - Set value of requested config param for given pin
- * @pin		Pin number
- * @param	Parameter to set
- * @value	Parameter value to set
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
-					 unsigned int param,
-					 unsigned int value)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD4(payload, PM_PINCTRL_CONFIG_PARAM_SET, pin, param,
-			 value);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**

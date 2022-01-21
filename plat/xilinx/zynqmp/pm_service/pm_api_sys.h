@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,28 +104,16 @@ enum pm_ret_status pm_req_node(enum pm_node_id nid,
 			       unsigned int capabilities,
 			       unsigned int qos,
 			       enum pm_request_ack ack);
-enum pm_ret_status pm_release_node(enum pm_node_id nid);
 
 enum pm_ret_status pm_set_requirement(enum pm_node_id nid,
 				      unsigned int capabilities,
 				      unsigned int qos,
 				      enum pm_request_ack ack);
-enum pm_ret_status pm_set_max_latency(enum pm_node_id nid,
-				      unsigned int latency);
 
 /* Miscellaneous API functions */
 enum pm_ret_status pm_get_api_version(unsigned int *version);
-enum pm_ret_status pm_set_configuration(unsigned int phys_addr);
-enum pm_ret_status pm_init_finalize(void);
 enum pm_ret_status pm_get_node_status(enum pm_node_id node,
 				      uint32_t *ret_buff);
-enum pm_ret_status pm_register_notifier(enum pm_node_id nid,
-					unsigned int event,
-					unsigned int wake,
-					unsigned int enable);
-enum pm_ret_status pm_get_op_characteristic(enum pm_node_id nid,
-					    enum pm_opchar_type type,
-					    uint32_t *result);
 enum pm_ret_status pm_acknowledge_cb(enum pm_node_id nid,
 				     enum pm_ret_status status,
 				     unsigned int oppoint);
@@ -134,10 +122,6 @@ enum pm_ret_status pm_notify_cb(enum pm_node_id nid,
 				unsigned int oppoint);
 
 /* Direct-Control API functions */
-enum pm_ret_status pm_reset_assert(unsigned int reset_id,
-				   unsigned int assert);
-enum pm_ret_status pm_reset_get_status(unsigned int reset_id,
-				       unsigned int *reset_status);
 enum pm_ret_status pm_mmio_write(uintptr_t address,
 				 unsigned int mask,
 				 unsigned int value);
@@ -155,18 +139,6 @@ enum pm_ret_status pm_secure_rsaaes(uint32_t address_high,
 				    uint32_t flags);
 unsigned int pm_get_shutdown_scope(void);
 void pm_get_callbackdata(uint32_t *data, size_t count);
-enum pm_ret_status pm_pinctrl_request(unsigned int pin);
-enum pm_ret_status pm_pinctrl_release(unsigned int pin);
-enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
-					   enum pm_node_id *nid);
-enum pm_ret_status pm_pinctrl_set_function(unsigned int pin,
-					   enum pm_node_id nid);
-enum pm_ret_status pm_pinctrl_get_config(unsigned int pin,
-					 unsigned int param,
-					 unsigned int *value);
-enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
-					 unsigned int param,
-					 unsigned int value);
 enum pm_ret_status pm_ioctl(enum pm_node_id nid,
 			    unsigned int ioctl_id,
 			    unsigned int arg1,
