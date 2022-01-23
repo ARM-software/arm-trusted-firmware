@@ -34,6 +34,13 @@ void sunxi_prepare_dtb(void *fdt)
 	}
 #endif
 
+	if (sunxi_psci_is_scpi()) {
+		ret = fdt_add_cpu_idle_states(fdt, sunxi_idle_states);
+		if (ret < 0) {
+			WARN("Failed to add idle states to DT: %d\n", ret);
+		}
+	}
+
 	ret = fdt_pack(fdt);
 	if (ret < 0) {
 		ERROR("Failed to pack devicetree at %p: error %d\n",
