@@ -31,7 +31,6 @@ void sunxi_prepare_dtb(void *fdt)
 	if (fdt_add_reserved_memory(fdt, "tf-a@40000000", BL31_BASE,
 				    BL31_LIMIT - BL31_BASE)) {
 		WARN("Failed to add reserved memory nodes to DT.\n");
-		return;
 	}
 #endif
 
@@ -39,8 +38,8 @@ void sunxi_prepare_dtb(void *fdt)
 	if (ret < 0) {
 		ERROR("Failed to pack devicetree at %p: error %d\n",
 		      fdt, ret);
-	} else {
-		clean_dcache_range((uintptr_t)fdt, fdt_blob_size(fdt));
-		INFO("Changed devicetree.\n");
 	}
+
+	clean_dcache_range((uintptr_t)fdt, fdt_blob_size(fdt));
+	INFO("Changed devicetree.\n");
 }
