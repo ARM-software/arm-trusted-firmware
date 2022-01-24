@@ -40,6 +40,12 @@ static void unsigned_num_print(char **s, size_t n, size_t *chars_printed,
 	unsigned int rem;
 	char ascii_a = capitalise ? 'A' : 'a';
 
+	if (radix < 10) {
+		ERROR("snprintf: unsupported radix '%d'.", radix);
+		plat_panic_handler();
+		assert(0); /* Unreachable */
+	}
+
 	do {
 		rem = unum % radix;
 		if (rem < 10U) {
