@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2021-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -111,6 +112,135 @@ static char *wkrqst_sm_info[] = {
 	"Wake dual lockstep error",
 	"Wake-GICD AXI4-Stream interface error"
 };
+
+/* Helper function to find detailed information for a specific IERR */
+static char __unused *ras_ierr_to_str(unsigned int blkid, unsigned int ierr)
+{
+	char *str = NULL;
+
+	/* Find the correct record */
+	switch (blkid) {
+	case FMU_BLK_GICD:
+		assert(ierr < ARRAY_SIZE(gicd_sm_info));
+		str = gicd_sm_info[ierr];
+		break;
+
+	case FMU_BLK_SPICOL:
+		assert(ierr < ARRAY_SIZE(spicol_sm_info));
+		str = spicol_sm_info[ierr];
+		break;
+
+	case FMU_BLK_WAKERQ:
+		assert(ierr < ARRAY_SIZE(wkrqst_sm_info));
+		str = wkrqst_sm_info[ierr];
+		break;
+
+	case FMU_BLK_ITS0...FMU_BLK_ITS7:
+		assert(ierr < ARRAY_SIZE(its_sm_info));
+		str = its_sm_info[ierr];
+		break;
+
+	case FMU_BLK_PPI0...FMU_BLK_PPI31:
+		assert(ierr < ARRAY_SIZE(ppi_sm_info));
+		str = ppi_sm_info[ierr];
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	return str;
+}
+
+/*
+ * Probe for error in memory-mapped registers containing error records.
+ * Upon detecting an error, set probe data to the index of the record
+ * in error, and return 1; otherwise, return 0.
+ */
+int gic600_fmu_probe(uint64_t base, int *probe_data)
+{
+	uint64_t gsr;
+
+	assert(base != 0UL);
+
+	/*
+	 * Read ERR_GSR to find the error record 'M'
+	 */
+	gsr = gic_fmu_read_errgsr(base);
+	if (gsr == U(0)) {
+		return 0;
+	}
+
+	/* Return the index of the record in error */
+	if (probe_data != NULL) {
+		*probe_data = (int)__builtin_ctzll(gsr);
+	}
+
+	return 1;
+}
+
+/*
+ * The handler function to read RAS records and find the safety
+ * mechanism with the error.
+ */
+int gic600_fmu_ras_handler(uint64_t base, int probe_data)
+{
+	uint64_t errstatus;
+	unsigned int blkid = (unsigned int)probe_data, ierr, serr;
+
+	assert(base != 0UL);
+
+	/*
+	 * FMU_ERRGSR indicates the ID of the GIC
+	 * block that faulted.
+	 */
+	assert(blkid <= FMU_BLK_PPI31);
+
+	/*
+	 * Find more information by reading FMU_ERR<M>STATUS
+	 * register
+	 */
+	errstatus = gic_fmu_read_errstatus(base, blkid);
+
+	/*
+	 * If FMU_ERR<M>STATUS.V is set to 0, no RAS records
+	 * need to be scanned.
+	 */
+	if ((errstatus & FMU_ERRSTATUS_V_BIT) == U(0)) {
+		return 0;
+	}
+
+	/*
+	 * FMU_ERR<M>STATUS.IERR indicates which Safety Mechanism
+	 * reported the error.
+	 */
+	ierr = (errstatus >> FMU_ERRSTATUS_IERR_SHIFT) &
+			FMU_ERRSTATUS_IERR_MASK;
+
+	/*
+	 * FMU_ERR<M>STATUS.SERR indicates architecturally
+	 * defined primary error code.
+	 */
+	serr = errstatus & FMU_ERRSTATUS_SERR_MASK;
+
+	ERROR("**************************************\n");
+	ERROR("RAS %s Error detected by GIC600 AE FMU\n",
+		((errstatus & FMU_ERRSTATUS_UE_BIT) != 0U) ?
+			"Uncorrectable" : "Corrected");
+	ERROR("\tStatus = 0x%lx \n", errstatus);
+	ERROR("\tBlock ID = 0x%x\n", blkid);
+	ERROR("\tSafety Mechanism ID = 0x%x (%s)\n", ierr,
+		ras_ierr_to_str(blkid, ierr));
+	ERROR("\tArchitecturally defined primary error code = 0x%x\n",
+		serr);
+	ERROR("**************************************\n");
+
+	/* Clear FMU_ERR<M>STATUS */
+	gic_fmu_write_errstatus(base, probe_data, errstatus);
+
+	return 0;
+}
 
 /*
  * Initialization sequence for the FMU
