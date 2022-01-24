@@ -7,6 +7,7 @@ Design Documents
    :numbered:
 
    cmake_framework
+   context_mgmt_rework
    measured_boot_poc
 
 --------------
