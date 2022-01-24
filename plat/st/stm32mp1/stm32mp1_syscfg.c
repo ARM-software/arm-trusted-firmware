@@ -1,16 +1,17 @@
 /*
- * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <platform_def.h>
-
 #include <common/debug.h>
+#include <drivers/clk.h>
+#include <drivers/delay_timer.h>
 #include <drivers/st/bsec.h>
 #include <drivers/st/stpmic1.h>
 #include <lib/mmio.h>
 
+#include <platform_def.h>
 #include <stm32mp_dt.h>
 #include <stm32mp1_private.h>
 
@@ -23,6 +24,9 @@
 #define SYSCFG_CMPCR				0x20U
 #define SYSCFG_CMPENSETR			0x24U
 #define SYSCFG_CMPENCLRR			0x28U
+
+#define CMPCR_CMPENSETR_OFFSET			0x4U
+#define CMPCR_CMPENCLRR_OFFSET			0x8U
 
 /*
  * SYSCFG_BOOTR Register
@@ -54,28 +58,66 @@
 #define SYSCFG_CMPCR_RAPSRC			GENMASK(23, 20)
 #define SYSCFG_CMPCR_ANSRC_SHIFT		24
 
+#define SYSCFG_CMPCR_READY_TIMEOUT_US		10000U
+
 /*
  * SYSCFG_CMPENSETR Register
  */
 #define SYSCFG_CMPENSETR_MPU_EN			BIT(0)
 
-void stm32mp1_syscfg_init(void)
+static void enable_io_comp_cell_finish(uintptr_t cmpcr_off)
 {
-	uint32_t bootr;
+	uint64_t start;
+
+	start = timeout_init_us(SYSCFG_CMPCR_READY_TIMEOUT_US);
+
+	while ((mmio_read_32(SYSCFG_BASE + cmpcr_off) & SYSCFG_CMPCR_READY) == 0U) {
+		if (timeout_elapsed(start)) {
+			/* Failure on IO compensation enable is not a issue: warn only. */
+			WARN("IO compensation cell not ready\n");
+			break;
+		}
+	}
+
+	mmio_clrbits_32(SYSCFG_BASE + cmpcr_off, SYSCFG_CMPCR_SW_CTRL);
+}
+
+static void disable_io_comp_cell(uintptr_t cmpcr_off)
+{
+	uint32_t value;
+
+	if (((mmio_read_32(SYSCFG_BASE + cmpcr_off) & SYSCFG_CMPCR_READY) == 0U) ||
+	    ((mmio_read_32(SYSCFG_BASE + cmpcr_off + CMPCR_CMPENSETR_OFFSET) &
+	     SYSCFG_CMPENSETR_MPU_EN) == 0U)) {
+		return;
+	}
+
+	value = mmio_read_32(SYSCFG_BASE + cmpcr_off) >> SYSCFG_CMPCR_ANSRC_SHIFT;
+
+	mmio_clrbits_32(SYSCFG_BASE + cmpcr_off, SYSCFG_CMPCR_RANSRC | SYSCFG_CMPCR_RAPSRC);
+
+	value <<= SYSCFG_CMPCR_RANSRC_SHIFT;
+	value |= mmio_read_32(SYSCFG_BASE + cmpcr_off);
+
+	mmio_write_32(SYSCFG_BASE + cmpcr_off, value | SYSCFG_CMPCR_SW_CTRL);
+
+	mmio_setbits_32(SYSCFG_BASE + cmpcr_off + CMPCR_CMPENCLRR_OFFSET, SYSCFG_CMPENSETR_MPU_EN);
+}
+
+static void enable_high_speed_mode_low_voltage(void)
+{
+	mmio_write_32(SYSCFG_BASE + SYSCFG_IOCTRLSETR,
+		      SYSCFG_IOCTRLSETR_HSLVEN_TRACE |
+		      SYSCFG_IOCTRLSETR_HSLVEN_QUADSPI |
+		      SYSCFG_IOCTRLSETR_HSLVEN_ETH |
+		      SYSCFG_IOCTRLSETR_HSLVEN_SDMMC |
+		      SYSCFG_IOCTRLSETR_HSLVEN_SPI);
+}
+
+static void stm32mp1_syscfg_set_hslv(void)
+{
 	uint32_t otp = 0;
 	uint32_t vdd_voltage;
-
-	/*
-	 * Interconnect update : select master using the port 1.
-	 * LTDC = AXI_M9.
-	 */
-	mmio_write_32(SYSCFG_BASE + SYSCFG_ICNR, SYSCFG_ICNR_AXI_M9);
-
-	/* Disable Pull-Down for boot pin connected to VDD */
-	bootr = mmio_read_32(SYSCFG_BASE + SYSCFG_BOOTR) &
-		SYSCFG_BOOTR_BOOT_MASK;
-	mmio_clrsetbits_32(SYSCFG_BASE + SYSCFG_BOOTR, SYSCFG_BOOTR_BOOTPD_MASK,
-			   bootr << SYSCFG_BOOTR_BOOTPD_SHIFT);
 
 	/*
 	 * High Speed Low Voltage Pad mode Enable for SPI, SDMMC, ETH, QSPI
@@ -105,12 +147,7 @@ void stm32mp1_syscfg_init(void)
 	if (vdd_voltage == 0U) {
 		WARN("VDD unknown");
 	} else if (vdd_voltage < 2700000U) {
-		mmio_write_32(SYSCFG_BASE + SYSCFG_IOCTRLSETR,
-			      SYSCFG_IOCTRLSETR_HSLVEN_TRACE |
-			      SYSCFG_IOCTRLSETR_HSLVEN_QUADSPI |
-			      SYSCFG_IOCTRLSETR_HSLVEN_ETH |
-			      SYSCFG_IOCTRLSETR_HSLVEN_SDMMC |
-			      SYSCFG_IOCTRLSETR_HSLVEN_SPI);
+		enable_high_speed_mode_low_voltage();
 
 		if (otp == 0U) {
 			INFO("Product_below_2v5=0: HSLVEN protected by HW\n");
@@ -123,33 +160,50 @@ void stm32mp1_syscfg_init(void)
 			panic();
 		}
 	}
-
-	stm32mp1_syscfg_enable_io_compensation();
 }
 
-void stm32mp1_syscfg_enable_io_compensation(void)
+void stm32mp1_syscfg_init(void)
+{
+	uint32_t bootr;
+
+	/*
+	 * Interconnect update : select master using the port 1.
+	 * LTDC = AXI_M9.
+	 */
+	mmio_write_32(SYSCFG_BASE + SYSCFG_ICNR, SYSCFG_ICNR_AXI_M9);
+
+	/* Disable Pull-Down for boot pin connected to VDD */
+	bootr = mmio_read_32(SYSCFG_BASE + SYSCFG_BOOTR) &
+		SYSCFG_BOOTR_BOOT_MASK;
+	mmio_clrsetbits_32(SYSCFG_BASE + SYSCFG_BOOTR, SYSCFG_BOOTR_BOOTPD_MASK,
+			   bootr << SYSCFG_BOOTR_BOOTPD_SHIFT);
+
+	stm32mp1_syscfg_set_hslv();
+
+	stm32mp1_syscfg_enable_io_compensation_start();
+}
+
+void stm32mp1_syscfg_enable_io_compensation_start(void)
 {
 	/*
 	 * Activate automatic I/O compensation.
 	 * Warning: need to ensure CSI enabled and ready in clock driver.
 	 * Enable non-secure clock, we assume non-secure is suspended.
 	 */
-	stm32mp1_clk_enable_non_secure(SYSCFG);
+	clk_enable(SYSCFG);
 
-	mmio_setbits_32(SYSCFG_BASE + SYSCFG_CMPENSETR,
+	mmio_setbits_32(SYSCFG_BASE + CMPCR_CMPENSETR_OFFSET + SYSCFG_CMPCR,
 			SYSCFG_CMPENSETR_MPU_EN);
+}
 
-	while ((mmio_read_32(SYSCFG_BASE + SYSCFG_CMPCR) &
-		SYSCFG_CMPCR_READY) == 0U) {
-		;
-	}
-
-	mmio_clrbits_32(SYSCFG_BASE + SYSCFG_CMPCR, SYSCFG_CMPCR_SW_CTRL);
+void stm32mp1_syscfg_enable_io_compensation_finish(void)
+{
+	enable_io_comp_cell_finish(SYSCFG_CMPCR);
 }
 
 void stm32mp1_syscfg_disable_io_compensation(void)
 {
-	uint32_t value;
+	clk_enable(SYSCFG);
 
 	/*
 	 * Deactivate automatic I/O compensation.
@@ -157,18 +211,7 @@ void stm32mp1_syscfg_disable_io_compensation(void)
 	 * requested for other usages and always OFF in STANDBY.
 	 * Disable non-secure SYSCFG clock, we assume non-secure is suspended.
 	 */
-	value = mmio_read_32(SYSCFG_BASE + SYSCFG_CMPCR) >>
-	      SYSCFG_CMPCR_ANSRC_SHIFT;
+	disable_io_comp_cell(SYSCFG_CMPCR);
 
-	mmio_clrbits_32(SYSCFG_BASE + SYSCFG_CMPCR,
-			SYSCFG_CMPCR_RANSRC | SYSCFG_CMPCR_RAPSRC);
-
-	value = mmio_read_32(SYSCFG_BASE + SYSCFG_CMPCR) |
-		(value << SYSCFG_CMPCR_RANSRC_SHIFT);
-
-	mmio_write_32(SYSCFG_BASE + SYSCFG_CMPCR, value | SYSCFG_CMPCR_SW_CTRL);
-
-	mmio_setbits_32(SYSCFG_BASE + SYSCFG_CMPENCLRR, SYSCFG_CMPENSETR_MPU_EN);
-
-	stm32mp1_clk_disable_non_secure(SYSCFG);
+	clk_disable(SYSCFG);
 }
