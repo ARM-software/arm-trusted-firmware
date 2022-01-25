@@ -68,7 +68,7 @@
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
  * plus a little space for growth.
  */
-#define PLAT_ARM_MAX_BL1_RW_SIZE	0xC000
+#define PLAT_ARM_MAX_BL1_RW_SIZE	(64 * 1024)	/* 64 KB */
 
 /*
  * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
