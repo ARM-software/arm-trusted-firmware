@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,12 +46,15 @@
 		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_CLCD))   | \
 		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_VIRTIO))
 
+/* Maximum number of address bits used per chip */
+#define CSS_SGI_ADDR_BITS_PER_CHIP	U(42)
+
 /*
  * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
  */
 #ifdef __aarch64__
-#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 42)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 42)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << CSS_SGI_ADDR_BITS_PER_CHIP)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << CSS_SGI_ADDR_BITS_PER_CHIP)
 #else
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)

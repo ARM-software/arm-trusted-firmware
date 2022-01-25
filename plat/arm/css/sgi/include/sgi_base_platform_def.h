@@ -21,8 +21,9 @@
 
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
 
-/* Remote chip address offset (4TB per chip) */
-#define CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n)	((ULL(1) << 42) * (n))
+/* Remote chip address offset */
+#define CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n)	\
+		((ULL(1) << CSS_SGI_ADDR_BITS_PER_CHIP) * (n))
 
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
