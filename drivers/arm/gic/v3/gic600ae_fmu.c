@@ -268,8 +268,12 @@ void gic600_fmu_init(uint64_t base, uint64_t blk_present_mask,
 	/* Enable error detection for all error records */
 	for (unsigned int i = 0U; i < num_blk; i++) {
 
-		/* Skip next steps if the block is not present */
+		/*
+		 * Disable all safety mechanisms for blocks that are not
+		 * present and skip the next steps.
+		 */
 		if ((blk_present_mask & BIT(i)) == 0U) {
+			gic_fmu_disable_all_sm_blkid(base, i);
 			continue;
 		}
 
