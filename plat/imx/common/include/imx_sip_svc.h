@@ -104,4 +104,9 @@ uint64_t imx_buildinfo_handler(uint32_t smc_fid, u_register_t x1,
 int scmi_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2, u_register_t x3);
 int imx_hifi_xrdc(uint32_t smc_fid);
 
+#if defined(PLAT_imx8ulp)
+int dram_dvfs_handler(uint32_t smc_fid, void *handle,
+	u_register_t x1, u_register_t x2, u_register_t x3);
+#endif
+
 #endif /* __IMX_SIP_SVC_H__ */

@@ -19,6 +19,7 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
+#include <dram.h>
 #include <imx8_lpuart.h>
 #include <imx8ulp_caam.h>
 #include <imx_plat_common.h>
@@ -153,6 +154,8 @@ void bl31_platform_setup(void)
 	xrdc_enable();
 
 	imx8ulp_caam_init();
+
+	dram_init();
 }
 
 entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)

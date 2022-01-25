@@ -7,9 +7,16 @@
 #include <assert.h>
 #include <stdbool.h>
 
+#include <arch_helpers.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/runtime_svc.h>
 #include <lib/mmio.h>
+#include <lib/spinlock.h>
+#include <plat/common/platform.h>
+
 #include <platform_def.h>
 
+#include <dram.h>
 #include <upower_api.h>
 
 #define PHY_FREQ_SEL_INDEX(x)		((x) << 16)
@@ -129,6 +136,12 @@ uint32_t freq_specific_reg_array[PHY_DIFF_NUM] = {
 616, 626, 858, 860, 861, 864, 865, 868, 869, 870,
 871, 872, 882, 1063, 1319, 1566, 1624, 1625
 };
+
+/* lock used for DDR DVFS */
+spinlock_t dfs_lock;
+static volatile uint32_t core_count;
+static volatile bool in_progress;
+static int num_fsp;
 
 static void ddr_init(void)
 {
@@ -424,4 +437,224 @@ void dram_exit_retention(void)
 			;
 		}
 	}
+}
+
+#define LPDDR_DONE       (0x1<<4)
+#define SOC_FREQ_CHG_ACK (0x1<<6)
+#define SOC_FREQ_CHG_REQ (0x1<<7)
+#define LPI_WAKEUP_EN    (0x4<<8)
+#define SOC_FREQ_REQ     (0x1<<11)
+
+#define LPDDR_EN_CLKGATE (0x1<<17)
+
+static void set_cgc2_ddrclk(uint8_t src, uint8_t div)
+{
+
+	/* Wait until the reg is unlocked for writing */
+	while (mmio_read_32(IMX_CGC2_BASE + 0x40) & BIT(31))
+		;
+
+	mmio_write_32(IMX_CGC2_BASE + 0x40, (src << 28) | (div << 21));
+	/* Wait for the clock switching done */
+	while (!(mmio_read_32(IMX_CGC2_BASE + 0x40) & BIT(27)))
+		;
+}
+static void set_ddr_clk(uint32_t ddr_freq)
+{
+	/* Disable DDR clock */
+	mmio_clrbits_32(IMX_PCC5_BASE + 0x108, BIT(30));
+	switch (ddr_freq) {
+	/* boot frequency ? */
+	case 48:
+		set_cgc2_ddrclk(2, 0);
+		break;
+	/* default bypass frequency for fsp 1 */
+	case 192:
+		set_cgc2_ddrclk(0, 1);
+		break;
+	case 384:
+		set_cgc2_ddrclk(0, 0);
+		break;
+	case 264:
+		set_cgc2_ddrclk(4, 3);
+		break;
+	case 528:
+		set_cgc2_ddrclk(4, 1);
+		break;
+	default:
+		break;
+	}
+	/* Enable DDR clock */
+	mmio_setbits_32(IMX_PCC5_BASE + 0x108, BIT(30));
+
+	/* Wait until the reg is unlocked for writing */
+	while (mmio_read_32(IMX_CGC2_BASE + 0x40) & BIT(31)) {
+		;
+	}
+}
+
+#define AVD_SIM_LPDDR_CTRL	(IMX_LPAV_SIM_BASE + 0x14)
+#define AVD_SIM_LPDDR_CTRL2	(IMX_LPAV_SIM_BASE + 0x18)
+#define MAX_FSP_NUM	U(3)
+#define DDR_DFS_GET_FSP_COUNT	0x10
+#define DDR_BYPASS_DRATE	U(400)
+
+/* Normally, we only switch frequency between 1(bypass) and 2(highest) */
+int lpddr4_dfs(uint32_t freq_index)
+{
+	uint32_t lpddr_ctrl, lpddr_ctrl2;
+	uint32_t ddr_ctl_144;
+
+	/*
+	 * Valid index: 0 to 2
+	 * index 0: boot frequency
+	 * index 1: bypass frequency
+	 * index 2: highest frequency
+	 */
+	if (freq_index > 2U) {
+		return -1;
+	}
+
+	/* Enable LPI_WAKEUP_EN */
+	ddr_ctl_144 = mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_144);
+	mmio_setbits_32(IMX_DDRC_BASE + DENALI_CTL_144, LPI_WAKEUP_EN);
+
+	/* put DRAM into long self-refresh & clock gating */
+	lpddr_ctrl = mmio_read_32(AVD_SIM_LPDDR_CTRL);
+	lpddr_ctrl = (lpddr_ctrl & ~((0x3f << 15) | (0x3 << 9))) | (0x28 << 15) | (freq_index << 9);
+	mmio_write_32(AVD_SIM_LPDDR_CTRL, lpddr_ctrl);
+
+	/* Gating the clock */
+	lpddr_ctrl2 = mmio_read_32(AVD_SIM_LPDDR_CTRL2);
+	mmio_setbits_32(AVD_SIM_LPDDR_CTRL2, LPDDR_EN_CLKGATE);
+
+	/* Request frequency change */
+	mmio_setbits_32(AVD_SIM_LPDDR_CTRL, SOC_FREQ_REQ);
+
+	do {
+		lpddr_ctrl = mmio_read_32(AVD_SIM_LPDDR_CTRL);
+		if (lpddr_ctrl & SOC_FREQ_CHG_REQ) {
+			/* Bypass mode */
+			if (info->fsp_table[freq_index] < DDR_BYPASS_DRATE) {
+				/* Change to PLL bypass mode */
+				mmio_write_32(IMX_LPAV_SIM_BASE, 0x1);
+				/* change the ddr clock source & frequency */
+				set_ddr_clk(info->fsp_table[freq_index]);
+			} else {
+				/* Change to PLL unbypass mode */
+				mmio_write_32(IMX_LPAV_SIM_BASE, 0x0);
+				/* change the ddr clock source & frequency */
+				set_ddr_clk(info->fsp_table[freq_index] >> 1);
+			}
+
+			mmio_clrsetbits_32(AVD_SIM_LPDDR_CTRL, SOC_FREQ_CHG_REQ, SOC_FREQ_CHG_ACK);
+			continue;
+		}
+	} while ((lpddr_ctrl & LPDDR_DONE) != 0); /* several try? */
+
+	/* restore the original setting */
+	mmio_write_32(IMX_DDRC_BASE + DENALI_CTL_144, ddr_ctl_144);
+	mmio_write_32(AVD_SIM_LPDDR_CTRL2, lpddr_ctrl2);
+
+	/* Check the DFS result */
+	lpddr_ctrl = mmio_read_32(AVD_SIM_LPDDR_CTRL) & 0xF;
+	if (lpddr_ctrl != 0U) {
+		/* Must be something wrong, return failure */
+		return -1;
+	}
+
+	/* DFS done successfully */
+	return 0;
+}
+
+/* for the non-primary core, waiting for DFS done */
+static uint64_t waiting_dvfs(uint32_t id, uint32_t flags,
+		void *handle, void *cookie)
+{
+	uint32_t irq;
+
+	irq = plat_ic_acknowledge_interrupt();
+	if (irq < 1022U) {
+		plat_ic_end_of_interrupt(irq);
+	}
+
+	/* set the WFE done status */
+	spin_lock(&dfs_lock);
+	core_count++;
+	dsb();
+	spin_unlock(&dfs_lock);
+
+	while (in_progress) {
+		wfe();
+	}
+
+	return 0;
+}
+
+int dram_dvfs_handler(uint32_t smc_fid, void *handle,
+		u_register_t x1, u_register_t x2, u_register_t x3)
+{
+	unsigned int fsp_index = x1;
+	uint32_t online_cpus = x2 - 1;
+	uint64_t mpidr = read_mpidr_el1();
+	unsigned int cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
+
+	/* Get the number of FSPs */
+	if (x1 == DDR_DFS_GET_FSP_COUNT) {
+		SMC_RET2(handle, num_fsp, info->fsp_table[1]);
+	}
+
+	/* start lpddr frequency scaling */
+	in_progress = true;
+	dsb();
+
+	/* notify other core wait for scaling done */
+	for (unsigned int i = 0; i < PLATFORM_CORE_COUNT; i++)
+		/* Skip raise SGI for current CPU */
+		if (i != cpu_id) {
+			plat_ic_raise_el3_sgi(0x8, i);
+		}
+
+	/* Make sure all the cpu in WFE */
+	while (online_cpus != core_count) {
+		;
+	}
+
+	/* Flush the L1/L2 cache */
+	dcsw_op_all(DCCSW);
+
+	lpddr4_dfs(fsp_index);
+
+	in_progress = false;
+	core_count = 0;
+	dsb();
+	sev();
+	isb();
+
+	SMC_RET1(handle, 0);
+}
+
+void dram_init(void)
+{
+	uint32_t flags = 0;
+	uint32_t rc;
+	unsigned int i;
+
+	/* Register the EL3 handler for DDR DVFS */
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	rc = register_interrupt_type_handler(INTR_TYPE_EL3, waiting_dvfs, flags);
+	if (rc) {
+		panic();
+	}
+
+	info = (struct dram_timing_info *)SAVED_DRAM_DATA_BASE;
+
+	/* Get the num of the supported Fsp */
+	for (i = 0; i < MAX_FSP_NUM; i++) {
+		if (!info->fsp_table[i]) {
+			break;
+		}
+	}
+
+	num_fsp = (i > MAX_FSP_NUM) ? MAX_FSP_NUM : i;
 }
