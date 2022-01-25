@@ -529,9 +529,9 @@ Common build options
    the build. The default value is 40 in debug builds and 20 in release builds.
 
 -  ``MEASURED_BOOT``: Boolean flag to include support for the Measured Boot
-   feature. If this flag is enabled ``TRUSTED_BOARD_BOOT`` must be set as well
-   in order to provide trust that the code taking the measurements and recording
-   them has not been tampered with.
+   feature. This flag can be enabled with ``TRUSTED_BOARD_BOOT`` in order to
+   provide trust that the code taking the measurements and recording them has
+   not been tampered with.
 
    This option defaults to 0.
 

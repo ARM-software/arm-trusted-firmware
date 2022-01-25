@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -736,6 +736,12 @@ ifeq ($(DYN_DISABLE_AUTH), 1)
     endif
 endif
 
+ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
+    CRYPTO_SUPPORT := 1
+else
+    CRYPTO_SUPPORT := 0
+endif
+
 # SDEI_IN_FCONF is only supported when SDEI_SUPPORT is enabled.
 ifeq ($(SDEI_SUPPORT)-$(SDEI_IN_FCONF),0-1)
 $(error "SDEI_IN_FCONF is only supported when SDEI_SUPPORT is enabled")
@@ -759,15 +765,6 @@ endif
 ifeq ($(CTX_INCLUDE_MTE_REGS),1)
     ifneq (${ARCH},aarch64)
         $(error CTX_INCLUDE_MTE_REGS requires AArch64)
-    endif
-endif
-
-# Trusted Boot is a prerequisite for Measured Boot. It provides trust that the
-# code taking the measurements and recording them has not been tampered
-# with. This is referred to as the Root of Trust for Measurement.
-ifeq ($(MEASURED_BOOT),1)
-    ifneq (${TRUSTED_BOARD_BOOT},1)
-        $(error MEASURED_BOOT requires TRUSTED_BOARD_BOOT=1)
     endif
 endif
 
@@ -1022,6 +1019,7 @@ $(eval $(call assert_booleans,\
         SPM_MM \
         SPMD_SPM_AT_SEL2 \
         TRUSTED_BOARD_BOOT \
+        CRYPTO_SUPPORT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \
         ARM_IO_IN_DTB \
@@ -1136,6 +1134,7 @@ $(eval $(call add_defines,\
         SPM_MM \
         SPMD_SPM_AT_SEL2 \
         TRUSTED_BOARD_BOOT \
+        CRYPTO_SUPPORT \
         TRNG_SUPPORT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \

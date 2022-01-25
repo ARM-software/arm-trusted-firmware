@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,9 +13,9 @@
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <common/tbbr/tbbr_img_def.h>
-#if TRUSTED_BOARD_BOOT
+#if CRYPTO_SUPPORT
 #include <drivers/auth/mbedtls/mbedtls_config.h>
-#endif
+#endif /* CRYPTO_SUPPORT */
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/fconf/fconf_tbbr_getter.h>
@@ -23,7 +23,7 @@
 #include <plat/arm/common/arm_dyn_cfg_helpers.h>
 #include <plat/arm/common/plat_arm.h>
 
-#if TRUSTED_BOARD_BOOT
+#if CRYPTO_SUPPORT
 
 static void *mbedtls_heap_addr;
 static size_t mbedtls_heap_size;
@@ -118,7 +118,7 @@ void arm_bl1_set_mbedtls_heap(void)
 #endif /* !MEASURED_BOOT */
 	}
 }
-#endif /* TRUSTED_BOARD_BOOT */
+#endif /* CRYPTO_SUPPORT */
 
 /*
  * BL2 utility function to initialize dynamic configuration specified by
