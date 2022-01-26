@@ -302,22 +302,26 @@ void gic600_fmu_init(uint64_t base, uint64_t blk_present_mask,
 	 */
 	if ((blk_present_mask & BIT(FMU_BLK_GICD)) != 0U) {
 		smen = (GICD_MBIST_REQ_ERROR << FMU_SMEN_SMID_SHIFT) |
-			(FMU_BLK_GICD << FMU_SMEN_BLK_SHIFT);
+			(FMU_BLK_GICD << FMU_SMEN_BLK_SHIFT) |
+			FMU_SMEN_EN_BIT;
 		gic_fmu_write_smen(base, smen);
 
 		smen = (GICD_FMU_CLKGATE_ERROR << FMU_SMEN_SMID_SHIFT) |
-			(FMU_BLK_GICD << FMU_SMEN_BLK_SHIFT);
+			(FMU_BLK_GICD << FMU_SMEN_BLK_SHIFT) |
+			FMU_SMEN_EN_BIT;
 		gic_fmu_write_smen(base, smen);
 	}
 
 	for (unsigned int i = FMU_BLK_PPI0; i < FMU_BLK_PPI31; i++) {
 		if ((blk_present_mask & BIT(i)) != 0U) {
 			smen = (PPI_MBIST_REQ_ERROR << FMU_SMEN_SMID_SHIFT) |
-				(i << FMU_SMEN_BLK_SHIFT);
+				(i << FMU_SMEN_BLK_SHIFT) |
+				FMU_SMEN_EN_BIT;
 			gic_fmu_write_smen(base, smen);
 
 			smen = (PPI_FMU_CLKGATE_ERROR << FMU_SMEN_SMID_SHIFT) |
-				(i << FMU_SMEN_BLK_SHIFT);
+				(i << FMU_SMEN_BLK_SHIFT) |
+				FMU_SMEN_EN_BIT;
 			gic_fmu_write_smen(base, smen);
 		}
 	}
@@ -325,11 +329,13 @@ void gic600_fmu_init(uint64_t base, uint64_t blk_present_mask,
 	for (unsigned int i = FMU_BLK_ITS0; i < FMU_BLK_ITS7; i++) {
 		if ((blk_present_mask & BIT(i)) != 0U) {
 			smen = (ITS_MBIST_REQ_ERROR << FMU_SMEN_SMID_SHIFT) |
-				(i << FMU_SMEN_BLK_SHIFT);
+				(i << FMU_SMEN_BLK_SHIFT) |
+				FMU_SMEN_EN_BIT;
 			gic_fmu_write_smen(base, smen);
 
 			smen = (ITS_FMU_CLKGATE_ERROR << FMU_SMEN_SMID_SHIFT) |
-				(i << FMU_SMEN_BLK_SHIFT);
+				(i << FMU_SMEN_BLK_SHIFT) |
+				FMU_SMEN_EN_BIT;
 			gic_fmu_write_smen(base, smen);
 		}
 	}

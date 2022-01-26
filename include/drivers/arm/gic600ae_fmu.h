@@ -37,6 +37,7 @@
 /* SMEN constants */
 #define FMU_SMEN_BLK_SHIFT	U(8)
 #define FMU_SMEN_SMID_SHIFT	U(24)
+#define FMU_SMEN_EN_BIT		BIT(0)
 
 /* Error record IDs */
 #define FMU_BLK_GICD		U(0)
