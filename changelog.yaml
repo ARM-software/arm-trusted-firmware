@@ -1,0 +1,931 @@
+#
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
+#
+# The following block describes the top-level sections of the changelog. Commits are categorized
+# into these top-level sections based on the commit message "type":
+#
+#     feat(xyz): add the xyz feature
+#     ^^^^
+#
+
+sections:
+  - title: New Features
+    description: A new feature
+    type: feat
+
+  - title: Resolved Issues
+    description: A bug fix
+    type: fix
+
+  - title: Build System
+    description: Changes that affect the build system or external dependencies
+    type: build
+    hidden: true
+
+  - title: Continuous Integration
+    description: Changes to our CI configuration files and scripts
+    type: ci
+    hidden: true
+
+  - title: Build System
+    description: Documentation-only changes
+    type: docs
+    hidden: true
+
+  - title: Performance Improvements
+    description: A code change that improves performance
+    type: perf
+    hidden: true
+
+  - title: Code Refactoring
+    description: A code change that neither fixes a bug nor adds a feature
+    type: refactor
+    hidden: true
+
+  - title: Reverted Changes
+    description: Changes that revert a previous change
+    type: revert
+    hidden: true
+
+  - title: Style
+    description: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc.)
+    type: style
+    hidden: true
+
+  - title: Tests
+    description: Adding missing tests or correcting existing tests
+    type: test
+    hidden: true
+
+  - title: Miscellaneous
+    description: Any other change
+    type: chore
+    hidden: true
+
+#
+# The following block describes the sub-sections of the changelog. These sub-sections may appear in
+# any of the top-level sections, and describe the individual components that a change may relate to.
+#
+# Sub-sections have an optional associated commit message "scope":
+#
+#     feat(xyz): add the xyz feature
+#          ^^^
+#
+# This file also describes deprecated scopes, which are scopes that were used before we introduced
+# scope enforcement. These will not pass CI checks when used, but they will be used to generate the
+# changelog.
+#
+# Please note that new scopes should be kebab-case: https://en.wiktionary.org/wiki/kebab_case
+#
+
+subsections:
+  - title: Architecture
+
+    subsections:
+      - title: Activity Monitors Extension (FEAT_AMU)
+        scope: amu
+
+      - title: Support for the `HCRX_EL2` register (FEAT_HCX)
+        scope: hcx
+
+      - title: Memory Partitioning and Monitoring (MPAM) Extension (FEAT_MPAM)
+        scope: mpam
+
+      - title: Scalable Matrix Extension (FEAT_SME)
+        scope: sme
+
+      - title: Scalable Vector Extension (FEAT_SVE)
+        scope: sve
+
+      - title: System Register Trace Extensions (FEAT_ETMv4, FEAT_ETE and FEAT_ETEv1.1)
+        scope: sys-reg-trace
+
+        deprecated:
+          - sys_reg_trace
+
+      - title: Trace Buffer Extension (FEAT_TRBE)
+        scope: trbe
+
+      - title: Self-hosted Trace Extensions (FEAT_TRF)
+        scope: trf
+
+  - title: Platforms
+
+    subsections:
+      - title: Allwinner
+        scope: allwinner
+
+        deprecated:
+          - plat/allwinner
+
+      - title: Arm
+        scope: arm
+
+        deprecated:
+          - plat/arm
+
+        subsections:
+          - title: FPGA
+            scope: fpga
+
+            deprecated:
+              - arm_fgpa
+              - arm_fpga
+              - plat/arm_fpga
+
+          - title: FVP
+            scope: fvp
+
+            deprecated:
+              - plat/fvp
+
+          - title: FVP-R
+            scope: fvp-r
+
+            deprecated:
+              - fvp_r
+
+          - title: Juno
+            scope: juno
+
+          - title: Morello
+            scope: morello
+
+          - title: RD
+            scope: rd
+
+            subsections:
+              - title: RD-N2
+                scope: rdn2
+
+                deprecated:
+                  - board/rdn2
+
+          - title: SGI
+            scope: sgi
+
+            deprecated:
+              - plat/sgi
+              - plat/arm/sgi
+
+          - title: TC
+            scope: tc
+
+            subsections:
+              - title: TC0
+                scope: tc0
+
+                deprecated:
+                  - plat/tc0
+
+      - title: Marvell
+        scope: marvell
+
+        deprecated:
+          - plat/marvell
+
+        subsections:
+          - title: Armada
+            scope: armada
+
+            deprecated:
+              - plat/marvell/armada
+
+            subsections:
+              - title: A3K
+                scope: a3k
+
+                deprecated:
+                  - plat/marvell/a3k
+
+              - title: A8K
+                scope: a8k
+
+                deprecated:
+                  - plat/marvell/a8k
+
+      - title: MediaTek
+        scope: mediatek
+
+        deprecated:
+          - plat/mediatek/common
+          - plat/mediatek
+
+        subsections:
+          - title: MT8183
+            scope: mt8183
+
+            deprecated:
+              - plat/mediatek/mt8183
+
+          - title: MT8192
+            scope: mt8192
+
+            deprecated:
+              - plat/mdeiatek/mt8192
+
+          - title: MT8195
+            scope: mt8195
+
+            deprecated:
+              - plat/mediatek/me8195
+              - plat/mediatek/mt8195
+              - plat/mdeiatek/mt8195
+
+      - title: NVIDIA
+        scope: nvidia
+
+        subsections:
+          - title: Tegra
+            scope: tegra
+
+            deprecated:
+              - plat/tegra
+
+            subsections:
+              - title: Tegra 132
+                scope: tegra132
+
+      - title: NXP
+        scope: nxp
+
+        deprecated:
+          - plat/nxp
+          - plat/nxp/common
+
+        subsections:
+          - title: i.MX
+            scope: imx
+
+            deprecated:
+              - plat/imx
+              - plat/imx/imx
+
+            subsections:
+              - title: i.MX 8M
+                scope: imx8m
+
+                deprecated:
+                  - plat/imx8m
+                  - plat/imx/imx8m
+
+                subsections:
+                  - title: i.MX 8M Mini
+                    scope: imx8mm
+
+                    deprecated:
+                      - plat/imx/imx8m/imx8mm
+
+                  - title: i.MX 8M Plus
+                    scope: imx8mp
+
+                    deprecated:
+                      - plat/imx/imx8m/imx8mp
+
+          - title: Layerscape
+            scope: layerscape
+
+            deprecated:
+              - docs/nxp/layerscape
+
+            subsections:
+              - title: LS1028A
+                scope: ls1028a
+
+                deprecated:
+                  - plat/nxp/ls1028a
+
+                subsections:
+                  - title: LS1028ARDB
+                    scope: ls1028ardb
+
+                    deprecated:
+                      - plat/nxp/ls1028ardb
+
+              - title: LX2
+                scope: lx2
+
+                deprecated:
+                  - plat/nxp/lx2
+
+                subsections:
+                  - title: LX216
+                    scope: lx216
+
+                    deprecated:
+                      - plat/nxp/lx216x
+
+                    subsections:
+                      - title: LX2160
+                        scope: lx2160
+
+                        deprecated:
+                          - plat/soc-lx2160
+
+      - title: QEMU
+        scope: qemu
+
+        deprecated:
+          - plat/qemu
+
+      - title: QTI
+        scope: qti
+
+        subsections:
+          - title: SC1780
+            scope: sc7180
+
+            deprecated:
+              - plat/qti/sc7180
+
+          - title: SC7280
+            scope: sc7280
+
+            deprecated:
+              - plat/qti/sc7280
+
+      - title: Raspberry Pi
+        scope: rpi
+
+        subsections:
+          - title: Raspberry Pi 4
+            scope: rpi4
+
+      - title: Renesas
+        scope: renesas
+
+        subsections:
+          - title: R-Car
+            scope: rcar
+
+            deprecated:
+              - plat/rcar
+
+            subsections:
+              - title: R-Car 3
+                scope: rcar3
+
+                deprecated:
+                  - plat/rcar3
+
+      - title: Rockchip
+        scope: rockchip
+
+        subsections:
+          - title: RK3399
+            scope: rk3399
+
+            deprecated:
+              - rockchip/rk3399
+              - rk3399/suspend
+
+      - title: Socionext
+        scope: socionext
+
+        subsections:
+          - title: Synquacer
+            scope: synquacer
+
+            deprecated:
+              - plat/synquacer
+
+      - title: ST
+        scope: st
+
+        deprecated:
+          - plat/st
+
+        subsections:
+          - title: ST32MP1
+            scope: stm32mp1
+
+            deprecated:
+              - plat/st/stm32mp1
+
+      - title: Xilinx
+        scope: xilinx
+
+        deprecated:
+          - plat/xilinx
+
+        subsections:
+          - title: Versal
+            scope: versal
+
+            deprecated:
+              - plat/xilinx/versal/include
+              - plat/xilinx/versal
+              - plat/versal
+
+          - title: ZynqMP
+            scope: zynqmp
+
+            deprecated:
+              - plat/zynqmp
+              - plat/xilinx/zynqmp
+
+  - title: Bootloader Images
+    scope: bl
+
+    deprecated:
+      - bl_common
+
+    subsections:
+      - title: BL1
+        scope: bl1
+
+      - title: BL2
+        scope: bl2
+
+  - title: Services
+    scope: services
+
+    subsections:
+      - title: FF-A
+        scope: ffa
+
+        deprecated:
+          - ff-a
+
+      - title: RME
+        scope: rme
+
+      - title: SPM
+        scope: spm
+
+        deprecated:
+          - spmc
+          - spmd
+          - SPMD
+          - spm_mm
+
+  - title: Libraries
+
+    subsections:
+      - title: CPU Support
+        scope: cpus
+
+        deprecated:
+          - cpu
+          - errata
+          - errata_report
+
+      - title: EL3 Runtime
+        scope: el3-runtime
+
+        deprecated:
+          - el3_runtime
+
+      - title: FCONF
+        scope: fconf
+
+      - title: MPMM
+        scope: mpmm
+
+      - title: OP-TEE
+        scope: optee
+
+        deprecated:
+          - lib/optee
+
+      - title: PSCI
+        scope: psci
+
+      - title: GPT
+        scope: gpt
+
+        deprecated:
+          - gpt_rme
+
+      - title: SMCCC
+        scope: smccc
+
+      - title: Translation Tables
+        scope: xlat
+
+  - title: Drivers
+
+    subsections:
+      - title: Authentication
+        scope: auth
+
+        deprecated:
+          - driver/auth
+
+        subsections:
+          - title: CryptoCell-713
+            scope: cc-713
+
+      - title: FWU
+        scope: fwu
+
+        deprecated:
+          - fwu_metadata
+
+      - title: I/O
+        scope: io
+
+        subsections:
+          - title: MTD
+            scope: mtd
+
+            deprecated:
+              - io_mtd
+
+      - title: Measured Boot
+        scope: measured-boot
+
+        deprecated:
+          - measured boot
+          - measured_boot
+
+      - title: MMC
+        scope: mmc
+
+        deprecated:
+          - drivers/mmc
+
+      - title: MTD
+        scope: mtd
+
+        deprecated:
+          - drivers/mtd
+
+        subsections:
+          - title: NAND
+            scope: nand
+
+            subsections:
+              - title: SPI NAND
+                scope: spi-nand
+
+                deprecated:
+                  - spi_nand
+
+      - title: SCMI
+        scope: scmi
+
+        deprecated:
+          - scmi_common
+          - drivers/scmi-msg
+
+      - title: UFS
+        scope: ufs
+
+      - title: Arm
+        scope: arm-drivers
+
+        subsections:
+          - title: Ethos-N
+            scope: ethos-n
+
+            deprecated:
+              - drivers/arm/ethosn
+
+          - title: GIC
+            scope: gic
+
+            subsections:
+              - title: GICv3
+                scope: gicv3
+
+                subsections:
+                  - title: GIC-600AE
+                    scope: gic600ae
+
+          - title: TZC
+            scope: tzc
+
+            subsections:
+              - title: TZC-400
+                scope: tzc400
+
+                deprecated:
+                  - drivers/tzc400
+
+      - title: Marvell
+        scope: marvell-drivers
+
+        subsections:
+          - title: COMPHY
+            scope: marvell-comphy
+
+            deprecated:
+              - drivers/marvell/comphy
+
+            subsections:
+              - title: Armada 3700
+                scope: marvell-comphy-3700
+
+                deprecated:
+                  - drivers/marvell/comphy-3700
+
+              - title: CP110
+                scope: marvell-comphy-cp110
+
+                deprecated:
+                  - drivers/marvell/comphy-cp110
+
+          - title: UART
+            scope: marvell-uart
+
+            deprecated:
+              - plat/marvell/uart
+
+          - title: Armada
+            scope: armada-drivers
+
+            subsections:
+              - title: A3K
+                scope: a3k-drivers
+
+                subsections:
+                  - title: A3720
+                    scope: a3720-uart
+
+                    deprecated:
+                      - plat/marvell/a3720/uart
+
+      - title: MediaTek
+        scope: mediatek-drivers
+
+        subsections:
+          - title: APU
+            scope: mediatek-apu
+
+            deprecated:
+              - plat/mediatek/apu
+
+          - title: EMI MPU
+            scope: mediatek-emi-mpu
+
+            deprecated:
+              - plat/mediatek/mpu
+
+          - title: PMIC Wrapper
+            scope: mediatek-pmic-wrapper
+
+            deprecated:
+              - plat/mediatek/pmic_wrap
+
+          - title: MT8192
+            scope: mt8192-drivers
+
+            subsections:
+              - title: SPM
+                scope: mt8192-spm
+
+                deprecated:
+                  - mediatek/mt8192/spm
+
+      - title: NXP
+        scope: nxp-drivers
+
+        subsections:
+          - title: DCFG
+            scope: nxp-dcfg
+
+            deprecated:
+              - driver/nxp/dcfg
+
+          - title: FLEXSPI
+            scope: flexspi
+
+            deprecated:
+              - include/drivers/flexspi
+              - driver/nxp/xspi
+
+          - title: SCFG
+            scope: nxp-scfg
+
+            deprecated:
+              - nxp/scfg
+
+          - title: SFP
+            scope: nxp-sfp
+
+            deprecated:
+              - drivers/nxp/sfp
+
+      - title: Renesas
+        scope: renesas-drivers
+
+        subsections:
+          - title: R-Car3
+            scope: rcar3-drivers
+
+            deprecated:
+              - drivers/rcar3
+
+      - title: ST
+        scope: st-drivers
+
+        deprecated:
+          - drivers/st
+
+        subsections:
+          - title: Clock
+            scope: st-clock
+
+            deprecated:
+              - stm32mp_clk
+              - drivers/st/clk
+              - stm32mp1_clk
+
+          - title: I/O
+            scope: st-io-drivers
+
+            subsections:
+              - title: STM32 Image
+                scope: st-io-stm32image
+
+                deprecated:
+                  - io-stm32image
+                  - io_stm32image
+
+              - title: fiptool
+                scope: fiptool
+
+          - title: SDMMC2
+            scope: st-sdmmc2
+
+            deprecated:
+              - stm32_sdmmc2
+
+          - title: ST PMIC
+            scope: st-pmic
+
+            deprecated:
+              - drivers/st/pmic
+
+          - title: STPMIC1
+            scope: stpmic1
+
+          - title: UART
+            scope: st-uart
+
+            subsections:
+              - title: STM32 Console
+                scope: stm32-console
+
+                deprecated:
+                  - stm32_console
+
+          - title: USB
+            scope: st-usb
+
+            deprecated:
+              - drivers/st/usb
+
+      - title: USB
+        scope: usb
+
+        deprecated:
+          - drivers/usb
+
+  - title: Miscellaneous
+
+    subsections:
+      - title: AArch64
+        scope: aarch64
+
+      - title: Debug
+        scope: debug
+
+        deprecated:
+          - common/debug
+
+      - title: CRC32
+        scope: crc32
+
+        subsections:
+          - title: Hardware CRC32
+            scope: hw-crc32
+
+            deprecated:
+              - hw_crc
+              - hw_crc32
+
+          - title: Software CRC32
+            scope: sw-crc32
+
+            deprecated:
+              - sw_crc32
+
+      - title: DT Bindings
+        scope: dt-bindings
+
+      - title: FDT Wrappers
+        scope: fdt-wrappers
+
+      - title: FDTs
+        scope: fdts
+
+        deprecated:
+          - fdt
+
+        subsections:
+          - title: Morello
+            scope: morello-fdts
+
+            deprecated:
+              - fdts/morello
+
+          - title: STM32MP1
+            scope: stm32mp1-fdts
+
+            deprecated:
+              - fdts stm32mp1
+
+      - title: PIE
+        scope: pie
+
+      - title: Security
+        scope: security
+
+      - title: SDEI
+        scope: sdei
+
+      - title: TBBR
+        scope: tbbr
+
+      - title: NXP
+
+        subsections:
+          - title: OCRAM
+            scope: nxp-ocram
+
+            deprecated:
+              - nxp/common/ocram
+
+          - title: PSCI
+            scope: nxp-psci
+
+            deprecated:
+              - plat/nxp/common/psci
+
+  - title: Documentation
+    scope: docs
+
+    deprecated:
+      - doc
+
+    subsections:
+      - title: Changelog
+        scope: changelog
+
+      - title: Commit Style
+        scope: commit-style
+
+      - title: Contribution Guidelines
+        scope: contributing
+
+        deprecated:
+          - contribution-guidelines
+          - docs-contributing.rst
+
+      - title: Maintainers
+        scope: maintainers
+
+      - title: Prerequisites
+        scope: prerequisites
+
+  - title: Build System
+    scope: build
+
+    deprecated:
+      - makefile
+      - Makefile
+
+    subsections:
+      - title: Git Hooks
+        scope: hooks
+
+  - title: Tools
+
+    subsections:
+      - title: STM32 Image
+        scope: stm32image
+
+        deprecated:
+          - tools/stm32image
+
+  - title: Dependencies
+    scope: deps
+
+    subsections:
+      - title: checkpatch
+        scope: checkpatch
+
+      - title: commitlint
+        scope: commitlint
+
+      - title: libfdt
+        scope: libfdt
+
+      - title: Node Package Manager (NPM)
+        scope: npm

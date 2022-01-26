@@ -3,7 +3,7 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
-## 2.6 (2021-11-22)
+## [2.6.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.5..refs/tags/v2.6) (2021-11-22)
 
 ### ⚠ BREAKING CHANGES
 
@@ -983,7 +983,7 @@ issues in each release of Trusted Firmware-A.
 
     - do not check merge commits ([77a0a7f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/77a0a7f1d96b188849d1d8d8884b3c93857d3f69))
 
-## 2.5.0 (2021-05-17)
+## [2.5.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.4..refs/tags/v2.5) (2021-05-17)
 
 ### New Features
 
@@ -1547,7 +1547,7 @@ issues in each release of Trusted Firmware-A.
     - Optimized the code to avoid unnecessary attempts to create non-requested
       certificates
 
-## 2.4.0 (2020-11-17)
+## [2.4.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.3..refs/tags/v2.4) (2020-11-17)
 
 ### New Features
 
@@ -1972,7 +1972,7 @@ issues in each release of Trusted Firmware-A.
       being worked around by disabling the warning for the platform until the
       underlying issue is resolved in libfdt
 
-## 2.3 (2020-04-20)
+## [2.3.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.2..refs/tags/v2.3) (2020-04-20)
 
 ### New Features
 
@@ -2347,7 +2347,7 @@ issues in each release of Trusted Firmware-A.
 
   - mediatek/mt6795: This platform does not build in this release
 
-## 2.2 (2019-10-22)
+## [2.2.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.1..refs/tags/v2.2) (2019-10-22)
 
 ### New Features
 
@@ -2658,7 +2658,7 @@ issues in each release of Trusted Firmware-A.
 
   - mediatek/mt6795: This platform does not build in this release
 
-## 2.1 (2019-03-29)
+## [2.1.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.0..refs/tags/v2.1) (2019-03-29)
 
 ### New Features
 
@@ -3060,7 +3060,7 @@ issues in each release of Trusted Firmware-A.
 
   - mediatek/mt6795: This platform does not build in this release
 
-## 2.0 (2018-10-02)
+## [2.0.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v1.6..refs/tags/v2.0) (2018-10-02)
 
 ### New Features
 
@@ -3091,7 +3091,7 @@ issues in each release of Trusted Firmware-A.
   to be working after the removal of the deprecated interfaces although they do
   build.
 
-## 1.6 (2018-09-21)
+## [1.6.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v1.5..refs/tags/v1.6) (2018-09-21)
 
 ### New Features
 
@@ -3298,7 +3298,7 @@ issues in each release of Trusted Firmware-A.
   build process is skipped when running on a Windows host. Known issue from 1.5
   version.
 
-## 1.5 (2018-03-20)
+## [1.5.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v1.4..refs/tags/v1.5) (2018-03-20)
 
 ### New features
 
@@ -3555,7 +3555,7 @@ issues in each release of Trusted Firmware-A.
 - DTB creation not supported when building on a Windows host. This step in the
   build process is skipped when running on a Windows host.
 
-## 1.4 (2017-07-07)
+## [1.4.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v1.3..refs/tags/v1.4) (2017-07-07)
 
 ### New features
 
@@ -3822,7 +3822,7 @@ issues in each release of Trusted Firmware-A.
   platform, please use GCC compiler version of at least 5.0. See [PR#1002] for
   more details.
 
-## 1.3 (2016-10-13)
+## [1.3.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v1.2..refs/tags/v1.3) (2016-10-13)
 
 ### New features
 
@@ -4021,7 +4021,7 @@ issues in each release of Trusted Firmware-A.
   the TF-A build system interprets as errors.
 - TBBR is not currently supported when running TF-A in AArch32 state.
 
-## 1.2 (2015-12-22)
+## [1.2.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v1.1..refs/tags/v1.2) (2015-12-22)
 
 ### New features
 
@@ -4158,7 +4158,7 @@ issues in each release of Trusted Firmware-A.
   incomplete for PSCI, the TSP(D) and the Juno platform.
 - Building TF-A with compiler optimisations disabled (`-O0`) fails.
 
-## 1.1 (2015-02-04)
+## [1.1.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v1.0..refs/tags/v1.1) (2015-02-04)
 
 ### New features
 
@@ -4297,7 +4297,7 @@ issues in each release of Trusted Firmware-A.
   its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
 - The Juno-specific firmware design documentation is incomplete.
 
-## 1.0 (2014-08-28)
+## [1.0.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v0.4..refs/tags/v1.0) (2014-08-28)
 
 ### New features
 
@@ -4443,7 +4443,7 @@ issues in each release of Trusted Firmware-A.
 
   A similar change can be made to the other Cortex-A57-A53 Base FVP variants.
 
-## 0.4 (2014-06-03)
+## [0.4.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v0.3..refs/tags/v0.4) (2014-06-03)
 
 ### New features
 
@@ -4552,7 +4552,7 @@ issues in each release of Trusted Firmware-A.
 - The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
   its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
 
-## 0.3 (2014-02-28)
+## [0.3.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v0.2..refs/tags/v0.3) (2014-02-28)
 
 ### New features
 
@@ -4689,7 +4689,7 @@ releases of TF-A.
 - The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
   its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
 
-## 0.2 (2013-10-25)
+## [0.2.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4b825dc642cb6eb9a060e54bf8d69288fbee4904..refs/tags/v0.2) (2013-10-25)
 
 ### New features
 

@@ -8,39 +8,86 @@
 
 "use strict";
 
-const cz = require("./.cz.json");
+const fs = require("fs");
+const yaml = require("js-yaml");
 
 /*
- * Convert the Commitizen types array into the format accepted by the Conventional Changelog
- * Conventional Commits plugin (which our own plugin extends).
+ * The types and scopes accepted by both Commitlint and Commitizen are defined by the changelog
+ * configuration file - `changelog.yaml` - as they decide which section of the changelog commits
+ * with a given type and scope are placed in.
  */
-const types = cz.types.map(type => {
-    if (!type.hidden) {
-        /*
-         * Conventional Changelog prevents each section from appearing only if it has no designated
-         * title, regardless of the value of the `hidden` flag.
-         */
-        type.section = type.title;
-    }
 
-    delete type.title;
-    delete type.description;
+let changelog;
 
-    return type;
-});
+try {
+    const contents = fs.readFileSync("changelog.yaml", "utf8");
+
+    changelog = yaml.load(contents);
+} catch (err) {
+    console.log(err);
+
+    throw err;
+}
+
+/*
+ * The next couple of functions are just used to transform the changelog YAML configuration
+ * structure into one accepted by the Conventional Changelog adapter (conventional-changelog-tf-a).
+ */
+
+function getTypes(sections) {
+    return sections.map(section => {
+        return {
+            "type": section.type,
+            "section": section.hidden ? undefined : section.title,
+            "hidden": section.hidden || false,
+        };
+    })
+}
+
+function getSections(subsections) {
+    return subsections.flatMap(subsection => {
+        const scope = subsection.scope ? [ subsection.scope ] : [];
+
+        return {
+            "title": subsection.title,
+            "sections": getSections(subsection.subsections || []),
+            "scopes": scope.concat(subsection.deprecated || []),
+        };
+    })
+};
+
+const types = getTypes(changelog.sections);
+const sections = getSections(changelog.subsections);
 
 module.exports = {
     "header": "# Change Log & Release Notes\n\nThis document contains a summary of the new features, changes, fixes and known\nissues in each release of Trusted Firmware-A.\n",
     "preset": {
         "name": "tf-a",
         "commitUrlFormat": "https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/{{hash}}",
-        "compareUrlFormat": "https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/{{previousTag}}..{{currentTag}}",
+        "compareUrlFormat": "https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/{{previousTag}}..refs/tags/{{currentTag}}",
         "userUrlFormat": "https://github.com/{{user}}",
 
         "types": types,
-        "sections": cz.sections,
+        "sections": sections,
+    },
+    "infile": "docs/change-log.md",
+    "skip": {
+        "commit": true,
+        "tag": true
     },
     "bumpFiles": [
+        {
+            "filename": "package.json",
+            "type": "json"
+        },
+        {
+            "filename": "package-lock.json",
+            "type": "json"
+        },
+        {
+            "filename": "tools/conventional-changelog-tf-a/package.json",
+            "type": "json"
+        },
         {
             "filename": "Makefile",
             "updater": {
