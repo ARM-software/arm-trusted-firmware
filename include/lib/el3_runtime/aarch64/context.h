@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -217,13 +217,13 @@
 
 // Starting with Armv8.4
 #define CTX_CONTEXTIDR_EL2	U(0x198)
-#define CTX_SDER32_EL2		U(0x1a0)
-#define CTX_TTBR1_EL2		U(0x1a8)
-#define CTX_VDISR_EL2		U(0x1b0)
-#define CTX_VNCR_EL2		U(0x1b8)
-#define CTX_VSESR_EL2		U(0x1c0)
-#define CTX_VSTCR_EL2		U(0x1c8)
-#define CTX_VSTTBR_EL2		U(0x1d0)
+#define CTX_TTBR1_EL2		U(0x1a0)
+#define CTX_VDISR_EL2		U(0x1a8)
+#define CTX_VSESR_EL2		U(0x1b0)
+#define CTX_VSTCR_EL2		U(0x1b8)
+#define CTX_VSTTBR_EL2		U(0x1c0)
+#define CTX_SDER32_EL2		U(0x1c8)
+#define CTX_VNCR_EL2		U(0x1d0)
 #define CTX_TRFCR_EL2		U(0x1d8)
 
 // Starting with Armv8.5
