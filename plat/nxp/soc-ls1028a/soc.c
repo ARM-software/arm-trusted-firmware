@@ -23,9 +23,6 @@
 #include <nxp_smmu.h>
 #endif
 #include <nxp_timer.h>
-#ifdef CONFIG_OCRAM_ECC_EN
-#include <ocram.h>
-#endif
 #include <plat_console.h>
 #include <plat_gic.h>
 #include <plat_tzc400.h>
@@ -36,6 +33,9 @@
 #endif
 
 #include <errata.h>
+#ifdef CONFIG_OCRAM_ECC_EN
+#include <ocram.h>
+#endif
 #include "plat_common.h"
 #include "platform_def.h"
 #include "soc.h"
