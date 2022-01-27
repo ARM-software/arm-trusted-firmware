@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <stdbool.h>
 
+#include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <drivers/st/stm32mp_ram.h>
 #include <libfdt.h>
