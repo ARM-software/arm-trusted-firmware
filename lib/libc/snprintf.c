@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #include <common/debug.h>
 #include <plat/common/platform.h>
