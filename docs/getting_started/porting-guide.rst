@@ -889,7 +889,7 @@ Function : plat_fwu_set_images_source() [when PSA_FWU_SUPPORT == 1]
 
 ::
 
-    Argument : struct fwu_metadata *metadata
+    Argument : const struct fwu_metadata *metadata
     Return   : void
 
 This function is mandatory when PSA_FWU_SUPPORT is enabled.
@@ -931,6 +931,25 @@ image relies on this function call.
 It returns '0' on success, otherwise a negative error value on error.
 Alongside, returns device handle and image specification from the I/O policy
 of the requested FWU metadata image.
+
+Function : plat_fwu_get_boot_idx() [when PSA_FWU_SUPPORT == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint32_t
+
+This function is mandatory when PSA_FWU_SUPPORT is enabled. It provides the
+means to retrieve the boot index value from the platform. The boot index is the
+bank from which the platform has booted the firmware images.
+
+By default, the platform will read the metadata structure and try to boot from
+the active bank. If the platform fails to boot from the active bank due to
+reasons like an Authentication failure, or on crossing a set number of watchdog
+resets while booting from the active bank, the platform can then switch to boot
+from a different bank. This function then returns the bank that the platform
+should boot its images from.
 
 Common optional modifications
 -----------------------------

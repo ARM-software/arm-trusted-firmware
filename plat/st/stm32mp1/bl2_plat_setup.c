@@ -30,6 +30,7 @@
 #include <plat/common/platform.h>
 
 #include <platform_def.h>
+#include <stm32mp_common.h>
 #include <stm32mp1_dbgmcu.h>
 
 static struct stm32mp_auth_ops stm32mp1_auth_ops;
@@ -452,6 +453,9 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		bl32_mem_params = get_bl_mem_params_node(BL32_IMAGE_ID);
 		assert(bl32_mem_params != NULL);
 		bl32_mem_params->ep_info.lr_svc = bl_mem_params->ep_info.pc;
+#if !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT
+		stm32mp1_fwu_set_boot_idx();
+#endif /* !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT */
 		break;
 
 	default:

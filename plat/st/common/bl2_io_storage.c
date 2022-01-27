@@ -10,6 +10,8 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <drivers/fwu/fwu.h>
+#include <drivers/fwu/fwu_metadata.h>
 #include <drivers/io/io_block.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_fip.h>
@@ -17,6 +19,7 @@
 #include <drivers/io/io_mtd.h>
 #include <drivers/io/io_storage.h>
 #include <drivers/mmc.h>
+#include <drivers/partition/efi.h>
 #include <drivers/partition/partition.h>
 #include <drivers/raw_nand.h>
 #include <drivers/spi_nand.h>
@@ -384,6 +387,12 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_SD:
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
 		if (!gpt_init_done) {
+/*
+ * With FWU Multi Bank feature enabled, the selection of
+ * the image to boot will be done by fwu_init calling the
+ * platform hook, plat_fwu_set_images_source.
+ */
+#if !PSA_FWU_SUPPORT
 			const partition_entry_t *entry;
 
 			partition_init(GPT_IMAGE_ID);
@@ -396,7 +405,7 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 
 			image_block_spec.offset = entry->start;
 			image_block_spec.length = entry->length;
-
+#endif
 			gpt_init_done = true;
 		} else {
 			bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
@@ -473,3 +482,117 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 
 	return rc;
 }
+
+#if (STM32MP_SDMMC || STM32MP_EMMC) && PSA_FWU_SUPPORT
+/*
+ * Eventually, this function will return the
+ * boot index to be passed on to the Update
+ * Agent after performing certain checks like
+ * a watchdog timeout, or Auth failure while
+ * trying to load from a certain bank.
+ * For now, since we do not have that logic
+ * implemented, just pass the active_index
+ * read from the metadata.
+ */
+uint32_t plat_fwu_get_boot_idx(void)
+{
+	const struct fwu_metadata *metadata;
+
+	metadata = fwu_get_metadata();
+
+	return metadata->active_index;
+}
+
+static void *stm32_get_image_spec(const uuid_t *img_type_uuid)
+{
+	unsigned int i;
+
+	for (i = 0U; i < MAX_NUMBER_IDS; i++) {
+		if ((guidcmp(&policies[i].img_type_guid, img_type_uuid)) == 0) {
+			return (void *)policies[i].image_spec;
+		}
+	}
+
+	return NULL;
+}
+
+void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
+{
+	unsigned int i;
+	uint32_t boot_idx;
+	const partition_entry_t *entry;
+	const uuid_t *img_type_uuid, *img_uuid;
+	io_block_spec_t *image_spec;
+
+	boot_idx = plat_fwu_get_boot_idx();
+	assert(boot_idx < NR_OF_FW_BANKS);
+
+	for (i = 0U; i < NR_OF_IMAGES_IN_FW_BANK; i++) {
+		img_type_uuid = &metadata->img_entry[i].img_type_uuid;
+		image_spec = stm32_get_image_spec(img_type_uuid);
+		if (image_spec == NULL) {
+			ERROR("Unable to get image spec for the image in the metadata\n");
+			panic();
+		}
+
+		img_uuid =
+			&metadata->img_entry[i].img_props[boot_idx].img_uuid;
+
+		entry = get_partition_entry_by_uuid(img_uuid);
+		if (entry == NULL) {
+			ERROR("Unable to find the partition with the uuid mentioned in metadata\n");
+			panic();
+		}
+
+		image_spec->offset = entry->start;
+		image_spec->length = entry->length;
+	}
+}
+
+static int plat_set_image_source(unsigned int image_id,
+				 uintptr_t *handle,
+				 uintptr_t *image_spec,
+				 const char *part_name)
+{
+	struct plat_io_policy *policy;
+	io_block_spec_t *spec;
+	const partition_entry_t *entry = get_partition_entry(part_name);
+
+	if (entry == NULL) {
+		ERROR("Unable to find the %s partition\n", part_name);
+		return -ENOENT;
+	}
+
+	policy = &policies[image_id];
+
+	spec = (io_block_spec_t *)policy->image_spec;
+	spec->offset = entry->start;
+	spec->length = entry->length;
+
+	*image_spec = policy->image_spec;
+	*handle = *policy->dev_handle;
+
+	return 0;
+}
+
+int plat_fwu_set_metadata_image_source(unsigned int image_id,
+				       uintptr_t *handle,
+				       uintptr_t *image_spec)
+{
+	char *part_name;
+
+	assert((image_id == FWU_METADATA_IMAGE_ID) ||
+	       (image_id == BKUP_FWU_METADATA_IMAGE_ID));
+
+	partition_init(GPT_IMAGE_ID);
+
+	if (image_id == FWU_METADATA_IMAGE_ID) {
+		part_name = METADATA_PART_1;
+	} else {
+		part_name = METADATA_PART_2;
+	}
+
+	return plat_set_image_source(image_id, handle, image_spec,
+				     part_name);
+}
+#endif /* (STM32MP_SDMMC || STM32MP_EMMC) && PSA_FWU_SUPPORT */
