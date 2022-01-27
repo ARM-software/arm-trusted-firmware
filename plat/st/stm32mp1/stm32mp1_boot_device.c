@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <errno.h>
 
+#include <common/debug.h>
 #include <drivers/nand.h>
 #include <drivers/raw_nand.h>
 #include <drivers/spi_nand.h>
