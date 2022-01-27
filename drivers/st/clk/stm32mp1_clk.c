@@ -15,7 +15,6 @@
 #include <common/fdt_wrappers.h>
 #include <drivers/clk.h>
 #include <drivers/delay_timer.h>
-#include <drivers/generic_delay_timer.h>
 #include <drivers/st/stm32mp_clkfunc.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_rcc.h>
@@ -241,6 +240,7 @@ struct stm32mp1_clk_gate {
 	uint8_t bit;
 	uint8_t index;
 	uint8_t set_clr;
+	uint8_t secure;
 	uint8_t sel; /* Relates to enum stm32mp1_parent_sel */
 	uint8_t fixed; /* Relates to enum stm32mp1_parent_id */
 };
@@ -266,45 +266,49 @@ struct stm32mp1_clk_pll {
 };
 
 /* Clocks with selectable source and non set/clr register access */
-#define _CLK_SELEC(off, b, idx, s)			\
+#define _CLK_SELEC(sec, off, b, idx, s)			\
 	{						\
 		.offset = (off),			\
 		.bit = (b),				\
 		.index = (idx),				\
 		.set_clr = 0,				\
+		.secure = (sec),			\
 		.sel = (s),				\
 		.fixed = _UNKNOWN_ID,			\
 	}
 
 /* Clocks with fixed source and non set/clr register access */
-#define _CLK_FIXED(off, b, idx, f)			\
+#define _CLK_FIXED(sec, off, b, idx, f)			\
 	{						\
 		.offset = (off),			\
 		.bit = (b),				\
 		.index = (idx),				\
 		.set_clr = 0,				\
+		.secure = (sec),			\
 		.sel = _UNKNOWN_SEL,			\
 		.fixed = (f),				\
 	}
 
 /* Clocks with selectable source and set/clr register access */
-#define _CLK_SC_SELEC(off, b, idx, s)			\
+#define _CLK_SC_SELEC(sec, off, b, idx, s)			\
 	{						\
 		.offset = (off),			\
 		.bit = (b),				\
 		.index = (idx),				\
 		.set_clr = 1,				\
+		.secure = (sec),			\
 		.sel = (s),				\
 		.fixed = _UNKNOWN_ID,			\
 	}
 
 /* Clocks with fixed source and set/clr register access */
-#define _CLK_SC_FIXED(off, b, idx, f)			\
+#define _CLK_SC_FIXED(sec, off, b, idx, f)			\
 	{						\
 		.offset = (off),			\
 		.bit = (b),				\
 		.index = (idx),				\
 		.set_clr = 1,				\
+		.secure = (sec),			\
 		.sel = _UNKNOWN_SEL,			\
 		.fixed = (f),				\
 	}
@@ -338,81 +342,94 @@ struct stm32mp1_clk_pll {
 
 #define NB_GATES	ARRAY_SIZE(stm32mp1_clk_gate)
 
+#define SEC		1
+#define N_S		0
+
 static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
-	_CLK_FIXED(RCC_DDRITFCR, 0, DDRC1, _ACLK),
-	_CLK_FIXED(RCC_DDRITFCR, 1, DDRC1LP, _ACLK),
-	_CLK_FIXED(RCC_DDRITFCR, 2, DDRC2, _ACLK),
-	_CLK_FIXED(RCC_DDRITFCR, 3, DDRC2LP, _ACLK),
-	_CLK_FIXED(RCC_DDRITFCR, 4, DDRPHYC, _PLL2_R),
-	_CLK_FIXED(RCC_DDRITFCR, 5, DDRPHYCLP, _PLL2_R),
-	_CLK_FIXED(RCC_DDRITFCR, 6, DDRCAPB, _PCLK4),
-	_CLK_FIXED(RCC_DDRITFCR, 7, DDRCAPBLP, _PCLK4),
-	_CLK_FIXED(RCC_DDRITFCR, 8, AXIDCG, _ACLK),
-	_CLK_FIXED(RCC_DDRITFCR, 9, DDRPHYCAPB, _PCLK4),
-	_CLK_FIXED(RCC_DDRITFCR, 10, DDRPHYCAPBLP, _PCLK4),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 0, DDRC1, _ACLK),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 1, DDRC1LP, _ACLK),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 2, DDRC2, _ACLK),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 3, DDRC2LP, _ACLK),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 4, DDRPHYC, _PLL2_R),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 5, DDRPHYCLP, _PLL2_R),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 6, DDRCAPB, _PCLK4),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 7, DDRCAPBLP, _PCLK4),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 8, AXIDCG, _ACLK),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 9, DDRPHYCAPB, _PCLK4),
+	_CLK_FIXED(SEC, RCC_DDRITFCR, 10, DDRPHYCAPBLP, _PCLK4),
 
-	_CLK_SC_FIXED(RCC_MP_APB1ENSETR, 6, TIM12_K, _PCLK1),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 14, USART2_K, _UART24_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 15, USART3_K, _UART35_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 16, UART4_K, _UART24_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 17, UART5_K, _UART35_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 18, UART7_K, _UART78_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 19, UART8_K, _UART78_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 21, I2C1_K, _I2C12_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 22, I2C2_K, _I2C12_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 23, I2C3_K, _I2C35_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 24, I2C5_K, _I2C35_SEL),
+#if defined(IMAGE_BL32)
+	_CLK_SC_FIXED(N_S, RCC_MP_APB1ENSETR, 6, TIM12_K, _PCLK1),
+#endif
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 14, USART2_K, _UART24_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 15, USART3_K, _UART35_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 16, UART4_K, _UART24_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 17, UART5_K, _UART35_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 18, UART7_K, _UART78_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 19, UART8_K, _UART78_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 21, I2C1_K, _I2C12_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 22, I2C2_K, _I2C12_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 23, I2C3_K, _I2C35_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB1ENSETR, 24, I2C5_K, _I2C35_SEL),
 
-	_CLK_SC_FIXED(RCC_MP_APB2ENSETR, 2, TIM15_K, _PCLK2),
-	_CLK_SC_SELEC(RCC_MP_APB2ENSETR, 13, USART6_K, _UART6_SEL),
+#if defined(IMAGE_BL32)
+	_CLK_SC_FIXED(N_S, RCC_MP_APB2ENSETR, 2, TIM15_K, _PCLK2),
+#endif
+	_CLK_SC_SELEC(N_S, RCC_MP_APB2ENSETR, 13, USART6_K, _UART6_SEL),
 
-	_CLK_SC_FIXED(RCC_MP_APB3ENSETR, 11, SYSCFG, _UNKNOWN_ID),
+	_CLK_SC_FIXED(N_S, RCC_MP_APB3ENSETR, 11, SYSCFG, _UNKNOWN_ID),
 
-	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 8, DDRPERFM, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 15, IWDG2, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 16, USBPHY_K, _USBPHY_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB4ENSETR, 8, DDRPERFM, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB4ENSETR, 15, IWDG2, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_APB4ENSETR, 16, USBPHY_K, _USBPHY_SEL),
 
-	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 0, SPI6_K, _SPI6_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 2, I2C4_K, _I2C46_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 3, I2C6_K, _I2C46_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 4, USART1_K, _UART1_SEL),
-	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 8, RTCAPB, _PCLK5),
-	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 11, TZC1, _PCLK5),
-	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 12, TZC2, _PCLK5),
-	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 13, TZPC, _PCLK5),
-	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 15, IWDG1, _PCLK5),
-	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 16, BSEC, _PCLK5),
-	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 20, STGEN_K, _STGEN_SEL),
+	_CLK_SC_SELEC(SEC, RCC_MP_APB5ENSETR, 0, SPI6_K, _SPI6_SEL),
+	_CLK_SC_SELEC(SEC, RCC_MP_APB5ENSETR, 2, I2C4_K, _I2C46_SEL),
+	_CLK_SC_SELEC(SEC, RCC_MP_APB5ENSETR, 3, I2C6_K, _I2C46_SEL),
+	_CLK_SC_SELEC(SEC, RCC_MP_APB5ENSETR, 4, USART1_K, _UART1_SEL),
+	_CLK_SC_FIXED(SEC, RCC_MP_APB5ENSETR, 8, RTCAPB, _PCLK5),
+	_CLK_SC_FIXED(SEC, RCC_MP_APB5ENSETR, 11, TZC1, _PCLK5),
+	_CLK_SC_FIXED(SEC, RCC_MP_APB5ENSETR, 12, TZC2, _PCLK5),
+	_CLK_SC_FIXED(SEC, RCC_MP_APB5ENSETR, 13, TZPC, _PCLK5),
+	_CLK_SC_FIXED(SEC, RCC_MP_APB5ENSETR, 15, IWDG1, _PCLK5),
+	_CLK_SC_FIXED(SEC, RCC_MP_APB5ENSETR, 16, BSEC, _PCLK5),
+	_CLK_SC_SELEC(SEC, RCC_MP_APB5ENSETR, 20, STGEN_K, _STGEN_SEL),
 
-	_CLK_SC_SELEC(RCC_MP_AHB2ENSETR, 8, USBO_K, _USBO_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB2ENSETR, 16, SDMMC3_K, _SDMMC3_SEL),
+#if defined(IMAGE_BL32)
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB2ENSETR, 8, USBO_K, _USBO_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB2ENSETR, 16, SDMMC3_K, _SDMMC3_SEL),
+#endif
 
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 0, GPIOA, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 1, GPIOB, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 2, GPIOC, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 3, GPIOD, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 4, GPIOE, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 5, GPIOF, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 6, GPIOG, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 7, GPIOH, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 8, GPIOI, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 9, GPIOJ, _UNKNOWN_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 10, GPIOK, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 0, GPIOA, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 1, GPIOB, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 2, GPIOC, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 3, GPIOD, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 4, GPIOE, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 5, GPIOF, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 6, GPIOG, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 7, GPIOH, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 8, GPIOI, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 9, GPIOJ, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB4ENSETR, 10, GPIOK, _UNKNOWN_SEL),
 
-	_CLK_SC_FIXED(RCC_MP_AHB5ENSETR, 0, GPIOZ, _PCLK5),
-	_CLK_SC_FIXED(RCC_MP_AHB5ENSETR, 4, CRYP1, _PCLK5),
-	_CLK_SC_FIXED(RCC_MP_AHB5ENSETR, 5, HASH1, _PCLK5),
-	_CLK_SC_SELEC(RCC_MP_AHB5ENSETR, 6, RNG1_K, _RNG1_SEL),
-	_CLK_SC_FIXED(RCC_MP_AHB5ENSETR, 8, BKPSRAM, _PCLK5),
+	_CLK_SC_FIXED(SEC, RCC_MP_AHB5ENSETR, 0, GPIOZ, _PCLK5),
+	_CLK_SC_FIXED(SEC, RCC_MP_AHB5ENSETR, 4, CRYP1, _PCLK5),
+	_CLK_SC_FIXED(SEC, RCC_MP_AHB5ENSETR, 5, HASH1, _PCLK5),
+	_CLK_SC_SELEC(SEC, RCC_MP_AHB5ENSETR, 6, RNG1_K, _RNG1_SEL),
+	_CLK_SC_FIXED(SEC, RCC_MP_AHB5ENSETR, 8, BKPSRAM, _PCLK5),
 
-	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 12, FMC_K, _FMC_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 14, QSPI_K, _QSPI_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 16, SDMMC1_K, _SDMMC12_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 17, SDMMC2_K, _SDMMC12_SEL),
-	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 24, USBH, _UNKNOWN_SEL),
+#if defined(IMAGE_BL2)
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB6ENSETR, 12, FMC_K, _FMC_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB6ENSETR, 14, QSPI_K, _QSPI_SEL),
+#endif
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB6ENSETR, 16, SDMMC1_K, _SDMMC12_SEL),
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB6ENSETR, 17, SDMMC2_K, _SDMMC12_SEL),
+#if defined(IMAGE_BL32)
+	_CLK_SC_SELEC(N_S, RCC_MP_AHB6ENSETR, 24, USBH, _UNKNOWN_SEL),
+#endif
 
-	_CLK_SELEC(RCC_BDCR, 20, RTC, _RTC_SEL),
-	_CLK_SELEC(RCC_DBGCFGR, 8, CK_DBG, _UNKNOWN_SEL),
+	_CLK_SELEC(SEC, RCC_BDCR, 20, RTC, _RTC_SEL),
+	_CLK_SELEC(N_S, RCC_DBGCFGR, 8, CK_DBG, _UNKNOWN_SEL),
 };
 
 static const uint8_t i2c12_parents[] = {
@@ -627,6 +644,13 @@ static const struct stm32mp1_clk_gate *gate_ref(unsigned int idx)
 {
 	return &stm32mp1_clk_gate[idx];
 }
+
+#if defined(IMAGE_BL32)
+static bool gate_is_non_secure(const struct stm32mp1_clk_gate *gate)
+{
+	return gate->secure == N_S;
+}
+#endif
 
 static const struct stm32mp1_clk_sel *clk_sel_ref(unsigned int idx)
 {
@@ -1062,17 +1086,6 @@ static bool __clk_is_enabled(struct stm32mp1_clk_gate const *gate)
 	return mmio_read_32(rcc_base + gate->offset) & BIT(gate->bit);
 }
 
-unsigned int stm32mp1_clk_get_refcount(unsigned long id)
-{
-	int i = stm32mp1_clk_get_gated_id(id);
-
-	if (i < 0) {
-		panic();
-	}
-
-	return gate_refcounts[i];
-}
-
 /* Oscillators and PLLs are not gated at runtime */
 static bool clock_is_always_on(unsigned long id)
 {
@@ -1101,11 +1114,10 @@ static bool clock_is_always_on(unsigned long id)
 	}
 }
 
-void __stm32mp1_clk_enable(unsigned long id, bool secure)
+static void __stm32mp1_clk_enable(unsigned long id, bool with_refcnt)
 {
 	const struct stm32mp1_clk_gate *gate;
 	int i;
-	unsigned int *refcnt;
 
 	if (clock_is_always_on(id)) {
 		return;
@@ -1118,22 +1130,39 @@ void __stm32mp1_clk_enable(unsigned long id, bool secure)
 	}
 
 	gate = gate_ref(i);
-	refcnt = &gate_refcounts[i];
+
+	if (!with_refcnt) {
+		__clk_enable(gate);
+		return;
+	}
+
+#if defined(IMAGE_BL32)
+	if (gate_is_non_secure(gate)) {
+		/* Enable non-secure clock w/o any refcounting */
+		__clk_enable(gate);
+		return;
+	}
+#endif
 
 	stm32mp1_clk_lock(&refcount_lock);
 
-	if (stm32mp_incr_shrefcnt(refcnt, secure) != 0) {
+	if (gate_refcounts[i] == 0U) {
 		__clk_enable(gate);
+	}
+
+	gate_refcounts[i]++;
+	if (gate_refcounts[i] == UINT_MAX) {
+		ERROR("Clock %lu refcount reached max value\n", id);
+		panic();
 	}
 
 	stm32mp1_clk_unlock(&refcount_lock);
 }
 
-void __stm32mp1_clk_disable(unsigned long id, bool secure)
+static void __stm32mp1_clk_disable(unsigned long id, bool with_refcnt)
 {
 	const struct stm32mp1_clk_gate *gate;
 	int i;
-	unsigned int *refcnt;
 
 	if (clock_is_always_on(id)) {
 		return;
@@ -1146,11 +1175,28 @@ void __stm32mp1_clk_disable(unsigned long id, bool secure)
 	}
 
 	gate = gate_ref(i);
-	refcnt = &gate_refcounts[i];
+
+	if (!with_refcnt) {
+		__clk_disable(gate);
+		return;
+	}
+
+#if defined(IMAGE_BL32)
+	if (gate_is_non_secure(gate)) {
+		/* Don't disable non-secure clocks */
+		return;
+	}
+#endif
 
 	stm32mp1_clk_lock(&refcount_lock);
 
-	if (stm32mp_decr_shrefcnt(refcnt, secure) != 0) {
+	if (gate_refcounts[i] == 0U) {
+		ERROR("Clock %lu refcount reached 0\n", id);
+		panic();
+	}
+	gate_refcounts[i]--;
+
+	if (gate_refcounts[i] == 0U) {
 		__clk_disable(gate);
 	}
 
@@ -1720,50 +1766,6 @@ static void stm32mp1_set_rtcsrc(unsigned int clksrc, bool lse_css)
 	}
 }
 
-static void stm32mp1_stgen_config(void)
-{
-	uint32_t cntfid0;
-	unsigned long rate;
-	unsigned long long counter;
-
-	cntfid0 = mmio_read_32(STGEN_BASE + CNTFID_OFF);
-	rate = get_clock_rate(stm32mp1_clk_get_parent(STGEN_K));
-
-	if (cntfid0 == rate) {
-		return;
-	}
-
-	mmio_clrbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
-	counter = (unsigned long long)mmio_read_32(STGEN_BASE + CNTCVL_OFF);
-	counter |= ((unsigned long long)mmio_read_32(STGEN_BASE + CNTCVU_OFF)) << 32;
-	counter = (counter * rate / cntfid0);
-
-	mmio_write_32(STGEN_BASE + CNTCVL_OFF, (uint32_t)counter);
-	mmio_write_32(STGEN_BASE + CNTCVU_OFF, (uint32_t)(counter >> 32));
-	mmio_write_32(STGEN_BASE + CNTFID_OFF, rate);
-	mmio_setbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
-
-	write_cntfrq((u_register_t)rate);
-
-	/* Need to update timer with new frequency */
-	generic_delay_timer_init();
-}
-
-void stm32mp1_stgen_increment(unsigned long long offset_in_ms)
-{
-	unsigned long long cnt;
-
-	cnt = ((unsigned long long)mmio_read_32(STGEN_BASE + CNTCVU_OFF) << 32) |
-		mmio_read_32(STGEN_BASE + CNTCVL_OFF);
-
-	cnt += (offset_in_ms * mmio_read_32(STGEN_BASE + CNTFID_OFF)) / 1000U;
-
-	mmio_clrbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
-	mmio_write_32(STGEN_BASE + CNTCVL_OFF, (uint32_t)cnt);
-	mmio_write_32(STGEN_BASE + CNTCVU_OFF, (uint32_t)(cnt >> 32));
-	mmio_setbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
-}
-
 static void stm32mp1_pkcs_config(uint32_t pkcs)
 {
 	uintptr_t address = stm32mp_rcc_base() + ((pkcs >> 4) & 0xFFFU);
@@ -1959,7 +1961,8 @@ int stm32mp1_clk_init(void)
 		if (ret != 0) {
 			return ret;
 		}
-		stm32mp1_stgen_config();
+
+		stm32mp_stgen_config(stm32mp_clk_get_rate(STGEN_K));
 	}
 
 	/* Select DIV */
@@ -2133,7 +2136,8 @@ int stm32mp1_clk_init(void)
 	if (stm32mp1_osc[_HSI] == 0U) {
 		stm32mp1_hsi_set(false);
 	}
-	stm32mp1_stgen_config();
+
+	stm32mp_stgen_config(stm32mp_clk_get_rate(STGEN_K));
 
 	/* Software Self-Refresh mode (SSR) during DDR initilialization */
 	mmio_clrsetbits_32(rcc_base + RCC_DDRITFCR,
