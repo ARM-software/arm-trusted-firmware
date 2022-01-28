@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -731,6 +731,9 @@ subsections:
           - drivers/st
 
         subsections:
+          - title: BSEC
+            scope: st-bsec
+
           - title: Clock
             scope: st-clock
 
@@ -738,6 +741,12 @@ subsections:
               - stm32mp_clk
               - drivers/st/clk
               - stm32mp1_clk
+
+          - title: Crypto
+            scope: st-crypto
+
+          - title: DDR
+            scope: st-ddr
 
           - title: I/O
             scope: st-io-drivers
@@ -752,6 +761,15 @@ subsections:
 
               - title: fiptool
                 scope: fiptool
+
+          - title: I2C
+            scope: st-i2c
+
+          - title: FMC
+            scope: st-fmc
+
+          - title: GPIO
+            scope: st-gpio
 
           - title: SDMMC2
             scope: st-sdmmc2
@@ -768,6 +786,15 @@ subsections:
           - title: STPMIC1
             scope: stpmic1
 
+          - title: Regulator
+            scope: st-regulator
+
+          - title: Reset
+            scope: st-reset
+
+          - title: SPI
+            scope: st-spi
+
           - title: UART
             scope: st-uart
 
@@ -783,6 +810,9 @@ subsections:
 
             deprecated:
               - drivers/st/usb
+
+          - title: Watchdog
+            scope: st-iwdg
 
       - title: USB
         scope: usb
