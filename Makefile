@@ -135,6 +135,10 @@ ifeq (${ENABLE_RME},1)
 ifneq (${ENABLE_PIE},0)
         $(error ENABLE_RME does not support PIE)
 endif
+# RME doesn't support BRBE
+ifneq (${ENABLE_BRBE_FOR_NS},0)
+        $(error ENABLE_RME does not support BRBE.)
+endif
 # RME requires AARCH64
 ifneq (${ARCH},aarch64)
         $(error ENABLE_RME requires AArch64)
@@ -777,8 +781,10 @@ ifneq (${DECRYPTION_SUPPORT},none)
     endif
 endif
 
-# SME/SVE only supported on AArch64
+# Ensure that no Aarch64-only features are enabled in Aarch32 build
 ifeq (${ARCH},aarch32)
+
+    # SME/SVE only supported on AArch64
     ifeq (${ENABLE_SME_FOR_NS},1)
         $(error "ENABLE_SME_FOR_NS cannot be used with ARCH=aarch32")
     endif
@@ -786,6 +792,12 @@ ifeq (${ARCH},aarch32)
         # Warning instead of error due to CI dependency on this
         $(error "ENABLE_SVE_FOR_NS cannot be used with ARCH=aarch32")
     endif
+
+    # BRBE is not supported in Aarch32
+    ifeq (${ENABLE_BRBE_FOR_NS},1)
+        $(error "ENABLE_BRBE_FOR_NS cannot be used with ARCH=aarch32")
+    endif
+
 endif
 
 # Ensure ENABLE_RME is not used with SME
@@ -1032,6 +1044,7 @@ $(eval $(call assert_booleans,\
         COT_DESC_IN_DTB \
         USE_SP804_TIMER \
         PSA_FWU_SUPPORT \
+        ENABLE_BRBE_FOR_NS \
         ENABLE_TRBE_FOR_NS \
         ENABLE_SYS_REG_TRACE_FOR_NS \
         ENABLE_MPMM \
@@ -1172,6 +1185,7 @@ $(eval $(call add_defines,\
         NR_OF_FW_BANKS \
         NR_OF_IMAGES_IN_FW_BANK \
         PSA_FWU_SUPPORT \
+        ENABLE_BRBE_FOR_NS \
         ENABLE_TRBE_FOR_NS \
         ENABLE_SYS_REG_TRACE_FOR_NS \
         ENABLE_TRF_FOR_NS \

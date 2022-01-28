@@ -440,6 +440,11 @@ else
 	override ENABLE_TRBE_FOR_NS	:= 0
 endif
 
+# By default, disable access to branch record buffer control registers from NS
+# lower ELs i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
+# if FEAT_BRBE is implemented.
+ENABLE_BRBE_FOR_NS		:= 0
+
 # By default, disable access of trace system registers from NS lower
 # ELs  i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused if
 # system register trace is implemented.
