@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2020-2021 - All Rights Reserved
+ * Copyright (C) STMicroelectronics 2020-2022 - All Rights Reserved
  */
 
 / {
 #if !STM32MP_EMMC && !STM32MP_SDMMC
 	aliases {
 		/delete-property/ mmc0;
+		/delete-property/ mmc1;
 	};
 #endif
 
