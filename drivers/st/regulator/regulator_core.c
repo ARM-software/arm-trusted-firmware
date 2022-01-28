@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -155,6 +155,10 @@ int regulator_disable(struct rdev *rdev)
 	int ret;
 
 	assert(rdev != NULL);
+
+	if (rdev->flags & REGUL_ALWAYS_ON) {
+		return 0;
+	}
 
 	ret = __regulator_set_state(rdev, STATE_DISABLE);
 
@@ -412,6 +416,21 @@ int regulator_set_flag(struct rdev *rdev, uint16_t flag)
 	return 0;
 }
 
+static int parse_properties(const void *fdt, struct rdev *rdev, int node)
+{
+	int ret;
+
+	if (fdt_getprop(fdt, node, "regulator-always-on", NULL) != NULL) {
+		VERBOSE("%s: set regulator-always-on\n", rdev->desc->node_name);
+		ret = regulator_set_flag(rdev, REGUL_ALWAYS_ON);
+		if (ret != 0) {
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
 /*
  * Parse the device-tree for a regulator
  *
@@ -473,6 +492,11 @@ static int parse_dt(struct rdev *rdev, int node)
 	/* validate that min and max values can be used */
 	ret = regulator_list_voltages(rdev, &levels, &size);
 	if ((ret != 0) && (ret != -ENODEV)) {
+		return ret;
+	}
+
+	ret = parse_properties(fdt, rdev, node);
+	if (ret != 0) {
 		return ret;
 	}
 
