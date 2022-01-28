@@ -93,6 +93,39 @@ UART: supports two UARTs up to 115200 bps for console
 
 Details about LS1043A RDB board can be found at `ls1043ardb`_.
 
+4. LS1046A
+
+- SoC Overview:
+
+The LS1046A is a cost-effective, power-efficient, and highly integrated
+system-on-chip (SoC) design that extends the reach of the NXP value-performance
+line of QorIQ communications processors. Featuring power-efficient 64-bit
+Arm Cortex-A72 cores with ECC-protected L1 and L2 cache memories for high
+reliability, running up to 1.8 GHz.
+
+Details about LS1043A can be found at `ls1046a`_.
+
+- LS1046ARDB Board:
+
+The LS1046A reference design board (RDB) is a high-performance computing,
+evaluation, and development platform that supports the Layerscape LS1046A
+architecture processor. The LS1046ARDB board supports the Layerscape LS1046A
+processor and is optimized to support the DDR4 memory and a full complement
+of high-speed SerDes ports.
+
+Details about LS1043A RDB board can be found at `ls1046ardb`_.
+
+- LS1046AFRWY Board:
+
+The LS1046A Freeway board (FRWY) is a high-performance computing, evaluation,
+and development platform that supports the LS1046A architecture processor
+capable of support more than 32,000 CoreMark performance. The FRWY-LS1046A
+board supports the LS1046A processor, onboard DDR4 memory, multiple Gigabit
+Ethernet, USB3.0 and M2_Type_E interfaces for Wi-Fi, FRWY-LS1046A-AC includes
+the Wi-Fi card.
+
+Details about LS1043A RDB board can be found at `ls1046afrwy`_.
+
 Table of supported boot-modes by each platform & platform that needs FIP-DDR:
 -----------------------------------------------------------------------------
 
@@ -106,6 +139,10 @@ Table of supported boot-modes by each platform & platform that needs FIP-DDR:
 |     ls1028ardb      |  yes  |        |       |       |  yes  |   yes       |              |       no        |
 +---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
 |     ls1043ardb      |  yes  |        |  yes  |  yes  |       |             |              |       no        |
++---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
+|     ls1046ardb      |  yes  |  yes   |       |       |  yes  |             |              |       no        |
++---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
+|     ls1046afrwy     |  yes  |  yes   |       |       |       |             |              |       no        |
 +---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
 
 
@@ -275,31 +312,41 @@ Deploy ATF Images
 Note: The size in the standard uboot commands for copy to nor, qspi, nand or sd
 should be modified based on the binary size of the image to be copied.
 
--  Deploy ATF images on flexspi-Nor flash Alt Bank from U-Boot prompt.
-   --  Commands to flash images for bl2_xxx.pbl and fip.bin.
+-  Deploy ATF images on flexspi-Nor or QSPI flash Alt Bank from U-Boot prompt.
+
+   --  Commands to flash images for bl2_xxx.pbl and fip.bin
+
+   Notes: ls1028ardb has no flexspi-Nor Alt Bank, so use "sf probe 0:0" for current bank.
 
    .. code:: shell
 
-        tftp 82000000  $path/bl2_flexspi_nor.pbl;
-        i2c mw 66 50 20;sf probe 0:0; sf erase 0 +$filesize; sf write 0x82000000 0x0 $filesize;
+        tftp 82000000  $path/bl2_xxx.pbl;
+
+        i2c mw 66 50 20;sf probe 0:1; sf erase 0 +$filesize; sf write 0x82000000 0x0 $filesize;
 
         tftp 82000000  $path/fip.bin;
-        i2c mw 66 50 20;sf probe 0:0; sf erase 0x100000 +$filesize; sf write 0x82000000 0x100000 $filesize;
+        i2c mw 66 50 20;sf probe 0:1; sf erase 0x100000 +$filesize; sf write 0x82000000 0x100000 $filesize;
 
    --  Next step is valid for platform where FIP-DDR is needed.
 
    .. code:: shell
 
         tftp 82000000  $path/ddr_fip.bin;
-        i2c mw 66 50 20;sf probe 0:0; sf erase 0x800000 +$filesize; sf write 0x82000000 0x800000 $filesize;
+        i2c mw 66 50 20;sf probe 0:1; sf erase 0x800000 +$filesize; sf write 0x82000000 0x800000 $filesize;
 
    --  Then reset to alternate bank to boot up ATF.
 
-   Command for lx2160A and ls1028a platforms:
+   Command for lx2160a and ls1028a platforms:
 
    .. code:: shell
 
         qixisreset altbank;
+
+   Command for ls1046a platforms:
+
+   .. code:: shell
+
+        cpld reset altbank;
 
 -  Deploy ATF images on SD/eMMC from U-Boot prompt.
    -- file_size_in_block_sizeof_512 = (Size_of_bytes_tftp / 512)
@@ -329,7 +376,7 @@ should be modified based on the binary size of the image to be copied.
 
         qixisreset <sd or emmc>;
 
-   Command for ls1043a platform:
+   Command for ls1043a and ls1046a platform:
 
    .. code:: shell
 
@@ -395,4 +442,7 @@ Refer `nxp-ls-tbbr.rst`_ for detailed user steps.
 .. _ls1028ardb: https://www.nxp.com/design/qoriq-developer-resources/layerscape-ls1028a-reference-design-board:LS1028ARDB
 .. _ls1043a: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-processors/layerscape-1043a-and-1023a-processors:LS1043A
 .. _ls1043ardb: https://www.nxp.com/design/qoriq-developer-resources/layerscape-ls1043a-reference-design-board:LS1043A-RDB
+.. _ls1046a: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-processors/layerscape-1046a-and-1026a-processors:LS1046A
+.. _ls1046ardb: https://www.nxp.com/design/qoriq-developer-resources/layerscape-ls1046a-reference-design-board:LS1046A-RDB
+.. _ls1046afrwy: https://www.nxp.com/design/qoriq-developer-resources/ls1046a-freeway-board:FRWY-LS1046A
 .. _nxp-ls-tbbr.rst: ./nxp-ls-tbbr.rst
