@@ -178,19 +178,22 @@ static void __dead2 rcar_system_off(void)
 		ERROR("BL3-1:Failed the SYSTEM-RESET.\n");
 #endif
 #else
-	u_register_t cpu = read_mpidr_el1() & 0x0000ffffU;
+	u_register_t mpidr = read_mpidr_el1();
+	u_register_t cpu = mpidr & 0x0000ffffU;
 	int32_t rtn_on;
 
-	rtn_on = rcar_pwrc_cpu_on_check(cpu);
+	rtn_on = rcar_pwrc_cpu_on_check(mpidr);
 
-	if (cpu == rcar_boot_mpidr)
+	if (cpu != rcar_boot_mpidr) {
 		panic();
+	}
 
-	if (rtn_on)
+	if (rtn_on != 0) {
 		panic();
+	}
 
-	rcar_pwrc_cpuoff(cpu);
-	rcar_pwrc_clusteroff(cpu);
+	rcar_pwrc_cpuoff(mpidr);
+	rcar_pwrc_clusteroff(mpidr);
 
 #endif /* PMIC_ROHM_BD9571 */
 	wfi();
