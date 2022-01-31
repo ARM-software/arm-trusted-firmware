@@ -347,19 +347,19 @@ enum ddr_type {
 
 #define OTP_MAX_SIZE			(STM32MP1_OTP_MAX_ID + 1U)
 
-/* OTP offsets */
-#define DATA0_OTP			U(0)
-#define PART_NUMBER_OTP			U(1)
-#define NAND_OTP			U(9)
-#define UID0_OTP			U(13)
-#define UID1_OTP			U(14)
-#define UID2_OTP			U(15)
-#define PACKAGE_OTP			U(16)
-#define HW2_OTP				U(18)
+/* OTP labels */
+#define CFG0_OTP			"cfg0_otp"
+#define PART_NUMBER_OTP			"part_number_otp"
+#define PACKAGE_OTP			"package_otp"
+#define HW2_OTP				"hw2_otp"
+#define NAND_OTP			"nand_otp"
+#define MONOTONIC_OTP			"monotonic_otp"
+#define UID_OTP				"uid_otp"
+#define BOARD_ID_OTP			"board_id"
 
 /* OTP mask */
-/* DATA0 */
-#define DATA0_OTP_SECURED		BIT(6)
+/* CFG0 */
+#define CFG0_CLOSED_DEVICE		BIT(6)
 
 /* PART NUMBER */
 #define PART_NUMBER_OTP_PART_MASK	GENMASK_32(7, 0)
@@ -415,6 +415,9 @@ enum ddr_type {
 
 /* NAND number of planes */
 #define NAND_PLANE_BIT_NB_MASK		BIT(14)
+
+/* MONOTONIC OTP */
+#define MAX_MONOTONIC_VALUE		32
 
 /* UID OTP */
 #define UID_WORD_NB			U(3)
@@ -486,6 +489,7 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
 #define DT_BSEC_COMPAT			"st,stm32mp15-bsec"
 #define DT_DDR_COMPAT			"st,stm32mp1-ddr"
 #define DT_IWDG_COMPAT			"st,stm32mp1-iwdg"
+#define DT_NVMEM_LAYOUT_COMPAT		"st,stm32-nvmem-layout"
 #define DT_PWR_COMPAT			"st,stm32mp1,pwr-reg"
 #define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
 

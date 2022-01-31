@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021, STMicroelectronics - All Rights Reserved
- * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,6 +40,7 @@ uint32_t dt_get_pwr_vdd_voltage(void);
 struct rdev *dt_get_vdd_regulator(void);
 struct rdev *dt_get_cpu_regulator(void);
 const char *dt_get_board_model(void);
+int dt_find_otp_name(const char *name, uint32_t *otp, uint32_t *otp_len);
 int fdt_get_gpio_bank_pin_count(unsigned int bank);
 
 #endif /* STM32MP_DT_H */

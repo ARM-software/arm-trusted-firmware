@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 
 #include <common/debug.h>
 #include <drivers/st/bsec.h>
+#include <drivers/st/bsec2_reg.h>
 
 #include <stm32mp1_smc.h>
 

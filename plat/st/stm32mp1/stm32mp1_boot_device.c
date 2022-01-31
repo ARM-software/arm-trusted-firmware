@@ -20,13 +20,11 @@
 #if STM32MP_RAW_NAND || STM32MP_SPI_NAND
 static int get_data_from_otp(struct nand_device *nand_dev, bool is_slc)
 {
-	int result;
 	uint32_t nand_param;
 
 	/* Check if NAND parameters are stored in OTP */
-	result = bsec_shadow_read_otp(&nand_param, NAND_OTP);
-	if (result != BSEC_OK) {
-		ERROR("BSEC: NAND_OTP Error %i\n", result);
+	if (stm32_get_otp_value(NAND_OTP, &nand_param) != 0) {
+		ERROR("BSEC: NAND_OTP Error\n");
 		return -EACCES;
 	}
 
