@@ -446,10 +446,10 @@ subsections:
 
     subsections:
       - title: FF-A
-        scope: ffa
+        scope: ff-a
 
         deprecated:
-          - ff-a
+          - ffa
 
       - title: RME
         scope: rme
@@ -461,7 +461,9 @@ subsections:
           - spmc
           - spmd
           - SPMD
-          - spm_mm
+
+      - title: SPM MM
+        scope: spm-mm
 
   - title: Libraries
 
