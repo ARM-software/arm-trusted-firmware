@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,11 @@ static console_t arm_runtime_console;
 /* Initialize the console to provide early debug support */
 void __init arm_console_boot_init(void)
 {
+	/* If the console was initialized already, don't initialize again */
+	if (arm_boot_console.base == PLAT_ARM_BOOT_UART_BASE) {
+		return;
+	}
+
 	int rc = console_pl011_register(PLAT_ARM_BOOT_UART_BASE,
 					PLAT_ARM_BOOT_UART_CLK_IN_HZ,
 					ARM_CONSOLE_BAUDRATE,
