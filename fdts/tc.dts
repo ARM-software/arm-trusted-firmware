@@ -17,7 +17,6 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyAMA0 debug user_debug=31 earlycon=pl011,0x7ff80000 loglevel=9 androidboot.hardware=total_compute androidboot.boot_devices=1c050000.mmci ip=dhcp androidboot.selinux=permissive allow_mismatched_32bit_el0";
 		stdout-path = "serial0:115200n8";
 	};
 
@@ -206,6 +205,13 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0x8000000>;
+			linux,cma-default;
+		};
 
 		optee@0xfce00000 {
 			reg = <0x00000000 0xfce00000 0 0x00200000>;
@@ -435,6 +441,26 @@
 		clock-names = "mclk", "apb_pclk";
 	};
 
+	gpu: gpu@2d000000 {
+		compatible = "arm,mali-midgard";
+		reg = <0x0 0x2d000000 0x0 0x200000>;
+		interrupts = <0 66 4>, <0 67 4>, <0 65 4>;
+		interrupt-names = "JOB", "MMU", "GPU";
+		clocks = <&soc_refclk100mhz>;
+		clock-names = "clk_mali";
+		operating-points = <
+			/* KHz uV */
+			50000 820000
+		>;
+	};
+
+	smmu: smmu@2ce00000 {
+		#iommu-cells = <1>;
+		compatible = "arm,smmu-v3";
+		reg = <0x0 0x2ce00000 0x0 0x20000>;
+		status = "okay";
+	};
+
 	dp0: display@2cc00000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -444,6 +470,9 @@
 		interrupt-names = "DPU";
 		clocks = <&scmi_clk 0>;
 		clock-names = "aclk";
+		iommus = <&smmu 0>, <&smmu 1>, <&smmu 2>, <&smmu 3>,
+			<&smmu 4>, <&smmu 5>, <&smmu 6>, <&smmu 7>,
+			<&smmu 8>, <&smmu 9>;
 		pl0: pipeline@0 {
 			reg = <0>;
 			clocks = <&scmi_clk 1>;
