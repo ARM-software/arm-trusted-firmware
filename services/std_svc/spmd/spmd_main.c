@@ -688,16 +688,13 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_NOTIFICATION_GET:
 	case FFA_NOTIFICATION_INFO_GET:
 	case FFA_NOTIFICATION_INFO_GET_SMC64:
+	case FFA_MSG_SEND2:
 #endif
-		/*
-		 * Above calls should not be forwarded from Secure world to
-		 * Normal world.
-		 *
-		 * Fall through to forward the call to the other world
-		 */
 	case FFA_MSG_RUN:
-		/* This interface must be invoked only by the Normal world */
-
+		/*
+		 * Above calls should be invoked only by the Normal world and
+		 * must not be forwarded from Secure world to Normal world.
+		 */
 		if (secure_origin) {
 			return spmd_ffa_error_return(handle,
 						     FFA_ERROR_NOT_SUPPORTED);
