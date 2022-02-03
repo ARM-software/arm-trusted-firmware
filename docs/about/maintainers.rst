@@ -580,6 +580,15 @@ QTI platform port
 :|F|: docs/plat/qti.rst
 :|F|: plat/qti/
 
+QTI MSM8916 platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Stephan Gerhold <stephan@gerhold.net>
+:|G|: `stephan-gh`_
+:|M|: Nikita Travkin <nikita@trvn.ru>
+:|G|: `TravMurav`_
+:|F|: docs/plat/qti-msm8916.rst
+:|F|: plat/qti/msm8916/
+
 Raspberry Pi 3 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
@@ -797,9 +806,11 @@ Conventional Changelog Extensions
 .. _smaeul: https://github.com/smaeul
 .. _soby-mathew: https://github.com/soby-mathew
 .. _sreekare: https://github.com/sreekare
+.. _stephan-gh: https://github.com/stephan-gh
 .. _thloh85-intel: https://github.com/thloh85-intel
 .. _thomas-arm: https://github.com/thomas-arm
 .. _TonyXie06: https://github.com/TonyXie06
+.. _TravMurav: https://github.com/TravMurav
 .. _vwadekar: https://github.com/vwadekar
 .. _venkatesh: https://github.com/vabbarap
 .. _Yann-lms: https://github.com/Yann-lms
