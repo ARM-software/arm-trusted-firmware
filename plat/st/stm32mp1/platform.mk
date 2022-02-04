@@ -9,6 +9,8 @@ ARM_WITH_NEON		:=	yes
 BL2_AT_EL3		:=	1
 USE_COHERENT_MEM	:=	0
 
+STM32MP_EARLY_CONSOLE	?=	0
+
 # Allow TF-A to concatenate BL2 & BL32 binaries in a single file,
 # share DTB file between BL2 and BL32
 # If it is set to 0, then FIP is used
@@ -157,6 +159,7 @@ $(eval $(call assert_booleans,\
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32MP_DDR_32BIT_INTERFACE \
 		STM32MP_DDR_DUAL_AXI_PORT \
+		STM32MP_EARLY_CONSOLE \
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \
@@ -183,6 +186,7 @@ $(eval $(call add_defines,\
 		STM32_TF_VERSION \
 		STM32MP_DDR_32BIT_INTERFACE \
 		STM32MP_DDR_DUAL_AXI_PORT \
+		STM32MP_EARLY_CONSOLE \
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \
