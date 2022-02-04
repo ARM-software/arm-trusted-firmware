@@ -49,7 +49,7 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 				 uint32_t arg3, uint32_t *data, uint32_t flag);
 unsigned int pm_get_shutdown_scope(void);
-enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version,
+enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 				    uint32_t flag);
 enum pm_ret_status pm_load_pdi(uint32_t src, uint32_t address_low,
 			       uint32_t address_high, uint32_t flag);

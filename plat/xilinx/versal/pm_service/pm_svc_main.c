@@ -156,10 +156,11 @@ static uintptr_t eemi_for_compatibility(uint32_t api_id, uint32_t *pm_arg,
 
 	case PM_FEATURE_CHECK:
 	{
-		uint32_t version;
+		uint32_t result[PAYLOAD_ARG_CNT] = {0U};
 
-		ret = pm_feature_check(pm_arg[0], &version, security_flag);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)version << 32));
+		ret = pm_feature_check(pm_arg[0], result, security_flag);
+		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
+			 (uint64_t)result[1] | ((uint64_t)result[2] << 32));
 	}
 
 	case PM_LOAD_PDI:

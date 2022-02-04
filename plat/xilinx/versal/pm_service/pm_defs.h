@@ -38,6 +38,7 @@
 
 /* PM API Versions */
 #define PM_API_BASE_VERSION		1U
+#define PM_API_VERSION_2                2U
 
 #define PM_API_QUERY_DATA_VERSION	2U
 

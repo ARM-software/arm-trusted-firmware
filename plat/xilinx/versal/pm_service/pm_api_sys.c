@@ -533,56 +533,46 @@ enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 /**
  * pm_feature_check() - Returns the supported API version if supported
  * @api_id	API ID to check
- * @value	Returned supported API version
  * @flag	0 - Call from secure source
  *		1 - Call from non-secure source
+ * @ret_payload pointer to array of PAYLOAD_ARG_CNT number of
+ *		words Returned supported API version and bitmasks
+ *		for IOCTL and QUERY ID
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version,
+enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 				    uint32_t flag)
 {
-	uint32_t payload[PAYLOAD_ARG_CNT], fw_api_version;
-	enum pm_ret_status status;
+	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint32_t module_id;
+
+	/* Return version of API which are implemented in ATF only */
+	switch (api_id) {
+	case PM_GET_CALLBACK_DATA:
+	case PM_GET_TRUSTZONE_VERSION:
+		ret_payload[0] = PM_API_VERSION_2;
+		return PM_RET_SUCCESS;
+	case PM_LOAD_PDI:
+		ret_payload[0] = PM_API_BASE_VERSION;
+		return PM_RET_SUCCESS;
+	default:
+		break;
+	}
 
 	module_id = (api_id & MODULE_ID_MASK) >> 8;
 
-	/* feature check should be done only for LIBPM module
+	/*
+	 * feature check should be done only for LIBPM module
 	 * If module_id is 0, then we consider it LIBPM module as default id
 	 */
 	if ((module_id > 0) && (module_id != LIBPM_MODULE_ID)) {
 		return PM_RET_SUCCESS;
 	}
 
-	switch (api_id) {
-	case PM_GET_CALLBACK_DATA:
-	case PM_GET_TRUSTZONE_VERSION:
-	case PM_LOAD_PDI:
-		*version = (PM_API_BASE_VERSION << 16);
-		return PM_RET_SUCCESS;
-	case PM_QUERY_DATA:
-		*version = (PM_API_QUERY_DATA_VERSION << 16);
-		break;
-	default:
-		*version = (PM_API_BASE_VERSION << 16);
-		break;
-	}
-
 	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, flag,
 			 PM_FEATURE_CHECK, api_id);
-
-	status = pm_ipi_send_sync(primary_proc, payload, &fw_api_version, 1);
-	if (status != PM_RET_SUCCESS) {
-		goto done;
-	}
-
-	*version |= fw_api_version;
-
-	status = PM_RET_SUCCESS;
-
-done:
-	return status;
+	return pm_ipi_send_sync(primary_proc, payload, ret_payload, PAYLOAD_ARG_CNT);
 }
 
 /**
