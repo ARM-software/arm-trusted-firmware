@@ -250,24 +250,22 @@ const fdt32_t *fdt_rcc_read_prop(const char *prop_name, int *lenp)
 }
 
 /*
- * Get the secure status for rcc node in device tree.
- * @return: true if rcc is available from secure world, false if not.
+ * Get the secure state for rcc node in device tree.
+ * @return: true if rcc is configured for secure world access, false if not.
  */
-bool fdt_get_rcc_secure_status(void)
+bool fdt_get_rcc_secure_state(void)
 {
-	int node;
 	void *fdt;
 
 	if (fdt_get_address(&fdt) == 0) {
 		return false;
 	}
 
-	node = fdt_get_rcc_node(fdt);
-	if (node < 0) {
+	if (fdt_node_offset_by_compatible(fdt, -1, DT_RCC_SEC_CLK_COMPAT) < 0) {
 		return false;
 	}
 
-	return !!(fdt_get_status(node) & DT_SECURE);
+	return true;
 }
 
 /*
