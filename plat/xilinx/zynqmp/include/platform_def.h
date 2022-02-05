@@ -38,7 +38,7 @@
 #ifndef ZYNQMP_ATF_MEM_BASE
 #if !DEBUG && defined(SPD_none) && !SDEI_SUPPORT
 # define BL31_BASE			0xfffea000
-# define BL31_LIMIT			0xffffffff
+# define BL31_LIMIT			0x100000000
 #else
 # define BL31_BASE			0x1000
 # define BL31_LIMIT			0x7ffff
