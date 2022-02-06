@@ -33,6 +33,7 @@
  ******************************************************************************/
 #define CORTEX_A710_CPUACTLR5_EL1				S3_0_C15_C8_0
 #define CORTEX_A710_CPUACTLR5_EL1_BIT_13			(ULL(1) << 13)
+#define CORTEX_A710_CPUACTLR5_EL1_BIT_44			(ULL(1) << 44)
 
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.

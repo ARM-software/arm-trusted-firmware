@@ -245,6 +245,36 @@ func check_errata_2267065
 	b	cpu_rev_var_ls
 endfunc check_errata_2267065
 
+/* ---------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2136059.
+ * This applies to revision r0p0, r1p0 and r2p0.
+ * It is fixed in r2p1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * ---------------------------------------------------------------
+ */
+func errata_a710_2136059_wa
+	/* Compare x0 against revision r2p0 */
+	mov     x17, x30
+	bl      check_errata_2136059
+	cbz     x0, 1f
+
+	/* Apply the workaround */
+	mrs     x1, CORTEX_A710_CPUACTLR5_EL1
+	orr     x1, x1, CORTEX_A710_CPUACTLR5_EL1_BIT_44
+	msr     CORTEX_A710_CPUACTLR5_EL1, x1
+
+1:
+	ret     x17
+endfunc errata_a710_2136059_wa
+
+func check_errata_2136059
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov     x1, #0x20
+	b       cpu_rev_var_ls
+endfunc check_errata_2136059
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
@@ -282,6 +312,7 @@ func cortex_a710_errata_report
 	report_errata ERRATA_A710_2083908, cortex_a710, 2083908
 	report_errata ERRATA_A710_2058056, cortex_a710, 2058056
 	report_errata ERRATA_A710_2267065, cortex_a710, 2267065
+	report_errata ERRATA_A710_2136059, cortex_a710, 2136059
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -330,6 +361,11 @@ func cortex_a710_reset_func
 #if ERRATA_A710_2267065
 	mov	x0, x18
 	bl	errata_a710_2267065_wa
+#endif
+
+#if ERRATA_A710_2136059
+	mov	x0, x18
+	bl	errata_a710_2136059_wa
 #endif
 
 	isb
