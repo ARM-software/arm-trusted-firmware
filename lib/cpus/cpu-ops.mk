@@ -517,6 +517,11 @@ ERRATA_X2_2017096	?=0
 # r2p1.
 ERRATA_X2_2081180	?=0
 
+# Flag to apply erratum 2216384 workaround during reset. This erratum applies
+# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
+# r2p1.
+ERRATA_X2_2216384	?=0
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 ERRATA_DSU_798953	?=0
@@ -961,6 +966,10 @@ $(eval $(call add_define,ERRATA_X2_2017096))
 # Process ERRATA_X2_2081180 flag
 $(eval $(call assert_boolean,ERRATA_X2_2081180))
 $(eval $(call add_define,ERRATA_X2_2081180))
+
+# Process ERRATA_X2_2216384 flag
+$(eval $(call assert_boolean,ERRATA_X2_2216384))
+$(eval $(call add_define,ERRATA_X2_2216384))
 
 # Process ERRATA_DSU_798953 flag
 $(eval $(call assert_boolean,ERRATA_DSU_798953))

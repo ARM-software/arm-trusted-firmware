@@ -34,6 +34,7 @@
  * CPU Auxiliary Control Register 5 definitions
  ******************************************************************************/
 #define CORTEX_X2_CPUACTLR5_EL1					S3_0_C15_C8_0
+#define CORTEX_X2_CPUACTLR5_EL1_BIT_17				(ULL(1) << 17)
 
 /*******************************************************************************
  * CPU Implementation Specific Selected Instruction registers
