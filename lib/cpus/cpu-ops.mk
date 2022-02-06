@@ -495,6 +495,10 @@ ERRATA_A710_2055002	?=0
 # to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
 ERRATA_A710_2017096	?=0
 
+# Flag to apply erratum 2267065 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
+ERRATA_A710_2267065	?=0
+
 # Flag to apply erratum 2002765 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
 ERRATA_X2_2002765	?=0
@@ -946,6 +950,10 @@ $(eval $(call add_define,ERRATA_A710_2055002))
 # Process ERRATA_A710_2017096 flag
 $(eval $(call assert_boolean,ERRATA_A710_2017096))
 $(eval $(call add_define,ERRATA_A710_2017096))
+
+# Process ERRATA_A710_2267065 flag
+$(eval $(call assert_boolean,ERRATA_A710_2267065))
+$(eval $(call add_define,ERRATA_A710_2267065))
 
 # Process ERRATA_X2_2002765 flag
 $(eval $(call assert_boolean,ERRATA_X2_2002765))
