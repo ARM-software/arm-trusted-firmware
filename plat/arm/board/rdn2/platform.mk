@@ -3,8 +3,26 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+RD_N2_VARIANTS	:= 0 1 2
+ifneq ($(CSS_SGI_PLATFORM_VARIANT),\
+	$(filter $(CSS_SGI_PLATFORM_VARIANT),$(RD_N2_VARIANTS)))
+ $(error "CSS_SGI_PLATFORM_VARIANT for RD-N2 should be 0, 1 or 2, currently set \
+     to ${CSS_SGI_PLATFORM_VARIANT}.")
+endif
+
+$(eval $(call CREATE_SEQ,SEQ,4))
+ifneq ($(CSS_SGI_CHIP_COUNT),$(filter $(CSS_SGI_CHIP_COUNT),$(SEQ)))
+ $(error  "Chip count for RD-N2-MC should be either $(SEQ) \
+ currently it is set to ${CSS_SGI_CHIP_COUNT}.")
+endif
+
 # RD-N2 platform uses GIC-700 which is based on GICv4.1
 GIC_ENABLE_V4_EXTN	:=	1
+
+#Enable GIC Multichip Extension only for Multichip Platforms
+ifeq (${CSS_SGI_PLATFORM_VARIANT}, 2)
+GICV3_IMPL_GIC600_MULTICHIP	:=	1
+endif
 
 include plat/arm/css/sgi/sgi-common.mk
 
@@ -39,6 +57,13 @@ BL1_SOURCES		+=	${RDN2_BASE}/rdn2_trusted_boot.c
 BL2_SOURCES		+=	${RDN2_BASE}/rdn2_trusted_boot.c
 endif
 
+ifeq (${CSS_SGI_PLATFORM_VARIANT}, 2)
+BL31_SOURCES	+=	drivers/arm/gic/v3/gic600_multichip.c
+
+# Enable dynamic addition of MMAP regions in BL31
+BL31_CFLAGS		+=	-DPLAT_XLAT_TABLES_DYNAMIC
+endif
+
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	${RDN2_BASE}/fdts/${PLAT}_fw_config.dts	\
 				${RDN2_BASE}/fdts/${PLAT}_tb_fw_config.dts
@@ -58,10 +83,3 @@ $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config))
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0
 override ENABLE_AMU			:= 1
-
-RD_N2_VARIANTS	:= 0 1
-ifneq ($(CSS_SGI_PLATFORM_VARIANT),\
-	$(filter $(CSS_SGI_PLATFORM_VARIANT),$(RD_N2_VARIANTS)))
- $(error "CSS_SGI_PLATFORM_VARIANT for RD-N2 should be 0 or 1, currently set \
-     to ${CSS_SGI_PLATFORM_VARIANT}.")
-endif

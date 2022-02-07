@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,8 @@
 
 #if (CSS_SGI_PLATFORM_VARIANT == 1)
 #define PLAT_ARM_CLUSTER_COUNT		U(8)
+#elif (CSS_SGI_PLATFORM_VARIANT == 2)
+#define PLAT_ARM_CLUSTER_COUNT		U(4)
 #else
 #define PLAT_ARM_CLUSTER_COUNT		U(16)
 #endif
@@ -34,6 +36,8 @@
 
 #if (CSS_SGI_PLATFORM_VARIANT == 1)
 #define TZC400_COUNT			U(2)
+#elif (CSS_SGI_PLATFORM_VARIANT == 2)
+#define TZC400_COUNT			U(4)
 #else
 #define TZC400_COUNT			U(8)
 #endif
@@ -64,8 +68,15 @@
  * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
  */
 #ifdef __aarch64__
+#if (CSS_SGI_PLATFORM_VARIANT == 2)
+#define PLAT_PHY_ADDR_SPACE_SIZE	CSS_SGI_REMOTE_CHIP_MEM_OFFSET( \
+						CSS_SGI_CHIP_COUNT)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	CSS_SGI_REMOTE_CHIP_MEM_OFFSET( \
+						CSS_SGI_CHIP_COUNT)
+#else
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 42)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 42)
+#endif
 #else
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
@@ -74,6 +85,9 @@
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE		UL(0x30000000)
 #define PLAT_ARM_GICC_BASE		UL(0x2C000000)
+
+/* Virtual address used by dynamic mem_protect for chunk_base */
+#define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xC0000000)
 
 #if (CSS_SGI_PLATFORM_VARIANT == 1)
 #define PLAT_ARM_GICR_BASE		UL(0x30100000)
