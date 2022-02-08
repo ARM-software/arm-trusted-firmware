@@ -1,16 +1,47 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef COMMON_DEF_H
 #define COMMON_DEF_H
 
-#include <platform_def.h>
-
 #include <common/bl_common.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
+
+#include <platform_def.h>
+
+#define SZ_32				U(0x00000020)
+#define SZ_64				U(0x00000040)
+#define SZ_128				U(0x00000080)
+#define SZ_256				U(0x00000100)
+#define SZ_512				U(0x00000200)
+
+#define SZ_1K				U(0x00000400)
+#define SZ_2K				U(0x00000800)
+#define SZ_4K				U(0x00001000)
+#define SZ_8K				U(0x00002000)
+#define SZ_16K				U(0x00004000)
+#define SZ_32K				U(0x00008000)
+#define SZ_64K				U(0x00010000)
+#define SZ_128K				U(0x00020000)
+#define SZ_256K				U(0x00040000)
+#define SZ_512K				U(0x00080000)
+
+#define SZ_1M				U(0x00100000)
+#define SZ_2M				U(0x00200000)
+#define SZ_4M				U(0x00400000)
+#define SZ_8M				U(0x00800000)
+#define SZ_16M				U(0x01000000)
+#define SZ_32M				U(0x02000000)
+#define SZ_64M				U(0x04000000)
+#define SZ_128M				U(0x08000000)
+#define SZ_256M				U(0x10000000)
+#define SZ_512M				U(0x20000000)
+
+#define SZ_1G				U(0x40000000)
+#define SZ_2G				U(0x80000000)
 
 /******************************************************************************
  * Required platform porting definitions that are expected to be common to
