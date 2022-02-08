@@ -343,6 +343,9 @@ signing domain in case of dual root CoT.
 The SP owner can either be the silicon or the platform provider. The
 corresponding "owner" field value can either take the value of "SiP" or "Plat".
 In absence of "owner" field, it defaults to "SiP" owner.
+The UUID of the partition can be specified as a field in the description file or
+if it does not exist there the UUID is extracted from the DTS partition
+manifest.
 
 .. code:: shell
 
@@ -350,7 +353,8 @@ In absence of "owner" field, it defaults to "SiP" owner.
         "tee1" : {
             "image": "tee1.bin",
              "pm": "tee1.dts",
-             "owner": "SiP"
+             "owner": "SiP",
+             "uuid": "1b1820fe-48f7-4175-8999-d51da00b7c9f"
         },
 
         "tee2" : {
@@ -1284,4 +1288,4 @@ Client <https://developer.arm.com/documentation/den0006/d/>`__
 
 --------------
 
-*Copyright (c) 2020-2021, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2020-2022, Arm Limited and Contributors. All rights reserved.*

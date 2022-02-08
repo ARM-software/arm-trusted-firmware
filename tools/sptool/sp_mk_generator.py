@@ -13,8 +13,9 @@ must be relative to it.
 This script parses the layout file and generates a make file which updates
 FDT_SOURCES, FIP_ARGS, CRT_ARGS and SPTOOL_ARGS which are used in later build
 steps.
-This script also gets SP "uuid" from parsing its PM and converting it to a
-standard format.
+If the SP entry in the layout file has a "uuid" field the scripts gets the UUID
+from there, otherwise it parses the associated partition manifest and extracts
+the UUID from there.
 
 param1: Generated mk file "sp_gen.mk"
 param2: "SP_LAYOUT_FILE", json file containing platform provided information
@@ -37,7 +38,8 @@ A typical SP_LAYOUT_FILE file will look like
 
         "SP2" : {
                 "image": "sp2.bin",
-                "pm": "test/sp2.dts"
+                "pm": "test/sp2.dts",
+                "uuid": "1b1820fe-48f7-4175-8999-d51da00b7c9f"
         }
 
         ...
@@ -106,35 +108,41 @@ with open(gen_file, 'w') as out_file:
         src = [ json_dir + "/" + data[key]['image'] , dtb  ]
         out_file.write("SPTOOL_ARGS += -i " + ":".join(src) + " -o " + dst + "\n")
 
-        """
-        Extract uuid from partition manifest
-        """
-        pm_file = open(dts)
-        for line in pm_file:
-            if "uuid" in line:
-                # re.findall returns a list of string tuples.
-                # uuid_hex is the first item in this list representing the four
-                # uuid hex integers from the manifest uuid field. The heading
-                # '0x' of the hexadecimal representation is stripped out.
-                # e.g. uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
-                # uuid_hex = ('1e67b5b4', 'e14f904a', '13fb1fb8', 'cbdae1da')
-                uuid_hex = re.findall(r'0x([0-9a-f]+) 0x([0-9a-f]+) 0x([0-9a-f]+) 0x([0-9a-f]+)', line)[0];
+        if "uuid" in data[key]:
+            """
+            Extract the UUID from the JSON file if the SP entry has a 'uuid' field
+            """
+            uuid_std = uuid.UUID(data[key]['uuid'])
+        else:
+            """
+            Extract uuid from partition manifest
+            """
+            pm_file = open(dts)
+            for line in pm_file:
+                if "uuid" in line:
+                    # re.findall returns a list of string tuples.
+                    # uuid_hex is the first item in this list representing the four
+                    # uuid hex integers from the manifest uuid field. The heading
+                    # '0x' of the hexadecimal representation is stripped out.
+                    # e.g. uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
+                    # uuid_hex = ('1e67b5b4', 'e14f904a', '13fb1fb8', 'cbdae1da')
+                    uuid_hex = re.findall(r'0x([0-9a-f]+) 0x([0-9a-f]+) 0x([0-9a-f]+) 0x([0-9a-f]+)', line)[0];
 
-        # uuid_hex is a list of four hex string values
-        if len(uuid_hex) != 4:
-            print("ERROR: malformed UUID")
-            exit(-1)
+            # uuid_hex is a list of four hex string values
+            if len(uuid_hex) != 4:
+                print("ERROR: malformed UUID")
+                exit(-1)
 
-        # The uuid field in SP manifest is the little endian representation
-        # mapped to arguments as described in SMCCC section 5.3.
-        # Convert each unsigned integer value to a big endian representation
-        # required by fiptool.
-        y=list(map(bytearray.fromhex, uuid_hex))
-        z=(int.from_bytes(y[0], byteorder='little', signed=False),
-        int.from_bytes(y[1], byteorder='little', signed=False),
-        int.from_bytes(y[2], byteorder='little', signed=False),
-        int.from_bytes(y[3], byteorder='little', signed=False))
-        uuid_std = uuid.UUID(f'{z[0]:08x}{z[1]:08x}{z[2]:08x}{z[3]:08x}')
+            # The uuid field in SP manifest is the little endian representation
+            # mapped to arguments as described in SMCCC section 5.3.
+            # Convert each unsigned integer value to a big endian representation
+            # required by fiptool.
+            y=list(map(bytearray.fromhex, uuid_hex))
+            z=(int.from_bytes(y[0], byteorder='little', signed=False),
+            int.from_bytes(y[1], byteorder='little', signed=False),
+            int.from_bytes(y[2], byteorder='little', signed=False),
+            int.from_bytes(y[3], byteorder='little', signed=False))
+            uuid_std = uuid.UUID(f'{z[0]:08x}{z[1]:08x}{z[2]:08x}{z[3]:08x}')
 
         """
         Append FIP_ARGS
