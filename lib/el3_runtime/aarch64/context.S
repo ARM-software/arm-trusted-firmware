@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,7 @@
 	.global	fpregs_context_save
 	.global	fpregs_context_restore
 #endif
-	.global	save_gp_pmcr_pauth_regs
+	.global	prepare_el3_entry
 	.global	restore_gp_pmcr_pauth_regs
 	.global save_and_update_ptw_el1_sys_regs
 	.global	el3_exit
@@ -682,8 +682,24 @@ func fpregs_context_restore
 endfunc fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
 
+	/*
+	 * Set the PSTATE bits not set when the exception was taken as
+	 * described in the AArch64.TakeException() pseudocode function
+	 * in ARM DDI 0487F.c page J1-7635 to a default value.
+	 */
+	.macro set_unset_pstate_bits
+        /*
+         * If Data Independent Timing (DIT) functionality is implemented,
+         * always enable DIT in EL3
+         */
+#if ENABLE_FEAT_DIT
+        mov     x8, #DIT_BIT
+        msr     DIT, x8
+#endif /* ENABLE_FEAT_DIT */
+	.endm /* set_unset_pstate_bits */
+
 /* ------------------------------------------------------------------
- * The following function is used to save and restore all the general
+ * The following macro is used to save and restore all the general
  * purpose and ARMv8.3-PAuth (if enabled) registers.
  * It also checks if Secure Cycle Counter is not disabled in MDCR_EL3
  * when ARMv8.5-PMU is implemented, and if called from Non-secure
@@ -693,12 +709,10 @@ endfunc fpregs_context_restore
  * when a world switch occurs but that type of implementation is more
  * complex. So currently we will always save and restore these
  * registers on entry and exit of EL3.
- * These are not macros to ensure their invocation fits within the 32
- * instructions per exception vector.
  * clobbers: x18
  * ------------------------------------------------------------------
  */
-func save_gp_pmcr_pauth_regs
+	.macro save_gp_pmcr_pauth_regs
 	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
@@ -769,9 +783,28 @@ func save_gp_pmcr_pauth_regs
 	stp	x26, x27, [x19, #CTX_PACDBKEY_LO]
 	stp	x28, x29, [x19, #CTX_PACGAKEY_LO]
 #endif /* CTX_INCLUDE_PAUTH_REGS */
+	.endm /* save_gp_pmcr_pauth_regs */
 
+/* -----------------------------------------------------------------
+ * This function saves the context and sets the PSTATE to a known
+ * state, preparing entry to el3.
+ * Save all the general purpose and ARMv8.3-PAuth (if enabled)
+ * registers.
+ * Then set any of the PSTATE bits that are not set by hardware
+ * according to the Aarch64.TakeException pseudocode in the Arm
+ * Architecture Reference Manual to a default value for EL3.
+ * clobbers: x17
+ * -----------------------------------------------------------------
+ */
+func prepare_el3_entry
+	save_gp_pmcr_pauth_regs
+	/*
+	 * Set the PSTATE bits not described in the Aarch64.TakeException
+	 * pseudocode to their default values.
+	 */
+	set_unset_pstate_bits
 	ret
-endfunc save_gp_pmcr_pauth_regs
+endfunc prepare_el3_entry
 
 /* ------------------------------------------------------------------
  * This function restores ARMv8.3-PAuth (if enabled) and all general

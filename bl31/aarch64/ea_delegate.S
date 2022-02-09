@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,8 +92,9 @@ func enter_lower_el_sync_ea
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
 	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
 	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
+	 * Also set the PSTATE to a known state.
 	 */
-	bl	save_gp_pmcr_pauth_regs
+	bl	prepare_el3_entry
 
 #if ENABLE_PAUTH
 	/* Load and program APIAKey firmware key */
@@ -139,8 +140,9 @@ handle_lower_el_async_ea:
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
 	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
 	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
+	 * Also set the PSTATE to a known state.
 	 */
-	bl	save_gp_pmcr_pauth_regs
+	bl	prepare_el3_entry
 
 #if ENABLE_PAUTH
 	/* Load and program APIAKey firmware key */
