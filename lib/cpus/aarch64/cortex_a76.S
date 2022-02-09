@@ -7,11 +7,11 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
-#include <context.h>
 #include <cortex_a76.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 #include <services/arm_arch_svc.h>
+#include "wa_cve_2022_23960_bhb.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -63,8 +63,10 @@
 	 */
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	.endm
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
-vector_base cortex_a76_wa_cve_2018_3639_a76_vbar
+#if DYNAMIC_WORKAROUND_CVE_2018_3639 || WORKAROUND_CVE_2022_23960
+vector_base cortex_a76_wa_cve_vbar
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_EL0 : 0x0 - 0x200
@@ -111,22 +113,54 @@ end_vector_entry cortex_a76_serror_sp_elx
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry cortex_a76_sync_exception_aarch64
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=1 _esr_el3_val=ESR_EL3_A64_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	sync_exception_aarch64
 end_vector_entry cortex_a76_sync_exception_aarch64
 
 vector_entry cortex_a76_irq_aarch64
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	irq_aarch64
 end_vector_entry cortex_a76_irq_aarch64
 
 vector_entry cortex_a76_fiq_aarch64
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	fiq_aarch64
 end_vector_entry cortex_a76_fiq_aarch64
 
 vector_entry cortex_a76_serror_aarch64
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	serror_aarch64
 end_vector_entry cortex_a76_serror_aarch64
 
@@ -135,25 +169,59 @@ end_vector_entry cortex_a76_serror_aarch64
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry cortex_a76_sync_exception_aarch32
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=1 _esr_el3_val=ESR_EL3_A32_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	sync_exception_aarch32
 end_vector_entry cortex_a76_sync_exception_aarch32
 
 vector_entry cortex_a76_irq_aarch32
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	irq_aarch32
 end_vector_entry cortex_a76_irq_aarch32
 
 vector_entry cortex_a76_fiq_aarch32
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	fiq_aarch32
 end_vector_entry cortex_a76_fiq_aarch32
 
 vector_entry cortex_a76_serror_aarch32
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	serror_aarch32
 end_vector_entry cortex_a76_serror_aarch32
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 || WORKAROUND_CVE_2022_23960 */
 
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	/*
 	 * -----------------------------------------------------------------
 	 * This function applies the mitigation for CVE-2018-3639
@@ -549,6 +617,15 @@ func check_errata_1165522
 #endif
 endfunc check_errata_1165522
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif /* WORKAROUND_CVE_2022_23960 */
+	ret
+endfunc check_errata_cve_2022_23960
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A76.
 	 * Shall clobber: x0-x19
@@ -620,15 +697,30 @@ func cortex_a76_reset_func
 	 * The Cortex-A76 generic vectors are overwritten to use the vectors
 	 * defined above. This is required in order to apply mitigation
 	 * against CVE-2018-3639 on exception entry from lower ELs.
+	 * If the below vector table is used, skip overriding it again for
+	 *  CVE_2022_23960 as both use the same vbar.
 	 */
-	adr	x0, cortex_a76_wa_cve_2018_3639_a76_vbar
+	adr	x0, cortex_a76_wa_cve_vbar
 	msr	vbar_el3, x0
 	isb
+	b	2f
 #endif /* IMAGE_BL31 */
 
 1:
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 #endif /* WORKAROUND_CVE_2018_3639 */
+
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Cortex-A76 generic vectors are overridden to apply errata
+	 * mitigation on exception entry from lower ELs. This will be bypassed
+	 * if DYNAMIC_WORKAROUND_CVE_2018_3639 has overridden the vectors.
+	 */
+	adr	x0, cortex_a76_wa_cve_vbar
+	msr	vbar_el3, x0
+	isb
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+2:
 
 #if ERRATA_DSU_798953
 	bl	errata_dsu_798953_wa
@@ -686,6 +778,7 @@ func cortex_a76_errata_report
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
 	report_errata ERRATA_DSU_798953, cortex_a76, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a76, dsu_936184
+	report_errata WORKAROUND_CVE_2022_23960, cortex_a76, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
 	ret
