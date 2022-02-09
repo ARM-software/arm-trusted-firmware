@@ -568,7 +568,7 @@ uint32_t stm32mp_get_ddr_ns_size(void)
 
 void stm32_save_boot_interface(uint32_t interface, uint32_t instance)
 {
-	uint32_t bkpr_itf_idx = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
+	uintptr_t bkpr_itf_idx = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
 
 	clk_enable(RTCAPB);
 
@@ -585,7 +585,7 @@ void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
 	static uint32_t itf;
 
 	if (itf == 0U) {
-		uint32_t bkpr = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
+		uintptr_t bkpr = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
 
 		clk_enable(RTCAPB);
 
