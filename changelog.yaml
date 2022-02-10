@@ -326,6 +326,19 @@ subsections:
                         deprecated:
                           - plat/soc-lx2160
 
+              - title: LS1046A
+                scope: ls1046a
+
+                subsections:
+                  - title: LS1046ARDB
+                    scope: ls1046ardb
+
+                  - title: LS1046AFRWY
+                    scope: ls1046afrwy
+
+                  - title: LS1046AQDS
+                    scope: ls1046aqds
+
       - title: QEMU
         scope: qemu
 
@@ -714,6 +727,9 @@ subsections:
             deprecated:
               - drivers/nxp/sfp
 
+          - title: QSPI
+            scope: nxp-qspi
+
       - title: Renesas
         scope: renesas-drivers
 
@@ -916,6 +932,9 @@ subsections:
 
         deprecated:
           - tools/stm32image
+
+      - title: NXP Tools
+        scope: nxp-tools
 
   - title: Dependencies
     scope: deps
