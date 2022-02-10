@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,9 +54,14 @@ void spe_enable(bool el2_unused)
 	 * MDCR_EL2.NSPB (ARM v8.2): SPE enabled in Non-secure state
 	 * and disabled in secure state. Accesses to SPE registers at
 	 * S-EL1 generate trap exceptions to EL3.
+	 *
+	 * MDCR_EL3.EnPMSN (ARM v8.7): Do not trap access to PMSNEVFR_EL1
+	 * register at NS-EL1 or NS-EL2 to EL3 if FEAT_SPEv1p2 is implemented.
+	 * Setting this bit to 1 doesn't have any effect on it when
+	 * FEAT_SPEv1p2 not implemented.
 	 */
 	v = read_mdcr_el3();
-	v |= MDCR_NSPB(MDCR_NSPB_EL1);
+	v |= MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_EnPMSN_BIT;
 	write_mdcr_el3(v);
 }
 

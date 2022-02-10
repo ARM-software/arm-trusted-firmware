@@ -113,6 +113,9 @@ subsections:
       - title: Self-hosted Trace Extensions (FEAT_TRF)
         scope: trf
 
+      - title: Statistical profiling Extension (FEAT_SPE)
+        scope: spe
+
   - title: Platforms
 
     subsections:
