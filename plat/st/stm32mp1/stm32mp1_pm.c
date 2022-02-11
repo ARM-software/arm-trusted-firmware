@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <errno.h>
-
-#include <platform_def.h>
 
 #include <arch_helpers.h>
 #include <bl32/sp_min/platform_sp_min.h>
@@ -19,6 +17,8 @@
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
+
+#include <platform_def.h>
 
 static uintptr_t stm32_sec_entrypoint;
 static uint32_t cntfrq_core0;
@@ -60,9 +60,9 @@ static void stm32_cpu_standby(plat_local_state_t cpu_state)
 static int stm32_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned long current_cpu_mpidr = read_mpidr_el1();
-	uint32_t bkpr_core1_addr =
+	uintptr_t bkpr_core1_addr =
 		tamp_bkpr(BOOT_API_CORE1_BRANCH_ADDRESS_TAMP_BCK_REG_IDX);
-	uint32_t bkpr_core1_magic =
+	uintptr_t bkpr_core1_magic =
 		tamp_bkpr(BOOT_API_CORE1_MAGIC_NUMBER_TAMP_BCK_REG_IDX);
 
 	if (mpidr == current_cpu_mpidr) {
