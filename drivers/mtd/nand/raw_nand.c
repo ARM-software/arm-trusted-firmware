@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,12 +8,12 @@
 #include <errno.h>
 #include <stddef.h>
 
-#include <platform_def.h>
-
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/raw_nand.h>
 #include <lib/utils.h>
+
+#include <platform_def.h>
 
 #define ONFI_SIGNATURE_ADDR	0x20U
 
@@ -23,9 +23,6 @@
 
 /* Status register */
 #define NAND_STATUS_READY	BIT(6)
-
-#define SZ_128M			0x08000000U
-#define SZ_512			0x200U
 
 static struct rawnand_device rawnand_dev;
 

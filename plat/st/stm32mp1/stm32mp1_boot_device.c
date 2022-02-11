@@ -14,9 +14,6 @@
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
-#define SZ_512		0x200U
-#define SZ_64M		0x4000000U
-
 #if STM32MP_RAW_NAND || STM32MP_SPI_NAND
 static int get_data_from_otp(struct nand_device *nand_dev, bool is_slc)
 {
