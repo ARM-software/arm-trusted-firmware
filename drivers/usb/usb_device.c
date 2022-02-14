@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -362,7 +362,7 @@ static enum usb_status usb_core_setup_stage(struct usb_handle *pdev,
 
 	case USB_REQ_RECIPIENT_ENDPOINT:
 	default:
-		ERROR("receive unsupported request %i",
+		ERROR("receive unsupported request %u",
 		      pdev->request.bm_request & USB_REQ_RECIPIENT_MASK);
 		usb_core_set_stall(pdev, pdev->request.bm_request & USB_REQ_DIRECTION);
 		return USBD_FAIL;
