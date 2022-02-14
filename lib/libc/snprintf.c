@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,7 +42,7 @@ static void unsigned_num_print(char **s, size_t n, size_t *chars_printed,
 	char ascii_a = capitalise ? 'A' : 'a';
 
 	if (radix < 10) {
-		ERROR("snprintf: unsupported radix '%d'.", radix);
+		ERROR("snprintf: unsupported radix '%u'.", radix);
 		plat_panic_handler();
 		assert(0); /* Unreachable */
 	}
