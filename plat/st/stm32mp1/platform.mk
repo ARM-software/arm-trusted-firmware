@@ -38,6 +38,7 @@ TF_CFLAGS		+=	-mfloat-abi=soft
 endif
 
 TF_CFLAGS		+=	-Wsign-compare
+TF_CFLAGS		+=	-Wformat-signedness
 
 # Not needed for Cortex-A7
 WORKAROUND_CVE_2017_5715:=	0
