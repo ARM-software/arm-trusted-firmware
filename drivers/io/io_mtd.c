@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,12 +8,12 @@
 #include <errno.h>
 #include <string.h>
 
-#include <platform_def.h>
-
 #include <common/debug.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_mtd.h>
 #include <lib/utils.h>
+
+#include <platform_def.h>
 
 typedef struct {
 	io_mtd_dev_spec_t	*dev_spec;
@@ -214,7 +214,7 @@ static int mtd_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	ops = &cur->dev_spec->ops;
 	assert(ops->read != NULL);
 
-	VERBOSE("Read at %llx into %lx, length %zi\n",
+	VERBOSE("Read at %llx into %lx, length %zu\n",
 		cur->base + cur->pos, buffer, length);
 	if ((cur->base + cur->pos + length) > cur->dev_spec->device_size) {
 		return -EINVAL;

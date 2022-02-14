@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021,  STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022,  STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,12 +8,12 @@
 #include <errno.h>
 #include <stddef.h>
 
-#include <platform_def.h>
-
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/spi_nand.h>
 #include <lib/utils.h>
+
+#include <platform_def.h>
 
 #define SPI_NAND_MAX_ID_LEN		4U
 #define DELAY_US_400MS			400000U
@@ -246,7 +246,7 @@ static int spi_nand_mtd_block_is_bad(unsigned int block)
 
 	if ((bbm_marker[0] != GENMASK_32(7, 0)) ||
 	    (bbm_marker[1] != GENMASK_32(7, 0))) {
-		WARN("Block %i is bad\n", block);
+		WARN("Block %u is bad\n", block);
 		return 1;
 	}
 
@@ -312,7 +312,7 @@ int spi_nand_init(unsigned long long *size, unsigned int *erase_size)
 
 	VERBOSE("SPI_NAND Detected ID 0x%x\n", id[1]);
 
-	VERBOSE("Page size %i, Block size %i, size %lli\n",
+	VERBOSE("Page size %u, Block size %u, size %llu\n",
 		spinand_dev.nand_dev->page_size,
 		spinand_dev.nand_dev->block_size,
 		spinand_dev.nand_dev->size);
