@@ -19,6 +19,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <libfdt.h>
 #include <plat/common/platform.h>
+#include <services/el3_spmc_logical_sp.h>
 #include <services/ffa_svc.h>
 #include <services/spmc_svc.h>
 #include <services/spmd_svc.h>
@@ -39,6 +40,15 @@ static struct secure_partition_desc sp_desc[SECURE_PARTITION_COUNT];
  * properties when the SPMC supports indirect messaging.
  */
 static struct ns_endpoint_desc ns_ep_desc[NS_PARTITION_COUNT];
+
+/*
+ * Helper function to obtain the array storing the EL3
+ * Logical Partition descriptors.
+ */
+struct el3_lp_desc *get_el3_lp_array(void)
+{
+	return (struct el3_lp_desc *) EL3_LP_DESCS_START;
+}
 
 /*
  * Helper function to obtain the descriptor of the last SP to whom control was
@@ -105,6 +115,8 @@ uint64_t spmc_ffa_error_return(void *handle, int error_code)
  ******************************************************************************/
 bool is_ffa_secure_id_valid(uint16_t partition_id)
 {
+	struct el3_lp_desc *el3_lp_descs = get_el3_lp_array();
+
 	/* Ensure the ID is not the invalid partition ID. */
 	if (partition_id == INV_SP_ID) {
 		return false;
@@ -133,12 +145,22 @@ bool is_ffa_secure_id_valid(uint16_t partition_id)
 		return false;
 	}
 
+	/* Ensure we don't clash with any Logical SP's. */
+	for (unsigned int i = 0U; i < EL3_LP_DESCS_COUNT; i++) {
+		if (el3_lp_descs[i].sp_id == partition_id) {
+			return false;
+		}
+	}
+
 	return true;
 }
 
 /*******************************************************************************
  * This function either forwards the request to the other world or returns
  * with an ERET depending on the source of the call.
+ * We can assume that the destination is for an entity at a lower exception
+ * level as any messages destined for a logical SP resident in EL3 will have
+ * already been taken care of by the SPMC before entering this function.
  ******************************************************************************/
 static uint64_t spmc_smc_return(uint32_t smc_fid,
 				bool secure_origin,
@@ -210,6 +232,7 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 				       uint64_t flags)
 {
 	uint16_t dst_id = ffa_endpoint_destination(x1);
+	struct el3_lp_desc *el3_lp_descs;
 	struct secure_partition_desc *sp;
 	unsigned int idx;
 
@@ -219,11 +242,22 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
 
+	el3_lp_descs = get_el3_lp_array();
+
+	/* Check if the request is destined for a Logical Partition. */
+	for (unsigned int i = 0U; i < MAX_EL3_LP_DESCS_COUNT; i++) {
+		if (el3_lp_descs[i].sp_id == dst_id) {
+			return el3_lp_descs[i].direct_req(
+					smc_fid, secure_origin, x1, x2, x3, x4,
+					cookie, handle, flags);
+		}
+	}
+
 	/*
-	 * If called by the secure world it is an invalid call since a
-	 * SP cannot call into the Normal world and there is no other SP to call
-	 * into. If there are other SPs in future then the partition runtime
-	 * model would need to be validated as well.
+	 * If the request was not targeted to a LSP and from the secure world
+	 * then it is invalid since a SP cannot call into the Normal world and
+	 * there is no other SP to call into. If there are other SPs in future
+	 * then the partition runtime model would need to be validated as well.
 	 */
 	if (secure_origin) {
 		VERBOSE("Direct request not supported to the Normal World.\n");
@@ -621,6 +655,37 @@ static int find_and_prepare_sp_context(void)
  * This function takes an SP context pointer and performs a synchronous entry
  * into it.
  ******************************************************************************/
+static int32_t logical_sp_init(void)
+{
+	int32_t rc = 0;
+	struct el3_lp_desc *el3_lp_descs;
+
+	/* Perform initial validation of the Logical Partitions. */
+	rc = el3_sp_desc_validate();
+	if (rc != 0) {
+		ERROR("Logical Partition validation failed!\n");
+		return rc;
+	}
+
+	el3_lp_descs = get_el3_lp_array();
+
+	INFO("Logical Secure Partition init start.\n");
+	for (unsigned int i = 0U; i < EL3_LP_DESCS_COUNT; i++) {
+		rc = el3_lp_descs[i].init();
+		if (rc != 0) {
+			ERROR("Logical SP (0x%x) Failed to Initialize\n",
+			      el3_lp_descs[i].sp_id);
+			return rc;
+		}
+		VERBOSE("Logical SP (0x%x) Initialized\n",
+			      el3_lp_descs[i].sp_id);
+	}
+
+	INFO("Logical Secure Partition init completed.\n");
+
+	return rc;
+}
+
 uint64_t spmc_sp_synchronous_entry(struct sp_exec_ctx *ec)
 {
 	uint64_t rc;
@@ -724,6 +789,13 @@ int32_t spmc_setup(void)
 	/* Initialize endpoint descriptors */
 	initalize_sp_descs();
 	initalize_ns_ep_descs();
+
+	/* Setup logical SPs. */
+	ret = logical_sp_init();
+	if (ret != 0) {
+		ERROR("Failed to initialize Logical Partitions.\n");
+		return ret;
+	}
 
 	/* Perform physical SP setup. */
 

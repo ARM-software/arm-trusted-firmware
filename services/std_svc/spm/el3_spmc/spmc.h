@@ -11,6 +11,7 @@
 
 #include <lib/psci/psci.h>
 #include <lib/spinlock.h>
+#include <services/el3_spmc_logical_sp.h>
 #include "spm_common.h"
 
 /*
@@ -183,5 +184,11 @@ uint64_t spmc_ffa_error_return(void *handle, int error_code);
  * Ensure a partition ID does not clash and follows the secure world convention.
  */
 bool is_ffa_secure_id_valid(uint16_t partition_id);
+
+/*
+ * Helper function to obtain the array storing the EL3
+ * Logical Partition descriptors.
+ */
+struct el3_lp_desc *get_el3_lp_array(void);
 
 #endif /* SPMC_H */
