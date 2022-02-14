@@ -258,7 +258,7 @@ Armada37x0 specific build options for ``mrvl_flash`` and ``mrvl_uart`` targets:
 
                 Image needs to be stored at disk LBA 0 or at disk partition with
                 MBR type 0x4d (ASCII 'M' as in Marvell) or at disk partition with
-                GPT name ``MARVELL BOOT PARTITION``.
+                GPT partition type GUID ``6828311A-BA55-42A4-BCDE-A89BB5EDECAE``.
 
 - PARTNUM
 
