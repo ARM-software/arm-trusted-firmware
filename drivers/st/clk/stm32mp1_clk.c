@@ -232,7 +232,6 @@ enum stm32mp1_plltype {
 struct stm32mp1_pll {
 	uint8_t refclk_min;
 	uint8_t refclk_max;
-	uint8_t divn_max;
 };
 
 struct stm32mp1_clk_gate {
@@ -543,12 +542,10 @@ static const struct stm32mp1_pll stm32mp1_pll[PLL_TYPE_NB] = {
 	[PLL_800] = {
 		.refclk_min = 4,
 		.refclk_max = 16,
-		.divn_max = 99,
 	},
 	[PLL_1600] = {
 		.refclk_min = 8,
 		.refclk_max = 16,
-		.divn_max = 199,
 	},
 };
 
