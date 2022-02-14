@@ -319,7 +319,7 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 	while ((status & flags_cmd) == 0U) {
 		if (timeout_elapsed(timeout)) {
 			err = -ETIMEDOUT;
-			ERROR("%s: timeout 10ms (cmd = %d,status = %x)\n",
+			ERROR("%s: timeout 10ms (cmd = %u,status = %x)\n",
 			      __func__, cmd->cmd_idx, status);
 			goto err_exit;
 		}
@@ -339,12 +339,12 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 			      (cmd->cmd_idx == MMC_CMD(13)) ||
 			      ((cmd->cmd_idx == MMC_CMD(8)) &&
 			       (cmd->resp_type == MMC_RESPONSE_R7)))) {
-				ERROR("%s: CTIMEOUT (cmd = %d,status = %x)\n",
+				ERROR("%s: CTIMEOUT (cmd = %u,status = %x)\n",
 				      __func__, cmd->cmd_idx, status);
 			}
 		} else {
 			err = -EIO;
-			ERROR("%s: CRCFAIL (cmd = %d,status = %x)\n",
+			ERROR("%s: CRCFAIL (cmd = %u,status = %x)\n",
 			      __func__, cmd->cmd_idx, status);
 		}
 
@@ -385,7 +385,7 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 
 	while ((status & flags_data) == 0U) {
 		if (timeout_elapsed(timeout)) {
-			ERROR("%s: timeout 10ms (cmd = %d,status = %x)\n",
+			ERROR("%s: timeout 10ms (cmd = %u,status = %x)\n",
 			      __func__, cmd->cmd_idx, status);
 			err = -ETIMEDOUT;
 			goto err_exit;
@@ -397,7 +397,7 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 	if ((status & (SDMMC_STAR_DTIMEOUT | SDMMC_STAR_DCRCFAIL |
 		       SDMMC_STAR_TXUNDERR | SDMMC_STAR_RXOVERR |
 		       SDMMC_STAR_IDMATE)) != 0U) {
-		ERROR("%s: Error flag (cmd = %d,status = %x)\n", __func__,
+		ERROR("%s: Error flag (cmd = %u,status = %x)\n", __func__,
 		      cmd->cmd_idx, status);
 		err = -EIO;
 	}
