@@ -115,8 +115,8 @@ ecc:
 		}
 	}
 
-	VERBOSE("OTP: Block %i Page %i Size %lli\n", nand_dev->block_size,
-	     nand_dev->page_size, nand_dev->size);
+	VERBOSE("OTP: Block %u Page %u Size %llu\n", nand_dev->block_size,
+		nand_dev->page_size, nand_dev->size);
 
 	return 0;
 }
