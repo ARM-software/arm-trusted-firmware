@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,8 +7,8 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-/* The diphda power domain tree descriptor */
-static unsigned char diphda_power_domain_tree_desc[PLAT_ARM_CLUSTER_COUNT
+/* The corstone1000 power domain tree descriptor */
+static unsigned char corstone1000_power_domain_tree_desc[PLAT_ARM_CLUSTER_COUNT
 							+ 2];
 /*******************************************************************************
  * This function dynamically constructs the topology according to
@@ -22,13 +22,13 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
 	 * The highest level is the system level. The next level is constituted
 	 * by clusters and then cores in clusters.
 	 */
-	diphda_power_domain_tree_desc[0] = 1;
-	diphda_power_domain_tree_desc[1] = PLAT_ARM_CLUSTER_COUNT;
+	corstone1000_power_domain_tree_desc[0] = 1;
+	corstone1000_power_domain_tree_desc[1] = PLAT_ARM_CLUSTER_COUNT;
 
 	for (i = 0; i < PLAT_ARM_CLUSTER_COUNT; i++)
-		diphda_power_domain_tree_desc[i + 2] = PLATFORM_CORE_COUNT;
+		corstone1000_power_domain_tree_desc[i + 2] = PLATFORM_CORE_COUNT;
 
-	return diphda_power_domain_tree_desc;
+	return corstone1000_power_domain_tree_desc;
 }
 
 /******************************************************************************

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,7 +29,7 @@ endfunc plat_secondary_cold_boot_setup
 	 * unsigned long plat_get_my_entrypoint (void);
 	 *
 	 * Main job of this routine is to distinguish between a cold and warm
-	 * boot. On diphda, this information can be queried from the power
+	 * boot. On corstone1000, this information can be queried from the power
 	 * controller. The Power Control SYS Status Register (PSYSR) indicates
 	 * the wake-up reason for the CPU.
 	 *
@@ -61,7 +61,7 @@ func plat_is_my_cpu_primary
 	mrs	x0, mpidr_el1
 	mov_imm	x1, MPIDR_AFFINITY_MASK
 	and	x0, x0, x1
-	cmp	x0, #DIPHDA_PRIMARY_CPU
+	cmp	x0, #CORSTONE1000_PRIMARY_CPU
 	cset	w0, eq
 	ret
 endfunc plat_is_my_cpu_primary

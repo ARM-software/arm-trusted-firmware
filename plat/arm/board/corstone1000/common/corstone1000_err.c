@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <plat/arm/common/plat_arm.h>
 
 /*
- * diphda error handler
+ * corstone1000 error handler
  */
 void __dead2 plat_arm_error_handler(int err)
 {
