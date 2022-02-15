@@ -16,11 +16,6 @@ STM32MP_EARLY_CONSOLE	?=	0
 # If it is set to 0, then FIP is used
 STM32MP_USE_STM32IMAGE	?=	0
 
-ifneq ($(STM32MP_USE_STM32IMAGE),1)
-ENABLE_PIE		:=	1
-BL2_IN_XIP_MEM		:=	1
-endif
-
 # Please don't increment this value without good understanding of
 # the monotonic counter
 STM32_TF_VERSION	?=	0

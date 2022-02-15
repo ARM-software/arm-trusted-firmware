@@ -1,10 +1,16 @@
 #
-# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 SP_MIN_WITH_SECURE_FIQ	:=	1
+
+ifneq ($(STM32MP_USE_STM32IMAGE),1)
+override ENABLE_PIE	:=	1
+BL32_CFLAGS		+=	-fpie -DENABLE_PIE
+BL32_LDFLAGS		+=	$(PIE_LDFLAGS)
+endif
 
 BL32_CFLAGS		+=	-DSTM32MP_SHARED_RESOURCES
 
