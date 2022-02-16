@@ -15,6 +15,8 @@
 #define CORTEX_A510_CPUECTLR_EL1				S3_0_C15_C1_4
 #define CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_SHIFT		U(19)
 #define CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_DISABLE	U(1)
+#define CORTEX_A510_CPUECTLR_EL1_RSCTL_SHIFT			U(23)
+#define CORTEX_A510_CPUECTLR_EL1_NTCTL_SHIFT			U(46)
 
 /*******************************************************************************
  * CPU Power Control register specific definitions
