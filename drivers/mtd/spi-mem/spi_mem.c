@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,10 +8,9 @@
 #include <inttypes.h>
 #include <stdint.h>
 
-#include <libfdt.h>
-
 #include <drivers/spi_mem.h>
 #include <lib/utils_def.h>
+#include <libfdt.h>
 
 #define SPI_MEM_DEFAULT_SPEED_HZ 100000U
 
@@ -258,7 +257,7 @@ int spi_mem_init_slave(void *fdt, int bus_node, const struct spi_bus_ops *ops)
 				mode |= SPI_TX_QUAD;
 				break;
 			default:
-				WARN("spi-tx-bus-width %d not supported\n",
+				WARN("spi-tx-bus-width %u not supported\n",
 				     fdt32_to_cpu(*cuint));
 				return -EINVAL;
 			}
@@ -276,7 +275,7 @@ int spi_mem_init_slave(void *fdt, int bus_node, const struct spi_bus_ops *ops)
 				mode |= SPI_RX_QUAD;
 				break;
 			default:
-				WARN("spi-rx-bus-width %d not supported\n",
+				WARN("spi-rx-bus-width %u not supported\n",
 				     fdt32_to_cpu(*cuint));
 				return -EINVAL;
 			}

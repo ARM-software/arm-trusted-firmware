@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,15 +34,15 @@ int fconf_load_config(unsigned int image_id)
 	config_image_info.image_base = config_info->config_addr;
 	config_image_info.image_max_size = config_info->config_max_size;
 
-	VERBOSE("FCONF: Loading config with image ID: %d\n", image_id);
+	VERBOSE("FCONF: Loading config with image ID: %u\n", image_id);
 	err = load_auth_image(image_id, &config_image_info);
 	if (err != 0) {
-		VERBOSE("Failed to load config %d\n", image_id);
+		VERBOSE("Failed to load config %u\n", image_id);
 		return err;
 	}
 
-	INFO("FCONF: Config file with image ID:%d loaded at address = 0x%lx\n",
-		image_id, config_image_info.image_base);
+	INFO("FCONF: Config file with image ID:%u loaded at address = 0x%lx\n",
+	     image_id, config_image_info.image_base);
 
 	return 0;
 }

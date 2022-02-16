@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -306,8 +306,8 @@ void tzc400_enable_filters(void)
 			 * See the 'ARM (R) CoreLink TM TZC-400 TrustZone (R)
 			 * Address Space Controller' Technical Reference Manual.
 			 */
-			ERROR("TZC-400 : Filter %d Gatekeeper already"
-				" enabled.\n", filter);
+			ERROR("TZC-400 : Filter %u Gatekeeper already enabled.\n",
+			      filter);
 			panic();
 		}
 		_tzc400_set_gate_keeper(tzc400.base, filter, 1);

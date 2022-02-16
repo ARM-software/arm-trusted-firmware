@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -284,7 +284,7 @@ int spi_nor_read(unsigned int offset, uintptr_t buffer, size_t length,
 	nor_dev.read_op.addr.val = offset;
 	nor_dev.read_op.data.buf = (void *)buffer;
 
-	VERBOSE("%s offset %i length %zu\n", __func__, offset, length);
+	VERBOSE("%s offset %u length %zu\n", __func__, offset, length);
 
 	while (length != 0U) {
 		if ((nor_dev.flags & SPI_NOR_USE_BANK) != 0U) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -8,10 +8,6 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdint.h>
-
-#include <libfdt.h>
-
-#include <platform_def.h>
 
 #include <common/debug.h>
 #include <drivers/clk.h>
@@ -22,6 +18,9 @@
 #include <drivers/st/stm32mp_reset.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
+#include <libfdt.h>
+
+#include <platform_def.h>
 
 /* Timeout for device interface reset */
 #define TIMEOUT_US_1_MS			1000U
@@ -516,7 +515,7 @@ static int stm32_fmc2_read_page(struct nand_device *nand,
 	unsigned int s;
 	int ret;
 
-	VERBOSE(">%s page %i buffer %lx\n", __func__, page, buffer);
+	VERBOSE(">%s page %u buffer %lx\n", __func__, page, buffer);
 
 	ret = nand_read_page_cmd(page, 0U, 0U, 0U);
 	if (ret != 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -908,7 +908,7 @@ void psci_print_power_domain_map(void)
 							idx++) {
 		state_type = find_local_state_type(
 				psci_non_cpu_pd_nodes[idx].local_state);
-		INFO("  Domain Node : Level %u, parent_node %d,"
+		INFO("  Domain Node : Level %u, parent_node %u,"
 				" State %s (0x%x)\n",
 				psci_non_cpu_pd_nodes[idx].level,
 				psci_non_cpu_pd_nodes[idx].parent_node,
@@ -919,7 +919,7 @@ void psci_print_power_domain_map(void)
 	for (idx = 0; idx < psci_plat_core_count; idx++) {
 		state = psci_get_cpu_local_state_by_idx(idx);
 		state_type = find_local_state_type(state);
-		INFO("  CPU Node : MPID 0x%llx, parent_node %d,"
+		INFO("  CPU Node : MPID 0x%llx, parent_node %u,"
 				" State %s (0x%x)\n",
 				(unsigned long long)psci_cpu_pd_nodes[idx].mpidr,
 				psci_cpu_pd_nodes[idx].parent_node,

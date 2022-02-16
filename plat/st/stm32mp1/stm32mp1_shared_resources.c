@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,12 +7,11 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include <platform_def.h>
-
 #include <common/debug.h>
 #include <drivers/st/etzpc.h>
 #include <drivers/st/stm32_gpio.h>
 
+#include <platform_def.h>
 #include <stm32mp_shared_resources.h>
 
 /*
@@ -164,7 +163,7 @@ static void register_periph(enum stm32mp_shres id, unsigned int state)
 	if ((id >= STM32MP1_SHRES_GPIOZ(0)) &&
 	    (id <= STM32MP1_SHRES_GPIOZ(7)) &&
 	    ((unsigned int)(id - STM32MP1_SHRES_GPIOZ(0)) >= get_gpioz_nbpin())) {
-		ERROR("Invalid GPIO pin %u, %u pin(s) available\n",
+		ERROR("Invalid GPIO pin %d, %u pin(s) available\n",
 		      id - STM32MP1_SHRES_GPIOZ(0), get_gpioz_nbpin());
 		panic();
 	}
