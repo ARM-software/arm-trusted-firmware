@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2015-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #define GPIO_TYPE_OFFSET	U(0x04)
 #define GPIO_SPEED_OFFSET	U(0x08)
 #define GPIO_PUPD_OFFSET	U(0x0C)
+#define GPIO_IDR_OFFSET		U(0x10)
 #define GPIO_OD_OFFSET		U(0x14)
 #define GPIO_BSRR_OFFSET	U(0x18)
 #define GPIO_AFRL_OFFSET	U(0x20)
@@ -58,6 +59,16 @@
 int dt_set_pinctrl_config(int node);
 void set_gpio_secure_cfg(uint32_t bank, uint32_t pin, bool secure);
 void set_gpio_reset_cfg(uint32_t bank, uint32_t pin);
+
+enum gpio_level {
+	GPIO_LEVEL_LOW,
+	GPIO_LEVEL_HIGH
+};
+
+void set_gpio_level(uint32_t bank, uint32_t pin, enum gpio_level level);
+enum gpio_level get_gpio_level(uint32_t bank, uint32_t pin);
+
+void set_gpio_config(uint32_t bank, uint32_t pin, uint32_t config, uint8_t status);
 #endif /*__ASSEMBLER__*/
 
 #endif /* STM32_GPIO_H */
