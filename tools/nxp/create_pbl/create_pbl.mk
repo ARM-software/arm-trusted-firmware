@@ -6,7 +6,7 @@
 #
 
 CREATE_PBL	?=	${CREATE_PBL_TOOL_PATH}/create_pbl${BIN_EXT}
-BYTE_SWAP	?=	${CREATE_PBL_PLAT_TOOL_PATH}/byte_swap${BIN_EXT}
+BYTE_SWAP	?=	${CREATE_PBL_TOOL_PATH}/byte_swap${BIN_EXT}
 
 HOST_GCC	:= gcc
 

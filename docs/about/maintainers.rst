@@ -561,6 +561,15 @@ NXP SoC Part LS1043A and its platform port
 :|F|: plat/nxp/soc-ls1043a
 :|F|: plat/nxp/soc-ls1043a/ls1043ardb
 
+NXP SoC Part LS1046A and its platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Jiafei Pan <jiafei.pan@nxp.com>
+:|G|: `JiafeiPan`_
+:|F|: plat/nxp/soc-ls1046a
+:|F|: plat/nxp/soc-ls1046a/ls1046ardb
+:|F|: plat/nxp/soc-ls1046a/ls1046afrwy
+:|F|: plat/nxp/soc-ls1046a/ls1046aqds
+
 QEMU platform port
 ^^^^^^^^^^^^^^^^^^
 :|M|: Jens Wiklander <jens.wiklander@linaro.org>
