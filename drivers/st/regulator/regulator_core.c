@@ -420,6 +420,7 @@ int regulator_set_flag(struct rdev *rdev, uint16_t flag)
 
 static int parse_properties(const void *fdt, struct rdev *rdev, int node)
 {
+	const fdt32_t *cuint;
 	int ret;
 
 	if (fdt_getprop(fdt, node, "regulator-always-on", NULL) != NULL) {
@@ -428,6 +429,13 @@ static int parse_properties(const void *fdt, struct rdev *rdev, int node)
 		if (ret != 0) {
 			return ret;
 		}
+	}
+
+	cuint = fdt_getprop(fdt, node, "regulator-enable-ramp-delay", NULL);
+	if (cuint != NULL) {
+		rdev->enable_ramp_delay = fdt32_to_cpu(*cuint);
+		VERBOSE("%s: enable_ramp_delay=%u\n", rdev->desc->node_name,
+			rdev->enable_ramp_delay);
 	}
 
 	return 0;
