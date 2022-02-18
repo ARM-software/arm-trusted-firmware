@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -18,6 +18,10 @@ void soc_errata(void)
 #ifdef ERRATA_SOC_A008850
 	INFO("SoC workaround for Errata A008850 Early-Phase was applied\n");
 	erratum_a008850_early();
+#endif
+#if ERRATA_SOC_A009660
+	INFO("SoC workaround for Errata A009660 was applied\n");
+	erratum_a009660();
 #endif
 	/*
 	 * The following DDR Erratas workaround are implemented in DDR driver,
