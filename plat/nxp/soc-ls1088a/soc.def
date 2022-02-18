@@ -1,0 +1,87 @@
+#
+# Copyright 2022 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#
+#------------------------------------------------------------------------------
+#
+# This file contains the basic architecture definitions that drive the build
+#
+# -----------------------------------------------------------------------------
+
+CORE_TYPE		:=	a53
+
+CACHE_LINE		:=	6
+
+# Set to GIC400 or GIC500
+GIC			:=	GIC500
+
+# Set to CCI400 or CCN504 or CCN508
+INTERCONNECT		:=	CCI400
+
+# Select the DDR PHY generation to be used
+PLAT_DDR_PHY		:=	PHY_GEN1
+
+PHYS_SYS		:=	64
+
+# Indicate layerscape chassis level - set to 3=LSCH3 or 2=LSCH2
+CHASSIS			:=	3
+
+# TZC IP Details TZC used is TZC380 or TZC400
+TZC_ID			:=	TZC400
+
+# CONSOLE Details available is NS16550 or PL011
+CONSOLE			:=	NS16550
+
+NXP_SFP_VER		:=	3_4
+
+# In IMAGE_BL2, compile time flag for handling Cache coherency
+# with CAAM for BL2 running from OCRAM
+SEC_MEM_NON_COHERENT	:=	yes
+
+
+# OCRAM MAP for BL2
+# Before BL2
+# 0x18000000 - 0x18009fff -> Used by ROM code, (TBD - can it be used for xlat tables)
+# 0x1800a000 - 0x1801Cfff -> Reserved for BL2 binary (76 KB)
+# 0x1801D000 - 0x1801ffff -> CSF header for BL2 (12 KB)
+OCRAM_START_ADDR	:=	0x18000000
+OCRAM_SIZE		:=	0x20000
+
+CSF_HDR_SZ		:=	0x3000
+
+# Area of OCRAM reserved by ROM code
+NXP_ROM_RSVD		:=	0xa000
+
+# Input to CST create_hdr_isbc tool
+BL2_HDR_LOC		:=	0x1801D000
+
+# Location of BL2 on OCRAM
+# BL2_BASE=OCRAM_START_ADDR+NXP_ROM_RSVD
+BL2_BASE		:=	0x1800a000
+
+# SoC ERRATUM to be enabled
+ERRATA_SOC_A008850	:=	1
+
+# ARM Erratum
+ERRATA_A53_855873	:=	1
+
+# DDR Erratum
+ERRATA_DDR_A008511	:=	1
+ERRATA_DDR_A009803	:=	1
+ERRATA_DDR_A009942	:=	1
+ERRATA_DDR_A010165	:=	1
+
+# Define Endianness of each module
+NXP_ESDHC_ENDIANNESS	:=	LE
+NXP_SFP_ENDIANNESS	:=	LE
+NXP_GPIO_ENDIANNESS	:=	LE
+NXP_SNVS_ENDIANNESS	:=	LE
+NXP_GUR_ENDIANNESS	:=	LE
+NXP_SEC_ENDIANNESS	:=	LE
+NXP_DDR_ENDIANNESS	:=	LE
+NXP_QSPI_ENDIANNESS	:=	LE
+
+# OCRAM ECC Enabled
+OCRAM_ECC_EN		:=	yes

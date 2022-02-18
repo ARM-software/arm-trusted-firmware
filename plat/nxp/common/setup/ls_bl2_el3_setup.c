@@ -182,7 +182,7 @@ void ls_bl2_el3_plat_arch_setup(void)
 	unsigned int flags = 0U;
 	/* Initialise the IO layer and register platform IO devices */
 	ls_setup_page_tables(
-#if SEPARATE_RW_AND_NOLOAD
+#if SEPARATE_BL2_NOLOAD_REGION
 			      BL2_START,
 			      BL2_LIMIT - BL2_START,
 #else
