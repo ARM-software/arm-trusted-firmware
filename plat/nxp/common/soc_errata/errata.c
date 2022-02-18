@@ -41,4 +41,19 @@ void soc_errata(void)
 #if ERRATA_DDR_A050958
 	INFO("SoC workaround for DDR Errata A050958 was applied\n");
 #endif
+#if ERRATA_DDR_A008511
+	INFO("SoC workaround for DDR Errata A008511 was applied\n");
+#endif
+#if ERRATA_DDR_A009803
+	INFO("SoC workaround for DDR Errata A009803 was applied\n");
+#endif
+#if ERRATA_DDR_A009942
+	INFO("SoC workaround for DDR Errata A009942 was applied\n");
+#endif
+#if ERRATA_DDR_A010165
+	INFO("SoC workaround for DDR Errata A010165 was applied\n");
+#endif
+#if ERRATA_DDR_A009663
+	INFO("SoC workaround for DDR Errata A009663 was applied\n");
+#endif
 }
