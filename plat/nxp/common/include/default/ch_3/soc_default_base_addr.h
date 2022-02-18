@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -15,12 +15,13 @@
 #define NXP_DCSR_ADDR			0x700000000
 #define NXP_DCSR_SIZE			0x40000000
 
-/* Flex-SPI controller address */
-#define NXP_FLEXSPI_ADDR		0x020C0000
-/* Flex-SPI Flash Start address */
-#define NXP_FLEXSPI_FLASH_ADDR		0x20000000
+/* Quad SPI Region #1 base address */
+#define NXP_QSPI_FLASH_ADDR		0x20000000
 
-/* MMU 500 soc.c*/
+/* IFC Region #1 base address */
+#define NXP_NOR_FLASH_ADDR		0x30000000
+
+/* MMU 500 */
 #define NXP_SMMU_ADDR			0x05000000
 
 #define NXP_SNVS_ADDR			0x01E90000
@@ -34,8 +35,12 @@
 #define NXP_I2C_ADDR			0x02000000
 #define NXP_ESDHC_ADDR			0x02140000
 #define NXP_ESDHC2_ADDR			0x02150000
-#define NXP_UART_ADDR			0x021C0000
-#define NXP_UART1_ADDR			0x021D0000
+#ifndef NXP_UART_ADDR
+#define NXP_UART_ADDR			0x021C0500
+#endif
+#ifndef NXP_UART1_ADDR
+#define NXP_UART1_ADDR			0x021C0600
+#endif
 
 #define NXP_GPIO1_ADDR			0x02300000
 #define NXP_GPIO2_ADDR			0x02310000
@@ -50,8 +55,8 @@
 #define NXP_TIMER_STATUS_ADDR		0x023F0000
 
 #define NXP_GICD_ADDR			0x06000000
-#define NXP_GICR_ADDR			0x06200000
-#define NXP_GICR_SGI_ADDR		0x06210000
+#define NXP_GICR_ADDR			0x06100000
+#define NXP_GICR_SGI_ADDR		0x06110000
 
 #define NXP_CAAM_ADDR			0x08000000
 
@@ -61,4 +66,35 @@
 
 #define NXP_RESET_ADDR			0x01E60000
 #define NXP_SEC_REGFILE_ADDR		0x01E88000
-#endif	/*	SOC_DEFAULT_BASE_ADDR_H		*/
+
+#define NXP_RST_ADDR			0x01E88000
+
+/* DDR memory Map */
+#define NXP_DDR_ADDR			0x01080000
+#define NXP_DDR2_ADDR			0x01090000
+#define NXP_DDR3_ADDR			0x08210000
+
+/* QuadSPI base address */
+#define NXP_QSPI_ADDR			0x020C0000
+/* IFC base address */
+#define NXP_IFC_ADDR			0x02240000
+
+/* CCI400 base address */
+#define NXP_CCI_ADDR			0x04090000
+
+/* Global Generic Reference Timer base address */
+#define NXP_TIMER_ADDR			0x023E0000
+
+/* OCRAM TZPC base address */
+#define NXP_OCRAM_TZPC_ADDR		0x02200000
+
+#define NXP_EPU_ADDR			0x700060000
+
+#define NXP_CCN_ADDR			0x04000000
+#define NXP_CCN_HNI_ADDR		0x04080000
+#define NXP_CCN_HN_F_0_ADDR		0x04200000
+#define NXP_CCN_HN_F_1_ADDR		0x04210000
+
+#define TPMWAKEMR0_ADDR			0x700123c50
+
+#endif	/* SOC_DEFAULT_BASE_ADDR_H */
