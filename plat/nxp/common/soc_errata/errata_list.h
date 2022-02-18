@@ -21,4 +21,8 @@ void erratum_a008850_post(void);
 void erratum_a009660(void);
 #endif
 
+#ifdef ERRATA_SOC_A010539
+void erratum_a010539(void);
+#endif
+
 #endif /* ERRATA_LIST_H */

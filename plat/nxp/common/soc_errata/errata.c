@@ -23,6 +23,11 @@ void soc_errata(void)
 	INFO("SoC workaround for Errata A009660 was applied\n");
 	erratum_a009660();
 #endif
+#if ERRATA_SOC_A010539
+	INFO("SoC workaround for Errata A010539 was applied\n");
+	erratum_a010539();
+#endif
+
 	/*
 	 * The following DDR Erratas workaround are implemented in DDR driver,
 	 * but print information here.
