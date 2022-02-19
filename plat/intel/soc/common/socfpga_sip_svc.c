@@ -528,7 +528,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_mbox_send_cmd(x1, (uint32_t *)x2, x3, x4,
 					     (uint32_t *)x5, x6, &mbox_status,
 					     &len_in_resp);
-		SMC_RET4(handle, status, mbox_status, x5, len_in_resp);
+		SMC_RET3(handle, status, mbox_status, len_in_resp);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
