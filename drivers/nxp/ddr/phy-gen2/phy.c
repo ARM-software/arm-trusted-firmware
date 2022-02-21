@@ -241,12 +241,6 @@ static void get_cdd_val(uint16_t **phy_ptr, uint32_t rank, uint32_t freq,
 				rwmax = tmp;
 			}
 
-			tmp = wrmax;
-			wrmax = cdd[56];
-			if (tmp > wrmax) {
-				wrmax = tmp;
-			}
-
 			break;
 
 		case 2U:
@@ -276,15 +270,7 @@ static void get_cdd_val(uint16_t **phy_ptr, uint32_t rank, uint32_t freq,
 				rwmax = tmp;
 			}
 
-			buf[0] = cdd[56];
-			buf[1] = cdd[55];
-			buf[2] = cdd[52];
-			buf[3] = cdd[51];
-			tmp = wrmax;
-			wrmax = findmax(buf, 4U);
-			if (tmp > wrmax) {
-				wrmax = tmp;
-			}
+			wrmax = wwmax;
 
 			break;
 
@@ -310,12 +296,7 @@ static void get_cdd_val(uint16_t **phy_ptr, uint32_t rank, uint32_t freq,
 				rwmax = tmp;
 			}
 
-			tmp = wrmax;
-			c = &cdd[41];
-			wrmax = findmax(c, 16U);
-			if (tmp > wrmax) {
-				wrmax = tmp;
-			}
+			wrmax = wwmax;
 
 			break;
 
