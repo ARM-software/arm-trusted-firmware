@@ -48,6 +48,8 @@ struct spmc_shmem_obj_state {
 };
 
 extern struct spmc_shmem_obj_state spmc_shmem_obj_state;
+extern int plat_spmc_shmem_begin(struct ffa_mtd *desc);
+extern int plat_spmc_shmem_reclaim(struct ffa_mtd *desc);
 
 long spmc_ffa_mem_send(uint32_t smc_fid,
 		       bool secure_origin,

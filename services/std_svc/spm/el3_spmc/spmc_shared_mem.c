@@ -1031,6 +1031,12 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		}
 	}
 
+	/* Allow for platform specific operations to be performed. */
+	ret = plat_spmc_shmem_begin(&obj->desc);
+	if (ret != 0) {
+		goto err_arg;
+	}
+
 	SMC_RET8(smc_handle, FFA_SUCCESS_SMC32, 0, handle_low, handle_high, 0,
 		 0, 0, 0);
 
@@ -1788,6 +1794,13 @@ int spmc_ffa_mem_reclaim(uint32_t smc_fid,
 		ret = FFA_ERROR_DENIED;
 		goto err_unlock;
 	}
+
+	/* Allow for platform specific operations to be performed. */
+	ret = plat_spmc_shmem_reclaim(&obj->desc);
+	if (ret != 0) {
+		goto err_unlock;
+	}
+
 	spmc_shmem_obj_free(&spmc_shmem_obj_state, obj);
 	spin_unlock(&spmc_shmem_obj_state.lock);
 
