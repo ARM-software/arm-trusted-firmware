@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -381,7 +381,7 @@
  * The max number of regions like RO(code), coherent and data required by
  * different BL stages which need to be mapped in the MMU.
  */
-#define ARM_BL_REGIONS			6
+#define ARM_BL_REGIONS			7
 
 #define MAX_MMAP_REGIONS		(PLAT_ARM_MMAP_ENTRIES +	\
 					 ARM_BL_REGIONS)
