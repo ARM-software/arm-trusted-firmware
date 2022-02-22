@@ -748,6 +748,12 @@ subsections:
           - title: NXP Crypto
             scope: nxp-crypto
 
+          - title: DDR
+            scope: nxp-ddr
+
+          - title: GIC
+            scope: nxp-gic
+
       - title: Renesas
         scope: renesas-drivers
 
