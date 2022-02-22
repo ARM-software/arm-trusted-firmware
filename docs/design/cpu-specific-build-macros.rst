@@ -409,6 +409,14 @@ For Cortex-A710, the following errata build flags are defined :
    Cortex-A710 CPU. This needs to be enabled for revisions r0p0, r1p0 and r2p0
    of the CPU and is still open.
 
+-  ``ERRATA_A710_2267065``: This applies errata 2267065 workaround to
+   Cortex-A710 CPU. This needs to be enabled for revisions r0p0, r1p0 and r2p0
+   of the CPU and is fixed in r2p1.
+
+-  ``ERRATA_A710_2136059``: This applies errata 2136059 workaround to
+   Cortex-A710 CPU. This needs to be enabled for revisions r0p0, r1p0 and r2p0
+   of the CPU and is fixed in r2p1.
+
 For Neoverse N2, the following errata build flags are defined :
 
 -  ``ERRATA_N2_2002655``: This applies errata 2002655 workaround to Neoverse-N2
@@ -453,6 +461,18 @@ For Cortex-X2, the following errata build flags are defined :
 
 -  ``ERRATA_X2_2083908``: This applies errata 2083908 workaround to Cortex-X2
    CPU. This needs to be enabled for revision r2p0 of the CPU, it is still open.
+
+-  ``ERRATA_X2_2017096``: This applies errata 2017096 workaround to
+   Cortex-X2 CPU. This needs to be enabled only for revisions r0p0, r1p0 and
+   r2p0 of the CPU, it is fixed in r2p1.
+
+-  ``ERRATA_X2_2081180``: This applies errata 2081180 workaround to
+   Cortex-X2 CPU. This needs to be enabled only for revisions r0p0, r1p0 and
+   r2p0 of the CPU, it is fixed in r2p1.
+
+-  ``ERRATA_X2_2216384``: This applies errata 2216384 workaround to
+   Cortex-X2 CPU. This needs to be enabled only for revisions r0p0, r1p0 and
+   r2p0 of the CPU, it is fixed in r2p1.
 
 DSU Errata Workarounds
 ----------------------
