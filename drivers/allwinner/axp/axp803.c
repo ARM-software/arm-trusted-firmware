@@ -11,6 +11,7 @@ const char *const axp_compatible = "x-powers,axp803";
 
 #if SUNXI_SETUP_REGULATORS == 1
 const struct axp_regulator axp_regulators[] = {
+	{"aldo1",  700, 3300, 100, NA, 0x28, 0x13, 5},
 	{"dcdc1", 1600, 3400, 100, NA, 0x20, 0x10, 0},
 	{"dcdc5",  800, 1840,  10, 32, 0x24, 0x10, 4},
 	{"dcdc6",  600, 1520,  10, 50, 0x25, 0x10, 5},
