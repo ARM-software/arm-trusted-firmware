@@ -60,8 +60,8 @@ void desc_add_ptr(uint32_t *desc, phys_addr_t *ptr)
 #ifdef CONFIG_PHYS_64BIT
 	ptr_addr_t *ptr_addr = (ptr_addr_t *) last;
 
-	ptr_addr->m_halves.high = PHYS_ADDR_HI(ptr);
-	ptr_addr->m_halves.low = PHYS_ADDR_LO(ptr);
+	ptr_addr->high = PHYS_ADDR_HI(ptr);
+	ptr_addr->low = PHYS_ADDR_LO(ptr);
 #else
 	*last = ptr;
 #endif
