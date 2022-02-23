@@ -247,7 +247,11 @@
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE		UL(0x400)
 #elif defined(IMAGE_BL31)
+# if DRTM_SUPPORT
+#  define PLATFORM_STACK_SIZE		UL(0x1000)
+# else
 #  define PLATFORM_STACK_SIZE		UL(0x800)
+# endif /* DRTM_SUPPORT */
 #elif defined(IMAGE_BL32)
 # if SPMC_AT_EL3
 #  define PLATFORM_STACK_SIZE		UL(0x1000)
