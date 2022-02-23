@@ -144,6 +144,8 @@
 #  else
 #   if ENABLE_RME
 #    define MAX_XLAT_TABLES		8
+#   elif DRTM_SUPPORT
+#    define MAX_XLAT_TABLES		8
 #   else
 #    define MAX_XLAT_TABLES		7
 #   endif
