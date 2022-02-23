@@ -76,6 +76,7 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(int channel_id)
 	if (sgi_plat_info.platform_id == RD_N1E1_EDGE_SID_VER_PART_NUM ||
 		sgi_plat_info.platform_id == RD_V1_SID_VER_PART_NUM ||
 		sgi_plat_info.platform_id == RD_N2_SID_VER_PART_NUM ||
+		sgi_plat_info.platform_id == RD_EDMUNDS_SID_VER_PART_NUM ||
 		sgi_plat_info.platform_id == RD_N2_CFG1_SID_VER_PART_NUM) {
 		if (channel_id >= ARRAY_SIZE(plat_rd_scmi_info))
 			panic();
