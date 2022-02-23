@@ -317,10 +317,18 @@ Armada37x0 specific build options for ``mrvl_flash`` and ``mrvl_uart`` targets:
         Use this parameter to point to the directory with
         compiled Crypto++ library. By default it points to the CRYPTOPP_PATH.
 
+        On Debian systems it is possible to install system-wide Crypto++ library
+        via command ``apt install libcrypto++-dev`` and specify CRYPTOPP_LIBDIR
+        to ``/usr/lib/``.
+
 - CRYPTOPP_INCDIR
 
         Use this parameter to point to the directory with
         header files of Crypto++ library. By default it points to the CRYPTOPP_PATH.
+
+        On Debian systems it is possible to install system-wide Crypto++ library
+        via command ``apt install libcrypto++-dev`` and specify CRYPTOPP_INCDIR
+        to ``/usr/include/crypto++/``.
 
 
 For example, in order to build the image in debug mode with log level up to 'notice' level run
