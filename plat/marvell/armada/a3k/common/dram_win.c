@@ -106,7 +106,9 @@ struct cpu_win_configuration mv_cpu_wins[CPU_WIN_CONFIG_MAX][MV_CPU_WIN_NUM] = {
 	 *    to configure it again here;
 	 *
 	 *	0xFFFFFFFF ---> +-----------------------+
-	 *			|	 Boot ROM	| 64 KB
+	 *			|	 Boot ROM	| 1 MB
+	 *			| AP Boot ROM - 16 KB:  |
+	 *			| 0xFFFF0000-0xFFFF4000 |
 	 *	0xFFF00000 ---> +-----------------------+
 	 *			:			:
 	 *	0xFE010000 ---> +-----------------------+
