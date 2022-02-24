@@ -349,6 +349,16 @@ subsections:
                   - title: LS1046AQDS
                     scope: ls1046aqds
 
+              - title: LS1088A
+                scope: ls1088a
+
+                subsections:
+                  - title: LS1088ARDB
+                    scope: ls1088ardb
+
+                  - title: LS1088AQDS
+                    scope: ls1088aqds
+
       - title: QEMU
         scope: qemu
 
