@@ -76,11 +76,11 @@ static struct pwr_ctrl suspend_ctrl = {
 	.reg_ccif_event_apsrc_req_mask_b = 0,
 
 	/* SPM_SRC_REQ */
-	.reg_spm_apsrc_req = 1,
-	.reg_spm_f26m_req = 1,
-	.reg_spm_infra_req = 1,
-	.reg_spm_vrf18_req = 1,
-	.reg_spm_ddren_req = 1,
+	.reg_spm_apsrc_req = 0,
+	.reg_spm_f26m_req = 0,
+	.reg_spm_infra_req = 0,
+	.reg_spm_vrf18_req = 0,
+	.reg_spm_ddren_req = 0,
 	.reg_spm_dvfs_req = 0,
 	.reg_spm_sw_mailbox_req = 0,
 	.reg_spm_sspm_mailbox_req = 0,
