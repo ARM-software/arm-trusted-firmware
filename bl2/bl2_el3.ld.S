@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,11 @@ MEMORY {
     RAM (rwx): ORIGIN = BL2_RW_BASE, LENGTH = BL2_RW_LIMIT - BL2_RW_BASE
 #else
     RAM (rwx): ORIGIN = BL2_BASE, LENGTH = BL2_LIMIT - BL2_BASE
+#if SEPARATE_BL2_NOLOAD_REGION
+    RAM_NOLOAD (rw!a): ORIGIN = BL2_NOLOAD_START, LENGTH = BL2_NOLOAD_LIMIT - BL2_NOLOAD_START
+#else
+#define RAM_NOLOAD RAM
+#endif
 #endif
 }
 
@@ -106,9 +111,18 @@ SECTIONS
     __DATA_RAM_END__ = __DATA_END__;
 
     RELA_SECTION >RAM
-    STACK_SECTION >RAM
-    BSS_SECTION >RAM
-    XLAT_TABLE_SECTION >RAM
+#if SEPARATE_BL2_NOLOAD_REGION
+    SAVED_ADDR = .;
+    . = BL2_NOLOAD_START;
+    __BL2_NOLOAD_START__ = .;
+#endif
+    STACK_SECTION >RAM_NOLOAD
+    BSS_SECTION >RAM_NOLOAD
+    XLAT_TABLE_SECTION >RAM_NOLOAD
+#if SEPARATE_BL2_NOLOAD_REGION
+    __BL2_NOLOAD_END__ = .;
+    . = SAVED_ADDR;
+#endif
 
 #if USE_COHERENT_MEM
     /*

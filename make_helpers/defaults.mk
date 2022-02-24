@@ -250,6 +250,10 @@ SEPARATE_CODE_AND_RODATA	:= 0
 # separate memory region, which may be discontiguous from the rest of BL31.
 SEPARATE_NOBITS_REGION		:= 0
 
+# Put BL2 NOLOAD sections (.bss, stacks, page tables) in a separate memory
+# region, platform Makefile is free to override this value.
+SEPARATE_BL2_NOLOAD_REGION	:= 0
+
 # If the BL31 image initialisation code is recalimed after use for the secondary
 # cores stack
 RECLAIM_INIT_CODE		:= 0

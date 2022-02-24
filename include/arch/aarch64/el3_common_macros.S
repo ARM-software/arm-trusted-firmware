@@ -469,6 +469,14 @@
 		sub	x1, x1, x0
 		bl	inv_dcache_range
 #endif
+#if defined(IMAGE_BL2) && SEPARATE_BL2_NOLOAD_REGION
+		adrp	x0, __BL2_NOLOAD_START__
+		add	x0, x0, :lo12:__BL2_NOLOAD_START__
+		adrp	x1, __BL2_NOLOAD_END__
+		add	x1, x1, :lo12:__BL2_NOLOAD_END__
+		sub	x1, x1, x0
+		bl	inv_dcache_range
+#endif
 #endif
 		adrp	x0, __BSS_START__
 		add	x0, x0, :lo12:__BSS_START__
