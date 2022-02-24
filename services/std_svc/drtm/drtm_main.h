@@ -11,6 +11,8 @@
 
 #include <lib/smccc.h>
 
+#include "drtm_dma_prot.h"
+
 enum drtm_retc {
 	SUCCESS = SMC_OK,
 	NOT_SUPPORTED = SMC_UNK,
