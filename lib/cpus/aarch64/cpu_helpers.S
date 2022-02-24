@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -381,7 +381,7 @@ func check_wa_cve_2017_5715
 	 * If the reserved function pointer is NULL, this CPU
 	 * is unaffected by CVE-2017-5715 so bail out.
 	 */
-	cmp	x0, #0
+	cmp	x0, #CPU_NO_EXTRA1_FUNC
 	beq	1f
 	br	x0
 1:
@@ -416,3 +416,41 @@ func wa_cve_2018_3639_get_disable_ptr
 	ldr	x0, [x0, #CPU_EXTRA2_FUNC]
 	ret
 endfunc wa_cve_2018_3639_get_disable_ptr
+
+/*
+ * int check_smccc_arch_wa3_applies(void);
+ *
+ * This function checks whether SMCCC_ARCH_WORKAROUND_3 is enabled to mitigate
+ * CVE-2022-23960 for this CPU. It returns:
+ *  - ERRATA_APPLIES when SMCCC_ARCH_WORKAROUND_3 can be invoked to mitigate
+ *    the CVE.
+ *  - ERRATA_NOT_APPLIES when SMCCC_ARCH_WORKAROUND_3 should not be invoked to
+ *    mitigate the CVE.
+ *
+ * NOTE: Must be called only after cpu_ops have been initialized
+ *       in per-CPU data.
+ */
+	.globl	check_smccc_arch_wa3_applies
+func check_smccc_arch_wa3_applies
+	mrs	x0, tpidr_el3
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+	ldr	x0, [x0, #CPU_EXTRA3_FUNC]
+	/*
+	 * If the reserved function pointer is NULL, this CPU
+	 * is unaffected by CVE-2022-23960 so bail out.
+	 */
+	cmp	x0, #CPU_NO_EXTRA3_FUNC
+	beq	1f
+	br	x0
+1:
+	mov	x0, #ERRATA_NOT_APPLIES
+	ret
+endfunc check_smccc_arch_wa3_applies

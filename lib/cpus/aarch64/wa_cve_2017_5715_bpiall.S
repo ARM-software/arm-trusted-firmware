@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -308,22 +308,25 @@ vector_entry bpiall_ret_sync_exception_aarch32
 
 	/*
 	 * Check if SMC is coming from A64 state on #0
-	 * with W0 = SMCCC_ARCH_WORKAROUND_1
+	 * with W0 = SMCCC_ARCH_WORKAROUND_1 or W0 = SMCCC_ARCH_WORKAROUND_3
 	 *
 	 * This sequence evaluates as:
-	 *    (W0==SMCCC_ARCH_WORKAROUND_1) ? (ESR_EL3==SMC#0) : (NE)
+	 *    (W0==SMCCC_ARCH_WORKAROUND_1) || (W0==SMCCC_ARCH_WORKAROUND_3) ?
+	 *    (ESR_EL3==SMC#0) : (NE)
 	 * allowing use of a single branch operation
 	 */
 	orr	w2, wzr, #SMCCC_ARCH_WORKAROUND_1
 	cmp	w0, w2
+	orr	w2, wzr, #SMCCC_ARCH_WORKAROUND_3
+	ccmp	w0, w2, #4, ne
 	mov_imm	w2, ESR_EL3_A64_SMC0
 	ccmp	w3, w2, #0, eq
 	/* Static predictor will predict a fall through */
 	bne	1f
 	eret
 1:
-	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	b	sync_exception_aarch64
+	/* restore x2 and x3 and continue sync exception handling */
+	b	bpiall_ret_sync_exception_aarch32_tail
 end_vector_entry bpiall_ret_sync_exception_aarch32
 
 vector_entry bpiall_ret_irq_aarch32
@@ -355,3 +358,11 @@ end_vector_entry bpiall_ret_fiq_aarch32
 vector_entry bpiall_ret_serror_aarch32
 	b	report_unhandled_exception
 end_vector_entry bpiall_ret_serror_aarch32
+
+	/*
+	 * Part of bpiall_ret_sync_exception_aarch32 to save vector space
+	 */
+func bpiall_ret_sync_exception_aarch32_tail
+	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
+	b	sync_exception_aarch64
+endfunc bpiall_ret_sync_exception_aarch32_tail
