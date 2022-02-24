@@ -37,6 +37,7 @@
 
 #include <platform_def.h>
 #include <stm32cubeprogrammer.h>
+#include <stm32mp_efi.h>
 #include <stm32mp_fconf_getter.h>
 #include <stm32mp_io_storage.h>
 #include <usb_dfu.h>
@@ -451,13 +452,20 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
  */
 #if !PSA_FWU_SUPPORT
 			const partition_entry_t *entry;
+			const struct efi_guid img_type_guid = STM32MP_FIP_GUID;
+			uuid_t img_type_uuid;
 
+			guidcpy(&img_type_uuid, &img_type_guid);
 			partition_init(GPT_IMAGE_ID);
-			entry = get_partition_entry(FIP_IMAGE_NAME);
+			entry = get_partition_entry_by_type(&img_type_uuid);
 			if (entry == NULL) {
-				ERROR("Could NOT find the %s partition!\n",
-				      FIP_IMAGE_NAME);
-				return -ENOENT;
+				entry = get_partition_entry(FIP_IMAGE_NAME);
+				if (entry == NULL) {
+					ERROR("Could NOT find the %s partition!\n",
+					      FIP_IMAGE_NAME);
+
+					return -ENOENT;
+				}
 			}
 
 			image_block_spec.offset = entry->start;
