@@ -24,7 +24,7 @@
 
 #define LIB_NAME		"mbed TLS"
 
-#if MEASURED_BOOT
+#if MEASURED_BOOT || DRTM_SUPPORT
 /*
  * CRYPTO_MD_MAX_SIZE value is as per current stronger algorithm available
  * so make sure that mbed TLS MD maximum size must be lesser than this.
@@ -32,7 +32,7 @@
 CASSERT(CRYPTO_MD_MAX_SIZE >= MBEDTLS_MD_MAX_SIZE,
 	assert_mbedtls_md_size_overflow);
 
-#endif /* MEASURED_BOOT */
+#endif /* MEASURED_BOOT || DRTM_SUPPORT */
 
 /*
  * AlgorithmIdentifier  ::=  SEQUENCE  {
@@ -221,7 +221,7 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 }
 #endif /* TRUSTED_BOARD_BOOT */
 
-#if MEASURED_BOOT
+#if MEASURED_BOOT || DRTM_SUPPORT
 /*
  * Map a generic crypto message digest algorithm to the corresponding macro used
  * by Mbed TLS.
@@ -264,7 +264,7 @@ static int calc_hash(enum crypto_md_algo md_algo, void *data_ptr,
 	 */
 	return mbedtls_md(md_info, data_ptr, data_len, output);
 }
-#endif /* MEASURED_BOOT */
+#endif /* MEASURED_BOOT || DRTM_SUPPORT */
 
 #if TF_MBEDTLS_USE_AES_GCM
 /*
@@ -368,7 +368,7 @@ static int auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
 /*
  * Register crypto library descriptor
  */
-#if MEASURED_BOOT && TRUSTED_BOARD_BOOT
+#if (MEASURED_BOOT || DRTM_SUPPORT) && TRUSTED_BOARD_BOOT
 #if TF_MBEDTLS_USE_AES_GCM
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, calc_hash,
 		    auth_decrypt);
@@ -383,6 +383,6 @@ REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash,
 #else
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, NULL);
 #endif
-#elif MEASURED_BOOT
+#elif MEASURED_BOOT || DRTM_SUPPORT
 REGISTER_CRYPTO_LIB(LIB_NAME, init, calc_hash);
-#endif /* MEASURED_BOOT && TRUSTED_BOARD_BOOT */
+#endif /* (MEASURED_BOOT || DRTM_SUPPORT) && TRUSTED_BOARD_BOOT */
