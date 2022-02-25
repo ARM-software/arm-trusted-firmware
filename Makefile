@@ -1360,7 +1360,7 @@ else
 	${Q}set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL)) realclean
 endif
 	${Q}${MAKE} --no-print-directory -C ${SPTOOLPATH} clean
-	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} realclean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} realclean
 	${Q}${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
