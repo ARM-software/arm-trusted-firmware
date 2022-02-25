@@ -548,6 +548,18 @@ ERRATA_A510_2042739	?=0
 # present in r0p0 and r0p1 but there is no workaround for those revisions.
 ERRATA_A510_2041909	?=0
 
+# Flag to apply erratum 2250311 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
+ERRATA_A510_2250311	?=0
+
+# Flag to apply erratum 2218950 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
+ERRATA_A510_2218950	?=0
+
+# Flag to apply erratum 2172148 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
+ERRATA_A510_2172148	?=0
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 ERRATA_DSU_798953	?=0
@@ -1020,6 +1032,18 @@ $(eval $(call add_define,ERRATA_A510_2042739))
 # Process ERRATA_A510_2041909 flag
 $(eval $(call assert_boolean,ERRATA_A510_2041909))
 $(eval $(call add_define,ERRATA_A510_2041909))
+
+# Process ERRATA_A510_2250311 flag
+$(eval $(call assert_boolean,ERRATA_A510_2250311))
+$(eval $(call add_define,ERRATA_A510_2250311))
+
+# Process ERRATA_A510_2218950 flag
+$(eval $(call assert_boolean,ERRATA_A510_2218950))
+$(eval $(call add_define,ERRATA_A510_2218950))
+
+# Process ERRATA_A510_2172148 flag
+$(eval $(call assert_boolean,ERRATA_A510_2172148))
+$(eval $(call add_define,ERRATA_A510_2172148))
 
 # Process ERRATA_DSU_798953 flag
 $(eval $(call assert_boolean,ERRATA_DSU_798953))
