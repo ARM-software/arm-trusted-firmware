@@ -419,11 +419,12 @@ ifeq (${MEASURED_BOOT},1)
     BL2_SOURCES		+= 	${EVENT_LOG_SOURCES}
 endif
 
-ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
+ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
     CRYPTO_SOURCES	:=	drivers/auth/crypto_mod.c 	\
 				lib/fconf/fconf_tbbr_getter.c
     BL1_SOURCES		+=	${CRYPTO_SOURCES}
     BL2_SOURCES		+=	${CRYPTO_SOURCES}
+    BL31_SOURCES	+=	drivers/auth/crypto_mod.c
 
     # We expect to locate the *.mk files under the directories specified below
     ifeq (${ARM_CRYPTOCELL_INTEG},0)
