@@ -730,7 +730,7 @@ ifeq ($(DYN_DISABLE_AUTH), 1)
     endif
 endif
 
-ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
+ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
     CRYPTO_SUPPORT := 1
 else
     CRYPTO_SUPPORT := 0

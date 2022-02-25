@@ -57,12 +57,12 @@ typedef struct crypto_lib_desc_s {
 	int (*verify_hash)(void *data_ptr, unsigned int data_len,
 			   void *digest_info_ptr, unsigned int digest_info_len);
 
-#if MEASURED_BOOT
+#if MEASURED_BOOT || DRTM_SUPPORT
 	/* Calculate a hash. Return hash value */
 	int (*calc_hash)(enum crypto_md_algo md_alg, void *data_ptr,
 			 unsigned int data_len,
 			 unsigned char output[CRYPTO_MD_MAX_SIZE]);
-#endif /* MEASURED_BOOT */
+#endif /* MEASURED_BOOT || DRTM_SUPPORT */
 
 	/*
 	 * Authenticated decryption. Return one of the
@@ -96,13 +96,13 @@ int crypto_mod_auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
 			    unsigned int iv_len, const void *tag,
 			    unsigned int tag_len);
 
-#if MEASURED_BOOT
+#if MEASURED_BOOT || DRTM_SUPPORT
 int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 			 unsigned int data_len,
 			 unsigned char output[CRYPTO_MD_MAX_SIZE]);
-#endif /* MEASURED_BOOT */
+#endif /* MEASURED_BOOT || DRTM_SUPPORT */
 
-#if MEASURED_BOOT && TRUSTED_BOARD_BOOT
+#if (MEASURED_BOOT || DRTM_SUPPORT) && TRUSTED_BOARD_BOOT
 /* Macro to register a cryptographic library */
 #define REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash, \
 			    _calc_hash, _auth_decrypt) \
@@ -124,14 +124,14 @@ int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 		.verify_hash = _verify_hash, \
 		.auth_decrypt = _auth_decrypt \
 	}
-#elif MEASURED_BOOT
+#elif MEASURED_BOOT || DRTM_SUPPORT
 #define REGISTER_CRYPTO_LIB(_name, _init, _calc_hash) \
 	const crypto_lib_desc_t crypto_lib_desc = { \
 		.name = _name, \
 		.init = _init, \
 		.calc_hash = _calc_hash, \
 	}
-#endif	/* MEASURED_BOOT && TRUSTED_BOARD_BOOT */
+#endif	/* (MEASURED_BOOT || DRTM_SUPPORT) && TRUSTED_BOARD_BOOT */
 
 extern const crypto_lib_desc_t crypto_lib_desc;
 
