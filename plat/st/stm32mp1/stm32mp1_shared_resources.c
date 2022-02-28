@@ -164,7 +164,7 @@ static void register_periph(enum stm32mp_shres id, unsigned int state)
 	    (id <= STM32MP1_SHRES_GPIOZ(7)) &&
 	    ((unsigned int)(id - STM32MP1_SHRES_GPIOZ(0)) >= get_gpioz_nbpin())) {
 		ERROR("Invalid GPIO pin %d, %u pin(s) available\n",
-		      id - STM32MP1_SHRES_GPIOZ(0), get_gpioz_nbpin());
+		      (int)(id - STM32MP1_SHRES_GPIOZ(0)), get_gpioz_nbpin());
 		panic();
 	}
 
