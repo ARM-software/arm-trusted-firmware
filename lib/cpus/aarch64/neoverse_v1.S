@@ -27,6 +27,82 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Neoverse V1 Errata #1618635.
+	 * This applies to revision r0p0 and is fixed in
+	 * r1p0.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0, x17
+	 * --------------------------------------------------
+	 */
+func errata_neoverse_v1_1618635_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_1618635
+	cbz	x0, 1f
+
+	/* Inserts a DMB SY before and after MRS PAR_EL1 */
+	ldr	x0, =0x0
+	msr	NEOVERSE_V1_CPUPSELR_EL3, x0
+	ldr	x0, = 0xEE070F14
+	msr	NEOVERSE_V1_CPUPOR_EL3, x0
+	ldr	x0, = 0xFFFF0FFF
+	msr	NEOVERSE_V1_CPUPMR_EL3, x0
+	ldr	x0, =0x4005027FF
+	msr	NEOVERSE_V1_CPUPCR_EL3, x0
+
+	/* Inserts a DMB SY before STREX imm offset */
+	ldr	x0, =0x1
+	msr	NEOVERSE_V1_CPUPSELR_EL3, x0
+	ldr	x0, =0x00e8400000
+	msr	NEOVERSE_V1_CPUPOR_EL3, x0
+	ldr	x0, =0x00fff00000
+	msr	NEOVERSE_V1_CPUPMR_EL3, x0
+	ldr	x0, = 0x4001027FF
+	msr	NEOVERSE_V1_CPUPCR_EL3, x0
+
+	/* Inserts a DMB SY before STREX[BHD}/STLEX* */
+	ldr	x0, =0x2
+	msr	NEOVERSE_V1_CPUPSELR_EL3, x0
+	ldr	x0, =0x00e8c00040
+	msr	NEOVERSE_V1_CPUPOR_EL3, x0
+	ldr	x0, =0x00fff00040
+	msr	NEOVERSE_V1_CPUPMR_EL3, x0
+	ldr	x0, = 0x4001027FF
+	msr	NEOVERSE_V1_CPUPCR_EL3, x0
+
+	/* Inserts a DMB SY after STREX imm offset */
+	ldr	x0, =0x3
+	msr	NEOVERSE_V1_CPUPSELR_EL3, x0
+	ldr	x0, =0x00e8400000
+	msr	NEOVERSE_V1_CPUPOR_EL3, x0
+	ldr	x0, =0x00fff00000
+	msr	NEOVERSE_V1_CPUPMR_EL3, x0
+	ldr	x0, = 0x4004027FF
+	msr	NEOVERSE_V1_CPUPCR_EL3, x0
+
+	/* Inserts a DMB SY after STREX[BHD}/STLEX* */
+	ldr	x0, =0x4
+	msr	NEOVERSE_V1_CPUPSELR_EL3, x0
+	ldr	x0, =0x00e8c00040
+	msr	NEOVERSE_V1_CPUPOR_EL3, x0
+	ldr	x0, =0x00fff00040
+	msr	NEOVERSE_V1_CPUPMR_EL3, x0
+	ldr	x0, = 0x4004027FF
+	msr	NEOVERSE_V1_CPUPCR_EL3, x0
+
+	/* Synchronize to enable patches */
+	isb
+1:
+	ret x17
+endfunc errata_neoverse_v1_1618635_wa
+
+func check_errata_1618635
+	/* Applies to revision r0p0. */
+	mov	x1, #0x00
+	b	cpu_rev_var_ls
+endfunc check_errata_1618635
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Neoverse V1 Errata #1774420.
 	 * This applies to revisions r0p0 and r1p0, fixed in r1p1.
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
@@ -425,6 +501,7 @@ func neoverse_v1_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
+	report_errata ERRATA_V1_1618635, neoverse_v1, 1618635
 	report_errata ERRATA_V1_1774420, neoverse_v1, 1774420
 	report_errata ERRATA_V1_1791573, neoverse_v1, 1791573
 	report_errata ERRATA_V1_1852267, neoverse_v1, 1852267
@@ -449,6 +526,11 @@ func neoverse_v1_reset_func
 	/* Disable speculative loads */
 	msr	SSBS, xzr
 	isb
+
+#if ERRATA_V1_1618635
+	mov x0, x18
+	bl errata_neoverse_v1_1618635_wa
+#endif
 
 #if ERRATA_V1_1774420
 	mov	x0, x18
