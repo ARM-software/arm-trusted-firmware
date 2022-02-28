@@ -11,6 +11,16 @@
 #include <common/debug.h>
 #include <plat/common/platform.h>
 
+#define get_num_va_args(_args, _lcount)				\
+	(((_lcount) > 1)  ? va_arg(_args, long long int) :	\
+	(((_lcount) == 1) ? va_arg(_args, long int) :		\
+			    va_arg(_args, int)))
+
+#define get_unum_va_args(_args, _lcount)				\
+	(((_lcount) > 1)  ? va_arg(_args, unsigned long long int) :	\
+	(((_lcount) == 1) ? va_arg(_args, unsigned long int) :		\
+			    va_arg(_args, unsigned int)))
+
 #define CHECK_AND_PUT_CHAR(buf, size, chars_printed, ch)	\
 	do {						\
 		if ((chars_printed) < (size)) {		\
@@ -80,6 +90,11 @@ static void unsigned_num_print(char **s, size_t n, size_t *chars_printed,
  * %u - unsigned decimal format
  * %p - pointer format
  *
+ * The following length specifiers are supported by this print
+ * %l - long int
+ * %ll - long long int
+ * %z - size_t sized integer formats
+ *
  * The following padding specifiers are supported by this print
  * %0NN - Left-pad the number with 0s (NN is a decimal number)
  * %NN - Left-pad the number or string with spaces (NN is a decimal number)
@@ -101,6 +116,7 @@ int vsnprintf(char *s, size_t n, const char *fmt, va_list args)
 	bool left;
 	bool capitalise;
 	size_t chars_printed = 0U;
+	unsigned int l_count;
 
 	if (n == 0U) {
 		/* There isn't space for anything. */
@@ -118,6 +134,7 @@ int vsnprintf(char *s, size_t n, const char *fmt, va_list args)
 		padc ='\0';
 		padn = 0;
 		capitalise = false;
+		l_count = 0;
 
 		if (*fmt == '%') {
 			fmt++;
@@ -152,7 +169,7 @@ loop:
 
 			case 'i':
 			case 'd':
-				num = va_arg(args, int);
+				num = get_num_va_args(args, l_count);
 
 				if (num < 0) {
 					CHECK_AND_PUT_CHAR(s, n, chars_printed,
@@ -170,10 +187,18 @@ loop:
 				string_print(&s, n, &chars_printed, str);
 				break;
 			case 'u':
-				unum = va_arg(args, unsigned int);
+				unum = get_unum_va_args(args, l_count);
 				unsigned_num_print(&s, n, &chars_printed,
 						   unum, 10, padc, padn, false);
 				break;
+			case 'z':
+				l_count = 1;
+				fmt++;
+				goto loop;
+			case 'l':
+				l_count++;
+				fmt++;
+				goto loop;
 			case 'p':
 				unum = (uintptr_t)va_arg(args, void *);
 				if (unum > 0U) {
@@ -186,7 +211,7 @@ loop:
 			case 'X':
 				capitalise = true;
 			case 'x':
-				unum = va_arg(args, unsigned int);
+				unum = get_unum_va_args(args, l_count);
 				unsigned_num_print(&s, n, &chars_printed,
 						   unum, 16, padc, padn,
 						   capitalise);
