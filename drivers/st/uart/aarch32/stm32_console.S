@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,7 +67,7 @@ func console_stm32_core_init
 	bic	r3, r3, #USART_CR2_STOP
 	str	r3, [r0, #USART_CR2]
 	/* Divisor =  (Uart clock + (baudrate / 2)) / baudrate */
-	lsl	r3, r2, #1
+	lsr	r3, r2, #1
 	add	r3, r1, r3
 	udiv	r3, r3, r2
 	str	r3, [r0, #USART_BRR]
