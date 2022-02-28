@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,6 +69,7 @@
 #define CMD_CASUAL			0
 #define CMD_URGENT			1
 
+#define MBOX_WORD_BYTE			4U
 #define MBOX_RESP_BUFFER_SIZE		16
 #define MBOX_CMD_BUFFER_SIZE		32
 
@@ -108,6 +109,9 @@
 
 /* Mailbox Macros */
 
+#define MBOX_ENTRY_TO_ADDR(_buf, ptr)	(MBOX_OFFSET + (MBOX_##_buf##_BUFFER) \
+						+ MBOX_WORD_BYTE * (ptr))
+
 /* Mailbox interrupt flags and masks */
 #define MBOX_INT_FLAG_COE		0x1
 #define MBOX_INT_FLAG_RIE		0x2
@@ -143,18 +147,18 @@ void mailbox_hps_qspi_enable(void);
 
 int mailbox_send_cmd(uint32_t job_id, uint32_t cmd, uint32_t *args,
 			unsigned int len, uint32_t urgent, uint32_t *response,
-			unsigned int resp_len);
+			unsigned int *resp_len);
 int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
 			unsigned int len, unsigned int indirect);
 int mailbox_read_response(uint32_t *job_id, uint32_t *response,
-			unsigned int resp_len);
-unsigned int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
-			unsigned int resp_len);
+			unsigned int *resp_len);
+int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
+			unsigned int *resp_len);
 
 void mailbox_reset_cold(void);
 void mailbox_clear_response(void);
 
-int intel_mailbox_get_config_status(uint32_t cmd);
+int intel_mailbox_get_config_status(uint32_t cmd, bool init_done);
 int intel_mailbox_is_fpga_not_ready(void);
 
 int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, uint32_t resp_buf_len);

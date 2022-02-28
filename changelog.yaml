@@ -185,6 +185,13 @@ subsections:
                 deprecated:
                   - plat/tc0
 
+      - title: Intel
+        scope: intel
+
+        subsections:
+          - title: SoC
+            scope: soc
+
       - title: Marvell
         scope: marvell
 
