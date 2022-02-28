@@ -1564,7 +1564,7 @@ static int stm32mp1_pll_output(enum stm32mp1_pll_id pll_id, uint32_t output)
 	/* Wait PLL lock */
 	while ((mmio_read_32(pllxcr) & RCC_PLLNCR_PLLRDY) == 0U) {
 		if (timeout_elapsed(timeout)) {
-			ERROR("PLL%d start failed @ 0x%lx: 0x%x\n",
+			ERROR("PLL%u start failed @ 0x%lx: 0x%x\n",
 			      pll_id, pllxcr, mmio_read_32(pllxcr));
 			return -ETIMEDOUT;
 		}
@@ -1593,7 +1593,7 @@ static int stm32mp1_pll_stop(enum stm32mp1_pll_id pll_id)
 	/* Wait PLL stopped */
 	while ((mmio_read_32(pllxcr) & RCC_PLLNCR_PLLRDY) != 0U) {
 		if (timeout_elapsed(timeout)) {
-			ERROR("PLL%d stop failed @ 0x%lx: 0x%x\n",
+			ERROR("PLL%u stop failed @ 0x%lx: 0x%x\n",
 			      pll_id, pllxcr, mmio_read_32(pllxcr));
 			return -ETIMEDOUT;
 		}
@@ -1852,7 +1852,7 @@ int stm32mp1_clk_init(void)
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
 		char name[12];
 
-		snprintf(name, sizeof(name), "st,pll@%d", i);
+		snprintf(name, sizeof(name), "st,pll@%u", i);
 		plloff[i] = fdt_rcc_subnode_offset(name);
 
 		pllcfg_valid[i] = fdt_check_node(plloff[i]);
