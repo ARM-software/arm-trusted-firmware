@@ -702,7 +702,6 @@ size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size)
 	       (ufs_params.desc_base != 0) &&
 	       (ufs_params.desc_size >= UFS_DESC_SIZE));
 
-	memset((void *)buf, 0, size);
 	get_utrd(&utrd);
 	ufs_prepare_cmd(&utrd, CDBCMD_READ_10, lun, lba, buf, size);
 	ufs_send_request(utrd.task_tag);
