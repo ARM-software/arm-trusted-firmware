@@ -24,13 +24,16 @@
  * DDR for TEE (80MB from 0x3E00000-0x43000FFF) is divided into several
  * regions:
  *   - SPMC manifest (4KB at the top) used by SPMC_AT_EL3 and the TEE
- *   - Secure DDR (default is the top 64MB) used by OP-TEE
+ *   - Datastore for SPMC_AT_EL3 (4MB at the top) used by BL31
+ *   - Secure DDR (default is the top 60MB) used by OP-TEE
  *   - Non-secure DDR used by OP-TEE (shared memory and padding) (4MB)
  *   - Secure DDR (4MB aligned on 4MB) for OP-TEE's "Secure Data Path" feature
  *   - Non-secure DDR (8MB) reserved for OP-TEE's future use
  */
-#define DDR_SEC_SIZE			0x04000000 /* reserve 64MB secure memory */
+#define DDR_SEC_SIZE			0x03C00000 /* reserve 60MB secure memory */
 #define DDR_SEC_BASE			0x3F000000
+#define DDR2_SEC_SIZE			0x00400000 /* SPMC_AT_EL3: 4MB for BL31 RAM2 */
+#define DDR2_SEC_BASE			0x42C00000
 #define DDR_SEC_CONFIG_SIZE		0x00001000 /* SPMC_AT_EL3: SPMC manifest */
 #define DDR_SEC_CONFIG_BASE		0x43000000
 

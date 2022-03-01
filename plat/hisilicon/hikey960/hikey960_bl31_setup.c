@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,7 @@
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
 #include <hi3660.h>
@@ -119,6 +120,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
+#if SPMC_AT_EL3
+	mmap_add_region(DDR2_SEC_BASE, DDR2_SEC_BASE, DDR2_SEC_SIZE,
+	       MT_MEMORY | MT_RW | MT_SECURE);
+#endif
+
 	hikey960_init_mmu_el3(BL31_BASE,
 			BL31_LIMIT - BL31_BASE,
 			BL_CODE_BASE,
@@ -155,6 +161,28 @@ static void hikey960_iomcu_dma_init(void)
 				 IOMCU_DMAC_AXI_CONF_AWPROT_NS);
 	}
 }
+
+#if SPMC_AT_EL3
+/*
+ * On the hikey960 platform when using the EL3 SPMC implementation allocate the
+ * datastore for tracking shared memory descriptors in the RAM2 DRAM section
+ * to ensure sufficient storage can be allocated.
+ * Provide an implementation of the accessor method to allow the datastore
+ * details to be retrieved by the SPMC.
+ * The SPMC will take care of initializing the memory region.
+ */
+
+#define SPMC_SHARED_MEMORY_OBJ_SIZE (512 * 1024)
+
+__section("ram2_region") uint8_t plat_spmc_shmem_datastore[SPMC_SHARED_MEMORY_OBJ_SIZE];
+
+int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
+{
+	*datastore = plat_spmc_shmem_datastore;
+	*size = SPMC_SHARED_MEMORY_OBJ_SIZE;
+	return 0;
+}
+#endif
 
 void bl31_platform_setup(void)
 {

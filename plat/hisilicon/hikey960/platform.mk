@@ -164,6 +164,11 @@ FIP_ALIGN			:=	512
 
 # SPM dispatcher
 ifeq (${SPD},spmd)
+ifeq (${SPMC_AT_EL3},1)
+# Add support for platform supplied linker script for BL31 build
+$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+endif
+
 ifeq ($(PLAT_SP_MANIFEST_DTS),)
         $(error "Error: A SP manifest is required for the SPMC.")
 endif

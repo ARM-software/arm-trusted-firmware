@@ -121,8 +121,16 @@
 #define MAX_XLAT_TABLES			3
 #endif
 
-#if defined(IMAGE_BL2) || defined(IMAGE_BL31)
+#if defined(IMAGE_BL2)
 #define MAX_XLAT_TABLES			5
+#endif
+
+#if defined(IMAGE_BL31)
+#if defined(SPMC_AT_EL3)
+#define MAX_XLAT_TABLES			17
+#else
+#define MAX_XLAT_TABLES			5
+#endif
 #endif
 
 #define MAX_MMAP_REGIONS		16
