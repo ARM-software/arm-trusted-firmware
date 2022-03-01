@@ -161,3 +161,11 @@ ERRATA_A53_843419		:=	1
 ERRATA_A53_855873		:=	1
 
 FIP_ALIGN			:=	512
+
+# SPM dispatcher
+ifeq (${SPD},spmd)
+ifeq ($(PLAT_SP_MANIFEST_DTS),)
+        $(error "Error: A SP manifest is required for the SPMC.")
+endif
+FDT_SOURCES		+=	${PLAT_SP_MANIFEST_DTS}
+endif

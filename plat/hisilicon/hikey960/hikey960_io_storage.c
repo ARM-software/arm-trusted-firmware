@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -78,6 +78,12 @@ static const io_uuid_spec_t bl32_extra2_uuid_spec = {
 	.uuid = UUID_SECURE_PAYLOAD_BL32_EXTRA2,
 };
 
+#ifdef SPD_spmd
+static const io_uuid_spec_t bl32_tos_fw_spec = {
+	.uuid = UUID_TOS_FW_CONFIG,
+};
+#endif
+
 static const io_uuid_spec_t bl33_uuid_spec = {
 	.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 };
@@ -151,6 +157,15 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&bl32_extra2_uuid_spec,
 		check_fip
 	},
+
+#ifdef SPD_spmd
+	[TOS_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&bl32_tos_fw_spec,
+		check_fip
+	},
+#endif
+
 	[BL33_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl33_uuid_spec,

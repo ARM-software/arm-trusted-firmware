@@ -122,7 +122,7 @@
 #endif
 
 #if defined(IMAGE_BL2) || defined(IMAGE_BL31)
-#define MAX_XLAT_TABLES			4
+#define MAX_XLAT_TABLES			5
 #endif
 
 #define MAX_MMAP_REGIONS		16

@@ -21,8 +21,9 @@
 #define HIKEY960_DRAM_ID	1
 
 /*
- * DDR for TEE (80MB from 0x3E00000-0x42FFFFFF) is divided into several
+ * DDR for TEE (80MB from 0x3E00000-0x43000FFF) is divided into several
  * regions:
+ *   - SPMC manifest (4KB at the top) used by SPMC_AT_EL3 and the TEE
  *   - Secure DDR (default is the top 64MB) used by OP-TEE
  *   - Non-secure DDR used by OP-TEE (shared memory and padding) (4MB)
  *   - Secure DDR (4MB aligned on 4MB) for OP-TEE's "Secure Data Path" feature
@@ -30,6 +31,8 @@
  */
 #define DDR_SEC_SIZE			0x04000000 /* reserve 64MB secure memory */
 #define DDR_SEC_BASE			0x3F000000
+#define DDR_SEC_CONFIG_SIZE		0x00001000 /* SPMC_AT_EL3: SPMC manifest */
+#define DDR_SEC_CONFIG_BASE		0x43000000
 
 #define DDR_SDP_SIZE			0x00400000
 #define DDR_SDP_BASE			(DDR_SEC_BASE - 0x400000 /* align */ - \
