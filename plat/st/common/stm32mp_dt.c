@@ -326,48 +326,32 @@ const char *dt_get_board_model(void)
 int dt_find_otp_name(const char *name, uint32_t *otp, uint32_t *otp_len)
 {
 	int node;
-	int index, len;
+	int len;
 	const fdt32_t *cuint;
 
 	if ((name == NULL) || (otp == NULL)) {
 		return -FDT_ERR_BADVALUE;
 	}
 
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_NVMEM_LAYOUT_COMPAT);
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_BSEC_COMPAT);
 	if (node < 0) {
 		return node;
 	}
 
-	index = fdt_stringlist_search(fdt, node, "nvmem-cell-names", name);
-	if (index < 0) {
-		return index;
-	}
-
-	cuint = fdt_getprop(fdt, node, "nvmem-cells", &len);
-	if (cuint == NULL) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	if ((index * (int)sizeof(uint32_t)) > len) {
-		return -FDT_ERR_BADVALUE;
-	}
-
-	cuint += index;
-
-	node = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(*cuint));
+	node = fdt_subnode_offset(fdt, node, name);
 	if (node < 0) {
-		ERROR("Malformed nvmem_layout node: ignored\n");
+		ERROR("nvmem node %s not found\n", name);
 		return node;
 	}
 
 	cuint = fdt_getprop(fdt, node, "reg", &len);
 	if ((cuint == NULL) || (len != (2 * (int)sizeof(uint32_t)))) {
-		ERROR("Malformed nvmem_layout node: ignored\n");
+		ERROR("Malformed nvmem node %s: ignored\n", name);
 		return -FDT_ERR_BADVALUE;
 	}
 
 	if (fdt32_to_cpu(*cuint) % sizeof(uint32_t)) {
-		ERROR("Misaligned nvmem_layout element: ignored\n");
+		ERROR("Misaligned nvmem %s element: ignored\n", name);
 		return -FDT_ERR_BADVALUE;
 	}
 
