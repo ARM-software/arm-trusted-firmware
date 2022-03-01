@@ -165,6 +165,12 @@ FIP_ALIGN			:=	512
 # SPM dispatcher
 ifeq (${SPD},spmd)
 ifeq (${SPMC_AT_EL3},1)
+# include device tree helper library
+include lib/libfdt/libfdt.mk
+BL31_SOURCES		+=	common/fdt_wrappers.c		\
+				${LIBFDT_SRCS}			\
+				common/uuid.c
+
 # Add support for platform supplied linker script for BL31 build
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 endif
