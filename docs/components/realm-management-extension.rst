@@ -154,6 +154,8 @@ You can find instructions on how to get and build TF-A Tests above.
 
  git clone --recurse-submodules https://git.trustedfirmware.org/hafnium/hafnium.git
  cd hafnium
+ #  Use the default prebuilt LLVM/clang toolchain
+ PATH=$PWD/prebuilts/linux-x64/clang/bin:$PWD/prebuilts/linux-x64/dtc:$PATH
  make PROJECT=reference
 
 The Hafnium binary should be located at
@@ -253,6 +255,8 @@ The bottom of the output from *uart0* should look something like the following.
  > Test suite 'DebugFS'
                                                                 Passed
  > Test suite 'Realm payload tests'
+                                                                Passed
+ > Test suite 'Invalid memory access'
                                                                 Passed
  ...
 
