@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,8 @@
 #define INTEL_SIP_SMC_STATUS_ERROR			0x4
 #define INTEL_SIP_SMC_RSU_ERROR				0x7
 
+/* SiP mailbox error code */
+#define GENERIC_RESPONSE_ERROR				0x3FF
 
 /* SMC SiP service function identifier */
 
@@ -35,6 +37,8 @@
 #define INTEL_SIP_SMC_RSU_UPDATE			0xC200000C
 #define INTEL_SIP_SMC_RSU_NOTIFY			0xC200000E
 #define INTEL_SIP_SMC_RSU_RETRY_COUNTER			0xC200000F
+#define INTEL_SIP_SMC_RSU_DCMF_VERSION			0xC2000010
+#define INTEL_SIP_SMC_RSU_COPY_DCMF_VERSION		0xC2000011
 
 /* Send Mailbox Command */
 #define INTEL_SIP_SMC_MBOX_SEND_CMD			0xC200001E

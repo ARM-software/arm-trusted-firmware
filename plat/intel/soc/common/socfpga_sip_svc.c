@@ -10,6 +10,7 @@
 #include <lib/mmio.h>
 #include <tools_share/uuid.h>
 
+#include "socfpga_fcs.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"
@@ -139,21 +140,23 @@ static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 		status = mailbox_read_response(job_id,
 				resp, &resp_len);
 
-		if (resp_len < 0)
+		if (status < 0) {
 			break;
+		}
 
 		max_blocks++;
 
 		if (mark_last_buffer_xfer_completed(
-			&completed_addr[*count]) == 0)
+			&completed_addr[*count]) == 0) {
 			*count = *count + 1;
-		else
+		} else {
 			break;
+		}
 	}
 
 	if (*count <= 0) {
-		if (resp_len != MBOX_NO_RESPONSE &&
-			resp_len != MBOX_TIMEOUT && resp_len != 0) {
+		if (status != MBOX_NO_RESPONSE &&
+			status != MBOX_TIMEOUT && resp_len != 0) {
 			mailbox_clear_response();
 			return INTEL_SIP_SMC_STATUS_ERROR;
 		}
@@ -430,9 +433,9 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			 u_register_t flags)
 {
 	uint32_t retval = 0;
-	uint32_t status = INTEL_SIP_SMC_STATUS_OK;
 	uint32_t completed_addr[3];
 	uint64_t rsu_respbuf[9];
+	int status = INTEL_SIP_SMC_STATUS_OK;
 	int mbox_status;
 	unsigned int len_in_resp;
 	u_register_t x5, x6;
