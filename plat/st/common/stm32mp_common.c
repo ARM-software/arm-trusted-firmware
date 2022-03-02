@@ -210,7 +210,7 @@ static void set_console(uintptr_t base, uint32_t clk_rate)
 	unsigned int console_flags;
 
 	if (console_stm32_register(base, clk_rate,
-				   STM32MP_UART_BAUDRATE, &console) == 0) {
+				   (uint32_t)STM32MP_UART_BAUDRATE, &console) == 0) {
 		panic();
 	}
 

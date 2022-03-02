@@ -10,6 +10,7 @@ BL2_AT_EL3		:=	1
 USE_COHERENT_MEM	:=	0
 
 STM32MP_EARLY_CONSOLE	?=	0
+STM32MP_UART_BAUDRATE	?=	115200
 
 # Allow TF-A to concatenate BL2 & BL32 binaries in a single file,
 # share DTB file between BL2 and BL32
@@ -172,6 +173,7 @@ $(eval $(call assert_numerics,\
 		PLAT_PARTITION_MAX_ENTRIES \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
+		STM32MP_UART_BAUDRATE \
 )))
 
 $(eval $(call add_defines,\
@@ -189,6 +191,7 @@ $(eval $(call add_defines,\
 		STM32MP_SDMMC \
 		STM32MP_SPI_NAND \
 		STM32MP_SPI_NOR \
+		STM32MP_UART_BAUDRATE \
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_STM32IMAGE \

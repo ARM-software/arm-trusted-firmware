@@ -127,6 +127,8 @@ Other configuration flags:
   | Default: stm32mp157c-ev1.dtb
 - | ``STM32MP_EARLY_CONSOLE``: to enable early traces before clock driver is setup.
   | Default: 0 (disabled)
+- | ``STM32MP_UART_BAUDRATE``: to select UART baud rate.
+  | Default: 115200
 - | ``STM32_TF_VERSION``: to manage BL2 monotonic counter.
   | Default: 0
 

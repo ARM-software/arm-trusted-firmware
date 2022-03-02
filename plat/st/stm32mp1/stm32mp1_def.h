@@ -202,7 +202,6 @@ enum ddr_type {
 #define USART6_BASE			U(0x44003000)
 #define UART7_BASE			U(0x40018000)
 #define UART8_BASE			U(0x40019000)
-#define STM32MP_UART_BAUDRATE		U(115200)
 
 /* For UART crash console */
 #define STM32MP_DEBUG_USART_BASE	UART4_BASE
