@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,6 +46,9 @@
  * define a limit to number of CPUs that can be initialised.
  */
 #define PSCI_MAX_CPUS_INDEX	0xFFFFU
+
+/* Invalid parent */
+#define PSCI_PARENT_NODE_INVALID	0xFFFFFFFFU
 
 /*
  * Helper functions to get/set the fields of PSCI per-cpu data.
