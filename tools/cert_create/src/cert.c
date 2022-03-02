@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,7 +39,7 @@ int rand_serial(BIGNUM *b, ASN1_INTEGER *ai)
 	if (!btmp)
 		return 0;
 
-	if (!BN_pseudo_rand(btmp, SERIAL_RAND_BITS, 0, 0))
+	if (!BN_rand(btmp, SERIAL_RAND_BITS, 0, 0))
 		goto error;
 	if (ai && !BN_to_ASN1_INTEGER(btmp, ai))
 		goto error;
