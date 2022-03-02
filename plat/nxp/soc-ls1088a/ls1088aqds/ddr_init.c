@@ -78,7 +78,5 @@ long long init_ddr(void)
 		ERROR("DDR init failed.\n");
 	}
 
-	erratum_a008850_post();
-
 	return dram_size;
 }
