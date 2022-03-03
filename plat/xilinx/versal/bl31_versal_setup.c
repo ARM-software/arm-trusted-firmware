@@ -112,10 +112,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 						  atf_handoff_addr);
 	if (ret == FSBL_HANDOFF_NO_STRUCT || ret == FSBL_HANDOFF_INVAL_STRUCT) {
 		bl31_set_default_config();
+	} else if (ret == FSBL_HANDOFF_TOO_MANY_PARTS) {
+		ERROR("BL31: Error too many partitions %u\n", ret);
 	} else if (ret != FSBL_HANDOFF_SUCCESS) {
 		panic();
 	} else {
-		ERROR("BL31: Error during fsbl-atf handover %d.\n", ret);
+		INFO("BL31: fsbl-atf handover success %u\n", ret);
 	}
 
 	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
