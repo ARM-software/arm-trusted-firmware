@@ -47,6 +47,40 @@ static const io_uuid_spec_t sq_bl33_spec = {
 	.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 };
 
+#if TRUSTED_BOARD_BOOT
+static const io_uuid_spec_t sq_tb_fw_cert_spec = {
+	.uuid = UUID_TRUSTED_BOOT_FW_CERT,
+};
+
+static const io_uuid_spec_t sq_trusted_key_cert_spec = {
+	.uuid = UUID_TRUSTED_KEY_CERT,
+};
+
+static const io_uuid_spec_t sq_soc_fw_key_cert_spec = {
+	.uuid = UUID_SOC_FW_KEY_CERT,
+};
+
+static const io_uuid_spec_t sq_tos_fw_key_cert_spec = {
+	.uuid = UUID_TRUSTED_OS_FW_KEY_CERT,
+};
+
+static const io_uuid_spec_t sq_nt_fw_key_cert_spec = {
+	.uuid = UUID_NON_TRUSTED_FW_KEY_CERT,
+};
+
+static const io_uuid_spec_t sq_soc_fw_cert_spec = {
+	.uuid = UUID_SOC_FW_CONTENT_CERT,
+};
+
+static const io_uuid_spec_t sq_tos_fw_cert_spec = {
+	.uuid = UUID_TRUSTED_OS_FW_CONTENT_CERT,
+};
+
+static const io_uuid_spec_t sq_nt_fw_cert_spec = {
+	.uuid = UUID_NON_TRUSTED_FW_CONTENT_CERT,
+};
+#endif /* TRUSTED_BOARD_BOOT */
+
 struct sq_io_policy {
 	uintptr_t *dev_handle;
 	uintptr_t image_spec;
@@ -78,6 +112,48 @@ static const struct sq_io_policy sq_io_policies[] = {
 		.image_spec = (uintptr_t)&sq_bl33_spec,
 		.init_params = FIP_IMAGE_ID,
 	},
+#if TRUSTED_BOARD_BOOT
+	[TRUSTED_BOOT_FW_CERT_ID] = {
+		.dev_handle = &sq_fip_dev_handle,
+		.image_spec = (uintptr_t)&sq_tb_fw_cert_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+	[TRUSTED_KEY_CERT_ID] = {
+		.dev_handle = &sq_fip_dev_handle,
+		.image_spec = (uintptr_t)&sq_trusted_key_cert_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+	[SOC_FW_KEY_CERT_ID] = {
+		.dev_handle = &sq_fip_dev_handle,
+		.image_spec = (uintptr_t)&sq_soc_fw_key_cert_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+	[TRUSTED_OS_FW_KEY_CERT_ID] = {
+		.dev_handle = &sq_fip_dev_handle,
+		.image_spec = (uintptr_t)&sq_tos_fw_key_cert_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+	[NON_TRUSTED_FW_KEY_CERT_ID] = {
+		.dev_handle = &sq_fip_dev_handle,
+		.image_spec = (uintptr_t)&sq_nt_fw_key_cert_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+	[SOC_FW_CONTENT_CERT_ID] = {
+		.dev_handle = &sq_fip_dev_handle,
+		.image_spec = (uintptr_t)&sq_soc_fw_cert_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+	[TRUSTED_OS_FW_CONTENT_CERT_ID] = {
+		.dev_handle = &sq_fip_dev_handle,
+		.image_spec = (uintptr_t)&sq_tos_fw_cert_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+	[NON_TRUSTED_FW_CONTENT_CERT_ID] = {
+		.dev_handle = &sq_fip_dev_handle,
+		.image_spec = (uintptr_t)&sq_nt_fw_cert_spec,
+		.init_params = FIP_IMAGE_ID,
+	},
+#endif
 };
 
 static int sq_io_memmap_setup(void)

@@ -42,7 +42,11 @@
 #define MAX_XLAT_TABLES			8
 #define MAX_MMAP_REGIONS		8
 
+#if TRUSTED_BOARD_BOOT
+#define PLATFORM_STACK_SIZE		0x1000
+#else
 #define PLATFORM_STACK_SIZE		0x400
+#endif
 
 #if !RESET_TO_BL31
 
