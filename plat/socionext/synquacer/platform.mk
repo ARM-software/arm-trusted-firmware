@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -28,6 +28,8 @@ PLAT_BL_COMMON_SOURCES	+=	$(PLAT_PATH)/sq_helpers.S		\
 				drivers/arm/pl011/aarch64/pl011_console.S \
 				drivers/delay_timer/delay_timer.c	\
 				drivers/delay_timer/generic_delay_timer.c \
+				lib/cpus/aarch64/cortex_a53.S		\
+				$(PLAT_PATH)/sq_xlat_setup.c	\
 				${XLAT_TABLES_LIB_SRCS}
 
 # Include GICv3 driver files
@@ -35,7 +37,6 @@ include drivers/arm/gic/v3/gicv3.mk
 
 BL31_SOURCES		+=	drivers/arm/ccn/ccn.c			\
 				${GICV3_SOURCES}			\
-				lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/plat_gicv3.c		\
 				plat/common/plat_psci_common.c		\
 				$(PLAT_PATH)/sq_bl31_setup.c		\
@@ -43,7 +44,6 @@ BL31_SOURCES		+=	drivers/arm/ccn/ccn.c			\
 				$(PLAT_PATH)/sq_topology.c		\
 				$(PLAT_PATH)/sq_psci.c			\
 				$(PLAT_PATH)/sq_gicv3.c			\
-				$(PLAT_PATH)/sq_xlat_setup.c	\
 				$(PLAT_PATH)/drivers/scp/sq_scp.c
 
 ifeq (${SQ_USE_SCMI_DRIVER},0)
