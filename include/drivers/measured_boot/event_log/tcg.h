@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,7 +98,12 @@ enum {
 	/* 8-15: Defined for use by the Static OS */
 	PCR_8,
 	/* Debug */
-	PCR_16 = 16
+	PCR_16 = 16,
+
+	/* D-CRTM-measurements by DRTM implementation */
+	PCR_17 = 17,
+	/* DCE measurements by DRTM implementation */
+	PCR_18 = 18
 };
 
 #pragma pack(push, 1)
