@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,13 +44,42 @@
 
 #define PLATFORM_STACK_SIZE		0x400
 
+#if !RESET_TO_BL31
+
+/* A mailbox page will be mapped from BL2 and BL31 */
+#define BL2_MAILBOX_BASE		0x0403f000
+#define BL2_MAILBOX_SIZE		0x1000
+
+#define MAX_IO_HANDLES			2
+#define MAX_IO_DEVICES			2
+#define MAX_IO_BLOCK_DEVICES	U(1)
+
+#define BL2_BASE			0x04000000
+#define BL2_SIZE			(256 * 1024)
+#define BL2_LIMIT			(BL2_BASE + BL2_SIZE)
+
+/* If BL2 is enabled, the BL31 is loaded on secure DRAM */
+#define BL31_BASE			0xfbe00000
+#define BL31_SIZE			0x00100000
+#else
+
 #define BL31_BASE			0x04000000
 #define BL31_SIZE			0x00080000
+#endif
+
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
 #define BL32_BASE			0xfc000000
 #define BL32_SIZE			0x03c00000
 #define BL32_LIMIT			(BL32_BASE + BL32_SIZE)
+
+/* Alternative BL33 */
+#define PLAT_SQ_BL33_BASE		0xe0000000
+#define PLAT_SQ_BL33_SIZE		0x00100000
+
+/* FIP IO base */
+#define PLAT_SQ_FIP_IOBASE		0x08600000
+#define PLAT_SQ_FIP_MAXSIZE		0x00400000
 
 #define PLAT_SQ_CCN_BASE		0x32000000
 #define PLAT_SQ_CLUSTER_TO_CCN_ID_MAP					\

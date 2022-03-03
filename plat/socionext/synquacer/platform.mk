@@ -4,15 +4,23 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-override RESET_TO_BL31			:= 1
 override PROGRAMMABLE_RESET_ADDRESS	:= 1
 override USE_COHERENT_MEM		:= 1
 override SEPARATE_CODE_AND_RODATA	:= 1
 override ENABLE_SVE_FOR_NS		:= 0
 # Enable workarounds for selected Cortex-A53 erratas.
 ERRATA_A53_855873		:= 1
-# Enable SCMI support
-SQ_USE_SCMI_DRIVER		?= 0
+
+ifeq (${RESET_TO_BL31}, 1)
+override RESET_TO_BL31          := 1
+override TRUSTED_BOARD_BOOT     := 0
+SQ_USE_SCMI_DRIVER              ?= 0
+else
+override RESET_TO_BL31          := 0
+override BL2_AT_EL3             := 1
+SQ_USE_SCMI_DRIVER              := 1
+BL2_CPPFLAGS                    += -DPLAT_XLAT_TABLES_DYNAMIC
+endif
 
 # Libraries
 include lib/xlat_tables_v2/xlat_tables.mk
@@ -34,6 +42,16 @@ PLAT_BL_COMMON_SOURCES	+=	$(PLAT_PATH)/sq_helpers.S		\
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
+
+ifneq (${RESET_TO_BL31}, 1)
+BL2_SOURCES		+=	common/desc_image_load.c		\
+				drivers/io/io_fip.c			\
+				drivers/io/io_memmap.c			\
+				drivers/io/io_storage.c			\
+				$(PLAT_PATH)/sq_bl2_setup.c		\
+				$(PLAT_PATH)/sq_image_desc.c	\
+				$(PLAT_PATH)/sq_io_storage.c
+endif
 
 BL31_SOURCES		+=	drivers/arm/ccn/ccn.c			\
 				${GICV3_SOURCES}			\
