@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,6 +63,16 @@ typedef struct spmd_spm_core_context {
 #define SPMC_SECURE_ID_SHIFT			U(15)
 
 #define SPMD_DIRECT_MSG_ENDPOINT_ID		U(FFA_ENDPOINT_ID_MAX - 1)
+
+/* Define SPMD target function IDs for framework messages to the SPMC */
+#define SPMD_FWK_MSG_BIT			BIT(31)
+#define SPMD_FWK_MSG_PSCI			U(0)
+#define SPMD_FWK_MSG_FFA_VERSION_REQ		U(0x8)
+#define SPMD_FWK_MSG_FFA_VERSION_RESP		U(0x9)
+
+/* Function to build SPMD to SPMC message */
+void spmd_build_spmc_message(gp_regs_t *gpregs, uint8_t target,
+			     unsigned long long message);
 
 /* Functions used to enter/exit SPMC synchronously */
 uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *ctx);
