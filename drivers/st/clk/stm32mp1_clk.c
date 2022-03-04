@@ -1921,14 +1921,21 @@ int stm32mp1_clk_init(void)
 
 	if ((mmio_read_32(rcc_base + RCC_MP_RSTSCLRR) &
 	     RCC_MP_RSTSCLRR_MPUP0RSTF) != 0) {
-		pll3_preserve = stm32mp1_check_pll_conf(_PLL3,
+		if (pllcfg_valid[_PLL3]) {
+			pll3_preserve =
+				stm32mp1_check_pll_conf(_PLL3,
 							clksrc[CLKSRC_PLL3],
 							pllcfg[_PLL3],
 							plloff[_PLL3]);
-		pll4_preserve = stm32mp1_check_pll_conf(_PLL4,
+		}
+
+		if (pllcfg_valid[_PLL4]) {
+			pll4_preserve =
+				stm32mp1_check_pll_conf(_PLL4,
 							clksrc[CLKSRC_PLL4],
 							pllcfg[_PLL4],
 							plloff[_PLL4]);
+		}
 	}
 	/* Don't initialize PLL4, when used by BOOTROM */
 	if ((stm32mp_get_boot_itf_selected() ==
