@@ -480,6 +480,7 @@ MediaTek platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Rex-BC Chen <rex-bc.chen@mediatek.com>
 :|G|: `mtk-rex-bc-chen`_
+:|F|: docs/plat/mt\*.rst
 :|F|: plat/mediatek/
 
 Marvell platform ports and SoC drivers
