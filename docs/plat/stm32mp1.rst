@@ -115,6 +115,24 @@ Available storage medias are:
 - ``STM32MP_SPI_NAND``
 - ``STM32MP_SPI_NOR``
 
+Serial boot devices:
+
+- ``STM32MP_UART_PROGRAMMER``
+- ``STM32MP_USB_PROGRAMMER``
+
+
+Other configuration flags:
+
+- | ``DTB_FILE_NAME``: to precise board device-tree blob to be used.
+  | Default: stm32mp157c-ev1.dtb
+- | ``STM32MP_EARLY_CONSOLE``: to enable early traces before clock driver is setup.
+  | Default: 0 (disabled)
+- | ``STM32MP_UART_BAUDRATE``: to select UART baud rate.
+  | Default: 115200
+- | ``STM32_TF_VERSION``: to manage BL2 monotonic counter.
+  | Default: 0
+
+
 Boot with FIP
 ~~~~~~~~~~~~~
 You need to build BL2, BL32 (SP_min or OP-TEE) and BL33 (U-Boot) before building FIP binary.
