@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,8 +13,10 @@
 #include <common/tbbr/tbbr_img_def.h>
 #include <plat/common/common_def.h>
 
+/* Platform Type */
 #define PLAT_SOCFPGA_STRATIX10			1
 #define PLAT_SOCFPGA_AGILEX			2
+#define PLAT_SOCFPGA_N5X			3
 
 /* sysmgr.boot_scratch_cold4 & 5 used for CPU release address for SPL */
 #define PLAT_CPU_RELEASE_ADDR			0xffd12210
