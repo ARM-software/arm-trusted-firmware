@@ -403,7 +403,7 @@ static int pmic_set_flag(const struct regul_description *desc, uint16_t flag)
 	}
 }
 
-struct regul_ops pmic_ops = {
+static const struct regul_ops pmic_ops = {
 	.set_state = pmic_set_state,
 	.get_state = pmic_get_state,
 	.set_voltage = pmic_set_voltage,
