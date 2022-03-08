@@ -34,6 +34,12 @@
 #define CORTEX_X2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT			U(1)
 
 /*******************************************************************************
+ * CPU Auxiliary Control Register definitions
+ ******************************************************************************/
+#define CORTEX_X2_CPUACTLR_EL1					S3_0_C15_C1_0
+#define CORTEX_X2_CPUACTLR_EL1_BIT_22				(ULL(1) << 22)
+
+/*******************************************************************************
  * CPU Auxiliary Control Register 5 definitions
  ******************************************************************************/
 #define CORTEX_X2_CPUACTLR5_EL1					S3_0_C15_C8_0
