@@ -68,6 +68,14 @@ void stm32mp_ddr_set_reg(const struct stm32mp_ddr_priv *priv, enum stm32mp_ddr_r
 void stm32mp_ddr_start_sw_done(struct stm32mp_ddrctl *ctl);
 void stm32mp_ddr_wait_sw_done_ack(struct stm32mp_ddrctl *ctl);
 void stm32mp_ddr_enable_axi_port(struct stm32mp_ddrctl *ctl);
+int stm32mp_ddr_disable_axi_port(struct stm32mp_ddrctl *ctl);
+void stm32mp_ddr_enable_host_interface(struct stm32mp_ddrctl *ctl);
+void stm32mp_ddr_disable_host_interface(struct stm32mp_ddrctl *ctl);
+int stm32mp_ddr_sw_selfref_entry(struct stm32mp_ddrctl *ctl);
+void stm32mp_ddr_sw_selfref_exit(struct stm32mp_ddrctl *ctl);
+void stm32mp_ddr_set_qd3_update_conditions(struct stm32mp_ddrctl *ctl);
+void stm32mp_ddr_unset_qd3_update_conditions(struct stm32mp_ddrctl *ctl);
+void stm32mp_ddr_wait_refresh_update_done_ack(struct stm32mp_ddrctl *ctl);
 int stm32mp_board_ddr_power_init(enum ddr_type ddr_type);
 
 #endif /* STM32MP_DDR_H */
