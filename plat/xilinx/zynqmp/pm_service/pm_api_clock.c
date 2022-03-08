@@ -2443,8 +2443,6 @@ enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks)
  *
  * This function is used by master to get nmae of clock specified
  * by given clock ID.
- *
- * @return	Returns success. In case of error, name data is 0.
  */
 void pm_api_clock_get_name(unsigned int clock_id, char *name)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +22,16 @@
 
 #define PM_VERSION	((PM_VERSION_MAJOR << 16) | PM_VERSION_MINOR)
 
+/**
+ * PM API versions
+ */
+/* Expected version of firmware APIs */
+#define FW_API_BASE_VERSION		(1U)
+/* Expected version of firmware API for feature check */
+#define FW_API_VERSION_2		(2U)
+/* Version of APIs implemented in ATF */
+#define ATF_API_BASE_VERSION		(1U)
+
 /* Capabilities for RAM */
 #define PM_CAP_ACCESS	0x1U
 #define PM_CAP_CONTEXT	0x2U
@@ -33,7 +43,18 @@
 #define PM_STATE_CPU_IDLE		0x0U
 #define PM_STATE_SUSPEND_TO_RAM		0xFU
 
+/* APU processor states */
+#define PM_PROC_STATE_FORCEDOFF		0U
+#define PM_PROC_STATE_ACTIVE		1U
+#define PM_PROC_STATE_SLEEP		2U
+#define PM_PROC_STATE_SUSPENDING	3U
+
 #define EM_FUNID_NUM_MASK    0xF0000U
+
+#define PM_GET_CALLBACK_DATA		0xa01
+#define PM_SET_SUSPEND_MODE		0xa02
+#define PM_GET_TRUSTZONE_VERSION	0xa03
+
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
@@ -101,6 +122,9 @@ enum pm_api_id {
 	/* PM Register Access API */
 	PM_REGISTER_ACCESS,
 	PM_EFUSE_ACCESS,
+	PM_FPGA_GET_VERSION,
+	PM_FPGA_GET_FEATURE_LIST,
+	PM_FEATURE_CHECK = 63,
 	PM_API_MAX
 };
 
@@ -241,7 +265,8 @@ enum pm_ret_status {
 	PM_RET_ERROR_DOUBLE_REQ = 2004,
 	PM_RET_ERROR_ABORT_SUSPEND = 2005,
 	PM_RET_ERROR_TIMEOUT = 2006,
-	PM_RET_ERROR_NODE_USED = 2007
+	PM_RET_ERROR_NODE_USED = 2007,
+	PM_RET_ERROR_NO_FEATURE = 2008
 };
 
 /**

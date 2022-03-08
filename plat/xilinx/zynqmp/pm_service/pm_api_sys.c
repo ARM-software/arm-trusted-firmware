@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,225 @@
 #include "pm_common.h"
 #include "pm_ipi.h"
 
+#define PM_QUERY_FEATURE_BITMASK ( \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_NAME) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_TOPOLOGY) |	\
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_PARENTS) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_ATTRIBUTES) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_NUM_PINS) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_NUM_FUNCTIONS) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_FUNCTION_NAME) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_FUNCTION_GROUPS) | \
+	(1ULL << (uint64_t)PM_QID_PINCTRL_GET_PIN_GROUPS) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_NUM_CLOCKS) | \
+	(1ULL << (uint64_t)PM_QID_CLOCK_GET_MAX_DIVISOR))
+
+/**
+ * struct eemi_api_dependency - Dependent EEMI APIs which are implemented
+ * on both the ATF and firmware
+ *
+ * @id:		EEMI API id or IOCTL id to be checked
+ * @api_id:	Dependent EEMI API
+ */
+typedef struct __attribute__((packed)) {
+	uint8_t id;
+	uint8_t api_id;
+} eemi_api_dependency;
+
+/* Dependent APIs for ATF to check their version from firmware */
+static const eemi_api_dependency api_dep_table[] = {
+	{
+		.id = PM_SELF_SUSPEND,
+		.api_id = PM_SELF_SUSPEND,
+	},
+	{
+		.id = PM_REQ_WAKEUP,
+		.api_id = PM_REQ_WAKEUP,
+	},
+	{
+		.id = PM_ABORT_SUSPEND,
+		.api_id = PM_ABORT_SUSPEND,
+	},
+	{
+		.id = PM_SET_WAKEUP_SOURCE,
+		.api_id = PM_SET_WAKEUP_SOURCE,
+	},
+	{
+		.id = PM_SYSTEM_SHUTDOWN,
+		.api_id = PM_SYSTEM_SHUTDOWN,
+	},
+	{
+		.id = PM_GET_API_VERSION,
+		.api_id = PM_GET_API_VERSION,
+	},
+	{
+		.id = PM_CLOCK_ENABLE,
+		.api_id = PM_PLL_SET_MODE,
+	},
+	{
+		.id = PM_CLOCK_ENABLE,
+		.api_id = PM_CLOCK_ENABLE,
+	},
+	{
+		.id = PM_CLOCK_DISABLE,
+		.api_id = PM_PLL_SET_MODE,
+	},
+	{
+		.id = PM_CLOCK_DISABLE,
+		.api_id = PM_CLOCK_DISABLE,
+	},
+	{
+		.id = PM_CLOCK_GETSTATE,
+		.api_id = PM_PLL_GET_MODE,
+	},
+	{
+		.id = PM_CLOCK_GETSTATE,
+		.api_id = PM_CLOCK_GETSTATE,
+	},
+	{
+		.id = PM_CLOCK_SETDIVIDER,
+		.api_id = PM_PLL_SET_PARAMETER,
+	},
+	{
+		.id = PM_CLOCK_SETDIVIDER,
+		.api_id = PM_CLOCK_SETDIVIDER,
+	},
+	{
+		.id = PM_CLOCK_GETDIVIDER,
+		.api_id = PM_PLL_GET_PARAMETER,
+	},
+	{
+		.id = PM_CLOCK_GETDIVIDER,
+		.api_id = PM_CLOCK_GETDIVIDER,
+	},
+	{
+		.id = PM_CLOCK_SETPARENT,
+		.api_id = PM_PLL_SET_PARAMETER,
+	},
+	{
+		.id = PM_CLOCK_SETPARENT,
+		.api_id = PM_CLOCK_SETPARENT,
+	},
+	{
+		.id = PM_CLOCK_GETPARENT,
+		.api_id = PM_PLL_GET_PARAMETER,
+	},
+	{
+		.id = PM_CLOCK_GETPARENT,
+		.api_id = PM_CLOCK_GETPARENT,
+	},
+	{
+		.id = PM_PLL_SET_PARAMETER,
+		.api_id = PM_PLL_SET_PARAMETER,
+	},
+	{
+		.id = PM_PLL_GET_PARAMETER,
+		.api_id = PM_PLL_GET_PARAMETER,
+	},
+	{
+		.id = PM_PLL_SET_MODE,
+		.api_id = PM_PLL_SET_MODE,
+	},
+	{
+		.id = PM_PLL_GET_MODE,
+		.api_id = PM_PLL_GET_MODE,
+	},
+	{
+		.id = PM_REGISTER_ACCESS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = PM_REGISTER_ACCESS,
+		.api_id = PM_MMIO_READ,
+	},
+	{
+		.id = PM_FEATURE_CHECK,
+		.api_id = PM_FEATURE_CHECK,
+	},
+	{
+		.id = IOCTL_SET_TAPDELAY_BYPASS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SET_SGMII_MODE,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SD_DLL_RESET,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SET_SD_TAPDELAY,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SET_SD_TAPDELAY,
+		.api_id = PM_MMIO_READ,
+	},
+	{
+		.id = IOCTL_SET_PLL_FRAC_DATA,
+		.api_id = PM_PLL_SET_PARAMETER,
+	},
+	{
+		.id = IOCTL_GET_PLL_FRAC_DATA,
+		.api_id = PM_PLL_GET_PARAMETER,
+	},
+	{
+		.id = IOCTL_WRITE_GGS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_READ_GGS,
+		.api_id = PM_MMIO_READ,
+	},
+	{
+		.id = IOCTL_WRITE_PGGS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_READ_PGGS,
+		.api_id = PM_MMIO_READ,
+	},
+	{
+		.id = IOCTL_ULPI_RESET,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_SET_BOOT_HEALTH_STATUS,
+		.api_id = PM_MMIO_WRITE,
+	},
+	{
+		.id = IOCTL_AFI,
+		.api_id = PM_MMIO_WRITE,
+	},
+};
+
+/* Expected firmware API version to ATF */
+static const uint8_t atf_expected_ver_id[] = {
+	[PM_SELF_SUSPEND] = FW_API_BASE_VERSION,
+	[PM_REQ_WAKEUP] = FW_API_BASE_VERSION,
+	[PM_ABORT_SUSPEND] = FW_API_BASE_VERSION,
+	[PM_SET_WAKEUP_SOURCE] = FW_API_BASE_VERSION,
+	[PM_SYSTEM_SHUTDOWN] = FW_API_BASE_VERSION,
+	[PM_GET_API_VERSION] = FW_API_BASE_VERSION,
+	[PM_PLL_SET_MODE] = FW_API_BASE_VERSION,
+	[PM_PLL_GET_MODE] = FW_API_BASE_VERSION,
+	[PM_CLOCK_ENABLE] = FW_API_BASE_VERSION,
+	[PM_CLOCK_DISABLE] = FW_API_BASE_VERSION,
+	[PM_CLOCK_GETSTATE] = FW_API_BASE_VERSION,
+	[PM_PLL_SET_PARAMETER] = FW_API_BASE_VERSION,
+	[PM_PLL_GET_PARAMETER] = FW_API_BASE_VERSION,
+	[PM_CLOCK_SETDIVIDER] = FW_API_BASE_VERSION,
+	[PM_CLOCK_GETDIVIDER] = FW_API_BASE_VERSION,
+	[PM_CLOCK_SETPARENT] = FW_API_BASE_VERSION,
+	[PM_CLOCK_GETPARENT] = FW_API_BASE_VERSION,
+	[PM_MMIO_WRITE] = FW_API_BASE_VERSION,
+	[PM_MMIO_READ] = FW_API_BASE_VERSION,
+	[PM_FEATURE_CHECK] = FW_API_VERSION_2,
+};
+
 /* default shutdown/reboot scope is system(2) */
 static unsigned int pm_shutdown_scope = PMF_SHUTDOWN_SUBTYPE_SYSTEM;
 
@@ -31,38 +250,6 @@ static unsigned int pm_shutdown_scope = PMF_SHUTDOWN_SUBTYPE_SYSTEM;
 unsigned int pm_get_shutdown_scope(void)
 {
 	return pm_shutdown_scope;
-}
-
-/**
- * Assigning of argument values into array elements.
- */
-#define PM_PACK_PAYLOAD1(pl, arg0) {	\
-	pl[0] = (uint32_t)(arg0);	\
-}
-
-#define PM_PACK_PAYLOAD2(pl, arg0, arg1) {	\
-	pl[1] = (uint32_t)(arg1);		\
-	PM_PACK_PAYLOAD1(pl, arg0);		\
-}
-
-#define PM_PACK_PAYLOAD3(pl, arg0, arg1, arg2) {	\
-	pl[2] = (uint32_t)(arg2);			\
-	PM_PACK_PAYLOAD2(pl, arg0, arg1);		\
-}
-
-#define PM_PACK_PAYLOAD4(pl, arg0, arg1, arg2, arg3) {	\
-	pl[3] = (uint32_t)(arg3);			\
-	PM_PACK_PAYLOAD3(pl, arg0, arg1, arg2);		\
-}
-
-#define PM_PACK_PAYLOAD5(pl, arg0, arg1, arg2, arg3, arg4) {	\
-	pl[4] = (uint32_t)(arg4);				\
-	PM_PACK_PAYLOAD4(pl, arg0, arg1, arg2, arg3);		\
-}
-
-#define PM_PACK_PAYLOAD6(pl, arg0, arg1, arg2, arg3, arg4, arg5) {	\
-	pl[5] = (uint32_t)(arg5);					\
-	PM_PACK_PAYLOAD5(pl, arg0, arg1, arg2, arg3, arg4);		\
 }
 
 #define EM_PACK_PAYLOAD1(pl, arg0) {	\
@@ -305,36 +492,6 @@ enum pm_ret_status pm_set_requirement(enum pm_node_id nid,
 		return pm_ipi_send(primary_proc, payload);
 }
 
-/**
- * pm_release_node() - PM call to release a node
- * @nid		Node id of the slave
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_release_node(enum pm_node_id nid)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD2(payload, PM_RELEASE_NODE, nid);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_set_max_latency() - PM call to set wakeup latency requirements
- * @nid		Node id of the slave
- * @latency	Requested maximum wakeup latency
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_set_max_latency(enum pm_node_id nid,
-				      unsigned int latency)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD3(payload, PM_SET_MAX_LATENCY, nid, latency);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
 /* Miscellaneous API functions */
 
 /**
@@ -350,36 +507,6 @@ enum pm_ret_status pm_get_api_version(unsigned int *version)
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD1(payload, PM_GET_API_VERSION);
 	return pm_ipi_send_sync(primary_proc, payload, version, 1);
-}
-
-/**
- * pm_set_configuration() - PM call to set system configuration
- * @phys_addr	Physical 32-bit address of data structure in memory
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_set_configuration(unsigned int phys_addr)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD2(payload, PM_SET_CONFIGURATION, phys_addr);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_init_finalize() - Call to notify PMU firmware that master has power
- *			management enabled and that it has finished its
- *			initialization
- *
- * @return	Status returned by the PMU firmware
- */
-enum pm_ret_status pm_init_finalize(void)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD1(payload, PM_INIT_FINALIZE);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -399,86 +526,6 @@ enum pm_ret_status pm_get_node_status(enum pm_node_id nid,
 
 	PM_PACK_PAYLOAD2(payload, PM_GET_NODE_STATUS, nid);
 	return pm_ipi_send_sync(primary_proc, payload, ret_buff, 3);
-}
-
-/**
- * pm_register_notifier() - Register the PU to be notified of PM events
- * @nid		Node id of the slave
- * @event	The event to be notified about
- * @wake	Wake up on event
- * @enable	Enable or disable the notifier
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_register_notifier(enum pm_node_id nid,
-					unsigned int event,
-					unsigned int wake,
-					unsigned int enable)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD5(payload, PM_REGISTER_NOTIFIER,
-			 nid, event, wake, enable);
-
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_get_op_characteristic() - PM call to request operating characteristics
- *				of a node
- * @nid		Node id of the slave
- * @type	Type of the operating characteristic
- *		(power, temperature and latency)
- * @result	Returns the operating characteristic for the requested node,
- *		specified by the type
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_get_op_characteristic(enum pm_node_id nid,
-					    enum pm_opchar_type type,
-					    uint32_t *result)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD3(payload, PM_GET_OP_CHARACTERISTIC, nid, type);
-	return pm_ipi_send_sync(primary_proc, payload, result, 1);
-}
-
-/* Direct-Control API functions */
-
-/**
- * pm_reset_assert() - Assert reset
- * @reset	Reset ID
- * @assert	Assert (1) or de-assert (0)
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_reset_assert(unsigned int reset,
-				   unsigned int assert)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD3(payload, PM_RESET_ASSERT, reset, assert);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_reset_get_status() - Get current status of a reset line
- * @reset	Reset ID
- * @reset_status Returns current status of selected reset line
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_reset_get_status(unsigned int reset,
-				       unsigned int *reset_status)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD2(payload, PM_RESET_GET_STATUS, reset);
-	return pm_ipi_send_sync(primary_proc, payload, reset_status, 1);
 }
 
 /**
@@ -650,113 +697,6 @@ void pm_get_callbackdata(uint32_t *data, size_t count)
 }
 
 /**
- * pm_pinctrl_request() - Request Pin from firmware
- * @pin		Pin number to request
- *
- * This function requests pin from firmware.
- *
- * @return	Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_pinctrl_request(unsigned int pin)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD2(payload, PM_PINCTRL_REQUEST, pin);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_pinctrl_release() - Release Pin from firmware
- * @pin		Pin number to release
- *
- * This function releases pin from firmware.
- *
- * @return	Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_pinctrl_release(unsigned int pin)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD2(payload, PM_PINCTRL_RELEASE, pin);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_pinctrl_get_function() - Read function id set for the given pin
- * @pin		Pin number
- * @fid		ID of function currently set for given pin
- *
- * This function provides the function currently set for the given pin.
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_pinctrl_get_function(unsigned int pin, unsigned int *fid)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD2(payload, PM_PINCTRL_GET_FUNCTION, pin);
-	return pm_ipi_send_sync(primary_proc, payload, fid, 1);
-}
-
-/**
- * pm_pinctrl_set_function() - Set function id set for the given pin
- * @pin		Pin number
- * @fid		ID of function to set for given pin
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_pinctrl_set_function(unsigned int pin, unsigned int fid)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD3(payload, PM_PINCTRL_SET_FUNCTION, pin, fid);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
- * pm_pinctrl_get_config() - Read value of requested config param for given pin
- * @pin		Pin number
- * @param	Parameter values to be read
- * @value	Buffer for configuration Parameter value
- *
- * This function provides the configuration parameter value for the given pin.
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_pinctrl_get_config(unsigned int pin,
-					 unsigned int param,
-					 unsigned int *value)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	PM_PACK_PAYLOAD3(payload, PM_PINCTRL_CONFIG_PARAM_GET, pin, param);
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
-}
-
-/**
- * pm_pinctrl_set_config() - Set value of requested config param for given pin
- * @pin		Pin number
- * @param	Parameter to set
- * @value	Parameter value to set
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
-					 unsigned int param,
-					 unsigned int value)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD4(payload, PM_PINCTRL_CONFIG_PARAM_SET, pin, param,
-			 value);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-}
-
-/**
  * pm_ioctl() -  PM IOCTL API for device control and configs
  * @node_id	Node ID of the device
  * @ioctl_id	ID of the requested IOCTL
@@ -775,6 +715,220 @@ enum pm_ret_status pm_ioctl(enum pm_node_id nid,
 			    unsigned int *value)
 {
 	return pm_api_ioctl(nid, ioctl_id, arg1, arg2, value);
+}
+
+/**
+ * fw_api_version() - Returns API version implemented in firmware
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ * @len		Number of words to be returned
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status fw_api_version(uint32_t id, uint32_t *version,
+					 uint32_t len)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	PM_PACK_PAYLOAD2(payload, PM_FEATURE_CHECK, id);
+	return pm_ipi_send_sync(primary_proc, payload, version, len);
+}
+
+/**
+ * check_api_dependency() -  API to check dependent EEMI API version
+ * @id		EEMI API ID to check
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status check_api_dependency(uint8_t id)
+{
+	uint8_t i;
+	uint32_t version;
+	int ret;
+
+	for (i = 0U; i < ARRAY_SIZE(api_dep_table); i++) {
+		if (api_dep_table[i].id == id) {
+			if (api_dep_table[i].api_id == 0U) {
+				break;
+			}
+
+			ret = fw_api_version(api_dep_table[i].api_id,
+					     &version, 1);
+			if (ret != PM_RET_SUCCESS) {
+				return ret;
+			}
+
+			/* Check if fw version matches ATF expected version */
+			if (version != atf_expected_ver_id[api_dep_table[i].api_id]) {
+				return PM_RET_ERROR_NOTSUPPORTED;
+			}
+		}
+	}
+
+	return PM_RET_SUCCESS;
+}
+
+/**
+ * feature_check_atf() - These are API's completely implemented in ATF
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status feature_check_atf(uint32_t api_id, uint32_t *version,
+					    uint32_t *bit_mask)
+{
+	switch (api_id) {
+	case PM_QUERY_DATA:
+		*version = ATF_API_BASE_VERSION;
+		bit_mask[0] = (uint32_t)(PM_QUERY_FEATURE_BITMASK);
+		bit_mask[1] = (uint32_t)(PM_QUERY_FEATURE_BITMASK >> 32);
+		return PM_RET_SUCCESS;
+	case PM_GET_CALLBACK_DATA:
+	case PM_GET_TRUSTZONE_VERSION:
+	case PM_SET_SUSPEND_MODE:
+		*version = ATF_API_BASE_VERSION;
+		return PM_RET_SUCCESS;
+	default:
+		return PM_RET_ERROR_NO_FEATURE;
+	}
+}
+
+/**
+ * get_atf_version_for_partial_apis() - Return ATF version for partially
+ * implemented APIs
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status get_atf_version_for_partial_apis(uint32_t api_id,
+							   uint32_t *version)
+{
+	switch (api_id) {
+	case PM_SELF_SUSPEND:
+	case PM_REQ_WAKEUP:
+	case PM_ABORT_SUSPEND:
+	case PM_SET_WAKEUP_SOURCE:
+	case PM_SYSTEM_SHUTDOWN:
+	case PM_GET_API_VERSION:
+	case PM_CLOCK_ENABLE:
+	case PM_CLOCK_DISABLE:
+	case PM_CLOCK_GETSTATE:
+	case PM_CLOCK_SETDIVIDER:
+	case PM_CLOCK_GETDIVIDER:
+	case PM_CLOCK_SETPARENT:
+	case PM_CLOCK_GETPARENT:
+	case PM_PLL_SET_PARAMETER:
+	case PM_PLL_GET_PARAMETER:
+	case PM_PLL_SET_MODE:
+	case PM_PLL_GET_MODE:
+	case PM_REGISTER_ACCESS:
+		*version = ATF_API_BASE_VERSION;
+		return PM_RET_SUCCESS;
+	case PM_FEATURE_CHECK:
+		*version = FW_API_VERSION_2;
+		return PM_RET_SUCCESS;
+	default:
+		return PM_RET_ERROR_ARGS;
+	}
+}
+
+/**
+ * feature_check_partial() - These are API's partially implemented in
+ * ATF and firmware both
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status feature_check_partial(uint32_t api_id,
+						uint32_t *version)
+{
+	uint32_t status;
+
+	switch (api_id) {
+	case PM_SELF_SUSPEND:
+	case PM_REQ_WAKEUP:
+	case PM_ABORT_SUSPEND:
+	case PM_SET_WAKEUP_SOURCE:
+	case PM_SYSTEM_SHUTDOWN:
+	case PM_GET_API_VERSION:
+	case PM_CLOCK_ENABLE:
+	case PM_CLOCK_DISABLE:
+	case PM_CLOCK_GETSTATE:
+	case PM_CLOCK_SETDIVIDER:
+	case PM_CLOCK_GETDIVIDER:
+	case PM_CLOCK_SETPARENT:
+	case PM_CLOCK_GETPARENT:
+	case PM_PLL_SET_PARAMETER:
+	case PM_PLL_GET_PARAMETER:
+	case PM_PLL_SET_MODE:
+	case PM_PLL_GET_MODE:
+	case PM_REGISTER_ACCESS:
+	case PM_FEATURE_CHECK:
+		status = check_api_dependency(api_id);
+		if (status != PM_RET_SUCCESS) {
+			return status;
+		}
+		return get_atf_version_for_partial_apis(api_id, version);
+	default:
+		return PM_RET_ERROR_NO_FEATURE;
+	}
+}
+
+/**
+ * pm_feature_check() - Returns the supported API version if supported
+ * @api_id	API ID to check
+ * @version	Returned supported API version
+ * @bit_mask	Returned supported IOCTL id version
+ * @len		Number of bytes to be returned in bit_mask variable
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
+				    uint32_t *bit_mask, uint8_t len)
+{
+	uint32_t ret_payload[PAYLOAD_ARG_CNT] = {0U};
+	uint32_t status;
+
+	/* Get API version implemented in ATF */
+	status = feature_check_atf(api_id, version, bit_mask);
+	if (status != PM_RET_ERROR_NO_FEATURE) {
+		return status;
+	}
+
+	/* Get API version implemented by firmware and ATF both */
+	status = feature_check_partial(api_id, version);
+	if (status != PM_RET_ERROR_NO_FEATURE) {
+		return status;
+	}
+
+	/* Get API version implemented by firmware */
+	status = fw_api_version(api_id, ret_payload, 3);
+	/* IOCTL call may return failure whose ID is not implemented in
+	 * firmware but implemented in ATF
+	 */
+	if ((api_id != PM_IOCTL) && (status != PM_RET_SUCCESS)) {
+		return status;
+	}
+
+	*version = ret_payload[0];
+
+	/* Update IOCTL bit mask which are implemented in ATF */
+	if (api_id == PM_IOCTL) {
+		if (len < 2) {
+			return PM_RET_ERROR_ARGS;
+		}
+		bit_mask[0] = ret_payload[1];
+		bit_mask[1] = ret_payload[2];
+		/* Get IOCTL's implemented by ATF */
+		status = atf_ioctl_bitmask(bit_mask);
+	} else {
+		/* Requires for MISRA */
+	}
+
+	return status;
 }
 
 /**
@@ -1647,37 +1801,4 @@ enum pm_ret_status em_send_errors(unsigned int *value)
 	/* Send request to the PMU */
 	EM_PACK_PAYLOAD1(payload, EM_SEND_ERRORS);
 	return pm_ipi_send_sync(primary_proc, payload, value, 1);
-}
-
-/**
- * pm_feature_config() - feature configuration at runtime
- *
- * This function is used to send IPI request to PMUFW to configure feature
- * at runtime. The feature can be enable or disable as well as the feature
- * can be configure at runtime using an IOCTL call.
- *
- * @ioctl_id	The ioctl id for the feature configuration
- * @config_id	The config id of the feature to be configured
- * @value	The value to be configured
- * @response	Return to reference pointer
- *
- * @return      Returns 0 on success or error value on failure
- */
-enum pm_ret_status pm_feature_config(unsigned int ioctl_id,
-				     unsigned int config_id,
-				     unsigned int value,
-				     unsigned int *response)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD5(payload, PM_IOCTL, 0, ioctl_id, config_id, value);
-
-	if (ioctl_id == IOCTL_GET_FEATURE_CONFIG) {
-		return pm_ipi_send_sync(primary_proc, payload, response, 1);
-	} else if (ioctl_id == IOCTL_SET_FEATURE_CONFIG) {
-		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	} else {
-		return PM_RET_ERROR_ARGS;
-	}
 }
