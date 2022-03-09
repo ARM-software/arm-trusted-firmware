@@ -303,16 +303,16 @@ enum pm_shutdown_subtype {
 };
 
 /**
- * @PM_PLL_PARAM_DIV2:         Enable for divide by 2 function inside the PLL
- * @PM_PLL_PARAM_FBDIV:        Feedback divisor integer portion for the PLL
- * @PM_PLL_PARAM_DATA:         Feedback divisor fractional portion for the PLL
- * @PM_PLL_PARAM_PRE_SRC:      Clock source for PLL input
- * @PM_PLL_PARAM_POST_SRC:     Clock source for PLL Bypass mode
- * @PM_PLL_PARAM_LOCK_DLY:     Lock circuit config settings for lock windowsize
- * @PM_PLL_PARAM_LOCK_CNT:     Lock circuit counter setting
- * @PM_PLL_PARAM_LFHF:         PLL loop filter high frequency capacitor control
- * @PM_PLL_PARAM_CP:           PLL charge pump control
- * @PM_PLL_PARAM_RES:          PLL loop filter resistor control
+ * @PM_PLL_PARAM_DIV2:		Enable for divide by 2 function inside the PLL
+ * @PM_PLL_PARAM_FBDIV:		Feedback divisor integer portion for the PLL
+ * @PM_PLL_PARAM_DATA:		Feedback divisor fractional portion for the PLL
+ * @PM_PLL_PARAM_PRE_SRC:	Clock source for PLL input
+ * @PM_PLL_PARAM_POST_SRC:	Clock source for PLL Bypass mode
+ * @PM_PLL_PARAM_LOCK_DLY:	Lock circuit config settings for lock windowsize
+ * @PM_PLL_PARAM_LOCK_CNT:	Lock circuit counter setting
+ * @PM_PLL_PARAM_LFHF:		PLL loop filter high frequency capacitor control
+ * @PM_PLL_PARAM_CP:		PLL charge pump control
+ * @PM_PLL_PARAM_RES:		PLL loop filter resistor control
  */
 enum pm_pll_param {
 	PM_PLL_PARAM_DIV2,
@@ -329,9 +329,9 @@ enum pm_pll_param {
 };
 
 /**
- * @PM_PLL_MODE_RESET:         PLL is in reset (not locked)
- * @PM_PLL_MODE_INTEGER:       PLL is locked in integer mode
- * @PM_PLL_MODE_FRACTIONAL:    PLL is locked in fractional mode
+ * @PM_PLL_MODE_RESET:		PLL is in reset (not locked)
+ * @PM_PLL_MODE_INTEGER:	PLL is locked in integer mode
+ * @PM_PLL_MODE_FRACTIONAL:	PLL is locked in fractional mode
  */
 enum pm_pll_mode {
 	PM_PLL_MODE_RESET,
@@ -341,8 +341,8 @@ enum pm_pll_mode {
 };
 
 /**
- * @PM_CLOCK_DIV0_ID:          Clock divider 0
- * @PM_CLOCK_DIV1_ID:          Clock divider 1
+ * @PM_CLOCK_DIV0_ID:		Clock divider 0
+ * @PM_CLOCK_DIV1_ID:		Clock divider 1
  */
 enum pm_clock_div_id {
 	PM_CLOCK_DIV0_ID,

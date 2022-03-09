@@ -175,7 +175,6 @@ enum pm_ret_status pm_secure_image(uint32_t address_low,
 				   uint32_t key_lo,
 				   uint32_t key_hi,
 				   uint32_t *value);
-
 enum pm_ret_status pm_fpga_read(uint32_t reg_numframes,
 				uint32_t address_low,
 				uint32_t address_high,
@@ -189,15 +188,12 @@ enum pm_ret_status pm_register_access(unsigned int register_access_id,
 				      unsigned int mask,
 				      unsigned int value,
 				      unsigned int *out);
-
 enum pm_ret_status pm_pll_set_parameter(enum pm_node_id nid,
-				enum pm_pll_param param_id,
-				unsigned int value);
-
+					enum pm_pll_param param_id,
+					unsigned int value);
 enum pm_ret_status pm_pll_get_parameter(enum pm_node_id nid,
-				enum pm_pll_param param_id,
-				unsigned int *value);
-
+					enum pm_pll_param param_id,
+					unsigned int *value);
 enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode);
 enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode);
 enum pm_ret_status pm_efuse_access(uint32_t address_high,
@@ -205,7 +201,6 @@ enum pm_ret_status pm_efuse_access(uint32_t address_high,
 enum pm_ret_status em_set_action(unsigned int *value);
 enum pm_ret_status em_remove_action(unsigned int *value);
 enum pm_ret_status em_send_errors(unsigned int *value);
-
 enum pm_ret_status pm_feature_config(unsigned int ioctl_id,
 				     unsigned int config_id,
 				     unsigned int value,

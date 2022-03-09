@@ -136,6 +136,7 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 			enum pm_device_node_idx node_idx;
 			uint32_t idx, irq, lowest_set = reg & (-reg);
 			enum pm_ret_status ret;
+
 			idx = __builtin_ctz(lowest_set);
 			irq = base_irq + idx;
 
