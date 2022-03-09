@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 
 	.globl	flush_dcache_range
+	.globl	flush_dcache_to_popa_range
 	.globl	clean_dcache_range
 	.globl	inv_dcache_range
 	.globl	dcsw_op_louis
@@ -62,6 +63,35 @@ func inv_dcache_range
 	do_dcache_maintenance_by_mva ivac
 endfunc inv_dcache_range
 
+
+	/*
+	 * On implementations with FEAT_MTE2,
+	 * Root firmware must issue DC_CIGDPAPA instead of DC_CIPAPA ,
+	 * in order to additionally clean and invalidate Allocation Tags
+	 * associated with the affected locations.
+	 *
+	 * ------------------------------------------
+	 * Clean+Invalidate by PA to POPA
+	 * from base address till size.
+	 * 'x0' = addr, 'x1' = size
+	 * ------------------------------------------
+	 */
+func flush_dcache_to_popa_range
+	/* Exit early if size is zero */
+	cbz	x1, exit_loop_dc_cipapa
+	dcache_line_size x2, x3
+	sub	x3, x2, #1
+	bic	x0, x0, x3
+	add	x1, x1, x0
+loop_dc_cipapa:
+	sys	#6, c7, c14, #1, x0 /* DC CIPAPA,<Xt> */
+	add	x0, x0, x2
+	cmp	x0, x1
+	b.lo	loop_dc_cipapa
+	dsb	osh
+exit_loop_dc_cipapa:
+	ret
+endfunc	flush_dcache_to_popa_range
 
 	/* ---------------------------------------------------------------
 	 * Data cache operations by set/way to the level specified

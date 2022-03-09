@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -95,9 +95,8 @@ static bool gpt_is_gpi_valid(unsigned int gpi)
 	if ((gpi == GPT_GPI_NO_ACCESS) || (gpi == GPT_GPI_ANY) ||
 	    ((gpi >= GPT_GPI_SECURE) && (gpi <= GPT_GPI_REALM))) {
 		return true;
-	} else {
-		return false;
 	}
+	return false;
 }
 
 /*
@@ -117,9 +116,8 @@ static bool gpt_check_pas_overlap(uintptr_t base_1, size_t size_1,
 {
 	if (((base_1 + size_1) > base_2) && ((base_2 + size_2) > base_1)) {
 		return true;
-	} else {
-		return false;
 	}
+	return false;
 }
 
 /*
@@ -434,14 +432,14 @@ static void gpt_generate_l0_blk_desc(pas_region_t *pas)
 	gpt_desc = GPT_L0_BLK_DESC(GPT_PAS_ATTR_GPI(pas->attrs));
 
 	/* Start index of this region in L0 GPTs */
-	idx = pas->base_pa >> GPT_L0_IDX_SHIFT;
+	idx = GPT_L0_IDX(pas->base_pa);
 
 	/*
 	 * Determine number of L0 GPT descriptors covered by
 	 * this PAS region and use the count to populate these
 	 * descriptors.
 	 */
-	end_idx = (pas->base_pa + pas->size) >> GPT_L0_IDX_SHIFT;
+	end_idx = GPT_L0_IDX(pas->base_pa + pas->size);
 
 	/* Generate the needed block descriptors. */
 	for (; idx < end_idx; idx++) {
@@ -471,8 +469,8 @@ static uintptr_t gpt_get_l1_end_pa(uintptr_t cur_pa, uintptr_t end_pa)
 	uintptr_t cur_idx;
 	uintptr_t end_idx;
 
-	cur_idx = cur_pa >> GPT_L0_IDX_SHIFT;
-	end_idx = end_pa >> GPT_L0_IDX_SHIFT;
+	cur_idx = GPT_L0_IDX(cur_pa);
+	end_idx = GPT_L0_IDX(end_pa);
 
 	assert(cur_idx <= end_idx);
 
@@ -770,7 +768,7 @@ int gpt_init_l0_tables(unsigned int pps, uintptr_t l0_mem_base,
 
 	/* Validate other parameters. */
 	ret = gpt_validate_l0_params(pps, l0_mem_base, l0_mem_size);
-	if (ret < 0) {
+	if (ret != 0) {
 		return ret;
 	}
 
@@ -849,7 +847,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 	if (l1_gpt_cnt > 0) {
 		ret = gpt_validate_l1_params(l1_mem_base, l1_mem_size,
 		      l1_gpt_cnt);
-		if (ret < 0) {
+		if (ret != 0) {
 			return ret;
 		}
 
@@ -958,55 +956,170 @@ int gpt_runtime_init(void)
 static spinlock_t gpt_lock;
 
 /*
- * Check if caller is allowed to transition a PAS.
+ * A helper to write the value (target_pas << gpi_shift) to the index of
+ * the gpt_l1_addr
+ */
+static inline void write_gpt(uint64_t *gpt_l1_desc, uint64_t *gpt_l1_addr,
+			     unsigned int gpi_shift, unsigned int idx,
+			     unsigned int target_pas)
+{
+	*gpt_l1_desc &= ~(GPT_L1_GRAN_DESC_GPI_MASK << gpi_shift);
+	*gpt_l1_desc |= ((uint64_t)target_pas << gpi_shift);
+	gpt_l1_addr[idx] = *gpt_l1_desc;
+}
+
+/*
+ * Helper to retrieve the gpt_l1_* information from the base address
+ * returned in gpi_info
+ */
+static int get_gpi_params(uint64_t base, gpi_info_t *gpi_info)
+{
+	uint64_t gpt_l0_desc, *gpt_l0_base;
+
+	gpt_l0_base = (uint64_t *)gpt_config.plat_gpt_l0_base;
+	gpt_l0_desc = gpt_l0_base[GPT_L0_IDX(base)];
+	if (GPT_L0_TYPE(gpt_l0_desc) != GPT_L0_TYPE_TBL_DESC) {
+		VERBOSE("[GPT] Granule is not covered by a table descriptor!\n");
+		VERBOSE("      Base=0x%" PRIx64 "\n", base);
+		return -EINVAL;
+	}
+
+	/* Get the table index and GPI shift from PA. */
+	gpi_info->gpt_l1_addr = GPT_L0_TBLD_ADDR(gpt_l0_desc);
+	gpi_info->idx = GPT_L1_IDX(gpt_config.p, base);
+	gpi_info->gpi_shift = GPT_L1_GPI_IDX(gpt_config.p, base) << 2;
+
+	gpi_info->gpt_l1_desc = (gpi_info->gpt_l1_addr)[gpi_info->idx];
+	gpi_info->gpi = (gpi_info->gpt_l1_desc >> gpi_info->gpi_shift) &
+		GPT_L1_GRAN_DESC_GPI_MASK;
+	return 0;
+}
+
+/*
+ * This function is the granule transition delegate service. When a granule
+ * transition request occurs it is routed to this function to have the request,
+ * if valid, fulfilled following A1.1.1 Delegate of RME supplement
  *
- * - Secure world caller can only request S <-> NS transitions on a
- *   granule that is already in either S or NS PAS.
- *
- * - Realm world caller can only request R <-> NS transitions on a
- *   granule that is already in either R or NS PAS.
+ * TODO: implement support for transitioning multiple granules at once.
  *
  * Parameters
+ *   base		Base address of the region to transition, must be
+ *			aligned to granule size.
+ *   size		Size of region to transition, must be aligned to granule
+ *			size.
  *   src_sec_state	Security state of the caller.
- *   current_gpi	Current GPI of the granule.
- *   target_gpi		Requested new GPI for the granule.
  *
  * Return
  *   Negative Linux error code in the event of a failure, 0 for success.
  */
-static int gpt_check_transition_gpi(unsigned int src_sec_state,
-				    unsigned int current_gpi,
-				    unsigned int target_gpi)
+int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 {
-	unsigned int check_gpi;
+	gpi_info_t gpi_info;
+	uint64_t nse;
+	int res;
+	unsigned int target_pas;
 
-	/* Cannot transition a granule to the state it is already in. */
-	if (current_gpi == target_gpi) {
+	/* Ensure that the tables have been set up before taking requests. */
+	assert(gpt_config.plat_gpt_l0_base != 0UL);
+
+	/* Ensure that caches are enabled. */
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
+
+	/* Delegate request can only come from REALM or SECURE */
+	assert(src_sec_state == SMC_FROM_REALM ||
+	       src_sec_state == SMC_FROM_SECURE);
+
+	/* See if this is a single or a range of granule transition. */
+	if (size != GPT_PGS_ACTUAL_SIZE(gpt_config.p)) {
 		return -EINVAL;
 	}
 
-	/* Check security state, only secure and realm can transition. */
-	if (src_sec_state == SMC_FROM_REALM) {
-		check_gpi = GPT_GPI_REALM;
-	} else if (src_sec_state == SMC_FROM_SECURE) {
-		check_gpi = GPT_GPI_SECURE;
+	/* Check that base and size are valid */
+	if ((ULONG_MAX - base) < size) {
+		VERBOSE("[GPT] Transition request address overflow!\n");
+		VERBOSE("      Base=0x%" PRIx64 "\n", base);
+		VERBOSE("      Size=0x%lx\n", size);
+		return -EINVAL;
+	}
+
+	/* Make sure base and size are valid. */
+	if (((base & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1)) != 0UL) ||
+	    ((size & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1)) != 0UL) ||
+	    (size == 0UL) ||
+	    ((base + size) >= GPT_PPS_ACTUAL_SIZE(gpt_config.t))) {
+		VERBOSE("[GPT] Invalid granule transition address range!\n");
+		VERBOSE("      Base=0x%" PRIx64 "\n", base);
+		VERBOSE("      Size=0x%lx\n", size);
+		return -EINVAL;
+	}
+
+	target_pas = GPT_GPI_REALM;
+	if (src_sec_state == SMC_FROM_SECURE) {
+		target_pas = GPT_GPI_SECURE;
+	}
+
+	/*
+	 * Access to L1 tables is controlled by a global lock to ensure
+	 * that no more than one CPU is allowed to make changes at any
+	 * given time.
+	 */
+	spin_lock(&gpt_lock);
+	res = get_gpi_params(base, &gpi_info);
+	if (res != 0) {
+		spin_unlock(&gpt_lock);
+		return res;
+	}
+
+	/* Check that the current address is in NS state */
+	if (gpi_info.gpi != GPT_GPI_NS) {
+		VERBOSE("[GPT] Only Granule in NS state can be delegated.\n");
+		VERBOSE("      Caller: %u, Current GPI: %u\n", src_sec_state,
+			gpi_info.gpi);
+		spin_unlock(&gpt_lock);
+		return -EINVAL;
+	}
+
+	if (src_sec_state == SMC_FROM_SECURE) {
+		nse = (uint64_t)GPT_NSE_SECURE << GPT_NSE_SHIFT;
 	} else {
-		return -EINVAL;
+		nse = (uint64_t)GPT_NSE_REALM << GPT_NSE_SHIFT;
 	}
 
-	/* Make sure security state is allowed to make the transition. */
-	if ((target_gpi != check_gpi) && (target_gpi != GPT_GPI_NS)) {
-		return -EINVAL;
-	}
-	if ((current_gpi != check_gpi) && (current_gpi != GPT_GPI_NS)) {
-		return -EINVAL;
-	}
+	/*
+	 * In order to maintain mutual distrust between Realm and Secure
+	 * states, remove any data speculatively fetched into the target
+	 * physical address space. Issue DC CIPAPA over address range
+	 */
+	flush_dcache_to_popa_range(nse | base,
+				   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+
+	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
+		  gpi_info.gpi_shift, gpi_info.idx, target_pas);
+	dsboshst();
+
+	gpt_tlbi_by_pa_ll(base, GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	dsbosh();
+
+	nse = (uint64_t)GPT_NSE_NS << GPT_NSE_SHIFT;
+
+	flush_dcache_to_popa_range(nse | base,
+				   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+
+	/* Unlock access to the L1 tables. */
+	spin_unlock(&gpt_lock);
+
+	/*
+	 * The isb() will be done as part of context
+	 * synchronization when returning to lower EL
+	 */
+	VERBOSE("[GPT] Granule 0x%" PRIx64 ", GPI 0x%x->0x%x\n",
+		base, gpi_info.gpi, target_pas);
 
 	return 0;
 }
 
 /*
- * This function is the core of the granule transition service. When a granule
+ * This function is the granule transition undelegate service. When a granule
  * transition request occurs it is routed to this function where the request is
  * validated then fulfilled if possible.
  *
@@ -1018,29 +1131,32 @@ static int gpt_check_transition_gpi(unsigned int src_sec_state,
  *   size		Size of region to transition, must be aligned to granule
  *			size.
  *   src_sec_state	Security state of the caller.
- *   target_pas		Target PAS of the specified memory region.
  *
  * Return
  *    Negative Linux error code in the event of a failure, 0 for success.
  */
-int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
-	unsigned int target_pas)
+int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 {
-	int idx;
-	unsigned int gpi_shift;
-	unsigned int gpi;
-	uint64_t gpt_l0_desc;
-	uint64_t gpt_l1_desc;
-	uint64_t *gpt_l1_addr;
-	uint64_t *gpt_l0_base;
+	gpi_info_t gpi_info;
+	uint64_t nse;
+	int res;
 
 	/* Ensure that the tables have been set up before taking requests. */
-	assert(gpt_config.plat_gpt_l0_base != 0U);
+	assert(gpt_config.plat_gpt_l0_base != 0UL);
 
-	/* Ensure that MMU and data caches are enabled. */
-	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
+	/* Ensure that MMU and caches are enabled. */
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
 
-	/* Check for address range overflow. */
+	/* Delegate request can only come from REALM or SECURE */
+	assert(src_sec_state == SMC_FROM_REALM ||
+	       src_sec_state == SMC_FROM_SECURE);
+
+	/* See if this is a single or a range of granule transition. */
+	if (size != GPT_PGS_ACTUAL_SIZE(gpt_config.p)) {
+		return -EINVAL;
+	}
+
+	/* Check that base and size are valid */
 	if ((ULONG_MAX - base) < size) {
 		VERBOSE("[GPT] Transition request address overflow!\n");
 		VERBOSE("      Base=0x%" PRIx64 "\n", base);
@@ -1049,9 +1165,9 @@ int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
 	}
 
 	/* Make sure base and size are valid. */
-	if (((base & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1)) != 0U) ||
-	    ((size & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1)) != 0U) ||
-	    (size == 0U) ||
+	if (((base & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1)) != 0UL) ||
+	    ((size & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1)) != 0UL) ||
+	    (size == 0UL) ||
 	    ((base + size) >= GPT_PPS_ACTUAL_SIZE(gpt_config.t))) {
 		VERBOSE("[GPT] Invalid granule transition address range!\n");
 		VERBOSE("      Base=0x%" PRIx64 "\n", base);
@@ -1059,66 +1175,81 @@ int gpt_transition_pas(uint64_t base, size_t size, unsigned int src_sec_state,
 		return -EINVAL;
 	}
 
-	/* See if this is a single granule transition or a range of granules. */
-	if (size != GPT_PGS_ACTUAL_SIZE(gpt_config.p)) {
-		/*
-		 * TODO: Add support for transitioning multiple granules with a
-		 * single call to this function.
-		 */
-		panic();
-	}
-
-	/* Get the L0 descriptor and make sure it is for a table. */
-	gpt_l0_base = (uint64_t *)gpt_config.plat_gpt_l0_base;
-	gpt_l0_desc = gpt_l0_base[GPT_L0_IDX(base)];
-	if (GPT_L0_TYPE(gpt_l0_desc) != GPT_L0_TYPE_TBL_DESC) {
-		VERBOSE("[GPT] Granule is not covered by a table descriptor!\n");
-		VERBOSE("      Base=0x%" PRIx64 "\n", base);
-		return -EINVAL;
-	}
-
-	/* Get the table index and GPI shift from PA. */
-	gpt_l1_addr = GPT_L0_TBLD_ADDR(gpt_l0_desc);
-	idx = GPT_L1_IDX(gpt_config.p, base);
-	gpi_shift = GPT_L1_GPI_IDX(gpt_config.p, base) << 2;
-
 	/*
 	 * Access to L1 tables is controlled by a global lock to ensure
 	 * that no more than one CPU is allowed to make changes at any
 	 * given time.
 	 */
 	spin_lock(&gpt_lock);
-	gpt_l1_desc = gpt_l1_addr[idx];
-	gpi = (gpt_l1_desc >> gpi_shift) & GPT_L1_GRAN_DESC_GPI_MASK;
 
-	/* Make sure caller state and source/target PAS are allowed. */
-	if (gpt_check_transition_gpi(src_sec_state, gpi, target_pas) < 0) {
+	res = get_gpi_params(base, &gpi_info);
+	if (res != 0) {
 		spin_unlock(&gpt_lock);
-			VERBOSE("[GPT] Invalid caller state and PAS combo!\n");
-		VERBOSE("      Caller: %u, Current GPI: %u, Target GPI: %u\n",
-			src_sec_state, gpi, target_pas);
-		return -EPERM;
+		return res;
 	}
 
-	/* Clear existing GPI encoding and transition granule. */
-	gpt_l1_desc &= ~(GPT_L1_GRAN_DESC_GPI_MASK << gpi_shift);
-	gpt_l1_desc |= ((uint64_t)target_pas << gpi_shift);
-	gpt_l1_addr[idx] = gpt_l1_desc;
+	/* Check that the current address is in the delegated state */
+	if ((src_sec_state == SMC_FROM_REALM  &&
+	     gpi_info.gpi != GPT_GPI_REALM) ||
+	    (src_sec_state == SMC_FROM_SECURE &&
+	     gpi_info.gpi != GPT_GPI_SECURE)) {
+		VERBOSE("[GPT] Only Granule in REALM or SECURE state can be undelegated.\n");
+		VERBOSE("      Caller: %u, Current GPI: %u\n", src_sec_state,
+			gpi_info.gpi);
+		spin_unlock(&gpt_lock);
+		return -EINVAL;
+	}
 
-	/* Ensure that the write operation will be observed by GPC */
-	dsbishst();
+
+	/* In order to maintain mutual distrust between Realm and Secure
+	 * states, remove access now, in order to guarantee that writes
+	 * to the currently-accessible physical address space will not
+	 * later become observable.
+	 */
+	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
+		  gpi_info.gpi_shift, gpi_info.idx, GPT_GPI_NO_ACCESS);
+	dsboshst();
+
+	gpt_tlbi_by_pa_ll(base, GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	dsbosh();
+
+	if (src_sec_state == SMC_FROM_SECURE) {
+		nse = (uint64_t)GPT_NSE_SECURE << GPT_NSE_SHIFT;
+	} else {
+		nse = (uint64_t)GPT_NSE_REALM << GPT_NSE_SHIFT;
+	}
+
+	/* Ensure that the scrubbed data has made it past the PoPA */
+	flush_dcache_to_popa_range(nse | base,
+				   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+
+	/*
+	 * Remove any data loaded speculatively
+	 * in NS space from before the scrubbing
+	 */
+	nse = (uint64_t)GPT_NSE_NS << GPT_NSE_SHIFT;
+
+	flush_dcache_to_popa_range(nse | base,
+				   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+
+	/* Clear existing GPI encoding and transition granule. */
+	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
+		  gpi_info.gpi_shift, gpi_info.idx, GPT_GPI_NS);
+	dsboshst();
+
+	/* Ensure that all agents observe the new NS configuration */
+	gpt_tlbi_by_pa_ll(base, GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	dsbosh();
 
 	/* Unlock access to the L1 tables. */
 	spin_unlock(&gpt_lock);
 
-	gpt_tlbi_by_pa(base, GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	dsbishst();
 	/*
 	 * The isb() will be done as part of context
 	 * synchronization when returning to lower EL
 	 */
-	VERBOSE("[GPT] Granule 0x%" PRIx64 ", GPI 0x%x->0x%x\n", base, gpi,
-		target_pas);
+	VERBOSE("[GPT] Granule 0x%" PRIx64 ", GPI 0x%x->0x%x\n",
+		base, gpi_info.gpi, GPT_GPI_NS);
 
 	return 0;
 }

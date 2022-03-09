@@ -224,6 +224,7 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e3r)
 DEFINE_SYSOP_PARAM_FUNC(xpaci)
 
 void flush_dcache_range(uintptr_t addr, size_t size);
+void flush_dcache_to_popa_range(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);
 void inv_dcache_range(uintptr_t addr, size_t size);
 bool is_dcache_enabled(void);
@@ -274,8 +275,10 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, sy)
 DEFINE_SYSOP_TYPE_FUNC(dmb, st)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ld)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
+DEFINE_SYSOP_TYPE_FUNC(dsb, osh)
 DEFINE_SYSOP_TYPE_FUNC(dsb, nsh)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
+DEFINE_SYSOP_TYPE_FUNC(dsb, oshst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, oshld)
 DEFINE_SYSOP_TYPE_FUNC(dmb, oshst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, osh)
@@ -610,14 +613,13 @@ static inline void tlbipaallos(void)
 }
 
 /*
- * Invalidate cached copies of GPT entries
- * from TLBs by physical address
+ * Invalidate TLBs of GPT entries by Physical address, last level.
  *
  * @pa: the starting address for the range
  *      of invalidation
  * @size: size of the range of invalidation
  */
-void gpt_tlbi_by_pa(uint64_t pa, size_t size);
+void gpt_tlbi_by_pa_ll(uint64_t pa, size_t size);
 
 
 /* Previously defined accessor functions with incomplete register names  */

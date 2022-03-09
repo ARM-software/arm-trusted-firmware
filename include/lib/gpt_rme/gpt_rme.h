@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,6 +34,13 @@ typedef struct pas_region {
 #define GPT_GPI_REALM			U(0xB)
 #define GPT_GPI_ANY			U(0xF)
 #define GPT_GPI_VAL_MASK		UL(0xF)
+
+#define GPT_NSE_SECURE			U(0b00)
+#define GPT_NSE_ROOT			U(0b01)
+#define GPT_NSE_NS			U(0b10)
+#define GPT_NSE_REALM			U(0b11)
+
+#define GPT_NSE_SHIFT                   U(62)
 
 /* PAS attribute GPI definitions. */
 #define GPT_PAS_ATTR_GPI_SHIFT		U(0)
@@ -262,15 +269,12 @@ void gpt_disable(void);
  *   base: Base address of the region to transition, must be aligned to granule
  *         size.
  *   size: Size of region to transition, must be aligned to granule size.
- *   src_sec_state: Security state of the caller.
- *   target_pas: Target PAS of the specified memory region.
+ *   src_sec_state: Security state of the originating SMC invoking the API.
  *
  * Return
  *    Negative Linux error code in the event of a failure, 0 for success.
  */
-int gpt_transition_pas(uint64_t base,
-		       size_t size,
-		       unsigned int src_sec_state,
-		       unsigned int target_pas);
+int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state);
+int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state);
 
 #endif /* GPT_RME_H */
