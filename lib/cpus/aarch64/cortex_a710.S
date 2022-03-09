@@ -310,6 +310,49 @@ func check_errata_2282622
 	b       cpu_rev_var_ls
 endfunc check_errata_2282622
 
+/* ---------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2008768.
+ * This applies to revision r0p0, r1p0 and r2p0.
+ * It is fixed in r2p1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0, x1, x2, x17
+ * ---------------------------------------------------------------
+ */
+func errata_a710_2008768_wa
+	mov     x17, x30
+	bl      check_errata_2008768
+	cbz     x0, 1f
+
+	/* Stash ERRSELR_EL1 in x2 */
+	mrs	x2, ERRSELR_EL1
+
+	/* Select error record 0 and clear ED bit */
+	msr	ERRSELR_EL1, xzr
+	mrs	x1, ERXCTLR_EL1
+	bfi	x1, xzr, #ERXCTLR_ED_SHIFT, #1
+	msr	ERXCTLR_EL1, x1
+
+	/* Select error record 1 and clear ED bit */
+	mov	x0, #1
+	msr	ERRSELR_EL1, x0
+	mrs	x1, ERXCTLR_EL1
+	bfi	x1, xzr, #ERXCTLR_ED_SHIFT, #1
+	msr	ERXCTLR_EL1, x1
+
+	/* Restore ERRSELR_EL1 from x2 */
+	msr	ERRSELR_EL1, x2
+
+1:
+	ret     x17
+endfunc errata_a710_2008768_wa
+
+func check_errata_2008768
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov     x1, #0x20
+	b       cpu_rev_var_ls
+endfunc check_errata_2008768
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -324,6 +367,14 @@ endfunc check_errata_cve_2022_23960
 	 * ----------------------------------------------------
 	 */
 func cortex_a710_core_pwr_dwn
+
+#if ERRATA_A710_2008768
+	mov	x4, x30
+	bl	cpu_get_rev_var
+	bl	errata_a710_2008768_wa
+	mov	x30, x4
+#endif
+
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
@@ -358,6 +409,7 @@ func cortex_a710_errata_report
 	report_errata ERRATA_A710_2267065, cortex_a710, 2267065
 	report_errata ERRATA_A710_2136059, cortex_a710, 2136059
 	report_errata ERRATA_A710_2282622, cortex_a710, 2282622
+	report_errata ERRATA_A710_2008768, cortex_a710, 2008768
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a710, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
