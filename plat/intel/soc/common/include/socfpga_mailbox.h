@@ -40,6 +40,7 @@
 #define MBOX_CMD_SYNC			0x01
 #define MBOX_CMD_RESTART		0x02
 #define MBOX_CMD_CANCEL			0x03
+#define MBOX_CMD_VAB_SRC_CERT		0x0B
 #define MBOX_CMD_GET_IDCODE		0x10
 #define MBOX_CMD_REBOOT_HPS		0x47
 
@@ -61,6 +62,11 @@
 #define MBOX_RSU_UPDATE			0x5C
 #define MBOX_HPS_STAGE_NOTIFY		0x5D
 
+/* FCS Command */
+#define MBOX_FCS_GET_PROVISION			0x7B
+#define MBOX_FCS_ENCRYPT_REQ			0x7E
+#define MBOX_FCS_DECRYPT_REQ			0x7F
+#define MBOX_FCS_RANDOM_GEN			0x80
 
 /* Mailbox Definitions */
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,6 +30,8 @@
 #define SOCFPGA_SYSMGR_BOOT_SCRATCH_COLD_0		0x200
 #define SOCFPGA_SYSMGR_BOOT_SCRATCH_COLD_1		0x204
 #define SOCFPGA_SYSMGR_BOOT_SCRATCH_COLD_2		0x208
+#define SOCFPGA_SYSMGR_BOOT_SCRATCH_COLD_8		0x220
+#define SOCFPGA_SYSMGR_BOOT_SCRATCH_COLD_9		0x224
 
 /* Field Masking */
 
@@ -46,6 +48,10 @@
 #define DISABLE_L4_FIREWALL	(SCR_AXI_AP_MASK | SCR_FPGA2SOC_MASK \
 					| SCR_MPU_MASK)
 #define DISABLE_BRIDGE_FIREWALL				0x0ffe0101
+
+#define SYSMGR_ECC_OCRAM_MASK				BIT(1)
+#define SYSMGR_ECC_DDR0_MASK				BIT(16)
+#define SYSMGR_ECC_DDR1_MASK				BIT(17)
 
 /* Macros */
 

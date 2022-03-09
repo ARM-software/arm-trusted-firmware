@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,7 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_plat_def.h"
 #include "socfpga_reset_manager.h"
-
+#include "socfpga_sip_svc.h"
 
 
 /*******************************************************************************
@@ -151,6 +151,9 @@ static void __dead2 socfpga_system_reset(void)
 static int socfpga_system_reset2(int is_vendor, int reset_type,
 					u_register_t cookie)
 {
+	if (cold_reset_for_ecc_dbe()) {
+		mailbox_reset_cold();
+	}
 	/* disable cpuif */
 	gicv2_cpuif_disable();
 

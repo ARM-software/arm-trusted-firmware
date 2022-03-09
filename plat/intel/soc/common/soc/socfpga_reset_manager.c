@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -134,7 +134,7 @@ int socfpga_bridges_disable(void)
 #if PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
 	mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
 		~(RSTMGR_FIELD(BRG, DDRSCH) | RSTMGR_FIELD(BRG, FPGA2SOC)));
-#elif PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX
+#else
 	mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
 		~(RSTMGR_FIELD(BRG, MPFE) | RSTMGR_FIELD(BRG, FPGA2SOC)));
 #endif

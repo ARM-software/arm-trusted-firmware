@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
-# Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+# Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -63,9 +63,12 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_sip_svc.c			\
 		plat/intel/soc/common/socfpga_topology.c		\
+		plat/intel/soc/common/sip/socfpga_sip_ecc.c		\
+		plat/intel/soc/common/sip/socfpga_sip_fcs.c		\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/soc/socfpga_reset_manager.c
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1
+SIMICS_BUILD			:= 0
 USE_COHERENT_MEM		:= 1

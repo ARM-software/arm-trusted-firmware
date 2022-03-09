@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,8 @@
 #define INTEL_SIP_SMC_STATUS_ERROR			0x4
 #define INTEL_SIP_SMC_RSU_ERROR				0x7
 
+/* SiP mailbox error code */
+#define GENERIC_RESPONSE_ERROR				0x3FF
 
 /* SMC SiP service function identifier */
 
@@ -35,6 +37,12 @@
 #define INTEL_SIP_SMC_RSU_UPDATE			0xC200000C
 #define INTEL_SIP_SMC_RSU_NOTIFY			0xC200000E
 #define INTEL_SIP_SMC_RSU_RETRY_COUNTER			0xC200000F
+#define INTEL_SIP_SMC_RSU_DCMF_VERSION			0xC2000010
+#define INTEL_SIP_SMC_RSU_COPY_DCMF_VERSION		0xC2000011
+
+
+/* ECC */
+#define INTEL_SIP_SMC_ECC_DBE				0xC200000D
 
 /* Send Mailbox Command */
 #define INTEL_SIP_SMC_MBOX_SEND_CMD			0xC200001E
@@ -42,9 +50,11 @@
 
 /* SiP Definitions */
 
-/* FPGA config helpers */
-#define INTEL_SIP_SMC_FPGA_CONFIG_ADDR			0x400000
-#define INTEL_SIP_SMC_FPGA_CONFIG_SIZE			0x2000000
+/* ECC DBE */
+#define WARM_RESET_WFI_FLAG				BIT(31)
+#define SYSMGR_ECC_DBE_COLD_RST_MASK		(SYSMGR_ECC_OCRAM_MASK |\
+							SYSMGR_ECC_DDR0_MASK |\
+							SYSMGR_ECC_DDR1_MASK)
 
 /* SMC function IDs for SiP Service queries */
 #define SIP_SVC_CALL_COUNT	0x8200ff00
@@ -69,5 +79,9 @@ struct fpga_config_info {
 /* Function Definitions */
 
 bool is_address_in_ddr_range(uint64_t addr, uint64_t size);
+
+/* ECC DBE */
+bool cold_reset_for_ecc_dbe(void);
+uint32_t intel_ecc_dbe_notification(uint64_t dbe_value);
 
 #endif /* SOCFPGA_SIP_SVC_H */

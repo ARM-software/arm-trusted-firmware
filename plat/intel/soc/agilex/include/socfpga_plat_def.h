@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,10 @@
 /* Platform Setting */
 #define PLATFORM_MODEL				PLAT_SOCFPGA_AGILEX
 #define BOOT_SOURCE				BOOT_SOURCE_SDMMC
+
+/* FPGA config helpers */
+#define INTEL_SIP_SMC_FPGA_CONFIG_ADDR		0x400000
+#define INTEL_SIP_SMC_FPGA_CONFIG_SIZE		0x2000000
 
 /* Register Mapping */
 #define SOCFPGA_MMC_REG_BASE			0xff808000

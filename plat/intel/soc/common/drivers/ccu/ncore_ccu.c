@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -107,6 +107,17 @@ void bypass_ocram_firewall(void)
 			OCRAM_PRIVILEGED_MASK | OCRAM_SECURE_MASK);
 }
 
+void ncore_enable_ocram_firewall(void)
+{
+	mmio_setbits_32(COH_CPU0_BYPASS_REG(NCORE_FW_OCRAM_BLK_CGF1),
+			OCRAM_PRIVILEGED_MASK | OCRAM_SECURE_MASK);
+	mmio_setbits_32(COH_CPU0_BYPASS_REG(NCORE_FW_OCRAM_BLK_CGF2),
+			OCRAM_PRIVILEGED_MASK | OCRAM_SECURE_MASK);
+	mmio_setbits_32(COH_CPU0_BYPASS_REG(NCORE_FW_OCRAM_BLK_CGF3),
+			OCRAM_PRIVILEGED_MASK | OCRAM_SECURE_MASK);
+	mmio_setbits_32(COH_CPU0_BYPASS_REG(NCORE_FW_OCRAM_BLK_CGF4),
+			OCRAM_PRIVILEGED_MASK | OCRAM_SECURE_MASK);
+}
 uint32_t init_ncore_ccu(void)
 {
 	uint32_t status;
