@@ -141,6 +141,41 @@ func check_errata_2376748
 	b	cpu_rev_var_range
 endfunc check_errata_2376748
 
+/* --------------------------------------------------
+ * Errata Workaround for A78 AE Erratum 2395408.
+ * This applies to revisions r0p0 and r0p1 of A78 AE.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_a78_ae_2395408_wa
+	/* Compare x0 against revisions r0p0 - r0p1 */
+	mov	x17, x30
+	bl	check_errata_2395408
+	cbz	x0, 1f
+
+	/* --------------------------------------------------------
+	 * Disable folding of demand requests into older prefetches
+	 * with L2 miss requests outstanding by setting the
+	 * CPUACTLR2_EL1[40] to 1.
+	 * --------------------------------------------------------
+	 */
+	mrs	x0, CORTEX_A78_AE_ACTLR2_EL1
+	orr	x0, x0, #CORTEX_A78_AE_ACTLR2_EL1_BIT_40
+	msr	CORTEX_A78_AE_ACTLR2_EL1, x0
+	isb
+1:
+	ret	x17
+endfunc errata_a78_ae_2395408_wa
+
+func check_errata_2395408
+	/* Applies to revisions r0p0 and r0p1. */
+	mov	x1, #CPU_REV(0, 0)
+	mov	x2, #CPU_REV(0, 1)
+	b	cpu_rev_var_range
+endfunc check_errata_2395408
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -172,6 +207,11 @@ func cortex_a78_ae_reset_func
 #if ERRATA_A78_AE_2376748
 	mov	x0, x18
 	bl	errata_a78_ae_2376748_wa
+#endif
+
+#if ERRATA_A78_AE_2395408
+	mov	x0, x18
+	bl	errata_a78_ae_2395408_wa
 #endif
 
 #if ENABLE_AMU
@@ -240,6 +280,7 @@ func cortex_a78_ae_errata_report
 	report_errata ERRATA_A78_AE_1941500, cortex_a78_ae, 1941500
 	report_errata ERRATA_A78_AE_1951502, cortex_a78_ae, 1951502
 	report_errata ERRATA_A78_AE_2376748, cortex_a78_ae, 2376748
+	report_errata ERRATA_A78_AE_2395408, cortex_a78_ae, 2395408
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a78_ae, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16

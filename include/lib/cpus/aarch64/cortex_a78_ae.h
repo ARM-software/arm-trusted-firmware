@@ -26,5 +26,6 @@
  ******************************************************************************/
 #define CORTEX_A78_AE_ACTLR2_EL1			CORTEX_A78_ACTLR2_EL1
 #define CORTEX_A78_AE_ACTLR2_EL1_BIT_0			CORTEX_A78_ACTLR2_EL1_BIT_0
+#define CORTEX_A78_AE_ACTLR2_EL1_BIT_40			CORTEX_A78_ACTLR2_EL1_BIT_40
 
 #endif /* CORTEX_A78_AE_H */

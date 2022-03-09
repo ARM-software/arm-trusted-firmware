@@ -38,6 +38,7 @@
 #define CORTEX_A78_ACTLR2_EL1_BIT_0			(ULL(1) << 0)
 #define CORTEX_A78_ACTLR2_EL1_BIT_1			(ULL(1) << 1)
 #define CORTEX_A78_ACTLR2_EL1_BIT_2			(ULL(1) << 2)
+#define CORTEX_A78_ACTLR2_EL1_BIT_40			(ULL(1) << 40)
 
 /*******************************************************************************
  * CPU Activity Monitor Unit register specific definitions.

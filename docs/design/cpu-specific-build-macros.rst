@@ -310,6 +310,10 @@ For Cortex-A78 AE, the following errata build flags are defined :
   Cortex-A78 AE CPU. This needs to be enabled for revisions r0p0 and r0p1. This
   erratum is still open.
 
+- ``ERRATA_A78_AE_2395408`` : This applies errata 2395408 workaround to
+  Cortex-A78 AE CPU. This needs to be enabled for revisions r0p0 and r0p1. This
+  erratum is still open.
+
 For Neoverse N1, the following errata build flags are defined :
 
 -  ``ERRATA_N1_1073348``: This applies errata 1073348 workaround to Neoverse-N1
