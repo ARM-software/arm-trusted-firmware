@@ -35,6 +35,7 @@
 #define CORTEX_A78_ACTLR_TAM_BIT			(ULL(1) << 30)
 
 #define CORTEX_A78_ACTLR2_EL1				S3_0_C15_C1_1
+#define CORTEX_A78_ACTLR2_EL1_BIT_0			(ULL(1) << 0)
 #define CORTEX_A78_ACTLR2_EL1_BIT_1			(ULL(1) << 1)
 #define CORTEX_A78_ACTLR2_EL1_BIT_2			(ULL(1) << 2)
 

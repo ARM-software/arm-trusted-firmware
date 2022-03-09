@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
- * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2021-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,5 +20,11 @@
  ******************************************************************************/
 #define CORTEX_A78_AE_CPUECTLR_EL1			CORTEX_A78_CPUECTLR_EL1
 #define CORTEX_A78_AE_CPUECTLR_EL1_BIT_8		CORTEX_A78_CPUECTLR_EL1_BIT_8
+
+/*******************************************************************************
+ * CPU Auxiliary Control register 2 specific definitions.
+ ******************************************************************************/
+#define CORTEX_A78_AE_ACTLR2_EL1			CORTEX_A78_ACTLR2_EL1
+#define CORTEX_A78_AE_ACTLR2_EL1_BIT_0			CORTEX_A78_ACTLR2_EL1_BIT_0
 
 #endif /* CORTEX_A78_AE_H */

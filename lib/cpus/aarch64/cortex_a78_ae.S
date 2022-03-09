@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
- * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2021-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,6 +104,43 @@ func check_errata_1951502
 	b	cpu_rev_var_range
 endfunc check_errata_1951502
 
+/* --------------------------------------------------
+ * Errata Workaround for A78 AE Erratum 2376748.
+ * This applies to revisions r0p0 and r0p1 of A78 AE.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_a78_ae_2376748_wa
+	/* Compare x0 against revisions r0p0 - r0p1 */
+	mov	x17, x30
+	bl	check_errata_2376748
+	cbz	x0, 1f
+
+	/* -------------------------------------------------------
+	 * Set CPUACTLR2_EL1[0] to 1 to force PLDW/PFRM ST to
+	 * behave like PLD/PRFM LD and not cause invalidations to
+	 * other PE caches. There might be a small performance
+	 * degradation to this workaround for certain workloads
+	 * that share data.
+	 * -------------------------------------------------------
+	 */
+	mrs	x0, CORTEX_A78_AE_ACTLR2_EL1
+	orr	x0, x0, #CORTEX_A78_AE_ACTLR2_EL1_BIT_0
+	msr	CORTEX_A78_AE_ACTLR2_EL1, x0
+	isb
+1:
+	ret	x17
+endfunc errata_a78_ae_2376748_wa
+
+func check_errata_2376748
+	/* Applies to revisions r0p0 and r0p1. */
+	mov	x1, #CPU_REV(0, 0)
+	mov	x2, #CPU_REV(0, 1)
+	b	cpu_rev_var_range
+endfunc check_errata_2376748
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -130,6 +167,11 @@ func cortex_a78_ae_reset_func
 #if ERRATA_A78_AE_1951502
 	mov	x0, x18
 	bl	errata_a78_ae_1951502_wa
+#endif
+
+#if ERRATA_A78_AE_2376748
+	mov	x0, x18
+	bl	errata_a78_ae_2376748_wa
 #endif
 
 #if ENABLE_AMU
@@ -197,6 +239,7 @@ func cortex_a78_ae_errata_report
 	 */
 	report_errata ERRATA_A78_AE_1941500, cortex_a78_ae, 1941500
 	report_errata ERRATA_A78_AE_1951502, cortex_a78_ae, 1951502
+	report_errata ERRATA_A78_AE_2376748, cortex_a78_ae, 2376748
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a78_ae, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
