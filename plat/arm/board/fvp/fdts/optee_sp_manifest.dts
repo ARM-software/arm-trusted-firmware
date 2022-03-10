@@ -40,11 +40,5 @@
 			pages-count = <1>;
 			attributes = <0x3>; /* read-write */
 		};
-
-		gicd {
-			base-address = <0x00000000 0x2f000000>;
-			pages-count = <16>;
-			attributes = <0x3>; /* read-write */
-		};
 	};
 };
