@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,9 @@
 void __init bl31_early_platform_setup2(u_register_t arg0,
 		u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
+	/* Initialize the console to provide early debug support */
+	arm_console_boot_init();
+
 #if !RESET_TO_BL31 && !BL2_AT_EL3
 	const struct dyn_cfg_dtb_info_t *soc_fw_config_info;
 
