@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,16 +24,9 @@
 
 #define SOC_CSS_PCIE_CONTROL_BASE	UL(0x0ef20000)
 
-/* PL011 UART related constants */
-#define SOC_CSS_UART1_BASE		UL(0x0ef80000)
-#define SOC_CSS_UART0_BASE		UL(0x0ef70000)
-
 /* Memory controller */
 #define SOC_MEMCNTRL_BASE		UL(0x10000000)
 #define SOC_MEMCNTRL_SIZE		UL(0x10000000)
-
-#define SOC_CSS_UART0_CLK_IN_HZ		UL(7372800)
-#define SOC_CSS_UART1_CLK_IN_HZ		UL(7372800)
 
 /* SoC NIC-400 Global Programmers View (GPV) */
 #define SOC_CSS_NIC400_BASE		UL(0x0ED00000)
@@ -205,18 +198,5 @@
 
 #define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
 #define PLAT_ARM_NVM_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
-
-/* UART related constants */
-#define PLAT_ARM_BOOT_UART_BASE			SOC_CSS_UART0_BASE
-#define PLAT_ARM_BOOT_UART_CLK_IN_HZ		SOC_CSS_UART0_CLK_IN_HZ
-
-#define PLAT_ARM_RUN_UART_BASE			SOC_CSS_UART1_BASE
-#define PLAT_ARM_RUN_UART_CLK_IN_HZ		SOC_CSS_UART1_CLK_IN_HZ
-
-#define PLAT_ARM_SP_MIN_RUN_UART_BASE		SOC_CSS_UART1_BASE
-#define PLAT_ARM_SP_MIN_RUN_UART_CLK_IN_HZ	SOC_CSS_UART1_CLK_IN_HZ
-
-#define PLAT_ARM_CRASH_UART_BASE		PLAT_ARM_RUN_UART_BASE
-#define PLAT_ARM_CRASH_UART_CLK_IN_HZ		PLAT_ARM_RUN_UART_CLK_IN_HZ
 
 #endif /* SGI_SOC_CSS_DEF_V2_H */

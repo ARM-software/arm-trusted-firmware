@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -89,6 +89,7 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	PLAT_ARM_SECURE_MAP_SYSTEMREG,
 	PLAT_ARM_SECURE_MAP_NOR2,
+	SOC_PLATFORM_SECURE_UART,
 	PLAT_ARM_SECURE_MAP_DEVICE,
 	ARM_SP_IMAGE_MMAP,
 	ARM_SP_IMAGE_NS_BUF_MMAP,
