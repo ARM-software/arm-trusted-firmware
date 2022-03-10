@@ -220,8 +220,6 @@ MBEDTLS_CHECK := $(shell find ${MBEDTLS_DIR}/include -name '${MBEDTLS_DIR}')
 ifneq (${MBEDTLS_CHECK},)
 $(info Found mbedTLS at ${MBEDTLS_DIR})
 PLAT_INCLUDES += -I${MBEDTLS_DIR}/include/mbedtls
-# Specify mbedTLS configuration file
-MBEDTLS_CONFIG_FILE	:=	"<brcm_mbedtls_config.h>"
 
 # By default, use RSA keys
 KEY_ALG := rsa_1_5
