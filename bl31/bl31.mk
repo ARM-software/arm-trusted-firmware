@@ -148,8 +148,9 @@ BL31_SOURCES		+=	common/feat_detect.c
 endif
 
 ifeq (${DRTM_SUPPORT},1)
-BL31_SOURCES		+=	services/std_svc/drtm/drtm_main.c	\
-				services/std_svc/drtm/drtm_dma_prot.c	\
+BL31_SOURCES		+=	services/std_svc/drtm/drtm_main.c		\
+				services/std_svc/drtm/drtm_dma_prot.c		\
+				services/std_svc/drtm/drtm_res_address_map.c	\
 				${MBEDTLS_SOURCES}
 endif
 

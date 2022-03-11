@@ -403,4 +403,14 @@
  */
 #define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
 
+/*
+ * Maximum size of Event Log buffer used for DRTM
+ */
+#define PLAT_DRTM_EVENT_LOG_MAX_SIZE		UL(0x300)
+
+/*
+ * Number of MMAP entries used by DRTM implementation
+ */
+#define PLAT_DRTM_MMAP_ENTRIES			PLAT_ARM_MMAP_ENTRIES
+
 #endif /* PLATFORM_DEF_H */

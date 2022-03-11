@@ -415,6 +415,8 @@ endif
 
 ifeq (${DRTM_SUPPORT}, 1)
 BL31_SOURCES   += plat/arm/board/fvp/fvp_drtm_dma_prot.c	\
+		  plat/arm/board/fvp/fvp_drtm_measurement.c	\
+		  plat/arm/board/fvp/fvp_drtm_stub.c	\
 		  plat/arm/common/arm_dyn_cfg.c
 endif
 

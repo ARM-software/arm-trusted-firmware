@@ -23,4 +23,15 @@ enum drtm_retc {
 	MEM_PROTECT_INVALID = -6,
 };
 
+typedef struct {
+	uint64_t tpm_features;
+	uint64_t minimum_memory_requirement;
+	uint64_t dma_prot_features;
+	uint64_t boot_pe_id;
+	uint64_t tcb_hash_features;
+} drtm_features_t;
+
+drtm_memory_region_descriptor_table_t *drtm_build_address_map(void);
+uint64_t drtm_get_address_map_size(void);
+
 #endif /* DRTM_MAIN_H */

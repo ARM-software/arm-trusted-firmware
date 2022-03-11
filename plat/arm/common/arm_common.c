@@ -237,3 +237,7 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 }
 #endif
 
+const mmap_region_t *plat_get_addr_mmap(void)
+{
+	return plat_arm_mmap;
+}
