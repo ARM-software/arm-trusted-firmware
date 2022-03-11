@@ -379,19 +379,21 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 		stm32_sdmmc2_mmc_get_device_size();
 
 #if STM32MP_EMMC_BOOT
-	magic = get_boot_part_ssbl_header();
+	if (mmc_dev_type == MMC_IS_EMMC) {
+		magic = get_boot_part_ssbl_header();
 
-	if (magic == BOOT_API_IMAGE_HEADER_MAGIC_NB) {
-		VERBOSE("%s, header found, jump to emmc load\n", __func__);
-		idx = IMG_IDX_BL33;
-		part = &stm32image_dev_info_spec.part_info[idx];
-		part->part_offset = PLAT_EMMC_BOOT_SSBL_OFFSET;
-		part->bkp_offset = 0U;
-		mmc_device_spec.use_boot_part = true;
+		if (magic == BOOT_API_IMAGE_HEADER_MAGIC_NB) {
+			VERBOSE("%s, header found, jump to emmc load\n", __func__);
+			idx = IMG_IDX_BL33;
+			part = &stm32image_dev_info_spec.part_info[idx];
+			part->part_offset = PLAT_EMMC_BOOT_SSBL_OFFSET;
+			part->bkp_offset = 0U;
+			mmc_device_spec.use_boot_part = true;
 
-		goto emmc_boot;
-	} else {
-		WARN("%s: Can't find STM32 header on a boot partition\n", __func__);
+			goto emmc_boot;
+		} else {
+			WARN("%s: Can't find STM32 header on a boot partition\n", __func__);
+		}
 	}
 #endif
 
