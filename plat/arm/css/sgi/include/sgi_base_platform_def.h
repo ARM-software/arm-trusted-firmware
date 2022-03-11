@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -130,21 +130,6 @@
 # define PLATFORM_STACK_SIZE 0x440
 #endif
 
-/* PL011 UART related constants */
-#define SOC_CSS_SEC_UART_BASE			UL(0x2A410000)
-#define SOC_CSS_NSEC_UART_BASE			UL(0x2A400000)
-#define SOC_CSS_UART_SIZE			UL(0x10000)
-#define SOC_CSS_UART_CLK_IN_HZ			UL(7372800)
-
-/* UART related constants */
-#define PLAT_ARM_BOOT_UART_BASE			SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_BOOT_UART_CLK_IN_HZ		SOC_CSS_UART_CLK_IN_HZ
-
-#define PLAT_ARM_RUN_UART_BASE			SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_RUN_UART_CLK_IN_HZ		SOC_CSS_UART_CLK_IN_HZ
-
-#define PLAT_ARM_CRASH_UART_BASE		SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_CRASH_UART_CLK_IN_HZ		SOC_CSS_UART_CLK_IN_HZ
 
 #define PLAT_ARM_NSTIMER_FRAME_ID	0
 
