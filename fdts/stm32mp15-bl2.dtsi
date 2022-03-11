@@ -46,7 +46,7 @@
 		/delete-node/ i2c@5c009000;
 		/delete-node/ tamp@5c00a000;
 
-		pin-controller@50002000 {
+		pinctrl@50002000 {
 #if !STM32MP_RAW_NAND
 			/delete-node/ fmc-0;
 #endif

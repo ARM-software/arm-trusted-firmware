@@ -27,7 +27,7 @@
 		/delete-node/ stgen@5c008000;
 		/delete-node/ i2c@5c009000;
 
-		pin-controller@50002000 {
+		pinctrl@50002000 {
 			/delete-node/ fmc-0;
 			/delete-node/ qspi-clk-0;
 			/delete-node/ qspi-bk1-0;
