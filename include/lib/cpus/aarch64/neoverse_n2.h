@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,9 @@
 
 /* Neoverse N2 ID register for revision r0p0 */
 #define NEOVERSE_N2_MIDR				U(0x410FD490)
+
+/* Neoverse N2 loop count for CVE-2022-23960 mitigation */
+#define NEOVERSE_N2_BHB_LOOP_COUNT			U(32)
 
 /*******************************************************************************
  * CPU Power control register

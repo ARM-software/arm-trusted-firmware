@@ -9,6 +9,9 @@
 
 #define CORTEX_X2_MIDR						U(0x410FD480)
 
+/* Cortex-X2 loop count for CVE-2022-23960 mitigation */
+#define CORTEX_X2_BHB_LOOP_COUNT       				U(32)
+
 /*******************************************************************************
  * CPU Extended Control register specific definitions
  ******************************************************************************/

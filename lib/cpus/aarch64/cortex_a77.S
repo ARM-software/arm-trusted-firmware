@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <cortex_a77.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+#include "wa_cve_2022_23960_bhb_vector.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -20,6 +21,10 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex-A77 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+#if WORKAROUND_CVE_2022_23960
+	wa_cve_2022_23960_bhb_vector_table CORTEX_A77_BHB_LOOP_COUNT, cortex_a77
+#endif /* WORKAROUND_CVE_2022_23960 */
 
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A77 Errata #1508412.
@@ -194,6 +199,15 @@ func check_errata_1791578
 	b	cpu_rev_var_ls
 endfunc check_errata_1791578
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A77.
 	 * Shall clobber: x0-x19
@@ -224,6 +238,16 @@ func cortex_a77_reset_func
 	bl	errata_a77_1791578_wa
 #endif
 
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Cortex-A77 generic vectors are overridden to apply errata
+         * mitigation on exception entry from lower ELs.
+	 */
+	adr	x0, wa_cve_vbar_cortex_a77
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+
+	isb
 	ret	x19
 endfunc cortex_a77_reset_func
 
@@ -261,6 +285,7 @@ func cortex_a77_errata_report
 	report_errata ERRATA_A77_1925769, cortex_a77, 1925769
 	report_errata ERRATA_A77_1946167, cortex_a77, 1946167
 	report_errata ERRATA_A77_1791578, cortex_a77, 1791578
+	report_errata WORKAROUND_CVE_2022_23960, cortex_a77, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
 	ret

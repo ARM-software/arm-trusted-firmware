@@ -24,6 +24,7 @@ A57_ENABLE_NONCACHEABLE_LOAD_FWD	?= 0
 WORKAROUND_CVE_2017_5715		?=1
 WORKAROUND_CVE_2018_3639		?=1
 DYNAMIC_WORKAROUND_CVE_2018_3639	?=0
+WORKAROUND_CVE_2022_23960		?=1
 
 # Flags to indicate internal or external Last level cache
 # By default internal
@@ -55,6 +56,10 @@ $(eval $(call add_define,WORKAROUND_CVE_2018_3639))
 
 $(eval $(call assert_boolean,DYNAMIC_WORKAROUND_CVE_2018_3639))
 $(eval $(call add_define,DYNAMIC_WORKAROUND_CVE_2018_3639))
+
+# Process WORKAROUND_CVE_2022_23960 flag
+$(eval $(call assert_boolean,WORKAROUND_CVE_2022_23960))
+$(eval $(call add_define,WORKAROUND_CVE_2022_23960))
 
 $(eval $(call assert_boolean,NEOVERSE_Nx_EXTERNAL_LLC))
 $(eval $(call add_define,NEOVERSE_Nx_EXTERNAL_LLC))

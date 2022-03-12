@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 #include <cpu_macros.S>
 #include <neoverse_n2.h>
+#include "wa_cve_2022_23960_bhb_vector.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -18,6 +19,10 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Neoverse-N2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+#if WORKAROUND_CVE_2022_23960
+	wa_cve_2022_23960_bhb_vector_table NEOVERSE_N2_BHB_LOOP_COUNT, neoverse_n2
+#endif /* WORKAROUND_CVE_2022_23960 */
 
 /* --------------------------------------------------
  * Errata Workaround for Neoverse N2 Erratum 2002655.
@@ -333,6 +338,15 @@ func check_errata_2280757
 	b	cpu_rev_var_ls
 endfunc check_errata_2280757
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
+
 	/* -------------------------------------------
 	 * The CPU Ops reset function for Neoverse N2.
 	 * -------------------------------------------
@@ -428,6 +442,15 @@ func neoverse_n2_reset_func
 	bl	errata_n2_2002655_wa
 #endif
 
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Neoverse-N2 generic vectors are overridden to apply errata
+         * mitigation on exception entry from lower ELs.
+	 */
+	adr	x0, wa_cve_vbar_neoverse_n2
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+
 	isb
 	ret	x19
 endfunc neoverse_n2_reset_func
@@ -469,6 +492,7 @@ func neoverse_n2_errata_report
 	report_errata ERRATA_N2_2138958, neoverse_n2, 2138958
 	report_errata ERRATA_N2_2242400, neoverse_n2, 2242400
 	report_errata ERRATA_N2_2280757, neoverse_n2, 2280757
+	report_errata WORKAROUND_CVE_2022_23960, neoverse_n2, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
 	ret

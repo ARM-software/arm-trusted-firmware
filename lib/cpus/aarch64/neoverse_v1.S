@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <neoverse_v1.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+#include "wa_cve_2022_23960_bhb_vector.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -20,6 +21,10 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Neoverse-V1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+#if WORKAROUND_CVE_2022_23960
+	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V1_BHB_LOOP_COUNT, neoverse_v1
+#endif /* WORKAROUND_CVE_2022_23960 */
 
 	/* --------------------------------------------------
 	 * Errata Workaround for Neoverse V1 Errata #1774420.
@@ -325,6 +330,15 @@ func check_errata_2216392
 	b	cpu_rev_var_range
 endfunc check_errata_2216392
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -364,6 +378,7 @@ func neoverse_v1_errata_report
 	report_errata ERRATA_V1_2139242, neoverse_v1, 2139242
 	report_errata ERRATA_V1_2108267, neoverse_v1, 2108267
 	report_errata ERRATA_V1_2216392, neoverse_v1, 2216392
+	report_errata WORKAROUND_CVE_2022_23960, neoverse_v1, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -422,6 +437,16 @@ func neoverse_v1_reset_func
 	bl	errata_neoverse_v1_2216392_wa
 #endif
 
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Neoverse-V1 generic vectors are overridden to apply errata
+         * mitigation on exception entry from lower ELs.
+	 */
+	adr	x0, wa_cve_vbar_neoverse_v1
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+
+	isb
 	ret	x19
 endfunc neoverse_v1_reset_func
 
