@@ -361,7 +361,7 @@ static const scmi_msg_handler_t scmi_clock_handler_table[] = {
 	[SCMI_CLOCK_CONFIG_SET] = scmi_clock_config_set,
 };
 
-static bool message_id_is_supported(size_t message_id)
+static bool message_id_is_supported(unsigned int message_id)
 {
 	return (message_id < ARRAY_SIZE(scmi_clock_handler_table)) &&
 	       (scmi_clock_handler_table[message_id] != NULL);

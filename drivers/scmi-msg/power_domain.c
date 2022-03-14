@@ -19,7 +19,7 @@
 #pragma weak plat_scmi_pd_statistics
 #pragma weak plat_scmi_pd_get_attributes
 
-static bool message_id_is_supported(size_t message_id);
+static bool message_id_is_supported(unsigned int message_id);
 
 size_t plat_scmi_pd_count(unsigned int agent_id __unused)
 {
@@ -219,7 +219,7 @@ static const scmi_msg_handler_t scmi_pd_handler_table[] = {
 	[SCMI_PD_STATE_GET] = scmi_pd_state_get,
 };
 
-static bool message_id_is_supported(size_t message_id)
+static bool message_id_is_supported(unsigned int message_id)
 {
 	return (message_id < ARRAY_SIZE(scmi_pd_handler_table)) &&
 	       (scmi_pd_handler_table[message_id] != NULL);
