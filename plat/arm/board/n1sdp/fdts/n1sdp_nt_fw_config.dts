@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2022, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+/ {
+	/* compatible string */
+	compatible = "arm,n1sdp";
+
+	/*
+	 * Place holder for platform-info node with default values.
+	 * The values will be set to the correct values during
+	 * the BL2 stage of boot.
+	 */
+	platform-info {
+		multichip-mode = <0x0>;
+		secondary-chip-count = <0x0>;
+		local-ddr-size = <0x0>;
+		remote-ddr-size = <0x0>;
+	};
+};

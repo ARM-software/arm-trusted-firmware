@@ -158,12 +158,4 @@ void bl31_platform_setup(void)
 	/* Check if remote memory is present */
 	if ((plat_info.multichip_mode) && (plat_info.remote_ddr_size != 0))
 		remote_dmc_ecc_setup(plat_info.remote_ddr_size);
-	/*
-	 * Pass platform information to BL33. This method is followed as
-	 * currently there is no BL1/BL2 involved in boot flow of N1SDP.
-	 * When TBBR is implemented for N1SDP, this method should be removed
-	 * and platform information should be passed to BL33 using NT_FW_CONFIG
-	 * passing mechanism.
-	 */
-	mmio_write_32(N1SDP_PLATFORM_INFO_BASE, *(uint32_t *)&plat_info);
 }

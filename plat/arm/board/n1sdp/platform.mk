@@ -40,6 +40,7 @@ BL2_SOURCES		:=	${N1SDP_BASE}/n1sdp_security.c      \
 				${N1SDP_BASE}/n1sdp_trusted_boot.c  \
 				lib/utils/mem_region.c              \
 				${N1SDP_BASE}/n1sdp_bl2_setup.c     \
+				${N1SDP_BASE}/n1sdp_image_load.c     \
 				drivers/arm/css/sds/sds.c
 
 BL31_SOURCES		:=	${N1SDP_CPU_SOURCES}			\
@@ -52,16 +53,20 @@ BL31_SOURCES		:=	${N1SDP_CPU_SOURCES}			\
 
 FDT_SOURCES		+=	fdts/${PLAT}-single-chip.dts	\
 				fdts/${PLAT}-multi-chip.dts	\
-				${N1SDP_BASE}/fdts/n1sdp_fw_config.dts      \
-				${N1SDP_BASE}/fdts/n1sdp_tb_fw_config.dts
+				${N1SDP_BASE}/fdts/n1sdp_fw_config.dts	\
+				${N1SDP_BASE}/fdts/n1sdp_tb_fw_config.dts	\
+				${N1SDP_BASE}/fdts/n1sdp_nt_fw_config.dts
 
 FW_CONFIG		:=	${BUILD_PLAT}/fdts/n1sdp_fw_config.dtb
 TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/n1sdp_tb_fw_config.dtb
+NT_FW_CONFIG		:=	${BUILD_PLAT}/fdts/n1sdp_nt_fw_config.dtb
 
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
+# Add the NT_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 
 # Setting to 0 as no NVCTR in N1SDP
 N1SDP_FW_NVCTR_VAL	:=	0
