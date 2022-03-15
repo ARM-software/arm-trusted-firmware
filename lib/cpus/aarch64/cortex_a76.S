@@ -7,11 +7,11 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
-#include <context.h>
 #include <cortex_a76.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 #include <services/arm_arch_svc.h>
+#include "wa_cve_2022_23960_bhb.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -35,59 +35,17 @@
 	 *
 	 * The macro saves x2-x3 to the context. In the fast path
 	 * x0-x3 registers do not need to be restored as the calling
-	 * context will have saved them.
+	 * context will have saved them. The macro also saves
+	 * x29-x30 to the context in the sync_exception path.
 	 */
 	.macro apply_cve_2018_3639_wa _is_sync_exception _esr_el3_val
 	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-
 	.if \_is_sync_exception
-		/*
-		 * Ensure SMC is coming from A64/A32 state on #0
-		 * with W0 = SMCCC_ARCH_WORKAROUND_2
-		 *
-		 * This sequence evaluates as:
-		 *    (W0==SMCCC_ARCH_WORKAROUND_2) ? (ESR_EL3==SMC#0) : (NE)
-		 * allowing use of a single branch operation
-		 */
-		orr	w2, wzr, #SMCCC_ARCH_WORKAROUND_2
-		cmp	x0, x2
-		mrs	x3, esr_el3
-		mov_imm	w2, \_esr_el3_val
-		ccmp	w2, w3, #0, eq
-		/*
-		 * Static predictor will predict a fall-through, optimizing
-		 * the `SMCCC_ARCH_WORKAROUND_2` fast path.
-		 */
-		bne	1f
-
-		/*
-		 * The sequence below implements the `SMCCC_ARCH_WORKAROUND_2`
-		 * fast path.
-		 */
-		cmp	x1, xzr /* enable/disable check */
-
-		/*
-		 * When the calling context wants mitigation disabled,
-		 * we program the mitigation disable function in the
-		 * CPU context, which gets invoked on subsequent exits from
-		 * EL3 via the `el3_exit` function. Otherwise NULL is
-		 * programmed in the CPU context, which results in caller's
-		 * inheriting the EL3 mitigation state (enabled) on subsequent
-		 * `el3_exit`.
-		 */
-		mov	x0, xzr
-		adr	x1, cortex_a76_disable_wa_cve_2018_3639
-		csel	x1, x1, x0, eq
-		str	x1, [sp, #CTX_CVE_2018_3639_OFFSET + CTX_CVE_2018_3639_DISABLE]
-
-		mrs	x2, CORTEX_A76_CPUACTLR2_EL1
-		orr	x1, x2, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
-		bic	x3, x2, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
-		csel	x3, x3, x1, eq
-		msr	CORTEX_A76_CPUACTLR2_EL1, x3
-		exception_return /* exception_return contains ISB */
+	stp	x29, x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
+	mov_imm	w2, \_esr_el3_val
+	bl	apply_cve_2018_3639_sync_wa
+	ldp	x29, x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
 	.endif
-1:
 	/*
 	 * Always enable v4 mitigation during EL3 execution. This is not
 	 * required for the fast path above because it does not perform any
@@ -105,8 +63,10 @@
 	 */
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	.endm
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
-vector_base cortex_a76_wa_cve_2018_3639_a76_vbar
+#if DYNAMIC_WORKAROUND_CVE_2018_3639 || WORKAROUND_CVE_2022_23960
+vector_base cortex_a76_wa_cve_vbar
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_EL0 : 0x0 - 0x200
@@ -153,22 +113,54 @@ end_vector_entry cortex_a76_serror_sp_elx
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry cortex_a76_sync_exception_aarch64
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=1 _esr_el3_val=ESR_EL3_A64_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	sync_exception_aarch64
 end_vector_entry cortex_a76_sync_exception_aarch64
 
 vector_entry cortex_a76_irq_aarch64
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	irq_aarch64
 end_vector_entry cortex_a76_irq_aarch64
 
 vector_entry cortex_a76_fiq_aarch64
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	fiq_aarch64
 end_vector_entry cortex_a76_fiq_aarch64
 
 vector_entry cortex_a76_serror_aarch64
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	serror_aarch64
 end_vector_entry cortex_a76_serror_aarch64
 
@@ -177,24 +169,130 @@ end_vector_entry cortex_a76_serror_aarch64
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry cortex_a76_sync_exception_aarch32
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=1 _esr_el3_val=ESR_EL3_A32_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	sync_exception_aarch32
 end_vector_entry cortex_a76_sync_exception_aarch32
 
 vector_entry cortex_a76_irq_aarch32
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	irq_aarch32
 end_vector_entry cortex_a76_irq_aarch32
 
 vector_entry cortex_a76_fiq_aarch32
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	fiq_aarch32
 end_vector_entry cortex_a76_fiq_aarch32
 
 vector_entry cortex_a76_serror_aarch32
+
+#if WORKAROUND_CVE_2022_23960
+	apply_cve_2022_23960_bhb_wa CORTEX_A76_BHB_LOOP_COUNT
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639*/
+
 	b	serror_aarch32
 end_vector_entry cortex_a76_serror_aarch32
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 || WORKAROUND_CVE_2022_23960 */
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
+	/*
+	 * -----------------------------------------------------------------
+	 * This function applies the mitigation for CVE-2018-3639
+	 * specifically for sync exceptions. It implements a fast path
+	 * where `SMCCC_ARCH_WORKAROUND_2` SMC calls from a lower EL
+	 * running in AArch64 will go through the fast and return early.
+	 *
+	 * In the fast path x0-x3 registers do not need to be restored as the
+	 * calling context will have saved them.
+	 *
+	 * Caller must pass value of esr_el3 to compare via x2.
+	 * Save and restore these registers outside of this function from the
+	 * context before jumping to the main runtime vector table entry.
+	 *
+	 * Shall clobber: x0-x3, x30
+	 * -----------------------------------------------------------------
+	 */
+func apply_cve_2018_3639_sync_wa
+	/*
+	 * Ensure SMC is coming from A64/A32 state on #0
+	 * with W0 = SMCCC_ARCH_WORKAROUND_2
+	 *
+	 * This sequence evaluates as:
+	 *    (W0==SMCCC_ARCH_WORKAROUND_2) ? (ESR_EL3==SMC#0) : (NE)
+	 * allowing use of a single branch operation
+	 * X2 populated outside this function with the SMC FID.
+	 */
+	orr	w3, wzr, #SMCCC_ARCH_WORKAROUND_2
+	cmp	x0, x3
+	mrs	x3, esr_el3
+
+	ccmp	w2, w3, #0, eq
+	/*
+	 * Static predictor will predict a fall-through, optimizing
+	 * the `SMCCC_ARCH_WORKAROUND_2` fast path.
+	 */
+	bne	1f
+
+	/*
+	* The sequence below implements the `SMCCC_ARCH_WORKAROUND_2`
+	* fast path.
+	*/
+	cmp	x1, xzr /* enable/disable check */
+
+	/*
+	 * When the calling context wants mitigation disabled,
+	 * we program the mitigation disable function in the
+	 * CPU context, which gets invoked on subsequent exits from
+	 * EL3 via the `el3_exit` function. Otherwise NULL is
+	 * programmed in the CPU context, which results in caller's
+	 * inheriting the EL3 mitigation state (enabled) on subsequent
+	 * `el3_exit`.
+	 */
+	mov	x0, xzr
+	adr	x1, cortex_a76_disable_wa_cve_2018_3639
+	csel	x1, x1, x0, eq
+	str	x1, [sp, #CTX_CVE_2018_3639_OFFSET + CTX_CVE_2018_3639_DISABLE]
+
+	mrs	x2, CORTEX_A76_CPUACTLR2_EL1
+	orr	x1, x2, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
+	bic	x3, x2, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
+	csel	x3, x3, x1, eq
+	msr	CORTEX_A76_CPUACTLR2_EL1, x3
+	ldp	x29, x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
+	/*
+	* `SMCCC_ARCH_WORKAROUND_2`fast path return to lower EL.
+	*/
+	exception_return /* exception_return contains ISB */
+1:
+	ret
+endfunc apply_cve_2018_3639_sync_wa
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
 	/* --------------------------------------------------
@@ -519,6 +617,15 @@ func check_errata_1165522
 #endif
 endfunc check_errata_1165522
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif /* WORKAROUND_CVE_2022_23960 */
+	ret
+endfunc check_errata_cve_2022_23960
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A76.
 	 * Shall clobber: x0-x19
@@ -590,15 +697,30 @@ func cortex_a76_reset_func
 	 * The Cortex-A76 generic vectors are overwritten to use the vectors
 	 * defined above. This is required in order to apply mitigation
 	 * against CVE-2018-3639 on exception entry from lower ELs.
+	 * If the below vector table is used, skip overriding it again for
+	 *  CVE_2022_23960 as both use the same vbar.
 	 */
-	adr	x0, cortex_a76_wa_cve_2018_3639_a76_vbar
+	adr	x0, cortex_a76_wa_cve_vbar
 	msr	vbar_el3, x0
 	isb
+	b	2f
 #endif /* IMAGE_BL31 */
 
 1:
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 #endif /* WORKAROUND_CVE_2018_3639 */
+
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Cortex-A76 generic vectors are overridden to apply errata
+	 * mitigation on exception entry from lower ELs. This will be bypassed
+	 * if DYNAMIC_WORKAROUND_CVE_2018_3639 has overridden the vectors.
+	 */
+	adr	x0, cortex_a76_wa_cve_vbar
+	msr	vbar_el3, x0
+	isb
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+2:
 
 #if ERRATA_DSU_798953
 	bl	errata_dsu_798953_wa
@@ -656,6 +778,7 @@ func cortex_a76_errata_report
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
 	report_errata ERRATA_DSU_798953, cortex_a76, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a76, dsu_936184
+	report_errata WORKAROUND_CVE_2022_23960, cortex_a76, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
 	ret
