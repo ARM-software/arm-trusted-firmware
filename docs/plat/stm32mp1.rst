@@ -144,6 +144,8 @@ Other configuration flags:
 
 - | ``DTB_FILE_NAME``: to precise board device-tree blob to be used.
   | Default: stm32mp157c-ev1.dtb
+- | ``DWL_BUFFER_BASE``: the 'serial boot' load address of FIP,
+  | default location (end of the first 128MB) is used when absent
 - | ``STM32MP_EARLY_CONSOLE``: to enable early traces before clock driver is setup.
   | Default: 0 (disabled)
 - | ``STM32MP_UART_BAUDRATE``: to select UART baud rate.

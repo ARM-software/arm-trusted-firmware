@@ -103,7 +103,6 @@
 #define PLAT_STM32MP_NS_IMAGE_OFFSET	BL33_BASE
 
 /* Needed by STM32CubeProgrammer support */
-#define DWL_BUFFER_BASE			(STM32MP_DDR_BASE + U(0x07000000))
 #define DWL_BUFFER_SIZE			U(0x01000000)
 
 /*
