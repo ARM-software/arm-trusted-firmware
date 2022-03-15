@@ -739,11 +739,6 @@ static void ufs_enum(void)
 	unsigned int blk_num, blk_size;
 	int i;
 
-	/* 0 means 1 slot */
-	nutrs = (mmio_read_32(ufs_params.reg_base + CAP) & CAP_NUTRS_MASK) + 1;
-	if (nutrs > (ufs_params.desc_size / UFS_DESC_SIZE))
-		nutrs = ufs_params.desc_size / UFS_DESC_SIZE;
-
 	ufs_verify_init();
 	ufs_verify_ready();
 
@@ -787,6 +782,13 @@ int ufs_init(const ufs_ops_t *ops, ufs_params_t *params)
 	       (params->desc_size >= UFS_DESC_SIZE));
 
 	memcpy(&ufs_params, params, sizeof(ufs_params_t));
+
+	/* 0 means 1 slot */
+	nutrs = (mmio_read_32(ufs_params.reg_base + CAP) & CAP_NUTRS_MASK) + 1;
+	if (nutrs > (ufs_params.desc_size / UFS_DESC_SIZE)) {
+		nutrs = ufs_params.desc_size / UFS_DESC_SIZE;
+	}
+
 
 	if (ufs_params.flags & UFS_FLAGS_SKIPINIT) {
 		result = ufshc_dme_get(0x1571, 0, &data);
