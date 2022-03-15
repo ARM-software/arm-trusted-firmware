@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,8 +35,8 @@
 # if SPM_MM
 #  define PLAT_ARM_MMAP_ENTRIES		(9  + ((CSS_SGI_CHIP_COUNT - 1) * 3))
 #  define MAX_XLAT_TABLES		(7  + ((CSS_SGI_CHIP_COUNT - 1) * 3))
-#  define PLAT_SP_IMAGE_MMAP_REGIONS	10
-#  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	12
+#  define PLAT_SP_IMAGE_MMAP_REGIONS	9
+#  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	11
 # else
 #  define PLAT_ARM_MMAP_ENTRIES		(5 + ((CSS_SGI_CHIP_COUNT - 1) * 3))
 #  define MAX_XLAT_TABLES		(6 + ((CSS_SGI_CHIP_COUNT - 1) * 3))
@@ -130,21 +130,6 @@
 # define PLATFORM_STACK_SIZE 0x440
 #endif
 
-/* PL011 UART related constants */
-#define SOC_CSS_SEC_UART_BASE			UL(0x2A410000)
-#define SOC_CSS_NSEC_UART_BASE			UL(0x2A400000)
-#define SOC_CSS_UART_SIZE			UL(0x10000)
-#define SOC_CSS_UART_CLK_IN_HZ			UL(7372800)
-
-/* UART related constants */
-#define PLAT_ARM_BOOT_UART_BASE			SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_BOOT_UART_CLK_IN_HZ		SOC_CSS_UART_CLK_IN_HZ
-
-#define PLAT_ARM_RUN_UART_BASE			SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_RUN_UART_CLK_IN_HZ		SOC_CSS_UART_CLK_IN_HZ
-
-#define PLAT_ARM_CRASH_UART_BASE		SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_CRASH_UART_CLK_IN_HZ		SOC_CSS_UART_CLK_IN_HZ
 
 #define PLAT_ARM_NSTIMER_FRAME_ID	0
 
@@ -272,19 +257,5 @@
 	{CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM2_BASE,		\
 		CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM2_END,	\
 		ARM_TZC_NS_DRAM_S_ACCESS, PLAT_ARM_TZC_NS_DEV_ACCESS}
-
-#if SPM_MM
-
-/*
- * Stand-alone MM logs would be routed via secure UART. Define page table
- * entry for secure UART which would be common to all platforms.
- */
-#define SOC_PLATFORM_SECURE_UART	MAP_REGION_FLAT(		\
-					SOC_CSS_SEC_UART_BASE,		\
-					SOC_CSS_UART_SIZE,		\
-					MT_DEVICE | MT_RW | 		\
-					MT_SECURE | MT_USER)
-
-#endif
 
 #endif /* SGI_BASE_PLATFORM_DEF_H */
