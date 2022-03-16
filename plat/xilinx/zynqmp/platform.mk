@@ -45,11 +45,11 @@ endif
 
 
 ifdef ZYNQMP_WDT_RESTART
-$(eval $(call add_define,ZYNQMP_WDT_RESTART))
+    $(eval $(call add_define,ZYNQMP_WDT_RESTART))
 endif
 
 ifdef ZYNQMP_IPI_CRC_CHECK
-  $(warning "ZYNQMP_IPI_CRC_CHECK macro is deprecated...instead please use IPI_CRC_CHECK.")
+    $(warning "ZYNQMP_IPI_CRC_CHECK macro is deprecated...instead please use IPI_CRC_CHECK.")
 endif
 
 ifdef IPI_CRC_CHECK
