@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,13 +29,15 @@ static OBJECT_POOL_ARRAY(dtb_info_pool, dtb_infos);
  * This function is used to alloc memory for config information from
  * global pool and set the configuration information.
  */
-void set_config_info(uintptr_t config_addr, uint32_t config_max_size,
-			unsigned int config_id)
+void set_config_info(uintptr_t config_addr, uintptr_t ns_config_addr,
+		     uint32_t config_max_size,
+		     unsigned int config_id)
 {
 	struct dyn_cfg_dtb_info_t *dtb_info;
 
 	dtb_info = pool_alloc(&dtb_info_pool);
 	dtb_info->config_addr = config_addr;
+	dtb_info->ns_config_addr = ns_config_addr;
 	dtb_info->config_max_size = config_max_size;
 	dtb_info->config_id = config_id;
 }
@@ -88,7 +90,7 @@ int fconf_populate_dtb_registry(uintptr_t config)
 	 */
 	if (dtb_infos[0].config_id == 0U) {
 		uint32_t config_max_size = fdt_totalsize(dtb);
-		set_config_info(config, config_max_size, FW_CONFIG_ID);
+		set_config_info(config, ~0UL, config_max_size, FW_CONFIG_ID);
 	}
 
 	/* Find the node offset point to "fconf,dyn_cfg-dtb_registry" compatible property */
@@ -102,6 +104,7 @@ int fconf_populate_dtb_registry(uintptr_t config)
 	fdt_for_each_subnode(child, dtb, node) {
 		uint32_t config_max_size, config_id;
 		uintptr_t config_addr;
+		uintptr_t ns_config_addr = ~0UL;
 		uint64_t val64;
 
 		/* Read configuration dtb information */
@@ -129,7 +132,14 @@ int fconf_populate_dtb_registry(uintptr_t config)
 		VERBOSE("\tmax-size = 0x%x\n", config_max_size);
 		VERBOSE("\tconfig-id = %u\n", config_id);
 
-		set_config_info(config_addr, config_max_size, config_id);
+		rc = fdt_read_uint64(dtb, child, "ns-load-address", &val64);
+		if (rc == 0) {
+			ns_config_addr = (uintptr_t)val64;
+			VERBOSE("\tns-load-address = %lx\n", ns_config_addr);
+		}
+
+		set_config_info(config_addr, ns_config_addr, config_max_size,
+				config_id);
 	}
 
 	if ((child < 0) && (child != -FDT_ERR_NOTFOUND)) {
