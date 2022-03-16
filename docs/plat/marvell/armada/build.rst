@@ -68,8 +68,9 @@ There are several build options:
 - DEBUG
 
         Default is without debug information (=0). in order to enable it use ``DEBUG=1``.
-        Must be disabled when building UART recovery images due to current console driver
-        implementation that is not compatible with Xmodem protocol used for boot image download.
+        Can be enabled also when building UART recovery images, there is no issue with it.
+
+        Production TF-A images should be built without this debug option!
 
 - LOG_LEVEL
 
