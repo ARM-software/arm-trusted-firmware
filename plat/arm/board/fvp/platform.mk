@@ -308,14 +308,6 @@ ENABLE_AMU			:=	1
 # Enable dynamic mitigation support by default
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 
-# Enable reclaiming of BL31 initialisation code for secondary cores
-# stacks for FVP. However, don't enable reclaiming for clang.
-ifneq (${RESET_TO_BL31},1)
-ifeq ($(findstring clang,$(notdir $(CC))),)
-RECLAIM_INIT_CODE	:=	1
-endif
-endif
-
 ifeq (${ENABLE_AMU},1)
 BL31_SOURCES		+=	lib/cpus/aarch64/cpuamu.c		\
 				lib/cpus/aarch64/cpuamu_helpers.S
