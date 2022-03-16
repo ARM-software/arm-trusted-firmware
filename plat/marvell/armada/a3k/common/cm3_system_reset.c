@@ -58,5 +58,5 @@ void cm3_system_reset(void)
 	}
 
 	/* If we reach here, the command is not implemented. */
-	ERROR("System reset command not implemented in WTMI firmware!\n");
+	WARN("System reset command not implemented in WTMI firmware!\n");
 }
