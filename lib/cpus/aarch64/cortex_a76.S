@@ -808,4 +808,5 @@ declare_cpu_ops_wa cortex_a76, CORTEX_A76_MIDR, \
 	cortex_a76_reset_func, \
 	CPU_NO_EXTRA1_FUNC, \
 	cortex_a76_disable_wa_cve_2018_3639, \
+	CPU_NO_EXTRA3_FUNC, \
 	cortex_a76_core_pwr_dwn

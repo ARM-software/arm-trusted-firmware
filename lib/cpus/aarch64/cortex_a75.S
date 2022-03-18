@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -90,13 +90,21 @@ func cortex_a75_reset_func
 	bl	errata_a75_790748_wa
 #endif
 
-#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+#if IMAGE_BL31 && (WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960)
 	cpu_check_csv2	x0, 1f
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	msr	vbar_el3, x0
 	isb
+	/* Skip installing vector table again for CVE_2022_23960 */
+        b       2f
 1:
+#if WORKAROUND_CVE_2022_23960
+	adr	x0, wa_cve_2017_5715_bpiall_vbar
+	msr	vbar_el3, x0
+	isb
 #endif
+2:
+#endif /* IMAGE_BL31 &&  (WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960) */
 
 #if WORKAROUND_CVE_2018_3639
 	mrs	x0, CORTEX_A75_CPUACTLR_EL1
@@ -161,6 +169,28 @@ func check_errata_cve_2018_3639
 	ret
 endfunc check_errata_cve_2018_3639
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960
+	cpu_check_csv2	x0, 1f
+	mov	x0, #ERRATA_APPLIES
+	ret
+1:
+# if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+# else
+	mov	x0, #ERRATA_MISSING
+# endif /* WORKAROUND_CVE_2022_23960 */
+	ret
+#endif /* WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960 */
+	mov	x0, #ERRATA_MISSING
+	ret
+endfunc check_errata_cve_2022_23960
+
+func check_smccc_arch_workaround_3
+	mov	x0, #ERRATA_APPLIES
+	ret
+endfunc check_smccc_arch_workaround_3
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -197,6 +227,7 @@ func cortex_a75_errata_report
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a75, cve_2018_3639
 	report_errata ERRATA_DSU_798953, cortex_a75, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a75, dsu_936184
+	report_errata WORKAROUND_CVE_2022_23960, cortex_a75, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -226,4 +257,5 @@ declare_cpu_ops_wa cortex_a75, CORTEX_A75_MIDR, \
 	cortex_a75_reset_func, \
 	check_errata_cve_2017_5715, \
 	CPU_NO_EXTRA2_FUNC, \
+	check_smccc_arch_workaround_3, \
 	cortex_a75_core_pwr_dwn

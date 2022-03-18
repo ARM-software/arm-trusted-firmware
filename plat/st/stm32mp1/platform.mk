@@ -38,6 +38,7 @@ TF_CFLAGS		+=	-Wformat-signedness
 
 # Not needed for Cortex-A7
 WORKAROUND_CVE_2017_5715:=	0
+WORKAROUND_CVE_2022_23960:=	0
 
 ifeq (${PSA_FWU_SUPPORT},1)
 ifneq (${STM32MP_USE_STM32IMAGE},1)

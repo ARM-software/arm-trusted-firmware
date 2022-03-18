@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,7 @@
 
 #define CPU_NO_EXTRA1_FUNC		0
 #define CPU_NO_EXTRA2_FUNC		0
+#define CPU_NO_EXTRA3_FUNC		0
 
 /* Word size for 64-bit CPUs */
 #define CPU_WORD_SIZE			8
@@ -39,6 +40,7 @@
 	.equ	CPU_MIDR_SIZE, CPU_WORD_SIZE
 	.equ	CPU_EXTRA1_FUNC_SIZE, CPU_WORD_SIZE
 	.equ	CPU_EXTRA2_FUNC_SIZE, CPU_WORD_SIZE
+	.equ	CPU_EXTRA3_FUNC_SIZE, CPU_WORD_SIZE
 	.equ	CPU_E_HANDLER_FUNC_SIZE, CPU_WORD_SIZE
 	.equ	CPU_RESET_FUNC_SIZE, CPU_WORD_SIZE
 	.equ	CPU_PWR_DWN_OPS_SIZE, CPU_WORD_SIZE * CPU_MAX_PWR_DWN_OPS
@@ -80,7 +82,8 @@
 	.equ	CPU_RESET_FUNC, CPU_MIDR + CPU_MIDR_SIZE
 	.equ	CPU_EXTRA1_FUNC, CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
 	.equ	CPU_EXTRA2_FUNC, CPU_EXTRA1_FUNC + CPU_EXTRA1_FUNC_SIZE
-	.equ	CPU_E_HANDLER_FUNC, CPU_EXTRA2_FUNC + CPU_EXTRA2_FUNC_SIZE
+	.equ	CPU_EXTRA3_FUNC, CPU_EXTRA2_FUNC + CPU_EXTRA2_FUNC_SIZE
+	.equ	CPU_E_HANDLER_FUNC, CPU_EXTRA3_FUNC + CPU_EXTRA3_FUNC_SIZE
 	.equ	CPU_PWR_DWN_OPS, CPU_E_HANDLER_FUNC + CPU_E_HANDLER_FUNC_SIZE
 	.equ	CPU_ERRATA_FUNC, CPU_PWR_DWN_OPS + CPU_PWR_DWN_OPS_SIZE
 	.equ	CPU_ERRATA_LOCK, CPU_ERRATA_FUNC + CPU_ERRATA_FUNC_SIZE
@@ -134,9 +137,13 @@
 	 *	some CPUs use this entry to set a test function to determine if
 	 *	the workaround for CVE-2017-5715 needs to be applied or not.
 	 * _extra2:
-	 *	This is a placeholder for future per CPU operations.  Currently
+	 *	This is a placeholder for future per CPU operations. Currently
 	 *	some CPUs use this entry to set a function to disable the
 	 *	workaround for CVE-2018-3639.
+	 * _extra3:
+	 *	This is a placeholder for future per CPU operations. Currently,
+	 *	some CPUs use this entry to set a test function to determine if
+	 *	the workaround for CVE-2022-23960 needs to be applied or not.
 	 * _e_handler:
 	 *	This is a placeholder for future per CPU exception handlers.
 	 * _power_down_ops:
@@ -149,7 +156,7 @@
 	 *	used to handle power down at subsequent levels
 	 */
 	.macro declare_cpu_ops_base _name:req, _midr:req, _resetfunc:req, \
-		_extra1:req, _extra2:req, _e_handler:req, _power_down_ops:vararg
+		_extra1:req, _extra2:req, _extra3:req, _e_handler:req, _power_down_ops:vararg
 	.section cpu_ops, "a"
 	.align 3
 	.type cpu_ops_\_name, %object
@@ -159,6 +166,7 @@
 #endif
 	.quad \_extra1
 	.quad \_extra2
+	.quad \_extra3
 	.quad \_e_handler
 #ifdef IMAGE_BL31
 	/* Insert list of functions */
@@ -204,21 +212,21 @@
 
 	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
 		_power_down_ops:vararg
-		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, 0, 0, \
+		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, 0, 0, 0, \
 			\_power_down_ops
 	.endm
 
 	.macro declare_cpu_ops_eh _name:req, _midr:req, _resetfunc:req, \
 		_e_handler:req, _power_down_ops:vararg
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			0, 0, \_e_handler, \_power_down_ops
+			0, 0, 0, \_e_handler, \_power_down_ops
 	.endm
 
 	.macro declare_cpu_ops_wa _name:req, _midr:req, \
 		_resetfunc:req, _extra1:req, _extra2:req, \
-		_power_down_ops:vararg
+		_extra3:req, _power_down_ops:vararg
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			\_extra1, \_extra2, 0, \_power_down_ops
+			\_extra1, \_extra2, \_extra3, 0, \_power_down_ops
 	.endm
 
 #if REPORT_ERRATA
