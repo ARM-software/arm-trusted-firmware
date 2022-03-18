@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,7 @@
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 
-#include "mhu.h"
+#include "corstone700_mhu.h"
 #include <plat_arm.h>
 #include <platform_def.h>
 

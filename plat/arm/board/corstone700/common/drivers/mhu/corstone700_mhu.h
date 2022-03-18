@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef MHU_H
-#define MHU_H
+#ifndef CORSTONE700_MHU_H
+#define CORSTONE700_MHU_H
 
 #define MHU_POLL_INTR_STAT_TIMEOUT		50000 /*timeout value in us*/
 
@@ -34,4 +34,4 @@ void mhu_secure_message_send(uintptr_t address,
 void mhu_secure_message_end(uintptr_t address, unsigned int slot_id);
 void mhu_secure_init(void);
 
-#endif /* MHU_H */
+#endif /* CORSTONE700_MHU_H */
