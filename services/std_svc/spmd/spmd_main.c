@@ -755,6 +755,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_NOTIFICATION_INFO_GET:
 	case FFA_NOTIFICATION_INFO_GET_SMC64:
 	case FFA_MSG_SEND2:
+	case FFA_RX_ACQUIRE:
 #endif
 	case FFA_MSG_RUN:
 		/*
