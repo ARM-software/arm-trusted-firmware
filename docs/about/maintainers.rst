@@ -469,11 +469,11 @@ HiSilicon Poplar platform port
 
 Intel SocFPGA platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Tien Hock Loh <tien.hock.loh@intel.com>
-:|G|: `thloh85-intel`_
-:|M|: Hadi Asyrafi <muhammad.hadi.asyrafi.abdul.halim@intel.com>
-:|G|: mabdulha
-:|F|: plat/intel/soc
+:|M|: Sieu Mun Tang <sieu.mun.tang@intel.com>
+:|G|: `sieumunt`_
+:|M|: Benjamin Jit Loon Lim <jit.loon.lim@intel.com>
+:|G|: `BenjaminLimJL`_
+:|F|: plat/intel/soc/
 :|F|: drivers/intel/soc/
 
 MediaTek platform ports
@@ -828,7 +828,8 @@ Conventional Changelog Extensions
 .. _soby-mathew: https://github.com/soby-mathew
 .. _sreekare: https://github.com/sreekare
 .. _stephan-gh: https://github.com/stephan-gh
-.. _thloh85-intel: https://github.com/thloh85-intel
+.. _sieumunt: https://github.com/sieumunt
+.. _BenjaminLimJL: https://github.com/BenjaminLimJL
 .. _thomas-arm: https://github.com/thomas-arm
 .. _TonyXie06: https://github.com/TonyXie06
 .. _TravMurav: https://github.com/TravMurav
