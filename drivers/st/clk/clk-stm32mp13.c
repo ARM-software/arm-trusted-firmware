@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -1004,6 +1004,11 @@ static void stm32_enable_oscillator_lse(struct stm32_clk_priv *priv)
 	uint8_t drive = osci->drive;
 
 	if (_clk_stm32_get_rate(priv, _CK_LSE) == 0U) {
+		return;
+	}
+
+	/* Do not reconfigure LSE if already enabled */
+	if (_clk_stm32_gate_is_enabled(priv, osc_data->gate_id)) {
 		return;
 	}
 
