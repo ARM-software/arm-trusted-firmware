@@ -47,111 +47,174 @@ A typical SP_LAYOUT_FILE file will look like
 
 """
 
-import getopt
 import json
 import os
 import re
 import sys
 import uuid
+from spactions import SpSetupActions
 
-with open(sys.argv[2],'r') as in_file:
-    data = json.load(in_file)
-json_file = os.path.abspath(sys.argv[2])
-json_dir = os.path.dirname(json_file)
-gen_file = os.path.abspath(sys.argv[1])
-out_dir = os.path.abspath(sys.argv[3])
-dtb_dir = out_dir + "/fdts/"
 MAX_SP = 8
-dualroot = sys.argv[4].lower() == "dualroot"
-split = int(MAX_SP / 2)
-print(dtb_dir)
-platform_count = 1
-sip_count = 1
+UUID_LEN = 4
 
-with open(gen_file, 'w') as out_file:
-    for idx, key in enumerate(data.keys()):
+# Some helper functions to access args propagated to the action functions in
+# SpSetupActions framework.
 
-        pkg_num = idx + 1
+def check_sp_mk_gen(args :dict):
+    if "sp_gen_mk" not in args.keys():
+        raise Exception(f"Path to file sp_gen.mk needs to be in 'args'.")
 
-        if (pkg_num > MAX_SP):
-            print("WARNING: Too many secure partitions\n")
-            exit(-1)
+def check_out_dir(args :dict):
+    if "out_dir" not in args.keys() or not os.path.isdir(args["out_dir"]):
+        raise Exception("Define output folder with \'out_dir\' key.")
 
-        if dualroot:
-            owner = data[key].get('owner')
-            if owner == "Plat":
-                if (platform_count > split):
-                    print("WARNING: Maximum Secure partitions by Plat " +
-                    "have been exceeded (" + str(split) + ")\n")
-                    exit(-1)
-                pkg_num = split + platform_count
-                platform_count += 1
-            elif (sip_count > split):
-                print("WARNING: Maximum Secure partitions by SiP " +
-                "have been exceeded (" + str(split) + ")\n")
-                exit(-1)
-            else:
-                pkg_num = sip_count
-                sip_count += 1
+def check_sp_layout_dir(args :dict):
+    if "sp_layout_dir" not in args.keys() or not os.path.isdir(args["sp_layout_dir"]):
+        raise Exception("Define output folder with \'sp_layout_dir\' key.")
 
-        """
-        Append FDT_SOURCES
-        """
-        dts = os.path.join(json_dir, data[key]['pm'])
-        dtb = dtb_dir + os.path.basename(data[key]['pm'][:-1] + "b")
-        out_file.write("FDT_SOURCES += " + dts + "\n")
+def write_to_sp_mk_gen(content, args :dict):
+    check_sp_mk_gen(args)
+    with open(args["sp_gen_mk"], "a") as f:
+        f.write(f"{content}\n")
 
-        """
-        Update SPTOOL_ARGS
-        """
-        dst = out_dir + "/" + key + ".pkg"
-        src = [ json_dir + "/" + data[key]['image'] , dtb  ]
-        out_file.write("SPTOOL_ARGS += -i " + ":".join(src) + " -o " + dst + "\n")
+def get_sp_manifest_full_path(sp_node, args :dict):
+    check_sp_layout_dir(args)
+    return os.path.join(args["sp_layout_dir"], get_file_from_layout(sp_node["pm"]))
 
-        if "uuid" in data[key]:
-            """
-            Extract the UUID from the JSON file if the SP entry has a 'uuid' field
-            """
-            uuid_std = uuid.UUID(data[key]['uuid'])
+def get_sp_img_full_path(sp_node, args :dict):
+    check_sp_layout_dir(args)
+    return os.path.join(args["sp_layout_dir"], get_file_from_layout(sp_node["image"]))
+
+def get_sp_pkg(sp, args :dict):
+    check_out_dir(args)
+    return os.path.join(args["out_dir"], f"{sp}.pkg")
+
+def is_line_in_sp_gen(line, args :dict):
+    with open(args["sp_gen_mk"], "r") as f:
+        sppkg_rule = [l for l in f if line in l]
+    return len(sppkg_rule) is not 0
+
+def get_file_from_layout(node):
+    ''' Helper to fetch a file path from sp_layout.json. '''
+    if type(node) is dict and "file" in node.keys():
+        return node["file"]
+    return node
+
+def get_offset_from_layout(node):
+    ''' Helper to fetch an offset from sp_layout.json. '''
+    if type(node) is dict and "offset" in node.keys():
+        return int(node["offset"], 0)
+    return None
+
+def get_image_offset(node):
+    ''' Helper to fetch image offset from sp_layout.json '''
+    return get_offset_from_layout(node["image"])
+
+def get_pm_offset(node):
+    ''' Helper to fetch pm offset from sp_layout.json '''
+    return get_offset_from_layout(node["pm"])
+
+@SpSetupActions.sp_action(global_action=True)
+def check_max_sps(sp_layout, _, args :dict):
+    ''' Check validate the maximum number of SPs is respected. '''
+    if len(sp_layout.keys()) > MAX_SP:
+        raise Exception(f"Too many SPs in SP layout file. Max: {MAX_SP}")
+    return args
+
+@SpSetupActions.sp_action
+def gen_fdt_sources(sp_layout, sp, args :dict):
+    ''' Generate FDT_SOURCES values for a given SP. '''
+    manifest_path = get_sp_manifest_full_path(sp_layout[sp], args)
+    write_to_sp_mk_gen(f"FDT_SOURCES += {manifest_path}", args)
+    return args
+
+@SpSetupActions.sp_action
+def gen_sptool_args(sp_layout, sp, args):
+    ''' Generate sptool arguments to generate SP Pkg for a given SP. '''
+    check_out_dir(args)
+    check_sp_layout_dir(args)
+    sp_pkg = get_sp_pkg(sp, args)
+    sp_dtb_name = os.path.basename(sp_layout[sp]["pm"])[:-1] + "b"
+    sp_dtb = os.path.join(args["out_dir"], f"fdts/{sp_dtb_name}")
+    sp_bin = os.path.join(args["sp_layout_dir"], sp_layout[sp]["image"])
+    write_to_sp_mk_gen(f"SPTOOL_ARGS += -i {sp_bin}:{sp_dtb} -o {sp_pkg}\n", args)
+    return args
+
+@SpSetupActions.sp_action(global_action=True, exec_order=1)
+def check_dualroot(sp_layout, _, args :dict):
+    ''' Validate the amount of SPs from SiP and Platform owners. '''
+    if not args.get("dualroot"):
+        return args
+    args["split"] =  int(MAX_SP / 2)
+    owners = [sp_layout[sp].get("owner") for sp in sp_layout]
+    args["plat_max_count"] = owners.count("Plat")
+    # If it is owned by the platform owner, it is assigned to the SiP.
+    args["sip_max_count"] = len(sp_layout.keys()) - args["plat_max_count"]
+    if  args["sip_max_count"] > args["split"] or args["sip_max_count"] > args["split"]:
+        print(f"WARN: SiP Secure Partitions should not be more than {args['split']}")
+    # Counters for gen_crt_args.
+    args["sip_count"] = 1
+    args["plat_count"] = 1
+    return args
+
+@SpSetupActions.sp_action
+def gen_crt_args(sp_layout, sp, args :dict):
+    ''' Append CRT_ARGS. '''
+    # If "dualroot" is configured, 'sp_pkg_idx' depends on whether the SP is owned
+    # by the "SiP" or the "Plat".
+    if args.get("dualroot"):
+        # If the owner is not specified as "Plat", default to "SiP".
+        if sp_layout[sp].get("owner") == "Plat":
+            if args["plat_count"] > args["plat_max_count"]:
+                raise ValueError("plat_count can't surpass plat_max_count in args.")
+            sp_pkg_idx = args["plat_count"] + args["split"]
+            args["plat_count"] += 1
         else:
-            """
-            Extract uuid from partition manifest
-            """
-            pm_file = open(dts)
-            for line in pm_file:
-                if "uuid" in line:
-                    # re.findall returns a list of string tuples.
-                    # uuid_hex is the first item in this list representing the four
-                    # uuid hex integers from the manifest uuid field. The heading
-                    # '0x' of the hexadecimal representation is stripped out.
-                    # e.g. uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
-                    # uuid_hex = ('1e67b5b4', 'e14f904a', '13fb1fb8', 'cbdae1da')
-                    uuid_hex = re.findall(r'0x([0-9a-f]+) 0x([0-9a-f]+) 0x([0-9a-f]+) 0x([0-9a-f]+)', line)[0];
+            if args["sip_count"] > args["sip_max_count"]:
+                raise ValueError("sip_count can't surpass sip_max_count in args.")
+            sp_pkg_idx = args["sip_count"]
+            args["sip_count"] += 1
+    else:
+        sp_pkg_idx = [k for k in sp_layout.keys()].index(sp) + 1
+    write_to_sp_mk_gen(f"CRT_ARGS += --sp-pkg{sp_pkg_idx} {get_sp_pkg(sp, args)}\n", args)
+    return args
 
-            # uuid_hex is a list of four hex string values
-            if len(uuid_hex) != 4:
-                print("ERROR: malformed UUID")
-                exit(-1)
+@SpSetupActions.sp_action
+def gen_fiptool_args(sp_layout, sp, args :dict):
+    ''' Generate arguments for the FIP Tool. '''
+    if "uuid" in sp_layout[sp]:
+        # Extract the UUID from the JSON file if the SP entry has a 'uuid' field
+        uuid_std = uuid.UUID(data[key]['uuid'])
+    else:
+        with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as pm_f:
+            uuid_lines = [l for l in pm_f if 'uuid' in l]
+        assert(len(uuid_lines) is 1)
+        # The uuid field in SP manifest is the little endian representation
+        # mapped to arguments as described in SMCCC section 5.3.
+        # Convert each unsigned integer value to a big endian representation
+        # required by fiptool.
+        uuid_parsed = re.findall("0x([0-9a-f]+)", uuid_lines[0])
+        y = list(map(bytearray.fromhex, uuid_parsed))
+        z = [int.from_bytes(i, byteorder='little', signed=False) for i in y]
+        uuid_std = uuid.UUID(f'{z[0]:08x}{z[1]:08x}{z[2]:08x}{z[3]:08x}')
+    write_to_sp_mk_gen(f"FIP_ARGS += --blob uuid={str(uuid_std)},file={get_sp_pkg(sp, args)}\n", args)
+    return args
 
-            # The uuid field in SP manifest is the little endian representation
-            # mapped to arguments as described in SMCCC section 5.3.
-            # Convert each unsigned integer value to a big endian representation
-            # required by fiptool.
-            y=list(map(bytearray.fromhex, uuid_hex))
-            z=(int.from_bytes(y[0], byteorder='little', signed=False),
-            int.from_bytes(y[1], byteorder='little', signed=False),
-            int.from_bytes(y[2], byteorder='little', signed=False),
-            int.from_bytes(y[3], byteorder='little', signed=False))
-            uuid_std = uuid.UUID(f'{z[0]:08x}{z[1]:08x}{z[2]:08x}{z[3]:08x}')
+def init_sp_actions(sys):
+    sp_layout_file = os.path.abspath(sys.argv[2])
+    with open(sp_layout_file) as json_file:
+        sp_layout = json.load(json_file)
+    # Initialize arguments for the SP actions framework
+    args = {}
+    args["sp_gen_mk"] = os.path.abspath(sys.argv[1])
+    args["sp_layout_dir"] = os.path.dirname(sp_layout_file)
+    args["out_dir"] = os.path.abspath(sys.argv[3])
+    args["dualroot"] = sys.argv[4] == "dualroot"
+    #Clear content of file "sp_gen.mk".
+    with open(args["sp_gen_mk"], "w"):
+        None
+    return args, sp_layout
 
-        """
-        Append FIP_ARGS
-        """
-        out_file.write("FIP_ARGS += --blob uuid=" + str(uuid_std) + ",file=" + dst + "\n")
-
-        """
-        Append CRT_ARGS
-        """
-
-        out_file.write("CRT_ARGS += --sp-pkg" + str(pkg_num) + " " + dst + "\n")
-        out_file.write("\n")
+if __name__ == "__main__":
+    args, sp_layout = init_sp_actions(sys)
+    SpSetupActions.run_actions(sp_layout, args)
