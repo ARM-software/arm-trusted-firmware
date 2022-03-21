@@ -146,10 +146,42 @@ static int ufshc_hce_enable(uintptr_t base)
 	return 0;
 }
 
+static int ufshc_hce_disable(uintptr_t base)
+{
+	unsigned int data;
+	int timeout;
+
+	/* Disable Host Controller */
+	mmio_write_32(base + HCE, HCE_DISABLE);
+	timeout = HCE_DISABLE_TIMEOUT_US;
+	do {
+		data = mmio_read_32(base + HCE);
+		if ((data & HCE_ENABLE) == HCE_DISABLE) {
+			break;
+		}
+		udelay(1);
+	} while (--timeout > 0);
+
+	if (timeout <= 0) {
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
+
 static int ufshc_reset(uintptr_t base)
 {
 	unsigned int data;
 	int retries, result;
+
+	/* disable controller if enabled */
+	if (mmio_read_32(base + HCE) & HCE_ENABLE) {
+		result = ufshc_hce_disable(base);
+		if (result != 0) {
+			return -EIO;
+		}
+	}
 
 	for (retries = 0; retries < HCE_ENABLE_OUTER_RETRIES; ++retries) {
 		result = ufshc_hce_enable(base);
