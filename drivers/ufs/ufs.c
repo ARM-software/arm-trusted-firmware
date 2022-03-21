@@ -734,16 +734,41 @@ size_t ufs_write_blocks(int lun, int lba, const uintptr_t buf, size_t size)
 	return size - resp->res_trans_cnt;
 }
 
+static int ufs_set_fdevice_init(void)
+{
+	unsigned int result;
+	int timeout;
+
+	ufs_set_flag(FLAG_DEVICE_INIT);
+
+	timeout = FDEVICEINIT_TIMEOUT_MS;
+	do {
+		result = ufs_read_flag(FLAG_DEVICE_INIT);
+		if (!result) {
+			break;
+		}
+		mdelay(5);
+		timeout -= 5;
+	} while (timeout > 0);
+
+	if (result != 0U) {
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
 static void ufs_enum(void)
 {
 	unsigned int blk_num, blk_size;
-	int i;
+	int i, result;
 
 	ufs_verify_init();
 	ufs_verify_ready();
 
-	ufs_set_flag(FLAG_DEVICE_INIT);
-	mdelay(200);
+	result = ufs_set_fdevice_init();
+	assert(result == 0);
+
 	/* dump available LUNs */
 	for (i = 0; i < UFS_MAX_LUNS; i++) {
 		ufs_read_capacity(i, &blk_num, &blk_size);
@@ -752,6 +777,8 @@ static void ufs_enum(void)
 			     i, blk_num, blk_size);
 		}
 	}
+
+	(void)result;
 }
 
 static void ufs_get_device_info(struct ufs_dev_desc *card_data)
