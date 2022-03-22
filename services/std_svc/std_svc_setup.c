@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,9 +13,7 @@
 #include <lib/pmf/pmf.h>
 #include <lib/psci/psci.h>
 #include <lib/runtime_instr.h>
-#include <services/gtsi_svc.h>
 #include <services/pci_svc.h>
-#include <services/rmi_svc.h>
 #include <services/rmmd_svc.h>
 #include <services/sdei.h>
 #include <services/spm_mm_svc.h>
@@ -168,13 +166,10 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	}
 #endif
 #if ENABLE_RME
-	/*
-	 * Granule transition service interface functions (GTSI) are allocated
-	 * from the Std service range. Call the RMM dispatcher to handle calls.
-	 */
-	if (is_gtsi_fid(smc_fid)) {
-		return rmmd_gtsi_handler(smc_fid, x1, x2, x3, x4, cookie,
-						handle, flags);
+
+	if (is_rmmd_el3_fid(smc_fid)) {
+		return rmmd_rmm_el3_handler(smc_fid, x1, x2, x3, x4, cookie,
+					    handle, flags);
 	}
 
 	if (is_rmi_fid(smc_fid)) {
