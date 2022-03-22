@@ -53,6 +53,11 @@
 #define FMC2_BCHDSR2			0x284U
 #define FMC2_BCHDSR3			0x288U
 #define FMC2_BCHDSR4			0x28CU
+#define FMC2_SECCFGR			0x300U
+#define FMC2_CIDCFGR0			0x30CU
+#define FMC2_CIDCFGR(x)			((x) * 0x8U + FMC2_CIDCFGR0)
+#define FMC2_SEMCR0			0x310U
+#define FMC2_SEMCR(x)			((x) * 0x8U + FMC2_SEMCR0)
 
 /* FMC2_BCR1 register */
 #define FMC2_BCR1_FMC2EN		BIT_32(31)
@@ -80,6 +85,7 @@
 #define FMC2_PCR_BCHECC			BIT_32(24)
 #define FMC2_PCR_WEN			BIT_32(25)
 /* FMC2_SR register */
+#define FMC2_SR_ISOST			GENMASK_32(1, 0)
 #define FMC2_SR_NWRF			BIT_32(6)
 /* FMC2_PMEM register*/
 #define FMC2_PMEM_MEMSET(x)		(((x) & GENMASK_32(7, 0)) << 0)
@@ -118,6 +124,16 @@
 #define FMC2_BCHDSR4_EBP7_MASK		GENMASK_32(12, 0)
 #define FMC2_BCHDSR4_EBP8_MASK		GENMASK_32(28, 16)
 #define FMC2_BCHDSR4_EBP8_SHIFT		16U
+/* FMC2_CIDCFGR register */
+#define FMC2_CIDCFGR_CFEN		BIT_32(0)
+#define FMC2_CIDCFGR_SEMEN		BIT_32(1)
+#define FMC2_CIDCFGR_SCID_MASK		GENMASK_32(6, 4)
+#define FMC2_CIDCFGR_SCID_SHIFT		4U
+#define FMC2_CIDCFGR_SEMWLC1		BIT_32(17)
+/* FMC2_SEMCR register */
+#define FMC2_SEMCR_SEM_MUTEX		BIT_32(0)
+#define FMC2_SEMCR_SEMCID_MASK		GENMASK_32(6, 4)
+#define FMC2_SEMCR_SEMCID_SHIFT		4U
 
 /* Timings */
 #define FMC2_THIZ			0x01U
@@ -126,6 +142,10 @@
 #define FMC2_PCR_TIMING_MASK		GENMASK_32(3, 0)
 #define FMC2_PMEM_PATT_TIMING_MASK	GENMASK_32(7, 0)
 
+#define FMC2_MAX_RESOURCES		6U
+#define FMC2_RESOURCE_CFGR		0U
+#define FMC2_RESOURCE_NAND		5U
+#define FMC2_CID1			1U
 #define FMC2_BBM_LEN			2U
 #define FMC2_MAX_ECC_BYTES		14U
 #define TIMEOUT_US_10_MS		10000U
@@ -667,6 +687,61 @@ static void stm32_fmc2_write_data(struct nand_device *nand,
 	}
 }
 
+#if STM32MP2X
+static int stm32_fmc2_check_rif(unsigned int resource)
+{
+	uint32_t cidcfgr;
+	uint32_t semcr;
+	unsigned int cid;
+
+	if (resource >= FMC2_MAX_RESOURCES) {
+		return -EINVAL;
+	}
+
+	cidcfgr = mmio_read_32(fmc2_base() + FMC2_CIDCFGR(resource));
+	if ((cidcfgr & FMC2_CIDCFGR_CFEN) == 0U) {
+		/* CID filtering is turned off: access granted */
+		return 0;
+	}
+
+	if ((cidcfgr & FMC2_CIDCFGR_SEMEN) == 0U) {
+		/* Static CID mode */
+		cid = (cidcfgr & FMC2_CIDCFGR_SCID_MASK) >>
+		      FMC2_CIDCFGR_SCID_SHIFT;
+		if (cid != FMC2_CID1) {
+			ERROR("%s: static CID%u set for resource %u\n",
+			      __func__, cid, resource);
+			return -EACCES;
+		}
+
+		return 0;
+	}
+
+	/* Pass-list with semaphore mode */
+	if ((cidcfgr & FMC2_CIDCFGR_SEMWLC1) != 0U) {
+		ERROR("%s: CID1 is block-listed for resource %u\n",
+		      __func__, resource);
+		return -EACCES;
+	}
+
+	semcr = mmio_read_32(fmc2_base() + FMC2_SEMCR(resource));
+	if ((semcr & FMC2_SEMCR_SEM_MUTEX) != 0U) {
+		mmio_setbits_32(fmc2_base() + FMC2_SEMCR(resource),
+				FMC2_SEMCR_SEM_MUTEX);
+		semcr = mmio_read_32(fmc2_base() + FMC2_SEMCR(resource));
+	}
+
+	cid = (semcr & FMC2_SEMCR_SEMCID_MASK) >> FMC2_SEMCR_SEMCID_SHIFT;
+	if (cid != FMC2_CID1) {
+		ERROR("%s: resource %u is already used by CID%u\n",
+		      __func__, resource, cid);
+		return -EACCES;
+	}
+
+	return 0;
+}
+#endif
+
 static void stm32_fmc2_ctrl_init(void)
 {
 	uint32_t pcr = mmio_read_32(fmc2_base() + FMC2_PCR);
@@ -701,7 +776,16 @@ static void stm32_fmc2_ctrl_init(void)
 	mmio_setbits_32(fmc2_base() + FMC2_BCR1, FMC2_BCR1_FMC2EN);
 #endif
 #if STM32MP2X
-	mmio_setbits_32(fmc2_base() + FMC2_CFGR, FMC2_CFGR_FMC2EN);
+	if ((mmio_read_32(fmc2_base() + FMC2_SR) & FMC2_SR_ISOST) != 0U) {
+		/* FMC2 is disabled */
+		if (stm32_fmc2_check_rif(FMC2_RESOURCE_CFGR) == 0) {
+			mmio_setbits_32(fmc2_base() + FMC2_CFGR,
+					FMC2_CFGR_FMC2EN);
+		} else {
+			/* FMC2 can not be enabled */
+			panic();
+		}
+	}
 #endif
 
 	mmio_write_32(fmc2_base() + FMC2_PCR, pcr);
@@ -936,6 +1020,17 @@ int stm32_fmc2_init(void)
 			panic();
 		}
 	}
+
+#if STM32MP2X
+	/* Check if FMC2 NAND controller can be used */
+	if (stm32_fmc2_check_rif(FMC2_RESOURCE_NAND) == 0) {
+		/* Secure the FMC2 NAND controller */
+		mmio_setbits_32(fmc2_base() + FMC2_SECCFGR,
+				BIT(FMC2_RESOURCE_NAND));
+	} else {
+		panic();
+	}
+#endif
 
 	/* Setup default IP registers */
 	stm32_fmc2_ctrl_init();
