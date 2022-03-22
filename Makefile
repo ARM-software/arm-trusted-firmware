@@ -918,7 +918,7 @@ FIPTOOL			?=	${FIPTOOLPATH}/fiptool${BIN_EXT}
 
 # Variables for use with sptool
 SPTOOLPATH		?=	tools/sptool
-SPTOOL			?=	${SPTOOLPATH}/sptool${BIN_EXT}
+SPTOOL			?=	${SPTOOLPATH}/sptool.py
 SP_MK_GEN		?=	${SPTOOLPATH}/sp_mk_generator.py
 
 # Variables for use with ROMLIB
@@ -1336,8 +1336,7 @@ endif
 ifeq (${NEED_SP_PKG},yes)
 $(BUILD_PLAT)/sp_gen.mk: ${SP_MK_GEN} ${SP_LAYOUT_FILE} | ${BUILD_PLAT}
 	${Q}${PYTHON} "$<" "$@" $(filter-out $<,$^) $(BUILD_PLAT) ${COT}
-sp: $(SPTOOL) $(DTBS) $(BUILD_PLAT)/sp_gen.mk
-	${Q}$(SPTOOL) $(SPTOOL_ARGS)
+sp: $(DTBS) $(BUILD_PLAT)/sp_gen.mk $(SP_PKGS)
 	@${ECHO_BLANK_LINE}
 	@echo "Built SP Images successfully"
 	@${ECHO_BLANK_LINE}

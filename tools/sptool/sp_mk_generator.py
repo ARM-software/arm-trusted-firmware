@@ -46,7 +46,6 @@ A typical SP_LAYOUT_FILE file will look like
 }
 
 """
-
 import json
 import os
 import re
@@ -59,7 +58,6 @@ UUID_LEN = 4
 
 # Some helper functions to access args propagated to the action functions in
 # SpSetupActions framework.
-
 def check_sp_mk_gen(args :dict):
     if "sp_gen_mk" not in args.keys():
         raise Exception(f"Path to file sp_gen.mk needs to be in 'args'.")
@@ -129,15 +127,29 @@ def gen_fdt_sources(sp_layout, sp, args :dict):
     return args
 
 @SpSetupActions.sp_action
-def gen_sptool_args(sp_layout, sp, args):
-    ''' Generate sptool arguments to generate SP Pkg for a given SP. '''
-    check_out_dir(args)
-    check_sp_layout_dir(args)
+def gen_sptool_args(sp_layout, sp, args :dict):
+    ''' Generate Sp Pkgs rules. '''
     sp_pkg = get_sp_pkg(sp, args)
-    sp_dtb_name = os.path.basename(sp_layout[sp]["pm"])[:-1] + "b"
+    sp_dtb_name = os.path.basename(get_file_from_layout(sp_layout[sp]["pm"]))[:-1] + "b"
     sp_dtb = os.path.join(args["out_dir"], f"fdts/{sp_dtb_name}")
-    sp_bin = os.path.join(args["sp_layout_dir"], sp_layout[sp]["image"])
-    write_to_sp_mk_gen(f"SPTOOL_ARGS += -i {sp_bin}:{sp_dtb} -o {sp_pkg}\n", args)
+
+    # Do not generate rule if already there.
+    if is_line_in_sp_gen(f'{sp_pkg}:', args):
+        return args
+    write_to_sp_mk_gen(f"SP_PKGS += {sp_pkg}\n", args)
+
+    sptool_args = f" -i {get_sp_img_full_path(sp_layout[sp], args)}:{sp_dtb}"
+    pm_offset = get_pm_offset(sp_layout[sp])
+    sptool_args += f" --pm-offset {pm_offset}" if pm_offset is not None else ""
+    image_offset = get_image_offset(sp_layout[sp])
+    sptool_args += f" --img-offset {image_offset}" if image_offset is not None else ""
+    sptool_args += f" -o {sp_pkg}"
+    sppkg_rule = f'''
+{sp_pkg}:
+\t$(Q)echo Generating {sp_pkg}
+\t$(Q)$(PYTHON) $(SPTOOL) {sptool_args}
+'''
+    write_to_sp_mk_gen(sppkg_rule, args)
     return args
 
 @SpSetupActions.sp_action(global_action=True, exec_order=1)
