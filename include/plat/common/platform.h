@@ -307,6 +307,9 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
  ******************************************************************************/
 int plat_get_cca_attest_token(uintptr_t buf, size_t *len,
 			       uintptr_t hash, size_t hash_size);
+int plat_get_cca_realm_attest_key(uintptr_t buf, size_t *len,
+				   unsigned int type);
+
 /*******************************************************************************
  * Optional BL31 functions (may be overridden)
  ******************************************************************************/

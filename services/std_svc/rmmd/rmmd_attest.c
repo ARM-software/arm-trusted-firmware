@@ -116,3 +116,51 @@ int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_len, uint64_t 
 	return err;
 }
 
+int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_len,
+				uint64_t ecc_curve)
+{
+	int err;
+	uintptr_t va;
+
+	/*
+	 * TODO: Currently we don't validate incoming buf_pa. This is a
+	 * prototype and we will need to allocate static buffer for EL3-RMM
+	 * communication.
+	 */
+
+	/* We need a page of buffer to pass data */
+	if (*buf_len != PAGE_SIZE) {
+		ERROR("Invalid buffer length\n");
+		return RMMD_ERR_INVAL;
+	}
+
+	if (ecc_curve != ATTEST_KEY_CURVE_ECC_SECP384R1) {
+		ERROR("Invalid ECC curve specified\n");
+		return RMMD_ERR_INVAL;
+	}
+
+	spin_lock(&lock);
+
+	/* Map the buffer that was provided by the RMM. */
+	err = mmap_add_dynamic_region_alloc_va(buf_pa, &va, PAGE_SIZE,
+					       MT_RW_DATA | MT_REALM);
+	if (err != 0) {
+		ERROR("mmap_add_dynamic_region_alloc_va failed: %d (%p).\n"
+		      , err, (void *)buf_pa);
+		spin_unlock(&lock);
+		return RMMD_ERR_NOMEM;
+	}
+
+	/* Get the Realm attestation key. */
+	err = plat_get_cca_realm_attest_key(va, buf_len, (unsigned int)ecc_curve);
+	if (err != 0) {
+		ERROR("Failed to get attestation key: %d.\n", err);
+		err =  RMMD_ERR_UNK;
+	}
+
+	/* Unmap RMM memory. */
+	(void)mmap_remove_dynamic_region(va, PAGE_SIZE);
+	spin_unlock(&lock);
+
+	return err;
+}

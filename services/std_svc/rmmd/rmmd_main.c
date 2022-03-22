@@ -375,6 +375,9 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	case RMMD_ATTEST_GET_PLAT_TOKEN:
 		ret = rmmd_attest_get_platform_token(x1, &x2, x3);
 		SMC_RET2(handle, ret, x2);
+	case RMMD_ATTEST_GET_REALM_KEY:
+		ret = rmmd_attest_get_signing_key(x1, &x2, x3);
+		SMC_RET2(handle, ret, x2);
 	default:
 		WARN("RMMD: Unsupported RMM-EL3 call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
