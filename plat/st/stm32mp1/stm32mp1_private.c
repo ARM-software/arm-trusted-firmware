@@ -37,7 +37,12 @@
 					 BOARD_ID_VARFG_SHIFT)
 #define BOARD_ID2BOM(_id)		((_id) & BOARD_ID_BOM_MASK)
 
+#if STM32MP13
+#define TAMP_BOOT_MODE_BACKUP_REG_ID	U(30)
+#endif
+#if STM32MP15
 #define TAMP_BOOT_MODE_BACKUP_REG_ID	U(20)
+#endif
 #define TAMP_BOOT_MODE_ITF_MASK		U(0x0000FF00)
 #define TAMP_BOOT_MODE_ITF_SHIFT	8
 
@@ -67,6 +72,15 @@
 					MT_EXECUTE_NEVER)
 #endif
 
+#if STM32MP13
+#define MAP_SRAM_ALL	MAP_REGION_FLAT(SRAMS_BASE, \
+					SRAMS_SIZE_2MB_ALIGNED, \
+					MT_MEMORY | \
+					MT_RW | \
+					MT_SECURE | \
+					MT_EXECUTE_NEVER)
+#endif
+
 #define MAP_DEVICE1	MAP_REGION_FLAT(STM32MP1_DEVICE1_BASE, \
 					STM32MP1_DEVICE1_SIZE, \
 					MT_DEVICE | \
@@ -84,6 +98,9 @@
 #if defined(IMAGE_BL2)
 static const mmap_region_t stm32mp1_mmap[] = {
 	MAP_SEC_SYSRAM,
+#if STM32MP13
+	MAP_SRAM_ALL,
+#endif
 	MAP_DEVICE1,
 #if STM32MP_RAW_NAND
 	MAP_DEVICE2,
@@ -111,42 +128,62 @@ void configure_mmu(void)
 
 uintptr_t stm32_get_gpio_bank_base(unsigned int bank)
 {
+#if STM32MP13
+	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_I);
+#endif
+#if STM32MP15
 	if (bank == GPIO_BANK_Z) {
 		return GPIOZ_BASE;
 	}
 
 	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_K);
+#endif
 
 	return GPIOA_BASE + (bank * GPIO_BANK_OFFSET);
 }
 
 uint32_t stm32_get_gpio_bank_offset(unsigned int bank)
 {
+#if STM32MP13
+	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_I);
+#endif
+#if STM32MP15
 	if (bank == GPIO_BANK_Z) {
 		return 0;
 	}
 
 	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_K);
+#endif
 
 	return bank * GPIO_BANK_OFFSET;
 }
 
 bool stm32_gpio_is_secure_at_reset(unsigned int bank)
 {
+#if STM32MP13
+	return true;
+#endif
+#if STM32MP15
 	if (bank == GPIO_BANK_Z) {
 		return true;
 	}
 
 	return false;
+#endif
 }
 
 unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
 {
+#if STM32MP13
+	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_I);
+#endif
+#if STM32MP15
 	if (bank == GPIO_BANK_Z) {
 		return GPIOZ;
 	}
 
 	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_K);
+#endif
 
 	return GPIOA + (bank - GPIO_BANK_A);
 }
@@ -163,11 +200,15 @@ int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank)
 	case GPIO_BANK_G:
 	case GPIO_BANK_H:
 	case GPIO_BANK_I:
+#if STM32MP15
 	case GPIO_BANK_J:
 	case GPIO_BANK_K:
+#endif
 		return fdt_path_offset(fdt, "/soc/pin-controller");
+#if STM32MP15
 	case GPIO_BANK_Z:
 		return fdt_path_offset(fdt, "/soc/pin-controller-z");
+#endif
 	default:
 		panic();
 	}
@@ -248,6 +289,10 @@ void stm32mp1_deconfigure_uart_pins(void)
 
 uint32_t stm32mp_get_chip_version(void)
 {
+#if STM32MP13
+	return stm32mp1_syscfg_get_chip_version();
+#endif
+#if STM32MP15
 	uint32_t version = 0U;
 
 	if (stm32mp1_dbgmcu_get_chip_version(&version) < 0) {
@@ -256,10 +301,15 @@ uint32_t stm32mp_get_chip_version(void)
 	}
 
 	return version;
+#endif
 }
 
 uint32_t stm32mp_get_chip_dev_id(void)
 {
+#if STM32MP13
+	return stm32mp1_syscfg_get_chip_dev_id();
+#endif
+#if STM32MP15
 	uint32_t dev_id;
 
 	if (stm32mp1_dbgmcu_get_chip_dev_id(&dev_id) < 0) {
@@ -268,6 +318,7 @@ uint32_t stm32mp_get_chip_dev_id(void)
 	}
 
 	return dev_id;
+#endif
 }
 
 static uint32_t get_part_number(void)
@@ -290,6 +341,7 @@ static uint32_t get_part_number(void)
 	return part_number;
 }
 
+#if STM32MP15
 static uint32_t get_cpu_package(void)
 {
 	uint32_t package;
@@ -303,6 +355,7 @@ static uint32_t get_cpu_package(void)
 
 	return package;
 }
+#endif
 
 void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 {
@@ -310,6 +363,45 @@ void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 
 	/* MPUs Part Numbers */
 	switch (get_part_number()) {
+#if STM32MP13
+	case STM32MP135F_PART_NB:
+		cpu_s = "135F";
+		break;
+	case STM32MP135D_PART_NB:
+		cpu_s = "135D";
+		break;
+	case STM32MP135C_PART_NB:
+		cpu_s = "135C";
+		break;
+	case STM32MP135A_PART_NB:
+		cpu_s = "135A";
+		break;
+	case STM32MP133F_PART_NB:
+		cpu_s = "133F";
+		break;
+	case STM32MP133D_PART_NB:
+		cpu_s = "133D";
+		break;
+	case STM32MP133C_PART_NB:
+		cpu_s = "133C";
+		break;
+	case STM32MP133A_PART_NB:
+		cpu_s = "133A";
+		break;
+	case STM32MP131F_PART_NB:
+		cpu_s = "131F";
+		break;
+	case STM32MP131D_PART_NB:
+		cpu_s = "131D";
+		break;
+	case STM32MP131C_PART_NB:
+		cpu_s = "131C";
+		break;
+	case STM32MP131A_PART_NB:
+		cpu_s = "131A";
+		break;
+#endif
+#if STM32MP15
 	case STM32MP157C_PART_NB:
 		cpu_s = "157C";
 		break;
@@ -346,12 +438,18 @@ void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 	case STM32MP151D_PART_NB:
 		cpu_s = "151D";
 		break;
+#endif
 	default:
 		cpu_s = "????";
 		break;
 	}
 
 	/* Package */
+#if STM32MP13
+	/* On STM32MP13, package is not present in OTP */
+	pkg = "";
+#endif
+#if STM32MP15
 	switch (get_cpu_package()) {
 	case PKG_AA_LFBGA448:
 		pkg = "AA";
@@ -369,6 +467,7 @@ void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 		pkg = "??";
 		break;
 	}
+#endif
 
 	/* REVISION */
 	switch (stm32mp_get_chip_version()) {
@@ -420,6 +519,10 @@ void stm32mp_print_boardinfo(void)
 /* Return true when SoC provides a single Cortex-A7 core, and false otherwise */
 bool stm32mp_is_single_core(void)
 {
+#if STM32MP13
+	return true;
+#endif
+#if STM32MP15
 	bool single_core = false;
 
 	switch (get_part_number()) {
@@ -434,6 +537,7 @@ bool stm32mp_is_single_core(void)
 	}
 
 	return single_core;
+#endif
 }
 
 /* Return true when device is in closed state */
@@ -445,7 +549,23 @@ bool stm32mp_is_closed_device(void)
 		return true;
 	}
 
+#if STM32MP13
+	value = (value & CFG0_OTP_MODE_MASK) >> CFG0_OTP_MODE_SHIFT;
+
+	switch (value) {
+	case CFG0_OPEN_DEVICE:
+		return false;
+	case CFG0_CLOSED_DEVICE:
+	case CFG0_CLOSED_DEVICE_NO_BOUNDARY_SCAN:
+	case CFG0_CLOSED_DEVICE_NO_JTAG:
+		return true;
+	default:
+		panic();
+	}
+#endif
+#if STM32MP15
 	return (value & CFG0_CLOSED_DEVICE) == CFG0_CLOSED_DEVICE;
+#endif
 }
 
 /* Return true when device supports secure boot */
@@ -454,12 +574,22 @@ bool stm32mp_is_auth_supported(void)
 	bool supported = false;
 
 	switch (get_part_number()) {
+#if STM32MP13
+	case STM32MP131C_PART_NB:
+	case STM32MP131F_PART_NB:
+	case STM32MP133C_PART_NB:
+	case STM32MP133F_PART_NB:
+	case STM32MP135C_PART_NB:
+	case STM32MP135F_PART_NB:
+#endif
+#if STM32MP15
 	case STM32MP151C_PART_NB:
 	case STM32MP151F_PART_NB:
 	case STM32MP153C_PART_NB:
 	case STM32MP153F_PART_NB:
 	case STM32MP157C_PART_NB:
 	case STM32MP157F_PART_NB:
+#endif
 		supported = true;
 		break;
 	default:

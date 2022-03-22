@@ -36,6 +36,23 @@
 /*******************************************************************************
  * CHIP ID
  ******************************************************************************/
+#if STM32MP13
+#define STM32MP1_CHIP_ID	U(0x501)
+
+#define STM32MP135C_PART_NB	U(0x05010000)
+#define STM32MP135A_PART_NB	U(0x05010001)
+#define STM32MP133C_PART_NB	U(0x050100C0)
+#define STM32MP133A_PART_NB	U(0x050100C1)
+#define STM32MP131C_PART_NB	U(0x050106C8)
+#define STM32MP131A_PART_NB	U(0x050106C9)
+#define STM32MP135F_PART_NB	U(0x05010800)
+#define STM32MP135D_PART_NB	U(0x05010801)
+#define STM32MP133F_PART_NB	U(0x050108C0)
+#define STM32MP133D_PART_NB	U(0x050108C1)
+#define STM32MP131F_PART_NB	U(0x05010EC8)
+#define STM32MP131D_PART_NB	U(0x05010EC9)
+#endif
+#if STM32MP15
 #define STM32MP1_CHIP_ID	U(0x500)
 
 #define STM32MP157C_PART_NB	U(0x05000000)
@@ -50,17 +67,25 @@
 #define STM32MP153D_PART_NB	U(0x050000A5)
 #define STM32MP151F_PART_NB	U(0x050000AE)
 #define STM32MP151D_PART_NB	U(0x050000AF)
+#endif
 
 #define STM32MP1_REV_B		U(0x2000)
+#if STM32MP13
+#define STM32MP1_REV_Z		U(0x1001)
+#endif
+#if STM32MP15
 #define STM32MP1_REV_Z		U(0x2001)
+#endif
 
 /*******************************************************************************
  * PACKAGE ID
  ******************************************************************************/
+#if STM32MP15
 #define PKG_AA_LFBGA448		U(4)
 #define PKG_AB_LFBGA354		U(3)
 #define PKG_AC_TFBGA361		U(2)
 #define PKG_AD_TFBGA257		U(1)
+#endif
 
 /*******************************************************************************
  * STM32MP1 memory map related constants
@@ -69,8 +94,22 @@
 #define STM32MP_ROM_SIZE		U(0x00020000)
 #define STM32MP_ROM_SIZE_2MB_ALIGNED	U(0x00200000)
 
+#if STM32MP13
+#define STM32MP_SYSRAM_BASE		U(0x2FFE0000)
+#define STM32MP_SYSRAM_SIZE		U(0x00020000)
+#define SRAM1_BASE			U(0x30000000)
+#define SRAM1_SIZE			U(0x00004000)
+#define SRAM2_BASE			U(0x30004000)
+#define SRAM2_SIZE			U(0x00002000)
+#define SRAM3_BASE			U(0x30006000)
+#define SRAM3_SIZE			U(0x00002000)
+#define SRAMS_BASE			SRAM1_BASE
+#define SRAMS_SIZE_2MB_ALIGNED		U(0x00200000)
+#endif /* STM32MP13 */
+#if STM32MP15
 #define STM32MP_SYSRAM_BASE		U(0x2FFC0000)
 #define STM32MP_SYSRAM_SIZE		U(0x00040000)
+#endif /* STM32MP15 */
 
 #define STM32MP_NS_SYSRAM_SIZE		PAGE_SIZE
 #define STM32MP_NS_SYSRAM_BASE		(STM32MP_SYSRAM_BASE + \
@@ -98,6 +137,15 @@ enum ddr_type {
 #endif
 
 /* Section used inside TF binaries */
+#if STM32MP13
+/* 512 Octets reserved for header */
+#define STM32MP_HEADER_RESERVED_SIZE	U(0x200)
+
+#define STM32MP_BINARY_BASE		STM32MP_SEC_SYSRAM_BASE
+
+#define STM32MP_BINARY_SIZE		STM32MP_SEC_SYSRAM_SIZE
+#endif
+#if STM32MP15
 #define STM32MP_PARAM_LOAD_SIZE		U(0x00002400)	/* 9 KB for param */
 /* 256 Octets reserved for header */
 #define STM32MP_HEADER_SIZE		U(0x00000100)
@@ -111,6 +159,7 @@ enum ddr_type {
 #define STM32MP_BINARY_SIZE		(STM32MP_SEC_SYSRAM_SIZE -	\
 					 (STM32MP_PARAM_LOAD_SIZE +	\
 					  STM32MP_HEADER_SIZE))
+#endif
 
 /* BL2 and BL32/sp_min require finer granularity tables */
 #if defined(IMAGE_BL2)
@@ -170,9 +219,11 @@ enum ddr_type {
 #define GPIOG_BASE			U(0x50008000)
 #define GPIOH_BASE			U(0x50009000)
 #define GPIOI_BASE			U(0x5000A000)
+#if STM32MP15
 #define GPIOJ_BASE			U(0x5000B000)
 #define GPIOK_BASE			U(0x5000C000)
 #define GPIOZ_BASE			U(0x54004000)
+#endif
 #define GPIO_BANK_OFFSET		U(0x1000)
 
 /* Bank IDs used in GPIO driver API */
@@ -185,11 +236,13 @@ enum ddr_type {
 #define GPIO_BANK_G			U(6)
 #define GPIO_BANK_H			U(7)
 #define GPIO_BANK_I			U(8)
+#if STM32MP15
 #define GPIO_BANK_J			U(9)
 #define GPIO_BANK_K			U(10)
 #define GPIO_BANK_Z			U(25)
 
 #define STM32MP_GPIOZ_PIN_MAX_COUNT	8
+#endif
 
 /*******************************************************************************
  * STM32MP1 UART
@@ -205,6 +258,18 @@ enum ddr_type {
 
 /* For UART crash console */
 #define STM32MP_DEBUG_USART_BASE	UART4_BASE
+#if STM32MP13
+/* UART4 on HSI@64MHz, TX on GPIOF12 Alternate 8 (Disco board) */
+#define STM32MP_DEBUG_USART_CLK_FRQ	64000000
+#define DEBUG_UART_TX_GPIO_BANK_ADDRESS	GPIOD_BASE
+#define DEBUG_UART_TX_GPIO_BANK_CLK_REG	RCC_MP_S_AHB4ENSETR
+#define DEBUG_UART_TX_GPIO_BANK_CLK_EN	RCC_MP_S_AHB4ENSETR_GPIODEN
+#define DEBUG_UART_TX_GPIO_PORT		6
+#define DEBUG_UART_TX_GPIO_ALTERNATE	8
+#define DEBUG_UART_TX_CLKSRC_REG	RCC_UART4CKSELR
+#define DEBUG_UART_TX_CLKSRC		RCC_UART4CKSELR_HSI
+#endif /* STM32MP13 */
+#if STM32MP15
 /* UART4 on HSI@64MHz, TX on GPIOG11 Alternate 6 */
 #define STM32MP_DEBUG_USART_CLK_FRQ	64000000
 #define DEBUG_UART_TX_GPIO_BANK_ADDRESS	GPIOG_BASE
@@ -214,6 +279,7 @@ enum ddr_type {
 #define DEBUG_UART_TX_GPIO_ALTERNATE	6
 #define DEBUG_UART_TX_CLKSRC_REG	RCC_UART24CKSELR
 #define DEBUG_UART_TX_CLKSRC		RCC_UART24CKSELR_HSI
+#endif /* STM32MP15 */
 #define DEBUG_UART_TX_EN_REG		RCC_MP_APB1ENSETR
 #define DEBUG_UART_TX_EN		RCC_MP_APB1ENSETR_UART4EN
 #define DEBUG_UART_RST_REG		RCC_APB1RSTSETR
@@ -322,8 +388,13 @@ enum ddr_type {
  ******************************************************************************/
 #define STM32MP1_TZC_BASE		U(0x5C006000)
 
+#if STM32MP13
+#define STM32MP1_FILTER_BIT_ALL		TZC_400_REGION_ATTR_FILTER_BIT(0)
+#endif
+#if STM32MP15
 #define STM32MP1_FILTER_BIT_ALL		(TZC_400_REGION_ATTR_FILTER_BIT(0) | \
 					 TZC_400_REGION_ATTR_FILTER_BIT(1))
+#endif
 
 /*******************************************************************************
  * STM32MP1 SDMMC
@@ -349,7 +420,9 @@ enum ddr_type {
 /* OTP labels */
 #define CFG0_OTP			"cfg0_otp"
 #define PART_NUMBER_OTP			"part_number_otp"
+#if STM32MP15
 #define PACKAGE_OTP			"package_otp"
+#endif
 #define HW2_OTP				"hw2_otp"
 #define NAND_OTP			"nand_otp"
 #define MONOTONIC_OTP			"monotonic_otp"
@@ -358,15 +431,32 @@ enum ddr_type {
 
 /* OTP mask */
 /* CFG0 */
+#if STM32MP13
+#define CFG0_OTP_MODE_MASK		GENMASK_32(9, 0)
+#define CFG0_OTP_MODE_SHIFT		0
+#define CFG0_OPEN_DEVICE		0x17U
+#define CFG0_CLOSED_DEVICE		0x3FU
+#define CFG0_CLOSED_DEVICE_NO_BOUNDARY_SCAN	0x17FU
+#define CFG0_CLOSED_DEVICE_NO_JTAG	0x3FFU
+#endif
+#if STM32MP15
 #define CFG0_CLOSED_DEVICE		BIT(6)
+#endif
 
 /* PART NUMBER */
+#if STM32MP13
+#define PART_NUMBER_OTP_PART_MASK	GENMASK_32(11, 0)
+#endif
+#if STM32MP15
 #define PART_NUMBER_OTP_PART_MASK	GENMASK_32(7, 0)
+#endif
 #define PART_NUMBER_OTP_PART_SHIFT	0
 
 /* PACKAGE */
+#if STM32MP15
 #define PACKAGE_OTP_PKG_MASK		GENMASK_32(29, 27)
 #define PACKAGE_OTP_PKG_SHIFT		27
+#endif
 
 /* IWDG OTP */
 #define HW2_OTP_IWDG_HW_POS		U(3)
@@ -463,34 +553,84 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
  * Miscellaneous STM32MP1 peripherals base address
  ******************************************************************************/
 #define BSEC_BASE			U(0x5C005000)
+#if STM32MP13
+#define CRYP_BASE			U(0x54002000)
+#endif
+#if STM32MP15
 #define CRYP1_BASE			U(0x54001000)
+#endif
 #define DBGMCU_BASE			U(0x50081000)
+#if STM32MP13
+#define HASH_BASE			U(0x54003000)
+#endif
+#if STM32MP15
 #define HASH1_BASE			U(0x54002000)
+#endif
+#if STM32MP13
+#define I2C3_BASE			U(0x4C004000)
+#define I2C4_BASE			U(0x4C005000)
+#define I2C5_BASE			U(0x4C006000)
+#endif
+#if STM32MP15
 #define I2C4_BASE			U(0x5C002000)
 #define I2C6_BASE			U(0x5c009000)
+#endif
+#if STM32MP13
+#define RNG_BASE			U(0x54004000)
+#endif
+#if STM32MP15
 #define RNG1_BASE			U(0x54003000)
+#endif
 #define RTC_BASE			U(0x5c004000)
+#if STM32MP13
+#define SPI4_BASE			U(0x4C002000)
+#define SPI5_BASE			U(0x4C003000)
+#endif
+#if STM32MP15
 #define SPI6_BASE			U(0x5c001000)
+#endif
 #define STGEN_BASE			U(0x5c008000)
 #define SYSCFG_BASE			U(0x50020000)
+
+/*******************************************************************************
+ * STM32MP13 SAES
+ ******************************************************************************/
+#define SAES_BASE			U(0x54005000)
+
+/*******************************************************************************
+ * STM32MP13 PKA
+ ******************************************************************************/
+#define PKA_BASE			U(0x54006000)
 
 /*******************************************************************************
  * REGULATORS
  ******************************************************************************/
 /* 3 PWR + 1 VREFBUF + 14 PMIC regulators + 1 FIXED */
 #define PLAT_NB_RDEVS			U(19)
-/* 1 FIXED */
-#define PLAT_NB_FIXED_REGS		U(1)
+/* 2 FIXED */
+#define PLAT_NB_FIXED_REGS		U(2)
 
 /*******************************************************************************
  * Device Tree defines
  ******************************************************************************/
 #define DT_BSEC_COMPAT			"st,stm32mp15-bsec"
+#if STM32MP13
+#define DT_DDR_COMPAT			"st,stm32mp13-ddr"
+#endif
+#if STM32MP15
 #define DT_DDR_COMPAT			"st,stm32mp1-ddr"
+#endif
 #define DT_IWDG_COMPAT			"st,stm32mp1-iwdg"
 #define DT_NVMEM_LAYOUT_COMPAT		"st,stm32-nvmem-layout"
 #define DT_PWR_COMPAT			"st,stm32mp1,pwr-reg"
+#if STM32MP13
+#define DT_RCC_CLK_COMPAT		"st,stm32mp13-rcc"
+#define DT_RCC_SEC_CLK_COMPAT		"st,stm32mp13-rcc-secure"
+#endif
+#if STM32MP15
 #define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
 #define DT_RCC_SEC_CLK_COMPAT		"st,stm32mp1-rcc-secure"
+#endif
+#define DT_SDMMC2_COMPAT		"st,stm32-sdmmc2"
 
 #endif /* STM32MP1_DEF_H */

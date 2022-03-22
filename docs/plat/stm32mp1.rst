@@ -2,15 +2,34 @@ STMicroelectronics STM32MP1
 ===========================
 
 STM32MP1 is a microprocessor designed by STMicroelectronics
-based on a dual Arm Cortex-A7.
+based on Arm Cortex-A7.
 It is an Armv7-A platform, using dedicated code from TF-A.
-The STM32MP1 chip also embeds a Cortex-M4.
 More information can be found on `STM32MP1 Series`_ page.
 
 
 STM32MP1 Versions
 -----------------
-The STM32MP1 series is available in 3 different lines which are pin-to-pin compatible:
+
+There are 2 variants for STM32MP1: STM32MP13 and STM32MP15
+
+STM32MP13 Versions
+~~~~~~~~~~~~~~~~~~
+The STM32MP13 series is available in 3 different lines which are pin-to-pin compatible:
+
+- STM32MP131: Single Cortex-A7 core
+- STM32MP133: STM32MP131 + 2*CAN, ETH2(GMAC), ADC1
+- STM32MP135: STM32MP133 + DCMIPP, LTDC
+
+Each line comes with a security option (cryptography & secure boot) and a Cortex-A frequency option:
+
+- A      Cortex-A7 @ 650 MHz
+- C      Secure Boot + HW Crypto + Cortex-A7 @ 650 MHz
+- D      Cortex-A7 @ 900 MHz
+- F      Secure Boot + HW Crypto + Cortex-A7 @ 900 MHz
+
+STM32MP15 Versions
+~~~~~~~~~~~~~~~~~~
+The STM32MP15 series is available in 3 different lines which are pin-to-pin compatible:
 
 - STM32MP157: Dual Cortex-A7 cores, Cortex-M4 core @ 209 MHz, 3D GPU, DSI display interface and CAN FD
 - STM32MP153: Dual Cortex-A7 cores, Cortex-M4 core @ 209 MHz and CAN FD
@@ -131,6 +150,10 @@ Other configuration flags:
   | Default: 115200
 - | ``STM32_TF_VERSION``: to manage BL2 monotonic counter.
   | Default: 0
+- | ``STM32MP13``: to select STM32MP13 variant configuration.
+  | Default: 0
+- | ``STM32MP15``: to select STM32MP15 variant configuration.
+  | Default: 1
 
 
 Boot with FIP

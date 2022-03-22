@@ -219,17 +219,20 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 {
 	int status;
 	uint16_t buck3_min_mv;
-	struct rdev *buck2, *buck3, *ldo3, *vref;
+	struct rdev *buck2, *buck3, *vref;
+	struct rdev *ldo3 __unused;
 
 	buck2 = regulator_get_by_name("buck2");
 	if (buck2 == NULL) {
 		return -ENOENT;
 	}
 
+#if STM32MP15
 	ldo3 = regulator_get_by_name("ldo3");
 	if (ldo3 == NULL) {
 		return -ENOENT;
 	}
+#endif
 
 	vref = regulator_get_by_name("vref_ddr");
 	if (vref == NULL) {
@@ -238,10 +241,12 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 
 	switch (ddr_type) {
 	case STM32MP_DDR3:
+#if STM32MP15
 		status = regulator_set_flag(ldo3, REGUL_SINK_SOURCE);
 		if (status != 0) {
 			return status;
 		}
+#endif
 
 		status = regulator_set_min_voltage(buck2);
 		if (status != 0) {
@@ -258,10 +263,12 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 			return status;
 		}
 
+#if STM32MP15
 		status = regulator_enable(ldo3);
 		if (status != 0) {
 			return status;
 		}
+#endif
 		break;
 
 	case STM32MP_LPDDR2:
@@ -278,6 +285,7 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 
 		regulator_get_range(buck3, &buck3_min_mv, NULL);
 
+#if STM32MP15
 		if (buck3_min_mv != 1800) {
 			status = regulator_set_min_voltage(ldo3);
 			if (status != 0) {
@@ -289,16 +297,19 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 				return status;
 			}
 		}
+#endif
 
 		status = regulator_set_min_voltage(buck2);
 		if (status != 0) {
 			return status;
 		}
 
+#if STM32MP15
 		status = regulator_enable(ldo3);
 		if (status != 0) {
 			return status;
 		}
+#endif
 
 		status = regulator_enable(buck2);
 		if (status != 0) {
@@ -314,6 +325,36 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 	default:
 		break;
 	};
+
+	return 0;
+}
+
+int pmic_voltages_init(void)
+{
+#if STM32MP13
+	struct rdev *buck1, *buck4;
+	int status;
+
+	buck1 = regulator_get_by_name("buck1");
+	if (buck1 == NULL) {
+		return -ENOENT;
+	}
+
+	buck4 = regulator_get_by_name("buck4");
+	if (buck4 == NULL) {
+		return -ENOENT;
+	}
+
+	status = regulator_set_min_voltage(buck1);
+	if (status != 0) {
+		return status;
+	}
+
+	status = regulator_set_min_voltage(buck4);
+	if (status != 0) {
+		return status;
+	}
+#endif
 
 	return 0;
 }

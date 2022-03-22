@@ -24,9 +24,51 @@ STM32_TF_VERSION	?=	0
 # Enable dynamic memory mapping
 PLAT_XLAT_TABLES_DYNAMIC :=	1
 
+# Default Device tree
+DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
+
+STM32MP13		?=	0
+STM32MP15		?=	0
+
+ifeq ($(STM32MP13),1)
+ifeq ($(STM32MP15),1)
+$(error Cannot enable both flags STM32MP13 and STM32MP15)
+endif
+STM32MP13		:=	1
+STM32MP15		:=	0
+else ifeq ($(STM32MP15),1)
+STM32MP13		:=	0
+STM32MP15		:=	1
+else ifneq ($(findstring stm32mp13,$(DTB_FILE_NAME)),)
+STM32MP13		:=	1
+STM32MP15		:=	0
+else ifneq ($(findstring stm32mp15,$(DTB_FILE_NAME)),)
+STM32MP13		:=	0
+STM32MP15		:=	1
+endif
+
+ifeq ($(STM32MP13),1)
+# DDR controller with single AXI port and 16-bit interface
+STM32MP_DDR_DUAL_AXI_PORT:=	0
+STM32MP_DDR_32BIT_INTERFACE:=	0
+
+# STM32 image header version v2.0
+STM32_HEADER_VERSION_MAJOR:=	2
+STM32_HEADER_VERSION_MINOR:=	0
+endif
+
+ifeq ($(STM32MP15),1)
 # DDR controller with dual AXI port and 32-bit interface
 STM32MP_DDR_DUAL_AXI_PORT:=	1
 STM32MP_DDR_32BIT_INTERFACE:=	1
+
+# STM32 image header version v1.0
+STM32_HEADER_VERSION_MAJOR:=	1
+STM32_HEADER_VERSION_MINOR:=	0
+endif
+
+# STM32 image header binary type for BL2
+STM32_HEADER_BL2_BINARY_TYPE:=	0x10
 
 ifeq ($(AARCH32_SP),sp_min)
 # Disable Neon support: sp_min runtime may conflict with non-secure world
@@ -82,7 +124,10 @@ STM32MP_USB_PROGRAMMER	?=	0
 STM32MP_UART_PROGRAMMER	?=	0
 
 # Device tree
-DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
+ifeq ($(STM32MP13),1)
+BL2_DTSI		:=	stm32mp13-bl2.dtsi
+FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
+else
 ifeq ($(STM32MP_USE_STM32IMAGE),1)
 ifeq ($(AARCH32_SP),optee)
 BL2_DTSI		:=	stm32mp15-bl2.dtsi
@@ -96,6 +141,7 @@ FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DT
 ifeq ($(AARCH32_SP),sp_min)
 BL32_DTSI		:=	stm32mp15-bl32.dtsi
 FDT_SOURCES		+=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dts,$(DTB_FILE_NAME)))
+endif
 endif
 endif
 
@@ -167,6 +213,8 @@ $(eval $(call assert_booleans,\
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_STM32IMAGE \
+		STM32MP13 \
+		STM32MP15 \
 )))
 
 $(eval $(call assert_numerics,\
@@ -196,6 +244,8 @@ $(eval $(call add_defines,\
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_STM32IMAGE \
+		STM32MP13 \
+		STM32MP15 \
 )))
 
 # Include paths and source files
@@ -230,7 +280,6 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				drivers/delay_timer/generic_delay_timer.c		\
 				drivers/st/bsec/bsec2.c					\
 				drivers/st/clk/stm32mp_clkfunc.c			\
-				drivers/st/clk/stm32mp1_clk.c				\
 				drivers/st/ddr/stm32mp_ddr.c				\
 				drivers/st/ddr/stm32mp1_ddr_helpers.c			\
 				drivers/st/gpio/stm32_gpio.c				\
@@ -245,6 +294,13 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				plat/st/stm32mp1/stm32mp1_dbgmcu.c			\
 				plat/st/stm32mp1/stm32mp1_helper.S			\
 				plat/st/stm32mp1/stm32mp1_syscfg.c
+
+ifeq ($(STM32MP13),1)
+PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/clk-stm32-core.c				\
+				drivers/st/clk/clk-stm32mp13.c
+else
+PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/stm32mp1_clk.c
+endif
 
 ifneq (${STM32MP_USE_STM32IMAGE},1)
 BL2_SOURCES		+=	${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
@@ -275,8 +331,12 @@ BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/io/io_mtd.c					\
 				drivers/io/io_storage.c					\
 				drivers/st/crypto/stm32_hash.c				\
-				plat/st/common/stm32mp_auth.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
+
+
+ifeq ($(STM32MP15),1)
+BL2_SOURCES		+=	plat/st/common/stm32mp_auth.c
+endif
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES		+=	drivers/mmc/mmc.c					\
@@ -427,5 +487,8 @@ tf-a-%.stm32: ${STM32IMAGE} tf-a-%.bin
 	$(eval ENTRY = $(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
 	${Q}${STM32IMAGE} -s $(word 2,$^) -d $@ \
 		-l $(LOADADDR) -e ${ENTRY} \
-		-v ${STM32_TF_VERSION}
+		-v ${STM32_TF_VERSION} \
+		-m ${STM32_HEADER_VERSION_MAJOR} \
+		-n ${STM32_HEADER_VERSION_MINOR} \
+		-b ${STM32_HEADER_BL2_BINARY_TYPE}
 	@echo
