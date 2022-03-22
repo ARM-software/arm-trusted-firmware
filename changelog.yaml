@@ -432,6 +432,13 @@ subsections:
             deprecated:
               - plat/st/stm32mp1
 
+      - title: Texas Instruments
+        scope: ti
+
+        subsections:
+          - title: K3
+            scope: k3
+
       - title: Xilinx
         scope: xilinx
 
