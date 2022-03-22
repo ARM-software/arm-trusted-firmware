@@ -51,6 +51,10 @@ typedef struct rmmd_rmm_context {
 uint64_t rmmd_rmm_sync_entry(rmmd_rmm_context_t *ctx);
 __dead2 void rmmd_rmm_sync_exit(uint64_t rc);
 
+/* Functions implementing attestation utilities for RMM */
+int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_len,
+				   uint64_t challenge_hash_len);
+
 /* Assembly helpers */
 uint64_t rmmd_rmm_enter(uint64_t *c_rt_ctx);
 void __dead2 rmmd_rmm_exit(uint64_t c_rt_ctx, uint64_t ret);

@@ -2017,6 +2017,32 @@ state. This function must return a pointer to the ``entry_point_info`` structure
 (that was copied during ``bl31_early_platform_setup()``) if the image exists. It
 should return NULL otherwise.
 
+Function : plat_get_cca_attest_token() [mandatory when ENABLE_RME == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uintptr_t, size_t *, uintptr_t, size_t
+    Return   : int
+
+This function returns the Platform attestation token.
+
+The parameters of the function are:
+
+    arg0 - A pointer to the buffer where the Platform token should be copied by
+           this function. The buffer must be big enough to hold the Platform
+           token.
+
+    arg1 - Contains the size (in bytes) of the buffer passed in arg0. The
+           function returns the platform token length in this parameter.
+
+    arg2 - A pointer to the buffer where the challenge object is stored.
+
+    arg3 - The length of the challenge object in bytes. Possible values are 32,
+           48 and 64.
+
+The function returns 0 on success, -EINVAL on failure.
+
 Function : bl31_plat_enable_mmu [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

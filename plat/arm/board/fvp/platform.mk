@@ -193,6 +193,7 @@ endif
 
 ifeq (${ENABLE_RME},1)
 BL2_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S
+BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c
 endif
 
 ifeq (${BL2_AT_EL3},1)
@@ -342,6 +343,10 @@ else # AArch64
     ifeq (${SPD},trusty)
         BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
     endif
+endif
+
+ifeq (${ENABLE_RME},1)
+    BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
 endif
 
 ifeq (${ALLOW_RO_XLAT_TABLES}, 1)

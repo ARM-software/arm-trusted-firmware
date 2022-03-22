@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -302,6 +302,11 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 			const plat_local_state_t *states,
 			unsigned int ncpu);
 
+/*******************************************************************************
+ * Mandatory BL31 functions when ENABLE_RME=1
+ ******************************************************************************/
+int plat_get_cca_attest_token(uintptr_t buf, size_t *len,
+			       uintptr_t hash, size_t hash_size);
 /*******************************************************************************
  * Optional BL31 functions (may be overridden)
  ******************************************************************************/

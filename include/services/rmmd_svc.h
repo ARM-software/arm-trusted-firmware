@@ -77,6 +77,26 @@
 #define RMMD_ERR_INVAL			-5
 #define RMMD_ERR_UNK			-6
 
+/*
+ * Retrieve Platform token from EL3.
+ * The arguments to this SMC are :
+ *    arg0 - Function ID.
+ *    arg1 - Platform attestation token buffer Physical address. (The challenge
+ *           object is passed in this buffer.)
+ *    arg2 - Platform attestation token buffer size (in bytes).
+ *    arg3 - Challenge object size (in bytes). It has be one of the defined SHA hash
+ *           sizes.
+ * The return arguments are :
+ *    ret0 - Status / error.
+ *    ret1 - Size of the platform token if successful.
+ */
+#define RMMD_ATTEST_GET_PLAT_TOKEN	RMM_FID(SMC_64, ATTEST_GET_PLAT_TOKEN)
+
+/* Acceptable SHA sizes for Challenge object */
+#define SHA256_DIGEST_SIZE	32U
+#define SHA384_DIGEST_SIZE	48U
+#define SHA512_DIGEST_SIZE	64U
+
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 
