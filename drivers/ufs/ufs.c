@@ -490,6 +490,21 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
 	return 0;
 }
 
+static void ufs_send_cmd(utp_utrd_t *utrd, uint8_t cmd_op, uint8_t lun, int lba, uintptr_t buf,
+			 size_t length)
+{
+	int result;
+
+	get_utrd(utrd);
+
+	result = ufs_prepare_cmd(utrd, cmd_op, lun, lba, buf, length);
+	assert(result == 0);
+	ufs_send_request(utrd->task_tag);
+	result = ufs_check_resp(utrd, RESPONSE_UPIU);
+	assert(result == 0);
+	(void)result;
+}
+
 #ifdef UFS_RESP_DEBUG
 static void dump_upiu(utp_utrd_t *utrd)
 {
@@ -540,14 +555,7 @@ static void ufs_verify_init(void)
 static void ufs_verify_ready(void)
 {
 	utp_utrd_t utrd;
-	int result;
-
-	get_utrd(&utrd);
-	ufs_prepare_cmd(&utrd, CDBCMD_TEST_UNIT_READY, 0, 0, 0, 0);
-	ufs_send_request(utrd.task_tag);
-	result = ufs_check_resp(&utrd, RESPONSE_UPIU);
-	assert(result == 0);
-	(void)result;
+	ufs_send_cmd(&utrd, CDBCMD_TEST_UNIT_READY, 0, 0, 0, 0);
 }
 
 static void ufs_query(uint8_t op, uint8_t idn, uint8_t index, uint8_t sel,
@@ -663,12 +671,8 @@ static void ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
 	memset((void *)buf, 0, CACHE_WRITEBACK_GRANULE);
 	flush_dcache_range(buf, CACHE_WRITEBACK_GRANULE);
 	do {
-		get_utrd(&utrd);
-		ufs_prepare_cmd(&utrd, CDBCMD_READ_CAPACITY_10, lun, 0,
-				buf, READ_CAPACITY_LENGTH);
-		ufs_send_request(utrd.task_tag);
-		result = ufs_check_resp(&utrd, RESPONSE_UPIU);
-		assert(result == 0);
+		ufs_send_cmd(&utrd, CDBCMD_READ_CAPACITY_10, lun, 0,
+			    buf, READ_CAPACITY_LENGTH);
 #ifdef UFS_RESP_DEBUG
 		dump_upiu(&utrd);
 #endif
@@ -702,11 +706,7 @@ size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size)
 	       (ufs_params.desc_base != 0) &&
 	       (ufs_params.desc_size >= UFS_DESC_SIZE));
 
-	get_utrd(&utrd);
-	ufs_prepare_cmd(&utrd, CDBCMD_READ_10, lun, lba, buf, size);
-	ufs_send_request(utrd.task_tag);
-	result = ufs_check_resp(&utrd, RESPONSE_UPIU);
-	assert(result == 0);
+	ufs_send_cmd(&utrd, CDBCMD_READ_10, lun, lba, buf, size);
 #ifdef UFS_RESP_DEBUG
 	dump_upiu(&utrd);
 #endif
@@ -725,11 +725,7 @@ size_t ufs_write_blocks(int lun, int lba, const uintptr_t buf, size_t size)
 	       (ufs_params.desc_base != 0) &&
 	       (ufs_params.desc_size >= UFS_DESC_SIZE));
 
-	get_utrd(&utrd);
-	ufs_prepare_cmd(&utrd, CDBCMD_WRITE_10, lun, lba, buf, size);
-	ufs_send_request(utrd.task_tag);
-	result = ufs_check_resp(&utrd, RESPONSE_UPIU);
-	assert(result == 0);
+	ufs_send_cmd(&utrd, CDBCMD_WRITE_10, lun, lba, buf, size);
 #ifdef UFS_RESP_DEBUG
 	dump_upiu(&utrd);
 #endif
@@ -742,11 +738,6 @@ static void ufs_enum(void)
 {
 	unsigned int blk_num, blk_size;
 	int i;
-
-	/* 0 means 1 slot */
-	nutrs = (mmio_read_32(ufs_params.reg_base + CAP) & CAP_NUTRS_MASK) + 1;
-	if (nutrs > (ufs_params.desc_size / UFS_DESC_SIZE))
-		nutrs = ufs_params.desc_size / UFS_DESC_SIZE;
 
 	ufs_verify_init();
 	ufs_verify_ready();
@@ -791,6 +782,13 @@ int ufs_init(const ufs_ops_t *ops, ufs_params_t *params)
 	       (params->desc_size >= UFS_DESC_SIZE));
 
 	memcpy(&ufs_params, params, sizeof(ufs_params_t));
+
+	/* 0 means 1 slot */
+	nutrs = (mmio_read_32(ufs_params.reg_base + CAP) & CAP_NUTRS_MASK) + 1;
+	if (nutrs > (ufs_params.desc_size / UFS_DESC_SIZE)) {
+		nutrs = ufs_params.desc_size / UFS_DESC_SIZE;
+	}
+
 
 	if (ufs_params.flags & UFS_FLAGS_SKIPINIT) {
 		result = ufshc_dme_get(0x1571, 0, &data);
