@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,9 @@
 
 /* Cortex-A76AE MIDR for revision 0 */
 #define CORTEX_A76AE_MIDR		U(0x410FD0E0)
+
+/* Cortex-A76 loop count for CVE-2022-23960 mitigation */
+#define CORTEX_A76AE_BHB_LOOP_COUNT	U(24)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.

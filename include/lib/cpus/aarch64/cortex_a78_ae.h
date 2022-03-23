@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
  * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -10,7 +10,10 @@
 
 #include <cortex_a78.h>
 
-#define CORTEX_A78_AE_MIDR U(0x410FD420)
+#define CORTEX_A78_AE_MIDR 				U(0x410FD420)
+
+/* Cortex-A78AE loop count for CVE-2022-23960 mitigation */
+#define CORTEX_A78_AE_BHB_LOOP_COUNT			U(32)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
