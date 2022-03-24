@@ -79,10 +79,10 @@
 		compatible = "arm,smmu-v3";
 		reg = <0 0x4f400000 0 0x40000>;
 		interrupts = <GIC_SPI 235 IRQ_TYPE_EDGE_RISING>,
+				<GIC_SPI 237 IRQ_TYPE_EDGE_RISING>,
 				<GIC_SPI 40 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 236 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 237 IRQ_TYPE_EDGE_RISING>;
-		interrupt-names = "eventq", "priq", "cmdq-sync", "gerror";
+				<GIC_SPI 236 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "gerror", "priq", "cmdq-sync";
 		msi-parent = <&its2 0>;
 		#iommu-cells = <1>;
 		dma-coherent;
@@ -115,10 +115,10 @@
 		compatible = "arm,smmu-v3";
 		reg = <0 0x4f000000 0 0x40000>;
 		interrupts = <GIC_SPI 228 IRQ_TYPE_EDGE_RISING>,
+				<GIC_SPI 230 IRQ_TYPE_EDGE_RISING>,
 				<GIC_SPI 41 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 229 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 230 IRQ_TYPE_EDGE_RISING>;
-		interrupt-names = "eventq", "priq", "cmdq-sync", "gerror";
+				<GIC_SPI 229 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "gerror", "priq", "cmdq-sync";
 		msi-parent = <&its1 0>;
 		#iommu-cells = <1>;
 		dma-coherent;
