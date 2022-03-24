@@ -160,7 +160,7 @@
 	dp0: display@2cc00000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "arm,mali-d32";
+		compatible = "arm,mali-d32", "arm,mali-d71";
 		reg = <0 0x2cc00000 0 0x20000>;
 		interrupts = <0 69 4>;
 		interrupt-names = "DPU";
