@@ -645,6 +645,9 @@ subsections:
                   - title: GIC-600AE
                     scope: gic600ae
 
+          - title: SMMU
+            scope: smmu
+
           - title: TZC
             scope: tzc
 
