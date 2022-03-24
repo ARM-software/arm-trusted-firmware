@@ -18,7 +18,7 @@
 	};
 
 	gic: interrupt-controller@2c010000 {
-		compatible = "arm,gic-600", "arm,gic-v3";
+		compatible = "arm,gic-v3";
 		#address-cells = <2>;
 		#interrupt-cells = <3>;
 		#size-cells = <2>;
