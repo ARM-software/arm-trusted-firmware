@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include "morello.dtsi"
 
 / {
+	model = "Arm Morello Fixed Virtual Platform";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
