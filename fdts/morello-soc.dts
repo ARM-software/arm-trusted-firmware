@@ -151,9 +151,9 @@
 		compatible = "arm,smmu-v3";
 		reg = <0 0x2ce00000 0 0x40000>;
 		interrupts = <GIC_SPI 76 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 78 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 80 IRQ_TYPE_EDGE_RISING>;
-		interrupt-names = "eventq", "cmdq-sync", "gerror";
+				<GIC_SPI 80 IRQ_TYPE_EDGE_RISING>,
+				<GIC_SPI 78 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "gerror", "cmdq-sync";
 		#iommu-cells = <1>;
 	};
 
