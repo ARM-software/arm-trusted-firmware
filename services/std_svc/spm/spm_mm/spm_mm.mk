@@ -21,7 +21,6 @@ ifeq (${CTX_INCLUDE_FPREGS},0)
 endif
 
 SPM_MM_SOURCES	:=	$(addprefix services/std_svc/spm/spm_mm/,	\
-			${ARCH}/spm_mm_shim_exceptions.S		\
 			spm_mm_main.c					\
 			spm_mm_setup.c					\
 			spm_mm_xlat.c)

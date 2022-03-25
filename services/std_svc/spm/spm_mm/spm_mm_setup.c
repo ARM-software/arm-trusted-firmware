@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -21,7 +21,7 @@
 
 #include "spm_common.h"
 #include "spm_mm_private.h"
-#include "spm_mm_shim_private.h"
+#include "spm_shim_private.h"
 
 /* Setup context of the Secure Partition */
 void spm_sp_setup(sp_context_t *sp_ctx)

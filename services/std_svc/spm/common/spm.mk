@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -10,8 +10,9 @@ endif
 
 INCLUDES	+=	-Iservices/std_svc/spm/common/include
 
-SPM_SOURCES	:=	$(addprefix services/std_svc/spm/common/,\
-			${ARCH}/spm_helpers.S)
+SPM_SOURCES	:=	$(addprefix services/std_svc/spm/common/,	\
+			${ARCH}/spm_helpers.S				\
+			${ARCH}/spm_shim_exceptions.S)
 
 # Let the top-level Makefile know that we intend to include a BL32 image
 NEED_BL32		:=	yes
