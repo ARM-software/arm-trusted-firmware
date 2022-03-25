@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <asm_macros.S>
-#include <services/gtsi_svc.h>
-#include <services/rmi_svc.h>
+#include <services/rmmd_svc.h>
 #include "trp_private.h"
 
 .global trp_head
@@ -59,7 +58,7 @@ trp_head:
 
 	bl	trp_main
 warm_boot:
-	mov_imm	x0, RMI_RMM_REQ_COMPLETE
+	mov_imm	x0, RMMD_RMI_REQ_COMPLETE
 	mov	x1, xzr
 	smc	#0
 	b	trp_handler

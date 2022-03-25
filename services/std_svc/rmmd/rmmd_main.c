@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,8 +26,6 @@
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-#include <services/gtsi_svc.h>
-#include <services/rmi_svc.h>
 #include <services/rmmd_svc.h>
 #include <smccc_helpers.h>
 #include <lib/extensions/sve.h>
@@ -257,7 +255,7 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 	/* RMI must not be invoked by the Secure world */
 	if (src_sec_state == SMC_FROM_SECURE) {
-		WARN("RMM: RMI invoked by secure world.\n");
+		WARN("RMMD: RMI invoked by secure world.\n");
 		SMC_RET1(handle, SMC_UNK);
 	}
 
@@ -266,17 +264,19 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	 * is.
 	 */
 	if (src_sec_state == SMC_FROM_NON_SECURE) {
-		VERBOSE("RMM: RMI call from non-secure world.\n");
+		VERBOSE("RMMD: RMI call from non-secure world.\n");
 		return rmmd_smc_forward(NON_SECURE, REALM, smc_fid,
 					x1, x2, x3, x4, handle);
 	}
 
-	assert(src_sec_state == SMC_FROM_REALM);
+	if (src_sec_state != SMC_FROM_REALM) {
+		SMC_RET1(handle, SMC_UNK);
+	}
 
 	switch (smc_fid) {
-	case RMI_RMM_REQ_COMPLETE:
+	case RMMD_RMI_REQ_COMPLETE:
 		if (ctx->state == RMM_STATE_RESET) {
-			VERBOSE("RMM: running rmmd_rmm_sync_exit\n");
+			VERBOSE("RMMD: running rmmd_rmm_sync_exit\n");
 			rmmd_rmm_sync_exit(x1);
 		}
 
@@ -284,7 +284,7 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 					x2, x3, x4, 0, handle);
 
 	default:
-		WARN("RMM: Unsupported RMM call 0x%08x\n", smc_fid);
+		WARN("RMMD: Unsupported RMM call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
 }
@@ -325,10 +325,32 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 /* Subscribe to PSCI CPU on to initialize RMM on secondary */
 SUBSCRIBE_TO_EVENT(psci_cpu_on_finish, rmmd_cpu_on_finish_handler);
 
+/* Convert GPT lib error to RMMD GTS error */
+static int gpt_to_gts_error(int error, uint32_t smc_fid, uint64_t address)
+{
+	int ret;
+
+	if (error == 0) {
+		return RMMD_OK;
+	}
+
+	if (error == -EINVAL) {
+		ret = RMMD_ERR_BAD_ADDR;
+	} else {
+		/* This is the only other error code we expect */
+		assert(error == -EPERM);
+		ret = RMMD_ERR_BAD_PAS;
+	}
+
+	ERROR("RMMD: PAS Transition failed. GPT ret = %d, PA: 0x%"PRIx64 ", FID = 0x%x\n",
+				error, address, smc_fid);
+	return ret;
+}
+
 /*******************************************************************************
- * This function handles all SMCs in the range reserved for GTF.
+ * This function handles RMM-EL3 interface SMCs
  ******************************************************************************/
-uint64_t rmmd_gtsi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
+uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 				uint64_t x3, uint64_t x4, void *cookie,
 				void *handle, uint64_t flags)
 {
@@ -339,33 +361,19 @@ uint64_t rmmd_gtsi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	src_sec_state = caller_sec_state(flags);
 
 	if (src_sec_state != SMC_FROM_REALM) {
-		WARN("RMM: GTF call originated from secure or normal world\n");
+		WARN("RMMD: RMM-EL3 call originated from secure or normal world\n");
 		SMC_RET1(handle, SMC_UNK);
 	}
 
 	switch (smc_fid) {
-	case SMC_ASC_MARK_REALM:
+	case RMMD_GTSI_DELEGATE:
 		ret = gpt_delegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
-		break;
-	case SMC_ASC_MARK_NONSECURE:
+		SMC_RET1(handle, gpt_to_gts_error(ret, smc_fid, x1));
+	case RMMD_GTSI_UNDELEGATE:
 		ret = gpt_undelegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
-		break;
+		SMC_RET1(handle, gpt_to_gts_error(ret, smc_fid, x1));
 	default:
-		WARN("RMM: Unsupported GTF call 0x%08x\n", smc_fid);
+		WARN("RMMD: Unsupported RMM-EL3 call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
-
-	if (ret == -EINVAL) {
-		ERROR("[GTSI] Transition failed: invalid %s\n", "address");
-		ERROR("       PA: 0x%"PRIx64 ", SRC: %d, PAS: %d\n", x1,
-		      SMC_FROM_REALM, smc_fid);
-		ret = GRAN_TRANS_RET_BAD_ADDR;
-	} else if (ret == -EPERM) {
-		ERROR("[GTSI] Transition failed: invalid %s\n", "caller/PAS");
-		ERROR("       PA: 0x%"PRIx64 ", SRC: %d, PAS: %d\n", x1,
-		      SMC_FROM_REALM, smc_fid);
-		ret = GRAN_TRANS_RET_BAD_PAS;
-	}
-
-	SMC_RET1(handle, ret);
 }

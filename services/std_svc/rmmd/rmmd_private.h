@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,7 +31,6 @@
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
-#include <services/rmi_svc.h>
 
 typedef enum rmm_state {
 	RMM_STATE_RESET = 0,
