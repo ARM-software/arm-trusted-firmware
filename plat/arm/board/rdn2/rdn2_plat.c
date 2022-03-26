@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -141,3 +141,17 @@ void bl31_platform_setup(void)
 #endif
 }
 #endif /* IMAGE_BL31 */
+
+#if SPMC_AT_EL3
+
+#define DATASTORE_SIZE 1024
+
+__section("arm_el3_tzc_dram") uint8_t plat_spmc_shmem_datastore[DATASTORE_SIZE];
+
+int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
+{
+	*datastore = plat_spmc_shmem_datastore;
+	*size = DATASTORE_SIZE;
+	return 0;
+}
+#endif
