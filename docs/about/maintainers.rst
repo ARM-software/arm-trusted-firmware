@@ -480,6 +480,8 @@ MediaTek platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Rex-BC Chen <rex-bc.chen@mediatek.com>
 :|G|: `mtk-rex-bc-chen`_
+:|M|: Leon Chen <leon.chen@mediatek.com>
+:|G|: `leon-chen-mtk`_
 :|F|: docs/plat/mt\*.rst
 :|F|: plat/mediatek/
 
@@ -805,6 +807,7 @@ Conventional Changelog Extensions
 .. _mmind: https://github.com/mmind
 .. _MrVan: https://github.com/MrVan
 .. _mtk-rex-bc-chen: https://github.com/mtk-rex-bc-chen
+.. _leon-chen-mtk: https://github.com/leon-chen-mtk
 .. _niej: https://github.com/niej
 .. _npoushin: https://github.com/npoushin
 .. _prabhakarlad: https://github.com/prabhakarlad
