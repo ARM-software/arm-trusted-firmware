@@ -46,7 +46,16 @@
 #define TAMP_BOOT_MODE_ITF_MASK		U(0x0000FF00)
 #define TAMP_BOOT_MODE_ITF_SHIFT	8
 
-#define TAMP_BOOT_COUNTER_REG_ID	U(21)
+/*
+ * Backup register to store fwu update information.
+ * It should be writeable only by secure world, but also readable by non secure
+ * (so it should be in Zone 2).
+ */
+#define TAMP_BOOT_FWU_INFO_REG_ID	U(10)
+#define TAMP_BOOT_FWU_INFO_IDX_MSK	U(0xF)
+#define TAMP_BOOT_FWU_INFO_IDX_OFF	U(0)
+#define TAMP_BOOT_FWU_INFO_CNT_MSK	U(0xF0)
+#define TAMP_BOOT_FWU_INFO_CNT_OFF	U(4)
 
 #if defined(IMAGE_BL2)
 #define MAP_SEC_SYSRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
@@ -733,8 +742,10 @@ void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
 void stm32mp1_fwu_set_boot_idx(void)
 {
 	clk_enable(RTCAPB);
-	mmio_write_32(tamp_bkpr(TAMP_BOOT_COUNTER_REG_ID),
-		      plat_fwu_get_boot_idx());
+	mmio_clrsetbits_32(tamp_bkpr(TAMP_BOOT_FWU_INFO_REG_ID),
+			   TAMP_BOOT_FWU_INFO_IDX_MSK,
+			   (plat_fwu_get_boot_idx() << TAMP_BOOT_FWU_INFO_IDX_OFF) &
+			   TAMP_BOOT_FWU_INFO_IDX_MSK);
 	clk_disable(RTCAPB);
 }
 #endif /* !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT */
