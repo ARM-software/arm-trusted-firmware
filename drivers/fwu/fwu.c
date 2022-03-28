@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,7 +25,7 @@ CASSERT((offsetof(struct fwu_metadata, crc_32) == 0),
 	crc_32_must_be_first_member_of_structure);
 
 static struct fwu_metadata metadata;
-static bool is_fwu_initialized;
+static bool is_metadata_initialized __unused;
 
 /*******************************************************************************
  * Compute CRC32 of the FWU metadata, and check it against the CRC32 value
@@ -142,7 +142,7 @@ bool fwu_is_trial_run_state(void)
 {
 	bool trial_run = false;
 
-	assert(is_fwu_initialized);
+	assert(is_metadata_initialized);
 
 	for (unsigned int i = 0U; i < NR_OF_IMAGES_IN_FW_BANK; i++) {
 		struct fwu_image_entry *entry = &metadata.img_entry[i];
@@ -159,7 +159,7 @@ bool fwu_is_trial_run_state(void)
 
 const struct fwu_metadata *fwu_get_metadata(void)
 {
-	assert(is_fwu_initialized);
+	assert(is_metadata_initialized);
 
 	return &metadata;
 }
@@ -188,7 +188,7 @@ void fwu_init(void)
 		}
 	}
 
-	plat_fwu_set_images_source(&metadata);
+	is_metadata_initialized = true;
 
-	is_fwu_initialized = true;
+	plat_fwu_set_images_source(&metadata);
 }
