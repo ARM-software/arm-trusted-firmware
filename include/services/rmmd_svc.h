@@ -77,6 +77,45 @@
 #define RMMD_ERR_INVAL			-5
 #define RMMD_ERR_UNK			-6
 
+/*
+ * Retrieve Platform token from EL3.
+ * The arguments to this SMC are :
+ *    arg0 - Function ID.
+ *    arg1 - Platform attestation token buffer Physical address. (The challenge
+ *           object is passed in this buffer.)
+ *    arg2 - Platform attestation token buffer size (in bytes).
+ *    arg3 - Challenge object size (in bytes). It has be one of the defined SHA hash
+ *           sizes.
+ * The return arguments are :
+ *    ret0 - Status / error.
+ *    ret1 - Size of the platform token if successful.
+ */
+#define RMMD_ATTEST_GET_PLAT_TOKEN	RMM_FID(SMC_64, ATTEST_GET_PLAT_TOKEN)
+
+/* Acceptable SHA sizes for Challenge object */
+#define SHA256_DIGEST_SIZE	32U
+#define SHA384_DIGEST_SIZE	48U
+#define SHA512_DIGEST_SIZE	64U
+
+/*
+ * Retrieve Realm attestation key from EL3. Only P-384 ECC curve key is
+ * supported. The arguments to this SMC are :
+ *    arg0 - Function ID.
+ *    arg1 - Realm attestation key buffer Physical address.
+ *    arg2 - Realm attestation key buffer size (in bytes).
+ *    arg3 - The type of the elliptic curve to which the requested
+ *           attestation key belongs to. The value should be one of the
+ *           defined curve types.
+ * The return arguments are :
+ *    ret0 - Status / error.
+ *    ret1 - Size of the realm attestation key if successful.
+ */
+#define RMMD_ATTEST_GET_REALM_KEY	RMM_FID(SMC_64, ATTEST_GET_REALM_KEY)
+
+/* ECC Curve types for attest key generation */
+#define ATTEST_KEY_CURVE_ECC_SECP384R1		0
+
+
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 
@@ -100,5 +139,4 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid,
 		uint64_t flags);
 
 #endif /* __ASSEMBLER__ */
-
 #endif /* RMMD_SVC_H */
