@@ -169,6 +169,9 @@ ENABLE_FEAT_SEL2		:= 0
 # Flag to enable Virtualization Host Extensions
 ENABLE_FEAT_VHE 		:= 0
 
+# Flag to enable delayed trapping of WFE instruction (FEAT_TWED)
+ENABLE_FEAT_TWED		:= 0
+
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
 
@@ -440,3 +443,9 @@ ENABLE_SYS_REG_TRACE_FOR_NS	:= 0
 # lower ELs, i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
 # if FEAT_TRF is implemented.
 ENABLE_TRF_FOR_NS		:= 0
+
+# In v8.6+ platforms with delayed trapping of WFE being supported
+# via FEAT_TWED, this flag takes the delay value to be set in the
+# SCR_EL3.TWEDEL(4bit) field, when FEAT_TWED is implemented.
+# By default it takes 0, and need to be updated by the platforms.
+TWED_DELAY			:= 0
