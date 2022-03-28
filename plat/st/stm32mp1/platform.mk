@@ -146,7 +146,7 @@ endif
 endif
 
 $(eval DTC_V = $(shell $(DTC) -v | awk '{print $$NF}'))
-$(eval DTC_VERSION = $(shell printf "%d" $(shell echo ${DTC_V} | cut -d- -f1 | sed "s/\./0/g")))
+$(eval DTC_VERSION = $(shell printf "%d" $(shell echo ${DTC_V} | cut -d- -f1 | sed "s/\./0/g" | grep -o [0-9]*)))
 DTC_CPPFLAGS		+=	${INCLUDES}
 DTC_FLAGS		+=	-Wno-unit_address_vs_reg
 ifeq ($(shell test $(DTC_VERSION) -ge 10601; echo $$?),0)
