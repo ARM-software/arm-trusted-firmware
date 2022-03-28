@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -398,6 +398,12 @@
 		ldr	r1, =__RW_END__
 		sub	r1, r1, r0
 		bl	inv_dcache_range
+#if defined(IMAGE_BL2) && SEPARATE_BL2_NOLOAD_REGION
+		ldr	r0, =__BL2_NOLOAD_START__
+		ldr	r1, =__BL2_NOLOAD_END__
+		sub	r1, r1, r0
+		bl	inv_dcache_range
+#endif
 #endif
 
 		/*

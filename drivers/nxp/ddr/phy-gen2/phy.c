@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
@@ -1672,6 +1672,10 @@ static void prog_dq_dqs_rcv_cntrl(uint16_t *phy,
 	int ext_vref_range_defval = 0;
 	int sel_analog_vref = 1;
 	uint32_t addr;
+
+#ifdef ERRATA_DDR_A050958
+	gain_curr_adj_defval = 0x1f;
+#endif
 
 	dq_dqs_rcv_cntrl = gain_curr_adj_defval << csr_gain_curr_adj_lsb |
 			major_mode_dbyte << csr_major_mode_dbyte_lsb	|

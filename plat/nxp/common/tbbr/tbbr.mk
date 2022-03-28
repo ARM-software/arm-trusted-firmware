@@ -1,5 +1,5 @@
 #
-# Copyright 2020 NXP
+# Copyright 2020-2022 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,6 +13,12 @@ include $(PLAT_DRIVERS_PATH)/csu/csu.mk
 CSF_FILE		:=	input_blx_ch${CHASSIS}
 BL2_CSF_FILE		:=	input_bl2_ch${CHASSIS}
 else
+ifeq ($(CHASSIS), 3)
+CSF_FILE		:=	input_blx_ch${CHASSIS}
+BL2_CSF_FILE		:=	input_bl2_ch${CHASSIS}
+PBI_CSF_FILE		:=	input_pbi_ch${CHASSIS}
+$(eval $(call add_define, CSF_HDR_CH3))
+else
 ifeq ($(CHASSIS), 3_2)
 CSF_FILE		:=	input_blx_ch3
 BL2_CSF_FILE		:=	input_bl2_ch${CHASSIS}
@@ -20,6 +26,7 @@ PBI_CSF_FILE		:=	input_pbi_ch${CHASSIS}
 $(eval $(call add_define, CSF_HDR_CH3))
 else
     $(error -> CHASSIS not set!)
+endif
 endif
 endif
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -182,7 +182,7 @@ void ls_bl2_el3_plat_arch_setup(void)
 	unsigned int flags = 0U;
 	/* Initialise the IO layer and register platform IO devices */
 	ls_setup_page_tables(
-#if SEPARATE_RW_AND_NOLOAD
+#if SEPARATE_BL2_NOLOAD_REGION
 			      BL2_START,
 			      BL2_LIMIT - BL2_START,
 #else
@@ -289,8 +289,9 @@ void bl2_plat_preload_setup(void)
 	if ((dram_regions_info.region[0].addr == 0)
 		&& (dram_regions_info.total_dram_size > 0)) {
 		populate_dram_regions_info();
-
+#ifdef PLAT_XLAT_TABLES_DYNAMIC
 		mmap_add_ddr_region_dynamically();
+#endif
 	}
 
 	/* setup the memory region access permissions */

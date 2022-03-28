@@ -103,7 +103,7 @@ line of QorIQ communications processors. Featuring power-efficient 64-bit
 Arm Cortex-A72 cores with ECC-protected L1 and L2 cache memories for high
 reliability, running up to 1.8 GHz.
 
-Details about LS1043A can be found at `ls1046a`_.
+Details about LS1046A can be found at `ls1046a`_.
 
 - LS1046ARDB Board:
 
@@ -113,7 +113,7 @@ architecture processor. The LS1046ARDB board supports the Layerscape LS1046A
 processor and is optimized to support the DDR4 memory and a full complement
 of high-speed SerDes ports.
 
-Details about LS1043A RDB board can be found at `ls1046ardb`_.
+Details about LS1046A RDB board can be found at `ls1046ardb`_.
 
 - LS1046AFRWY Board:
 
@@ -124,7 +124,28 @@ board supports the LS1046A processor, onboard DDR4 memory, multiple Gigabit
 Ethernet, USB3.0 and M2_Type_E interfaces for Wi-Fi, FRWY-LS1046A-AC includes
 the Wi-Fi card.
 
-Details about LS1043A RDB board can be found at `ls1046afrwy`_.
+Details about LS1046A FRWY board can be found at `ls1046afrwy`_.
+
+5. LS1088A
+
+- SoC Overview:
+
+The LS1088A family of multicore communications processors combines up to and eight
+Arm Cortex-A53 cores with the advanced, high-performance data path and network
+peripheral interfaces required for wireless access points, networking infrastructure,
+intelligent edge access, including virtual customer premise equipment (vCPE) and
+high-performance industrial applications.
+
+Details about LS1088A can be found at `ls1088a`_.
+
+- LS1088ARDB Board:
+
+The LS1088A reference design board provides a comprehensive platform that
+enables design and evaluation of the product (LS1088A processor). This RDB
+comes pre-loaded with a board support package (BSP) based on a standard
+Linux kernel.
+
+Details about LS1088A RDB board can be found at `ls1088ardb`_.
 
 Table of supported boot-modes by each platform & platform that needs FIP-DDR:
 -----------------------------------------------------------------------------
@@ -143,6 +164,8 @@ Table of supported boot-modes by each platform & platform that needs FIP-DDR:
 |     ls1046ardb      |  yes  |  yes   |       |       |  yes  |             |              |       no        |
 +---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
 |     ls1046afrwy     |  yes  |  yes   |       |       |       |             |              |       no        |
++---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
+|     ls1088ardb      |  yes  |  yes   |       |       |       |             |              |       no        |
 +---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
 
 
@@ -336,7 +359,7 @@ should be modified based on the binary size of the image to be copied.
 
    --  Then reset to alternate bank to boot up ATF.
 
-   Command for lx2160a and ls1028a platforms:
+   Command for lx2160a, ls1088a and ls1028a platforms:
 
    .. code:: shell
 
@@ -370,7 +393,7 @@ should be modified based on the binary size of the image to be copied.
 
    --  Then reset to sd/emmc to boot up ATF from sd/emmc as boot-source.
 
-   Command for lx2160A and ls1028a platforms:
+   Command for lx2160A, ls1088a and ls1028a platforms:
 
    .. code:: shell
 
@@ -445,4 +468,6 @@ Refer `nxp-ls-tbbr.rst`_ for detailed user steps.
 .. _ls1046a: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-processors/layerscape-1046a-and-1026a-processors:LS1046A
 .. _ls1046ardb: https://www.nxp.com/design/qoriq-developer-resources/layerscape-ls1046a-reference-design-board:LS1046A-RDB
 .. _ls1046afrwy: https://www.nxp.com/design/qoriq-developer-resources/ls1046a-freeway-board:FRWY-LS1046A
+.. _ls1088a: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-processors/layerscape-1088a-and-1048a-processor:LS1088A
+.. _ls1088ardb: https://www.nxp.com/design/qoriq-developer-resources/layerscape-ls1088a-reference-design-board:LS1088A-RDB
 .. _nxp-ls-tbbr.rst: ./nxp-ls-tbbr.rst

@@ -1,5 +1,5 @@
 #
-# Copyright 2021 NXP
+# Copyright 2021-2022 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,7 +9,9 @@
 
 ERRATA := \
   ERRATA_SOC_A050426 \
-  ERRATA_SOC_A008850
+  ERRATA_SOC_A008850 \
+  ERRATA_SOC_A009660 \
+  ERRATA_SOC_A010539
 
 define enable_errata
   $(1) ?= 0

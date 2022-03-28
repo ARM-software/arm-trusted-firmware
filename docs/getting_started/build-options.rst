@@ -647,6 +647,13 @@ Common build options
    ``BL31_NOBITS_LIMIT``. When the option is ``0`` (the default), NOBITS
    sections are placed in RAM immediately following the loaded firmware image.
 
+-  ``SEPARATE_BL2_NOLOAD_REGION``: Setting this option to ``1`` allows the
+   NOLOAD sections of BL2 (.bss, stacks, page tables) to be allocated in RAM
+   discontiguous from loaded firmware images. When set, the platform need to
+   provide definitions of ``BL2_NOLOAD_START`` and ``BL2_NOLOAD_LIMIT``. This
+   flag is disabled by default and NOLOAD sections are placed in RAM immediately
+   following the loaded firmware image.
+
 -  ``SMC_PCI_SUPPORT``: This option allows platforms to handle PCI configuration
    access requests via a standard SMCCC defined in `DEN0115`_. When combined with
    UEFI+ACPI this can provide a certain amount of OS forward compatibility
@@ -961,7 +968,7 @@ Firmware update options
 
 --------------
 
-*Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
 .. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/

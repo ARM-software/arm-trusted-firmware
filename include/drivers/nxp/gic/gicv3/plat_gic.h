@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -21,8 +21,12 @@
 #define GICD_CTLR_OFFSET        0x0
 #define GICD_CLR_SPI_SR         0x58
 #define GICD_IGROUPR_2          0x88
+#define GICD_ISENABLER_1        0x104
+#define GICD_ICENABLER_1        0x184
 #define GICD_ISENABLER_2        0x108
 #define GICD_ICENABLER_2        0x188
+#define GICD_ISENABLER_3        0x10c
+#define GICD_ICENABLER_3        0x18c
 #define GICD_ICPENDR_2          0x288
 #define GICD_ICACTIVER_2        0x388
 #define GICD_IPRIORITYR_22      0x458
@@ -69,6 +73,9 @@
 #define GIC_IRM_SPI89           0x80000000
 
 #define GICD_IROUTER_VALUE      0x100
+#define GICD_ISENABLER_1_VALUE  0x10000000
+#define GICD_ISENABLER_2_VALUE  0x100
+#define GICD_ISENABLER_3_VALUE  0x20100
 #define GICR_WAKER_SLEEP_BIT    0x2
 #define GICR_WAKER_ASLEEP       (1 << 2 | 1 << 1)
 
