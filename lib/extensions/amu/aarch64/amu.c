@@ -75,7 +75,7 @@ static inline __unused void write_cptr_el2_tam(uint64_t value)
 		((value << CPTR_EL2_TAM_SHIFT) & CPTR_EL2_TAM_BIT));
 }
 
-static inline __unused void write_cptr_el3_tam(cpu_context_t *ctx, uint64_t tam)
+static inline __unused void ctx_write_cptr_el3_tam(cpu_context_t *ctx, uint64_t tam)
 {
 	uint64_t value = read_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3);
 
@@ -83,6 +83,16 @@ static inline __unused void write_cptr_el3_tam(cpu_context_t *ctx, uint64_t tam)
 	value |= (tam << TAM_SHIFT) & TAM_BIT;
 
 	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, value);
+}
+
+static inline __unused void ctx_write_scr_el3_amvoffen(cpu_context_t *ctx, uint64_t amvoffen)
+{
+	uint64_t value = read_ctx_reg(get_el3state_ctx(ctx), CTX_SCR_EL3);
+
+	value &= ~SCR_AMVOFFEN_BIT;
+	value |= (amvoffen << SCR_AMVOFFEN_SHIFT) & SCR_AMVOFFEN_BIT;
+
+	write_ctx_reg(get_el3state_ctx(ctx), CTX_SCR_EL3, value);
 }
 
 static inline __unused void write_hcr_el2_amvoffen(uint64_t value)
@@ -226,7 +236,7 @@ void amu_enable(bool el2_unused, cpu_context_t *ctx)
 	 * in 'ctx'. Set CPTR_EL3.TAM to zero so that any accesses to
 	 * the Activity Monitor registers do not trap to EL3.
 	 */
-	write_cptr_el3_tam(ctx, 0U);
+	ctx_write_cptr_el3_tam(ctx, 0U);
 
 	/*
 	 * Retrieve the number of architected counters. All of these counters
@@ -285,6 +295,13 @@ void amu_enable(bool el2_unused, cpu_context_t *ctx)
 			 * used.
 			 */
 			write_hcr_el2_amvoffen(0U);
+		} else {
+			/*
+			 * Virtual offset registers are only accessible from EL3
+			 * and EL2, when clear, this bit traps accesses from EL2
+			 * so we set it to 1 when EL2 is present.
+			 */
+			ctx_write_scr_el3_amvoffen(ctx, 1U);
 		}
 
 #if AMU_RESTRICT_COUNTERS
