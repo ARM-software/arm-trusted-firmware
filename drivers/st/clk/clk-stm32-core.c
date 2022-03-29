@@ -327,6 +327,9 @@ int _clk_stm32_set_parent(struct stm32_clk_priv *priv, int clk, int clkp)
 	}
 
 	old_parent = _clk_stm32_get_parent(priv, clk);
+	if (old_parent < 0) {
+		return old_parent;
+	}
 	if (old_parent == clkp) {
 		return 0;
 	}
@@ -415,7 +418,7 @@ int _clk_stm32_get_parent(struct stm32_clk_priv *priv, int clk_id)
 		sel = clk_mux_get_parent(priv, mux_id);
 	}
 
-	if (sel < parent->num_parents) {
+	if ((sel >= 0) && (sel < parent->num_parents)) {
 		return parent->id_parents[sel];
 	}
 
@@ -488,6 +491,9 @@ unsigned long _clk_stm32_get_rate(struct stm32_clk_priv *priv, int id)
 	}
 
 	parent = _clk_stm32_get_parent(priv, id);
+	if (parent < 0) {
+		return 0UL;
+	}
 
 	if (clk->ops->recalc_rate != NULL) {
 		unsigned long prate = 0UL;
@@ -516,6 +522,10 @@ unsigned long _clk_stm32_get_rate(struct stm32_clk_priv *priv, int id)
 unsigned long _clk_stm32_get_parent_rate(struct stm32_clk_priv *priv, int id)
 {
 	int parent_id = _clk_stm32_get_parent(priv, id);
+
+	if (parent_id < 0) {
+		return 0UL;
+	}
 
 	return _clk_stm32_get_rate(priv, parent_id);
 }
@@ -552,6 +562,9 @@ static int _clk_stm32_enable_core(struct stm32_clk_priv *priv, int id)
 
 	if (priv->gate_refcounts[id] == 0U) {
 		parent = _clk_stm32_get_parent(priv, id);
+		if (parent < 0) {
+			return parent;
+		}
 		if (parent != CLK_IS_ROOT) {
 			ret = _clk_stm32_enable_core(priv, parent);
 			if (ret) {
@@ -616,7 +629,7 @@ static void _clk_stm32_disable_core(struct stm32_clk_priv *priv, int id)
 	clk_stm32_disable_call_ops(priv, id);
 
 	parent = _clk_stm32_get_parent(priv, id);
-	if (parent != CLK_IS_ROOT) {
+	if ((parent >= 0) && (parent != CLK_IS_ROOT)) {
 		_clk_stm32_disable_core(priv, parent);
 	}
 }
