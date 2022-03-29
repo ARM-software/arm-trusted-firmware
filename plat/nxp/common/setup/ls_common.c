@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 NXP
+ * Copyright 2018-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -113,7 +113,8 @@ static void mmap_add_ddr_regions_statically(void)
 #if defined(PLAT_XLAT_TABLES_DYNAMIC)
 void mmap_add_ddr_region_dynamically(void)
 {
-	int i = 0;
+	int ret, i = 0;
+
 	dram_regions_info_t *info_dram_regions = get_dram_regions_info();
 	/* MMU map for Non-Secure DRAM Regions */
 	VERBOSE("DRAM Region %d: %p - %p\n", i,
@@ -121,10 +122,14 @@ void mmap_add_ddr_region_dynamically(void)
 			(void *) (info_dram_regions->region[i].addr
 				+ info_dram_regions->region[i].size
 				- 1));
-	mmap_add_dynamic_region(info_dram_regions->region[i].addr,
+	ret = mmap_add_dynamic_region(info_dram_regions->region[i].addr,
 			info_dram_regions->region[i].addr,
 			info_dram_regions->region[i].size,
 			MT_MEMORY | MT_RW | MT_NS);
+	if (ret != 0) {
+		ERROR("Failed to add dynamic memory region\n");
+		panic();
+	}
 
 	/* MMU map for Secure DDR Region on DRAM-0 */
 	if (info_dram_regions->region[i].size >
@@ -137,12 +142,16 @@ void mmap_add_ddr_region_dynamically(void)
 				+ NXP_SECURE_DRAM_SIZE
 				+ NXP_SP_SHRD_DRAM_SIZE
 				- 1));
-		mmap_add_dynamic_region((info_dram_regions->region[i].addr
+		ret = mmap_add_dynamic_region((info_dram_regions->region[i].addr
 				+ info_dram_regions->region[i].size),
 				(info_dram_regions->region[i].addr
 				+ info_dram_regions->region[i].size),
 				(NXP_SECURE_DRAM_SIZE + NXP_SP_SHRD_DRAM_SIZE),
 				MT_MEMORY | MT_RW | MT_SECURE);
+		if (ret != 0) {
+			ERROR("Failed to add dynamic memory region\n");
+			panic();
+		}
 	}
 
 #ifdef IMAGE_BL31
@@ -155,10 +164,14 @@ void mmap_add_ddr_region_dynamically(void)
 			(void *) (info_dram_regions->region[i].addr
 				+ info_dram_regions->region[i].size
 				- 1));
-		mmap_add_dynamic_region(info_dram_regions->region[i].addr,
+		ret = mmap_add_dynamic_region(info_dram_regions->region[i].addr,
 				info_dram_regions->region[i].addr,
 				info_dram_regions->region[i].size,
 				MT_MEMORY | MT_RW | MT_NS);
+		if (ret != 0) {
+			ERROR("Failed to add dynamic memory region\n");
+			panic();
+		}
 	}
 #endif
 }
