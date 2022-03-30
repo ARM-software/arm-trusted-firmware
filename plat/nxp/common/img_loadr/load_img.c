@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -49,10 +49,14 @@ int load_img(unsigned int image_id, uintptr_t *image_base,
 	/* Create MMU entry for the CSF header */
 #if PLAT_XLAT_TABLES_DYNAMIC
 #ifdef CSF_HEADER_PREPENDED
-	mmap_add_dynamic_region(img_info.image_info.image_base,
+	err = mmap_add_dynamic_region(img_info.image_info.image_base,
 			img_info.image_info.image_base,
 			CSF_HDR_SZ,
 			MT_MEMORY | MT_RW | MT_SECURE);
+	if (err != 0) {
+		ERROR("Failed to add dynamic memory region.\n");
+		return err;
+	}
 #endif
 #endif
 
