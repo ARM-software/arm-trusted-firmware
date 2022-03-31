@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,10 +69,11 @@ enum pu_domain_id {
 	HDMIMIX,
 	HDMI_PHY,
 	DDRMIX,
+	MAX_DOMAINS,
 };
 
 /* PU domain, add some hole to minimize the uboot change */
-static struct imx_pwr_domain pu_domains[20] = {
+static struct imx_pwr_domain pu_domains[MAX_DOMAINS] = {
 	[MIPI_PHY1] = IMX_PD_DOMAIN(MIPI_PHY1, false),
 	[PCIE_PHY] = IMX_PD_DOMAIN(PCIE_PHY, false),
 	[USB1_PHY] = IMX_PD_DOMAIN(USB1_PHY, true),
@@ -173,6 +174,11 @@ static void imx_gpc_pm_domain_enable(uint32_t domain_id, bool on)
 {
 	struct imx_pwr_domain *pwr_domain = &pu_domains[domain_id];
 	unsigned int i;
+
+	/* validate the domain id */
+	if (domain_id >= MAX_DOMAINS) {
+		return;
+	}
 
 	if (domain_id == HSIOMIX) {
 		for (i = 0; i < ARRAY_SIZE(hsiomix_clk); i++) {
