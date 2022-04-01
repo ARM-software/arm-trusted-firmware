@@ -93,7 +93,7 @@ int wr_nv_app_data(int data_offset,
 	uint8_t ready_to_write_val[sizeof(nv_app_data_t)];
 	uintptr_t nv_base_addr = NV_STORAGE_BASE_ADDR;
 
-	assert((nv_base_addr + data_offset + data_size) > (nv_base_addr + F_SECTOR_ERASE_SZ));
+	assert((nv_base_addr + data_offset + data_size) <= (nv_base_addr + F_SECTOR_ERASE_SZ));
 
 	ret = fspi_init(NXP_FLEXSPI_ADDR, NXP_FLEXSPI_FLASH_ADDR);
 
