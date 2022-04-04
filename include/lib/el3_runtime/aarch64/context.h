@@ -509,9 +509,53 @@ void el1_sysregs_context_save(el1_sysregs_t *regs);
 void el1_sysregs_context_restore(el1_sysregs_t *regs);
 
 #if CTX_INCLUDE_EL2_REGS
-void el2_sysregs_context_save(el2_sysregs_t *regs);
-void el2_sysregs_context_restore(el2_sysregs_t *regs);
-#endif
+void el2_sysregs_context_save_common(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_common(el2_sysregs_t *regs);
+#if ENABLE_SPE_FOR_LOWER_ELS
+void el2_sysregs_context_save_spe(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_spe(el2_sysregs_t *regs);
+#endif /* ENABLE_SPE_FOR_LOWER_ELS */
+#if CTX_INCLUDE_MTE_REGS
+void el2_sysregs_context_save_mte(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_mte(el2_sysregs_t *regs);
+#endif /* CTX_INCLUDE_MTE_REGS */
+#if ENABLE_MPAM_FOR_LOWER_ELS
+void el2_sysregs_context_save_mpam(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_mpam(el2_sysregs_t *regs);
+#endif /* ENABLE_MPAM_FOR_LOWER_ELS */
+#if ENABLE_FEAT_FGT
+void el2_sysregs_context_save_fgt(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_fgt(el2_sysregs_t *regs);
+#endif /* ENABLE_FEAT_FGT */
+#if ENABLE_FEAT_ECV
+void el2_sysregs_context_save_ecv(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_ecv(el2_sysregs_t *regs);
+#endif /* ENABLE_FEAT_ECV */
+#if ENABLE_FEAT_VHE
+void el2_sysregs_context_save_vhe(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_vhe(el2_sysregs_t *regs);
+#endif /* ENABLE_FEAT_VHE */
+#if RAS_EXTENSION
+void el2_sysregs_context_save_ras(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_ras(el2_sysregs_t *regs);
+#endif /* RAS_EXTENSION */
+#if CTX_INCLUDE_NEVE_REGS
+void el2_sysregs_context_save_nv2(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_nv2(el2_sysregs_t *regs);
+#endif /* CTX_INCLUDE_NEVE_REGS */
+#if ENABLE_TRF_FOR_NS
+void el2_sysregs_context_save_trf(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_trf(el2_sysregs_t *regs);
+#endif /* ENABLE_TRF_FOR_NS */
+#if ENABLE_FEAT_CSV2_2
+void el2_sysregs_context_save_csv2(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_csv2(el2_sysregs_t *regs);
+#endif /* ENABLE_FEAT_CSV2_2 */
+#if ENABLE_FEAT_HCX
+void el2_sysregs_context_save_hcx(el2_sysregs_t *regs);
+void el2_sysregs_context_restore_hcx(el2_sysregs_t *regs);
+#endif /* ENABLE_FEAT_HCX */
+#endif /* CTX_INCLUDE_EL2_REGS */
 
 #if CTX_INCLUDE_FPREGS
 void fpregs_context_save(fp_regs_t *regs);
