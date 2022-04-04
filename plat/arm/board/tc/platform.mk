@@ -1,12 +1,12 @@
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 include common/fdt_wrappers.mk
 
-ifeq ($(filter ${TARGET_PLATFORM}, 0 1),)
-        $(error TARGET_PLATFORM must be 0 or 1)
+ifeq ($(shell expr $(TARGET_PLATFORM) \<= 2), 0)
+        $(error TARGET_PLATFORM must be less than or equal to 2)
 endif
 
 CSS_LOAD_SCP_IMAGES	:=	1
@@ -61,19 +61,24 @@ TC_BASE	=	plat/arm/board/tc
 
 PLAT_INCLUDES		+=	-I${TC_BASE}/include/
 
-# Common CPU libraries
-TC_CPU_SOURCES	:=	lib/cpus/aarch64/cortex_a510.S
-
 # CPU libraries for TARGET_PLATFORM=0
 ifeq (${TARGET_PLATFORM}, 0)
-TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a710.S \
+TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a510.S	\
+			lib/cpus/aarch64/cortex_a710.S	\
 			lib/cpus/aarch64/cortex_x2.S
 endif
 
 # CPU libraries for TARGET_PLATFORM=1
 ifeq (${TARGET_PLATFORM}, 1)
-TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_makalu.S \
+TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a510.S \
+			lib/cpus/aarch64/cortex_makalu.S \
 			lib/cpus/aarch64/cortex_makalu_elp_arm.S
+endif
+
+# CPU libraries for TARGET_PLATFORM=2
+ifeq (${TARGET_PLATFORM}, 2)
+TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_hayes.S \
+			lib/cpus/aarch64/cortex_hunter.S
 endif
 
 INTERCONNECT_SOURCES	:=	${TC_BASE}/tc_interconnect.c
