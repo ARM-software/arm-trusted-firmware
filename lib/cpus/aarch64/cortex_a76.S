@@ -17,6 +17,9 @@
 #if HW_ASSISTED_COHERENCY == 0
 #error "Cortex-A76 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
+	.globl cortex_a76_reset_func
+	.globl cortex_a76_core_pwr_dwn
+	.globl cortex_a76_disable_wa_cve_2018_3639
 
 /* 64-bit only core */
 #if CTX_INCLUDE_AARCH32_REGS == 1

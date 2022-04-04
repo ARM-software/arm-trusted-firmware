@@ -16,6 +16,8 @@
 #error "Cortex-A55 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+	.globl cortex_a55_reset_func
+	.globl cortex_a55_core_pwr_dwn
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A55 Errata #768277.
 	 * This applies only to revision r0p0 of Cortex A55.

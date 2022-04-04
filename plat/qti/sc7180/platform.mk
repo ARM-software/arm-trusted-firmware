@@ -12,11 +12,16 @@ CHIPSET			:=	${PLAT}
 
 # Turn On Separate code & data.
 SEPARATE_CODE_AND_RODATA	:=	1
-USE_COHERENT_MEM		:=	1
+USE_COHERENT_MEM		:=	0
 WARMBOOT_ENABLE_DCACHE_EARLY	:=	1
+HW_ASSISTED_COHERENCY		:=	1
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT		:=	0
+
+#Enable errata for cortex_a55 and cortex_a76
+ERRATA_A55_1530923 		:= 	1
+ERRATA_A76_1165522 		:= 	1
 
 # Enable PSCI v1.0 extended state ID format
 PSCI_EXTENDED_STATE_ID	:=  1
@@ -93,10 +98,14 @@ TIMER_SOURCES		:=	drivers/delay_timer/generic_delay_timer.c	\
 GIC_SOURCES		:=	plat/common/plat_gicv3.c			\
 				${GICV3_SOURCES}				\
 
-BL31_SOURCES		+=	${QTI_BL31_SOURCES}					\
-				${PSCI_SOURCES}						\
-				${GIC_SOURCES}						\
-				${TIMER_SOURCES}					\
+CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a76.S			\
+				lib/cpus/aarch64/cortex_a55.S			\
+
+BL31_SOURCES		+=	${QTI_BL31_SOURCES}				\
+				${PSCI_SOURCES}					\
+				${GIC_SOURCES}					\
+				${TIMER_SOURCES}				\
+				${CPU_SOURCES}					\
 
 LIB_QTI_PATH	:=	${QTI_PLAT_PATH}/qtiseclib/lib/${CHIPSET}
 

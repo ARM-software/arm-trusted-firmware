@@ -50,6 +50,21 @@ void qtiseclib_kryo4_silver_reset_asm(void)
 }
 
 /*
+ * Execute CPU (Kryo4 gold) specific reset handler / system initialization.
+ * This takes care of executing required CPU errata's.
+ *
+ * Clobbers: x0 - x16
+ */
+void qtiseclib_kryo6_gold_reset_asm(void)
+{
+}
+
+
+void qtiseclib_kryo6_silver_reset_asm(void)
+{
+}
+
+/*
  * C Api's
  */
 void qtiseclib_bl31_platform_setup(void)

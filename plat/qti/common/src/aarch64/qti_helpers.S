@@ -72,17 +72,10 @@ func plat_reset_handler
 	/* save the lr */
 	mov	x18, x30
 
-	/* Serialize CPUSS boot setup. Multi core enter simultaneously. */
-	ldr	x0, =g_qti_cpuss_boot_lock
-	bl	spin_lock
-
 	/* pass cold boot status. */
 	ldr	w0, g_qti_bl31_cold_booted
 	/* Execuete CPUSS boot set up on every core. */
 	bl	qtiseclib_cpuss_reset_asm
-
-	ldr	x0, =g_qti_cpuss_boot_lock
-	bl	spin_unlock
 
 	ret	x18
 endfunc plat_reset_handler
