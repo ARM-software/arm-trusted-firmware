@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,7 +70,9 @@
  */
 #define BASE_XLAT_TABLE					\
 	. = ALIGN(16);					\
-	*(base_xlat_table)
+	__BASE_XLAT_TABLE_START__ = .;			\
+	*(base_xlat_table)				\
+	__BASE_XLAT_TABLE_END__ = .;
 
 #if PLAT_RO_XLAT_TABLES
 #define BASE_XLAT_TABLE_RO		BASE_XLAT_TABLE
@@ -210,7 +212,9 @@
  */
 #define XLAT_TABLE_SECTION				\
 	xlat_table (NOLOAD) : {				\
+		__XLAT_TABLE_START__ = .;		\
 		*(xlat_table)				\
+		__XLAT_TABLE_END__ = .;			\
 	}
 
 #endif /* BL_COMMON_LD_H */
