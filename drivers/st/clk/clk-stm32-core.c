@@ -1073,12 +1073,15 @@ int stm32_clk_parse_fdt_by_name(void *fdt, int node, const char *name, uint32_t 
 	uint32_t i;
 
 	cell = fdt_getprop(fdt, node, name, &len);
-	if (cell != NULL) {
-		for (i = 0; i < ((uint32_t)len / sizeof(uint32_t)); i++) {
-			uint32_t val = fdt32_to_cpu(cell[i]);
+	if (cell == NULL) {
+		*nb = 0U;
+		return 0;
+	}
 
-			tab[i] = val;
-		}
+	for (i = 0; i < ((uint32_t)len / sizeof(uint32_t)); i++) {
+		uint32_t val = fdt32_to_cpu(cell[i]);
+
+		tab[i] = val;
 	}
 
 	*nb = (uint32_t)len / sizeof(uint32_t);
