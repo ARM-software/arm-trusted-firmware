@@ -732,15 +732,25 @@ OP-TEE dispatcher
 :|F|: docs/components/spd/optee-dispatcher.rst
 :|F|: services/spd/opteed/
 
-TLK/Trusty secure payloads
+TLK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Varun Wadekar <vwadekar@nvidia.com>
 :|G|: `vwadekar`_
 :|F|: docs/components/spd/tlk-dispatcher.rst
-:|F|: docs/components/spd/trusty-dispatcher.rst
 :|F|: include/bl32/payloads/tlk.h
 :|F|: services/spd/tlkd/
+
+Trusty secure payloads
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Arve Hjønnevåg <arve@android.com>
+:|G|: `arve-android`_
+:|M|: Marco Nelissen <marcone@google.com>
+:|G|: `marcone`_
+:|M|: Varun Wadekar <vwadekar@nvidia.com>
+:|G|: `vwadekar`_
+:|F|: docs/components/spd/trusty-dispatcher.rst
 :|F|: services/spd/trusty/
+
 
 Test Secure Payload (TSP)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -874,5 +884,7 @@ Conventional Changelog Extensions
 .. _uarif1: https://github.com/uarif1
 .. _pangupta: https://github.com/pangupta
 .. _JiafeiPan: https://github.com/JiafeiPan
+.. _arve-android: https://github.com/arve-android
+.. _marcone: https://github.com/marcone
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
