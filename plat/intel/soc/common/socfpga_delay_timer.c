@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,10 +8,12 @@
 #include <arch_helpers.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
+#include "socfpga_plat_def.h"
 
 #define SOCFPGA_GLOBAL_TIMER		0xffd01000
 #define SOCFPGA_GLOBAL_TIMER_EN		0x3
 
+static timer_ops_t plat_timer_ops;
 /********************************************************************
  * The timer delay function
  ********************************************************************/
@@ -26,15 +28,20 @@ static uint32_t socfpga_get_timer_value(void)
 	return (uint32_t)(~read_cntpct_el0());
 }
 
-static const timer_ops_t plat_timer_ops = {
-	.get_timer_value    = socfpga_get_timer_value,
-	.clk_mult           = 1,
-	.clk_div	    = PLAT_SYS_COUNTER_FREQ_IN_MHZ,
-};
+void socfpga_delay_timer_init_args(void)
+{
+	plat_timer_ops.get_timer_value	= socfpga_get_timer_value;
+	plat_timer_ops.clk_mult		= 1;
+	plat_timer_ops.clk_div		= PLAT_SYS_COUNTER_FREQ_IN_MHZ;
+
+	timer_init(&plat_timer_ops);
+
+	NOTICE("BL31: MPU clock frequency: %d MHz\n", plat_timer_ops.clk_div);
+}
 
 void socfpga_delay_timer_init(void)
 {
-	timer_init(&plat_timer_ops);
+	socfpga_delay_timer_init_args();
 	mmio_write_32(SOCFPGA_GLOBAL_TIMER, SOCFPGA_GLOBAL_TIMER_EN);
 
 	asm volatile("msr cntp_ctl_el0, %0" : : "r" (SOCFPGA_GLOBAL_TIMER_EN));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -306,4 +306,17 @@ uint32_t get_mmc_clk(void)
 	mmc_clk = (l3_clk / (data32 + 1)) / 4;
 
 	return mmc_clk;
+}
+
+/* Get cpu freq clock */
+uint32_t get_cpu_clk(void)
+{
+	uint32_t data32, ref_clk, cpu_clk;
+
+	data32 = mmio_read_32(ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_PLLGLOB);
+	ref_clk = get_ref_clk(data32);
+
+	cpu_clk = get_l3_clk(ref_clk)/PLAT_SYS_COUNTER_CONVERT_TO_MHZ;
+
+	return cpu_clk;
 }
