@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -61,7 +61,19 @@ XLAT_PNG 							= xlat_align.png
 xlat_align_layers					= "bg,translations"
 xlat_align_opts						=
 
-all:$(RESET_PNGS) $(INT_PNGS) $(XLAT_PNG)
+RMM_DIA					= rmm_cold_boot_generic.dia
+RMM_PNG					= rmm_cold_boot_generic.png
+
+rmm_cold_boot_generic_layers		= "background"
+rmm_cold_boot_generic_opts		=
+
+RMM_EL3_MANIFEST_DIA			= rmm_el3_manifest_struct.dia
+RMM_EL3_MANIFEST_PNG			= rmm_el3_manifest_struct.png
+
+rmm_el3_manifest_struct_layers		= "Background"
+rmm_el3_manifest_struct_opts		=
+
+all:$(RESET_PNGS) $(INT_PNGS) $(XLAT_PNG) $(RMM_PNG) $(RMM_EL3_MANIFEST_PNG)
 
 $(RESET_PNGS):$(RESET_DIA)
 	$(call generate_image,$($(patsubst %.png,%_layers,$@)),$@,png,$($(patsubst %.png,%_opts,$@)),$<)
@@ -72,3 +84,9 @@ $(INT_PNGS):$(INT_DIA)
 $(XLAT_PNG):$(XLAT_DIA)
 	$(call generate_image,$($(patsubst %.png,%_layers,$@)),$(patsubst %.png,%.svg,$@),svg,$($(patsubst %.png,%_opts,$@)),$<)
 	inkscape -z $(patsubst %.png,%.svg,$@) -e $@ -d 45
+
+$(RMM_PNG):$(RMM_DIA)
+	$(call generate_image,$($(patsubst %.png,%_layers,$@)),$@,png,$($(patsubst %.png,%_opts,$@)),$<)
+
+$(RMM_EL3_MANIFEST_PNG):$(RMM_EL3_MANIFEST_DIA)
+	$(call generate_image,$($(patsubst %.png,%_layers,$@)),$@,png,$($(patsubst %.png,%_opts,$@)),$<)

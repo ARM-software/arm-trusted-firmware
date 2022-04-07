@@ -89,6 +89,8 @@ and caches disabled. Examples are given below.
 The following variables, functions and constants must be defined by the platform
 for the firmware to work correctly.
 
+.. _platform_def_mandatory:
+
 File : platform_def.h [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
