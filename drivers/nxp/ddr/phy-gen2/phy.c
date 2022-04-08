@@ -2216,14 +2216,6 @@ static int load_fw(uint16_t **phy_ptr,
 
 	size = PHY_GEN2_MAX_IMAGE_SIZE;
 	image_buf = (uintptr_t)phy_gen2_fw_img_buf;
-	ret = mmap_add_dynamic_region(phy_gen2_fw_img_buf,
-			phy_gen2_fw_img_buf,
-			PHY_GEN2_MAX_IMAGE_SIZE,
-			MT_MEMORY | MT_RW | MT_SECURE);
-	if (ret != 0) {
-		ERROR("Failed to add dynamic memory region.\n");
-		return ret;
-	}
 	ret = img_loadr(imem_id, &image_buf, &size);
 	if (ret != 0) {
 		ERROR("Failed to load %d firmware.\n", imem_id);
@@ -2592,6 +2584,15 @@ int compute_ddr_phy(struct ddr_info *priv)
 		}
 	} else {
 #endif
+		/* Mapping IMG buffer firstly */
+		ret = mmap_add_dynamic_region(priv->phy_gen2_fw_img_buf,
+			priv->phy_gen2_fw_img_buf,
+			PHY_GEN2_MAX_IMAGE_SIZE,
+			MT_MEMORY | MT_RW | MT_SECURE);
+		if (ret != 0) {
+			ERROR("Failed to add dynamic memory region.\n");
+			return ret;
+		}
 
 		debug("Load 1D firmware\n");
 		ret = load_fw(priv->phy, &input, 0, &msg_1d,
