@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -22,7 +22,7 @@
 	exception-level = <2>; /* S-EL1 */
 	execution-state = <0>; /* AARCH64 */
 	load-address = <0x6280000>;
-	entrypoint-offset = <0x1000>;
+	entrypoint-offset = <0x4000>;
 	xlat-granule = <0>; /* 4KiB */
 	boot-order = <0>;
 	messaging-method = <0x3>; /* Direct request/response supported. */
