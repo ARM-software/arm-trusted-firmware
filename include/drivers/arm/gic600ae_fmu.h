@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2021-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,6 +37,7 @@
 /* SMEN constants */
 #define FMU_SMEN_BLK_SHIFT	U(8)
 #define FMU_SMEN_SMID_SHIFT	U(24)
+#define FMU_SMEN_EN_BIT		BIT(0)
 
 /* Error record IDs */
 #define FMU_BLK_GICD		U(0)
@@ -86,10 +87,10 @@
 
 /* Safety Mechamism limit */
 #define FMU_SMID_GICD_MAX	U(33)
+#define FMU_SMID_PPI_MAX	U(12)
+#define FMU_SMID_ITS_MAX	U(14)
 #define FMU_SMID_SPICOL_MAX	U(5)
 #define FMU_SMID_WAKERQ_MAX	U(2)
-#define FMU_SMID_ITS_MAX	U(14)
-#define FMU_SMID_PPI_MAX	U(12)
 
 /* MBIST Safety Mechanism ID */
 #define GICD_MBIST_REQ_ERROR	U(23)
@@ -100,12 +101,17 @@
 #define ITS_FMU_CLKGATE_ERROR	U(14)
 
 /* ERRSTATUS bits */
-#define FMU_ERRSTATUS_V_BIT	BIT(30)
-#define FMU_ERRSTATUS_UE_BIT	BIT(29)
-#define FMU_ERRSTATUS_OV_BIT	BIT(27)
-#define FMU_ERRSTATUS_CE_BITS	(BIT(25) | BIT(24))
-#define FMU_ERRSTATUS_CLEAR	(FMU_ERRSTATUS_V_BIT | FMU_ERRSTATUS_UE_BIT | \
-				 FMU_ERRSTATUS_OV_BIT | FMU_ERRSTATUS_CE_BITS)
+#define FMU_ERRSTATUS_BLKID_SHIFT	U(32)
+#define FMU_ERRSTATUS_BLKID_MASK	U(0xFF)
+#define FMU_ERRSTATUS_V_BIT		BIT(30)
+#define FMU_ERRSTATUS_UE_BIT		BIT(29)
+#define FMU_ERRSTATUS_OV_BIT		BIT(27)
+#define FMU_ERRSTATUS_CE_BITS		(BIT(25) | BIT(24))
+#define FMU_ERRSTATUS_CLEAR		(FMU_ERRSTATUS_V_BIT | FMU_ERRSTATUS_UE_BIT | \
+					 FMU_ERRSTATUS_OV_BIT | FMU_ERRSTATUS_CE_BITS)
+#define FMU_ERRSTATUS_IERR_MASK		U(0xFF)
+#define FMU_ERRSTATUS_IERR_SHIFT	U(8)
+#define FMU_ERRSTATUS_SERR_MASK		U(0xFF)
 
 /* PINGCTLR constants */
 #define FMU_PINGCTLR_INTDIFF_SHIFT	U(16)
@@ -137,11 +143,14 @@ void gic_fmu_write_pingnow(uintptr_t base, uint32_t val);
 void gic_fmu_write_smen(uintptr_t base, uint32_t val);
 void gic_fmu_write_sminjerr(uintptr_t base, uint32_t val);
 void gic_fmu_write_pingmask(uintptr_t base, uint64_t val);
+void gic_fmu_disable_all_sm_blkid(uintptr_t base, unsigned int blkid);
 
 void gic600_fmu_init(uint64_t base, uint64_t blk_present_mask, bool errctlr_ce_en, bool errctlr_ue_en);
 void gic600_fmu_enable_ping(uint64_t base, uint64_t blk_present_mask,
 		unsigned int timeout_val, unsigned int interval_diff);
 void gic600_fmu_print_sm_info(uint64_t base, unsigned int blk, unsigned int smid);
+int gic600_fmu_probe(uint64_t base, int *probe_data);
+int gic600_fmu_ras_handler(uint64_t base, int probe_data);
 
 #endif /* __ASSEMBLER__ */
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2021-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -257,4 +257,48 @@ void gic_fmu_write_sminjerr(uintptr_t base, uint32_t val)
 void gic_fmu_write_pingmask(uintptr_t base, uint64_t val)
 {
 	GIC_FMU_WRITE_64(base, GICFMU_PINGMASK, 0, val);
+}
+
+/*
+ * Helper function to disable all safety mechanisms for a given block
+ */
+void gic_fmu_disable_all_sm_blkid(uintptr_t base, unsigned int blkid)
+{
+	uint32_t smen, max_smid = U(0);
+
+	/* Sanity check block ID */
+	assert((blkid >= FMU_BLK_GICD) && (blkid <= FMU_BLK_PPI31));
+
+	/* Find the max safety mechanism ID for the block */
+	switch (blkid) {
+	case FMU_BLK_GICD:
+		max_smid = FMU_SMID_GICD_MAX;
+		break;
+
+	case FMU_BLK_SPICOL:
+		max_smid = FMU_SMID_SPICOL_MAX;
+		break;
+
+	case FMU_BLK_WAKERQ:
+		max_smid = FMU_SMID_WAKERQ_MAX;
+		break;
+
+	case FMU_BLK_ITS0...FMU_BLK_ITS7:
+		max_smid = FMU_SMID_ITS_MAX;
+		break;
+
+	case FMU_BLK_PPI0...FMU_BLK_PPI31:
+		max_smid = FMU_SMID_PPI_MAX;
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	/* Disable all Safety Mechanisms for a given block id */
+	for (unsigned int i = 0U; i < max_smid; i++) {
+		smen = (blkid << FMU_SMEN_BLK_SHIFT) | (i << FMU_SMEN_SMID_SHIFT);
+		gic_fmu_write_smen(base, smen);
+	}
 }
