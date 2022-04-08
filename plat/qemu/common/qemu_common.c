@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
+#include <plat/common/platform.h>
 #include "qemu_private.h"
 
 #define MAP_DEVICE0	MAP_REGION_FLAT(DEVICE0_BASE,			\
@@ -160,4 +161,9 @@ DEFINE_CONFIGURE_MMU_EL(el3)
 DEFINE_CONFIGURE_MMU_EL(svc_mon)
 #endif
 
-
+#if MEASURED_BOOT || TRUSTED_BOARD_BOOT
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	return get_mbedtls_heap_helper(heap_addr, heap_size);
+}
+#endif
