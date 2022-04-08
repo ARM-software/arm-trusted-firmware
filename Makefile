@@ -449,10 +449,6 @@ DTC_FLAGS		+=	-I dts -O dtb
 DTC_CPPFLAGS		+=	-P -nostdinc -Iinclude -Ifdts -undef \
 				-x assembler-with-cpp $(DEFINES)
 
-ifeq ($(MEASURED_BOOT),1)
-DTC_CPPFLAGS		+=	-DMEASURED_BOOT -DBL2_HASH_SIZE=${TCG_DIGEST_SIZE}
-endif
-
 ################################################################################
 # Common sources and include directories
 ################################################################################
