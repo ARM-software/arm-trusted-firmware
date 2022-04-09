@@ -600,6 +600,9 @@ endif
 PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
 ifneq ($(PIE_FOUND),)
 	TF_CFLAGS	+=	-fno-PIE
+ifneq ($(findstring gcc,$(notdir $(LD))),)
+	TF_LDFLAGS	+=	-no-pie
+endif
 endif
 
 ifneq ($(findstring gcc,$(notdir $(LD))),)
