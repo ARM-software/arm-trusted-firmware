@@ -25,13 +25,28 @@
  * The top 16MB of ARM_DRAM1 is configured as secure access only using the TZC,
  * its base is ARM_AP_TZC_DRAM1_BASE.
  *
- * Reserve 32MB below ARM_AP_TZC_DRAM1_BASE for:
+ * Reserve 96 MB below ARM_AP_TZC_DRAM1_BASE for:
  *   - BL32_BASE when SPD_spmd is enabled
- *   - Region to load Trusted OS
+ *   - Region to load secure partitions
+ *
+ *
+ *  0xF900_0000  ------------------   TC_TZC_DRAM1_BASE
+ *               |                |
+ *               |      SPMC      |
+ *               |       SP       |
+ *               |     (96MB)     |
+ *  0xFF00_0000  ------------------   ARM_AP_TZC_DRAM1_BASE
+ *               |       AP       |
+ *               |   EL3 Monitor  |
+ *               |       SCP      |
+ *               |     (16MB)     |
+ *  0xFFFF_FFFF  ------------------
+ *
+ *
  */
 #define TC_TZC_DRAM1_BASE		(ARM_AP_TZC_DRAM1_BASE -	\
 					 TC_TZC_DRAM1_SIZE)
-#define TC_TZC_DRAM1_SIZE		UL(0x02000000)	/* 32 MB */
+#define TC_TZC_DRAM1_SIZE		96 * SZ_1M	/* 96 MB */
 #define TC_TZC_DRAM1_END		(TC_TZC_DRAM1_BASE +		\
 					 TC_TZC_DRAM1_SIZE - 1)
 
@@ -68,7 +83,9 @@
  * max size of BL32 image.
  */
 #if defined(SPD_spmd)
-#define PLAT_ARM_SPMC_BASE		TC_TZC_DRAM1_BASE
+#define TC_EL2SPMC_LOAD_ADDR		(TC_TZC_DRAM1_BASE + 0x04000000)
+
+#define PLAT_ARM_SPMC_BASE		TC_EL2SPMC_LOAD_ADDR
 #define PLAT_ARM_SPMC_SIZE		UL(0x200000)  /* 2 MB */
 #endif
 
@@ -276,8 +293,8 @@
 		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_DEFAULT))
 
 /*
- * The first region below, TC_TZC_DRAM1_BASE (0xfd000000) to
- * ARM_SCP_TZC_DRAM1_END (0xffffffff) will mark the last 48 MB of DRAM as
+ * The first region below, TC_TZC_DRAM1_BASE (0xf9000000) to
+ * ARM_SCP_TZC_DRAM1_END (0xffffffff) will mark the last 112 MB of DRAM as
  * secure. The second and third regions gives non secure access to rest of DRAM.
  */
 #define TC_TZC_REGIONS_DEF	\

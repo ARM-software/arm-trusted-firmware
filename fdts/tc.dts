@@ -213,9 +213,9 @@
 			linux,cma-default;
 		};
 
-		optee@0xfce00000 {
+		optee@0xf8e00000 {
 			compatible = "restricted-dma-pool";
-			reg = <0x00000000 0xfce00000 0 0x00200000>;
+			reg = <0x00000000 0xf8e00000 0 0x00200000>;
 		};
 	};
 
