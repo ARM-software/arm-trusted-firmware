@@ -9,7 +9,7 @@
 
 #include <drivers/arm/tzc400.h>
 #if TRUSTED_BOARD_BOOT
-#include <drivers/auth/mbedtls/mbedtls_config.h>
+#include MBEDTLS_CONFIG_FILE
 #endif
 #include <plat/arm/board/common/board_css_def.h>
 #include <plat/arm/board/common/v2m_def.h>

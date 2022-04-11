@@ -14,7 +14,7 @@
 #include <common/desc_image_load.h>
 #include <common/tbbr/tbbr_img_def.h>
 #if CRYPTO_SUPPORT
-#include <drivers/auth/mbedtls/mbedtls_config.h>
+#include MBEDTLS_CONFIG_FILE
 #endif /* CRYPTO_SUPPORT */
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
