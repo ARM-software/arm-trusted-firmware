@@ -159,6 +159,13 @@
 # define PLATFORM_STACK_SIZE		0x440
 #endif
 
+/*
+ * In the current implementation the RoT Service request that requires the
+ * biggest message buffer is the RSS_DELEGATED_ATTEST_GET_PLATFORM_TOKEN. The
+ * maximum required buffer size is calculated based on the platform-specific
+ * needs of this request.
+ */
+#define PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE	0x500
 
 #define TC_DEVICE_BASE			0x21000000
 #define TC_DEVICE_SIZE			0x5f000000
