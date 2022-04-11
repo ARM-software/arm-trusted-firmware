@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -17,7 +17,7 @@ BL32_SOURCES		+=	plat/arm/common/aarch32/arm_helpers.S	\
 				lib/xlat_tables/aarch32/xlat_tables.c	\
 				lib/xlat_tables/xlat_tables_common.c	\
 				${CORSTONE700_CPU_LIBS}	\
-				plat/arm/board/corstone700/common/drivers/mhu/mhu.c
+				plat/arm/board/corstone700/common/drivers/mhu/corstone700_mhu.c
 
 PLAT_INCLUDES		:=	-Iplat/arm/board/corstone700/common/include	\
 				-Iinclude/plat/arm/common	\
