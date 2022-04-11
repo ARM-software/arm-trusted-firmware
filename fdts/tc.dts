@@ -610,4 +610,30 @@
 		compatible = "arm,trace-buffer-extension";
 		interrupts = <GIC_PPI 2 IRQ_TYPE_LEVEL_LOW>;
 	};
+
+	trusty {
+		#size-cells = <0x02>;
+		#address-cells = <0x02>;
+		ranges = <0x00>;
+		compatible = "android,trusty-v1";
+
+		virtio {
+			compatible = "android,trusty-virtio-v1";
+		};
+
+		test {
+			compatible = "android,trusty-test-v1";
+		};
+
+		log {
+			compatible = "android,trusty-log-v1";
+		};
+
+		irq {
+			ipi-range = <0x08 0x0f 0x08>;
+			interrupt-ranges = <0x00 0x0f 0x00 0x10 0x1f 0x01 0x20 0x3f 0x02>;
+			interrupt-templates = <0x01 0x00 0x8001 0x01 0x01 0x04 0x8001 0x01 0x00 0x04>;
+			compatible = "android,trusty-irq-v1";
+		};
+	};
 };
