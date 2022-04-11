@@ -221,6 +221,8 @@
 #define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
 
+#define PLAT_ARM_SP_MAX_SIZE		U(0x2000000)
+
 /*******************************************************************************
  * Memprotect definitions
  ******************************************************************************/

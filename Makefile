@@ -452,8 +452,12 @@ ifneq (${SPD},none)
 			DTC_CPPFLAGS	+=	-DOPTEE_SP_FW_CONFIG
 		endif
 
+		ifeq ($(findstring trusty_sp,$(ARM_SPMC_MANIFEST_DTS)),trusty_sp)
+			DTC_CPPFLAGS	+=	-DTRUSTY_SP_FW_CONFIG
+		endif
+
 		ifeq ($(TS_SP_FW_CONFIG),1)
-		DTC_CPPFLAGS	+=	-DTS_SP_FW_CONFIG
+			DTC_CPPFLAGS	+=	-DTS_SP_FW_CONFIG
 		endif
 
 		ifneq ($(ARM_BL2_SP_LIST_DTS),)

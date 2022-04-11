@@ -740,10 +740,6 @@ Common build options
    1 (do save and restore). 0 is the default. An SPD may set this to 1 if it
    wants the timer registers to be saved and restored.
 
--  ``OPTEE_SP_FW_CONFIG``: DTC build flag to include OP-TEE as SP in
-   tb_fw_config device tree. This flag is defined only when
-   ``ARM_SPMC_MANIFEST_DTS`` manifest file name contains pattern optee_sp.
-
 -  ``OVERRIDE_LIBC``: This option allows platforms to override the default libc
    for the BL image. It can be either 0 (include) or 1 (remove). The default
    value is 0.
