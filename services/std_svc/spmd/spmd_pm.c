@@ -123,7 +123,7 @@ static int32_t spmd_cpu_off_handler(u_register_t unused)
 
 	/* Build an SPMD to SPMC direct message request. */
 	spmd_build_spmc_message(get_gpregs_ctx(&ctx->cpu_ctx),
-				SPMD_FWK_MSG_PSCI, PSCI_CPU_OFF);
+				FFA_FWK_MSG_PSCI, PSCI_CPU_OFF);
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0ULL) {
