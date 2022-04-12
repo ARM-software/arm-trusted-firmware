@@ -259,7 +259,16 @@ void __init bl31_prepare_next_image_entry(void)
 		(image_type == SECURE) ? "secure" : "normal");
 	print_entry_point_info(next_image_info);
 	cm_init_my_context(next_image_info);
-	cm_prepare_el3_exit(image_type);
+
+	/*
+	* If we are entering the Non-secure world, use
+	* 'cm_prepare_el3_exit_ns' to exit.
+	*/
+	if (image_type == NON_SECURE) {
+		cm_prepare_el3_exit_ns();
+	} else {
+		cm_prepare_el3_exit(image_type);
+	}
 }
 
 /*******************************************************************************

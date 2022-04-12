@@ -16,6 +16,7 @@
 #include <bl31/interrupt_mgmt.h>
 #include <common/bl_common.h>
 #include <context.h>
+#include <drivers/arm/gicv3.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
@@ -141,6 +142,31 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	scr_el3 |= get_scr_el3_from_routing_model(NON_SECURE);
 #endif
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
+
+	/* Initialize EL2 context registers */
+#if CTX_INCLUDE_EL2_REGS
+
+	/*
+	 * Initialize SCTLR_EL2 context register using Endianness value
+	 * taken from the entrypoint attribute.
+	 */
+	u_register_t sctlr_el2 = (EP_GET_EE(ep->h.attr) != 0U) ? SCTLR_EE_BIT : 0UL;
+	sctlr_el2 |= SCTLR_EL2_RES1;
+	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_SCTLR_EL2,
+			sctlr_el2);
+
+	/*
+	 * The GICv3 driver initializes the ICC_SRE_EL2 register during
+	 * platform setup. Use the same setting for the corresponding
+	 * context register to make sure the correct bits are set when
+	 * restoring NS context.
+	 */
+	u_register_t icc_sre_el2 = read_icc_sre_el2();
+	icc_sre_el2 |= (ICC_SRE_DIB_BIT | ICC_SRE_DFB_BIT);
+	icc_sre_el2 |= (ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT);
+	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_ICC_SRE_EL2,
+			icc_sre_el2);
+#endif /* CTX_INCLUDE_EL2_REGS */
 }
 
 /*******************************************************************************
@@ -790,6 +816,40 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	}
 }
 #endif /* CTX_INCLUDE_EL2_REGS */
+
+/*******************************************************************************
+ * This function is used to exit to Non-secure world. If CTX_INCLUDE_EL2_REGS
+ * is enabled, it restores EL1 and EL2 sysreg contexts instead of directly
+ * updating EL1 and EL2 registers. Otherwise, it calls the generic
+ * cm_prepare_el3_exit function.
+ ******************************************************************************/
+void cm_prepare_el3_exit_ns(void)
+{
+#if CTX_INCLUDE_EL2_REGS
+	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	assert(ctx != NULL);
+
+	/*
+	 * Currently some extensions are configured using
+	 * direct register updates. Therefore, do this here
+	 * instead of when setting up context.
+	 */
+	manage_extensions_nonsecure(0, ctx);
+
+	/*
+	 * Set the NS bit to be able to access the ICC_SRE_EL2
+	 * register when restoring context.
+	 */
+	write_scr_el3(read_scr_el3() | SCR_NS_BIT);
+
+	/* Restore EL2 and EL1 sysreg contexts */
+	cm_el2_sysregs_context_restore(NON_SECURE);
+	cm_el1_sysregs_context_restore(NON_SECURE);
+	cm_set_next_eret_context(NON_SECURE);
+#else
+	cm_prepare_el3_exit(NON_SECURE);
+#endif /* CTX_INCLUDE_EL2_REGS */
+}
 
 /*******************************************************************************
  * The next four functions are used by runtime services to save and restore

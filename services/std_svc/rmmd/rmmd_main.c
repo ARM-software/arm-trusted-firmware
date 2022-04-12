@@ -60,10 +60,6 @@ uint64_t rmmd_rmm_sync_entry(rmmd_rmm_context_t *rmm_ctx)
 
 	cm_set_context(&(rmm_ctx->cpu_ctx), REALM);
 
-	/* Save the current el1/el2 context before loading realm context. */
-	cm_el1_sysregs_context_save(NON_SECURE);
-	cm_el2_sysregs_context_save(NON_SECURE);
-
 	/* Restore the realm context assigned above */
 	cm_el1_sysregs_context_restore(REALM);
 	cm_el2_sysregs_context_restore(REALM);
@@ -72,13 +68,14 @@ uint64_t rmmd_rmm_sync_entry(rmmd_rmm_context_t *rmm_ctx)
 	/* Enter RMM */
 	rc = rmmd_rmm_enter(&rmm_ctx->c_rt_ctx);
 
-	/* Save realm context */
+	/*
+	 * Save realm context. EL1 and EL2 Non-secure
+	 * contexts will be restored before exiting to
+	 * Non-secure world, therefore there is no need
+	 * to clear EL1 and EL2 context registers.
+	 */
 	cm_el1_sysregs_context_save(REALM);
 	cm_el2_sysregs_context_save(REALM);
-
-	/* Restore the el1/el2 context again. */
-	cm_el1_sysregs_context_restore(NON_SECURE);
-	cm_el2_sysregs_context_restore(NON_SECURE);
 
 	return rc;
 }
