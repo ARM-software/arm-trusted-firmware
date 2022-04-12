@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,53 +31,132 @@
 
 static void manage_extensions_secure(cpu_context_t *ctx);
 
-/*******************************************************************************
- * Context management library initialisation routine. This library is used by
- * runtime services to share pointers to 'cpu_context' structures for the secure
- * and non-secure states. Management of the structures and their associated
- * memory is not done by the context management library e.g. the PSCI service
- * manages the cpu context used for entry from and exit to the non-secure state.
- * The Secure payload dispatcher service manages the context(s) corresponding to
- * the secure state. It also uses this library to get access to the non-secure
- * state cpu context pointers.
- * Lastly, this library provides the api to make SP_EL3 point to the cpu context
- * which will used for programming an entry into a lower EL. The same context
- * will used to save state upon exception entry from that EL.
- ******************************************************************************/
-void __init cm_init(void)
+/******************************************************************************
+ * This function performs initializations that are specific to SECURE state
+ * and updates the cpu context specified by 'ctx'.
+ *****************************************************************************/
+static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_info *ep)
 {
+	u_register_t scr_el3;
+	el3_state_t *state;
+
+	state = get_el3state_ctx(ctx);
+	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+
+#if defined(IMAGE_BL31) && !defined(SPD_spmd)
 	/*
-	 * The context management library has only global data to intialize, but
-	 * that will be done when the BSS is zeroed out
+	 * SCR_EL3.IRQ, SCR_EL3.FIQ: Enable the physical FIQ and IRQ routing as
+	 * indicated by the interrupt routing model for BL31.
 	 */
+	scr_el3 |= get_scr_el3_from_routing_model(SECURE);
+#endif
+
+#if !CTX_INCLUDE_MTE_REGS || ENABLE_ASSERTIONS
+	/* Get Memory Tagging Extension support level */
+	unsigned int mte = get_armv8_5_mte_support();
+#endif
+	/*
+	 * Allow access to Allocation Tags when CTX_INCLUDE_MTE_REGS
+	 * is set, or when MTE is only implemented at EL0.
+	 */
+#if CTX_INCLUDE_MTE_REGS
+	assert((mte == MTE_IMPLEMENTED_ELX) || (mte == MTE_IMPLEMENTED_ASY));
+	scr_el3 |= SCR_ATA_BIT;
+#else
+	if (mte == MTE_IMPLEMENTED_EL0) {
+		scr_el3 |= SCR_ATA_BIT;
+	}
+#endif /* CTX_INCLUDE_MTE_REGS */
+
+	/* Enable S-EL2 if the next EL is EL2 and S-EL2 is present */
+	if ((GET_EL(ep->spsr) == MODE_EL2) && is_armv8_4_sel2_present()) {
+		if (GET_RW(ep->spsr) != MODE_RW_64) {
+			ERROR("S-EL2 can not be used in AArch32\n.");
+			panic();
+		}
+
+		scr_el3 |= SCR_EEL2_BIT;
+	}
+
+	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
+
+	manage_extensions_secure(ctx);
+}
+
+#if ENABLE_RME
+/******************************************************************************
+ * This function performs initializations that are specific to REALM state
+ * and updates the cpu context specified by 'ctx'.
+ *****************************************************************************/
+static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_info *ep)
+{
+	u_register_t scr_el3;
+	el3_state_t *state;
+
+	state = get_el3state_ctx(ctx);
+	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+
+	scr_el3 |= SCR_NS_BIT | SCR_NSE_BIT | SCR_EnSCXT_BIT;
+
+	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
+}
+#endif /* ENABLE_RME */
+
+/******************************************************************************
+ * This function performs initializations that are specific to NON-SECURE state
+ * and updates the cpu context specified by 'ctx'.
+ *****************************************************************************/
+static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *ep)
+{
+	u_register_t scr_el3;
+	el3_state_t *state;
+
+	state = get_el3state_ctx(ctx);
+	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+
+	/* SCR_NS: Set the NS bit */
+	scr_el3 |= SCR_NS_BIT;
+
+#if !CTX_INCLUDE_PAUTH_REGS
+	/*
+	 * If the pointer authentication registers aren't saved during world
+	 * switches the value of the registers can be leaked from the Secure to
+	 * the Non-secure world. To prevent this, rather than enabling pointer
+	 * authentication everywhere, we only enable it in the Non-secure world.
+	 *
+	 * If the Secure world wants to use pointer authentication,
+	 * CTX_INCLUDE_PAUTH_REGS must be set to 1.
+	 */
+	scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
+#endif /* !CTX_INCLUDE_PAUTH_REGS */
+
+	/* Allow access to Allocation Tags when MTE is implemented. */
+	scr_el3 |= SCR_ATA_BIT;
+
+#ifdef IMAGE_BL31
+	/*
+	 * SCR_EL3.IRQ, SCR_EL3.FIQ: Enable the physical FIQ and IRQ routing as
+	 *  indicated by the interrupt routing model for BL31.
+	 */
+	scr_el3 |= get_scr_el3_from_routing_model(NON_SECURE);
+#endif
+	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 }
 
 /*******************************************************************************
- * The following function initializes the cpu_context 'ctx' for
- * first use, and sets the initial entrypoint state as specified by the
- * entry_point_info structure.
- *
- * The security state to initialize is determined by the SECURE attribute
- * of the entry_point_info.
+ * The following function performs initialization of the cpu_context 'ctx'
+ * for first use that is common to all security states, and sets the
+ * initial entrypoint state as specified by the entry_point_info structure.
  *
  * The EE and ST attributes are used to configure the endianness and secure
  * timer availability for the new execution context.
- *
- * To prepare the register state for entry call cm_prepare_el3_exit() and
- * el3_exit(). For Secure-EL1 cm_prepare_el3_exit() is equivalent to
- * cm_el1_sysregs_context_restore().
  ******************************************************************************/
-void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
+static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
-	unsigned int security_state;
 	u_register_t scr_el3;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
 	u_register_t sctlr_elx, actlr_elx;
-
-	assert(ctx != NULL);
-
-	security_state = GET_SECURITY_STATE(ep->h.attr);
 
 	/* Clear any residual register values from the context */
 	zeromem(ctx, sizeof(*ctx));
@@ -93,26 +172,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	 */
 	scr_el3 = read_scr();
 	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_FIQ_BIT | SCR_IRQ_BIT |
-			SCR_ST_BIT | SCR_HCE_BIT);
-
-#if ENABLE_RME
-	/* When RME support is enabled, clear the NSE bit as well. */
-	scr_el3 &= ~SCR_NSE_BIT;
-#endif /* ENABLE_RME */
-
-	/*
-	 * SCR_NS: Set the security state of the next EL.
-	 */
-	if (security_state == NON_SECURE) {
-		scr_el3 |= SCR_NS_BIT;
-	}
-
-#if ENABLE_RME
-	/* Check for realm state if RME support enabled. */
-	if (security_state == REALM) {
-		scr_el3 |= SCR_NS_BIT | SCR_NSE_BIT | SCR_EnSCXT_BIT;
-	}
-#endif /* ENABLE_RME */
+			SCR_ST_BIT | SCR_HCE_BIT | SCR_NSE_BIT);
 
 	/*
 	 * SCR_EL3.RW: Set the execution state, AArch32 or AArch64, for next
@@ -121,6 +181,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	if (GET_RW(ep->spsr) == MODE_RW_64) {
 		scr_el3 |= SCR_RW_BIT;
 	}
+
 	/*
 	 * SCR_EL3.ST: Traps Secure EL1 accesses to the Counter-timer Physical
 	 *  Secure timer registers to EL3, from AArch64 state only, if specified
@@ -149,8 +210,8 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 #if !HANDLE_EA_EL3_FIRST
 	/*
 	 * SCR_EL3.EA: Do not route External Abort and SError Interrupt External
-	 *  to EL3 when executing at a lower EL. When executing at EL3, External
-	 *  Aborts are taken to EL3.
+	 * to EL3 when executing at a lower EL. When executing at EL3, External
+	 * Aborts are taken to EL3.
 	 */
 	scr_el3 &= ~SCR_EA_BIT;
 #endif
@@ -160,68 +221,11 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	scr_el3 |= SCR_FIEN_BIT;
 #endif
 
-#if !CTX_INCLUDE_PAUTH_REGS
 	/*
-	 * If the pointer authentication registers aren't saved during world
-	 * switches the value of the registers can be leaked from the Secure to
-	 * the Non-secure world. To prevent this, rather than enabling pointer
-	 * authentication everywhere, we only enable it in the Non-secure world.
-	 *
-	 * If the Secure world wants to use pointer authentication,
-	 * CTX_INCLUDE_PAUTH_REGS must be set to 1.
+	 * CPTR_EL3 was initialized out of reset, copy that value to the
+	 * context register.
 	 */
-	if (security_state == NON_SECURE) {
-		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
-	}
-#endif /* !CTX_INCLUDE_PAUTH_REGS */
-
-#if !CTX_INCLUDE_MTE_REGS || ENABLE_ASSERTIONS
-	/* Get Memory Tagging Extension support level */
-	unsigned int mte = get_armv8_5_mte_support();
-#endif
-	/*
-	 * Enable MTE support. Support is enabled unilaterally for the normal
-	 * world, and only for the secure world when CTX_INCLUDE_MTE_REGS is
-	 * set.
-	 */
-#if CTX_INCLUDE_MTE_REGS
-	assert((mte == MTE_IMPLEMENTED_ELX) || (mte == MTE_IMPLEMENTED_ASY));
-	scr_el3 |= SCR_ATA_BIT;
-#else
-	/*
-	 * When MTE is only implemented at EL0, it can be enabled
-	 * across both worlds as no MTE registers are used.
-	 */
-	if ((mte == MTE_IMPLEMENTED_EL0) ||
-	/*
-	 * When MTE is implemented at all ELs, it can be only enabled
-	 * in Non-Secure world without register saving.
-	 */
-	  (((mte == MTE_IMPLEMENTED_ELX) || (mte == MTE_IMPLEMENTED_ASY)) &&
-	    (security_state == NON_SECURE))) {
-		scr_el3 |= SCR_ATA_BIT;
-	}
-#endif	/* CTX_INCLUDE_MTE_REGS */
-
-#ifdef IMAGE_BL31
-	/*
-	 * SCR_EL3.IRQ, SCR_EL3.FIQ: Enable the physical FIQ and IRQ routing as
-	 *  indicated by the interrupt routing model for BL31.
-	 *
-	 * TODO: The interrupt routing model code is not updated for REALM
-	 * state. Use the default values of IRQ = FIQ = 0 for REALM security
-	 * state for now.
-	 */
-	if (security_state != REALM) {
-		scr_el3 |= get_scr_el3_from_routing_model(security_state);
-	}
-#endif
-
-	/* Save the initialized value of CPTR_EL3 register */
 	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, read_cptr_el3());
-	if (security_state == SECURE) {
-		manage_extensions_secure(ctx);
-	}
 
 	/*
 	 * SCR_EL3.HCE: Enable HVC instructions if next execution state is
@@ -247,16 +251,6 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 		    == ID_AA64MMFR0_EL1_ECV_SELF_SYNCH) {
 			scr_el3 |= SCR_ECVEN_BIT;
 		}
-	}
-
-	/* Enable S-EL2 if the next EL is EL2 and security state is secure */
-	if ((security_state == SECURE) && (GET_EL(ep->spsr) == MODE_EL2)) {
-		if (GET_RW(ep->spsr) != MODE_RW_64) {
-			ERROR("S-EL2 can not be used in AArch32.");
-			panic();
-		}
-
-		scr_el3 |= SCR_EEL2_BIT;
 	}
 
 	/*
@@ -359,6 +353,66 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	 */
 	gp_regs = get_gpregs_ctx(ctx);
 	memcpy(gp_regs, (void *)&ep->args, sizeof(aapcs64_params_t));
+}
+
+/*******************************************************************************
+ * Context management library initialization routine. This library is used by
+ * runtime services to share pointers to 'cpu_context' structures for secure
+ * non-secure and realm states. Management of the structures and their associated
+ * memory is not done by the context management library e.g. the PSCI service
+ * manages the cpu context used for entry from and exit to the non-secure state.
+ * The Secure payload dispatcher service manages the context(s) corresponding to
+ * the secure state. It also uses this library to get access to the non-secure
+ * state cpu context pointers.
+ * Lastly, this library provides the API to make SP_EL3 point to the cpu context
+ * which will be used for programming an entry into a lower EL. The same context
+ * will be used to save state upon exception entry from that EL.
+ ******************************************************************************/
+void __init cm_init(void)
+{
+	/*
+	 * The context management library has only global data to intialize, but
+	 * that will be done when the BSS is zeroed out.
+	 */
+}
+
+/*******************************************************************************
+ * This is the high-level function used to initialize the cpu_context 'ctx' for
+ * first use. It performs initializations that are common to all security states
+ * and initializations specific to the security state specified in 'ep'
+ ******************************************************************************/
+void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
+{
+	unsigned int security_state;
+
+	assert(ctx != NULL);
+
+	/*
+	 * Perform initializations that are common
+	 * to all security states
+	 */
+	setup_context_common(ctx, ep);
+
+	security_state = GET_SECURITY_STATE(ep->h.attr);
+
+	/* Perform security state specific initializations */
+	switch (security_state) {
+	case SECURE:
+		setup_secure_context(ctx, ep);
+		break;
+#if ENABLE_RME
+	case REALM:
+		setup_realm_context(ctx, ep);
+		break;
+#endif
+	case NON_SECURE:
+		setup_ns_context(ctx, ep);
+		break;
+	default:
+		ERROR("Invalid security state\n");
+		panic();
+		break;
+	}
 }
 
 /*******************************************************************************
