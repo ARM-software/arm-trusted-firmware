@@ -34,12 +34,13 @@ static void set_fip_image_source(void)
 {
 	const struct plat_io_policy *policy;
 	/*
-	* metadata for firmware update is written at 0x0000 offset of the flash.
-	* PLAT_ARM_BOOT_BANK_FLAG contains the boot bank that TF-M is booted.
-	* As per firmware update spec, at a given point of time, only one bank is active.
-	* This means, TF-A should boot from the same bank as TF-M.
-	*/
+	 * metadata for firmware update is written at 0x0000 offset of the flash.
+	 * PLAT_ARM_BOOT_BANK_FLAG contains the boot bank that TF-M is booted.
+	 * As per firmware update spec, at a given point of time, only one bank
+	 * is active. This means, TF-A should boot from the same bank as TF-M.
+	 */
 	volatile uint32_t *boot_bank_flag = (uint32_t *)(PLAT_ARM_BOOT_BANK_FLAG);
+
 	if (*boot_bank_flag > 1) {
 		VERBOSE("Boot_bank is set higher than possible values");
 	}

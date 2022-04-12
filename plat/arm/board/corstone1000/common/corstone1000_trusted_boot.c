@@ -38,8 +38,8 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
  */
 int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
 {
-    *nv_ctr = CORSTONE1000_FW_NVCTR_VAL;
-    return 0;
+	*nv_ctr = CORSTONE1000_FW_NVCTR_VAL;
+	return 0;
 }
 
 /*
@@ -49,5 +49,5 @@ int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
  */
 int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 {
-    return 0;
+	return 0;
 }

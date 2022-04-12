@@ -57,8 +57,8 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	{
 		.image_id = TOS_FW_CONFIG_ID,
 		.image_info.image_base = CORSTONE1000_TOS_FW_CONFIG_BASE,
-		.image_info.image_max_size = CORSTONE1000_TOS_FW_CONFIG_LIMIT - \
-			CORSTONE1000_TOS_FW_CONFIG_BASE,
+		.image_info.image_max_size = (CORSTONE1000_TOS_FW_CONFIG_LIMIT -
+					      CORSTONE1000_TOS_FW_CONFIG_BASE),
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
 			VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,

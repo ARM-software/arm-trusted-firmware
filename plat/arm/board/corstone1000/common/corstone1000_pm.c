@@ -21,8 +21,8 @@ static void __dead2 corstone1000_system_reset(void)
 	*(watchdog_val_reg) = SECURE_WATCHDOG_COUNTDOWN_VAL;
 	*watchdog_ctrl_reg = SECURE_WATCHDOG_MASK_ENABLE;
 	while (1) {
-		 wfi();
-	 }
+		wfi();
+	}
 }
 
 plat_psci_ops_t plat_arm_psci_pm_ops = {
