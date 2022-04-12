@@ -1011,6 +1011,7 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	case FFA_ID_GET:
 	case FFA_FEATURES:
 	case FFA_VERSION:
+	case FFA_RX_RELEASE:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
 	case FFA_PARTITION_INFO_GET:
@@ -1143,6 +1144,31 @@ static uint64_t ffa_run_handler(uint32_t smc_fid,
 
 	return spmc_smc_return(smc_fid, secure_origin, x1, 0, 0, 0,
 			       handle, cookie, flags, target_id);
+}
+
+static uint64_t rx_release_handler(uint32_t smc_fid,
+				   bool secure_origin,
+				   uint64_t x1,
+				   uint64_t x2,
+				   uint64_t x3,
+				   uint64_t x4,
+				   void *cookie,
+				   void *handle,
+				   uint64_t flags)
+{
+	struct mailbox *mbox = spmc_get_mbox_desc(secure_origin);
+
+	spin_lock(&mbox->lock);
+
+	if (mbox->state != MAILBOX_STATE_FULL) {
+		spin_unlock(&mbox->lock);
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	mbox->state = MAILBOX_STATE_EMPTY;
+	spin_unlock(&mbox->lock);
+
+	SMC_RET1(handle, FFA_SUCCESS_SMC32);
 }
 
 /*******************************************************************************
@@ -1572,6 +1598,10 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 		return partition_info_get_handler(smc_fid, secure_origin, x1,
 						  x2, x3, x4, cookie, handle,
 						  flags);
+
+	case FFA_RX_RELEASE:
+		return rx_release_handler(smc_fid, secure_origin, x1, x2, x3,
+					  x4, cookie, handle, flags);
 
 	case FFA_MSG_WAIT:
 		return msg_wait_handler(smc_fid, secure_origin, x1, x2, x3, x4,
