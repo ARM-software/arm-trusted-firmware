@@ -493,7 +493,7 @@ static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args,
 				unsigned int *len_in_resp)
 {
 	*len_in_resp = 0;
-	*mbox_status = 0;
+	*mbox_status = GENERIC_RESPONSE_ERROR;
 
 	if (!is_address_in_ddr_range((uint64_t)args, sizeof(uint32_t) * len))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
