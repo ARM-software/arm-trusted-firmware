@@ -188,25 +188,6 @@ func el2_sysregs_context_save
 	stp	x11, x12, [x0, #CTX_VDISR_EL2]
 #endif /* RAS_EXTENSION */
 
-#if ENABLE_FEAT_SEL2
-	/*
-	 * VSTCR_EL2 and VSTTBR_EL2 registers are saved only
-	 * when FEAT_SEL2 is supported.
-	 */
-	mrs	x13, vstcr_el2
-	mrs	x14, vsttbr_el2
-	stp	x13, x14, [x0, #CTX_VSTCR_EL2]
-#endif /* ENABLE_FEAT_SEL2 */
-
-#if CTX_INCLUDE_AARCH32_REGS && ENABLE_FEAT_SEL2
-	/*
-	 * SDER32_EL2 register is saved only when EL2 and EL1
-	 * capable of using Aarch32 and FEAT_SEL2 is supported.
-	 */
-	mrs	x15, sder32_el2
-	str	x15, [x0, #CTX_SDER32_EL2]
-#endif /* CTX_INCLUDE_AARCH32_REGS && ENABLE_FEAT_SEL2 */
-
 #if CTX_INCLUDE_NEVE_REGS
 	/*
 	 * VNCR_EL2 register is saved only when FEAT_NV2 is supported.
@@ -400,25 +381,6 @@ func el2_sysregs_context_restore
 	msr	vdisr_el2, x11
 	msr	vsesr_el2, x12
 #endif /* RAS_EXTENSION */
-
-#if ENABLE_FEAT_SEL2
-	/*
-	 * VSTCR_EL2 and VSTTBR_EL2 registers are restored only when FEAT_SEL2
-	 * is supported.
-	 */
-	ldp	x13, x14, [x0, #CTX_VSTCR_EL2]
-	msr	vstcr_el2, x13
-	msr	vsttbr_el2, x14
-#endif /* ENABLE_FEAT_SEL2 */
-
-#if CTX_INCLUDE_AARCH32_REGS && ENABLE_FEAT_SEL2
-	/*
-	 * SDER32_EL2 register is restored only when EL2 and EL1 capable of using
-	 * Aarch32 and FEAT_SEL2 is supported.
-	 */
-	ldr	x15, [x0, #CTX_SDER32_EL2]
-	msr	sder32_el2, x15
-#endif /* CTX_INCLUDE_AARCH32_REGS && ENABLE_FEAT_SEL2 */
 
 #if CTX_INCLUDE_NEVE_REGS
 	/*
