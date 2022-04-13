@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,8 @@
 
 /* List all supported platforms */
 #define VERSAL_PLATFORM_ID_versal_virt	1
+#define VERSAL_PLATFORM_ID_spp_itr6	2
+#define VERSAL_PLATFORM_ID_emu_itr6	3
 #define VERSAL_PLATFORM_ID_silicon	4
 
 #define VERSAL_PLATFORM_IS(con)	(VERSAL_PLATFORM_ID_ ## con == VERSAL_PLATFORM)
@@ -92,6 +94,16 @@
 # define VERSAL_UART_CLOCK	100000000
 # define VERSAL_UART_BAUDRATE	115200
 # define VERSAL_CPU_CLOCK	100000000
+#elif VERSAL_PLATFORM_IS(spp_itr6)
+# define PLATFORM_NAME          "SPP ITR6"
+# define VERSAL_UART_CLOCK      25000000
+# define VERSAL_UART_BAUDRATE   115200
+# define VERSAL_CPU_CLOCK       2720000
+#elif VERSAL_PLATFORM_IS(emu_itr6)
+# define PLATFORM_NAME          "EMU ITR6"
+# define VERSAL_UART_CLOCK      212000
+# define VERSAL_UART_BAUDRATE   9600
+# define VERSAL_CPU_CLOCK       212000
 #endif
 
 /* Access control register defines */
