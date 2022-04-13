@@ -137,13 +137,13 @@
 #  define PLAT_ARM_MMAP_ENTRIES		9
 #  if USE_DEBUGFS
 #   if ENABLE_RME
-#    define MAX_XLAT_TABLES		10
+#    define MAX_XLAT_TABLES		9
 #   else
 #    define MAX_XLAT_TABLES		8
 #   endif
 #  else
 #   if ENABLE_RME
-#    define MAX_XLAT_TABLES		9
+#    define MAX_XLAT_TABLES		8
 #   else
 #    define MAX_XLAT_TABLES		7
 #   endif

@@ -84,12 +84,12 @@
 #define RMMD_GTSI_UNDELEGATE		SMC64_RMMD_EL3_FID(U(1))
 
 /* Return error codes from RMM-EL3 SMCs */
-#define RMMD_OK				0
-#define RMMD_ERR_BAD_ADDR		-2
-#define RMMD_ERR_BAD_PAS		-3
-#define RMMD_ERR_NOMEM			-4
-#define RMMD_ERR_INVAL			-5
-#define RMMD_ERR_UNK			-6
+#define E_RMM_OK			 0
+#define E_RMM_UNK			-1
+#define E_RMM_BAD_ADDR			-2
+#define E_RMM_BAD_PAS			-3
+#define E_RMM_NOMEM			-4
+#define E_RMM_INVAL			-5
 
 /* Acceptable SHA sizes for Challenge object */
 #define SHA256_DIGEST_SIZE	32U
