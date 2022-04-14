@@ -9,7 +9,9 @@
 #include <string.h>
 
 #include <common/bl_common.h>
+#include <drivers/clk.h>
 #include <drivers/delay_timer.h>
+#include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_uart.h>
 #include <drivers/st/stm32_uart_regs.h>
 #include <drivers/st/stm32mp_clkfunc.h>
@@ -300,18 +302,46 @@ void stm32_uart_stop(uintptr_t base)
  * @param  init: UART initialization parameter.
  * @retval UART status.
  */
-
 int stm32_uart_init(struct stm32_uart_handle_s *huart,
 		    uintptr_t base_addr,
 		    const struct stm32_uart_init_s *init)
 {
 	int ret;
+	int uart_node;
+	int clk;
+	void *fdt = NULL;
 
 	if (huart == NULL || init == NULL || base_addr == 0U) {
 		return -EINVAL;
 	}
 
 	huart->base = base_addr;
+
+	/* Search UART instance in DT */
+	if (fdt_get_address(&fdt) == 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	if (fdt == NULL) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	uart_node = dt_match_instance_by_compatible(DT_UART_COMPAT, base_addr);
+	if (uart_node == -FDT_ERR_NOTFOUND) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	/* Pinctrl initialization */
+	if (dt_set_pinctrl_config(uart_node) != 0) {
+		return -FDT_ERR_BADVALUE;
+	}
+
+	/* Clock initialization */
+	clk = fdt_get_clock_id(uart_node);
+	if (clk < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+	clk_enable(clk);
 
 	/* Disable the peripheral */
 	stm32_uart_stop(huart->base);
