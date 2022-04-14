@@ -17,7 +17,6 @@
 
 #include <platform_def.h>
 
-#define DT_UART_COMPAT		"st,stm32h7-uart"
 /*
  * Get the frequency of an oscillator from its name in device tree.
  * @param name: oscillator name
