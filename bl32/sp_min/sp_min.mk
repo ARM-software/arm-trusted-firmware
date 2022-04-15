@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -35,6 +35,10 @@ endif
 ifeq (${WORKAROUND_CVE_2017_5715},1)
 BL32_SOURCES		+=	bl32/sp_min/wa_cve_2017_5715_bpiall.S	\
 				bl32/sp_min/wa_cve_2017_5715_icache_inv.S
+else
+ifeq (${WORKAROUND_CVE_2022_23960},1)
+BL32_SOURCES		+=	bl32/sp_min/wa_cve_2017_5715_icache_inv.S
+endif
 endif
 
 ifeq (${TRNG_SUPPORT},1)
