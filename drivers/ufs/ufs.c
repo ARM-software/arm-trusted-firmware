@@ -441,7 +441,7 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 		break;
 	case QUERY_WRITE_ATTR:
 		query_upiu->query_func = QUERY_FUNC_STD_WRITE;
-		memcpy((void *)&query_upiu->ts.attr.value, (void *)buf, length);
+		query_upiu->ts.attr.value = htobe32(*((uint32_t *)buf));
 		break;
 	default:
 		assert(0);
@@ -624,11 +624,13 @@ static void ufs_query(uint8_t op, uint8_t idn, uint8_t index, uint8_t sel,
 	case QUERY_READ_FLAG:
 		*(uint32_t *)buf = (uint32_t)resp->ts.flag.value;
 		break;
-	case QUERY_READ_ATTR:
 	case QUERY_READ_DESC:
 		memcpy((void *)buf,
 		       (void *)(utrd.resp_upiu + sizeof(query_resp_upiu_t)),
 		       size);
+		break;
+	case QUERY_READ_ATTR:
+		*(uint32_t *)buf = htobe32(resp->ts.attr.value);
 		break;
 	default:
 		/* Do nothing in default case */
