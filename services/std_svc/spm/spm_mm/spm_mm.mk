@@ -16,6 +16,9 @@ endif
 ifeq (${ENABLE_SME_FOR_NS},1)
         $(error "Error: SPM_MM is not compatible with ENABLE_SME_FOR_NS")
 endif
+ifeq (${CTX_INCLUDE_FPREGS},0)
+        $(warning "Warning: SPM_MM: CTX_INCLUDE_FPREGS is set to 0")
+endif
 
 SPM_MM_SOURCES	:=	$(addprefix services/std_svc/spm/spm_mm/,	\
 			${ARCH}/spm_mm_shim_exceptions.S		\
