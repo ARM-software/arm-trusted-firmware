@@ -37,6 +37,7 @@
 #define FFA_ID_MASK			U(0xFFFF)
 #define FFA_PARTITION_ID_SHIFT		U(16)
 #define FFA_FEATURES_BIT31_MASK		U(0x1u << 31)
+#define FFA_FEATURES_RET_REQ_NS_BIT	U(0x1 << 1)
 
 #define FFA_RUN_EP_ID(ep_vcpu_ids) \
 		((ep_vcpu_ids >> FFA_PARTITION_ID_SHIFT) & FFA_ID_MASK)
@@ -170,6 +171,12 @@ struct secure_partition_desc {
 	 * Store whether the SP has subscribed to any power management messages.
 	 */
 	uint16_t pwr_mgmt_msgs;
+
+	/*
+	 * Store whether the SP has requested the use of the NS bit for memory
+	 * management transactions if it is using FF-A v1.0.
+	 */
+	bool ns_bit_requested;
 };
 
 /*

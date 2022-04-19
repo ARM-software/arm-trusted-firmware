@@ -876,6 +876,13 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		goto err_arg;
 	}
 
+	/* Ensure the NS bit is set to 0. */
+	if ((obj->desc.memory_region_attributes & FFA_MEM_ATTR_NS_BIT) != 0U) {
+		WARN("%s: NS mem attributes flags MBZ.\n", __func__);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_arg;
+	}
+
 	/*
 	 * We don't currently support any optional flags so ensure none are
 	 * requested.
@@ -1190,6 +1197,33 @@ err_unlock:
 }
 
 /**
+ * spmc_ffa_mem_retrieve_set_ns_bit - Set the NS bit in the response descriptor
+ *				      if the caller implements a version greater
+ *				      than FF-A 1.0 or if they have requested
+ *				      the functionality.
+ *				      TODO: We are assuming that the caller is
+ *				      an SP. To support retrieval from the
+ *				      normal world this function will need to be
+ *				      expanded accordingly.
+ * @resp:       Descriptor populated in callers RX buffer.
+ * @sp_ctx:     Context of the calling SP.
+ */
+void spmc_ffa_mem_retrieve_set_ns_bit(struct ffa_mtd *resp,
+			 struct secure_partition_desc *sp_ctx)
+{
+	if (sp_ctx->ffa_version > MAKE_FFA_VERSION(1, 0) ||
+	    sp_ctx->ns_bit_requested) {
+		/*
+		 * Currently memory senders must reside in the normal
+		 * world, and we do not have the functionlaity to change
+		 * the state of memory dynamically. Therefore we can always set
+		 * the NS bit to 1.
+		 */
+		resp->memory_region_attributes |= FFA_MEM_ATTR_NS_BIT;
+	}
+}
+
+/**
  * spmc_ffa_mem_retrieve_req - FFA_MEM_RETRIEVE_REQ implementation.
  * @smc_fid:            FID of SMC
  * @total_length:       Total length of retrieve request descriptor if this is
@@ -1237,6 +1271,7 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	struct spmc_shmem_obj *obj = NULL;
 	struct mailbox *mbox = spmc_get_mbox_desc(secure_origin);
 	uint32_t ffa_version = get_partition_ffa_version(secure_origin);
+	struct secure_partition_desc *sp_ctx = spmc_get_current_sp_ctx();
 
 	if (!secure_origin) {
 		WARN("%s: unsupported retrieve req direction.\n", __func__);
@@ -1326,6 +1361,13 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	if (req->emad_count != 0U && req->emad_count != obj->desc.emad_count) {
 		WARN("%s: mistmatch of endpoint counts %u != %u\n",
 		     __func__, req->emad_count, obj->desc.emad_count);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_all;
+	}
+
+	/* Ensure the NS bit is set to 0 in the request. */
+	if ((req->memory_region_attributes & FFA_MEM_ATTR_NS_BIT) != 0U) {
+		WARN("%s: NS mem attributes flags MBZ.\n", __func__);
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_unlock_all;
 	}
@@ -1445,6 +1487,9 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 
 		memcpy(resp, &obj->desc, copy_size);
 	}
+
+	/* Set the NS bit in the response if applicable. */
+	spmc_ffa_mem_retrieve_set_ns_bit(resp, sp_ctx);
 
 	spin_unlock(&spmc_shmem_obj_state.lock);
 	spin_unlock(&mbox->lock);
