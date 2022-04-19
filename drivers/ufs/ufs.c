@@ -656,7 +656,6 @@ static void ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
 	sense_data_t *sense;
 	unsigned char data[CACHE_WRITEBACK_GRANULE << 1];
 	uintptr_t buf;
-	int result;
 	int retry;
 
 	assert((ufs_params.reg_base != 0) &&
@@ -693,14 +692,12 @@ static void ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
 		/* logical block length in bytes */
 		*size = be32toh(*(unsigned int *)(buf + 4));
 	} while (retry);
-	(void)result;
 }
 
 size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size)
 {
 	utp_utrd_t utrd;
 	resp_upiu_t *resp;
-	int result;
 
 	assert((ufs_params.reg_base != 0) &&
 	       (ufs_params.desc_base != 0) &&
@@ -711,7 +708,6 @@ size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size)
 	dump_upiu(&utrd);
 #endif
 	resp = (resp_upiu_t *)utrd.resp_upiu;
-	(void)result;
 	return size - resp->res_trans_cnt;
 }
 
@@ -719,7 +715,6 @@ size_t ufs_write_blocks(int lun, int lba, const uintptr_t buf, size_t size)
 {
 	utp_utrd_t utrd;
 	resp_upiu_t *resp;
-	int result;
 
 	assert((ufs_params.reg_base != 0) &&
 	       (ufs_params.desc_base != 0) &&
@@ -730,7 +725,6 @@ size_t ufs_write_blocks(int lun, int lba, const uintptr_t buf, size_t size)
 	dump_upiu(&utrd);
 #endif
 	resp = (resp_upiu_t *)utrd.resp_upiu;
-	(void)result;
 	return size - resp->res_trans_cnt;
 }
 
