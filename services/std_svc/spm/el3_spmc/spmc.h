@@ -278,5 +278,11 @@ struct mailbox *spmc_get_mbox_desc(bool secure_origin);
  */
 struct secure_partition_desc *spmc_get_sp_ctx(uint16_t id);
 
+/*
+ * Add helper function to obtain the FF-A version of the calling
+ * partition.
+ */
+uint32_t get_partition_ffa_version(bool secure_origin);
+
 
 #endif /* SPMC_H */

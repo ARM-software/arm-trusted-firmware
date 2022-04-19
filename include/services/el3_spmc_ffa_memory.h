@@ -60,7 +60,8 @@ struct ffa_comp_mrd {
 CASSERT(sizeof(struct ffa_comp_mrd) == 16, assert_ffa_comp_mrd_size_mismatch);
 
 /**
- * typedef ffa_mem_attr8_t - Memory region attributes
+ * typedef ffa_mem_attr8_t - Memory region attributes v1.0.
+ * typedef ffa_mem_attr16_t - Memory region attributes v1.1.
  *
  * * @FFA_MEM_ATTR_DEVICE_NGNRNE:
  *     Device-nGnRnE.
@@ -82,6 +83,7 @@ CASSERT(sizeof(struct ffa_comp_mrd) == 16, assert_ffa_comp_mrd_size_mismatch);
  *     Inner Shareable. Combine with FFA_MEM_ATTR_NORMAL_MEMORY_*.
  */
 typedef uint8_t ffa_mem_attr8_t;
+typedef uint16_t ffa_mem_attr16_t;
 #define FFA_MEM_ATTR_DEVICE_NGNRNE		((1U << 4) | (0x0U << 2))
 #define FFA_MEM_ATTR_DEVICE_NGNRE		((1U << 4) | (0x1U << 2))
 #define FFA_MEM_ATTR_DEVICE_NGRE		((1U << 4) | (0x2U << 2))
@@ -212,5 +214,42 @@ struct ffa_mtd_v1_0 {
 	struct ffa_emad_v1_0 emad[];
 };
 CASSERT(sizeof(struct ffa_mtd_v1_0) == 32, assert_ffa_mtd_size_v1_0_mismatch);
+
+/**
+ * struct ffa_mtd - Memory transaction descriptor for FF-A v1.1.
+ * @sender_id:
+ *         Sender endpoint id.
+ * @memory_region_attributes:
+ *         FFA_MEM_ATTR_* values or'ed together (&typedef ffa_mem_attr16_t).
+ * @flags:
+ *         FFA_MTD_FLAG_* values or'ed together (&typedef ffa_mtd_flag32_t).
+ * @handle:
+ *         Id of shared memory object. Must be 0 for MEM_SHARE or MEM_LEND.
+ * @tag:   Client allocated tag. Must match original value.
+ * @emad_size:
+ *         Size of the emad descriptor.
+ * @emad_count:
+ *         Number of entries in the emad array.
+ * @emad_offset:
+ *         Offset from the beginning of the descriptor to the location of the
+ *         memory access descriptor array (see @struct ffa_emad_v1_0).
+ * @reserved_36_39:
+ *         Reserved bytes 36-39. Must be 0.
+ * @reserved_40_47:
+ *         Reserved bytes 44-47. Must be 0.
+ */
+struct ffa_mtd {
+	ffa_endpoint_id16_t sender_id;
+	ffa_mem_attr16_t memory_region_attributes;
+	ffa_mtd_flag32_t flags;
+	uint64_t handle;
+	uint64_t tag;
+	uint32_t emad_size;
+	uint32_t emad_count;
+	uint32_t emad_offset;
+	uint32_t reserved_36_39;
+	uint64_t reserved_40_47;
+};
+CASSERT(sizeof(struct ffa_mtd) == 48, assert_ffa_mtd_size_mismatch);
 
 #endif /* EL3_SPMC_FFA_MEM_H */
