@@ -32,6 +32,10 @@
 #define SPI_NOR_OP_READ_1_1_8	0x8BU	/* Read data bytes (Octal Output SPI) */
 #define SPI_NOR_OP_READ_1_8_8	0xCBU	/* Read data bytes (Octal I/O SPI) */
 
+/* 4-bytes address opcodes */
+#define SPI_NOR_OP_READ_4B	0x13U	/* Read data bytes (low frequency) */
+#define SPI_NOR_OP_READ_FAST_4B	0x0CU	/* Read data bytes (high frequency) */
+
 /* Flags for NOR specific configuration */
 #define SPI_NOR_USE_FSR		BIT(0)
 #define SPI_NOR_USE_BANK	BIT(1)
