@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -100,6 +100,11 @@ func check_errata_cve_2018_3639
 #endif
 	bx	lr
 endfunc check_errata_cve_2018_3639
+
+func check_errata_cve_2022_23960
+	mov	r0, #ERRATA_MISSING
+	bx	lr
+endfunc check_errata_cve_2022_23960
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A72.
@@ -260,6 +265,7 @@ func cortex_a72_errata_report
 	report_errata ERRATA_A72_859971, cortex_a72, 859971
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a72, cve_2017_5715
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a72, cve_2018_3639
+	report_errata WORKAROUND_CVE_2022_23960, cortex_a72, cve_2022_23960
 
 	pop	{r12, lr}
 	bx	lr
