@@ -341,8 +341,13 @@ int spi_nor_init(unsigned long long *size, unsigned int *erase_size)
 
 	assert(nor_dev.size != 0U);
 
-	if (nor_dev.size > BANK_SIZE) {
-		nor_dev.flags |= SPI_NOR_USE_BANK;
+	if ((nor_dev.size > BANK_SIZE) &&
+	    (nor_dev.read_op.addr.nbytes == 3U) &&
+	    ((nor_dev.flags & SPI_NOR_USE_BANK) == 0U)) {
+		WARN("%s: Only the first 16 MB of the memory are available. Please,\n", __func__);
+		WARN("%s: enable SPI_NOR_USE_BANK flag in plat_get_nor_data function\n", __func__);
+		WARN("%s: if the memory supports bank selection or use 4-bytes\n", __func__);
+		WARN("%s: address commands if the memory supports these commands.\n", __func__);
 	}
 
 	*size = nor_dev.size;

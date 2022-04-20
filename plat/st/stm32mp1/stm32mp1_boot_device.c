@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -193,6 +193,7 @@ int plat_get_spi_nand_data(struct spinand_device *device)
 int plat_get_nor_data(struct nor_device *device)
 {
 	device->size = SZ_64M;
+	device->flags |= SPI_NOR_USE_BANK;
 
 	zeromem(&device->read_op, sizeof(struct spi_mem_op));
 	device->read_op.cmd.opcode = SPI_NOR_OP_READ_1_1_4;
