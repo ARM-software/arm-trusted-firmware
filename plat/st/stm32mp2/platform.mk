@@ -51,7 +51,8 @@ PLAT_BL_COMMON_SOURCES		+=	lib/cpus/${ARCH}/cortex_a35.S
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/uart/${ARCH}/stm32_console.S
 PLAT_BL_COMMON_SOURCES		+=	plat/st/stm32mp2/${ARCH}/stm32mp2_helper.S
 
-PLAT_BL_COMMON_SOURCES		+=	drivers/st/bsec/bsec3.c
+PLAT_BL_COMMON_SOURCES		+=	drivers/st/bsec/bsec3.c					\
+					drivers/st/reset/stm32mp2_reset.c
 
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/clk/clk-stm32-core.c				\
 					drivers/st/clk/clk-stm32mp2.c
