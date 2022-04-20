@@ -834,6 +834,14 @@ Common build options
    to mask these events. Platforms that enable FIQ handling in SP_MIN shall
    implement the api ``sp_min_plat_fiq_handler()``. The default value is 0.
 
+-  ``SVE_VECTOR_LEN``: SVE vector length to configure in ZCR_EL3.
+   Platforms can configure this if they need to lower the hardware
+   limit, for example due to asymmetric configuration or limitations of
+   software run at lower ELs. The default is the architectural maximum
+   of 2048 which should be suitable for most configurations, the
+   hardware will limit the effective VL to the maximum physically supported
+   VL.
+
 -  ``TRUSTED_BOARD_BOOT``: Boolean flag to include support for the Trusted Board
    Boot feature. When set to '1', BL1 and BL2 images include support to load
    and verify the certificates and images in a FIP, and BL1 includes support

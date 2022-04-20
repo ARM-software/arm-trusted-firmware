@@ -373,6 +373,9 @@ ifeq (${ARCH},aarch32)
 endif
 ENABLE_SVE_FOR_SWD		:= 0
 
+# Default SVE vector length to maximum architected value
+SVE_VECTOR_LEN			:= 2048
+
 # SME defaults to disabled
 ENABLE_SME_FOR_NS		:= 0
 ENABLE_SME_FOR_SWD		:= 0
