@@ -53,6 +53,9 @@ PLAT_BL_COMMON_SOURCES		+=	plat/st/stm32mp2/${ARCH}/stm32mp2_helper.S
 
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/bsec/bsec3.c
 
+PLAT_BL_COMMON_SOURCES		+=	drivers/st/clk/clk-stm32-core.c				\
+					drivers/st/clk/clk-stm32mp2.c
+
 BL2_SOURCES			+=	plat/st/stm32mp2/plat_bl2_mem_params_desc.c
 BL2_SOURCES			+=	plat/st/stm32mp2/bl2_plat_setup.c
 
