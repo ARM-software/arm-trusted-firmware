@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -25,6 +25,9 @@
 #   KEY_SIZE
 #   ROT_KEY
 #   PROT_KEY
+#   PLAT_KEY
+#   SWD_ROT_KEY
+#   CORE_SWD_KEY
 #   TRUSTED_WORLD_KEY
 #   NON_TRUSTED_WORLD_KEY
 #   SCP_BL2_KEY
@@ -46,10 +49,18 @@ $(eval $(call CERT_ADD_CMD_OPT,${TFW_NVCTR_VAL},--tfw-nvctr))
 $(eval $(call CERT_ADD_CMD_OPT,${NTFW_NVCTR_VAL},--ntfw-nvctr))
 
 # Add Trusted Key certificate to the fiptool and cert_create command line options
+ifneq (${COT},cca)
 $(eval $(call TOOL_ADD_PAYLOAD,${TRUSTED_KEY_CERT},--trusted-key-cert))
+else
+$(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/cca.crt,--cca-cert))
+$(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/core-swd.crt,--core-swd-cert))
+$(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/plat-key.crt,--plat-key-cert))
+endif
 
 # Add fwu certificate to the fiptool and cert_create command line options
+ifneq (${COT},cca)
 $(eval $(call TOOL_ADD_PAYLOAD,${FWU_CERT},--fwu-cert,,FWU_))
+endif
 
 # Add the keys to the cert_create command line options (private keys are NOT
 # packed in the FIP). Developers can use their own keys by specifying the proper
@@ -63,6 +74,9 @@ $(if ${HASH_ALG},$(eval $(call CERT_ADD_CMD_OPT,${HASH_ALG},--hash-alg,FWU_)))
 $(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key)))
 $(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key,FWU_)))
 $(if ${PROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${PROT_KEY},--prot-key)))
+$(if ${PLAT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${PLAT_KEY},--plat-key)))
+$(if ${SWD_ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${SWD_ROT_KEY},--swd-rot-key)))
+$(if ${CORE_SWD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${CORE_SWD_KEY},--core-swd-key)))
 $(if ${TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_WORLD_KEY},--trusted-world-key)))
 $(if ${NON_TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${NON_TRUSTED_WORLD_KEY},--non-trusted-world-key)))
 
@@ -70,23 +84,29 @@ $(if ${NON_TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${NON_TRUSTED_WORLD
 # Add the BL2 CoT (image cert)
 ifeq (${NEED_BL2},yes)
 ifeq (${BL2_AT_EL3}, 0)
+ifneq (${COT},cca)
 $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
+endif
 endif
 endif
 
 # Add the SCP_BL2 CoT (key cert + img cert)
 ifneq (${SCP_BL2},)
+ifneq (${COT},cca)
     $(if ${SCP_BL2_KEY},$(eval $(call CERT_ADD_CMD_OPT,${SCP_BL2_KEY},--scp-fw-key)))
     $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/scp_fw_content.crt,--scp-fw-cert))
     $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/scp_fw_key.crt,--scp-fw-key-cert))
+endif
 endif
 
 ifeq (${ARCH},aarch64)
 ifeq (${NEED_BL31},yes)
 # Add the BL31 CoT (key cert + img cert)
 $(if ${BL31_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL31_KEY},--soc-fw-key)))
+ifneq (${COT},cca)
 $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/soc_fw_content.crt,--soc-fw-cert))
 $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/soc_fw_key.crt,--soc-fw-key-cert))
+endif
 endif
 endif
 
@@ -102,7 +122,9 @@ ifneq (${BL33},)
     $(if ${BL33_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL33_KEY},--nt-fw-key)))
     $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/nt_fw_content.crt,--nt-fw-cert))
 ifneq (${COT},dualroot)
-    $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/nt_fw_key.crt,--nt-fw-key-cert))
+    ifneq (${COT},cca)
+        $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/nt_fw_key.crt,--nt-fw-key-cert))
+    endif
 endif
 endif
 
@@ -110,6 +132,9 @@ endif
 ifneq (${SP_LAYOUT_FILE},)
     $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/sip_sp_content.crt,--sip-sp-cert))
 ifeq (${COT},dualroot)
+    $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/plat_sp_content.crt,--plat-sp-cert))
+endif
+ifeq (${COT},cca)
     $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/plat_sp_content.crt,--plat-sp-cert))
 endif
 endif
