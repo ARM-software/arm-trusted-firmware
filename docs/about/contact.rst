@@ -47,10 +47,10 @@ Arm licensees have an additional support conduit - they may contact Arm directly
 via their partner managers.
 
 .. _`issue tracker`: https://developer.trustedfirmware.org
-.. _`TF-A development`: https://lists.trustedfirmware.org/pipermail/tf-a/
-.. _`TF-A-Tests development`: https://lists.trustedfirmware.org/pipermail/tf-a-tests/
-.. _`summary of all the lists`: https://lists.trustedfirmware.org
+.. _`TF-A development`: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
+.. _`TF-A-Tests development`: https://lists.trustedfirmware.org/mailman3/lists/tf-a-tests.lists.trustedfirmware.org/
+.. _`summary of all the lists`: https://lists.trustedfirmware.org/mailman3/lists/
 
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*

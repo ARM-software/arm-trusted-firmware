@@ -1280,7 +1280,7 @@ Client <https://developer.arm.com/documentation/den0006/d/>`__
 
 .. _[8]:
 
-[8] https://lists.trustedfirmware.org/pipermail/tf-a/2020-February/000296.html
+[8] https://lists.trustedfirmware.org/archives/list/tf-a@lists.trustedfirmware.org/thread/CFQFGU6H2D5GZYMUYGTGUSXIU3OYZP6U/
 
 .. _[9]:
 

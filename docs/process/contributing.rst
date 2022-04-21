@@ -299,6 +299,6 @@ Binary Components
 .. _TF-A Tests: https://trustedfirmware-a-tests.readthedocs.io
 .. _Trusted Firmware binary repository: https://review.trustedfirmware.org/admin/repos/tf-binaries
 .. _tf-binaries-readme: https://git.trustedfirmware.org/tf-binaries.git/tree/readme.rst
-.. _TF-A mailing list: https://lists.trustedfirmware.org/mailman/listinfo/tf-a
+.. _TF-A mailing list: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
 .. _tf-a-ci-scripts repository: https://git.trustedfirmware.org/ci/tf-a-ci-scripts.git/
 .. _tf-cov-make: https://git.trustedfirmware.org/ci/tf-a-ci-scripts.git/tree/script/tf-coverity/tf-cov-make

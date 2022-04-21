@@ -71,7 +71,7 @@ Security Advisories
 +-----------+------------------------------------------------------------------+
 
 .. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
-.. _mailing list: https://lists.trustedfirmware.org/mailman/listinfo/tf-a
+.. _mailing list: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
 
 .. |TFV-1| replace:: :ref:`Advisory TFV-1 (CVE-2016-10319)`
 .. |TFV-2| replace:: :ref:`Advisory TFV-2 (CVE-2017-7564)`
@@ -86,4 +86,4 @@ Security Advisories
 
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*

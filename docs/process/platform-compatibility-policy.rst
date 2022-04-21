@@ -31,6 +31,6 @@ the deprecated interface.
 
 --------------
 
-*Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.*
 
-.. _TF-A public mailing list: https://lists.trustedfirmware.org/mailman/listinfo/tf-a
+.. _TF-A public mailing list: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
