@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -72,6 +72,9 @@ const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
 #if TRUSTED_BOARD_BOOT
 	[TRUSTED_BOOT_FW_CERT_ID] = {UUID_TRUSTED_BOOT_FW_CERT},
 #if !ARM_IO_IN_DTB
+	[CCA_CONTENT_CERT_ID] = {UUID_CCA_CONTENT_CERT},
+	[CORE_SWD_KEY_CERT_ID] = {UUID_CORE_SWD_KEY_CERT},
+	[PLAT_KEY_CERT_ID] = {UUID_PLAT_KEY_CERT},
 	[TRUSTED_KEY_CERT_ID] = {UUID_TRUSTED_KEY_CERT},
 	[SCP_FW_KEY_CERT_ID] = {UUID_SCP_FW_KEY_CERT},
 	[SOC_FW_KEY_CERT_ID] = {UUID_SOC_FW_KEY_CERT},
@@ -196,6 +199,21 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		open_fip
 	},
 #if !ARM_IO_IN_DTB
+	[CCA_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[CCA_CONTENT_CERT_ID],
+		open_fip
+	},
+	[CORE_SWD_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[CORE_SWD_KEY_CERT_ID],
+		open_fip
+	},
+	[PLAT_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[PLAT_KEY_CERT_ID],
+		open_fip
+	},
 	[TRUSTED_KEY_CERT_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[TRUSTED_KEY_CERT_ID],
@@ -260,7 +278,7 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 #ifdef IMAGE_BL2
 
 #if TRUSTED_BOARD_BOOT
-#define FCONF_ARM_IO_UUID_NUMBER	U(21)
+#define FCONF_ARM_IO_UUID_NUMBER	U(24)
 #else
 #define FCONF_ARM_IO_UUID_NUMBER	U(10)
 #endif
@@ -286,6 +304,9 @@ static const struct policies_load_info load_info[FCONF_ARM_IO_UUID_NUMBER] = {
 	{TOS_FW_CONFIG_ID, "tos_fw_cfg_uuid"},
 	{NT_FW_CONFIG_ID, "nt_fw_cfg_uuid"},
 #if TRUSTED_BOARD_BOOT
+	{CCA_CONTENT_CERT_ID, "cca_cert_uuid"},
+	{CORE_SWD_KEY_CERT_ID, "core_swd_cert_uuid"},
+	{PLAT_KEY_CERT_ID, "plat_cert_uuid"},
 	{TRUSTED_KEY_CERT_ID, "t_key_cert_uuid"},
 	{SCP_FW_KEY_CERT_ID, "scp_fw_key_uuid"},
 	{SOC_FW_KEY_CERT_ID, "soc_fw_key_uuid"},
