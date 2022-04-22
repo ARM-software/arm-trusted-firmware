@@ -260,6 +260,10 @@ skip_console_init:
 	 */
 	mmio_write_32(RISAB5_BASE + RISAB_CR, RISAB_CR_SRWIAD);
 
+	if (stm32mp2_pwr_init_io_domains() != 0) {
+		panic();
+	}
+
 	stm32mp_io_setup();
 }
 

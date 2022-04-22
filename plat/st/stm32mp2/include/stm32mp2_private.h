@@ -27,6 +27,8 @@ enum syscfg_io_ids {
 void stm32mp_syscfg_enable_io_comp(enum syscfg_io_ids id);
 void stm32mp_syscfg_fixed_io_comp(enum syscfg_io_ids id, uint32_t pmos, uint32_t nmos);
 
+int stm32mp2_pwr_init_io_domains(void);
+
 /* Get RISAF platform instance ID from peripheral IO memory base address */
 int stm32_risaf_get_instance(uintptr_t base);
 
