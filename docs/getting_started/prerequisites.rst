@@ -58,9 +58,10 @@ supporting tools:
 
    Required to build the cert_create tool.
 
-The following libraries are required for Trusted Board Boot support:
+The following libraries are required for Trusted Board Boot and Measured Boot
+support:
 
-- mbed TLS == 2.26.0 (tag: ``mbedtls-2.26.0``)
+- mbed TLS == 2.28.0 (tag: ``mbedtls-2.28.0``)
 
 These tools are optional:
 
