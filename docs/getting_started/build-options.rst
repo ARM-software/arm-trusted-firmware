@@ -780,13 +780,20 @@ Common build options
    firmware images have been loaded in memory, and the MMU and caches are
    turned off. Refer to the "Debugging options" section for more details.
 
+-  ``SPMC_AT_EL3`` : This boolean option is used jointly with the SPM
+   Dispatcher option (``SPD=spmd``). When enabled (1) it indicates the SPMC
+   component runs at the EL3 exception level. The default value is ``0`` (
+   disabled). This configuration supports pre-Armv8.4 platforms (aka not
+   implementing the ``FEAT_SEL2`` extension). This is an experimental feature.
+
 -  ``SPMD_SPM_AT_SEL2`` : This boolean option is used jointly with the SPM
    Dispatcher option (``SPD=spmd``). When enabled (1) it indicates the SPMC
-   component runs at the S-EL2 execution state provided by the Armv8.4-SecEL2
+   component runs at the S-EL2 exception level provided by the ``FEAT_SEL2``
    extension. This is the default when enabling the SPM Dispatcher. When
    disabled (0) it indicates the SPMC component runs at the S-EL1 execution
-   state. This latter configuration supports pre-Armv8.4 platforms (aka not
-   implementing the Armv8.4-SecEL2 extension).
+   state or at EL3 if ``SPMC_AT_EL3`` is enabled. The latter configurations
+   support pre-Armv8.4 platforms (aka not implementing the ``FEAT_SEL2``
+   extension).
 
 -  ``SPM_MM`` : Boolean option to enable the Management Mode (MM)-based Secure
    Partition Manager (SPM) implementation. The default value is ``0``

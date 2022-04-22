@@ -127,14 +127,18 @@ TF-A build options
 
 This section explains the TF-A build options involved in building with
 support for an FF-A based SPM where the SPMD is located at EL3 and the
-SPMC located at S-EL1 or S-EL2:
+SPMC located at S-EL1, S-EL2 or EL3:
 
 - **SPD=spmd**: this option selects the SPMD component to relay the FF-A
   protocol from NWd to SWd back and forth. It is not possible to
   enable another Secure Payload Dispatcher when this option is chosen.
 - **SPMD_SPM_AT_SEL2**: this option adjusts the SPMC exception
-  level to being S-EL1 or S-EL2. It defaults to enabled (value 1) when
+  level to being at S-EL2. It defaults to enabled (value 1) when
   SPD=spmd is chosen.
+- **SPMC_AT_EL3**: this option adjusts the SPMC exception level to being
+  at EL3.
+- If neither **SPMD_SPM_AT_SEL2** or **SPMC_AT_EL3** are enabled the SPMC
+  exception level is set to S-EL1.
 - **CTX_INCLUDE_EL2_REGS**: this option permits saving (resp.
   restoring) the EL2 system register context before entering (resp.
   after leaving) the SPMC. It is mandatorily enabled when
@@ -146,14 +150,16 @@ SPMC located at S-EL1 or S-EL2:
   is required when ``SPMD_SPM_AT_SEL2`` is enabled hence when multiple
   secure partitions are to be loaded on behalf of the SPMC.
 
-+---------------+----------------------+------------------+
-|               | CTX_INCLUDE_EL2_REGS | SPMD_SPM_AT_SEL2 |
-+---------------+----------------------+------------------+
-| SPMC at S-EL1 |         0            |        0         |
-+---------------+----------------------+------------------+
-| SPMC at S-EL2 |         1            | 1 (default when  |
-|               |                      |    SPD=spmd)     |
-+---------------+----------------------+------------------+
++---------------+----------------------+------------------+-------------+
+|               | CTX_INCLUDE_EL2_REGS | SPMD_SPM_AT_SEL2 | SPMC_AT_EL3 |
++---------------+----------------------+------------------+-------------+
+| SPMC at S-EL1 |         0            |        0         |      0      |
++---------------+----------------------+------------------+-------------+
+| SPMC at S-EL2 |         1            | 1 (default when  |      0      |
+|               |                      |    SPD=spmd)     |             |
++---------------+----------------------+------------------+-------------+
+| SPMC at EL3   |         0            |        0         |      1      |
++---------------+----------------------+------------------+-------------+
 
 Other combinations of such build options either break the build or are not
 supported.
@@ -227,6 +233,20 @@ Same as above with enabling secure boot in addition:
     ARM_ROTPK_LOCATION=devel_rsa \
     ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem \
     GENERATE_COT=1 \
+    all fip
+
+Sample TF-A build command line when SPMC is located at EL3:
+
+.. code:: shell
+
+    make \
+    CROSS_COMPILE=aarch64-none-elf- \
+    SPD=spmd \
+    SPMD_SPM_AT_SEL2=0 \
+    SPMC_AT_EL3=1 \
+    BL32=<path-to-tee-binary> \
+    BL33=<path-to-bl33-binary> \
+    PLAT=fvp \
     all fip
 
 FVP model invocation

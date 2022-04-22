@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020, ARM Limited. All rights reserved.
+# Copyright (c) 2020-2022, ARM Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -33,5 +33,9 @@ else # if AArch64
         $(error "SPM_MM requires functionality to change memory region \
                  attributes, which is not possible once the translation tables \
                  have been made read-only.")
+    endif
+    ifeq (${SPMC_AT_EL3},1)
+        $(error "EL3 SPMC requires functionality from the dynamic translation \
+                 library and is incompatible with ALLOW_RO_XLAT_TABLES.")
     endif
 endif

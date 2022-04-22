@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #define SPM_MM_PRIVATE_H
 
 #include <context.h>
+#include "spm_common.h"
 
 /*******************************************************************************
  * Constants that allow assembler code to preserve callee-saved registers of the
@@ -51,9 +52,6 @@ typedef struct sp_context {
 	spinlock_t state_lock;
 } sp_context_t;
 
-/* Assembly helpers */
-uint64_t spm_secure_partition_enter(uint64_t *c_rt_ctx);
-void __dead2 spm_secure_partition_exit(uint64_t c_rt_ctx, uint64_t ret);
 
 void spm_sp_setup(sp_context_t *sp_ctx);
 

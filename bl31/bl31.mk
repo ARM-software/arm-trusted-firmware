@@ -18,12 +18,21 @@ ifeq (${SPM_MM},1)
     $(error EL3_EXCEPTION_HANDLING must be 1 for SPM-MM support)
   else
     $(info Including SPM Management Mode (MM) makefile)
-    include services/std_svc/spm_mm/spm_mm.mk
+    include services/std_svc/spm/common/spm.mk
+    include services/std_svc/spm/spm_mm/spm_mm.mk
   endif
 endif
 
 include lib/extensions/amu/amu.mk
 include lib/mpmm/mpmm.mk
+
+ifeq (${SPMC_AT_EL3},1)
+  $(warning "EL3 SPMC is an experimental feature")
+  $(info Including EL3 SPMC makefile)
+  include services/std_svc/spm/common/spm.mk
+  include services/std_svc/spm/el3_spmc/spmc.mk
+endif
+
 include lib/psci/psci_lib.mk
 
 BL31_SOURCES		+=	bl31/bl31_main.c				\
@@ -40,6 +49,8 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				services/std_svc/std_svc_setup.c		\
 				${PSCI_LIB_SOURCES}				\
 				${SPMD_SOURCES}					\
+				${SPM_MM_SOURCES}				\
+				${SPMC_SOURCES}					\
 				${SPM_SOURCES}
 
 ifeq (${DISABLE_MTPMU},1)

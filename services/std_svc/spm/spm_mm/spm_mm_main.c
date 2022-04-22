@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +22,7 @@
 #include <services/spm_mm_svc.h>
 #include <smccc_helpers.h>
 
+#include "spm_common.h"
 #include "spm_mm_private.h"
 
 /*******************************************************************************
