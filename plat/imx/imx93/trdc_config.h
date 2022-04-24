@@ -44,6 +44,7 @@ struct trdc_mbc_config trdc_a_mbc[] = {
 	{ 0, 3, 2, MBC_BLK_ALL, 0, false }, /* MBC0 GPIO1 for A55 DID3 */
 	{ 1, 3, 0, MBC_BLK_ALL, 1, false }, /* MBC1 CM33 code TCM for A55 DID3 */
 	{ 1, 3, 1, MBC_BLK_ALL, 1, false }, /* MBC1 CM33 system TCM for A55 DID3 */
+	{ 1, 10, 1, MBC_BLK_ALL, 2, false }, /* MBC1 CM33 system TCM for SoC masters DID10 */
 
 	{ 0, 7, 0, MBC_BLK_ALL, 0, false }, /* MBC0 AIPS1 for eDMA DID7 */
 };
