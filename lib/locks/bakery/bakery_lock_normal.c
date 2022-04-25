@@ -83,7 +83,7 @@ static inline void read_cache_op(uintptr_t addr, bool cached)
 }
 
 /* Helper function to check if the lock is acquired */
-static inline bool is_lock_acquired(const bakery_info_t *my_bakery_info,
+static inline __unused bool is_lock_acquired(const bakery_info_t *my_bakery_info,
 				    bool is_cached)
 {
 	/*
