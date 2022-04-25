@@ -161,7 +161,7 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 
 *Copyright (c) 2021, Arm Limited. All rights reserved.*
 
-.. _Arm Developer website: https://developer.arm.com/open-source/gnu-toolchain/gnu-a/downloads
+.. _Arm Developer website: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads
 .. _Gerrit Code Review: https://www.gerritcodereview.com/
 .. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-release-notes
 .. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/arm-reference-platforms-deliverables
