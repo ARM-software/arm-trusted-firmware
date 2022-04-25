@@ -102,7 +102,7 @@ endfunc plat_get_my_entrypoint
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, PLAT_UART0_BASE
+	mov_imm	x0, CRASH_CONSOLE_BASE
 	mov_imm	x1, PLAT_UART_CLOCK
 	mov_imm	x2, PLAT_BAUDRATE
 	b	console_16550_core_init
@@ -116,7 +116,7 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-	mov_imm x1, PLAT_UART0_BASE
+	mov_imm x1, CRASH_CONSOLE_BASE
 	b	console_16550_core_putc
 endfunc plat_crash_console_putc
 

@@ -433,8 +433,9 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			 u_register_t flags)
 {
 	uint32_t retval = 0;
+	uint32_t mbox_error = 0;
 	uint32_t completed_addr[3];
-	uint64_t rsu_respbuf[9];
+	uint64_t retval64, rsu_respbuf[9];
 	int status = INTEL_SIP_SMC_STATUS_OK;
 	int mbox_status;
 	unsigned int len_in_resp;
@@ -541,6 +542,11 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 					     (uint32_t *)x5, x6, &mbox_status,
 					     &len_in_resp);
 		SMC_RET3(handle, status, mbox_status, len_in_resp);
+
+	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
+		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,
+							&mbox_error);
+		SMC_RET4(handle, status, mbox_error, x1, retval64);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,

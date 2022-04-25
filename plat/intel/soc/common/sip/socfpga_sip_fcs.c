@@ -118,3 +118,33 @@ uint32_t intel_fcs_cryption(uint32_t mode, uint32_t src_addr,
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
+
+uint32_t intel_fcs_get_rom_patch_sha384(uint64_t addr, uint64_t *ret_size,
+					uint32_t *mbox_error)
+{
+	int status;
+	unsigned int resp_len = FCS_SHA384_WORD_SIZE;
+
+	if (!is_address_in_ddr_range(addr, FCS_SHA384_BYTE_SIZE)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_GET_ROM_PATCH_SHA384, NULL, 0U,
+			CMD_CASUAL, (uint32_t *) addr, &resp_len);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (resp_len != FCS_SHA384_WORD_SIZE) {
+		*mbox_error = GENERIC_RESPONSE_ERROR;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*ret_size = FCS_SHA384_BYTE_SIZE;
+
+	flush_dcache_range(addr, *ret_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}

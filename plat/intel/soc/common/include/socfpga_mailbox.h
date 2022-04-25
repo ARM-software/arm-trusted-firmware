@@ -67,6 +67,8 @@
 #define MBOX_FCS_ENCRYPT_REQ			0x7E
 #define MBOX_FCS_DECRYPT_REQ			0x7F
 #define MBOX_FCS_RANDOM_GEN			0x80
+/* Miscellaneous commands */
+#define MBOX_GET_ROM_PATCH_SHA384	0x1B0
 
 /* Mailbox Definitions */
 

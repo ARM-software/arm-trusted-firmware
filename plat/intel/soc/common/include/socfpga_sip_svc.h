@@ -44,6 +44,9 @@
 /* ECC */
 #define INTEL_SIP_SMC_ECC_DBE				0xC200000D
 
+/* Generic Command */
+#define INTEL_SIP_SMC_GET_ROM_PATCH_SHA384		0xC2000040
+
 /* Send Mailbox Command */
 #define INTEL_SIP_SMC_MBOX_SEND_CMD			0xC200001E
 
