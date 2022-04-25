@@ -17,6 +17,9 @@
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <platform_def.h>
 #include <services/arm_arch_svc.h>
+#if ENABLE_RME
+#include <services/rmm_core_manifest.h>
+#endif
 #if SPM_MM
 #include <services/spm_mm_partition.h>
 #endif
@@ -527,4 +530,15 @@ size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared)
 
 	return (size_t)RMM_SHARED_SIZE;
 }
+
+int plat_rmmd_load_manifest(rmm_manifest_t *manifest)
+{
+	assert(manifest != NULL);
+
+	manifest->version = RMMD_MANIFEST_VERSION;
+	manifest->plat_data = (uintptr_t)NULL;
+
+	return 0;
+}
+
 #endif

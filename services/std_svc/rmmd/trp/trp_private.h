@@ -8,18 +8,7 @@
 #define TRP_PRIVATE_H
 
 #include <services/rmmd_svc.h>
-
-/* Definitions to help the assembler access the SMC/ERET args structure */
-#define TRP_ARGS_SIZE		TRP_ARGS_END
-#define TRP_ARG0		0x0
-#define TRP_ARG1		0x8
-#define TRP_ARG2		0x10
-#define TRP_ARG3		0x18
-#define TRP_ARG4		0x20
-#define TRP_ARG5		0x28
-#define TRP_ARG6		0x30
-#define TRP_ARG7		0x38
-#define TRP_ARGS_END		0x40
+#include <trp_helpers.h>
 
 /* Definitions for RMM-EL3 Interface ABI VERSION */
 #define TRP_RMM_EL3_ABI_VERS_MAJOR	RMM_EL3_IFC_VERSION_MAJOR
@@ -32,11 +21,6 @@
 #ifndef __ASSEMBLER__
 
 #include <stdint.h>
-
-/* Data structure to hold SMC arguments */
-typedef struct trp_args {
-	uint64_t regs[TRP_ARGS_END >> 3];
-} __aligned(CACHE_WRITEBACK_GRANULE) trp_args_t;
 
 #define write_trp_arg(args, offset, val) (((args)->regs[offset >> 3])	\
 					 = val)
