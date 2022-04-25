@@ -129,6 +129,8 @@ void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
 
 #if !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT
 void stm32mp1_fwu_set_boot_idx(void);
+uint32_t stm32_get_and_dec_fwu_trial_boot_cnt(void);
+void stm32_set_max_fwu_trial_boot_cnt(void);
 #endif /* !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT */
 
 #endif /* STM32MP_COMMON_H */
