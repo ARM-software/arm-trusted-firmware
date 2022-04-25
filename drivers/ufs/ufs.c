@@ -356,7 +356,6 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 		hd->prdto = (utrd->size_upiu + utrd->size_resp_upiu) >> 2;
 	}
 
-	flush_dcache_range((uintptr_t)utrd, sizeof(utp_utrd_t));
 	flush_dcache_range((uintptr_t)utrd->header, UFS_DESC_SIZE);
 	return 0;
 }
@@ -415,7 +414,6 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 		assert(0);
 		break;
 	}
-	flush_dcache_range((uintptr_t)utrd, sizeof(utp_utrd_t));
 	flush_dcache_range((uintptr_t)utrd->header, UFS_DESC_SIZE);
 	return 0;
 }
@@ -439,7 +437,6 @@ static void ufs_prepare_nop_out(utp_utrd_t *utrd)
 
 	nop_out->trans_type = 0;
 	nop_out->task_tag = utrd->task_tag;
-	flush_dcache_range((uintptr_t)utrd, sizeof(utp_utrd_t));
 	flush_dcache_range((uintptr_t)utrd->header, UFS_DESC_SIZE);
 }
 
@@ -473,7 +470,6 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
 
 	hd = (utrd_header_t *)utrd->header;
 	resp = (resp_upiu_t *)utrd->resp_upiu;
-	inv_dcache_range((uintptr_t)hd, UFS_DESC_SIZE);
 	do {
 		data = mmio_read_32(ufs_params.reg_base + IS);
 		if ((data & ~(UFS_INT_UCCS | UFS_INT_UTRCS)) != 0)
@@ -483,6 +479,12 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
 
 	data = mmio_read_32(ufs_params.reg_base + UTRLDBR);
 	assert((data & (1 << slot)) == 0);
+	/*
+	 * Invalidate the header after DMA read operation has
+	 * completed to avoid cpu referring to the prefetched
+	 * data brought in before DMA completion.
+	 */
+	inv_dcache_range((uintptr_t)hd, UFS_DESC_SIZE);
 	assert(hd->ocs == OCS_SUCCESS);
 	assert((resp->trans_type & TRANS_TYPE_CODE_MASK) == trans_type);
 	(void)resp;
@@ -667,8 +669,6 @@ static void ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
 	buf = (uintptr_t)data;
 	buf = (buf + CACHE_WRITEBACK_GRANULE - 1) &
 	      ~(CACHE_WRITEBACK_GRANULE - 1);
-	memset((void *)buf, 0, CACHE_WRITEBACK_GRANULE);
-	flush_dcache_range(buf, CACHE_WRITEBACK_GRANULE);
 	do {
 		ufs_send_cmd(&utrd, CDBCMD_READ_CAPACITY_10, lun, 0,
 			    buf, READ_CAPACITY_LENGTH);
@@ -707,6 +707,11 @@ size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size)
 #ifdef UFS_RESP_DEBUG
 	dump_upiu(&utrd);
 #endif
+	/*
+	 * Invalidate prefetched cache contents before cpu
+	 * accesses the buf.
+	 */
+	inv_dcache_range(buf, size);
 	resp = (resp_upiu_t *)utrd.resp_upiu;
 	return size - resp->res_trans_cnt;
 }
