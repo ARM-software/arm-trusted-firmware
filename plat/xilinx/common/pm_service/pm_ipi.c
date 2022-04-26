@@ -260,7 +260,7 @@ uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
 }
 
 #if IPI_CRC_CHECK
-uint32_t calculate_crc(uint32_t *payload, uint32_t bufsize)
+uint32_t calculate_crc(uint32_t payload[PAYLOAD_ARG_CNT], uint32_t bufsize)
 {
 	uint32_t crcinit = CRC_INIT_VALUE;
 	uint32_t order   = CRC_ORDER;
