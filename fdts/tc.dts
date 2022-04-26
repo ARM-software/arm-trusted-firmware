@@ -261,6 +261,12 @@
 		arm,mhuv2-protocols = <0 1>;
 	};
 
+	cmn-pmu {
+		compatible = "arm,ci-700";
+		reg = <0x0 0x50000000 0x0 0x10000000>;
+		interrupts = <0x0 460 0x4>;
+	};
+
 	scmi {
 		compatible = "arm,scmi";
 		mbox-names = "tx", "rx";
