@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,8 +54,6 @@ typedef struct sp_context {
 
 
 void spm_sp_setup(sp_context_t *sp_ctx);
-
-xlat_ctx_t *spm_get_sp_xlat_context(void);
 
 int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
 					      uintptr_t base_va);
