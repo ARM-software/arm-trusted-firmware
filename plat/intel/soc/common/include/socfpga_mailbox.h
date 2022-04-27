@@ -42,6 +42,7 @@
 #define MBOX_CMD_CANCEL			0x03
 #define MBOX_CMD_VAB_SRC_CERT		0x0B
 #define MBOX_CMD_GET_IDCODE		0x10
+#define MBOX_CMD_GET_USERCODE		0x13
 #define MBOX_CMD_REBOOT_HPS		0x47
 
 /* Reconfiguration Commands */

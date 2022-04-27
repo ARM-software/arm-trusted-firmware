@@ -482,6 +482,21 @@ static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args,
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+static int intel_smc_get_usercode(uint32_t *user_code)
+{
+	int status;
+	unsigned int resp_len = sizeof(user_code) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_GET_USERCODE, NULL,
+				0U, CMD_CASUAL, user_code, &resp_len);
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 /* Miscellaneous HPS services */
 static uint32_t intel_hps_set_bridges(uint64_t enable)
 {
@@ -648,6 +663,10 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 					     (uint32_t *)x5, x6, &mbox_status,
 					     &len_in_resp);
 		SMC_RET3(handle, status, mbox_status, len_in_resp);
+
+	case INTEL_SIP_SMC_GET_USERCODE:
+		status = intel_smc_get_usercode(&retval);
+		SMC_RET2(handle, status, retval);
 
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
 		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,

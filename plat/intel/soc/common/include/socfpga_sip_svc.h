@@ -62,6 +62,8 @@
 #define INTEL_SIP_SMC_FIRMWARE_VERSION			0xC200001F
 #define INTEL_SIP_SMC_HPS_SET_BRIDGES			0xC2000032
 
+/* Mailbox Command */
+#define INTEL_SIP_SMC_GET_USERCODE			0xC200003D
 
 /* SiP Definitions */
 
