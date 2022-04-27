@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,7 @@
 #include <plat/common/platform.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
+#include "pm_defs.h"
 
 #define UNDEFINED_CPUID		(~0)
 #define IRQ_MAX		142U
@@ -147,14 +148,16 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 			node_idx = irq_to_pm_node_idx(irq);
 			reg &= ~lowest_set;
 
-			if ((node_idx != XPM_NODEIDX_DEV_MIN) &&
-			    (pm_wakeup_nodes_set[node_idx] == 0U)) {
-				/* Get device ID from node index */
-				device_id = PERIPH_DEVID(node_idx);
-				ret = pm_set_wakeup_source(node_id,
-							   device_id, 1,
-							   SECURE_FLAG);
-				pm_wakeup_nodes_set[node_idx] = (uint8_t)(!ret);
+			if (node_idx > XPM_NODEIDX_DEV_MIN && node_idx < XPM_NODEIDX_DEV_MAX) {
+				if (pm_wakeup_nodes_set[node_idx] == 0U) {
+					/* Get device ID from node index */
+					device_id = PERIPH_DEVID(node_idx);
+					ret = pm_set_wakeup_source(node_id,
+								   device_id, 1,
+								   SECURE_FLAG);
+					pm_wakeup_nodes_set[node_idx] = (ret == PM_RET_SUCCESS) ?
+											 1 : 0;
+				}
 			}
 		}
 	}
