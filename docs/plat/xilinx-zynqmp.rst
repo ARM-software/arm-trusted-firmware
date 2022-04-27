@@ -14,13 +14,13 @@ To build:
 
 .. code:: bash
 
-    make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp bl31
+    make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp RESET_TO_BL31=1 bl31
 
 To build bl32 TSP you have to rebuild bl31 too:
 
 .. code:: bash
 
-    make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp SPD=tspd bl31 bl32
+    make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp SPD=tspd RESET_TO_BL31=1 bl31 bl32
 
 To build TF-A for JTAG DCC console:
 
