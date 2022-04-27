@@ -1068,6 +1068,8 @@ $(eval $(call assert_numerics,\
         NR_OF_FW_BANKS \
         NR_OF_IMAGES_IN_FW_BANK \
         RAS_EXTENSION \
+        TWED_DELAY \
+        ENABLE_FEAT_TWED \
 )))
 
 ifdef KEY_SIZE
@@ -1184,6 +1186,8 @@ $(eval $(call add_defines,\
         ENABLE_FEAT_CSV2_2 \
         ENABLE_FEAT_PAN \
         FEATURE_DETECTION \
+        TWED_DELAY \
+        ENABLE_FEAT_TWED \
 )))
 
 ifeq (${SANITIZE_UB},trap)

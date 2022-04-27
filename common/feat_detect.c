@@ -203,6 +203,16 @@ static void read_feat_ecv(void)
 #endif
 }
 
+/***********************************************************
+ * Feature : FEAT_TWED (Delayed Trapping of WFE Instruction)
+ **********************************************************/
+static void read_feat_twed(void)
+{
+#if (ENABLE_FEAT_TWED == FEAT_STATE_1)
+	feat_detect_panic(is_armv8_6_twed_present(), "TWED");
+#endif
+}
+
 /******************************************************************
  * Feature : FEAT_HCX (Extended Hypervisor Configuration Register)
  *****************************************************************/
@@ -279,6 +289,7 @@ void detect_arch_features(void)
 	read_feat_amuv1p1();
 	read_feat_fgt();
 	read_feat_ecv();
+	read_feat_twed();
 
 	/* v8.7 features */
 	read_feat_hcx();

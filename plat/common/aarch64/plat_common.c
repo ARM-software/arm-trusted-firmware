@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,6 @@
 #if RAS_EXTENSION
 #include <lib/extensions/ras.h>
 #endif
-#include <lib/extensions/twed.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 #include <plat/common/platform.h>
 
@@ -23,7 +22,6 @@
  * platforms but may also be overridden by a platform if required.
  */
 #pragma weak bl31_plat_runtime_setup
-#pragma weak plat_arm_set_twedel_scr_el3
 
 #if SDEI_SUPPORT
 #pragma weak plat_sdei_handle_masked_trigger
@@ -104,17 +102,4 @@ void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *co
 	}
 #endif
 	panic();
-}
-
-/*******************************************************************************
- * In v8.6+ platforms with delayed trapping of WFE this hook sets the delay. It
- * is a weak function definition so can be overridden depending on the
- * requirements of a platform.  The only hook provided is for the TWED fields
- * in SCR_EL3, the TWED fields in HCR_EL2, SCTLR_EL2, and SCTLR_EL1 should be
- * configured as needed in lower exception levels.
- ******************************************************************************/
-
-uint32_t plat_arm_set_twedel_scr_el3(void)
-{
-	return TWED_DISABLED;
 }
