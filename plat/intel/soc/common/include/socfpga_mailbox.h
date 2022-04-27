@@ -145,6 +145,10 @@
 #define RSU_VERSION_ACMF		BIT(8)
 #define RSU_VERSION_ACMF_MASK		0xff00
 
+/* Config Status Macros */
+#define CONFIG_STATUS_WORD_SIZE		16U
+#define CONFIG_STATUS_FW_VER_OFFSET	1
+#define CONFIG_STATUS_FW_VER_MASK	0x00FFFFFF
 
 /* Mailbox Function Definitions */
 
