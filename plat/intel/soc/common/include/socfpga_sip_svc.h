@@ -59,14 +59,17 @@
 							SYSMGR_ECC_DDR0_MASK |\
 							SYSMGR_ECC_DDR1_MASK)
 
+/* Non-mailbox SMC Call */
+#define INTEL_SIP_SMC_SVC_VERSION				0xC2000200
+
 /* SMC function IDs for SiP Service queries */
 #define SIP_SVC_CALL_COUNT	0x8200ff00
 #define SIP_SVC_UID		0x8200ff01
 #define SIP_SVC_VERSION		0x8200ff03
 
 /* SiP Service Calls version numbers */
-#define SIP_SVC_VERSION_MAJOR	0
-#define SIP_SVC_VERSION_MINOR	1
+#define SIP_SVC_VERSION_MAJOR	1
+#define SIP_SVC_VERSION_MINOR	0
 
 
 /* Structure Definitions */
