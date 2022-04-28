@@ -930,11 +930,20 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 					x4, x5, &mbox_error);
 		SMC_RET2(handle, status, mbox_error);
 
+	case INTEL_SIP_SMC_FCS_ECDSA_SHA2_DATA_SIGN_UPDATE:
+		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
+		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
+		status = intel_fcs_ecdsa_sha2_data_sign_update_finalize(x1, x2,
+					x3, x4, x5, (uint32_t *) &x6, false,
+					&mbox_error);
+		SMC_RET4(handle, status, mbox_error, x5, x6);
+
 	case INTEL_SIP_SMC_FCS_ECDSA_SHA2_DATA_SIGN_FINALIZE:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
 		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
-		status = intel_fcs_ecdsa_sha2_data_sign_finalize(x1, x2, x3,
-					 x4, x5, (uint32_t *) &x6, &mbox_error);
+		status = intel_fcs_ecdsa_sha2_data_sign_update_finalize(x1, x2,
+					x3, x4, x5, (uint32_t *) &x6, true,
+					&mbox_error);
 		SMC_RET4(handle, status, mbox_error, x5, x6);
 
 	case INTEL_SIP_SMC_FCS_ECDSA_HASH_SIGN_INIT:
@@ -969,12 +978,22 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 					x4, x5, &mbox_error);
 		SMC_RET2(handle, status, mbox_error);
 
+	case INTEL_SIP_SMC_FCS_ECDSA_SHA2_DATA_SIG_VERIFY_UPDATE:
+		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
+		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
+		x7 = SMC_GET_GP(handle, CTX_GPREG_X7);
+		status = intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(
+					x1, x2, x3, x4, x5, (uint32_t *) &x6,
+					x7, false, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x5, x6);
+
 	case INTEL_SIP_SMC_FCS_ECDSA_SHA2_DATA_SIG_VERIFY_FINALIZE:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
 		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
 		x7 = SMC_GET_GP(handle, CTX_GPREG_X7);
-		status = intel_fcs_ecdsa_sha2_data_sig_verify_finalize(x1, x2, x3,
-					 x4, x5, (uint32_t *) &x6, x7, &mbox_error);
+		status = intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(
+					x1, x2, x3, x4, x5, (uint32_t *) &x6,
+					x7, true, &mbox_error);
 		SMC_RET4(handle, status, mbox_error, x5, x6);
 
 	case INTEL_SIP_SMC_FCS_ECDSA_GET_PUBKEY_INIT:
