@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -168,6 +168,9 @@ struct secure_partition_desc {
 	/* Mailbox tracking. */
 	struct mailbox mailbox;
 
+	/* Pointer to translation table context of a S-EL0 SP. */
+	xlat_ctx_t *xlat_ctx_handle;
+
 	/* Secondary entrypoint. Only valid for a S-EL1 SP. */
 	uintptr_t secondary_ep;
 
@@ -224,6 +227,9 @@ void spmc_el1_sp_setup(struct secure_partition_desc *sp,
 		       entry_point_info_t *ep_info);
 void spmc_sp_common_ep_commit(struct secure_partition_desc *sp,
 			      entry_point_info_t *ep_info);
+void spmc_el0_sp_spsr_setup(entry_point_info_t *ep_info);
+void spmc_el0_sp_setup(struct secure_partition_desc *sp,
+		       int32_t boot_info_reg);
 
 /*
  * Helper function to perform a synchronous entry into a SP.
