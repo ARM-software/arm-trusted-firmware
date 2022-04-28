@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -57,11 +57,7 @@ PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
-    include drivers/auth/mbedtls/mbedtls_crypto.mk
-    include drivers/auth/mbedtls/mbedtls_x509.mk
-
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c			\
-				drivers/auth/crypto_mod.c		\
 				drivers/auth/img_parser_mod.c		\
 				drivers/auth/tbbr/tbbr_cot_common.c
 
@@ -77,6 +73,8 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 				${PLAT_QEMU_COMMON_PATH}/qemu_trusted_boot.c	     	\
 				$(PLAT_QEMU_COMMON_PATH)/qemu_rotpk.S	\
 				drivers/auth/tbbr/tbbr_cot_bl2.c
+
+    include drivers/auth/mbedtls/mbedtls_x509.mk
 
     ROT_KEY             = $(BUILD_PLAT)/rot_key.pem
     ROTPK_HASH          = $(BUILD_PLAT)/rotpk_sha256.bin
@@ -96,6 +94,34 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 	@echo "  OPENSSL $@"
 	$(Q)openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
 	openssl dgst -sha256 -binary > $@ 2>/dev/null
+endif
+
+# Include Measured Boot makefile before any Crypto library makefile.
+# Crypto library makefile may need default definitions of Measured Boot build
+# flags present in Measured Boot makefile.
+ifeq (${MEASURED_BOOT},1)
+    MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
+    $(info Including ${MEASURED_BOOT_MK})
+    include ${MEASURED_BOOT_MK}
+
+    BL2_SOURCES		+=	plat/qemu/qemu/qemu_measured_boot.c	\
+				plat/qemu/qemu/qemu_common_measured_boot.c	\
+				plat/qemu/qemu/qemu_helpers.c		\
+				${EVENT_LOG_SOURCES}
+
+     BL1_SOURCES	+=      plat/qemu/qemu/qemu_bl1_measured_boot.c
+
+endif
+
+ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
+    CRYPTO_SOURCES	:=	drivers/auth/crypto_mod.c
+
+    BL1_SOURCES		+=	${CRYPTO_SOURCES}
+    BL2_SOURCES		+=	${CRYPTO_SOURCES}
+
+    # We expect to locate the *.mk files under the directories specified below
+    #
+    include drivers/auth/mbedtls/mbedtls_crypto.mk
 endif
 
 BL1_SOURCES		+=	drivers/io/io_semihosting.c		\
@@ -131,6 +157,7 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl2_mem_params_desc.c	\
 				${PLAT_QEMU_COMMON_PATH}/qemu_image_load.c		\
 				common/fdt_fixup.c					\
+				common/fdt_wrappers.c					\
 				common/desc_image_load.c
 
 ifeq ($(add-lib-optee),yes)
