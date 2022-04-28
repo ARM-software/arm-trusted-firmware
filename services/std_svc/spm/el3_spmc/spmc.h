@@ -168,6 +168,9 @@ struct secure_partition_desc {
 	/* Mailbox tracking. */
 	struct mailbox mailbox;
 
+	/* Lock to protect the runtime state of a S-EL0 SP execution context. */
+	spinlock_t rt_state_lock;
+
 	/* Pointer to translation table context of a S-EL0 SP. */
 	xlat_ctx_t *xlat_ctx_handle;
 

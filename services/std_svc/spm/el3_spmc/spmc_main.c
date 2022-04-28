@@ -401,6 +401,11 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
 
+	/* Protect the runtime state of a UP S-EL0 SP with a lock. */
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
+
 	/*
 	 * Check that the target execution context is in a waiting state before
 	 * forwarding the direct request to it.
@@ -409,6 +414,11 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 	if (sp->ec[idx].rt_state != RT_STATE_WAITING) {
 		VERBOSE("SP context on core%u is not waiting (%u).\n",
 			idx, sp->ec[idx].rt_model);
+
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
+
 		return spmc_ffa_error_return(handle, FFA_ERROR_BUSY);
 	}
 
@@ -419,6 +429,11 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 	sp->ec[idx].rt_state = RT_STATE_RUNNING;
 	sp->ec[idx].rt_model = RT_MODEL_DIR_REQ;
 	sp->ec[idx].dir_req_origin_id = src_id;
+
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
+	}
+
 	return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
 			       handle, cookie, flags, dst_id);
 }
@@ -473,6 +488,10 @@ static uint64_t direct_resp_smc_handler(uint32_t smc_fid,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
 
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
+
 	/* Sanity check state is being tracked correctly in the SPMC. */
 	idx = get_ec_index(sp);
 	assert(sp->ec[idx].rt_state == RT_STATE_RUNNING);
@@ -481,12 +500,18 @@ static uint64_t direct_resp_smc_handler(uint32_t smc_fid,
 	if (sp->ec[idx].rt_model != RT_MODEL_DIR_REQ) {
 		VERBOSE("SP context on core%u not handling direct req (%u).\n",
 			idx, sp->ec[idx].rt_model);
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
 	}
 
 	if (sp->ec[idx].dir_req_origin_id != dst_id) {
 		WARN("Invalid direct resp partition ID 0x%x != 0x%x on core%u.\n",
 		     dst_id, sp->ec[idx].dir_req_origin_id, idx);
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
 	}
 
@@ -495,6 +520,10 @@ static uint64_t direct_resp_smc_handler(uint32_t smc_fid,
 
 	/* Clear the ongoing direct request ID. */
 	sp->ec[idx].dir_req_origin_id = INV_SP_ID;
+
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
+	}
 
 	/*
 	 * If the receiver is not the SPMC then forward the response to the
@@ -547,9 +576,15 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 	 * Get the execution context of the SP that invoked FFA_MSG_WAIT.
 	 */
 	idx = get_ec_index(sp);
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
 
 	/* Ensure SP execution context was in the right runtime model. */
 	if (sp->ec[idx].rt_model == RT_MODEL_DIR_REQ) {
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
 	}
 
@@ -561,6 +596,9 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 	 * state is updated after the exit.
 	 */
 	if (sp->ec[idx].rt_model == RT_MODEL_INIT) {
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		spmc_sp_synchronous_exit(&sp->ec[idx], x4);
 		/* Should not get here */
 		panic();
@@ -578,7 +616,17 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 		cm_el1_sysregs_context_save(secure_state_in);
 		cm_el1_sysregs_context_restore(secure_state_out);
 		cm_set_next_eret_context(secure_state_out);
+
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
+
 		SMC_RET0(cm_get_context(secure_state_out));
+	}
+
+	/* Protect the runtime state of a S-EL0 SP with a lock. */
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
 	}
 
 	/* Forward the response to the Normal world. */
@@ -1354,14 +1402,21 @@ static uint64_t ffa_run_handler(uint32_t smc_fid,
 	}
 
 	idx = get_ec_index(sp);
+
 	if (idx != vcpu_id) {
 		ERROR("Cannot run vcpu %d != %d.\n", idx, vcpu_id);
 		return spmc_ffa_error_return(handle,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
 	rt_state = &((sp->ec[idx]).rt_state);
 	rt_model = &((sp->ec[idx]).rt_model);
 	if (*rt_state == RT_STATE_RUNNING) {
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		ERROR("Partition (0x%x) is already running.\n", target_id);
 		return spmc_ffa_error_return(handle, FFA_ERROR_BUSY);
 	}
@@ -1387,6 +1442,10 @@ static uint64_t ffa_run_handler(uint32_t smc_fid,
 	 * its state.
 	 */
 	*rt_state = RT_STATE_RUNNING;
+
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
+	}
 
 	return spmc_smc_return(smc_fid, secure_origin, x1, 0, 0, 0,
 			       handle, cookie, flags, target_id);
