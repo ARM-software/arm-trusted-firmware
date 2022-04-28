@@ -231,18 +231,19 @@ int intel_fcs_get_crypto_service_key_info(uint32_t session_id, uint32_t key_id,
 int intel_fcs_get_digest_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
 				uint64_t param_data, uint32_t *mbox_error);
-int intel_fcs_get_digest_finalize(uint32_t session_id, uint32_t context_id,
+int intel_fcs_get_digest_update_finalize(uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
-				uint32_t *mbox_error);
+				uint8_t is_finalised, uint32_t *mbox_error);
 
 int intel_fcs_mac_verify_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
 				uint64_t param_data, uint32_t *mbox_error);
-int intel_fcs_mac_verify_finalize(uint32_t session_id, uint32_t context_id,
+int intel_fcs_mac_verify_update_finalize(uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
-				uint32_t data_size, uint32_t *mbox_error);
+				uint32_t data_size, uint8_t is_finalised,
+				uint32_t *mbox_error);
 
 int intel_fcs_ecdsa_hash_sign_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
