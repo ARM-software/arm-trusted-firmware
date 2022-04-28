@@ -507,11 +507,13 @@ int intel_mailbox_get_config_status(uint32_t cmd, bool init_done)
 		return MBOX_CFGSTAT_STATE_ERROR_HARDWARE;
 	}
 
-	if ((res & SOFTFUNC_STATUS_CONF_DONE) == 0U)
+	if ((res & SOFTFUNC_STATUS_CONF_DONE) == 0U) {
 		return MBOX_CFGSTAT_STATE_CONFIG;
+	}
 
-	if (init_done && (res & SOFTFUNC_STATUS_INIT_DONE) == 0U)
+	if (init_done && (res & SOFTFUNC_STATUS_INIT_DONE) == 0U) {
 		return MBOX_CFGSTAT_STATE_CONFIG;
+	}
 
 	return MBOX_RET_OK;
 }
@@ -526,4 +528,23 @@ int intel_mailbox_is_fpga_not_ready(void)
 	}
 
 	return ret;
+}
+
+int mailbox_hwmon_readtemp(uint32_t chan, uint32_t *resp_buf)
+{
+	unsigned int resp_len = sizeof(resp_buf);
+
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_HWMON_READTEMP, &chan, 1U,
+				CMD_CASUAL, resp_buf,
+				&resp_len);
+
+}
+
+int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf)
+{
+	unsigned int resp_len = sizeof(resp_buf);
+
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_HWMON_READVOLT, &chan, 1U,
+				CMD_CASUAL, resp_buf,
+				&resp_len);
 }

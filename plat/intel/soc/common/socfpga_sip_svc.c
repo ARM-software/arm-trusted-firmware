@@ -20,10 +20,17 @@
 #define FPGA_CONFIG_BUFFER_SIZE 4
 
 static int current_block, current_buffer;
-static int read_block, max_blocks, is_partial_reconfig;
+static int read_block, max_blocks;
 static uint32_t send_id, rcv_id;
 static uint32_t bytes_per_block, blocks_submitted;
+static bool bridge_disable;
 
+/* RSU static variables */
+static uint32_t rsu_dcmf_ver[4] = {0};
+
+/* RSU Max Retry */
+static uint32_t rsu_max_retry;
+static uint16_t rsu_dcmf_stat[4] = {0};
 
 /*  SiP Service UUID */
 DEFINE_SVC_UUID2(intl_svc_uid,
@@ -83,22 +90,23 @@ static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
 {
 	uint32_t ret;
 
-	if (query_type == 1)
+	if (query_type == 1U) {
 		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS, false);
-	else
+	} else {
 		ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS, true);
-
-	if (ret) {
-		if (ret == MBOX_CFGSTAT_STATE_CONFIG)
-			return INTEL_SIP_SMC_STATUS_BUSY;
-		else
-			return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
-	if (query_type != 1) {
-		/* full reconfiguration */
-		if (!is_partial_reconfig)
-			socfpga_bridges_enable();	/* Enable bridge */
+	if (ret != 0U) {
+		if (ret == MBOX_CFGSTAT_STATE_CONFIG) {
+			return INTEL_SIP_SMC_STATUS_BUSY;
+		} else {
+			return INTEL_SIP_SMC_STATUS_ERROR;
+		}
+	}
+
+	if (bridge_disable) {
+		socfpga_bridges_enable();	/* Enable bridge */
+		bridge_disable = false;
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
@@ -184,7 +192,7 @@ static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 	return status;
 }
 
-static int intel_fpga_config_start(uint32_t config_type)
+static int intel_fpga_config_start(uint32_t flag)
 {
 	uint32_t argument = 0x1;
 	uint32_t response[3];
@@ -192,7 +200,14 @@ static int intel_fpga_config_start(uint32_t config_type)
 	unsigned int size = 0;
 	unsigned int resp_len = ARRAY_SIZE(response);
 
-	is_partial_reconfig = config_type;
+	if (!CONFIG_TEST_FLAG(flag, PARTIAL_CONFIG)) {
+		bridge_disable = true;
+	}
+
+	if (CONFIG_TEST_FLAG(flag, AUTHENTICATION)) {
+		size = 1;
+		bridge_disable = false;
+	}
 
 	mailbox_clear_response();
 
@@ -202,8 +217,10 @@ static int intel_fpga_config_start(uint32_t config_type)
 	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RECONFIG, &argument, size,
 			CMD_CASUAL, response, &resp_len);
 
-	if (status < 0)
-		return status;
+	if (status < 0) {
+		bridge_disable = false;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
 
 	max_blocks = response[0];
 	bytes_per_block = response[1];
@@ -222,13 +239,12 @@ static int intel_fpga_config_start(uint32_t config_type)
 	read_block = 0;
 	current_buffer = 0;
 
-	/* full reconfiguration */
-	if (!is_partial_reconfig) {
-		/* Disable bridge */
+	/* Disable bridge on full reconfiguration */
+	if (bridge_disable) {
 		socfpga_bridges_disable();
 	}
 
-	return 0;
+	return INTEL_SIP_SMC_STATUS_OK;
 }
 
 static bool is_fpga_config_buffer_full(void)
@@ -261,8 +277,9 @@ static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 	intel_fpga_sdm_write_all();
 
 	if (!is_address_in_ddr_range(mem, size) ||
-		is_fpga_config_buffer_full())
+		is_fpga_config_buffer_full()) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
 
 	for (i = 0; i < FPGA_CONFIG_BUFFER_SIZE; i++) {
 		int j = (i + current_buffer) % FPGA_CONFIG_BUFFER_SIZE;
@@ -279,14 +296,19 @@ static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 		}
 	}
 
-	if (is_fpga_config_buffer_full())
+	if (is_fpga_config_buffer_full()) {
 		return INTEL_SIP_SMC_STATUS_BUSY;
+	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
 static int is_out_of_sec_range(uint64_t reg_addr)
 {
+#if DEBUG
+	return 0;
+#endif
+
 	switch (reg_addr) {
 	case(0xF8011100):	/* ECCCTRL1 */
 	case(0xF8011104):	/* ECCCTRL2 */
@@ -393,7 +415,77 @@ static uint32_t intel_rsu_retry_counter(uint32_t *respbuf, uint32_t respbuf_sz,
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+static uint32_t intel_rsu_copy_dcmf_version(uint64_t dcmf_ver_1_0,
+					    uint64_t dcmf_ver_3_2)
+{
+	rsu_dcmf_ver[0] = dcmf_ver_1_0;
+	rsu_dcmf_ver[1] = dcmf_ver_1_0 >> 32;
+	rsu_dcmf_ver[2] = dcmf_ver_3_2;
+	rsu_dcmf_ver[3] = dcmf_ver_3_2 >> 32;
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+static uint32_t intel_rsu_copy_dcmf_status(uint64_t dcmf_stat)
+{
+	rsu_dcmf_stat[0] = 0xFFFF & (dcmf_stat >> (0 * 16));
+	rsu_dcmf_stat[1] = 0xFFFF & (dcmf_stat >> (1 * 16));
+	rsu_dcmf_stat[2] = 0xFFFF & (dcmf_stat >> (2 * 16));
+	rsu_dcmf_stat[3] = 0xFFFF & (dcmf_stat >> (3 * 16));
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+/* Intel HWMON services */
+static uint32_t intel_hwmon_readtemp(uint32_t chan, uint32_t *retval)
+{
+	if (chan > TEMP_CHANNEL_MAX) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (mailbox_hwmon_readtemp(chan, retval) < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+static uint32_t intel_hwmon_readvolt(uint32_t chan, uint32_t *retval)
+{
+	if (chan > VOLT_CHANNEL_MAX) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (mailbox_hwmon_readvolt(chan, retval) < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 /* Mailbox services */
+static uint32_t intel_smc_fw_version(uint32_t *fw_version)
+{
+	int status;
+	unsigned int resp_len = CONFIG_STATUS_WORD_SIZE;
+	uint32_t resp_data[CONFIG_STATUS_WORD_SIZE] = {0U};
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CONFIG_STATUS, NULL, 0U,
+			CMD_CASUAL, resp_data, &resp_len);
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (resp_len <= CONFIG_STATUS_FW_VER_OFFSET) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*fw_version = resp_data[CONFIG_STATUS_FW_VER_OFFSET] & CONFIG_STATUS_FW_VER_MASK;
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args,
 				unsigned int len,
 				uint32_t urgent, uint32_t *response,
@@ -416,6 +508,33 @@ static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args,
 
 	*mbox_status = 0;
 	*len_in_resp = resp_len;
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+static int intel_smc_get_usercode(uint32_t *user_code)
+{
+	int status;
+	unsigned int resp_len = sizeof(user_code) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_GET_USERCODE, NULL,
+				0U, CMD_CASUAL, user_code, &resp_len);
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+/* Miscellaneous HPS services */
+static uint32_t intel_hps_set_bridges(uint64_t enable)
+{
+	if (enable != 0U) {
+		socfpga_bridges_enable();
+	} else {
+		socfpga_bridges_disable();
+	}
+
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
@@ -531,9 +650,40 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			SMC_RET2(handle, status, retval);
 		}
 
+	case INTEL_SIP_SMC_RSU_DCMF_VERSION:
+		SMC_RET3(handle, INTEL_SIP_SMC_STATUS_OK,
+			 ((uint64_t)rsu_dcmf_ver[1] << 32) | rsu_dcmf_ver[0],
+			 ((uint64_t)rsu_dcmf_ver[3] << 32) | rsu_dcmf_ver[2]);
+
+	case INTEL_SIP_SMC_RSU_COPY_DCMF_VERSION:
+		status = intel_rsu_copy_dcmf_version(x1, x2);
+		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_RSU_DCMF_STATUS:
+		SMC_RET2(handle, INTEL_SIP_SMC_STATUS_OK,
+			 ((uint64_t)rsu_dcmf_stat[3] << 48) |
+			 ((uint64_t)rsu_dcmf_stat[2] << 32) |
+			 ((uint64_t)rsu_dcmf_stat[1] << 16) |
+			 rsu_dcmf_stat[0]);
+
+	case INTEL_SIP_SMC_RSU_COPY_DCMF_STATUS:
+		status = intel_rsu_copy_dcmf_status(x1);
+		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_RSU_MAX_RETRY:
+		SMC_RET2(handle, INTEL_SIP_SMC_STATUS_OK, rsu_max_retry);
+
+	case INTEL_SIP_SMC_RSU_COPY_MAX_RETRY:
+		rsu_max_retry = x1;
+		SMC_RET1(handle, INTEL_SIP_SMC_STATUS_OK);
+
 	case INTEL_SIP_SMC_ECC_DBE:
 		status = intel_ecc_dbe_notification(x1);
 		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_FIRMWARE_VERSION:
+		status = intel_smc_fw_version(&retval);
+		SMC_RET2(handle, status, retval);
 
 	case INTEL_SIP_SMC_MBOX_SEND_CMD:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
@@ -543,10 +693,31 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 					     &len_in_resp);
 		SMC_RET3(handle, status, mbox_status, len_in_resp);
 
+	case INTEL_SIP_SMC_GET_USERCODE:
+		status = intel_smc_get_usercode(&retval);
+		SMC_RET2(handle, status, retval);
+
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
 		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,
 							&mbox_error);
 		SMC_RET4(handle, status, mbox_error, x1, retval64);
+
+	case INTEL_SIP_SMC_SVC_VERSION:
+		SMC_RET3(handle, INTEL_SIP_SMC_STATUS_OK,
+					SIP_SVC_VERSION_MAJOR,
+					SIP_SVC_VERSION_MINOR);
+
+	case INTEL_SIP_SMC_HPS_SET_BRIDGES:
+		status = intel_hps_set_bridges(x1);
+		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_HWMON_READTEMP:
+		status = intel_hwmon_readtemp(x1, &retval);
+		SMC_RET2(handle, status, retval);
+
+	case INTEL_SIP_SMC_HWMON_READVOLT:
+		status = intel_hwmon_readvolt(x1, &retval);
+		SMC_RET2(handle, status, retval);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,

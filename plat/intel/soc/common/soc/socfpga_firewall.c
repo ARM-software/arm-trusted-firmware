@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,8 @@
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 
+#include "socfpga_noc.h"
+#include "socfpga_plat_def.h"
 #include "socfpga_system_manager.h"
 
 void enable_nonsecure_access(void)
@@ -92,16 +94,30 @@ void enable_ns_peripheral_access(void)
 	mmio_write_32(SOCFPGA_L4_SYS_SCR(L4_NOC_QOS), DISABLE_L4_FIREWALL);
 
 #if PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
-	mmio_clrbits_32(SOCFPGA_CCU_NOC_CPU0_RAMSPACE0_0, 0x03);
-	mmio_clrbits_32(SOCFPGA_CCU_NOC_IOM_RAMSPACE0_0, 0x03);
-
+	enable_ns_ocram_access();
 	mmio_write_32(SOCFPGA_SYSMGR(SDMMC), SYSMGR_SDMMC_DRVSEL(3));
 #endif
 
+}
+
+void enable_ns_ocram_access(void)
+{
+	mmio_clrbits_32(SOCFPGA_CCU_NOC(CPU0, RAM0),
+		SOCFPGA_CCU_NOC_ADMASK_P_MASK | SOCFPGA_CCU_NOC_ADMASK_NS_MASK);
+	mmio_clrbits_32(SOCFPGA_CCU_NOC(IOM, RAM0),
+		SOCFPGA_CCU_NOC_ADMASK_P_MASK | SOCFPGA_CCU_NOC_ADMASK_NS_MASK);
 }
 
 void enable_ns_bridge_access(void)
 {
 	mmio_write_32(SOCFPGA_SOC2FPGA_SCR_REG_BASE, DISABLE_BRIDGE_FIREWALL);
 	mmio_write_32(SOCFPGA_LWSOC2FPGA_SCR_REG_BASE, DISABLE_BRIDGE_FIREWALL);
+}
+
+void enable_ocram_firewall(void)
+{
+	mmio_setbits_32(SOCFPGA_CCU_NOC(CPU0, RAM0),
+		SOCFPGA_CCU_NOC_ADMASK_P_MASK | SOCFPGA_CCU_NOC_ADMASK_NS_MASK);
+	mmio_setbits_32(SOCFPGA_CCU_NOC(IOM, RAM0),
+		SOCFPGA_CCU_NOC_ADMASK_P_MASK | SOCFPGA_CCU_NOC_ADMASK_NS_MASK);
 }

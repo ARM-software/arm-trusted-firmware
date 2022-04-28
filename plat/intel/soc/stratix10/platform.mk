@@ -26,7 +26,8 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			lib/xlat_tables/xlat_tables_common.c 		\
 			plat/intel/soc/common/aarch64/platform_common.c \
 			plat/intel/soc/common/aarch64/plat_helpers.S	\
-			plat/intel/soc/common/socfpga_delay_timer.c
+			plat/intel/soc/common/socfpga_delay_timer.c	\
+			plat/intel/soc/common/soc/socfpga_firewall.c
 
 BL2_SOURCES     +=	\
 		common/desc_image_load.c				\
@@ -50,7 +51,6 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/common/soc/socfpga_handoff.c		\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/soc/socfpga_reset_manager.c	\
-		plat/intel/soc/common/soc/socfpga_system_manager.c	\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
 		plat/intel/soc/common/drivers/wdt/watchdog.c
 
