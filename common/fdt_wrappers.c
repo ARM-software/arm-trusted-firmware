@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -617,4 +617,25 @@ int fdtw_for_each_cpu(const void *dtb,
 	}
 
 	return ret;
+}
+
+/*
+ * Find a given node in device tree. If not present, add it.
+ * Returns offset of node found/added on success, and < 0 on error.
+ */
+int fdtw_find_or_add_subnode(void *fdt, int parentoffset, const char *name)
+{
+	int offset;
+
+	offset = fdt_subnode_offset(fdt, parentoffset, name);
+
+	if (offset == -FDT_ERR_NOTFOUND) {
+		offset = fdt_add_subnode(fdt, parentoffset, name);
+	}
+
+	if (offset < 0) {
+		ERROR("%s: %s: %s\n", __func__, name, fdt_strerror(offset));
+	}
+
+	return offset;
 }

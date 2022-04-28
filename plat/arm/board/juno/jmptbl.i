@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -34,6 +34,8 @@ fdt     fdt_size_cells
 fdt     fdt_get_name
 fdt     fdt_get_alias
 fdt     fdt_node_offset_by_phandle
+fdt     fdt_subnode_offset
+fdt     fdt_add_subnode
 mbedtls mbedtls_asn1_get_alg
 mbedtls mbedtls_asn1_get_alg_null
 mbedtls mbedtls_asn1_get_bitstring_null
