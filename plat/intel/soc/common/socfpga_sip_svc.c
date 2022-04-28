@@ -25,11 +25,12 @@ static uint32_t send_id, rcv_id;
 static uint32_t bytes_per_block, blocks_submitted;
 static bool is_full_reconfig;
 
-/* RSU DCMF version */
+/* RSU static variables */
 static uint32_t rsu_dcmf_ver[4] = {0};
 
 /* RSU Max Retry */
 static uint32_t rsu_max_retry;
+static uint16_t rsu_dcmf_stat[4] = {0};
 
 /*  SiP Service UUID */
 DEFINE_SVC_UUID2(intl_svc_uid,
@@ -416,6 +417,16 @@ static uint32_t intel_rsu_copy_dcmf_version(uint64_t dcmf_ver_1_0,
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+static uint32_t intel_rsu_copy_dcmf_status(uint64_t dcmf_stat)
+{
+	rsu_dcmf_stat[0] = 0xFFFF & (dcmf_stat >> (0 * 16));
+	rsu_dcmf_stat[1] = 0xFFFF & (dcmf_stat >> (1 * 16));
+	rsu_dcmf_stat[2] = 0xFFFF & (dcmf_stat >> (2 * 16));
+	rsu_dcmf_stat[3] = 0xFFFF & (dcmf_stat >> (3 * 16));
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 /* Mailbox services */
 static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args,
 				unsigned int len,
@@ -573,6 +584,17 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 
 	case INTEL_SIP_SMC_RSU_COPY_DCMF_VERSION:
 		status = intel_rsu_copy_dcmf_version(x1, x2);
+		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_RSU_DCMF_STATUS:
+		SMC_RET2(handle, INTEL_SIP_SMC_STATUS_OK,
+			 ((uint64_t)rsu_dcmf_stat[3] << 48) |
+			 ((uint64_t)rsu_dcmf_stat[2] << 32) |
+			 ((uint64_t)rsu_dcmf_stat[1] << 16) |
+			 rsu_dcmf_stat[0]);
+
+	case INTEL_SIP_SMC_RSU_COPY_DCMF_STATUS:
+		status = intel_rsu_copy_dcmf_status(x1);
 		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_RSU_MAX_RETRY:
