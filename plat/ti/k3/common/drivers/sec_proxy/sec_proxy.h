@@ -53,7 +53,7 @@ struct k3_sec_proxy_msg {
 };
 
 /**
- * k3_sec_proxy_send() - Send data over a Secure Proxy thread
+ * k3_sec_proxy_clear_rx_thread() - Clear a receive Secure Proxy thread
  * @id: Channel Identifier
  * @msg: Pointer to k3_sec_proxy_msg
  *
