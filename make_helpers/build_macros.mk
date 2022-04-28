@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -489,6 +489,10 @@ ifeq ($(USE_ROMLIB),1)
 $(ELF): romlib.bin
 endif
 
+# MODULE_OBJS can be assigned by vendors with different compiled
+# object file path, and prebuilt object file path.
+$(eval OBJS += $(MODULE_OBJS))
+
 $(ELF): $(OBJS) $(LINKERFILE) | $(1)_dirs libraries $(BL_LIBS)
 	$$(ECHO) "  LD      $$@"
 ifdef MAKE_BUILD_STRINGS
@@ -507,7 +511,7 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 		$(BUILD_DIR)/build_message.o $(OBJS)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Wl,-Map=$(MAPFILE) \
-		-Wl,-T$(LINKERFILE) $(BUILD_DIR)/build_message.o \
+		-Wl,-dT $(LINKERFILE) $(EXTRA_LINKERFILE) $(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 else
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
