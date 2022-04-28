@@ -5,7 +5,7 @@
  * The system works in a message response protocol
  * See: http://processors.wiki.ti.com/index.php/TISCI for details
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,9 @@
 #define TI_SCI_MSG_SET_DEVICE_STATE	0x0200
 #define TI_SCI_MSG_GET_DEVICE_STATE	0x0201
 #define TI_SCI_MSG_SET_DEVICE_RESETS	0x0202
+
+/* Low Power Mode Requests */
+#define TI_SCI_MSG_ENTER_SLEEP		0x0301
 
 /* Clock requests */
 #define TI_SCI_MSG_SET_CLOCK_STATE	0x0100
@@ -704,6 +707,28 @@ struct ti_sci_msg_req_wait_proc_boot_status {
 	uint32_t status_flags_1_set_any_wait;
 	uint32_t status_flags_1_clr_all_wait;
 	uint32_t status_flags_1_clr_any_wait;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_enter_sleep - Request for TI_SCI_MSG_ENTER_SLEEP.
+ *
+ * @hdr		    Generic Header
+ * @mode	    Low power mode to enter.
+ * @proc_id	    Processor id to be restored.
+ * @core_resume_lo  Low 32-bits of physical pointer to address for core
+ *		    to begin execution upon resume.
+ * @core_resume_hi  High 32-bits of physical pointer to address for core
+ *		    to begin execution upon resume.
+ *
+ * This message is to be sent after TI_SCI_MSG_PREPARE_SLEEP is sent from OS
+ * and is what actually triggers entry into the specified low power mode.
+ */
+struct ti_sci_msg_req_enter_sleep {
+	struct ti_sci_msg_hdr hdr;
+	uint8_t mode;
+	uint8_t processor_id;
+	uint32_t core_resume_lo;
+	uint32_t core_resume_hi;
 } __packed;
 
 #endif /* TI_SCI_PROTOCOL_H */

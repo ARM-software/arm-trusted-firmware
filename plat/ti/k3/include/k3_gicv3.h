@@ -14,5 +14,7 @@ void k3_gic_init(void);
 void k3_gic_cpuif_enable(void);
 void k3_gic_cpuif_disable(void);
 void k3_gic_pcpu_init(void);
+void k3_gic_save_context(void);
+void k3_gic_restore_context(void);
 
 #endif /* K3_GICV3_H */

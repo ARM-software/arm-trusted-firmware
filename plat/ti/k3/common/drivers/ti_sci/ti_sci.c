@@ -2,7 +2,7 @@
  * Texas Instruments System Control Interface Driver
  *   Based on Linux and U-Boot implementation
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1655,6 +1655,57 @@ int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
 	 /* Send message */
 	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &tx_message);
 	if (ret) {
+		ERROR("Message sending failed (%d)\n", ret);
+		return ret;
+	}
+
+	/* Return without waiting for response */
+	return 0;
+}
+
+/**
+ * ti_sci_enter_sleep - Command to initiate system transition into suspend.
+ *
+ * @proc_id: Processor ID.
+ * @mode: Low power mode to enter.
+ * @core_resume_addr: Address that core should be
+ *		      resumed from after low power transition.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_enter_sleep(uint8_t proc_id,
+		       uint8_t mode,
+		       uint64_t core_resume_addr)
+{
+	struct ti_sci_msg_req_enter_sleep req;
+	struct ti_sci_msg_hdr *hdr;
+	struct k3_sec_proxy_msg tx_message;
+	int ret;
+
+	/* Ensure we have sane transfer size */
+	if (sizeof(req) > TI_SCI_MAX_MESSAGE_SIZE) {
+		return -ERANGE;
+	}
+
+	hdr = (struct ti_sci_msg_hdr *)&req;
+	hdr->seq = ++message_sequence;
+	hdr->type = TI_SCI_MSG_ENTER_SLEEP;
+	hdr->host = TI_SCI_HOST_ID;
+	/* Setup with NORESPONSE flag to keep response queue clean */
+	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
+
+	req.processor_id = proc_id;
+	req.mode = mode;
+	req.core_resume_lo = core_resume_addr & TISCI_ADDR_LOW_MASK;
+	req.core_resume_hi = (core_resume_addr & TISCI_ADDR_HIGH_MASK) >>
+			     TISCI_ADDR_HIGH_SHIFT;
+
+	tx_message.buf = (uint8_t *)&req;
+	tx_message.len = sizeof(req);
+
+	/* Send message */
+	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &tx_message);
+	if (ret != 0) {
 		ERROR("Message sending failed (%d)\n", ret);
 		return ret;
 	}

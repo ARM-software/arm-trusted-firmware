@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -44,6 +44,10 @@ $(eval $(call add_define,K3_USART))
 # Allow customizing the UART baud rate
 K3_USART_BAUD		:=	115200
 $(eval $(call add_define,K3_USART_BAUD))
+
+# Enable system suspend modes
+K3_PM_SYSTEM_SUSPEND	:=	0
+$(eval $(call add_define,K3_PM_SYSTEM_SUSPEND))
 
 # Libraries
 include lib/xlat_tables_v2/xlat_tables.mk

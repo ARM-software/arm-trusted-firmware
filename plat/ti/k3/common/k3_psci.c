@@ -234,11 +234,50 @@ static int k3_validate_ns_entrypoint(uintptr_t entrypoint)
 	return PSCI_E_SUCCESS;
 }
 
+#if K3_PM_SYSTEM_SUSPEND
+static void k3_pwr_domain_suspend(const psci_power_state_t *target_state)
+{
+	unsigned int core, proc_id;
+
+	core = plat_my_core_pos();
+	proc_id = PLAT_PROC_START_ID + core;
+
+	/* Prevent interrupts from spuriously waking up this cpu */
+	k3_gic_cpuif_disable();
+	k3_gic_save_context();
+
+	k3_pwr_domain_off(target_state);
+
+	ti_sci_enter_sleep(proc_id, 0, k3_sec_entrypoint);
+}
+
+static void k3_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
+{
+	k3_gic_restore_context();
+	k3_gic_cpuif_enable();
+}
+
+static void k3_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	unsigned int i;
+
+	/* CPU & cluster off, system in retention */
+	for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++) {
+		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
+}
+#endif
+
 static const plat_psci_ops_t k3_plat_psci_ops = {
 	.cpu_standby = k3_cpu_standby,
 	.pwr_domain_on = k3_pwr_domain_on,
 	.pwr_domain_off = k3_pwr_domain_off,
 	.pwr_domain_on_finish = k3_pwr_domain_on_finish,
+#if K3_PM_SYSTEM_SUSPEND
+	.pwr_domain_suspend = k3_pwr_domain_suspend,
+	.pwr_domain_suspend_finish = k3_pwr_domain_suspend_finish,
+	.get_sys_suspend_power_state = k3_get_sys_suspend_power_state,
+#endif
 	.system_off = k3_system_off,
 	.system_reset = k3_system_reset,
 	.validate_power_state = k3_validate_power_state,

@@ -19,6 +19,11 @@
 /* The GICv3 driver only needs to be initialized in EL3 */
 uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
+#if K3_PM_SYSTEM_SUSPEND
+static gicv3_redist_ctx_t rdist_ctx[PLATFORM_CORE_COUNT];
+static gicv3_dist_ctx_t dist_ctx;
+#endif
+
 static const interrupt_prop_t k3_interrupt_props[] = {
 	PLAT_ARM_G1S_IRQ_PROPS(INTR_GROUP1S),
 	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0)
@@ -88,3 +93,21 @@ void k3_gic_pcpu_init(void)
 {
 	gicv3_rdistif_init(plat_my_core_pos());
 }
+
+#if K3_PM_SYSTEM_SUSPEND
+void k3_gic_save_context(void)
+{
+	for (unsigned int i = 0U; i < PLATFORM_CORE_COUNT; i++) {
+		gicv3_rdistif_save(i, &rdist_ctx[i]);
+	}
+	gicv3_distif_save(&dist_ctx);
+}
+
+void k3_gic_restore_context(void)
+{
+	gicv3_distif_init_restore(&dist_ctx);
+	for (unsigned int i = 0U; i < PLATFORM_CORE_COUNT; i++) {
+		gicv3_rdistif_init_restore(i, &rdist_ctx[i]);
+	}
+}
+#endif
