@@ -1007,11 +1007,18 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 					&mbox_error);
 		SMC_RET2(handle, status, mbox_error);
 
+	case INTEL_SIP_SMC_FCS_AES_CRYPT_UPDATE:
+		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
+		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
+		status = intel_fcs_aes_crypt_update_finalize(x1, x2, x3, x4,
+					x5, x6, false, &send_id);
+		SMC_RET1(handle, status);
+
 	case INTEL_SIP_SMC_FCS_AES_CRYPT_FINALIZE:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
 		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
-		status = intel_fcs_aes_crypt_finalize(x1, x2, x3, x4, x5, x6,
-					&send_id);
+		status = intel_fcs_aes_crypt_update_finalize(x1, x2, x3, x4,
+					x5, x6, true, &send_id);
 		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:

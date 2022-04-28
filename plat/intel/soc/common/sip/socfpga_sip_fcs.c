@@ -1534,18 +1534,22 @@ int intel_fcs_aes_crypt_init(uint32_t session_id, uint32_t context_id,
 	memcpy((uint8_t *) fcs_aes_init_payload.crypto_param,
 		(uint8_t *) param_addr, param_size);
 
+	fcs_aes_init_payload.is_updated = 0;
+
 	*mbox_error = 0;
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
-int intel_fcs_aes_crypt_finalize(uint32_t session_id, uint32_t context_id,
-				uint64_t src_addr, uint32_t src_size,
-				uint64_t dst_addr, uint32_t dst_size,
+int intel_fcs_aes_crypt_update_finalize(uint32_t session_id,
+				uint32_t context_id, uint64_t src_addr,
+				uint32_t src_size, uint64_t dst_addr,
+				uint32_t dst_size, uint8_t is_finalised,
 				uint32_t *send_id)
 {
 	int status;
 	int i;
+	uint32_t flag;
 	uint32_t crypto_header;
 	uint32_t fcs_aes_crypt_payload[FCS_AES_CMD_MAX_WORD_SIZE];
 
@@ -1572,11 +1576,23 @@ int intel_fcs_aes_crypt_finalize(uint32_t session_id, uint32_t context_id,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	crypto_header = ((FCS_CS_FIELD_FLAG_INIT |
-			FCS_CS_FIELD_FLAG_UPDATE |
-			FCS_CS_FIELD_FLAG_FINALIZE) <<
-			FCS_CS_FIELD_FLAG_OFFSET) |
+	/* Prepare crypto header*/
+	flag = 0;
+	if (fcs_aes_init_payload.is_updated) {
+		fcs_aes_init_payload.param_size = 0;
+	} else {
+		flag |= FCS_CS_FIELD_FLAG_INIT;
+	}
+
+	if (is_finalised != 0U) {
+		flag |= FCS_CS_FIELD_FLAG_FINALIZE;
+	} else {
+		flag |= FCS_CS_FIELD_FLAG_UPDATE;
+		fcs_aes_init_payload.is_updated = 1;
+	}
+	crypto_header = (flag << FCS_CS_FIELD_FLAG_OFFSET) |
 			fcs_aes_init_payload.param_size;
+
 	i = 0U;
 	fcs_aes_crypt_payload[i] = session_id;
 	i++;
@@ -1584,14 +1600,18 @@ int intel_fcs_aes_crypt_finalize(uint32_t session_id, uint32_t context_id,
 	i++;
 	fcs_aes_crypt_payload[i] = crypto_header;
 	i++;
-	fcs_aes_crypt_payload[i] = fcs_aes_init_payload.key_id;
 
-	i++;
-	memcpy((uint8_t *) &fcs_aes_crypt_payload[i],
-		(uint8_t *) fcs_aes_init_payload.crypto_param,
-		fcs_aes_init_payload.param_size);
+	if ((crypto_header >> FCS_CS_FIELD_FLAG_OFFSET) &
+		FCS_CS_FIELD_FLAG_INIT) {
+		fcs_aes_crypt_payload[i] = fcs_aes_init_payload.key_id;
+		i++;
 
-	i += fcs_aes_init_payload.param_size / MBOX_WORD_BYTE;
+		memcpy((uint8_t *) &fcs_aes_crypt_payload[i],
+			(uint8_t *) fcs_aes_init_payload.crypto_param,
+			fcs_aes_init_payload.param_size);
+
+		i += fcs_aes_init_payload.param_size / MBOX_WORD_BYTE;
+	}
 
 	fcs_aes_crypt_payload[i] = (uint32_t) src_addr;
 	i++;
@@ -1606,7 +1626,10 @@ int intel_fcs_aes_crypt_finalize(uint32_t session_id, uint32_t context_id,
 					fcs_aes_crypt_payload, i,
 					CMD_INDIRECT);
 
-	memset((void *)&fcs_aes_init_payload, 0U, sizeof(fcs_aes_init_payload));
+	if (is_finalised != 0U) {
+		memset((void *)&fcs_aes_init_payload, 0,
+			sizeof(fcs_aes_init_payload));
+	}
 
 	if (status < 0U) {
 		return INTEL_SIP_SMC_STATUS_ERROR;
