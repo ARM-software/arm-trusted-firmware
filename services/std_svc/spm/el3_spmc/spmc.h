@@ -229,7 +229,8 @@ void spmc_sp_common_ep_commit(struct secure_partition_desc *sp,
 			      entry_point_info_t *ep_info);
 void spmc_el0_sp_spsr_setup(entry_point_info_t *ep_info);
 void spmc_el0_sp_setup(struct secure_partition_desc *sp,
-		       int32_t boot_info_reg);
+		       int32_t boot_info_reg,
+		       void *sp_manifest);
 
 /*
  * Helper function to perform a synchronous entry into a SP.
