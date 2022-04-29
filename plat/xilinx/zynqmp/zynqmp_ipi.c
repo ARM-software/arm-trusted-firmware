@@ -25,67 +25,67 @@ const static struct ipi_config zynqmp_ipi_table[] = {
 	/* APU IPI */
 	{
 		.ipi_bit_mask = 0x1,
-		.ipi_reg_base = 0xFF300000,
+		.ipi_reg_base = 0xFF300000U,
 		.secure_only = 0,
 	},
 	/* RPU0 IPI */
 	{
 		.ipi_bit_mask = 0x100,
-		.ipi_reg_base = 0xFF310000,
+		.ipi_reg_base = 0xFF310000U,
 		.secure_only = 0,
 	},
 	/* RPU1 IPI */
 	{
 		.ipi_bit_mask = 0x200,
-		.ipi_reg_base = 0xFF320000,
+		.ipi_reg_base = 0xFF320000U,
 		.secure_only = 0,
 	},
 	/* PMU0 IPI */
 	{
 		.ipi_bit_mask = 0x10000,
-		.ipi_reg_base = 0xFF330000,
+		.ipi_reg_base = 0xFF330000U,
 		.secure_only = IPI_SECURE_MASK,
 	},
 	/* PMU1 IPI */
 	{
 		.ipi_bit_mask = 0x20000,
-		.ipi_reg_base = 0xFF331000,
+		.ipi_reg_base = 0xFF331000U,
 		.secure_only = 0,
 	},
 	/* PMU2 IPI */
 	{
 		.ipi_bit_mask = 0x40000,
-		.ipi_reg_base = 0xFF332000,
+		.ipi_reg_base = 0xFF332000U,
 		.secure_only = IPI_SECURE_MASK,
 	},
 	/* PMU3 IPI */
 	{
 		.ipi_bit_mask = 0x80000,
-		.ipi_reg_base = 0xFF333000,
+		.ipi_reg_base = 0xFF333000U,
 		.secure_only = IPI_SECURE_MASK,
 	},
 	/* PL0 IPI */
 	{
 		.ipi_bit_mask = 0x1000000,
-		.ipi_reg_base = 0xFF340000,
+		.ipi_reg_base = 0xFF340000U,
 		.secure_only = 0,
 	},
 	/* PL1 IPI */
 	{
 		.ipi_bit_mask = 0x2000000,
-		.ipi_reg_base = 0xFF350000,
+		.ipi_reg_base = 0xFF350000U,
 		.secure_only = 0,
 	},
 	/* PL2 IPI */
 	{
 		.ipi_bit_mask = 0x4000000,
-		.ipi_reg_base = 0xFF360000,
+		.ipi_reg_base = 0xFF360000U,
 		.secure_only = 0,
 	},
 	/* PL3 IPI */
 	{
 		.ipi_bit_mask = 0x8000000,
-		.ipi_reg_base = 0xFF370000,
+		.ipi_reg_base = 0xFF370000U,
 		.secure_only = 0,
 	},
 };
