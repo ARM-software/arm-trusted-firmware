@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -329,8 +329,8 @@ static void zynqmp_print_platform_name(void)
 		break;
 	}
 
-	NOTICE("TF-A running on %s/%s at 0x%x\n",
-	       zynqmp_print_silicon_idcode(), label, BL31_BASE);
+	VERBOSE("TF-A running on %s/%s at 0x%x\n",
+		zynqmp_print_silicon_idcode(), label, BL31_BASE);
 	VERBOSE("TF-A running on v%d/RTL%d.%d\n",
 	       zynqmp_get_ps_ver(), (rtl & 0xf0) >> 4, rtl & 0xf);
 }
