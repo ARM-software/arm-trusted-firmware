@@ -392,7 +392,8 @@ Notes:
 -  BL1 is loaded at the start of the Trusted ROM.
 -  The Firmware Image Package is loaded at the start of NOR FLASH0.
 -  The firmware loads the FDT packaged in FIP to the DRAM. The FDT load address
-   is specified via the ``hw_config_addr`` property in `TB_FW_CONFIG for FVP`_.
+   is specified via the ``load-address`` property in the ``hw-config`` node of
+   `FW_CONFIG for FVP`_.
 -  The default use-case for the Foundation FVP is to use the ``--gicv3`` option
    and enable the GICv3 device in the model. Note that without this option,
    the Foundation FVP defaults to legacy (Versatile Express) memory map which
@@ -643,9 +644,9 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
 
 --------------
 
-*Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
 
-.. _TB_FW_CONFIG for FVP: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
+.. _FW_CONFIG for FVP: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/plat/arm/board/fvp/fdts/fvp_fw_config.dts
 .. _Arm's website: `FVP models`_
 .. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Linaro Release 20.01: http://releases.linaro.org/members/arm/platforms/20.01
