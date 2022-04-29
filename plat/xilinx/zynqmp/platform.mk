@@ -60,6 +60,10 @@ ifdef IPI_CRC_CHECK
     $(eval $(call add_define,IPI_CRC_CHECK))
 endif
 
+ifdef ZYNQMP_SECURE_EFUSES
+    $(eval $(call add_define,ZYNQMP_SECURE_EFUSES))
+endif
+
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iinclude/plat/arm/common/aarch64/		\
 				-Iplat/xilinx/common/include/			\
