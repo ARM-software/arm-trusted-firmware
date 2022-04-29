@@ -1544,6 +1544,7 @@ void pm_query_data(enum pm_query_id qid, unsigned int arg1, unsigned int arg2,
 	default:
 		data[0] = PM_RET_ERROR_ARGS;
 		WARN("Unimplemented query service call: 0x%x\n", qid);
+		break;
 	}
 }
 
@@ -1776,6 +1777,7 @@ enum pm_ret_status pm_register_access(unsigned int register_access_id,
 	default:
 		ret = PM_RET_ERROR_ARGS;
 		WARN("Unimplemented register_access call\n\r");
+		break;
 	}
 	return ret;
 }
