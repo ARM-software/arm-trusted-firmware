@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -100,6 +100,15 @@ func check_errata_cve_2017_5715
 	bx	lr
 endfunc check_errata_cve_2017_5715
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	r0, #ERRATA_APPLIES
+#else
+	mov	r0, #ERRATA_MISSING
+#endif
+	bx	lr
+endfunc check_errata_cve_2022_23960
+
 #if REPORT_ERRATA
 /*
  * Errata printing function for Cortex A15. Must follow AAPCS.
@@ -117,6 +126,7 @@ func cortex_a15_errata_report
 	report_errata ERRATA_A15_816470, cortex_a15, 816470
 	report_errata ERRATA_A15_827671, cortex_a15, 827671
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a15, cve_2017_5715
+	report_errata WORKAROUND_CVE_2022_23960, cortex_a15, cve_2022_23960
 
 	pop	{r12, lr}
 	bx	lr
@@ -131,11 +141,11 @@ func cortex_a15_reset_func
 	bl	errata_a15_827671_wa
 #endif
 
-#if IMAGE_BL32 && WORKAROUND_CVE_2017_5715
+#if IMAGE_BL32 && (WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960)
 	ldcopr	r0, ACTLR
 	orr	r0, #CORTEX_A15_ACTLR_INV_BTB_BIT
 	stcopr	r0, ACTLR
-	ldr	r0, =workaround_icache_inv_runtime_exceptions
+	ldr	r0, =wa_cve_2017_5715_icache_inv_vbar
 	stcopr	r0, VBAR
 	stcopr	r0, MVBAR
 	/* isb will be applied in the course of the reset func */
