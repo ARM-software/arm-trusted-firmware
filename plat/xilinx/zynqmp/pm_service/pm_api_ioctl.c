@@ -35,10 +35,11 @@ static enum pm_ret_status pm_ioctl_get_rpu_oper_mode(unsigned int *mode)
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
 	val &= ZYNQMP_SLSPLIT_MASK;
-	if (val == 0)
+	if (val == 0) {
 		*mode = PM_RPU_MODE_LOCKSTEP;
-	else
+	} else {
 		*mode = PM_RPU_MODE_SPLIT;
+	}
 
 	return PM_RET_SUCCESS;
 }
@@ -58,8 +59,9 @@ static enum pm_ret_status pm_ioctl_set_rpu_oper_mode(unsigned int mode)
 {
 	unsigned int val;
 
-	if (mmio_read_32(CRL_APB_RST_LPD_TOP) & CRL_APB_RPU_AMBA_RESET)
+	if (mmio_read_32(CRL_APB_RST_LPD_TOP) & CRL_APB_RPU_AMBA_RESET) {
 		return PM_RET_ERROR_ACCESS;
+	}
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
 
@@ -94,21 +96,23 @@ static enum pm_ret_status pm_ioctl_config_boot_addr(enum pm_node_id nid,
 {
 	unsigned int rpu_cfg_addr, val;
 
-	if (nid == NODE_RPU_0)
+	if (nid == NODE_RPU_0) {
 		rpu_cfg_addr = ZYNQMP_RPU0_CFG;
-	else if (nid == NODE_RPU_1)
+	} else if (nid == NODE_RPU_1) {
 		rpu_cfg_addr = ZYNQMP_RPU1_CFG;
-	else
+	} else {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	val = mmio_read_32(rpu_cfg_addr);
 
-	if (value == PM_RPU_BOOTMEM_LOVEC)
+	if (value == PM_RPU_BOOTMEM_LOVEC) {
 		val &= ~ZYNQMP_VINITHI_MASK;
-	else if (value == PM_RPU_BOOTMEM_HIVEC)
+	} else if (value == PM_RPU_BOOTMEM_HIVEC) {
 		val |= ZYNQMP_VINITHI_MASK;
-	else
+	} else {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	mmio_write_32(rpu_cfg_addr, val);
 
@@ -130,12 +134,13 @@ static enum pm_ret_status pm_ioctl_config_tcm_comb(unsigned int value)
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
 
-	if (value == PM_RPU_TCM_SPLIT)
+	if (value == PM_RPU_TCM_SPLIT) {
 		val &= ~ZYNQMP_TCM_COMB_MASK;
-	else if (value == PM_RPU_TCM_COMB)
+	} else if (value == PM_RPU_TCM_COMB) {
 		val |= ZYNQMP_TCM_COMB_MASK;
-	else
+	} else {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	mmio_write_32(ZYNQMP_RPU_GLBL_CNTL, val);
 
@@ -155,8 +160,9 @@ static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(unsigned int type,
 						       unsigned int value)
 {
 	if ((value != PM_TAPDELAY_BYPASS_ENABLE &&
-	     value != PM_TAPDELAY_BYPASS_DISABLE) || type >= PM_TAPDELAY_MAX)
+	     value != PM_TAPDELAY_BYPASS_DISABLE) || type >= PM_TAPDELAY_MAX) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	return pm_mmio_write(IOU_TAPDLY_BYPASS, TAP_DELAY_MASK, value << type);
 }
@@ -178,8 +184,9 @@ static enum pm_ret_status pm_ioctl_set_sgmii_mode(enum pm_node_id nid,
 	unsigned int val, mask, shift;
 	enum pm_ret_status ret;
 
-	if (value != PM_SGMII_DISABLE && value != PM_SGMII_ENABLE)
+	if (value != PM_SGMII_DISABLE && value != PM_SGMII_ENABLE) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	switch (nid) {
 	case NODE_ETH_0:
@@ -206,8 +213,9 @@ static enum pm_ret_status pm_ioctl_set_sgmii_mode(enum pm_node_id nid,
 		mask = SGMII_SD_MASK << SGMII_SD_OFFSET * shift;
 		val = SGMII_PCS_SD_1 << SGMII_SD_OFFSET * shift;
 		ret = pm_mmio_write(IOU_GEM_CTRL, mask, val);
-		if (ret != PM_RET_SUCCESS)
+		if (ret != PM_RET_SUCCESS) {
 			return ret;
+		}
 
 		/* Set the GEM to SGMII mode */
 		mask = GEM_CLK_CTRL_MASK << GEM_CLK_CTRL_OFFSET * shift;
@@ -248,11 +256,13 @@ static enum pm_ret_status pm_ioctl_sd_dll_reset(enum pm_node_id nid,
 	case PM_DLL_RESET_ASSERT:
 	case PM_DLL_RESET_PULSE:
 		ret = pm_mmio_write(ZYNQMP_SD_DLL_CTRL, mask, val);
-		if (ret != PM_RET_SUCCESS)
+		if (ret != PM_RET_SUCCESS) {
 			return ret;
+		}
 
-		if (type == PM_DLL_RESET_ASSERT)
+		if (type == PM_DLL_RESET_ASSERT) {
 			break;
+		}
 		mdelay(1);
 		/* Fallthrough */
 	case PM_DLL_RESET_RELEASE:
@@ -310,31 +320,44 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
 				    (ZYNQMP_SD_ITAPCHGWIN_MASK << shift),
 				    (ZYNQMP_SD_ITAPCHGWIN << shift));
-		if (ret != PM_RET_SUCCESS)
+
+		if (ret != PM_RET_SUCCESS) {
 			goto reset_release;
-		if (value == 0)
+		}
+
+		if (value == 0) {
 			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
 					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
 					     shift), 0);
-		else
+		} else {
 			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
 					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
 					    shift), (ZYNQMP_SD_ITAPDLYENA <<
 					    shift));
-		if (ret != PM_RET_SUCCESS)
+		}
+
+		if (ret != PM_RET_SUCCESS) {
 			goto reset_release;
+		}
+
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
 				    (ZYNQMP_SD_ITAPDLYSEL_MASK << shift),
 				    (value << shift));
-		if (ret != PM_RET_SUCCESS)
+
+		if (ret != PM_RET_SUCCESS) {
 			goto reset_release;
+		}
+
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
 				    (ZYNQMP_SD_ITAPCHGWIN_MASK << shift), 0);
 	} else if (type == PM_TAPDELAY_OUTPUT) {
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
 				    (ZYNQMP_SD_OTAPDLYENA_MASK << shift), 0);
-		if (ret != PM_RET_SUCCESS)
+
+		if (ret != PM_RET_SUCCESS) {
 			goto reset_release;
+		}
+
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
 				    (ZYNQMP_SD_OTAPDLYSEL_MASK << shift),
 				    (value << shift));
@@ -401,8 +424,9 @@ static enum pm_ret_status pm_ioctl_set_pll_frac_data
 
 	/* Get PLL node ID using PLL clock ID */
 	status = pm_clock_get_pll_node_id(pll, &pll_nid);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
 	return pm_pll_set_parameter(pll_nid, PM_PLL_PARAM_DATA, data);
 }
@@ -425,8 +449,9 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_data
 
 	/* Get PLL node ID using PLL clock ID */
 	status = pm_clock_get_pll_node_id(pll, &pll_nid);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
 	return pm_pll_get_parameter(pll_nid, PM_PLL_PARAM_DATA, data);
 }
@@ -444,8 +469,9 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_data
 static enum pm_ret_status pm_ioctl_write_ggs(unsigned int index,
 					     unsigned int value)
 {
-	if (index >= GGS_NUM_REGS)
+	if (index >= GGS_NUM_REGS) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	return pm_mmio_write(GGS_BASEADDR + (index << 2),
 			     0xFFFFFFFFU, value);
@@ -464,8 +490,9 @@ static enum pm_ret_status pm_ioctl_write_ggs(unsigned int index,
 static enum pm_ret_status pm_ioctl_read_ggs(unsigned int index,
 					    unsigned int *value)
 {
-	if (index >= GGS_NUM_REGS)
+	if (index >= GGS_NUM_REGS) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	return pm_mmio_read(GGS_BASEADDR + (index << 2), value);
 }
@@ -483,8 +510,9 @@ static enum pm_ret_status pm_ioctl_read_ggs(unsigned int index,
 static enum pm_ret_status pm_ioctl_write_pggs(unsigned int index,
 					      unsigned int value)
 {
-	if (index >= PGGS_NUM_REGS)
+	if (index >= PGGS_NUM_REGS) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	return pm_mmio_write(PGGS_BASEADDR + (index << 2),
 			     0xFFFFFFFFU, value);
@@ -521,13 +549,15 @@ static enum pm_ret_status pm_ioctl_afi(unsigned int index,
 				0xFF419000U,
 				};
 
-	if (index >= ARRAY_SIZE(regarr))
+	if (index >= ARRAY_SIZE(regarr)) {
 		return PM_RET_ERROR_ARGS;
+	}
 
-	if (index < AFIFM6_WRCTRL)
+	if (index < AFIFM6_WRCTRL) {
 		mask = FABRIC_WIDTH;
-	else
+	} else {
 		mask = 0xf00;
+	}
 
 	return pm_mmio_write(regarr[index], mask, value);
 }
@@ -545,8 +575,9 @@ static enum pm_ret_status pm_ioctl_afi(unsigned int index,
 static enum pm_ret_status pm_ioctl_read_pggs(unsigned int index,
 					     unsigned int *value)
 {
-	if (index >= PGGS_NUM_REGS)
+	if (index >= PGGS_NUM_REGS) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	return pm_mmio_read(PGGS_BASEADDR + (index << 2), value);
 }
@@ -565,16 +596,18 @@ static enum pm_ret_status pm_ioctl_ulpi_reset(void)
 
 	ret = pm_mmio_write(CRL_APB_BOOT_PIN_CTRL, CRL_APB_BOOT_PIN_MASK,
 			    ZYNQMP_ULPI_RESET_VAL_HIGH);
-	if (ret != PM_RET_SUCCESS)
+	if (ret != PM_RET_SUCCESS) {
 		return ret;
+	}
 
 	/* Drive ULPI assert for atleast 1ms */
 	mdelay(1);
 
 	ret = pm_mmio_write(CRL_APB_BOOT_PIN_CTRL, CRL_APB_BOOT_PIN_MASK,
 			    ZYNQMP_ULPI_RESET_VAL_LOW);
-	if (ret != PM_RET_SUCCESS)
+	if (ret != PM_RET_SUCCESS) {
 		return ret;
+	}
 
 	/* Drive ULPI de-assert for atleast 1ms */
 	mdelay(1);

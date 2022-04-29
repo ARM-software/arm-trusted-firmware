@@ -306,10 +306,11 @@ enum pm_ret_status pm_req_suspend(enum pm_node_id target,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, PM_REQ_SUSPEND, target, ack, latency, state);
-	if (ack == REQ_ACK_BLOCKING)
+	if (ack == REQ_ACK_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	else
+	} else {
 		return pm_ipi_send(primary_proc, payload);
+	}
 }
 
 /**
@@ -345,10 +346,11 @@ enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 	PM_PACK_PAYLOAD5(payload, PM_REQ_WAKEUP, target, encoded_address,
 			 encoded_address >> 32, ack);
 
-	if (ack == REQ_ACK_BLOCKING)
+	if (ack == REQ_ACK_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	else
+	} else {
 		return pm_ipi_send(primary_proc, payload);
+	}
 }
 
 /**
@@ -367,10 +369,11 @@ enum pm_ret_status pm_force_powerdown(enum pm_node_id target,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, PM_FORCE_POWERDOWN, target, ack);
 
-	if (ack == REQ_ACK_BLOCKING)
+	if (ack == REQ_ACK_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	else
+	} else {
 		return pm_ipi_send(primary_proc, payload);
+	}
 }
 
 /**
@@ -459,10 +462,11 @@ enum pm_ret_status pm_req_node(enum pm_node_id nid,
 
 	PM_PACK_PAYLOAD5(payload, PM_REQ_NODE, nid, capabilities, qos, ack);
 
-	if (ack == REQ_ACK_BLOCKING)
+	if (ack == REQ_ACK_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	else
+	} else {
 		return pm_ipi_send(primary_proc, payload);
+	}
 }
 
 /**
@@ -486,10 +490,11 @@ enum pm_ret_status pm_set_requirement(enum pm_node_id nid,
 	PM_PACK_PAYLOAD5(payload, PM_SET_REQUIREMENT, nid, capabilities, qos,
 			 ack);
 
-	if (ack == REQ_ACK_BLOCKING)
+	if (ack == REQ_ACK_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	else
+	} else {
 		return pm_ipi_send(primary_proc, payload);
+	}
 }
 
 /* Miscellaneous API functions */
@@ -689,8 +694,9 @@ enum pm_ret_status pm_aes_engine(uint32_t address_high,
 void pm_get_callbackdata(uint32_t *data, size_t count)
 {
 	/* Return if interrupt is not from PMU */
-	if (!pm_ipi_irq_status(primary_proc))
+	if (!pm_ipi_irq_status(primary_proc)) {
 		return;
+	}
 
 	pm_ipi_buff_read_callb(data, count);
 	pm_ipi_irq_clear(primary_proc);
@@ -1070,21 +1076,24 @@ static enum pm_ret_status pm_clock_gate(unsigned int clock_id,
 
 	/* Check if clock ID is valid and return an error if it is not */
 	status = pm_clock_id_is_valid(clock_id);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
-	if (enable)
+	if (enable) {
 		api_id = PM_CLOCK_ENABLE;
-	else
+	} else {
 		api_id = PM_CLOCK_DISABLE;
+	}
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, api_id, clock_id);
 	status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 
 	/* If action fails due to the lack of permissions filter the error */
-	if (status == PM_RET_ERROR_ACCESS)
+	if (status == PM_RET_ERROR_ACCESS) {
 		status = PM_RET_SUCCESS;
+	}
 
 	return status;
 }
@@ -1105,8 +1114,9 @@ enum pm_ret_status pm_clock_enable(unsigned int clock_id)
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll(clock_id);
-	if (pll)
+	if (pll) {
 		return pm_clock_pll_enable(pll);
+	}
 
 	/* It's an on-chip clock, PMU should configure clock's gate */
 	return pm_clock_gate(clock_id, 1);
@@ -1128,8 +1138,9 @@ enum pm_ret_status pm_clock_disable(unsigned int clock_id)
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll(clock_id);
-	if (pll)
+	if (pll) {
 		return pm_clock_pll_disable(pll);
+	}
 
 	/* It's an on-chip clock, PMU should configure clock's gate */
 	return pm_clock_gate(clock_id, 0);
@@ -1159,8 +1170,9 @@ enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
 
 	/* Check if clock ID is a valid on-chip clock */
 	status = pm_clock_id_is_valid(clock_id);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, PM_CLOCK_GETSTATE, clock_id);
@@ -1190,13 +1202,15 @@ enum pm_ret_status pm_clock_setdivider(unsigned int clock_id,
 
 	/* Get PLL node ID using PLL clock ID */
 	status = pm_clock_get_pll_node_id(clock_id, &nid);
-	if (status == PM_RET_SUCCESS)
+	if (status == PM_RET_SUCCESS) {
 		return pm_pll_set_parameter(nid, PM_PLL_PARAM_FBDIV, divider);
+	}
 
 	/* Check if clock ID is a valid on-chip clock */
 	status = pm_clock_id_is_valid(clock_id);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
 	if (div0 == (divider & div0)) {
 		div_id = PM_CLOCK_DIV0_ID;
@@ -1233,21 +1247,24 @@ enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
 
 	/* Get PLL node ID using PLL clock ID */
 	status = pm_clock_get_pll_node_id(clock_id, &nid);
-	if (status == PM_RET_SUCCESS)
+	if (status == PM_RET_SUCCESS) {
 		return pm_pll_get_parameter(nid, PM_PLL_PARAM_FBDIV, divider);
+	}
 
 	/* Check if clock ID is a valid on-chip clock */
 	status = pm_clock_id_is_valid(clock_id);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
 	if (pm_clock_has_div(clock_id, PM_CLOCK_DIV0_ID)) {
 		/* Send request to the PMU to get div0 */
 		PM_PACK_PAYLOAD3(payload, PM_CLOCK_GETDIVIDER, clock_id,
 				 PM_CLOCK_DIV0_ID);
 		status = pm_ipi_send_sync(primary_proc, payload, &val, 1);
-		if (status != PM_RET_SUCCESS)
+		if (status != PM_RET_SUCCESS) {
 			return status;
+		}
 		*divider = val;
 	}
 
@@ -1256,8 +1273,9 @@ enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
 		PM_PACK_PAYLOAD3(payload, PM_CLOCK_GETDIVIDER, clock_id,
 				 PM_CLOCK_DIV1_ID);
 		status = pm_ipi_send_sync(primary_proc, payload, &val, 1);
-		if (status != PM_RET_SUCCESS)
+		if (status != PM_RET_SUCCESS) {
 			return status;
+		}
 		*divider |= val << 16;
 	}
 
@@ -1313,13 +1331,15 @@ enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll_by_related_clk(clock_id);
-	if (pll)
+	if (pll) {
 		return pm_clock_pll_set_parent(pll, clock_id, parent_index);
+	}
 
 	/* Check if clock ID is a valid on-chip clock */
 	status = pm_clock_id_is_valid(clock_id);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, PM_CLOCK_SETPARENT, clock_id, parent_index);
@@ -1345,13 +1365,15 @@ enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll_by_related_clk(clock_id);
-	if (pll)
+	if (pll) {
 		return pm_clock_pll_get_parent(pll, clock_id, parent_index);
+	}
 
 	/* Check if clock ID is a valid on-chip clock */
 	status = pm_clock_id_is_valid(clock_id);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, PM_CLOCK_GETPARENT, clock_id);
@@ -1614,12 +1636,14 @@ enum pm_ret_status pm_pll_set_parameter(enum pm_node_id nid,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	/* Check if given node ID is a PLL node */
-	if (nid < NODE_APLL || nid > NODE_IOPLL)
+	if (nid < NODE_APLL || nid > NODE_IOPLL) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	/* Check if parameter ID is valid and return an error if it's not */
-	if (param_id >= PM_PLL_PARAM_MAX)
+	if (param_id >= PM_PLL_PARAM_MAX) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, PM_PLL_SET_PARAMETER, nid, param_id, value);
@@ -1642,12 +1666,14 @@ enum pm_ret_status pm_pll_get_parameter(enum pm_node_id nid,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	/* Check if given node ID is a PLL node */
-	if (nid < NODE_APLL || nid > NODE_IOPLL)
+	if (nid < NODE_APLL || nid > NODE_IOPLL) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	/* Check if parameter ID is valid and return an error if it's not */
-	if (param_id >= PM_PLL_PARAM_MAX)
+	if (param_id >= PM_PLL_PARAM_MAX) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, PM_PLL_GET_PARAMETER, nid, param_id);
@@ -1672,12 +1698,14 @@ enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode)
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	/* Check if given node ID is a PLL node */
-	if (nid < NODE_APLL || nid > NODE_IOPLL)
+	if (nid < NODE_APLL || nid > NODE_IOPLL) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	/* Check if PLL mode is valid */
-	if (mode >= PM_PLL_MODE_MAX)
+	if (mode >= PM_PLL_MODE_MAX) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, PM_PLL_SET_MODE, nid, mode);
@@ -1697,8 +1725,9 @@ enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode)
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	/* Check if given node ID is a PLL node */
-	if (nid < NODE_APLL || nid > NODE_IOPLL)
+	if (nid < NODE_APLL || nid > NODE_IOPLL) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, PM_PLL_GET_MODE, nid);
@@ -1733,8 +1762,9 @@ enum pm_ret_status pm_register_access(unsigned int register_access_id,
 	if (((ZYNQMP_CSU_BASEADDR & address) != ZYNQMP_CSU_BASEADDR) &&
 			((CSUDMA_BASE & address) != CSUDMA_BASE) &&
 			((RSA_CORE_BASE & address) != RSA_CORE_BASE) &&
-			((PMU_GLOBAL_BASE & address) != PMU_GLOBAL_BASE))
+			((PMU_GLOBAL_BASE & address) != PMU_GLOBAL_BASE)) {
 		return PM_RET_ERROR_ACCESS;
+	}
 
 	switch (register_access_id) {
 	case CONFIG_REG_WRITE:

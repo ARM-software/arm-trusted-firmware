@@ -123,10 +123,11 @@ static int get_fsbl_endian(const struct xfsbl_partition *partition)
 
 	flags >>= FSBL_FLAGS_ENDIAN_SHIFT;
 
-	if (flags == FSBL_FLAGS_ENDIAN_BE)
+	if (flags == FSBL_FLAGS_ENDIAN_BE) {
 		return SPSR_E_BIG;
-	else
+	} else {
 		return SPSR_E_LITTLE;
+	}
 }
 
 /**
@@ -226,30 +227,33 @@ enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
 		if (target_secure == FSBL_FLAGS_SECURE) {
 			image = bl32;
 
-			if (target_estate == FSBL_FLAGS_ESTATE_A32)
+			if (target_estate == FSBL_FLAGS_ESTATE_A32) {
 				bl32->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
 							 target_endianness,
 							 DISABLE_ALL_EXCEPTIONS);
-			else
+			} else {
 				bl32->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
 						     DISABLE_ALL_EXCEPTIONS);
+			}
 		} else {
 			image = bl33;
 
 			if (target_estate == FSBL_FLAGS_ESTATE_A32) {
-				if (target_el == FSBL_FLAGS_EL2)
+				if (target_el == FSBL_FLAGS_EL2) {
 					target_el = MODE32_hyp;
-				else
+				} else {
 					target_el = MODE32_sys;
+				}
 
 				bl33->spsr = SPSR_MODE32(target_el, SPSR_T_ARM,
 							 target_endianness,
 							 DISABLE_ALL_EXCEPTIONS);
 			} else {
-				if (target_el == FSBL_FLAGS_EL2)
+				if (target_el == FSBL_FLAGS_EL2) {
 					target_el = MODE_EL2;
-				else
+				} else {
 					target_el = MODE_EL1;
+				}
 
 				bl33->spsr = SPSR_64(target_el, MODE_SP_ELX,
 						     DISABLE_ALL_EXCEPTIONS);
@@ -262,10 +266,11 @@ enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
 			target_el);
 		image->pc = ATFHandoffParams->partition[i].entry_point;
 
-		if (target_endianness == SPSR_E_BIG)
+		if (target_endianness == SPSR_E_BIG) {
 			EP_SET_EE(image->h.attr, EP_EE_BIG);
-		else
+		} else {
 			EP_SET_EE(image->h.attr, EP_EE_LITTLE);
+		}
 	}
 
 	return FSBL_HANDOFF_SUCCESS;

@@ -188,8 +188,9 @@ static void pm_client_set_wakeup_sources(void)
 		 * If NODE_EXTERN could not be set as wake source, proceed with
 		 * standard suspend (no one will wake the system otherwise)
 		 */
-		if (ret == PM_RET_SUCCESS)
+		if (ret == PM_RET_SUCCESS) {
 			return;
+		}
 	}
 
 	zeromem(&pm_wakeup_nodes_set, sizeof(pm_wakeup_nodes_set));
@@ -198,8 +199,9 @@ static void pm_client_set_wakeup_sources(void)
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
 		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
 
-		if (!reg)
+		if (!reg) {
 			continue;
+		}
 
 		while (reg) {
 			enum pm_node_id node;
@@ -208,8 +210,9 @@ static void pm_client_set_wakeup_sources(void)
 			idx = __builtin_ctz(lowest_set);
 			irq = base_irq + idx;
 
-			if (irq > IRQ_MAX)
+			if (irq > IRQ_MAX) {
 				break;
+			}
 
 			node = irq_to_pm_node(irq);
 			reg &= ~lowest_set;
@@ -231,8 +234,9 @@ static void pm_client_set_wakeup_sources(void)
  */
 const struct pm_proc *pm_get_proc(unsigned int cpuid)
 {
-	if (cpuid < ARRAY_SIZE(pm_procs_all))
+	if (cpuid < ARRAY_SIZE(pm_procs_all)) {
 		return &pm_procs_all[cpuid];
+	}
 
 	return NULL;
 }
@@ -246,8 +250,9 @@ const struct pm_proc *pm_get_proc(unsigned int cpuid)
 const struct pm_proc *pm_get_proc_by_node(enum pm_node_id nid)
 {
 	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
-		if (nid == pm_procs_all[i].node_id)
+		if (nid == pm_procs_all[i].node_id) {
 			return &pm_procs_all[i];
+		}
 	}
 	return NULL;
 }
@@ -261,8 +266,9 @@ const struct pm_proc *pm_get_proc_by_node(enum pm_node_id nid)
 static unsigned int pm_get_cpuid(enum pm_node_id nid)
 {
 	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
-		if (pm_procs_all[i].node_id == nid)
+		if (pm_procs_all[i].node_id == nid) {
 			return i;
+		}
 	}
 	return UNDEFINED_CPUID;
 }
@@ -280,8 +286,9 @@ void pm_client_suspend(const struct pm_proc *proc, unsigned int state)
 {
 	bakery_lock_get(&pm_client_secure_lock);
 
-	if (state == PM_STATE_SUSPEND_TO_RAM)
+	if (state == PM_STATE_SUSPEND_TO_RAM) {
 		pm_client_set_wakeup_sources();
+	}
 
 	/* Set powerdown request */
 	mmio_write_32(APU_PWRCTL, mmio_read_32(APU_PWRCTL) | proc->pwrdn_mask);
@@ -320,8 +327,9 @@ void pm_client_wakeup(const struct pm_proc *proc)
 {
 	unsigned int cpuid = pm_get_cpuid(proc->node_id);
 
-	if (cpuid == UNDEFINED_CPUID)
+	if (cpuid == UNDEFINED_CPUID) {
 		return;
+	}
 
 	bakery_lock_get(&pm_client_secure_lock);
 
@@ -336,8 +344,9 @@ void pm_client_wakeup(const struct pm_proc *proc)
 enum pm_ret_status pm_set_suspend_mode(uint32_t mode)
 {
 	if ((mode != PM_SUSPEND_MODE_STD) &&
-	    (mode != PM_SUSPEND_MODE_POWER_OFF))
+	    (mode != PM_SUSPEND_MODE_POWER_OFF)) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	suspend_mode = mode;
 	return PM_RET_SUCCESS;

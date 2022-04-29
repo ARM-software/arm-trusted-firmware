@@ -47,10 +47,11 @@ unsigned int zynqmp_get_uart_clk(void)
 {
 	unsigned int ver = zynqmp_get_silicon_ver();
 
-	if (ver == ZYNQMP_CSU_VERSION_QEMU)
+	if (ver == ZYNQMP_CSU_VERSION_QEMU) {
 		return 133000000;
-	else
+	} else {
 		return 100000000;
+	}
 }
 
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
@@ -232,8 +233,9 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	chipid[0] = mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_IDCODE_OFFSET);
 	chipid[1] = mmio_read_32(EFUSE_BASEADDR + EFUSE_IPDISABLE_OFFSET);
 #else
-	if (pm_get_chipid(chipid) != PM_RET_SUCCESS)
+	if (pm_get_chipid(chipid) != PM_RET_SUCCESS) {
 		return "XCZUUNKN";
+	}
 #endif
 
 	id = chipid[0] & (ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
@@ -243,8 +245,9 @@ static char *zynqmp_get_silicon_idcode_name(void)
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
 		if (zynqmp_devices[i].id == id &&
-		    zynqmp_devices[i].ver == (ver & ZYNQMP_CSU_VERSION_MASK))
+		    zynqmp_devices[i].ver == (ver & ZYNQMP_CSU_VERSION_MASK)) {
 			break;
+		}
 	}
 
 	if (i >= ARRAY_SIZE(zynqmp_devices)) {
@@ -255,11 +258,13 @@ static char *zynqmp_get_silicon_idcode_name(void)
 		}
 	}
 
-	if (!zynqmp_devices[i].evexists)
+	if (!zynqmp_devices[i].evexists) {
 		return zynqmp_devices[i].name;
+	}
 
-	if (ver & ZYNQMP_PL_STATUS_MASK)
+	if (ver & ZYNQMP_PL_STATUS_MASK) {
 		return zynqmp_devices[i].name;
+	}
 
 	len = strlen(zynqmp_devices[i].name) - 2;
 	for (j = 0; j < strlen(name); j++) {
@@ -345,8 +350,9 @@ unsigned int zynqmp_get_bootmode(void)
 
 	ret = pm_mmio_read(CRL_APB_BOOT_MODE_USER, &r);
 
-	if (ret != PM_RET_SUCCESS)
+	if (ret != PM_RET_SUCCESS) {
 		r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
+	}
 
 	return r & CRL_APB_BOOT_MODE_MASK;
 }
@@ -373,8 +379,9 @@ unsigned int plat_get_syscnt_freq2(void)
 {
 	unsigned int ver = zynqmp_get_silicon_ver();
 
-	if (ver == ZYNQMP_CSU_VERSION_QEMU)
+	if (ver == ZYNQMP_CSU_VERSION_QEMU) {
 		return 65000000;
-	else
+	} else {
 		return mmio_read_32(IOU_SCNTRS_BASEFREQ);
+	}
 }
