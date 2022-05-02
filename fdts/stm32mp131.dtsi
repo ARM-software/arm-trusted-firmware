@@ -333,7 +333,7 @@
 			resets = <&rcc SDMMC1_R>;
 			cap-sd-highspeed;
 			cap-mmc-highspeed;
-			max-frequency = <120000000>;
+			max-frequency = <130000000>;
 			status = "disabled";
 		};
 
@@ -346,7 +346,7 @@
 			resets = <&rcc SDMMC2_R>;
 			cap-sd-highspeed;
 			cap-mmc-highspeed;
-			max-frequency = <120000000>;
+			max-frequency = <130000000>;
 			status = "disabled";
 		};
 
