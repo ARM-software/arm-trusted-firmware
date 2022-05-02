@@ -43,6 +43,8 @@ Xilinx Versal platform specific build options
 
 *   `VERSAL_PLATFORM`: Select the platform. Options:
     -   `versal_virt`	: Versal Virtual platform
+    -   `spp_itr6`	: SPP ITR6
+    -   `emu_it6`	: EMU ITR6
 
 # PLM->TF-A Parameter Passing
 ------------------------------
