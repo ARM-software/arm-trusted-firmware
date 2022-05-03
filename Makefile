@@ -307,13 +307,8 @@ endif
 $(eval $(call add_define,DEBUG))
 ifneq (${DEBUG}, 0)
         BUILD_TYPE	:=	debug
-        TF_CFLAGS	+= 	-g
-
-        ifneq ($(findstring clang,$(notdir $(CC))),)
-             ASFLAGS		+= 	-g
-        else
-             ASFLAGS		+= 	-g -Wa,--gdwarf-2
-        endif
+        TF_CFLAGS	+=	-g -gdwarf-4
+        ASFLAGS		+=	-g -Wa,-gdwarf-4
 
         # Use LOG_LEVEL_INFO by default for debug builds
         LOG_LEVEL	:=	40

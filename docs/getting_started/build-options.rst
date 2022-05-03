@@ -1051,11 +1051,11 @@ To compile a debug version and make the build more verbose use
 
     make PLAT=<platform> DEBUG=1 V=1 all
 
-AArch64 GCC uses DWARF version 4 debugging symbols by default. Some tools (for
-example DS-5) might not support this and may need an older version of DWARF
-symbols to be emitted by GCC. This can be achieved by using the
-``-gdwarf-<version>`` flag, with the version being set to 2 or 3. Setting the
-version to 2 is recommended for DS-5 versions older than 5.16.
+AArch64 GCC 11 uses DWARF version 5 debugging symbols by default. Some tools
+(for example Arm-DS) might not support this and may need an older version of
+DWARF symbols to be emitted by GCC. This can be achieved by using the
+``-gdwarf-<version>`` flag, with the version being set to 2, 3, 4 or 5. Setting
+the version to 4 is recommended for Arm-DS.
 
 When debugging logic problems it might also be useful to disable all compiler
 optimizations by using ``-O0``.
@@ -1080,7 +1080,7 @@ It is also possible to introduce an infinite loop to help in debugging the
 post-BL2 phase of TF-A. This can be done by rebuilding BL1 with the
 ``SPIN_ON_BL1_EXIT=1`` build flag. Refer to the :ref:`build_options_common`
 section. In this case, the developer may take control of the target using a
-debugger when indicated by the console output. When using DS-5, the following
+debugger when indicated by the console output. When using Arm-DS, the following
 commands can be used:
 
 ::
