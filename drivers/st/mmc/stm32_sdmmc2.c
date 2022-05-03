@@ -754,8 +754,6 @@ unsigned long long stm32_sdmmc2_mmc_get_device_size(void)
 
 int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 {
-	int rc;
-
 	assert((params != NULL) &&
 	       ((params->reg_base & MMC_BLOCK_MASK) == 0U) &&
 	       ((params->bus_width == MMC_BUS_WIDTH_1) ||
@@ -773,16 +771,20 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 
 	clk_enable(sdmmc2_params.clock_id);
 
-	rc = stm32mp_reset_assert(sdmmc2_params.reset_id, TIMEOUT_US_1_MS);
-	if (rc != 0) {
-		panic();
+	if ((int)sdmmc2_params.reset_id >= 0) {
+		int rc;
+
+		rc = stm32mp_reset_assert(sdmmc2_params.reset_id, TIMEOUT_US_1_MS);
+		if (rc != 0) {
+			panic();
+		}
+		udelay(2);
+		rc = stm32mp_reset_deassert(sdmmc2_params.reset_id, TIMEOUT_US_1_MS);
+		if (rc != 0) {
+			panic();
+		}
+		mdelay(1);
 	}
-	udelay(2);
-	rc = stm32mp_reset_deassert(sdmmc2_params.reset_id, TIMEOUT_US_1_MS);
-	if (rc != 0) {
-		panic();
-	}
-	mdelay(1);
 
 	sdmmc2_params.clk_rate = clk_get_rate(sdmmc2_params.clock_id);
 	sdmmc2_params.device_info->ocr_voltage = OCR_3_2_3_3 | OCR_3_3_3_4;
