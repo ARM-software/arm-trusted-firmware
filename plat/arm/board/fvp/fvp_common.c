@@ -104,9 +104,10 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef __aarch64__
 	ARM_MAP_DRAM2,
 #endif
-#if defined(SPD_spmd)
+	/*
+	 * Required to load HW_CONFIG, SPMC and SPs to trusted DRAM.
+	 */
 	ARM_MAP_TRUSTED_DRAM,
-#endif
 #if ENABLE_RME
 	ARM_MAP_RMM_DRAM,
 	ARM_MAP_GPT_L1_DRAM,
@@ -166,8 +167,6 @@ const mmap_region_t plat_arm_mmap[] = {
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
-	/* Required by fconf APIs to read HW_CONFIG dtb loaded into DRAM */
-	ARM_DTB_DRAM_NS,
 #if ENABLE_RME
 	ARM_MAP_GPT_L1_DRAM,
 #endif
@@ -197,8 +196,6 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
-	/* Required by fconf APIs to read HW_CONFIG dtb loaded into DRAM */
-	ARM_DTB_DRAM_NS,
 	{0}
 };
 #endif

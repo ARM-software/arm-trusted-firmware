@@ -432,7 +432,8 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 #if !STM32MP_USE_STM32IMAGE
 	case FW_CONFIG_ID:
 		/* Set global DTB info for fixed fw_config information */
-		set_config_info(STM32MP_FW_CONFIG_BASE, STM32MP_FW_CONFIG_MAX_SIZE, FW_CONFIG_ID);
+		set_config_info(STM32MP_FW_CONFIG_BASE, ~0UL, STM32MP_FW_CONFIG_MAX_SIZE,
+				FW_CONFIG_ID);
 		fconf_populate("FW_CONFIG", STM32MP_FW_CONFIG_BASE);
 
 		idx = dyn_cfg_dtb_info_get_index(TOS_FW_CONFIG_ID);
