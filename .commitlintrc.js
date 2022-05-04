@@ -68,7 +68,6 @@ module.exports = {
         "type-enum": [2, "always", types], /* Error */
 
         "scope-case": [2, "always", "lower-case"], /* Error */
-        "scope-empty": [2, "never"], /* Error */
         "scope-enum": [1, "always", scopes] /* Warning */
     },
 };
