@@ -251,11 +251,6 @@ static int stm32_qspi_exec_op(const struct spi_mem_op *op)
 		op->dummy.buswidth, op->data.buswidth,
 		op->addr.val, op->data.nbytes);
 
-	ret = stm32_qspi_wait_for_not_busy();
-	if (ret != 0) {
-		return ret;
-	}
-
 	addr_max = op->addr.val + op->data.nbytes + 1U;
 
 	if ((op->data.dir == SPI_MEM_DATA_IN) && (op->data.nbytes != 0U)) {
