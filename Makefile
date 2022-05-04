@@ -263,24 +263,24 @@ ENABLE_FEAT_RNG		=	$(if $(findstring rng,${arch-features}),1,0)
 # Determine if FEAT_SB is supported
 ENABLE_FEAT_SB		=	$(if $(findstring sb,${arch-features}),1,0)
 
-ifneq ($(findstring armclang,$(notdir $(CC))),)
-TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
-TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi $(march64-directive)
-LD			=	$(LINKER)
-AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
-CPP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
-PP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
-else ifneq ($(findstring clang,$(notdir $(CC))),)
-CLANG_CCDIR		=	$(if $(filter-out ./,$(dir $(CC))),$(dir $(CC)),)
-TF_CFLAGS_aarch32	=	$(target32-directive) $(march32-directive)
-TF_CFLAGS_aarch64	=	-target aarch64-elf $(march64-directive)
-LD			=	$(CLANG_CCDIR)ld.lld
-ifeq (, $(shell which $(LD)))
-$(error "No $(LD) in PATH, make sure it is installed or set LD to a different linker")
-endif
-AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
-CPP			=	$(CC) -E
-PP			=	$(CC) -E
+ifneq ($(findstring clang,$(notdir $(CC))),)
+	ifneq ($(findstring armclang,$(notdir $(CC))),)
+		TF_CFLAGS_aarch32	:=	-target arm-arm-none-eabi $(march32-directive)
+		TF_CFLAGS_aarch64	:=	-target aarch64-arm-none-eabi $(march64-directive)
+		LD			:=	$(LINKER)
+	else
+		TF_CFLAGS_aarch32	:=	$(target32-directive) $(march32-directive)
+		TF_CFLAGS_aarch64	:=	-target aarch64-elf $(march64-directive)
+		LD			:=	$(shell $(CC) --print-prog-name ld.lld)
+
+		AR			:=	$(shell $(CC) --print-prog-name llvm-ar)
+		OD			:=	$(shell $(CC) --print-prog-name llvm-objdump)
+		OC			:=	$(shell $(CC) --print-prog-name llvm-objcopy)
+	endif
+
+	CPP		:=	$(CC) -E $(TF_CFLAGS_$(ARCH))
+	PP		:=	$(CC) -E $(TF_CFLAGS_$(ARCH))
+	AS		:=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring gcc,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	$(march64-directive)

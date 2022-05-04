@@ -27,8 +27,8 @@ Toolchain
 target the Armv7-A or Armv8-A architectures:
 
 - GCC >= 11.2-2022.02 (from the `Arm Developer website`_)
-- Clang >= 4.0
-- Arm Compiler >= 6.0
+- Clang >= 14.0.0
+- Arm Compiler >= 6.18
 
 In addition, a native compiler is required to build the supporting tools.
 
@@ -160,7 +160,7 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 
 --------------
 
-*Copyright (c) 2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2022, Arm Limited. All rights reserved.*
 
 .. _Arm Developer website: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads
 .. _Gerrit Code Review: https://www.gerritcodereview.com/

@@ -18,16 +18,12 @@ Performing an Initial Build
 
    It is possible to build TF-A using Clang or Arm Compiler 6. To do so
    ``CC`` needs to point to the clang or armclang binary, which will
-   also select the clang or armclang assembler. Be aware that for Arm Compiler,
-   the GNU linker is used by default. However for Clang LLVM linker (LLD)
-   is used by default. In case of being needed the linker can be overridden
-   using the ``LD`` variable. LLVM linker (LLD) version 9 is
-   known to work with TF-A.
-
-   In both cases ``CROSS_COMPILE`` should be set as described above.
-
-   Arm Compiler 6 will be selected when the base name of the path assigned
-   to ``CC`` matches the string 'armclang'.
+   also select the clang or armclang assembler. Arm Compiler 6 will be selected
+   when the base name of the path assigned to ``CC`` matches the string
+   'armclang'. GNU binutils are required since the TF-A build system doesn't
+   currently support Arm Scatter files. Meaning the GNU linker is used by
+   default for Arm Compiler 6. Because of this dependency, ``CROSS_COMPILE``
+   should be set as described above.
 
    For AArch64 using Arm Compiler 6:
 
@@ -35,6 +31,11 @@ Performing an Initial Build
 
        export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-
        make CC=<path-to-armclang>/bin/armclang PLAT=<platform> all
+
+   On the other hand, Clang uses LLVM linker (LLD) and other LLVM binutils by
+   default instead of GNU utilities (LLVM linker (LLD) 14.0.0 is known to
+   work with TF-A). ``CROSS_COMPILE`` need not be set for Clang. Please note,
+   that the default linker may be manually overridden using the ``LD`` variable.
 
    Clang will be selected when the base name of the path assigned to ``CC``
    contains the string 'clang'. This is to allow both clang and clang-X.Y
@@ -44,7 +45,6 @@ Performing an Initial Build
 
    .. code:: shell
 
-       export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-
        make CC=<path-to-clang>/bin/clang PLAT=<platform> all
 
 -  Change to the root directory of the TF-A source tree and build.
@@ -115,4 +115,4 @@ Performing an Initial Build
 
 --------------
 
-*Copyright (c) 2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2022, Arm Limited. All rights reserved.*
