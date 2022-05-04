@@ -3039,6 +3039,8 @@ uint8_t pm_clock_has_div(unsigned int clock_id, enum pm_clock_div_id div_id)
 		} else if (nodes[i].type == TYPE_DIV2) {
 			if (div_id == PM_CLOCK_DIV1_ID)
 				return 1;
+		} else {
+			/* To fix the misra 15.7 warning */
 		}
 	}
 

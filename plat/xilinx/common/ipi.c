@@ -95,6 +95,8 @@ int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure)
 		ret = -EPERM;
 	} else if (IPI_IS_SECURE(remote) && !is_secure) {
 		ret = -EPERM;
+	} else {
+		/* To fix the misra 15.7 warning */
 	}
 
 	return ret;

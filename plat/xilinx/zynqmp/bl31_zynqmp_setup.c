@@ -83,6 +83,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		if (rc == 0) {
 			panic();
 		}
+	} else {
+		ERROR("BL31: No console device found.\n");
 	}
 	/* Initialize the platform config for future decision making */
 	zynqmp_config_setup();
