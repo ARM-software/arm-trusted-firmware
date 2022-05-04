@@ -262,7 +262,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 		return zynqmp_devices[i].name;
 	}
 
-	if (ver & ZYNQMP_PL_STATUS_MASK) {
+	if ((ver & ZYNQMP_PL_STATUS_MASK) != 0U) {
 		return zynqmp_devices[i].name;
 	}
 
