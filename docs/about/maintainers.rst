@@ -319,6 +319,15 @@ Measured Boot
 :|F|: include/drivers/measured_boot
 :|F|: plat/arm/board/fvp/fvp_measured_boot.c
 
+PSA Firmware Update
+^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|G|: `sandrine-bailleux-arm`_
+:|F|: drivers/fwu
+:|F|: include/drivers/fwu
+
 System Control and Management Interface (SCMI) Server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Etienne Carriere <etienne.carriere@st.com>
