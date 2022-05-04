@@ -8,7 +8,9 @@
 
 #include <common/debug.h>
 #include <lib/mmio.h>
+#include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <services/arm_arch_svc.h>
 
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
@@ -156,4 +158,30 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 	mmio_setbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
 
 	return 0;
+}
+
+int32_t plat_is_smccc_feature_available(u_register_t fid)
+{
+	switch (fid) {
+	case SMCCC_ARCH_SOC_ID:
+		return SMC_ARCH_CALL_SUCCESS;
+	default:
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
+	}
+}
+
+int32_t plat_get_soc_version(void)
+{
+	int32_t ret;
+
+	ret = SOC_ID_SET_JEP_106(JEDEC_ALLWINNER_BKID, JEDEC_ALLWINNER_MFID);
+
+	return ret | (sunxi_read_soc_id() & SOC_ID_IMPL_DEF_MASK);
+}
+
+int32_t plat_get_soc_revision(void)
+{
+	uint32_t reg = mmio_read_32(SRAM_VER_REG);
+
+	return reg & GENMASK_32(7, 0);
 }

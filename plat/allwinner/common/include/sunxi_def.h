@@ -20,4 +20,7 @@
 #define SUNXI_SOC_H616			0x1823
 #define SUNXI_SOC_R329			0x1851
 
+#define JEDEC_ALLWINNER_BKID		9U
+#define JEDEC_ALLWINNER_MFID		0x9eU
+
 #endif /* SUNXI_DEF_H */
