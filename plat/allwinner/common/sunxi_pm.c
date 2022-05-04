@@ -9,11 +9,21 @@
 #include <platform_def.h>
 
 #include <common/debug.h>
+#include <common/fdt_fixup.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 
 #include <sunxi_cpucfg.h>
 #include <sunxi_private.h>
+
+static bool psci_is_scpi;
+
+#if SUNXI_PSCI_USE_SCPI
+bool sunxi_psci_is_scpi(void)
+{
+	return psci_is_scpi;
+}
+#endif
 
 int sunxi_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 {
@@ -40,6 +50,7 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 
 	if (sunxi_set_scpi_psci_ops(psci_ops) == 0) {
 		INFO("PSCI: Suspend is available via SCPI\n");
+		psci_is_scpi = true;
 	} else {
 		INFO("PSCI: Suspend is unavailable\n");
 		sunxi_set_native_psci_ops(psci_ops);

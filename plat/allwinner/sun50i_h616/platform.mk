@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+SUNXI_BL31_IN_DRAM	:=	1
+
 # Without a management processor there is no SCPI support.
 SUNXI_PSCI_USE_SCPI	:=	0
 SUNXI_PSCI_USE_NATIVE	:=	1
@@ -18,7 +20,3 @@ endif
 
 BL31_SOURCES		+=	drivers/allwinner/axp/axp805.c		\
 				drivers/allwinner/sunxi_rsb.c		\
-				common/fdt_fixup.c			\
-				${AW_PLAT}/${PLAT}/prepare_dtb.c
-
-$(eval $(call add_define,SUNXI_BL31_IN_DRAM))

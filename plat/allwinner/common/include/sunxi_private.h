@@ -7,7 +7,11 @@
 #ifndef SUNXI_PRIVATE_H
 #define SUNXI_PRIVATE_H
 
+#include <common/fdt_fixup.h>
+
 #include <lib/psci/psci.h>
+
+extern const struct psci_cpu_idle_state sunxi_idle_states[];
 
 void sunxi_configure_mmu_el3(int flags);
 
@@ -24,8 +28,13 @@ static inline void sunxi_set_native_psci_ops(const plat_psci_ops_t **psci_ops)
 }
 #endif
 #if SUNXI_PSCI_USE_SCPI
+bool sunxi_psci_is_scpi(void);
 int sunxi_set_scpi_psci_ops(const plat_psci_ops_t **psci_ops);
 #else
+static inline bool sunxi_psci_is_scpi(void)
+{
+	return false;
+}
 static inline int sunxi_set_scpi_psci_ops(const plat_psci_ops_t **psci_ops)
 {
 	return -1;
@@ -41,7 +50,7 @@ void sunxi_set_gpio_out(char port, int pin, bool level_high);
 int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb);
 void sunxi_execute_arisc_code(uint32_t *code, size_t size, uint16_t param);
 
-#ifdef SUNXI_BL31_IN_DRAM
+#if SUNXI_AMEND_DTB
 void sunxi_prepare_dtb(void *fdt);
 #else
 static inline void sunxi_prepare_dtb(void *fdt)
