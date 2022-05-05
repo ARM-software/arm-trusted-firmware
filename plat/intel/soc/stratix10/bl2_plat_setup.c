@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2021, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,7 @@
 
 #include "qspi/cadence_qspi.h"
 #include "socfpga_emac.h"
+#include "socfpga_f2sdram_manager.h"
 #include "socfpga_handoff.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_private.h"
@@ -77,8 +78,11 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	init_hard_memory_controller();
 	mailbox_init();
 
-	if (!intel_mailbox_is_fpga_not_ready())
-		socfpga_bridges_enable();
+	if (!intel_mailbox_is_fpga_not_ready()) {
+		socfpga_bridges_enable(SOC2FPGA_MASK | LWHPS2FPGA_MASK |
+				FPGA2SOC_MASK | F2SDRAM0_MASK | F2SDRAM1_MASK |
+				F2SDRAM2_MASK);
+	}
 }
 
 
