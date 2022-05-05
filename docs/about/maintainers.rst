@@ -315,9 +315,12 @@ Measured Boot
 :|G|: `AlexeiFedorov`_
 :|M|: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
 :|G|: `javieralso-arm`_
+:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|G|: `sandrine-bailleux-arm`_
 :|F|: drivers/measured_boot
 :|F|: include/drivers/measured_boot
-:|F|: plat/arm/board/fvp/fvp_measured_boot.c
+:|F|: docs/components/measured_boot
+:|F|: plat/arm/board/fvp/fvp\*_measured_boot.c
 
 PSA Firmware Update
 ^^^^^^^^^^^^^^^^^^^
