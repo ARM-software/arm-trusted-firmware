@@ -43,6 +43,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/stratix10/bl2_plat_setup.c		\
 		plat/intel/soc/stratix10/soc/s10_clock_manager.c	\
 		plat/intel/soc/stratix10/soc/s10_memory_controller.c	\
+		plat/intel/soc/stratix10/soc/s10_mmc.c			\
 		plat/intel/soc/stratix10/soc/s10_pinmux.c		\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/common/socfpga_image_load.c		\
