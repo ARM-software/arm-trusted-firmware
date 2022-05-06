@@ -41,6 +41,11 @@
 #define GIC600_SPI_ID_MIN		32
 #define GIC600_SPI_ID_MAX		960
 
+#define GIC700_SPI_ID_MIN		32
+#define GIC700_SPI_ID_MAX		991
+#define GIC700_ESPI_ID_MIN		4096
+#define GIC700_ESPI_ID_MAX		5119
+
 /* Number of retries for PUP update */
 #define GICD_PUP_UPDATE_RETRIES		10000
 
@@ -53,6 +58,9 @@
 #define SPI_BLOCKS_VALUE(spi_id_min, spi_id_max) \
 			(((spi_id_max) - (spi_id_min) + 1) / \
 			GIC600_SPI_ID_MIN)
+#define ESPI_BLOCK_MIN_VALUE(spi_id_min) \
+			(((spi_id_min) - GIC700_ESPI_ID_MIN + 1) / \
+			GIC700_SPI_ID_MIN)
 #define GICD_CHIPR_VALUE_GIC_700(chip_addr, spi_block_min, spi_blocks) \
 			(((chip_addr) << GICD_CHIPRx_ADDR_SHIFT) | \
 			((spi_block_min) << GIC_700_SPI_BLOCK_MIN_SHIFT) | \
