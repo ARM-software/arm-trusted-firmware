@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,9 @@
 #define NEOVERSE_DEMETER_H
 
 #define NEOVERSE_DEMETER_MIDR				U(0x410FD4F0)
+
+/* Neoverse Demeter loop count for CVE-2022-23960 mitigation */
+#define NEOVERSE_DEMETER_BHB_LOOP_COUNT			U(132)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions
