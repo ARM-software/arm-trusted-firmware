@@ -146,10 +146,42 @@ static int ufshc_hce_enable(uintptr_t base)
 	return 0;
 }
 
+static int ufshc_hce_disable(uintptr_t base)
+{
+	unsigned int data;
+	int timeout;
+
+	/* Disable Host Controller */
+	mmio_write_32(base + HCE, HCE_DISABLE);
+	timeout = HCE_DISABLE_TIMEOUT_US;
+	do {
+		data = mmio_read_32(base + HCE);
+		if ((data & HCE_ENABLE) == HCE_DISABLE) {
+			break;
+		}
+		udelay(1);
+	} while (--timeout > 0);
+
+	if (timeout <= 0) {
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
+
 static int ufshc_reset(uintptr_t base)
 {
 	unsigned int data;
 	int retries, result;
+
+	/* disable controller if enabled */
+	if (mmio_read_32(base + HCE) & HCE_ENABLE) {
+		result = ufshc_hce_disable(base);
+		if (result != 0) {
+			return -EIO;
+		}
+	}
 
 	for (retries = 0; retries < HCE_ENABLE_OUTER_RETRIES; ++retries) {
 		result = ufshc_hce_enable(base);
@@ -408,7 +440,7 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 		break;
 	case QUERY_WRITE_ATTR:
 		query_upiu->query_func = QUERY_FUNC_STD_WRITE;
-		memcpy((void *)&query_upiu->ts.attr.value, (void *)buf, length);
+		query_upiu->ts.attr.value = htobe32(*((uint32_t *)buf));
 		break;
 	default:
 		assert(0);
@@ -594,11 +626,13 @@ static void ufs_query(uint8_t op, uint8_t idn, uint8_t index, uint8_t sel,
 	case QUERY_READ_FLAG:
 		*(uint32_t *)buf = (uint32_t)resp->ts.flag.value;
 		break;
-	case QUERY_READ_ATTR:
 	case QUERY_READ_DESC:
 		memcpy((void *)buf,
 		       (void *)(utrd.resp_upiu + sizeof(query_resp_upiu_t)),
 		       size);
+		break;
+	case QUERY_READ_ATTR:
+		*(uint32_t *)buf = htobe32(resp->ts.attr.value);
 		break;
 	default:
 		/* Do nothing in default case */
@@ -733,16 +767,41 @@ size_t ufs_write_blocks(int lun, int lba, const uintptr_t buf, size_t size)
 	return size - resp->res_trans_cnt;
 }
 
+static int ufs_set_fdevice_init(void)
+{
+	unsigned int result;
+	int timeout;
+
+	ufs_set_flag(FLAG_DEVICE_INIT);
+
+	timeout = FDEVICEINIT_TIMEOUT_MS;
+	do {
+		result = ufs_read_flag(FLAG_DEVICE_INIT);
+		if (!result) {
+			break;
+		}
+		mdelay(5);
+		timeout -= 5;
+	} while (timeout > 0);
+
+	if (result != 0U) {
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
 static void ufs_enum(void)
 {
 	unsigned int blk_num, blk_size;
-	int i;
+	int i, result;
 
 	ufs_verify_init();
 	ufs_verify_ready();
 
-	ufs_set_flag(FLAG_DEVICE_INIT);
-	mdelay(200);
+	result = ufs_set_fdevice_init();
+	assert(result == 0);
+
 	/* dump available LUNs */
 	for (i = 0; i < UFS_MAX_LUNS; i++) {
 		ufs_read_capacity(i, &blk_num, &blk_size);
@@ -751,6 +810,8 @@ static void ufs_enum(void)
 			     i, blk_num, blk_size);
 		}
 	}
+
+	(void)result;
 }
 
 static void ufs_get_device_info(struct ufs_dev_desc *card_data)

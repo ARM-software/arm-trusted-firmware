@@ -69,6 +69,7 @@
 /* Host Controller Enable */
 #define HCE				0x34
 #define HCE_ENABLE			1
+#define HCE_DISABLE			0
 
 /* Host UIC Error Code PHY Adapter Layer */
 #define UECPA				0x38
@@ -264,6 +265,9 @@
 #define HCE_ENABLE_OUTER_RETRIES	3
 #define HCE_ENABLE_INNER_RETRIES	50
 #define HCE_ENABLE_TIMEOUT_US		100
+#define HCE_DISABLE_TIMEOUT_US		1000
+
+#define FDEVICEINIT_TIMEOUT_MS	        1500
 
 /**
  * ufs_dev_desc - ufs device details from the device descriptor
