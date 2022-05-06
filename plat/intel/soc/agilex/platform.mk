@@ -45,7 +45,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/agilex/soc/agilex_memory_controller.c	\
 		plat/intel/soc/agilex/soc/agilex_mmc.c			\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
-                plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
+		plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/common/socfpga_storage.c			\
 		plat/intel/soc/common/soc/socfpga_emac.c		\
@@ -62,6 +62,7 @@ BL31_SOURCES	+=	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/common/plat_psci_common.c				\
 		plat/intel/soc/agilex/bl31_plat_setup.c 		\
+		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
 		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_sip_svc.c			\
 		plat/intel/soc/common/socfpga_topology.c		\

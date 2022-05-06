@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,5 +92,7 @@ void config_clkmgr_handoff(handoff *hoff_ptr);
 uint32_t get_wdt_clk(void);
 uint32_t get_uart_clk(void);
 uint32_t get_mmc_clk(void);
+uint32_t get_l3_clk(uint32_t ref_clk);
+uint32_t get_ref_clk(uint32_t pllglob);
 
 #endif

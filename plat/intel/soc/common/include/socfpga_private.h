@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,6 +54,8 @@ void socfpga_configure_mmu_el1(unsigned long total_base,
 void socfpga_delay_timer_init(void);
 
 void socfpga_gic_driver_init(void);
+
+void socfpga_delay_timer_init_args(void);
 
 uint32_t socfpga_get_spsr_for_bl32_entry(void);
 

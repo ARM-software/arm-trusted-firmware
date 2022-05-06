@@ -31,5 +31,9 @@
 #define SOCFPGA_SOC2FPGA_SCR_REG_BASE           0xffd21200
 #define SOCFPGA_LWSOC2FPGA_SCR_REG_BASE         0xffd21300
 
-#endif /* PLAT_SOCFPGA_DEF_H */
+/* Platform specific system counter */
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	get_cpu_clk()
 
+uint32_t get_cpu_clk(void);
+
+#endif /* PLAT_SOCFPGA_DEF_H */

@@ -29,4 +29,11 @@
 #define SOCFPGA_SOC2FPGA_SCR_REG_BASE			U(0xffd21200)
 #define SOCFPGA_LWSOC2FPGA_SCR_REG_BASE			U(0xffd21300)
 
+/* Platform specific system counter */
+/*
+ * In N5X the clk init is done in Uboot SPL.
+ * BL31 shall bypass the clk init and only provides other APIs.
+ */
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	(400)
+
 #endif /* PLAT_SOCFPGA_DEF_H */
