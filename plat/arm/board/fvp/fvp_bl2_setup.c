@@ -75,6 +75,7 @@ struct bl_params *plat_get_next_bl_params(void)
 
 	/* grab NS HW config address */
 	hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
+	assert(hw_config_info != NULL);
 
 	/* To retrieve actual size of the HW_CONFIG */
 	param_node = get_bl_mem_params_node(HW_CONFIG_ID);
