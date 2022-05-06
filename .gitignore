@@ -30,8 +30,7 @@ tools/amlogic/doimage
 tools/stm32image/*.o
 tools/stm32image/stm32image
 tools/stm32image/stm32image.exe
-tools/sptool/sptool
-tools/sptool/sptool.exe
+tools/sptool/__pycache__/
 
 # GNU GLOBAL files
 GPATH
