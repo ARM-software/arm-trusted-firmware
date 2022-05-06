@@ -2549,17 +2549,20 @@ enum pm_ret_status pm_api_pinctrl_get_num_func_groups(unsigned int fid,
 	int i = 0;
 	uint16_t *grps;
 
-	if (fid >= MAX_FUNCTION)
+	if (fid >= MAX_FUNCTION) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	*ngroups = 0;
 
 	grps = *pinctrl_functions[fid].groups;
-	if (grps == NULL)
+	if (grps == NULL) {
 		return PM_RET_SUCCESS;
+	}
 
-	while (grps[i++] != (uint16_t)END_OF_GROUPS)
+	while (grps[i++] != (uint16_t)END_OF_GROUPS) {
 		(*ngroups)++;
+	}
 
 	return PM_RET_SUCCESS;
 }
@@ -2574,10 +2577,11 @@ enum pm_ret_status pm_api_pinctrl_get_num_func_groups(unsigned int fid,
  */
 void pm_api_pinctrl_get_function_name(unsigned int fid, char *name)
 {
-	if (fid >= MAX_FUNCTION)
+	if (fid >= MAX_FUNCTION) {
 		memcpy(name, END_OF_FUNCTION, FUNCTION_NAME_LEN);
-	else
+	} else {
 		memcpy(name, pinctrl_functions[fid].name, FUNCTION_NAME_LEN);
+	}
 }
 
 /**
@@ -2605,24 +2609,29 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(unsigned int fid,
 	unsigned int i;
 	uint16_t *grps;
 
-	if (fid >= MAX_FUNCTION)
+	if (fid >= MAX_FUNCTION) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
 
 	grps = *pinctrl_functions[fid].groups;
-	if (grps == NULL)
+	if (grps == NULL) {
 		return PM_RET_SUCCESS;
+	}
 
 	/* Skip groups till index */
-	for (i = 0; i < index; i++)
-		if (grps[i] == (uint16_t)END_OF_GROUPS)
+	for (i = 0; i < index; i++) {
+		if (grps[i] == (uint16_t)END_OF_GROUPS) {
 			return PM_RET_SUCCESS;
+		}
+	}
 
 	for (i = 0; i < NUM_GROUPS_PER_RESP; i++) {
 		groups[i] = grps[index + i];
-		if (groups[i] == (uint16_t)END_OF_GROUPS)
+		if (groups[i] == (uint16_t)END_OF_GROUPS) {
 			break;
+		}
 	}
 
 	return PM_RET_SUCCESS;
@@ -2653,24 +2662,29 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(unsigned int pin,
 	unsigned int i;
 	uint16_t *grps;
 
-	if (pin >= MAX_PIN)
+	if (pin >= MAX_PIN) {
 		return PM_RET_ERROR_ARGS;
+	}
 
 	memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
 
 	grps = *zynqmp_pin_groups[pin].groups;
-	if (!grps)
+	if (grps == NULL) {
 		return PM_RET_SUCCESS;
+	}
 
 	/* Skip groups till index */
-	for (i = 0; i < index; i++)
-		if (grps[i] == (uint16_t)END_OF_GROUPS)
+	for (i = 0; i < index; i++) {
+		if (grps[i] == (uint16_t)END_OF_GROUPS) {
 			return PM_RET_SUCCESS;
+		}
+	}
 
 	for (i = 0; i < NUM_GROUPS_PER_RESP; i++) {
 		groups[i] = grps[index + i];
-		if (groups[i] == (uint16_t)END_OF_GROUPS)
+		if (groups[i] == (uint16_t)END_OF_GROUPS) {
 			break;
+		}
 	}
 
 	return PM_RET_SUCCESS;

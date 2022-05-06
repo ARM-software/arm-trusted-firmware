@@ -38,9 +38,9 @@ static int zynqmp_pwr_domain_on(u_register_t mpidr)
 
 	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
 
-	if (cpu_id == -1)
+	if (cpu_id == -1) {
 		return PSCI_E_INTERN_FAIL;
-
+	}
 	proc = pm_get_proc(cpu_id);
 
 	/* Check the APU proc status before wakeup */
@@ -63,9 +63,10 @@ static void zynqmp_pwr_domain_off(const psci_power_state_t *target_state)
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 
 	/* Prevent interrupts from spuriously waking up this cpu */
 	gicv2_cpuif_disable();
@@ -106,9 +107,10 @@ static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 static void zynqmp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 	plat_arm_gic_pcpu_init();
 	gicv2_cpuif_enable();
 }
@@ -118,9 +120,10 @@ static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_st
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 
 	/* Clear the APU power control register for this cpu */
 	pm_client_wakeup(proc);
@@ -149,8 +152,9 @@ static void __dead2 zynqmp_system_off(void)
 	pm_system_shutdown(PMF_SHUTDOWN_TYPE_SHUTDOWN,
 			   pm_get_shutdown_scope());
 
-	while (1)
+	while (1) {
 		wfi();
+	}
 }
 
 static void __dead2 zynqmp_system_reset(void)
@@ -162,8 +166,9 @@ static void __dead2 zynqmp_system_reset(void)
 	pm_system_shutdown(PMF_SHUTDOWN_TYPE_RESET,
 			   pm_get_shutdown_scope());
 
-	while (1)
+	while (1) {
 		wfi();
+	}
 }
 
 int zynqmp_validate_power_state(unsigned int power_state,
@@ -176,14 +181,15 @@ int zynqmp_validate_power_state(unsigned int power_state,
 	assert(req_state);
 
 	/* Sanity check the requested state */
-	if (pstate == PSTATE_TYPE_STANDBY)
+	if (pstate == PSTATE_TYPE_STANDBY) {
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
-	else
+	} else {
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
-
+	}
 	/* We expect the 'state id' to be zero */
-	if (psci_get_pstate_id(power_state))
+	if (psci_get_pstate_id(power_state)) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	return PSCI_E_SUCCESS;
 }

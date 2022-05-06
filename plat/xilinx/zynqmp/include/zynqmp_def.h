@@ -74,11 +74,11 @@
 #define ZYNQMP_ULPI_RESET_VAL_LOW	CRL_APB_BOOT_ENABLE_PIN_1
 
 /* system counter registers and bitfields */
-#define IOU_SCNTRS_BASE			0xFF260000
+#define IOU_SCNTRS_BASE			U(0xFF260000)
 #define IOU_SCNTRS_BASEFREQ		(IOU_SCNTRS_BASE + 0x20)
 
 /* APU registers and bitfields */
-#define APU_BASE		0xFD5C0000
+#define APU_BASE		U(0xFD5C0000)
 #define APU_CONFIG_0		(APU_BASE + 0x20)
 #define APU_RVBAR_L_0		(APU_BASE + 0x40)
 #define APU_RVBAR_H_0		(APU_BASE + 0x44)
@@ -91,7 +91,7 @@
 #define APU_3_PWRCTL_CPUPWRDWNREQ_MASK		8
 
 /* PMU registers and bitfields */
-#define PMU_GLOBAL_BASE			0xFFD80000
+#define PMU_GLOBAL_BASE			U(0xFFD80000)
 #define PMU_GLOBAL_CNTRL		(PMU_GLOBAL_BASE + 0)
 #define PMU_GLOBAL_GEN_STORAGE6		(PMU_GLOBAL_BASE + 0x48)
 #define PMU_GLOBAL_REQ_PWRUP_STATUS	(PMU_GLOBAL_BASE + 0x110)
@@ -104,22 +104,22 @@
 /*******************************************************************************
  * CCI-400 related constants
  ******************************************************************************/
-#define PLAT_ARM_CCI_BASE		0xFD6E0000
+#define PLAT_ARM_CCI_BASE		U(0xFD6E0000)
 #define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	3
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	4
 
 /*******************************************************************************
  * GIC-400 & interrupt handling related constants
  ******************************************************************************/
-#define BASE_GICD_BASE		0xF9010000
-#define BASE_GICC_BASE		0xF9020000
-#define BASE_GICH_BASE		0xF9040000
-#define BASE_GICV_BASE		0xF9060000
+#define BASE_GICD_BASE		U(0xF9010000)
+#define BASE_GICC_BASE		U(0xF9020000)
+#define BASE_GICH_BASE		U(0xF9040000)
+#define BASE_GICV_BASE		U(0xF9060000)
 
 #if ZYNQMP_WDT_RESTART
 #define IRQ_SEC_IPI_APU		67
 #define IRQ_TTC3_1		77
-#define TTC3_BASE_ADDR		0xFF140000
+#define TTC3_BASE_ADDR		U(0xFF140000)
 #define TTC3_INTR_REGISTER_1	(TTC3_BASE_ADDR + 0x54)
 #define TTC3_INTR_ENABLE_1	(TTC3_BASE_ADDR + 0x60)
 #endif
@@ -140,8 +140,8 @@
 /*******************************************************************************
  * UART related constants
  ******************************************************************************/
-#define ZYNQMP_UART0_BASE		0xFF000000
-#define ZYNQMP_UART1_BASE		0xFF010000
+#define ZYNQMP_UART0_BASE		U(0xFF000000)
+#define ZYNQMP_UART1_BASE		U(0xFF010000)
 
 #if ZYNQMP_CONSOLE_IS(cadence) || ZYNQMP_CONSOLE_IS(dcc)
 # define ZYNQMP_UART_BASE	ZYNQMP_UART0_BASE
@@ -169,7 +169,7 @@
 #define ZYNQMP_PS_VER_MASK		0xF
 #define ZYNQMP_PS_VER_SHIFT		0
 
-#define ZYNQMP_CSU_BASEADDR		0xFFCA0000
+#define ZYNQMP_CSU_BASEADDR		U(0xFFCA0000)
 #define ZYNQMP_CSU_IDCODE_OFFSET	0x40
 
 #define ZYNQMP_CSU_IDCODE_XILINX_ID_SHIFT	0
@@ -199,7 +199,7 @@
 #define ZYNQMP_CSU_VERSION_OFFSET	0x44
 
 /* Efuse */
-#define EFUSE_BASEADDR		0xFFCC0000
+#define EFUSE_BASEADDR		U(0xFFCC0000)
 #define EFUSE_IPDISABLE_OFFSET	0x1018
 #define EFUSE_IPDISABLE_VERSION	0x1FFU
 #define ZYNQMP_EFUSE_IPDISABLE_SHIFT	20
@@ -357,9 +357,9 @@
 #define  FABRIC_WIDTH		U(3)
 
 /* CSUDMA Module Base Address*/
-#define CSUDMA_BASE		0xFFC80000
+#define CSUDMA_BASE		U(0xFFC80000)
 
 /* RSA-CORE Module Base Address*/
-#define RSA_CORE_BASE		0xFFCE0000
+#define RSA_CORE_BASE		U(0xFFCE0000)
 
 #endif /* ZYNQMP_DEF_H */

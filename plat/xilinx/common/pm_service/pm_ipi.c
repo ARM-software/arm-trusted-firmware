@@ -154,14 +154,16 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 		value++;
 	}
 #if IPI_CRC_CHECK
-	for (j = 0; j < PAYLOAD_ARG_CNT; j++)
+	for (j = 0; j < PAYLOAD_ARG_CNT; j++) {
 		response_payload[j] = mmio_read_32(buffer_base +
 						(j * PAYLOAD_ARG_SIZE));
+	}
 
 	if (response_payload[PAYLOAD_CRC_POS] !=
-			calculate_crc(response_payload, IPI_W0_TO_W6_SIZE))
+			calculate_crc(response_payload, IPI_W0_TO_W6_SIZE)) {
 		NOTICE("ERROR in CRC response payload value:0x%x\n",
 					response_payload[PAYLOAD_CRC_POS]);
+	}
 #endif
 
 	return mmio_read_32(buffer_base);
@@ -186,22 +188,25 @@ void pm_ipi_buff_read_callb(unsigned int *value, size_t count)
 				IPI_BUFFER_TARGET_LOCAL_OFFSET +
 				IPI_BUFFER_REQ_OFFSET;
 
-	if (count > IPI_BUFFER_MAX_WORDS)
+	if (count > IPI_BUFFER_MAX_WORDS) {
 		count = IPI_BUFFER_MAX_WORDS;
+	}
 
 	for (i = 0; i <= count; i++) {
 		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
 		value++;
 	}
 #if IPI_CRC_CHECK
-	for (j = 0; j < PAYLOAD_ARG_CNT; j++)
+	for (j = 0; j < PAYLOAD_ARG_CNT; j++) {
 		response_payload[j] = mmio_read_32(buffer_base +
 						(j * PAYLOAD_ARG_SIZE));
+	}
 
 	if (response_payload[PAYLOAD_CRC_POS] !=
-			calculate_crc(response_payload, IPI_W0_TO_W6_SIZE))
+			calculate_crc(response_payload, IPI_W0_TO_W6_SIZE)) {
 		NOTICE("ERROR in CRC response payload value:0x%x\n",
 					response_payload[PAYLOAD_CRC_POS]);
+	}
 #endif
 }
 
@@ -226,8 +231,9 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 	bakery_lock_get(&pm_secure_lock);
 
 	ret = pm_ipi_send_common(proc, payload, IPI_BLOCKING);
-	if (ret != PM_RET_SUCCESS)
+	if (ret != PM_RET_SUCCESS) {
 		goto unlock;
+	}
 
 	ret = ERROR_CODE_MASK & (pm_ipi_buff_read(proc, value, count));
 
@@ -253,10 +259,11 @@ uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
 
 	ret = ipi_mb_enquire_status(proc->ipi->local_ipi_id,
 				    proc->ipi->remote_ipi_id);
-	if (ret & IPI_MB_STATUS_RECV_PENDING)
+	if (ret & IPI_MB_STATUS_RECV_PENDING) {
 		return 1;
-	else
+	} else {
 		return 0;
+	}
 }
 
 #if IPI_CRC_CHECK
