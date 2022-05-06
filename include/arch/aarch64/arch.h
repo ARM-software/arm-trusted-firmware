@@ -234,6 +234,11 @@
 #define ID_AA64DFR0_MTPMU_MASK		ULL(0xf)
 #define ID_AA64DFR0_MTPMU_SUPPORTED	ULL(1)
 
+/* ID_AA64DFR0_EL1.BRBE definitions */
+#define ID_AA64DFR0_BRBE_SHIFT		U(52)
+#define ID_AA64DFR0_BRBE_MASK		ULL(0xf)
+#define ID_AA64DFR0_BRBE_SUPPORTED	ULL(1)
+
 /* ID_AA64ISAR0_EL1 definitions */
 #define ID_AA64ISAR0_RNDR_SHIFT	U(60)
 #define ID_AA64ISAR0_RNDR_MASK	ULL(0xf)
@@ -512,6 +517,8 @@
 #define MDCR_EnPMSN_BIT		(ULL(1) << 36)
 #define MDCR_MPMX_BIT		(ULL(1) << 35)
 #define MDCR_MCCD_BIT		(ULL(1) << 34)
+#define MDCR_SBRBE_SHIFT	U(32)
+#define MDCR_SBRBE_MASK		ULL(0x3)
 #define MDCR_NSTB(x)		((x) << 24)
 #define MDCR_NSTB_EL1		ULL(0x3)
 #define MDCR_NSTBE		(ULL(1) << 26)
