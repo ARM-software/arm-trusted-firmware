@@ -463,12 +463,14 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 				/* In case of OPTEE, initialize address space with tos_fw addr */
 				pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+				assert(pager_mem_params != NULL);
 				pager_mem_params->image_info.image_base = config_info->config_addr;
 				pager_mem_params->image_info.image_max_size =
 					config_info->config_max_size;
 
 				/* Init base and size for pager if exist */
 				paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
+				assert(paged_mem_params != NULL);
 				paged_mem_params->image_info.image_base = STM32MP_DDR_BASE +
 					(dt_get_ddr_size() - STM32MP_DDR_S_SIZE -
 					 STM32MP_DDR_SHMEM_SIZE);
@@ -526,6 +528,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 #if !STM32MP_USE_STM32IMAGE
 			bl_mem_params->ep_info.pc = bl_mem_params->image_info.image_base;
 			tos_fw_mem_params = get_bl_mem_params_node(TOS_FW_CONFIG_ID);
+			assert(tos_fw_mem_params != NULL);
 			bl_mem_params->image_info.image_max_size +=
 				tos_fw_mem_params->image_info.image_max_size;
 #endif /* !STM32MP_USE_STM32IMAGE */

@@ -409,6 +409,7 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 			gpt_init_done = true;
 		} else {
 			bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+			assert(bl_mem_params != NULL);
 
 			mmc_block_dev_spec.buffer.offset = bl_mem_params->image_info.image_base;
 			mmc_block_dev_spec.buffer.length = bl_mem_params->image_info.image_max_size;
