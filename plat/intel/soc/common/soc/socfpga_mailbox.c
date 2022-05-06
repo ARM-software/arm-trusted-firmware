@@ -11,6 +11,8 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 
+static mailbox_payload_t mailbox_resp_payload;
+static mailbox_container_t mailbox_resp_ctr = {0, 0, &mailbox_resp_payload};
 
 static bool is_mailbox_cmdbuf_full(uint32_t cin)
 {
@@ -171,6 +173,95 @@ int mailbox_read_response(unsigned int *job_id, uint32_t *response,
 	return MBOX_NO_RESPONSE;
 }
 
+int mailbox_read_response_async(unsigned int *job_id, uint32_t *header,
+				uint32_t *response, unsigned int *resp_len,
+				uint8_t ignore_client_id)
+{
+	uint32_t rin;
+	uint32_t rout;
+	uint32_t resp_data;
+	uint32_t ret_resp_len = 0;
+	uint8_t is_done = 0;
+
+	if ((mailbox_resp_ctr.flag & MBOX_PAYLOAD_FLAG_BUSY) != 0) {
+		ret_resp_len = MBOX_RESP_LEN(
+				mailbox_resp_ctr.payload->header) -
+				mailbox_resp_ctr.index;
+	}
+
+	if (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM) == 1U) {
+		mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0U);
+	}
+
+	rin = mmio_read_32(MBOX_OFFSET + MBOX_RIN);
+	rout = mmio_read_32(MBOX_OFFSET + MBOX_ROUT);
+
+	while (rout != rin && !is_done) {
+
+		resp_data = mmio_read_32(MBOX_ENTRY_TO_ADDR(RESP, (rout)++));
+
+		rout %= MBOX_RESP_BUFFER_SIZE;
+		mmio_write_32(MBOX_OFFSET + MBOX_ROUT, rout);
+		rin = mmio_read_32(MBOX_OFFSET + MBOX_RIN);
+
+		if ((mailbox_resp_ctr.flag & MBOX_PAYLOAD_FLAG_BUSY) != 0) {
+			mailbox_resp_ctr.payload->data[mailbox_resp_ctr.index] = resp_data;
+			mailbox_resp_ctr.index++;
+			ret_resp_len--;
+		} else {
+			if (!ignore_client_id) {
+				if (MBOX_RESP_CLIENT_ID(resp_data) != MBOX_ATF_CLIENT_ID) {
+					*resp_len = 0;
+					return MBOX_WRONG_ID;
+				}
+			}
+
+			*job_id = MBOX_RESP_JOB_ID(resp_data);
+			ret_resp_len = MBOX_RESP_LEN(resp_data);
+			mailbox_resp_ctr.payload->header = resp_data;
+			mailbox_resp_ctr.flag |= MBOX_PAYLOAD_FLAG_BUSY;
+		}
+
+		if (ret_resp_len == 0) {
+			is_done = 1;
+		}
+	}
+
+	if (is_done != 0) {
+
+		/* copy header data to input address if applicable */
+		if (header != 0) {
+			*header = mailbox_resp_ctr.payload->header;
+		}
+
+		/* copy response data to input buffer if applicable */
+		ret_resp_len = MBOX_RESP_LEN(mailbox_resp_ctr.payload->header);
+		if (ret_resp_len > 0 && response && resp_len) {
+			if (*resp_len > ret_resp_len) {
+				*resp_len = ret_resp_len;
+			}
+
+			memcpy((uint8_t *) response,
+				(uint8_t *) mailbox_resp_ctr.payload->data,
+				*resp_len * MBOX_WORD_BYTE);
+		}
+
+		/* reset async response param */
+		mailbox_resp_ctr.index = 0;
+		mailbox_resp_ctr.flag = 0;
+
+		if (MBOX_RESP_ERR(mailbox_resp_ctr.payload->header) > 0U) {
+			INFO("Error in async response: %x\n",
+				mailbox_resp_ctr.payload->header);
+			return -MBOX_RESP_ERR(mailbox_resp_ctr.payload->header);
+		}
+
+		return MBOX_RET_OK;
+	}
+
+	*resp_len = 0;
+	return (mailbox_resp_ctr.flag & MBOX_PAYLOAD_FLAG_BUSY) ? MBOX_BUSY : MBOX_NO_RESPONSE;
+}
 
 int mailbox_poll_response(uint32_t job_id, uint32_t urgent, uint32_t *response,
 				unsigned int *resp_len)

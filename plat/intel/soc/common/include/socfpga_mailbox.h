@@ -108,6 +108,7 @@
 #define MBOX_NO_RESPONSE		-2
 #define MBOX_WRONG_ID			-3
 #define MBOX_BUFFER_FULL		-4
+#define MBOX_BUSY			-5
 #define MBOX_TIMEOUT			-2047
 
 /* Reconfig Status Response */
@@ -157,6 +158,10 @@
 #define MBOX_INDIRECT(val)		((val) << 11)
 #define MBOX_CMD_MASK(header)		((header) & 0x7ff)
 
+/* Mailbox payload */
+#define MBOX_DATA_MAX_LEN		0x3ff
+#define MBOX_PAYLOAD_FLAG_BUSY		BIT(0)
+
 /* RSU Macros */
 #define RSU_VERSION_ACMF		BIT(8)
 #define RSU_VERSION_ACMF_MASK		0xff00
@@ -165,6 +170,19 @@
 #define CONFIG_STATUS_WORD_SIZE		16U
 #define CONFIG_STATUS_FW_VER_OFFSET	1
 #define CONFIG_STATUS_FW_VER_MASK	0x00FFFFFF
+
+/* Data structure */
+
+typedef struct mailbox_payload {
+	uint32_t header;
+	uint32_t data[MBOX_DATA_MAX_LEN];
+} mailbox_payload_t;
+
+typedef struct mailbox_container {
+	uint32_t flag;
+	uint32_t index;
+	mailbox_payload_t *payload;
+} mailbox_container_t;
 
 /* Mailbox Function Definitions */
 
@@ -180,6 +198,9 @@ int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
 			unsigned int len, unsigned int indirect);
 int mailbox_read_response(uint32_t *job_id, uint32_t *response,
 			unsigned int *resp_len);
+int mailbox_read_response_async(uint32_t *job_id, uint32_t *header,
+			uint32_t *response, unsigned int *resp_len,
+			uint8_t ignore_client_id);
 int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 			unsigned int *resp_len);
 
