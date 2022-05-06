@@ -38,6 +38,7 @@
 #include <platform_def.h>
 #include <stm32cubeprogrammer.h>
 #include <stm32mp_fconf_getter.h>
+#include <stm32mp_io_storage.h>
 #include <usb_dfu.h>
 
 /* IO devices */
