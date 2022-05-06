@@ -11,6 +11,7 @@
 
 #include <lib/psci/psci.h>
 #include <lib/spinlock.h>
+#include <services/el3_spmc_logical_sp.h>
 #include "spm_common.h"
 
 /*
@@ -68,6 +69,28 @@ enum sp_execution_state {
 	SP_STATE_AARCH32
 };
 
+enum mailbox_state {
+	/* There is no message in the mailbox. */
+	MAILBOX_STATE_EMPTY,
+
+	/* There is a message that has been populated in the mailbox. */
+	MAILBOX_STATE_FULL,
+};
+
+struct mailbox {
+	enum mailbox_state state;
+
+	/* RX/TX Buffers. */
+	void *rx_buffer;
+	const void *tx_buffer;
+
+	/* Size of RX/TX Buffer. */
+	uint32_t rxtx_page_count;
+
+	/* Lock access to mailbox. */
+	spinlock_t lock;
+};
+
 /*
  * Execution context members for an SP. This is a bit like struct
  * vcpu in a hypervisor.
@@ -118,6 +141,9 @@ struct secure_partition_desc {
 	/* Execution State. */
 	enum sp_execution_state execution_state;
 
+	/* Mailbox tracking. */
+	struct mailbox mailbox;
+
 	/* Secondary entrypoint. Only valid for a S-EL1 SP. */
 	uintptr_t secondary_ep;
 };
@@ -142,7 +168,12 @@ struct ns_endpoint_desc {
 	uint16_t ns_ep_id;
 
 	/*
-	 * Supported FF-A Version.
+	 * Mailbox tracking.
+	 */
+	struct mailbox mailbox;
+
+	/*
+	 * Supported FF-A Version
 	 */
 	uint32_t ffa_version;
 };
@@ -183,5 +214,11 @@ uint64_t spmc_ffa_error_return(void *handle, int error_code);
  * Ensure a partition ID does not clash and follows the secure world convention.
  */
 bool is_ffa_secure_id_valid(uint16_t partition_id);
+
+/*
+ * Helper function to obtain the array storing the EL3
+ * Logical Partition descriptors.
+ */
+struct el3_lp_desc *get_el3_lp_array(void);
 
 #endif /* SPMC_H */

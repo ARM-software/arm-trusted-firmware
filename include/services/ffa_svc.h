@@ -164,6 +164,13 @@
 	FFA_FID(SMC_64, FFA_FNUM_NOTIFICATION_INFO_GET)
 
 /*
+ * FF-A partition properties values.
+ */
+#define FFA_PARTITION_DIRECT_REQ_RECV	U(1 << 0)
+#define FFA_PARTITION_DIRECT_REQ_SEND	U(1 << 1)
+#define FFA_PARTITION_INDIRECT_MSG	U(1 << 2)
+
+/*
  * Reserve a special value for traffic targeted to the Hypervisor or SPM.
  */
 #define FFA_TARGET_INFO_MBZ		U(0x0)
