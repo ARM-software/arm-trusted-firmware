@@ -1,12 +1,15 @@
 /*
- * Copyright (c) 2019, NXP. All rights reserved.
+ * Copyright (c) 2019-2022 NXP. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
 #include <lib/mmio.h>
 
 #include <imx8m_caam.h>
+
+#define HAB_JR0_DID	U(0x8011)
 
 void imx8m_caam_init(void)
 {
@@ -20,7 +23,12 @@ void imx8m_caam_init(void)
 	mmio_write_32(SM_CMD, sm_cmd);
 
 	/* config CAAM JRaMID set MID to Cortex A */
-	mmio_write_32(CAAM_JR0MID, CAAM_NS_MID);
+	if (mmio_read_32(CAAM_JR0MID) == HAB_JR0_DID) {
+		NOTICE("Do not release JR0 to NS as it can be used by HAB");
+	} else {
+		mmio_write_32(CAAM_JR0MID, CAAM_NS_MID);
+	}
+
 	mmio_write_32(CAAM_JR1MID, CAAM_NS_MID);
 	mmio_write_32(CAAM_JR2MID, CAAM_NS_MID);
 
