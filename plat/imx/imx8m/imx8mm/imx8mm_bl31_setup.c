@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022 ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
 #include <drivers/generic_delay_timer.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/mmio.h>
-#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
 #include <gpc.h>
@@ -26,7 +26,10 @@
 #include <imx_uart.h>
 #include <imx_rdc.h>
 #include <imx8m_caam.h>
+#include <imx8m_csu.h>
 #include <plat_imx8.h>
+
+#define TRUSTY_PARAMS_LEN_BYTES      (4096*2)
 
 static const mmap_region_t imx_mmap[] = {
 	MAP_REGION_FLAT(IMX_GIC_BASE, IMX_GIC_SIZE, MT_DEVICE | MT_RW),
@@ -44,14 +47,30 @@ static const struct aipstz_cfg aipstz[] = {
 
 static const struct imx_rdc_cfg rdc[] = {
 	/* Master domain assignment */
-	RDC_MDAn(0x1, DID1),
+	RDC_MDAn(RDC_MDA_M4, DID1),
 
 	/* peripherals domain permission */
+	RDC_PDAPn(RDC_PDAP_UART4, D1R | D1W),
+	RDC_PDAPn(RDC_PDAP_UART2, D0R | D0W),
 
 	/* memory region */
 
 	/* Sentinel */
 	{0},
+};
+
+static const struct imx_csu_cfg csu_cfg[] = {
+	/* peripherals csl setting */
+	CSU_CSLx(0x1, CSU_SEC_LEVEL_0, UNLOCKED),
+
+	/* master HP0~1 */
+
+	/* SA setting */
+
+	/* HP control setting */
+
+	/* Sentinel */
+	{0}
 };
 
 static entry_point_info_t bl32_image_ep_info;
@@ -109,6 +128,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	imx_rdc_init(rdc);
 
+	imx_csu_init(csu_cfg);
+
 	imx8m_caam_init();
 
 	console_imx_uart_register(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
@@ -124,7 +145,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl33_image_ep_info.spsr = get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
-#ifdef SPD_opteed
+#if defined(SPD_opteed) || defined(SPD_trusty)
 	/* Populate entry point information for BL32 */
 	SET_PARAM_HEAD(&bl32_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
@@ -134,6 +155,16 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Pass TEE base and size to bl33 */
 	bl33_image_ep_info.args.arg1 = BL32_BASE;
 	bl33_image_ep_info.args.arg2 = BL32_SIZE;
+
+#ifdef SPD_trusty
+	bl32_image_ep_info.args.arg0 = BL32_SIZE;
+	bl32_image_ep_info.args.arg1 = BL32_BASE;
+#else
+	/* Make sure memory is clean */
+	mmio_write_32(BL32_FDT_OVERLAY_ADDR, 0);
+	bl33_image_ep_info.args.arg3 = BL32_FDT_OVERLAY_ADDR;
+	bl32_image_ep_info.args.arg3 = BL32_FDT_OVERLAY_ADDR;
+#endif
 #endif
 
 	bl31_tzc380_setup();
@@ -150,6 +181,9 @@ void bl31_plat_arch_setup(void)
 		(BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE),
 		MT_DEVICE | MT_RW | MT_SECURE);
 #endif
+	/* Map TEE memory */
+	mmap_add_region(BL32_BASE, BL32_BASE, BL32_SIZE, MT_MEMORY | MT_RW);
+
 	mmap_add(imx_mmap);
 
 	init_xlat_tables();
@@ -184,3 +218,12 @@ unsigned int plat_get_syscnt_freq2(void)
 {
 	return COUNTER_FREQUENCY;
 }
+
+#ifdef SPD_trusty
+void plat_trusty_set_boot_args(aapcs64_params_t *args)
+{
+	args->arg0 = BL32_SIZE;
+	args->arg1 = BL32_BASE;
+	args->arg2 = TRUSTY_PARAMS_LEN_BYTES;
+}
+#endif

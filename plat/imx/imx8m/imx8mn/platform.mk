@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2020 NXP
+# Copyright 2019-2022 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -23,6 +23,7 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				plat/imx/imx8m/imx_aipstz.c			\
 				plat/imx/imx8m/imx_rdc.c			\
 				plat/imx/imx8m/imx8m_caam.c			\
+				plat/imx/imx8m/imx8m_csu.c			\
 				plat/imx/imx8m/imx8m_psci_common.c		\
 				plat/imx/imx8m/imx8mn/imx8mn_bl31_setup.c	\
 				plat/imx/imx8m/imx8mn/imx8mn_psci.c		\
@@ -31,8 +32,6 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				plat/imx/common/imx_sip_handler.c		\
 				plat/imx/common/imx_sip_svc.c			\
 				plat/imx/common/imx_uart_console.S		\
-				plat/imx/common/imx_ehf.c                       \
-				plat/imx/common/imx_sdei.c                      \
 				lib/cpus/aarch64/cortex_a53.S			\
 				drivers/arm/tzc/tzc380.c			\
 				drivers/delay_timer/delay_timer.c		\
@@ -57,5 +56,12 @@ $(eval $(call add_define,BL32_SIZE))
 IMX_BOOT_UART_BASE	?=	0x30890000
 $(eval $(call add_define,IMX_BOOT_UART_BASE))
 
-EL3_EXCEPTION_HANDLING := 1
-SDEI_SUPPORT := 1
+EL3_EXCEPTION_HANDLING := $(SDEI_SUPPORT)
+ifeq (${SDEI_SUPPORT}, 1)
+BL31_SOURCES 		+= 	plat/imx/common/imx_ehf.c	\
+				plat/imx/common/imx_sdei.c
+endif
+
+ifeq (${SPD},trusty)
+	BL31_CFLAGS    +=      -DPLAT_XLAT_TABLES_DYNAMIC=1
+endif

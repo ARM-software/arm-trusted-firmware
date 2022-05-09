@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NXP. All rights reserved.
+ * Copyright (c) 2019-2022 NXP. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 #include <lib/utils_def.h>
 
+#include <imx_sec_def.h>
 #include <platform_def.h>
 
 #define MDAn(x)		(IMX_RDC_BASE + 0x200 + (x) * 4)
