@@ -337,6 +337,118 @@ uint32_t intel_fcs_get_rom_patch_sha384(uint64_t addr, uint64_t *ret_size,
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+int intel_fcs_encryption_ext(uint32_t session_id, uint32_t context_id,
+		uint32_t src_addr, uint32_t src_size,
+		uint32_t dst_addr, uint32_t *dst_size, uint32_t *mbox_error)
+{
+	int status;
+	uint32_t payload_size;
+	uint32_t resp_len = FCS_CRYPTION_RESP_WORD_SIZE;
+	uint32_t resp_data[FCS_CRYPTION_RESP_WORD_SIZE] = {0U};
+
+	if ((dst_size == NULL) || (mbox_error == NULL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(src_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	fcs_encrypt_ext_payload payload = {
+		session_id,
+		context_id,
+		FCS_CRYPTION_CRYPTO_HEADER,
+		src_addr,
+		src_size,
+		dst_addr,
+		*dst_size
+	};
+
+	payload_size = sizeof(payload) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_ENCRYPT_REQ,
+				(uint32_t *) &payload, payload_size,
+				CMD_CASUAL, resp_data, &resp_len);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (resp_len != FCS_CRYPTION_RESP_WORD_SIZE) {
+		*mbox_error = MBOX_RET_ERROR;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = resp_data[FCS_CRYPTION_RESP_SIZE_OFFSET];
+	inv_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_decryption_ext(uint32_t session_id, uint32_t context_id,
+		uint32_t src_addr, uint32_t src_size,
+		uint32_t dst_addr, uint32_t *dst_size, uint32_t *mbox_error)
+{
+	int status;
+	uintptr_t id_offset;
+	uint32_t payload_size;
+	uint32_t resp_len = FCS_CRYPTION_RESP_WORD_SIZE;
+	uint32_t resp_data[FCS_CRYPTION_RESP_WORD_SIZE] = {0U};
+
+	if ((dst_size == NULL) || (mbox_error == NULL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(src_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	id_offset = src_addr + FCS_OWNER_ID_OFFSET;
+	fcs_decrypt_ext_payload payload = {
+		session_id,
+		context_id,
+		FCS_CRYPTION_CRYPTO_HEADER,
+		{mmio_read_32(id_offset),
+		mmio_read_32(id_offset + MBOX_WORD_BYTE)},
+		src_addr,
+		src_size,
+		dst_addr,
+		*dst_size
+	};
+
+	payload_size = sizeof(payload) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_DECRYPT_REQ,
+				(uint32_t *) &payload, payload_size,
+				CMD_CASUAL, resp_data, &resp_len);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (resp_len != FCS_CRYPTION_RESP_WORD_SIZE) {
+		*mbox_error = MBOX_RET_ERROR;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = resp_data[FCS_CRYPTION_RESP_SIZE_OFFSET];
+	inv_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 int intel_fcs_sigma_teardown(uint32_t session_id, uint32_t *mbox_error)
 {
 	int status;

@@ -25,6 +25,9 @@
 #define FCS_ENCRYPTION_DATA_0			0x10100
 #define FCS_DECRYPTION_DATA_0			0x10102
 #define FCS_OWNER_ID_OFFSET			0xC
+#define FCS_CRYPTION_CRYPTO_HEADER		0x07000000
+#define FCS_CRYPTION_RESP_WORD_SIZE		4U
+#define FCS_CRYPTION_RESP_SIZE_OFFSET		3U
 
 #define PSGSIGMA_TEARDOWN_MAGIC			0xB852E2A4
 #define	PSGSIGMA_SESSION_ID_ONE			0x1
@@ -98,6 +101,27 @@ typedef struct fcs_decrypt_payload_t {
 	uint32_t dst_size;
 } fcs_decrypt_payload;
 
+typedef struct fcs_encrypt_ext_payload_t {
+	uint32_t session_id;
+	uint32_t context_id;
+	uint32_t crypto_header;
+	uint32_t src_addr;
+	uint32_t src_size;
+	uint32_t dst_addr;
+	uint32_t dst_size;
+} fcs_encrypt_ext_payload;
+
+typedef struct fcs_decrypt_ext_payload_t {
+	uint32_t session_id;
+	uint32_t context_id;
+	uint32_t crypto_header;
+	uint32_t owner_id[2];
+	uint32_t src_addr;
+	uint32_t src_size;
+	uint32_t dst_addr;
+	uint32_t dst_size;
+} fcs_decrypt_ext_payload;
+
 typedef struct psgsigma_teardown_msg_t {
 	uint32_t reserved_word;
 	uint32_t magic_word;
@@ -152,6 +176,15 @@ uint32_t intel_fcs_encryption(uint32_t src_addr, uint32_t src_size,
 uint32_t intel_fcs_decryption(uint32_t src_addr, uint32_t src_size,
 				uint32_t dst_addr, uint32_t dst_size,
 				uint32_t *send_id);
+
+int intel_fcs_encryption_ext(uint32_t session_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
+				uint32_t dst_addr, uint32_t *dst_size,
+				uint32_t *mbox_error);
+int intel_fcs_decryption_ext(uint32_t sesion_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
+				uint32_t dst_addr, uint32_t *dst_size,
+				uint32_t *mbox_error);
 
 int intel_fcs_sigma_teardown(uint32_t session_id, uint32_t *mbox_error);
 int intel_fcs_chip_id(uint32_t *id_low, uint32_t *id_high, uint32_t *mbox_error);
