@@ -624,9 +624,17 @@ architecture that can be enabled by the platform as desired.
    This is used to control how the LL_CACHE* PMU events count.
    Default value is 0 (Disabled).
 
+GIC Errata Workarounds
+----------------------
+-  ``GIC600_ERRATA_WA_2384374``: This flag applies part 2 of errata 2384374
+   workaround for the affected GIC600 and GIC600-AE implementations. It applies
+   to implementations of GIC600 and GIC600-AE with revisions less than or equal
+   to r1p6 and r0p2 respectively. If the platform sets GICV3_SUPPORT_GIC600,
+   then this flag is enabled; otherwise, it is 0 (Disabled).
+
 --------------
 
-*Copyright (c) 2014-2021, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639
