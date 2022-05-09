@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,6 +37,8 @@ void sme_enable(cpu_context_t *context)
 
 	/* Make sure SME is implemented in hardware before continuing. */
 	if (!feat_sme_supported()) {
+		/* Perhaps the hardware supports SVE only */
+		sve_enable(context);
 		return;
 	}
 
@@ -83,6 +85,8 @@ void sme_disable(cpu_context_t *context)
 
 	/* Make sure SME is implemented in hardware before continuing. */
 	if (!feat_sme_supported()) {
+		/* Perhaps the hardware supports SVE only */
+		sve_disable(context);
 		return;
 	}
 
