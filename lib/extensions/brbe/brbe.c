@@ -5,22 +5,14 @@
  */
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
-
-static bool brbe_supported(void)
-{
-	uint64_t features;
-
-	features = read_id_aa64dfr0_el1() >> ID_AA64DFR0_BRBE_SHIFT;
-	return ((features & ID_AA64DFR0_BRBE_MASK) ==
-		ID_AA64DFR0_BRBE_SUPPORTED);
-}
 
 void brbe_enable(void)
 {
 	uint64_t val;
 
-	if (brbe_supported()) {
+	if (is_feat_brbe_present()) {
 		/*
 		 * MDCR_EL3.SBRBE = 0b01
 		 *

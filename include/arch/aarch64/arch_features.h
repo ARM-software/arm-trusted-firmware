@@ -224,4 +224,15 @@ static inline unsigned int get_armv8_4_feat_nv_support(void)
 		ID_AA64MMFR2_EL1_NV_MASK));
 }
 
+/*******************************************************************************
+ * Function to identify the presence of FEAT_BRBE (Branch Record Buffer
+ * Extension)
+ ******************************************************************************/
+static inline bool is_feat_brbe_present(void)
+{
+	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_BRBE_SHIFT) &
+		ID_AA64DFR0_BRBE_MASK) == ID_AA64DFR0_BRBE_SUPPORTED);
+}
+
+
 #endif /* ARCH_FEATURES_H */

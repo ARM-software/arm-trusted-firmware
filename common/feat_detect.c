@@ -234,6 +234,16 @@ static void read_feat_rme(void)
 #endif
 }
 
+/******************************************************
+ * Feature : FEAT_BRBE (Branch Record Buffer Extension)
+ *****************************************************/
+static void read_feat_brbe(void)
+{
+#if (ENABLE_BRBE_FOR_NS == FEAT_STATE_1)
+	feat_detect_panic(is_feat_brbe_present(), "BRBE");
+#endif
+}
+
 /***********************************************************************************
  * TF-A supports many Arm architectural features starting from arch version
  * (8.0 till 8.7+). These features are mostly enabled through build flags. This
@@ -293,6 +303,9 @@ void detect_arch_features(void)
 
 	/* v8.7 features */
 	read_feat_hcx();
+
+	/* v9.0 features */
+	read_feat_brbe();
 
 	/* v9.2 features */
 	read_feat_rme();
