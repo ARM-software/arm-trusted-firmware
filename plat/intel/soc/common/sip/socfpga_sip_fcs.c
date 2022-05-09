@@ -462,3 +462,175 @@ int intel_fcs_close_crypto_service_session(uint32_t session_id,
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
+
+int intel_fcs_import_crypto_service_key(uint64_t src_addr, uint32_t src_size,
+		uint32_t *send_id)
+{
+	int status;
+
+	if (src_size > (FCS_CS_KEY_OBJ_MAX_WORD_SIZE *
+		MBOX_WORD_BYTE)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(src_addr, src_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd_async(send_id, MBOX_FCS_IMPORT_CS_KEY,
+				(uint32_t *)src_addr, src_size / MBOX_WORD_BYTE,
+				CMD_INDIRECT);
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_export_crypto_service_key(uint32_t session_id, uint32_t key_id,
+		uint64_t dst_addr, uint32_t *dst_size,
+		uint32_t *mbox_error)
+{
+	int status;
+	uint32_t i;
+	uint32_t payload_size;
+	uint32_t resp_len = FCS_CS_KEY_OBJ_MAX_WORD_SIZE;
+	uint32_t resp_data[FCS_CS_KEY_OBJ_MAX_WORD_SIZE] = {0U};
+	uint32_t op_status = 0U;
+
+	if ((dst_size == NULL) || (mbox_error == NULL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	fcs_cs_key_payload payload = {
+		session_id,
+		RESERVED_AS_ZERO,
+		RESERVED_AS_ZERO,
+		key_id
+	};
+
+	payload_size = sizeof(payload) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_EXPORT_CS_KEY,
+			(uint32_t *) &payload, payload_size,
+			CMD_CASUAL, resp_data, &resp_len);
+
+	if (resp_len > 0) {
+		op_status = resp_data[0] & FCS_CS_KEY_RESP_STATUS_MASK;
+	}
+
+	if (status < 0) {
+		*mbox_error = (-status) | (op_status << FCS_CS_KEY_RESP_STATUS_OFFSET);
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (resp_len > 1) {
+
+		/* Export key object is start at second response data */
+		*dst_size = (resp_len - 1) * MBOX_WORD_BYTE;
+
+		for (i = 1U; i < resp_len; i++) {
+			mmio_write_32(dst_addr, resp_data[i]);
+			dst_addr += MBOX_WORD_BYTE;
+		}
+
+		flush_dcache_range(dst_addr - *dst_size, *dst_size);
+
+	} else {
+
+		/* Unexpected response, missing key object in response */
+		*mbox_error = MBOX_RET_ERROR;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_remove_crypto_service_key(uint32_t session_id, uint32_t key_id,
+		uint32_t *mbox_error)
+{
+	int status;
+	uint32_t payload_size;
+	uint32_t resp_len = 1U;
+	uint32_t resp_data = 0U;
+	uint32_t op_status = 0U;
+
+	if (mbox_error == NULL) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	fcs_cs_key_payload payload = {
+		session_id,
+		RESERVED_AS_ZERO,
+		RESERVED_AS_ZERO,
+		key_id
+	};
+
+	payload_size = sizeof(payload) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_REMOVE_CS_KEY,
+			(uint32_t *) &payload, payload_size,
+			CMD_CASUAL, &resp_data, &resp_len);
+
+	if (resp_len > 0) {
+		op_status = resp_data & FCS_CS_KEY_RESP_STATUS_MASK;
+	}
+
+	if (status < 0) {
+		*mbox_error = (-status) | (op_status << FCS_CS_KEY_RESP_STATUS_OFFSET);
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_get_crypto_service_key_info(uint32_t session_id, uint32_t key_id,
+		uint64_t dst_addr, uint32_t *dst_size,
+		uint32_t *mbox_error)
+{
+	int status;
+	uint32_t payload_size;
+	uint32_t resp_len = FCS_CS_KEY_INFO_MAX_WORD_SIZE;
+	uint32_t op_status = 0U;
+
+	if ((dst_size == NULL) || (mbox_error == NULL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	fcs_cs_key_payload payload = {
+		session_id,
+		RESERVED_AS_ZERO,
+		RESERVED_AS_ZERO,
+		key_id
+	};
+
+	payload_size = sizeof(payload) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_GET_CS_KEY_INFO,
+				(uint32_t *) &payload, payload_size,
+				CMD_CASUAL, (uint32_t *) dst_addr, &resp_len);
+
+	if (resp_len > 0) {
+		op_status = mmio_read_32(dst_addr) &
+			FCS_CS_KEY_RESP_STATUS_MASK;
+	}
+
+	if (status < 0) {
+		*mbox_error = (-status) | (op_status << FCS_CS_KEY_RESP_STATUS_OFFSET);
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = resp_len * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}

@@ -843,6 +843,25 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_fcs_close_crypto_service_session(x1, &mbox_error);
 		SMC_RET2(handle, status, mbox_error);
 
+	case INTEL_SIP_SMC_FCS_IMPORT_CS_KEY:
+		status = intel_fcs_import_crypto_service_key(x1, x2, &send_id);
+		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_FCS_EXPORT_CS_KEY:
+		status = intel_fcs_export_crypto_service_key(x1, x2, x3,
+					(uint32_t *) &x4, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x3, x4);
+
+	case INTEL_SIP_SMC_FCS_REMOVE_CS_KEY:
+		status = intel_fcs_remove_crypto_service_key(x1, x2,
+					&mbox_error);
+		SMC_RET2(handle, status, mbox_error);
+
+	case INTEL_SIP_SMC_FCS_GET_CS_KEY_INFO:
+		status = intel_fcs_get_crypto_service_key_info(x1, x2, x3,
+					(uint32_t *) &x4, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x3, x4);
+
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
 		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,
 							&mbox_error);
