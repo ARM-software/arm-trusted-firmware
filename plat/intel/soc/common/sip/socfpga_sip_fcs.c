@@ -351,3 +351,73 @@ int intel_fcs_get_measurement(uint64_t src_addr, uint32_t src_size,
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
+
+int intel_fcs_get_attestation_cert(uint32_t cert_request, uint64_t dst_addr,
+			uint32_t *dst_size, uint32_t *mbox_error)
+{
+	int status;
+	uint32_t ret_size = *dst_size / MBOX_WORD_BYTE;
+
+	if (mbox_error == NULL) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (cert_request < FCS_ALIAS_CERT ||
+		cert_request >
+			(FCS_ALIAS_CERT |
+			FCS_DEV_ID_SELF_SIGN_CERT |
+			FCS_DEV_ID_ENROLL_CERT |
+			FCS_ENROLL_SELF_SIGN_CERT |
+			FCS_PLAT_KEY_CERT)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_GET_ATTESTATION_CERT,
+			(uint32_t *) &cert_request, 1U, CMD_CASUAL,
+			(uint32_t *) dst_addr, &ret_size);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = ret_size * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_create_cert_on_reload(uint32_t cert_request,
+			uint32_t *mbox_error)
+{
+	int status;
+
+	if (mbox_error == NULL) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (cert_request < FCS_ALIAS_CERT ||
+		cert_request >
+			(FCS_ALIAS_CERT |
+			FCS_DEV_ID_SELF_SIGN_CERT |
+			FCS_DEV_ID_ENROLL_CERT |
+			FCS_ENROLL_SELF_SIGN_CERT |
+			FCS_PLAT_KEY_CERT)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CREATE_CERT_ON_RELOAD,
+			(uint32_t *) &cert_request, 1U, CMD_CASUAL,
+			NULL, NULL);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
