@@ -835,6 +835,14 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_fcs_create_cert_on_reload(x1, &mbox_error);
 		SMC_RET2(handle, status, mbox_error);
 
+	case INTEL_SIP_SMC_FCS_OPEN_CS_SESSION:
+		status = intel_fcs_open_crypto_service_session(&retval, &mbox_error);
+		SMC_RET3(handle, status, mbox_error, retval);
+
+	case INTEL_SIP_SMC_FCS_CLOSE_CS_SESSION:
+		status = intel_fcs_close_crypto_service_session(x1, &mbox_error);
+		SMC_RET2(handle, status, mbox_error);
+
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
 		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,
 							&mbox_error);

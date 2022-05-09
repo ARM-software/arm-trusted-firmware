@@ -421,3 +421,44 @@ int intel_fcs_create_cert_on_reload(uint32_t cert_request,
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
+
+int intel_fcs_open_crypto_service_session(uint32_t *session_id,
+			uint32_t *mbox_error)
+{
+	int status;
+	uint32_t resp_len = 1U;
+
+	if ((session_id == NULL) || (mbox_error == NULL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_OPEN_CS_SESSION,
+			NULL, 0U, CMD_CASUAL, session_id, &resp_len);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_close_crypto_service_session(uint32_t session_id,
+			uint32_t *mbox_error)
+{
+	int status;
+
+	if (mbox_error == NULL) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_CLOSE_CS_SESSION,
+			&session_id, 1U, CMD_CASUAL, NULL, NULL);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
