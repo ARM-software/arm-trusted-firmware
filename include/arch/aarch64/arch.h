@@ -1223,7 +1223,8 @@
 #define ERXMISC0_EL1		S3_0_C5_C5_0
 #define ERXMISC1_EL1		S3_0_C5_C5_1
 
-#define ERXCTLR_ED_BIT		(U(1) << 0)
+#define ERXCTLR_ED_SHIFT	U(0)
+#define ERXCTLR_ED_BIT		(U(1) << ERXCTLR_ED_SHIFT)
 #define ERXCTLR_UE_BIT		(U(1) << 4)
 
 #define ERXPFGCTL_UC_BIT	(U(1) << 1)
