@@ -221,4 +221,10 @@ bool is_ffa_secure_id_valid(uint16_t partition_id);
  */
 struct el3_lp_desc *get_el3_lp_array(void);
 
+/*
+ * Helper function to obtain the RX/TX buffer pair descriptor of the Hypervisor
+ * or OS kernel in the normal world or the last SP that was run.
+ */
+struct mailbox *spmc_get_mbox_desc(bool secure_origin);
+
 #endif /* SPMC_H */

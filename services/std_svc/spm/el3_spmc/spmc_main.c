@@ -72,13 +72,36 @@ struct sp_exec_ctx *spmc_get_sp_ec(struct secure_partition_desc *sp)
 /* Helper function to get pointer to SP context from its ID. */
 struct secure_partition_desc *spmc_get_sp_ctx(uint16_t id)
 {
-	/* Check for SWd Partitions. */
+	/* Check for Secure World Partitions. */
 	for (unsigned int i = 0U; i < SECURE_PARTITION_COUNT; i++) {
 		if (sp_desc[i].sp_id == id) {
 			return &(sp_desc[i]);
 		}
 	}
 	return NULL;
+}
+
+/*
+ * Helper function to obtain the descriptor of the Hypervisor or OS kernel.
+ * We assume that the first descriptor is reserved for this entity.
+ */
+struct ns_endpoint_desc *spmc_get_hyp_ctx(void)
+{
+	return &(ns_ep_desc[0]);
+}
+
+/*
+ * Helper function to obtain the RX/TX buffer pair descriptor of the Hypervisor
+ * or OS kernel in the normal world or the last SP that was run.
+ */
+struct mailbox *spmc_get_mbox_desc(bool secure_origin)
+{
+	/* Obtain the RX/TX buffer pair descriptor. */
+	if (secure_origin) {
+		return &(spmc_get_current_sp_ctx()->mailbox);
+	} else {
+		return &(spmc_get_hyp_ctx()->mailbox);
+	}
 }
 
 /******************************************************************************
@@ -491,6 +514,59 @@ static uint64_t ffa_error_handler(uint32_t smc_fid,
 	return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
 }
 
+static uint64_t ffa_version_handler(uint32_t smc_fid,
+				    bool secure_origin,
+				    uint64_t x1,
+				    uint64_t x2,
+				    uint64_t x3,
+				    uint64_t x4,
+				    void *cookie,
+				    void *handle,
+				    uint64_t flags)
+{
+	uint32_t requested_version = x1 & FFA_VERSION_MASK;
+
+	if (requested_version & FFA_VERSION_BIT31_MASK) {
+		/* Invalid encoding, return an error. */
+		SMC_RET1(handle, FFA_ERROR_NOT_SUPPORTED);
+		/* Execution stops here. */
+	}
+
+	/* Determine the caller to store the requested version. */
+	if (secure_origin) {
+		/*
+		 * Ensure that the SP is reporting the same version as
+		 * specified in its manifest. If these do not match there is
+		 * something wrong with the SP.
+		 * TODO: Should we abort the SP? For now assert this is not
+		 *       case.
+		 */
+		assert(requested_version ==
+		       spmc_get_current_sp_ctx()->ffa_version);
+	} else {
+		/*
+		 * If this is called by the normal world, record this
+		 * information in its descriptor.
+		 */
+		spmc_get_hyp_ctx()->ffa_version = requested_version;
+	}
+
+	SMC_RET1(handle, MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
+					  FFA_VERSION_MINOR));
+}
+
+/*******************************************************************************
+ * Helper function to obtain the FF-A version of the calling partition.
+ ******************************************************************************/
+uint32_t get_partition_ffa_version(bool secure_origin)
+{
+	if (secure_origin) {
+		return spmc_get_current_sp_ctx()->ffa_version;
+	} else {
+		return spmc_get_hyp_ctx()->ffa_version;
+	}
+}
+
 /*******************************************************************************
  * This function will parse the Secure Partition Manifest. From manifest, it
  * will fetch details for preparing Secure partition image context and secure
@@ -543,6 +619,23 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 	}
 
 	sp->execution_state = config_32;
+
+	ret = fdt_read_uint32(sp_manifest, node,
+			      "messaging-method", &config_32);
+	if (ret != 0) {
+		ERROR("Missing Secure Partition messaging method.\n");
+		return ret;
+	}
+
+	/* Validate this entry, we currently only support direct messaging. */
+	if ((config_32 & ~(FFA_PARTITION_DIRECT_REQ_RECV |
+			  FFA_PARTITION_DIRECT_REQ_SEND)) != 0U) {
+		WARN("Invalid Secure Partition messaging method (0x%x)\n",
+		     config_32);
+		return -EINVAL;
+	}
+
+	sp->properties = config_32;
 
 	ret = fdt_read_uint32(sp_manifest, node,
 			      "execution-ctx-count", &config_32);
@@ -865,6 +958,10 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 			  uint64_t flags)
 {
 	switch (smc_fid) {
+
+	case FFA_VERSION:
+		return ffa_version_handler(smc_fid, secure_origin, x1, x2, x3,
+					   x4, cookie, handle, flags);
 
 	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC64:

@@ -38,6 +38,7 @@
 #define FFA_VERSION_MINOR_SHIFT		0
 #define FFA_VERSION_MINOR_MASK		U(0xFFFF)
 #define FFA_VERSION_BIT31_MASK 		U(0x1u << 31)
+#define FFA_VERSION_MASK		U(0xFFFFFFFF)
 
 
 #define MAKE_FFA_VERSION(major, minor) 	\
