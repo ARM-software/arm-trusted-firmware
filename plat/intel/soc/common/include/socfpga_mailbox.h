@@ -113,6 +113,7 @@
 #define MBOX_WORD_BYTE					4U
 #define MBOX_RESP_BUFFER_SIZE				16
 #define MBOX_CMD_BUFFER_SIZE				32
+#define MBOX_INC_HEADER_MAX_WORD_SIZE			1024U
 
 /* Execution states for HPS_STAGE_NOTIFY */
 #define HPS_EXECUTION_STATE_FSBL			0
@@ -213,6 +214,8 @@ int mailbox_send_cmd(uint32_t job_id, uint32_t cmd, uint32_t *args,
 			unsigned int *resp_len);
 int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
 			unsigned int len, unsigned int indirect);
+int mailbox_send_cmd_async_ext(uint32_t header_cmd, uint32_t *args,
+			unsigned int len);
 int mailbox_read_response(uint32_t *job_id, uint32_t *response,
 			unsigned int *resp_len);
 int mailbox_read_response_async(uint32_t *job_id, uint32_t *header,

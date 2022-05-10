@@ -236,7 +236,7 @@ int mailbox_read_response_async(unsigned int *job_id, uint32_t *header,
 
 		/* copy response data to input buffer if applicable */
 		ret_resp_len = MBOX_RESP_LEN(mailbox_resp_ctr.payload->header);
-		if (ret_resp_len > 0 && response && resp_len) {
+		if ((ret_resp_len > 0) && (response == NULL) && resp_len) {
 			if (*resp_len > ret_resp_len) {
 				*resp_len = ret_resp_len;
 			}
@@ -383,6 +383,12 @@ int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 		*resp_len = total_resp_len;
 
 	return MBOX_RET_OK;
+}
+
+int mailbox_send_cmd_async_ext(uint32_t header_cmd, uint32_t *args,
+			unsigned int len)
+{
+	return fill_mailbox_circular_buffer(header_cmd, args, len);
 }
 
 int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
