@@ -791,6 +791,11 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 							&mbox_error);
 		SMC_RET4(handle, status, mbox_error, x1, retval64);
 
+	case INTEL_SIP_SMC_FCS_RANDOM_NUMBER_EXT:
+		status = intel_fcs_random_number_gen_ext(x1, x2, x3,
+							&send_id);
+		SMC_RET1(handle, status);
+
 	case INTEL_SIP_SMC_FCS_SEND_CERTIFICATE:
 		status = intel_fcs_send_cert(x1, x2, &send_id);
 		SMC_RET1(handle, status);

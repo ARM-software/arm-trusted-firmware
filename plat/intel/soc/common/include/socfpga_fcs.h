@@ -14,8 +14,11 @@
 #define FCS_SHA384_WORD_SIZE		12U
 
 #define FCS_RANDOM_BYTE_SIZE		(FCS_RANDOM_WORD_SIZE * 4U)
+#define FCS_RANDOM_EXT_MAX_WORD_SIZE	1020U
 #define FCS_PROV_DATA_BYTE_SIZE		(FCS_PROV_DATA_WORD_SIZE * 4U)
 #define FCS_SHA384_BYTE_SIZE		(FCS_SHA384_WORD_SIZE * 4U)
+
+#define FCS_RANDOM_EXT_OFFSET		3
 
 #define FCS_MODE_DECRYPT		0x0
 #define FCS_MODE_ENCRYPT		0x1
@@ -55,7 +58,19 @@
 #define FCS_CS_KEY_RESP_STATUS_MASK	0xFF
 #define FCS_CS_KEY_RESP_STATUS_OFFSET	16U
 
+#define FCS_CS_FIELD_SIZE_MASK		0xFFFF
+#define FCS_CS_FIELD_FLAG_OFFSET	24
+#define FCS_CS_FIELD_FLAG_INIT		BIT(0)
+#define FCS_CS_FIELD_FLAG_UPDATE	BIT(1)
+#define FCS_CS_FIELD_FLAG_FINALIZE	BIT(2)
+
 /* FCS Payload Structure */
+typedef struct fcs_rng_payload_t {
+	uint32_t session_id;
+	uint32_t context_id;
+	uint32_t crypto_header;
+	uint32_t size;
+} fcs_rng_payload;
 
 typedef struct fcs_encrypt_payload_t {
 	uint32_t first_word;
@@ -96,6 +111,8 @@ typedef struct fcs_cs_key_payload_t {
 
 uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
 				uint32_t *mbox_error);
+int intel_fcs_random_number_gen_ext(uint32_t session_id, uint32_t context_id,
+				uint32_t size, uint32_t *send_id);
 uint32_t intel_fcs_send_cert(uint64_t addr, uint64_t size,
 				uint32_t *send_id);
 uint32_t intel_fcs_get_provision_data(uint32_t *send_id);

@@ -57,6 +57,45 @@ uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+int intel_fcs_random_number_gen_ext(uint32_t session_id, uint32_t context_id,
+				uint32_t size, uint32_t *send_id)
+{
+	int status;
+	uint32_t payload_size;
+	uint32_t crypto_header;
+
+	if (size > (FCS_RANDOM_EXT_MAX_WORD_SIZE *
+		MBOX_WORD_BYTE) || size == 0U) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	crypto_header = (FCS_CS_FIELD_FLAG_INIT | FCS_CS_FIELD_FLAG_FINALIZE) <<
+			FCS_CS_FIELD_FLAG_OFFSET;
+
+	fcs_rng_payload payload = {
+		session_id,
+		context_id,
+		crypto_header,
+		size
+	};
+
+	payload_size = sizeof(payload) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd_async(send_id, MBOX_FCS_RANDOM_GEN,
+					(uint32_t *) &payload, payload_size,
+					CMD_INDIRECT);
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 uint32_t intel_fcs_send_cert(uint64_t addr, uint64_t size,
 					uint32_t *send_id)
 {
