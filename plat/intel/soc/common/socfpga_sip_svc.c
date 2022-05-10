@@ -949,6 +949,19 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 					(uint32_t *) &x4, &mbox_error);
 		SMC_RET4(handle, status, mbox_error, x3, x4);
 
+	case INTEL_SIP_SMC_FCS_ECDH_REQUEST_INIT:
+		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
+		status = intel_fcs_ecdh_request_init(x1, x2, x3,
+					x4, x5, &mbox_error);
+		SMC_RET2(handle, status, mbox_error);
+
+	case INTEL_SIP_SMC_FCS_ECDH_REQUEST_FINALIZE:
+		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
+		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
+		status = intel_fcs_ecdh_request_finalize(x1, x2, x3,
+					 x4, x5, (uint32_t *) &x6, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x5, x6);
+
 	case INTEL_SIP_SMC_FCS_AES_CRYPT_INIT:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
 		status = intel_fcs_aes_crypt_init(x1, x2, x3, x4, x5,
