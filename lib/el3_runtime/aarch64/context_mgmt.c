@@ -284,16 +284,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	}
 
 	/*
-	 * FEAT_AMUv1p1 virtual offset registers are only accessible from EL3
-	 * and EL2, when clear, this bit traps accesses from EL2 so we set it
-	 * to 1 when EL2 is present.
-	 */
-	if (is_armv8_6_feat_amuv1p1_present() &&
-		(el_implemented(2) != EL_IMPL_NONE)) {
-		scr_el3 |= SCR_AMVOFFEN_BIT;
-	}
-
-	/*
 	 * Initialise SCTLR_EL1 to the reset value corresponding to the target
 	 * execution state setting all fields rather than relying of the hw.
 	 * Some fields have architecturally UNKNOWN reset values and these are
