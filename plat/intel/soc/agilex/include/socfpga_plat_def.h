@@ -20,6 +20,7 @@
 
 /* Register Mapping */
 #define SOCFPGA_CCU_NOC_REG_BASE		0xf7000000
+#define SOCFPGA_F2SDRAMMGR_REG_BASE		U(0xf8024000)
 
 #define SOCFPGA_MMC_REG_BASE			0xff808000
 

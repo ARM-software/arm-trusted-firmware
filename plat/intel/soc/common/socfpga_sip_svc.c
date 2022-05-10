@@ -105,7 +105,7 @@ static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
 	}
 
 	if (bridge_disable) {
-		socfpga_bridges_enable();	/* Enable bridge */
+		socfpga_bridges_enable(~0);	/* Enable bridge */
 		bridge_disable = false;
 	}
 
@@ -241,7 +241,7 @@ static int intel_fpga_config_start(uint32_t flag)
 
 	/* Disable bridge on full reconfiguration */
 	if (bridge_disable) {
-		socfpga_bridges_disable();
+		socfpga_bridges_disable(~0);
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
@@ -527,12 +527,26 @@ static int intel_smc_get_usercode(uint32_t *user_code)
 }
 
 /* Miscellaneous HPS services */
-static uint32_t intel_hps_set_bridges(uint64_t enable)
+uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
 {
-	if (enable != 0U) {
-		socfpga_bridges_enable();
+	int status = 0;
+
+	if (enable & SOCFPGA_BRIDGE_ENABLE) {
+		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
+			status = socfpga_bridges_enable((uint32_t)mask);
+		} else {
+			status = socfpga_bridges_enable(~0);
+		}
 	} else {
-		socfpga_bridges_disable();
+		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
+			status = socfpga_bridges_disable((uint32_t)mask);
+		} else {
+			status = socfpga_bridges_disable(~0);
+		}
+	}
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
@@ -697,6 +711,10 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_smc_get_usercode(&retval);
 		SMC_RET2(handle, status, retval);
 
+	case INTEL_SIP_SMC_HPS_SET_BRIDGES:
+		status = intel_hps_set_bridges(x1, x2);
+		SMC_RET1(handle, status);
+
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
 		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,
 							&mbox_error);
@@ -706,10 +724,6 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		SMC_RET3(handle, INTEL_SIP_SMC_STATUS_OK,
 					SIP_SVC_VERSION_MAJOR,
 					SIP_SVC_VERSION_MINOR);
-
-	case INTEL_SIP_SMC_HPS_SET_BRIDGES:
-		status = intel_hps_set_bridges(x1);
-		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_HWMON_READTEMP:
 		status = intel_hwmon_readtemp(x1, &retval);

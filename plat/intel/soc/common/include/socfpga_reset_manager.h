@@ -9,11 +9,22 @@
 
 #include "socfpga_plat_def.h"
 
+#define SOCFPGA_BRIDGE_ENABLE	BIT(0)
+#define SOCFPGA_BRIDGE_HAS_MASK	BIT(1)
+
+#define SOC2FPGA_MASK		(1<<0)
+#define LWHPS2FPGA_MASK		(1<<1)
+#define FPGA2SOC_MASK		(1<<2)
+#define F2SDRAM0_MASK		(1<<3)
+#define F2SDRAM1_MASK		(1<<4)
+#define F2SDRAM2_MASK		(1<<5)
 
 /* Register Mapping */
 
 #define SOCFPGA_RSTMGR_STAT			0x000
 #define SOCFPGA_RSTMGR_HDSKEN			0x010
+#define SOCFPGA_RSTMGR_HDSKREQ			0x014
+#define SOCFPGA_RSTMGR_HDSKACK			0x018
 #define SOCFPGA_RSTMGR_MPUMODRST		0x020
 #define SOCFPGA_RSTMGR_PER0MODRST		0x024
 #define SOCFPGA_RSTMGR_PER1MODRST		0x028
@@ -78,13 +89,19 @@
 #define RSTMGR_HDSKEN_DEBUG_L3NOC		0x00020000
 #define RSTMGR_HDSKEN_SDRSELFREFEN		0x00000001
 
+#define RSTMGR_HDSKEQ_FPGAHSREQ			0x4
+
 #define RSTMGR_BRGMODRST_SOC2FPGA		0x1
 #define RSTMGR_BRGMODRST_LWHPS2FPGA		0x2
 #define RSTMGR_BRGMODRST_FPGA2SOC		0x4
+#define RSTMGR_BRGMODRST_F2SSDRAM0		0x8
 #define RSTMGR_BRGMODRST_F2SSDRAM1		0x10
 #define RSTMGR_BRGMODRST_F2SSDRAM2		0x20
 #define RSTMGR_BRGMODRST_MPFE			0x40
 #define RSTMGR_BRGMODRST_DDRSCH			0x40
+
+#define RSTMGR_HDSKREQ_FPGAHSREQ		(BIT(2))
+#define RSTMGR_HDSKACK_FPGAHSACK_MASK		(BIT(2))
 
 /* Definitions */
 
@@ -102,7 +119,7 @@
 void deassert_peripheral_reset(void);
 void config_hps_hs_before_warm_reset(void);
 
-int socfpga_bridges_enable(void);
-int socfpga_bridges_disable(void);
+int socfpga_bridges_enable(uint32_t mask);
+int socfpga_bridges_disable(uint32_t mask);
 
 #endif /* SOCFPGA_RESETMANAGER_H */
