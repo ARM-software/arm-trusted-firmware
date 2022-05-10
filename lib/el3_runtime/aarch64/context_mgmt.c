@@ -843,6 +843,12 @@ void cm_prepare_el3_exit_ns(void)
 	 */
 	write_scr_el3(read_scr_el3() | SCR_NS_BIT);
 
+	/*
+	 * Ensure the NS bit change is committed before the EL2/EL1
+	 * state restoration.
+	 */
+	isb();
+
 	/* Restore EL2 and EL1 sysreg contexts */
 	cm_el2_sysregs_context_restore(NON_SECURE);
 	cm_el1_sysregs_context_restore(NON_SECURE);
