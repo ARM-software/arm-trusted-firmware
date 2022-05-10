@@ -333,6 +333,10 @@ ERRATA_A78_2132060	?=0
 # present in r0p0 as well but there is no workaround for that revision.
 ERRATA_A78_2242635	?=0
 
+# Flag to apply erratum 2376745 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
+ERRATA_A78_2376745	?=0
+
 # Flag to apply erratum 1941500 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
 ERRATA_A78_AE_1941500	?=0
@@ -841,6 +845,10 @@ $(eval $(call add_define,ERRATA_A78_2132060))
 # Process ERRATA_A78_2242635 flag
 $(eval $(call assert_boolean,ERRATA_A78_2242635))
 $(eval $(call add_define,ERRATA_A78_2242635))
+
+# Process ERRATA_A78_2376745 flag
+$(eval $(call assert_boolean,ERRATA_A78_2376745))
+$(eval $(call add_define,ERRATA_A78_2376745))
 
 # Process ERRATA_A78_AE_1941500 flag
 $(eval $(call assert_boolean,ERRATA_A78_AE_1941500))
