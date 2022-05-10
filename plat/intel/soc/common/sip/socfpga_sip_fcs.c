@@ -11,6 +11,9 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 
+/* FCS static variables */
+static fcs_crypto_service_data fcs_sha_get_digest_param;
+
 bool is_size_4_bytes_aligned(uint32_t size)
 {
 	if ((size % MBOX_WORD_BYTE) != 0U) {
@@ -18,6 +21,42 @@ bool is_size_4_bytes_aligned(uint32_t size)
 	} else {
 		return true;
 	}
+}
+
+static bool is_8_bytes_aligned(uint32_t data)
+{
+	if ((data % (MBOX_WORD_BYTE * 2U)) != 0U) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+static int intel_fcs_crypto_service_init(uint32_t session_id,
+			uint32_t context_id, uint32_t key_id,
+			uint32_t param_size, uint64_t param_data,
+			fcs_crypto_service_data *data_addr,
+			uint32_t *mbox_error)
+{
+	if (mbox_error == NULL) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (param_size != 4) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	memset(data_addr, 0, sizeof(fcs_crypto_service_data));
+
+	data_addr->session_id = session_id;
+	data_addr->context_id = context_id;
+	data_addr->key_id = key_id;
+	data_addr->crypto_param_size = param_size;
+	data_addr->crypto_param = param_data;
+
+	*mbox_error = 0;
+
+	return INTEL_SIP_SMC_STATUS_OK;
 }
 
 uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
@@ -665,6 +704,91 @@ int intel_fcs_get_crypto_service_key_info(uint32_t session_id, uint32_t key_id,
 
 	if (status < 0) {
 		*mbox_error = (-status) | (op_status << FCS_CS_KEY_RESP_STATUS_OFFSET);
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = resp_len * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_get_digest_init(uint32_t session_id, uint32_t context_id,
+				uint32_t key_id, uint32_t param_size,
+				uint64_t param_data, uint32_t *mbox_error)
+{
+	return intel_fcs_crypto_service_init(session_id, context_id,
+				key_id, param_size, param_data,
+				(void *) &fcs_sha_get_digest_param,
+				mbox_error);
+}
+
+int intel_fcs_get_digest_finalize(uint32_t session_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
+				uint64_t dst_addr, uint32_t *dst_size,
+				uint32_t *mbox_error)
+{
+	int status;
+	uint32_t i;
+	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t payload[FCS_GET_DIGEST_CMD_MAX_WORD_SIZE] = {0U};
+
+	if (dst_size == NULL || mbox_error == NULL) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (fcs_sha_get_digest_param.session_id != session_id ||
+	    fcs_sha_get_digest_param.context_id != context_id) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	/* Source data must be 8 bytes aligned */
+	if (!is_8_bytes_aligned(src_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		 !is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	/* Prepare command payload */
+	i = 0;
+	/* Crypto header */
+	payload[i] = fcs_sha_get_digest_param.session_id;
+	i++;
+	payload[i] = fcs_sha_get_digest_param.context_id;
+	i++;
+	payload[i] = fcs_sha_get_digest_param.crypto_param_size
+			& FCS_CS_FIELD_SIZE_MASK;
+	payload[i] |= (FCS_CS_FIELD_FLAG_INIT | FCS_CS_FIELD_FLAG_UPDATE
+			| FCS_CS_FIELD_FLAG_FINALIZE)
+			<< FCS_CS_FIELD_FLAG_OFFSET;
+	i++;
+	payload[i] = fcs_sha_get_digest_param.key_id;
+	i++;
+	/* Crypto parameters */
+	payload[i] = fcs_sha_get_digest_param.crypto_param
+			& INTEL_SIP_SMC_FCS_SHA_MODE_MASK;
+	payload[i] |= ((fcs_sha_get_digest_param.crypto_param
+			>> INTEL_SIP_SMC_FCS_DIGEST_SIZE_OFFSET)
+			& INTEL_SIP_SMC_FCS_DIGEST_SIZE_MASK)
+			<< FCS_SHA_HMAC_CRYPTO_PARAM_SIZE_OFFSET;
+	i++;
+	/* Data source address and size */
+	payload[i] = src_addr;
+	i++;
+	payload[i] = src_size;
+	i++;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_GET_DIGEST_REQ,
+				payload, i, CMD_CASUAL,
+				(uint32_t *) dst_addr, &resp_len);
+
+	memset((void *)&fcs_sha_get_digest_param, 0, sizeof(fcs_crypto_service_data));
+
+	if (status < 0) {
+		*mbox_error = -status;
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
