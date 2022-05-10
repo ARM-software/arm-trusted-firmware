@@ -15,6 +15,7 @@
 static fcs_crypto_service_aes_data fcs_aes_init_payload;
 static fcs_crypto_service_data fcs_sha_get_digest_param;
 static fcs_crypto_service_data fcs_sha_mac_verify_param;
+static fcs_crypto_service_data fcs_ecdsa_get_pubkey_param;
 
 bool is_size_4_bytes_aligned(uint32_t size)
 {
@@ -1011,6 +1012,72 @@ int intel_fcs_mac_verify_finalize(uint32_t session_id, uint32_t context_id,
 	}
 
 	*dst_size = resp_len * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_ecdsa_get_pubkey_init(uint32_t session_id, uint32_t context_id,
+				uint32_t key_id, uint32_t param_size,
+				uint64_t param_data, uint32_t *mbox_error)
+{
+	return intel_fcs_crypto_service_init(session_id, context_id,
+				key_id, param_size, param_data,
+				(void *) &fcs_ecdsa_get_pubkey_param,
+				mbox_error);
+}
+
+int intel_fcs_ecdsa_get_pubkey_finalize(uint32_t session_id, uint32_t context_id,
+				uint64_t dst_addr, uint32_t *dst_size,
+				uint32_t *mbox_error)
+{
+	int status;
+	int i;
+	uint32_t crypto_header;
+	uint32_t ret_size = *dst_size / MBOX_WORD_BYTE;
+	uint32_t payload[FCS_ECDSA_GET_PUBKEY_MAX_WORD_SIZE] = {0U};
+
+	if ((dst_size == NULL) || (mbox_error == NULL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (fcs_ecdsa_get_pubkey_param.session_id != session_id ||
+		fcs_ecdsa_get_pubkey_param.context_id != context_id) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	crypto_header = ((FCS_CS_FIELD_FLAG_INIT |
+			FCS_CS_FIELD_FLAG_UPDATE |
+			FCS_CS_FIELD_FLAG_FINALIZE) <<
+			FCS_CS_FIELD_FLAG_OFFSET) |
+			fcs_ecdsa_get_pubkey_param.crypto_param_size;
+	i = 0;
+	/* Prepare command payload */
+	payload[i] = session_id;
+	i++;
+	payload[i] = context_id;
+	i++;
+	payload[i] = crypto_header;
+	i++;
+	payload[i] = fcs_ecdsa_get_pubkey_param.key_id;
+	i++;
+	payload[i] = (uint32_t) fcs_ecdsa_get_pubkey_param.crypto_param &
+			INTEL_SIP_SMC_FCS_ECC_ALGO_MASK;
+	i++;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_ECDSA_GET_PUBKEY,
+			payload, i, CMD_CASUAL,
+			(uint32_t *) dst_addr, &ret_size);
+
+	memset((void *) &fcs_ecdsa_get_pubkey_param, 0,
+		sizeof(fcs_crypto_service_data));
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = ret_size * MBOX_WORD_BYTE;
 	flush_dcache_range(dst_addr, *dst_size);
 
 	return INTEL_SIP_SMC_STATUS_OK;
