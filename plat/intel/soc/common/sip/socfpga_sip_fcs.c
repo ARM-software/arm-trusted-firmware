@@ -13,6 +13,7 @@
 
 /* FCS static variables */
 static fcs_crypto_service_data fcs_sha_get_digest_param;
+static fcs_crypto_service_data fcs_sha_mac_verify_param;
 
 bool is_size_4_bytes_aligned(uint32_t size)
 {
@@ -786,6 +787,101 @@ int intel_fcs_get_digest_finalize(uint32_t session_id, uint32_t context_id,
 				(uint32_t *) dst_addr, &resp_len);
 
 	memset((void *)&fcs_sha_get_digest_param, 0, sizeof(fcs_crypto_service_data));
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = resp_len * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_mac_verify_init(uint32_t session_id, uint32_t context_id,
+				uint32_t key_id, uint32_t param_size,
+				uint64_t param_data, uint32_t *mbox_error)
+{
+	return intel_fcs_crypto_service_init(session_id, context_id,
+				key_id, param_size, param_data,
+				(void *) &fcs_sha_mac_verify_param,
+				mbox_error);
+}
+
+int intel_fcs_mac_verify_finalize(uint32_t session_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
+				uint64_t dst_addr, uint32_t *dst_size,
+				uint32_t data_size, uint32_t *mbox_error)
+{
+	int status;
+	uint32_t i;
+	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t payload[FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
+	uintptr_t mac_offset;
+
+	if (dst_size == NULL || mbox_error == NULL) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (fcs_sha_mac_verify_param.session_id != session_id ||
+		fcs_sha_mac_verify_param.context_id != context_id) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (data_size >= src_size) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(src_size) ||
+		!is_8_bytes_aligned(data_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	/* Prepare command payload */
+	i = 0;
+	/* Crypto header */
+	payload[i] = fcs_sha_mac_verify_param.session_id;
+	i++;
+	payload[i] = fcs_sha_mac_verify_param.context_id;
+	i++;
+	payload[i] = fcs_sha_mac_verify_param.crypto_param_size
+			& FCS_CS_FIELD_SIZE_MASK;
+	payload[i] |= (FCS_CS_FIELD_FLAG_INIT | FCS_CS_FIELD_FLAG_UPDATE
+			| FCS_CS_FIELD_FLAG_FINALIZE)
+			<< FCS_CS_FIELD_FLAG_OFFSET;
+	i++;
+	payload[i] = fcs_sha_mac_verify_param.key_id;
+	i++;
+	/* Crypto parameters */
+	payload[i] = ((fcs_sha_mac_verify_param.crypto_param
+			>> INTEL_SIP_SMC_FCS_DIGEST_SIZE_OFFSET)
+			& INTEL_SIP_SMC_FCS_DIGEST_SIZE_MASK)
+			<< FCS_SHA_HMAC_CRYPTO_PARAM_SIZE_OFFSET;
+	i++;
+	/* Data source address and size */
+	payload[i] = src_addr;
+	i++;
+	payload[i] = data_size;
+	i++;
+	/* Copy mac data to command */
+	mac_offset = src_addr + data_size;
+	memcpy((uint8_t *) &payload[i], (uint8_t *) mac_offset,
+				src_size - data_size);
+
+	i += (src_size - data_size) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_MAC_VERIFY_REQ,
+				payload, i, CMD_CASUAL,
+				(uint32_t *) dst_addr, &resp_len);
+
+	memset((void *)&fcs_sha_mac_verify_param, 0,
+				sizeof(fcs_crypto_service_data));
 
 	if (status < 0) {
 		*mbox_error = -status;
