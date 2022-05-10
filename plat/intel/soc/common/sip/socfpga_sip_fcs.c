@@ -16,6 +16,7 @@ static fcs_crypto_service_aes_data fcs_aes_init_payload;
 static fcs_crypto_service_data fcs_sha_get_digest_param;
 static fcs_crypto_service_data fcs_sha_mac_verify_param;
 static fcs_crypto_service_data fcs_ecdsa_hash_sign_param;
+static fcs_crypto_service_data fcs_ecdsa_hash_sig_verify_param;
 static fcs_crypto_service_data fcs_sha2_data_sign_param;
 static fcs_crypto_service_data fcs_sha2_data_sig_verify_param;
 static fcs_crypto_service_data fcs_ecdsa_get_pubkey_param;
@@ -1090,6 +1091,90 @@ int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
 			&resp_len);
 
 	memset((void *) &fcs_ecdsa_hash_sign_param,
+			0, sizeof(fcs_crypto_service_data));
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = resp_len * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_ecdsa_hash_sig_verify_init(uint32_t session_id, uint32_t context_id,
+				uint32_t key_id, uint32_t param_size,
+				uint64_t param_data, uint32_t *mbox_error)
+{
+	return intel_fcs_crypto_service_init(session_id, context_id,
+				key_id, param_size, param_data,
+				(void *) &fcs_ecdsa_hash_sig_verify_param,
+				mbox_error);
+}
+
+int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t session_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
+				uint64_t dst_addr, uint32_t *dst_size,
+				uint32_t *mbox_error)
+{
+	int status;
+	uint32_t i = 0;
+	uint32_t payload[FCS_ECDSA_HASH_SIG_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
+	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uintptr_t hash_sig_pubkey_addr;
+
+	if ((dst_size == NULL) || (mbox_error == NULL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (fcs_ecdsa_hash_sig_verify_param.session_id != session_id ||
+	fcs_ecdsa_hash_sig_verify_param.context_id != context_id) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	/* Prepare command payload */
+	/* Crypto header */
+	i = 0;
+	payload[i] = fcs_ecdsa_hash_sig_verify_param.session_id;
+
+	i++;
+	payload[i] = fcs_ecdsa_hash_sig_verify_param.context_id;
+
+	i++;
+	payload[i] = fcs_ecdsa_hash_sig_verify_param.crypto_param_size
+			& FCS_CS_FIELD_SIZE_MASK;
+	payload[i] |= (FCS_CS_FIELD_FLAG_INIT | FCS_CS_FIELD_FLAG_UPDATE
+			| FCS_CS_FIELD_FLAG_FINALIZE)
+			<< FCS_CS_FIELD_FLAG_OFFSET;
+
+	i++;
+	payload[i] = fcs_ecdsa_hash_sig_verify_param.key_id;
+
+	/* Crypto parameters */
+	i++;
+	payload[i] = fcs_ecdsa_hash_sig_verify_param.crypto_param
+			& INTEL_SIP_SMC_FCS_ECC_ALGO_MASK;
+
+	/* Hash Data Word, Signature Data Word and Public Key Data word */
+	i++;
+	hash_sig_pubkey_addr = src_addr;
+	memcpy((uint8_t *) &payload[i],
+			(uint8_t *) hash_sig_pubkey_addr, src_size);
+
+	i += (src_size / MBOX_WORD_BYTE);
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_ECDSA_HASH_SIG_VERIFY,
+			payload, i, CMD_CASUAL, (uint32_t *) dst_addr,
+			&resp_len);
+
+	memset((void *)&fcs_ecdsa_hash_sig_verify_param,
 			0, sizeof(fcs_crypto_service_data));
 
 	if (status < 0) {
