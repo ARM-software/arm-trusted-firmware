@@ -80,6 +80,7 @@
 #define FCS_ECDSA_GET_PUBKEY_MAX_WORD_SIZE			5U
 #define FCS_ECDSA_SHA2_DATA_SIGN_CMD_MAX_WORD_SIZE		7U
 #define FCS_ECDSA_SHA2_DATA_SIG_VERIFY_CMD_MAX_WORD_SIZE	43U
+#define FCS_ECDSA_HASH_SIGN_CMD_MAX_WORD_SIZE			17U
 #define FCS_ECDH_REQUEST_CMD_MAX_WORD_SIZE			29U
 /* FCS Payload Structure */
 typedef struct fcs_rng_payload_t {
@@ -238,6 +239,14 @@ int intel_fcs_mac_verify_finalize(uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
 				uint32_t data_size, uint32_t *mbox_error);
+
+int intel_fcs_ecdsa_hash_sign_init(uint32_t session_id, uint32_t context_id,
+				uint32_t key_id, uint32_t param_size,
+				uint64_t param_data, uint32_t *mbox_error);
+int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
+				uint64_t dst_addr, uint32_t *dst_size,
+				uint32_t *mbox_error);
 
 int intel_fcs_ecdsa_sha2_data_sign_init(uint32_t session_id,
 				uint32_t context_id, uint32_t key_id,
