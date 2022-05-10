@@ -984,6 +984,9 @@ subsections:
       - title: Prerequisites
         scope: prerequisites
 
+      - title: Threat Model
+        scope: threat-model
+
   - title: Build System
     scope: build
 
