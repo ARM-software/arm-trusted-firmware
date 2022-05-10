@@ -64,6 +64,10 @@
 #define FCS_CS_FIELD_FLAG_UPDATE		BIT(1)
 #define FCS_CS_FIELD_FLAG_FINALIZE		BIT(2)
 
+#define FCS_AES_MAX_DATA_SIZE			0x10000000	/* 256 MB */
+#define FCS_AES_MIN_DATA_SIZE			0x20		/* 32 Byte */
+#define FCS_AES_CMD_MAX_WORD_SIZE		15U
+
 #define FCS_GET_DIGEST_CMD_MAX_WORD_SIZE	7U
 #define FCS_GET_DIGEST_RESP_MAX_WORD_SIZE	19U
 #define FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE	23U
@@ -119,6 +123,14 @@ typedef struct fcs_crypto_service_data_t {
 	uint32_t crypto_param_size;
 	uint64_t crypto_param;
 } fcs_crypto_service_data;
+
+typedef struct fcs_crypto_service_aes_data_t {
+	uint32_t session_id;
+	uint32_t context_id;
+	uint32_t param_size;
+	uint32_t key_id;
+	uint32_t crypto_param[7];
+} fcs_crypto_service_aes_data;
 
 /* Functions Definitions */
 
@@ -188,5 +200,13 @@ int intel_fcs_mac_verify_finalize(uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
 				uint32_t data_size, uint32_t *mbox_error);
+
+int intel_fcs_aes_crypt_init(uint32_t session_id, uint32_t context_id,
+				uint32_t key_id, uint64_t param_addr,
+				uint32_t param_size, uint32_t *mbox_error);
+int intel_fcs_aes_crypt_finalize(uint32_t session_id, uint32_t context_id,
+				uint64_t src_addr, uint32_t src_size,
+				uint64_t dst_addr, uint32_t dst_size,
+				uint32_t *send_id);
 
 #endif /* SOCFPGA_FCS_H */
