@@ -15,8 +15,9 @@
 static fcs_crypto_service_aes_data fcs_aes_init_payload;
 static fcs_crypto_service_data fcs_sha_get_digest_param;
 static fcs_crypto_service_data fcs_sha_mac_verify_param;
-static fcs_crypto_service_data fcs_ecdsa_get_pubkey_param;
 static fcs_crypto_service_data fcs_sha2_data_sign_param;
+static fcs_crypto_service_data fcs_sha2_data_sig_verify_param;
+static fcs_crypto_service_data fcs_ecdsa_get_pubkey_param;
 
 bool is_size_4_bytes_aligned(uint32_t size)
 {
@@ -1088,6 +1089,102 @@ int intel_fcs_ecdsa_sha2_data_sign_finalize(uint32_t session_id,
 			&resp_len);
 
 	memset((void *)&fcs_sha2_data_sign_param, 0,
+			sizeof(fcs_crypto_service_data));
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = resp_len * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_ecdsa_sha2_data_sig_verify_init(uint32_t session_id,
+				uint32_t context_id, uint32_t key_id,
+				uint32_t param_size, uint64_t param_data,
+				uint32_t *mbox_error)
+{
+	return intel_fcs_crypto_service_init(session_id, context_id,
+				key_id, param_size, param_data,
+				(void *) &fcs_sha2_data_sig_verify_param,
+				mbox_error);
+}
+
+int intel_fcs_ecdsa_sha2_data_sig_verify_finalize(uint32_t session_id,
+				uint32_t context_id, uint32_t src_addr,
+				uint32_t src_size, uint64_t dst_addr,
+				uint32_t *dst_size, uint32_t data_size,
+				uint32_t *mbox_error)
+{
+	int status;
+	uint32_t i;
+	uint32_t payload[FCS_ECDSA_SHA2_DATA_SIG_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
+	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uintptr_t sig_pubkey_offset;
+
+	if ((dst_size == NULL) || (mbox_error == NULL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (fcs_sha2_data_sig_verify_param.session_id != session_id ||
+		fcs_sha2_data_sig_verify_param.context_id != context_id) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(src_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_8_bytes_aligned(data_size) ||
+		!is_8_bytes_aligned(src_addr)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	/* Prepare command payload */
+	/* Crypto header */
+	i = 0;
+	payload[i] = fcs_sha2_data_sig_verify_param.session_id;
+	i++;
+	payload[i] = fcs_sha2_data_sig_verify_param.context_id;
+	i++;
+
+	payload[i] = fcs_sha2_data_sig_verify_param.crypto_param_size
+			& FCS_CS_FIELD_SIZE_MASK;
+	payload[i] |= (FCS_CS_FIELD_FLAG_INIT | FCS_CS_FIELD_FLAG_UPDATE
+			| FCS_CS_FIELD_FLAG_FINALIZE)
+			<< FCS_CS_FIELD_FLAG_OFFSET;
+	i++;
+	payload[i] = fcs_sha2_data_sig_verify_param.key_id;
+	i++;
+	/* Crypto parameters */
+	payload[i] = fcs_sha2_data_sig_verify_param.crypto_param
+			& INTEL_SIP_SMC_FCS_ECC_ALGO_MASK;
+	i++;
+	/* Data source address and size */
+	payload[i] = src_addr;
+	i++;
+	payload[i] = data_size;
+	i++;
+	/* Signature + Public Key Data */
+	sig_pubkey_offset = src_addr + data_size;
+	memcpy((uint8_t *) &payload[i], (uint8_t *) sig_pubkey_offset,
+		src_size - data_size);
+
+	i += (src_size - data_size) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID,
+			MBOX_FCS_ECDSA_SHA2_DATA_SIGN_VERIFY, payload, i,
+			CMD_CASUAL, (uint32_t *) dst_addr, &resp_len);
+
+	memset((void *) &fcs_sha2_data_sig_verify_param, 0,
 			sizeof(fcs_crypto_service_data));
 
 	if (status < 0) {

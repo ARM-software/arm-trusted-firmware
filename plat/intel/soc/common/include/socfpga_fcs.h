@@ -9,76 +9,77 @@
 
 /* FCS Definitions */
 
-#define FCS_RANDOM_WORD_SIZE			8U
-#define FCS_PROV_DATA_WORD_SIZE			44U
-#define FCS_SHA384_WORD_SIZE			12U
+#define FCS_RANDOM_WORD_SIZE					8U
+#define FCS_PROV_DATA_WORD_SIZE					44U
+#define FCS_SHA384_WORD_SIZE					12U
 
-#define FCS_RANDOM_BYTE_SIZE			(FCS_RANDOM_WORD_SIZE * 4U)
-#define FCS_RANDOM_EXT_MAX_WORD_SIZE		1020U
-#define FCS_PROV_DATA_BYTE_SIZE			(FCS_PROV_DATA_WORD_SIZE * 4U)
-#define FCS_SHA384_BYTE_SIZE			(FCS_SHA384_WORD_SIZE * 4U)
+#define FCS_RANDOM_BYTE_SIZE					(FCS_RANDOM_WORD_SIZE * 4U)
+#define FCS_RANDOM_EXT_MAX_WORD_SIZE				1020U
+#define FCS_PROV_DATA_BYTE_SIZE					(FCS_PROV_DATA_WORD_SIZE * 4U)
+#define FCS_SHA384_BYTE_SIZE					(FCS_SHA384_WORD_SIZE * 4U)
 
-#define FCS_RANDOM_EXT_OFFSET			3
+#define FCS_RANDOM_EXT_OFFSET					3
 
-#define FCS_MODE_DECRYPT			0x0
-#define FCS_MODE_ENCRYPT			0x1
-#define FCS_ENCRYPTION_DATA_0			0x10100
-#define FCS_DECRYPTION_DATA_0			0x10102
-#define FCS_OWNER_ID_OFFSET			0xC
-#define FCS_CRYPTION_CRYPTO_HEADER		0x07000000
-#define FCS_CRYPTION_RESP_WORD_SIZE		4U
-#define FCS_CRYPTION_RESP_SIZE_OFFSET		3U
+#define FCS_MODE_DECRYPT					0x0
+#define FCS_MODE_ENCRYPT					0x1
+#define FCS_ENCRYPTION_DATA_0					0x10100
+#define FCS_DECRYPTION_DATA_0					0x10102
+#define FCS_OWNER_ID_OFFSET					0xC
+#define FCS_CRYPTION_CRYPTO_HEADER				0x07000000
+#define FCS_CRYPTION_RESP_WORD_SIZE				4U
+#define FCS_CRYPTION_RESP_SIZE_OFFSET				3U
 
-#define PSGSIGMA_TEARDOWN_MAGIC			0xB852E2A4
-#define	PSGSIGMA_SESSION_ID_ONE			0x1
-#define PSGSIGMA_UNKNOWN_SESSION		0xFFFFFFFF
+#define PSGSIGMA_TEARDOWN_MAGIC					0xB852E2A4
+#define	PSGSIGMA_SESSION_ID_ONE					0x1
+#define PSGSIGMA_UNKNOWN_SESSION				0xFFFFFFFF
 
-#define	RESERVED_AS_ZERO			0x0
+#define	RESERVED_AS_ZERO					0x0
 /* FCS Single cert */
 
-#define FCS_BIG_CNTR_SEL			0x1
+#define FCS_BIG_CNTR_SEL					0x1
 
-#define FCS_SVN_CNTR_0_SEL			0x2
-#define FCS_SVN_CNTR_1_SEL			0x3
-#define FCS_SVN_CNTR_2_SEL			0x4
-#define FCS_SVN_CNTR_3_SEL			0x5
+#define FCS_SVN_CNTR_0_SEL					0x2
+#define FCS_SVN_CNTR_1_SEL					0x3
+#define FCS_SVN_CNTR_2_SEL					0x4
+#define FCS_SVN_CNTR_3_SEL					0x5
 
-#define FCS_BIG_CNTR_VAL_MAX			495U
-#define FCS_SVN_CNTR_VAL_MAX			64U
+#define FCS_BIG_CNTR_VAL_MAX					495U
+#define FCS_SVN_CNTR_VAL_MAX					64U
 
 /* FCS Attestation Cert Request Parameter */
 
-#define FCS_ALIAS_CERT				0x01
-#define FCS_DEV_ID_SELF_SIGN_CERT		0x02
-#define FCS_DEV_ID_ENROLL_CERT			0x04
-#define FCS_ENROLL_SELF_SIGN_CERT		0x08
-#define FCS_PLAT_KEY_CERT			0x10
+#define FCS_ALIAS_CERT						0x01
+#define FCS_DEV_ID_SELF_SIGN_CERT				0x02
+#define FCS_DEV_ID_ENROLL_CERT					0x04
+#define FCS_ENROLL_SELF_SIGN_CERT				0x08
+#define FCS_PLAT_KEY_CERT					0x10
 
 /* FCS Crypto Service */
 
-#define FCS_CS_KEY_OBJ_MAX_WORD_SIZE		88U
-#define FCS_CS_KEY_INFO_MAX_WORD_SIZE		36U
-#define FCS_CS_KEY_RESP_STATUS_MASK		0xFF
-#define FCS_CS_KEY_RESP_STATUS_OFFSET		16U
+#define FCS_CS_KEY_OBJ_MAX_WORD_SIZE				88U
+#define FCS_CS_KEY_INFO_MAX_WORD_SIZE				36U
+#define FCS_CS_KEY_RESP_STATUS_MASK				0xFF
+#define FCS_CS_KEY_RESP_STATUS_OFFSET				16U
 
-#define FCS_CS_FIELD_SIZE_MASK			0xFFFF
-#define FCS_CS_FIELD_FLAG_OFFSET		24
-#define FCS_CS_FIELD_FLAG_INIT			BIT(0)
-#define FCS_CS_FIELD_FLAG_UPDATE		BIT(1)
-#define FCS_CS_FIELD_FLAG_FINALIZE		BIT(2)
+#define FCS_CS_FIELD_SIZE_MASK					0xFFFF
+#define FCS_CS_FIELD_FLAG_OFFSET				24
+#define FCS_CS_FIELD_FLAG_INIT					BIT(0)
+#define FCS_CS_FIELD_FLAG_UPDATE				BIT(1)
+#define FCS_CS_FIELD_FLAG_FINALIZE				BIT(2)
 
-#define FCS_AES_MAX_DATA_SIZE			0x10000000	/* 256 MB */
-#define FCS_AES_MIN_DATA_SIZE			0x20		/* 32 Byte */
-#define FCS_AES_CMD_MAX_WORD_SIZE		15U
+#define FCS_AES_MAX_DATA_SIZE					0x10000000	/* 256 MB */
+#define FCS_AES_MIN_DATA_SIZE					0x20		/* 32 Byte */
+#define FCS_AES_CMD_MAX_WORD_SIZE				15U
 
-#define FCS_GET_DIGEST_CMD_MAX_WORD_SIZE	7U
-#define FCS_GET_DIGEST_RESP_MAX_WORD_SIZE	19U
-#define FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE	23U
-#define FCS_MAC_VERIFY_RESP_MAX_WORD_SIZE	4U
-#define FCS_SHA_HMAC_CRYPTO_PARAM_SIZE_OFFSET	8U
+#define FCS_GET_DIGEST_CMD_MAX_WORD_SIZE			7U
+#define FCS_GET_DIGEST_RESP_MAX_WORD_SIZE			19U
+#define FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE			23U
+#define FCS_MAC_VERIFY_RESP_MAX_WORD_SIZE			4U
+#define FCS_SHA_HMAC_CRYPTO_PARAM_SIZE_OFFSET			8U
 
-#define FCS_ECDSA_GET_PUBKEY_MAX_WORD_SIZE	5U
-#define FCS_ECDSA_SHA2_DATA_SIGN_CMD_MAX_WORD_SIZE	7U
+#define FCS_ECDSA_GET_PUBKEY_MAX_WORD_SIZE			5U
+#define FCS_ECDSA_SHA2_DATA_SIGN_CMD_MAX_WORD_SIZE		7U
+#define FCS_ECDSA_SHA2_DATA_SIG_VERIFY_CMD_MAX_WORD_SIZE	43U
 /* FCS Payload Structure */
 typedef struct fcs_rng_payload_t {
 	uint32_t session_id;
@@ -245,6 +246,16 @@ int intel_fcs_ecdsa_sha2_data_sign_finalize(uint32_t session_id,
 				uint32_t context_id, uint32_t src_addr,
 				uint32_t src_size, uint64_t dst_addr,
 				uint32_t *dst_size, uint32_t *mbox_error);
+
+int intel_fcs_ecdsa_sha2_data_sig_verify_init(uint32_t session_id,
+				uint32_t context_id, uint32_t key_id,
+				uint32_t param_size, uint64_t param_data,
+				uint32_t *mbox_error);
+int intel_fcs_ecdsa_sha2_data_sig_verify_finalize(uint32_t session_id,
+				uint32_t context_id, uint32_t src_addr,
+				uint32_t src_size, uint64_t dst_addr,
+				uint32_t *dst_size, uint32_t data_size,
+				uint32_t *mbox_error);
 
 int intel_fcs_ecdsa_get_pubkey_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
