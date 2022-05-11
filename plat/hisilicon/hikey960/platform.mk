@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -93,6 +93,10 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 ifeq (${SPD},opteed)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
 endif
+
+include lib/zlib/zlib.mk
+PLAT_INCLUDES		+=	-Ilib/zlib
+BL2_SOURCES		+=	$(ZLIB_SOURCES)
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				drivers/arm/pl061/pl061_gpio.c		\
