@@ -95,6 +95,53 @@ uint32_t intel_fcs_get_provision_data(uint32_t *send_id)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+uint32_t intel_fcs_cntr_set_preauth(uint8_t counter_type, int32_t counter_value,
+					uint32_t test_bit, uint32_t *mbox_error)
+{
+	int status;
+	uint32_t first_word;
+	uint32_t payload_size;
+
+	if ((test_bit != MBOX_TEST_BIT) &&
+		(test_bit != 0)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if ((counter_type < FCS_BIG_CNTR_SEL) ||
+		(counter_type > FCS_SVN_CNTR_3_SEL)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if ((counter_type == FCS_BIG_CNTR_SEL) &&
+		(counter_value > FCS_BIG_CNTR_VAL_MAX)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if ((counter_type >= FCS_SVN_CNTR_0_SEL) &&
+		(counter_type <= FCS_SVN_CNTR_3_SEL) &&
+		(counter_value > FCS_SVN_CNTR_VAL_MAX)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	first_word = test_bit | counter_type;
+	fcs_cntr_set_preauth_payload payload = {
+		first_word,
+		counter_value
+	};
+
+	payload_size = sizeof(payload) / MBOX_WORD_BYTE;
+	status =  mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_CNTR_SET_PREAUTH,
+				  (uint32_t *) &payload, payload_size,
+				  CMD_CASUAL, NULL, NULL);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 uint32_t intel_fcs_encryption(uint32_t src_addr, uint32_t src_size,
 		uint32_t dst_addr, uint32_t dst_size, uint32_t *send_id)
 {

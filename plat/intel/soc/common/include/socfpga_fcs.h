@@ -28,6 +28,17 @@
 #define PSGSIGMA_UNKNOWN_SESSION	0xFFFFFFFF
 
 #define	RESERVED_AS_ZERO		0x0
+/* FCS Single cert */
+
+#define FCS_BIG_CNTR_SEL		0x1
+
+#define FCS_SVN_CNTR_0_SEL		0x2
+#define FCS_SVN_CNTR_1_SEL		0x3
+#define FCS_SVN_CNTR_2_SEL		0x4
+#define FCS_SVN_CNTR_3_SEL		0x5
+
+#define FCS_BIG_CNTR_VAL_MAX		495U
+#define FCS_SVN_CNTR_VAL_MAX		64U
 
 /* FCS Payload Structure */
 
@@ -54,6 +65,10 @@ typedef struct psgsigma_teardown_msg_t {
 	uint32_t session_id;
 } psgsigma_teardown_msg;
 
+typedef struct fcs_cntr_set_preauth_payload_t {
+	uint32_t first_word;
+	uint32_t counter_value;
+} fcs_cntr_set_preauth_payload;
 
 /* Functions Definitions */
 
@@ -62,6 +77,10 @@ uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
 uint32_t intel_fcs_send_cert(uint64_t addr, uint64_t size,
 				uint32_t *send_id);
 uint32_t intel_fcs_get_provision_data(uint32_t *send_id);
+uint32_t intel_fcs_cntr_set_preauth(uint8_t counter_type,
+				int32_t counter_value,
+				uint32_t test_bit,
+				uint32_t *mbox_error);
 uint32_t intel_fcs_encryption(uint32_t src_addr, uint32_t src_size,
 				uint32_t dst_addr, uint32_t dst_size,
 				uint32_t *send_id);

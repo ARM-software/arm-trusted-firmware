@@ -16,7 +16,7 @@
 #define MBOX_MAX_JOB_ID			0xFU
 #define MBOX_MAX_IND_JOB_ID		(MBOX_MAX_JOB_ID - 1U)
 #define MBOX_JOB_ID			MBOX_MAX_JOB_ID
-
+#define MBOX_TEST_BIT			BIT(31)
 
 /* Mailbox Shared Memory Register Map */
 #define MBOX_CIN			0x00
@@ -71,6 +71,7 @@
 
 /* FCS Command */
 #define MBOX_FCS_GET_PROVISION			0x7B
+#define MBOX_FCS_CNTR_SET_PREAUTH		0x7C
 #define MBOX_FCS_ENCRYPT_REQ			0x7E
 #define MBOX_FCS_DECRYPT_REQ			0x7F
 #define MBOX_FCS_RANDOM_GEN			0x80
