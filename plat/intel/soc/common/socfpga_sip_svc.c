@@ -593,14 +593,14 @@ uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
 {
 	int status = 0;
 
-	if (enable & SOCFPGA_BRIDGE_ENABLE) {
-		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
+	if ((enable & SOCFPGA_BRIDGE_ENABLE) != 0U) {
+		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0U) {
 			status = socfpga_bridges_enable((uint32_t)mask);
 		} else {
 			status = socfpga_bridges_enable(~0);
 		}
 	} else {
-		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
+		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0U) {
 			status = socfpga_bridges_disable((uint32_t)mask);
 		} else {
 			status = socfpga_bridges_disable(~0);
@@ -618,7 +618,7 @@ uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
  * This function is responsible for handling all SiP calls from the NS world
  */
 
-uintptr_t sip_smc_handler(uint32_t smc_fid,
+uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 			 u_register_t x1,
 			 u_register_t x2,
 			 u_register_t x3,
@@ -835,6 +835,14 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_hps_set_bridges(x1, x2);
 		SMC_RET1(handle, status);
 
+	case INTEL_SIP_SMC_HWMON_READTEMP:
+		status = intel_hwmon_readtemp(x1, &retval);
+		SMC_RET2(handle, status, retval);
+
+	case INTEL_SIP_SMC_HWMON_READVOLT:
+		status = intel_hwmon_readvolt(x1, &retval);
+		SMC_RET2(handle, status, retval);
+
 	case INTEL_SIP_SMC_FCS_PSGSIGMA_TEARDOWN:
 		status = intel_fcs_sigma_teardown(x1, &mbox_error);
 		SMC_RET2(handle, status, mbox_error);
@@ -1016,16 +1024,29 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 					SIP_SVC_VERSION_MAJOR,
 					SIP_SVC_VERSION_MINOR);
 
-	case INTEL_SIP_SMC_HWMON_READTEMP:
-		status = intel_hwmon_readtemp(x1, &retval);
-		SMC_RET2(handle, status, retval);
-
-	case INTEL_SIP_SMC_HWMON_READVOLT:
-		status = intel_hwmon_readvolt(x1, &retval);
-		SMC_RET2(handle, status, retval);
-
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
+			cookie, handle, flags);
+	}
+}
+
+uintptr_t sip_smc_handler(uint32_t smc_fid,
+			 u_register_t x1,
+			 u_register_t x2,
+			 u_register_t x3,
+			 u_register_t x4,
+			 void *cookie,
+			 void *handle,
+			 u_register_t flags)
+{
+	uint32_t cmd = smc_fid & INTEL_SIP_SMC_CMD_MASK;
+
+	if (cmd >= INTEL_SIP_SMC_CMD_V2_RANGE_BEGIN &&
+	    cmd <= INTEL_SIP_SMC_CMD_V2_RANGE_END) {
+		return sip_smc_handler_v2(smc_fid, x1, x2, x3, x4,
+			cookie, handle, flags);
+	} else {
+		return sip_smc_handler_v1(smc_fid, x1, x2, x3, x4,
 			cookie, handle, flags);
 	}
 }

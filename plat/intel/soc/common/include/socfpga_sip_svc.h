@@ -19,7 +19,12 @@
 /* SiP mailbox error code */
 #define GENERIC_RESPONSE_ERROR					0x3FF
 
-/* SMC SiP service function identifier */
+/* SiP V2 command code range */
+#define INTEL_SIP_SMC_CMD_MASK					0xFFFF
+#define INTEL_SIP_SMC_CMD_V2_RANGE_BEGIN			0x400
+#define INTEL_SIP_SMC_CMD_V2_RANGE_END				0x4FF
+
+/* SMC SiP service function identifier for version 1 */
 
 /* FPGA Reconfig */
 #define INTEL_SIP_SMC_FPGA_CONFIG_START				0xC2000001
@@ -126,6 +131,18 @@
 /* Non-mailbox SMC Call */
 #define INTEL_SIP_SMC_SVC_VERSION				0xC2000200
 
+/**
+ * SMC SiP service function identifier for version 2
+ * Command code from 0x400 ~ 0x4FF
+ */
+
+/* V2: Non-mailbox function identifier */
+#define INTEL_SIP_SMC_V2_GET_SVC_VERSION			0xC2000400
+#define INTEL_SIP_SMC_V2_REG_READ				0xC2000401
+#define INTEL_SIP_SMC_V2_REG_WRITE				0xC2000402
+#define INTEL_SIP_SMC_V2_REG_UPDATE				0xC2000403
+#define INTEL_SIP_SMC_V2_HPS_SET_BRIDGES			0xC2000404
+
 /* SMC function IDs for SiP Service queries */
 #define SIP_SVC_CALL_COUNT					0x8200ff00
 #define SIP_SVC_UID						0x8200ff01
@@ -154,7 +171,24 @@ bool is_address_in_ddr_range(uint64_t addr, uint64_t size);
 bool cold_reset_for_ecc_dbe(void);
 uint32_t intel_ecc_dbe_notification(uint64_t dbe_value);
 
+/* Secure register access */
+uint32_t intel_secure_reg_read(uint64_t reg_addr, uint32_t *retval);
+uint32_t intel_secure_reg_write(uint64_t reg_addr, uint32_t val,
+				uint32_t *retval);
+uint32_t intel_secure_reg_update(uint64_t reg_addr, uint32_t mask,
+				 uint32_t val, uint32_t *retval);
+
 /* Miscellaneous HPS services */
 uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask);
+
+/* SiP Service handler for version 2 */
+uintptr_t sip_smc_handler_v2(uint32_t smc_fid,
+			 u_register_t x1,
+			 u_register_t x2,
+			 u_register_t x3,
+			 u_register_t x4,
+			 void *cookie,
+			 void *handle,
+			 u_register_t flags);
 
 #endif /* SOCFPGA_SIP_SVC_H */

@@ -84,7 +84,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 
 	if (!intel_mailbox_is_fpga_not_ready()) {
 		socfpga_bridges_enable(SOC2FPGA_MASK | LWHPS2FPGA_MASK |
-			FPGA2SOC_MASK);
+					FPGA2SOC_MASK);
 	}
 }
 
