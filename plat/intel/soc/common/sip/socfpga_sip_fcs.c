@@ -11,7 +11,7 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 
-static bool is_size_4_bytes_aligned(uint32_t size)
+bool is_size_4_bytes_aligned(uint32_t size)
 {
 	if ((size % MBOX_WORD_BYTE) != 0U) {
 		return false;
@@ -95,37 +95,70 @@ uint32_t intel_fcs_get_provision_data(uint32_t *send_id)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
-uint32_t intel_fcs_cryption(uint32_t mode, uint32_t src_addr,
-		uint32_t src_size, uint32_t dst_addr,
-		uint32_t dst_size, uint32_t *send_id)
+uint32_t intel_fcs_encryption(uint32_t src_addr, uint32_t src_size,
+		uint32_t dst_addr, uint32_t dst_size, uint32_t *send_id)
 {
 	int status;
-	uint32_t cmd;
+	uint32_t load_size;
 
-	fcs_crypt_payload payload = {
-		FCS_CRYPTION_DATA_0,
+	fcs_encrypt_payload payload = {
+		FCS_ENCRYPTION_DATA_0,
 		src_addr,
 		src_size,
 		dst_addr,
 		dst_size };
+	load_size = sizeof(payload) / MBOX_WORD_BYTE;
 
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, dst_size)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	if (!is_size_4_bytes_aligned(sizeof(fcs_crypt_payload))) {
+	if (!is_size_4_bytes_aligned(src_size)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	if (mode != 0U) {
-		cmd = MBOX_FCS_ENCRYPT_REQ;
-	} else {
-		cmd = MBOX_FCS_DECRYPT_REQ;
+	status = mailbox_send_cmd_async(send_id, MBOX_FCS_ENCRYPT_REQ,
+				(uint32_t *) &payload, load_size,
+				CMD_INDIRECT);
+	inv_dcache_range(dst_addr, dst_size);
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	status = mailbox_send_cmd_async(send_id, cmd, (uint32_t *) &payload,
-				sizeof(fcs_crypt_payload) / MBOX_WORD_BYTE,
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+uint32_t intel_fcs_decryption(uint32_t src_addr, uint32_t src_size,
+		uint32_t dst_addr, uint32_t dst_size, uint32_t *send_id)
+{
+	int status;
+	uint32_t load_size;
+	uintptr_t id_offset;
+
+	id_offset = src_addr + FCS_OWNER_ID_OFFSET;
+	fcs_decrypt_payload payload = {
+		FCS_DECRYPTION_DATA_0,
+		{mmio_read_32(id_offset),
+		mmio_read_32(id_offset + MBOX_WORD_BYTE)},
+		src_addr,
+		src_size,
+		dst_addr,
+		dst_size };
+	load_size = sizeof(payload) / MBOX_WORD_BYTE;
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(src_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd_async(send_id, MBOX_FCS_DECRYPT_REQ,
+				(uint32_t *) &payload, load_size,
 				CMD_INDIRECT);
 	inv_dcache_range(dst_addr, dst_size);
 

@@ -71,7 +71,8 @@
 /* Mailbox Command */
 #define INTEL_SIP_SMC_GET_USERCODE			0xC200003D
 
-/* SiP Definitions */
+/* FPGA Crypto Services */
+#define INTEL_SIP_SMC_FCS_CRYPTION			0x4200005B
 
 /* ECC DBE */
 #define WARM_RESET_WFI_FLAG				BIT(31)
@@ -103,7 +104,7 @@ struct fpga_config_info {
 };
 
 /* Function Definitions */
-
+bool is_size_4_bytes_aligned(uint32_t size);
 bool is_address_in_ddr_range(uint64_t addr, uint64_t size);
 
 /* ECC DBE */

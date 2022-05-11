@@ -711,6 +711,19 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_smc_get_usercode(&retval);
 		SMC_RET2(handle, status, retval);
 
+	case INTEL_SIP_SMC_FCS_CRYPTION:
+		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
+
+		if (x1 == FCS_MODE_DECRYPT) {
+			status = intel_fcs_decryption(x2, x3, x4, x5, &send_id);
+		} else if (x1 == FCS_MODE_ENCRYPT) {
+			status = intel_fcs_encryption(x2, x3, x4, x5, &send_id);
+		} else {
+			status = INTEL_SIP_SMC_STATUS_REJECTED;
+		}
+
+		SMC_RET3(handle, status, x4, x5);
+
 	case INTEL_SIP_SMC_HPS_SET_BRIDGES:
 		status = intel_hps_set_bridges(x1, x2);
 		SMC_RET1(handle, status);
