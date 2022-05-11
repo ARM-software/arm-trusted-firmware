@@ -198,3 +198,107 @@ uint32_t intel_fcs_get_rom_patch_sha384(uint64_t addr, uint64_t *ret_size,
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
+
+int intel_fcs_sigma_teardown(uint32_t session_id, uint32_t *mbox_error)
+{
+	int status;
+
+	if ((session_id != PSGSIGMA_SESSION_ID_ONE) &&
+		(session_id != PSGSIGMA_UNKNOWN_SESSION)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	psgsigma_teardown_msg message = {
+		RESERVED_AS_ZERO,
+		PSGSIGMA_TEARDOWN_MAGIC,
+		session_id
+	};
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_PSG_SIGMA_TEARDOWN,
+			(uint32_t *) &message, sizeof(message) / MBOX_WORD_BYTE,
+			CMD_CASUAL, NULL, NULL);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_chip_id(uint32_t *id_low, uint32_t *id_high, uint32_t *mbox_error)
+{
+	int status;
+	uint32_t load_size;
+	uint32_t chip_id[2];
+
+	load_size = sizeof(chip_id) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_GET_CHIPID, NULL,
+			0U, CMD_CASUAL, (uint32_t *) chip_id, &load_size);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*id_low = chip_id[0];
+	*id_high = chip_id[1];
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_attestation_subkey(uint64_t src_addr, uint32_t src_size,
+		uint64_t dst_addr, uint32_t *dst_size, uint32_t *mbox_error)
+{
+	int status;
+	uint32_t send_size = src_size / MBOX_WORD_BYTE;
+	uint32_t ret_size = *dst_size / MBOX_WORD_BYTE;
+
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_ATTESTATION_SUBKEY,
+			(uint32_t *) src_addr, send_size, CMD_CASUAL,
+			(uint32_t *) dst_addr, &ret_size);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = ret_size * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+int intel_fcs_get_measurement(uint64_t src_addr, uint32_t src_size,
+		uint64_t dst_addr, uint32_t *dst_size, uint32_t *mbox_error)
+{
+	int status;
+	uint32_t send_size = src_size / MBOX_WORD_BYTE;
+	uint32_t ret_size = *dst_size / MBOX_WORD_BYTE;
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_GET_MEASUREMENT,
+			(uint32_t *) src_addr, send_size, CMD_CASUAL,
+			(uint32_t *) dst_addr, &ret_size);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*dst_size = ret_size * MBOX_WORD_BYTE;
+	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}

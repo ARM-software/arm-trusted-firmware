@@ -565,9 +565,9 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			 void *handle,
 			 u_register_t flags)
 {
-	uint32_t retval = 0;
+	uint32_t retval = 0, completed_addr[3];
+	uint32_t retval2 = 0;
 	uint32_t mbox_error = 0;
-	uint32_t completed_addr[3];
 	uint64_t retval64, rsu_respbuf[9];
 	int status = INTEL_SIP_SMC_STATUS_OK;
 	int mbox_status;
@@ -727,6 +727,24 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	case INTEL_SIP_SMC_HPS_SET_BRIDGES:
 		status = intel_hps_set_bridges(x1, x2);
 		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_FCS_PSGSIGMA_TEARDOWN:
+		status = intel_fcs_sigma_teardown(x1, &mbox_error);
+		SMC_RET2(handle, status, mbox_error);
+
+	case INTEL_SIP_SMC_FCS_CHIP_ID:
+		status = intel_fcs_chip_id(&retval, &retval2, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, retval, retval2);
+
+	case INTEL_SIP_SMC_FCS_ATTESTATION_SUBKEY:
+		status = intel_fcs_attestation_subkey(x1, x2, x3,
+					(uint32_t *) &x4, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x3, x4);
+
+	case INTEL_SIP_SMC_FCS_ATTESTATION_MEASUREMENTS:
+		status = intel_fcs_get_measurement(x1, x2, x3,
+					(uint32_t *) &x4, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x3, x4);
 
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
 		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,
