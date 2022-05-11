@@ -542,32 +542,6 @@ static int intel_smc_get_usercode(uint32_t *user_code)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
-/* Miscellaneous HPS services */
-uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
-{
-	int status = 0;
-
-	if (enable & SOCFPGA_BRIDGE_ENABLE) {
-		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
-			status = socfpga_bridges_enable((uint32_t)mask);
-		} else {
-			status = socfpga_bridges_enable(~0);
-		}
-	} else {
-		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
-			status = socfpga_bridges_disable((uint32_t)mask);
-		} else {
-			status = socfpga_bridges_disable(~0);
-		}
-	}
-
-	if (status < 0) {
-		return INTEL_SIP_SMC_STATUS_ERROR;
-	}
-
-	return INTEL_SIP_SMC_STATUS_OK;
-}
-
 uint32_t intel_smc_service_completed(uint64_t addr, uint32_t size,
 				uint32_t mode, uint32_t *job_id,
 				uint32_t *ret_size, uint32_t *mbox_error)
@@ -608,6 +582,32 @@ uint32_t intel_smc_service_completed(uint64_t addr, uint32_t size,
 
 	if (status != MBOX_RET_OK) {
 		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+/* Miscellaneous HPS services */
+uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
+{
+	int status = 0;
+
+	if (enable & SOCFPGA_BRIDGE_ENABLE) {
+		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
+			status = socfpga_bridges_enable((uint32_t)mask);
+		} else {
+			status = socfpga_bridges_enable(~0);
+		}
+	} else {
+		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
+			status = socfpga_bridges_disable((uint32_t)mask);
+		} else {
+			status = socfpga_bridges_disable(~0);
+		}
+	}
+
+	if (status < 0) {
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
@@ -756,6 +756,11 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	case INTEL_SIP_SMC_ECC_DBE:
 		status = intel_ecc_dbe_notification(x1);
 		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_SERVICE_COMPLETED:
+		status = intel_smc_service_completed(x1, x2, x3, &rcv_id,
+						&len_in_resp, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x1, len_in_resp);
 
 	case INTEL_SIP_SMC_FIRMWARE_VERSION:
 		status = intel_smc_fw_version(&retval);
