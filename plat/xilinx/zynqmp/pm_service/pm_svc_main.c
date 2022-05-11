@@ -260,7 +260,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	enum pm_ret_status ret;
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
-	uint32_t pm_arg[4];
+	uint32_t pm_arg[5];
 	uint32_t result[PAYLOAD_ARG_CNT];
 	uint32_t api_id;
 
@@ -419,7 +419,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_CLOCK_GETRATE:
 	{
-		uint64_t value;
+		uint64_t value = 0;
 
 		ret = pm_clock_getrate(pm_arg[0], &value);
 		SMC_RET2(handle, (uint64_t)ret |
@@ -538,7 +538,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_FEATURE_CHECK:
 	{
-		uint32_t version;
+		uint32_t version = 0;
 		uint32_t bit_mask[2] = {0};
 
 		ret = pm_feature_check(pm_arg[0], &version, bit_mask,
