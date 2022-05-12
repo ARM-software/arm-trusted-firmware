@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
  * Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2020, Linaro Limited
+ * Copyright (c) 2019-2022, Linaro Limited
  */
 #include <assert.h>
 #include <string.h>
@@ -165,7 +165,7 @@ static void discover_list_protocols(struct scmi_msg *msg)
 	memcpy(outargs, &p2a, sizeof(p2a));
 	memcpy(outargs + sizeof(p2a), list + a2p->skip, count);
 
-	scmi_write_response(msg, outargs, sizeof(outargs));
+	scmi_write_response(msg, outargs, sizeof(p2a) + round_up(count, sizeof(uint32_t)));
 }
 
 static const scmi_msg_handler_t scmi_base_handler_table[] = {
