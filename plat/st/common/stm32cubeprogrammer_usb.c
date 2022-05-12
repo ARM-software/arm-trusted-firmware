@@ -137,6 +137,7 @@ static int dfu_callback_manifestation(uint8_t alt, void *user_data)
 	     dfu->phase, alt, dfu->address);
 
 	switch (dfu->phase) {
+	case PHASE_DDR_FW:
 	case PHASE_SSBL:
 		if (!is_valid_header((fip_toc_header_t *)dfu->base)) {
 			DFU_ERROR("FIP Header check failed for phase %d\n", alt);

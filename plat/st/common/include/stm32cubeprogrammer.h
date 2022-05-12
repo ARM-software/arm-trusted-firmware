@@ -13,6 +13,7 @@
 
 /* Phase definition */
 #define PHASE_FLASHLAYOUT	0U
+#define PHASE_DDR_FW		2U
 #define PHASE_SSBL		3U
 #define PHASE_CMD		0xF1U
 #define PHASE_RESET		0xFFU

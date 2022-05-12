@@ -88,6 +88,11 @@
  ******************************************************************************/
 #define BL33_BASE			STM32MP_BL33_BASE
 
+#if STM32MP_DDR_FIP_IO_STORAGE
+#define DWL_DDR_BUFFER_BASE		STM32MP_SYSRAM_BASE
+#define DWL_DDR_BUFFER_SIZE		U(0x0000A000)
+#endif
+
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
