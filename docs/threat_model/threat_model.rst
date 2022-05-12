@@ -36,6 +36,9 @@ assumptions:
 - There is no Secure-EL2. We don't consider threats that may come with
   Secure-EL2 software.
 
+- No experimental features are enabled. We do not consider threats that may come
+  from them.
+
 Data Flow Diagram
 =================
 
