@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <neoverse_demeter.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+#include "wa_cve_2022_23960_bhb_vector.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -20,6 +21,10 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Neoverse Demeter supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+#if WORKAROUND_CVE_2022_23960
+	wa_cve_2022_23960_bhb_vector_table NEOVERSE_DEMETER_BHB_LOOP_COUNT, neoverse_demeter
+#endif /* WORKAROUND_CVE_2022_23960 */
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -37,21 +42,51 @@ func neoverse_demeter_core_pwr_dwn
 	ret
 endfunc neoverse_demeter_core_pwr_dwn
 
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
+
+func neoverse_demeter_reset_func
+	/* Disable speculative loads */
+	msr	SSBS, xzr
+
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Neoverse Demeter vectors are overridden to apply
+	 * errata mitigation on exception entry from lower ELs.
+	 */
+	adr	x0, wa_cve_vbar_neoverse_demeter
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+	isb
+	ret
+endfunc neoverse_demeter_reset_func
+
 #if REPORT_ERRATA
 /*
  * Errata printing function for Neoverse Demeter. Must follow AAPCS.
  */
 func neoverse_demeter_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata WORKAROUND_CVE_2022_23960, neoverse_demeter, cve_2022_23960
+
+	ldp	x8, x30, [sp], #16
 	ret
 endfunc neoverse_demeter_errata_report
 #endif
-
-func neoverse_demeter_reset_func
-	/* Disable speculative loads */
-	msr	SSBS, xzr
-	isb
-	ret
-endfunc neoverse_demeter_reset_func
 
 	/* ---------------------------------------------
 	 * This function provides Neoverse Demeter-

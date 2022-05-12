@@ -10,6 +10,9 @@
 
 #define NEOVERSE_POSEIDON_MIDR                      		U(0x410FD830)
 
+/* Neoverse Poseidon loop count for CVE-2022-23960 mitigation */
+#define NEOVERSE_POSEIDON_BHB_LOOP_COUNT			U(132)
+
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
  ******************************************************************************/

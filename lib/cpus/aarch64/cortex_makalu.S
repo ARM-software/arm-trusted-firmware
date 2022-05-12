@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <cortex_makalu.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+#include "wa_cve_2022_23960_bhb_vector.S"
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0
@@ -21,9 +22,32 @@
 #error "Cortex Makalu supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+#if WORKAROUND_CVE_2022_23960
+	wa_cve_2022_23960_bhb_vector_table CORTEX_MAKALU_BHB_LOOP_COUNT, cortex_makalu
+#endif /* WORKAROUND_CVE_2022_23960 */
+
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov     x0, #ERRATA_APPLIES
+#else
+	mov     x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
+
 func cortex_makalu_reset_func
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Cortex Makalu generic vectors are overridden to apply errata
+	 * mitigation on exception entry from lower ELs.
+	 */
+        adr	x0, wa_cve_vbar_cortex_makalu
+        msr	vbar_el3, x0
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+
 	isb
 	ret
 endfunc cortex_makalu_reset_func
@@ -49,6 +73,18 @@ endfunc cortex_makalu_core_pwr_dwn
  * Errata printing function for Cortex Makalu. Must follow AAPCS.
  */
 func cortex_makalu_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata WORKAROUND_CVE_2022_23960, cortex_makalu, cve_2022_23960
+
+	ldp     x8, x30, [sp], #16
 	ret
 endfunc cortex_makalu_errata_report
 #endif

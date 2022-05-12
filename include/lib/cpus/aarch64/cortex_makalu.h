@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,9 @@
 #define CORTEX_MAKALU_H
 
 #define CORTEX_MAKALU_MIDR					U(0x410FD4D0)
+
+/* Cortex Makalu loop count for CVE-2022-23960 mitigation */
+#define CORTEX_MAKALU_BHB_LOOP_COUNT				U(38)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions
