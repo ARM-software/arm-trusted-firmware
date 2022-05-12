@@ -38,6 +38,7 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/n5x/bl31_plat_setup.c			\
 		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_sip_svc.c			\
+		plat/intel/soc/common/socfpga_sip_svc_v2.c		\
 		plat/intel/soc/common/socfpga_topology.c		\
 		plat/intel/soc/common/sip/socfpga_sip_ecc.c             \
 		plat/intel/soc/common/sip/socfpga_sip_fcs.c		\

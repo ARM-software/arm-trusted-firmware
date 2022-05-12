@@ -10,95 +10,124 @@
 #include <lib/utils_def.h>
 
 
-#define MBOX_OFFSET			0xffa30000
+#define MBOX_OFFSET					0xffa30000
 
-#define MBOX_ATF_CLIENT_ID		0x1U
-#define MBOX_MAX_JOB_ID			0xFU
-#define MBOX_MAX_IND_JOB_ID		(MBOX_MAX_JOB_ID - 1U)
-#define MBOX_JOB_ID			MBOX_MAX_JOB_ID
-
+#define MBOX_ATF_CLIENT_ID				0x1U
+#define MBOX_MAX_JOB_ID					0xFU
+#define MBOX_MAX_IND_JOB_ID				(MBOX_MAX_JOB_ID - 1U)
+#define MBOX_JOB_ID					MBOX_MAX_JOB_ID
+#define MBOX_TEST_BIT					BIT(31)
 
 /* Mailbox Shared Memory Register Map */
-#define MBOX_CIN			0x00
-#define MBOX_ROUT			0x04
-#define MBOX_URG			0x08
-#define MBOX_INT			0x0C
-#define MBOX_COUT			0x20
-#define MBOX_RIN			0x24
-#define MBOX_STATUS			0x2C
-#define MBOX_CMD_BUFFER			0x40
-#define MBOX_RESP_BUFFER		0xC0
+#define MBOX_CIN					0x00
+#define MBOX_ROUT					0x04
+#define MBOX_URG					0x08
+#define MBOX_INT					0x0C
+#define MBOX_COUT					0x20
+#define MBOX_RIN					0x24
+#define MBOX_STATUS					0x2C
+#define MBOX_CMD_BUFFER					0x40
+#define MBOX_RESP_BUFFER				0xC0
 
 /* Mailbox SDM doorbell */
-#define MBOX_DOORBELL_TO_SDM		0x400
-#define MBOX_DOORBELL_FROM_SDM		0x480
+#define MBOX_DOORBELL_TO_SDM				0x400
+#define MBOX_DOORBELL_FROM_SDM				0x480
 
 
 /* Mailbox commands */
 
-#define MBOX_CMD_NOOP			0x00
-#define MBOX_CMD_SYNC			0x01
-#define MBOX_CMD_RESTART		0x02
-#define MBOX_CMD_CANCEL			0x03
-#define MBOX_CMD_VAB_SRC_CERT		0x0B
-#define MBOX_CMD_GET_IDCODE		0x10
-#define MBOX_CMD_GET_USERCODE		0x13
-#define MBOX_CMD_REBOOT_HPS		0x47
+#define MBOX_CMD_NOOP					0x00
+#define MBOX_CMD_SYNC					0x01
+#define MBOX_CMD_RESTART				0x02
+#define MBOX_CMD_CANCEL					0x03
+#define MBOX_CMD_VAB_SRC_CERT				0x0B
+#define MBOX_CMD_GET_IDCODE				0x10
+#define MBOX_CMD_GET_USERCODE				0x13
+#define MBOX_CMD_GET_CHIPID				0x12
+#define MBOX_CMD_REBOOT_HPS				0x47
 
 /* Reconfiguration Commands */
-#define MBOX_CONFIG_STATUS		0x04
-#define MBOX_RECONFIG			0x06
-#define MBOX_RECONFIG_DATA		0x08
-#define MBOX_RECONFIG_STATUS		0x09
+#define MBOX_CONFIG_STATUS				0x04
+#define MBOX_RECONFIG					0x06
+#define MBOX_RECONFIG_DATA				0x08
+#define MBOX_RECONFIG_STATUS				0x09
 
 /* HWMON Commands */
-#define MBOX_HWMON_READVOLT		0x18
-#define MBOX_HWMON_READTEMP		0x19
+#define MBOX_HWMON_READVOLT				0x18
+#define MBOX_HWMON_READTEMP				0x19
 
 
 /* QSPI Commands */
-#define MBOX_CMD_QSPI_OPEN		0x32
-#define MBOX_CMD_QSPI_CLOSE		0x33
-#define MBOX_CMD_QSPI_SET_CS		0x34
-#define MBOX_CMD_QSPI_DIRECT		0x3B
+#define MBOX_CMD_QSPI_OPEN				0x32
+#define MBOX_CMD_QSPI_CLOSE				0x33
+#define MBOX_CMD_QSPI_SET_CS				0x34
+#define MBOX_CMD_QSPI_DIRECT				0x3B
 
 /* RSU Commands */
-#define MBOX_GET_SUBPARTITION_TABLE	0x5A
-#define MBOX_RSU_STATUS			0x5B
-#define MBOX_RSU_UPDATE			0x5C
-#define MBOX_HPS_STAGE_NOTIFY		0x5D
+#define MBOX_GET_SUBPARTITION_TABLE			0x5A
+#define MBOX_RSU_STATUS					0x5B
+#define MBOX_RSU_UPDATE					0x5C
+#define MBOX_HPS_STAGE_NOTIFY				0x5D
 
 /* FCS Command */
-#define MBOX_FCS_GET_PROVISION			0x7B
-#define MBOX_FCS_ENCRYPT_REQ			0x7E
-#define MBOX_FCS_DECRYPT_REQ			0x7F
-#define MBOX_FCS_RANDOM_GEN			0x80
+#define MBOX_FCS_GET_PROVISION				0x7B
+#define MBOX_FCS_CNTR_SET_PREAUTH			0x7C
+#define MBOX_FCS_ENCRYPT_REQ				0x7E
+#define MBOX_FCS_DECRYPT_REQ				0x7F
+#define MBOX_FCS_RANDOM_GEN				0x80
+#define MBOX_FCS_AES_CRYPT_REQ				0x81
+#define MBOX_FCS_GET_DIGEST_REQ				0x82
+#define MBOX_FCS_MAC_VERIFY_REQ				0x83
+#define MBOX_FCS_ECDSA_HASH_SIGN_REQ			0x84
+#define MBOX_FCS_ECDSA_SHA2_DATA_SIGN_REQ		0x85
+#define MBOX_FCS_ECDSA_HASH_SIG_VERIFY			0x86
+#define MBOX_FCS_ECDSA_SHA2_DATA_SIGN_VERIFY		0x87
+#define MBOX_FCS_ECDSA_GET_PUBKEY			0x88
+#define MBOX_FCS_ECDH_REQUEST				0x89
+#define MBOX_FCS_OPEN_CS_SESSION			0xA0
+#define MBOX_FCS_CLOSE_CS_SESSION			0xA1
+#define MBOX_FCS_IMPORT_CS_KEY				0xA5
+#define MBOX_FCS_EXPORT_CS_KEY				0xA6
+#define MBOX_FCS_REMOVE_CS_KEY				0xA7
+#define MBOX_FCS_GET_CS_KEY_INFO			0xA8
+
+/* PSG SIGMA Commands */
+#define MBOX_PSG_SIGMA_TEARDOWN				0xD5
+
+/* Attestation Commands */
+#define MBOX_CREATE_CERT_ON_RELOAD			0x180
+#define MBOX_GET_ATTESTATION_CERT			0x181
+#define MBOX_ATTESTATION_SUBKEY				0x182
+#define MBOX_GET_MEASUREMENT				0x183
+
 /* Miscellaneous commands */
 #define MBOX_GET_ROM_PATCH_SHA384	0x1B0
 
 /* Mailbox Definitions */
 
-#define CMD_DIRECT			0
-#define CMD_INDIRECT			1
-#define CMD_CASUAL			0
-#define CMD_URGENT			1
+#define CMD_DIRECT					0
+#define CMD_INDIRECT					1
+#define CMD_CASUAL					0
+#define CMD_URGENT					1
 
-#define MBOX_WORD_BYTE			4U
-#define MBOX_RESP_BUFFER_SIZE		16
-#define MBOX_CMD_BUFFER_SIZE		32
+#define MBOX_WORD_BYTE					4U
+#define MBOX_RESP_BUFFER_SIZE				16
+#define MBOX_CMD_BUFFER_SIZE				32
+#define MBOX_INC_HEADER_MAX_WORD_SIZE			1024U
 
 /* Execution states for HPS_STAGE_NOTIFY */
-#define HPS_EXECUTION_STATE_FSBL	0
-#define HPS_EXECUTION_STATE_SSBL	1
-#define HPS_EXECUTION_STATE_OS		2
+#define HPS_EXECUTION_STATE_FSBL			0
+#define HPS_EXECUTION_STATE_SSBL			1
+#define HPS_EXECUTION_STATE_OS				2
 
 /* Status Response */
-#define MBOX_RET_OK			0
-#define MBOX_RET_ERROR			-1
-#define MBOX_NO_RESPONSE		-2
-#define MBOX_WRONG_ID			-3
-#define MBOX_BUFFER_FULL		-4
-#define MBOX_TIMEOUT			-2047
+#define MBOX_RET_OK					0
+#define MBOX_RET_ERROR					-1
+#define MBOX_NO_RESPONSE				-2
+#define MBOX_WRONG_ID					-3
+#define MBOX_BUFFER_FULL				-4
+#define MBOX_BUSY					-5
+#define MBOX_TIMEOUT					-2047
 
 /* Reconfig Status Response */
 #define RECONFIG_STATUS_STATE				0
@@ -123,38 +152,55 @@
 
 /* Mailbox Macros */
 
-#define MBOX_ENTRY_TO_ADDR(_buf, ptr)	(MBOX_OFFSET + (MBOX_##_buf##_BUFFER) \
-						+ MBOX_WORD_BYTE * (ptr))
+#define MBOX_ENTRY_TO_ADDR(_buf, ptr)			(MBOX_OFFSET + (MBOX_##_buf##_BUFFER) \
+								+ MBOX_WORD_BYTE * (ptr))
 
 /* Mailbox interrupt flags and masks */
-#define MBOX_INT_FLAG_COE		0x1
-#define MBOX_INT_FLAG_RIE		0x2
-#define MBOX_INT_FLAG_UAE		0x100
-#define MBOX_COE_BIT(INTERRUPT)		((INTERRUPT) & 0x3)
-#define MBOX_UAE_BIT(INTERRUPT)		(((INTERRUPT) & (1<<8)))
+#define MBOX_INT_FLAG_COE				0x1
+#define MBOX_INT_FLAG_RIE				0x2
+#define MBOX_INT_FLAG_UAE				0x100
+#define MBOX_COE_BIT(INTERRUPT)				((INTERRUPT) & 0x3)
+#define MBOX_UAE_BIT(INTERRUPT)				(((INTERRUPT) & (1<<8)))
 
 /* Mailbox response and status */
-#define MBOX_RESP_ERR(BUFFER)		((BUFFER) & 0x00000fff)
-#define MBOX_RESP_LEN(BUFFER)		(((BUFFER) & 0x007ff000) >> 12)
-#define MBOX_RESP_CLIENT_ID(BUFFER)	(((BUFFER) & 0xf0000000) >> 28)
-#define MBOX_RESP_JOB_ID(BUFFER)	(((BUFFER) & 0x0f000000) >> 24)
-#define MBOX_STATUS_UA_MASK		(1<<8)
+#define MBOX_RESP_ERR(BUFFER)				((BUFFER) & 0x000007ff)
+#define MBOX_RESP_LEN(BUFFER)				(((BUFFER) & 0x007ff000) >> 12)
+#define MBOX_RESP_CLIENT_ID(BUFFER)			(((BUFFER) & 0xf0000000) >> 28)
+#define MBOX_RESP_JOB_ID(BUFFER)			(((BUFFER) & 0x0f000000) >> 24)
+#define MBOX_STATUS_UA_MASK				(1<<8)
 
 /* Mailbox command and response */
-#define MBOX_CLIENT_ID_CMD(CLIENT_ID)	((CLIENT_ID) << 28)
-#define MBOX_JOB_ID_CMD(JOB_ID)		(JOB_ID<<24)
-#define MBOX_CMD_LEN_CMD(CMD_LEN)	((CMD_LEN) << 12)
-#define MBOX_INDIRECT(val)		((val) << 11)
-#define MBOX_CMD_MASK(header)		((header) & 0x7ff)
+#define MBOX_CLIENT_ID_CMD(CLIENT_ID)			((CLIENT_ID) << 28)
+#define MBOX_JOB_ID_CMD(JOB_ID)				(JOB_ID<<24)
+#define MBOX_CMD_LEN_CMD(CMD_LEN)			((CMD_LEN) << 12)
+#define MBOX_INDIRECT(val)				((val) << 11)
+#define MBOX_CMD_MASK(header)				((header) & 0x7ff)
+
+/* Mailbox payload */
+#define MBOX_DATA_MAX_LEN				0x3ff
+#define MBOX_PAYLOAD_FLAG_BUSY				BIT(0)
 
 /* RSU Macros */
-#define RSU_VERSION_ACMF		BIT(8)
-#define RSU_VERSION_ACMF_MASK		0xff00
+#define RSU_VERSION_ACMF				BIT(8)
+#define RSU_VERSION_ACMF_MASK				0xff00
 
 /* Config Status Macros */
 #define CONFIG_STATUS_WORD_SIZE		16U
 #define CONFIG_STATUS_FW_VER_OFFSET	1
 #define CONFIG_STATUS_FW_VER_MASK	0x00FFFFFF
+
+/* Data structure */
+
+typedef struct mailbox_payload {
+	uint32_t header;
+	uint32_t data[MBOX_DATA_MAX_LEN];
+} mailbox_payload_t;
+
+typedef struct mailbox_container {
+	uint32_t flag;
+	uint32_t index;
+	mailbox_payload_t *payload;
+} mailbox_container_t;
 
 /* Mailbox Function Definitions */
 
@@ -168,8 +214,13 @@ int mailbox_send_cmd(uint32_t job_id, uint32_t cmd, uint32_t *args,
 			unsigned int *resp_len);
 int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
 			unsigned int len, unsigned int indirect);
+int mailbox_send_cmd_async_ext(uint32_t header_cmd, uint32_t *args,
+			unsigned int len);
 int mailbox_read_response(uint32_t *job_id, uint32_t *response,
 			unsigned int *resp_len);
+int mailbox_read_response_async(uint32_t *job_id, uint32_t *header,
+			uint32_t *response, unsigned int *resp_len,
+			uint8_t ignore_client_id);
 int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 			unsigned int *resp_len);
 

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
-#include <errno.h>
 #include <lib/mmio.h>
 
 #include "socfpga_f2sdram_manager.h"

@@ -65,6 +65,7 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
 		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_sip_svc.c			\
+		plat/intel/soc/common/socfpga_sip_svc_v2.c		\
 		plat/intel/soc/common/socfpga_topology.c		\
 		plat/intel/soc/common/sip/socfpga_sip_ecc.c		\
 		plat/intel/soc/common/sip/socfpga_sip_fcs.c		\

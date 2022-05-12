@@ -9,15 +9,15 @@
 
 #include "socfpga_plat_def.h"
 
-#define SOCFPGA_BRIDGE_ENABLE	BIT(0)
-#define SOCFPGA_BRIDGE_HAS_MASK	BIT(1)
+#define SOCFPGA_BRIDGE_ENABLE			BIT(0)
+#define SOCFPGA_BRIDGE_HAS_MASK			BIT(1)
 
-#define SOC2FPGA_MASK		(1<<0)
-#define LWHPS2FPGA_MASK		(1<<1)
-#define FPGA2SOC_MASK		(1<<2)
-#define F2SDRAM0_MASK		(1<<3)
-#define F2SDRAM1_MASK		(1<<4)
-#define F2SDRAM2_MASK		(1<<5)
+#define SOC2FPGA_MASK				(1<<0)
+#define LWHPS2FPGA_MASK				(1<<1)
+#define FPGA2SOC_MASK				(1<<2)
+#define F2SDRAM0_MASK				(1<<3)
+#define F2SDRAM1_MASK				(1<<4)
+#define F2SDRAM2_MASK				(1<<5)
 
 /* Register Mapping */
 
@@ -111,7 +111,7 @@
 /* Macros */
 
 #define SOCFPGA_RSTMGR(_reg)		(SOCFPGA_RSTMGR_REG_BASE \
-						+ (SOCFPGA_RSTMGR_##_reg))
+					+ (SOCFPGA_RSTMGR_##_reg))
 #define RSTMGR_FIELD(_reg, _field)	(RSTMGR_##_reg##MODRST_##_field)
 
 /* Function Declarations */
