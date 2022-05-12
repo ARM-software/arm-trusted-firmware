@@ -617,19 +617,18 @@ each diagram element of the data flow diagram.
 | Threat                 | | **Improperly handled SMC calls can leak register   |
 |                        |   contents**                                         |
 |                        |                                                      |
-|                        | | When switching between secure and non-secure       |
-|                        |   states, register contents of Secure world or       |
-|                        |   register contents of other normal world clients    |
-|                        |   can be leaked.                                     |
+|                        | | When switching between worlds, TF-A register state |
+|                        |   can leak to software in different security         |
+|                        |   contexts.                                          |
 +------------------------+------------------------------------------------------+
-| Diagram Elements       | DF5                                                  |
+| Diagram Elements       | DF4, DF5                                             |
 +------------------------+------------------------------------------------------+
 | Affected TF-A          | BL31                                                 |
 | Components             |                                                      |
 +------------------------+------------------------------------------------------+
 | Assets                 | Sensitive Data                                       |
 +------------------------+------------------------------------------------------+
-| Threat Agent           | NSCode                                               |
+| Threat Agent           | NSCode, SecCode                                      |
 +------------------------+------------------------------------------------------+
 | Threat Type            | Information Disclosure                               |
 +------------------------+-------------------+----------------+-----------------+
