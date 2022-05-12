@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,9 +21,11 @@
 uint8_t usb_dfu_get_phase(uint8_t alt);
 
 int stm32cubeprog_usb_load(struct usb_handle *usb_core_handle,
+			   uint8_t phase,
 			   uintptr_t ssbl_base,
 			   size_t ssbl_len);
 
-int stm32cubeprog_uart_load(uintptr_t instance, uintptr_t base, size_t len);
+int stm32cubeprog_uart_load(uintptr_t instance, uint8_t phase,
+			    uintptr_t base, size_t len);
 
 #endif /* STM32CUBEPROGRAMMER_H */

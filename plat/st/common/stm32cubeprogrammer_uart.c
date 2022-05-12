@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -497,7 +497,8 @@ const struct stm32_uart_init_s init = {
 	.fifo_mode = STM32_UART_FIFOMODE_EN,
 };
 
-int stm32cubeprog_uart_load(uintptr_t instance, uintptr_t base, size_t len)
+int stm32cubeprog_uart_load(uintptr_t instance, uint8_t phase, uintptr_t base,
+			    size_t len)
 {
 	int ret;
 
@@ -518,5 +519,5 @@ int stm32cubeprog_uart_load(uintptr_t instance, uintptr_t base, size_t len)
 		return ret;
 	}
 
-	return uart_read(PHASE_SSBL, base, len);
+	return uart_read(phase, base, len);
 }
