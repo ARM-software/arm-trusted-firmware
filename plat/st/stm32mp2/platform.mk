@@ -286,6 +286,29 @@ check_ddr_type:
 		false; \
 	fi
 
+# Generate separate DDR FIP image
+ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
+ifneq ($(filter 1,${STM32MP_UART_PROGRAMMER} ${STM32MP_USB_PROGRAMMER}),)
+
+STM32MP_DDR_FW_COPY		:=	${STM32MP_DDR_FW}
+DDR_FIP_NAME			?=	fip-ddr.bin
+
+$(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW_COPY,--ddr-fw,DDR_))
+
+${BUILD_PLAT}/${DDR_FIP_NAME}: ${DDR_FIP_DEPS} fiptool
+	${Q}${FIPTOOL} create ${DDR_FIP_ARGS} $@
+	${Q}${FIPTOOL} info $@
+	@${ECHO_BLANK_LINE}
+	@echo "Built $@ successfully"
+	@${ECHO_BLANK_LINE}
+
+fip-ddr: ${BUILD_PLAT}/${DDR_FIP_NAME}
+
+fip: fip-ddr
+
+endif
+endif
+
 # Create DTB file for BL31
 ${BUILD_PLAT}/fdts/%-bl31.dts: fdts/%.dts fdts/${BL31_DTSI} | $$(@D)/
 	@echo '#include "$(patsubst fdts/%,%,$<)"' > $@
