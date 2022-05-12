@@ -367,6 +367,10 @@ func neoverse_n2_reset_func
 	orr	x0, x0, #NEOVERSE_N2_CPUACTLR2_EL1_BIT_2
 	msr	NEOVERSE_N2_CPUACTLR2_EL1, x0
 
+#if ERRATA_DSU_2313941
+	bl	errata_dsu_2313941_wa
+#endif
+
 #if ERRATA_N2_2067956
 	mov	x0, x18
 	bl	errata_n2_2067956_wa
@@ -493,6 +497,7 @@ func neoverse_n2_errata_report
 	report_errata ERRATA_N2_2242400, neoverse_n2, 2242400
 	report_errata ERRATA_N2_2280757, neoverse_n2, 2280757
 	report_errata WORKAROUND_CVE_2022_23960, neoverse_n2, cve_2022_23960
+	report_errata ERRATA_DSU_2313941, neoverse_n2, dsu_2313941
 
 	ldp	x8, x30, [sp], #16
 	ret

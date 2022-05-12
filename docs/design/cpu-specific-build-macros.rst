@@ -576,6 +576,12 @@ For DSU errata, the following build flags are defined:
    r2p0 it is fixed). However, please note that this workaround results in
    increased DSU power consumption on idle.
 
+-  ``ERRATA_DSU_2313941``: This applies errata 2313941 workaround for the
+   affected DSU configurations. This errata applies for those DSUs with
+   revisions r0p0, r1p0, r2p0, r2p1, r3p0, r3p1 and is still open. However,
+   please note that this workaround results in increased DSU power consumption
+   on idle.
+
 CPU Specific optimizations
 --------------------------
 
