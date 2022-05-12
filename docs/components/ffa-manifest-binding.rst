@@ -4,11 +4,8 @@ FF-A manifest binding to device tree
 This document defines the nodes and properties used to define a partition,
 according to the FF-A specification.
 
-Version 1.0
------------
-
 Partition Properties
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 
 - compatible [mandatory]
    - value type: <string>
@@ -184,13 +181,14 @@ Memory Regions
       - 0x1: Read
       - 0x2: Write
       - 0x4: Execute
+      - 0x8: Security state
 
 - base-address
    - value type: <u64>
    - Base address of the region. The address must be aligned to the translation
      granule size.
      The address given may be a Physical Address (PA), Virtual Address (VA), or
-     Intermediate Physical Address (IPA). Refer to the FFA specification for
+     Intermediate Physical Address (IPA). Refer to the FF-A specification for
      more information on the restrictions around the address type.
      If the base address is omitted then the partition manager must map a memory
      region of the specified size into the partition's translation regime and
@@ -208,14 +206,10 @@ Device Regions
    - value type: <string>
    - Name of the device region e.g. for debugging purposes.
 
-- reg [mandatory]
-   - value type: <prop-encoded-array>
-   - A (address, num-pages) pair describing the device, where:
-
-      - address: The physical base address <u64> value of the device MMIO
-        region.
-      - num-pages: The <u32> number of pages of the region. The total size of
-        the region is this value multiplied by the translation granule size.
+- pages-count [mandatory]
+   - value type: <u32>
+   - Count of pages of memory region as a multiple of the translation granule
+     size
 
 - attributes [mandatory]
    - value type: <u32>
@@ -224,6 +218,15 @@ Device Regions
      - 0x1: Read
      - 0x2: Write
      - 0x4: Execute
+     - 0x8: Security state
+
+- base-address [mandatory]
+   - value type: <u64>
+   - Base address of the region. The address must be aligned to the translation
+     granule size.
+     The address given may be a Physical Address (PA), Virtual Address (VA), or
+     Intermediate Physical Address (IPA). Refer to the FF-A specification for
+     more information on the restrictions around the address type.
 
 - smmu-id
    - value type: <u32>
@@ -243,14 +246,32 @@ Device Regions
    - A list of (id, attributes) pair describing the device interrupts, where:
 
       - id: The <u32> interrupt IDs.
-      - attributes: A <u32> value,
-        containing the attributes for each interrupt ID:
+      - attributes: A <u32> value, containing attributes for each interrupt ID:
 
-         - Interrupt type: SPI, PPI, SGI
-         - Interrupt configuration: Edge triggered, Level triggered
-         - Interrupt security state: Secure, Non-secure
-         - Interrupt priority value
-         - Target execution context/vCPU for each SPI
+        +----------------------+----------+
+        |Field                 | Bit(s)   |
+        +----------------------+----------+
+        | Priority	       | 7:0      |
+        +----------------------+----------+
+        | Security state       | 8        |
+        +----------------------+----------+
+        | Config(Edge/Level)   | 9        |
+        +----------------------+----------+
+        | Type(SPI/PPI/SGI)    | 11:10    |
+        +----------------------+----------+
+
+        Security state:
+          - Secure:       1
+          - Non-secure:   0
+
+        Configuration:
+          - Edge triggered:       0
+          - Level triggered:      1
+
+        Type:
+          - SPI:  0b10
+          - PPI:  0b01
+          - SGI:  0b00
 
 - exclusive-access
    - value type: <empty>
@@ -259,4 +280,4 @@ Device Regions
 
 --------------
 
-*Copyright (c) 2019-2021, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2019-2022, Arm Limited and Contributors. All rights reserved.*
