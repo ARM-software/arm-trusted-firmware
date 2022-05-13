@@ -51,6 +51,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
  * pm_register_sgi() - PM register the IPI interrupt
  *
  * @sgi -  SGI number to be used for communication.
+ * @reset -  Reset to invalid SGI when reset=1.
  * @return	On success, the initialization function must return 0.
  *		Any other return value will cause the framework to ignore
  *		the service
@@ -58,9 +59,14 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
  * Update the SGI number to be used.
  *
  */
-int pm_register_sgi(unsigned int sgi_num)
+int pm_register_sgi(unsigned int sgi_num, unsigned int reset)
 {
-	if ((unsigned int)sgi != (unsigned int)INVALID_SGI) {
+	if (reset == 1U) {
+		sgi = INVALID_SGI;
+		return 0;
+	}
+
+	if (sgi != INVALID_SGI) {
 		return -EBUSY;
 	}
 
@@ -230,6 +236,18 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 				       void *handle, uint32_t security_flag)
 {
 	switch (api_id) {
+
+	case TF_A_PM_REGISTER_SGI:
+	{
+		int ret;
+
+		ret = pm_register_sgi(pm_arg[0], pm_arg[1]);
+		if (ret != 0) {
+			SMC_RET1(handle, (uint32_t)PM_RET_ERROR_ARGS);
+		}
+
+		SMC_RET1(handle, (uint32_t)PM_RET_SUCCESS);
+	}
 
 	case PM_GET_CALLBACK_DATA:
 	{
