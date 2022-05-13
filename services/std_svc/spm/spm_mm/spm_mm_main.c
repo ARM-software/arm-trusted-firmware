@@ -190,6 +190,14 @@ uint64_t spm_mm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3)
 	uint64_t rc;
 	sp_context_t *sp_ptr = &sp_ctx;
 
+#if CTX_INCLUDE_FPREGS
+	/*
+	 * SP runs to completion, no need to restore FP registers of secure context.
+	 * Save FP registers only for non secure context.
+	 */
+	fpregs_context_save(get_fpregs_ctx(cm_get_context(NON_SECURE)));
+#endif
+
 	/* Wait until the Secure Partition is idle and set it to busy. */
 	sp_state_wait_switch(sp_ptr, SP_STATE_IDLE, SP_STATE_BUSY);
 
@@ -207,6 +215,14 @@ uint64_t spm_mm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3)
 	/* Flag Secure Partition as idle. */
 	assert(sp_ptr->state == SP_STATE_BUSY);
 	sp_state_set(sp_ptr, SP_STATE_IDLE);
+
+#if CTX_INCLUDE_FPREGS
+	/*
+	 * SP runs to completion, no need to save FP registers of secure context.
+	 * Restore only non secure world FP registers.
+	 */
+	fpregs_context_restore(get_fpregs_ctx(cm_get_context(NON_SECURE)));
+#endif
 
 	return rc;
 }
