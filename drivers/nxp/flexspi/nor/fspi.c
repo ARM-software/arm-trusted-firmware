@@ -123,6 +123,9 @@ static void fspi_op_setup(uint32_t fspi_op_seq_id, bool ignore_flash_sz)
 		cmd_id1 = FSPI_NOR_CMD_RDSR;
 		cmd_id2 = FSPI_NOR_CMD_RDSR;
 		break;
+	default:
+		ERROR("Unsupported command\n");
+		return;
 	}
 
 	x_addr = FSPI_LUTREG_OFFSET + (uint32_t)(0x10 * fspi_op_seq_id);
