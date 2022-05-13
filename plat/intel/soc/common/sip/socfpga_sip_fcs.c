@@ -315,36 +315,6 @@ uint32_t intel_fcs_decryption(uint32_t src_addr, uint32_t src_size,
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
-uint32_t intel_fcs_get_rom_patch_sha384(uint64_t addr, uint64_t *ret_size,
-					uint32_t *mbox_error)
-{
-	int status;
-	unsigned int resp_len = FCS_SHA384_WORD_SIZE;
-
-	if (!is_address_in_ddr_range(addr, FCS_SHA384_BYTE_SIZE)) {
-		return INTEL_SIP_SMC_STATUS_REJECTED;
-	}
-
-	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_GET_ROM_PATCH_SHA384, NULL, 0U,
-			CMD_CASUAL, (uint32_t *) addr, &resp_len);
-
-	if (status < 0) {
-		*mbox_error = -status;
-		return INTEL_SIP_SMC_STATUS_ERROR;
-	}
-
-	if (resp_len != FCS_SHA384_WORD_SIZE) {
-		*mbox_error = GENERIC_RESPONSE_ERROR;
-		return INTEL_SIP_SMC_STATUS_ERROR;
-	}
-
-	*ret_size = FCS_SHA384_BYTE_SIZE;
-
-	flush_dcache_range(addr, *ret_size);
-
-	return INTEL_SIP_SMC_STATUS_OK;
-}
-
 int intel_fcs_encryption_ext(uint32_t session_id, uint32_t context_id,
 		uint32_t src_addr, uint32_t src_size,
 		uint32_t dst_addr, uint32_t *dst_size, uint32_t *mbox_error)
@@ -557,6 +527,36 @@ int intel_fcs_get_measurement(uint64_t src_addr, uint32_t src_size,
 
 	*dst_size = ret_size * MBOX_WORD_BYTE;
 	flush_dcache_range(dst_addr, *dst_size);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+uint32_t intel_fcs_get_rom_patch_sha384(uint64_t addr, uint64_t *ret_size,
+					uint32_t *mbox_error)
+{
+	int status;
+	unsigned int resp_len = FCS_SHA384_WORD_SIZE;
+
+	if (!is_address_in_ddr_range(addr, FCS_SHA384_BYTE_SIZE)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_GET_ROM_PATCH_SHA384, NULL, 0U,
+			CMD_CASUAL, (uint32_t *) addr, &resp_len);
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (resp_len != FCS_SHA384_WORD_SIZE) {
+		*mbox_error = GENERIC_RESPONSE_ERROR;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*ret_size = FCS_SHA384_BYTE_SIZE;
+
+	flush_dcache_range(addr, *ret_size);
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }

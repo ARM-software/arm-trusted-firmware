@@ -180,6 +180,12 @@ struct fpga_config_info {
 	int block_number;
 };
 
+typedef enum {
+	NO_REQUEST = 0,
+	RECONFIGURATION,
+	BITSTREAM_AUTH
+} config_type;
+
 /* Function Definitions */
 bool is_size_4_bytes_aligned(uint32_t size);
 bool is_address_in_ddr_range(uint64_t addr, uint64_t size);
