@@ -1011,6 +1011,7 @@ $(eval $(call assert_booleans,\
         NS_TIMER_SWITCH \
         OVERRIDE_LIBC \
         PL011_GENERIC_UART \
+        PLAT_RSS_NOT_SUPPORTED \
         PROGRAMMABLE_RESET_ADDRESS \
         PSCI_EXTENDED_STATE_ID \
         RESET_TO_BL31 \
@@ -1146,6 +1147,7 @@ $(eval $(call add_defines,\
         NS_TIMER_SWITCH \
         PL011_GENERIC_UART \
         PLAT_${PLAT} \
+        PLAT_RSS_NOT_SUPPORTED \
         PROGRAMMABLE_RESET_ADDRESS \
         PSCI_EXTENDED_STATE_ID \
         RAS_EXTENSION \

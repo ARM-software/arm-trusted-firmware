@@ -367,14 +367,36 @@ ifneq (${BL2_AT_EL3}, 0)
     override BL1_SOURCES =
 endif
 
+# Include Measured Boot makefile before any Crypto library makefile.
+# Crypto library makefile may need default definitions of Measured Boot build
+# flags present in Measured Boot makefile.
+ifeq (${MEASURED_BOOT},1)
+    RSS_MEASURED_BOOT_MK := drivers/measured_boot/rss/rss_measured_boot.mk
+    $(info Including ${RSS_MEASURED_BOOT_MK})
+    include ${RSS_MEASURED_BOOT_MK}
+
+    BL1_SOURCES		+=	${MEASURED_BOOT_SOURCES}
+    BL2_SOURCES		+=	${MEASURED_BOOT_SOURCES}
+endif
+
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
 
 ifeq (${MEASURED_BOOT},1)
 BL1_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
-				plat/arm/board/fvp/fvp_bl1_measured_boot.c
+				plat/arm/board/fvp/fvp_bl1_measured_boot.c	\
+				lib/psa/measured_boot.c
+
 BL2_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
-				plat/arm/board/fvp/fvp_bl2_measured_boot.c
+				plat/arm/board/fvp/fvp_bl2_measured_boot.c	\
+				lib/psa/measured_boot.c
+
+PLAT_INCLUDES		+=	-Iinclude/lib/psa
+
+# RSS is not supported on FVP right now. Thus, we use the mocked version
+# of PSA Measured Boot APIs. They return with success and hard-coded data.
+PLAT_RSS_NOT_SUPPORTED	:= 1
+
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT}, 1)

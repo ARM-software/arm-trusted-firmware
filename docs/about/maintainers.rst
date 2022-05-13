@@ -293,6 +293,20 @@ GIC driver
 :|G|: `odeprez`_
 :|F|: drivers/arm/gic/
 
+Message Handling Unit (MHU) driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: David Vincze <david.vincze@arm.com>
+:|G|: `davidvincze`_
+:|F|: include/drivers/arm/mhu.h
+:|F|: drivers/arm/mhu
+
+Runtime Security Subsystem (RSS) comms driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: David Vincze <david.vincze@arm.com>
+:|G|: `davidvincze`_
+:|F|: include/drivers/arm/rss_comms.h
+:|F|: drivers/arm/rss
+
 Libfdt wrappers
 ^^^^^^^^^^^^^^^
 :|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
@@ -330,6 +344,13 @@ PSA Firmware Update
 :|G|: `sandrine-bailleux-arm`_
 :|F|: drivers/fwu
 :|F|: include/drivers/fwu
+
+Platform Security Architecture (PSA) APIs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|G|: `sandrine-bailleux-arm`_
+:|F|: include/lib/psa
+:|F|: lib/psa
 
 System Control and Management Interface (SCMI) Server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -821,6 +842,7 @@ Conventional Changelog Extensions
 .. _b49020: https://github.com/b49020
 .. _carlocaione: https://github.com/carlocaione
 .. _danh-arm: https://github.com/danh-arm
+.. _davidvincze: https://github.com/davidvincze
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
 .. _grandpaul: https://github.com/grandpaul
