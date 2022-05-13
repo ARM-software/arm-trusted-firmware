@@ -555,13 +555,8 @@ each diagram element of the data flow diagram.
 |                        |   flow of the program, or leak sensitive             |
 |                        |   information**                                      |
 |                        |                                                      |
-|                        | | Like in other software, the Trusted Firmware has   |
-|                        |   multiple points where memory corruption security   |
-|                        |   errors can arise. Memory corruption is a dangerous |
-|                        |   security issue since it could allow an attacker    |
-|                        |   to execute arbitrary code, modify some state       |
-|                        |   variable to change the normal flow of the program, |
-|                        |   or leak sensitive information.                     |
+|                        | | Like in other software, TF-A has multiple points   |
+|                        |   where memory corruption security errors can arise. |
 |                        |                                                      |
 |                        | | Some of the errors include integer overflow,       |
 |                        |   buffer overflow, incorrect array boundary checks,  |
