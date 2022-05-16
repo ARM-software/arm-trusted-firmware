@@ -37,6 +37,22 @@
 #define FFA_WB_TYPE_S2RAM	0
 #define FFA_WB_TYPE_NOTS2RAM	1
 
+/* FF-A Related helper macros. */
+#define FFA_ID_MASK			U(0xFFFF)
+#define FFA_PARTITION_ID_SHIFT		U(16)
+#define FFA_FEATURES_BIT31_MASK		U(0x1u << 31)
+
+#define FFA_RUN_EP_ID(ep_vcpu_ids) \
+		((ep_vcpu_ids >> FFA_PARTITION_ID_SHIFT) & FFA_ID_MASK)
+#define FFA_RUN_VCPU_ID(ep_vcpu_ids) \
+		(ep_vcpu_ids & FFA_ID_MASK)
+
+#define FFA_PAGE_SIZE (4096)
+#define FFA_RXTX_PAGE_COUNT_MASK 0x1F
+
+/* Ensure that the page size used by TF-A is 4k aligned. */
+CASSERT((PAGE_SIZE % FFA_PAGE_SIZE) == 0, assert_aligned_page_size);
+
 /*
  * Runtime states of an execution context as per the FF-A v1.1 specification.
  */
@@ -176,6 +192,24 @@ struct ns_endpoint_desc {
 	 * Supported FF-A Version
 	 */
 	uint32_t ffa_version;
+};
+
+/**
+ * Holds information returned for each partition by the FFA_PARTITION_INFO_GET
+ * interface.
+ */
+struct ffa_partition_info_v1_0 {
+	uint16_t ep_id;
+	uint16_t execution_ctx_count;
+	uint32_t properties;
+};
+
+/* Extended structure for v1.1. */
+struct ffa_partition_info_v1_1 {
+	uint16_t ep_id;
+	uint16_t execution_ctx_count;
+	uint32_t properties;
+	uint32_t uuid[4];
 };
 
 /* Setup Function for different SP types. */

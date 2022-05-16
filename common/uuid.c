@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -132,3 +132,27 @@ int read_uuid(uint8_t *dest, char *uuid)
 	return 0;
 }
 
+/*
+ * Helper function to check if 2 UUIDs match.
+ */
+bool uuid_match(uint32_t *uuid1, uint32_t *uuid2)
+{
+	return !memcmp(uuid1, uuid2, sizeof(uint32_t) * 4);
+}
+
+/*
+ * Helper function to copy from one UUID struct to another.
+ */
+void copy_uuid(uint32_t *to_uuid, uint32_t *from_uuid)
+{
+	to_uuid[0] = from_uuid[0];
+	to_uuid[1] = from_uuid[1];
+	to_uuid[2] = from_uuid[2];
+	to_uuid[3] = from_uuid[3];
+}
+
+bool is_null_uuid(uint32_t *uuid)
+{
+	return (uuid[0] == 0 && uuid[1] == 0 &&
+		uuid[2] == 0 && uuid[3] == 0);
+}
