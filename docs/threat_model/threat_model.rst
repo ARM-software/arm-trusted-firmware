@@ -463,18 +463,25 @@ These are highlighted in the ``Mitigations implemented?`` box.
 +------------------------+---------------------------------------------------+
 | ID                     | 05                                                |
 +========================+===================================================+
-| Threat                 | | **Information leak via UART logs such as        |
-|                        |   crashes**                                       |
+| Threat                 | | **Information leak via UART logs**              |
 |                        |                                                   |
 |                        | | During the development stages of software it is |
-|                        |   common to include crash reports with detailed   |
-|                        |   information of the CPU state including current  |
-|                        |   values of the registers, privilege level and    |
-|                        |   stack dumps. This information is useful when    |
-|                        |   debugging problems before releasing the         |
-|                        |   production version, but it could be used by an  |
-|                        |   attacker to develop a working exploit if left   |
-|                        |   in the production version.                      |
+|                        |   common to print all sorts of information on the |
+|                        |   console, including sensitive or confidential    |
+|                        |   information such as crash reports with detailed |
+|                        |   information of the CPU state, current registers |
+|                        |   values, privilege level or stack dumps.         |
+|                        |                                                   |
+|                        | | This information is useful when debugging       |
+|                        |   problems before releasing the production        |
+|                        |   version but it could be used by an attacker     |
+|                        |   to develop a working exploit if left enabled in |
+|                        |   the production version.                         |
+|                        |                                                   |
+|                        | | This happens when directly logging sensitive    |
+|                        |   information and more subtly when logging        |
+|                        |   side-channel information that can be used by an |
+|                        |   attacker to learn about sensitive information.  |
 +------------------------+---------------------------------------------------+
 | Diagram Elements       | DF2                                               |
 +------------------------+---------------------------------------------------+
@@ -495,7 +502,13 @@ These are highlighted in the ``Mitigations implemented?`` box.
 +------------------------+------------------+----------------+---------------+
 | Total Risk Rating      | N/A              | Medium (8)     | Medium (8)    |
 +------------------------+------------------+----------------+---------------+
-| Mitigations            | Remove crash reports in production releases.      |
+| Mitigations            | | Remove sensitive information logging in         |
+|                        |   production releases.                            |
+|                        |                                                   |
+|                        | | Do not conditionally log information depending  |
+|                        |   on potentially sensitive data.                  |
+|                        |                                                   |
+|                        | | Do not log high precision timing information.   |
 +------------------------+---------------------------------------------------+
 | Mitigations            | | Yes / Platform Specific.                        |
 | implemented?           |   Requires the right build options to be used.    |
