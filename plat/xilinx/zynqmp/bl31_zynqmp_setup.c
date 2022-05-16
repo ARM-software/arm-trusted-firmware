@@ -33,15 +33,18 @@ static entry_point_info_t bl33_image_ep_info;
  * while BL32 corresponds to the secure image type. A NULL pointer is returned
  * if the image does not exist.
  */
-entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
+struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
-	assert(sec_state_is_valid(type));
+	entry_point_info_t *next_image_info;
 
+	assert(sec_state_is_valid(type));
 	if (type == NON_SECURE) {
-		return &bl33_image_ep_info;
+		next_image_info = &bl33_image_ep_info;
+	} else {
+		next_image_info = &bl32_image_ep_info;
 	}
 
-	return &bl32_image_ep_info;
+	return next_image_info;
 }
 
 /*

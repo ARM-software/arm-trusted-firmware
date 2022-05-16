@@ -68,7 +68,7 @@ enum pm_register_access_id {
 /**********************************************************
  * System-level API function declarations
  **********************************************************/
-enum pm_ret_status pm_req_suspend(enum pm_node_id nid,
+enum pm_ret_status pm_req_suspend(enum pm_node_id target,
 				  enum pm_request_ack ack,
 				  unsigned int latency,
 				  unsigned int state);
@@ -78,12 +78,12 @@ enum pm_ret_status pm_self_suspend(enum pm_node_id nid,
 				   unsigned int state,
 				   uintptr_t address);
 
-enum pm_ret_status pm_force_powerdown(enum pm_node_id nid,
+enum pm_ret_status pm_force_powerdown(enum pm_node_id target,
 				      enum pm_request_ack ack);
 
 enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason);
 
-enum pm_ret_status pm_req_wakeup(enum pm_node_id nid,
+enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 				 unsigned int set_address,
 				 uintptr_t address,
 				 enum pm_request_ack ack);
@@ -112,7 +112,7 @@ enum pm_ret_status pm_set_requirement(enum pm_node_id nid,
 
 /* Miscellaneous API functions */
 enum pm_ret_status pm_get_api_version(unsigned int *version);
-enum pm_ret_status pm_get_node_status(enum pm_node_id node,
+enum pm_ret_status pm_get_node_status(enum pm_node_id nid,
 				      uint32_t *ret_buff);
 enum pm_ret_status pm_acknowledge_cb(enum pm_node_id nid,
 				     enum pm_ret_status status,
@@ -133,8 +133,8 @@ enum pm_ret_status pm_fpga_load(uint32_t address_low,
 enum pm_ret_status pm_fpga_get_status(unsigned int *value);
 
 enum pm_ret_status pm_get_chipid(uint32_t *value);
-enum pm_ret_status pm_secure_rsaaes(uint32_t address_high,
-				    uint32_t address_low,
+enum pm_ret_status pm_secure_rsaaes(uint32_t address_low,
+				    uint32_t address_high,
 				    uint32_t size,
 				    uint32_t flags);
 unsigned int pm_get_shutdown_scope(void);
@@ -157,9 +157,9 @@ enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
 enum pm_ret_status pm_clock_getrate(unsigned int clock_id,
 				    uint64_t *rate);
 enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
-				      unsigned int parent_id);
+				      unsigned int parent_index);
 enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
-				      unsigned int *parent_id);
+				      unsigned int *parent_index);
 void pm_query_data(enum pm_query_id qid, unsigned int arg1, unsigned int arg2,
 		   unsigned int arg3, unsigned int *data);
 enum pm_ret_status pm_sha_hash(uint32_t address_high,

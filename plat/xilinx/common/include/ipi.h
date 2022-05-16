@@ -47,7 +47,7 @@ struct ipi_config {
  ********************************************************************/
 
 /* Initialize IPI configuration table */
-void ipi_config_table_init(const struct ipi_config *ipi_table,
+void ipi_config_table_init(const struct ipi_config *ipi_config_table,
 			   uint32_t total_ipi);
 
 /* Validate IPI mailbox access */
