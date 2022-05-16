@@ -11,7 +11,8 @@ endif
 SPMC_SOURCES	:=	$(addprefix services/std_svc/spm/el3_spmc/,	\
 			spmc_main.c				\
 			spmc_setup.c				\
-			logical_sp.c)
+			logical_sp.c				\
+			spmc_pm.c)
 
 # Specify platform specific logical partition implementation.
 SPMC_LP_SOURCES  := $(addprefix ${PLAT_DIR}/, \

@@ -56,6 +56,19 @@
 	(((blk) & FFA_MSG_SEND_ATTRS_BLK_MASK) \
 	<< FFA_MSG_SEND_ATTRS_BLK_SHIFT)
 
+/* Defines for FF-A framework messages exchanged using direct messages. */
+#define FFA_FWK_MSG_BIT		BIT(31)
+#define FFA_FWK_MSG_MASK	0xFF
+#define FFA_FWK_MSG_PSCI	U(0x0)
+
+/* Defines for FF-A power management messages framework messages. */
+#define FFA_PM_MSG_WB_REQ	U(0x1) /* Warm boot request. */
+#define FFA_PM_MSG_PM_RESP	U(0x2) /* Response to PSCI or warmboot req. */
+
+/* FF-A warm boot types. */
+#define FFA_WB_TYPE_S2RAM	0x0
+#define FFA_WB_TYPE_NOTS2RAM	0x1
+
 /* Get FFA fastcall std FID from function number */
 #define FFA_FID(smc_cc, func_num)			\
 		((SMC_TYPE_FAST << FUNCID_TYPE_SHIFT) |	\
@@ -88,6 +101,8 @@
 #define FFA_FNUM_MEM_RETRIEVE_RESP		U(0x75)
 #define FFA_FNUM_MEM_RELINQUISH			U(0x76)
 #define FFA_FNUM_MEM_RECLAIM			U(0x77)
+#define FFA_FNUM_MEM_FRAG_RX			U(0x7A)
+#define FFA_FNUM_MEM_FRAG_TX			U(0x7B)
 #define FFA_FNUM_NORMAL_WORLD_RESUME		U(0x7C)
 
 /* FF-A v1.1 */
@@ -143,6 +158,8 @@
 #define FFA_NOTIFICATION_GET 	FFA_FID(SMC_32, FFA_FNUM_NOTIFICATION_GET)
 #define FFA_NOTIFICATION_INFO_GET \
 	FFA_FID(SMC_32, FFA_FNUM_NOTIFICATION_INFO_GET)
+#define FFA_MEM_FRAG_RX	FFA_FID(SMC_32, FFA_FNUM_MEM_FRAG_RX)
+#define FFA_MEM_FRAG_TX	FFA_FID(SMC_32, FFA_FNUM_MEM_FRAG_TX)
 #define FFA_SPM_ID_GET		FFA_FID(SMC_32, FFA_FNUM_SPM_ID_GET)
 #define FFA_NORMAL_WORLD_RESUME	FFA_FID(SMC_32, FFA_FNUM_NORMAL_WORLD_RESUME)
 

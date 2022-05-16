@@ -10,6 +10,7 @@
 #include <arch_helpers.h>
 #include <bl31/bl31.h>
 #include <bl31/ehf.h>
+#include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <common/runtime_svc.h>
@@ -44,6 +45,11 @@ static struct secure_partition_desc sp_desc[SECURE_PARTITION_COUNT];
  * properties when the SPMC supports indirect messaging.
  */
 static struct ns_endpoint_desc ns_ep_desc[NS_PARTITION_COUNT];
+
+static uint64_t spmc_sp_interrupt_handler(uint32_t id,
+					  uint32_t flags,
+					  void *handle,
+					  void *cookie);
 
 /*
  * Helper function to obtain the array storing the EL3
@@ -234,13 +240,20 @@ static uint64_t spmc_smc_return(uint32_t smc_fid,
  ******************************************************************************/
 static inline bool direct_msg_validate_arg2(uint64_t x2)
 {
-	/*
-	 * We currently only support partition messages, therefore ensure x2 is
-	 * not set.
-	 */
-	if (x2 != (uint64_t) 0) {
-		VERBOSE("Arg2 MBZ for partition messages (0x%lx).\n", x2);
-		return false;
+	/* Check message type. */
+	if (x2 & FFA_FWK_MSG_BIT) {
+		/* We have a framework message, ensure it is a known message. */
+		if (x2 & ~(FFA_FWK_MSG_MASK | FFA_FWK_MSG_BIT)) {
+			VERBOSE("Invalid message format 0x%lx.\n", x2);
+			return false;
+		}
+	} else {
+		/* We have a partition messages, ensure x2 is not set. */
+		if (x2 != (uint64_t) 0) {
+			VERBOSE("Arg2 MBZ for partition messages. (0x%lx).\n",
+				x2);
+			return false;
+		}
 	}
 	return true;
 }
@@ -1008,6 +1021,8 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	/* Supported features from both worlds. */
 	case FFA_ERROR:
 	case FFA_SUCCESS_SMC32:
+	case FFA_INTERRUPT:
+	case FFA_SPM_ID_GET:
 	case FFA_ID_GET:
 	case FFA_FEATURES:
 	case FFA_VERSION:
@@ -1032,6 +1047,7 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 		/* Execution stops here. */
 
 	/* Supported ABIs only from the secure world. */
+	case FFA_SECONDARY_EP_REGISTER_SMC64:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
 	case FFA_MSG_WAIT:
@@ -1066,6 +1082,30 @@ static uint64_t ffa_id_get_handler(uint32_t smc_fid,
 		SMC_RET3(handle, FFA_SUCCESS_SMC32, 0x0,
 			 spmc_get_hyp_ctx()->ns_ep_id);
 	}
+}
+
+/*
+ * Enable an SP to query the ID assigned to the SPMC.
+ */
+static uint64_t ffa_spm_id_get_handler(uint32_t smc_fid,
+				       bool secure_origin,
+				       uint64_t x1,
+				       uint64_t x2,
+				       uint64_t x3,
+				       uint64_t x4,
+				       void *cookie,
+				       void *handle,
+				       uint64_t flags)
+{
+	assert(x1 == 0UL);
+	assert(x2 == 0UL);
+	assert(x3 == 0UL);
+	assert(x4 == 0UL);
+	assert(SMC_GET_GP(handle, CTX_GPREG_X5) == 0UL);
+	assert(SMC_GET_GP(handle, CTX_GPREG_X6) == 0UL);
+	assert(SMC_GET_GP(handle, CTX_GPREG_X7) == 0UL);
+
+	SMC_RET3(handle, FFA_SUCCESS_SMC32, 0x0, FFA_SPMC_ID);
 }
 
 static uint64_t ffa_run_handler(uint32_t smc_fid,
@@ -1167,6 +1207,104 @@ static uint64_t rx_release_handler(uint32_t smc_fid,
 
 	mbox->state = MAILBOX_STATE_EMPTY;
 	spin_unlock(&mbox->lock);
+
+	SMC_RET1(handle, FFA_SUCCESS_SMC32);
+}
+
+/*
+ * Perform initial validation on the provided secondary entry point.
+ * For now ensure it does not lie within the BL31 Image or the SP's
+ * RX/TX buffers as these are mapped within EL3.
+ * TODO: perform validation for additional invalid memory regions.
+ */
+static int validate_secondary_ep(uintptr_t ep, struct secure_partition_desc *sp)
+{
+	struct mailbox *mb;
+	uintptr_t buffer_size;
+	uintptr_t sp_rx_buffer;
+	uintptr_t sp_tx_buffer;
+	uintptr_t sp_rx_buffer_limit;
+	uintptr_t sp_tx_buffer_limit;
+
+	mb = &sp->mailbox;
+	buffer_size = (uintptr_t) (mb->rxtx_page_count * FFA_PAGE_SIZE);
+	sp_rx_buffer = (uintptr_t) mb->rx_buffer;
+	sp_tx_buffer = (uintptr_t) mb->tx_buffer;
+	sp_rx_buffer_limit = sp_rx_buffer + buffer_size;
+	sp_tx_buffer_limit = sp_tx_buffer + buffer_size;
+
+	/*
+	 * Check if the entry point lies within BL31, or the
+	 * SP's RX or TX buffer.
+	 */
+	if ((ep >= BL31_BASE && ep < BL31_LIMIT) ||
+	    (ep >= sp_rx_buffer && ep < sp_rx_buffer_limit) ||
+	    (ep >= sp_tx_buffer && ep < sp_tx_buffer_limit)) {
+		return -EINVAL;
+	}
+	return 0;
+}
+
+/*******************************************************************************
+ * This function handles the FFA_SECONDARY_EP_REGISTER SMC to allow an SP to
+ *  register an entry point for initialization during a secondary cold boot.
+ ******************************************************************************/
+static uint64_t ffa_sec_ep_register_handler(uint32_t smc_fid,
+					    bool secure_origin,
+					    uint64_t x1,
+					    uint64_t x2,
+					    uint64_t x3,
+					    uint64_t x4,
+					    void *cookie,
+					    void *handle,
+					    uint64_t flags)
+{
+	struct secure_partition_desc *sp;
+	struct sp_exec_ctx *sp_ctx;
+
+	/* This request cannot originate from the Normal world. */
+	if (!secure_origin) {
+		WARN("%s: Can only be called from SWd.\n", __func__);
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
+
+	/* Get the context of the current SP. */
+	sp = spmc_get_current_sp_ctx();
+	if (sp == NULL) {
+		WARN("%s: Cannot find SP context.\n", __func__);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Only an S-EL1 SP should be invoking this ABI. */
+	if (sp->runtime_el != S_EL1) {
+		WARN("%s: Can only be called for a S-EL1 SP.\n", __func__);
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	/* Ensure the SP is in its initialization state. */
+	sp_ctx = spmc_get_sp_ec(sp);
+	if (sp_ctx->rt_model != RT_MODEL_INIT) {
+		WARN("%s: Can only be called during SP initialization.\n",
+		     __func__);
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	/* Perform initial validation of the secondary entry point. */
+	if (validate_secondary_ep(x1, sp)) {
+		WARN("%s: Invalid entry point provided (0x%lx).\n",
+		     __func__, x1);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/*
+	 * Update the secondary entrypoint in SP context.
+	 * We don't need a lock here as during partition initialization there
+	 * will only be a single core online.
+	 */
+	sp->secondary_ep = x1;
+	VERBOSE("%s: 0x%lx\n", __func__, sp->secondary_ep);
 
 	SMC_RET1(handle, FFA_SUCCESS_SMC32);
 }
@@ -1274,6 +1412,25 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 			return -EINVAL;
 		}
 		sp->sp_id = config_32;
+	}
+
+	ret = fdt_read_uint32(sp_manifest, node,
+			      "power-management-messages", &config_32);
+	if (ret != 0) {
+		WARN("Missing Power Management Messages entry.\n");
+	} else {
+		/*
+		 * Ensure only the currently supported power messages have
+		 * been requested.
+		 */
+		if (config_32 & ~(FFA_PM_MSG_SUB_CPU_OFF |
+				  FFA_PM_MSG_SUB_CPU_SUSPEND |
+				  FFA_PM_MSG_SUB_CPU_SUSPEND_RESUME)) {
+			ERROR("Requested unsupported PM messages (%x)\n",
+			      config_32);
+			return -EINVAL;
+		}
+		sp->pwr_mgmt_msgs = config_32;
 	}
 
 	return 0;
@@ -1514,6 +1671,7 @@ void spmc_populate_attrs(spmc_manifest_attribute_t *spmc_attrs)
 int32_t spmc_setup(void)
 {
 	int32_t ret;
+	uint32_t flags;
 
 	/* Initialize endpoint descriptors */
 	initalize_sp_descs();
@@ -1538,6 +1696,24 @@ int32_t spmc_setup(void)
 	if (ret != 0) {
 		ERROR("Error in SP finding and context preparation.\n");
 		return ret;
+	}
+
+	/* Register power management hooks with PSCI */
+	psci_register_spd_pm_hook(&spmc_pm);
+
+	/*
+	 * Register an interrupt handler for S-EL1 interrupts
+	 * when generated during code executing in the
+	 * non-secure state.
+	 */
+	flags = 0;
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	ret = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+					      spmc_sp_interrupt_handler,
+					      flags);
+	if (ret != 0) {
+		ERROR("Failed to register interrupt handler! (%d)\n", ret);
+		panic();
 	}
 
 	/* Register init function for deferred init.  */
@@ -1567,6 +1743,10 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 		return ffa_version_handler(smc_fid, secure_origin, x1, x2, x3,
 					   x4, cookie, handle, flags);
 
+	case FFA_SPM_ID_GET:
+		return ffa_spm_id_get_handler(smc_fid, secure_origin, x1, x2,
+					     x3, x4, cookie, handle, flags);
+
 	case FFA_ID_GET:
 		return ffa_id_get_handler(smc_fid, secure_origin, x1, x2, x3,
 					  x4, cookie, handle, flags);
@@ -1574,6 +1754,11 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 	case FFA_FEATURES:
 		return ffa_features_handler(smc_fid, secure_origin, x1, x2, x3,
 					    x4, cookie, handle, flags);
+
+	case FFA_SECONDARY_EP_REGISTER_SMC64:
+		return ffa_sec_ep_register_handler(smc_fid, secure_origin, x1,
+						   x2, x3, x4, cookie, handle,
+						   flags);
 
 	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
@@ -1619,4 +1804,57 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 		break;
 	}
 	return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+}
+
+/*******************************************************************************
+ * This function is the handler registered for S-EL1 interrupts by the SPMC. It
+ * validates the interrupt and upon success arranges entry into the SP for
+ * handling the interrupt.
+ ******************************************************************************/
+static uint64_t spmc_sp_interrupt_handler(uint32_t id,
+					  uint32_t flags,
+					  void *handle,
+					  void *cookie)
+{
+	struct secure_partition_desc *sp = spmc_get_current_sp_ctx();
+	struct sp_exec_ctx *ec;
+	uint32_t linear_id = plat_my_core_pos();
+
+	/* Sanity check for a NULL pointer dereference. */
+	assert(sp != NULL);
+
+	/* Check the security state when the exception was generated. */
+	assert(get_interrupt_src_ss(flags) == NON_SECURE);
+
+	/* Panic if not an S-EL1 Partition. */
+	if (sp->runtime_el != S_EL1) {
+		ERROR("Interrupt received for a non S-EL1 SP on core%u.\n",
+		      linear_id);
+		panic();
+	}
+
+	/* Obtain a reference to the SP execution context. */
+	ec = spmc_get_sp_ec(sp);
+
+	/* Ensure that the execution context is in waiting state else panic. */
+	if (ec->rt_state != RT_STATE_WAITING) {
+		ERROR("SP EC on core%u is not waiting (%u), it is (%u).\n",
+		      linear_id, RT_STATE_WAITING, ec->rt_state);
+		panic();
+	}
+
+	/* Update the runtime model and state of the partition. */
+	ec->rt_model = RT_MODEL_INTR;
+	ec->rt_state = RT_STATE_RUNNING;
+
+	VERBOSE("SP (0x%x) interrupt start on core%u.\n", sp->sp_id, linear_id);
+
+	/*
+	 * Forward the interrupt to the S-EL1 SP. The interrupt ID is not
+	 * populated as the SP can determine this by itself.
+	 */
+	return spmd_smc_switch_state(FFA_INTERRUPT, false,
+				     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				     handle);
 }

@@ -59,8 +59,6 @@ typedef struct spmd_spm_core_context {
 #define FFA_NS_ENDPOINT_ID			U(0)
 
 /* Define SPMD target function IDs for framework messages to the SPMC */
-#define SPMD_FWK_MSG_BIT			BIT(31)
-#define SPMD_FWK_MSG_PSCI			U(0)
 #define SPMD_FWK_MSG_FFA_VERSION_REQ		U(0x8)
 #define SPMD_FWK_MSG_FFA_VERSION_RESP		U(0x9)
 

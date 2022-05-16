@@ -151,6 +151,16 @@ Partition Properties
    - List of <u32> tuples, identifying the IDs this partition is acting as
      proxy for.
 
+- power-management-messages
+   - value type: <u32>
+   - Specifies which power management messages a partition subscribes to.
+     A set bit means the partition should be informed of the power event, clear
+     bit - should not be informed of event:
+
+      - Bit[0]: CPU_OFF
+      - Bit[1]: CPU_SUSPEND
+      - Bit[2]: CPU_SUSPEND_RESUME
+
 Memory Regions
 --------------
 

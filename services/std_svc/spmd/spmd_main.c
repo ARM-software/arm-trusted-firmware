@@ -684,7 +684,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			    (SMC_GET_GP(gpregs, CTX_GPREG_X0) !=
 				FFA_MSG_SEND_DIRECT_RESP_SMC32) ||
 			    (SMC_GET_GP(gpregs, CTX_GPREG_X2) !=
-				(SPMD_FWK_MSG_BIT |
+				(FFA_FWK_MSG_BIT |
 				 SPMD_FWK_MSG_FFA_VERSION_RESP))) {
 				ERROR("Failed to forward FFA_VERSION\n");
 				ret = FFA_ERROR_NOT_SUPPORTED;
@@ -875,6 +875,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_MEM_RETRIEVE_RESP:
 	case FFA_MEM_RELINQUISH:
 	case FFA_MEM_RECLAIM:
+	case FFA_MEM_FRAG_TX:
+	case FFA_MEM_FRAG_RX:
 	case FFA_SUCCESS_SMC32:
 	case FFA_SUCCESS_SMC64:
 		/*
