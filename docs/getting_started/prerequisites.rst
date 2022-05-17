@@ -54,7 +54,7 @@ The following tools are required to obtain and build |TF-A|:
 The following libraries must be available to build one or more components or
 supporting tools:
 
-- OpenSSL >= 1.0.1
+- OpenSSL >= 3.0
 
    Required to build the cert_create tool.
 
