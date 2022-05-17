@@ -75,8 +75,6 @@ Software Delegated Exception Interface (SDEI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Mark Dykes <mark.dykes@arm.com>
 :|G|: `mardyk01`_
-:|M|: John Powell <john.powell@arm.com>
-:|G|: `john-powell-arm`_
 :|F|: services/std_svc/sdei/
 
 Trusted Boot
@@ -105,8 +103,6 @@ Exception Handling Framework (EHF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
-:|M|: John Powell <john.powell@arm.com>
-:|G|: `john-powell-arm`_
 :|F|: bl31/ehf.c
 
 Realm Management Extension (RME)
@@ -115,8 +111,6 @@ Realm Management Extension (RME)
 :|G|: `bipinravi-arm`_
 :|M|: Mark Dykes <mark.dykes@arm.com>
 :|G|: `mardyk01`_
-:|M|: John Powell <john.powell@arm.com>
-:|G|: `john-powell-arm`_
 :|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
 :|G|: `zelalem-aweke`_
 
@@ -199,8 +193,6 @@ Arm CPU libraries
 ^^^^^^^^^^^^^^^^^
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
-:|M|: John Powell <john.powell@arm.com>
-:|G|: `john-powell-arm`_
 :|F|: lib/cpus/
 
 Reliability Availability Serviceabilty (RAS) framework
@@ -243,8 +235,6 @@ Standard C library
 ^^^^^^^^^^^^^^^^^^
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|G|: `AlexeiFedorov`_
-:|M|: John Powell <john.powell@arm.com>
-:|G|: `john-powell-arm`_
 :|F|: lib/libc/
 
 Library At ROM (ROMlib)
@@ -360,8 +350,6 @@ Granule Protection Tables Library (GPT-RME)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Mark Dykes <mark.dykes@arm.com>
 :|G|: `mardyk01`_
-:|M|: John Powell <john.powell@arm.com>
-:|G|: `john-powell-arm`_
 :|F|: lib/gpt_rme
 :|F|: include/lib/gpt_rme
 
@@ -880,7 +868,6 @@ Conventional Changelog Extensions
 .. _zelalem-aweke: https://github.com/zelalem-aweke
 .. _J-Alves: https://github.com/J-Alves
 .. _madhukar-Arm: https://github.com/madhukar-Arm
-.. _john-powell-arm: https://github.com/john-powell-arm
 .. _raghuncstate: https://github.com/raghuncstate
 .. _CJKay: https://github.com/cjkay
 .. _nmenon: https://github.com/nmenon
