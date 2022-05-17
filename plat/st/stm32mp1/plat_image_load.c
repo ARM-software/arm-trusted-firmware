@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
 #include <common/desc_image_load.h>
 #include <plat/common/platform.h>
 
