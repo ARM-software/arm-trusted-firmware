@@ -193,8 +193,6 @@ Performance Measurement Framework (PMF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Joao Alves <Joao.Alves@arm.com>
 :|G|: `J-Alves`_
-:|M|: Jimmy Brisson <Jimmy.Brisson@arm.com>
-:|G|: `theotherjimmy`_
 :|F|: lib/pmf/
 
 Arm CPU libraries
@@ -225,8 +223,6 @@ Memory Partitioning And Monitoring (MPAM) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
 :|G|: `zelalem-aweke`_
-:|M|: Jimmy Brisson <Jimmy.Brisson@arm.com>
-:|G|: `theotherjimmy`_
 :|F|: lib/extensions/mpam/
 
 Pointer Authentication (PAuth) and Branch Target Identification (BTI) extensions
@@ -241,15 +237,7 @@ Statistical Profiling Extension (SPE)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
 :|G|: `zelalem-aweke`_
-:|M|: Jimmy Brisson <Jimmy.Brisson@arm.com>
-:|G|: `theotherjimmy`_
 :|F|: lib/extensions/spe/
-
-Scalable Vector Extension (SVE)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Jimmy Brisson <Jimmy.Brisson@arm.com>
-:|G|: `theotherjimmy`_
-:|F|: lib/extensions/sve/
 
 Standard C library
 ^^^^^^^^^^^^^^^^^^
@@ -890,7 +878,6 @@ Conventional Changelog Extensions
 .. _javieralso-arm: https://github.com/javieralso-arm
 .. _laurenw-arm: https://github.com/laurenw-arm
 .. _zelalem-aweke: https://github.com/zelalem-aweke
-.. _theotherjimmy: https://github.com/theotherjimmy
 .. _J-Alves: https://github.com/J-Alves
 .. _madhukar-Arm: https://github.com/madhukar-Arm
 .. _john-powell-arm: https://github.com/john-powell-arm
