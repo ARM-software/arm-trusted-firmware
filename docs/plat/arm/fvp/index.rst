@@ -12,7 +12,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
 .. note::
-   The FVP models used are Version 11.16 Build 16, unless otherwise stated.
+   The FVP models used are Version 11.17 Build 21, unless otherwise stated.
 
 -  ``Foundation_Platform``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
@@ -48,12 +48,12 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Neoverse-N2x4`` (Version 11.12 build 38)
 -  ``FVP_Base_Neoverse-V1x4``
 -  ``FVP_Base_RevC-2xAEMvA``  (For certain configurations also uses 0.0/6557)
--  ``FVP_CSS_SGI-575``        (Version 11.15/26)
--  ``FVP_Morello``            (Version 0.11/19)
--  ``FVP_RD_E1_edge``         (Version 11.15/26)
--  ``FVP_RD_N1_edge_dual``    (Version 11.15/26)
--  ``FVP_RD_N1_edge``         (Version 11.15/26)
--  ``FVP_RD_V1``              (Version 11.15/26)
+-  ``FVP_CSS_SGI-575``        (Version 11.17/33)
+-  ``FVP_Morello``            (Version 0.11/33)
+-  ``FVP_RD_E1_edge``         (Version 11.17/33)
+-  ``FVP_RD_N1_edge_dual``    (Version 11.17/33)
+-  ``FVP_RD_N1_edge``         (Version 11.17/33)
+-  ``FVP_RD_V1``              (Version 11.17/33)
 -  ``FVP_TC0``
 -  ``FVP_TC1``
 
