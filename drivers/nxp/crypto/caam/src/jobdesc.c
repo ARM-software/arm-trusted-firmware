@@ -11,12 +11,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <assert.h>
 #include "caam.h"
 #include <common/debug.h>
 #include "jobdesc.h"
 #include "rsa.h"
 #include "sec_hw_specific.h"
-
 
 /* Return Length of desctiptr from first word */
 uint32_t desc_length(uint32_t *desc)
