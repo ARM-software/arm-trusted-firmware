@@ -320,12 +320,14 @@ BL2_SOURCES		+=	drivers/io/io_dummy.c					\
 				plat/st/stm32mp1/stm32mp1_security.c
 endif
 
-ifeq (${PSA_FWU_SUPPORT},1)
 include lib/zlib/zlib.mk
+
+ifeq (${PSA_FWU_SUPPORT},1)
 include drivers/fwu/fwu.mk
+endif
+
 
 BL2_SOURCES		+=	$(ZLIB_SOURCES)
-endif
 
 BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/io/io_mtd.c					\
