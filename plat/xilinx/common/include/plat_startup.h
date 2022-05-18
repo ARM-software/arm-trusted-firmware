@@ -15,8 +15,8 @@ enum fsbl_handoff {
 	FSBL_HANDOFF_TOO_MANY_PARTS
 };
 
-enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32_image_ep_info,
-					entry_point_info_t *bl33_image_ep_info,
+enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
+					entry_point_info_t *bl33,
 					uint64_t atf_handoff_addr);
 
 #endif /* PLAT_STARTUP_H */

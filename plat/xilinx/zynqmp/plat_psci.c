@@ -19,9 +19,9 @@
 #include "pm_api_sys.h"
 #include "pm_client.h"
 
-uintptr_t zynqmp_sec_entry;
+static uintptr_t zynqmp_sec_entry;
 
-void zynqmp_cpu_standby(plat_local_state_t cpu_state)
+static void zynqmp_cpu_standby(plat_local_state_t cpu_state)
 {
 	VERBOSE("%s: cpu_state: 0x%x\n", __func__, cpu_state);
 
@@ -171,7 +171,7 @@ static void __dead2 zynqmp_system_reset(void)
 	}
 }
 
-int zynqmp_validate_power_state(unsigned int power_state,
+static int zynqmp_validate_power_state(unsigned int power_state,
 				psci_power_state_t *req_state)
 {
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
@@ -194,7 +194,7 @@ int zynqmp_validate_power_state(unsigned int power_state,
 	return PSCI_E_SUCCESS;
 }
 
-void zynqmp_get_sys_suspend_power_state(psci_power_state_t *req_state)
+static void zynqmp_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
 	req_state->pwr_domain_state[PSCI_CPU_PWR_LVL] = PLAT_MAX_OFF_STATE;
 	req_state->pwr_domain_state[1] = PLAT_MAX_OFF_STATE;

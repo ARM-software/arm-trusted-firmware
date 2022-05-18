@@ -53,7 +53,7 @@ static int32_t sip_svc_setup(void)
  * Handler for all SiP SMC calls. Handles standard SIP requests
  * and calls PM SMC handler if the call is for a PM-API function.
  */
-uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
+static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 			      u_register_t x1,
 			      u_register_t x2,
 			      u_register_t x3,
