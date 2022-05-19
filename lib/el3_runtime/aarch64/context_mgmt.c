@@ -36,6 +36,64 @@ CASSERT(((TWED_DELAY & ~SCR_TWEDEL_MASK) == 0U), assert_twed_delay_value_check);
 #endif /* ENABLE_FEAT_TWED */
 
 static void manage_extensions_secure(cpu_context_t *ctx);
+
+static void setup_el1_context(cpu_context_t *ctx, const struct entry_point_info *ep)
+{
+	u_register_t sctlr_elx, actlr_elx;
+
+	/*
+	 * Initialise SCTLR_EL1 to the reset value corresponding to the target
+	 * execution state setting all fields rather than relying on the hw.
+	 * Some fields have architecturally UNKNOWN reset values and these are
+	 * set to zero.
+	 *
+	 * SCTLR.EE: Endianness is taken from the entrypoint attributes.
+	 *
+	 * SCTLR.M, SCTLR.C and SCTLR.I: These fields must be zero (as
+	 * required by PSCI specification)
+	 */
+	sctlr_elx = (EP_GET_EE(ep->h.attr) != 0U) ? SCTLR_EE_BIT : 0UL;
+	if (GET_RW(ep->spsr) == MODE_RW_64) {
+		sctlr_elx |= SCTLR_EL1_RES1;
+	} else {
+		/*
+		 * If the target execution state is AArch32 then the following
+		 * fields need to be set.
+		 *
+		 * SCTRL_EL1.nTWE: Set to one so that EL0 execution of WFE
+		 *  instructions are not trapped to EL1.
+		 *
+		 * SCTLR_EL1.nTWI: Set to one so that EL0 execution of WFI
+		 *  instructions are not trapped to EL1.
+		 *
+		 * SCTLR_EL1.CP15BEN: Set to one to enable EL0 execution of the
+		 *  CP15DMB, CP15DSB, and CP15ISB instructions.
+		 */
+		sctlr_elx |= SCTLR_AARCH32_EL1_RES1 | SCTLR_CP15BEN_BIT
+					| SCTLR_NTWI_BIT | SCTLR_NTWE_BIT;
+	}
+
+#if ERRATA_A75_764081
+	/*
+	 * If workaround of errata 764081 for Cortex-A75 is used then set
+	 * SCTLR_EL1.IESB to enable Implicit Error Synchronization Barrier.
+	 */
+	sctlr_elx |= SCTLR_IESB_BIT;
+#endif
+	/* Store the initialised SCTLR_EL1 value in the cpu_context */
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
+
+	/*
+	 * Base the context ACTLR_EL1 on the current value, as it is
+	 * implementation defined. The context restore process will write
+	 * the value from the context to the actual register and can cause
+	 * problems for processor cores that don't expect certain bits to
+	 * be zero.
+	 */
+	actlr_elx = read_actlr_el1();
+	write_ctx_reg((get_el1_sysregs_ctx(ctx)), (CTX_ACTLR_EL1), (actlr_elx));
+}
+
 /******************************************************************************
  * This function performs initializations that are specific to SECURE state
  * and updates the cpu context specified by 'ctx'.
@@ -84,6 +142,14 @@ static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_in
 	}
 
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
+
+	/*
+	 * Initialize EL1 context registers unless SPMC is running
+	 * at S-EL2.
+	 */
+#if !SPMD_SPM_AT_SEL2
+	setup_el1_context(ctx, ep);
+#endif
 
 	manage_extensions_secure(ctx);
 }
@@ -147,6 +213,9 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 #endif
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 
+	/* Initialize EL1 context registers */
+	setup_el1_context(ctx, ep);
+
 	/* Initialize EL2 context registers */
 #if CTX_INCLUDE_EL2_REGS
 
@@ -186,7 +255,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	u_register_t scr_el3;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
-	u_register_t sctlr_elx, actlr_elx;
 
 	/* Clear any residual register values from the context */
 	zeromem(ctx, sizeof(*ctx));
@@ -214,8 +282,10 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 
 	/*
 	 * SCR_EL3.ST: Traps Secure EL1 accesses to the Counter-timer Physical
-	 *  Secure timer registers to EL3, from AArch64 state only, if specified
-	 *  by the entrypoint attributes.
+	 * Secure timer registers to EL3, from AArch64 state only, if specified
+	 * by the entrypoint attributes. If SEL2 is present and enabled, the ST
+	 * bit always behaves as 1 (i.e. secure physical timer register access
+	 * is not trapped)
 	 */
 	if (EP_GET_ST(ep->h.attr) != 0U) {
 		scr_el3 |= SCR_ST_BIT;
@@ -283,46 +353,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 		}
 	}
 
-	/*
-	 * Initialise SCTLR_EL1 to the reset value corresponding to the target
-	 * execution state setting all fields rather than relying of the hw.
-	 * Some fields have architecturally UNKNOWN reset values and these are
-	 * set to zero.
-	 *
-	 * SCTLR.EE: Endianness is taken from the entrypoint attributes.
-	 *
-	 * SCTLR.M, SCTLR.C and SCTLR.I: These fields must be zero (as
-	 *  required by PSCI specification)
-	 */
-	sctlr_elx = (EP_GET_EE(ep->h.attr) != 0U) ? SCTLR_EE_BIT : 0U;
-	if (GET_RW(ep->spsr) == MODE_RW_64) {
-		sctlr_elx |= SCTLR_EL1_RES1;
-	} else {
-		/*
-		 * If the target execution state is AArch32 then the following
-		 * fields need to be set.
-		 *
-		 * SCTRL_EL1.nTWE: Set to one so that EL0 execution of WFE
-		 *  instructions are not trapped to EL1.
-		 *
-		 * SCTLR_EL1.nTWI: Set to one so that EL0 execution of WFI
-		 *  instructions are not trapped to EL1.
-		 *
-		 * SCTLR_EL1.CP15BEN: Set to one to enable EL0 execution of the
-		 *  CP15DMB, CP15DSB, and CP15ISB instructions.
-		 */
-		sctlr_elx |= SCTLR_AARCH32_EL1_RES1 | SCTLR_CP15BEN_BIT
-					| SCTLR_NTWI_BIT | SCTLR_NTWE_BIT;
-	}
-
-#if ERRATA_A75_764081
-	/*
-	 * If workaround of errata 764081 for Cortex-A75 is used then set
-	 * SCTLR_EL1.IESB to enable Implicit Error Synchronization Barrier.
-	 */
-	sctlr_elx |= SCTLR_IESB_BIT;
-#endif
-
 #if ENABLE_FEAT_TWED
 	/* Enable WFE trap delay in SCR_EL3 if supported and configured */
 	/* Set delay in SCR_EL3 */
@@ -333,23 +363,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	/* Enable WFE delay */
 	scr_el3 |= SCR_TWEDEn_BIT;
 #endif /* ENABLE_FEAT_TWED */
-
-	/*
-	 * Store the initialised SCTLR_EL1 value in the cpu_context - SCTLR_EL2
-	 * and other EL2 registers are set up by cm_prepare_el3_exit() as they
-	 * are not part of the stored cpu_context.
-	 */
-	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
-
-	/*
-	 * Base the context ACTLR_EL1 on the current value, as it is
-	 * implementation defined. The context restore process will write
-	 * the value from the context to the actual register and can cause
-	 * problems for processor cores that don't expect certain bits to
-	 * be zero.
-	 */
-	actlr_elx = read_actlr_el1();
-	write_ctx_reg((get_el1_sysregs_ctx(ctx)), (CTX_ACTLR_EL1), (actlr_elx));
 
 	/*
 	 * Populate EL3 state so that we've the right context
@@ -819,6 +832,14 @@ void cm_prepare_el3_exit_ns(void)
 #if CTX_INCLUDE_EL2_REGS
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	assert(ctx != NULL);
+
+	/* Assert that EL2 is used. */
+#if ENABLE_ASSERTIONS
+	el3_state_t *state = get_el3state_ctx(ctx);
+	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+#endif
+	assert(((scr_el3 & SCR_HCE_BIT) != 0UL) &&
+			(el_implemented(2U) != EL_IMPL_NONE));
 
 	/*
 	 * Currently some extensions are configured using
