@@ -463,3 +463,6 @@ TWED_DELAY			:= 0
 
 # By default, disable the mocking of RSS provided services
 PLAT_RSS_NOT_SUPPORTED		:= 0
+
+# Dynamic Root of Trust for Measurement support
+DRTM_SUPPORT			:= 0

@@ -833,6 +833,10 @@ ifeq (${CTX_INCLUDE_FPREGS},1)
     endif
 endif
 
+ifeq ($(DRTM_SUPPORT),1)
+    $(info DRTM_SUPPORT is an experimental feature)
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -1008,6 +1012,7 @@ $(eval $(call assert_booleans,\
         HW_ASSISTED_COHERENCY \
         INVERTED_MEMMAP \
         MEASURED_BOOT \
+        DRTM_SUPPORT \
         NS_TIMER_SWITCH \
         OVERRIDE_LIBC \
         PL011_GENERIC_UART \
@@ -1144,6 +1149,7 @@ $(eval $(call add_defines,\
         HW_ASSISTED_COHERENCY \
         LOG_LEVEL \
         MEASURED_BOOT \
+        DRTM_SUPPORT \
         NS_TIMER_SWITCH \
         PL011_GENERIC_UART \
         PLAT_${PLAT} \

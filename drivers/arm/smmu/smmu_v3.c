@@ -14,7 +14,7 @@
 /* SMMU poll number of retries */
 #define SMMU_POLL_TIMEOUT_US	U(1000)
 
-static int __init smmuv3_poll(uintptr_t smmu_reg, uint32_t mask,
+static int smmuv3_poll(uintptr_t smmu_reg, uint32_t mask,
 				uint32_t value)
 {
 	uint32_t reg_val;
@@ -154,4 +154,29 @@ int __init smmuv3_init(uintptr_t smmu_base)
 	/* Wait for global invalidation operation to finish */
 	return smmuv3_poll(smmu_base + SMMU_S_INIT,
 				SMMU_S_INIT_INV_ALL, 0U);
+}
+
+int smmuv3_ns_set_abort_all(uintptr_t smmu_base)
+{
+	/* Attribute update has completed when SMMU_GBPA.Update bit is 0 */
+	if (smmuv3_poll(smmu_base + SMMU_GBPA, SMMU_GBPA_UPDATE, 0U) != 0U) {
+		return -1;
+	}
+
+	/*
+	 * Set GBPA's ABORT bit. Other GBPA fields are presumably ignored then,
+	 * so simply preserve their value.
+	 */
+	mmio_setbits_32(smmu_base + SMMU_GBPA, SMMU_GBPA_UPDATE | SMMU_GBPA_ABORT);
+	if (smmuv3_poll(smmu_base + SMMU_GBPA, SMMU_GBPA_UPDATE, 0U) != 0U) {
+		return -1;
+	}
+
+	/* Disable the SMMU to engage the GBPA fields previously configured. */
+	mmio_clrbits_32(smmu_base + SMMU_CR0, SMMU_CR0_SMMUEN);
+	if (smmuv3_poll(smmu_base + SMMU_CR0ACK, SMMU_CR0_SMMUEN, 0U) != 0U) {
+		return -1;
+	}
+
+	return 0;
 }
