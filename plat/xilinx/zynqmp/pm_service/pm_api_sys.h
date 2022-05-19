@@ -94,11 +94,6 @@ enum pm_ret_status pm_set_wakeup_source(enum pm_node_id target,
 
 enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype);
 
-enum pm_ret_status pm_init_suspend_cb(enum pm_suspend_reason reason,
-				      uint32_t latency,
-				      uint32_t state,
-				      uint32_t timeout);
-
 /* API functions for managing PM Slaves */
 enum pm_ret_status pm_req_node(enum pm_node_id nid,
 			       uint32_t capabilities,
@@ -114,12 +109,6 @@ enum pm_ret_status pm_set_requirement(enum pm_node_id nid,
 enum pm_ret_status pm_get_api_version(uint32_t *version);
 enum pm_ret_status pm_get_node_status(enum pm_node_id nid,
 				      uint32_t *ret_buff);
-enum pm_ret_status pm_acknowledge_cb(enum pm_node_id nid,
-				     enum pm_ret_status status,
-				     uint32_t oppoint);
-enum pm_ret_status pm_notify_cb(enum pm_node_id nid,
-				uint32_t event,
-				uint32_t oppoint);
 
 /* Direct-Control API functions */
 enum pm_ret_status pm_mmio_write(uintptr_t address,
@@ -201,10 +190,6 @@ enum pm_ret_status pm_efuse_access(uint32_t address_high,
 enum pm_ret_status em_set_action(uint32_t *value);
 enum pm_ret_status em_remove_action(uint32_t *value);
 enum pm_ret_status em_send_errors(uint32_t *value);
-enum pm_ret_status pm_feature_config(uint32_t ioctl_id,
-				     uint32_t config_id,
-				     uint32_t value,
-				     uint32_t *response);
 enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 				    uint32_t *bit_mask, uint8_t len);
 enum pm_ret_status check_api_dependency(uint8_t id);
