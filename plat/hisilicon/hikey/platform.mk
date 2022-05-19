@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -94,6 +94,10 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 ifeq (${SPD},opteed)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
 endif
+
+include lib/zlib/zlib.mk
+PLAT_INCLUDES		+=	-Ilib/zlib
+BL2_SOURCES		+=	$(ZLIB_SOURCES)
 
 HIKEY_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
