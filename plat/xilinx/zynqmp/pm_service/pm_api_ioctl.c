@@ -29,9 +29,9 @@
  *
  * @return	Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_get_rpu_oper_mode(unsigned int *mode)
+static enum pm_ret_status pm_ioctl_get_rpu_oper_mode(uint32_t *mode)
 {
-	unsigned int val;
+	uint32_t val;
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
 	val &= ZYNQMP_SLSPLIT_MASK;
@@ -55,9 +55,9 @@ static enum pm_ret_status pm_ioctl_get_rpu_oper_mode(unsigned int *mode)
  *
  * @return	Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_set_rpu_oper_mode(unsigned int mode)
+static enum pm_ret_status pm_ioctl_set_rpu_oper_mode(uint32_t mode)
 {
-	unsigned int val;
+	uint32_t val;
 
 	if (mmio_read_32(CRL_APB_RST_LPD_TOP) & CRL_APB_RPU_AMBA_RESET) {
 		return PM_RET_ERROR_ACCESS;
@@ -92,9 +92,9 @@ static enum pm_ret_status pm_ioctl_set_rpu_oper_mode(unsigned int mode)
  * @return	Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ioctl_config_boot_addr(enum pm_node_id nid,
-						    unsigned int value)
+						    uint32_t value)
 {
-	unsigned int rpu_cfg_addr, val;
+	uint32_t rpu_cfg_addr, val;
 
 	if (nid == NODE_RPU_0) {
 		rpu_cfg_addr = ZYNQMP_RPU0_CFG;
@@ -128,9 +128,9 @@ static enum pm_ret_status pm_ioctl_config_boot_addr(enum pm_node_id nid,
  *
  * @return	Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_config_tcm_comb(unsigned int value)
+static enum pm_ret_status pm_ioctl_config_tcm_comb(uint32_t value)
 {
-	unsigned int val;
+	uint32_t val;
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
 
@@ -156,8 +156,8 @@ static enum pm_ret_status pm_ioctl_config_tcm_comb(unsigned int value)
  *
  * @return	Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(unsigned int type,
-						       unsigned int value)
+static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(uint32_t type,
+						       uint32_t value)
 {
 	if ((value != PM_TAPDELAY_BYPASS_ENABLE &&
 	     value != PM_TAPDELAY_BYPASS_DISABLE) || type >= PM_TAPDELAY_MAX) {
@@ -179,9 +179,9 @@ static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(unsigned int type,
  * @return	Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ioctl_set_sgmii_mode(enum pm_node_id nid,
-						  unsigned int value)
+						  uint32_t value)
 {
-	unsigned int val, mask, shift;
+	uint32_t val, mask, shift;
 	enum pm_ret_status ret;
 
 	if (value != PM_SGMII_DISABLE && value != PM_SGMII_ENABLE) {
@@ -237,9 +237,9 @@ static enum pm_ret_status pm_ioctl_set_sgmii_mode(enum pm_node_id nid,
  * @return	Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ioctl_sd_dll_reset(enum pm_node_id nid,
-						unsigned int type)
+						uint32_t type)
 {
-	unsigned int mask, val;
+	uint32_t mask, val;
 	enum pm_ret_status ret;
 
 	if (nid == NODE_SD_0) {
@@ -288,11 +288,11 @@ static enum pm_ret_status pm_ioctl_sd_dll_reset(enum pm_node_id nid,
  */
 static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 						   enum tap_delay_type type,
-						   unsigned int value)
+						   uint32_t value)
 {
-	unsigned int shift;
+	uint32_t shift;
 	enum pm_ret_status ret;
-	unsigned int val, mask;
+	uint32_t val, mask;
 
 	if (nid == NODE_SD_0) {
 		shift = 0;
@@ -384,7 +384,7 @@ reset_release:
  * @return      Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ioctl_set_pll_frac_mode
-			(unsigned int pll, unsigned int mode)
+			(uint32_t pll, uint32_t mode)
 {
 	return pm_clock_set_pll_mode(pll, mode);
 }
@@ -400,7 +400,7 @@ static enum pm_ret_status pm_ioctl_set_pll_frac_mode
  * @return      Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ioctl_get_pll_frac_mode
-			(unsigned int pll, unsigned int *mode)
+			(uint32_t pll, uint32_t *mode)
 {
 	return pm_clock_get_pll_mode(pll, mode);
 }
@@ -417,7 +417,7 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_mode
  * @return      Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ioctl_set_pll_frac_data
-			(unsigned int pll, unsigned int data)
+			(uint32_t pll, uint32_t data)
 {
 	enum pm_node_id pll_nid;
 	enum pm_ret_status status;
@@ -442,7 +442,7 @@ static enum pm_ret_status pm_ioctl_set_pll_frac_data
  * @return      Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ioctl_get_pll_frac_data
-			(unsigned int pll, unsigned int *data)
+			(uint32_t pll, uint32_t *data)
 {
 	enum pm_node_id pll_nid;
 	enum pm_ret_status status;
@@ -466,8 +466,8 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_data
  *
  * @return      Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_write_ggs(unsigned int index,
-					     unsigned int value)
+static enum pm_ret_status pm_ioctl_write_ggs(uint32_t index,
+					     uint32_t value)
 {
 	if (index >= GGS_NUM_REGS) {
 		return PM_RET_ERROR_ARGS;
@@ -487,8 +487,8 @@ static enum pm_ret_status pm_ioctl_write_ggs(unsigned int index,
  *
  * @return      Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_read_ggs(unsigned int index,
-					    unsigned int *value)
+static enum pm_ret_status pm_ioctl_read_ggs(uint32_t index,
+					    uint32_t *value)
 {
 	if (index >= GGS_NUM_REGS) {
 		return PM_RET_ERROR_ARGS;
@@ -507,8 +507,8 @@ static enum pm_ret_status pm_ioctl_read_ggs(unsigned int index,
  *
  * @return      Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_write_pggs(unsigned int index,
-					      unsigned int value)
+static enum pm_ret_status pm_ioctl_write_pggs(uint32_t index,
+					      uint32_t value)
 {
 	if (index >= PGGS_NUM_REGS) {
 		return PM_RET_ERROR_ARGS;
@@ -527,11 +527,11 @@ static enum pm_ret_status pm_ioctl_write_pggs(unsigned int index,
  *
  * @return      Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_afi(unsigned int index,
-					      unsigned int value)
+static enum pm_ret_status pm_ioctl_afi(uint32_t index,
+					      uint32_t value)
 {
-	unsigned int mask;
-	unsigned int regarr[] = {0xFD360000U,
+	uint32_t mask;
+	uint32_t regarr[] = {0xFD360000U,
 				0xFD360014U,
 				0xFD370000U,
 				0xFD370014U,
@@ -572,8 +572,8 @@ static enum pm_ret_status pm_ioctl_afi(unsigned int index,
  *
  * @return      Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_read_pggs(unsigned int index,
-					     unsigned int *value)
+static enum pm_ret_status pm_ioctl_read_pggs(uint32_t index,
+					     uint32_t *value)
 {
 	if (index >= PGGS_NUM_REGS) {
 		return PM_RET_ERROR_ARGS;
@@ -626,7 +626,7 @@ static enum pm_ret_status pm_ioctl_ulpi_reset(void)
  *
  * @return      Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_ioctl_set_boot_health_status(unsigned int value)
+static enum pm_ret_status pm_ioctl_set_boot_health_status(uint32_t value)
 {
 	return pm_mmio_write(PMU_GLOBAL_GEN_STORAGE4,
 			     PM_BOOT_HEALTH_STATUS_MASK, value);
@@ -645,10 +645,10 @@ static enum pm_ret_status pm_ioctl_set_boot_health_status(unsigned int value)
  * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
-				unsigned int ioctl_id,
-				unsigned int arg1,
-				unsigned int arg2,
-				unsigned int *value)
+				uint32_t ioctl_id,
+				uint32_t arg1,
+				uint32_t arg2,
+				uint32_t *value)
 {
 	enum pm_ret_status ret;
 	uint32_t payload[PAYLOAD_ARG_CNT];
@@ -750,7 +750,7 @@ enum pm_ret_status atf_ioctl_bitmask(uint32_t *bit_mask)
 		IOCTL_AFI,
 	};
 	uint8_t i, ioctl_id;
-	int ret;
+	int32_t ret;
 
 	for (i = 0U; i < ARRAY_SIZE(supported_ids); i++) {
 		ioctl_id = supported_ids[i];

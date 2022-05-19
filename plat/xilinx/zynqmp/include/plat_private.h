@@ -15,11 +15,11 @@
 
 void zynqmp_config_setup(void);
 
-unsigned int zynqmp_calc_core_pos(u_register_t mpidr);
+uint32_t zynqmp_calc_core_pos(u_register_t mpidr);
 
 /* ZynqMP specific functions */
-unsigned int zynqmp_get_uart_clk(void);
-unsigned int zynqmp_get_bootmode(void);
+uint32_t zynqmp_get_uart_clk(void);
+uint32_t zynqmp_get_bootmode(void);
 
 
 #if ZYNQMP_WDT_RESTART

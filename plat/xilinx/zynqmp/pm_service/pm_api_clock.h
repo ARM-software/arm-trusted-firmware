@@ -292,20 +292,20 @@ enum {
 struct pm_pll;
 struct pm_pll *pm_clock_get_pll(enum clock_id clock_id);
 struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id);
-uint8_t pm_clock_has_div(unsigned int clock_id, enum pm_clock_div_id div_id);
+uint8_t pm_clock_has_div(uint32_t clock_id, enum pm_clock_div_id div_id);
 
-void pm_api_clock_get_name(unsigned int clock_id, char *name);
-enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks);
-enum pm_ret_status pm_api_clock_get_topology(unsigned int clock_id,
-					     unsigned int index,
+void pm_api_clock_get_name(uint32_t clock_id, char *name);
+enum pm_ret_status pm_api_clock_get_num_clocks(uint32_t *nclocks);
+enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
+					     uint32_t index,
 					     uint32_t *topology);
-enum pm_ret_status pm_api_clock_get_fixedfactor_params(unsigned int clock_id,
+enum pm_ret_status pm_api_clock_get_fixedfactor_params(uint32_t clock_id,
 						       uint32_t *mul,
 						       uint32_t *div);
-enum pm_ret_status pm_api_clock_get_parents(unsigned int clock_id,
-					    unsigned int index,
+enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
+					    uint32_t index,
 					    uint32_t *parents);
-enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
+enum pm_ret_status pm_api_clock_get_attributes(uint32_t clock_id,
 					       uint32_t *attr);
 enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 						uint8_t div_type,
@@ -313,21 +313,21 @@ enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 
 enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 					    enum pm_node_id *node_id);
-enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id);
+enum pm_ret_status pm_clock_id_is_valid(uint32_t clock_id);
 
 enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll);
 enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll);
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
-					  unsigned int *state);
+					  uint32_t *state);
 enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
-					   unsigned int parent_index);
+					   uint32_t parent_index);
 enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
-					   unsigned int *parent_index);
+					   uint32_t *parent_index);
 enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
-					 unsigned int mode);
+					 uint32_t mode);
 enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
-					 unsigned int *mode);
+					 uint32_t *mode);
 
 #endif /* PM_API_CLOCK_H */

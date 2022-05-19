@@ -75,7 +75,7 @@ struct xfsbl_atf_handoff_params {
  *
  * Return: FSBL_FLAGS_A53_0, FSBL_FLAGS_A53_1, FSBL_FLAGS_A53_2 or FSBL_FLAGS_A53_3
  */
-static int get_fsbl_cpu(const struct xfsbl_partition *partition)
+static int32_t get_fsbl_cpu(const struct xfsbl_partition *partition)
 {
 	uint64_t flags = partition->flags & FSBL_FLAGS_CPU_MASK;
 
@@ -89,7 +89,7 @@ static int get_fsbl_cpu(const struct xfsbl_partition *partition)
  *
  * Return: FSBL_FLAGS_EL0, FSBL_FLAGS_EL1, FSBL_FLAGS_EL2 or FSBL_FLAGS_EL3
  */
-static int get_fsbl_el(const struct xfsbl_partition *partition)
+static int32_t get_fsbl_el(const struct xfsbl_partition *partition)
 {
 	uint64_t flags = partition->flags & FSBL_FLAGS_EL_MASK;
 
@@ -103,7 +103,7 @@ static int get_fsbl_el(const struct xfsbl_partition *partition)
  *
  * Return: FSBL_FLAGS_NON_SECURE or FSBL_FLAGS_SECURE
  */
-static int get_fsbl_ss(const struct xfsbl_partition *partition)
+static int32_t get_fsbl_ss(const struct xfsbl_partition *partition)
 {
 	uint64_t flags = partition->flags & FSBL_FLAGS_TZ_MASK;
 
@@ -117,7 +117,7 @@ static int get_fsbl_ss(const struct xfsbl_partition *partition)
  *
  * Return: SPSR_E_LITTLE or SPSR_E_BIG
  */
-static int get_fsbl_endian(const struct xfsbl_partition *partition)
+static int32_t get_fsbl_endian(const struct xfsbl_partition *partition)
 {
 	uint64_t flags = partition->flags & FSBL_FLAGS_ENDIAN_MASK;
 
@@ -137,7 +137,7 @@ static int get_fsbl_endian(const struct xfsbl_partition *partition)
  *
  * Return: FSBL_FLAGS_ESTATE_A32 or FSBL_FLAGS_ESTATE_A64
  */
-static int get_fsbl_estate(const struct xfsbl_partition *partition)
+static int32_t get_fsbl_estate(const struct xfsbl_partition *partition)
 {
 	uint64_t flags = partition->flags & FSBL_FLAGS_ESTATE_MASK;
 
@@ -193,8 +193,8 @@ enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
 	 */
 	for (size_t i = 0; i < ATFHandoffParams->num_entries; i++) {
 		entry_point_info_t *image;
-		int target_estate, target_secure;
-		int target_cpu, target_endianness, target_el;
+		int32_t target_estate, target_secure;
+		int32_t target_cpu, target_endianness, target_el;
 
 		VERBOSE("BL31: %zd: entry:0x%" PRIx64 ", flags:0x%" PRIx64 "\n", i,
 			ATFHandoffParams->partition[i].entry_point,

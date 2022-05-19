@@ -67,10 +67,10 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 			 uint64_t x3, uint64_t x4, void *cookie,
 			 void *handle, uint64_t flags)
 {
-	int ret;
+	int32_t ret;
 	uint32_t ipi_local_id;
 	uint32_t ipi_remote_id;
-	unsigned int is_secure;
+	uint32_t is_secure;
 
 	ipi_local_id = x1 & UNSIGNED32_MASK;
 	ipi_remote_id = x2 & UNSIGNED32_MASK;
@@ -94,7 +94,7 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		SMC_RET1(handle, 0);
 	case IPI_MAILBOX_STATUS_ENQUIRY:
 	{
-		int disable_irq;
+		int32_t disable_irq;
 
 		disable_irq = (x3 & IPI_SMC_ENQUIRY_DIRQ_MASK) ? 1 : 0;
 		ret = ipi_mb_enquire_status(ipi_local_id, ipi_remote_id);
@@ -112,7 +112,7 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	}
 	case IPI_MAILBOX_ACK:
 	{
-		int enable_irq;
+		int32_t enable_irq;
 
 		enable_irq = (x3 & IPI_SMC_ACK_EIRQ_MASK) ? 1 : 0;
 		ipi_mb_ack(ipi_local_id, ipi_remote_id);

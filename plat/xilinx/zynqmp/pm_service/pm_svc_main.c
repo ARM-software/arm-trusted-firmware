@@ -203,9 +203,9 @@ err:
  * Called from sip_svc_setup initialization function with the
  * rt_svc_init signature.
  */
-int pm_setup(void)
+int32_t pm_setup(void)
 {
-	int status, ret;
+	int32_t status, ret;
 
 	status = pm_ipi_init(primary_proc);
 
@@ -291,7 +291,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	case PM_REQ_WAKEUP:
 	{
 		/* Use address flag is encoded in the 1st bit of the low-word */
-		unsigned int set_addr = pm_arg[1] & 0x1;
+		uint32_t set_addr = pm_arg[1] & 0x1;
 		uint64_t address = (uint64_t)pm_arg[2] << 32;
 
 		address |= pm_arg[1] & (~0x1);

@@ -163,7 +163,7 @@ static enum pm_node_id irq_node_map[IRQ_MAX + 1] = {
  *
  * Return:	PM node ID corresponding to the specified interrupt
  */
-static enum pm_node_id irq_to_pm_node(unsigned int irq)
+static enum pm_node_id irq_to_pm_node(uint32_t irq)
 {
 	assert(irq <= IRQ_MAX);
 	return irq_node_map[irq];
@@ -233,7 +233,7 @@ static void pm_client_set_wakeup_sources(void)
  *
  * Return: pointer to a proc structure if proc is found, otherwise NULL
  */
-const struct pm_proc *pm_get_proc(unsigned int cpuid)
+const struct pm_proc *pm_get_proc(uint32_t cpuid)
 {
 	if (cpuid < ARRAY_SIZE(pm_procs_all)) {
 		return &pm_procs_all[cpuid];
@@ -264,7 +264,7 @@ const struct pm_proc *pm_get_proc_by_node(enum pm_node_id nid)
  *
  * Return: the cpu ID (starting from 0) for the subsystem
  */
-static unsigned int pm_get_cpuid(enum pm_node_id nid)
+static uint32_t pm_get_cpuid(enum pm_node_id nid)
 {
 	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
 		if (pm_procs_all[i].node_id == nid) {
@@ -283,7 +283,7 @@ const struct pm_proc *primary_proc = &pm_procs_all[0];
  * required prior to sending suspend request to PMU
  * Actions taken depend on the state system is suspending to.
  */
-void pm_client_suspend(const struct pm_proc *proc, unsigned int state)
+void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
 {
 	bakery_lock_get(&pm_client_secure_lock);
 
@@ -326,7 +326,7 @@ void pm_client_abort_suspend(void)
  */
 void pm_client_wakeup(const struct pm_proc *proc)
 {
-	unsigned int cpuid = pm_get_cpuid(proc->node_id);
+	uint32_t cpuid = pm_get_cpuid(proc->node_id);
 
 	if (cpuid == UNDEFINED_CPUID) {
 		return;

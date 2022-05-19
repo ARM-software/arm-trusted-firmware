@@ -16,7 +16,7 @@
 #include "pm_defs.h"
 
 /* Functions to be implemented by each PU */
-void pm_client_suspend(const struct pm_proc *proc, unsigned int state);
+void pm_client_suspend(const struct pm_proc *proc, uint32_t state);
 void pm_client_abort_suspend(void);
 void pm_client_wakeup(const struct pm_proc *proc);
 
