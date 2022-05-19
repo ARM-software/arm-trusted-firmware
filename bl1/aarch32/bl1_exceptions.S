@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -117,6 +117,14 @@ func smc_handler
 	/* Turn on the MMU */
 	mov	r0, #DISABLE_DCACHE
 	bl	enable_mmu_svc_mon
+
+	/*
+	 * Invalidate `smc_ctx_t` in data cache to prevent dirty data being
+	 * used.
+	 */
+	mov	r0, r6
+	mov	r1, #SMC_CTX_SIZE
+	bl	inv_dcache_range
 
 	/* Enable the data cache. */
 	ldcopr	r9, SCTLR
