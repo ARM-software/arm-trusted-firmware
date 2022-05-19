@@ -122,6 +122,37 @@ int open_storage(const uintptr_t spec)
 	return io_dev_init(storage_dev_handle, 0);
 }
 
+#if STM32MP_EMMC_BOOT
+static uint32_t get_boot_part_fip_header(void)
+{
+	io_block_spec_t emmc_boot_fip_block_spec = {
+		.offset = STM32MP_EMMC_BOOT_FIP_OFFSET,
+		.length = MMC_BLOCK_SIZE, /* We are interested only in first 4 bytes */
+	};
+	uint32_t magic = 0U;
+	int io_result;
+	size_t bytes_read;
+	uintptr_t fip_hdr_handle;
+
+	io_result = io_open(storage_dev_handle, (uintptr_t)&emmc_boot_fip_block_spec,
+			    &fip_hdr_handle);
+	assert(io_result == 0);
+
+	io_result = io_read(fip_hdr_handle, (uintptr_t)&magic, sizeof(magic),
+			    &bytes_read);
+	if ((io_result != 0) || (bytes_read != sizeof(magic))) {
+		panic();
+	}
+
+	io_close(fip_hdr_handle);
+
+	VERBOSE("%s: eMMC boot magic at offset 256K: %08x\n",
+		__func__, magic);
+
+	return magic;
+}
+#endif
+
 static void print_boot_device(boot_api_context_t *boot_context)
 {
 	switch (boot_context->boot_interface_selected) {
@@ -195,7 +226,7 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 		panic();
 	}
 
-	/* Open MMC as a block device to read GPT table */
+	/* Open MMC as a block device to read FIP */
 	io_result = register_io_dev_block(&mmc_dev_con);
 	if (io_result != 0) {
 		panic();
@@ -204,6 +235,25 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 	io_result = io_dev_open(mmc_dev_con, (uintptr_t)&mmc_block_dev_spec,
 				&storage_dev_handle);
 	assert(io_result == 0);
+
+#if STM32MP_EMMC_BOOT
+	if (mmc_dev_type == MMC_IS_EMMC) {
+		io_result = mmc_part_switch_current_boot();
+		assert(io_result == 0);
+
+		if (get_boot_part_fip_header() != TOC_HEADER_NAME) {
+			WARN("%s: Can't find FIP header on eMMC boot partition. Trying GPT\n",
+			     __func__);
+			io_result = mmc_part_switch_user();
+			assert(io_result == 0);
+			return;
+		}
+
+		VERBOSE("%s: FIP header found on eMMC boot partition\n",
+			__func__);
+		image_block_spec.offset = STM32MP_EMMC_BOOT_FIP_OFFSET;
+	}
+#endif
 }
 #endif /* STM32MP_SDMMC || STM32MP_EMMC */
 
@@ -385,8 +435,14 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 
 	switch (boot_itf) {
 #if STM32MP_SDMMC || STM32MP_EMMC
-	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_SD:
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
+#if STM32MP_EMMC_BOOT
+		if (image_block_spec.offset == STM32MP_EMMC_BOOT_FIP_OFFSET) {
+			break;
+		}
+#endif
+		/* fallthrough */
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_SD:
 		if (!gpt_init_done) {
 /*
  * With FWU Multi Bank feature enabled, the selection of
