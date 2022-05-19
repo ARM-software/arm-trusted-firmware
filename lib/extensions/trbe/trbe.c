@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <lib/el3_runtime/pubsub.h>
 #include <lib/extensions/trbe.h>
@@ -18,20 +19,11 @@ static void tsb_csync(void)
 	__asm__ volatile("hint #18");
 }
 
-static bool trbe_supported(void)
-{
-	uint64_t features;
-
-	features = read_id_aa64dfr0_el1() >> ID_AA64DFR0_TRACEBUFFER_SHIFT;
-	return ((features & ID_AA64DFR0_TRACEBUFFER_MASK) ==
-		ID_AA64DFR0_TRACEBUFFER_SUPPORTED);
-}
-
 void trbe_enable(void)
 {
 	uint64_t val;
 
-	if (trbe_supported()) {
+	if (is_feat_trbe_present()) {
 		/*
 		 * MDCR_EL3.NSTB = 0b11
 		 * Allow access of trace buffer control registers from NS-EL1
@@ -46,7 +38,7 @@ void trbe_enable(void)
 
 static void *trbe_drain_trace_buffers_hook(const void *arg __unused)
 {
-	if (trbe_supported()) {
+	if (is_feat_trbe_present()) {
 		/*
 		 * Before switching from normal world to secure world
 		 * the trace buffers need to be drained out to memory. This is

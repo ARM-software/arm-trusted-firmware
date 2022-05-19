@@ -988,11 +988,12 @@ Common build options
   0 to 2, to align with the ``FEATURE_DETECTION`` mechanism. The default is 0
   and it is automatically disabled when the target architecture is AArch32.
 
-- ``ENABLE_TRBE_FOR_NS``: This flag is used to enable access of trace buffer
+- ``ENABLE_TRBE_FOR_NS``: Numeric value to enable access of trace buffer
   control registers from NS ELs, NS-EL2 or NS-EL1(when NS-EL2 is implemented
   but unused) when FEAT_TRBE is implemented. TRBE is an optional architectural
-  feature for AArch64. The default is 0 and it is automatically disabled when
-  the target architecture is AArch32.
+  feature for AArch64. This flag can take the values  0 to 2, to align with the
+  ``FEATURE_DETECTION`` mechanism. The default is 0 and it is automatically
+  disabled when the target architecture is AArch32.
 
 - ``ENABLE_SYS_REG_TRACE_FOR_NS``: Boolean option to enable trace system
   registers access from NS ELs, NS-EL2 or NS-EL1 (when NS-EL2 is implemented

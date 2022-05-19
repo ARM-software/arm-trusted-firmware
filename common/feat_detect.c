@@ -244,6 +244,16 @@ static void read_feat_brbe(void)
 #endif
 }
 
+/******************************************************
+ * Feature : FEAT_TRBE (Trace Buffer Extension)
+ *****************************************************/
+static void read_feat_trbe(void)
+{
+#if (ENABLE_TRBE_FOR_NS == FEAT_STATE_1)
+	feat_detect_panic(is_feat_trbe_present(), "TRBE");
+#endif
+}
+
 /***********************************************************************************
  * TF-A supports many Arm architectural features starting from arch version
  * (8.0 till 8.7+). These features are mostly enabled through build flags. This
@@ -306,6 +316,7 @@ void detect_arch_features(void)
 
 	/* v9.0 features */
 	read_feat_brbe();
+	read_feat_trbe();
 
 	/* v9.2 features */
 	read_feat_rme();
