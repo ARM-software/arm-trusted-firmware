@@ -37,6 +37,7 @@
 #define FFA_ID_MASK			U(0xFFFF)
 #define FFA_PARTITION_ID_SHIFT		U(16)
 #define FFA_FEATURES_BIT31_MASK		U(0x1u << 31)
+#define FFA_FEATURES_RET_REQ_NS_BIT	U(0x1 << 1)
 
 #define FFA_RUN_EP_ID(ep_vcpu_ids) \
 		((ep_vcpu_ids >> FFA_PARTITION_ID_SHIFT) & FFA_ID_MASK)
@@ -170,6 +171,12 @@ struct secure_partition_desc {
 	 * Store whether the SP has subscribed to any power management messages.
 	 */
 	uint16_t pwr_mgmt_msgs;
+
+	/*
+	 * Store whether the SP has requested the use of the NS bit for memory
+	 * management transactions if it is using FF-A v1.0.
+	 */
+	bool ns_bit_requested;
 };
 
 /*
@@ -225,7 +232,8 @@ extern const spd_pm_ops_t spmc_pm;
 
 /* Setup Function for different SP types. */
 void spmc_sp_common_setup(struct secure_partition_desc *sp,
-			  entry_point_info_t *ep_info);
+			  entry_point_info_t *ep_info,
+			  int32_t boot_info_reg);
 void spmc_el1_sp_setup(struct secure_partition_desc *sp,
 		       entry_point_info_t *ep_info);
 void spmc_sp_common_ep_commit(struct secure_partition_desc *sp,
@@ -271,5 +279,17 @@ struct el3_lp_desc *get_el3_lp_array(void);
  * or OS kernel in the normal world or the last SP that was run.
  */
 struct mailbox *spmc_get_mbox_desc(bool secure_origin);
+
+/*
+ * Helper function to obtain the context of an SP with a given partition ID.
+ */
+struct secure_partition_desc *spmc_get_sp_ctx(uint16_t id);
+
+/*
+ * Add helper function to obtain the FF-A version of the calling
+ * partition.
+ */
+uint32_t get_partition_ffa_version(bool secure_origin);
+
 
 #endif /* SPMC_H */
