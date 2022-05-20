@@ -815,7 +815,7 @@ static int spmc_shmem_check_state_obj(struct spmc_shmem_obj *obj,
 		if ((obj->desc.handle != inflight_obj->desc.handle) &&
 		    (obj->desc_size == obj->desc_filled)) {
 			other_mrd = spmc_shmem_obj_get_comp_mrd(inflight_obj,
-								ffa_version);
+							  FFA_VERSION_COMPILED);
 			if (other_mrd == NULL) {
 				return -EINVAL;
 			}
