@@ -304,7 +304,7 @@ overlapping_memory_regions(struct ffa_comp_mrd *region1,
 
 			if ((region1_start >= region2_start &&
 			     region1_start < region2_end) ||
-			    (region1_end >= region2_start
+			    (region1_end > region2_start
 			     && region1_end < region2_end)) {
 				WARN("Overlapping mem regions 0x%lx-0x%lx & 0x%lx-0x%lx\n",
 				     region1_start, region1_end,
