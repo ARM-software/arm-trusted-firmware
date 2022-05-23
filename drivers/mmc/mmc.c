@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -755,29 +755,51 @@ static unsigned char mmc_current_boot_part(void)
 	return PART_CFG_CURRENT_BOOT_PARTITION(mmc_ext_csd[CMD_EXTCSD_PARTITION_CONFIG]);
 }
 
-size_t mmc_boot_part_read_blocks(int lba, uintptr_t buf, size_t size)
+int mmc_part_switch_current_boot(void)
 {
-	size_t size_read;
-	int ret;
 	unsigned char current_boot_part = mmc_current_boot_part();
+	int ret;
 
 	if (current_boot_part != 1U &&
 	    current_boot_part != 2U) {
 		ERROR("Got unexpected value for active boot partition, %u\n", current_boot_part);
-		return 0;
+		return -EIO;
 	}
 
 	ret = mmc_part_switch(current_boot_part);
 	if (ret < 0) {
 		ERROR("Failed to switch to boot partition, %d\n", ret);
+	}
+
+	return ret;
+}
+
+int mmc_part_switch_user(void)
+{
+	int ret;
+
+	ret = mmc_part_switch(0);
+	if (ret < 0) {
+		ERROR("Failed to switch to user partition, %d\n", ret);
+	}
+
+	return ret;
+}
+
+size_t mmc_boot_part_read_blocks(int lba, uintptr_t buf, size_t size)
+{
+	size_t size_read;
+	int ret;
+
+	ret = mmc_part_switch_current_boot();
+	if (ret < 0) {
 		return 0;
 	}
 
 	size_read = mmc_read_blocks(lba, buf, size);
 
-	ret = mmc_part_switch(0);
+	ret = mmc_part_switch_user();
 	if (ret < 0) {
-		ERROR("Failed to switch back to user partition, %d\n", ret);
 		return 0;
 	}
 
