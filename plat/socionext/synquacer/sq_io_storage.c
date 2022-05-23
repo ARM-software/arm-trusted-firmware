@@ -156,9 +156,37 @@ static const struct sq_io_policy sq_io_policies[] = {
 #endif
 };
 
+static int sq_update_fip_spec(void)
+{
+	uint32_t boot_index;
+	int ret;
+
+	ret = mmap_add_dynamic_region(PLAT_SQ_BOOTIDX_BASE, PLAT_SQ_BOOTIDX_BASE,
+				      PAGE_SIZE, MT_RO_DATA | MT_SECURE);
+	if (ret) {
+		return ret;
+	}
+
+	boot_index = mmio_read_32(PLAT_SQ_BOOTIDX_BASE);
+	if (boot_index < PLAT_SQ_MAX_BOOT_INDEX) {
+		sq_fip_spec.offset += PLAT_SQ_FIP_MAXSIZE * boot_index;
+		INFO("FWU Enabled: boot_index %d\n", boot_index);
+	} else {
+		WARN("FWU Disabled: wrong boot_index value. Fallback to index 0.\n");
+	}
+
+	mmap_remove_dynamic_region(PLAT_SQ_BOOTIDX_BASE, PAGE_SIZE);
+	return 0;
+}
+
 static int sq_io_memmap_setup(void)
 {
 	int ret;
+
+	ret = sq_update_fip_spec();
+	if (ret) {
+		return ret;
+	}
 
 	ret = mmap_add_dynamic_region(sq_fip_spec.offset, sq_fip_spec.offset,
 				      sq_fip_spec.length, MT_RO_DATA | MT_SECURE);
