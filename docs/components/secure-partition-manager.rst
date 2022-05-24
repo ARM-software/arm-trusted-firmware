@@ -358,6 +358,15 @@ Describing secure partitions
 A json-formatted description file is passed to the build flow specifying paths
 to the SP binary image and associated DTS partition manifest file. The latter
 is processed by the dtc compiler to generate a DTB fed into the SP package.
+Optionally, the partition's json description can contain offsets for both
+the image and partition manifest within the SP package. Both offsets need to be
+4KB aligned, because it is the translation granule supported by Hafnium SPMC.
+These fields can be leveraged to support SPs with S1 translation granules that
+differ from 4KB, and to configure the regions allocated within the SP package,
+as well as to comply with the requirements for the implementation of the boot
+information protocol (see `Passing boot data to the SP`_ for more details). In
+case the offsets are absent in their json node, they default to 0x1000 and
+0x4000 for the manifest offset and image offset respectively.
 This file also specifies the SP owner (as an optional field) identifying the
 signing domain in case of dual root CoT.
 The SP owner can either be the silicon or the platform provider. The
@@ -381,7 +390,19 @@ manifest.
             "image": "tee2.bin",
             "pm": "tee2.dts",
             "owner": "Plat"
-        }
+        },
+
+        "tee3" : {
+            "image": {
+                "file": "tee3.bin",
+                "offset":"0x2000"
+             },
+            "pm": {
+                "file": "tee3.dts",
+                "offset":"0x6000"
+             },
+            "owner": "Plat"
+        },
     }
 
 SPMC manifest
@@ -544,13 +565,46 @@ non-secure EL1&0 Stage-2 table if it exists.
 Passing boot data to the SP
 ---------------------------
 
-In `[1]`_ , the "Protocol for passing data" section defines a method for passing
-boot data to SPs (not currently implemented).
+In `[1]`_ , the section  "Boot information protocol" defines a method for passing
+data to the SPs at boot time. It specifies the format for the boot information
+descriptor and boot information header structures, which describe the data to be
+exchanged between SPMC and SP.
+The specification also defines the types of data that can be passed.
+The aggregate of both the boot info structures and the data itself is designated
+the boot information blob, and is passed to a Partition as a contiguous memory
+region.
 
-Provided that the whole secure partition package image (see
-`Secure Partition packages`_) is mapped to the SP secure EL1&0 Stage-2
-translation regime, an SP can access its own manifest DTB blob and extract its
-partition manifest properties.
+Currently, the SPM implementation supports the FDT type which is used to pass the
+partition's DTB manifest.
+
+The region for the boot information blob is allocated through the SP package.
+
+.. image:: ../resources/diagrams/partition-package.png
+
+To adjust the space allocated for the boot information blob, the json description
+of the SP (see section `Describing secure partitions`_) shall be updated to contain
+the manifest offset. If no offset is provided the manifest offset defaults to 0x1000,
+which is the page size in the Hafnium SPMC.
+
+The configuration of the boot protocol is done in the SPs manifest. As defined by
+the specification, the manifest field 'gp-register-num' configures the GP register
+which shall be used to pass the address to the partitions boot information blob when
+booting the partition.
+In addition, the Hafnium SPMC implementation requires the boot information arguments
+to be listed in a designated DT node:
+
+.. code:: shell
+
+  boot-info {
+      compatible = "arm,ffa-manifest-boot-info";
+      ffa_manifest;
+  };
+
+The whole secure partition package image (see `Secure Partition packages`_) is
+mapped to the SP secure EL1&0 Stage-2 translation regime. As such, the SP can
+retrieve the address for the boot information blob in the designated GP register,
+process the boot information header and descriptors, access its own manifest
+DTB blob and extract its partition manifest properties.
 
 SP Boot order
 -------------
