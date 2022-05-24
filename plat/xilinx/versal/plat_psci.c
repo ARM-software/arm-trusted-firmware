@@ -19,9 +19,9 @@
 
 static uintptr_t versal_sec_entry;
 
-static int versal_pwr_domain_on(u_register_t mpidr)
+static int32_t versal_pwr_domain_on(u_register_t mpidr)
 {
-	int cpu_id = plat_core_pos_by_mpidr(mpidr);
+	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
 
 	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
@@ -30,7 +30,7 @@ static int versal_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	proc = pm_get_proc((unsigned int)cpu_id);
+	proc = pm_get_proc((uint32_t)cpu_id);
 
 	/* Send request to PMC to wake up selected ACPU core */
 	(void)pm_req_wakeup(proc->node_id, (versal_sec_entry & 0xFFFFFFFFU) | 0x1U,
@@ -50,8 +50,8 @@ static int versal_pwr_domain_on(u_register_t mpidr)
  */
 static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	unsigned int state;
-	unsigned int cpu_id = plat_my_core_pos();
+	uint32_t state;
+	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
@@ -88,7 +88,7 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 static void versal_pwr_domain_suspend_finish(
 					const psci_power_state_t *target_state)
 {
-	unsigned int cpu_id = plat_my_core_pos();
+	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
@@ -156,7 +156,7 @@ static void __dead2 versal_system_reset(void)
  */
 static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	unsigned int cpu_id = plat_my_core_pos();
+	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
@@ -188,12 +188,12 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
  *
  * @return	Returns status, either success or reason
  */
-static int versal_validate_power_state(unsigned int power_state,
+static int32_t versal_validate_power_state(uint32_t power_state,
 				       psci_power_state_t *req_state)
 {
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
-	unsigned int pstate = psci_get_pstate_type(power_state);
+	uint32_t pstate = psci_get_pstate_type(power_state);
 
 	assert(req_state);
 

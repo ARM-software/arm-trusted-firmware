@@ -67,19 +67,19 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	if (VERSAL_CONSOLE_IS(pl011) || (VERSAL_CONSOLE_IS(pl011_1))) {
 		static console_t versal_runtime_console;
 		/* Initialize the console to provide early debug support */
-		int rc = console_pl011_register((unsigned long)VERSAL_UART_BASE,
-						(unsigned int)VERSAL_UART_CLOCK,
-						(unsigned int)VERSAL_UART_BAUDRATE,
+		int32_t rc = console_pl011_register((unsigned long)VERSAL_UART_BASE,
+						(uint32_t)VERSAL_UART_CLOCK,
+						(uint32_t)VERSAL_UART_BAUDRATE,
 						&versal_runtime_console);
 		if (rc == 0) {
 			panic();
 		}
 
-		console_set_scope(&versal_runtime_console, (unsigned int)(CONSOLE_FLAG_BOOT |
+		console_set_scope(&versal_runtime_console, (uint32_t)(CONSOLE_FLAG_BOOT |
 				  CONSOLE_FLAG_RUNTIME));
 	} else if (VERSAL_CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug */
-		int rc = console_dcc_register();
+		int32_t rc = console_dcc_register();
 		if (rc == 0) {
 			panic();
 		}
@@ -126,7 +126,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 static interrupt_type_handler_t type_el3_interrupt_handler;
 
-int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
+int32_t request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 {
 	/* Validate 'handler'*/
 	if (handler == NULL) {

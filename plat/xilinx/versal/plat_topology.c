@@ -6,9 +6,9 @@
 
 #include <platform_def.h>
 
-static const unsigned char plat_power_domain_tree_desc[] = {1, PLATFORM_CORE_COUNT};
+static const uint8_t plat_power_domain_tree_desc[] = {1, PLATFORM_CORE_COUNT};
 
-const unsigned char *plat_get_power_domain_tree_desc(void)
+const uint8_t *plat_get_power_domain_tree_desc(void)
 {
 	return plat_power_domain_tree_desc;
 }

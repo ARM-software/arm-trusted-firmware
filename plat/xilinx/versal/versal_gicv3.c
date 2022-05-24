@@ -53,7 +53,7 @@ static gicv3_dist_ctx_t dist_ctx __section("versal_el3_tzc_dram");
  *   - All CPUs implemented in the system have MPIDR_EL1.MT bit set;
  *   - No CPUs implemented in the system use affinity level 3.
  */
-static unsigned int versal_gicv3_mpidr_hash(u_register_t mpidr)
+static uint32_t versal_gicv3_mpidr_hash(u_register_t mpidr)
 {
 	mpidr |= (read_mpidr_el1() & MPIDR_MT_MASK);
 	return versal_calc_core_pos(mpidr);
