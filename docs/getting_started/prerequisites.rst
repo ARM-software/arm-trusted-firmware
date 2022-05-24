@@ -7,7 +7,6 @@ AArch32 and AArch64 target platforms.
 It may possible to build |TF-A| with combinations of software packages that are
 different from those listed below, however only the software described in this
 document can be officially supported.
-
 Build Host
 ----------
 
@@ -71,7 +70,7 @@ These tools are optional:
    source files (``.dts`` files). DTC is available for Linux through the package
    repositories of most distributions.
 
-- Arm `Development Studio 5 (DS-5)`_
+- Arm `Development Studio (Arm-DS)`_
 
    The standard software package used for debugging software on Arm development
    platforms and |FVP| models.
@@ -166,5 +165,5 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 .. _Gerrit Code Review: https://www.gerritcodereview.com/
 .. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-release-notes
 .. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/arm-reference-platforms-deliverables
-.. _Development Studio 5 (DS-5): https://developer.arm.com/products/software-development-tools/ds-5-development-studio
+.. _Development Studio (Arm-DS): https://developer.arm.com/Tools%20and%20Software/Arm%20Development%20Studio
 .. _Linaro Release 20.01: http://releases.linaro.org/members/arm/platforms/20.01
