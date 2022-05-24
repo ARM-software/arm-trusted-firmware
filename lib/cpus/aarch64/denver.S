@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -369,6 +369,7 @@ endfunc denver_cpu_reg_dump
 		denver_reset_func, \
 		check_errata_cve_2017_5715, \
 		CPU_NO_EXTRA2_FUNC, \
+		CPU_NO_EXTRA3_FUNC, \
 		denver_core_pwr_dwn, \
 		denver_cluster_pwr_dwn
 .endm
