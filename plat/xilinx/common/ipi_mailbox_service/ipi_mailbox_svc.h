@@ -33,7 +33,7 @@ enum ipi_api_id {
 
 /* IPI SMC handler */
 uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
-			 uint64_t x3, uint64_t x4, void *cookie, void *handle,
+			 uint64_t x3, uint64_t x4, const void *cookie, void *handle,
 			 uint64_t flags);
 
 #endif /* IPI_MAILBOX_SVC_H */

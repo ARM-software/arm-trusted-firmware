@@ -324,7 +324,7 @@ static uintptr_t eemi_handler(uint32_t api_id, uint32_t *pm_arg,
  * function with rt_svc_handle signature
  */
 uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
-			uint64_t x4, void *cookie, void *handle, uint64_t flags)
+			uint64_t x4, const void *cookie, void *handle, uint64_t flags)
 {
 	uintptr_t ret;
 	uint32_t pm_arg[PAYLOAD_ARG_CNT] = {0};
