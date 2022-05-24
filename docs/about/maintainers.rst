@@ -787,6 +787,8 @@ Sptool
 ^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
+:|M|: Joao Alves <Joao.Alves@arm.com>
+:|G|: `J-Alves`_
 :|F|: tools/sptool/
 
 Build system
