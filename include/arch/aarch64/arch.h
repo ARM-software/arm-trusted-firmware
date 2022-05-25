@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -108,14 +108,14 @@
 #define HFGWTR_EL2		S3_4_C1_C1_5
 #define ICH_HCR_EL2		S3_4_C12_C11_0
 #define ICH_VMCR_EL2		S3_4_C12_C11_7
-#define MPAMVPM0_EL2		S3_4_C10_C5_0
-#define MPAMVPM1_EL2		S3_4_C10_C5_1
-#define MPAMVPM2_EL2		S3_4_C10_C5_2
-#define MPAMVPM3_EL2		S3_4_C10_C5_3
-#define MPAMVPM4_EL2		S3_4_C10_C5_4
-#define MPAMVPM5_EL2		S3_4_C10_C5_5
-#define MPAMVPM6_EL2		S3_4_C10_C5_6
-#define MPAMVPM7_EL2		S3_4_C10_C5_7
+#define MPAMVPM0_EL2		S3_4_C10_C6_0
+#define MPAMVPM1_EL2		S3_4_C10_C6_1
+#define MPAMVPM2_EL2		S3_4_C10_C6_2
+#define MPAMVPM3_EL2		S3_4_C10_C6_3
+#define MPAMVPM4_EL2		S3_4_C10_C6_4
+#define MPAMVPM5_EL2		S3_4_C10_C6_5
+#define MPAMVPM6_EL2		S3_4_C10_C6_6
+#define MPAMVPM7_EL2		S3_4_C10_C6_7
 #define MPAMVPMV_EL2		S3_4_C10_C4_1
 #define TRFCR_EL2		S3_4_C1_C2_1
 #define PMSCR_EL2		S3_4_C9_C9_0
