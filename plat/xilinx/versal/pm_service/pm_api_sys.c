@@ -93,8 +93,9 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 	module_id = (x0 & MODULE_ID_MASK) >> 8;
 
 	//default module id is for LIBPM
-	if (module_id == 0)
+	if (module_id == 0) {
 		module_id = LIBPM_MODULE_ID;
+	}
 
 	PM_PACK_PAYLOAD6(payload, module_id, flag, x0, x1, x2, x3, x4, x5);
 	return pm_ipi_send_sync(primary_proc, payload, (uint32_t *)result, PAYLOAD_ARG_CNT);

@@ -332,8 +332,9 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t api_id;
 
 	/* Handle case where PM wasn't initialized properly */
-	if (!pm_up)
+	if (!pm_up) {
 		SMC_RET1(handle, SMC_UNK);
+	}
 
 	/*
 	 * Mark BIT24 payload (i.e 1st bit of pm_arg[3] ) as non-secure (1)
@@ -352,16 +353,19 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	api_id = smc_fid & FUNCID_NUM_MASK;
 
 	ret = eemi_for_compatibility(api_id, pm_arg, handle, security_flag);
-	if (ret != (uintptr_t)0)
+	if (ret != (uintptr_t)0) {
 		return ret;
+	}
 
 	ret = eemi_psci_debugfs_handler(api_id, pm_arg, handle, flags);
-	if (ret !=  (uintptr_t)0)
+	if (ret !=  (uintptr_t)0) {
 		return ret;
+	}
 
 	ret = TF_A_specific_handler(api_id, pm_arg, handle, security_flag);
-	if (ret !=  (uintptr_t)0)
+	if (ret !=  (uintptr_t)0) {
 		return ret;
+	}
 
 	ret = eemi_handler(api_id, pm_arg, handle, security_flag);
 
