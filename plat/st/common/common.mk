@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
+# Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
 # Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -27,7 +27,10 @@ PLAT_XLAT_TABLES_DYNAMIC	:=	1
 STM32_HEADER_BL2_BINARY_TYPE	:=	0x10
 
 TF_CFLAGS			+=	-Wsign-compare
+ifeq ($(findstring clang,$(notdir $(CC))),)
+# Only for GCC
 TF_CFLAGS			+=	-Wformat-signedness
+endif
 
 # Number of TF-A copies in the device
 STM32_TF_A_COPIES		:=	2
