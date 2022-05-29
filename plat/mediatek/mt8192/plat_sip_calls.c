@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2020-2022, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,8 +25,8 @@ uintptr_t mediatek_plat_sip_handler(uint32_t smc_fid,
 	uint32_t rnd_val0 = 0U;
 
 	switch (smc_fid) {
-	case MTK_SIP_VCORE_CONTROL_ARCH32:
-	case MTK_SIP_VCORE_CONTROL_ARCH64:
+	case MTK_SIP_VCORE_CONTROL_AARCH32:
+	case MTK_SIP_VCORE_CONTROL_AARCH64:
 		ret = spm_vcorefs_args(x1, x2, x3, (uint64_t *)&x4);
 		SMC_RET2(handle, ret, x4);
 		break;

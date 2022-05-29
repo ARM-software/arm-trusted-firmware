@@ -28,7 +28,7 @@ void clean_top_32b_of_param(uint32_t smc_fid,
 				u_register_t *px4)
 {
 	/* if parameters from SMC32. Clean top 32 bits */
-	if (0 == (smc_fid & SMC_AARCH64_BIT)) {
+	if (GET_SMC_CC(smc_fid) == SMC_64) {
 		*px1 = *px1 & SMC32_PARAM_MASK;
 		*px2 = *px2 & SMC32_PARAM_MASK;
 		*px3 = *px3 & SMC32_PARAM_MASK;
