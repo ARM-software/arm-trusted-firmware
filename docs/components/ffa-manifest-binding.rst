@@ -137,14 +137,14 @@ Partition Properties
 
 - gp-register-num
    - value type: <u32>
-   - Presence of this field indicates that the partition expects the
-     ffa_init_info structure to be passed in via the specified general purpose
-     register.
-     The field specifies the general purpose register number but not its width.
+   - The field specifies the general purpose register number but not its width.
      The width is derived from the partition's execution state, as specified in
      the partition properties. For example, if the number value is 1 then the
      general-purpose register used will be x1 in AArch64 state and w1 in AArch32
      state.
+     Presence of this field indicates that the partition expects the address of
+     the FF-A boot information blob to be passed in the specified general purpose
+     register.
 
 - stream-endpoint-ids
    - value type: <prop-encoded-array>
