@@ -778,7 +778,7 @@ int mmc_part_switch_user(void)
 {
 	int ret;
 
-	ret = mmc_part_switch(0);
+	ret = mmc_part_switch(PART_CFG_BOOT_PARTITION_NO_ACCESS);
 	if (ret < 0) {
 		ERROR("Failed to switch to user partition, %d\n", ret);
 	}
