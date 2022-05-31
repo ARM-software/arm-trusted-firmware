@@ -6,21 +6,18 @@
 
 # Hash algorithm for measured boot
 # SHA-256 (or stronger) is required.
-# TODO: The measurement algorithm incorrectly suggests that the TPM backend
-#       is used which may not be the case. It is currently being worked on and
-#       soon TPM_HASH_ALG will be replaced by a more generic name.
-TPM_HASH_ALG			:=	sha256
+MBOOT_RSS_HASH_ALG		:=	sha256
 
-ifeq (${TPM_HASH_ALG}, sha512)
+ifeq (${MBOOT_RSS_HASH_ALG}, sha512)
     MBOOT_ALG_ID		:=	MBOOT_ALG_SHA512
     MBOOT_DIGEST_SIZE		:=	64U
-else ifeq (${TPM_HASH_ALG}, sha384)
+else ifeq (${MBOOT_RSS_HASH_ALG}, sha384)
     MBOOT_ALG_ID		:=	MBOOT_ALG_SHA384
     MBOOT_DIGEST_SIZE		:=	48U
 else
     MBOOT_ALG_ID		:=	MBOOT_ALG_SHA256
     MBOOT_DIGEST_SIZE		:=	32U
-endif #TPM_HASH_ALG
+endif #MBOOT_RSS_HASH_ALG
 
 # Set definitions for Measured Boot driver.
 $(eval $(call add_defines,\

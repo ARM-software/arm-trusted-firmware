@@ -375,6 +375,10 @@ ifeq (${MEASURED_BOOT},1)
     $(info Including ${RSS_MEASURED_BOOT_MK})
     include ${RSS_MEASURED_BOOT_MK}
 
+    ifneq (${MBOOT_RSS_HASH_ALG}, sha256)
+        $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA512))
+    endif
+
     BL1_SOURCES		+=	${MEASURED_BOOT_SOURCES}
     BL2_SOURCES		+=	${MEASURED_BOOT_SOURCES}
 endif
