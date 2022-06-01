@@ -89,6 +89,9 @@ subsections:
       - title: Activity Monitors Extension (FEAT_AMU)
         scope: amu
 
+      - title: Confidential Compute Architecture (CCA)
+        scope: cca
+
       - title: Support for the `HCRX_EL2` register (FEAT_HCX)
         scope: hcx
 
