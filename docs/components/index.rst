@@ -21,7 +21,6 @@ Components
    sdei
    secure-partition-manager
    secure-partition-manager-mm
-   ffa-manifest-binding
    xlat-tables-lib-v2-design
    cot-binding
    realm-management-extension
