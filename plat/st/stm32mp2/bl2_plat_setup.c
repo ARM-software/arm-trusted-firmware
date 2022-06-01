@@ -15,6 +15,7 @@
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32mp2_ddr_helpers.h>
+#include <drivers/st/stm32mp2_ram.h>
 #include <drivers/st/stm32mp_pmic2.h>
 #include <drivers/st/stm32mp_risab_regs.h>
 #include <lib/fconf/fconf.h>
@@ -135,6 +136,13 @@ void bl2_el3_early_platform_setup(u_register_t arg0 __unused,
 
 void bl2_platform_setup(void)
 {
+	int ret;
+
+	ret = stm32mp2_ddr_probe();
+	if (ret != 0) {
+		ERROR("DDR probe: error %d\n", ret);
+		panic();
+	}
 }
 
 static void reset_backup_domain(void)
