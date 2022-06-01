@@ -485,11 +485,18 @@ subsections:
           - plat/st
 
         subsections:
-          - title: ST32MP1
+          - title: STM32MP1
             scope: stm32mp1
 
             deprecated:
               - plat/st/stm32mp1
+
+            subsections:
+              - title: STM32MP13
+                scope: stm32mp13
+
+              - title: STM32MP15
+                scope: stm32mp15
 
       - title: Texas Instruments
         scope: ti
