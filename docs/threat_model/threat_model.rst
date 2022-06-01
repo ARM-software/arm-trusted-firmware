@@ -254,6 +254,18 @@ Threat Assessment
 The following threats were identified by applying STRIDE analysis on
 each diagram element of the data flow diagram.
 
+For each threat, we strive to indicate whether the mitigations are currently
+implemented or not. However, the answer to this question is not always straight
+forward. Some mitigations are partially implemented in the generic code but also
+rely on the platform code to implement some bits of it. This threat model aims
+to be platform-independent and it is important to keep in mind that such threats
+only get mitigated if the platform code properly fulfills its responsibilities.
+
+Also, some mitigations require enabling specific features, which must be
+explicitly turned on via a build flag.
+
+These are highlighted in the ``Mitigations implemented?`` box.
+
 +------------------------+----------------------------------------------------+
 | ID                     | 01                                                 |
 +========================+====================================================+
@@ -286,13 +298,18 @@ each diagram element of the data flow diagram.
 +------------------------+------------------+-----------------+---------------+
 | Total Risk Rating      | Critical (25)    | Critical (25)   | Critical (25) |
 +------------------------+------------------+-----------------+---------------+
-| Mitigations            | | TF-A implements the `Trusted Board Boot (TBB)`_  |
+| Mitigations            | | 1) Implement the `Trusted Board Boot (TBB)`_     |
 |                        |   feature which prevents malicious firmware from   |
 |                        |   running on the platform by authenticating all    |
-|                        |   firmware images. In addition to this, the TF-A   |
-|                        |   boot firmware performs extra checks on           |
-|                        |   unauthenticated data, such as FIP metadata, prior|
-|                        |   to use.                                          |
+|                        |   firmware images.                                 |
+|                        |                                                    |
+|                        | | 2) Perform extra checks on unauthenticated data, |
+|                        |   such as FIP metadata, prior to use.              |
++------------------------+----------------------------------------------------+
+| Mitigations            | | 1) Yes, provided that the ``TRUSTED_BOARD_BOOT`` |
+| implemented?           |   build option is set to 1.                        |
+|                        |                                                    |
+|                        | | 2) Yes.                                          |
 +------------------------+----------------------------------------------------+
 
 +------------------------+----------------------------------------------------+
@@ -324,22 +341,27 @@ each diagram element of the data flow diagram.
 +------------------------+------------------+-----------------+---------------+
 | Total Risk Rating      | Critical (25)    | Critical (25)   | Critical (25) |
 +------------------------+------------------+-----------------+---------------+
-| Mitigations            | | TF-A supports anti-rollback protection using     |
-|                        |   non-volatile counters (NV counters) as required  |
-|                        |   by `TBBR-Client specification`_. After a firmware|
-|                        |   image is validated, the image revision number    |
-|                        |   taken from a certificate extension field is      |
-|                        |   compared with the corresponding NV counter stored|
-|                        |   in hardware to make sure the new counter value is|
-|                        |   larger or equal to the current counter value.    |
-|                        |   Platforms must implement this protection using   |
-|                        |   platform specific hardware NV counters.          |
+| Mitigations            | Implement anti-rollback protection using           |
+|                        | non-volatile counters (NV counters) as required    |
+|                        | by `TBBR-Client specification`_.                   |
++------------------------+----------------------------------------------------+
+| Mitigations            | | Yes / Platform specific.                         |
+| implemented?           |                                                    |
+|                        | | After a firmware image is validated, the image   |
+|                        |   revision number taken from a certificate         |
+|                        |   extension field is compared with the             |
+|                        |   corresponding NV counter stored in hardware to   |
+|                        |   make sure the new counter value is larger than   |
+|                        |   the current counter value.                       |
+|                        |                                                    |
+|                        | | **Platforms must implement this protection using |
+|                        |   platform specific hardware NV counters.**        |
 +------------------------+----------------------------------------------------+
 
 +------------------------+-------------------------------------------------------+
 | ID                     | 03                                                    |
 +========================+=======================================================+
-| Threat                 | |  **An attacker can use Time-of-Check-Time-of-Use    |
+| Threat                 | | **An attacker can use Time-of-Check-Time-of-Use     |
 |                        |   (TOCTOU) attack to bypass image authentication      |
 |                        |   during the boot process**                           |
 |                        |                                                       |
@@ -370,8 +392,14 @@ each diagram element of the data flow diagram.
 +------------------------+---------------------+-----------------+---------------+
 | Total Risk Rating      | N/A                 | High (15)       | High (15)     |
 +------------------------+---------------------+-----------------+---------------+
-| Mitigations            | | TF-A boot firmware copies image to on-chip          |
-|                        |   memory before authenticating an image.              |
+| Mitigations            | Copy image to on-chip memory before authenticating    |
+|                        | it.                                                   |
++------------------------+-------------------------------------------------------+
+| Mitigations            | | Platform specific.                                  |
+| implemented?           |                                                       |
+|                        | | The list of images to load and their location is    |
+|                        |   platform specific. Platforms are responsible for    |
+|                        |   arranging images to be loaded in on-chip memory.    |
 +------------------------+-------------------------------------------------------+
 
 +------------------------+-------------------------------------------------------+
@@ -415,12 +443,19 @@ each diagram element of the data flow diagram.
 +------------------------+---------------------+-----------------+---------------+
 | Total Risk Rating      | N/A                 | High (15)       | High (15)     |
 +------------------------+---------------------+-----------------+---------------+
-| Mitigations            | | The most effective mitigation is adding glitching   |
+| Mitigations            | Mechanisms to detect clock glitch and power           |
+|                        | variations.                                           |
++------------------------+-------------------------------------------------------+
+| Mitigations            | | No.                                                 |
+| implemented?           |                                                       |
+|                        | | The most effective mitigation is adding glitching   |
 |                        |   detection and mitigation circuit at the hardware    |
-|                        |   level. However, software techniques,                |
-|                        |   such as adding redundant checks when performing     |
-|                        |   conditional branches that are security sensitive,   |
-|                        |   can be used to harden TF-A against such attacks.    |
+|                        |   level.                                              |
+|                        |                                                       |
+|                        | | However, software techniques, such as adding        |
+|                        |   redundant checks when performing conditional        |
+|                        |   branches that are security sensitive, can be used   |
+|                        |   to harden TF-A against such attacks.                |
 |                        |   **At the moment TF-A doesn't implement such         |
 |                        |   mitigations.**                                      |
 +------------------------+-------------------------------------------------------+
@@ -428,18 +463,25 @@ each diagram element of the data flow diagram.
 +------------------------+---------------------------------------------------+
 | ID                     | 05                                                |
 +========================+===================================================+
-| Threat                 | | **Information leak via UART logs such as        |
-|                        |   crashes**                                       |
+| Threat                 | | **Information leak via UART logs**              |
 |                        |                                                   |
 |                        | | During the development stages of software it is |
-|                        |   common to include crash reports with detailed   |
-|                        |   information of the CPU state including current  |
-|                        |   values of the registers, privilege level and    |
-|                        |   stack dumps. This information is useful when    |
-|                        |   debugging problems before releasing the         |
-|                        |   production version, but it could be used by an  |
-|                        |   attacker to develop a working exploit if left   |
-|                        |   in the production version.                      |
+|                        |   common to print all sorts of information on the |
+|                        |   console, including sensitive or confidential    |
+|                        |   information such as crash reports with detailed |
+|                        |   information of the CPU state, current registers |
+|                        |   values, privilege level or stack dumps.         |
+|                        |                                                   |
+|                        | | This information is useful when debugging       |
+|                        |   problems before releasing the production        |
+|                        |   version but it could be used by an attacker     |
+|                        |   to develop a working exploit if left enabled in |
+|                        |   the production version.                         |
+|                        |                                                   |
+|                        | | This happens when directly logging sensitive    |
+|                        |   information and more subtly when logging        |
+|                        |   side-channel information that can be used by an |
+|                        |   attacker to learn about sensitive information.  |
 +------------------------+---------------------------------------------------+
 | Diagram Elements       | DF2                                               |
 +------------------------+---------------------------------------------------+
@@ -460,11 +502,31 @@ each diagram element of the data flow diagram.
 +------------------------+------------------+----------------+---------------+
 | Total Risk Rating      | N/A              | Medium (8)     | Medium (8)    |
 +------------------------+------------------+----------------+---------------+
-| Mitigations            | | In TF-A, crash reporting is only enabled for    |
-|                        |   debug builds by default. Alternatively, the log |
-|                        |   level can be tuned at build time (from verbose  |
-|                        |   to no output at all), independently of the      |
-|                        |   build type.                                     |
+| Mitigations            | | Remove sensitive information logging in         |
+|                        |   production releases.                            |
+|                        |                                                   |
+|                        | | Do not conditionally log information depending  |
+|                        |   on potentially sensitive data.                  |
+|                        |                                                   |
+|                        | | Do not log high precision timing information.   |
++------------------------+---------------------------------------------------+
+| Mitigations            | | Yes / Platform Specific.                        |
+| implemented?           |   Requires the right build options to be used.    |
+|                        |                                                   |
+|                        | | Crash reporting is only enabled for debug       |
+|                        |   builds by default, see ``CRASH_REPORTING``      |
+|                        |   build option.                                   |
+|                        |                                                   |
+|                        | | The log level can be tuned at build time, from  |
+|                        |   very verbose to no output at all. See           |
+|                        |   ``LOG_LEVEL`` build option. By default, release |
+|                        |   builds are a lot less verbose than debug ones   |
+|                        |   but still produce some output.                  |
+|                        |                                                   |
+|                        | | Messages produced by the platform code should   |
+|                        |   use the appropriate level of verbosity so as    |
+|                        |   not to leak sensitive information in production |
+|                        |   builds.                                         |
 +------------------------+---------------------------------------------------+
 
 +------------------------+----------------------------------------------------+
@@ -503,11 +565,14 @@ each diagram element of the data flow diagram.
 +------------------------+------------------+---------------+-----------------+
 | Total Risk Rating      | N/A              | Critical (20) | Critical (20)   |
 +------------------------+------------------+---------------+-----------------+
-| Mitigations            | | Configuration of debug and trace capabilities is |
-|                        |   platform specific. Therefore, platforms must     |
-|                        |   disable the debug and trace capability for       |
-|                        |   production releases or enable proper debug       |
-|                        |   authentication as recommended by [`DEN0034`_].   |
+| Mitigations            | Disable the debug and trace capability for         |
+|                        | production releases or enable proper debug         |
+|                        | authentication as recommended by [`DEN0034`_].     |
++------------------------+----------------------------------------------------+
+| Mitigations            | | Platform specific.                               |
+| implemented?           |                                                    |
+|                        | | Configuration of debug and trace capabilities is |
+|                        |   entirely platform specific.                      |
 +------------------------+----------------------------------------------------+
 
 +------------------------+------------------------------------------------------+
@@ -542,9 +607,14 @@ each diagram element of the data flow diagram.
 +------------------------+-------------------+----------------+-----------------+
 | Total Risk Rating      | High (12)         | High (12)      | High (12)       |
 +------------------------+-------------------+----------------+-----------------+
-| Mitigations            | | The generic TF-A code validates SMC function ids   |
-|                        |   and arguments before using them.                   |
-|                        |   Platforms that implement SiP services must also    |
+| Mitigations            | Validate SMC function ids and arguments before using |
+|                        | them.                                                |
++------------------------+------------------------------------------------------+
+| Mitigations            | | Yes / Platform specific.                           |
+| implemented?           |                                                      |
+|                        | | For standard services, all input is validated.     |
+|                        |                                                      |
+|                        | | Platforms that implement SiP services must also    |
 |                        |   validate SMC call arguments.                       |
 +------------------------+------------------------------------------------------+
 
@@ -588,17 +658,12 @@ each diagram element of the data flow diagram.
 +------------------------+-------------------+-----------------+----------------+
 | Total Risk Rating      | High (15)         | High (15)       | High (15)      |
 +------------------------+-------------------+-----------------+----------------+
-| Mitigations            | | TF-A uses a combination of manual code reviews and |
-|                        |   automated program analysis and testing to detect   |
-|                        |   and fix memory corruption bugs. All TF-A code      |
-|                        |   including platform code go through manual code     |
-|                        |   reviews. Additionally, static code analysis is     |
-|                        |   performed using Coverity Scan on all TF-A code.    |
-|                        |   The code is also tested  with                      |
-|                        |   `Trusted Firmware-A Tests`_ on Juno and FVP        |
-|                        |   platforms.                                         |
+| Mitigations            | | 1) Use proper input validation.                    |
 |                        |                                                      |
-|                        | | Data received from normal world, such as addresses |
+|                        | | 2) Code reviews, testing.                          |
++------------------------+------------------------------------------------------+
+| Mitigations            | | 1) Yes.                                            |
+| implemented?           |   Data received from normal world, such as addresses |
 |                        |   and sizes identifying memory regions, are          |
 |                        |   sanitized before being used. These security checks |
 |                        |   make sure that the normal world software does not  |
@@ -612,6 +677,17 @@ each diagram element of the data flow diagram.
 |                        |   option to use *asserts* in release builds, however |
 |                        |   we recommend using proper runtime checks instead   |
 |                        |   of relying on asserts in release builds.           |
+|                        |                                                      |
+|                        | | 2) Yes.                                            |
+|                        |   TF-A uses a combination of manual code reviews     |
+|                        |   and automated program analysis and testing to      |
+|                        |   detect and fix memory corruption bugs. All TF-A    |
+|                        |   code including platform code go through manual     |
+|                        |   code reviews. Additionally, static code analysis   |
+|                        |   is performed using Coverity Scan on all TF-A code. |
+|                        |   The code is also tested  with                      |
+|                        |   `Trusted Firmware-A Tests`_ on Juno and FVP        |
+|                        |   platforms.                                         |
 +------------------------+------------------------------------------------------+
 
 +------------------------+------------------------------------------------------+
@@ -643,10 +719,14 @@ each diagram element of the data flow diagram.
 +------------------------+-------------------+----------------+-----------------+
 | Total Risk Rating      | High (12)         | High (12)      | High (12)       |
 +------------------------+-------------------+----------------+-----------------+
-| Mitigations            | | TF-A saves and restores registers                  |
-|                        |   by default when switching contexts. Build options  |
-|                        |   are also provided to save/restore additional       |
-|                        |   registers such as floating-point registers.        |
+| Mitigations            | Save and restore registers when switching contexts.  |
++------------------------+------------------------------------------------------+
+| Mitigations            | | Yes.                                               |
+| implemented?           |                                                      |
+|                        | | This is the default behaviour in TF-A.             |
+|                        |   Build options are also provided to save/restore    |
+|                        |   additional registers such as floating-point        |
+|                        |   registers. These should be enabled if required.    |
 +------------------------+------------------------------------------------------+
 
 +------------------------+-----------------------------------------------------+
@@ -680,11 +760,17 @@ each diagram element of the data flow diagram.
 +------------------------+-------------------+----------------+----------------+
 | Total Risk Rating      | Medium (9)        | Medium (9)     | Medium (9)     |
 +------------------------+-------------------+----------------+----------------+
-| Mitigations            | | TF-A implements software mitigations for Spectre  |
+| Mitigations            | Enable appropriate side-channel protections.        |
++------------------------+-----------------------------------------------------+
+| Mitigations            | | Yes / Platform specific.                          |
+| implemented?           |                                                     |
+|                        | | TF-A implements software mitigations for Spectre  |
 |                        |   type attacks as recommended by `Cache Speculation |
-|                        |   Side-channels`_ for the generic code. SiPs should |
-|                        |   implement similar mitigations for code that is    |
-|                        |   deemed to be vulnerable to such attacks.          |
+|                        |   Side-channels`_ for the generic code.             |
+|                        |                                                     |
+|                        | | SiPs should implement similar mitigations for     |
+|                        |   code that is deemed to be vulnerable to such      |
+|                        |   attacks.                                          |
 +------------------------+-----------------------------------------------------+
 
 +------------------------+----------------------------------------------------+
@@ -720,19 +806,25 @@ each diagram element of the data flow diagram.
 +------------------------+-----------------+-----------------+----------------+
 | Total Risk Rating      | Critical (20)   | Critical (20)   | Critical (20)  |
 +------------------------+-----------------+-----------------+----------------+
-| Mitigations            | | In TF-A, configuration of the MMU is done        |
-|                        |   through a translation tables library. The        |
-|                        |   library provides APIs to define memory regions   |
-|                        |   and assign attributes including memory types and |
-|                        |   access permissions. Memory configurations are    |
-|                        |   platform specific, therefore platforms need make |
-|                        |   sure the correct attributes are assigned to      |
-|                        |   memory regions. When assigning access            |
-|                        |   permissions, principle of least privilege ought  |
-|                        |   to be enforced, i.e. we should not grant more    |
-|                        |   privileges than strictly needed, e.g. code       |
-|                        |   should be read-only executable, RO data should   |
-|                        |   be read-only XN, and so on.                      |
+| Mitigations            | When configuring access permissions, the           |
+|                        | principle of least privilege ought to be           |
+|                        | enforced. This means we should not grant more      |
+|                        | privileges than strictly needed, e.g. code         |
+|                        | should be read-only executable, read-only data     |
+|                        | should be read-only execute-never, and so on.      |
++------------------------+----------------------------------------------------+
+| Mitigations            | | Platform specific.                               |
+| implemented?           |                                                    |
+|                        | | MMU configuration is platform specific,          |
+|                        |   therefore platforms need to make sure that the   |
+|                        |   correct attributes are assigned to memory        |
+|                        |   regions.                                         |
+|                        |                                                    |
+|                        | | TF-A provides a library which abstracts the      |
+|                        |   low-level details of MMU configuration. It       |
+|                        |   provides well-defined and tested APIs.           |
+|                        |   Platforms are encouraged to use it to limit the  |
+|                        |   risk of misconfiguration.                        |
 +------------------------+----------------------------------------------------+
 
 +------------------------+-----------------------------------------------------+
@@ -747,7 +839,7 @@ each diagram element of the data flow diagram.
 |                        |   to count events at any exception level and in     |
 |                        |   both Secure and Non-secure states. This allows    |
 |                        |   a Non-secure software (or a lower-level Secure    |
-|                        |   software) to potentially  carry out               |
+|                        |   software) to potentially carry out                |
 |                        |   side-channel timing attacks against TF-A.         |
 +------------------------+-----------------------------------------------------+
 | Diagram Elements       | DF5, DF6                                            |
@@ -767,18 +859,25 @@ each diagram element of the data flow diagram.
 +------------------------+-------------------+----------------+----------------+
 | Total Risk Rating      | Medium (6)        | Medium (6)     | Medium (6)     |
 +------------------------+-------------------+----------------+----------------+
-| Mitigations            | | TF-A follows mitigation strategies as described   |
-|                        |   in `Secure Development Guidelines`_. General      |
-|                        |   events and cycle counting in the Secure world is  |
-|                        |   prohibited by default when applicable. However,   |
-|                        |   on some implementations (e.g. PMUv3) Secure world |
-|                        |   event counting depends on external debug interface|
-|                        |   signals, i.e. Secure world event counting is      |
-|                        |   enabled if external debug is enabled.             |
-|                        |   Configuration of debug signals is platform        |
+| Mitigations            | Follow mitigation strategies as described in        |
+|                        | `Secure Development Guidelines`_.                   |
++------------------------+-----------------------------------------------------+
+| Mitigations            | | Yes / platform specific.                          |
+| implemented?           |                                                     |
+|                        | | General events and cycle counting in the Secure   |
+|                        |   world is prohibited by default when applicable.   |
+|                        |                                                     |
+|                        | | However, on some implementations (e.g. PMUv3)     |
+|                        |   Secure world event counting depends on external   |
+|                        |   debug interface signals, i.e. Secure world event  |
+|                        |   counting is enabled if external debug is enabled. |
+|                        |                                                     |
+|                        | | Configuration of debug signals is platform        |
 |                        |   specific, therefore platforms need to make sure   |
 |                        |   that external debug is disabled in production or  |
-|                        |   proper debug authentication is in place.          |
+|                        |   proper debug authentication is in place. This     |
+|                        |   should be the case if threat #06 is properly      |
+|                        |   mitigated.                                        |
 +------------------------+-----------------------------------------------------+
 
 --------------
