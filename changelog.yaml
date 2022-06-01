@@ -116,6 +116,12 @@ subsections:
       - title: Statistical profiling Extension (FEAT_SPE)
         scope: spe
 
+      - title: Branch Record Buffer Extension (FEAT_BRBE)
+        scope: brbe
+
+      - title: Extended Cache Index (FEAT_CCIDX)
+        scope: ccidx
+
   - title: Platforms
 
     subsections:
@@ -158,6 +164,9 @@ subsections:
           - title: Morello
             scope: morello
 
+          - title: N1SDP
+            scope: n1sdp
+
           - title: RD
             scope: rd
 
@@ -184,6 +193,12 @@ subsections:
 
                 deprecated:
                   - plat/tc0
+
+          - title: Corstone-1000
+            scope: corstone-1000
+
+      - title: Broadcom
+        scope: brcm
 
       - title: Intel
         scope: intel
@@ -246,6 +261,12 @@ subsections:
               - plat/mediatek/mt8195
               - plat/mdeiatek/mt8195
 
+          - title: MT8186
+            scope: mt8186
+
+            deprecated:
+              - plat/mediatek/mt8186
+
       - title: NVIDIA
         scope: nvidia
 
@@ -259,6 +280,9 @@ subsections:
             subsections:
               - title: Tegra 132
                 scope: tegra132
+
+              - title: Tegra 194
+                scope: tegra194
 
       - title: NXP
         scope: nxp
@@ -284,6 +308,12 @@ subsections:
                   - plat/imx/imx8m
 
                 subsections:
+                  - title: i.MX 8M Nano
+                    scope: imx8mn
+
+                    deprecated:
+                      - plat/imx/imx8m/imx8mn
+
                   - title: i.MX 8M Mini
                     scope: imx8mm
 
@@ -295,6 +325,12 @@ subsections:
 
                     deprecated:
                       - plat/imx/imx8m/imx8mp
+
+                  - title: i.MX 8Q
+                    scope: imx8mq
+
+                    deprecated:
+                      - plat/imx/imx8m/imx8mq
 
           - title: Layerscape
             scope: layerscape
@@ -315,6 +351,19 @@ subsections:
 
                     deprecated:
                       - plat/nxp/ls1028ardb
+
+              - title: LS1043A
+                scope: ls1043a
+
+                deprecated:
+                  - plat/nxp/ls1043a
+
+                subsections:
+                  - title: LS1043ARDB
+                    scope: ls1043ardb
+
+                    deprecated:
+                      - plat/nxp/ls1043ardb
 
               - title: LX2
                 scope: lx2
@@ -484,6 +533,9 @@ subsections:
       - title: BL2
         scope: bl2
 
+      - title: BL31
+        scope: bl31
+
   - title: Services
     scope: services
 
@@ -497,16 +549,22 @@ subsections:
       - title: RME
         scope: rme
 
+        subsections:
+          - title: TRP
+            scope: trp
+
       - title: SPM
         scope: spm
 
-        deprecated:
-          - spmc
-          - spmd
-          - SPMD
+        subsections:
+          - title: EL3 SPMC
+            scope: el3-spmc
 
-      - title: SPM MM
-        scope: spm-mm
+          - title: SPMD
+            scope: spmd
+
+          - title: SPM MM
+            scope: spm-mm
 
   - title: Libraries
 
@@ -524,6 +582,10 @@ subsections:
 
         deprecated:
           - el3_runtime
+
+        subsections:
+          - title: Context Management
+            scope: cm
 
       - title: FCONF
         scope: fconf
@@ -552,6 +614,15 @@ subsections:
       - title: Translation Tables
         scope: xlat
 
+      - title: C Standard Library
+        scope: libc
+
+      - title: Locks
+        scope: locks
+
+      - title: PSA
+        scope: psa
+
   - title: Drivers
 
     subsections:
@@ -564,6 +635,9 @@ subsections:
         subsections:
           - title: CryptoCell-713
             scope: cc-713
+
+      - title: Generic Clock
+        scope: clk
 
       - title: FWU
         scope: fwu
@@ -611,8 +685,8 @@ subsections:
                 deprecated:
                   - spi_nand
 
-      - title: Partition
-        scope: partition
+      - title: GUID Partition Tables Support
+        scope: guid-partition
 
       - title: SCMI
         scope: scmi
@@ -648,6 +722,18 @@ subsections:
           - title: SMMU
             scope: smmu
 
+          - title: MHU
+            scope: mhu
+
+            deprecated:
+              - drivers/arm/mhu
+
+          - title: RSS
+            scope: rss
+
+            deprecated:
+              - drivers/arm/rss
+
           - title: TZC
             scope: tzc
 
@@ -657,6 +743,12 @@ subsections:
 
                 deprecated:
                   - drivers/tzc400
+
+              - title: TZC-380
+                scope: tzc380
+
+                deprecated:
+                  - drivers/tzc380
 
       - title: Marvell
         scope: marvell-drivers
@@ -774,6 +866,18 @@ subsections:
           - title: GIC
             scope: nxp-gic
 
+          - title: CSU
+            scope: nxp-csu
+
+          - title: IFC NAND
+            scope: nxp-ifc-nand
+
+          - title: IFC NOR
+            scope: nxp-ifc-nor
+
+          - title: TZC-380
+            scope: nxp-tzc380
+
       - title: Renesas
         scope: renesas-drivers
 
@@ -818,9 +922,6 @@ subsections:
                 deprecated:
                   - io-stm32image
                   - io_stm32image
-
-              - title: fiptool
-                scope: fiptool
 
           - title: I2C
             scope: st-i2c
@@ -1012,6 +1113,15 @@ subsections:
 
       - title: NXP Tools
         scope: nxp-tools
+
+      - title: Firmware Image Package Tool
+        scope: fiptool
+
+      - title: Secure Partition Tool
+        scope: sptool
+
+      - title: Certificate Creation Tool
+        scope: cert-create
 
   - title: Dependencies
     scope: deps
