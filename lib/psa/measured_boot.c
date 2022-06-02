@@ -16,18 +16,18 @@
 
 static void print_byte_array(const uint8_t *array, size_t len)
 {
-	unsigned int i;
+	size_t i;
 
 	if (array == NULL || len == 0U) {
 		(void)printf("\n");
-	}
-
-	for (i = 0U; i < len; ++i) {
-		(void)printf(" %02x", array[i]);
-		if ((i & U(0xF)) == U(0xF)) {
-			(void)printf("\n");
-			if (i < (len - 1U)) {
-				INFO("\t\t:");
+	} else {
+		for (i = 0U; i < len; ++i) {
+			(void)printf(" %02x", array[i]);
+			if ((i & U(0xF)) == U(0xF)) {
+				(void)printf("\n");
+				if (i < (len - 1U)) {
+					INFO("\t\t:");
+				}
 			}
 		}
 	}
