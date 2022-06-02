@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
  * Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2020, Linaro Limited
+ * Copyright (c) 2019-2022, Linaro Limited
  */
 #include <assert.h>
 #include <string.h>
@@ -131,15 +131,12 @@ static unsigned int count_protocols_in_list(const uint8_t *protocol_list)
 	return count;
 }
 
-#define MAX_PROTOCOL_IN_LIST		8U
-
 static void discover_list_protocols(struct scmi_msg *msg)
 {
 	const struct scmi_base_discover_list_protocols_a2p *a2p = NULL;
 	struct scmi_base_discover_list_protocols_p2a p2a = {
 		.status = SCMI_SUCCESS,
 	};
-	uint8_t outargs[sizeof(p2a) + MAX_PROTOCOL_IN_LIST] = { 0U };
 	const uint8_t *list = NULL;
 	unsigned int count = 0U;
 
@@ -148,24 +145,22 @@ static void discover_list_protocols(struct scmi_msg *msg)
 		return;
 	}
 
-	assert(msg->out_size > sizeof(outargs));
-
 	a2p = (void *)msg->in;
 
 	list = plat_scmi_protocol_list(msg->agent_id);
 	count = count_protocols_in_list(list);
+
 	if (count > a2p->skip) {
-		count = MIN(count - a2p->skip, MAX_PROTOCOL_IN_LIST);
+		count = MIN(count - a2p->skip, msg->out_size - sizeof(p2a));
 	} else {
 		count = 0U;
 	}
 
 	p2a.num_protocols = count;
 
-	memcpy(outargs, &p2a, sizeof(p2a));
-	memcpy(outargs + sizeof(p2a), list + a2p->skip, count);
-
-	scmi_write_response(msg, outargs, sizeof(outargs));
+	memcpy(msg->out, &p2a, sizeof(p2a));
+	memcpy(msg->out + sizeof(p2a), list + a2p->skip, count);
+	msg->out_size_out = sizeof(p2a) + round_up(count, sizeof(uint32_t));
 }
 
 static const scmi_msg_handler_t scmi_base_handler_table[] = {
