@@ -199,6 +199,8 @@ unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
 
 int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank)
 {
+	const char *node_compatible = NULL;
+
 	switch (bank) {
 	case GPIO_BANK_A:
 	case GPIO_BANK_B:
@@ -209,18 +211,24 @@ int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank)
 	case GPIO_BANK_G:
 	case GPIO_BANK_H:
 	case GPIO_BANK_I:
+#if STM32MP13
+		node_compatible = "st,stm32mp135-pinctrl";
+		break;
+#endif
 #if STM32MP15
 	case GPIO_BANK_J:
 	case GPIO_BANK_K:
-#endif
-		return fdt_path_offset(fdt, "/soc/pin-controller");
-#if STM32MP15
+		node_compatible = "st,stm32mp157-pinctrl";
+		break;
 	case GPIO_BANK_Z:
-		return fdt_path_offset(fdt, "/soc/pin-controller-z");
+		node_compatible = "st,stm32mp157-z-pinctrl";
+		break;
 #endif
 	default:
 		panic();
 	}
+
+	return fdt_node_offset_by_compatible(fdt, -1, node_compatible);
 }
 
 #if STM32MP_UART_PROGRAMMER || !defined(IMAGE_BL2)
