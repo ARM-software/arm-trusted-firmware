@@ -41,11 +41,11 @@ DDRCNTLR	:=	NXP
 DDRPHY		:=	NXP
 
 # Area of OCRAM reserved by ROM code
-NXP_ROM_RSVD	:= 0x5900
+NXP_ROM_RSVD	:= 0x8000
 
 # Max Size of CSF header. Required to define BL2 TEXT LIMIT in soc.def
 # Input to CST create_hdr_esbc tool
-CSF_HDR_SZ	:= 0x3000
+CSF_HDR_SZ	:= 0x4000
 
 # In IMAGE_BL2, compile time flag for handling Cache coherency
 # with CAAM for BL2 running from OCRAM
