@@ -303,6 +303,10 @@ ERRATA_A77_1946167	?=0
 # to revisions r0p0, r1p0, and r1p1, it is still open.
 ERRATA_A77_1791578	?=0
 
+# Flag to apply erratum 2356587 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1, it is still open.
+ERRATA_A77_2356587	?=0
+
 # Flag to apply erratum 1688305 workaround during reset. This erratum applies
 # to revisions r0p0 - r1p0 of the A78 cpu.
 ERRATA_A78_1688305	?=0
@@ -842,6 +846,10 @@ $(eval $(call add_define,ERRATA_A77_1946167))
 # Process ERRATA_A77_1791578 flag
 $(eval $(call assert_boolean,ERRATA_A77_1791578))
 $(eval $(call add_define,ERRATA_A77_1791578))
+
+# Process ERRATA_A77_2356587 flag
+$(eval $(call assert_boolean,ERRATA_A77_2356587))
+$(eval $(call add_define,ERRATA_A77_2356587))
 
 # Process ERRATA_A78_1688305 flag
 $(eval $(call assert_boolean,ERRATA_A78_1688305))
