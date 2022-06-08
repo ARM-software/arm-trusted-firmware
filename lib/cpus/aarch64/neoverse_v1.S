@@ -330,6 +330,34 @@ func check_errata_2216392
 	b	cpu_rev_var_range
 endfunc check_errata_2216392
 
+	/* -----------------------------------------------------------------
+	 * Errata Workaround for Neoverse V1 Errata #2294912.
+	 * This applies to revisions r0p0, r1p0, and r1p1 and is still open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * -----------------------------------------------------------------
+	 */
+func errata_neoverse_v1_2294912_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_2294912
+	cbz	x0, 1f
+
+	/* Set bit 0 in ACTLR2_EL1 */
+	mrs     x1, NEOVERSE_V1_ACTLR2_EL1
+	orr	x1, x1, #NEOVERSE_V1_ACTLR2_EL1_BIT_0
+	msr     NEOVERSE_V1_ACTLR2_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_neoverse_v1_2294912_wa
+
+func check_errata_2294912
+	/* Applies to r0p0, r1p0, and r1p1 right now */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_2294912
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -378,6 +406,7 @@ func neoverse_v1_errata_report
 	report_errata ERRATA_V1_2139242, neoverse_v1, 2139242
 	report_errata ERRATA_V1_2108267, neoverse_v1, 2108267
 	report_errata ERRATA_V1_2216392, neoverse_v1, 2216392
+	report_errata ERRATA_V1_2294912, neoverse_v1, 2294912
 	report_errata WORKAROUND_CVE_2022_23960, neoverse_v1, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
@@ -435,6 +464,11 @@ func neoverse_v1_reset_func
 #if ERRATA_V1_2216392
 	mov	x0, x18
 	bl	errata_neoverse_v1_2216392_wa
+#endif
+
+#if ERRATA_V1_2294912
+	mov	x0, x18
+	bl	errata_neoverse_v1_2294912_wa
 #endif
 
 #if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
