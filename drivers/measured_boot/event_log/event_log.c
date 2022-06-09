@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -180,6 +180,8 @@ void event_log_write_header(void)
 
 	/* event_log_init() must have been called prior to this. */
 	assert(log_ptr != NULL);
+	assert(((uintptr_t)log_ptr + ID_EVENT_SIZE + LOC_EVENT_SIZE) <
+		log_end);
 
 	/*
 	 * Add Specification ID Event first
@@ -219,7 +221,7 @@ void event_log_write_header(void)
 	((tpmt_ha *)ptr)->algorithm_id = TPM_ALG_ID;
 
 	/* TCG_PCR_EVENT2.Digests[].Digest[] */
-	(void)memset(&((tpmt_ha *)ptr)->digest, 0, TPM_ALG_ID);
+	(void)memset(&((tpmt_ha *)ptr)->digest, 0, TCG_DIGEST_SIZE);
 	ptr = (uint8_t *)((uintptr_t)ptr +
 			offsetof(tpmt_ha, digest) + TCG_DIGEST_SIZE);
 
