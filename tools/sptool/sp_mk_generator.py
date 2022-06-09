@@ -145,7 +145,7 @@ def gen_sptool_args(sp_layout, sp, args :dict):
     sptool_args += f" --img-offset {image_offset}" if image_offset is not None else ""
     sptool_args += f" -o {sp_pkg}"
     sppkg_rule = f'''
-{sp_pkg}:
+{sp_pkg}: {sp_dtb}
 \t$(Q)echo Generating {sp_pkg}
 \t$(Q)$(PYTHON) $(SPTOOL) {sptool_args}
 '''
