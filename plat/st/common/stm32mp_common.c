@@ -276,6 +276,7 @@ void stm32mp_setup_early_console(void)
 {
 	plat_crash_console_init();
 	set_console(STM32MP_DEBUG_USART_BASE, STM32MP_DEBUG_USART_CLK_FRQ);
+	NOTICE("Early console setup\n");
 }
 #endif /* STM32MP_EARLY_CONSOLE */
 
