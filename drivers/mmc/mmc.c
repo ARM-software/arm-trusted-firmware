@@ -694,52 +694,6 @@ size_t mmc_erase_blocks(int lba, size_t size)
 	return size;
 }
 
-static inline void mmc_rpmb_enable(void)
-{
-	mmc_set_ext_csd(CMD_EXTCSD_PARTITION_CONFIG,
-			PART_CFG_BOOT_PARTITION1_ENABLE |
-			PART_CFG_BOOT_PARTITION1_ACCESS);
-}
-
-static inline void mmc_rpmb_disable(void)
-{
-	mmc_set_ext_csd(CMD_EXTCSD_PARTITION_CONFIG,
-			PART_CFG_BOOT_PARTITION1_ENABLE);
-}
-
-size_t mmc_rpmb_read_blocks(int lba, uintptr_t buf, size_t size)
-{
-	size_t size_read;
-
-	mmc_rpmb_enable();
-	size_read = mmc_read_blocks(lba, buf, size);
-	mmc_rpmb_disable();
-
-	return size_read;
-}
-
-size_t mmc_rpmb_write_blocks(int lba, const uintptr_t buf, size_t size)
-{
-	size_t size_written;
-
-	mmc_rpmb_enable();
-	size_written = mmc_write_blocks(lba, buf, size);
-	mmc_rpmb_disable();
-
-	return size_written;
-}
-
-size_t mmc_rpmb_erase_blocks(int lba, size_t size)
-{
-	size_t size_erased;
-
-	mmc_rpmb_enable();
-	size_erased = mmc_erase_blocks(lba, size);
-	mmc_rpmb_disable();
-
-	return size_erased;
-}
-
 static int mmc_part_switch(unsigned int part_type)
 {
 	uint8_t part_config = mmc_ext_csd[CMD_EXTCSD_PARTITION_CONFIG];
