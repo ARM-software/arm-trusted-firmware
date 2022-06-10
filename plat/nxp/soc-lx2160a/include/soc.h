@@ -54,8 +54,31 @@
 
 /* SVR Definition (not include major and minor rev) */
 #define SVR_LX2160A		0x873601
+#define SVR_LX2160E		0x873610
+#define SVR_LX2160C		0x873600
+#define SVR_LX2160N		0x873611
 #define SVR_LX2120A		0x873621
+#define SVR_LX2120E		0x873630
+#define SVR_LX2120C		0x873620
+#define SVR_LX2120N		0x873631
 #define SVR_LX2080A		0x873603
+#define SVR_LX2080E		0x873612
+#define SVR_LX2080C		0x873602
+#define SVR_LX2080N		0x873613
+
+/* SVR Definition of SoC LX2162A. */
+#define SVR_LX2162A		0x873609
+#define SVR_LX2162E		0x873618
+#define SVR_LX2162C		0x873608
+#define SVR_LX2162N		0x873619
+#define SVR_LX2122A		0x873629
+#define SVR_LX2122E		0x873638
+#define SVR_LX2122C		0x873628
+#define SVR_LX2122N		0x873639
+#define SVR_LX2082A		0x87360b
+#define SVR_LX2082E		0x87361a
+#define SVR_LX2082C		0x87360a
+#define SVR_LX2082N		0x87361b
 
 /* Number of cores in platform */
 /* Used by common code for array initialization */
