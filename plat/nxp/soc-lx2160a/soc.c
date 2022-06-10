@@ -451,8 +451,8 @@ void soc_init(void)
 
 	/* low-level init of the soc */
 	soc_init_start();
-	soc_init_percpu();
 	_init_global_data();
+	soc_init_percpu();
 	_initialize_psci();
 
 	if (ccn_get_part0_id(NXP_CCN_ADDR) != CCN_508_PART0_ID) {
