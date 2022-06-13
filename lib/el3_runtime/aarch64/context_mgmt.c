@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -790,11 +790,47 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	if ((security_state != SECURE) ||
 	    ((security_state == SECURE) && ((scr_el3 & SCR_EEL2_BIT) != 0U))) {
 		cpu_context_t *ctx;
+		el2_sysregs_t *el2_sysregs_ctx;
 
 		ctx = cm_get_context(security_state);
 		assert(ctx != NULL);
 
-		el2_sysregs_context_save(get_el2_sysregs_ctx(ctx));
+		el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
+
+		el2_sysregs_context_save_common(el2_sysregs_ctx);
+#if ENABLE_SPE_FOR_LOWER_ELS
+		el2_sysregs_context_save_spe(el2_sysregs_ctx);
+#endif
+#if CTX_INCLUDE_MTE_REGS
+		el2_sysregs_context_save_mte(el2_sysregs_ctx);
+#endif
+#if ENABLE_MPAM_FOR_LOWER_ELS
+		el2_sysregs_context_save_mpam(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_FGT
+		el2_sysregs_context_save_fgt(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_ECV
+		el2_sysregs_context_save_ecv(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_VHE
+		el2_sysregs_context_save_vhe(el2_sysregs_ctx);
+#endif
+#if RAS_EXTENSION
+		el2_sysregs_context_save_ras(el2_sysregs_ctx);
+#endif
+#if CTX_INCLUDE_NEVE_REGS
+		el2_sysregs_context_save_nv2(el2_sysregs_ctx);
+#endif
+#if ENABLE_TRF_FOR_NS
+		el2_sysregs_context_save_trf(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_CSV2_2
+		el2_sysregs_context_save_csv2(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_HCX
+		el2_sysregs_context_save_hcx(el2_sysregs_ctx);
+#endif
 	}
 }
 
@@ -812,11 +848,47 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	if ((security_state != SECURE) ||
 	    ((security_state == SECURE) && ((scr_el3 & SCR_EEL2_BIT) != 0U))) {
 		cpu_context_t *ctx;
+		el2_sysregs_t *el2_sysregs_ctx;
 
 		ctx = cm_get_context(security_state);
 		assert(ctx != NULL);
 
-		el2_sysregs_context_restore(get_el2_sysregs_ctx(ctx));
+		el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
+
+		el2_sysregs_context_restore_common(el2_sysregs_ctx);
+#if ENABLE_SPE_FOR_LOWER_ELS
+		el2_sysregs_context_restore_spe(el2_sysregs_ctx);
+#endif
+#if CTX_INCLUDE_MTE_REGS
+		el2_sysregs_context_restore_mte(el2_sysregs_ctx);
+#endif
+#if ENABLE_MPAM_FOR_LOWER_ELS
+		el2_sysregs_context_restore_mpam(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_FGT
+		el2_sysregs_context_restore_fgt(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_ECV
+		el2_sysregs_context_restore_ecv(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_VHE
+		el2_sysregs_context_restore_vhe(el2_sysregs_ctx);
+#endif
+#if RAS_EXTENSION
+		el2_sysregs_context_restore_ras(el2_sysregs_ctx);
+#endif
+#if CTX_INCLUDE_NEVE_REGS
+		el2_sysregs_context_restore_nv2(el2_sysregs_ctx);
+#endif
+#if ENABLE_TRF_FOR_NS
+		el2_sysregs_context_restore_trf(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_CSV2_2
+		el2_sysregs_context_restore_csv2(el2_sysregs_ctx);
+#endif
+#if ENABLE_FEAT_HCX
+		el2_sysregs_context_restore_hcx(el2_sysregs_ctx);
+#endif
 	}
 }
 #endif /* CTX_INCLUDE_EL2_REGS */
