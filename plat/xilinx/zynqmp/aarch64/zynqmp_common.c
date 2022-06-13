@@ -215,7 +215,8 @@ static const struct {
 #define ZYNQMP_PL_STATUS_MASK	BIT(ZYNQMP_PL_STATUS_BIT)
 #define ZYNQMP_CSU_VERSION_MASK	~(ZYNQMP_PL_STATUS_MASK)
 
-#define SILICON_ID_XCK26       0x4724093
+#define SILICON_ID_XCK24	0x4714093
+#define SILICON_ID_XCK26	0x4724093
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
@@ -251,9 +252,12 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	}
 
 	if (i >= ARRAY_SIZE(zynqmp_devices)) {
-		if (chipid[0] == SILICON_ID_XCK26) {
+		switch (chipid[0]) {
+		case SILICON_ID_XCK24:
+			return "XCK24";
+		case SILICON_ID_XCK26:
 			return "XCK26";
-		} else {
+		default:
 			return "XCZUUNKN";
 		}
 	}
