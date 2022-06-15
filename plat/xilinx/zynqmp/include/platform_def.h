@@ -40,8 +40,8 @@
 # define BL31_BASE			U(0xfffea000)
 # define BL31_LIMIT			U(0x100000000)
 #else
-# define BL31_BASE			U(0x1000)
-# define BL31_LIMIT			U(0x7ffff)
+# define BL31_BASE			U(0xfff5a000)
+# define BL31_LIMIT			U(0x100000000)
 #endif
 #else
 # define BL31_BASE			(ZYNQMP_ATF_MEM_BASE)
