@@ -300,3 +300,13 @@ enum mhu_error_t mhu_receive_data(uint8_t *receive_buffer, size_t *size)
 
 	return MHU_ERR_NONE;
 }
+
+size_t mhu_get_max_message_size(void)
+{
+	struct mhu_v2_x_dev_t *dev = &MHU1_SEH_DEV;
+	uint32_t num_channels = mhu_v2_x_get_num_channel_implemented(dev);
+
+	assert(num_channels != 0);
+
+	return num_channels * sizeof(uint32_t);
+}
