@@ -188,7 +188,27 @@ const uint32_t sysmgr_pinmux_array_iodelay[] = {
 
 void config_fpgaintf_mod(void)
 {
-	mmio_write_32(SOCFPGA_SYSMGR(FPGAINTF_EN_2), 1<<8);
+	uint32_t val;
+
+	val = 0;
+	if (mmio_read_32(AGX_PINMUX_NAND_USEFPGA) & 1)
+		val |= AGX_PINMUX_NAND_USEFPGA_VAL;
+	if (mmio_read_32(AGX_PINMUX_SDMMC_USEFPGA) & 1)
+		val |= AGX_PINMUX_SDMMC_USEFPGA_VAL;
+	if (mmio_read_32(AGX_PINMUX_SPIM0_USEFPGA) & 1)
+		val |= AGX_PINMUX_SPIM0_USEFPGA_VAL;
+	if (mmio_read_32(AGX_PINMUX_SPIM1_USEFPGA) & 1)
+		val |= AGX_PINMUX_SPIM1_USEFPGA_VAL;
+	mmio_write_32(SOCFPGA_SYSMGR(FPGAINTF_EN_2), val);
+
+	val = 0;
+	if (mmio_read_32(AGX_PINMUX_EMAC0_USEFPGA) & 1)
+		val |= AGX_PINMUX_EMAC0_USEFPGA_VAL;
+	if (mmio_read_32(AGX_PINMUX_EMAC1_USEFPGA) & 1)
+		val |= AGX_PINMUX_EMAC1_USEFPGA_VAL;
+	if (mmio_read_32(AGX_PINMUX_EMAC2_USEFPGA) & 1)
+		val |= AGX_PINMUX_EMAC2_USEFPGA_VAL;
+	mmio_write_32(SOCFPGA_SYSMGR(FPGAINTF_EN_3), val);
 }
 
 
@@ -209,7 +229,7 @@ void config_pinmux(handoff *hoff_ptr)
 	}
 
 	for (i = 0; i < 40; i += 2) {
-		mmio_write_32(AGX_PINMUX_PINMUX_EMAC0_USEFPGA +
+		mmio_write_32(AGX_PINMUX_EMAC0_USEFPGA +
 			hoff_ptr->pinmux_fpga_array[i],
 			hoff_ptr->pinmux_fpga_array[i+1]);
 	}
