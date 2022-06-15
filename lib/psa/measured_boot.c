@@ -14,8 +14,9 @@
 
 #include "measured_boot_private.h"
 
-static void print_byte_array(const uint8_t *array, size_t len)
+static void print_byte_array(const uint8_t *array __unused, size_t len __unused)
 {
+#if LOG_LEVEL >= LOG_LEVEL_INFO
 	size_t i;
 
 	if (array == NULL || len == 0U) {
@@ -31,6 +32,7 @@ static void print_byte_array(const uint8_t *array, size_t len)
 			}
 		}
 	}
+#endif
 }
 
 static void log_measurement(uint8_t index,
