@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -140,5 +140,14 @@
 #define TF_MBEDTLS_HEAP_SIZE		U(11264)
 #endif
 #endif
+
+/*
+ * Warn if errors from certain functions are ignored.
+ *
+ * The warnings are always enabled (where supported) for critical functions
+ * where ignoring the return value is almost always a bug. This macro extends
+ * the warnings to more functions.
+ */
+#define MBEDTLS_CHECK_RETURN_WARNING
 
 #endif /* MBEDTLS_CONFIG_H */
