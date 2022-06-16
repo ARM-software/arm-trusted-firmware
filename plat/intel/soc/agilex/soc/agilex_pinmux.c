@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -208,7 +208,7 @@ void config_pinmux(handoff *hoff_ptr)
 			hoff_ptr->pinmux_io_array[i+1]);
 	}
 
-	for (i = 0; i < 42; i += 2) {
+	for (i = 0; i < 40; i += 2) {
 		mmio_write_32(AGX_PINMUX_PINMUX_EMAC0_USEFPGA +
 			hoff_ptr->pinmux_fpga_array[i],
 			hoff_ptr->pinmux_fpga_array[i+1]);
