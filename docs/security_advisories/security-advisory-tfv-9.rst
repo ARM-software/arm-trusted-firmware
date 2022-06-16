@@ -57,19 +57,37 @@ revisions of Cortex-A73 and Cortex-A75 that implements FEAT_CSV2).
 +----------------------+
 | Cortex-A76           |
 +----------------------+
+| Cortex-A76AE         |
++----------------------+
 | Cortex-A77           |
 +----------------------+
 | Cortex-A78           |
 +----------------------+
+| Cortex-A78AE         |
++----------------------+
+| Cortex-A78C          |
++----------------------+
+| Cortex-X1            |
++----------------------+
 | Cortex-X2            |
 +----------------------+
 | Cortex-A710          |
++----------------------+
+| Cortex-Makalu        |
++----------------------+
+| Cortex-Makalu-ELP    |
++----------------------+
+| Cortex-Hunter        |
 +----------------------+
 | Neoverse-N1          |
 +----------------------+
 | Neoverse-N2          |
 +----------------------+
 | Neoverse-V1          |
++----------------------+
+| Neoverse-Demeter     |
++----------------------+
+| Neoverse-Poseidon    |
 +----------------------+
 
 For all other cores impacted by Spectre-BHB, some of which that do not implement
@@ -90,7 +108,7 @@ in the `SMCCC Calling Convention specification`_. The specification and
 implementation also enables the normal world to discover the presence of this
 firmware service. This patch also implements ``SMCCC_ARCH_WORKAROUND_3`` for
 Cortex-A57, Coxtex-A72, Cortex-A73 and Cortex-A75 using the existing workaround.
-for CVE-2017-5715.
+for CVE-2017-5715. Cortex-A15 patch extends Spectre V2 mitigation to Spectre-BHB.
 
 The above workaround is enabled by default (on vulnerable CPUs only). Platforms
 can choose to disable them at compile time if they do not require them.
