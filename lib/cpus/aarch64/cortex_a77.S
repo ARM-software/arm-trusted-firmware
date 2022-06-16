@@ -199,6 +199,34 @@ func check_errata_1791578
 	b	cpu_rev_var_ls
 endfunc check_errata_1791578
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #2356587.
+	 * This applies to revisions r0p0, r1p0, and r1p1 and is still open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a77_2356587_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_2356587
+	cbz	x0, 1f
+
+	/* Set bit 0 in ACTLR2_EL1 */
+	mrs	x1, CORTEX_A77_ACTLR2_EL1
+	orr	x1, x1, #CORTEX_A77_ACTLR2_EL1_BIT_0
+	msr	CORTEX_A77_ACTLR2_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a77_2356587_wa
+
+func check_errata_2356587
+	/* Applies to r0p0, r1p0, and r1p1 right now */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_2356587
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -236,6 +264,11 @@ func cortex_a77_reset_func
 #if ERRATA_A77_1791578
 	mov	x0, x18
 	bl	errata_a77_1791578_wa
+#endif
+
+#if ERRATA_A77_2356587
+	mov	x0, x18
+	bl	errata_a77_2356587_wa
 #endif
 
 #if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
@@ -285,6 +318,7 @@ func cortex_a77_errata_report
 	report_errata ERRATA_A77_1925769, cortex_a77, 1925769
 	report_errata ERRATA_A77_1946167, cortex_a77, 1946167
 	report_errata ERRATA_A77_1791578, cortex_a77, 1791578
+	report_errata ERRATA_A77_2356587, cortex_a77, 2356587
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a77, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16

@@ -32,6 +32,7 @@
  ******************************************************************************/
 #define CORTEX_A77_ACTLR2_EL1				S3_0_C15_C1_1
 #define CORTEX_A77_ACTLR2_EL1_BIT_2			(ULL(1) << 2)
+#define CORTEX_A77_ACTLR2_EL1_BIT_0			ULL(1)
 
 #define CORTEX_A77_CPUPSELR_EL3				S3_6_C15_C8_0
 #define CORTEX_A77_CPUPCR_EL3				S3_6_C15_C8_1
