@@ -35,5 +35,6 @@
 #define NEOVERSE_V1_ACTLR2_EL1_BIT_0				ULL(1)
 #define NEOVERSE_V1_ACTLR2_EL1_BIT_2				(ULL(1) << 2)
 #define NEOVERSE_V1_ACTLR2_EL1_BIT_28				(ULL(1) << 28)
+#define NEOVERSE_V1_ACTLR2_EL1_BIT_40				(ULL(1) << 40)
 
 #endif /* NEOVERSE_V1_H */
