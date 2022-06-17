@@ -406,7 +406,7 @@ endif
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
 # flags present in Measured Boot makefile.
-ifeq (${MEASURED_BOOT},1)
+ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
     MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
     $(info Including ${MEASURED_BOOT_MK})
     include ${MEASURED_BOOT_MK}
@@ -415,8 +415,14 @@ ifeq (${MEASURED_BOOT},1)
         $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA512))
     endif
 
-    BL1_SOURCES		+= 	${EVENT_LOG_SOURCES}
-    BL2_SOURCES		+= 	${EVENT_LOG_SOURCES}
+    ifeq (${MEASURED_BOOT},1)
+         BL1_SOURCES		+= 	${EVENT_LOG_SOURCES}
+         BL2_SOURCES		+= 	${EVENT_LOG_SOURCES}
+    endif
+
+    ifeq (${DRTM_SUPPORT},1)
+         BL31_SOURCES	        += 	${EVENT_LOG_SOURCES}
+    endif
 endif
 
 ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
