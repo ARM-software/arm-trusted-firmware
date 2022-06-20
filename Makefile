@@ -730,7 +730,17 @@ ifeq ($(DYN_DISABLE_AUTH), 1)
     endif
 endif
 
-ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
+ifeq ($(MEASURED_BOOT)-$(TRUSTED_BOARD_BOOT),1-1)
+# Support authentication verification and hash calculation
+    CRYPTO_SUPPORT := 3
+else ifeq ($(DRTM_SUPPORT)-$(TRUSTED_BOARD_BOOT),1-1)
+# Support authentication verification and hash calculation
+    CRYPTO_SUPPORT := 3
+else ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
+# Support hash calculation only
+    CRYPTO_SUPPORT := 2
+else ifeq (${TRUSTED_BOARD_BOOT},1)
+# Support authentication verification only
     CRYPTO_SUPPORT := 1
 else
     CRYPTO_SUPPORT := 0
@@ -1035,7 +1045,6 @@ $(eval $(call assert_booleans,\
         SPMC_AT_EL3 \
         SPMD_SPM_AT_SEL2 \
         TRUSTED_BOARD_BOOT \
-        CRYPTO_SUPPORT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \
         ARM_IO_IN_DTB \
@@ -1070,6 +1079,7 @@ $(eval $(call assert_numerics,\
         CTX_INCLUDE_PAUTH_REGS \
         CTX_INCLUDE_MTE_REGS \
         CTX_INCLUDE_NEVE_REGS \
+        CRYPTO_SUPPORT \
         ENABLE_BRBE_FOR_NS \
         ENABLE_TRBE_FOR_NS \
         ENABLE_BTI \
