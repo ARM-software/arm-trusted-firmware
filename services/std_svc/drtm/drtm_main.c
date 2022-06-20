@@ -19,6 +19,7 @@
 #include <common/runtime_svc.h>
 #include <drivers/auth/crypto_mod.h>
 #include "drtm_main.h"
+#include <lib/psci/psci_lib.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <services/drtm_svc.h>
@@ -149,6 +150,72 @@ static inline uint64_t drtm_features_tcb_hashes(void *ctx)
 		 plat_drtm_features.tcb_hash_features);
 }
 
+static enum drtm_retc drtm_dl_check_caller_el(void *ctx)
+{
+	uint64_t spsr_el3 = read_ctx_reg(get_el3state_ctx(ctx), CTX_SPSR_EL3);
+	uint64_t dl_caller_el;
+	uint64_t dl_caller_aarch;
+
+	dl_caller_el = spsr_el3 >> MODE_EL_SHIFT & MODE_EL_MASK;
+	dl_caller_aarch = spsr_el3 >> MODE_RW_SHIFT & MODE_RW_MASK;
+
+	/* Caller's security state is checked from drtm_smc_handle function */
+
+	/* Caller can be NS-EL2/EL1 */
+	if (dl_caller_el == MODE_EL3) {
+		ERROR("DRTM: invalid launch from EL3\n");
+		return DENIED;
+	}
+
+	if (dl_caller_aarch != MODE_RW_64) {
+		ERROR("DRTM: invalid launch from non-AArch64 execution state\n");
+		return DENIED;
+	}
+
+	return SUCCESS;
+}
+
+static enum drtm_retc drtm_dl_check_cores(void)
+{
+	bool running_on_single_core;
+	uint64_t this_pe_aff_value = read_mpidr_el1() & MPIDR_AFFINITY_MASK;
+
+	if (this_pe_aff_value != plat_drtm_features.boot_pe_id) {
+		ERROR("DRTM: invalid launch on a non-boot PE\n");
+		return DENIED;
+	}
+
+	running_on_single_core = psci_is_last_on_cpu_safe();
+	if (!running_on_single_core) {
+		ERROR("DRTM: invalid launch due to non-boot PE not being turned off\n");
+		return DENIED;
+	}
+
+	return SUCCESS;
+}
+
+static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
+{
+	enum drtm_retc ret = SUCCESS;
+
+	/* Ensure that only boot PE is powered on */
+	ret = drtm_dl_check_cores();
+	if (ret != SUCCESS) {
+		SMC_RET1(handle, ret);
+	}
+
+	/*
+	 * Ensure that execution state is AArch64 and the caller
+	 * is highest non-secure exception level
+	 */
+	ret = drtm_dl_check_caller_el(handle);
+	if (ret != SUCCESS) {
+		SMC_RET1(handle, ret);
+	}
+
+	SMC_RET1(handle, ret);
+}
+
 uint64_t drtm_smc_handler(uint32_t smc_fid,
 			  uint64_t x1,
 			  uint64_t x2,
@@ -268,7 +335,7 @@ uint64_t drtm_smc_handler(uint32_t smc_fid,
 
 	case ARM_DRTM_SVC_DYNAMIC_LAUNCH:
 		INFO("DRTM service handler: dynamic launch\n");
-		SMC_RET1(handle, SMC_OK);
+		return drtm_dynamic_launch(x1, handle);
 		break;	/* not reached */
 
 	case ARM_DRTM_SVC_CLOSE_LOCALITY:
