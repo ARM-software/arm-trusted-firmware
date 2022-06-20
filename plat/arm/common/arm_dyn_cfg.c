@@ -131,6 +131,7 @@ void arm_bl2_dyn_cfg_init(void)
 	bl_mem_params_node_t *cfg_mem_params = NULL;
 	uintptr_t image_base;
 	uint32_t image_size;
+	unsigned int error_config_id = MAX_IMAGE_IDS;
 	const unsigned int config_ids[] = {
 			HW_CONFIG_ID,
 			SOC_FW_CONFIG_ID,
@@ -142,17 +143,17 @@ void arm_bl2_dyn_cfg_init(void)
 
 	/* Iterate through all the fw config IDs */
 	for (i = 0; i < ARRAY_SIZE(config_ids); i++) {
-		/* Get the config load address and size from TB_FW_CONFIG */
+		/* Get the config load address and size */
 		cfg_mem_params = get_bl_mem_params_node(config_ids[i]);
 		if (cfg_mem_params == NULL) {
-			VERBOSE("%sHW_CONFIG in bl_mem_params_node\n",
-				"Couldn't find ");
+			VERBOSE("%sconfig_id = %d in bl_mem_params_node\n",
+				"Couldn't find ", config_ids[i]);
 			continue;
 		}
 
 		dtb_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, config_ids[i]);
 		if (dtb_info == NULL) {
-			VERBOSE("%sconfig_id %d load info in TB_FW_CONFIG\n",
+			VERBOSE("%sconfig_id %d load info in FW_CONFIG\n",
 				"Couldn't find ", config_ids[i]);
 			continue;
 		}
@@ -168,17 +169,32 @@ void arm_bl2_dyn_cfg_init(void)
 		if (config_ids[i] != HW_CONFIG_ID) {
 
 			if (check_uptr_overflow(image_base, image_size)) {
+				VERBOSE("%s=%d as its %s is overflowing uptr\n",
+					"skip loading of firmware config",
+					config_ids[i],
+					"load-address");
+				error_config_id = config_ids[i];
 				continue;
 			}
 #ifdef	BL31_BASE
 			/* Ensure the configs don't overlap with BL31 */
 			if ((image_base >= BL31_BASE) &&
 			    (image_base <= BL31_LIMIT)) {
+				VERBOSE("%s=%d as its %s is overlapping BL31\n",
+					"skip loading of firmware config",
+					config_ids[i],
+					"load-address");
+				error_config_id = config_ids[i];
 				continue;
 			}
 #endif
 			/* Ensure the configs are loaded in a valid address */
 			if (image_base < ARM_BL_RAM_BASE) {
+				VERBOSE("%s=%d as its %s is invalid\n",
+					"skip loading of firmware config",
+					config_ids[i],
+					"load-address");
+				error_config_id = config_ids[i];
 				continue;
 			}
 #ifdef BL32_BASE
@@ -188,6 +204,11 @@ void arm_bl2_dyn_cfg_init(void)
 			 */
 			if ((image_base >= BL32_BASE) &&
 			    (image_base <= BL32_LIMIT)) {
+				VERBOSE("%s=%d as its %s is overlapping BL32\n",
+					"skip loading of firmware config",
+					config_ids[i],
+					"load-address");
+				error_config_id = config_ids[i];
 				continue;
 			}
 #endif
@@ -201,5 +222,10 @@ void arm_bl2_dyn_cfg_init(void)
 		 * HW_CONFIG or FW_CONFIG nodes
 		 */
 		cfg_mem_params->image_info.h.attr &= ~IMAGE_ATTRIB_SKIP_LOADING;
+	}
+
+	if (error_config_id != MAX_IMAGE_IDS) {
+		ERROR("Invalid config file %u\n", error_config_id);
+		panic();
 	}
 }
