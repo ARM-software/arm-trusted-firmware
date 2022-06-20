@@ -111,7 +111,7 @@ static int mmc_device_state(void)
 	return MMC_GET_STATE(resp_data[0]);
 }
 
-static int mmc_send_part_switch_cmd(unsigned int part_config)
+static int mmc_send_part_switch_cmd(unsigned char part_config)
 {
 	int ret;
 	unsigned int part_time = 0;
@@ -759,9 +759,9 @@ size_t mmc_erase_blocks(int lba, size_t size)
 	return size;
 }
 
-static int mmc_part_switch(unsigned int part_type)
+static int mmc_part_switch(unsigned char part_type)
 {
-	uint8_t part_config = mmc_ext_csd[CMD_EXTCSD_PARTITION_CONFIG];
+	unsigned char part_config = mmc_ext_csd[CMD_EXTCSD_PARTITION_CONFIG];
 
 	part_config &= ~EXT_CSD_PART_CONFIG_ACC_MASK;
 	part_config |= part_type;
