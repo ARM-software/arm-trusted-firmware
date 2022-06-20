@@ -15,7 +15,11 @@
 			max-size = <0x200>;
 			id = <TB_FW_CONFIG_ID>;
 		};
-
+		tos_fw-config {
+			load-address = <0x0 0x4001600>;
+			max-size = <0x1000>;
+			id = <TOS_FW_CONFIG_ID>;
+		};
 		nt_fw-config {
 			load-address = <0x0 0xFEF00000>;
 			max-size = <0x0100000>;

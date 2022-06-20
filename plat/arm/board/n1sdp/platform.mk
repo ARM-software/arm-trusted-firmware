@@ -68,6 +68,13 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 # Add the NT_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 
+N1SDP_SPMC_MANIFEST_DTS	:=	${N1SDP_BASE}/fdts/${PLAT}_optee_spmc_manifest.dts
+FDT_SOURCES		+=	${N1SDP_SPMC_MANIFEST_DTS}
+N1SDP_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_optee_spmc_manifest.dtb
+
+# Add the TOS_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${N1SDP_TOS_FW_CONFIG},--tos-fw-config,${N1SDP_TOS_FW_CONFIG}))
+
 # Setting to 0 as no NVCTR in N1SDP
 N1SDP_FW_NVCTR_VAL	:=	0
 TFW_NVCTR_VAL		:=	${N1SDP_FW_NVCTR_VAL}
