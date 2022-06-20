@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,6 +68,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
+#if STM32MP15
 	/* Fill BL32 external 2 image related information */
 	{
 		.image_id = BL32_EXTRA2_IMAGE_ID,
@@ -82,6 +83,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
+#endif
 
 	/* Fill HW_CONFIG related information if it exists */
 	{

@@ -470,11 +470,13 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 				/* Init base and size for pager if exist */
 				paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
-				assert(paged_mem_params != NULL);
-				paged_mem_params->image_info.image_base = STM32MP_DDR_BASE +
-					(dt_get_ddr_size() - STM32MP_DDR_S_SIZE -
-					 STM32MP_DDR_SHMEM_SIZE);
-				paged_mem_params->image_info.image_max_size = STM32MP_DDR_S_SIZE;
+				if (paged_mem_params != NULL) {
+					paged_mem_params->image_info.image_base = STM32MP_DDR_BASE +
+						(dt_get_ddr_size() - STM32MP_DDR_S_SIZE -
+						 STM32MP_DDR_SHMEM_SIZE);
+					paged_mem_params->image_info.image_max_size =
+						STM32MP_DDR_S_SIZE;
+				}
 				break;
 
 			case BL33_IMAGE_ID:
@@ -494,11 +496,17 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 	case BL32_IMAGE_ID:
 		if (optee_header_is_valid(bl_mem_params->image_info.image_base)) {
+			image_info_t *paged_image_info = NULL;
+
 			/* BL32 is OP-TEE header */
 			bl_mem_params->ep_info.pc = bl_mem_params->image_info.image_base;
 			pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+			assert(pager_mem_params != NULL);
+
 			paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
-			assert((pager_mem_params != NULL) && (paged_mem_params != NULL));
+			if (paged_mem_params != NULL) {
+				paged_image_info = &paged_mem_params->image_info;
+			}
 
 #if STM32MP_USE_STM32IMAGE && defined(AARCH32_SP_OPTEE)
 			/* Set OP-TEE extra image load areas at run-time */
@@ -514,16 +522,22 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 			err = parse_optee_header(&bl_mem_params->ep_info,
 						 &pager_mem_params->image_info,
-						 &paged_mem_params->image_info);
-			if (err) {
+						 paged_image_info);
+			if (err != 0) {
 				ERROR("OPTEE header parse error.\n");
 				panic();
 			}
 
 			/* Set optee boot info from parsed header data */
-			bl_mem_params->ep_info.args.arg0 = paged_mem_params->image_info.image_base;
-			bl_mem_params->ep_info.args.arg1 = 0; /* Unused */
-			bl_mem_params->ep_info.args.arg2 = 0; /* No DT supported */
+			if (paged_mem_params != NULL) {
+				bl_mem_params->ep_info.args.arg0 =
+					paged_mem_params->image_info.image_base;
+			} else {
+				bl_mem_params->ep_info.args.arg0 = 0U;
+			}
+
+			bl_mem_params->ep_info.args.arg1 = 0U; /* Unused */
+			bl_mem_params->ep_info.args.arg2 = 0U; /* No DT supported */
 		} else {
 #if !STM32MP_USE_STM32IMAGE
 			bl_mem_params->ep_info.pc = bl_mem_params->image_info.image_base;
