@@ -838,8 +838,9 @@ int _clk_stm32_gate_wait_ready(struct stm32_clk_priv *priv, uint16_t gate_id,
 		}
 	}
 
-	if ((mmio_read_32(address) & mask_rdy) != mask_test)
+	if ((mmio_read_32(address) & mask_rdy) != mask_test) {
 		return -ETIMEDOUT;
+	}
 
 	return 0;
 }
