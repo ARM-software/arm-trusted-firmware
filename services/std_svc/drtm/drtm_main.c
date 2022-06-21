@@ -194,9 +194,170 @@ static enum drtm_retc drtm_dl_check_cores(void)
 	return SUCCESS;
 }
 
+static enum drtm_retc drtm_dl_prepare_dlme_data(const struct_drtm_dl_args *args,
+						size_t *dlme_data_size_out)
+{
+	size_t dlme_data_total_bytes_req = 0;
+
+	*dlme_data_size_out = dlme_data_total_bytes_req;
+
+	return SUCCESS;
+}
+
+/*
+ * Note: accesses to the dynamic launch args, and to the DLME data are
+ * little-endian as required, thanks to TF-A BL31 init requirements.
+ */
+static enum drtm_retc drtm_dl_check_args(uint64_t x1,
+					 struct_drtm_dl_args *a_out)
+{
+	uint64_t dlme_start, dlme_end;
+	uint64_t dlme_img_start, dlme_img_ep, dlme_img_end;
+	uint64_t dlme_data_start, dlme_data_end;
+	uintptr_t args_mapping;
+	size_t args_mapping_size;
+	struct_drtm_dl_args *a;
+	struct_drtm_dl_args args_buf;
+	size_t dlme_data_size_req;
+	int rc;
+
+	if (x1 % DRTM_PAGE_SIZE != 0) {
+		ERROR("DRTM: parameters structure is not "
+		      DRTM_PAGE_SIZE_STR "-aligned\n");
+		return INVALID_PARAMETERS;
+	}
+
+	args_mapping_size = ALIGNED_UP(sizeof(struct_drtm_dl_args), DRTM_PAGE_SIZE);
+	rc = mmap_add_dynamic_region_alloc_va(x1, &args_mapping, args_mapping_size,
+					      MT_MEMORY | MT_NS | MT_RO |
+					      MT_SHAREABILITY_ISH);
+	if (rc != 0) {
+		WARN("DRTM: %s: mmap_add_dynamic_region() failed rc=%d\n",
+		      __func__, rc);
+		return INTERNAL_ERROR;
+	}
+	a = (struct_drtm_dl_args *)args_mapping;
+	/*
+	 * TODO: invalidate all data cache before reading the data passed by the
+	 * DCE Preamble.  This is required to avoid / defend against racing with
+	 * cache evictions.
+	 */
+	args_buf = *a;
+
+	rc = mmap_remove_dynamic_region(args_mapping, args_mapping_size);
+	if (rc) {
+		ERROR("%s(): mmap_remove_dynamic_region() failed unexpectedly"
+		      " rc=%d\n", __func__, rc);
+		panic();
+	}
+	a = &args_buf;
+
+	if (a->version != 1) {
+		ERROR("DRTM: parameters structure incompatible with major version %d\n",
+		      ARM_DRTM_VERSION_MAJOR);
+		return NOT_SUPPORTED;
+	}
+
+	if (!(a->dlme_img_off < a->dlme_size &&
+	      a->dlme_data_off < a->dlme_size)) {
+		ERROR("DRTM: argument offset is outside of the DLME region\n");
+		return INVALID_PARAMETERS;
+	}
+	dlme_start = a->dlme_paddr;
+	dlme_end = a->dlme_paddr + a->dlme_size;
+	dlme_img_start = a->dlme_paddr + a->dlme_img_off;
+	dlme_img_ep = dlme_img_start + a->dlme_img_ep_off;
+	dlme_img_end = dlme_img_start + a->dlme_img_size;
+	dlme_data_start = a->dlme_paddr + a->dlme_data_off;
+	dlme_data_end = dlme_end;
+
+	/*
+	 * TODO: validate that the DLME physical address range is all NS memory,
+	 * return INVALID_PARAMETERS if it is not.
+	 * Note that this check relies on platform-specific information. For
+	 * examples, see psci_plat_pm_ops->validate_ns_entrypoint() or
+	 * arm_validate_ns_entrypoint().
+	 */
+
+	/* Check the DLME regions arguments. */
+	if ((dlme_start % DRTM_PAGE_SIZE) != 0) {
+		ERROR("DRTM: argument DLME region is not "
+		      DRTM_PAGE_SIZE_STR "-aligned\n");
+		return INVALID_PARAMETERS;
+	}
+
+	if (!(dlme_start < dlme_end &&
+	      dlme_start <= dlme_img_start && dlme_img_start < dlme_img_end &&
+	      dlme_start <= dlme_data_start && dlme_data_start < dlme_data_end)) {
+		ERROR("DRTM: argument DLME region is discontiguous\n");
+		return INVALID_PARAMETERS;
+	}
+
+	if (dlme_img_start < dlme_data_end && dlme_data_start < dlme_img_end) {
+		ERROR("DRTM: argument DLME regions overlap\n");
+		return INVALID_PARAMETERS;
+	}
+
+	/* Check the DLME image region arguments. */
+	if ((dlme_img_start % DRTM_PAGE_SIZE) != 0) {
+		ERROR("DRTM: argument DLME image region is not "
+		      DRTM_PAGE_SIZE_STR "-aligned\n");
+		return INVALID_PARAMETERS;
+	}
+
+	if (!(dlme_img_start <= dlme_img_ep && dlme_img_ep < dlme_img_end)) {
+		ERROR("DRTM: DLME entry point is outside of the DLME image region\n");
+		return INVALID_PARAMETERS;
+	}
+
+	if ((dlme_img_ep % 4) != 0) {
+		ERROR("DRTM: DLME image entry point is not 4-byte-aligned\n");
+		return INVALID_PARAMETERS;
+	}
+
+	/* Check the DLME data region arguments. */
+	if ((dlme_data_start % DRTM_PAGE_SIZE) != 0) {
+		ERROR("DRTM: argument DLME data region is not "
+		      DRTM_PAGE_SIZE_STR "-aligned\n");
+		return INVALID_PARAMETERS;
+	}
+
+	rc = drtm_dl_prepare_dlme_data(NULL, &dlme_data_size_req);
+	if (rc) {
+		ERROR("%s: drtm_dl_prepare_dlme_data() failed unexpectedly rc=%d\n",
+		      __func__, rc);
+		panic();
+	}
+	if (dlme_data_end - dlme_data_start < dlme_data_size_req) {
+		ERROR("DRTM: argument DLME data region is short of %lu bytes\n",
+		      dlme_data_size_req - (size_t)(dlme_data_end - dlme_data_start));
+		return INVALID_PARAMETERS;
+	}
+
+	/* Check the Normal World DCE region arguments. */
+	if (a->dce_nwd_paddr != 0) {
+		uint32_t dce_nwd_start = a->dce_nwd_paddr;
+		uint32_t dce_nwd_end = dce_nwd_start + a->dce_nwd_size;
+
+		if (!(dce_nwd_start < dce_nwd_end)) {
+			ERROR("DRTM: argument Normal World DCE region is dicontiguous\n");
+			return INVALID_PARAMETERS;
+		}
+
+		if (dce_nwd_start < dlme_end && dlme_start < dce_nwd_end) {
+			ERROR("DRTM: argument Normal World DCE regions overlap\n");
+			return INVALID_PARAMETERS;
+		}
+	}
+
+	*a_out = *a;
+	return SUCCESS;
+}
+
 static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 {
 	enum drtm_retc ret = SUCCESS;
+	struct_drtm_dl_args args;
 
 	/* Ensure that only boot PE is powered on */
 	ret = drtm_dl_check_cores();
@@ -209,6 +370,11 @@ static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 	 * is highest non-secure exception level
 	 */
 	ret = drtm_dl_check_caller_el(handle);
+	if (ret != SUCCESS) {
+		SMC_RET1(handle, ret);
+	}
+
+	ret = drtm_dl_check_args(x1, &args);
 	if (ret != SUCCESS) {
 		SMC_RET1(handle, ret);
 	}
