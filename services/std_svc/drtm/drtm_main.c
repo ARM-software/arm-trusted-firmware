@@ -358,6 +358,7 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 {
 	enum drtm_retc ret = SUCCESS;
+	enum drtm_retc dma_prot_ret;
 	struct_drtm_dl_args args;
 
 	/* Ensure that only boot PE is powered on */
@@ -376,6 +377,17 @@ static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 	}
 
 	ret = drtm_dl_check_args(x1, &args);
+	if (ret != SUCCESS) {
+		SMC_RET1(handle, ret);
+	}
+
+	/*
+	 * Engage the DMA protections.  The launch cannot proceed without the DMA
+	 * protections due to potential TOC/TOU vulnerabilities w.r.t. the DLME
+	 * region (and to the NWd DCE region).
+	 */
+	ret = drtm_dma_prot_engage(&args.dma_prot_args,
+				   DL_ARGS_GET_DMA_PROT_TYPE(&args));
 	if (ret != SUCCESS) {
 		SMC_RET1(handle, ret);
 	}
@@ -497,7 +509,7 @@ uint64_t drtm_smc_handler(uint32_t smc_fid,
 
 	case ARM_DRTM_SVC_UNPROTECT_MEM:
 		INFO("DRTM service handler: unprotect mem\n");
-		SMC_RET1(handle, SMC_OK);
+		return drtm_unprotect_mem(handle);
 		break;	/* not reached */
 
 	case ARM_DRTM_SVC_DYNAMIC_LAUNCH:

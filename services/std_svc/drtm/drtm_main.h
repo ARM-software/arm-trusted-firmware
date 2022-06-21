@@ -31,6 +31,7 @@
 #define DRTM_PAGE_SIZE		(4 * (1 << 10))
 #define DRTM_PAGE_SIZE_STR	"4-KiB"
 
+#define DL_ARGS_GET_DMA_PROT_TYPE(a)    (((a)->features >> 3) & 0x7U)
 #define DL_ARGS_GET_PCR_SCHEMA(a)	(((a)->features >> 1) & 0x3U)
 #define DL_ARGS_GET_DLME_ENTRY_POINT(a)	\
 		(((a)->dlme_paddr + (a)->dlme_img_off + (a)->dlme_img_ep_off))
