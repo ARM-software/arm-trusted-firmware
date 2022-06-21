@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -169,6 +169,8 @@ void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 	flush_dcache_range((uintptr_t)gicv3_driver_data,
 		sizeof(*gicv3_driver_data));
 #endif
+	gicv3_check_erratas_applies(plat_driver_data->gicd_base);
+
 	INFO("GICv%u with%s legacy support detected.\n", gic_version,
 				(gicv2_compat == 0U) ? "" : "out");
 	INFO("ARM GICv%u driver initialized in EL3\n", gic_version);
@@ -362,9 +364,17 @@ void gicv3_cpuif_disable(unsigned int proc_num)
 	/* Add DSB to ensure visibility of System register writes */
 	dsb();
 
-	/* Mark the connected core as asleep */
 	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
-	assert(gicr_base != 0U);
+	assert(gicr_base != 0UL);
+
+	/*
+	 * dsb() already issued previously after clearing the CPU group
+	 * enabled, apply below workaround to toggle the "DPG*"
+	 * bits of GICR_CTLR register for unblocking event.
+	 */
+	gicv3_apply_errata_wa_2384374(gicr_base);
+
+	/* Mark the connected core as asleep */
 	gicv3_rdistif_mark_core_asleep(gicr_base);
 }
 

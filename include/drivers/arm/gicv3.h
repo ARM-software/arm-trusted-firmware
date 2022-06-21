@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,6 +75,8 @@
 #define	IS_SPI(id)		(((id) >= MIN_SPI_ID) && ((id) <= MAX_SPI_ID))
 
 #endif	/* GIC_EXT_INTID */
+
+#define GIC_REV(r, p)           ((r << 4) | p)
 
 /*******************************************************************************
  * GICv3 and 3.1 specific Distributor interface register offsets and constants
@@ -192,6 +194,15 @@
 #define GICR_CTLR_UWP_SHIFT	31
 #define GICR_CTLR_UWP_MASK	U(0x1)
 #define GICR_CTLR_UWP_BIT	BIT_32(GICR_CTLR_UWP_SHIFT)
+#define GICR_CTLR_DPG1S_SHIFT	26
+#define GICR_CTLR_DPG1S_MASK	U(0x1)
+#define GICR_CTLR_DPG1S_BIT	BIT_32(GICR_CTLR_DPG1S_SHIFT)
+#define GICR_CTLR_DPG1NS_SHIFT	25
+#define GICR_CTLR_DPG1NS_MASK	U(0x1)
+#define GICR_CTLR_DPG1NS_BIT	BIT_32(GICR_CTLR_DPG1NS_SHIFT)
+#define GICR_CTLR_DPG0_SHIFT	24
+#define GICR_CTLR_DPG0_MASK	U(0x1)
+#define GICR_CTLR_DPG0_BIT	BIT_32(GICR_CTLR_DPG0_SHIFT)
 #define GICR_CTLR_RWP_SHIFT	3
 #define GICR_CTLR_RWP_MASK	U(0x1)
 #define GICR_CTLR_RWP_BIT	BIT_32(GICR_CTLR_RWP_SHIFT)
@@ -224,12 +235,40 @@
 #define TYPER_PPI_NUM_MASK	U(0x1f)
 
 /* GICR_IIDR bit definitions */
-#define IIDR_PRODUCT_ID_MASK	U(0xff000000)
-#define IIDR_VARIANT_MASK	U(0x000f0000)
-#define IIDR_REVISION_MASK	U(0x0000f000)
-#define IIDR_IMPLEMENTER_MASK	U(0x00000fff)
-#define IIDR_MODEL_MASK		(IIDR_PRODUCT_ID_MASK | \
-				 IIDR_IMPLEMENTER_MASK)
+#define IIDR_PRODUCT_ID_MASK	U(0xff)
+#define IIDR_VARIANT_MASK	U(0xf)
+#define IIDR_REV_MASK		U(0xf)
+#define IIDR_IMPLEMENTER_MASK	U(0xfff)
+#define IIDR_PRODUCT_ID_SHIFT	24
+#define IIDR_VARIANT_SHIFT	16
+#define IIDR_REV_SHIFT		12
+#define IIDR_IMPLEMENTER_SHIFT	0
+#define IIDR_PRODUCT_ID_BIT	BIT_32(IIDR_PRODUCT_ID_SHIFT)
+#define IIDR_VARIANT_BIT	BIT_32(IIDR_VARIANT_SHIFT)
+#define IIDR_REV_BIT		BIT_32(IIDR_REVISION_SHIFT)
+#define IIDR_IMPLEMENTER_BIT	BIT_32(IIDR_IMPLEMENTER_SHIFT)
+
+#define IIDR_MODEL_MASK		(IIDR_PRODUCT_ID_MASK << IIDR_PRODUCT_ID_SHIFT | \
+				 IIDR_IMPLEMENTER_MASK << IIDR_IMPLEMENTER_SHIFT)
+
+#define GIC_PRODUCT_ID_GIC600	U(0x2)
+#define GIC_PRODUCT_ID_GIC600AE	U(0x3)
+#define GIC_PRODUCT_ID_GIC700	U(0x4)
+
+/*
+ * Note that below revisions and variants definations are as per GIC600/GIC600AE
+ * specification.
+ */
+#define GIC_REV_P0		U(0x1)
+#define GIC_REV_P1		U(0x3)
+#define GIC_REV_P2		U(0x4)
+#define GIC_REV_P3		U(0x5)
+#define GIC_REV_P4		U(0x6)
+#define GIC_REV_P6		U(0x7)
+
+#define GIC_VARIANT_R0		U(0x0)
+#define GIC_VARIANT_R1		U(0x1)
+#define GIC_VARIANT_R2		U(0x2)
 
 /*******************************************************************************
  * GICv3 and 3.1 CPU interface registers & constants
@@ -542,6 +581,18 @@ void gicv3_set_spi_routing(unsigned int id, unsigned int irm,
 void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num);
 void gicv3_clear_interrupt_pending(unsigned int id, unsigned int proc_num);
 unsigned int gicv3_set_pmr(unsigned int mask);
+
+void gicv3_get_component_prodid_rev(const uintptr_t gicd_base,
+				    unsigned int *gic_prod_id,
+				    uint8_t *gic_rev);
+void gicv3_check_erratas_applies(const uintptr_t gicd_base);
+#if GIC600_ERRATA_WA_2384374
+void gicv3_apply_errata_wa_2384374(const uintptr_t gicr_base);
+#else
+static inline void gicv3_apply_errata_wa_2384374(const uintptr_t gicr_base)
+{
+}
+#endif /* GIC600_ERRATA_WA_2384374 */
 
 #endif /* __ASSEMBLER__ */
 #endif /* GICV3_H */

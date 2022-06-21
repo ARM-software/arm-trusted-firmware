@@ -520,9 +520,20 @@
  * BL2 specific defines.
  ******************************************************************************/
 #if BL2_AT_EL3
+#if ENABLE_PIE
+/*
+ * As the BL31 image size appears to be increased when built with the ENABLE_PIE
+ * option, set BL2 base address to have enough space for BL31 in Trusted SRAM.
+ */
+#define BL2_BASE			(ARM_TRUSTED_SRAM_BASE + \
+					(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1) + \
+					0x3000)
+#else
 /* Put BL2 towards the middle of the Trusted SRAM */
 #define BL2_BASE			(ARM_TRUSTED_SRAM_BASE + \
-						(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1) + 0x2000)
+					(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1) + \
+					0x2000)
+#endif /* ENABLE_PIE */
 #define BL2_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 
 #else
