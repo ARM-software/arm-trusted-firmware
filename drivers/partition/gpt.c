@@ -26,14 +26,16 @@ static int unicode_to_ascii(unsigned short *str_in, unsigned char *str_out)
 
 	/* check whether the unicode string is valid */
 	for (i = 1; i < (EFI_NAMELEN << 1); i += 2) {
-		if (name[i] != '\0')
+		if (name[i] != '\0') {
 			return -EINVAL;
+		}
 	}
 	/* convert the unicode string to ascii string */
 	for (i = 0; i < (EFI_NAMELEN << 1); i += 2) {
 		str_out[i >> 1] = name[i];
-		if (name[i] == '\0')
+		if (name[i] == '\0') {
 			break;
+		}
 	}
 	return 0;
 }
