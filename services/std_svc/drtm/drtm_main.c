@@ -19,6 +19,7 @@
 #include <common/runtime_svc.h>
 #include <drivers/auth/crypto_mod.h>
 #include "drtm_main.h"
+#include "drtm_remediation.h"
 #include <lib/psci/psci_lib.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
@@ -512,12 +513,12 @@ uint64_t drtm_smc_handler(uint32_t smc_fid,
 
 	case ARM_DRTM_SVC_GET_ERROR:
 		INFO("DRTM service handler: get error\n");
-		SMC_RET2(handle, SMC_OK, 0);
+		drtm_get_error(handle);
 		break;	/* not reached */
 
 	case ARM_DRTM_SVC_SET_ERROR:
 		INFO("DRTM service handler: set error\n");
-		SMC_RET1(handle, SMC_OK);
+		drtm_set_error(x1, handle);
 		break;	/* not reached */
 
 	case ARM_DRTM_SVC_SET_TCB_HASH:
