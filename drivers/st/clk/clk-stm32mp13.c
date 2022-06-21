@@ -1705,7 +1705,6 @@ static const struct stm32_clk_ops clk_stm32_pll_ops = {
 };
 
 #define CLK_PLL(idx, _idx, _parent, _gate, _pll_id, _flags)[idx] = {\
-	.name = #idx,\
 	.binding = _idx,\
 	.parent = _parent,\
 	.flags = (_flags),\
@@ -1762,7 +1761,6 @@ static const struct stm32_clk_ops clk_stm32_composite_ops = {
 
 #define STM32_COMPOSITE(idx, _binding, _parent, _flags, _gate_id,\
 			_div_id)[idx] = {\
-	.name = #idx,\
 	.binding = (_binding),\
 	.parent =  (_parent),\
 	.flags = (_flags),\
