@@ -19,6 +19,7 @@
 #include <common/runtime_svc.h>
 #include <drivers/auth/crypto_mod.h>
 #include "drtm_main.h"
+#include "drtm_measurements.h"
 #include "drtm_remediation.h"
 #include <lib/psci/psci_lib.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -390,6 +391,27 @@ static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 				   DL_ARGS_GET_DMA_PROT_TYPE(&args));
 	if (ret != SUCCESS) {
 		SMC_RET1(handle, ret);
+	}
+
+	/*
+	 * The DMA protection is now engaged.  Note that any failure mode that
+	 * returns an error to the DRTM-launch caller must now disengage DMA
+	 * protections before returning to the caller.
+	 */
+
+	ret = drtm_take_measurements(&args);
+	if (ret != SUCCESS) {
+		goto err_undo_dma_prot;
+	}
+
+	SMC_RET1(handle, ret);
+
+err_undo_dma_prot:
+	dma_prot_ret = drtm_dma_prot_disengage();
+	if (dma_prot_ret != SUCCESS) {
+		ERROR("%s(): drtm_dma_prot_disengage() failed unexpectedly"
+		      " rc=%d\n", __func__, ret);
+		panic();
 	}
 
 	SMC_RET1(handle, ret);
