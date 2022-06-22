@@ -44,7 +44,8 @@ PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/aarch64/sgi_helper.S
 BL1_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				drivers/arm/sbsa/sbsa.c
 
-BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_image_load.c
+BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_image_load.c	\
+				drivers/arm/css/sds/sds.c
 
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${ENT_GIC_SOURCES}			\

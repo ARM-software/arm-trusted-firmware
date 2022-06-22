@@ -101,7 +101,7 @@
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
-#define PLAT_ARM_MAX_BL31_SIZE		0x3B000
+#define PLAT_ARM_MAX_BL31_SIZE		0x48000
 
 /*
  * Size of cacheable stacks
@@ -286,5 +286,8 @@
 					MT_SECURE | MT_USER)
 
 #endif
+
+/* SDS ID for unusable CPU MPID list structure */
+#define SDS_ISOLATED_CPU_LIST_ID		U(128)
 
 #endif /* SGI_BASE_PLATFORM_DEF_H */

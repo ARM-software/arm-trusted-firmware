@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,16 +9,68 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <drivers/arm/css/sds.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
+#include <platform_def.h>
+#include <sgi_base_platform_def.h>
 #include <sgi_variant.h>
+
+/*
+ * Information about the isolated CPUs obtained from SDS.
+ */
+struct isolated_cpu_mpid_list {
+	uint64_t num_entries; /* Number of entries in the list */
+	uint64_t mpid_list[PLATFORM_CORE_COUNT]; /* List of isolated CPU MPIDs */
+};
+
+/* Function to read isolated CPU MPID list from SDS. */
+void plat_arm_sgi_get_isolated_cpu_list(struct isolated_cpu_mpid_list *list)
+{
+	int ret;
+
+	ret = sds_init();
+	if (ret != SDS_OK) {
+		ERROR("SDS initialization failed, error: %d\n", ret);
+		panic();
+	}
+
+	ret = sds_struct_read(SDS_ISOLATED_CPU_LIST_ID, 0, &list->num_entries,
+			sizeof(list->num_entries), SDS_ACCESS_MODE_CACHED);
+	if (ret != SDS_OK) {
+		INFO("SDS CPU num elements read failed, error: %d\n", ret);
+		list->num_entries = 0;
+		return;
+	}
+
+	if (list->num_entries > PLATFORM_CORE_COUNT) {
+		ERROR("Isolated CPU list count %ld greater than max"
+		      " number supported %d\n",
+		      list->num_entries, PLATFORM_CORE_COUNT);
+		panic();
+	} else if (list->num_entries == 0) {
+		INFO("SDS isolated CPU list is empty\n");
+		return;
+	}
+
+	ret = sds_struct_read(SDS_ISOLATED_CPU_LIST_ID,
+			sizeof(list->num_entries),
+			&list->mpid_list,
+			sizeof(list->mpid_list[0]) * list->num_entries,
+			SDS_ACCESS_MODE_CACHED);
+	if (ret != SDS_OK) {
+		ERROR("SDS CPU list read failed. error: %d\n", ret);
+		panic();
+	}
+}
 
 /*******************************************************************************
  * This function inserts Platform information via device tree nodes as,
  * system-id {
  *    platform-id = <0>;
  *    config-id = <0>;
+ *    isolated-cpu-list = <0>
  * }
  ******************************************************************************/
 static int plat_sgi_append_config_node(void)
@@ -27,6 +79,7 @@ static int plat_sgi_append_config_node(void)
 	void *fdt;
 	int nodeoffset, err;
 	unsigned int platid = 0, platcfg = 0;
+	struct isolated_cpu_mpid_list cpu_mpid_list = {0};
 
 	mem_params = get_bl_mem_params_node(NT_FW_CONFIG_ID);
 	if (mem_params == NULL) {
@@ -67,6 +120,18 @@ static int plat_sgi_append_config_node(void)
 	if (err < 0) {
 		ERROR("Failed to set multi-chip-mode\n");
 		return -1;
+	}
+
+	plat_arm_sgi_get_isolated_cpu_list(&cpu_mpid_list);
+	if (cpu_mpid_list.num_entries > 0) {
+		err = fdt_setprop(fdt, nodeoffset, "isolated-cpu-list",
+				&cpu_mpid_list,
+				(sizeof(cpu_mpid_list.num_entries) *
+				(cpu_mpid_list.num_entries + 1)));
+		if (err < 0) {
+			ERROR("Failed to set isolated-cpu-list, error: %d\n",
+			      err);
+		}
 	}
 
 	flush_dcache_range((uintptr_t)fdt, mem_params->image_info.image_size);
