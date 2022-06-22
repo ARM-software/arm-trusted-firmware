@@ -413,6 +413,10 @@ endif
 
 endif
 
+ifeq (${DRTM_SUPPORT}, 1)
+BL31_SOURCES   += plat/arm/board/fvp/fvp_drtm_dma_prot.c
+endif
+
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
 BL1_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
 BL2_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
