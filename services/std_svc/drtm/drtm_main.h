@@ -55,7 +55,7 @@ typedef struct {
 } drtm_features_t;
 
 struct __packed drtm_dl_args_v1 {
-	uint16_t version;        /* Must be 1. */
+	uint16_t version;	/* Must be 1. */
 	uint8_t __res[2];
 	uint32_t features;
 	uint64_t dlme_paddr;
@@ -68,6 +68,20 @@ struct __packed drtm_dl_args_v1 {
 	uint64_t dce_nwd_size;
 	drtm_dl_dma_prot_args_v1_t dma_prot_args;
 } __aligned(__alignof(uint16_t /* First member's type, `uint16_t version' */));
+
+struct __packed dlme_data_header_v1 {
+	uint16_t version;	/* Must be 1. */
+	uint16_t this_hdr_size;
+	uint8_t __res[4];
+	uint64_t dlme_data_size;
+	uint64_t dlme_prot_regions_size;
+	uint64_t dlme_addr_map_size;
+	uint64_t dlme_tpm_log_size;
+	uint64_t dlme_tcb_hashes_table_size;
+	uint64_t dlme_impdef_region_size;
+} __aligned(__alignof(uint16_t /* First member's type, `uint16_t version'. */));
+
+typedef struct dlme_data_header_v1 struct_dlme_data_header;
 
 drtm_memory_region_descriptor_table_t *drtm_build_address_map(void);
 uint64_t drtm_get_address_map_size(void);

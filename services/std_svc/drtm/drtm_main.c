@@ -33,12 +33,17 @@ static drtm_features_t plat_drtm_features;
 /* DRTM-formatted memory map. */
 static drtm_memory_region_descriptor_table_t *plat_drtm_mem_map;
 
+/* DLME header */
+struct_dlme_data_header dlme_data_hdr_init;
+
+/* Minimum data memory requirement */
+uint64_t dlme_data_min_size;
+
 int drtm_setup(void)
 {
 	bool rc;
 	const plat_drtm_tpm_features_t *plat_tpm_feat;
 	const plat_drtm_dma_prot_features_t *plat_dma_prot_feat;
-	uint64_t dlme_data_min_size;
 
 	INFO("DRTM service setup\n");
 
@@ -85,6 +90,7 @@ int drtm_setup(void)
 		dlme_data_min_size =
 			sizeof(drtm_memory_region_descriptor_table_t) +
 			sizeof(drtm_mem_region_t);
+		dlme_data_hdr_init.dlme_prot_regions_size = dlme_data_min_size;
 	} else {
 		/*
 		 * TODO set protected regions table size based on platform DMA
@@ -93,10 +99,16 @@ int drtm_setup(void)
 		panic();
 	}
 
-	dlme_data_min_size += (drtm_get_address_map_size() +
-			       PLAT_DRTM_EVENT_LOG_MAX_SIZE +
-			       plat_drtm_get_tcb_hash_table_size() +
-			       plat_drtm_get_imp_def_dlme_region_size());
+	dlme_data_hdr_init.dlme_addr_map_size = drtm_get_address_map_size();
+	dlme_data_hdr_init.dlme_tcb_hashes_table_size =
+				plat_drtm_get_tcb_hash_table_size();
+	dlme_data_hdr_init.dlme_impdef_region_size =
+				plat_drtm_get_imp_def_dlme_region_size();
+
+	dlme_data_min_size += dlme_data_hdr_init.dlme_addr_map_size +
+			      PLAT_DRTM_EVENT_LOG_MAX_SIZE +
+			      dlme_data_hdr_init.dlme_tcb_hashes_table_size +
+			      dlme_data_hdr_init.dlme_impdef_region_size;
 
 	dlme_data_min_size = page_align(dlme_data_min_size, UP)/PAGE_SIZE;
 
@@ -196,12 +208,97 @@ static enum drtm_retc drtm_dl_check_cores(void)
 	return SUCCESS;
 }
 
-static enum drtm_retc drtm_dl_prepare_dlme_data(const struct_drtm_dl_args *args,
-						size_t *dlme_data_size_out)
+static enum drtm_retc drtm_dl_prepare_dlme_data(const struct_drtm_dl_args *args)
 {
-	size_t dlme_data_total_bytes_req = 0;
+	int rc;
+	uint64_t dlme_data_paddr;
+	size_t dlme_data_max_size;
+	uintptr_t dlme_data_mapping;
+	struct_dlme_data_header *dlme_data_hdr;
+	uint8_t *dlme_data_cursor;
+	size_t dlme_data_mapping_bytes;
+	size_t serialised_bytes_actual;
 
-	*dlme_data_size_out = dlme_data_total_bytes_req;
+	dlme_data_paddr = args->dlme_paddr + args->dlme_data_off;
+	dlme_data_max_size = args->dlme_size - args->dlme_data_off;
+
+	/*
+	 * The capacity of the given DLME data region is checked when
+	 * the other dynamic launch arguments are.
+	 */
+	if (dlme_data_max_size < dlme_data_min_size) {
+		ERROR("%s: assertion failed:"
+		      " dlme_data_max_size (%ld) < dlme_data_total_bytes_req (%ld)\n",
+		      __func__, dlme_data_max_size, dlme_data_min_size);
+		panic();
+	}
+
+	/* Map the DLME data region as NS memory. */
+	dlme_data_mapping_bytes = ALIGNED_UP(dlme_data_max_size, DRTM_PAGE_SIZE);
+	rc = mmap_add_dynamic_region_alloc_va(dlme_data_paddr,
+					      &dlme_data_mapping,
+					      dlme_data_mapping_bytes,
+					      MT_RW_DATA | MT_NS |
+					      MT_SHAREABILITY_ISH);
+	if (rc != 0) {
+		WARN("DRTM: %s: mmap_add_dynamic_region() failed rc=%d\n",
+		     __func__, rc);
+		return INTERNAL_ERROR;
+	}
+	dlme_data_hdr = (struct_dlme_data_header *)dlme_data_mapping;
+	dlme_data_cursor = (uint8_t *)dlme_data_hdr + sizeof(*dlme_data_hdr);
+
+	memcpy(dlme_data_hdr, (const void *)&dlme_data_hdr_init,
+	       sizeof(*dlme_data_hdr));
+
+	/* Set the header version and size. */
+	dlme_data_hdr->version = 1;
+	dlme_data_hdr->this_hdr_size = sizeof(*dlme_data_hdr);
+
+	/* Prepare DLME protected regions. */
+	drtm_dma_prot_serialise_table(dlme_data_cursor,
+				      &serialised_bytes_actual);
+	assert(serialised_bytes_actual ==
+	       dlme_data_hdr->dlme_prot_regions_size);
+	dlme_data_cursor += serialised_bytes_actual;
+
+	/* Prepare DLME address map. */
+	if (plat_drtm_mem_map != NULL) {
+		memcpy(dlme_data_cursor, plat_drtm_mem_map,
+		       dlme_data_hdr->dlme_addr_map_size);
+	} else {
+		WARN("DRTM: DLME address map is not in the cache\n");
+	}
+	dlme_data_cursor += dlme_data_hdr->dlme_addr_map_size;
+
+	/* Prepare DRTM event log for DLME. */
+	drtm_serialise_event_log(dlme_data_cursor, &serialised_bytes_actual);
+	assert(serialised_bytes_actual <= PLAT_DRTM_EVENT_LOG_MAX_SIZE);
+	dlme_data_hdr->dlme_tpm_log_size = serialised_bytes_actual;
+	dlme_data_cursor += serialised_bytes_actual;
+
+	/*
+	 * TODO: Prepare the TCB hashes for DLME, currently its size
+	 * 0
+	 */
+	dlme_data_cursor += dlme_data_hdr->dlme_tcb_hashes_table_size;
+
+	/* Implementation-specific region size is unused. */
+	dlme_data_cursor += dlme_data_hdr->dlme_impdef_region_size;
+
+	/*
+	 * Prepare DLME data size, includes all data region referenced above
+	 * alongwith the DLME data header
+	 */
+	dlme_data_hdr->dlme_data_size = dlme_data_cursor - (uint8_t *)dlme_data_hdr;
+
+	/* Unmap the DLME data region. */
+	rc = mmap_remove_dynamic_region(dlme_data_mapping, dlme_data_mapping_bytes);
+	if (rc != 0) {
+		ERROR("%s(): mmap_remove_dynamic_region() failed"
+		      " unexpectedly rc=%d\n", __func__, rc);
+		panic();
+	}
 
 	return SUCCESS;
 }
@@ -220,7 +317,6 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 	size_t args_mapping_size;
 	struct_drtm_dl_args *a;
 	struct_drtm_dl_args args_buf;
-	size_t dlme_data_size_req;
 	int rc;
 
 	if (x1 % DRTM_PAGE_SIZE != 0) {
@@ -324,15 +420,9 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 		return INVALID_PARAMETERS;
 	}
 
-	rc = drtm_dl_prepare_dlme_data(NULL, &dlme_data_size_req);
-	if (rc) {
-		ERROR("%s: drtm_dl_prepare_dlme_data() failed unexpectedly rc=%d\n",
-		      __func__, rc);
-		panic();
-	}
-	if (dlme_data_end - dlme_data_start < dlme_data_size_req) {
+	if (dlme_data_end - dlme_data_start < dlme_data_min_size) {
 		ERROR("DRTM: argument DLME data region is short of %lu bytes\n",
-		      dlme_data_size_req - (size_t)(dlme_data_end - dlme_data_start));
+		      dlme_data_min_size - (size_t)(dlme_data_end - dlme_data_start));
 		return INVALID_PARAMETERS;
 	}
 
@@ -400,6 +490,11 @@ static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 	 */
 
 	ret = drtm_take_measurements(&args);
+	if (ret != SUCCESS) {
+		goto err_undo_dma_prot;
+	}
+
+	ret = drtm_dl_prepare_dlme_data(&args);
 	if (ret != SUCCESS) {
 		goto err_undo_dma_prot;
 	}
