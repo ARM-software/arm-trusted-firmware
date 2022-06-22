@@ -12,6 +12,8 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/drivers/gic600/                    \
                  -I${MTK_PLAT}/drivers/gpio/                      \
                  -I${MTK_PLAT}/drivers/lpm/                       \
+                 -I${MTK_PLAT}/drivers/msdc/                      \
+                 -I${MTK_PLAT}/drivers/msdc/${PLAT}               \
                  -I${MTK_PLAT}/drivers/pmic_wrap/                 \
                  -I${MTK_PLAT}/drivers/timer/                     \
                  -I${MTK_PLAT}/drivers/uart/                      \
@@ -53,6 +55,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT}/drivers/gic600/mt_gic_v3.c                \
                 ${MTK_PLAT}/drivers/gpio/mtgpio_common.c              \
                 ${MTK_PLAT}/drivers/lpm/mt_lp_rm.c                    \
+                ${MTK_PLAT}/drivers/msdc/mt_msdc.c                    \
                 ${MTK_PLAT}/drivers/pmic_wrap/pmic_wrap_init.c        \
                 ${MTK_PLAT}/drivers/rtc/rtc_common.c                  \
                 ${MTK_PLAT}/drivers/timer/mt_timer.c                  \

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2021-2022, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,6 @@
 /*******************************************************************************
  * Plat SiP function constants
  ******************************************************************************/
-#define MTK_PLAT_SIP_NUM_CALLS		(4)
+#define MTK_PLAT_SIP_NUM_CALLS		(6)
 
 #endif /* PLAT_SIP_CALLS_H */
