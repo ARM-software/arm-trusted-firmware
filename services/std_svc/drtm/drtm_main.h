@@ -36,6 +36,11 @@
 #define DL_ARGS_GET_DLME_ENTRY_POINT(a)	\
 		(((a)->dlme_paddr + (a)->dlme_img_off + (a)->dlme_img_ep_off))
 
+enum drtm_dlme_el {
+	DLME_AT_EL1 = MODE_EL1,
+	DLME_AT_EL2 = MODE_EL2
+};
+
 enum drtm_retc {
 	SUCCESS = SMC_OK,
 	NOT_SUPPORTED = SMC_UNK,

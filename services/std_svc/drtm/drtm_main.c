@@ -21,6 +21,7 @@
 #include "drtm_main.h"
 #include "drtm_measurements.h"
 #include "drtm_remediation.h"
+#include <lib/el3_runtime/context_mgmt.h>
 #include <lib/psci/psci_lib.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
@@ -446,11 +447,107 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 	return SUCCESS;
 }
 
+static void drtm_dl_reset_dlme_el_state(enum drtm_dlme_el dlme_el)
+{
+	uint64_t sctlr;
+
+	/*
+	 * TODO: Set PE state according to the PSCI's specification of the initial
+	 * state after CPU_ON, or to reset values if unspecified, where they exist,
+	 * or define sensible values otherwise.
+	 */
+
+	switch (dlme_el) {
+	case DLME_AT_EL1:
+		sctlr = read_sctlr_el1();
+		break;
+
+	case DLME_AT_EL2:
+		sctlr = read_sctlr_el2();
+		break;
+
+	default: /* Not reached */
+		ERROR("%s(): dlme_el has the unexpected value %d\n",
+		      __func__, dlme_el);
+		panic();
+	}
+
+	sctlr &= ~(/* Disable DLME's EL MMU, since the existing page-tables are untrusted. */
+		   SCTLR_M_BIT
+		   | SCTLR_EE_BIT               /* Little-endian data accesses. */
+		  );
+
+	sctlr |= SCTLR_C_BIT | SCTLR_I_BIT; /* Allow instruction and data caching. */
+
+	switch (dlme_el) {
+	case DLME_AT_EL1:
+		write_sctlr_el1(sctlr);
+		break;
+
+	case DLME_AT_EL2:
+		write_sctlr_el2(sctlr);
+		break;
+	}
+}
+
+static void drtm_dl_reset_dlme_context(enum drtm_dlme_el dlme_el)
+{
+	void *ns_ctx = cm_get_context(NON_SECURE);
+	gp_regs_t *gpregs = get_gpregs_ctx(ns_ctx);
+	uint64_t spsr_el3 = read_ctx_reg(get_el3state_ctx(ns_ctx), CTX_SPSR_EL3);
+
+	/* Reset all gpregs, including SP_EL0. */
+	memset(gpregs, 0, sizeof(*gpregs));
+
+	/* Reset SP_ELx. */
+	switch (dlme_el) {
+	case DLME_AT_EL1:
+		write_sp_el1(0);
+		break;
+
+	case DLME_AT_EL2:
+		write_sp_el2(0);
+		break;
+	}
+
+	/*
+	 * DLME's async exceptions are masked to avoid a NWd attacker's timed
+	 * interference with any state we established trust in or measured.
+	 */
+	spsr_el3 |= SPSR_DAIF_MASK << SPSR_DAIF_SHIFT;
+
+	write_ctx_reg(get_el3state_ctx(ns_ctx), CTX_SPSR_EL3, spsr_el3);
+}
+
+static void drtm_dl_prepare_eret_to_dlme(const struct_drtm_dl_args *args, enum drtm_dlme_el dlme_el)
+{
+	void *ctx = cm_get_context(NON_SECURE);
+	uint64_t dlme_ep = DL_ARGS_GET_DLME_ENTRY_POINT(args);
+	uint64_t spsr_el3 = read_ctx_reg(get_el3state_ctx(ctx), CTX_SPSR_EL3);
+
+	/* Next ERET is to the DLME's EL. */
+	spsr_el3 &= ~(MODE_EL_MASK << MODE_EL_SHIFT);
+	switch (dlme_el) {
+	case DLME_AT_EL1:
+		spsr_el3 |= MODE_EL1 << MODE_EL_SHIFT;
+		break;
+
+	case DLME_AT_EL2:
+		spsr_el3 |= MODE_EL2 << MODE_EL_SHIFT;
+		break;
+	}
+
+	/* Next ERET is to the DLME entry point. */
+	cm_set_elr_spsr_el3(NON_SECURE, dlme_ep, spsr_el3);
+}
+
 static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 {
 	enum drtm_retc ret = SUCCESS;
 	enum drtm_retc dma_prot_ret;
 	struct_drtm_dl_args args;
+	/* DLME should be highest NS exception level */
+	enum drtm_dlme_el dlme_el = (el_implemented(2) != EL_IMPL_NONE) ? MODE_EL2 : MODE_EL1;
 
 	/* Ensure that only boot PE is powered on */
 	ret = drtm_dl_check_cores();
@@ -499,7 +596,37 @@ static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 		goto err_undo_dma_prot;
 	}
 
-	SMC_RET1(handle, ret);
+	/*
+	 * Note that, at the time of writing, the DRTM spec allows a successful
+	 * launch from NS-EL1 to return to a DLME in NS-EL2.  The practical risk
+	 * of a privilege escalation, e.g. due to a compromised hypervisor, is
+	 * considered small enough not to warrant the specification of additional
+	 * DRTM conduits that would be necessary to maintain OSs' abstraction from
+	 * the presence of EL2 were the dynamic launch only be allowed from the
+	 * highest NS EL.
+	 */
+
+	dlme_el = (el_implemented(2) != EL_IMPL_NONE) ? MODE_EL2 : MODE_EL1;
+
+	drtm_dl_reset_dlme_el_state(dlme_el);
+	drtm_dl_reset_dlme_context(dlme_el);
+
+	/*
+	 * TODO: Reset all SDEI event handlers, since they are untrusted.  Both
+	 * private and shared events for all cores must be unregistered.
+	 * Note that simply calling SDEI ABIs would not be adequate for this, since
+	 * there is currently no SDEI operation that clears private data for all PEs.
+	 */
+
+	drtm_dl_prepare_eret_to_dlme(&args, dlme_el);
+
+	/*
+	 * TODO: invalidate the instruction cache before jumping to the DLME.
+	 * This is required to defend against potentially-malicious cache contents.
+	 */
+
+	/* Return the DLME region's address in x0, and the DLME data offset in x1.*/
+	SMC_RET2(handle, args.dlme_paddr, args.dlme_data_off);
 
 err_undo_dma_prot:
 	dma_prot_ret = drtm_dma_prot_disengage();
