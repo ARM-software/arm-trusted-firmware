@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -82,6 +82,8 @@ override NEED_BL2U			:=	no
 override CTX_INCLUDE_AARCH32_REGS	:=	0
 
 override ARM_PLAT_MT			:=	1
+
+override ARM_BL31_IN_DRAM		:=	1
 
 # Errata workarounds:
 ERRATA_N1_1868343			:=	1
