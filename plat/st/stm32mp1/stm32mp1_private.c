@@ -43,8 +43,10 @@
 #if STM32MP15
 #define TAMP_BOOT_MODE_BACKUP_REG_ID	U(20)
 #endif
-#define TAMP_BOOT_MODE_ITF_MASK		U(0x0000FF00)
+#define TAMP_BOOT_MODE_ITF_MASK		GENMASK(15, 8)
 #define TAMP_BOOT_MODE_ITF_SHIFT	8
+#define TAMP_BOOT_MODE_AUTH_MASK	GENMASK(23, 16)
+#define TAMP_BOOT_MODE_AUTH_SHIFT	16
 
 /*
  * Backup register to store fwu update information.
@@ -52,9 +54,9 @@
  * (so it should be in Zone 2).
  */
 #define TAMP_BOOT_FWU_INFO_REG_ID	U(10)
-#define TAMP_BOOT_FWU_INFO_IDX_MSK	U(0xF)
+#define TAMP_BOOT_FWU_INFO_IDX_MSK	GENMASK(3, 0)
 #define TAMP_BOOT_FWU_INFO_IDX_OFF	U(0)
-#define TAMP_BOOT_FWU_INFO_CNT_MSK	U(0xF0)
+#define TAMP_BOOT_FWU_INFO_CNT_MSK	GENMASK(7, 4)
 #define TAMP_BOOT_FWU_INFO_CNT_OFF	U(4)
 
 #if defined(IMAGE_BL2)
@@ -744,6 +746,20 @@ void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
 
 	*interface = itf >> 4;
 	*instance = itf & 0xFU;
+}
+
+void stm32_save_boot_auth(uint32_t auth_status, uint32_t boot_partition)
+{
+	uint32_t boot_status = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
+
+	clk_enable(RTCAPB);
+
+	mmio_clrsetbits_32(boot_status,
+			   TAMP_BOOT_MODE_AUTH_MASK,
+			   ((auth_status << 4) | (boot_partition & 0xFU)) <<
+			   TAMP_BOOT_MODE_AUTH_SHIFT);
+
+	clk_disable(RTCAPB);
 }
 
 #if !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT

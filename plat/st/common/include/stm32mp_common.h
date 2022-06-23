@@ -127,6 +127,9 @@ int stm32mp_unmap_ddr(void);
 void stm32_save_boot_interface(uint32_t interface, uint32_t instance);
 void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
 
+/* Functions to save and get boot authentication status and partition used */
+void stm32_save_boot_auth(uint32_t auth_status, uint32_t boot_partition);
+
 #if !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT
 void stm32mp1_fwu_set_boot_idx(void);
 uint32_t stm32_get_and_dec_fwu_trial_boot_cnt(void);
