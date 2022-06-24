@@ -25,19 +25,19 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(icc_asgi1r_el1, S3_0_C12_C11_6)
 
 /* pm_up = true - UP, pm_up = false - DOWN */
 static bool pm_up;
-static unsigned int sgi = (unsigned int)INVALID_SGI;
+static uint32_t sgi = (uint32_t)INVALID_SGI;
 
 static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 				void *cookie)
 {
-	unsigned int cpu;
-	unsigned int reg;
+	uint32_t cpu;
+	uint32_t reg;
 
 	(void)plat_ic_acknowledge_interrupt();
 	cpu = plat_my_core_pos() + 1U;
 
-	if ((unsigned int)sgi != (unsigned int)INVALID_SGI) {
-		reg = (cpu | ((unsigned int)sgi << (unsigned int)XSCUGIC_SGIR_EL1_INITID_SHIFT));
+	if ((uint32_t)sgi != (uint32_t)INVALID_SGI) {
+		reg = (cpu | ((uint32_t)sgi << (uint32_t)XSCUGIC_SGIR_EL1_INITID_SHIFT));
 		write_icc_asgi1r_el1(reg);
 	}
 
@@ -59,7 +59,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
  * Update the SGI number to be used.
  *
  */
-int pm_register_sgi(unsigned int sgi_num, unsigned int reset)
+int pm_register_sgi(uint32_t sgi_num, uint32_t reset)
 {
 	if (reset == 1U) {
 		sgi = INVALID_SGI;
@@ -74,7 +74,7 @@ int pm_register_sgi(unsigned int sgi_num, unsigned int reset)
 		return -EINVAL;
 	}
 
-	sgi = (unsigned int)sgi_num;
+	sgi = (uint32_t)sgi_num;
 	return 0;
 }
 
@@ -93,7 +93,7 @@ int pm_register_sgi(unsigned int sgi_num, unsigned int reset)
  */
 int pm_setup(void)
 {
-	int status, ret = 0;
+	int32_t status, ret = 0;
 
 	status = pm_ipi_init(primary_proc);
 
@@ -239,7 +239,7 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 
 	case TF_A_PM_REGISTER_SGI:
 	{
-		int ret;
+		int32_t ret;
 
 		ret = pm_register_sgi(pm_arg[0], pm_arg[1]);
 		if (ret != 0) {
@@ -324,7 +324,7 @@ static uintptr_t eemi_handler(uint32_t api_id, uint32_t *pm_arg,
  * function with rt_svc_handle signature
  */
 uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
-			uint64_t x4, void *cookie, void *handle, uint64_t flags)
+			uint64_t x4, const void *cookie, void *handle, uint64_t flags)
 {
 	uintptr_t ret;
 	uint32_t pm_arg[PAYLOAD_ARG_CNT] = {0};
@@ -332,8 +332,9 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t api_id;
 
 	/* Handle case where PM wasn't initialized properly */
-	if (!pm_up)
+	if (!pm_up) {
 		SMC_RET1(handle, SMC_UNK);
+	}
 
 	/*
 	 * Mark BIT24 payload (i.e 1st bit of pm_arg[3] ) as non-secure (1)
@@ -352,16 +353,19 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	api_id = smc_fid & FUNCID_NUM_MASK;
 
 	ret = eemi_for_compatibility(api_id, pm_arg, handle, security_flag);
-	if (ret != (uintptr_t)0)
+	if (ret != (uintptr_t)0) {
 		return ret;
+	}
 
 	ret = eemi_psci_debugfs_handler(api_id, pm_arg, handle, flags);
-	if (ret !=  (uintptr_t)0)
+	if (ret !=  (uintptr_t)0) {
 		return ret;
+	}
 
 	ret = TF_A_specific_handler(api_id, pm_arg, handle, security_flag);
-	if (ret !=  (uintptr_t)0)
+	if (ret !=  (uintptr_t)0) {
 		return ret;
+	}
 
 	ret = eemi_handler(api_id, pm_arg, handle, security_flag);
 

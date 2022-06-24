@@ -47,7 +47,7 @@ void versal_config_setup(void)
 	generic_delay_timer_init();
 }
 
-unsigned int plat_get_syscnt_freq2(void)
+uint32_t plat_get_syscnt_freq2(void)
 {
 	return VERSAL_CPU_CLOCK;
 }

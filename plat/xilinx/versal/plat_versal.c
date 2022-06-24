@@ -7,7 +7,7 @@
 #include <plat_private.h>
 #include <plat/common/platform.h>
 
-int plat_core_pos_by_mpidr(u_register_t mpidr)
+int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 {
 	if ((mpidr & MPIDR_CLUSTER_MASK) != 0U) {
 		return -1;
@@ -17,5 +17,5 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 		return -1;
 	}
 
-	return (int)versal_calc_core_pos(mpidr);
+	return (int32_t)versal_calc_core_pos(mpidr);
 }

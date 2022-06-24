@@ -28,14 +28,14 @@
 #define MODULE_ID_MASK		0x0000ff00
 
 /* default shutdown/reboot scope is system(2) */
-static unsigned int pm_shutdown_scope = XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM;
+static uint32_t pm_shutdown_scope = XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM;
 
 /**
  * pm_get_shutdown_scope() - Get the currently set shutdown scope
  *
  * @return	Shutdown scope value
  */
-unsigned int pm_get_shutdown_scope(void)
+uint32_t pm_get_shutdown_scope(void)
 {
 	return pm_shutdown_scope;
 }
@@ -93,8 +93,9 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 	module_id = (x0 & MODULE_ID_MASK) >> 8;
 
 	//default module id is for LIBPM
-	if (module_id == 0)
+	if (module_id == 0) {
 		module_id = LIBPM_MODULE_ID;
+	}
 
 	PM_PACK_PAYLOAD6(payload, module_id, flag, x0, x1, x2, x3, x4, x5);
 	return pm_ipi_send_sync(primary_proc, payload, (uint32_t *)result, PAYLOAD_ARG_CNT);
@@ -115,12 +116,12 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
  * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_self_suspend(uint32_t nid,
-				   unsigned int latency,
-				   unsigned int state,
+				   uint32_t latency,
+				   uint32_t state,
 				   uintptr_t address, uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
-	unsigned int cpuid = plat_my_core_pos();
+	uint32_t cpuid = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpuid);
 
 	if (proc == NULL) {
@@ -182,7 +183,7 @@ enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason, uint32_t flag)
  * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_req_suspend(uint32_t target, uint8_t ack,
-				  unsigned int latency, unsigned int state,
+				  uint32_t latency, uint32_t state,
 				  uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
@@ -501,7 +502,7 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 			return PM_RET_ERROR_ARGS;
 		}
 		gicd_write_irouter(gicv3_driver_data->gicd_base,
-				  (unsigned int)PLAT_VERSAL_IPI_IRQ, MODE);
+				  (uint32_t)PLAT_VERSAL_IPI_IRQ, MODE);
 		ret =  PM_RET_SUCCESS;
 		break;
 	default:
