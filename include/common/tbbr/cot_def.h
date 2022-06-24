@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,8 @@
 
 /* TBBR CoT definitions */
 #if defined(SPD_spmd)
+#define COT_MAX_VERIFIED_PARAMS		8
+#elif defined(ARM_COT_cca)
 #define COT_MAX_VERIFIED_PARAMS		8
 #else
 #define COT_MAX_VERIFIED_PARAMS		4

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, ARM Limited. All rights reserved.
+ * Copyright (c) 2020-2022, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,6 +47,9 @@
 			soc_fw_cfg_uuid = "9979814b-0376-fb46-8c8e-8d267f7859e0";
 			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
 			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
+			cca_cert_uuid = "36d83d85-761d-4daf-96f1-cd99d6569b00";
+			core_swd_cert_uuid = "52222d31-820f-494d-8bbc-ea6825d3c35a";
+			plat_cert_uuid = "d43cd902-5b9f-412e-8ac6-92b6d18be60d";
 			t_key_cert_uuid = "827ee890-f860-e411-a1b4-777a21b4f94c";
 			scp_fw_key_uuid = "024221a1-f860-e411-8d9b-f33c0e15a014";
 			soc_fw_key_uuid = "8ab8becc-f960-e411-9ad0-eb4822d8dcf8";

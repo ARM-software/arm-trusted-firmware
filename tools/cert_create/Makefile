@@ -35,6 +35,8 @@ ifeq (${COT},tbbr)
   include src/tbbr/tbbr.mk
 else ifeq (${COT},dualroot)
   include src/dualroot/cot.mk
+else ifeq (${COT},cca)
+  include src/cca/cot.mk
 else
   $(error Unknown chain of trust ${COT})
 endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,7 +104,16 @@
 /* Realm Monitor Manager (RMM) */
 #define RMM_IMAGE_ID			U(34)
 
+/* CCA Content Certificate ID */
+#define CCA_CONTENT_CERT_ID		U(35)
+
+/* Core SWD Key Certificate ID */
+#define CORE_SWD_KEY_CERT_ID		U(36)
+
+/* Platform Key Certificate ID */
+#define PLAT_KEY_CERT_ID		U(37)
+
 /* Max Images */
-#define MAX_IMAGE_IDS			U(35)
+#define MAX_IMAGE_IDS			U(38)
 
 #endif /* ARM_TRUSTED_FIRMWARE_EXPORT_COMMON_TBBR_TBBR_IMG_DEF_EXP_H */

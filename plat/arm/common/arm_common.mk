@@ -373,6 +373,8 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
         endif
     else ifeq (${COT},dualroot)
         AUTH_SOURCES	+=	drivers/auth/dualroot/cot.c
+    else ifeq (${COT},cca)
+        AUTH_SOURCES	+=	drivers/auth/cca/cot.c
     else
         $(error Unknown chain of trust ${COT})
     endif

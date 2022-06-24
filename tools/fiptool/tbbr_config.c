@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -170,6 +170,21 @@ toc_entry_t toc_entries[] = {
 		.name = "Platform owned Secure Partition content certificate",
 		.uuid = UUID_PLAT_SECURE_PARTITION_CONTENT_CERT,
 		.cmdline_name = "plat-sp-cert"
+	},
+	{
+		.name = "CCA Content Certificate",
+		.uuid = UUID_CCA_CONTENT_CERT,
+		.cmdline_name = "cca-cert"
+	},
+	{
+		.name = "Core Secure World Key Certificate",
+		.uuid = UUID_CORE_SWD_KEY_CERT,
+		.cmdline_name = "core-swd-cert"
+	},
+	{
+		.name = "Platform Key Certificate",
+		.uuid = UUID_PLAT_KEY_CERT,
+		.cmdline_name = "plat-key-cert"
 	},
 	{
 		.name = NULL,

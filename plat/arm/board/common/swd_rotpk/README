@@ -1,0 +1,14 @@
+This directory contains some development keys to be used as the secure world
+root-of-trust key used in the CCA chain of trust.
+
+* swd_rotprivk_rsa.pem is a 2K RSA private key in PEM format. It has been
+  generated using the openssl command line tool:
+
+  openssl genrsa 2048 > arm_swd_rotprivk_rsa.pem
+
+* swd_rotpk_rsa_sha256.bin is the SHA-256 hash of the DER-encoded public key
+  associated with the above private key. It has been generated using the openssl
+  command line tool:
+
+  openssl rsa -in arm_swd_rotprivk_rsa.pem -pubout -outform DER | \
+    openssl dgst -sha256 -binary > arm_swd_rotpk_rsa_sha256.bin
