@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,44 +14,10 @@
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
-#define DEVINFO_SIZE 4
-#define LINUX_KERNEL_32 0
 #define SMC32_PARAM_MASK		(0xFFFFFFFF)
 
 #define JEDEC_MTK_BKID U(4)
 #define JEDEC_MTK_MFID U(0x26)
-
-struct atf_arg_t {
-	unsigned int atf_magic;
-	unsigned int tee_support;
-	unsigned int tee_entry;
-	unsigned int tee_boot_arg_addr;
-	unsigned int hwuid[4];     /* HW Unique id for t-base used */
-	unsigned int HRID[2];      /* HW random id for t-base used */
-	unsigned int atf_log_port;
-	unsigned int atf_log_baudrate;
-	unsigned int atf_log_buf_start;
-	unsigned int atf_log_buf_size;
-	unsigned int atf_irq_num;
-	unsigned int devinfo[DEVINFO_SIZE];
-	unsigned int atf_aee_debug_buf_start;
-	unsigned int atf_aee_debug_buf_size;
-};
-
-struct kernel_info {
-	uint64_t pc;
-	uint64_t r0;
-	uint64_t r1;
-	uint64_t r2;
-	uint64_t k32_64;
-};
-
-struct mtk_bl_param_t {
-	uint64_t bootarg_loc;
-	uint64_t bootarg_size;
-	uint64_t bl33_start_addr;
-	uint64_t tee_info_addr;
-};
 
 struct mtk_bl31_params {
        param_header_t h;
