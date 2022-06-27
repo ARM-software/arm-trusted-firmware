@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -192,8 +192,17 @@ int parse_optee_header(entry_point_info_t *header_ep,
 				&header->optee_image_list[num]);
 		} else if (header->optee_image_list[num].image_id ==
 				OPTEE_PAGED_IMAGE_ID) {
-			ret = parse_optee_image(paged_image_info,
-				&header->optee_image_list[num]);
+			if (paged_image_info == NULL) {
+				if (header->optee_image_list[num].size != 0U) {
+					ERROR("Paged image is not supported\n");
+					return -1;
+				}
+
+				continue;
+			} else {
+				ret = parse_optee_image(paged_image_info,
+							&header->optee_image_list[num]);
+			}
 		} else {
 			ERROR("Parse optee image failed.\n");
 			return -1;
@@ -215,8 +224,10 @@ int parse_optee_header(entry_point_info_t *header_ep,
 	 * header image arguments so that can be read by the
 	 * BL32 SPD.
 	 */
-	header_ep->args.arg1 = paged_image_info->image_base;
-	header_ep->args.arg2 = paged_image_info->image_size;
+	if (paged_image_info != NULL) {
+		header_ep->args.arg1 = paged_image_info->image_base;
+		header_ep->args.arg2 = paged_image_info->image_size;
+	}
 
 	/* Set OPTEE runtime arch - aarch32/aarch64 */
 	if (header->arch == 0) {
