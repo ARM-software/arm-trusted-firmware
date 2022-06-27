@@ -140,4 +140,13 @@
 #endif
 #endif
 
+/*
+ * Warn if errors from certain functions are ignored.
+ *
+ * The warnings are always enabled (where supported) for critical functions
+ * where ignoring the return value is almost always a bug. This macro extends
+ * the warnings to more functions.
+ */
+#define MBEDTLS_CHECK_RETURN_WARNING
+
 #endif /* MBEDTLS_CONFIG_H */
