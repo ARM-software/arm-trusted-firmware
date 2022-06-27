@@ -97,18 +97,6 @@ else
     TF_MBEDTLS_USE_AES_GCM	:=	0
 endif
 
-ifeq ($(MEASURED_BOOT),1)
-    ifeq (${TPM_HASH_ALG}, sha256)
-        TF_MBEDTLS_TPM_HASH_ALG_ID	:=	TF_MBEDTLS_SHA256
-    else ifeq (${TPM_HASH_ALG}, sha384)
-        TF_MBEDTLS_TPM_HASH_ALG_ID	:=	TF_MBEDTLS_SHA384
-    else ifeq (${TPM_HASH_ALG}, sha512)
-        TF_MBEDTLS_TPM_HASH_ALG_ID	:=	TF_MBEDTLS_SHA512
-    else
-        $(error "TPM_HASH_ALG not defined.")
-    endif
-endif
-
 # Needs to be set to drive mbed TLS configuration correctly
 $(eval $(call add_defines,\
     $(sort \
@@ -117,10 +105,6 @@ $(eval $(call add_defines,\
         TF_MBEDTLS_HASH_ALG_ID \
         TF_MBEDTLS_USE_AES_GCM \
 )))
-
-ifeq ($(MEASURED_BOOT),1)
-  $(eval $(call add_define,TF_MBEDTLS_TPM_HASH_ALG_ID))
-endif
 
 $(eval $(call MAKE_LIB,mbedtls))
 
