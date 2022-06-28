@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,6 +44,35 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	return type == NON_SECURE ? &bl33_image_ep_info : &bl32_image_ep_info;
 }
 
+#if !RESET_TO_BL31
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
+{
+	void *from_bl2 = (void *) arg0;
+	bl_params_node_t *bl_params = ((bl_params_t *) from_bl2)->head;
+
+	/* Initialize the console to provide early debug support */
+	(void)console_pl011_register(PLAT_SQ_BOOT_UART_BASE,
+			       PLAT_SQ_BOOT_UART_CLK_IN_HZ,
+			       SQ_CONSOLE_BAUDRATE, &console);
+
+	console_set_scope(&console, CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
+
+	/* Initialize power controller before setting up topology */
+	plat_sq_pwrc_setup();
+
+	while (bl_params) {
+		if (bl_params->image_id == BL32_IMAGE_ID)
+			bl32_image_ep_info = *bl_params->ep_info;
+
+		if (bl_params->image_id == BL33_IMAGE_ID)
+			bl33_image_ep_info = *bl_params->ep_info;
+
+		bl_params = bl_params->next_params_info;
+	}
+}
+
+#else
 /*******************************************************************************
  * Gets SPSR for BL32 entry
  ******************************************************************************/
@@ -129,6 +158,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl33_image_ep_info.spsr = sq_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 }
+#endif
 
 static void sq_configure_sys_timer(void)
 {
@@ -191,6 +221,11 @@ void bl31_plat_arch_setup(void)
 		MAP_REGION_FLAT(PLAT_SQ_SP_PRIV_BASE,
 				PLAT_SQ_SP_PRIV_SIZE,
 				MT_RW_DATA | MT_SECURE),
+#endif
+#if !RESET_TO_BL31
+		MAP_REGION_FLAT(BL2_MAILBOX_BASE,
+				BL2_MAILBOX_SIZE,
+				MT_RW | MT_SECURE),
 #endif
 		{0},
 	};

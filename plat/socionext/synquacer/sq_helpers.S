@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,7 +46,12 @@ endfunc platform_mem_init
  * code that secondary CPUs jump to.
  */
 func plat_secondary_cold_boot_setup
+#if !RESET_TO_BL31
+	mov_imm	x0, BL2_MAILBOX_BASE
+	ldr	x0, [x0]
+#else
 	ldr	x0, sq_sec_entrypoint
+#endif
 
 	/* Wait until the mailbox gets populated */
 poll_mailbox:
