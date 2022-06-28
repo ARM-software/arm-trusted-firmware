@@ -57,6 +57,12 @@ supporting tools:
 
    Required to build the cert_create tool.
 
+   .. note::
+
+    OpenSSL 3.0 has to be built from source code, as it's not available in
+    the default package repositories in recent Ubuntu versions. Please refer
+    to the OpenSSL project documentation for more information.
+
 The following libraries are required for Trusted Board Boot and Measured Boot
 support:
 
@@ -89,7 +95,7 @@ required packages with the following command:
 
 .. code:: shell
 
-    sudo apt install build-essential git libssl-dev
+    sudo apt install build-essential git
 
 The optional packages can be installed using:
 

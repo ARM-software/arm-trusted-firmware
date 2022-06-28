@@ -974,9 +974,10 @@ Common build options
   bit, to trap access to the RAS ERR and RAS ERX registers from lower ELs.
   This flag is disabled by default.
 
-- ``OPENSSL_DIR``: This flag is used to provide the installed openssl directory
-  path on the host machine which is used to build certificate generation and
-  firmware encryption tool.
+- ``OPENSSL_DIR``: This option is used to provide the path to a directory on the
+  host machine where a custom installation of OpenSSL is located, which is used
+  to build the certificate generation, firmware encryption and FIP tools. If
+  this option is not set, the default OS installation will be used.
 
 - ``USE_SP804_TIMER``: Use the SP804 timer instead of the Generic Timer for
   functions that wait for an arbitrary time length (udelay and mdelay). The
