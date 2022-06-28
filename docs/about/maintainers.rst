@@ -48,6 +48,8 @@ Maintainers
 :|G|: `madhukar-Arm`_
 :|M|: Raghu Krishnamurthy <raghu.ncstate@icloud.com>
 :|G|: `raghuncstate`_
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
 
 
 .. _code owners:
