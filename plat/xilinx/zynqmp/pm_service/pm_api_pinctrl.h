@@ -709,15 +709,15 @@ enum {
 #define	PINCTRL_DRIVE_STRENGTH_8MA 2U
 #define	PINCTRL_DRIVE_STRENGTH_12MA 3U
 
-void pm_api_pinctrl_get_function_name(unsigned int fid, char *name);
-enum pm_ret_status pm_api_pinctrl_get_function_groups(unsigned int fid,
-						      unsigned int index,
+void pm_api_pinctrl_get_function_name(uint32_t fid, char *name);
+enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
+						      uint32_t index,
 						      uint16_t *groups);
-enum pm_ret_status pm_api_pinctrl_get_pin_groups(unsigned int pin,
-						 unsigned int index,
+enum pm_ret_status pm_api_pinctrl_get_pin_groups(uint32_t pin,
+						 uint32_t index,
 						 uint16_t *groups);
-enum pm_ret_status pm_api_pinctrl_get_num_pins(unsigned int *npins);
-enum pm_ret_status pm_api_pinctrl_get_num_functions(unsigned int *nfuncs);
-enum pm_ret_status pm_api_pinctrl_get_num_func_groups(unsigned int fid,
-						      unsigned int *ngroups);
+enum pm_ret_status pm_api_pinctrl_get_num_pins(uint32_t *npins);
+enum pm_ret_status pm_api_pinctrl_get_num_functions(uint32_t *nfuncs);
+enum pm_ret_status pm_api_pinctrl_get_num_func_groups(uint32_t fid,
+						      uint32_t *ngroups);
 #endif /* PM_API_PINCTRL_H */

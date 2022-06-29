@@ -88,9 +88,9 @@ enum tap_delay_type {
 #define	PM_DLL_RESET_PULSE 2U
 
 enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
-				unsigned int ioctl_id,
-				unsigned int arg1,
-				unsigned int arg2,
-				unsigned int *value);
+				uint32_t ioctl_id,
+				uint32_t arg1,
+				uint32_t arg2,
+				uint32_t *value);
 enum pm_ret_status atf_ioctl_bitmask(uint32_t *bit_mask);
 #endif /* PM_API_IOCTL_H */

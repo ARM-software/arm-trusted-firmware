@@ -29,9 +29,9 @@ static void zynqmp_cpu_standby(plat_local_state_t cpu_state)
 	wfi();
 }
 
-static int zynqmp_pwr_domain_on(u_register_t mpidr)
+static int32_t zynqmp_pwr_domain_on(u_register_t mpidr)
 {
-	unsigned int cpu_id = plat_core_pos_by_mpidr(mpidr);
+	uint32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
 	uint32_t buff[3];
 	enum pm_ret_status ret;
@@ -60,7 +60,7 @@ static int zynqmp_pwr_domain_on(u_register_t mpidr)
 
 static void zynqmp_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	unsigned int cpu_id = plat_my_core_pos();
+	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
@@ -84,8 +84,8 @@ static void zynqmp_pwr_domain_off(const psci_power_state_t *target_state)
 
 static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	unsigned int state;
-	unsigned int cpu_id = plat_my_core_pos();
+	uint32_t state;
+	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
@@ -117,7 +117,7 @@ static void zynqmp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
-	unsigned int cpu_id = plat_my_core_pos();
+	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
@@ -171,12 +171,12 @@ static void __dead2 zynqmp_system_reset(void)
 	}
 }
 
-static int zynqmp_validate_power_state(unsigned int power_state,
+static int32_t zynqmp_validate_power_state(uint32_t power_state,
 				psci_power_state_t *req_state)
 {
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
-	int pstate = psci_get_pstate_type(power_state);
+	int32_t pstate = psci_get_pstate_type(power_state);
 
 	assert(req_state);
 

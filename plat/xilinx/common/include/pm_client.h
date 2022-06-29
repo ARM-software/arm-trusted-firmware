@@ -16,7 +16,7 @@
 #include "pm_defs.h"
 
 /* Functions to be implemented by each PU */
-void pm_client_suspend(const struct pm_proc *proc, unsigned int state);
+void pm_client_suspend(const struct pm_proc *proc, uint32_t state);
 void pm_client_abort_suspend(void);
 void pm_client_wakeup(const struct pm_proc *proc);
 
@@ -24,7 +24,6 @@ void pm_client_wakeup(const struct pm_proc *proc);
 extern const struct pm_proc *primary_proc;
 
 #ifndef VERSAL_PLATFORM
-enum pm_ret_status set_ocm_retention(void);
 enum pm_ret_status pm_set_suspend_mode(uint32_t mode);
 const struct pm_proc *pm_get_proc_by_node(enum pm_node_id nid);
 #endif

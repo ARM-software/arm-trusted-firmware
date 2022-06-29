@@ -48,10 +48,10 @@ struct pm_ipi {
  */
 struct pm_proc {
 	const uint32_t node_id;
-	const unsigned int pwrdn_mask;
+	const uint32_t pwrdn_mask;
 	const struct pm_ipi *ipi;
 };
 
-const struct pm_proc *pm_get_proc(unsigned int cpuid);
+const struct pm_proc *pm_get_proc(uint32_t cpuid);
 
 #endif /* PM_COMMON_H */

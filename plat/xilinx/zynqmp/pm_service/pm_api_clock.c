@@ -228,8 +228,8 @@ struct pm_clock_node {
 struct pm_clock {
 	char name[CLK_NAME_LEN];
 	uint8_t num_nodes;
-	unsigned int control_reg;
-	unsigned int status_reg;
+	uint32_t control_reg;
+	uint32_t status_reg;
 	int32_t (*parents)[];
 	struct pm_clock_node(*nodes)[];
 };
@@ -2396,7 +2396,7 @@ static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB,
  *
  * Return: Returns 1 if clock is valid else 0.
  */
-static bool pm_clock_valid(unsigned int clock_id)
+static bool pm_clock_valid(uint32_t clock_id)
 {
 	unsigned int i;
 
@@ -2415,7 +2415,7 @@ static bool pm_clock_valid(unsigned int clock_id)
  *
  * Return: Returns type of clock (OUTPUT/EXTERNAL).
  */
-static unsigned int pm_clock_type(unsigned int clock_id)
+static uint32_t pm_clock_type(uint32_t clock_id)
 {
 	return (clock_id < CLK_MAX_OUTPUT_CLK) ?
 		CLK_TYPE_OUTPUT : CLK_TYPE_EXTERNAL;
@@ -2429,7 +2429,7 @@ static unsigned int pm_clock_type(unsigned int clock_id)
  *
  * @return	Returns success.
  */
-enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks)
+enum pm_ret_status pm_api_clock_get_num_clocks(uint32_t *nclocks)
 {
 	*nclocks = CLK_MAX;
 
@@ -2444,7 +2444,7 @@ enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks)
  * This function is used by master to get nmae of clock specified
  * by given clock ID.
  */
-void pm_api_clock_get_name(unsigned int clock_id, char *name)
+void pm_api_clock_get_name(uint32_t clock_id, char *name)
 {
 	if (clock_id == CLK_MAX) {
 		memcpy(name, END_OF_CLK, sizeof(END_OF_CLK) > CLK_NAME_LEN ?
@@ -2472,13 +2472,13 @@ void pm_api_clock_get_name(unsigned int clock_id, char *name)
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_api_clock_get_topology(unsigned int clock_id,
-					     unsigned int index,
+enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
+					     uint32_t index,
 					     uint32_t *topology)
 {
 	struct pm_clock_node *clock_nodes;
 	uint8_t num_nodes;
-	unsigned int i;
+	uint32_t i;
 	uint16_t typeflags;
 
 	if (!pm_clock_valid(clock_id)) {
@@ -2528,13 +2528,13 @@ enum pm_ret_status pm_api_clock_get_topology(unsigned int clock_id,
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_api_clock_get_fixedfactor_params(unsigned int clock_id,
+enum pm_ret_status pm_api_clock_get_fixedfactor_params(uint32_t clock_id,
 						       uint32_t *mul,
 						       uint32_t *div)
 {
 	struct pm_clock_node *clock_nodes;
 	uint8_t num_nodes;
-	unsigned int type, i;
+	uint32_t type, i;
 
 	if (!pm_clock_valid(clock_id)) {
 		return PM_RET_ERROR_ARGS;
@@ -2581,11 +2581,11 @@ enum pm_ret_status pm_api_clock_get_fixedfactor_params(unsigned int clock_id,
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_api_clock_get_parents(unsigned int clock_id,
-					    unsigned int index,
+enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
+					    uint32_t index,
 					    uint32_t *parents)
 {
-	unsigned int i;
+	uint32_t i;
 	int32_t *clk_parents;
 
 	if (!pm_clock_valid(clock_id)) {
@@ -2630,7 +2630,7 @@ enum pm_ret_status pm_api_clock_get_parents(unsigned int clock_id,
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
+enum pm_ret_status pm_api_clock_get_attributes(uint32_t clock_id,
 					       uint32_t *attr)
 {
 	if (clock_id >= CLK_MAX) {
@@ -2857,7 +2857,7 @@ enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
  * returned state value is valid or an error if returned by PMU
  */
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
-					  unsigned int *state)
+					  uint32_t *state)
 {
 	enum pm_ret_status status;
 	enum pm_pll_mode mode;
@@ -2894,7 +2894,7 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
  */
 enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
-					   unsigned int parent_index)
+					   uint32_t parent_index)
 {
 	if (!pll) {
 		return PM_RET_ERROR_ARGS;
@@ -2927,7 +2927,7 @@ enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
  */
 enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
-					   unsigned int *parent_index)
+					   uint32_t *parent_index)
 {
 	if (!pll) {
 		return PM_RET_ERROR_ARGS;
@@ -2962,7 +2962,7 @@ enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
  * @return      Success if mode is buffered or error if an argument is invalid
  */
 enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
-					 unsigned int mode)
+					 uint32_t mode)
 {
 	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
@@ -2984,7 +2984,7 @@ enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
  * @return      Success if mode is stored or error if an argument is invalid
  */
 enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
-					 unsigned int *mode)
+					 uint32_t *mode)
 {
 	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
@@ -3002,7 +3002,7 @@ enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
  *
  * @return     Returns success if clock_id is valid, otherwise an error
  */
-enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id)
+enum pm_ret_status pm_clock_id_is_valid(uint32_t clock_id)
 {
 	if (!pm_clock_valid(clock_id)) {
 		return PM_RET_ERROR_ARGS;
@@ -3022,7 +3022,7 @@ enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id)
  *
  * @return	True(1)=clock has the divider, false(0)=otherwise
  */
-uint8_t pm_clock_has_div(unsigned int clock_id, enum pm_clock_div_id div_id)
+uint8_t pm_clock_has_div(uint32_t clock_id, enum pm_clock_div_id div_id)
 {
 	uint32_t i;
 	struct pm_clock_node *nodes;
