@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,10 +43,6 @@
 #if STM32MP15
 #define TAMP_BOOT_MODE_BACKUP_REG_ID	U(20)
 #endif
-#define TAMP_BOOT_MODE_ITF_MASK		GENMASK(15, 8)
-#define TAMP_BOOT_MODE_ITF_SHIFT	8
-#define TAMP_BOOT_MODE_AUTH_MASK	GENMASK(23, 16)
-#define TAMP_BOOT_MODE_AUTH_SHIFT	16
 
 /*
  * Backup register to store fwu update information.
@@ -697,51 +693,9 @@ uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags)
 }
 #endif
 
-void stm32_save_boot_interface(uint32_t interface, uint32_t instance)
+uintptr_t stm32_get_bkpr_boot_mode_addr(void)
 {
-	uintptr_t bkpr_itf_idx = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
-
-	clk_enable(RTCAPB);
-
-	mmio_clrsetbits_32(bkpr_itf_idx,
-			   TAMP_BOOT_MODE_ITF_MASK,
-			   ((interface << 4) | (instance & 0xFU)) <<
-			   TAMP_BOOT_MODE_ITF_SHIFT);
-
-	clk_disable(RTCAPB);
-}
-
-void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
-{
-	static uint32_t itf;
-
-	if (itf == 0U) {
-		uintptr_t bkpr = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
-
-		clk_enable(RTCAPB);
-
-		itf = (mmio_read_32(bkpr) & TAMP_BOOT_MODE_ITF_MASK) >>
-			TAMP_BOOT_MODE_ITF_SHIFT;
-
-		clk_disable(RTCAPB);
-	}
-
-	*interface = itf >> 4;
-	*instance = itf & 0xFU;
-}
-
-void stm32_save_boot_auth(uint32_t auth_status, uint32_t boot_partition)
-{
-	uint32_t boot_status = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
-
-	clk_enable(RTCAPB);
-
-	mmio_clrsetbits_32(boot_status,
-			   TAMP_BOOT_MODE_AUTH_MASK,
-			   ((auth_status << 4) | (boot_partition & 0xFU)) <<
-			   TAMP_BOOT_MODE_AUTH_SHIFT);
-
-	clk_disable(RTCAPB);
+	return tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
 }
 
 #if PSA_FWU_SUPPORT

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -290,10 +290,7 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
-	stm32_save_boot_interface(boot_context->boot_interface_selected,
-				  boot_context->boot_interface_instance);
-	stm32_save_boot_auth(boot_context->auth_status,
-			     boot_context->boot_partition_used_toboot);
+	stm32_save_boot_info(boot_context);
 
 #if STM32MP_USB_PROGRAMMER && STM32MP15
 	/* Deconfigure all UART RX pins configured by ROM code */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,12 +113,12 @@ void stm32mp_io_setup(void);
 int stm32mp_map_ddr_non_cacheable(void);
 int stm32mp_unmap_ddr(void);
 
-/* Functions to save and get boot peripheral info */
-void stm32_save_boot_interface(uint32_t interface, uint32_t instance);
+/* Function to save boot info */
+void stm32_save_boot_info(boot_api_context_t *boot_context);
+/* Function to get boot peripheral info */
 void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
-
-/* Functions to save and get boot authentication status and partition used */
-void stm32_save_boot_auth(uint32_t auth_status, uint32_t boot_partition);
+/* Function to get BOOT_MODE backup register address */
+uintptr_t stm32_get_bkpr_boot_mode_addr(void);
 
 #if PSA_FWU_SUPPORT
 void stm32mp1_fwu_set_boot_idx(void);
