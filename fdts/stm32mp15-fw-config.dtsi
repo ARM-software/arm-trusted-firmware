@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
  */
 
 #include <common/tbbr/tbbr_img_def.h>
@@ -14,7 +14,7 @@
 
 #define DDR_NS_BASE	STM32MP_DDR_BASE
 #ifdef AARCH32_SP_OPTEE
-/* OP-TEE reserved shared memory: located at DDR top */
+/* OP-TEE reserved shared memory: located at DDR top or null size */
 #define DDR_SHARE_SIZE	STM32MP_DDR_SHMEM_SIZE
 #define DDR_SHARE_BASE	(STM32MP_DDR_BASE + (DDR_SIZE - DDR_SHARE_SIZE))
 /* OP-TEE secure memory: located right below OP-TEE reserved shared memory */
@@ -70,8 +70,11 @@
 		memory-ranges = <
 			DDR_NS_BASE DDR_NS_SIZE TZC_REGION_S_NONE TZC_REGION_NSEC_ALL_ACCESS_RDWR
 			DDR_SEC_BASE DDR_SEC_SIZE TZC_REGION_S_RDWR 0
+#if STM32MP15_OPTEE_RSV_SHM
 			DDR_SHARE_BASE DDR_SHARE_SIZE TZC_REGION_S_NONE
-			TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_A7_ID)>;
+			TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_A7_ID)
+#endif
+			>;
 #else
 		memory-ranges = <
 			DDR_NS_BASE DDR_NS_SIZE TZC_REGION_S_NONE TZC_REGION_NSEC_ALL_ACCESS_RDWR>;
