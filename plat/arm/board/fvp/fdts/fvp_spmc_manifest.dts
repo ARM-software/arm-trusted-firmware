@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -82,4 +82,8 @@
 		device_type = "memory";
 		reg = <0x0 0x6000000 0x2000000>; /* Trusted DRAM */
 	};
+
+#if MEASURED_BOOT
+#include "event_log.dtsi"
+#endif
 };

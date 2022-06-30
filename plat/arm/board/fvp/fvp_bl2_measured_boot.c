@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include <common/tbbr/tbbr_img_def.h>
 #include <drivers/measured_boot/event_log/event_log.h>
 #include <drivers/measured_boot/rss/rss_measured_boot.h>
 #include <tools_share/tbbr_oid.h>
@@ -30,6 +31,17 @@ const event_log_metadata_t fvp_event_log_metadata[] = {
 	{ SOC_FW_CONFIG_ID, EVLOG_SOC_FW_CONFIG_STRING, PCR_0 },
 	{ TOS_FW_CONFIG_ID, EVLOG_TOS_FW_CONFIG_STRING, PCR_0 },
 	{ RMM_IMAGE_ID, EVLOG_RMM_STRING, PCR_0},
+
+#if defined(SPD_spmd)
+	{ SP_PKG1_ID, EVLOG_SP1_STRING, PCR_0 },
+	{ SP_PKG2_ID, EVLOG_SP2_STRING, PCR_0 },
+	{ SP_PKG3_ID, EVLOG_SP3_STRING, PCR_0 },
+	{ SP_PKG4_ID, EVLOG_SP4_STRING, PCR_0 },
+	{ SP_PKG5_ID, EVLOG_SP5_STRING, PCR_0 },
+	{ SP_PKG6_ID, EVLOG_SP6_STRING, PCR_0 },
+	{ SP_PKG7_ID, EVLOG_SP7_STRING, PCR_0 },
+	{ SP_PKG8_ID, EVLOG_SP8_STRING, PCR_0 },
+#endif
 
 	{ CRITICAL_DATA_ID, EVLOG_CRITICAL_DATA_STRING, PCR_1 },
 

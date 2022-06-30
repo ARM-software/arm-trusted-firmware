@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -78,6 +78,14 @@
 #define EVLOG_TB_FW_CONFIG_STRING	"TB_FW_CONFIG"
 #define	EVLOG_TOS_FW_CONFIG_STRING	"TOS_FW_CONFIG"
 #define EVLOG_RMM_STRING 		"RMM"
+#define EVLOG_SP1_STRING		"SP1"
+#define EVLOG_SP2_STRING		"SP2"
+#define EVLOG_SP3_STRING		"SP3"
+#define EVLOG_SP4_STRING		"SP4"
+#define EVLOG_SP5_STRING		"SP5"
+#define EVLOG_SP6_STRING		"SP6"
+#define EVLOG_SP7_STRING		"SP7"
+#define EVLOG_SP8_STRING		"SP8"
 
 typedef struct {
 	unsigned int id;
