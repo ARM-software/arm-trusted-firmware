@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2021-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,13 +7,7 @@
 #ifndef STM32MP1_FIP_DEF_H
 #define STM32MP1_FIP_DEF_H
 
-#if STM32MP15_OPTEE_RSV_SHM
-#define STM32MP_DDR_S_SIZE		U(0x01E00000)	/* 30 MB */
-#define STM32MP_DDR_SHMEM_SIZE		U(0x00200000)	/* 2 MB */
-#else
 #define STM32MP_DDR_S_SIZE		U(0x02000000)	/* 32 MB */
-#define STM32MP_DDR_SHMEM_SIZE		U(0)		/* empty */
-#endif
 
 #if TRUSTED_BOARD_BOOT && !STM32MP_USE_EXTERNAL_HEAP
 #if STM32MP15

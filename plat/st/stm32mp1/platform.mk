@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -60,11 +60,6 @@ STM32MP_DDR_32BIT_INTERFACE:=	1
 # STM32 image header version v1.0
 STM32_HEADER_VERSION_MAJOR:=	1
 STM32_HEADER_VERSION_MINOR:=	0
-
-# Add OP-TEE reserved shared memory area in mapping
-STM32MP15_OPTEE_RSV_SHM	:=	0
-$(eval $(call add_defines,STM32MP15_OPTEE_RSV_SHM))
-
 STM32MP_CRYPTO_ROM_LIB :=	1
 
 # Decryption support
