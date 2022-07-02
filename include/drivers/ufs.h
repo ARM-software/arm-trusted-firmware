@@ -259,6 +259,9 @@
 /* maximum number of retries for a general UIC command  */
 #define UFS_UIC_COMMAND_RETRIES		3
 
+/* maximum number of retries for reading UFS capacity */
+#define UFS_READ_CAPACITY_RETRIES	10
+
 /* maximum number of link-startup retries */
 #define DME_LINKSTARTUP_RETRIES		10
 

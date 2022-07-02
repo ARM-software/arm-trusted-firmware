@@ -685,14 +685,14 @@ void ufs_write_desc(int idn, int index, uintptr_t buf, size_t size)
 	ufs_query(QUERY_WRITE_DESC, idn, index, 0, buf, size);
 }
 
-static void ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
+static int ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
 {
 	utp_utrd_t utrd;
 	resp_upiu_t *resp;
 	sense_data_t *sense;
 	unsigned char data[CACHE_WRITEBACK_GRANULE << 1];
 	uintptr_t buf;
-	int retry;
+	int retries = UFS_READ_CAPACITY_RETRIES;
 
 	assert((ufs_params.reg_base != 0) &&
 	       (ufs_params.desc_base != 0) &&
@@ -710,22 +710,24 @@ static void ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
 		dump_upiu(&utrd);
 #endif
 		resp = (resp_upiu_t *)utrd.resp_upiu;
-		retry = 0;
 		sense = &resp->sd.sense;
-		if (sense->resp_code == SENSE_DATA_VALID) {
-			if ((sense->sense_key == SENSE_KEY_UNIT_ATTENTION) &&
-			    (sense->asc == 0x29) && (sense->ascq == 0)) {
-				retry = 1;
-			}
+		if (!((sense->resp_code == SENSE_DATA_VALID) &&
+		    (sense->sense_key == SENSE_KEY_UNIT_ATTENTION) &&
+		    (sense->asc == 0x29) && (sense->ascq == 0))) {
+			inv_dcache_range(buf, CACHE_WRITEBACK_GRANULE);
+			/* last logical block address */
+			*num = be32toh(*(unsigned int *)buf);
+			if (*num)
+				*num += 1;
+			/* logical block length in bytes */
+			*size = be32toh(*(unsigned int *)(buf + 4));
+
+			return 0;
 		}
-		inv_dcache_range(buf, CACHE_WRITEBACK_GRANULE);
-		/* last logical block address */
-		*num = be32toh(*(unsigned int *)buf);
-		if (*num)
-			*num += 1;
-		/* logical block length in bytes */
-		*size = be32toh(*(unsigned int *)(buf + 4));
-	} while (retry);
+
+	} while (retries-- > 0);
+
+	return -ETIMEDOUT;
 }
 
 size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size)
@@ -802,9 +804,15 @@ static void ufs_enum(void)
 	result = ufs_set_fdevice_init();
 	assert(result == 0);
 
+	blk_num = 0;
+	blk_size = 0;
+
 	/* dump available LUNs */
 	for (i = 0; i < UFS_MAX_LUNS; i++) {
-		ufs_read_capacity(i, &blk_num, &blk_size);
+		result = ufs_read_capacity(i, &blk_num, &blk_size);
+		if (result != 0) {
+			WARN("UFS LUN%d dump failed\n", i);
+		}
 		if (blk_num && blk_size) {
 			INFO("UFS LUN%d contains %d blocks with %d-byte size\n",
 			     i, blk_num, blk_size);
