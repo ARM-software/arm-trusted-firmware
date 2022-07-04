@@ -35,7 +35,7 @@ static enum pm_ret_status pm_ioctl_get_rpu_oper_mode(uint32_t *mode)
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
 	val &= ZYNQMP_SLSPLIT_MASK;
-	if (val == 0) {
+	if (val == 0U) {
 		*mode = PM_RPU_MODE_LOCKSTEP;
 	} else {
 		*mode = PM_RPU_MODE_SPLIT;
@@ -309,7 +309,7 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 		return ret;
 	}
 
-	if ((val & mask) == 0) {
+	if ((val & mask) == 0U) {
 		ret = pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_ASSERT);
 		if (ret != PM_RET_SUCCESS) {
 			return ret;
@@ -325,7 +325,7 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 			goto reset_release;
 		}
 
-		if (value == 0) {
+		if (value == 0U) {
 			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
 					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
 					     shift), 0);
