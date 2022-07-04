@@ -1007,7 +1007,12 @@ int stm32_fmc2_init(void)
 	clk_enable(stm32_fmc2.clock_id);
 
 	/* Reset IP */
+#if STM32MP2X
+	if ((info.reset >= 0) &&
+	    (stm32_fmc2_check_rif(FMC2_RESOURCE_CFGR) != -EACCES)) {
+#else
 	if (info.reset >= 0) {
+#endif
 		unsigned int reset_id = (unsigned int)info.reset;
 
 		ret = stm32mp_reset_assert(reset_id, TIMEOUT_US_1_MS);
