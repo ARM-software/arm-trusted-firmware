@@ -311,7 +311,7 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	}
 
 	switch (smc_fid) {
-	case RMMD_RMI_REQ_COMPLETE:
+	case RMM_RMI_REQ_COMPLETE:
 		return rmmd_smc_forward(REALM, NON_SECURE, x1,
 					x2, x3, x4, 0, handle);
 
@@ -419,16 +419,16 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	}
 
 	switch (smc_fid) {
-	case RMMD_GTSI_DELEGATE:
+	case RMM_GTSI_DELEGATE:
 		ret = gpt_delegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
 		SMC_RET1(handle, gpt_to_gts_error(ret, smc_fid, x1));
-	case RMMD_GTSI_UNDELEGATE:
+	case RMM_GTSI_UNDELEGATE:
 		ret = gpt_undelegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
 		SMC_RET1(handle, gpt_to_gts_error(ret, smc_fid, x1));
-	case RMMD_ATTEST_GET_PLAT_TOKEN:
+	case RMM_ATTEST_GET_PLAT_TOKEN:
 		ret = rmmd_attest_get_platform_token(x1, &x2, x3);
 		SMC_RET2(handle, ret, x2);
-	case RMMD_ATTEST_GET_REALM_KEY:
+	case RMM_ATTEST_GET_REALM_KEY:
 		ret = rmmd_attest_get_signing_key(x1, &x2, x3);
 		SMC_RET2(handle, ret, x2);
 

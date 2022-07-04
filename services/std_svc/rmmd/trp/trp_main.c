@@ -93,7 +93,7 @@ static trp_args_t *trp_ret_rmi_version(void)
 {
 	VERBOSE("RMM version is %u.%u\n", RMI_ABI_VERSION_MAJOR,
 					  RMI_ABI_VERSION_MINOR);
-	return set_smc_args(RMMD_RMI_REQ_COMPLETE, RMI_ABI_VERSION,
+	return set_smc_args(RMM_RMI_REQ_COMPLETE, RMI_ABI_VERSION,
 			    0, 0, 0, 0, 0, 0);
 }
 
@@ -105,13 +105,13 @@ static trp_args_t *trp_asc_mark_realm(unsigned long long x1)
 	unsigned long long ret;
 
 	VERBOSE("Delegating granule 0x%llx\n", x1);
-	ret = trp_smc(set_smc_args(RMMD_GTSI_DELEGATE, x1, 0, 0, 0, 0, 0, 0));
+	ret = trp_smc(set_smc_args(RMM_GTSI_DELEGATE, x1, 0, 0, 0, 0, 0, 0));
 
 	if (ret != 0ULL) {
 		ERROR("Granule transition from NON-SECURE type to REALM type "
 			"failed 0x%llx\n", ret);
 	}
-	return set_smc_args(RMMD_RMI_REQ_COMPLETE, ret, 0, 0, 0, 0, 0, 0);
+	return set_smc_args(RMM_RMI_REQ_COMPLETE, ret, 0, 0, 0, 0, 0, 0);
 }
 
 /*******************************************************************************
@@ -122,13 +122,13 @@ static trp_args_t *trp_asc_mark_nonsecure(unsigned long long x1)
 	unsigned long long ret;
 
 	VERBOSE("Undelegating granule 0x%llx\n", x1);
-	ret = trp_smc(set_smc_args(RMMD_GTSI_UNDELEGATE, x1, 0, 0, 0, 0, 0, 0));
+	ret = trp_smc(set_smc_args(RMM_GTSI_UNDELEGATE, x1, 0, 0, 0, 0, 0, 0));
 
 	if (ret != 0ULL) {
 		ERROR("Granule transition from REALM type to NON-SECURE type "
 			"failed 0x%llx\n", ret);
 	}
-	return set_smc_args(RMMD_RMI_REQ_COMPLETE, ret, 0, 0, 0, 0, 0, 0);
+	return set_smc_args(RMM_RMI_REQ_COMPLETE, ret, 0, 0, 0, 0, 0, 0);
 }
 
 /*******************************************************************************

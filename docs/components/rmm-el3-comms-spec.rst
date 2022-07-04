@@ -200,7 +200,7 @@ For the type specification of the RMM Boot Manifest v0.1, refer to
 
 .. _runtime_services_and_interface:
 
-RMMM-EL3 Runtime Interface
+RMM-EL3 Runtime Interface
 __________________________
 
 This section defines the RMM-EL3 runtime interface which specifies the ABI for
@@ -247,8 +247,132 @@ implemented by EL3 Firmware.
    :header: "FID", "Command"
    :widths: 2 5
 
+   0xC400018F,``RMM_RMI_REQ_COMPLETE``
+   0xC40001B0,``RMM_GTSI_DELEGATE``
+   0xC40001B1,``RMM_GTSI_UNDELEGATE``
    0xC40001B2,``RMM_ATTEST_GET_REALM_KEY``
    0xC40001B3,``RMM_ATTEST_GET_PLAT_TOKEN``
+
+RMM_RMI_REQ_COMPLETE command
+============================
+
+Notifies the completion of an RMI call to the Non-Secure world.
+
+This call is the only function currently in RMM-EL3 runtime interface which
+results in a world switch to NS. This call is the reply to the original RMI
+call and it is forwarded by EL3 to the NS world.
+
+FID
+---
+
+``0xC400018F``
+
+Input values
+------------
+
+.. csv-table::
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   err_code,x1,[63:0],RmiCommandReturnCode,Error code returned by the RMI service invoked by NS World. See Realm Management Monitor specification for more info
+
+Output values
+-------------
+
+This call does not return.
+
+Failure conditions
+------------------
+
+Since this call does not return to RMM, there is no failure condition which
+can be notified back to RMM.
+
+RMM_GTSI_DELEGATE command
+=========================
+
+Delegate a memory granule by changing its PAS from Non-Secure to Realm.
+
+FID
+---
+
+``0xC40001B0``
+
+Input values
+------------
+
+.. csv-table::
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   base_pa,x1,[63:0],Address,PA of the start of the granule to be delegated
+
+Output values
+-------------
+
+.. csv-table::
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 2 4
+
+   Result,x0,[63:0],Error Code,Command return status
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table::
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_BAD_ADDR``,``PA`` does not correspond to a valid granule address
+   ``E_RMM_BAD_PAS``,The granule pointed by ``PA`` does not belong to Non-Secure PAS
+   ``E_RMM_OK``,No errors detected
+
+RMM_GTSI_UNDELEGATE command
+===========================
+
+Undelegate a memory granule by changing its PAS from Realm to Non-Secure.
+
+FID
+---
+
+``0xC40001B1``
+
+Input values
+------------
+
+.. csv-table::
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   base_pa,x1,[63:0],Address,PA of the start of the granule to be undelegated
+
+Output values
+-------------
+
+.. csv-table::
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 2 4
+
+   Result,x0,[63:0],Error Code,Command return status
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table::
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_BAD_ADDR``,``PA`` does not correspond to a valid granule address
+   ``E_RMM_BAD_PAS``,The granule pointed by ``PA`` does not belong to Realm PAS
+   ``E_RMM_OK``,No errors detected
 
 RMM_ATTEST_GET_REALM_KEY command
 ================================
