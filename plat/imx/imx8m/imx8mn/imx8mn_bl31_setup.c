@@ -179,21 +179,30 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl31_tzc380_setup();
 }
 
+#define MAP_BL31_TOTAL										   \
+	MAP_REGION_FLAT(BL31_BASE, BL31_LIMIT - BL31_BASE, MT_MEMORY | MT_RW | MT_SECURE)
+#define MAP_BL31_RO										   \
+	MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE, MT_MEMORY | MT_RO | MT_SECURE)
+#define MAP_COHERENT_MEM									   \
+	MAP_REGION_FLAT(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,	   \
+			MT_DEVICE | MT_RW | MT_SECURE)
+#define MAP_BL32_TOTAL										   \
+	MAP_REGION_FLAT(BL32_BASE, BL32_SIZE, MT_MEMORY | MT_RW)
+
 void bl31_plat_arch_setup(void)
 {
-	mmap_add_region(BL31_BASE, BL31_BASE, (BL31_LIMIT - BL31_BASE),
-		MT_MEMORY | MT_RW | MT_SECURE);
-	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE, (BL_CODE_END - BL_CODE_BASE),
-		MT_MEMORY | MT_RO | MT_SECURE);
+	const mmap_region_t bl_regions[] = {
+		MAP_BL31_TOTAL,
+		MAP_BL31_RO,
 #if USE_COHERENT_MEM
-	mmap_add_region(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_BASE,
-		(BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE),
-		MT_DEVICE | MT_RW | MT_SECURE);
+		MAP_COHERENT_MEM,
 #endif
+		/* Map TEE memory */
+		MAP_BL32_TOTAL,
+		{0}
+	};
 
-	/* Map TEE memory */
-	mmap_add_region(BL32_BASE, BL32_BASE, BL32_SIZE, MT_MEMORY | MT_RW);
-
+	mmap_add(bl_regions);
 	mmap_add(imx_mmap);
 
 	init_xlat_tables();
