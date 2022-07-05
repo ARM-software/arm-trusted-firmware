@@ -113,14 +113,22 @@ Exception Handling Framework (EHF)
 :|G|: `ManishVB-Arm`_
 :|F|: bl31/ehf.c
 
+Realm Management Monitor Dispatcher (RMMD)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
+:|G|: `javieralso-arm`_
+:|F|: services/std_svc/rmmd/\*
+:|F|: include/services/rmmd_svc.h
+:|F|: include/services/rmm_core_manifest.h
+
 Realm Management Extension (RME)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Bipin Ravi <bipin.ravi@arm.com>
 :|G|: `bipinravi-arm`_
 :|M|: Mark Dykes <mark.dykes@arm.com>
 :|G|: `mardyk01`_
-:|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
-:|G|: `zelalem-aweke`_
+:|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
+:|G|: `javieralso-arm`_
 
 Drivers, Libraries and Framework Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
