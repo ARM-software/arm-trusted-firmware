@@ -341,10 +341,6 @@ ifeq ($(filter 1,${BL2_AT_EL3} ${ARM_XLAT_TABLES_LIB_V1}),)
     endif
 endif
 
-ifeq (${ENABLE_RME},1)
-    BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
-endif
-
 ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
     ifeq (${ARCH},aarch32)
         BL32_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES

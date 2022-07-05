@@ -19,7 +19,8 @@ static uint8_t sample_attest_priv_key[] = {
 	0xEB, 0x1A, 0x41, 0x85, 0xBD, 0x11, 0x7F, 0x68
 };
 
-int plat_get_cca_realm_attest_key(uintptr_t buf, size_t *len, unsigned int type)
+int plat_rmmd_get_cca_realm_attest_key(uintptr_t buf, size_t *len,
+				       unsigned int type)
 {
 	assert(type == ATTEST_KEY_CURVE_ECC_SECP384R1);
 

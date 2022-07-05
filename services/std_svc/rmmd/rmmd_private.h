@@ -32,11 +32,6 @@
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 
-typedef enum rmm_state {
-	RMM_STATE_RESET = 0,
-	RMM_STATE_IDLE
-} rmm_state_t;
-
 /*
  * Data structure used by the RMM dispatcher (RMMD) in EL3 to track context of
  * the RMM at R-EL2.
@@ -44,7 +39,6 @@ typedef enum rmm_state {
 typedef struct rmmd_rmm_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
-	rmm_state_t state;
 } rmmd_rmm_context_t;
 
 /* Functions used to enter/exit the RMM synchronously */
@@ -52,10 +46,10 @@ uint64_t rmmd_rmm_sync_entry(rmmd_rmm_context_t *ctx);
 __dead2 void rmmd_rmm_sync_exit(uint64_t rc);
 
 /* Functions implementing attestation utilities for RMM */
-int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_len,
-				   uint64_t challenge_hash_len);
-int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_len,
-				   uint64_t ecc_curve);
+int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_size,
+				   uint64_t c_size);
+int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_size,
+				uint64_t ecc_curve);
 
 /* Assembly helpers */
 uint64_t rmmd_rmm_enter(uint64_t *c_rt_ctx);

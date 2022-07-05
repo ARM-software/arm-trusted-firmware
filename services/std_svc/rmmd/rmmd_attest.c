@@ -5,6 +5,7 @@
  */
 #include <stdint.h>
 #include <string.h>
+
 #include <common/debug.h>
 #include <lib/spinlock.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -56,110 +57,96 @@ static void print_challenge(uint8_t *hash, size_t hash_size)
 }
 
 /*
- * TODO: Have different error codes for different errors so that the caller can
- * differentiate various error cases.
+ * Helper function to validate that the buffer base and length are
+ * within range.
  */
-int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_len, uint64_t challenge_hash_len)
+static int validate_buffer_params(uint64_t buf_pa, uint64_t buf_len)
 {
-	int err;
-	uintptr_t va;
-	uint8_t temp_buf[SHA512_DIGEST_SIZE];
+	unsigned long shared_buf_page;
+	uintptr_t shared_buf_base;
 
-	/*
-	 * TODO: Currently we don't validate incoming buf_pa. This is a
-	 * prototype and we will need to allocate static buffer for EL3-RMM
-	 * communication.
-	 */
+	(void)plat_rmmd_get_el3_rmm_shared_mem(&shared_buf_base);
 
-	/* We need a page of buffer to pass data */
-	if (*buf_len != PAGE_SIZE) {
-		ERROR("Invalid buffer length\n");
-		return RMMD_ERR_INVAL;
+	shared_buf_page = shared_buf_base & ~PAGE_SIZE_MASK;
+
+	/* Validate the buffer pointer */
+	if ((buf_pa & ~PAGE_SIZE_MASK) != shared_buf_page) {
+		ERROR("Buffer PA out of range\n");
+		return E_RMM_BAD_ADDR;
 	}
 
-	if ((challenge_hash_len != SHA256_DIGEST_SIZE) &&
-	    (challenge_hash_len != SHA384_DIGEST_SIZE) &&
-	    (challenge_hash_len != SHA512_DIGEST_SIZE)) {
-		ERROR("Invalid hash size: %lu\n", challenge_hash_len);
-		return RMMD_ERR_INVAL;
+	/* Validate the size of the shared area */
+	if (((buf_pa + buf_len - 1UL) & ~PAGE_SIZE_MASK) != shared_buf_page) {
+		ERROR("Invalid buffer length\n");
+		return E_RMM_INVAL;
+	}
+
+	return 0; /* No error */
+}
+
+int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_size,
+				   uint64_t c_size)
+{
+	int err;
+	uint8_t temp_buf[SHA512_DIGEST_SIZE];
+
+	err = validate_buffer_params(buf_pa, *buf_size);
+	if (err != 0) {
+		return err;
+	}
+
+	if ((c_size != SHA256_DIGEST_SIZE) &&
+	    (c_size != SHA384_DIGEST_SIZE) &&
+	    (c_size != SHA512_DIGEST_SIZE)) {
+		ERROR("Invalid hash size: %lu\n", c_size);
+		return E_RMM_INVAL;
 	}
 
 	spin_lock(&lock);
 
-	/* Map the buffer that was provided by the RMM. */
-	err = mmap_add_dynamic_region_alloc_va(buf_pa, &va, PAGE_SIZE,
-					       MT_RW_DATA | MT_REALM);
-	if (err != 0) {
-		ERROR("mmap_add_dynamic_region_alloc_va failed: %d (%p).\n"
-		      , err, (void *)buf_pa);
-		spin_unlock(&lock);
-		return RMMD_ERR_NOMEM;
-	}
+	(void)memcpy(temp_buf, (void *)buf_pa, c_size);
 
-	(void)memcpy(temp_buf, (void *)va, challenge_hash_len);
-
-	print_challenge((uint8_t *)temp_buf, challenge_hash_len);
+	print_challenge((uint8_t *)temp_buf, c_size);
 
 	/* Get the platform token. */
-	err = plat_get_cca_attest_token(va,
-		buf_len, (uintptr_t)temp_buf, challenge_hash_len);
+	err = plat_rmmd_get_cca_attest_token((uintptr_t)buf_pa,
+		buf_size, (uintptr_t)temp_buf, c_size);
 
 	if (err != 0) {
 		ERROR("Failed to get platform token: %d.\n", err);
-		err = RMMD_ERR_UNK;
+		err = E_RMM_UNK;
 	}
 
-	/* Unmap RMM memory. */
-	(void)mmap_remove_dynamic_region(va, PAGE_SIZE);
 	spin_unlock(&lock);
 
 	return err;
 }
 
-int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_len,
+int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_size,
 				uint64_t ecc_curve)
 {
 	int err;
-	uintptr_t va;
 
-	/*
-	 * TODO: Currently we don't validate incoming buf_pa. This is a
-	 * prototype and we will need to allocate static buffer for EL3-RMM
-	 * communication.
-	 */
-
-	/* We need a page of buffer to pass data */
-	if (*buf_len != PAGE_SIZE) {
-		ERROR("Invalid buffer length\n");
-		return RMMD_ERR_INVAL;
+	err = validate_buffer_params(buf_pa, *buf_size);
+	if (err != 0) {
+		return err;
 	}
 
 	if (ecc_curve != ATTEST_KEY_CURVE_ECC_SECP384R1) {
 		ERROR("Invalid ECC curve specified\n");
-		return RMMD_ERR_INVAL;
+		return E_RMM_INVAL;
 	}
 
 	spin_lock(&lock);
 
-	/* Map the buffer that was provided by the RMM. */
-	err = mmap_add_dynamic_region_alloc_va(buf_pa, &va, PAGE_SIZE,
-					       MT_RW_DATA | MT_REALM);
-	if (err != 0) {
-		ERROR("mmap_add_dynamic_region_alloc_va failed: %d (%p).\n"
-		      , err, (void *)buf_pa);
-		spin_unlock(&lock);
-		return RMMD_ERR_NOMEM;
-	}
-
 	/* Get the Realm attestation key. */
-	err = plat_get_cca_realm_attest_key(va, buf_len, (unsigned int)ecc_curve);
+	err = plat_rmmd_get_cca_realm_attest_key((uintptr_t)buf_pa, buf_size,
+						 (unsigned int)ecc_curve);
 	if (err != 0) {
 		ERROR("Failed to get attestation key: %d.\n", err);
-		err =  RMMD_ERR_UNK;
+		err =  E_RMM_UNK;
 	}
 
-	/* Unmap RMM memory. */
-	(void)mmap_remove_dynamic_region(va, PAGE_SIZE);
 	spin_unlock(&lock);
 
 	return err;

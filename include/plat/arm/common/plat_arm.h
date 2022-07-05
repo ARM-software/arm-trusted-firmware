@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -57,7 +57,8 @@ typedef struct arm_tzc_regions_info {
 	{ARM_EL3_TZC_DRAM1_BASE, ARM_L1_GPT_END, TZC_REGION_S_RDWR, 0},	    \
 	{ARM_NS_DRAM1_BASE, ARM_NS_DRAM1_END, ARM_TZC_NS_DRAM_S_ACCESS,	    \
 		PLAT_ARM_TZC_NS_DEV_ACCESS},				    \
-	{ARM_REALM_BASE, ARM_REALM_END, ARM_TZC_NS_DRAM_S_ACCESS,	    \
+	/* Realm and Shared area share the same PAS */		    \
+	{ARM_REALM_BASE, ARM_EL3_RMM_SHARED_END, ARM_TZC_NS_DRAM_S_ACCESS,  \
 		PLAT_ARM_TZC_NS_DEV_ACCESS},				    \
 	{ARM_DRAM2_BASE, ARM_DRAM2_END, ARM_TZC_NS_DRAM_S_ACCESS,	    \
 		PLAT_ARM_TZC_NS_DEV_ACCESS}

@@ -1,11 +1,12 @@
 #
-# Copyright (c) 2021 Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2021-2022 Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-RMM_SOURCES		+=	services/std_svc/rmmd/trp/trp_entry.S	\
-				services/std_svc/rmmd/trp/trp_main.c
+RMM_SOURCES		+=	services/std_svc/rmmd/trp/trp_entry.S \
+				services/std_svc/rmmd/trp/trp_main.c  \
+				services/std_svc/rmmd/trp/trp_helpers.c
 
 RMM_LINKERFILE		:=	services/std_svc/rmmd/trp/linker.lds
 

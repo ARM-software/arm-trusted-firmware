@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -61,6 +61,10 @@
 #define ARM_PAS_2_BASE			(ARM_PAS_1_BASE + ARM_PAS_1_SIZE)
 #define ARM_PAS_2_SIZE			(ARM_NS_DRAM1_SIZE)
 
+/* Shared area between EL3 and RMM */
+#define ARM_PAS_SHARED_BASE		(ARM_EL3_RMM_SHARED_BASE)
+#define ARM_PAS_SHARED_SIZE		(ARM_EL3_RMM_SHARED_SIZE)
+
 /* Secure TZC region */
 #define ARM_PAS_3_BASE			(ARM_AP_TZC_DRAM1_BASE)
 #define ARM_PAS_3_SIZE			(ARM_AP_TZC_DRAM1_SIZE)
@@ -76,8 +80,13 @@
 							       ARM_PAS_3_SIZE, \
 							       GPT_GPI_SECURE)
 
+/*
+ * REALM and Shared area share the same PAS, so consider them a single
+ * PAS region to configure in GPT.
+ */
 #define ARM_PAS_REALM			GPT_MAP_REGION_GRANULE(ARM_REALM_BASE, \
-							       ARM_REALM_SIZE, \
+							       (ARM_PAS_SHARED_SIZE + \
+								ARM_REALM_SIZE), \
 							       GPT_GPI_REALM)
 
 #define ARM_PAS_EL3_DRAM		GPT_MAP_REGION_GRANULE(ARM_EL3_TZC_DRAM1_BASE, \

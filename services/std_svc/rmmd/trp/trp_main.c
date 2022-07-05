@@ -7,58 +7,63 @@
 
 #include <common/debug.h>
 #include <plat/common/platform.h>
+#include <services/rmm_core_manifest.h>
 #include <services/rmmd_svc.h>
 #include <services/trp/platform_trp.h>
-
-#include <platform_def.h>
+#include <trp_helpers.h>
 #include "trp_private.h"
 
-/*******************************************************************************
- * Per cpu data structure to populate parameters for an SMC in C code and use
- * a pointer to this structure in assembler code to populate x0-x7
- ******************************************************************************/
-static trp_args_t trp_smc_args[PLATFORM_CORE_COUNT];
+#include <platform_def.h>
 
-/*******************************************************************************
- * Set the arguments for SMC call
- ******************************************************************************/
-static trp_args_t *set_smc_args(uint64_t arg0,
-				uint64_t arg1,
-				uint64_t arg2,
-				uint64_t arg3,
-				uint64_t arg4,
-				uint64_t arg5,
-				uint64_t arg6,
-				uint64_t arg7)
-{
-	uint32_t linear_id;
-	trp_args_t *pcpu_smc_args;
+/* Parameters received from the previous image */
+static unsigned int trp_boot_abi_version;
+static uintptr_t trp_shared_region_start;
 
-	/*
-	 * Return to Secure Monitor by raising an SMC. The results of the
-	 * service are passed as an arguments to the SMC
-	 */
-	linear_id = plat_my_core_pos();
-	pcpu_smc_args = &trp_smc_args[linear_id];
-	write_trp_arg(pcpu_smc_args, TRP_ARG0, arg0);
-	write_trp_arg(pcpu_smc_args, TRP_ARG1, arg1);
-	write_trp_arg(pcpu_smc_args, TRP_ARG2, arg2);
-	write_trp_arg(pcpu_smc_args, TRP_ARG3, arg3);
-	write_trp_arg(pcpu_smc_args, TRP_ARG4, arg4);
-	write_trp_arg(pcpu_smc_args, TRP_ARG5, arg5);
-	write_trp_arg(pcpu_smc_args, TRP_ARG6, arg6);
-	write_trp_arg(pcpu_smc_args, TRP_ARG7, arg7);
-
-	return pcpu_smc_args;
-}
+/* Parameters received from boot manifest */
+uint32_t trp_boot_manifest_version;
 
 /*******************************************************************************
  * Setup function for TRP.
  ******************************************************************************/
-void trp_setup(void)
+void trp_setup(uint64_t x0,
+	       uint64_t x1,
+	       uint64_t x2,
+	       uint64_t x3)
 {
+	/*
+	 * Validate boot parameters.
+	 *
+	 * According to the Boot Interface ABI v.0.1, the
+	 * parameters recived from EL3 are:
+	 * x0: CPUID (verified earlier so not used)
+	 * x1: Boot Interface version
+	 * x2: PLATFORM_CORE_COUNT
+	 * x3: Pointer to the shared memory area.
+	 */
+
+	(void)x0;
+
+	if (TRP_RMM_EL3_VERSION_GET_MAJOR(x1) != TRP_RMM_EL3_ABI_VERS_MAJOR) {
+		trp_boot_abort(E_RMM_BOOT_VERSION_MISMATCH);
+	}
+
+	if ((void *)x3 == NULL) {
+		trp_boot_abort(E_RMM_BOOT_INVALID_SHARED_BUFFER);
+	}
+
+	if (x2 > TRP_PLATFORM_CORE_COUNT) {
+		trp_boot_abort(E_RMM_BOOT_CPUS_OUT_OF_RANGE);
+	}
+
+	trp_boot_abi_version = x1;
+	trp_shared_region_start = x3;
+	flush_dcache_range((uintptr_t)&trp_boot_abi_version,
+			   sizeof(trp_boot_abi_version));
+	flush_dcache_range((uintptr_t)&trp_shared_region_start,
+			   sizeof(trp_shared_region_start));
+
 	/* Perform early platform-specific setup */
-	trp_early_platform_setup();
+	trp_early_platform_setup((rmm_manifest_t *)trp_shared_region_start);
 }
 
 /* Main function for TRP */
@@ -66,9 +71,19 @@ void trp_main(void)
 {
 	NOTICE("TRP: %s\n", version_string);
 	NOTICE("TRP: %s\n", build_message);
+	NOTICE("TRP: Supported RMM-EL3 Interface ABI: v.%u.%u\n",
+		TRP_RMM_EL3_ABI_VERS_MAJOR, TRP_RMM_EL3_ABI_VERS_MINOR);
+	NOTICE("TRP: Boot Manifest Version : v.%u.%u\n",
+		RMMD_GET_MANIFEST_VERSION_MAJOR(trp_boot_manifest_version),
+		RMMD_GET_MANIFEST_VERSION_MINOR(trp_boot_manifest_version));
 	INFO("TRP: Memory base : 0x%lx\n", (unsigned long)RMM_BASE);
+	INFO("TRP: Base address for the shared region : 0x%lx\n",
+			(unsigned long)trp_shared_region_start);
 	INFO("TRP: Total size : 0x%lx bytes\n", (unsigned long)(RMM_END
 								- RMM_BASE));
+	INFO("TRP: RMM-EL3 Interface ABI reported by EL3: v.%u.%u\n",
+		TRP_RMM_EL3_VERSION_GET_MAJOR(trp_boot_abi_version),
+		TRP_RMM_EL3_VERSION_GET_MINOR(trp_boot_abi_version));
 }
 
 /*******************************************************************************
