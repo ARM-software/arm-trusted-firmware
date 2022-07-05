@@ -803,6 +803,14 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		break; /* not reached */
 
 	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
+	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
+		if (!secure_origin) {
+			/* Validate source endpoint is non-secure for non-secure caller. */
+			if (ffa_is_secure_world_id(ffa_endpoint_source(x1))) {
+				return spmd_ffa_error_return(handle,
+						FFA_ERROR_INVALID_PARAMETER);
+			}
+		}
 		if (secure_origin && spmd_is_spmc_message(x1)) {
 			ret = spmd_handle_spmc_message(x3, x4,
 				SMC_GET_GP(handle, CTX_GPREG_X5),
@@ -862,7 +870,6 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 		/* Fall through to forward the call to the other world */
 	case FFA_MSG_SEND:
-	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
 	case FFA_MEM_DONATE_SMC32:
 	case FFA_MEM_DONATE_SMC64:
