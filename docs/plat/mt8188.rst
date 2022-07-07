@@ -1,0 +1,21 @@
+MediaTek 8188
+=============
+
+MediaTek 8188 (MT8188) is a 64-bit ARM SoC introduced by MediaTek in 2022.
+The chip incorporates eight cores - six Cortex-A55 little cores and two Cortex-A78.
+Cortex-A78 can operate at up to 2.6 GHz.
+Cortex-A55 can operate at up to 2.0 GHz.
+
+Boot Sequence
+-------------
+
+::
+
+    Boot Rom --> Coreboot --> TF-A BL31 --> Depthcharge --> Linux Kernel
+
+    How to Build
+    ------------
+
+    .. code:: shell
+
+           make CROSS_COMPILE=aarch64-linux-gnu- LD=aarch64-linux-gnu-gcc PLAT=mt8188 DEBUG=1 COREBOOT=1
