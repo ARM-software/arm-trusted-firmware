@@ -310,9 +310,14 @@
 					MT_MEMORY | MT_RW | MT_SECURE)
 
 #if ENABLE_RME
+/*
+ * We add the EL3_RMM_SHARED size to RMM mapping to map the region as a block.
+ * Else we end up requiring more pagetables in BL2 for ROMLIB build.
+ */
 #define ARM_MAP_RMM_DRAM	MAP_REGION_FLAT(			\
 					PLAT_ARM_RMM_BASE,		\
-					PLAT_ARM_RMM_SIZE,		\
+					(PLAT_ARM_RMM_SIZE + 		\
+					ARM_EL3_RMM_SHARED_SIZE),	\
 					MT_MEMORY | MT_RW | MT_REALM)
 
 
