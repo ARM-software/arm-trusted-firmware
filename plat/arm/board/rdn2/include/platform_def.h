@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,14 +69,15 @@
  */
 #ifdef __aarch64__
 #if (CSS_SGI_PLATFORM_VARIANT == 2)
+#define CSS_SGI_ADDR_BITS_PER_CHIP	U(46)	/* 64TB */
+#else
+#define CSS_SGI_ADDR_BITS_PER_CHIP	U(42)	/* 4TB */
+#endif
+
 #define PLAT_PHY_ADDR_SPACE_SIZE	CSS_SGI_REMOTE_CHIP_MEM_OFFSET( \
 						CSS_SGI_CHIP_COUNT)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	CSS_SGI_REMOTE_CHIP_MEM_OFFSET( \
 						CSS_SGI_CHIP_COUNT)
-#else
-#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 42)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 42)
-#endif
 #else
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
