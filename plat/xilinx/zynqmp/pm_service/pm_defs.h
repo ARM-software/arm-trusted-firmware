@@ -17,10 +17,10 @@
  * Version number is a 32bit value, like:
  * (PM_VERSION_MAJOR << 16) | PM_VERSION_MINOR
  */
-#define PM_VERSION_MAJOR	1
-#define PM_VERSION_MINOR	1
+#define PM_VERSION_MAJOR	1U
+#define PM_VERSION_MINOR	1U
 
-#define PM_VERSION	((PM_VERSION_MAJOR << 16) | PM_VERSION_MINOR)
+#define PM_VERSION	((PM_VERSION_MAJOR << 16U) | PM_VERSION_MINOR)
 
 /**
  * PM API versions

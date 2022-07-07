@@ -214,7 +214,7 @@ int32_t pm_setup(void)
 		ERROR("BL31: Platform Management API version error. Expected: "
 		      "v%d.%d - Found: v%d.%d\n", PM_VERSION_MAJOR,
 		      PM_VERSION_MINOR, pm_ctx.api_version >> 16,
-		      pm_ctx.api_version & 0xFFFF);
+		      pm_ctx.api_version & 0xFFFFU);
 		return -EINVAL;
 	}
 

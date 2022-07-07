@@ -2610,7 +2610,7 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 		}
 	}
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3U; i++) {
 		parents[i] = clk_parents[index + i];
 		if (clk_parents[index + i] == CLK_NA_PARENT) {
 			break;
