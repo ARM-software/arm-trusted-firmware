@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
  * Table of regions to map using the MMU.
  * Replace or extend the below regions as required
  */
-#if IMAGE_BL1 || IMAGE_BL31
+#if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	MORELLO_MAP_DEVICE,
@@ -25,12 +25,23 @@ const mmap_region_t plat_arm_mmap[] = {
 	{0}
 };
 #endif
+
+#if IMAGE_BL31
+const mmap_region_t plat_arm_mmap[] = {
+	ARM_MAP_SHARED_RAM,
+	MORELLO_MAP_DEVICE,
+	MORELLO_MAP_NS_SRAM,
+	{0}
+};
+#endif
+
 #if IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	MORELLO_MAP_DEVICE,
 	MORELLO_MAP_NS_SRAM,
 	ARM_MAP_DRAM1,
+	ARM_MAP_DRAM2,
 #if TRUSTED_BOARD_BOOT && !BL2_AT_EL3
 	ARM_MAP_BL1_RW,
 #endif
