@@ -383,7 +383,7 @@
 			status = "disabled";
 		};
 
-		ddr: ddr@5a003000{
+		ddr: ddr@5a003000 {
 			compatible = "st,stm32mp13-ddr";
 			reg = <0x5a003000 0x550>, <0x5a004000 0x234>;
 			clocks = <&rcc AXIDCG>,
