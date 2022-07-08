@@ -23,5 +23,6 @@ void gic_sgi_save_all(void);
 void gic_sgi_restore_all(void);
 uint32_t mt_irq_get_pending(uint32_t irq);
 void mt_irq_set_pending(uint32_t irq);
+int mt_gic_one_init(void);
 
 #endif /* MT_GIC_V3_H */

@@ -12,7 +12,7 @@
 #include <bl31/interrupt_mgmt.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-
+#include <lib/mtk_init/mtk_init.h>
 #include <mt_gic_v3.h>
 #include <mtk_plat_common.h>
 #include <plat/common/platform.h>
@@ -194,3 +194,15 @@ void mt_irq_set_pending(uint32_t irq)
 	mmio_write_32(BASE_GICD_BASE + GICD_ISPENDR +
 		irq / 32 * 4, bit);
 }
+
+int mt_gic_one_init(void)
+{
+	INFO("[%s] GIC initialization\n", __func__);
+
+	/* Initialize the GIC driver, CPU and distributor interfaces */
+	mt_gic_driver_init();
+	mt_gic_init();
+
+	return 0;
+}
+MTK_PLAT_SETUP_0_INIT(mt_gic_one_init);
