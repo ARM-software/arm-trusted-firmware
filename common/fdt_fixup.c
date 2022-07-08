@@ -583,3 +583,44 @@ int fdt_adjust_gic_redist(void *dtb, unsigned int nr_cores,
 						   (ac + sc + ac) * 4,
 						   val, sc * 4);
 }
+/**
+ * fdt_set_mac_address () - store MAC address in device tree
+ * @dtb:	pointer to the device tree blob in memory
+ * @eth_idx:	number of Ethernet interface in /aliases node
+ * @mac_addr:	pointer to 6 byte MAC address to store
+ *
+ * Use the generic local-mac-address property in a network device DT node
+ * to define the MAC address this device should be using. Many platform
+ * network devices lack device-specific non-volatile storage to hold this
+ * address, and leave it up to firmware to find and store a unique MAC
+ * address in the DT.
+ * The MAC address could be read from some board or firmware defined storage,
+ * or could be derived from some other unique property like a serial number.
+ *
+ * Return: 0 on success, a negative libfdt error value otherwise.
+ */
+int fdt_set_mac_address(void *dtb, unsigned int ethernet_idx,
+			const uint8_t *mac_addr)
+{
+	char eth_alias[12];
+	const char *path;
+	int node;
+
+	if (ethernet_idx > 9U) {
+		return -FDT_ERR_BADVALUE;
+	}
+	snprintf(eth_alias, sizeof(eth_alias), "ethernet%d", ethernet_idx);
+
+	path = fdt_get_alias(dtb, eth_alias);
+	if (path == NULL) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	node = fdt_path_offset(dtb, path);
+	if (node < 0) {
+		ERROR("Path \"%s\" not found in DT: %d\n", path, node);
+		return node;
+	}
+
+	return fdt_setprop(dtb, node, "local-mac-address", mac_addr, 6);
+}
