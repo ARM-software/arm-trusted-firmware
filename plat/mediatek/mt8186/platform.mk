@@ -8,6 +8,7 @@ MTK_PLAT     := plat/mediatek
 MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
+                 -I${MTK_PLAT}/drivers/cirq/                      \
                  -I${MTK_PLAT}/drivers/gic600/                    \
                  -I${MTK_PLAT}/drivers/gpio/                      \
                  -I${MTK_PLAT}/drivers/lpm/                       \
@@ -47,7 +48,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT}/common/mtk_plat_common.c                  \
                 ${MTK_PLAT}/common/mtk_sip_svc.c                      \
                 ${MTK_PLAT}/common/params_setup.c                     \
-                ${MTK_PLAT}/common/mtk_cirq.c                         \
+                ${MTK_PLAT}/drivers/cirq/mt_cirq.c                    \
                 ${MTK_PLAT}/drivers/gic600/mt_gic_v3.c                \
                 ${MTK_PLAT}/drivers/gpio/mtgpio_common.c              \
                 ${MTK_PLAT}/drivers/lpm/mt_lp_rm.c                    \

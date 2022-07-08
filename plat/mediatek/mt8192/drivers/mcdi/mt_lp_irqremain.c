@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2020, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2020-2022, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mt_lp_rm.h>
+#include <mt_cirq.h>
 #include <mt_lp_irqremain.h>
-#include <mtk_cirq.h>
+#include <mt_lp_rm.h>
 #include <plat_mtk_lpm.h>
 
 #define EDMA0_IRQ_ID		U(448)

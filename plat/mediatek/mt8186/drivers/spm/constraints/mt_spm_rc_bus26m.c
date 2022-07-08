@@ -26,7 +26,7 @@
 #include <mt_spm_suspend.h>
 
 #ifndef ATF_PLAT_CIRQ_UNSUPPORT
-#include <mtk_cirq.h>
+#include <mt_cirq.h>
 #endif
 
 #include <plat_mtk_lpm.h>

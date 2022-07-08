@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2020-2022, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,8 +9,8 @@
 #include <drivers/arm/gic_common.h>
 #include <lib/mmio.h>
 
+#include <mt_cirq.h>
 #include <mt_gic_v3.h>
-#include <mtk_cirq.h>
 
 static struct cirq_events cirq_all_events = {
 	.spi_start = CIRQ_SPI_START,

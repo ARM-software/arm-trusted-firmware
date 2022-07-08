@@ -33,6 +33,15 @@
 #define MT_GIC_RDIST_BASE	(MT_GIC_BASE + 0x40000)
 
 /*******************************************************************************
+ * CIRQ related constants
+ ******************************************************************************/
+#define SYS_CIRQ_BASE		(IO_PHYS + 0x204000)
+#define MD_WDT_IRQ_BIT_ID	(141)
+#define CIRQ_IRQ_NUM		(730)
+#define CIRQ_REG_NUM		(23)
+#define CIRQ_SPI_START		(96)
+
+/*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/
 #define SYS_COUNTER_FREQ_IN_HZ	(13000000)
