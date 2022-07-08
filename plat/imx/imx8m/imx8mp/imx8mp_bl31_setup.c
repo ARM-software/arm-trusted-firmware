@@ -19,6 +19,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
+#include <dram.h>
 #include <gpc.h>
 #include <imx_aipstz.h>
 #include <imx_uart.h>
@@ -202,6 +203,9 @@ void bl31_platform_setup(void)
 
 	/* select the CKIL source to 32K OSC */
 	mmio_write_32(IMX_ANAMIX_BASE + ANAMIX_MISC_CTL, 0x1);
+
+	/* Init the dram info */
+	dram_info_init(SAVED_DRAM_TIMING_BASE);
 
 	plat_gic_driver_init();
 	plat_gic_init();

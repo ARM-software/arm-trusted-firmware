@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,124 @@
 #include <platform_def.h>
 
 #define CCGR(x)		(0x4000 + (x) * 0x10)
+
+#define MIPI_PWR_REQ		BIT(0)
+#define OTG1_PWR_REQ		BIT(2)
+#define HSIOMIX_PWR_REQ		BIT(4)
+#define GPUMIX_PWR_REQ		BIT(7)
+#define DISPMIX_PWR_REQ		BIT(10)
+
+#define HSIOMIX_ADB400_SYNC	BIT(5)
+#define DISPMIX_ADB400_SYNC	BIT(7)
+#define GPUMIX_ADB400_SYNC	(0x5 << 9)
+#define HSIOMIX_ADB400_ACK	BIT(23)
+#define DISPMIX_ADB400_ACK	BIT(25)
+#define GPUMIX_ADB400_ACK	(0x5 << 27)
+
+#define MIPI_PGC		0xc00
+#define OTG1_PGC		0xc80
+#define HSIOMIX_PGC	        0xd00
+#define GPUMIX_PGC		0xdc0
+#define DISPMIX_PGC		0xe80
+
+enum pu_domain_id {
+	HSIOMIX,
+	OTG1 = 2,
+	GPUMIX = 4,
+	DISPMIX = 9,
+	MIPI,
+};
+
+/* PU domain, add some hole to minimize the uboot change */
+static struct imx_pwr_domain pu_domains[11] = {
+	[HSIOMIX] = IMX_MIX_DOMAIN(HSIOMIX, false),
+	[OTG1] = IMX_PD_DOMAIN(OTG1, true),
+	[GPUMIX] = IMX_MIX_DOMAIN(GPUMIX, false),
+	[DISPMIX] = IMX_MIX_DOMAIN(DISPMIX, false),
+	[MIPI] = IMX_PD_DOMAIN(MIPI, true),
+};
+
+static unsigned int pu_domain_status;
+
+void imx_gpc_pm_domain_enable(uint32_t domain_id, bool on)
+{
+	if (domain_id > MIPI) {
+		return;
+	}
+
+	struct imx_pwr_domain *pwr_domain = &pu_domains[domain_id];
+
+	if (on) {
+		if (pwr_domain->need_sync) {
+			pu_domain_status |= (1 << domain_id);
+		}
+
+		/* HSIOMIX has no PU bit, so skip for it */
+		if (domain_id != HSIOMIX) {
+			/* clear the PGC bit */
+			mmio_clrbits_32(IMX_GPC_BASE + pwr_domain->pgc_offset, 0x1);
+
+			/* power up the domain */
+			mmio_setbits_32(IMX_GPC_BASE + PU_PGC_UP_TRG, pwr_domain->pwr_req);
+
+			/* wait for power request done */
+			while (mmio_read_32(IMX_GPC_BASE + PU_PGC_UP_TRG) & pwr_domain->pwr_req) {
+				;
+			}
+		}
+
+		if (domain_id == DISPMIX) {
+			/* de-reset bus_blk clk and
+			 * enable bus_blk clk
+			 */
+			mmio_write_32(0x32e28000, 0x100);
+			mmio_write_32(0x32e28004, 0x100);
+		}
+
+		/* handle the ADB400 sync */
+		if (pwr_domain->need_sync) {
+			/* clear adb power down request */
+			mmio_setbits_32(IMX_GPC_BASE + GPC_PU_PWRHSK, pwr_domain->adb400_sync);
+
+			/* wait for adb power request ack */
+			while (!(mmio_read_32(IMX_GPC_BASE + GPC_PU_PWRHSK) & pwr_domain->adb400_ack)) {
+				;
+			}
+		}
+	} else {
+		pu_domain_status &= ~(1 << domain_id);
+
+		if (domain_id == OTG1) {
+			return;
+		}
+
+		/* handle the ADB400 sync */
+		if (pwr_domain->need_sync) {
+
+			/* set adb power down request */
+			mmio_clrbits_32(IMX_GPC_BASE + GPC_PU_PWRHSK, pwr_domain->adb400_sync);
+
+			/* wait for adb power request ack */
+			while ((mmio_read_32(IMX_GPC_BASE + GPC_PU_PWRHSK) & pwr_domain->adb400_ack)) {
+				;
+			}
+		}
+
+		/* HSIOMIX has no PU bit, so skip for it */
+		if (domain_id != HSIOMIX) {
+			/* set the PGC bit */
+			mmio_setbits_32(IMX_GPC_BASE + pwr_domain->pgc_offset, 0x1);
+
+			/* power down the domain */
+			mmio_setbits_32(IMX_GPC_BASE + PU_PGC_DN_TRG, pwr_domain->pwr_req);
+
+			/* wait for power request done */
+			while (mmio_read_32(IMX_GPC_BASE + PU_PGC_DN_TRG) & pwr_domain->pwr_req) {
+				;
+			}
+		}
+	}
+}
 
 void imx_gpc_init(void)
 {
@@ -86,9 +204,4 @@ void imx_gpc_init(void)
 	 * only need to do it once.
 	 */
 	mmio_clrbits_32(IMX_SRC_BASE + SRC_OTG1PHY_SCR, 0x1);
-
-	/* enable all the power domain by default */
-	for (i = 0; i < 103; i++)
-		mmio_write_32(IMX_CCM_BASE + CCGR(i), 0x3);
-	mmio_write_32(IMX_GPC_BASE + PU_PGC_UP_TRG, 0x485);
 }

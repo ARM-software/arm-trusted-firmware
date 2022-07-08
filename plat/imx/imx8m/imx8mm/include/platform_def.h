@@ -6,6 +6,7 @@
 
 #include <arch.h>
 #include <common/tbbr/tbbr_img_def.h>
+#include <lib/utils_def.h>
 
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64
@@ -85,7 +86,7 @@
 #define IMX_AIPSTZ4			U(0x32df0000)
 
 #define IMX_AIPS_BASE			U(0x30000000)
-#define IMX_AIPS_SIZE			U(0xC00000)
+#define IMX_AIPS_SIZE			U(0x3000000)
 #define IMX_GPV_BASE			U(0x32000000)
 #define IMX_GPV_SIZE			U(0x800000)
 #define IMX_AIPS1_BASE			U(0x30200000)
@@ -105,7 +106,10 @@
 #define IMX_DDRC_BASE			U(0x3d400000)
 #define IMX_DDRPHY_BASE			U(0x3c000000)
 #define IMX_DDR_IPS_BASE		U(0x3d000000)
+#define IMX_DDR_IPS_SIZE		U(0x1800000)
 #define IMX_ROM_BASE			U(0x0)
+#define IMX_VPUMIX_BASE                U(0x38330000)
+#define IMX_VPUMIX_SIZE                U(0x100000)
 
 #define GPV_BASE			U(0x32000000)
 #define GPV_SIZE			U(0x800000)
@@ -140,12 +144,14 @@
 #define GPR_TZASC_EN_LOCK		BIT(16)
 
 #define ANAMIX_MISC_CTL			U(0x124)
+#define DRAM_PLL_CTRL			(IMX_ANAMIX_BASE + 0x50)
 
 #define MAX_CSU_NUM			U(64)
 
 #define OCRAM_S_BASE			U(0x00180000)
 #define OCRAM_S_SIZE			U(0x8000)
 #define OCRAM_S_LIMIT			(OCRAM_S_BASE + OCRAM_S_SIZE)
+#define SAVED_DRAM_TIMING_BASE		OCRAM_S_BASE
 
 #define COUNTER_FREQUENCY		8000000 /* 8MHz */
 
