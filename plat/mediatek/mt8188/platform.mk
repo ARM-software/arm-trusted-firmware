@@ -22,6 +22,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common \
 MODULES-y += $(MTK_PLAT)/common
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
+MODULES-y += $(MTK_PLAT)/drivers/timer
 
 PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \
 			  drivers/ti/uart/aarch64/16550_console.S \
