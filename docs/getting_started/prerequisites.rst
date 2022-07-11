@@ -7,6 +7,7 @@ AArch32 and AArch64 target platforms.
 It may possible to build |TF-A| with combinations of software packages that are
 different from those listed below, however only the software described in this
 document can be officially supported.
+
 Build Host
 ----------
 
