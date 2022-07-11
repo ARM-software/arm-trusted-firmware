@@ -53,7 +53,7 @@ int32_t dp_secure_handler(uint64_t cmd, uint64_t para, uint32_t *val)
 
 	if (ret == MTK_SIP_E_SUCCESS) {
 		regmsk = (VIDEO_MUTE_SEL_SECURE_FLDMASK |
-				VIDEO_MUTE_SW_SECURE_FLDMASK);
+			  VIDEO_MUTE_SW_SECURE_FLDMASK);
 		if (para > 0U) {
 			fldmask = VIDEO_MUTE_SW_SECURE_FLDMASK;
 		} else {
@@ -67,3 +67,13 @@ int32_t dp_secure_handler(uint64_t cmd, uint64_t para, uint32_t *val)
 
 	return ret;
 }
+
+u_register_t mtk_dp_sip_handler(u_register_t x1, u_register_t x2,
+				u_register_t x3, u_register_t x4,
+				void *handle, struct smccc_res *smccc_ret)
+{
+	uint32_t ret_val;
+
+	return dp_secure_handler(x1, x2, &ret_val);
+}
+DECLARE_SMC_HANDLER(MTK_SIP_DP_CONTROL, mtk_dp_sip_handler);
