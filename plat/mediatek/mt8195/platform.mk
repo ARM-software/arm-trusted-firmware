@@ -9,6 +9,7 @@ MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/drivers/cirq/                      \
+                 -I${MTK_PLAT}/drivers/dp/                        \
                  -I${MTK_PLAT}/drivers/gic600/                    \
                  -I${MTK_PLAT}/drivers/gpio/                      \
                  -I${MTK_PLAT}/drivers/lpm/                       \
@@ -19,7 +20,6 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/drivers/apusys/                \
                  -I${MTK_PLAT_SOC}/drivers/dcm                    \
                  -I${MTK_PLAT_SOC}/drivers/dfd                    \
-                 -I${MTK_PLAT_SOC}/drivers/dp/                    \
                  -I${MTK_PLAT_SOC}/drivers/emi_mpu/               \
                  -I${MTK_PLAT_SOC}/drivers/gpio/                  \
                  -I${MTK_PLAT_SOC}/drivers/mcdi/                  \
@@ -51,6 +51,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT}/common/mtk_sip_svc.c                      \
                 ${MTK_PLAT}/common/params_setup.c                     \
                 ${MTK_PLAT}/drivers/cirq/mt_cirq.c                    \
+                ${MTK_PLAT}/drivers/dp/mt_dp.c                        \
                 ${MTK_PLAT}/drivers/gic600/mt_gic_v3.c                \
                 ${MTK_PLAT}/drivers/gpio/mtgpio_common.c              \
                 ${MTK_PLAT}/drivers/lpm/mt_lp_rm.c                    \
@@ -68,7 +69,6 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm.c                 \
                 ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm_utils.c           \
                 ${MTK_PLAT_SOC}/drivers/dfd/plat_dfd.c                \
-                ${MTK_PLAT_SOC}/drivers/dp/mt_dp.c                    \
                 ${MTK_PLAT_SOC}/drivers/emi_mpu/emi_mpu.c             \
                 ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm.c              \
