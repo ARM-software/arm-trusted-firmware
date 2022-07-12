@@ -297,6 +297,7 @@ void plat_arm_interconnect_exit_coherency(void);
 void plat_arm_program_trusted_mailbox(uintptr_t address);
 bool plat_arm_bl1_fwu_needed(void);
 __dead2 void plat_arm_error_handler(int err);
+__dead2 void plat_arm_system_reset(void);
 
 /*
  * Optional functions in ARM standard platforms

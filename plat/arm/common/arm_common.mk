@@ -363,6 +363,10 @@ BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
 BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 endif
 
+ifeq (${DRTM_SUPPORT},1)
+BL31_SOURCES            +=	plat/arm/common/arm_err.c
+endif
+
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources

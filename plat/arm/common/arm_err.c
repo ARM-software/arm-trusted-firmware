@@ -13,3 +13,8 @@ void __dead2 plat_error_handler(int err)
 {
 	plat_arm_error_handler(err);
 }
+
+void __dead2 plat_system_reset(void)
+{
+	plat_arm_system_reset();
+}

@@ -414,10 +414,13 @@ endif
 endif
 
 ifeq (${DRTM_SUPPORT}, 1)
-BL31_SOURCES   += plat/arm/board/fvp/fvp_drtm_dma_prot.c	\
+BL31_SOURCES   += plat/arm/board/fvp/fvp_drtm_addr.c	\
+		  plat/arm/board/fvp/fvp_drtm_dma_prot.c	\
+		  plat/arm/board/fvp/fvp_drtm_err.c	\
 		  plat/arm/board/fvp/fvp_drtm_measurement.c	\
 		  plat/arm/board/fvp/fvp_drtm_stub.c	\
-		  plat/arm/common/arm_dyn_cfg.c
+		  plat/arm/common/arm_dyn_cfg.c		\
+		  plat/arm/board/fvp/fvp_err.c
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
