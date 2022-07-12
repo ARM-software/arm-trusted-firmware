@@ -178,6 +178,7 @@ void dyn_disable_auth(void);
 
 extern const char build_message[];
 extern const char version_string[];
+const char *get_version(void);
 
 void print_entry_point_info(const entry_point_info_t *ep_info);
 uintptr_t page_align(uintptr_t value, unsigned dir);
