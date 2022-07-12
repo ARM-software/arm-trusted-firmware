@@ -225,8 +225,7 @@ static int ufshc_link_startup(uintptr_t base)
 			}
 			continue;
 		}
-		while ((mmio_read_32(base + HCS) & HCS_DP) == 0)
-			;
+		assert((mmio_read_32(base + HCS) & HCS_DP) == 0);
 		data = mmio_read_32(base + IS);
 		if (data & UFS_INT_ULSS)
 			mmio_write_32(base + IS, UFS_INT_ULSS);
@@ -482,9 +481,7 @@ static void ufs_send_request(int task_tag)
 	mmio_write_32(ufs_params.reg_base + IS, ~0);
 
 	mmio_write_32(ufs_params.reg_base + UTRLRSR, 1);
-	do {
-		data = mmio_read_32(ufs_params.reg_base + UTRLRSR);
-	} while (data == 0);
+	assert(mmio_read_32(ufs_params.reg_base + UTRLRSR) == 1);
 
 	data = UTRIACR_IAEN | UTRIACR_CTR | UTRIACR_IACTH(0x1F) |
 	       UTRIACR_IATOVAL(0xFF);
