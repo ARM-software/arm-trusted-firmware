@@ -353,6 +353,34 @@ func check_errata_2008768
 	b       cpu_rev_var_ls
 endfunc check_errata_2008768
 
+/* -------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2371105.
+ * This applies to revisions <= r2p0 and is fixed in r2p1.
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * -------------------------------------------------------
+ */
+func errata_a710_2371105_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_2371105
+	cbz	x0, 1f
+
+	/* Set bit 40 in CPUACTLR2_EL1 */
+	mrs	x1, CORTEX_A710_CPUACTLR2_EL1
+	orr	x1, x1, #CORTEX_A710_CPUACTLR2_EL1_BIT_40
+	msr	CORTEX_A710_CPUACTLR2_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a710_2371105_wa
+
+func check_errata_2371105
+	/* Applies to <= r2p0. */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2371105
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -410,6 +438,7 @@ func cortex_a710_errata_report
 	report_errata ERRATA_A710_2136059, cortex_a710, 2136059
 	report_errata ERRATA_A710_2282622, cortex_a710, 2282622
 	report_errata ERRATA_A710_2008768, cortex_a710, 2008768
+	report_errata ERRATA_A710_2371105, cortex_a710, 2371105
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a710, cve_2022_23960
 	report_errata ERRATA_DSU_2313941, cortex_a710, dsu_2313941
 
@@ -474,6 +503,11 @@ func cortex_a710_reset_func
 #if ERRATA_A710_2282622
 	mov	x0, x18
 	bl	errata_a710_2282622_wa
+#endif
+
+#if ERRATA_A710_2371105
+	mov	x0, x18
+	bl	errata_a710_2371105_wa
 #endif
 
 #if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
