@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,9 +48,9 @@
 /*******************************************************************************
  * DP/eDP related constants
  ******************************************************************************/
-#define eDP_SEC_BASE		(IO_PHYS + 0x0C504000)
+#define EDP_SEC_BASE		(IO_PHYS + 0x0C504000)
 #define DP_SEC_BASE		(IO_PHYS + 0x0C604000)
-#define eDP_SEC_SIZE		0x1000
+#define EDP_SEC_SIZE		0x1000
 #define DP_SEC_SIZE		0x1000
 
 /*******************************************************************************

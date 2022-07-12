@@ -15,7 +15,7 @@
 static uint32_t dp_write_sec_reg(uint32_t is_edp, uint32_t offset,
 				uint32_t value, uint32_t mask)
 {
-	uint32_t reg = (is_edp != 0U) ? eDP_SEC_BASE : DP_SEC_BASE;
+	uint32_t reg = (is_edp != 0U) ? EDP_SEC_BASE : DP_SEC_BASE;
 
 	mmio_clrsetbits_32(reg + offset, mask, value);
 
