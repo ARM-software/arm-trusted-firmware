@@ -1051,6 +1051,13 @@ subsections:
             deprecated:
               - fdts stm32mp1
 
+            subsections:
+              - title: STM32MP13
+                scope: stm32mp13-fdts
+
+              - title: STM32MP15
+                scope: stm32mp15-fdts
+
       - title: PIE
         scope: pie
 
