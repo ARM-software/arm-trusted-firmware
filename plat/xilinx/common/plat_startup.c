@@ -146,8 +146,6 @@ enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
 					uint64_t atf_handoff_addr)
 {
 	const struct xfsbl_atf_handoff_params *ATFHandoffParams;
-	assert((atf_handoff_addr < BL31_BASE) ||
-	       (atf_handoff_addr > (uint64_t)&__BL31_END__));
 	if (!atf_handoff_addr) {
 		WARN("BL31: No ATF handoff structure passed\n");
 		return FSBL_HANDOFF_NO_STRUCT;
