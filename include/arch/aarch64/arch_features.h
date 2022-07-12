@@ -129,6 +129,13 @@ static inline bool is_feat_hcx_present(void)
 		ID_AA64MMFR1_EL1_HCX_MASK) == ID_AA64MMFR1_EL1_HCX_SUPPORTED);
 }
 
+static inline bool is_feat_rng_trap_present(void)
+{
+	return (((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT) &
+			ID_AA64PFR1_EL1_RNDR_TRAP_MASK)
+			== ID_AA64PFR1_EL1_RNG_TRAP_SUPPORTED);
+}
+
 static inline unsigned int get_armv9_2_feat_rme_support(void)
 {
 	/*

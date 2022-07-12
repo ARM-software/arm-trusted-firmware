@@ -788,11 +788,15 @@ ifeq (${ARCH},aarch32)
         $(error "ENABLE_SVE_FOR_NS cannot be used with ARCH=aarch32")
     endif
 
-    # BRBE is not supported in Aarch32
+    # BRBE is not supported in AArch32
     ifeq (${ENABLE_BRBE_FOR_NS},1)
         $(error "ENABLE_BRBE_FOR_NS cannot be used with ARCH=aarch32")
     endif
 
+    # FEAT_RNG_TRAP is not supported in AArch32
+    ifeq (${ENABLE_FEAT_RNG_TRAP},1)
+        $(error "ENABLE_FEAT_RNG_TRAP cannot be used with ARCH=aarch32")
+    endif
 endif
 
 # Ensure ENABLE_RME is not used with SME
@@ -1073,6 +1077,7 @@ $(eval $(call assert_numerics,\
         ENABLE_FEAT_HCX \
         ENABLE_FEAT_PAN \
         ENABLE_FEAT_RNG \
+        ENABLE_FEAT_RNG_TRAP \
         ENABLE_FEAT_SB \
         ENABLE_FEAT_SEL2 \
         ENABLE_FEAT_VHE \
@@ -1183,6 +1188,7 @@ $(eval $(call add_defines,\
         COT_DESC_IN_DTB \
         USE_SP804_TIMER \
         ENABLE_FEAT_RNG \
+        ENABLE_FEAT_RNG_TRAP \
         ENABLE_FEAT_SB \
         ENABLE_FEAT_DIT \
         NR_OF_FW_BANKS \

@@ -353,6 +353,12 @@
 #define ID_AA64PFR1_EL1_MTE_SHIFT	U(8)
 #define ID_AA64PFR1_EL1_MTE_MASK	ULL(0xf)
 
+#define ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT	U(28)
+#define ID_AA64PFR1_EL1_RNDR_TRAP_MASK	U(0xf)
+
+#define ID_AA64PFR1_EL1_RNG_TRAP_SUPPORTED	ULL(0x1)
+#define ID_AA64PFR1_EL1_RNG_TRAP_NOT_SUPPORTED	ULL(0x0)
+
 /* Memory Tagging Extension is not implemented */
 #define MTE_UNIMPLEMENTED	U(0)
 /* FEAT_MTE: MTE instructions accessible at EL0 are implemented */
@@ -485,6 +491,7 @@
 #define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
+#define SCR_TRNDR_BIT		(UL(1) << 40)
 #define SCR_HXEn_BIT		(UL(1) << 38)
 #define SCR_ENTP2_SHIFT		U(41)
 #define SCR_ENTP2_BIT		(UL(1) << SCR_ENTP2_SHIFT)

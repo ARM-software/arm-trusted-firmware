@@ -160,6 +160,10 @@ ENABLE_FEAT_PAN			:= 0
 # Flag to enable access to the Random Number Generator registers
 ENABLE_FEAT_RNG			:= 0
 
+# Flag to enable support for EL3 trapping of reads of the RNDR and RNDRRS
+# registers, by setting SCR_EL3.TRNDR.
+ENABLE_FEAT_RNG_TRAP		:= 0
+
 # Flag to enable Speculation Barrier Instruction
 ENABLE_FEAT_SB			:= 0
 
