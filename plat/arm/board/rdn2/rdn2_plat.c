@@ -8,6 +8,7 @@
 #include <drivers/arm/gic600_multichip.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+#include <services/el3_spmc_ffa_memory.h>
 #include <rdn2_ras.h>
 #include <sgi_soc_platform_def_v2.h>
 #include <sgi_plat.h>
@@ -152,6 +153,20 @@ int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
 {
 	*datastore = plat_spmc_shmem_datastore;
 	*size = DATASTORE_SIZE;
+	return 0;
+}
+
+/*
+ * Add dummy implementations of memory management related platform hooks.
+ * Memory share/lend operation are not required on RdN2 platform.
+ */
+int plat_spmc_shmem_begin(struct ffa_mtd *desc)
+{
+	return 0;
+}
+
+int plat_spmc_shmem_reclaim(struct ffa_mtd *desc)
+{
 	return 0;
 }
 #endif
