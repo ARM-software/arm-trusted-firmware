@@ -53,8 +53,8 @@ $(ARM_ROTPK_HASH) : $(HASH_PREREQUISITES)
 ifndef ROT_KEY
 	$(error Cannot generate hash: no ROT_KEY defined)
 endif
-	openssl ${CRYPTO_ALG} -in $< -pubout -outform DER | openssl dgst \
-		-sha256 -binary > $@
+	${OPENSSL_BIN_PATH}/openssl ${CRYPTO_ALG} -in $< -pubout -outform DER | \
+	${OPENSSL_BIN_PATH}/openssl dgst -sha256 -binary > $@
 
 # Certificate NV-Counters. Use values corresponding to tied off values in
 # ARM development platforms
