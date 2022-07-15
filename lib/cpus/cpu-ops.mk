@@ -365,6 +365,10 @@ ERRATA_A78_AE_2395408	?=0
 # to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
 ERRATA_A78C_2132064	?=0
 
+# Flag to apply erratum 2242638 workaround during reset. This erratum applies
+# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+ERRATA_A78C_2242638	?=0
+
 # Flag to apply erratum 1821534 workaround during reset. This erratum applies
 # to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
 ERRATA_X1_1821534	?=0
@@ -922,6 +926,10 @@ $(eval $(call add_define,ERRATA_A78_AE_2395408))
 # Process ERRATA_A78C_2132064 flag
 $(eval $(call assert_boolean,ERRATA_A78C_2132064))
 $(eval $(call add_define,ERRATA_A78C_2132064))
+
+# Process ERRATA_A78C_2242638 flag
+$(eval $(call assert_boolean,ERRATA_A78C_2242638))
+$(eval $(call add_define,ERRATA_A78C_2242638))
 
 # Process ERRATA_X1_1821534 flag
 $(eval $(call assert_boolean,ERRATA_X1_1821534))
