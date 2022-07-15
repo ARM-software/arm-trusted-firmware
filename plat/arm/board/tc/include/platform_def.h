@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -177,7 +177,7 @@
 
 #define PLAT_ARM_NSTIMER_FRAME_ID	0
 
-#define PLAT_ARM_TRUSTED_ROM_BASE	0x0
+#define PLAT_ARM_TRUSTED_ROM_BASE	0x1000
 #define PLAT_ARM_TRUSTED_ROM_SIZE	0x00080000	/* 512KB */
 
 #define PLAT_ARM_NSRAM_BASE		0x06000000
