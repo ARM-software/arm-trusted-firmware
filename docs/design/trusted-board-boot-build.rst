@@ -35,6 +35,13 @@ images with support for these features:
    By default, this will use the Chain of Trust described in the TBBR-client
    document. To select a different one, use the ``COT`` build option.
 
+   If using a custom build of OpenSSL, set the ``OPENSSL_DIR`` variable
+   accordingly so it points at the OpenSSL installation path, as explained in
+   :ref:`Build Options`. In addition, set the ``LD_LIBRARY_PATH`` variable
+   when running to point at the custom OpenSSL path, so the OpenSSL libraries
+   are loaded from that path instead of the default OS path. Export this
+   variable if necessary.
+
    In the case of Arm platforms, the location of the ROTPK hash must also be
    specified at build time. The following locations are currently supported (see
    ``ARM_ROTPK_LOCATION`` build option):
@@ -63,7 +70,7 @@ images with support for these features:
        make PLAT=<platform> TRUSTED_BOARD_BOOT=1 GENERATE_COT=1        \
        ARM_ROTPK_LOCATION=devel_rsa                                    \
        ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
-       BL33=<path-to>/<bl33_image>                                     \
+       BL33=<path-to>/<bl33_image> OPENSSL_DIR=<path-to>/<openssl>     \
        all fip
 
    The result of this build will be the bl1.bin and the fip.bin binaries. This
@@ -87,7 +94,7 @@ images with support for these features:
        make PLAT=juno TRUSTED_BOARD_BOOT=1 GENERATE_COT=1              \
        ARM_ROTPK_LOCATION=devel_rsa                                    \
        ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
-       BL33=<path-to>/<bl33_image>                                     \
+       BL33=<path-to>/<bl33_image> OPENSSL_DIR=<path-to>/<openssl>     \
        SCP_BL2=<path-to>/<scp_bl2_image>                               \
        SCP_BL2U=<path-to>/<scp_bl2u_image>                             \
        NS_BL2U=<path-to>/<ns_bl2u_image>                               \
@@ -109,7 +116,7 @@ images with support for these features:
 
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
 
 .. _mbed TLS Repository: https://github.com/ARMmbed/mbedtls.git
 .. _mbed TLS Security Center: https://tls.mbed.org/security
