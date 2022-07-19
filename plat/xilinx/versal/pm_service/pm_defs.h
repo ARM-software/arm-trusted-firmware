@@ -62,6 +62,7 @@
 
 /* Loader API ids */
 #define PM_LOAD_PDI			0x701U
+#define PM_LOAD_GET_HANDOFF_PARAMS	0x70BU
 
 /* IOCTL IDs for clock driver */
 #define IOCTL_SET_PLL_FRAC_MODE		8U
