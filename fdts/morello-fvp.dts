@@ -79,16 +79,12 @@
 
 	/* The first bank of memory, memory map is actually provided by UEFI. */
 	memory@80000000 {
-		#address-cells = <2>;
-		#size-cells = <2>;
 		device_type = "memory";
 		/* [0x80000000-0xffffffff] */
 		reg = <0x00000000 0x80000000 0x0 0x80000000>;
 	};
 
 	memory@8080000000 {
-		#address-cells = <2>;
-		#size-cells = <2>;
 		device_type = "memory";
 		/* [0x8080000000-0x83ffffffff] */
 		reg = <0x00000080 0x80000000 0x1 0x80000000>;
