@@ -10,6 +10,14 @@
 #include <stdint.h>
 #include "pm_defs.h"
 
+/*********************************************************************
+ * Target module IDs macros
+ ********************************************************************/
+#define LIBPM_MODULE_ID		0x2U
+#define LOADER_MODULE_ID	0x7U
+
+#define  MODE			0x80000000U
+#define  MODULE_ID_MASK		0x0000ff00
 /**********************************************************
  * PM API function declarations
  **********************************************************/
@@ -56,4 +64,37 @@ enum pm_ret_status pm_load_pdi(uint32_t src, uint32_t address_low,
 enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
 					uint32_t wake, uint32_t enable,
 					uint32_t flag);
+
+/**
+ * Assigning of argument values into array elements.
+ */
+#define PM_PACK_PAYLOAD1(pl, mid, flag, arg0) {	\
+	pl[0] = (uint32_t)(((uint32_t)(arg0) & 0xFFU) | ((mid) << 8U) | ((flag) << 24U)); \
+}
+
+#define PM_PACK_PAYLOAD2(pl, mid, flag, arg0, arg1) {		\
+	pl[1] = (uint32_t)(arg1);				\
+	PM_PACK_PAYLOAD1(pl, (mid), (flag), (arg0));			\
+}
+
+#define PM_PACK_PAYLOAD3(pl, mid, flag, arg0, arg1, arg2) {	\
+	pl[2] = (uint32_t)(arg2);				\
+	PM_PACK_PAYLOAD2(pl, (mid), (flag), (arg0), (arg1));		\
+}
+
+#define PM_PACK_PAYLOAD4(pl, mid, flag, arg0, arg1, arg2, arg3) {	\
+	pl[3] = (uint32_t)(arg3);					\
+	PM_PACK_PAYLOAD3(pl, (mid), (flag), (arg0), (arg1), (arg2));		\
+}
+
+#define PM_PACK_PAYLOAD5(pl, mid, flag, arg0, arg1, arg2, arg3, arg4) {	\
+	pl[4] = (uint32_t)(arg4);					\
+	PM_PACK_PAYLOAD4(pl, (mid), (flag), (arg0), (arg1), (arg2), (arg3));	\
+}
+
+#define PM_PACK_PAYLOAD6(pl, mid, flag, arg0, arg1, arg2, arg3, arg4, arg5) {	\
+	pl[5] = (uint32_t)(arg5);						\
+	PM_PACK_PAYLOAD5(pl, (mid), (flag), (arg0), (arg1), (arg2), (arg3), (arg4));		\
+}
+
 #endif /* PM_API_SYS_H */
