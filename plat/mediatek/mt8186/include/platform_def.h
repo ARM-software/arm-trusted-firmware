@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2021, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +26,8 @@
 #define INFRACFG_AO_BASE        (IO_PHYS + 0x00001000)
 #define SPM_BASE		(IO_PHYS + 0x00006000)
 #define APMIXEDSYS              (IO_PHYS + 0x0000C000)
+#define SSPM_MCDI_SHARE_SRAM    (IO_PHYS + 0x00420000)
+#define SSPM_CFGREG_BASE        (IO_PHYS + 0x00440000)  /* SSPM view: 0x30040000 */
 #define SSPM_MBOX_BASE          (IO_PHYS + 0x00480000)
 #define PERICFG_AO_BASE         (IO_PHYS + 0x01003000)
 #define VPPSYS0_BASE            (IO_PHYS + 0x04000000)

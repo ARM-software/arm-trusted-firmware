@@ -11,7 +11,7 @@
 #include <mt_spm_sspm_intc.h>
 #include <sspm_reg.h>
 
-#define MT_SPM_SSPM_MBOX_OFF(x)		(SSPM_MBOX_3_BASE + x)
+#define MT_SPM_SSPM_MBOX_OFF(x)		(SSPM_MBOX_BASE + x)
 #define MT_SPM_MBOX(slot)		MT_SPM_SSPM_MBOX_OFF((slot << 2UL))
 
 #define SSPM_MBOX_SPM_LP_LOOKUP1	MT_SPM_MBOX(0)
