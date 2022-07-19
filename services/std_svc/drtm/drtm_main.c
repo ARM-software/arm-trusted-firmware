@@ -136,6 +136,13 @@ int drtm_setup(void)
 	return 0;
 }
 
+static inline void invalidate_icache_all(void)
+{
+	__asm__ volatile("ic      ialluis");
+	dsb();
+	isb();
+}
+
 static inline uint64_t drtm_features_tpm(void *ctx)
 {
 	SMC_RET2(ctx, 1ULL, /* TPM feature is supported */
@@ -629,9 +636,11 @@ static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 	drtm_dl_prepare_eret_to_dlme(&args, dlme_el);
 
 	/*
-	 * TODO: invalidate the instruction cache before jumping to the DLME.
-	 * This is required to defend against potentially-malicious cache contents.
+	 * As per DRTM beta0 spec table #28 invalidate the instruction cache
+	 * before jumping to the DLME. This is required to defend against
+	 * potentially-malicious cache contents.
 	 */
+	invalidate_icache_all();
 
 	/* Return the DLME region's address in x0, and the DLME data offset in x1.*/
 	SMC_RET2(handle, args.dlme_paddr, args.dlme_data_off);
