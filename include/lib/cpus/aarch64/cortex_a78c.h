@@ -14,11 +14,17 @@
 #define CORTEX_A78C_BHB_LOOP_COUNT			U(32)
 
 /*******************************************************************************
+ * CPU Auxiliary Control register 2 specific definitions.
+ * ****************************************************************************/
+#define CORTEX_A78C_CPUACTLR2_EL1			S3_0_C15_C1_1
+#define CORTEX_A78C_CPUACTLR2_EL1_BIT_40 		(ULL(1) << 40)
+
+/*******************************************************************************
  * CPU Extended Control register specific definitions.
  ******************************************************************************/
 #define CORTEX_A78C_CPUECTLR_EL1		        S3_0_C15_C1_4
-#define CORTEX_A78C_CPUECTLR_EL1_BIT6		        (ULL(1) << 6)
-#define CORTEX_A78C_CPUECTLR_EL1_BIT7		        (ULL(1) << 7)
+#define CORTEX_A78C_CPUECTLR_EL1_BIT_6		        (ULL(1) << 6)
+#define CORTEX_A78C_CPUECTLR_EL1_BIT_7		        (ULL(1) << 7)
 
 /*******************************************************************************
  * CPU Power Control register specific definitions

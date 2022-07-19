@@ -17,6 +17,36 @@
 #error "cortex_a78c must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+/* --------------------------------------------------
+ * Errata Workaround for Cortex A78C Erratum 2395411.
+ * This applies to revision r0p1 and r0p2 of the A78C
+ * and is currently open. It is a Cat B erratum.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x4, x17
+ * --------------------------------------------------
+ */
+func errata_a78c_2395411_wa
+	/* Check revision. */
+	mov 	x17, x30
+	bl 	check_errata_2395411
+	cbz 	x0, 1f
+
+	/* Set CPUACTRL2_EL1[40] to 1. */
+	mrs 	x1, CORTEX_A78C_CPUACTLR2_EL1
+	orr 	x1, x1, #CORTEX_A78C_CPUACTLR2_EL1_BIT_40
+	msr 	CORTEX_A78C_CPUACTLR2_EL1, x1
+1:
+	ret 	x17
+endfunc errata_a78c_2395411_wa
+
+func check_errata_2395411
+	/* Applies to r0p1 and r0p2 */
+	mov 	x1, #0x01
+	mov 	x2, #0x02
+	b 	cpu_rev_var_range
+endfunc check_errata_2395411
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A78C_BHB_LOOP_COUNT, cortex_a78c
 #endif /* WORKAROUND_CVE_2022_23960 */
@@ -43,8 +73,8 @@ func errata_a78c_2132064_wa
 	 * --------------------------------------------------------
 	 */
 	mrs	x0, CORTEX_A78C_CPUECTLR_EL1
-	orr	x0, x0, #CORTEX_A78C_CPUECTLR_EL1_BIT6
-	orr	x0, x0, #CORTEX_A78C_CPUECTLR_EL1_BIT7
+	orr	x0, x0, #CORTEX_A78C_CPUECTLR_EL1_BIT_6
+	orr	x0, x0, #CORTEX_A78C_CPUECTLR_EL1_BIT_7
 	msr	CORTEX_A78C_CPUECTLR_EL1, x0
 	isb
 1:
@@ -121,6 +151,11 @@ func cortex_a78c_reset_func
 	bl	errata_a78c_2242638_wa
 #endif
 
+#if ERRATA_A78C_2395411
+	mov 	x0, x18
+	bl	errata_a78c_2395411_wa
+#endif
+
 #if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
 	/*
 	 * The Cortex-A78c generic vectors are overridden to apply errata
@@ -166,6 +201,7 @@ func cortex_a78c_errata_report
 	 */
 	report_errata ERRATA_A78C_2132064, cortex_a78c, 2132064
 	report_errata ERRATA_A78C_2242638, cortex_a78c, 2242638
+	report_errata ERRATA_A78C_2395411, cortex_a78c, 2395411
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a78c, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
