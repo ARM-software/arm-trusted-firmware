@@ -26,6 +26,12 @@
 #define UART_BAUDRATE	(115200)
 
 /*******************************************************************************
+ * Infra IOMMU related constants
+ ******************************************************************************/
+#define PERICFG_AO_BASE		(IO_PHYS + 0x01003000)
+#define PERICFG_AO_REG_SIZE	(0x1000)
+
+/*******************************************************************************
  * GIC-600 & interrupt handling related constants
  ******************************************************************************/
 /* Base MTK_platform compatible GIC memory map */
@@ -40,6 +46,37 @@
 #define CIRQ_IRQ_NUM		(730)
 #define CIRQ_REG_NUM		(23)
 #define CIRQ_SPI_START		(96)
+
+/*******************************************************************************
+ * MM IOMMU & SMI related constants
+ ******************************************************************************/
+#define SMI_LARB_0_BASE		(IO_PHYS + 0x0c022000)
+#define SMI_LARB_1_BASE		(IO_PHYS + 0x0c023000)
+#define SMI_LARB_2_BASE		(IO_PHYS + 0x0c102000)
+#define SMI_LARB_3_BASE		(IO_PHYS + 0x0c103000)
+#define SMI_LARB_4_BASE		(IO_PHYS + 0x04013000)
+#define SMI_LARB_5_BASE		(IO_PHYS + 0x04f02000)
+#define SMI_LARB_6_BASE		(IO_PHYS + 0x04f03000)
+#define SMI_LARB_7_BASE		(IO_PHYS + 0x04e04000)
+#define SMI_LARB_9_BASE		(IO_PHYS + 0x05001000)
+#define SMI_LARB_10_BASE	(IO_PHYS + 0x05120000)
+#define SMI_LARB_11A_BASE	(IO_PHYS + 0x05230000)
+#define SMI_LARB_11B_BASE	(IO_PHYS + 0x05530000)
+#define SMI_LARB_11C_BASE	(IO_PHYS + 0x05630000)
+#define SMI_LARB_12_BASE	(IO_PHYS + 0x05340000)
+#define SMI_LARB_13_BASE	(IO_PHYS + 0x06001000)
+#define SMI_LARB_14_BASE	(IO_PHYS + 0x06002000)
+#define SMI_LARB_15_BASE	(IO_PHYS + 0x05140000)
+#define SMI_LARB_16A_BASE	(IO_PHYS + 0x06008000)
+#define SMI_LARB_16B_BASE	(IO_PHYS + 0x0600a000)
+#define SMI_LARB_17A_BASE	(IO_PHYS + 0x06009000)
+#define SMI_LARB_17B_BASE	(IO_PHYS + 0x0600b000)
+#define SMI_LARB_19_BASE	(IO_PHYS + 0x0a010000)
+#define SMI_LARB_21_BASE	(IO_PHYS + 0x0802e000)
+#define SMI_LARB_23_BASE	(IO_PHYS + 0x0800d000)
+#define SMI_LARB_27_BASE	(IO_PHYS + 0x07201000)
+#define SMI_LARB_28_BASE	(IO_PHYS + 0x00000000)
+#define SMI_LARB_REG_RNG_SIZE	(0x1000)
 
 /*******************************************************************************
  * DP related constants
