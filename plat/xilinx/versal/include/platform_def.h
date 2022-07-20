@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
-#define PLATFORM_STACK_SIZE	0x440
+#define PLATFORM_STACK_SIZE	U(0x440)
 
 #define PLATFORM_CORE_COUNT		U(2)
 #define PLAT_MAX_PWR_LVL		U(1)

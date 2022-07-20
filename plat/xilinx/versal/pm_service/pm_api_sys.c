@@ -49,7 +49,7 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 	uint32_t payload[PAYLOAD_ARG_CNT] = {0};
 	uint32_t module_id;
 
-	module_id = (x0 & MODULE_ID_MASK) >> 8;
+	module_id = (x0 & MODULE_ID_MASK) >> 8U;
 
 	//default module id is for LIBPM
 	if (module_id == 0) {
@@ -397,7 +397,7 @@ enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 
 	ret = pm_feature_check(PM_QUERY_DATA, &version[0], flag);
 	if (ret == PM_RET_SUCCESS) {
-		fw_api_version = version[0] & 0xFFFF;
+		fw_api_version = version[0] & 0xFFFFU;
 		if ((fw_api_version == 2U) &&
 		    ((qid == XPM_QID_CLOCK_GET_NAME) ||
 		     (qid == XPM_QID_PINCTRL_GET_FUNCTION_NAME))) {
@@ -521,7 +521,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 		break;
 	}
 
-	module_id = (api_id & MODULE_ID_MASK) >> 8;
+	module_id = (api_id & MODULE_ID_MASK) >> 8U;
 
 	/*
 	 * feature check should be done only for LIBPM module
