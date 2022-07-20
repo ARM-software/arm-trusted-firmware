@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,6 +8,8 @@ include common/fdt_wrappers.mk
 ifeq ($(filter ${TARGET_PLATFORM}, 0 1),)
         $(error TARGET_PLATFORM must be 0 or 1)
 endif
+
+$(eval $(call add_define,TARGET_PLATFORM))
 
 CSS_LOAD_SCP_IMAGES	:=	1
 
