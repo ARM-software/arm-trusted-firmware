@@ -1022,3 +1022,56 @@ int psci_stop_other_cores(unsigned int wait_ms,
 
 	return PSCI_E_SUCCESS;
 }
+
+/*******************************************************************************
+ * This function verifies that all the other cores in the system have been
+ * turned OFF and the current CPU is the last running CPU in the system.
+ * Returns true if the current CPU is the last ON CPU or false otherwise.
+ *
+ * This API has following differences with psci_is_last_on_cpu
+ *  1. PSCI states are locked
+ *  2. It caters for "forest" topology instead of just "tree"
+ *  TODO : Revisit both API's and unify them
+ ******************************************************************************/
+bool psci_is_last_on_cpu_safe(void)
+{
+	unsigned int this_core = plat_my_core_pos();
+	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
+	unsigned int i = 0;
+
+	/*
+	 * Traverse the forest of PSCI nodes, nodes with no parents
+	 * (invalid-nodes) are the root nodes.
+	 */
+	while ((psci_non_cpu_pd_nodes[i].parent_node ==
+	       PSCI_PARENT_NODE_INVALID) &&
+	       (i < PSCI_NUM_NON_CPU_PWR_DOMAINS)) {
+		psci_get_parent_pwr_domain_nodes(
+				psci_non_cpu_pd_nodes[i].cpu_start_idx,
+				PLAT_MAX_PWR_LVL, parent_nodes);
+
+		psci_acquire_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
+
+		for (unsigned int core = 0U;
+		     core < psci_non_cpu_pd_nodes[i].ncpus; core++) {
+			if (core == this_core) {
+				continue;
+			}
+
+			if (psci_get_aff_info_state_by_idx(core) !=
+			    AFF_STATE_OFF) {
+				psci_release_pwr_domain_locks(PLAT_MAX_PWR_LVL,
+							      parent_nodes);
+				VERBOSE("core=%u other than boot core=%u %s\n",
+				       core, this_core, "running in the system");
+
+				return false;
+			}
+		}
+
+		psci_release_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
+		i++;
+	}
+
+	return true;
+}

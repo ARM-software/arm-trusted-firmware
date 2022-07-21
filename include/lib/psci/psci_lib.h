@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,6 +91,8 @@ void psci_prepare_next_non_secure_ctx(
 			  entry_point_info_t *next_image_info);
 int psci_stop_other_cores(unsigned int wait_ms,
 			  void (*stop_func)(u_register_t mpidr));
+bool psci_is_last_on_cpu_safe(void);
+
 #endif /* __ASSEMBLER__ */
 
 #endif /* PSCI_LIB_H */
