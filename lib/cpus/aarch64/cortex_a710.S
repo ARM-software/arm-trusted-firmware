@@ -280,6 +280,37 @@ func check_errata_2136059
 	b       cpu_rev_var_ls
 endfunc check_errata_2136059
 
+/* ----------------------------------------------------------------
+ * Errata workaround for Cortex-A710 Erratum 2147715.
+ * This applies to revision r2p0, and is fixed in r2p1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0, x1, x17
+ * ----------------------------------------------------------------
+ */
+func errata_a710_2147715_wa
+	mov 	x17, x30
+	bl 	check_errata_2147715
+	cbz	x0, 1f
+
+	/* Apply workaround; set CPUACTLR_EL1[22]
+	 * to 1, which will cause the CFP instruction
+	 * to invalidate all branch predictor resources
+	 * regardless of context.
+	 */
+	mrs 	x1, CORTEX_A710_CPUACTLR_EL1
+	orr	x1, x1, CORTEX_A710_CPUACTLR_EL1_BIT_22
+	msr 	CORTEX_A710_CPUACTLR_EL1, x1
+1:
+	ret	x17
+endfunc errata_a710_2147715_wa
+
+func check_errata_2147715
+	mov 	x1, #0x20
+	mov 	x2, #0x20
+	b 	cpu_rev_var_range
+endfunc check_errata_2147715
+
 /* ---------------------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2282622.
  * This applies to revision r0p0, r1p0 and r2p0.
@@ -438,6 +469,7 @@ func cortex_a710_errata_report
 	report_errata ERRATA_A710_2136059, cortex_a710, 2136059
 	report_errata ERRATA_A710_2282622, cortex_a710, 2282622
 	report_errata ERRATA_A710_2008768, cortex_a710, 2008768
+	report_errata ERRATA_A710_2147715, cortex_a710, 2147715
 	report_errata ERRATA_A710_2371105, cortex_a710, 2371105
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a710, cve_2022_23960
 	report_errata ERRATA_DSU_2313941, cortex_a710, dsu_2313941
@@ -498,6 +530,11 @@ func cortex_a710_reset_func
 #if ERRATA_A710_2136059
 	mov	x0, x18
 	bl	errata_a710_2136059_wa
+#endif
+
+#if ERRATA_A710_2147715
+	mov	x0, x18
+	bl 	errata_a710_2147715_wa
 #endif
 
 #if ERRATA_A710_2282622
