@@ -35,5 +35,6 @@
  * Auxiliary control register specific definitions
  ******************************************************************************/
 #define CORTEX_A510_CPUACTLR_EL1				S3_0_C15_C1_0
+#define CORTEX_A510_CPUACTLR_EL1_BIT_17				(ULL(1) << 17)
 
 #endif /* CORTEX_A510_H */
