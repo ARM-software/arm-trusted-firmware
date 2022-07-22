@@ -38,7 +38,7 @@
  * RMM.
  */
 					/* 0x18F */
-#define RMMD_RMI_REQ_COMPLETE		SMC64_RMI_FID(U(0x3F))
+#define RMM_RMI_REQ_COMPLETE		SMC64_RMI_FID(U(0x3F))
 
 /* RMM_BOOT_COMPLETE arg0 error codes */
 #define E_RMM_BOOT_SUCCESS				(0)
@@ -80,8 +80,8 @@
 	((_fid & 0x00FE0000) == 0U)); })
 
 					/* 0x1B0 - 0x1B1 */
-#define RMMD_GTSI_DELEGATE		SMC64_RMMD_EL3_FID(U(0))
-#define RMMD_GTSI_UNDELEGATE		SMC64_RMMD_EL3_FID(U(1))
+#define RMM_GTSI_DELEGATE		SMC64_RMMD_EL3_FID(U(0))
+#define RMM_GTSI_UNDELEGATE		SMC64_RMMD_EL3_FID(U(1))
 
 /* Return error codes from RMM-EL3 SMCs */
 #define E_RMM_OK			 0
@@ -110,7 +110,7 @@
  *    ret1 - Size of the realm attestation key if successful.
  */
 					/* 0x1B2 */
-#define RMMD_ATTEST_GET_REALM_KEY	SMC64_RMMD_EL3_FID(U(2))
+#define RMM_ATTEST_GET_REALM_KEY	SMC64_RMMD_EL3_FID(U(2))
 
 /*
  * Retrieve Platform token from EL3.
@@ -126,7 +126,7 @@
  *    ret1 - Size of the platform token if successful.
  */
 					/* 0x1B3 */
-#define RMMD_ATTEST_GET_PLAT_TOKEN	SMC64_RMMD_EL3_FID(U(3))
+#define RMM_ATTEST_GET_PLAT_TOKEN	SMC64_RMMD_EL3_FID(U(3))
 
 /* ECC Curve types for attest key generation */
 #define ATTEST_KEY_CURVE_ECC_SECP384R1		0
