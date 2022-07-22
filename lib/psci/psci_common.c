@@ -954,7 +954,7 @@ int psci_secondaries_brought_up(void)
  * Initiate power down sequence, by calling power down operations registered for
  * this CPU.
  ******************************************************************************/
-void psci_do_pwrdown_sequence(unsigned int power_level)
+void psci_pwrdown_cpu(unsigned int power_level)
 {
 #if HW_ASSISTED_COHERENCY
 	/*

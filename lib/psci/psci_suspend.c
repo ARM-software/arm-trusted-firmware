@@ -124,7 +124,7 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	 * TODO : Introduce a mechanism to query the cache level to flush
 	 * and the cpu-ops power down to perform from the platform.
 	 */
-	psci_do_pwrdown_sequence(max_off_lvl);
+	psci_pwrdown_cpu(max_off_lvl);
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,

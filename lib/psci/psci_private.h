@@ -296,7 +296,6 @@ void psci_set_pwr_domains_to_run(unsigned int end_pwrlvl);
 void psci_print_power_domain_map(void);
 unsigned int psci_is_last_on_cpu(void);
 int psci_spd_migrate_info(u_register_t *mpidr);
-void psci_do_pwrdown_sequence(unsigned int power_level);
 
 /*
  * CPU power down is directly called only when HW_ASSISTED_COHERENCY is
