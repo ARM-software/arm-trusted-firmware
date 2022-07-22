@@ -287,6 +287,17 @@ int css_scp_get_power_state(u_register_t mpidr, unsigned int power_level)
 	return HW_OFF;
 }
 
+/*
+ * Callback function to raise a SGI designated to trigger the CPU power down
+ * sequence on all the online secondary cores.
+ */
+static void css_raise_pwr_down_interrupt(u_register_t mpidr)
+{
+#if CSS_SYSTEM_GRACEFUL_RESET
+	plat_ic_raise_el3_sgi(CSS_CPU_PWR_DOWN_REQ_INTR, mpidr);
+#endif
+}
+
 void __dead2 css_scp_system_off(int state)
 {
 	int ret;
@@ -299,10 +310,19 @@ void __dead2 css_scp_system_off(int state)
 	mmio_write_64(PLAT_ARM_TRUSTED_MAILBOX_BASE, 0U);
 
 	/*
+	 * Send powerdown request to online secondary core(s)
+	 */
+	ret = psci_stop_other_cores(0, css_raise_pwr_down_interrupt);
+	if (ret != PSCI_E_SUCCESS) {
+		ERROR("Failed to powerdown secondary core(s)\n");
+	}
+
+	/*
 	 * Disable GIC CPU interface to prevent pending interrupt from waking
 	 * up the AP from WFI.
 	 */
 	plat_arm_gic_cpuif_disable();
+	plat_arm_gic_redistif_off();
 
 	/*
 	 * Issue SCMI command. First issue a graceful
@@ -317,6 +337,9 @@ void __dead2 css_scp_system_off(int state)
 			state, ret);
 		panic();
 	}
+
+	/* Powerdown of primary core */
+	psci_pwrdown_cpu(PLAT_MAX_PWR_LVL);
 	wfi();
 	ERROR("CSS set power state: operation not handled.\n");
 	panic();

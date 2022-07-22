@@ -35,6 +35,7 @@ BL31_SOURCES		+=	drivers/arm/css/mhu/css_mhu_doorbell.c		\
 				drivers/arm/css/scmi/scmi_common.c		\
 				drivers/arm/css/scmi/scmi_pwr_dmn_proto.c	\
 				drivers/arm/css/scmi/scmi_sys_pwr_proto.c	\
+				drivers/delay_timer/delay_timer.c		\
 				drivers/arm/css/scp/css_pm_scmi.c
 endif
 
