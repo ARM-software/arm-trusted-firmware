@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Renesas Electronics Corporation.
+ * Copyright (c) 2015-2023, Renesas Electronics Corporation.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1180,6 +1180,11 @@ static void regif_pll_wa(void)
 				   ddrtbl_getval(_cnf_DDR_PHY_ADR_G_REGSET,
 						 _reg_PHY_LP4_BOOT_TOP_PLL_CTRL
 						 ));
+		if (ddrtbl_getval(_cnf_DDR_PHY_ADR_G_REGSET, _reg_PHY_LP4_BOOT_LOW_FREQ_SEL)) {
+			reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_LP4_BOOT_LOW_FREQ_SEL),
+			_cnf_DDR_PHY_ADR_G_REGSET[0x7f & ddr_regdef_adr(
+						_reg_PHY_LP4_BOOT_LOW_FREQ_SEL)]);
+		}
 	}
 
 	reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_LPDDR3_CS),
@@ -2855,6 +2860,16 @@ static uint32_t pll3_freq(uint32_t on)
 	uint32_t timeout;
 
 	timeout = wait_freqchgreq(1);
+
+	if ((!((prr_product == PRR_PRODUCT_H3) && (prr_cut <= PRR_PRODUCT_11))) && (on)) {
+		if (((1600U * ddr_mbpsdiv) < ddr_mbps) || (prr_product == PRR_PRODUCT_M3)) {
+			reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_PLL_CTRL), 0x01421142U);
+			reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_PLL_CTRL_CA), 0x00000142U);
+		} else {
+			reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_PLL_CTRL), 0x03421342U);
+			reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_PLL_CTRL_CA), 0x00000342U);
+		}
+	}
 
 	if (timeout) {
 		return 1;
