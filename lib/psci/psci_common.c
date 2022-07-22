@@ -1043,9 +1043,9 @@ bool psci_is_last_on_cpu_safe(void)
 	 * Traverse the forest of PSCI nodes, nodes with no parents
 	 * (invalid-nodes) are the root nodes.
 	 */
-	while ((psci_non_cpu_pd_nodes[i].parent_node ==
-	       PSCI_PARENT_NODE_INVALID) &&
-	       (i < PSCI_NUM_NON_CPU_PWR_DOMAINS)) {
+	while ((i < PSCI_NUM_NON_CPU_PWR_DOMAINS) &&
+	       (psci_non_cpu_pd_nodes[i].parent_node ==
+	       PSCI_PARENT_NODE_INVALID)) {
 		psci_get_parent_pwr_domain_nodes(
 				psci_non_cpu_pd_nodes[i].cpu_start_idx,
 				PLAT_MAX_PWR_LVL, parent_nodes);
