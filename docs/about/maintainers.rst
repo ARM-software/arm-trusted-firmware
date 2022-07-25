@@ -164,9 +164,9 @@ eMMC/UFS drivers
 
 JTAG DCC console driver
 ^^^^^^^^^^^^^^^^^^^^^^^
-:M: Michal Simek <michal.simek@xilinx.com>
+:M: Michal Simek <michal.simek@amd.com>
 :G: `michalsimek`_
-:M: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@xilinx.com>
+:M: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@amd.com>
 :G: `venkatesh`_
 :F: drivers/arm/dcc/
 :F: include/drivers/arm/dcc.h
@@ -727,9 +727,9 @@ UniPhier platform port
 
 Xilinx platform port
 ^^^^^^^^^^^^^^^^^^^^
-:|M|: Michal Simek <michal.simek@xilinx.com>
+:|M|: Michal Simek <michal.simek@amd.com>
 :|G|: `michalsimek`_
-:|M|: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@xilinx.com>
+:|M|: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@amd.com>
 :|G|: `venkatesh`_
 :|F|: docs/plat/xilinx-zynqmp.rst
 :|F|: plat/xilinx/
