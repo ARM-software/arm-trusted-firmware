@@ -461,8 +461,11 @@ Common build options
 
 -  ``EL3_EXCEPTION_HANDLING``: When set to ``1``, enable handling of exceptions
    targeted at EL3. When set ``0`` (default), no exceptions are expected or
-   handled at EL3, and a panic will result. This is supported only for AArch64
-   builds.
+   handled at EL3, and a panic will result. The exception to this rule is when
+   ``SPMD_SPM_AT_SEL2`` is set to ``1``, in which case, only exceptions
+   occuring during normal world execution, are trapped to EL3. Any exception
+   trapped during secure world execution are trapped to the SPMC. This is
+   supported only for AArch64 builds.
 
 -  ``EVENT_LOG_LEVEL``: Chooses the log level to use for Measured Boot when
    ``MEASURED_BOOT`` is enabled. For a list of valid values, see ``LOG_LEVEL``.

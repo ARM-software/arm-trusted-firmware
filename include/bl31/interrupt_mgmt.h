@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -107,15 +107,23 @@ static inline int32_t validate_ns_interrupt_rm(uint32_t x)
 
 static inline int32_t validate_el3_interrupt_rm(uint32_t x)
 {
-#if EL3_EXCEPTION_HANDLING
+#if defined (EL3_EXCEPTION_HANDLING) && !(defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1))
 	/*
 	 * With EL3 exception handling, EL3 interrupts are always routed to EL3
-	 * from both Secure and Non-secure, and therefore INTR_EL3_VALID_RM1 is
-	 * the only valid routing model.
+	 * from both Secure and Non-secure, when the SPMC does not live in S-EL2.
+	 * Therefore INTR_EL3_VALID_RM1 is the only valid routing model.
 	 */
 	if (x == INTR_EL3_VALID_RM1)
 		return 0;
 #else
+	/*
+	 * When EL3_EXCEPTION_HANDLING is not defined both routing modes are
+	 * valid. This is the most common case. The exception to this rule is
+	 * when EL3_EXCEPTION_HANDLING is defined but also when the SPMC lives
+	 * at S-EL2. In this case, Group0 Interrupts are trapped to the SPMC
+	 * when running in S-EL0 and S-EL1. The SPMC may handle the interrupt
+	 * itself, delegate it to an SP or forward to EL3 for handling.
+	 */
 	if ((x == INTR_EL3_VALID_RM0) || (x == INTR_EL3_VALID_RM1))
 		return 0;
 #endif

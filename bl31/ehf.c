@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -475,9 +475,16 @@ void __init ehf_init(void)
 	assert((exception_data.pri_bits >= 1U) ||
 			(exception_data.pri_bits < 8U));
 
-	/* Route EL3 interrupts when in Secure and Non-secure. */
+	/* Route EL3 interrupts when in Non-secure. */
 	set_interrupt_rm_flag(flags, NON_SECURE);
+
+	/*
+	 * Route EL3 interrupts when in secure, only when SPMC is not present
+	 * in S-EL2.
+	 */
+#if !(defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1))
 	set_interrupt_rm_flag(flags, SECURE);
+#endif /* !(defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)) */
 
 	/* Register handler for EL3 interrupts */
 	ret = register_interrupt_type_handler(INTR_TYPE_EL3,
