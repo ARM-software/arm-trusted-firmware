@@ -37,20 +37,6 @@
 #define DEVICE1_BASE		0xF9000000
 #define DEVICE1_SIZE		0x00800000
 
-/* CRL */
-#define VERSAL_CRL				0xFF5E0000
-#define VERSAL_CRL_TIMESTAMP_REF_CTRL		(VERSAL_CRL + 0x14C)
-#define VERSAL_CRL_RST_TIMESTAMP_OFFSET	(VERSAL_CRL + 0x348)
-
-#define VERSAL_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	(1 << 25)
-
-/* IOU SCNTRS */
-#define VERSAL_IOU_SCNTRS			 0xFF140000
-#define VERSAL_IOU_SCNTRS_COUNTER_CONTROL_REG	(VERSAL_IOU_SCNTRS + 0x0)
-#define VERSAL_IOU_SCNTRS_BASE_FREQ		(VERSAL_IOU_SCNTRS + 0x20)
-
-#define VERSAL_IOU_SCNTRS_CONTROL_EN	1
-
 /*******************************************************************************
  * IRQ constants
  ******************************************************************************/
