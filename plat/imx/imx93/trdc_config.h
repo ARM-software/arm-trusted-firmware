@@ -184,6 +184,9 @@ struct trdc_mbc_config trdc_n_mbc[] = {
 	{ 0, 7, 1, MBC_BLK_ALL, 0, false }, /* MBC0 AIPS4 for eDMA DID7 */
 	{ 0, 7, 2, MBC_BLK_ALL, 0, false }, /* MBC0 MEDIAMIX for eDMA DID7 */
 	{ 0, 7, 3, MBC_BLK_ALL, 0, false }, /* MBC0 HSIOMIX for eDMA DID7 */
+
+	{ 3, 10, 0, MBC_BLK_ALL, 0, false }, /* MBC3 OCRAM for DID10 */
+	{ 3, 10, 1, MBC_BLK_ALL, 0, false }, /* MBC3 OCRAM for DID10 */
 };
 
 struct trdc_glbac_config trdc_n_mrc_glbac[] = {
