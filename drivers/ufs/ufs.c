@@ -303,7 +303,7 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 	mmio_write_32(ufs_params.reg_base + UTRLBA,
 		      utrd->header & UINT32_MAX);
 	mmio_write_32(ufs_params.reg_base + UTRLBAU,
-		      (utrd->upiu >> 32) & UINT32_MAX);
+		      (utrd->header >> 32) & UINT32_MAX);
 
 	hd = (utrd_header_t *)utrd->header;
 	upiu = (cmd_upiu_t *)utrd->upiu;
