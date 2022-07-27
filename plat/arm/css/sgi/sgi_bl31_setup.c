@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,10 @@
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
 #include <plat/arm/common/plat_arm.h>
+
 #include <plat/common/platform.h>
+
+#include <plat/arm/css/common/css_pm.h>
 
 #include <sgi_ras.h>
 #include <sgi_variant.h>
@@ -104,6 +107,15 @@ void sgi_bl31_common_platform_setup(void)
 
 #if RAS_EXTENSION
 	sgi_ras_intr_handler_setup();
+#endif
+
+	/* Configure the warm reboot SGI for primary core */
+	css_setup_cpu_pwr_down_intr();
+
+#if CSS_SYSTEM_GRACEFUL_RESET
+	/* Register priority level handlers for reboot */
+	ehf_register_priority_handler(PLAT_REBOOT_PRI,
+			css_reboot_interrupt_handler);
 #endif
 }
 

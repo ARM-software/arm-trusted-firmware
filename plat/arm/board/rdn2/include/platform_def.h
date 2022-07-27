@@ -96,4 +96,8 @@
 #define PLAT_ARM_GICR_BASE		UL(0x301C0000)
 #endif
 
+/* Interrupt priority level for shutdown/reboot */
+#define PLAT_REBOOT_PRI		GIC_HIGHEST_SEC_PRIORITY
+#define PLAT_EHF_DESC		EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_REBOOT_PRI)
+
 #endif /* PLATFORM_DEF_H */
