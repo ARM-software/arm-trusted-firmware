@@ -14,9 +14,10 @@
 #include <drivers/arm/css/css_scp.h>
 #include <lib/cassert.h>
 #include <plat/arm/common/plat_arm.h>
-#include <plat/arm/css/common/css_pm.h>
 
 #include <plat/common/platform.h>
+
+#include <plat/arm/css/common/css_pm.h>
 
 /* Allow CSS platforms to override `plat_arm_psci_pm_ops` */
 #pragma weak plat_arm_psci_pm_ops
@@ -350,6 +351,37 @@ void css_setup_cpu_pwr_down_intr(void)
 			PLAT_REBOOT_PRI);
 	plat_ic_enable_interrupt(CSS_CPU_PWR_DOWN_REQ_INTR);
 #endif
+}
+
+/*
+ * For a graceful shutdown/reboot, each CPU in the system should do their power
+ * down sequence. On a PSCI shutdown/reboot request, only one CPU gets an
+ * opportunity to do the powerdown sequence. To achieve graceful reset, of all
+ * cores in the system, the CPU gets the opportunity raise warm reboot SGI to
+ * rest of the CPUs which are online. Add handler for the reboot SGI where the
+ * rest of the CPU execute the powerdown sequence.
+ */
+int css_reboot_interrupt_handler(uint32_t intr_raw, uint32_t flags,
+		void *handle, void *cookie)
+{
+	assert(intr_raw == CSS_CPU_PWR_DOWN_REQ_INTR);
+
+	/* Deactivate warm reboot SGI */
+	plat_ic_end_of_interrupt(CSS_CPU_PWR_DOWN_REQ_INTR);
+
+	/*
+	 * Disable GIC CPU interface to prevent pending interrupt from waking
+	 * up the AP from WFI.
+	 */
+	plat_arm_gic_cpuif_disable();
+	plat_arm_gic_redistif_off();
+
+	psci_pwrdown_cpu(PLAT_MAX_PWR_LVL);
+
+	dmbsy();
+
+	wfi();
+	return 0;
 }
 
 /*******************************************************************************
