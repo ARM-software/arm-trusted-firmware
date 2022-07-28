@@ -17,7 +17,7 @@
 #define LOADER_MODULE_ID	0x7U
 
 #define  MODE			0x80000000U
-#define  MODULE_ID_MASK		0x0000ff00
+#define  MODULE_ID_MASK		0x0000ff00U
 /**********************************************************
  * PM API function declarations
  **********************************************************/

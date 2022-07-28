@@ -21,7 +21,7 @@ ENABLE_SVE_FOR_NS	:= 0
 
 WORKAROUND_CVE_2017_5715	:=	0
 
-ARM_XLAT_TABLES_LIB_V1         :=      1
+ARM_XLAT_TABLES_LIB_V1		:=	1
 $(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 
