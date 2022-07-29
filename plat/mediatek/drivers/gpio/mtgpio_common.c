@@ -9,6 +9,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/gpio.h>
 #include <lib/mmio.h>
+#include <lib/mtk_init/mtk_init.h>
 #include <mtgpio.h>
 #include <platform_def.h>
 
@@ -292,7 +293,10 @@ const gpio_ops_t mtgpio_ops = {
 	 .get_pull = mt_get_gpio_pull,
 };
 
-void mt_gpio_init(void)
+int mt_gpio_init(void)
 {
 	gpio_init(&mtgpio_ops);
+
+	return 0;
 }
+MTK_PLAT_SETUP_0_INIT(mt_gpio_init);

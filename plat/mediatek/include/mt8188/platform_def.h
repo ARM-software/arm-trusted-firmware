@@ -20,6 +20,15 @@
 #define MTK_DEV_RNG1_SIZE	(0x10000000)
 
 /*******************************************************************************
+ * GPIO related constants
+ ******************************************************************************/
+#define GPIO_BASE		(IO_PHYS + 0x00005000)
+#define IOCFG_RM_BASE		(IO_PHYS + 0x01C00000)
+#define IOCFG_LT_BASE		(IO_PHYS + 0x01E10000)
+#define IOCFG_LM_BASE		(IO_PHYS + 0x01E20000)
+#define IOCFG_RT_BASE		(IO_PHYS + 0x01EA0000)
+
+/*******************************************************************************
  * UART related constants
  ******************************************************************************/
 #define UART0_BASE	(IO_PHYS + 0x01002000)

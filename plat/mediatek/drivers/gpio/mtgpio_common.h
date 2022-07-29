@@ -104,6 +104,6 @@ struct mt_pin_info {
 	uint16_t offset;
 };
 
-void mt_gpio_init(void);
+int mt_gpio_init(void);
 uintptr_t mt_gpio_find_reg_addr(uint32_t pin);
 #endif /* MT_GPIO_COMMON_H */
