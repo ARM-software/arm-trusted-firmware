@@ -59,7 +59,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
  * Update the SGI number to be used.
  *
  */
-int pm_register_sgi(uint32_t sgi_num, uint32_t reset)
+int32_t pm_register_sgi(uint32_t sgi_num, uint32_t reset)
 {
 	if (reset == 1U) {
 		sgi = INVALID_SGI;
@@ -91,7 +91,7 @@ int pm_register_sgi(uint32_t sgi_num, uint32_t reset)
  * Called from sip_svc_setup initialization function with the
  * rt_svc_init signature.
  */
-int pm_setup(void)
+int32_t pm_setup(void)
 {
 	int32_t status, ret = 0;
 
