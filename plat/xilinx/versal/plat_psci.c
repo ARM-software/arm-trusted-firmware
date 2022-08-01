@@ -238,7 +238,7 @@ static const struct plat_psci_ops versal_nopmc_psci_ops = {
 /*******************************************************************************
  * Export the platform specific power ops.
  ******************************************************************************/
-int plat_setup_psci_ops(uintptr_t sec_entrypoint,
+int32_t plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const struct plat_psci_ops **psci_ops)
 {
 	versal_sec_entry = sec_entrypoint;

@@ -59,7 +59,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
  * Update the SGI number to be used.
  *
  */
-int pm_register_sgi(uint32_t sgi_num, uint32_t reset)
+int32_t pm_register_sgi(uint32_t sgi_num, uint32_t reset)
 {
 	if (reset == 1U) {
 		sgi = INVALID_SGI;
@@ -91,7 +91,7 @@ int pm_register_sgi(uint32_t sgi_num, uint32_t reset)
  * Called from sip_svc_setup initialization function with the
  * rt_svc_init signature.
  */
-int pm_setup(void)
+int32_t pm_setup(void)
 {
 	int32_t status, ret = 0;
 
@@ -297,13 +297,13 @@ static uintptr_t eemi_handler(uint32_t api_id, uint32_t *pm_arg,
 		if ((pm_arg[0] == XPM_QID_CLOCK_GET_NAME ||
 		    pm_arg[0] == XPM_QID_PINCTRL_GET_FUNCTION_NAME) &&
 		    ret == PM_RET_SUCCESS) {
-			SMC_RET2(handle, (uint64_t)buf[0] | ((uint64_t)buf[1] << 32),
-				(uint64_t)buf[2] | ((uint64_t)buf[3] << 32));
+			SMC_RET2(handle, (uint64_t)buf[0] | ((uint64_t)buf[1] << 32U),
+				(uint64_t)buf[2] | ((uint64_t)buf[3] << 32U));
 		}
 	}
 
-	SMC_RET2(handle, (uint64_t)ret | ((uint64_t)buf[0] << 32),
-		 (uint64_t)buf[1] | ((uint64_t)buf[2] << 32));
+	SMC_RET2(handle, (uint64_t)ret | ((uint64_t)buf[0] << 32U),
+		 (uint64_t)buf[1] | ((uint64_t)buf[2] << 32U));
 }
 
 /**
@@ -345,9 +345,9 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	}
 
 	pm_arg[0] = (uint32_t)x1;
-	pm_arg[1] = (uint32_t)(x1 >> 32);
+	pm_arg[1] = (uint32_t)(x1 >> 32U);
 	pm_arg[2] = (uint32_t)x2;
-	pm_arg[3] = (uint32_t)(x2 >> 32);
+	pm_arg[3] = (uint32_t)(x2 >> 32U);
 	pm_arg[4] = (uint32_t)x3;
 	(void)(x4);
 	api_id = smc_fid & FUNCID_NUM_MASK;

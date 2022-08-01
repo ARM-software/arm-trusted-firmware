@@ -73,7 +73,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	if (VERSAL_CONSOLE_IS(pl011) || (VERSAL_CONSOLE_IS(pl011_1))) {
 		static console_t versal_runtime_console;
 		/* Initialize the console to provide early debug support */
-		int32_t rc = console_pl011_register((unsigned long)VERSAL_UART_BASE,
+		int32_t rc = console_pl011_register((uintptr_t)VERSAL_UART_BASE,
 						(uint32_t)VERSAL_UART_CLOCK,
 						(uint32_t)VERSAL_UART_BAUDRATE,
 						&versal_runtime_console);
