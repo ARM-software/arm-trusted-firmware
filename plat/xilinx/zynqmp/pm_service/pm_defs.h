@@ -245,6 +245,7 @@ enum pm_opchar_type {
  * @PM_RET_SUCCESS:		success
  * @PM_RET_ERROR_ARGS:		illegal arguments provided (deprecated)
  * @PM_RET_ERROR_NOTSUPPORTED:	feature not supported  (deprecated)
+ * @PM_RET_ERROR_NOT_ENABLED:	feature is not enabled
  * @PM_RET_ERROR_INTERNAL:	internal error
  * @PM_RET_ERROR_CONFLICT:	conflict
  * @PM_RET_ERROR_ACCESS:	access rights violation
@@ -258,6 +259,7 @@ enum pm_ret_status {
 	PM_RET_SUCCESS,
 	PM_RET_ERROR_ARGS = 1,
 	PM_RET_ERROR_NOTSUPPORTED = 4,
+	PM_RET_ERROR_NOT_ENABLED = 29,
 	PM_RET_ERROR_INTERNAL = 2000,
 	PM_RET_ERROR_CONFLICT = 2001,
 	PM_RET_ERROR_ACCESS = 2002,

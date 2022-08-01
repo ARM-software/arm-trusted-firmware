@@ -520,6 +520,13 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		uint32_t value;
 
+#if defined(ZYNQMP_SECURE_EFUSES)
+		if (is_caller_non_secure(flags)) {
+			SMC_RET1(handle,
+				 (((uint64_t)PM_RET_ERROR_NOT_ENABLED) << 32) |
+				 (uint64_t)PM_RET_ERROR_ACCESS);
+		}
+#endif
 		ret = pm_efuse_access(pm_arg[0], pm_arg[1], &value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
