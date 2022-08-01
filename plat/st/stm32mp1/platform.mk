@@ -86,34 +86,28 @@ TF_CFLAGS		+=	-Wformat-signedness
 WORKAROUND_CVE_2017_5715:=	0
 WORKAROUND_CVE_2022_23960:=	0
 
+# Number of TF-A copies in the device
+STM32_TF_A_COPIES		:=	2
+
+# PLAT_PARTITION_MAX_ENTRIES must take care of STM32_TF-A_COPIES and other partitions
+# such as metadata (2) to find all the FIP partitions (default is 2).
+PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 4)))
+
 ifeq (${PSA_FWU_SUPPORT},1)
 ifneq (${STM32MP_USE_STM32IMAGE},1)
 # Number of banks of updatable firmware
 NR_OF_FW_BANKS			:=	2
 NR_OF_IMAGES_IN_FW_BANK		:=	1
 
-# Number of TF-A copies in the device
-STM32_TF_A_COPIES		:=	2
-STM32_BL33_PARTS_NUM		:=	2
-STM32_RUNTIME_PARTS_NUM		:=	4
+FWU_MAX_PART = $(shell echo $$(($(STM32_TF_A_COPIES) + 2 + $(NR_OF_FW_BANKS))))
+ifeq ($(shell test $(FWU_MAX_PART) -gt $(PLAT_PARTITION_MAX_ENTRIES); echo $$?),0)
+$(error "Required partition number is $(FWU_MAX_PART) where PLAT_PARTITION_MAX_ENTRIES is only \
+$(PLAT_PARTITION_MAX_ENTRIES)")
+endif
 else
 $(error FWU Feature enabled only with FIP images)
 endif
-else
-# Number of TF-A copies in the device
-STM32_TF_A_COPIES		:=	2
-STM32_BL33_PARTS_NUM		:=	1
-ifeq ($(AARCH32_SP),optee)
-STM32_RUNTIME_PARTS_NUM		:=	3
-else ifeq ($(STM32MP_USE_STM32IMAGE),1)
-STM32_RUNTIME_PARTS_NUM		:=	0
-else
-STM32_RUNTIME_PARTS_NUM		:=	1
 endif
-endif
-PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + \
-							 $(STM32_BL33_PARTS_NUM) + \
-							 $(STM32_RUNTIME_PARTS_NUM))))
 
 # Boot devices
 STM32MP_EMMC		?=	0

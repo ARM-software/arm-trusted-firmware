@@ -266,6 +266,19 @@ const partition_entry_t *get_partition_entry(const char *name)
 	return NULL;
 }
 
+const partition_entry_t *get_partition_entry_by_type(const uuid_t *type_uuid)
+{
+	int i;
+
+	for (i = 0; i < list.entry_count; i++) {
+		if (guidcmp(type_uuid, &list.list[i].type_guid) == 0) {
+			return &list.list[i];
+		}
+	}
+
+	return NULL;
+}
+
 const partition_entry_t *get_partition_entry_by_uuid(const uuid_t *part_uuid)
 {
 	int i;
