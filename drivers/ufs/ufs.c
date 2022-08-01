@@ -264,7 +264,7 @@ static void get_utrd(utp_utrd_t *utrd)
 
 	/* clear utrd */
 	memset((void *)utrd, 0, sizeof(utp_utrd_t));
-	base = ufs_params.desc_base + (slot * UFS_DESC_SIZE);
+	base = ufs_params.desc_base + (slot * sizeof(utrd_header_t));
 	/* clear the descriptor */
 	memset((void *)base, 0, UFS_DESC_SIZE);
 
