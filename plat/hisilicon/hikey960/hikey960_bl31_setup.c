@@ -22,6 +22,7 @@
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
+#include <services/el3_spmc_ffa_memory.h>
 
 #include <hi3660.h>
 #include <hisi_ipc.h>
@@ -182,6 +183,26 @@ int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
 	*size = SPMC_SHARED_MEMORY_OBJ_SIZE;
 	return 0;
 }
+
+/*
+ * Add dummy implementations of memory management related platform hooks.
+ * These can be used to implement platform specific functionality to support
+ * a memory sharing/lending operation.
+ *
+ * Note: The hooks must be located as part of the initial share request and
+ * final reclaim to prevent order dependencies with operations that may take
+ * place in the normal world without visibility of the SPMC.
+ */
+int plat_spmc_shmem_begin(struct ffa_mtd *desc)
+{
+	return 0;
+}
+
+int plat_spmc_shmem_reclaim(struct ffa_mtd *desc)
+{
+	return 0;
+}
+
 #endif
 
 void bl31_platform_setup(void)
