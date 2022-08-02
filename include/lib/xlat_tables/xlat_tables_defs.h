@@ -180,4 +180,9 @@
 #define XN_SHIFT			54
 #define UXN_SHIFT			XN_SHIFT
 
+/* Store control for valid capabilities */
+#define SC_BIT				(ULL(1) << 60)
+/* Load control for valid capabilities */
+#define LC0_BIT				(ULL(1) << 61)
+
 #endif /* XLAT_TABLES_DEFS_H */

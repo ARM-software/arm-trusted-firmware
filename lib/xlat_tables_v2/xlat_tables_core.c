@@ -608,6 +608,11 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 			table_base[table_idx] =
 				xlat_desc(ctx, (uint32_t)mm->attr, table_idx_pa,
 					  level);
+		if (is_feat_morello_supported()) {
+			if (mm->attr & MT_CAP_LD_ST_TRACK) {
+				table_base[table_idx] |= (SC_BIT | LC0_BIT);
+			}
+		}
 
 		} else if (action == ACTION_CREATE_NEW_TABLE) {
 			uintptr_t end_va;

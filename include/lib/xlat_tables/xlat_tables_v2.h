@@ -135,6 +135,13 @@
 #define MT_RO_DATA		(MT_MEMORY | MT_RO | MT_EXECUTE_NEVER)
 #define MT_RW_DATA		(MT_MEMORY | MT_RW | MT_EXECUTE_NEVER)
 
+#if ENABLE_FEAT_MORELLO
+/* Capbility load, store and track permission attribute */
+#define MT_CAP_LD_ST_TRACK	(U(1) << 31)
+#else
+#define MT_CAP_LD_ST_TRACK      U(0)
+#endif
+
 /*
  * Structure for specifying a single region of memory.
  */

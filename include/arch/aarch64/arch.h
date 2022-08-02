@@ -1081,6 +1081,12 @@
 #define TCR_TG0_64K		(ULL(1) << TCR_TG0_SHIFT)
 #define TCR_TG0_16K		(ULL(2) << TCR_TG0_SHIFT)
 
+#define TCR_HPD_BIT		(ULL(1) << 24)
+#define TCR_HWU59_BIT		(ULL(1) << 25)
+#define TCR_HWU60_BIT		(ULL(1) << 26)
+#define TCR_HWU61_BIT		(ULL(1) << 27)
+#define TCR_HWU62_BIT		(ULL(1) << 28)
+
 #define TCR_TG1_SHIFT		U(30)
 #define TCR_TG1_MASK		ULL(3)
 #define TCR_TG1_16K		(ULL(1) << TCR_TG1_SHIFT)
