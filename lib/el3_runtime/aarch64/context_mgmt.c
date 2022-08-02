@@ -379,6 +379,21 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	manage_extensions_nonsecure(ctx);
 }
 
+static inline ddc_cap_t read_ddc_el0 (void)
+{
+	ddc_cap_t val = NULL;
+#if ENABLE_FEAT_MORELLO
+	__asm__ volatile ("msr spsel, #1 \n"
+			 "mrs %0, ddc \n"
+			 "msr spsel, #0 \n"
+			 : "=C"(val)
+			 :
+			 : "memory"
+	);
+#endif
+	return val;
+}
+
 /*******************************************************************************
  * The following function performs initialization of the cpu_context 'ctx'
  * for first use that is common to all security states, and sets the
@@ -617,6 +632,10 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	write_el2_ctx_common(get_el2_sysregs_ctx(ctx), sctlr_el2, SCTLR_EL2_RES1);
 #endif /* CTX_INCLUDE_EL2_REGS */
 #endif /* IMAGE_BL31 */
+
+	if (is_feat_morello_supported()) {
+		ctx->ddc_el0 = read_ddc_el0();
+	}
 
 	/*
 	 * Store the X0-X7 value from the entrypoint into the context

@@ -437,6 +437,20 @@ no_amu_save_\@:
 no_pauth_\@:
 #endif /* ENABLE_PAUTH */
 #endif /* CTX_INCLUDE_PAUTH_REGS */
+
+	/* write ddc_el3 to ddc_el0 so it can be used with sp_el0 */
+#if ENABLE_FEAT_MORELLO
+#if ENABLE_FEAT_MORELLO == 2
+	is_feat_morello_present_asm    x10
+	cbz	x10, 1f
+#endif /* ENABLE_FEAT_MORELLO == 2 */
+	/* Save DDC_EL0 */
+	mrs	c24, ddc_el0
+	str	c24, [sp, #CTX_DDC_OFFSET + CTX_DDC_EL0]
+	mrs	c26, ddc /* ddc_el3 */
+	msr	ddc_el0, c26
+1:
+#endif /* ENABLE_FEAT_MORELLO */
 	.endm /* save_el3_runtime_regs */
 
 /* -----------------------------------------------------------------
@@ -524,6 +538,17 @@ func restore_el3_runtime_regs
 	msr	APGAKeyHi_EL1, x9
 no_pauth:
 #endif /* CTX_INCLUDE_PAUTH_REGS */
+
+#if ENABLE_FEAT_MORELLO
+#if ENABLE_FEAT_MORELLO == 2
+	is_feat_morello_present_asm    x10
+	cbz	x10, 1f
+#endif /* ENABLE_FEAT_MORELLO == 2 */
+	/* Restore the saved DDC_EL0 value. */
+	ldr	c24, [sp, #CTX_DDC_OFFSET + CTX_DDC_EL0]
+	msr	ddc_el0, c24
+1:
+#endif /* ENABLE_FEAT_MORELLO */
 
 #if ENABLE_FEAT_AMU
 #if ENABLE_FEAT_AMU == 2

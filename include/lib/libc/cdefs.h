@@ -23,6 +23,9 @@
 #else
 #define __no_pauth
 #endif
+#if !ENABLE_FEAT_MORELLO
+#define __capability
+#endif
 #if RECLAIM_INIT_CODE
 /*
  * Add each function to a section that is unique so the functions can still
