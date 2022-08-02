@@ -28,18 +28,10 @@ func qti_kryo6_gold_reset_func
 	mov	x19, x30
 
 	bl	qtiseclib_kryo6_gold_reset_asm
-
-	ret	x19
+	mov	x30, x19
+	b	cortex_a78_reset_func
 
 endfunc qti_kryo6_gold_reset_func
-
-/* ----------------------------------------------------
- * The CPU Ops core power down function for Kryo-3 Gold
- * ----------------------------------------------------
- */
-func qti_kryo6_gold_core_pwr_dwn
-	ret
-endfunc qti_kryo6_gold_core_pwr_dwn
 
 /* -------------------------------------------------------
  * The CPU Ops cluster power down function for Kryo-3 Gold
@@ -79,5 +71,5 @@ endfunc qti_kryo6_gold_cpu_reg_dump
 
 declare_cpu_ops	qti_kryo6_gold, QTI_KRYO6_GOLD_MIDR,	\
 		qti_kryo6_gold_reset_func,		\
-		qti_kryo6_gold_core_pwr_dwn,	\
+		cortex_a78_core_pwr_dwn,	\
 		qti_kryo6_gold_cluster_pwr_dwn

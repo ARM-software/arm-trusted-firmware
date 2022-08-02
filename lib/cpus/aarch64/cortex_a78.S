@@ -17,6 +17,9 @@
 #error "cortex_a78 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+.globl cortex_a78_reset_func
+.globl cortex_a78_core_pwr_dwn
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A78_BHB_LOOP_COUNT, cortex_a78
 #endif /* WORKAROUND_CVE_2022_23960 */

@@ -36,16 +36,10 @@ static entry_point_info_t bl33_image_ep_info;
 static uint64_t g_qti_cpu_cntfrq;
 
 /*
- * Lock variable to serialize cpuss reset execution.
- */
-spinlock_t g_qti_cpuss_boot_lock __attribute__ ((section("tzfw_coherent_mem"),
-		    aligned(CACHE_WRITEBACK_GRANULE))) = {0x0};
-
-/*
  * Variable to hold bl31 cold boot status. Default value 0x0 means yet to boot.
  * Any other value means cold booted.
  */
-uint32_t g_qti_bl31_cold_booted __attribute__ ((section("tzfw_coherent_mem"))) = 0x0;
+uint32_t g_qti_bl31_cold_booted;
 
 /*******************************************************************************
  * Perform any BL31 early platform setup common to ARM standard platforms.
@@ -91,13 +85,14 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void bl31_plat_arch_setup(void)
 {
-	qti_setup_page_tables(BL_CODE_BASE,
-			      BL_COHERENT_RAM_END - BL_CODE_BASE,
+	qti_setup_page_tables(
+			      BL31_START,
+			      BL31_END-BL31_START,
 			      BL_CODE_BASE,
 			      BL_CODE_END,
 			      BL_RO_DATA_BASE,
-			      BL_RO_DATA_END,
-			      BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
+			      BL_RO_DATA_END
+			     );
 	enable_mmu_el3(0);
 }
 

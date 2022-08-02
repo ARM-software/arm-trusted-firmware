@@ -77,13 +77,14 @@ unsigned int plat_qti_my_cluster_pos(void)
  * - Read-only data section;
  * - Coherent memory region, if applicable.
  */
-void qti_setup_page_tables(uintptr_t total_base,
+void qti_setup_page_tables(
+			   uintptr_t total_base,
 			   size_t total_size,
 			   uintptr_t code_start,
 			   uintptr_t code_limit,
 			   uintptr_t rodata_start,
-			   uintptr_t rodata_limit,
-			   uintptr_t coh_start, uintptr_t coh_limit)
+			   uintptr_t rodata_limit
+			  )
 {
 	/*
 	 * Map the Trusted SRAM with appropriate memory attributes.
@@ -105,12 +106,6 @@ void qti_setup_page_tables(uintptr_t total_base,
 		(void *)rodata_start, (void *)rodata_limit);
 	mmap_add_region(rodata_start, rodata_start,
 			rodata_limit - rodata_start, MT_RO_DATA | MT_SECURE);
-
-	/* Re-map the coherent memory region */
-	VERBOSE("Coherent region: %p - %p\n",
-		(void *)coh_start, (void *)coh_limit);
-	mmap_add_region(coh_start, coh_start,
-			coh_limit - coh_start, MT_DEVICE | MT_RW | MT_SECURE);
 
 	/* Now (re-)map the platform-specific memory regions */
 	mmap_add(plat_qti_mmap);

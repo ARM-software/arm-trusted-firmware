@@ -25,13 +25,14 @@ int qti_mmap_remove_dynamic_region(uintptr_t base_va, size_t size);
 /*
  * Utility functions common to ARM standard platforms
  */
-void qti_setup_page_tables(uintptr_t total_base,
+void qti_setup_page_tables(
+			   uintptr_t total_base,
 			   size_t total_size,
 			   uintptr_t code_start,
 			   uintptr_t code_limit,
 			   uintptr_t rodata_start,
-			   uintptr_t rodata_limit,
-			   uintptr_t coh_start, uintptr_t coh_limit);
+			   uintptr_t rodata_limit
+			  );
 
 /*
  * Mandatory functions required in ARM standard platforms
