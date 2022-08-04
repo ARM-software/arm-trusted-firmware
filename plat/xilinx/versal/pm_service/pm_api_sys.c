@@ -462,7 +462,7 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		}
 		gicd_write_irouter(gicv3_driver_data->gicd_base,
 				  (uint32_t)PLAT_VERSAL_IPI_IRQ, MODE);
-		ret =  PM_RET_SUCCESS;
+		ret = PM_RET_SUCCESS;
 		break;
 	default:
 		return PM_RET_ERROR_NOTSUPPORTED;
