@@ -47,6 +47,10 @@ SECTIONS
         __RODATA_START__ = .;
         *(SORT_BY_ALIGNMENT(.rodata*))
 
+#if PLAT_EXTRA_RODATA_INCLUDES
+#include <plat.ld.rodata.inc>
+#endif
+
 	RODATA_COMMON
 
         /* Place pubsub sections for events */
