@@ -1018,7 +1018,7 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		/* Calculate the size that the v1.1 descriptor will required. */
 		size_t v1_1_desc_size =
 		    spmc_shm_get_v1_1_descriptor_size((void *) &obj->desc,
-						      fragment_length);
+						      obj->desc_size);
 
 		if (v1_1_desc_size == 0U) {
 			ERROR("%s: cannot determine size of descriptor.\n",
