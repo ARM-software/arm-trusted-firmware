@@ -1030,7 +1030,7 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		v1_1_obj =
 		    spmc_shmem_obj_alloc(&spmc_shmem_obj_state, v1_1_desc_size);
 
-		if (!obj) {
+		if (!v1_1_obj) {
 			ret = FFA_ERROR_NO_MEMORY;
 			goto err_arg;
 		}
