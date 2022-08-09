@@ -249,7 +249,11 @@
 #elif defined(IMAGE_BL31)
 #  define PLATFORM_STACK_SIZE		UL(0x800)
 #elif defined(IMAGE_BL32)
-# define PLATFORM_STACK_SIZE		UL(0x440)
+# if SPMC_AT_EL3
+#  define PLATFORM_STACK_SIZE		UL(0x1000)
+# else
+#  define PLATFORM_STACK_SIZE		UL(0x440)
+# endif /* SPMC_AT_EL3 */
 #elif defined(IMAGE_RMM)
 # define PLATFORM_STACK_SIZE		UL(0x440)
 #endif
