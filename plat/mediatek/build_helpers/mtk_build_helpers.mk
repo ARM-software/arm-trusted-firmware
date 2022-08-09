@@ -116,9 +116,13 @@ endef
 # Include MTK configuration files
 
 # MTK makefile variables
+ifeq (${COREBOOT},1)
+MTK_COMMON_CFG := $(MTK_PLAT)/common/coreboot_config.mk
+else
+MTK_COMMON_CFG := $(MTK_PLAT)/common/common_config.mk
+endif
 MTK_PLAT      := plat/mediatek
 MTK_PLAT_SOC  := ${MTK_PLAT}/${MTK_SOC}
-MTK_COMMON_CFG := $(MTK_PLAT)/common/common_config.mk
 MTK_PLAT_CFG := $(MTK_PLAT_SOC)/plat_config.mk
 MTK_PROJECT_CFG := $(MTK_PLAT)/project/$(PLAT)/project_config.mk
 MTK_OPTIONS := $(MTK_PLAT)/build_helpers/options.mk
