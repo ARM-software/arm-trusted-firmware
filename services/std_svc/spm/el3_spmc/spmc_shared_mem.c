@@ -1347,7 +1347,8 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	if (req->emad_count == 0U) {
 		WARN("%s: unsupported attribute desc count %u.\n",
 		     __func__, obj->desc.emad_count);
-		return -EINVAL;
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_mailbox;
 	}
 
 	/* Determine the appropriate minimum descriptor size. */
