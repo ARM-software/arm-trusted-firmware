@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -84,10 +85,6 @@ func enter_lower_el_sync_ea
 	b	2f
 
 1:
-	/* Test for EA bit in the instruction syndrome */
-	mrs	x30, esr_el3
-	tbz	x30, #ESR_ISS_EABORT_EA_BIT, 3f
-
 	/*
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
 	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
@@ -114,7 +111,6 @@ func enter_lower_el_sync_ea
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
 
-3:
 	/* Synchronous exceptions other than the above are assumed to be EA */
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	no_ret	report_unhandled_exception
