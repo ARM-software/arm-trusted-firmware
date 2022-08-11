@@ -186,10 +186,10 @@ SECTIONS
     __RW_END__ = .;
     __BL31_END__ = .;
 
+    ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
+#endif
+
     /DISCARD/ : {
         *(.dynsym .dynstr .hash .gnu.hash)
     }
-
-    ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
-#endif
 }
