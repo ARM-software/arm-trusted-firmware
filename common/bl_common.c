@@ -269,3 +269,12 @@ void print_entry_point_info(const entry_point_info_t *ep_info)
 #endif
 #undef PRINT_IMAGE_ARG
 }
+
+/*
+ * This function is for returning the TF-A version
+ */
+const char *get_version(void)
+{
+	extern const char version[];
+	return version;
+}
