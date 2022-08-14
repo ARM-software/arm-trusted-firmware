@@ -44,6 +44,13 @@ static uint8_t ffa_boot_info_mem[PAGE_SIZE] __aligned(PAGE_SIZE);
 #define SP_MEM_READ_ONLY SP_MEM_READ
 #define SP_MEM_READ_WRITE (SP_MEM_READ | SP_MEM_WRITE)
 
+/* Type of the memory region in SP's manifest. */
+enum sp_memory_region_type {
+	SP_MEM_REGION_DEVICE,
+	SP_MEM_REGION_MEMORY,
+	SP_MEM_REGION_NOT_SPECIFIED
+};
+
 /*
  * This function creates a initialization descriptor in the memory reserved
  * for passing boot information to an SP. It then copies the partition manifest
@@ -192,28 +199,41 @@ static void read_optional_string(void *manifest, int32_t offset,
 
 /*******************************************************************************
  * This function will parse the Secure Partition Manifest for fetching secure
- * partition specific memory region details. It will find base address, size,
- * memory attributes for each memory region and then add the respective region
+ * partition specific memory/device region details. It will find base address,
+ * size, memory attributes for each region and then add the respective region
  * into secure parition's translation context.
  ******************************************************************************/
-static void populate_sp_mem_regions(struct secure_partition_desc *sp,
-				    void *sp_manifest,
-				    int node)
+static void populate_sp_regions(struct secure_partition_desc *sp,
+				void *sp_manifest, int node,
+				enum sp_memory_region_type type)
 {
 	uintptr_t base_address;
 	uint32_t mem_attr, mem_region, size;
-	struct mmap_region sp_mem_regions;
+	struct mmap_region sp_mem_regions = {0};
 	int32_t offset, ret;
+	char *compatibility[SP_MEM_REGION_NOT_SPECIFIED] = {
+		"arm,ffa-manifest-device-regions",
+		"arm,ffa-manifest-memory-regions"
+	};
 	char description[10];
 	char *property;
+	char *region[SP_MEM_REGION_NOT_SPECIFIED] = {
+		"device regions",
+		"memory regions"
+	};
 
-	if (fdt_node_check_compatible(sp_manifest, node,
-				      "arm,ffa-manifest-memory-regions") != 0) {
-		WARN("Incompatible memory region node in manifest\n");
+	if (type >= SP_MEM_REGION_NOT_SPECIFIED) {
+		WARN("Invalid region type\n");
 		return;
 	}
 
-	INFO("Mapping SP's memory regions\n");
+	INFO("Mapping SP's %s\n", region[type]);
+
+	if (fdt_node_check_compatible(sp_manifest, node,
+				      compatibility[type]) != 0) {
+		WARN("Incompatible region node in manifest\n");
+		return;
+	}
 
 	for (offset = fdt_first_subnode(sp_manifest, node), mem_region = 0;
 	     offset >= 0;
@@ -247,13 +267,19 @@ static void populate_sp_mem_regions(struct secure_partition_desc *sp,
 		}
 
 		sp_mem_regions.attr = MT_USER;
-		if ((mem_attr & SP_MEM_EXECUTE) == SP_MEM_EXECUTE) {
-			sp_mem_regions.attr |= MT_CODE;
-		} else if ((mem_attr & SP_MEM_READ_ONLY) == SP_MEM_READ_ONLY) {
-			sp_mem_regions.attr |= MT_RO_DATA;
-		} else if ((mem_attr & SP_MEM_READ_WRITE) ==
-				SP_MEM_READ_WRITE) {
-			sp_mem_regions.attr |= MT_RW_DATA;
+		if (type == SP_MEM_REGION_DEVICE) {
+			sp_mem_regions.attr |= MT_EXECUTE_NEVER;
+		} else {
+			sp_mem_regions.attr |= MT_MEMORY;
+			if ((mem_attr & SP_MEM_EXECUTE) == SP_MEM_EXECUTE) {
+				sp_mem_regions.attr &= ~MT_EXECUTE_NEVER;
+			} else {
+				sp_mem_regions.attr |= MT_EXECUTE_NEVER;
+			}
+		}
+
+		if ((mem_attr & SP_MEM_READ_WRITE) == SP_MEM_READ_WRITE) {
+			sp_mem_regions.attr |= MT_RW;
 		}
 
 		if ((mem_attr & SP_MEM_NON_SECURE) == SP_MEM_NON_SECURE) {
@@ -265,7 +291,18 @@ static void populate_sp_mem_regions(struct secure_partition_desc *sp,
 		sp_mem_regions.base_pa = base_address;
 		sp_mem_regions.base_va = base_address;
 		sp_mem_regions.size = size;
-		sp_mem_regions.granularity = XLAT_BLOCK_SIZE(3);
+
+		INFO("Adding PA: 0x%llx VA: 0x%lx Size: 0x%lx attr:0x%x\n",
+		     sp_mem_regions.base_pa,
+		     sp_mem_regions.base_va,
+		     sp_mem_regions.size,
+		     sp_mem_regions.attr);
+
+		if (type == SP_MEM_REGION_DEVICE) {
+			sp_mem_regions.granularity = XLAT_BLOCK_SIZE(1);
+		} else {
+			sp_mem_regions.granularity = XLAT_BLOCK_SIZE(3);
+		}
 		mmap_add_region_ctx(sp->xlat_ctx_handle, &sp_mem_regions);
 	}
 }
@@ -399,6 +436,20 @@ void spmc_el0_sp_setup(struct secure_partition_desc *sp,
 	}
 
 	/*
+	 * Parse the manifest for any device regions that the SP wants to be
+	 * mapped in its translation regime.
+	 */
+	node = fdt_subnode_offset_namelen(sp_manifest, offset,
+					  "device-regions",
+					  sizeof("device-regions") - 1);
+	if (node < 0) {
+		WARN("Not found device-region configuration for SP.\n");
+	} else {
+		populate_sp_regions(sp, sp_manifest, node,
+				    SP_MEM_REGION_DEVICE);
+	}
+
+	/*
 	 * Parse the manifest for any memory regions that the SP wants to be
 	 * mapped in its translation regime.
 	 */
@@ -408,7 +459,8 @@ void spmc_el0_sp_setup(struct secure_partition_desc *sp,
 	if (node < 0) {
 		WARN("Not found memory-region configuration for SP.\n");
 	} else {
-		populate_sp_mem_regions(sp, sp_manifest, node);
+		populate_sp_regions(sp, sp_manifest, node,
+				    SP_MEM_REGION_MEMORY);
 	}
 
 	spmc_el0_sp_setup_system_registers(sp, ctx);
