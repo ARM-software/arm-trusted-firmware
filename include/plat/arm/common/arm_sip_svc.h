@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019,2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019,2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,7 +26,7 @@
 /* DEBUGFS_SMC_64			0xC2000030U */
 
 /*
- * Arm Ethos-N NPU SiP SMC function IDs
+ * Arm(R) Ethos(TM)-N NPU SiP SMC function IDs
  * 0xC2000050-0xC200005F
  * 0x82000050-0x8200005F
  */
