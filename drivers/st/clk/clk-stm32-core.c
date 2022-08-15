@@ -215,24 +215,6 @@ int _clk_stm32_gate_enable(struct stm32_clk_priv *priv, uint16_t gate_id)
 	return 0;
 }
 
-const char *_clk_stm32_get_name(struct stm32_clk_priv *priv, int id)
-{
-	return priv->clks[id].name;
-}
-
-const char *clk_stm32_get_name(struct stm32_clk_priv *priv,
-			       unsigned long binding_id)
-{
-	int id;
-
-	id = clk_get_index(priv, binding_id);
-	if (id == -EINVAL) {
-		return NULL;
-	}
-
-	return _clk_stm32_get_name(priv, id);
-}
-
 const struct clk_stm32 *_clk_get(struct stm32_clk_priv *priv, int id)
 {
 	if ((unsigned int)id < priv->num) {
