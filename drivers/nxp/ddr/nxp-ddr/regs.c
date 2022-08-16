@@ -1302,7 +1302,7 @@ static unsigned int skip_caslat(unsigned int tckmin_ps,
 		return 0;
 	}
 
-	if ((bin[i].taamin_ps[j] == 0) ||
+	if (((bin[i].taamin_ps[j] == 0) && j > 0) ||
 	    (bin[i].taamin_ps[j] > taamin_ps && j > 0)) {
 		j--;
 	}
