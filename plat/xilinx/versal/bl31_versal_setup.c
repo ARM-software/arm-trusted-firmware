@@ -136,6 +136,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		INFO("BL31: fsbl-atf handover success %u\n", ret);
 	}
 
+	if (!bl32_image_ep_info.pc) {
+		WARN("BL31: use built-in BL32 config data\n");
+		bl32_image_ep_info.pc = BL32_BASE;
+		bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+	}
+
 	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
 	NOTICE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
 }
