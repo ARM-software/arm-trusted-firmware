@@ -572,6 +572,10 @@ ERRATA_N2_2242400	?=0
 # to revision r0p0 of the Neoverse N2 cpu and is still open.
 ERRATA_N2_2280757	?=0
 
+# Flag to apply erratum 2376738 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu, it is fixed in r0p1.
+ERRATA_N2_2376738	?=0
+
 # Flag to apply erratum 2388450 workaround during reset. This erratum applies
 # to revision r0p0 of the Neoverse N2 cpu, it is fixed in r0p1.
 ERRATA_N2_2388450	?=0
@@ -1142,6 +1146,10 @@ $(eval $(call add_define,ERRATA_N2_2242400))
 # Process ERRATA_N2_2280757 flag
 $(eval $(call assert_boolean,ERRATA_N2_2280757))
 $(eval $(call add_define,ERRATA_N2_2280757))
+
+# Process ERRATA_N2_2376738 flag
+$(eval $(call assert_boolean,ERRATA_N2_2376738))
+$(eval $(call add_define,ERRATA_N2_2376738))
 
 # Process ERRATA_N2_2388450 flag
 $(eval $(call assert_boolean,ERRATA_N2_2388450))
