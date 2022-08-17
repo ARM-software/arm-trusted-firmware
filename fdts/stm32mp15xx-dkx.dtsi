@@ -302,10 +302,6 @@
 	status = "okay";
 };
 
-&timers15 {
-	secure-status = "okay";
-};
-
 &uart4 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart4_pins_a>;
