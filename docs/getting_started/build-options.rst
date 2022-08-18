@@ -313,7 +313,13 @@ Common build options
 -  ``ENABLE_FEAT_RNG``: Numeric value to enable the ``FEAT_RNG`` extension.
    ``FEAT_RNG`` is an optional feature available on Arm v8.5 onwards. This
    flag can take the values 0 to 2, to align with the ``FEATURE_DETECTION``
-   mechanism. Default is ``0``.
+   mechanism. Default value is ``0``.
+
+-  ``ENABLE_FEAT_RNG_TRAP``: Numeric value to enable the ``FEAT_RNG_TRAP``
+   extension. This feature is only supported in AArch64 state. This flag can
+   take values 0 to 2, to align with the ``FEATURE_DETECTION`` mechanism.
+   Default value is ``0``. ``FEAT_RNG_TRAP`` is an optional feature from
+   Armv8.5 onwards.
 
 -  ``ENABLE_FEAT_SB``: Numeric value to enable the ``FEAT_SB`` (Speculation
    Barrier) extension allowing access to ``sb`` instruction. ``FEAT_SB`` is an
