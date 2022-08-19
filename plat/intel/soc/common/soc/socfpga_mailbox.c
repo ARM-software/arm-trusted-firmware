@@ -10,6 +10,7 @@
 
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
+#include "socfpga_system_manager.h"
 
 static mailbox_payload_t mailbox_resp_payload;
 static mailbox_container_t mailbox_resp_ctr = {0, 0, &mailbox_resp_payload};
@@ -464,8 +465,26 @@ void mailbox_set_qspi_open(void)
 
 void mailbox_set_qspi_direct(void)
 {
+	uint32_t response[1], qspi_clk, reg;
+	unsigned int resp_len = ARRAY_SIZE(response);
+
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_DIRECT, NULL, 0U,
-				CMD_CASUAL, NULL, NULL);
+			 CMD_CASUAL, response, &resp_len);
+
+	qspi_clk = response[0];
+	INFO("QSPI ref clock: %u\n", qspi_clk);
+
+	/*
+	 * Store QSPI ref clock frequency in BOOT_SCRATCH_COLD_0 register for
+	 * later boot loader (i.e. u-boot) use.
+	 * The frequency is stored in kHz and occupies BOOT_SCRATCH_COLD_0
+	 * register bits[27:0].
+	 */
+	qspi_clk /= 1000;
+	reg = mmio_read_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_0));
+	reg &= ~SYSMGR_QSPI_REFCLK_MASK;
+	reg |= qspi_clk & SYSMGR_QSPI_REFCLK_MASK;
+	mmio_write_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_0), reg);
 }
 
 void mailbox_set_qspi_close(void)
