@@ -26,7 +26,7 @@
 		ethernet@2,02000000 {
 			compatible = "smsc,lan91c111";
 			reg = <2 0x02000000 0x10000>;
-			interrupts = <0 15 4>;
+			interrupts = <15>;
 		};
 
 		v2m_clk24mhz: clk24mhz {
@@ -75,7 +75,7 @@
 			aaci@40000 {
 				compatible = "arm,pl041", "arm,primecell";
 				reg = <0x040000 0x1000>;
-				interrupts = <0 11 4>;
+				interrupts = <11>;
 				clocks = <&v2m_clk24mhz>;
 				clock-names = "apb_pclk";
 			};
@@ -83,7 +83,7 @@
 			mmci@50000 {
 				compatible = "arm,pl180", "arm,primecell";
 				reg = <0x050000 0x1000>;
-				interrupts = <0 9 4 0 10 4>;
+				interrupts = <9>, <10>;
 				cd-gpios = <&v2m_sysreg 0 0>;
 				wp-gpios = <&v2m_sysreg 1 0>;
 				max-frequency = <12000000>;
@@ -95,7 +95,7 @@
 			kmi@60000 {
 				compatible = "arm,pl050", "arm,primecell";
 				reg = <0x060000 0x1000>;
-				interrupts = <0 12 4>;
+				interrupts = <12>;
 				clocks = <&v2m_clk24mhz>, <&v2m_clk24mhz>;
 				clock-names = "KMIREFCLK", "apb_pclk";
 			};
@@ -103,7 +103,7 @@
 			kmi@70000 {
 				compatible = "arm,pl050", "arm,primecell";
 				reg = <0x070000 0x1000>;
-				interrupts = <0 13 4>;
+				interrupts = <13>;
 				clocks = <&v2m_clk24mhz>, <&v2m_clk24mhz>;
 				clock-names = "KMIREFCLK", "apb_pclk";
 			};
@@ -111,7 +111,7 @@
 			v2m_serial0: uart@90000 {
 				compatible = "arm,pl011", "arm,primecell";
 				reg = <0x090000 0x1000>;
-				interrupts = <0 5 4>;
+				interrupts = <5>;
 				clocks = <&v2m_clk24mhz>, <&v2m_clk24mhz>;
 				clock-names = "uartclk", "apb_pclk";
 			};
@@ -119,7 +119,7 @@
 			v2m_serial1: uart@a0000 {
 				compatible = "arm,pl011", "arm,primecell";
 				reg = <0x0a0000 0x1000>;
-				interrupts = <0 6 4>;
+				interrupts = <6>;
 				clocks = <&v2m_clk24mhz>, <&v2m_clk24mhz>;
 				clock-names = "uartclk", "apb_pclk";
 			};
@@ -127,7 +127,7 @@
 			v2m_serial2: uart@b0000 {
 				compatible = "arm,pl011", "arm,primecell";
 				reg = <0x0b0000 0x1000>;
-				interrupts = <0 7 4>;
+				interrupts = <7>;
 				clocks = <&v2m_clk24mhz>, <&v2m_clk24mhz>;
 				clock-names = "uartclk", "apb_pclk";
 			};
@@ -135,7 +135,7 @@
 			v2m_serial3: uart@c0000 {
 				compatible = "arm,pl011", "arm,primecell";
 				reg = <0x0c0000 0x1000>;
-				interrupts = <0 8 4>;
+				interrupts = <8>;
 				clocks = <&v2m_clk24mhz>, <&v2m_clk24mhz>;
 				clock-names = "uartclk", "apb_pclk";
 			};
@@ -143,7 +143,7 @@
 			wdt@f0000 {
 				compatible = "arm,sp805", "arm,primecell";
 				reg = <0x0f0000 0x1000>;
-				interrupts = <0 0 4>;
+				interrupts = <0>;
 				clocks = <&v2m_refclk32khz>, <&v2m_clk24mhz>;
 				clock-names = "wdogclk", "apb_pclk";
 			};
@@ -151,7 +151,7 @@
 			v2m_timer01: timer@110000 {
 				compatible = "arm,sp804", "arm,primecell";
 				reg = <0x110000 0x1000>;
-				interrupts = <0 2 4>;
+				interrupts = <2>;
 				clocks = <&v2m_sysctl 0>, <&v2m_sysctl 1>, <&v2m_clk24mhz>;
 				clock-names = "timclken1", "timclken2", "apb_pclk";
 			};
@@ -159,7 +159,7 @@
 			v2m_timer23: timer@120000 {
 				compatible = "arm,sp804", "arm,primecell";
 				reg = <0x120000 0x1000>;
-				interrupts = <0 3 4>;
+				interrupts = <3>;
 				clocks = <&v2m_sysctl 2>, <&v2m_sysctl 3>, <&v2m_clk24mhz>;
 				clock-names = "timclken1", "timclken2", "apb_pclk";
 			};
@@ -167,7 +167,7 @@
 			rtc@170000 {
 				compatible = "arm,pl031", "arm,primecell";
 				reg = <0x170000 0x1000>;
-				interrupts = <0 4 4>;
+				interrupts = <4>;
 				clocks = <&v2m_clk24mhz>;
 				clock-names = "apb_pclk";
 			};
@@ -175,7 +175,7 @@
 			clcd@1f0000 {
 				compatible = "arm,pl111", "arm,primecell";
 				reg = <0x1f0000 0x1000>;
-				interrupts = <0 14 4>;
+				interrupts = <14>;
 				clocks = <&v2m_oscclk1>, <&v2m_clk24mhz>;
 				clock-names = "clcdclk", "apb_pclk";
 				mode = "XVGA";
@@ -186,7 +186,7 @@
 			virtio_block@130000 {
 				compatible = "virtio,mmio";
 				reg = <0x130000 0x1000>;
-				interrupts = <0 0x2a 4>;
+				interrupts = <0x2a>;
 			};
 		};
 
