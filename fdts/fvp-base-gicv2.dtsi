@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/* GICv2 configuration, without V2M */
+
+/ {
+	gic: interrupt-controller@2f000000 {
+		compatible = "arm,cortex-a15-gic";
+		#interrupt-cells = <3>;
+		#address-cells = <1>;
+		interrupt-controller;
+		reg = <0x0 0x2f000000 0 0x10000>,
+		      <0x0 0x2c000000 0 0x2000>,
+		      <0x0 0x2c010000 0 0x2000>,
+		      <0x0 0x2c02F000 0 0x2000>;
+		interrupts = <1 9 0xf04>;
+	};
+};
