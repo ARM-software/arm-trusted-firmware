@@ -12,14 +12,9 @@
 #define SDEI_NORMAL	0x70
 #define HIGHEST_SEC	0
 
-/memreserve/ 0x80000000 0x00010000;
-
-/ {
-};
-
 / {
 	model = "FVP Base";
-	compatible = "arm,vfp-base", "arm,vexpress";
+	compatible = "arm,fvp-base", "arm,vexpress";
 	interrupt-parent = <&gic>;
 	#address-cells = <2>;
 	#size-cells = <2>;
@@ -143,28 +138,6 @@
 #endif
 	};
 
-	gic: interrupt-controller@2f000000 {
-		compatible = "arm,gic-v3";
-		#interrupt-cells = <3>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges = <0x0 0x0 0x2f000000 0x100000>;
-		interrupt-controller;
-		reg = <0x0 0x2f000000 0 0x10000>,	// GICD
-		      <0x0 0x2f100000 0 0x200000>,	// GICR
-		      <0x0 0x2c000000 0 0x2000>,	// GICC
-		      <0x0 0x2c010000 0 0x2000>,	// GICH
-		      <0x0 0x2c02f000 0 0x2000>;	// GICV
-		interrupts = <1 9 4>;
-
-		its: its@2f020000 {
-			compatible = "arm,gic-v3-its";
-			msi-controller;
-			#msi-cells = <1>;
-			reg = <0x20000 0x20000>;	// GITS
-		};
-	};
-
 	timer {
 		compatible = "arm,armv8-timer";
 		interrupts = <GIC_PPI 13
@@ -200,7 +173,7 @@
 			     <0 63 4>;
 	};
 
-	smb@0,0 {
+	smb@0 {
 		compatible = "simple-bus";
 
 		#address-cells = <2>;

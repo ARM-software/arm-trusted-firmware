@@ -13,6 +13,11 @@
 #define	PE_PER_CPU		2
 #endif
 
+#include "fvp-defs-dynamiq.dtsi"
+
 /dts-v1/;
 
-#include "fvp-base-gicv3-psci-dynamiq-common.dtsi"
+/memreserve/ 0x80000000 0x00010000;
+
+#include "fvp-base-gicv3.dtsi"
+#include "fvp-base-psci-common.dtsi"
