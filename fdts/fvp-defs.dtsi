@@ -43,35 +43,17 @@
 	device_type = "cpu";	\
 	compatible = "arm,armv8";
 
-#ifdef	REG_32
-/* 32-bit address */
-#define	REG(c, p)	\
-	reg = <CONC(0x, CONC(c, CONC(p, AFF)))>;
-#else
-/* 64-bit address */
-#define	REG(c, p)	\
-	reg = <0x0 CONC(0x, CONC(c, CONC(p, AFF)))>;
-#endif	/* REG_32 */
-
 #define	POST				\
 	enable-method = "psci";		\
 	cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;	\
 	next-level-cache = <&L2_0>;	\
 	};
 
-#ifdef	REG_32
-#define	CPU_0		\
-	CPU0:cpu@0 {	\
-	PRE		\
-	reg = <0x0>;	\
-	POST
-#else
 #define	CPU_0		\
 	CPU0:cpu@0 {	\
 	PRE		\
 	reg = <0x0 0x0>;\
 	POST
-#endif	/* REG_32 */
 
 /*
  * n - CPU number
@@ -79,7 +61,7 @@
 #define	CPU(n, c, p)	\
 	ADR(n, c, p)	\
 	PRE		\
-	REG(c, p)	\
+	reg = <0x0 CONC(0x, CONC(c, CONC(p, AFF)))>;	\
 	POST
 
 /* 2 CPUs */
