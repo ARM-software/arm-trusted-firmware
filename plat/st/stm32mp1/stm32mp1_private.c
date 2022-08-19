@@ -493,6 +493,11 @@ void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 	case STM32MP1_REV_B:
 		cpu_r = "B";
 		break;
+#if STM32MP13
+	case STM32MP1_REV_Y:
+		cpu_r = "Y";
+		break;
+#endif
 	case STM32MP1_REV_Z:
 		cpu_r = "Z";
 		break;

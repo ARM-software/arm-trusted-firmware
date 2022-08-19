@@ -259,15 +259,6 @@
 			clocks = <&rcc SYSCFG>;
 		};
 
-		vrefbuf: vrefbuf@50025000 {
-			compatible = "st,stm32-vrefbuf";
-			reg = <0x50025000 0x8>;
-			regulator-min-microvolt = <1500000>;
-			regulator-max-microvolt = <2500000>;
-			clocks = <&rcc VREF>;
-			status = "disabled";
-		};
-
 		hash: hash@54003000 {
 			compatible = "st,stm32mp13-hash";
 			reg = <0x54003000 0x400>;
@@ -333,7 +324,7 @@
 			resets = <&rcc SDMMC1_R>;
 			cap-sd-highspeed;
 			cap-mmc-highspeed;
-			max-frequency = <120000000>;
+			max-frequency = <130000000>;
 			status = "disabled";
 		};
 
@@ -346,14 +337,8 @@
 			resets = <&rcc SDMMC2_R>;
 			cap-sd-highspeed;
 			cap-mmc-highspeed;
-			max-frequency = <120000000>;
+			max-frequency = <130000000>;
 			status = "disabled";
-		};
-
-		crc1: crc@58009000 {
-			compatible = "st,stm32f7-crc";
-			reg = <0x58009000 0x400>;
-			clocks = <&rcc CRC1>;
 		};
 
 		usbh_ohci: usbh-ohci@5800c000 {
@@ -471,11 +456,6 @@
 				st,non-secure-otp;
 			};
 		};
-
-		tamp: tamp@5c00a000 {
-			reg = <0x5c00a000 0x400>;
-		};
-
 		/*
 		 * Break node order to solve dependency probe issue between
 		 * pinctrl and exti.
