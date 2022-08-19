@@ -8,6 +8,8 @@
 
 /dts-v1/;
 
+#include "rtsm_ve-motherboard.dtsi"
+
 / {
 	model = "V2P-CA5s";
 	compatible = "arm,vexpress,v2p-ca5s", "arm,vexpress";
@@ -30,6 +32,20 @@
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0 0x80000000 0x1000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <1>;
+		ranges;
+
+		/* Chipselect 2,00000000 is physically at 0x18000000 */
+		vram: vram@18000000 {
+			/* 8 MB of designated video RAM */
+			compatible = "shared-dma-pool";
+			reg = <0 0x18000000 0x00800000>;
+			no-map;
+		};
 	};
 
 	hdlcd@2a110000 {
@@ -60,10 +76,7 @@
 		      <0 0x2c000100 0x100>;
 	};
 
-	dcc {
-		compatible = "arm,vexpress,config-bus";
-		arm,vexpress,config-bridge = <&v2m_sysreg>;
-
+	mcc {
 		oscclk0: osc@0 {
 			/* CPU and internal AXI reference clock */
 			compatible = "arm,vexpress-osc";
@@ -119,18 +132,16 @@
 		};
 	};
 
-	smb {
-		compatible = "simple-bus";
+	panel {
+		compatible = "arm,rtsm-display";
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&clcd_pads>;
+			};
+		};
+	};
 
-		#address-cells = <2>;
-		#size-cells = <1>;
-		ranges = <0 0 0 0x08000000 0x04000000>,
-			 <1 0 0 0x14000000 0x04000000>,
-			 <2 0 0 0x18000000 0x04000000>,
-			 <3 0 0 0x1c000000 0x04000000>,
-			 <4 0 0 0x0c000000 0x04000000>,
-			 <5 0 0 0x10000000 0x04000000>;
-
+	bus@8000000 {
 		#interrupt-cells = <1>;
 		interrupt-map-mask = <0 0 63>;
 		interrupt-map = <0 0  0 &gic GIC_SPI  0 IRQ_TYPE_LEVEL_HIGH>,
@@ -152,7 +163,5 @@
 				<0 0 43 &gic GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>,
 				<0 0 44 &gic GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>,
 				<0 0 46 &gic GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
-
-		#include "rtsm_ve-motherboard.dtsi"
 	};
 };

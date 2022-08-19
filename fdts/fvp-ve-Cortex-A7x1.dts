@@ -8,6 +8,8 @@
 
 /dts-v1/;
 
+#include "rtsm_ve-motherboard.dtsi"
+
 / {
 	model = "V2F-1XV7 Cortex-A7x1 SMM";
 	compatible = "arm,vexpress,v2f-1xv7", "arm,vexpress";
@@ -31,6 +33,20 @@
 		reg = <0 0x80000000 0x80000000>; /* 2GB @ 2GB */
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <1>;
+		ranges;
+
+		/* Chipselect 2,00000000 is physically at 0x18000000 */
+		vram: vram@18000000 {
+			/* 8 MB of designated video RAM */
+			compatible = "shared-dma-pool";
+			reg = <0 0x18000000 0x00800000>;
+			no-map;
+		};
+	};
+
 	gic: interrupt-controller@2c001000 {
 		compatible = "arm,cortex-a15-gic";
 		#interrupt-cells = <3>;
@@ -51,18 +67,16 @@
 		clock-output-names = "smclk";
 	};
 
-	smb {
-		compatible = "simple-bus";
+	panel {
+		compatible = "arm,rtsm-display";
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&clcd_pads>;
+			};
+		};
+	};
 
-		#address-cells = <2>;
-		#size-cells = <1>;
-		ranges = <0 0 0 0x08000000 0x04000000>,
-			 <1 0 0 0x14000000 0x04000000>,
-			 <2 0 0 0x18000000 0x04000000>,
-			 <3 0 0 0x1c000000 0x04000000>,
-			 <4 0 0 0x0c000000 0x04000000>,
-			 <5 0 0 0x10000000 0x04000000>;
-
+	bus@8000000 {
 		#interrupt-cells = <1>;
 		interrupt-map-mask = <0 0 63>;
 		interrupt-map = <0 0  0 &gic GIC_SPI  0 IRQ_TYPE_LEVEL_HIGH>,
@@ -84,7 +98,5 @@
 				<0 0 43 &gic GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>,
 				<0 0 44 &gic GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>,
 				<0 0 46 &gic GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
-
-		#include "rtsm_ve-motherboard.dtsi"
 	};
 };
