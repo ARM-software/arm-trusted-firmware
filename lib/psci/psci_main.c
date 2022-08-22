@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -158,7 +158,7 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	entry_point_info_t ep;
 
 	/* Check if the current CPU is the last ON CPU in the system */
-	if (psci_is_last_on_cpu() == 0U)
+	if (!psci_is_last_on_cpu())
 		return PSCI_E_DENIED;
 
 	/* Validate the entry point and get the entry_point_info */
