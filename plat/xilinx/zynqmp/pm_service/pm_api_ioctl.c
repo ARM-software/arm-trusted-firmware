@@ -553,7 +553,7 @@ static enum pm_ret_status pm_ioctl_afi(uint32_t index,
 		return PM_RET_ERROR_ARGS;
 	}
 
-	if (index < AFIFM6_WRCTRL) {
+	if (index <= AFIFM6_WRCTRL) {
 		mask = FABRIC_WIDTH;
 	} else {
 		mask = 0xf00;
