@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2021-2022, Stephan Gerhold <stephan@gerhold.net>
  *
  * Based on aarch64/skeleton_console.S:
  * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
@@ -113,9 +113,20 @@ endfunc console_uartdm_putc
 	 * -----------------------------------------------------------
 	 */
 func console_uartdm_core_putc
+	cmp	w0, #'\n'
+	b.ne	2f
+
 1:	/* Loop until TX FIFO has space */
 	ldr	w2, [x1, #UART_DM_SR]
 	tbz	w2, #UART_DM_SR_TXRDY_BIT, 1b
+
+	/* Prepend '\r' to '\n' */
+	mov	w2, #'\r'
+	str	w2, [x1, #UART_DM_TF]
+
+2:	/* Loop until TX FIFO has space */
+	ldr	w2, [x1, #UART_DM_SR]
+	tbz	w2, #UART_DM_SR_TXRDY_BIT, 2b
 
 	/* Write character to FIFO */
 	str	w0, [x1, #UART_DM_TF]
