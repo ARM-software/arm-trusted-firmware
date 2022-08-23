@@ -135,9 +135,9 @@ else
 					lib/cpus/aarch64/neoverse_demeter.S	\
 					lib/cpus/aarch64/cortex_a78_ae.S	\
 					lib/cpus/aarch64/cortex_a510.S		\
-					lib/cpus/aarch64/cortex_a710.S	\
-					lib/cpus/aarch64/cortex_makalu.S	\
-					lib/cpus/aarch64/cortex_makalu_elp_arm.S \
+					lib/cpus/aarch64/cortex_a710.S		\
+					lib/cpus/aarch64/cortex_a715.S		\
+					lib/cpus/aarch64/cortex_x3.S 		\
 					lib/cpus/aarch64/cortex_a65.S		\
 					lib/cpus/aarch64/cortex_a65ae.S		\
 					lib/cpus/aarch64/cortex_a78c.S		\
