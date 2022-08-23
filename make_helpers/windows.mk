@@ -81,9 +81,9 @@ BUILD_STRING ?= development build
 # by defining the MAKE_BUILD_STRINGS macro.
 BUILT_TIME_DATE_STRING = const char build_message[] = "Built : "${BUILD_MESSAGE_TIMESTAMP};
 VERSION_STRING_MESSAGE = const char version_string[] = "${VERSION_STRING}";
-const char version[] = "${VERSION}";
+VERSION_MESSAGE = const char version[] = "${VERSION}";
 define MAKE_BUILD_STRINGS
-	@echo $$(BUILT_TIME_DATE_STRING) $$(VERSION_STRING_MESSAGE) | \
+	@echo $$(BUILT_TIME_DATE_STRING) $$(VERSION_STRING_MESSAGE) $$((VERSION_MESSAGE)) | \
 		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -x c -c - -o $1
 endef
 
