@@ -260,6 +260,34 @@ spmc_shmem_obj_ffa_constituent_size(struct spmc_shmem_obj *obj,
 	return comp_mrd->address_range_count * sizeof(struct ffa_cons_mrd);
 }
 
+/**
+ * spmc_shmem_obj_validate_id - Validate a partition ID is participating in
+ *				a given memory transaction.
+ * @sp_id:      Partition ID to validate.
+ * @desc:       Descriptor of the memory transaction.
+ *
+ * Return: true if ID is valid, else false.
+ */
+bool spmc_shmem_obj_validate_id(const struct ffa_mtd *desc, uint16_t sp_id)
+{
+	bool found = false;
+
+	/* Validate the partition is a valid participant. */
+	for (unsigned int i = 0U; i < desc->emad_count; i++) {
+		size_t emad_size;
+		struct ffa_emad_v1_0 *emad;
+
+		emad = spmc_shmem_obj_get_emad(desc, i,
+					       MAKE_FFA_VERSION(1, 1),
+					       &emad_size);
+		if (sp_id == emad->mapd.endpoint_id) {
+			found = true;
+			break;
+		}
+	}
+	return found;
+}
+
 /*
  * Compare two memory regions to determine if any range overlaps with another
  * ongoing memory transaction.
@@ -1403,6 +1431,14 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		}
 	}
 
+	/* Validate the caller is a valid participant. */
+	if (!spmc_shmem_obj_validate_id(&obj->desc, sp_ctx->sp_id)) {
+		WARN("%s: Invalid endpoint ID (0x%x).\n",
+			__func__, sp_ctx->sp_id);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_all;
+	}
+
 	/* Validate that the provided emad offset and structure is valid.*/
 	for (size_t i = 0; i < req->emad_count; i++) {
 		size_t emad_size;
@@ -1657,6 +1693,7 @@ int spmc_ffa_mem_relinquish(uint32_t smc_fid,
 	struct mailbox *mbox = spmc_get_mbox_desc(secure_origin);
 	struct spmc_shmem_obj *obj;
 	const struct ffa_mem_relinquish_descriptor *req;
+	struct secure_partition_desc *sp_ctx = spmc_get_current_sp_ctx();
 
 	if (!secure_origin) {
 		WARN("%s: unsupported relinquish direction.\n", __func__);
@@ -1694,36 +1731,31 @@ int spmc_ffa_mem_relinquish(uint32_t smc_fid,
 		goto err_unlock_all;
 	}
 
-	if (obj->desc.emad_count != req->endpoint_count) {
-		WARN("%s: mismatch of endpoint count %u != %u\n", __func__,
-		     obj->desc.emad_count, req->endpoint_count);
+	/*
+	 * Validate the endpoint ID was populated correctly. We don't currently
+	 * support proxy endpoints so the endpoint count should always be 1.
+	 */
+	if (req->endpoint_count != 1U) {
+		WARN("%s: unsupported endpoint count %u != 1\n", __func__,
+		     req->endpoint_count);
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_unlock_all;
 	}
 
-	/* Validate requested endpoint IDs match descriptor. */
-	for (size_t i = 0; i < req->endpoint_count; i++) {
-		bool found = false;
-		size_t emad_size;
-		struct ffa_emad_v1_0 *emad;
+	/* Validate provided endpoint ID matches the partition ID. */
+	if (req->endpoint_array[0] != sp_ctx->sp_id) {
+		WARN("%s: invalid endpoint ID %u != %u\n", __func__,
+		     req->endpoint_array[0], sp_ctx->sp_id);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_all;
+	}
 
-		for (unsigned int j = 0; j < obj->desc.emad_count; j++) {
-			emad = spmc_shmem_obj_get_emad(&obj->desc, j,
-							MAKE_FFA_VERSION(1, 1),
-							&emad_size);
-			if (req->endpoint_array[i] ==
-			    emad->mapd.endpoint_id) {
-				found = true;
-				break;
-			}
-		}
-
-		if (!found) {
-			WARN("%s: Invalid endpoint ID (0x%x).\n",
-			     __func__, req->endpoint_array[i]);
-			ret = FFA_ERROR_INVALID_PARAMETER;
-			goto err_unlock_all;
-		}
+	/* Validate the caller is a valid participant. */
+	if (!spmc_shmem_obj_validate_id(&obj->desc, sp_ctx->sp_id)) {
+		WARN("%s: Invalid endpoint ID (0x%x).\n",
+			__func__, req->endpoint_array[0]);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_all;
 	}
 
 	if (obj->in_use == 0U) {
