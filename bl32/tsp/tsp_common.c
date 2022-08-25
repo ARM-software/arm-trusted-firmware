@@ -21,11 +21,6 @@
 #include <platform_def.h>
 
 /*******************************************************************************
- * Lock to control access to the console
- ******************************************************************************/
-spinlock_t console_lock;
-
-/*******************************************************************************
  * Per cpu data structure to populate parameters for an SMC in C code and use
  * a pointer to this structure in assembler code to populate x0-x7.
  ******************************************************************************/
@@ -105,14 +100,10 @@ smc_args_t *tsp_system_off_main(uint64_t arg0,
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
 
-#if LOG_LEVEL >= LOG_LEVEL_INFO
-	spin_lock(&console_lock);
 	INFO("TSP: cpu 0x%lx SYSTEM_OFF request\n", read_mpidr());
 	INFO("TSP: cpu 0x%lx: %d smcs, %d erets requests\n", read_mpidr(),
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);
-	spin_unlock(&console_lock);
-#endif
 
 	/* Indicate to the SPD that we have completed this request. */
 	return set_smc_args(TSP_SYSTEM_OFF_DONE, 0, 0, 0, 0, 0, 0, 0);
@@ -137,14 +128,10 @@ smc_args_t *tsp_system_reset_main(uint64_t arg0,
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
 
-#if LOG_LEVEL >= LOG_LEVEL_INFO
-	spin_lock(&console_lock);
 	INFO("TSP: cpu 0x%lx SYSTEM_RESET request\n", read_mpidr());
 	INFO("TSP: cpu 0x%lx: %d smcs, %d erets requests\n", read_mpidr(),
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);
-	spin_unlock(&console_lock);
-#endif
 
 	/* Indicate to the SPD that we have completed this request. */
 	return set_smc_args(TSP_SYSTEM_RESET_DONE, 0, 0, 0, 0, 0, 0, 0);

@@ -549,6 +549,13 @@ subsections:
       - title: BL31
         scope: bl31
 
+      - title: BL32
+        scope: bl32
+
+        subsections:
+          - title: TSP
+            scope: tsp
+
   - title: Services
     scope: services
 
