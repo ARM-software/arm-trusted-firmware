@@ -149,12 +149,14 @@ bool memory_retrieve(struct mailbox *mb,
 {
 	smc_args_t ret;
 	uint32_t descriptor_size;
-	struct ffa_mtd *memory_region = (struct ffa_mtd *)mb->tx_buffer;
+	struct ffa_mtd *memory_region;
 
 	if (retrieved == NULL || mb == NULL) {
 		ERROR("Invalid parameters!\n");
 		return false;
 	}
+
+	memory_region = (struct ffa_mtd *)mb->tx_buffer;
 
 	/* Clear TX buffer. */
 	memset(memory_region, 0, PAGE_SIZE);
