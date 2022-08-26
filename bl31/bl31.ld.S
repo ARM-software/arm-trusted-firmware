@@ -19,6 +19,12 @@ MEMORY {
 #else /* SEPARATE_NOBITS_REGION */
 #   define NOBITS RAM
 #endif /* SEPARATE_NOBITS_REGION */
+
+#if SEPARATE_RWDATA_REGION
+    RAM_RW (rw): ORIGIN = BL31_RWDATA_BASE, LENGTH = BL31_RWDATA_LIMIT - BL31_RWDATA_BASE
+#else /* SEPARATE_RWDATA_REGION */
+#define RAM_RW RAM
+#endif /* SEPARATE_RWDATA_REGION */
 }
 
 #ifdef PLAT_EXTRA_LD_SCRIPT
@@ -136,10 +142,36 @@ SECTIONS {
     . = LOADADDR(.spm_shim_exceptions) + SIZEOF(.spm_shim_exceptions);
 #endif /* SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP) */
 
-    __RW_START__ = .;
+#if SEPARATE_RWDATA_REGION
+    . = BL31_RWDATA_BASE;
+    ASSERT(BL31_RWDATA_BASE == ALIGN(PAGE_SIZE),
+           "BL31_RWDATA_BASE address is not aligned on a page boundary.")
+
+    /*
+     * Define a linker symbol to mark the start of the RW memory area for this
+     * image.
+     */
+    __RW_START__ = . ;
+
+    DATA_SECTION >RAM_RW AT>RAM
+    __DATA_RAM_START__ = __DATA_START__;
+    __DATA_RAM_END__ = __DATA_END__;
+    __DATA_ROM_START__ = LOADADDR(.data);
+
+    . = ALIGN(PAGE_SIZE);
+    __RW_END__ = .;
+
+    RELA_SECTION >RAM
+#else /* SEPARATE_RWDATA_REGION */
+    /*
+     * Define a linker symbol to mark the start of the RW memory area for this
+     * image.
+     */
+    __RW_START__ = . ;
 
     DATA_SECTION >RAM
     RELA_SECTION >RAM
+#endif /* SEPARATE_RWDATA_REGION */
 
 #ifdef BL31_PROGBITS_LIMIT
     ASSERT(
@@ -151,7 +183,9 @@ SECTIONS {
 #if SEPARATE_NOBITS_REGION
     . = ALIGN(PAGE_SIZE);
 
+#if !SEPARATE_RWDATA_REGION
     __RW_END__ = .;
+#endif /* SEPARATE_RWDATA_REGION */
     __BL31_END__ = .;
 
     ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
@@ -203,7 +237,13 @@ SECTIONS {
 
     ASSERT(. <= BL31_NOBITS_LIMIT, "BL31 NOBITS region has exceeded its limit.")
 #else /* SEPARATE_NOBITS_REGION */
+    /*
+     * Define a linker symbol to mark the end of the RW memory area for this
+     * image.
+     */
+#if !SEPARATE_RWDATA_REGION
     __RW_END__ = .;
+#endif /* SEPARATE_RWDATA_REGION */
     __BL31_END__ = .;
 
     ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
