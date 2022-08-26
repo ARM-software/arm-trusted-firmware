@@ -514,7 +514,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 	case PM_GET_TRUSTZONE_VERSION:
 		ret_payload[0] = PM_API_VERSION_2;
 		return PM_RET_SUCCESS;
-	case PM_LOAD_PDI:
+	case TF_A_PM_REGISTER_SGI:
 		ret_payload[0] = PM_API_BASE_VERSION;
 		return PM_RET_SUCCESS;
 	default:
