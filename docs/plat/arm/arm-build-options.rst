@@ -101,6 +101,9 @@ Arm Platform Build Options
    the Arm Juno platform has this included in its ``HW_CONFIG`` and the platform
    only loads the ``HW_CONFIG`` in AArch64 builds. Default is 0.
 
+-  ``ARM_ETHOSN_NPU_TZMP1``: boolean option to enable TZMP1 support for the
+   Arm® Ethos™-N NPU. Requires ``ARM_ETHOSN_NPU_DRIVER`` to be enabled.
+
 -  ``ARM_SPMC_MANIFEST_DTS`` : path to an alternate manifest file used as the
    SPMC Core manifest. Valid when ``SPD=spmd`` is selected.
 
@@ -165,4 +168,4 @@ Arm CSS Platform-Specific Build Options
 
 .. |FIP in a GPT image| image:: ../../resources/diagrams/FIP_in_a_GPT_image.png
 
-*Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
