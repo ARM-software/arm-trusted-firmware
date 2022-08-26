@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +12,8 @@
 #include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
+/* number of interrupt handlers. increase as required */
+#define MAX_INTR_EL3			2
 /* List all consoles */
 #define VERSAL_CONSOLE_ID_pl011	1
 #define VERSAL_CONSOLE_ID_pl011_0	1
