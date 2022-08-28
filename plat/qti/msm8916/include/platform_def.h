@@ -8,6 +8,7 @@
 
 #include <plat/common/common_def.h>
 
+#ifdef __aarch64__
 /*
  * There is at least 1 MiB available for BL31. However, at the moment the
  * "msm8916_entry_point" variable in the data section is read through the
@@ -18,6 +19,7 @@
  */
 #define BL31_LIMIT			(BL31_BASE + SZ_128K)
 #define BL31_PROGBITS_LIMIT		(BL31_BASE + SZ_64K)
+#endif
 #define BL32_LIMIT			(BL32_BASE + SZ_128K)
 
 #define CACHE_WRITEBACK_GRANULE		U(64)

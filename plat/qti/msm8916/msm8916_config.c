@@ -58,10 +58,16 @@ static void msm8916_configure_cpu_pm(void)
 		mmio_write_32(APCS_ALIAS_SAW2(cpu), 0);
 	}
 
+#ifdef __aarch64__
 	/* Make sure all further warm boots end up in BL31 and aarch64 state */
 	CASSERT((BL31_BASE & 0xffff) == 0, assert_bl31_base_64k_aligned);
 	mmio_write_32(APCS_BOOT_START_ADDR_SEC, BL31_BASE | REMAP_EN);
 	mmio_write_32(APCS_AA64NAA32_REG, 1);
+#else
+	/* Make sure all further warm boots end up in BL32 */
+	CASSERT((BL32_BASE & 0xffff) == 0, assert_bl32_base_64k_aligned);
+	mmio_write_32(APCS_BOOT_START_ADDR_SEC, BL32_BASE | REMAP_EN);
+#endif
 }
 
 /*

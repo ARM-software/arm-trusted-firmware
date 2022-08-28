@@ -27,8 +27,12 @@ MSM8916_PM_SOURCES	:=	lib/cpus/${ARCH}/cortex_a53.S			\
 BL31_SOURCES		+=	${MSM8916_PM_SOURCES}				\
 				plat/qti/msm8916/msm8916_bl31_setup.c
 
-PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/${ARCH}		\
-				-Iplat/qti/msm8916/include
+PLAT_INCLUDES		:=	-Iplat/qti/msm8916/include
+
+ifeq (${ARCH},aarch64)
+# arm_macros.S exists only on aarch64 currently
+PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
+endif
 
 # Only BL31 is supported at the moment and is entered on a single CPU
 RESET_TO_BL31			:= 1
@@ -62,8 +66,13 @@ ERRATA_A53_1530924		:= 1
 # Build config flags
 # ------------------
 BL31_BASE			?= 0x86500000
-BL32_BASE			?= BL31_LIMIT
 PRELOADED_BL33_BASE		?= 0x8f600000
 
+ifeq (${ARCH},aarch64)
+BL32_BASE			?= BL31_LIMIT
 $(eval $(call add_define,BL31_BASE))
+else
+# There is no BL31 on aarch32, so reuse its location for BL32
+BL32_BASE			?= $(BL31_BASE)
+endif
 $(eval $(call add_define,BL32_BASE))
