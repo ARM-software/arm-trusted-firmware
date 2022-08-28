@@ -53,6 +53,10 @@ static const gicv2_driver_data_t msm8916_gic_data = {
 void msm8916_gicv2_init(void)
 {
 	gicv2_driver_init(&msm8916_gic_data);
+}
+
+void msm8916_gicv2_configure(void)
+{
 	gicv2_distif_init();
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();

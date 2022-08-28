@@ -7,24 +7,28 @@
 include drivers/arm/gic/v2/gicv2.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
-PLAT_BL_COMMON_SOURCES	:= ${XLAT_TABLES_LIB_SRCS}
+PLAT_BL_COMMON_SOURCES	:=	${GICV2_SOURCES}				\
+				${XLAT_TABLES_LIB_SRCS}				\
+				drivers/delay_timer/delay_timer.c		\
+				drivers/delay_timer/generic_delay_timer.c	\
+				plat/common/plat_gicv2.c			\
+				plat/qti/msm8916/msm8916_gicv2.c		\
+				plat/qti/msm8916/msm8916_setup.c		\
+				plat/qti/msm8916/${ARCH}/msm8916_helpers.S	\
+				plat/qti/msm8916/${ARCH}/uartdm_console.S
 
-PLAT_INCLUDES	:=	-Iinclude/plat/arm/common/${ARCH}		\
-			-Iplat/qti/msm8916/include
+MSM8916_PM_SOURCES	:=	lib/cpus/${ARCH}/cortex_a53.S			\
+				plat/common/plat_psci_common.c			\
+				plat/qti/msm8916/msm8916_config.c		\
+				plat/qti/msm8916/msm8916_cpu_boot.c		\
+				plat/qti/msm8916/msm8916_pm.c			\
+				plat/qti/msm8916/msm8916_topology.c
 
-BL31_SOURCES	+=	${GICV2_SOURCES}				\
-			drivers/delay_timer/delay_timer.c		\
-			drivers/delay_timer/generic_delay_timer.c	\
-			lib/cpus/${ARCH}/cortex_a53.S			\
-			plat/common/plat_gicv2.c			\
-			plat/common/plat_psci_common.c			\
-			plat/qti/msm8916/msm8916_bl31_setup.c		\
-			plat/qti/msm8916/msm8916_cpu_boot.c		\
-			plat/qti/msm8916/msm8916_gicv2.c		\
-			plat/qti/msm8916/msm8916_pm.c			\
-			plat/qti/msm8916/msm8916_topology.c		\
-			plat/qti/msm8916/${ARCH}/msm8916_helpers.S	\
-			plat/qti/msm8916/${ARCH}/uartdm_console.S
+BL31_SOURCES		+=	${MSM8916_PM_SOURCES}				\
+				plat/qti/msm8916/msm8916_bl31_setup.c
+
+PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/${ARCH}		\
+				-Iplat/qti/msm8916/include
 
 # Only BL31 is supported at the moment and is entered on a single CPU
 RESET_TO_BL31			:= 1
