@@ -264,7 +264,7 @@ static void get_utrd(utp_utrd_t *utrd)
 
 	/* clear utrd */
 	memset((void *)utrd, 0, sizeof(utp_utrd_t));
-	base = ufs_params.desc_base + (slot * UFS_DESC_SIZE);
+	base = ufs_params.desc_base + (slot * sizeof(utrd_header_t));
 	/* clear the descriptor */
 	memset((void *)base, 0, UFS_DESC_SIZE);
 
@@ -298,12 +298,6 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 	unsigned int ulba;
 	unsigned int lba_cnt;
 	int prdt_size;
-
-
-	mmio_write_32(ufs_params.reg_base + UTRLBA,
-		      utrd->header & UINT32_MAX);
-	mmio_write_32(ufs_params.reg_base + UTRLBAU,
-		      (utrd->header >> 32) & UINT32_MAX);
 
 	hd = (utrd_header_t *)utrd->header;
 	upiu = (cmd_upiu_t *)utrd->upiu;
@@ -402,12 +396,6 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 	hd = (utrd_header_t *)utrd->header;
 	query_upiu = (query_upiu_t *)utrd->upiu;
 
-	mmio_write_32(ufs_params.reg_base + UTRLBA,
-		      utrd->header & UINT32_MAX);
-	mmio_write_32(ufs_params.reg_base + UTRLBAU,
-		      (utrd->header >> 32) & UINT32_MAX);
-
-
 	hd->i = 1;
 	hd->ct = CT_UFS_STORAGE;
 	hd->ocs = OCS_MASK;
@@ -453,11 +441,6 @@ static void ufs_prepare_nop_out(utp_utrd_t *utrd)
 {
 	utrd_header_t *hd;
 	nop_out_upiu_t *nop_out;
-
-	mmio_write_32(ufs_params.reg_base + UTRLBA,
-		      utrd->header & UINT32_MAX);
-	mmio_write_32(ufs_params.reg_base + UTRLBAU,
-		      (utrd->header >> 32) & UINT32_MAX);
 
 	hd = (utrd_header_t *)utrd->header;
 	nop_out = (nop_out_upiu_t *)utrd->upiu;
@@ -795,6 +778,11 @@ static void ufs_enum(void)
 	unsigned int blk_num, blk_size;
 	int i, result;
 
+	mmio_write_32(ufs_params.reg_base + UTRLBA,
+		      ufs_params.desc_base & UINT32_MAX);
+	mmio_write_32(ufs_params.reg_base + UTRLBAU,
+		      (ufs_params.desc_base >> 32) & UINT32_MAX);
+
 	ufs_verify_init();
 	ufs_verify_ready();
 
@@ -856,6 +844,11 @@ int ufs_init(const ufs_ops_t *ops, ufs_params_t *params)
 
 
 	if (ufs_params.flags & UFS_FLAGS_SKIPINIT) {
+		mmio_write_32(ufs_params.reg_base + UTRLBA,
+			      ufs_params.desc_base & UINT32_MAX);
+		mmio_write_32(ufs_params.reg_base + UTRLBAU,
+			      (ufs_params.desc_base >> 32) & UINT32_MAX);
+
 		result = ufshc_dme_get(0x1571, 0, &data);
 		assert(result == 0);
 		result = ufshc_dme_get(0x41, 0, &data);
