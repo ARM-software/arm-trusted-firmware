@@ -13,6 +13,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/uart/               \
                  -I${MTK_PLAT}/common/drivers/timer/              \
 		 -I${MTK_PLAT}/common/lpm/                        \
+                 -I${MTK_PLAT}/include/                           \
                  -I${MTK_PLAT_SOC}/drivers/spm/                   \
                  -I${MTK_PLAT_SOC}/drivers/dcm/                   \
                  -I${MTK_PLAT_SOC}/drivers/dfd/                    \

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, MediaTek Inc. All rights reserved.
+# Copyright (c) 2019-2022, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,7 +8,8 @@ MTK_PLAT      := plat/mediatek
 MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
-                 -I${MTK_PLAT}/common/drivers/uart/                \
+                 -I${MTK_PLAT}/common/drivers/uart/               \
+                 -I${MTK_PLAT}/include/                           \
                  -I${MTK_PLAT_SOC}/drivers/                       \
                  -I${MTK_PLAT_SOC}/drivers/emi_mpu/               \
                  -I${MTK_PLAT_SOC}/drivers/devapc/                \
