@@ -91,11 +91,16 @@ static int imx_pwr_set_cpu_entry(unsigned int cpu, unsigned int entry)
 	return 0;
 }
 
+static volatile uint32_t cgc1_nicclk;
 int imx_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned int cpu = MPIDR_AFFLVL0_VAL(mpidr);
 
 	imx_pwr_set_cpu_entry(cpu, secure_entrypoint);
+
+	/* slow down the APD NIC bus clock */
+	cgc1_nicclk = mmio_read_32(IMX_CGC1_BASE + 0x34);
+	mmio_clrbits_32(IMX_CGC1_BASE + 0x34, GENMASK_32(29, 28));
 
 	mmio_write_32(IMX_CMC1_BASE + 0x18, 0x3f);
 	mmio_write_32(IMX_CMC1_BASE + 0x50 + 0x4 * cpu, 0);
@@ -111,6 +116,9 @@ void imx_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	imx_pwr_set_cpu_entry(0, IMX_ROM_ENTRY);
 	plat_gic_pcpu_init();
 	plat_gic_cpuif_enable();
+
+	/* set APD NIC back to orignally setting */
+	mmio_write_32(IMX_CGC1_BASE + 0x34, cgc1_nicclk);
 }
 
 int imx_validate_ns_entrypoint(uintptr_t ns_entrypoint)
