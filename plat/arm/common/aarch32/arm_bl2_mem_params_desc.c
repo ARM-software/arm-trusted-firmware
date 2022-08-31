@@ -20,71 +20,72 @@
 static bl_mem_params_node_t bl2_mem_params_descs[] = {
 #ifdef SCP_BL2_BASE
 	/* Fill SCP_BL2 related information if it exists */
-    {
-	    .image_id = SCP_BL2_IMAGE_ID,
+	{
+		.image_id = SCP_BL2_IMAGE_ID,
 
-	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
-		    VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+			VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
 
-	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
-		    VERSION_2, image_info_t, 0),
-	    .image_info.image_base = SCP_BL2_BASE,
-	    .image_info.image_max_size = PLAT_CSS_MAX_SCP_BL2_SIZE,
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+			VERSION_2, image_info_t, 0),
+		.image_info.image_base = SCP_BL2_BASE,
+		.image_info.image_max_size = PLAT_CSS_MAX_SCP_BL2_SIZE,
 
-	    .next_handoff_image_id = INVALID_IMAGE_ID,
-    },
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
 #endif /* SCP_BL2_BASE */
 
 	/* Fill BL32 related information */
-    {
-	    .image_id = BL32_IMAGE_ID,
+	{
+		.image_id = BL32_IMAGE_ID,
 
-	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
-		    VERSION_2, entry_point_info_t,
-		    SECURE | EXECUTABLE | EP_FIRST_EXE),
-	    .ep_info.pc = BL32_BASE,
-	    .ep_info.spsr = SPSR_MODE32(MODE32_mon, SPSR_T_ARM,
-		    SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS),
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+			VERSION_2, entry_point_info_t,
+			SECURE | EXECUTABLE | EP_FIRST_EXE),
+		.ep_info.pc = BL32_BASE,
+		.ep_info.spsr = SPSR_MODE32(MODE32_mon, SPSR_T_ARM,
+			SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS),
 
-	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
-		    VERSION_2, image_info_t, IMAGE_ATTRIB_PLAT_SETUP),
-	    .image_info.image_base = BL32_BASE,
-	    .image_info.image_max_size = BL32_LIMIT - BL32_BASE,
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+			VERSION_2, image_info_t, IMAGE_ATTRIB_PLAT_SETUP),
+		.image_info.image_base = BL32_BASE,
+		.image_info.image_max_size = BL32_LIMIT - BL32_BASE,
 
-	    .next_handoff_image_id = BL33_IMAGE_ID,
-    },
+		.next_handoff_image_id = BL33_IMAGE_ID,
+	},
 	/* Fill HW_CONFIG related information if it exists */
-    {
-	    .image_id = HW_CONFIG_ID,
-	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
-		    VERSION_2, entry_point_info_t, NON_SECURE | NON_EXECUTABLE),
-	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
-		    VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
-	    .next_handoff_image_id = INVALID_IMAGE_ID,
-    },
+	{
+		.image_id = HW_CONFIG_ID,
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+			VERSION_2, entry_point_info_t,
+			NON_SECURE | NON_EXECUTABLE),
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+			VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
 	/* Fill BL33 related information */
-    {
-	    .image_id = BL33_IMAGE_ID,
+	{
+		.image_id = BL33_IMAGE_ID,
 
-	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
-		    VERSION_2, entry_point_info_t, NON_SECURE | EXECUTABLE),
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+			VERSION_2, entry_point_info_t, NON_SECURE | EXECUTABLE),
 #ifdef PRELOADED_BL33_BASE
-	    .ep_info.pc = PRELOADED_BL33_BASE,
+		.ep_info.pc = PRELOADED_BL33_BASE,
 
-	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
-		    VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+			VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
 #else
-	    .ep_info.pc = PLAT_ARM_NS_IMAGE_BASE,
+		.ep_info.pc = PLAT_ARM_NS_IMAGE_BASE,
 
-	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
-		    VERSION_2, image_info_t, 0),
-	    .image_info.image_base = PLAT_ARM_NS_IMAGE_BASE,
-	    .image_info.image_max_size = ARM_DRAM1_BASE + ARM_DRAM1_SIZE
-		    - PLAT_ARM_NS_IMAGE_BASE,
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+			VERSION_2, image_info_t, 0),
+		.image_info.image_base = PLAT_ARM_NS_IMAGE_BASE,
+		.image_info.image_max_size = ARM_DRAM1_BASE + ARM_DRAM1_SIZE
+			- PLAT_ARM_NS_IMAGE_BASE,
 #endif /* PRELOADED_BL33_BASE */
 
-	    .next_handoff_image_id = INVALID_IMAGE_ID,
-    }
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	}
 };
 
 REGISTER_BL_IMAGE_DESCS(bl2_mem_params_descs)
