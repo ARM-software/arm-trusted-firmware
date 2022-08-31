@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +15,7 @@
 #include <plat_private.h>
 #include <plat/common/platform.h>
 
+#include "pm_defs.h"
 #include "pm_ipi.h"
 
 #define ERROR_CODE_MASK		0xFFFFU
