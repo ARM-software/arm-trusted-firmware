@@ -394,8 +394,22 @@ BL2_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
 PLAT_INCLUDES		+=	-Iinclude/lib/psa
 
 # RSS is not supported on FVP right now. Thus, we use the mocked version
-# of PSA Measured Boot APIs. They return with success and hard-coded data.
+# of the provided PSA APIs. They return with success and hard-coded data.
 PLAT_RSS_NOT_SUPPORTED	:= 1
+
+# Even though RSS is not supported on FVP (see above), we support overriding
+# PLAT_RSS_NOT_SUPPORTED from the command line, just for the purpose of building
+# the code to detect any build regressions. The resulting firmware will not be
+# functional.
+ifneq (${PLAT_RSS_NOT_SUPPORTED},1)
+    $(warning "RSS is not supported on FVP. The firmware will not be functional.")
+    include drivers/arm/rss/rss_comms.mk
+    BL1_SOURCES		+=	${RSS_COMMS_SOURCES}
+    BL2_SOURCES		+=	${RSS_COMMS_SOURCES}
+
+    BL1_CFLAGS		+=	-DPLAT_ATTEST_TOKEN_MAX_SIZE=0
+    BL2_CFLAGS		+=	-DPLAT_ATTEST_TOKEN_MAX_SIZE=0
+endif
 
 endif
 
