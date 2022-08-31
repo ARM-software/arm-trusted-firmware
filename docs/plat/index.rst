@@ -43,6 +43,7 @@ Platform Ports
    synquacer
    stm32mp1
    ti-k3
+   xilinx-versal-net
    xilinx-versal
    xilinx-zynqmp
    brcm-stingray
