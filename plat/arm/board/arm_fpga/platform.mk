@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -71,9 +71,9 @@ else
 				lib/cpus/aarch64/cortex_a65.S		\
 				lib/cpus/aarch64/cortex_a65ae.S		\
 				lib/cpus/aarch64/cortex_a510.S		\
-				lib/cpus/aarch64/cortex_a710.S	\
-				lib/cpus/aarch64/cortex_makalu.S	\
-				lib/cpus/aarch64/cortex_makalu_elp_arm.S \
+				lib/cpus/aarch64/cortex_a710.S		\
+				lib/cpus/aarch64/cortex_a715.S		\
+				lib/cpus/aarch64/cortex_x3.S 		\
 				lib/cpus/aarch64/cortex_a78c.S
 
 # AArch64/AArch32 cores

@@ -73,8 +73,8 @@ endif
 # CPU libraries for TARGET_PLATFORM=1
 ifeq (${TARGET_PLATFORM}, 1)
 TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a510.S \
-			lib/cpus/aarch64/cortex_makalu.S \
-			lib/cpus/aarch64/cortex_makalu_elp_arm.S
+			lib/cpus/aarch64/cortex_a715.S \
+			lib/cpus/aarch64/cortex_x3.S
 endif
 
 # CPU libraries for TARGET_PLATFORM=2
