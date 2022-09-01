@@ -13,6 +13,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/drivers/gic600/                    \
                  -I${MTK_PLAT}/drivers/gpio/                      \
                  -I${MTK_PLAT}/drivers/lpm/                       \
+                 -I${MTK_PLAT}/drivers/pmic/                      \
                  -I${MTK_PLAT}/drivers/pmic_wrap/                 \
                  -I${MTK_PLAT}/drivers/rtc/                       \
                  -I${MTK_PLAT}/drivers/timer/                     \
@@ -56,6 +57,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT}/drivers/gic600/mt_gic_v3.c                \
                 ${MTK_PLAT}/drivers/gpio/mtgpio_common.c              \
                 ${MTK_PLAT}/drivers/lpm/mt_lp_rm.c                    \
+                ${MTK_PLAT}/drivers/pmic/pmic.c                       \
                 ${MTK_PLAT}/drivers/pmic_wrap/pmic_wrap_init_v2.c     \
                 ${MTK_PLAT}/drivers/rtc/rtc_common.c                  \
                 ${MTK_PLAT}/drivers/rtc/rtc_mt6359p.c                 \
@@ -77,7 +79,6 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_mcdi.c                \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_lp_irqremain.c        \
                 ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
-                ${MTK_PLAT_SOC}/drivers/pmic/pmic.c                   \
                 ${MTK_PLAT_SOC}/drivers/ptp3/mtk_ptp3_main.c          \
                 ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
                 ${MTK_PLAT_SOC}/plat_pm.c                             \
