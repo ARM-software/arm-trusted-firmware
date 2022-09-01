@@ -805,6 +805,11 @@ int mmc_part_switch_user(void)
 	return ret;
 }
 
+size_t mmc_boot_part_size(void)
+{
+	return mmc_ext_csd[CMD_EXTCSD_BOOT_SIZE_MULT] * SZ_128K;
+}
+
 size_t mmc_boot_part_read_blocks(int lba, uintptr_t buf, size_t size)
 {
 	size_t size_read;
