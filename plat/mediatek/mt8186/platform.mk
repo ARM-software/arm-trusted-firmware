@@ -12,6 +12,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/drivers/gic600/                    \
                  -I${MTK_PLAT}/drivers/gpio/                      \
                  -I${MTK_PLAT}/drivers/lpm/                       \
+                 -I${MTK_PLAT}/drivers/pmic_wrap/                 \
                  -I${MTK_PLAT}/drivers/timer/                     \
                  -I${MTK_PLAT}/drivers/uart/                      \
                  -I${MTK_PLAT}/include/                           \
