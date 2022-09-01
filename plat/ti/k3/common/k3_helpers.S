@@ -118,6 +118,12 @@ a72:
 	orr x0, x0, #CORTEX_A72_L2CTLR_EL1_ECC_AND_PARITY_ENABLE
 	orr x0, x0, #CORTEX_A72_L2CTLR_EL1_DATA_INLINE_ECC_ENABLE
 	msr CORTEX_A72_L2CTLR_EL1, x0
+
+	mrs x0, CORTEX_A72_L2ACTLR_EL1
+	/* Enable L2 UniqueClean evictions with data */
+	orr x0, x0, #CORTEX_A72_L2ACTLR_ENABLE_UNIQUE_CLEAN
+	msr CORTEX_A72_L2ACTLR_EL1, x0
+
 	isb
 	ret
 endfunc plat_reset_handler
