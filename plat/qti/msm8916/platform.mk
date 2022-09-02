@@ -17,7 +17,8 @@ PLAT_BL_COMMON_SOURCES	:=	${GICV2_SOURCES}				\
 				plat/qti/msm8916/${ARCH}/msm8916_helpers.S	\
 				plat/qti/msm8916/${ARCH}/uartdm_console.S
 
-MSM8916_PM_SOURCES	:=	lib/cpus/${ARCH}/cortex_a53.S			\
+MSM8916_CPU		:=	$(if ${ARM_CORTEX_A7},cortex_a7,cortex_a53)
+MSM8916_PM_SOURCES	:=	lib/cpus/${ARCH}/${MSM8916_CPU}.S		\
 				plat/common/plat_psci_common.c			\
 				plat/qti/msm8916/msm8916_config.c		\
 				plat/qti/msm8916/msm8916_cpu_boot.c		\
@@ -48,10 +49,11 @@ WARMBOOT_ENABLE_DCACHE_EARLY	:= 1
 ENABLE_SPE_FOR_NS		:= 0
 ENABLE_SVE_FOR_NS		:= 0
 
-# Disable workarounds unnecessary for Cortex-A53
+# Disable workarounds unnecessary for Cortex-A7/A53
 WORKAROUND_CVE_2017_5715	:= 0
 WORKAROUND_CVE_2022_23960	:= 0
 
+ifeq (${MSM8916_CPU},cortex_a53)
 # MSM8916 uses ARM Cortex-A53 r0p0 so likely all the errata apply
 ERRATA_A53_819472		:= 1
 ERRATA_A53_824069		:= 1
@@ -62,6 +64,7 @@ ERRATA_A53_836870		:= 1
 ERRATA_A53_843419		:= 1
 ERRATA_A53_855873		:= 0	# Workaround works only for >= r0p3
 ERRATA_A53_1530924		:= 1
+endif
 
 # Build config flags
 # ------------------

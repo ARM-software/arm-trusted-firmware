@@ -47,7 +47,11 @@ struct uartdm_gpios {
 };
 
 static const struct uartdm_gpios uartdm_gpio_map[] = {
+#if defined(PLAT_msm8909)
+	{4, 5, 0x2}, {20, 21, 0x3},
+#elif defined(PLAT_msm8916)
 	{0, 1, 0x2}, {4, 5, 0x2},
+#endif
 };
 
 /*
