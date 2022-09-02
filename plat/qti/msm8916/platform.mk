@@ -76,3 +76,14 @@ else
 BL32_BASE			?= $(BL31_BASE)
 endif
 $(eval $(call add_define,BL32_BASE))
+
+# UART number to use for TF-A output during early boot
+QTI_UART_NUM			?= 2
+$(eval $(call assert_numeric,QTI_UART_NUM))
+$(eval $(call add_define,QTI_UART_NUM))
+
+# Set to 1 on the command line to keep using UART after early boot.
+# Requires reserving the UART and related clocks inside the normal world.
+QTI_RUNTIME_UART		?= 0
+$(eval $(call assert_boolean,QTI_RUNTIME_UART))
+$(eval $(call add_define,QTI_RUNTIME_UART))

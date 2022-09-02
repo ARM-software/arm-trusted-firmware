@@ -30,7 +30,7 @@
 	 * -------------------------------------------------
 	 */
 func plat_crash_console_init
-	ldr	r1, =BLSP_UART2_BASE
+	ldr	r1, =BLSP_UART_BASE
 	mov	r0, #1
 	b	console_uartdm_core_init
 endfunc plat_crash_console_init
@@ -44,7 +44,7 @@ endfunc plat_crash_console_init
 	 * -------------------------------------------------
 	 */
 func plat_crash_console_putc
-	ldr	r1, =BLSP_UART2_BASE
+	ldr	r1, =BLSP_UART_BASE
 	b	console_uartdm_core_putc
 endfunc plat_crash_console_putc
 
@@ -56,7 +56,7 @@ endfunc plat_crash_console_putc
 	 * -------------------------------------------------
 	 */
 func plat_crash_console_flush
-	ldr	r1, =BLSP_UART2_BASE
+	ldr	r1, =BLSP_UART_BASE
 	b	console_uartdm_core_flush
 endfunc plat_crash_console_flush
 
