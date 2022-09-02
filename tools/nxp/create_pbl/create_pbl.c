@@ -823,7 +823,9 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if ((args & MAND_ARG_MASK) != MAND_ARG_MASK) {
+	if ((args & MAND_ARG_MASK) != MAND_ARG_MASK
+			|| pblimg.rcw_nm == NULL
+			|| pblimg.imagefile == NULL) {
 		print_usage();
 	}
 
