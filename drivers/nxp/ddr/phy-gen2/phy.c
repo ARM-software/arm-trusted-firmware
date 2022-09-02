@@ -2296,6 +2296,7 @@ static void parse_odt(const unsigned int val,
 
 	if (i < 0 || i > 3) {
 		printf("Error: invalid chip-select value\n");
+		return;
 	}
 	switch (val) {
 	case DDR_ODT_CS:
