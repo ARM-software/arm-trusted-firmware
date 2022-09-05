@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <mt_cirq.h>
 #include <mt_lp_irqremain.h>
 #include <mt_lp_rm.h>
-#include <mtk_cirq.h>
 #include <plat_mtk_lpm.h>
 
 #define KEYPAD_IRQ_ID		U(138)

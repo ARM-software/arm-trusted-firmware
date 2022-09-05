@@ -15,6 +15,14 @@
 #endif
 #include <plat/common/platform.h>
 
+#if COREBOOT
+#include <common/desc_image_load.h>
+
+#include <drivers/ti/uart/uart_16550.h>
+#include <lib/coreboot.h>
+#include <plat_params.h>
+#endif
+
 /* MTK headers */
 #if MTK_SIP_KERNEL_BOOT_ENABLE
 #include <cold_boot.h>
@@ -24,6 +32,32 @@
 
 IMPORT_SYM(uintptr_t, __RW_START__, RW_START);
 IMPORT_SYM(uintptr_t, __DATA_START__, DATA_START);
+
+#if COREBOOT
+static entry_point_info_t bl32_ep_info;
+static entry_point_info_t bl33_ep_info;
+
+/*******************************************************************************
+ * Return a pointer to the 'entry_point_info' structure of the next image for
+ * the security state specified. BL33 corresponds to the non-secure image type
+ * while BL32 corresponds to the secure image type. A NULL pointer is returned
+ * if the image does not exist.
+ ******************************************************************************/
+entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
+{
+	entry_point_info_t *next_image_info;
+
+	next_image_info = (type == NON_SECURE) ? &bl33_ep_info : &bl32_ep_info;
+	assert(next_image_info->h.type == PARAM_EP);
+
+	/* None of the images on this platform can have 0x0 as the entrypoint */
+	if (next_image_info->pc) {
+		return next_image_info;
+	} else {
+		return NULL;
+	}
+}
+#else
 #ifndef MTK_BL31_AS_BL2
 static struct mtk_bl31_fw_config bl31_fw_config;
 #else
@@ -55,7 +89,7 @@ void *get_mtk_bl31_fw_config(int index)
 	}
 	return arg;
 }
-
+#endif
 /*****************************************************************************
  * Perform the very early platform specific architectural setup shared between
  * ARM standard platforms. This only does basic initialization. Later
@@ -67,6 +101,18 @@ void bl31_early_platform_setup2(u_register_t from_bl2,
 				u_register_t hw_config, u_register_t plat_params_from_bl2)
 
 {
+#if COREBOOT
+	static console_t console;
+
+	params_early_setup(soc_fw_config);
+	if (coreboot_serial.type) {
+		console_16550_register(coreboot_serial.baseaddr,
+				       coreboot_serial.input_hertz,
+				       coreboot_serial.baud,
+				       &console);
+	}
+	bl31_params_parse_helper(from_bl2, &bl32_ep_info, &bl33_ep_info);
+#else
 	struct mtk_bl_param_t *p_mtk_bl_param = (struct mtk_bl_param_t *)from_bl2;
 
 	if (p_mtk_bl_param == NULL) {
@@ -78,6 +124,7 @@ void bl31_early_platform_setup2(u_register_t from_bl2,
 	bl31_fw_config.soc_fw_config = (void *)soc_fw_config;
 	bl31_fw_config.hw_config = (void *)hw_config;
 	bl31_fw_config.reserved = (void *)plat_params_from_bl2;
+#endif
 
 	INFO("MTK BL31 start\n");
 	/* Init delay function */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,7 +19,7 @@ const mmap_region_t plat_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(DP_SEC_BASE, DP_SEC_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(eDP_SEC_BASE, eDP_SEC_SIZE,
+	MAP_REGION_FLAT(EDP_SEC_BASE, EDP_SEC_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(APUSYS_SCTRL_REVISER_BASE, APUSYS_SCTRL_REVISER_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),

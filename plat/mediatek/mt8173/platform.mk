@@ -37,10 +37,10 @@ BL31_SOURCES		+=	common/desc_image_load.c			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
-				${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init.c	\
-				${MTK_PLAT}/common/drivers/rtc/rtc_common.c	\
 				${MTK_PLAT}/common/mtk_plat_common.c		\
 				${MTK_PLAT}/common/mtk_sip_svc.c		\
+				${MTK_PLAT}/drivers/pmic_wrap/pmic_wrap_init.c	\
+				${MTK_PLAT}/drivers/rtc/rtc_common.c		\
 				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
 				${MTK_PLAT_SOC}/aarch64/platform_common.c	\
 				${MTK_PLAT_SOC}/bl31_plat_setup.c		\

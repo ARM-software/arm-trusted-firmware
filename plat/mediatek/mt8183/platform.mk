@@ -8,7 +8,7 @@ MTK_PLAT      := plat/mediatek
 MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
-                 -I${MTK_PLAT}/common/drivers/uart/               \
+                 -I${MTK_PLAT}/drivers/uart/                      \
                  -I${MTK_PLAT}/include/                           \
                  -I${MTK_PLAT_SOC}/drivers/                       \
                  -I${MTK_PLAT_SOC}/drivers/emi_mpu/               \
@@ -44,10 +44,10 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    lib/cpus/aarch64/cortex_a73.S                         \
                    plat/common/plat_gicv3.c                              \
                    ${MTK_PLAT}/common/mtk_plat_common.c                  \
-                   ${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init.c \
-                   ${MTK_PLAT}/common/drivers/rtc/rtc_common.c           \
-                   ${MTK_PLAT}/common/drivers/uart/uart.c                \
                    ${MTK_PLAT}/common/params_setup.c                     \
+                   ${MTK_PLAT}/drivers/pmic_wrap/pmic_wrap_init.c        \
+                   ${MTK_PLAT}/drivers/rtc/rtc_common.c                  \
+                   ${MTK_PLAT}/drivers/uart/uart.c                       \
                    ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                    ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                    ${MTK_PLAT_SOC}/drivers/devapc/devapc.c               \

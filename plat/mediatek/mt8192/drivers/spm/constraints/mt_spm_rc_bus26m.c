@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2020-2022, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,8 +23,8 @@
 #include <plat_mtk_lpm.h>
 
 #ifndef ATF_PLAT_CIRQ_UNSUPPORT
+#include <mt_cirq.h>
 #include <mt_gic_v3.h>
-#include <mtk_cirq.h>
 #endif
 
 #define CONSTRAINT_BUS26M_ALLOW			\
