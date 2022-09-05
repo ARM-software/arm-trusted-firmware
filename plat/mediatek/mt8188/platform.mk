@@ -27,6 +27,7 @@ MODULES-y += $(MTK_PLAT)/drivers/dp
 MODULES-y += $(MTK_PLAT)/drivers/gic600
 MODULES-y += $(MTK_PLAT)/drivers/gpio
 MODULES-y += $(MTK_PLAT)/drivers/iommu
+MODULES-y += $(MTK_PLAT)/drivers/lpm
 MODULES-y += $(MTK_PLAT)/drivers/pmic
 MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
 MODULES-y += $(MTK_PLAT)/drivers/rtc
