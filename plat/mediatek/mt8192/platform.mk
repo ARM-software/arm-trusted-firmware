@@ -8,12 +8,12 @@ MTK_PLAT      := plat/mediatek
 MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
-                 -I${MTK_PLAT}/common/drivers/gic600/             \
-                 -I${MTK_PLAT}/common/drivers/gpio/               \
-                 -I${MTK_PLAT}/common/drivers/rtc/                \
-                 -I${MTK_PLAT}/common/drivers/timer/              \
-                 -I${MTK_PLAT}/common/drivers/uart/               \
-                 -I${MTK_PLAT}/common/lpm/                        \
+                 -I${MTK_PLAT}/drivers/gic600/                    \
+                 -I${MTK_PLAT}/drivers/gpio/                      \
+                 -I${MTK_PLAT}/drivers/lpm/                       \
+                 -I${MTK_PLAT}/drivers/rtc/                       \
+                 -I${MTK_PLAT}/drivers/timer/                     \
+                 -I${MTK_PLAT}/drivers/uart/                      \
                  -I${MTK_PLAT}/include/                           \
                  -I${MTK_PLAT_SOC}/include/                       \
                  -I${MTK_PLAT_SOC}/drivers/                       \
@@ -46,18 +46,18 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    lib/cpus/aarch64/cortex_a55.S                         \
                    lib/cpus/aarch64/cortex_a76.S                         \
                    plat/common/plat_gicv3.c                              \
-                   ${MTK_PLAT}/common/drivers/gic600/mt_gic_v3.c         \
-                   ${MTK_PLAT}/common/drivers/gpio/mtgpio_common.c       \
-                   ${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init_v2.c \
-                   ${MTK_PLAT}/common/drivers/rtc/rtc_common.c           \
-                   ${MTK_PLAT}/common/drivers/rtc/rtc_mt6359p.c          \
-                   ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
-                   ${MTK_PLAT}/common/drivers/uart/uart.c                \
-                   ${MTK_PLAT}/common/lpm/mt_lp_rm.c                     \
                    ${MTK_PLAT}/common/mtk_cirq.c                         \
                    ${MTK_PLAT}/common/mtk_plat_common.c                  \
                    ${MTK_PLAT}/common/mtk_sip_svc.c                      \
                    ${MTK_PLAT}/common/params_setup.c                     \
+                   ${MTK_PLAT}/drivers/gic600/mt_gic_v3.c                \
+                   ${MTK_PLAT}/drivers/gpio/mtgpio_common.c              \
+                   ${MTK_PLAT}/drivers/lpm/mt_lp_rm.c                    \
+                   ${MTK_PLAT}/drivers/pmic_wrap/pmic_wrap_init_v2.c     \
+                   ${MTK_PLAT}/drivers/rtc/rtc_common.c                  \
+                   ${MTK_PLAT}/drivers/rtc/rtc_mt6359p.c                 \
+                   ${MTK_PLAT}/drivers/timer/mt_timer.c                  \
+                   ${MTK_PLAT}/drivers/uart/uart.c                       \
                    ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                    ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                    ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
