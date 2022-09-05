@@ -48,7 +48,7 @@ CASSERT(__builtin_offsetof(struct psram_data_t, ddr_flag) == PSRAM_DT_DDRFLAG,
 CASSERT(__builtin_offsetof(struct psram_data_t, boot_mpidr) == PSRAM_DT_MPIDR,
 	assert_psram_dt_mpidr_offset_mistmatch);
 
-extern void *sys_sleep_flag_sram;
+extern struct psram_data_t sys_sleep_flag_sram;
 
 #endif  /* __ASSEMBLER__ */
 
