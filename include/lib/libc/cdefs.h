@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #define __packed	__attribute__((__packed__))
 #define __used		__attribute__((__used__))
 #define __unused	__attribute__((__unused__))
+#define __maybe_unused	__attribute__((__unused__))
 #define __aligned(x)	__attribute__((__aligned__(x)))
 #define __section(x)	__attribute__((__section__(x)))
 #if RECLAIM_INIT_CODE
