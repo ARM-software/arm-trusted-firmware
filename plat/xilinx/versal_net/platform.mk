@@ -13,8 +13,13 @@ override RESET_TO_BL31 := 1
 PL011_GENERIC_UART := 1
 GIC_ENABLE_V4_EXTN :=  0
 GICV3_SUPPORT_GIC600 := 1
+TFA_NO_PM := 0
 
 override CTX_INCLUDE_AARCH32_REGS    := 0
+
+ifdef TFA_NO_PM
+   $(eval $(call add_define,TFA_NO_PM))
+endif
 
 ifdef VERSAL_NET_ATF_MEM_BASE
     $(eval $(call add_define,VERSAL_NET_ATF_MEM_BASE))
@@ -68,9 +73,18 @@ PLAT_BL_COMMON_SOURCES	:=	\
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a78_ae.S		\
 				lib/cpus/aarch64/cortex_a78.S			\
-				plat/common/plat_psci_common.c			\
-				${PLAT_PATH}/plat_psci.c			\
-				plat/xilinx/common/plat_startup.c		\
+				plat/common/plat_psci_common.c
+ifeq ($(TFA_NO_PM), 0)
+BL31_SOURCES		+=	plat/xilinx/versal/pm_service/pm_api_sys.c	\
+				plat/xilinx/common/pm_service/pm_ipi.c		\
+				${PLAT_PATH}/plat_psci_pm.c			\
+				plat/xilinx/versal/pm_service/pm_svc_main.c	\
+				${PLAT_PATH}/pm_service/pm_client.c		\
+				${PLAT_PATH}/versal_net_ipi.c
+else
+BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
+endif
+BL31_SOURCES		+=	plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				${PLAT_PATH}/bl31_versal_net_setup.c		\

@@ -110,6 +110,11 @@ void versal_net_config_setup(void)
 		      VERSAL_NET_IOU_SCNTRS_CONTROL_EN);
 
 	generic_delay_timer_init();
+
+#if (TFA_NO_PM == 0)
+	/* Configure IPI data for versal_net */
+	versal_net_ipi_config_table_init();
+#endif
 }
 
 uint32_t plat_get_syscnt_freq2(void)

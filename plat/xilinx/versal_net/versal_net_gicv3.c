@@ -22,7 +22,10 @@
 #pragma weak plat_versal_net_gic_driver_init
 #pragma weak plat_versal_net_gic_init
 #pragma weak plat_versal_net_gic_cpuif_enable
+#pragma weak plat_versal_net_gic_cpuif_disable
 #pragma weak plat_versal_net_gic_pcpu_init
+#pragma weak plat_versal_net_gic_redistif_on
+#pragma weak plat_versal_net_gic_redistif_off
 
 /* The GICv3 driver only needs to be initialized in EL3 */
 static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
@@ -39,6 +42,13 @@ static const interrupt_prop_t versal_net_interrupt_props[] = {
 	PLAT_VERSAL_NET_G1S_IRQ_PROPS(INTR_GROUP1S),
 	PLAT_VERSAL_NET_G0_IRQ_PROPS(INTR_GROUP0)
 };
+
+/*
+ * We save and restore the GICv3 context on system suspend. Allocate the
+ * data in the designated EL3 Secure carve-out memory.
+ */
+static gicv3_redist_ctx_t rdist_ctx __section("versal_net_el3_tzc_dram");
+static gicv3_dist_ctx_t dist_ctx __section("versal_net_el3_tzc_dram");
 
 /*
  * MPIDR hashing function for translating MPIDRs read from GICR_TYPER register
@@ -108,6 +118,14 @@ void plat_versal_net_gic_cpuif_enable(void)
 }
 
 /******************************************************************************
+ * Versal NET common helper to disable the GIC CPU interface
+ *****************************************************************************/
+void plat_versal_net_gic_cpuif_disable(void)
+{
+	gicv3_cpuif_disable(plat_my_core_pos());
+}
+
+/******************************************************************************
  * Versal NET common helper to initialize the per-cpu redistributor interface in
  * GICv3
  *****************************************************************************/
@@ -133,4 +151,72 @@ void plat_versal_net_gic_pcpu_init(void)
 	}
 
 	gicv3_rdistif_init(plat_my_core_pos());
+}
+
+/******************************************************************************
+ * Versal NET common helpers to power GIC redistributor interface
+ *****************************************************************************/
+void plat_versal_net_gic_redistif_on(void)
+{
+	gicv3_rdistif_on(plat_my_core_pos());
+}
+
+void plat_versal_net_gic_redistif_off(void)
+{
+	gicv3_rdistif_off(plat_my_core_pos());
+}
+
+/******************************************************************************
+ * Versal NET common helper to save & restore the GICv3 on resume from system
+ * suspend
+ *****************************************************************************/
+void plat_versal_net_gic_save(void)
+{
+	/*
+	 * If an ITS is available, save its context before
+	 * the Redistributor using:
+	 * gicv3_its_save_disable(gits_base, &its_ctx[i])
+	 * Additionnaly, an implementation-defined sequence may
+	 * be required to save the whole ITS state.
+	 */
+
+	/*
+	 * Save the GIC Redistributors and ITS contexts before the
+	 * Distributor context. As we only handle SYSTEM SUSPEND API,
+	 * we only need to save the context of the CPU that is issuing
+	 * the SYSTEM SUSPEND call, i.e. the current CPU.
+	 */
+	gicv3_rdistif_save(plat_my_core_pos(), &rdist_ctx);
+
+	/* Save the GIC Distributor context */
+	gicv3_distif_save(&dist_ctx);
+
+	/*
+	 * From here, all the components of the GIC can be safely powered down
+	 * as long as there is an alternate way to handle wakeup interrupt
+	 * sources.
+	 */
+}
+
+void plat_versal_net_gic_resume(void)
+{
+	/* Restore the GIC Distributor context */
+	gicv3_distif_init_restore(&dist_ctx);
+
+	/*
+	 * Restore the GIC Redistributor and ITS contexts after the
+	 * Distributor context. As we only handle SYSTEM SUSPEND API,
+	 * we only need to restore the context of the CPU that issued
+	 * the SYSTEM SUSPEND call.
+	 */
+	gicv3_rdistif_init_restore(plat_my_core_pos(), &rdist_ctx);
+
+	/*
+	 * If an ITS is available, restore its context after
+	 * the Redistributor using:
+	 * gicv3_its_restore(gits_base, &its_ctx[i])
+	 * An implementation-defined sequence may be required to
+	 * restore the whole ITS state. The ITS must also be
+	 * re-enabled after this sequence has been executed.
+	 */
 }

@@ -12,6 +12,7 @@
 #include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
+#define MAX_INTR_EL3			2
 /* This part is taken from U-Boot project under GPL that's why dual license above */
 #define __bf_shf(x) (__builtin_ffsll(x) - 1U)
 #define FIELD_GET(_mask, _reg)						\
@@ -65,6 +66,16 @@
 /* Firmware Image Package */
 #define VERSAL_NET_PRIMARY_CPU		U(0)
 
+#define CORE_0_IEN_POWER_OFFSET			(0x00000018U)
+#define APU_PCIL_CORE_X_IEN_POWER_REG(cpu_id)	(APU_PCLI + (CORE_0_IEN_POWER_OFFSET + \
+						 (0x30 * cpu_id)))
+#define APU_PCIL_CORE_X_IEN_POWER_MASK		(0x00000001U)
+#define CORE_0_IDS_POWER_OFFSET			(0x0000001CU)
+#define APU_PCIL_CORE_X_IDS_POWER_REG(cpu_id)	(APU_PCLI + (CORE_0_IDS_POWER_OFFSET + \
+						 (0x30 * cpu_id)))
+#define APU_PCIL_CORE_X_IDS_POWER_MASK		(0x00000001U)
+#define CORE_PWRDN_EN_BIT_MASK			(0x1U)
+
 /*******************************************************************************
  * memory map related constants
  ******************************************************************************/
@@ -117,5 +128,43 @@
 #define PLAT_VERSAL_NET_CRASH_UART_BASE		VERSAL_NET_UART_BASE
 #define PLAT_VERSAL_NET_CRASH_UART_CLK_IN_HZ	VERSAL_NET_UART_CLOCK
 #define VERSAL_NET_CONSOLE_BAUDRATE		VERSAL_NET_UART_BAUDRATE
+
+/*******************************************************************************
+ * IPI registers and bitfields
+ ******************************************************************************/
+#define IPI0_REG_BASE		(0xEB330000U)
+#define IPI0_TRIG_BIT		(1 << 2)
+#define PMC_IPI_TRIG_BIT	(1 << 1)
+#define IPI1_REG_BASE		(0xEB340000U)
+#define IPI1_TRIG_BIT		(1 << 3)
+#define IPI2_REG_BASE		(0xEB350000U)
+#define IPI2_TRIG_BIT		(1 << 4)
+#define IPI3_REG_BASE		(0xEB360000U)
+#define IPI3_TRIG_BIT		(1 << 5)
+#define IPI4_REG_BASE		(0xEB370000U)
+#define IPI4_TRIG_BIT		(1 << 6)
+#define IPI5_REG_BASE		(0xEB380000U)
+#define IPI5_TRIG_BIT		(1 << 7)
+
+/* Processor core device IDs */
+#define PM_DEV_CLUSTER0_ACPU_0	(0x1810C0AFU)
+#define PM_DEV_CLUSTER0_ACPU_1	(0x1810C0B0U)
+#define PM_DEV_CLUSTER0_ACPU_2	(0x1810C0B1U)
+#define PM_DEV_CLUSTER0_ACPU_3	(0x1810C0B2U)
+
+#define PM_DEV_CLUSTER1_ACPU_0	(0x1810C0B3U)
+#define PM_DEV_CLUSTER1_ACPU_1	(0x1810C0B4U)
+#define PM_DEV_CLUSTER1_ACPU_2	(0x1810C0B5U)
+#define PM_DEV_CLUSTER1_ACPU_3	(0x1810C0B6U)
+
+#define PM_DEV_CLUSTER2_ACPU_0	(0x1810C0B7U)
+#define PM_DEV_CLUSTER2_ACPU_1	(0x1810C0B8U)
+#define PM_DEV_CLUSTER2_ACPU_2	(0x1810C0B9U)
+#define PM_DEV_CLUSTER2_ACPU_3	(0x1810C0BAU)
+
+#define PM_DEV_CLUSTER3_ACPU_0	(0x1810C0BBU)
+#define PM_DEV_CLUSTER3_ACPU_1	(0x1810C0BCU)
+#define PM_DEV_CLUSTER3_ACPU_2	(0x1810C0BDU)
+#define PM_DEV_CLUSTER3_ACPU_3	(0x1810C0BEU)
 
 #endif /* VERSAL_NET_DEF_H */
