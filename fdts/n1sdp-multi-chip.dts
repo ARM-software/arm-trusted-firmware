@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0 or BSD-3-Clause)
 /*
- * Copyright (c) 2019-2020, Arm Limited.
+ * Copyright (c) 2019-2022, Arm Limited.
  */
 
 #include "n1sdp-single-chip.dts"
@@ -54,19 +54,19 @@
 				    <1 1 10>;
 	};
 
-	smmu_slave_pcie: iommu@4004f400000 {
+	smmu_secondary_pcie: iommu@4004f400000 {
 		compatible = "arm,smmu-v3";
 		reg = <0x400 0x4f400000 0 0x40000>;
 		interrupts = <GIC_SPI 715 IRQ_TYPE_EDGE_RISING>,
 				<GIC_SPI 716 IRQ_TYPE_EDGE_RISING>,
 				<GIC_SPI 717 IRQ_TYPE_EDGE_RISING>;
 		interrupt-names = "eventq", "cmdq-sync", "gerror";
-		msi-parent = <&its2_slave 0>;
+		msi-parent = <&its2_secondary 0>;
 		#iommu-cells = <1>;
 		dma-coherent;
 	};
 
-	pcie_slave_ctlr: pcie@40070000000 {
+	pcie_secondary_ctlr: pcie@40070000000 {
 		compatible = "arm,n1sdp-pcie";
 		device_type = "pci";
 		reg = <0x400 0x70000000 0 0x1200000>;
@@ -84,8 +84,9 @@
 				<0 0 0 2 &gic 0 0 0 650 IRQ_TYPE_LEVEL_HIGH>,
 				<0 0 0 3 &gic 0 0 0 651 IRQ_TYPE_LEVEL_HIGH>,
 				<0 0 0 4 &gic 0 0 0 652 IRQ_TYPE_LEVEL_HIGH>;
-		msi-map = <0 &its_slave_pcie 0 0x10000>;
-		iommu-map = <0 &smmu_slave_pcie 0 0x10000>;
+		msi-map = <0 &its_secondary_pcie 0 0x10000>;
+		iommu-map = <0 &smmu_secondary_pcie 0 0x10000>;
+		numa-node-id = <1>;
 		status = "okay";
 	};
 
@@ -97,17 +98,25 @@
 		<0x0 0x300c0000 0 0x80000>,	/* GICR */
 		<0x400 0x300c0000 0 0x80000>;	/* GICR */
 
-	its2_slave: its@40030060000 {
+	its2_secondary: its@40030060000 {
 		compatible = "arm,gic-v3-its";
 		msi-controller;
 		#msi-cells = <1>;
 		reg = <0x400 0x30060000 0x0 0x20000>;
 	};
 
-	its_slave_pcie: its@400300a0000 {
+	its_secondary_pcie: its@400300a0000 {
 		compatible = "arm,gic-v3-its";
 		msi-controller;
 		#msi-cells = <1>;
 		reg = <0x400 0x300a0000 0x0 0x20000>;
 	};
+};
+
+&pcie_ctlr {
+	numa-node-id = <0>;
+};
+
+&ccix_pcie_ctlr {
+	numa-node-id = <0>;
 };
