@@ -180,7 +180,6 @@
 &iwdg2 {
 	timeout-sec = <32>;
 	status = "okay";
-	secure-status = "okay";
 };
 
 &pwr_regulators {
@@ -189,7 +188,6 @@
 };
 
 &rcc {
-	secure-status = "disabled";
 	st,clksrc = <
 		CLK_MPU_PLL1P
 		CLK_AXI_PLL2P
@@ -302,10 +300,6 @@
 	bus-width = <4>;
 	vmmc-supply = <&v3v3>;
 	status = "okay";
-};
-
-&timers15 {
-	secure-status = "okay";
 };
 
 &uart4 {
