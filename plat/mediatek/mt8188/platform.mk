@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022, MediaTek Inc. All rights reserved.
+# Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -39,6 +39,7 @@ MODULES-y += $(MTK_PLAT)/drivers/pmic
 MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
 MODULES-y += $(MTK_PLAT)/drivers/ptp3
 MODULES-y += $(MTK_PLAT)/drivers/rtc
+MODULES-y += $(MTK_PLAT)/drivers/spm
 MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/topology

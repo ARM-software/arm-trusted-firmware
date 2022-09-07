@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022, MediaTek Inc. All rights reserved.
+# Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -23,3 +23,4 @@ $(eval $(call add_defined_option,CONFIG_MTK_SMP_EN))
 $(eval $(call add_defined_option,CONFIG_MTK_CPU_SUSPEND_EN))
 $(eval $(call add_defined_option,CONFIG_MTK_PM_ARCH))
 $(eval $(call add_defined_option,CONFIG_MTK_CPU_PM_ARCH))
+$(eval $(call add_defined_option,CONFIG_MTK_SUPPORT_SYSTEM_SUSPEND))

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022, MediaTek Inc. All rights reserved.
+# Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -41,6 +41,8 @@ CONFIG_MTK_CPU_PM_SUPPORT := y
 CONFIG_MTK_CPU_PM_ARCH := 3_2
 CONFIG_MTK_SMP_EN := y
 CONFIG_MTK_CPU_SUSPEND_EN := y
+CONFIG_MTK_SPM_VERSION := mt8188
+CONFIG_MTK_SUPPORT_SYSTEM_SUSPEND := y
 CPU_PM_TINYSYS_SUPPORT := y
 MTK_PUBEVENT_ENABLE := y
 
