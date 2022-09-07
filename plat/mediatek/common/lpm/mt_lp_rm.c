@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2020-2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2020-2023, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mt_lp_rm.h>
 #include <stddef.h>
+#include <lpm/mt_lp_rm.h>
 
 struct platform_mt_resource_manager {
 	unsigned int count;
@@ -52,6 +52,29 @@ int mt_lp_rm_reset_constraint(int idx, unsigned int cpuid, int stateid)
 	}
 
 	return rc->reset(cpuid, stateid);
+}
+
+int mt_lp_rm_get_status(unsigned int type, void *priv)
+{
+	int res = 0;
+	struct mt_resource_constraint *const *con;
+	struct mt_resource_manager *rm = plat_mt_rm.plat_rm;
+
+	if ((rm == NULL) || (type >= PLAT_RC_MAX)) {
+		return -1;
+	}
+
+	for (con = rm->consts; *con != NULL; con++) {
+		if ((*con)->get_status == NULL) {
+			continue;
+		}
+		res = (*con)->get_status(type, priv);
+		if (res == MT_RM_STATUS_STOP) {
+			break;
+		}
+	}
+
+	return res;
 }
 
 int mt_lp_rm_find_and_run_constraint(int idx, unsigned int cpuid,
