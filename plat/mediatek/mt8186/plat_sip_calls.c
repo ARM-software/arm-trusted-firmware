@@ -6,6 +6,8 @@
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <lib/mmio.h>
+#include <mt_msdc.h>
 #include <mt_spm_vcorefs.h>
 #include <mtk_sip_svc.h>
 #include <plat_dfd.h>
@@ -31,6 +33,11 @@ uintptr_t mediatek_plat_sip_handler(uint32_t smc_fid,
 	case MTK_SIP_KERNEL_DFD_AARCH32:
 	case MTK_SIP_KERNEL_DFD_AARCH64:
 		ret = dfd_smc_dispatcher(x1, x2, x3, x4);
+		SMC_RET1(handle, ret);
+		break;
+	case MTK_SIP_KERNEL_MSDC_AARCH32:
+	case MTK_SIP_KERNEL_MSDC_AARCH64:
+		ret = msdc_smc_dispatcher(x1, x2, x3, x4);
 		SMC_RET1(handle, ret);
 		break;
 	default:
