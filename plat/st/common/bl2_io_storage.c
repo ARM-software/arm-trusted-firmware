@@ -257,6 +257,7 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 		VERBOSE("%s: FIP header found on eMMC boot partition\n",
 			__func__);
 		image_block_spec.offset = STM32MP_EMMC_BOOT_FIP_OFFSET;
+		image_block_spec.length = mmc_boot_part_size() - STM32MP_EMMC_BOOT_FIP_OFFSET;
 	}
 #endif
 }
