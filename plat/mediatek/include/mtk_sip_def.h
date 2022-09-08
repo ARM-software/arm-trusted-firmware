@@ -10,6 +10,7 @@
 /* Define SiP SMC ID here */
 #define MTK_SIP_SMC_FROM_NS_EL1_TABLE(_func) \
 	_func(MTK_SIP_KERNEL_TIME_SYNC, 0x202) \
+	_func(MTK_SIP_KERNEL_DFD, 0x205) \
 	_func(MTK_SIP_VCORE_CONTROL, 0x506) \
 	_func(MTK_SIP_IOMMU_CONTROL, 0x514) \
 	_func(MTK_SIP_APUSYS_CONTROL, 0x51E) \
