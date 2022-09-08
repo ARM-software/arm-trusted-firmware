@@ -65,6 +65,10 @@ void board_detection(void)
 	platform_id = FIELD_GET(PLATFORM_MASK, version);
 	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, version);
 
+	if (platform_id == VERSAL_NET_QEMU_COSIM) {
+		platform_id = VERSAL_NET_QEMU;
+	}
+
 	if ((platform_id == VERSAL_NET_SPP) ||
 	    (platform_id == VERSAL_NET_EMU) ||
 	    (platform_id == VERSAL_NET_QEMU)) {
