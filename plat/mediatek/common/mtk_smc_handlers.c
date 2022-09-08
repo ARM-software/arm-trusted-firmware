@@ -6,9 +6,11 @@
 
 #include <assert.h>
 #include <errno.h>
+#if MTK_SIP_KERNEL_BOOT_ENABLE
+#include <cold_boot.h>
+#endif
 #include <common/debug.h>
 #include <common/runtime_svc.h>
-#include <cold_boot.h>
 #include <lib/mtk_init/mtk_init.h>
 #include <mtk_sip_svc.h>
 
