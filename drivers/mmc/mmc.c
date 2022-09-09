@@ -16,6 +16,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/mmc.h>
 #include <lib/utils.h>
+#include <plat/common/common_def.h>
 
 #define MMC_DEFAULT_MAX_RETRIES		5
 #define SEND_OP_COND_MAX_RETRIES	100
