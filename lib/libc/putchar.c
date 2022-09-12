@@ -6,15 +6,9 @@
 
 #include <stdio.h>
 
-#include <drivers/console.h>
-
-int putchar(int c)
+int __putchar(int c)
 {
-	int res;
-	if (console_putc((unsigned char)c) >= 0)
-		res = c;
-	else
-		res = EOF;
-
-	return res;
+	return c;
 }
+
+int putchar(int c) __attribute__((weak,alias("__putchar")));
