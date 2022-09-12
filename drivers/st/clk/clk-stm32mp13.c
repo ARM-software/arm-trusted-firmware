@@ -1357,6 +1357,123 @@ static inline struct stm32_pll_dt_cfg *clk_stm32_pll_get_pdata(int pll_idx)
 	return &pdata->pll[pll_idx];
 }
 
+/* Define characteristic for PLL1 : PLL_2000 */
+#define POST_DIVM_MIN	8000000U
+#define POST_DIVM_MAX	16000000U
+#define DIVM_MIN	0U
+#define DIVM_MAX	63U
+#define DIVN_MIN	24U
+#define DIVN_MAX	99U
+#define DIVP_MIN	0U
+#define DIVP_MAX	127U
+#define FRAC_MAX	8192U
+#define VCO_MIN		992000000U
+#define VCO_MAX		2000000000U
+
+static int clk_compute_pll1_settings(uint32_t freq_khz)
+{
+	struct stm32_clk_priv *priv = clk_stm32_get_priv();
+	struct stm32_pll_dt_cfg *pll1 = clk_stm32_pll_get_pdata(_PLL1);
+	struct stm32_pll_dt_cfg *pll2 = clk_stm32_pll_get_pdata(_PLL2);
+	unsigned long long best_diff = ULLONG_MAX;
+	unsigned int divm;
+	unsigned long input_freq = 0UL;
+	uint32_t src =  pll2->vco.src;
+
+	/* PLL1 share the same clock source than PLL2 */
+	switch (src) {
+	case CLK_PLL12_HSI:
+		input_freq = _clk_stm32_get_rate(priv, _CK_HSI);
+		break;
+	case CLK_PLL12_HSE:
+		input_freq = _clk_stm32_get_rate(priv, _CK_HSE);
+		break;
+	default:
+		break;
+	}
+
+	if (input_freq == 0UL) {
+		panic();
+	}
+
+	/* Following parameters have always the same value */
+	pll1->output.output[PLL_CFG_Q] = 0U;
+	pll1->output.output[PLL_CFG_R] = 0U;
+
+	for (divm = (DIVM_MAX + 1U); divm != DIVM_MIN; divm--) {
+		unsigned long post_divm = input_freq / divm;
+		unsigned int divp;
+
+		if ((post_divm < POST_DIVM_MIN) || (post_divm > POST_DIVM_MAX)) {
+			continue;
+		}
+
+		for (divp = DIVP_MIN; divp <= DIVP_MAX; divp++) {
+			unsigned long long output_freq = freq_khz * 1000ULL;
+			unsigned long long freq;
+			unsigned long long divn;
+			unsigned long long frac;
+			unsigned int i;
+
+			freq = output_freq * divm * (divp + 1U);
+
+			divn = (freq / input_freq) - 1U;
+			if ((divn < DIVN_MIN) || (divn > DIVN_MAX)) {
+				continue;
+			}
+
+			frac = ((freq * FRAC_MAX) / input_freq) - ((divn + 1U) * FRAC_MAX);
+
+			/* 2 loops to refine the fractional part */
+			for (i = 2U; i != 0U; i--) {
+				unsigned long long diff;
+				unsigned long long vco;
+
+				if (frac > FRAC_MAX) {
+					break;
+				}
+
+				vco = (post_divm * (divn + 1U)) + ((post_divm * frac) / FRAC_MAX);
+
+				if ((vco < (VCO_MIN / 2U)) || (vco > (VCO_MAX / 2U))) {
+					frac++;
+					continue;
+				}
+
+				freq = vco / (divp + 1U);
+				if (output_freq < freq) {
+					diff = freq - output_freq;
+				} else {
+					diff = output_freq - freq;
+				}
+
+				if (diff < best_diff)  {
+					pll1->vco.src = src;
+					pll1->vco.status = RCC_PLLNCR_DIVPEN | RCC_PLLNCR_PLLON;
+					pll1->vco.div_mn[PLL_CFG_M] = divm - 1U;
+					pll1->vco.div_mn[PLL_CFG_N] = (uint32_t)divn;
+					pll1->vco.frac = (uint32_t)frac;
+					pll1->output.output[PLL_CFG_P] = divp;
+
+					if (diff == 0U) {
+						return 0;
+					}
+
+					best_diff = diff;
+				}
+
+				frac++;
+			}
+		}
+	}
+
+	if (best_diff == ULLONG_MAX) {
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 static bool _clk_stm32_pll_is_enabled(struct stm32_clk_priv *priv, const struct stm32_clk_pll *pll)
 {
 	uintptr_t pll_base = priv->base + pll->reg_pllxcr;
@@ -2244,7 +2361,8 @@ static int stm32_clk_parse_fdt_all_pll(void *fdt, int node, struct stm32_clk_pla
 {
 	size_t i = 0U;
 
-	for (i = _PLL1; i < pdata->npll; i++) {
+	/* PLL1 is not configurable with device tree */
+	for (i = _PLL2; i < pdata->npll; i++) {
 		struct stm32_pll_dt_cfg *pll = &pdata->pll[i];
 		char name[RCC_PLL_NAME_SIZE];
 		int subnode = 0;
@@ -2306,6 +2424,21 @@ static int stm32_clk_parse_fdt(struct stm32_clk_platdata *pdata)
 
 int stm32mp1_clk_init(void)
 {
+	int ret;
+
+	/* compute the PLL1 settings, not read in device tree */
+	ret = clk_compute_pll1_settings(PLL1_NOMINAL_FREQ_IN_KHZ);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = stm32mp1_init_clock_tree();
+	if (ret != 0) {
+		return ret;
+	}
+
+	clk_stm32_enable_critical_clocks();
+
 	return 0;
 }
 
@@ -2320,16 +2453,6 @@ int stm32mp1_clk_probe(void)
 	}
 
 	ret = clk_stm32_init(&stm32mp13_clock_data, base);
-	if (ret != 0) {
-		return ret;
-	}
 
-	ret = stm32mp1_init_clock_tree();
-	if (ret != 0) {
-		return ret;
-	}
-
-	clk_stm32_enable_critical_clocks();
-
-	return 0;
+	return ret;
 }

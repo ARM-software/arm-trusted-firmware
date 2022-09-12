@@ -537,7 +537,18 @@ static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 };
 
 /* Define characteristic of PLL according type */
-#define DIVN_MIN	24
+#define POST_DIVM_MIN	8000000U
+#define POST_DIVM_MAX	16000000U
+#define DIVM_MIN	0U
+#define DIVM_MAX	63U
+#define DIVN_MIN	24U
+#define DIVN_MAX	99U
+#define DIVP_MIN	0U
+#define DIVP_MAX	127U
+#define FRAC_MAX	8192U
+#define VCO_MIN		800000000U
+#define VCO_MAX		1600000000U
+
 static const struct stm32mp1_pll stm32mp1_pll[PLL_TYPE_NB] = {
 	[PLL_800] = {
 		.refclk_min = 4,
@@ -1813,6 +1824,116 @@ static int clk_get_pll_settings_from_dt(int plloff, unsigned int *pllcfg,
 	return ret;
 }
 
+static int clk_compute_pll1_settings(unsigned long input_freq,
+				     uint32_t freq_khz,
+				     uint32_t *pllcfg, uint32_t *fracv)
+{
+	unsigned long long best_diff = ULLONG_MAX;
+	unsigned int divm;
+
+	/* Following parameters have always the same value */
+	pllcfg[PLLCFG_Q] = 0U;
+	pllcfg[PLLCFG_R] = 0U;
+	pllcfg[PLLCFG_O] = PQR(1, 0, 0);
+
+	for (divm = (DIVM_MAX + 1U); divm != DIVM_MIN; divm--) {
+		unsigned long post_divm = input_freq / divm;
+		unsigned int divp;
+
+		if ((post_divm < POST_DIVM_MIN) || (post_divm > POST_DIVM_MAX)) {
+			continue;
+		}
+
+		for (divp = DIVP_MIN; divp <= DIVP_MAX; divp++) {
+			unsigned long long output_freq = freq_khz * 1000ULL;
+			unsigned long long freq;
+			unsigned long long divn;
+			unsigned long long frac;
+			unsigned int i;
+
+			freq = output_freq * divm * (divp + 1U);
+
+			divn = (freq / input_freq) - 1U;
+			if ((divn < DIVN_MIN) || (divn > DIVN_MAX)) {
+				continue;
+			}
+
+			frac = ((freq * FRAC_MAX) / input_freq) - ((divn + 1U) * FRAC_MAX);
+
+			/* 2 loops to refine the fractional part */
+			for (i = 2U; i != 0U; i--) {
+				unsigned long long diff;
+				unsigned long long vco;
+
+				if (frac > FRAC_MAX) {
+					break;
+				}
+
+				vco = (post_divm * (divn + 1U)) + ((post_divm * frac) / FRAC_MAX);
+
+				if ((vco < (VCO_MIN / 2U)) || (vco > (VCO_MAX / 2U))) {
+					frac++;
+					continue;
+				}
+
+				freq = vco / (divp + 1U);
+				if (output_freq < freq) {
+					diff = freq - output_freq;
+				} else {
+					diff = output_freq - freq;
+				}
+
+				if (diff < best_diff)  {
+					pllcfg[PLLCFG_M] = divm - 1U;
+					pllcfg[PLLCFG_N] = (uint32_t)divn;
+					pllcfg[PLLCFG_P] = divp;
+					*fracv = (uint32_t)frac;
+
+					if (diff == 0U) {
+						return 0;
+					}
+
+					best_diff = diff;
+				}
+
+				frac++;
+			}
+		}
+	}
+
+	if (best_diff == ULLONG_MAX) {
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int clk_get_pll1_settings(uint32_t clksrc, uint32_t freq_khz,
+				 uint32_t *pllcfg, uint32_t *fracv)
+{
+	unsigned long input_freq = 0UL;
+
+	assert(pllcfg != NULL);
+	assert(fracv != NULL);
+
+	switch (clksrc) {
+	case CLK_PLL12_HSI:
+		input_freq = stm32mp_clk_get_rate(CK_HSI);
+		break;
+	case CLK_PLL12_HSE:
+		input_freq = stm32mp_clk_get_rate(CK_HSE);
+		break;
+	default:
+		break;
+	}
+
+	if (input_freq == 0UL) {
+		panic();
+	}
+
+	return clk_compute_pll1_settings(input_freq, freq_khz, pllcfg, fracv);
+}
+
 int stm32mp1_clk_init(void)
 {
 	uintptr_t rcc_base = stm32mp_rcc_base();
@@ -1858,15 +1979,27 @@ int stm32mp1_clk_init(void)
 		plloff[i] = fdt_rcc_subnode_offset(name);
 
 		pllcfg_valid[i] = fdt_check_node(plloff[i]);
-		if (!pllcfg_valid[i]) {
+		if (pllcfg_valid[i]) {
+			ret = clk_get_pll_settings_from_dt(plloff[i], pllcfg[i],
+							   &pllfracv[i],
+							   pllcsg[i],
+							   &pllcsg_set[i]);
+			if (ret != 0) {
+				return ret;
+			}
+
 			continue;
 		}
 
-		ret = clk_get_pll_settings_from_dt(plloff[i], pllcfg[i],
-						   &pllfracv[i], pllcsg[i],
-						   &pllcsg_set[i]);
-		if (ret != 0) {
-			return ret;
+		if (i == _PLL1) {
+			ret = clk_get_pll1_settings(clksrc[CLKSRC_PLL12],
+						    PLL1_NOMINAL_FREQ_IN_KHZ,
+						    pllcfg[i], &pllfracv[i]);
+			if (ret != 0) {
+				return ret;
+			}
+
+			pllcfg_valid[i] = true;
 		}
 	}
 
