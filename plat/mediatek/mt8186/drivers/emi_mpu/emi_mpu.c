@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -96,5 +96,38 @@ int emi_mpu_set_protection(struct emi_region_info_t *region_info)
 
 void emi_mpu_init(void)
 {
-	/* TODO: more setting for EMI MPU. */
+	struct emi_region_info_t region_info;
+
+	/* SCP DRAM */
+	region_info.start = 0x50000000ULL;
+	region_info.end = 0x5109FFFFULL;
+	region_info.region = 2;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      NO_PROTECTION, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* DSP protect address */
+	region_info.start = 0x60000000ULL;	/* dram base addr */
+	region_info.end = 0x610FFFFFULL;
+	region_info.region = 3;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* Forbidden All */
+	region_info.start = 0x40000000ULL;	/* dram base addr */
+	region_info.end = 0x1FFFF0000ULL;
+	region_info.region = 4;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
 }
