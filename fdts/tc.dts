@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -335,6 +335,15 @@
 		clock-names = "uartclk", "apb_pclk";
 		status = "okay";
 	};
+
+        rtc0: rtc@1C170000 {
+                compatible = "arm,pl031", "arm,primecell";
+                reg = <0x0 0x1C170000 0x0 0x1000>;
+                interrupts = <0x0 100 0x4>;
+                clocks = <&soc_refclk100mhz>;
+                clock-names = "apb_pclk";
+                wakeup-source;
+        };
 
 	vencoder {
 		compatible = "drm,virtual-encoder";
