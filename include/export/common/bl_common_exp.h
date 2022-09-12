@@ -39,8 +39,8 @@
  *****************************************************************************/
 typedef struct image_info {
 	param_header_t h;
-	uintptr_t image_base;   /* physical address of base of image */
-	uint32_t image_size;    /* bytes read from image file */
+	uintptr_t image_base;	/* physical address of base of image */
+	uint32_t image_size;	/* bytes read from image file */
 	uint32_t image_max_size;
 } image_info_t;
 
