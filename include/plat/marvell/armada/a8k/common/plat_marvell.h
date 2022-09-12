@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 
+#include <common/bl_common.h>
 #include <lib/cassert.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/utils.h>

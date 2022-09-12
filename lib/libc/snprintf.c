@@ -6,10 +6,9 @@
 
 #include <assert.h>
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
-
-#include <common/debug.h>
-#include <plat/common/platform.h>
 
 #define get_num_va_args(_args, _lcount)				\
 	(((_lcount) > 1)  ? va_arg(_args, long long int) :	\
@@ -51,10 +50,10 @@ static void unsigned_num_print(char **s, size_t n, size_t *chars_printed,
 	unsigned int rem;
 	char ascii_a = capitalise ? 'A' : 'a';
 
+	/* num_buf is only large enough for radix >= 10 */
 	if (radix < 10) {
-		ERROR("snprintf: unsupported radix '%u'.", radix);
-		plat_panic_handler();
-		assert(0); /* Unreachable */
+		assert(0);
+		return;
 	}
 
 	do {
@@ -218,11 +217,8 @@ loop:
 				break;
 
 			default:
-				/* Panic on any other format specifier. */
-				ERROR("snprintf: specifier with ASCII code '%d' not supported.",
-				      *fmt);
-				plat_panic_handler();
-				assert(0); /* Unreachable */
+				CHECK_AND_PUT_CHAR(s, n, chars_printed, '%');
+				CHECK_AND_PUT_CHAR(s, n, chars_printed, *fmt);
 			}
 			fmt++;
 			continue;

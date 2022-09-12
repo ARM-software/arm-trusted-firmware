@@ -12,6 +12,7 @@
 #include <lib/utils.h>
 
 #include <errata.h>
+#include "platform_def.h"
 
 static const struct rc_timing rce[] = {
 	{U(1600), U(8), U(7)},

@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <stddef.h>
 
 #include <drivers/console.h>
 

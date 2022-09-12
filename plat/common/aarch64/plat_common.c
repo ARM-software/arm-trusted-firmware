@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include <arch_helpers.h>
+#include <common/debug.h>
 #include <drivers/console.h>
 #if RAS_EXTENSION
 #include <lib/extensions/ras.h>

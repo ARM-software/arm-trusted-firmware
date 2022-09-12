@@ -7,6 +7,7 @@
 #ifndef FCONF_H
 #define FCONF_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 /* Public API */

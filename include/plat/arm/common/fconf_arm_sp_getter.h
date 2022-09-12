@@ -7,6 +7,7 @@
 #ifndef FCONF_ARM_SP_GETTER_H
 #define FCONF_ARM_SP_GETTER_H
 
+#include <common/tbbr/tbbr_img_def.h>
 #include <lib/fconf/fconf.h>
 #include <tools_share/uuid.h>
 

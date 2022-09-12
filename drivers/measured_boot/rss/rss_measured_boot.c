@@ -5,6 +5,7 @@
  */
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>

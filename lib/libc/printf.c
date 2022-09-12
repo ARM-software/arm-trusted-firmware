@@ -9,8 +9,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <common/debug.h>
-
 #define get_num_va_args(_args, _lcount)				\
 	(((_lcount) > 1)  ? va_arg(_args, long long int) :	\
 	(((_lcount) == 1) ? va_arg(_args, long int) :		\
@@ -42,6 +40,12 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix,
 	char num_buf[20];
 	int i = 0, count = 0;
 	unsigned int rem;
+
+	/* num_buf is only large enough for radix >= 10 */
+	if (radix < 10) {
+		assert(0);
+		return 0;
+	}
 
 	do {
 		rem = unum % radix;

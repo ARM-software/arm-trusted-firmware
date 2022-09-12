@@ -6,10 +6,12 @@
 
 #include <assert.h>
 
+#include <common/bl_common.h>
 #if MEASURED_BOOT
 #include <common/desc_image_load.h>
 #endif
 #include <common/fdt_wrappers.h>
+#include <platform_def.h>
 
 #include <libfdt.h>
 
