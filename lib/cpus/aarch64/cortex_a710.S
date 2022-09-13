@@ -312,6 +312,48 @@ func check_errata_2147715
 endfunc check_errata_2147715
 
 /* ---------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2216384.
+ * This applies to revision r0p0, r1p0 and r2p0.
+ * It is fixed in r2p1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * ---------------------------------------------------------------
+ */
+func errata_a710_2216384_wa
+	/* Compare x0 against revision r2p0 */
+	mov	x17, x30
+	bl	check_errata_2216384
+	cbz	x0, 1f
+
+	/* Apply workaround: set CPUACTLR5_EL1[17]
+	 * to 1 and the following instruction
+	 * patching sequence.
+	 */
+	mrs	x1, CORTEX_A710_CPUACTLR5_EL1
+	orr	x1, x1, CORTEX_A710_CPUACTLR5_EL1_BIT_17
+	msr	CORTEX_A710_CPUACTLR5_EL1, x1
+
+	ldr	x0,=0x5
+	msr	CORTEX_A710_CPUPSELR_EL3, x0
+	ldr	x0,=0x10F600E000
+	msr	CORTEX_A710_CPUPOR_EL3, x0
+	ldr	x0,=0x10FF80E000
+	msr	CORTEX_A710_CPUPMR_EL3, x0
+	ldr	x0,=0x80000000003FF
+	msr	CORTEX_A710_CPUPCR_EL3, x0
+	isb
+1:
+	ret 	x17
+endfunc errata_a710_2216384_wa
+
+func check_errata_2216384
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2216384
+
+/* ---------------------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2282622.
  * This applies to revision r0p0, r1p0 and r2p0.
  * It is fixed in r2p1.
@@ -470,6 +512,7 @@ func cortex_a710_errata_report
 	report_errata ERRATA_A710_2282622, cortex_a710, 2282622
 	report_errata ERRATA_A710_2008768, cortex_a710, 2008768
 	report_errata ERRATA_A710_2147715, cortex_a710, 2147715
+	report_errata ERRATA_A710_2216384, cortex_a710, 2216384
 	report_errata ERRATA_A710_2371105, cortex_a710, 2371105
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a710, cve_2022_23960
 	report_errata ERRATA_DSU_2313941, cortex_a710, dsu_2313941
@@ -537,6 +580,11 @@ func cortex_a710_reset_func
 	bl 	errata_a710_2147715_wa
 #endif
 
+#if ERRATA_A710_2216384
+	mov	x0, x18
+	bl 	errata_a710_2216384_wa
+#endif /* ERRATA_A710_2216384 */
+
 #if ERRATA_A710_2282622
 	mov	x0, x18
 	bl	errata_a710_2282622_wa
@@ -550,8 +598,8 @@ func cortex_a710_reset_func
 #if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
 	/*
 	 * The Cortex-A710 generic vectors are overridden to apply errata
-         * mitigation on exception entry from lower ELs.
-         */
+	 * mitigation on exception entry from lower ELs.
+	 */
 	adr	x0, wa_cve_vbar_cortex_a710
 	msr	vbar_el3, x0
 #endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
