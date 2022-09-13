@@ -120,7 +120,7 @@ likely to be suitable for all platform ports.
 
 -  **#define : CACHE_WRITEBACK_GRANULE**
 
-   Defines the size in bits of the largest cache line across all the cache
+   Defines the size in bytes of the largest cache line across all the cache
    levels in the platform.
 
 -  **#define : FIRMWARE_WELCOME_STR**
