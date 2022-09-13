@@ -1620,6 +1620,29 @@ int intel_fcs_aes_crypt_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint64_t param_addr,
 				uint32_t param_size, uint32_t *mbox_error)
 {
+	/* ptr to get param_addr value */
+	uint64_t *param_addr_ptr;
+
+	param_addr_ptr = (uint64_t *) param_addr;
+
+	/*
+	 * Since crypto param size vary between mode.
+	 * Check ECB here and limit to size 12 bytes
+	 */
+	if (((*param_addr_ptr & FCS_CRYPTO_BLOCK_MODE_MASK) == FCS_CRYPTO_ECB_MODE) &&
+		(param_size > FCS_CRYPTO_ECB_BUFFER_SIZE)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+	/*
+	 * Since crypto param size vary between mode.
+	 * Check CBC/CTR here and limit to size 28 bytes
+	 */
+	if ((((*param_addr_ptr & FCS_CRYPTO_BLOCK_MODE_MASK) == FCS_CRYPTO_CBC_MODE) ||
+		((*param_addr_ptr & FCS_CRYPTO_BLOCK_MODE_MASK) == FCS_CRYPTO_CTR_MODE)) &&
+		(param_size > FCS_CRYPTO_CBC_CTR_BUFFER_SIZE)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
 	if (mbox_error == NULL) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
