@@ -151,6 +151,8 @@ static uint64_t __unused __dead2 zynqmp_sgi7_irq(uint32_t id, uint32_t flags,
 				0xffffffff);
 	}
 
+	dsb();
+
 	spin_unlock(&inc_lock);
 
 	if (active_cores == 0) {
