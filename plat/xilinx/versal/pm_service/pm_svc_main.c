@@ -355,7 +355,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t api_id;
 
 	/* Handle case where PM wasn't initialized properly */
-	if (!pm_up) {
+	if (pm_up == false) {
 		SMC_RET1(handle, SMC_UNK);
 	}
 
@@ -363,7 +363,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	 * Mark BIT24 payload (i.e 1st bit of pm_arg[3] ) as non-secure (1)
 	 * if smc called is non secure
 	 */
-	if (is_caller_non_secure(flags)) {
+	if (is_caller_non_secure(flags) != 0) {
 		security_flag = NON_SECURE_FLAG;
 	}
 
