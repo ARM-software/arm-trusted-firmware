@@ -17,7 +17,6 @@
 #include "pm_client.h"
 #include "pm_defs.h"
 #include "pm_svc_main.h"
-#include "../drivers/arm/gic/v3/gicv3_private.h"
 
 /* default shutdown/reboot scope is system(2) */
 static uint32_t pm_shutdown_scope = XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM;
@@ -466,8 +465,6 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		if (ret != 0) {
 			return PM_RET_ERROR_ARGS;
 		}
-		gicd_write_irouter(gicv3_driver_data->gicd_base,
-				  (uint32_t)PLAT_VERSAL_IPI_IRQ, MODE);
 		ret = PM_RET_SUCCESS;
 		break;
 	default:
