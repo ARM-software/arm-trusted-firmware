@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -192,10 +193,12 @@ enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
  * @data - array of PAYLOAD_ARG_CNT elements
  * @flag - 0 - Call from secure source
  *	   1 - Call from non-secure source
+ * @ack - 0 - Do not ack IPI after reading payload
+ *        1 - Ack IPI after reading payload
  *
  * Read value from ipi buffer response buffer.
  */
-void pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag)
+void pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag, uint32_t ack)
 {
 	/* Return if interrupt is not from PMU */
 	if (pm_ipi_irq_status(primary_proc) == 0) {
@@ -203,7 +206,10 @@ void pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag)
 	}
 
 	pm_ipi_buff_read_callb(data, count);
-	pm_ipi_irq_clear(primary_proc);
+
+	if (ack != 0U) {
+		pm_ipi_irq_clear(primary_proc);
+	}
 }
 
 /**
@@ -514,7 +520,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 	case PM_GET_TRUSTZONE_VERSION:
 		ret_payload[0] = PM_API_VERSION_2;
 		return PM_RET_SUCCESS;
-	case PM_LOAD_PDI:
+	case TF_A_PM_REGISTER_SGI:
 		ret_payload[0] = PM_API_BASE_VERSION;
 		return PM_RET_SUCCESS;
 	default:

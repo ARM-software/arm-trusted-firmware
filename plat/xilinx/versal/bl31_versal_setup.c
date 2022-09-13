@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -140,16 +142,29 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	NOTICE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
 }
 
-static interrupt_type_handler_t type_el3_interrupt_handler;
+static versal_intr_info_type_el3_t type_el3_interrupt_table[MAX_INTR_EL3];
 
-int32_t request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
+int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 {
-	/* Validate 'handler'*/
-	if (handler == NULL) {
+	static uint32_t index;
+	uint32_t i;
+
+	/* Validate 'handler' and 'id' parameters */
+	if (handler == NULL || index >= MAX_INTR_EL3) {
 		return -EINVAL;
 	}
 
-	type_el3_interrupt_handler = handler;
+	/* Check if a handler has already been registered */
+	for (i = 0; i < index; i++) {
+		if (id == type_el3_interrupt_table[i].id) {
+			return -EALREADY;
+		}
+	}
+
+	type_el3_interrupt_table[index].id = id;
+	type_el3_interrupt_table[index].handler = handler;
+
+	index++;
 
 	return 0;
 }
@@ -158,19 +173,19 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 					  void *handle, void *cookie)
 {
 	uint32_t intr_id;
-	interrupt_type_handler_t handler;
+	uint32_t i;
+	interrupt_type_handler_t handler = NULL;
 
 	intr_id = plat_ic_get_pending_interrupt_id();
-	/* Currently we support one interrupt */
-	if (intr_id != PLAT_VERSAL_IPI_IRQ) {
-		WARN("Unexpected interrupt call: 0x%x\n", intr_id);
-		return 0;
+
+	for (i = 0; i < MAX_INTR_EL3; i++) {
+		if (intr_id == type_el3_interrupt_table[i].id) {
+			handler = type_el3_interrupt_table[i].handler;
+		}
 	}
 
-	handler = type_el3_interrupt_handler;
-	if (handler != NULL) {
-		return handler(intr_id, flags, handle, cookie);
-	}
+	if (handler != NULL)
+		handler(intr_id, flags, handle, cookie);
 
 	return 0;
 }
