@@ -383,13 +383,9 @@ int psci_features(unsigned int psci_fid)
 	/* Format the feature flags */
 	if ((psci_fid == PSCI_CPU_SUSPEND_AARCH32) ||
 	    (psci_fid == PSCI_CPU_SUSPEND_AARCH64)) {
-		/*
-		 * The trusted firmware does not support OS Initiated Mode.
-		 */
 		unsigned int ret = ((FF_PSTATE << FF_PSTATE_SHIFT) |
-			(((FF_SUPPORTS_OS_INIT_MODE == 1U) ? 0U : 1U)
-				<< FF_MODE_SUPPORT_SHIFT));
-		return (int) ret;
+			(FF_SUPPORTS_OS_INIT_MODE << FF_MODE_SUPPORT_SHIFT));
+		return (int)ret;
 	}
 
 	/* Return 0 for all other fid's */
@@ -569,6 +565,10 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 
 		case PSCI_MIG_INFO_UP_CPU_AARCH64:
 			ret = psci_migrate_info_up_cpu();
+			break;
+
+		case PSCI_FEATURES:
+			ret = (u_register_t)psci_features(x1);
 			break;
 
 		case PSCI_NODE_HW_STATE_AARCH64:

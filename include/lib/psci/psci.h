@@ -143,7 +143,11 @@
 
 /* Features flags for CPU SUSPEND OS Initiated mode support. Bits [0:0] */
 #define FF_MODE_SUPPORT_SHIFT		U(0)
+#if PSCI_OS_INIT_MODE
 #define FF_SUPPORTS_OS_INIT_MODE	U(1)
+#else
+#define FF_SUPPORTS_OS_INIT_MODE	U(0)
+#endif
 
 /*******************************************************************************
  * PSCI version
