@@ -370,6 +370,39 @@ int psci_features(unsigned int psci_fid)
 	return PSCI_E_SUCCESS;
 }
 
+#if PSCI_OS_INIT_MODE
+int psci_set_suspend_mode(unsigned int mode)
+{
+	if (psci_suspend_mode == mode) {
+		return PSCI_E_SUCCESS;
+	}
+
+	if (mode == PLAT_COORD) {
+		/* Check if the current CPU is the last ON CPU in the system */
+		if (!psci_is_last_on_cpu_safe()) {
+			return PSCI_E_DENIED;
+		}
+	}
+
+	if (mode == OS_INIT) {
+		/*
+		 * Check if all CPUs in the system are ON or if the current
+		 * CPU is the last ON CPU in the system.
+		 */
+		if (!(psci_are_all_cpus_on_safe() ||
+		      psci_is_last_on_cpu_safe())) {
+			return PSCI_E_DENIED;
+		}
+	}
+
+	psci_suspend_mode = mode;
+	psci_flush_dcache_range((uintptr_t)&psci_suspend_mode,
+				sizeof(psci_suspend_mode));
+
+	return PSCI_E_SUCCESS;
+}
+#endif
+
 /*******************************************************************************
  * PSCI top level handler for servicing SMCs.
  ******************************************************************************/
@@ -453,6 +486,12 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 			ret = (u_register_t)psci_features(r1);
 			break;
 
+#if PSCI_OS_INIT_MODE
+		case PSCI_SET_SUSPEND_MODE:
+			ret = (u_register_t)psci_set_suspend_mode(r1);
+			break;
+#endif
+
 #if ENABLE_PSCI_STAT
 		case PSCI_STAT_RESIDENCY_AARCH32:
 			ret = psci_stat_residency(r1, r2);
@@ -514,6 +553,12 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_SYSTEM_SUSPEND_AARCH64:
 			ret = (u_register_t)psci_system_suspend(x1, x2);
 			break;
+
+#if PSCI_OS_INIT_MODE
+		case PSCI_SET_SUSPEND_MODE:
+			ret = (u_register_t)psci_set_suspend_mode(x1);
+			break;
+#endif
 
 #if ENABLE_PSCI_STAT
 		case PSCI_STAT_RESIDENCY_AARCH64:

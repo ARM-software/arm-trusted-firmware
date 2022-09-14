@@ -92,6 +92,7 @@ void psci_prepare_next_non_secure_ctx(
 int psci_stop_other_cores(unsigned int wait_ms,
 			  void (*stop_func)(u_register_t mpidr));
 bool psci_is_last_on_cpu_safe(void);
+bool psci_are_all_cpus_on_safe(void);
 void psci_pwrdown_cpu(unsigned int power_level);
 
 #endif /* __ASSEMBLER__ */

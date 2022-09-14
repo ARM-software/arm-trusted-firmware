@@ -59,6 +59,7 @@
 #define PSCI_NODE_HW_STATE_AARCH64	U(0xc400000d)
 #define PSCI_SYSTEM_SUSPEND_AARCH32	U(0x8400000E)
 #define PSCI_SYSTEM_SUSPEND_AARCH64	U(0xc400000E)
+#define PSCI_SET_SUSPEND_MODE		U(0x8400000F)
 #define PSCI_STAT_RESIDENCY_AARCH32	U(0x84000010)
 #define PSCI_STAT_RESIDENCY_AARCH64	U(0xc4000010)
 #define PSCI_STAT_COUNT_AARCH32		U(0x84000011)
@@ -73,9 +74,17 @@
  * Number of PSCI calls (above) implemented
  */
 #if ENABLE_PSCI_STAT
-#define PSCI_NUM_CALLS			U(22)
+#if PSCI_OS_INIT_MODE
+#define PSCI_NUM_CALLS			U(30)
 #else
-#define PSCI_NUM_CALLS			U(18)
+#define PSCI_NUM_CALLS			U(29)
+#endif
+#else
+#if PSCI_OS_INIT_MODE
+#define PSCI_NUM_CALLS			U(26)
+#else
+#define PSCI_NUM_CALLS			U(25)
+#endif
 #endif
 
 /* The macros below are used to identify PSCI calls from the SMC function ID */
@@ -347,6 +356,9 @@ u_register_t psci_migrate_info_up_cpu(void);
 int psci_node_hw_state(u_register_t target_cpu,
 		       unsigned int power_level);
 int psci_features(unsigned int psci_fid);
+#if PSCI_OS_INIT_MODE
+int psci_set_suspend_mode(unsigned int mode);
+#endif
 void __dead2 psci_power_down_wfi(void);
 void psci_arch_setup(void);
 

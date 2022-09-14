@@ -163,6 +163,16 @@ typedef struct cpu_pwr_domain_node {
 	spinlock_t cpu_lock;
 } cpu_pd_node_t;
 
+#if PSCI_OS_INIT_MODE
+/*******************************************************************************
+ * The supported power state coordination modes that can be used in CPU_SUSPEND.
+ ******************************************************************************/
+typedef enum suspend_mode {
+	PLAT_COORD = 0,
+	OS_INIT = 1
+} suspend_mode_t;
+#endif
+
 /*******************************************************************************
  * The following are helpers and declarations of locks.
  ******************************************************************************/
@@ -260,6 +270,9 @@ extern non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 extern cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 extern unsigned int psci_caps;
 extern unsigned int psci_plat_core_count;
+#if PSCI_OS_INIT_MODE
+extern suspend_mode_t psci_suspend_mode;
+#endif
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI
