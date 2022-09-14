@@ -82,7 +82,7 @@
 
 /* Alternative BL33 */
 #define PLAT_SQ_BL33_BASE		0xe0000000
-#define PLAT_SQ_BL33_SIZE		0x00100000
+#define PLAT_SQ_BL33_SIZE		0x00200000
 
 /* FWU FIP IO base */
 #define PLAT_SQ_FIP_IOBASE		0x08600000
