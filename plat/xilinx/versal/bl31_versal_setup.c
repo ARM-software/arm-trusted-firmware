@@ -184,8 +184,9 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 		}
 	}
 
-	if (handler != NULL)
-		handler(intr_id, flags, handle, cookie);
+	if (handler != NULL) {
+		return handler(intr_id, flags, handle, cookie);
+	}
 
 	return 0;
 }

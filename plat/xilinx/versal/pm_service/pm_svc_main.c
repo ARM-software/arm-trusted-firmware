@@ -253,7 +253,7 @@ static uintptr_t eemi_psci_debugfs_handler(uint32_t api_id, uint32_t *pm_arg,
  *
  * These EEMI calls performs functionality that does not require
  * IPI transaction. The handler ends in TF-A and returns requested data to
- * kernel from TF-A
+ * kernel from TF-A.
  */
 static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 				       void *handle, uint32_t security_flag)
@@ -355,7 +355,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t api_id;
 
 	/* Handle case where PM wasn't initialized properly */
-	if (!pm_up) {
+	if (pm_up == false) {
 		SMC_RET1(handle, SMC_UNK);
 	}
 
@@ -363,7 +363,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	 * Mark BIT24 payload (i.e 1st bit of pm_arg[3] ) as non-secure (1)
 	 * if smc called is non secure
 	 */
-	if (is_caller_non_secure(flags)) {
+	if (is_caller_non_secure(flags) != 0) {
 		security_flag = NON_SECURE_FLAG;
 	}
 

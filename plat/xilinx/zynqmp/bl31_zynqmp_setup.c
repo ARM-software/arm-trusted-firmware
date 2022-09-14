@@ -176,7 +176,7 @@ static void prepare_dtb(void)
 
 	/* Return if no device tree is detected */
 	if (fdt_check_header(dtb) != 0) {
-		NOTICE("Can't read DT at 0x%p\n", dtb);
+		NOTICE("Can't read DT at %p\n", dtb);
 		return;
 	}
 

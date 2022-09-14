@@ -352,7 +352,7 @@
 #define RESTART_SCOPE_SHIFT			(3)
 #define RESTART_SCOPE_MASK			(0x3U << RESTART_SCOPE_SHIFT)
 
-/*AFI registers */
+/* AFI registers */
 #define  AFIFM6_WRCTRL		U(13)
 #define  FABRIC_WIDTH		U(3)
 
