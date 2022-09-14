@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,9 +8,10 @@
 #include "morello.dtsi"
 
 / {
+	model = "Arm Morello System Development Platform";
 
 	chosen {
-		stdout-path = "soc_uart0:115200n8";
+		stdout-path = "serial0:115200n8";
 	};
 
 	reserved-memory {
@@ -59,16 +60,12 @@
 
 	/* The first bank of memory, memory map is actually provided by UEFI. */
 	memory@80000000 {
-		#address-cells = <2>;
-		#size-cells = <2>;
 		device_type = "memory";
 		/* [0x80000000-0xffffffff] */
 		reg = <0x00000000 0x80000000 0x0 0x7F000000>;
 	};
 
 	memory@8080000000 {
-		#address-cells = <2>;
-		#size-cells = <2>;
 		device_type = "memory";
 		/* [0x8080000000-0x83f7ffffff] */
 		reg = <0x00000080 0x80000000 0x3 0x78000000>;
@@ -78,10 +75,10 @@
 		compatible = "arm,smmu-v3";
 		reg = <0 0x4f400000 0 0x40000>;
 		interrupts = <GIC_SPI 235 IRQ_TYPE_EDGE_RISING>,
+				<GIC_SPI 237 IRQ_TYPE_EDGE_RISING>,
 				<GIC_SPI 40 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 236 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 237 IRQ_TYPE_EDGE_RISING>;
-		interrupt-names = "eventq", "priq", "cmdq-sync", "gerror";
+				<GIC_SPI 236 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "gerror", "priq", "cmdq-sync";
 		msi-parent = <&its2 0>;
 		#iommu-cells = <1>;
 		dma-coherent;
@@ -114,10 +111,10 @@
 		compatible = "arm,smmu-v3";
 		reg = <0 0x4f000000 0 0x40000>;
 		interrupts = <GIC_SPI 228 IRQ_TYPE_EDGE_RISING>,
+				<GIC_SPI 230 IRQ_TYPE_EDGE_RISING>,
 				<GIC_SPI 41 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 229 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 230 IRQ_TYPE_EDGE_RISING>;
-		interrupt-names = "eventq", "priq", "cmdq-sync", "gerror";
+				<GIC_SPI 229 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "gerror", "priq", "cmdq-sync";
 		msi-parent = <&its1 0>;
 		#iommu-cells = <1>;
 		dma-coherent;
@@ -150,16 +147,16 @@
 		compatible = "arm,smmu-v3";
 		reg = <0 0x2ce00000 0 0x40000>;
 		interrupts = <GIC_SPI 76 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 78 IRQ_TYPE_EDGE_RISING>,
-				<GIC_SPI 80 IRQ_TYPE_EDGE_RISING>;
-		interrupt-names = "eventq", "cmdq-sync", "gerror";
+				<GIC_SPI 80 IRQ_TYPE_EDGE_RISING>,
+				<GIC_SPI 78 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "gerror", "cmdq-sync";
 		#iommu-cells = <1>;
 	};
 
 	dp0: display@2cc00000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "arm,mali-d32";
+		compatible = "arm,mali-d32", "arm,mali-d71";
 		reg = <0 0x2cc00000 0 0x20000>;
 		interrupts = <0 69 4>;
 		interrupt-names = "DPU";
@@ -220,8 +217,8 @@
 		scmi {
 			compatible = "arm,scmi";
 			mbox-names = "tx", "rx";
-			mboxes = <&mailbox 1 0 &mailbox 1 1>;
-			shmem = <&cpu_scp_hpri0 &cpu_scp_hpri1>;
+			mboxes = <&mailbox 1 0>, <&mailbox 1 1>;
+			shmem = <&cpu_scp_hpri0>, <&cpu_scp_hpri1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			scmi_dvfs: protocol@13 {
@@ -241,28 +238,28 @@
 	      <0x0 0x300c0000 0 0x80000>;	/* GICR */
 	interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
 
-	its1: its@30040000 {
+	its1: msi-controller@30040000 {
 		compatible = "arm,gic-v3-its";
 		msi-controller;
 		#msi-cells = <1>;
 		reg = <0x0 0x30040000 0x0 0x20000>;
 	};
 
-	its2: its@30060000 {
+	its2: msi-controller@30060000 {
 		compatible = "arm,gic-v3-its";
 		msi-controller;
 		#msi-cells = <1>;
 		reg = <0x0 0x30060000 0x0 0x20000>;
 	};
 
-	its_ccix: its@30080000 {
+	its_ccix: msi-controller@30080000 {
 		compatible = "arm,gic-v3-its";
 		msi-controller;
 		#msi-cells = <1>;
 		reg = <0x0 0x30080000 0x0 0x20000>;
 	};
 
-	its_pcie: its@300a0000 {
+	its_pcie: msi-controller@300a0000 {
 		compatible = "arm,gic-v3-its";
 		msi-controller;
 		#msi-cells = <1>;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include "morello.dtsi"
 
 / {
+	model = "Arm Morello Fixed Virtual Platform";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -78,16 +79,12 @@
 
 	/* The first bank of memory, memory map is actually provided by UEFI. */
 	memory@80000000 {
-		#address-cells = <2>;
-		#size-cells = <2>;
 		device_type = "memory";
 		/* [0x80000000-0xffffffff] */
 		reg = <0x00000000 0x80000000 0x0 0x80000000>;
 	};
 
 	memory@8080000000 {
-		#address-cells = <2>;
-		#size-cells = <2>;
 		device_type = "memory";
 		/* [0x8080000000-0x83ffffffff] */
 		reg = <0x00000080 0x80000000 0x1 0x80000000>;
@@ -143,8 +140,8 @@
 		scmi {
 			compatible = "arm,scmi";
 			mbox-names = "tx", "rx";
-			mboxes = <&mailbox 1 0 &mailbox 1 1>;
-			shmem = <&cpu_scp_hpri0 &cpu_scp_hpri1>;
+			mboxes = <&mailbox 1 0>, <&mailbox 1 1>;
+			shmem = <&cpu_scp_hpri0>, <&cpu_scp_hpri1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 
