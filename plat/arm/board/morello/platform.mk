@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -59,11 +59,14 @@ FDT_SOURCES		+=	fdts/morello-${TARGET_PLATFORM}.dts		\
 				${MORELLO_BASE}/fdts/morello_nt_fw_config.dts
 
 FW_CONFIG		:=	${BUILD_PLAT}/fdts/morello_fw_config.dtb
+HW_CONFIG		:=	${BUILD_PLAT}/fdts/morello-${TARGET_PLATFORM}.dtb
 TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/morello_tb_fw_config.dtb
 NT_FW_CONFIG		:=	${BUILD_PLAT}/fdts/morello_nt_fw_config.dtb
 
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
+# Add the HW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 # Add the NT_FW_CONFIG to FIP and specify the same to certtool
