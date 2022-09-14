@@ -253,7 +253,7 @@ static uintptr_t eemi_psci_debugfs_handler(uint32_t api_id, uint32_t *pm_arg,
  *
  * These EEMI calls performs functionality that does not require
  * IPI transaction. The handler ends in TF-A and returns requested data to
- * kernel from TF-A
+ * kernel from TF-A.
  */
 static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 				       void *handle, uint32_t security_flag)
