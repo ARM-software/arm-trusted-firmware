@@ -14,7 +14,6 @@ include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common \
 		 -I${MTK_PLAT}/include \
-		 -I${MTK_PLAT}/include/${MTK_SOC} \
 		 -I${MTK_PLAT}/include/${ARCH_VERSION} \
 		 -I${MTK_PLAT} \
 		 -I${MTK_PLAT_SOC}/include \
