@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -229,14 +230,11 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 			sctlr_el2);
 
 	/*
-	 * The GICv3 driver initializes the ICC_SRE_EL2 register during
-	 * platform setup. Use the same setting for the corresponding
-	 * context register to make sure the correct bits are set when
-	 * restoring NS context.
+	 * Program the ICC_SRE_EL2 to make sure the correct bits are set
+	 * when restoring NS context.
 	 */
-	u_register_t icc_sre_el2 = read_icc_sre_el2();
-	icc_sre_el2 |= (ICC_SRE_DIB_BIT | ICC_SRE_DFB_BIT);
-	icc_sre_el2 |= (ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT);
+	u_register_t icc_sre_el2 = ICC_SRE_DIB_BIT | ICC_SRE_DFB_BIT |
+				   ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT;
 	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_ICC_SRE_EL2,
 			icc_sre_el2);
 #endif /* CTX_INCLUDE_EL2_REGS */
