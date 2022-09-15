@@ -408,7 +408,7 @@ static void armv8_2_get_sys_suspend_power_state(psci_power_state_t *req_state)
 			req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 		}
 
-		power_state = psci_make_powerstate(MT_PLAT_PWR_STATE_SYSTEM_SUSPEND,
+		power_state = psci_make_powerstate(MT_PLAT_PWR_STATE_SUSPEND,
 						   PSTATE_TYPE_POWERDOWN, PLAT_MAX_PWR_LVL);
 	}
 
