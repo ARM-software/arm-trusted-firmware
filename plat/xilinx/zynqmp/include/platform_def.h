@@ -40,7 +40,7 @@
 # define BL31_BASE			U(0xfffea000)
 # define BL31_LIMIT			U(0x100000000)
 #else
-# define BL31_BASE			U(0xfff5a000)
+# define BL31_BASE			U(0xfffe5000)
 # define BL31_LIMIT			U(0x100000000)
 #endif
 #else
