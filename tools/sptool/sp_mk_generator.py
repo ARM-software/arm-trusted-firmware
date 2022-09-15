@@ -196,7 +196,7 @@ def gen_fiptool_args(sp_layout, sp, args :dict):
     ''' Generate arguments for the FIP Tool. '''
     if "uuid" in sp_layout[sp]:
         # Extract the UUID from the JSON file if the SP entry has a 'uuid' field
-        uuid_std = uuid.UUID(data[key]['uuid'])
+        uuid_std = uuid.UUID(sp_layout[sp]['uuid'])
     else:
         with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as pm_f:
             uuid_lines = [l for l in pm_f if 'uuid' in l]
