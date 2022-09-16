@@ -41,9 +41,13 @@ static void msm8916_configure_timer(uintptr_t base)
  */
 #define APCS_GLB_SECURE_STS_NS		BIT_32(0)
 #define APCS_GLB_SECURE_PWR_NS		BIT_32(1)
+#if PLATFORM_CORE_COUNT > 1
 #define APCS_BOOT_START_ADDR_SEC	0x04
-#define REMAP_EN			BIT_32(0)
 #define APCS_AA64NAA32_REG		0x0c
+#else
+#define APCS_BOOT_START_ADDR_SEC	0x18
+#endif
+#define REMAP_EN			BIT_32(0)
 
 static void msm8916_configure_apcs_cluster(unsigned int cluster)
 {
@@ -62,13 +66,19 @@ static void msm8916_configure_apcs_cluster(unsigned int cluster)
 	mmio_write_32(APCS_GLB(cluster),
 		      APCS_GLB_SECURE_STS_NS | APCS_GLB_SECURE_PWR_NS);
 
-	/* Disallow non-secure access to L2 SAW2 */
-	mmio_write_32(APCS_L2_SAW2(cluster), 0);
+	if (PLATFORM_CORE_COUNT > 1) {
+		/* Disallow non-secure access to L2 SAW2 */
+		mmio_write_32(APCS_L2_SAW2(cluster), 0);
 
-	/* Disallow non-secure access to CPU ACS and SAW2 */
-	for (cpu = 0; cpu < PLATFORM_CPUS_PER_CLUSTER; cpu++) {
-		mmio_write_32(APCS_ALIAS_ACS(cluster, cpu), 0);
-		mmio_write_32(APCS_ALIAS_SAW2(cluster, cpu), 0);
+		/* Disallow non-secure access to CPU ACS and SAW2 */
+		for (cpu = 0; cpu < PLATFORM_CPUS_PER_CLUSTER; cpu++) {
+			mmio_write_32(APCS_ALIAS_ACS(cluster, cpu), 0);
+			mmio_write_32(APCS_ALIAS_SAW2(cluster, cpu), 0);
+		}
+	} else {
+		/* There is just one core so no aliases exist */
+		mmio_write_32(APCS_BANKED_ACS, 0);
+		mmio_write_32(APCS_BANKED_SAW2, 0);
 	}
 
 #ifdef __aarch64__
@@ -145,9 +155,15 @@ static void msm8916_smmu_cache_unlock(uintptr_t smmu_base, uintptr_t clk_cbcr)
 
 static void msm8916_configure_smmu(void)
 {
+	uint32_t ena_bits = APSS_TCU_CLK_ENA | SMMU_CFG_CLK_ENA;
+
+	/* Single core (MDM) platforms do not have a GPU */
+	if (PLATFORM_CORE_COUNT > 1) {
+		ena_bits |= GFX_TCU_CLK_ENA | GFX_TBU_CLK_ENA;
+	}
+
 	/* Enable SMMU clocks to enable register access */
-	mmio_write_32(GCC_APCS_SMMU_CLOCK_BRANCH_ENA_VOTE, SMMU_CFG_CLK_ENA |
-		      APSS_TCU_CLK_ENA | GFX_TCU_CLK_ENA | GFX_TBU_CLK_ENA);
+	mmio_write_32(GCC_APCS_SMMU_CLOCK_BRANCH_ENA_VOTE, ena_bits);
 
 	/* Wait for configuration clock */
 	while (mmio_read_32(GCC_SMMU_CFG_CBCR) & CLK_OFF) {
@@ -158,7 +174,9 @@ static void msm8916_configure_smmu(void)
 
 	/* Clear sACR.CACHE_LOCK bit if needed for MMU-500 r2p0+ */
 	msm8916_smmu_cache_unlock(APPS_SMMU_BASE, GCC_APSS_TCU_CBCR);
-	msm8916_smmu_cache_unlock(GPU_SMMU_BASE, GCC_GFX_TCU_CBCR);
+	if (PLATFORM_CORE_COUNT > 1) {
+		msm8916_smmu_cache_unlock(GPU_SMMU_BASE, GCC_GFX_TCU_CBCR);
+	}
 
 	/*
 	 * Keep APCS vote for SMMU clocks for rest of booting process, but make

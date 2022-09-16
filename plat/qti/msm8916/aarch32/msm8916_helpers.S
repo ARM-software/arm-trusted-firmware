@@ -10,7 +10,11 @@
 
 #include <msm8916_mmap.h>
 
+#if PLATFORM_CORE_COUNT > 1
 #define APCS_TCM_START_ADDR	0x10
+#else
+#define APCS_TCM_START_ADDR	0x34
+#endif
 #define APCS_TCM_REDIRECT_EN_0	BIT_32(0)
 
 	.globl	plat_crash_console_init
@@ -80,12 +84,17 @@ endfunc plat_panic_handler
 	 * -------------------------------------------------
 	 */
 func plat_my_core_pos
-	ldcopr	r1, MPIDR
-	and	r0, r1, #MPIDR_CPU_MASK
-	.if PLATFORM_CLUSTER_COUNT > 1
-		and	r1, r1, #MPIDR_CLUSTER_MASK
-		orr	r0, r0, r1, LSR #(MPIDR_AFFINITY_BITS - \
-					  PLATFORM_CPU_PER_CLUSTER_SHIFT)
+	.if PLATFORM_CORE_COUNT > 1
+		ldcopr	r1, MPIDR
+		and	r0, r1, #MPIDR_CPU_MASK
+		.if PLATFORM_CLUSTER_COUNT > 1
+			and	r1, r1, #MPIDR_CLUSTER_MASK
+			orr	r0, r0, r1, LSR #(MPIDR_AFFINITY_BITS - \
+						  PLATFORM_CPU_PER_CLUSTER_SHIFT)
+		.endif
+	.else
+		/* There is just a single core so always 0 */
+		mov r0, #0
 	.endif
 	bx	lr
 endfunc plat_my_core_pos

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -34,6 +36,12 @@
 
 static int msm8916_pwr_domain_on(u_register_t mpidr)
 {
+	/* Should be never called on single-core platforms */
+	if (PLATFORM_CORE_COUNT == 1) {
+		assert(false);
+		return PSCI_E_ALREADY_ON;
+	}
+
 	/* Power on L2 cache and secondary CPU core for the first time */
 	if (PLATFORM_CLUSTER_COUNT > 1) {
 		msm8916_l2_boot(APCS_GLB(MPIDR_APCS_CLUSTER(mpidr)));
@@ -45,6 +53,12 @@ static int msm8916_pwr_domain_on(u_register_t mpidr)
 
 static void msm8916_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
+	/* Should be never called on single-core platforms */
+	if (PLATFORM_CORE_COUNT == 1) {
+		assert(false);
+		return;
+	}
+
 	if (PLATFORM_CLUSTER_COUNT > 1 &&
 	    CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
 		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
