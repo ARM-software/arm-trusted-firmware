@@ -55,7 +55,9 @@ WORKAROUND_CVE_2017_5715	:= 0
 WORKAROUND_CVE_2022_23960	:= 0
 
 ifeq (${MSM8916_CPU},cortex_a53)
-# MSM8916 uses ARM Cortex-A53 r0p0 so likely all the errata apply
+# The Cortex-A53 revision varies depending on the SoC revision.
+# msm8916 uses r0p0, msm8939 uses r0p1 or r0p4. Enable all errata
+# and rely on the runtime detection to apply them only if needed.
 ERRATA_A53_819472		:= 1
 ERRATA_A53_824069		:= 1
 ERRATA_A53_826319		:= 1
@@ -63,7 +65,7 @@ ERRATA_A53_827319		:= 1
 ERRATA_A53_835769		:= 1
 ERRATA_A53_836870		:= 1
 ERRATA_A53_843419		:= 1
-ERRATA_A53_855873		:= 0	# Workaround works only for >= r0p3
+ERRATA_A53_855873		:= 1
 ERRATA_A53_1530924		:= 1
 endif
 
