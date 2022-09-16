@@ -141,7 +141,7 @@ void ipi_mb_release(uint32_t local, uint32_t remote)
  */
 int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
 {
-	int ret = 0;
+	int ret = 0U;
 	uint32_t status;
 
 	status = mmio_read_32(IPI_REG_BASE(local) + IPI_OBR_OFFSET);

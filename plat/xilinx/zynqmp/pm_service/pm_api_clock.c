@@ -2400,7 +2400,7 @@ static bool pm_clock_valid(uint32_t clock_id)
 {
 	unsigned int i;
 
-	for (i = 0; i < ARRAY_SIZE(pm_clk_invalid_list); i++)
+	for (i = 0U; i < ARRAY_SIZE(pm_clk_invalid_list); i++)
 		if (pm_clk_invalid_list[i] == clock_id)
 			return 0;
 

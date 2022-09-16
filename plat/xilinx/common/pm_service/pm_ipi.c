@@ -18,7 +18,7 @@
 #include "pm_defs.h"
 #include "pm_ipi.h"
 
-#define ERROR_CODE_MASK		0xFFFFU
+#define ERROR_CODE_MASK		(0xFFFFU)
 
 DEFINE_BAKERY_LOCK(pm_secure_lock);
 

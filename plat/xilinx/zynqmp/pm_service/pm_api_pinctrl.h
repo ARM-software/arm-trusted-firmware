@@ -13,9 +13,9 @@
 
 #include "pm_common.h"
 
-#define FUNCTION_NAME_LEN		U(16)
-#define GROUPS_PAYLOAD_LEN		U(12)
-#define NUM_GROUPS_PER_RESP		U(6)
+#define FUNCTION_NAME_LEN		(16U)
+#define GROUPS_PAYLOAD_LEN		(12U)
+#define NUM_GROUPS_PER_RESP		(6U)
 #define END_OF_FUNCTION			"END_OF_FUNCTION"
 #define END_OF_GROUPS			-1
 #define PINCTRL_GRP_RESERVED		-2
