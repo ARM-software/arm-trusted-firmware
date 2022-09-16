@@ -289,7 +289,7 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 
 	case PM_GET_TRUSTZONE_VERSION:
 		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
-			 ((uint64_t)VERSAL_TZ_VERSION << 32U));
+			 ((uint64_t)TZ_VERSION << 32U));
 
 	default:
 		return (uintptr_t)0;

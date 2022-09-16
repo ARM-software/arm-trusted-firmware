@@ -27,6 +27,11 @@
 #endif
 #define PAYLOAD_ARG_SIZE	4U	/* size in bytes */
 
+#define TZ_VERSION_MAJOR	1
+#define TZ_VERSION_MINOR	0
+#define TZ_VERSION		((TZ_VERSION_MAJOR << 16) | \
+				 TZ_VERSION_MINOR)
+
 /**
  * pm_ipi - struct for capturing IPI-channel specific info
  * @local_ipi_id	Local IPI agent ID
