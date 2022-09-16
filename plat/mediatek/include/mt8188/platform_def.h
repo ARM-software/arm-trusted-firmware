@@ -13,6 +13,7 @@
 
 #define MT_GIC_BASE		(0x0C000000)
 #define MCUCFG_BASE		(0x0C530000)
+#define MCUCFG_REG_SIZE		(0x10000)
 #define IO_PHYS			(0x10000000)
 
 /* Aggregate of all devices for MMU mapping */
