@@ -87,7 +87,7 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 	clk_disable(RTCAPB);
 
 	/* Generate an IT to core 1 */
-	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_0, STM32MP_SECONDARY_CPU);
+	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_0, false, STM32MP_SECONDARY_CPU);
 
 	return PSCI_E_SUCCESS;
 }

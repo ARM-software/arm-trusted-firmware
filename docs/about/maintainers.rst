@@ -772,6 +772,13 @@ Test Secure Payload (TSP)
 :|F|: bl32/tsp/
 :|F|: services/spd/tspd/
 
+ProvenCore Secure Payload Dispatcher
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Jérémie Corbier <jeremie.corbier@provenrun.com>
+:|G|: `jcorbier`_
+:|F|: docs/components/spd/pnc-dispatcher.rst
+:|F|: services/spd/pncd/
+
 Tools
 ~~~~~
 
@@ -842,6 +849,7 @@ Conventional Changelog Extensions
 .. _grandpaul: https://github.com/grandpaul
 .. _hzhuang1: https://github.com/hzhuang1
 .. _JackyBai: https://github.com/JackyBai
+.. _jcorbier: https://github.com/jcorbier
 .. _jenswi-linaro: https://github.com/jenswi-linaro
 .. _jwerner-chromium: https://github.com/jwerner-chromium
 .. _kostapr: https://github.com/kostapr

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Portions copyright (c) 2021-2022, ProvenRun S.A.S. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -417,7 +418,7 @@ void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
  * The proc_num parameter must be the linear index of the target PE in the
  * system.
  ******************************************************************************/
-void gicv2_raise_sgi(int sgi_num, int proc_num)
+void gicv2_raise_sgi(int sgi_num, bool ns, int proc_num)
 {
 	unsigned int sgir_val, target;
 
@@ -437,7 +438,7 @@ void gicv2_raise_sgi(int sgi_num, int proc_num)
 	target = driver_data->target_masks[proc_num];
 	assert(target != 0U);
 
-	sgir_val = GICV2_SGIR_VALUE(SGIR_TGT_SPECIFIC, target, sgi_num);
+	sgir_val = GICV2_SGIR_VALUE(SGIR_TGT_SPECIFIC, target, ns, sgi_num);
 
 	/*
 	 * Ensure that any shared variable updates depending on out of band

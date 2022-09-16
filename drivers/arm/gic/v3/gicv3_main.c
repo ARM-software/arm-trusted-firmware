@@ -1095,11 +1095,12 @@ void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
 }
 
 /*******************************************************************************
- * This function raises the specified Secure Group 0 SGI.
+ * This function raises the specified SGI of the specified group.
  *
  * The target parameter must be a valid MPIDR in the system.
  ******************************************************************************/
-void gicv3_raise_secure_g0_sgi(unsigned int sgi_num, u_register_t target)
+void gicv3_raise_sgi(unsigned int sgi_num, gicv3_irq_group_t group,
+		u_register_t target)
 {
 	unsigned int tgt, aff3, aff2, aff1, aff0;
 	uint64_t sgi_val;
@@ -1129,7 +1130,22 @@ void gicv3_raise_secure_g0_sgi(unsigned int sgi_num, u_register_t target)
 	 * interrupt trigger are observed before raising SGI.
 	 */
 	dsbishst();
-	write_icc_sgi0r_el1(sgi_val);
+
+	switch (group) {
+	case GICV3_G0:
+		write_icc_sgi0r_el1(sgi_val);
+		break;
+	case GICV3_G1NS:
+		write_icc_asgi1r(sgi_val);
+		break;
+	case GICV3_G1S:
+		write_icc_sgi1r(sgi_val);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
 	isb();
 }
 

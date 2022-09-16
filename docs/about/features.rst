@@ -46,8 +46,8 @@ Current features
 -  A Test SP and SPD to demonstrate AArch64 Secure Monitor functionality and SP
    interaction with PSCI.
 
--  SPDs for the `OP-TEE Secure OS`_, `NVIDIA Trusted Little Kernel`_
-   and `Trusty Secure OS`_.
+-  SPDs for the `OP-TEE Secure OS`_, `NVIDIA Trusted Little Kernel`_,
+   `Trusty Secure OS`_ and `ProvenCore Secure OS`_.
 
 -  A Trusted Board Boot implementation, conforming to all mandatory TBBR
    requirements. This includes image authentication, Firmware Update (or
@@ -121,6 +121,7 @@ Still to come
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os
 .. _NVIDIA Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
 .. _Trusty Secure OS: https://source.android.com/security/trusty
+.. _ProvenCore Secure OS: https://provenrun.com/products/provencore/
 
 --------------
 
