@@ -33,11 +33,14 @@
 #define APCS_QGIC2_GICC		(APCS_QGIC2_BASE + 0x2000)
 #define APCS_BANKED_ACS		(APCS_BASE + 0x08000)
 #define APCS_BANKED_SAW2	(APCS_BASE + 0x09000)
-#define APCS_CFG		(APCS_BASE + 0x10000)
-#define APCS_GLB		(APCS_BASE + 0x11000)
-#define APCS_L2_SAW2		(APCS_BASE + 0x12000)
-#define APCS_QTMR		(APCS_BASE + 0x20000)
-#define APCS_ALIAS_ACS(cpu)	(APCS_BASE + 0x88000 + ((cpu) * 0x10000))
-#define APCS_ALIAS_SAW2(cpu)	(APCS_BASE + 0x89000 + ((cpu) * 0x10000))
+
+#define _APCS_CLUSTER(cluster)	(APCS_BASE + ((cluster) * 0x100000))
+#define _APCS_CPU(cluster, cpu)	(_APCS_CLUSTER(cluster) + ((cpu) * 0x10000))
+#define APCS_CFG(cluster)	(_APCS_CLUSTER(cluster) + 0x10000)
+#define APCS_GLB(cluster)	(_APCS_CLUSTER(cluster) + 0x11000)
+#define APCS_L2_SAW2(cluster)	(_APCS_CLUSTER(cluster) + 0x12000)
+#define APCS_QTMR(cluster)	(_APCS_CLUSTER(cluster) + 0x20000)
+#define APCS_ALIAS_ACS(cluster, cpu)	(_APCS_CPU(cluster, cpu) + 0x88000)
+#define APCS_ALIAS_SAW2(cluster, cpu)	(_APCS_CPU(cluster, cpu) + 0x89000)
 
 #endif /* MSM8916_MMAP_H */

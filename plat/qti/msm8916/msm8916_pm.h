@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2021-2022, Stephan Gerhold <stephan@gerhold.net>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,6 @@
 #ifndef MSM8916_PM_H
 #define MSM8916_PM_H
 
-void msm8916_cpu_boot(unsigned int core);
+void msm8916_cpu_boot(uintptr_t acs);
 
 #endif /* MSM8916_PM_H */

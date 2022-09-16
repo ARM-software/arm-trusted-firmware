@@ -14,13 +14,13 @@
 #include <msm8916_mmap.h>
 #include <platform_def.h>
 
-static void msm8916_configure_timer(void)
+static void msm8916_configure_timer(uintptr_t base)
 {
 	/* Set timer frequency */
-	mmio_write_32(APCS_QTMR + CNTCTLBASE_CNTFRQ, PLAT_SYSCNT_FREQ);
+	mmio_write_32(base + CNTCTLBASE_CNTFRQ, PLAT_SYSCNT_FREQ);
 
 	/* Make all timer frames available to non-secure world */
-	mmio_write_32(APCS_QTMR + CNTNSAR, GENMASK_32(7, 0));
+	mmio_write_32(base + CNTNSAR, GENMASK_32(7, 0));
 }
 
 /*
@@ -30,16 +30,17 @@ static void msm8916_configure_timer(void)
  */
 #define APCS_GLB_SECURE_STS_NS		BIT_32(0)
 #define APCS_GLB_SECURE_PWR_NS		BIT_32(1)
-#define APCS_BOOT_START_ADDR_SEC	(APCS_CFG + 0x04)
+#define APCS_BOOT_START_ADDR_SEC	0x04
 #define REMAP_EN			BIT_32(0)
-#define APCS_AA64NAA32_REG		(APCS_CFG + 0x0c)
+#define APCS_AA64NAA32_REG		0x0c
 
-static void msm8916_configure_cpu_pm(void)
+static void msm8916_configure_apcs_cluster(unsigned int cluster)
 {
+	uintptr_t cfg = APCS_CFG(cluster);
 	unsigned int cpu;
 
 	/* Disallow non-secure access to boot remapper / TCM registers */
-	mmio_write_32(APCS_CFG, 0);
+	mmio_write_32(cfg, 0);
 
 	/*
 	 * Disallow non-secure access to power management registers.
@@ -47,27 +48,39 @@ static void msm8916_configure_cpu_pm(void)
 	 * to CPU frequency related registers (e.g. APCS_CMD_RCGR). If these
 	 * bits are not set, CPU frequency control fails in the non-secure world.
 	 */
-	mmio_write_32(APCS_GLB, APCS_GLB_SECURE_STS_NS | APCS_GLB_SECURE_PWR_NS);
+	mmio_write_32(APCS_GLB(cluster),
+		      APCS_GLB_SECURE_STS_NS | APCS_GLB_SECURE_PWR_NS);
 
 	/* Disallow non-secure access to L2 SAW2 */
-	mmio_write_32(APCS_L2_SAW2, 0);
+	mmio_write_32(APCS_L2_SAW2(cluster), 0);
 
 	/* Disallow non-secure access to CPU ACS and SAW2 */
-	for (cpu = 0; cpu < PLATFORM_CORE_COUNT; cpu++) {
-		mmio_write_32(APCS_ALIAS_ACS(cpu), 0);
-		mmio_write_32(APCS_ALIAS_SAW2(cpu), 0);
+	for (cpu = 0; cpu < PLATFORM_CPUS_PER_CLUSTER; cpu++) {
+		mmio_write_32(APCS_ALIAS_ACS(cluster, cpu), 0);
+		mmio_write_32(APCS_ALIAS_SAW2(cluster, cpu), 0);
 	}
 
 #ifdef __aarch64__
 	/* Make sure all further warm boots end up in BL31 and aarch64 state */
 	CASSERT((BL31_BASE & 0xffff) == 0, assert_bl31_base_64k_aligned);
-	mmio_write_32(APCS_BOOT_START_ADDR_SEC, BL31_BASE | REMAP_EN);
-	mmio_write_32(APCS_AA64NAA32_REG, 1);
+	mmio_write_32(cfg + APCS_BOOT_START_ADDR_SEC, BL31_BASE | REMAP_EN);
+	mmio_write_32(cfg + APCS_AA64NAA32_REG, 1);
 #else
 	/* Make sure all further warm boots end up in BL32 */
 	CASSERT((BL32_BASE & 0xffff) == 0, assert_bl32_base_64k_aligned);
-	mmio_write_32(APCS_BOOT_START_ADDR_SEC, BL32_BASE | REMAP_EN);
+	mmio_write_32(cfg + APCS_BOOT_START_ADDR_SEC, BL32_BASE | REMAP_EN);
 #endif
+
+	msm8916_configure_timer(APCS_QTMR(cluster));
+}
+
+static void msm8916_configure_apcs(void)
+{
+	unsigned int cluster;
+
+	for (cluster = 0; cluster < PLATFORM_CLUSTER_COUNT; cluster++) {
+		msm8916_configure_apcs_cluster(cluster);
+	}
 }
 
 /*
@@ -142,7 +155,6 @@ static void msm8916_configure_smmu(void)
 void msm8916_configure(void)
 {
 	msm8916_gicv2_configure();
-	msm8916_configure_timer();
-	msm8916_configure_cpu_pm();
+	msm8916_configure_apcs();
 	msm8916_configure_smmu();
 }

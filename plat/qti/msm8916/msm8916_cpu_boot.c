@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2021-2022, Stephan Gerhold <stephan@gerhold.net>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
+#include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 
-#include <msm8916_mmap.h>
 #include "msm8916_pm.h"
 
 #define CPU_PWR_CTL			0x4
@@ -27,10 +27,11 @@
 #define APC_PWR_GATE_CTL_GHDS_CNT(cnt)	((cnt) << 24)
 
 /* Boot a secondary CPU core for the first time. */
-void msm8916_cpu_boot(unsigned int core)
+void msm8916_cpu_boot(uintptr_t acs)
 {
-	uintptr_t acs = APCS_ALIAS_ACS(core);
 	uint32_t pwr_ctl;
+
+	VERBOSE("PSCI: Powering on CPU @ 0x%08lx\n", acs);
 
 	pwr_ctl = CPU_PWR_CTL_CLAMP | CPU_PWR_CTL_CORE_MEM_CLAMP |
 		  CPU_PWR_CTL_CORE_RST | CPU_PWR_CTL_COREPOR_RST;

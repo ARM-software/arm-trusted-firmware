@@ -6,6 +6,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <platform_def.h>
 
 #include <msm8916_mmap.h>
 
@@ -79,9 +80,13 @@ endfunc plat_panic_handler
 	 * -------------------------------------------------
 	 */
 func plat_my_core_pos
-	/* There is just a single cluster so this is very simple */
-	ldcopr	r0, MPIDR
-	and	r0, r0, #MPIDR_CPU_MASK
+	ldcopr	r1, MPIDR
+	and	r0, r1, #MPIDR_CPU_MASK
+	.if PLATFORM_CLUSTER_COUNT > 1
+		and	r1, r1, #MPIDR_CLUSTER_MASK
+		orr	r0, r0, r1, LSR #(MPIDR_AFFINITY_BITS - \
+					  PLATFORM_CPU_PER_CLUSTER_SHIFT)
+	.endif
 	bx	lr
 endfunc plat_my_core_pos
 
@@ -102,7 +107,7 @@ func plat_get_my_entrypoint
 	 * Cold boot: Disable TCM redirect to L2 cache as early as
 	 * possible to avoid crashes when making use of the cache.
 	 */
-	ldr	r1, =APCS_CFG
+	ldr	r1, =APCS_CFG(0)
 	ldr	r2, [r1, #APCS_TCM_START_ADDR]
 	and	r2, r2, #~APCS_TCM_REDIRECT_EN_0
 	str	r2, [r1, #APCS_TCM_START_ADDR]

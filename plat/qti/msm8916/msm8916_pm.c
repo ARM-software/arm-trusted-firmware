@@ -16,13 +16,23 @@
 #include <msm8916_mmap.h>
 #include "msm8916_pm.h"
 
+/*
+ * On platforms with two clusters the index of the APCS memory region is swapped
+ * compared to the MPIDR cluster affinity level: APCS cluster 0 manages CPUs
+ * with cluster affinity level 1, while APCS cluster 1 manages CPUs with level 0.
+ *
+ * On platforms with a single cluster there is only one APCS memory region.
+ */
+#if PLATFORM_CLUSTER_COUNT == 2
+#define MPIDR_APCS_CLUSTER(mpidr)	!MPIDR_AFFLVL1_VAL(mpidr)
+#else
+#define MPIDR_APCS_CLUSTER(mpidr)	0
+#endif
+
 static int msm8916_pwr_domain_on(u_register_t mpidr)
 {
-	unsigned int core = MPIDR_AFFLVL0_VAL(mpidr);
-
-	VERBOSE("PSCI: Booting CPU %d\n", core);
-	msm8916_cpu_boot(core);
-
+	msm8916_cpu_boot(APCS_ALIAS_ACS(MPIDR_APCS_CLUSTER(mpidr),
+					MPIDR_AFFLVL0_VAL(mpidr)));
 	return PSCI_E_SUCCESS;
 }
 
