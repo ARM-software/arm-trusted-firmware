@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -23,6 +23,9 @@ GIC_ENABLE_V4_EXTN	:=	1
 ifeq (${CSS_SGI_PLATFORM_VARIANT}, 2)
 GICV3_IMPL_GIC600_MULTICHIP	:=	1
 endif
+
+override CSS_SYSTEM_GRACEFUL_RESET	:= 1
+override EL3_EXCEPTION_HANDLING		:= 1
 
 include plat/arm/css/sgi/sgi-common.mk
 

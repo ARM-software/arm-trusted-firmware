@@ -315,7 +315,7 @@
 #define SGIR_IRM_SHIFT			40
 #define SGIR_IRM_MASK			ULL(0x1)
 #define SGIR_AFF3_SHIFT			48
-#define SGIR_AFF_MASK			ULL(0xf)
+#define SGIR_AFF_MASK			ULL(0xff)
 
 #define SGIR_IRM_TO_AFF			U(0)
 

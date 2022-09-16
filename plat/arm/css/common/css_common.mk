@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -35,6 +35,7 @@ BL31_SOURCES		+=	drivers/arm/css/mhu/css_mhu_doorbell.c		\
 				drivers/arm/css/scmi/scmi_common.c		\
 				drivers/arm/css/scmi/scmi_pwr_dmn_proto.c	\
 				drivers/arm/css/scmi/scmi_sys_pwr_proto.c	\
+				drivers/delay_timer/delay_timer.c		\
 				drivers/arm/css/scp/css_pm_scmi.c
 endif
 
@@ -88,3 +89,9 @@ CSS_NON_SECURE_UART		:= 0
 $(eval $(call assert_boolean,CSS_NON_SECURE_UART))
 $(eval $(call add_define,CSS_NON_SECURE_UART))
 
+# Process CSS_SYSTEM_GRACEFUL_RESET flag
+# This build option can be used on CSS platforms that require all the CPUs
+# to execute the CPU specific power down sequence to complete a warm reboot
+# sequence in which only the CPUs are power cycled.
+CSS_SYSTEM_GRACEFUL_RESET	:= 0
+$(eval $(call add_define,CSS_SYSTEM_GRACEFUL_RESET))

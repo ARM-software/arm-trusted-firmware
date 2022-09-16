@@ -152,6 +152,11 @@ Arm CSS Platform-Specific Build Options
     to select the appropriate platform variant for the build. The range of
     valid values is platform specific.
 
+- ``CSS_SYSTEM_GRACEFUL_RESET``: Build option to enable graceful powerdown of
+   CPU core on reset. This build option can be used on CSS platforms that
+   require all the CPUs to execute the CPU specific power down sequence to
+   complete a warm reboot sequence in which only the CPUs are power cycled.
+
 --------------
 
 .. |FIP in a GPT image| image:: ../../resources/diagrams/FIP_in_a_GPT_image.png

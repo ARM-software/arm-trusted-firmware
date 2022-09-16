@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,10 +9,14 @@
 #include <platform_def.h>
 
 #include <arch_helpers.h>
+#include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
 #include <drivers/arm/css/css_scp.h>
 #include <lib/cassert.h>
 #include <plat/arm/common/plat_arm.h>
+
+#include <plat/common/platform.h>
+
 #include <plat/arm/css/common/css_pm.h>
 
 /* Allow CSS platforms to override `plat_arm_psci_pm_ops` */
@@ -110,6 +114,9 @@ void css_pwr_domain_on_finish_late(const psci_power_state_t *target_state)
 
 	/* Enable the gic cpu interface */
 	plat_arm_gic_cpuif_enable();
+
+	/* Setup the CPU power down request interrupt for secondary core(s) */
+	css_setup_cpu_pwr_down_intr();
 }
 
 /*******************************************************************************
@@ -329,6 +336,52 @@ static int css_translate_power_state_by_mpidr(u_register_t mpidr,
 		psci_power_state_t *output_state)
 {
 	return arm_validate_power_state(power_state, output_state);
+}
+
+/*
+ * Setup the SGI interrupt that will be used trigger the execution of power
+ * down sequence for all the secondary cores. This interrupt is setup to be
+ * handled in EL3 context at a priority defined by the platform.
+ */
+void css_setup_cpu_pwr_down_intr(void)
+{
+#if CSS_SYSTEM_GRACEFUL_RESET
+	plat_ic_set_interrupt_type(CSS_CPU_PWR_DOWN_REQ_INTR, INTR_TYPE_EL3);
+	plat_ic_set_interrupt_priority(CSS_CPU_PWR_DOWN_REQ_INTR,
+			PLAT_REBOOT_PRI);
+	plat_ic_enable_interrupt(CSS_CPU_PWR_DOWN_REQ_INTR);
+#endif
+}
+
+/*
+ * For a graceful shutdown/reboot, each CPU in the system should do their power
+ * down sequence. On a PSCI shutdown/reboot request, only one CPU gets an
+ * opportunity to do the powerdown sequence. To achieve graceful reset, of all
+ * cores in the system, the CPU gets the opportunity raise warm reboot SGI to
+ * rest of the CPUs which are online. Add handler for the reboot SGI where the
+ * rest of the CPU execute the powerdown sequence.
+ */
+int css_reboot_interrupt_handler(uint32_t intr_raw, uint32_t flags,
+		void *handle, void *cookie)
+{
+	assert(intr_raw == CSS_CPU_PWR_DOWN_REQ_INTR);
+
+	/* Deactivate warm reboot SGI */
+	plat_ic_end_of_interrupt(CSS_CPU_PWR_DOWN_REQ_INTR);
+
+	/*
+	 * Disable GIC CPU interface to prevent pending interrupt from waking
+	 * up the AP from WFI.
+	 */
+	plat_arm_gic_cpuif_disable();
+	plat_arm_gic_redistif_off();
+
+	psci_pwrdown_cpu(PLAT_MAX_PWR_LVL);
+
+	dmbsy();
+
+	wfi();
+	return 0;
 }
 
 /*******************************************************************************
