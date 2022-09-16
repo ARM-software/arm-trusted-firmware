@@ -51,6 +51,9 @@ static const struct uartdm_gpios uartdm_gpio_map[] = {
 	{4, 5, 0x2}, {20, 21, 0x3},
 #elif defined(PLAT_msm8916) || defined(PLAT_msm8939)
 	{0, 1, 0x2}, {4, 5, 0x2},
+#elif defined(PLAT_mdm9607)
+	{12, 13, 0x2}, {4, 5, 0x2}, {0, 1, 0x1},
+	{16, 17, 0x2}, {8, 9, 0x2}, {20, 21, 0x2},
 #endif
 };
 
