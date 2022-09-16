@@ -7,12 +7,23 @@
 #include <assert.h>
 
 #include <arch.h>
+#include <drivers/arm/cci.h>
 #include <lib/mmio.h>
 
 #include "msm8916_config.h"
 #include "msm8916_gicv2.h"
 #include <msm8916_mmap.h>
 #include <platform_def.h>
+
+static const int cci_map[] = { 3, 4 };
+
+void msm8916_configure_early(void)
+{
+	if (PLATFORM_CLUSTER_COUNT > 1) {
+		cci_init(APCS_CCI_BASE, cci_map, ARRAY_SIZE(cci_map));
+		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+	}
+}
 
 static void msm8916_configure_timer(uintptr_t base)
 {
@@ -80,6 +91,12 @@ static void msm8916_configure_apcs(void)
 
 	for (cluster = 0; cluster < PLATFORM_CLUSTER_COUNT; cluster++) {
 		msm8916_configure_apcs_cluster(cluster);
+	}
+
+	if (PLATFORM_CLUSTER_COUNT > 1) {
+		/* Disallow non-secure access to CCI ACS and SAW2 */
+		mmio_write_32(APCS_CCI_ACS, 0);
+		mmio_write_32(APCS_CCI_SAW2, 0);
 	}
 }
 

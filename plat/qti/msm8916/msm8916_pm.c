@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/arm/cci.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
@@ -29,6 +30,8 @@
 #define MPIDR_APCS_CLUSTER(mpidr)	0
 #endif
 
+#define CLUSTER_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL1])
+
 static int msm8916_pwr_domain_on(u_register_t mpidr)
 {
 	msm8916_cpu_boot(APCS_ALIAS_ACS(MPIDR_APCS_CLUSTER(mpidr),
@@ -38,6 +41,11 @@ static int msm8916_pwr_domain_on(u_register_t mpidr)
 
 static void msm8916_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
+	if (PLATFORM_CLUSTER_COUNT > 1 &&
+	    CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
+		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+	}
+
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();
 }

@@ -43,4 +43,9 @@
 #define APCS_ALIAS_ACS(cluster, cpu)	(_APCS_CPU(cluster, cpu) + 0x88000)
 #define APCS_ALIAS_SAW2(cluster, cpu)	(_APCS_CPU(cluster, cpu) + 0x89000)
 
+/* Only on platforms with multiple clusters (e.g. MSM8939) */
+#define APCS_CCI_BASE		(APCS_BASE + 0x1c0000)
+#define APCS_CCI_SAW2		(APCS_BASE + 0x1d2000)
+#define APCS_CCI_ACS		(APCS_BASE + 0x1d4000)
+
 #endif /* MSM8916_MMAP_H */

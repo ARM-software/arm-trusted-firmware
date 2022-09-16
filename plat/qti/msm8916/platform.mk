@@ -18,7 +18,8 @@ PLAT_BL_COMMON_SOURCES	:=	${GICV2_SOURCES}				\
 				plat/qti/msm8916/${ARCH}/uartdm_console.S
 
 MSM8916_CPU		:=	$(if ${ARM_CORTEX_A7},cortex_a7,cortex_a53)
-MSM8916_PM_SOURCES	:=	lib/cpus/${ARCH}/${MSM8916_CPU}.S		\
+MSM8916_PM_SOURCES	:=	drivers/arm/cci/cci.c				\
+				lib/cpus/${ARCH}/${MSM8916_CPU}.S		\
 				plat/common/plat_psci_common.c			\
 				plat/qti/msm8916/msm8916_config.c		\
 				plat/qti/msm8916/msm8916_cpu_boot.c		\

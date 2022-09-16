@@ -33,6 +33,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
 	msm8916_early_platform_setup();
+	msm8916_configure_early();
 }
 
 void bl31_plat_arch_setup(void)
