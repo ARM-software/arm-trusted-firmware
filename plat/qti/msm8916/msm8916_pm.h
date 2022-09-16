@@ -8,5 +8,6 @@
 #define MSM8916_PM_H
 
 void msm8916_cpu_boot(uintptr_t acs);
+void msm8916_l2_boot(uintptr_t base);
 
 #endif /* MSM8916_PM_H */

@@ -34,6 +34,10 @@
 
 static int msm8916_pwr_domain_on(u_register_t mpidr)
 {
+	/* Power on L2 cache and secondary CPU core for the first time */
+	if (PLATFORM_CLUSTER_COUNT > 1) {
+		msm8916_l2_boot(APCS_GLB(MPIDR_APCS_CLUSTER(mpidr)));
+	}
 	msm8916_cpu_boot(APCS_ALIAS_ACS(MPIDR_APCS_CLUSTER(mpidr),
 					MPIDR_AFFLVL0_VAL(mpidr)));
 	return PSCI_E_SUCCESS;
