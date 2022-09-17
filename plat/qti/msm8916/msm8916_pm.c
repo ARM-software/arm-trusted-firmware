@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2021-2022, Stephan Gerhold <stephan@gerhold.net>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
+#include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/delay_timer.h>
@@ -53,7 +54,14 @@ extern uintptr_t msm8916_entry_point;
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const plat_psci_ops_t **psci_ops)
 {
+	/*
+	 * The entry point is read with caches off (and even from two different
+	 * physical addresses when read through the "boot remapper"), so make
+	 * sure it is flushed to memory.
+	 */
 	msm8916_entry_point = sec_entrypoint;
+	flush_dcache_range((uintptr_t)&msm8916_entry_point, sizeof(uintptr_t));
+
 	*psci_ops = &msm8916_psci_ops;
 	return 0;
 }
