@@ -139,12 +139,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	val = mmio_read_32(IMX_IOMUX_GPR_BASE + 0x2c);
 	mmio_write_32(IMX_IOMUX_GPR_BASE + 0x2c, val | 0x3DFF0000);
 
-	imx8m_caam_init();
-
 	console_imx_uart_register(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
 		IMX_CONSOLE_BAUDRATE, &console);
 	/* This console is only used for boot stage */
 	console_set_scope(&console, CONSOLE_FLAG_BOOT);
+
+	imx8m_caam_init();
 
 	/*
 	 * tell BL3-1 where the non-secure software image is located
