@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -364,6 +365,53 @@ int dt_find_otp_name(const char *name, uint32_t *otp, uint32_t *otp_len)
 		cuint++;
 		*otp_len = fdt32_to_cpu(*cuint) * CHAR_BIT;
 	}
+
+	return 0;
+}
+
+/*
+ * dt_get_otp_by_phandle: return OTP id and OTP size for a given phandle
+ * phandle: phandle to be found
+ * otp_id: return value for the OTP id found
+ * otp_len: return value for the OTP len
+ * return: 0 if OTP found, a negative error value otherwise
+ */
+int dt_get_otp_by_phandle(const uint32_t phandle, uint32_t *otp_id, uint32_t *otp_len)
+{
+	int node;
+	int child;
+	const fdt32_t *cuint;
+	uint32_t offset;
+	bool otp_found = false;
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_BSEC_COMPAT);
+	if (node < 0) {
+		return node;
+	}
+
+	fdt_for_each_subnode(child, fdt, node) {
+		uint32_t ph = fdt_get_phandle(fdt, child);
+
+		if (ph == phandle) {
+			otp_found = true;
+			break;
+		}
+	}
+
+	if (!otp_found) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	cuint = fdt_getprop(fdt, child, "reg", NULL);
+	if (cuint == NULL) {
+		panic();
+	}
+
+	offset = fdt32_to_cpu(*cuint);
+	cuint++;
+	*otp_len = fdt32_to_cpu(*cuint);
+
+	*otp_id = offset / sizeof(uint32_t);
 
 	return 0;
 }
