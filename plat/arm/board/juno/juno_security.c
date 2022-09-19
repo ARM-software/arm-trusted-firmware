@@ -13,6 +13,7 @@
 #include <plat/arm/soc/common/soc_css.h>
 #include <plat/common/platform.h>
 
+#include "juno_ethosn_tzmp1_def.h"
 #include "juno_tzmp1_def.h"
 
 #ifdef JUNO_TZMP1
@@ -79,12 +80,9 @@ static void init_v550(void)
 #endif /* JUNO_TZMP1 */
 
 #ifdef JUNO_ETHOSN_TZMP1
-/*
- * Currently use the default regions defined in ARM_TZC_REGIONS_DEF.
- * See the definition in /include/plat/arm/common/plat_arm.h
- */
+
 static const arm_tzc_regions_info_t juno_ethosn_tzmp1_tzc_regions[] = {
-	ARM_TZC_REGIONS_DEF, /* See define in /include/plat/arm/common/plat_arm.h */
+	JUNO_ETHOSN_TZMP_REGIONS_DEF,
 	{},
 };
 
@@ -154,7 +152,15 @@ void plat_arm_security_setup(void)
 	     (void *)JUNO_AP_TZC_SHARE_DRAM1_END);
 #elif defined(JUNO_ETHOSN_TZMP1)
 	arm_tzc400_setup(PLAT_ARM_TZC_BASE, juno_ethosn_tzmp1_tzc_regions);
-	INFO("TZC set up with default settings for NPU TZMP usecase\n");
+	INFO("TZC protected shared memory range for NPU TZMP usecase: %p - %p\n",
+	     (void *)JUNO_ETHOSN_NS_DRAM2_BASE,
+	     (void *)JUNO_ETHOSN_NS_DRAM2_END);
+	INFO("TZC protected Data memory range for NPU TZMP usecase: %p - %p\n",
+	     (void *)JUNO_ETHOSN_DATA_TZC_PROT_DRAM2_BASE,
+	     (void *)JUNO_ETHOSN_DATA_TZC_PROT_DRAM2_END);
+	INFO("TZC protected FW memory range for NPU TZMP usecase: %p - %p\n",
+	     (void *)JUNO_ETHOSN_FW_TZC_PROT_DRAM2_BASE,
+	     (void *)JUNO_ETHOSN_FW_TZC_PROT_DRAM2_END);
 #else
 	arm_tzc400_setup(PLAT_ARM_TZC_BASE, NULL);
 #endif
