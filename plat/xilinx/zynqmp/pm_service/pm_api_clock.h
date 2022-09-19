@@ -15,19 +15,19 @@
 
 #include "pm_common.h"
 
-#define CLK_NAME_LEN		U(15)
-#define MAX_PARENTS		U(100)
+#define CLK_NAME_LEN		(15U)
+#define MAX_PARENTS		(100U)
 #define CLK_NA_PARENT		-1
 #define CLK_DUMMY_PARENT	-2
 
 /* Flags for parent id */
-#define PARENT_CLK_SELF		U(0)
-#define PARENT_CLK_NODE1	U(1)
-#define PARENT_CLK_NODE2	U(2)
-#define PARENT_CLK_NODE3	U(3)
-#define PARENT_CLK_NODE4	U(4)
-#define PARENT_CLK_EXTERNAL	U(5)
-#define PARENT_CLK_MIO0_MIO77	U(6)
+#define PARENT_CLK_SELF		(0U)
+#define PARENT_CLK_NODE1	(1U)
+#define PARENT_CLK_NODE2	(2U)
+#define PARENT_CLK_NODE3	(3U)
+#define PARENT_CLK_NODE4	(4U)
+#define PARENT_CLK_EXTERNAL	(5U)
+#define PARENT_CLK_MIO0_MIO77	(6U)
 
 #define CLK_SET_RATE_GATE	BIT(0) /* must be gated across rate change */
 #define CLK_SET_PARENT_GATE	BIT(1) /* must be gated across re-parent */

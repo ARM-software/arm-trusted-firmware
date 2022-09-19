@@ -14,20 +14,20 @@
 /*********************************************************************
  * IPI mailbox status macros
  ********************************************************************/
-#define IPI_MB_STATUS_IDLE		0
-#define IPI_MB_STATUS_SEND_PENDING	1
-#define IPI_MB_STATUS_RECV_PENDING	2
+#define IPI_MB_STATUS_IDLE		(0U)
+#define IPI_MB_STATUS_SEND_PENDING	(1U)
+#define IPI_MB_STATUS_RECV_PENDING	(2U)
 
 /*********************************************************************
  * IPI mailbox call is secure or not macros
  ********************************************************************/
-#define IPI_MB_CALL_NOTSECURE	0
-#define IPI_MB_CALL_SECURE	1
+#define IPI_MB_CALL_NOTSECURE	(0U)
+#define IPI_MB_CALL_SECURE	(1U)
 
 /*********************************************************************
  * IPI secure check
  ********************************************************************/
-#define IPI_SECURE_MASK  0x1U
+#define IPI_SECURE_MASK  (0x1U)
 #define IPI_IS_SECURE(I) ((ipi_table[(I)].secure_only & \
 			   IPI_SECURE_MASK) ? 1 : 0)
 
