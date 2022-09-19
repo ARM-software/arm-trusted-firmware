@@ -77,6 +77,8 @@
 #define DEVICE2_SIZE		U(0x01000000)
 #define CRF_BASE		U(0xFD1A0000)
 #define CRF_SIZE		U(0x00600000)
+#define IPI_BASE		U(0xEB300000)
+#define IPI_SIZE		U(0x00100000)
 
 /* CRL */
 #define VERSAL_NET_CRL					U(0xEB5E0000)

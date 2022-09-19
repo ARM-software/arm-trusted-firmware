@@ -12,6 +12,7 @@
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
+#include <plat_ipi.h>
 
 #include <plat_private.h>
 #include <versal_net_def.h>
@@ -28,6 +29,7 @@ const mmap_region_t plat_versal_net_mmap[] = {
 	MAP_REGION_FLAT(DEVICE1_BASE, DEVICE1_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(DEVICE2_BASE, DEVICE2_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(CRF_BASE, CRF_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(IPI_BASE, IPI_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	{ 0 }
 };
 

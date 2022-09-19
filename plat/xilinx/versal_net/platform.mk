@@ -46,6 +46,7 @@ $(eval $(call add_define_val,VERSAL_NET_CONSOLE,VERSAL_NET_CONSOLE_ID_${VERSAL_N
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
+				-Iplat/xilinx/common/ipi_mailbox_service/	\
 				-I${PLAT_PATH}/include/				\
 				-Iplat/xilinx/versal/pm_service/
 
@@ -70,6 +71,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/common/plat_psci_common.c			\
 				${PLAT_PATH}/plat_psci.c			\
 				plat/xilinx/common/plat_startup.c		\
+				plat/xilinx/common/ipi.c			\
+				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				${PLAT_PATH}/bl31_versal_net_setup.c		\
 				${PLAT_PATH}/plat_topology.c			\
 				common/fdt_fixup.c				\
