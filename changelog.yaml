@@ -128,6 +128,9 @@ subsections:
       - title: Trapping support for RNDR/RNDRRS (FEAT_RNG_TRAP)
         scope: rng-trap
 
+      - title: Performance Monitors Extension (FEAT_PMUv3)
+        scope: pmu
+
   - title: Platforms
 
     subsections:
