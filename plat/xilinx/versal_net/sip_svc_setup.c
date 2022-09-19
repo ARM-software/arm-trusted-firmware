@@ -8,9 +8,14 @@
 
 /* Top level SMC handler for SiP calls. Dispatch PM calls to PM SMC handler. */
 
+#include <errno.h>
+
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <tools_share/uuid.h>
+
+#include "plat_private.h"
+#include "pm_svc_main.h"
 
 /* SMC function IDs for SiP Service queries */
 #define VERSAL_NET_SIP_SVC_CALL_COUNT	(0x8200ff00U)
@@ -31,7 +36,7 @@ DEFINE_SVC_UUID2(versal_net_sip_uuid,
  */
 static int32_t sip_svc_setup(void)
 {
-	return 0;
+	return sip_svc_setup_init();
 }
 
 /*

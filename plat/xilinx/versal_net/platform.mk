@@ -46,7 +46,8 @@ $(eval $(call add_define_val,VERSAL_NET_CONSOLE,VERSAL_NET_CONSOLE_ID_${VERSAL_N
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
-				-I${PLAT_PATH}/include/
+				-I${PLAT_PATH}/include/				\
+				-Iplat/xilinx/versal/pm_service/
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk

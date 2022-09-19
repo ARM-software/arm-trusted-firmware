@@ -40,7 +40,27 @@
 
 /* Global timer reset */
 #define PSX_CRF			U(0xEC200000)
+#define ACPU0_CLK_CTRL		U(0x10C)
+#define ACPU_CLK_CTRL_CLKACT	BIT(25)
+
+#define RST_APU0_OFFSET		U(0x300)
+#define RST_APU_COLD_RESET	BIT(0)
+#define RST_APU_WARN_RESET	BIT(4)
+#define RST_APU_CLUSTER_COLD_RESET	BIT(8)
+#define RST_APU_CLUSTER_WARM_RESET	BIT(9)
+
 #define PSX_CRF_RST_TIMESTAMP_OFFSET	U(0x33C)
+
+#define APU_PCLI			U(0xECB10000)
+#define APU_PCLI_CPU_STEP		U(0x30)
+#define APU_PCLI_CLUSTER_CPU_STEP	(4U * APU_PCLI_CPU_STEP)
+#define APU_PCLI_CLUSTER_OFFSET		U(0x8000)
+#define APU_PCLI_CLUSTER_STEP		U(0x1000)
+#define PCLI_PREQ_OFFSET		U(0x4)
+#define PREQ_CHANGE_REQUEST		BIT(0)
+#define PCLI_PSTATE_OFFSET		U(0x8)
+#define PCLI_PSTATE_VAL_SET		U(0x48)
+#define PCLI_PSTATE_VAL_CLEAR		U(0x38)
 
 /* Firmware Image Package */
 #define VERSAL_NET_PRIMARY_CPU		U(0)
@@ -71,6 +91,13 @@
 #define VERSAL_NET_IOU_SCNTRS_BASE_FREQ_OFFSET			U(0x20)
 
 #define VERSAL_NET_IOU_SCNTRS_CONTROL_EN	U(1)
+
+#define APU_CLUSTER0		U(0xECC00000)
+#define APU_RVBAR_L_0		U(0x40)
+#define APU_RVBAR_H_0		U(0x44)
+#define APU_CLUSTER_STEP	U(0x100000)
+
+#define SLCR_OSPI_QSPI_IOU_AXI_MUX_SEL	U(0xF1060504)
 
 /*******************************************************************************
  * IRQ constants
