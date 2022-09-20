@@ -24,7 +24,7 @@ void imx8m_caam_init(void)
 
 	/* config CAAM JRaMID set MID to Cortex A */
 	if (mmio_read_32(CAAM_JR0MID) == HAB_JR0_DID) {
-		NOTICE("Do not release JR0 to NS as it can be used by HAB");
+		NOTICE("Do not release JR0 to NS as it can be used by HAB\n");
 	} else {
 		mmio_write_32(CAAM_JR0MID, CAAM_NS_MID);
 	}
