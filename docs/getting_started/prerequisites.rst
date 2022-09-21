@@ -26,7 +26,7 @@ Toolchain
 |TF-A| can be built with any of the following *cross-compiler* toolchains that
 target the Armv7-A or Armv8-A architectures:
 
-- GCC >= 11.2-2022.02 (from the `Arm Developer website`_)
+- GCC >= 11.3.Rel1 (from the `Arm Developer website`_)
 - Clang >= 14.0.0
 - Arm Compiler >= 6.18
 
