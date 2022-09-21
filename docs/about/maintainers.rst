@@ -470,10 +470,8 @@ Arm Reference Design platform ports
 
 Arm Total Compute platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Arunachalam Ganapathy <arunachalam.ganapathy@arm.com>
-:|G|: `arugan02`_
-:|M|: Usama Arif <usama.arif@arm.com>
-:|G|: `uarif1`_
+:|M|: Anders Dellien <anders.dellien@arm.com>
+:|G|: `andersdellien-arm`_
 :|F|: plat/arm/board/tc
 
 HiSilicon HiKey and HiKey960 platform ports
@@ -836,6 +834,7 @@ Conventional Changelog Extensions
 :|F|: tools/conventional-changelog-tf-a
 
 .. _AlexeiFedorov: https://github.com/AlexeiFedorov
+.. _andersdellien-arm: https://github.com/andersdellien-arm
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
 .. _bijucdas: https://github.com/bijucdas
