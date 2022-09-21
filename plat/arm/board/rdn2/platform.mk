@@ -34,7 +34,7 @@ RDN2_BASE		=	plat/arm/board/rdn2
 PLAT_INCLUDES		+=	-I${RDN2_BASE}/include/
 
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n2.S \
-				lib/cpus/aarch64/neoverse_demeter.S
+				lib/cpus/aarch64/neoverse_v2.S
 
 PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat_v2.c
 
