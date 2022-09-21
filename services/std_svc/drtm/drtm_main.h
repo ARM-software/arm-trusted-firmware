@@ -36,6 +36,12 @@
 #define DL_ARGS_GET_DLME_ENTRY_POINT(a)	\
 		(((a)->dlme_paddr + (a)->dlme_img_off + (a)->dlme_img_ep_off))
 
+/*
+ * Range(Min/Max) of DRTM parameter structure versions supported
+ */
+#define ARM_DRTM_PARAMS_MIN_VERSION	U(1)
+#define ARM_DRTM_PARAMS_MAX_VERSION	U(1)
+
 enum drtm_dlme_el {
 	DLME_AT_EL1 = MODE_EL1,
 	DLME_AT_EL2 = MODE_EL2
