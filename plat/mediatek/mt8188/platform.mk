@@ -14,7 +14,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common \
 		 -I${MTK_PLAT}/include \
-		 -I${MTK_PLAT}/include/${MTK_SOC} \
+		 -I${MTK_PLAT}/include/${ARCH_VERSION} \
 		 -I${MTK_PLAT} \
 		 -I${MTK_PLAT_SOC}/include \
 		 -Idrivers/arm/gic \
@@ -22,15 +22,23 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common \
 MODULES-y += $(MTK_PLAT)/common
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
+MODULES-y += $(MTK_PLAT)/lib/system_reset
 MODULES-y += $(MTK_PLAT)/drivers/cirq
+MODULES-y += $(MTK_PLAT)/drivers/dcm
+MODULES-y += $(MTK_PLAT)/drivers/dfd
 MODULES-y += $(MTK_PLAT)/drivers/dp
+MODULES-y += $(MTK_PLAT)/drivers/emi_mpu
 MODULES-y += $(MTK_PLAT)/drivers/gic600
 MODULES-y += $(MTK_PLAT)/drivers/gpio
 MODULES-y += $(MTK_PLAT)/drivers/iommu
+MODULES-y += $(MTK_PLAT)/drivers/lpm
+MODULES-y += $(MTK_PLAT)/drivers/mcusys
 MODULES-y += $(MTK_PLAT)/drivers/pmic
 MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
 MODULES-y += $(MTK_PLAT)/drivers/rtc
 MODULES-y += $(MTK_PLAT)/drivers/timer
+MODULES-y += $(MTK_PLAT)/helpers
+MODULES-y += $(MTK_PLAT)/topology
 
 PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \
 			  drivers/ti/uart/aarch64/16550_console.S \
@@ -47,9 +55,7 @@ BL31_SOURCES += drivers/delay_timer/delay_timer.c \
 		plat/common/aarch64/crash_console_helpers.S \
 		${MTK_PLAT}/common/mtk_plat_common.c \
 		${MTK_PLAT}/common/params_setup.c \
-		${MTK_PLAT_SOC}/aarch64/plat_helpers.S \
-		$(MTK_PLAT)/$(MTK_SOC)/plat_mmap.c \
-		$(MTK_PLAT)/$(MTK_SOC)/plat_topology.c
+		$(MTK_PLAT)/$(MTK_SOC)/plat_mmap.c
 
 include plat/mediatek/build_helpers/mtk_build_helpers_epilogue.mk
 

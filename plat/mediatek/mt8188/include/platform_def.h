@@ -7,10 +7,13 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
+#include <arch_def.h>
+
 #define PLAT_PRIMARY_CPU	(0x0)
 
 #define MT_GIC_BASE		(0x0C000000)
 #define MCUCFG_BASE		(0x0C530000)
+#define MCUCFG_REG_SIZE		(0x10000)
 #define IO_PHYS			(0x10000000)
 
 /* Aggregate of all devices for MMU mapping */
@@ -23,6 +26,8 @@
  * GPIO related constants
  ******************************************************************************/
 #define GPIO_BASE		(IO_PHYS + 0x00005000)
+#define RGU_BASE		(IO_PHYS + 0x00007000)
+#define DRM_BASE		(IO_PHYS + 0x0000D000)
 #define IOCFG_RM_BASE		(IO_PHYS + 0x01C00000)
 #define IOCFG_LT_BASE		(IO_PHYS + 0x01E10000)
 #define IOCFG_LM_BASE		(IO_PHYS + 0x01E20000)
@@ -101,6 +106,12 @@
 #define DP_SEC_SIZE		(0x1000)
 
 /*******************************************************************************
+ * EMI MPU related constants
+ *******************************************************************************/
+#define EMI_MPU_BASE		(IO_PHYS + 0x00226000)
+#define SUB_EMI_MPU_BASE	(IO_PHYS + 0x00225000)
+
+/*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/
 #define SYS_COUNTER_FREQ_IN_HZ	(13000000)
@@ -116,22 +127,7 @@
  * Generic platform constants
  ******************************************************************************/
 #define PLATFORM_STACK_SIZE		(0x800)
-
 #define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
-
-#define PLAT_MAX_PWR_LVL		U(3)
-#define PLAT_MAX_RET_STATE		U(1)
-#define PLAT_MAX_OFF_STATE		U(9)
-
-#define PLATFORM_SYSTEM_COUNT		U(1)
-#define PLATFORM_MCUSYS_COUNT		U(1)
-#define PLATFORM_CLUSTER_COUNT		U(1)
-#define PLATFORM_CLUSTER0_CORE_COUNT	U(8)
-#define PLATFORM_CLUSTER1_CORE_COUNT	U(0)
-
-#define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER0_CORE_COUNT)
-#define PLATFORM_MAX_CPUS_PER_CLUSTER	U(8)
-
 #define SOC_CHIP_ID			U(0x8188)
 
 /*******************************************************************************
@@ -158,17 +154,5 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
 #define MAX_XLAT_TABLES			(16)
 #define MAX_MMAP_REGIONS		(16)
-
-/*******************************************************************************
- * Declarations and constants to access the mailboxes safely. Each mailbox is
- * aligned on the biggest cache line size in the platform. This is known only
- * to the platform as it might have a combination of integrated and external
- * caches. Such alignment ensures that two maiboxes do not sit on the same cache
- * line at any cache level. They could belong to different cpus/clusters &
- * get written while being protected by different locks causing corruption of
- * a valid mailbox address.
- ******************************************************************************/
-#define CACHE_WRITEBACK_SHIFT		(6)
-#define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
 #endif /* PLATFORM_DEF_H */

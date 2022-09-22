@@ -3,15 +3,10 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-#
 
 LOCAL_DIR := $(call GET_LOCAL_DIR)
 
-MODULE := pm
-
-LOCAL_SRCS-y := ${LOCAL_DIR}/mtk_pm.c
+MODULE := helpers
+LOCAL_SRCS-y += $(LOCAL_DIR)/$(ARCH_VERSION)/arch_helpers.S
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
-
-SUB_RULES-$(CONFIG_MTK_PM_SUPPORT) := $(LOCAL_DIR)/armv${CONFIG_MTK_PM_ARCH}
-$(eval $(call INCLUDE_MAKEFILE,$(SUB_RULES-y)))
