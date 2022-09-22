@@ -27,7 +27,7 @@ struct pinctrl_function {
 };
 
 /* Max groups for one pin */
-#define MAX_PIN_GROUPS	U(13)
+#define MAX_PIN_GROUPS	(13U)
 
 struct zynqmp_pin_group {
 	uint16_t (*groups)[];
