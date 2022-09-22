@@ -731,7 +731,7 @@ Xilinx platform port
 :|G|: `michalsimek`_
 :|M|: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@amd.com>
 :|G|: `venkatesh`_
-:|F|: docs/plat/xilinx-zynqmp.rst
+:|F|: docs/plat/xilinx\*
 :|F|: plat/xilinx/
 
 
