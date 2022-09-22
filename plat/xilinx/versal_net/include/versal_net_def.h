@@ -32,6 +32,7 @@
 #define VERSAL_NET_SPP			U(1)
 #define VERSAL_NET_EMU			U(2)
 #define VERSAL_NET_QEMU			U(3)
+#define VERSAL_NET_QEMU_COSIM		U(7)
 
 /* For platform detection */
 #define PMC_TAP				U(0xF11A0000)
