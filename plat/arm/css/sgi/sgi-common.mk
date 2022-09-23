@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -69,7 +69,6 @@ $(eval $(call add_define,CSS_SGI_PLATFORM_VARIANT))
 
 override CSS_LOAD_SCP_IMAGES	:=	0
 override NEED_BL2U		:=	no
-override ARM_BL31_IN_DRAM	:=	1
 override ARM_PLAT_MT		:=	1
 override PSCI_EXTENDED_STATE_ID	:=	1
 override ARM_RECOM_STATE_ID_ENC	:=	1
