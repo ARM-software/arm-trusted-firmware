@@ -242,10 +242,12 @@ int rmmd_setup(void)
  * Forward SMC to the other security state
  ******************************************************************************/
 static uint64_t	rmmd_smc_forward(uint32_t src_sec_state,
-					uint32_t dst_sec_state, uint64_t x0,
-					uint64_t x1, uint64_t x2, uint64_t x3,
-					uint64_t x4, void *handle)
+				 uint32_t dst_sec_state, uint64_t x0,
+				 uint64_t x1, uint64_t x2, uint64_t x3,
+				 uint64_t x4, void *handle)
 {
+	cpu_context_t *ctx = cm_get_context(dst_sec_state);
+
 	/* Save incoming security state */
 	cm_el1_sysregs_context_save(src_sec_state);
 	cm_el2_sysregs_context_save(src_sec_state);
@@ -256,19 +258,21 @@ static uint64_t	rmmd_smc_forward(uint32_t src_sec_state,
 	cm_set_next_eret_context(dst_sec_state);
 
 	/*
-	 * As per SMCCCv1.1, we need to preserve x4 to x7 unless
+	 * As per SMCCCv1.2, we need to preserve x4 to x7 unless
 	 * being used as return args. Hence we differentiate the
 	 * onward and backward path. Support upto 8 args in the
 	 * onward path and 4 args in return path.
+	 * Register x4 will be preserved by RMM in case it is not
+	 * used in return path.
 	 */
 	if (src_sec_state == NON_SECURE) {
-		SMC_RET8(cm_get_context(dst_sec_state), x0, x1, x2, x3, x4,
-				SMC_GET_GP(handle, CTX_GPREG_X5),
-				SMC_GET_GP(handle, CTX_GPREG_X6),
-				SMC_GET_GP(handle, CTX_GPREG_X7));
-	} else {
-		SMC_RET4(cm_get_context(dst_sec_state), x0, x1, x2, x3);
+		SMC_RET8(ctx, x0, x1, x2, x3, x4,
+			 SMC_GET_GP(handle, CTX_GPREG_X5),
+			 SMC_GET_GP(handle, CTX_GPREG_X6),
+			 SMC_GET_GP(handle, CTX_GPREG_X7));
 	}
+
+	SMC_RET5(ctx, x0, x1, x2, x3, x4);
 }
 
 /*******************************************************************************
@@ -276,8 +280,8 @@ static uint64_t	rmmd_smc_forward(uint32_t src_sec_state,
  * either forwarded to the other security state or handled by the RMM dispatcher
  ******************************************************************************/
 uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
-				uint64_t x3, uint64_t x4, void *cookie,
-				void *handle, uint64_t flags)
+			  uint64_t x3, uint64_t x4, void *cookie,
+			  void *handle, uint64_t flags)
 {
 	uint32_t src_sec_state;
 
@@ -311,10 +315,12 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	}
 
 	switch (smc_fid) {
-	case RMM_RMI_REQ_COMPLETE:
-		return rmmd_smc_forward(REALM, NON_SECURE, x1,
-					x2, x3, x4, 0, handle);
+	case RMM_RMI_REQ_COMPLETE: {
+		uint64_t x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
 
+		return rmmd_smc_forward(REALM, NON_SECURE, x1,
+					x2, x3, x4, x5, handle);
+	}
 	default:
 		WARN("RMMD: Unsupported RMM call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
