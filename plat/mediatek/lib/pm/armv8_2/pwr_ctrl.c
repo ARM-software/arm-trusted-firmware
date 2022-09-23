@@ -103,7 +103,7 @@ unsigned int armv8_2_get_pwr_afflv(const psci_power_state_t *state_info)
 /* MediaTek mcusys power on control interface */
 static void armv8_2_mcusys_pwr_on_common(const struct mtk_cpupm_pwrstate *state)
 {
-	mt_gic_init();
+	gicv3_distif_init();
 	mt_gic_distif_restore();
 	gic_sgi_restore_all();
 
@@ -154,9 +154,8 @@ static void armv8_2_cpu_pwr_on_common(const struct mtk_cpupm_pwrstate *state, un
 {
 	coordinate_cluster_pwron();
 
-	gicv3_rdistif_on(plat_my_core_pos());
+	gicv3_rdistif_init(plat_my_core_pos());
 	gicv3_cpuif_enable(plat_my_core_pos());
-	mt_gic_rdistif_init();
 
 	/* If MCUSYS has been powered down then restore GIC redistributor for all CPUs. */
 	if (IS_PLAT_SYSTEM_RETENTION(state->pwr.afflv)) {
