@@ -13,6 +13,7 @@
 #endif
 #include <common/fdt_wrappers.h>
 #include <libfdt.h>
+#include <platform_def.h>
 
 #define DTB_PROP_HW_LOG_ADDR	"tpm_event_log_addr"
 #define DTB_PROP_HW_LOG_SIZE	"tpm_event_log_size"

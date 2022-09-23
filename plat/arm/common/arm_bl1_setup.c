@@ -11,6 +11,7 @@
 #include <arch.h>
 #include <bl1/bl1.h>
 #include <common/bl_common.h>
+#include <common/debug.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/utils.h>

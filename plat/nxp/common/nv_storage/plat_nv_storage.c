@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <platform_def.h>
 #include <common/debug.h>
 #ifndef NXP_COINED_BB
 #include <flash_info.h>

@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 
+#include <common/bl_common.h>
 #include <lib/psci/psci.h>
 #include <lib/spinlock.h>
 #include <services/el3_spmc_logical_sp.h>

@@ -7,6 +7,7 @@
 #ifndef SPMD_PRIVATE_H
 #define SPMD_PRIVATE_H
 
+#include <common/bl_common.h>
 #include <context.h>
 
 /*******************************************************************************

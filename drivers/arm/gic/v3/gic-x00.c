@@ -16,6 +16,7 @@
 #include <assert.h>
 
 #include <arch_helpers.h>
+#include <common/debug.h>
 #include <drivers/arm/arm_gicv3_common.h>
 #include <drivers/arm/gicv3.h>
 

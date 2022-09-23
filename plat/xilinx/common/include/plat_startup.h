@@ -7,6 +7,8 @@
 #ifndef PLAT_STARTUP_H
 #define PLAT_STARTUP_H
 
+#include <common/bl_common.h>
+
 /* For FSBL handover */
 enum fsbl_handoff {
 	FSBL_HANDOFF_SUCCESS = 0,

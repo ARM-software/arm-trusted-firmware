@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <crypto/sha_dma.h>
 #include <lib/mmio.h>
+#include <platform_def.h>
 
 #include "aml_private.h"
 

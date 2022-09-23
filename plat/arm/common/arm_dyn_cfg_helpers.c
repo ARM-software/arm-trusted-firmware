@@ -6,6 +6,7 @@
 
 #include <assert.h>
 
+#include <common/debug.h>
 #if MEASURED_BOOT
 #include <common/desc_image_load.h>
 #endif

@@ -10,6 +10,7 @@
 
 #include <arch_helpers.h>
 #include <common/bl_common.h>
+#include <common/debug.h>
 #include <bl31/interrupt_mgmt.h>
 #include <drivers/arm/gic_common.h>
 #include <drivers/arm/gicv3.h>

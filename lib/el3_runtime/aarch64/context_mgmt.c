@@ -16,6 +16,7 @@
 #include <arch_features.h>
 #include <bl31/interrupt_mgmt.h>
 #include <common/bl_common.h>
+#include <common/debug.h>
 #include <context.h>
 #include <drivers/arm/gicv3.h>
 #include <lib/el3_runtime/context_mgmt.h>
