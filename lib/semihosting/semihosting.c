@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -64,8 +64,10 @@ long semihosting_file_seek(long file_handle, ssize_t offset)
 
 	result = semihosting_call(SEMIHOSTING_SYS_SEEK, (uintptr_t)&seek_block);
 
-	if (result != 0) {
+	if (result < 0) {
 		result = semihosting_call(SEMIHOSTING_SYS_ERRNO, 0);
+	} else  {
+		result = 0;
 	}
 
 	return result;
