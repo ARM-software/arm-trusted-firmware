@@ -60,6 +60,11 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 		SMC_RET1(handle, imx_src_handler(smc_fid, x1, x2, x3, handle));
 		break;
 #endif
+#if defined(PLAT_imx8mm) || defined(PLAT_imx8mn) || defined(PLAT_imx8mp)
+	case IMX_SIP_HAB:
+		SMC_RET1(handle, imx_hab_handler(smc_fid, x1, x2, x3, x4));
+		break;
+#endif
 	case  IMX_SIP_BUILDINFO:
 		SMC_RET1(handle, imx_buildinfo_handler(smc_fid, x1, x2, x3, x4));
 	default:
