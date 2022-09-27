@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,9 +29,13 @@
 #define SPI_NAND_STATUS_BUSY		BIT(0)
 #define SPI_NAND_STATUS_ECC_UNCOR	BIT(5)
 
+/* Flags for specific configuration */
+#define SPI_NAND_HAS_QE_BIT		BIT(0)
+
 struct spinand_device {
 	struct nand_device *nand_dev;
 	struct spi_mem_op spi_read_cache_op;
+	uint32_t flags;
 	uint8_t cfg_cache; /* Cached value of SPI NAND device register CFG */
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022,  STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2023,  STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,6 @@
 
 #define SPI_NAND_MAX_ID_LEN		4U
 #define DELAY_US_400MS			400000U
-#define MACRONIX_ID			0xC2U
 
 static struct spinand_device spinand_dev;
 
@@ -91,7 +90,7 @@ static int spi_nand_quad_enable(uint8_t manufacturer_id)
 {
 	bool enable = false;
 
-	if (manufacturer_id != MACRONIX_ID) {
+	if ((spinand_dev.flags & SPI_NAND_HAS_QE_BIT) == 0U) {
 		return 0;
 	}
 
