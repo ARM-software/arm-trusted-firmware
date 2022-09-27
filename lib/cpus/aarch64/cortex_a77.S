@@ -236,6 +236,35 @@ func check_errata_cve_2022_23960
 	ret
 endfunc check_errata_cve_2022_23960
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #1800714.
+	 * This applies to revision <= r1p1 of Cortex A77.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a77_1800714_wa
+	/* Compare x0 against revision <= r1p1 */
+	mov	x17, x30
+	bl	check_errata_1800714
+	cbz	x0, 1f
+
+	/* Disable allocation of splintered pages in the L2 TLB */
+	mrs	x1, CORTEX_A77_CPUECTLR_EL1
+	orr	x1, x1, CORTEX_A77_CPUECTLR_EL1_BIT_53
+	msr	CORTEX_A77_CPUECTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a77_1800714_wa
+
+func check_errata_1800714
+	/* Applies to everything <= r1p1 */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_1800714
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A77.
 	 * Shall clobber: x0-x19
@@ -280,6 +309,11 @@ func cortex_a77_reset_func
 	msr	vbar_el3, x0
 #endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
 
+#if ERRATA_A77_1800714
+	mov	x0, x18
+	bl	errata_a77_1800714_wa
+#endif
+
 	isb
 	ret	x19
 endfunc cortex_a77_reset_func
@@ -315,9 +349,10 @@ func cortex_a77_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A77_1508412, cortex_a77, 1508412
+	report_errata ERRATA_A77_1791578, cortex_a77, 1791578
+	report_errata ERRATA_A77_1800714, cortex_a77, 1800714
 	report_errata ERRATA_A77_1925769, cortex_a77, 1925769
 	report_errata ERRATA_A77_1946167, cortex_a77, 1946167
-	report_errata ERRATA_A77_1791578, cortex_a77, 1791578
 	report_errata ERRATA_A77_2356587, cortex_a77, 2356587
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a77, cve_2022_23960
 
