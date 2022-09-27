@@ -195,6 +195,49 @@ struct trdc_glbac_config trdc_n_mrc_glbac[] = {
 	{ 0, 1, SP(RWX) | SU(RWX) | NP(RWX) | NU(RWX) },
 };
 
+#if defined(SPD_opteed)
+#define TEE_SHM_SIZE 0x200000
+
+#define DRAM_MEM_0_START (0x80000000)
+#define DRAM_MEM_0_SIZE (BL32_BASE - 0x80000000)
+
+#define DRAM_MEM_1_START (BL32_BASE)
+#define DRAM_MEM_1_SIZE (BL32_SIZE - TEE_SHM_SIZE)
+
+#define DRAM_MEM_2_START (DRAM_MEM_1_START + DRAM_MEM_1_SIZE)
+#define DRAM_MEM_2_SIZE (0x80000000 - DRAM_MEM_1_SIZE - DRAM_MEM_0_SIZE)
+
+struct trdc_mrc_config trdc_n_mrc[] = {
+	{ 0, 0, 0, 0x80000000, 0x80000000, 0, false }, /* MRC0 DRAM for S400 DID0 */
+	{ 0, 1, 0, 0x80000000, 0x80000000, 0, false }, /* MRC0 DRAM for MTR DID1 */
+	{ 0, 2, 0, 0x80000000, 0x80000000, 0, true }, /* MRC0 DRAM for M33 DID2 */
+	{ 0, 8, 0, 0x80000000, 0x80000000, 1, false }, /* MRC0 DRAM for Coresight, Testport DID8 */
+	{ 0, 9, 0, 0x80000000, 0x80000000, 1, false }, /* MRC0 DRAM for DAP DID9 */
+
+	{ 0, 3, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, 1, false }, /* MRC0 DRAM for A55 DID3 */
+	{ 0, 5, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, 0, false }, /* MRC0 DRAM for USDHC1 DID5 */
+	{ 0, 6, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, 0, false }, /* MRC0 DRAM for USDHC2 DID6 */
+	{ 0, 7, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, 0, false }, /* MRC0 DRAM for eDMA DID7 */
+	{ 0, 10, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, 0, false }, /* MRC0 DRAM for SoC masters DID10 */
+	{ 0, 11, 0, DRAM_MEM_0_START, DRAM_MEM_0_SIZE, 0, false }, /* MRC0 DRAM for USB DID11 */
+
+	/* OPTEE memory for  secure access only. */
+	{ 0, 3, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, 1, true }, /* MRC0 DRAM for A55 DID3 */
+	{ 0, 5, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, 0, true }, /* MRC0 DRAM for USDHC1 DID5 */
+	{ 0, 6, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, 0, true }, /* MRC0 DRAM for USDHC2 DID6 */
+	{ 0, 7, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, 0, true }, /* MRC0 DRAM for eDMA DID7 */
+	{ 0, 10, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, 0, true }, /* MRC0 DRAM for SoC masters DID10 */
+	{ 0, 11, 1, DRAM_MEM_1_START, DRAM_MEM_1_SIZE, 0, true }, /* MRC0 DRAM for USB DID11 */
+
+	{ 0, 3, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, 1, false }, /* MRC0 DRAM for A55 DID3 */
+	{ 0, 5, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, 0, false }, /* MRC0 DRAM for USDHC1 DID5 */
+	{ 0, 6, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, 0, false }, /* MRC0 DRAM for USDHC2 DID6 */
+	{ 0, 7, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, 0, false }, /* MRC0 DRAM for eDMA DID7 */
+	{ 0, 10, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, 0, false }, /* MRC0 DRAM for SoC masters DID10 */
+	{ 0, 11, 2, DRAM_MEM_2_START, DRAM_MEM_2_SIZE, 0, false }, /* MRC0 DRAM for USB DID11 */
+
+};
+#else
 struct trdc_mrc_config trdc_n_mrc[] = {
 	{ 0, 0, 0, 0x80000000, 0x80000000, 0, false }, /* MRC0 DRAM for S400 DID0 */
 	{ 0, 1, 0, 0x80000000, 0x80000000, 0, false }, /* MRC0 DRAM for MTR DID1 */
@@ -208,3 +251,4 @@ struct trdc_mrc_config trdc_n_mrc[] = {
 	{ 0, 10, 0, 0x80000000, 0x80000000, 0, false }, /* MRC0 DRAM for SoC masters DID10 */
 	{ 0, 11, 0, 0x80000000, 0x80000000, 0, false }, /* MRC0 DRAM for USB DID11 */
 };
+#endif
