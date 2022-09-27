@@ -206,6 +206,17 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	/* Allow access to Allocation Tags when MTE is implemented. */
 	scr_el3 |= SCR_ATA_BIT;
 
+#if RAS_TRAP_NS_ERR_REC_ACCESS
+	/*
+	 * SCR_EL3.TERR: Trap Error record accesses. Accesses to the RAS ERR
+	 * and RAS ERX registers from EL1 and EL2(from any security state)
+	 * are trapped to EL3.
+	 * Set here to trap only for NS EL1/EL2
+	 *
+	 */
+	scr_el3 |= SCR_TERR_BIT;
+#endif
+
 #ifdef IMAGE_BL31
 	/*
 	 * SCR_EL3.IRQ, SCR_EL3.FIQ: Enable the physical FIQ and IRQ routing as
@@ -304,14 +315,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 */
 #if ENABLE_FEAT_RNG_TRAP
 	scr_el3 |= SCR_TRNDR_BIT;
-#endif
-
-#if RAS_TRAP_LOWER_EL_ERR_ACCESS
-	/*
-	 * SCR_EL3.TERR: Trap Error record accesses. Accesses to the RAS ERR
-	 * and RAS ERX registers from EL1 and EL2 are trapped to EL3.
-	 */
-	scr_el3 |= SCR_TERR_BIT;
 #endif
 
 #if !HANDLE_EA_EL3_FIRST
