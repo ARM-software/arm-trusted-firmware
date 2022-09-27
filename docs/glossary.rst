@@ -86,6 +86,9 @@ You can find additional definitions in the `Arm Glossary`_.
       A collaborative engineering organization consolidating
       and optimizing open source software and tools for the Arm architecture.
 
+   LSP
+      A logical secure partition managed by SPM
+
    MMU
       Memory Management Unit
 

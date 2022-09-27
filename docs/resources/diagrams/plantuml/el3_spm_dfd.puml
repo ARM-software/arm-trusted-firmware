@@ -1,0 +1,78 @@
+/'
+ ' Copyright (c) 2022, Arm Limited. All rights reserved.
+ '
+ ' SPDX-License-Identifier: BSD-3-Clause
+ '/
+
+/'
+TF-A EL3 SPMC Data Flow Diagram
+'/
+
+@startuml
+digraph tfa_el3_dfd {
+
+    # Allow arrows to end on cluster boundaries
+    compound=true
+    concentrate=false
+    newrank=true
+
+    # Default settings for edges and nodes
+    edge [minlen=2 color="#8c1b07"]
+    node [fillcolor="#ffb866" style=filled shape=box fixedsize=true width=1.6 height=0.7]
+
+    # Nodes outside of the trust boundary
+    nsec [label="NS Client"]
+    ddr  [label="External memory (DDR)"]
+
+    {rank="same" smmu, spmd}
+    # Trust boundary cluster
+    subgraph cluster_trusted {
+        graph [style=dashed color="#f22430"]
+        concentrate=false
+
+        # HW IPs cluster
+        subgraph cluster_ip {
+            label ="Hardware IPs";
+            graph [style=filled color="#000000" fillcolor="#ffd29e"]
+
+            rank="same"
+            gic [label="GIC" width=1.2 height=0.5]
+            smmu [label="SMMU" width=1.2 height=0.5]
+            uart [label="UART" width=1.2 height=0.5]
+            pe [label="PE" width=1.2 height=0.5]
+        }
+
+        # TF-A cluster
+        subgraph cluster_tfa {
+            label ="EL3 monitor";
+            graph [style=filled color="#000000" fillcolor="#faf9cd"]
+            {rank="same" spmc, bl31}
+            {rank="same" spmd, lsp}
+            spmc [label="SPMC" fillcolor="#ddffb3"]
+            bl31 [label="BL31" fillcolor="#ddffb3"];
+            spmd [label="SPMD" fillcolor="#ddffb3"]
+            lsp[label="LSP1" fillcolor="#ddffb3"]
+        }
+        bl2 [label="BL2" width=1.2 height=0.5]
+    }
+
+    # Secure Partitions cluster
+    subgraph cluster_sp {
+        label ="Secure Partitions";
+        graph [style=filled color="#000000" fillcolor="#faf9cd"]
+
+        sp1 [label="SP1" fillcolor="#ddffb3"]
+    }
+
+    sp1 -> spmc [dir="both" label="DF1"]
+    lsp -> spmc [dir="both" label="DF4"]
+    spmc -> spmd [dir="both" label="DF2"]
+    spmd -> nsec [dir="both" label="DF3"]
+    spmc -> smmu [lhead=cluster_spmc label="DF5"]
+    bl2 -> spmc [lhead=cluster_spmc label="DF6"]
+    bl2 -> sp1 [lhead=cluster_spmc label="DF6"]
+    sp1 -> ddr [dir="both"  label="DF7"]
+    spmc -> ddr [dir="both"  label="DF7"]
+}
+
+@enduml
