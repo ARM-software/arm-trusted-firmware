@@ -259,6 +259,9 @@
 /* maximum number of retries for a general UIC command  */
 #define UFS_UIC_COMMAND_RETRIES		3
 
+/* maximum number of retries for a transfer command  */
+#define UFS_CMD_RETRIES			3
+
 /* maximum number of retries for reading UFS capacity */
 #define UFS_READ_CAPACITY_RETRIES	10
 

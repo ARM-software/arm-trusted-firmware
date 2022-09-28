@@ -477,6 +477,7 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
 {
 	utrd_header_t *hd;
 	resp_upiu_t *resp;
+	sense_data_t *sense;
 	unsigned int data;
 	int slot;
 
@@ -499,6 +500,15 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
 	inv_dcache_range((uintptr_t)hd, UFS_DESC_SIZE);
 	assert(hd->ocs == OCS_SUCCESS);
 	assert((resp->trans_type & TRANS_TYPE_CODE_MASK) == trans_type);
+
+	sense = &resp->sd.sense;
+	if (sense->resp_code == SENSE_DATA_VALID &&
+	    sense->sense_key == SENSE_KEY_UNIT_ATTENTION && sense->asc == 0x29 &&
+	    sense->ascq == 0) {
+		WARN("Unit Attention Condition\n");
+		return -EAGAIN;
+	}
+
 	(void)resp;
 	(void)slot;
 	return 0;
@@ -507,14 +517,18 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
 static void ufs_send_cmd(utp_utrd_t *utrd, uint8_t cmd_op, uint8_t lun, int lba, uintptr_t buf,
 			 size_t length)
 {
-	int result;
+	int result, i;
 
-	get_utrd(utrd);
-
-	result = ufs_prepare_cmd(utrd, cmd_op, lun, lba, buf, length);
-	assert(result == 0);
-	ufs_send_request(utrd->task_tag);
-	result = ufs_check_resp(utrd, RESPONSE_UPIU);
+	for (i = 0; i < UFS_CMD_RETRIES; ++i) {
+		get_utrd(utrd);
+		result = ufs_prepare_cmd(utrd, cmd_op, lun, lba, buf, length);
+		assert(result == 0);
+		ufs_send_request(utrd->task_tag);
+		result = ufs_check_resp(utrd, RESPONSE_UPIU);
+		if (result == 0 || result == -EIO) {
+			break;
+		}
+	}
 	assert(result == 0);
 	(void)result;
 }
