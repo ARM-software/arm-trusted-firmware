@@ -76,4 +76,11 @@ enum mhu_error_t mhu_send_data(const uint8_t *send_buffer, size_t size);
  */
 enum mhu_error_t mhu_receive_data(uint8_t *receive_buffer, size_t *size);
 
+/**
+ * Gets the maximum amount of bytes that can be transmitted in a single send by MHU.
+ *
+ * Returns The amount of bytes that can be sent or received in a single message.
+ */
+size_t mhu_get_max_message_size(void);
+
 #endif /* MHU_H */
