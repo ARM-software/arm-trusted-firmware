@@ -494,8 +494,11 @@ EL3 must maintain a separate register context for the following:
    #. General purpose registers (x0-x30) and ``sp_el0``, ``sp_el2`` stack pointers
    #. EL2 system register context for all enabled features by EL3. These include system registers with the ``_EL2`` prefix. The EL2 physical and virtual timer registers must not be included in this.
 
-It is the responsibility of EL3 that the above registers will not be leaked to
-the NS Host and to maintain the confidentiality of the Realm World.
+As part of SMC forwarding between the NS world and Realm world, EL3 allows x0-x7 to be passed
+as arguments to Realm and x0-x4 to be used for return arguments back to Non Secure.
+As per SMCCCv1.2, x4 must be preserved if not being used as return argument by the SMC function
+and it is the responsibility of RMM to preserve this or use this as a return argument.
+EL3 will always copy x0-x4 from Realm context to NS Context.
 
 EL3 will not save some registers as mentioned in the below list. It is the
 responsibility of RMM to ensure that these are appropriately saved if the
@@ -505,6 +508,9 @@ Realm World makes use of them:
    #. SVE registers
    #. SME registers
    #. EL1/0 registers
+
+It is the responsibility of EL3 that any other registers other than the ones mentioned above
+will not be leaked to the NS Host and to maintain the confidentiality of the Realm World.
 
 SMCCC v1.3 allows NS world to specify whether SVE context is in use. In this
 case, RMM could choose to not save the incoming SVE context but must ensure
