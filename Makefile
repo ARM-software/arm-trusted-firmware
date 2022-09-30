@@ -1051,7 +1051,7 @@ $(eval $(call assert_booleans,\
         ENCRYPT_BL31 \
         ENCRYPT_BL32 \
         ERRATA_SPECULATIVE_AT \
-        RAS_TRAP_LOWER_EL_ERR_ACCESS \
+        RAS_TRAP_NS_ERR_REC_ACCESS \
         COT_DESC_IN_DTB \
         USE_SP804_TIMER \
         PSA_FWU_SUPPORT \
@@ -1191,7 +1191,7 @@ $(eval $(call add_defines,\
         BL2_INV_DCACHE \
         USE_SPINLOCK_CAS \
         ERRATA_SPECULATIVE_AT \
-        RAS_TRAP_LOWER_EL_ERR_ACCESS \
+        RAS_TRAP_NS_ERR_REC_ACCESS \
         COT_DESC_IN_DTB \
         USE_SP804_TIMER \
         ENABLE_FEAT_RNG \
