@@ -2672,9 +2672,9 @@ enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 		if (nodes[i].type == div_type) {
 			if (CLK_DIVIDER_POWER_OF_TWO &
 					nodes[i].typeflags) {
-				*max_div = (1 << (BIT(nodes[i].width) - 1));
+				*max_div = (1U << (BIT(nodes[i].width) - 1U));
 			} else {
-				*max_div = BIT(nodes[i].width) - 1;
+				*max_div = BIT(nodes[i].width) - 1U;
 			}
 			return PM_RET_SUCCESS;
 		}
@@ -2815,7 +2815,7 @@ struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
  */
 enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
 {
-	if (!pll) {
+	if (pll == NULL) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -2838,7 +2838,7 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
  */
 enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
 {
-	if (!pll) {
+	if (pll == NULL) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -2862,7 +2862,7 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 	enum pm_ret_status status;
 	enum pm_pll_mode mode;
 
-	if (!pll || !state) {
+	if ((pll == NULL) || !state) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -2896,7 +2896,7 @@ enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
 					   uint32_t parent_index)
 {
-	if (!pll) {
+	if (pll == NULL) {
 		return PM_RET_ERROR_ARGS;
 	}
 	if (pll->pre_src == clock_id) {
@@ -2929,7 +2929,7 @@ enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
 					   uint32_t *parent_index)
 {
-	if (!pll) {
+	if (pll == NULL) {
 		return PM_RET_ERROR_ARGS;
 	}
 	if (pll->pre_src == clock_id) {
@@ -2966,7 +2966,7 @@ enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 {
 	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
-	if (!pll || (mode != PLL_FRAC_MODE && mode != PLL_INT_MODE)) {
+	if ((pll == NULL) || (mode != PLL_FRAC_MODE && mode != PLL_INT_MODE)) {
 		return PM_RET_ERROR_ARGS;
 	}
 	pll->mode = mode;
@@ -2988,7 +2988,7 @@ enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
 {
 	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
-	if (!pll || !mode) {
+	if ((pll == NULL) || !mode) {
 		return PM_RET_ERROR_ARGS;
 	}
 	*mode = pll->mode;

@@ -759,7 +759,7 @@ enum pm_ret_status atf_ioctl_bitmask(uint32_t *bit_mask)
 		}
 		ret = check_api_dependency(ioctl_id);
 		if (ret == PM_RET_SUCCESS) {
-			bit_mask[ioctl_id / 32] |= BIT(ioctl_id % 32);
+			bit_mask[ioctl_id / 32U] |= BIT(ioctl_id % 32U);
 		}
 	}
 
