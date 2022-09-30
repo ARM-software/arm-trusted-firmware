@@ -25,12 +25,12 @@
 #include "pm_client.h"
 #include "pm_ipi.h"
 
-#define IRQ_MAX		84
-#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5) + 1)
-#define UNDEFINED_CPUID		(~0)
+#define IRQ_MAX		84U
+#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5U) + 1U)
+#define UNDEFINED_CPUID		(~0U)
 
-#define PM_SUSPEND_MODE_STD		0
-#define PM_SUSPEND_MODE_POWER_OFF	1
+#define PM_SUSPEND_MODE_STD		0U
+#define PM_SUSPEND_MODE_POWER_OFF	1U
 
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
@@ -69,7 +69,7 @@ static const struct pm_proc pm_procs_all[] = {
 };
 
 /* Interrupt to PM node ID map */
-static enum pm_node_id irq_node_map[IRQ_MAX + 1] = {
+static enum pm_node_id irq_node_map[IRQ_MAX + 1U] = {
 	NODE_UNKNOWN,
 	NODE_UNKNOWN,
 	NODE_UNKNOWN,
@@ -177,13 +177,13 @@ static void pm_client_set_wakeup_sources(void)
 {
 	uint32_t reg_num;
 	uint8_t pm_wakeup_nodes_set[NODE_MAX];
-	uintptr_t isenabler1 = BASE_GICD_BASE + GICD_ISENABLER + 4;
+	uintptr_t isenabler1 = BASE_GICD_BASE + GICD_ISENABLER + 4U;
 
 	/* In case of power-off suspend, only NODE_EXTERN must be set */
 	if (suspend_mode == PM_SUSPEND_MODE_POWER_OFF) {
 		enum pm_ret_status ret;
 
-		ret = pm_set_wakeup_source(NODE_APU, NODE_EXTERN, 1);
+		ret = pm_set_wakeup_source(NODE_APU, NODE_EXTERN, 1U);
 		/**
 		 * If NODE_EXTERN could not be set as wake source, proceed with
 		 * standard suspend (no one will wake the system otherwise)
@@ -195,11 +195,11 @@ static void pm_client_set_wakeup_sources(void)
 
 	zeromem(&pm_wakeup_nodes_set, sizeof(pm_wakeup_nodes_set));
 
-	for (reg_num = 0; reg_num < NUM_GICD_ISENABLER; reg_num++) {
+	for (reg_num = 0U; reg_num < NUM_GICD_ISENABLER; reg_num++) {
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
-		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
+		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2U));
 
-		if (!reg) {
+		if (reg == 0) {
 			continue;
 		}
 
