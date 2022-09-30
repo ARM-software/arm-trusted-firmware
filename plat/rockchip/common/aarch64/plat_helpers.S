@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -150,7 +150,12 @@ endfunc platform_cpu_warmboot
 	 * Per-CPU Secure entry point - resume or power up
 	 * --------------------------------------------------------------------
 	 */
+
+#if USE_COHERENT_MEM
 	.section .tzfw_coherent_mem, "a"
+#else
+	.data
+#endif
 	.align  3
 cpuson_entry_point:
 	.rept	PLATFORM_CORE_COUNT

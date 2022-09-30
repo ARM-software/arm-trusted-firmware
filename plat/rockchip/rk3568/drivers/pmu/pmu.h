@@ -1,0 +1,304 @@
+/*
+ * Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef __PMU_H__
+#define __PMU_H__
+
+#define PMU_VERSION			0x0000
+#define PMU_PWR_CON			0x0004
+#define PMU_MAIN_PWR_STATE		0x0008
+#define PMU_INT_MASK_CON		0x000C
+#define PMU_WAKEUP_INT_CON		0x0010
+#define PMU_WAKEUP_INT_ST		0x0014
+#define PMU_WAKEUP_EDGE_CON		0x0018
+#define PMU_WAKEUP_EDGE_ST		0x001C
+#define PMU_BUS_IDLE_CON0		0x0040
+#define PMU_BUS_IDLE_CON1		0x0044
+#define PMU_BUS_IDLE_SFTCON0		0x0050
+#define PMU_BUS_IDLE_SFTCON1		0x0054
+#define PMU_BUS_IDLE_ACK		0x0060
+#define PMU_BUS_IDLE_ST			0x0068
+#define PMU_NOC_AUTO_CON0		0x0070
+#define PMU_NOC_AUTO_CON1		0x0074
+#define PMU_DDR_PWR_CON			0x0080
+#define PMU_DDR_PWR_SFTCON		0x0084
+#define PMU_DDR_PWR_STATE		0x0088
+#define PMU_DDR_PWR_ST			0x008C
+#define PMU_PWR_GATE_CON		0x0090
+#define PMU_PWR_GATE_STATE		0x0094
+#define PMU_PWR_DWN_ST			0x0098
+#define PMU_PWR_GATE_SFTCON		0x00A0
+#define PMU_VOL_GATE_SFTCON		0x00A8
+#define PMU_CRU_PWR_CON			0x00B0
+#define PMU_CRU_PWR_SFTCON		0x00B4
+#define PMU_CRU_PWR_STATE		0x00B8
+#define PMU_PLLPD_CON			0x00C0
+#define PMU_PLLPD_SFTCON		0x00C4
+#define PMU_INFO_TX_CON			0x00D0
+#define PMU_DSU_STABLE_CNT		0x0100
+#define PMU_PMIC_STABLE_CNT		0x0104
+#define PMU_OSC_STABLE_CNT		0x0108
+#define PMU_WAKEUP_RSTCLR_CNT		0x010C
+#define PMU_PLL_LOCK_CNT		0x0110
+#define PMU_DSU_PWRUP_CNT		0x0118
+#define PMU_DSU_PWRDN_CNT		0x011C
+#define PMU_GPU_VOLUP_CNT		0x0120
+#define PMU_GPU_VOLDN_CNT		0x0124
+#define PMU_WAKEUP_TIMEOUT_CNT		0x0128
+#define PMU_PWM_SWITCH_CNT		0x012C
+#define PMU_DBG_RST_CNT			0x0130
+#define PMU_SYS_REG0			0x0180
+#define PMU_SYS_REG1			0x0184
+#define PMU_SYS_REG2			0x0188
+#define PMU_SYS_REG3			0x018C
+#define PMU_SYS_REG4			0x0190
+#define PMU_SYS_REG5			0x0194
+#define PMU_SYS_REG6			0x0198
+#define PMU_SYS_REG7			0x019C
+#define PMU_DSU_PWR_CON			0x0300
+#define PMU_DSU_PWR_SFTCON		0x0304
+#define PMU_DSU_AUTO_CON		0x0308
+#define PMU_DSU_PWR_STATE		0x030C
+#define PMU_CPU_AUTO_PWR_CON0		0x0310
+#define PMU_CPU_AUTO_PWR_CON1		0x0314
+#define PMU_CPU_PWR_SFTCON		0x0318
+#define PMU_CLUSTER_PWR_ST		0x031C
+#define PMU_CLUSTER_IDLE_CON		0x0320
+#define PMU_CLUSTER_IDLE_SFTCON		0x0324
+#define PMU_CLUSTER_IDLE_ACK		0x0328
+#define PMU_CLUSTER_IDLE_ST		0x032C
+#define PMU_DBG_PWR_CON			0x0330
+
+/* PMU_SGRF */
+#define PMU_SGRF_SOC_CON1		0x0004
+#define PMU_SGRF_FAST_BOOT_ADDR		0x0180
+
+/* sys grf */
+#define GRF_CPU_STATUS0			0x0420
+
+#define CRU_SOFTRST_CON00		0x0400
+
+#define CORES_PM_DISABLE		0x0
+#define PD_CHECK_LOOP			500
+#define WFEI_CHECK_LOOP			500
+
+#define PMUSGRF_SOC_CON(i)		((i) * 0x4)
+/* Needed aligned 16 bytes for sp stack top */
+#define PSRAM_SP_TOP			((PMUSRAM_BASE + PMUSRAM_RSIZE) & ~0xf)
+#define PMU_CPUAPM_CON(cpu)		(0x0310 + (cpu) * 0x4)
+
+#define PMIC_SLEEP_FUN			0x07000100
+#define PMIC_SLEEP_GPIO			0x07000000
+#define GPIO_SWPORT_DR_L		0x0000
+#define GPIO_SWPORT_DR_H		0x0004
+#define GPIO_SWPORT_DDR_L		0x0008
+#define GPIO_SWPORT_DDR_H		0x000C
+#define PMIC_SLEEP_HIGH_LEVEL		0x00040004
+#define PMIC_SLEEP_LOW_LEVEL		0x00040000
+#define PMIC_SLEEP_OUT			0x00040004
+#define CPUS_BYPASS			0x007e4f7e
+#define CLB_INT_DISABLE			0x00010001
+#define WRITE_MASK_SET(value)		((value << 16) | value)
+#define WRITE_MASK_CLR(value)		((value << 16))
+
+enum pmu_cores_pm_by_wfi {
+	core_pm_en = 0,
+	core_pm_int_wakeup_en,
+	core_pm_int_wakeup_glb_msk,
+	core_pm_sft_wakeup_en,
+};
+
+/* The ways of cores power domain contorlling */
+enum cores_pm_ctr_mode {
+	core_pwr_pd = 0,
+	core_pwr_wfi = 1,
+	core_pwr_wfi_int = 2
+};
+
+/* PMU_PWR_DWN_ST */
+enum pmu_pdid {
+	PD_GPU,
+	PD_NPU,
+	PD_VPU,
+	PD_RKVENC,
+	PD_RKVDEC,
+	PD_RGA,
+	PD_VI,
+	PD_VO,
+	PD_PIPE,
+	PD_CENTER,
+	PD_END
+};
+
+/* PMU_PWR_CON */
+enum pmu_pwr_con {
+	POWRMODE_EN,
+	DSU_BYPASS,
+	BUS_BYPASS = 4,
+	DDR_BYPASS,
+	PWRDN_BYPASS,
+	CRU_BYPASS,
+	CPU0_BYPASS,
+	CPU1_BYPASS,
+	CPU2_BYPASS,
+	CPU3_BYPASS,
+	PMU_SLEEP_LOW = 15,
+};
+
+/* PMU_CRU_PWR_CON */
+enum pmu_cru_pwr_con {
+	ALIVE_32K_ENA,
+	OSC_DIS_ENA,
+	WAKEUP_RST_ENA,
+	INPUT_CLAMP_ENA,
+
+	ALIVE_OSC_ENA,
+	POWER_OFF_ENA,
+	PWM_SWITCH_ENA,
+	PWM_GPIO_IOE_ENA,
+
+	PWM_SWITCH_IOUT,
+	PD_BUS_CLK_SRC_GATE_ENA,
+	PD_PERI_CLK_SRC_GATE_ENA,
+	PD_PMU_CLK_SRC_GATE_ENA,
+
+	PMUMEM_CLK_SRC_GATE_ENA,
+	PWR_CON_END
+};
+
+/* PMU_PLLPD_CON */
+enum pmu_pllpd_con {
+	APLL_PD_ENA,
+	DPLL_PD_ENA,
+	CPLL_PD_ENA,
+	GPLL_PD_ENA,
+	MPLL_PD_ENA,
+	NPLL_PD_ENA,
+	HPLL_PD_ENA,
+	PPLL_PD_ENA,
+	VPLL_PD_ENA,
+	PLL_PD_END
+};
+
+/* PMU_DSU_PWR_CON */
+enum pmu_dsu_pwr_con {
+	DSU_PWRDN_ENA = 2,
+	DSU_PWROFF_ENA,
+	DSU_RET_ENA = 6,
+	CLUSTER_CLK_SRC_GATE_ENA,
+	DSU_PWR_CON_END
+};
+
+enum cpu_power_state {
+	CPU_POWER_ON,
+	CPU_POWER_OFF,
+	CPU_EMULATION_OFF,
+	CPU_RETENTION,
+	CPU_DEBUG
+};
+
+enum dsu_power_state {
+	DSU_POWER_ON,
+	CLUSTER_TRANSFER_IDLE,
+	DSU_POWER_DOWN,
+	DSU_OFF,
+	DSU_WAKEUP,
+	DSU_POWER_UP,
+	CLUSTER_TRANSFER_RESUME,
+	DSU_FUNCTION_RETENTION
+};
+
+enum pmu_wakeup_int_con {
+	WAKEUP_CPU0_INT_EN,
+	WAKEUP_CPU1_INT_EN,
+	WAKEUP_CPU2_INT_EN,
+	WAKEUP_CPU3_INT_EN,
+	WAKEUP_GPIO0_INT_EN,
+	WAKEUP_UART0_EN,
+	WAKEUP_SDMMC0_EN,
+	WAKEUP_SDMMC1_EN,
+	WAKEUP_SDMMC2_EN,
+	WAKEUP_USB_EN,
+	WAKEUP_PCIE_EN,
+	WAKEUP_VAD_EN,
+	WAKEUP_TIMER_EN,
+	WAKEUP_PWM0_EN,
+	WAKEUP_TIMEROUT_EN,
+	WAKEUP_MCU_SFT_EN,
+};
+
+enum pmu_wakeup_int_st {
+	WAKEUP_CPU0_INT_ST,
+	WAKEUP_CPU1_INT_ST,
+	WAKEUP_CPU2_INT_ST,
+	WAKEUP_CPU3_INT_ST,
+	WAKEUP_GPIO0_INT_ST,
+	WAKEUP_UART0_ST,
+	WAKEUP_SDMMC0_ST,
+	WAKEUP_SDMMC1_ST,
+	WAKEUP_SDMMC2_ST,
+	WAKEUP_USB_ST,
+	WAKEUP_PCIE_ST,
+	WAKEUP_VAD_ST,
+	WAKEUP_TIMER_ST,
+	WAKEUP_PWM0_ST,
+	WAKEUP_TIMEOUT_ST,
+	WAKEUP_SYS_INT_ST,
+};
+
+enum pmu_bus_idle_con0 {
+	IDLE_REQ_MSCH,
+	IDLE_REQ_GPU,
+	IDLE_REQ_NPU,
+	IDLE_REQ_VI,
+	IDLE_REQ_VO,
+	IDLE_REQ_RGA,
+	IDLE_REQ_VPU,
+	IDLE_REQ_RKVENC,
+	IDLE_REQ_RKVDEC,
+	IDLE_REQ_GIC_AUDIO,
+	IDLE_REQ_PHP,
+	IDLE_REQ_PIPE,
+	IDLE_REQ_SECURE_FLASH,
+	IDLE_REQ_PERIMID,
+	IDLE_REQ_USB,
+	IDLE_REQ_BUS,
+};
+
+enum pmu_bus_idle_con1 {
+	IDLE_REQ_TOP1,
+	IDLE_REQ_TOP2,
+	IDLE_REQ_PMU,
+};
+
+enum pmu_pwr_gate_con {
+	PD_GPU_DWN_ENA,
+	PD_NPU_DWN_ENA,
+	PD_VPU_DWN_ENA,
+	PD_RKVENC_DWN_ENA,
+
+	PD_RKVDEC_DWN_ENA,
+	PD_RGA_DWN_ENA,
+	PD_VI_DWN_ENA,
+	PD_VO_DWN_ENA,
+
+	PD_PIPE_DWN_ENA,
+	PD_CENTER_DWN_ENA,
+};
+
+enum pmu_ddr_pwr_con {
+	DDR_SREF_ENA,
+	DDRIO_RET_ENTER_ENA,
+	DDRIO_RET_EXIT_ENA = 2,
+	DDRPHY_AUTO_GATING_ENA = 4,
+};
+
+enum pmu_vol_gate_soft_con {
+	VD_GPU_ENA,
+	VD_NPU_ENA,
+};
+
+#endif /* __PMU_H__ */
