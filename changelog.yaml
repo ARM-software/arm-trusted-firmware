@@ -31,7 +31,7 @@ sections:
     type: ci
     hidden: true
 
-  - title: Build System
+  - title: Documentation
     description: Documentation-only changes
     type: docs
     hidden: true
