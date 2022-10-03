@@ -979,7 +979,7 @@ int intel_fcs_mac_verify_update_finalize(uint32_t session_id,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	if (data_size >= src_size) {
+	if (data_size > src_size) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
