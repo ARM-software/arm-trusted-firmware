@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
+#include <assert.h>
 
 #include <common/debug.h>
 #include "rss_comms_protocol.h"

@@ -5,7 +5,7 @@
  *
  */
 
-
+#include <assert.h>
 #include <string.h>
 
 #include <common/debug.h>
