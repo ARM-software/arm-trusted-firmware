@@ -580,6 +580,12 @@ For Cortex-X2, the following errata build flags are defined :
    Cortex-X2 CPU. This needs to be enabled for revisions r0p0, r1p0 and r2p0
    of the CPU and is fixed in r2p1.
 
+For Cortex-X3, the following errata build flags are defined :
+
+- ``ERRATA_X3_2313909``: This applies errata 2313909 workaround to
+  Cortex-X3 CPU. This needs to be enabled only for revisions r0p0 and r1p0
+  of the CPU, it is fixed in r1p1.
+
 For Cortex-A510, the following errata build flags are defined :
 
 -  ``ERRATA_A510_1922240``: This applies errata 1922240 workaround to
