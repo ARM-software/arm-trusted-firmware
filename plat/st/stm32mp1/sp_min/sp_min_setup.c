@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,6 +40,8 @@ static entry_point_info_t bl33_image_ep_info;
  ******************************************************************************/
 void sp_min_plat_fiq_handler(uint32_t id)
 {
+	(void)plat_crash_console_init();
+
 	switch (id & INT_ID_MASK) {
 	case STM32MP1_IRQ_TZC400:
 		tzc400_init(STM32MP1_TZC_BASE);
@@ -51,7 +53,7 @@ void sp_min_plat_fiq_handler(uint32_t id)
 		panic();
 		break;
 	default:
-		ERROR("SECURE IT handler not define for it : %u", id);
+		ERROR("SECURE IT handler not define for it : %u\n", id);
 		break;
 	}
 }
@@ -118,6 +120,8 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #else
 	uintptr_t dt_addr = arg1;
 #endif
+
+	stm32mp_setup_early_console();
 
 	/* Imprecise aborts can be masked in NonSecure */
 	write_scr(read_scr() | SCR_AW_BIT);

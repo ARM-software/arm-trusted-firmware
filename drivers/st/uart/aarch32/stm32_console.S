@@ -46,10 +46,16 @@ func console_stm32_core_init
 	cmp	r0, #0
 	beq	core_init_fail
 #if !defined(IMAGE_BL2)
+#if STM32MP_RECONFIGURE_CONSOLE
+	/* UART clock rate is set to 0 in BL32, skip init in that case */
+	cmp	r1, #0
+	beq	1f
+#else /* STM32MP_RECONFIGURE_CONSOLE */
 	/* Skip UART initialization if it is already enabled */
 	ldr	r3, [r0, #USART_CR1]
 	ands	r3, r3, #USART_CR1_UE
 	bne	1f
+#endif /* STM32MP_RECONFIGURE_CONSOLE */
 #endif /* IMAGE_BL2 */
 	/* Check baud rate and uart clock for sanity */
 	cmp	r1, #0

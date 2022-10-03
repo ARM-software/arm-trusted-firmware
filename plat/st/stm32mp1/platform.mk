@@ -10,6 +10,7 @@ BL2_AT_EL3		:=	1
 USE_COHERENT_MEM	:=	0
 
 STM32MP_EARLY_CONSOLE	?=	0
+STM32MP_RECONFIGURE_CONSOLE ?=	0
 STM32MP_UART_BAUDRATE	?=	115200
 
 # Allow TF-A to concatenate BL2 & BL32 binaries in a single file,
@@ -121,6 +122,9 @@ STM32MP_EMMC_BOOT	?=	0
 STM32MP_USB_PROGRAMMER	?=	0
 STM32MP_UART_PROGRAMMER	?=	0
 
+# Download load address for serial boot devices
+DWL_BUFFER_BASE 	?=	0xC7000000
+
 # Device tree
 ifeq ($(STM32MP13),1)
 BL2_DTSI		:=	stm32mp13-bl2.dtsi
@@ -205,6 +209,7 @@ $(eval $(call assert_booleans,\
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \
+		STM32MP_RECONFIGURE_CONSOLE \
 		STM32MP_SDMMC \
 		STM32MP_SPI_NAND \
 		STM32MP_SPI_NOR \
@@ -225,6 +230,7 @@ $(eval $(call assert_numerics,\
 
 $(eval $(call add_defines,\
 	$(sort \
+		DWL_BUFFER_BASE \
 		PLAT_PARTITION_MAX_ENTRIES \
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_TF_A_COPIES \
@@ -235,6 +241,7 @@ $(eval $(call add_defines,\
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \
+		STM32MP_RECONFIGURE_CONSOLE \
 		STM32MP_SDMMC \
 		STM32MP_SPI_NAND \
 		STM32MP_SPI_NOR \

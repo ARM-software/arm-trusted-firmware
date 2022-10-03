@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,9 @@
 #include <string.h>
 
 #include <common/bl_common.h>
+#include <drivers/clk.h>
 #include <drivers/delay_timer.h>
+#include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_uart.h>
 #include <drivers/st/stm32_uart_regs.h>
 #include <drivers/st/stm32mp_clkfunc.h>
@@ -106,7 +108,33 @@ static int uart_set_config(struct stm32_uart_handle_s *huart,
 {
 	uint32_t tmpreg;
 	unsigned long clockfreq;
+	unsigned long int_div;
 	uint32_t brrtemp;
+	uint32_t over_sampling;
+
+	/*---------------------- USART BRR configuration --------------------*/
+	clockfreq = uart_get_clock_freq(huart);
+	if (clockfreq == 0UL) {
+		return -ENODEV;
+	}
+
+	int_div = clockfreq / init->baud_rate;
+	if (int_div < 16U) {
+		uint32_t usartdiv = uart_div_sampling8(clockfreq,
+						       init->baud_rate,
+						       init->prescaler);
+
+		brrtemp = (usartdiv & USART_BRR_DIV_MANTISSA) |
+			  ((usartdiv & USART_BRR_DIV_FRACTION) >> 1);
+		over_sampling = USART_CR1_OVER8;
+	} else {
+		brrtemp = uart_div_sampling16(clockfreq,
+					      init->baud_rate,
+					      init->prescaler) &
+			  (USART_BRR_DIV_FRACTION | USART_BRR_DIV_MANTISSA);
+		over_sampling = 0x0U;
+	}
+	mmio_write_32(huart->base + USART_BRR, brrtemp);
 
 	/*
 	 * ---------------------- USART CR1 Configuration --------------------
@@ -115,12 +143,12 @@ static int uart_set_config(struct stm32_uart_handle_s *huart,
 	 * - set the M bits according to init->word_length value,
 	 * - set PCE and PS bits according to init->parity value,
 	 * - set TE and RE bits according to init->mode value,
-	 * - set OVER8 bit according to init->over_sampling value.
+	 * - set OVER8 bit according baudrate and clock.
 	 */
 	tmpreg = init->word_length |
 		 init->parity |
 		 init->mode |
-		 init->over_sampling |
+		 over_sampling |
 		 init->fifo_mode;
 	mmio_clrsetbits_32(huart->base + USART_CR1, STM32_UART_CR1_FIELDS, tmpreg);
 
@@ -160,27 +188,6 @@ static int uart_set_config(struct stm32_uart_handle_s *huart,
 	assert(init->prescaler < STM32_UART_PRESCALER_NB);
 	mmio_clrsetbits_32(huart->base + USART_PRESC, USART_PRESC_PRESCALER,
 			   init->prescaler);
-
-	/*---------------------- USART BRR configuration --------------------*/
-	clockfreq = uart_get_clock_freq(huart);
-	if (clockfreq == 0UL) {
-		return -ENODEV;
-	}
-
-	if (init->over_sampling == STM32_UART_OVERSAMPLING_8) {
-		uint32_t usartdiv = uart_div_sampling8(clockfreq,
-						       init->baud_rate,
-						       init->prescaler);
-
-		brrtemp = (usartdiv & USART_BRR_DIV_MANTISSA) |
-			  ((usartdiv & USART_BRR_DIV_FRACTION) >> 1);
-	} else {
-		brrtemp = uart_div_sampling16(clockfreq,
-					      init->baud_rate,
-					      init->prescaler) &
-			  (USART_BRR_DIV_FRACTION | USART_BRR_DIV_MANTISSA);
-	}
-	mmio_write_32(huart->base + USART_BRR, brrtemp);
 
 	return 0;
 }
@@ -295,18 +302,46 @@ void stm32_uart_stop(uintptr_t base)
  * @param  init: UART initialization parameter.
  * @retval UART status.
  */
-
 int stm32_uart_init(struct stm32_uart_handle_s *huart,
 		    uintptr_t base_addr,
 		    const struct stm32_uart_init_s *init)
 {
 	int ret;
+	int uart_node;
+	int clk;
+	void *fdt = NULL;
 
 	if (huart == NULL || init == NULL || base_addr == 0U) {
 		return -EINVAL;
 	}
 
 	huart->base = base_addr;
+
+	/* Search UART instance in DT */
+	if (fdt_get_address(&fdt) == 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	if (fdt == NULL) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	uart_node = dt_match_instance_by_compatible(DT_UART_COMPAT, base_addr);
+	if (uart_node == -FDT_ERR_NOTFOUND) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	/* Pinctrl initialization */
+	if (dt_set_pinctrl_config(uart_node) != 0) {
+		return -FDT_ERR_BADVALUE;
+	}
+
+	/* Clock initialization */
+	clk = fdt_get_clock_id(uart_node);
+	if (clk < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+	clk_enable(clk);
 
 	/* Disable the peripheral */
 	stm32_uart_stop(huart->base);

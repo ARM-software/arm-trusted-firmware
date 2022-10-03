@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,10 +33,6 @@
 #define STM32_UART_HWCONTROL_RTS		USART_CR3_RTSE
 #define STM32_UART_HWCONTROL_CTS		USART_CR3_CTSE
 #define STM32_UART_HWCONTROL_RTS_CTS		(USART_CR3_RTSE | USART_CR3_CTSE)
-
-/* UART over sampling */
-#define STM32_UART_OVERSAMPLING_16		0x00000000U
-#define STM32_UART_OVERSAMPLING_8		USART_CR1_OVER8
 
 /* UART prescaler */
 #define STM32_UART_PRESCALER_DIV1		0x00000000U
@@ -110,13 +106,6 @@ struct stm32_uart_init_s {
 					 * control mode is enabled or
 					 * disabled. This parameter can be a
 					 * value of @ref STM32_UARTHWCONTROL_*.
-					 */
-
-	uint32_t over_sampling;		/*
-					 * Specifies whether the over sampling
-					 * 8 is enabled or disabled.
-					 * This parameter can be a value of
-					 * @ref STM32_UART_OVERSAMPLING_*.
 					 */
 
 	uint32_t one_bit_sampling;	/*
