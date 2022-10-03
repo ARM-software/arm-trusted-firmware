@@ -228,13 +228,13 @@
 			frac = < 0x1400 >;
 		};
 
-		pll3_vco_417_8Mhz: pll2-vco-417_8Mhz {
+		pll3_vco_417_8Mhz: pll3-vco-417_8Mhz {
 			src = < CLK_PLL3_HSE >;
 			divmn = < 1 33 >;
 			frac = < 0x1a04 >;
 		};
 
-		pll4_vco_600Mhz: pll2-vco-600Mhz {
+		pll4_vco_600Mhz: pll4-vco-600Mhz {
 			src = < CLK_PLL4_HSE >;
 			divmn = < 1 49 >;
 		};
