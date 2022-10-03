@@ -236,7 +236,7 @@ int mailbox_read_response_async(unsigned int *job_id, uint32_t *header,
 
 		/* copy response data to input buffer if applicable */
 		ret_resp_len = MBOX_RESP_LEN(mailbox_resp_ctr.payload->header);
-		if ((ret_resp_len > 0) && (response == NULL) && resp_len) {
+		if ((ret_resp_len > 0) && (response != NULL) && (resp_len != NULL)) {
 			if (*resp_len > ret_resp_len) {
 				*resp_len = ret_resp_len;
 			}
