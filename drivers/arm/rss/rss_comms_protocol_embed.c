@@ -38,7 +38,6 @@ psa_status_t rss_protocol_embed_serialize_msg(psa_handle_t handle,
 	assert(msg != NULL);
 	assert(msg_len != NULL);
 	assert(in_vec != NULL);
-	assert(out_vec != NULL);
 
 	msg->ctrl_param = PARAM_PACK(type, in_len, out_len);
 	msg->handle = handle;
@@ -75,7 +74,6 @@ psa_status_t rss_protocol_embed_deserialize_reply(psa_outvec *out_vec,
 	uint32_t i;
 
 	assert(reply != NULL);
-	assert(out_vec != NULL);
 	assert(return_val != NULL);
 
 	for (i = 0U; i < out_len; ++i) {
