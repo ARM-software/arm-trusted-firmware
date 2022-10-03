@@ -294,7 +294,7 @@ unsigned int psci_find_max_off_lvl(const psci_power_state_t *state_info);
 unsigned int psci_find_target_suspend_lvl(const psci_power_state_t *state_info);
 void psci_set_pwr_domains_to_run(unsigned int end_pwrlvl);
 void psci_print_power_domain_map(void);
-unsigned int psci_is_last_on_cpu(void);
+bool psci_is_last_on_cpu(void);
 int psci_spd_migrate_info(u_register_t *mpidr);
 
 /*

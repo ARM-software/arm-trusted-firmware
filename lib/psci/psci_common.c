@@ -156,25 +156,26 @@ void psci_query_sys_suspend_pwrstate(psci_power_state_t *state_info)
 /*******************************************************************************
  * This function verifies that the all the other cores in the system have been
  * turned OFF and the current CPU is the last running CPU in the system.
- * Returns 1 (true) if the current CPU is the last ON CPU or 0 (false)
- * otherwise.
+ * Returns true, if the current CPU is the last ON CPU or false otherwise.
  ******************************************************************************/
-unsigned int psci_is_last_on_cpu(void)
+bool psci_is_last_on_cpu(void)
 {
 	unsigned int cpu_idx, my_idx = plat_my_core_pos();
 
-	for (cpu_idx = 0; cpu_idx < psci_plat_core_count;
-			cpu_idx++) {
+	for (cpu_idx = 0; cpu_idx < psci_plat_core_count; cpu_idx++) {
 		if (cpu_idx == my_idx) {
 			assert(psci_get_aff_info_state() == AFF_STATE_ON);
 			continue;
 		}
 
-		if (psci_get_aff_info_state_by_idx(cpu_idx) != AFF_STATE_OFF)
-			return 0;
+		if (psci_get_aff_info_state_by_idx(cpu_idx) != AFF_STATE_OFF) {
+			VERBOSE("core=%u other than current core=%u %s\n",
+				cpu_idx, my_idx, "running in the system");
+			return false;
+		}
 	}
 
-	return 1;
+	return true;
 }
 
 /*******************************************************************************
@@ -1009,11 +1010,11 @@ int psci_stop_other_cores(unsigned int wait_ms,
 
 	/* Need to wait for other cores to shutdown */
 	if (wait_ms != 0U) {
-		while ((wait_ms-- != 0U) && (psci_is_last_on_cpu() != 0U)) {
+		while ((wait_ms-- != 0U) && (!psci_is_last_on_cpu())) {
 			mdelay(1U);
 		}
 
-		if (psci_is_last_on_cpu() != 0U) {
+		if (!psci_is_last_on_cpu()) {
 			WARN("Failed to stop all cores!\n");
 			psci_print_power_domain_map();
 			return PSCI_E_DENIED;
@@ -1030,48 +1031,22 @@ int psci_stop_other_cores(unsigned int wait_ms,
  *
  * This API has following differences with psci_is_last_on_cpu
  *  1. PSCI states are locked
- *  2. It caters for "forest" topology instead of just "tree"
- *  TODO : Revisit both API's and unify them
  ******************************************************************************/
 bool psci_is_last_on_cpu_safe(void)
 {
 	unsigned int this_core = plat_my_core_pos();
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
-	unsigned int i = 0;
 
-	/*
-	 * Traverse the forest of PSCI nodes, nodes with no parents
-	 * (invalid-nodes) are the root nodes.
-	 */
-	while ((i < PSCI_NUM_NON_CPU_PWR_DOMAINS) &&
-	       (psci_non_cpu_pd_nodes[i].parent_node ==
-	       PSCI_PARENT_NODE_INVALID)) {
-		psci_get_parent_pwr_domain_nodes(
-				psci_non_cpu_pd_nodes[i].cpu_start_idx,
-				PLAT_MAX_PWR_LVL, parent_nodes);
+	psci_get_parent_pwr_domain_nodes(this_core, PLAT_MAX_PWR_LVL, parent_nodes);
 
-		psci_acquire_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
+	psci_acquire_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
 
-		for (unsigned int core = 0U;
-		     core < psci_non_cpu_pd_nodes[i].ncpus; core++) {
-			if (core == this_core) {
-				continue;
-			}
-
-			if (psci_get_aff_info_state_by_idx(core) !=
-			    AFF_STATE_OFF) {
-				psci_release_pwr_domain_locks(PLAT_MAX_PWR_LVL,
-							      parent_nodes);
-				VERBOSE("core=%u other than boot core=%u %s\n",
-				       core, this_core, "running in the system");
-
-				return false;
-			}
-		}
-
+	if (!psci_is_last_on_cpu()) {
 		psci_release_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
-		i++;
+		return false;
 	}
+
+	psci_release_pwr_domain_locks(PLAT_MAX_PWR_LVL, parent_nodes);
 
 	return true;
 }
