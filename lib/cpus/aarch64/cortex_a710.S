@@ -383,6 +383,34 @@ func check_errata_2282622
 	b       cpu_rev_var_ls
 endfunc check_errata_2282622
 
+/* ------------------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2291219 on power down request.
+ * This applies to revision <= r2p0 and is fixed in r2p1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x1, x17
+ * ------------------------------------------------------------------------
+ */
+func errata_a710_2291219_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2291219
+	cbz	x0, 1f
+
+	/* Set bit 36 in ACTLR2_EL1 */
+	mrs	x1, CORTEX_A710_CPUACTLR2_EL1
+	orr	x1, x1, #CORTEX_A710_CPUACTLR2_EL1_BIT_36
+	msr	CORTEX_A710_CPUACTLR2_EL1, x1
+1:
+	ret	x17
+endfunc errata_a710_2291219_wa
+
+func check_errata_2291219
+	/* Applies to <= r2p0. */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2291219
+
 /* ---------------------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2008768.
  * This applies to revision r0p0, r1p0 and r2p0.
@@ -476,6 +504,13 @@ func cortex_a710_core_pwr_dwn
 	mov	x30, x4
 #endif
 
+#if ERRATA_A710_2291219
+	mov	x15, x30
+	bl	cpu_get_rev_var
+	bl	errata_a710_2291219_wa
+	mov	x30, x15
+#endif /* ERRATA_A710_2291219 */
+
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
@@ -513,6 +548,7 @@ func cortex_a710_errata_report
 	report_errata ERRATA_A710_2008768, cortex_a710, 2008768
 	report_errata ERRATA_A710_2147715, cortex_a710, 2147715
 	report_errata ERRATA_A710_2216384, cortex_a710, 2216384
+	report_errata ERRATA_A710_2291219, cortex_a710, 2291219
 	report_errata ERRATA_A710_2371105, cortex_a710, 2371105
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a710, cve_2022_23960
 	report_errata ERRATA_DSU_2313941, cortex_a710, dsu_2313941
