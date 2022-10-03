@@ -1054,44 +1054,58 @@ trapped at S-EL2. The SPMC manages interrupt resources and allocates interrupt
 IDs based on SP manifests. The SPMC acknowledges physical interrupts and injects
 virtual interrupts by setting the use of vIRQ/vFIQ bits before resuming a SP.
 
+Abbreviations:
+
+  - NS-Int: A non-secure physical interrupt. It requires a switch to the normal
+    world to be handled if it triggers while execution is in secure world.
+  - Other S-Int: A secure physical interrupt targeted to an SP different from
+    the one that is currently running.
+  - Self S-Int: A secure physical interrupt targeted to the SP that is currently
+    running.
+
 Non-secure interrupt handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following illustrate the scenarios of non secure physical interrupts trapped
-by the SPMC:
+This section documents the actions supported in SPMC in response to a non-secure
+interrupt as per the guidance provided by FF-A v1.1 EAC0 specification.
+An SP specifies one of the following actions in its partition manifest:
 
-- The SP handles a managed exit operation:
+  - Non-secure interrupt is signaled.
+  - Non-secure interrupt is signaled after a managed exit.
+  - Non-secure interrupt is queued.
 
-.. image:: ../resources/diagrams/ffa-ns-interrupt-handling-managed-exit.png
-
-- The SP is pre-empted without managed exit:
-
-.. image:: ../resources/diagrams/ffa-ns-interrupt-handling-sp-preemption.png
+An SP execution context in a call chain could specify a less permissive action
+than subsequent SP execution contexts in the same call chain. The less
+permissive action takes precedence over the more permissive actions specified
+by the subsequent execution contexts. Please refer to FF-A v1.1 EAC0 section
+8.3.1 for further explanation.
 
 Secure interrupt handling
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section documents the support implemented for secure interrupt handling in
-SPMC as per the guidance provided by FF-A v1.1 Beta0 specification.
+SPMC as per the guidance provided by FF-A v1.1 EAC0 specification.
 The following assumptions are made about the system configuration:
 
   - In the current implementation, S-EL1 SPs are expected to use the para
-    virtualized ABIs for interrupt management rather than accessing virtual GIC
-    interface.
+    virtualized ABIs for interrupt management rather than accessing the virtual
+    GIC interface.
   - Unless explicitly stated otherwise, this support is applicable only for
     S-EL1 SPs managed by SPMC.
   - Secure interrupts are configured as G1S or G0 interrupts.
   - All physical interrupts are routed to SPMC when running a secure partition
     execution context.
+  - All endpoints with multiple execution contexts have their contexts pinned
+    to corresponding CPUs. Hence, a secure virtual interrupt cannot be signaled
+    to a target vCPU that is currently running or blocked on a different
+    physical CPU.
 
-A physical secure interrupt could preempt normal world execution. Moreover, when
-the execution is in secure world, it is highly likely that the target of a
-secure interrupt is not the currently running execution context of an SP. It
-could be targeted to another FF-A component. Consequently, secure interrupt
-management depends on the state of the target execution context of the SP that
-is responsible for handling the interrupt. Hence, the spec provides guidance on
-how to signal start and completion of secure interrupt handling as discussed in
-further sections.
+A physical secure interrupt could trigger while CPU is executing in normal world
+or secure world.
+The action of SPMC for a secure interrupt depends on: the state of the target
+execution context of the SP that is responsible for handling the interrupt;
+whether the interrupt triggered while execution was in normal world or secure
+world.
 
 Secure interrupt signaling mechanisms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1134,47 +1148,46 @@ following mechanisms:
   - ``FFA_MSG_WAIT`` ABI if it was in WAITING state.
   - ``FFA_RUN`` ABI if its was in BLOCKED state.
 
-In the current implementation, S-EL1 SPs use para-virtualized HVC interface
-implemented by SPMC to perform priority drop and interrupt deactivation (we
-assume EOImode = 0, i.e. priority drop and deactivation are done together).
+This is a remnant of SPMC implementation based on the FF-A v1.0 specification.
+In the current implementation, S-EL1 SPs use the para-virtualized HVC interface
+implemented by SPMC to perform priority drop and interrupt deactivation (SPMC
+configures EOImode = 0, i.e. priority drop and deactivation are done together).
+The SPMC performs checks to deny the state transition upon invocation of
+either FFA_MSG_WAIT or FFA_RUN interface if the SP didn't perform the
+deactivation of the secure virtual interrupt.
 
-If normal world execution was preempted by secure interrupt, SPMC uses
+If the current SP execution context was preempted by a secure interrupt to be
+handled by execution context of target SP, SPMC resumes current SP after signal
+completion by target SP execution context.
+
+Actions for a secure interrupt triggered while execution is in normal world
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-------------------+----------+-----------------------------------------------+
+| State of target   | Action   | Description                                   |
+| execution context |          |                                               |
++-------------------+----------+-----------------------------------------------+
+| WAITING           | Signaled | This starts a new call chain in SPMC scheduled|
+|                   |          | mode.                                         |
++-------------------+----------+-----------------------------------------------+
+| PREEMPTED         | Queued   | The target execution must have been preempted |
+|                   |          | by a non-secure interrupt. SPMC queues the    |
+|                   |          | secure virtual interrupt now. It is signaled  |
+|                   |          | when the target execution context next enters |
+|                   |          | the RUNNING state.                            |
++-------------------+----------+-----------------------------------------------+
+| BLOCKED, RUNNING  | NA       | The target execution context is blocked or    |
+|                   |          | running on a different CPU. This is not       |
+|                   |          | supported by current SPMC implementation and  |
+|                   |          | execution hits panic.                         |
++-------------------+----------+-----------------------------------------------+
+
+If normal world execution was preempted by a secure interrupt, SPMC uses
 FFA_NORMAL_WORLD_RESUME ABI to indicate completion of secure interrupt handling
-and further return execution to normal world. If the current SP execution
-context was preempted by a secure interrupt to be handled by execution context
-of target SP, SPMC resumes current SP after signal completion by target SP
-execution context.
+and further returns execution to normal world.
 
-An action is broadly a set of steps taken by the SPMC in response to a physical
-interrupt. In order to simplify the design, the current version of secure
-interrupt management support in SPMC (Hafnium) does not fully implement the
-Scheduling models and Partition runtime models. However, the current
-implementation loosely maps to the following actions that are legally allowed
-by the specification. Please refer to the Table 8.4 in the spec for further
-description of actions. The action specified for a type of interrupt when the
-SP is in the message processing running state cannot be less permissive than the
-action specified for the same type of interrupt when the SP is in the interrupt
-handling running state.
-
-+--------------------+--------------------+------------+-------------+
-| Runtime Model      | NS-Int             | Self S-Int | Other S-Int |
-+--------------------+--------------------+------------+-------------+
-| Message Processing | Signalable with ME | Signalable | Signalable  |
-+--------------------+--------------------+------------+-------------+
-| Interrupt Handling | Queued             | Queued     | Queued      |
-+--------------------+--------------------+------------+-------------+
-
-Abbreviations:
-
-  - NS-Int: A Non-secure physical interrupt. It requires a switch to the Normal
-    world to be handled.
-  - Other S-Int: A secure physical interrupt targeted to an SP different from
-    the one that is currently running.
-  - Self S-Int: A secure physical interrupt targeted to the SP that is currently
-    running.
-
-The following figure describes interrupt handling flow when secure interrupt
-triggers while in normal world:
+The following figure describes interrupt handling flow when a secure interrupt
+triggers while execution is in normal world:
 
 .. image:: ../resources/diagrams/ffa-secure-interrupt-handling-nwd.png
 
@@ -1185,39 +1198,77 @@ A brief description of the events:
   - 3) SPMD signals secure interrupt to SPMC at S-EL2 using FFA_INTERRUPT ABI.
   - 4) SPMC identifies target vCPU of SP and injects virtual interrupt (pends
        vIRQ).
-  - 5) Since SP1 vCPU is in WAITING state, SPMC signals using FFA_INTERRUPT with
-       interrupt id as argument and resume it using ERET.
-  - 6) Execution traps to vIRQ handler in SP1 provided that interrupt is not
-       masked i.e., PSTATE.I = 0
-  - 7) SP1 services the interrupt and invokes the de-activation HVC call.
-  - 8) SPMC does internal state management and further de-activates the physical
-       interrupt and resumes SP vCPU.
-  - 9) SP performs secure interrupt completion through FFA_MSG_WAIT ABI.
+  - 5) Assuming SP1 vCPU is in WAITING state, SPMC signals virtual interrupt
+       using FFA_INTERRUPT with interrupt id as an argument and resumes the SP1
+       vCPU using ERET in SPMC scheduled mode.
+  - 6) Execution traps to vIRQ handler in SP1 provided that the virtual
+       interrupt is not masked i.e., PSTATE.I = 0
+  - 7) SP1 queries for the pending virtual interrupt id using a paravirtualized
+       HVC call. SPMC clears the pending virtual interrupt state management
+       and returns the pending virtual interrupt id.
+  - 8) SP1 services the virtual interrupt and invokes the paravirtualized
+       de-activation HVC call. SPMC de-activates the physical interrupt,
+       clears the fields tracking the secure interrupt and resumes SP1 vCPU.
+  - 9) SP1 performs secure interrupt completion through FFA_MSG_WAIT ABI.
   - 10) SPMC returns control to EL3 using FFA_NORMAL_WORLD_RESUME.
   - 11) EL3 resumes normal world execution.
 
-The following figure describes interrupt handling flow when secure interrupt
-triggers while in secure world:
+Actions for a secure interrupt triggered while execution is in secure world
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-------------------+----------+------------------------------------------------+
+| State of target   | Action   | Description                                    |
+| execution context |          |                                                |
++-------------------+----------+------------------------------------------------+
+| WAITING           | Signaled | This starts a new call chain in SPMC scheduled |
+|                   |          | mode.                                          |
++-------------------+----------+------------------------------------------------+
+| PREEMPTED by Self | Signaled | The target execution context reenters the      |
+| S-Int             |          | RUNNING state to handle the secure virtual     |
+|                   |          | interrupt.                                     |
++-------------------+----------+------------------------------------------------+
+| PREEMPTED by      | Queued   | SPMC queues the secure virtual interrupt now.  |
+| NS-Int            |          | It is signaled when the target execution       |
+|                   |          | context next enters the RUNNING state.         |
++-------------------+----------+------------------------------------------------+
+| BLOCKED           | Signaled | Both preempted and target execution contexts   |
+|                   |          | must have been part of the Normal world        |
+|                   |          | scheduled call chain. Refer scenario 1 of      |
+|                   |          | Table 8.4 in the FF-A v1.1 EAC0 spec.          |
++-------------------+----------+------------------------------------------------+
+| RUNNING           | NA       | The target execution context is running on a   |
+|                   |          | different CPU. This scenario is not supported  |
+|                   |          | by current SPMC implementation and execution   |
+|                   |          | hits panic.                                    |
++-------------------+----------+------------------------------------------------+
+
+The following figure describes interrupt handling flow when a secure interrupt
+triggers while execution is in secure world. We assume OS kernel sends a direct
+request message to SP1. Further, SP1 sends a direct request message to SP2. SP1
+enters BLOCKED state and SPMC resumes SP2.
 
 .. image:: ../resources/diagrams/ffa-secure-interrupt-handling-swd.png
 
 A brief description of the events:
 
-  - 1) Secure interrupt triggers while SP2 is running and SP1 is blocked.
-  - 2) Gets trapped to SPMC as IRQ.
+  - 1) Secure interrupt triggers while SP2 is running.
+  - 2) SP2 gets preempted and execution traps to SPMC as IRQ.
   - 3) SPMC finds the target vCPU of secure partition responsible for handling
        this secure interrupt. In this scenario, it is SP1.
   - 4) SPMC pends vIRQ for SP1 and signals through FFA_INTERRUPT interface.
-       SPMC further resumes SP1 through ERET conduit.
-  - 5) Execution traps to vIRQ handler in SP1 provided that interrupt is not
-       masked i.e., PSTATE.I = 0
-  - 6) SP1 services the secure interrupt and invokes the de-activation HVC call.
-  - 7) SPMC does internal state management, de-activates the physical interrupt
-       and resumes SP1 vCPU.
-  - 8) Assuming SP1 is in BLOCKED state, SP1 performs secure interrupt completion
-       through FFA_RUN ABI.
+       SPMC further resumes SP1 through ERET conduit. Note that SP1 remains in
+       Normal world schedule mode.
+  - 6) Execution traps to vIRQ handler in SP1 provided that the virtual
+       interrupt is not masked i.e., PSTATE.I = 0
+  - 7) SP1 queries for the pending virtual interrupt id using a paravirtualized
+       HVC call. SPMC clears the pending virtual interrupt state management
+       and returns the pending virtual interrupt id.
+  - 8) SP1 services the virtual interrupt and invokes the paravirtualized
+       de-activation HVC call. SPMC de-activates the physical interrupt and
+       clears the fields tracking the secure interrupt and resumes SP1 vCPU.
+  - 9) Since SP1 direct request completed with FFA_INTERRUPT, it resumes the
+       direct request to SP2 by invoking FFA_RUN.
   - 9) SPMC resumes the pre-empted vCPU of SP2.
-
 
 Power management
 ----------------
