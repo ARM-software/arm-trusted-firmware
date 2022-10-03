@@ -574,7 +574,7 @@ static void bl2_add_rpc_node(void)
 		goto err;
 	}
 
-	node = ret = fdt_add_subnode(fdt, node, "rpc@ee200000");
+	node = ret = fdt_add_subnode(fdt, node, "spi@ee200000");
 	if (ret < 0) {
 		goto err;
 	}
