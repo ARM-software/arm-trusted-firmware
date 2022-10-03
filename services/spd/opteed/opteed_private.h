@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,9 +18,10 @@
  * OPTEE PM state information e.g. OPTEE is suspended, uninitialised etc
  * and macros to access the state information in the per-cpu 'state' flags
  ******************************************************************************/
-#define OPTEE_PSTATE_OFF		0
-#define OPTEE_PSTATE_ON			1
-#define OPTEE_PSTATE_SUSPEND		2
+#define OPTEE_PSTATE_OFF		1
+#define OPTEE_PSTATE_ON			2
+#define OPTEE_PSTATE_SUSPEND		3
+#define OPTEE_PSTATE_UNKNOWN		0
 #define OPTEE_PSTATE_SHIFT		0
 #define OPTEE_PSTATE_MASK		0x3
 #define get_optee_pstate(state)	((state >> OPTEE_PSTATE_SHIFT) & \
@@ -153,6 +154,7 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 				uint64_t mem_limit,
 				uint64_t dt_addr,
 				optee_context_t *optee_ctx);
+void opteed_cpu_on_finish_handler(u_register_t unused);
 
 extern optee_context_t opteed_sp_context[OPTEED_CORE_COUNT];
 extern uint32_t opteed_rw;
