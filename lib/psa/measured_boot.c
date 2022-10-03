@@ -87,12 +87,11 @@ rss_measured_boot_extend_measurement(uint8_t index,
 		{.base = measurement_value, .len = measurement_value_size}
 	};
 
-	uint32_t sw_type_size_limited;
-
 	if (sw_type != NULL) {
-		sw_type_size_limited = (sw_type_size < SW_TYPE_MAX_SIZE) ?
-					sw_type_size : SW_TYPE_MAX_SIZE;
-		memcpy(extend_iov.sw_type, sw_type, sw_type_size_limited);
+		if (sw_type_size > SW_TYPE_MAX_SIZE) {
+			return PSA_ERROR_INVALID_ARGUMENT;
+		}
+		memcpy(extend_iov.sw_type, sw_type, sw_type_size);
 	}
 
 	log_measurement(index, signer_id, signer_id_size,
