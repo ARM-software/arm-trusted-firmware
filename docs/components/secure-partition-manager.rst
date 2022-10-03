@@ -1009,6 +1009,40 @@ configuration is made part of a vCPU context.
 For S-EL0 partitions with VHE enabled, a single secure EL2&0 Stage-1 translation
 regime is used for both Hafnium and the partition.
 
+Schedule modes and SP Call chains
+---------------------------------
+
+An SP execution context is said to be in SPMC scheduled mode if CPU cycles are
+allocated to it by SPMC. Correspondingly, an SP execution context is said to be
+in Normal world scheduled mode if CPU cycles are allocated by the normal world.
+
+A call chain represents all SPs in a sequence of invocations of a direct message
+request. When execution on a PE is in the secure state, only a single call chain
+that runs in the Normal World scheduled mode can exist. FF-A v1.1 spec allows
+any number of call chains to run in the SPMC scheduled mode but the Hafnium
+SPMC restricts the number of call chains in SPMC scheduled mode to only one for
+keeping the implementation simple.
+
+Partition runtime models
+------------------------
+
+The runtime model of an endpoint describes the transitions permitted for an
+execution context between various states. These are the four partition runtime
+models supported (refer to `[1]`_ section 7):
+
+  - RTM_FFA_RUN: runtime model presented to an execution context that is
+    allocated CPU cycles through FFA_RUN interface.
+  - RTM_FFA_DIR_REQ: runtime model presented to an execution context that is
+    allocated CPU cycles through FFA_MSG_SEND_DIRECT_REQ interface.
+  - RTM_SEC_INTERRUPT: runtime model presented to an execution context that is
+    allocated CPU cycles by SPMC to handle a secure interrupt.
+  - RTM_SP_INIT: runtime model presented to an execution context that is
+    allocated CPU cycles by SPMC to initialize its state.
+
+If an endpoint execution context attempts to make an invalid transition or a
+valid transition that could lead to a loop in the call chain, SPMC denies the
+transition with the help of above runtime models.
+
 Interrupt management
 --------------------
 
