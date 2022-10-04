@@ -18,7 +18,6 @@
 
 #include <plat_private.h>
 
-#define FUNCID_MASK	U(0xffff)
 #define PM_RET_ERROR_NOFEATURE U(19)
 
 #define PM_IOCTL	34U
@@ -194,7 +193,7 @@ static uint64_t no_pm_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64
 	api_id = smc_fid & FUNCID_NUM_MASK;
 	VERBOSE("%s: smc_fid: %x, api_id=0x%x\n", __func__, smc_fid, api_id);
 
-	switch (smc_fid & FUNCID_MASK) {
+	switch (api_id) {
 	case PM_IOCTL:
 	{
 		ret = no_pm_ioctl(arg[0], arg[1], arg[2], arg[3]);
