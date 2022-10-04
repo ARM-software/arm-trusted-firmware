@@ -132,7 +132,7 @@ else
 					lib/cpus/aarch64/neoverse_n2.S		\
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/neoverse_v1.S		\
-					lib/cpus/aarch64/neoverse_demeter.S	\
+					lib/cpus/aarch64/neoverse_v2.S	\
 					lib/cpus/aarch64/cortex_a78_ae.S	\
 					lib/cpus/aarch64/cortex_a510.S		\
 					lib/cpus/aarch64/cortex_a710.S		\
