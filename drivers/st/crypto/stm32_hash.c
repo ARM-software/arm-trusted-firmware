@@ -202,13 +202,12 @@ static int hash_get_digest(uint8_t *digest)
 		memcpy(digest + (i * sizeof(uint32_t)), &dsg, sizeof(uint32_t));
 	}
 
-#if defined(IMAGE_BL2)
 	/*
 	 * Clean hardware context as HASH could be used later
 	 * by non-secure software
 	 */
 	hash_hw_init(HASH_SHA256);
-#endif
+
 	return 0;
 }
 
@@ -329,17 +328,9 @@ int stm32_hash_register(void)
 	for (node = dt_get_node(&hash_info, -1, DT_HASH_COMPAT);
 	     node != -FDT_ERR_NOTFOUND;
 	     node = dt_get_node(&hash_info, node, DT_HASH_COMPAT)) {
-#if defined(IMAGE_BL2)
 		if (hash_info.status != DT_DISABLED) {
 			break;
 		}
-#else
-		/* BL32 uses hash if it is assigned only to secure world */
-		if (hash_info.status == DT_SECURE) {
-			stm32mp_register_secure_periph_iomem(hash_info.base);
-			break;
-		}
-#endif
 	}
 
 	if (node == -FDT_ERR_NOTFOUND) {
