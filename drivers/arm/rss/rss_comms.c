@@ -70,6 +70,10 @@ static uint8_t select_protocol_version(const psa_invec *in_vec, size_t in_len,
 psa_status_t psa_call(psa_handle_t handle, int32_t type, const psa_invec *in_vec, size_t in_len,
 		      psa_outvec *out_vec, size_t out_len)
 {
+	/* Declared statically to avoid using huge amounts of stack space. Maybe revisit if
+	 * functions not being reentrant becomes a problem.
+	 */
+	static union rss_comms_io_buffer_t io_buf;
 	enum mhu_error_t err;
 	psa_status_t status;
 	static uint8_t seq_num = 1U;
@@ -77,10 +81,6 @@ psa_status_t psa_call(psa_handle_t handle, int32_t type, const psa_invec *in_vec
 	size_t reply_size = sizeof(io_buf.reply);
 	psa_status_t return_val;
 	size_t idx;
-	/* Declared statically to avoid using huge amounts of stack space. Maybe revisit if
-	 * functions not being reentrant becomes a problem.
-	 */
-	static union rss_comms_io_buffer_t io_buf;
 
 	if (type > INT16_MAX || type < INT16_MIN || in_len > PSA_MAX_IOVEC
 	    || out_len > PSA_MAX_IOVEC) {

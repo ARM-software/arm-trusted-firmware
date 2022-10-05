@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
+#include <assert.h>
 
 #include "rss_comms_protocol_pointer_access.h"
 
