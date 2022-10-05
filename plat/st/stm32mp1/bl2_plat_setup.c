@@ -341,6 +341,14 @@ void bl2_el3_plat_arch_setup(void)
 	}
 
 skip_console_init:
+#if !TRUSTED_BOARD_BOOT
+	if (stm32mp_is_closed_device()) {
+		/* Closed chip mandates authentication */
+		ERROR("Secure chip: TRUSTED_BOARD_BOOT must be enabled\n");
+		panic();
+	}
+#endif
+
 	if (fixed_regulator_register() != 0) {
 		panic();
 	}
