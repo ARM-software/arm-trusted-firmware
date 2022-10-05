@@ -18,6 +18,9 @@ STM32MP_UART_BAUDRATE	?=	115200
 # If it is set to 0, then FIP is used
 STM32MP_USE_STM32IMAGE	?=	0
 
+# Use secure library from the ROM code for authentication
+STM32MP_CRYPTO_ROM_LIB	?=	0
+
 # Please don't increment this value without good understanding of
 # the monotonic counter
 STM32_TF_VERSION	?=	0
@@ -70,6 +73,8 @@ STM32_HEADER_VERSION_MINOR:=	0
 # Add OP-TEE reserved shared memory area in mapping
 STM32MP15_OPTEE_RSV_SHM	:=	1
 $(eval $(call add_defines,STM32MP15_OPTEE_RSV_SHM))
+
+STM32MP_CRYPTO_ROM_LIB :=	1
 endif
 
 # STM32 image header binary type for BL2
@@ -209,6 +214,7 @@ endif
 $(eval $(call assert_booleans,\
 	$(sort \
 		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_32BIT_INTERFACE \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_EARLY_CONSOLE \
@@ -243,6 +249,7 @@ $(eval $(call add_defines,\
 		STM32_HASH_VER \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
+		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_32BIT_INTERFACE \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_EARLY_CONSOLE \
