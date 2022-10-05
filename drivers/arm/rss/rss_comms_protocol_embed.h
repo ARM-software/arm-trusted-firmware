@@ -30,13 +30,13 @@ struct __packed rss_embed_msg_t {
 	psa_handle_t handle;
 	uint32_t ctrl_param; /* type, in_len, out_len */
 	uint16_t io_size[PSA_MAX_IOVEC];
-	uint8_t trailer[RSS_COMMS_PAYLOAD_MAX_SIZE];
+	uint8_t trailer[PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE];
 };
 
 struct __packed rss_embed_reply_t {
 	int32_t return_val;
 	uint16_t out_size[PSA_MAX_IOVEC];
-	uint8_t trailer[RSS_COMMS_PAYLOAD_MAX_SIZE];
+	uint8_t trailer[PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE];
 };
 
 psa_status_t rss_protocol_embed_serialize_msg(psa_handle_t handle,
