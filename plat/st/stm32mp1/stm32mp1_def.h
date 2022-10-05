@@ -19,7 +19,6 @@
 #include <drivers/st/stm32mp1_clk.h>
 
 #include <boot_api.h>
-#include <stm32mp_auth.h>
 #include <stm32mp_common.h>
 #include <stm32mp_dt.h>
 #include <stm32mp1_dbgmcu.h>
