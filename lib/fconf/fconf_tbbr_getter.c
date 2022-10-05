@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,8 +44,8 @@ int fconf_populate_tbbr_dyn_config(uintptr_t config)
 	/* Check if the value is boolean */
 	if ((tbbr_dyn_config.disable_auth != 0U) &&
 	    (tbbr_dyn_config.disable_auth != 1U)) {
-		WARN("Invalid value for `%s` cell %d\n",
-			"disable_auth", tbbr_dyn_config.disable_auth);
+		WARN("Invalid value for `%s` cell %u\n",
+		     "disable_auth", tbbr_dyn_config.disable_auth);
 		return -1;
 	}
 
@@ -71,7 +71,7 @@ int fconf_populate_tbbr_dyn_config(uintptr_t config)
 	}
 	tbbr_dyn_config.mbedtls_heap_size = val32;
 
-	VERBOSE("%s%s%s %d\n", "FCONF: `tbbr.", "disable_auth",
+	VERBOSE("%s%s%s %u\n", "FCONF: `tbbr.", "disable_auth",
 		"` cell found with value =", tbbr_dyn_config.disable_auth);
 	VERBOSE("%s%s%s %p\n", "FCONF: `tbbr.", "mbedtls_heap_addr",
 		"` cell found with value =", tbbr_dyn_config.mbedtls_heap_addr);
