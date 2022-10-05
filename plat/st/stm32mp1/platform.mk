@@ -87,6 +87,11 @@ STM32MP15_OPTEE_RSV_SHM	:=	1
 $(eval $(call add_defines,STM32MP15_OPTEE_RSV_SHM))
 
 STM32MP_CRYPTO_ROM_LIB :=	1
+
+# Decryption support
+ifneq ($(DECRYPTION_SUPPORT),none)
+$(error "DECRYPTION_SUPPORT not supported on STM32MP15")
+endif
 endif
 
 # STM32 image header binary type for BL2
@@ -221,10 +226,10 @@ else
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
 ifneq ($(BL32_EXTRA1),)
-$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1,,$(ENCRYPT_BL32)))
 endif
 ifneq ($(BL32_EXTRA2),)
-$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2,,$(ENCRYPT_BL32)))
 endif
 endif
 endif
@@ -386,6 +391,10 @@ BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/io/io_storage.c					\
 				drivers/st/crypto/stm32_hash.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
+
+ifneq (${DECRYPTION_SUPPORT},none)
+BL2_SOURCES		+=	drivers/io/io_encrypted.c
+endif
 
 ifeq (${TRUSTED_BOARD_BOOT},1)
 AUTH_SOURCES		:=	drivers/auth/auth_mod.c					\

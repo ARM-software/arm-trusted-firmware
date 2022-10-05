@@ -42,6 +42,14 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		.img_type_guid = STM32MP_FIP_GUID,
 		.check = open_storage
 	},
+#ifndef DECRYPTION_SUPPORT_none
+	[ENC_IMAGE_ID] = {
+		.dev_handle = &fip_dev_handle,
+		.image_spec = (uintptr_t)NULL,
+		.img_type_guid = NULL_GUID,
+		.check = open_fip
+	},
+#endif
 #if STM32MP_SDMMC || STM32MP_EMMC
 	[GPT_IMAGE_ID] = {
 		.dev_handle = &storage_dev_handle,
@@ -151,8 +159,20 @@ int fconf_populate_stm32mp_io_policies(uintptr_t config)
 
 		uuid_ptr->uuid = uuid_helper.uuid_struct;
 		policies[load_info[i].image_id].image_spec = (uintptr_t)uuid_ptr;
-		policies[load_info[i].image_id].dev_handle = &fip_dev_handle;
-		policies[load_info[i].image_id].check = open_fip;
+		switch (load_info[i].image_id) {
+#if ENCRYPT_BL32 && !defined(DECRYPTION_SUPPORT_none)
+		case BL32_IMAGE_ID:
+		case BL32_EXTRA1_IMAGE_ID:
+		case BL32_EXTRA2_IMAGE_ID:
+			policies[load_info[i].image_id].dev_handle = &enc_dev_handle;
+			policies[load_info[i].image_id].check = open_enc_fip;
+			break;
+#endif
+		default:
+			policies[load_info[i].image_id].dev_handle = &fip_dev_handle;
+			policies[load_info[i].image_id].check = open_fip;
+			break;
+		}
 	}
 
 	return 0;
