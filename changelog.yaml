@@ -649,6 +649,9 @@ subsections:
       - title: Context Management
         scope: context mgmt
 
+      - title: Semihosting
+        scope: semihosting
+
   - title: Drivers
 
     subsections:
