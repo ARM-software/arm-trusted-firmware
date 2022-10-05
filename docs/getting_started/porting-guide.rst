@@ -2769,7 +2769,8 @@ must ensure that races between multiple CPUs cannot occur.
 The ``target_state`` has a similar meaning as described in the ``pwr_domain_off()``
 operation and it encodes the platform coordinated target local power states for
 the CPU power domain and its parent power domain levels. This function must
-not return back to the caller.
+not return back to the caller (by calling wfi in an infinite loop to ensure
+some CPUs power down mitigations work properly).
 
 If this function is not implemented by the platform, PSCI generic
 implementation invokes ``psci_power_down_wfi()`` for power down.

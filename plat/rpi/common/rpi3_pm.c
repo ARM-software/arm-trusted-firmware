@@ -187,8 +187,9 @@ static void __dead2 rpi3_pwr_down_wfi(
 
 	write_rmr_el3(RMR_EL3_RR_BIT | RMR_EL3_AA64_BIT);
 
-	while (1)
-		;
+	while (1) {
+		wfi();
+	}
 }
 
 /*******************************************************************************
