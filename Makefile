@@ -59,6 +59,7 @@ LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					lib/compiler-rt			\
 					lib/libfdt%			\
 					lib/libc,			\
+					lib/zlib			\
 					$(wildcard lib/*)))
 ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					lib				\
