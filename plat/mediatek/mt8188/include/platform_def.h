@@ -155,4 +155,18 @@
 #define MAX_XLAT_TABLES			(16)
 #define MAX_MMAP_REGIONS		(16)
 
+/*******************************************************************************
+ * CPU_EB TCM handling related constants
+ ******************************************************************************/
+#define CPU_EB_TCM_BASE		(0x0C550000)
+#define CPU_EB_TCM_SIZE		(0x10000)
+#define CPU_EB_MBOX3_OFFSET	(0xFCE0)
+
+/*******************************************************************************
+ * CPU PM definitions
+ *******************************************************************************/
+#define PLAT_CPU_PM_B_BUCK_ISO_ID	(6)
+#define PLAT_CPU_PM_ILDO_ID		(6)
+#define CPU_IDLE_SRAM_BASE		(0x11B000)
+
 #endif /* PLATFORM_DEF_H */

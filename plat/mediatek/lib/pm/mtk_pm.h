@@ -12,11 +12,11 @@
 #include <mtk_event/mtk_pubsub_events.h>
 #endif
 
-#define MTK_CPUPM_E_OK				(0)
-#define MTK_CPUPM_E_UNKNOWN			(-1)
-#define MTK_CPUPM_E_ERR				(-2)
-#define MTK_CPUPM_E_FAIL			(-3)
-#define MTK_CPUPM_E_NOT_SUPPORT			(-4)
+#define MTK_CPUPM_E_OK			(0)
+#define MTK_CPUPM_E_UNKNOWN		(-1)
+#define MTK_CPUPM_E_ERR			(-2)
+#define MTK_CPUPM_E_FAIL		(-3)
+#define MTK_CPUPM_E_NOT_SUPPORT		(-4)
 
 
 #define MTK_CPUPM_FN_PWR_LOCK_AQUIRE		BIT(0)
@@ -179,32 +179,41 @@ struct mt_cpupm_event_data {
 #define MT_CPUPM_SUBCRIBE_MCUSYS_PWR_OFF(_fn)
 #endif
 
-#define MT_PLAT_PWR_STATE_L_CPU				(0x0001)
-#define MT_PLAT_PWR_STATE_B_CPU				(0x0002)
-#define MT_PLAT_PWR_STATE_L_CLUSTER			(0x0101)
-#define MT_PLAT_PWR_STATE_B_CLUSTER			(0x0102)
-#define MT_PLAT_PWR_STATE_MCUSYS			(0x0701)
-#define MT_PLAT_PWR_STATE_SYSTEM_MEM			(0x0f01)
-#define MT_PLAT_PWR_STATE_SYSTEM_PLL			(0x0f02)
-#define MT_PLAT_PWR_STATE_SYSTEM_BUS			(0x0f03)
-#define MT_PLAT_PWR_STATE_SUSPEND2IDLE			(0x1f01)
-#define MT_PLAT_PWR_STATE_SYSTEM_SUSPEND		(0x1f02)
+/*
+ * Definition c-state power domain.
+ * bit[7:4] (main state id):
+ *  - 1: Cluster.
+ *  - 2: Mcusys.
+ *  - 3: Memory.
+ *  - 4: System pll.
+ *  - 5: System bus.
+ *  - 6: SoC 26m/DCXO.
+ *  - 7: Vcore buck.
+ *  - 15: Suspend.
+ * bit[3:0] (reserved for state_id extension):
+ *  - 4: CPU buck.
+ */
+#define MT_PLAT_PWR_STATE_CLUSTER	(0x0010)
+#define MT_PLAT_PWR_STATE_MCUSYS	(0x0020)
+#define MT_PLAT_PWR_STATE_MCUSYS_BUCK	(0x0024)
+#define MT_PLAT_PWR_STATE_SYSTEM_MEM	(0x0030)
+#define MT_PLAT_PWR_STATE_SYSTEM_PLL	(0x0040)
+#define MT_PLAT_PWR_STATE_SYSTEM_BUS	(0x0050)
+#define MT_PLAT_PWR_STATE_SUSPEND	(0x00f0)
 
-#define IS_MT_PLAT_PWR_STATE_MCUSYS(state)		(state & 0x400)
-#define IS_MT_PLAT_PWR_STATE_SYSTEM(state)		(state & 0x800)
-#define IS_MT_PLAT_PWR_STATE_PLATFORM(state)		(state & 0x1800)
+#define IS_MT_PLAT_PWR_STATE(state, target_state)	((state & target_state) == target_state)
+#define IS_MT_PLAT_PWR_STATE_MCUSYS(state)  IS_MT_PLAT_PWR_STATE(state, MT_PLAT_PWR_STATE_MCUSYS)
 
 #define PLAT_MT_SYSTEM_SUSPEND		PLAT_MAX_OFF_STATE
 #define PLAT_MT_CPU_SUSPEND_CLUSTER	PLAT_MAX_RET_STATE
+#define PLAT_MT_CPU_SUSPEND_MCUSYS	PLAT_MAX_RET_STATE
 
 #define IS_PLAT_SYSTEM_SUSPEND(aff)	(aff == PLAT_MT_SYSTEM_SUSPEND)
 #define IS_PLAT_SYSTEM_RETENTION(aff)	(aff >= PLAT_MAX_RET_STATE)
 
-#define IS_PLAT_SUSPEND2IDLE_ID(stateid) (stateid == MT_PLAT_PWR_STATE_SUSPEND2IDLE)
+#define IS_PLAT_SUSPEND_ID(stateid)	(stateid == MT_PLAT_PWR_STATE_SUSPEND)
 
-#define IS_PLAT_SUSPEND_ID(stateid) ((stateid == MT_PLAT_PWR_STATE_SUSPEND2IDLE) || \
-				     (stateid == MT_PLAT_PWR_STATE_SYSTEM_SUSPEND))
-
+#define IS_PLAT_MCUSYSOFF_AFFLV(afflv)	(afflv >= PLAT_MT_CPU_SUSPEND_MCUSYS)
 
 int plat_pm_ops_setup_pwr(struct plat_pm_pwr_ctrl *ops);
 int plat_pm_ops_setup_reset(struct plat_pm_reset_ctrl *ops);
