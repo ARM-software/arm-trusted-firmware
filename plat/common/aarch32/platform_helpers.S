@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,8 @@
 #include <asm_macros.S>
 
 	.weak	plat_report_exception
+	.weak	plat_report_prefetch_abort
+	.weak	plat_report_data_abort
 	.weak	plat_reset_handler
 	.weak	plat_disable_acp
 	.weak	bl1_plat_prepare_exit
@@ -22,6 +24,24 @@
 func plat_report_exception
 	bx	lr
 endfunc plat_report_exception
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform.
+	 * -----------------------------------------------------
+	 */
+func plat_report_prefetch_abort
+	bx	lr
+endfunc plat_report_prefetch_abort
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform.
+	 * -----------------------------------------------------
+	 */
+func plat_report_data_abort
+	bx	lr
+endfunc plat_report_data_abort
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
