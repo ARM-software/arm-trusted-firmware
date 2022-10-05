@@ -232,21 +232,14 @@ typedef struct {
 #if STM32MP15
 	/*
 	 * Pointers to bootROM External Secure Services
-	 * - ECDSA check key
 	 * - ECDSA verify signature
-	 * - ECDSA verify signature and go
 	 */
-	uint32_t (*bootrom_ecdsa_check_key)(uint8_t *pubkey_in,
-					    uint8_t *pubkey_out);
+	uint32_t reserved3;
 	uint32_t (*bootrom_ecdsa_verify_signature)(uint8_t *hash_in,
 						   uint8_t *pubkey_in,
 						   uint8_t *signature,
 						   uint32_t ecc_algo);
-	uint32_t (*bootrom_ecdsa_verify_and_go)(uint8_t *hash_in,
-						uint8_t *pub_key_in,
-						uint8_t *signature,
-						uint32_t ecc_algo,
-						uint32_t *entry_in);
+	uint32_t reserved4;
 #endif
 	/*
 	 * Information specific to an SD boot
