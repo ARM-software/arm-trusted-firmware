@@ -469,10 +469,6 @@ static uint32_t intel_rsu_copy_dcmf_status(uint64_t dcmf_stat)
 /* Intel HWMON services */
 static uint32_t intel_hwmon_readtemp(uint32_t chan, uint32_t *retval)
 {
-	if (chan > TEMP_CHANNEL_MAX) {
-		return INTEL_SIP_SMC_STATUS_ERROR;
-	}
-
 	if (mailbox_hwmon_readtemp(chan, retval) < 0) {
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
@@ -482,10 +478,6 @@ static uint32_t intel_hwmon_readtemp(uint32_t chan, uint32_t *retval)
 
 static uint32_t intel_hwmon_readvolt(uint32_t chan, uint32_t *retval)
 {
-	if (chan > VOLT_CHANNEL_MAX) {
-		return INTEL_SIP_SMC_STATUS_ERROR;
-	}
-
 	if (mailbox_hwmon_readvolt(chan, retval) < 0) {
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
