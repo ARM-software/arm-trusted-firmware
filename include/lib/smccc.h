@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,6 +40,8 @@
 #define FUNCID_NUM_SHIFT		U(0)
 #define FUNCID_NUM_MASK			U(0xffff)
 #define FUNCID_NUM_WIDTH		U(16)
+
+#define FUNCID_MASK			U(0xffffffff)
 
 #define GET_SMC_NUM(id)			(((id) >> FUNCID_NUM_SHIFT) & \
 					 FUNCID_NUM_MASK)

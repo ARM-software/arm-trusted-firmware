@@ -589,6 +589,9 @@ subsections:
           - title: SPM MM
             scope: spm-mm
 
+      - title: DRTM
+        scope: drtm
+
   - title: Libraries
 
     subsections:
@@ -664,6 +667,12 @@ subsections:
         subsections:
           - title: CryptoCell-713
             scope: cc-713
+
+          - title: Crypto
+            scope: crypto
+
+          - title: mbedTLS
+            scope: mbedtls
 
       - title: Generic Clock
         scope: clk

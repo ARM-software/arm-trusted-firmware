@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,9 @@
 #include "plat_trng.h"
 #endif
 #include <drivers/fwu/fwu_metadata.h>
+#if DRTM_SUPPORT
+#include "plat_drtm.h"
+#endif /* DRTM_SUPPORT */
 
 /*******************************************************************************
  * Forward declarations
@@ -125,6 +128,7 @@ int plat_crash_console_putc(int c);
 void plat_crash_console_flush(void);
 void plat_error_handler(int err) __dead2;
 void plat_panic_handler(void) __dead2;
+void plat_system_reset(void) __dead2;
 const char *plat_log_get_prefix(unsigned int log_level);
 void bl2_plat_preload_setup(void);
 int plat_try_next_boot_source(void);

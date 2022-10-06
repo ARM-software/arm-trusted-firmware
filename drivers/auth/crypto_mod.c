@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,19 +46,26 @@ void crypto_mod_init(void)
 {
 	assert(crypto_lib_desc.name != NULL);
 	assert(crypto_lib_desc.init != NULL);
-#if TRUSTED_BOARD_BOOT
+#if CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY || \
+CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 	assert(crypto_lib_desc.verify_signature != NULL);
 	assert(crypto_lib_desc.verify_hash != NULL);
-#endif /* TRUSTED_BOARD_BOOT */
-#if MEASURED_BOOT
+#endif /* CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY || \
+	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
+
+#if CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
+CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 	assert(crypto_lib_desc.calc_hash != NULL);
-#endif /* MEASURED_BOOT */
+#endif /* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
+	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
 
 	/* Initialize the cryptographic library */
 	crypto_lib_desc.init();
 	INFO("Using crypto library '%s'\n", crypto_lib_desc.name);
 }
 
+#if CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY || \
+CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 /*
  * Function to verify a digital signature
  *
@@ -108,8 +115,11 @@ int crypto_mod_verify_hash(void *data_ptr, unsigned int data_len,
 	return crypto_lib_desc.verify_hash(data_ptr, data_len,
 					   digest_info_ptr, digest_info_len);
 }
+#endif /* CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY || \
+	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
 
-#if MEASURED_BOOT
+#if CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
+CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 /*
  * Calculate a hash
  *
@@ -129,7 +139,8 @@ int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 
 	return crypto_lib_desc.calc_hash(alg, data_ptr, data_len, output);
 }
-#endif	/* MEASURED_BOOT */
+#endif /* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
+	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
 
 /*
  * Authenticated decryption of data

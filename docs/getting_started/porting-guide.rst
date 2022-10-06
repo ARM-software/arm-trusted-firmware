@@ -564,6 +564,21 @@ behaviour of the ``assert()`` function (for example, to save memory).
    doesn't print anything to the console. If ``PLAT_LOG_LEVEL_ASSERT`` isn't
    defined, it defaults to ``LOG_LEVEL``.
 
+If the platform port uses the DRTM feature, the following constants must be
+defined:
+
+-  **#define : PLAT_DRTM_EVENT_LOG_MAX_SIZE**
+
+   Maximum Event Log size used by the platform. Platform can decide the maximum
+   size of the Event Log buffer, depending upon the highest hash algorithm
+   chosen and the number of components selected to measure during the DRTM
+   execution flow.
+
+-  **#define : PLAT_DRTM_MMAP_ENTRIES**
+
+   Number of the MMAP entries used by the DRTM implementation to calculate the
+   size of address map region of the platform.
+
 File : plat_macros.S [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -788,6 +803,186 @@ be written to the NV counter.
 The function returns 0 on success. Any other value means the counter value
 either could not be updated or the authentication image descriptor indicates
 that it is not allowed to be updated.
+
+Dynamic Root of Trust for Measurement support (in BL31)
+-------------------------------------------------------
+
+The functions mentioned in this section are mandatory, when platform enables
+DRTM_SUPPORT build flag.
+
+Function : plat_get_addr_mmap()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : const mmap_region_t *
+
+This function is used to return the address of the platform *address-map* table,
+which describes the regions of normal memory, memory mapped I/O
+and non-volatile memory.
+
+Function : plat_has_non_host_platforms()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : bool
+
+This function returns *true* if the platform has any trusted devices capable of
+DMA, otherwise returns *false*.
+
+Function : plat_has_unmanaged_dma_peripherals()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : bool
+
+This function returns *true* if platform uses peripherals whose DMA is not
+managed by an SMMU, otherwise returns *false*.
+
+Note -
+If the platform has peripherals that are not managed by the SMMU, then the
+platform should investigate such peripherals to determine whether they can
+be trusted, and such peripherals should be moved under "Non-host platforms"
+if they can be trusted.
+
+Function : plat_get_total_num_smmus()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : unsigned int
+
+This function returns the total number of SMMUs in the platform.
+
+Function : plat_enumerate_smmus()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
+
+
+    Argument : void
+    Return   : const uintptr_t *, size_t
+
+This function returns an array of SMMU addresses and the actual number of SMMUs
+reported by the platform.
+
+Function : plat_drtm_get_dma_prot_features()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : const plat_drtm_dma_prot_features_t*
+
+This function returns the address of plat_drtm_dma_prot_features_t structure
+containing the maximum number of protected regions and bitmap with the types
+of DMA protection supported by the platform.
+For more details see section 3.3 Table 6 of `DRTM`_ specification.
+
+Function : plat_drtm_dma_prot_get_max_table_bytes()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint64_t
+
+This function returns the maximum size of DMA protected regions table in
+bytes.
+
+Function : plat_drtm_get_tpm_features()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : const plat_drtm_tpm_features_t*
+
+This function returns the address of *plat_drtm_tpm_features_t* structure
+containing PCR usage schema, TPM-based hash, and firmware hash algorithm
+supported by the platform.
+
+Function : plat_drtm_get_min_size_normal_world_dce()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint64_t
+
+This function returns the size normal-world DCE of the platform.
+
+Function : plat_drtm_get_imp_def_dlme_region_size()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint64_t
+
+This function returns the size of implementation defined DLME region
+of the platform.
+
+Function : plat_drtm_get_tcb_hash_table_size()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint64_t
+
+This function returns the size of TCB hash table of the platform.
+
+Function : plat_drtm_get_tcb_hash_features()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint64_t
+
+This function returns the Maximum number of TCB hashes recorded by the
+platform.
+For more details see section 3.3 Table 6 of `DRTM`_ specification.
+
+Function : plat_drtm_validate_ns_region()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uintptr_t, uintptr_t
+    Return   : int
+
+This function validates that given region is within the Non-Secure region
+of DRAM. This function takes a region start address and size an input
+arguments, and returns 0 on success and -1 on failure.
+
+Function : plat_set_drtm_error()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t
+    Return   : int
+
+This function writes a 64 bit error code received as input into
+non-volatile storage and returns 0 on success and -1 on failure.
+
+Function : plat_get_drtm_error()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t*
+    Return   : int
+
+This function reads a 64 bit error code from the non-volatile storage
+into the received address, and returns 0 on success and -1 on failure.
 
 Common mandatory function modifications
 ---------------------------------------
@@ -1096,6 +1291,20 @@ environment is initialized.
 .. note::
    The address from where it was called is stored in x30 (Link Register).
    The default implementation simply spins.
+
+Function : plat_system_reset()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : void
+
+This function is used by the platform to resets the system. It can be used
+in any specific use-case where system needs to be resetted. For example,
+in case of DRTM implementation this function reset the system after
+writing the DRTM error code in the non-volatile storage. This function
+never returns. Failure in reset results in panic.
 
 Function : plat_get_bl_image_load_info()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3225,3 +3434,4 @@ amount of open resources per driver.
 .. _3.0 (GICv3): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
 .. _FreeBSD: https://www.freebsd.org
 .. _SCC: http://www.simple-cc.org/
+.. _DRTM: https://developer.arm.com/documentation/den0113/a

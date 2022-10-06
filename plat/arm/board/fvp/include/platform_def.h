@@ -144,6 +144,8 @@
 #  else
 #   if ENABLE_RME
 #    define MAX_XLAT_TABLES		8
+#   elif DRTM_SUPPORT
+#    define MAX_XLAT_TABLES		8
 #   else
 #    define MAX_XLAT_TABLES		7
 #   endif
@@ -247,7 +249,11 @@
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE		UL(0x400)
 #elif defined(IMAGE_BL31)
+# if DRTM_SUPPORT
+#  define PLATFORM_STACK_SIZE		UL(0x1000)
+# else
 #  define PLATFORM_STACK_SIZE		UL(0x800)
+# endif /* DRTM_SUPPORT */
 #elif defined(IMAGE_BL32)
 # if SPMC_AT_EL3
 #  define PLATFORM_STACK_SIZE		UL(0x1000)
@@ -396,5 +402,15 @@
  * Maximum size of Event Log buffer used in Measured Boot Event Log driver
  */
 #define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
+
+/*
+ * Maximum size of Event Log buffer used for DRTM
+ */
+#define PLAT_DRTM_EVENT_LOG_MAX_SIZE		UL(0x300)
+
+/*
+ * Number of MMAP entries used by DRTM implementation
+ */
+#define PLAT_DRTM_MMAP_ENTRIES			PLAT_ARM_MMAP_ENTRIES
 
 #endif /* PLATFORM_DEF_H */

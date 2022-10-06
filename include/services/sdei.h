@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -136,5 +136,8 @@ void sdei_init(void);
 
 /* Public API to dispatch an event to Normal world */
 int sdei_dispatch_event(int ev_num);
+
+/* Public API to check how many SDEI events are registered. */
+int sdei_get_registered_event_count(void);
 
 #endif /* SDEI_H */

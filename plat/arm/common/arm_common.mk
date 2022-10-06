@@ -363,6 +363,10 @@ BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
 BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 endif
 
+ifeq (${DRTM_SUPPORT},1)
+BL31_SOURCES            +=	plat/arm/common/arm_err.c
+endif
+
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources
@@ -406,7 +410,7 @@ endif
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
 # flags present in Measured Boot makefile.
-ifeq (${MEASURED_BOOT},1)
+ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
     MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
     $(info Including ${MEASURED_BOOT_MK})
     include ${MEASURED_BOOT_MK}
@@ -415,15 +419,22 @@ ifeq (${MEASURED_BOOT},1)
         $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA512))
     endif
 
-    BL1_SOURCES		+= 	${EVENT_LOG_SOURCES}
-    BL2_SOURCES		+= 	${EVENT_LOG_SOURCES}
+    ifeq (${MEASURED_BOOT},1)
+         BL1_SOURCES		+= 	${EVENT_LOG_SOURCES}
+         BL2_SOURCES		+= 	${EVENT_LOG_SOURCES}
+    endif
+
+    ifeq (${DRTM_SUPPORT},1)
+         BL31_SOURCES	        += 	${EVENT_LOG_SOURCES}
+    endif
 endif
 
-ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
+ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
     CRYPTO_SOURCES	:=	drivers/auth/crypto_mod.c 	\
 				lib/fconf/fconf_tbbr_getter.c
     BL1_SOURCES		+=	${CRYPTO_SOURCES}
     BL2_SOURCES		+=	${CRYPTO_SOURCES}
+    BL31_SOURCES	+=	drivers/auth/crypto_mod.c
 
     # We expect to locate the *.mk files under the directories specified below
     ifeq (${ARM_CRYPTOCELL_INTEG},0)
