@@ -55,6 +55,7 @@ int qti_interrupt_svc_init(void)
 	 * & we don't have S-EL1 support.
 	 */
 	set_interrupt_rm_flag(flags, NON_SECURE);
+	set_interrupt_rm_flag(flags, SECURE);
 
 	/* Register handler for EL3 interrupts */
 	ret = register_interrupt_type_handler(INTR_TYPE_EL3,
