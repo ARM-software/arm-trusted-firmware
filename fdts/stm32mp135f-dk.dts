@@ -176,7 +176,7 @@
 };
 
 &pka {
-	secure-status = "okay";
+	status = "okay";
 };
 
 &pwr_regulators {
@@ -298,7 +298,7 @@
 };
 
 &saes {
-	secure-status = "okay";
+	status = "okay";
 };
 
 &sdmmc1 {
