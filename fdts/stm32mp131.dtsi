@@ -455,6 +455,9 @@
 				reg = <0xe4 0xc>;
 				st,non-secure-otp;
 			};
+			enckey_otp: enckey_otp@170 {
+				reg = <0x170 0x10>;
+			};
 		};
 		/*
 		 * Break node order to solve dependency probe issue between

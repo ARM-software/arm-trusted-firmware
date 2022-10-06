@@ -1,0 +1,156 @@
+/*
+ * Copyright (c) 2020-2022, ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <common/nv_cntr_ids.h>
+#include <common/tbbr/tbbr_img_def.h>
+#include <tools_share/tbbr_oid.h>
+
+cot {
+	manifests {
+		compatible = "arm, cert-descs";
+
+		stm32mp_cfg_cert: stm32mp_cfg_cert {
+			root-certificate;
+			image-id = <STM32MP_CONFIG_CERT_ID>;
+			antirollback-counter = <&trusted_nv_counter>;
+
+			hw_config_hash: hw_config_hash {
+				oid = HW_CONFIG_HASH_OID;
+			};
+
+			fw_config_hash: fw_config_hash {
+				oid = FW_CONFIG_HASH_OID;
+			};
+		};
+
+		trusted_key_cert: trusted_key_cert {
+			root-certificate;
+			image-id = <TRUSTED_KEY_CERT_ID>;
+			antirollback-counter = <&trusted_nv_counter>;
+
+			trusted_world_pk: trusted_world_pk {
+				oid = TRUSTED_WORLD_PK_OID;
+			};
+			non_trusted_world_pk: non_trusted_world_pk {
+				oid = NON_TRUSTED_WORLD_PK_OID;
+			};
+		};
+
+		trusted_os_fw_key_cert: trusted_os_fw_key_cert {
+			image-id = <TRUSTED_OS_FW_KEY_CERT_ID>;
+			parent = <&trusted_key_cert>;
+			signing-key = <&trusted_world_pk>;
+			antirollback-counter = <&trusted_nv_counter>;
+
+			tos_fw_content_pk: tos_fw_content_pk {
+				oid = TRUSTED_OS_FW_CONTENT_CERT_PK_OID;
+			};
+		};
+
+		trusted_os_fw_content_cert: trusted_os_fw_content_cert {
+			image-id = <TRUSTED_OS_FW_CONTENT_CERT_ID>;
+			parent = <&trusted_os_fw_key_cert>;
+			signing-key = <&tos_fw_content_pk>;
+			antirollback-counter = <&trusted_nv_counter>;
+
+			tos_fw_hash: tos_fw_hash {
+				oid = TRUSTED_OS_FW_HASH_OID;
+			};
+			tos_fw_extra1_hash: tos_fw_extra1_hash {
+				oid = TRUSTED_OS_FW_EXTRA1_HASH_OID;
+			};
+			tos_fw_extra2_hash: tos_fw_extra2_hash {
+				oid = TRUSTED_OS_FW_EXTRA2_HASH_OID;
+			};
+			tos_fw_config_hash: tos_fw_config_hash {
+				oid = TRUSTED_OS_FW_CONFIG_HASH_OID;
+			};
+		};
+
+		non_trusted_fw_key_cert: non_trusted_fw_key_cert {
+			image-id = <NON_TRUSTED_FW_KEY_CERT_ID>;
+			parent = <&trusted_key_cert>;
+			signing-key = <&non_trusted_world_pk>;
+			antirollback-counter = <&non_trusted_nv_counter>;
+
+			nt_fw_content_pk: nt_fw_content_pk {
+				oid = NON_TRUSTED_FW_CONTENT_CERT_PK_OID;
+			};
+		};
+
+		non_trusted_fw_content_cert: non_trusted_fw_content_cert {
+			image-id = <NON_TRUSTED_FW_CONTENT_CERT_ID>;
+			parent = <&non_trusted_fw_key_cert>;
+			signing-key = <&nt_fw_content_pk>;
+			antirollback-counter = <&non_trusted_nv_counter>;
+
+			nt_world_bl_hash: nt_world_bl_hash {
+				oid = NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID;
+			};
+		};
+	};
+
+	images {
+		compatible = "arm, img-descs";
+
+		hw_config {
+			image-id = <HW_CONFIG_ID>;
+			parent = <&stm32mp_cfg_cert>;
+			hash = <&hw_config_hash>;
+		};
+
+		fw_config {
+			image-id = <FW_CONFIG_ID>;
+			parent = <&stm32mp_cfg_cert>;
+			hash = <&fw_config_hash>;
+		};
+
+		bl32_image {
+			image-id = <BL32_IMAGE_ID>;
+			parent = <&trusted_os_fw_content_cert>;
+			hash = <&tos_fw_hash>;
+		};
+
+		bl32_extra1_image {
+			image-id = <BL32_EXTRA1_IMAGE_ID>;
+			parent = <&trusted_os_fw_content_cert>;
+			hash = <&tos_fw_extra1_hash>;
+		};
+
+		bl32_extra2_image {
+			image-id = <BL32_EXTRA2_IMAGE_ID>;
+			parent = <&trusted_os_fw_content_cert>;
+			hash = <&tos_fw_extra2_hash>;
+		};
+
+		tos_fw_config {
+			image-id = <TOS_FW_CONFIG_ID>;
+			parent = <&trusted_os_fw_content_cert>;
+			hash = <&tos_fw_config_hash>;
+		};
+
+		bl33_image {
+			image-id = <BL33_IMAGE_ID>;
+			parent = <&non_trusted_fw_content_cert>;
+			hash = <&nt_world_bl_hash>;
+		};
+	};
+};
+
+non_volatile_counters: non_volatile_counters {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	trusted_nv_counter: trusted_nv_counter {
+		id  = <TRUSTED_NV_CTR_ID>;
+		oid = TRUSTED_FW_NVCOUNTER_OID;
+	};
+
+	non_trusted_nv_counter: non_trusted_nv_counter {
+		id  = <NON_TRUSTED_NV_CTR_ID>;
+		oid = NON_TRUSTED_FW_NVCOUNTER_OID;
+	};
+};

@@ -487,6 +487,9 @@
 			ts_cal2: calib@5e {
 				reg = <0x5e 0x2>;
 			};
+			pkh_otp: pkh_otp@60 {
+				reg = <0x60 0x20>;
+			};
 			mac_addr: mac_addr@e4 {
 				reg = <0xe4 0x8>;
 				st,non-secure-otp;
