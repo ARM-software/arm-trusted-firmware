@@ -842,6 +842,12 @@ ifeq ($(DRTM_SUPPORT),1)
     $(info DRTM_SUPPORT is an experimental feature)
 endif
 
+ifeq (${ENABLE_RME},1)
+    ifneq (${SEPARATE_CODE_AND_RODATA},1)
+        $(error `ENABLE_RME=1` requires `SEPARATE_CODE_AND_RODATA=1`)
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
