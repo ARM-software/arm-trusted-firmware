@@ -235,6 +235,40 @@ With OP-TEE:
         BL32_EXTRA2=<optee_directory>/tee-pageable_v2.bin
         fip
 
+Trusted Boot Board
+__________________
+
+.. code:: shell
+
+    tools/cert_create/cert_create -n --rot-key "build/stm32mp1/debug/rot_key.pem" \
+        --tfw-nvctr 0 \
+        --ntfw-nvctr 0 \
+        --key-alg ecdsa --hash-alg sha256 \
+        --trusted-key-cert build/stm32mp1/cert_images/trusted-key-cert.key-crt \
+        --tos-fw <optee_directory>/tee-header_v2.bin \
+        --tos-fw-extra1 <optee_directory>/tee-pager_v2.bin \
+        --tos-fw-extra2 <optee_directory>/tee-pageable_v2.bin \
+        --tos-fw-cert build/stm32mp1/cert_images/tee-header_v2.bin.crt \
+        --tos-fw-key-cert build/stm32mp1/cert_images/tee-header_v2.bin.key-crt \
+        --nt-fw <u-boot_directory>/u-boot-nodtb.bin \
+        --nt-fw-cert build/stm32mp1/cert_images/u-boot.bin.crt \
+        --nt-fw-key-cert build/stm32mp1/cert_images/u-boot.bin.key-crt \
+        --hw-config <u-boot_directory>/u-boot.dtb \
+        --fw-config build/stm32mp1/debug/fdts/fw-config.dtb \
+        --stm32mp-cfg-cert build/stm32mp1/cert_images/stm32mp_cfg_cert.crt
+
+    tools/fiptool/fiptool create --tos-fw <optee_directory>/tee-header_v2.bin \
+        --tos-fw-extra1 <optee_directory>/tee-pager_v2.bin \
+        --tos-fw-extra2 <optee_directory>/tee-pageable_v2.bin \
+        --nt-fw <u-boot_directory>/u-boot-nodtb.bin \
+        --hw-config <u-boot_directory>/u-boot.dtb \
+        --fw-config build/stm32mp1/debug/fdts/fw-config.dtb \
+        --tos-fw-cert build/stm32mp1/cert_images/tee-header_v2.bin.crt \
+        --tos-fw-key-cert build/stm32mp1/cert_images/tee-header_v2.bin.key-crt \
+        --nt-fw-cert build/stm32mp1/cert_images/u-boot.bin.crt \
+        --nt-fw-key-cert build/stm32mp1/cert_images/u-boot.bin.key-crt \
+        --stm32mp-cfg-cert build/stm32mp1/cert_images/stm32mp_cfg_cert.crt stm32mp1.fip
+
 
 STM32IMAGE bootchain
 ~~~~~~~~~~~~~~~~~~~~
