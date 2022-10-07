@@ -11,6 +11,10 @@ PL011_GENERIC_UART := 1
 IPI_CRC_CHECK := 0
 HARDEN_SLS_ALL := 0
 
+# A72 Erratum for SoC
+ERRATA_A72_859971 := 1
+ERRATA_A72_1319367 := 1
+
 ifdef VERSAL_ATF_MEM_BASE
     $(eval $(call add_define,VERSAL_ATF_MEM_BASE))
 
