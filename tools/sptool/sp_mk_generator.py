@@ -90,7 +90,7 @@ def get_sp_pkg(sp, args :dict):
 def is_line_in_sp_gen(line, args :dict):
     with open(args["sp_gen_mk"], "r") as f:
         sppkg_rule = [l for l in f if line in l]
-    return len(sppkg_rule) is not 0
+    return len(sppkg_rule) != 0
 
 def get_file_from_layout(node):
     ''' Helper to fetch a file path from sp_layout.json. '''
@@ -200,7 +200,7 @@ def gen_fiptool_args(sp_layout, sp, args :dict):
     else:
         with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as pm_f:
             uuid_lines = [l for l in pm_f if 'uuid' in l]
-        assert(len(uuid_lines) is 1)
+        assert(len(uuid_lines) == 1)
         # The uuid field in SP manifest is the little endian representation
         # mapped to arguments as described in SMCCC section 5.3.
         # Convert each unsigned integer value to a big endian representation
