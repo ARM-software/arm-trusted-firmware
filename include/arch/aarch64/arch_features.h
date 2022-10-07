@@ -100,7 +100,7 @@ static inline bool is_armv8_6_twed_present(void)
 static inline bool is_armv8_6_fgt_present(void)
 {
 	return ((read_id_aa64mmfr0_el1() >> ID_AA64MMFR0_EL1_FGT_SHIFT) &
-		ID_AA64MMFR0_EL1_FGT_MASK) == ID_AA64MMFR0_EL1_FGT_SUPPORTED;
+		ID_AA64MMFR0_EL1_FGT_MASK) != 0U;
 }
 
 static inline unsigned long int get_armv8_6_ecv_support(void)
