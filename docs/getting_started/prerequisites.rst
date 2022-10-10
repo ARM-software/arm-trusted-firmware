@@ -104,14 +104,15 @@ The optional packages can be installed using:
 
     sudo apt install device-tree-compiler
 
-Additionally, to install an up-to-date version of Node.js, you can use the `Node
-Version Manager`_ to install a version of your choosing (we recommend 16, but
-later LTS versions might offer a more stable experience):
+Additionally, to install a version of Node.js compatible with TF-A's repository
+scripts, you can use the `Node Version Manager`_. To install both NVM and an
+appropriate version of Node.js, run the following **from the root directory of
+the repository**:
 
 .. code:: shell
 
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | "$SHELL"
-    exec "$SHELL" -ic "nvm install 16; exec $SHELL"
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+    exec "$SHELL" -ic "nvm install; exec $SHELL"
 
 .. _Node Version Manager: https://github.com/nvm-sh/nvm#install--update-script
 
