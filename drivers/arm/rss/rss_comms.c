@@ -142,6 +142,9 @@ psa_status_t psa_call(psa_handle_t handle, int32_t type, const psa_invec *in_vec
 		VERBOSE("out_vec[%lu].buf=%p\n", idx, (void *)out_vec[idx].base);
 	}
 
+	/* Clear the MHU message buffer to remove assets from memory */
+	memset(&io_buf, 0x0, sizeof(io_buf));
+
 	seq_num++;
 
 	return return_val;

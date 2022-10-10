@@ -135,7 +135,7 @@ const struct spm_mm_boot_info *plat_get_secure_partition_boot_info(
 }
 #endif /* SPM_MM && defined(IMAGE_BL31) */
 
-#if TRUSTED_BOARD_BOOT
+#if TRUSTED_BOARD_BOOT || MEASURED_BOOT
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 {
 	assert(heap_addr != NULL);

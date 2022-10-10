@@ -41,10 +41,21 @@ void rss_measured_boot_init(void)
 	/* At this point it is expected that communication channel over MHU
 	 * is already initialised by platform init.
 	 */
+	struct rss_mboot_metadata *metadata_ptr;
 
 	/* Get pointer to platform's struct rss_mboot_metadata structure */
 	plat_metadata_ptr = plat_rss_mboot_get_metadata();
 	assert(plat_metadata_ptr != NULL);
+
+	/* Use a local variable to preserve the value of the global pointer */
+	metadata_ptr = plat_metadata_ptr;
+
+	/* Init the non-const members of the metadata structure */
+	while (metadata_ptr->id != RSS_MBOOT_INVALID_ID) {
+		metadata_ptr->sw_type_size =
+			strlen((const char *)&metadata_ptr->sw_type) + 1;
+		metadata_ptr++;
+	}
 }
 
 int rss_mboot_measure_and_record(uintptr_t data_base, uint32_t data_size,
