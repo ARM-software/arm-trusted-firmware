@@ -23,7 +23,6 @@ psa_status_t rss_protocol_serialize_msg(psa_handle_t handle,
 	assert(msg != NULL);
 	assert(msg_len != NULL);
 	assert(in_vec != NULL);
-	assert(out_vec != NULL);
 
 	switch (msg->header.protocol_ver) {
 	case RSS_COMMS_PROTOCOL_EMBED:
@@ -58,7 +57,6 @@ psa_status_t rss_protocol_deserialize_reply(psa_outvec *out_vec,
 					    size_t reply_size)
 {
 	assert(reply != NULL);
-	assert(out_vec != NULL);
 	assert(return_val != NULL);
 
 	switch (reply->header.protocol_ver) {

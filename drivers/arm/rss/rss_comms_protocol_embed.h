@@ -10,33 +10,23 @@
 
 #include <cdefs.h>
 
-#include <initial_attestation.h>
 #include <psa/client.h>
 
 #include <platform_def.h>
 
-/*
- * In the current implementation the RoT Service request that requires the
- * biggest message buffer is the RSS_ATTEST_GET_TOKEN. The maximum required
- * buffer size is calculated based on the platform-specific needs of
- * this request.
- */
-#ifndef RSS_COMMS_PAYLOAD_MAX_SIZE
-#define RSS_COMMS_PAYLOAD_MAX_SIZE	(PSA_INITIAL_ATTEST_CHALLENGE_SIZE_64 \
-					 + PLAT_ATTEST_TOKEN_MAX_SIZE)
-#endif
+
 
 struct __packed rss_embed_msg_t {
 	psa_handle_t handle;
 	uint32_t ctrl_param; /* type, in_len, out_len */
 	uint16_t io_size[PSA_MAX_IOVEC];
-	uint8_t trailer[RSS_COMMS_PAYLOAD_MAX_SIZE];
+	uint8_t trailer[PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE];
 };
 
 struct __packed rss_embed_reply_t {
 	int32_t return_val;
 	uint16_t out_size[PSA_MAX_IOVEC];
-	uint8_t trailer[RSS_COMMS_PAYLOAD_MAX_SIZE];
+	uint8_t trailer[PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE];
 };
 
 psa_status_t rss_protocol_embed_serialize_msg(psa_handle_t handle,

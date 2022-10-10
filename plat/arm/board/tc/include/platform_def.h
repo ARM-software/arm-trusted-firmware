@@ -159,6 +159,13 @@
 # define PLATFORM_STACK_SIZE		0x440
 #endif
 
+/*
+ * In the current implementation the RoT Service request that requires the
+ * biggest message buffer is the RSS_DELEGATED_ATTEST_GET_PLATFORM_TOKEN. The
+ * maximum required buffer size is calculated based on the platform-specific
+ * needs of this request.
+ */
+#define PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE	0x500
 
 #define TC_DEVICE_BASE			0x21000000
 #define TC_DEVICE_SIZE			0x5f000000
@@ -220,8 +227,13 @@
 #define PLAT_MAX_CPUS_PER_CLUSTER	U(8)
 #define PLAT_MAX_PE_PER_CPU		U(1)
 
+/* Message Handling Unit (MHU) base addresses */
 #define PLAT_CSS_MHU_BASE		UL(0x45400000)
 #define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
+
+/* TC2: AP<->RSS MHUs */
+#define PLAT_RSS_AP_SND_MHU_BASE	UL(0x2A840000)
+#define PLAT_RSS_AP_RCV_MHU_BASE	UL(0x2A850000)
 
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1

@@ -42,11 +42,11 @@ static uint8_t select_protocol_version(const psa_invec *in_vec, size_t in_len,
 
 	comms_embed_msg_min_size = sizeof(struct serialized_rss_comms_header_t) +
 				   sizeof(struct rss_embed_msg_t) -
-				   RSS_COMMS_PAYLOAD_MAX_SIZE;
+				   PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE;
 
 	comms_embed_reply_min_size = sizeof(struct serialized_rss_comms_header_t) +
 				     sizeof(struct rss_embed_reply_t) -
-				     RSS_COMMS_PAYLOAD_MAX_SIZE;
+				     PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE;
 
 	/* Use embed if we can pack into one message and reply, else use
 	 * pointer_access. The underlying MHU transport protocol uses a
