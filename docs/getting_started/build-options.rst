@@ -569,10 +569,11 @@ Common build options
    EL1 for handling. The default value of this option is ``0``, which means the
    Group 0 interrupts are assumed to be handled by Secure EL1.
 
--  ``HANDLE_EA_EL3_FIRST``: When set to ``1``, External Aborts and SError
-   Interrupts will be always trapped in EL3 i.e. in BL31 at runtime. When set to
-   ``0`` (default), these exceptions will be trapped in the current exception
-   level (or in EL1 if the current exception level is EL0).
+-  ``HANDLE_EA_EL3_FIRST_NS``: When set to ``1``, External Aborts and SError
+   Interrupts, resulting from errors in NS world, will be always trapped in
+   EL3 i.e. in BL31 at runtime. When set to ``0`` (default), these exceptions
+   will be trapped in the current exception level (or in EL1 if the current
+   exception level is EL0).
 
 -  ``HW_ASSISTED_COHERENCY``: On most Arm systems to-date, platform-specific
    software operations are required for CPUs to enter and exit coherency.
@@ -725,7 +726,7 @@ Common build options
    or later CPUs. This flag can take the values 0 to 2, to align with the
    ``FEATURE_DETECTION`` mechanism.
 
-   When ``RAS_EXTENSION`` is set to ``1``, ``HANDLE_EA_EL3_FIRST`` must also be
+   When ``RAS_EXTENSION`` is set to ``1``, ``HANDLE_EA_EL3_FIRST_NS`` must also be
    set to ``1``.
 
    This option is disabled by default.

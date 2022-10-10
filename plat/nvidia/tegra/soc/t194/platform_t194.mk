@@ -33,7 +33,7 @@ MAX_MMAP_REGIONS			:= 30
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # enable RAS handling
-HANDLE_EA_EL3_FIRST			:= 1
+HANDLE_EA_EL3_FIRST_NS			:= 1
 RAS_EXTENSION				:= 1
 
 # platform files
