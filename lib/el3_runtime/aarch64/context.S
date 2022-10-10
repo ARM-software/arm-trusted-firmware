@@ -806,9 +806,9 @@ endfunc fpregs_context_restore
 /* ------------------------------------------------------------------
  * The following macro is used to save and restore all the general
  * purpose and ARMv8.3-PAuth (if enabled) registers.
- * It also checks if Secure Cycle Counter is not disabled in MDCR_EL3
- * when ARMv8.5-PMU is implemented, and if called from Non-secure
- * state saves PMCR_EL0 and disables Cycle Counter.
+ * It also checks if the Secure Cycle Counter (PMCCNTR_EL0)
+ * is disabled in EL3/Secure (ARMv8.5-PMU), wherein PMCCNTR_EL0
+ * needs not to be saved/restored during world switch.
  *
  * Ideally we would only save and restore the callee saved registers
  * when a world switch occurs but that type of implementation is more
@@ -837,9 +837,17 @@ endfunc fpregs_context_restore
 	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
 
 	/* ----------------------------------------------------------
-	 * Check if earlier initialization MDCR_EL3.SCCD/MCCD to 1
-	 * failed, meaning that FEAT_PMUv3p5/7 is not implemented and
-	 * PMCR_EL0 should be saved in non-secure context.
+	 * Check if earlier initialization of MDCR_EL3.SCCD/MCCD to 1
+	 * has failed.
+	 *
+	 * MDCR_EL3:
+	 * MCCD bit set, Prohibits the Cycle Counter PMCCNTR_EL0 from
+	 * counting at EL3.
+	 * SCCD bit set, Secure Cycle Counter Disable. Prohibits PMCCNTR_EL0
+	 * from counting in Secure state.
+	 * If these bits are not set, meaning that FEAT_PMUv3p5/7 is
+	 * not implemented and PMCR_EL0 should be saved in non-secure
+	 * context.
 	 * ----------------------------------------------------------
 	 */
 	mov_imm	x10, (MDCR_SCCD_BIT | MDCR_MCCD_BIT)
@@ -847,7 +855,13 @@ endfunc fpregs_context_restore
 	tst	x9, x10
 	bne	1f
 
-	/* Secure Cycle Counter is not disabled */
+	/* ----------------------------------------------------------
+	 * If control reaches here, it ensures the Secure Cycle
+	 * Counter (PMCCNTR_EL0) is not prohibited from counting at
+	 * EL3 and in secure states.
+	 * Henceforth, PMCR_EL0 to be saved before world switch.
+	 * ----------------------------------------------------------
+	 */
 	mrs	x9, pmcr_el0
 
 	/* Check caller's security state */
