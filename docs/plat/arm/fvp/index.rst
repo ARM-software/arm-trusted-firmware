@@ -327,19 +327,14 @@ or ``FVP_HW_CONFIG_DTS`` build options (refer to
 
 -  ``fvp-base-gicv2-psci.dts``
 
-   For use with models such as the Cortex-A57-A53 Base FVPs without shifted
-   affinities and with Base memory map configuration.
-
--  ``fvp-base-gicv2-psci-aarch32.dts``
-
-   For use with models such as the Cortex-A32 Base FVPs without shifted
-   affinities and running Linux in AArch32 state with Base memory map
-   configuration.
+   For use with models such as the Cortex-A57-A53 or Cortex-A32 Base FVPs
+   without shifted affinities and with Base memory map configuration.
 
 -  ``fvp-base-gicv3-psci.dts``
 
-   For use with models such as the Cortex-A57-A53 Base FVPs without shifted
-   affinities and with Base memory map configuration and Linux GICv3 support.
+   For use with models such as the Cortex-A57-A53 or Cortex-A32 Base FVPs
+   without shifted affinities and with Base memory map configuration and
+   Linux GICv3 support.
 
 -  ``fvp-base-gicv3-psci-1t.dts``
 
@@ -351,12 +346,6 @@ or ``FVP_HW_CONFIG_DTS`` build options (refer to
    For use with models as the Cortex-A55-A75 Base FVPs with shifted affinities,
    single cluster, single threaded CPUs, Base memory map configuration and Linux
    GICv3 support.
-
--  ``fvp-base-gicv3-psci-aarch32.dts``
-
-   For use with models such as the Cortex-A32 Base FVPs without shifted
-   affinities and running Linux in AArch32 state with Base memory map
-   configuration and Linux GICv3 support.
 
 -  ``fvp-foundation-gicv2-psci.dts``
 

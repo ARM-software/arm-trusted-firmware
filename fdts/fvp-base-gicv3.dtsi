@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/* GICv3 with ITS configuration  */
+
+/ {
+	gic: interrupt-controller@2f000000 {
+		compatible = "arm,gic-v3";
+		#interrupt-cells = <3>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0x0 0x0 0x2f000000 0x100000>;
+		interrupt-controller;
+		reg = <0x0 0x2f000000 0 0x10000>,	// GICD
+		      <0x0 0x2f100000 0 0x200000>,	// GICR
+		      <0x0 0x2c000000 0 0x2000>,	// GICC
+		      <0x0 0x2c010000 0 0x2000>,	// GICH
+		      <0x0 0x2c02f000 0 0x2000>;	// GICV
+		interrupts = <1 9 4>;
+
+		its: msi-controller@2f020000 {
+			compatible = "arm,gic-v3-its";
+			msi-controller;
+			#msi-cells = <1>;
+			reg = <0x20000 0x20000>;	// GITS
+		};
+	};
+};

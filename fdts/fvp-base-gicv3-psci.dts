@@ -6,9 +6,13 @@
 
 /* Configuration: max 4 clusters with up to 4 CPUs */
 
-/dts-v1/;
-
 #define	AFF
 
 #include "fvp-defs.dtsi"
-#include "fvp-base-gicv3-psci-common.dtsi"
+
+/dts-v1/;
+
+/memreserve/ 0x80000000 0x00010000;
+
+#include "fvp-base-gicv3.dtsi"
+#include "fvp-base-psci-common.dtsi"

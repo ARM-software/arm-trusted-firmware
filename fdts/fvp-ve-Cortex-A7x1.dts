@@ -1,32 +1,50 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
 /dts-v1/;
+
+#include "rtsm_ve-motherboard.dtsi"
 
 / {
 	model = "V2F-1XV7 Cortex-A7x1 SMM";
 	compatible = "arm,vexpress,v2f-1xv7", "arm,vexpress";
 	interrupt-parent = <&gic>;
 	#address-cells = <2>;
-	#size-cells = <2>;
+	#size-cells = <1>;
 
 	cpus {
-		#address-cells = <2>;
+		#address-cells = <1>;
 		#size-cells = <0>;
 
 		cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a7";
-			reg = <0 0>;
+			reg = <0>;
 		};
 	};
 
 	memory@0,80000000 {
 		device_type = "memory";
-		reg = <0 0x80000000 0 0x80000000>; /* 2GB @ 2GB */
+		reg = <0 0x80000000 0x80000000>; /* 2GB @ 2GB */
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <1>;
+		ranges;
+
+		/* Chipselect 2,00000000 is physically at 0x18000000 */
+		vram: vram@18000000 {
+			/* 8 MB of designated video RAM */
+			compatible = "shared-dma-pool";
+			reg = <0 0x18000000 0x00800000>;
+			no-map;
+		};
 	};
 
 	gic: interrupt-controller@2c001000 {
@@ -34,10 +52,10 @@
 		#interrupt-cells = <3>;
 		#address-cells = <0>;
 		interrupt-controller;
-		reg = <0 0x2c001000 0 0x1000>,
-		      <0 0x2c002000 0 0x1000>,
-		      <0 0x2c004000 0 0x2000>,
-		      <0 0x2c006000 0 0x2000>;
+		reg = <0 0x2c001000 0x1000>,
+		      <0 0x2c002000 0x1000>,
+		      <0 0x2c004000 0x2000>,
+		      <0 0x2c006000 0x2000>;
 		interrupts = <1 9 0xf04>;
 	};
 
@@ -49,28 +67,36 @@
 		clock-output-names = "smclk";
 	};
 
-	smb {
-		compatible = "simple-bus";
+	panel {
+		compatible = "arm,rtsm-display";
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&clcd_pads>;
+			};
+		};
+	};
 
-		#address-cells = <2>;
-		#size-cells = <1>;
-		ranges = <0 0 0 0x08000000 0x04000000>,
-			 <1 0 0 0x14000000 0x04000000>,
-			 <2 0 0 0x18000000 0x04000000>,
-			 <3 0 0 0x1c000000 0x04000000>,
-			 <4 0 0 0x0c000000 0x04000000>,
-			 <5 0 0 0x10000000 0x04000000>;
-
+	bus@8000000 {
 		#interrupt-cells = <1>;
 		interrupt-map-mask = <0 0 63>;
-		interrupt-map = <0 0  0 &gic 0  0 4>,
-				<0 0  1 &gic 0  1 4>,
-				<0 0  2 &gic 0  2 4>,
-				<0 0  3 &gic 0  3 4>,
-				<0 0  4 &gic 0  4 4>,
-				<0 0  5 &gic 0  5 4>,
-				<0 0 42 &gic 0 42 4>;
-
-		#include "rtsm_ve-motherboard-aarch32.dtsi"
+		interrupt-map = <0 0  0 &gic GIC_SPI  0 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  1 &gic GIC_SPI  1 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  2 &gic GIC_SPI  2 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  3 &gic GIC_SPI  3 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  4 &gic GIC_SPI  4 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  5 &gic GIC_SPI  5 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  6 &gic GIC_SPI  6 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  7 &gic GIC_SPI  7 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  8 &gic GIC_SPI  8 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  9 &gic GIC_SPI  9 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 10 &gic GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 11 &gic GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 12 &gic GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 13 &gic GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 15 &gic GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 42 &gic GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 43 &gic GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 44 &gic GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 46 &gic GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
 	};
 };
