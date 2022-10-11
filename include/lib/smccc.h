@@ -37,6 +37,10 @@
 #define FUNCID_OEN_MASK			U(0x3f)
 #define FUNCID_OEN_WIDTH		U(6)
 
+#define FUNCID_SVE_HINT_SHIFT          U(16)
+#define FUNCID_SVE_HINT_MASK           U(1)
+#define FUNCID_SVE_HINT_WIDTH          U(1)
+
 #define FUNCID_NUM_SHIFT		U(0)
 #define FUNCID_NUM_MASK			U(0xffff)
 #define FUNCID_NUM_WIDTH		U(16)
@@ -122,6 +126,12 @@
  *   0        0      SMC_FROM_SECURE
  *   0        1      SMC_FROM_NON_SECURE
  *   1        1      SMC_FROM_REALM
+ *
+ * Bit 16 of flags records the caller's SMC
+ * SVE hint bit according to SMCCCv1.3.
+ * It can be consumed by dispatchers using
+ * is_sve_hint_set macro.
+ *
  */
 
 #define SMC_FROM_SECURE		(U(0) << 0)
@@ -147,6 +157,9 @@
 #define is_caller_non_secure(_f)	(((_f) & SMC_FROM_NON_SECURE) != U(0))
 #define is_caller_secure(_f)		(!is_caller_non_secure(_f))
 #endif /* ENABLE_RME */
+
+#define is_sve_hint_set(_f)		(((_f) & (FUNCID_SVE_HINT_MASK \
+						<< FUNCID_SVE_HINT_SHIFT)) != U(0))
 
 /* The macro below is used to identify a Standard Service SMC call */
 #define is_std_svc_call(_fid)		(GET_SMC_OEN(_fid) == OEN_STD_START)
