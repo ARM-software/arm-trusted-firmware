@@ -595,6 +595,9 @@ subsections:
       - title: DRTM
         scope: drtm
 
+      - title: TRNG
+        scope: trng
+
   - title: Libraries
 
     subsections:

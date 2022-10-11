@@ -2468,7 +2468,7 @@ value: uuid_t plat_trng_uuid [mandatory]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This value must be defined to the UUID of the TRNG backend that is specific to
-the hardware after ``plat_trng_setup`` function is called. This value must
+the hardware after ``plat_entropy_setup`` function is called. This value must
 conform to the SMCCC calling convention; The most significant 32 bits of the
 UUID must not equal ``0xffffffff`` or the signed integer ``-1`` as this value in
 w0 indicates failure to get a TRNG source.

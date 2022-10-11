@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
  * 192 bits of entropy, we don't have to throw out the leftover 1-63 bits of
  * entropy.
  */
-#define WORDS_IN_POOL (4)
+#define WORDS_IN_POOL	(4)
 static uint64_t entropy[WORDS_IN_POOL];
 /* index in bits of the first bit of usable entropy */
 static uint32_t entropy_bit_index;
@@ -27,14 +27,14 @@ static uint32_t entropy_bit_size;
 
 static spinlock_t trng_pool_lock;
 
-#define BITS_PER_WORD (sizeof(entropy[0]) * 8)
-#define BITS_IN_POOL (WORDS_IN_POOL * BITS_PER_WORD)
-#define ENTROPY_MIN_WORD (entropy_bit_index / BITS_PER_WORD)
-#define ENTROPY_FREE_BIT (entropy_bit_size + entropy_bit_index)
-#define _ENTROPY_FREE_WORD (ENTROPY_FREE_BIT / BITS_PER_WORD)
-#define ENTROPY_FREE_INDEX (_ENTROPY_FREE_WORD % WORDS_IN_POOL)
+#define BITS_PER_WORD		(sizeof(entropy[0]) * 8)
+#define BITS_IN_POOL		(WORDS_IN_POOL * BITS_PER_WORD)
+#define ENTROPY_MIN_WORD	(entropy_bit_index / BITS_PER_WORD)
+#define ENTROPY_FREE_BIT	(entropy_bit_size + entropy_bit_index)
+#define _ENTROPY_FREE_WORD	(ENTROPY_FREE_BIT / BITS_PER_WORD)
+#define ENTROPY_FREE_INDEX	(_ENTROPY_FREE_WORD % WORDS_IN_POOL)
 /* ENTROPY_WORD_INDEX(0) includes leftover bits in the lower bits */
-#define ENTROPY_WORD_INDEX(i) ((ENTROPY_MIN_WORD + i) % WORDS_IN_POOL)
+#define ENTROPY_WORD_INDEX(i)	((ENTROPY_MIN_WORD + i) % WORDS_IN_POOL)
 
 /*
  * Fill the entropy pool until we have at least as many bits as requested.
@@ -65,12 +65,12 @@ static bool trng_fill_entropy(uint32_t nbits)
  */
 bool trng_pack_entropy(uint32_t nbits, uint64_t *out)
 {
-	bool success = true;
+	bool ret = true;
 
 	spin_lock(&trng_pool_lock);
 
 	if (!trng_fill_entropy(nbits)) {
-		success = false;
+		ret = false;
 		goto out;
 	}
 
@@ -82,9 +82,8 @@ bool trng_pack_entropy(uint32_t nbits, uint64_t *out)
 	for (word_i = 0; word_i < to_fill; word_i++) {
 		/*
 		 * Repack the entropy from the pool into the passed in out
-		 * buffer. This takes the lower bits from the valid upper bits
-		 * of word_i and the upper bits from the lower bits of
-		 * (word_i + 1).
+		 * buffer. This takes lesser bits from the valid upper bits
+		 * of word_i and more bits from the lower bits of (word_i + 1).
 		 *
 		 * I found the following diagram useful. note: `e` represents
 		 * valid entropy, ` ` represents invalid bits (not entropy) and
@@ -136,7 +135,7 @@ bool trng_pack_entropy(uint32_t nbits, uint64_t *out)
 out:
 	spin_unlock(&trng_pool_lock);
 
-	return success;
+	return ret;
 }
 
 void trng_entropy_pool_setup(void)

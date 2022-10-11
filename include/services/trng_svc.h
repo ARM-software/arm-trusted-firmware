@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited. All rights reserved.
+ * Copyright (c) 2021-2022, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,7 @@
 #define ARM_TRNG_FEATURES	U(0x84000051)
 #define ARM_TRNG_GET_UUID	U(0x84000052)
 #define ARM_TRNG_RND32		U(0x84000053)
-#define ARM_TRNG_RND64		U(0xc4000053)
+#define ARM_TRNG_RND64		U(0xC4000053)
 
 /* TRNG version numbers */
 #define TRNG_VERSION_MAJOR	(0x1)
@@ -30,19 +30,17 @@
 #define TRNG_E_NO_ENTROPY	(-3)
 #define TRNG_E_NOT_IMPLEMENTED	(-4)
 
-#if TRNG_SUPPORT
-void trng_setup(void);
-bool is_trng_fid(uint32_t smc_fid);
-#else
-static inline void trng_setup(void)
-{
-}
+/* TRNG Entropy Bit Numbers */
+#define TRNG_RND32_ENTROPY_MAXBITS	(96U)
+#define TRNG_RND64_ENTROPY_MAXBITS	(192U)
 
-static inline bool is_trng_fid(uint32_t smc_fid)
-{
-	return false;
-}
-#endif
+/* Public API to perform the initial TRNG entropy setup */
+void trng_setup(void);
+
+/* Public API to verify function id is part of TRNG */
+bool is_trng_fid(uint32_t smc_fid);
+
+/* Handler to be called to handle TRNG smc calls */
 uintptr_t trng_smc_handler(
 	uint32_t smc_fid,
 	u_register_t x1,
