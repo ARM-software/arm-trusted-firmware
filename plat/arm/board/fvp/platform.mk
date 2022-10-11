@@ -143,6 +143,7 @@ else
 					lib/cpus/aarch64/cortex_a78c.S		\
 					lib/cpus/aarch64/cortex_hayes.S		\
 					lib/cpus/aarch64/cortex_hunter.S	\
+					lib/cpus/aarch64/cortex_hunter_elp_arm.S \
 					lib/cpus/aarch64/cortex_x2.S		\
 					lib/cpus/aarch64/neoverse_poseidon.S
 	endif
