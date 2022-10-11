@@ -37,6 +37,9 @@
 
 #include <errata.h>
 #include <ls_interrupt_mgmt.h>
+#ifdef CONFIG_OCRAM_ECC_EN
+#include <ocram.h>
+#endif
 #include "plat_common.h"
 #ifdef NXP_NV_SW_MAINT_LAST_EXEC_DATA
 #include <plat_nv_storage.h>
@@ -238,6 +241,9 @@ void soc_preload_setup(void)
  ******************************************************************************/
 void soc_early_init(void)
 {
+#ifdef CONFIG_OCRAM_ECC_EN
+	ocram_init(NXP_OCRAM_ADDR, NXP_OCRAM_SIZE);
+#endif
 	dcfg_init(&dcfg_init_data);
 #ifdef POLICY_FUSE_PROVISION
 	gpio_init(&gpio_init_data);
