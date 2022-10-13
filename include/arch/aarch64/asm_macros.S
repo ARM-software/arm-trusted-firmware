@@ -215,6 +215,19 @@
 	.endm
 
 	/*
+	 * Macro for using speculation barrier instruction introduced by
+	 * FEAT_SB, if it's enabled.
+	 */
+	.macro speculation_barrier
+#if ENABLE_FEAT_SB
+	sb
+#else
+	dsb	sy
+	isb
+#endif
+	.endm
+
+	/*
 	 * Macro for mitigating against speculative execution beyond ERET. Uses the
 	 * speculation barrier instruction introduced by FEAT_SB, if it's enabled.
 	 */
