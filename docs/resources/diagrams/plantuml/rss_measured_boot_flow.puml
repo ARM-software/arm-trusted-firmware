@@ -1,0 +1,79 @@
+@startuml
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+box RSS
+participant RSS_BL1_1
+participant RSS_BL1_2
+participant RSS_BL2
+participant RSS_S
+endbox
+box SCP
+participant SCP_BL1
+endbox
+box AP
+participant AP_BL1
+participant AP_BL2
+participant AP_BL31
+endbox
+
+== RSS Boot phase ==
+-> RSS_BL1_1: Reset
+Rnote over RSS_BL1_1: ROM code, XIP
+Rnote over RSS_BL1_2: OTP code, XIP
+Rnote over RSS_BL2, AP_BL31: Stored in flash, loaded and executed in RAM
+activate RSS_BL1_1 #Green
+RSS_BL1_1 -->> RSS_BL1_2: Validate, measure
+Rnote over RSS_BL1_1: BL1_2 measurement\n\ saved to a shared buffer
+RSS_BL1_1 -> RSS_BL1_2: Pass execution
+deactivate RSS_BL1_1
+activate RSS_BL1_2 #Green
+RSS_BL1_2 -->> RSS_BL2: Validate, measure, load
+Rnote over RSS_BL1_2: RSS_BL2 measurement\n\ saved to a shared buffer
+RSS_BL1_2 -> RSS_BL2: Pass execution
+deactivate RSS_BL1_2
+activate RSS_BL2 #Green
+RSS_BL2 -->> RSS_S: Validate, measure, load
+RSS_BL2 -->> SCP_BL1: Validate, measure, load
+Rnote over RSS_BL2: RSS_S and SCP_BL1\n\ measurements saved\n\ to a shared buffer
+RSS_BL2 -> SCP_BL1: Release from reset
+activate SCP_BL1 #Green
+Rnote over RSS_BL2, SCP_BL1: MHU init between RSS and SCP
+Rnote over SCP_BL1: Configure memory
+Rnote over RSS_BL2: Waits for SCP
+SCP_BL1 --> RSS_BL2: Done
+RSS_BL2 -->> AP_BL1: Validate, measure, load
+Rnote over RSS_BL2: AP_BL1 measurement\n\ saved to a shared buffer
+RSS_BL2 -> AP_BL1: Release from reset
+activate AP_BL1 #Green
+RSS_BL2 -> RSS_S: Pass execution
+deactivate RSS_BL2
+activate RSS_S #Green
+Rnote over RSS_S: Measurements read from\n\ shared buffer and saved by\n\
+Measured Boot service to\n\ measurement slots.
+
+== RSS Runtime / AP Boot phase ==
+Rnote over RSS_S, AP_BL1: MHU init between RSS and AP
+Rnote over AP_BL1: Measure and load:\n\ FW_CONFIG\n\ TB_FW_CONFIG
+AP_BL1 -> RSS_S: Extend measurement
+Rnote over RSS_S: Measured Boot:\n\ store measurement
+AP_BL1 -->> AP_BL2: Validate, measure,load
+AP_BL1 -> RSS_S: Extend measurement
+Rnote over RSS_S: Measured Boot:\n\ store measurement
+AP_BL1 -> AP_BL2: Pass execution
+deactivate AP_BL1
+activate AP_BL2 #Green
+Rnote over AP_BL2: Measure and load:\n\ HW_CONFIG
+AP_BL2 -> RSS_S: Extend measurement
+Rnote over RSS_S: Measured Boot:\n\ store measurement
+AP_BL2 -->> AP_BL31: Validate, measure,load
+Rnote over AP_BL2: Measure and load:\n\ BL31
+AP_BL2 -> RSS_S: Extend measurement
+Rnote over RSS_S: Measured Boot:\n\ store measurement
+Rnote over AP_BL2: Measure and load:\n\ RMM
+AP_BL2 -> RSS_S: Extend measurement
+Rnote over RSS_S: Measured Boot:\n\ store measurement
+AP_BL2 -> AP_BL31: Pass execution
+deactivate AP_BL2
+activate AP_BL31 #Green
+== RSS / AP Runtime ==
+@enduml
