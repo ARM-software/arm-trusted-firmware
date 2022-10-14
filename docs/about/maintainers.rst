@@ -162,6 +162,18 @@ eMMC/UFS drivers
 :|F|: include/drivers/ufs.h
 :|F|: include/drivers/synopsys/dw_mmc.h
 
+Arm® Ethos™-N NPU driver
+^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Joshua Slater <joshua.slater@arm.com>
+:|G|: `jslater8`_
+:|M|: Mikael Olsson <mikael.olsson@arm.com>
+:|G|: `mikaelolsson-arm`_
+:|F|: drivers/arm/ethosn/
+:|F|: include/drivers/arm/ethosn.h
+:|F|: plat/arm/common/fconf/fconf_ethosn_getter.c
+:|F|: include/plat/arm/common/fconf_ethosn_getter.h
+:|F|: fdts/juno-ethosn.dtsi
+
 JTAG DCC console driver
 ^^^^^^^^^^^^^^^^^^^^^^^
 :M: Michal Simek <michal.simek@amd.com>
@@ -850,6 +862,7 @@ Conventional Changelog Extensions
 .. _JackyBai: https://github.com/JackyBai
 .. _jcorbier: https://github.com/jcorbier
 .. _jenswi-linaro: https://github.com/jenswi-linaro
+.. _jslater8: https://github.com/jslater8
 .. _jwerner-chromium: https://github.com/jwerner-chromium
 .. _kostapr: https://github.com/kostapr
 .. _lachitp: https://github.com/lachitp
@@ -857,6 +870,7 @@ Conventional Changelog Extensions
 .. _marex: https://github.com/marex
 .. _masahir0y: https://github.com/masahir0y
 .. _michalsimek: https://github.com/michalsimek
+.. _mikaelolsson-arm: https://github.com/mikaelolsson-arm
 .. _mmind: https://github.com/mmind
 .. _MrVan: https://github.com/MrVan
 .. _mtk-rex-bc-chen: https://github.com/mtk-rex-bc-chen
