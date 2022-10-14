@@ -12,7 +12,7 @@
 #include <lib/psci/psci.h>
 #include <lib/utils.h>
 #ifdef MTK_PUBEVENT_ENABLE
-#include <mtk_event/mtk_pubsub_events.h>
+#include <vendor_pubsub_events.h>
 #endif
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
