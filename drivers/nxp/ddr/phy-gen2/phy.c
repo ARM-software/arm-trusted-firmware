@@ -503,6 +503,14 @@ int restore_phy_training_values(uint16_t **phy_ptr, uint32_t address_to_restore,
 		/* Reading 1D training values from flash*/
 		ret = xspi_read(phy_store, (uint32_t *)training_1D_values,
 				size);
+		if (ret != 0) {
+#ifdef DEBUG_WARM_RESET
+			debug("Unable to Read 1D training values %d\n",
+					ret);
+#endif
+			return -EINVAL;
+		}
+
 		debug("Restoring 1D Training reg val at:%08x\n", phy_store);
 		for (i = 0; i < num_of_regs; i++) {
 			phy_io_write16(phy, training_1D_values[i].addr,
@@ -522,6 +530,15 @@ int restore_phy_training_values(uint16_t **phy_ptr, uint32_t address_to_restore,
 			/* Reading 2D training values from flash */
 			ret = xspi_read(phy_store,
 					(uint32_t *)training_2D_values,	size);
+
+			if (ret != 0) {
+#ifdef DEBUG_WARM_RESET
+				debug("Unable to Read 2D training values %d\n",
+						ret);
+#endif
+				return -EINVAL;
+			}
+
 			debug("Restoring 2D Training reg val at:%08x\n",
 					phy_store);
 			for (i = 0; i < num_of_regs; i++) {
