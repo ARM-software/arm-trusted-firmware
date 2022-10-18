@@ -385,7 +385,8 @@ spmc_shm_get_v1_1_descriptor_size(struct ffa_mtd_v1_0 *orig, size_t desc_size)
 	      emad_array[0].comp_mrd_offset);
 
 	/* Check the calculated address is within the memory descriptor. */
-	if ((uintptr_t) mrd >= (uintptr_t)((uint8_t *) orig + desc_size)) {
+	if (((uintptr_t) mrd + sizeof(struct ffa_comp_mrd)) >
+	    (uintptr_t)((uint8_t *) orig + desc_size)) {
 		return 0;
 	}
 	size += mrd->address_range_count * sizeof(struct ffa_cons_mrd);
@@ -424,7 +425,8 @@ spmc_shm_get_v1_0_descriptor_size(struct ffa_mtd *orig, size_t desc_size)
 	      emad_array[0].comp_mrd_offset);
 
 	/* Check the calculated address is within the memory descriptor. */
-	if ((uintptr_t) mrd >= (uintptr_t)((uint8_t *) orig + desc_size)) {
+	if (((uintptr_t) mrd + sizeof(struct ffa_comp_mrd)) >
+	    (uintptr_t)((uint8_t *) orig + desc_size)) {
 		return 0;
 	}
 	size += mrd->address_range_count * sizeof(struct ffa_cons_mrd);
