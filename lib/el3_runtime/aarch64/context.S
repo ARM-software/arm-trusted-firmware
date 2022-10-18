@@ -285,7 +285,7 @@ func el2_sysregs_context_save_mpam
 	mrs	x12, MPAMVPMV_EL2
 	stp	x11, x12, [x0, #CTX_MPAMVPM7_EL2]
 	ret
-endfunc func el2_sysregs_context_save_mpam
+endfunc el2_sysregs_context_save_mpam
 
 func el2_sysregs_context_restore_mpam
 	ldr	x10, [x0, #CTX_MPAM2_EL2]
