@@ -885,15 +885,15 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		goto err_arg;
 	}
 
-	memcpy((uint8_t *)&obj->desc + obj->desc_filled,
-	       (uint8_t *) mbox->tx_buffer, fragment_length);
-
 	if (fragment_length > obj->desc_size - obj->desc_filled) {
 		WARN("%s: bad fragment size %u > %zu remaining\n", __func__,
 		     fragment_length, obj->desc_size - obj->desc_filled);
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_arg;
 	}
+
+	memcpy((uint8_t *)&obj->desc + obj->desc_filled,
+	       (uint8_t *) mbox->tx_buffer, fragment_length);
 
 	/* Ensure that the sender ID resides in the normal world. */
 	if (ffa_is_secure_world_id(obj->desc.sender_id)) {
