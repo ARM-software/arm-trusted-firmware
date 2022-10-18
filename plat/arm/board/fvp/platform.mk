@@ -392,6 +392,11 @@ BL2_SOURCES		+=	plat/arm/board/fvp/fvp_common_measured_boot.c	\
 				plat/arm/board/fvp/fvp_bl2_measured_boot.c	\
 				lib/psa/measured_boot.c
 
+# Note that attestation code does not depend on measured boot interfaces per se,
+# but the two features go together - attestation without boot measurements is
+# pretty much pointless...
+BL31_SOURCES		+=	lib/psa/delegated_attestation.c
+
 PLAT_INCLUDES		+=	-Iinclude/lib/psa
 
 # RSS is not supported on FVP right now. Thus, we use the mocked version
@@ -407,9 +412,12 @@ ifneq (${PLAT_RSS_NOT_SUPPORTED},1)
     include drivers/arm/rss/rss_comms.mk
     BL1_SOURCES		+=	${RSS_COMMS_SOURCES}
     BL2_SOURCES		+=	${RSS_COMMS_SOURCES}
+    BL31_SOURCES	+=	${RSS_COMMS_SOURCES}		\
+				lib/psa/delegated_attestation.c
 
     BL1_CFLAGS		+=	-DPLAT_RSS_COMMS_PAYLOAD_MAX_SIZE=0
     BL2_CFLAGS		+=	-DPLAT_RSS_COMMS_PAYLOAD_MAX_SIZE=0
+    BL31_CFLAGS		+=	-DPLAT_RSS_COMMS_PAYLOAD_MAX_SIZE=0
 endif
 
 endif
