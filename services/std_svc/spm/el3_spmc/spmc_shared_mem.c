@@ -72,13 +72,23 @@ spmc_shmem_obj_alloc(struct spmc_shmem_obj_state *state, size_t desc_size)
 {
 	struct spmc_shmem_obj *obj;
 	size_t free = state->data_size - state->allocated;
+	size_t obj_size;
 
 	if (state->data == NULL) {
 		ERROR("Missing shmem datastore!\n");
 		return NULL;
 	}
 
-	if (spmc_shmem_obj_size(desc_size) > free) {
+	obj_size = spmc_shmem_obj_size(desc_size);
+
+	/* Ensure the obj size has not overflowed. */
+	if (obj_size < desc_size) {
+		WARN("%s(0x%zx) desc_size overflow\n",
+		     __func__, desc_size);
+		return NULL;
+	}
+
+	if (obj_size > free) {
 		WARN("%s(0x%zx) failed, free 0x%zx\n",
 		     __func__, desc_size, free);
 		return NULL;
@@ -88,7 +98,7 @@ spmc_shmem_obj_alloc(struct spmc_shmem_obj_state *state, size_t desc_size)
 	obj->desc_size = desc_size;
 	obj->desc_filled = 0;
 	obj->in_use = 0;
-	state->allocated += spmc_shmem_obj_size(desc_size);
+	state->allocated += obj_size;
 	return obj;
 }
 
