@@ -1828,6 +1828,13 @@ int spmc_ffa_mem_reclaim(uint32_t smc_fid,
 		goto err_unlock;
 	}
 
+	if (obj->desc_filled != obj->desc_size) {
+		WARN("%s: incomplete object desc filled %zu < size %zu\n",
+		     __func__, obj->desc_filled, obj->desc_size);
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock;
+	}
+
 	/* Allow for platform specific operations to be performed. */
 	ret = plat_spmc_shmem_reclaim(&obj->desc);
 	if (ret != 0) {
