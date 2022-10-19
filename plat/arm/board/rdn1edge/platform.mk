@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+$(warning Platform ${PLAT} is deprecated. Some of the features might not work as expected)
+
 # GIC-600 configuration
 GICV3_IMPL_GIC600_MULTICHIP	:=	1
 

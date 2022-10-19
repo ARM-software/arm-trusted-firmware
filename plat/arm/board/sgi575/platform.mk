@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+$(warning Platform ${PLAT} is deprecated. Some of the features might not work as expected)
+
 include plat/arm/css/sgi/sgi-common.mk
 
 SGI575_BASE		=	plat/arm/board/sgi575
