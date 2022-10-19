@@ -274,7 +274,7 @@ ifneq ($(findstring clang,$(notdir $(CC))),)
 		TF_CFLAGS_aarch64	:=	-target aarch64-arm-none-eabi $(march64-directive)
 		LD			:=	$(LINKER)
 	else
-		TF_CFLAGS_aarch32	:=	$(target32-directive) $(march32-directive)
+		TF_CFLAGS_aarch32	=	$(target32-directive) $(march32-directive)
 		TF_CFLAGS_aarch64	:=	-target aarch64-elf $(march64-directive)
 		LD			:=	$(shell $(CC) --print-prog-name ld.lld)
 
