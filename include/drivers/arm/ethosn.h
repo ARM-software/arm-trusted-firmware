@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,21 +39,28 @@
 
 /* Service version  */
 #define ETHOSN_VERSION_MAJOR U(2)
-#define ETHOSN_VERSION_MINOR U(0)
+#define ETHOSN_VERSION_MINOR U(1)
 
 /* Return codes for function calls */
 #define ETHOSN_SUCCESS			 0
 #define ETHOSN_NOT_SUPPORTED		-1
 /* -2 Reserved for NOT_REQUIRED */
-/* -3 Reserved for INVALID_PARAMETER */
+#define ETHOSN_INVALID_PARAMETER	-3
 #define ETHOSN_FAILURE			-4
 #define ETHOSN_UNKNOWN_CORE_ADDRESS	-5
 #define ETHOSN_UNKNOWN_ALLOCATOR_IDX	-6
 
+/*
+ * Argument types for soft and hard resets to indicate whether to reset
+ * and reconfigure the NPU or only halt it
+ */
+#define ETHOSN_RESET_TYPE_FULL		U(0)
+#define ETHOSN_RESET_TYPE_HALT		U(1)
+
 uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			     u_register_t core_addr,
 			     u_register_t asset_alloc_idx,
-			     u_register_t x3,
+			     u_register_t reset_type,
 			     u_register_t x4,
 			     void *cookie,
 			     void *handle,

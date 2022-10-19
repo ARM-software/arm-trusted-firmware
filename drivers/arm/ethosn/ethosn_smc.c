@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -152,7 +152,7 @@ static bool ethosn_reset(uintptr_t core_addr, int hard_reset)
 uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			     u_register_t core_addr,
 			     u_register_t asset_alloc_idx,
-			     u_register_t x3,
+			     u_register_t reset_type,
 			     u_register_t x4,
 			     void *cookie,
 			     void *handle,
@@ -173,7 +173,7 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 	if (GET_SMC_CC(smc_fid) == SMC_32) {
 		core_addr &= 0xFFFFFFFF;
 		asset_alloc_idx &= 0xFFFFFFFF;
-		x3 &= 0xFFFFFFFF;
+		reset_type &= 0xFFFFFFFF;
 		x4 &= 0xFFFFFFFF;
 	}
 
@@ -205,7 +205,15 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, ETHOSN_UNKNOWN_ALLOCATOR_IDX);
 	}
 
-	/* Commands that require a valid device, core and asset allocator */
+	if (reset_type > ETHOSN_RESET_TYPE_HALT) {
+		WARN("ETHOSN: Invalid reset type given to SMC call.\n");
+		SMC_RET1(handle, ETHOSN_INVALID_PARAMETER);
+	}
+
+	/*
+	 * Commands that require a valid device, reset type,
+	 * core and asset allocator
+	 */
 	switch (fid) {
 	case ETHOSN_FNUM_HARD_RESET:
 		hard_reset = 1;
@@ -215,12 +223,14 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			SMC_RET1(handle, ETHOSN_FAILURE);
 		}
 
-		if (!device->has_reserved_memory) {
-			ethosn_configure_smmu_streams(device, core,
-						      asset_alloc_idx);
-		}
+		if (reset_type == ETHOSN_RESET_TYPE_FULL) {
+			if (!device->has_reserved_memory) {
+				ethosn_configure_smmu_streams(device, core,
+							asset_alloc_idx);
+			}
 
-		ethosn_delegate_to_ns(core->addr);
+			ethosn_delegate_to_ns(core->addr);
+		}
 		SMC_RET1(handle, ETHOSN_SUCCESS);
 	default:
 		WARN("ETHOSN: Unimplemented SMC call: 0x%x\n", fid);
