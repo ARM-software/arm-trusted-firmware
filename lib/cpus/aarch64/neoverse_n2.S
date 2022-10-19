@@ -429,6 +429,10 @@ func neoverse_n2_reset_func
 	orr	x0, x0, #NEOVERSE_N2_CPUACTLR2_EL1_BIT_2
 	msr	NEOVERSE_N2_CPUACTLR2_EL1, x0
 
+	/* Get the CPU revision and stash it in x18. */
+	bl	cpu_get_rev_var
+	mov	x18, x0
+
 #if ERRATA_DSU_2313941
 	bl	errata_dsu_2313941_wa
 #endif
@@ -509,9 +513,6 @@ func neoverse_n2_reset_func
 	orr	x0, x0, NEOVERSE_N2_CPUECTLR_EL1_EXTLLC_BIT
 	msr	NEOVERSE_N2_CPUECTLR_EL1, x0
 #endif
-
-	bl	cpu_get_rev_var
-	mov	x18, x0
 
 #if ERRATA_N2_2002655
 	mov	x0, x18
