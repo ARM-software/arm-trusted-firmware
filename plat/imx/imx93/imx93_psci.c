@@ -242,6 +242,8 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	imx_set_cpu_boot_entry(0, sec_entrypoint);
 
 	pwr_sys_init();
+	nicmix_qos_init();
+	wakeupmix_qos_init();
 
 	*psci_ops = &imx_plat_psci_ops;
 

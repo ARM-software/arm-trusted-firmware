@@ -230,6 +230,8 @@ static inline void src_ack_cnt_mode(unsigned int mix, uint8_t mode)
 /*******************************************************************************
  * Other definitions & declarations
  ******************************************************************************/
+void nicmix_qos_init(void);
+void wakeupmix_qos_init(void);
 void pwr_sys_init(void);
 
 #endif /* PWR_CTRL_H */

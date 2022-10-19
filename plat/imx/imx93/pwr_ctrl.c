@@ -8,6 +8,41 @@
 #include <platform_def.h>
 #include <pwr_ctrl.h>
 
+/*
+ * NIC GPV QoS register offsets:
+ *   Rd QoS = base + 0x100, Wr QoS = base + 0x104
+ */
+#define NIC_GPV_QOS_RD(port)	((port) + U(0x100))
+#define NIC_GPV_QOS_WR(port)	((port) + U(0x104))
+
+void nicmix_qos_init(void)
+{
+	mmio_write_32(AIPS4_BASE + 0x10, 0x44);
+	mmio_write_32(AIPS4_BASE + 0x14, 0x330033);
+	mmio_write_32(AIPS4_BASE + 0x18, 0x330033);
+	mmio_write_32(AIPS4_BASE + 0x1c, 0x330033);
+	mmio_write_32(AIPS4_BASE + 0x20, 0x440044);
+}
+
+void wakeupmix_qos_init(void)
+{
+	static const uintptr_t wakeup_gpv_ports[] = {
+		AIPS3_BASE + U(0x46000),
+		AIPS3_BASE + U(0x47000),
+		AIPS3_BASE + U(0x42000),
+		AIPS3_BASE + U(0x43000),
+		AIPS3_BASE + U(0x45000),
+		NIC_MAIN_GPV_BASE + U(0x47000),
+		NIC_MAIN_GPV_BASE + U(0x45000),
+	};
+	unsigned int i;
+
+	for (i = 0U; i < ARRAY_SIZE(wakeup_gpv_ports); i++) {
+		mmio_write_32(NIC_GPV_QOS_RD(wakeup_gpv_ports[i]), 0x4);
+		mmio_write_32(NIC_GPV_QOS_WR(wakeup_gpv_ports[i]), 0x4);
+	}
+}
+
 /*Do the necessary GPC, SRC, BLK_CTRL_S init */
 void pwr_sys_init(void)
 {
