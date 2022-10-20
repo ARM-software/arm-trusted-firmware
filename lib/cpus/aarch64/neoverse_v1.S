@@ -508,8 +508,8 @@ func neoverse_v1_errata_report
 	report_errata ERRATA_V1_1925756, neoverse_v1, 1925756
 	report_errata ERRATA_V1_1940577, neoverse_v1, 1940577
 	report_errata ERRATA_V1_1966096, neoverse_v1, 1966096
-	report_errata ERRATA_V1_2139242, neoverse_v1, 2139242
 	report_errata ERRATA_V1_2108267, neoverse_v1, 2108267
+	report_errata ERRATA_V1_2139242, neoverse_v1, 2139242
 	report_errata ERRATA_V1_2216392, neoverse_v1, 2216392
 	report_errata ERRATA_V1_2294912, neoverse_v1, 2294912
 	report_errata ERRATA_V1_2372203, neoverse_v1, 2372203
@@ -526,6 +526,10 @@ func neoverse_v1_reset_func
 	/* Disable speculative loads */
 	msr	SSBS, xzr
 	isb
+
+	/* Get the CPU revision and stash it in x18. */
+	bl	cpu_get_rev_var
+	mov	x18, x0
 
 #if ERRATA_V1_1618635
 	mov x0, x18
