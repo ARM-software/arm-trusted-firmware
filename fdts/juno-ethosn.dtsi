@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /*
- * For examples of multi-core and multi-device NPU, refer to the examples given in the
- * Arm Ethos-N NPU driver stack.
+ * This device tree is only an example and some properties have been omitted.
+ *
+ * Refer to the Arm(R) Ethos(TM)-N driver stack for complete device tree examples.
  * https://github.com/ARM-software/ethos-n-driver-stack
  */
 
@@ -14,14 +15,62 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-	ethosn0: ethosn@6f300000 {
-		compatible = "ethosn";
-		reg = <0 0x6f300000 0 0x00100000>;
+	smmu_ethosn0: iommu@6f400000 {
+		compatible = "arm,smmu-v3";
+		reg = <0 0x6f400000 0 0x80000>;
 		status = "okay";
-
-		core0 {
-			compatible = "ethosn-core";
-			status = "okay";
-		};
+		/* msi-parent omitted */
+		#iommu-cells = <0x1>;
 	};
+
+	ethosn0: ethosn@6f300000 {
+		 compatible = "ethosn";
+		 reg = <0 0x6f300000 0 0x00100000>;
+		 status = "okay";
+
+		 core0 {
+			 compatible = "ethosn-core";
+			 status = "okay";
+
+			 main_allocator {
+				 compatible = "ethosn-main_allocator";
+				 status = "okay";
+
+				 firmware {
+					 compatible = "ethosn-memory";
+					 iommus = <&smmu_ethosn0 0>;
+				 };
+
+				 working_data {
+					 compatible = "ethosn-memory";
+					 iommus = <&smmu_ethosn0 1>;
+				 };
+			 };
+		 };
+
+		 asset_allocator {
+			 compatible = "ethosn-asset_allocator";
+			 status = "okay";
+
+			 command_stream {
+				 compatible = "ethosn-memory";
+				 iommus = <&smmu_ethosn0 2>;
+			 };
+
+			 weight_data {
+				 compatible = "ethosn-memory";
+				 iommus = <&smmu_ethosn0 3>;
+			 };
+
+			 buffer_data {
+				 compatible = "ethosn-memory";
+				 iommus = <&smmu_ethosn0 4>;
+			 };
+
+			 intermediate_data {
+				 compatible = "ethosn-memory";
+				 iommus = <&smmu_ethosn0 5>;
+			 };
+		 };
+	 };
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,18 +12,17 @@
 #include <drivers/arm/ethosn.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
+#include <lib/utils_def.h>
 #include <plat/arm/common/fconf_ethosn_getter.h>
 
 /*
- * Number of Arm Ethos-N NPU (NPU) cores available for a
- * particular parent device
+ * Number of Arm(R) Ethos(TM)-N NPU (NPU) devices available
  */
-#define ETHOSN_NUM_CORES \
-	FCONF_GET_PROPERTY(hw_config, ethosn_config, num_cores)
+#define ETHOSN_NUM_DEVICES \
+	FCONF_GET_PROPERTY(hw_config, ethosn_config, num_devices)
 
-/* Address to an NPU core  */
-#define ETHOSN_CORE_ADDR(core_idx) \
-	FCONF_GET_PROPERTY(hw_config, ethosn_core_addr, core_idx)
+#define ETHOSN_GET_DEVICE(dev_idx) \
+	FCONF_GET_PROPERTY(hw_config, ethosn_device, dev_idx)
 
 /* NPU core sec registry address */
 #define ETHOSN_CORE_SEC_REG(core_addr, reg_offset) \
@@ -40,9 +39,6 @@
 #define SEC_SECCTLR_REG			U(0x0010)
 #define SEC_SECCTLR_VAL			U(0x3)
 
-#define SEC_DEL_MMUSID_REG		U(0x2008)
-#define SEC_DEL_MMUSID_VAL		U(0x3FFFF)
-
 #define SEC_DEL_ADDR_EXT_REG		U(0x201C)
 #define SEC_DEL_ADDR_EXT_VAL		U(0x15)
 
@@ -50,15 +46,61 @@
 #define SEC_SYSCTRL0_SOFT_RESET		U(3U << 29)
 #define SEC_SYSCTRL0_HARD_RESET		U(1U << 31)
 
-static bool ethosn_is_core_addr_valid(uintptr_t core_addr)
+#define SEC_MMUSID_REG_BASE		U(0x3008)
+#define SEC_MMUSID_OFFSET		U(0x1000)
+
+static bool ethosn_get_device_and_core(uintptr_t core_addr,
+				       const struct ethosn_device_t **dev_match,
+				       const struct ethosn_core_t **core_match)
 {
-	for (uint32_t core_idx = 0U; core_idx < ETHOSN_NUM_CORES; core_idx++) {
-		if (ETHOSN_CORE_ADDR(core_idx) == core_addr) {
-			return true;
+	uint32_t dev_idx;
+	uint32_t core_idx;
+
+	for (dev_idx = 0U; dev_idx < ETHOSN_NUM_DEVICES; ++dev_idx) {
+		const struct ethosn_device_t *dev = ETHOSN_GET_DEVICE(dev_idx);
+
+		for (core_idx = 0U; core_idx < dev->num_cores; ++core_idx) {
+			const struct ethosn_core_t *core = &(dev->cores[core_idx]);
+
+			if (core->addr == core_addr) {
+				*dev_match = dev;
+				*core_match = core;
+				return true;
+			}
 		}
 	}
 
+	WARN("ETHOSN: Unknown core address given to SMC call.\n");
 	return false;
+}
+
+static void ethosn_configure_smmu_streams(const struct ethosn_device_t *device,
+					  const struct ethosn_core_t *core,
+					  uint32_t asset_alloc_idx)
+{
+	const struct ethosn_main_allocator_t *main_alloc =
+		&(core->main_allocator);
+	const struct ethosn_asset_allocator_t *asset_alloc =
+		&(device->asset_allocators[asset_alloc_idx]);
+	const uint32_t streams[9] = {
+		main_alloc->firmware.stream_id,
+		main_alloc->working_data.stream_id,
+		asset_alloc->command_stream.stream_id,
+		0U, /* Not used*/
+		main_alloc->firmware.stream_id,
+		asset_alloc->weight_data.stream_id,
+		asset_alloc->buffer_data.stream_id,
+		asset_alloc->intermediate_data.stream_id,
+		asset_alloc->buffer_data.stream_id
+	};
+	size_t i;
+
+	for (i = 0U; i < ARRAY_SIZE(streams); ++i) {
+		const uintptr_t reg_addr = SEC_MMUSID_REG_BASE +
+			(SEC_MMUSID_OFFSET * i);
+		mmio_write_32(ETHOSN_CORE_SEC_REG(core->addr, reg_addr),
+			      streams[i]);
+	}
 }
 
 static void ethosn_delegate_to_ns(uintptr_t core_addr)
@@ -68,9 +110,6 @@ static void ethosn_delegate_to_ns(uintptr_t core_addr)
 
 	mmio_setbits_32(ETHOSN_CORE_SEC_REG(core_addr, SEC_DEL_REG),
 			SEC_DEL_VAL);
-
-	mmio_setbits_32(ETHOSN_CORE_SEC_REG(core_addr, SEC_DEL_MMUSID_REG),
-			SEC_DEL_MMUSID_VAL);
 
 	mmio_setbits_32(ETHOSN_CORE_SEC_REG(core_addr, SEC_DEL_ADDR_EXT_REG),
 			SEC_DEL_ADDR_EXT_VAL);
@@ -112,7 +151,7 @@ static bool ethosn_reset(uintptr_t core_addr, int hard_reset)
 
 uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			     u_register_t core_addr,
-			     u_register_t x2,
+			     u_register_t asset_alloc_idx,
 			     u_register_t x3,
 			     u_register_t x4,
 			     void *cookie,
@@ -120,6 +159,8 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			     u_register_t flags)
 {
 	int hard_reset = 0;
+	const struct ethosn_device_t *device = NULL;
+	const struct ethosn_core_t *core = NULL;
 	const uint32_t fid = smc_fid & FUNCID_NUM_MASK;
 
 	/* Only SiP fast calls are expected */
@@ -131,12 +172,14 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 	/* Truncate parameters to 32-bits for SMC32 */
 	if (GET_SMC_CC(smc_fid) == SMC_32) {
 		core_addr &= 0xFFFFFFFF;
-		x2 &= 0xFFFFFFFF;
+		asset_alloc_idx &= 0xFFFFFFFF;
 		x3 &= 0xFFFFFFFF;
 		x4 &= 0xFFFFFFFF;
 	}
 
-	if (!is_ethosn_fid(smc_fid)) {
+	if (!is_ethosn_fid(smc_fid) ||
+	    (fid < ETHOSN_FNUM_VERSION || fid > ETHOSN_FNUM_SOFT_RESET)) {
+		WARN("ETHOSN: Unknown SMC call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
 
@@ -146,25 +189,41 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 		SMC_RET2(handle, ETHOSN_VERSION_MAJOR, ETHOSN_VERSION_MINOR);
 	}
 
-	if (!ethosn_is_core_addr_valid(core_addr)) {
-		WARN("ETHOSN: Unknown core address given to SMC call.\n");
+	if (!ethosn_get_device_and_core(core_addr, &device, &core))  {
 		SMC_RET1(handle, ETHOSN_UNKNOWN_CORE_ADDRESS);
 	}
 
-	/* Commands that require a valid addr */
+	/* Commands that require a valid core address */
 	switch (fid) {
 	case ETHOSN_FNUM_IS_SEC:
-		SMC_RET1(handle, ethosn_is_sec(core_addr));
+		SMC_RET1(handle, ethosn_is_sec(core->addr));
+	}
+
+	if (!device->has_reserved_memory &&
+	    asset_alloc_idx >= device->num_allocators) {
+		WARN("ETHOSN: Unknown asset allocator index given to SMC call.\n");
+		SMC_RET1(handle, ETHOSN_UNKNOWN_ALLOCATOR_IDX);
+	}
+
+	/* Commands that require a valid device, core and asset allocator */
+	switch (fid) {
 	case ETHOSN_FNUM_HARD_RESET:
 		hard_reset = 1;
 		/* Fallthrough */
 	case ETHOSN_FNUM_SOFT_RESET:
-		if (!ethosn_reset(core_addr, hard_reset)) {
+		if (!ethosn_reset(core->addr, hard_reset)) {
 			SMC_RET1(handle, ETHOSN_FAILURE);
 		}
-		ethosn_delegate_to_ns(core_addr);
+
+		if (!device->has_reserved_memory) {
+			ethosn_configure_smmu_streams(device, core,
+						      asset_alloc_idx);
+		}
+
+		ethosn_delegate_to_ns(core->addr);
 		SMC_RET1(handle, ETHOSN_SUCCESS);
 	default:
+		WARN("ETHOSN: Unimplemented SMC call: 0x%x\n", fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
 }

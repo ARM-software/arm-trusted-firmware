@@ -114,7 +114,7 @@ ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
   endif
 endif
 
-# Arm Ethos-N NPU SiP service
+# Arm(R) Ethos(TM)-N NPU SiP service
 ARM_ETHOSN_NPU_DRIVER			:=	0
 $(eval $(call assert_boolean,ARM_ETHOSN_NPU_DRIVER))
 $(eval $(call add_define,ARM_ETHOSN_NPU_DRIVER))
