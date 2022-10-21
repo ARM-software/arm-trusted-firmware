@@ -68,3 +68,46 @@ When setting MEASURED_BOOT=1 on imx8mm we can let TF-A generate event logs
 with a DTB overlay. The overlay will be put at PLAT_IMX8M_DTO_BASE with
 maximum size PLAT_IMX8M_DTO_MAX_SIZE. Then in U-boot we can apply the DTB
 overlay and let U-boot to parse the event log and update the PCRs.
+
+High Assurance Boot (HABv4)
+---------------------------
+
+All actively maintained platforms have a support for High Assurance
+Boot (HABv4), which is implemented via ROM Vector Table (RVT) API to
+extend the Root-of-Trust beyond the SPL. Those calls are done via SMC
+and are executed in EL3, with results returned back to original caller.
+
+Note on DRAM Memory Mapping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a special case of mapping the DRAM: entire DRAM available on the
+platform is mapped into the EL3 with MT_RW attributes.
+
+Mapping the entire DRAM allows the usage of 2MB block mapping in Level-2
+Translation Table entries, which use less Page Table Entries (PTEs). If
+Level-3 PTE mapping is used instead then additional PTEs would be required,
+which leads to the increase of translation table size.
+
+Due to the fact that the size of SRAM is limited on some platforms in the
+family it should rather be avoided creating additional Level-3 mapping and
+introduce more PTEs, hence the implementation uses Level-2 mapping which
+maps entire DRAM space.
+
+The reason for the MT_RW attribute mapping scheme is the fact that the SMC
+API to get the status and events is called from NS world passing destination
+pointers which are located in DRAM. Mapping DRAM without MT_RW permissions
+causes those locations not to be filled, which in turn causing EL1&0 software
+not to receive replies.
+
+Therefore, DRAM mapping is done with MT_RW attributes, as it is required for
+data exchange between EL3 and EL1&0 software.
+
+Reference Documentation
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Details on HABv4 usage and implementation could be found in following documents:
+
+- AN4581: "i.MX Secure Boot on HABv4 Supported Devices",  Rev. 4 - June 2020
+- AN12263: "HABv4 RVT Guidelines and Recommendations", Rev. 1 - 06/2020
+- "HABv4 API Reference Manual". This document in the part of NXP Code Signing Tool (CST) distribution.
+
