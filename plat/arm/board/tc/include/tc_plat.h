@@ -9,4 +9,8 @@
 
 void tc_bl31_common_platform_setup(void);
 
+#ifdef PLATFORM_TEST
+void run_platform_tests(void);
+#endif
+
 #endif /* TC_PLAT_H */
