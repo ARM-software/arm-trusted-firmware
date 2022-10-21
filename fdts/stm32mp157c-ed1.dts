@@ -176,17 +176,6 @@
 				regulator-active-discharge = <1>;
 			};
 		};
-
-		onkey {
-			compatible = "st,stpmic1-onkey";
-			power-off-time-sec = <10>;
-			status = "okay";
-		};
-
-		watchdog {
-			compatible = "st,stpmic1-wdt";
-			status = "disabled";
-		};
 	};
 };
 
