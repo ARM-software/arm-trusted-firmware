@@ -73,6 +73,16 @@ static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 	#endif
 };
 
+static scmi_channel_plat_info_t plat3_rd_scmi_info[] = {
+	{
+		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
+		.db_reg_addr = PLAT_CSS_MHU_BASE + MHU_V3_SENDER_REG_SET(0),
+		.db_preserve_mask = 0xfffffffe,
+		.db_modify_mask = 0x1,
+		.ring_doorbell = &mhu_ring_doorbell,
+	},
+};
+
 scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 {
 	if (nrd_plat_info.platform_id == RD_N1E1_EDGE_SID_VER_PART_NUM ||
@@ -85,6 +95,12 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 			panic();
 		}
 		return &plat_rd_scmi_info[channel_id];
+	} else if (nrd_plat_info.platform_id == RD_FREMONT_SID_VER_PART_NUM ||
+		nrd_plat_info.platform_id == RD_FREMONT_CFG1_SID_VER_PART_NUM) {
+		if (channel_id >= ARRAY_SIZE(plat3_rd_scmi_info)) {
+			panic();
+		}
+		return &plat3_rd_scmi_info[channel_id];
 	} else if (nrd_plat_info.platform_id == SGI575_SSC_VER_PART_NUM) {
 		return &sgi575_scmi_plat_info;
 	} else {
