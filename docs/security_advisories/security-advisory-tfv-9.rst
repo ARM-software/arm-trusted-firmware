@@ -71,11 +71,11 @@ revisions of Cortex-A73 and Cortex-A75 that implements FEAT_CSV2).
 +----------------------+
 | Cortex-X2            |
 +----------------------+
+| Cortex-X3            |
++----------------------+
 | Cortex-A710          |
 +----------------------+
 | Cortex-Makalu        |
-+----------------------+
-| Cortex-Makalu-ELP    |
 +----------------------+
 | Cortex-Hunter        |
 +----------------------+
