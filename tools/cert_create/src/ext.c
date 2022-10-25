@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -315,3 +315,20 @@ ext_t *ext_get_by_opt(const char *opt)
 
 	return NULL;
 }
+
+void ext_cleanup(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < num_extensions; i++) {
+		if (extensions[i].arg != NULL) {
+			void *ptr = (void *)extensions[i].arg;
+
+			extensions[i].arg = NULL;
+			free(ptr);
+		}
+	}
+	free(extensions);
+	X509V3_EXT_cleanup();
+}
+

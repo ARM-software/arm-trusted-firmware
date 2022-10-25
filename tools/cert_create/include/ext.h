@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -72,6 +72,7 @@ X509_EXTENSION *ext_new_hash(int nid, int crit, const EVP_MD *md,
 		unsigned char *buf, size_t len);
 X509_EXTENSION *ext_new_nvcounter(int nid, int crit, int value);
 X509_EXTENSION *ext_new_key(int nid, int crit, EVP_PKEY *k);
+void ext_cleanup(void);
 
 /* Macro to register the extensions used in the CoT */
 #define REGISTER_EXTENSIONS(_ext) \

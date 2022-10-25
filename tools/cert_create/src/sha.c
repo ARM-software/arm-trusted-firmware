@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,11 +7,16 @@
 #include <stdio.h>
 #include "debug.h"
 #include "key.h"
+#if USING_OPENSSL3
 #include <openssl/evp.h>
 #include <openssl/obj_mac.h>
+#else
+#include <openssl/sha.h>
+#endif
 
 #define BUFFER_SIZE	256
 
+#if USING_OPENSSL3
 static int get_algorithm_nid(int hash_alg)
 {
 	int nids[] = {NID_sha256, NID_sha384, NID_sha512};
@@ -20,16 +25,22 @@ static int get_algorithm_nid(int hash_alg)
 	}
 	return nids[hash_alg];
 }
+#endif
 
 int sha_file(int md_alg, const char *filename, unsigned char *md)
 {
 	FILE *inFile;
+	int bytes;
+	unsigned char data[BUFFER_SIZE];
+#if USING_OPENSSL3
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md_type;
-	int bytes;
 	int alg_nid;
 	unsigned int total_bytes;
-	unsigned char data[BUFFER_SIZE];
+#else
+	SHA256_CTX shaContext;
+	SHA512_CTX sha512Context;
+#endif
 
 	if ((filename == NULL) || (md == NULL)) {
 		ERROR("%s(): NULL argument\n", __func__);
@@ -41,6 +52,8 @@ int sha_file(int md_alg, const char *filename, unsigned char *md)
 		ERROR("Cannot read %s\n", filename);
 		return 0;
 	}
+
+#if USING_OPENSSL3
 
 	mdctx = EVP_MD_CTX_new();
 	if (mdctx == NULL) {
@@ -74,5 +87,32 @@ err:
 	fclose(inFile);
 	EVP_MD_CTX_free(mdctx);
 	return 0;
+
+#else
+
+	if (md_alg == HASH_ALG_SHA384) {
+		SHA384_Init(&sha512Context);
+		while ((bytes = fread(data, 1, BUFFER_SIZE, inFile)) != 0) {
+			SHA384_Update(&sha512Context, data, bytes);
+		}
+		SHA384_Final(md, &sha512Context);
+	} else if (md_alg == HASH_ALG_SHA512) {
+		SHA512_Init(&sha512Context);
+		while ((bytes = fread(data, 1, BUFFER_SIZE, inFile)) != 0) {
+			SHA512_Update(&sha512Context, data, bytes);
+		}
+		SHA512_Final(md, &sha512Context);
+	} else {
+		SHA256_Init(&shaContext);
+		while ((bytes = fread(data, 1, BUFFER_SIZE, inFile)) != 0) {
+			SHA256_Update(&shaContext, data, bytes);
+		}
+		SHA256_Final(md, &shaContext);
+	}
+
+	fclose(inFile);
+	return 1;
+
+#endif
 }
 

@@ -419,7 +419,7 @@ RAS_TRAP_NS_ERR_REC_ACCESS	:= 0
 # Build option to create cot descriptors using fconf
 COT_DESC_IN_DTB			:= 0
 
-# Build option to provide openssl directory path
+# Build option to provide OpenSSL directory path
 OPENSSL_DIR			:= /usr
 
 # Select the openssl binary provided in OPENSSL_DIR variable

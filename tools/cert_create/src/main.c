@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -430,10 +430,12 @@ int main(int argc, char *argv[])
 
 	/* Load private keys from files (or generate new ones) */
 	for (i = 0 ; i < num_keys ; i++) {
+#if !USING_OPENSSL3
 		if (!key_new(&keys[i])) {
 			ERROR("Failed to allocate key container\n");
 			exit(1);
 		}
+#endif
 
 		/* First try to load the key from disk */
 		if (key_load(&keys[i], &err_code)) {
@@ -594,9 +596,7 @@ int main(int argc, char *argv[])
 	/* If we got here, then we must have filled the key array completely.
 	 * We can then safely call free on all of the keys in the array
 	 */
-	for (i = 0; i < num_keys; i++) {
-		EVP_PKEY_free(keys[i].key);
-	}
+	key_cleanup();
 
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_cleanup();
@@ -605,30 +605,10 @@ int main(int argc, char *argv[])
 
 
 	/* We allocated strings through strdup, so now we have to free them */
-	for (i = 0; i < num_keys; i++) {
-		if (keys[i].fn != NULL) {
-			void *ptr = keys[i].fn;
 
-			keys[i].fn = NULL;
-			free(ptr);
-		}
-	}
-	for (i = 0; i < num_extensions; i++) {
-		if (extensions[i].arg != NULL) {
-			void *ptr = (void *)extensions[i].arg;
+	ext_cleanup();
 
-			extensions[i].arg = NULL;
-			free(ptr);
-		}
-	}
-	for (i = 0; i < num_certs; i++) {
-		if (certs[i].fn != NULL) {
-			void *ptr = (void *)certs[i].fn;
-
-			certs[i].fn = NULL;
-			free(ptr);
-		}
-	}
+	cert_cleanup();
 
 	return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,7 +39,11 @@ int rand_serial(BIGNUM *b, ASN1_INTEGER *ai)
 	if (!btmp)
 		return 0;
 
+#if USING_OPENSSL3
 	if (!BN_rand(btmp, SERIAL_RAND_BITS, 0, 0))
+#else
+	if (!BN_pseudo_rand(btmp, SERIAL_RAND_BITS, 0, 0))
+#endif
 		goto error;
 	if (ai && !BN_to_ASN1_INTEGER(btmp, ai))
 		goto error;
@@ -272,3 +276,19 @@ cert_t *cert_get_by_opt(const char *opt)
 
 	return NULL;
 }
+
+void cert_cleanup(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < num_certs; i++) {
+		if (certs[i].fn != NULL) {
+			void *ptr = (void *)certs[i].fn;
+
+			certs[i].fn = NULL;
+			free(ptr);
+		}
+	}
+	free(certs);
+}
+

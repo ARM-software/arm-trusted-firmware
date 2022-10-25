@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -236,6 +236,20 @@ endif
 .PHONY: check_$(1)
 check_$(1):
 	$(check_$(1)_cmd)
+endef
+
+# SELECT_OPENSSL_API_VERSION selects the OpenSSL API version to be used to
+# build the host tools by checking the version of OpenSSL located under
+# the path defined by the OPENSSL_DIR variable. It receives no parameters.
+define SELECT_OPENSSL_API_VERSION
+    # Set default value for USING_OPENSSL3 macro to 0
+    $(eval USING_OPENSSL3 = 0)
+    # Obtain the OpenSSL version for the build located under OPENSSL_DIR
+    $(eval OPENSSL_INFO := $(shell LD_LIBRARY_PATH=${OPENSSL_DIR}:${OPENSSL_DIR}/lib ${OPENSSL_BIN_PATH}/openssl version))
+    $(eval OPENSSL_CURRENT_VER = $(word 2, ${OPENSSL_INFO}))
+    $(eval OPENSSL_CURRENT_VER_MAJOR = $(firstword $(subst ., ,$(OPENSSL_CURRENT_VER))))
+    # If OpenSSL version is 3.x, then set USING_OPENSSL3 flag to 1
+    $(if $(filter 3,$(OPENSSL_CURRENT_VER_MAJOR)), $(eval USING_OPENSSL3 = 1))
 endef
 
 ################################################################################
