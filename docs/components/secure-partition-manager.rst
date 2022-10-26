@@ -1029,6 +1029,68 @@ permits SPMD to SPMC communication and either way.
 
 This is used in particular to convey power management messages.
 
+Memory Sharing
+--------------
+
+Hafnium implements the following memory sharing interfaces:
+
+ - ``FFA_MEM_SHARE`` - for shared access between lender and borrower.
+ - ``FFA_MEM_LEND`` - borrower to obtain exclusive access, though lender
+   retains ownership of the memory.
+ - ``FFA_MEM_DONATE`` - lender permanently relinquishes ownership of memory
+   to the borrower.
+
+The ``FFA_MEM_RETRIEVE_REQ`` interface is for the borrower to request the
+memory to be mapped into its address space: for S-EL1 partitions the SPM updates
+their stage 2 translation regime; for S-EL0 partitions the SPM updates their
+stage 1 translation regime. On a successful call, the SPMC responds back with
+``FFA_MEM_RETRIEVE_RESP``.
+
+The ``FFA_MEM_RELINQUISH`` interface is for when the borrower is done with using
+a memory region.
+
+The ``FFA_MEM_RECLAIM`` interface is for the owner of the memory to reestablish
+its ownership and exclusive access to the memory shared.
+
+The memory transaction descriptors are transmitted via RX/TX buffers. In
+situations where the size of the memory transaction descriptor exceeds the
+size of the RX/TX buffers, Hafnium provides support for fragmented transmission
+of the full transaction descriptor. The ``FFA_MEM_FRAG_RX`` and ``FFA_MEM_FRAG_TX``
+interfaces are for receiving and transmitting the next fragment, respectively.
+
+If lender and borrower(s) are SPs, all memory sharing operations are supported.
+
+Hafnium also supports memory sharing operations between the normal world and the
+secure world. If there is an SP involved, the SPMC allocates data to track the
+state of the operation.
+
+The SPMC is also the designated allocator for the memory handle. The hypervisor
+or OS kernel has the possibility to rely on the SPMC to maintain the state
+of the operation, thus saving memory.
+A lender SP can only donate NS memory to a borrower from the normal world.
+
+The SPMC supports the hypervisor retrieve request, as defined by the FF-A
+v1.1 EAC0 specification, in section 16.4.3. The intent is to aid with operations
+that the hypervisor must do for a VM retriever. For example, when handling
+an FFA_MEM_RECLAIM, if the hypervisor relies on SPMC to keep the state
+of the operation, the hypervisor retrieve request can be used to obtain
+that state information, do the necessary validations, and update stage 2
+memory translation.
+
+Hafnium also supports memory lend and share targetting multiple borrowers.
+This is the case for a lender SP to multiple SPs, and for a lender VM to
+multiple endpoints (from both secure world and normal world). If there is
+at least one borrower VM, the hypervisor is in charge of managing its
+stage 2 translation on a successful memory retrieve.
+The semantics of ``FFA_MEM_DONATE`` implies ownership transmission,
+which should target only one partition.
+
+The memory share interfaces are backwards compatible with memory transaction
+descriptors from FF-A v1.0. These get translated to FF-A v1.1 descriptors for
+Hafnium's internal processing of the operation. If the FF-A version of a
+borrower is v1.0, Hafnium provides FF-A v1.0 compliant memory transaction
+descriptors on memory retrieve response.
+
 PE MMU configuration
 --------------------
 
