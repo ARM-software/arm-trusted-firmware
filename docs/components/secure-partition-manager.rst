@@ -794,6 +794,8 @@ As part of the FF-A v1.1 support, the following interfaces were added:
  - ``FFA_SECONDARY_EP_REGISTER``
  - ``FFA_MEM_PERM_GET``
  - ``FFA_MEM_PERM_SET``
+ - ``FFA_MSG_SEND2``
+ - ``FFA_RX_ACQUIRE``
 
 FFA_VERSION
 ~~~~~~~~~~~
@@ -827,7 +829,11 @@ regime as secure buffers in the MMU descriptors.
 
 When invoked from the Hypervisor or OS kernel, the buffers are mapped into the
 SPMC EL2 Stage-1 translation regime and marked as NS buffers in the MMU
-descriptors.
+descriptors. The provided addresses may be owned by a VM in the normal world,
+which is expected to receive messages from the secure world. The SPMC will in
+this case allocate internal state structures to facilitate RX buffer access
+synchronization (through FFA_RX_ACQUIRE interface), and to permit SPs to send
+messages.
 
 The FFA_RXTX_UNMAP unmaps the RX/TX pair from the translation regime of the
 caller, either it being the Hypervisor or OS kernel, as well as a secure
@@ -968,6 +974,53 @@ secondary execution contexts.
 
 A secondary EC is first resumed either upon invocation of PSCI_CPU_ON from
 the NWd or by invocation of FFA_RUN.
+
+FFA_RX_ACQUIRE/FFA_RX_RELEASE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The RX buffers can be used to pass information to an FF-A endpoint in the
+following scenarios:
+
+ - When it was targetted by a FFA_MSG_SEND2 invokation from another endpoint.
+ - Return the result of calling ``FFA_PARTITION_INFO_GET``.
+ - In a memory share operation, as part of the ``FFA_MEM_RETRIEVE_RESP``,
+   with the memory descriptor of the shared memory.
+
+If a normal world VM is expected to exchange messages with secure world,
+its RX/TX buffer addresses are forwarded to the SPMC via FFA_RXTX_MAP ABI,
+and are from this moment owned by the SPMC.
+The hypervisor must call the FFA_RX_ACQUIRE interface before attempting
+to use the RX buffer, in any of the aforementioned scenarios. A successful
+call to FFA_RX_ACQUIRE transfers ownership of RX buffer to hypervisor, such
+that it can be safely used.
+
+The FFA_RX_RELEASE interface is used after the FF-A endpoint is done with
+processing the data received in its RX buffer. If the RX buffer has been
+acquired by the hypervisor, the FFA_RX_RELEASE call must be forwarded to
+the SPMC to reestablish SPMC's RX ownership.
+
+An attempt from an SP to send a message to a normal world VM whose RX buffer
+was acquired by the hypervisor fails with error code FFA_BUSY, to preserve
+the RX buffer integrity.
+The operation could then be conducted after FFA_RX_RELEASE.
+
+FFA_MSG_SEND2
+~~~~~~~~~~~~~
+
+Hafnium copies a message from the sender TX buffer into receiver's RX buffer.
+For messages from SPs to VMs, operation is only possible if the SPMC owns
+the receiver's RX buffer.
+
+Both receiver and sender need to enable support for indirect messaging,
+in their respective partition manifest. The discovery of support
+of such feature can be done via FFA_PARTITION_INFO_GET.
+
+On a successful message send, Hafnium pends an RX buffer full framework
+notification for the receiver, to inform it about a message in the RX buffer.
+
+The handling of framework notifications is similar to that of
+global notifications. Binding of these is not necessary, as these are
+reserved to be used by the hypervisor or SPMC.
 
 SPMC-SPMD direct requests/responses
 -----------------------------------
