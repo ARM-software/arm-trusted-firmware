@@ -228,6 +228,12 @@ struct ffa_partition_info_v1_1 {
 	uint32_t uuid[4];
 };
 
+/* FF-A Partition Info Get related macros. */
+#define FFA_PARTITION_INFO_GET_PROPERTIES_V1_0_MASK	U(0x7)
+#define FFA_PARTITION_INFO_GET_EXEC_STATE_SHIFT 	U(8)
+#define FFA_PARTITION_INFO_GET_AARCH32_STATE 		U(0)
+#define FFA_PARTITION_INFO_GET_AARCH64_STATE 		U(1)
+
 /* Reference to power management hooks */
 extern const spd_pm_ops_t spmc_pm;
 
