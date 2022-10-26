@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,7 +74,8 @@
  * Multichip data assertion macros
  */
 /* Set bits from 0 to ((spi_id_max + 1) / 32) */
-#define SPI_BLOCKS_TILL_MAX(spi_id_max)	((1 << (((spi_id_max) + 1) >> 5)) - 1)
+#define SPI_BLOCKS_TILL_MAX(spi_id_max) \
+			((1ULL << (((spi_id_max) + 1) >> 5)) - 1)
 /* Set bits from 0 to (spi_id_min / 32) */
 #define SPI_BLOCKS_TILL_MIN(spi_id_min)	((1 << ((spi_id_min) >> 5)) - 1)
 /* Set bits from (spi_id_min / 32) to ((spi_id_max + 1) / 32) */
