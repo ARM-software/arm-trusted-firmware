@@ -229,8 +229,11 @@ int imx_system_reset2(int is_vendor, int reset_type, u_register_t cookie)
 
 void __dead2 imx_system_off(void)
 {
-	mmio_write_32(IMX_SNVS_BASE + SNVS_LPCR, SNVS_LPCR_SRTC_ENV |
-			SNVS_LPCR_DP_EN | SNVS_LPCR_TOP);
+	uint32_t val;
+
+	val = mmio_read_32(IMX_SNVS_BASE + SNVS_LPCR);
+	val |= SNVS_LPCR_SRTC_ENV | SNVS_LPCR_DP_EN | SNVS_LPCR_TOP;
+	mmio_write_32(IMX_SNVS_BASE + SNVS_LPCR, val);
 
 	while (1)
 		;
