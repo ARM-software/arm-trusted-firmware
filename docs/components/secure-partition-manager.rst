@@ -1374,13 +1374,13 @@ S-EL0 partitions are required by the FF-A specification to be UP endpoints,
 capable of migrating, and the SPMC enforces this requirement. The SPMC allows
 a S-EL0 partition to accept a direct message from secure world and normal world,
 and generate direct responses to them.
+All S-EL0 partitions must use AArch64. AArch32 S-EL0 partitions are not supported.
 
-Memory sharing between and with S-EL0 partitions is supported.
-Indirect messaging, Interrupt handling and Notifications are not supported with
-S-EL0 partitions and is work in progress, planned for future releases.
-All S-EL0 partitions must use AArch64. AArch32 S-EL0 partitions are not
-supported.
+Memory sharing, indirect messaging, and notifications functionality with S-EL0
+partitions is supported.
 
+Interrupt handling is not supported with S-EL0 partitions and is work in
+progress.
 
 References
 ==========
