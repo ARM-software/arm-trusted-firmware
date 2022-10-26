@@ -58,6 +58,7 @@ void sme_enable(cpu_context_t *context)
 	/* Set CPTR_EL3.ESM bit so we can write SMCR_EL3 without trapping. */
 	cptr_el3 = read_cptr_el3();
 	write_cptr_el3(cptr_el3 | ESM_BIT);
+	isb();
 
 	/*
 	 * Set the max LEN value and FA64 bit. This register is set up globally
@@ -73,6 +74,7 @@ void sme_enable(cpu_context_t *context)
 
 	/* Reset CPTR_EL3 value. */
 	write_cptr_el3(cptr_el3);
+	isb();
 
 	/* Enable SVE/FPU in addition to SME. */
 	sve_enable(context);
