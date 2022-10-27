@@ -165,6 +165,8 @@ static void rpi3_pwr_domain_on_finish(const psci_power_state_t *target_state)
 #endif
 }
 
+void __dead2 plat_secondary_cold_boot_setup(void);
+
 static void __dead2 rpi3_pwr_down_wfi(
 		const psci_power_state_t *target_state)
 {
@@ -185,10 +187,8 @@ static void __dead2 rpi3_pwr_down_wfi(
 		isb();
 	}
 
-	write_rmr_el3(RMR_EL3_RR_BIT | RMR_EL3_AA64_BIT);
-
-	while (1)
-		;
+	disable_mmu_el3();
+	plat_secondary_cold_boot_setup(); /* not return */
 }
 
 /*******************************************************************************
