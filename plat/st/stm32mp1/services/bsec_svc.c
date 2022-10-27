@@ -11,6 +11,7 @@
 
 #include <platform_def.h>
 #include <stm32mp1_smc.h>
+#include <stm32mp_svc_setup.h>
 
 #include "bsec_svc.h"
 
