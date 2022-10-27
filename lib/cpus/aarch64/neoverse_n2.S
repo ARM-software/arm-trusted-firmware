@@ -338,6 +338,34 @@ func check_errata_2280757
 	b	cpu_rev_var_ls
 endfunc check_errata_2280757
 
+/* --------------------------------------------------
+ * Errata Workaround for Neoverse N2 Erratum 2326639.
+ * This applies to revision r0p0 of Neoverse N2,
+ * fixed in r0p1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x1, x17
+ * --------------------------------------------------
+ */
+func errata_n2_2326639_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2326639
+	cbz	x0, 1f
+
+	/* Set bit 36 in ACTLR2_EL1 */
+	mrs	x1, NEOVERSE_N2_CPUACTLR2_EL1
+	orr	x1, x1, #NEOVERSE_N2_CPUACTLR2_EL1_BIT_36
+	msr	NEOVERSE_N2_CPUACTLR2_EL1, x1
+1:
+	ret	x17
+endfunc errata_n2_2326639_wa
+
+func check_errata_2326639
+	/* Applies to r0p0, fixed in r0p1 */
+	mov	x1, #0x00
+	b	cpu_rev_var_ls
+endfunc check_errata_2326639
 
 /* --------------------------------------------------
  * Errata Workaround for Neoverse N2 Erratum 2376738.
@@ -533,6 +561,13 @@ func neoverse_n2_reset_func
 endfunc neoverse_n2_reset_func
 
 func neoverse_n2_core_pwr_dwn
+#if ERRATA_N2_2326639
+	mov	x15, x30
+	bl	cpu_get_rev_var
+	bl	errata_n2_2326639_wa
+	mov	x30, x15
+#endif /* ERRATA_N2_2326639 */
+
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * No need to do cache maintenance here.
@@ -569,6 +604,7 @@ func neoverse_n2_errata_report
 	report_errata ERRATA_N2_2138958, neoverse_n2, 2138958
 	report_errata ERRATA_N2_2242400, neoverse_n2, 2242400
 	report_errata ERRATA_N2_2280757, neoverse_n2, 2280757
+	report_errata ERRATA_N2_2326639, neoverse_n2, 2326639
 	report_errata ERRATA_N2_2376738, neoverse_n2, 2376738
 	report_errata ERRATA_N2_2388450, neoverse_n2, 2388450
 	report_errata WORKAROUND_CVE_2022_23960, neoverse_n2, cve_2022_23960
