@@ -8,8 +8,8 @@ Getting Started
 
    prerequisites
    docs-build
-   tools-build
    initial-build
+   tools-build
    build-options
    image-terminology
    porting-guide

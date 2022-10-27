@@ -27,6 +27,10 @@ Toolchain
 target the Armv7-A or Armv8-A architectures:
 
 - GCC >= 11.3.Rel1 (from the `Arm Developer website`_)
+
+   You will need the targets ``arm-none-eabi`` and ``aarch64-none-elf`` for
+   AArch32 and AArch64 builds respectively.
+
 - Clang >= 14.0.0
 - Arm Compiler >= 6.18
 

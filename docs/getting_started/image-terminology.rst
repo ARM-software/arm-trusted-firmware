@@ -4,8 +4,8 @@ Image Terminology
 This page contains the current name, abbreviated name and purpose of the various
 images referred to in the Trusted Firmware project.
 
-General Notes
--------------
+Common Image Features
+---------------------
 
 - Some of the names and abbreviated names have changed to accommodate new
   requirements. The changed names are as backward compatible as possible to
@@ -39,6 +39,15 @@ General Notes
 
 Trusted Firmware Images
 -----------------------
+
+Firmware Image Package: ``FIP``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is a packaging format used by TF-A to package firmware images in a single
+binary. The number and type of images that should be packed in a FIP is
+platform-specific and may include TF-A images and other firmware images
+required by the platform. For example, most platforms require a BL33 image
+which corresponds to the normal world bootloader (e.g. UEFI or U-Boot).
 
 AP Boot ROM: ``AP_BL1``
 ~~~~~~~~~~~~~~~~~~~~~~~
