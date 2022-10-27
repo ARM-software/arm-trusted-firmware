@@ -4,7 +4,6 @@ Design Documents
 .. toctree::
    :maxdepth: 1
    :caption: Contents
-   :numbered:
 
    cmake_framework
    context_mgmt_rework

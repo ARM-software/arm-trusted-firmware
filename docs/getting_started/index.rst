@@ -4,7 +4,6 @@ Getting Started
 .. toctree::
    :maxdepth: 1
    :caption: Contents
-   :numbered:
 
    prerequisites
    docs-build

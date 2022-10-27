@@ -3,7 +3,7 @@ Trusted Firmware-A Documentation
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
+   :numbered:
 
    Home<self>
    about/index

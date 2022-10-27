@@ -4,7 +4,6 @@ Processes & Policies
 .. toctree::
    :maxdepth: 1
    :caption: Contents
-   :numbered:
 
    security
    platform-ports-policy
