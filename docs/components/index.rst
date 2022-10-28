@@ -20,6 +20,7 @@ Components
    romlib-design
    sdei
    secure-partition-manager
+   el3-spmc
    secure-partition-manager-mm
    xlat-tables-lib-v2-design
    cot-binding
