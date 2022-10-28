@@ -1181,8 +1181,15 @@ subsections:
       - title: commitlint
         scope: commitlint
 
+      - title: Compiler runtime libraries
+        scope: compiler-rt
+
       - title: libfdt
         scope: libfdt
 
       - title: Node Package Manager (NPM)
         scope: npm
+
+      - title: zlib
+        scope: zlib
+
