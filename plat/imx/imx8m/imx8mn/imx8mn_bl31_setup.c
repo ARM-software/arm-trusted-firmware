@@ -204,11 +204,7 @@ void bl31_plat_arch_setup(void)
 		{0}
 	};
 
-	mmap_add(bl_regions);
-	mmap_add(imx_mmap);
-
-	init_xlat_tables();
-
+	setup_page_tables(bl_regions, imx_mmap);
 	enable_mmu_el3(0);
 }
 
