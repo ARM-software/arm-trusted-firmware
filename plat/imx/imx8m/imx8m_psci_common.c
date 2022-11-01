@@ -40,7 +40,7 @@ int imx_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 int imx_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned int core_id;
-	uint64_t base_addr = BL31_BASE;
+	uint64_t base_addr = BL31_START;
 
 	core_id = MPIDR_AFFLVL0_VAL(mpidr);
 
@@ -102,7 +102,7 @@ void imx_cpu_standby(plat_local_state_t cpu_state)
 
 void imx_domain_suspend(const psci_power_state_t *target_state)
 {
-	uint64_t base_addr = BL31_BASE;
+	uint64_t base_addr = BL31_START;
 	uint64_t mpidr = read_mpidr_el1();
 	unsigned int core_id = MPIDR_AFFLVL0_VAL(mpidr);
 
