@@ -185,7 +185,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 }
 
 #define MAP_BL31_TOTAL										   \
-	MAP_REGION_FLAT(BL31_BASE, BL31_LIMIT - BL31_BASE, MT_MEMORY | MT_RW | MT_SECURE)
+	MAP_REGION_FLAT(BL31_BASE, BL31_SIZE, MT_MEMORY | MT_RW | MT_SECURE)
 #define MAP_BL31_RO										   \
 	MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE, MT_MEMORY | MT_RO | MT_SECURE)
 #define MAP_COHERENT_MEM									   \
