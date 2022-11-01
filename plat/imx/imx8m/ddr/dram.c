@@ -120,6 +120,7 @@ static uint64_t waiting_dvfs(uint32_t id, uint32_t flags,
 void dram_info_init(unsigned long dram_timing_base)
 {
 	uint32_t ddrc_mstr, current_fsp;
+	unsigned int idx = 0;
 	uint32_t flags = 0;
 	uint32_t rc;
 	unsigned int i;
@@ -144,11 +145,12 @@ void dram_info_init(unsigned long dram_timing_base)
 		if (!dram_info.timing_info->fsp_table[i]) {
 			break;
 		}
+		idx = i;
 	}
 	dram_info.num_fsp = i;
 
 	/* check if has bypass mode support */
-	if (dram_info.timing_info->fsp_table[i-1] < 666) {
+	if (dram_info.timing_info->fsp_table[idx] < 666) {
 		dram_info.bypass_mode = true;
 	} else {
 		dram_info.bypass_mode = false;
