@@ -227,6 +227,30 @@ func check_errata_2356587
 	b	cpu_rev_var_ls
 endfunc check_errata_2356587
 
+	/* -----------------------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #2743100
+	 * This applies to revisions r0p0, r1p0, and r1p1 and is still open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * -----------------------------------------------------------------
+	 */
+func errata_a77_2743100_wa
+	mov	x17, x30
+	bl	check_errata_2743100
+	cbz	x0, 1f
+
+	/* dsb before isb of power down sequence */
+	dsb	sy
+1:
+	ret	x17
+endfunc errata_a77_2743100_wa
+
+func check_errata_2743100
+	/* Applies to r0p0, r1p0, and r1p1 right now */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_2743100
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -330,6 +354,12 @@ func cortex_a77_core_pwr_dwn
 	mrs	x0, CORTEX_A77_CPUPWRCTLR_EL1
 	orr	x0, x0, #CORTEX_A77_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	msr	CORTEX_A77_CPUPWRCTLR_EL1, x0
+#if ERRATA_A77_2743100
+	mov	x15, x30
+	bl	cpu_get_rev_var
+	bl	errata_a77_2743100_wa
+	mov	x30, x15
+#endif /* ERRATA_A77_2743100 */
 	isb
 	ret
 endfunc cortex_a77_core_pwr_dwn
@@ -354,6 +384,7 @@ func cortex_a77_errata_report
 	report_errata ERRATA_A77_1925769, cortex_a77, 1925769
 	report_errata ERRATA_A77_1946167, cortex_a77, 1946167
 	report_errata ERRATA_A77_2356587, cortex_a77, 2356587
+	report_errata ERRATA_A77_2743100, cortex_a77, 2743100
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a77, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
