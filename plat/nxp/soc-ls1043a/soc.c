@@ -21,9 +21,7 @@
 #ifdef POLICY_FUSE_PROVISION
 #include <nxp_gpio.h>
 #endif
-#if TRUSTED_BOARD_BOOT
 #include <nxp_smmu.h>
-#endif
 #include <nxp_timer.h>
 #include <plat_console.h>
 #include <plat_gic.h>
@@ -173,6 +171,12 @@ void soc_early_init(void)
 	 */
 	get_cluster_info(soc_list, ARRAY_SIZE(soc_list), &num_clusters, &cores_per_cluster);
 	plat_ls_interconnect_enter_coherency(num_clusters);
+
+	/*
+	 * Unlock write access for SMMU SMMU_CBn_ACTLR in all Non-secure contexts.
+	 */
+	smmu_cache_unlock(NXP_SMMU_ADDR);
+	INFO("SMMU Cache Unlocking is Configured.\n");
 
 #if TRUSTED_BOARD_BOOT
 	uint32_t mode;
