@@ -17,6 +17,7 @@
 #include <services/arm_arch_svc.h>
 
 #include <platform_def.h>
+#include <qti_map_chipinfo.h>
 #include <qti_plat.h>
 #include <qtiseclib_interface.h>
 
@@ -154,9 +155,22 @@ int qti_mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
  */
 int32_t plat_get_soc_version(void)
 {
-	uint32_t soc_version = (QTI_SOC_VERSION & QTI_SOC_VERSION_MASK);
+	int i = 0;
+	/* Variant other than in mapped g_map_jtag_chipinfo_id variable will have
+	 * default chipinfo id as 0xFFFF
+	 */
+	uint32_t soc_version = (QTI_DEFAULT_CHIPINFO_ID & QTI_SOC_VERSION_MASK);
 	uint32_t jep106az_code = (JEDEC_QTI_BKID << QTI_SOC_CONTINUATION_SHIFT)
 			 | (JEDEC_QTI_MFID << QTI_SOC_IDENTIFICATION_SHIFT);
+	uint32_t jtag_id = mmio_read_32(QTI_JTAG_ID_REG);
+	uint32_t jtag_id_val = (jtag_id >> QTI_JTAG_ID_SHIFT)
+			 & QTI_SOC_VERSION_MASK;
+
+	for (i = 0; i < ARRAY_SIZE(g_map_jtag_chipinfo_id); i++) {
+		if (g_map_jtag_chipinfo_id[i].jtag_id == jtag_id_val)
+			soc_version = g_map_jtag_chipinfo_id[i].chipinfo_id
+			 & QTI_SOC_VERSION_MASK;
+	}
 	return (int32_t)(jep106az_code | (soc_version));
 }
 
