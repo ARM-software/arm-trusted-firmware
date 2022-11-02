@@ -527,6 +527,15 @@ Arm Total Compute platform port
 :|G|: `rupsin01`_
 :|F|: plat/arm/board/tc
 
+Aspeed platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Chia-Wei Wang <chiawei_wang@aspeedtech.com>
+:|G|: `ChiaweiW`_
+:|M|: Neal Liu <neal_liu@aspeedtech.com>
+:|G|: `Neal-liu`_
+:|F|: docs/plat/ast2700.rst
+:|F|: plat/aspeed/
+
 HiSilicon HiKey and HiKey960 platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Haojian Zhuang <haojian.zhuang@linaro.org>
@@ -983,3 +992,5 @@ Conventional Changelog Extensions
 .. _bytefire: https://github.com/bytefire
 .. _rupsin01: https://github.com/rupsin01
 .. _jimmy-brisson: https://github.com/theotherjimmy
+.. _ChiaweiW: https://github.com/chiaweiw
+.. _Neal-liu: https://github.com/neal-liu
