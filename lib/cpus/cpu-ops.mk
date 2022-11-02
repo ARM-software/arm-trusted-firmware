@@ -287,6 +287,10 @@ ERRATA_A76_1868343	?=0
 # only to revisions r3p0 - r4p1 of the Cortex A76 cpu.
 ERRATA_A76_1946160	?=0
 
+# Flag to apply erratum 2743102 workaround during powerdown. This erratum
+# applies to all revisions <= r4p1 of the Cortex A76 cpu and is still open.
+ERRATA_A76_2743102	?=0
+
 # Flag to apply erratum 1508412 workaround during reset. This erratum applies
 # only to revision <= r1p0 of the Cortex A77 cpu.
 ERRATA_A77_1508412	?=0
@@ -915,6 +919,10 @@ $(eval $(call add_define,ERRATA_A76_1868343))
 # Process ERRATA_A76_1946160 flag
 $(eval $(call assert_boolean,ERRATA_A76_1946160))
 $(eval $(call add_define,ERRATA_A76_1946160))
+
+# Process ERRATA_A76_2743102 flag
+$(eval $(call assert_boolean,ERRATA_A76_2743102))
+$(eval $(call add_define,ERRATA_A76_2743102))
 
 # Process ERRATA_A77_1508412 flag
 $(eval $(call assert_boolean,ERRATA_A77_1508412))
