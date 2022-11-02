@@ -450,6 +450,10 @@ ERRATA_N1_1868343	?=0
 # exists in revisions r0p0, r1p0, and r2p0 as well but there is no workaround.
 ERRATA_N1_1946160	?=0
 
+# Flag to apply erratum 2743102 workaround during powerdown. This erratum
+# applies to all revisions <= r4p1 of the Neoverse N1 cpu and is still open.
+ERRATA_N1_2743102	?=0
+
 # Flag to apply erratum 2002655 workaround during reset. This erratum applies
 # to revisions r0p0 of the Neoverse-N2 cpu, it is still open.
 ERRATA_N2_2002655	?=0
@@ -1072,6 +1076,10 @@ $(eval $(call add_define,ERRATA_N1_1868343))
 $(eval $(call assert_boolean,ERRATA_N1_1946160))
 $(eval $(call add_define,ERRATA_N1_1946160))
 
+# Process ERRATA_N1_2743102 flag
+$(eval $(call assert_boolean,ERRATA_N1_2743102))
+$(eval $(call add_define,ERRATA_N1_2743102))
+#
 # Process ERRATA_N2_2002655 flag
 $(eval $(call assert_boolean,ERRATA_N2_2002655))
 $(eval $(call add_define,ERRATA_N2_2002655))
