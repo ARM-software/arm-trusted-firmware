@@ -1018,7 +1018,7 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		/* Calculate the size that the v1.1 descriptor will required. */
 		size_t v1_1_desc_size =
 		    spmc_shm_get_v1_1_descriptor_size((void *) &obj->desc,
-						      fragment_length);
+						      obj->desc_size);
 
 		if (v1_1_desc_size == 0U) {
 			ERROR("%s: cannot determine size of descriptor.\n",
@@ -1030,7 +1030,7 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		v1_1_obj =
 		    spmc_shmem_obj_alloc(&spmc_shmem_obj_state, v1_1_desc_size);
 
-		if (!obj) {
+		if (!v1_1_obj) {
 			ret = FFA_ERROR_NO_MEMORY;
 			goto err_arg;
 		}
@@ -1347,7 +1347,8 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	if (req->emad_count == 0U) {
 		WARN("%s: unsupported attribute desc count %u.\n",
 		     __func__, obj->desc.emad_count);
-		return -EINVAL;
+		ret = FFA_ERROR_INVALID_PARAMETER;
+		goto err_unlock_mailbox;
 	}
 
 	/* Determine the appropriate minimum descriptor size. */
