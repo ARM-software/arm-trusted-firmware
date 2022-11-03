@@ -609,6 +609,11 @@ int intel_mailbox_get_config_status(uint32_t cmd, bool init_done)
 	}
 
 	res = response[RECONFIG_STATUS_STATE];
+
+	if (res == MBOX_CFGSTAT_VAB_BS_PREAUTH) {
+		return MBOX_CFGSTAT_STATE_CONFIG;
+	}
+
 	if ((res != 0U) && (res != MBOX_CFGSTAT_STATE_CONFIG)) {
 		return res;
 	}
