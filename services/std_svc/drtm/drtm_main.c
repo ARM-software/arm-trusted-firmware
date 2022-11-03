@@ -366,9 +366,10 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 	}
 	a = &args_buf;
 
-	if (a->version != 1) {
-		ERROR("DRTM: parameters structure incompatible with major version %d\n",
-		      ARM_DRTM_VERSION_MAJOR);
+	if (!((a->version >= ARM_DRTM_PARAMS_MIN_VERSION) &&
+	    (a->version <= ARM_DRTM_PARAMS_MAX_VERSION))) {
+		ERROR("DRTM: parameters structure version %u is unsupported\n",
+		      a->version);
 		return NOT_SUPPORTED;
 	}
 
