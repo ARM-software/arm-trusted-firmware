@@ -38,16 +38,16 @@ SECTIONS
         *(.vectors)
         . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
-     } >ROM
+    } >ROM
 
-     /* .ARM.extab and .ARM.exidx are only added because Clang need them */
-     .ARM.extab . : {
+    /* .ARM.extab and .ARM.exidx are only added because Clang need them */
+    .ARM.extab . : {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-     } >ROM
+    } >ROM
 
-     .ARM.exidx . : {
+    .ARM.exidx . : {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-     } >ROM
+    } >ROM
 
     .rodata . : {
         __RODATA_START__ = .;
