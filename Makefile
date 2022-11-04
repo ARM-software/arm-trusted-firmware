@@ -1080,6 +1080,7 @@ $(eval $(call assert_booleans,\
         SIMICS_BUILD \
         FEATURE_DETECTION \
 	TRNG_SUPPORT \
+	CONDITIONAL_CMO \
 )))
 
 $(eval $(call assert_numerics,\
@@ -1241,6 +1242,7 @@ $(eval $(call add_defines,\
         FEATURE_DETECTION \
         TWED_DELAY \
         ENABLE_FEAT_TWED \
+	CONDITIONAL_CMO \
 )))
 
 ifeq (${SANITIZE_UB},trap)

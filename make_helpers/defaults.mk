@@ -480,3 +480,7 @@ PLAT_RSS_NOT_SUPPORTED		:= 0
 
 # Dynamic Root of Trust for Measurement support
 DRTM_SUPPORT			:= 0
+
+# Check platform if cache management operations should be performed.
+# Disabled by default.
+CONDITIONAL_CMO			:= 0
