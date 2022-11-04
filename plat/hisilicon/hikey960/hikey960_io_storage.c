@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,9 @@
 #include <lib/semihosting.h>
 #include <tools_share/firmware_image_package.h>
 
+#include "hikey960_def.h"
+#include "hikey960_private.h"
+
 struct plat_io_policy {
 	uintptr_t *dev_handle;
 	uintptr_t image_spec;
@@ -43,6 +46,12 @@ static const io_block_spec_t ufs_gpt_spec = {
 	.offset		= 0,
 	.length		= PLAT_PARTITION_BLOCK_SIZE *
 			  (PLAT_PARTITION_MAX_ENTRIES / 4 + 2),
+};
+
+/* Fastboot serial number stored within first UFS device blocks */
+static const io_block_spec_t ufs_fastboot_spec = {
+	.offset         = UFS_BASE,
+	.length         = 1 << 20,
 };
 
 static const io_block_dev_spec_t ufs_dev_spec = {
@@ -77,6 +86,12 @@ static const io_uuid_spec_t bl32_extra1_uuid_spec = {
 static const io_uuid_spec_t bl32_extra2_uuid_spec = {
 	.uuid = UUID_SECURE_PAYLOAD_BL32_EXTRA2,
 };
+
+#ifdef SPD_spmd
+static const io_uuid_spec_t bl32_tos_fw_spec = {
+	.uuid = UUID_TOS_FW_CONFIG,
+};
+#endif
 
 static const io_uuid_spec_t bl33_uuid_spec = {
 	.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
@@ -151,6 +166,15 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&bl32_extra2_uuid_spec,
 		check_fip
 	},
+
+#ifdef SPD_spmd
+	[TOS_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&bl32_tos_fw_spec,
+		check_fip
+	},
+#endif
+
 	[BL33_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl33_uuid_spec,
@@ -238,6 +262,54 @@ static int check_fip(const uintptr_t spec)
 			io_close(local_image_handle);
 		}
 	}
+	return result;
+}
+
+int hikey960_load_serialno(uint64_t *serno)
+{
+	int result;
+	size_t len = 0;
+	uintptr_t local_handle;
+	uint64_t buf[HIKEY960_SERIAL_NUMBER_SIZE / sizeof(uint64_t)];
+
+	if (serno == NULL) {
+		return -1;
+	}
+
+	result = io_dev_init(ufs_dev_handle, (uintptr_t)NULL);
+	if (result != 0) {
+		return result;
+	}
+
+	result = io_open(ufs_dev_handle,
+		(uintptr_t)&ufs_fastboot_spec, &local_handle);
+	if (result != 0) {
+		return result;
+	}
+
+	result = io_seek(local_handle, IO_SEEK_SET,
+		HIKEY960_SERIAL_NUMBER_LBA * UFS_BLOCK_SIZE);
+	if (result != 0) {
+		goto closing;
+	}
+
+	result = io_read(local_handle, (uintptr_t)buf,
+		HIKEY960_SERIAL_NUMBER_SIZE, &len);
+	if (result != 0) {
+		goto closing;
+	}
+
+	if (len != HIKEY960_SERIAL_NUMBER_SIZE) {
+		result = -1;
+		goto closing;
+	}
+
+	/* UEFI fastboot app stores a 16 bytes blob       */
+	/* We extract only relevant 8 bytes serial number */
+	*serno = buf[1];
+
+closing:
+	io_close(local_handle);
 	return result;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,9 @@
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
+#include <services/el3_spmc_ffa_memory.h>
 
 #include <hi3660.h>
 #include <hisi_ipc.h>
@@ -30,6 +32,9 @@
 static entry_point_info_t bl32_ep_info;
 static entry_point_info_t bl33_ep_info;
 static console_t console;
+
+/* fastboot serial number consumed by Kinibi SPD/LP for gpd.tee.deviceID. */
+uint64_t fastboot_serno;
 
 /******************************************************************************
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
@@ -71,6 +76,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	unsigned int id, uart_base;
 	void *from_bl2;
+	plat_params_from_bl2_t *plat_params_from_bl2 = (plat_params_from_bl2_t *) arg1;
 
 	from_bl2 = (void *) arg0;
 
@@ -88,6 +94,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Initialize CCI driver */
 	cci_init(CCI400_REG_BASE, cci_map, ARRAY_SIZE(cci_map));
 	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+
+	/* Fastboot serial number passed from BL2 as a platform parameter */
+	fastboot_serno = plat_params_from_bl2->fastboot_serno;
+	INFO("BL31: fastboot_serno %lx\n", fastboot_serno);
 
 	/*
 	 * Check params passed from BL2 should not be NULL,
@@ -119,6 +129,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
+#if SPMC_AT_EL3
+	mmap_add_region(DDR2_SEC_BASE, DDR2_SEC_BASE, DDR2_SEC_SIZE,
+	       MT_MEMORY | MT_RW | MT_SECURE);
+#endif
+
 	hikey960_init_mmu_el3(BL31_BASE,
 			BL31_LIMIT - BL31_BASE,
 			BL_CODE_BASE,
@@ -155,6 +170,48 @@ static void hikey960_iomcu_dma_init(void)
 				 IOMCU_DMAC_AXI_CONF_AWPROT_NS);
 	}
 }
+
+#if SPMC_AT_EL3
+/*
+ * On the hikey960 platform when using the EL3 SPMC implementation allocate the
+ * datastore for tracking shared memory descriptors in the RAM2 DRAM section
+ * to ensure sufficient storage can be allocated.
+ * Provide an implementation of the accessor method to allow the datastore
+ * details to be retrieved by the SPMC.
+ * The SPMC will take care of initializing the memory region.
+ */
+
+#define SPMC_SHARED_MEMORY_OBJ_SIZE (512 * 1024)
+
+__section("ram2_region") uint8_t plat_spmc_shmem_datastore[SPMC_SHARED_MEMORY_OBJ_SIZE];
+
+int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
+{
+	*datastore = plat_spmc_shmem_datastore;
+	*size = SPMC_SHARED_MEMORY_OBJ_SIZE;
+	return 0;
+}
+
+/*
+ * Add dummy implementations of memory management related platform hooks.
+ * These can be used to implement platform specific functionality to support
+ * a memory sharing/lending operation.
+ *
+ * Note: The hooks must be located as part of the initial share request and
+ * final reclaim to prevent order dependencies with operations that may take
+ * place in the normal world without visibility of the SPMC.
+ */
+int plat_spmc_shmem_begin(struct ffa_mtd *desc)
+{
+	return 0;
+}
+
+int plat_spmc_shmem_reclaim(struct ffa_mtd *desc)
+{
+	return 0;
+}
+
+#endif
 
 void bl31_platform_setup(void)
 {

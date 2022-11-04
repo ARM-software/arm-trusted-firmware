@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,10 @@
 #define HIKEY960_PRIVATE_H
 
 #include <common/bl_common.h>
+
+/* Fastboot serial number */
+#define HIKEY960_SERIAL_NUMBER_LBA	(UFS_BASE + 20)
+#define HIKEY960_SERIAL_NUMBER_SIZE	16
 
 /*
  * Function and variable prototypes
@@ -27,6 +31,7 @@ void hikey960_init_mmu_el3(unsigned long total_base,
 void hikey960_io_setup(void);
 int hikey960_read_boardid(unsigned int *id);
 int hikey960_set_fip_addr(unsigned int image_id, const char *name);
+int hikey960_load_serialno(uint64_t *serno);
 void hikey960_clk_init(void);
 void hikey960_pmu_init(void);
 void hikey960_regulator_enable(void);
@@ -38,5 +43,13 @@ void set_retention_ticks(unsigned int val);
 void clr_retention_ticks(unsigned int val);
 void clr_ex(void);
 void nop(void);
+
+/*******************************************************************************
+ * Struct for parameters received from BL2
+ ******************************************************************************/
+typedef struct plat_params_from_bl2 {
+	/* Fastboot serial number gathered from UFS */
+	uint64_t fastboot_serno;
+} plat_params_from_bl2_t;
 
 #endif /* HIKEY960_PRIVATE_H */

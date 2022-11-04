@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,6 +30,9 @@
 #include "hikey960_private.h"
 
 #define BL2_RW_BASE		(BL_CODE_END)
+
+/* BL2 platform parameters passed to BL31 */
+static plat_params_from_bl2_t plat_params_from_bl2;
 
 static meminfo_t bl2_el3_tzram_layout;
 static console_t console;
@@ -217,6 +220,11 @@ int hikey960_bl2_handle_post_image_load(unsigned int image_id)
 	assert(bl_mem_params);
 
 	switch (image_id) {
+	case BL31_IMAGE_ID:
+		/* Pass BL2 platform parameter to BL31 */
+		bl_mem_params->ep_info.args.arg1 = (uint64_t) &plat_params_from_bl2;
+		break;
+
 #ifdef __aarch64__
 	case BL32_IMAGE_ID:
 #ifdef SPD_opteed
@@ -307,6 +315,8 @@ void bl2_el3_plat_arch_setup(void)
 
 void bl2_platform_setup(void)
 {
+	int ret;
+
 	/* disable WDT0 */
 	if (mmio_read_32(WDT0_REG_BASE + WDT_LOCK_OFFSET) == WDT_LOCKED) {
 		mmio_write_32(WDT0_REG_BASE + WDT_LOCK_OFFSET, WDT_UNLOCK);
@@ -322,4 +332,13 @@ void bl2_platform_setup(void)
 	hikey960_gpio_init();
 	hikey960_init_ufs();
 	hikey960_io_setup();
+
+	/* Read serial number from storage */
+	plat_params_from_bl2.fastboot_serno = 0;
+	ret = hikey960_load_serialno(&plat_params_from_bl2.fastboot_serno);
+	if (ret != 0) {
+		ERROR("BL2: could not read serial number\n");
+	}
+	INFO("BL2: fastboot_serno %lx\n", plat_params_from_bl2.fastboot_serno);
+	flush_dcache_range((uintptr_t)&plat_params_from_bl2, sizeof(plat_params_from_bl2_t));
 }

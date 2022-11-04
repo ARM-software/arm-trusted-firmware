@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <lib/mmio.h>
-#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
 #include "../hikey960_def.h"
@@ -69,7 +69,6 @@ static const mmap_region_t hikey960_mmap[] = {
 #ifdef IMAGE_BL31
 static const mmap_region_t hikey960_mmap[] = {
 	MAP_DEVICE,
-	MAP_TSP_MEM,
 	{0}
 };
 #endif
