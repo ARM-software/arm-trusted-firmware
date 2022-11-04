@@ -185,7 +185,6 @@
 /*----------------------------------------------------------------------------*/
 /* SOC hw version register */
 /*----------------------------------------------------------------------------*/
-#define QTI_SOC_VERSION				U(0x7180)
 #define QTI_SOC_VERSION_MASK			U(0xFFFF)
 #define QTI_SOC_REVISION_REG			0x1FC8000
 #define QTI_SOC_REVISION_MASK			U(0xFFFF)
