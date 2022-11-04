@@ -14,7 +14,8 @@
 #define ETHOSN_FNUM_IS_SEC		U(0x51)
 #define ETHOSN_FNUM_HARD_RESET		U(0x52)
 #define ETHOSN_FNUM_SOFT_RESET		U(0x53)
-/* 0x54-0x5F reserved for future use */
+#define ETHOSN_FNUM_IS_SLEEPING		U(0x54)
+/* 0x55-0x5F reserved for future use */
 
 /* SMC64 function IDs */
 #define ETHOSN_FID_64(func_num)		U(0xC2000000 | func_num)
@@ -39,7 +40,7 @@
 
 /* Service version  */
 #define ETHOSN_VERSION_MAJOR U(2)
-#define ETHOSN_VERSION_MINOR U(1)
+#define ETHOSN_VERSION_MINOR U(2)
 
 /* Return codes for function calls */
 #define ETHOSN_SUCCESS			 0

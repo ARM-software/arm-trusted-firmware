@@ -43,6 +43,7 @@
 #define SEC_DEL_ADDR_EXT_VAL		U(0x15)
 
 #define SEC_SYSCTRL0_REG		U(0x0018)
+#define SEC_SYSCTRL0_SLEEPING		U(1U << 4)
 #define SEC_SYSCTRL0_SOFT_RESET		U(3U << 29)
 #define SEC_SYSCTRL0_HARD_RESET		U(1U << 31)
 
@@ -125,6 +126,15 @@ static int ethosn_is_sec(uintptr_t core_addr)
 	return 1;
 }
 
+static int ethosn_core_is_sleeping(uintptr_t core_addr)
+{
+	const uintptr_t sysctrl0_reg =
+		ETHOSN_CORE_SEC_REG(core_addr, SEC_SYSCTRL0_REG);
+	const uint32_t sleeping_mask = SEC_SYSCTRL0_SLEEPING;
+
+	return ((mmio_read_32(sysctrl0_reg) & sleeping_mask) == sleeping_mask);
+}
+
 static bool ethosn_reset(uintptr_t core_addr, int hard_reset)
 {
 	unsigned int timeout;
@@ -177,8 +187,7 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 		x4 &= 0xFFFFFFFF;
 	}
 
-	if (!is_ethosn_fid(smc_fid) ||
-	    (fid < ETHOSN_FNUM_VERSION || fid > ETHOSN_FNUM_SOFT_RESET)) {
+	if (!is_ethosn_fid(smc_fid) || (fid > ETHOSN_FNUM_IS_SLEEPING)) {
 		WARN("ETHOSN: Unknown SMC call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
@@ -197,6 +206,8 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 	switch (fid) {
 	case ETHOSN_FNUM_IS_SEC:
 		SMC_RET1(handle, ethosn_is_sec(core->addr));
+	case ETHOSN_FNUM_IS_SLEEPING:
+		SMC_RET1(handle, ethosn_core_is_sleeping(core->addr));
 	}
 
 	if (!device->has_reserved_memory &&
