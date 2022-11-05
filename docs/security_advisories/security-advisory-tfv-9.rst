@@ -75,7 +75,7 @@ revisions of Cortex-A73 and Cortex-A75 that implements FEAT_CSV2).
 +----------------------+
 | Cortex-A710          |
 +----------------------+
-| Cortex-Makalu        |
+| Cortex-A715          |
 +----------------------+
 | Cortex-Hunter        |
 +----------------------+
@@ -99,7 +99,9 @@ In case local workaround is not feasible, the Rich OS can invoke the SMC
 Convention specification`_ for more details.
 
 `Gerrit topic #spectre_bhb`_ This patchset implements the Spectre-BHB loop
-workaround for CPUs mentioned in the above table. It also mitigates against
+workaround for CPUs mentioned in the above table. For CPUs supporting
+speculative barrier instruction, the loop workaround is optimised by using SB
+in place of the common DSB and ISB sequence. It also mitigates against
 this vulnerability for Cortex-A72 CPU versions that support the CSV2 feature
 (from r1p0). The patch stack also includes an implementation for a specified
 `CVE-2022-23960`_ workaround SMC(``SMCCC_ARCH_WORKAROUND_3``) for use by normal
