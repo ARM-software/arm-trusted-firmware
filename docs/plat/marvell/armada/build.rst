@@ -26,7 +26,7 @@ BL33 should be ``~/project/u-boot/u-boot.bin``
 
        *u-boot.bin* should be used and not *u-boot-spl.bin*
 
-Set MSS/SCP image path (mandatory only for A7K/8K/CN913x when MSS_SUPPORT=1)
+Set MSS/SCP image path (mandatory only for A7K/A8K/CN913x when MSS_SUPPORT=1)
 
     .. code:: shell
 
@@ -109,7 +109,7 @@ There are several build options:
 - MV_DDR_PATH
 
         This parameter is required for ``mrvl_flash`` and ``mrvl_uart`` targets.
-        For A7K/8K/CN913x it is used for BLE build and for Armada37x0 it used
+        For A7K/A8K/CN913x it is used for BLE build and for Armada37x0 it used
         for ddr_tool build.
 
         Specify path to the full checkout of Marvell mv-ddr-marvell git
@@ -131,7 +131,7 @@ CN913x specific build options:
         values with CP_NUM are in a range of 1 to 3.
 
 
-A7K/8K/CN913x specific build options:
+A7K/A8K/CN913x specific build options:
 
 - BLE_PATH
 
@@ -387,7 +387,7 @@ Special Build Flags
 - PLAT_RECOVERY_IMAGE_ENABLE
     When set this option to enable secondary recovery function when build atf.
     In order to build UART recovery image this operation should be disabled for
-    A7K/8K/CN913x because of hardware limitation (boot from secondary image
+    A7K/A8K/CN913x because of hardware limitation (boot from secondary image
     can interrupt UART recovery process). This MACRO definition is set in
     ``plat/marvell/armada/a8k/common/include/platform_def.h`` file.
 
