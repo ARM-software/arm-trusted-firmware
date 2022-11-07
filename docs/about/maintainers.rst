@@ -67,26 +67,26 @@ Armv7-A architecture port
 
 Build Definitions for CMake Build System
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
-:|G|: `javieralso-arm`_
 :|M|: Chris Kay <chris.kay@arm.com>
 :|G|: `CJKay`_
 :|F|: /
 
 Software Delegated Exception Interface (SDEI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Mark Dykes <mark.dykes@arm.com>
-:|G|: `mardyk01`_
+:|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
+:|G|: `jayanthchidanand-arm`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
 :|F|: services/std_svc/sdei/
 
 Trusted Boot
 ^^^^^^^^^^^^
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|G|: `sandrine-bailleux-arm`_
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
+:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
+:|G|: `laurenw-arm`_
 :|F|: drivers/auth/
 
 Secure Partition Manager Core (EL3 FF-A SPMC)
@@ -99,36 +99,34 @@ Secure Partition Manager Dispatcher (SPMD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 :|G|: `odeprez`_
-:|M|: Manish Pandey <manish.pandey2@arm.com>
-:|G|: `manish-pandey-arm`_
-:|M|: Maksims Svecovs <maksims.svecovs@arm.com>
-:|G|: `max-shvetsov`_
 :|M|: Joao Alves <Joao.Alves@arm.com>
 :|G|: `J-Alves`_
 :|F|: services/std_svc/spmd/\*
 
 Exception Handling Framework (EHF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
-:|G|: `ManishVB-Arm`_
+:|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
+:|G|: `jayanthchidanand-arm`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
 :|F|: bl31/ehf.c
 
 Realm Management Monitor Dispatcher (RMMD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
 :|G|: `javieralso-arm`_
+:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
+:|G|: `AlexeiFedorov`_
 :|F|: services/std_svc/rmmd/\*
 :|F|: include/services/rmmd_svc.h
 :|F|: include/services/rmm_core_manifest.h
 
 Realm Management Extension (RME)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Bipin Ravi <bipin.ravi@arm.com>
-:|G|: `bipinravi-arm`_
-:|M|: Mark Dykes <mark.dykes@arm.com>
-:|G|: `mardyk01`_
 :|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
 :|G|: `javieralso-arm`_
+:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
+:|G|: `AlexeiFedorov`_
 
 Drivers, Libraries and Framework Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,14 +183,12 @@ JTAG DCC console driver
 
 Power State Coordination Interface (PSCI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
-:|G|: `javieralso-arm`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
 :|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
 :|G|: `madhukar-Arm`_
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
-:|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
-:|G|: `zelalem-aweke`_
 :|F|: lib/psci/
 
 DebugFS
@@ -217,18 +213,27 @@ Performance Measurement Framework (PMF)
 :|G|: `J-Alves`_
 :|F|: lib/pmf/
 
+Errata Management
+^^^^^^^^^^^^^^^^^
+:|M|: Bipin Ravi <bipin.ravi@arm.com>
+:|G|: `bipinravi-arm`_
+:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
+:|G|: `laurenw-arm`_
+
 Arm CPU libraries
 ^^^^^^^^^^^^^^^^^
+:|M|: Bipin Ravi <bipin.ravi@arm.com>
+:|G|: `bipinravi-arm`_
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
 :|F|: lib/cpus/
 
 Reliability Availability Serviceabilty (RAS) framework
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Olivier Deprez <olivier.deprez@arm.com>
-:|G|: `odeprez`_
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
+:|M|: Olivier Deprez <olivier.deprez@arm.com>
+:|G|: `odeprez`_
 :|F|: lib/extensions/ras/
 
 Activity Monitors Unit (AMU) extensions
@@ -241,28 +246,28 @@ Activity Monitors Unit (AMU) extensions
 
 Memory Partitioning And Monitoring (MPAM) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
-:|G|: `zelalem-aweke`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
 :|F|: lib/extensions/mpam/
 
 Pointer Authentication (PAuth) and Branch Target Identification (BTI) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|G|: `AlexeiFedorov`_
-:|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
-:|G|: `zelalem-aweke`_
 :|F|: lib/extensions/pauth/
 
 Statistical Profiling Extension (SPE)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
-:|G|: `zelalem-aweke`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
 :|F|: lib/extensions/spe/
 
 Standard C library
 ^^^^^^^^^^^^^^^^^^
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|G|: `AlexeiFedorov`_
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
 :|F|: lib/libc/
 
 Library At ROM (ROMlib)
@@ -273,8 +278,8 @@ Library At ROM (ROMlib)
 
 Translation tables (``xlat_tables``) library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
-:|G|: `javieralso-arm`_
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
 :|M|: Joao Alves <Joao.Alves@arm.com>
 :|G|: `J-Alves`_
 :|F|: lib/xlat\_tables_\*/
@@ -331,16 +336,22 @@ Firmware Encryption Framework
 
 Measured Boot
 ^^^^^^^^^^^^^
-:|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
-:|G|: `AlexeiFedorov`_
-:|M|: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
-:|G|: `javieralso-arm`_
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|G|: `sandrine-bailleux-arm`_
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
 :|F|: drivers/measured_boot
 :|F|: include/drivers/measured_boot
 :|F|: docs/components/measured_boot
 :|F|: plat/arm/board/fvp/fvp\*_measured_boot.c
+
+DRTM
+^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|F|: services/std_svc/drtm
 
 PSA Firmware Update
 ^^^^^^^^^^^^^^^^^^^
@@ -376,8 +387,10 @@ Max Power Mitigation Mechanism (MPMM)
 
 Granule Protection Tables Library (GPT-RME)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Mark Dykes <mark.dykes@arm.com>
-:|G|: `mardyk01`_
+:|M|: Soby Mathew <soby.mathew@arm.com>
+:|G|: `soby-mathew`_
+:|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
+:|G|: `javieralso-arm`_
 :|F|: lib/gpt_rme
 :|F|: include/lib/gpt_rme
 
@@ -796,6 +809,8 @@ Tools
 
 Fiptool
 ^^^^^^^
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
 :|M|: Joao Alves <Joao.Alves@arm.com>
 :|G|: `J-Alves`_
 :|F|: tools/fiptool/
@@ -804,6 +819,10 @@ Cert_create tool
 ^^^^^^^^^^^^^^^^
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|G|: `sandrine-bailleux-arm`_
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
+:|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
+:|G|: `laurenw-arm`_
 :|F|: tools/cert_create/
 
 Encrypt_fw tool
@@ -822,6 +841,8 @@ Sptool
 
 Build system
 ^^^^^^^^^^^^
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
 :|F|: Makefile
@@ -829,8 +850,6 @@ Build system
 
 Threat Model
 ~~~~~~~~~~~~~
-:|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
-:|G|: `zelalem-aweke`_
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|G|: `sandrine-bailleux-arm`_
 :|M|: Joanna Farley <joanna.farley@arm.com>
@@ -907,7 +926,6 @@ Conventional Changelog Extensions
 .. _max-shvetsov: https://github.com/max-shvetsov
 .. _javieralso-arm: https://github.com/javieralso-arm
 .. _laurenw-arm: https://github.com/laurenw-arm
-.. _zelalem-aweke: https://github.com/zelalem-aweke
 .. _J-Alves: https://github.com/J-Alves
 .. _madhukar-Arm: https://github.com/madhukar-Arm
 .. _raghuncstate: https://github.com/raghuncstate
@@ -925,5 +943,6 @@ Conventional Changelog Extensions
 .. _arve-android: https://github.com/arve-android
 .. _marcone: https://github.com/marcone
 .. _marcbonnici: https://github.com/marcbonnici
+.. _jayanthchidanand-arm: https://github.com/jayanthchidanand-arm
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
