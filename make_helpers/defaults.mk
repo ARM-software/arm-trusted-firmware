@@ -405,6 +405,9 @@ ifneq (${ENABLE_SME_FOR_NS},0)
 	override ENABLE_SVE_FOR_SWD	:= 0
 endif
 
+# SME2 defaults to disabled
+ENABLE_SME2_FOR_NS		:= 0
+
 SANITIZE_UB := off
 
 # For ARMv8.1 (AArch64) platforms, enabling this option selects the spinlock

@@ -442,6 +442,13 @@ Common build options
    build with these options will fail. This flag can take the values 0 to 2, to
    align with the ``FEATURE_DETECTION`` mechanism. Default is 0.
 
+-  ``ENABLE_SME2_FOR_NS``: Numeric value to enable Scalable Matrix Extension
+   version 2 (SME2) for the non-secure world only. SME2 is an optional
+   architectural feature for AArch64 and TF-A support is experimental.
+   This should be set along with ENABLE_SME_FOR_NS=1, if not, the default SME
+   accesses will still be trapped. This flag can take the values 0 to 2, to
+   align with the ``FEATURE_DETECTION`` mechanism. Default is 0.
+
 -  ``ENABLE_SME_FOR_SWD``: Boolean option to enable the Scalable Matrix
    Extension for secure world use along with SVE and FPU/SIMD, ENABLE_SME_FOR_NS
    must also be set to use this. If enabling this, the secure world MUST
