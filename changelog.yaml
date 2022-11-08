@@ -653,7 +653,10 @@ subsections:
         scope: psa
 
       - title: Context Management
-        scope: context mgmt
+        scope: context-mgmt
+
+        deprecated:
+          - context mgmt
 
       - title: Semihosting
         scope: semihosting

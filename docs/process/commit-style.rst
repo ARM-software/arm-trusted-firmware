@@ -96,36 +96,25 @@ locally, as commitlint reports a live list of the acceptable scopes.
 Adding Scopes
 -------------
 
-Scopes that are either a) unblessed in the configuration file, or b) do not
-exist in the configuration file at all are considered to be deprecated. If you
-are adding a new component that does not yet have a designated scope, please
-feel free to add one.
+Scopes that are not present in the changelog configuration file are considered
+to be deprecated, and should be avoided. If you are adding a new component that
+does not yet have a designated scope, please add one.
 
 For example, if you are adding or making modifications to `Foo`'s latest and
-greatest new platform `Bar`, you would add it to the `Platforms` changelog
-section, and the hierarchy should look something like this:
+greatest new platform `Bar` then you would add it to the `Platforms` changelog
+sub-section, and the hierarchy should look something like this:
 
-.. code:: json
+.. code:: yaml
 
-    {
-        "sections": [
-            {
-                "title": "Platforms",
-                "sections": [
-                    {
-                        "title": "Foo",
-                        "scopes": ["foo"],
-                        "sections": [
-                            {
-                                "title": "Bar",
-                                "scopes": ["bar"]
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+    - title: Platforms
+
+      subsections:
+        - title: Foo
+          scope: foo
+
+          subsections:
+            - title: Bar
+              scope: bar
 
 When creating new scopes, try to keep them short and succinct, and use kebab
 case (``this-is-kebab-case``). Components with a product name (i.e. most
