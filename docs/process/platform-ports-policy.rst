@@ -1,11 +1,8 @@
-Platform Compatibility Policy
-=============================
+Platform Ports Policy
+=====================
 
-Introduction
-------------
-
-This document clarifies the project's policy around compatibility for upstream
-platforms.
+This document clarifies a couple of policy points around platform ports
+management.
 
 Platform compatibility policy
 -----------------------------
@@ -28,6 +25,24 @@ For non-trivial interface changes, an email should be sent out to the `TF-A
 public mailing list`_ to notify platforms that they should migrate away from the
 deprecated interfaces. Platforms are expected to migrate before the removal of
 the deprecated interface.
+
+Platform deprecation policy
+---------------------------
+
+If a platform is no longer maintained, it is best to deprecate it to keep the
+projects' source tree clean and healthy. Deprecation can be a 1-stage or 2-stage
+process (up to the platform maintainers).
+
+ - *2-stage*: The platform's source code can be kept in the repository for a
+   cooling off period before deleting it (typically 2 release cycles). In this
+   case, we keep track ot the *Deprecated* version separately from the *Deleted*
+   version.
+
+ - *1-stage*: The platform's source code can be deleted straight away. In this
+   case, both versions are the same.
+
+The :ref:`Platform Ports` page provides a list of all deprecated/deleted
+platform ports (or soon to be) to this day.
 
 --------------
 

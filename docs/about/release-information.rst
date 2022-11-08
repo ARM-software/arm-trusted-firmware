@@ -56,9 +56,9 @@ depending on project requirement and partner feedback.
 Removal of Deprecated Interfaces
 --------------------------------
 
-As mentioned in the :ref:`Platform Compatibility Policy`, this is a live
-document cataloging all the deprecated interfaces in TF-A project and the
-Release version after which it will be removed.
+As mentioned in the :ref:`Platform Ports Policy`, this is a live document
+cataloging all the deprecated interfaces in TF-A project and the Release version
+after which it will be removed.
 
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 | Interface                      | Deprecation | Removed | Comments                                                |
@@ -70,4 +70,4 @@ Release version after which it will be removed.
 
 --------------
 
-*Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.*

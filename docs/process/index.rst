@@ -7,7 +7,7 @@ Processes & Policies
    :numbered:
 
    security
-   platform-compatibility-policy
+   platform-ports-policy
    commit-style
    coding-style
    coding-guidelines
