@@ -59,10 +59,9 @@ documentation associated with them.
    - Arm Neoverse N1 System Development Platform (N1SDP)
    - Arm Neoverse Reference Design N1 Edge (RD-N1-Edge) FVP
    - Arm Neoverse Reference Design E1 Edge (RD-E1-Edge) FVP
-   - Arm SGI-575 and SGM-775
-   - MediaTek MT6795 and MT8173 SoCs
-   - Arm Morello Platform
+   - Arm SGI-575
+   - MediaTek MT8173 SoCs
 
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
