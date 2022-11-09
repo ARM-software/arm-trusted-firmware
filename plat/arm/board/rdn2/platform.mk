@@ -18,6 +18,7 @@ endif
 
 # RD-N2 platform uses GIC-700 which is based on GICv4.1
 GIC_ENABLE_V4_EXTN	:=	1
+GIC_EXT_INTID		:=	1
 
 #Enable GIC Multichip Extension only for Multichip Platforms
 ifeq (${CSS_SGI_PLATFORM_VARIANT}, 2)
