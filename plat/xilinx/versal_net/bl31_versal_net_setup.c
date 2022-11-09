@@ -88,6 +88,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		uart_clock = 25000000;
 		break;
 	case VERSAL_NET_SILICON:
+		cpu_clock = 100000000;
+		uart_clock = 100000000;
+		break;
 	default:
 		panic();
 	}
