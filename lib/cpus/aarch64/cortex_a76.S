@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -586,6 +586,30 @@ func check_errata_1946160
 	b	cpu_rev_var_range
 endfunc check_errata_1946160
 
+	/* ----------------------------------------------------
+	 * Errata Workaround for Cortex-A76 Errata #2743102
+	 * This applies to revisions <= r4p1 and is still open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * ----------------------------------------------------
+	 */
+func errata_a76_2743102_wa
+	mov	x17, x30
+	bl	check_errata_2743102
+	cbz	x0, 1f
+
+	/* dsb before isb of power down sequence */
+	dsb	sy
+1:
+	ret	x17
+endfunc errata_a76_2743102_wa
+
+func check_errata_2743102
+	/* Applies to all revisions <= r4p1 */
+	mov	x1, #0x41
+	b	cpu_rev_var_ls
+endfunc check_errata_2743102
+
 func check_errata_cve_2018_3639
 #if WORKAROUND_CVE_2018_3639
 	mov	x0, #ERRATA_APPLIES
@@ -748,6 +772,12 @@ func cortex_a76_core_pwr_dwn
 	mrs	x0, CORTEX_A76_CPUPWRCTLR_EL1
 	orr	x0, x0, #CORTEX_A76_CORE_PWRDN_EN_MASK
 	msr	CORTEX_A76_CPUPWRCTLR_EL1, x0
+#if ERRATA_A76_2743102
+	mov	x15, x30
+	bl	cpu_get_rev_var
+	bl	errata_a76_2743102_wa
+	mov	x30, x15
+#endif /* ERRATA_A76_2743102 */
 	isb
 	ret
 endfunc cortex_a76_core_pwr_dwn
@@ -768,6 +798,7 @@ func cortex_a76_errata_report
 	 */
 	report_errata ERRATA_A76_1073348, cortex_a76, 1073348
 	report_errata ERRATA_A76_1130799, cortex_a76, 1130799
+	report_errata ERRATA_A76_1165522, cortex_a76, 1165522
 	report_errata ERRATA_A76_1220197, cortex_a76, 1220197
 	report_errata ERRATA_A76_1257314, cortex_a76, 1257314
 	report_errata ERRATA_A76_1262606, cortex_a76, 1262606
@@ -775,9 +806,9 @@ func cortex_a76_errata_report
 	report_errata ERRATA_A76_1275112, cortex_a76, 1275112
 	report_errata ERRATA_A76_1286807, cortex_a76, 1286807
 	report_errata ERRATA_A76_1791580, cortex_a76, 1791580
-	report_errata ERRATA_A76_1165522, cortex_a76, 1165522
 	report_errata ERRATA_A76_1868343, cortex_a76, 1868343
 	report_errata ERRATA_A76_1946160, cortex_a76, 1946160
+	report_errata ERRATA_A76_2743102, cortex_a76, 2743102
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
 	report_errata ERRATA_DSU_798953, cortex_a76, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a76, dsu_936184
