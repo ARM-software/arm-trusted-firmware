@@ -127,7 +127,9 @@ Mandated Trailers
 
 Commits are expected to be signed off with the ``Signed-off-by:`` trailer using
 your real name and email address. You can do this automatically by committing
-with Git's ``-s`` flag.
+with Git's ``-s`` flag. By adding this line the contributor certifies the
+contribution is made under the terms of the :download:`Developer Certificate of
+Origin <../../dco.txt>`.
 
 There may be multiple ``Signed-off-by:`` lines depending on the history of the
 patch, but one **must** be the committer. More details may be found in the
