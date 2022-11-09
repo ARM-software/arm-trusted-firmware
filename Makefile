@@ -1079,6 +1079,7 @@ $(eval $(call assert_booleans,\
         ENABLE_MPMM_FCONF \
         SIMICS_BUILD \
         FEATURE_DETECTION \
+	TRNG_SUPPORT \
 )))
 
 $(eval $(call assert_numerics,\

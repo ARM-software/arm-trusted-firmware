@@ -270,7 +270,7 @@ SAVE_KEYS			:= 0
 # Software Delegated Exception support
 SDEI_SUPPORT			:= 0
 
-# True Random Number firmware Interface
+# True Random Number firmware Interface support
 TRNG_SUPPORT			:= 0
 
 # SMCCC PCI support

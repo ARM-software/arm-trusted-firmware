@@ -16,10 +16,10 @@
 #if ENABLE_RME
 #include <services/rmm_core_manifest.h>
 #endif
+#include <drivers/fwu/fwu_metadata.h>
 #if TRNG_SUPPORT
 #include "plat_trng.h"
-#endif
-#include <drivers/fwu/fwu_metadata.h>
+#endif /* TRNG_SUPPORT */
 #if DRTM_SUPPORT
 #include "plat_drtm.h"
 #endif /* DRTM_SUPPORT */
