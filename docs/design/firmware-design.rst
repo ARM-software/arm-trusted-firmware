@@ -990,9 +990,10 @@ The service's ``handle()`` callback is provided with five of the SMC parameters
 directly, the others are saved into memory for retrieval (if needed) by the
 handler. The handler is also provided with an opaque ``handle`` for use with the
 supporting library for parameter retrieval, setting return values and context
-manipulation; and with ``flags`` indicating the security state of the caller. The
-framework finally sets up the execution stack for the handler, and invokes the
-services ``handle()`` function.
+manipulation. The ``flags`` parameter indicates the security state of the caller
+and the state of the SVE hint bit per the SMCCCv1.3. The framework finally sets
+up the execution stack for the handler, and invokes the services ``handle()``
+function.
 
 On return from the handler the result registers are populated in X0-X7 as needed
 before restoring the stack and CPU state and returning from the original SMC.
