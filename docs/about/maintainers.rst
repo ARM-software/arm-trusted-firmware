@@ -631,6 +631,8 @@ QTI platform port
 :|G|: `lachitp`_
 :|M|: Sreevyshanavi Kare <skare@codeaurora.org>
 :|G|: `sreekare`_
+:|M|: Muhammad Arsath K F <quic_mkf@quicinc.com>
+:|G|: `quic_mkf`_
 :|M|: QTI TF Maintainers <qti.trustedfirmware.maintainers@codeaurora.org>
 :|F|: docs/plat/qti.rst
 :|F|: plat/qti/
@@ -878,6 +880,7 @@ Conventional Changelog Extensions
 .. _niej: https://github.com/niej
 .. _npoushin: https://github.com/npoushin
 .. _prabhakarlad: https://github.com/prabhakarlad
+.. _quic_mkf: https://github.com/quicmkf
 .. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
