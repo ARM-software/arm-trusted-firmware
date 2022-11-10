@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+$(warning "RSS driver is an experimental feature")
+
 RSS_COMMS_SOURCES	:=	$(addprefix drivers/arm/rss/,			\
 					rss_comms.c				\
 					rss_comms_protocol.c			\
