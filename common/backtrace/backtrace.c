@@ -54,17 +54,6 @@ static inline uintptr_t extract_address(uintptr_t address)
 	return ret;
 }
 
-const char *get_el_str(unsigned int el)
-{
-	if (el == 3U) {
-		return "EL3";
-	} else if (el == 2U) {
-		return "EL2";
-	} else {
-		return "S-EL1";
-	}
-}
-
 /*
  * Returns true if the address points to a virtual address that can be read at
  * the current EL, false otherwise.

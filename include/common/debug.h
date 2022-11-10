@@ -91,9 +91,10 @@
 # define VERBOSE(...)	no_tf_log(LOG_MARKER_VERBOSE __VA_ARGS__)
 #endif
 
+const char *get_el_str(unsigned int el);
+
 #if ENABLE_BACKTRACE
 void backtrace(const char *cookie);
-const char *get_el_str(unsigned int el);
 #else
 #define backtrace(x)
 #endif

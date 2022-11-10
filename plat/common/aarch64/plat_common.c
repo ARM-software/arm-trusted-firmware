@@ -67,17 +67,15 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 }
 #endif
 
-#if !ENABLE_BACKTRACE
-static const char *get_el_str(unsigned int el)
+const char *get_el_str(unsigned int el)
 {
 	if (el == MODE_EL3) {
 		return "EL3";
 	} else if (el == MODE_EL2) {
 		return "EL2";
 	}
-	return "S-EL1";
+	return "EL1";
 }
-#endif /* !ENABLE_BACKTRACE */
 
 /* RAS functions common to AArch64 ARM platforms */
 void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
