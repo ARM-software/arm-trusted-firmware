@@ -21,7 +21,7 @@ SDEI_SUPPORT		:=	0
 
 EL3_EXCEPTION_HANDLING	:=	0
 
-HANDLE_EA_EL3_FIRST	:=	0
+HANDLE_EA_EL3_FIRST_NS	:=	0
 
 # System coherency is managed in hardware
 HW_ASSISTED_COHERENCY	:=	1

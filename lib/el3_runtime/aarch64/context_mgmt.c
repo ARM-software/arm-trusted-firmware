@@ -206,6 +206,11 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	/* Allow access to Allocation Tags when MTE is implemented. */
 	scr_el3 |= SCR_ATA_BIT;
 
+#if HANDLE_EA_EL3_FIRST_NS
+	/* SCR_EL3.EA: Route External Abort and SError Interrupt to EL3. */
+	scr_el3 |= SCR_EA_BIT;
+#endif
+
 #if RAS_TRAP_NS_ERR_REC_ACCESS
 	/*
 	 * SCR_EL3.TERR: Trap Error record accesses. Accesses to the RAS ERR
@@ -279,7 +284,7 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 * Security state and entrypoint attributes of the next EL.
 	 */
 	scr_el3 = read_scr();
-	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_FIQ_BIT | SCR_IRQ_BIT |
+	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_EA_BIT | SCR_FIQ_BIT | SCR_IRQ_BIT |
 			SCR_ST_BIT | SCR_HCE_BIT | SCR_NSE_BIT);
 
 	/*
@@ -315,15 +320,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 */
 #if ENABLE_FEAT_RNG_TRAP
 	scr_el3 |= SCR_TRNDR_BIT;
-#endif
-
-#if !HANDLE_EA_EL3_FIRST
-	/*
-	 * SCR_EL3.EA: Do not route External Abort and SError Interrupt External
-	 * to EL3 when executing at a lower EL. When executing at EL3, External
-	 * Aborts are taken to EL3.
-	 */
-	scr_el3 &= ~SCR_EA_BIT;
 #endif
 
 #if FAULT_INJECTION_SUPPORT

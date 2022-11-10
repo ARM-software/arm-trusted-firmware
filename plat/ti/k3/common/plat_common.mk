@@ -27,7 +27,7 @@ ERRATA_A72_859971	:=	1
 ERRATA_A72_1319367	:=	1
 
 CRASH_REPORTING		:= 1
-HANDLE_EA_EL3_FIRST	:= 1
+HANDLE_EA_EL3_FIRST_NS	:= 1
 
 # Split out RO data into a non-executable section
 SEPARATE_CODE_AND_RODATA :=    1

@@ -337,16 +337,6 @@ at address ``addr`` (first argument) address and of size ``size`` (second argume
 This function invalidates (flushes) the data cache for memory at address
 ``addr`` (first argument) address and of size ``size`` (second argument).
 
-**Function : do_panic()**
-
-::
-
-    Argument : void
-    Return   : void
-
-This function will be called by the PSCI library on encountering a critical
-failure that cannot be recovered from. This function **must not** return.
-
 CPU Context management API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

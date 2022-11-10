@@ -15,7 +15,7 @@ ENABLE_SVE_FOR_NS		:= 0
 MULTI_CONSOLE_API		:= 1
 
 CRASH_REPORTING			:= 1
-HANDLE_EA_EL3_FIRST		:= 1
+HANDLE_EA_EL3_FIRST_NS		:= 1
 
 # This option gets enabled automatically if the TRUSTED_BOARD_BOOT
 # is set via root Makefile, but Renesas support Trusted-Boot without
