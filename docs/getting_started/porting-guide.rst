@@ -23,8 +23,8 @@ Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
 modifications for each BL stage in detail.
 
-Please refer to the :ref:`Platform Compatibility Policy` for the policy
-regarding compatibility and deprecation of these porting interfaces.
+Please refer to the :ref:`Platform Ports Policy` for the policy regarding
+compatibility and deprecation of these porting interfaces.
 
 Only Arm development platforms (such as FVP and Juno) may use the
 functions/definitions in ``include/plat/arm/common/`` and the corresponding
