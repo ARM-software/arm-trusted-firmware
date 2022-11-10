@@ -121,16 +121,6 @@ static void read_feat_dit(void)
 #endif
 }
 
-/*********************************************************
- * Feature : FEAT_AMUv1 (Activity Monitors Extensions v1)
- ********************************************************/
-static void read_feat_amuv1(void)
-{
-#if (ENABLE_FEAT_AMUv1 == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_4_feat_amuv1_present(), "AMUv1");
-#endif
-}
-
 /****************************************************************************
  * Feature : FEAT_MPAM (Memory Partitioning and Monitoring (MPAM) Extension)
  ***************************************************************************/
@@ -332,7 +322,7 @@ void detect_arch_features(void)
 
 	/* v8.4 features */
 	read_feat_dit();
-	read_feat_amuv1();
+	check_feature(ENABLE_FEAT_AMUv1, read_feat_amu_id_field(), "AMUv1");
 	read_feat_mpam();
 	read_feat_nv2();
 	read_feat_sel2();
