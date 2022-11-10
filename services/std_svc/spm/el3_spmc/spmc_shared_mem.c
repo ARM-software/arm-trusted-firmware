@@ -72,13 +72,23 @@ spmc_shmem_obj_alloc(struct spmc_shmem_obj_state *state, size_t desc_size)
 {
 	struct spmc_shmem_obj *obj;
 	size_t free = state->data_size - state->allocated;
+	size_t obj_size;
 
 	if (state->data == NULL) {
 		ERROR("Missing shmem datastore!\n");
 		return NULL;
 	}
 
-	if (spmc_shmem_obj_size(desc_size) > free) {
+	obj_size = spmc_shmem_obj_size(desc_size);
+
+	/* Ensure the obj size has not overflowed. */
+	if (obj_size < desc_size) {
+		WARN("%s(0x%zx) desc_size overflow\n",
+		     __func__, desc_size);
+		return NULL;
+	}
+
+	if (obj_size > free) {
 		WARN("%s(0x%zx) failed, free 0x%zx\n",
 		     __func__, desc_size, free);
 		return NULL;
@@ -88,7 +98,7 @@ spmc_shmem_obj_alloc(struct spmc_shmem_obj_state *state, size_t desc_size)
 	obj->desc_size = desc_size;
 	obj->desc_filled = 0;
 	obj->in_use = 0;
-	state->allocated += spmc_shmem_obj_size(desc_size);
+	state->allocated += obj_size;
 	return obj;
 }
 
@@ -330,10 +340,9 @@ overlapping_memory_regions(struct ffa_comp_mrd *region1,
 				PAGE_SIZE_4KB;
 			region2_end = region2_start + region2_size;
 
-			if ((region1_start >= region2_start &&
-			     region1_start < region2_end) ||
-			    (region1_end > region2_start
-			     && region1_end < region2_end)) {
+			/* Check if regions are not overlapping. */
+			if (!((region2_end <= region1_start) ||
+			      (region1_end <= region2_start))) {
 				WARN("Overlapping mem regions 0x%lx-0x%lx & 0x%lx-0x%lx\n",
 				     region1_start, region1_end,
 				     region2_start, region2_end);
@@ -886,15 +895,15 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		goto err_arg;
 	}
 
-	memcpy((uint8_t *)&obj->desc + obj->desc_filled,
-	       (uint8_t *) mbox->tx_buffer, fragment_length);
-
 	if (fragment_length > obj->desc_size - obj->desc_filled) {
 		WARN("%s: bad fragment size %u > %zu remaining\n", __func__,
 		     fragment_length, obj->desc_size - obj->desc_filled);
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_arg;
 	}
+
+	memcpy((uint8_t *)&obj->desc + obj->desc_filled,
+	       (uint8_t *) mbox->tx_buffer, fragment_length);
 
 	/* Ensure that the sender ID resides in the normal world. */
 	if (ffa_is_secure_world_id(obj->desc.sender_id)) {
@@ -1825,6 +1834,13 @@ int spmc_ffa_mem_reclaim(uint32_t smc_fid,
 	}
 	if (obj->in_use != 0U) {
 		ret = FFA_ERROR_DENIED;
+		goto err_unlock;
+	}
+
+	if (obj->desc_filled != obj->desc_size) {
+		WARN("%s: incomplete object desc filled %zu < size %zu\n",
+		     __func__, obj->desc_filled, obj->desc_size);
+		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_unlock;
 	}
 
