@@ -346,7 +346,7 @@ void detect_arch_features(void)
 
 	/* v8.6 features */
 	read_feat_amuv1p1();
-	check_feature(ENABLE_FEAT_FGT, is_armv8_6_fgt_present(), "FGT");
+	check_feature(ENABLE_FEAT_FGT, read_feat_fgt_id_field(), "FGT");
 	read_feat_ecv();
 	read_feat_twed();
 

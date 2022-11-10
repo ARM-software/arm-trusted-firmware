@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 #include <arch_helpers.h>
+#include <common/feat_detect.h>
 
 static inline bool is_armv7_gentimer_present(void)
 {
@@ -97,10 +98,23 @@ static inline bool is_armv8_6_twed_present(void)
 		ID_AA64MMFR1_EL1_TWED_MASK) == ID_AA64MMFR1_EL1_TWED_SUPPORTED);
 }
 
-static inline bool is_armv8_6_fgt_present(void)
+static unsigned int read_feat_fgt_id_field(void)
 {
-	return ((read_id_aa64mmfr0_el1() >> ID_AA64MMFR0_EL1_FGT_SHIFT) &
-		ID_AA64MMFR0_EL1_FGT_MASK) != 0U;
+	return (read_id_aa64mmfr0_el1() >> ID_AA64MMFR0_EL1_FGT_SHIFT) &
+		ID_AA64MMFR0_EL1_FGT_MASK;
+}
+
+static inline bool is_feat_fgt_supported(void)
+{
+	if (ENABLE_FEAT_FGT == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_FGT == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_fgt_id_field() != 0U;
 }
 
 static inline unsigned long int get_armv8_6_ecv_support(void)

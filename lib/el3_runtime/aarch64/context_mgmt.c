@@ -359,7 +359,7 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 		&& (GET_M32(ep->spsr) == MODE32_hyp))) {
 		scr_el3 |= SCR_HCE_BIT;
 
-		if (is_armv8_6_fgt_present()) {
+		if (is_feat_fgt_supported()) {
 			scr_el3 |= SCR_FGTEN_BIT;
 		}
 
