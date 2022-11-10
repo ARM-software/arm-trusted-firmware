@@ -463,11 +463,11 @@ There are, however, legitimate uses of assembly language. These include:
 
 --------------
 
-*Copyright (c) 2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2020, 2022, Arm Limited and Contributors. All rights reserved.*
 
 .. _`Linux master tree`: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/
-.. _`Procedure Call Standard for the Arm Architecture`: https://developer.arm.com/docs/ihi0042/latest/
-.. _`Procedure Call Standard for the Arm 64-bit Architecture`: https://developer.arm.com/docs/ihi0055/latest/
+.. _`Procedure Call Standard for the Arm Architecture`: https://github.com/ARM-software/abi-aa/blob/main/aapcs32/aapcs32.rst
+.. _`Procedure Call Standard for the Arm 64-bit Architecture`: https://github.com/ARM-software/abi-aa/blob/main/aapcs64/aapcs64.rst
 .. _`EditorConfig`: http://editorconfig.org/
 .. _`Why the “volatile” type class should not be used`: https://www.kernel.org/doc/html/latest/process/volatile-considered-harmful.html
 .. _`MISRA C:2012 Guidelines`: https://www.misra.org.uk/Activities/MISRAC/tabid/160/Default.aspx
