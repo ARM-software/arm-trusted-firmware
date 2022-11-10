@@ -792,6 +792,35 @@ void cm_prepare_el3_exit(uint32_t security_state)
 }
 
 #if CTX_INCLUDE_EL2_REGS
+
+static void el2_sysregs_context_save_fgt(el2_sysregs_t *ctx)
+{
+	if (is_feat_fgt_supported()) {
+		write_ctx_reg(ctx, CTX_HDFGRTR_EL2, read_hdfgrtr_el2());
+		if (is_feat_amu_supported()) {
+			write_ctx_reg(ctx, CTX_HAFGRTR_EL2, read_hafgrtr_el2());
+		}
+		write_ctx_reg(ctx, CTX_HDFGWTR_EL2, read_hdfgwtr_el2());
+		write_ctx_reg(ctx, CTX_HFGITR_EL2, read_hfgitr_el2());
+		write_ctx_reg(ctx, CTX_HFGRTR_EL2, read_hfgrtr_el2());
+		write_ctx_reg(ctx, CTX_HFGWTR_EL2, read_hfgwtr_el2());
+	}
+}
+
+static void el2_sysregs_context_restore_fgt(el2_sysregs_t *ctx)
+{
+	if (is_feat_fgt_supported()) {
+		write_hdfgrtr_el2(read_ctx_reg(ctx, CTX_HDFGRTR_EL2));
+		if (is_feat_amu_supported()) {
+			write_hafgrtr_el2(read_ctx_reg(ctx, CTX_HAFGRTR_EL2));
+		}
+		write_hdfgwtr_el2(read_ctx_reg(ctx, CTX_HDFGWTR_EL2));
+		write_hfgitr_el2(read_ctx_reg(ctx, CTX_HFGITR_EL2));
+		write_hfgrtr_el2(read_ctx_reg(ctx, CTX_HFGRTR_EL2));
+		write_hfgwtr_el2(read_ctx_reg(ctx, CTX_HFGWTR_EL2));
+	}
+}
+
 /*******************************************************************************
  * Save EL2 sysreg context
  ******************************************************************************/
@@ -823,9 +852,9 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 #if ENABLE_MPAM_FOR_LOWER_ELS
 		el2_sysregs_context_save_mpam(el2_sysregs_ctx);
 #endif
-#if ENABLE_FEAT_FGT
+
 		el2_sysregs_context_save_fgt(el2_sysregs_ctx);
-#endif
+
 #if ENABLE_FEAT_ECV
 		el2_sysregs_context_save_ecv(el2_sysregs_ctx);
 #endif
@@ -881,9 +910,9 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 #if ENABLE_MPAM_FOR_LOWER_ELS
 		el2_sysregs_context_restore_mpam(el2_sysregs_ctx);
 #endif
-#if ENABLE_FEAT_FGT
+
 		el2_sysregs_context_restore_fgt(el2_sysregs_ctx);
-#endif
+
 #if ENABLE_FEAT_ECV
 		el2_sysregs_context_restore_ecv(el2_sysregs_ctx);
 #endif

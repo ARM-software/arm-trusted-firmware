@@ -523,10 +523,6 @@ void el2_sysregs_context_restore_mte(el2_sysregs_t *regs);
 void el2_sysregs_context_save_mpam(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_mpam(el2_sysregs_t *regs);
 #endif /* ENABLE_MPAM_FOR_LOWER_ELS */
-#if ENABLE_FEAT_FGT
-void el2_sysregs_context_save_fgt(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_fgt(el2_sysregs_t *regs);
-#endif /* ENABLE_FEAT_FGT */
 #if ENABLE_FEAT_ECV
 void el2_sysregs_context_save_ecv(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_ecv(el2_sysregs_t *regs);
