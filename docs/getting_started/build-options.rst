@@ -1032,6 +1032,12 @@ Common build options
   functionalities). When enabled (``1``), a mocked version of the APIs are used.
   The default value is 0.
 
+- ``CONDITIONAL_CMO``: Boolean option to enable call to platform-defined routine
+  ``plat_can_cmo`` which will return zero if cache management operations should
+  be skipped and non-zero otherwise. By default, this option is disabled which
+  means platform hook won't be checked and CMOs will always be performed when
+  related functions are called.
+
 GICv3 driver options
 --------------------
 

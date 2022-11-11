@@ -36,12 +36,26 @@ loop_\op:
 exit_loop_\op:
 	ret
 .endm
+
+.macro check_plat_can_cmo
+#if CONDITIONAL_CMO
+	mov	x3, x30
+	mov	x2, x0
+	bl	plat_can_cmo
+	mov	x30, x3
+	cbnz	x0, 1f
+	ret
+1:
+	mov	 x0, x2
+#endif
+.endm
 	/* ------------------------------------------
 	 * Clean+Invalidate from base address till
 	 * size. 'x0' = addr, 'x1' = size
 	 * ------------------------------------------
 	 */
 func flush_dcache_range
+	check_plat_can_cmo
 	do_dcache_maintenance_by_mva civac
 endfunc flush_dcache_range
 
@@ -51,6 +65,7 @@ endfunc flush_dcache_range
 	 * ------------------------------------------
 	 */
 func clean_dcache_range
+	check_plat_can_cmo
 	do_dcache_maintenance_by_mva cvac
 endfunc clean_dcache_range
 
@@ -60,6 +75,7 @@ endfunc clean_dcache_range
 	 * ------------------------------------------
 	 */
 func inv_dcache_range
+	check_plat_can_cmo
 	do_dcache_maintenance_by_mva ivac
 endfunc inv_dcache_range
 
@@ -79,6 +95,7 @@ endfunc inv_dcache_range
 func flush_dcache_to_popa_range
 	/* Exit early if size is zero */
 	cbz	x1, exit_loop_dc_cipapa
+	check_plat_can_cmo
 	dcache_line_size x2, x3
 	sub	x3, x2, #1
 	bic	x0, x0, x3
@@ -205,6 +222,7 @@ endfunc dcsw_op_louis
 
 
 func dcsw_op_all
+	check_plat_can_cmo
 	dcsw_op #LOC_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
 endfunc dcsw_op_all
 
@@ -228,6 +246,7 @@ endfunc dcsw_op_all
 	 * ---------------------------------------------------------------
 	 */
 func dcsw_op_level1
+	check_plat_can_cmo
 	dcsw_op_level #(1 << LEVEL_SHIFT)
 endfunc dcsw_op_level1
 
@@ -239,6 +258,7 @@ endfunc dcsw_op_level1
 	 * ---------------------------------------------------------------
 	 */
 func dcsw_op_level2
+	check_plat_can_cmo
 	dcsw_op_level #(2 << LEVEL_SHIFT)
 endfunc dcsw_op_level2
 
@@ -250,5 +270,6 @@ endfunc dcsw_op_level2
 	 * ---------------------------------------------------------------
 	 */
 func dcsw_op_level3
+	check_plat_can_cmo
 	dcsw_op_level #(3 << LEVEL_SHIFT)
 endfunc dcsw_op_level3
