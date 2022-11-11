@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,10 +66,13 @@ typedef struct key_s {
 /* Exported API */
 int key_init(void);
 key_t *key_get_by_opt(const char *opt);
+#if !USING_OPENSSL3
 int key_new(key_t *key);
+#endif
 int key_create(key_t *key, int type, int key_bits);
 int key_load(key_t *key, unsigned int *err_code);
 int key_store(key_t *key);
+void key_cleanup(void);
 
 /* Macro to register the keys used in the CoT */
 #define REGISTER_KEYS(_keys) \

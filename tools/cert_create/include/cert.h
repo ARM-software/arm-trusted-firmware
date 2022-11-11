@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,6 +54,7 @@ int cert_new(
 	int days,
 	int ca,
 	STACK_OF(X509_EXTENSION) * sk);
+void cert_cleanup(void);
 
 /* Macro to register the certificates used in the CoT */
 #define REGISTER_COT(_certs) \
