@@ -92,8 +92,8 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-static inline int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
-				      enum k3_sec_proxy_chan_id chan)
+static int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
+			       enum k3_sec_proxy_chan_id chan)
 {
 	struct ti_sci_msg_hdr *hdr;
 	unsigned int retry = 5;
@@ -140,7 +140,7 @@ static inline int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-static inline int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
+static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 {
 	struct k3_sec_proxy_msg *tx_msg = &xfer->tx_message;
 	struct k3_sec_proxy_msg *rx_msg = &xfer->rx_message;
