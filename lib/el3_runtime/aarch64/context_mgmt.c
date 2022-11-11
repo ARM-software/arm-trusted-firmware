@@ -254,6 +254,16 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 				   ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT;
 	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_ICC_SRE_EL2,
 			icc_sre_el2);
+
+	/*
+	 * Initialize MDCR_EL2.HPMN to its hardware reset value so we don't
+	 * throw anyone off who expects this to be sensible.
+	 * TODO: A similar thing happens in cm_prepare_el3_exit. They should be
+	 * unified with the proper PMU implementation
+	 */
+	u_register_t mdcr_el2 = ((read_pmcr_el0() >> PMCR_EL0_N_SHIFT) &
+			PMCR_EL0_N_MASK);
+	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_MDCR_EL2, mdcr_el2);
 #endif /* CTX_INCLUDE_EL2_REGS */
 }
 
