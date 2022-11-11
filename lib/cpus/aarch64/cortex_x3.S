@@ -59,6 +59,7 @@ func check_errata_cve_2022_23960
 endfunc check_errata_cve_2022_23960
 
 func cortex_x3_reset_func
+	mov	x19, x30
 	/* Disable speculative loads */
 	msr	SSBS, xzr
 
@@ -71,8 +72,14 @@ func cortex_x3_reset_func
 	msr	vbar_el3, x0
 #endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
 
+	bl	cpu_get_rev_var
+
+#if ERRATA_X3_2615812
+	bl	errata_cortex_x3_2615812_wa
+#endif /* ERRATA_X3_2615812 */
+
 	isb
-	ret
+	ret	x19
 endfunc cortex_x3_reset_func
 
 /* ----------------------------------------------------------------------
@@ -103,6 +110,35 @@ func check_errata_2313909
 	b	cpu_rev_var_ls
 endfunc check_errata_2313909
 
+/* ----------------------------------------------------------------------
+ * Errata Workaround for Cortex-X3 Erratum 2615812 on power-on.
+ * This applies to revision r0p0, r1p0, r1p1 of Cortex-X3. Open.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x1, x17
+ * ----------------------------------------------------------------------
+ */
+func errata_cortex_x3_2615812_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2615812
+	cbz	x0, 1f
+
+	/* Disable retention control for WFI and WFE. */
+	mrs	x0, CORTEX_X3_CPUPWRCTLR_EL1
+	bfi	x0, xzr, #CORTEX_X3_CPUPWRCTLR_EL1_WFI_RET_CTRL_BITS_SHIFT, #3
+	bfi	x0, xzr, #CORTEX_X3_CPUPWRCTLR_EL1_WFE_RET_CTRL_BITS_SHIFT, #3
+	msr	CORTEX_X3_CPUPWRCTLR_EL1, x0
+1:
+	ret	x17
+endfunc errata_cortex_x3_2615812_wa
+
+func check_errata_2615812
+	/* Applies to r1p1 and below. */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_2615812
+
 #if REPORT_ERRATA
 	/*
 	 * Errata printing function for Cortex-X3. Must follow AAPCS.
@@ -118,6 +154,7 @@ func cortex_x3_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_X3_2313909, cortex_x3, 2313909
+	report_errata ERRATA_X3_2615812, cortex_x3, 2615812
 	report_errata WORKAROUND_CVE_2022_23960, cortex_x3, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
