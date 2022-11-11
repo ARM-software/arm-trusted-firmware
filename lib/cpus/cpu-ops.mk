@@ -659,6 +659,10 @@ ERRATA_X2_2371105	?=0
 # to revisions r0p0 and r1p0 of the Cortex-X3 cpu, it is fixed in r1p1.
 ERRATA_X3_2313909	?=0
 
+# Flag to apply erratum 2615812 workaround on powerdown. This erratum applies
+# to revisions r0p0, r1p0, r1p1 of the Cortex-X3 cpu, it is still open.
+ERRATA_X3_2615812	?=0
+
 # Flag to apply erratum 1922240 workaround during reset. This erratum applies
 # to revision r0p0 of the Cortex-A510 cpu and is fixed in r0p1.
 ERRATA_A510_1922240	?=0
@@ -1287,6 +1291,10 @@ $(eval $(call add_define,ERRATA_X2_2371105))
 # Process ERRATA_X3_2313909 flag
 $(eval $(call assert_boolean,ERRATA_X3_2313909))
 $(eval $(call add_define,ERRATA_X3_2313909))
+
+# Process ERRATA_X3_2615812 flag
+$(eval $(call assert_boolean,ERRATA_X3_2615812))
+$(eval $(call add_define,ERRATA_X3_2615812))
 
 # Process ERRATA_A510_1922240 flag
 $(eval $(call assert_boolean,ERRATA_A510_1922240))
