@@ -51,6 +51,17 @@ Maintainers
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
 
+LTS Maintainers
+---------------
+
+:|M|: Bipin Ravi <bipin.ravi@arm.com>
+:|G|: `bipinravi-arm`_
+:|M|: Joanna Farley <joanna.farley@arm.com>
+:|G|: `joannafarley-arm`_
+:|M|: Okash Khawaja <okash@google.com>
+:|G|: `bytefire`_
+:|M|: Varun Wadekar <vwadekar@nvidia.com>
+:|G|: `vwadekar`_
 
 .. _code owners:
 
@@ -944,5 +955,6 @@ Conventional Changelog Extensions
 .. _marcone: https://github.com/marcone
 .. _marcbonnici: https://github.com/marcbonnici
 .. _jayanthchidanand-arm: https://github.com/jayanthchidanand-arm
+.. _bytefire: https://github.com/bytefire
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
