@@ -9,7 +9,7 @@
 #include <lib/psci/psci.h>
 
 #if MTK_PUBEVENT_ENABLE
-#include <mtk_event/mtk_pubsub_events.h>
+#include <vendor_pubsub_events.h>
 #endif
 
 #define MTK_CPUPM_E_OK			(0)

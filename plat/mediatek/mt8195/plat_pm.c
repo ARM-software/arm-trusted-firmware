@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2021-2022, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,15 +13,15 @@
 #include <lib/psci/psci.h>
 
 /* platform specific headers */
-#include <mt_gic_v3.h>
-#include <mtk_ptp3_common.h>
-#include <mtspmc.h>
 #include <plat/common/platform.h>
+#include <mt_gic_v3.h>
+#include <mtspmc.h>
 #include <plat_dfd.h>
 #include <plat_mtk_lpm.h>
 #include <plat_params.h>
 #include <plat_pm.h>
 #include <pmic.h>
+#include <ptp3_common.h>
 #include <rtc.h>
 
 /*
