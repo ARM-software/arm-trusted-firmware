@@ -217,6 +217,7 @@ dcsw_loop_table:
 
 
 func dcsw_op_louis
+	check_plat_can_cmo
 	dcsw_op #LOUIS_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
 endfunc dcsw_op_louis
 
