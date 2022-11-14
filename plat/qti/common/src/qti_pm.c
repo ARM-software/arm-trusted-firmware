@@ -47,8 +47,7 @@
 #define QTI_CORE_PWRDN_EN_MASK		1
 
 /* cpu power control happens to be same across all CPUs */
-_DEFINE_SYSREG_WRITE_FUNC(cpu_pwrctrl_val, S3_0_C15_C2_7)
-_DEFINE_SYSREG_READ_FUNC(cpu_pwrctrl_val, S3_0_C15_C2_7)
+DEFINE_RENAME_SYSREG_RW_FUNCS(cpu_pwrctrl_val, S3_0_C15_C2_7)
 
 const unsigned int qti_pm_idle_states[] = {
 	qti_make_pwrstate_lvl0(QTI_LOCAL_STATE_OFF,
