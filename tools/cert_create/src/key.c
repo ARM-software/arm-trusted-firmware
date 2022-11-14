@@ -93,20 +93,39 @@ err2:
 }
 
 #ifndef OPENSSL_NO_EC
-static int key_create_ecdsa(key_t *key, int key_bits)
-{
 #if USING_OPENSSL3
-	EVP_PKEY *ec = EVP_EC_gen("prime256v1");
+static int key_create_ecdsa(key_t *key, int key_bits, const char *curve)
+{
+	EVP_PKEY *ec = EVP_EC_gen(curve);
 	if (ec == NULL) {
 		printf("Cannot generate EC key\n");
 		return 0;
 	}
+
 	key->key = ec;
 	return 1;
+}
+
+static int key_create_ecdsa_nist(key_t *key, int key_bits)
+{
+	return key_create_ecdsa(key, key_bits, "prime256v1");
+}
+
+static int key_create_ecdsa_brainpool_r(key_t *key, int key_bits)
+{
+	return key_create_ecdsa(key, key_bits, "brainpoolP256r1");
+}
+
+static int key_create_ecdsa_brainpool_t(key_t *key, int key_bits)
+{
+	return key_create_ecdsa(key, key_bits, "brainpoolP256t1");
+}
 #else
+static int key_create_ecdsa(key_t *key, int key_bits, const int curve_id)
+{
 	EC_KEY *ec;
 
-	ec = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+	ec = EC_KEY_new_by_curve_name(curve_id);
 	if (ec == NULL) {
 		printf("Cannot create EC key\n");
 		return 0;
@@ -127,15 +146,32 @@ static int key_create_ecdsa(key_t *key, int key_bits)
 err:
 	EC_KEY_free(ec);
 	return 0;
-#endif
 }
+
+static int key_create_ecdsa_nist(key_t *key, int key_bits)
+{
+	return key_create_ecdsa(key, key_bits, NID_X9_62_prime256v1);
+}
+
+static int key_create_ecdsa_brainpool_r(key_t *key, int key_bits)
+{
+	return key_create_ecdsa(key, key_bits, NID_brainpoolP256r1);
+}
+
+static int key_create_ecdsa_brainpool_t(key_t *key, int key_bits)
+{
+	return key_create_ecdsa(key, key_bits, NID_brainpoolP256t1);
+}
+#endif /* USING_OPENSSL3 */
 #endif /* OPENSSL_NO_EC */
 
 typedef int (*key_create_fn_t)(key_t *key, int key_bits);
 static const key_create_fn_t key_create_fn[KEY_ALG_MAX_NUM] = {
-	key_create_rsa, 	/* KEY_ALG_RSA */
+	[KEY_ALG_RSA] = key_create_rsa,
 #ifndef OPENSSL_NO_EC
-	key_create_ecdsa, 	/* KEY_ALG_ECDSA */
+	[KEY_ALG_ECDSA_NIST] = key_create_ecdsa_nist,
+	[KEY_ALG_ECDSA_BRAINPOOL_R] = key_create_ecdsa_brainpool_r,
+	[KEY_ALG_ECDSA_BRAINPOOL_T] = key_create_ecdsa_brainpool_t,
 #endif /* OPENSSL_NO_EC */
 };
 

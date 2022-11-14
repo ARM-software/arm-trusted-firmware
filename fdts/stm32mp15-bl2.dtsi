@@ -85,8 +85,33 @@
 			bl33_uuid = "d6d0eea7-fcea-d54b-9782-9934f234b6e4";
 			hw_cfg_uuid = "08b8f1d9-c9cf-9349-a962-6fbc6b7265cc";
 			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
-			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
+#if TRUSTED_BOARD_BOOT
+			stm32mp_cfg_cert_uuid = "501d8dd2-8bce-49a5-84eb-559a9f2eaeaf";
+			t_key_cert_uuid = "827ee890-f860-e411-a1b4-777a21b4f94c";
+			tos_fw_key_cert_uuid = "9477d603-fb60-e411-85dd-b7105b8cee04";
+			nt_fw_key_cert_uuid = "8ad5832a-fb60-e411-8aaf-df30bbc49859";
+			tos_fw_content_cert_uuid = "a49f4411-5e63-e411-8728-3f05722af33d";
+			nt_fw_content_cert_uuid = "8ec4c1f3-5d63-e411-a7a9-87ee40b23fa7";
+#endif
 		};
 	};
+
+#if TRUSTED_BOARD_BOOT
+	tb_fw-config {
+		compatible = "arm,tb_fw";
+
+		/* Disable authentication for development */
+		disable_auth = <0x0>;
+
+		/*
+		 * The following two entries are placeholders for Mbed TLS
+		 * heap information.
+		 */
+		mbedtls_heap_addr = <0x0 0x0>;
+		mbedtls_heap_size = <0x0>;
+	};
+
+#include "stm32mp1-cot-descriptors.dtsi"
+#endif
 #endif /* !STM32MP_USE_STM32IMAGE */
 };

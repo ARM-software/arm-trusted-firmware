@@ -18,6 +18,12 @@ STM32MP_UART_BAUDRATE	?=	115200
 # If it is set to 0, then FIP is used
 STM32MP_USE_STM32IMAGE	?=	0
 
+TRUSTED_BOARD_BOOT	?=	0
+STM32MP_USE_EXTERNAL_HEAP ?=	0
+
+# Use secure library from the ROM code for authentication
+STM32MP_CRYPTO_ROM_LIB	?=	0
+
 # Please don't increment this value without good understanding of
 # the monotonic counter
 STM32_TF_VERSION	?=	0
@@ -49,9 +55,18 @@ STM32MP15		:=	1
 endif
 
 ifeq ($(STM32MP13),1)
+# Will use SRAM2 as mbedtls heap
+STM32MP_USE_EXTERNAL_HEAP :=	1
+
 # DDR controller with single AXI port and 16-bit interface
 STM32MP_DDR_DUAL_AXI_PORT:=	0
 STM32MP_DDR_32BIT_INTERFACE:=	0
+
+ifeq (${TRUSTED_BOARD_BOOT},1)
+# PKA algo to include
+PKA_USE_NIST_P256	:=	1
+PKA_USE_BRAINPOOL_P256T1:=	1
+endif
 
 # STM32 image header version v2.0
 STM32_HEADER_VERSION_MAJOR:=	2
@@ -70,6 +85,13 @@ STM32_HEADER_VERSION_MINOR:=	0
 # Add OP-TEE reserved shared memory area in mapping
 STM32MP15_OPTEE_RSV_SHM	:=	1
 $(eval $(call add_defines,STM32MP15_OPTEE_RSV_SHM))
+
+STM32MP_CRYPTO_ROM_LIB :=	1
+
+# Decryption support
+ifneq ($(DECRYPTION_SUPPORT),none)
+$(error "DECRYPTION_SUPPORT not supported on STM32MP15")
+endif
 endif
 
 # STM32 image header binary type for BL2
@@ -108,6 +130,14 @@ endif
 else
 $(error FWU Feature enabled only with FIP images)
 endif
+endif
+
+ifeq ($(STM32MP13),1)
+STM32_HASH_VER		:=	4
+STM32_RNG_VER		:=	4
+else # Assuming STM32MP15
+STM32_HASH_VER		:=	2
+STM32_RNG_VER		:=	2
 endif
 
 # Boot devices
@@ -184,6 +214,11 @@ endif
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_FW_CONFIG},--fw-config))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_HW_CONFIG},--hw-config))
+ifeq ($(GENERATE_COT),1)
+STM32MP_CFG_CERT	:=	$(BUILD_PLAT)/stm32mp_cfg_cert.crt
+# Add the STM32MP_CFG_CERT to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_CFG_CERT},--stm32mp-cfg-cert))
+endif
 ifeq ($(AARCH32_SP),sp_min)
 STM32MP_TOS_FW_CONFIG	:= $(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dtb,$(DTB_FILE_NAME)))
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_TOS_FW_CONFIG},--tos-fw-config))
@@ -191,10 +226,10 @@ else
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
 ifneq ($(BL32_EXTRA1),)
-$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1,,$(ENCRYPT_BL32)))
 endif
 ifneq ($(BL32_EXTRA2),)
-$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2,,$(ENCRYPT_BL32)))
 endif
 endif
 endif
@@ -202,7 +237,11 @@ endif
 # Enable flags for C files
 $(eval $(call assert_booleans,\
 	$(sort \
+		PKA_USE_BRAINPOOL_P256T1 \
+		PKA_USE_NIST_P256 \
+		PLAT_TBBR_IMG_DEF \
 		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_32BIT_INTERFACE \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_EARLY_CONSOLE \
@@ -215,6 +254,7 @@ $(eval $(call assert_booleans,\
 		STM32MP_SPI_NOR \
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
+		STM32MP_USE_EXTERNAL_HEAP \
 		STM32MP_USE_STM32IMAGE \
 		STM32MP13 \
 		STM32MP15 \
@@ -223,6 +263,9 @@ $(eval $(call assert_booleans,\
 $(eval $(call assert_numerics,\
 	$(sort \
 		PLAT_PARTITION_MAX_ENTRIES \
+		STM32_HASH_VER \
+		STM32_HEADER_VERSION_MAJOR \
+		STM32_RNG_VER \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
 		STM32MP_UART_BAUDRATE \
@@ -231,10 +274,17 @@ $(eval $(call assert_numerics,\
 $(eval $(call add_defines,\
 	$(sort \
 		DWL_BUFFER_BASE \
+		PKA_USE_BRAINPOOL_P256T1 \
+		PKA_USE_NIST_P256 \
 		PLAT_PARTITION_MAX_ENTRIES \
+		PLAT_TBBR_IMG_DEF \
 		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32_HASH_VER \
+		STM32_HEADER_VERSION_MAJOR \
+		STM32_RNG_VER \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
+		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_32BIT_INTERFACE \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_EARLY_CONSOLE \
@@ -248,6 +298,7 @@ $(eval $(call add_defines,\
 		STM32MP_UART_BAUDRATE \
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
+		STM32MP_USE_EXTERNAL_HEAP \
 		STM32MP_USE_STM32IMAGE \
 		STM32MP13 \
 		STM32MP15 \
@@ -302,7 +353,8 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 
 ifeq ($(STM32MP13),1)
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/clk-stm32-core.c				\
-				drivers/st/clk/clk-stm32mp13.c
+				drivers/st/clk/clk-stm32mp13.c				\
+				drivers/st/crypto/stm32_rng.c
 else
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/stm32mp1_clk.c
 endif
@@ -340,9 +392,47 @@ BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/st/crypto/stm32_hash.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
 
+ifneq (${DECRYPTION_SUPPORT},none)
+BL2_SOURCES		+=	drivers/io/io_encrypted.c
+endif
 
-ifeq ($(STM32MP15),1)
-BL2_SOURCES		+=	plat/st/common/stm32mp_auth.c
+ifeq (${TRUSTED_BOARD_BOOT},1)
+AUTH_SOURCES		:=	drivers/auth/auth_mod.c					\
+				drivers/auth/crypto_mod.c				\
+				drivers/auth/img_parser_mod.c
+
+ifeq (${GENERATE_COT},1)
+TFW_NVCTR_VAL		:=	0
+NTFW_NVCTR_VAL		:=	0
+KEY_SIZE		:=
+KEY_ALG			:=	ecdsa
+HASH_ALG		:=	sha256
+
+ifeq (${SAVE_KEYS},1)
+TRUSTED_WORLD_KEY	?=	${BUILD_PLAT}/trusted.pem
+NON_TRUSTED_WORLD_KEY	?=	${BUILD_PLAT}/non-trusted.pem
+BL32_KEY		?=	${BUILD_PLAT}/trusted_os.pem
+BL33_KEY		?=	${BUILD_PLAT}/non-trusted_os.pem
+endif
+
+endif
+TF_MBEDTLS_KEY_ALG 	:=	ecdsa
+MBEDTLS_CONFIG_FILE	?=	"<stm32mp1_mbedtls_config.h>"
+
+include drivers/auth/mbedtls/mbedtls_x509.mk
+
+COT_DESC_IN_DTB		:=	1
+AUTH_SOURCES		+=	lib/fconf/fconf_cot_getter.c				\
+				lib/fconf/fconf_tbbr_getter.c				\
+				plat/st/common/stm32mp_crypto_lib.c
+
+ifeq ($(STM32MP13),1)
+AUTH_SOURCES		+=	drivers/st/crypto/stm32_pka.c
+AUTH_SOURCES		+=	drivers/st/crypto/stm32_saes.c
+endif
+
+BL2_SOURCES		+=	$(AUTH_SOURCES)						\
+				plat/st/common/stm32mp_trusted_boot.c
 endif
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)

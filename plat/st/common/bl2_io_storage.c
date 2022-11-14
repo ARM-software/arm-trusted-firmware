@@ -14,6 +14,7 @@
 #include <drivers/fwu/fwu_metadata.h>
 #include <drivers/io/io_block.h>
 #include <drivers/io/io_driver.h>
+#include <drivers/io/io_encrypted.h>
 #include <drivers/io/io_fip.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_mtd.h>
@@ -47,6 +48,11 @@ uintptr_t fip_dev_handle;
 uintptr_t storage_dev_handle;
 
 static const io_dev_connector_t *fip_dev_con;
+
+#ifndef DECRYPTION_SUPPORT_none
+static const io_dev_connector_t *enc_dev_con;
+uintptr_t enc_dev_handle;
+#endif
 
 #if STM32MP_SDMMC || STM32MP_EMMC
 static struct mmc_device_info mmc_info;
@@ -117,6 +123,29 @@ int open_fip(const uintptr_t spec)
 {
 	return io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID);
 }
+
+#ifndef DECRYPTION_SUPPORT_none
+int open_enc_fip(const uintptr_t spec)
+{
+	int result;
+	uintptr_t local_image_handle;
+
+	result = io_dev_init(enc_dev_handle, (uintptr_t)ENC_IMAGE_ID);
+	if (result != 0) {
+		return result;
+	}
+
+	result = io_open(enc_dev_handle, spec, &local_image_handle);
+	if (result != 0) {
+		return result;
+	}
+
+	VERBOSE("Using encrypted FIP\n");
+	io_close(local_image_handle);
+
+	return 0;
+}
+#endif
 
 int open_storage(const uintptr_t spec)
 {
@@ -382,6 +411,15 @@ void stm32mp_io_setup(void)
 
 	io_result = io_dev_open(fip_dev_con, (uintptr_t)NULL,
 				&fip_dev_handle);
+
+#ifndef DECRYPTION_SUPPORT_none
+	io_result = register_io_dev_enc(&enc_dev_con);
+	assert(io_result == 0);
+
+	io_result = io_dev_open(enc_dev_con, (uintptr_t)NULL,
+				&enc_dev_handle);
+	assert(io_result == 0);
+#endif
 
 	switch (boot_context->boot_interface_selected) {
 #if STM32MP_SDMMC

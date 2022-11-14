@@ -31,6 +31,7 @@
 	} while (0)
 
 #pragma weak plat_set_nv_ctr2
+#pragma weak plat_convert_pk
 
 
 static int cmp_auth_param_type_desc(const auth_param_type_desc_t *a,
@@ -202,6 +203,10 @@ static int auth_signature(const auth_method_param_sig_t *param,
 			NOTICE("ROTPK is not deployed on platform. "
 				"Skipping ROTPK verification.\n");
 		} else {
+			/* platform may store the hash of a prefixed, suffixed or modified pk */
+			rc = plat_convert_pk(pk_ptr, pk_len, &pk_ptr, &pk_len);
+			return_if_error(rc);
+
 			/* Ask the crypto-module to verify the key hash */
 			rc = crypto_mod_verify_hash(pk_ptr, pk_len,
 				    pk_hash_ptr, pk_hash_len);
@@ -299,6 +304,15 @@ int plat_set_nv_ctr2(void *cookie, const auth_img_desc_t *img_desc __unused,
 		unsigned int nv_ctr)
 {
 	return plat_set_nv_ctr(cookie, nv_ctr);
+}
+
+int plat_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
+		    void **hashed_pk_ptr, unsigned int *hashed_pk_len)
+{
+	*hashed_pk_ptr = full_pk_ptr;
+	*hashed_pk_len = full_pk_len;
+
+	return 0;
 }
 
 /*

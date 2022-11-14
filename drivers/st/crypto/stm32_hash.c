@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,10 +7,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdint.h>
-
-#include <libfdt.h>
-
-#include <platform_def.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -20,9 +16,17 @@
 #include <drivers/st/stm32mp_reset.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
+#include <libfdt.h>
 #include <plat/common/platform.h>
 
+#include <platform_def.h>
+
+#if STM32_HASH_VER == 2
 #define DT_HASH_COMPAT			"st,stm32f756-hash"
+#endif
+#if STM32_HASH_VER == 4
+#define DT_HASH_COMPAT			"st,stm32mp13-hash"
+#endif
 
 #define HASH_CR				0x00U
 #define HASH_DIN			0x04U
@@ -33,11 +37,22 @@
 /* Control Register */
 #define HASH_CR_INIT			BIT(2)
 #define HASH_CR_DATATYPE_SHIFT		U(4)
-
+#if STM32_HASH_VER == 2
 #define HASH_CR_ALGO_SHA1		0x0U
 #define HASH_CR_ALGO_MD5		BIT(7)
 #define HASH_CR_ALGO_SHA224		BIT(18)
 #define HASH_CR_ALGO_SHA256		(BIT(18) | BIT(7))
+#endif
+#if STM32_HASH_VER == 4
+#define HASH_CR_ALGO_SHIFT		U(17)
+#define HASH_CR_ALGO_SHA1		(0x0U << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA224		(0x2U << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA256		(0x3U << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA384		(0xCU << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA512_224		(0xDU << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA512_256		(0xEU << HASH_CR_ALGO_SHIFT)
+#define HASH_CR_ALGO_SHA512		(0xFU << HASH_CR_ALGO_SHIFT)
+#endif
 
 /* Status Flags */
 #define HASH_SR_DCIS			BIT(1)
@@ -51,6 +66,10 @@
 #define SHA1_DIGEST_SIZE		20U
 #define SHA224_DIGEST_SIZE		28U
 #define SHA256_DIGEST_SIZE		32U
+#define SHA384_DIGEST_SIZE		48U
+#define SHA512_224_DIGEST_SIZE		28U
+#define SHA512_256_DIGEST_SIZE		32U
+#define SHA512_DIGEST_SIZE		64U
 
 #define RESET_TIMEOUT_US_1MS		1000U
 #define HASH_TIMEOUT_US			10000U
@@ -131,10 +150,12 @@ static void hash_hw_init(enum stm32_hash_algo_mode mode)
 	reg = HASH_CR_INIT | (HASH_DATA_8_BITS << HASH_CR_DATATYPE_SHIFT);
 
 	switch (mode) {
+#if STM32_HASH_VER == 2
 	case HASH_MD5SUM:
 		reg |= HASH_CR_ALGO_MD5;
 		stm32_hash.digest_size = MD5_DIGEST_SIZE;
 		break;
+#endif
 	case HASH_SHA1:
 		reg |= HASH_CR_ALGO_SHA1;
 		stm32_hash.digest_size = SHA1_DIGEST_SIZE;
@@ -143,6 +164,16 @@ static void hash_hw_init(enum stm32_hash_algo_mode mode)
 		reg |= HASH_CR_ALGO_SHA224;
 		stm32_hash.digest_size = SHA224_DIGEST_SIZE;
 		break;
+#if STM32_HASH_VER == 4
+	case HASH_SHA384:
+		reg |= HASH_CR_ALGO_SHA384;
+		stm32_hash.digest_size = SHA384_DIGEST_SIZE;
+		break;
+	case HASH_SHA512:
+		reg |= HASH_CR_ALGO_SHA512;
+		stm32_hash.digest_size = SHA512_DIGEST_SIZE;
+		break;
+#endif
 	/* Default selected algo is SHA256 */
 	case HASH_SHA256:
 	default:
@@ -171,13 +202,12 @@ static int hash_get_digest(uint8_t *digest)
 		memcpy(digest + (i * sizeof(uint32_t)), &dsg, sizeof(uint32_t));
 	}
 
-#if defined(IMAGE_BL2)
 	/*
 	 * Clean hardware context as HASH could be used later
 	 * by non-secure software
 	 */
 	hash_hw_init(HASH_SHA256);
-#endif
+
 	return 0;
 }
 
@@ -298,17 +328,9 @@ int stm32_hash_register(void)
 	for (node = dt_get_node(&hash_info, -1, DT_HASH_COMPAT);
 	     node != -FDT_ERR_NOTFOUND;
 	     node = dt_get_node(&hash_info, node, DT_HASH_COMPAT)) {
-#if defined(IMAGE_BL2)
 		if (hash_info.status != DT_DISABLED) {
 			break;
 		}
-#else
-		/* BL32 uses hash if it is assigned only to secure world */
-		if (hash_info.status == DT_SECURE) {
-			stm32mp_register_secure_periph_iomem(hash_info.base);
-			break;
-		}
-#endif
 	}
 
 	if (node == -FDT_ERR_NOTFOUND) {

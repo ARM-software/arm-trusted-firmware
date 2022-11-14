@@ -19,7 +19,6 @@
 #include <drivers/st/stm32mp1_clk.h>
 
 #include <boot_api.h>
-#include <stm32mp_auth.h>
 #include <stm32mp_common.h>
 #include <stm32mp_dt.h>
 #include <stm32mp1_dbgmcu.h>
@@ -451,6 +450,8 @@ enum ddr_type {
 #endif
 #define MONOTONIC_OTP			"monotonic_otp"
 #define UID_OTP				"uid_otp"
+#define PKH_OTP				"pkh_otp"
+#define ENCKEY_OTP			"enckey_otp"
 #define BOARD_ID_OTP			"board_id"
 
 /* OTP mask */
@@ -551,6 +552,7 @@ enum ddr_type {
  ******************************************************************************/
 #define TAMP_BASE			U(0x5C00A000)
 #define TAMP_BKP_REGISTER_BASE		(TAMP_BASE + U(0x100))
+#define TAMP_COUNTR			U(0x40)
 
 #if !(defined(__LINKER__) || defined(__ASSEMBLER__))
 static inline uintptr_t tamp_bkpr(uint32_t idx)

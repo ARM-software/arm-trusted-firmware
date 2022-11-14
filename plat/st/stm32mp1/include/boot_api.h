@@ -232,21 +232,14 @@ typedef struct {
 #if STM32MP15
 	/*
 	 * Pointers to bootROM External Secure Services
-	 * - ECDSA check key
 	 * - ECDSA verify signature
-	 * - ECDSA verify signature and go
 	 */
-	uint32_t (*bootrom_ecdsa_check_key)(uint8_t *pubkey_in,
-					    uint8_t *pubkey_out);
+	uint32_t reserved3;
 	uint32_t (*bootrom_ecdsa_verify_signature)(uint8_t *hash_in,
 						   uint8_t *pubkey_in,
 						   uint8_t *signature,
 						   uint32_t ecc_algo);
-	uint32_t (*bootrom_ecdsa_verify_and_go)(uint8_t *hash_in,
-						uint8_t *pub_key_in,
-						uint8_t *signature,
-						uint32_t ecc_algo,
-						uint32_t *entry_in);
+	uint32_t reserved4;
 #endif
 	/*
 	 * Information specific to an SD boot
@@ -340,6 +333,8 @@ typedef struct {
 	uint32_t binary_type;
 	/* Pad up to 128 byte total size */
 	uint8_t pad[16];
+	/* Followed by extension header */
+	uint8_t ext_header[];
 #endif
 #if STM32MP15
 	/*
@@ -369,5 +364,46 @@ typedef struct {
 	uint8_t binary_type;
 #endif
 } __packed boot_api_image_header_t;
+
+typedef uint8_t boot_api_sha256_t[BOOT_API_SHA256_DIGEST_SIZE_IN_BYTES];
+
+typedef struct {
+	/* Extension header type:
+	 * BOOT_API_FSBL_DECRYPTION_HEADER_MAGIC_NB or
+	 * BOOT_API_AUTHENTICATION_HEADER_MAGIC_NB
+	 * BOOT_API_PADDING_HEADER_MAGIC_NB
+	 */
+	uint32_t type;
+	/* Extension header len in byte */
+	uint32_t len;
+	/* parameters of this extension */
+	uint8_t  params[];
+} __packed boot_extension_header_t;
+
+typedef struct {
+	/* Idx of ECDSA public key to be used in table */
+	uint32_t pk_idx;
+	/* Number of ECDSA public key in table */
+	uint32_t nb_pk;
+	/*
+	 * Type of ECC algorithm to use  :
+	 * value 1 : for P-256 NIST algorithm
+	 * value 2 : for Brainpool 256 algorithm
+	 * See definitions 'BOOT_API_ECDSA_ALGO_TYPE_XXX' above.
+	 */
+	uint32_t ecc_algo_type;
+	/* ECDSA public key to be used to check signature. */
+	uint8_t ecc_pubk[BOOT_API_ECDSA_PUB_KEY_LEN_IN_BYTES];
+	/* table of Hash of Algo+ECDSA public key */
+	boot_api_sha256_t pk_hashes[];
+} __packed boot_ext_header_params_authentication_t;
+
+typedef struct {
+	/* Size of encryption key (128 or 256) */
+	uint32_t key_size;
+	uint32_t derivation_cont;
+	/* 128 msb bits of plain payload SHA256 */
+	uint32_t hash[4];
+} __packed boot_ext_header_params_encrypted_fsbl_t;
 
 #endif /* BOOT_API_H */

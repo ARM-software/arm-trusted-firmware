@@ -17,6 +17,7 @@
 #include <drivers/st/bsec.h>
 #include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32_iwdg.h>
+#include <drivers/st/stm32_rng.h>
 #include <drivers/st/stm32_uart.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_pwr.h>
@@ -45,10 +46,6 @@ static const char debug_msg[] = {
 	"** vendor!                                       **\n"
 	"***************************************************\n"
 };
-#endif
-
-#if STM32MP15
-static struct stm32mp_auth_ops stm32mp1_auth_ops;
 #endif
 
 static void print_reset_reason(void)
@@ -344,6 +341,14 @@ void bl2_el3_plat_arch_setup(void)
 	}
 
 skip_console_init:
+#if !TRUSTED_BOARD_BOOT
+	if (stm32mp_is_closed_device()) {
+		/* Closed chip mandates authentication */
+		ERROR("Secure chip: TRUSTED_BOARD_BOOT must be enabled\n");
+		panic();
+	}
+#endif
+
 	if (fixed_regulator_register() != 0) {
 		panic();
 	}
@@ -375,14 +380,9 @@ skip_console_init:
 		}
 	}
 
-#if STM32MP15
-	if (stm32mp_is_auth_supported()) {
-		stm32mp1_auth_ops.check_key =
-			boot_context->bootrom_ecdsa_check_key;
-		stm32mp1_auth_ops.verify_signature =
-			boot_context->bootrom_ecdsa_verify_signature;
-
-		stm32mp_init_auth(&stm32mp1_auth_ops);
+#if STM32MP13
+	if (stm32_rng_init() != 0) {
+		panic();
 	}
 #endif
 
