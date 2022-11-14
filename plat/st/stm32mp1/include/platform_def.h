@@ -25,25 +25,9 @@
 #define PLATFORM_STACK_SIZE		0xC00
 #endif
 
-#if STM32MP_USE_STM32IMAGE
-#ifdef AARCH32_SP_OPTEE
-#define OPTEE_HEADER_IMAGE_NAME		"teeh"
-#define OPTEE_CORE_IMAGE_NAME		"teex"
-#define OPTEE_PAGED_IMAGE_NAME		"teed"
-#define OPTEE_HEADER_BINARY_TYPE	U(0x20)
-#define OPTEE_CORE_BINARY_TYPE		U(0x21)
-#define OPTEE_PAGED_BINARY_TYPE		U(0x22)
-#endif
-
-/* SSBL = second stage boot loader */
-#define BL33_IMAGE_NAME			"ssbl"
-#define BL33_BINARY_TYPE		U(0x0)
-#else /* STM32MP_USE_STM32IMAGE */
 #define FIP_IMAGE_NAME			"fip"
 #define METADATA_PART_1			"metadata1"
 #define METADATA_PART_2			"metadata2"
-
-#endif /* STM32MP_USE_STM32IMAGE */
 
 #define STM32MP_PRIMARY_CPU		U(0x0)
 #define STM32MP_SECONDARY_CPU		U(0x1)
@@ -81,7 +65,7 @@
 /*******************************************************************************
  * BL32 specific defines.
  ******************************************************************************/
-#if STM32MP_USE_STM32IMAGE || defined(IMAGE_BL32)
+#if defined(IMAGE_BL32)
 #if ENABLE_PIE
 #define BL32_BASE			0
 #define BL32_LIMIT			STM32MP_BL32_SIZE
@@ -90,7 +74,7 @@
 #define BL32_LIMIT			(STM32MP_BL32_BASE + \
 					 STM32MP_BL32_SIZE)
 #endif
-#endif /* STM32MP_USE_STM32IMAGE || defined(IMAGE_BL32) */
+#endif /* defined(IMAGE_BL32) */
 
 /*******************************************************************************
  * BL33 specific defines.

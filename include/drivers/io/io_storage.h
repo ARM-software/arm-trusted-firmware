@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,7 +24,6 @@ typedef enum {
 	IO_TYPE_BLOCK,
 	IO_TYPE_MTD,
 	IO_TYPE_MMC,
-	IO_TYPE_STM32IMAGE,
 	IO_TYPE_ENCRYPTED,
 	IO_TYPE_MAX
 } io_type_t;
