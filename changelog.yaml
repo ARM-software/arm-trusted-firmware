@@ -101,6 +101,9 @@ subsections:
       - title: Extended Cache Index (FEAT_CCIDX)
         scope: ccidx
 
+      - title: CPU feature / ID register handling in general
+        scope: cpufeat
+
       - title: Support for the `HCRX_EL2` register (FEAT_HCX)
         scope: hcx
 

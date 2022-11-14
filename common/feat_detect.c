@@ -4,24 +4,39 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch_features.h>
+#include <common/debug.h>
 #include <common/feat_detect.h>
 
 /*******************************************************************************
  * This section lists the wrapper modules for each feature to evaluate the
- * feature states (FEAT_STATE_1 and FEAT_STATE_2) and perform necessary action
- * as below:
+ * feature states (FEAT_STATE_ALWAYS and FEAT_STATE_CHECK) and perform
+ * necessary action as below:
  *
  * It verifies whether the FEAT_XXX (eg: FEAT_SB) is supported by the PE or not.
  * Without this check an exception would occur during context save/restore
  * routines, if the feature is enabled but not supported by PE.
  ******************************************************************************/
 
+#define feat_detect_panic(a, b)		((a) ? (void)0 : feature_panic(b))
+
+/*******************************************************************************
+ * Function : feature_panic
+ * Customised panic function with error logging mechanism to list the feature
+ * not supported by the PE.
+ ******************************************************************************/
+static inline void feature_panic(char *feat_name)
+{
+	ERROR("FEAT_%s not supported by the PE\n", feat_name);
+	panic();
+}
+
 /******************************************
  * Feature : FEAT_SB (Speculation Barrier)
  *****************************************/
 static void read_feat_sb(void)
 {
-#if (ENABLE_FEAT_SB == FEAT_STATE_1)
+#if (ENABLE_FEAT_SB == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_0_feat_sb_present(), "SB");
 #endif
 }
@@ -31,7 +46,7 @@ static void read_feat_sb(void)
  *****************************************************/
 static void read_feat_csv2_2(void)
 {
-#if (ENABLE_FEAT_CSV2_2 == FEAT_STATE_1)
+#if (ENABLE_FEAT_CSV2_2 == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_0_feat_csv2_2_present(), "CSV2_2");
 #endif
 }
@@ -41,7 +56,7 @@ static void read_feat_csv2_2(void)
  **********************************************/
 static void read_feat_pan(void)
 {
-#if (ENABLE_FEAT_PAN == FEAT_STATE_1)
+#if (ENABLE_FEAT_PAN == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_1_pan_present(), "PAN");
 #endif
 }
@@ -51,7 +66,7 @@ static void read_feat_pan(void)
  *****************************************************/
 static void read_feat_vhe(void)
 {
-#if (ENABLE_FEAT_VHE == FEAT_STATE_1)
+#if (ENABLE_FEAT_VHE == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_1_vhe_present(), "VHE");
 #endif
 }
@@ -61,7 +76,7 @@ static void read_feat_vhe(void)
  ******************************************************************************/
 static void read_feat_ras(void)
 {
-#if (RAS_EXTENSION == FEAT_STATE_1)
+#if (RAS_EXTENSION == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_2_feat_ras_present(), "RAS");
 #endif
 }
@@ -71,7 +86,7 @@ static void read_feat_ras(void)
  ***********************************************/
 static void read_feat_pauth(void)
 {
-#if (ENABLE_PAUTH == FEAT_STATE_1) || (CTX_INCLUDE_PAUTH_REGS == FEAT_STATE_1)
+#if (ENABLE_PAUTH == FEAT_STATE_ALWAYS) || (CTX_INCLUDE_PAUTH_REGS == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_3_pauth_present(), "PAUTH");
 #endif
 }
@@ -81,7 +96,7 @@ static void read_feat_pauth(void)
  ***********************************************************/
 static void read_feat_dit(void)
 {
-#if (ENABLE_FEAT_DIT == FEAT_STATE_1)
+#if (ENABLE_FEAT_DIT == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_4_feat_dit_present(), "DIT");
 #endif
 }
@@ -91,7 +106,7 @@ static void read_feat_dit(void)
  ********************************************************/
 static void read_feat_amuv1(void)
 {
-#if (ENABLE_FEAT_AMUv1 == FEAT_STATE_1)
+#if (ENABLE_FEAT_AMUv1 == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_4_feat_amuv1_present(), "AMUv1");
 #endif
 }
@@ -101,7 +116,7 @@ static void read_feat_amuv1(void)
  ***************************************************************************/
 static void read_feat_mpam(void)
 {
-#if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_1)
+#if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_ALWAYS)
 	feat_detect_panic(get_mpam_version() != 0U, "MPAM");
 #endif
 }
@@ -111,7 +126,7 @@ static void read_feat_mpam(void)
  *************************************************************/
 static void read_feat_nv2(void)
 {
-#if (CTX_INCLUDE_NEVE_REGS == FEAT_STATE_1)
+#if (CTX_INCLUDE_NEVE_REGS == FEAT_STATE_ALWAYS)
 	unsigned int nv = get_armv8_4_feat_nv_support();
 
 	feat_detect_panic((nv == ID_AA64MMFR2_EL1_NV2_SUPPORTED), "NV2");
@@ -123,7 +138,7 @@ static void read_feat_nv2(void)
  **********************************/
 static void read_feat_sel2(void)
 {
-#if (ENABLE_FEAT_SEL2 == FEAT_STATE_1)
+#if (ENABLE_FEAT_SEL2 == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_4_sel2_present(), "SEL2");
 #endif
 }
@@ -133,7 +148,7 @@ static void read_feat_sel2(void)
  ***************************************************/
 static void read_feat_trf(void)
 {
-#if (ENABLE_TRF_FOR_NS == FEAT_STATE_1)
+#if (ENABLE_TRF_FOR_NS == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_arm8_4_feat_trf_present(), "TRF");
 #endif
 }
@@ -143,7 +158,7 @@ static void read_feat_trf(void)
  ***********************************************/
 static void read_feat_mte(void)
 {
-#if (CTX_INCLUDE_MTE_REGS == FEAT_STATE_1)
+#if (CTX_INCLUDE_MTE_REGS == FEAT_STATE_ALWAYS)
 	unsigned int mte = get_armv8_5_mte_support();
 
 	feat_detect_panic((mte != MTE_UNIMPLEMENTED), "MTE");
@@ -155,7 +170,7 @@ static void read_feat_mte(void)
  **********************************************/
 static void read_feat_rng(void)
 {
-#if (ENABLE_FEAT_RNG == FEAT_STATE_1)
+#if (ENABLE_FEAT_RNG == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_5_rng_present(), "RNG");
 #endif
 }
@@ -165,7 +180,7 @@ static void read_feat_rng(void)
  ***************************************************/
 static void read_feat_bti(void)
 {
-#if (ENABLE_BTI == FEAT_STATE_1)
+#if (ENABLE_BTI == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_5_bti_present(), "BTI");
 #endif
 }
@@ -175,7 +190,7 @@ static void read_feat_bti(void)
  ***************************************/
 static void read_feat_fgt(void)
 {
-#if (ENABLE_FEAT_FGT == FEAT_STATE_1)
+#if (ENABLE_FEAT_FGT == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_6_fgt_present(), "FGT");
 #endif
 }
@@ -185,7 +200,7 @@ static void read_feat_fgt(void)
  **********************************************/
 static void read_feat_amuv1p1(void)
 {
-#if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_1)
+#if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_6_feat_amuv1p1_present(), "AMUv1p1");
 #endif
 }
@@ -195,7 +210,7 @@ static void read_feat_amuv1p1(void)
  ******************************************************/
 static void read_feat_ecv(void)
 {
-#if (ENABLE_FEAT_ECV == FEAT_STATE_1)
+#if (ENABLE_FEAT_ECV == FEAT_STATE_ALWAYS)
 	unsigned int ecv = get_armv8_6_ecv_support();
 
 	feat_detect_panic(((ecv == ID_AA64MMFR0_EL1_ECV_SUPPORTED) ||
@@ -208,7 +223,7 @@ static void read_feat_ecv(void)
  **********************************************************/
 static void read_feat_twed(void)
 {
-#if (ENABLE_FEAT_TWED == FEAT_STATE_1)
+#if (ENABLE_FEAT_TWED == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_6_twed_present(), "TWED");
 #endif
 }
@@ -218,7 +233,7 @@ static void read_feat_twed(void)
  *****************************************************************/
 static void read_feat_hcx(void)
 {
-#if (ENABLE_FEAT_HCX == FEAT_STATE_1)
+#if (ENABLE_FEAT_HCX == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_feat_hcx_present(), "HCX");
 #endif
 }
@@ -228,7 +243,7 @@ static void read_feat_hcx(void)
  *************************************************/
 static void read_feat_rme(void)
 {
-#if (ENABLE_RME == FEAT_STATE_1)
+#if (ENABLE_RME == FEAT_STATE_ALWAYS)
 	feat_detect_panic((get_armv9_2_feat_rme_support() !=
 			ID_AA64PFR0_FEAT_RME_NOT_SUPPORTED), "RME");
 #endif
@@ -239,7 +254,7 @@ static void read_feat_rme(void)
  *****************************************************/
 static void read_feat_brbe(void)
 {
-#if (ENABLE_BRBE_FOR_NS == FEAT_STATE_1)
+#if (ENABLE_BRBE_FOR_NS == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_feat_brbe_present(), "BRBE");
 #endif
 }
@@ -249,7 +264,7 @@ static void read_feat_brbe(void)
  *****************************************************/
 static void read_feat_trbe(void)
 {
-#if (ENABLE_TRBE_FOR_NS == FEAT_STATE_1)
+#if (ENABLE_TRBE_FOR_NS == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_feat_trbe_present(), "TRBE");
 #endif
 }
@@ -259,7 +274,7 @@ static void read_feat_trbe(void)
  *****************************************************************/
 static void read_feat_rng_trap(void)
 {
-#if (ENABLE_FEAT_RNG_TRAP == FEAT_STATE_1)
+#if (ENABLE_FEAT_RNG_TRAP == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_feat_rng_trap_present(), "RNG_TRAP");
 #endif
 }
@@ -283,8 +298,9 @@ static void read_feat_rng_trap(void)
  * ENABLE_FEAT_xxx = 2 : The feature is enabled but dynamically enabled at runtime
  *                       depending on hardware capability.
  *
- * For better readability, state values are defined with macros namely:
- * { FEAT_STATE_0, FEAT_STATE_1, FEAT_STATE_2 } taking values as their naming.
+ * For better readability, state values are defined with macros, namely:
+ * { FEAT_STATE_DISABLED, FEAT_STATE_ALWAYS, FEAT_STATE_CHECK }, taking values
+ * { 0, 1, 2 }, respectively, as their naming.
  **********************************************************************************/
 void detect_arch_features(void)
 {
