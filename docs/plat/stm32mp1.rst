@@ -63,15 +63,6 @@ Only BL2 (with STM32 header) is loaded by ROM code. The other binaries are
 inside the FIP binary: BL32 (SP_min or OP-TEE), U-Boot and their respective
 device tree blobs.
 
-STM32IMAGE bootchain
-~~~~~~~~~~~~~~~~~~~~
-Although still supported, this way of booting is not recommended.
-Pease use FIP instead.
-At compilation step, BL2, BL32 and DTB file are linked together in a single
-binary. The stm32image tool is also generated and the header is added to TF-A
-binary. This binary file with header is named tf-a-stm32mp157c-ev1.stm32.
-It can then be copied in the first partition of the boot device.
-
 
 Memory mapping
 ~~~~~~~~~~~~~~
@@ -270,44 +261,6 @@ __________________
         --stm32mp-cfg-cert build/stm32mp1/cert_images/stm32mp_cfg_cert.crt stm32mp1.fip
 
 
-STM32IMAGE bootchain
-~~~~~~~~~~~~~~~~~~~~
-You need to add the following flag to the make command:
-``STM32MP_USE_STM32IMAGE=1``
-
-To build with SP_min and support for SD-card boot:
-
-.. code:: bash
-
-    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 \
-        AARCH32_SP=sp_min STM32MP_SDMMC=1 DTB_FILE_NAME=stm32mp157c-ev1.dtb \
-        STM32MP_USE_STM32IMAGE=1
-
-    cd <u-boot_directory>
-    make stm32mp15_trusted_defconfig
-    make DEVICE_TREE=stm32mp157c-ev1 all
-
-To build TF-A with OP-TEE support for SD-card boot:
-
-.. code:: bash
-
-    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 \
-        AARCH32_SP=optee STM32MP_SDMMC=1 DTB_FILE_NAME=stm32mp157c-ev1.dtb \
-        STM32MP_USE_STM32IMAGE=1
-
-    cd <optee_directory>
-    make CROSS_COMPILE=arm-linux-gnueabihf- ARCH=arm PLATFORM=stm32mp1 \
-        CFG_EMBED_DTB_SOURCE_FILE=stm32mp157c-ev1.dts
-
-    cd <u-boot_directory>
-    make stm32mp15_trusted_defconfig
-    make DEVICE_TREE=stm32mp157c-ev1 all
-
-
-The following build options are supported:
-
-- ``ENABLE_STACK_PROTECTOR``: To enable the stack protection.
-
 
 Populate SD-card
 ----------------
@@ -321,22 +274,6 @@ It should contain at least those partitions:
 - fip: which contains the FIP binary
 
 Usually, two copies of fsbl are used (fsbl1 and fsbl2) instead of one partition fsbl.
-
-STM32IMAGE bootchain
-~~~~~~~~~~~~~~~~~~~~
-The SD-card has to be formatted with GPT.
-It should contain at least those partitions:
-
-- fsbl: to copy the tf-a-stm32mp157c-ev1.stm32 binary
-- ssbl: to copy the u-boot.stm32 binary
-
-Usually, two copies of fsbl are used (fsbl1 and fsbl2) instead of one partition fsbl.
-
-OP-TEE artifacts go into separate partitions as follows:
-
-- teeh: tee-header_v2.stm32
-- teed: tee-pageable_v2.stm32
-- teex: tee-pager_v2.stm32
 
 
 .. _STM32MP1 Series: https://www.st.com/en/microcontrollers-microprocessors/stm32mp1-series.html

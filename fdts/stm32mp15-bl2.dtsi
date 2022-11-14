@@ -69,7 +69,6 @@
 		};
 	};
 
-#if !STM32MP_USE_STM32IMAGE
 	/*
 	 * UUID's here are UUID RFC 4122 compliant meaning fieds are stored in
 	 * network order (big endian)
@@ -113,5 +112,4 @@
 
 #include "stm32mp1-cot-descriptors.dtsi"
 #endif
-#endif /* !STM32MP_USE_STM32IMAGE */
 };

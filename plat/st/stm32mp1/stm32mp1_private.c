@@ -697,29 +697,6 @@ uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags)
 }
 #endif
 
-#if STM32MP_USE_STM32IMAGE
-/* Get the non-secure DDR size */
-uint32_t stm32mp_get_ddr_ns_size(void)
-{
-	static uint32_t ddr_ns_size;
-	uint32_t ddr_size;
-
-	if (ddr_ns_size != 0U) {
-		return ddr_ns_size;
-	}
-
-	ddr_size = dt_get_ddr_size();
-	if ((ddr_size <= (STM32MP_DDR_S_SIZE + STM32MP_DDR_SHMEM_SIZE)) ||
-	    (ddr_size > STM32MP_DDR_MAX_SIZE)) {
-		panic();
-	}
-
-	ddr_ns_size = ddr_size - (STM32MP_DDR_S_SIZE + STM32MP_DDR_SHMEM_SIZE);
-
-	return ddr_ns_size;
-}
-#endif /* STM32MP_USE_STM32IMAGE */
-
 void stm32_save_boot_interface(uint32_t interface, uint32_t instance)
 {
 	uintptr_t bkpr_itf_idx = tamp_bkpr(TAMP_BOOT_MODE_BACKUP_REG_ID);
@@ -767,7 +744,7 @@ void stm32_save_boot_auth(uint32_t auth_status, uint32_t boot_partition)
 	clk_disable(RTCAPB);
 }
 
-#if !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT
+#if PSA_FWU_SUPPORT
 void stm32mp1_fwu_set_boot_idx(void)
 {
 	clk_enable(RTCAPB);
@@ -808,4 +785,4 @@ void stm32_set_max_fwu_trial_boot_cnt(void)
 			   TAMP_BOOT_FWU_INFO_CNT_MSK);
 	clk_disable(RTCAPB);
 }
-#endif /* !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT */
+#endif /* PSA_FWU_SUPPORT */

@@ -13,11 +13,6 @@ STM32MP_EARLY_CONSOLE	?=	0
 STM32MP_RECONFIGURE_CONSOLE ?=	0
 STM32MP_UART_BAUDRATE	?=	115200
 
-# Allow TF-A to concatenate BL2 & BL32 binaries in a single file,
-# share DTB file between BL2 and BL32
-# If it is set to 0, then FIP is used
-STM32MP_USE_STM32IMAGE	?=	0
-
 TRUSTED_BOARD_BOOT	?=	0
 STM32MP_USE_EXTERNAL_HEAP ?=	0
 
@@ -117,7 +112,6 @@ STM32_TF_A_COPIES		:=	2
 PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 4)))
 
 ifeq (${PSA_FWU_SUPPORT},1)
-ifneq (${STM32MP_USE_STM32IMAGE},1)
 # Number of banks of updatable firmware
 NR_OF_FW_BANKS			:=	2
 NR_OF_IMAGES_IN_FW_BANK		:=	1
@@ -126,9 +120,6 @@ FWU_MAX_PART = $(shell echo $$(($(STM32_TF_A_COPIES) + 2 + $(NR_OF_FW_BANKS))))
 ifeq ($(shell test $(FWU_MAX_PART) -gt $(PLAT_PARTITION_MAX_ENTRIES); echo $$?),0)
 $(error "Required partition number is $(FWU_MAX_PART) where PLAT_PARTITION_MAX_ENTRIES is only \
 $(PLAT_PARTITION_MAX_ENTRIES)")
-endif
-else
-$(error FWU Feature enabled only with FIP images)
 endif
 endif
 
@@ -160,20 +151,11 @@ ifeq ($(STM32MP13),1)
 BL2_DTSI		:=	stm32mp13-bl2.dtsi
 FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
 else
-ifeq ($(STM32MP_USE_STM32IMAGE),1)
-ifeq ($(AARCH32_SP),optee)
-BL2_DTSI		:=	stm32mp15-bl2.dtsi
-FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
-else
-FDT_SOURCES		:=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(DTB_FILE_NAME)))
-endif
-else
 BL2_DTSI		:=	stm32mp15-bl2.dtsi
 FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
 ifeq ($(AARCH32_SP),sp_min)
 BL32_DTSI		:=	stm32mp15-bl32.dtsi
 FDT_SOURCES		+=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dts,$(DTB_FILE_NAME)))
-endif
 endif
 endif
 
@@ -202,7 +184,6 @@ STM32IMAGEPATH		?= tools/stm32image
 STM32IMAGE		?= ${STM32IMAGEPATH}/stm32image${BIN_EXT}
 STM32IMAGE_SRC		:= ${STM32IMAGEPATH}/stm32image.c
 
-ifneq (${STM32MP_USE_STM32IMAGE},1)
 FIP_DEPS		+=	dtbs
 STM32MP_HW_CONFIG	:=	${BL33_CFG}
 STM32MP_FW_CONFIG_NAME	:=	$(patsubst %.dtb,%-fw-config.dtb,$(DTB_FILE_NAME))
@@ -232,7 +213,6 @@ ifneq ($(BL32_EXTRA2),)
 $(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2,,$(ENCRYPT_BL32)))
 endif
 endif
-endif
 
 # Enable flags for C files
 $(eval $(call assert_booleans,\
@@ -255,7 +235,6 @@ $(eval $(call assert_booleans,\
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_EXTERNAL_HEAP \
-		STM32MP_USE_STM32IMAGE \
 		STM32MP13 \
 		STM32MP15 \
 )))
@@ -299,7 +278,6 @@ $(eval $(call add_defines,\
 		STM32MP_UART_PROGRAMMER \
 		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_EXTERNAL_HEAP \
-		STM32MP_USE_STM32IMAGE \
 		STM32MP13 \
 		STM32MP15 \
 )))
@@ -308,11 +286,7 @@ $(eval $(call add_defines,\
 PLAT_INCLUDES		:=	-Iplat/st/common/include/
 PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/
 
-ifeq (${STM32MP_USE_STM32IMAGE},1)
-include common/fdt_wrappers.mk
-else
 include lib/fconf/fconf.mk
-endif
 include lib/libfdt/libfdt.mk
 
 PLAT_BL_COMMON_SOURCES	:=	common/uuid.c						\
@@ -359,7 +333,6 @@ else
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/stm32mp1_clk.c
 endif
 
-ifneq (${STM32MP_USE_STM32IMAGE},1)
 BL2_SOURCES		+=	${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
 
 BL2_SOURCES		+=	drivers/io/io_fip.c					\
@@ -367,15 +340,6 @@ BL2_SOURCES		+=	drivers/io/io_fip.c					\
 				plat/st/common/stm32mp_fconf_io.c			\
 				plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\
 				plat/st/stm32mp1/stm32mp1_fconf_firewall.c
-else
-BL2_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
-
-BL2_SOURCES		+=	drivers/io/io_dummy.c					\
-				drivers/st/io/io_stm32image.c				\
-				plat/st/common/bl2_stm32_io_storage.c			\
-				plat/st/stm32mp1/plat_bl2_stm32_mem_params_desc.c	\
-				plat/st/stm32mp1/stm32mp1_security.c
-endif
 
 include lib/zlib/zlib.mk
 
@@ -541,13 +505,6 @@ check_dtc_version:
 		false; \
 	fi
 
-ifeq ($(STM32MP_USE_STM32IMAGE)-$(AARCH32_SP),1-sp_min)
-${BUILD_PLAT}/stm32mp1-%.o: ${BUILD_PLAT}/fdts/%.dtb plat/st/stm32mp1/stm32mp1.S bl2 ${BL32_DEP}
-	@echo "  AS      stm32mp1.S"
-	${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} \
-		-DDTB_BIN_PATH=\"$<\" \
-		-c $(word 2,$^) -o $@
-else
 # Create DTB file for BL2
 ${BUILD_PLAT}/fdts/%-bl2.dts: fdts/%.dts fdts/${BL2_DTSI} | ${BUILD_PLAT} fdt_dirs
 	@echo '#include "$(patsubst fdts/%,%,$<)"' > $@
@@ -569,7 +526,6 @@ ${BUILD_PLAT}/stm32mp1-%.o: ${BUILD_PLAT}/fdts/%-bl2.dtb plat/st/stm32mp1/stm32m
 	${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} \
 		-DDTB_BIN_PATH=\"$<\" \
 		-c plat/st/stm32mp1/stm32mp1.S -o $@
-endif
 
 $(eval $(call MAKE_LD,${STM32_TF_LINKERFILE},plat/st/stm32mp1/stm32mp1.ld.S,bl2))
 

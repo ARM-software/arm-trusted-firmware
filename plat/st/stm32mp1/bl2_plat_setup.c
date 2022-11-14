@@ -164,14 +164,6 @@ void bl2_platform_setup(void)
 		ERROR("DDR mapping: error %d\n", ret);
 		panic();
 	}
-
-#if STM32MP_USE_STM32IMAGE
-#ifdef AARCH32_SP_OPTEE
-	INFO("BL2 runs OP-TEE setup\n");
-#else
-	INFO("BL2 runs SP_MIN setup\n");
-#endif
-#endif /* STM32MP_USE_STM32IMAGE */
 }
 
 #if STM32MP15
@@ -225,19 +217,6 @@ void bl2_el3_plat_arch_setup(void)
 	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
 			BL_CODE_END - BL_CODE_BASE,
 			MT_CODE | MT_SECURE);
-
-#if STM32MP_USE_STM32IMAGE
-#ifdef AARCH32_SP_OPTEE
-	mmap_add_region(STM32MP_OPTEE_BASE, STM32MP_OPTEE_BASE,
-			STM32MP_OPTEE_SIZE,
-			MT_MEMORY | MT_RW | MT_SECURE);
-#else
-	/* Prevent corruption of preloaded BL32 */
-	mmap_add_region(BL32_BASE, BL32_BASE,
-			BL32_LIMIT - BL32_BASE,
-			MT_RO_DATA | MT_SECURE);
-#endif
-#endif /* STM32MP_USE_STM32IMAGE */
 
 	/* Prevent corruption of preloaded Device Tree */
 	mmap_add_region(DTB_BASE, DTB_BASE,
@@ -396,9 +375,7 @@ skip_console_init:
 
 	stm32mp1_syscfg_enable_io_compensation_finish();
 
-#if !STM32MP_USE_STM32IMAGE
 	fconf_populate("TB_FW", STM32MP_DTB_BASE);
-#endif /* !STM32MP_USE_STM32IMAGE */
 
 	stm32mp_io_setup();
 }
@@ -414,7 +391,6 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	bl_mem_params_node_t *bl32_mem_params;
 	bl_mem_params_node_t *pager_mem_params __unused;
 	bl_mem_params_node_t *paged_mem_params __unused;
-#if !STM32MP_USE_STM32IMAGE
 	const struct dyn_cfg_dtb_info_t *config_info;
 	bl_mem_params_node_t *tos_fw_mem_params;
 	unsigned int i;
@@ -426,12 +402,10 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		HW_CONFIG_ID,
 		TOS_FW_CONFIG_ID,
 	};
-#endif /* !STM32MP_USE_STM32IMAGE */
 
 	assert(bl_mem_params != NULL);
 
 	switch (image_id) {
-#if !STM32MP_USE_STM32IMAGE
 	case FW_CONFIG_ID:
 		/* Set global DTB info for fixed fw_config information */
 		set_config_info(STM32MP_FW_CONFIG_BASE, ~0UL, STM32MP_FW_CONFIG_MAX_SIZE,
@@ -494,7 +468,6 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 			}
 		}
 		break;
-#endif /* !STM32MP_USE_STM32IMAGE */
 
 	case BL32_IMAGE_ID:
 		if (optee_header_is_valid(bl_mem_params->image_info.image_base)) {
@@ -509,18 +482,6 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 			if (paged_mem_params != NULL) {
 				paged_image_info = &paged_mem_params->image_info;
 			}
-
-#if STM32MP_USE_STM32IMAGE && defined(AARCH32_SP_OPTEE)
-			/* Set OP-TEE extra image load areas at run-time */
-			pager_mem_params->image_info.image_base = STM32MP_OPTEE_BASE;
-			pager_mem_params->image_info.image_max_size = STM32MP_OPTEE_SIZE;
-
-			paged_mem_params->image_info.image_base = STM32MP_DDR_BASE +
-								  dt_get_ddr_size() -
-								  STM32MP_DDR_S_SIZE -
-								  STM32MP_DDR_SHMEM_SIZE;
-			paged_mem_params->image_info.image_max_size = STM32MP_DDR_S_SIZE;
-#endif /* STM32MP_USE_STM32IMAGE && defined(AARCH32_SP_OPTEE) */
 
 			err = parse_optee_header(&bl_mem_params->ep_info,
 						 &pager_mem_params->image_info,
@@ -541,13 +502,11 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 			bl_mem_params->ep_info.args.arg1 = 0U; /* Unused */
 			bl_mem_params->ep_info.args.arg2 = 0U; /* No DT supported */
 		} else {
-#if !STM32MP_USE_STM32IMAGE
 			bl_mem_params->ep_info.pc = bl_mem_params->image_info.image_base;
 			tos_fw_mem_params = get_bl_mem_params_node(TOS_FW_CONFIG_ID);
 			assert(tos_fw_mem_params != NULL);
 			bl_mem_params->image_info.image_max_size +=
 				tos_fw_mem_params->image_info.image_max_size;
-#endif /* !STM32MP_USE_STM32IMAGE */
 			bl_mem_params->ep_info.args.arg0 = 0;
 		}
 		break;
@@ -556,9 +515,9 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		bl32_mem_params = get_bl_mem_params_node(BL32_IMAGE_ID);
 		assert(bl32_mem_params != NULL);
 		bl32_mem_params->ep_info.lr_svc = bl_mem_params->ep_info.pc;
-#if !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT
+#if PSA_FWU_SUPPORT
 		stm32mp1_fwu_set_boot_idx();
-#endif /* !STM32MP_USE_STM32IMAGE && PSA_FWU_SUPPORT */
+#endif /* PSA_FWU_SUPPORT */
 		break;
 
 	default:
