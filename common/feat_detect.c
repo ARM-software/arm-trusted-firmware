@@ -228,16 +228,6 @@ static void read_feat_twed(void)
 #endif
 }
 
-/******************************************************************
- * Feature : FEAT_HCX (Extended Hypervisor Configuration Register)
- *****************************************************************/
-static void read_feat_hcx(void)
-{
-#if (ENABLE_FEAT_HCX == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_feat_hcx_present(), "HCX");
-#endif
-}
-
 /**************************************************
  * Feature : FEAT_RME (Realm Management Extension)
  *************************************************/
@@ -341,7 +331,7 @@ void detect_arch_features(void)
 	read_feat_twed();
 
 	/* v8.7 features */
-	read_feat_hcx();
+	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX");
 
 	/* v9.0 features */
 	read_feat_brbe();
