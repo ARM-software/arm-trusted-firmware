@@ -49,10 +49,6 @@
 	.global	el2_sysregs_context_save_csv2
 	.global	el2_sysregs_context_restore_csv2
 #endif /* ENABLE_FEAT_CSV2_2 */
-#if ENABLE_FEAT_HCX
-	.global	el2_sysregs_context_save_hcx
-	.global	el2_sysregs_context_restore_hcx
-#endif /* ENABLE_FEAT_HCX */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	.global	el1_sysregs_context_save
@@ -432,19 +428,6 @@ func el2_sysregs_context_restore_csv2
 endfunc el2_sysregs_context_restore_csv2
 #endif /* ENABLE_FEAT_CSV2_2 */
 
-#if ENABLE_FEAT_HCX
-func el2_sysregs_context_save_hcx
-	mrs	x14, hcrx_el2
-	str	x14, [x0, #CTX_HCRX_EL2]
-	ret
-endfunc el2_sysregs_context_save_hcx
-
-func el2_sysregs_context_restore_hcx
-	ldr	x14, [x0, #CTX_HCRX_EL2]
-	msr	hcrx_el2, x14
-	ret
-endfunc el2_sysregs_context_restore_hcx
-#endif /* ENABLE_FEAT_HCX */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 /* ------------------------------------------------------------------

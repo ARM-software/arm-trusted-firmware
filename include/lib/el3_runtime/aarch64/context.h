@@ -547,10 +547,6 @@ void el2_sysregs_context_restore_trf(el2_sysregs_t *regs);
 void el2_sysregs_context_save_csv2(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_csv2(el2_sysregs_t *regs);
 #endif /* ENABLE_FEAT_CSV2_2 */
-#if ENABLE_FEAT_HCX
-void el2_sysregs_context_save_hcx(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_hcx(el2_sysregs_t *regs);
-#endif /* ENABLE_FEAT_HCX */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 #if CTX_INCLUDE_FPREGS

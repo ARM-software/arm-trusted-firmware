@@ -320,9 +320,9 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 * If FEAT_HCX is enabled, enable access to HCRX_EL2 by setting
 	 * SCR_EL3.HXEn.
 	 */
-#if ENABLE_FEAT_HCX
-	scr_el3 |= SCR_HXEn_BIT;
-#endif
+	if (is_feat_hcx_supported()) {
+		scr_el3 |= SCR_HXEn_BIT;
+	}
 
 	/*
 	 * If FEAT_RNG_TRAP is enabled, all reads of the RNDR and RNDRRS
@@ -873,9 +873,9 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 #if ENABLE_FEAT_CSV2_2
 		el2_sysregs_context_save_csv2(el2_sysregs_ctx);
 #endif
-#if ENABLE_FEAT_HCX
-		el2_sysregs_context_save_hcx(el2_sysregs_ctx);
-#endif
+		if (is_feat_hcx_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2, read_hcrx_el2());
+		}
 	}
 }
 
@@ -931,9 +931,9 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 #if ENABLE_FEAT_CSV2_2
 		el2_sysregs_context_restore_csv2(el2_sysregs_ctx);
 #endif
-#if ENABLE_FEAT_HCX
-		el2_sysregs_context_restore_hcx(el2_sysregs_ctx);
-#endif
+		if (is_feat_hcx_supported()) {
+			write_hcrx_el2(read_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2));
+		}
 	}
 }
 #endif /* CTX_INCLUDE_EL2_REGS */
