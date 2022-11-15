@@ -14,7 +14,7 @@ Build Host
 |TF-A| can be built using either a Linux or a Windows machine as the build host.
 
 A relatively recent Linux distribution is recommended for building |TF-A|. We
-have performed tests using Ubuntu 16.04 LTS (64-bit) but other distributions
+have performed tests using Ubuntu 20.04 LTS (64-bit) but other distributions
 should also work fine as a base, provided that the necessary tools and libraries
 can be installed.
 
