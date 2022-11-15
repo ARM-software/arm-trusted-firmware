@@ -131,6 +131,9 @@ struct sp_exec_ctx {
 
 	/* Track the current runtime model of the SP. */
 	enum sp_runtime_model rt_model;
+
+	/* Track the source partition ID to validate a direct response. */
+	uint16_t dir_req_origin_id;
 };
 
 /*
