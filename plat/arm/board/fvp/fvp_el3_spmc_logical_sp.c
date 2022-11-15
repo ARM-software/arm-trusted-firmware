@@ -27,6 +27,7 @@ static uint64_t handle_ffa_direct_request(uint32_t smc_fid,  bool secure_origin,
 					  void *handle, uint64_t flags)
 {
 	uint64_t ret;
+	uint32_t src_dst;
 
 	/* Determine if we have a 64 or 32 direct request. */
 	if (smc_fid == FFA_MSG_SEND_DIRECT_REQ_SMC32) {
@@ -36,18 +37,22 @@ static uint64_t handle_ffa_direct_request(uint32_t smc_fid,  bool secure_origin,
 	} else {
 		panic(); /* Unknown SMC. */
 	}
+
 	/*
 	 * Handle the incoming request. For testing purposes we echo the
 	 * incoming message.
 	 */
-	INFO("Logical Partition: Received Direct Request from %s world!\n",
-	     secure_origin ? "Secure" : "Normal");
+	INFO("LSP: Received Direct Request from %s world (0x%x)\n",
+	     secure_origin ? "Secure" : "Normal", ffa_endpoint_source(x1));
 
+	/* Populate the source and destination IDs. */
+	src_dst = (uint32_t) LP_PARTITION_ID << FFA_DIRECT_MSG_SOURCE_SHIFT |
+		  ffa_endpoint_source(x1) << FFA_DIRECT_MSG_DESTINATION_SHIFT;
 	/*
 	 * Logical SP's must always send a direct response so we can populate
 	 * our response directly.
 	 */
-	SMC_RET8(handle, ret, 0, 0, x4, 0, 0, 0, 0);
+	SMC_RET8(handle, ret, src_dst, 0, x4, 0, 0, 0, 0);
 }
 
 /* Register logical partition  */
