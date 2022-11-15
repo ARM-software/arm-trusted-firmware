@@ -31,8 +31,8 @@ can be installed using ``pip3`` (the Python Package Installer). Passing this
 requirements file as an argument to ``pip3`` automatically installs the specific
 module versions required by |TF-A|.
 
-An example set of installation commands for Ubuntu 18.04 LTS follows, assuming
-that the working directory is ``docs``:
+An example set of installation commands for Ubuntu follows, assuming that the
+working directory is ``docs``:
 
 .. code:: shell
 
