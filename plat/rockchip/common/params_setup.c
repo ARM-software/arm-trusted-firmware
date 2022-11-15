@@ -38,7 +38,7 @@ static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
 static uint32_t rk_uart_baudrate = PLAT_RK_UART_BAUDRATE;
 static uint32_t rk_uart_clock = PLAT_RK_UART_CLOCK;
 #define FDT_BUFFER_SIZE 0x20000
-static uint8_t fdt_buffer[FDT_BUFFER_SIZE];
+static uint64_t fdt_buffer[FDT_BUFFER_SIZE / 8];
 
 void *plat_get_fdt(void)
 {
