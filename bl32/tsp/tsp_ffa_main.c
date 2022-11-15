@@ -91,7 +91,7 @@ static int ffa_test_relay(uint64_t arg0,
 	smc_args_t ffa_forward_result;
 	ffa_endpoint_id16_t receiver = arg5;
 
-	ffa_forward_result = ffa_msg_send_direct_req(ffa_endpoint_source(arg1),
+	ffa_forward_result = ffa_msg_send_direct_req(tsp_id,
 						     receiver,
 						     FF_A_ECHO_MESSAGE, arg4,
 						     0, 0, 0);
