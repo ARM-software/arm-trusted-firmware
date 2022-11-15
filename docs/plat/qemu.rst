@@ -136,3 +136,37 @@ To start (QEMU v5.0.0):
         -append 'console=ttyAMA0,38400 keep_bootcon'  \
         -initrd rootfs.cpio.gz -smp 2 -m 1024 -bios flash.bin   \
         -d unimp
+
+Running QEMU in OpenCI
+-----------------------
+
+Linaro's continuous integration platform OpenCI supports running emulated tests
+on QEMU. The tests are kicked off on Jenkins and deployed through the Linaro
+Automation and Validation Architecture `LAVA`_.
+
+There are a set of Linux boot tests provided in OpenCI. They rely on prebuilt
+`binaries`_ for UEFI, the kernel, root file system, as well as, any other TF-A
+dependencies, and are run as part of the OpenCI TF-A `daily job`_. To run them
+manually, a `builder`_ job may be triggered with the test configuration
+``qemu-boot-tests``.
+
+
+You may see the following warning repeated several times in the boot logs:
+
+.. code:: shell
+
+    pflash_write: Write to buffer emulation is flawed
+
+Please ignore this as it is an unresolved `issue in QEMU`_, it is an internal
+QEMU warning that logs flawed use of "write to buffer".
+
+.. note::
+    For more information on how to trigger jobs in OpenCI, please refer to
+    Linaro's CI documentation, which explains how to trigger a `manual job`_.
+
+.. _binaries: https://downloads.trustedfirmware.org/tf-a/linux_boot/
+.. _daily job: https://ci.trustedfirmware.org/view/TF-A/job/tf-a-main/
+.. _builder: https://ci.trustedfirmware.org/view/TF-A/job/tf-a-builder/
+.. _LAVA: https://tf.validation.linaro.org/
+.. _manual job: https://tf-ci-users-guide.readthedocs.io/en/latest/#manual-job-trigger
+.. _issue in QEMU: https://git.qemu.org/?p=qemu.git;a=blob;f=hw/block/pflash_cfi01.c;h=0cbc2fb4cbf62c9a033b8dd89012374ff74ed610;hb=refs/heads/master#l500
