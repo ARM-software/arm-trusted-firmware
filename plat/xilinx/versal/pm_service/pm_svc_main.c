@@ -119,16 +119,10 @@ int32_t pm_register_sgi(uint32_t sgi_num, uint32_t reset)
  */
 int32_t pm_setup(void)
 {
-	int32_t status, ret = 0;
+	int32_t ret = 0;
 
-	status = pm_ipi_init(primary_proc);
-
-	if (status < 0) {
-		INFO("BL31: PM Service Init Failed, Error Code %d!\n", status);
-		ret = status;
-	} else {
-		pm_up = true;
-	}
+	pm_ipi_init(primary_proc);
+	pm_up = true;
 
 	/*
 	 * Enable IPI IRQ

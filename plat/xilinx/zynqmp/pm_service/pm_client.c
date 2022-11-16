@@ -176,7 +176,7 @@ static enum pm_node_id irq_to_pm_node(uint32_t irq)
 static void pm_client_set_wakeup_sources(void)
 {
 	uint32_t reg_num;
-	uint8_t pm_wakeup_nodes_set[NODE_MAX];
+	uint8_t pm_wakeup_nodes_set[NODE_MAX] = { 0 };
 	uintptr_t isenabler1 = BASE_GICD_BASE + GICD_ISENABLER + 4U;
 
 	/* In case of power-off suspend, only NODE_EXTERN must be set */
