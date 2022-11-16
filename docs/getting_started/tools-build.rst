@@ -14,12 +14,11 @@ Building Supporting Tools
 Building and using the FIP tool
 -------------------------------
 
-Firmware Image Package (FIP) is a packaging format used by TF-A to package
-firmware images in a single binary. The number and type of images that should
-be packed in a FIP is platform specific and may include TF-A images and other
-firmware images required by the platform. For example, most platforms require
-a BL33 image which corresponds to the normal world bootloader (e.g. UEFI or
-U-Boot).
+The following snippets build a :ref:`FIP<Image Terminology>` for the FVP
+platform. While it is not an intrinsic part of the FIP format, a BL33 image is
+required for these examples. For the purposes of experimentation, `Trusted
+Firmware-A Tests`_ (`tftf.bin``) may be used. Refer to to the `TFTF
+documentation`_ for instructions on building a TFTF binary.
 
 The TF-A build system provides the make target ``fip`` to create a FIP file
 for the specified platform using the FIP creation tool included in the TF-A
@@ -175,3 +174,6 @@ via using ``cat <filename>`` instead of a hex string.
 --------------
 
 *Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
+
+.. _Trusted Firmware-A Tests: https://git.trustedfirmware.org/TF-A/tf-a-tests.git/
+.. _TFTF documentation: https://trustedfirmware-a-tests.readthedocs.io/en/latest/

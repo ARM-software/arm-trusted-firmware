@@ -36,12 +36,13 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = []
+# Don't try to build the venv in case it's placed with the sources
+exclude_patterns = [".env", "env", ".venv", "venv"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'

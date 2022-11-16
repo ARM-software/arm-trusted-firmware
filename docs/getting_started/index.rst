@@ -4,12 +4,11 @@ Getting Started
 .. toctree::
    :maxdepth: 1
    :caption: Contents
-   :numbered:
 
    prerequisites
    docs-build
-   tools-build
    initial-build
+   tools-build
    build-options
    image-terminology
    porting-guide

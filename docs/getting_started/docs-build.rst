@@ -17,19 +17,25 @@ check that you have the required software packages, as described in the
 Prerequisites
 -------------
 
-For building a local copy of the |TF-A| documentation you will need, at minimum:
+For building a local copy of the |TF-A| documentation you will need:
 
 - Python 3 (3.5 or later)
 - PlantUML (1.2017.15 or later)
+- Python modules specified in ``docs/requirements.txt``
 
-Optionally, the `Dia`_ application can be installed if you need to edit
-existing ``.dia`` diagram files, or create new ones.
+   You can install these with ``pip3`` (the Python Package Installer) by
+   passing it the requirements file above (with ``-r``). An optional ``--user``
+   argument will install them locally, but you have to add their location to
+   $PATH (pip will emit a warning). Alternatively, they can be installed
+   globally (but will probably require root privileges).
 
-You must also install the Python modules that are specified in the
-``requirements.txt`` file in the root of the ``docs`` directory. These modules
-can be installed using ``pip3`` (the Python Package Installer). Passing this
-requirements file as an argument to ``pip3`` automatically installs the specific
-module versions required by |TF-A|.
+   .. note::
+      Although not necessary, it is recommended you use a virtual environment.
+      More advanced usage instructions for *pip* are beyond the scope of this
+      document but you can refer to the `pip homepage`_ for detailed guides.
+
+- Optionally, the `Dia`_ application can be installed if you need to edit
+  existing ``.dia`` diagram files, or create new ones.
 
 An example set of installation commands for Ubuntu follows, assuming that the
 working directory is ``docs``:
@@ -43,15 +49,6 @@ working directory is ``docs``:
    Several other modules will be installed as dependencies. Please review
    the list to ensure that there will be no conflicts with other modules already
    installed in your environment.
-
-Passing the optional ``--user`` argument to ``pip3`` will install the Python
-packages only for the current user. Omitting this argument will attempt to
-install the packages globally and this will likely require the command to be run
-as root or using ``sudo``.
-
-.. note::
-   More advanced usage instructions for *pip* are beyond the scope of this
-   document but you can refer to the `pip homepage`_ for detailed guides.
 
 Building rendered documentation
 -------------------------------

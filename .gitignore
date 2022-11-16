@@ -43,3 +43,9 @@ tags
 
 # Node.js
 node_modules/
+
+# common python virtual environment directories
+.env/
+env/
+.venv/
+venv/

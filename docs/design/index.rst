@@ -4,7 +4,6 @@ System Design
 .. toctree::
    :maxdepth: 1
    :caption: Contents
-   :numbered:
 
    alt-boot-flows
    auth-framework

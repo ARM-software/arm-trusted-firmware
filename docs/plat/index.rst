@@ -4,7 +4,6 @@ Platform Ports
 .. toctree::
    :maxdepth: 1
    :caption: Contents
-   :numbered:
    :hidden:
 
    allwinner
