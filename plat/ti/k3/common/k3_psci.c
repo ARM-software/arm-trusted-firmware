@@ -205,7 +205,14 @@ void k3_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 static void __dead2 k3_system_off(void)
 {
-	ERROR("System Off: operation not handled.\n");
+	int ret;
+
+	/* Queue up the system shutdown request */
+	ret = ti_sci_device_put_no_wait(PLAT_BOARD_DEVICE_ID);
+	if (ret != 0) {
+		ERROR("Sending system shutdown message failed (%d)\n", ret);
+	}
+
 	while (true)
 		wfi();
 }
