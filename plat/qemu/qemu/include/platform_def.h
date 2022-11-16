@@ -137,7 +137,7 @@
  * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
  * size plus a little space for growth.
  */
-#define BL2_BASE			(BL31_BASE - 0x25000)
+#define BL2_BASE			(BL31_BASE - 0x35000)
 #define BL2_LIMIT			BL31_BASE
 
 /*
