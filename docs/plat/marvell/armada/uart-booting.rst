@@ -79,10 +79,10 @@ not loose any boot output. It also prints boot output which is sent either by im
 bootrom during transferring of image files. This mini terminal can be quit by CTRL-\\ + C keypress.
 
 
-A7K/8K/CN913x UART image downloading
-------------------------------------
+A7K/A8K/CN913x UART image downloading
+-------------------------------------
 
-A7K/8K/CN913x uses same image ``flash-image.bin`` for both flashing and booting over UART.
+A7K/A8K/CN913x uses same image ``flash-image.bin`` for both flashing and booting over UART.
 For downloading image over UART it is possible to use mvebu64boot tool.
 
 Compilation:
