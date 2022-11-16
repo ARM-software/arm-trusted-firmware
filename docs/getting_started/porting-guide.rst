@@ -574,6 +574,19 @@ optionally be defined:
    PLAT_PARTITION_BLOCK_SIZE := 4096
    $(eval $(call add_define,PLAT_PARTITION_BLOCK_SIZE))
 
+If the platform port uses the Arm® Ethos™-N NPU driver with TZMP1 support
+enabled, the following constants must also be defined.
+
+- **ARM_ETHOSN_NPU_PROT_FW_NSAID**
+
+  Defines the Non-secure Access IDentity (NSAID) that the NPU shall use to
+  access the protected memory that contains the NPU's firmware.
+
+- **ARM_ETHOSN_NPU_PROT_DATA_NSAID**
+
+  Defines the Non-secure Access IDentity (NSAID) that the NPU shall use to
+  access the protected memory that contains inference data.
+
 The following constant is optional. It should be defined to override the default
 behaviour of the ``assert()`` function (for example, to save memory).
 

@@ -15,6 +15,8 @@
 #include <lib/utils_def.h>
 #include <plat/arm/common/fconf_ethosn_getter.h>
 
+#include <platform_def.h>
+
 /*
  * Number of Arm(R) Ethos(TM)-N NPU (NPU) devices available
  */
@@ -47,8 +49,15 @@
 #define SEC_SYSCTRL0_SOFT_RESET		U(3U << 29)
 #define SEC_SYSCTRL0_HARD_RESET		U(1U << 31)
 
+#define SEC_NSAID_REG_BASE		U(0x3004)
+#define SEC_NSAID_OFFSET		U(0x1000)
+
 #define SEC_MMUSID_REG_BASE		U(0x3008)
 #define SEC_MMUSID_OFFSET		U(0x1000)
+
+#define INPUT_STREAM_INDEX              U(0x6)
+#define INTERMEDIATE_STREAM_INDEX       U(0x7)
+#define OUTPUT_STREAM_INDEX             U(0x8)
 
 static bool ethosn_get_device_and_core(uintptr_t core_addr,
 				       const struct ethosn_device_t **dev_match,
@@ -74,6 +83,29 @@ static bool ethosn_get_device_and_core(uintptr_t core_addr,
 	WARN("ETHOSN: Unknown core address given to SMC call.\n");
 	return false;
 }
+
+#if ARM_ETHOSN_NPU_TZMP1
+static void ethosn_configure_stream_nsaid(const struct ethosn_core_t *core,
+					  bool is_protected)
+{
+	size_t i;
+	uint32_t streams[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	if (is_protected) {
+		streams[INPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_DATA_NSAID;
+		streams[INTERMEDIATE_STREAM_INDEX] =
+			ARM_ETHOSN_NPU_PROT_DATA_NSAID;
+		streams[OUTPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_DATA_NSAID;
+	}
+
+	for (i = 0U; i < ARRAY_SIZE(streams); ++i) {
+		const uintptr_t reg_addr = SEC_NSAID_REG_BASE +
+			(SEC_NSAID_OFFSET * i);
+		mmio_write_32(ETHOSN_CORE_SEC_REG(core->addr, reg_addr),
+			      streams[i]);
+	}
+}
+#endif
 
 static void ethosn_configure_smmu_streams(const struct ethosn_device_t *device,
 					  const struct ethosn_core_t *core,
@@ -163,7 +195,7 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			     u_register_t core_addr,
 			     u_register_t asset_alloc_idx,
 			     u_register_t reset_type,
-			     u_register_t x4,
+			     u_register_t is_protected,
 			     void *cookie,
 			     void *handle,
 			     u_register_t flags)
@@ -184,7 +216,7 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 		core_addr &= 0xFFFFFFFF;
 		asset_alloc_idx &= 0xFFFFFFFF;
 		reset_type &= 0xFFFFFFFF;
-		x4 &= 0xFFFFFFFF;
+		is_protected &= 0xFFFFFFFF;
 	}
 
 	if (!is_ethosn_fid(smc_fid) || (fid > ETHOSN_FNUM_IS_SLEEPING)) {
@@ -238,6 +270,11 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			if (!device->has_reserved_memory) {
 				ethosn_configure_smmu_streams(device, core,
 							asset_alloc_idx);
+
+				#if ARM_ETHOSN_NPU_TZMP1
+				ethosn_configure_stream_nsaid(core,
+							      is_protected);
+				#endif
 			}
 
 			ethosn_delegate_to_ns(core->addr);

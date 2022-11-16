@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,9 @@
 #include <plat/common/common_def.h>
 
 #include "../juno_def.h"
+#ifdef JUNO_ETHOSN_TZMP1
+#include "../juno_ethosn_tzmp1_def.h"
+#endif
 
 /* Required platform porting definitions */
 /* Juno supports system power domain */
@@ -309,5 +312,11 @@
 
 /* Number of SCMI channels on the platform */
 #define PLAT_ARM_SCMI_CHANNEL_COUNT	U(1)
+
+/* Protected memory NSAIDs for the Arm(R) Ethos(TM)-N NPU driver */
+#ifdef JUNO_ETHOSN_TZMP1
+#define ARM_ETHOSN_NPU_PROT_FW_NSAID JUNO_ETHOSN_TZC400_NSAID_FW_PROT
+#define ARM_ETHOSN_NPU_PROT_DATA_NSAID JUNO_ETHOSN_TZC400_NSAID_DATA_PROT
+#endif
 
 #endif /* PLATFORM_DEF_H */
