@@ -160,7 +160,7 @@ static uintptr_t eemi_for_compatibility(uint32_t api_id, uint32_t *pm_arg,
 
 	case PM_IOCTL:
 	{
-		uint32_t value;
+		uint32_t value = 0U;
 
 		ret = pm_api_ioctl(pm_arg[0], pm_arg[1], pm_arg[2],
 				   pm_arg[3], pm_arg[4],
