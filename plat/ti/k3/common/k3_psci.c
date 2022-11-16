@@ -234,13 +234,6 @@ static int k3_validate_power_state(unsigned int power_state,
 	return PSCI_E_SUCCESS;
 }
 
-static int k3_validate_ns_entrypoint(uintptr_t entrypoint)
-{
-	/* TODO: perform the proper validation */
-
-	return PSCI_E_SUCCESS;
-}
-
 #if K3_PM_SYSTEM_SUSPEND
 static void k3_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
@@ -288,7 +281,6 @@ static const plat_psci_ops_t k3_plat_psci_ops = {
 	.system_off = k3_system_off,
 	.system_reset = k3_system_reset,
 	.validate_power_state = k3_validate_power_state,
-	.validate_ns_entrypoint = k3_validate_ns_entrypoint
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
