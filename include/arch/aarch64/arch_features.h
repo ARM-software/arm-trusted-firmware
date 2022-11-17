@@ -297,10 +297,22 @@ static inline bool is_feat_brbe_present(void)
 /*******************************************************************************
  * Function to identify the presence of FEAT_TRBE (Trace Buffer Extension)
  ******************************************************************************/
-static inline bool is_feat_trbe_present(void)
+static inline unsigned int read_feat_trbe_id_field(void)
 {
-	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_TRACEBUFFER_SHIFT) &
-		ID_AA64DFR0_TRACEBUFFER_MASK) == ID_AA64DFR0_TRACEBUFFER_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_TRACEBUFFER);
 }
 
+static inline bool is_feat_trbe_supported(void)
+{
+	if (ENABLE_TRBE_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_TRBE_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_trbe_id_field() != 0U;
+
+}
 #endif /* ARCH_FEATURES_H */

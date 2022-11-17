@@ -112,7 +112,7 @@ ifeq (${ENABLE_MPAM_FOR_LOWER_ELS},1)
 BL31_SOURCES		+=	lib/extensions/mpam/mpam.c
 endif
 
-ifeq (${ENABLE_TRBE_FOR_NS},1)
+ifneq (${ENABLE_TRBE_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/trbe/trbe.c
 endif
 

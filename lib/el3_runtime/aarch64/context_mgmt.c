@@ -495,9 +495,9 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 	mpam_enable(el2_unused);
 #endif
 
-#if ENABLE_TRBE_FOR_NS
-	trbe_enable();
-#endif /* ENABLE_TRBE_FOR_NS */
+	if (is_feat_trbe_supported()) {
+		trbe_enable();
+	}
 
 #if ENABLE_BRBE_FOR_NS
 	brbe_enable();

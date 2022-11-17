@@ -258,16 +258,6 @@ static void read_feat_brbe(void)
 #endif
 }
 
-/******************************************************
- * Feature : FEAT_TRBE (Trace Buffer Extension)
- *****************************************************/
-static void read_feat_trbe(void)
-{
-#if (ENABLE_TRBE_FOR_NS == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_feat_trbe_present(), "TRBE");
-#endif
-}
-
 /******************************************************************
  * Feature : FEAT_RNG_TRAP (Trapping support for RNDR/RNDRRS)
  *****************************************************************/
@@ -345,7 +335,8 @@ void detect_arch_features(void)
 
 	/* v9.0 features */
 	read_feat_brbe();
-	read_feat_trbe();
+	check_feature(ENABLE_TRBE_FOR_NS, read_feat_trbe_id_field(),
+		      "TRBE", 1, 1);
 
 	/* v9.2 features */
 	read_feat_rme();
