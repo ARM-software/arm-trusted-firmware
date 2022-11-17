@@ -453,7 +453,7 @@ ENABLE_TRBE_FOR_NS		:= 2
 # do not enable when ENABLE_RME=1
 ifeq (${ARCH}, aarch64)
 ifeq (${ENABLE_RME},0)
-	ENABLE_BRBE_FOR_NS		:= 1
+	ENABLE_BRBE_FOR_NS		:= 2
 endif
 endif
 

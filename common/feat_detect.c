@@ -248,16 +248,6 @@ static void read_feat_rme(void)
 #endif
 }
 
-/******************************************************
- * Feature : FEAT_BRBE (Branch Record Buffer Extension)
- *****************************************************/
-static void read_feat_brbe(void)
-{
-#if (ENABLE_BRBE_FOR_NS == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_feat_brbe_present(), "BRBE");
-#endif
-}
-
 /******************************************************************
  * Feature : FEAT_RNG_TRAP (Trapping support for RNDR/RNDRRS)
  *****************************************************************/
@@ -334,7 +324,8 @@ void detect_arch_features(void)
 	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX", 1, 1);
 
 	/* v9.0 features */
-	read_feat_brbe();
+	check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),
+		      "BRBE", 1, 2);
 	check_feature(ENABLE_TRBE_FOR_NS, read_feat_trbe_id_field(),
 		      "TRBE", 1, 1);
 

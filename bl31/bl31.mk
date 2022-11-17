@@ -116,7 +116,7 @@ ifneq (${ENABLE_TRBE_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/trbe/trbe.c
 endif
 
-ifeq (${ENABLE_BRBE_FOR_NS},1)
+ifneq (${ENABLE_BRBE_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/brbe/brbe.c
 endif
 

@@ -288,10 +288,22 @@ static inline unsigned int get_armv8_4_feat_nv_support(void)
  * Function to identify the presence of FEAT_BRBE (Branch Record Buffer
  * Extension)
  ******************************************************************************/
-static inline bool is_feat_brbe_present(void)
+static inline unsigned int read_feat_brbe_id_field(void)
 {
-	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_BRBE_SHIFT) &
-		ID_AA64DFR0_BRBE_MASK) == ID_AA64DFR0_BRBE_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_BRBE);
+}
+
+static inline bool is_feat_brbe_supported(void)
+{
+	if (ENABLE_BRBE_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_BRBE_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_brbe_id_field() != 0U;
 }
 
 /*******************************************************************************
