@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <lib/el3_runtime/pubsub.h>
 #include <lib/extensions/spe.h>
@@ -20,20 +21,9 @@ static inline void psb_csync(void)
 	__asm__ volatile("hint #17");
 }
 
-bool spe_supported(void)
-{
-	uint64_t features;
-
-	features = read_id_aa64dfr0_el1() >> ID_AA64DFR0_PMS_SHIFT;
-	return (features & ID_AA64DFR0_PMS_MASK) > 0ULL;
-}
-
 void spe_enable(bool el2_unused)
 {
 	uint64_t v;
-
-	if (!spe_supported())
-		return;
 
 	if (el2_unused) {
 		/*
@@ -69,9 +59,6 @@ void spe_disable(void)
 {
 	uint64_t v;
 
-	if (!spe_supported())
-		return;
-
 	/* Drain buffered data */
 	psb_csync();
 	dsbnsh();
@@ -85,7 +72,7 @@ void spe_disable(void)
 
 static void *spe_drain_buffers_hook(const void *arg)
 {
-	if (!spe_supported())
+	if (!is_feat_spe_supported())
 		return (void *)-1;
 
 	/* Drain buffered data */

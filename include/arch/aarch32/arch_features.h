@@ -43,4 +43,10 @@ static inline bool is_feat_trf_supported(void)
 	return read_feat_trf_id_field() != 0U;
 }
 
+static inline bool is_feat_spe_supported(void)
+{
+	/* FEAT_SPE is AArch64 only */
+	return false;
+}
+
 #endif /* ARCH_FEATURES_H */

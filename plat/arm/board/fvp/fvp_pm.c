@@ -6,6 +6,7 @@
 
 #include <assert.h>
 
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv3.h>
@@ -53,13 +54,13 @@ static void fvp_cluster_pwrdwn_common(void)
 {
 	uint64_t mpidr = read_mpidr_el1();
 
-#if ENABLE_SPE_FOR_NS
 	/*
 	 * On power down we need to disable statistical profiling extensions
 	 * before exiting coherency.
 	 */
-	spe_disable();
-#endif
+	if (is_feat_spe_supported()) {
+		spe_disable();
+	}
 
 	/* Disable coherency if this cluster is to be turned off */
 	fvp_interconnect_disable();

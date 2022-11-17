@@ -355,7 +355,7 @@ V				:= 0
 WARMBOOT_ENABLE_DCACHE_EARLY	:= 0
 
 # Build option to enable/disable the Statistical Profiling Extensions
-ENABLE_SPE_FOR_NS		:= 1
+ENABLE_SPE_FOR_NS		:= 2
 
 # SPE is only supported on AArch64 so disable it on AArch32.
 ifeq (${ARCH},aarch32)
