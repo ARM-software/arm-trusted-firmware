@@ -60,16 +60,6 @@ check_feature(int state, unsigned long field, const char *feat_name,
 	}
 }
 
-/******************************************
- * Feature : FEAT_SB (Speculation Barrier)
- *****************************************/
-static void read_feat_sb(void)
-{
-#if (ENABLE_FEAT_SB == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_0_feat_sb_present(), "SB");
-#endif
-}
-
 /******************************************************
  * Feature : FEAT_CSV2_2 (Cache Speculation Variant 2)
  *****************************************************/
@@ -256,7 +246,7 @@ void detect_arch_features(void)
 	tainted = false;
 
 	/* v8.0 features */
-	read_feat_sb();
+	check_feature(ENABLE_FEAT_SB, read_feat_sb_id_field(), "SB", 1, 1);
 	read_feat_csv2_2();
 
 	/* v8.1 features */

@@ -256,10 +256,9 @@ static inline unsigned int get_armv9_2_feat_rme_support(void)
 /*********************************************************************************
  * Function to identify the presence of FEAT_SB (Speculation Barrier Instruction)
  ********************************************************************************/
-static inline bool is_armv8_0_feat_sb_present(void)
+static inline unsigned int read_feat_sb_id_field(void)
 {
-	return (((read_id_aa64isar1_el1() >> ID_AA64ISAR1_SB_SHIFT) &
-		ID_AA64ISAR1_SB_MASK) == ID_AA64ISAR1_SB_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_SB);
 }
 
 /*********************************************************************************
