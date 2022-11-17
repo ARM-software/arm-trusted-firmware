@@ -171,10 +171,10 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 
 	scr_el3 |= SCR_NS_BIT | SCR_NSE_BIT;
 
-#if ENABLE_FEAT_CSV2_2
-	/* Enable access to the SCXTNUM_ELx registers. */
-	scr_el3 |= SCR_EnSCXT_BIT;
-#endif
+	if (is_feat_csv2_2_supported()) {
+		/* Enable access to the SCXTNUM_ELx registers. */
+		scr_el3 |= SCR_EnSCXT_BIT;
+	}
 
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 }
@@ -227,10 +227,10 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	scr_el3 |= SCR_TERR_BIT;
 #endif
 
-#if ENABLE_FEAT_CSV2_2
-	/* Enable access to the SCXTNUM_ELx registers. */
-	scr_el3 |= SCR_EnSCXT_BIT;
-#endif
+	if (is_feat_csv2_2_supported()) {
+		/* Enable access to the SCXTNUM_ELx registers. */
+		scr_el3 |= SCR_EnSCXT_BIT;
+	}
 
 #ifdef IMAGE_BL31
 	/*
@@ -976,9 +976,12 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		if (is_feat_trf_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2, read_trfcr_el2());
 		}
-#if ENABLE_FEAT_CSV2_2
-		el2_sysregs_context_save_csv2(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_csv2_2_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_SCXTNUM_EL2,
+				      read_scxtnum_el2());
+		}
+
 		if (is_feat_hcx_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2, read_hcrx_el2());
 		}
@@ -1039,9 +1042,12 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 		if (is_feat_trf_supported()) {
 			write_trfcr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2));
 		}
-#if ENABLE_FEAT_CSV2_2
-		el2_sysregs_context_restore_csv2(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_csv2_2_supported()) {
+			write_scxtnum_el2(read_ctx_reg(el2_sysregs_ctx,
+						       CTX_SCXTNUM_EL2));
+		}
+
 		if (is_feat_hcx_supported()) {
 			write_hcrx_el2(read_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2));
 		}

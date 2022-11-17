@@ -301,10 +301,22 @@ static inline unsigned int read_feat_sb_id_field(void)
 /*********************************************************************************
  * Function to identify the presence of FEAT_CSV2_2 (Cache Speculation Variant 2)
  ********************************************************************************/
-static inline bool is_armv8_0_feat_csv2_2_present(void)
+static inline unsigned int read_feat_csv2_id_field(void)
 {
-	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_CSV2_SHIFT) &
-		ID_AA64PFR0_CSV2_MASK) == ID_AA64PFR0_CSV2_2_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_CSV2);
+}
+
+static inline bool is_feat_csv2_2_supported(void)
+{
+	if (ENABLE_FEAT_CSV2_2 == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_CSV2_2 == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_csv2_id_field() >= ID_AA64PFR0_CSV2_2_SUPPORTED;
 }
 
 /**********************************************************************************

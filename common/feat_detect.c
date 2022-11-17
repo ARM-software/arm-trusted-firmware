@@ -60,16 +60,6 @@ check_feature(int state, unsigned long field, const char *feat_name,
 	}
 }
 
-/******************************************************
- * Feature : FEAT_CSV2_2 (Cache Speculation Variant 2)
- *****************************************************/
-static void read_feat_csv2_2(void)
-{
-#if (ENABLE_FEAT_CSV2_2 == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_0_feat_csv2_2_present(), "CSV2_2");
-#endif
-}
-
 /*******************************************************************************
  * Feature : FEAT_RAS (Reliability, Availability, and Serviceability Extension)
  ******************************************************************************/
@@ -224,7 +214,8 @@ void detect_arch_features(void)
 
 	/* v8.0 features */
 	check_feature(ENABLE_FEAT_SB, read_feat_sb_id_field(), "SB", 1, 1);
-	read_feat_csv2_2();
+	check_feature(ENABLE_FEAT_CSV2_2, read_feat_csv2_id_field(),
+		      "CSV2_2", 2, 3);
 
 	/* v8.1 features */
 	check_feature(ENABLE_FEAT_PAN, read_feat_pan_id_field(), "PAN", 1, 3);

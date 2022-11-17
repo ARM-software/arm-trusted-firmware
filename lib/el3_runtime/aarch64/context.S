@@ -25,10 +25,6 @@
 	.global	el2_sysregs_context_save_nv2
 	.global	el2_sysregs_context_restore_nv2
 #endif /* CTX_INCLUDE_NEVE_REGS */
-#if ENABLE_FEAT_CSV2_2
-	.global	el2_sysregs_context_save_csv2
-	.global	el2_sysregs_context_restore_csv2
-#endif /* ENABLE_FEAT_CSV2_2 */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	.global	el1_sysregs_context_save
@@ -261,26 +257,6 @@ func el2_sysregs_context_restore_nv2
 	ret
 endfunc el2_sysregs_context_restore_nv2
 #endif /* CTX_INCLUDE_NEVE_REGS */
-
-#if ENABLE_FEAT_CSV2_2
-func el2_sysregs_context_save_csv2
-	/*
-	 * SCXTNUM_EL2 register is saved only when FEAT_CSV2_2 is supported.
-	 */
-	mrs	x13, scxtnum_el2
-	str	x13, [x0, #CTX_SCXTNUM_EL2]
-	ret
-endfunc el2_sysregs_context_save_csv2
-
-func el2_sysregs_context_restore_csv2
-	/*
-	 * SCXTNUM_EL2 register is restored only when FEAT_CSV2_2 is supported.
-	 */
-	ldr	x13, [x0, #CTX_SCXTNUM_EL2]
-	msr	scxtnum_el2, x13
-	ret
-endfunc el2_sysregs_context_restore_csv2
-#endif /* ENABLE_FEAT_CSV2_2 */
 
 #endif /* CTX_INCLUDE_EL2_REGS */
 

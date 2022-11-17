@@ -525,10 +525,6 @@ void el2_sysregs_context_restore_ras(el2_sysregs_t *regs);
 void el2_sysregs_context_save_nv2(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_nv2(el2_sysregs_t *regs);
 #endif /* CTX_INCLUDE_NEVE_REGS */
-#if ENABLE_FEAT_CSV2_2
-void el2_sysregs_context_save_csv2(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_csv2(el2_sysregs_t *regs);
-#endif /* ENABLE_FEAT_CSV2_2 */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 #if CTX_INCLUDE_FPREGS
