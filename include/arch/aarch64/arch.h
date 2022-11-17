@@ -121,6 +121,8 @@
 #define TRFCR_EL2		S3_4_C1_C2_1
 #define PMSCR_EL2		S3_4_C9_C9_0
 #define TFSR_EL2		S3_4_C5_C6_0
+#define CONTEXTIDR_EL2		S3_4_C13_C0_1
+#define TTBR1_EL2		S3_4_C2_C0_1
 
 /*******************************************************************************
  * Generic timer memory mapped registers & offsets

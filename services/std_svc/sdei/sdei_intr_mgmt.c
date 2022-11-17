@@ -270,7 +270,7 @@ static void sdei_set_elr_spsr(sdei_entry_t *se, sdei_dispatch_context_t *disp_ct
 	 * HCR_EL2.E2H = 1 and HCR_EL2.TGE = 1
 	 */
 	u_register_t hcr_el2 = read_hcr();
-	bool el_is_in_host = is_armv8_1_vhe_present() &&
+	bool el_is_in_host = (read_feat_vhe_id_field() != 0U) &&
 			     (hcr_el2 & HCR_TGE_BIT) &&
 			     (hcr_el2 & HCR_E2H_BIT);
 

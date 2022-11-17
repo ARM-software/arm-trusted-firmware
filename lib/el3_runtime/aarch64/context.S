@@ -21,10 +21,6 @@
 	.global	el2_sysregs_context_save_ecv
 	.global	el2_sysregs_context_restore_ecv
 #endif /* ENABLE_FEAT_ECV */
-#if ENABLE_FEAT_VHE
-	.global	el2_sysregs_context_save_vhe
-	.global	el2_sysregs_context_restore_vhe
-#endif /* ENABLE_FEAT_VHE */
 #if RAS_EXTENSION
 	.global	el2_sysregs_context_save_ras
 	.global	el2_sysregs_context_restore_ras
@@ -239,30 +235,6 @@ func el2_sysregs_context_restore_ecv
 	ret
 endfunc el2_sysregs_context_restore_ecv
 #endif /* ENABLE_FEAT_ECV */
-
-#if ENABLE_FEAT_VHE
-func el2_sysregs_context_save_vhe
-	/*
-	 * CONTEXTIDR_EL2 register is saved only when FEAT_VHE or
-	 * FEAT_Debugv8p2 (currently not in TF-A) is supported.
-	 */
-	mrs	x9, contextidr_el2
-	mrs	x10, ttbr1_el2
-	stp	x9, x10, [x0, #CTX_CONTEXTIDR_EL2]
-	ret
-endfunc el2_sysregs_context_save_vhe
-
-func el2_sysregs_context_restore_vhe
-	/*
-	 * CONTEXTIDR_EL2 register is restored only when FEAT_VHE or
-	 * FEAT_Debugv8p2 (currently not in TF-A) is supported.
-	 */
-	ldp	x9, x10, [x0, #CTX_CONTEXTIDR_EL2]
-	msr	contextidr_el2, x9
-	msr	ttbr1_el2, x10
-	ret
-endfunc el2_sysregs_context_restore_vhe
-#endif /* ENABLE_FEAT_VHE */
 
 #if RAS_EXTENSION
 func el2_sysregs_context_save_ras
