@@ -460,7 +460,7 @@ endif
 endif
 
 # enable trace system registers access to NS by default
-ENABLE_SYS_REG_TRACE_FOR_NS	:= 1
+ENABLE_SYS_REG_TRACE_FOR_NS	:= 2
 
 # enable trace filter control registers access to NS by default
 ENABLE_TRF_FOR_NS		:= 2

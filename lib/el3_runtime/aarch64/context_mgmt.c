@@ -510,9 +510,9 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 		brbe_enable();
 	}
 
-#if ENABLE_SYS_REG_TRACE_FOR_NS
-	sys_reg_trace_enable(ctx);
-#endif /* ENABLE_SYS_REG_TRACE_FOR_NS */
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_enable(ctx);
+	}
 
 	if (is_feat_trf_supported()) {
 		trf_enable();

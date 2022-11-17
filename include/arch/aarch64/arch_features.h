@@ -320,6 +320,24 @@ static inline bool is_armv8_4_feat_dit_present(void)
 		ID_AA64PFR0_DIT_MASK) == ID_AA64PFR0_DIT_SUPPORTED);
 }
 
+static inline unsigned int read_feat_tracever_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_TRACEVER);
+}
+
+static inline bool is_feat_sys_reg_trace_supported(void)
+{
+	if (ENABLE_SYS_REG_TRACE_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_SYS_REG_TRACE_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_tracever_id_field() != 0U;
+}
+
 /*************************************************************************
  * Function to identify the presence of FEAT_TRF (TraceLift)
  ************************************************************************/

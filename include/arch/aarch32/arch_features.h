@@ -43,6 +43,24 @@ static inline bool is_feat_trf_supported(void)
 	return read_feat_trf_id_field() != 0U;
 }
 
+static inline unsigned int read_feat_coptrc_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_dfr0(), ID_DFR0_COPTRC);
+}
+
+static inline bool is_feat_sys_reg_trace_supported(void)
+{
+	if (ENABLE_SYS_REG_TRACE_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_SYS_REG_TRACE_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_coptrc_id_field() != 0U;
+}
+
 static inline bool is_feat_spe_supported(void)
 {
 	/* FEAT_SPE is AArch64 only */
