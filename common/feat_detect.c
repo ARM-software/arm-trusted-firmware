@@ -164,19 +164,6 @@ static void read_feat_amuv1p1(void)
 #endif
 }
 
-/*******************************************************
- * Feature : FEAT_ECV (Enhanced Counter Virtualization)
- ******************************************************/
-static void read_feat_ecv(void)
-{
-#if (ENABLE_FEAT_ECV == FEAT_STATE_ALWAYS)
-	unsigned int ecv = get_armv8_6_ecv_support();
-
-	feat_detect_panic(((ecv == ID_AA64MMFR0_EL1_ECV_SUPPORTED) ||
-			(ecv == ID_AA64MMFR0_EL1_ECV_SELF_SYNCH)), "ECV");
-#endif
-}
-
 /***********************************************************
  * Feature : FEAT_TWED (Delayed Trapping of WFE Instruction)
  **********************************************************/
@@ -269,7 +256,7 @@ void detect_arch_features(void)
 	/* v8.6 features */
 	read_feat_amuv1p1();
 	check_feature(ENABLE_FEAT_FGT, read_feat_fgt_id_field(), "FGT", 1, 1);
-	read_feat_ecv();
+	check_feature(ENABLE_FEAT_ECV, read_feat_ecv_id_field(), "ECV", 1, 2);
 	read_feat_twed();
 
 	/* v8.7 features */

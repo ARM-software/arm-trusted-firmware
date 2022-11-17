@@ -17,10 +17,6 @@
 	.global	el2_sysregs_context_save_mte
 	.global	el2_sysregs_context_restore_mte
 #endif /* CTX_INCLUDE_MTE_REGS */
-#if ENABLE_FEAT_ECV
-	.global	el2_sysregs_context_save_ecv
-	.global	el2_sysregs_context_restore_ecv
-#endif /* ENABLE_FEAT_ECV */
 #if RAS_EXTENSION
 	.global	el2_sysregs_context_save_ras
 	.global	el2_sysregs_context_restore_ras
@@ -221,20 +217,6 @@ func el2_sysregs_context_restore_mte
 	ret
 endfunc el2_sysregs_context_restore_mte
 #endif /* CTX_INCLUDE_MTE_REGS */
-
-#if ENABLE_FEAT_ECV
-func el2_sysregs_context_save_ecv
-	mrs	x11, CNTPOFF_EL2
-	str	x11, [x0, #CTX_CNTPOFF_EL2]
-	ret
-endfunc el2_sysregs_context_save_ecv
-
-func el2_sysregs_context_restore_ecv
-	ldr	x11, [x0, #CTX_CNTPOFF_EL2]
-	msr	CNTPOFF_EL2, x11
-	ret
-endfunc el2_sysregs_context_restore_ecv
-#endif /* ENABLE_FEAT_ECV */
 
 #if RAS_EXTENSION
 func el2_sysregs_context_save_ras

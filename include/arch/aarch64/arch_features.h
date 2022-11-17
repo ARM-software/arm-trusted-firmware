@@ -143,10 +143,35 @@ static inline bool is_feat_fgt_supported(void)
 	return read_feat_fgt_id_field() != 0U;
 }
 
-static inline unsigned long int get_armv8_6_ecv_support(void)
+static unsigned int read_feat_ecv_id_field(void)
 {
-	return ((read_id_aa64mmfr0_el1() >> ID_AA64MMFR0_EL1_ECV_SHIFT) &
-		ID_AA64MMFR0_EL1_ECV_MASK);
+	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(), ID_AA64MMFR0_EL1_ECV);
+}
+
+static inline bool is_feat_ecv_supported(void)
+{
+	if (ENABLE_FEAT_ECV == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_ECV == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_ecv_id_field() != 0U;
+}
+
+static inline bool is_feat_ecv_v2_supported(void)
+{
+	if (ENABLE_FEAT_ECV == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_ECV == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_ecv_id_field() >= ID_AA64MMFR0_EL1_ECV_SELF_SYNCH;
 }
 
 static inline bool is_armv8_5_rng_present(void)

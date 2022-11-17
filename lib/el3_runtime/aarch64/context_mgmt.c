@@ -380,8 +380,7 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 			scr_el3 |= SCR_FGTEN_BIT;
 		}
 
-		if (get_armv8_6_ecv_support()
-		    == ID_AA64MMFR0_EL1_ECV_SELF_SYNCH) {
+		if (is_feat_ecv_supported()) {
 			scr_el3 |= SCR_ECVEN_BIT;
 		}
 	}
@@ -957,9 +956,11 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 			el2_sysregs_context_save_fgt(el2_sysregs_ctx);
 		}
 
-#if ENABLE_FEAT_ECV
-		el2_sysregs_context_save_ecv(el2_sysregs_ctx);
-#endif
+		if (is_feat_ecv_v2_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_CNTPOFF_EL2,
+				      read_cntpoff_el2());
+		}
+
 		if (is_feat_vhe_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_CONTEXTIDR_EL2,
 				      read_contextidr_el2());
@@ -1020,9 +1021,11 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 			el2_sysregs_context_restore_fgt(el2_sysregs_ctx);
 		}
 
-#if ENABLE_FEAT_ECV
-		el2_sysregs_context_restore_ecv(el2_sysregs_ctx);
-#endif
+		if (is_feat_ecv_v2_supported()) {
+			write_cntpoff_el2(read_ctx_reg(el2_sysregs_ctx,
+						       CTX_CNTPOFF_EL2));
+		}
+
 		if (is_feat_vhe_supported()) {
 			write_contextidr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_CONTEXTIDR_EL2));
 			write_ttbr1_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TTBR1_EL2));
