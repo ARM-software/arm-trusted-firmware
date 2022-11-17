@@ -108,7 +108,7 @@ BL31_SOURCES		+=	lib/extensions/sve/sve.c
 endif
 endif
 
-ifeq (${ENABLE_MPAM_FOR_LOWER_ELS},1)
+ifneq (${ENABLE_MPAM_FOR_LOWER_ELS},0)
 BL31_SOURCES		+=	lib/extensions/mpam/mpam.c
 endif
 

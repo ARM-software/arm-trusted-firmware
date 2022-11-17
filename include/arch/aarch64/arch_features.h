@@ -184,12 +184,25 @@ static inline bool is_armv8_6_feat_amuv1p1_present(void)
  * 0x11: v1.1 Armv8.4 or later
  *
  */
-static inline unsigned int get_mpam_version(void)
+static inline unsigned int read_feat_mpam_version(void)
 {
 	return (unsigned int)((((read_id_aa64pfr0_el1() >>
 		ID_AA64PFR0_MPAM_SHIFT) & ID_AA64PFR0_MPAM_MASK) << 4) |
 				((read_id_aa64pfr1_el1() >>
 		ID_AA64PFR1_MPAM_FRAC_SHIFT) & ID_AA64PFR1_MPAM_FRAC_MASK));
+}
+
+static inline bool is_feat_mpam_supported(void)
+{
+	if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_mpam_version() != 0U;
 }
 
 static inline unsigned int read_feat_hcx_id_field(void)

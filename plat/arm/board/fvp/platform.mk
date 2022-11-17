@@ -469,6 +469,8 @@ ENABLE_FEAT_FGT			:= 2
 ENABLE_FEAT_HCX			:= 2
 ENABLE_FEAT_TCR2		:= 2
 
+ENABLE_MPAM_FOR_LOWER_ELS	:= 2
+
 ifeq (${SPMC_AT_EL3}, 1)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp/fvp_el3_spmc.c
 endif

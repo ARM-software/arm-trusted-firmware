@@ -13,11 +13,6 @@
 
 void mpam_enable(bool el2_unused)
 {
-	/* Check if MPAM is implemented */
-	if (get_mpam_version() == 0U) {
-		return;
-	}
-
 	/*
 	 * Enable MPAM, and disable trapping to EL3 when lower ELs access their
 	 * own MPAM registers.
