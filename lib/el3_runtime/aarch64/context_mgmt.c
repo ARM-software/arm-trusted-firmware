@@ -507,9 +507,9 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 	sys_reg_trace_enable(ctx);
 #endif /* ENABLE_SYS_REG_TRACE_FOR_NS */
 
-#if ENABLE_TRF_FOR_NS
-	trf_enable();
-#endif /* ENABLE_TRF_FOR_NS */
+	if (is_feat_trf_supported()) {
+		trf_enable();
+	}
 #endif
 }
 
@@ -875,9 +875,9 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 #if CTX_INCLUDE_NEVE_REGS
 		el2_sysregs_context_save_nv2(el2_sysregs_ctx);
 #endif
-#if ENABLE_TRF_FOR_NS
-		el2_sysregs_context_save_trf(el2_sysregs_ctx);
-#endif
+		if (is_feat_trf_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2, read_trfcr_el2());
+		}
 #if ENABLE_FEAT_CSV2_2
 		el2_sysregs_context_save_csv2(el2_sysregs_ctx);
 #endif
@@ -935,9 +935,9 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 #if CTX_INCLUDE_NEVE_REGS
 		el2_sysregs_context_restore_nv2(el2_sysregs_ctx);
 #endif
-#if ENABLE_TRF_FOR_NS
-		el2_sysregs_context_restore_trf(el2_sysregs_ctx);
-#endif
+		if (is_feat_trf_supported()) {
+			write_trfcr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2));
+		}
 #if ENABLE_FEAT_CSV2_2
 		el2_sysregs_context_restore_csv2(el2_sysregs_ctx);
 #endif

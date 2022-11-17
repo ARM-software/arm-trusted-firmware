@@ -461,7 +461,7 @@ endif
 ENABLE_SYS_REG_TRACE_FOR_NS	:= 1
 
 # enable trace filter control registers access to NS by default
-ENABLE_TRF_FOR_NS		:= 1
+ENABLE_TRF_FOR_NS		:= 2
 
 # Linux relies on EL3 enablement if those features are present
 ENABLE_FEAT_FGT			:= 2

@@ -11,6 +11,7 @@
 #include <platform_def.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <context.h>
@@ -143,9 +144,9 @@ static void enable_extensions_nonsecure(bool el2_unused)
 	sys_reg_trace_enable();
 #endif /* ENABLE_SYS_REG_TRACE_FOR_NS */
 
-#if ENABLE_TRF_FOR_NS
-	trf_enable();
-#endif /* ENABLE_TRF_FOR_NS */
+	if (is_feat_trf_supported()) {
+		trf_enable();
+	}
 #endif
 }
 

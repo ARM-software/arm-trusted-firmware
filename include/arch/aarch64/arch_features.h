@@ -268,10 +268,22 @@ static inline bool is_armv8_4_feat_dit_present(void)
 /*************************************************************************
  * Function to identify the presence of FEAT_TRF (TraceLift)
  ************************************************************************/
-static inline bool is_arm8_4_feat_trf_present(void)
+static inline unsigned int read_feat_trf_id_field(void)
 {
-	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_TRACEFILT_SHIFT) &
-		ID_AA64DFR0_TRACEFILT_MASK) == ID_AA64DFR0_TRACEFILT_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_TRACEFILT);
+}
+
+static inline bool is_feat_trf_supported(void)
+{
+	if (ENABLE_TRF_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_TRF_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_trf_id_field() != 0U;
 }
 
 /********************************************************************************

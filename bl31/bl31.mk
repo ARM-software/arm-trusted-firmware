@@ -124,7 +124,7 @@ ifeq (${ENABLE_SYS_REG_TRACE_FOR_NS},1)
 BL31_SOURCES		+=      lib/extensions/sys_reg_trace/aarch64/sys_reg_trace.c
 endif
 
-ifeq (${ENABLE_TRF_FOR_NS},1)
+ifneq (${ENABLE_TRF_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/trf/aarch64/trf.c
 endif
 
