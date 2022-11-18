@@ -416,7 +416,7 @@ int fdt_get_gpio_bank_pin_count(unsigned int bank)
 
 		/* Get the last defined gpio line (offset + nb of pins) */
 		pin_count = fdt32_to_cpu(*(cuint + 1)) + fdt32_to_cpu(*(cuint + 3));
-		for (i = 0; i < len / 4; i++) {
+		for (i = 0; i < (len / 4); i++) {
 			pin_count = MAX(pin_count, (int)(fdt32_to_cpu(*(cuint + 1)) +
 							 fdt32_to_cpu(*(cuint + 3))));
 			cuint += 4;
