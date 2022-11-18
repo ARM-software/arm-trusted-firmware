@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2021, Linaro Limited
+ * Copyright (c) 2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -25,13 +26,13 @@ static inline void *guidcpy(void *dst, const void *src)
 }
 
 #define EFI_GUID(a, b, c, d0, d1, d2, d3, d4, d5, d6, d7) \
-	{ (a) & 0xffffffff,		\
-	  (b) & 0xffff,			\
-	  (c) & 0xffff,			\
+	{ (a) & 0xffffffffU,		\
+	  (b) & 0xffffU,			\
+	  (c) & 0xffffU,			\
 	  { (d0), (d1), (d2), (d3), (d4), (d5), (d6), (d7) } }
 
 #define NULL_GUID \
-	EFI_GUID(0x00000000, 0x0000, 0x0000, 0x00, 0x00, \
-		 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
+	EFI_GUID(0x00000000U, 0x0000U, 0x0000U, 0x00U, 0x00U, \
+		 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U)
 
 #endif /* DRIVERS_PARTITION_EFI_H */
