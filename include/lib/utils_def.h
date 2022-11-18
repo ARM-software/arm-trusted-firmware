@@ -68,14 +68,14 @@
 	__typeof__(x) _x = (x);		\
 	__typeof__(y) _y = (y);		\
 	(void)(&_x == &_y);		\
-	_x < _y ? _x : _y;		\
+	(_x < _y) ? _x : _y;		\
 })
 
 #define MAX(x, y) __extension__ ({	\
 	__typeof__(x) _x = (x);		\
 	__typeof__(y) _y = (y);		\
 	(void)(&_x == &_y);		\
-	_x > _y ? _x : _y;		\
+	(_x > _y) ? _x : _y;		\
 })
 
 #define CLAMP(x, min, max) __extension__ ({ \
@@ -84,7 +84,7 @@
 	__typeof__(max) _max = (max); \
 	(void)(&_x == &_min); \
 	(void)(&_x == &_max); \
-	(_x > _max ? _max : (_x < _min ? _min : _x)); \
+	((_x > _max) ? _max : ((_x < _min) ? _min : _x)); \
 })
 
 /*
