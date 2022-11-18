@@ -115,13 +115,13 @@ void event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish);
 void event_log_write_specid_event(void);
 void event_log_write_header(void);
 void dump_event_log(uint8_t *log_addr, size_t log_size);
-const event_log_metadata_t *plat_event_log_get_metadata(void);
 int event_log_measure(uintptr_t data_base, uint32_t data_size,
 		      unsigned char hash_data[CRYPTO_MD_MAX_SIZE]);
 void event_log_record(const uint8_t *hash, uint32_t event_type,
 		      const event_log_metadata_t *metadata_ptr);
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
-				 uint32_t data_id);
+				 uint32_t data_id,
+				 const event_log_metadata_t *metadata_ptr);
 size_t event_log_get_cur_size(uint8_t *event_log_start);
 
 #endif /* EVENT_LOG_H */
