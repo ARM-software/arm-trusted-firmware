@@ -212,7 +212,10 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				${QEMU_GIC_SOURCES}
 
 ifeq (${SPD},spmd)
-BL31_SOURCES		+=	plat/qemu/common/qemu_spmd_manifest.c
+BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
+				common/uuid.c				\
+				${LIBFDT_SRCS} 				\
+				${FDT_WRAPPERS_SOURCES}
 endif
 endif
 
@@ -231,6 +234,13 @@ $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2,,$(ENCRYPT_BL32)))
 else
 $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
 endif
+endif
+
+ifneq ($(QEMU_TOS_FW_CONFIG_DTS),)
+FDT_SOURCES		+=	${QEMU_TOS_FW_CONFIG_DTS}
+QEMU_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/$(notdir $(basename ${QEMU_TOS_FW_CONFIG_DTS})).dtb
+# Add the TOS_FW_CONFIG to FIP
+$(eval $(call TOOL_ADD_PAYLOAD,${QEMU_TOS_FW_CONFIG},--tos-fw-config,${QEMU_TOS_FW_CONFIG}))
 endif
 
 SEPARATE_CODE_AND_RODATA := 1

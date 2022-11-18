@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,7 @@
 #define BL2_IMAGE_NAME			"bl2.bin"
 #define BL31_IMAGE_NAME			"bl31.bin"
 #define BL32_IMAGE_NAME			"bl32.bin"
+#define TOS_FW_CONFIG_NAME		"tos_fw_config.dtb"
 #define BL32_EXTRA1_IMAGE_NAME		"bl32_extra1.bin"
 #define BL32_EXTRA2_IMAGE_NAME		"bl32_extra2.bin"
 #define BL33_IMAGE_NAME			"bl33.bin"
@@ -76,6 +77,10 @@ static const io_uuid_spec_t bl32_extra1_uuid_spec = {
 
 static const io_uuid_spec_t bl32_extra2_uuid_spec = {
 	.uuid = UUID_SECURE_PAYLOAD_BL32_EXTRA2,
+};
+
+static const io_uuid_spec_t tos_fw_config_uuid_spec = {
+	.uuid = UUID_TOS_FW_CONFIG,
 };
 
 static const io_uuid_spec_t bl33_uuid_spec = {
@@ -135,6 +140,10 @@ static const io_file_spec_t sh_file_spec[] = {
 	},
 	[BL32_EXTRA2_IMAGE_ID] = {
 		.path = BL32_EXTRA2_IMAGE_NAME,
+		.mode = FOPEN_MODE_RB
+	},
+	[TOS_FW_CONFIG_ID] = {
+		.path = TOS_FW_CONFIG_NAME,
 		.mode = FOPEN_MODE_RB
 	},
 	[BL33_IMAGE_ID] = {
@@ -252,6 +261,11 @@ static const struct plat_io_policy policies[] = {
 		open_fip
 	},
 #endif
+	[TOS_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&tos_fw_config_uuid_spec,
+		open_fip
+	},
 	[BL33_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl33_uuid_spec,
