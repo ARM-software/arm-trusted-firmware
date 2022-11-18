@@ -51,6 +51,7 @@
 		x3 = x3 & MASK_32_BIT; \
 		x4 = x4 & MASK_32_BIT; \
 	} \
+	/* fallthrough */ \
 	case _smc_id##_AARCH64: \
 	{ \
 		if (_smc_id##_descriptor_index < 0) { \
