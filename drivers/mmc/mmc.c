@@ -780,8 +780,7 @@ int mmc_part_switch_current_boot(void)
 	unsigned char current_boot_part = mmc_current_boot_part();
 	int ret;
 
-	if (current_boot_part != 1U &&
-	    current_boot_part != 2U) {
+	if ((current_boot_part != 1U) && (current_boot_part != 2U)) {
 		ERROR("Got unexpected value for active boot partition, %u\n", current_boot_part);
 		return -EIO;
 	}
