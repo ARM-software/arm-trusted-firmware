@@ -16,11 +16,6 @@
 extern event_log_metadata_t fvp_event_log_metadata[];
 extern struct rss_mboot_metadata fvp_rss_mboot_metadata[];
 
-const event_log_metadata_t *plat_event_log_get_metadata(void)
-{
-	return fvp_event_log_metadata;
-}
-
 struct rss_mboot_metadata *plat_rss_mboot_get_metadata(void)
 {
 	return fvp_rss_mboot_metadata;
@@ -34,7 +29,8 @@ int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
 	/* Calculate image hash and record data in Event Log */
 	err = event_log_measure_and_record(image_data->image_base,
 					   image_data->image_size,
-					   image_id);
+					   image_id,
+					   fvp_event_log_metadata);
 	if (err != 0) {
 		ERROR("%s%s image id %u (%i)\n",
 		      "Failed to ", "record in event log", image_id, err);

@@ -125,7 +125,8 @@ int plat_mboot_measure_critical_data(unsigned int critical_data_id,
 
 	/* Calculate image hash and record data in Event Log */
 	int err = event_log_measure_and_record((uintptr_t)base, (uint32_t)size,
-					       critical_data_id);
+					       critical_data_id,
+					       fvp_event_log_metadata);
 	if (err != 0) {
 		ERROR("%s%s critical data (%i)\n",
 		      "Failed to ", "record",  err);
