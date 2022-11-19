@@ -90,6 +90,10 @@ ifeq (${ENABLE_SPE_FOR_LOWER_ELS},1)
 BL31_SOURCES		+=	lib/extensions/spe/spe.c
 endif
 
+ifeq (${ERRATA_ABI_SUPPORT},1)
+BL31_SOURCES		+=	services/std_svc/errata_abi/errata_abi_main.c
+endif
+
 ifeq (${ENABLE_AMU},1)
 BL31_SOURCES		+=	${AMU_SOURCES}
 endif
