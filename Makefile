@@ -1163,6 +1163,7 @@ $(eval $(call assert_booleans,\
         SIMICS_BUILD \
         FEATURE_DETECTION \
 	TRNG_SUPPORT \
+	ERRATA_ABI_SUPPORT \
 	CONDITIONAL_CMO \
 )))
 
@@ -1295,6 +1296,7 @@ $(eval $(call add_defines,\
         TRUSTED_BOARD_BOOT \
         CRYPTO_SUPPORT \
         TRNG_SUPPORT \
+        ERRATA_ABI_SUPPORT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \
         ARM_IO_IN_DTB \
