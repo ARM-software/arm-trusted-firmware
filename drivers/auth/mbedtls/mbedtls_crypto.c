@@ -170,12 +170,15 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 	size_t len;
 	int rc;
 
-	/* Digest info should be an MBEDTLS_ASN1_SEQUENCE */
+	/*
+	 * Digest info should be an MBEDTLS_ASN1_SEQUENCE and consume all
+	 * bytes
+	 */
 	p = (unsigned char *)digest_info_ptr;
 	end = p + digest_info_len;
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				  MBEDTLS_ASN1_SEQUENCE);
-	if (rc != 0) {
+	if (rc != 0 || len != end - p) {
 		return CRYPTO_ERR_HASH;
 	}
 
@@ -195,9 +198,9 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 		return CRYPTO_ERR_HASH;
 	}
 
-	/* Hash should be octet string type */
+	/* Hash should be octet string type and consume all bytes */
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_OCTET_STRING);
-	if (rc != 0) {
+	if (rc != 0 || len != end - p) {
 		return CRYPTO_ERR_HASH;
 	}
 
