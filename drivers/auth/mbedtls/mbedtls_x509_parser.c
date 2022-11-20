@@ -312,9 +312,11 @@ static int cert_parse(void *img, unsigned int img_len)
 	v3_ext.len = end - v3_ext.p;
 
 	/*
-	 * Check extensions integrity
+	 * Check extensions integrity.  At least one extension
+	 * is required, hence the use of a do-while loop (which
+	 * will detect emptiness on the first iteration).
 	 */
-	while (p < end) {
+	do {
 		ret = mbedtls_asn1_get_tag(&p, end, &len,
 					   MBEDTLS_ASN1_CONSTRUCTED |
 					   MBEDTLS_ASN1_SEQUENCE);
@@ -342,7 +344,7 @@ static int cert_parse(void *img, unsigned int img_len)
 			return IMG_PARSER_ERR_FORMAT;
 		}
 		p += len;
-	}
+	} while (p < end);
 
 	if (p != end) {
 		return IMG_PARSER_ERR_FORMAT;
