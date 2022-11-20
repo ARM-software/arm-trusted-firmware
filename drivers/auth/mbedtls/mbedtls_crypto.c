@@ -115,7 +115,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	end = (unsigned char *)(p + sig_len);
 	signature.tag = *p;
 	rc = mbedtls_asn1_get_bitstring_null(&p, end, &signature.len);
-	if (rc != 0) {
+	if (rc != 0 || end - p != signature.len) {
 		rc = CRYPTO_ERR_SIGNATURE;
 		goto end1;
 	}
