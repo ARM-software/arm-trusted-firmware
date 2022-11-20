@@ -290,24 +290,26 @@ static int cert_parse(void *img, unsigned int img_len)
 
 	/*
 	 * extensions      [3]  EXPLICIT Extensions OPTIONAL
+	 * -- must use all remaining bytes in TBSCertificate
 	 */
 	ret = mbedtls_asn1_get_tag(&p, end, &len,
 				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
 				   MBEDTLS_ASN1_CONSTRUCTED | 3);
-	if (ret != 0) {
+	if (ret != 0 || len != end - p) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
 
 	/*
 	 * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
+	 * -- must use all remaining bytes in TBSCertificate
 	 */
 	v3_ext.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0 || len != end - p) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
-	v3_ext.len = (p + len) - v3_ext.p;
+	v3_ext.len = end - v3_ext.p;
 
 	/*
 	 * Check extensions integrity
