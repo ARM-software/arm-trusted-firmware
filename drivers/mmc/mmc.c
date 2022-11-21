@@ -69,8 +69,7 @@ static int mmc_send_cmd(unsigned int idx, unsigned int arg,
 		int i;
 
 		for (i = 0; i < 4; i++) {
-			*r_data = cmd.resp_data[i];
-			r_data++;
+			r_data[i] = cmd.resp_data[i];
 		}
 	}
 
