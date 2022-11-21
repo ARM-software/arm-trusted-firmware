@@ -526,9 +526,7 @@ ifneq (${SPD},none)
         SPD_DIR := std_svc
 
         ifeq ($(SPMD_SPM_AT_SEL2),1)
-            ifeq ($(CTX_INCLUDE_EL2_REGS),0)
-                $(error SPMD with SPM at S-EL2 requires CTX_INCLUDE_EL2_REGS option)
-            endif
+            CTX_INCLUDE_EL2_REGS := 1
 	    ifeq ($(SPMC_AT_EL3),1)
                 $(error SPM cannot be enabled in both S-EL2 and EL3.)
             endif
@@ -572,6 +570,14 @@ ifneq (${SPD},none)
     #   that will be included in the FIP
     # If both BL32_SOURCES and BL32 are defined, the binary takes precedence
     # over the sources.
+endif
+
+ifeq (${CTX_INCLUDE_EL2_REGS}, 1)
+ifeq (${SPD},none)
+ifeq (${ENABLE_RME},0)
+    $(error CTX_INCLUDE_EL2_REGS is available only when SPD or RME is enabled)
+endif
+endif
 endif
 
 ################################################################################

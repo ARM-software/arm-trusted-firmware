@@ -150,9 +150,6 @@ SPMC located at S-EL1, S-EL2 or EL3:
   at EL3.
 - If neither ``SPMD_SPM_AT_SEL2`` or ``SPMC_AT_EL3`` are enabled the SPMC
   exception level is set to S-EL1.
-- **CTX_INCLUDE_EL2_REGS**: this option permits saving (resp.
-  restoring) the EL2 system register context before entering (resp.
-  after leaving) the SPMC. It is mandatorily enabled when
   ``SPMD_SPM_AT_SEL2`` is enabled. The context save/restore routine
   and exhaustive list of registers is visible at `[4]`_.
 - **SP_LAYOUT_FILE**: this option specifies a text description file
@@ -161,16 +158,16 @@ SPMC located at S-EL1, S-EL2 or EL3:
   is required when ``SPMD_SPM_AT_SEL2`` is enabled hence when multiple
   secure partitions are to be loaded by BL2 on behalf of the SPMC.
 
-+---------------+----------------------+------------------+-------------+
-|               | CTX_INCLUDE_EL2_REGS | SPMD_SPM_AT_SEL2 | SPMC_AT_EL3 |
-+---------------+----------------------+------------------+-------------+
-| SPMC at S-EL1 |         0            |        0         |      0      |
-+---------------+----------------------+------------------+-------------+
-| SPMC at S-EL2 |         1            | 1 (default when  |      0      |
-|               |                      |    SPD=spmd)     |             |
-+---------------+----------------------+------------------+-------------+
-| SPMC at EL3   |         0            |        0         |      1      |
-+---------------+----------------------+------------------+-------------+
++---------------+------------------+-------------+-------------------------+
+|               | SPMD_SPM_AT_SEL2 | SPMC_AT_EL3 | CTX_INCLUDE_EL2_REGS(*) |
++---------------+------------------+-------------+-------------------------+
+| SPMC at S-EL1 |        0         |      0      |             0           |
++---------------+------------------+-------------+-------------------------+
+| SPMC at S-EL2 | 1 (default when  |      0      |             1           |
+|               |    SPD=spmd)     |             |                         |
++---------------+------------------+-------------+-------------------------+
+| SPMC at EL3   |        0         |      1      |             0           |
++---------------+------------------+-------------+-------------------------+
 
 Other combinations of such build options either break the build or are not
 supported.
@@ -181,9 +178,9 @@ Notes:
   stack.
 - When ``SPMD_SPM_AT_SEL2=1``, the reference software stack assumes enablement
   of FEAT_PAuth, FEAT_BTI and FEAT_MTE architecture extensions.
-- The ``CTX_INCLUDE_EL2_REGS`` option provides the generic support for
-  barely saving/restoring EL2 registers from an Arm arch perspective. As such
-  it is decoupled from the ``SPD=spmd`` option.
+- ``(*) CTX_INCLUDE_EL2_REGS``, this flag is |TF-A| internal and informational
+  in this table. When set, it provides the generic support for saving/restoring
+  EL2 registers required when S-EL2 firmware is present.
 - BL32 option is re-purposed to specify the SPMC image. It can specify either
   the Hafnium binary path (built for the secure world) or the path to a TEE
   binary implementing FF-A interfaces.
@@ -212,7 +209,6 @@ implemented and the SPMC is located at S-EL2:
     CROSS_COMPILE=aarch64-none-elf- \
     PLAT=fvp \
     SPD=spmd \
-    CTX_INCLUDE_EL2_REGS=1 \
     ARM_ARCH_MINOR=5 \
     BRANCH_PROTECTION=1 \
     CTX_INCLUDE_PAUTH_REGS=1 \
@@ -230,7 +226,6 @@ implemented, the SPMC is located at S-EL2, and enabling secure boot:
     CROSS_COMPILE=aarch64-none-elf- \
     PLAT=fvp \
     SPD=spmd \
-    CTX_INCLUDE_EL2_REGS=1 \
     ARM_ARCH_MINOR=5 \
     BRANCH_PROTECTION=1 \
     CTX_INCLUDE_PAUTH_REGS=1 \

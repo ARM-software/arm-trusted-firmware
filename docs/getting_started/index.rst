@@ -10,6 +10,7 @@ Getting Started
    initial-build
    tools-build
    build-options
+   build-internals
    image-terminology
    porting-guide
    psci-lib-integration-guide

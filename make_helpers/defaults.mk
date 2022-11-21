@@ -400,9 +400,10 @@ USE_SPINLOCK_CAS := 0
 # Enable Link Time Optimization
 ENABLE_LTO			:= 0
 
-# Build flag to include EL2 registers in cpu context save and restore during
-# S-EL2 firmware entry/exit. This flag is to be used with SPD=spmd option.
-# Default is 0.
+# This option will include EL2 registers in cpu context save and restore during
+# EL2 firmware entry/exit. Internal flag not meant for direct setting.
+# Use SPD=spmd and SPMD_SPM_AT_SEL2=1 or ENABLE_RME=1 to enable
+# CTX_INCLUDE_EL2_REGS.
 CTX_INCLUDE_EL2_REGS		:= 0
 
 # Enable Memory tag extension which is supported for architecture greater
