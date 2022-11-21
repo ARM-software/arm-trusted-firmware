@@ -10,6 +10,7 @@
 #include <asm_macros.S>
 #include <bl31/ea_handle.h>
 #include <bl31/interrupt_mgmt.h>
+#include <bl31/sync_handle.h>
 #include <common/runtime_svc.h>
 #include <context.h>
 #include <el3_common_macros.S>
@@ -191,7 +192,10 @@ exp_from_EL3:
 	b.eq	smc_handler32
 
 	cmp	x30, #EC_AARCH64_SMC
-	b.eq	smc_handler64
+	b.eq	sync_handler64
+
+	cmp	x30, #EC_AARCH64_SYS
+	b.eq	sync_handler64
 
 	/* Synchronous exceptions other than the above are assumed to be EA */
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
@@ -452,12 +456,12 @@ brk_message:
 	 * Note that x30 has been explicitly saved and can be used here
 	 * ---------------------------------------------------------------------
 	 */
-func smc_handler
+func sync_exception_handler
 smc_handler32:
 	/* Check whether aarch32 issued an SMC64 */
 	tbnz	x0, #FUNCID_CC_SHIFT, smc_prohibited
 
-smc_handler64:
+sync_handler64:
 	/* NOTE: The code below must preserve x0-x4 */
 
 	/*
@@ -503,6 +507,12 @@ smc_handler64:
 
 	/* Load SCR_EL3 */
 	mrs	x18, scr_el3
+
+	/* check for system register traps */
+	mrs	x16, esr_el3
+	ubfx	x17, x16, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+	cmp	x17, #EC_AARCH64_SYS
+	b.eq	sysreg_handler64
 
 	/* Clear flag register */
 	mov	x7, xzr
@@ -569,6 +579,32 @@ smc_handler64:
 
 	b	el3_exit
 
+sysreg_handler64:
+	mov	x0, x16		/* ESR_EL3, containing syndrome information */
+	mov	x1, x6		/* lower EL's context */
+	mov	x19, x6		/* save context pointer for after the call */
+	mov	sp, x12		/* EL3 runtime stack, as loaded above */
+
+	/* int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx); */
+	bl	handle_sysreg_trap
+	/*
+	 * returns:
+	 *   -1: unhandled trap, panic
+	 *    0: handled trap, return to the trapping instruction (repeating it)
+	 *    1: handled trap, return to the next instruction
+	 */
+
+	tst	w0, w0
+	b.mi	do_panic	/* negative return value: panic */
+	b.eq	1f		/* zero: do not change ELR_EL3 */
+
+	/* advance the PC to continue after the instruction */
+	ldr	x1, [x19, #CTX_EL3STATE_OFFSET + CTX_ELR_EL3]
+	add	x1, x1, #4
+	str	x1, [x19, #CTX_EL3STATE_OFFSET + CTX_ELR_EL3]
+1:
+	b	el3_exit
+
 smc_unknown:
 	/*
 	 * Unknown SMC call. Populate return value with SMC_UNK and call
@@ -593,7 +629,7 @@ rt_svc_fw_critical_error:
 	msr	spsel, #MODE_SP_ELX
 	no_ret	report_unhandled_exception
 #endif
-endfunc smc_handler
+endfunc sync_exception_handler
 
 	/* ---------------------------------------------------------------------
 	 * The following code handles exceptions caused by BRK instructions.
