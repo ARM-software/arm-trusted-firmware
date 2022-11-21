@@ -249,7 +249,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	p += len;
 
 	/*
-	 * SubjectPublicKeyInfo
+	 * SubjectPublicKeyInfo ::= SEQUENCE {
 	 */
 	pk.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
@@ -258,7 +258,35 @@ static int cert_parse(void *img, unsigned int img_len)
 		return IMG_PARSER_ERR_FORMAT;
 	}
 	pk.len = (p + len) - pk.p;
+
+	/*
+	 * algorithm AlgorithmIdentifier
+	 */
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
+	if (ret != 0) {
+		return IMG_PARSER_ERR_FORMAT;
+	}
 	p += len;
+
+	/*
+	 * subjectPublicKey BIT STRING
+	 */
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_BIT_STRING);
+	if (ret != 0) {
+		return IMG_PARSER_ERR_FORMAT;
+	}
+	p += len;
+
+	/*
+	 * }
+	 *
+	 * Do NOT omit this check, as other code may assume that it
+	 * has passed.
+	 */
+	if (p != (pk.p + pk.len)) {
+		return IMG_PARSER_ERR_FORMAT;
+	}
 
 	/*
 	 * issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
