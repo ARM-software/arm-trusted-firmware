@@ -561,6 +561,8 @@ void imx_apd_ctx_restore(unsigned int proc_num)
 	/* FIXME: make uart work for ATF */
 	mmio_write_32(IMX_LPUART_BASE + 0x18, 0xc0000);
 
+	/* Allow M core to reset A core */
+	mmio_clrbits_32(IMX_MU0B_BASE + 0x10, BIT(2));
 	/*
 	 * Ask S400 to release caam to APD as it is owned by s400
 	 */
