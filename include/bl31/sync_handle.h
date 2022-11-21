@@ -15,6 +15,9 @@
 #define ISS_SYSREG_REG_SHIFT		5U
 #define ISS_SYSREG_DIRECTION_MASK	0x000001UL
 
+#define ISS_SYSREG_OPCODE_RNDR		0x30c808U
+#define ISS_SYSREG_OPCODE_RNDRRS	0x32c808U
+
 #define TRAP_RET_UNHANDLED		-1
 #define TRAP_RET_REPEAT			0
 #define TRAP_RET_CONTINUE		1
@@ -49,6 +52,9 @@ static inline bool is_sysreg_iss_write(uint64_t esr)
  *		           (continuing after it)
  */
 int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx);
+
+/* Prototypes for system register emulation handlers provided by platforms. */
+int plat_handle_rng_trap(uint64_t esr_el3, cpu_context_t *ctx);
 
 #endif /* __ASSEMBLER__ */
 

@@ -198,6 +198,10 @@ BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
 				plat/arm/board/fvp/fvp_realm_attest_key.c
 endif
 
+ifeq (${ENABLE_FEAT_RNG_TRAP},1)
+BL31_SOURCES		+=	plat/arm/board/fvp/fvp_sync_traps.c
+endif
+
 ifeq (${BL2_AT_EL3},1)
 BL2_SOURCES		+=	plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
 				plat/arm/board/fvp/fvp_bl2_el3_setup.c		\

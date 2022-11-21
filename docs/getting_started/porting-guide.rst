@@ -3396,6 +3396,39 @@ This function must be implemented in assembly.
 The default implementation of this function calls
 ``report_unhandled_exception``.
 
+Function : plat_handle_rng_trap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t
+    Argument : cpu_context_t *
+    Return   : int
+
+This function is invoked by BL31's exception handler when there is a synchronous
+system register trap caused by access to the RNDR or RNDRRS registers. It allows
+platforms implementing ``FEAT_RNG_TRAP`` and enabling ``ENABLE_FEAT_RNG_TRAP`` to
+emulate those system registers by returing back some entropy to the lower EL.
+
+The first parameter (``uint64_t esr_el3``) contains the content of the ESR_EL3
+syndrome register, which encodes the instruction that was trapped. The interesting
+information in there is the target register (``get_sysreg_iss_rt()``).
+
+The second parameter (``cpu_context_t *ctx``) represents the CPU state in the
+lower exception level, at the time when the execution of the ``mrs`` instruction
+was trapped. Its content can be changed, to put the entropy into the target
+register.
+
+The return value indicates how to proceed:
+
+-  When returning ``TRAP_RET_UNHANDLED`` (-1), the machine will panic.
+-  When returning ``TRAP_RET_REPEAT`` (0), the exception handler will return
+   to the same instruction, so its execution will be repeated.
+-  When returning ``TRAP_RET_CONTINUE`` (1), the exception handler will return
+   to the next instruction.
+
+This function needs to be implemented by a platform if it enables FEAT_RNG_TRAP.
+
 Build flags
 -----------
 
