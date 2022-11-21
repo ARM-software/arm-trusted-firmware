@@ -347,7 +347,7 @@ int dt_find_otp_name(const char *name, uint32_t *otp, uint32_t *otp_len)
 		return -FDT_ERR_BADVALUE;
 	}
 
-	if (fdt32_to_cpu(*cuint) % sizeof(uint32_t)) {
+	if ((fdt32_to_cpu(*cuint) % sizeof(uint32_t)) != 0U) {
 		ERROR("Misaligned nvmem %s element: ignored\n", name);
 		return -FDT_ERR_BADVALUE;
 	}
