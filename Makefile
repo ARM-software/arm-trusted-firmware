@@ -350,26 +350,50 @@ ASFLAGS_aarch64		=	$(march64-directive)
 # General warnings
 WARNINGS		:=	-Wall -Wmissing-include-dirs -Wunused	\
 				-Wdisabled-optimization -Wvla -Wshadow	\
-				-Wno-unused-parameter -Wredundant-decls
+				-Wredundant-decls
+# stricter warnings
+WARNINGS		+=	-Wextra -Wno-trigraphs
+# too verbose for generic build
+WARNINGS		+=	-Wno-missing-field-initializers \
+				-Wno-type-limits -Wno-sign-compare \
+# on clang this flag gets reset if -Wextra is set after it. No difference on gcc
+WARNINGS		+=	-Wno-unused-parameter
 
 # Additional warnings
-# Level 1
-WARNING1 := -Wextra
-WARNING1 += -Wmissing-format-attribute
-WARNING1 += -Wmissing-prototypes
-WARNING1 += -Wold-style-definition
+# Level 1 - infrequent warnings we should have none of
+# full -Wextra
+WARNING1 += -Wsign-compare
+WARNING1 += -Wtype-limits
+WARNING1 += -Wmissing-field-initializers
 
-# Level 2
-WARNING2 := -Waggregate-return
-WARNING2 += -Wcast-align
-WARNING2 += -Wnested-externs
+# Level 2 - problematic warnings that we want
+# zlib, compiler-rt, coreboot, and mbdedtls blow up with these
+# TODO: disable just for them and move into default build
+WARNING2 += -Wold-style-definition
+WARNING2 += -Wmissing-prototypes
+WARNING2 += -Wmissing-format-attribute
+# TF-A aims to comply with this eventually. Effort too large at present
+WARNING2 += -Wundef
 
+# Level 3 - very pedantic, frequently ignored
 WARNING3 := -Wbad-function-cast
+WARNING3 += -Waggregate-return
+WARNING3 += -Wnested-externs
+WARNING3 += -Wcast-align
 WARNING3 += -Wcast-qual
 WARNING3 += -Wconversion
 WARNING3 += -Wpacked
 WARNING3 += -Wpointer-arith
 WARNING3 += -Wswitch-default
+
+# Setting W is quite verbose and most warnings will be pre-existing issues
+# outside of the contributor's control. Don't fail the build on them so warnings
+# can be seen and hopefully addressed
+ifdef W
+ifneq (${W},0)
+E	 ?= 0
+endif
+endif
 
 ifeq (${W},1)
 WARNINGS += $(WARNING1)
