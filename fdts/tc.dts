@@ -463,17 +463,18 @@
 		interrupt-names = "JOB", "MMU", "GPU";
 		clocks = <&soc_refclk100mhz>;
 		clock-names = "clk_mali";
+		iommus = <&smmu_700 0x200>;
 		operating-points = <
 			/* KHz uV */
 			50000 820000
 		>;
 	};
 
-	smmu: smmu@2ce00000 {
+	smmu_700: smmu_700@3f000000 {
 		#iommu-cells = <1>;
 		compatible = "arm,smmu-v3";
-		reg = <0x0 0x2ce00000 0x0 0x20000>;
-		status = "okay";
+		reg = <0x0 0x3f000000 0x0 0x5000000>;
+		dma-coherent;
 	};
 
 	dp0: display@2cc00000 {
@@ -485,9 +486,7 @@
 		interrupt-names = "DPU";
 		clocks = <&scmi_clk 0>;
 		clock-names = "aclk";
-		iommus = <&smmu 0>, <&smmu 1>, <&smmu 2>, <&smmu 3>,
-			<&smmu 4>, <&smmu 5>, <&smmu 6>, <&smmu 7>,
-			<&smmu 8>, <&smmu 9>;
+		iommus = <&smmu_700 0x100>;
 		pl0: pipeline@0 {
 			reg = <0>;
 			clocks = <&scmi_clk 1>;
