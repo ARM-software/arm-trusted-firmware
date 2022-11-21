@@ -558,11 +558,12 @@ void imx_apd_ctx_restore(unsigned int proc_num)
 
 	iomuxc_restore();
 
-	gpio_restore(apd_gpio_ctx, APD_GPIO_CTRL_NUM);
-
 	tpm5_restore();
 
 	xrdc_reinit();
+
+	/* Restore GPIO after xrdc_reinit, otherwise MSCs are invalid */
+	gpio_restore(apd_gpio_ctx, APD_GPIO_CTRL_NUM);
 
 	/* restore the gic config */
 	plat_gic_restore(proc_num, &imx_gicv3_ctx);
