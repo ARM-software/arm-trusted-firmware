@@ -2135,7 +2135,7 @@ CPUs. BL31 executes at EL3 and is responsible for:
 
 #. Providing runtime firmware services. Currently, BL31 only implements a
    subset of the Power State Coordination Interface (PSCI) API as a runtime
-   service. See Section 3.3 below for details of porting the PSCI
+   service. See :ref:`psci_in_bl31` below for details of porting the PSCI
    implementation.
 
 #. Optionally passing control to the BL32 image, pre-loaded at a platform-
@@ -2543,6 +2543,8 @@ Function: bool plat_get_entropy(uint64_t \*out) [mandatory]
 
 This function writes entropy into storage provided by the caller. If no entropy
 is available, it must return false and the storage must not be written.
+
+.. _psci_in_bl31:
 
 Power State Coordination Interface (in BL31)
 --------------------------------------------
