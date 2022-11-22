@@ -554,7 +554,7 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#if BL2_AT_EL3
+#if RESET_TO_BL2
 #if ENABLE_PIE
 /*
  * As the BL31 image size appears to be increased when built with the ENABLE_PIE
@@ -614,10 +614,11 @@
 						- PLAT_ARM_MAX_BL31_SIZE)
 #define BL31_PROGBITS_LIMIT		BL2_BASE
 /*
- * For BL2_AT_EL3 make sure the BL31 can grow up until BL2_BASE. This is
- * because in the BL2_AT_EL3 configuration, BL2 is always resident.
+ * For RESET_TO_BL2 make sure the BL31 can grow up until BL2_BASE.
+ * This is because in the RESET_TO_BL2 configuration,
+ * BL2 is always resident.
  */
-#if BL2_AT_EL3
+#if RESET_TO_BL2
 #define BL31_LIMIT			BL2_BASE
 #else
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)

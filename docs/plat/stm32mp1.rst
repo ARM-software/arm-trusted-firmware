@@ -107,11 +107,11 @@ Memory mapping
 Boot sequence
 ~~~~~~~~~~~~~
 
-ROM code -> BL2 (compiled with BL2_AT_EL3) -> BL32 (SP_min) -> BL33 (U-Boot)
+ROM code -> BL2(compiled with RESET_TO_BL2) -> BL32(SP_min)-> BL33(U-Boot)
 
 or if Op-TEE is used:
 
-ROM code -> BL2 (compiled with BL2_AT_EL3) -> OP-TEE -> BL33 (U-Boot)
+ROM code -> BL2 (compiled with RESET_TO_BL2) -> OP-TEE -> BL33 (U-Boot)
 
 
 Build Instructions

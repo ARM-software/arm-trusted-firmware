@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -101,7 +101,7 @@ ifeq (${NEED_BL2},yes)
 $(eval $(call add_define,NEED_BL2))
 LOAD_IMAGE_V2		:=	1
 # Non-TF Boot ROM
-BL2_AT_EL3		:=	1
+RESET_TO_BL2	:=	1
 endif
 
 ifneq (${TRUSTED_BOARD_BOOT},0)

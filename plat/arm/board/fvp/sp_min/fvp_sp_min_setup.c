@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,7 +22,7 @@ void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
-#if !RESET_TO_SP_MIN && !BL2_AT_EL3
+#if !RESET_TO_SP_MIN && !RESET_TO_BL2
 
 	INFO("SP_MIN FCONF: FW_CONFIG address = %lx\n", (uintptr_t)arg1);
 	/* Fill the properties struct with the info from the config dtb */
@@ -32,7 +32,7 @@ void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	if (tos_fw_config_info != NULL) {
 		arg1 = tos_fw_config_info->config_addr;
 	}
-#endif /* !RESET_TO_SP_MIN && !BL2_AT_EL3 */
+#endif /* !RESET_TO_SP_MIN && !RESET_TO_BL2 */
 
 	arm_sp_min_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 
@@ -68,13 +68,14 @@ void sp_min_plat_arch_setup(void)
 	 * For RESET_TO_SP_MIN systems, SP_MIN(BL32) is the first bootloader
 	 * to run. So there is no BL2 to load the HW_CONFIG dtb into memory
 	 * before control is passed to SP_MIN.
-	 * Also, BL2 skips loading HW_CONFIG dtb for BL2_AT_EL3 builds.
-	 * The code below relies on dynamic mapping capability, which is not
-	 * supported by xlat tables lib V1.
+	 * Also, BL2 skips loading HW_CONFIG dtb for
+	 * RESET_TO_BL2 builds.
+	 * The code below relies on dynamic mapping capability,
+	 * which is not supported by xlat tables lib V1.
 	 * TODO: remove the ARM_XLAT_TABLES_LIB_V1 check when its support
 	 * gets deprecated.
 	 */
-#if !RESET_TO_SP_MIN && !BL2_AT_EL3 && !ARM_XLAT_TABLES_LIB_V1
+#if !RESET_TO_SP_MIN && !RESET_TO_BL2 && !ARM_XLAT_TABLES_LIB_V1
 	hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
 	assert(hw_config_info != NULL);
 	assert(hw_config_info->config_addr != 0UL);
@@ -117,5 +118,5 @@ void sp_min_plat_arch_setup(void)
 		      rc);
 		panic();
 	}
-#endif /* !RESET_TO_SP_MIN && !BL2_AT_EL3 && !ARM_XLAT_TABLES_LIB_V1 */
+#endif /*!RESET_TO_SP_MIN && !RESET_TO_BL2 && !ARM_XLAT_TABLES_LIB_V1*/
 }

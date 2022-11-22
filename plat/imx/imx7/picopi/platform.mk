@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,7 +22,7 @@ WORKAROUND_CVE_2017_5715	:= 0
 RESET_TO_BL31			:= 0
 
 # Non-TF Boot ROM
-BL2_AT_EL3			:= 1
+RESET_TO_BL2		:= 1
 
 # Indicate single-core
 COLD_BOOT_SINGLE_CPU		:= 1

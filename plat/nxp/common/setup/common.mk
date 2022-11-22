@@ -7,7 +7,7 @@
 
 ###############################################################################
 # Flow begins in BL2 at EL3 mode
-BL2_AT_EL3			:= 1
+RESET_TO_BL2			:= 1
 
 # Though one core is powered up by default, there are
 # platform specific ways to release more than one core

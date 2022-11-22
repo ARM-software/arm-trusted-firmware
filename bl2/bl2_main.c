@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,9 +27,9 @@
 #define NEXT_IMAGE	"BL32"
 #endif
 
-#if BL2_AT_EL3
+#if RESET_TO_BL2
 /*******************************************************************************
- * Setup function for BL2 when BL2_AT_EL3=1
+ * Setup function for BL2 when RESET_TO_BL2=1
  ******************************************************************************/
 void bl2_el3_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 		   u_register_t arg3)
@@ -48,9 +48,10 @@ void bl2_el3_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	assert(is_armv8_3_pauth_present());
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 }
-#else /* BL2_AT_EL3 */
+#else /* RESET_TO_BL2 */
+
 /*******************************************************************************
- * Setup function for BL2 when BL2_AT_EL3=0
+ * Setup function for BL2 when RESET_TO_BL2=0
  ******************************************************************************/
 void bl2_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	       u_register_t arg3)
@@ -69,7 +70,7 @@ void bl2_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	assert(is_armv8_3_pauth_present());
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 }
-#endif /* BL2_AT_EL3 */
+#endif /* RESET_TO_BL2 */
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
@@ -107,7 +108,7 @@ void bl2_main(void)
 	/* Teardown the Measured Boot backend */
 	bl2_plat_mboot_finish();
 
-#if !BL2_AT_EL3 && !ENABLE_RME
+#if !BL2_RUNS_AT_EL3
 #ifndef __aarch64__
 	/*
 	 * For AArch32 state BL1 and BL2 share the MMU setup.
@@ -132,7 +133,8 @@ void bl2_main(void)
 	 * be passed to next BL image as an argument.
 	 */
 	smc(BL1_SMC_RUN_IMAGE, (unsigned long)next_bl_ep_info, 0, 0, 0, 0, 0, 0);
-#else /* if BL2_AT_EL3 || ENABLE_RME */
+#else /* if BL2_RUNS_AT_EL3 */
+
 	NOTICE("BL2: Booting " NEXT_IMAGE "\n");
 	print_entry_point_info(next_bl_ep_info);
 	console_flush();
@@ -145,5 +147,5 @@ void bl2_main(void)
 #endif /* ENABLE_PAUTH */
 
 	bl2_run_next_image(next_bl_ep_info);
-#endif /* BL2_AT_EL3 && ENABLE_RME */
+#endif /* BL2_RUNS_AT_EL3 */
 }

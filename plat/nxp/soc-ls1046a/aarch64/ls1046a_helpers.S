@@ -44,7 +44,7 @@ endfunc apply_platform_errata
 
 func plat_reset_handler
 	mov	x29, x30
-#if (defined(IMAGE_BL2) && BL2_AT_EL3)
+#if (defined(IMAGE_BL2) && RESET_TO_BL2)
 	bl	l2_mem_init
 #endif
 	bl	apply_platform_errata

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -164,7 +164,7 @@ func zeromem_dczva
 	 * register value and panic if the MMU is disabled.
 	 */
 #if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && \
-	(BL2_AT_EL3 || ENABLE_RME))
+	BL2_RUNS_AT_EL3)
 	mrs	tmp1, sctlr_el3
 #else
 	mrs	tmp1, sctlr_el1

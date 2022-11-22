@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 # Non-TF Boot ROM
-BL2_AT_EL3	:=	1
+RESET_TO_BL2	:=	1
 
 # On Hikey, the TSP can execute from TZC secure area in DRAM (default)
 # or SRAM.

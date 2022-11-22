@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,7 @@ void arm_bl2_el3_early_platform_setup(void)
 	/*
 	 * Allow BL2 to see the whole Trusted RAM. This is determined
 	 * statically since we cannot rely on BL1 passing this information
-	 * in the BL2_AT_EL3 case.
+	 * in the RESET_TO_BL2 case.
 	 */
 	bl2_el3_tzram_layout.total_base = ARM_BL_RAM_BASE;
 	bl2_el3_tzram_layout.total_size = ARM_BL_RAM_SIZE;
@@ -71,7 +71,9 @@ void arm_bl2_el3_plat_arch_setup(void)
 {
 
 #if USE_COHERENT_MEM
-	/* Ensure ARM platforms dont use coherent memory in BL2_AT_EL3 */
+	/* Ensure ARM platforms dont use coherent memory
+	 * in RESET_TO_BL2
+	 */
 	assert(BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE == 0U);
 #endif
 
