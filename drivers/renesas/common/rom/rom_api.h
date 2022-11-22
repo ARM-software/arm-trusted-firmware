@@ -24,7 +24,7 @@
 #define LCS_FA					(0x7U)
 
 typedef uint32_t(*rom_read_flash_f) (uint64_t src, uint8_t *dst, uint32_t len);
-uint32_t rcar_rom_secure_boot_api(uint32_t *key, uint32_t *cert,
+uint32_t rcar_rom_secure_boot_api(uint32_t key, uint32_t cert,
 				  rom_read_flash_f f);
 uint32_t rcar_rom_get_lcs(uint32_t *lcs);
 
