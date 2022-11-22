@@ -479,10 +479,11 @@ int init_mmc_card(struct sd_handle *handle)
 			handle->device->cfg.blockSize = 512;
 		}
 
-		if (handle->device->ctrl.ocr & SD_CARD_HIGH_CAPACITY)
+		if (handle->device->ctrl.ocr & SD_CARD_HIGH_CAPACITY) {
 			EMMC_TRACE("Sector addressing\n");
-		else
+		} else {
 			EMMC_TRACE("Byte addressing\n");
+		}
 
 		EMMC_TRACE("Ext_CSD_storage[162]: 0x%02X  Ext_CSD_storage[179]: 0x%02X\n",
 			   emmc_global_buf_ptr->u.Ext_CSD_storage[162],
