@@ -403,7 +403,6 @@ ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES		+=	drivers/mmc/mmc.c					\
 				drivers/partition/gpt.c					\
 				drivers/partition/partition.c				\
-				drivers/st/io/io_mmc.c					\
 				drivers/st/mmc/stm32_sdmmc2.c
 endif
 
