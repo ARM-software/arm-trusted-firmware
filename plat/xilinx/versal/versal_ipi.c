@@ -19,7 +19,7 @@
 #include <lib/mmio.h>
 
 /* versal ipi configuration table */
-const static struct ipi_config versal_ipi_table[] = {
+static const struct ipi_config versal_ipi_table[] = {
 	/* A72 IPI */
 	[IPI_ID_APU] = {
 		.ipi_bit_mask = IPI0_TRIG_BIT,

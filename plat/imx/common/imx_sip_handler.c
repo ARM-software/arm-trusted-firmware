@@ -20,7 +20,7 @@
 #if defined(PLAT_imx8qm) || defined(PLAT_imx8qx)
 
 #ifdef PLAT_imx8qm
-const static int ap_cluster_index[PLATFORM_CLUSTER_COUNT] = {
+static const int ap_cluster_index[PLATFORM_CLUSTER_COUNT] = {
 	SC_R_A53, SC_R_A72,
 };
 #endif

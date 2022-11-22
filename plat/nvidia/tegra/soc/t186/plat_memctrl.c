@@ -20,7 +20,7 @@ extern uint64_t tegra_bl31_phys_base;
 /*******************************************************************************
  * Array to hold stream_id override config register offsets
  ******************************************************************************/
-const static uint32_t tegra186_streamid_override_regs[] = {
+static const uint32_t tegra186_streamid_override_regs[] = {
 	MC_STREAMID_OVERRIDE_CFG_SDMMCRA,
 	MC_STREAMID_OVERRIDE_CFG_SDMMCRAA,
 	MC_STREAMID_OVERRIDE_CFG_SDMMCR,
@@ -34,7 +34,7 @@ const static uint32_t tegra186_streamid_override_regs[] = {
 /*******************************************************************************
  * Array to hold the security configs for stream IDs
  ******************************************************************************/
-const static mc_streamid_security_cfg_t tegra186_streamid_sec_cfgs[] = {
+static const mc_streamid_security_cfg_t tegra186_streamid_sec_cfgs[] = {
 	mc_make_sec_cfg(SCEW, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(AFIR, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(AFIW, NON_SECURE, OVERRIDE, DISABLE),
@@ -112,7 +112,7 @@ const static mc_streamid_security_cfg_t tegra186_streamid_sec_cfgs[] = {
 /*******************************************************************************
  * Array to hold the transaction override configs
  ******************************************************************************/
-const static mc_txn_override_cfg_t tegra186_txn_override_cfgs[] = {
+static const mc_txn_override_cfg_t tegra186_txn_override_cfgs[] = {
 	mc_make_txn_override_cfg(BPMPW, CGID_TAG_ADR),
 	mc_make_txn_override_cfg(EQOSW, CGID_TAG_ADR),
 	mc_make_txn_override_cfg(NVJPGSWR, CGID_TAG_ADR),

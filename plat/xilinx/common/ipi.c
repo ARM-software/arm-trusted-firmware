@@ -39,7 +39,7 @@
 #define IPI_BIT_MASK(I) (ipi_table[(I)].ipi_bit_mask)
 
 /* IPI configuration table */
-const static struct ipi_config *ipi_table;
+static const struct ipi_config *ipi_table;
 
 /* Total number of IPI */
 static uint32_t ipi_total;

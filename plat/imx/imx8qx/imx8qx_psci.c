@@ -18,7 +18,7 @@
 
 #include "../../common/sci/imx8_mu.h"
 
-const static int ap_core_index[PLATFORM_CORE_COUNT] = {
+static const int ap_core_index[PLATFORM_CORE_COUNT] = {
 	SC_R_A35_0, SC_R_A35_1, SC_R_A35_2, SC_R_A35_3
 };
 
