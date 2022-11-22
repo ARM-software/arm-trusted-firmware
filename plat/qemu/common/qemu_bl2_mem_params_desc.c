@@ -9,6 +9,18 @@
 #include <common/desc_image_load.h>
 #include <plat/common/platform.h>
 
+#define SP_PKG_ENTRY(id) \
+	{ \
+		.image_id = (id), \
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY, VERSION_2, \
+				      entry_point_info_t, \
+				      SECURE | NON_EXECUTABLE), \
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY, \
+				      VERSION_2, image_info_t, \
+				      IMAGE_ATTRIB_SKIP_LOADING), \
+		.next_handoff_image_id = INVALID_IMAGE_ID, \
+	}
+
 /*******************************************************************************
  * Following descriptor provides BL image/ep information that gets used
  * by BL2 to load the images and also subset of this information is
@@ -136,8 +148,34 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 					 TOS_FW_CONFIG_BASE,
 	    .next_handoff_image_id = INVALID_IMAGE_ID,
 	},
-#endif
 
+#if SPMD_SPM_AT_SEL2
+	/* Fill TB_FW_CONFIG related information */
+	{
+	    .image_id = TB_FW_CONFIG_ID,
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+		    VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+		    VERSION_2, image_info_t, 0),
+	    .image_info.image_base = TB_FW_CONFIG_BASE,
+	    .image_info.image_max_size = TB_FW_CONFIG_LIMIT - TB_FW_CONFIG_BASE,
+	    .next_handoff_image_id = INVALID_IMAGE_ID,
+	},
+
+	/*
+	 * Empty entries for SP packages to be filled in according to
+	 * TB_FW_CONFIG.
+	 */
+	SP_PKG_ENTRY(SP_PKG1_ID),
+	SP_PKG_ENTRY(SP_PKG2_ID),
+	SP_PKG_ENTRY(SP_PKG3_ID),
+	SP_PKG_ENTRY(SP_PKG4_ID),
+	SP_PKG_ENTRY(SP_PKG5_ID),
+	SP_PKG_ENTRY(SP_PKG6_ID),
+	SP_PKG_ENTRY(SP_PKG7_ID),
+	SP_PKG_ENTRY(SP_PKG8_ID),
+#endif
+#endif
 # endif /* QEMU_LOAD_BL32 */
 
 	/* Fill BL33 related information */

@@ -16,6 +16,7 @@
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <common/fdt_fixup.h>
+#include <common/fdt_wrappers.h>
 #include <lib/optee_utils.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
@@ -140,6 +141,48 @@ static uint32_t qemu_get_spsr_for_bl33_entry(void)
 	return spsr;
 }
 
+#if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
+static int load_sps_from_tb_fw_config(struct image_info *image_info)
+{
+	void *dtb = (void *)image_info->image_base;
+	const char *compat_str = "arm,sp";
+	const struct fdt_property *uuid;
+	uint32_t load_addr;
+	const char *name;
+	int sp_node;
+	int node;
+
+	node = fdt_node_offset_by_compatible(dtb, -1, compat_str);
+	if (node < 0) {
+		ERROR("Can't find %s in TB_FW_CONFIG", compat_str);
+		return -1;
+	}
+
+	fdt_for_each_subnode(sp_node, dtb, node) {
+		name = fdt_get_name(dtb, sp_node, NULL);
+		if (name == NULL) {
+			ERROR("Can't get name of node in dtb\n");
+			return -1;
+		}
+		uuid = fdt_get_property(dtb, sp_node, "uuid", NULL);
+		if (uuid == NULL) {
+			ERROR("Can't find property uuid in node %s", name);
+			return -1;
+		}
+		if (fdt_read_uint32(dtb, sp_node, "load-address",
+				    &load_addr) < 0) {
+			ERROR("Can't read load-address in node %s", name);
+			return -1;
+		}
+		if (qemu_io_register_sp_pkg(name, uuid->data, load_addr) < 0) {
+			return -1;
+		}
+	}
+
+	return 0;
+}
+#endif /*defined(SPD_spmd) && SPMD_SPM_AT_SEL2*/
+
 static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;
@@ -224,7 +267,12 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 
 		bl_mem_params->ep_info.spsr = qemu_get_spsr_for_bl33_entry();
 		break;
-#if defined(SPD_spmd)
+#ifdef SPD_spmd
+#if SPMD_SPM_AT_SEL2
+	case TB_FW_CONFIG_ID:
+		err = load_sps_from_tb_fw_config(&bl_mem_params->image_info);
+		break;
+#endif
 	case TOS_FW_CONFIG_ID:
 		/* An SPMC expects TOS_FW_CONFIG in x0/r0 */
 		bl32_mem_params = get_bl_mem_params_node(BL32_IMAGE_ID);
