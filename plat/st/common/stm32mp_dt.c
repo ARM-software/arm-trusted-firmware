@@ -79,11 +79,8 @@ uint8_t fdt_get_status(int node)
 	}
 
 	cchar = fdt_getprop(fdt, node, "secure-status", NULL);
-	if (cchar == NULL) {
-		if (status == DT_NON_SECURE) {
-			status |= DT_SECURE;
-		}
-	} else if (strncmp(cchar, "okay", strlen("okay")) == 0) {
+	if (((cchar == NULL) && (status == DT_NON_SECURE)) ||
+	    ((cchar != NULL) && (strncmp(cchar, "okay", strlen("okay")) == 0))) {
 		status |= DT_SECURE;
 	}
 
