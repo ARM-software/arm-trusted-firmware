@@ -454,7 +454,7 @@ static const struct regul_ops pmic_ops = {
 };
 
 #define DEFINE_REGU(name) { \
-	.node_name = name, \
+	.node_name = (name), \
 	.ops = &pmic_ops, \
 	.driver_data = NULL, \
 	.enable_ramp_delay = 1000, \
