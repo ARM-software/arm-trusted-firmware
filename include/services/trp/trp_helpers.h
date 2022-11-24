@@ -39,5 +39,12 @@ trp_args_t *set_smc_args(uint64_t arg0,
 
 __dead2 void trp_boot_abort(uint64_t err);
 
+/* TRP SMC result registers X0-X4 */
+#define TRP_SMC_RESULT_REGS	5
+
+struct trp_smc_result {
+	unsigned long long x[TRP_SMC_RESULT_REGS];
+};
+
 #endif /* __ASSEMBLER __ */
 #endif /* TRP_HELPERS_H */

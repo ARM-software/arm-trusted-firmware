@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
 #include <common/debug.h>
 #include <plat/common/platform.h>
 #include <services/rmm_core_manifest.h>
@@ -31,11 +30,11 @@ void trp_setup(uint64_t x0,
 	       uint64_t x3)
 {
 	/*
-	 * Validate boot parameters.
+	 * Validate boot parameters
 	 *
-	 * According to the Boot Interface ABI v.0.1, the
-	 * parameters recived from EL3 are:
-	 * x0: CPUID (verified earlier so not used)
+	 * According to the Boot Interface ABI v.0.1,
+	 * the parameters received from EL3 are:
+	 * x0: CPUID (verified earlier, so not used)
 	 * x1: Boot Interface version
 	 * x2: PLATFORM_CORE_COUNT
 	 * x3: Pointer to the shared memory area.
@@ -73,14 +72,14 @@ void trp_main(void)
 	NOTICE("TRP: %s\n", build_message);
 	NOTICE("TRP: Supported RMM-EL3 Interface ABI: v.%u.%u\n",
 		TRP_RMM_EL3_ABI_VERS_MAJOR, TRP_RMM_EL3_ABI_VERS_MINOR);
-	NOTICE("TRP: Boot Manifest Version : v.%u.%u\n",
+	NOTICE("TRP: Boot Manifest Version: v.%u.%u\n",
 		RMMD_GET_MANIFEST_VERSION_MAJOR(trp_boot_manifest_version),
 		RMMD_GET_MANIFEST_VERSION_MINOR(trp_boot_manifest_version));
-	INFO("TRP: Memory base : 0x%lx\n", (unsigned long)RMM_BASE);
-	INFO("TRP: Base address for the shared region : 0x%lx\n",
+	INFO("TRP: Memory base: 0x%lx\n", (unsigned long)RMM_BASE);
+	INFO("TRP: Shared region base address: 0x%lx\n",
 			(unsigned long)trp_shared_region_start);
-	INFO("TRP: Total size : 0x%lx bytes\n", (unsigned long)(RMM_END
-								- RMM_BASE));
+	INFO("TRP: Total size: 0x%lx bytes\n",
+			(unsigned long)(RMM_END - RMM_BASE));
 	INFO("TRP: RMM-EL3 Interface ABI reported by EL3: v.%u.%u\n",
 		TRP_RMM_EL3_VERSION_GET_MAJOR(trp_boot_abi_version),
 		TRP_RMM_EL3_VERSION_GET_MINOR(trp_boot_abi_version));
@@ -89,62 +88,73 @@ void trp_main(void)
 /*******************************************************************************
  * Returning RMI version back to Normal World
  ******************************************************************************/
-static trp_args_t *trp_ret_rmi_version(void)
+static void trp_ret_rmi_version(struct trp_smc_result *smc_ret)
 {
 	VERBOSE("RMM version is %u.%u\n", RMI_ABI_VERSION_MAJOR,
 					  RMI_ABI_VERSION_MINOR);
-	return set_smc_args(RMM_RMI_REQ_COMPLETE, RMI_ABI_VERSION,
-			    0, 0, 0, 0, 0, 0);
+	smc_ret->x[0] = RMI_ABI_VERSION;
 }
 
 /*******************************************************************************
  * Transitioning granule of NON-SECURE type to REALM type
  ******************************************************************************/
-static trp_args_t *trp_asc_mark_realm(unsigned long long x1)
+static void trp_asc_mark_realm(unsigned long long x1,
+				struct trp_smc_result *smc_ret)
 {
-	unsigned long long ret;
-
 	VERBOSE("Delegating granule 0x%llx\n", x1);
-	ret = trp_smc(set_smc_args(RMM_GTSI_DELEGATE, x1, 0, 0, 0, 0, 0, 0));
+	smc_ret->x[0] = trp_smc(set_smc_args(RMM_GTSI_DELEGATE, x1,
+						0UL, 0UL, 0UL, 0UL, 0UL, 0UL));
 
-	if (ret != 0ULL) {
+	if (smc_ret->x[0] != 0ULL) {
 		ERROR("Granule transition from NON-SECURE type to REALM type "
-			"failed 0x%llx\n", ret);
+			"failed 0x%llx\n", smc_ret->x[0]);
 	}
-	return set_smc_args(RMM_RMI_REQ_COMPLETE, ret, 0, 0, 0, 0, 0, 0);
 }
 
 /*******************************************************************************
  * Transitioning granule of REALM type to NON-SECURE type
  ******************************************************************************/
-static trp_args_t *trp_asc_mark_nonsecure(unsigned long long x1)
+static void trp_asc_mark_nonsecure(unsigned long long x1,
+				   struct trp_smc_result *smc_ret)
 {
-	unsigned long long ret;
-
 	VERBOSE("Undelegating granule 0x%llx\n", x1);
-	ret = trp_smc(set_smc_args(RMM_GTSI_UNDELEGATE, x1, 0, 0, 0, 0, 0, 0));
+	smc_ret->x[0] = trp_smc(set_smc_args(RMM_GTSI_UNDELEGATE, x1,
+						0UL, 0UL, 0UL, 0UL, 0UL, 0UL));
 
-	if (ret != 0ULL) {
+	if (smc_ret->x[0] != 0ULL) {
 		ERROR("Granule transition from REALM type to NON-SECURE type "
-			"failed 0x%llx\n", ret);
+			"failed 0x%llx\n", smc_ret->x[0]);
 	}
-	return set_smc_args(RMM_RMI_REQ_COMPLETE, ret, 0, 0, 0, 0, 0, 0);
 }
 
 /*******************************************************************************
  * Main RMI SMC handler function
  ******************************************************************************/
-trp_args_t *trp_rmi_handler(unsigned long fid, unsigned long long x1)
+void trp_rmi_handler(unsigned long fid,
+		     unsigned long long x1, unsigned long long x2,
+		     unsigned long long x3, unsigned long long x4,
+		     unsigned long long x5, unsigned long long x6,
+		     struct trp_smc_result *smc_ret)
 {
+	/* Not used in the current implementation */
+	(void)x2;
+	(void)x3;
+	(void)x4;
+	(void)x5;
+	(void)x6;
+
 	switch (fid) {
 	case RMI_RMM_REQ_VERSION:
-		return trp_ret_rmi_version();
+		trp_ret_rmi_version(smc_ret);
+		break;
 	case RMI_RMM_GRANULE_DELEGATE:
-		return trp_asc_mark_realm(x1);
+		trp_asc_mark_realm(x1, smc_ret);
+		break;
 	case RMI_RMM_GRANULE_UNDELEGATE:
-		return trp_asc_mark_nonsecure(x1);
+		trp_asc_mark_nonsecure(x1, smc_ret);
+		break;
 	default:
-		ERROR("Invalid SMC code to %s, FID %lu\n", __func__, fid);
+		ERROR("Invalid SMC code to %s, FID %lx\n", __func__, fid);
+		smc_ret->x[0] = SMC_UNK;
 	}
-	return set_smc_args(SMC_UNK, 0, 0, 0, 0, 0, 0, 0);
 }
