@@ -68,12 +68,12 @@ func plat_crash_console_init
 	mov	x4, x30		/* x3 and x4 are not clobbered by spin_lock() */
 	mov	x3, #0		/* return value */
 
+	adrp	x0, crash_console_spinlock
+	add	x0, x0, :lo12:crash_console_spinlock
+
 	mrs	x1, sctlr_el3
 	tst	x1, #SCTLR_C_BIT
 	beq	skip_spinlock	/* can't synchronize when cache disabled */
-
-	adrp	x0, crash_console_spinlock
-	add	x0, x0, :lo12:crash_console_spinlock
 	bl	spin_lock
 
 skip_spinlock:
