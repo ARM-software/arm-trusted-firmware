@@ -378,7 +378,7 @@ static uint32_t get_cpu_package(void)
 
 void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 {
-	char *cpu_s, *cpu_r, *pkg;
+	const char *cpu_s, *cpu_r, *pkg;
 
 	/* MPUs Part Numbers */
 	switch (get_part_number()) {
