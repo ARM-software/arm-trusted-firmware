@@ -17,14 +17,16 @@
 
 #define MAX_PROPERTY_LEN 64
 
+CASSERT(PLAT_NB_RDEVS >= 1U, plat_nb_rdevs_must_be_higher);
+
 static struct rdev rdev_array[PLAT_NB_RDEVS];
 
 #define for_each_rdev(rdev) \
-	for (rdev = rdev_array; rdev < (rdev_array + PLAT_NB_RDEVS); rdev++)
+	for (rdev = rdev_array; rdev <= &rdev_array[PLAT_NB_RDEVS - 1U]; rdev++)
 
 #define for_each_registered_rdev(rdev) \
 	for (rdev = rdev_array; \
-	     (rdev < (rdev_array + PLAT_NB_RDEVS)) && (rdev->desc != NULL); rdev++)
+	     (rdev <= &rdev_array[PLAT_NB_RDEVS - 1U]) && (rdev->desc != NULL); rdev++)
 
 static void lock_driver(const struct rdev *rdev)
 {
@@ -525,7 +527,7 @@ int regulator_register(const struct regul_description *desc, int node)
 		}
 	}
 
-	if (rdev == (rdev_array + PLAT_NB_RDEVS)) {
+	if (rdev > &rdev_array[PLAT_NB_RDEVS - 1U]) {
 		WARN("Not enough place for regulators, PLAT_NB_RDEVS should be increased.\n");
 		return -ENOMEM;
 	}
