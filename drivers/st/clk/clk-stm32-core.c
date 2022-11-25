@@ -466,10 +466,9 @@ unsigned long _clk_stm32_get_rate(struct stm32_clk_priv *priv, int id)
 {
 	const struct clk_stm32 *clk = _clk_get(priv, id);
 	int parent;
-	unsigned long rate = 0UL;
 
 	if ((unsigned int)id >= priv->num) {
-		return rate;
+		return 0UL;
 	}
 
 	parent = _clk_stm32_get_parent(priv, id);
@@ -484,21 +483,14 @@ unsigned long _clk_stm32_get_rate(struct stm32_clk_priv *priv, int id)
 			prate = _clk_stm32_get_rate(priv, parent);
 		}
 
-		rate = clk->ops->recalc_rate(priv, id, prate);
-
-		return rate;
+		return clk->ops->recalc_rate(priv, id, prate);
 	}
 
-	switch (parent) {
-	case CLK_IS_ROOT:
+	if (parent == CLK_IS_ROOT) {
 		panic();
-
-	default:
-		rate = _clk_stm32_get_rate(priv, parent);
-		break;
 	}
-	return rate;
 
+	return _clk_stm32_get_rate(priv, parent);
 }
 
 unsigned long _clk_stm32_get_parent_rate(struct stm32_clk_priv *priv, int id)
