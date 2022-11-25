@@ -215,12 +215,24 @@
 	.endm
 
 	/*
+	 * The "sb" instruction was introduced later into the architecture,
+	 * so not all toolchains understand it. Some deny its usage unless
+	 * a supported processor is specified on the build command line.
+	 * Use sb's system register encoding to work around this, we already
+	 * guard the sb execution with a feature flag.
+	 */
+
+	.macro sb_barrier_insn
+	msr	SYSREG_SB, xzr
+	.endm
+
+	/*
 	 * Macro for using speculation barrier instruction introduced by
 	 * FEAT_SB, if it's enabled.
 	 */
 	.macro speculation_barrier
 #if ENABLE_FEAT_SB
-	sb
+	sb_barrier_insn
 #else
 	dsb	sy
 	isb
@@ -234,7 +246,7 @@
 	.macro exception_return
 	eret
 #if ENABLE_FEAT_SB
-	sb
+	sb_barrier_insn
 #else
 	dsb	nsh
 	isb

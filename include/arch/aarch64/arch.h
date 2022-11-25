@@ -1335,4 +1335,7 @@
 #define CPUMPMMCR_EL3_MPMM_EN_SHIFT	UINT64_C(0)
 #define CPUMPMMCR_EL3_MPMM_EN_MASK	UINT64_C(0x1)
 
+/* alternative system register encoding for the "sb" speculation barrier */
+#define SYSREG_SB			S0_3_C3_C0_7
+
 #endif /* ARCH_H */
