@@ -456,7 +456,7 @@ static const uint16_t SAES_src[] = {
 	},\
 }
 
-static const struct parent_cfg parent_mp13[] = {
+static const struct parent_cfg parent_mp13[MUX_MAX] = {
 	MUX_CFG(MUX_ADC1,	ADC1_src,	RCC_ADC12CKSELR, 0, 2),
 	MUX_CFG(MUX_ADC2,	ADC2_src,	RCC_ADC12CKSELR, 2, 2),
 	MUX_RDY_CFG(MUX_AXI,	AXI_src,	RCC_ASSCKSELR, 0, 3),
@@ -841,7 +841,7 @@ static const struct clk_div_table apb_div_table[] = {
 		.bitrdy	= _bitrdy,\
 }
 
-static const struct div_cfg dividers_mp13[] = {
+static const struct div_cfg dividers_mp13[DIV_MAX] = {
 	DIV_CFG(DIV_PLL1DIVP, RCC_PLL1CFGR2, 0, 7, 0, NULL, DIV_NO_BIT_RDY),
 	DIV_CFG(DIV_PLL2DIVP, RCC_PLL2CFGR2, 0, 7, 0, NULL, DIV_NO_BIT_RDY),
 	DIV_CFG(DIV_PLL2DIVQ, RCC_PLL2CFGR2, 8, 7, 0, NULL, DIV_NO_BIT_RDY),
