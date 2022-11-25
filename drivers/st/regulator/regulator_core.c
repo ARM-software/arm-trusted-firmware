@@ -22,11 +22,11 @@ CASSERT(PLAT_NB_RDEVS >= 1U, plat_nb_rdevs_must_be_higher);
 static struct rdev rdev_array[PLAT_NB_RDEVS];
 
 #define for_each_rdev(rdev) \
-	for (rdev = rdev_array; rdev <= &rdev_array[PLAT_NB_RDEVS - 1U]; rdev++)
+	for ((rdev) = rdev_array; (rdev) <= &rdev_array[PLAT_NB_RDEVS - 1U]; (rdev)++)
 
 #define for_each_registered_rdev(rdev) \
-	for (rdev = rdev_array; \
-	     (rdev <= &rdev_array[PLAT_NB_RDEVS - 1U]) && (rdev->desc != NULL); rdev++)
+	for ((rdev) = rdev_array; \
+	     ((rdev) <= &rdev_array[PLAT_NB_RDEVS - 1U]) && ((rdev)->desc != NULL); (rdev)++)
 
 static void lock_driver(const struct rdev *rdev)
 {
