@@ -10,7 +10,7 @@
 #define CORTEX_X3_MIDR				U(0x410FD4E0)
 
 /* Cortex-X3 loop count for CVE-2022-23960 mitigation */
-#define CORTEX_X3_BHB_LOOP_COUNT			U(132)
+#define CORTEX_X3_BHB_LOOP_COUNT		U(132)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions
@@ -20,8 +20,10 @@
 /*******************************************************************************
  * CPU Power Control register specific definitions
  ******************************************************************************/
-#define CORTEX_X3_CPUPWRCTLR_EL1			S3_0_C15_C2_7
-#define CORTEX_X3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT	U(1)
+#define CORTEX_X3_CPUPWRCTLR_EL1				S3_0_C15_C2_7
+#define CORTEX_X3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT			U(1)
+#define CORTEX_X3_CPUPWRCTLR_EL1_WFI_RET_CTRL_BITS_SHIFT	U(4)
+#define CORTEX_X3_CPUPWRCTLR_EL1_WFE_RET_CTRL_BITS_SHIFT	U(7)
 
 /*******************************************************************************
  * CPU Auxiliary Control register 2 specific definitions.
