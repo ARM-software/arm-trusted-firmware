@@ -1119,7 +1119,7 @@ static int stm32_clk_configure_clk(struct stm32_clk_priv *priv, uint32_t data)
 		return ret;
 	}
 
-	if (enable) {
+	if (enable != 0) {
 		clk_stm32_enable_call_ops(priv, clk_id);
 	} else {
 		clk_stm32_disable_call_ops(priv, clk_id);
@@ -1450,7 +1450,7 @@ static int _clk_stm32_pll_init(struct stm32_clk_priv *priv, int pll_idx,
 
 	/* Configure PLLs source */
 	ret = stm32_clk_configure_mux(priv, pll_conf->vco.src);
-	if (ret) {
+	if (ret != 0) {
 		return ret;
 	}
 
@@ -1485,7 +1485,7 @@ static int clk_stm32_pll_init(struct stm32_clk_priv *priv, int pll_idx)
 {
 	struct stm32_pll_dt_cfg *pll_conf = clk_stm32_pll_get_pdata(pll_idx);
 
-	if (pll_conf->vco.status) {
+	if (pll_conf->vco.status != 0U) {
 		return _clk_stm32_pll_init(priv, pll_idx, pll_conf);
 	}
 
@@ -1497,22 +1497,22 @@ static int stm32_clk_pll_configure(struct stm32_clk_priv *priv)
 	int err = 0;
 
 	err = clk_stm32_pll_init(priv, _PLL1);
-	if (err) {
+	if (err != 0) {
 		return err;
 	}
 
 	err = clk_stm32_pll_init(priv, _PLL2);
-	if (err) {
+	if (err != 0) {
 		return err;
 	}
 
 	err = clk_stm32_pll_init(priv, _PLL3);
-	if (err) {
+	if (err != 0) {
 		return err;
 	}
 
 	err = clk_stm32_pll_init(priv, _PLL4);
-	if (err) {
+	if (err != 0) {
 		return err;
 	}
 

@@ -519,7 +519,7 @@ static uint8_t _stm32_clk_get_flags(struct stm32_clk_priv *priv, int id)
 
 bool _stm32_clk_is_flags(struct stm32_clk_priv *priv, int id, uint8_t flag)
 {
-	if (_stm32_clk_get_flags(priv, id) & flag) {
+	if ((_stm32_clk_get_flags(priv, id) & flag) != 0U) {
 		return true;
 	}
 
@@ -549,7 +549,7 @@ static int _clk_stm32_enable_core(struct stm32_clk_priv *priv, int id)
 		}
 		if (parent != CLK_IS_ROOT) {
 			ret = _clk_stm32_enable_core(priv, parent);
-			if (ret) {
+			if (ret != 0) {
 				return ret;
 			}
 		}
