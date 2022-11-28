@@ -86,7 +86,7 @@ static int32_t get_supply_phandle(const void *fdt, int node, const char *name)
 	char prop_name[MAX_PROPERTY_LEN];
 
 	len = snprintf(prop_name, MAX_PROPERTY_LEN - 1, "%s-supply", name);
-	assert((len >= 0) && (len < MAX_PROPERTY_LEN - 1));
+	assert((len >= 0) && (len < (MAX_PROPERTY_LEN - 1)));
 
 	cuint = fdt_getprop(fdt, node, prop_name, NULL);
 	if (cuint != NULL) {
@@ -525,7 +525,7 @@ int regulator_register(const struct regul_description *desc, int node)
 		}
 	}
 
-	if (rdev == rdev_array + PLAT_NB_RDEVS) {
+	if (rdev == (rdev_array + PLAT_NB_RDEVS)) {
 		WARN("Not enough place for regulators, PLAT_NB_RDEVS should be increased.\n");
 		return -ENOMEM;
 	}
