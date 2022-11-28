@@ -158,7 +158,7 @@ int regulator_disable(struct rdev *rdev)
 
 	assert(rdev != NULL);
 
-	if (rdev->flags & REGUL_ALWAYS_ON) {
+	if ((rdev->flags & REGUL_ALWAYS_ON) != 0U) {
 		return 0;
 	}
 
