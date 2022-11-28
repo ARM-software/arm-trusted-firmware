@@ -34,14 +34,14 @@
  *
  * index			Slot number in which measurement is to be stored
  * signer_id			Pointer to signer_id buffer.
- * signer_id_size		Size of the signer_id buffer in bytes.
+ * signer_id_size		Size of the signer_id in bytes.
  * version			Pointer to version buffer.
- * version_size			Size of the version buffer in bytes.
+ * version_size			Size of the version string in bytes (with \0).
  * measurement_algo		Algorithm identifier used for measurement.
  * sw_type			Pointer to sw_type buffer.
- * sw_type_size			Size of the sw_type buffer in bytes.
+ * sw_type_size			Size of the sw_type string in bytes (with \0).
  * measurement_value		Pointer to measurement_value buffer.
- * measurement_value_size	Size of the measurement_value buffer in bytes.
+ * measurement_value_size	Size of the measurement_value in bytes.
  * lock_measurement		Boolean flag requesting whether the measurement
  *				is to be locked.
  *
