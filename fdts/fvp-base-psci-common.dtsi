@@ -28,7 +28,7 @@
 	#size-cells = <2>;
 
 #if (ENABLE_RME == 1)
-	chosen { bootargs = "mem=1G console=ttyAMA0 earlycon=pl011,0x1c090000 root=/dev/vda ip=on";};
+	chosen { bootargs = "console=ttyAMA0 earlycon=pl011,0x1c090000 root=/dev/vda ip=on";};
 #else
 	chosen {};
 #endif

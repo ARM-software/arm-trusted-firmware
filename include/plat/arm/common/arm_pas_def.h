@@ -21,24 +21,30 @@
  * ============================================================================
  * 0GB      | 1GB         |L0 GPT|ANY   |TBROM (EL3 code)        |Fixed mapping
  *          |             |      |      |TSRAM (EL3 data)        |
- *          |             |      |      |IO (incl.UARTs & GIC)   |
+ * 00000000 |             |      |      |IO (incl.UARTs & GIC)   |
  * ----------------------------------------------------------------------------
  * 1GB      | 1GB         |L0 GPT|ANY   |IO                      |Fixed mapping
+ * 40000000 |             |      |      |                        |
  * ----------------------------------------------------------------------------
- * 2GB      | 1GB         |L1 GPT|NS    |DRAM (NS Kernel)        |Use T.Descrip
+ * 2GB      |2GB-64MB     |L1 GPT|NS    |DRAM (NS Kernel)        |Use T.Descrip
+ * 80000000 |             |      |      |                        |
  * ----------------------------------------------------------------------------
- * 3GB      |1GB-64MB     |L1 GPT|NS    |DRAM (NS Kernel)        |Use T.Descrip
- * ----------------------------------------------------------------------------
- * 4GB-64MB |64MB-32MB    |      |      |                        |
- *          | -4MB        |L1 GPT|SECURE|DRAM TZC                |Use T.Descrip
+ * 4GB-64MB |64MB-32MB-4MB|L1 GPT|SECURE|DRAM TZC                |Use T.Descrip
+ * FC000000 |             |      |      |                        |
  * ----------------------------------------------------------------------------
  * 4GB-32MB |             |      |      |                        |
  * -3MB-1MB |32MB         |L1 GPT|REALM |RMM                     |Use T.Descrip
+ * FDC00000 |             |      |      |                        |
  * ----------------------------------------------------------------------------
  * 4GB-3MB  |             |      |      |                        |
  * -1MB     |3MB          |L1 GPT|ROOT  |EL3 DRAM data           |Use T.Descrip
+ * FFC00000 |             |      |      |                        |
  * ----------------------------------------------------------------------------
  * 4GB-1MB  |1MB          |L1 GPT|ROOT  |DRAM (L1 GPTs, SCP TZC) |Fixed mapping
+ * FFF00000 |             |      |      |                        |
+ * ----------------------------------------------------------------------------
+ * 34GB     |2GB          |L1 GPT|NS    |DRAM (NS Kernel)        |Use T.Descrip
+ * 880000000|             |      |      |                        |
  * ============================================================================
  *
  * - 4KB of L0 GPT reside in TSRAM, on top of the CONFIG section.
@@ -55,7 +61,7 @@
 
 /* Device memory 0 to 2GB */
 #define ARM_PAS_1_BASE			(U(0))
-#define ARM_PAS_1_SIZE			((ULL(1)<<31)) /* 2GB */
+#define ARM_PAS_1_SIZE			((ULL(1) << 31)) /* 2GB */
 
 /* NS memory 2GB to (end - 64MB) */
 #define ARM_PAS_2_BASE			(ARM_PAS_1_BASE + ARM_PAS_1_SIZE)
@@ -69,9 +75,14 @@
 #define ARM_PAS_3_BASE			(ARM_AP_TZC_DRAM1_BASE)
 #define ARM_PAS_3_SIZE			(ARM_AP_TZC_DRAM1_SIZE)
 
+/* NS memory 2GB */
+#define	ARM_PAS_4_BASE			ARM_DRAM2_BASE
+#define	ARM_PAS_4_SIZE			((ULL(1) << 31)) /* 2GB */
+
 #define ARM_PAS_GPI_ANY			MAP_GPT_REGION(ARM_PAS_1_BASE, \
 						       ARM_PAS_1_SIZE, \
 						       GPT_GPI_ANY)
+
 #define	ARM_PAS_KERNEL			GPT_MAP_REGION_GRANULE(ARM_PAS_2_BASE, \
 							       ARM_PAS_2_SIZE, \
 							       GPT_GPI_NS)
@@ -80,6 +91,9 @@
 							       ARM_PAS_3_SIZE, \
 							       GPT_GPI_SECURE)
 
+#define	ARM_PAS_KERNEL_1		GPT_MAP_REGION_GRANULE(ARM_PAS_4_BASE, \
+							       ARM_PAS_4_SIZE, \
+							       GPT_GPI_NS)
 /*
  * REALM and Shared area share the same PAS, so consider them a single
  * PAS region to configure in GPT.

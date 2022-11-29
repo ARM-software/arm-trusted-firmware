@@ -143,11 +143,12 @@ static void arm_bl2_plat_gpt_setup(void)
 		ARM_PAS_SECURE,
 		ARM_PAS_REALM,
 		ARM_PAS_EL3_DRAM,
-		ARM_PAS_GPTS
+		ARM_PAS_GPTS,
+		ARM_PAS_KERNEL_1
 	};
 
 	/* Initialize entire protected space to GPT_GPI_ANY. */
-	if (gpt_init_l0_tables(GPCCR_PPS_4GB, ARM_L0_GPT_ADDR_BASE,
+	if (gpt_init_l0_tables(GPCCR_PPS_64GB, ARM_L0_GPT_ADDR_BASE,
 		ARM_L0_GPT_SIZE) < 0) {
 		ERROR("gpt_init_l0_tables() failed!\n");
 		panic();
