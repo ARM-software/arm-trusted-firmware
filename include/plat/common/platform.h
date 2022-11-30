@@ -421,4 +421,17 @@ int plat_fwu_set_metadata_image_source(unsigned int image_id,
 void plat_fwu_set_images_source(const struct fwu_metadata *metadata);
 uint32_t plat_fwu_get_boot_idx(void);
 
+/*
+ * Optional function to indicate if cache management operations can be
+ * performed.
+ */
+#if CONDITIONAL_CMO
+uint64_t plat_can_cmo(void);
+#else
+static inline uint64_t plat_can_cmo(void)
+{
+	return 1;
+}
+#endif /* CONDITIONAL_CMO */
+
 #endif /* PLATFORM_H */
