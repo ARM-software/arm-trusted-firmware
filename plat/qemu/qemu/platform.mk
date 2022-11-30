@@ -109,7 +109,6 @@ ifeq (${MEASURED_BOOT},1)
     endif
 
     BL2_SOURCES		+=	plat/qemu/qemu/qemu_measured_boot.c	\
-				plat/qemu/qemu/qemu_common_measured_boot.c	\
 				plat/qemu/qemu/qemu_helpers.c		\
 				${EVENT_LOG_SOURCES}
 

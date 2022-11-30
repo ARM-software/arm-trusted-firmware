@@ -24,17 +24,13 @@ static const event_log_metadata_t imx8m_event_log_metadata[] = {
 	{ EVLOG_INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
 };
 
-const event_log_metadata_t *plat_event_log_get_metadata(void)
-{
-	return imx8m_event_log_metadata;
-}
-
 int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
 {
 	/* Calculate image hash and record data in Event Log */
 	int err = event_log_measure_and_record(image_data->image_base,
 					       image_data->image_size,
-					       image_id);
+					       image_id,
+					       imx8m_event_log_metadata);
 	if (err != 0) {
 		ERROR("%s%s image id %u (%i)\n",
 		      "Failed to ", "record", image_id, err);

@@ -9,6 +9,7 @@
 
 #include <drivers/measured_boot/event_log/event_log.h>
 #include <plat/common/common_def.h>
+#include <plat/common/platform.h>
 #include <tools_share/tbbr_oid.h>
 
 #include "../common/qemu_private.h"
@@ -17,8 +18,8 @@
 static uint8_t event_log[PLAT_EVENT_LOG_MAX_SIZE];
 static uint64_t event_log_base;
 
-/* FVP table with platform specific image IDs, names and PCRs */
-const event_log_metadata_t qemu_event_log_metadata[] = {
+/* QEMU table with platform specific image IDs, names and PCRs */
+static const event_log_metadata_t qemu_event_log_metadata[] = {
 	{ BL31_IMAGE_ID, EVLOG_BL31_STRING, PCR_0 },
 	{ BL32_IMAGE_ID, EVLOG_BL32_STRING, PCR_0 },
 	{ BL32_EXTRA1_IMAGE_ID, EVLOG_BL32_EXTRA1_STRING, PCR_0 },
@@ -100,4 +101,20 @@ void bl2_plat_mboot_finish(void)
 #endif /* defined(SPD_tspd) || defined(SPD_spmd) */
 
 	dump_event_log((uint8_t *)event_log_base, event_log_cur_size);
+}
+
+int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
+{
+	/* Calculate image hash and record data in Event Log */
+	int err = event_log_measure_and_record(image_data->image_base,
+					       image_data->image_size,
+					       image_id,
+					       qemu_event_log_metadata);
+	if (err != 0) {
+		ERROR("%s%s image id %u (%i)\n",
+		      "Failed to ", "record", image_id, err);
+		return err;
+	}
+
+	return 0;
 }

@@ -14,8 +14,6 @@
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/measured_boot/event_log/event_log.h>
 
-#include <plat/common/platform.h>
-
 #if TPM_ALG_ID == TPM_ALG_SHA512
 #define	CRYPTO_MD_ID	CRYPTO_MD_SHA512
 #elif TPM_ALG_ID == TPM_ALG_SHA384
@@ -31,9 +29,6 @@ static uint8_t *log_ptr;
 
 /* Pointer to the first byte past end of the Event Log buffer */
 static uintptr_t log_end;
-
-/* Pointer to event_log_metadata_t */
-static const event_log_metadata_t *plat_metadata_ptr;
 
 /* TCG_EfiSpecIdEvent */
 static const id_event_headers_t id_event_header = {
@@ -173,10 +168,6 @@ void event_log_buf_init(uint8_t *event_log_start, uint8_t *event_log_finish)
 void event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish)
 {
 	event_log_buf_init(event_log_start, event_log_finish);
-
-	/* Get pointer to platform's event_log_metadata_t structure */
-	plat_metadata_ptr = plat_event_log_get_metadata();
-	assert(plat_metadata_ptr != NULL);
 }
 
 void event_log_write_specid_event(void)
@@ -276,16 +267,19 @@ int event_log_measure(uintptr_t data_base, uint32_t data_size,
  * @param[in] data_base		Address of data
  * @param[in] data_size		Size of data
  * @param[in] data_id		Data ID
+ * @param[in] metadata_ptr	Event Log metadata
  * @return:
  *	0 = success
  *    < 0 = error
  */
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
-				 uint32_t data_id)
+				 uint32_t data_id,
+				 const event_log_metadata_t *metadata_ptr)
 {
 	unsigned char hash_data[CRYPTO_MD_MAX_SIZE];
 	int rc;
-	const event_log_metadata_t *metadata_ptr = plat_metadata_ptr;
+
+	assert(metadata_ptr != NULL);
 
 	/* Get the metadata associated with this image. */
 	while ((metadata_ptr->id != EVLOG_INVALID_ID) &&
