@@ -38,6 +38,7 @@
 /* Boot manifest core structure as per v0.1 */
 typedef struct rmm_manifest {
 	uint32_t version;	/* Manifest version */
+	uint32_t padding;	/* RES0 */
 	uintptr_t plat_data;	/* Manifest platform data */
 } rmm_manifest_t;
 

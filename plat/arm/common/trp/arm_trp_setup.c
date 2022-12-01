@@ -28,6 +28,9 @@ static console_t arm_trp_runtime_console;
 
 static int arm_trp_process_manifest(rmm_manifest_t *manifest)
 {
+	/* padding field on the manifest must be RES0 */
+	assert(manifest->padding == 0U);
+
 	/* Verify the Boot Manifest Version. Only the Major is considered */
 	if (RMMD_MANIFEST_VERSION_MAJOR !=
 		RMMD_GET_MANIFEST_VERSION_MAJOR(manifest->version)) {

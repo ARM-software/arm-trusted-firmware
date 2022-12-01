@@ -536,6 +536,7 @@ int plat_rmmd_load_manifest(rmm_manifest_t *manifest)
 	assert(manifest != NULL);
 
 	manifest->version = RMMD_MANIFEST_VERSION;
+	manifest->padding = 0U; /* RES0 */
 	manifest->plat_data = (uintptr_t)NULL;
 
 	return 0;
