@@ -356,7 +356,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_FPGA_GET_STATUS:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_fpga_get_status(&value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
@@ -374,7 +374,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
 	case PM_IOCTL:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_ioctl(pm_arg[0], pm_arg[1], pm_arg[2],
 			       pm_arg[3], &value);
@@ -401,7 +401,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_CLOCK_GETSTATE:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_clock_getstate(pm_arg[0], &value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
@@ -413,7 +413,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_CLOCK_GETDIVIDER:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_clock_getdivider(pm_arg[0], &value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
@@ -442,7 +442,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_CLOCK_GETPARENT:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_clock_getparent(pm_arg[0], &value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
@@ -476,7 +476,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_FPGA_READ:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_fpga_read(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3],
 				   &value);
@@ -485,7 +485,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_SECURE_AES:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_aes_engine(pm_arg[0], pm_arg[1], &value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
@@ -497,7 +497,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_PLL_GET_PARAMETER:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_pll_get_parameter(pm_arg[0], pm_arg[1], &value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value << 32U));
@@ -509,7 +509,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_PLL_GET_MODE:
 	{
-		uint32_t mode = 0;
+		uint32_t mode = 0U;
 
 		ret = pm_pll_get_mode(pm_arg[0], &mode);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)mode << 32U));
@@ -517,7 +517,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_REGISTER_ACCESS:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 		ret = pm_register_access(pm_arg[0], pm_arg[1], pm_arg[2],
 					 pm_arg[3], &value);
@@ -526,7 +526,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_EFUSE_ACCESS:
 	{
-		uint32_t value = 0;
+		uint32_t value = 0U;
 
 #if defined(ZYNQMP_SECURE_EFUSES)
 		if (is_caller_non_secure(flags)) {
