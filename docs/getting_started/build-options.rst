@@ -164,12 +164,6 @@ Common build options
    is on hardware that does not implement AArch32, or at least not at EL1 and
    higher ELs). Default value is 1.
 
--  ``CTX_INCLUDE_EL2_REGS`` : This boolean option provides context save/restore
-   operations when entering/exiting an EL2 execution context. This is of primary
-   interest when Armv8.4-SecEL2 extension is implemented. Default is 0 (disabled).
-   This option must be equal to 1 (enabled) when ``SPD=spmd`` and
-   ``SPMD_SPM_AT_SEL2`` is set.
-
 -  ``CTX_INCLUDE_FPREGS``: Boolean option that, when set to 1, will cause the FP
    registers to be included when saving and restoring the CPU context. Default
    is 0.
