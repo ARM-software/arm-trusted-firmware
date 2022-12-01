@@ -1064,16 +1064,6 @@ func el3_exit
 	msr	spsel, #MODE_SP_ELX
 	str	x17, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
 
-	/* ----------------------------------------------------------
-	 * Restore SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET
-	 * ----------------------------------------------------------
-	 */
-	ldr	x18, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
-	ldp	x16, x17, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	msr	scr_el3, x18
-	msr	spsr_el3, x16
-	msr	elr_el3, x17
-
 #if IMAGE_BL31
 	/* ----------------------------------------------------------
 	 * Restore CPTR_EL3.
@@ -1103,17 +1093,6 @@ sve_not_enabled:
 1:
 #endif /* IMAGE_BL31 && DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
-	restore_ptw_el1_sys_regs
-
-	/* ----------------------------------------------------------
-	 * Restore general purpose (including x30), PMCR_EL0 and
-	 * ARMv8.3-PAuth registers.
-	 * Exit EL3 via ERET to a lower exception level.
- 	 * ----------------------------------------------------------
- 	 */
-	bl	restore_gp_pmcr_pauth_regs
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-
 #if IMAGE_BL31 && RAS_EXTENSION
 	/* ----------------------------------------------------------
 	 * Issue Error Synchronization Barrier to synchronize SErrors
@@ -1126,6 +1105,27 @@ sve_not_enabled:
 #else
 	dsb	sy
 #endif /* IMAGE_BL31 && RAS_EXTENSION */
+
+	/* ----------------------------------------------------------
+	 * Restore SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET
+	 * ----------------------------------------------------------
+	 */
+	ldr	x18, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	ldp	x16, x17, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+	msr	scr_el3, x18
+	msr	spsr_el3, x16
+	msr	elr_el3, x17
+
+	restore_ptw_el1_sys_regs
+
+	/* ----------------------------------------------------------
+	 * Restore general purpose (including x30), PMCR_EL0 and
+	 * ARMv8.3-PAuth registers.
+	 * Exit EL3 via ERET to a lower exception level.
+ 	 * ----------------------------------------------------------
+ 	 */
+	bl	restore_gp_pmcr_pauth_regs
+	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 
 #ifdef IMAGE_BL31
 	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
