@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,7 +77,7 @@ const char *get_el_str(unsigned int el)
 	return "EL1";
 }
 
-/* RAS functions common to AArch64 ARM platforms */
+/* Handler for External Aborts from lower EL including RAS errors */
 void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags)
 {
@@ -93,12 +93,6 @@ void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *co
 	ERROR("Unhandled External Abort received on 0x%lx from %s\n",
 		read_mpidr_el1(), get_el_str(level));
 	ERROR("exception reason=%u syndrome=0x%" PRIx64 "\n", ea_reason, syndrome);
-#if HANDLE_EA_EL3_FIRST_NS
-	/* Skip backtrace for lower EL */
-	if (level != MODE_EL3) {
-		console_flush();
-		do_panic();
-	}
-#endif
+
 	panic();
 }
