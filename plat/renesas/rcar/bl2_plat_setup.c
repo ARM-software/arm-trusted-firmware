@@ -787,6 +787,39 @@ static void bl2_advertise_dram_size(uint32_t product)
 	bl2_advertise_dram_entries(dram_config);
 }
 
+static int bl2_create_reserved_memory(void)
+{
+	int ret;
+
+	int fcnlnode = fdt_add_subnode(fdt, 0, "reserved-memory");
+	if (fcnlnode < 0) {
+		NOTICE("BL2: Cannot create reserved mem node (ret=%i)\n",
+			fcnlnode);
+		panic();
+	}
+
+	ret = fdt_setprop(fdt, fcnlnode, "ranges", NULL, 0);
+	if (ret < 0) {
+		NOTICE("BL2: Cannot add FCNL ranges prop (ret=%i)\n", ret);
+		panic();
+	}
+
+	ret = fdt_setprop_u32(fdt, fcnlnode, "#address-cells", 2);
+	if (ret < 0) {
+		NOTICE("BL2: Cannot add FCNL #address-cells prop (ret=%i)\n", ret);
+		panic();
+	}
+
+	ret = fdt_setprop_u32(fdt, fcnlnode, "#size-cells", 2);
+	if (ret < 0) {
+		NOTICE("BL2: Cannot add FCNL #size-cells prop (ret=%i)\n", ret);
+		panic();
+	}
+
+	return fcnlnode;
+}
+
+
 void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				  u_register_t arg3, u_register_t arg4)
 {
@@ -1102,12 +1135,7 @@ lcm_state:
 #if (RCAR_LOSSY_ENABLE == 1)
 	NOTICE("BL2: Lossy Decomp areas\n");
 
-	fcnlnode = fdt_add_subnode(fdt, 0, "reserved-memory");
-	if (fcnlnode < 0) {
-		NOTICE("BL2: Cannot create reserved mem node (ret=%i)\n",
-			fcnlnode);
-		panic();
-	}
+	fcnlnode = bl2_create_reserved_memory();
 
 	bl2_lossy_setting(0, LOSSY_ST_ADDR0, LOSSY_END_ADDR0,
 			  LOSSY_FMT0, LOSSY_ENA_DIS0, fcnlnode);
