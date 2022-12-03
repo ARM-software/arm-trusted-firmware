@@ -129,6 +129,10 @@
 #define MBOX_BUSY					-5
 #define MBOX_TIMEOUT					-2047
 
+/* Key Status */
+#define MBOX_RET_SDOS_DECRYPTION_ERROR_102		-258
+#define MBOX_RET_SDOS_DECRYPTION_ERROR_103		-259
+
 /* Reconfig Status Response */
 #define RECONFIG_STATUS_STATE				0
 #define RECONFIG_STATUS_PIN_STATUS			2

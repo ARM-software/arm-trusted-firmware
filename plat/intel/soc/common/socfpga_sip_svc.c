@@ -611,7 +611,10 @@ uint32_t intel_smc_service_completed(uint64_t addr, uint32_t size,
 	*ret_size = resp_len * MBOX_WORD_BYTE;
 	flush_dcache_range(addr, *ret_size);
 
-	if (status != MBOX_RET_OK) {
+	if (status == MBOX_RET_SDOS_DECRYPTION_ERROR_102 ||
+		status == MBOX_RET_SDOS_DECRYPTION_ERROR_103) {
+		*mbox_error = -status;
+	} else if (status != MBOX_RET_OK) {
 		*mbox_error = -status;
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
