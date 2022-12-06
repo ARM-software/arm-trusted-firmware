@@ -156,14 +156,22 @@ int rss_comms_init(uintptr_t mhu_sender_base, uintptr_t mhu_receiver_base)
 
 	err = mhu_init_sender(mhu_sender_base);
 	if (err != MHU_ERR_NONE) {
-		ERROR("[RSS-COMMS] Host to RSS MHU driver initialization failed: %d\n", err);
-		return -1;
+		if (err == MHU_ERR_ALREADY_INIT) {
+			INFO("[RSS-COMMS] Host to RSS MHU driver already initialized\n");
+		} else {
+			ERROR("[RSS-COMMS] Host to RSS MHU driver initialization failed: %d\n", err);
+			return -1;
+		}
 	}
 
 	err = mhu_init_receiver(mhu_receiver_base);
 	if (err != MHU_ERR_NONE) {
-		ERROR("[RSS-COMMS] RSS to Host MHU driver initialization failed: %d\n", err);
-		return -1;
+		if (err == MHU_ERR_ALREADY_INIT) {
+			INFO("[RSS-COMMS] RSS to Host MHU driver already initialized\n");
+		} else {
+			ERROR("[RSS-COMMS] RSS to Host MHU driver initialization failed: %d\n", err);
+			return -1;
+		}
 	}
 
 	return 0;
