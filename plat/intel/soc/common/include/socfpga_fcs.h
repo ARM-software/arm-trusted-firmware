@@ -84,6 +84,14 @@
 #define FCS_ECDSA_HASH_SIGN_CMD_MAX_WORD_SIZE			17U
 #define FCS_ECDSA_HASH_SIG_VERIFY_CMD_MAX_WORD_SIZE		52U
 #define FCS_ECDH_REQUEST_CMD_MAX_WORD_SIZE			29U
+
+#define FCS_CRYPTO_ECB_BUFFER_SIZE			12U
+#define FCS_CRYPTO_CBC_CTR_BUFFER_SIZE			28U
+#define FCS_CRYPTO_BLOCK_MODE_MASK			0x07
+#define FCS_CRYPTO_ECB_MODE			0x00
+#define FCS_CRYPTO_CBC_MODE			0x01
+#define FCS_CRYPTO_CTR_MODE			0x02
+
 /* FCS Payload Structure */
 typedef struct fcs_rng_payload_t {
 	uint32_t session_id;
