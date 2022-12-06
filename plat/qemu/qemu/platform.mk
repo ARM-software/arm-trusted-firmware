@@ -210,6 +210,12 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl31_setup.c		\
 				${QEMU_GIC_SOURCES}
 
+# Pointer Authentication sources
+ifeq (${ENABLE_PAUTH}, 1)
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c	\
+				lib/extensions/pauth/pauth_helpers.S
+endif
+
 ifeq (${SPD},spmd)
 BL31_SOURCES		+=	plat/qemu/common/qemu_spmd_manifest.c
 endif
