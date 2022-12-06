@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,11 +55,13 @@
 
 MTK_SIP_SMC_FROM_BL33_TABLE(SMC_ID_EXPAND_AS_EXTERN_SMC_INDEX);
 MTK_SIP_SMC_FROM_NS_EL1_TABLE(SMC_ID_EXPAND_AS_EXTERN_SMC_INDEX);
+MTK_SIP_SMC_FROM_S_EL1_TABLE(SMC_ID_EXPAND_AS_EXTERN_SMC_INDEX);
 
 /* Expand SiP SMC ID table as enum */
 enum {
 	MTK_SIP_SMC_FROM_BL33_TABLE(SMC_ID_EXPAND_AS_ENUM)
 	MTK_SIP_SMC_FROM_NS_EL1_TABLE(SMC_ID_EXPAND_AS_ENUM)
+	MTK_SIP_SMC_FROM_S_EL1_TABLE(SMC_ID_EXPAND_AS_ENUM)
 	MTK_SIP_SMC_MAX_NUMBER
 };
 
