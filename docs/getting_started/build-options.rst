@@ -219,6 +219,12 @@ Common build options
 
 -  ``E``: Boolean option to make warnings into errors. Default is 1.
 
+   When specifying higher warnings levels (``W=1`` and higher), this option
+   defaults to 0. This is done to encourage contributors to use them, as they
+   are expected to produce warnings that would otherwise fail the build. New
+   contributions are still expected to build with ``W=0`` and ``E=1`` (the
+   default).
+
 -  ``EL3_PAYLOAD_BASE``: This option enables booting an EL3 payload instead of
    the normal boot flow. It must specify the entry point address of the EL3
    payload. Please refer to the "Booting an EL3 payload" section for more
@@ -955,6 +961,43 @@ Common build options
    regrouped and put in the root Makefile. This flag can take the values 0 to 3,
    each level enabling more warning options. Default is 0.
 
+   This option is closely related to the ``E`` option, which enables
+   ``-Werror``.
+
+   - ``W=0`` (default)
+
+     Enables a wide assortment of warnings, most notably ``-Wall`` and
+     ``-Wextra``, as well as various bad practices and things that are likely to
+     result in errors. Includes some compiler specific flags. No warnings are
+     expected at this level for any build.
+
+   - ``W=1``
+
+     Enables warnings we want the generic build to include but are too time
+     consuming to fix at the moment. It re-enables warnings taken out for
+     ``W=0`` builds (a few of the ``-Wextra`` additions). This level is expected
+     to eventually be merged into ``W=0``. Some warnings are expected on some
+     builds, but new contributions should not introduce new ones.
+
+   - ``W=2`` (recommended)
+
+    Enables warnings we want the generic build to include but cannot be enabled
+    due to external libraries. This level is expected to eventually be merged
+    into ``W=0``. Lots of warnings are expected, primarily from external
+    libraries like zlib and compiler-rt, but new controbutions should not
+    introduce new ones.
+
+   - ``W=3``
+
+     Enables warnings that are informative but not necessary and generally too
+     verbose and frequently ignored. A very large number of warnings are
+     expected.
+
+   The exact set of warning flags depends on the compiler and TF-A warning
+   level, however they are all succinctly set in the top-level Makefile. Please
+   refer to the `GCC`_ or `Clang`_ documentation for more information on the
+   individual flags.
+
 -  ``WARMBOOT_ENABLE_DCACHE_EARLY`` : Boolean option to enable D-cache early on
    the CPU after warm boot. This is applicable for platforms which do not
    require interconnect programming to enable cache coherency (eg: single
@@ -1162,3 +1205,5 @@ Firmware update options
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
 .. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/
 .. _PSA DRTM specification: https://developer.arm.com/documentation/den0113/a
+.. _GCC: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+.. _Clang: https://clang.llvm.org/docs/DiagnosticsReference.html
