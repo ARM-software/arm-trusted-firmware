@@ -160,6 +160,17 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl1_setup.c	\
 				${QEMU_CPU_LIBS}
 
+ifeq (${ARM_ARCH_MAJOR},8)
+BL1_SOURCES		+=	lib/cpus/${ARCH}/aem_generic.S		\
+				lib/cpus/${ARCH}/cortex_a53.S		\
+				lib/cpus/${ARCH}/cortex_a57.S		\
+				lib/cpus/${ARCH}/cortex_a72.S		\
+				lib/cpus/${ARCH}/qemu_max.S		\
+
+else
+BL1_SOURCES		+=	lib/cpus/${ARCH}/cortex_a15.S
+endif
+
 BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
 				drivers/io/io_storage.c			\
 				drivers/io/io_fip.c			\
@@ -221,7 +232,8 @@ BL31_SOURCES		+=	${QEMU_CPU_LIBS}			\
 
 # Pointer Authentication sources
 ifeq (${ENABLE_PAUTH}, 1)
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c	\
+				lib/extensions/pauth/pauth_helpers.S
 endif
 
 ifeq (${SPD},spmd)
