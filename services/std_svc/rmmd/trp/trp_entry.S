@@ -115,7 +115,29 @@ endfunc trp_smc
 	 * ---------------------------------------------
 	 */
 func trp_handler
+	/*
+	 * Save Link Register and X4, as per SMCCC v1.2 its value
+	 * must be preserved unless it contains result, as specified
+	 * in the function definition.
+	 */
+	stp	x4, lr, [sp, #-16]!
+
+	/*
+	 * Zero the space for X0-X3 in trp_smc_result structure
+	 * and pass its address as the last argument.
+	 */
+	stp	xzr, xzr, [sp, #-16]!
+	stp	xzr, xzr, [sp, #-16]!
+	mov	x7, sp
+
 	bl	trp_rmi_handler
-	restore_args_call_smc
+
+	ldp	x1, x2, [sp], #16
+	ldp	x3, x4, [sp], #16
+	ldp	x5, lr, [sp], #16
+
+	ldr	x0, =RMM_RMI_REQ_COMPLETE
+	smc	#0
+
 	b	trp_handler
 endfunc trp_handler
