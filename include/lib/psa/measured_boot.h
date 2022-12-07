@@ -74,4 +74,53 @@ rss_measured_boot_extend_measurement(uint8_t index,
 				     size_t measurement_value_size,
 				     bool lock_measurement);
 
+/**
+ * Retrieves a measurement from the requested slot.
+ *
+ * index			Slot number from which measurement is to be
+ *				retrieved.
+ * signer_id			Pointer to signer_id buffer.
+ * signer_id_size		Size of the signer_id buffer in bytes.
+ * signer_id_len		On success, number of bytes that make up
+ * 				signer_id.
+ * version			Pointer to version buffer.
+ * version_size			Size of the version buffer in bytes.
+ * version_len			On success, number of bytes that makeup the
+ * 				version.
+ * measurement_algo		Pointer to measurement_algo.
+ * sw_type			Pointer to sw_type buffer.
+ * sw_type_size			Size of the sw_type buffer in bytes.
+ * sw_type_len			On success, number of bytes that makeup the
+ * 				sw_type.
+ * measurement_value		Pointer to measurement_value buffer.
+ * measurement_value_size	Size of the measurement_value buffer in bytes.
+ * measurement_value_len	On success, number of bytes that make up the
+ * 				measurement_value.
+ * is_locked			Pointer to lock status of requested measurement
+ * 				slot.
+ *
+ * PSA_SUCCESS
+ *	- Success.
+ * PSA_ERROR_INVALID_ARGUMENT
+ *	- The size of at least one of the output buffers is incorrect or the
+ *	  requested slot index is invalid.
+ * PSA_ERROR_DOES_NOT_EXIST
+ *	- The requested slot is empty, does not contain a measurement.
+ */
+psa_status_t rss_measured_boot_read_measurement(uint8_t index,
+					uint8_t *signer_id,
+					size_t signer_id_size,
+					size_t *signer_id_len,
+					uint8_t *version,
+					size_t version_size,
+					size_t *version_len,
+					uint32_t *measurement_algo,
+					uint8_t *sw_type,
+					size_t sw_type_size,
+					size_t *sw_type_len,
+					uint8_t *measurement_value,
+					size_t measurement_value_size,
+					size_t *measurement_value_len,
+					bool *is_locked);
+
 #endif /* PSA_MEASURED_BOOT_H */

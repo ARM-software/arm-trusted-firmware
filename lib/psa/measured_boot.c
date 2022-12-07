@@ -111,6 +111,61 @@ rss_measured_boot_extend_measurement(uint8_t index,
 			NULL, 0);
 }
 
+psa_status_t rss_measured_boot_read_measurement(uint8_t index,
+					uint8_t *signer_id,
+					size_t signer_id_size,
+					size_t *signer_id_len,
+					uint8_t *version,
+					size_t version_size,
+					size_t *version_len,
+					uint32_t *measurement_algo,
+					uint8_t *sw_type,
+					size_t sw_type_size,
+					size_t *sw_type_len,
+					uint8_t *measurement_value,
+					size_t measurement_value_size,
+					size_t *measurement_value_len,
+					bool *is_locked)
+{
+	psa_status_t status;
+	struct measured_boot_read_iovec_in_t read_iov_in = {
+		.index = index,
+		.sw_type_size = sw_type_size,
+		.version_size = version_size,
+	};
+
+	struct measured_boot_read_iovec_out_t read_iov_out;
+
+	psa_invec in_vec[] = {
+		{.base = &read_iov_in,
+		 .len = sizeof(struct measured_boot_read_iovec_in_t)},
+	};
+
+	psa_outvec out_vec[] = {
+		{.base = &read_iov_out,
+		 .len = sizeof(struct measured_boot_read_iovec_out_t)},
+		{.base = signer_id, .len = signer_id_size},
+		{.base = measurement_value, .len = measurement_value_size}
+	};
+
+	status = psa_call(RSS_MEASURED_BOOT_HANDLE, RSS_MEASURED_BOOT_READ,
+					  in_vec, IOVEC_LEN(in_vec),
+					  out_vec, IOVEC_LEN(out_vec));
+
+	if (status == PSA_SUCCESS) {
+		*is_locked = read_iov_out.is_locked;
+		*measurement_algo = read_iov_out.measurement_algo;
+		*sw_type_len = read_iov_out.sw_type_len;
+		*version_len = read_iov_out.version_len;
+		memcpy(sw_type, read_iov_out.sw_type, read_iov_out.sw_type_len);
+		memcpy(version, read_iov_out.version, read_iov_out.version_len);
+		*signer_id_len = out_vec[1].len;
+		*measurement_value_len = out_vec[2].len;
+	}
+
+	return status;
+}
+
 #else /* !PLAT_RSS_NOT_SUPPORTED */
 
 psa_status_t
@@ -133,4 +188,24 @@ rss_measured_boot_extend_measurement(uint8_t index,
 
 	return PSA_SUCCESS;
 }
+
+psa_status_t rss_measured_boot_read_measurement(uint8_t index,
+					uint8_t *signer_id,
+					size_t signer_id_size,
+					size_t *signer_id_len,
+					uint8_t *version,
+					size_t version_size,
+					size_t *version_len,
+					uint32_t *measurement_algo,
+					uint8_t *sw_type,
+					size_t sw_type_size,
+					size_t *sw_type_len,
+					uint8_t *measurement_value,
+					size_t measurement_value_size,
+					size_t *measurement_value_len,
+					bool *is_locked)
+{
+	return PSA_SUCCESS;
+}
+
 #endif /* !PLAT_RSS_NOT_SUPPORTED */
