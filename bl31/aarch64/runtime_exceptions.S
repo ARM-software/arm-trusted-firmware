@@ -493,15 +493,16 @@ smc_handler64:
 	msr	spsel, #MODE_SP_EL0
 
 	/*
-	 * Save the SPSR_EL3, ELR_EL3, & SCR_EL3 in case there is a world
+	 * Save the SPSR_EL3 and ELR_EL3 in case there is a world
 	 * switch during SMC handling.
 	 * TODO: Revisit if all system registers can be saved later.
 	 */
 	mrs	x16, spsr_el3
 	mrs	x17, elr_el3
-	mrs	x18, scr_el3
 	stp	x16, x17, [x6, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	str	x18, [x6, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+
+	/* Load SCR_EL3 */
+	mrs	x18, scr_el3
 
 	/* Clear flag register */
 	mov	x7, xzr
