@@ -33,7 +33,7 @@ void bl31_platform_setup(void)
 	tc_bl31_common_platform_setup();
 }
 
-scmi_channel_plat_info_t *plat_css_get_scmi_info(int channel_id)
+scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 {
 
 	return &tc_scmi_plat_info[channel_id];
