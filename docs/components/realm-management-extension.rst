@@ -196,7 +196,7 @@ and run the default tests including Realm world tests.
  -C bp.refcounter.use_real_time=0                               \
  -C bp.ve_sysregs.exit_on_shutdown=1                            \
  -C cache_state_modelled=1                                      \
- -C bp.dram_size=2                                              \
+ -C bp.dram_size=4                                              \
  -C bp.secure_memory=1                                          \
  -C pci.pci_smmuv3.mmu.SMMU_ROOT_IDR0=3                         \
  -C pci.pci_smmuv3.mmu.SMMU_ROOT_IIDR=0x43B                     \
