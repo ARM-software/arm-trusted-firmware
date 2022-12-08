@@ -178,7 +178,7 @@ static int cert_parse(void *img, unsigned int img_len)
 		return IMG_PARSER_ERR_FORMAT;
 	}
 
-	if (len > (size_t)(end - p)) {
+	if (len != (size_t)(end - p)) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
 	crt_end = p + len;
