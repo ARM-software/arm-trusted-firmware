@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -61,6 +61,8 @@ ifneq (,$(wildcard ${PLAT_FIPTOOL_HELPER_MK}))
 include ${PLAT_FIPTOOL_HELPER_MK}
 endif
 
+DEPS := $(patsubst %.o,%.d,$(OBJECTS))
+
 .PHONY: all clean distclean --openssl
 
 all: ${PROJECT}
@@ -74,7 +76,9 @@ ${PROJECT}: --openssl ${OBJECTS} Makefile
 
 %.o: %.c Makefile
 	@echo "  HOSTCC  $<"
-	${Q}${HOSTCC} -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
+	${Q}${HOSTCC} -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} -MD -MP $< -o $@
+
+-include $(DEPS)
 
 --openssl:
 ifeq ($(DEBUG),1)
@@ -83,4 +87,4 @@ endif
 
 
 clean:
-	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})
+	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS} $(DEPS))
