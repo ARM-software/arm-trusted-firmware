@@ -170,7 +170,7 @@ Threat Risk Ratings
 
 For each threat identified, a risk rating that ranges
 from *informational* to *critical* is given based on the likelihood of the
-threat occuring if a mitigation is not in place, and the impact of the
+threat occurring if a mitigation is not in place, and the impact of the
 threat (i.e. how severe the consequences could be). Table 4 explains each
 rating in terms of score, impact and likelihood.
 
@@ -778,8 +778,9 @@ These are highlighted in the ``Mitigations implemented?`` box.
 +========================+====================================================+
 | Threat                 | | **Misconfiguration of the Memory Management Unit |
 |                        |   (MMU) may allow a normal world software to       |
-|                        |   access sensitive data or execute arbitrary       |
-|                        |   code**                                           |
+|                        |   access sensitive data, execute arbitrary         |
+|                        |   code or access otherwise restricted HW           |
+|                        |   interface**                                      |
 |                        |                                                    |
 |                        | | A misconfiguration of the MMU could              |
 |                        |   lead to an open door for software running in the |
@@ -853,6 +854,8 @@ These are highlighted in the ``Mitigations implemented?`` box.
 +------------------------+-----------------------------------------------------+
 | Threat Type            | Information Disclosure                              |
 +------------------------+-------------------+----------------+----------------+
+| Application            | Server            | IoT            | Mobile         |
++------------------------+-------------------+----------------+----------------+
 | Impact                 | Medium (3)        | Medium (3)     | Medium (3)     |
 +------------------------+-------------------+----------------+----------------+
 | Likelihood             | Low (2)           | Low (2)        | Low (2)        |
@@ -878,6 +881,41 @@ These are highlighted in the ``Mitigations implemented?`` box.
 |                        |   proper debug authentication is in place. This     |
 |                        |   should be the case if threat #06 is properly      |
 |                        |   mitigated.                                        |
++------------------------+-----------------------------------------------------+
+
++------------------------+-----------------------------------------------------+
+| ID                     | 13                                                  |
++========================+=====================================================+
+| Threat                 | | **Leaving sensitive information in the memory,    |
+|                        |   can allow an attacker to retrieve them.**         |
+|                        |                                                     |
+|                        | | Accidentally leaving not-needed sensitive data in |
+|                        |   internal buffers can leak them if an attacker     |
+|                        |   gains access to memory due to a vulnerability.    |
++------------------------+-----------------------------------------------------+
+| Diagram Elements       | DF4, DF5                                            |
++------------------------+-----------------------------------------------------+
+| Affected TF-A          | BL1, BL2, BL31                                      |
+| Components             |                                                     |
++------------------------+-----------------------------------------------------+
+| Assets                 | Sensitive Data                                      |
++------------------------+-----------------------------------------------------+
+| Threat Agent           | NSCode, SecCode                                     |
++------------------------+-----------------------------------------------------+
+| Threat Type            | Information Disclosure                              |
++------------------------+-------------------+----------------+----------------+
+| Application            | Server            | IoT            | Mobile         |
++------------------------+-------------------+----------------+----------------+
+| Impact                 |  Critical (5)     | Critical (5)   | Critical (5)   |
++------------------------+-------------------+----------------+----------------+
+| Likelihood             |  Medium (3)       | Medium (3)     | Medium (3)     |
++------------------------+-------------------+----------------+----------------+
+| Total Risk Rating      |  High (15)        | High (15)      | High (15)      |
++------------------------+-------------------+----------------+----------------+
+| Mitigations            |   Clear the sensitive data from internal buffers as |
+|                        |   soon as they are not needed anymore.              |
++------------------------+-----------------------------------------------------+
+| Mitigations            | | Yes / Platform specific                           |
 +------------------------+-----------------------------------------------------+
 
 --------------
