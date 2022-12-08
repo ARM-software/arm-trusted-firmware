@@ -101,7 +101,7 @@ During cold boot RMM expects the following register values:
    x2,Maximum number of CPUs to be supported at runtime. RMM should ensure that it can support this maximum number.
    x3,Base address for the shared buffer used for communication between EL3 firmware and RMM. This buffer must be of 4KB size (1 page). The boot manifest must be present at the base of this shared buffer during cold boot.
 
-During cold boot, EL3 firmware needs to allocate a 4K page that will be
+During cold boot, EL3 firmware needs to allocate a 4KB page that will be
 passed to RMM in x3. This memory will be used as shared buffer for communication
 between EL3 and RMM. It must be assigned to Realm world and must be mapped with
 Normal memory attributes (IWB-OWB-ISH) at EL3. At boot, this memory will be
@@ -522,8 +522,8 @@ _____
 
 .. _rmm_el3_manifest_struct:
 
-RMM-EL3 Boot Manifest Version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RMM-EL3 Boot Manifest structure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The RMM-EL3 Boot Manifest structure contains platform boot information passed
 from EL3 to RMM. The width of the Boot Manifest is 128 bits

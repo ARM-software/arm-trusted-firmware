@@ -83,7 +83,17 @@ trp_head:
 	mov	x3, x23
 	bl	trp_setup
 	bl	trp_main
+	b	1f
+
 warm_boot:
+	mov	x0, x20
+	mov	x1, x21
+	mov	x2, x22
+	mov	x3, x23
+	bl	trp_validate_warmboot_args
+	cbnz	x0, trp_panic /* Failed to validate warmboot args */
+
+1:
 	mov_imm	x0, RMM_BOOT_COMPLETE
 	mov	x1, xzr /* RMM_BOOT_SUCCESS */
 	smc	#0
