@@ -85,9 +85,6 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 	p = v3_ext.p;
 	end = v3_ext.p + v3_ext.len;
 
-	mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
-			     MBEDTLS_ASN1_SEQUENCE);
-
 	while (p < end) {
 		zeromem(&extn_oid, sizeof(extn_oid));
 		is_critical = 0; /* DEFAULT FALSE */
@@ -274,6 +271,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	pk_end = p + len;
 	pk.len = pk_end - pk.p;
 
+	/* algorithm */
 	ret = mbedtls_asn1_get_tag(&p, pk_end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
@@ -342,13 +340,13 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
 	 * -- must use all remaining bytes in TBSCertificate
 	 */
-	v3_ext.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
 	if ((ret != 0) || (len != (size_t)(end - p))) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
-	v3_ext.len = end - v3_ext.p;
+	v3_ext.p = p;
+	v3_ext.len = len;
 
 	/*
 	 * Check extensions integrity.  At least one extension is
