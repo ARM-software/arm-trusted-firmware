@@ -281,7 +281,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	}
 	p += len;
 
-	ret = mbedtls_asn1_get_tag(&p, pk_end, &len, MBEDTLS_ASN1_BIT_STRING);
+	/* Key is a BIT STRING and must use all bytes in SubjectPublicKeyInfo */
+	ret = mbedtls_asn1_get_bitstring_null(&p, pk_end, &len);
 	if ((ret != 0) || (p + len != pk_end)) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -422,7 +423,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * signatureValue       BIT STRING
 	 */
 	signature.p = p;
-	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_BIT_STRING);
+	ret = mbedtls_asn1_get_bitstring_null(&p, end, &len);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
