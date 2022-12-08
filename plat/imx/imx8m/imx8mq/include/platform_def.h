@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <plat/common/common_def.h>
+
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64
 
@@ -31,7 +33,8 @@
 #define PLAT_STOP_OFF_STATE		U(3)
 
 #define BL31_BASE			U(0x910000)
-#define BL31_LIMIT			U(0x920000)
+#define BL31_SIZE			SZ_64K
+#define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
 /* non-secure uboot base */
 #define PLAT_NS_IMAGE_OFFSET		U(0x40200000)
