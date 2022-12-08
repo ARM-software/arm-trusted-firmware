@@ -145,7 +145,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	int ret, is_critical;
 	size_t len;
 	unsigned char *p, *end, *crt_end, *pk_end;
-	mbedtls_asn1_buf sig_alg1, sig_alg2;
+	mbedtls_asn1_buf sig_alg1;
 	/*
 	 * The unique ASN.1 DER encoding of [0] EXPLICIT INTEGER { v3(2} }.
 	 */
@@ -396,26 +396,15 @@ static int cert_parse(void *img, unsigned int img_len)
 	 *  -- end of TBSCertificate
 	 *
 	 *  signatureAlgorithm   AlgorithmIdentifier
+	 *  -- Does not need to be parsed.  Ensuring it is bitwise
+	 *  -- identical (including the tag!) with the first signature
+	 *  -- algorithm is sufficient.
 	 */
-	sig_alg2.p = p;
-	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
-				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if ((sig_alg1.len >= (size_t)(end - p)) ||
+	    (0 != memcmp(sig_alg1.p, p, sig_alg1.len))) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
-	if ((end - p) < 1) {
-		return IMG_PARSER_ERR_FORMAT;
-	}
-	sig_alg2.len = (p + len) - sig_alg2.p;
-	p += len;
-
-	/* Compare both signature algorithms */
-	if (sig_alg1.len != sig_alg2.len) {
-		return IMG_PARSER_ERR_FORMAT;
-	}
-	if (0 != memcmp(sig_alg1.p, sig_alg2.p, sig_alg1.len)) {
-		return IMG_PARSER_ERR_FORMAT;
-	}
+	p += sig_alg1.len;
 	memcpy(&sig_alg, &sig_alg1, sizeof(sig_alg));
 
 	/*
