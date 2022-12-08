@@ -144,7 +144,7 @@ static int cert_parse(void *img, unsigned int img_len)
 {
 	int ret, is_critical;
 	size_t len;
-	unsigned char *p, *end, *crt_end;
+	unsigned char *p, *end, *crt_end, *pk_end;
 	mbedtls_asn1_buf sig_alg1, sig_alg2;
 	/*
 	 * The unique ASN.1 DER encoding of [0] EXPLICIT INTEGER { v3(2} }.
@@ -271,8 +271,21 @@ static int cert_parse(void *img, unsigned int img_len)
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
-	pk.len = (p + len) - pk.p;
+	pk_end = p + len;
+	pk.len = pk_end - pk.p;
+
+	ret = mbedtls_asn1_get_tag(&p, pk_end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
+	if (ret != 0) {
+		return IMG_PARSER_ERR_FORMAT;
+	}
 	p += len;
+
+	ret = mbedtls_asn1_get_tag(&p, pk_end, &len, MBEDTLS_ASN1_BIT_STRING);
+	if ((ret != 0) || (p + len != pk_end)) {
+		return IMG_PARSER_ERR_FORMAT;
+	}
+	p = pk_end;
 
 	/*
 	 * issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
