@@ -304,7 +304,18 @@ static int cert_parse(void *img, unsigned int img_len)
 
 	/*
 	 * extensions      [3]  EXPLICIT Extensions OPTIONAL
-	 * -- must use all remaining bytes in TBSCertificate
+	 * }
+	 *
+	 * X.509 and RFC5280 allow omitting the extensions entirely.
+	 * However, in TF-A, a certificate with no extensions would
+	 * always fail later on, as the extensions contain the
+	 * information needed to authenticate the next stage in the
+	 * boot chain.  Furthermore, get_ext() assumes that the
+	 * extensions have been parsed into v3_ext, and allowing
+	 * there to be no extensions would pointlessly complicate
+	 * the code.  Therefore, just reject certificates without
+	 * extensions.  This is also why version 1 and 2 certificates
+	 * are rejected above.
 	 */
 	ret = mbedtls_asn1_get_tag(&p, end, &len,
 				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
@@ -326,9 +337,12 @@ static int cert_parse(void *img, unsigned int img_len)
 	v3_ext.len = end - v3_ext.p;
 
 	/*
-	 * Check extensions integrity
+	 * Check extensions integrity.  At least one extension is
+	 * required: the ASN.1 specifies a minimum size of 1, and at
+	 * least one extension is needed to authenticate the next stage
+	 * in the boot chain.
 	 */
-	while (p < end) {
+	do {
 		ret = mbedtls_asn1_get_tag(&p, end, &len,
 					   MBEDTLS_ASN1_CONSTRUCTED |
 					   MBEDTLS_ASN1_SEQUENCE);
@@ -356,7 +370,7 @@ static int cert_parse(void *img, unsigned int img_len)
 			return IMG_PARSER_ERR_FORMAT;
 		}
 		p += len;
-	}
+	} while (p < end);
 
 	if (p != end) {
 		return IMG_PARSER_ERR_FORMAT;
