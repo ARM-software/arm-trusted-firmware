@@ -227,11 +227,6 @@ unsigned int plat_get_syscnt_freq2(void)
 	return COUNTER_FREQUENCY;
 }
 
-void bl31_plat_runtime_setup(void)
-{
-	return;
-}
-
 #ifdef SPD_trusty
 void plat_trusty_set_boot_args(aapcs64_params_t *args)
 {
