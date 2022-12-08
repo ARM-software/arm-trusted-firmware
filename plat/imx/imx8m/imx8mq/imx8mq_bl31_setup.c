@@ -175,23 +175,22 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
-	mmap_add_region(BL31_BASE, BL31_BASE, (BL31_LIMIT - BL31_BASE),
-		MT_MEMORY | MT_RW | MT_SECURE);
-	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE, (BL_CODE_END - BL_CODE_BASE),
-		MT_MEMORY | MT_RO | MT_SECURE);
-
-	/* Map TEE memory */
-	mmap_add_region(BL32_BASE, BL32_BASE, BL32_SIZE, MT_MEMORY | MT_RW);
-
-	mmap_add(imx_mmap);
-
+	const mmap_region_t bl_regions[] = {
+		MAP_REGION_FLAT(BL31_BASE, BL31_LIMIT - BL31_BASE,
+				MT_MEMORY | MT_RW | MT_SECURE),
+		MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE,
+				MT_MEMORY | MT_RO | MT_SECURE),
 #if USE_COHERENT_MEM
-	mmap_add_region(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_BASE,
-		BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
-		MT_DEVICE | MT_RW | MT_SECURE);
+		MAP_REGION_FLAT(BL_COHERENT_RAM_BASE,
+				BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
+				MT_DEVICE | MT_RW | MT_SECURE),
 #endif
-	/* setup xlat table */
-	init_xlat_tables();
+		/* Map TEE memory */
+		MAP_REGION_FLAT(BL32_BASE, BL32_SIZE, MT_MEMORY | MT_RW),
+		{0},
+	};
+
+	setup_page_tables(bl_regions, imx_mmap);
 	/* enable the MMU */
 	enable_mmu_el3(0);
 }
