@@ -127,5 +127,4 @@
 
 #define COUNTER_FREQUENCY		8333333 /* 25MHz / 3 */
 
-#define DEBUG_CONSOLE			0
 #define IMX_WDOG_B_RESET
