@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -271,7 +271,7 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	block_size = cur->dev_spec->block_size;
 	assert((length <= cur->size) &&
 	       (length > 0U) &&
-	       (ops->read != 0));
+	       (ops->read != NULL));
 
 	/*
 	 * We don't know the number of bytes that we are going
@@ -383,8 +383,8 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 	block_size = cur->dev_spec->block_size;
 	assert((length <= cur->size) &&
 	       (length > 0U) &&
-	       (ops->read != 0) &&
-	       (ops->write != 0));
+	       (ops->read != NULL) &&
+	       (ops->write != NULL));
 
 	/*
 	 * We don't know the number of bytes that we are going
