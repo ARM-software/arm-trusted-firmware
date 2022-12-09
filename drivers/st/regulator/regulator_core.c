@@ -17,14 +17,16 @@
 
 #define MAX_PROPERTY_LEN 64
 
+CASSERT(PLAT_NB_RDEVS >= 1U, plat_nb_rdevs_must_be_higher);
+
 static struct rdev rdev_array[PLAT_NB_RDEVS];
 
 #define for_each_rdev(rdev) \
-	for (rdev = rdev_array; rdev < (rdev_array + PLAT_NB_RDEVS); rdev++)
+	for ((rdev) = rdev_array; (rdev) <= &rdev_array[PLAT_NB_RDEVS - 1U]; (rdev)++)
 
 #define for_each_registered_rdev(rdev) \
-	for (rdev = rdev_array; \
-	     (rdev < (rdev_array + PLAT_NB_RDEVS)) && (rdev->desc != NULL); rdev++)
+	for ((rdev) = rdev_array; \
+	     ((rdev) <= &rdev_array[PLAT_NB_RDEVS - 1U]) && ((rdev)->desc != NULL); (rdev)++)
 
 static void lock_driver(const struct rdev *rdev)
 {
@@ -86,7 +88,7 @@ static int32_t get_supply_phandle(const void *fdt, int node, const char *name)
 	char prop_name[MAX_PROPERTY_LEN];
 
 	len = snprintf(prop_name, MAX_PROPERTY_LEN - 1, "%s-supply", name);
-	assert((len >= 0) && (len < MAX_PROPERTY_LEN - 1));
+	assert((len >= 0) && (len < (MAX_PROPERTY_LEN - 1)));
 
 	cuint = fdt_getprop(fdt, node, prop_name, NULL);
 	if (cuint != NULL) {
@@ -156,7 +158,7 @@ int regulator_disable(struct rdev *rdev)
 
 	assert(rdev != NULL);
 
-	if (rdev->flags & REGUL_ALWAYS_ON) {
+	if ((rdev->flags & REGUL_ALWAYS_ON) != 0U) {
 		return 0;
 	}
 
@@ -525,7 +527,7 @@ int regulator_register(const struct regul_description *desc, int node)
 		}
 	}
 
-	if (rdev == rdev_array + PLAT_NB_RDEVS) {
+	if (rdev > &rdev_array[PLAT_NB_RDEVS - 1U]) {
 		WARN("Not enough place for regulators, PLAT_NB_RDEVS should be increased.\n");
 		return -ENOMEM;
 	}

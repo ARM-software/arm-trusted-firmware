@@ -20,6 +20,7 @@
 #include <platform_def.h>
 
 #define PMIC_NODE_NOT_FOUND	1
+#define NB_REG			14U
 
 static struct i2c_handle_s i2c_handle;
 static uint32_t pmic_i2c_addr;
@@ -454,13 +455,13 @@ static const struct regul_ops pmic_ops = {
 };
 
 #define DEFINE_REGU(name) { \
-	.node_name = name, \
+	.node_name = (name), \
 	.ops = &pmic_ops, \
 	.driver_data = NULL, \
 	.enable_ramp_delay = 1000, \
 }
 
-static const struct regul_description pmic_regs[] = {
+static const struct regul_description pmic_regs[NB_REG] = {
 	[STPMIC1_BUCK1] = DEFINE_REGU("buck1"),
 	[STPMIC1_BUCK2] = DEFINE_REGU("buck2"),
 	[STPMIC1_BUCK3] = DEFINE_REGU("buck3"),
@@ -476,8 +477,6 @@ static const struct regul_description pmic_regs[] = {
 	[STPMIC1_VBUS_OTG] = DEFINE_REGU("pwr_sw1"),
 	[STPMIC1_SW_OUT] = DEFINE_REGU("pwr_sw2"),
 };
-
-#define NB_REG ARRAY_SIZE(pmic_regs)
 
 static int register_pmic(void)
 {
@@ -506,7 +505,7 @@ static int register_pmic(void)
 		unsigned int i;
 		int ret;
 
-		for (i = 0; i < NB_REG; i++) {
+		for (i = 0U; i < NB_REG; i++) {
 			desc = &pmic_regs[i];
 			if (strcmp(desc->node_name, reg_name) == 0) {
 				break;
