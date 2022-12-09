@@ -79,11 +79,8 @@ uint8_t fdt_get_status(int node)
 	}
 
 	cchar = fdt_getprop(fdt, node, "secure-status", NULL);
-	if (cchar == NULL) {
-		if (status == DT_NON_SECURE) {
-			status |= DT_SECURE;
-		}
-	} else if (strncmp(cchar, "okay", strlen("okay")) == 0) {
+	if (((cchar == NULL) && (status == DT_NON_SECURE)) ||
+	    ((cchar != NULL) && (strncmp(cchar, "okay", strlen("okay")) == 0))) {
 		status |= DT_SECURE;
 	}
 
@@ -350,7 +347,7 @@ int dt_find_otp_name(const char *name, uint32_t *otp, uint32_t *otp_len)
 		return -FDT_ERR_BADVALUE;
 	}
 
-	if (fdt32_to_cpu(*cuint) % sizeof(uint32_t)) {
+	if ((fdt32_to_cpu(*cuint) % sizeof(uint32_t)) != 0U) {
 		ERROR("Misaligned nvmem %s element: ignored\n", name);
 		return -FDT_ERR_BADVALUE;
 	}
@@ -386,7 +383,7 @@ int fdt_get_gpio_bank_pin_count(unsigned int bank)
 
 	fdt_for_each_subnode(node, fdt, pinctrl_node) {
 		const fdt32_t *cuint;
-		int pin_count;
+		int pin_count = 0;
 		int len;
 		int i;
 
@@ -415,11 +412,9 @@ int fdt_get_gpio_bank_pin_count(unsigned int bank)
 		}
 
 		/* Get the last defined gpio line (offset + nb of pins) */
-		pin_count = fdt32_to_cpu(*(cuint + 1)) + fdt32_to_cpu(*(cuint + 3));
-		for (i = 0; i < len / 4; i++) {
-			pin_count = MAX(pin_count, (int)(fdt32_to_cpu(*(cuint + 1)) +
-							 fdt32_to_cpu(*(cuint + 3))));
-			cuint += 4;
+		for (i = 0; i < len; i += 4) {
+			pin_count = MAX(pin_count, (int)(fdt32_to_cpu(cuint[i + 1]) +
+							 fdt32_to_cpu(cuint[i + 3])));
 		}
 
 		return pin_count;

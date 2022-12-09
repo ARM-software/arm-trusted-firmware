@@ -607,7 +607,7 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
  *     - we already boot FWU_MAX_TRIAL_REBOOT times in trial mode.
  * we select the previous_active_index.
  */
-#define INVALID_BOOT_IDX		0xFFFFFFFF
+#define INVALID_BOOT_IDX		0xFFFFFFFFU
 
 uint32_t plat_fwu_get_boot_idx(void)
 {
