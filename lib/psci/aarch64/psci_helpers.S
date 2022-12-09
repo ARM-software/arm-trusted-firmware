@@ -124,6 +124,9 @@ endfunc psci_do_pwrup_cache_maintenance
  * -----------------------------------------------------------------------
  */
 func psci_power_down_wfi
+#if ERRATA_A510_2684597
+	bl apply_cpu_pwr_dwn_errata
+#endif
 	dsb	sy		// ensure write buffer empty
 1:
 	wfi
