@@ -62,7 +62,7 @@ static uintptr_t n1sdp_multichip_gicr_frames[3] = {
 	0
 };
 
-scmi_channel_plat_info_t *plat_css_get_scmi_info(int channel_id)
+scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 {
 	return &n1sdp_scmi_plat_info;
 }

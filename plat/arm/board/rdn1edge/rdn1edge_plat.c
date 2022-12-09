@@ -65,7 +65,8 @@ unsigned int plat_arm_sgi_get_multi_chip_mode(void)
 #if defined(IMAGE_BL31)
 void bl31_platform_setup(void)
 {
-	int i, ret;
+	unsigned int i;
+	int ret;
 
 	if (plat_arm_sgi_get_multi_chip_mode() == 0 && CSS_SGI_CHIP_COUNT > 1) {
 		ERROR("Chip Count is set to %d but multi-chip mode not enabled\n",

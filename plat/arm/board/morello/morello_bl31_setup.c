@@ -19,7 +19,7 @@ static scmi_channel_plat_info_t morello_scmi_plat_info = {
 	.ring_doorbell = &mhu_ring_doorbell
 };
 
-scmi_channel_plat_info_t *plat_css_get_scmi_info(int channel_id)
+scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 {
 	return &morello_scmi_plat_info;
 }

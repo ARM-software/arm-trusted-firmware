@@ -168,7 +168,7 @@ int scmi_ap_core_set_reset_addr(void *p, uint64_t reset_addr, uint32_t attr);
 int scmi_ap_core_get_reset_addr(void *p, uint64_t *reset_addr, uint32_t *attr);
 
 /* API to get the platform specific SCMI channel information. */
-scmi_channel_plat_info_t *plat_css_get_scmi_info(int channel_id);
+scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id);
 
 /* API to override default PSCI callbacks for platforms that support SCMI. */
 const plat_psci_ops_t *css_scmi_override_pm_ops(plat_psci_ops_t *ops);
