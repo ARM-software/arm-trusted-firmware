@@ -21,7 +21,6 @@
 #include <plat_private.h>
 
 #include "ipi_mailbox_svc.h"
-#include "../../../services/spd/trusty/smcall.h"
 
 /*********************************************************************
  * Macros definitions
@@ -75,17 +74,19 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	ipi_local_id = x1 & UNSIGNED32_MASK;
 	ipi_remote_id = x2 & UNSIGNED32_MASK;
 
-	if (SMC_ENTITY(smc_fid) >= SMC_ENTITY_TRUSTED_APP)
+	if ((GET_SMC_OEN(smc_fid) >= OEN_TAP_START) &&
+	    (GET_SMC_OEN(smc_fid) <= OEN_TOS_END)) {
 		is_secure = 1;
-	else
+	} else {
 		is_secure = 0;
+	}
 
 	/* Validate IPI mailbox access */
 	ret = ipi_mb_validate(ipi_local_id, ipi_remote_id, is_secure);
 	if (ret)
 		SMC_RET1(handle, ret);
 
-	switch (SMC_FUNCTION(smc_fid)) {
+	switch (GET_SMC_NUM(smc_fid)) {
 	case IPI_MAILBOX_OPEN:
 		ipi_mb_open(ipi_local_id, ipi_remote_id);
 		SMC_RET1(handle, 0);
