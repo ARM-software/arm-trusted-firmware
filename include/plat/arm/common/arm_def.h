@@ -20,10 +20,12 @@
  *****************************************************************************/
 
 /*
- * Root of trust key hash lengths
+ * Root of trust key lengths
  */
 #define ARM_ROTPK_HEADER_LEN		19
 #define ARM_ROTPK_HASH_LEN		32
+/* ARM_ROTPK_KEY_LEN includes DER header + raw key material */
+#define ARM_ROTPK_KEY_LEN		294
 
 /* Special value used to verify platform parameters from BL2 to BL31 */
 #define ARM_BL31_PLAT_PARAM_VAL		ULL(0x0f1e2d3c4b5a6978)

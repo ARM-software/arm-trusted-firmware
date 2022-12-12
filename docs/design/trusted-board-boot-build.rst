@@ -42,7 +42,7 @@ images with support for these features:
    are loaded from that path instead of the default OS path. Export this
    variable if necessary.
 
-   In the case of Arm platforms, the location of the ROTPK hash must also be
+   In the case of Arm platforms, the location of the ROTPK must also be
    specified at build time. The following locations are currently supported (see
    ``ARM_ROTPK_LOCATION`` build option):
 
@@ -61,6 +61,9 @@ images with support for these features:
    -  ``ARM_ROTPK_LOCATION=devel_ecdsa``: use the default hash located in
       ``plat/arm/board/common/rotpk/arm_rotpk_ecdsa_sha256.bin``. Enforce
       generation of the new hash if ``ROT_KEY`` is specified.
+
+   -  ``ARM_ROTPK_LOCATION=devel_full_dev_rsa_key``: use the key located in
+      ``plat/arm/board/common/rotpk/arm_full_dev_rsa_rotpk.S``.
 
    Example of command line using RSA development keys:
 

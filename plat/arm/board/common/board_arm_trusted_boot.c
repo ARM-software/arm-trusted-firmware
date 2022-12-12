@@ -47,7 +47,8 @@ uintptr_t nv_cntr_base_addr[MAX_NV_CTR_IDS] = {
 #pragma weak plat_get_nv_ctr
 #pragma weak plat_set_nv_ctr
 
-extern unsigned char arm_rotpk_header[], arm_rotpk_hash_end[];
+extern unsigned char arm_rotpk_header[], arm_rotpk_key[], arm_rotpk_hash_end[],
+       arm_rotpk_key_end[];
 
 #if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_REGS_ID) || ARM_CRYPTOCELL_INTEG
 static unsigned char rotpk_hash_der[ARM_ROTPK_HEADER_LEN + ARM_ROTPK_HASH_LEN];
@@ -93,16 +94,20 @@ int arm_get_rotpk_info_regs(void **key_ptr, unsigned int *key_len,
 #endif
 
 #if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) || \
-    (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
-/*
- * Return development ROTPK hash generated from ROT_KEY.
- */
+    (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID) || \
+    (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_FULL_DEV_RSA_KEY_ID)
 int arm_get_rotpk_info_dev(void **key_ptr, unsigned int *key_len,
 			unsigned int *flags)
 {
-	*key_ptr = arm_rotpk_header;
-	*key_len = arm_rotpk_hash_end - arm_rotpk_header;
-	*flags = ROTPK_IS_HASH;
+	if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_FULL_DEV_RSA_KEY_ID) {
+		*key_ptr = arm_rotpk_key;
+		*key_len = arm_rotpk_key_end - arm_rotpk_key;
+		*flags = 0;
+	} else {
+		*key_ptr = arm_rotpk_header;
+		*key_len = arm_rotpk_hash_end - arm_rotpk_header;
+		*flags = ROTPK_IS_HASH;
+	}
 	return 0;
 }
 #endif
@@ -130,7 +135,7 @@ int arm_get_rotpk_info_cc(void **key_ptr, unsigned int *key_len,
 #endif
 
 /*
- * Wrapper function for most Arm platforms to get ROTPK hash.
+ * Wrapper function for most Arm platforms to get ROTPK info.
  */
 static int get_rotpk_info(void **key_ptr, unsigned int *key_len,
 				unsigned int *flags)
@@ -140,7 +145,8 @@ static int get_rotpk_info(void **key_ptr, unsigned int *key_len,
 #else
 
 #if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) || \
-    (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
+    (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID) || \
+    (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_FULL_DEV_RSA_KEY_ID)
 	return arm_get_rotpk_info_dev(key_ptr, key_len, flags);
 #elif (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_REGS_ID)
 	return arm_get_rotpk_info_regs(key_ptr, key_len, flags);
