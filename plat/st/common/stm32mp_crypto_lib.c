@@ -16,6 +16,7 @@
 #include <drivers/st/stm32_pka.h>
 #include <drivers/st/stm32_rng.h>
 #include <drivers/st/stm32_saes.h>
+#include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <mbedtls/asn1.h>
 #include <mbedtls/md.h>
