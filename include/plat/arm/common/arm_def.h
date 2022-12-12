@@ -82,6 +82,7 @@
  *   - L1 GPT DRAM: Reserved for L1 GPT if RME is enabled
  *   - REALM DRAM: Reserved for Realm world if RME is enabled
  *   - TF-A <-> RMM SHARED: Area shared for communication between TF-A and RMM
+ *   - Event Log: Area for Event Log if MEASURED_BOOT feature is enabled
  *   - AP TZC DRAM: The remaining TZC secured DRAM reserved for AP use
  *
  *              RME enabled(64MB)                RME not enabled(16MB)
@@ -89,13 +90,15 @@
  *              |                  |             |                 |
  *              |  AP TZC (~28MB)  |             |  AP TZC (~14MB) |
  *              --------------------             -------------------
+ *              |     Event Log    |             |     Event Log   |
+ *              |      (4KB)       |             |      (4KB)      |
+ *              --------------------             -------------------
+ *              |   REALM (RMM)    |             |                 |
+ *              |   (32MB - 4KB)   |             |  EL3 TZC (2MB)  |
+ *              --------------------             -------------------
  *              |                  |             |                 |
- *              |   REALM (RMM)    |             |  EL3 TZC (2MB)  |
- *              |   (32MB - 4KB)   |             -------------------
- *              --------------------             |                 |
- *              |                  |             |    SCP TZC      |
- *              |   TF-A <-> RMM   |  0xFFFF_FFFF-------------------
- *              |   SHARED (4KB)   |
+ *              |   TF-A <-> RMM   |             |    SCP TZC      |
+ *              |   SHARED (4KB)   |  0xFFFF_FFFF-------------------
  *              --------------------
  *              |                  |
  *              |  EL3 TZC (3MB)   |
@@ -114,7 +117,6 @@
  */
 #define ARM_EL3_TZC_DRAM1_SIZE		UL(0x00300000) /* 3MB */
 #define ARM_L1_GPT_SIZE			UL(0x00100000) /* 1MB */
-
 /* 32MB - ARM_EL3_RMM_SHARED_SIZE */
 #define ARM_REALM_SIZE			(UL(0x02000000) -		\
 						ARM_EL3_RMM_SHARED_SIZE)
@@ -134,6 +136,25 @@
 #define ARM_SCP_TZC_DRAM1_SIZE		PLAT_ARM_SCP_TZC_DRAM1_SIZE
 #define ARM_SCP_TZC_DRAM1_END		(ARM_SCP_TZC_DRAM1_BASE +	\
 					ARM_SCP_TZC_DRAM1_SIZE - 1U)
+
+# if (defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)) && \
+MEASURED_BOOT
+#define ARM_EVENT_LOG_DRAM1_SIZE	UL(0x00001000)	/* 4KB */
+
+#if ENABLE_RME
+#define ARM_EVENT_LOG_DRAM1_BASE	(ARM_REALM_BASE -		\
+					 ARM_EVENT_LOG_DRAM1_SIZE)
+#else
+#define ARM_EVENT_LOG_DRAM1_BASE	(ARM_EL3_TZC_DRAM1_BASE -	\
+					 ARM_EVENT_LOG_DRAM1_SIZE)
+#endif /* ENABLE_RME */
+#define ARM_EVENT_LOG_DRAM1_END		(ARM_EVENT_LOG_DRAM1_BASE +	\
+					 ARM_EVENT_LOG_DRAM1_SIZE -	\
+					 1U)
+#else
+#define ARM_EVENT_LOG_DRAM1_SIZE	UL(0)
+#endif /* (SPD_tspd || SPD_opteed || SPD_spmd) && MEASURED_BOOT */
+
 #if ENABLE_RME
 #define ARM_L1_GPT_ADDR_BASE		(ARM_DRAM1_BASE +		\
 					ARM_DRAM1_SIZE -		\
@@ -170,7 +191,9 @@
 					ARM_EL3_TZC_DRAM1_SIZE +	\
 					ARM_EL3_RMM_SHARED_SIZE +	\
 					ARM_REALM_SIZE +		\
-					ARM_L1_GPT_SIZE))
+					ARM_L1_GPT_SIZE +		\
+					ARM_EVENT_LOG_DRAM1_SIZE))
+
 #define ARM_AP_TZC_DRAM1_END		(ARM_AP_TZC_DRAM1_BASE +	\
 					ARM_AP_TZC_DRAM1_SIZE - 1U)
 
@@ -312,6 +335,15 @@
 					PLAT_ARM_TRUSTED_DRAM_BASE,	\
 					PLAT_ARM_TRUSTED_DRAM_SIZE,	\
 					MT_MEMORY | MT_RW | MT_SECURE)
+
+# if (defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)) && \
+MEASURED_BOOT
+#define ARM_MAP_EVENT_LOG_DRAM1						\
+				MAP_REGION_FLAT(			\
+					ARM_EVENT_LOG_DRAM1_BASE,	\
+					ARM_EVENT_LOG_DRAM1_SIZE,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
+#endif /* (SPD_tspd || SPD_opteed || SPD_spmd) && MEASURED_BOOT */
 
 #if ENABLE_RME
 /*
