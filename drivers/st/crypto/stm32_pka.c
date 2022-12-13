@@ -254,13 +254,6 @@ static const struct curve_parameters curve_def[] = {
 
 static struct stm32_pka_platdata pka_pdata;
 
-#pragma weak stm32_pka_get_platdata
-
-int stm32_pka_get_platdata(struct stm32_pka_platdata *pdata)
-{
-	return -ENODEV;
-}
-
 static int stm32_pka_parse_fdt(void)
 {
 	int node;
@@ -583,10 +576,7 @@ int stm32_pka_init(void)
 
 	err = stm32_pka_parse_fdt();
 	if (err != 0) {
-		err = stm32_pka_get_platdata(&pka_pdata);
-		if (err != 0) {
-			return err;
-		}
+		return err;
 	}
 
 	clk_enable(pka_pdata.clock_id);

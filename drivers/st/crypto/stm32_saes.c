@@ -139,14 +139,7 @@
 #define SET_CHAINING_MODE(mod, cr) \
 	mmio_clrsetbits_32((cr), _SAES_CR_CHMOD_MASK, _SAES_CR_CHMOD_##mod << _SAES_CR_CHMOD_SHIFT)
 
-#define pragma weak stm32_saes_get_platdata
-
 static struct stm32_saes_platdata saes_pdata;
-
-int stm32_saes_get_platdata(struct stm32_saes_platdata *pdata)
-{
-	return -ENODEV;
-}
 
 static int stm32_saes_parse_fdt(struct stm32_saes_platdata *pdata)
 {
@@ -389,10 +382,7 @@ int stm32_saes_driver_init(void)
 
 	err = stm32_saes_parse_fdt(&saes_pdata);
 	if (err != 0) {
-		err = stm32_saes_get_platdata(&saes_pdata);
-		if (err != 0) {
-			return err;
-		}
+		return err;
 	}
 
 	clk_enable(saes_pdata.clock_id);
