@@ -124,6 +124,7 @@ static void bl31_tz380_setup(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			u_register_t arg2, u_register_t arg3)
 {
+	static console_t console;
 	int i;
 	/* enable CSU NS access permission */
 	for (i = 0; i < 64; i++) {
@@ -132,12 +133,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	imx_aipstz_init(aipstz);
 
-#if DEBUG_CONSOLE
-	static console_t console;
-
 	console_imx_uart_register(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
 		IMX_CONSOLE_BAUDRATE, &console);
-#endif
+	/* This console is only used for boot stage */
+	console_set_scope(&console, CONSOLE_FLAG_BOOT);
 
 	imx8m_caam_init();
 
@@ -176,23 +175,22 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
-	mmap_add_region(BL31_BASE, BL31_BASE, (BL31_LIMIT - BL31_BASE),
-		MT_MEMORY | MT_RW | MT_SECURE);
-	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE, (BL_CODE_END - BL_CODE_BASE),
-		MT_MEMORY | MT_RO | MT_SECURE);
-
-	/* Map TEE memory */
-	mmap_add_region(BL32_BASE, BL32_BASE, BL32_SIZE, MT_MEMORY | MT_RW);
-
-	mmap_add(imx_mmap);
-
+	const mmap_region_t bl_regions[] = {
+		MAP_REGION_FLAT(BL31_START, BL31_SIZE,
+				MT_MEMORY | MT_RW | MT_SECURE),
+		MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE,
+				MT_MEMORY | MT_RO | MT_SECURE),
 #if USE_COHERENT_MEM
-	mmap_add_region(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_BASE,
-		BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
-		MT_DEVICE | MT_RW | MT_SECURE);
+		MAP_REGION_FLAT(BL_COHERENT_RAM_BASE,
+				BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
+				MT_DEVICE | MT_RW | MT_SECURE),
 #endif
-	/* setup xlat table */
-	init_xlat_tables();
+		/* Map TEE memory */
+		MAP_REGION_FLAT(BL32_BASE, BL32_SIZE, MT_MEMORY | MT_RW),
+		{0},
+	};
+
+	setup_page_tables(bl_regions, imx_mmap);
 	/* enable the MMU */
 	enable_mmu_el3(0);
 }
@@ -225,11 +223,6 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
 unsigned int plat_get_syscnt_freq2(void)
 {
 	return COUNTER_FREQUENCY;
-}
-
-void bl31_plat_runtime_setup(void)
-{
-	return;
 }
 
 #ifdef SPD_trusty

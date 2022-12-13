@@ -41,7 +41,7 @@ int imx_validate_power_state(unsigned int power_state,
 
 void imx_domain_suspend(const psci_power_state_t *target_state)
 {
-	uint64_t base_addr = BL31_BASE;
+	uint64_t base_addr = BL31_START;
 	uint64_t mpidr = read_mpidr_el1();
 	unsigned int core_id = MPIDR_AFFLVL0_VAL(mpidr);
 

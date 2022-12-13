@@ -38,6 +38,7 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				${XLAT_TABLES_LIB_SRCS}				\
 				${IMX_GIC_SOURCES}
 
+ENABLE_PIE		:=	1
 USE_COHERENT_MEM	:=	1
 RESET_TO_BL31		:=	1
 A53_DISABLE_NON_TEMPORAL_HINT := 0
@@ -51,6 +52,9 @@ $(eval $(call add_define,BL32_BASE))
 
 BL32_SIZE		?=	0x2000000
 $(eval $(call add_define,BL32_SIZE))
+
+IMX_BOOT_UART_BASE	?=	0x30860000
+$(eval $(call add_define,IMX_BOOT_UART_BASE))
 
 ifeq (${SPD},trusty)
 	BL31_CFLAGS    +=      -DPLAT_XLAT_TABLES_DYNAMIC=1

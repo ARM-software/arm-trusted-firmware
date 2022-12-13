@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <plat/common/common_def.h>
+
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64
 
@@ -31,7 +33,8 @@
 #define PLAT_STOP_OFF_STATE		U(3)
 
 #define BL31_BASE			U(0x910000)
-#define BL31_LIMIT			U(0x920000)
+#define BL31_SIZE			SZ_64K
+#define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
 /* non-secure uboot base */
 #define PLAT_NS_IMAGE_OFFSET		U(0x40200000)
@@ -54,7 +57,6 @@
 
 #define HAB_RVT_BASE			U(0x00000880) /* HAB_RVT for i.MX8MQ */
 
-#define IMX_BOOT_UART_BASE		U(0x30860000)
 #define IMX_BOOT_UART_CLK_IN_HZ		25000000 /* Select 25Mhz oscillator */
 #define PLAT_CRASH_UART_BASE		IMX_BOOT_UART_BASE
 #define PLAT_CRASH_UART_CLK_IN_HZ	25000000
@@ -128,5 +130,4 @@
 
 #define COUNTER_FREQUENCY		8333333 /* 25MHz / 3 */
 
-#define DEBUG_CONSOLE			0
 #define IMX_WDOG_B_RESET
