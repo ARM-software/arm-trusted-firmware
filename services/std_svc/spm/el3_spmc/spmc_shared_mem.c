@@ -274,13 +274,15 @@ spmc_shmem_obj_ffa_constituent_size(struct spmc_shmem_obj *obj,
  * spmc_shmem_obj_validate_id - Validate a partition ID is participating in
  *				a given memory transaction.
  * @sp_id:      Partition ID to validate.
- * @desc:       Descriptor of the memory transaction.
- *
+ * @obj:        The shared memory object containing the descriptor
+ *              of the memory transaction.
  * Return: true if ID is valid, else false.
  */
-bool spmc_shmem_obj_validate_id(const struct ffa_mtd *desc, uint16_t sp_id)
+bool spmc_shmem_obj_validate_id(struct spmc_shmem_obj *obj, uint16_t sp_id)
 {
 	bool found = false;
+	struct ffa_mtd *desc = &obj->desc;
+	size_t desc_size = obj->desc_size;
 
 	/* Validate the partition is a valid participant. */
 	for (unsigned int i = 0U; i < desc->emad_count; i++) {
@@ -290,6 +292,15 @@ bool spmc_shmem_obj_validate_id(const struct ffa_mtd *desc, uint16_t sp_id)
 		emad = spmc_shmem_obj_get_emad(desc, i,
 					       MAKE_FFA_VERSION(1, 1),
 					       &emad_size);
+		/*
+		 * Validate the calculated emad address resides within the
+		 * descriptor.
+		 */
+		if ((emad == NULL) || (uintptr_t) emad >=
+		    (uintptr_t)((uint8_t *) desc + desc_size)) {
+			VERBOSE("Invalid emad.\n");
+			break;
+		}
 		if (sp_id == emad->mapd.endpoint_id) {
 			found = true;
 			break;
@@ -385,7 +396,8 @@ spmc_shm_get_v1_1_descriptor_size(struct ffa_mtd_v1_0 *orig, size_t desc_size)
 	      emad_array[0].comp_mrd_offset);
 
 	/* Check the calculated address is within the memory descriptor. */
-	if ((uintptr_t) mrd >= (uintptr_t)((uint8_t *) orig + desc_size)) {
+	if (((uintptr_t) mrd + sizeof(struct ffa_comp_mrd)) >
+	    (uintptr_t)((uint8_t *) orig + desc_size)) {
 		return 0;
 	}
 	size += mrd->address_range_count * sizeof(struct ffa_cons_mrd);
@@ -424,7 +436,8 @@ spmc_shm_get_v1_0_descriptor_size(struct ffa_mtd *orig, size_t desc_size)
 	      emad_array[0].comp_mrd_offset);
 
 	/* Check the calculated address is within the memory descriptor. */
-	if ((uintptr_t) mrd >= (uintptr_t)((uint8_t *) orig + desc_size)) {
+	if (((uintptr_t) mrd + sizeof(struct ffa_comp_mrd)) >
+	    (uintptr_t)((uint8_t *) orig + desc_size)) {
 		return 0;
 	}
 	size += mrd->address_range_count * sizeof(struct ffa_cons_mrd);
@@ -475,6 +488,12 @@ spmc_shm_convert_shmem_obj_from_v1_0(struct spmc_shmem_obj *out_obj,
 
 	/* Copy across the emad structs. */
 	for (unsigned int i = 0U; i < out->emad_count; i++) {
+		/* Bound check for emad array. */
+		if (((uint8_t *)emad_array_in + sizeof(struct ffa_emad_v1_0)) >
+		    ((uint8_t *) mtd_orig + orig->desc_size)) {
+			VERBOSE("%s: Invalid mtd structure.\n", __func__);
+			return false;
+		}
 		memcpy(&emad_array_out[i], &emad_array_in[i],
 		       sizeof(struct ffa_emad_v1_0));
 	}
@@ -542,6 +561,7 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 	size_t mrd_out_offset;
 	size_t emad_out_array_size;
 	size_t mrd_size = 0;
+	size_t orig_desc_size = orig->desc_size;
 
 	/* Populate the v1.0 descriptor format from the v1.1 struct. */
 	out->sender_id = mtd_orig->sender_id;
@@ -559,6 +579,12 @@ spmc_shm_convert_mtd_to_v1_0(struct spmc_shmem_obj *out_obj,
 	/* Copy across the emad structs. */
 	emad_in = emad_array_in;
 	for (unsigned int i = 0U; i < out->emad_count; i++) {
+		/* Bound check for emad array. */
+		if (((uint8_t *)emad_in + sizeof(struct ffa_emad_v1_0)) >
+				((uint8_t *) mtd_orig + orig_desc_size)) {
+			VERBOSE("%s: Invalid mtd structure.\n", __func__);
+			return false;
+		}
 		memcpy(&emad_array_out[i], emad_in,
 		       sizeof(struct ffa_emad_v1_0));
 
@@ -1442,7 +1468,7 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	}
 
 	/* Validate the caller is a valid participant. */
-	if (!spmc_shmem_obj_validate_id(&obj->desc, sp_ctx->sp_id)) {
+	if (!spmc_shmem_obj_validate_id(obj, sp_ctx->sp_id)) {
 		WARN("%s: Invalid endpoint ID (0x%x).\n",
 			__func__, sp_ctx->sp_id);
 		ret = FFA_ERROR_INVALID_PARAMETER;
@@ -1761,7 +1787,7 @@ int spmc_ffa_mem_relinquish(uint32_t smc_fid,
 	}
 
 	/* Validate the caller is a valid participant. */
-	if (!spmc_shmem_obj_validate_id(&obj->desc, sp_ctx->sp_id)) {
+	if (!spmc_shmem_obj_validate_id(obj, sp_ctx->sp_id)) {
 		WARN("%s: Invalid endpoint ID (0x%x).\n",
 			__func__, req->endpoint_array[0]);
 		ret = FFA_ERROR_INVALID_PARAMETER;
