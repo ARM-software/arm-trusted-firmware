@@ -83,10 +83,23 @@ void imx_set_sys_wakeup(unsigned int last_core, bool pdn)
 		 */
 		gpc_select_wakeup_raw_irq(CPU_A55C0);
 		gpc_select_wakeup_raw_irq(CPU_A55_PLAT);
+		/* Make sure MUB side clock is enabled */
+		mmio_write_32(LPCG(MUB_LPCG), 0x1);
+		/*
+		 * Enable the MU1B general interrupt 1 for M33 SW to wakeup
+		 * A55 by assert an interrupt
+		 */
+		mmio_setbits_32(MU1B_GIER, MU_GPI1);
 	} else {
 		/* Switch to GIC wakeup source for last_core and cluster */
 		gpc_select_wakeup_gic(CPU_A55C0);
 		gpc_select_wakeup_gic(CPU_A55_PLAT);
+
+		/* Make sure MUB side clock is enabled */
+		mmio_write_32(LPCG(MUB_LPCG), 0x1);
+		/* Clear pending General interrupt 1 and disable it */
+		mmio_clrbits_32(MU1B_GIER, MU_GPI1);
+		mmio_setbits_32(MU1B_GSR, MU_GPI1);
 	}
 
 	/* Set the GPC IMRs based on GIC IRQ mask setting */
@@ -291,7 +304,21 @@ void wakeupmix_pwr_down(void)
 
 		/* Wakeup mix controlled by A55 cluster power down: domain3 only */
 		src_mix_set_lpm(SRC_WKUP, 0x3, CM_MODE_WAIT);
+
+#if defined(PLAT_imx93)
+		/*
+		 * Keep wakeupmix voted by M33 LPM if M33 is enabled as M33 may
+		 * use resources from it.
+		 */
+		if (is_m33_disabled()) {
+			src_authen_config(SRC_WKUP, 0x8, 0x1);
+		} else {
+			src_authen_config(SRC_WKUP, 0xc, 0x1);
+		}
+#else
 		src_authen_config(SRC_WKUP, 0x8, 0x1);
+#endif
+
 		/* Wakeupmix mem off */
 		src_mem_lpm_en(SRC_WKUP_MEM, MEM_OFF);
 		/* Enable the handshake between sentinel & wakeupmix */

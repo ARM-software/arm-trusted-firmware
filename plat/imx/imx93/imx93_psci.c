@@ -301,11 +301,10 @@ void imx_pwr_domain_suspend(const psci_power_state_t *target_state)
 		/* Enable system suspend when A55 cluster is in SUSPEND MODE */
 		gpc_set_cpu_ss_mode(CPU_A55_PLAT, SS_SUSPEND);
 
-		/*
-		 * FIXME: Only use A55 cluster to trigger system sleep, force M33 into system sleep
-		 * this should be removed after M33 low power suspport is ready
-		 */
-		gpc_force_cpu_suspend(CPU_M33);
+		/* Force M33 into system sleep if M33 is not enabled. */
+		if (is_m33_disabled()) {
+			gpc_force_cpu_suspend(CPU_M33);
+		}
 		/* Put OSC into power down */
 		gpc_rosc_off(true);
 		/* Put PMIC into standby mode */
@@ -327,8 +326,11 @@ void imx_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 	if (is_local_state_retn(SYSTEM_PWR_STATE(target_state))) {
 		/* Disable system suspend when A55 cluster is in SUSPEND MODE */
 		gpc_set_cpu_ss_mode(CPU_A55_PLAT, 0x0);
-		/* Force CM33 into system sleep  */
-		gpc_unforce_cpu_suspend(CPU_M33);
+
+		if (is_m33_disabled()) {
+			gpc_unforce_cpu_suspend(CPU_M33);
+		}
+
 		/* Disable PMIC standby */
 		gpc_pmic_stby_en(false);
 		/* Disable OSC power down */
