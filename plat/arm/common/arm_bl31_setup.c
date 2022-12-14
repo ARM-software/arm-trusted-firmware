@@ -13,9 +13,7 @@
 #include <drivers/console.h>
 #include <lib/debugfs.h>
 #include <lib/extensions/ras.h>
-#if ENABLE_RME
 #include <lib/gpt_rme/gpt_rme.h>
-#endif
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>

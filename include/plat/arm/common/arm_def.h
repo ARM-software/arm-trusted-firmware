@@ -235,6 +235,8 @@
 #define ARM_DRAM2_SIZE			PLAT_ARM_DRAM2_SIZE
 #define ARM_DRAM2_END			(ARM_DRAM2_BASE +		\
 					 ARM_DRAM2_SIZE - 1U)
+/* Number of DRAM banks */
+#define ARM_DRAM_BANKS_NUM		2UL
 
 #define ARM_IRQ_SEC_PHY_TIMER		29
 

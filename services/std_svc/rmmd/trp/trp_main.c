@@ -62,7 +62,7 @@ void trp_setup(uint64_t x0,
 			   sizeof(trp_shared_region_start));
 
 	/* Perform early platform-specific setup */
-	trp_early_platform_setup((rmm_manifest_t *)trp_shared_region_start);
+	trp_early_platform_setup((struct rmm_manifest *)trp_shared_region_start);
 }
 
 int trp_validate_warmboot_args(uint64_t x0, uint64_t x1,

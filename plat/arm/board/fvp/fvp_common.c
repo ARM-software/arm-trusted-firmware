@@ -17,14 +17,13 @@
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <platform_def.h>
 #include <services/arm_arch_svc.h>
-#if ENABLE_RME
 #include <services/rmm_core_manifest.h>
-#endif
 #if SPM_MM
 #include <services/spm_mm_partition.h>
 #endif
 
 #include <plat/arm/common/arm_config.h>
+#include <plat/arm/common/arm_pas_def.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
@@ -531,15 +530,46 @@ size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared)
 	return (size_t)RMM_SHARED_SIZE;
 }
 
-int plat_rmmd_load_manifest(rmm_manifest_t *manifest)
+CASSERT(ARM_DRAM_BANKS_NUM == 2UL, ARM_DRAM_BANKS_NUM_mismatch);
+
+/* FVP DRAM banks */
+const struct dram_bank fvp_dram_banks[ARM_DRAM_BANKS_NUM] = {
+	{ARM_PAS_2_BASE, ARM_PAS_2_SIZE},
+	{ARM_PAS_4_BASE, ARM_PAS_4_SIZE}
+};
+
+int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
+	uint64_t check_sum;
+	struct dram_bank *bank_ptr;
+
 	assert(manifest != NULL);
 
 	manifest->version = RMMD_MANIFEST_VERSION;
 	manifest->padding = 0U; /* RES0 */
 	manifest->plat_data = (uintptr_t)NULL;
+	manifest->plat_dram.banks_num = ARM_DRAM_BANKS_NUM;
+
+	/* Array dram_banks[] follows dram_info structure */
+	bank_ptr = (struct dram_bank *)
+			((uintptr_t)&manifest->plat_dram.check_sum +
+			sizeof(manifest->plat_dram.check_sum));
+
+	manifest->plat_dram.dram_data = bank_ptr;
+
+	/* Copy FVP DRAM banks data to Boot Manifest */
+	(void)memcpy((void *)bank_ptr, &fvp_dram_banks, sizeof(fvp_dram_banks));
+
+	/* Calculate check sum of plat_dram structure */
+	check_sum = ARM_DRAM_BANKS_NUM + (uint64_t)bank_ptr;
+
+	for (unsigned long i = 0UL; i < ARM_DRAM_BANKS_NUM; i++) {
+		check_sum += bank_ptr[i].base + bank_ptr[i].size;
+	}
+
+	/* Check sum must be 0 */
+	manifest->plat_dram.check_sum = ~check_sum + 1UL;
 
 	return 0;
 }
-
-#endif
+#endif	/* ENABLE_RME */

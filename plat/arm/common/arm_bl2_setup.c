@@ -18,16 +18,12 @@
 #include <drivers/partition/partition.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
-#if ENABLE_RME
 #include <lib/gpt_rme/gpt_rme.h>
-#endif /* ENABLE_RME */
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
 #include <lib/utils.h>
-#if ENABLE_RME
 #include <plat/arm/common/arm_pas_def.h>
-#endif /* ENABLE_RME */
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 

@@ -14,7 +14,7 @@
 #include <lib/cassert.h>
 
 #define RMMD_MANIFEST_VERSION_MAJOR		U(0)
-#define RMMD_MANIFEST_VERSION_MINOR		U(1)
+#define RMMD_MANIFEST_VERSION_MINOR		U(2)
 
 /*
  * Manifest version encoding:
@@ -35,16 +35,44 @@
 #define RMMD_GET_MANIFEST_VERSION_MINOR(_version)			\
 	(_version & 0xFFFF)
 
-/* Boot manifest core structure as per v0.1 */
-typedef struct rmm_manifest {
-	uint32_t version;	/* Manifest version */
-	uint32_t padding;	/* RES0 */
-	uintptr_t plat_data;	/* Manifest platform data */
-} rmm_manifest_t;
+/* DRAM bank structure */
+struct dram_bank {
+	uintptr_t base;			/* Base address */
+	uint64_t size;			/* Size of bank */
+};
 
-CASSERT(offsetof(rmm_manifest_t, version) == 0,
-				rmm_manifest_t_version_unaligned);
-CASSERT(offsetof(rmm_manifest_t, plat_data) == 8,
-				rmm_manifest_t_plat_data_unaligned);
+CASSERT(offsetof(struct dram_bank, base) == 0,
+			rmm_manifest_base_unaligned);
+CASSERT(offsetof(struct dram_bank, size) == 8,
+			rmm_manifest_size_unaligned);
+
+/* DRAM layout info structure */
+struct dram_info {
+	uint64_t banks_num;		/* Number of DRAM banks */
+	struct dram_bank *dram_data;	/* Pointer to dram_bank[] */
+	uint64_t check_sum;		/* Checksum of dram_info data */
+};
+
+CASSERT(offsetof(struct dram_info, banks_num) == 0,
+			rmm_manifest_banks_num_unaligned);
+CASSERT(offsetof(struct dram_info, dram_data) == 8,
+			rmm_manifest_dram_data_unaligned);
+CASSERT(offsetof(struct dram_info, check_sum) == 16,
+			rmm_manifest_check_sum_unaligned);
+
+/* Boot manifest core structure as per v0.2 */
+struct rmm_manifest {
+	uint32_t version;		/* Manifest version */
+	uint32_t padding;		/* RES0 */
+	uintptr_t plat_data;		/* Manifest platform data */
+	struct dram_info plat_dram;	/* Platform DRAM data */
+};
+
+CASSERT(offsetof(struct rmm_manifest, version) == 0,
+			rmm_manifest_version_unaligned);
+CASSERT(offsetof(struct rmm_manifest, plat_data) == 8,
+			rmm_manifest_plat_data_unaligned);
+CASSERT(offsetof(struct rmm_manifest, plat_dram) == 16,
+			rmm_manifest_plat_dram_unaligned);
 
 #endif /* RMM_CORE_MANIFEST_H */

@@ -11,7 +11,7 @@
 
 #include <lib/psci/psci.h>
 #if defined(SPD_spmd)
- #include <services/spm_core_manifest.h>
+#include <services/spm_core_manifest.h>
 #endif
 #if ENABLE_RME
 #include <services/rmm_core_manifest.h>
@@ -37,6 +37,7 @@ struct bl_params;
 struct mmap_region;
 struct spm_mm_boot_info;
 struct sp_res_desc;
+struct rmm_manifest;
 enum fw_enc_status_t;
 
 /*******************************************************************************
@@ -322,7 +323,7 @@ int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
 int plat_rmmd_get_cca_realm_attest_key(uintptr_t buf, size_t *len,
 				       unsigned int type);
 size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared);
-int plat_rmmd_load_manifest(rmm_manifest_t *manifest);
+int plat_rmmd_load_manifest(struct rmm_manifest *manifest);
 #endif
 
 /*******************************************************************************

@@ -171,7 +171,7 @@ int rmmd_setup(void)
 	uint32_t ep_attr;
 	unsigned int linear_id = plat_my_core_pos();
 	rmmd_rmm_context_t *rmm_ctx = &rmm_context[linear_id];
-	rmm_manifest_t *manifest;
+	struct rmm_manifest *manifest;
 	int rc;
 
 	/* Make sure RME is supported. */
@@ -206,7 +206,7 @@ int rmmd_setup(void)
 					((void *)shared_buf_base != NULL));
 
 	/* Load the boot manifest at the beginning of the shared area */
-	manifest = (rmm_manifest_t *)shared_buf_base;
+	manifest = (struct rmm_manifest *)shared_buf_base;
 	rc = plat_rmmd_load_manifest(manifest);
 	if (rc != 0) {
 		ERROR("Error loading RMM Boot Manifest (%i)\n", rc);
