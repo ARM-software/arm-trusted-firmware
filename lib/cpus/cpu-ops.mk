@@ -572,6 +572,11 @@ ERRATA_A710_2008768	?=0
 # to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
 ERRATA_A710_2371105	?=0
 
+# Flag to apply erratum 2768515 workaround during power down. This erratum
+# applies to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-A710 cpu and is
+# still open.
+ERRATA_A710_2768515	?=0
+
 # Flag to apply erratum 2067956 workaround during reset. This erratum applies
 # to revision r0p0 of the Neoverse N2 cpu and is still open.
 ERRATA_N2_2067956	?=0
@@ -654,6 +659,11 @@ ERRATA_X2_2147715	?=0
 # Flag to apply erratum 2371105 workaround during reset. This erratum applies
 # to revision r0p0, r1p0 and r2p0 of the Cortex-X2 cpu and is fixed in r2p1.
 ERRATA_X2_2371105	?=0
+
+# Flag to apply erratum 2768515 workaround during power down. This erratum
+# applies to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is
+# still open.
+ERRATA_X2_2768515	?=0
 
 # Flag to apply erratum 2313909 workaround on powerdown. This erratum applies
 # to revisions r0p0 and r1p0 of the Cortex-X3 cpu, it is fixed in r1p1.
@@ -1208,6 +1218,10 @@ $(eval $(call add_define,ERRATA_A710_2008768))
 $(eval $(call assert_boolean,ERRATA_A710_2371105))
 $(eval $(call add_define,ERRATA_A710_2371105))
 
+# Process ERRATA_A710_2768515 flag
+$(eval $(call assert_boolean,ERRATA_A710_2768515))
+$(eval $(call add_define,ERRATA_A710_2768515))
+
 # Process ERRATA_N2_2067956 flag
 $(eval $(call assert_boolean,ERRATA_N2_2067956))
 $(eval $(call add_define,ERRATA_N2_2067956))
@@ -1287,6 +1301,10 @@ $(eval $(call add_define,ERRATA_X2_2147715))
 # Process ERRATA_X2_2371105 flag
 $(eval $(call assert_boolean,ERRATA_X2_2371105))
 $(eval $(call add_define,ERRATA_X2_2371105))
+
+# Process ERRATA_X2_2768515 flag
+$(eval $(call assert_boolean,ERRATA_X2_2768515))
+$(eval $(call add_define,ERRATA_X2_2768515))
 
 # Process ERRATA_X3_2313909 flag
 $(eval $(call assert_boolean,ERRATA_X3_2313909))
