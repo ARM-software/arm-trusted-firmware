@@ -214,8 +214,8 @@
 		};
 
 		optee@0xfce00000 {
+			compatible = "restricted-dma-pool";
 			reg = <0x00000000 0xfce00000 0 0x00200000>;
-			no-map;
 		};
 	};
 
