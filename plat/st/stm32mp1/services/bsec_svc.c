@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2016-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <platform_def.h>
 
 #include <common/debug.h>
 #include <drivers/st/bsec.h>
 #include <drivers/st/bsec2_reg.h>
 
+#include <platform_def.h>
 #include <stm32mp1_smc.h>
 
 #include "bsec_svc.h"
@@ -39,12 +39,7 @@ uint32_t bsec_main(uint32_t x1, uint32_t x2, uint32_t x3,
 			break;
 		}
 
-		result = bsec_shadow_register(x2);
-		if (result != BSEC_OK) {
-			break;
-		}
-
-		result = bsec_read_otp(ret_otp_value, x2);
+		result = bsec_shadow_read_otp(ret_otp_value, x2);
 		if (result != BSEC_OK) {
 			break;
 		}

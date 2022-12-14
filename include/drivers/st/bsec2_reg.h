@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2022-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -80,22 +80,17 @@
 #define GPLOCK_LOCK_SHIFT		4
 
 /* BSEC_OTP_STATUS Register */
-#define BSEC_MODE_STATUS_MASK		GENMASK(2, 0)
-#define BSEC_MODE_SECURE_MASK		BIT(0)
-#define BSEC_MODE_FULLDBG_MASK		BIT(1)
-#define BSEC_MODE_INVALID_MASK		BIT(2)
-#define BSEC_MODE_BUSY_MASK		BIT(3)
-#define BSEC_MODE_PROGFAIL_MASK		BIT(4)
-#define BSEC_MODE_PWR_MASK		BIT(5)
-#define BSEC_MODE_BIST1_LOCK_MASK	BIT(6)
-#define BSEC_MODE_BIST2_LOCK_MASK	BIT(7)
+#define BSEC_OTP_STATUS_SECURE		BIT(0)
+#define BSEC_OTP_STATUS_INVALID		BIT(2)
+#define BSEC_OTP_STATUS_BUSY		BIT(3)
+#define BSEC_OTP_STATUS_PROGFAIL	BIT(4)
+#define BSEC_OTP_STATUS_PWRON		BIT(5)
 
 /* BSEC_DENABLE Register */
 #define BSEC_HDPEN			BIT(4)
 #define BSEC_SPIDEN			BIT(5)
 #define BSEC_SPINDEN			BIT(6)
 #define BSEC_DBGSWGEN			BIT(10)
-#define BSEC_DEN_ALL_MSK		GENMASK(10, 0)
 
 /* BSEC_FENABLE Register */
 #define BSEC_FEN_ALL_MSK		GENMASK(14, 0)
