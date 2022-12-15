@@ -818,6 +818,11 @@ Common build options
    disabled). This configuration supports pre-Armv8.4 platforms (aka not
    implementing the ``FEAT_SEL2`` extension). This is an experimental feature.
 
+-  ``SPMC_OPTEE`` : This boolean option is used jointly with the SPM
+   Dispatcher option (``SPD=spmd``) and with ``SPMD_SPM_AT_SEL2=0`` to
+   indicate that the SPMC at S-EL1 is OP-TEE and an OP-TEE specific loading
+   mechanism should be used.
+
 -  ``SPMD_SPM_AT_SEL2`` : This boolean option is used jointly with the SPM
    Dispatcher option (``SPD=spmd``). When enabled (1) it indicates the SPMC
    component runs at the S-EL2 exception level provided by the ``FEAT_SEL2``

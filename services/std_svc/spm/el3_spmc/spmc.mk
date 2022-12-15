@@ -20,7 +20,9 @@ SPMC_LP_SOURCES  := $(addprefix ${PLAT_DIR}/, \
                     ${PLAT}_el3_spmc_logical_sp.c)
 
 
+ifneq ($(wildcard $(SPMC_LP_SOURCES)),)
 SPMC_SOURCES += $(SPMC_LP_SOURCES)
+endif
 
 # Let the top-level Makefile know that we intend to include a BL32 image
 NEED_BL32		:=	yes

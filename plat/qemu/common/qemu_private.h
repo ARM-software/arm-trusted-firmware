@@ -26,6 +26,8 @@ void qemu_configure_mmu_el3(unsigned long total_base, unsigned long total_size,
 			unsigned long coh_start, unsigned long coh_limit);
 
 void plat_qemu_io_setup(void);
+int qemu_io_register_sp_pkg(const char *name, const char *uuid,
+			    uintptr_t load_addr);
 unsigned int plat_qemu_calc_core_pos(u_register_t mpidr);
 
 void qemu_console_init(void);
