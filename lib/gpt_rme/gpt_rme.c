@@ -762,7 +762,7 @@ void gpt_disable(void)
  * Return
  *   Negative Linux error code in the event of a failure, 0 for success.
  */
-int gpt_init_l0_tables(unsigned int pps, uintptr_t l0_mem_base,
+int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		       size_t l0_mem_size)
 {
 	int ret;
