@@ -517,6 +517,11 @@ ERRATA_V1_2294912	?=0
 # to revisions r0p0, r1p0 and r1p1 of the Neoverse V1 cpu and is still open.
 ERRATA_V1_2372203	?=0
 
+# Flag to apply erratum 2743093 workaround during powerdown. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2  of the Neoverse V1 cpu and is
+# still open.
+ERRATA_V1_2743093	?=0
+
 # Flag to apply erratum 1987031 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
 ERRATA_A710_1987031	?=0
@@ -1170,6 +1175,10 @@ $(eval $(call add_define,ERRATA_V1_2294912))
 # Process ERRATA_V1_2372203 flag
 $(eval $(call assert_boolean,ERRATA_V1_2372203))
 $(eval $(call add_define,ERRATA_V1_2372203))
+
+# Process ERRATA_V1_2743093 flag
+$(eval $(call assert_boolean,ERRATA_V1_2743093))
+$(eval $(call add_define,ERRATA_V1_2743093))
 
 # Process ERRATA_A710_1987031 flag
 $(eval $(call assert_boolean,ERRATA_A710_1987031))
