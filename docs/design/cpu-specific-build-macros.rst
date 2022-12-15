@@ -460,6 +460,10 @@ For Neoverse V1, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r1p0 and r1p1 of the CPU.
    It is still open.
 
+-  ``ERRATA_V1_2743093``: This applies errata 2743093 workaround to Neoverse-V1
+   CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1 and r1p2 of the
+   CPU. It is still open.
+
 For Cortex-A710, the following errata build flags are defined :
 
 -  ``ERRATA_A710_1987031``: This applies errata 1987031 workaround to

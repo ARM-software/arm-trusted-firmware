@@ -462,6 +462,30 @@ func check_errata_2372203
 	b	cpu_rev_var_ls
 endfunc check_errata_2372203
 
+	/* ----------------------------------------------------
+	 * Errata Workaround for Neoverse V1 Errata #2743093.
+	 * This applies to revisions <= r1p2 and is still open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * ----------------------------------------------------
+	 */
+func errata_neoverse_v1_2743093_wa
+	mov	x17, x30
+	bl	check_errata_2743093
+	cbz	x0, 1f
+
+	/* dsb before isb of power down sequence */
+	dsb	sy
+1:
+	ret	x17
+endfunc errata_neoverse_v1_2743093_wa
+
+func check_errata_2743093
+	/* Applies to all revisions <= r1p2 */
+	mov	x1, #0x12
+	b	cpu_rev_var_ls
+endfunc check_errata_2743093
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -483,6 +507,12 @@ func neoverse_v1_core_pwr_dwn
 	mrs	x0, NEOVERSE_V1_CPUPWRCTLR_EL1
 	orr	x0, x0, #NEOVERSE_V1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	msr	NEOVERSE_V1_CPUPWRCTLR_EL1, x0
+#if ERRATA_V1_2743093
+	mov	x15, x30
+	bl	cpu_get_rev_var
+	bl	errata_neoverse_v1_2743093_wa
+	mov	x30, x15
+#endif /* ERRATA_V1_2743093 */
 	isb
 	ret
 endfunc neoverse_v1_core_pwr_dwn
@@ -513,6 +543,7 @@ func neoverse_v1_errata_report
 	report_errata ERRATA_V1_2216392, neoverse_v1, 2216392
 	report_errata ERRATA_V1_2294912, neoverse_v1, 2294912
 	report_errata ERRATA_V1_2372203, neoverse_v1, 2372203
+	report_errata ERRATA_V1_2743093, neoverse_v1, 2743093
 	report_errata WORKAROUND_CVE_2022_23960, neoverse_v1, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
