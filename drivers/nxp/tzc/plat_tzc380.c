@@ -91,20 +91,37 @@ int populate_tzc380_reg_list(struct tzc380_reg *tzc380_reg_list,
 	}
 	/* Continue with list entries for index > 0 */
 	if (dram_idx == 0) {
-		/* TZC Region 1 on DRAM0 for Secure Memory*/
+		/*
+		 * Region 1: Secure Region on DRAM 1 for  2MB out of  2MB,
+		 * excluding 0 sub-region(=256KB).
+		 */
 		tzc380_reg_list[list_idx].secure = TZC_ATTR_SP_S_RW;
 		tzc380_reg_list[list_idx].enabled = TZC_ATTR_REGION_ENABLE;
 		tzc380_reg_list[list_idx].addr = dram_start_addr + dram_size;
-		tzc380_reg_list[list_idx].size = secure_dram_sz;
+		tzc380_reg_list[list_idx].size = TZC_REGION_SIZE_2M;
 		tzc380_reg_list[list_idx].sub_mask = 0x0; /* all enabled */
 		list_idx++;
 
-		/* TZC Region 2 on DRAM0 for Shared Memory*/
+		/*
+		 * Region 2: Secure Region on DRAM 1 for 54MB out of 64MB,
+		 * excluding 1 sub-rgion(=8MB) of 8MB.
+		 */
+		tzc380_reg_list[list_idx].secure = TZC_ATTR_SP_S_RW;
+		tzc380_reg_list[list_idx].enabled = TZC_ATTR_REGION_ENABLE;
+		tzc380_reg_list[list_idx].addr = dram_start_addr + dram_size + shrd_dram_sz;
+		tzc380_reg_list[list_idx].size = TZC_REGION_SIZE_64M;
+		tzc380_reg_list[list_idx].sub_mask = 0x80; /* Disable sub-region 7 */
+		list_idx++;
+
+		/*
+		 * Region 3: Secure Region on DRAM 1 for  6MB out of  8MB,
+		 * excluding 2 sub-rgion(=1MB) of 2MB.
+		 */
 		tzc380_reg_list[list_idx].secure = TZC_ATTR_SP_S_RW;
 		tzc380_reg_list[list_idx].enabled = TZC_ATTR_REGION_ENABLE;
 		tzc380_reg_list[list_idx].addr = dram_start_addr + dram_size + secure_dram_sz;
-		tzc380_reg_list[list_idx].size = shrd_dram_sz;
-		tzc380_reg_list[list_idx].sub_mask = 0x0; /* all enabled */
+		tzc380_reg_list[list_idx].size = TZC_REGION_SIZE_8M;
+		tzc380_reg_list[list_idx].sub_mask = 0xC0; /* Disable sub-region 6 & 7 */
 		list_idx++;
 
 	}

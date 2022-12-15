@@ -19,8 +19,8 @@ include ${PLAT_COMMON_PATH}/plat_make_helper/plat_build_macros.mk
 
 # For Security Features
 DISABLE_FUSE_WRITE	:= 1
-ifeq (${TRUSTED_BOARD_BOOT}, 1)
 $(eval $(call SET_NXP_MAKE_FLAG,SMMU_NEEDED,BL2))
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
 $(eval $(call SET_NXP_MAKE_FLAG,SFP_NEEDED,BL2))
 $(eval $(call SET_NXP_MAKE_FLAG,SNVS_NEEDED,BL2))
 SECURE_BOOT	:= yes

@@ -11,11 +11,18 @@
 /* To store sector size to be erase on flash*/
 #define PHY_ERASE_SIZE F_SECTOR_ERASE_SZ
 
+/*Structure to save DDR controller timing register 0 and 4 values*/
+struct ddr_ctrl_reg_values {
+	uint32_t timing_cfg0;
+	uint32_t timing_cfg4;
+};
+
 /*Structure to implement address-data map tuples to store PHY training values*/
 struct phy_training_values {
 	uint32_t addr;
 	uint16_t data;
 };
+
 /* Saves PHY Training Register values after cold reset
  *@param[in] phy_ptr array to store addresses of PHYs
  *@param[in] address_to_store address to save PHY training register values
@@ -24,6 +31,8 @@ struct phy_training_values {
  *to be saved
  *@param[in] train2d flag to store whether 2D training registers are to
  *be saved or not
+ *@param[in] ddrctrl_regs to save ddr controller registers in case
+ *NXP_APPLY_MAX_CDD is applied
  *
  *PHY training values will be stored on flash at contigous memory in the order:
  *1D training registers, 2D training registers
@@ -31,9 +40,13 @@ struct phy_training_values {
  *
  *if train2d is false saving 2D training registers will be skipped
  */
-int save_phy_training_values(uint16_t **phy_ptr, uint32_t address_to_store,
-		uint32_t num_of_phy, int train2d);
 
+int save_phy_training_values(uint16_t **phy_ptr, uint32_t address_to_store,
+		uint32_t num_of_phy, int train2d
+#ifdef NXP_APPLY_MAX_CDD
+		, struct ddr_ctrl_reg_values *ddrctrl_regs
+#endif
+		);
 /*Restores PHY Training Register values after warm reset
  *@param[in] phy_ptr array to store addresses of PHYs
  *@param[in] address_to_store address to retrieve PHY training register
@@ -42,12 +55,17 @@ int save_phy_training_values(uint16_t **phy_ptr, uint32_t address_to_store,
  *to be restored
  *@param[in] train2d flag to store whether 2D training registers are
  *to be restored or not
- *
+ *@param[in] ddrctrl_regs to restore  ddr controller registers in case
+ *NXP_APPLY_MAX_CDD is applied
  *if train2d is false saving 2D training registers will be skipped
  */
 
 int restore_phy_training_values(uint16_t **phy_ptr, uint32_t address_to_restore,
-		uint32_t num_of_phy, int train2d);
+		uint32_t num_of_phy, int train2d
+#ifdef NXP_APPLY_MAX_CDD
+		, struct ddr_ctrl_reg_values *ddrctrl_regs
+#endif
+		);
 
 /*
  * Address data tuples to store the PHY 1D
