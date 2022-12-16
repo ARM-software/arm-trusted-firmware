@@ -97,6 +97,18 @@ void gic_set_gicr_frames(const uintptr_t *plat_gicr_frames)
 	gicr_frames = plat_gicr_frames;
 }
 
+/*
+ * Override gic_data interrupt_props/interrupt_props_num pointers,
+ * mainly for SoC version specific interrupt configuration.
+ */
+void gic_set_interrupt_props(const interrupt_prop_t *interrupt_props,
+			     unsigned int interrupt_props_num)
+{
+	assert(interrupt_props != NULL);
+	gic_data.interrupt_props = interrupt_props;
+	gic_data.interrupt_props_num = interrupt_props_num;
+}
+
 /******************************************************************************
  * ARM common helper to initialize the GIC. Only invoked by BL31. The platform
  * should have already done any prerequisites.
