@@ -74,8 +74,12 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	ipi_local_id = x1 & UNSIGNED32_MASK;
 	ipi_remote_id = x2 & UNSIGNED32_MASK;
 
-	if ((GET_SMC_OEN(smc_fid) >= OEN_TAP_START) &&
-	    (GET_SMC_OEN(smc_fid) <= OEN_TOS_END)) {
+	/* OEN Number 48 to 63 is for Trusted App and OS
+	 * GET_SMC_OEN limits the return value of OEN number to 63 by bitwise
+	 * AND operation with 0x3F.
+	 * Upper limit check for OEN value is not required.
+	 */
+	if (GET_SMC_OEN(smc_fid) >= OEN_TAP_START) {
 		is_secure = 1;
 	} else {
 		is_secure = 0;
