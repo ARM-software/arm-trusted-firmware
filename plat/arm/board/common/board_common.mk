@@ -12,6 +12,7 @@ BL1_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 BL2_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
+ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_dev_rotpk.S
 ifneq (${ARM_CRYPTOCELL_INTEG}, 1)
 # ROTPK hash location
 ifeq (${ARM_ROTPK_LOCATION}, regs)
@@ -20,7 +21,6 @@ else ifeq (${ARM_ROTPK_LOCATION}, devel_rsa)
 	CRYPTO_ALG=rsa
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_RSA_ID
 	ARM_ROTPK_HASH = plat/arm/board/common/rotpk/arm_rotpk_rsa_sha256.bin
-	ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_dev_rotpk.S
 $(eval $(call add_define_val,ARM_ROTPK_HASH,'"$(ARM_ROTPK_HASH)"'))
 $(BUILD_PLAT)/bl2/arm_dev_rotpk.o : $(ARM_ROTPK_HASH)
 $(warning Development keys support for FVP is deprecated. Use `regs` \
@@ -29,7 +29,6 @@ else ifeq (${ARM_ROTPK_LOCATION}, devel_ecdsa)
 	CRYPTO_ALG=ec
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_ECDSA_ID
 	ARM_ROTPK_HASH = plat/arm/board/common/rotpk/arm_rotpk_ecdsa_sha256.bin
-	ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_dev_rotpk.S
 $(eval $(call add_define_val,ARM_ROTPK_HASH,'"$(ARM_ROTPK_HASH)"'))
 $(BUILD_PLAT)/bl2/arm_dev_rotpk.o : $(ARM_ROTPK_HASH)
 $(warning Development keys support for FVP is deprecated. Use `regs` \
