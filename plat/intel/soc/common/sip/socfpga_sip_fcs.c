@@ -411,7 +411,10 @@ int intel_fcs_decryption_ext(uint32_t session_id, uint32_t context_id,
 				(uint32_t *) &payload, payload_size,
 				CMD_CASUAL, resp_data, &resp_len);
 
-	if (status < 0) {
+	if (status == MBOX_RET_SDOS_DECRYPTION_ERROR_102 ||
+		status == MBOX_RET_SDOS_DECRYPTION_ERROR_103) {
+		*mbox_error = -status;
+	} else if (status < 0) {
 		*mbox_error = -status;
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
