@@ -193,6 +193,11 @@ PLAT_INCLUDES		+=	-Iinclude/lib/psa
 
 endif
 
+# Add this include as first, before arm_common.mk. This is necessary because
+# arm_common.mk builds Mbed TLS, and platform_test.mk can change the list of
+# Mbed TLS files that are to be compiled (LIBMBEDTLS_SRCS).
+include plat/arm/board/tc/platform_test.mk
+
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
 include plat/arm/soc/common/soc_css.mk

@@ -101,7 +101,7 @@
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
  * plus a little space for growth.
  */
-#define PLAT_ARM_MAX_BL1_RW_SIZE	0xD000
+#define PLAT_ARM_MAX_BL1_RW_SIZE	0x12000
 
 /*
  * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
@@ -129,7 +129,7 @@
  * BL2 and BL1-RW. Current size is considering that TRUSTED_BOARD_BOOT and
  * MEASURED_BOOT is enabled.
  */
-#define PLAT_ARM_MAX_BL31_SIZE		0x47000
+#define PLAT_ARM_MAX_BL31_SIZE		0x60000
 
 /*
  * Size of cacheable stacks
@@ -152,7 +152,7 @@
 # if SPM_MM
 #  define PLATFORM_STACK_SIZE		0x500
 # else
-#  define PLATFORM_STACK_SIZE		0x400
+#  define PLATFORM_STACK_SIZE		0xa00
 # endif
 #elif defined(IMAGE_BL32)
 # define PLATFORM_STACK_SIZE		0x440
