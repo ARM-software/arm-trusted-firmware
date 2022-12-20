@@ -746,6 +746,27 @@ static uint64_t rxtx_unmap_handler(uint32_t smc_fid,
 }
 
 /*
+ * Helper function to populate the properties field of a Partition Info Get
+ * descriptor.
+ */
+static uint32_t
+partition_info_get_populate_properties(uint32_t sp_properties,
+				       enum sp_execution_state sp_ec_state)
+{
+	uint32_t properties = sp_properties;
+	uint32_t ec_state;
+
+	/* Determine the execution state of the SP. */
+	ec_state = sp_ec_state == SP_STATE_AARCH64 ?
+		   FFA_PARTITION_INFO_GET_AARCH64_STATE :
+		   FFA_PARTITION_INFO_GET_AARCH32_STATE;
+
+	properties |= ec_state << FFA_PARTITION_INFO_GET_EXEC_STATE_SHIFT;
+
+	return properties;
+}
+
+/*
  * Collate the partition information in a v1.1 partition information
  * descriptor format, this will be converter later if required.
  */
@@ -771,7 +792,12 @@ static int partition_info_get_handler_v1_1(uint32_t *uuid,
 			desc = &partitions[*partition_count];
 			desc->ep_id = el3_lp_descs[index].sp_id;
 			desc->execution_ctx_count = PLATFORM_CORE_COUNT;
-			desc->properties = el3_lp_descs[index].properties;
+			/* LSPs must be AArch64. */
+			desc->properties =
+				partition_info_get_populate_properties(
+					el3_lp_descs[index].properties,
+					SP_STATE_AARCH64);
+
 			if (null_uuid) {
 				copy_uuid(desc->uuid, el3_lp_descs[index].uuid);
 			}
@@ -794,7 +820,11 @@ static int partition_info_get_handler_v1_1(uint32_t *uuid,
 			 * S-EL1 SPs.
 			 */
 			desc->execution_ctx_count = PLATFORM_CORE_COUNT;
-			desc->properties = sp_desc[index].properties;
+			desc->properties =
+				partition_info_get_populate_properties(
+					sp_desc[index].properties,
+					sp_desc[index].execution_state);
+
 			if (null_uuid) {
 				copy_uuid(desc->uuid, sp_desc[index].uuid);
 			}
@@ -835,7 +865,7 @@ static uint32_t partition_info_get_handler_count_only(uint32_t *uuid)
 
 /*
  * If the caller of the PARTITION_INFO_GET ABI was a v1.0 caller, populate
- * the coresponding descriptor format from the v1.1 descriptor array.
+ * the corresponding descriptor format from the v1.1 descriptor array.
  */
 static uint64_t partition_info_populate_v1_0(struct ffa_partition_info_v1_1
 					     *partitions,
@@ -860,8 +890,10 @@ static uint64_t partition_info_populate_v1_0(struct ffa_partition_info_v1_1
 		v1_0_partitions[index].ep_id = partitions[index].ep_id;
 		v1_0_partitions[index].execution_ctx_count =
 			partitions[index].execution_ctx_count;
+		/* Only report v1.0 properties. */
 		v1_0_partitions[index].properties =
-			partitions[index].properties;
+			(partitions[index].properties &
+			FFA_PARTITION_INFO_GET_PROPERTIES_V1_0_MASK);
 	}
 	return 0;
 }
