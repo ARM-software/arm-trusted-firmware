@@ -22,6 +22,8 @@
 #define CLKMGR_PLLDIV_OUTDIV_QDIV_MASK			GENMASK(26, 24)
 #define CLKMGR_PLLDIV_OUTDIV_QDIV_OFFSET		24
 
+#define CLKMGR_PLLOUTDIV_C0CNT_MASK			GENMASK(4, 0)
+#define CLKMGR_PLLOUTDIV_C0CNT_OFFSET			0
 #define CLKMGR_PLLOUTDIV_C1CNT_MASK			GENMASK(12, 8)
 #define CLKMGR_PLLOUTDIV_C1CNT_OFFSET			8
 #define CLKMGR_PLLDIV_OUTDIV_QDIV_MASK			GENMASK(26, 24)
@@ -52,6 +54,7 @@
 uint64_t clk_get_pll_output_hz(void);
 uint64_t get_l4_clk(void);
 uint32_t get_clk_freq(uint32_t psrc_reg);
+uint32_t get_mpu_clk(void);
 uint32_t get_cpu_clk(void);
 
 #endif

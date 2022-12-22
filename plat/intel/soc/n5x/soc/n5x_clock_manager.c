@@ -95,6 +95,44 @@ uint64_t get_l4_clk(void)
 	return clock;
 }
 
+/* Return MPU clock */
+uint32_t get_mpu_clk(void)
+{
+	uint32_t clock = 0;
+	uint32_t mainpll_c0cnt;
+	uint32_t perpll_c0cnt;
+	uint32_t clksrc;
+
+	mainpll_c0cnt = ((get_clk_freq(CLKMGR_MAINPLL_PLLOUTDIV)) &
+			CLKMGR_PLLOUTDIV_C0CNT_MASK) >> CLKMGR_PLLOUTDIV_C0CNT_OFFSET;
+
+	perpll_c0cnt = ((get_clk_freq(CLKMGR_PERPLL_PLLOUTDIV)) &
+			CLKMGR_PLLOUTDIV_C0CNT_MASK) >> CLKMGR_PLLOUTDIV_C0CNT_OFFSET;
+
+	clksrc = ((get_clk_freq(CLKMGR_MAINPLL_NOCCLK)) & CLKMGR_CLKSRC_MASK) >>
+			CLKMGR_CLKSRC_OFFSET;
+
+	switch (clksrc) {
+	case CLKMGR_CLKSRC_MAIN:
+		clock = clk_get_pll_output_hz();
+		clock /= 1 + mainpll_c0cnt;
+		break;
+
+	case CLKMGR_CLKSRC_PER:
+		clock = clk_get_pll_output_hz();
+		clock /= 1 + perpll_c0cnt;
+		break;
+
+	default:
+		return 0;
+	}
+
+	clock /= BIT(((get_clk_freq(CLKMGR_MAINPLL_NOCDIV)) >>
+			CLKMGR_NOCDIV_L4MAIN_OFFSET) & CLKMGR_NOCDIV_DIVIDER_MASK);
+
+	return clock;
+}
+
 /* Calculate clock frequency based on parameter */
 uint32_t get_clk_freq(uint32_t psrc_reg)
 {
@@ -110,7 +148,7 @@ uint32_t get_cpu_clk(void)
 {
 	uint32_t cpu_clk = 0;
 
-	cpu_clk = get_l4_clk()/PLAT_SYS_COUNTER_CONVERT_TO_MHZ;
+	cpu_clk = get_mpu_clk()/PLAT_HZ_CONVERT_TO_MHZ;
 
 	return cpu_clk;
 }

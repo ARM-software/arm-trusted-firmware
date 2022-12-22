@@ -388,12 +388,22 @@ uint32_t get_mmc_clk(void)
 	return mmc_clk;
 }
 
+/* Return MPU clock */
+uint32_t get_mpu_clk(void)
+{
+	uint32_t mpu_clk;
+
+	mpu_clk = get_clk_freq(CLKMGR_MAINPLL_NOCCLK, CLKMGR_MAINPLL_PLLC0,
+				CLKMGR_PERPLL_PLLC0);
+	return mpu_clk;
+}
+
 /* Get cpu freq clock */
 uint32_t get_cpu_clk(void)
 {
 	uint32_t cpu_clk;
 
-	cpu_clk = get_l3_clk()/PLAT_SYS_COUNTER_CONVERT_TO_MHZ;
+	cpu_clk = get_mpu_clk()/PLAT_HZ_CONVERT_TO_MHZ;
 
 	return cpu_clk;
 }
