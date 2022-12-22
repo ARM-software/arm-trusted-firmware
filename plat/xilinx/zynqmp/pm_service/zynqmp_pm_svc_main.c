@@ -22,10 +22,10 @@
 #endif
 
 #include <plat_private.h>
-#include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_defs.h"
 #include "pm_ipi.h"
+#include "zynqmp_pm_api_sys.h"
 
 /* pm_up = !0 - UP, pm_up = 0 - DOWN */
 static int32_t pm_up, ipi_irq_flag;

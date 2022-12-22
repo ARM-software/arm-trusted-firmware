@@ -1,6 +1,6 @@
 # Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
 # Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
-# Copyright (C) 2022, Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -87,10 +87,10 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a78.S			\
 				plat/common/plat_psci_common.c
 ifeq ($(TFA_NO_PM), 0)
-BL31_SOURCES		+=	plat/xilinx/versal/pm_service/pm_api_sys.c	\
+BL31_SOURCES		+=	plat/xilinx/common/pm_service/pm_api_sys.c	\
 				plat/xilinx/common/pm_service/pm_ipi.c		\
 				${PLAT_PATH}/plat_psci_pm.c			\
-				plat/xilinx/versal/pm_service/pm_svc_main.c	\
+				plat/xilinx/common/pm_service/pm_svc_main.c	\
 				${PLAT_PATH}/pm_service/pm_client.c		\
 				${PLAT_PATH}/versal_net_ipi.c
 else

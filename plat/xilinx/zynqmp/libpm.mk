@@ -8,8 +8,8 @@ LIBPM_SRCS	:=	$(addprefix plat/xilinx/common/pm_service/,	\
 			pm_ipi.c)
 
 LIBPM_SRCS      +=      $(addprefix plat/xilinx/zynqmp/pm_service/,  \
-                        pm_svc_main.c 					\
-			pm_api_sys.c					\
+                        zynqmp_pm_svc_main.c 				\
+			zynqmp_pm_api_sys.c				\
 			pm_api_pinctrl.c				\
 			pm_api_ioctl.c					\
 			pm_api_clock.c					\

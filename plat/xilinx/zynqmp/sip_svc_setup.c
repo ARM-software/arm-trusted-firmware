@@ -14,7 +14,7 @@
 
 #include <custom_svc.h>
 #include "ipi_mailbox_svc.h"
-#include "pm_svc_main.h"
+#include "zynqmp_pm_svc_main.h"
 
 /* SMC function IDs for SiP Service queries */
 #define ZYNQMP_SIP_SVC_CALL_COUNT	U(0x8200ff00)
