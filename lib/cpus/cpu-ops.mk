@@ -563,7 +563,8 @@ ERRATA_A710_2147715	?=0
 ERRATA_A710_2216384	?=0
 
 # Flag to apply erratum 2282622 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
+# to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-A710 cpu and is still
+# open.
 ERRATA_A710_2282622	?=0
 
 # Flag to apply erratum 2291219 workaround during reset. This erratum applies

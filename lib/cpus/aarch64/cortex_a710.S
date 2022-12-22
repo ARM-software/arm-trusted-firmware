@@ -355,22 +355,22 @@ endfunc check_errata_2216384
 
 /* ---------------------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2282622.
- * This applies to revision r0p0, r1p0 and r2p0.
- * It is fixed in r2p1.
+ * This applies to revision r0p0, r1p0, r2p0 and r2p1.
+ * It is still open.
  * Inputs:
  * x0: variant[4:7] and revision[0:3] of current cpu.
  * Shall clobber: x0, x1, x17
  * ---------------------------------------------------------------
  */
 func errata_a710_2282622_wa
-	/* Compare x0 against revision r2p0 */
+	/* Compare x0 against revision r2p1 */
 	mov     x17, x30
 	bl      check_errata_2282622
 	cbz     x0, 1f
 
 	/* Apply the workaround */
 	mrs     x1, CORTEX_A710_CPUACTLR2_EL1
-	orr     x1, x1, BIT(0)
+	orr     x1, x1, #BIT(0)
 	msr     CORTEX_A710_CPUACTLR2_EL1, x1
 
 1:
@@ -378,8 +378,8 @@ func errata_a710_2282622_wa
 endfunc errata_a710_2282622_wa
 
 func check_errata_2282622
-	/* Applies to r0p0, r1p0 and r2p0 */
-	mov     x1, #0x20
+	/* Applies to r0p0, r1p0, r2p0 and r2p1 */
+	mov     x1, #0x21
 	b       cpu_rev_var_ls
 endfunc check_errata_2282622
 
