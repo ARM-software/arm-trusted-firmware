@@ -50,54 +50,6 @@ static const struct pm_proc pm_procs_all[] = {
 
 const struct pm_proc *primary_proc = &pm_procs_all[0];
 
-/* Interrupt to PM node index map */
-static enum pm_device_node_idx irq_node_map[IRQ_MAX + 1] = {
-	[13] = XPM_NODEIDX_DEV_GPIO,
-	[14] = XPM_NODEIDX_DEV_I2C_0,
-	[15] = XPM_NODEIDX_DEV_I2C_1,
-	[16] = XPM_NODEIDX_DEV_SPI_0,
-	[17] = XPM_NODEIDX_DEV_SPI_1,
-	[18] = XPM_NODEIDX_DEV_UART_0,
-	[19] = XPM_NODEIDX_DEV_UART_1,
-	[20] = XPM_NODEIDX_DEV_CAN_FD_0,
-	[21] = XPM_NODEIDX_DEV_CAN_FD_1,
-	[22] = XPM_NODEIDX_DEV_USB_0,
-	[23] = XPM_NODEIDX_DEV_USB_0,
-	[24] = XPM_NODEIDX_DEV_USB_0,
-	[25] = XPM_NODEIDX_DEV_USB_0,
-	[26] = XPM_NODEIDX_DEV_USB_0,
-	[37] = XPM_NODEIDX_DEV_TTC_0,
-	[38] = XPM_NODEIDX_DEV_TTC_0,
-	[39] = XPM_NODEIDX_DEV_TTC_0,
-	[40] = XPM_NODEIDX_DEV_TTC_1,
-	[41] = XPM_NODEIDX_DEV_TTC_1,
-	[42] = XPM_NODEIDX_DEV_TTC_1,
-	[43] = XPM_NODEIDX_DEV_TTC_2,
-	[44] = XPM_NODEIDX_DEV_TTC_2,
-	[45] = XPM_NODEIDX_DEV_TTC_2,
-	[46] = XPM_NODEIDX_DEV_TTC_3,
-	[47] = XPM_NODEIDX_DEV_TTC_3,
-	[48] = XPM_NODEIDX_DEV_TTC_3,
-	[56] = XPM_NODEIDX_DEV_GEM_0,
-	[57] = XPM_NODEIDX_DEV_GEM_0,
-	[58] = XPM_NODEIDX_DEV_GEM_1,
-	[59] = XPM_NODEIDX_DEV_GEM_1,
-	[60] = XPM_NODEIDX_DEV_ADMA_0,
-	[61] = XPM_NODEIDX_DEV_ADMA_1,
-	[62] = XPM_NODEIDX_DEV_ADMA_2,
-	[63] = XPM_NODEIDX_DEV_ADMA_3,
-	[64] = XPM_NODEIDX_DEV_ADMA_4,
-	[65] = XPM_NODEIDX_DEV_ADMA_5,
-	[66] = XPM_NODEIDX_DEV_ADMA_6,
-	[67] = XPM_NODEIDX_DEV_ADMA_7,
-	[74] = XPM_NODEIDX_DEV_USB_0,
-	[126] = XPM_NODEIDX_DEV_SDIO_0,
-	[127] = XPM_NODEIDX_DEV_SDIO_0,
-	[128] = XPM_NODEIDX_DEV_SDIO_1,
-	[129] = XPM_NODEIDX_DEV_SDIO_1,
-	[142] = XPM_NODEIDX_DEV_RTC,
-};
-
 /**
  * irq_to_pm_node_idx - Get PM node index corresponding to the interrupt number
  * @irq:	Interrupt number
@@ -106,8 +58,75 @@ static enum pm_device_node_idx irq_node_map[IRQ_MAX + 1] = {
  */
 enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
 {
+	enum pm_device_node_idx dev_idx = XPM_NODEIDX_DEV_MIN;
+
 	assert(irq <= IRQ_MAX);
-	return irq_node_map[irq];
+
+	switch (irq) {
+	case 13:
+		dev_idx = XPM_NODEIDX_DEV_GPIO;
+		break;
+	case 14:
+		dev_idx = XPM_NODEIDX_DEV_I2C_0;
+		break;
+	case 15:
+		dev_idx = XPM_NODEIDX_DEV_I2C_1;
+		break;
+	case 16:
+		dev_idx = XPM_NODEIDX_DEV_SPI_0;
+		break;
+	case 17:
+		dev_idx = XPM_NODEIDX_DEV_SPI_1;
+		break;
+	case 18:
+		dev_idx = XPM_NODEIDX_DEV_UART_0;
+		break;
+	case 19:
+		dev_idx = XPM_NODEIDX_DEV_UART_1;
+		break;
+	case 20:
+		dev_idx = XPM_NODEIDX_DEV_CAN_FD_0;
+		break;
+	case 21:
+		dev_idx = XPM_NODEIDX_DEV_CAN_FD_1;
+		break;
+	case 22:
+	case 23:
+	case 24:
+	case 25:
+	case 26:
+		dev_idx = XPM_NODEIDX_DEV_USB_0;
+		break;
+	case 37:
+	case 38:
+	case 39:
+		dev_idx = XPM_NODEIDX_DEV_TTC_0;
+		break;
+	case 40:
+	case 41:
+	case 42:
+		dev_idx = XPM_NODEIDX_DEV_TTC_1;
+		break;
+	case 43:
+	case 44:
+	case 45:
+		dev_idx = XPM_NODEIDX_DEV_TTC_2;
+		break;
+	case 46:
+	case 47:
+	case 48:
+		dev_idx = XPM_NODEIDX_DEV_TTC_3;
+		break;
+	case 56:
+	case 57:
+		dev_idx = XPM_NODEIDX_DEV_GEM_0;
+		break;
+	default:
+		dev_idx = XPM_NODEIDX_DEV_MIN;
+		break;
+	}
+
+	return dev_idx;
 }
 
 /**
