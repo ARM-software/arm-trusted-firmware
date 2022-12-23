@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Xilinx, Inc. All rights reserved.
- * Copyright (C) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -168,6 +168,133 @@ const struct pm_proc *pm_get_proc(uint32_t cpuid)
 }
 
 /**
+ * irq_to_pm_node_idx - Get PM node index corresponding to the interrupt number
+ * @irq:        Interrupt number
+ *
+ * Return:      PM node index corresponding to the specified interrupt
+ */
+enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
+{
+	enum pm_device_node_idx dev_idx = XPM_NODEIDX_DEV_MIN;
+
+	assert(irq <= IRQ_MAX);
+
+	switch (irq) {
+	case 20:
+		dev_idx = XPM_NODEIDX_DEV_GPIO;
+		break;
+	case 21:
+		dev_idx = XPM_NODEIDX_DEV_I2C_0;
+		break;
+	case 22:
+		dev_idx = XPM_NODEIDX_DEV_I2C_1;
+		break;
+	case 23:
+		dev_idx = XPM_NODEIDX_DEV_SPI_0;
+		break;
+	case 24:
+		dev_idx = XPM_NODEIDX_DEV_SPI_1;
+		break;
+	case 25:
+		dev_idx = XPM_NODEIDX_DEV_UART_0;
+		break;
+	case 26:
+		dev_idx = XPM_NODEIDX_DEV_UART_1;
+		break;
+	case 27:
+		dev_idx = XPM_NODEIDX_DEV_CAN_FD_0;
+		break;
+	case 28:
+		dev_idx = XPM_NODEIDX_DEV_CAN_FD_1;
+		break;
+	case 29:
+	case 30:
+	case 31:
+	case 32:
+	case 33:
+	case 98:
+		dev_idx = XPM_NODEIDX_DEV_USB_0;
+		break;
+	case 34:
+	case 35:
+	case 36:
+	case 37:
+	case 38:
+	case 99:
+		dev_idx = XPM_NODEIDX_DEV_USB_1;
+		break;
+	case 39:
+	case 40:
+		dev_idx = XPM_NODEIDX_DEV_GEM_0;
+		break;
+	case 41:
+	case 42:
+		dev_idx = XPM_NODEIDX_DEV_GEM_1;
+		break;
+	case 43:
+	case 44:
+	case 45:
+		dev_idx = XPM_NODEIDX_DEV_TTC_0;
+		break;
+	case 46:
+	case 47:
+	case 48:
+		dev_idx = XPM_NODEIDX_DEV_TTC_1;
+		break;
+	case 49:
+	case 50:
+	case 51:
+		dev_idx = XPM_NODEIDX_DEV_TTC_2;
+		break;
+	case 52:
+	case 53:
+	case 54:
+		dev_idx = XPM_NODEIDX_DEV_TTC_3;
+		break;
+	case 72:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_0;
+		break;
+	case 73:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_1;
+		break;
+	case 74:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_2;
+		break;
+	case 75:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_3;
+		break;
+	case 76:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_4;
+		break;
+	case 77:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_5;
+		break;
+	case 78:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_6;
+		break;
+	case 79:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_7;
+		break;
+	case 184:
+	case 185:
+		dev_idx = XPM_NODEIDX_DEV_SDIO_0;
+		break;
+	case 186:
+	case 187:
+		dev_idx = XPM_NODEIDX_DEV_SDIO_1;
+		break;
+	case 200:
+		dev_idx = XPM_NODEIDX_DEV_RTC;
+		break;
+	default:
+		dev_idx = XPM_NODEIDX_DEV_MIN;
+		break;
+	}
+
+	return dev_idx;
+}
+
+/**
  * pm_client_suspend() - Client-specific suspend actions
  *
  * This function should contain any PU-specific actions
@@ -184,7 +311,9 @@ void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
 
 	pm_client_lock_get();
 
-	/* TODO: Set wakeup source */
+	if (state == PM_STATE_SUSPEND_TO_RAM) {
+		pm_client_set_wakeup_sources((uint32_t)proc->node_id);
+	}
 
 	val = read_cpu_pwrctrl_val();
 	val |= CORE_PWRDN_EN_BIT_MASK;
