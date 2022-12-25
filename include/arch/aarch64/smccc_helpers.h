@@ -75,6 +75,24 @@
 #define SMC_SET_GP(_h, _g, _v)					\
 	write_ctx_reg((get_gpregs_ctx(_h)), (_g), (_v))
 
+
+/* Useful for SMCCCv1.2 */
+#define SMC_RET18(_h, _x0, _x1, _x2, _x3, _x4, _x5, _x6, _x7, _x8, _x9, \
+		_x10, _x11, _x12, _x13, _x14, _x15, _x16, _x17) {	\
+	SMC_SET_GP(_h, CTX_GPREG_X8, _x8);				\
+	SMC_SET_GP(_h, CTX_GPREG_X9, _x9);				\
+	SMC_SET_GP(_h, CTX_GPREG_X10, _x10);				\
+	SMC_SET_GP(_h, CTX_GPREG_X11, _x11);				\
+	SMC_SET_GP(_h, CTX_GPREG_X12, _x12);				\
+	SMC_SET_GP(_h, CTX_GPREG_X13, _x13);				\
+	SMC_SET_GP(_h, CTX_GPREG_X14, _x14);				\
+	SMC_SET_GP(_h, CTX_GPREG_X15, _x15);				\
+	SMC_SET_GP(_h, CTX_GPREG_X16, _x16);				\
+	SMC_SET_GP(_h, CTX_GPREG_X17, _x17);				\
+	SMC_RET8(_h, (_x0), (_x1), (_x2), (_x3), (_x4), (_x5), (_x6),	\
+		(_x7));							\
+}
+
 /*
  * Convenience macros to access EL3 context registers using handle provided to
  * SMC handler. These take the offset values defined in context.h

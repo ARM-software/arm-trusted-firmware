@@ -581,10 +581,40 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 #endif
 	cm_set_next_eret_context(secure_state_out);
 
+#if SPMD_SPM_AT_SEL2
+	/*
+	 * If SPMC is at SEL2, save additional registers x8-x17, which may
+	 * be used in FF-A calls such as FFA_PARTITION_INFO_GET_REGS.
+	 * Note that technically, all SPMCs can support this, but this code is
+	 * under ifdef to minimize breakage in case other SPMCs do not save
+	 * and restore x8-x17.
+	 * We also need to pass through these registers since not all FF-A ABIs
+	 * modify x8-x17, in which case, SMCCC requires that these registers be
+	 * preserved, so the SPMD passes through these registers and expects the
+	 * SPMC to save and restore (potentially also modify) them.
+	 */
+	SMC_RET18(cm_get_context(secure_state_out), smc_fid, x1, x2, x3, x4,
+			SMC_GET_GP(handle, CTX_GPREG_X5),
+			SMC_GET_GP(handle, CTX_GPREG_X6),
+			SMC_GET_GP(handle, CTX_GPREG_X7),
+			SMC_GET_GP(handle, CTX_GPREG_X8),
+			SMC_GET_GP(handle, CTX_GPREG_X9),
+			SMC_GET_GP(handle, CTX_GPREG_X10),
+			SMC_GET_GP(handle, CTX_GPREG_X11),
+			SMC_GET_GP(handle, CTX_GPREG_X12),
+			SMC_GET_GP(handle, CTX_GPREG_X13),
+			SMC_GET_GP(handle, CTX_GPREG_X14),
+			SMC_GET_GP(handle, CTX_GPREG_X15),
+			SMC_GET_GP(handle, CTX_GPREG_X16),
+			SMC_GET_GP(handle, CTX_GPREG_X17)
+			);
+
+#else
 	SMC_RET8(cm_get_context(secure_state_out), smc_fid, x1, x2, x3, x4,
 			SMC_GET_GP(handle, CTX_GPREG_X5),
 			SMC_GET_GP(handle, CTX_GPREG_X6),
 			SMC_GET_GP(handle, CTX_GPREG_X7));
+#endif
 }
 
 /*******************************************************************************
@@ -1042,7 +1072,23 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			return spmd_ffa_error_return(handle, FFA_ERROR_DENIED);
 		}
 		break; /* Not reached */
+#if MAKE_FFA_VERSION(1, 1) <= FFA_VERSION_COMPILED
+	case FFA_PARTITION_INFO_GET_REGS_SMC64:
+		if (secure_origin) {
+			/* TODO: Future patches to enable support for this */
+			return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+		}
 
+		/* Call only supported with SMCCC 1.2+ */
+		if (MAKE_SMCCC_VERSION(SMCCC_MAJOR_VERSION, SMCCC_MINOR_VERSION) < 0x10002) {
+			return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+		}
+
+		return spmd_smc_forward(smc_fid, secure_origin,
+					x1, x2, x3, x4, cookie,
+					handle, flags);
+		break; /* Not reached */
+#endif
 	default:
 		WARN("SPM: Unsupported call 0x%08x\n", smc_fid);
 		return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
