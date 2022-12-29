@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,15 @@ struct gicv3_config_t gicv3_config;
 struct hw_topology_t soc_topology;
 struct uart_serial_config_t uart_serial_config;
 struct cpu_timer_t cpu_timer;
+struct ns_dram_layout dram_layout;
+
+/*
+ * Each NS DRAM bank entry is 'reg' node property which is
+ * a sequence of (address, length) pairs of 32-bit values.
+ */
+#define DRAM_ENTRY_SIZE		(4UL * sizeof(uint32_t))
+
+CASSERT(ARM_DRAM_NUM_BANKS == 2UL, ARM_DRAM_NUM_BANKS_mismatch);
 
 #define ILLEGAL_ADDR	ULL(~0)
 
@@ -293,7 +302,58 @@ int fconf_populate_cpu_timer(uintptr_t config)
 	return 0;
 }
 
+int fconf_populate_dram_layout(uintptr_t config)
+{
+	int node, len;
+	const uint32_t *reg;
+
+	/* Necessary to work with libfdt APIs */
+	const void *hw_config_dtb = (const void *)config;
+
+	/* Find 'memory' node */
+	node = fdt_node_offset_by_prop_value(hw_config_dtb, -1, "device_type",
+					     "memory", sizeof("memory"));
+	if (node < 0) {
+		WARN("FCONF: Unable to locate 'memory' node\n");
+		return node;
+	}
+
+	reg = fdt_getprop(hw_config_dtb, node, "reg", &len);
+	if (reg == NULL) {
+		ERROR("FCONF failed to read 'reg' property\n");
+		return len;
+	}
+
+	switch (len) {
+	case DRAM_ENTRY_SIZE:
+		/* 1 DRAM bank */
+		dram_layout.num_banks = 1UL;
+		break;
+	case 2UL * DRAM_ENTRY_SIZE:
+		/* 2 DRAM banks */
+		dram_layout.num_banks = 2UL;
+		break;
+	default:
+		ERROR("FCONF: Invalid 'memory' node\n");
+		return -FDT_ERR_BADLAYOUT;
+	}
+
+	for (unsigned long i = 0UL; i < dram_layout.num_banks; i++) {
+		int err = fdt_get_reg_props_by_index(
+				hw_config_dtb, node, (int)i,
+				&dram_layout.dram_bank[i].base,
+				(size_t *)&dram_layout.dram_bank[i].size);
+		if (err < 0) {
+			ERROR("FCONF: Failed to read 'reg' property #%lu of 'memory' node\n", i);
+			return err;
+		}
+	}
+
+	return 0;
+}
+
 FCONF_REGISTER_POPULATOR(HW_CONFIG, gicv3_config, fconf_populate_gicv3_config);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, topology, fconf_populate_topology);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, uart_config, fconf_populate_uart_config);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, cpu_timer, fconf_populate_cpu_timer);
+FCONF_REGISTER_POPULATOR(HW_CONFIG, dram_layout, fconf_populate_dram_layout);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #include <drivers/arm/gicv2.h>
 #include <drivers/arm/sp804_delay_timer.h>
 #include <drivers/generic_delay_timer.h>
+#include <fconf_hw_config_getter.h>
 #include <lib/mmio.h>
 #include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
@@ -530,45 +531,72 @@ size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared)
 	return (size_t)RMM_SHARED_SIZE;
 }
 
-CASSERT(ARM_DRAM_BANKS_NUM == 2UL, ARM_DRAM_BANKS_NUM_mismatch);
-
-/* FVP DRAM banks */
-const struct dram_bank fvp_dram_banks[ARM_DRAM_BANKS_NUM] = {
-	{ARM_PAS_2_BASE, ARM_PAS_2_SIZE},
-	{ARM_PAS_4_BASE, ARM_PAS_4_SIZE}
-};
-
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
-	uint64_t check_sum;
-	struct dram_bank *bank_ptr;
+	uint64_t checksum, num_banks;
+	struct ns_dram_bank *bank_ptr;
 
 	assert(manifest != NULL);
+
+	/* Get number of DRAM banks */
+	num_banks = FCONF_GET_PROPERTY(hw_config, dram_layout, num_banks);
+	assert(num_banks <= ARM_DRAM_NUM_BANKS);
 
 	manifest->version = RMMD_MANIFEST_VERSION;
 	manifest->padding = 0U; /* RES0 */
 	manifest->plat_data = (uintptr_t)NULL;
-	manifest->plat_dram.banks_num = ARM_DRAM_BANKS_NUM;
+	manifest->plat_dram.num_banks = num_banks;
 
-	/* Array dram_banks[] follows dram_info structure */
-	bank_ptr = (struct dram_bank *)
-			((uintptr_t)&manifest->plat_dram.check_sum +
-			sizeof(manifest->plat_dram.check_sum));
+	/*
+	 * Array ns_dram_banks[] follows ns_dram_info structure:
+	 *
+	 * +-----------------------------------+
+	 * |  offset  |   field   |  comment   |
+	 * +----------+-----------+------------+
+	 * |    0     |  version  | 0x00000002 |
+	 * +----------+-----------+------------+
+	 * |    4     |  padding  | 0x00000000 |
+	 * +----------+-----------+------------+
+	 * |    8     | plat_data |    NULL    |
+	 * +----------+-----------+------------+
+	 * |    16    | num_banks |            |
+	 * +----------+-----------+            |
+	 * |    24    |   banks   | plat_dram  |
+	 * +----------+-----------+            |
+	 * |    32    | checksum  |            |
+	 * +----------+-----------+------------+
+	 * |    40    |  base 0   |            |
+	 * +----------+-----------+   bank[0]  |
+	 * |    48    |  size 0   |            |
+	 * +----------+-----------+------------+
+	 * |    56    |  base 1   |            |
+	 * +----------+-----------+   bank[1]  |
+	 * |    64    |  size 1   |            |
+	 * +----------+-----------+------------+
+	 */
+	bank_ptr = (struct ns_dram_bank *)
+			((uintptr_t)&manifest->plat_dram.checksum +
+			sizeof(manifest->plat_dram.checksum));
 
-	manifest->plat_dram.dram_data = bank_ptr;
+	manifest->plat_dram.banks = bank_ptr;
 
-	/* Copy FVP DRAM banks data to Boot Manifest */
-	(void)memcpy((void *)bank_ptr, &fvp_dram_banks, sizeof(fvp_dram_banks));
+	/* Calculate checksum of plat_dram structure */
+	checksum = num_banks + (uint64_t)bank_ptr;
 
-	/* Calculate check sum of plat_dram structure */
-	check_sum = ARM_DRAM_BANKS_NUM + (uint64_t)bank_ptr;
+	/* Store FVP DRAM banks data in Boot Manifest */
+	for (unsigned long i = 0UL; i < num_banks; i++) {
+		uintptr_t base = FCONF_GET_PROPERTY(hw_config, dram_layout, dram_bank[i].base);
+		uint64_t size = FCONF_GET_PROPERTY(hw_config, dram_layout, dram_bank[i].size);
 
-	for (unsigned long i = 0UL; i < ARM_DRAM_BANKS_NUM; i++) {
-		check_sum += bank_ptr[i].base + bank_ptr[i].size;
+		bank_ptr[i].base = base;
+		bank_ptr[i].size = size;
+
+		/* Update checksum */
+		checksum += base + size;
 	}
 
-	/* Check sum must be 0 */
-	manifest->plat_dram.check_sum = ~check_sum + 1UL;
+	/* Checksum must be 0 */
+	manifest->plat_dram.checksum = ~checksum + 1UL;
 
 	return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,57 +22,57 @@
  *	- Bits [30:16] Major version
  *	- Bits [15:0] Minor version
  */
-#define _RMMD_MANIFEST_VERSION(_major, _minor)				\
+#define SET_RMMD_MANIFEST_VERSION(_major, _minor)		\
 	((((_major) & 0x7FFF) << 16) | ((_minor) & 0xFFFF))
 
-#define RMMD_MANIFEST_VERSION _RMMD_MANIFEST_VERSION(			\
-				RMMD_MANIFEST_VERSION_MAJOR,		\
+#define RMMD_MANIFEST_VERSION	SET_RMMD_MANIFEST_VERSION(	\
+				RMMD_MANIFEST_VERSION_MAJOR,	\
 				RMMD_MANIFEST_VERSION_MINOR)
 
-#define RMMD_GET_MANIFEST_VERSION_MAJOR(_version)			\
+#define RMMD_GET_MANIFEST_VERSION_MAJOR(_version)		\
 	((_version >> 16) & 0x7FFF)
 
-#define RMMD_GET_MANIFEST_VERSION_MINOR(_version)			\
+#define RMMD_GET_MANIFEST_VERSION_MINOR(_version)		\
 	(_version & 0xFFFF)
 
-/* DRAM bank structure */
-struct dram_bank {
+/* NS DRAM bank structure */
+struct ns_dram_bank {
 	uintptr_t base;			/* Base address */
 	uint64_t size;			/* Size of bank */
 };
 
-CASSERT(offsetof(struct dram_bank, base) == 0,
+CASSERT(offsetof(struct ns_dram_bank, base) == 0UL,
 			rmm_manifest_base_unaligned);
-CASSERT(offsetof(struct dram_bank, size) == 8,
+CASSERT(offsetof(struct ns_dram_bank, size) == 8UL,
 			rmm_manifest_size_unaligned);
 
-/* DRAM layout info structure */
-struct dram_info {
-	uint64_t banks_num;		/* Number of DRAM banks */
-	struct dram_bank *dram_data;	/* Pointer to dram_bank[] */
-	uint64_t check_sum;		/* Checksum of dram_info data */
+/* NS DRAM layout info structure */
+struct ns_dram_info {
+	uint64_t num_banks;		/* Number of NS DRAM banks */
+	struct ns_dram_bank *banks;	/* Pointer to ns_dram_bank[] */
+	uint64_t checksum;		/* Checksum of ns_dram_info data */
 };
 
-CASSERT(offsetof(struct dram_info, banks_num) == 0,
-			rmm_manifest_banks_num_unaligned);
-CASSERT(offsetof(struct dram_info, dram_data) == 8,
+CASSERT(offsetof(struct ns_dram_info, num_banks) == 0UL,
+			rmm_manifest_num_banks_unaligned);
+CASSERT(offsetof(struct ns_dram_info, banks) == 8UL,
 			rmm_manifest_dram_data_unaligned);
-CASSERT(offsetof(struct dram_info, check_sum) == 16,
-			rmm_manifest_check_sum_unaligned);
+CASSERT(offsetof(struct ns_dram_info, checksum) == 16UL,
+			rmm_manifest_checksum_unaligned);
 
 /* Boot manifest core structure as per v0.2 */
 struct rmm_manifest {
 	uint32_t version;		/* Manifest version */
 	uint32_t padding;		/* RES0 */
 	uintptr_t plat_data;		/* Manifest platform data */
-	struct dram_info plat_dram;	/* Platform DRAM data */
+	struct ns_dram_info plat_dram;	/* Platform NS DRAM data */
 };
 
-CASSERT(offsetof(struct rmm_manifest, version) == 0,
+CASSERT(offsetof(struct rmm_manifest, version) == 0UL,
 			rmm_manifest_version_unaligned);
-CASSERT(offsetof(struct rmm_manifest, plat_data) == 8,
+CASSERT(offsetof(struct rmm_manifest, plat_data) == 8UL,
 			rmm_manifest_plat_data_unaligned);
-CASSERT(offsetof(struct rmm_manifest, plat_dram) == 16,
+CASSERT(offsetof(struct rmm_manifest, plat_dram) == 16UL,
 			rmm_manifest_plat_dram_unaligned);
 
 #endif /* RMM_CORE_MANIFEST_H */
