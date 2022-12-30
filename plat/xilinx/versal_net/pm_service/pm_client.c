@@ -201,6 +201,7 @@ static uint32_t pm_get_cpuid(uint32_t nid)
 void pm_client_wakeup(const struct pm_proc *proc)
 {
 	uint32_t cpuid = pm_get_cpuid(proc->node_id);
+	uintptr_t val;
 
 	if (cpuid == UNDEFINED_CPUID) {
 		return;
@@ -208,7 +209,16 @@ void pm_client_wakeup(const struct pm_proc *proc)
 
 	bakery_lock_get(&pm_client_secure_lock);
 
-	/* TODO: clear powerdown bit for affected cpu */
+	/* Clear powerdown request */
+	val = read_cpu_pwrctrl_val();
+	val &= ~CORE_PWRDN_EN_BIT_MASK;
+	write_cpu_pwrctrl_val(val);
+
+	isb();
+
+	/* Disabled power down interrupt */
+	mmio_write_32(APU_PCIL_CORE_X_IDS_POWER_REG(cpuid),
+			APU_PCIL_CORE_X_IDS_POWER_MASK);
 
 	bakery_lock_release(&pm_client_secure_lock);
 }
