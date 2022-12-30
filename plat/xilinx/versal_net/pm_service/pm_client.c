@@ -164,6 +164,10 @@ void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
 
 	isb();
 
+	/* Clear power down interrupt status before enabling */
+	mmio_write_32(APU_PCIL_CORE_X_ISR_POWER_REG(cpu_id),
+		      APU_PCIL_CORE_X_ISR_POWER_MASK);
+	/* Enable power down interrupt */
 	mmio_write_32(APU_PCIL_CORE_X_IEN_POWER_REG(cpu_id),
 		      APU_PCIL_CORE_X_IEN_POWER_MASK);
 
