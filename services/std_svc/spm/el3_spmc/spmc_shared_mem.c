@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1142,6 +1142,7 @@ long spmc_ffa_mem_send(uint32_t smc_fid,
 	struct mailbox *mbox = spmc_get_mbox_desc(secure_origin);
 	ffa_mtd_flag32_t mtd_flag;
 	uint32_t ffa_version = get_partition_ffa_version(secure_origin);
+	size_t min_desc_size;
 
 	if (address != 0U || page_count != 0U) {
 		WARN("%s: custom memory region for message not supported.\n",
@@ -1156,11 +1157,18 @@ long spmc_ffa_mem_send(uint32_t smc_fid,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
 
-	/*
-	 * Check if the descriptor is smaller than the v1.0 descriptor. The
-	 * descriptor cannot be smaller than this structure.
-	 */
-	if (fragment_length < sizeof(struct ffa_mtd_v1_0)) {
+	if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
+		min_desc_size = sizeof(struct ffa_mtd_v1_0);
+	} else if (ffa_version == MAKE_FFA_VERSION(1, 1)) {
+		min_desc_size = sizeof(struct ffa_mtd);
+	} else {
+		WARN("%s: bad FF-A version.\n", __func__);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Check if the descriptor is too small for the FF-A version. */
+	if (fragment_length < min_desc_size) {
 		WARN("%s: bad first fragment size %u < %zu\n",
 		     __func__, fragment_length, sizeof(struct ffa_mtd_v1_0));
 		return spmc_ffa_error_return(handle,
