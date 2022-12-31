@@ -5,6 +5,7 @@
  */
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
@@ -699,6 +700,87 @@ spmc_populate_ffa_v1_0_descriptor(void *dst, struct spmc_shmem_obj *orig_obj,
 		return 0;
 }
 
+static int
+spmc_validate_mtd_start(struct ffa_mtd *desc, uint32_t ffa_version,
+			size_t fragment_length, size_t total_length)
+{
+	unsigned long long emad_end;
+	unsigned long long emad_size;
+	unsigned long long emad_offset;
+	unsigned int min_desc_size;
+
+	/* Determine the appropriate minimum descriptor size. */
+	if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
+		min_desc_size = sizeof(struct ffa_mtd_v1_0);
+	} else if (ffa_version == MAKE_FFA_VERSION(1, 1)) {
+		min_desc_size = sizeof(struct ffa_mtd);
+	} else {
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+	if (fragment_length < min_desc_size) {
+		WARN("%s: invalid length %zu < %u\n", __func__, fragment_length,
+		     min_desc_size);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+
+	if (desc->emad_count == 0U) {
+		WARN("%s: unsupported attribute desc count %u.\n",
+		     __func__, desc->emad_count);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+
+	/*
+	 * If the caller is using FF-A v1.0 interpret the descriptor as a v1.0
+	 * format, otherwise assume it is a v1.1 format.
+	 */
+	if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
+		emad_offset = emad_size = sizeof(struct ffa_emad_v1_0);
+	} else {
+		if (!is_aligned(desc->emad_offset, 16)) {
+			WARN("%s: Emad offset %" PRIx32 " is not 16-byte aligned.\n",
+			     __func__, desc->emad_offset);
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+		if (desc->emad_offset < sizeof(struct ffa_mtd)) {
+			WARN("%s: Emad offset too small: 0x%" PRIx32 " < 0x%zx.\n",
+			     __func__, desc->emad_offset,
+			     sizeof(struct ffa_mtd));
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+		emad_offset = desc->emad_offset;
+		if (desc->emad_size < sizeof(struct ffa_emad_v1_0)) {
+			WARN("%s: Bad emad size (%" PRIu32 " < %zu).\n", __func__,
+			     desc->emad_size, sizeof(struct ffa_emad_v1_0));
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+		if (!is_aligned(desc->emad_size, 16)) {
+			WARN("%s: Emad size 0x%" PRIx32 " is not 16-byte aligned.\n",
+			     __func__, desc->emad_size);
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+		emad_size = desc->emad_size;
+	}
+
+	/*
+	 * Overflow is impossible: the arithmetic happens in at least 64-bit
+	 * precision, but all of the operands are bounded by UINT32_MAX, and
+	 * ((2^32 - 1)^2 + (2^32 - 1) + (2^32 - 1)) = ((2^32 - 1) * (2^32 + 1))
+	 * = (2^64 - 1).
+	 */
+	CASSERT(sizeof(desc->emad_count == 4), assert_emad_count_max_too_large);
+	emad_end = (desc->emad_count * (unsigned long long)emad_size) +
+		   (unsigned long long)sizeof(struct ffa_comp_mrd) +
+		   (unsigned long long)emad_offset;
+
+	if (emad_end > total_length) {
+		WARN("%s: Composite memory region extends beyond descriptor: 0x%llx > 0x%zx\n",
+		     __func__, emad_end, total_length);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+
+	return 0;
+}
+
 /**
  * spmc_shmem_check_obj - Check that counts in descriptor match overall size.
  * @obj:	  Object containing ffa_memory_region_descriptor.
@@ -960,6 +1042,12 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 
 	if (obj->desc_filled == 0U) {
 		/* First fragment, descriptor header has been copied */
+		ret = spmc_validate_mtd_start(&obj->desc, ffa_version,
+					      fragment_length, obj->desc_size);
+		if (ret != 0) {
+			goto err_bad_desc;
+		}
+
 		obj->desc.handle = spmc_shmem_obj_state.next_handle++;
 		obj->desc.flags |= mtd_flag;
 	}
