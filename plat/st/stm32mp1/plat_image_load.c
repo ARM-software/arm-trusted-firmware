@@ -5,6 +5,7 @@
  */
 
 #include <common/desc_image_load.h>
+#include <plat/common/platform.h>
 
 /*******************************************************************************
  * This function flushes the data structures so that they are visible

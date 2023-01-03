@@ -79,7 +79,7 @@ static void crypto_lib_init(void)
 	}
 }
 
-int get_plain_pk_from_asn1(void *pk_ptr, unsigned int pk_len, void **plain_pk,
+static int get_plain_pk_from_asn1(void *pk_ptr, unsigned int pk_len, void **plain_pk,
 			   unsigned int *len, int *pk_alg)
 {
 	int ret;

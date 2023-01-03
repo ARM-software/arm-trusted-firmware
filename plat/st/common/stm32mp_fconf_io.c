@@ -28,7 +28,7 @@ static io_block_spec_t gpt_block_spec = {
 #endif
 
 #if (STM32MP_SDMMC || STM32MP_EMMC) && PSA_FWU_SUPPORT
-io_block_spec_t metadata_block_spec = {
+static io_block_spec_t metadata_block_spec = {
 	.offset = 0,    /* To be filled at runtime */
 	.length = 0,    /* To be filled at runtime */
 };
