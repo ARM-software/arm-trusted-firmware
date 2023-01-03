@@ -85,9 +85,6 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 	p = v3_ext.p;
 	end = v3_ext.p + v3_ext.len;
 
-	mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
-			     MBEDTLS_ASN1_SEQUENCE);
-
 	while (p < end) {
 		zeromem(&extn_oid, sizeof(extn_oid));
 		is_critical = 0; /* DEFAULT FALSE */
@@ -178,7 +175,7 @@ static int cert_parse(void *img, unsigned int img_len)
 		return IMG_PARSER_ERR_FORMAT;
 	}
 
-	if (len > (size_t)(end - p)) {
+	if (len != (size_t)(end - p)) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
 	crt_end = p + len;
@@ -274,6 +271,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	pk_end = p + len;
 	pk.len = pk_end - pk.p;
 
+	/* algorithm */
 	ret = mbedtls_asn1_get_tag(&p, pk_end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
@@ -281,7 +279,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	}
 	p += len;
 
-	ret = mbedtls_asn1_get_tag(&p, pk_end, &len, MBEDTLS_ASN1_BIT_STRING);
+	/* Key is a BIT STRING and must use all bytes in SubjectPublicKeyInfo */
+	ret = mbedtls_asn1_get_bitstring_null(&p, pk_end, &len);
 	if ((ret != 0) || (p + len != pk_end)) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -341,13 +340,13 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
 	 * -- must use all remaining bytes in TBSCertificate
 	 */
-	v3_ext.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
 	if ((ret != 0) || (len != (size_t)(end - p))) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
-	v3_ext.len = end - v3_ext.p;
+	v3_ext.p = p;
+	v3_ext.len = len;
 
 	/*
 	 * Check extensions integrity.  At least one extension is
@@ -422,7 +421,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * signatureValue       BIT STRING
 	 */
 	signature.p = p;
-	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_BIT_STRING);
+	ret = mbedtls_asn1_get_bitstring_null(&p, end, &len);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
