@@ -123,6 +123,9 @@ void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
 /* Function to get BOOT_MODE backup register address */
 uintptr_t stm32_get_bkpr_boot_mode_addr(void);
 
+/* Display board information from the value found in OTP fuse */
+void stm32_display_board_info(uint32_t board_id);
+
 #if PSA_FWU_SUPPORT
 void stm32mp1_fwu_set_boot_idx(void);
 uint32_t stm32_get_and_dec_fwu_trial_boot_cnt(void);

@@ -16,27 +16,6 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-/* Internal layout of the 32bit OTP word board_id */
-#define BOARD_ID_BOARD_NB_MASK		GENMASK(31, 16)
-#define BOARD_ID_BOARD_NB_SHIFT		16
-#define BOARD_ID_VARCPN_MASK		GENMASK(15, 12)
-#define BOARD_ID_VARCPN_SHIFT		12
-#define BOARD_ID_REVISION_MASK		GENMASK(11, 8)
-#define BOARD_ID_REVISION_SHIFT		8
-#define BOARD_ID_VARFG_MASK		GENMASK(7, 4)
-#define BOARD_ID_VARFG_SHIFT		4
-#define BOARD_ID_BOM_MASK		GENMASK(3, 0)
-
-#define BOARD_ID2NB(_id)		(((_id) & BOARD_ID_BOARD_NB_MASK) >> \
-					 BOARD_ID_BOARD_NB_SHIFT)
-#define BOARD_ID2VARCPN(_id)		(((_id) & BOARD_ID_VARCPN_MASK) >> \
-					 BOARD_ID_VARCPN_SHIFT)
-#define BOARD_ID2REV(_id)		(((_id) & BOARD_ID_REVISION_MASK) >> \
-					 BOARD_ID_REVISION_SHIFT)
-#define BOARD_ID2VARFG(_id)		(((_id) & BOARD_ID_VARFG_MASK) >> \
-					 BOARD_ID_VARFG_SHIFT)
-#define BOARD_ID2BOM(_id)		((_id) & BOARD_ID_BOM_MASK)
-
 #if STM32MP13
 #define TAMP_BOOT_MODE_BACKUP_REG_ID	U(30)
 #endif
@@ -516,23 +495,14 @@ void stm32mp_print_cpuinfo(void)
 
 void stm32mp_print_boardinfo(void)
 {
-	uint32_t board_id = 0;
+	uint32_t board_id = 0U;
 
 	if (stm32_get_otp_value(BOARD_ID_OTP, &board_id) != 0) {
 		return;
 	}
 
 	if (board_id != 0U) {
-		char rev[2];
-
-		rev[0] = BOARD_ID2REV(board_id) - 1 + 'A';
-		rev[1] = '\0';
-		NOTICE("Board: MB%04x Var%u.%u Rev.%s-%02u\n",
-		       BOARD_ID2NB(board_id),
-		       BOARD_ID2VARCPN(board_id),
-		       BOARD_ID2VARFG(board_id),
-		       rev,
-		       BOARD_ID2BOM(board_id));
+		stm32_display_board_info(board_id);
 	}
 }
 
