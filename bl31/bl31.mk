@@ -42,6 +42,7 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				bl31/aarch64/ea_delegate.S			\
 				bl31/aarch64/runtime_exceptions.S		\
 				bl31/bl31_context_mgmt.c			\
+				bl31/bl31_traps.c				\
 				common/runtime_svc.c				\
 				lib/cpus/aarch64/dsu_helpers.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
