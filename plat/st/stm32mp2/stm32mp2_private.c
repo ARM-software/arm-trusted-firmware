@@ -10,6 +10,7 @@
 
 #include <platform_def.h>
 
+#define BKPR_FWU_INFO	48U
 #define BKPR_BOOT_MODE	96U
 
 #if defined(IMAGE_BL31)
@@ -327,6 +328,13 @@ uintptr_t stm32_get_bkpr_boot_mode_addr(void)
 {
 	return tamp_bkpr(BKPR_BOOT_MODE);
 }
+
+#if PSA_FWU_SUPPORT
+uintptr_t stm32_get_bkpr_fwu_info_addr(void)
+{
+	return tamp_bkpr(BKPR_FWU_INFO);
+}
+#endif /* PSA_FWU_SUPPORT */
 
 uintptr_t stm32_ddrdbg_get_base(void)
 {
