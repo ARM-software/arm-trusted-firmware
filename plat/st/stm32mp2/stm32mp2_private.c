@@ -167,6 +167,11 @@ uintptr_t get_uart_address(uint32_t instance_nb)
 }
 #endif
 
+uintptr_t stm32_get_header_address(void)
+{
+	return STM32MP_HEADER_BASE;
+}
+
 uint32_t stm32mp_get_chip_version(void)
 {
 	static uint32_t rev;
