@@ -55,10 +55,12 @@ struct mt_resource_manager {
 };
 
 extern int mt_lp_rm_register(struct mt_resource_manager *rm);
-extern int mt_lp_rm_find_and_run_constraint(int idx, unsigned int cpuid,
+extern int mt_lp_rm_do_constraint(unsigned int constraint_id, unsigned int cpuid, int stateid);
+extern int mt_lp_rm_find_constraint(unsigned int idx, unsigned int cpuid,
+				    int stateid, void *priv);
+extern int mt_lp_rm_find_and_run_constraint(unsigned int idx, unsigned int cpuid,
 					    int stateid, void *priv);
-extern int mt_lp_rm_reset_constraint(int constraint_id, unsigned int cpuid,
-				     int stateid);
+extern int mt_lp_rm_reset_constraint(unsigned int idx, unsigned int cpuid, int stateid);
 extern int mt_lp_rm_do_update(int stateid, int type, void const *p);
 extern int mt_lp_rm_get_status(unsigned int type, void *priv);
 
