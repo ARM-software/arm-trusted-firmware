@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,25 +75,32 @@ static int mtk_smi_larb_port_config_sec(uint32_t larb_id, uint32_t mmu_en_msk)
 	return MTK_SIP_E_SUCCESS;
 }
 
-static int mtk_infra_master_config_sec(uint32_t dev_id, uint32_t enable)
+static int mtk_infra_master_config_sec(uint32_t dev_id_msk, uint32_t enable)
 {
 	const struct mtk_ifr_mst_config *ifr_cfg;
-	uint32_t reg_addr;
+	uint32_t dev_id, reg_addr, reg_mask;
 
 	mtk_infra_iommu_enable_protect();
 
-	if (dev_id >= MMU_DEV_NUM) {
-		return MTK_SIP_E_NOT_SUPPORTED;
+	if (dev_id_msk >= BIT(MMU_DEV_NUM)) {
+		return MTK_SIP_E_INVALID_PARAM;
 	}
 
-	ifr_cfg = &g_ifr_mst_cfg[dev_id];
-	reg_addr = g_ifr_mst_cfg_base[(ifr_cfg->cfg_addr_idx)] +
-		   g_ifr_mst_cfg_offs[(ifr_cfg->cfg_addr_idx)];
+	for (dev_id = 0U; dev_id < MMU_DEV_NUM; dev_id++) {
+		if ((dev_id_msk & BIT(dev_id)) == 0U) {
+			continue;
+		}
 
-	if (enable > 0U) {
-		mmio_setbits_32(reg_addr, IFR_CFG_MMU_EN_MSK(ifr_cfg->r_mmu_en_bit));
-	} else {
-		mmio_clrbits_32(reg_addr, IFR_CFG_MMU_EN_MSK(ifr_cfg->r_mmu_en_bit));
+		ifr_cfg = &g_ifr_mst_cfg[dev_id];
+		reg_addr = g_ifr_mst_cfg_base[(ifr_cfg->cfg_addr_idx)] +
+			   g_ifr_mst_cfg_offs[(ifr_cfg->cfg_addr_idx)];
+		reg_mask = IFR_CFG_MMU_EN_MSK(ifr_cfg->r_mmu_en_bit);
+
+		if (enable > 0U) {
+			mmio_setbits_32(reg_addr, reg_mask);
+		} else {
+			mmio_clrbits_32(reg_addr, reg_mask);
+		}
 	}
 
 	return MTK_SIP_E_SUCCESS;
