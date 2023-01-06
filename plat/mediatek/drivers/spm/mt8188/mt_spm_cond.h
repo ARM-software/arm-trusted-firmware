@@ -87,6 +87,7 @@ unsigned int mt_spm_cond_check(const struct mt_spm_cond_tables *src,
 unsigned int mt_spm_dump_all_pll(const struct mt_spm_cond_tables *src,
 				 const struct mt_spm_cond_tables *dest,
 				 struct mt_spm_cond_tables *res);
-int mt_spm_cond_update(struct mt_resource_constraint **con, int stateid, void *priv);
+int mt_spm_cond_update(struct mt_resource_constraint **con, unsigned int num,
+		       int stateid, void *priv);
 
 #endif

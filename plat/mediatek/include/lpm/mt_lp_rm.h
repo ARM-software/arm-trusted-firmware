@@ -49,7 +49,7 @@ struct mt_resource_constraint {
 };
 
 struct mt_resource_manager {
-	int (*update)(struct mt_resource_constraint **con,
+	int (*update)(struct mt_resource_constraint **con, unsigned int num,
 		      int stateid, void *priv);
 	struct mt_resource_constraint **consts;
 };

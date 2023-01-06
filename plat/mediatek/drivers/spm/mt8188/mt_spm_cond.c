@@ -187,7 +187,8 @@ unsigned int mt_spm_dump_all_pll(const struct mt_spm_cond_tables *src,
 	(!(mmio_read_32(SPM_PWR_STATUS) & mask) && \
 	 !(mmio_read_32(SPM_PWR_STATUS_2ND) & mask))
 
-int mt_spm_cond_update(struct mt_resource_constraint **con, int stateid, void *priv)
+int mt_spm_cond_update(struct mt_resource_constraint **con, unsigned int num,
+		       int stateid, void *priv)
 {
 	static const struct {
 		uintptr_t en_reg;
@@ -208,11 +209,12 @@ int mt_spm_cond_update(struct mt_resource_constraint **con, int stateid, void *p
 		{ PLL_APLL5, PLL_BIT_APLL5 },
 	};
 
-	int i, res;
+	int res;
+	unsigned int i;
 	struct mt_resource_constraint *const *_con;
 
 	/* read all cg state */
-	for (i = 0; i < PLAT_SPM_COND_MAX; i++) {
+	for (i = 0U; i < PLAT_SPM_COND_MAX; i++) {
 		spm_cond_t.table_cg[i] = 0U;
 
 		/* check mtcmos, if off set idle_value and clk to 0 disable */
@@ -229,14 +231,14 @@ int mt_spm_cond_update(struct mt_resource_constraint **con, int stateid, void *p
 	}
 
 	spm_cond_t.table_pll = 0U;
-	for (i = 0; i < ARRAY_SIZE(plls); i++) {
+	for (i = 0U; i < ARRAY_SIZE(plls); i++) {
 		if ((mmio_read_32(plls[i].en_reg) & BIT(9)) != 0U) {
 			spm_cond_t.table_pll |= plls[i].pll_b;
 		}
 	}
 
 	spm_cond_t.priv = priv;
-	for (_con = con; *_con != NULL ; _con++) {
+	for (i = 0U, _con = con; (*_con != NULL) && (i < num); _con++, i++) {
 		if ((*_con)->update == NULL) {
 			continue;
 		}

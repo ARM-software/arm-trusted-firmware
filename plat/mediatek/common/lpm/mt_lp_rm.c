@@ -90,7 +90,7 @@ int mt_lp_rm_find_and_run_constraint(int idx, unsigned int cpuid,
 
 	/* If subsys clk/mtcmos is on, add block-resource-off flag */
 	if (rm->update != NULL) {
-		res = rm->update(rm->consts, stateid, priv);
+		res = rm->update(rm->consts, plat_mt_rm.count, stateid, priv);
 		if (res != 0) {
 			return res;
 		}

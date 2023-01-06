@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -148,7 +148,8 @@ unsigned int mt_spm_cond_check(int state_id,
 	(((mmio_read_32(SPM_PWR_STATUS) & mask) == 0U) &&	\
 	 ((mmio_read_32(SPM_PWR_STATUS_2ND) & mask) == 0U))
 
-int mt_spm_cond_update(struct mt_resource_constraint **con, int stateid, void *priv)
+int mt_spm_cond_update(struct mt_resource_constraint **con, unsigned int num,
+		       int stateid, void *priv)
 {
 	int res;
 	uint32_t i;
