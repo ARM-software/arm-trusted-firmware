@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -478,7 +478,7 @@ static int get_auth_param(const auth_param_type_desc_t *type_desc,
 		rc = get_ext(type_desc->cookie, param, param_len);
 		break;
 	case AUTH_PARAM_PUB_KEY:
-		if (type_desc->cookie != 0) {
+		if (type_desc->cookie != NULL) {
 			/* Get public key from extension */
 			rc = get_ext(type_desc->cookie, param, param_len);
 		} else {
