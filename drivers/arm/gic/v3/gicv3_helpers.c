@@ -253,7 +253,7 @@ unsigned int gicv3_secure_spis_config_props(uintptr_t gicd_base,
 }
 
 /*******************************************************************************
- * Helper function to configure the default attributes of (E)SPIs
+ * Helper function to configure the default attributes of (E)PPIs/SGIs
  ******************************************************************************/
 void gicv3_ppi_sgi_config_defaults(uintptr_t gicr_base)
 {
@@ -292,7 +292,7 @@ void gicv3_ppi_sgi_config_defaults(uintptr_t gicr_base)
 	regs_num = ppi_regs_num << 3;
 	for (i = 0U; i < regs_num; ++i) {
 		/* Setup the default (E)PPI/SGI priorities doing 4 at a time */
-		gicr_write_ipriorityr(gicr_base, i, GICD_IPRIORITYR_DEF_VAL);
+		gicr_write_ipriorityr(gicr_base, i << 2, GICD_IPRIORITYR_DEF_VAL);
 	}
 
 	/* 16 interrupt IDs per GICR_ICFGR register */
