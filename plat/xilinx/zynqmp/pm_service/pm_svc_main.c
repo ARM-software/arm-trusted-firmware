@@ -334,22 +334,18 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_API_VERSION:
-		/* Check is PM API version already verified */
-		if (pm_ctx.api_version >= PM_VERSION) {
-			if (ipi_irq_flag == 0U) {
-				/*
-				 * Enable IPI IRQ
-				 * assume the rich OS is OK to handle callback IRQs now.
-				 * Even if we were wrong, it would not enable the IRQ in
-				 * the GIC.
-				 */
-				pm_ipi_irq_enable(primary_proc);
-				ipi_irq_flag = 1U;
-			}
-			SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
-				 ((uint64_t)pm_ctx.api_version << 32));
+		if (ipi_irq_flag == 0U) {
+			/*
+			 * Enable IPI IRQ
+			 * assume the rich OS is OK to handle callback IRQs now.
+			 * Even if we were wrong, it would not enable the IRQ in
+			 * the GIC.
+			 */
+			pm_ipi_irq_enable(primary_proc);
+			ipi_irq_flag = 1U;
 		}
-
+		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
+			 ((uint64_t)pm_ctx.api_version << 32));
 	case PM_FPGA_LOAD:
 		ret = pm_fpga_load(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);

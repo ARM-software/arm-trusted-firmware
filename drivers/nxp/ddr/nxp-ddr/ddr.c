@@ -269,7 +269,7 @@ static int cal_odt(const unsigned int clk,
 	unsigned int i;
 	const struct dynamic_odt *pdodt = NULL;
 
-	const static struct dynamic_odt *table[2][5] = {
+	static const struct dynamic_odt *table[2][5] = {
 		{single_S, single_D, NULL, NULL},
 		{dual_SS, dual_DD, NULL, NULL},
 	};

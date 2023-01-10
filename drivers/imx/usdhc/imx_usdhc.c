@@ -136,7 +136,8 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 		break;
 	case MMC_CMD(18):
 		multiple = 1;
-		/* fall thru for read op */
+		/* for read op */
+		/* fallthrough */
 	case MMC_CMD(17):
 	case MMC_CMD(8):
 		mixctl |= MIXCTRL_DTDSEL;
@@ -144,7 +145,8 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 		break;
 	case MMC_CMD(25):
 		multiple = 1;
-		/* fall thru for data op flag */
+		/* for data op flag */
+		/* fallthrough */
 	case MMC_CMD(24):
 		data = 1;
 		break;

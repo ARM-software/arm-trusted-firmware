@@ -278,8 +278,9 @@ struct sd_handle *sdio_init(void)
 
 	SDIO_base = EMMC_CTRL_REGS_BASE_ADDR;
 
-	if (SDIO_base == SDIO0_EMMCSDXC_SYSADDR)
+	if (SDIO_base == SDIO0_EMMCSDXC_SYSADDR) {
 		EMMC_TRACE(" ---> for SDIO 0 Controller\n\n");
+	}
 
 	memset(p_sdhandle, 0, sizeof(struct sd_handle));
 
@@ -290,8 +291,9 @@ struct sd_handle *sdio_init(void)
 	memset(p_sdhandle->card, 0, sizeof(struct sd_card_info));
 
 	if (chal_sd_start((CHAL_HANDLE *) p_sdhandle->device,
-			  SD_PIO_MODE, SDIO_base, SDIO_base) != SD_OK)
+			  SD_PIO_MODE, SDIO_base, SDIO_base) != SD_OK) {
 		return NULL;
+	}
 
 	set_config(p_sdhandle, SD_NORMAL_SPEED, MAX_CMD_RETRY, SD_DMA_OFF,
 		   SD_DMA_BOUNDARY_4K, EMMC_BLOCK_SIZE, EMMC_WFE_RETRY);
@@ -330,14 +332,16 @@ uint32_t sdio_read(struct sd_handle *p_sdhandle,
 	VERBOSE("EMMC READ: dst=0x%lx, src=0x%lx, size=0x%lx\n",
 			storage_addr, mem_addr, bytes_to_read);
 
-	if (storage_size < bytes_to_read)
+	if (storage_size < bytes_to_read) {
 		/* Don't have sufficient storage to complete the operation */
 		return 0;
+	}
 
 	/* Range check non high capacity memory */
 	if ((p_sdhandle->device->ctrl.ocr & SD_CARD_HIGH_CAPACITY) == 0) {
-		if (mem_addr > 0x80000000)
+		if (mem_addr > 0x80000000) {
 			return 0;
+		}
 	}
 
 	/* High capacity card use block address mode */
@@ -384,10 +388,11 @@ uint32_t sdio_read(struct sd_handle *p_sdhandle,
 			/* Update Physical address */
 			outputBuf += manual_copy_size;
 
-			if (p_sdhandle->device->ctrl.ocr & SD_CARD_HIGH_CAPACITY)
+			if (p_sdhandle->device->ctrl.ocr & SD_CARD_HIGH_CAPACITY) {
 				blockAddr++;
-			else
+			} else {
 				blockAddr += blockSize;
+			}
 		} else {
 			return 0;
 		}
@@ -395,10 +400,11 @@ uint32_t sdio_read(struct sd_handle *p_sdhandle,
 
 	while (remSize >= blockSize) {
 
-		if (remSize >= SD_MAX_BLK_TRANSFER_LENGTH)
+		if (remSize >= SD_MAX_BLK_TRANSFER_LENGTH) {
 			readLen = SD_MAX_BLK_TRANSFER_LENGTH;
-		else
+		} else {
 			readLen = (remSize / blockSize) * blockSize;
+		}
 
 		/* Check for overflow */
 		if ((rdCount + readLen) > storage_size ||
@@ -409,10 +415,11 @@ uint32_t sdio_read(struct sd_handle *p_sdhandle,
 		}
 
 		if (!read_block(p_sdhandle, outputBuf, blockAddr, readLen)) {
-			if (p_sdhandle->device->ctrl.ocr & SD_CARD_HIGH_CAPACITY)
+			if (p_sdhandle->device->ctrl.ocr & SD_CARD_HIGH_CAPACITY) {
 				blockAddr += (readLen / blockSize);
-			else
+			} else {
 				blockAddr += readLen;
+			}
 
 			remSize -= readLen;
 			rdCount += readLen;
@@ -463,8 +470,9 @@ static uint32_t sdio_write(struct sd_handle *p_sdhandle, uintptr_t mem_addr,
 
 	/* range check non high capacity memory */
 	if ((p_sdhandle->device->ctrl.ocr & SD_CARD_HIGH_CAPACITY) == 0) {
-		if (mem_addr > 0x80000000)
+		if (mem_addr > 0x80000000) {
 			return 0;
+		}
 	}
 
 	/* the high capacity card use block address mode */
@@ -491,11 +499,12 @@ static uint32_t sdio_write(struct sd_handle *p_sdhandle, uintptr_t mem_addr,
 				blockAddr, p_sdhandle->device->cfg.blockSize)) {
 
 			if (remSize <
-			    (p_sdhandle->device->cfg.blockSize - offset))
+			    (p_sdhandle->device->cfg.blockSize - offset)) {
 				manual_copy_size = remSize;
-			else
+			} else {
 				manual_copy_size =
 				    p_sdhandle->device->cfg.blockSize - offset;
+			}
 
 			memcpy((void *)((uintptr_t)
 				(emmc_global_buf_ptr->u.tempbuf + offset)),
@@ -530,11 +539,12 @@ static uint32_t sdio_write(struct sd_handle *p_sdhandle, uintptr_t mem_addr,
 				inputBuf += manual_copy_size;
 
 				if (p_sdhandle->device->ctrl.ocr &
-				    SD_CARD_HIGH_CAPACITY)
+				    SD_CARD_HIGH_CAPACITY) {
 					blockAddr++;
-				else
+				} else {
 					blockAddr +=
 					    p_sdhandle->device->cfg.blockSize;
+				}
 			} else
 				return 0;
 		} else {

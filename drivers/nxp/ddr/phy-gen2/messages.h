@@ -13,7 +13,7 @@ struct phy_msg {
 	const char *msg;
 };
 
-const static struct phy_msg messages_1d[] = {
+static const struct phy_msg messages_1d[] = {
 	{0x00000001,
 	 "PMU1:prbsGenCtl:%x\n"
 	},
@@ -1239,7 +1239,7 @@ const static struct phy_msg messages_1d[] = {
 	},
 };
 
-const static struct phy_msg messages_2d[] = {
+static const struct phy_msg messages_2d[] = {
 	{0x00000001,
 	 "PMU0: Converting %d into an MR\n"
 	},

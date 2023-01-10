@@ -11,7 +11,7 @@
 #include "rcar_def.h"
 #include "rom_api.h"
 
-typedef uint32_t(*rom_secure_boot_api_f) (uint32_t *key, uint32_t *cert,
+typedef uint32_t(*rom_secure_boot_api_f) (uint32_t key, uint32_t cert,
 					  rom_read_flash_f pFuncReadFlash);
 
 typedef uint32_t(*rom_get_lcs_api_f) (uint32_t *lcs);
@@ -68,7 +68,7 @@ static uint32_t get_table_index(void)
 	return index;
 }
 
-uint32_t rcar_rom_secure_boot_api(uint32_t *key, uint32_t *cert,
+uint32_t rcar_rom_secure_boot_api(uint32_t key, uint32_t cert,
 			     rom_read_flash_f read_flash)
 {
 	static const uintptr_t rom_api_table[API_TABLE_MAX] = {

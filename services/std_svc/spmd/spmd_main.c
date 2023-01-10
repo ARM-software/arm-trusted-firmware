@@ -868,7 +868,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 						     FFA_ERROR_NOT_SUPPORTED);
 		}
 
-		/* Fall through to forward the call to the other world */
+		/* Forward the call to the other world */
+		/* fallthrough */
 	case FFA_MSG_SEND:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
 	case FFA_MEM_DONATE_SMC32:
@@ -908,7 +909,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			spmd_spm_core_sync_exit(0ULL);
 		}
 
-		/* Fall through to forward the call to the other world */
+		/* Forward the call to the other world */
+		/* fallthrough */
 	case FFA_INTERRUPT:
 	case FFA_MSG_YIELD:
 		/* This interface must be invoked only by the Secure world */

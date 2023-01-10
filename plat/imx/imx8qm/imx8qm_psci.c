@@ -26,7 +26,7 @@
 #define SYSTEM_PWR_STATE(state) \
 	((state)->pwr_domain_state[PLAT_MAX_PWR_LVL])
 
-const static int ap_core_index[PLATFORM_CORE_COUNT] = {
+static const int ap_core_index[PLATFORM_CORE_COUNT] = {
 	SC_R_A53_0, SC_R_A53_1, SC_R_A53_2,
 	SC_R_A53_3, SC_R_A72_0, SC_R_A72_1,
 };

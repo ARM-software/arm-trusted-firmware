@@ -350,7 +350,7 @@ static int _pwr_state_validate(uint32_t pwr_state,
 		else if (SOC_SYSTEM_STANDBY)
 			state->pwr_domain_state[PLAT_MAX_LVL] =
 				PLAT_MAX_RET_STATE;
-		 /* intentional fall-thru condition */
+		 /* fallthrough */
 	case PWR_STATE_LVL_SYS:
 		if (pwrdn && SOC_SYSTEM_PWR_DWN)
 			state->pwr_domain_state[PLAT_SYS_LVL] =
@@ -358,7 +358,7 @@ static int _pwr_state_validate(uint32_t pwr_state,
 		else if (SOC_SYSTEM_STANDBY)
 			state->pwr_domain_state[PLAT_SYS_LVL] =
 				PLAT_MAX_RET_STATE;
-		 /* intentional fall-thru condition */
+		 /* fallthrough */
 	case PWR_STATE_LVL_CLSTR:
 		if (pwrdn && SOC_CLUSTER_PWR_DWN)
 			state->pwr_domain_state[PLAT_CLSTR_LVL] =
@@ -366,7 +366,7 @@ static int _pwr_state_validate(uint32_t pwr_state,
 		else if (SOC_CLUSTER_STANDBY)
 			state->pwr_domain_state[PLAT_CLSTR_LVL] =
 				PLAT_MAX_RET_STATE;
-		 /* intentional fall-thru condition */
+		 /* fallthrough */
 	case PWR_STATE_LVL_CORE:
 		stat = PSCI_E_SUCCESS;
 

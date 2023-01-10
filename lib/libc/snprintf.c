@@ -209,6 +209,7 @@ loop:
 				break;
 			case 'X':
 				capitalise = true;
+				/* fallthrough */
 			case 'x':
 				unum = get_unum_va_args(args, l_count);
 				unsigned_num_print(&s, n, &chars_printed,
