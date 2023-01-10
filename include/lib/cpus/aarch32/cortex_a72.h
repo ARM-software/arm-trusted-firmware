@@ -43,6 +43,9 @@
  ******************************************************************************/
 #define CORTEX_A72_L2CTLR				p15, 1, c9, c0, 2
 
+#define CORTEX_A72_L2CTLR_EL1_ECC_AND_PARITY_ENABLE	(ULL(1) << 21)
+#define CORTEX_A72_L2CTLR_EL1_DATA_INLINE_ECC_ENABLE	(ULL(1) << 20)
+
 #define CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT	U(0)
 #define CORTEX_A72_L2CTLR_TAG_RAM_LATENCY_SHIFT		U(6)
 
