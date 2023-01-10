@@ -17,6 +17,10 @@ $(eval $(call add_define,K3_HW_CONFIG_BASE))
 K3_SEC_PROXY_LITE	:=	0
 $(eval $(call add_define,K3_SEC_PROXY_LITE))
 
+# Use a 4 cycle data RAM latency for J784s4
+K3_DATA_RAM_4_LATENCY	:=	1
+$(eval $(call add_define,K3_DATA_RAM_4_LATENCY))
+
 # System coherency is managed in hardware
 USE_COHERENT_MEM	:=	1
 

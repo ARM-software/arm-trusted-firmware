@@ -105,7 +105,15 @@ func plat_reset_handler
 	/* Cortex-A72 specific settings */
 a72:
 	mrs x0, CORTEX_A72_L2CTLR_EL1
-	orr x0, x0, #(CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES << CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+#if K3_DATA_RAM_4_LATENCY
+	/* Set L2 cache data RAM latency to 4 cycles */
+	orr x0, x0, #(CORTEX_A72_L2_DATA_RAM_LATENCY_4_CYCLES << \
+			CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+#else
+	/* Set L2 cache data RAM latency to 3 cycles */
+	orr x0, x0, #(CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES << \
+			CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+#endif
 	msr CORTEX_A72_L2CTLR_EL1, x0
 	isb
 	ret
