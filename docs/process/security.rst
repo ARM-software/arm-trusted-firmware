@@ -9,10 +9,8 @@ relevant to Trusted Firmware-A. We encourage responsible disclosure of
 vulnerabilities and inform users as best we can about all possible issues.
 
 We disclose TF-A vulnerabilities as Security Advisories, all of which are listed
-at the bottom of this page. Any new ones will, additionally, be announced as
-issues in the project's `issue tracker`_ with the ``security-advisory`` tag. You
-can receive notification emails for these by watching the "Trusted Firmware-A"
-project at https://developer.trustedfirmware.org/.
+at the bottom of this page. Any new ones will, additionally, be announced on the
+TF-A project's `mailing list`_.
 
 Found a Security Issue?
 -----------------------
@@ -86,4 +84,4 @@ Security Advisories
 
 --------------
 
-*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
