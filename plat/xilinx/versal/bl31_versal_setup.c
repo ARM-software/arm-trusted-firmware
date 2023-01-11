@@ -135,7 +135,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	} else if (ret != FSBL_HANDOFF_SUCCESS) {
 		panic();
 	} else {
-		INFO("BL31: fsbl-atf handover success %u\n", ret);
+		INFO("BL31: PLM to TF-A handover success %u\n", ret);
 	}
 
 	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
