@@ -196,6 +196,9 @@ spmc_shmem_obj_get_emad(const struct ffa_mtd *desc, uint32_t index,
 			uint32_t ffa_version, size_t *emad_size)
 {
 	uint8_t *emad;
+
+	assert(index < desc->emad_count);
+
 	/*
 	 * If the caller is using FF-A v1.0 interpret the descriptor as a v1.0
 	 * format, otherwise assume it is a v1.1 format.
