@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -128,6 +128,7 @@ func psci_power_down_wfi
 	apply_erratum cortex_a510, ERRATUM(2684597), ERRATA_A510_2684597
 
 	dsb	sy		// ensure write buffer empty
+1:
 	wfi
-	no_ret	plat_panic_handler
+	b	1b
 endfunc psci_power_down_wfi
