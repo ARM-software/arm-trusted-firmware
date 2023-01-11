@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -267,13 +267,43 @@ func check_errata_2147715
 	b	cpu_rev_var_range
 endfunc check_errata_2147715
 
-/* -------------------------------------------------------
- * Errata Workaround for Cortex-X2 Erratum 2371105.
- * This applies to revisions <= r2p0 and is fixed in r2p1.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * -------------------------------------------------------
- */
+	/* ---------------------------------------------------------------
+	 * Errata Workaround for Cortex-X2 Erratum 2282622.
+	 * This applies to revision r0p0, r1p0, r2p0 and r2p1.
+	 * It is still open.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0, x1, x17
+	 * ---------------------------------------------------------------
+	 */
+func errata_x2_2282622_wa
+	/* Compare x0 against revision r2p1 */
+	mov     x17, x30
+	bl      check_errata_2282622
+	cbz     x0, 1f
+
+	/* Apply the workaround */
+	mrs     x1, CORTEX_X2_CPUACTLR2_EL1
+	orr     x1, x1, #BIT(0)
+	msr     CORTEX_X2_CPUACTLR2_EL1, x1
+
+1:
+	ret     x17
+endfunc errata_x2_2282622_wa
+
+func check_errata_2282622
+	/* Applies to r0p0, r1p0, r2p0 and r2p1 */
+	mov     x1, #0x21
+	b       cpu_rev_var_ls
+endfunc check_errata_2282622
+
+	/* -------------------------------------------------------
+	 * Errata Workaround for Cortex-X2 Erratum 2371105.
+	 * This applies to revisions <= r2p0 and is fixed in r2p1.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * -------------------------------------------------------
+	 */
 func errata_x2_2371105_wa
 	/* Check workaround compatibility. */
 	mov	x17, x30
@@ -295,13 +325,13 @@ func check_errata_2371105
 	b	cpu_rev_var_ls
 endfunc check_errata_2371105
 
-/* ----------------------------------------------------
- * Errata Workaround for Cortex-X2 Errata #2768515
- * This applies to revisions <= r2p1 and is still open.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * ----------------------------------------------------
- */
+	/* ----------------------------------------------------
+	 * Errata Workaround for Cortex-X2 Errata #2768515
+	 * This applies to revisions <= r2p1 and is still open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * ----------------------------------------------------
+	 */
 func errata_x2_2768515_wa
 	mov	x17, x30
 	bl	check_errata_2768515
@@ -362,6 +392,7 @@ func cortex_x2_errata_report
 	report_errata ERRATA_X2_2083908, cortex_x2, 2083908
 	report_errata ERRATA_X2_2147715, cortex_x2, 2147715
 	report_errata ERRATA_X2_2216384, cortex_x2, 2216384
+	report_errata ERRATA_X2_2282622, cortex_x2, 2282622
 	report_errata ERRATA_X2_2371105, cortex_x2, 2371105
 	report_errata ERRATA_X2_2768515, cortex_x2, 2768515
 	report_errata WORKAROUND_CVE_2022_23960, cortex_x2, cve_2022_23960
@@ -419,6 +450,11 @@ func cortex_x2_reset_func
 #if ERRATA_X2_2147715
 	mov	x0, x18
 	bl	errata_x2_2147715_wa
+#endif
+
+#if ERRATA_X2_2282622
+	mov	x0, x18
+	bl	errata_x2_2282622_wa
 #endif
 
 #if ERRATA_X2_2371105
