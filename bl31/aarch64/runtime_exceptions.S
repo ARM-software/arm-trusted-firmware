@@ -151,7 +151,7 @@
 
 	/* Synchronous exceptions other than the above are assumed to be EA */
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	b	enter_lower_el_sync_ea
+	b	handle_lower_el_sync_ea
 	.endm
 
 
@@ -361,11 +361,11 @@ vector_entry serror_aarch64
 	apply_at_speculative_wa
 #if RAS_EXTENSION
 	msr	daifclr, #DAIF_ABT_BIT
-	b	enter_lower_el_async_ea
 #else
 	check_and_unmask_ea
-	b handle_lower_el_async_ea
 #endif
+	b	handle_lower_el_async_ea
+
 end_vector_entry serror_aarch64
 
 	/* ---------------------------------------------------------------------
@@ -404,11 +404,11 @@ vector_entry serror_aarch32
 	apply_at_speculative_wa
 #if RAS_EXTENSION
 	msr	daifclr, #DAIF_ABT_BIT
-	b	enter_lower_el_async_ea
 #else
 	check_and_unmask_ea
-	b handle_lower_el_async_ea
 #endif
+	b	handle_lower_el_async_ea
+
 end_vector_entry serror_aarch32
 
 #ifdef MONITOR_TRAPS
