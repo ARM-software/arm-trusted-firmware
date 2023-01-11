@@ -822,6 +822,22 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 
 		offset = emad->comp_mrd_offset;
 
+		/*
+		 * The offset provided to the composite memory region descriptor
+		 * should be consistent across endpoint descriptors. Store the
+		 * first entry and compare against subsequent entries.
+		 */
+		if (comp_mrd_offset == 0) {
+			comp_mrd_offset = offset;
+		} else {
+			if (comp_mrd_offset != offset) {
+				ERROR("%s: mismatching offsets provided, %u != %u\n",
+				       __func__, offset, comp_mrd_offset);
+				return -EINVAL;
+			}
+			continue; /* Remainder only executed on first iteration. */
+		}
+
 		if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
 			desc_size =  sizeof(struct ffa_mtd_v1_0);
 		} else {
@@ -876,21 +892,6 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 			WARN("%s: invalid object, computed size %zu != size %zu\n",
 			       __func__, expected_size, obj->desc_size);
 			return -EINVAL;
-		}
-
-		/*
-		 * The offset provided to the composite memory region descriptor
-		 * should be consistent across endpoint descriptors. Store the
-		 * first entry and compare against subsequent entries.
-		 */
-		if (comp_mrd_offset == 0) {
-			comp_mrd_offset = offset;
-		} else {
-			if (comp_mrd_offset != offset) {
-				ERROR("%s: mismatching offsets provided, %u != %u\n",
-				       __func__, offset, comp_mrd_offset);
-				return -EINVAL;
-			}
 		}
 
 		total_page_count = 0;
