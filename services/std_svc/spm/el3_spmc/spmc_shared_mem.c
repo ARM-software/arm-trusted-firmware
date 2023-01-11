@@ -801,7 +801,6 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		size_t expected_size;
 		size_t total_page_count;
 		size_t emad_size;
-		size_t desc_size;
 		size_t header_emad_size;
 		uint32_t offset;
 		struct ffa_comp_mrd *comp;
@@ -838,13 +837,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 			continue; /* Remainder only executed on first iteration. */
 		}
 
-		if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
-			desc_size =  sizeof(struct ffa_mtd_v1_0);
-		} else {
-			desc_size =  sizeof(struct ffa_mtd);
-		}
-
-		header_emad_size = desc_size +
+		header_emad_size = (size_t)((uint8_t *)emad - (uint8_t *)&obj->desc) +
 			(obj->desc.emad_count * emad_size);
 
 		if (offset < header_emad_size) {
