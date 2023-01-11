@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,12 +14,13 @@
 #include <mbedtls/memory_buffer_alloc.h>
 #include <mbedtls/oid.h>
 #include <mbedtls/platform.h>
+#include <mbedtls/version.h>
 #include <mbedtls/x509.h>
 
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/auth/mbedtls/mbedtls_common.h>
-#include <drivers/auth/mbedtls/mbedtls_config.h>
+
 #include <plat/common/platform.h>
 
 #define LIB_NAME		"mbed TLS"

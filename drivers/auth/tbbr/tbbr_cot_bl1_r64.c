@@ -1,13 +1,14 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <stddef.h>
 
+#include <mbedtls/version.h>
+
 #include <drivers/auth/auth_mod.h>
-#include MBEDTLS_CONFIG_FILE
 #include <drivers/auth/tbbr_cot_common.h>
 
 #if USE_TBBR_DEFS
@@ -15,8 +16,8 @@
 #else
 #include <platform_oid.h>
 #endif
-#include <platform_def.h>
 
+#include <platform_def.h>
 
 static unsigned char trusted_world_pk_buf[PK_DER_LEN];
 static unsigned char non_trusted_world_pk_buf[PK_DER_LEN];
