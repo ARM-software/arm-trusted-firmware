@@ -39,7 +39,8 @@
 #define SEC_DEL_EXCC_MASK		U(0x20)
 
 #define SEC_SECCTLR_REG			U(0x0010)
-#define SEC_SECCTLR_VAL			U(0x3)
+/* Set bit[10] = 1 to workaround erratum 2838783 */
+#define SEC_SECCTLR_VAL			U(0x403)
 
 #define SEC_DEL_ADDR_EXT_REG		U(0x201C)
 #define SEC_DEL_ADDR_EXT_VAL		U(0x15)
