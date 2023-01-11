@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,9 +7,7 @@
 #ifndef COT_DEF_H
 #define COT_DEF_H
 
-#ifdef MBEDTLS_CONFIG_FILE
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include <mbedtls/version.h>
 
 /* TBBR CoT definitions */
 #if defined(SPD_spmd)

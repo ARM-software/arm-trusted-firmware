@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,6 @@
 #ifndef AUTH_MOD_H
 #define AUTH_MOD_H
 
-#include <common/tbbr/cot_def.h>
 #include <common/tbbr/tbbr_img_def.h>
 #include <drivers/auth/auth_common.h>
 #include <drivers/auth/img_parser_mod.h>
