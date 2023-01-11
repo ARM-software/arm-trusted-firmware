@@ -40,6 +40,14 @@
 	.globl	serror_aarch32
 
 	/*
+	 * Save LR and make x30 available as most of the routines in vector entry
+	 * need a free register
+	 */
+	.macro save_x30
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	.endm
+
+	/*
 	 * Macro that prepares entry to EL3 upon taking an exception.
 	 *
 	 * With RAS_EXTENSION, this macro synchronizes pending errors with an ESB
@@ -57,12 +65,6 @@
 
 	/* Unmask the SError interrupt */
 	msr	daifclr, #DAIF_ABT_BIT
-
-	/*
-	 * Explicitly save x30 so as to free up a register and to enable
-	 * branching
-	 */
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 
 	/* Check for SErrors synchronized by the ESB instruction */
 	mrs	x30, DISR_EL1
@@ -108,11 +110,7 @@
 	/* Use ISB for the above unmask operation to take effect immediately */
 	isb
 
-	/*
-	 * Refer Note 1.
-	 * No need to restore X30 as macros following this modify x30 anyway.
-	 */
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	/* Refer Note 1. */
 	mov 	x30, #1
 	str	x30, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
 	dmb	sy
@@ -316,7 +314,7 @@ vector_entry serror_sp_elx
 	 * triggered due to explicit synchronization in EL3. Refer Note 1.
 	 */
 	/* Assumes SP_EL3 on entry */
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	save_x30
 	ldr	x30, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
 	cbnz	x30, 1f
 
@@ -338,24 +336,28 @@ vector_entry sync_exception_aarch64
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
+	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_sync_exception
 end_vector_entry sync_exception_aarch64
 
 vector_entry irq_aarch64
+	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch64
 end_vector_entry irq_aarch64
 
 vector_entry fiq_aarch64
+	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch64
 end_vector_entry fiq_aarch64
 
 vector_entry serror_aarch64
+	save_x30
 	apply_at_speculative_wa
 #if RAS_EXTENSION
 	msr	daifclr, #DAIF_ABT_BIT
@@ -377,24 +379,28 @@ vector_entry sync_exception_aarch32
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
+	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_sync_exception
 end_vector_entry sync_exception_aarch32
 
 vector_entry irq_aarch32
+	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch32
 end_vector_entry irq_aarch32
 
 vector_entry fiq_aarch32
+	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch32
 end_vector_entry fiq_aarch32
 
 vector_entry serror_aarch32
+	save_x30
 	apply_at_speculative_wa
 #if RAS_EXTENSION
 	msr	daifclr, #DAIF_ABT_BIT

@@ -384,13 +384,12 @@
 	.macro	apply_at_speculative_wa
 #if ERRATA_SPECULATIVE_AT
 	/*
-	 * Explicitly save x30 so as to free up a register and to enable
-	 * branching and also, save x29 which will be used in the called
-	 * function
+	 * This function expects x30 has been saved.
+	 * Also, save x29 which will be used in the called function.
 	 */
-	stp	x29, x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
+	str	x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
 	bl	save_and_update_ptw_el1_sys_regs
-	ldp	x29, x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
+	ldr	x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
 #endif
 	.endm
 
