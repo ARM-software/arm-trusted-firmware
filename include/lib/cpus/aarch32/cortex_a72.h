@@ -37,6 +37,7 @@
 #define CORTEX_A72_CPUACTLR_NO_ALLOC_WBWA		(ULL(1) << 49)
 #define CORTEX_A72_CPUACTLR_DCC_AS_DCCI			(ULL(1) << 44)
 #define CORTEX_A72_CPUACTLR_DIS_INSTR_PREFETCH		(ULL(1) << 32)
+#define CORTEX_A72_CPUACTLR_DELAY_EXCLUSIVE_SNOOP	(ULL(1) << 31)
 
 /*******************************************************************************
  * L2 Control register specific definitions.

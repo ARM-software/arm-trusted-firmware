@@ -21,6 +21,10 @@ $(eval $(call add_define,K3_SEC_PROXY_LITE))
 K3_DATA_RAM_4_LATENCY	:=	1
 $(eval $(call add_define,K3_DATA_RAM_4_LATENCY))
 
+# Delay snoop exclusive handling for J784s4
+K3_EXCLUSIVE_SNOOP_DELAY	:=	1
+$(eval $(call add_define,K3_EXCLUSIVE_SNOOP_DELAY))
+
 # System coherency is managed in hardware
 USE_COHERENT_MEM	:=	1
 
