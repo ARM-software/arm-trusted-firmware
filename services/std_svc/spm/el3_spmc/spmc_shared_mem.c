@@ -787,7 +787,10 @@ spmc_validate_mtd_start(struct ffa_mtd *desc, uint32_t ffa_version,
 static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 				uint32_t ffa_version)
 {
+	const struct ffa_emad_v1_0 *emad;
+	size_t emad_size;
 	uint32_t comp_mrd_offset = 0;
+
 	if (obj->desc_filled != obj->desc_size) {
 		ERROR("BUG: %s called on incomplete object (%zu != %zu)\n",
 		      __func__, obj->desc_filled, obj->desc_size);
@@ -801,31 +804,46 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		panic();
 	}
 
+	emad = spmc_shmem_obj_get_emad(&obj->desc, 0,
+				       ffa_version, &emad_size);
+
 	for (size_t emad_num = 0; emad_num < obj->desc.emad_count; emad_num++) {
 		size_t size;
 		size_t count;
 		size_t expected_size;
 		uint64_t total_page_count;
-		size_t emad_size;
 		size_t header_emad_size;
 		uint32_t offset;
 		struct ffa_comp_mrd *comp;
-		struct ffa_emad_v1_0 *emad;
-
-		emad = spmc_shmem_obj_get_emad(&obj->desc, emad_num,
-					       ffa_version, &emad_size);
+		ffa_endpoint_id16_t ep_id;
 
 		/*
 		 * Validate the calculated emad address resides within the
 		 * descriptor.
 		 */
-		if ((uintptr_t) emad >=
-		    (uintptr_t)((uint8_t *) &obj->desc + obj->desc_size)) {
-			WARN("Invalid emad access.\n");
-			return -EINVAL;
+		if ((uintptr_t) emad >
+		    ((uintptr_t) &obj->desc + obj->desc_size - emad_size)) {
+			ERROR("BUG: Invalid emad access not detected earlier.\n");
+			panic();
 		}
 
+		emad = (const struct ffa_emad_v1_0 *)((const uint8_t *)emad + emad_size);
 		offset = emad->comp_mrd_offset;
+
+		/*
+		 * If a partition ID resides in the secure world validate that
+		 * the partition ID is for a known partition. Ignore any
+		 * partition ID belonging to the normal world as it is assumed
+		 * the Hypervisor will have validated these.
+		 */
+		ep_id = emad->mapd.endpoint_id;
+		if (ffa_is_secure_world_id(ep_id)) {
+			if (spmc_get_sp_ctx(ep_id) == NULL) {
+				WARN("%s: Invalid receiver id 0x%x\n",
+				     __func__, ep_id);
+				return -EINVAL;
+			}
+		}
 
 		/*
 		 * The offset provided to the composite memory region descriptor
@@ -1052,28 +1070,6 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 	if (ret != 0) {
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_bad_desc;
-	}
-
-	/*
-	 * If a partition ID resides in the secure world validate that the
-	 * partition ID is for a known partition. Ignore any partition ID
-	 * belonging to the normal world as it is assumed the Hypervisor will
-	 * have validated these.
-	 */
-	for (size_t i = 0; i < obj->desc.emad_count; i++) {
-		emad = spmc_shmem_obj_get_emad(&obj->desc, i, ffa_version,
-					       &emad_size);
-
-		ffa_endpoint_id16_t ep_id = emad->mapd.endpoint_id;
-
-		if (ffa_is_secure_world_id(ep_id)) {
-			if (spmc_get_sp_ctx(ep_id) == NULL) {
-				WARN("%s: Invalid receiver id 0x%x\n",
-				     __func__, ep_id);
-				ret = FFA_ERROR_INVALID_PARAMETER;
-				goto err_bad_desc;
-			}
-		}
 	}
 
 	/* Ensure partition IDs are not duplicated. */
