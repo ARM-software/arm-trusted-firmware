@@ -977,9 +977,10 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		goto err_arg;
 	}
 
-	if (fragment_length > mbox->rxtx_page_count * PAGE_SIZE_4KB) {
-		WARN("%s: bad fragment size %u > %u buffer size\n", __func__,
-		     fragment_length, mbox->rxtx_page_count * PAGE_SIZE_4KB);
+	CASSERT(sizeof(mbox->rxtx_page_count) == 4, assert_bogus_page_count);
+	if (fragment_length > (uint64_t)mbox->rxtx_page_count * PAGE_SIZE_4KB) {
+		WARN("%s: bad fragment size %u > %" PRIu64 " buffer size\n", __func__,
+		     fragment_length, (uint64_t)mbox->rxtx_page_count * PAGE_SIZE_4KB);
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_arg;
 	}
