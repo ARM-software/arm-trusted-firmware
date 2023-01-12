@@ -352,10 +352,10 @@ overlapping_memory_regions(struct ffa_comp_mrd *region1,
  *
  * Return: the size required to store the descriptor store in the v1.1 format.
  */
-static size_t
+static uint64_t
 spmc_shm_get_v1_1_descriptor_size(struct ffa_mtd_v1_0 *orig, size_t desc_size)
 {
-	size_t size = 0;
+	uint64_t size = 0;
 	struct ffa_comp_mrd *mrd;
 	struct ffa_emad_v1_0 *emad_array = orig->emad;
 
@@ -372,11 +372,7 @@ spmc_shm_get_v1_1_descriptor_size(struct ffa_mtd_v1_0 *orig, size_t desc_size)
 	mrd = (struct ffa_comp_mrd *) ((uint8_t *) orig +
 	      emad_array[0].comp_mrd_offset);
 
-	/* Check the calculated address is within the memory descriptor. */
-	if (((uintptr_t) mrd + sizeof(struct ffa_comp_mrd)) >
-	    (uintptr_t)((uint8_t *) orig + desc_size)) {
-		return 0;
-	}
+	/* Add the size of the memory region descriptors. */
 	size += mrd->address_range_count * sizeof(struct ffa_cons_mrd);
 
 	return size;
@@ -1089,19 +1085,18 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		uint64_t mem_handle;
 
 		/* Calculate the size that the v1.1 descriptor will required. */
-		size_t v1_1_desc_size =
+		uint64_t v1_1_desc_size =
 		    spmc_shm_get_v1_1_descriptor_size((void *) &obj->desc,
 						      obj->desc_size);
 
-		if (v1_1_desc_size == 0U) {
-			ERROR("%s: cannot determine size of descriptor.\n",
-			      __func__);
+		if (v1_1_desc_size > UINT32_MAX) {
+			ret = FFA_ERROR_NO_MEMORY;
 			goto err_arg;
 		}
 
 		/* Get a new obj to store the v1.1 descriptor. */
 		v1_1_obj =
-		    spmc_shmem_obj_alloc(&spmc_shmem_obj_state, v1_1_desc_size);
+		    spmc_shmem_obj_alloc(&spmc_shmem_obj_state, (size_t)v1_1_desc_size);
 
 		if (!v1_1_obj) {
 			ret = FFA_ERROR_NO_MEMORY;
@@ -1109,8 +1104,8 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		}
 
 		/* Perform the conversion from v1.0 to v1.1. */
-		v1_1_obj->desc_size = v1_1_desc_size;
-		v1_1_obj->desc_filled = v1_1_desc_size;
+		v1_1_obj->desc_size = (uint32_t)v1_1_desc_size;
+		v1_1_obj->desc_filled = (uint32_t)v1_1_desc_size;
 		if (!spmc_shm_convert_shmem_obj_from_v1_0(v1_1_obj, obj)) {
 			ERROR("%s: Could not convert mtd!\n", __func__);
 			spmc_shmem_obj_free(&spmc_shmem_obj_state, v1_1_obj);
