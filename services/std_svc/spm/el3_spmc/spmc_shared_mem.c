@@ -799,7 +799,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		size_t size;
 		size_t count;
 		size_t expected_size;
-		size_t total_page_count;
+		uint64_t total_page_count;
 		size_t emad_size;
 		size_t header_emad_size;
 		uint32_t offset;
@@ -894,7 +894,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 				comp->address_range_array[i].page_count;
 		}
 		if (comp->total_page_count != total_page_count) {
-			WARN("%s: invalid object, desc total_page_count %u != %zu\n",
+			WARN("%s: invalid object, desc total_page_count %u != %" PRIu64 "\n",
 			     __func__, comp->total_page_count,
 			total_page_count);
 			return -EINVAL;
