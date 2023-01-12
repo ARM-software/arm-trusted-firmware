@@ -355,33 +355,39 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * in the boot chain.
 	 */
 	do {
+		unsigned char *end_ext_data;
+
 		ret = mbedtls_asn1_get_tag(&p, end, &len,
 					   MBEDTLS_ASN1_CONSTRUCTED |
 					   MBEDTLS_ASN1_SEQUENCE);
 		if (ret != 0) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
+		end_ext_data = p + len;
 
 		/* Get extension ID */
-		ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_OID);
+		ret = mbedtls_asn1_get_tag(&p, end_ext_data, &len, MBEDTLS_ASN1_OID);
 		if (ret != 0) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
 		p += len;
 
 		/* Get optional critical */
-		ret = mbedtls_asn1_get_bool(&p, end, &is_critical);
+		ret = mbedtls_asn1_get_bool(&p, end_ext_data, &is_critical);
 		if ((ret != 0) && (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG)) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
 
-		/* Data should be octet string type */
-		ret = mbedtls_asn1_get_tag(&p, end, &len,
+		/*
+		 * Data should be octet string type and must use all bytes in
+		 * the Extension.
+		 */
+		ret = mbedtls_asn1_get_tag(&p, end_ext_data, &len,
 					   MBEDTLS_ASN1_OCTET_STRING);
-		if (ret != 0) {
+		if ((ret != 0) || ((p + len) != end_ext_data)) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
-		p += len;
+		p = end_ext_data;
 	} while (p < end);
 
 	if (p != end) {
