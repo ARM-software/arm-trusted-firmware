@@ -788,11 +788,17 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 				uint32_t ffa_version)
 {
 	uint32_t comp_mrd_offset = 0;
+	if (obj->desc_filled != obj->desc_size) {
+		ERROR("BUG: %s called on incomplete object (%zu != %zu)\n",
+		      __func__, obj->desc_filled, obj->desc_size);
+		panic();
+	}
 
-	if (obj->desc.emad_count == 0U) {
-		WARN("%s: unsupported attribute desc count %u.\n",
-		     __func__, obj->desc.emad_count);
-		return -EINVAL;
+	if (spmc_validate_mtd_start(&obj->desc, ffa_version,
+				    obj->desc_filled, obj->desc_size)) {
+		ERROR("BUG: %s called on object with corrupt memory region descriptor\n",
+		      __func__);
+		panic();
 	}
 
 	for (size_t emad_num = 0; emad_num < obj->desc.emad_count; emad_num++) {
