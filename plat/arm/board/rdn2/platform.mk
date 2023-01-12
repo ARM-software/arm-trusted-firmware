@@ -1,13 +1,13 @@
-# Copyright (c) 2020-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2020-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-RD_N2_VARIANTS	:= 0 1 2
+RD_N2_VARIANTS	:= 0 1 2 3
 ifneq ($(CSS_SGI_PLATFORM_VARIANT),\
 	$(filter $(CSS_SGI_PLATFORM_VARIANT),$(RD_N2_VARIANTS)))
- $(error "CSS_SGI_PLATFORM_VARIANT for RD-N2 should be 0, 1 or 2, currently set \
-     to ${CSS_SGI_PLATFORM_VARIANT}.")
+ $(error "CSS_SGI_PLATFORM_VARIANT for RD-N2 should be 0, 1, 2 or 3, currently \
+	set to ${CSS_SGI_PLATFORM_VARIANT}.")
 endif
 
 $(eval $(call CREATE_SEQ,SEQ,4))
