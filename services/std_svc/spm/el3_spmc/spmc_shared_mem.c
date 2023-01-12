@@ -758,8 +758,8 @@ spmc_validate_mtd_start(struct ffa_mtd *desc, uint32_t ffa_version,
  * @obj:	  Object containing ffa_memory_region_descriptor.
  * @ffa_version:  FF-A version of the provided descriptor.
  *
- * Return: 0 if object is valid, -EINVAL if constituent_memory_region_descriptor
- * offset or count is invalid.
+ * Return: 0 if object is valid, FFA_ERROR_INVALID_PARAMETER if
+ * constituent_memory_region_descriptor offset or count is invalid.
  */
 static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 				uint32_t ffa_version)
@@ -818,7 +818,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 			if (spmc_get_sp_ctx(ep_id) == NULL) {
 				WARN("%s: Invalid receiver id 0x%x\n",
 				     __func__, ep_id);
-				return -EINVAL;
+				return FFA_ERROR_INVALID_PARAMETER;
 			}
 		}
 
@@ -833,7 +833,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 			if (comp_mrd_offset != offset) {
 				ERROR("%s: mismatching offsets provided, %u != %u\n",
 				       __func__, offset, comp_mrd_offset);
-				return -EINVAL;
+				return FFA_ERROR_INVALID_PARAMETER;
 			}
 			continue; /* Remainder only executed on first iteration. */
 		}
@@ -844,7 +844,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		if (offset < header_emad_size) {
 			WARN("%s: invalid object, offset %u < header + emad %zu\n",
 			     __func__, offset, header_emad_size);
-			return -EINVAL;
+			return FFA_ERROR_INVALID_PARAMETER;
 		}
 
 		size = obj->desc_size;
@@ -852,14 +852,14 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		if (offset > size) {
 			WARN("%s: invalid object, offset %u > total size %zu\n",
 			     __func__, offset, obj->desc_size);
-			return -EINVAL;
+			return FFA_ERROR_INVALID_PARAMETER;
 		}
 		size -= offset;
 
 		if (size < sizeof(struct ffa_comp_mrd)) {
 			WARN("%s: invalid object, offset %u, total size %zu, no header space.\n",
 			     __func__, offset, obj->desc_size);
-			return -EINVAL;
+			return FFA_ERROR_INVALID_PARAMETER;
 		}
 		size -= sizeof(struct ffa_comp_mrd);
 
@@ -869,13 +869,13 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 
 		if (comp == NULL) {
 			WARN("%s: invalid comp_mrd offset\n", __func__);
-			return -EINVAL;
+			return FFA_ERROR_INVALID_PARAMETER;
 		}
 
 		if (comp->address_range_count != count) {
 			WARN("%s: invalid object, desc count %u != %zu\n",
 			     __func__, comp->address_range_count, count);
-			return -EINVAL;
+			return FFA_ERROR_INVALID_PARAMETER;
 		}
 
 		expected_size = offset + sizeof(*comp) +
@@ -884,7 +884,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		if (expected_size != obj->desc_size) {
 			WARN("%s: invalid object, computed size %zu != size %zu\n",
 			       __func__, expected_size, obj->desc_size);
-			return -EINVAL;
+			return FFA_ERROR_INVALID_PARAMETER;
 		}
 
 		total_page_count = 0;
@@ -897,7 +897,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 			WARN("%s: invalid object, desc total_page_count %u != %" PRIu64 "\n",
 			     __func__, comp->total_page_count,
 			total_page_count);
-			return -EINVAL;
+			return FFA_ERROR_INVALID_PARAMETER;
 		}
 	}
 	return 0;
@@ -910,7 +910,8 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
  *				the memory is not in a valid state for lending.
  * @obj:    Object containing ffa_memory_region_descriptor.
  *
- * Return: 0 if object is valid, -EINVAL if invalid memory state.
+ * Return: 0 if object is valid, FFA_ERROR_INVALID_PARAMETER if invalid memory
+ * state.
  */
 static int spmc_shmem_check_state_obj(struct spmc_shmem_obj *obj,
 				      uint32_t ffa_version)
@@ -923,7 +924,7 @@ static int spmc_shmem_check_state_obj(struct spmc_shmem_obj *obj,
 								  ffa_version);
 
 	if (requested_mrd == NULL) {
-		return -EINVAL;
+		return FFA_ERROR_INVALID_PARAMETER;
 	}
 
 	inflight_obj = spmc_shmem_obj_get_next(&spmc_shmem_obj_state,
@@ -939,11 +940,11 @@ static int spmc_shmem_check_state_obj(struct spmc_shmem_obj *obj,
 			other_mrd = spmc_shmem_obj_get_comp_mrd(inflight_obj,
 							  FFA_VERSION_COMPILED);
 			if (other_mrd == NULL) {
-				return -EINVAL;
+				return FFA_ERROR_INVALID_PARAMETER;
 			}
 			if (overlapping_memory_regions(requested_mrd,
 						       other_mrd)) {
-				return -EINVAL;
+				return FFA_ERROR_INVALID_PARAMETER;
 			}
 		}
 
@@ -1045,7 +1046,6 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 
 	ret = spmc_shmem_check_obj(obj, ffa_version);
 	if (ret != 0) {
-		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_bad_desc;
 	}
 
@@ -1072,7 +1072,6 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 	ret = spmc_shmem_check_state_obj(obj, ffa_version);
 	if (ret) {
 		ERROR("%s: invalid memory region descriptor.\n", __func__);
-		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_bad_desc;
 	}
 
