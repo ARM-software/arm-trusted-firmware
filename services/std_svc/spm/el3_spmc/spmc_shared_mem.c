@@ -248,25 +248,6 @@ spmc_shmem_obj_get_comp_mrd(struct spmc_shmem_obj *obj, uint32_t ffa_version)
 }
 
 /**
- * spmc_shmem_obj_ffa_constituent_size - Calculate variable size part of obj.
- * @obj:    Object containing ffa_memory_region_descriptor.
- *
- * Return: Size of ffa_constituent_memory_region_descriptors in @obj.
- */
-static size_t
-spmc_shmem_obj_ffa_constituent_size(struct spmc_shmem_obj *obj,
-				    uint32_t ffa_version)
-{
-	struct ffa_comp_mrd *comp_mrd;
-
-	comp_mrd = spmc_shmem_obj_get_comp_mrd(obj, ffa_version);
-	if (comp_mrd == NULL) {
-		return 0;
-	}
-	return comp_mrd->address_range_count * sizeof(struct ffa_cons_mrd);
-}
-
-/**
  * spmc_shmem_obj_validate_id - Validate a partition ID is participating in
  *				a given memory transaction.
  * @sp_id:      Partition ID to validate.
@@ -902,8 +883,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		}
 
 		expected_size = offset + sizeof(*comp) +
-				spmc_shmem_obj_ffa_constituent_size(obj,
-								    ffa_version);
+			count * sizeof(struct ffa_cons_mrd);
 
 		if (expected_size != obj->desc_size) {
 			WARN("%s: invalid object, computed size %zu != size %zu\n",
