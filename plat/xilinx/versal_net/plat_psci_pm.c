@@ -196,6 +196,7 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
 	int32_t pstate = psci_get_pstate_type(power_state);
+	uint64_t i;
 
 	assert(req_state);
 
@@ -203,7 +204,8 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 	if (pstate == PSTATE_TYPE_STANDBY) {
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
 	} else {
-		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
+		for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+			req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 	}
 
 	/* We expect the 'state id' to be zero */
@@ -221,8 +223,10 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
  */
 static void versal_net_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
-	req_state->pwr_domain_state[PSCI_CPU_PWR_LVL] = PLAT_MAX_OFF_STATE;
-	req_state->pwr_domain_state[1] = PLAT_MAX_OFF_STATE;
+	uint64_t i;
+
+	for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 }
 
 static const struct plat_psci_ops versal_net_nopmc_psci_ops = {
