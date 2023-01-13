@@ -213,8 +213,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 
 # Pointer Authentication sources
 ifeq (${ENABLE_PAUTH}, 1)
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c	\
-				lib/extensions/pauth/pauth_helpers.S
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c
 endif
 
 ifeq (${SPD},spmd)

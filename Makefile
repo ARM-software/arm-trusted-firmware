@@ -512,6 +512,13 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				plat/common/${ARCH}/platform_helpers.S	\
 				${COMPILER_RT_SRCS}
 
+# Pointer Authentication sources
+ifeq (${ENABLE_PAUTH}, 1)
+# arm/common/aarch64/arm_pauth.c contains a sample platform hook to complete the
+# Pauth support. As it's not secure, it must be reimplemented for real platforms
+BL_COMMON_SOURCES	+=	lib/extensions/pauth/pauth_helpers.S
+endif
+
 ifeq ($(notdir $(CC)),armclang)
 BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
 endif
