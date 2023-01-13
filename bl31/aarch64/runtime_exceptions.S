@@ -83,31 +83,6 @@
 1:
 #else
 	/*
-	 * For SoCs which do not implement RAS, use DSB as a barrier to
-	 * synchronize pending external aborts.
-	 */
-	dsb	sy
-
-	/* Unmask the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
-	/* Use ISB for the above unmask operation to take effect immediately */
-	isb
-
-	/*
-	 * Refer Note 1. No need to restore X30 as both handle_sync_exception
-	 * and handle_interrupt_exception macro which follow this macro modify
-	 * X30 anyway.
-	 */
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	mov 	x30, #1
-	str	x30, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
-	dmb	sy
-#endif
-	.endm
-
-#if !RAS_EXTENSION
-	/*
 	 * Note 1: The explicit DSB at the entry of various exception vectors
 	 * for handling exceptions from lower ELs can inadvertently trigger an
 	 * SError exception in EL3 due to pending asynchronous aborts in lower
@@ -121,13 +96,9 @@
 	 * flag execute without causing further exceptions.
 	 */
 
-	/* ---------------------------------------------------------------------
-	 * This macro handles Asynchronous External Aborts.
-	 * ---------------------------------------------------------------------
-	 */
-	.macro	handle_async_ea
 	/*
-	 * Use a barrier to synchronize pending external aborts.
+	 * For SoCs which do not implement RAS, use DSB as a barrier to
+	 * synchronize pending external aborts.
 	 */
 	dsb	sy
 
@@ -137,33 +108,16 @@
 	/* Use ISB for the above unmask operation to take effect immediately */
 	isb
 
-	/* Refer Note 1 */
+	/*
+	 * Refer Note 1.
+	 * No need to restore X30 as macros following this modify x30 anyway.
+	 */
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	mov 	x30, #1
 	str	x30, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
 	dmb	sy
-
-	b	handle_lower_el_async_ea
-	.endm
-
-	/*
-	 * This macro checks if the exception was taken due to SError in EL3 or
-	 * because of pending asynchronous external aborts from lower EL that got
-	 * triggered due to explicit synchronization in EL3. Refer Note 1.
-	 */
-	.macro check_if_serror_from_EL3
-	/* Assumes SP_EL3 on entry */
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	ldr	x30, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
-	cbnz	x30, exp_from_EL3
-
-	/* Handle asynchronous external abort from lower EL */
-	b	handle_lower_el_async_ea
-
-exp_from_EL3:
-	/* Jump to plat_handle_el3_ea which does not return */
-	.endm
 #endif
+	.endm
 
 	/* ---------------------------------------------------------------------
 	 * This macro handles Synchronous exceptions.
@@ -356,7 +310,19 @@ end_vector_entry fiq_sp_elx
 
 vector_entry serror_sp_elx
 #if !RAS_EXTENSION
-	check_if_serror_from_EL3
+	/*
+	 * This will trigger if the exception was taken due to SError in EL3 or
+	 * because of pending asynchronous external aborts from lower EL that got
+	 * triggered due to explicit synchronization in EL3. Refer Note 1.
+	 */
+	/* Assumes SP_EL3 on entry */
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	ldr	x30, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
+	cbnz	x30, 1f
+
+	/* Handle asynchronous external abort from lower EL */
+	b	handle_lower_el_async_ea
+1:
 #endif
 	no_ret	plat_handle_el3_ea
 end_vector_entry serror_sp_elx
@@ -395,7 +361,8 @@ vector_entry serror_aarch64
 	msr	daifclr, #DAIF_ABT_BIT
 	b	enter_lower_el_async_ea
 #else
-	handle_async_ea
+	check_and_unmask_ea
+	b handle_lower_el_async_ea
 #endif
 end_vector_entry serror_aarch64
 
@@ -433,7 +400,8 @@ vector_entry serror_aarch32
 	msr	daifclr, #DAIF_ABT_BIT
 	b	enter_lower_el_async_ea
 #else
-	handle_async_ea
+	check_and_unmask_ea
+	b handle_lower_el_async_ea
 #endif
 end_vector_entry serror_aarch32
 
