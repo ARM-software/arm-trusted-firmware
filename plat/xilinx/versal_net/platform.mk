@@ -53,6 +53,11 @@ USE_COHERENT_MEM := 0
 HW_ASSISTED_COHERENCY := 1
 
 VERSAL_NET_CONSOLE	?=	pl011
+ifeq (${VERSAL_NET_CONSOLE}, $(filter ${VERSAL_NET_CONSOLE},pl011 pl011_0 pl011_1))
+else
+  $(error Please define VERSAL_NET_CONSOLE)
+endif
+
 $(eval $(call add_define_val,VERSAL_NET_CONSOLE,VERSAL_NET_CONSOLE_ID_${VERSAL_NET_CONSOLE}))
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
