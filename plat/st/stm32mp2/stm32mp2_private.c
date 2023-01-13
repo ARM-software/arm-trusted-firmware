@@ -490,7 +490,31 @@ bool stm32mp_is_single_core(void)
 /* Return true when device is in closed state */
 uint32_t stm32mp_check_closed_device(void)
 {
-	return STM32MP_CHIP_SEC_OPEN;
+	static uint32_t otp_idx;
+	static uint32_t otp_len;
+	uint32_t otp_val;
+	uint32_t status = STM32MP_CHIP_SEC_CLOSED;
+
+	if (otp_len == 0U) {
+		if (stm32_get_otp_index(LIFECYCLE2_OTP, &otp_idx, &otp_len) != 0) {
+			panic();
+		}
+
+		if (otp_len != __WORD_BIT) {
+			panic();
+		}
+	}
+
+	if (stm32_get_otp_value_from_idx(otp_idx, &otp_val) != 0) {
+		panic();
+	}
+
+	if (!stm32_is_bsec_closed() ||
+	    ((otp_val & SECURE_BOOT_CLOSED_SECURE) == 0U)) {
+		status = STM32MP_CHIP_SEC_OPEN;
+	}
+
+	return status;
 }
 
 /* Return true when device supports secure boot */
