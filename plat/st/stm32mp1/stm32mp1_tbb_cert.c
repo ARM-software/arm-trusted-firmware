@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,3 +35,12 @@ static cert_t stm32mp1_tbb_certs[] = {
 };
 
 PLAT_REGISTER_COT(stm32mp1_tbb_certs);
+
+static ext_t stm32mp1_tbb_ext[] = {
+	[0] = {
+		.opt = "ddr-fw",
+		.optional = 1
+	}
+};
+
+PLAT_REGISTER_EXTENSIONS(stm32mp1_tbb_ext);
