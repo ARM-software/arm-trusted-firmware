@@ -79,6 +79,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 	SOC_CSS_MAP_DEVICE,
 	ARM_DTB_DRAM_NS,
+#ifdef JUNO_ETHOSN_TZMP1
+	JUNO_ETHOSN_PROT_FW_RO,
+#endif
 	{0}
 };
 #endif

@@ -359,6 +359,9 @@ ifeq (${ARM_ETHOSN_NPU_DRIVER},1)
 ARM_SVC_HANDLER_SRCS	+=	plat/arm/common/fconf/fconf_ethosn_getter.c	\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/arm/ethosn/ethosn_smc.c
+ifeq (${ARM_ETHOSN_NPU_TZMP1},1)
+ARM_SVC_HANDLER_SRCS	+=	drivers/arm/ethosn/ethosn_big_fw.c
+endif
 endif
 
 ifeq (${ARCH}, aarch64)

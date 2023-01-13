@@ -17,6 +17,10 @@
 
 #include <platform_def.h>
 
+#if ARM_ETHOSN_NPU_TZMP1
+#include "ethosn_big_fw.h"
+#endif
+
 /*
  * Number of Arm(R) Ethos(TM)-N NPU (NPU) devices available
  */
@@ -56,9 +60,17 @@
 #define SEC_MMUSID_REG_BASE		U(0x3008)
 #define SEC_MMUSID_OFFSET		U(0x1000)
 
+#define SEC_NPU_ID_REG			U(0xF000)
+#define SEC_NPU_ID_ARCH_VER_SHIFT	U(0X10)
+
 #define INPUT_STREAM_INDEX              U(0x6)
 #define INTERMEDIATE_STREAM_INDEX       U(0x7)
 #define OUTPUT_STREAM_INDEX             U(0x8)
+
+#if ARM_ETHOSN_NPU_TZMP1
+CASSERT(ARM_ETHOSN_NPU_FW_IMAGE_BASE > 0U, assert_ethosn_invalid_fw_image_base);
+static const struct ethosn_big_fw *big_fw;
+#endif
 
 static bool ethosn_get_device_and_core(uintptr_t core_addr,
 				       const struct ethosn_device_t **dev_match,
@@ -86,6 +98,14 @@ static bool ethosn_get_device_and_core(uintptr_t core_addr,
 }
 
 #if ARM_ETHOSN_NPU_TZMP1
+static uint32_t ethosn_core_read_arch_version(uintptr_t core_addr)
+{
+	uint32_t npu_id = mmio_read_32(ETHOSN_CORE_SEC_REG(core_addr,
+							   SEC_NPU_ID_REG));
+
+	return (npu_id >> SEC_NPU_ID_ARCH_VER_SHIFT);
+}
+
 static void ethosn_configure_stream_nsaid(const struct ethosn_core_t *core,
 					  bool is_protected)
 {
@@ -289,10 +309,39 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 
 int ethosn_smc_setup(void)
 {
+#if ARM_ETHOSN_NPU_TZMP1
+	struct ethosn_device_t *dev;
+	uint32_t arch_ver;
+#endif
+
 	if (ETHOSN_NUM_DEVICES == 0U) {
 		ERROR("ETHOSN: No NPU found\n");
 		return ETHOSN_FAILURE;
 	}
+
+#if ARM_ETHOSN_NPU_TZMP1
+
+	/* Only one NPU core is supported in the TZMP1 setup */
+	if ((ETHOSN_NUM_DEVICES != 1U) ||
+	    (ETHOSN_GET_DEVICE(0U)->num_cores != 1U)) {
+		ERROR("ETHOSN: TZMP1 doesn't support multiple NPU cores\n");
+		return ETHOSN_FAILURE;
+	}
+
+	dev = ETHOSN_GET_DEVICE(0U);
+	arch_ver = ethosn_core_read_arch_version(dev->cores[0U].addr);
+	big_fw = (struct ethosn_big_fw *)ARM_ETHOSN_NPU_FW_IMAGE_BASE;
+
+	if (!ethosn_big_fw_verify_header(big_fw, arch_ver)) {
+		return ETHOSN_FAILURE;
+	}
+
+	NOTICE("ETHOSN: TZMP1 setup succeeded with firmware version %u.%u.%u\n",
+	       big_fw->fw_ver_major, big_fw->fw_ver_minor,
+	       big_fw->fw_ver_patch);
+#else
+	NOTICE("ETHOSN: Setup succeeded\n");
+#endif
 
 	return 0;
 }
