@@ -807,9 +807,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 	comp_mrd_offset = first_emad->comp_mrd_offset;
 
 	/* Loop through the endpoint descriptors, validating each of them. */
-	for (const struct ffa_emad_v1_0 *emad = first_emad;
-	     emad < end_emad;
-	     emad = emad_advance(emad, emad_size)) {
+	for (const struct ffa_emad_v1_0 *emad = first_emad; emad < end_emad;) {
 		ffa_endpoint_id16_t ep_id;
 
 		/*
@@ -835,6 +833,23 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 			ERROR("%s: mismatching offsets provided, %u != %u\n",
 			       __func__, emad->comp_mrd_offset, comp_mrd_offset);
 			return FFA_ERROR_INVALID_PARAMETER;
+		}
+
+		/* Advance to the next endpoint descriptor */
+		emad = emad_advance(emad, emad_size);
+
+		/*
+		 * Ensure neither this emad nor any subsequent emads have
+		 * the same partition ID as the previous emad.
+		 */
+		for (const struct ffa_emad_v1_0 *other_emad = emad;
+		     other_emad < end_emad;
+		     other_emad = emad_advance(other_emad, emad_size)) {
+			if (ep_id == other_emad->mapd.endpoint_id) {
+				WARN("%s: Duplicated endpoint id 0x%x\n",
+				     __func__, emad->mapd.endpoint_id);
+				return FFA_ERROR_INVALID_PARAMETER;
+			}
 		}
 	}
 
@@ -977,11 +992,8 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 			       void *smc_handle)
 {
 	int ret;
-	size_t emad_size;
 	uint32_t handle_low;
 	uint32_t handle_high;
-	struct ffa_emad_v1_0 *emad;
-	struct ffa_emad_v1_0 *other_emad;
 
 	if (mbox->rxtx_page_count == 0U) {
 		WARN("%s: buffer pair not registered.\n", __func__);
@@ -1062,26 +1074,6 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 	ret = spmc_shmem_check_obj(obj, ffa_version);
 	if (ret != 0) {
 		goto err_bad_desc;
-	}
-
-	/* Ensure partition IDs are not duplicated. */
-	for (size_t i = 0; i < obj->desc.emad_count; i++) {
-		emad = spmc_shmem_obj_get_emad(&obj->desc, i, ffa_version,
-					       &emad_size);
-
-		for (size_t j = i + 1; j < obj->desc.emad_count; j++) {
-			other_emad = spmc_shmem_obj_get_emad(&obj->desc, j,
-							     ffa_version,
-							     &emad_size);
-
-			if (emad->mapd.endpoint_id ==
-				other_emad->mapd.endpoint_id) {
-				WARN("%s: Duplicated endpoint id 0x%x\n",
-				     __func__, emad->mapd.endpoint_id);
-				ret = FFA_ERROR_INVALID_PARAMETER;
-				goto err_bad_desc;
-			}
-		}
 	}
 
 	ret = spmc_shmem_check_state_obj(obj, ffa_version);
