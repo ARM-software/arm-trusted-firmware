@@ -854,6 +854,14 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 			return FFA_ERROR_INVALID_PARAMETER;
 		}
 
+		/* Ensure the composite descriptor offset is aligned. */
+		if (!is_aligned(comp_mrd_offset, 16)) {
+			WARN("%s: invalid object, unaligned composite memory "
+			     "region descriptor offset %u.\n",
+			     __func__, comp_mrd_offset);
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+
 		size = obj->desc_size;
 
 		if (offset > size) {
@@ -873,11 +881,6 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		count = size / sizeof(struct ffa_cons_mrd);
 
 		comp = spmc_shmem_obj_get_comp_mrd(obj, ffa_version);
-
-		if (comp == NULL) {
-			WARN("%s: invalid comp_mrd offset\n", __func__);
-			return FFA_ERROR_INVALID_PARAMETER;
-		}
 
 		if (comp->address_range_count != count) {
 			WARN("%s: invalid object, desc count %u != %zu\n",
