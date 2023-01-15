@@ -777,10 +777,16 @@ emad_advance(const struct ffa_emad_v1_0 *emad, size_t offset)
 static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 				uint32_t ffa_version)
 {
+	uint64_t total_page_count;
 	const struct ffa_emad_v1_0 *first_emad;
 	const struct ffa_emad_v1_0 *end_emad;
 	size_t emad_size;
 	uint32_t comp_mrd_offset = 0;
+	size_t header_emad_size;
+	size_t size;
+	size_t count;
+	size_t expected_size;
+	struct ffa_comp_mrd *comp;
 
 	if (obj->desc_filled != obj->desc_size) {
 		ERROR("BUG: %s called on incomplete object (%zu != %zu)\n",
@@ -798,21 +804,13 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 	first_emad = spmc_shmem_obj_get_emad(&obj->desc, 0,
 					     ffa_version, &emad_size);
 	end_emad = emad_advance(first_emad, obj->desc.emad_count * emad_size);
+	comp_mrd_offset = first_emad->comp_mrd_offset;
 
 	/* Loop through the endpoint descriptors, validating each of them. */
 	for (const struct ffa_emad_v1_0 *emad = first_emad;
 	     emad < end_emad;
 	     emad = emad_advance(emad, emad_size)) {
-		size_t size;
-		size_t count;
-		size_t expected_size;
-		uint64_t total_page_count;
-		size_t header_emad_size;
-		uint32_t offset;
-		struct ffa_comp_mrd *comp;
 		ffa_endpoint_id16_t ep_id;
-
-		offset = emad->comp_mrd_offset;
 
 		/*
 		 * If a partition ID resides in the secure world validate that
@@ -831,85 +829,80 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 
 		/*
 		 * The offset provided to the composite memory region descriptor
-		 * should be consistent across endpoint descriptors. Store the
-		 * first entry and compare against subsequent entries.
+		 * should be consistent across endpoint descriptors.
 		 */
-		if (comp_mrd_offset == 0) {
-			comp_mrd_offset = offset;
-		} else {
-			if (comp_mrd_offset != offset) {
-				ERROR("%s: mismatching offsets provided, %u != %u\n",
-				       __func__, offset, comp_mrd_offset);
-				return FFA_ERROR_INVALID_PARAMETER;
-			}
-			continue; /* Remainder only executed on first iteration. */
-		}
-
-		header_emad_size = (size_t)((uint8_t *)emad - (uint8_t *)&obj->desc) +
-			(obj->desc.emad_count * emad_size);
-
-		if (offset < header_emad_size) {
-			WARN("%s: invalid object, offset %u < header + emad %zu\n",
-			     __func__, offset, header_emad_size);
-			return FFA_ERROR_INVALID_PARAMETER;
-		}
-
-		/* Ensure the composite descriptor offset is aligned. */
-		if (!is_aligned(comp_mrd_offset, 16)) {
-			WARN("%s: invalid object, unaligned composite memory "
-			     "region descriptor offset %u.\n",
-			     __func__, comp_mrd_offset);
-			return FFA_ERROR_INVALID_PARAMETER;
-		}
-
-		size = obj->desc_size;
-
-		if (offset > size) {
-			WARN("%s: invalid object, offset %u > total size %zu\n",
-			     __func__, offset, obj->desc_size);
-			return FFA_ERROR_INVALID_PARAMETER;
-		}
-		size -= offset;
-
-		if (size < sizeof(struct ffa_comp_mrd)) {
-			WARN("%s: invalid object, offset %u, total size %zu, no header space.\n",
-			     __func__, offset, obj->desc_size);
-			return FFA_ERROR_INVALID_PARAMETER;
-		}
-		size -= sizeof(struct ffa_comp_mrd);
-
-		count = size / sizeof(struct ffa_cons_mrd);
-
-		comp = spmc_shmem_obj_get_comp_mrd(obj, ffa_version);
-
-		if (comp->address_range_count != count) {
-			WARN("%s: invalid object, desc count %u != %zu\n",
-			     __func__, comp->address_range_count, count);
-			return FFA_ERROR_INVALID_PARAMETER;
-		}
-
-		expected_size = offset + sizeof(*comp) +
-			count * sizeof(struct ffa_cons_mrd);
-
-		if (expected_size != obj->desc_size) {
-			WARN("%s: invalid object, computed size %zu != size %zu\n",
-			       __func__, expected_size, obj->desc_size);
-			return FFA_ERROR_INVALID_PARAMETER;
-		}
-
-		total_page_count = 0;
-
-		for (size_t i = 0; i < count; i++) {
-			total_page_count +=
-				comp->address_range_array[i].page_count;
-		}
-		if (comp->total_page_count != total_page_count) {
-			WARN("%s: invalid object, desc total_page_count %u != %" PRIu64 "\n",
-			     __func__, comp->total_page_count,
-			total_page_count);
+		if (comp_mrd_offset != emad->comp_mrd_offset) {
+			ERROR("%s: mismatching offsets provided, %u != %u\n",
+			       __func__, emad->comp_mrd_offset, comp_mrd_offset);
 			return FFA_ERROR_INVALID_PARAMETER;
 		}
 	}
+
+	header_emad_size = (size_t)((const uint8_t *)end_emad -
+				    (const uint8_t *)&obj->desc);
+
+	if (comp_mrd_offset < header_emad_size) {
+		WARN("%s: invalid object, offset %u < header + emad %zu\n",
+		     __func__, comp_mrd_offset, header_emad_size);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+
+	/* Ensure the composite descriptor offset is aligned. */
+	if (!is_aligned(comp_mrd_offset, 16)) {
+		WARN("%s: invalid object, unaligned composite memory "
+		     "region descriptor offset %u.\n",
+		     __func__, comp_mrd_offset);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+
+	size = obj->desc_size;
+
+	if (comp_mrd_offset > size) {
+		WARN("%s: invalid object, offset %u > total size %zu\n",
+		     __func__, comp_mrd_offset, obj->desc_size);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+	size -= comp_mrd_offset;
+
+	if (size < sizeof(struct ffa_comp_mrd)) {
+		WARN("%s: invalid object, offset %u, total size %zu, no header space.\n",
+		     __func__, comp_mrd_offset, obj->desc_size);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+	size -= sizeof(struct ffa_comp_mrd);
+
+	count = size / sizeof(struct ffa_cons_mrd);
+
+	comp = spmc_shmem_obj_get_comp_mrd(obj, ffa_version);
+
+	if (comp->address_range_count != count) {
+		WARN("%s: invalid object, desc count %u != %zu\n",
+		     __func__, comp->address_range_count, count);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+
+	expected_size = comp_mrd_offset + sizeof(*comp) +
+		count * sizeof(struct ffa_cons_mrd);
+
+	if (expected_size != obj->desc_size) {
+		WARN("%s: invalid object, computed size %zu != size %zu\n",
+		       __func__, expected_size, obj->desc_size);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+
+	total_page_count = 0;
+
+	for (size_t i = 0; i < count; i++) {
+		total_page_count +=
+			comp->address_range_array[i].page_count;
+	}
+	if (comp->total_page_count != total_page_count) {
+		WARN("%s: invalid object, desc total_page_count %u != %" PRIu64 "\n",
+		     __func__, comp->total_page_count,
+		total_page_count);
+		return FFA_ERROR_INVALID_PARAMETER;
+	}
+
 	return 0;
 }
 
