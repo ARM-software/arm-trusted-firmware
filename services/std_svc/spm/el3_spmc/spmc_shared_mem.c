@@ -841,6 +841,10 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 	header_emad_size = (size_t)((const uint8_t *)end_emad -
 				    (const uint8_t *)&obj->desc);
 
+	/*
+	 * Check that the composite descriptor
+	 * is after the endpoint descriptors.
+	 */
 	if (comp_mrd_offset < header_emad_size) {
 		WARN("%s: invalid object, offset %u < header + emad %zu\n",
 		     __func__, comp_mrd_offset, header_emad_size);
@@ -857,6 +861,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 
 	size = obj->desc_size;
 
+	/* Check that the composite descriptor is in bounds. */
 	if (comp_mrd_offset > size) {
 		WARN("%s: invalid object, offset %u > total size %zu\n",
 		     __func__, comp_mrd_offset, obj->desc_size);
