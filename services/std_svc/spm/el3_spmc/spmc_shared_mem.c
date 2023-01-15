@@ -80,6 +80,13 @@ spmc_shmem_obj_alloc(struct spmc_shmem_obj_state *state, size_t desc_size)
 		return NULL;
 	}
 
+	/* Ensure that descriptor size is aligned */
+	if (!is_aligned(desc_size, 16)) {
+		WARN("%s(0x%zx) desc_size not 16-byte aligned\n",
+		     __func__, desc_size);
+		return NULL;
+	}
+
 	obj_size = spmc_shmem_obj_size(desc_size);
 
 	/* Ensure the obj size has not overflowed. */
