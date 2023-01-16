@@ -13,7 +13,6 @@
 	.globl	asm_print_hex_bits
 	.globl	asm_print_newline
 	.globl	asm_assert
-	.globl	do_panic
 	.globl	el3_panic
 
 /* Since the max decimal input number is 65536 */
@@ -146,30 +145,24 @@ func asm_print_newline
 endfunc asm_print_newline
 
 	/***********************************************************
-	 * The common implementation of do_panic for all BL stages
+	 * The common implementation of el3_panic for all BL stages
 	 ***********************************************************/
 
 .section .rodata.panic_str, "aS"
 	panic_msg: .asciz "PANIC at PC : 0x"
 
 /* ---------------------------------------------------------------------------
- * do_panic assumes that it is invoked from a C Runtime Environment ie a
+ * el3_panic assumes that it is invoked from a C Runtime Environment ie a
  * valid stack exists. This call will not return.
  * Clobber list : if CRASH_REPORTING is not enabled then x30, x0 - x6
  * ---------------------------------------------------------------------------
  */
 
-func do_panic
+func el3_panic
 #if CRASH_REPORTING && defined(IMAGE_BL31)
 	b	report_el3_panic
 #endif /* CRASH_REPORTING && IMAGE_BL31 */
 
-panic_common:
-/*
- * el3_panic will be redefined by the BL31
- * crash reporting mechanism (if enabled)
- */
-el3_panic:
 	mov	x6, x30
 	bl	plat_crash_console_init
 
@@ -196,4 +189,4 @@ _panic_handler:
 	mov	x30, x6
 	b	plat_panic_handler
 
-endfunc do_panic
+endfunc el3_panic

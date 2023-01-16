@@ -99,14 +99,14 @@ void backtrace(const char *cookie);
 #define backtrace(x)
 #endif
 
-void __dead2 do_panic(void);
+void __dead2 el3_panic(void);
 void __dead2 report_elx_panic(void);
 
 #define panic()				\
 	do {				\
 		backtrace(__func__);	\
 		console_flush();	\
-		do_panic();		\
+		el3_panic();		\
 	} while (false)
 
 #if CRASH_REPORTING

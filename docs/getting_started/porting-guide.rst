@@ -3205,8 +3205,8 @@ as Group 0 secure interrupt, Group 1 secure interrupt or Group 1 NS interrupt.
 Common helper functions
 -----------------------
 
-Function : do_panic()
-~~~~~~~~~~~~~~~~~~~~~
+Function : el3_panic()
+~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -3214,9 +3214,8 @@ Function : do_panic()
     Return   : void
 
 This API is called from assembly files when encountering a critical failure that
-cannot be recovered from. It also invokes elx_panic() which allows to report a
-crash from lower exception level. This function assumes that it is invoked from
-a C runtime environment i.e. valid stack exists. This call **must not** return.
+cannot be recovered from. This function assumes that it is invoked from a C
+runtime environment i.e. valid stack exists. This call **must not** return.
 
 Function : panic()
 ~~~~~~~~~~~~~~~~~~
@@ -3228,7 +3227,7 @@ Function : panic()
 
 This API called from C files when encountering a critical failure that cannot
 be recovered from. This function in turn prints backtrace (if enabled) and calls
-do_panic(). This call **must not** return.
+el3_panic(). This call **must not** return.
 
 Crash Reporting mechanism (in BL31)
 -----------------------------------

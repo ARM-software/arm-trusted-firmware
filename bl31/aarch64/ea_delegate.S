@@ -201,7 +201,7 @@ func delegate_async_ea
 	 */
 	ubfx	x2, x1, #ESR_EC_SHIFT, #ESR_EC_LENGTH
 	cmp	x2, EC_SERROR
-	b.ne	do_panic
+	b.ne	el3_panic
 	/*
 	 * Check for Implementation Defined Syndrome. If so, skip checking
 	 * Uncontainable error type from the syndrome as the format is unknown.

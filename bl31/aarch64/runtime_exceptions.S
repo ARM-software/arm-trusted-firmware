@@ -563,7 +563,7 @@ sysreg_handler64:
 	 */
 
 	tst	w0, w0
-	b.mi	do_panic	/* negative return value: panic */
+	b.mi	el3_panic	/* negative return value: panic */
 	b.eq	1f		/* zero: do not change ELR_EL3 */
 
 	/* advance the PC to continue after the instruction */
