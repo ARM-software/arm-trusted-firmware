@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp_clkfunc.h>
 #include <drivers/st/stm32mp_reset.h>
+#include <lib/mmio.h>
 #include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
@@ -23,6 +24,36 @@
 
 #define HEADER_VERSION_MAJOR_MASK	GENMASK(23, 16)
 #define RESET_TIMEOUT_US_1MS		1000U
+
+/* Internal layout of the 32bit OTP word board_id */
+#define BOARD_ID_BOARD_NB_MASK		GENMASK_32(31, 16)
+#define BOARD_ID_BOARD_NB_SHIFT		16
+#define BOARD_ID_VARCPN_MASK		GENMASK_32(15, 12)
+#define BOARD_ID_VARCPN_SHIFT		12
+#define BOARD_ID_REVISION_MASK		GENMASK_32(11, 8)
+#define BOARD_ID_REVISION_SHIFT		8
+#define BOARD_ID_VARFG_MASK		GENMASK_32(7, 4)
+#define BOARD_ID_VARFG_SHIFT		4
+#define BOARD_ID_BOM_MASK		GENMASK_32(3, 0)
+
+#define BOARD_ID2NB(_id)		(((_id) & BOARD_ID_BOARD_NB_MASK) >> \
+					 BOARD_ID_BOARD_NB_SHIFT)
+#define BOARD_ID2VARCPN(_id)		(((_id) & BOARD_ID_VARCPN_MASK) >> \
+					 BOARD_ID_VARCPN_SHIFT)
+#define BOARD_ID2REV(_id)		(((_id) & BOARD_ID_REVISION_MASK) >> \
+					 BOARD_ID_REVISION_SHIFT)
+#define BOARD_ID2VARFG(_id)		(((_id) & BOARD_ID_VARFG_MASK) >> \
+					 BOARD_ID_VARFG_SHIFT)
+#define BOARD_ID2BOM(_id)		((_id) & BOARD_ID_BOM_MASK)
+
+#define BOOT_AUTH_MASK			GENMASK_32(23, 20)
+#define BOOT_AUTH_SHIFT			20
+#define BOOT_PART_MASK			GENMASK_32(19, 16)
+#define BOOT_PART_SHIFT			16
+#define BOOT_ITF_MASK			GENMASK_32(15, 12)
+#define BOOT_ITF_SHIFT			12
+#define BOOT_INST_MASK			GENMASK_32(11, 8)
+#define BOOT_INST_SHIFT			8
 
 static console_t console;
 
@@ -276,4 +307,70 @@ int32_t plat_get_soc_version(void)
 int32_t plat_get_soc_revision(void)
 {
 	return (int32_t)(stm32mp_get_chip_version() & SOC_ID_REV_MASK);
+}
+
+void stm32_display_board_info(uint32_t board_id)
+{
+	char rev[2];
+
+	rev[0] = BOARD_ID2REV(board_id) - 1 + 'A';
+	rev[1] = '\0';
+	NOTICE("Board: MB%04x Var%u.%u Rev.%s-%02u\n",
+	       BOARD_ID2NB(board_id),
+	       BOARD_ID2VARCPN(board_id),
+	       BOARD_ID2VARFG(board_id),
+	       rev,
+	       BOARD_ID2BOM(board_id));
+}
+
+void stm32_save_boot_info(boot_api_context_t *boot_context)
+{
+	uint32_t auth_status;
+
+	assert(boot_context->boot_interface_instance <= (BOOT_INST_MASK >> BOOT_INST_SHIFT));
+	assert(boot_context->boot_interface_selected <= (BOOT_ITF_MASK >> BOOT_ITF_SHIFT));
+	assert(boot_context->boot_partition_used_toboot <= (BOOT_PART_MASK >> BOOT_PART_SHIFT));
+
+	switch (boot_context->auth_status) {
+	case BOOT_API_CTX_AUTH_NO:
+		auth_status = 0x0U;
+		break;
+
+	case BOOT_API_CTX_AUTH_SUCCESS:
+		auth_status = 0x2U;
+		break;
+
+	case BOOT_API_CTX_AUTH_FAILED:
+	default:
+		auth_status = 0x1U;
+		break;
+	}
+
+	clk_enable(TAMP_BKP_REG_CLK);
+
+	mmio_clrsetbits_32(stm32_get_bkpr_boot_mode_addr(),
+			   BOOT_ITF_MASK | BOOT_INST_MASK | BOOT_PART_MASK | BOOT_AUTH_MASK,
+			   (boot_context->boot_interface_instance << BOOT_INST_SHIFT) |
+			   (boot_context->boot_interface_selected << BOOT_ITF_SHIFT) |
+			   (boot_context->boot_partition_used_toboot << BOOT_PART_SHIFT) |
+			   (auth_status << BOOT_AUTH_SHIFT));
+
+	clk_disable(TAMP_BKP_REG_CLK);
+}
+
+void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
+{
+	static uint32_t itf;
+
+	if (itf == 0U) {
+		clk_enable(TAMP_BKP_REG_CLK);
+
+		itf = mmio_read_32(stm32_get_bkpr_boot_mode_addr()) &
+		      (BOOT_ITF_MASK | BOOT_INST_MASK);
+
+		clk_disable(TAMP_BKP_REG_CLK);
+	}
+
+	*interface = (itf & BOOT_ITF_MASK) >> BOOT_ITF_SHIFT;
+	*instance = (itf & BOOT_INST_MASK) >> BOOT_INST_SHIFT;
 }

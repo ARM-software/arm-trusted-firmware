@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -548,6 +548,7 @@ enum ddr_type {
  ******************************************************************************/
 #define TAMP_BASE			U(0x5C00A000)
 #define TAMP_BKP_REGISTER_BASE		(TAMP_BASE + U(0x100))
+#define TAMP_BKP_REG_CLK		RTCAPB
 #define TAMP_COUNTR			U(0x40)
 
 #if !(defined(__LINKER__) || defined(__ASSEMBLER__))
