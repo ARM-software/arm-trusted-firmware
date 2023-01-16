@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,7 +22,7 @@ BL32_SOURCES		+=	bl32/tsp/aarch64/tsp_entrypoint.S	\
 				common/aarch64/early_exceptions.S	\
 				lib/locks/exclusive/aarch64/spinlock.S
 
-BL32_LINKERFILE		:=	bl32/tsp/tsp.ld.S
+BL32_DEFAULT_LINKER_SCRIPT_SOURCE := bl32/tsp/tsp.ld.S
 
 # This flag determines if the TSPD initializes BL32 in tspd_init() (synchronous
 # method) or configures BL31 to pass control to BL32 instead of BL33

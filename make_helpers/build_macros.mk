@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -95,12 +95,6 @@ $(if $(word $(2), $($(1))),\
   $(eval $(1) += $(words $($(1))))\
   $(call CREATE_SEQ,$(1),$(2))\
 )
-endef
-
-# IMG_LINKERFILE defines the linker script corresponding to a BL stage
-#   $(1) = BL stage
-define IMG_LINKERFILE
-    ${BUILD_DIR}/$(1).ld
 endef
 
 # IMG_MAPFILE defines the output file describing the memory map corresponding
@@ -457,6 +451,15 @@ ${LIB_DIR}/lib$(1).a: $(OBJS)
 	$$(Q)$$(AR) cr $$@ $$?
 endef
 
+# Generate the path to one or more preprocessed linker scripts given the paths
+# of their sources.
+#
+# Arguments:
+#   $(1) = path to one or more linker script sources
+define linker_script_path
+        $(patsubst %.S,$(BUILD_DIR)/%,$(1))
+endef
+
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
 #   $(1) = BL stage
@@ -468,17 +471,19 @@ define MAKE_BL
         $(eval BL_SOURCES := $($(call uppercase,$(1))_SOURCES))
         $(eval SOURCES    := $(BL_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
         $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
-        $(eval LINKERFILE := $(call IMG_LINKERFILE,$(1)))
         $(eval MAPFILE    := $(call IMG_MAPFILE,$(1)))
         $(eval ELF        := $(call IMG_ELF,$(1)))
         $(eval DUMP       := $(call IMG_DUMP,$(1)))
         $(eval BIN        := $(call IMG_BIN,$(1)))
         $(eval ENC_BIN    := $(call IMG_ENC_BIN,$(1)))
-        $(eval BL_LINKERFILE := $($(call uppercase,$(1))_LINKERFILE))
         $(eval BL_LIBS    := $($(call uppercase,$(1))_LIBS))
+
+        $(eval DEFAULT_LINKER_SCRIPT_SOURCE := $($(call uppercase,$(1))_DEFAULT_LINKER_SCRIPT_SOURCE))
+        $(eval DEFAULT_LINKER_SCRIPT := $(call linker_script_path,$(DEFAULT_LINKER_SCRIPT_SOURCE)))
+
         # We use sort only to get a list of unique object directory names.
         # ordering is not relevant but sort removes duplicates.
-        $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS} ${LINKERFILE})))
+        $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS} ${DEFAULT_LINKER_SCRIPT})))
         # The $(dir ) function leaves a trailing / on the directory names
         # Rip off the / to match directory names with make rule targets.
         $(eval OBJ_DIRS   := $(patsubst %/,%,$(TEMP_OBJ_DIRS)))
@@ -487,7 +492,8 @@ define MAKE_BL
 
 $(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},${BUILD_PLAT}))
 
-$(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
+$(eval $(foreach objd,${OBJ_DIRS},
+        $(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
 
 .PHONY : ${1}_dirs
 
@@ -496,7 +502,7 @@ $(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
 ${1}_dirs: | ${OBJ_DIRS}
 
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
-$(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE),$(1)))
+$(eval $(call MAKE_LD,$(DEFAULT_LINKER_SCRIPT),$(DEFAULT_LINKER_SCRIPT_SOURCE),$(1)))
 $(eval BL_LDFLAGS := $($(call uppercase,$(1))_LDFLAGS))
 
 ifeq ($(USE_ROMLIB),1)
@@ -507,7 +513,7 @@ endif
 # object file path, and prebuilt object file path.
 $(eval OBJS += $(MODULE_OBJS))
 
-$(ELF): $(OBJS) $(LINKERFILE) | $(1)_dirs libraries $(BL_LIBS)
+$(ELF): $(OBJS) $(DEFAULT_LINKER_SCRIPT) | $(1)_dirs libraries $(BL_LIBS)
 	$$(ECHO) "  LD      $$@"
 ifdef MAKE_BUILD_STRINGS
 	$(call MAKE_BUILD_STRINGS, $(BUILD_DIR)/build_message.o)
@@ -526,11 +532,11 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 		$(BUILD_DIR)/build_message.o $(OBJS)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Wl,-Map=$(MAPFILE) \
-		-Wl,-dT $(LINKERFILE) $(EXTRA_LINKERFILE) $(BUILD_DIR)/build_message.o \
+		$(EXTRA_LINKERFILE) -Wl,--script,$(DEFAULT_LINKER_SCRIPT) $(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 else
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
-		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o \
+		--script $(DEFAULT_LINKER_SCRIPT) $(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 endif
 ifeq ($(DISABLE_BIN_GENERATION),1)

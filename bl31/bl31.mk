@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -157,7 +157,7 @@ BL31_SOURCES		+=	services/std_svc/drtm/drtm_main.c		\
 				${MBEDTLS_SOURCES}
 endif
 
-BL31_LINKERFILE		:=	bl31/bl31.ld.S
+BL31_DEFAULT_LINKER_SCRIPT_SOURCE := bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included
 # in BL31. This defaults to being present in DEBUG builds only

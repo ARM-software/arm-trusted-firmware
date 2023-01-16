@@ -1,6 +1,7 @@
 /*
- * (C) COPYRIGHT 2021 Arm Limited or its affiliates.
- * ALL RIGHTS RESERVED
+ * Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/bl_common.ld.h>
