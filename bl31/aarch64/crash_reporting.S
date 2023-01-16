@@ -15,7 +15,7 @@
 
 	.globl	report_unhandled_exception
 	.globl	report_unhandled_interrupt
-	.globl	el3_panic
+	.globl	report_el3_panic
 	.globl	report_elx_panic
 
 #if CRASH_REPORTING
@@ -297,7 +297,7 @@ endfunc	report_elx_panic
 	 * will not return.
 	 * -----------------------------------------------------
 	 */
-func el3_panic
+func report_el3_panic
 	msr	spsel, #MODE_SP_ELX
 	prepare_crash_buf_save_x0_x1
 	adr	x0, panic_msg
@@ -455,7 +455,7 @@ print_el3_sys_regs:
 
 	/* Done reporting */
 	no_ret	plat_panic_handler
-endfunc el3_panic
+endfunc report_el3_panic
 
 #else	/* CRASH_REPORTING */
 func report_unhandled_exception

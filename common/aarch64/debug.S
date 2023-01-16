@@ -14,6 +14,7 @@
 	.globl	asm_print_newline
 	.globl	asm_assert
 	.globl	do_panic
+	.globl	el3_panic
 
 /* Since the max decimal input number is 65536 */
 #define MAX_DEC_DIVISOR		10000
@@ -158,13 +159,10 @@ endfunc asm_print_newline
  * ---------------------------------------------------------------------------
  */
 
-/* This is for the non el3 BL stages to compile through */
-	.weak el3_panic
-
 func do_panic
-#if CRASH_REPORTING
-	b	el3_panic
-#endif /* CRASH_REPORTING */
+#if CRASH_REPORTING && defined(IMAGE_BL31)
+	b	report_el3_panic
+#endif /* CRASH_REPORTING && IMAGE_BL31 */
 
 panic_common:
 /*
@@ -197,4 +195,5 @@ _panic_handler:
 	 * called, not the address of the call from el3_panic. */
 	mov	x30, x6
 	b	plat_panic_handler
+
 endfunc do_panic
