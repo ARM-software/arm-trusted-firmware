@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -94,5 +94,8 @@ void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *co
 		read_mpidr_el1(), get_el_str(level));
 	ERROR("exception reason=%u syndrome=0x%" PRIx64 "\n", ea_reason, syndrome);
 
-	panic();
+	/* We reached here due to a panic from a lower EL and assuming this is the default
+	 * platform registered handler that we could call on a lower EL panic.
+	 */
+	lower_el_panic();
 }
