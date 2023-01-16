@@ -13,6 +13,7 @@ endif
 # Some utility macros for manipulating awkward (whitespace) characters.
 blank			:=
 space			:=${blank} ${blank}
+comma			:= ,
 
 # A user defined function to recursively search for a filename below a directory
 #    $1 is the directory root of the recursive search (blank for current directory).
@@ -481,9 +482,12 @@ define MAKE_BL
         $(eval DEFAULT_LINKER_SCRIPT_SOURCE := $($(call uppercase,$(1))_DEFAULT_LINKER_SCRIPT_SOURCE))
         $(eval DEFAULT_LINKER_SCRIPT := $(call linker_script_path,$(DEFAULT_LINKER_SCRIPT_SOURCE)))
 
+        $(eval LINKER_SCRIPT_SOURCES := $($(call uppercase,$(1))_LINKER_SCRIPT_SOURCES))
+        $(eval LINKER_SCRIPTS := $(call linker_script_path,$(LINKER_SCRIPT_SOURCES)))
+
         # We use sort only to get a list of unique object directory names.
         # ordering is not relevant but sort removes duplicates.
-        $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS} ${DEFAULT_LINKER_SCRIPT})))
+        $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS} ${DEFAULT_LINKER_SCRIPT} ${LINKER_SCRIPTS})))
         # The $(dir ) function leaves a trailing / on the directory names
         # Rip off the / to match directory names with make rule targets.
         $(eval OBJ_DIRS   := $(patsubst %/,%,$(TEMP_OBJ_DIRS)))
@@ -502,7 +506,11 @@ $(eval $(foreach objd,${OBJ_DIRS},
 ${1}_dirs: | ${OBJ_DIRS}
 
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
-$(eval $(call MAKE_LD,$(DEFAULT_LINKER_SCRIPT),$(DEFAULT_LINKER_SCRIPT_SOURCE),$(1)))
+
+# Generate targets to preprocess each required linker script
+$(eval $(foreach source,$(DEFAULT_LINKER_SCRIPT_SOURCE) $(LINKER_SCRIPT_SOURCES), \
+        $(call MAKE_LD,$(call linker_script_path,$(source)),$(source),$(1))))
+
 $(eval BL_LDFLAGS := $($(call uppercase,$(1))_LDFLAGS))
 
 ifeq ($(USE_ROMLIB),1)
@@ -513,7 +521,7 @@ endif
 # object file path, and prebuilt object file path.
 $(eval OBJS += $(MODULE_OBJS))
 
-$(ELF): $(OBJS) $(DEFAULT_LINKER_SCRIPT) | $(1)_dirs libraries $(BL_LIBS)
+$(ELF): $(OBJS) $(DEFAULT_LINKER_SCRIPT) $(LINKER_SCRIPTS) | $(1)_dirs libraries $(BL_LIBS)
 	$$(ECHO) "  LD      $$@"
 ifdef MAKE_BUILD_STRINGS
 	$(call MAKE_BUILD_STRINGS, $(BUILD_DIR)/build_message.o)
@@ -532,11 +540,13 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 		$(BUILD_DIR)/build_message.o $(OBJS)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Wl,-Map=$(MAPFILE) \
-		$(EXTRA_LINKERFILE) -Wl,--script,$(DEFAULT_LINKER_SCRIPT) $(BUILD_DIR)/build_message.o \
+		$(addprefix -Wl$(comma)--script$(comma),$(LINKER_SCRIPTS)) -Wl,--script,$(DEFAULT_LINKER_SCRIPT) \
+		$(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 else
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
-		--script $(DEFAULT_LINKER_SCRIPT) $(BUILD_DIR)/build_message.o \
+		$(addprefix -T ,$(LINKER_SCRIPTS)) --script $(DEFAULT_LINKER_SCRIPT) \
+		$(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 endif
 ifeq ($(DISABLE_BIN_GENERATION),1)
