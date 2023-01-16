@@ -40,6 +40,7 @@
 #define CORTEX_A72_CPUACTLR_EL1_NO_ALLOC_WBWA			(ULL(1) << 49)
 #define CORTEX_A72_CPUACTLR_EL1_DCC_AS_DCCI			(ULL(1) << 44)
 #define CORTEX_A72_CPUACTLR_EL1_DIS_INSTR_PREFETCH		(ULL(1) << 32)
+#define CORTEX_A72_CPUACTLR_EL1_DELAY_EXCLUSIVE_SNOOP		(ULL(1) << 31)
 
 /*******************************************************************************
  *  L2 Auxiliary Control register specific definitions.
@@ -60,6 +61,9 @@
  ******************************************************************************/
 #define CORTEX_A72_L2CTLR_EL1				S3_1_C11_C0_2
 
+#define CORTEX_A72_L2CTLR_EL1_ECC_AND_PARITY_ENABLE	(ULL(1) << 21)
+#define CORTEX_A72_L2CTLR_EL1_DATA_INLINE_ECC_ENABLE	(ULL(1) << 20)
+
 #define CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT	U(0)
 #define CORTEX_A72_L2CTLR_DATA_RAM_SETUP_SHIFT		U(5)
 #define CORTEX_A72_L2CTLR_TAG_RAM_LATENCY_SHIFT		U(6)
@@ -68,6 +72,7 @@
 #define CORTEX_A72_L2_DATA_RAM_LATENCY_MASK		U(0x7)
 #define CORTEX_A72_L2_TAG_RAM_LATENCY_MASK		U(0x7)
 #define CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES		U(0x2)
+#define CORTEX_A72_L2_DATA_RAM_LATENCY_4_CYCLES		U(0x3)
 #define CORTEX_A72_L2_TAG_RAM_LATENCY_2_CYCLES		U(0x1)
 #define CORTEX_A72_L2_TAG_RAM_LATENCY_3_CYCLES		U(0x2)
 

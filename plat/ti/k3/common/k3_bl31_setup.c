@@ -67,7 +67,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	assert(arg0 == 0U);
 	assert(arg1 == 0U);
 
-	bl31_console_setup();
+	/* Initialize the console to provide early debug support */
+	k3_console_setup();
 
 #ifdef BL32_BASE
 	/* Populate entry point information for BL32 */
@@ -120,6 +121,10 @@ void bl31_platform_setup(void)
 	k3_gic_init();
 
 	ti_sci_init();
+
+	if (ti_sci_device_get(PLAT_BOARD_DEVICE_ID)) {
+		WARN("Unable to take system power reference\n");
+	}
 }
 
 void platform_mem_init(void)
@@ -162,14 +167,6 @@ unsigned int plat_get_syscnt_freq2(void)
 	      SYS_COUNTER_FREQ_IN_TICKS);
 
 	return SYS_COUNTER_FREQ_IN_TICKS;
-}
-
-/*
- * Empty function to prevent the console from being uninitialized after BL33 is
- * started and allow us to see messages from BL31.
- */
-void bl31_plat_runtime_setup(void)
-{
 }
 
 /*******************************************************************************

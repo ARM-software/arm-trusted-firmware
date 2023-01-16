@@ -37,16 +37,21 @@
 #define CORTEX_A72_CPUACTLR_NO_ALLOC_WBWA		(ULL(1) << 49)
 #define CORTEX_A72_CPUACTLR_DCC_AS_DCCI			(ULL(1) << 44)
 #define CORTEX_A72_CPUACTLR_DIS_INSTR_PREFETCH		(ULL(1) << 32)
+#define CORTEX_A72_CPUACTLR_DELAY_EXCLUSIVE_SNOOP	(ULL(1) << 31)
 
 /*******************************************************************************
  * L2 Control register specific definitions.
  ******************************************************************************/
 #define CORTEX_A72_L2CTLR				p15, 1, c9, c0, 2
 
+#define CORTEX_A72_L2CTLR_EL1_ECC_AND_PARITY_ENABLE	(ULL(1) << 21)
+#define CORTEX_A72_L2CTLR_EL1_DATA_INLINE_ECC_ENABLE	(ULL(1) << 20)
+
 #define CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT	U(0)
 #define CORTEX_A72_L2CTLR_TAG_RAM_LATENCY_SHIFT		U(6)
 
 #define CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES		U(0x2)
+#define CORTEX_A72_L2_DATA_RAM_LATENCY_4_CYCLES		U(0x3)
 #define CORTEX_A72_L2_TAG_RAM_LATENCY_2_CYCLES		U(0x1)
 #define CORTEX_A72_L2_TAG_RAM_LATENCY_3_CYCLES		U(0x2)
 

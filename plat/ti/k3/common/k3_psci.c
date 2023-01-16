@@ -205,7 +205,14 @@ void k3_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 static void __dead2 k3_system_off(void)
 {
-	ERROR("System Off: operation not handled.\n");
+	int ret;
+
+	/* Queue up the system shutdown request */
+	ret = ti_sci_device_put_no_wait(PLAT_BOARD_DEVICE_ID);
+	if (ret != 0) {
+		ERROR("Sending system shutdown message failed (%d)\n", ret);
+	}
+
 	while (true)
 		wfi();
 }
@@ -221,13 +228,6 @@ static void __dead2 k3_system_reset(void)
 
 static int k3_validate_power_state(unsigned int power_state,
 				   psci_power_state_t *req_state)
-{
-	/* TODO: perform the proper validation */
-
-	return PSCI_E_SUCCESS;
-}
-
-static int k3_validate_ns_entrypoint(uintptr_t entrypoint)
 {
 	/* TODO: perform the proper validation */
 
@@ -281,7 +281,6 @@ static const plat_psci_ops_t k3_plat_psci_ops = {
 	.system_off = k3_system_off,
 	.system_reset = k3_system_reset,
 	.validate_power_state = k3_validate_power_state,
-	.validate_ns_entrypoint = k3_validate_ns_entrypoint
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,

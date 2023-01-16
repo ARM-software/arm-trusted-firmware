@@ -1432,7 +1432,7 @@ int ti_sci_proc_auth_boot_image(uint8_t proc_id, uint64_t cert_addr)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_AUTH_BOOT_IMIAGE, 0,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_AUTH_BOOT_IMAGE, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);

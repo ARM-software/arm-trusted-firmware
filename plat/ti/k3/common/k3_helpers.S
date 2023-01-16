@@ -105,8 +105,32 @@ func plat_reset_handler
 	/* Cortex-A72 specific settings */
 a72:
 	mrs x0, CORTEX_A72_L2CTLR_EL1
-	orr x0, x0, #(CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES << CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+#if K3_DATA_RAM_4_LATENCY
+	/* Set L2 cache data RAM latency to 4 cycles */
+	orr x0, x0, #(CORTEX_A72_L2_DATA_RAM_LATENCY_4_CYCLES << \
+			CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+#else
+	/* Set L2 cache data RAM latency to 3 cycles */
+	orr x0, x0, #(CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES << \
+			CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+#endif
+	/* Enable L2 ECC and parity with inline data */
+	orr x0, x0, #CORTEX_A72_L2CTLR_EL1_ECC_AND_PARITY_ENABLE
+	orr x0, x0, #CORTEX_A72_L2CTLR_EL1_DATA_INLINE_ECC_ENABLE
 	msr CORTEX_A72_L2CTLR_EL1, x0
+
+	mrs x0, CORTEX_A72_L2ACTLR_EL1
+	/* Enable L2 UniqueClean evictions with data */
+	orr x0, x0, #CORTEX_A72_L2ACTLR_ENABLE_UNIQUE_CLEAN
+	msr CORTEX_A72_L2ACTLR_EL1, x0
+
+#if K3_EXCLUSIVE_SNOOP_DELAY
+	mrs	x0, CORTEX_A72_CPUACTLR_EL1
+	/* Set Snoop-delayed exclusive handling */
+	orr	x0, x0, #CORTEX_A72_CPUACTLR_EL1_DELAY_EXCLUSIVE_SNOOP
+	msr	CORTEX_A72_CPUACTLR_EL1, x0
+#endif
+
 	isb
 	ret
 endfunc plat_reset_handler
