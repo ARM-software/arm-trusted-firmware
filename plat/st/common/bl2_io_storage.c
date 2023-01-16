@@ -25,7 +25,6 @@
 #include <drivers/raw_nand.h>
 #include <drivers/spi_nand.h>
 #include <drivers/spi_nor.h>
-#include <drivers/st/io_mmc.h>
 #include <drivers/st/stm32_fmc2_nand.h>
 #include <drivers/st/stm32_qspi.h>
 #include <drivers/st/stm32_sdmmc2.h>
