@@ -169,23 +169,12 @@
 
 			vbus_otg: pwr_sw1 {
 				regulator-name = "vbus_otg";
-			 };
+			};
 
-			 vbus_sw: pwr_sw2 {
+			vbus_sw: pwr_sw2 {
 				regulator-name = "vbus_sw";
 				regulator-active-discharge = <1>;
-			 };
-		};
-
-		onkey {
-			compatible = "st,stpmic1-onkey";
-			power-off-time-sec = <10>;
-			status = "okay";
-		};
-
-		watchdog {
-			compatible = "st,stpmic1-wdt";
-			status = "disabled";
+			};
 		};
 	};
 };
