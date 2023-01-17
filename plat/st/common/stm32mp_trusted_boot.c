@@ -10,6 +10,7 @@
 
 #include <common/debug.h>
 #include <common/tbbr/cot_def.h>
+#include <drivers/clk.h>
 #include <drivers/st/stm32_hash.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
@@ -171,16 +172,20 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 
 int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
 {
+	clk_enable(TAMP_BKP_REG_CLK);
 	*nv_ctr = mmio_read_32(TAMP_BASE + TAMP_COUNTR);
+	clk_disable(TAMP_BKP_REG_CLK);
 
 	return 0;
 }
 
 int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 {
+	clk_enable(TAMP_BKP_REG_CLK);
 	while (mmio_read_32(TAMP_BASE + TAMP_COUNTR) != nv_ctr) {
 		mmio_write_32(TAMP_BASE + TAMP_COUNTR, 1U);
 	}
+	clk_disable(TAMP_BKP_REG_CLK);
 
 	return 0;
 }
