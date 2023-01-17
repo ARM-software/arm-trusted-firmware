@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -220,8 +220,20 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
 			VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
 		.next_handoff_image_id = INVALID_IMAGE_ID,
-	}
+	},
 #endif /* EL3_PAYLOAD_BASE */
+
+# if ARM_ETHOSN_NPU_TZMP1
+	{
+		.image_id = ARM_ETHOSN_NPU_FW_IMAGE_ID,
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+				      VERSION_2, image_info_t, 0),
+		.image_info.image_base = ARM_ETHOSN_NPU_FW_IMAGE_BASE,
+		.image_info.image_max_size = ARM_ETHOSN_NPU_FW_IMAGE_LIMIT -
+			ARM_ETHOSN_NPU_FW_IMAGE_BASE,
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
+# endif
 };
 
 REGISTER_BL_IMAGE_DESCS(bl2_mem_params_descs)

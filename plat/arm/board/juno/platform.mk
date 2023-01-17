@@ -106,8 +106,16 @@ BL1_SOURCES		+=	drivers/arm/css/sds/sds.c
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
-BL1_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
-BL2_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
+   # Enable Juno specific TBBR images
+   $(eval $(call add_define,PLAT_TBBR_IMG_DEF))
+   DTC_CPPFLAGS += ${PLAT_INCLUDES}
+
+   BL1_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
+   BL2_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
+
+   ifeq (${COT_DESC_IN_DTB},0)
+      BL2_SOURCES	+=	plat/arm/board/juno/juno_tbbr_cot_bl2.c
+   endif
 endif
 
 endif

@@ -102,7 +102,11 @@ Arm Platform Build Options
    only loads the ``HW_CONFIG`` in AArch64 builds. Default is 0.
 
 -  ``ARM_ETHOSN_NPU_TZMP1``: boolean option to enable TZMP1 support for the
-   Arm® Ethos™-N NPU. Requires ``ARM_ETHOSN_NPU_DRIVER`` to be enabled.
+   Arm® Ethos™-N NPU. Requires ``ARM_ETHOSN_NPU_DRIVER`` and
+   ``TRUSTED_BOARD_BOOT`` to be enabled.
+
+-  ``ARM_ETHOSN_NPU_FW``: location of the NPU firmware binary (ethosn.bin).
+   This firmware image will be included in the FIP and loaded at runtime.
 
 -  ``ARM_SPMC_MANIFEST_DTS`` : path to an alternate manifest file used as the
    SPMC Core manifest. Valid when ``SPD=spmd`` is selected.
