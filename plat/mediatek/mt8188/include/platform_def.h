@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,8 @@
 #define MTK_DEV_RNG0_SIZE	(0x600000)
 #define MTK_DEV_RNG1_BASE	(IO_PHYS)
 #define MTK_DEV_RNG1_SIZE	(0x10000000)
+
+#define TOPCKGEN_BASE		(IO_PHYS)
 
 /*******************************************************************************
  * AUDIO related constants
@@ -57,6 +59,8 @@
 /*******************************************************************************
  * Infra IOMMU related constants
  ******************************************************************************/
+#define INFRACFG_AO_BASE	(IO_PHYS + 0x00001000)
+#define INFRACFG_AO_MEM_BASE	(IO_PHYS + 0x00002000)
 #define PERICFG_AO_BASE		(IO_PHYS + 0x01003000)
 #define PERICFG_AO_REG_SIZE	(0x1000)
 
@@ -106,6 +110,33 @@
 #define SMI_LARB_27_BASE	(IO_PHYS + 0x07201000)
 #define SMI_LARB_28_BASE	(IO_PHYS + 0x00000000)
 #define SMI_LARB_REG_RNG_SIZE	(0x1000)
+
+/*******************************************************************************
+ * SPM related constants
+ ******************************************************************************/
+#define SPM_BASE		(IO_PHYS + 0x00006000)
+
+/*******************************************************************************
+ * APMIXEDSYS related constants
+ ******************************************************************************/
+#define APMIXEDSYS		(IO_PHYS + 0x0000C000)
+
+/*******************************************************************************
+ * VPPSYS related constants
+ ******************************************************************************/
+#define VPPSYS0_BASE		(IO_PHYS + 0x04000000)
+#define VPPSYS1_BASE		(IO_PHYS + 0x04f00000)
+
+/*******************************************************************************
+ * VDOSYS related constants
+ ******************************************************************************/
+#define VDOSYS0_BASE		(IO_PHYS + 0x0C01D000)
+#define VDOSYS1_BASE		(IO_PHYS + 0x0C100000)
+
+/*******************************************************************************
+ * SSPM_MBOX_3 related constants
+ ******************************************************************************/
+#define SSPM_MBOX_3_BASE	(IO_PHYS + 0x00480000)
 
 /*******************************************************************************
  * DP related constants

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,10 +11,10 @@
 
 #include <lib/mtk_init/mtk_init.h>
 #include <lib/pm/mtk_pm.h>
+#include <lpm/mt_lp_rm.h>
 #include "mt_cpu_pm.h"
 #include "mt_cpu_pm_cpc.h"
 #include "mt_cpu_pm_mbox.h"
-#include <mt_lp_rm.h>
 #include "mt_smp.h"
 #include <mtk_mmap_pool.h>
 #include <platform_def.h>

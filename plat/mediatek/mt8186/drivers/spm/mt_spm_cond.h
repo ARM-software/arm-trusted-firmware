@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,7 +54,7 @@ extern unsigned int mt_spm_cond_check(int state_id,
 				      const struct mt_spm_cond_tables *dest,
 				      struct mt_spm_cond_tables *res);
 
-extern int mt_spm_cond_update(struct mt_resource_constraint **con,
+extern int mt_spm_cond_update(struct mt_resource_constraint **con, unsigned int num,
 			      int stateid, void *priv);
 
 #endif /* MT_SPM_CONDIT_H */
