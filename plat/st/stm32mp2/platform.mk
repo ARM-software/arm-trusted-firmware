@@ -126,7 +126,8 @@ PLAT_BL_COMMON_SOURCES		+=	drivers/st/clk/clk-stm32-core.c				\
 
 BL2_SOURCES			+=	plat/st/stm32mp2/plat_bl2_mem_params_desc.c
 
-BL2_SOURCES			+=	plat/st/stm32mp2/bl2_plat_setup.c
+BL2_SOURCES			+=	plat/st/stm32mp2/bl2_plat_setup.c			\
+					plat/st/stm32mp2/plat_ddr.c
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES			+=	drivers/st/mmc/stm32_sdmmc2.c
