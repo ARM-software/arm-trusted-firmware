@@ -5,4 +5,37 @@
  */
 
 / {
+	soc@0 {
+		cryp1: cryp@42030000 {
+			compatible = "st,stm32mp1-cryp";
+			reg = <0x42030000 0x400>;
+			clocks = <&rcc CK_BUS_CRYP1>;
+			resets = <&rcc CRYP1_R>;
+			status = "disabled";
+		};
+
+		cryp2: cryp@42040000 {
+			compatible = "st,stm32mp1-cryp";
+			reg = <0x42040000 0x400>;
+			clocks = <&rcc CK_BUS_CRYP2>;
+			resets = <&rcc CRYP2_R>;
+			status = "disabled";
+		};
+
+		saes: saes@42050000 {
+			compatible = "st,stm32-saes";
+			reg = <0x42050000 0x400>;
+			clocks = <&rcc CK_BUS_SAES>;
+			resets = <&rcc SAES_R>;
+			status = "disabled";
+		};
+
+		pka: pka@42060000 {
+			compatible = "st,stm32mp13-pka64";
+			reg = <0x42060000 0x2000>;
+			clocks = <&rcc CK_BUS_PKA>;
+			resets = <&rcc PKA_R>;
+			status = "disabled";
+		};
+	};
 };

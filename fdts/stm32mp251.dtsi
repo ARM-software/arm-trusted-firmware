@@ -253,6 +253,14 @@
 				status = "disabled";
 			};
 
+			hash: hash@42010000 {
+				compatible = "st,stm32mp13-hash";
+				reg = <0x42010000 0x400>;
+				clocks = <&rcc CK_BUS_HASH>;
+				resets = <&rcc HASH_R>;
+				status = "disabled";
+			};
+
 			rng: rng@42020000 {
 				compatible = "st,stm32mp13-rng";
 				reg = <0x42020000 0x400>;
