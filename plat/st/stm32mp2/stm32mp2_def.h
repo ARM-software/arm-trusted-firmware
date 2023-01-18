@@ -231,6 +231,10 @@ enum ddr_type {
 						 STM32MP_SYSRAM_SIZE - \
 						 STM32MP_BL2_RW_BASE)
 
+#define STM32MP_MBEDTLS_HEAP_SIZE	U(0x2000)
+#define STM32MP_MBEDTLS_HEAP_BASE	(SRAM1_BASE + SRAM1_SIZE_FOR_TFA - \
+					 STM32MP_MBEDTLS_HEAP_SIZE)
+
 /* BL2 and BL32/sp_min require 4 tables */
 #define MAX_XLAT_TABLES				U(4)	/* 16 KB for mapping */
 
