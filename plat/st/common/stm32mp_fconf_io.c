@@ -83,7 +83,11 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 #endif
 
 #if TRUSTED_BOARD_BOOT
+#ifdef __aarch64__
+#define TBBR_UUID_NUMBER	U(8)
+#else
 #define TBBR_UUID_NUMBER	U(6)
+#endif
 #else
 #define TBBR_UUID_NUMBER	U(0)
 #endif
@@ -130,6 +134,10 @@ static const struct policies_load_info load_info[FCONF_ST_IO_UUID_NUMBER] = {
 	{NON_TRUSTED_FW_KEY_CERT_ID, "nt_fw_key_cert_uuid"},
 	{TRUSTED_OS_FW_CONTENT_CERT_ID, "tos_fw_content_cert_uuid"},
 	{NON_TRUSTED_FW_CONTENT_CERT_ID, "nt_fw_content_cert_uuid"},
+#ifdef __aarch64__
+	{SOC_FW_KEY_CERT_ID, "soc_fw_key_uuid"},
+	{SOC_FW_CONTENT_CERT_ID, "soc_fw_content_cert_uuid"},
+#endif
 #endif /* TRUSTED_BOARD_BOOT */
 };
 
