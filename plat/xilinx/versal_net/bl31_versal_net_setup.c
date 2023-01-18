@@ -118,7 +118,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		}
 	}
 
-	NOTICE("TF-A running on Xilinx %s %d.%d\n", board_name_decode(),
+	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),
 	       platform_version / 10U, platform_version % 10U);
 
 	/* Initialize the platform config for future decision making */

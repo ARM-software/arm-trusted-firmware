@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (C) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +35,7 @@ const mmap_region_t *plat_versal_get_mmap(void)
 
 static void versal_print_platform_name(void)
 {
-	NOTICE("ATF running on Xilinx %s\n", PLATFORM_NAME);
+	NOTICE("TF-A running on %s\n", PLATFORM_NAME);
 }
 
 void versal_config_setup(void)
