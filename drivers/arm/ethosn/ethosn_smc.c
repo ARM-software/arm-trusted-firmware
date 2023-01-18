@@ -286,3 +286,13 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, SMC_UNK);
 	}
 }
+
+int ethosn_smc_setup(void)
+{
+	if (ETHOSN_NUM_DEVICES == 0U) {
+		ERROR("ETHOSN: No NPU found\n");
+		return ETHOSN_FAILURE;
+	}
+
+	return 0;
+}

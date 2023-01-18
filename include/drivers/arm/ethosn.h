@@ -58,6 +58,8 @@
 #define ETHOSN_RESET_TYPE_FULL		U(0)
 #define ETHOSN_RESET_TYPE_HALT		U(1)
 
+int ethosn_smc_setup(void);
+
 uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			     u_register_t core_addr,
 			     u_register_t asset_alloc_idx,
