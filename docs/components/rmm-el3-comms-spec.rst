@@ -53,7 +53,7 @@ are explained below:
     consistency with the versioning schemes used in other parts of RMM.
 
 This document specifies the 0.1 version of Boot Interface ABI and RMM-EL3
-services specification and the 0.1 version of the Boot Manifest.
+services specification and the 0.2 version of the Boot Manifest.
 
 .. _rmm_el3_boot_interface:
 
@@ -71,7 +71,7 @@ for configuration files.
 
 The Boot Interface ABI defines a set of register conventions and
 also a memory based manifest file to pass information from EL3 to RMM. The
-boot manifest and the associated platform data in it can be dynamically created
+Boot Manifest and the associated platform data in it can be dynamically created
 by EL3 and there is no restriction on how the data can be obtained (e.g by DTB,
 hoblist or other).
 
@@ -99,7 +99,7 @@ During cold boot RMM expects the following register values:
    x0,Linear index of this PE. This index starts from 0 and must be less than the maximum number of CPUs to be supported at runtime (see x2).
    x1,Version for this Boot Interface as defined in :ref:`rmm_el3_ifc_versioning`.
    x2,Maximum number of CPUs to be supported at runtime. RMM should ensure that it can support this maximum number.
-   x3,Base address for the shared buffer used for communication between EL3 firmware and RMM. This buffer must be of 4KB size (1 page). The boot manifest must be present at the base of this shared buffer during cold boot.
+   x3,Base address for the shared buffer used for communication between EL3 firmware and RMM. This buffer must be of 4KB size (1 page). The Boot Manifest must be present at the base of this shared buffer during cold boot.
 
 During cold boot, EL3 firmware needs to allocate a 4KB page that will be
 passed to RMM in x3. This memory will be used as shared buffer for communication
@@ -162,8 +162,8 @@ as per the following table:
    ``E_RMM_BOOT_CPUS_OUT_OF_RAGE``,Number of CPUs reported by EL3 larger than maximum supported by RMM,-3
    ``E_RMM_BOOT_CPU_ID_OUT_OF_RAGE``,Current CPU Id is higher or equal than the number of CPUs supported by RMM,-4
    ``E_RMM_BOOT_INVALID_SHARED_BUFFER``,Invalid pointer to shared memory area,-5
-   ``E_RMM_BOOT_MANIFEST_VERSION_NOT_SUPPORTED``,Version reported by the boot manifest not supported by RMM,-6
-   ``E_RMM_BOOT_MANIFEST_DATA_ERROR``,Error parsing core boot manifest,-7
+   ``E_RMM_BOOT_MANIFEST_VERSION_NOT_SUPPORTED``,Version reported by the Boot Manifest not supported by RMM,-6
+   ``E_RMM_BOOT_MANIFEST_DATA_ERROR``,Error parsing core Boot Manifest,-7
 
 For any error detected in RMM during cold or warm boot, RMM will return back to
 EL3 using ``RMM_BOOT_COMPLETE`` SMC with an appropriate error code. It is
@@ -177,25 +177,28 @@ warm boot by any PE should not enter RMM using the warm boot interface.
 Boot Manifest
 ~~~~~~~~~~~~~
 
-During cold boot, EL3 Firmware passes a memory boot manifest to RMM containing
+During cold boot, EL3 Firmware passes a memory Boot Manifest to RMM containing
 platform information.
 
-This boot manifest is versioned independently of the boot interface, to help
-evolve the boot manifest independent of the rest of Boot Manifest.
-The current version for the boot manifest is ``v0.1`` and the rules explained
+This Boot Manifest is versioned independently of the Boot Interface, to help
+evolve the former independent of the latter.
+The current version for the Boot Manifest is ``v0.2`` and the rules explained
 in :ref:`rmm_el3_ifc_versioning` apply on this version as well.
 
-The boot manifest is divided into two different components:
+The Boot Manifest v0.2 has the following fields:
 
-   - Core Manifest: This is the generic parameters passed to RMM by EL3 common to all platforms.
-   - Platform data: This is defined by the platform owner and contains information specific to that platform.
+   - version : Version of the Manifest (v0.2)
+   - plat_data : Pointer to the platform specific data and not specified by this
+     document. These data are optional and can be NULL.
+   - plat_dram : Structure encoding the NS DRAM information on the platform. This
+     field is also optional and platform can choose to zero out this structure if
+     RMM does not need EL3 to send this information during the boot.
 
-For the current version of the manifest, the core manifest contains a pointer
-to the platform data. EL3 must ensure that the whole boot manifest,
-including the platform data, if available, fits inside the RMM EL3 shared
-buffer.
+For the current version of the Boot Manifest, the core manifest contains a pointer
+to the platform data. EL3 must ensure that the whole Boot Manifest, including
+the platform data, if available, fits inside the RMM EL3 shared buffer.
 
-For the type specification of the RMM Boot Manifest v0.1, refer to
+For the data structure specification of Boot Manifest, refer to
 :ref:`rmm_el3_manifest_struct`
 
 .. _runtime_services_and_interface:
@@ -525,19 +528,59 @@ _____
 RMM-EL3 Boot Manifest structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The RMM-EL3 Boot Manifest structure contains platform boot information passed
-from EL3 to RMM. The width of the Boot Manifest is 128 bits
-
-.. image:: ../resources/diagrams/rmm_el3_manifest_struct.png
+The RMM-EL3 Boot Manifest v0.2 structure contains platform boot information passed
+from EL3 to RMM. The size of the Boot Manifest is 40 bytes.
 
 The members of the RMM-EL3 Boot Manifest structure are shown in the following
 table:
 
-.. csv-table::
-   :header: "Name", "Range", "Type", Description
-   :widths: 2 1 1 4
++-----------+--------+----------------+----------------------------------------+
+|   Name    | Offset |     Type       |               Description              |
++===========+========+================+========================================+
+| version   |   0    |   uint32_t     | Boot Manifest version                  |
++-----------+--------+----------------+----------------------------------------+
+| padding   |   4    |   uint32_t     | Reserved, set to 0                     |
++-----------+--------+----------------+----------------------------------------+
+| plat_data |   8    |   uintptr_t    | Pointer to Platform Data section       |
++-----------+--------+----------------+----------------------------------------+
+| plat_dram |   16   | ns_dram_info   | NS DRAM Layout Info structure          |
++-----------+--------+----------------+----------------------------------------+
 
-   ``Version Minor``,15:0,uint16_t,Version Minor part of the Boot Manifest Version.
-   ``Version Major``,30:16,uint16_t,Version Major part of the Boot Manifest Version.
-   ``RES0``,31,bit,Reserved. Set to 0.
-   ``Platform Data``,127:64,Address,Pointer to the Platform Data section of the Boot Manifest.
+.. _ns_dram_info_struct:
+
+NS DRAM Layout Info structure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NS DRAM Layout Info structure contains information about platform Non-secure
+DRAM layout. The members of this structure are shown in the table below:
+
++-----------+--------+----------------+----------------------------------------+
+|   Name    | Offset |     Type       |               Description              |
++===========+========+================+========================================+
+| num_banks |   0    |   uint64_t     | Number of NS DRAM banks                |
++-----------+--------+----------------+----------------------------------------+
+| banks     |   8    | ns_dram_bank * | Pointer to 'ns_dram_bank'[] array      |
++-----------+--------+----------------+----------------------------------------+
+| checksum  |   16   |   uint64_t     | Checksum                               |
++-----------+--------+----------------+----------------------------------------+
+
+Checksum is calculated as two's complement sum of 'num_banks', 'banks' pointer
+and DRAM banks data array pointed by it.
+
+.. _ns_dram_bank_struct:
+
+NS DRAM Bank structure
+~~~~~~~~~~~~~~~~~~~~~~
+
+NS DRAM Bank structure contains information about each Non-secure DRAM bank:
+
++-----------+--------+----------------+----------------------------------------+
+|   Name    | Offset |     Type       |               Description              |
++===========+========+================+========================================+
+|   base    |   0    |   uintptr_t    | Base address                           |
++-----------+--------+----------------+----------------------------------------+
+|   size    |   8    |   uint64_t     | Size of bank in bytes                  |
++-----------+--------+----------------+----------------------------------------+
+
+
+
