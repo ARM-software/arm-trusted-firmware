@@ -215,7 +215,7 @@ static const struct {
 #define ZYNQMP_PL_STATUS_MASK	BIT(ZYNQMP_PL_STATUS_BIT)
 #define ZYNQMP_CSU_VERSION_MASK	~(ZYNQMP_PL_STATUS_MASK)
 
-#define SILICON_ID_XCK24	0x4714093U
+#define SILICON_ID_XCK24	0x4712093U
 #define SILICON_ID_XCK26	0x4724093U
 
 static char *zynqmp_get_silicon_idcode_name(void)
