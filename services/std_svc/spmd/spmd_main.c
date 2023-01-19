@@ -1279,6 +1279,12 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 					handle, flags);
 		break; /* Not reached */
 #endif
+	case FFA_CONSOLE_LOG_SMC32:
+	case FFA_CONSOLE_LOG_SMC64:
+		/* This interface must not be forwarded to other worlds. */
+		return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+		break; /* not reached */
+
 	case FFA_EL3_INTR_HANDLE:
 		if (secure_origin) {
 			return spmd_handle_group0_intr_swd(handle);
