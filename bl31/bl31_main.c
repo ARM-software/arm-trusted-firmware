@@ -93,15 +93,6 @@ void bl31_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	/* Perform late platform-specific setup */
 	bl31_plat_arch_setup();
 
-#if ENABLE_FEAT_HCX
-	/*
-	 * Assert that FEAT_HCX is supported on this system, without this check
-	 * an exception would occur during context save/restore if enabled but
-	 * not supported.
-	 */
-	assert(is_feat_hcx_present());
-#endif /* ENABLE_FEAT_HCX */
-
 #if CTX_INCLUDE_PAUTH_REGS
 	/*
 	 * Assert that the ARMv8.3-PAuth registers are present or an access

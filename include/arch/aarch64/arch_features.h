@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 #include <arch_helpers.h>
+#include <common/feat_detect.h>
 
 static inline bool is_armv7_gentimer_present(void)
 {
@@ -97,10 +98,23 @@ static inline bool is_armv8_6_twed_present(void)
 		ID_AA64MMFR1_EL1_TWED_MASK) == ID_AA64MMFR1_EL1_TWED_SUPPORTED);
 }
 
-static inline bool is_armv8_6_fgt_present(void)
+static unsigned int read_feat_fgt_id_field(void)
 {
-	return ((read_id_aa64mmfr0_el1() >> ID_AA64MMFR0_EL1_FGT_SHIFT) &
-		ID_AA64MMFR0_EL1_FGT_MASK) != 0U;
+	return (read_id_aa64mmfr0_el1() >> ID_AA64MMFR0_EL1_FGT_SHIFT) &
+		ID_AA64MMFR0_EL1_FGT_MASK;
+}
+
+static inline bool is_feat_fgt_supported(void)
+{
+	if (ENABLE_FEAT_FGT == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_FGT == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_fgt_id_field() != 0U;
 }
 
 static inline unsigned long int get_armv8_6_ecv_support(void)
@@ -115,10 +129,31 @@ static inline bool is_armv8_5_rng_present(void)
 		ID_AA64ISAR0_RNDR_MASK);
 }
 
+/*******************************************************************************
+ * Functions to identify the presence of the Activity Monitors Extension
+ ******************************************************************************/
+static unsigned int read_feat_amu_id_field(void)
+{
+	return (read_id_aa64pfr0_el1() >> ID_AA64PFR0_AMU_SHIFT) &
+		ID_AA64PFR0_AMU_MASK;
+}
+
+static inline bool is_feat_amu_supported(void)
+{
+	if (ENABLE_FEAT_AMUv1 == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_AMUv1 == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_amu_id_field() >= ID_AA64PFR0_AMU_V1;
+}
+
 static inline bool is_armv8_6_feat_amuv1p1_present(void)
 {
-	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_AMU_SHIFT) &
-		ID_AA64PFR0_AMU_MASK) >= ID_AA64PFR0_AMU_V1P1);
+	return read_feat_amu_id_field() >= ID_AA64PFR0_AMU_V1P1;
 }
 
 /*
@@ -138,10 +173,23 @@ static inline unsigned int get_mpam_version(void)
 		ID_AA64PFR1_MPAM_FRAC_SHIFT) & ID_AA64PFR1_MPAM_FRAC_MASK));
 }
 
-static inline bool is_feat_hcx_present(void)
+static inline unsigned int read_feat_hcx_id_field(void)
 {
-	return (((read_id_aa64mmfr1_el1() >> ID_AA64MMFR1_EL1_HCX_SHIFT) &
-		ID_AA64MMFR1_EL1_HCX_MASK) == ID_AA64MMFR1_EL1_HCX_SUPPORTED);
+	return (read_id_aa64mmfr1_el1() >> ID_AA64MMFR1_EL1_HCX_SHIFT) &
+		ID_AA64MMFR1_EL1_HCX_MASK;
+}
+
+static inline bool is_feat_hcx_supported(void)
+{
+	if (ENABLE_FEAT_HCX == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_HCX == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_hcx_id_field() != 0U;
 }
 
 static inline bool is_feat_rng_trap_present(void)
@@ -224,16 +272,6 @@ static inline bool is_arm8_4_feat_trf_present(void)
 {
 	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_TRACEFILT_SHIFT) &
 		ID_AA64DFR0_TRACEFILT_MASK) == ID_AA64DFR0_TRACEFILT_SUPPORTED);
-}
-
-/*******************************************************************************
- * Function to identify the presence of FEAT_AMUv1 (Activity Monitors-
- * Extension v1)
- ******************************************************************************/
-static inline bool is_armv8_4_feat_amuv1_present(void)
-{
-	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_AMU_SHIFT) &
-		ID_AA64PFR0_AMU_MASK) >= ID_AA64PFR0_AMU_V1);
 }
 
 /********************************************************************************

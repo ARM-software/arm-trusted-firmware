@@ -25,10 +25,6 @@
 	.global	el2_sysregs_context_save_mpam
 	.global	el2_sysregs_context_restore_mpam
 #endif /* ENABLE_MPAM_FOR_LOWER_ELS */
-#if ENABLE_FEAT_FGT
-	.global	el2_sysregs_context_save_fgt
-	.global	el2_sysregs_context_restore_fgt
-#endif /* ENABLE_FEAT_FGT */
 #if ENABLE_FEAT_ECV
 	.global	el2_sysregs_context_save_ecv
 	.global	el2_sysregs_context_restore_ecv
@@ -53,10 +49,6 @@
 	.global	el2_sysregs_context_save_csv2
 	.global	el2_sysregs_context_restore_csv2
 #endif /* ENABLE_FEAT_CSV2_2 */
-#if ENABLE_FEAT_HCX
-	.global	el2_sysregs_context_save_hcx
-	.global	el2_sysregs_context_restore_hcx
-#endif /* ENABLE_FEAT_HCX */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	.global	el1_sysregs_context_save
@@ -314,45 +306,6 @@ func el2_sysregs_context_restore_mpam
 endfunc el2_sysregs_context_restore_mpam
 #endif /* ENABLE_MPAM_FOR_LOWER_ELS */
 
-#if ENABLE_FEAT_FGT
-func el2_sysregs_context_save_fgt
-	mrs	x13, HDFGRTR_EL2
-#if ENABLE_FEAT_AMUv1
-	mrs	x14, HAFGRTR_EL2
-	stp	x13, x14, [x0, #CTX_HDFGRTR_EL2]
-#else
-	str	x13, [x0, #CTX_HDFGRTR_EL2]
-#endif /* ENABLE_FEAT_AMUv1 */
-	mrs	x15, HDFGWTR_EL2
-	mrs	x16, HFGITR_EL2
-	stp	x15, x16, [x0, #CTX_HDFGWTR_EL2]
-
-	mrs	x9, HFGRTR_EL2
-	mrs	x10, HFGWTR_EL2
-	stp	x9, x10, [x0, #CTX_HFGRTR_EL2]
-	ret
-endfunc el2_sysregs_context_save_fgt
-
-func el2_sysregs_context_restore_fgt
-	#if ENABLE_FEAT_AMUv1
-	ldp	x13, x14, [x0, #CTX_HDFGRTR_EL2]
-	msr	HAFGRTR_EL2, x14
-#else
-	ldr	x13, [x0, #CTX_HDFGRTR_EL2]
-#endif /* ENABLE_FEAT_AMUv1 */
-	msr	HDFGRTR_EL2, x13
-
-	ldp	x15, x16, [x0, #CTX_HDFGWTR_EL2]
-	msr	HDFGWTR_EL2, x15
-	msr	HFGITR_EL2, x16
-
-	ldp	x9, x10, [x0, #CTX_HFGRTR_EL2]
-	msr	HFGRTR_EL2, x9
-	msr	HFGWTR_EL2, x10
-	ret
-endfunc el2_sysregs_context_restore_fgt
-#endif /* ENABLE_FEAT_FGT */
-
 #if ENABLE_FEAT_ECV
 func el2_sysregs_context_save_ecv
 	mrs	x11, CNTPOFF_EL2
@@ -475,19 +428,6 @@ func el2_sysregs_context_restore_csv2
 endfunc el2_sysregs_context_restore_csv2
 #endif /* ENABLE_FEAT_CSV2_2 */
 
-#if ENABLE_FEAT_HCX
-func el2_sysregs_context_save_hcx
-	mrs	x14, hcrx_el2
-	str	x14, [x0, #CTX_HCRX_EL2]
-	ret
-endfunc el2_sysregs_context_save_hcx
-
-func el2_sysregs_context_restore_hcx
-	ldr	x14, [x0, #CTX_HCRX_EL2]
-	msr	hcrx_el2, x14
-	ret
-endfunc el2_sysregs_context_restore_hcx
-#endif /* ENABLE_FEAT_HCX */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 /* ------------------------------------------------------------------
