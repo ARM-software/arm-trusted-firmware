@@ -288,30 +288,24 @@ static int cert_parse(void *img, unsigned int img_len)
 
 	/*
 	 * issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
-	 */
-	ret = mbedtls_asn1_get_tag(&p, end, &len,
-				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
-				   MBEDTLS_ASN1_CONSTRUCTED | 1);
-	if (ret != 0) {
-		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG) {
-			return IMG_PARSER_ERR_FORMAT;
-		}
-	} else {
-		p += len;
-	}
-
-	/*
 	 * subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
+	 * -- technically these contain BIT STRINGs but that is not worth
+	 * -- validating
 	 */
-	ret = mbedtls_asn1_get_tag(&p, end, &len,
-				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
-				   MBEDTLS_ASN1_CONSTRUCTED | 2);
-	if (ret != 0) {
+	for (int i = 1; i < 3; i++) {
+		ret = mbedtls_asn1_get_tag(&p, end, &len,
+					   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
+					   MBEDTLS_ASN1_CONSTRUCTED | i);
+		/*
+		 * Unique IDs are obsolete, so MBEDTLS_ERR_ASN1_UNEXPECTED_TAG
+		 * is the common case.
+		 */
 		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG) {
-			return IMG_PARSER_ERR_FORMAT;
+			if (ret != 0) {
+				return IMG_PARSER_ERR_FORMAT;
+			}
+			p += len;
 		}
-	} else {
-		p += len;
 	}
 
 	/*
