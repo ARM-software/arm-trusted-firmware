@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,6 +47,8 @@ typedef struct console {
 	uintptr_t base;
 	/* Additional private driver data may follow here. */
 } console_t;
+
+extern console_t *console_list;
 
 /* offset macro assertions for console_t */
 #include <drivers/console_assertions.h>

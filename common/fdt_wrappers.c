@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -206,9 +206,9 @@ int fdtw_write_inplace_cells(void *dtb, int node, const char *prop,
 	assert(cells <= 2U);
 
 	if (cells == 2U)
-		*(uint64_t *)value = cpu_to_fdt64(*(uint64_t *)value);
+		*(fdt64_t *)value = cpu_to_fdt64(*(uint64_t *)value);
 	else
-		*(uint32_t *)value = cpu_to_fdt32(*(uint32_t *)value);
+		*(fdt32_t *)value = cpu_to_fdt32(*(uint32_t *)value);
 
 	len = (int)cells * 4;
 
@@ -392,7 +392,7 @@ int fdt_get_stdout_node_offset(const void *dtb)
  * to a global address with help of various helper functions.
  ******************************************************************************/
 
-static bool fdtw_xlat_hit(const uint32_t *value, int child_addr_size,
+static bool fdtw_xlat_hit(const fdt32_t *value, int child_addr_size,
 		int parent_addr_size, int range_size, uint64_t base_address,
 		uint64_t *translated_addr)
 {
@@ -427,7 +427,7 @@ static uint64_t fdtw_search_all_xlat_entries(const void *dtb,
 				int local_bus, uint64_t base_address)
 {
 	uint64_t translated_addr;
-	const uint32_t *next_entry;
+	const fdt32_t *next_entry;
 	int parent_bus_node, nxlat_entries, length;
 	int self_addr_cells, parent_addr_cells, self_size_cells, ncells_xlat;
 
@@ -460,7 +460,7 @@ static uint64_t fdtw_search_all_xlat_entries(const void *dtb,
 
 	assert(nxlat_entries > 0);
 
-	next_entry = (const uint32_t *)ranges_prop->data;
+	next_entry = (const fdt32_t *)ranges_prop->data;
 
 	/* Iterate over the entries in the "ranges" */
 	for (int i = 0; i < nxlat_entries; i++) {
