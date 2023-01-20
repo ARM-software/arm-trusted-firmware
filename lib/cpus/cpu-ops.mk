@@ -362,6 +362,10 @@ ERRATA_A78_2395406	?=0
 # open.
 ERRATA_A78_2772019	?=0
 
+# Flag to apply erratum 2779479 workaround during reset. This erratum applies
+# to revision r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still open.
+ERRATA_A78_2779479	?=0
+
 # Flag to apply erratum 1941500 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
 ERRATA_A78_AE_1941500	?=0
@@ -521,6 +525,11 @@ ERRATA_V1_2372203	?=0
 # applies to revisions r0p0, r1p0, r1p1 and r1p2  of the Neoverse V1 cpu and is
 # still open.
 ERRATA_V1_2743093	?=0
+
+# Flag to apply erratum 2779461 workaround during powerdown. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2  of the Neoverse V1 cpu and is
+# still open.
+ERRATA_V1_2779461       ?=0
 
 # Flag to apply erratum 1987031 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
@@ -1030,6 +1039,10 @@ $(eval $(call add_define,ERRATA_A78_2395406))
 $(eval $(call assert_boolean,ERRATA_A78_2772019))
 $(eval $(call add_define,ERRATA_A78_2772019))
 
+# Process ERRATA_A78_2779479 flag
+$(eval $(call assert_boolean,ERRATA_A78_2779479))
+$(eval $(call add_define,ERRATA_A78_2779479))
+
 # Process ERRATA_A78_AE_1941500 flag
 $(eval $(call assert_boolean,ERRATA_A78_AE_1941500))
 $(eval $(call add_define,ERRATA_A78_AE_1941500))
@@ -1185,6 +1198,10 @@ $(eval $(call add_define,ERRATA_V1_2372203))
 # Process ERRATA_V1_2743093 flag
 $(eval $(call assert_boolean,ERRATA_V1_2743093))
 $(eval $(call add_define,ERRATA_V1_2743093))
+
+# Process ERRATA_V1_2779461 flag
+$(eval $(call assert_boolean,ERRATA_V1_2779461))
+$(eval $(call add_define,ERRATA_V1_2779461))
 
 # Process ERRATA_A710_1987031 flag
 $(eval $(call assert_boolean,ERRATA_A710_1987031))
