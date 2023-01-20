@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2023, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -277,11 +277,22 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 
 #ifdef IMAGE_BL2
 
+#define FCONF_ARM_IO_UUID_NUM_BASE	U(10)
+
 #if TRUSTED_BOARD_BOOT
-#define FCONF_ARM_IO_UUID_NUMBER	U(24)
+#define FCONF_ARM_IO_UUID_NUM_TBB	U(12)
 #else
-#define FCONF_ARM_IO_UUID_NUMBER	U(10)
-#endif
+#define FCONF_ARM_IO_UUID_NUM_TBB	U(0)
+#endif /* TRUSTED_BOARD_BOOT */
+
+#if TRUSTED_BOARD_BOOT && defined(SPD_spmd)
+#define FCONF_ARM_IO_UUID_NUM_SPD	U(2)
+#else
+#define FCONF_ARM_IO_UUID_NUM_SPD	U(0)
+#endif /* TRUSTED_BOARD_BOOT && defined(SPD_spmd) */
+
+#define FCONF_ARM_IO_UUID_NUMBER	FCONF_ARM_IO_UUID_NUM_BASE + \
+					FCONF_ARM_IO_UUID_NUM_TBB + FCONF_ARM_IO_UUID_NUM_SPD
 
 static io_uuid_spec_t fconf_arm_uuids[FCONF_ARM_IO_UUID_NUMBER];
 static OBJECT_POOL_ARRAY(fconf_arm_uuids_pool, fconf_arm_uuids);
