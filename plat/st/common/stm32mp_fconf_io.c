@@ -189,6 +189,13 @@ int fconf_populate_stm32mp_io_policies(uintptr_t config)
 		uuid_ptr->uuid = uuid_helper.uuid_struct;
 		policies[load_info[i].image_id].image_spec = (uintptr_t)uuid_ptr;
 		switch (load_info[i].image_id) {
+#if ENCRYPT_BL31 && !defined(DECRYPTION_SUPPORT_none)
+		case BL31_IMAGE_ID:
+		case SOC_FW_CONFIG_ID:
+			policies[load_info[i].image_id].dev_handle = &enc_dev_handle;
+			policies[load_info[i].image_id].check = open_enc_fip;
+			break;
+#endif
 #if ENCRYPT_BL32 && !defined(DECRYPTION_SUPPORT_none)
 		case BL32_IMAGE_ID:
 		case BL32_EXTRA1_IMAGE_ID:
