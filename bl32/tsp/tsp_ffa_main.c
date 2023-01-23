@@ -201,7 +201,7 @@ static int test_memory_send(ffa_endpoint_id16_t sender, uint64_t handle,
 	/* Only expecting to be sent memory from NWd so map accordingly. */
 	mem_attrs |= MT_NS;
 
-	for (uint32_t i = 0U; i < composite->address_range_count; i++) {
+	for (int32_t i = 0; i < (int32_t)composite->address_range_count; i++) {
 		size_t size = composite->address_range_array[i].page_count * PAGE_SIZE;
 
 		ptr = (char *) composite->address_range_array[i].address;
@@ -211,7 +211,7 @@ static int test_memory_send(ffa_endpoint_id16_t sender, uint64_t handle,
 				size, mem_attrs);
 
 		if (ret != 0) {
-			ERROR("Failed [%u] mmap_add_dynamic_region %u (%lx) (%lx) (%x)!\n",
+			ERROR("Failed [%d] mmap_add_dynamic_region %u (%lx) (%lx) (%x)!\n",
 				i, ret,
 				(uint64_t)composite->address_range_array[i].address,
 				size, mem_attrs);
