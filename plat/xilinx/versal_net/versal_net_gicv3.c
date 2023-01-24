@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (C) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (C) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,14 +29,6 @@
 
 /* The GICv3 driver only needs to be initialized in EL3 */
 static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
-
-static const uintptr_t gicr_base_addrs[2] = {
-	PLAT_VERSAL_NET_GICR_BASE,	/* GICR Base address of the primary CPU */
-	0U				/* Zero Termination */
-};
-
-/* List of zero terminated GICR frame addresses which CPUs will probe */
-static const uintptr_t *gicr_frames;
 
 static const interrupt_prop_t versal_net_interrupt_props[] = {
 	PLAT_VERSAL_NET_G1S_IRQ_PROPS(INTR_GROUP1S),
@@ -72,7 +64,7 @@ static uint32_t versal_net_gicv3_mpidr_hash(u_register_t mpidr)
 
 static const gicv3_driver_data_t versal_net_gic_data __unused = {
 	.gicd_base = PLAT_VERSAL_NET_GICD_BASE,
-	.gicr_base = 0U,
+	.gicr_base = PLAT_VERSAL_NET_GICR_BASE,
 	.interrupt_props = versal_net_interrupt_props,
 	.interrupt_props_num = ARRAY_SIZE(versal_net_interrupt_props),
 	.rdistif_num = PLATFORM_CORE_COUNT,
@@ -90,12 +82,6 @@ void __init plat_versal_net_gic_driver_init(void)
 	 */
 #if IMAGE_BL31
 	gicv3_driver_init(&versal_net_gic_data);
-	gicr_frames = gicr_base_addrs;
-
-	if (gicv3_rdistif_probe(gicr_frames[0]) == -1) {
-		ERROR("No GICR base frame found for Primary CPU\n");
-		panic();
-	}
 #endif
 }
 
@@ -131,25 +117,6 @@ void plat_versal_net_gic_cpuif_disable(void)
  *****************************************************************************/
 void plat_versal_net_gic_pcpu_init(void)
 {
-	int32_t result;
-	const uintptr_t *plat_gicr_frames = gicr_frames;
-
-	do {
-		result = gicv3_rdistif_probe(*plat_gicr_frames);
-
-		/* If the probe is successful, no need to proceed further */
-		if (result == 0) {
-			break;
-		}
-
-		plat_gicr_frames++;
-	} while (*plat_gicr_frames != 0U);
-
-	if (result == -1) {
-		ERROR("No GICR base frame found for CPU 0x%lx\n", read_mpidr());
-		panic();
-	}
-
 	gicv3_rdistif_init(plat_my_core_pos());
 }
 
