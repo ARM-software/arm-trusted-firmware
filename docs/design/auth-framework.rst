@@ -241,6 +241,11 @@ functions must be provided by the CL:
                      unsigned char output[CRYPTO_MD_MAX_SIZE])
     int (*verify_hash)(void *data_ptr, unsigned int data_len,
                        void *digest_info_ptr, unsigned int digest_info_len);
+    int (*auth_decrypt)(enum crypto_dec_algo dec_algo, void *data_ptr,
+                        size_t len, const void *key, unsigned int key_len,
+                        unsigned int key_flags, const void *iv,
+                        unsigned int iv_len, const void *tag,
+                        unsigned int tag_len);
 
 These functions are registered in the CM using the macro:
 
@@ -250,7 +255,8 @@ These functions are registered in the CM using the macro:
                         _init,
                         _verify_signature,
                         _calc_hash,
-                        _verify_hash);
+                        _verify_hash,
+                        _auth_decrypt);
 
 ``_name`` must be a string containing the name of the CL. This name is used for
 debugging purposes.
