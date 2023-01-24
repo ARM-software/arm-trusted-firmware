@@ -13,7 +13,7 @@ RME support in TF-A
 The following diagram shows an Arm CCA software architecture with TF-A as the
 EL3 firmware. In the Arm CCA architecture there are two additional security
 states and address spaces: ``Root`` and ``Realm``. TF-A firmware runs in the
-Root world. In the realm world, a Realm Management Monitor firmware (RMM)
+Root world. In the realm world, a Realm Management Monitor firmware (`RMM`_)
 manages the execution of Realm VMs and their interaction with the hypervisor.
 
 .. image:: ../resources/diagrams/arm-cca-software-arch.png
@@ -44,7 +44,7 @@ Boot flow changes
 In a typical TF-A boot flow, BL2 runs at Secure-EL1. However when RME is
 enabled, TF-A runs in the Root world at EL3. Therefore, the boot flow is
 modified to run BL2 at EL3 when RME is enabled. In addition to this, a
-Realm-world firmware (RMM) is loaded by BL2 in the Realm physical address
+Realm-world firmware (`RMM`_) is loaded by BL2 in the Realm physical address
 space.
 
 The boot flow when RME is enabled looks like the following:
@@ -70,57 +70,85 @@ More information about the GPT library can be found in the
 RMM Dispatcher (RMMD)
 ************************
 RMMD is a new standard runtime service that handles the switch to the Realm
-world. It initializes the RMM and handles Realm Management Interface (RMI)
-SMC calls from Non-secure and Realm worlds.
+world. It initializes the `RMM`_ and handles Realm Management Interface (RMI)
+SMC calls from Non-secure.
 
-There is a contract between RMM and RMMD that defines the arguments that the
+There is a contract between `RMM`_ and RMMD that defines the arguments that the
 former needs to take in order to initialize and also the possible return values.
-This contract is defined in the RMM Boot Interface, which can be found at
+This contract is defined in the `RMM`_ Boot Interface, which can be found at
 :ref:`rmm_el3_boot_interface`.
 
 There is also a specification of the runtime services provided by TF-A
-to RMM. This can be found at :ref:`runtime_services_and_interface`.
+to `RMM`_. This can be found at :ref:`runtime_services_and_interface`.
 
 Test Realm Payload (TRP)
 *************************
 TRP is a small test payload that runs at R-EL2 and implements a subset of
 the Realm Management Interface (RMI) commands to primarily test EL3 firmware
 and the interface between R-EL2 and EL3. When building TF-A with RME enabled,
-if a path to an RMM image is not provided, TF-A builds the TRP by default
-and uses it as RMM image.
+if the path to an RMM image is not provided, TF-A builds the TRP by default
+and uses it as the R-EL2 payload.
 
 Building and running TF-A with RME
-------------------------------------
+----------------------------------
 
 This section describes how you can build and run TF-A with RME enabled.
-We assume you have all the :ref:`Prerequisites` to build TF-A.
+We assume you have read the :ref:`Prerequisites` to build TF-A.
 
 The following instructions show you how to build and run TF-A with RME
-for two scenarios:
+on FVP for two scenarios:
 
-- Three-world execution: TF-A with TF-A Tests or Linux.
+- Three-world execution:  This is the configuration to use if Secure
+  world functionality is not needed. TF-A is tested with the following
+  software entities in each world as listed below:
 
-  - NS (TF-A Test or Linux),
+  - NS Host (RME capable Linux or TF-A Tests),
   - Root (TF-A)
-  - Realm (RMM or TRP)
+  - R-EL2 (`RMM`_ or TRP)
 
-- Four-world execution: TF-A, Hafnium and TF-A Tests or Linux.
+- Four-world execution: This is the configuration to use if both Secure
+  and Realm world functionality is needed. TF-A is tested with the following
+  software entities in each world as listed below:
 
-  - NS (TF-A Test or Linux),
+  - NS Host (RME capable Linux or TF-A Tests),
   - Root (TF-A)
-  - Realm (RMM or TRP)
-  - SPM (Hafnium)
+  - R-EL2 (`RMM`_ or TRP)
+  - S-EL2 (Hafnium SPM)
 
 To run the tests, you need an FVP model. Please use the :ref:`latest version
-<Arm Fixed Virtual Platforms (FVP)>` of *FVP_Base_RevC-2xAEMvA* model.
+<Arm Fixed Virtual Platforms (FVP)>` of *FVP_Base_RevC-2xAEMvA* model. If NS
+Host is Linux, then the below instructions assume that a suitable RME enabled
+kernel image and associated root filesystem are available.
 
-Three World Testing with TF-A Tests
-*************************************
+Three-world execution
+*********************
 
-**1. Obtain and build TF-A Tests with Realm Payload**
+**1. Clone and build RMM Image**
 
-The full set of instructions to setup build host and build options for
-TF-A-Tests can be found in the `TFTF Getting Started`_.
+Please refer to the `RMM Getting Started`_ on how to setup
+Host Environment and build `RMM`_. The build commands assume that
+an AArch64 toolchain and CMake executable are available in the
+shell PATH variable and CROSS_COMPILE variable has been setup
+appropriately.
+
+To clone `RMM`_ and build using the default build options for FVP:
+
+.. code:: shell
+
+ git clone --recursive https://git.trustedfirmware.org/TF-RMM/tf-rmm.git
+ cd tf-rmm
+ cmake -DRMM_CONFIG=fvp_defcfg -S . -B build
+ cmake --build build
+
+This will generate **rmm.img** in **build/Release** folder.
+
+**2. Clone and build TF-A Tests with Realm Payload**
+
+This step is only needed if NS Host is TF-A Tests. The full set
+of instructions to setup build host and build options for
+TF-A-Tests can be found in the `TFTF Getting Started`_. TF-A Tests
+can test Realm world with either `RMM`_ or TRP in R-EL2. In the TRP case,
+some tests which are not applicable will be skipped.
 
 Use the following instructions to build TF-A with `TF-A Tests`_ as the
 non-secure payload (BL33).
@@ -134,37 +162,23 @@ non-secure payload (BL33).
 This produces a TF-A Tests binary (**tftf.bin**) with Realm payload packaged
 and **sp_layout.json** in the **build/fvp/debug** directory.
 
-**2. Obtain and build RMM Image**
 
-Please refer to the `RMM Getting Started`_ on how to setup
-Host Environment and build RMM.
-
-The below command shows how to build RMM using the default build options for FVP.
-
-.. code:: shell
-
- git clone --recursive https://git.trustedfirmware.org/TF-RMM/tf-rmm.git
- cd tf-rmm
- cmake -DRMM_CONFIG=fvp_defcfg -S . -B build
- cmake --build build
-
-This will generate **rmm.img** in **build** folder.
-
-**3. Build TF-A**
+**3. Build RME Enabled TF-A**
 
 The `TF-A Getting Started`_ has the necessary instructions to setup Host
 machine and build TF-A.
 
 To build for RME, set ``ENABLE_RME`` build option to 1 and provide the path to
-the RMM binary using the ``RMM`` build option.
-Currently, this feature is only supported for the FVP platform.
+the `RMM`_ binary ``rmm.img`` using ``RMM`` build option.
 
 .. note::
 
  ENABLE_RME build option is currently experimental.
 
-If the ``RMM`` option is not used, then the Test Realm Payload (TRP) in TF-A
-will be built and used as the RMM.
+.. note::
+
+ If the ``RMM`` option is not specified, TF-A builds the TRP to load and
+ run at R-EL2.
 
 .. code:: shell
 
@@ -176,16 +190,42 @@ will be built and used as the RMM.
  RMM=<path/to/rmm.img> \
  FVP_HW_CONFIG_DTS=fdts/fvp-base-gicv3-psci-1t.dts \
  DEBUG=1 \
- BL33=<path/to/tftf.bin> \
+ BL33=<path/to/bl33> \
  all fip
 
-This produces **bl1.bin** and **fip.bin** binaries in the **build/fvp/debug** directory.
+``BL33`` can point to a Non Secure Bootloader like UEFI/U-Boot or
+the TF-A Tests binary(**tftf.bin**) from the previous step.
 
-Running the tests for a 3 world FVP setup
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This produces **bl1.bin** and **fip.bin** binaries in the **build/fvp/debug**
+directory.
 
-Use the following command to run the tests on FVP. TF-A Tests should boot
-and run the default tests including Realm world tests.
+TF-A can also directly boot Linux kernel on the FVP. The kernel needs to be
+`preloaded` to a suitable memory location and this needs to be specified via
+``PRELOADED_BL33_BASE`` build option. Also TF-A should implement the Linux
+kernel register conventions for boot and this can be set using the
+``ARM_LINUX_KERNEL_AS_BL33`` option.
+
+.. code-block:: shell
+
+ cd trusted-firmware-a
+ make CROSS_COMPILE=aarch64-none-elf- \
+ PLAT=fvp \
+ ENABLE_RME=1 \
+ RMM=<path/to/rmm.img> \
+ FVP_HW_CONFIG_DTS=fdts/fvp-base-gicv3-psci-1t.dts \
+ DEBUG=1 \
+ ARM_LINUX_KERNEL_AS_BL33=1 \
+ PRELOADED_BL33_BASE=0x84000000 \
+ all fip
+
+The above command assumes that the Linux kernel will be placed in FVP
+memory at 0x84000000 via suitable FVP option (see the next step).
+
+.. _fvp_3_world_cmd:
+
+**4. Running FVP for 3 world setup**
+
+Use the following command to run the tests on FVP.
 
 .. code:: shell
 
@@ -239,9 +279,30 @@ and run the default tests including Realm world tests.
  -C cluster1.restriction_on_speculative_execution_aarch32=2     \
  -C pctl.startup=0.0.0.0                                        \
  -C bp.smsc_91c111.enabled=1                                    \
- -C bp.hostbridge.userNetworking=1
+ -C bp.hostbridge.userNetworking=1                              \
+ -C bp.virtioblockdevice.image_path=<path/to/rootfs.ext4>
 
-The bottom of the output from *uart0* should look something like the following.
+The ``bp.virtioblockdevice.image_path`` option presents the rootfs as a
+virtio block device to Linux kernel. It can be ignored if NS Host is
+TF-A-Tests or rootfs is accessed by some other mechanism.
+
+If TF-A was built to expect a preloaded Linux kernel, then use the following
+FVP argument to load the kernel image at the expected address.
+
+.. code-block:: shell
+
+ --data cluster0.cpu0=<path_to_kernel_Image>@0x84000000         \
+
+
+.. tip::
+ Tips to boot and run Linux faster on the FVP :
+  1. Set the FVP option ``cache_state_modelled`` to 0.
+  2. Disable the CPU Idle driver in Linux either by setting the kernel command line
+     parameter "cpuidle.off=1" or by disabling the ``CONFIG_CPU_IDLE`` kernel config.
+
+If the NS Host is TF-A-Tests, then the default test suite in TFTF
+will execute on the FVP and this includes Realm world tests. The
+tail of the output from *uart0* should look something like the following.
 
 .. code-block:: shell
 
@@ -263,52 +324,19 @@ The bottom of the output from *uart0* should look something like the following.
                                                                 Passed
  ...
 
-Building TF-A with RME enabled Linux Kernel
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-If an RME enabled Linux kernel and filesystem is available for testing,
-and a suitable NS boot loader is not available, then this option can be used to
-launch kernel directly after BL31:
-
-.. code-block:: shell
-
- cd trusted-firmware-a
- make CROSS_COMPILE=aarch64-none-elf- \
- PLAT=fvp \
- ENABLE_RME=1 \
- RMM=<path/to/rmm.img> \
- FVP_HW_CONFIG_DTS=fdts/fvp-base-gicv3-psci-1t.dts \
- DEBUG=1 \
- ARM_LINUX_KERNEL_AS_BL33=1 \
- PRELOADED_BL33_BASE=0x84000000 \
- all fip
-
-Boot and run the RME enabled Linux Kernel
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Use the following additional arguments to boot the kernel on FVP.
-
-.. code-block:: shell
-
- --data cluster0.cpu0=<path_to_kernel_Image>@0x84000000         \
- -C bp.virtioblockdevice.image_path=<path_to_rootfs.ext4>
-
-.. tip::
-
- Set the FVP option `cache_state_modelled=0` to run Linux based tests much faster.
-
-Four-world execution with Hafnium and TF-A Tests
-*************************************************
+Four-world execution
+********************
 
 Four-world execution involves software components in each security state: root,
 secure, realm and non-secure. This section describes how to build TF-A
 with four-world support.
 
-We use TF-A as the root firmware, `Hafnium SPM`_ is the reference Secure world component
-and the software components for the other 2 worlds (Realm and Non-Secure)
-are as described in the previous section.
+We use TF-A as the root firmware, `Hafnium SPM`_ is the reference Secure world
+component running at S-EL2. `RMM`_ can be built as described in previous
+section. The examples below assume TF-A-Tests as the NS Host and utilize SPs
+from TF-A-Tests.
 
-**1. Obtain and build Hafnium**
+**1. Obtain and build Hafnium SPM**
 
 .. code:: shell
 
@@ -342,11 +370,12 @@ project/reference submodule
 The Hafnium binary should be located at
 *out/reference/secure_aem_v8a_fvp_clang/hafnium.bin*
 
-**2. Build TF-A**
+**2. Build RME enabled TF-A with SPM**
 
 Build TF-A with RME as well as SPM enabled.
 
-Use sp_layout.json previously generated in tf-a-test build.
+Use the ``sp_layout.json`` previously generated in TF-A Tests
+build to run SP tests.
 
 .. code:: shell
 
@@ -355,7 +384,6 @@ Use sp_layout.json previously generated in tf-a-test build.
  ENABLE_RME=1 \
  FVP_HW_CONFIG_DTS=fdts/fvp-base-gicv3-psci-1t.dts \
  SPD=spmd \
- SPMD_SPM_AT_SEL2=1 \
  BRANCH_PROTECTION=1 \
  CTX_INCLUDE_PAUTH_REGS=1 \
  DEBUG=1 \
@@ -365,11 +393,11 @@ Use sp_layout.json previously generated in tf-a-test build.
  RMM=<path/to/rmm.img> \
  all fip
 
-Running the tests for a 4 world FVP setup
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**3. Running the FVP for a 4 world setup**
 
-Use the following arguments in addition to
-`Running the tests for a 3 world FVP setup`_ to run tests for 4 world setup.
+Use the following arguments in addition to the FVP options mentioned in
+:ref:`4. Running FVP for 3 world setup <fvp_3_world_cmd>` to run tests for
+4 world setup.
 
 .. code:: shell
 
@@ -388,4 +416,5 @@ Use the following arguments in addition to
 .. _TF-A Tests: https://trustedfirmware-a-tests.readthedocs.io/en/latest
 .. _TFTF Getting Started: https://trustedfirmware-a-tests.readthedocs.io/en/latest/getting_started/index.html
 .. _Hafnium SPM: https://www.trustedfirmware.org/projects/hafnium
-.. _RMM Getting Started: https://git.trustedfirmware.org/TF-RMM/tf-rmm.git/tree/docs/getting_started/index.rst
+.. _RMM Getting Started: https://tf-rmm.readthedocs.io/en/latest/getting_started/index.html
+.. _RMM: https://www.trustedfirmware.org/projects/tf-rmm/
