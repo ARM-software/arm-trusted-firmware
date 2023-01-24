@@ -69,8 +69,7 @@ static int mmc_send_cmd(unsigned int idx, unsigned int arg,
 		int i;
 
 		for (i = 0; i < 4; i++) {
-			*r_data = cmd.resp_data[i];
-			r_data++;
+			r_data[i] = cmd.resp_data[i];
 		}
 	}
 
@@ -112,7 +111,7 @@ static int mmc_device_state(void)
 	return MMC_GET_STATE(resp_data[0]);
 }
 
-static int mmc_send_part_switch_cmd(unsigned int part_config)
+static int mmc_send_part_switch_cmd(unsigned char part_config)
 {
 	int ret;
 	unsigned int part_time = 0;
@@ -760,9 +759,9 @@ size_t mmc_erase_blocks(int lba, size_t size)
 	return size;
 }
 
-static int mmc_part_switch(unsigned int part_type)
+static int mmc_part_switch(unsigned char part_type)
 {
-	uint8_t part_config = mmc_ext_csd[CMD_EXTCSD_PARTITION_CONFIG];
+	unsigned char part_config = mmc_ext_csd[CMD_EXTCSD_PARTITION_CONFIG];
 
 	part_config &= ~EXT_CSD_PART_CONFIG_ACC_MASK;
 	part_config |= part_type;
@@ -780,8 +779,7 @@ int mmc_part_switch_current_boot(void)
 	unsigned char current_boot_part = mmc_current_boot_part();
 	int ret;
 
-	if (current_boot_part != 1U &&
-	    current_boot_part != 2U) {
+	if ((current_boot_part != 1U) && (current_boot_part != 2U)) {
 		ERROR("Got unexpected value for active boot partition, %u\n", current_boot_part);
 		return -EIO;
 	}
