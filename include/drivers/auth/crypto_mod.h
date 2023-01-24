@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,6 +74,10 @@ CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 #endif /* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
 	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
 
+	/* Convert Public key (optional) */
+	int (*convert_pk)(void *full_pk_ptr, unsigned int full_pk_len,
+			  void **hashed_pk_ptr, unsigned int *hashed_pk_len);
+
 	/*
 	 * Authenticated decryption. Return one of the
 	 * 'enum crypto_ret_value' options.
@@ -119,27 +123,32 @@ int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 #endif /* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
 	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
 
+int crypto_mod_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
+			  void **hashed_pk_ptr, unsigned int *hashed_pk_len);
+
 #if CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 /* Macro to register a cryptographic library */
 #define REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash, \
-			    _calc_hash, _auth_decrypt) \
+			    _calc_hash, _auth_decrypt, _convert_pk) \
 	const crypto_lib_desc_t crypto_lib_desc = { \
 		.name = _name, \
 		.init = _init, \
 		.verify_signature = _verify_signature, \
 		.verify_hash = _verify_hash, \
 		.calc_hash = _calc_hash, \
-		.auth_decrypt = _auth_decrypt \
+		.auth_decrypt = _auth_decrypt, \
+		.convert_pk = _convert_pk \
 	}
 #elif CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY
 #define REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash, \
-			    _auth_decrypt) \
+			    _auth_decrypt, _convert_pk) \
 	const crypto_lib_desc_t crypto_lib_desc = { \
 		.name = _name, \
 		.init = _init, \
 		.verify_signature = _verify_signature, \
 		.verify_hash = _verify_hash, \
-		.auth_decrypt = _auth_decrypt \
+		.auth_decrypt = _auth_decrypt, \
+		.convert_pk = _convert_pk \
 	}
 #elif CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY
 #define REGISTER_CRYPTO_LIB(_name, _init, _calc_hash) \

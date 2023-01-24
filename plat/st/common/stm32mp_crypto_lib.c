@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2022-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -167,8 +167,8 @@ uint32_t verify_signature(uint8_t *hash_in, uint8_t *pubkey_in,
 	return ret;
 }
 
-int plat_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
-		    void **hashed_pk_ptr, unsigned int *hashed_pk_len)
+static int crypto_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
+			     void **hashed_pk_ptr, unsigned int *hashed_pk_len)
 {
 	return get_plain_pk_from_asn1(full_pk_ptr, full_pk_len, hashed_pk_ptr, hashed_pk_len, NULL);
 }
@@ -220,8 +220,8 @@ static uint32_t verify_signature(uint8_t *hash_in, uint8_t *pubkey_in,
 	return 0;
 }
 
-int plat_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
-		    void **hashed_pk_ptr, unsigned int *hashed_pk_len)
+static int crypto_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
+			     void **hashed_pk_ptr, unsigned int *hashed_pk_len)
 {
 	static uint8_t st_pk[CRYPTO_PUBKEY_MAX_SIZE + sizeof(uint32_t)];
 	int ret;
@@ -650,13 +650,14 @@ REGISTER_CRYPTO_LIB("stm32_crypto_lib",
 		    crypto_lib_init,
 		    crypto_verify_signature,
 		    crypto_verify_hash,
-		    crypto_auth_decrypt);
+		    crypto_auth_decrypt,
+		    crypto_convert_pk);
 
 #else /* No decryption support */
 REGISTER_CRYPTO_LIB("stm32_crypto_lib",
 		    crypto_lib_init,
 		    crypto_verify_signature,
 		    crypto_verify_hash,
-		    NULL);
-
+		    NULL,
+		    crypto_convert_pk);
 #endif

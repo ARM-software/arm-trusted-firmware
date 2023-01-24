@@ -256,7 +256,8 @@ These functions are registered in the CM using the macro:
                         _verify_signature,
                         _calc_hash,
                         _verify_hash,
-                        _auth_decrypt);
+                        _auth_decrypt,
+                        _convert_pk);
 
 ``_name`` must be a string containing the name of the CL. This name is used for
 debugging purposes.
@@ -265,6 +266,25 @@ Crypto module provides a function ``_calc_hash`` to calculate and
 return the hash of the given data using the provided hash algorithm.
 This function is mainly used in the ``MEASURED_BOOT`` and ``DRTM_SUPPORT``
 features to calculate the hashes of various images/data.
+
+Optionally, a platform function can be provided to convert public key
+(_convert_pk). It is only used if the platform saves a hash of the ROTPK.
+Most platforms save the hash of the ROTPK, but some may save slightly different
+information - e.g the hash of the ROTPK plus some related information.
+Defining this function allows to transform the ROTPK used to verify
+the signature to the buffer (a platform specific public key) which
+hash is saved in OTP.
+
+.. code:: c
+
+    int (*convert_pk)(void *full_pk_ptr, unsigned int full_pk_len,
+                      void **hashed_pk_ptr, unsigned int *hashed_pk_len);
+
+
+-  ``full_pk_ptr``: Pointer to Distinguished Encoding Rules (DER) ROTPK.
+-  ``full_pk_len``: DER ROTPK size.
+-  ``hashed_pk_ptr``: to return a pointer to a buffer, which hash should be the one saved in OTP.
+-  ``hashed_pk_len``: previous buffer size
 
 Image Parser Module (IPM)
 ^^^^^^^^^^^^^^^^^^^^^^^^^

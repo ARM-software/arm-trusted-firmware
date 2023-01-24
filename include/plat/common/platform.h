@@ -352,8 +352,6 @@ int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr);
 int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr);
 int plat_set_nv_ctr2(void *cookie, const struct auth_img_desc_s *img_desc,
 		unsigned int nv_ctr);
-int plat_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
-		    void **hashed_pk_ptr, unsigned int *hash_pk_len);
 int get_mbedtls_heap_helper(void **heap_addr, size_t *heap_size);
 int plat_get_enc_key_info(enum fw_enc_status_t fw_enc_status, uint8_t *key,
 			  size_t *key_len, unsigned int *flags,

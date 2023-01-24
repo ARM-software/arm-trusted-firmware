@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -141,6 +141,20 @@ int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 }
 #endif /* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
 	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
+
+int crypto_mod_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
+			  void **hashed_pk_ptr, unsigned int *hashed_pk_len)
+{
+	if (crypto_lib_desc.convert_pk != NULL) {
+		return crypto_lib_desc.convert_pk(full_pk_ptr, full_pk_len,
+						  hashed_pk_ptr, hashed_pk_len);
+	}
+
+	*hashed_pk_ptr = full_pk_ptr;
+	*hashed_pk_len = full_pk_len;
+
+	return 0;
+}
 
 /*
  * Authenticated decryption of data
