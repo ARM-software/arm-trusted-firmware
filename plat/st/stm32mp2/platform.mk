@@ -408,6 +408,32 @@ DDR_FIP_NAME			?=	fip-ddr.bin
 
 $(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW_COPY,--ddr-fw,DDR_))
 
+ifeq (${TRUSTED_BOARD_BOOT},1)
+ifneq (${GENERATE_COT},0)
+$(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_CFG_CERT},--stm32mp-cfg-cert,,DDR_))
+$(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key,DDR_)))
+$(if ${TFW_NVCTR_VAL},$(eval $(call CERT_ADD_CMD_OPT,${TFW_NVCTR_VAL},--tfw-nvctr,DDR_)))
+$(if ${TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_WORLD_KEY},--trusted-world-key,DDR_)))
+
+ifneq (${CREATE_KEYS},0)
+$(eval DDR_CRT_ARGS += -n)
+ifneq (${SAVE_KEYS},0)
+$(eval DDR_CRT_ARGS += -k)
+endif
+endif
+
+ddr_certificates: ${DDR_CRT_DEPS} certtool
+	@echo "Build $@"
+	${Q}${CRTTOOL} ${DDR_CRT_ARGS}
+	@${ECHO_BLANK_LINE}
+	@echo "Built $@ successfully"
+	@echo "DDR certificates can be found in ${BUILD_PLAT}"
+	@${ECHO_BLANK_LINE}
+
+DDR_FIP_DEPS		+=	ddr_certificates
+endif
+endif
+
 ${BUILD_PLAT}/${DDR_FIP_NAME}: ${DDR_FIP_DEPS} fiptool
 	${Q}${FIPTOOL} create ${DDR_FIP_ARGS} $@
 	${Q}${FIPTOOL} info $@
