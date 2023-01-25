@@ -83,6 +83,7 @@ override BL1_SOURCES	:=	drivers/arm/sp805/sp805.c			\
 				drivers/io/io_storage.c				\
 				drivers/io/io_semihosting.c			\
 				lib/cpus/aarch64/cpu_helpers.S			\
+				lib/cpus/errata_report.c			\
 				lib/fconf/fconf_dyn_cfg_getter.c		\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\

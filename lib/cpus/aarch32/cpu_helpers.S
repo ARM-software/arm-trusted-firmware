@@ -7,9 +7,9 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#include <lib/cpus/cpu_ops.h>
 #include <cpu_macros.S>
 #include <common/bl_common.h>
+#include <lib/cpus/cpu_ops.h>
 #include <lib/el3_runtime/cpu_data.h>
 
 #if defined(IMAGE_BL1) || defined(IMAGE_BL32) || \
@@ -205,62 +205,3 @@ func cpu_rev_var_hs
 	movlt	r0, #ERRATA_NOT_APPLIES
 	bx	lr
 endfunc cpu_rev_var_hs
-
-#if REPORT_ERRATA
-/*
- * void print_errata_status(void);
- *
- * Function to print errata status for CPUs of its class. Must be called only:
- *
- *   - with MMU and data caches are enabled;
- *   - after cpu_ops have been initialized in per-CPU data.
- */
-	.globl print_errata_status
-func print_errata_status
-	/* r12 is pushed only for the sake of 8-byte stack alignment */
-	push	{r4, r5, r12, lr}
-#ifdef IMAGE_BL1
-	/*
-	 * BL1 doesn't have per-CPU data. So retrieve the CPU operations
-	 * directly.
-	 */
-	bl	get_cpu_ops_ptr
-	ldr	r0, [r0, #CPU_ERRATA_FUNC]
-	cmp	r0, #0
-	blxne	r0
-#else
-	/*
-	 * Retrieve pointer to cpu_ops, and further, the errata printing
-	 * function. If it's non-NULL, jump to the function in turn.
-	 */
-	bl	_cpu_data
-#if ENABLE_ASSERTIONS
-	cmp	r0, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	r1, [r0, #CPU_DATA_CPU_OPS_PTR]
-#if ENABLE_ASSERTIONS
-	cmp	r1, #0
-	ASM_ASSERT(ne)
-#endif
-	ldr	r0, [r1, #CPU_ERRATA_FUNC]
-	cmp	r0, #0
-	beq	1f
-
-	mov	r4, r0
-
-	/*
-	 * Load pointers to errata lock and printed flag. Call
-	 * errata_needs_reporting to check whether this CPU needs to report
-	 * errata status pertaining to its class.
-	 */
-	ldr	r0, [r1, #CPU_ERRATA_LOCK]
-	ldr	r1, [r1, #CPU_ERRATA_PRINTED]
-	bl	errata_needs_reporting
-	cmp	r0, #0
-	blxne	r4
-1:
-#endif
-	pop	{r4, r5, r12, pc}
-endfunc print_errata_status
-#endif
