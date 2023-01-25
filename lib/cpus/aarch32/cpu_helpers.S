@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <lib/cpus/cpu_ops.h>
 #include <cpu_macros.S>
 #include <common/bl_common.h>
 #include <lib/el3_runtime/cpu_data.h>
