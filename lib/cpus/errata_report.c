@@ -11,6 +11,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/spinlock.h>
@@ -30,11 +31,14 @@
 /* Errata format: BL stage, CPU, errata ID, message */
 #define ERRATA_FORMAT	"%s: %s: CPU workaround for %s was %s\n"
 
+#if !REPORT_ERRATA
+void print_errata_status(void) {}
+#else /* !REPORT_ERRATA */
 /*
  * Returns whether errata needs to be reported. Passed arguments are private to
  * a CPU type.
  */
-int errata_needs_reporting(spinlock_t *lock, uint32_t *reported)
+static __unused int errata_needs_reporting(spinlock_t *lock, uint32_t *reported)
 {
 	bool report_now;
 
@@ -53,6 +57,40 @@ int errata_needs_reporting(spinlock_t *lock, uint32_t *reported)
 	spin_unlock(lock);
 
 	return report_now;
+}
+
+/*
+ * Function to print errata status for the calling CPU (and others of the same
+ * type). Must be called only:
+ *   - when MMU and data caches are enabled;
+ *   - after cpu_ops have been initialized in per-CPU data.
+ */
+void print_errata_status(void)
+{
+	struct cpu_ops *cpu_ops;
+#ifdef IMAGE_BL1
+	/*
+	 * BL1 doesn't have per-CPU data. So retrieve the CPU operations
+	 * directly.
+	 */
+	cpu_ops = get_cpu_ops_ptr();
+
+	if (cpu_ops->errata_func != NULL) {
+		cpu_ops->errata_func();
+	}
+#else /* IMAGE_BL1 */
+	cpu_ops = (void *) get_cpu_data(cpu_ops_ptr);
+
+	assert(cpu_ops != NULL);
+
+	if (cpu_ops->errata_func == NULL) {
+		return;
+	}
+
+	if (errata_needs_reporting(cpu_ops->errata_lock, cpu_ops->errata_reported)) {
+		cpu_ops->errata_func();
+	}
+#endif /* IMAGE_BL1 */
 }
 
 /*
@@ -99,3 +137,4 @@ void errata_print_msg(unsigned int status, const char *cpu, const char *id)
 		break;
 	}
 }
+#endif /* !REPORT_ERRATA */

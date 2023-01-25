@@ -102,4 +102,41 @@
 #define CPU_OPS_SIZE		CPU_ERRATA_PRINTED + CPU_ERRATA_PRINTED_SIZE
 #endif /* __aarch64__ */
 
+#ifndef __ASSEMBLER__
+#include <lib/cassert.h>
+#include <lib/spinlock.h>
+
+struct cpu_ops {
+	unsigned long midr;
+#ifdef IMAGE_AT_EL3
+	void (*reset_func)(void);
+#endif /* IMAGE_AT_EL3 */
+#if __aarch64__
+	void (*extra1_func)(void);
+	void (*extra2_func)(void);
+	void (*extra3_func)(void);
+	void (*e_handler_func)(long es);
+#endif /* __aarch64__ */
+#if (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS
+	void (*pwr_dwn_ops[CPU_MAX_PWR_DWN_OPS])(void);
+#endif /* (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS */
+#if REPORT_ERRATA
+	void (*errata_func)(void);
+#if defined(IMAGE_BL31) || defined(IMAGE_BL32)
+	spinlock_t *errata_lock;
+	unsigned int *errata_reported;
+#endif /* defined(IMAGE_BL31) || defined(IMAGE_BL32) */
+#endif /* REPORT_ERRATA */
+#if defined(IMAGE_BL31) && CRASH_REPORTING
+	void (*reg_dump)(void);
+#endif /* defined(IMAGE_BL31) && CRASH_REPORTING */
+} __packed;
+
+CASSERT(sizeof(struct cpu_ops) == CPU_OPS_SIZE,
+	assert_cpu_ops_asm_c_different_sizes);
+
+long cpu_get_rev_var(void);
+void *get_cpu_ops_ptr(void);
+
+#endif /* __ASSEMBLER__ */
 #endif /* CPU_OPS_H */
