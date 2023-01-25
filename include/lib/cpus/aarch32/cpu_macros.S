@@ -7,76 +7,8 @@
 #define CPU_MACROS_S
 
 #include <arch.h>
+#include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata_report.h>
-
-#if defined(IMAGE_BL1) || defined(IMAGE_BL32)  \
-	|| (defined(IMAGE_BL2) && RESET_TO_BL2)
-#define IMAGE_AT_EL3
-#endif
-
-#define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
-				(MIDR_PN_MASK << MIDR_PN_SHIFT)
-
-/* The number of CPU operations allowed */
-#define CPU_MAX_PWR_DWN_OPS		2
-
-/* Special constant to specify that CPU has no reset function */
-#define CPU_NO_RESET_FUNC		0
-
-/* Word size for 32-bit CPUs */
-#define CPU_WORD_SIZE			4
-
-/*
- * Whether errata status needs reporting. Errata status is printed in debug
- * builds for both BL1 and BL32 images.
- */
-#if (defined(IMAGE_BL1) || defined(IMAGE_BL32)) && DEBUG
-# define REPORT_ERRATA	1
-#else
-# define REPORT_ERRATA	0
-#endif
-
-
-	.equ	CPU_MIDR_SIZE, CPU_WORD_SIZE
-	.equ	CPU_RESET_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_PWR_DWN_OPS_SIZE, CPU_WORD_SIZE * CPU_MAX_PWR_DWN_OPS
-	.equ	CPU_ERRATA_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_ERRATA_LOCK_SIZE, CPU_WORD_SIZE
-	.equ	CPU_ERRATA_PRINTED_SIZE, CPU_WORD_SIZE
-
-#ifndef IMAGE_AT_EL3
-	.equ	CPU_RESET_FUNC_SIZE, 0
-#endif
-
-/* The power down core and cluster is needed only in BL32 */
-#ifndef IMAGE_BL32
-	.equ	CPU_PWR_DWN_OPS_SIZE, 0
-#endif
-
-/* Fields required to print errata status  */
-#if !REPORT_ERRATA
-	.equ	CPU_ERRATA_FUNC_SIZE, 0
-#endif
-
-/* Only BL32 requires mutual exclusion and printed flag. */
-#if !(REPORT_ERRATA && defined(IMAGE_BL32))
-	.equ	CPU_ERRATA_LOCK_SIZE, 0
-	.equ	CPU_ERRATA_PRINTED_SIZE, 0
-#endif
-
-
-/*
- * Define the offsets to the fields in cpu_ops structure.
- * Every offset is defined based on the offset and size of the previous
- * field.
- */
-	.equ	CPU_MIDR, 0
-	.equ	CPU_RESET_FUNC, CPU_MIDR + CPU_MIDR_SIZE
-	.equ	CPU_PWR_DWN_OPS, CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
-	.equ	CPU_ERRATA_FUNC, CPU_PWR_DWN_OPS + CPU_PWR_DWN_OPS_SIZE
-	.equ	CPU_ERRATA_LOCK, CPU_ERRATA_FUNC + CPU_ERRATA_FUNC_SIZE
-	.equ	CPU_ERRATA_PRINTED, CPU_ERRATA_LOCK + CPU_ERRATA_LOCK_SIZE
-	.equ	CPU_OPS_SIZE, CPU_ERRATA_PRINTED + CPU_ERRATA_PRINTED_SIZE
 
 	/*
 	 * Write given expressions as words

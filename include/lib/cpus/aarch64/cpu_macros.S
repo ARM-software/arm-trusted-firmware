@@ -1,95 +1,14 @@
 /*
- * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef CPU_MACROS_S
 #define CPU_MACROS_S
 
-#include <arch.h>
 #include <assert_macros.S>
+#include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata_report.h>
-
-#define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
-				(MIDR_PN_MASK << MIDR_PN_SHIFT)
-
-/* The number of CPU operations allowed */
-#define CPU_MAX_PWR_DWN_OPS		2
-
-/* Special constant to specify that CPU has no reset function */
-#define CPU_NO_RESET_FUNC		0
-
-#define CPU_NO_EXTRA1_FUNC		0
-#define CPU_NO_EXTRA2_FUNC		0
-#define CPU_NO_EXTRA3_FUNC		0
-
-/* Word size for 64-bit CPUs */
-#define CPU_WORD_SIZE			8
-
-/*
- * Whether errata status needs reporting. Errata status is printed in debug
- * builds for both BL1 and BL31 images.
- */
-#if (defined(IMAGE_BL1) || defined(IMAGE_BL31)) && DEBUG
-# define REPORT_ERRATA	1
-#else
-# define REPORT_ERRATA	0
-#endif
-
-
-	.equ	CPU_MIDR_SIZE, CPU_WORD_SIZE
-	.equ	CPU_EXTRA1_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_EXTRA2_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_EXTRA3_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_E_HANDLER_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_RESET_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_PWR_DWN_OPS_SIZE, CPU_WORD_SIZE * CPU_MAX_PWR_DWN_OPS
-	.equ	CPU_ERRATA_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_ERRATA_LOCK_SIZE, CPU_WORD_SIZE
-	.equ	CPU_ERRATA_PRINTED_SIZE, CPU_WORD_SIZE
-	.equ	CPU_REG_DUMP_SIZE, CPU_WORD_SIZE
-
-#ifndef IMAGE_AT_EL3
-	.equ	CPU_RESET_FUNC_SIZE, 0
-#endif
-
-/* The power down core and cluster is needed only in BL31 */
-#ifndef IMAGE_BL31
-	.equ	CPU_PWR_DWN_OPS_SIZE, 0
-#endif
-
-/* Fields required to print errata status. */
-#if !REPORT_ERRATA
-	.equ	CPU_ERRATA_FUNC_SIZE, 0
-#endif
-
-/* Only BL31 requieres mutual exclusion and printed flag.  */
-#if !(REPORT_ERRATA && defined(IMAGE_BL31))
-	.equ	CPU_ERRATA_LOCK_SIZE, 0
-	.equ	CPU_ERRATA_PRINTED_SIZE, 0
-#endif
-
-#if !defined(IMAGE_BL31) || !CRASH_REPORTING
-	.equ	CPU_REG_DUMP_SIZE, 0
-#endif
-
-/*
- * Define the offsets to the fields in cpu_ops structure.
- * Every offset is defined based in the offset and size of the previous
- * field.
- */
-	.equ	CPU_MIDR, 0
-	.equ	CPU_RESET_FUNC, CPU_MIDR + CPU_MIDR_SIZE
-	.equ	CPU_EXTRA1_FUNC, CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
-	.equ	CPU_EXTRA2_FUNC, CPU_EXTRA1_FUNC + CPU_EXTRA1_FUNC_SIZE
-	.equ	CPU_EXTRA3_FUNC, CPU_EXTRA2_FUNC + CPU_EXTRA2_FUNC_SIZE
-	.equ	CPU_E_HANDLER_FUNC, CPU_EXTRA3_FUNC + CPU_EXTRA3_FUNC_SIZE
-	.equ	CPU_PWR_DWN_OPS, CPU_E_HANDLER_FUNC + CPU_E_HANDLER_FUNC_SIZE
-	.equ	CPU_ERRATA_FUNC, CPU_PWR_DWN_OPS + CPU_PWR_DWN_OPS_SIZE
-	.equ	CPU_ERRATA_LOCK, CPU_ERRATA_FUNC + CPU_ERRATA_FUNC_SIZE
-	.equ	CPU_ERRATA_PRINTED, CPU_ERRATA_LOCK + CPU_ERRATA_LOCK_SIZE
-	.equ	CPU_REG_DUMP, CPU_ERRATA_PRINTED + CPU_ERRATA_PRINTED_SIZE
-	.equ	CPU_OPS_SIZE, CPU_REG_DUMP + CPU_REG_DUMP_SIZE
 
 	/*
 	 * Write given expressions as quad words
