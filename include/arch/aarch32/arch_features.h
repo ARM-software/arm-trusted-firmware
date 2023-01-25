@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,16 +11,17 @@
 
 #include <arch_helpers.h>
 
+#define ISOLATE_FIELD(reg, feat)					\
+	((unsigned int)(((reg) >> (feat ## _SHIFT)) & (feat ## _MASK)))
+
 static inline bool is_armv7_gentimer_present(void)
 {
-	return ((read_id_pfr1() >> ID_PFR1_GENTIMER_SHIFT) &
-		ID_PFR1_GENTIMER_MASK) != 0U;
+	return ISOLATE_FIELD(read_id_pfr1(), ID_PFR1_GENTIMER) != 0U;
 }
 
 static inline bool is_armv8_2_ttcnp_present(void)
 {
-	return ((read_id_mmfr4() >> ID_MMFR4_CNP_SHIFT) &
-		ID_MMFR4_CNP_MASK) != 0U;
+	return ISOLATE_FIELD(read_id_mmfr4(), ID_MMFR4_CNP) != 0U;
 }
 
 #endif /* ARCH_FEATURES_H */
