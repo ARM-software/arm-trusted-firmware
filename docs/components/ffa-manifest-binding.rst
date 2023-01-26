@@ -128,17 +128,18 @@ Partition Properties
 
    - This field supersedes the managed-exit field in the FF-A v1.0 spec.
 
+- other-s-interrupts-action
+   - value type: <u32>
+   - Specifies the action that the SPMC must take in response to a Other-Secure
+     physical interrupt.
+
+      - 0x0: Other-Secure interrupt is queued
+      - 0x1: Other-Secure interrupt is signaled
+
 - has-primary-scheduler
    - value type: <empty>
    - Presence of this field indicates that the partition implements the primary
      scheduler. If so, run-time EL must be EL1.
-
-- run-time-model
-   - value type: <u32>
-   - Run time model that the SPM must enforce for this SP:
-
-      - 0x0: Run to completion
-      - 0x1: Preemptible
 
 - time-slice-mem
    - value type: <empty>
