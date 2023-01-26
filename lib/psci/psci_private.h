@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -303,6 +303,9 @@ int psci_spd_migrate_info(u_register_t *mpidr);
  * handled in assembly.
  */
 void prepare_cpu_pwr_dwn(unsigned int power_level);
+
+/* This function applies various CPU errata during power down. */
+void apply_cpu_pwr_dwn_errata(void);
 
 /* Private exported functions from psci_on.c */
 int psci_cpu_on_start(u_register_t target_cpu,

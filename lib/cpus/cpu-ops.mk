@@ -745,6 +745,11 @@ ERRATA_A510_2371937	?=0
 # to revisions r0p0, r0p1, r0p2, r0p3, r1p0, and r1p1. It is fixed in r1p2.
 ERRATA_A510_2666669	?=0
 
+# Flag to apply erratum 2684597 workaround during powerdown. This erratum
+# applies to revision r0p0, r0p1, r0p2, r0p3, r1p0, r1p1 and r1p2 of the
+# Cortex-A510 cpu and is fixed in r1p3.
+ERRATA_A510_2684597	?=0
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 ERRATA_DSU_798953	?=0
@@ -1406,6 +1411,10 @@ $(eval $(call add_define,ERRATA_A510_2371937))
 # Process ERRATA_A510_2666669 flag
 $(eval $(call assert_boolean,ERRATA_A510_2666669))
 $(eval $(call add_define,ERRATA_A510_2666669))
+
+# Process ERRATA_A510_2684597 flag
+$(eval $(call assert_boolean,ERRATA_A510_2684597))
+$(eval $(call add_define,ERRATA_A510_2684597))
 
 #Process ERRATA_DSU_798953 flag
 $(eval $(call assert_boolean,ERRATA_DSU_798953))
