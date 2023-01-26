@@ -274,7 +274,7 @@ static void sdei_set_elr_spsr(sdei_entry_t *se, sdei_dispatch_context_t *disp_ct
 			     (hcr_el2 & HCR_TGE_BIT) &&
 			     (hcr_el2 & HCR_E2H_BIT);
 
-	if (is_armv8_1_pan_present() &&
+	if (is_feat_pan_supported() &&
 	    ((client_el == MODE_EL1) ||
 		(client_el == MODE_EL2 && el_is_in_host)) &&
 	    ((client_el_sctlr & SCTLR_SPAN_BIT) == 0U)) {
