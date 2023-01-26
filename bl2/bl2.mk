@@ -15,6 +15,12 @@ ifeq (${ARCH},aarch64)
 BL2_SOURCES		+=	common/aarch64/early_exceptions.S
 endif
 
+ifneq ($(findstring gcc,$(notdir $(LD))),)
+        BL2_LDFLAGS	+=	-Wl,--sort-section=alignment
+else ifneq ($(findstring ld,$(notdir $(LD))),)
+        BL2_LDFLAGS	+=	--sort-section=alignment
+endif
+
 ifeq (${ENABLE_RME},1)
 # Using RME, run BL2 at EL3
 include lib/gpt_rme/gpt_rme.mk
