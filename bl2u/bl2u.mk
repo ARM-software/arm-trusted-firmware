@@ -13,3 +13,9 @@ BL2U_SOURCES		+=	common/aarch64/early_exceptions.S
 endif
 
 BL2U_DEFAULT_LINKER_SCRIPT_SOURCE := bl2u/bl2u.ld.S
+
+ifneq ($(findstring gcc,$(notdir $(LD))),)
+        BL2U_LDFLAGS	+=	-Wl,--sort-section=alignment
+else ifneq ($(findstring ld,$(notdir $(LD))),)
+        BL2U_LDFLAGS	+=	--sort-section=alignment
+endif
