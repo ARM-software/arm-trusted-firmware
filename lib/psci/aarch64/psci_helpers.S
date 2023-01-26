@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -125,6 +125,7 @@ endfunc psci_do_pwrup_cache_maintenance
  */
 func psci_power_down_wfi
 	dsb	sy		// ensure write buffer empty
+1:
 	wfi
-	no_ret	plat_panic_handler
+	b	1b
 endfunc psci_power_down_wfi
