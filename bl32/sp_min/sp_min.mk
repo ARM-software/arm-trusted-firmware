@@ -56,6 +56,12 @@ endif
 
 BL32_DEFAULT_LINKER_SCRIPT_SOURCE := bl32/sp_min/sp_min.ld.S
 
+ifneq ($(findstring gcc,$(notdir $(LD))),)
+        BL32_LDFLAGS	+=	-Wl,--sort-section=alignment
+else ifneq ($(findstring ld,$(notdir $(LD))),)
+        BL32_LDFLAGS	+=	--sort-section=alignment
+endif
+
 # Include the platform-specific SP_MIN Makefile
 # If no platform-specific SP_MIN Makefile exists, it means SP_MIN is not supported
 # on this platform.
