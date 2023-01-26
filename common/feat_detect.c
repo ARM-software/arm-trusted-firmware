@@ -80,16 +80,6 @@ static void read_feat_pauth(void)
 #endif
 }
 
-/************************************************************
- * Feature : FEAT_DIT (Data Independent Timing Instructions)
- ***********************************************************/
-static void read_feat_dit(void)
-{
-#if (ENABLE_FEAT_DIT == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_4_feat_dit_present(), "DIT");
-#endif
-}
-
 /************************************************
  * Feature : FEAT_MTE (Memory Tagging Extension)
  ***********************************************/
@@ -178,7 +168,7 @@ void detect_arch_features(void)
 	read_feat_pauth();
 
 	/* v8.4 features */
-	read_feat_dit();
+	check_feature(ENABLE_FEAT_DIT, read_feat_dit_id_field(), "DIT", 1, 1);
 	check_feature(ENABLE_FEAT_AMU, read_feat_amu_id_field(),
 		      "AMUv1", 1, 2);
 	check_feature(ENABLE_MPAM_FOR_LOWER_ELS, read_feat_mpam_version(),

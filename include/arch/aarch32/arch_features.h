@@ -92,6 +92,24 @@ static inline bool is_feat_sys_reg_trace_supported(void)
 	return read_feat_coptrc_id_field() != 0U;
 }
 
+static inline unsigned int read_feat_dit_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_pfr0(), ID_PFR0_DIT);
+}
+
+static inline bool is_feat_dit_supported(void)
+{
+	if (ENABLE_FEAT_DIT == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_DIT == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_dit_id_field() != 0U;
+}
+
 static inline bool is_feat_spe_supported(void)
 {
 	/* FEAT_SPE is AArch64 only */

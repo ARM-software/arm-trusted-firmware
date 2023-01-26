@@ -89,12 +89,6 @@ static inline bool is_armv8_3_pauth_present(void)
 		is_feat_pacqarma3_present());
 }
 
-static inline bool is_armv8_4_dit_present(void)
-{
-	return ((read_id_aa64pfr0_el1() >> ID_AA64PFR0_DIT_SHIFT) &
-		ID_AA64PFR0_DIT_MASK) == 1U;
-}
-
 static inline bool is_armv8_4_ttst_present(void)
 {
 	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_ST_SHIFT) &
@@ -515,13 +509,22 @@ static inline bool is_armv8_2_feat_ras_present(void)
 		ID_AA64PFR0_RAS_MASK) != ID_AA64PFR0_RAS_NOT_SUPPORTED);
 }
 
-/**************************************************************************
- * Function to identify the presence of FEAT_DIT (Data Independent Timing)
- *************************************************************************/
-static inline bool is_armv8_4_feat_dit_present(void)
+static unsigned int read_feat_dit_id_field(void)
 {
-	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_DIT_SHIFT) &
-		ID_AA64PFR0_DIT_MASK) == ID_AA64PFR0_DIT_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_DIT);
+}
+
+static inline bool is_feat_dit_supported(void)
+{
+	if (ENABLE_FEAT_DIT == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_DIT == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_dit_id_field() != 0U;
 }
 
 static inline unsigned int read_feat_tracever_id_field(void)

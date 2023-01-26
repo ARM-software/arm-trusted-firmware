@@ -263,7 +263,7 @@ smc_args_t *tsp_smc_handler(uint64_t func,
 		results[1] /= service_arg1 ? service_arg1 : 1;
 		break;
 	case TSP_CHECK_DIT:
-		if (!is_armv8_4_dit_present()) {
+		if (!is_feat_dit_supported()) {
 			ERROR("DIT not supported\n");
 			results[0] = 0;
 			results[1] = 0xffff;

@@ -243,14 +243,20 @@
 	 * register value for DIT.
 	 */
 #if ENABLE_FEAT_DIT
-#if ENABLE_ASSERTIONS
+#if ENABLE_ASSERTIONS || ENABLE_FEAT_DIT > 1
 	mrs	x0, id_aa64pfr0_el1
 	ubfx	x0, x0, #ID_AA64PFR0_DIT_SHIFT, #ID_AA64PFR0_DIT_LENGTH
+#if ENABLE_FEAT_DIT > 1
+	cbz	x0, 1f
+#else
 	cmp	x0, #ID_AA64PFR0_DIT_SUPPORTED
 	ASM_ASSERT(eq)
+#endif
+
 #endif /* ENABLE_ASSERTIONS */
 	mov	x0, #DIT_BIT
 	msr	DIT, x0
+1:
 #endif
 	.endm
 
