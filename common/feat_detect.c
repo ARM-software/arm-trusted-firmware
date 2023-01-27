@@ -90,18 +90,6 @@ static void read_feat_dit(void)
 #endif
 }
 
-/**************************************************************
- * Feature : FEAT_NV2 (Enhanced Nested Virtualization Support)
- *************************************************************/
-static void read_feat_nv2(void)
-{
-#if (CTX_INCLUDE_NEVE_REGS == FEAT_STATE_ALWAYS)
-	unsigned int nv = get_armv8_4_feat_nv_support();
-
-	feat_detect_panic((nv == ID_AA64MMFR2_EL1_NV2_SUPPORTED), "NV2");
-#endif
-}
-
 /***********************************
  * Feature : FEAT_SEL2 (Secure EL2)
  **********************************/
@@ -223,7 +211,8 @@ void detect_arch_features(void)
 		      "AMUv1", 1, 2);
 	check_feature(ENABLE_MPAM_FOR_LOWER_ELS, read_feat_mpam_version(),
 		      "MPAM", 1, 17);
-	read_feat_nv2();
+	check_feature(CTX_INCLUDE_NEVE_REGS, read_feat_nv_id_field(),
+		      "NV2", 2, 2);
 	read_feat_sel2();
 	check_feature(ENABLE_TRF_FOR_NS, read_feat_trf_id_field(),
 		      "TRF", 1, 1);

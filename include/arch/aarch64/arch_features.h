@@ -423,10 +423,22 @@ static inline bool is_feat_trf_supported(void)
  * Function to identify the presence of FEAT_NV2 (Enhanced Nested Virtualization
  * Support)
  *******************************************************************************/
-static inline unsigned int get_armv8_4_feat_nv_support(void)
+static inline unsigned int read_feat_nv_id_field(void)
 {
-	return (((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_NV_SHIFT) &
-		ID_AA64MMFR2_EL1_NV_MASK));
+	return ISOLATE_FIELD(read_id_aa64mmfr2_el1(), ID_AA64MMFR2_EL1_NV);
+}
+
+static inline bool is_feat_nv2_supported(void)
+{
+	if (CTX_INCLUDE_NEVE_REGS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (CTX_INCLUDE_NEVE_REGS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_nv_id_field() >= ID_AA64MMFR2_EL1_NV2_SUPPORTED;
 }
 
 /*******************************************************************************

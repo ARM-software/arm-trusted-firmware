@@ -21,10 +21,6 @@
 	.global	el2_sysregs_context_save_ras
 	.global	el2_sysregs_context_restore_ras
 #endif /* RAS_EXTENSION */
-#if CTX_INCLUDE_NEVE_REGS
-	.global	el2_sysregs_context_save_nv2
-	.global	el2_sysregs_context_restore_nv2
-#endif /* CTX_INCLUDE_NEVE_REGS */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	.global	el1_sysregs_context_save
@@ -237,26 +233,6 @@ func el2_sysregs_context_restore_ras
 	ret
 endfunc el2_sysregs_context_restore_ras
 #endif /* RAS_EXTENSION */
-
-#if CTX_INCLUDE_NEVE_REGS
-func el2_sysregs_context_save_nv2
-	/*
-	 * VNCR_EL2 register is saved only when FEAT_NV2 is supported.
-	 */
-	mrs	x16, vncr_el2
-	str	x16, [x0, #CTX_VNCR_EL2]
-	ret
-endfunc el2_sysregs_context_save_nv2
-
-func el2_sysregs_context_restore_nv2
-	/*
-	 * VNCR_EL2 register is restored only when FEAT_NV2 is supported.
-	 */
-	ldr	x16, [x0, #CTX_VNCR_EL2]
-	msr	vncr_el2, x16
-	ret
-endfunc el2_sysregs_context_restore_nv2
-#endif /* CTX_INCLUDE_NEVE_REGS */
 
 #endif /* CTX_INCLUDE_EL2_REGS */
 

@@ -970,9 +970,12 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 #if RAS_EXTENSION
 		el2_sysregs_context_save_ras(el2_sysregs_ctx);
 #endif
-#if CTX_INCLUDE_NEVE_REGS
-		el2_sysregs_context_save_nv2(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_nv2_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_VNCR_EL2,
+				      read_vncr_el2());
+		}
+
 		if (is_feat_trf_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2, read_trfcr_el2());
 		}
@@ -1036,9 +1039,10 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 #if RAS_EXTENSION
 		el2_sysregs_context_restore_ras(el2_sysregs_ctx);
 #endif
-#if CTX_INCLUDE_NEVE_REGS
-		el2_sysregs_context_restore_nv2(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_nv2_supported()) {
+			write_vncr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_VNCR_EL2));
+		}
 		if (is_feat_trf_supported()) {
 			write_trfcr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2));
 		}
