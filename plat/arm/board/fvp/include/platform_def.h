@@ -30,6 +30,10 @@
 
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL2
 
+#if PSCI_OS_INIT_MODE
+#define PLAT_MAX_CPU_SUSPEND_PWR_LVL	ARM_PWR_LVL1
+#endif
+
 /*
  * Other platform porting definitions are provided by included headers
  */

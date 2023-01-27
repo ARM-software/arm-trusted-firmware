@@ -79,7 +79,12 @@ int arm_validate_power_state(unsigned int power_state,
 	 *  search if the number of entries justify the additional complexity.
 	 */
 	for (i = 0; !!arm_pm_idle_states[i]; i++) {
+#if PSCI_OS_INIT_MODE
+		if ((power_state & ~ARM_LAST_AT_PLVL_MASK) ==
+					arm_pm_idle_states[i])
+#else
 		if (power_state == arm_pm_idle_states[i])
+#endif /* __PSCI_OS_INIT_MODE__ */
 			break;
 	}
 
@@ -91,11 +96,14 @@ int arm_validate_power_state(unsigned int power_state,
 	state_id = psci_get_pstate_id(power_state);
 
 	/* Parse the State ID and populate the state info parameter */
-	while (state_id) {
-		req_state->pwr_domain_state[i++] = state_id &
+	for (i = ARM_PWR_LVL0; i <= PLAT_MAX_PWR_LVL; i++) {
+		req_state->pwr_domain_state[i] = state_id &
 						ARM_LOCAL_PSTATE_MASK;
 		state_id >>= ARM_LOCAL_PSTATE_WIDTH;
 	}
+#if PSCI_OS_INIT_MODE
+	req_state->last_at_pwrlvl = state_id & ARM_LOCAL_PSTATE_MASK;
+#endif /* __PSCI_OS_INIT_MODE__ */
 
 	return PSCI_E_SUCCESS;
 }
