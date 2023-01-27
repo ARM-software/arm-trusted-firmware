@@ -15,7 +15,7 @@
 #include <common/debug.h>
 #include <drivers/auth/auth_mod.h>
 #include <drivers/console.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 #include <lib/utils.h>
 #include <smccc_helpers.h>
 #include <tools_share/uuid.h>

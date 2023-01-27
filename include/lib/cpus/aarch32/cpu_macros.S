@@ -8,7 +8,7 @@
 
 #include <arch.h>
 #include <lib/cpus/cpu_ops.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 
 	/*
 	 * Write given expressions as words
