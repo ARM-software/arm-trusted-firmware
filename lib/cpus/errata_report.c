@@ -11,7 +11,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/spinlock.h>
 

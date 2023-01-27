@@ -8,7 +8,7 @@
 
 #include <assert_macros.S>
 #include <lib/cpus/cpu_ops.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 
 	/*
 	 * Write given expressions as quad words

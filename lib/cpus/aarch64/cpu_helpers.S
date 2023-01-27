@@ -11,7 +11,7 @@
 #include <common/debug.h>
 #include <cpu_macros.S>
 #include <lib/cpus/cpu_ops.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 #include <lib/el3_runtime/cpu_data.h>
 
  /* Reset fn is needed in BL at reset vector */
