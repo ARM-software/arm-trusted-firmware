@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,10 +30,6 @@ func reset_handler
 
 	/* Get the matching cpu_ops pointer */
 	bl	get_cpu_ops_ptr
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
 
 	/* Get the cpu_ops reset handler */
 	ldr	x2, [x0, #CPU_RESET_FUNC]
@@ -99,10 +95,6 @@ func init_cpu_ops
 	cbnz	x0, 1f
 	mov	x10, x30
 	bl	get_cpu_ops_ptr
-#if ENABLE_ASSERTIONS
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
 	str	x0, [x6, #CPU_DATA_CPU_OPS_PTR]!
 	mov x30, x10
 1:
