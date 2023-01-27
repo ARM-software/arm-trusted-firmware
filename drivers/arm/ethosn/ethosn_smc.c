@@ -34,6 +34,10 @@
 #define ETHOSN_CORE_SEC_REG(core_addr, reg_offset) \
 	(core_addr + reg_offset)
 
+#define ETHOSN_FW_VA_BASE              0x20000000UL
+#define ETHOSN_WORKING_DATA_VA_BASE    0x40000000UL
+#define ETHOSN_COMMAND_STREAM_VA_BASE  0x60000000UL
+
 /* Reset timeout in us */
 #define ETHOSN_RESET_TIMEOUT_US		U(10 * 1000 * 1000)
 #define ETHOSN_RESET_WAIT_US		U(1)
@@ -304,6 +308,38 @@ static uintptr_t ethosn_smc_core_handler(uint32_t fid,
 	}
 }
 
+static uintptr_t ethosn_smc_fw_prop_handler(u_register_t fw_property,
+					    void *handle)
+{
+#if ARM_ETHOSN_NPU_TZMP1
+	switch (fw_property) {
+	case ETHOSN_FW_PROP_VERSION:
+		SMC_RET4(handle, ETHOSN_SUCCESS,
+			 big_fw->fw_ver_major,
+			 big_fw->fw_ver_minor,
+			 big_fw->fw_ver_patch);
+	case ETHOSN_FW_PROP_MEM_INFO:
+		SMC_RET3(handle, ETHOSN_SUCCESS,
+			 ((void *)big_fw) + big_fw->offset,
+			 big_fw->size);
+	case ETHOSN_FW_PROP_OFFSETS:
+		SMC_RET3(handle, ETHOSN_SUCCESS,
+			 big_fw->ple_offset,
+			 big_fw->unpriv_stack_offset);
+	case ETHOSN_FW_PROP_VA_MAP:
+		SMC_RET4(handle, ETHOSN_SUCCESS,
+			 ETHOSN_FW_VA_BASE,
+			 ETHOSN_WORKING_DATA_VA_BASE,
+			 ETHOSN_COMMAND_STREAM_VA_BASE);
+	default:
+		WARN("ETHOSN: Unknown firmware property\n");
+		SMC_RET1(handle, ETHOSN_INVALID_PARAMETER);
+	}
+#else
+	SMC_RET1(handle, ETHOSN_NOT_SUPPORTED);
+#endif
+}
+
 uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 			     u_register_t x1,
 			     u_register_t x2,
@@ -329,13 +365,16 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 		x4 &= 0xFFFFFFFF;
 	}
 
-	if (!is_ethosn_fid(smc_fid) || (fid > ETHOSN_FNUM_IS_SLEEPING)) {
+	if (!is_ethosn_fid(smc_fid) || (fid > ETHOSN_FNUM_GET_FW_PROP)) {
 		WARN("ETHOSN: Unknown SMC call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
 
-	if (fid == ETHOSN_FNUM_VERSION) {
+	switch (fid) {
+	case ETHOSN_FNUM_VERSION:
 		SMC_RET2(handle, ETHOSN_VERSION_MAJOR, ETHOSN_VERSION_MINOR);
+	case ETHOSN_FNUM_GET_FW_PROP:
+		return ethosn_smc_fw_prop_handler(x1, handle);
 	}
 
 	return ethosn_smc_core_handler(fid, x1, x2, x3, x4, handle);

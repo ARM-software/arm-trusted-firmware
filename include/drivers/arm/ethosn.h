@@ -15,7 +15,14 @@
 #define ETHOSN_FNUM_HARD_RESET		U(0x52)
 #define ETHOSN_FNUM_SOFT_RESET		U(0x53)
 #define ETHOSN_FNUM_IS_SLEEPING		U(0x54)
-/* 0x55-0x5F reserved for future use */
+#define ETHOSN_FNUM_GET_FW_PROP		U(0x55)
+/* 0x56-0x5F reserved for future use */
+
+/* Properties for ETHOSN_FNUM_TZMP_GET_FW_PROP */
+#define ETHOSN_FW_PROP_VERSION		U(0xF00)
+#define ETHOSN_FW_PROP_MEM_INFO		U(0xF01)
+#define ETHOSN_FW_PROP_OFFSETS		U(0xF02)
+#define ETHOSN_FW_PROP_VA_MAP		U(0xF03)
 
 /* SMC64 function IDs */
 #define ETHOSN_FID_64(func_num)		U(0xC2000000 | func_num)
@@ -40,7 +47,7 @@
 
 /* Service version  */
 #define ETHOSN_VERSION_MAJOR U(2)
-#define ETHOSN_VERSION_MINOR U(3)
+#define ETHOSN_VERSION_MINOR U(4)
 
 /* Return codes for function calls */
 #define ETHOSN_SUCCESS			 0
