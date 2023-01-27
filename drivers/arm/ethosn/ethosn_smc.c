@@ -188,13 +188,13 @@ static int ethosn_core_is_sleeping(uintptr_t core_addr)
 	return ((mmio_read_32(sysctrl0_reg) & sleeping_mask) == sleeping_mask);
 }
 
-static bool ethosn_reset(uintptr_t core_addr, int hard_reset)
+static bool ethosn_core_reset(uintptr_t core_addr, bool hard_reset)
 {
 	unsigned int timeout;
 	const uintptr_t sysctrl0_reg =
 		ETHOSN_CORE_SEC_REG(core_addr, SEC_SYSCTRL0_REG);
-	const uint32_t reset_val = (hard_reset != 0) ? SEC_SYSCTRL0_HARD_RESET
-						    : SEC_SYSCTRL0_SOFT_RESET;
+	const uint32_t reset_val = hard_reset ? SEC_SYSCTRL0_HARD_RESET :
+						SEC_SYSCTRL0_SOFT_RESET;
 
 	mmio_write_32(sysctrl0_reg, reset_val);
 
@@ -212,18 +212,107 @@ static bool ethosn_reset(uintptr_t core_addr, int hard_reset)
 	return timeout < ETHOSN_RESET_TIMEOUT_US;
 }
 
+static int ethosn_core_full_reset(const struct ethosn_device_t *device,
+				  const struct ethosn_core_t *core,
+				  bool hard_reset,
+				  u_register_t asset_alloc_idx,
+				  u_register_t is_protected)
+{
+	if (!device->has_reserved_memory &&
+	    asset_alloc_idx >= device->num_allocators) {
+		WARN("ETHOSN: Unknown asset allocator index given to SMC call.\n");
+		return ETHOSN_UNKNOWN_ALLOCATOR_IDX;
+	}
+
+	if (!ethosn_core_reset(core->addr, hard_reset)) {
+		return ETHOSN_FAILURE;
+	}
+
+	if (!device->has_reserved_memory) {
+		ethosn_configure_smmu_streams(device, core, asset_alloc_idx);
+
+#if ARM_ETHOSN_NPU_TZMP1
+		ethosn_configure_stream_nsaid(core, is_protected);
+#endif
+	}
+
+	ethosn_delegate_to_ns(core->addr);
+
+	return ETHOSN_SUCCESS;
+}
+
+static uintptr_t ethosn_smc_core_reset_handler(const struct ethosn_device_t *device,
+					       const struct ethosn_core_t *core,
+					       bool hard_reset,
+					       u_register_t asset_alloc_idx,
+					       u_register_t reset_type,
+					       u_register_t is_protected,
+					       void *handle)
+{
+	int ret;
+
+	switch (reset_type) {
+	case ETHOSN_RESET_TYPE_FULL:
+		ret = ethosn_core_full_reset(device, core, hard_reset,
+					     asset_alloc_idx, is_protected);
+		break;
+	case ETHOSN_RESET_TYPE_HALT:
+		ret = ethosn_core_reset(core->addr, hard_reset) ? ETHOSN_SUCCESS : ETHOSN_FAILURE;
+		break;
+	default:
+		WARN("ETHOSN: Invalid reset type given to SMC call.\n");
+		ret = ETHOSN_INVALID_PARAMETER;
+		break;
+	}
+
+	SMC_RET1(handle, ret);
+}
+
+static uintptr_t ethosn_smc_core_handler(uint32_t fid,
+					 u_register_t core_addr,
+					 u_register_t asset_alloc_idx,
+					 u_register_t reset_type,
+					 u_register_t is_protected,
+					 void *handle)
+{
+	bool hard_reset = false;
+	const struct ethosn_device_t *device = NULL;
+	const struct ethosn_core_t *core = NULL;
+
+	if (!ethosn_get_device_and_core(core_addr, &device, &core))  {
+		SMC_RET1(handle, ETHOSN_UNKNOWN_CORE_ADDRESS);
+	}
+
+	switch (fid) {
+	case ETHOSN_FNUM_IS_SEC:
+		SMC_RET1(handle, ethosn_is_sec(core->addr));
+	case ETHOSN_FNUM_IS_SLEEPING:
+		SMC_RET1(handle, ethosn_core_is_sleeping(core->addr));
+	case ETHOSN_FNUM_HARD_RESET:
+		hard_reset = true;
+		/* Fallthrough */
+	case ETHOSN_FNUM_SOFT_RESET:
+		return ethosn_smc_core_reset_handler(device, core,
+						     hard_reset,
+						     asset_alloc_idx,
+						     reset_type,
+						     is_protected,
+						     handle);
+	default:
+		WARN("ETHOSN: Unimplemented SMC call: 0x%x\n", fid);
+		SMC_RET1(handle, SMC_UNK);
+	}
+}
+
 uintptr_t ethosn_smc_handler(uint32_t smc_fid,
-			     u_register_t core_addr,
-			     u_register_t asset_alloc_idx,
-			     u_register_t reset_type,
-			     u_register_t is_protected,
+			     u_register_t x1,
+			     u_register_t x2,
+			     u_register_t x3,
+			     u_register_t x4,
 			     void *cookie,
 			     void *handle,
 			     u_register_t flags)
 {
-	int hard_reset = 0;
-	const struct ethosn_device_t *device = NULL;
-	const struct ethosn_core_t *core = NULL;
 	const uint32_t fid = smc_fid & FUNCID_NUM_MASK;
 
 	/* Only SiP fast calls are expected */
@@ -234,10 +323,10 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 
 	/* Truncate parameters to 32-bits for SMC32 */
 	if (GET_SMC_CC(smc_fid) == SMC_32) {
-		core_addr &= 0xFFFFFFFF;
-		asset_alloc_idx &= 0xFFFFFFFF;
-		reset_type &= 0xFFFFFFFF;
-		is_protected &= 0xFFFFFFFF;
+		x1 &= 0xFFFFFFFF;
+		x2 &= 0xFFFFFFFF;
+		x3 &= 0xFFFFFFFF;
+		x4 &= 0xFFFFFFFF;
 	}
 
 	if (!is_ethosn_fid(smc_fid) || (fid > ETHOSN_FNUM_IS_SLEEPING)) {
@@ -245,66 +334,11 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, SMC_UNK);
 	}
 
-	/* Commands that do not require a valid core address */
-	switch (fid) {
-	case ETHOSN_FNUM_VERSION:
+	if (fid == ETHOSN_FNUM_VERSION) {
 		SMC_RET2(handle, ETHOSN_VERSION_MAJOR, ETHOSN_VERSION_MINOR);
 	}
 
-	if (!ethosn_get_device_and_core(core_addr, &device, &core))  {
-		SMC_RET1(handle, ETHOSN_UNKNOWN_CORE_ADDRESS);
-	}
-
-	/* Commands that require a valid core address */
-	switch (fid) {
-	case ETHOSN_FNUM_IS_SEC:
-		SMC_RET1(handle, ethosn_is_sec(core->addr));
-	case ETHOSN_FNUM_IS_SLEEPING:
-		SMC_RET1(handle, ethosn_core_is_sleeping(core->addr));
-	}
-
-	if (!device->has_reserved_memory &&
-	    asset_alloc_idx >= device->num_allocators) {
-		WARN("ETHOSN: Unknown asset allocator index given to SMC call.\n");
-		SMC_RET1(handle, ETHOSN_UNKNOWN_ALLOCATOR_IDX);
-	}
-
-	if (reset_type > ETHOSN_RESET_TYPE_HALT) {
-		WARN("ETHOSN: Invalid reset type given to SMC call.\n");
-		SMC_RET1(handle, ETHOSN_INVALID_PARAMETER);
-	}
-
-	/*
-	 * Commands that require a valid device, reset type,
-	 * core and asset allocator
-	 */
-	switch (fid) {
-	case ETHOSN_FNUM_HARD_RESET:
-		hard_reset = 1;
-		/* Fallthrough */
-	case ETHOSN_FNUM_SOFT_RESET:
-		if (!ethosn_reset(core->addr, hard_reset)) {
-			SMC_RET1(handle, ETHOSN_FAILURE);
-		}
-
-		if (reset_type == ETHOSN_RESET_TYPE_FULL) {
-			if (!device->has_reserved_memory) {
-				ethosn_configure_smmu_streams(device, core,
-							asset_alloc_idx);
-
-				#if ARM_ETHOSN_NPU_TZMP1
-				ethosn_configure_stream_nsaid(core,
-							      is_protected);
-				#endif
-			}
-
-			ethosn_delegate_to_ns(core->addr);
-		}
-		SMC_RET1(handle, ETHOSN_SUCCESS);
-	default:
-		WARN("ETHOSN: Unimplemented SMC call: 0x%x\n", fid);
-		SMC_RET1(handle, SMC_UNK);
-	}
+	return ethosn_smc_core_handler(fid, x1, x2, x3, x4, handle);
 }
 
 int ethosn_smc_setup(void)
