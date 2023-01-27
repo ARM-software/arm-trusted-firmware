@@ -91,6 +91,63 @@ func check_errata_1508412_0
 endfunc check_errata_1508412_0
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #1791578.
+	 * This applies to revisions r0p0, r1p0, and r1p1 and is still open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a77_1791578_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_1791578
+	cbz	x0, 1f
+
+	/* Set bit 2 in ACTLR2_EL1 */
+	mrs     x1, CORTEX_A77_ACTLR2_EL1
+	orr	x1, x1, #CORTEX_A77_ACTLR2_EL1_BIT_2
+	msr     CORTEX_A77_ACTLR2_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a77_1791578_wa
+
+func check_errata_1791578
+	/* Applies to r0p0, r1p0, and r1p1 right now */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_1791578
+
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #1800714.
+	 * This applies to revision <= r1p1 of Cortex A77.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a77_1800714_wa
+	/* Compare x0 against revision <= r1p1 */
+	mov	x17, x30
+	bl	check_errata_1800714
+	cbz	x0, 1f
+
+	/* Disable allocation of splintered pages in the L2 TLB */
+	mrs	x1, CORTEX_A77_CPUECTLR_EL1
+	orr	x1, x1, CORTEX_A77_CPUECTLR_EL1_BIT_53
+	msr	CORTEX_A77_CPUECTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a77_1800714_wa
+
+func check_errata_1800714
+	/* Applies to everything <= r1p1 */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_1800714
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A77 Errata #1925769.
 	 * This applies to revision <= r1p1 of Cortex A77.
 	 * Inputs:
@@ -172,34 +229,6 @@ func check_errata_1946167
 endfunc check_errata_1946167
 
 	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A77 Errata #1791578.
-	 * This applies to revisions r0p0, r1p0, and r1p1 and is still open.
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
-func errata_a77_1791578_wa
-	/* Check workaround compatibility. */
-	mov	x17, x30
-	bl	check_errata_1791578
-	cbz	x0, 1f
-
-	/* Set bit 2 in ACTLR2_EL1 */
-	mrs     x1, CORTEX_A77_ACTLR2_EL1
-	orr	x1, x1, #CORTEX_A77_ACTLR2_EL1_BIT_2
-	msr     CORTEX_A77_ACTLR2_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_a77_1791578_wa
-
-func check_errata_1791578
-	/* Applies to r0p0, r1p0, and r1p1 right now */
-	mov	x1, #0x11
-	b	cpu_rev_var_ls
-endfunc check_errata_1791578
-
-	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A77 Errata #2356587.
 	 * This applies to revisions r0p0, r1p0, and r1p1 and is still open.
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
@@ -259,35 +288,6 @@ func check_errata_cve_2022_23960
 #endif
 	ret
 endfunc check_errata_cve_2022_23960
-
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A77 Errata #1800714.
-	 * This applies to revision <= r1p1 of Cortex A77.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
-func errata_a77_1800714_wa
-	/* Compare x0 against revision <= r1p1 */
-	mov	x17, x30
-	bl	check_errata_1800714
-	cbz	x0, 1f
-
-	/* Disable allocation of splintered pages in the L2 TLB */
-	mrs	x1, CORTEX_A77_CPUECTLR_EL1
-	orr	x1, x1, CORTEX_A77_CPUECTLR_EL1_BIT_53
-	msr	CORTEX_A77_CPUECTLR_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_a77_1800714_wa
-
-func check_errata_1800714
-	/* Applies to everything <= r1p1 */
-	mov	x1, #0x11
-	b	cpu_rev_var_ls
-endfunc check_errata_1800714
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A77.
