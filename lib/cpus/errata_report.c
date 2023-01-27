@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,9 +31,88 @@
 /* Errata format: BL stage, CPU, errata ID, message */
 #define ERRATA_FORMAT	"%s: %s: CPU workaround for %s was %s\n"
 
+#define CVE_FORMAT	"%s: %s: CPU workaround for CVE %u_%u was %s\n"
+#define ERRATUM_FORMAT	"%s: %s: CPU workaround for erratum %u was %s\n"
+
+#define PRINT_STATUS_DISPATCH(status, ...)					\
+	do {									\
+		assert(status <= ERRATA_MISSING);				\
+		switch (status) {						\
+		case ERRATA_NOT_APPLIES:					\
+			VERBOSE(__VA_ARGS__, "not applied");			\
+			break;							\
+		case ERRATA_APPLIES:						\
+			INFO(__VA_ARGS__, "applied");				\
+			break;							\
+		case ERRATA_MISSING:						\
+			WARN(__VA_ARGS__, "missing!");				\
+			break;							\
+		}								\
+	} while (0)
+
+
 #if !REPORT_ERRATA
 void print_errata_status(void) {}
 #else /* !REPORT_ERRATA */
+/* New errata status message printer */
+void __unused generic_errata_report(void)
+{
+	struct cpu_ops *cpu_ops = get_cpu_ops_ptr();
+	struct erratum_entry *entry = cpu_ops->errata_list_start;
+	struct erratum_entry *end = cpu_ops->errata_list_end;
+	long rev_var = cpu_get_rev_var();
+	uint32_t last_erratum_id = 0;
+	uint16_t last_cve_yr = 0;
+	bool check_cve = false;
+	/* unused because assert goes away on release */
+	bool failed __unused = false;
+
+	for (; entry != end; entry += 1) {
+		uint64_t status = entry->check_func(rev_var);
+
+		assert(entry->id != 0);
+
+		/*
+		 * Errata workaround has not been compiled in. If the errata
+		 * would have applied had it been compiled in, print its status
+		 * as missing.
+		 */
+		if (status == ERRATA_APPLIES && entry->chosen == 0) {
+			status = ERRATA_MISSING;
+		}
+
+		if (entry->cve) {
+			PRINT_STATUS_DISPATCH(status, CVE_FORMAT, BL_STRING,
+				cpu_ops->cpu_str, entry->cve, entry->id);
+
+			if (last_cve_yr > entry->cve ||
+			   (last_cve_yr == entry->cve && last_erratum_id >= entry->id)) {
+				ERROR("CVE %u_%u was out of order!\n",
+				      entry->cve, entry->id);
+				failed = true;
+			}
+			check_cve = true;
+			last_cve_yr = entry->cve;
+		} else {
+			PRINT_STATUS_DISPATCH(status, ERRATUM_FORMAT, BL_STRING,
+				cpu_ops->cpu_str, entry->id);
+
+			if (last_erratum_id >= entry->id || check_cve) {
+				ERROR("Erratum %u was out of order!\n",
+				      entry->id);
+				failed = true;
+			}
+		}
+		last_erratum_id = entry->id;
+	}
+
+	/*
+	 * enforce errata and CVEs are in ascending order and that CVEs are
+	 * after errata
+	 */
+	assert(!failed);
+}
+
 /*
  * Returns whether errata needs to be reported. Passed arguments are private to
  * a CPU type.
@@ -94,14 +173,10 @@ void print_errata_status(void)
 }
 
 /*
- * Print errata status message.
- *
- * Unknown: WARN
- * Missing: WARN
- * Applied: INFO
- * Not applied: VERBOSE
+ * Old errata status message printer
+ * TODO: remove once all cpus have been converted to the new printing method
  */
-void errata_print_msg(unsigned int status, const char *cpu, const char *id)
+void __unused errata_print_msg(unsigned int status, const char *cpu, const char *id)
 {
 	/* Errata status strings */
 	static const char *const errata_status_str[] = {

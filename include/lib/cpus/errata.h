@@ -26,10 +26,29 @@
 #define ERRATUM_ENTRY_SIZE	ERRATUM_MITIGATED + ERRATUM_MITIGATED_SIZE
 
 #ifndef __ASSEMBLER__
+#include <lib/cassert.h>
 
 void print_errata_status(void);
 void errata_print_msg(unsigned int status, const char *cpu, const char *id);
 
+/*
+ * NOTE that this structure will be different on AArch32 and AArch64. The
+ * uintptr_t will reflect the change and the alignment will be correct in both.
+ */
+struct erratum_entry {
+	uintptr_t (*wa_func)(uint64_t cpu_rev);
+	uintptr_t (*check_func)(uint64_t cpu_rev);
+	/* Will fit CVEs with up to 10 character in the ID field */
+	uint32_t id;
+	/* Denote CVEs with their year or errata with 0 */
+	uint16_t cve;
+	uint8_t chosen;
+	/* TODO(errata ABI): placeholder for the mitigated field */
+	uint8_t _mitigated;
+} __packed;
+
+CASSERT(sizeof(struct erratum_entry) == ERRATUM_ENTRY_SIZE,
+	assert_erratum_entry_asm_c_different_sizes);
 #else
 
 /*

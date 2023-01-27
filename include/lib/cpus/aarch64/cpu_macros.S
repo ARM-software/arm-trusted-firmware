@@ -552,4 +552,24 @@
 		ret	x15
 	endfunc \_cpu\()_reset_func
 .endm
+
+/*
+ * Maintain compatibility with the old scheme of each cpu has its own reporting.
+ * TODO remove entirely once all cpus have been converted. This includes the
+ * cpu_ops entry, as print_errata_status can call this directly for all cpus
+ */
+.macro errata_report_shim _cpu:req
+	#if REPORT_ERRATA
+	func \_cpu\()_errata_report
+		/* normal stack frame for pretty debugging */
+		stp	x29, x30, [sp, #-16]!
+		mov	x29, sp
+
+		bl	generic_errata_report
+
+		ldp	x29, x30, [sp], #16
+		ret
+	endfunc \_cpu\()_errata_report
+	#endif
+.endm
 #endif /* CPU_MACROS_S */
