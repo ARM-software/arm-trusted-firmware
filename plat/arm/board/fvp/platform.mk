@@ -153,7 +153,8 @@ else
 endif
 
 else
-FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S
+FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S			\
+				lib/cpus/aarch32/cortex_a57.S
 endif
 
 BL1_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
