@@ -356,6 +356,8 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		BL33_IMAGE_ID,
 		HW_CONFIG_ID,
 	};
+	uint32_t otp_idx __maybe_unused;
+	uint32_t otp_len __maybe_unused;
 
 	assert(bl_mem_params != NULL);
 
@@ -429,6 +431,14 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 				return -EINVAL;
 			}
 		}
+
+#ifndef DECRYPTION_SUPPORT_none
+		/* Load encryption key info before DT is unmapped */
+		err = stm32_get_enc_key_otp_idx_len(&otp_idx, &otp_len);
+		if (err != 0) {
+			panic();
+		}
+#endif
 
 #if PSA_FWU_SUPPORT
 		/* This must be done before the device tree unmapped */
