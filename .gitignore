@@ -31,6 +31,8 @@ tools/stm32image/*.o
 tools/stm32image/stm32image
 tools/stm32image/stm32image.exe
 tools/sptool/__pycache__/
+tools/encrypt_fw/encrypt_fw
+tools/encrypt_fw/encrypt_fw.exe
 
 # GNU GLOBAL files
 GPATH
