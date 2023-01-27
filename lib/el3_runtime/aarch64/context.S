@@ -17,10 +17,6 @@
 	.global	el2_sysregs_context_save_mte
 	.global	el2_sysregs_context_restore_mte
 #endif /* CTX_INCLUDE_MTE_REGS */
-#if ENABLE_FEAT_RAS
-	.global	el2_sysregs_context_save_ras
-	.global	el2_sysregs_context_restore_ras
-#endif /* ENABLE_FEAT_RAS */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	.global	el1_sysregs_context_save
@@ -209,30 +205,6 @@ func el2_sysregs_context_restore_mte
 	ret
 endfunc el2_sysregs_context_restore_mte
 #endif /* CTX_INCLUDE_MTE_REGS */
-
-#if ENABLE_FEAT_RAS
-func el2_sysregs_context_save_ras
-	/*
-	 * VDISR_EL2 and VSESR_EL2 registers are saved only when
-	 * FEAT_RAS is supported.
-	 */
-	mrs	x11, vdisr_el2
-	mrs	x12, vsesr_el2
-	stp	x11, x12, [x0, #CTX_VDISR_EL2]
-	ret
-endfunc el2_sysregs_context_save_ras
-
-func el2_sysregs_context_restore_ras
-	/*
-	 * VDISR_EL2 and VSESR_EL2 registers are restored only when FEAT_RAS
-	 * is supported.
-	 */
-	ldp	x11, x12, [x0, #CTX_VDISR_EL2]
-	msr	vdisr_el2, x11
-	msr	vsesr_el2, x12
-	ret
-endfunc el2_sysregs_context_restore_ras
-#endif /* ENABLE_FEAT_RAS */
 
 #endif /* CTX_INCLUDE_EL2_REGS */
 
@@ -855,7 +827,12 @@ sve_not_enabled:
 1:
 #endif /* IMAGE_BL31 && DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
-#if IMAGE_BL31 && ENABLE_FEAT_RAS
+/*
+ * This is a hot path, so we don't want to do some actual FEAT_RAS runtime
+ * detection here. The "esb" is a cheaper variant, so using "dsb" in the
+ * ENABLE_FEAT_RAS==2 case is not ideal, but won't hurt.
+ */
+#if IMAGE_BL31 && ENABLE_FEAT_RAS == 1
 	/* ----------------------------------------------------------
 	 * Issue Error Synchronization Barrier to synchronize SErrors
 	 * before exiting EL3. We're running with EAs unmasked, so

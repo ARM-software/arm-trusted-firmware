@@ -499,14 +499,22 @@ static inline bool is_feat_sve_supported(void)
 	return read_feat_sve_id_field() >= ID_AA64PFR0_SVE_SUPPORTED;
 }
 
-/*******************************************************************************
- * Function to identify the presence of FEAT_RAS (Reliability,Availability,
- * and Serviceability Extension)
- ******************************************************************************/
-static inline bool is_armv8_2_feat_ras_present(void)
+static unsigned int read_feat_ras_id_field(void)
 {
-	return (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_RAS_SHIFT) &
-		ID_AA64PFR0_RAS_MASK) != ID_AA64PFR0_RAS_NOT_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_RAS);
+}
+
+static inline bool is_feat_ras_supported(void)
+{
+	if (ENABLE_FEAT_RAS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_RAS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_ras_id_field() != 0U;
 }
 
 static unsigned int read_feat_dit_id_field(void)

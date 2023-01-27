@@ -1012,9 +1012,13 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 			write_ctx_reg(el2_sysregs_ctx, CTX_TTBR1_EL2,
 				      read_ttbr1_el2());
 		}
-#if ENABLE_FEAT_RAS
-		el2_sysregs_context_save_ras(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_ras_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_VDISR_EL2,
+				      read_vdisr_el2());
+			write_ctx_reg(el2_sysregs_ctx, CTX_VSESR_EL2,
+				      read_vsesr_el2());
+		}
 
 		if (is_feat_nv2_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_VNCR_EL2,
@@ -1095,9 +1099,11 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 			write_contextidr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_CONTEXTIDR_EL2));
 			write_ttbr1_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TTBR1_EL2));
 		}
-#if ENABLE_FEAT_RAS
-		el2_sysregs_context_restore_ras(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_ras_supported()) {
+			write_vdisr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_VDISR_EL2));
+			write_vsesr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_VSESR_EL2));
+		}
 
 		if (is_feat_nv2_supported()) {
 			write_vncr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_VNCR_EL2));

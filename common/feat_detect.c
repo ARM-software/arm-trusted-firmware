@@ -60,16 +60,6 @@ check_feature(int state, unsigned long field, const char *feat_name,
 	}
 }
 
-/*******************************************************************************
- * Feature : FEAT_RAS (Reliability, Availability, and Serviceability Extension)
- ******************************************************************************/
-static void read_feat_ras(void)
-{
-#if (ENABLE_FEAT_RAS == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_2_feat_ras_present(), "RAS");
-#endif
-}
-
 /************************************************
  * Feature : FEAT_PAUTH (Pointer Authentication)
  ***********************************************/
@@ -160,9 +150,9 @@ void detect_arch_features(void)
 	check_feature(ENABLE_FEAT_VHE, read_feat_vhe_id_field(), "VHE", 1, 1);
 
 	/* v8.2 features */
-	read_feat_ras();
 	check_feature(ENABLE_SVE_FOR_NS, read_feat_sve_id_field(),
 		      "SVE", 1, 1);
+	check_feature(ENABLE_FEAT_RAS, read_feat_ras_id_field(), "RAS", 1, 2);
 
 	/* v8.3 features */
 	read_feat_pauth();
