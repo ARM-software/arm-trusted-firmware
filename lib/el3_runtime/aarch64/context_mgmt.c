@@ -385,16 +385,16 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 		}
 	}
 
-#if ENABLE_FEAT_TWED
 	/* Enable WFE trap delay in SCR_EL3 if supported and configured */
-	/* Set delay in SCR_EL3 */
-	scr_el3 &= ~(SCR_TWEDEL_MASK << SCR_TWEDEL_SHIFT);
-	scr_el3 |= ((TWED_DELAY & SCR_TWEDEL_MASK)
-			<< SCR_TWEDEL_SHIFT);
+	if (is_feat_twed_supported()) {
+		/* Set delay in SCR_EL3 */
+		scr_el3 &= ~(SCR_TWEDEL_MASK << SCR_TWEDEL_SHIFT);
+		scr_el3 |= ((TWED_DELAY & SCR_TWEDEL_MASK)
+				<< SCR_TWEDEL_SHIFT);
 
-	/* Enable WFE delay */
-	scr_el3 |= SCR_TWEDEn_BIT;
-#endif /* ENABLE_FEAT_TWED */
+		/* Enable WFE delay */
+		scr_el3 |= SCR_TWEDEn_BIT;
+	}
 
 	/*
 	 * Populate EL3 state so that we've the right context

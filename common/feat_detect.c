@@ -154,16 +154,6 @@ static void read_feat_amuv1p1(void)
 #endif
 }
 
-/***********************************************************
- * Feature : FEAT_TWED (Delayed Trapping of WFE Instruction)
- **********************************************************/
-static void read_feat_twed(void)
-{
-#if (ENABLE_FEAT_TWED == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_6_twed_present(), "TWED");
-#endif
-}
-
 /**************************************************
  * Feature : FEAT_RME (Realm Management Extension)
  *************************************************/
@@ -248,7 +238,8 @@ void detect_arch_features(void)
 	read_feat_amuv1p1();
 	check_feature(ENABLE_FEAT_FGT, read_feat_fgt_id_field(), "FGT", 1, 1);
 	check_feature(ENABLE_FEAT_ECV, read_feat_ecv_id_field(), "ECV", 1, 2);
-	read_feat_twed();
+	check_feature(ENABLE_FEAT_TWED, read_feat_twed_id_field(),
+		      "TWED", 1, 1);
 
 	/* v8.7 features */
 	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX", 1, 1);
