@@ -222,6 +222,27 @@ int stm32_get_uid_otp(uint32_t uid[])
 	return 0;
 }
 
+int stm32_get_enc_key_otp_idx_len(uint32_t *otp_idx, uint32_t *otp_len)
+{
+	static uint32_t idx;
+	static uint32_t len;
+	int ret;
+
+	if (len == 0U) {
+		ret = stm32_get_otp_index(ENCKEY_OTP, &idx, &len);
+		if (ret != 0) {
+			len = 0U;
+			ERROR("%s: get %s index error\n", __func__, ENCKEY_OTP);
+			return -EINVAL;
+		}
+	}
+
+	*otp_idx = idx;
+	*otp_len = len;
+
+	return 0;
+}
+
 #if defined(IMAGE_BL2)
 static void reset_uart(uint32_t reset)
 {
