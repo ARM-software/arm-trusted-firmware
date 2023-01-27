@@ -1114,6 +1114,7 @@ $(eval $(call assert_booleans,\
         PLAT_RSS_NOT_SUPPORTED \
         PROGRAMMABLE_RESET_ADDRESS \
         PSCI_EXTENDED_STATE_ID \
+        PSCI_OS_INIT_MODE \
         RESET_TO_BL31 \
         RESET_TO_BL31_WITH_PARAMS \
         SAVE_KEYS \
@@ -1256,6 +1257,7 @@ $(eval $(call add_defines,\
         PLAT_RSS_NOT_SUPPORTED \
         PROGRAMMABLE_RESET_ADDRESS \
         PSCI_EXTENDED_STATE_ID \
+        PSCI_OS_INIT_MODE \
         RAS_EXTENSION \
         RESET_TO_BL31 \
         RESET_TO_BL31_WITH_PARAMS \
