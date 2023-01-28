@@ -66,46 +66,63 @@ static void clear_temp_vars(void)
  * Get X509v3 extension
  *
  * Global variable 'v3_ext' must point to the extensions region
- * in the certificate. No need to check for errors since the image has passed
- * the integrity check.
+ * in the certificate.  OID may be NULL to request that get_ext()
+ * is only being called for integrity checking.
  */
 static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 {
-	int oid_len;
+	int oid_len, ret, is_critical;
 	size_t len;
-	unsigned char *end_ext_data, *end_ext_octet;
 	unsigned char *p;
 	const unsigned char *end;
 	char oid_str[MAX_OID_STR_LEN];
 	mbedtls_asn1_buf extn_oid;
-	int is_critical;
-
-	assert(oid != NULL);
 
 	p = v3_ext.p;
 	end = v3_ext.p + v3_ext.len;
 
-	while (p < end) {
-		zeromem(&extn_oid, sizeof(extn_oid));
-		is_critical = 0; /* DEFAULT FALSE */
+	/*
+	 * Check extensions integrity.  At least one extension is
+	 * required: the ASN.1 specifies a minimum size of 1, and at
+	 * least one extension is needed to authenticate the next stage
+	 * in the boot chain.
+	 */
+	do {
+		unsigned char *end_ext_data;
 
-		mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
-				     MBEDTLS_ASN1_SEQUENCE);
+		ret = mbedtls_asn1_get_tag(&p, end, &len,
+					   MBEDTLS_ASN1_CONSTRUCTED |
+					   MBEDTLS_ASN1_SEQUENCE);
+		if (ret != 0) {
+			return IMG_PARSER_ERR_FORMAT;
+		}
 		end_ext_data = p + len;
 
 		/* Get extension ID */
-		extn_oid.tag = *p;
-		mbedtls_asn1_get_tag(&p, end, &extn_oid.len, MBEDTLS_ASN1_OID);
+		ret = mbedtls_asn1_get_tag(&p, end_ext_data, &extn_oid.len,
+					   MBEDTLS_ASN1_OID);
+		if (ret != 0) {
+			return IMG_PARSER_ERR_FORMAT;
+		}
+		extn_oid.tag = MBEDTLS_ASN1_OID;
 		extn_oid.p = p;
 		p += extn_oid.len;
 
 		/* Get optional critical */
-		mbedtls_asn1_get_bool(&p, end_ext_data, &is_critical);
+		ret = mbedtls_asn1_get_bool(&p, end_ext_data, &is_critical);
+		if ((ret != 0) && (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG)) {
+			return IMG_PARSER_ERR_FORMAT;
+		}
 
-		/* Extension data */
-		mbedtls_asn1_get_tag(&p, end_ext_data, &len,
-				     MBEDTLS_ASN1_OCTET_STRING);
-		end_ext_octet = p + len;
+		/*
+		 * Data should be octet string type and must use all bytes in
+		 * the Extension.
+		 */
+		ret = mbedtls_asn1_get_tag(&p, end_ext_data, &len,
+					   MBEDTLS_ASN1_OCTET_STRING);
+		if ((ret != 0) || ((p + len) != end_ext_data)) {
+			return IMG_PARSER_ERR_FORMAT;
+		}
 
 		/* Detect requested extension */
 		oid_len = mbedtls_oid_get_numeric_string(oid_str,
@@ -114,17 +131,20 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 		if ((oid_len == MBEDTLS_ERR_OID_BUF_TOO_SMALL) || (oid_len < 0)) {
 			return IMG_PARSER_ERR;
 		}
-		if (((size_t)oid_len == strlen(oid_str)) && !strcmp(oid, oid_str)) {
+
+		if ((oid != NULL) &&
+		    ((size_t)oid_len == strlen(oid_str)) &&
+		    (strcmp(oid, oid_str) == 0)) {
 			*ext = (void *)p;
 			*ext_len = (unsigned int)len;
 			return IMG_PARSER_OK;
 		}
 
 		/* Next */
-		p = end_ext_octet;
-	}
+		p = end_ext_data;
+	} while (p < end);
 
-	return IMG_PARSER_ERR_NOT_FOUND;
+	return (oid == NULL) ? IMG_PARSER_OK : IMG_PARSER_ERR_NOT_FOUND;
 }
 
 
@@ -139,7 +159,7 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
  */
 static int cert_parse(void *img, unsigned int img_len)
 {
-	int ret, is_critical;
+	int ret;
 	size_t len;
 	unsigned char *p, *end, *crt_end, *pk_end;
 	mbedtls_asn1_buf sig_alg1;
@@ -334,51 +354,12 @@ static int cert_parse(void *img, unsigned int img_len)
 	}
 	v3_ext.p = p;
 	v3_ext.len = len;
+	p += len;
 
-	/*
-	 * Check extensions integrity.  At least one extension is
-	 * required: the ASN.1 specifies a minimum size of 1, and at
-	 * least one extension is needed to authenticate the next stage
-	 * in the boot chain.
-	 */
-	do {
-		unsigned char *end_ext_data;
-
-		ret = mbedtls_asn1_get_tag(&p, end, &len,
-					   MBEDTLS_ASN1_CONSTRUCTED |
-					   MBEDTLS_ASN1_SEQUENCE);
-		if (ret != 0) {
-			return IMG_PARSER_ERR_FORMAT;
-		}
-		end_ext_data = p + len;
-
-		/* Get extension ID */
-		ret = mbedtls_asn1_get_tag(&p, end_ext_data, &len, MBEDTLS_ASN1_OID);
-		if (ret != 0) {
-			return IMG_PARSER_ERR_FORMAT;
-		}
-		p += len;
-
-		/* Get optional critical */
-		ret = mbedtls_asn1_get_bool(&p, end_ext_data, &is_critical);
-		if ((ret != 0) && (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG)) {
-			return IMG_PARSER_ERR_FORMAT;
-		}
-
-		/*
-		 * Data should be octet string type and must use all bytes in
-		 * the Extension.
-		 */
-		ret = mbedtls_asn1_get_tag(&p, end_ext_data, &len,
-					   MBEDTLS_ASN1_OCTET_STRING);
-		if ((ret != 0) || ((p + len) != end_ext_data)) {
-			return IMG_PARSER_ERR_FORMAT;
-		}
-		p = end_ext_data;
-	} while (p < end);
-
-	if (p != end) {
-		return IMG_PARSER_ERR_FORMAT;
+	/* Check extensions integrity */
+	ret = get_ext(NULL, NULL, NULL);
+	if (ret != IMG_PARSER_OK) {
+		return ret;
 	}
 
 	end = crt_end;
