@@ -12,6 +12,7 @@
 
 #define URXD  0x0  /* Receiver Register */
 #define UTXD  0x40 /* Transmitter Register */
+#define USR2  0x98 /* UART Status Register 2 */
 #define UTS   0xb4 /* UART Test Register (mx31) */
 #define  URXD_RX_DATA    (0xFF)
 
@@ -53,13 +54,13 @@ func console_imx_uart_putc
 1:
 	/* Check if the transmit FIFO is full */
 	ldr	w2, [x1, #UTS]
-	tbz	w2, #6, 1b
+	tbnz	w2, #4, 1b
 	mov	w2, #0xD
 	str	w2, [x1, #UTXD]
 2:
 	/* Check if the transmit FIFO is full */
 	ldr	w2, [x1, #UTS]
-	tbz	w2, #6, 2b
+	tbnz	w2, #4, 2b
 	str	w0, [x1, #UTXD]
 	ret
 putc_error:
@@ -84,5 +85,13 @@ getc_error:
 endfunc console_imx_uart_getc
 
 func console_imx_uart_flush
+	ldr	x0, [x0, #CONSOLE_T_BASE]
+	cbz	x0, flush_exit
+1:
+	/* Wait for the transmit complete bit */
+	ldr	w1, [x0, #USR2]
+	tbz	w1, #3, 1b
+
+flush_exit:
 	ret
 endfunc console_imx_uart_flush
