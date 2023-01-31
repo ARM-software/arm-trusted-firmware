@@ -67,28 +67,20 @@ workaround_reset_end cortex_a77, ERRATUM(1508412)
 check_erratum_ls cortex_a77, ERRATUM(1508412), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a77, ERRATUM(1791578), ERRATA_A77_1791578
-	/* Set bit 2 in ACTLR2_EL1 */
-	mrs     x1, CORTEX_A77_ACTLR2_EL1
-	orr	x1, x1, #CORTEX_A77_ACTLR2_EL1_BIT_2
-	msr     CORTEX_A77_ACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, CORTEX_A77_ACTLR2_EL1_BIT_2
 workaround_reset_end cortex_a77, ERRATUM(1791578)
 
 check_erratum_ls cortex_a77, ERRATUM(1791578), CPU_REV(1, 1)
 
 workaround_reset_start cortex_a77, ERRATUM(1800714), ERRATA_A77_1800714
 	/* Disable allocation of splintered pages in the L2 TLB */
-	mrs	x1, CORTEX_A77_CPUECTLR_EL1
-	orr	x1, x1, CORTEX_A77_CPUECTLR_EL1_BIT_53
-	msr	CORTEX_A77_CPUECTLR_EL1, x1
+	sysreg_bit_set CORTEX_A77_CPUECTLR_EL1, CORTEX_A77_CPUECTLR_EL1_BIT_53
 workaround_reset_end cortex_a77, ERRATUM(1800714)
 
 check_erratum_ls cortex_a77, ERRATUM(1800714), CPU_REV(1, 1)
 
 workaround_reset_start cortex_a77, ERRATUM(1925769), ERRATA_A77_1925769
-	/* Set bit 8 in ECTLR_EL1 */
-	mrs	x1, CORTEX_A77_CPUECTLR_EL1
-	orr	x1, x1, #CORTEX_A77_CPUECTLR_EL1_BIT_8
-	msr	CORTEX_A77_CPUECTLR_EL1, x1
+	sysreg_bit_set CORTEX_A77_CPUECTLR_EL1, CORTEX_A77_CPUECTLR_EL1_BIT_8
 workaround_reset_end cortex_a77, ERRATUM(1925769)
 
 check_erratum_ls cortex_a77, ERRATUM(1925769), CPU_REV(1, 1)
@@ -125,10 +117,7 @@ workaround_reset_end cortex_a77, ERRATUM(1946167)
 check_erratum_ls cortex_a77, ERRATUM(1946167), CPU_REV(1, 1)
 
 workaround_reset_start cortex_a77, ERRATUM(2356587), ERRATA_A77_2356587
-	/* Set bit 0 in ACTLR2_EL1 */
-	mrs	x1, CORTEX_A77_ACTLR2_EL1
-	orr	x1, x1, #CORTEX_A77_ACTLR2_EL1_BIT_0
-	msr	CORTEX_A77_ACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A77_ACTLR2_EL1, CORTEX_A77_ACTLR2_EL1_BIT_0
 workaround_reset_end cortex_a77, ERRATUM(2356587)
 
 check_erratum_ls cortex_a77, ERRATUM(2356587), CPU_REV(1, 1)
@@ -169,15 +158,11 @@ func cortex_a77_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------
 	 */
-	mrs	x0, CORTEX_A77_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A77_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_A77_CPUPWRCTLR_EL1, x0
-#if ERRATA_A77_2743100
-	mov	x15, x30
-	bl	cpu_get_rev_var
-	bl	erratum_cortex_a77_2743100_wa
-	mov	x30, x15
-#endif /* ERRATA_A77_2743100 */
+	sysreg_bit_set CORTEX_A77_CPUPWRCTLR_EL1, \
+		CORTEX_A77_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+
+	apply_erratum cortex_a77, ERRATUM(2743100), ERRATA_A77_2743100
+
 	isb
 	ret
 endfunc cortex_a77_core_pwr_dwn
