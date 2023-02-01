@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -235,6 +235,8 @@
 #define ARM_DRAM2_SIZE			PLAT_ARM_DRAM2_SIZE
 #define ARM_DRAM2_END			(ARM_DRAM2_BASE +		\
 					 ARM_DRAM2_SIZE - 1U)
+/* Number of DRAM banks */
+#define ARM_DRAM_NUM_BANKS		2UL
 
 #define ARM_IRQ_SEC_PHY_TIMER		29
 

@@ -26,7 +26,7 @@ extern uint32_t trp_boot_manifest_version;
  ******************************************************************************/
 static console_t arm_trp_runtime_console;
 
-static int arm_trp_process_manifest(rmm_manifest_t *manifest)
+static int arm_trp_process_manifest(struct rmm_manifest *manifest)
 {
 	/* padding field on the manifest must be RES0 */
 	assert(manifest->padding == 0U);
@@ -38,12 +38,12 @@ static int arm_trp_process_manifest(rmm_manifest_t *manifest)
 	}
 
 	trp_boot_manifest_version = manifest->version;
-	flush_dcache_range((uintptr_t)manifest, sizeof(rmm_manifest_t));
+	flush_dcache_range((uintptr_t)manifest, sizeof(struct rmm_manifest));
 
 	return 0;
 }
 
-void arm_trp_early_platform_setup(rmm_manifest_t *manifest)
+void arm_trp_early_platform_setup(struct rmm_manifest *manifest)
 {
 	int rc;
 
@@ -66,10 +66,9 @@ void arm_trp_early_platform_setup(rmm_manifest_t *manifest)
 
 	console_set_scope(&arm_trp_runtime_console,
 			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
-
 }
 
-void trp_early_platform_setup(rmm_manifest_t *manifest)
+void trp_early_platform_setup(struct rmm_manifest *manifest)
 {
 	arm_trp_early_platform_setup(manifest);
 }

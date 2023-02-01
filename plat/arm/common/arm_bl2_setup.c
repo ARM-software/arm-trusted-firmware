@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,16 +18,14 @@
 #include <drivers/partition/partition.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
-#if ENABLE_RME
 #include <lib/gpt_rme/gpt_rme.h>
-#endif /* ENABLE_RME */
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
 #include <lib/utils.h>
 #if ENABLE_RME
 #include <plat/arm/common/arm_pas_def.h>
-#endif /* ENABLE_RME */
+#endif
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
@@ -131,7 +129,6 @@ void bl2_platform_setup(void)
 }
 
 #if ENABLE_RME
-
 static void arm_bl2_plat_gpt_setup(void)
 {
 	/*
@@ -171,7 +168,6 @@ static void arm_bl2_plat_gpt_setup(void)
 		panic();
 	}
 }
-
 #endif /* ENABLE_RME */
 
 /*******************************************************************************

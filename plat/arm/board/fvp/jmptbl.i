@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -21,6 +21,7 @@ fdt     fdt_getprop_namelen
 fdt     fdt_setprop_inplace
 fdt     fdt_check_header
 fdt     fdt_node_offset_by_compatible
+fdt     fdt_node_offset_by_prop_value
 fdt     fdt_setprop_inplace_namelen_partial
 fdt     fdt_first_subnode
 fdt     fdt_next_subnode
