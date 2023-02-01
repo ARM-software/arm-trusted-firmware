@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2022-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,14 +67,14 @@ static int copy_hash_from_otp(const char *otp_name, uint8_t *hash, size_t len)
 		 * Check if key hash values in OTP are 0 or 0xFFFFFFFFF
 		 * programmed : Invalid Key
 		 */
-		if (!stm32mp_is_closed_device() && !valid) {
+		if ((stm32mp_check_closed_device() == STM32MP_CHIP_SEC_OPEN) && !valid) {
 			if ((tmp != 0U) && (tmp != 0xFFFFFFFFU) && (tmp != first)) {
 				valid = true;
 			}
 		}
 	}
 
-	if (!stm32mp_is_closed_device() && !valid) {
+	if ((stm32mp_check_closed_device() == STM32MP_CHIP_SEC_OPEN) && !valid) {
 		return 0;
 	}
 
@@ -163,7 +163,7 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 	*key_ptr = &root_pk_hash;
 	*flags = ROTPK_IS_HASH;
 
-	if ((res == 0) && !stm32mp_is_closed_device()) {
+	if ((res == 0) && (stm32mp_check_closed_device() == STM32MP_CHIP_SEC_OPEN)) {
 		*flags |= ROTPK_NOT_DEPLOYED;
 	}
 

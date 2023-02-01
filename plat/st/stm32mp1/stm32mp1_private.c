@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -531,12 +531,12 @@ bool stm32mp_is_single_core(void)
 }
 
 /* Return true when device is in closed state */
-bool stm32mp_is_closed_device(void)
+uint32_t stm32mp_check_closed_device(void)
 {
 	uint32_t value;
 
 	if (stm32_get_otp_value(CFG0_OTP, &value) != 0) {
-		return true;
+		return STM32MP_CHIP_SEC_CLOSED;
 	}
 
 #if STM32MP13
@@ -544,17 +544,22 @@ bool stm32mp_is_closed_device(void)
 
 	switch (value) {
 	case CFG0_OPEN_DEVICE:
-		return false;
+		return STM32MP_CHIP_SEC_OPEN;
 	case CFG0_CLOSED_DEVICE:
 	case CFG0_CLOSED_DEVICE_NO_BOUNDARY_SCAN:
 	case CFG0_CLOSED_DEVICE_NO_JTAG:
-		return true;
+		return STM32MP_CHIP_SEC_CLOSED;
 	default:
 		panic();
 	}
 #endif
 #if STM32MP15
-	return (value & CFG0_CLOSED_DEVICE) == CFG0_CLOSED_DEVICE;
+	if ((value & CFG0_CLOSED_DEVICE) == CFG0_CLOSED_DEVICE) {
+		return STM32MP_CHIP_SEC_CLOSED;
+	} else {
+		return STM32MP_CHIP_SEC_OPEN;
+	}
+
 #endif
 }
 

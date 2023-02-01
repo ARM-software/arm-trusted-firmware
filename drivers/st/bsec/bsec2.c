@@ -824,7 +824,7 @@ uint32_t bsec_get_secure_state(void)
 		result = BSEC_STATE_INVALID;
 	} else {
 		if ((status & BSEC_OTP_STATUS_SECURE) != 0U) {
-			if (stm32mp_is_closed_device()) {
+			if (stm32mp_check_closed_device() == STM32MP_CHIP_SEC_CLOSED) {
 				result = BSEC_STATE_SEC_CLOSED;
 			} else {
 				result = BSEC_STATE_SEC_OPEN;
