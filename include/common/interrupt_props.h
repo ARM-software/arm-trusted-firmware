@@ -19,7 +19,7 @@
 	}
 
 typedef struct interrupt_prop {
-	unsigned int intr_num:10;
+	unsigned int intr_num:13;
 	unsigned int intr_pri:8;
 	unsigned int intr_grp:2;
 	unsigned int intr_cfg:2;

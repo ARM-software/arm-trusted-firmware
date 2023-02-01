@@ -1330,7 +1330,7 @@ element of the array specifies the interrupt number and its attributes
 (priority, group, configuration). Each element of the array shall be populated
 by the macro ``INTR_PROP_DESC()``. The macro takes the following arguments:
 
-- 10-bit interrupt number,
+- 13-bit interrupt number,
 
 - 8-bit interrupt priority,
 
