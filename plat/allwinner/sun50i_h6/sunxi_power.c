@@ -8,8 +8,10 @@
 #include <errno.h>
 
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/allwinner/axp.h>
 #include <drivers/allwinner/sunxi_rsb.h>
+#include <libfdt.h>
 #include <lib/mmio.h>
 
 #include <sunxi_cpucfg.h>
@@ -63,7 +65,12 @@ static int rsb_init(void)
 
 int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 {
-	int ret;
+	int node, ret;
+
+	node = fdt_node_offset_by_compatible(fdt, 0, "allwinner,sun8i-a23-rsb");
+	if ((node < 0) || !fdt_node_is_enabled(fdt, node)) {
+		return -ENODEV;
+	}
 
 	INFO("PMIC: Probing AXP805 on RSB\n");
 
