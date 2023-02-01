@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -54,10 +54,13 @@ HOSTCC ?= gcc
 ifneq (${PLAT},)
 TF_PLATFORM_ROOT	:=	../../plat/
 include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
-PLAT_FIPTOOL_HELPER_MK := ${PLAT_DIR}/plat_fiptool.mk
+COMBINED_PATH_FRAG := plat_fiptool/
+PLAT_FIPTOOL_HELPER_MK := $(foreach path_frag,$(subst /, ,$(patsubst ../../plat/%/,%,${PLAT_DIR})),\
+			  $(eval COMBINED_PATH_FRAG := ${COMBINED_PATH_FRAG}/${path_frag})\
+			  $(wildcard ${COMBINED_PATH_FRAG}/plat_fiptool.mk))
 endif
 
-ifneq (,$(wildcard ${PLAT_FIPTOOL_HELPER_MK}))
+ifneq (,$(wildcard $(lastword ${PLAT_FIPTOOL_HELPER_MK})))
 include ${PLAT_FIPTOOL_HELPER_MK}
 endif
 

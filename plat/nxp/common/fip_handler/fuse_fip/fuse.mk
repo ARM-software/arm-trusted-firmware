@@ -1,5 +1,6 @@
 #
 # Copyright 2018-2020 NXP
+# Copyright (c) 2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -28,8 +29,6 @@ FUSE_FIP_NAME		:=	fuse_fip.bin
 fip_fuse: ${BUILD_PLAT}/${FUSE_FIP_NAME}
 
 ifeq (${FUSE_PROV_FILE},)
-
-$(shell cp tools/nxp/plat_fiptool/plat_fiptool.mk ${PLAT_DIR})
 
 else
 ifeq (${TRUSTED_BOARD_BOOT},1)
