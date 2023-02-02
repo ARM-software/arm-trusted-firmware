@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (C) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (C) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,7 @@
 #define VERSAL_NET_CONSOLE_ID_pl011	U(1)
 #define VERSAL_NET_CONSOLE_ID_pl011_0	U(1)
 #define VERSAL_NET_CONSOLE_ID_pl011_1	U(2)
+#define VERSAL_NET_CONSOLE_ID_dcc	U(3)
 
 #define VERSAL_NET_CONSOLE_IS(con)	(VERSAL_NET_CONSOLE_ID_ ## con == VERSAL_NET_CONSOLE)
 
@@ -142,12 +143,11 @@
 
 #define VERSAL_NET_UART_BAUDRATE	115200
 
-#if VERSAL_NET_CONSOLE_IS(pl011) || VERSAL_NET_CONSOLE_IS(pl011_0)
-#define VERSAL_NET_UART_BASE		VERSAL_NET_UART0_BASE
-#elif VERSAL_NET_CONSOLE_IS(pl011_1)
+#if VERSAL_NET_CONSOLE_IS(pl011_1)
 #define VERSAL_NET_UART_BASE		VERSAL_NET_UART1_BASE
 #else
-# error "invalid VERSAL_NET_CONSOLE"
+/* Default console is UART0 */
+#define VERSAL_NET_UART_BASE            VERSAL_NET_UART0_BASE
 #endif
 
 #define PLAT_VERSAL_NET_CRASH_UART_BASE		VERSAL_NET_UART_BASE

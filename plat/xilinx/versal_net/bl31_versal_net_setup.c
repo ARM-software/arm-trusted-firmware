@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (C) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (C) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <common/debug.h>
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
+#include <drivers/arm/dcc.h>
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
@@ -28,7 +29,6 @@
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
-static console_t versal_net_runtime_console;
 
 /*
  * Return a pointer to the 'entry_point_info' structure of the next image for
@@ -95,18 +95,30 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 	}
 
-	/* Initialize the console to provide early debug support */
-	rc = console_pl011_register(VERSAL_NET_UART_BASE, uart_clock,
+	if (VERSAL_NET_CONSOLE_IS(pl011_0) || VERSAL_NET_CONSOLE_IS(pl011_1)) {
+		static console_t versal_net_runtime_console;
+
+		/* Initialize the console to provide early debug support */
+		rc = console_pl011_register(VERSAL_NET_UART_BASE, uart_clock,
 				    VERSAL_NET_UART_BAUDRATE,
 				    &versal_net_runtime_console);
-	if (rc == 0) {
-		panic();
+		if (rc == 0) {
+			panic();
+		}
+
+		console_set_scope(&versal_net_runtime_console, CONSOLE_FLAG_BOOT |
+				CONSOLE_FLAG_RUNTIME);
+	} else if (VERSAL_NET_CONSOLE_IS(dcc)) {
+		/* Initialize the dcc console for debug.
+		 * dcc is over jtag and does not configures uart0 or uart1.
+		 */
+		rc = console_dcc_register();
+		if (rc == 0) {
+			panic();
+		}
 	}
 
-	console_set_scope(&versal_net_runtime_console, CONSOLE_FLAG_BOOT |
-			  CONSOLE_FLAG_RUNTIME);
-
-	NOTICE("TF-A running on Xilinx %s %d.%d\n", board_name_decode(),
+	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),
 	       platform_version / 10U, platform_version % 10U);
 
 	/* Initialize the platform config for future decision making */

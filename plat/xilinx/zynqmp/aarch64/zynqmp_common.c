@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (C) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -303,10 +304,10 @@ static char *zynqmp_print_silicon_idcode(void)
 	maskid = ZYNQMP_CSU_IDCODE_XILINX_ID << ZYNQMP_CSU_IDCODE_XILINX_ID_SHIFT |
 		 ZYNQMP_CSU_IDCODE_FAMILY << ZYNQMP_CSU_IDCODE_FAMILY_SHIFT;
 	if (tmp != maskid) {
-		ERROR("Incorrect XILINX IDCODE 0x%x, maskid 0x%x\n", id, maskid);
+		ERROR("Incorrect IDCODE 0x%x, maskid 0x%x\n", id, maskid);
 		return "UNKN";
 	}
-	VERBOSE("Xilinx IDCODE 0x%x\n", id);
+	VERBOSE("IDCODE 0x%x\n", id);
 	return zynqmp_get_silicon_idcode_name();
 }
 

@@ -53,7 +53,7 @@ USE_COHERENT_MEM := 0
 HW_ASSISTED_COHERENCY := 1
 
 VERSAL_NET_CONSOLE	?=	pl011
-ifeq (${VERSAL_NET_CONSOLE}, $(filter ${VERSAL_NET_CONSOLE},pl011 pl011_0 pl011_1))
+ifeq (${VERSAL_NET_CONSOLE}, $(filter ${VERSAL_NET_CONSOLE},pl011 pl011_0 pl011_1 dcc))
 else
   $(error Please define VERSAL_NET_CONSOLE)
 endif
@@ -72,6 +72,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 include lib/libfdt/libfdt.mk
 
 PLAT_BL_COMMON_SOURCES	:=	\
+				drivers/arm/dcc/dcc_console.c			\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				${GICV3_SOURCES}				\
