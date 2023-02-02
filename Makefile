@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -152,6 +152,9 @@ ARM_ARCH_MAJOR := 8
 ARM_ARCH_MINOR := 5
 ENABLE_FEAT_ECV = 1
 ENABLE_FEAT_FGT = 1
+
+# RME enables CSV2_2 extension by default.
+ENABLE_FEAT_CSV2_2 = 1
 
 endif
 
