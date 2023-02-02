@@ -918,9 +918,54 @@ These are highlighted in the ``Mitigations implemented?`` box.
 | Mitigations            | | Yes / Platform specific                           |
 +------------------------+-----------------------------------------------------+
 
++------------------------+-----------------------------------------------------+
+| ID                     | 14                                                  |
++========================+=====================================================+
+| Threat                 | | **Security vulnerabilities in the Non-secure OS   |
+|                        |   can lead to secure world compromise if the option |
+|                        |   OPTEE_ALLOW_SMC_LOAD is enabled.**                |
+|                        |                                                     |
+|                        | | This option trusts the non-secure world up until  |
+|                        |   the point it issues the SMC call to load the      |
+|                        |   Secure BL32 payload. If a compromise occurs       |
+|                        |   before the SMC call is invoked, then arbitrary    |
+|                        |   code execution in S-EL1 can occur or arbitrary    |
+|                        |   memory in EL3 can be overwritten.                 |
++------------------------+-----------------------------------------------------+
+| Diagram Elements       | DF5                                                 |
++------------------------+-----------------------------------------------------+
+| Affected TF-A          | BL31, BL32                                          |
+| Components             |                                                     |
++------------------------+-----------------------------------------------------+
+| Assets                 | Code Execution, Sensitive Data                      |
++------------------------+-----------------------------------------------------+
+| Threat Agent           | NSCode                                              |
++------------------------+-----------------------------------------------------+
+| Threat Type            | Tampering, Information Disclosure,                  |
+|                        | Elevation of privilege                              |
++------------------------+-----------------+-----------------+-----------------+
+| Application            | Server          | IoT             | Mobile          |
++------------------------+-----------------+-----------------+-----------------+
+| Impact                 | Critical (5)    | Critical (5)    | Critical (5)    |
++------------------------+-----------------+-----------------+-----------------+
+| Likelihood             | Low (2)         | Low (2)         | Low (2)         |
++------------------------+-----------------+-----------------+-----------------+
+| Total Risk Rating      | Medium (10)     | Medium (10)     | Medium (10)     |
++------------------------+-----------------+-----------------+-----------------+
+| Mitigations            | When enabling the option OPTEE_ALLOW_SMC_LOAD,      |
+|                        | the non-secure OS must be considered a closed       |
+|                        | platform up until the point the SMC can be invoked  |
+|                        | to load OP-TEE.                                     |
++------------------------+-----------------------------------------------------+
+| Mitigations            | | None in TF-A itself. This option is only used by  |
+| implemented?           |   ChromeOS currently which has other mechanisms to  |
+|                        |   to mitigate this threat which are described in    |
+|                        |   `OP-TEE Dispatcher`_.                             |
++------------------------+-----------------------------------------------------+
+
 --------------
 
-*Copyright (c) 2021-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2023, Arm Limited. All rights reserved.*
 
 
 .. _STRIDE threat analysis technique: https://docs.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats#stride-model
@@ -932,3 +977,4 @@ These are highlighted in the ``Mitigations implemented?`` box.
 .. _TF-A error handling policy: https://trustedfirmware-a.readthedocs.io/en/latest/process/coding-guidelines.html#error-handling-and-robustness
 .. _Secure Development Guidelines: https://trustedfirmware-a.readthedocs.io/en/latest/process/security-hardening.html#secure-development-guidelines
 .. _Trusted Firmware-A Tests: https://git.trustedfirmware.org/TF-A/tf-a-tests.git/about/
+.. _OP-TEE Dispatcher: https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/components/spd/optee-dispatcher.rst
