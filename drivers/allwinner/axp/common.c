@@ -9,6 +9,7 @@
 #include <libfdt.h>
 
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/allwinner/axp.h>
 
 int axp_check_id(void)
@@ -97,19 +98,9 @@ static int setup_regulator(const void *fdt, int node,
 	return 0;
 }
 
-static bool is_node_disabled(const void *fdt, int node)
-{
-	const char *cell;
-	cell = fdt_getprop(fdt, node, "status", NULL);
-	if (cell == NULL) {
-		return false;
-	}
-	return strcmp(cell, "okay") != 0;
-}
-
 static bool should_enable_regulator(const void *fdt, int node)
 {
-	if (is_node_disabled(fdt, node)) {
+	if (!fdt_node_is_enabled(fdt, node)) {
 		return false;
 	}
 	if (fdt_getprop(fdt, node, "phandle", NULL) != NULL) {
