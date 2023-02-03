@@ -53,7 +53,7 @@ static void fvp_cluster_pwrdwn_common(void)
 {
 	uint64_t mpidr = read_mpidr_el1();
 
-#if ENABLE_SPE_FOR_LOWER_ELS
+#if ENABLE_SPE_FOR_NS
 	/*
 	 * On power down we need to disable statistical profiling extensions
 	 * before exiting coherency.

@@ -482,7 +482,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 {
 #if IMAGE_BL31
-#if ENABLE_SPE_FOR_LOWER_ELS
+#if ENABLE_SPE_FOR_NS
 	spe_enable(el2_unused);
 #endif
 

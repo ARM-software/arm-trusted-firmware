@@ -355,11 +355,11 @@ V				:= 0
 WARMBOOT_ENABLE_DCACHE_EARLY	:= 0
 
 # Build option to enable/disable the Statistical Profiling Extensions
-ENABLE_SPE_FOR_LOWER_ELS	:= 1
+ENABLE_SPE_FOR_NS		:= 1
 
 # SPE is only supported on AArch64 so disable it on AArch32.
 ifeq (${ARCH},aarch32)
-	override ENABLE_SPE_FOR_LOWER_ELS := 0
+	override ENABLE_SPE_FOR_NS := 0
 endif
 
 # Include Memory Tagging Extension registers in cpu context. This must be set
