@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023 ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -82,11 +82,11 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	CCError_t error;
 	CCBsvNBuff_t NBuff;
 	CCBsvSignature_t signature;
-	int rc, exp;
+	int rc, exp, expected_salt_len;
 	mbedtls_asn1_buf sig_oid, alg_oid, params;
-	mbedtls_md_type_t md_alg;
+	mbedtls_md_type_t md_alg, mgf1_hash_id;
 	mbedtls_pk_type_t pk_alg;
-	mbedtls_pk_rsassa_pss_options pss_opts;
+
 	size_t len;
 	uint8_t *p, *end;
 	CCHashResult_t digest;
@@ -114,17 +114,17 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	/* Verify the RSASSA-PSS params */
 	/* The trailer field is verified to be 0xBC internally by this API */
 	rc = mbedtls_x509_get_rsassa_pss_params(&params, &md_alg,
-			&pss_opts.mgf1_hash_id,
-			&pss_opts.expected_salt_len);
+			&mgf1_hash_id,
+			&expected_salt_len);
 	if (rc != 0)
 		return CRYPTO_ERR_SIGNATURE;
 
 	/* The CryptoCell only supports SHA256 as hash algorithm */
 	if (md_alg != MBEDTLS_MD_SHA256 ||
-	    pss_opts.mgf1_hash_id != MBEDTLS_MD_SHA256)
+	    mgf1_hash_id != MBEDTLS_MD_SHA256)
 		return CRYPTO_ERR_SIGNATURE;
 
-	if (pss_opts.expected_salt_len != RSA_SALT_LEN)
+	if (expected_salt_len != RSA_SALT_LEN)
 		return CRYPTO_ERR_SIGNATURE;
 
 	/* Parse the public key */
