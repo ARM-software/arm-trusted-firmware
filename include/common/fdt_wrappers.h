@@ -10,6 +10,7 @@
 #define FDT_WRAPPERS_H
 
 #include <libfdt_env.h>
+#include <libfdt.h>
 
 /* Number of cells, given total length in bytes. Each cell is 4 bytes long */
 #define NCELLS(len) ((len) / 4U)
@@ -51,6 +52,15 @@ static inline uint32_t fdt_blob_size(const void *dtb)
 	const uint32_t *dtb_header = dtb;
 
 	return fdt32_to_cpu(dtb_header[1]);
+}
+
+static inline bool fdt_node_is_enabled(const void *fdt, int node)
+{
+	int len;
+	const void *prop = fdt_getprop(fdt, node, "status", &len);
+
+	/* A non-existing status property means the device is enabled. */
+	return (prop == NULL) || (len == 5 && strcmp(prop, "okay") == 0);
 }
 
 #define fdt_for_each_compatible_node(dtb, node, compatible_str)       \

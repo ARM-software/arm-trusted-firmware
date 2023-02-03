@@ -20,21 +20,6 @@ struct ethosn_sub_allocator_t {
 	uint32_t stream_id;
 };
 
-static bool fdt_node_is_enabled(const void *fdt, int node)
-{
-	int len;
-	const char *node_status;
-
-	node_status = fdt_getprop(fdt, node, "status", &len);
-	if (node_status == NULL ||
-	    (len == 5 && /* Includes null character */
-	     strncmp(node_status, "okay", 4U) == 0)) {
-		return true;
-	}
-
-	return false;
-}
-
 static bool fdt_node_has_reserved_memory(const void *fdt, int dev_node)
 {
 	return fdt_get_property(fdt, dev_node, "memory-region", NULL) != NULL;
