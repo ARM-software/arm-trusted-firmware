@@ -42,23 +42,6 @@
 #define PM_API_BASE_VERSION		1U
 #define PM_API_VERSION_2		2U
 
-/* PM API ids */
-#define PM_REGISTER_NOTIFIER		5U
-#define PM_REQ_SUSPEND			6U
-#define PM_SELF_SUSPEND			7U
-#define PM_FORCE_POWERDOWN		8U
-#define PM_ABORT_SUSPEND		9U
-#define PM_REQ_WAKEUP			10U
-#define PM_SET_WAKEUP_SOURCE		11U
-#define PM_SYSTEM_SHUTDOWN		12U
-#define PM_IOCTL			34U
-#define PM_QUERY_DATA			35U
-#define PM_PLL_SET_PARAMETER		48U
-#define PM_PLL_GET_PARAMETER		49U
-#define PM_PLL_SET_MODE			50U
-#define PM_PLL_GET_MODE			51U
-#define PM_FEATURE_CHECK		63U
-
 /* Loader API ids */
 #define PM_LOAD_PDI			0x701U
 #define PM_LOAD_GET_HANDOFF_PARAMS	0x70BU
@@ -69,10 +52,6 @@
 #define	IOCTL_SET_PLL_FRAC_DATA		10U
 #define	IOCTL_GET_PLL_FRAC_DATA		11U
 #define	IOCTL_SET_SGI			25U
-
-/* Parameter ID for PLL IOCTLs */
-/* Fractional data portion for PLL */
-#define PM_PLL_PARAM_DATA	2
 
 /* System shutdown macros */
 #define	XPM_SHUTDOWN_TYPE_SHUTDOWN	0U
@@ -86,6 +65,101 @@
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
+
+/**
+ * @PM_PLL_PARAM_DIV2:		Enable for divide by 2 function inside the PLL
+ * @PM_PLL_PARAM_FBDIV:		Feedback divisor integer portion for the PLL
+ * @PM_PLL_PARAM_DATA:		Feedback divisor fractional portion for the PLL
+ * @PM_PLL_PARAM_PRE_SRC:	Clock source for PLL input
+ * @PM_PLL_PARAM_POST_SRC:	Clock source for PLL Bypass mode
+ * @PM_PLL_PARAM_LOCK_DLY:	Lock circuit config settings for lock windowsize
+ * @PM_PLL_PARAM_LOCK_CNT:	Lock circuit counter setting
+ * @PM_PLL_PARAM_LFHF:		PLL loop filter high frequency capacitor control
+ * @PM_PLL_PARAM_CP:		PLL charge pump control
+ * @PM_PLL_PARAM_RES:		PLL loop filter resistor control
+ */
+enum pm_pll_param {
+	PM_PLL_PARAM_DIV2,
+	PM_PLL_PARAM_FBDIV,
+	PM_PLL_PARAM_DATA,
+	PM_PLL_PARAM_PRE_SRC,
+	PM_PLL_PARAM_POST_SRC,
+	PM_PLL_PARAM_LOCK_DLY,
+	PM_PLL_PARAM_LOCK_CNT,
+	PM_PLL_PARAM_LFHF,
+	PM_PLL_PARAM_CP,
+	PM_PLL_PARAM_RES,
+	PM_PLL_PARAM_MAX,
+};
+
+enum pm_api_id {
+	/* Miscellaneous API functions: */
+	PM_GET_API_VERSION = 1, /* Do not change or move */
+	PM_SET_CONFIGURATION,
+	PM_GET_NODE_STATUS,
+	PM_GET_OP_CHARACTERISTIC,
+	PM_REGISTER_NOTIFIER,
+	/* API for suspending of PUs: */
+	PM_REQ_SUSPEND,
+	PM_SELF_SUSPEND,
+	PM_FORCE_POWERDOWN,
+	PM_ABORT_SUSPEND,
+	PM_REQ_WAKEUP,
+	PM_SET_WAKEUP_SOURCE,
+	PM_SYSTEM_SHUTDOWN,
+	/* API for managing PM slaves: */
+	PM_REQ_NODE,
+	PM_RELEASE_NODE,
+	PM_SET_REQUIREMENT,
+	PM_SET_MAX_LATENCY,
+	/* Direct control API functions: */
+	PM_RESET_ASSERT,
+	PM_RESET_GET_STATUS,
+	PM_MMIO_WRITE,
+	PM_MMIO_READ,
+	PM_INIT_FINALIZE,
+	PM_FPGA_LOAD,
+	PM_FPGA_GET_STATUS,
+	PM_GET_CHIPID,
+	PM_SECURE_RSA_AES,
+	PM_SECURE_SHA,
+	PM_SECURE_RSA,
+	PM_PINCTRL_REQUEST,
+	PM_PINCTRL_RELEASE,
+	PM_PINCTRL_GET_FUNCTION,
+	PM_PINCTRL_SET_FUNCTION,
+	PM_PINCTRL_CONFIG_PARAM_GET,
+	PM_PINCTRL_CONFIG_PARAM_SET,
+	PM_IOCTL,
+	/* API to query information from firmware */
+	PM_QUERY_DATA,
+	/* Clock control API functions */
+	PM_CLOCK_ENABLE,
+	PM_CLOCK_DISABLE,
+	PM_CLOCK_GETSTATE,
+	PM_CLOCK_SETDIVIDER,
+	PM_CLOCK_GETDIVIDER,
+	PM_CLOCK_SETRATE,
+	PM_CLOCK_GETRATE,
+	PM_CLOCK_SETPARENT,
+	PM_CLOCK_GETPARENT,
+	PM_SECURE_IMAGE,
+	/* FPGA PL Readback */
+	PM_FPGA_READ,
+	PM_SECURE_AES,
+	/* PLL control API functions */
+	PM_PLL_SET_PARAMETER,
+	PM_PLL_GET_PARAMETER,
+	PM_PLL_SET_MODE,
+	PM_PLL_GET_MODE,
+	/* PM Register Access API */
+	PM_REGISTER_ACCESS,
+	PM_EFUSE_ACCESS,
+	PM_FPGA_GET_VERSION,
+	PM_FPGA_GET_FEATURE_LIST,
+	PM_FEATURE_CHECK = 63,
+	PM_API_MAX = 74
+};
 
 enum pm_abort_reason {
 	ABORT_REASON_WKUP_EVENT = 100,
@@ -123,6 +197,7 @@ typedef enum {
  * @PM_RET_ERROR_NOTSUPPORTED:	feature not supported  (deprecated)
  * @PM_RET_ERROR_NOFEATURE:	feature is not available
  * @PM_RET_ERROR_INVALID_CRC:	invalid crc in IPI communication
+ * @PM_RET_ERROR_NOT_ENABLED:   feature is not enabled
  * @PM_RET_ERROR_INTERNAL:	internal error
  * @PM_RET_ERROR_CONFLICT:	conflict
  * @PM_RET_ERROR_ACCESS:	access rights violation
@@ -138,6 +213,7 @@ enum pm_ret_status {
 	PM_RET_ERROR_NOTSUPPORTED = 4,
 	PM_RET_ERROR_NOFEATURE = 19,
 	PM_RET_ERROR_INVALID_CRC = 301,
+	PM_RET_ERROR_NOT_ENABLED = 29,
 	PM_RET_ERROR_INTERNAL = 2000,
 	PM_RET_ERROR_CONFLICT = 2001,
 	PM_RET_ERROR_ACCESS = 2002,
@@ -145,7 +221,8 @@ enum pm_ret_status {
 	PM_RET_ERROR_DOUBLE_REQ = 2004,
 	PM_RET_ERROR_ABORT_SUSPEND = 2005,
 	PM_RET_ERROR_TIMEOUT = 2006,
-	PM_RET_ERROR_NODE_USED = 2007
+	PM_RET_ERROR_NODE_USED = 2007,
+	PM_RET_ERROR_NO_FEATURE = 2008
 };
 
 /**

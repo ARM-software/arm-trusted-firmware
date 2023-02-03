@@ -1496,7 +1496,7 @@ static enum pm_ret_status pm_pinctrl_get_pin_groups(uint32_t pin_id,
  *
  * This function returns requested data.
  */
-void pm_query_data(enum pm_query_id qid, uint32_t arg1, uint32_t arg2,
+void pm_query_data(enum pm_query_ids qid, uint32_t arg1, uint32_t arg2,
 		   uint32_t arg3, uint32_t *data)
 {
 	switch (qid) {

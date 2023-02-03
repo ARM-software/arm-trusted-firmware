@@ -14,6 +14,7 @@
 
 #include <custom_svc.h>
 #include "ipi_mailbox_svc.h"
+#include "pm_defs.h"
 #include "zynqmp_pm_svc_main.h"
 
 /* SMC function IDs for SiP Service queries */

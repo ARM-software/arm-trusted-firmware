@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (C) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,10 +17,9 @@
 #include <plat_arm.h>
 
 #include <plat_private.h>
+#include <pm_defs.h>
 
 #define PM_RET_ERROR_NOFEATURE U(19)
-
-#define PM_IOCTL	34U
 
 static uintptr_t versal_net_sec_entry;
 
