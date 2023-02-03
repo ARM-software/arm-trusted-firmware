@@ -75,7 +75,7 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
 			node_idx = irq_to_pm_node_idx(irq);
 			reg &= ~lowest_set;
 
-			if ((node_idx > XPM_NODEIDX_DEV_MIN) && (node_idx < XPM_NODEIDX_DEV_MAX)) {
+			if (node_idx > XPM_NODEIDX_DEV_MIN) {
 				if (pm_wakeup_nodes_set[node_idx] == 0U) {
 					/* Get device ID from node index */
 					device_id = PERIPH_DEVID(node_idx);
