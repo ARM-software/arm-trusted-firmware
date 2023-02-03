@@ -13,10 +13,6 @@
 #if CTX_INCLUDE_EL2_REGS
 	.global	el2_sysregs_context_save_common
 	.global	el2_sysregs_context_restore_common
-#if ENABLE_SPE_FOR_LOWER_ELS
-	.global	el2_sysregs_context_save_spe
-	.global	el2_sysregs_context_restore_spe
-#endif /* ENABLE_SPE_FOR_LOWER_ELS */
 #if CTX_INCLUDE_MTE_REGS
 	.global	el2_sysregs_context_save_mte
 	.global	el2_sysregs_context_restore_mte
@@ -219,20 +215,6 @@ func el2_sysregs_context_restore_common
 	msr	vttbr_el2, x16
 	ret
 endfunc el2_sysregs_context_restore_common
-
-#if ENABLE_SPE_FOR_LOWER_ELS
-func el2_sysregs_context_save_spe
-	mrs	x13, PMSCR_EL2
-	str	x13, [x0, #CTX_PMSCR_EL2]
-	ret
-endfunc el2_sysregs_context_save_spe
-
-func el2_sysregs_context_restore_spe
-	ldr	x13, [x0, #CTX_PMSCR_EL2]
-	msr	PMSCR_EL2, x13
-	ret
-endfunc el2_sysregs_context_restore_spe
-#endif /* ENABLE_SPE_FOR_LOWER_ELS */
 
 #if CTX_INCLUDE_MTE_REGS
 func el2_sysregs_context_save_mte

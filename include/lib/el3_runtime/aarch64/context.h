@@ -514,10 +514,6 @@ void el1_sysregs_context_restore(el1_sysregs_t *regs);
 #if CTX_INCLUDE_EL2_REGS
 void el2_sysregs_context_save_common(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_common(el2_sysregs_t *regs);
-#if ENABLE_SPE_FOR_LOWER_ELS
-void el2_sysregs_context_save_spe(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_spe(el2_sysregs_t *regs);
-#endif /* ENABLE_SPE_FOR_LOWER_ELS */
 #if CTX_INCLUDE_MTE_REGS
 void el2_sysregs_context_save_mte(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_mte(el2_sysregs_t *regs);

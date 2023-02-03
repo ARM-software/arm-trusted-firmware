@@ -856,9 +856,6 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
 
 		el2_sysregs_context_save_common(el2_sysregs_ctx);
-#if ENABLE_SPE_FOR_LOWER_ELS
-		el2_sysregs_context_save_spe(el2_sysregs_ctx);
-#endif
 #if CTX_INCLUDE_MTE_REGS
 		el2_sysregs_context_save_mte(el2_sysregs_ctx);
 #endif
@@ -919,9 +916,6 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 		el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
 
 		el2_sysregs_context_restore_common(el2_sysregs_ctx);
-#if ENABLE_SPE_FOR_LOWER_ELS
-		el2_sysregs_context_restore_spe(el2_sysregs_ctx);
-#endif
 #if CTX_INCLUDE_MTE_REGS
 		el2_sysregs_context_restore_mte(el2_sysregs_ctx);
 #endif
