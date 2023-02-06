@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2023, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,5 +40,7 @@
 #define NEOVERSE_V1_ACTLR2_EL1_BIT_2				(ULL(1) << 2)
 #define NEOVERSE_V1_ACTLR2_EL1_BIT_28				(ULL(1) << 28)
 #define NEOVERSE_V1_ACTLR2_EL1_BIT_40				(ULL(1) << 40)
+
+#define NEOVERSE_V1_ACTLR3_EL1					S3_0_C15_C1_2
 
 #endif /* NEOVERSE_V1_H */
