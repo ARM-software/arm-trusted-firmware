@@ -491,7 +491,7 @@ static int derive_key(uint8_t *key, size_t *key_len, size_t len,
 	/*
 	 * Not a real derivation yet
 	 *
-	 * But we expect a 32 bytes key, and OTP is only 16 bytes
+	 * We expect a 32 bytes key, if OTP is only 16 bytes
 	 *   => duplicate.
 	 */
 	for (i = 0U, j = len; j < 32U;
