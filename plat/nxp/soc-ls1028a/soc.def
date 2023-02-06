@@ -70,8 +70,8 @@ BL2_BASE	:=	$(shell echo "0x"$$(echo "obase=16; ${BL2_BASE_ADDR}" | bc))
 BL2_HDR_LOC	:=	0x1800A000
 
 # SoC ERRATAS to be enabled
-ERRATA_SOC_A008850	:=	1
 
+# DDR ERRATA
 ERRATA_DDR_A009803	:=	1
 ERRATA_DDR_A009942	:=	1
 ERRATA_DDR_A010165	:=	1
