@@ -462,10 +462,6 @@ ERRATA_N1_1946160	?=0
 # applies to all revisions <= r4p1 of the Neoverse N1 cpu and is still open.
 ERRATA_N1_2743102	?=0
 
-# Flag to apply erratum 2002655 workaround during reset. This erratum applies
-# to revisions r0p0 of the Neoverse-N2 cpu, it is still open.
-ERRATA_N2_2002655	?=0
-
 # Flag to apply erratum 1618635 workaround during reset. This erratum applies
 # to revision r0p0 of the Neoverse V1 cpu and was fixed in the revision r1p0.
 ERRATA_V1_1618635	?=0
@@ -577,6 +573,10 @@ ERRATA_A710_2371105	?=0
 # still open.
 ERRATA_A710_2768515	?=0
 
+# Flag to apply erratum 2002655 workaround during reset. This erratum applies
+# to revisions r0p0 of the Neoverse-N2 cpu, it is still open.
+ERRATA_N2_2002655	?=0
+
 # Flag to apply erratum 2067956 workaround during reset. This erratum applies
 # to revision r0p0 of the Neoverse N2 cpu and is still open.
 ERRATA_N2_2067956	?=0
@@ -624,6 +624,10 @@ ERRATA_N2_2376738	?=0
 # Flag to apply erratum 2388450 workaround during reset. This erratum applies
 # to revision r0p0 of the Neoverse N2 cpu, it is fixed in r0p1.
 ERRATA_N2_2388450	?=0
+
+# Flag to apply erratum 2743089 workaround during during powerdown. This erratum
+# applies to all revisions <= r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
+ERRATA_N2_2743089	?=0
 
 # Flag to apply erratum 2002765 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
@@ -1109,10 +1113,6 @@ $(eval $(call add_define,ERRATA_N1_1946160))
 # Process ERRATA_N1_2743102 flag
 $(eval $(call assert_boolean,ERRATA_N1_2743102))
 $(eval $(call add_define,ERRATA_N1_2743102))
-#
-# Process ERRATA_N2_2002655 flag
-$(eval $(call assert_boolean,ERRATA_N2_2002655))
-$(eval $(call add_define,ERRATA_N2_2002655))
 
 # Process ERRATA_V1_1618635 flag
 $(eval $(call assert_boolean,ERRATA_V1_1618635))
@@ -1222,6 +1222,10 @@ $(eval $(call add_define,ERRATA_A710_2371105))
 $(eval $(call assert_boolean,ERRATA_A710_2768515))
 $(eval $(call add_define,ERRATA_A710_2768515))
 
+# Process ERRATA_N2_2002655 flag
+$(eval $(call assert_boolean,ERRATA_N2_2002655))
+$(eval $(call add_define,ERRATA_N2_2002655))
+
 # Process ERRATA_N2_2067956 flag
 $(eval $(call assert_boolean,ERRATA_N2_2067956))
 $(eval $(call add_define,ERRATA_N2_2067956))
@@ -1269,6 +1273,10 @@ $(eval $(call add_define,ERRATA_N2_2376738))
 # Process ERRATA_N2_2388450 flag
 $(eval $(call assert_boolean,ERRATA_N2_2388450))
 $(eval $(call add_define,ERRATA_N2_2388450))
+
+# Process ERRATA_N2_2743089 flag
+$(eval $(call assert_boolean,ERRATA_N2_2743089))
+$(eval $(call add_define,ERRATA_N2_2743089))
 
 # Process ERRATA_X2_2002765 flag
 $(eval $(call assert_boolean,ERRATA_X2_2002765))
