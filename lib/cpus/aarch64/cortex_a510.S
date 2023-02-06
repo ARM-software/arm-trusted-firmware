@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited. All rights reserved.
+ * Copyright (c) 2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -361,6 +361,45 @@ func check_errata_2666669
 	b	cpu_rev_var_ls
 endfunc check_errata_2666669
 
+/* ------------------------------------------------------
+ * Errata Workaround for Cortex-A510 Erratum 2684597.
+ * This erratum applies to revision r0p0, r0p1, r0p2,
+ * r0p3, r1p0, r1p1 and r1p2 of the Cortex-A510 cpu and
+ * is fixed in r1p3.
+ * Shall clobber: x0-x17
+ * ------------------------------------------------------
+ */
+	.globl	errata_cortex_a510_2684597_wa
+func errata_cortex_a510_2684597_wa
+	mov	x17, x30
+	/* Ensure this errata is only applied to Cortex-A510 cores */
+	jump_if_cpu_midr	CORTEX_A510_MIDR,	1f
+	b	2f
+
+1:
+	/* Check workaround compatibility. */
+	mov	x0, x18
+	bl	check_errata_2684597
+	cbz	x0, 2f
+
+	tsb	csync
+2:
+	ret	x17
+endfunc errata_cortex_a510_2684597_wa
+/* ------------------------------------------------------
+ * Errata Workaround for Cortex-A510 Erratum 2684597.
+ * This erratum applies to revision r0p0, r0p1, r0p2,
+ * r0p3, r1p0, r1p1 and r1p2 of the Cortex-A510 cpu and
+ * is fixed in r1p3.
+ * Shall clobber: x0-x17
+ * ------------------------------------------------------
+ */
+func check_errata_2684597
+	/* Applies to revision < r1p3 */
+	mov	x1, #0x12
+	b	cpu_rev_var_ls
+endfunc check_errata_2684597
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
@@ -401,6 +440,7 @@ func cortex_a510_errata_report
 	report_errata ERRATA_A510_2347730, cortex_a510, 2347730
 	report_errata ERRATA_A510_2371937, cortex_a510, 2371937
 	report_errata ERRATA_A510_2666669, cortex_a510, 2666669
+	report_errata ERRATA_A510_2684597, cortex_a510, 2684597
 	report_errata ERRATA_DSU_2313941, cortex_a510, dsu_2313941
 
 	ldp	x8, x30, [sp], #16
