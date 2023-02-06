@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2023, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -351,6 +351,35 @@ func check_errata_2772019
 	b	cpu_rev_var_ls
 endfunc check_errata_2772019
 
+/* ----------------------------------------------------
+ * Errata Workaround for Cortex A78 Errata 2779479.
+ * This applies to revisions r0p0, r1p0, r1p1, and r1p2.
+ * It is still open.
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x1, x17
+ * ----------------------------------------------------
+ */
+func errata_a78_2779479_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2779479
+	cbz	x0, 1f
+
+	/* Apply the workaround */
+	mrs	x1, CORTEX_A78_ACTLR3_EL1
+	orr	x1, x1, #BIT(47)
+	msr	CORTEX_A78_ACTLR3_EL1, x1
+
+1:
+	ret	x17
+endfunc errata_a78_2779479_wa
+
+func check_errata_2779479
+	/* Applies to r0p0, r1p0, r1p1, r1p2 */
+	mov	x1, #CPU_REV(1, 2)
+	b	cpu_rev_var_ls
+endfunc check_errata_2779479
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -412,6 +441,11 @@ func cortex_a78_reset_func
 #if ERRATA_A78_2395406
 	mov	x0, x18
 	bl	errata_a78_2395406_wa
+#endif
+
+#if ERRATA_A78_2779479
+	mov	x0, x18
+	bl	errata_a78_2779479_wa
 #endif
 
 #if ENABLE_AMU
@@ -493,6 +527,7 @@ func cortex_a78_errata_report
 	report_errata ERRATA_A78_2376745, cortex_a78, 2376745
 	report_errata ERRATA_A78_2395406, cortex_a78, 2395406
 	report_errata ERRATA_A78_2772019, cortex_a78, 2772019
+	report_errata ERRATA_A78_2779479, cortex_a78, 2779479
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a78, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
