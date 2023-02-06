@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -671,6 +671,11 @@ ERRATA_X2_2216384	?=0
 # only to revision r2p0 of the Cortex-X2 cpu, it is fixed in r2p1.
 ERRATA_X2_2147715	?=0
 
+# Flag to apply erratum 2282622 workaround during reset. This erratum applies
+# to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is still
+# open.
+ERRATA_X2_2282622	?=0
+
 # Flag to apply erratum 2371105 workaround during reset. This erratum applies
 # to revision r0p0, r1p0 and r2p0 of the Cortex-X2 cpu and is fixed in r2p1.
 ERRATA_X2_2371105	?=0
@@ -1324,6 +1329,10 @@ $(eval $(call add_define,ERRATA_X2_2216384))
 # Process ERRATA_X2_2147715 flag
 $(eval $(call assert_boolean,ERRATA_X2_2147715))
 $(eval $(call add_define,ERRATA_X2_2147715))
+
+# Process ERRATA_X2_2282622 flag
+$(eval $(call assert_boolean,ERRATA_X2_2282622))
+$(eval $(call add_define,ERRATA_X2_2282622))
 
 # Process ERRATA_X2_2371105 flag
 $(eval $(call assert_boolean,ERRATA_X2_2371105))
