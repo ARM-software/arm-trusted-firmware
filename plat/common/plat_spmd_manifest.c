@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -150,7 +150,7 @@ int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
 	rc = mmap_add_dynamic_region((unsigned long long)pm_base_align,
 				     pm_base_align,
 				     PAGE_SIZE,
-				     MT_RO_DATA);
+				     MT_RO_DATA | EL3_PAS);
 	if (rc != 0) {
 		ERROR("Error while mapping SPM Core manifest (%d).\n", rc);
 		return rc;
