@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,10 +16,14 @@
 #include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <common/tbbr/tbbr_img_def.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/fconf/fconf.h>
+#include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/smccc.h>
 #include <lib/spinlock.h>
 #include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -245,6 +249,92 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	SMC_RET0(&ctx->cpu_ctx);
 }
 
+#if ENABLE_RME && SPMD_SPM_AT_SEL2 && !RESET_TO_BL31
+static int spmd_dynamic_map_mem(uintptr_t base_addr, size_t size,
+				 unsigned int attr, uintptr_t *align_addr,
+				 size_t *align_size)
+{
+	uintptr_t base_addr_align;
+	size_t mapped_size_align;
+	int rc;
+
+	/* Page aligned address and size if necessary */
+	base_addr_align = page_align(base_addr, DOWN);
+	mapped_size_align = page_align(size, UP);
+
+	if ((base_addr != base_addr_align) &&
+	    (size == mapped_size_align)) {
+		mapped_size_align += PAGE_SIZE;
+	}
+
+	/*
+	 * Map dynamically given region with its aligned base address and
+	 * size
+	 */
+	rc = mmap_add_dynamic_region((unsigned long long)base_addr_align,
+				     base_addr_align,
+				     mapped_size_align,
+				     attr);
+	if (rc == 0) {
+		*align_addr = base_addr_align;
+		*align_size = mapped_size_align;
+	}
+
+	return rc;
+}
+
+static void spmd_do_sec_cpy(uintptr_t root_base_addr, uintptr_t sec_base_addr,
+			    size_t size)
+{
+	uintptr_t root_base_addr_align, sec_base_addr_align;
+	size_t root_mapped_size_align, sec_mapped_size_align;
+	int rc;
+
+	assert(root_base_addr != 0UL);
+	assert(sec_base_addr != 0UL);
+	assert(size != 0UL);
+
+	/* Map the memory with required attributes */
+	rc = spmd_dynamic_map_mem(root_base_addr, size, MT_RO_DATA | MT_ROOT,
+				  &root_base_addr_align,
+				  &root_mapped_size_align);
+	if (rc != 0) {
+		ERROR("%s %s %lu (%d)\n", "Error while mapping", "root region",
+		      root_base_addr, rc);
+		panic();
+	}
+
+	rc = spmd_dynamic_map_mem(sec_base_addr, size, MT_RW_DATA | MT_SECURE,
+				  &sec_base_addr_align, &sec_mapped_size_align);
+	if (rc != 0) {
+		ERROR("%s %s %lu (%d)\n", "Error while mapping",
+		      "secure region", sec_base_addr, rc);
+		panic();
+	}
+
+	/* Do copy operation */
+	(void)memcpy((void *)sec_base_addr, (void *)root_base_addr, size);
+
+	/* Unmap root memory region */
+	rc = mmap_remove_dynamic_region(root_base_addr_align,
+					root_mapped_size_align);
+	if (rc != 0) {
+		ERROR("%s %s %lu (%d)\n", "Error while unmapping",
+		      "root region", root_base_addr_align, rc);
+		panic();
+	}
+
+	/* Unmap secure memory region */
+	rc = mmap_remove_dynamic_region(sec_base_addr_align,
+					sec_mapped_size_align);
+	if (rc != 0) {
+		ERROR("%s %s %lu (%d)\n", "Error while unmapping",
+		      "secure region", sec_base_addr_align, rc);
+		panic();
+	}
+}
+#endif /* ENABLE_RME && SPMD_SPM_AT_SEL2 && !RESET_TO_BL31 */
+
 /*******************************************************************************
  * Loads SPMC manifest and inits SPMC.
  ******************************************************************************/
@@ -254,6 +344,7 @@ static int spmd_spmc_init(void *pm_addr)
 	unsigned int core_id;
 	uint32_t ep_attr, flags;
 	int rc;
+	const struct dyn_cfg_dtb_info_t *image_info __unused;
 
 	/* Load the SPM Core manifest */
 	rc = plat_spm_core_manifest_load(&spmc_attrs, pm_addr);
@@ -343,6 +434,26 @@ static int spmd_spmc_init(void *pm_addr)
 					     MODE_SP_ELX,
 					     DISABLE_ALL_EXCEPTIONS);
 	}
+
+#if ENABLE_RME && SPMD_SPM_AT_SEL2 && !RESET_TO_BL31
+	image_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TOS_FW_CONFIG_ID);
+	assert(image_info != NULL);
+
+	if ((image_info->config_addr == 0UL) ||
+	    (image_info->secondary_config_addr == 0UL) ||
+	    (image_info->config_max_size == 0UL)) {
+		return -EINVAL;
+	}
+
+	/* Copy manifest from root->secure region */
+	spmd_do_sec_cpy(image_info->config_addr,
+			image_info->secondary_config_addr,
+			image_info->config_max_size);
+
+	/* Update ep info of BL32 */
+	assert(spmc_ep_info != NULL);
+	spmc_ep_info->args.arg0 = image_info->secondary_config_addr;
+#endif /* ENABLE_RME && SPMD_SPM_AT_SEL2 && !RESET_TO_BL31 */
 
 	/* Set an initial SPMC context state for all cores. */
 	for (core_id = 0U; core_id < PLATFORM_CORE_COUNT; core_id++) {
