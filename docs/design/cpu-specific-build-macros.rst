@@ -53,7 +53,7 @@ errata notice document. The format of the define used to enable/disable the
 errata workaround is ``ERRATA_<Processor name>_<ID>``, where the ``Processor name``
 is for example ``A57`` for the ``Cortex_A57`` CPU.
 
-Refer to :ref:`firmware_design_cpu_errata_reporting` for information on how to
+Refer to :ref:`firmware_design_cpu_errata_implementation` for information on how to
 write errata workaround functions.
 
 All workarounds are disabled by default. The platform is responsible for
