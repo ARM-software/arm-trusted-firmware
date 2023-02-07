@@ -22,7 +22,7 @@
 			load-address = <0x0 0x07f00000>;
 			max-size = <0x00100000>;
 			id = <HW_CONFIG_ID>;
-			ns-load-address = <0x0 0x82000000>;
+			secondary-load-address = <0x0 0x82000000>;
 		};
 
 		/*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,8 +45,8 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 	 */
 	hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
 	assert(hw_config_info != NULL);
-	assert(hw_config_info->ns_config_addr != 0UL);
-	arg2 = hw_config_info->ns_config_addr;
+	assert(hw_config_info->secondary_config_addr != 0UL);
+	arg2 = hw_config_info->secondary_config_addr;
 #endif /* !RESET_TO_BL31 && !BL2_AT_EL3 */
 
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
