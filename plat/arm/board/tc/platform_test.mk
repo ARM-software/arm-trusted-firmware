@@ -1,9 +1,9 @@
-# Copyright (c) 2022, Arm Limited. All rights reserved.
+# Copyright (c) 2022-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-ifeq (${PLATFORM_TEST},1)
+ifeq (${PLATFORM_TEST},tfm-testsuite)
 
     # The variables need to be set to compile the platform test:
     ifeq (${TF_M_TESTS_PATH},)
