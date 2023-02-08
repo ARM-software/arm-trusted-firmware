@@ -38,7 +38,7 @@ functions/definitions in ``include/plat/arm/common/`` and the corresponding
 source files in ``plat/arm/common/``. This is done so that there are no
 dependencies between platforms maintained by different people/companies. If you
 want to use any of the functionality present in ``plat/arm`` files, please
-create a pull request that moves the code to ``plat/common`` so that it can be
+propose a patch that moves the code to ``plat/common`` so that it can be
 discussed.
 
 Common modifications
