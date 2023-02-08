@@ -14,10 +14,17 @@ Modifications consist of:
 
 The platform-specific functions and variables are declared in
 ``include/plat/common/platform.h``. The firmware provides a default
-implementation of variables and functions to fulfill the optional requirements.
-These implementations are all weakly defined; they are provided to ease the
-porting effort. Each platform port can override them with its own implementation
-if the default implementation is inadequate.
+implementation of variables and functions to fulfill the optional requirements
+in order to ease the porting effort. Each platform port can use them as is or
+provide their own implementation if the default implementation is inadequate.
+
+   .. note::
+
+      TF-A historically provided default implementations of platform interfaces
+      as *weak* functions. This practice is now discouraged and new platform
+      interfaces as they get introduced in the code base should be *strongly*
+      defined. We intend to convert existing weak functions over time. Until
+      then, you will find references to *weak* functions in this document.
 
 Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
