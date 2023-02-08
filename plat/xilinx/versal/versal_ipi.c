@@ -20,16 +20,16 @@
 
 /* versal ipi configuration table */
 static const struct ipi_config versal_ipi_table[] = {
-	/* A72 IPI */
-	[IPI_ID_APU] = {
-		.ipi_bit_mask = IPI0_TRIG_BIT,
+	/* PMC IPI */
+	[IPI_ID_PMC] = {
+		.ipi_bit_mask = PMC_IPI_TRIG_BIT,
 		.ipi_reg_base = IPI0_REG_BASE,
 		.secure_only = 0U,
 	},
 
-	/* PMC IPI */
-	[IPI_ID_PMC] = {
-		.ipi_bit_mask = PMC_IPI_TRIG_BIT,
+	/* A72 IPI */
+	[IPI_ID_APU] = {
+		.ipi_bit_mask = IPI0_TRIG_BIT,
 		.ipi_reg_base = IPI0_REG_BASE,
 		.secure_only = 0U,
 	},
