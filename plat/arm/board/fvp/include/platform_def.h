@@ -16,6 +16,10 @@
 
 #include "../fvp_def.h"
 
+#if TRUSTED_BOARD_BOOT
+#include MBEDTLS_CONFIG_FILE
+#endif
+
 /* Required platform porting definitions */
 #define PLATFORM_CORE_COUNT  (U(FVP_CLUSTER_COUNT) * \
 			      U(FVP_MAX_CPUS_PER_CLUSTER) * \
@@ -171,7 +175,11 @@
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
  * plus a little space for growth.
  */
+#if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
+#define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0xC000)
+#else
 #define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0xB000)
+#endif
 
 /*
  * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
@@ -194,7 +202,11 @@
 #if (TRUSTED_BOARD_BOOT && COT_DESC_IN_DTB) || (CRYPTO_SUPPORT && USE_ROMLIB)
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1E000) - FVP_BL2_ROMLIB_OPTIMIZATION)
 #elif CRYPTO_SUPPORT
+#if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
+# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1E000) - FVP_BL2_ROMLIB_OPTIMIZATION)
+#else
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1D000) - FVP_BL2_ROMLIB_OPTIMIZATION)
+#endif
 #elif ARM_BL31_IN_DRAM
 /* When ARM_BL31_IN_DRAM is set, BL2 can use almost all of Trusted SRAM. */
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1F000) - FVP_BL2_ROMLIB_OPTIMIZATION)
