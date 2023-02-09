@@ -35,6 +35,7 @@ ifeq (${ARCH},aarch32)
 COMPILER_RT_SRCS	+=	lib/compiler-rt/builtins/arm/aeabi_ldivmod.S	\
 				lib/compiler-rt/builtins/arm/aeabi_uldivmod.S	\
 				lib/compiler-rt/builtins/arm/aeabi_memcpy.S	\
+				lib/compiler-rt/builtins/arm/aeabi_memset.S	\
 				lib/compiler-rt/builtins/ctzdi2.c		\
 				lib/compiler-rt/builtins/divdi3.c		\
 				lib/compiler-rt/builtins/divmoddi4.c		\
