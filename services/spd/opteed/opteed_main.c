@@ -168,7 +168,8 @@ static int32_t opteed_setup(void)
  * used.  It also assumes that a valid non-secure context has been
  * initialised by PSCI so it does not need to save and restore any
  * non-secure state. This function performs a synchronous entry into
- * OPTEE. OPTEE passes control back to this routine through a SMC.
+ * OPTEE. OPTEE passes control back to this routine through a SMC. This returns
+ * a non-zero value on success and zero on failure.
  ******************************************************************************/
 static int32_t
 opteed_init_with_entry_point(entry_point_info_t *optee_entry_point)
@@ -232,6 +233,10 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint32_t data_pa)
 	mapped_data_va = mapped_data_pa;
 	data_map_size = page_align(data_size + (mapped_data_pa - data_pa), UP);
 
+	/*
+	 * We do not validate the passed in address because we are trusting the
+	 * non-secure world at this point still.
+	 */
 	rc = mmap_add_dynamic_region(mapped_data_pa, mapped_data_va,
 				     data_map_size, MT_MEMORY | MT_RO | MT_NS);
 	if (rc != 0) {
@@ -290,7 +295,9 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint32_t data_pa)
 				   0,
 				   0,
 				   &opteed_sp_context[linear_id]);
-	rc = opteed_init_with_entry_point(&optee_ep_info);
+	if (opteed_init_with_entry_point(&optee_ep_info) == 0) {
+		rc = -EFAULT;
+	}
 
 	/* Restore non-secure state */
 	cm_el1_sysregs_context_restore(NON_SECURE);

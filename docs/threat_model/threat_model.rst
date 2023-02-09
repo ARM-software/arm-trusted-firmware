@@ -921,16 +921,16 @@ These are highlighted in the ``Mitigations implemented?`` box.
 +------------------------+-----------------------------------------------------+
 | ID                     | 14                                                  |
 +========================+=====================================================+
-| Threat                 | | **Security vulnerabilities in the Non-secure OS   |
-|                        |   can lead to secure world compromise if the option |
-|                        |   OPTEE_ALLOW_SMC_LOAD is enabled.**                |
+| Threat                 | | **Attacker wants to execute an arbitrary or       |
+|                        |   untrusted binary as the secure OS.**              |
 |                        |                                                     |
-|                        | | This option trusts the non-secure world up until  |
-|                        |   the point it issues the SMC call to load the      |
-|                        |   Secure BL32 payload. If a compromise occurs       |
-|                        |   before the SMC call is invoked, then arbitrary    |
-|                        |   code execution in S-EL1 can occur or arbitrary    |
-|                        |   memory in EL3 can be overwritten.                 |
+|                        | | When the option OPTEE_ALLOW_SMC_LOAD is enabled,  |
+|                        |   this trusts the non-secure world up until the     |
+|                        |   point it issues the SMC call to load the Secure   |
+|                        |   BL32 payload. If a compromise occurs before the   |
+|                        |   SMC call is invoked, then arbitrary code execution|
+|                        |   in S-EL1 can occur or arbitrary memory in EL3 can |
+|                        |   be overwritten.                                   |
 +------------------------+-----------------------------------------------------+
 | Diagram Elements       | DF5                                                 |
 +------------------------+-----------------------------------------------------+
@@ -948,9 +948,9 @@ These are highlighted in the ``Mitigations implemented?`` box.
 +------------------------+-----------------+-----------------+-----------------+
 | Impact                 | Critical (5)    | Critical (5)    | Critical (5)    |
 +------------------------+-----------------+-----------------+-----------------+
-| Likelihood             | Low (2)         | Low (2)         | Low (2)         |
+| Likelihood             | High (4)        | High (4)        | High (4)        |
 +------------------------+-----------------+-----------------+-----------------+
-| Total Risk Rating      | Medium (10)     | Medium (10)     | Medium (10)     |
+| Total Risk Rating      | Critical (20)   | Critical (20)   | Critical (20)   |
 +------------------------+-----------------+-----------------+-----------------+
 | Mitigations            | When enabling the option OPTEE_ALLOW_SMC_LOAD,      |
 |                        | the non-secure OS must be considered a closed       |
