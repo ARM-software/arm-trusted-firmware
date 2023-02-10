@@ -58,8 +58,8 @@
 /* Set bit[10] = 1 to workaround erratum 2838783 */
 #define SEC_SECCTLR_VAL			U(0x403)
 
-#define SEC_DEL_ADDR_EXT_REG		U(0x201C)
-#define SEC_DEL_ADDR_EXT_VAL		U(0x15)
+#define SEC_DEL_ADDR_EXT_REG            U(0x201C)
+#define SEC_DEL_ADDR_EXT_VAL            U(0x1)
 
 #define SEC_SYSCTRL0_REG		U(0x0018)
 #define SEC_SYSCTRL0_SLEEPING		U(1U << 4)
@@ -75,12 +75,25 @@
 #define SEC_MMUSID_REG_BASE		U(0x3008)
 #define SEC_MMUSID_OFFSET		U(0x1000)
 
+#define SEC_ADDR_EXT_REG_BASE		U(0x3018)
+#define SEC_ADDR_EXT_OFFSET		U(0x1000)
+#define SEC_ADDR_EXT_SHIFT		U(0x14)
+#define SEC_ADDR_EXT_MASK		U(0x1FFFFE00)
+
+#define SEC_ATTR_CTLR_REG_BASE		U(0x3010)
+#define SEC_ATTR_CTLR_OFFSET		U(0x1000)
+#define SEC_ATTR_CTLR_NUM		U(9)
+#define SEC_ATTR_CTLR_VAL		U(0x1)
+
 #define SEC_NPU_ID_REG			U(0xF000)
 #define SEC_NPU_ID_ARCH_VER_SHIFT	U(0X10)
 
 #define INPUT_STREAM_INDEX              U(0x6)
 #define INTERMEDIATE_STREAM_INDEX       U(0x7)
 #define OUTPUT_STREAM_INDEX             U(0x8)
+
+#define TO_EXTEND_ADDR(addr) \
+	((addr >> SEC_ADDR_EXT_SHIFT) & SEC_ADDR_EXT_MASK)
 
 #if ARM_ETHOSN_NPU_TZMP1
 CASSERT(ARM_ETHOSN_NPU_FW_IMAGE_BASE > 0U, assert_ethosn_invalid_fw_image_base);
@@ -201,6 +214,44 @@ static void ethosn_configure_smmu_streams(const struct ethosn_device_t *device,
 	}
 }
 
+static void ethosn_configure_stream_addr_extends(const struct ethosn_device_t *device,
+						 uintptr_t core_addr)
+{
+	uint32_t addr_extends[3] = { 0 };
+	size_t i;
+
+	if (device->has_reserved_memory) {
+		const uint32_t addr = TO_EXTEND_ADDR(device->reserved_memory_addr);
+
+		addr_extends[0] = addr;
+		addr_extends[1] = addr;
+		addr_extends[2] = addr;
+	} else {
+		addr_extends[0] = TO_EXTEND_ADDR(ETHOSN_FW_VA_BASE);
+		addr_extends[1] = TO_EXTEND_ADDR(ETHOSN_WORKING_DATA_VA_BASE);
+		addr_extends[2] = TO_EXTEND_ADDR(ETHOSN_COMMAND_STREAM_VA_BASE);
+	}
+
+	for (i = 0U; i < ARRAY_SIZE(addr_extends); ++i) {
+		const uintptr_t reg_addr = SEC_ADDR_EXT_REG_BASE +
+			(SEC_ADDR_EXT_OFFSET * i);
+		mmio_write_32(ETHOSN_CORE_SEC_REG(core_addr, reg_addr),
+			      addr_extends[i]);
+	}
+}
+
+static void ethosn_configure_stream_attr_ctlr(uintptr_t core_addr)
+{
+	size_t i;
+
+	for (i = 0U; i < SEC_ATTR_CTLR_NUM; ++i) {
+		const uintptr_t reg_addr = SEC_ATTR_CTLR_REG_BASE +
+			(SEC_ATTR_CTLR_OFFSET * i);
+		mmio_write_32(ETHOSN_CORE_SEC_REG(core_addr, reg_addr),
+			      SEC_ATTR_CTLR_VAL);
+	}
+}
+
 static void ethosn_delegate_to_ns(uintptr_t core_addr)
 {
 	mmio_setbits_32(ETHOSN_CORE_SEC_REG(core_addr, SEC_SECCTLR_REG),
@@ -286,6 +337,9 @@ static int ethosn_core_full_reset(const struct ethosn_device_t *device,
 		ethosn_configure_stream_nsaid(core, is_protected);
 #endif
 	}
+
+	ethosn_configure_stream_addr_extends(device, core->addr);
+	ethosn_configure_stream_attr_ctlr(core->addr);
 
 	ethosn_delegate_to_ns(core->addr);
 

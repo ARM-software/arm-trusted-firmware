@@ -47,7 +47,7 @@
 
 /* Service version  */
 #define ETHOSN_VERSION_MAJOR U(2)
-#define ETHOSN_VERSION_MINOR U(5)
+#define ETHOSN_VERSION_MINOR U(6)
 
 /* Return codes for function calls */
 #define ETHOSN_SUCCESS			 0
