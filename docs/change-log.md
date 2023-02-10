@@ -3,6 +3,91 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.8.0..refs/tags/lts-v2.8.0) (2023-02-10)
+
+### Resolved issues (since v2.8)
+
+- **Libraries**
+
+  - **C Standard Library**
+
+    - fix(libc): properly define SCHAR_MIN ([33d7e301f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/33d7e301f74059b12b606cfc54afd48a9ad26b4a))
+
+  - **CPU Support**
+
+    - fix(cpus): workaround for Cortex-A510 erratum 2684597 ([a40d9559b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a40d9559b2f104923dc01c74dcdd4ac06b85adef))
+    - fix(cpus): workaround for Cortex-A78C erratum 2772121 ([b33ea1e3e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b33ea1e3e91430d03d4328f1c7c094af7622ff2d))
+    - fix(cpus): workaround for Neoverse V1 errata 2779461 ([c06124dad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c06124dadc10a4cdc63772483921810dbc3f4b95))
+    - fix(cpus): workaround for Cortex-A78 erratum 2779479 ([5a25a70fb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5a25a70fb67f56be5f3ebed3d4234bb3b8120181))
+    - fix(cpus): workaround for Cortex-X2 erratum 2282622 ([209b8ccd7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/209b8ccd772d3b94b30b731bd85da1c3ecd0ecdb))
+    - fix(cpus): workaround for Cortex-A710 erratum 2282622 ([a9f7a50d3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a9f7a50d30598d2bd7f3d048930e54c520adc69f))
+    - fix(cpus): workaround for Neoverse V1 erratum 2743093 ([b7f723e55](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b7f723e55f52f693e6517120bd016d56f0cdb80c))
+    - fix(cpus): workaround for Cortex-A78 erratum 2772019 ([3a8011088](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3a80110887ed752b0c6e5b4f0d59bd6d40f4bb24))
+    - fix(cpus): workaround for Neoverse N2 erratum 2743089 ([b0b654f90](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b0b654f908df85133e9d8cbbe252cf7f48dd883c))
+    - fix(cpus): workaround for Cortex-X2 erratum 2768515 ([262bb3a22](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/262bb3a223bed377603ac756fef8d685fad016ef))
+    - fix(cpus): workaround for Cortex-A710 erratum 2768515 ([c90daab3f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c90daab3f0029867f7d1b419dcb72961bdfaea9d))
+    - fix(cpus): workaround for Cortex-X3 erratum 2615812 ([bcdd5152d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bcdd5152dc6c0496d25e936f3af4416dab1d32bc))
+
+  - **el3_runtime**
+
+    - fix(el3_runtime): allow SErrors when executing in EL3 ([327f4bb0c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/327f4bb0cf2035ee46f0753429a43fd4c97a5d98))
+    - fix(el3_runtime): restore SPSR/ELR/SCR after esb ([f06ba4a21](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f06ba4a2137000e87f1ec77eef054d3ac1706d84))
+
+- **Miscellaneous**
+
+  - **Debug**
+
+    - fix(console): fix crash on spin_unlock with cache disabled ([cede543e2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cede543e29d7110adfd99427f35858e6a81cb596))
+
+- **Platforms**
+
+  - **Arm**
+
+    - **CSS**
+
+      - fix(plat/css): fix invalid redistributor poweroff ([1432d4b86](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1432d4b86ea11160d211470a15cdcdc1e36bb0fb))
+
+  - **ST**
+
+    - fix(st): include utils.h to solve compilation error ([06d5116f2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/06d5116f29bcffef89ae3190bb4df3043cb91cf8))
+
+  - **Intel**
+
+    - fix(intel): fix fcs_client crashed when increased param size ([2b2eaf1d9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2b2eaf1d96255f5e56cf8469e98ee77631b0bcda))
+
+  - **Layerscape**
+
+    - fix(layerscape): unlock write access SMMU_CBn_ACTLR ([40b90a9c4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/40b90a9c4ce8a7f131ea65edb549d8f0160a5999))
+    - fix(layerscape): fix errata a008850 ([61cc890d7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/61cc890d715e6d388ed15ba9cb1a5a8c66ded6c3))
+
+  - **LX2**
+
+    - feat(lx2): enable OCRAM ECC ([1c65e8798](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1c65e8798b5be2a2ac7f3aaa410e02f7fc4b29ad))
+    - feat(lx2): support more variants ([fa8a6d76f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fa8a6d76ffe03647676f12740fce5a2ed3735616))
+    - fix(lx2): init global data before using it ([fd857216e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fd857216e5e7bec268579f4999b9c23dd7c1cfac))
+
+  - **NXP**
+
+    - fix(nxp-drivers): fix tzc380 memory regions config ([4b654f4b4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4b654f4b47267469426a3f77ad0981a1063ebf24))
+    - fix(nxp-ddr): apply Max CDD values for warm boot ([1414e0add](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1414e0adda7fdfa4405412c6328d52371e1e376a))
+    - fix(nxp-ddr): use CDDWW for write to read delay ([8047151ab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8047151ab249c9f900132486c17d5bdf39d7ca51))
+
+  - **ls1046a**
+
+    - fix(ls1046a): 4 keys secureboot failure resolved ([ff8694041](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ff8694041010045e3fcafe57aed0fbbe236d2cf5))
+
+- **Security**
+
+  - docs(security): security advisory for CVE-2022-47630 ([084d29c26](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/084d29c2654f0717129aac116adb644df9a8387c))
+  - fix(auth): properly validate X.509 extensions ([a89b1f193](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a89b1f19303add7971828546f922bb9f889dae87))
+  - fix(auth): avoid out-of-bounds read in auth_nvctr() ([187e79427](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/187e79427dd09ae4b47128aa17975dc1310453bc))
+  - fix(auth): require at least one extension to be present ([379183edc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/379183edc4d34e513678f652703b890c1db95d3b))
+  - fix(auth): forbid junk after extensions ([609437cbf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/609437cbf591d77050d4a4e2de4e0c322d71706e))
+
+- **Tools**
+
+  - fix(sptool): add dependency to SP image ([9e01aedd4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9e01aedd4359311169f4e472240314db8494d251))
+
 ## [2.8.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.7.0..refs/tags/v2.8.0) (2022-11-15)
 
 ### ⚠ BREAKING CHANGES
