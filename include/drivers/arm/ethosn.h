@@ -16,7 +16,8 @@
 #define ETHOSN_FNUM_SOFT_RESET		U(0x53)
 #define ETHOSN_FNUM_IS_SLEEPING		U(0x54)
 #define ETHOSN_FNUM_GET_FW_PROP		U(0x55)
-/* 0x56-0x5F reserved for future use */
+#define ETHOSN_FNUM_BOOT_FW		U(0x56)
+/* 0x57-0x5F reserved for future use */
 
 /* Properties for ETHOSN_FNUM_TZMP_GET_FW_PROP */
 #define ETHOSN_FW_PROP_VERSION		U(0xF00)
@@ -46,8 +47,8 @@
 #define is_ethosn_fid(_fid) (((_fid) & ETHOSN_FID_MASK) == ETHOSN_FID_VALUE)
 
 /* Service version  */
-#define ETHOSN_VERSION_MAJOR U(2)
-#define ETHOSN_VERSION_MINOR U(6)
+#define ETHOSN_VERSION_MAJOR U(3)
+#define ETHOSN_VERSION_MINOR U(0)
 
 /* Return codes for function calls */
 #define ETHOSN_SUCCESS			 0
@@ -58,6 +59,7 @@
 #define ETHOSN_UNKNOWN_CORE_ADDRESS	-5
 #define ETHOSN_UNKNOWN_ALLOCATOR_IDX	-6
 #define ETHOSN_INVALID_CONFIGURATION    -7
+#define ETHOSN_INVALID_STATE		-8
 
 /*
  * Argument types for soft and hard resets to indicate whether to reset
