@@ -20,7 +20,9 @@ contains, and must be formed with the following fields:
 
 - load-address [mandatory]
     - value type: <u64>
-    - Physical loading base address of the configuration.
+    - Physical loading base address of the configuration. 
+      If secondary-load-address is also provided (see below), then this is the
+      primary load address.
 
 - max-size [mandatory]
     - value type: <u32>
@@ -30,10 +32,11 @@ contains, and must be formed with the following fields:
     - value type: <u32>
     - Image ID of the configuration.
 
-- ns-load-address [optional]
+- secondary-load-address [optional]
     - value type: <u64>
-    - Physical loading base address of the configuration in the non-secure
-      memory.
-      Only needed by those configuration files which require being loaded
-      in secure memory (at load-address) as well as in non-secure memory
-      e.g. HW_CONFIG
+    - A platform uses this physical address to copy the configuration to
+      another location during the boot-flow.
+
+--------------
+
+*Copyright (c) 2023, Arm Limited and Contributors. All rights reserved.*
