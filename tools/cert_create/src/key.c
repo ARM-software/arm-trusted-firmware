@@ -212,7 +212,7 @@ int key_load(key_t *key, unsigned int *err_code)
 			*err_code = KEY_ERR_OPEN;
 		}
 	} else {
-		WARN("Key filename not specified\n");
+		VERBOSE("Key filename not specified\n");
 		*err_code = KEY_ERR_FILENAME;
 	}
 
