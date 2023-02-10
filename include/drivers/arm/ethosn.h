@@ -47,7 +47,7 @@
 
 /* Service version  */
 #define ETHOSN_VERSION_MAJOR U(2)
-#define ETHOSN_VERSION_MINOR U(4)
+#define ETHOSN_VERSION_MINOR U(5)
 
 /* Return codes for function calls */
 #define ETHOSN_SUCCESS			 0
@@ -57,6 +57,7 @@
 #define ETHOSN_FAILURE			-4
 #define ETHOSN_UNKNOWN_CORE_ADDRESS	-5
 #define ETHOSN_UNKNOWN_ALLOCATOR_IDX	-6
+#define ETHOSN_INVALID_CONFIGURATION    -7
 
 /*
  * Argument types for soft and hard resets to indicate whether to reset

@@ -12,7 +12,7 @@
 #define ETHOSN_BIG_FW_MAGIC	('E' | ('N' << 8) | ('F' << 16) | ('W' << 24))
 
 /* Supported big firmware version */
-#define ETHOSN_BIG_FW_VERSION_MAJOR	9
+#define ETHOSN_BIG_FW_VERSION_MAJOR	10
 
 #define ETHOSN_ARCH_VER_MAJOR_MASK	U(0xF000)
 #define ETHOSN_ARCH_VER_MAJOR_SHIFT	U(0xC)

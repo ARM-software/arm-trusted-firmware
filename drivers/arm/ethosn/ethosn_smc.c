@@ -42,8 +42,16 @@
 #define ETHOSN_RESET_TIMEOUT_US		U(10 * 1000 * 1000)
 #define ETHOSN_RESET_WAIT_US		U(1)
 
+#define ETHOSN_AUX_FEAT_LEVEL_IRQ	U(0x1)
+#define ETHOSN_AUX_FEAT_STASHING	U(0x2)
+
+#define SEC_AUXCTLR_REG			U(0x0024)
+#define SEC_AUXCTLR_VAL			U(0x80)
+#define SEC_AUXCTLR_LEVEL_IRQ_VAL	U(0x04)
+#define SEC_AUXCTLR_STASHING_VAL	U(0xA5000000)
+
 #define SEC_DEL_REG			U(0x0004)
-#define SEC_DEL_VAL			U(0x81C)
+#define SEC_DEL_VAL			U(0x80C)
 #define SEC_DEL_EXCC_MASK		U(0x20)
 
 #define SEC_SECCTLR_REG			U(0x0010)
@@ -57,6 +65,9 @@
 #define SEC_SYSCTRL0_SLEEPING		U(1U << 4)
 #define SEC_SYSCTRL0_SOFT_RESET		U(3U << 29)
 #define SEC_SYSCTRL0_HARD_RESET		U(1U << 31)
+
+#define SEC_SYSCTRL1_REG		U(0x001C)
+#define SEC_SYSCTRL1_VAL		U(0x180110)
 
 #define SEC_NSAID_REG_BASE		U(0x3004)
 #define SEC_NSAID_OFFSET		U(0x1000)
@@ -131,6 +142,35 @@ static void ethosn_configure_stream_nsaid(const struct ethosn_core_t *core,
 	}
 }
 #endif
+
+static void ethosn_configure_events(uintptr_t core_addr)
+{
+	mmio_write_32(ETHOSN_CORE_SEC_REG(core_addr, SEC_SYSCTRL1_REG), SEC_SYSCTRL1_VAL);
+}
+
+static bool ethosn_configure_aux_features(const struct ethosn_device_t *device,
+					  uintptr_t core_addr,
+					  uint32_t features)
+{
+	uint32_t val = SEC_AUXCTLR_VAL;
+
+	if (features & ETHOSN_AUX_FEAT_LEVEL_IRQ) {
+		val |= SEC_AUXCTLR_LEVEL_IRQ_VAL;
+	}
+
+	if (features & ETHOSN_AUX_FEAT_STASHING) {
+		/* Stashing can't be used with reserved memory */
+		if (device->has_reserved_memory) {
+			return false;
+		}
+
+		val |= SEC_AUXCTLR_STASHING_VAL;
+	}
+
+	mmio_setbits_32(ETHOSN_CORE_SEC_REG(core_addr, SEC_AUXCTLR_REG), val);
+
+	return true;
+}
 
 static void ethosn_configure_smmu_streams(const struct ethosn_device_t *device,
 					  const struct ethosn_core_t *core,
@@ -220,7 +260,8 @@ static int ethosn_core_full_reset(const struct ethosn_device_t *device,
 				  const struct ethosn_core_t *core,
 				  bool hard_reset,
 				  u_register_t asset_alloc_idx,
-				  u_register_t is_protected)
+				  u_register_t is_protected,
+				  u_register_t aux_features)
 {
 	if (!device->has_reserved_memory &&
 	    asset_alloc_idx >= device->num_allocators) {
@@ -231,6 +272,12 @@ static int ethosn_core_full_reset(const struct ethosn_device_t *device,
 	if (!ethosn_core_reset(core->addr, hard_reset)) {
 		return ETHOSN_FAILURE;
 	}
+
+	if (!ethosn_configure_aux_features(device, core->addr, aux_features)) {
+		return ETHOSN_INVALID_CONFIGURATION;
+	}
+
+	ethosn_configure_events(core->addr);
 
 	if (!device->has_reserved_memory) {
 		ethosn_configure_smmu_streams(device, core, asset_alloc_idx);
@@ -251,6 +298,7 @@ static uintptr_t ethosn_smc_core_reset_handler(const struct ethosn_device_t *dev
 					       u_register_t asset_alloc_idx,
 					       u_register_t reset_type,
 					       u_register_t is_protected,
+					       u_register_t aux_features,
 					       void *handle)
 {
 	int ret;
@@ -258,7 +306,8 @@ static uintptr_t ethosn_smc_core_reset_handler(const struct ethosn_device_t *dev
 	switch (reset_type) {
 	case ETHOSN_RESET_TYPE_FULL:
 		ret = ethosn_core_full_reset(device, core, hard_reset,
-					     asset_alloc_idx, is_protected);
+					     asset_alloc_idx, is_protected,
+					     aux_features);
 		break;
 	case ETHOSN_RESET_TYPE_HALT:
 		ret = ethosn_core_reset(core->addr, hard_reset) ? ETHOSN_SUCCESS : ETHOSN_FAILURE;
@@ -277,6 +326,7 @@ static uintptr_t ethosn_smc_core_handler(uint32_t fid,
 					 u_register_t asset_alloc_idx,
 					 u_register_t reset_type,
 					 u_register_t is_protected,
+					 u_register_t aux_features,
 					 void *handle)
 {
 	bool hard_reset = false;
@@ -301,6 +351,7 @@ static uintptr_t ethosn_smc_core_handler(uint32_t fid,
 						     asset_alloc_idx,
 						     reset_type,
 						     is_protected,
+						     aux_features,
 						     handle);
 	default:
 		WARN("ETHOSN: Unimplemented SMC call: 0x%x\n", fid);
@@ -377,7 +428,9 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 		return ethosn_smc_fw_prop_handler(x1, handle);
 	}
 
-	return ethosn_smc_core_handler(fid, x1, x2, x3, x4, handle);
+	return ethosn_smc_core_handler(fid, x1, x2, x3, x4,
+				       SMC_GET_GP(handle, CTX_GPREG_X5),
+				       handle);
 }
 
 int ethosn_smc_setup(void)
