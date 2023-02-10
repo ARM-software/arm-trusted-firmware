@@ -48,7 +48,7 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
 {
 	uint32_t reg_num, device_id;
 	uint8_t pm_wakeup_nodes_set[XPM_NODEIDX_DEV_MAX] = {0U};
-	uintptr_t isenabler1 = PLAT_GICD_BASE_VALUE + GICD_ISENABLER + 4U;
+	uint32_t isenabler1 = PLAT_GICD_BASE_VALUE + GICD_ISENABLER + 4U;
 
 	zeromem(&pm_wakeup_nodes_set, (u_register_t)sizeof(pm_wakeup_nodes_set));
 
@@ -65,7 +65,7 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
 			uint32_t idx, irq, lowest_set = reg & (-reg);
 			enum pm_ret_status ret;
 
-			idx = __builtin_ctz(lowest_set);
+			idx = (uint32_t)__builtin_ctz(lowest_set);
 			irq = base_irq + idx;
 
 			if (irq > IRQ_MAX) {
@@ -78,7 +78,7 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
 			if (node_idx > XPM_NODEIDX_DEV_MIN) {
 				if (pm_wakeup_nodes_set[node_idx] == 0U) {
 					/* Get device ID from node index */
-					device_id = PERIPH_DEVID(node_idx);
+					device_id = PERIPH_DEVID((uint32_t)node_idx);
 					ret = pm_set_wakeup_source(node_id,
 								   device_id, 1U,
 								   SECURE_FLAG);
@@ -461,7 +461,7 @@ enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 	PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, flag, PM_QUERY_DATA, qid,
 			 arg1, arg2, arg3);
 
-	ret = pm_feature_check(PM_QUERY_DATA, &version[0], flag);
+	ret = pm_feature_check((uint32_t)PM_QUERY_DATA, &version[0], flag);
 	if (ret == PM_RET_SUCCESS) {
 		fw_api_version = version[0] & 0xFFFFU;
 		if ((fw_api_version == 2U) &&
@@ -515,10 +515,10 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		ret =  pm_pll_get_mode(arg1, value, flag);
 		break;
 	case IOCTL_SET_PLL_FRAC_DATA:
-		ret =  pm_pll_set_param(arg1, PM_PLL_PARAM_DATA, arg2, flag);
+		ret =  pm_pll_set_param(arg1, (uint32_t)PM_PLL_PARAM_DATA, arg2, flag);
 		break;
 	case IOCTL_GET_PLL_FRAC_DATA:
-		ret =  pm_pll_get_param(arg1, PM_PLL_PARAM_DATA, value, flag);
+		ret =  pm_pll_get_param(arg1, (uint32_t)PM_PLL_PARAM_DATA, value, flag);
 		break;
 	case IOCTL_SET_SGI:
 		/* Get the sgi number */

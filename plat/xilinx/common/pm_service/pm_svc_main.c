@@ -168,7 +168,7 @@ static uintptr_t eemi_for_compatibility(uint32_t api_id, uint32_t *pm_arg,
 
 	switch (api_id) {
 
-	case PM_IOCTL:
+	case (uint32_t)PM_IOCTL:
 	{
 		uint32_t value = 0U;
 
@@ -181,7 +181,7 @@ static uintptr_t eemi_for_compatibility(uint32_t api_id, uint32_t *pm_arg,
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
 	}
 
-	case PM_QUERY_DATA:
+	case (uint32_t)PM_QUERY_DATA:
 	{
 		uint32_t data[PAYLOAD_ARG_CNT] = { 0 };
 
@@ -192,7 +192,7 @@ static uintptr_t eemi_for_compatibility(uint32_t api_id, uint32_t *pm_arg,
 			 (uint64_t)data[1] | ((uint64_t)data[2] << 32U));
 	}
 
-	case PM_FEATURE_CHECK:
+	case (uint32_t)PM_FEATURE_CHECK:
 	{
 		uint32_t result[PAYLOAD_ARG_CNT] = {0U};
 
@@ -230,25 +230,25 @@ static uintptr_t eemi_psci_debugfs_handler(uint32_t api_id, uint32_t *pm_arg,
 
 	switch (api_id) {
 
-	case PM_SELF_SUSPEND:
+	case (uint32_t)PM_SELF_SUSPEND:
 		ret = pm_self_suspend(pm_arg[0], pm_arg[1], pm_arg[2],
 				      pm_arg[3], security_flag);
 		SMC_RET1(handle, (u_register_t)ret);
 
-	case PM_FORCE_POWERDOWN:
+	case (uint32_t)PM_FORCE_POWERDOWN:
 		ret = pm_force_powerdown(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (u_register_t)ret);
 
-	case PM_REQ_SUSPEND:
+	case (uint32_t)PM_REQ_SUSPEND:
 		ret = pm_req_suspend(pm_arg[0], pm_arg[1], pm_arg[2],
 				     pm_arg[3], security_flag);
 		SMC_RET1(handle, (u_register_t)ret);
 
-	case PM_ABORT_SUSPEND:
+	case (uint32_t)PM_ABORT_SUSPEND:
 		ret = pm_abort_suspend(pm_arg[0], security_flag);
 		SMC_RET1(handle, (u_register_t)ret);
 
-	case PM_SYSTEM_SHUTDOWN:
+	case (uint32_t)PM_SYSTEM_SHUTDOWN:
 		ret = pm_system_shutdown(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (u_register_t)ret);
 
@@ -330,7 +330,7 @@ static uintptr_t eemi_handler(uint32_t api_id, uint32_t *pm_arg,
 	 * receive only 4 words from TF-A. So, this needs to be handled separately
 	 * than other eemi calls.
 	 */
-	if (api_id == PM_QUERY_DATA) {
+	if (api_id == (uint32_t)PM_QUERY_DATA) {
 		if ((pm_arg[0] == XPM_QID_CLOCK_GET_NAME ||
 		    pm_arg[0] == XPM_QID_PINCTRL_GET_FUNCTION_NAME) &&
 		    ret == PM_RET_SUCCESS) {
