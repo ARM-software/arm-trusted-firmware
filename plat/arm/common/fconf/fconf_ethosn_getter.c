@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,38 @@ struct ethosn_sub_allocator_t {
 	size_t name_len;
 	uint32_t stream_id;
 };
+
+static int fdt_node_read_reserved_memory_addr(const void *fdt,
+					      int dev_node,
+					      uint64_t *reserved_mem_addrs)
+{
+	uintptr_t addr;
+	uint32_t phandle;
+	int err;
+	int mem_node;
+
+	err = fdt_read_uint32(fdt, dev_node, "memory-region", &phandle);
+	if (err != 0) {
+		ERROR("FCONF: Failed to get reserved memory phandle\n");
+		return err;
+	}
+
+	mem_node = fdt_node_offset_by_phandle(fdt, phandle);
+	if (mem_node < 0) {
+		ERROR("FCONF: Failed to find reserved memory node from phandle\n");
+		return mem_node;
+	}
+
+	err = fdt_get_reg_props_by_index(fdt, mem_node, 0U, &addr, NULL);
+	if (err != 0) {
+		ERROR("FCONF: Failed to read reserved memory address\n");
+		return err;
+	}
+
+	*reserved_mem_addrs = addr;
+
+	return 0;
+}
 
 static bool fdt_node_has_reserved_memory(const void *fdt, int dev_node)
 {
@@ -233,8 +265,10 @@ int fconf_populate_ethosn_config(uintptr_t config)
 		struct ethosn_device_t *dev = &ethosn_config.devices[dev_count];
 		uint32_t dev_asset_alloc_count = 0U;
 		uint32_t dev_core_count = 0U;
+		uint64_t reserved_memory_addr = 0U;
 		bool has_reserved_memory;
 		int sub_node;
+		int err;
 
 		if (!fdt_node_is_enabled(hw_conf_dtb, ethosn_node)) {
 			continue;
@@ -246,8 +280,16 @@ int fconf_populate_ethosn_config(uintptr_t config)
 		}
 
 		has_reserved_memory = fdt_node_has_reserved_memory(hw_conf_dtb, ethosn_node);
+		if (has_reserved_memory) {
+			err = fdt_node_read_reserved_memory_addr(hw_conf_dtb,
+								 ethosn_node,
+								 &reserved_memory_addr);
+			if (err != 0) {
+				return err;
+			}
+		}
+
 		fdt_for_each_subnode(sub_node, hw_conf_dtb, ethosn_node) {
-			int err;
 
 			if (!fdt_node_is_enabled(hw_conf_dtb, sub_node)) {
 				/* Ignore disabled sub node */
@@ -323,6 +365,7 @@ int fconf_populate_ethosn_config(uintptr_t config)
 		dev->num_cores = dev_core_count;
 		dev->num_allocators = dev_asset_alloc_count;
 		dev->has_reserved_memory = has_reserved_memory;
+		dev->reserved_memory_addr = reserved_memory_addr;
 		++dev_count;
 	}
 
