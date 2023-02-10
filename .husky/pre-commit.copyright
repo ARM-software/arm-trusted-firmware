@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# A hook script that checks if files staged for commit have updated Arm copyright year.
+# In case they are not - updates the years and prompts user to add them to the change.
+# This hook is called on "git commit" after changes have been staged, but before commit
+# message has to be provided.
+
+RED="\033[00;31m"
+YELLOW="\033[00;33m"
+BLANK="\033[00;00m"
+
+FILES=`git diff --cached --name-only HEAD`
+YEAR_NOW=`date +"%Y"`
+
+YEAR_RGX="[0-9][0-9][0-9][0-9]"
+ARM_RGX="\(ARM\|Arm\|arm\)"
+
+exit_code=0
+
+function user_warning() {
+	echo -e "Copyright of $RED$FILE$BLANK is out of date"
+	echo -e "Updated copyright to"
+	grep -nr "opyright.*$YEAR_RGX.*$ARM_RGX" "$FILE"
+	echo
+}
+
+while read -r FILE; do
+	if [ -z "$FILE" ]
+	then
+		break
+	fi
+	# Check if correct copyright notice is in file.
+	# To reduce false positives, we assume files with no
+	# copyright notice do not require it.
+	if ! grep "opyright.*$YEAR_NOW.*$ARM_RGX" "$FILE">/dev/null 2>&1
+	then
+		# If it is "from_date - to_date" type of entry - change to_date entry.
+		if grep "opyright.*$YEAR_RGX.*-.*$YEAR_RGX.*$ARM_RGX" "$FILE" >/dev/null 2>&1
+		then
+			exit_code=1
+			sed -i "s/\(opyright.*\)$YEAR_RGX\(.*$ARM_RGX\)/\1$(date +"%Y")\2/" $FILE
+			user_warning
+		# If it is single "date" type of entry - add the copyright extension to current year.
+		elif grep "opyright.*$YEAR_RGX.*$ARM_RGX" "$FILE" >/dev/null 2>&1
+		then
+			exit_code=1
+			sed -i "s/\(opyright.*$YEAR_RGX\)\(.*$ARM_RGX\)/\1-$(date +"%Y")\2/" $FILE
+			user_warning
+		fi
+	fi
+done <<< "$FILES"
+
+if [ $exit_code -eq 1 ]
+then
+	echo -e "$RED""Please stage updated files$BLANK before commiting or use$YELLOW git commit --no-verify$BLANK to skip copyright check"
+fi
+exit $exit_code
