@@ -8,14 +8,14 @@
 #include <stddef.h>
 #include <string.h>
 
-#include <platform_def.h>
+#include <mbedtls/oid.h>
+#include <mbedtls/x509.h>
 
 #include <drivers/arm/cryptocell/713/bsv_api.h>
 #include <drivers/arm/cryptocell/713/bsv_crypto_asym_api.h>
 #include <drivers/auth/crypto_mod.h>
 
-#include <mbedtls/oid.h>
-#include <mbedtls/x509.h>
+#include <platform_def.h>
 
 #define LIB_NAME		"CryptoCell 713 SBROM"
 #define RSA_SALT_LEN		32
@@ -99,72 +99,86 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	p = sig_alg;
 	end = p + sig_alg_len;
 	rc = mbedtls_asn1_get_alg(&p, end, &sig_oid, &params);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/* Get the actual signature algorithm (MD + PK) */
 	rc = mbedtls_oid_get_sig_alg(&sig_oid, &md_alg, &pk_alg);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/* The CryptoCell only supports RSASSA-PSS signature */
-	if (pk_alg != MBEDTLS_PK_RSASSA_PSS || md_alg != MBEDTLS_MD_NONE)
+	if (pk_alg != MBEDTLS_PK_RSASSA_PSS || md_alg != MBEDTLS_MD_NONE) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/* Verify the RSASSA-PSS params */
 	/* The trailer field is verified to be 0xBC internally by this API */
 	rc = mbedtls_x509_get_rsassa_pss_params(&params, &md_alg,
 			&mgf1_hash_id,
 			&expected_salt_len);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/* The CryptoCell only supports SHA256 as hash algorithm */
 	if (md_alg != MBEDTLS_MD_SHA256 ||
-	    mgf1_hash_id != MBEDTLS_MD_SHA256)
+	    mgf1_hash_id != MBEDTLS_MD_SHA256) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
-	if (expected_salt_len != RSA_SALT_LEN)
+	if (expected_salt_len != RSA_SALT_LEN) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/* Parse the public key */
 	p = pk_ptr;
 	end = p + pk_len;
 	rc = mbedtls_asn1_get_tag(&p, end, &len,
 			MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	end = p + len;
 	rc = mbedtls_asn1_get_alg_null(&p, end, &alg_oid);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
-	if (mbedtls_oid_get_pk_alg(&alg_oid, &pk_alg) != 0)
+	if (mbedtls_oid_get_pk_alg(&alg_oid, &pk_alg) != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
-	if (pk_alg != MBEDTLS_PK_RSA)
+	if (pk_alg != MBEDTLS_PK_RSA) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	rc = mbedtls_asn1_get_bitstring_null(&p, end, &len);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	rc = mbedtls_asn1_get_tag(&p, end, &len,
 				MBEDTLS_ASN1_CONSTRUCTED |
 				MBEDTLS_ASN1_SEQUENCE);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_INTEGER);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	if (*p == 0) {
 		p++; len--;
 	}
-	if (len != BSV_CERT_RSA_KEY_SIZE_IN_BYTES || ((p + len) > end))
+	if (len != BSV_CERT_RSA_KEY_SIZE_IN_BYTES || ((p + len) > end)) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/*
 	 * Copy N from certificate.
@@ -174,21 +188,25 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	/* Verify the RSA exponent */
 	p += len;
 	rc = mbedtls_asn1_get_int(&p, end, &exp);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
-	if (exp != RSA_EXPONENT)
+	if (exp != RSA_EXPONENT) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/* Get the signature (bitstring) */
 	p = sig_ptr;
 	end = p + sig_len;
 	rc = mbedtls_asn1_get_bitstring_null(&p, end, &len);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
-	if (len != BSV_CERT_RSA_KEY_SIZE_IN_BYTES || ((p + len) > end))
+	if (len != BSV_CERT_RSA_KEY_SIZE_IN_BYTES || ((p + len) > end)) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/*
 	 * Copy the signature (in BE format)
@@ -197,15 +215,17 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 
 	error = CC_BsvSha256((uintptr_t)PLAT_CRYPTOCELL_BASE,
 			     data_ptr, data_len, digest);
-	if (error != CC_OK)
+	if (error != CC_OK) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/* Verify the signature */
 	error = CC_BsvRsaPssVerify((uintptr_t)PLAT_CRYPTOCELL_BASE, NBuff,
 				    NULL, signature, digest, workspace,
 				    BSV_RSA_WORKSPACE_MIN_SIZE, &is_verified);
-	if ((error != CC_OK) || (is_verified != CC_TRUE))
+	if ((error != CC_OK) || (is_verified != CC_TRUE)) {
 		return CRYPTO_ERR_SIGNATURE;
+	}
 
 	/* Signature verification success */
 	return CRYPTO_SUCCESS;
@@ -233,39 +253,48 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 	end = p + digest_info_len;
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				  MBEDTLS_ASN1_SEQUENCE);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
+	}
 
 	/* Get the hash algorithm */
 	rc = mbedtls_asn1_get_alg(&p, end, &hash_oid, &params);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
+	}
 
 	rc = mbedtls_oid_get_md_alg(&hash_oid, &md_alg);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
+	}
+
 	/* Verify that hash algorithm is SHA256 */
-	if (md_alg != MBEDTLS_MD_SHA256)
+	if (md_alg != MBEDTLS_MD_SHA256) {
 		return CRYPTO_ERR_HASH;
+	}
 
 	/* Hash should be octet string type */
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_OCTET_STRING);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
+	}
 
 	/* Length of hash must match the algorithm's size */
-	if (len != HASH_RESULT_SIZE_IN_BYTES)
+	if (len != HASH_RESULT_SIZE_IN_BYTES) {
 		return CRYPTO_ERR_HASH;
+	}
 
 	hash = p;
 	error = CC_BsvSha256((uintptr_t)PLAT_CRYPTOCELL_BASE, data_ptr,
 			     data_len, pubKeyHash);
-	if (error != CC_OK)
+	if (error != CC_OK) {
 		return CRYPTO_ERR_HASH;
+	}
 
 	rc = memcmp(pubKeyHash, hash, HASH_RESULT_SIZE_IN_BYTES);
-	if (rc != 0)
+	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
+	}
 
 	return CRYPTO_SUCCESS;
 }
