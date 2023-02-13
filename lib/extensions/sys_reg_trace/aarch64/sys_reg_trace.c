@@ -12,16 +12,26 @@
 
 void sys_reg_trace_enable(cpu_context_t *ctx)
 {
-	uint64_t val;
-
-	/* Retrieve CPTR_EL3 value from the given context 'ctx',
-	 * and update CPTR_EL3.TTA bit to 0.
-	 * This function is called while switching context to NS to
-	 * allow system trace register access to NS-EL2 and NS-EL1
-	 * when NS-EL2 is implemented but not used.
+	/*
+	 * CPTR_EL3.TTA: Set to zero so that System register accesses to the
+	 *  trace registers do not trap to EL3.
 	 */
-	val = read_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3);
-	val &= ~TTA_BIT;
+	uint64_t val = read_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3);
+
+	val &= ~(TTA_BIT);
+	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, val);
+}
+
+void sys_reg_trace_disable(cpu_context_t *ctx)
+{
+	/*
+	 * CPTR_EL3.TTA: Set to one so that System register accesses to the
+	 *  trace registers trap to EL3, unless it is trapped by CPACR.TRCDIS,
+	 *  CPACR_EL1.TTA, or CPTR_EL2.TTA
+	 */
+	uint64_t val = read_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3);
+
+	val |= TTA_BIT;
 	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, val);
 }
 

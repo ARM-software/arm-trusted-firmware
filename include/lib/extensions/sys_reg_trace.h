@@ -13,6 +13,7 @@
 
 #if __aarch64__
 void sys_reg_trace_enable(cpu_context_t *context);
+void sys_reg_trace_disable(cpu_context_t *context);
 void sys_reg_trace_init_el2_unused(void);
 #else
 void sys_reg_trace_init_el3(void);

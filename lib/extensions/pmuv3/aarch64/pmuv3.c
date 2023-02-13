@@ -82,9 +82,12 @@ void pmuv3_init_el3(void)
 	 *   0  |  1   |    enabled   | disabled
 	 *   1  |  1   |    enabled   | disabled only for counters 0 to
 	 *                              MDCR_EL2.HPMN - 1. Enabled for the rest
+	 *
+	 * MDCR_EL3.TPM: Set to zero so that EL0, EL1, and EL2 System register
+	 *  accesses to all Performance Monitors registers do not trap to EL3.
 	 */
 	mdcr_el3 = (mdcr_el3 | MDCR_SCCD_BIT | MDCR_MCCD_BIT) &
-		  ~(MDCR_MPMX_BIT | MDCR_SPME_BIT);
+		  ~(MDCR_MPMX_BIT | MDCR_SPME_BIT | MDCR_TPM_BIT);
 	mdcr_el3 = mtpmu_disable_el3(mdcr_el3);
 	write_mdcr_el3(mdcr_el3);
 

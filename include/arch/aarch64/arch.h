@@ -596,7 +596,7 @@
 #define MDCR_SBRBE_MASK		ULL(0x3)
 #define MDCR_NSTB(x)		((x) << 24)
 #define MDCR_NSTB_EL1		ULL(0x3)
-#define MDCR_NSTBE		(ULL(1) << 26)
+#define MDCR_NSTBE_BIT		(ULL(1) << 26)
 #define MDCR_MTPME_BIT		(ULL(1) << 28)
 #define MDCR_TDCC_BIT		(ULL(1) << 27)
 #define MDCR_SCCD_BIT		(ULL(1) << 23)

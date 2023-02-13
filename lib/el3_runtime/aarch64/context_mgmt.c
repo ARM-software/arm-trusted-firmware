@@ -662,6 +662,11 @@ static void manage_extensions_secure(cpu_context_t *ctx)
 			sme_disable(ctx);
 		}
 	}
+
+	/* NS can access this but Secure shouldn't */
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_disable(ctx);
+	}
 #endif /* IMAGE_BL31 */
 }
 
