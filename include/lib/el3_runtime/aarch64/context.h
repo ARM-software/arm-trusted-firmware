@@ -445,24 +445,24 @@ typedef struct cpu_context {
  * ensure that the assembler and the compiler view of the offsets of
  * the structure members is the same.
  */
-CASSERT(CTX_GPREGS_OFFSET == __builtin_offsetof(cpu_context_t, gpregs_ctx), \
+CASSERT(CTX_GPREGS_OFFSET == __builtin_offsetof(cpu_context_t, gpregs_ctx),
 	assert_core_context_gp_offset_mismatch);
-CASSERT(CTX_EL1_SYSREGS_OFFSET == __builtin_offsetof(cpu_context_t, el1_sysregs_ctx), \
+CASSERT(CTX_EL1_SYSREGS_OFFSET == __builtin_offsetof(cpu_context_t, el1_sysregs_ctx),
 	assert_core_context_el1_sys_offset_mismatch);
 #if CTX_INCLUDE_EL2_REGS
-CASSERT(CTX_EL2_SYSREGS_OFFSET == __builtin_offsetof(cpu_context_t, el2_sysregs_ctx), \
+CASSERT(CTX_EL2_SYSREGS_OFFSET == __builtin_offsetof(cpu_context_t, el2_sysregs_ctx),
 	assert_core_context_el2_sys_offset_mismatch);
 #endif
 #if CTX_INCLUDE_FPREGS
-CASSERT(CTX_FPREGS_OFFSET == __builtin_offsetof(cpu_context_t, fpregs_ctx), \
+CASSERT(CTX_FPREGS_OFFSET == __builtin_offsetof(cpu_context_t, fpregs_ctx),
 	assert_core_context_fp_offset_mismatch);
 #endif
-CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context_t, el3state_ctx), \
+CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context_t, el3state_ctx),
 	assert_core_context_el3state_offset_mismatch);
-CASSERT(CTX_CVE_2018_3639_OFFSET == __builtin_offsetof(cpu_context_t, cve_2018_3639_ctx), \
+CASSERT(CTX_CVE_2018_3639_OFFSET == __builtin_offsetof(cpu_context_t, cve_2018_3639_ctx),
 	assert_core_context_cve_2018_3639_offset_mismatch);
 #if CTX_INCLUDE_PAUTH_REGS
-CASSERT(CTX_PAUTH_REGS_OFFSET == __builtin_offsetof(cpu_context_t, pauth_ctx), \
+CASSERT(CTX_PAUTH_REGS_OFFSET == __builtin_offsetof(cpu_context_t, pauth_ctx),
 	assert_core_context_pauth_offset_mismatch);
 #endif
 

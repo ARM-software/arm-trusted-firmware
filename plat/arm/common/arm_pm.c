@@ -191,7 +191,7 @@ void plat_arm_program_trusted_mailbox(uintptr_t address)
 	 * ARM_SHARED_RAM region.
 	 */
 	assert((PLAT_ARM_TRUSTED_MAILBOX_BASE >= ARM_SHARED_RAM_BASE) &&
-		((PLAT_ARM_TRUSTED_MAILBOX_BASE + sizeof(*mailbox)) <= \
+		((PLAT_ARM_TRUSTED_MAILBOX_BASE + sizeof(*mailbox)) <=
 				(ARM_SHARED_RAM_BASE + ARM_SHARED_RAM_SIZE)));
 }
 

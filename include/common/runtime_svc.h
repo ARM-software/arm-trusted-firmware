@@ -90,11 +90,11 @@ typedef struct rt_svc_desc {
  * 3. ensure that the assembler and the compiler see the handler
  *    routine at the same offset.
  */
-CASSERT((sizeof(rt_svc_desc_t) == SIZEOF_RT_SVC_DESC), \
+CASSERT((sizeof(rt_svc_desc_t) == SIZEOF_RT_SVC_DESC),
 	assert_sizeof_rt_svc_desc_mismatch);
-CASSERT(RT_SVC_DESC_INIT == __builtin_offsetof(rt_svc_desc_t, init), \
+CASSERT(RT_SVC_DESC_INIT == __builtin_offsetof(rt_svc_desc_t, init),
 	assert_rt_svc_desc_init_offset_mismatch);
-CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle), \
+CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle),
 	assert_rt_svc_desc_handle_offset_mismatch);
 
 

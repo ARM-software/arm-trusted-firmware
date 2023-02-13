@@ -246,8 +246,8 @@ int32_t nvg_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t en
 	 * StandbyWFI or the equivalent signal, and always keeping the IDLE
 	 * voltage/frequency request register enabled.
 	 */
-	val = (((freq & MCE_AUTO_CC3_FREQ_MASK) << MCE_AUTO_CC3_FREQ_SHIFT) |\
-		((volt & MCE_AUTO_CC3_VTG_MASK) << MCE_AUTO_CC3_VTG_SHIFT) |\
+	val = (((freq & MCE_AUTO_CC3_FREQ_MASK) << MCE_AUTO_CC3_FREQ_SHIFT) |
+		((volt & MCE_AUTO_CC3_VTG_MASK) << MCE_AUTO_CC3_VTG_SHIFT) |
 		((enable != 0U) ? MCE_AUTO_CC3_ENABLE_BIT : 0U));
 
 	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CC3_CTRL, (uint64_t)val);

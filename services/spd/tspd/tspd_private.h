@@ -146,7 +146,7 @@ DEFINE_REG_STRUCT(c_rt_regs, TSPD_C_RT_CTX_ENTRIES);
  * have the same double word aligned view of the size of the C runtime
  * register context.
  */
-CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),	\
+CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),
 	assert_spd_c_rt_regs_size_mismatch);
 
 /* SEL1 Secure payload (SP) caller saved register context structure. */
@@ -157,7 +157,7 @@ DEFINE_REG_STRUCT(sp_ctx_regs, TSPD_SP_CTX_ENTRIES);
  * have the same double word aligned view of the size of the C runtime
  * register context.
  */
-CASSERT(TSPD_SP_CTX_SIZE == sizeof(sp_ctx_regs_t),	\
+CASSERT(TSPD_SP_CTX_SIZE == sizeof(sp_ctx_regs_t),
 	assert_spd_sp_regs_size_mismatch);
 
 /*******************************************************************************

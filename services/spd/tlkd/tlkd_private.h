@@ -85,7 +85,7 @@ DEFINE_REG_STRUCT(c_rt_regs, TLKD_C_RT_CTX_ENTRIES);
  * have the same double word aligned view of the size of the C runtime
  * register context.
  */
-CASSERT(TLKD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),	\
+CASSERT(TLKD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),
 	assert_tlkd_c_rt_regs_size_mismatch);
 
 /*******************************************************************************

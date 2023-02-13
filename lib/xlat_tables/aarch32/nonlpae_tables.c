@@ -518,9 +518,9 @@ void enable_mmu_svc_mon(unsigned int flags)
 	/* Enable Access flag (simplified access permissions) and TEX remap */
 	write_sctlr(read_sctlr() | SCTLR_AFE_BIT | SCTLR_TRE_BIT);
 
-	prrr = MMU32B_PRRR_IDX(MMU32B_ATTR_DEVICE_INDEX, 1, 0) \
+	prrr = MMU32B_PRRR_IDX(MMU32B_ATTR_DEVICE_INDEX, 1, 0)
 			| MMU32B_PRRR_IDX(MMU32B_ATTR_IWBWA_OWBWA_INDEX, 2, 1);
-	nmrr = MMU32B_NMRR_IDX(MMU32B_ATTR_DEVICE_INDEX, 0, 0) \
+	nmrr = MMU32B_NMRR_IDX(MMU32B_ATTR_DEVICE_INDEX, 0, 0)
 			| MMU32B_NMRR_IDX(MMU32B_ATTR_IWBWA_OWBWA_INDEX, 1, 1);
 
 	prrr |= MMU32B_PRRR_NS1 | MMU32B_PRRR_DS1;

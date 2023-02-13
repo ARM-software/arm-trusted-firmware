@@ -38,7 +38,7 @@ void plat_sdei_setup(void)
 	}
 
 	for (i = 0; i < FCONF_GET_PROPERTY(sdei, dyn_config, shared_ev_cnt); i++) {
-		arm_sdei_shared[i] = (sdei_ev_map_t)SDEI_SHARED_EVENT( \
+		arm_sdei_shared[i] = (sdei_ev_map_t)SDEI_SHARED_EVENT(
 			FCONF_GET_PROPERTY(sdei, dyn_config, shared_ev_nums[i]),
 			FCONF_GET_PROPERTY(sdei, dyn_config, shared_ev_intrs[i]),
 			FCONF_GET_PROPERTY(sdei, dyn_config, shared_ev_flags[i]));

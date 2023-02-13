@@ -474,5 +474,5 @@ static int get_auth_param(const auth_param_type_desc_t *type_desc,
 	return rc;
 }
 
-REGISTER_IMG_PARSER_LIB(IMG_CERT, LIB_NAME, init, \
+REGISTER_IMG_PARSER_LIB(IMG_CERT, LIB_NAME, init,
 		       check_integrity, get_auth_param);

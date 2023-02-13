@@ -90,8 +90,8 @@ void bl1_plat_prepare_exit(entry_point_info_t *ep_info);
 /*
  * Check if the total number of FWU SMC calls are as expected.
  */
-CASSERT(FWU_NUM_SMC_CALLS == 	\
-		(FWU_SMC_FID_END - FWU_SMC_FID_START + 1),\
+CASSERT(FWU_NUM_SMC_CALLS ==
+		(FWU_SMC_FID_END - FWU_SMC_FID_START + 1),
 		assert_FWU_NUM_SMC_CALLS_mismatch);
 
 /* Utility functions */
