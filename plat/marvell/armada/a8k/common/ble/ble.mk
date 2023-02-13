@@ -21,7 +21,7 @@ MV_DDR_INCLUDES		:=	-I$(CURDIR)/include				\
 				-I$(CURDIR)/include/lib/libc			\
 				-I$(CURDIR)/include/lib/libc/aarch64
 
-BLE_LINKERFILE		:=	$(BLE_PATH)/ble.ld.S
+BLE_DEFAULT_LINKER_SCRIPT_SOURCE := $(BLE_PATH)/ble.ld.S
 
 BLE_OBJS := $(addprefix $(BUILD_PLAT)/ble/,$(call SOURCES_TO_OBJS,$(BLE_SOURCES)))
 $(BLE_OBJS): PLAT_INCLUDES += -I$(MV_DDR_PATH)

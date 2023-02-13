@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -54,7 +54,7 @@ ifeq (${ENABLE_TRF_FOR_NS},1)
 BL32_SOURCES		+=	lib/extensions/trf/aarch32/trf.c
 endif
 
-BL32_LINKERFILE	:=	bl32/sp_min/sp_min.ld.S
+BL32_DEFAULT_LINKER_SCRIPT_SOURCE := bl32/sp_min/sp_min.ld.S
 
 # Include the platform-specific SP_MIN Makefile
 # If no platform-specific SP_MIN Makefile exists, it means SP_MIN is not supported

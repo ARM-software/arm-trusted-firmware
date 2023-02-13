@@ -61,31 +61,6 @@ define MAKE_LOCALS
 $(eval $(call uppercase,$(2))_SOURCES += $(1))
 endef
 
-# MAKE_LINKERFILE change linker script source file name to
-# target linker script
-#   $(1) = linker script source file
-#   $(2) = BL stage
-define MAKE_LINKERFILE
-$(eval EXTRA_GENERATED_LINKER_SCRIPT += $(BUILD_PLAT)/$(2)/$(patsubst %.ld.S,%.ld,$(notdir $(1))))
-endef
-
-# MAKE_LINKERFILE_ITER call MAKE_LINKERFILE iteratively
-#   $(1) = linker script source file
-#   $(2) = BL stage
-define MAKE_LINKERFILE_ITER
-$(eval $(foreach link_src,$(1),$(call MAKE_LINKERFILE,$(link_src),$(2))))
-endef
-
-# MAKE_LD_ITER generate the linker scripts using the C preprocessor iteratively
-#   $(1) = output linker script
-#   $(2) = input template
-#   $(3) = BL stage (1, 2, 2u, 31, 32)
-define MAKE_LD_ITER
-$(eval index_list=$(shell seq $(words $(1))))
-$(eval $(foreach i, $(index_list), \
-$(call MAKE_LD,$(word $(i), $(1)), $(word $(i), $(2)),$(3))))
-endef
-
 # MAKE_MODULE reference MAKE_OBJS.
 # Create module folder under out/bl$(BL)/$(module)
 # Arguments:
