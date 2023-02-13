@@ -1,0 +1,39 @@
+@startuml
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+box AP
+participant RMM
+participant BL31
+endbox
+box RSS
+participant DelegAttest
+participant InitAttest
+participant MeasuredBoot
+participant Crypto
+endbox
+
+== RMM Boot phase ==
+
+RMM -> BL31: get_realm_key(\n\t**hash_algo**, ...)
+BL31 -> DelegAttest: get_delegated_key
+DelegAttest -> MeasuredBoot: read_measurement
+Rnote over DelegAttest: Compute input\n\ for key derivation\n\ (hash of measurements)
+DelegAttest -> Crypto: derive_key
+Rnote over DelegAttest: Compute public key\n\ hash with **hash_algo**.
+Rnote over Crypto: Seed is provisioned\n\ in the factory.
+DelegAttest --> BL31: get_delegated_key
+BL31 --> RMM: get_realm_key
+Rnote over RMM: Only private key\n\ is returned. Public\n\ key and its hash\n\ must be computed.\n\
+Public key is included\n\ in the realm token.\n\ Its hash is the input\n\ for get_platform_token
+RMM -> BL31: get_platform_token(\n\t**pub_key_hash**, ...)
+BL31 -> DelegAttest: get_delegated_token
+Rnote over DelegAttest: Check **pub_key_hash**\n\ against derived key.
+DelegAttest -> InitAttest: get_initial_token
+Rnote over InitAttest: Create the token including\n\ the **pub_key_hash** as the\n\ challenge claim
+InitAttest -> MeasuredBoot: read_measurement
+InitAttest -> Crypto: sign_token
+InitAttest --> DelegAttest:  get_initial_token
+DelegAttest --> BL31: get_delegated_token
+BL31 --> RMM: get_platform_token
+Rnote over RMM: Platform token is\n\ cached. It is not\n\ changing within\n\ a power cycle.
+@enduml
