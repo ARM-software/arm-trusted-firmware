@@ -14,12 +14,16 @@ void trf_init_el3(void)
 	u_register_t val;
 
 	/*
+	 * MDCR_EL3.STE = b0
+	 * Trace prohibited in Secure state unless overridden by the
+	 * IMPLEMENTATION DEFINED authentication interface.
+	 *
 	 * MDCR_EL3.TTRF = b0
 	 * Allow access of trace filter control registers from NS-EL2
 	 * and NS-EL1 when NS-EL2 is implemented but not used
 	 */
 	val = read_mdcr_el3();
-	val &= ~MDCR_TTRF_BIT;
+	val &= ~(MDCR_STE_BIT | MDCR_TTRF_BIT);
 	write_mdcr_el3(val);
 }
 

@@ -612,6 +612,7 @@
 #define MDCR_SPD32_ENABLE	ULL(0x3)
 #define MDCR_NSPB(x)		((x) << 12)
 #define MDCR_NSPB_EL1		ULL(0x3)
+#define MDCR_NSPBE_BIT		(ULL(1) << 11)
 #define MDCR_TDOSA_BIT		(ULL(1) << 10)
 #define MDCR_TDA_BIT		(ULL(1) << 9)
 #define MDCR_TPM_BIT		(ULL(1) << 6)
