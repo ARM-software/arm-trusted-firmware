@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,7 +9,8 @@
 #
 VERSION_MAJOR			:= 2
 VERSION_MINOR			:= 8
-VERSION				:= ${VERSION_MAJOR}.${VERSION_MINOR}
+VERSION_PATCH			:= 0
+VERSION				:= ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
 
 # Default goal is build all images
 .DEFAULT_GOAL			:= all
@@ -327,7 +328,7 @@ endif
 ifeq (${BUILD_STRING},)
         BUILD_STRING  :=  $(shell git describe --always --dirty --tags 2> /dev/null)
 endif
-VERSION_STRING    :=  v${VERSION}(${BUILD_TYPE}):${BUILD_STRING}
+VERSION_STRING    :=  lts-v${VERSION}(${BUILD_TYPE}):${BUILD_STRING}
 
 ifeq (${AARCH32_INSTRUCTION_SET},A32)
 TF_CFLAGS_aarch32	+=	-marm
