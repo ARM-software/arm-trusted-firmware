@@ -268,7 +268,7 @@ static int32_t _cal_pll_data(uint32_t *pd, uint32_t *dds, uint32_t freq)
  * @pll_idx: Which PLL to enable/disable
  * @on: 1 -> enable, 0 -> disable.
  *
- * This funciton will only change RG_PLL_EN of CON1 for pll[pll_idx].
+ * This function will only change RG_PLL_EN of CON1 for pll[pll_idx].
  *
  * Context: Any context.
  */
@@ -286,7 +286,7 @@ static void _pll_en(uint32_t pll_idx, bool on)
  * @pll_idx: Which PLL to enable/disable
  * @on: 1 -> enable, 0 -> disable.
  *
- * This funciton will only change PLL_SDM_PWR_ON of CON3 for pll[pll_idx].
+ * This function will only change PLL_SDM_PWR_ON of CON3 for pll[pll_idx].
  *
  * Context: Any context.
  */
@@ -304,7 +304,7 @@ static void _pll_pwr(uint32_t pll_idx, bool on)
  * @pll_idx: Which PLL to enable/disable
  * @enable: 1 -> turn on isolation, 0 -> turn off isolation.
  *
- * This funciton will turn on/off pll isolation by
+ * This function will turn on/off pll isolation by
  * changing PLL_SDM_PWR_ON of CON3 for pll[pll_idx].
  *
  * Context: Any context.
@@ -324,7 +324,7 @@ static void _pll_iso(uint32_t pll_idx, bool enable)
  * @on: 1 -> enable, 0 -> disable.
  * @fhctl_en: enable or disable fhctl function
  *
- * This is the entry poing for controlling pll and fhctl funciton on/off.
+ * This is the entry poing for controlling pll and fhctl function on/off.
  * Caller can chose only enable pll instead of fhctl function.
  *
  * Context: Any context.

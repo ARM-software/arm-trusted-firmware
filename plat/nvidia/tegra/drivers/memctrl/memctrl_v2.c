@@ -301,7 +301,7 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	if (video_mem_base != 0U) {
 		/*
 		 * Lock the non overlapping memory being cleared so that
-		 * other masters do not accidently write to it. The memory
+		 * other masters do not accidentally write to it. The memory
 		 * would be unlocked once the non overlapping region is
 		 * cleared and the new memory settings take effect.
 		 */

@@ -174,7 +174,7 @@ void bl31_platform_setup(void)
 	soc_platform_setup();
 
 	/* Console logs gone missing as part going to
-	 * EL1 for initilizing Bl32 if present.
+	 * EL1 for initializing Bl32 if present.
 	 * console flush is necessary to avoid it.
 	 */
 	(void)console_flush();

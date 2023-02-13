@@ -695,7 +695,7 @@ int stm32_pka_ecdsa_verif(void *hash, unsigned int hash_size,
 	mmio_setbits_32(base + _PKA_CLRFR, _PKA_IT_PROCEND);
 
 out:
-	/* Disable PKA (will stop all pending proccess and reset RAM) */
+	/* Disable PKA (will stop all pending process and reset RAM) */
 	pka_disable(base);
 
 	return ret;

@@ -272,7 +272,7 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 	/* Make room for new region by moving other regions up by one place */
 	(void)memmove(mm + 1, mm, (uintptr_t)mm_last - (uintptr_t)mm);
 
-	/* Check we haven't lost the empty sentinal from the end of the array */
+	/* Check we haven't lost the empty sentinel from the end of the array */
 	assert(mm_last->size == 0U);
 
 	mm->base_pa = base_pa;

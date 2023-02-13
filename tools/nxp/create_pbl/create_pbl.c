@@ -912,7 +912,7 @@ int main(int argc, char **argv)
 		while (word != 0x808f0000 && word != 0x80ff0000) {
 			pbl_size++;
 			/* 11th words in RCW has PBL length. Update it
-			 * with new length. 2 comamnds get added
+			 * with new length. 2 commands get added
 			 * Block copy + CCSR Write/CSF header write
 			 */
 			if (pbl_size == 11) {

@@ -17,7 +17,7 @@
 
 /**
  * Current version - Major version increments may break backwards
- * compatiblity and binary compatibility. Minor version increments
+ * compatibility and binary compatibility. Minor version increments
  * occur when there is only new functionality.
  */
 enum {

@@ -119,7 +119,7 @@ static int32_t chal_sd_set_power(struct sd_dev *handle,
 		mmio_setbits_32(handle->ctrl.sdRegBaseAddr + SD4_EMMC_TOP_CTRL_OFFSET,
 				SD4_EMMC_TOP_CTRL_SDPWR_MASK);
 
-	/* dummy write & ack to verify if the sdio is ready to send commads */
+	/* dummy write & ack to verify if the sdio is ready to send commands */
 	mmio_write_32(handle->ctrl.sdRegBaseAddr + SD4_EMMC_TOP_ARG_OFFSET, 0);
 	mmio_write_32(handle->ctrl.sdRegBaseAddr + SD4_EMMC_TOP_CMD_OFFSET, 0);
 
@@ -600,7 +600,7 @@ uint32_t chal_sd_freq_2_div_ctrl_setting(uint32_t desired_freq)
 
 	if (actual_freq > desired_freq) {
 		/*
-		 * Division does not result in exact freqency match.
+		 * Division does not result in exact frequency match.
 		 * Make sure resulting frequency does not exceed requested freq.
 		 */
 		div_ctrl_setting++;

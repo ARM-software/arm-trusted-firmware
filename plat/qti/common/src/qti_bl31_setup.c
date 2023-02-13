@@ -81,7 +81,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 /*******************************************************************************
  * Perform the very early platform specific architectural setup here. At the
- * moment this only intializes the mmu in a quick and dirty way.
+ * moment this only initializes the mmu in a quick and dirty way.
  ******************************************************************************/
 void bl31_plat_arch_setup(void)
 {

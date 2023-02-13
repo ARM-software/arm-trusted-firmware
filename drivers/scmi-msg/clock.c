@@ -344,7 +344,7 @@ static void scmi_clock_describe_rates(struct scmi_msg *msg)
 		scmi_status_response(msg, status);
 	} else {
 		/*
-		 * Message payload is already writen to msg->out, and
+		 * Message payload is already written to msg->out, and
 		 * msg->out_size_out updated.
 		 */
 	}

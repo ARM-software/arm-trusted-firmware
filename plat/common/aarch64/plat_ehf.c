@@ -27,7 +27,7 @@ ehf_pri_desc_t plat_exceptions[] = {
 #if SPM_MM
 	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_SP_PRI),
 #endif
-	/* Plaform specific exceptions description */
+	/* Platform specific exceptions description */
 #ifdef PLAT_EHF_DESC
 	PLAT_EHF_DESC,
 #endif

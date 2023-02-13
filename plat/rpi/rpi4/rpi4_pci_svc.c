@@ -11,7 +11,7 @@
  * it. Given that it's not ECAM compliant yet reasonably simple, it makes for
  * an excellent example of the PCI SMCCC interface.
  *
- * The PCI SMCCC interface is described in DEN0115 availabe from:
+ * The PCI SMCCC interface is described in DEN0115 available from:
  * https://developer.arm.com/documentation/den0115/latest
  */
 

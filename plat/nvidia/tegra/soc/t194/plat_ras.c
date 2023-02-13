@@ -284,7 +284,7 @@ static int32_t tegra194_ras_node_handler(uint32_t errselr, const char *name,
 	ERROR("RAS Error in %s, ERRSELR_EL1=0x%x:\n", name, errselr);
 	ERROR("\tStatus = 0x%" PRIx64 "\n", status);
 
-	/* Print uncorrectable errror information. */
+	/* Print uncorrectable error information. */
 	if (ERR_STATUS_GET_FIELD(status, UE) != 0U) {
 
 		ERR_STATUS_SET_FIELD(val, UE, 1);

@@ -254,7 +254,7 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 	/*
 	 * The current secure partition design mandates
 	 * - at any point, only a single core can be
-	 *   executing in the secure partiton.
+	 *   executing in the secure partition.
 	 * - a core cannot be preempted by an interrupt
 	 *   while executing in secure partition.
 	 * Raise the running priority of the core to the

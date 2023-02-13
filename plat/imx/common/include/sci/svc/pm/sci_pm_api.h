@@ -294,7 +294,7 @@ sc_err_t sc_pm_get_sys_power_mode(sc_ipc_t ipc, sc_rm_pt_t pt,
  * Note some resources are still not accessible even when powered up if bus
  * transactions go through a fabric not powered up. Examples of this are
  * resources in display and capture subsystems which require the display
- * controller or the imaging subsytem to be powered up first.
+ * controller or the imaging subsystem to be powered up first.
  *
  * Not that resources are grouped into power domains by the underlying
  * hardware. If any resource in the domain is on, the entire power domain

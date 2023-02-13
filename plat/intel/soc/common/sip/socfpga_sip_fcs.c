@@ -1804,7 +1804,7 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_i
 
 	/*
 	 * Source data must be 4 bytes aligned
-	 * Source addrress must be 8 bytes aligned
+	 * Source address must be 8 bytes aligned
 	 * User data must be 8 bytes aligned
 	 */
 	if ((dst_size == NULL) || (mbox_error == NULL) ||

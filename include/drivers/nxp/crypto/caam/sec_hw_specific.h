@@ -221,7 +221,7 @@ typedef struct {
  /*  Lists the possible states for a job ring. */
 typedef enum sec_job_ring_state_e {
 	SEC_JOB_RING_STATE_STARTED,	/* Job ring is initialized */
-	SEC_JOB_RING_STATE_RESET,	/* Job ring reset is in progres */
+	SEC_JOB_RING_STATE_RESET,	/* Job ring reset is in progress */
 } sec_job_ring_state_t;
 
 struct sec_job_ring_t {

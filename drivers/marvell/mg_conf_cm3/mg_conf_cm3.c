@@ -55,7 +55,7 @@ int mg_image_load(uintptr_t src_addr, uint32_t size, int cp_index)
 
 	/* Don't release MG CM3 from reset - it will be done by next step
 	 * bootloader (e.g. U-Boot), when appriopriate device-tree setup (which
-	 * has enabeld 802.3. auto-neg) will be choosen.
+	 * has enabeld 802.3. auto-neg) will be chosen.
 	 */
 
 	return 0;

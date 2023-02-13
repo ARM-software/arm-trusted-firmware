@@ -457,7 +457,7 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 void __init cm_init(void)
 {
 	/*
-	 * The context management library has only global data to intialize, but
+	 * The context management library has only global data to initialize, but
 	 * that will be done when the BSS is zeroed out.
 	 */
 }

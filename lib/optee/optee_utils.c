@@ -180,7 +180,7 @@ int parse_optee_header(entry_point_info_t *header_ep,
 
 	/*
 	 * Update "pc" value which should comes from pager image. After the
-	 * header image is parsed, it will be unuseful, and the actual
+	 * header image is parsed, it will be useless, and the actual
 	 * execution image after BL31 is pager image.
 	 */
 	header_ep->pc =	pager_image_info->image_base;

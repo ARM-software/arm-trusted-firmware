@@ -262,7 +262,7 @@ void bl31_plat_runtime_setup(void)
 
 /*******************************************************************************
  * Perform the very early platform specific architectural setup here. At the
- * moment this only intializes the mmu in a quick and dirty way.
+ * moment this only initializes the mmu in a quick and dirty way.
  ******************************************************************************/
 void bl31_plat_arch_setup(void)
 {

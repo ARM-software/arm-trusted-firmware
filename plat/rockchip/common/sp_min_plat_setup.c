@@ -82,7 +82,7 @@ void sp_min_platform_setup(void)
 
 /*******************************************************************************
  * Perform the very early platform specific architectural setup here. At the
- * moment this is only intializes the mmu in a quick and dirty way.
+ * moment this is only initializes the mmu in a quick and dirty way.
  ******************************************************************************/
 void sp_min_plat_arch_setup(void)
 {

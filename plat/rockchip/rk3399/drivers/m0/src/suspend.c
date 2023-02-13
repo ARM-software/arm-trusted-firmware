@@ -30,7 +30,7 @@ __attribute__((noreturn)) void m0_main(void)
 	}
 
 	/*
-	 * FSM power secquence is .. -> ST_INPUT_CLAMP(step.17) -> .. ->
+	 * FSM power sequence is .. -> ST_INPUT_CLAMP(step.17) -> .. ->
 	 * ST_WAKEUP_RESET -> ST_EXT_PWRUP-> ST_RELEASE_CLAMP ->
 	 * ST_24M_OSC_EN -> .. -> ST_WAKEUP_RESET_CLR(step.26) -> ..,
 	 * INPUT_CLAMP and WAKEUP_RESET will hold the SOC not affect by

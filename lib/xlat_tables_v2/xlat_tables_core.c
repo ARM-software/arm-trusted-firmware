@@ -988,7 +988,7 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 		     (uintptr_t)mm_last - (uintptr_t)mm_cursor);
 
 	/*
-	 * Check we haven't lost the empty sentinal from the end of the array.
+	 * Check we haven't lost the empty sentinel from the end of the array.
 	 * This shouldn't happen as we have checked in mmap_add_region_check
 	 * that there is free space.
 	 */

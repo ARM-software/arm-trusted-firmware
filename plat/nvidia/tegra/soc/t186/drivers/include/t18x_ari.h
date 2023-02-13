@@ -40,7 +40,7 @@ typedef enum {
 	/* index 83 is deprecated */
 	TEGRA_ARI_PERFMON = 84U,
 	TEGRA_ARI_UPDATE_CCPLEX_GSC = 85U,
-	/* index 86 is depracated */
+	/* index 86 is deprecated */
 	/* index 87 is deprecated */
 	TEGRA_ARI_ROC_FLUSH_CACHE_ONLY = 88U,
 	TEGRA_ARI_ROC_FLUSH_CACHE_TRBITS = 89U,

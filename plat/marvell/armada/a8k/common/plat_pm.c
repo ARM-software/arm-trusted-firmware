@@ -423,7 +423,7 @@ static int a8k_pwr_domain_on(u_register_t mpidr)
 	} else
 #endif
 	{
-		/* proprietary CPU ON exection flow */
+		/* proprietary CPU ON execution flow */
 		plat_marvell_cpu_on(mpidr);
 	}
 	return 0;

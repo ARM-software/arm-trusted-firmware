@@ -264,7 +264,7 @@
 #define TCP10_BIT		(U(1) << 10)
 #define HCPTR_RESET_VAL		HCPTR_RES1
 
-/* VTTBR defintions */
+/* VTTBR definitions */
 #define VTTBR_RESET_VAL		ULL(0x0)
 #define VTTBR_VMID_MASK		ULL(0xff)
 #define VTTBR_VMID_SHIFT	U(48)

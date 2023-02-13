@@ -2053,7 +2053,7 @@ static int mvebu_cp110_comphy_usb3_power_on(uint64_t comphy_base,
 	mask |= HPIPE_LANE_CFG4_SSC_CTRL_MASK;
 	data |= 0x1 << HPIPE_LANE_CFG4_SSC_CTRL_OFFSET;
 	reg_set(hpipe_addr + HPIPE_LANE_CFG4_REG, data, mask);
-	/* Confifure SSC amplitude */
+	/* Configure SSC amplitude */
 	mask = HPIPE_G2_TX_SSC_AMP_MASK;
 	data = 0x1f << HPIPE_G2_TX_SSC_AMP_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G2_SET_2_REG, data, mask);

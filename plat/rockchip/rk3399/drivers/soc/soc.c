@@ -343,7 +343,7 @@ void __dead2 soc_global_soft_reset(void)
 
 	/*
 	 * Maybe the HW needs some times to reset the system,
-	 * so we do not hope the core to excute valid codes.
+	 * so we do not hope the core to execute valid codes.
 	 */
 	while (1)
 		;

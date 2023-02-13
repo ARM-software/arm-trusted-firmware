@@ -1696,7 +1696,7 @@ static int to_get_clk_index(unsigned int mhz)
 
 	pll_cnt = ARRAY_SIZE(dpll_rates_table);
 
-	/* Assumming rate_table is in descending order */
+	/* Assuming rate_table is in descending order */
 	for (i = 0; i < pll_cnt; i++) {
 		if (mhz >= dpll_rates_table[i].mhz)
 			break;

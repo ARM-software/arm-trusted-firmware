@@ -103,7 +103,7 @@ struct dram_timing_t {
 	uint32_t tcksre;
 	uint32_t tcksrx;
 	uint32_t tdpd;
-	/* mode regiter timing */
+	/* mode register timing */
 	uint32_t tmod;
 	uint32_t tmrd;
 	uint32_t tmrr;

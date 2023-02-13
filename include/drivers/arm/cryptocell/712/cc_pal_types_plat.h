@@ -9,7 +9,7 @@
 */
 #ifndef _CC_PAL_TYPES_PLAT_H
 #define _CC_PAL_TYPES_PLAT_H
-/* Host specific types for standard (ISO-C99) compilant platforms */
+/* Host specific types for standard (ISO-C99) compliant platforms */
 
 #include <stddef.h>
 #include <stdint.h>

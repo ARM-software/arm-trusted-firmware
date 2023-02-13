@@ -90,7 +90,7 @@ static int check_cpu_wfie(uint32_t cpu_id, uint32_t wfie_msk)
 
 	/*
 	 * wfe/wfi tracking not possible, hopefully the host
-	 * was sucessful in enabling wfe/wfi.
+	 * was successful in enabling wfe/wfi.
 	 * We'll give a bit of additional time, like the kernel does.
 	 */
 	if ((cluster_id && clstb_cpu_wfe < 0) ||

@@ -149,7 +149,7 @@ inline char *strdup(const char *s)
  * Windows does not have the getopt family of functions, as it normally
  * uses '/' instead of '-' as the command line option delimiter.
  * These functions provide a Windows version that  uses '-', which precludes
- * using '-' as the intial letter of a program argument.
+ * using '-' as the initial letter of a program argument.
  * This is not seen as a problem in the specific instance of fiptool,
  * and enables existing makefiles to work on a Windows build environment.
  */

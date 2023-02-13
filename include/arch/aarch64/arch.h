@@ -752,7 +752,7 @@
 #define HI_VECTOR_BASE		U(0xFFFF0000)
 
 /*
- * TCR defintions
+ * TCR definitions
  */
 #define TCR_EL3_RES1		((ULL(1) << 31) | (ULL(1) << 23))
 #define TCR_EL2_RES1		((ULL(1) << 31) | (ULL(1) << 23))

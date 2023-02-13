@@ -344,7 +344,7 @@ static int esdhc_wait_response(struct mmc *mmc, uint32_t *response)
  * Function    :    mmc_switch_to_high_frquency
  * Arguments   :    mmc - Pointer to mmc struct
  * Return      :    SUCCESS or Error Code
- * Description :    mmc card bellow ver 4.0 does not support high speed
+ * Description :    mmc card below ver 4.0 does not support high speed
  *                  freq = 20 MHz
  *                  Send CMD6 (CMD_SWITCH_FUNC) With args 0x03B90100
  *                  Send CMD13 (CMD_SEND_STATUS)
@@ -358,7 +358,7 @@ static int mmc_switch_to_high_frquency(struct mmc *mmc)
 	uint64_t start_time;
 
 	mmc->card.bus_freq = MMC_SS_20MHZ;
-	/* mmc card bellow ver 4.0 does not support high speed */
+	/* mmc card below ver 4.0 does not support high speed */
 	if (mmc->card.version < MMC_CARD_VERSION_4_X) {
 		return 0;
 	}
@@ -463,7 +463,7 @@ static int esdhc_set_data_attributes(struct mmc *mmc, uint32_t *dest_ptr,
 /***************************************************************************
  * Function    :    esdhc_read_data_nodma
  * Arguments   :    mmc - Pointer to mmc struct
- *                  dest_ptr - Bufffer where read data is to be copied
+ *                  dest_ptr - Buffer where read data is to be copied
  *                  len - Length of Data to be read
  * Return      :    SUCCESS or Error Code
  * Description :    Read data from the sdhc buffer without using DMA
@@ -698,7 +698,7 @@ static int esdhc_write_data_dma(struct mmc *mmc, uint32_t len)
 /***************************************************************************
  * Function    :    esdhc_read_data
  * Arguments   :    mmc - Pointer to mmc struct
- *                  dest_ptr - Bufffer where read data is to be copied
+ *                  dest_ptr - Buffer where read data is to be copied
  *                  len - Length of Data to be read
  * Return      :    SUCCESS or Error Code
  * Description :    Calls esdhc_read_data_nodma and clear interrupt status

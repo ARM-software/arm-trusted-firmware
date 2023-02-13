@@ -168,7 +168,7 @@ void sotp_mem_write(uint32_t addr, uint32_t sotp_add_ecc, uint64_t wdata)
 	       BIT(SOTP_STATUS__FDONE))
 		;
 
-	/*  Enable OTP acces by CPU */
+	/*  Enable OTP access by CPU */
 	mmio_setbits_32(SOTP_PROG_CONTROL,
 			BIT(SOTP_PROG_CONTROL__OTP_CPU_MODE_EN));
 
@@ -244,7 +244,7 @@ void sotp_mem_write(uint32_t addr, uint32_t sotp_add_ecc, uint64_t wdata)
 	/* Command done is cleared w1c */
 	mmio_setbits_32(SOTP_STATUS_1, BIT(SOTP_STATUS_1__CMD_DONE));
 
-	/* disable OTP acces by CPU */
+	/* disable OTP access by CPU */
 	mmio_clrbits_32(SOTP_PROG_CONTROL,
 			BIT(SOTP_PROG_CONTROL__OTP_CPU_MODE_EN));
 

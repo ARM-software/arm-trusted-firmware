@@ -244,7 +244,7 @@ static int abort_err(struct sd_handle *handle)
  * The function handles real data transmission on both DMA and
  * none DMA mode, In None DMA mode the data transfer starts
  * when the command is sent to the card, data has to be written
- * into the host contollers buffer at this time one block
+ * into the host controllers buffer at this time one block
  * at a time.
  * In DMA mode, the real data transfer is done by the DMA engine
  * and this functions just waits for the data transfer to complete.
@@ -318,7 +318,7 @@ int select_blk_sz(struct sd_handle *handle, uint16_t size)
 
 
 /*
- * The function initalizes the SD/SDIO/MMC/CEATA and detects
+ * The function initializes the SD/SDIO/MMC/CEATA and detects
  * the card according to the flag of detection.
  * Once this function is called, the card is put into ready state
  * so application can do data transfer to and from the card.
@@ -393,7 +393,7 @@ int init_card(struct sd_handle *handle, int detection)
 
 
 /*
- * The function handles MMC/CEATA card initalization.
+ * The function handles MMC/CEATA card initialization.
  */
 int init_mmc_card(struct sd_handle *handle)
 {

@@ -15,7 +15,7 @@
 
 #include <sq_common.h>
 
-/* SCMI messge ID to get the available DRAM region */
+/* SCMI message ID to get the available DRAM region */
 #define SCMI_VENDOR_EXT_MEMINFO_GET_MSG		0x3
 
 #define SCMI_VENDOR_EXT_MEMINFO_GET_MSG_LEN	4

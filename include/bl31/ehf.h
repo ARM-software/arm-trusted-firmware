@@ -30,7 +30,7 @@
 		.ehf_handler = EHF_NO_HANDLER_, \
 	}
 
-/* Macro for platforms to regiter its exception priorities */
+/* Macro for platforms to register its exception priorities */
 #define EHF_REGISTER_PRIORITIES(priorities, num, bits) \
 	const ehf_priorities_t exception_data = { \
 		.num_priorities = (num), \

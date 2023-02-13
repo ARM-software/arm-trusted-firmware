@@ -12,7 +12,7 @@
 #include "rcar_private.h"
 #include "../pfc_regs.h"
 
-/* Pin functon bit */
+/* Pin function bit */
 #define GPSR0_DU_EXODDF_DU_ODDF_DISP_CDE	BIT(21)
 #define GPSR0_DU_EXVSYNC_DU_VSYNC		BIT(20)
 #define GPSR0_DU_EXHSYNC_DU_HSYNC		BIT(19)

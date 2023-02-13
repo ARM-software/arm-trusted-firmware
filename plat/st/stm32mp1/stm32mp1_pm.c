@@ -42,7 +42,7 @@ static void stm32_cpu_standby(plat_local_state_t cpu_state)
 	while (interrupt == GIC_SPURIOUS_INTERRUPT) {
 		wfi();
 
-		/* Acknoledge IT */
+		/* Acknowledge IT */
 		interrupt = gicv2_acknowledge_interrupt();
 		/* If Interrupt == 1022 it will be acknowledged by non secure */
 		if ((interrupt != PENDING_G1_INTID) &&

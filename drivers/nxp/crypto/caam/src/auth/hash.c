@@ -106,7 +106,7 @@ int hash_update(enum hash_algo algo, void *context, void *data_ptr,
  * Function	: hash_final
  * Arguments	: ctx - SHA context
  * Return	: SUCCESS or FAILURE
- * Description	: This function sets the final bit and enqueues the decriptor
+ * Description	: This function sets the final bit and enqueues the descriptor
  ***************************************************************************/
 int hash_final(enum hash_algo algo, void *context, void *hash_ptr,
 	       unsigned int hash_len)

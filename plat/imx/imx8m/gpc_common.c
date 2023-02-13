@@ -98,7 +98,7 @@ void imx_set_cpu_lpm(unsigned int core_id, bool pdn)
 		/* assert the pcg pcr bit of the core */
 		mmio_setbits_32(IMX_GPC_BASE + COREx_PGC_PCR(core_id), 0x1);
 	} else {
-		/* disbale CORE WFI PDN & IRQ PUP */
+		/* disable CORE WFI PDN & IRQ PUP */
 		mmio_clrbits_32(IMX_GPC_BASE + LPCR_A53_AD, COREx_WFI_PDN(core_id) |
 				COREx_IRQ_WUP(core_id));
 		/* deassert the pcg pcr bit of the core */
