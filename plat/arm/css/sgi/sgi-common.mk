@@ -8,7 +8,9 @@ CSS_USE_SCMI_SDS_DRIVER		:=	1
 
 CSS_ENT_BASE			:=	plat/arm/css/sgi
 
-RAS_EXTENSION			:=	0
+ENABLE_FEAT_RAS			:=	1
+
+RAS_FFH_SUPPORT			:=	0
 
 SDEI_SUPPORT			:=	0
 
@@ -52,7 +54,7 @@ BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_bl31_setup.c	\
 				${CSS_ENT_BASE}/sgi_topology.c
 
-ifeq (${RAS_EXTENSION},1)
+ifeq (${RAS_FFH_SUPPORT},1)
 BL31_SOURCES		+=	${CSS_ENT_BASE}/sgi_ras.c
 endif
 

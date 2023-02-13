@@ -17,10 +17,10 @@
 	.global	el2_sysregs_context_save_mte
 	.global	el2_sysregs_context_restore_mte
 #endif /* CTX_INCLUDE_MTE_REGS */
-#if RAS_EXTENSION
+#if ENABLE_FEAT_RAS
 	.global	el2_sysregs_context_save_ras
 	.global	el2_sysregs_context_restore_ras
-#endif /* RAS_EXTENSION */
+#endif /* ENABLE_FEAT_RAS */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	.global	el1_sysregs_context_save
@@ -210,7 +210,7 @@ func el2_sysregs_context_restore_mte
 endfunc el2_sysregs_context_restore_mte
 #endif /* CTX_INCLUDE_MTE_REGS */
 
-#if RAS_EXTENSION
+#if ENABLE_FEAT_RAS
 func el2_sysregs_context_save_ras
 	/*
 	 * VDISR_EL2 and VSESR_EL2 registers are saved only when
@@ -232,7 +232,7 @@ func el2_sysregs_context_restore_ras
 	msr	vsesr_el2, x12
 	ret
 endfunc el2_sysregs_context_restore_ras
-#endif /* RAS_EXTENSION */
+#endif /* ENABLE_FEAT_RAS */
 
 #endif /* CTX_INCLUDE_EL2_REGS */
 
@@ -855,7 +855,7 @@ sve_not_enabled:
 1:
 #endif /* IMAGE_BL31 && DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
-#if IMAGE_BL31 && RAS_EXTENSION
+#if IMAGE_BL31 && ENABLE_FEAT_RAS
 	/* ----------------------------------------------------------
 	 * Issue Error Synchronization Barrier to synchronize SErrors
 	 * before exiting EL3. We're running with EAs unmasked, so
@@ -866,7 +866,7 @@ sve_not_enabled:
 	esb
 #else
 	dsb	sy
-#endif /* IMAGE_BL31 && RAS_EXTENSION */
+#endif /* IMAGE_BL31 && ENABLE_FEAT_RAS */
 
 	/* ----------------------------------------------------------
 	 * Restore SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET

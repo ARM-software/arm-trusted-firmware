@@ -295,7 +295,7 @@ void arm_bl31_platform_setup(void)
 	/* Initialize power controller before setting up topology */
 	plat_arm_pwrc_setup();
 
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 	ras_init();
 #endif
 

@@ -387,7 +387,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
 endif
 endif
 
-ifeq (${RAS_EXTENSION},1)
+ifeq (${RAS_FFH_SUPPORT},1)
 BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c
 endif
 

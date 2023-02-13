@@ -11,7 +11,7 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/console.h>
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 #include <lib/extensions/ras.h>
 #endif
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
@@ -81,7 +81,7 @@ const char *get_el_str(unsigned int el)
 void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags)
 {
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 	/* Call RAS EA handler */
 	int handled = ras_ea_handler(ea_reason, syndrome, cookie, handle, flags);
 	if (handled != 0)

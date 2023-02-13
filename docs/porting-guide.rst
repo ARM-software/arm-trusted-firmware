@@ -3418,11 +3418,11 @@ The third parameter (``void *cookie``) is unused for now. The fourth parameter
 (``uint64_t flags``) indicates the preempted security state. These parameters
 are received from the top-level exception handler.
 
-If ``RAS_EXTENSION`` is set to ``1``, the default implementation of this
+If ``RAS_FFH_SUPPORT`` is set to ``1``, the default implementation of this
 function iterates through RAS handlers registered by the platform. If any of the
 RAS handlers resolve the External Abort, no further action is taken.
 
-If ``RAS_EXTENSION`` is set to ``0``, or if none of the platform RAS handlers
+If ``RAS_FFH_SUPPORT`` is set to ``0``, or if none of the platform RAS handlers
 could resolve the External Abort, the default implementation prints an error
 message, and panics.
 

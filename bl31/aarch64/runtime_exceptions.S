@@ -50,16 +50,16 @@
 	/*
 	 * Macro that prepares entry to EL3 upon taking an exception.
 	 *
-	 * With RAS_EXTENSION, this macro synchronizes pending errors with an ESB
-	 * instruction. When an error is thus synchronized, the handling is
+	 * With RAS_FFH_SUPPORT, this macro synchronizes pending errors with an
+	 * ESB instruction. When an error is thus synchronized, the handling is
 	 * delegated to platform EA handler.
 	 *
-	 * Without RAS_EXTENSION, this macro synchronizes pending errors using
+	 * Without RAS_FFH_SUPPORT, this macro synchronizes pending errors using
 	 * a DSB, unmasks Asynchronous External Aborts and saves X30 before
 	 * setting the flag CTX_IS_IN_EL3.
 	 */
 	.macro check_and_unmask_ea
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 	/* Synchronize pending External Aborts */
 	esb
 
@@ -307,7 +307,7 @@ vector_entry fiq_sp_elx
 end_vector_entry fiq_sp_elx
 
 vector_entry serror_sp_elx
-#if !RAS_EXTENSION
+#if !RAS_FFH_SUPPORT
 	/*
 	 * This will trigger if the exception was taken due to SError in EL3 or
 	 * because of pending asynchronous external aborts from lower EL that got
@@ -359,7 +359,7 @@ end_vector_entry fiq_aarch64
 vector_entry serror_aarch64
 	save_x30
 	apply_at_speculative_wa
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 	msr	daifclr, #DAIF_ABT_BIT
 #else
 	check_and_unmask_ea
@@ -402,7 +402,7 @@ end_vector_entry fiq_aarch32
 vector_entry serror_aarch32
 	save_x30
 	apply_at_speculative_wa
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 	msr	daifclr, #DAIF_ABT_BIT
 #else
 	check_and_unmask_ea

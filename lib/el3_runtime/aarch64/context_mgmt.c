@@ -1012,7 +1012,7 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 			write_ctx_reg(el2_sysregs_ctx, CTX_TTBR1_EL2,
 				      read_ttbr1_el2());
 		}
-#if RAS_EXTENSION
+#if ENABLE_FEAT_RAS
 		el2_sysregs_context_save_ras(el2_sysregs_ctx);
 #endif
 
@@ -1095,7 +1095,7 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 			write_contextidr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_CONTEXTIDR_EL2));
 			write_ttbr1_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TTBR1_EL2));
 		}
-#if RAS_EXTENSION
+#if ENABLE_FEAT_RAS
 		el2_sysregs_context_restore_ras(el2_sysregs_ctx);
 #endif
 

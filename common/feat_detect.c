@@ -65,7 +65,7 @@ check_feature(int state, unsigned long field, const char *feat_name,
  ******************************************************************************/
 static void read_feat_ras(void)
 {
-#if (RAS_EXTENSION == FEAT_STATE_ALWAYS)
+#if (ENABLE_FEAT_RAS == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_2_feat_ras_present(), "RAS");
 #endif
 }

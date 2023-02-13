@@ -106,7 +106,7 @@ void sgi_bl31_common_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 	sgi_ras_intr_handler_setup();
 #endif
 
