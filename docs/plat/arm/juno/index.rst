@@ -241,7 +241,7 @@ configure it.
 
 --------------
 
-*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
 
 .. _Linaro release software stack: http://releases.linaro.org/members/arm/platforms/
 .. _Juno platform software user guide: https://git.linaro.org/landing-teams/working/arm/arm-reference-platforms.git/about/docs/juno/user-guide.rst
@@ -250,4 +250,3 @@ configure it.
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Juno Getting Started Guide: https://developer.arm.com/documentation/den0928/f/?lang=en
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
-.. _Juno Arm Development Platform: http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php
