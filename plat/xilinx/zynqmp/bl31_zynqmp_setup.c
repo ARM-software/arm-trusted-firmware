@@ -197,8 +197,9 @@ static void prepare_dtb(void)
 	}
 
 	/* Reserve memory used by Trusted Firmware. */
-	if (fdt_add_reserved_memory(dtb, "tf-a", BL31_BASE, BL31_LIMIT - BL31_BASE)) {
-		WARN("Failed to add reserved memory nodes to DT.\n");
+	if (fdt_add_reserved_memory(dtb, "tf-a", BL31_BASE,
+				    BL31_LIMIT - BL31_BASE + 1)) {
+		WARN("Failed to add reserved memory nodes for BL31 to DT.\n");
 	}
 
 	ret = fdt_pack(dtb);
