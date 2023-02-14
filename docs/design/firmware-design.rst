@@ -900,7 +900,7 @@ Registration
 A runtime service is registered using the ``DECLARE_RT_SVC()`` macro, specifying
 the name of the service, the range of OENs covered, the type of service and
 initialization and call handler functions. This macro instantiates a ``const struct rt_svc_desc`` for the service with these details (see ``runtime_svc.h``).
-This structure is allocated in a special ELF section ``rt_svc_descs``, enabling
+This structure is allocated in a special ELF section ``.rt_svc_descs``, enabling
 the framework to find all service descriptors included into BL31.
 
 The specific service for a SMC Function is selected based on the OEN and call
@@ -2165,7 +2165,7 @@ To use bakery locks when ``USE_COHERENT_MEM`` is disabled, the lock data structu
 has been redesigned. The changes utilise the characteristic of Lamport's Bakery
 algorithm mentioned earlier. The bakery_lock structure only allocates the memory
 for a single CPU. The macro ``DEFINE_BAKERY_LOCK`` allocates all the bakery locks
-needed for a CPU into a section ``bakery_lock``. The linker allocates the memory
+needed for a CPU into a section ``.bakery_lock``. The linker allocates the memory
 for other cores by using the total size allocated for the bakery_lock section
 and multiplying it with (PLATFORM_CORE_COUNT - 1). This enables software to
 perform software cache maintenance on the lock data structure without running
@@ -2193,7 +2193,7 @@ with n bakery locks are:
 
 ::
 
-    bakery_lock section start
+    .bakery_lock section start
     |----------------|
     | `bakery_info_t`| <-- Lock_0 per-CPU field
     |    Lock_0      |     for CPU0
@@ -2230,7 +2230,7 @@ with n bakery locks are:
 
 Consider a system of 2 CPUs with 'N' bakery locks as shown above. For an
 operation on Lock_N, the corresponding ``bakery_info_t`` in both CPU0 and CPU1
-``bakery_lock`` section need to be fetched and appropriate cache operations need
+``.bakery_lock`` section need to be fetched and appropriate cache operations need
 to be performed for each access.
 
 On Arm Platforms, bakery locks are used in psci (``psci_locks``) and power controller

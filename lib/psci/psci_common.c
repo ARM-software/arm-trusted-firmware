@@ -55,7 +55,7 @@ unsigned int psci_plat_core_count;
  ******************************************************************************/
 non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS]
 #if USE_COHERENT_MEM
-__section("tzfw_coherent_mem")
+__section(".tzfw_coherent_mem")
 #endif
 ;
 

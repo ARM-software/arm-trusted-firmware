@@ -129,7 +129,7 @@
 	 */
 	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
 		_power_down_ops:vararg
-	.section cpu_ops, "a"
+	.section .cpu_ops, "a"
 	.align 2
 	.type cpu_ops_\_name, %object
 	.word \_midr

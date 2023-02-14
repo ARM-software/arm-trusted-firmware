@@ -183,7 +183,7 @@ static void hikey960_iomcu_dma_init(void)
 
 #define SPMC_SHARED_MEMORY_OBJ_SIZE (512 * 1024)
 
-__section("ram2_region") uint8_t plat_spmc_shmem_datastore[SPMC_SHARED_MEMORY_OBJ_SIZE];
+__section(".ram2_region") uint8_t plat_spmc_shmem_datastore[SPMC_SHARED_MEMORY_OBJ_SIZE];
 
 int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
 {

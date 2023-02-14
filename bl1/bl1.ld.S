@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -72,7 +72,7 @@ SECTIONS {
         . = ALIGN(16);
     } >ROM
 #else /* SEPARATE_CODE_AND_RODATA */
-    ro . : {
+    .ro . : {
         __RO_START__ = .;
 
         *bl1_entrypoint.o(.text*)
@@ -118,9 +118,9 @@ SECTIONS {
      * not mixed with normal data. This is required to set up the correct memory
      * attributes for the coherent data page tables.
      */
-    coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
+    .coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
         __COHERENT_RAM_START__ = .;
-        *(tzfw_coherent_mem)
+        *(.tzfw_coherent_mem)
         __COHERENT_RAM_END_UNALIGNED__ = .;
 
         /*

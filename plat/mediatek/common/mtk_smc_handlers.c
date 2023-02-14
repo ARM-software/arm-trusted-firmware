@@ -72,7 +72,7 @@
 	}
 
 #define SMC_ID_EXPAND_AS_DESCRIPTOR_INDEX(_smc_id, _smc_num) \
-	short _smc_id##_descriptor_index __section("mtk_plat_ro") = -1;
+	short _smc_id##_descriptor_index __section(".mtk_plat_ro") = -1;
 
 MTK_SIP_SMC_FROM_BL33_TABLE(SMC_ID_EXPAND_AS_DESCRIPTOR_INDEX);
 MTK_SIP_SMC_FROM_NS_EL1_TABLE(SMC_ID_EXPAND_AS_DESCRIPTOR_INDEX);

@@ -150,7 +150,7 @@ endfunc platform_cpu_warmboot
 	 * Per-CPU Secure entry point - resume or power up
 	 * --------------------------------------------------------------------
 	 */
-	.section tzfw_coherent_mem, "a"
+	.section .tzfw_coherent_mem, "a"
 	.align  3
 cpuson_entry_point:
 	.rept	PLATFORM_CORE_COUNT

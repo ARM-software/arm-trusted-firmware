@@ -66,22 +66,22 @@ an identity mapping for all addresses.
 If the build option ``USE_COHERENT_MEM`` is enabled, each platform can allocate a
 block of identity mapped secure memory with Device-nGnRE attributes aligned to
 page boundary (4K) for each BL stage. All sections which allocate coherent
-memory are grouped under ``coherent_ram``. For ex: Bakery locks are placed in a
-section identified by name ``bakery_lock`` inside ``coherent_ram`` so that its
+memory are grouped under ``.coherent_ram``. For ex: Bakery locks are placed in a
+section identified by name ``.bakery_lock`` inside ``.coherent_ram`` so that its
 possible for the firmware to place variables in it using the following C code
 directive:
 
 ::
 
-    __section("bakery_lock")
+    __section(".bakery_lock")
 
 Or alternatively the following assembler code directive:
 
 ::
 
-    .section bakery_lock
+    .section .bakery_lock
 
-The ``coherent_ram`` section is a sum of all sections like ``bakery_lock`` which are
+The ``.coherent_ram`` section is a sum of all sections like ``.bakery_lock`` which are
 used to allocate any data structures that are accessed both when a CPU is
 executing with its MMU and caches enabled, and when it's running with its MMU
 and caches disabled. Examples are given below.
@@ -2411,7 +2411,7 @@ bytes) aligned to the cache line boundary that should be allocated per-cpu to
 accommodate all the bakery locks.
 
 If this constant is not defined when ``USE_COHERENT_MEM = 0``, the linker
-calculates the size of the ``bakery_lock`` input section, aligns it to the
+calculates the size of the ``.bakery_lock`` input section, aligns it to the
 nearest ``CACHE_WRITEBACK_GRANULE``, multiplies it with ``PLATFORM_CORE_COUNT``
 and stores the result in a linker symbol. This constant prevents a platform
 from relying on the linker and provide a more efficient mechanism for
@@ -3540,7 +3540,7 @@ amount of open resources per driver.
 
 --------------
 
-*Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html

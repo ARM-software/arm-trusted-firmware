@@ -48,14 +48,14 @@ LR_RO_DATA +0
 	/* Ensure 8-byte alignment for descriptors and ensure inclusion */
 	__RT_SVC_DESCS__ AlignExpr(ImageLimit(__RODATA__), 8) FIXED
 	{
-		*(rt_svc_descs)
+		*(.rt_svc_descs)
 	}
 
 #if ENABLE_PMF
 	/* Ensure 8-byte alignment for descriptors and ensure inclusion */
 	__PMF_SVC_DESCS__ AlignExpr(ImageLimit(__RT_SVC_DESCS__), 8) FIXED
 	{
-		*(pmf_svc_descs)
+		*(.pmf_svc_descs)
 	}
 #endif /* ENABLE_PMF */
 
@@ -65,7 +65,7 @@ LR_RO_DATA +0
 	 */
 	__CPU_OPS__ AlignExpr(+0, 8) FIXED
 	{
-		*(cpu_ops)
+		*(.cpu_ops)
 	}
 
 	/*
@@ -150,7 +150,7 @@ LR_STACKS +0
 {
 	__STACKS__ AlignExpr(+0, 64) FIXED
 	{
-		*(tzfw_normal_stacks)
+		*(.tzfw_normal_stacks)
 	}
 }
 
@@ -180,7 +180,7 @@ LR_BSS +0
 	 */
 	__BAKERY_LOCKS__ AlignExpr(ImageLimit(__BSS__), CACHE_WRITEBACK_GRANULE) FIXED
 	{
-		*(bakery_lock)
+		*(.bakery_lock)
 	}
 
 	__BAKERY_LOCKS_EPILOGUE__ AlignExpr(ImageLimit(__BAKERY_LOCKS__), CACHE_WRITEBACK_GRANULE) FIXED EMPTY 0
@@ -229,9 +229,9 @@ LR_BSS +0
 
 LR_XLAT_TABLE +0
 {
-	xlat_table +0 FIXED
+	.xlat_table +0 FIXED
 	{
-		*(xlat_table)
+		*(.xlat_table)
 	}
 }
 
@@ -251,8 +251,8 @@ LR_COHERENT_RAM +0
 		 *
 		 * Each lock's data is contiguous and fully allocated by the compiler
 		 */
-		*(bakery_lock)
-		*(tzfw_coherent_mem)
+		*(.bakery_lock)
+		*(.tzfw_coherent_mem)
 	}
 
 	__COHERENT_RAM_EPILOGUE_UNALIGNED__ +0 FIXED EMPTY 0

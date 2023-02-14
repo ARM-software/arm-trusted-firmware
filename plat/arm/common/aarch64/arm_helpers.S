@@ -129,7 +129,7 @@ endfunc plat_set_my_stack
 	 * Single cpu stack in coherent memory.
 	 * ----------------------------------------------------
 	 */
-declare_stack platform_coherent_stacks, tzfw_coherent_mem, \
+declare_stack platform_coherent_stacks, .tzfw_coherent_mem, \
 		PLATFORM_STACK_SIZE, 1, CACHE_WRITEBACK_GRANULE
 
 #endif	/* defined(IMAGE_BL1) || defined(IMAGE_BL2) */

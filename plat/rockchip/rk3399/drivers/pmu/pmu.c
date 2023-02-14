@@ -64,7 +64,7 @@ static gicv3_redist_ctx_t rdist_ctx;
 
 static uint32_t core_pm_cfg_info[PLATFORM_CORE_COUNT]
 #if USE_COHERENT_MEM
-__attribute__ ((section("tzfw_coherent_mem")))
+__attribute__ ((section(".tzfw_coherent_mem")))
 #endif
 ;/* coheront */
 
