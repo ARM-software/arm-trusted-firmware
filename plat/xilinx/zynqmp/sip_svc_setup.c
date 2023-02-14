@@ -66,8 +66,10 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 	if (is_em_fid(smc_fid)) {
 		return em_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
 					flags);
-	} else if (is_pm_fid(smc_fid)) {
+	}
+
 	/* Let PM SMC handler deal with PM-related requests */
+	if (is_pm_fid(smc_fid)) {
 		return pm_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
 				      flags);
 	}
