@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (C) 2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,5 +38,9 @@ struct xfsbl_atf_handoff_params {
 enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
 					entry_point_info_t *bl33,
 					uint64_t atf_handoff_addr);
+
+/* JEDEC Standard Manufacturer's Identification Code and Bank ID JEP106 */
+#define JEDEC_XILINX_MFID	U(0x49)
+#define JEDEC_XILINX_BKID	U(0)
 
 #endif /* PLAT_STARTUP_H */
