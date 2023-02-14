@@ -31,10 +31,16 @@ target the Armv7-A or Armv8-A architectures:
    You will need the targets ``arm-none-eabi`` and ``aarch64-none-elf`` for
    AArch32 and AArch64 builds respectively.
 
-- Clang >= 14.0.0
-- Arm Compiler >= 6.18
+- Clang == 14.0.0
+- Arm Compiler == 6.18
 
 In addition, a native compiler is required to build the supporting tools.
+
+.. note::
+   Versions greater than the ones specified are likely but not guaranteed to
+   work. This is predominantly because TF-A carries its own copy of compiler-rt,
+   which may be older than the version expected by the compiler. Fixes and bug
+   reports are always welcome.
 
 .. note::
    The software has also been built on Windows 7 Enterprise SP1, using CMD.EXE,
