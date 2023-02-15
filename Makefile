@@ -523,6 +523,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				drivers/console/multi_console.c		\
 				lib/${ARCH}/cache_helpers.S		\
 				lib/${ARCH}/misc_helpers.S		\
+				lib/extensions/pmuv3/${ARCH}/pmuv3.c	\
 				plat/common/plat_bl_common.c		\
 				plat/common/plat_log_common.c		\
 				plat/common/${ARCH}/plat_common.c	\

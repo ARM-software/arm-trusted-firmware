@@ -103,7 +103,7 @@
 	 */
 	mov_imm	x0, ((MDCR_EL2_RESET_VAL | \
 		      MDCR_SPD32(MDCR_SPD32_DISABLE)) \
-		      & ~(MDCR_EL2_HPMD | MDCR_TDOSA_BIT | \
+		      & ~(MDCR_EL2_HPMD_BIT | MDCR_TDOSA_BIT | \
 		      MDCR_TDA_BIT | MDCR_TPM_BIT))
 
 	msr	mdcr_el2, x0

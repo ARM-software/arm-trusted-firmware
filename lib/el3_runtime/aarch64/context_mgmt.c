@@ -24,6 +24,7 @@
 #include <lib/extensions/amu.h>
 #include <lib/extensions/brbe.h>
 #include <lib/extensions/mpam.h>
+#include <lib/extensions/pmuv3.h>
 #include <lib/extensions/sme.h>
 #include <lib/extensions/spe.h>
 #include <lib/extensions/sve.h>
@@ -265,16 +266,6 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 				   ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT;
 	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_ICC_SRE_EL2,
 			icc_sre_el2);
-
-	/*
-	 * Initialize MDCR_EL2.HPMN to its hardware reset value so we don't
-	 * throw anyone off who expects this to be sensible.
-	 * TODO: A similar thing happens in cm_prepare_el3_exit. They should be
-	 * unified with the proper PMU implementation
-	 */
-	u_register_t mdcr_el2 = ((read_pmcr_el0() >> PMCR_EL0_N_SHIFT) &
-			PMCR_EL0_N_MASK);
-	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_MDCR_EL2, mdcr_el2);
 
 	if (is_feat_hcx_supported()) {
 		/*
@@ -561,6 +552,7 @@ static void manage_extensions_nonsecure_mixed(bool el2_unused, cpu_context_t *ct
 #if IMAGE_BL31
 void cm_manage_extensions_el3(void)
 {
+	pmuv3_disable_el3();
 }
 #endif /* IMAGE_BL31 */
 
@@ -570,6 +562,7 @@ void cm_manage_extensions_el3(void)
 static void manage_extensions_nonsecure(cpu_context_t *ctx)
 {
 #if IMAGE_BL31
+	pmuv3_enable(ctx);
 #endif /* IMAGE_BL31 */
 }
 
@@ -580,6 +573,7 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 static void manage_extensions_nonsecure_el2_unused(void)
 {
 #if IMAGE_BL31
+	pmuv3_init_el2_unused();
 #endif /* IMAGE_BL31 */
 }
 
@@ -793,23 +787,10 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * relying on hw. Some fields are architecturally
 			 * UNKNOWN on reset.
 			 *
-			 * MDCR_EL2.HLP: Set to one so that event counter
-			 *  overflow, that is recorded in PMOVSCLR_EL0[0-30],
-			 *  occurs on the increment that changes
-			 *  PMEVCNTR<n>_EL0[63] from 1 to 0, when ARMv8.5-PMU is
-			 *  implemented. This bit is RES0 in versions of the
-			 *  architecture earlier than ARMv8.5, setting it to 1
-			 *  doesn't have any effect on them.
-			 *
 			 * MDCR_EL2.TTRF: Set to zero so that access to Trace
 			 *  Filter Control register TRFCR_EL1 at EL1 is not
 			 *  trapped to EL2. This bit is RES0 in versions of
 			 *  the architecture earlier than ARMv8.4.
-			 *
-			 * MDCR_EL2.HPMD: Set to one so that event counting is
-			 *  prohibited at EL2. This bit is RES0 in versions of
-			 *  the architecture earlier than ARMv8.1, setting it
-			 *  to 1 doesn't have any effect on them.
 			 *
 			 * MDCR_EL2.TPMS: Set to zero so that accesses to
 			 *  Statistical Profiling control registers from EL1
@@ -830,35 +811,15 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * MDCR_EL2.TDE: Set to zero so that debug exceptions
 			 *  are not routed to EL2.
 			 *
-			 * MDCR_EL2.HPME: Set to zero to disable EL2 Performance
-			 *  Monitors.
-			 *
-			 * MDCR_EL2.TPM: Set to zero so that Non-secure EL0 and
-			 *  EL1 accesses to all Performance Monitors registers
-			 *  are not trapped to EL2.
-			 *
-			 * MDCR_EL2.TPMCR: Set to zero so that Non-secure EL0
-			 *  and EL1 accesses to the PMCR_EL0 or PMCR are not
-			 *  trapped to EL2.
-			 *
-			 * MDCR_EL2.HPMN: Set to value of PMCR_EL0.N which is the
-			 *  architecturally-defined reset value.
-			 *
 			 * MDCR_EL2.E2TB: Set to zero so that the trace Buffer
 			 *  owning exception level is NS-EL1 and, tracing is
 			 *  prohibited at NS-EL2. These bits are RES0 when
 			 *  FEAT_TRBE is not implemented.
 			 */
-			mdcr_el2 = ((MDCR_EL2_RESET_VAL | MDCR_EL2_HLP |
-				     MDCR_EL2_HPMD) |
-				   ((read_pmcr_el0() & PMCR_EL0_N_BITS)
-				   >> PMCR_EL0_N_SHIFT)) &
-				   ~(MDCR_EL2_TTRF | MDCR_EL2_TPMS |
+			mdcr_el2 = ((MDCR_EL2_RESET_VAL) & ~(MDCR_EL2_TTRF |
 				     MDCR_EL2_TDRA_BIT | MDCR_EL2_TDOSA_BIT |
 				     MDCR_EL2_TDA_BIT | MDCR_EL2_TDE_BIT |
-				     MDCR_EL2_HPME_BIT | MDCR_EL2_TPM_BIT |
-				     MDCR_EL2_TPMCR_BIT |
-				     MDCR_EL2_E2TB(MDCR_EL2_E2TB_EL1));
+				     MDCR_EL2_E2TB(MDCR_EL2_E2TB_EL1)));
 
 			write_mdcr_el2(mdcr_el2);
 

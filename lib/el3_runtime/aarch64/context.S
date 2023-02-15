@@ -568,6 +568,8 @@ endfunc fpregs_context_restore
 	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
 	mrs	x18, sp_el0
 	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
+
+	/* PMUv3 is presumed to be always present */
 	mrs	x9, pmcr_el0
 	str	x9, [sp, #CTX_EL3STATE_OFFSET + CTX_PMCR_EL0]
 	/* Disable cycle counter when event counting is prohibited */
@@ -651,6 +653,8 @@ func restore_gp_pmcr_pauth_regs
 	msr	APGAKeyLo_EL1, x8
 	msr	APGAKeyHi_EL1, x9
 #endif /* CTX_INCLUDE_PAUTH_REGS */
+
+	/* PMUv3 is presumed to be always present */
 	ldr	x0, [sp, #CTX_EL3STATE_OFFSET + CTX_PMCR_EL0]
 	msr	pmcr_el0, x0
 	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]

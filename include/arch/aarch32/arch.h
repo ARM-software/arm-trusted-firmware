@@ -104,7 +104,11 @@
 /* CSSELR definitions */
 #define LEVEL_SHIFT		U(1)
 
-/* ID_DFR0_EL1 definitions */
+/* ID_DFR0 definitions */
+#define ID_DFR0_PERFMON_SHIFT		U(24)
+#define ID_DFR0_PERFMON_MASK		U(0xf)
+#define ID_DFR0_PERFMON_PMUV3		U(3)
+#define ID_DFR0_PERFMON_PMUV3P5		U(6)
 #define ID_DFR0_COPTRC_SHIFT		U(12)
 #define ID_DFR0_COPTRC_MASK		U(0xf)
 #define ID_DFR0_COPTRC_SUPPORTED	U(1)
@@ -464,6 +468,10 @@
 #define PMCR_LP_BIT		(U(1) << 7)
 #define PMCR_LC_BIT		(U(1) << 6)
 #define PMCR_DP_BIT		(U(1) << 5)
+#define PMCR_X_BIT		(U(1) << 4)
+#define PMCR_C_BIT		(U(1) << 2)
+#define PMCR_P_BIT		(U(1) << 1)
+#define PMCR_E_BIT		(U(1) << 0)
 #define	PMCR_RESET_VAL		U(0x0)
 
 /*******************************************************************************
