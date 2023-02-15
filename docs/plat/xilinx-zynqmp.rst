@@ -41,6 +41,21 @@ ZynqMP platform specific build options
    -  ``cadence``, ``cadence0``: Cadence UART 0
    -  ``cadence1`` : Cadence UART 1
 
+ZynqMP Debug behavior
+---------------------
+
+With DEBUG=1, TF-A for ZynqMP uses DDR memory range instead of OCM memory range
+due to size constraints.
+For DEBUG=1 configuration for ZynqMP the BL31_BASE is set to the DDR location
+of 0x1000 and BL31_LIMIT is set to DDR location of 0x7FFFF.
+
+If the user wants to move the bl31 to a different DDR location, user can provide
+the DDR address location in the build command as follows,
+
+make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp RESET_TO_BL31=1 DEBUG=1 \
+	ZYNQMP_ATF_MEM_BASE=<DDR address> ZYNQMP_ATF_MEM_SIZE=<size> bl31
+
+
 FSBL->TF-A Parameter Passing
 ----------------------------
 
