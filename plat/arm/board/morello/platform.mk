@@ -49,6 +49,7 @@ BL31_SOURCES		:=	${MORELLO_CPU_SOURCES}			\
 				${INTERCONNECT_SOURCES}			\
 				${MORELLO_GIC_SOURCES}			\
 				${MORELLO_BASE}/morello_bl31_setup.c	\
+				${MORELLO_BASE}/morello_pm.c		\
 				${MORELLO_BASE}/morello_topology.c	\
 				${MORELLO_BASE}/morello_security.c	\
 				drivers/arm/css/sds/sds.c
