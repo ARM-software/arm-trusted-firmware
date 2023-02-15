@@ -1654,6 +1654,13 @@ static int find_and_prepare_sp_context(void)
 	/* Initialize the SP context with the required ep info. */
 	spmc_sp_common_ep_commit(sp, next_image_ep_info);
 
+	ret = mmap_remove_dynamic_region(manifest_base_align, PAGE_SIZE * 2);
+	if (ret != 0) {
+		ERROR("Error while unmapping manifest_base, ret is (%d).\n",
+				ret);
+		return ret;
+	}
+
 	return 0;
 }
 

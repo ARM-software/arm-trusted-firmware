@@ -140,6 +140,8 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 	INFO("SP manifest @ 0x%lx, size: %u bytes.\n",
 	     boot_descriptor->content,
 	     boot_descriptor->size_boot_info);
+
+	flush_dcache_range((uintptr_t)ffa_boot_info_mem, PAGE_SIZE);
 }
 
 /*
