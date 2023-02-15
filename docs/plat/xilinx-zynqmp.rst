@@ -71,3 +71,40 @@ for ZynqMP:
 
 The 4 leaf power domains represent the individual A53 cores, while resources
 common to the cluster are grouped in the power domain on the top.
+
+CUSTOM SIP service support
+--------------------------
+
+- Dedicated SMC FID ZYNQMP_SIP_SVC_CUSTOM(0x82002000)(32-bit)/
+  (0xC2002000)(64-bit) to be used by a custom package for
+  providing CUSTOM SIP service.
+
+- by default platform provides bare minimum definition for
+  custom_smc_handler in this service.
+
+- to use this service, custom package should implement their
+  smc handler with the name custom_smc_handler. once custom package is
+  included in TF-A build, their definition of custom_smc_handler is
+  enabled.
+
+Custom package makefile fragment inclusion in TF-A build
+--------------------------------------------------------
+
+- custom package is not directly part of TF-A source.
+
+- <CUSTOM_PKG_PATH> is the location at which user clones a
+  custom package locally.
+
+- custom package needs to implement makefile fragment named
+  custom_pkg.mk so as to get included in TF-A build.
+
+- custom_pkg.mk specify all the rules to include custom package
+  specific header files, dependent libs, source files that are
+  supposed to be included in TF-A build.
+
+- when <CUSTOM_PKG_PATH> is specified in TF-A build command,
+  custom_pkg.mk is included from <CUSTOM_PKG_PATH> in TF-A build.
+
+- TF-A build command:
+  make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp RESET_TO_BL31=1
+  bl31 CUSTOM_PKG_PATH=<...>
