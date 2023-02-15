@@ -172,12 +172,13 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 }
 
 /**
- * pm_ipi_buff_read_callb() - Reads IPI response after remote processor has
- *			      handled interrupt
- * @value	Used to return value from IPI buffer element (optional)
+ * pm_ipi_buff_read_callb() - Callback function that reads value from
+ *			      ipi response buffer
+ * @value	Used to return value from IPI buffer element
  * @count	Number of values to return in @value
  *
- * @return	Returns status, either success or error+reason
+ * This callback function fills requested data in @value from ipi response
+ * buffer.
  */
 void pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 {
