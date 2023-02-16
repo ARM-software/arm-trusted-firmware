@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,6 +34,7 @@ struct morello_plat_info {
  *	- remote_chip_count
  *	- multichip mode
  *	- scc configuration
+ *	- silicon revision
  */
 struct morello_plat_info {
 	uint64_t local_ddr_size;
@@ -41,6 +42,7 @@ struct morello_plat_info {
 	uint8_t remote_chip_count;
 	bool multichip_mode;
 	uint32_t scc_config;
+	uint32_t silicon_revision;
 } __packed;
 #endif
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -190,5 +190,8 @@
 
 /* Number of SCMI channels on the platform */
 #define PLAT_ARM_SCMI_CHANNEL_COUNT		U(1)
+
+/* Platform ID address */
+#define SSC_VERSION				(SSC_REG_BASE + SSC_VERSION_OFFSET)
 
 #endif /* PLATFORM_DEF_H */
