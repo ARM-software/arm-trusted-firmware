@@ -215,7 +215,7 @@ static void prepare_dtb(void)
 void bl31_platform_setup(void)
 {
 #if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
-		prepare_dtb();
+	prepare_dtb();
 #endif
 
 	/* Initialize the gic cpu and distributor interfaces */
@@ -245,7 +245,6 @@ void bl31_plat_arch_setup(void)
 {
 	plat_arm_interconnect_init();
 	plat_arm_interconnect_enter_coherency();
-
 
 	const mmap_region_t bl_regions[] = {
 #if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
