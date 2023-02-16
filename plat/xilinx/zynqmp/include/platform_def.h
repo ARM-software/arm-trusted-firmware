@@ -40,8 +40,8 @@
 # define BL31_BASE			U(0xfffea000)
 # define BL31_LIMIT			U(0x100000000)
 #else
-# define BL31_BASE			U(0xfffe5000)
-# define BL31_LIMIT			U(0x100000000)
+# define BL31_BASE			U(0x1000)
+# define BL31_LIMIT			U(0x7ffff)
 #endif
 #else
 # define BL31_BASE			(ZYNQMP_ATF_MEM_BASE)
@@ -91,7 +91,7 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
 #if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
 #define MAX_MMAP_REGIONS		8
-#define MAX_XLAT_TABLES			6
+#define MAX_XLAT_TABLES			8
 #else
 #define MAX_MMAP_REGIONS		7
 #define MAX_XLAT_TABLES			5
