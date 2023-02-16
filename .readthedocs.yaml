@@ -11,6 +11,8 @@ version: 2
 
 build:
   os: ubuntu-22.04 # Ubuntu Jammy LTS
+  tools:
+    python: 3
 
 python:
   install:
