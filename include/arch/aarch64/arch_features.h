@@ -705,4 +705,24 @@ static inline unsigned int read_feat_pmuv3_id_field(void)
 	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_PMUVER);
 }
 
+static inline unsigned int read_feat_mtpmu_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_MTPMU);
+}
+
+static inline bool is_feat_mtpmu_supported(void)
+{
+	if (DISABLE_MTPMU == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (DISABLE_MTPMU == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	unsigned int mtpmu = read_feat_mtpmu_id_field();
+
+	return (mtpmu != 0U) && (mtpmu != ID_AA64DFR0_MTPMU_DISABLED);
+}
+
 #endif /* ARCH_FEATURES_H */

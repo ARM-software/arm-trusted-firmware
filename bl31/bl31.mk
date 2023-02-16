@@ -54,10 +54,6 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				${SPMC_SOURCES}					\
 				${SPM_SOURCES}
 
-ifeq (${DISABLE_MTPMU},1)
-BL31_SOURCES		+=	lib/extensions/mtpmu/aarch64/mtpmu.S
-endif
-
 ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c
 endif

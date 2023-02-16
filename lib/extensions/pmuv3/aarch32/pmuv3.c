@@ -9,6 +9,22 @@
 #include <arch_helpers.h>
 #include <lib/extensions/pmuv3.h>
 
+static u_register_t mtpmu_disable_el3(u_register_t sdcr)
+{
+	if (!is_feat_mtpmu_supported()) {
+		return sdcr;
+	}
+
+	/*
+	 * SDCR.MTPME = 0
+	 * FEAT_MTPMU is disabled. The Effective value of PMEVTYPER<n>.MT is
+	 * zero.
+	 */
+	sdcr &= ~SDCR_MTPME_BIT;
+
+	return sdcr;
+}
+
 /*
  * Applies to all PMU versions. Name is PMUv3 for compatibility with aarch64 and
  * to not clash with platforms which reuse the PMU name
@@ -32,6 +48,7 @@ void pmuv3_disable_el3(void)
 	 * ---------------------------------------------------------------------
 	 */
 	sdcr = (sdcr | SDCR_SCCD_BIT) & ~SDCR_SPME_BIT;
+	sdcr = mtpmu_disable_el3(sdcr);
 	write_sdcr(sdcr);
 
 	/* ---------------------------------------------------------------------

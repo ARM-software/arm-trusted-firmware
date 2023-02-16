@@ -16,10 +16,6 @@ BL1_SOURCES		+=	bl1/${ARCH}/bl1_arch_setup.c		\
 				plat/common/${ARCH}/platform_up_stack.S \
 				${MBEDTLS_SOURCES}
 
-ifeq (${DISABLE_MTPMU},1)
-BL1_SOURCES		+=	lib/extensions/mtpmu/${ARCH}/mtpmu.S
-endif
-
 ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S		\
 				lib/el3_runtime/aarch64/context.S

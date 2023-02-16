@@ -192,6 +192,13 @@ void detect_arch_features(void)
 	check_feature(ENABLE_FEAT_TWED, read_feat_twed_id_field(),
 		      "TWED", 1, 1);
 
+	/*
+	 * even though this is a "DISABLE" it does confusingly perform feature
+	 * enablement duties like all other flags here. Check it against the HW
+	 * feature when we intend to diverge from the default behaviour
+	 */
+	check_feature(DISABLE_MTPMU, read_feat_mtpmu_id_field(), "MTPMU", 1, 1);
+
 	/* v8.7 features */
 	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX", 1, 1);
 

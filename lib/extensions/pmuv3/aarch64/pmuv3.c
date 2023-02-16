@@ -32,6 +32,22 @@ void pmuv3_enable(cpu_context_t *ctx)
 #endif /* CTX_INCLUDE_EL2_REGS */
 }
 
+static u_register_t mtpmu_disable_el3(u_register_t mdcr_el3)
+{
+	if (!is_feat_mtpmu_supported()) {
+		return mdcr_el3;
+	}
+
+	/*
+	 * MDCR_EL3.MTPME = 0
+	 * FEAT_MTPMU is disabled. The Effective value of PMEVTYPER<n>_EL0.MT is
+	 * zero.
+	 */
+	mdcr_el3 &= ~MDCR_MTPME_BIT;
+
+	return mdcr_el3;
+}
+
 void pmuv3_disable_el3(void)
 {
 	u_register_t mdcr_el3 = read_mdcr_el3();
@@ -69,6 +85,7 @@ void pmuv3_disable_el3(void)
 	 */
 	mdcr_el3 = (mdcr_el3 | MDCR_SCCD_BIT | MDCR_MCCD_BIT) &
 		  ~(MDCR_MPMX_BIT | MDCR_SPME_BIT);
+	mdcr_el3 = mtpmu_disable_el3(mdcr_el3);
 	write_mdcr_el3(mdcr_el3);
 
 	/* ---------------------------------------------------------------------
@@ -92,6 +109,22 @@ void pmuv3_disable_el3(void)
 	 */
 	write_pmcr_el0((read_pmcr_el0() | PMCR_EL0_DP_BIT | PMCR_EL0_C_BIT |
 			PMCR_EL0_P_BIT) & ~(PMCR_EL0_X_BIT | PMCR_EL0_E_BIT));
+}
+
+static u_register_t mtpmu_disable_el2(u_register_t mdcr_el2)
+{
+	if (!is_feat_mtpmu_supported()) {
+		return mdcr_el2;
+	}
+
+	/*
+	 * MDCR_EL2.MTPME = 0
+	 * FEAT_MTPMU is disabled. The Effective value of PMEVTYPER<n>_EL0.MT is
+	 * zero.
+	 */
+	mdcr_el2 &= ~MDCR_EL2_MTPME;
+
+	return mdcr_el2;
 }
 
 void pmuv3_init_el2_unused(void)
@@ -132,5 +165,6 @@ void pmuv3_init_el2_unused(void)
 		    MDCR_EL2_HCCD_BIT) &
 		  ~(MDCR_EL2_HPME_BIT | MDCR_EL2_TPM_BIT | MDCR_EL2_TPMCR_BIT);
 	mdcr_el2 = init_mdcr_el2_hpmn(mdcr_el2);
+	mdcr_el2 = mtpmu_disable_el2(mdcr_el2);
 	write_mdcr_el2(mdcr_el2);
 }
