@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,9 +19,9 @@ static void tsb_csync(void)
 	__asm__ volatile("hint #18");
 }
 
-void trbe_enable(void)
+void trbe_init_el3(void)
 {
-	uint64_t val;
+	u_register_t val;
 
 	/*
 	 * MDCR_EL3.NSTB = 0b11
@@ -32,6 +32,17 @@ void trbe_enable(void)
 	val = read_mdcr_el3();
 	val |= MDCR_NSTB(MDCR_NSTB_EL1);
 	write_mdcr_el3(val);
+}
+
+void trbe_init_el2_unused(void)
+{
+	/*
+	 * MDCR_EL2.E2TB: Set to zero so that the trace Buffer
+	 *  owning exception level is NS-EL1 and, tracing is
+	 *  prohibited at NS-EL2. These bits are RES0 when
+	 *  FEAT_TRBE is not implemented.
+	 */
+	write_mdcr_el2(read_mdcr_el2() & ~MDCR_EL2_E2TB(MDCR_EL2_E2TB_EL1));
 }
 
 static void *trbe_drain_trace_buffers_hook(const void *arg __unused)

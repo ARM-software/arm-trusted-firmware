@@ -48,7 +48,7 @@ static u_register_t mtpmu_disable_el3(u_register_t mdcr_el3)
 	return mdcr_el3;
 }
 
-void pmuv3_disable_el3(void)
+void pmuv3_init_el3(void)
 {
 	u_register_t mdcr_el3 = read_mdcr_el3();
 

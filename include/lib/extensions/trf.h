@@ -8,9 +8,13 @@
 #define TRF_H
 
 #if ENABLE_TRF_FOR_NS
-void trf_enable(void);
+void trf_init_el3(void);
+void trf_init_el2_unused(void);
 #else
-static inline void trf_enable(void)
+static inline void trf_init_el3(void)
+{
+}
+static inline void trf_init_el2_unused(void)
 {
 }
 #endif /* ENABLE_TRF_FOR_NS */

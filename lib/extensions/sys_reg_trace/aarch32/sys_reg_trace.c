@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,7 @@
 #include <arch_helpers.h>
 #include <lib/extensions/sys_reg_trace.h>
 
-void sys_reg_trace_enable(void)
+void sys_reg_trace_init_el3(void)
 {
 	uint32_t val;
 

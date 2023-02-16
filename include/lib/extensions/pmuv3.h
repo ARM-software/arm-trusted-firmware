@@ -9,7 +9,7 @@
 
 #include <context.h>
 
-void pmuv3_disable_el3(void);
+void pmuv3_init_el3(void);
 
 #ifdef __aarch64__
 void pmuv3_enable(cpu_context_t *ctx);

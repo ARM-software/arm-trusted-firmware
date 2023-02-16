@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,8 +7,9 @@
 #include <arch.h>
 #include <arch_features.h>
 #include <arch_helpers.h>
+#include <lib/extensions/brbe.h>
 
-void brbe_enable(void)
+void brbe_init_el3(void)
 {
 	uint64_t val;
 

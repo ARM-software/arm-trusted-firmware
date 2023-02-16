@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,24 +21,9 @@ static inline void psb_csync(void)
 	__asm__ volatile("hint #17");
 }
 
-void spe_enable(bool el2_unused)
+void spe_init_el3(void)
 {
 	uint64_t v;
-
-	if (el2_unused) {
-		/*
-		 * MDCR_EL2.TPMS (ARM v8.2): Do not trap statistical
-		 * profiling controls to EL2.
-		 *
-		 * MDCR_EL2.E2PB (ARM v8.2): SPE enabled in Non-secure
-		 * state. Accesses to profiling buffer controls at
-		 * Non-secure EL1 are not trapped to EL2.
-		 */
-		v = read_mdcr_el2();
-		v &= ~MDCR_EL2_TPMS;
-		v |= MDCR_EL2_E2PB(MDCR_EL2_E2PB_EL1);
-		write_mdcr_el2(v);
-	}
 
 	/*
 	 * MDCR_EL2.NSPB (ARM v8.2): SPE enabled in Non-secure state
@@ -53,6 +38,24 @@ void spe_enable(bool el2_unused)
 	v = read_mdcr_el3();
 	v |= MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_EnPMSN_BIT;
 	write_mdcr_el3(v);
+}
+
+void spe_init_el2_unused(void)
+{
+	uint64_t v;
+
+	/*
+	 * MDCR_EL2.TPMS (ARM v8.2): Do not trap statistical
+	 * profiling controls to EL2.
+	 *
+	 * MDCR_EL2.E2PB (ARM v8.2): SPE enabled in Non-secure
+	 * state. Accesses to profiling buffer controls at
+	 * Non-secure EL1 are not trapped to EL2.
+	 */
+	v = read_mdcr_el2();
+	v &= ~MDCR_EL2_TPMS;
+	v |= MDCR_EL2_E2PB(MDCR_EL2_E2PB_EL1);
+	write_mdcr_el2(v);
 }
 
 void spe_disable(void)
