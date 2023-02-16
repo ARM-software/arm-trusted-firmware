@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,7 +8,6 @@
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32mp_ddr.h>
 #include <drivers/st/stm32mp_ddrctrl_regs.h>
-#include <drivers/st/stm32mp_pmic.h>
 #include <lib/mmio.h>
 
 #include <platform_def.h>
@@ -94,13 +93,4 @@ void stm32mp_ddr_enable_axi_port(struct stm32mp_ddrctl *ctl)
 		mmio_read_32((uintptr_t)&ctl->pctrl_1));
 #endif
 
-}
-
-int stm32mp_board_ddr_power_init(enum ddr_type ddr_type)
-{
-	if (dt_pmic_status() > 0) {
-		return pmic_ddr_power_init(ddr_type);
-	}
-
-	return 0;
 }
