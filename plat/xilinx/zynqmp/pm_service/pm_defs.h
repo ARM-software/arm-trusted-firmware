@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,6 +32,9 @@
 #define FW_API_VERSION_2		(2U)
 /* Version of APIs implemented in ATF */
 #define ATF_API_BASE_VERSION		(1U)
+/* Updating the QUERY_DATA API versioning as the bitmask functionality
+ * support is added in the v2.*/
+#define TFA_API_QUERY_DATA_VERSION	(2U)
 
 /* Capabilities for RAM */
 #define PM_CAP_ACCESS	0x1U

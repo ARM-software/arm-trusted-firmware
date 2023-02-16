@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -786,7 +787,7 @@ static enum pm_ret_status feature_check_atf(uint32_t api_id, uint32_t *version,
 {
 	switch (api_id) {
 	case PM_QUERY_DATA:
-		*version = ATF_API_BASE_VERSION;
+		*version = TFA_API_QUERY_DATA_VERSION;
 		bit_mask[0] = (uint32_t)(PM_QUERY_FEATURE_BITMASK);
 		bit_mask[1] = (uint32_t)(PM_QUERY_FEATURE_BITMASK >> 32);
 		return PM_RET_SUCCESS;
