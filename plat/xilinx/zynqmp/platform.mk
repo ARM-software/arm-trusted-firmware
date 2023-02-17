@@ -139,6 +139,12 @@ endif
 BL31_CPPFLAGS		+=	-fno-jump-tables
 TF_CFLAGS_aarch64	+=	-mbranch-protection=none
 
+ifdef CUSTOM_PKG_PATH
+include $(CUSTOM_PKG_PATH)/custom_pkg.mk
+else
+BL31_SOURCES		+=	plat/xilinx/zynqmp/custom_sip_svc.c
+endif
+
 ifneq (${RESET_TO_BL31},1)
   $(error "Using BL31 as the reset vector is only one option supported on ZynqMP. Please set RESET_TO_BL31 to 1.")
 endif
