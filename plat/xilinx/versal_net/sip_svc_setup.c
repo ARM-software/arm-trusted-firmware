@@ -9,6 +9,7 @@
 /* Top level SMC handler for SiP calls. Dispatch PM calls to PM SMC handler. */
 
 #include <errno.h>
+#include <inttypes.h>
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
@@ -28,11 +29,12 @@
 #define SIP_SVC_VERSION_MINOR		(1U)
 
 /* These macros are used to identify PM calls from the SMC function ID */
-#define PM_FID_MASK	0xf000u
+#define SIP_FID_MASK	GENMASK(23, 16)
+#define XLNX_FID_MASK	GENMASK(23, 12)
 #define PM_FID_VALUE	0u
 #define IPI_FID_VALUE	0x1000u
-#define is_pm_fid(_fid)	(((_fid) & PM_FID_MASK) == PM_FID_VALUE)
-#define is_ipi_fid(_fid) (((_fid) & PM_FID_MASK) == IPI_FID_VALUE)
+#define is_pm_fid(_fid) (((_fid) & XLNX_FID_MASK) == PM_FID_VALUE)
+#define is_ipi_fid(_fid) (((_fid) & XLNX_FID_MASK) == IPI_FID_VALUE)
 
 /* SiP Service UUID */
 DEFINE_SVC_UUID2(versal_net_sip_uuid,
@@ -62,6 +64,14 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 			     void *handle,
 			     u_register_t flags)
 {
+	VERBOSE("SMCID: 0x%08x, x1: 0x%016" PRIx64 ", x2: 0x%016" PRIx64 ", x3: 0x%016" PRIx64 ", x4: 0x%016" PRIx64 "\n",
+		smc_fid, x1, x2, x3, x4);
+
+	if (smc_fid & SIP_FID_MASK) {
+		WARN("SMC out of SiP assinged range: 0x%x\n", smc_fid);
+		SMC_RET1(handle, SMC_UNK);
+	}
+
 	/* Let PM SMC handler deal with PM-related requests */
 	if (is_pm_fid(smc_fid)) {
 		return smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
