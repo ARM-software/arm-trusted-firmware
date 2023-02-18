@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,11 @@
 
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/common_def.h>
+
+#if defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)
+CASSERT(ARM_EVENT_LOG_DRAM1_SIZE >= PLAT_ARM_EVENT_LOG_MAX_SIZE, \
+	assert_res_eventlog_mem_insufficient);
+#endif /* defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd) */
 
 /* Event Log data */
 static uint64_t event_log_base;
@@ -195,9 +200,19 @@ void bl2_plat_mboot_finish(void)
 
 	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_base);
 
+#if defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)
+	/* Copy Event Log to TZC secured DRAM memory */
+	(void)memcpy((void *)ARM_EVENT_LOG_DRAM1_BASE,
+		     (const void *)event_log_base,
+		     event_log_cur_size);
+
+	/* Ensure that the Event Log is visible in TZC secured DRAM memory */
+	flush_dcache_range(ARM_EVENT_LOG_DRAM1_BASE, event_log_cur_size);
+#endif /* defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd) */
+
 	rc = arm_set_nt_fw_info(
 #ifdef SPD_opteed
-			    (uintptr_t)event_log_base,
+			    (uintptr_t)ARM_EVENT_LOG_DRAM1_BASE,
 #endif
 			    event_log_cur_size, &ns_log_addr);
 	if (rc != 0) {
@@ -222,7 +237,7 @@ void bl2_plat_mboot_finish(void)
 
 #if defined(SPD_tspd) || defined(SPD_spmd)
 	/* Set Event Log data in TOS_FW_CONFIG */
-	rc = arm_set_tos_fw_info((uintptr_t)event_log_base,
+	rc = arm_set_tos_fw_info((uintptr_t)ARM_EVENT_LOG_DRAM1_BASE,
 				 event_log_cur_size);
 	if (rc != 0) {
 		ERROR("%s(): Unable to update %s_FW_CONFIG\n",
