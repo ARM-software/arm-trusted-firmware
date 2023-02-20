@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -211,6 +211,29 @@
 		#clock-cells = <0>;
 		clock-frequency = <350000000>;
 		clock-output-names = "aclk";
+	};
+
+	gpu@2d000000 {
+		compatible = "arm,mali-bifrost";
+		reg = <0x0 0x2d000000 0x0 0x4000>;
+		interrupts =
+			<GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>,
+			<GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH>,
+			<GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names =
+			"gpu",
+			"job",
+			"mmu";
+		clocks = <&clk_gpu>;
+		clock-names = "clk_mali";
+		status = "okay";
+	};
+
+	clk_gpu: clk_gpu {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <650000000>;
+		clock-output-names = "clk_mali";
 	};
 
 	firmware {
