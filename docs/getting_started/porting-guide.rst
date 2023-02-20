@@ -574,8 +574,15 @@ optionally be defined:
    PLAT_PARTITION_BLOCK_SIZE := 4096
    $(eval $(call add_define,PLAT_PARTITION_BLOCK_SIZE))
 
+If the platform port uses the Arm® Ethos™-N NPU driver, the following
+configuration must be performed:
+
+- The NPU SiP service handler must be hooked up. This consists of both the
+  initial setup (``ethosn_smc_setup``) and the handler itself
+  (``ethosn_smc_handler``)
+
 If the platform port uses the Arm® Ethos™-N NPU driver with TZMP1 support
-enabled, the following constants must also be defined.
+enabled, the following constants and configuration must also be defined:
 
 - **ARM_ETHOSN_NPU_PROT_FW_NSAID**
 
@@ -604,7 +611,18 @@ enabled, the following constants must also be defined.
 
 - **ARM_ETHOSN_NPU_FW_IMAGE_BASE** and **ARM_ETHOSN_NPU_FW_IMAGE_LIMIT**
 
-- Provide FCONF entries to configure the image source for NPU firmware (and certificates).
+  Defines the physical address range that the NPU's firmware will be loaded
+  into and executed from.
+
+- Configure the platforms TrustZone Controller (TZC) with appropriate regions
+  of protected memory. At minimum this must include a region for the NPU's
+  firmware code and a region for protected inference data, and these must be
+  accessible using the NSAIDs defined above.
+
+- Include the NPU firmware and certificates in the FIP.
+
+- Provide FCONF entries to configure the image source for the NPU firmware
+  and certificates.
 
 - Add MMU mappings such that:
 
@@ -612,7 +630,8 @@ enabled, the following constants must also be defined.
    ``ARM_ETHOSN_NPU_FW_IMAGE_BASE`` and ``ARM_ETHOSN_NPU_FW_IMAGE_LIMIT``
  - BL31 (SiP service) can read the NPU firmware from the same region
 
-- Add the firmware image ID ``ARM_ETHOSN_NPU_FW_IMAGE_ID`` to the list of images loaded by BL2
+- Add the firmware image ID ``ARM_ETHOSN_NPU_FW_IMAGE_ID`` to the list of images
+  loaded by BL2.
 
 Please see the reference implementation code for the Juno platform as an example.
 
