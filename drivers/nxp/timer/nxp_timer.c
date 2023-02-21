@@ -59,7 +59,7 @@ static uint32_t timer_get_value(void)
 
 static void delay_timer_init_args(uint32_t mult, uint32_t div)
 {
-	ops.get_timer_value	= timer_get_value,
+	ops.get_timer_value	= timer_get_value;
 	ops.clk_mult		= mult;
 	ops.clk_div		= div;
 
