@@ -742,11 +742,6 @@ Common build options
    entrypoint) or 1 (CPU reset to BL31 entrypoint).
    The default value is 0.
 
--  ``RESET_TO_BL31_WITH_PARAMS``: If ``RESET_TO_BL31`` has been enabled, setting
-   this additional option guarantees that the input registers are not cleared
-   therefore allowing parameters to be passed to the BL31 entrypoint.
-   The default value is 0.
-
 -  ``RESET_TO_SP_MIN``: SP_MIN is the minimal AArch32 Secure Payload provided
    in TF-A. This flag configures SP_MIN entrypoint as the CPU reset vector
    instead of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
