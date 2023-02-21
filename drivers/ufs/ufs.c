@@ -225,7 +225,7 @@ static int ufshc_link_startup(uintptr_t base)
 			}
 			continue;
 		}
-		assert((mmio_read_32(base + HCS) & HCS_DP) == 0);
+		assert(mmio_read_32(base + HCS) & HCS_DP);
 		data = mmio_read_32(base + IS);
 		if (data & UFS_INT_ULSS)
 			mmio_write_32(base + IS, UFS_INT_ULSS);
