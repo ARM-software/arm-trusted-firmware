@@ -15,6 +15,7 @@
 #define __maybe_unused	__attribute__((__unused__))
 #define __aligned(x)	__attribute__((__aligned__(x)))
 #define __section(x)	__attribute__((__section__(x)))
+#define __fallthrough	__attribute__((__fallthrough__))
 #if RECLAIM_INIT_CODE
 /*
  * Add each function to a section that is unique so the functions can still
