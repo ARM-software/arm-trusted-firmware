@@ -100,7 +100,7 @@ void backtrace(const char *cookie);
 #endif
 
 void __dead2 el3_panic(void);
-void __dead2 report_elx_panic(void);
+void __dead2 elx_panic(void);
 
 #define panic()				\
 	do {				\
@@ -118,7 +118,7 @@ void __dead2 report_elx_panic(void);
 #define	lower_el_panic()		\
 	do {				\
 		console_flush();	\
-		report_elx_panic();	\
+		elx_panic();		\
 	} while (false)
 #else
 #define	lower_el_panic()

@@ -3204,6 +3204,17 @@ as Group 0 secure interrupt, Group 1 secure interrupt or Group 1 NS interrupt.
 
 Common helper functions
 -----------------------
+Function : elx_panic()
+~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : void
+
+This API is called from assembly files when reporting a critical failure
+that has occured in lower EL and is been trapped in EL3. This call
+**must not** return.
 
 Function : el3_panic()
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -3539,7 +3550,7 @@ amount of open resources per driver.
 
 --------------
 
-*Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html

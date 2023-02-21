@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -563,7 +563,7 @@ sysreg_handler64:
 	 */
 
 	tst	w0, w0
-	b.mi	el3_panic	/* negative return value: panic */
+	b.mi	elx_panic	/* negative return value: panic */
 	b.eq	1f		/* zero: do not change ELR_EL3 */
 
 	/* advance the PC to continue after the instruction */
