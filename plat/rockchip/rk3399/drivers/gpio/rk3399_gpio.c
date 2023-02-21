@@ -376,7 +376,7 @@ void plat_rockchip_restore_gpio(void)
 		mmio_write_32(base + SWPORTA_DDR, save->swporta_ddr);
 		mmio_write_32(base + INTEN, save->inten);
 		mmio_write_32(base + INTMASK, save->intmask);
-		mmio_write_32(base + INTTYPE_LEVEL, save->inttype_level),
+		mmio_write_32(base + INTTYPE_LEVEL, save->inttype_level);
 		mmio_write_32(base + INT_POLARITY, save->int_polarity);
 		mmio_write_32(base + DEBOUNCE, save->debounce);
 		mmio_write_32(base + LS_SYNC, save->ls_sync);
