@@ -261,9 +261,6 @@ RAS_EXTENSION			:= 0
 # By default, BL1 acts as the reset handler, not BL31
 RESET_TO_BL31			:= 0
 
-# By default, clear the input registers when RESET_TO_BL31 is enabled
-RESET_TO_BL31_WITH_PARAMS	:= 0
-
 # For Chain of Trust
 SAVE_KEYS			:= 0
 
