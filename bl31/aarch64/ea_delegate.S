@@ -16,9 +16,8 @@
 #include <context.h>
 
 	.globl	handle_lower_el_ea_esb
-	.globl  handle_lower_el_async_ea
-	.globl	enter_lower_el_sync_ea
-	.globl	enter_lower_el_async_ea
+	.globl	handle_lower_el_sync_ea
+	.globl	handle_lower_el_async_ea
 
 
 /*
@@ -42,17 +41,12 @@ endfunc handle_lower_el_ea_esb
  * Implementation Defined Exceptions. If any other kind of exception is detected,
  * then this function reports unhandled exception.
  *
- * Since it's part of exception vector, this function doesn't expect any GP
- * registers to have been saved. It delegates the handling of the EA to platform
- * handler, and upon successfully handling the EA, exits EL3; otherwise panics.
+ * It delegates the handling of the EA to platform handler, and upon successfully
+ * handling the EA, exits EL3; otherwise panics.
+ *
+ * This function assumes x30 has been saved.
  */
-func enter_lower_el_sync_ea
-	/*
-	 * Explicitly save x30 so as to free up a register and to enable
-	 * branching.
-	 */
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-
+func handle_lower_el_sync_ea
 	mrs	x30, esr_el3
 	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
 
@@ -114,24 +108,19 @@ func enter_lower_el_sync_ea
 	/* Synchronous exceptions other than the above are assumed to be EA */
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	no_ret	report_unhandled_exception
-endfunc enter_lower_el_sync_ea
+endfunc handle_lower_el_sync_ea
 
 
 /*
  * This function handles SErrors from lower ELs.
  *
- * Since it's part of exception vector, this function doesn't expect any GP
- * registers to have been saved. It delegates the handling of the EA to platform
- * handler, and upon successfully handling the EA, exits EL3; otherwise panics.
+ * It delegates the handling of the EA to platform handler, and upon successfully
+ * handling the EA, exits EL3; otherwise panics.
+ *
+ * This function assumes x30 has been saved.
  */
-func enter_lower_el_async_ea
-	/*
-	 * Explicitly save x30 so as to free up a register and to enable
-	 * branching
-	 */
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+func handle_lower_el_async_ea
 
-handle_lower_el_async_ea:
 	/*
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
 	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
@@ -153,7 +142,7 @@ handle_lower_el_async_ea:
 	/* el3_exit assumes SP_EL0 on entry */
 	msr	spsel, #MODE_SP_EL0
 	b	el3_exit
-endfunc enter_lower_el_async_ea
+endfunc handle_lower_el_async_ea
 
 
 /*
