@@ -90,16 +90,6 @@ static void read_feat_dit(void)
 #endif
 }
 
-/***********************************
- * Feature : FEAT_SEL2 (Secure EL2)
- **********************************/
-static void read_feat_sel2(void)
-{
-#if (ENABLE_FEAT_SEL2 == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_4_sel2_present(), "SEL2");
-#endif
-}
-
 /************************************************
  * Feature : FEAT_MTE (Memory Tagging Extension)
  ***********************************************/
@@ -213,7 +203,8 @@ void detect_arch_features(void)
 		      "MPAM", 1, 17);
 	check_feature(CTX_INCLUDE_NEVE_REGS, read_feat_nv_id_field(),
 		      "NV2", 2, 2);
-	read_feat_sel2();
+	check_feature(ENABLE_FEAT_SEL2, read_feat_sel2_id_field(),
+		      "SEL2", 1, 1);
 	check_feature(ENABLE_TRF_FOR_NS, read_feat_trf_id_field(),
 		      "TRF", 1, 1);
 

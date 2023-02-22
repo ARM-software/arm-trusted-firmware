@@ -399,7 +399,7 @@ static int spmd_spmc_init(void *pm_addr)
 	 * Check if S-EL2 is supported on this system if S-EL2
 	 * is required for SPM
 	 */
-	if (!is_armv8_4_sel2_present()) {
+	if (!is_feat_sel2_supported()) {
 		WARN("SPM Core run time S-EL2 is not supported.\n");
 		return -EINVAL;
 	}

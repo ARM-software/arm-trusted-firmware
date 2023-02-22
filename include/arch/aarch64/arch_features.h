@@ -113,10 +113,22 @@ static inline unsigned int get_armv8_5_mte_support(void)
 		ID_AA64PFR1_EL1_MTE_MASK);
 }
 
-static inline bool is_armv8_4_sel2_present(void)
+static inline unsigned int read_feat_sel2_id_field(void)
 {
-	return ((read_id_aa64pfr0_el1() >> ID_AA64PFR0_SEL2_SHIFT) &
-		ID_AA64PFR0_SEL2_MASK) == 1ULL;
+	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_SEL2);
+}
+
+static inline bool is_feat_sel2_supported(void)
+{
+	if (ENABLE_FEAT_SEL2 == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_SEL2 == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_sel2_id_field() != 0U;
 }
 
 static inline unsigned int read_feat_twed_id_field(void)
