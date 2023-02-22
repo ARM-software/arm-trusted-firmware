@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023, Advanced Micro Devices Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -118,9 +119,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		enum fsbl_handoff ret = fsbl_atf_handover(&bl32_image_ep_info,
 							  &bl33_image_ep_info,
 							  atf_handoff_addr);
-		if (ret == FSBL_HANDOFF_NO_STRUCT) {
-			bl31_set_default_config();
-		} else if (ret != FSBL_HANDOFF_SUCCESS) {
+		if (ret != FSBL_HANDOFF_SUCCESS) {
 			panic();
 		}
 	}
