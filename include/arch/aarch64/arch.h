@@ -1309,11 +1309,19 @@
  * FEAT_HCX - Extended Hypervisor Configuration Register
  ******************************************************************************/
 #define HCRX_EL2		S3_4_C1_C2_2
+#define HCRX_EL2_MSCEn_BIT	(UL(1) << 11)
+#define HCRX_EL2_MCE2_BIT	(UL(1) << 10)
+#define HCRX_EL2_CMOW_BIT	(UL(1) << 9)
+#define HCRX_EL2_VFNMI_BIT	(UL(1) << 8)
+#define HCRX_EL2_VINMI_BIT	(UL(1) << 7)
+#define HCRX_EL2_TALLINT_BIT	(UL(1) << 6)
+#define HCRX_EL2_SMPME_BIT	(UL(1) << 5)
 #define HCRX_EL2_FGTnXS_BIT	(UL(1) << 4)
 #define HCRX_EL2_FnXS_BIT	(UL(1) << 3)
 #define HCRX_EL2_EnASR_BIT	(UL(1) << 2)
 #define HCRX_EL2_EnALS_BIT	(UL(1) << 1)
 #define HCRX_EL2_EnAS0_BIT	(UL(1) << 0)
+#define HCRX_EL2_INIT_VAL	ULL(0x0)
 
 /*******************************************************************************
  * FEAT_TCR2 - Extended Translation Control Register
