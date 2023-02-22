@@ -286,6 +286,18 @@ Device Regions
           - PPI:  0b01
           - SGI:  0b00
 
+- interrupts-target
+   - value type: <prop-encoded-array>
+   - A list of (id, mpdir upper bits, mpidr lower bits) tuples describing which
+     mpidr the interrupt is routed to, where:
+
+      - id: The <u32> interrupt ID. Must be one of those specified in the
+            "interrupts" field.
+      - mpidr upper bits: The <u32> describing the upper bits of the 64 bits
+                          mpidr
+      - mpidr lower bits: The <u32> describing the lower bits of the 64 bits
+                          mpidr
+
 - exclusive-access
    - value type: <empty>
    - Presence of this field implies that this endpoint must be granted exclusive
