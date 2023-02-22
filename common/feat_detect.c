@@ -102,16 +102,6 @@ static void read_feat_mte(void)
 #endif
 }
 
-/***********************************************
- * Feature : FEAT_RNG (Random Number Generator)
- **********************************************/
-static void read_feat_rng(void)
-{
-#if (ENABLE_FEAT_RNG == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_5_rng_present(), "RNG");
-#endif
-}
-
 /****************************************************
  * Feature : FEAT_BTI (Branch Target Identification)
  ***************************************************/
@@ -210,7 +200,7 @@ void detect_arch_features(void)
 
 	/* v8.5 features */
 	read_feat_mte();
-	read_feat_rng();
+	check_feature(ENABLE_FEAT_RNG, read_feat_rng_id_field(), "RNG", 1, 1);
 	read_feat_bti();
 	read_feat_rng_trap();
 
