@@ -359,7 +359,7 @@ enum pm_clock_div_id {
  * EM API IDs
  */
 enum em_api_id {
-	EM_SET_ACTION = 1,
+	EM_SET_ACTION = 0x3001,
 	EM_REMOVE_ACTION,
 	EM_SEND_ERRORS,
 };
