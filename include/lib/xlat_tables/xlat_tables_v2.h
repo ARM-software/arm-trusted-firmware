@@ -203,7 +203,7 @@ typedef struct xlat_ctx xlat_ctx_t;
 					 (_virt_addr_space_size),	\
 					 (_phy_addr_space_size),	\
 					 EL_REGIME_INVALID,		\
-					 "xlat_table", "base_xlat_table")
+					 ".xlat_table", ".base_xlat_table")
 
 /*
  * Same as REGISTER_XLAT_CONTEXT plus the additional parameters:

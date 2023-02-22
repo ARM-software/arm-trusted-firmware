@@ -109,7 +109,7 @@
 /*
  * Define a region within the TZC secured DRAM for use by EL3 runtime
  * firmware. This region is meant to be NOLOAD and will not be zero
- * initialized. Data sections with the attribute `arm_el3_tzc_dram` will be
+ * initialized. Data sections with the attribute `.arm_el3_tzc_dram` will be
  * placed here. 3MB region is reserved if RME is enabled, 2MB otherwise.
  */
 #define ARM_EL3_TZC_DRAM1_SIZE		UL(0x00300000) /* 3MB */

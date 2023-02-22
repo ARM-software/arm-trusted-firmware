@@ -23,8 +23,8 @@ SECTIONS
 	 * not support inner shareable WBWA mappings so it is mapped normal
 	 * non-cacheable)
 	 */
-	sp_xlat_table (NOLOAD) : ALIGN(PAGE_SIZE) {
-		*(sp_xlat_table)
+	.sp_xlat_table (NOLOAD) : ALIGN(PAGE_SIZE) {
+		*(.sp_xlat_table)
 	} >SP_DRAM
 }
 

@@ -17,7 +17,7 @@
 
 /*******************************************************************************
  * The 'pmf_svc_descs' array holds the PMF service descriptors exported by
- * services by placing them in the 'pmf_svc_descs' linker section.
+ * services by placing them in the '.pmf_svc_descs' linker section.
  * The 'pmf_svc_descs_indices' array holds the index of a descriptor in the
  * 'pmf_svc_descs' array. The TIF[15:10] bits in the time-stamp id are used
  * to get an index into the 'pmf_svc_descs_indices' array. This gives the

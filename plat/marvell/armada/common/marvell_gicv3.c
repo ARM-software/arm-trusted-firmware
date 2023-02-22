@@ -38,8 +38,8 @@ static const interrupt_prop_t marvell_interrupt_props[] = {
  * We save and restore the GICv3 context on system suspend. Allocate the
  * data in the designated EL3 Secure carve-out memory
  */
-static gicv3_redist_ctx_t rdist_ctx __section("arm_el3_tzc_dram");
-static gicv3_dist_ctx_t dist_ctx __section("arm_el3_tzc_dram");
+static gicv3_redist_ctx_t rdist_ctx __section(".arm_el3_tzc_dram");
+static gicv3_dist_ctx_t dist_ctx __section(".arm_el3_tzc_dram");
 
 /*
  * MPIDR hashing function for translating MPIDRs read from GICR_TYPER register

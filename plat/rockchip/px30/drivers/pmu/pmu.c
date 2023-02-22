@@ -45,7 +45,7 @@ static struct psram_data_t *psram_boot_cfg =
 
 static uint32_t cores_pd_cfg_info[PLATFORM_CORE_COUNT]
 #if USE_COHERENT_MEM
-__attribute__ ((section("tzfw_coherent_mem")))
+__attribute__ ((section(".tzfw_coherent_mem")))
 #endif
 ;
 
@@ -101,7 +101,7 @@ struct px30_sleep_ddr_data {
 
 static struct px30_sleep_ddr_data ddr_data
 #if USE_COHERENT_MEM
-__attribute__ ((section("tzfw_coherent_mem")))
+__attribute__ ((section(".tzfw_coherent_mem")))
 #endif
 ;
 

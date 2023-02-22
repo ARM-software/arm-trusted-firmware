@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,8 +14,8 @@ MEMORY {
 
 SECTIONS
 {
-	ram2_region (NOLOAD) : {
-	*(ram2_region)
+	.ram2_region (NOLOAD) : {
+	*(.ram2_region)
 	}>RAM2
 }
 

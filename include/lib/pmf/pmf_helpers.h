@@ -154,7 +154,7 @@ typedef struct pmf_svc_desc {
 	extern unsigned long long pmf_ts_mem_ ## _name[_total_id];	\
 	unsigned long long pmf_ts_mem_ ## _name[_total_id]	\
 	__aligned(CACHE_WRITEBACK_GRANULE)			\
-	__section("pmf_timestamp_array")			\
+	__section(".pmf_timestamp_array")			\
 	__used;
 
 /*
@@ -225,7 +225,7 @@ typedef struct pmf_svc_desc {
 #define PMF_DEFINE_SERVICE_DESC(_name, _implid, _svcid, _totalid,	\
 		_init, _getts_by_mpidr) 				\
 	static const pmf_svc_desc_t __pmf_desc_ ## _name 		\
-	__section("pmf_svc_descs") __used = {		 		\
+	__section(".pmf_svc_descs") __used = {		 		\
 		.h.type = PARAM_EP, 					\
 		.h.version = VERSION_1, 				\
 		.h.size = sizeof(pmf_svc_desc_t),			\

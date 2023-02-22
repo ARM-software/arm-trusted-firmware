@@ -157,7 +157,7 @@
 	 */
 	.macro declare_cpu_ops_base _name:req, _midr:req, _resetfunc:req, \
 		_extra1:req, _extra2:req, _extra3:req, _e_handler:req, _power_down_ops:vararg
-	.section cpu_ops, "a"
+	.section .cpu_ops, "a"
 	.align 3
 	.type cpu_ops_\_name, %object
 	.quad \_midr

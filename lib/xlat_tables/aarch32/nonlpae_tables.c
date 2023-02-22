@@ -138,10 +138,10 @@ static unsigned long long xlat_max_pa;
 static uintptr_t xlat_max_va;
 
 static uint32_t mmu_l1_base[NUM_1MB_IN_4GB]
-	__aligned(MMU32B_L1_TABLE_ALIGN) __attribute__((section("xlat_table")));
+	__aligned(MMU32B_L1_TABLE_ALIGN) __attribute__((section(".xlat_table")));
 
 static uint32_t mmu_l2_base[MAX_XLAT_TABLES][NUM_4K_IN_1MB]
-	__aligned(MMU32B_L2_TABLE_ALIGN) __attribute__((section("xlat_table")));
+	__aligned(MMU32B_L2_TABLE_ALIGN) __attribute__((section(".xlat_table")));
 
 /*
  * Array of all memory regions stored in order of ascending base address.
