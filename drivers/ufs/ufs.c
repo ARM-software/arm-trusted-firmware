@@ -289,6 +289,8 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 	unsigned int ulba;
 	unsigned int lba_cnt;
 	int prdt_size;
+	uintptr_t desc_limit;
+	size_t flush_size;
 
 	hd = (utrd_header_t *)utrd->header;
 	upiu = (cmd_upiu_t *)utrd->upiu;
@@ -342,17 +344,25 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 		assert(0);
 		break;
 	}
-	if (hd->dd == DD_IN)
+	if (hd->dd == DD_IN) {
 		flush_dcache_range(buf, length);
-	else if (hd->dd == DD_OUT)
+	} else if (hd->dd == DD_OUT) {
 		inv_dcache_range(buf, length);
+	}
+
+	utrd->size_prdt = 0;
 	if (length) {
 		upiu->exp_data_trans_len = htobe32(length);
 		assert(lba_cnt <= UINT16_MAX);
 		prdt = (prdt_t *)utrd->prdt;
 
+		desc_limit = ufs_params.desc_base + ufs_params.desc_size;
 		prdt_size = 0;
 		while (length > 0) {
+			if ((uintptr_t)prdt + sizeof(prdt_t) > desc_limit) {
+				ERROR("UFS: Exceeded descriptor limit. Image is too large\n");
+				panic();
+			}
 			prdt->dba = (unsigned int)(buf & UINT32_MAX);
 			prdt->dbau = (unsigned int)((buf >> 32) & UINT32_MAX);
 			/* prdt->dbc counts from 0 */
@@ -372,7 +382,8 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 		hd->prdto = (utrd->size_upiu + utrd->size_resp_upiu) >> 2;
 	}
 
-	flush_dcache_range((uintptr_t)utrd->header, UFS_DESC_SIZE);
+	flush_size = utrd->prdt + utrd->size_prdt - utrd->header;
+	flush_dcache_range(utrd->header, flush_size);
 	return 0;
 }
 
