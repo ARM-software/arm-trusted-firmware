@@ -234,42 +234,33 @@ static int ufshc_link_startup(uintptr_t base)
 	return -EIO;
 }
 
-/* Check Door Bell register to get an empty slot */
-static int get_empty_slot(int *slot)
+/* Read Door Bell register to check if slot zero is available */
+static int is_slot_available(void)
 {
-	unsigned int data;
-	int i;
-
-	data = mmio_read_32(ufs_params.reg_base + UTRLDBR);
-	for (i = 0; i < nutrs; i++) {
-		if ((data & 1) == 0)
-			break;
-		data = data >> 1;
-	}
-	if (i >= nutrs)
+	if (mmio_read_32(ufs_params.reg_base + UTRLDBR) & 0x1) {
 		return -EBUSY;
-	*slot = i;
+	}
 	return 0;
 }
 
 static void get_utrd(utp_utrd_t *utrd)
 {
 	uintptr_t base;
-	int slot = 0, result;
+	int result;
 	utrd_header_t *hd;
 
 	assert(utrd != NULL);
-	result = get_empty_slot(&slot);
+	result = is_slot_available();
 	assert(result == 0);
 
 	/* clear utrd */
 	memset((void *)utrd, 0, sizeof(utp_utrd_t));
-	base = ufs_params.desc_base + (slot * sizeof(utrd_header_t));
+	base = ufs_params.desc_base;
 	/* clear the descriptor */
 	memset((void *)base, 0, UFS_DESC_SIZE);
 
 	utrd->header = base;
-	utrd->task_tag = slot + 1;
+	utrd->task_tag = 1; /* We always use the first slot */
 	/* CDB address should be aligned with 128 bytes */
 	utrd->upiu = ALIGN_CDB(utrd->header + sizeof(utrd_header_t));
 	utrd->resp_upiu = ALIGN_8(utrd->upiu + sizeof(cmd_upiu_t));
