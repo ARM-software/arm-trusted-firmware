@@ -923,14 +923,16 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 	*version = ret_payload[0];
 
 	/* Update IOCTL bit mask which are implemented in ATF */
-	if (api_id == PM_IOCTL) {
+	if ((api_id == PM_IOCTL) || (api_id == PM_GET_OP_CHARACTERISTIC)) {
 		if (len < 2) {
 			return PM_RET_ERROR_ARGS;
 		}
 		bit_mask[0] = ret_payload[1];
 		bit_mask[1] = ret_payload[2];
-		/* Get IOCTL's implemented by ATF */
-		status = atf_ioctl_bitmask(bit_mask);
+		if (api_id == PM_IOCTL) {
+			/* Get IOCTL's implemented by ATF */
+			status = atf_ioctl_bitmask(bit_mask);
+		}
 	} else {
 		/* Requires for MISRA */
 	}
