@@ -17,6 +17,7 @@
 #include <plat/common/platform.h>
 #include <lib/mmio.h>
 
+#include <custom_svc.h>
 #include <plat_startup.h>
 #include <plat_private.h>
 #include <zynqmp_def.h>
@@ -129,6 +130,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	if (bl33_image_ep_info.pc != 0) {
 		VERBOSE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
 	}
+
+	custom_early_setup();
+
 }
 
 #if ZYNQMP_WDT_RESTART
@@ -261,6 +265,8 @@ void bl31_plat_arch_setup(void)
 				MT_DEVICE | MT_RW | MT_SECURE),
 		{0}
 	};
+
+	custom_mmap_add();
 
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 	enable_mmu_el3(0);
