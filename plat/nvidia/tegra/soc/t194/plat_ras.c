@@ -249,7 +249,6 @@ void tegra194_ras_corrected_err_clear(uint64_t *cookie)
 	 * of range.
 	 */
 	*cookie = 0ULL;
-	return;
 }
 
 /* Function to probe an error from error record group. */

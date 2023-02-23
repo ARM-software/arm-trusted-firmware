@@ -412,8 +412,6 @@ void sc_pm_reboot(sc_ipc_t ipc, sc_pm_reset_type_t type)
 	RPC_SIZE(&msg) = 2U;
 
 	sc_call_rpc(ipc, &msg, SC_TRUE);
-
-	return;
 }
 
 sc_err_t sc_pm_reboot_partition(sc_ipc_t ipc, sc_rm_pt_t pt,
