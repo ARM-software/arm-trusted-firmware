@@ -1074,11 +1074,6 @@ ROMLIBPATH		?=	lib/romlib
 # Variable for use with Python
 PYTHON			?=	python3
 
-# Variables for use with PRINT_MEMORY_MAP
-PRINT_MEMORY_MAP_PATH		?=	tools/memory
-PRINT_MEMORY_MAP		?=	${PRINT_MEMORY_MAP_PATH}/print_memory_map.py
-INVERTED_MEMMAP			?=	0
-
 # Variables for use with documentation build using Sphinx tool
 DOCS_PATH		?=	docs
 
@@ -1139,7 +1134,6 @@ $(eval $(call assert_booleans,\
         GICV2_G0_FOR_EL3 \
         HANDLE_EA_EL3_FIRST_NS \
         HW_ASSISTED_COHERENCY \
-        INVERTED_MEMMAP \
         MEASURED_BOOT \
         DRTM_SUPPORT \
         NS_TIMER_SWITCH \
@@ -1653,9 +1647,14 @@ endif
 romlib.bin: libraries FORCE
 	${Q}${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES='${INCLUDES}' DEFINES='${DEFINES}' --no-print-directory -C ${ROMLIBPATH} all
 
-# Call print_memory_map tool
 memmap: all
-	${Q}${PYTHON} ${PRINT_MEMORY_MAP} ${BUILD_PLAT} ${INVERTED_MEMMAP}
+ifdef UNIX_MK
+	${Q}PYTHONPATH=${CURDIR}/tools/memory \
+		${PYTHON} -m memory.memmap -sr ${BUILD_PLAT}
+else
+	${Q}set PYTHONPATH=${CURDIR}/tools/memory && \
+		${PYTHON} -m memory.memmap -sr ${BUILD_PLAT}
+endif
 
 doc:
 	@echo "  BUILD DOCUMENTATION"

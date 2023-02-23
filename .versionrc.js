@@ -94,7 +94,6 @@ module.exports = {
 
                     return contents.replace(/^(version\s=\s")((\d).?)*$/m, _ver)
                 }
-
             },
         },
         {
