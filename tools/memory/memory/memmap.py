@@ -36,11 +36,16 @@ from memory.printer import TfaPrettyPrinter
     type=click.Choice(["debug", "release"], case_sensitive=False),
 )
 @click.option(
+    "-f",
+    "--footprint",
+    is_flag=True,
+    show_default=True,
+    help="Generate a high level view of memory usage by memory types.",
+)
+@click.option(
     "-s",
     "--symbols",
     is_flag=True,
-    show_default=True,
-    default=True,
     help="Generate a map of important TF symbols.",
 )
 @click.option("-w", "--width", type=int, envvar="COLUMNS")
@@ -54,6 +59,7 @@ def main(
     root: Path,
     platform: str,
     build_type: str,
+    footprint: bool,
     symbols: bool,
     width: int,
     d: bool,
@@ -63,6 +69,9 @@ def main(
 
     parser = TfaBuildParser(build_path)
     printer = TfaPrettyPrinter(columns=width, as_decimal=d)
+
+    if footprint or not symbols:
+        printer.print_footprint(parser.get_mem_usage_dict())
 
     if symbols:
         expr = (
