@@ -23,13 +23,11 @@ idna==3.4
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.0.0
-    # via sphinx
 jinja2==3.1.2
     # via
     #   myst-parser
     #   sphinx
-markdown-it-py==2.1.0
+markdown-it-py==2.2.0
     # via
     #   mdit-py-plugins
     #   myst-parser
@@ -40,13 +38,13 @@ mdit-py-plugins==0.3.3
 mdurl==0.1.2
     # via markdown-it-py
 myst-parser==0.18.1
-    # via -r docs/requirements.in
+    # via -r requirements.in
 packaging==23.0
     # via sphinx
 pep517==0.13.0
     # via pip-tools
 pip-tools==6.4.0
-    # via -r docs/requirements.in
+    # via -r requirements.in
 pygments==2.14.0
     # via sphinx
 pytz==2022.7
@@ -59,12 +57,12 @@ snowballstemmer==2.2.0
     # via sphinx
 sphinx==5.3.0
     # via
-    #   -r docs/requirements.in
+    #   -r requirements.in
     #   myst-parser
     #   sphinx-rtd-theme
     #   sphinxcontrib-plantuml
 sphinx-rtd-theme==1.1.1
-    # via -r docs/requirements.in
+    # via -r requirements.in
 sphinxcontrib-applehelp==1.0.3
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
@@ -74,21 +72,17 @@ sphinxcontrib-htmlhelp==2.0.0
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-plantuml==0.24.1
-    # via -r docs/requirements.in
+    # via -r requirements.in
 sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-tomli==2.0.1
-    # via pep517
 typing-extensions==4.4.0
     # via myst-parser
 urllib3==1.26.13
     # via requests
 wheel==0.38.4
     # via pip-tools
-zipp==3.11.0
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
