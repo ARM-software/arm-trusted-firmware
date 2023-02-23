@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -126,7 +126,7 @@ warm_reset:
 exit:
 	ret	x9
 _panic:
-	b	do_panic
+	b	el3_panic
 #endif
 
 endfunc plat_get_my_entrypoint

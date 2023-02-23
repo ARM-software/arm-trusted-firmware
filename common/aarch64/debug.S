@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023 Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,8 @@
 	.globl	asm_print_hex_bits
 	.globl	asm_print_newline
 	.globl	asm_assert
-	.globl	do_panic
+	.globl	el3_panic
+	.globl	elx_panic
 
 /* Since the max decimal input number is 65536 */
 #define MAX_DEC_DIVISOR		10000
@@ -145,54 +146,33 @@ func asm_print_newline
 endfunc asm_print_newline
 
 	/***********************************************************
-	 * The common implementation of do_panic for all BL stages
+	 * The common implementation of el3_panic for all BL stages
 	 ***********************************************************/
 
 .section .rodata.panic_str, "aS"
 	panic_msg: .asciz "PANIC at PC : 0x"
 
+func elx_panic
+#if CRASH_REPORTING && defined(IMAGE_BL31)
+	b	report_elx_panic
+#endif /* CRASH_REPORTING && IMAGE_BL31 */
+
+	b	panic_common
+endfunc elx_panic
+
 /* ---------------------------------------------------------------------------
- * do_panic assumes that it is invoked from a C Runtime Environment ie a
+ * el3_panic assumes that it is invoked from a C Runtime Environment ie a
  * valid stack exists. This call will not return.
  * Clobber list : if CRASH_REPORTING is not enabled then x30, x0 - x6
  * ---------------------------------------------------------------------------
  */
 
-/* This is for the non el3 BL stages to compile through */
-	.weak el3_panic
-	.weak elx_panic
-
-func do_panic
-#if CRASH_REPORTING
-	str	x0, [sp, #-0x10]!
-	mrs	x0, currentel
-	ubfx	x0, x0, #MODE_EL_SHIFT, #MODE_EL_WIDTH
-	cmp	x0, #MODE_EL3
-#if !HANDLE_EA_EL3_FIRST_NS
-	ldr	x0, [sp], #0x10
-	b.eq	el3_panic
-#else
-	b.ne	to_panic_common
-
-	/* Check EL the exception taken from */
-	mrs	x0, spsr_el3
-	ubfx	x0, x0, #SPSR_EL_SHIFT, #SPSR_EL_WIDTH
-	cmp	x0, #MODE_EL3
-	b.ne	elx_panic
-	ldr	x0, [sp], #0x10
-	b	el3_panic
-
-to_panic_common:
-	ldr	x0, [sp], #0x10
-#endif /* HANDLE_EA_EL3_FIRST_NS */
-#endif /* CRASH_REPORTING */
+func el3_panic
+#if CRASH_REPORTING && defined(IMAGE_BL31)
+	b	report_el3_panic
+#endif /* CRASH_REPORTING && IMAGE_BL31 */
 
 panic_common:
-/*
- * el3_panic will be redefined by the BL31
- * crash reporting mechanism (if enabled)
- */
-el3_panic:
 	mov	x6, x30
 	bl	plat_crash_console_init
 
@@ -218,4 +198,5 @@ _panic_handler:
 	 * called, not the address of the call from el3_panic. */
 	mov	x30, x6
 	b	plat_panic_handler
-endfunc do_panic
+
+endfunc el3_panic

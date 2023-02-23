@@ -12,7 +12,7 @@
 	.globl	asm_print_hex
 	.globl	asm_print_hex_bits
 	.globl	asm_assert
-	.globl	do_panic
+	.globl	el3_panic
 	.globl	report_exception
 	.globl	report_prefetch_abort
 	.globl	report_data_abort
@@ -159,14 +159,14 @@ asm_print_hex_bits:
 endfunc asm_print_hex
 
 	/***********************************************************
-	 * The common implementation of do_panic for all BL stages
+	 * The common implementation of el3_panic for all BL stages
 	 ***********************************************************/
 
 .section .rodata.panic_str, "aS"
 	panic_msg: .asciz "PANIC at PC : 0x"
 	panic_end: .asciz "\r\n"
 
-func do_panic
+func el3_panic
 	/* Have LR copy point to PC at the time of panic */
 	sub	r6, lr, #4
 
@@ -194,7 +194,7 @@ func do_panic
 _panic_handler:
 	mov	lr, r6
 	b	plat_panic_handler
-endfunc do_panic
+endfunc el3_panic
 
 	/***********************************************************
 	 * This function is called from the vector table for

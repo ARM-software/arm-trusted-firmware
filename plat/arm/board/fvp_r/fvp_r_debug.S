@@ -11,7 +11,7 @@
 	.globl el2_panic
 
 	/***********************************************************
-	 * The common implementation of do_panic for all BL stages
+	 * The common implementation of el3_panic for all BL stages
 	 ***********************************************************/
 
 .section .rodata.panic_str, "aS"

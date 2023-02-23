@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -99,14 +99,30 @@ void backtrace(const char *cookie);
 #define backtrace(x)
 #endif
 
-void __dead2 do_panic(void);
+void __dead2 el3_panic(void);
+void __dead2 elx_panic(void);
 
 #define panic()				\
 	do {				\
 		backtrace(__func__);	\
 		console_flush();	\
-		do_panic();		\
+		el3_panic();		\
 	} while (false)
+
+#if CRASH_REPORTING
+/* --------------------------------------------------------------------
+ * do_lower_el_panic assumes it's called due to a panic from a lower EL
+ * This call will not return.
+ * --------------------------------------------------------------------
+ */
+#define	lower_el_panic()		\
+	do {				\
+		console_flush();	\
+		elx_panic();		\
+	} while (false)
+#else
+#define	lower_el_panic()
+#endif
 
 /* Function called when stack protection check code detects a corrupted stack */
 void __dead2 __stack_chk_fail(void);
