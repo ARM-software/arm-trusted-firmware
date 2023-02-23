@@ -59,6 +59,18 @@ class TfaBuildParser:
                 mem_map[k] = mod_mem_map
         return mem_map
 
+    def get_mem_tree_as_dict(self) -> dict:
+        """Returns _tree of modules, segments and segments and their total
+        memory usage."""
+        return {
+            k: {
+                "name": k,
+                **v.get_mod_mem_usage_dict(),
+                **{"children": v.get_seg_map_as_dict()},
+            }
+            for k, v in self._modules.items()
+        }
+
     @property
     def module_names(self):
         """Returns sorted list of module names."""
