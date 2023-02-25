@@ -85,6 +85,10 @@
 #define __EL3_LP_DESCS_START__		Load$$__EL3_LP_DESCS__$$Base
 #define __EL3_LP_DESCS_END__		Load$$__EL3_LP_DESCS__$$Limit
 #endif
+#if ENABLE_SPMD_LP
+#define __SPMD_LP_DESCS_START__	Load$$__SPMD_LP_DESCS__$$Base
+#define __SPMD_LP_DESCS_END__		Load$$__SPMD_LP_DESCS__$$Limit
+#endif
 #define __RW_START__			Load$$LR$$LR_RW_DATA$$Base
 #define __RW_END__			Load$$LR$$LR_END$$Base
 #define __SPM_SHIM_EXCEPTIONS_START__	Load$$__SPM_SHIM_EXCEPTIONS__$$Base

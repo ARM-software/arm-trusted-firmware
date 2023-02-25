@@ -508,3 +508,6 @@ DRTM_SUPPORT			:= 0
 # Check platform if cache management operations should be performed.
 # Disabled by default.
 CONDITIONAL_CMO			:= 0
+
+# By default, disable SPMD Logical partitions
+ENABLE_SPMD_LP			:= 0

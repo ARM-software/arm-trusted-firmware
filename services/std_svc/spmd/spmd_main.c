@@ -27,6 +27,7 @@
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
+#include <services/el3_spmd_logical_sp.h>
 #include <services/ffa_svc.h>
 #include <services/spmc_svc.h>
 #include <services/spmd_svc.h>
@@ -189,6 +190,12 @@ static int32_t spmd_init(void)
 	ctx->state = SPMC_STATE_ON;
 
 	VERBOSE("SPM Core init end.\n");
+
+	spmd_logical_sp_set_spmc_initialized();
+	rc = spmd_logical_sp_init();
+	if (rc != 0) {
+		WARN("SPMD Logical partitions failed init.\n");
+	}
 
 	return 1;
 }

@@ -15,7 +15,8 @@ endif
 SPMD_SOURCES	+=	$(addprefix services/std_svc/spmd/,	\
 			${ARCH}/spmd_helpers.S			\
 			spmd_pm.c				\
-			spmd_main.c)
+			spmd_main.c				\
+			spmd_logical_sp.c)
 
 # Let the top-level Makefile know that we intend to include a BL32 image
 NEED_BL32		:=	yes
