@@ -89,12 +89,21 @@
 
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
+
+#ifndef MAX_MMAP_REGIONS
 #if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
 #define MAX_MMAP_REGIONS		8
-#define MAX_XLAT_TABLES			8
 #else
 #define MAX_MMAP_REGIONS		7
+#endif
+#endif
+
+#ifndef MAX_XLAT_TABLES
+#if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
+#define MAX_XLAT_TABLES			8
+#else
 #define MAX_XLAT_TABLES			5
+#endif
 #endif
 
 #define CACHE_WRITEBACK_SHIFT   6

@@ -15,3 +15,11 @@ uint64_t custom_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	WARN("Unimplemented SiP Service Call: 0x%x\n", smc_fid);
 	SMC_RET1(handle, SMC_UNK);
 }
+
+void custom_early_setup(void)
+{
+}
+
+void custom_mmap_add(void)
+{
+}
