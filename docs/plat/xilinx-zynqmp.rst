@@ -31,6 +31,7 @@ To build TF-A for JTAG DCC console:
 ZynqMP platform specific build options
 --------------------------------------
 
+-  ``XILINX_OF_BOARD_DTB_ADDR`` : Specifies the base address of Device tree.
 -  ``ZYNQMP_ATF_MEM_BASE``: Specifies the base address of the bl31 binary.
 -  ``ZYNQMP_ATF_MEM_SIZE``: Specifies the size of the memory region of the bl31 binary.
 -  ``ZYNQMP_BL32_MEM_BASE``: Specifies the base address of the bl32 binary.
@@ -47,13 +48,33 @@ ZynqMP Debug behavior
 With DEBUG=1, TF-A for ZynqMP uses DDR memory range instead of OCM memory range
 due to size constraints.
 For DEBUG=1 configuration for ZynqMP the BL31_BASE is set to the DDR location
-of 0x1000 and BL31_LIMIT is set to DDR location of 0x7FFFF.
+of 0x1000 and BL31_LIMIT is set to DDR location of 0x7FFFF. By default the
+above memory range will NOT be reserved in device tree.
 
-If the user wants to move the bl31 to a different DDR location, user can provide
-the DDR address location in the build command as follows,
+To reserve the above memory range in device tree, the device tree base address
+must be provided during build as,
 
 make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp RESET_TO_BL31=1 DEBUG=1 \
-	ZYNQMP_ATF_MEM_BASE=<DDR address> ZYNQMP_ATF_MEM_SIZE=<size> bl31
+       XILINX_OF_BOARD_DTB_ADDR=<DTB address> bl31
+
+The default DTB base address for ZynqMP platform is 0x100000. This default value
+is not set in the code and to use this default address, user still needs to
+provide it through the build command as above.
+
+If the user wants to move the bl31 to a different DDR location, user can provide
+the DDR address location using the build time parameters ZYNQMP_ATF_MEM_BASE and
+ZYNQMP_ATF_MEM_SIZE.
+
+The DDR address must be reserved in the DTB by the user, either by manually
+adding the reserved memory node, in the device tree, with the required address
+range OR let TF-A modify the device tree on the run.
+
+To let TF-A access and modify the device tree, the DTB address must be provided
+to the build command as follows,
+
+make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp RESET_TO_BL31=1 DEBUG=1 \
+	ZYNQMP_ATF_MEM_BASE=<DDR address> ZYNQMP_ATF_MEM_SIZE=<size> \
+	XILINX_OF_BOARD_DTB_ADDR=<DTB address> bl31
 
 
 FSBL->TF-A Parameter Passing

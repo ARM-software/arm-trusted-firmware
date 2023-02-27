@@ -1,6 +1,8 @@
 #
 # Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
 # Portions copyright (c) 2021-2022, ProvenRun S.A.S. All rights reserved.
+# Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
+# Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -73,6 +75,10 @@ endif
 
 ifdef ZYNQMP_SECURE_EFUSES
     $(eval $(call add_define,ZYNQMP_SECURE_EFUSES))
+endif
+
+ifdef XILINX_OF_BOARD_DTB_ADDR
+$(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
 endif
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
