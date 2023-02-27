@@ -234,42 +234,33 @@ static int ufshc_link_startup(uintptr_t base)
 	return -EIO;
 }
 
-/* Check Door Bell register to get an empty slot */
-static int get_empty_slot(int *slot)
+/* Read Door Bell register to check if slot zero is available */
+static int is_slot_available(void)
 {
-	unsigned int data;
-	int i;
-
-	data = mmio_read_32(ufs_params.reg_base + UTRLDBR);
-	for (i = 0; i < nutrs; i++) {
-		if ((data & 1) == 0)
-			break;
-		data = data >> 1;
-	}
-	if (i >= nutrs)
+	if (mmio_read_32(ufs_params.reg_base + UTRLDBR) & 0x1) {
 		return -EBUSY;
-	*slot = i;
+	}
 	return 0;
 }
 
 static void get_utrd(utp_utrd_t *utrd)
 {
 	uintptr_t base;
-	int slot = 0, result;
+	int result;
 	utrd_header_t *hd;
 
 	assert(utrd != NULL);
-	result = get_empty_slot(&slot);
+	result = is_slot_available();
 	assert(result == 0);
 
 	/* clear utrd */
 	memset((void *)utrd, 0, sizeof(utp_utrd_t));
-	base = ufs_params.desc_base + (slot * sizeof(utrd_header_t));
+	base = ufs_params.desc_base;
 	/* clear the descriptor */
 	memset((void *)base, 0, UFS_DESC_SIZE);
 
 	utrd->header = base;
-	utrd->task_tag = slot + 1;
+	utrd->task_tag = 1; /* We always use the first slot */
 	/* CDB address should be aligned with 128 bytes */
 	utrd->upiu = ALIGN_CDB(utrd->header + sizeof(utrd_header_t));
 	utrd->resp_upiu = ALIGN_8(utrd->upiu + sizeof(cmd_upiu_t));
@@ -297,7 +288,8 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 	prdt_t *prdt;
 	unsigned int ulba;
 	unsigned int lba_cnt;
-	int prdt_size;
+	uintptr_t desc_limit;
+	uintptr_t prdt_end;
 
 	hd = (utrd_header_t *)utrd->header;
 	upiu = (cmd_upiu_t *)utrd->upiu;
@@ -351,17 +343,24 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 		assert(0);
 		break;
 	}
-	if (hd->dd == DD_IN)
+	if (hd->dd == DD_IN) {
 		flush_dcache_range(buf, length);
-	else if (hd->dd == DD_OUT)
+	} else if (hd->dd == DD_OUT) {
 		inv_dcache_range(buf, length);
+	}
+
+	utrd->prdt_length = 0;
 	if (length) {
 		upiu->exp_data_trans_len = htobe32(length);
 		assert(lba_cnt <= UINT16_MAX);
 		prdt = (prdt_t *)utrd->prdt;
 
-		prdt_size = 0;
+		desc_limit = ufs_params.desc_base + ufs_params.desc_size;
 		while (length > 0) {
+			if ((uintptr_t)prdt + sizeof(prdt_t) > desc_limit) {
+				ERROR("UFS: Exceeded descriptor limit. Image is too large\n");
+				panic();
+			}
 			prdt->dba = (unsigned int)(buf & UINT32_MAX);
 			prdt->dbau = (unsigned int)((buf >> 32) & UINT32_MAX);
 			/* prdt->dbc counts from 0 */
@@ -374,14 +373,14 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 			}
 			buf += MAX_PRDT_SIZE;
 			prdt++;
-			prdt_size += sizeof(prdt_t);
+			utrd->prdt_length++;
 		}
-		utrd->size_prdt = ALIGN_8(prdt_size);
-		hd->prdtl = utrd->size_prdt >> 2;
+		hd->prdtl = utrd->prdt_length;
 		hd->prdto = (utrd->size_upiu + utrd->size_resp_upiu) >> 2;
 	}
 
-	flush_dcache_range((uintptr_t)utrd->header, UFS_DESC_SIZE);
+	prdt_end = utrd->prdt + utrd->prdt_length * sizeof(prdt_t);
+	flush_dcache_range(utrd->header, prdt_end - utrd->header);
 	return 0;
 }
 

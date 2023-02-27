@@ -519,7 +519,7 @@ typedef struct utp_utrd {
 	uintptr_t	prdt;
 	size_t		size_upiu;
 	size_t		size_resp_upiu;
-	size_t		size_prdt;
+	size_t		prdt_length;
 	int		task_tag;
 } utp_utrd_t;
 
