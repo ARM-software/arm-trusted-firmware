@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023, Advanced Micro Devices Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -187,9 +188,6 @@ enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode);
 enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode);
 enum pm_ret_status pm_efuse_access(uint32_t address_high,
 				   uint32_t address_low, uint32_t *value);
-enum pm_ret_status em_set_action(uint32_t *value);
-enum pm_ret_status em_remove_action(uint32_t *value);
-enum pm_ret_status em_send_errors(uint32_t *value);
 enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 				    uint32_t *bit_mask, uint8_t len);
 enum pm_ret_status check_api_dependency(uint8_t id);

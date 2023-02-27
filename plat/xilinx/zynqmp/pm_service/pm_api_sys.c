@@ -253,10 +253,6 @@ uint32_t pm_get_shutdown_scope(void)
 	return pm_shutdown_scope;
 }
 
-#define EM_PACK_PAYLOAD1(pl, arg0) {	\
-	pl[0] = (uint16_t)(0xE) << 16 | (uint16_t)arg0;	\
-}
-
 /**
  * pm_self_suspend() - PM call for processor to suspend itself
  * @nid		Node id of the processor or subsystem
@@ -1808,32 +1804,5 @@ enum pm_ret_status pm_efuse_access(uint32_t address_high,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, PM_EFUSE_ACCESS, address_high, address_low);
 
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
-}
-
-enum pm_ret_status em_set_action(uint32_t *value)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	EM_PACK_PAYLOAD1(payload, EM_SET_ACTION);
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
-}
-
-enum pm_ret_status em_remove_action(uint32_t *value)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	EM_PACK_PAYLOAD1(payload, EM_REMOVE_ACTION);
-	return pm_ipi_send_sync(primary_proc, payload, value, 1);
-}
-
-enum pm_ret_status em_send_errors(uint32_t *value)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	EM_PACK_PAYLOAD1(payload, EM_SEND_ERRORS);
 	return pm_ipi_send_sync(primary_proc, payload, value, 1);
 }
