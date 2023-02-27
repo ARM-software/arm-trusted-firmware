@@ -30,8 +30,6 @@
 #define XLNX_FID_MASK	GENMASK(23, 12)
 #define PM_FID_VALUE	0u
 #define IPI_FID_VALUE	0x1000u
-#define EM_FID_VALUE	0x3000u
-#define is_em_fid(_fid) (((_fid) & XLNX_FID_MASK) == EM_FID_VALUE)
 #define is_pm_fid(_fid) (((_fid) & XLNX_FID_MASK) == PM_FID_VALUE)
 #define is_ipi_fid(_fid) (((_fid) & XLNX_FID_MASK) == IPI_FID_VALUE)
 
@@ -72,12 +70,6 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 	if (smc_fid & SIP_FID_MASK) {
 		WARN("SMC out of SiP assinged range: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
-	}
-
-	/* Let EM SMC handler deal with EM-related requests */
-	if (is_em_fid(smc_fid)) {
-		return em_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
-				      flags);
 	}
 
 	/* Let PM SMC handler deal with PM-related requests */

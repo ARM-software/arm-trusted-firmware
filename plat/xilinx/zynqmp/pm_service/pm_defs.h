@@ -53,8 +53,6 @@
 #define PM_PROC_STATE_SLEEP		2U
 #define PM_PROC_STATE_SUSPENDING	3U
 
-#define EM_FUNID_NUM_MASK    0xF0000U
-
 #define PM_GET_CALLBACK_DATA		0xa01
 #define PM_SET_SUSPEND_MODE		0xa02
 #define PM_GET_TRUSTZONE_VERSION	0xa03
@@ -353,15 +351,6 @@ enum pm_pll_mode {
 enum pm_clock_div_id {
 	PM_CLOCK_DIV0_ID,
 	PM_CLOCK_DIV1_ID,
-};
-
-/**
- * EM API IDs
- */
-enum em_api_id {
-	EM_SET_ACTION = 0x3001,
-	EM_REMOVE_ACTION,
-	EM_SEND_ERRORS,
 };
 
 #endif /* PM_DEFS_H */
