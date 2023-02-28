@@ -25,8 +25,6 @@
 #include "pm_defs.h"
 
 #define UNDEFINED_CPUID		(~0)
-#define IRQ_MAX		142U
-#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5U) + 1U)
 
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
@@ -106,60 +104,10 @@ static enum pm_device_node_idx irq_node_map[IRQ_MAX + 1] = {
  *
  * Return:	PM node index corresponding to the specified interrupt
  */
-static enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
+enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
 {
 	assert(irq <= IRQ_MAX);
 	return irq_node_map[irq];
-}
-
-/**
- * pm_client_set_wakeup_sources - Set all devices with enabled interrupts as
- *				  wake sources in the LibPM.
- * @node_id:	Node id of processor
- */
-static void pm_client_set_wakeup_sources(uint32_t node_id)
-{
-	uint32_t reg_num;
-	uint32_t device_id;
-	uint8_t pm_wakeup_nodes_set[XPM_NODEIDX_DEV_MAX] = { 0U };
-	uintptr_t isenabler1 = PLAT_GICD_BASE_VALUE + GICD_ISENABLER + 4;
-
-	for (reg_num = 0U; reg_num < NUM_GICD_ISENABLER; reg_num++) {
-		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
-		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
-
-		if (reg == 0U) {
-			continue;
-		}
-
-		while (reg != 0U) {
-			enum pm_device_node_idx node_idx;
-			uint32_t idx, irq, lowest_set = reg & (-reg);
-			enum pm_ret_status ret;
-
-			idx = __builtin_ctz(lowest_set);
-			irq = base_irq + idx;
-
-			if (irq > IRQ_MAX) {
-				break;
-			}
-
-			node_idx = irq_to_pm_node_idx(irq);
-			reg &= ~lowest_set;
-
-			if (node_idx > XPM_NODEIDX_DEV_MIN && node_idx < XPM_NODEIDX_DEV_MAX) {
-				if (pm_wakeup_nodes_set[node_idx] == 0U) {
-					/* Get device ID from node index */
-					device_id = PERIPH_DEVID(node_idx);
-					ret = pm_set_wakeup_source(node_id,
-								   device_id, 1,
-								   SECURE_FLAG);
-					pm_wakeup_nodes_set[node_idx] = (ret == PM_RET_SUCCESS) ?
-											 1 : 0;
-				}
-			}
-		}
-	}
 }
 
 /**
