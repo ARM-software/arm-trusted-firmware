@@ -317,6 +317,10 @@ For Cortex-A78, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1, and r1p2, and
    it is still open.
 
+-  ``ERRATA_A78_2742426``: This applies erratum 2742426 workaround to Cortex-A78
+   CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1 and r1p2 and
+   it is still open.
+
 -  ``ERRATA_A78_2772019``: This applies errata 2772019 workaround to Cortex-A78
    CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1, and r1p2, and
    it is still open.
