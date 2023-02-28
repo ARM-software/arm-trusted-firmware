@@ -177,6 +177,36 @@ func check_errata_2772121
 	b	cpu_rev_var_ls
 endfunc check_errata_2772121
 
+/* --------------------------------------------------
+ * Errata Workaround for Cortex A78C Errata 2779484.
+ * This applies to revisions r0p1 and r0p2.
+ * It is still open.
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x1, x17
+ * --------------------------------------------------
+ */
+func errata_a78c_2779484_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2779484
+	cbz	x0, 1f
+
+	/* Apply the workaround */
+	mrs	x1, CORTEX_A78C_ACTLR3_EL1
+	orr	x1, x1, #BIT(47)
+	msr	CORTEX_A78C_ACTLR3_EL1, x1
+
+1:
+	ret	x17
+endfunc errata_a78c_2779484_wa
+
+func check_errata_2779484
+	/* Applies to r0p1 and r0p2*/
+	mov	x1, #0x01
+	mov	x2, #0x02
+	b	cpu_rev_var_range
+endfunc check_errata_2779484
+
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -213,6 +243,11 @@ func cortex_a78c_reset_func
 #if ERRATA_A78C_2395411
 	mov 	x0, x18
 	bl	errata_a78c_2395411_wa
+#endif
+
+#if ERRATA_A78C_2779484
+	mov	x0, x18
+	bl	errata_a78c_2779484_wa
 #endif
 
 #if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
@@ -269,6 +304,7 @@ func cortex_a78c_errata_report
 	report_errata ERRATA_A78C_2376749, cortex_a78c, 2376749
 	report_errata ERRATA_A78C_2395411, cortex_a78c, 2395411
 	report_errata ERRATA_A78C_2772121, cortex_a78c, 2772121
+	report_errata ERRATA_A78C_2779484, cortex_a78c, 2779484
 	report_errata WORKAROUND_CVE_2022_23960, cortex_a78c, cve_2022_23960
 
 	ldp	x8, x30, [sp], #16
