@@ -161,7 +161,8 @@ static int cert_parse(void *img, unsigned int img_len)
 
 	p = (unsigned char *)img;
 	len = img_len;
-	end = p + len;
+	crt_end = p + len;
+	end = crt_end;
 
 	/*
 	 * Certificate  ::=  SEQUENCE  {
@@ -171,14 +172,9 @@ static int cert_parse(void *img, unsigned int img_len)
 	 */
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if ((ret != 0) || ((p + len) != end)) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
-
-	if (len != (size_t)(end - p)) {
-		return IMG_PARSER_ERR_FORMAT;
-	}
-	crt_end = p + len;
 
 	/*
 	 * TBSCertificate  ::=  SEQUENCE  {
@@ -218,9 +214,6 @@ static int cert_parse(void *img, unsigned int img_len)
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
-		return IMG_PARSER_ERR_FORMAT;
-	}
-	if ((end - p) < 1) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
 	sig_alg1.len = (p + len) - sig_alg1.p;
@@ -288,30 +281,24 @@ static int cert_parse(void *img, unsigned int img_len)
 
 	/*
 	 * issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
-	 */
-	ret = mbedtls_asn1_get_tag(&p, end, &len,
-				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
-				   MBEDTLS_ASN1_CONSTRUCTED | 1);
-	if (ret != 0) {
-		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG) {
-			return IMG_PARSER_ERR_FORMAT;
-		}
-	} else {
-		p += len;
-	}
-
-	/*
 	 * subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
+	 * -- technically these contain BIT STRINGs but that is not worth
+	 * -- validating
 	 */
-	ret = mbedtls_asn1_get_tag(&p, end, &len,
-				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
-				   MBEDTLS_ASN1_CONSTRUCTED | 2);
-	if (ret != 0) {
+	for (int i = 1; i < 3; i++) {
+		ret = mbedtls_asn1_get_tag(&p, end, &len,
+					   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
+					   MBEDTLS_ASN1_CONSTRUCTED | i);
+		/*
+		 * Unique IDs are obsolete, so MBEDTLS_ERR_ASN1_UNEXPECTED_TAG
+		 * is the common case.
+		 */
 		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG) {
-			return IMG_PARSER_ERR_FORMAT;
+			if (ret != 0) {
+				return IMG_PARSER_ERR_FORMAT;
+			}
+			p += len;
 		}
-	} else {
-		p += len;
 	}
 
 	/*
@@ -414,19 +401,14 @@ static int cert_parse(void *img, unsigned int img_len)
 
 	/*
 	 * signatureValue       BIT STRING
+	 * } -- must consume all bytes
 	 */
 	signature.p = p;
 	ret = mbedtls_asn1_get_bitstring_null(&p, end, &len);
-	if (ret != 0) {
+	if ((ret != 0) || ((p + len) != end)) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
-	signature.len = (p + len) - signature.p;
-	p += len;
-
-	/* Check certificate length */
-	if (p != end) {
-		return IMG_PARSER_ERR_FORMAT;
-	}
+	signature.len = end - signature.p;
 
 	return IMG_PARSER_OK;
 }
