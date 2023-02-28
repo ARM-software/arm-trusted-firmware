@@ -217,6 +217,8 @@
 	no-sdio;
 	st,neg-edge;
 	bus-width = <8>;
+	vmmc-supply = <&vdd_emmc>;
+	vqmmc-supply = <&vddio2>;
 	status = "okay";
 };
 
