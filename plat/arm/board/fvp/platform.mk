@@ -446,14 +446,14 @@ DYN_DISABLE_AUTH	:=	1
 endif
 
 # enable trace buffer control registers access to NS by default
-ENABLE_TRBE_FOR_NS		:= 1
+ENABLE_TRBE_FOR_NS		:= 2
 
 # enable branch record buffer control registers access in NS by default
 # only enable for aarch64
 # do not enable when ENABLE_RME=1
 ifeq (${ARCH}, aarch64)
 ifeq (${ENABLE_RME},0)
-	ENABLE_BRBE_FOR_NS		:= 1
+	ENABLE_BRBE_FOR_NS		:= 2
 endif
 endif
 
@@ -461,7 +461,7 @@ endif
 ENABLE_SYS_REG_TRACE_FOR_NS	:= 1
 
 # enable trace filter control registers access to NS by default
-ENABLE_TRF_FOR_NS		:= 1
+ENABLE_TRF_FOR_NS		:= 2
 
 # Linux relies on EL3 enablement if those features are present
 ENABLE_FEAT_FGT			:= 2

@@ -539,10 +539,6 @@ void el2_sysregs_context_restore_ras(el2_sysregs_t *regs);
 void el2_sysregs_context_save_nv2(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_nv2(el2_sysregs_t *regs);
 #endif /* CTX_INCLUDE_NEVE_REGS */
-#if ENABLE_TRF_FOR_NS
-void el2_sysregs_context_save_trf(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_trf(el2_sysregs_t *regs);
-#endif /* ENABLE_TRF_FOR_NS */
 #if ENABLE_FEAT_CSV2_2
 void el2_sysregs_context_save_csv2(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_csv2(el2_sysregs_t *regs);

@@ -41,10 +41,6 @@
 	.global	el2_sysregs_context_save_nv2
 	.global	el2_sysregs_context_restore_nv2
 #endif /* CTX_INCLUDE_NEVE_REGS */
-#if ENABLE_TRF_FOR_NS
-	.global	el2_sysregs_context_save_trf
-	.global	el2_sysregs_context_restore_trf
-#endif /* ENABLE_TRF_FOR_NS */
 #if ENABLE_FEAT_CSV2_2
 	.global	el2_sysregs_context_save_csv2
 	.global	el2_sysregs_context_restore_csv2
@@ -535,26 +531,6 @@ func el2_sysregs_context_restore_nv2
 	ret
 endfunc el2_sysregs_context_restore_nv2
 #endif /* CTX_INCLUDE_NEVE_REGS */
-
-#if ENABLE_TRF_FOR_NS
-func el2_sysregs_context_save_trf
-	/*
-	 * TRFCR_EL2 register is saved only when FEAT_TRF is supported.
-	 */
-	mrs	x12, TRFCR_EL2
-	str	x12, [x0, #CTX_TRFCR_EL2]
-	ret
-endfunc el2_sysregs_context_save_trf
-
-func el2_sysregs_context_restore_trf
-	/*
-	 * TRFCR_EL2 register is restored only when FEAT_TRF is supported.
-	 */
-	ldr	x12, [x0, #CTX_TRFCR_EL2]
-	msr	TRFCR_EL2, x12
-	ret
-endfunc el2_sysregs_context_restore_trf
-#endif /* ENABLE_TRF_FOR_NS */
 
 #if ENABLE_FEAT_CSV2_2
 func el2_sysregs_context_save_csv2

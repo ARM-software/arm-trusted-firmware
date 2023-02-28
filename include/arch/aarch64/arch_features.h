@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,9 @@
 
 #include <arch_helpers.h>
 #include <common/feat_detect.h>
+
+#define ISOLATE_FIELD(reg, feat)					\
+	((unsigned int)(((reg) >> (feat ## _SHIFT)) & (feat ## _MASK)))
 
 static inline bool is_armv7_gentimer_present(void)
 {
@@ -100,8 +103,7 @@ static inline bool is_armv8_6_twed_present(void)
 
 static unsigned int read_feat_fgt_id_field(void)
 {
-	return (read_id_aa64mmfr0_el1() >> ID_AA64MMFR0_EL1_FGT_SHIFT) &
-		ID_AA64MMFR0_EL1_FGT_MASK;
+	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(), ID_AA64MMFR0_EL1_FGT);
 }
 
 static inline bool is_feat_fgt_supported(void)
@@ -134,8 +136,7 @@ static inline bool is_armv8_5_rng_present(void)
  ******************************************************************************/
 static unsigned int read_feat_amu_id_field(void)
 {
-	return (read_id_aa64pfr0_el1() >> ID_AA64PFR0_AMU_SHIFT) &
-		ID_AA64PFR0_AMU_MASK;
+	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_AMU);
 }
 
 static inline bool is_feat_amu_supported(void)
@@ -175,8 +176,7 @@ static inline unsigned int get_mpam_version(void)
 
 static inline unsigned int read_feat_hcx_id_field(void)
 {
-	return (read_id_aa64mmfr1_el1() >> ID_AA64MMFR1_EL1_HCX_SHIFT) &
-		ID_AA64MMFR1_EL1_HCX_MASK;
+	return ISOLATE_FIELD(read_id_aa64mmfr1_el1(), ID_AA64MMFR1_EL1_HCX);
 }
 
 static inline bool is_feat_hcx_supported(void)
@@ -268,10 +268,22 @@ static inline bool is_armv8_4_feat_dit_present(void)
 /*************************************************************************
  * Function to identify the presence of FEAT_TRF (TraceLift)
  ************************************************************************/
-static inline bool is_arm8_4_feat_trf_present(void)
+static inline unsigned int read_feat_trf_id_field(void)
 {
-	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_TRACEFILT_SHIFT) &
-		ID_AA64DFR0_TRACEFILT_MASK) == ID_AA64DFR0_TRACEFILT_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_TRACEFILT);
+}
+
+static inline bool is_feat_trf_supported(void)
+{
+	if (ENABLE_TRF_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_TRF_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_trf_id_field() != 0U;
 }
 
 /********************************************************************************
@@ -288,19 +300,43 @@ static inline unsigned int get_armv8_4_feat_nv_support(void)
  * Function to identify the presence of FEAT_BRBE (Branch Record Buffer
  * Extension)
  ******************************************************************************/
-static inline bool is_feat_brbe_present(void)
+static inline unsigned int read_feat_brbe_id_field(void)
 {
-	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_BRBE_SHIFT) &
-		ID_AA64DFR0_BRBE_MASK) == ID_AA64DFR0_BRBE_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_BRBE);
+}
+
+static inline bool is_feat_brbe_supported(void)
+{
+	if (ENABLE_BRBE_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_BRBE_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_brbe_id_field() != 0U;
 }
 
 /*******************************************************************************
  * Function to identify the presence of FEAT_TRBE (Trace Buffer Extension)
  ******************************************************************************/
-static inline bool is_feat_trbe_present(void)
+static inline unsigned int read_feat_trbe_id_field(void)
 {
-	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_TRACEBUFFER_SHIFT) &
-		ID_AA64DFR0_TRACEBUFFER_MASK) == ID_AA64DFR0_TRACEBUFFER_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_TRACEBUFFER);
 }
 
+static inline bool is_feat_trbe_supported(void)
+{
+	if (ENABLE_TRBE_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_TRBE_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_trbe_id_field() != 0U;
+
+}
 #endif /* ARCH_FEATURES_H */
