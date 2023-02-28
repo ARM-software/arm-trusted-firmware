@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,8 +61,8 @@ static uint32_t versal_gicv3_mpidr_hash(u_register_t mpidr)
 }
 
 static const gicv3_driver_data_t versal_gic_data __unused = {
-	.gicd_base = PLAT_VERSAL_GICD_BASE,
-	.gicr_base = PLAT_VERSAL_GICR_BASE,
+	.gicd_base = PLAT_GICD_BASE_VALUE,
+	.gicr_base = PLAT_GICR_BASE_VALUE,
 	.interrupt_props = versal_interrupt_props,
 	.interrupt_props_num = ARRAY_SIZE(versal_interrupt_props),
 	.rdistif_num = PLATFORM_CORE_COUNT,

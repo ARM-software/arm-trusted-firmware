@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (C) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -95,8 +95,8 @@
 #define CACHE_WRITEBACK_SHIFT	U(6)
 #define CACHE_WRITEBACK_GRANULE	(1 << CACHE_WRITEBACK_SHIFT)
 
-#define PLAT_VERSAL_NET_GICD_BASE	U(0xE2000000)
-#define PLAT_VERSAL_NET_GICR_BASE	U(0xE2060000)
+#define PLAT_GICD_BASE_VALUE	U(0xE2000000)
+#define PLAT_GICR_BASE_VALUE	U(0xE2060000)
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
