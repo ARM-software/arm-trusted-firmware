@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * Copyright 2020 NXP
  *
@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include <common/tbbr/cot_def.h>
 #include <drivers/auth/auth_mod.h>
 
 #if USE_TBBR_DEFS
