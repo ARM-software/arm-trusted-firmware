@@ -204,6 +204,8 @@
 	pinctrl-0 = <&sdmmc1_b4_pins_a>;
 	st,neg-edge;
 	bus-width = <4>;
+	vmmc-supply = <&vdd_sdcard>;
+	vqmmc-supply = <&vddio1>;
 	status = "okay";
 };
 
