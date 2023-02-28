@@ -3,6 +3,16 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.0..refs/tags/lts-v2.8.1) (2023-02-28)
+
+### Resolved issues (since lts-v2.8.0)
+
+- **Libraries**
+
+  - **el3_runtime**
+
+    - Revert "fix(el3_runtime): allow SErrors when executing in EL3" ([51120a499](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/51120a499ee7682ce659e613e197597e9376aae7))
+
 ## [lts-2.8.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.8.0..refs/tags/lts-v2.8.0) (2023-02-10)
 
 ### Resolved issues (since v2.8)
