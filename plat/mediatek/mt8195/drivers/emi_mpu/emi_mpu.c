@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 #include <emi_mpu.h>
+#include <mtk_sip_svc.h>
 
 #if ENABLE_EMI_MPU_SW_LOCK
 static unsigned char region_lock_state[EMI_MPU_REGION_NUM];
@@ -17,6 +18,7 @@ static unsigned char region_lock_state[EMI_MPU_REGION_NUM];
 #define EMI_MPU_END_MASK		(0x00FFFFFF)
 #define EMI_MPU_APC_SW_LOCK_MASK	(0x00FFFFFF)
 #define EMI_MPU_APC_HW_LOCK_MASK	(0x80FFFFFF)
+#define MPU_PHYSICAL_ADDR_SHIFT_BITS	(16)
 
 static int _emi_mpu_set_protection(unsigned int start, unsigned int end,
 					unsigned int apc)
@@ -139,7 +141,7 @@ void emi_mpu_init(void)
 	/* Forbidden All */
 	region_info.start = 0x40000000ULL;	/* dram base addr */
 	region_info.end = 0x1FFFF0000ULL;
-	region_info.region = 4;
+	region_info.region = 5;
 	SET_ACCESS_PERMISSION(region_info.apc, 1,
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
@@ -148,4 +150,43 @@ void emi_mpu_init(void)
 	emi_mpu_set_protection(&region_info);
 
 	dump_emi_mpu_regions();
+}
+
+static inline uint64_t get_decoded_phys_addr(uint64_t addr)
+{
+	return (addr << MPU_PHYSICAL_ADDR_SHIFT_BITS);
+}
+
+static inline uint32_t get_decoded_zone_id(uint32_t info)
+{
+	return ((info & 0xFFFF0000) >> MPU_PHYSICAL_ADDR_SHIFT_BITS);
+}
+
+int32_t emi_mpu_sip_handler(uint64_t encoded_addr, uint64_t zone_size, uint64_t zone_info)
+{
+	uint64_t phys_addr = get_decoded_phys_addr(encoded_addr);
+	struct emi_region_info_t region_info;
+	enum MPU_REQ_ORIGIN_ZONE_ID zone_id = get_decoded_zone_id(zone_info);
+
+	INFO("encoded_addr = 0x%lx, zone_size = 0x%lx, zone_info = 0x%lx\n",
+	     encoded_addr, zone_size, zone_info);
+
+	if (zone_id != MPU_REQ_ORIGIN_TEE_ZONE_SVP) {
+		ERROR("Invalid param %s, %d\n", __func__, __LINE__);
+		return MTK_SIP_E_INVALID_PARAM;
+	}
+
+	/* SVP DRAM */
+	region_info.start = phys_addr;
+	region_info.end = phys_addr + zone_size;
+	region_info.region = 4;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, SEC_RW);
+
+	emi_mpu_set_protection(&region_info);
+
+	return 0;
 }

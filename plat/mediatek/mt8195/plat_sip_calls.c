@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2020-2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2020-2023, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <emi_mpu.h>
 #include <mt_dp.h>
 #include <mt_spm.h>
 #include <mt_spm_vcorefs.h>
@@ -27,6 +28,11 @@ uintptr_t mediatek_plat_sip_handler(uint32_t smc_fid,
 	uint32_t ret_val;
 
 	switch (smc_fid) {
+	case MTK_SIP_TEE_MPU_PERM_SET_AARCH64:
+	case MTK_SIP_TEE_MPU_PERM_SET_AARCH32:
+		ret = emi_mpu_sip_handler(x1, x2, x3);
+		SMC_RET2(handle, ret, ret_val);
+		break;
 	case MTK_SIP_DP_CONTROL_AARCH32:
 	case MTK_SIP_DP_CONTROL_AARCH64:
 		ret = dp_secure_handler(x1, x2, &ret_val);
