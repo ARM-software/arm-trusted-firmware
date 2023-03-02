@@ -35,8 +35,8 @@ clean_stm32image:
 	${Q}${MAKE} --no-print-directory -C ${STM32IMAGEPATH} clean
 
 check_dtc_version:
-	@if [ ${DTC_VERSION} -lt 10404 ]; then \
-		echo "dtc version too old (${DTC_V}), you need at least version 1.4.4"; \
+	@if [ ${DTC_VERSION} -lt 10407 ]; then \
+		echo "dtc version too old (${DTC_V}), you need at least version 1.4.7"; \
 		false; \
 	fi
 
