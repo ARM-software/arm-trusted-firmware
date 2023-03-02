@@ -43,4 +43,6 @@
 
 #define NEOVERSE_V1_ACTLR3_EL1					S3_0_C15_C1_2
 
+#define NEOVERSE_V1_ACTLR5_EL1					S3_0_C15_C9_0
+
 #endif /* NEOVERSE_V1_H */
