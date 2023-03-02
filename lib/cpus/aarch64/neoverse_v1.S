@@ -486,6 +486,37 @@ func check_errata_2743093
 	b	cpu_rev_var_ls
 endfunc check_errata_2743093
 
+	/* ---------------------------------------------------
+	 * Errata Workaround for Neoverse V1 Errata #2743233.
+	 * This applies to revisions r0p0, r1p0, r1p1 and r1p2.
+	 * It is still open.
+	 * x0: variant[4:7] and revisions[0:3] of current cpu.
+	 * Shall clobber: x0-x1, x17
+	 * ---------------------------------------------------
+	 */
+func errata_neoverse_v1_2743233_wa
+	/* Check revision. */
+	mov 	x17, x30
+	bl	check_errata_2743233
+	cbz	x0, 1f
+
+	/* Apply the workaround */
+	mrs	x1, NEOVERSE_V1_ACTLR5_EL1
+	bic	x1, x1, #BIT(56)
+	orr	x1, x1, #BIT(55)
+	msr	NEOVERSE_V1_ACTLR5_EL1, x1
+
+1:
+	ret 	x17
+endfunc errata_neoverse_v1_2743233_wa
+
+func check_errata_2743233
+	/* Applies to r0p0, r1p0, r1p1 and r1p2 */
+	mov	x1, #CPU_REV(1,2)
+	b	cpu_rev_var_ls
+endfunc check_errata_2743233
+
+
 	/* ----------------------------------------------------
  	 * Errata Workaround for Neoverse V1 Errata #2779461.
 	 * This applies to revisions r0p0, r1p0, r1p1, and r1p2.
@@ -573,6 +604,7 @@ func neoverse_v1_errata_report
 	report_errata ERRATA_V1_2294912, neoverse_v1, 2294912
 	report_errata ERRATA_V1_2372203, neoverse_v1, 2372203
 	report_errata ERRATA_V1_2743093, neoverse_v1, 2743093
+	report_errata ERRATA_V1_2743233, neoverse_v1, 2743233
 	report_errata ERRATA_V1_2779461, neoverse_v1, 2779461
 	report_errata WORKAROUND_CVE_2022_23960, neoverse_v1, cve_2022_23960
 
@@ -650,6 +682,11 @@ func neoverse_v1_reset_func
 #if ERRATA_V1_2372203
 	mov	x0, x18
 	bl	errata_neoverse_v1_2372203_wa
+#endif
+
+#if ERRATA_V1_2743233
+	mov	x0, x18
+	bl	errata_neoverse_v1_2743233_wa
 #endif
 
 #if ERRATA_V1_2779461
