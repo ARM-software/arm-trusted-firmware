@@ -47,6 +47,10 @@ uint32_t opteed_rw;
 
 #if OPTEE_ALLOW_SMC_LOAD
 static bool opteed_allow_load;
+/* OP-TEE image loading service UUID */
+DEFINE_SVC_UUID2(optee_image_load_uuid,
+	0xb1eafba3, 0x5d31, 0x4612, 0xb9, 0x06,
+	0xc4, 0xc7, 0xa4, 0xbe, 0x3c, 0xc0);
 #else
 static int32_t opteed_init(void);
 #endif
@@ -335,6 +339,10 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 
 	if (is_caller_non_secure(flags)) {
 #if OPTEE_ALLOW_SMC_LOAD
+		if (opteed_allow_load && smc_fid == NSSMC_OPTEED_CALL_UID) {
+			/* Provide the UUID of the image loading service. */
+			SMC_UUID_RET(handle, optee_image_load_uuid);
+		}
 		if (smc_fid == NSSMC_OPTEED_CALL_LOAD_IMAGE) {
 			/*
 			 * TODO: Consider wiping the code for SMC loading from
