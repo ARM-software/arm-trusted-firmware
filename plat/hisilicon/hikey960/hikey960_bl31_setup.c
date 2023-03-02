@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -244,6 +244,15 @@ static uint64_t hikey_debug_fiq_handler(uint32_t id,
 	panic();
 
 	return 0;
+}
+#elif defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)
+/*
+ * A dummy implementation of the platform handler for Group0 secure interrupt.
+ */
+int plat_spmd_handle_group0_interrupt(uint32_t intid)
+{
+	(void)intid;
+	return -1;
 }
 #endif
 
