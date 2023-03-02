@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2020-2022 - All Rights Reserved
+ * Copyright (c) 2020-2023, STMicroelectronics - All Rights Reserved
  */
 
 / {
@@ -45,28 +45,6 @@
 		/delete-node/ stgen@5c008000;
 		/delete-node/ i2c@5c009000;
 		/delete-node/ tamp@5c00a000;
-
-		pinctrl@50002000 {
-#if !STM32MP_RAW_NAND
-			/delete-node/ fmc-0;
-#endif
-#if !STM32MP_SPI_NAND && !STM32MP_SPI_NOR
-			/delete-node/ qspi-clk-0;
-			/delete-node/ qspi-bk1-0;
-			/delete-node/ qspi-bk2-0;
-#endif
-#if !STM32MP_EMMC && !STM32MP_SDMMC
-			/delete-node/ sdmmc1-b4-0;
-			/delete-node/ sdmmc1-dir-0;
-			/delete-node/ sdmmc2-b4-0;
-			/delete-node/ sdmmc2-b4-1;
-			/delete-node/ sdmmc2-d47-0;
-#endif
-#if !STM32MP_USB_PROGRAMMER
-			/delete-node/ usbotg_hs-0;
-			/delete-node/ usbotg-fs-dp-dm-0;
-#endif
-		};
 	};
 
 	/*
