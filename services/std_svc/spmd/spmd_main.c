@@ -249,6 +249,39 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	SMC_RET0(&ctx->cpu_ctx);
 }
 
+/*******************************************************************************
+ * spmd_group0_interrupt_handler_nwd
+ * Group0 secure interrupt in the normal world are trapped to EL3. Delegate the
+ * handling of the interrupt to the platform handler, and return only upon
+ * successfully handling the Group0 interrupt.
+ ******************************************************************************/
+static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
+						  uint32_t flags,
+						  void *handle,
+						  void *cookie)
+{
+	uint32_t intid;
+
+	/* Sanity check the security state when the exception was generated. */
+	assert(get_interrupt_src_ss(flags) == NON_SECURE);
+
+	/* Sanity check the pointer to this cpu's context. */
+	assert(handle == cm_get_context(NON_SECURE));
+
+	assert(id == INTR_ID_UNAVAILABLE);
+
+	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
+
+	intid = plat_ic_get_pending_interrupt_id();
+
+	if (plat_spmd_handle_group0_interrupt(intid) < 0) {
+		ERROR("Group0 interrupt %u not handled\n", intid);
+		panic();
+	}
+
+	return 0U;
+}
+
 #if ENABLE_RME && SPMD_SPM_AT_SEL2 && !RESET_TO_BL31
 static int spmd_dynamic_map_mem(uintptr_t base_addr, size_t size,
 				 unsigned int attr, uintptr_t *align_addr,
@@ -492,6 +525,16 @@ static int spmd_spmc_init(void *pm_addr)
 		panic();
 	}
 
+	/*
+	 * Register an interrupt handler routing Group0 interrupts to SPMD
+	 * while the NWd is running.
+	 */
+	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
+					     spmd_group0_interrupt_handler_nwd,
+					     flags);
+	if (rc != 0) {
+		panic();
+	}
 	return 0;
 }
 
