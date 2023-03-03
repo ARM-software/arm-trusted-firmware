@@ -255,8 +255,16 @@ static inline bool is_feat_amu_supported(void)
 	return read_feat_amu_id_field() >= ID_AA64PFR0_AMU_V1;
 }
 
-static inline bool is_armv8_6_feat_amuv1p1_present(void)
+static inline bool is_feat_amuv1p1_supported(void)
 {
+	if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
 	return read_feat_amu_id_field() >= ID_AA64PFR0_AMU_V1P1;
 }
 

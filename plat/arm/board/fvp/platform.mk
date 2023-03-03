@@ -320,6 +320,7 @@ endif
 
 # Enable Activity Monitor Unit extensions by default
 ENABLE_FEAT_AMU			:=	2
+ENABLE_FEAT_AMUv1p1		:=	2
 
 # Enable dynamic mitigation support by default
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1

@@ -25,6 +25,37 @@ static inline bool is_armv8_2_ttcnp_present(void)
 	return ISOLATE_FIELD(read_id_mmfr4(), ID_MMFR4_CNP) != 0U;
 }
 
+static unsigned int read_feat_amu_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_pfr0(), ID_PFR0_AMU);
+}
+
+static inline bool is_feat_amu_supported(void)
+{
+	if (ENABLE_FEAT_AMU == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_AMU == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_amu_id_field() >= ID_PFR0_AMU_V1;
+}
+
+static inline bool is_feat_amuv1p1_supported(void)
+{
+	if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_amu_id_field() >= ID_PFR0_AMU_V1P1;
+}
+
 static inline unsigned int read_feat_trf_id_field(void)
 {
 	return ISOLATE_FIELD(read_id_dfr0(), ID_DFR0_TRACEFILT);

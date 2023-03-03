@@ -10,6 +10,7 @@
 
 #include "../amu_private.h"
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/el3_runtime/pubsub_events.h>
@@ -38,12 +39,6 @@ CASSERT((sizeof(amu_ctxs_[0].group0_enable) * CHAR_BIT) <= AMU_GROUP0_MAX_COUNTE
 CASSERT((sizeof(amu_ctxs_[0].group1_enable) * CHAR_BIT) <= AMU_GROUP1_MAX_COUNTERS,
 	amu_ctx_group1_enable_cannot_represent_all_group1_counters);
 #endif
-
-static inline __unused uint32_t read_id_pfr0_amu(void)
-{
-	return (read_id_pfr0() >> ID_PFR0_AMU_SHIFT) &
-		ID_PFR0_AMU_MASK;
-}
 
 static inline __unused void write_hcptr_tam(uint32_t value)
 {
@@ -129,11 +124,6 @@ static inline __unused void write_amcntenclr1_px(uint32_t px)
 	write_amcntenclr1(value);
 }
 
-static __unused bool amu_supported(void)
-{
-	return read_id_pfr0_amu() >= ID_PFR0_AMU_V1;
-}
-
 #if ENABLE_AMU_AUXILIARY_COUNTERS
 static __unused bool amu_group1_supported(void)
 {
@@ -147,22 +137,11 @@ static __unused bool amu_group1_supported(void)
  */
 void amu_enable(bool el2_unused)
 {
-	uint32_t id_pfr0_amu;		/* AMU version */
-
 	uint32_t amcfgr_ncg;		/* Number of counter groups */
 	uint32_t amcgcr_cg0nc;		/* Number of group 0 counters */
 
 	uint32_t amcntenset0_px = 0x0;	/* Group 0 enable mask */
 	uint32_t amcntenset1_px = 0x0;	/* Group 1 enable mask */
-
-	id_pfr0_amu = read_id_pfr0_amu();
-	if (id_pfr0_amu == ID_PFR0_AMU_NOT_SUPPORTED) {
-		/*
-		 * If the AMU is unsupported, nothing needs to be done.
-		 */
-
-		return;
-	}
 
 	if (el2_unused) {
 		/*
@@ -221,8 +200,8 @@ void amu_enable(bool el2_unused)
 #endif
 	}
 
-	/* Initialize FEAT_AMUv1p1 features if present. */
-	if (id_pfr0_amu < ID_PFR0_AMU_V1P1) {
+	/* Bail out if FEAT_AMUv1p1 features are not present. */
+	if (!is_feat_amuv1p1_supported()) {
 		return;
 	}
 
@@ -244,7 +223,7 @@ void amu_enable(bool el2_unused)
 /* Read the group 0 counter identified by the given `idx`. */
 static uint64_t amu_group0_cnt_read(unsigned int idx)
 {
-	assert(amu_supported());
+	assert(is_feat_amu_supported());
 	assert(idx < read_amcgcr_cg0nc());
 
 	return amu_group0_cnt_read_internal(idx);
@@ -253,7 +232,7 @@ static uint64_t amu_group0_cnt_read(unsigned int idx)
 /* Write the group 0 counter identified by the given `idx` with `val` */
 static void amu_group0_cnt_write(unsigned  int idx, uint64_t val)
 {
-	assert(amu_supported());
+	assert(is_feat_amu_supported());
 	assert(idx < read_amcgcr_cg0nc());
 
 	amu_group0_cnt_write_internal(idx, val);
@@ -264,7 +243,7 @@ static void amu_group0_cnt_write(unsigned  int idx, uint64_t val)
 /* Read the group 1 counter identified by the given `idx` */
 static uint64_t amu_group1_cnt_read(unsigned  int idx)
 {
-	assert(amu_supported());
+	assert(is_feat_amu_supported());
 	assert(amu_group1_supported());
 	assert(idx < read_amcgcr_cg1nc());
 
@@ -274,7 +253,7 @@ static uint64_t amu_group1_cnt_read(unsigned  int idx)
 /* Write the group 1 counter identified by the given `idx` with `val` */
 static void amu_group1_cnt_write(unsigned  int idx, uint64_t val)
 {
-	assert(amu_supported());
+	assert(is_feat_amu_supported());
 	assert(amu_group1_supported());
 	assert(idx < read_amcgcr_cg1nc());
 
@@ -290,7 +269,6 @@ static void *amu_context_save(const void *arg)
 	unsigned int core_pos;
 	struct amu_ctx *ctx;
 
-	uint32_t id_pfr0_amu;	/* AMU version */
 	uint32_t amcgcr_cg0nc;	/* Number of group 0 counters */
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
@@ -298,8 +276,7 @@ static void *amu_context_save(const void *arg)
 	uint32_t amcgcr_cg1nc;	/* Number of group 1 counters */
 #endif
 
-	id_pfr0_amu = read_id_pfr0_amu();
-	if (id_pfr0_amu == ID_PFR0_AMU_NOT_SUPPORTED) {
+	if (!is_feat_amu_supported()) {
 		return (void *)0;
 	}
 
@@ -353,8 +330,6 @@ static void *amu_context_restore(const void *arg)
 	unsigned int core_pos;
 	struct amu_ctx *ctx;
 
-	uint32_t id_pfr0_amu;	/* AMU version */
-
 	uint32_t amcfgr_ncg;	/* Number of counter groups */
 	uint32_t amcgcr_cg0nc;	/* Number of group 0 counters */
 
@@ -362,8 +337,7 @@ static void *amu_context_restore(const void *arg)
 	uint32_t amcgcr_cg1nc;	/* Number of group 1 counters */
 #endif
 
-	id_pfr0_amu = read_id_pfr0_amu();
-	if (id_pfr0_amu == ID_PFR0_AMU_NOT_SUPPORTED) {
+	if (!is_feat_amu_supported()) {
 		return (void *)0;
 	}
 
