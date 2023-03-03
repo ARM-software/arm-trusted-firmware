@@ -7,10 +7,13 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
+#include "spmd_private.h"
 
 #include <common/debug.h>
+#include <lib/el3_runtime/context_mgmt.h>
 #include <services/el3_spmd_logical_sp.h>
-#include <services/ffa_svc.h>
+#include <services/spmc_svc.h>
+
 
 #if ENABLE_SPMD_LP
 static bool is_spmd_lp_inited;
@@ -33,6 +36,11 @@ static int el3_spmd_sp_desc_validate(struct spmd_lp_desc *lp_array)
 {
 	/* Check the array bounds are valid. */
 	assert(SPMD_LP_DESCS_END > SPMD_LP_DESCS_START);
+
+	/*
+	 * No support for SPMD logical partitions when SPMC is at EL3.
+	 */
+	assert(!is_spmc_at_el3());
 
 	/* If no SPMD logical partitions are implemented then simply bail out. */
 	if (SPMD_LP_DESCS_COUNT == 0U) {
@@ -99,6 +107,60 @@ static int el3_spmd_sp_desc_validate(struct spmd_lp_desc *lp_array)
 	}
 	return 0;
 }
+
+static void spmd_encode_ffa_error(struct ffa_value *retval, int32_t error_code)
+{
+	retval->func = FFA_ERROR;
+	retval->arg1 = FFA_TARGET_INFO_MBZ;
+	retval->arg2 = (uint32_t)error_code;
+	retval->arg3 = FFA_TARGET_INFO_MBZ;
+	retval->arg4 = FFA_TARGET_INFO_MBZ;
+	retval->arg5 = FFA_TARGET_INFO_MBZ;
+	retval->arg6 = FFA_TARGET_INFO_MBZ;
+	retval->arg7 = FFA_TARGET_INFO_MBZ;
+}
+
+static void spmd_build_direct_message_req(spmd_spm_core_context_t *ctx,
+					  uint64_t x1, uint64_t x2,
+					  uint64_t x3, uint64_t x4)
+{
+	gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
+
+	write_ctx_reg(gpregs, CTX_GPREG_X0, FFA_MSG_SEND_DIRECT_REQ_SMC32);
+	write_ctx_reg(gpregs, CTX_GPREG_X1, x1);
+	write_ctx_reg(gpregs, CTX_GPREG_X2, x2);
+	write_ctx_reg(gpregs, CTX_GPREG_X3, x3);
+	write_ctx_reg(gpregs, CTX_GPREG_X4, x4);
+	write_ctx_reg(gpregs, CTX_GPREG_X5, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X6, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X7, 0U);
+}
+
+static void spmd_encode_ctx_to_ffa_value(spmd_spm_core_context_t *ctx,
+					 struct ffa_value *retval)
+{
+	gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
+
+	retval->func = read_ctx_reg(gpregs, CTX_GPREG_X0);
+	retval->arg1 = read_ctx_reg(gpregs, CTX_GPREG_X1);
+	retval->arg2 = read_ctx_reg(gpregs, CTX_GPREG_X2);
+	retval->arg3 = read_ctx_reg(gpregs, CTX_GPREG_X3);
+	retval->arg4 = read_ctx_reg(gpregs, CTX_GPREG_X4);
+	retval->arg5 = read_ctx_reg(gpregs, CTX_GPREG_X5);
+	retval->arg6 = read_ctx_reg(gpregs, CTX_GPREG_X6);
+	retval->arg7 = read_ctx_reg(gpregs, CTX_GPREG_X7);
+}
+
+static void spmd_logical_sp_set_dir_req_ongoing(spmd_spm_core_context_t *ctx)
+{
+	ctx->spmd_lp_sync_req_ongoing |= SPMD_LP_FFA_DIR_REQ_ONGOING;
+}
+
+static void spmd_logical_sp_reset_dir_req_ongoing(spmd_spm_core_context_t *ctx)
+{
+	ctx->spmd_lp_sync_req_ongoing &= ~SPMD_LP_FFA_DIR_REQ_ONGOING;
+}
+
 #endif
 
 /*
@@ -161,5 +223,176 @@ void spmd_logical_sp_set_spmc_failure(void)
 {
 #if ENABLE_SPMD_LP
 	is_spmc_inited = false;
+#endif
+}
+
+/*******************************************************************************
+ * This function sends an FF-A Direct Request from a partition in EL3 to a
+ * partition that may reside under an SPMC (only lower ELs supported). The main
+ * use of this API is for SPMD logical partitions.
+ * The API is expected to be used when there are platform specific SMCs that
+ * need to be routed to a secure partition that is FF-A compliant or when
+ * there are group 0 interrupts that need to be handled first in EL3 and then
+ * forwarded to an FF-A compliant secure partition. Therefore, it is expected
+ * that the handle to the context provided belongs to the non-secure context.
+ * This also means that interrupts/SMCs that trap to EL3 during secure execution
+ * cannot use this API.
+ * x1, x2, x3 and x4 are encoded as specified in the FF-A specification.
+ * retval is used to pass the direct response values to the caller.
+ * The function returns true if retval has valid values, and false otherwise.
+ ******************************************************************************/
+bool spmd_el3_ffa_msg_direct_req(uint64_t x1,
+				 uint64_t x2,
+				 uint64_t x3,
+				 uint64_t x4,
+				 void *handle,
+				 struct ffa_value *retval)
+{
+#if ENABLE_SPMD_LP
+
+	uint64_t rc = UINT64_MAX;
+	spmd_spm_core_context_t *ctx = spmd_get_context();
+
+	if (retval == NULL) {
+		return false;
+	}
+
+	memset(retval, 0, sizeof(*retval));
+
+	if (!is_spmd_lp_inited || !is_spmc_inited) {
+		VERBOSE("Cannot send SPMD logical partition direct message,"
+			" Partitions not initialized or SPMC not initialized.\n");
+			spmd_encode_ffa_error(retval, FFA_ERROR_DENIED);
+		return true;
+	}
+
+	/*
+	 * x2 must be zero, since there is no support for framework message via
+	 * an SPMD logical partition. This is sort of a useless check and it is
+	 * possible to not take parameter. However, as the framework extends it
+	 * may be useful to have x2 and extend this function later with
+	 * functionality based on x2.
+	 */
+	if (x2 != 0) {
+		VERBOSE("x2 must be zero. Cannot send framework message.\n");
+			spmd_encode_ffa_error(retval, FFA_ERROR_DENIED);
+		return true;
+	}
+
+	/*
+	 * Current context must be non-secure. API is expected to be used
+	 * when entry into EL3 and the SPMD logical partition is via an
+	 * interrupt that occurs when execution is in normal world and
+	 * SMCs from normal world. FF-A compliant SPMCs are expected to
+	 * trap interrupts during secure execution in lower ELs since they
+	 * are usually not re-entrant and SMCs from secure world can be
+	 * handled synchronously. There is no known use case for an SPMD
+	 * logical partition to send a direct message to another partition
+	 * in response to a secure interrupt or SMCs from secure world.
+	 */
+	if (handle != cm_get_context(NON_SECURE)) {
+		VERBOSE("Handle must be for the non-secure context.\n");
+			spmd_encode_ffa_error(retval, FFA_ERROR_DENIED);
+		return true;
+	}
+
+	if (!is_spmd_lp_id(ffa_endpoint_source(x1))) {
+		VERBOSE("Source ID must be valid SPMD logical partition"
+			" ID.\n");
+			spmd_encode_ffa_error(retval,
+					      FFA_ERROR_INVALID_PARAMETER);
+		return true;
+	}
+
+	if (is_spmd_lp_id(ffa_endpoint_destination(x1))) {
+		VERBOSE("Destination ID must not be SPMD logical partition"
+			" ID.\n");
+			spmd_encode_ffa_error(retval,
+					      FFA_ERROR_INVALID_PARAMETER);
+		return true;
+	}
+
+	if (!ffa_is_secure_world_id(ffa_endpoint_destination(x1))) {
+		VERBOSE("Destination ID must be secure world ID.\n");
+			spmd_encode_ffa_error(retval,
+					      FFA_ERROR_INVALID_PARAMETER);
+		return true;
+	}
+
+	if (ffa_endpoint_destination(x1) == SPMD_DIRECT_MSG_ENDPOINT_ID) {
+		VERBOSE("Destination ID must not be SPMD ID.\n");
+			spmd_encode_ffa_error(retval,
+					      FFA_ERROR_INVALID_PARAMETER);
+		return true;
+	}
+
+	if (ffa_endpoint_destination(x1) == spmd_spmc_id_get()) {
+		VERBOSE("Destination ID must not be SPMC ID.\n");
+			spmd_encode_ffa_error(retval,
+					      FFA_ERROR_INVALID_PARAMETER);
+		return true;
+	}
+
+	/* Save the non-secure context before entering SPMC */
+	cm_el1_sysregs_context_save(NON_SECURE);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_save(NON_SECURE);
+#endif
+
+	/*
+	 * Perform synchronous entry into the SPMC. Synchronous entry is
+	 * required because the spec requires that a direct message request
+	 * from an SPMD LP look like a function call from it's perspective.
+	 */
+	spmd_build_direct_message_req(ctx, x1, x2, x3, x4);
+	spmd_logical_sp_set_dir_req_ongoing(ctx);
+
+	rc = spmd_spm_core_sync_entry(ctx);
+
+	spmd_logical_sp_reset_dir_req_ongoing(ctx);
+
+	if (rc != 0ULL) {
+		ERROR("%s failed (%lx) on CPU%u\n", __func__, rc,
+		      plat_my_core_pos());
+		panic();
+	} else {
+		spmd_encode_ctx_to_ffa_value(ctx, retval);
+
+		/*
+		 * Only expect error or direct response,
+		 * spmd_spm_core_sync_exit should not be called on other paths.
+		 * Checks are asserts since the LSP can fail gracefully if the
+		 * source or destination ids are not the same. Panic'ing would
+		 * not provide any benefit.
+		 */
+		assert(is_ffa_error(retval) || is_ffa_direct_msg_resp(retval));
+		assert(is_ffa_error(retval) ||
+			(ffa_endpoint_destination(retval->arg1) ==
+				ffa_endpoint_source(x1)));
+		assert(is_ffa_error(retval) ||
+			(ffa_endpoint_source(retval->arg1) ==
+				ffa_endpoint_destination(x1)));
+	}
+
+	cm_el1_sysregs_context_restore(NON_SECURE);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_restore(NON_SECURE);
+#endif
+	cm_set_next_eret_context(NON_SECURE);
+
+	return true;
+#else
+	return false;
+#endif
+}
+
+bool is_spmd_logical_sp_dir_req_in_progress(
+		spmd_spm_core_context_t *ctx)
+{
+#if ENABLE_SPMD_LP
+	return ((ctx->spmd_lp_sync_req_ongoing & SPMD_LP_FFA_DIR_REQ_ONGOING)
+		== SPMD_LP_FFA_DIR_REQ_ONGOING);
+#else
+	return false;
 #endif
 }

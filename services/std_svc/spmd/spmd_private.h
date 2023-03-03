@@ -52,7 +52,13 @@ typedef struct spmd_spm_core_context {
 	cpu_context_t cpu_ctx;
 	spmc_state_t state;
 	bool secure_interrupt_ongoing;
+#if ENABLE_SPMD_LP
+	uint8_t spmd_lp_sync_req_ongoing;
+#endif
 } spmd_spm_core_context_t;
+
+/* Flags to indicate ongoing requests for SPMD EL3 logical partitions */
+#define SPMD_LP_FFA_DIR_REQ_ONGOING		U(0x1)
 
 /*
  * Reserve ID for NS physical FFA Endpoint.

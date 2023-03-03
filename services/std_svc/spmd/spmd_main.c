@@ -863,6 +863,16 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			spmd_spm_core_sync_exit(x2);
 		}
 
+		/*
+		 * If there was an SPMD logical partition direct request on-going,
+		 * return back to the SPMD logical partition so the error can be
+		 * consumed.
+		 */
+		if (is_spmd_logical_sp_dir_req_in_progress(ctx)) {
+			assert(secure_origin);
+			spmd_spm_core_sync_exit(0ULL);
+		}
+
 		return spmd_smc_forward(smc_fid, secure_origin,
 					x1, x2, x3, x4, cookie,
 					handle, flags);
@@ -1052,6 +1062,31 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
+		/*
+		 * Regardless of secure_origin, SPMD logical partitions cannot
+		 * handle direct messages. They can only initiate direct
+		 * messages and consume direct responses or errors.
+		 */
+		if (is_spmd_lp_id(ffa_endpoint_source(x1)) ||
+				  is_spmd_lp_id(ffa_endpoint_destination(x1))) {
+			return spmd_ffa_error_return(handle,
+						     FFA_ERROR_INVALID_PARAMETER
+						     );
+		}
+
+		/*
+		 * When there is an ongoing SPMD logical partition direct
+		 * request, there cannot be another direct request. Return
+		 * error in this case. Panic'ing is an option but that does
+		 * not provide the opportunity for caller to abort based on
+		 * error codes.
+		 */
+		if (is_spmd_logical_sp_dir_req_in_progress(ctx)) {
+			assert(secure_origin);
+			return spmd_ffa_error_return(handle,
+						     FFA_ERROR_DENIED);
+		}
+
 		if (!secure_origin) {
 			/* Validate source endpoint is non-secure for non-secure caller. */
 			if (ffa_is_secure_world_id(ffa_endpoint_source(x1))) {
@@ -1079,7 +1114,9 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		break; /* Not reached */
 
 	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
-		if (secure_origin && spmd_is_spmc_message(x1)) {
+	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
+		if (secure_origin && (spmd_is_spmc_message(x1) ||
+		    is_spmd_logical_sp_dir_req_in_progress(ctx))) {
 			spmd_spm_core_sync_exit(0ULL);
 		} else {
 			/* Forward direct message to the other world */
@@ -1119,7 +1156,6 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		/* Forward the call to the other world */
 		/* fallthrough */
 	case FFA_MSG_SEND:
-	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
 	case FFA_MEM_DONATE_SMC32:
 	case FFA_MEM_DONATE_SMC64:
 	case FFA_MEM_LEND_SMC32:
@@ -1136,11 +1172,14 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_SUCCESS_SMC32:
 	case FFA_SUCCESS_SMC64:
 		/*
-		 * TODO: Assume that no requests originate from EL3 at the
-		 * moment. This will change if a SP service is required in
-		 * response to secure interrupts targeted to EL3. Until then
-		 * simply forward the call to the Normal world.
+		 * If there is an ongoing direct request from an SPMD logical
+		 * partition, return an error.
 		 */
+		if (is_spmd_logical_sp_dir_req_in_progress(ctx)) {
+			assert(secure_origin);
+			return spmd_ffa_error_return(handle,
+					FFA_ERROR_DENIED);
+		}
 
 		return spmd_smc_forward(smc_fid, secure_origin,
 					x1, x2, x3, x4, cookie,
@@ -1165,6 +1204,12 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		if (!secure_origin) {
 			return spmd_ffa_error_return(handle,
 						      FFA_ERROR_NOT_SUPPORTED);
+		}
+
+		if (is_spmd_logical_sp_dir_req_in_progress(ctx)) {
+			assert(secure_origin);
+			return spmd_ffa_error_return(handle,
+					FFA_ERROR_DENIED);
 		}
 
 		return spmd_smc_forward(smc_fid, secure_origin,
