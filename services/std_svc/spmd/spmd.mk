@@ -18,6 +18,16 @@ SPMD_SOURCES	+=	$(addprefix services/std_svc/spmd/,	\
 			spmd_main.c				\
 			spmd_logical_sp.c)
 
+# Specify platform specific SPMD logical partition implementation.
+SPMD_LP_SOURCES  := $(wildcard $(addprefix ${PLAT_DIR}/, \
+					${PLAT}_spmd_logical_sp*.c))
+
+ifeq (${ENABLE_SPMD_LP}, 1)
+ifneq ($(wildcard $(SPMD_LP_SOURCES)),)
+SPMD_SOURCES += $(SPMD_LP_SOURCES)
+endif
+endif
+
 # Let the top-level Makefile know that we intend to include a BL32 image
 NEED_BL32		:=	yes
 
