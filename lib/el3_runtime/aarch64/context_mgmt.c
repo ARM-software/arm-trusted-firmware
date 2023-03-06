@@ -489,10 +489,11 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 		amu_enable(el2_unused, ctx);
 	}
 
-#if ENABLE_SME_FOR_NS
 	/* Enable SME, SVE, and FPU/SIMD for non-secure world. */
-	sme_enable(ctx);
-#elif ENABLE_SVE_FOR_NS
+	if (is_feat_sme_supported()) {
+		sme_enable(ctx);
+	}
+#if ENABLE_SVE_FOR_NS
 	/* Enable SVE and FPU/SIMD for non-secure world. */
 	sve_enable(ctx);
 #endif

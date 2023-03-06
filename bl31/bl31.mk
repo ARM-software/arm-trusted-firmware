@@ -99,7 +99,7 @@ ifeq (${ENABLE_MPMM},1)
 BL31_SOURCES		+=	${MPMM_SOURCES}
 endif
 
-ifeq (${ENABLE_SME_FOR_NS},1)
+ifneq (${ENABLE_SME_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/sme/sme.c
 BL31_SOURCES		+=	lib/extensions/sve/sve.c
 else

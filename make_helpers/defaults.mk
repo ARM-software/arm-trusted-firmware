@@ -388,7 +388,7 @@ ENABLE_SME_FOR_NS		:= 0
 ENABLE_SME_FOR_SWD		:= 0
 
 # If SME is enabled then force SVE off
-ifeq (${ENABLE_SME_FOR_NS},1)
+ifneq (${ENABLE_SME_FOR_NS},0)
 	override ENABLE_SVE_FOR_NS	:= 0
 	override ENABLE_SVE_FOR_SWD	:= 0
 endif

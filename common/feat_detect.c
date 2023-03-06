@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -216,6 +216,8 @@ void detect_arch_features(void)
 		      "TRBE", 1, 1);
 
 	/* v9.2 features */
+	check_feature(ENABLE_SME_FOR_NS, read_feat_sme_id_field(),
+		      "SME", 1, 2);
 	read_feat_rme();
 
 	if (tainted) {

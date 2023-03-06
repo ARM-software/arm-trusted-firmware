@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2021-2023, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,7 +8,7 @@ ifneq (${ARCH},aarch64)
 	$(error "Error: SPMD is only supported on aarch64.")
 endif
 
-ifeq (${ENABLE_SME_FOR_NS},1)
+ifneq (${ENABLE_SME_FOR_NS},0)
 	$(error "Error: SPMD is not compatible with ENABLE_SME_FOR_NS")
 endif
 

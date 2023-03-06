@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,27 +7,12 @@
 #include <stdbool.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/sme.h>
 #include <lib/extensions/sve.h>
-
-static bool feat_sme_supported(void)
-{
-	uint64_t features;
-
-	features = read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_SME_SHIFT;
-	return (features & ID_AA64PFR1_EL1_SME_MASK) != 0U;
-}
-
-static bool feat_sme_fa64_supported(void)
-{
-	uint64_t features;
-
-	features = read_id_aa64smfr0_el1();
-	return (features & ID_AA64SMFR0_EL1_FA64_BIT) != 0U;
-}
 
 void sme_enable(cpu_context_t *context)
 {
@@ -36,7 +21,7 @@ void sme_enable(cpu_context_t *context)
 	el3_state_t *state;
 
 	/* Make sure SME is implemented in hardware before continuing. */
-	if (!feat_sme_supported()) {
+	if (!is_feat_sme_supported()) {
 		/* Perhaps the hardware supports SVE only */
 		sve_enable(context);
 		return;
@@ -66,7 +51,7 @@ void sme_enable(cpu_context_t *context)
 	 * using SMCR_EL2 and SMCR_EL1.
 	 */
 	reg = SMCR_ELX_LEN_MASK;
-	if (feat_sme_fa64_supported()) {
+	if (read_feat_sme_fa64_id_field() != 0U) {
 		VERBOSE("[SME] FA64 enabled\n");
 		reg |= SMCR_ELX_FA64_BIT;
 	}
@@ -86,7 +71,7 @@ void sme_disable(cpu_context_t *context)
 	el3_state_t *state;
 
 	/* Make sure SME is implemented in hardware before continuing. */
-	if (!feat_sme_supported()) {
+	if (!is_feat_sme_supported()) {
 		/* Perhaps the hardware supports SVE only */
 		sve_disable(context);
 		return;

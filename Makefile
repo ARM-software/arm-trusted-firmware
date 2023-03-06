@@ -861,6 +861,10 @@ ifeq ($(FEATURE_DETECTION),1)
     $(info FEATURE_DETECTION is an experimental feature)
 endif
 
+ifneq ($(ENABLE_SME_FOR_NS), 0)
+    $(info ENABLE_SME_FOR_NS is an experimental feature)
+endif
+
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
     ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
         $(error "ALLOW_RO_XLAT_TABLES requires translation tables library v2")
@@ -877,7 +881,7 @@ endif
 ifeq (${ARCH},aarch32)
 
     # SME/SVE only supported on AArch64
-    ifeq (${ENABLE_SME_FOR_NS},1)
+    ifneq (${ENABLE_SME_FOR_NS},0)
         $(error "ENABLE_SME_FOR_NS cannot be used with ARCH=aarch32")
     endif
     ifeq (${ENABLE_SVE_FOR_NS},1)
@@ -898,7 +902,7 @@ endif
 
 # Ensure ENABLE_RME is not used with SME
 ifeq (${ENABLE_RME},1)
-    ifeq (${ENABLE_SME_FOR_NS},1)
+    ifneq (${ENABLE_SME_FOR_NS},0)
         $(error "ENABLE_SME_FOR_NS cannot be used with ENABLE_RME")
     endif
 endif
@@ -918,7 +922,7 @@ endif
 # SVE and SME cannot be used with CTX_INCLUDE_FPREGS since secure manager does
 # its own context management including FPU registers.
 ifeq (${CTX_INCLUDE_FPREGS},1)
-    ifeq (${ENABLE_SME_FOR_NS},1)
+    ifneq (${ENABLE_SME_FOR_NS},0)
         $(error "ENABLE_SME_FOR_NS cannot be used with CTX_INCLUDE_FPREGS")
     endif
     ifeq (${ENABLE_SVE_FOR_NS},1)
@@ -1101,7 +1105,6 @@ $(eval $(call assert_booleans,\
         ENABLE_PMF \
         ENABLE_PSCI_STAT \
         ENABLE_RUNTIME_INSTRUMENTATION \
-        ENABLE_SME_FOR_NS \
         ENABLE_SME_FOR_SWD \
         ENABLE_SVE_FOR_NS \
         ENABLE_SVE_FOR_SWD \
@@ -1189,6 +1192,7 @@ $(eval $(call assert_numerics,\
         ENABLE_RME \
         ENABLE_SPE_FOR_NS \
         ENABLE_SYS_REG_TRACE_FOR_NS \
+        ENABLE_SME_FOR_NS \
         ENABLE_TRF_FOR_NS \
         FW_ENC_STATUS \
         NR_OF_FW_BANKS \

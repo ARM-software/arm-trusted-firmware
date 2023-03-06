@@ -406,14 +406,15 @@ Common build options
    instrumented. Enabling this option enables the ``ENABLE_PMF`` build option
    as well. Default is 0.
 
--  ``ENABLE_SME_FOR_NS``: Boolean option to enable Scalable Matrix Extension
+-  ``ENABLE_SME_FOR_NS``: Numeric value to enable Scalable Matrix Extension
    (SME), SVE, and FPU/SIMD for the non-secure world only. These features share
    registers so are enabled together. Using this option without
    ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
    world to trap to EL3. SME is an optional architectural feature for AArch64
    and TF-A support is experimental. At this time, this build option cannot be
    used on systems that have SPD=spmd/SPM_MM or ENABLE_RME, and attempting to
-   build with these options will fail. Default is 0.
+   build with these options will fail. This flag can take the values 0 to 2, to
+   align with the ``FEATURE_DETECTION`` mechanism. Default is 0.
 
 -  ``ENABLE_SME_FOR_SWD``: Boolean option to enable the Scalable Matrix
    Extension for secure world use along with SVE and FPU/SIMD, ENABLE_SME_FOR_NS
