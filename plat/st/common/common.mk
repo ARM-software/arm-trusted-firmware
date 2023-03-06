@@ -183,11 +183,11 @@ MBEDTLS_MAJOR=$(shell grep -hP "define MBEDTLS_VERSION_MAJOR" \
 ${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
 
 ifeq (${MBEDTLS_MAJOR}, 2)
-MBEDTLS_CONFIG_FILE		?=	"<stm32mp1_mbedtls_config-2.h>"
+MBEDTLS_CONFIG_FILE		?=	"<stm32mp_mbedtls_config-2.h>"
 endif
 
 ifeq (${MBEDTLS_MAJOR}, 3)
-MBEDTLS_CONFIG_FILE		?=	"<stm32mp1_mbedtls_config-3.h>"
+MBEDTLS_CONFIG_FILE		?=	"<stm32mp_mbedtls_config-3.h>"
 endif
 endif
 
