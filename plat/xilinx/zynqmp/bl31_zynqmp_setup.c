@@ -171,7 +171,7 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 }
 #endif
 
-#if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
+#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
 static void prepare_dtb(void)
 {
 	void *dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
@@ -217,7 +217,7 @@ static void prepare_dtb(void)
 
 void bl31_platform_setup(void)
 {
-#if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
+#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
 	prepare_dtb();
 #endif
 
@@ -250,7 +250,7 @@ void bl31_plat_arch_setup(void)
 	plat_arm_interconnect_enter_coherency();
 
 	const mmap_region_t bl_regions[] = {
-#if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
+#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
 		MAP_REGION_FLAT(XILINX_OF_BOARD_DTB_ADDR, XILINX_OF_BOARD_DTB_MAX_SIZE,
 			MT_MEMORY | MT_RW | MT_NS),
 #endif
