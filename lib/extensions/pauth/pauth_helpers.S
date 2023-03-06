@@ -45,7 +45,7 @@ func pauth_init_enable_el1
 endfunc pauth_init_enable_el1
 
 /* -------------------------------------------------------------
- * Disable pointer authentication in EL3
+ * Disable pointer authentication in EL1
  * -------------------------------------------------------------
  */
 func pauth_disable_el1
