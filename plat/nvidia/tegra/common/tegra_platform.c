@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2020-2021, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -272,10 +272,12 @@ bool tegra_platform_is_virt_dev_kit(void)
  */
 int32_t plat_get_soc_version(void)
 {
-	uint32_t chip_id = ((tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK);
+	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
+	uint32_t major_rev = tegra_get_chipid_major();
 	uint32_t manfid = SOC_ID_SET_JEP_106(JEDEC_NVIDIA_BKID, JEDEC_NVIDIA_MFID);
 
-	return (int32_t)(manfid | (chip_id & SOC_ID_IMPL_DEF_MASK));
+	return (int32_t)(manfid | (((chip_id << MAJOR_VERSION_SHIFT) | major_rev) &
+			 SOC_ID_IMPL_DEF_MASK));
 }
 
 /*
