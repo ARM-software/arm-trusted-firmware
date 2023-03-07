@@ -291,7 +291,7 @@ static int32_t check_load_area(uintptr_t dst, uintptr_t len)
 
 	prot_end = prot_start + DRAM_PROTECTED_SIZE;
 
-	if (dst < dram_start || dst > dram_end - len) {
+	if (dst < dram_start || len > dram_end || dst > dram_end - len) {
 		ERROR("BL2: dst address is on the protected area.\n");
 		result = IO_FAIL;
 		goto done;
@@ -303,8 +303,9 @@ static int32_t check_load_area(uintptr_t dst, uintptr_t len)
 		result = IO_FAIL;
 	}
 
-	if (dst < prot_start && dst > prot_start - len) {
-		ERROR("BL2: loaded data is on the protected area.\n");
+	if (len > prot_start || (dst < prot_start && dst > prot_start - len)) {
+		ERROR("BL2: %s[%d] loaded data is on the protected area.\n",
+			__func__, __LINE__);
 		result = IO_FAIL;
 	}
 done:
