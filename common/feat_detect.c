@@ -171,6 +171,8 @@ void detect_arch_features(void)
 
 	/* v8.2 features */
 	read_feat_ras();
+	check_feature(ENABLE_SVE_FOR_NS, read_feat_sve_id_field(),
+		      "SVE", 1, 1);
 
 	/* v8.3 features */
 	read_feat_pauth();

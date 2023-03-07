@@ -20,13 +20,6 @@ void sme_enable(cpu_context_t *context)
 	u_register_t cptr_el3;
 	el3_state_t *state;
 
-	/* Make sure SME is implemented in hardware before continuing. */
-	if (!is_feat_sme_supported()) {
-		/* Perhaps the hardware supports SVE only */
-		sve_enable(context);
-		return;
-	}
-
 	/* Get the context state. */
 	state = get_el3state_ctx(context);
 
@@ -69,13 +62,6 @@ void sme_disable(cpu_context_t *context)
 {
 	u_register_t reg;
 	el3_state_t *state;
-
-	/* Make sure SME is implemented in hardware before continuing. */
-	if (!is_feat_sme_supported()) {
-		/* Perhaps the hardware supports SVE only */
-		sve_disable(context);
-		return;
-	}
 
 	/* Get the context state. */
 	state = get_el3state_ctx(context);

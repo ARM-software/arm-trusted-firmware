@@ -10,7 +10,7 @@ endif
 ifneq (${ARCH},aarch64)
         $(error "Error: SPM_MM is only supported on aarch64.")
 endif
-ifeq (${ENABLE_SVE_FOR_NS},1)
+ifneq (${ENABLE_SVE_FOR_NS},0)
         $(error "Error: SPM_MM is not compatible with ENABLE_SVE_FOR_NS")
 endif
 ifneq (${ENABLE_SME_FOR_NS},0)
