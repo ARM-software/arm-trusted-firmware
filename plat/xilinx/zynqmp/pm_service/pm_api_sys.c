@@ -687,16 +687,19 @@ enum pm_ret_status pm_aes_engine(uint32_t address_high,
  * @data - array of PAYLOAD_ARG_CNT elements
  *
  * Read value from ipi buffer response buffer.
+ * @return      Returns status, either success or error
  */
-void pm_get_callbackdata(uint32_t *data, size_t count)
+enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	/* Return if interrupt is not from PMU */
 	if (!pm_ipi_irq_status(primary_proc)) {
-		return;
+		return ret;
 	}
 
-	pm_ipi_buff_read_callb(data, count);
+	ret = pm_ipi_buff_read_callb(data, count);
 	pm_ipi_irq_clear(primary_proc);
+	return ret;
 }
 
 /**

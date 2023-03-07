@@ -128,7 +128,7 @@ enum pm_ret_status pm_secure_rsaaes(uint32_t address_low,
 				    uint32_t size,
 				    uint32_t flags);
 uint32_t pm_get_shutdown_scope(void);
-void pm_get_callbackdata(uint32_t *data, size_t count);
+enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count);
 enum pm_ret_status pm_ioctl(enum pm_node_id nid,
 			    uint32_t ioctl_id,
 			    uint32_t arg1,

@@ -48,12 +48,17 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 				void *cookie)
 {
 	uint32_t payload[4] = {0};
+	enum pm_ret_status ret;
 
 	VERBOSE("Received IPI FIQ from firmware\n");
 
 	(void)plat_ic_acknowledge_interrupt();
 
-	pm_get_callbackdata(payload, ARRAY_SIZE(payload), 0, 0);
+	ret = pm_get_callbackdata(payload, ARRAY_SIZE(payload), 0, 0);
+	if (ret != PM_RET_SUCCESS) {
+		payload[0] = ret;
+	}
+
 	switch (payload[0]) {
 	case PM_INIT_SUSPEND_CB:
 	case PM_NOTIFY_CB:
@@ -61,6 +66,11 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 			notify_os();
 		}
 		break;
+	case PM_RET_ERROR_INVALID_CRC:
+		pm_ipi_irq_clear(primary_proc);
+		WARN("Invalid CRC in the payload\n");
+		break;
+
 	default:
 		pm_ipi_irq_clear(primary_proc);
 		WARN("Invalid IPI payload\n");
@@ -274,8 +284,13 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 	case PM_GET_CALLBACK_DATA:
 	{
 		uint32_t result[4] = {0};
+		enum pm_ret_status ret;
 
-		pm_get_callbackdata(result, ARRAY_SIZE(result), security_flag, 1U);
+		ret = pm_get_callbackdata(result, ARRAY_SIZE(result), security_flag, 1U);
+		if (ret != 0) {
+			result[0] = ret;
+		}
+
 		SMC_RET2(handle,
 			(uint64_t)result[0] | ((uint64_t)result[1] << 32U),
 			(uint64_t)result[2] | ((uint64_t)result[3] << 32U));
