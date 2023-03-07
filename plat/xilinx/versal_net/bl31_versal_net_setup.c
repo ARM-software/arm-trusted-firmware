@@ -25,6 +25,9 @@
 
 #include <plat_private.h>
 #include <plat_startup.h>
+#include <pm_api_sys.h>
+#include <pm_client.h>
+#include <pm_ipi.h>
 #include <versal_net_def.h>
 
 static entry_point_info_t bl32_image_ep_info;
@@ -70,6 +73,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	uint32_t uart_clock;
 	int32_t rc;
+#if !(TFA_NO_PM)
+	uint64_t tfa_handoff_addr, buff[HANDOFF_PARAMS_MAX_SIZE] = {0};
+	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
+	enum pm_ret_status ret_status;
+#endif /* !(TFA_NO_PM) */
 
 	board_detection();
 
@@ -136,8 +144,32 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
+#if !(TFA_NO_PM)
+	PM_PACK_PAYLOAD4(payload, LOADER_MODULE_ID, 1, PM_LOAD_GET_HANDOFF_PARAMS,
+			 (uintptr_t)buff >> 32U, (uintptr_t)buff, max_size);
 
+	ret_status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	if (ret_status == PM_RET_SUCCESS) {
+		enum xbl_handoff xbl_ret;
+
+		tfa_handoff_addr = (uintptr_t)&buff;
+
+		xbl_ret = xbl_handover(&bl32_image_ep_info, &bl33_image_ep_info,
+				       tfa_handoff_addr);
+		if (xbl_ret != XBL_HANDOFF_SUCCESS) {
+			ERROR("BL31: PLM to TF-A handover failed %u\n", xbl_ret);
+			panic();
+		}
+
+		INFO("BL31: PLM to TF-A handover success\n");
+	} else {
+		INFO("BL31: setting up default configs\n");
+
+		bl31_set_default_config();
+	}
+#else
 	bl31_set_default_config();
+#endif /* !(TFA_NO_PM) */
 
 	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
 	NOTICE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
