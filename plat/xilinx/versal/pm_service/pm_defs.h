@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -115,11 +116,13 @@ typedef enum {
 	XPM_SUBSYSID_MAX,
 } XPm_SubsystemId;
 
+/* TODO: move pm_ret_status from device specific location to common location */
 /**
  * @PM_RET_SUCCESS:		success
  * @PM_RET_ERROR_ARGS:		illegal arguments provided (deprecated)
  * @PM_RET_ERROR_NOTSUPPORTED:	feature not supported  (deprecated)
  * @PM_RET_ERROR_NOFEATURE:	feature is not available
+ * @PM_RET_ERROR_INVALID_CRC:	invalid crc in IPI communication
  * @PM_RET_ERROR_INTERNAL:	internal error
  * @PM_RET_ERROR_CONFLICT:	conflict
  * @PM_RET_ERROR_ACCESS:	access rights violation
@@ -134,6 +137,7 @@ enum pm_ret_status {
 	PM_RET_ERROR_ARGS = 1,
 	PM_RET_ERROR_NOTSUPPORTED = 4,
 	PM_RET_ERROR_NOFEATURE = 19,
+	PM_RET_ERROR_INVALID_CRC = 301,
 	PM_RET_ERROR_INTERNAL = 2000,
 	PM_RET_ERROR_CONFLICT = 2001,
 	PM_RET_ERROR_ACCESS = 2002,
