@@ -37,6 +37,7 @@
 CASSERT(((TWED_DELAY & ~SCR_TWEDEL_MASK) == 0U), assert_twed_delay_value_check);
 #endif /* ENABLE_FEAT_TWED */
 
+static void manage_extensions_nonsecure(cpu_context_t *ctx);
 static void manage_extensions_secure(cpu_context_t *ctx);
 
 static void setup_el1_context(cpu_context_t *ctx, const struct entry_point_info *ep)
@@ -288,6 +289,8 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 			HCRX_EL2_INIT_VAL);
 	}
 #endif /* CTX_INCLUDE_EL2_REGS */
+
+	manage_extensions_nonsecure(ctx);
 }
 
 /*******************************************************************************
@@ -504,9 +507,11 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 /*******************************************************************************
  * Enable architecture extensions on first entry to Non-secure world.
  * When EL2 is implemented but unused `el2_unused` is non-zero, otherwise
- * it is zero.
+ * it is zero. This function updates some registers in-place and its contents
+ * are being prepared to be moved to cm_manage_extensions_el3 and
+ * cm_manage_extensions_nonsecure.
  ******************************************************************************/
-static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
+static void manage_extensions_nonsecure_mixed(bool el2_unused, cpu_context_t *ctx)
 {
 #if IMAGE_BL31
 	if (is_feat_spe_supported()) {
@@ -546,6 +551,36 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 		trf_enable();
 	}
 #endif
+}
+
+/*******************************************************************************
+ * Enable architecture extensions for EL3 execution. This function only updates
+ * registers in-place which are expected to either never change or be
+ * overwritten by el3_exit.
+ ******************************************************************************/
+#if IMAGE_BL31
+void cm_manage_extensions_el3(void)
+{
+}
+#endif /* IMAGE_BL31 */
+
+/*******************************************************************************
+ * Enable architecture extensions on first entry to Non-secure world.
+ ******************************************************************************/
+static void manage_extensions_nonsecure(cpu_context_t *ctx)
+{
+#if IMAGE_BL31
+#endif /* IMAGE_BL31 */
+}
+
+/*******************************************************************************
+ * Enable architecture extensions in-place at EL2 on first entry to Non-secure
+ * world when EL2 is empty and unused.
+ ******************************************************************************/
+static void manage_extensions_nonsecure_el2_unused(void)
+{
+#if IMAGE_BL31
+#endif /* IMAGE_BL31 */
 }
 
 /*******************************************************************************
@@ -845,8 +880,10 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 */
 			write_cnthp_ctl_el2(CNTHP_CTL_RESET_VAL &
 						~(CNTHP_CTL_ENABLE_BIT));
+
+			manage_extensions_nonsecure_el2_unused();
 		}
-		manage_extensions_nonsecure(el2_unused, ctx);
+		manage_extensions_nonsecure_mixed(el2_unused, ctx);
 	}
 
 	cm_el1_sysregs_context_restore(security_state);
@@ -1167,7 +1204,7 @@ void cm_prepare_el3_exit_ns(void)
 	 * direct register updates. Therefore, do this here
 	 * instead of when setting up context.
 	 */
-	manage_extensions_nonsecure(0, ctx);
+	manage_extensions_nonsecure_mixed(0, ctx);
 
 	/*
 	 * Set the NS bit to be able to access the ICC_SRE_EL2
