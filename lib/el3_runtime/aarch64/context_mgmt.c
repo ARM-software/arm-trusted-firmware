@@ -517,12 +517,13 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 		amu_enable(el2_unused, ctx);
 	}
 
-	/* Enable SME, SVE, and FPU/SIMD for non-secure world. */
+	/* Enable SVE and FPU/SIMD */
+	if (is_feat_sve_supported()) {
+		sve_enable(ctx);
+	}
+
 	if (is_feat_sme_supported()) {
 		sme_enable(ctx);
-	} else if (is_feat_sve_supported()) {
-		/* Enable SVE and FPU/SIMD for non-secure world. */
-		sve_enable(ctx);
 	}
 
 	if (is_feat_mpam_supported()) {
@@ -553,22 +554,7 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 static void manage_extensions_secure(cpu_context_t *ctx)
 {
 #if IMAGE_BL31
-
-	if (is_feat_sme_supported()) {
-		if (ENABLE_SME_FOR_SWD) {
-		/*
-		 * Enable SME, SVE, FPU/SIMD in secure context, secure manager
-		 * must ensure SME, SVE, and FPU/SIMD context properly managed.
-		 */
-			sme_enable(ctx);
-		} else {
-		/*
-		 * Disable SME, SVE, FPU/SIMD in secure context so non-secure
-		 * world can safely use the associated registers.
-		 */
-			sme_disable(ctx);
-		}
-	} else if (is_feat_sve_supported()) {
+	if (is_feat_sve_supported()) {
 		if (ENABLE_SVE_FOR_SWD) {
 		/*
 		 * Enable SVE and FPU in secure context, secure manager must
@@ -585,6 +571,21 @@ static void manage_extensions_secure(cpu_context_t *ctx)
 		}
 	}
 
+	if (is_feat_sme_supported()) {
+		if (ENABLE_SME_FOR_SWD) {
+		/*
+		 * Enable SME, SVE, FPU/SIMD in secure context, secure manager
+		 * must ensure SME, SVE, and FPU/SIMD context properly managed.
+		 */
+			sme_enable(ctx);
+		} else {
+		/*
+		 * Disable SME, SVE, FPU/SIMD in secure context so non-secure
+		 * world can safely use the associated registers.
+		 */
+			sme_disable(ctx);
+		}
+	}
 #endif /* IMAGE_BL31 */
 }
 

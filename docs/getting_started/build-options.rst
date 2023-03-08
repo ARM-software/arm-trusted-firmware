@@ -436,7 +436,8 @@ Common build options
    (SME), SVE, and FPU/SIMD for the non-secure world only. These features share
    registers so are enabled together. Using this option without
    ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
-   world to trap to EL3. SME is an optional architectural feature for AArch64
+   world to trap to EL3. Requires ``ENABLE_SVE_FOR_NS`` to be set as SME is a
+   superset of SVE. SME is an optional architectural feature for AArch64
    and TF-A support is experimental. At this time, this build option cannot be
    used on systems that have SPD=spmd/SPM_MM or ENABLE_RME, and attempting to
    build with these options will fail. This flag can take the values 0 to 2, to
@@ -450,10 +451,9 @@ Common build options
    align with the ``FEATURE_DETECTION`` mechanism. Default is 0.
 
 -  ``ENABLE_SME_FOR_SWD``: Boolean option to enable the Scalable Matrix
-   Extension for secure world use along with SVE and FPU/SIMD, ENABLE_SME_FOR_NS
-   must also be set to use this. If enabling this, the secure world MUST
-   handle context switching for SME, SVE, and FPU/SIMD registers to ensure that
-   no data is leaked to non-secure world. This is experimental. Default is 0.
+   Extension for secure world. Used along with SVE and FPU/SIMD.
+   ENABLE_SME_FOR_NS and ENABLE_SVE_FOR_SWD must also be set to use this.
+   This is experimental. Default is 0.
 
 -  ``ENABLE_SPE_FOR_NS`` : Numeric value to enable Statistical Profiling
    extensions. This is an optional architectural feature for AArch64.
@@ -469,17 +469,15 @@ Common build options
    This is to avoid corruption of the Non-secure world data in the Z-registers
    which are aliased by the SIMD and FP registers. The build option is not
    compatible with the ``CTX_INCLUDE_FPREGS`` build option, and will raise an
-   assert on platforms where SVE is implemented and ``ENABLE_SVE_FOR_NS`` enabled.
-   This flag can take the values 0 to 2, to align with the ``FEATURE_DETECTION``
-   mechanism. The default is 2 but is automatically disabled when
-   ENABLE_SME_FOR_NS is enabled ( set to 1 or 2) since SME encompasses SVE.
-   At this time, this build option cannot be used on systems that have SPM_MM
-   enabled.
+   assert on platforms where SVE is implemented and ``ENABLE_SVE_FOR_NS``
+   enabled.  This flag can take the values 0 to 2, to align with the
+   ``FEATURE_DETECTION`` mechanism. At this time, this build option cannot be
+   used on systems that have SPM_MM enabled. The default is 1.
 
 -  ``ENABLE_SVE_FOR_SWD``: Boolean option to enable SVE for the Secure world.
    SVE is an optional architectural feature for AArch64. Note that this option
-   requires ENABLE_SVE_FOR_NS to be enabled. The default is 0 and it
-   is automatically disabled when the target architecture is AArch32.
+   requires ENABLE_SVE_FOR_NS to be enabled. The default is 0 and it is
+   automatically disabled when the target architecture is AArch32.
 
 -  ``ENABLE_STACK_PROTECTOR``: String option to enable the stack protection
    checks in GCC. Allowed values are "all", "strong", "default" and "none". The

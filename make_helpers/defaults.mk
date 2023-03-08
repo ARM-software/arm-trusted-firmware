@@ -401,14 +401,6 @@ SVE_VECTOR_LEN			:= 2048
 # SME defaults to disabled
 ENABLE_SME_FOR_NS		:= 0
 ENABLE_SME_FOR_SWD		:= 0
-
-# If SME is enabled then force SVE off
-ifneq (${ENABLE_SME_FOR_NS},0)
-	override ENABLE_SVE_FOR_NS	:= 0
-	override ENABLE_SVE_FOR_SWD	:= 0
-endif
-
-# SME2 defaults to disabled
 ENABLE_SME2_FOR_NS		:= 0
 
 SANITIZE_UB := off

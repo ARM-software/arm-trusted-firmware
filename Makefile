@@ -912,10 +912,19 @@ ifeq (${ENABLE_RME},1)
     endif
 endif
 
+ifneq (${ENABLE_SME_FOR_NS},0)
+    ifeq (${ENABLE_SVE_FOR_NS},0)
+        $(error "ENABLE_SME_FOR_NS requires ENABLE_SVE_FOR_NS")
+    endif
+endif
+
 # Secure SME/SVE requires the non-secure component as well
 ifeq (${ENABLE_SME_FOR_SWD},1)
     ifeq (${ENABLE_SME_FOR_NS},0)
         $(error "ENABLE_SME_FOR_SWD requires ENABLE_SME_FOR_NS")
+    endif
+    ifeq (${ENABLE_SVE_FOR_SWD},0)
+        $(error "ENABLE_SME_FOR_SWD requires ENABLE_SVE_FOR_SWD")
     endif
 endif
 ifeq (${ENABLE_SVE_FOR_SWD},1)
