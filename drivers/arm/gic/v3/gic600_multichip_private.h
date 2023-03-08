@@ -49,9 +49,6 @@
 /* Number of retries for PUP update */
 #define GICD_PUP_UPDATE_RETRIES		10000
 
-#define SPI_MIN_INDEX			0
-#define SPI_MAX_INDEX			1
-
 #define SPI_BLOCK_MIN_VALUE(spi_id_min) \
 			(((spi_id_min) - GIC600_SPI_ID_MIN) / \
 			GIC600_SPI_ID_MIN)

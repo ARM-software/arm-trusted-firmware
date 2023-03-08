@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019, Arm Limited. All rights reserved.
- * Copyright (c) 2022, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2022-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,29 @@
 #include "../common/gic_common_private.h"
 #include "gic600_multichip_private.h"
 
+static struct gic600_multichip_data *plat_gic_multichip_data;
+
+/*******************************************************************************
+ * Retrieve the address of the chip owner for a given SPI ID
+ ******************************************************************************/
+uintptr_t gic600_multichip_gicd_base_for_spi(uint32_t spi_id)
+{
+	unsigned int i;
+
+	/* Find the multichip instance */
+	for (i = 0U; i < GIC600_MAX_MULTICHIP; i++) {
+		if ((spi_id <= plat_gic_multichip_data->spi_ids[i].spi_id_max) &&
+		     (spi_id >= plat_gic_multichip_data->spi_ids[i].spi_id_min)) {
+			break;
+		}
+	}
+
+	/* Ensure that plat_gic_multichip_data contains valid values */
+	assert(i < GIC600_MAX_MULTICHIP);
+
+	return plat_gic_multichip_data->spi_ids[i].gicd_base;
+}
+
 /*******************************************************************************
  * GIC-600 multichip operation related helper functions
  ******************************************************************************/
@@ -27,7 +50,7 @@ static void gicd_dchipr_wait_for_power_update_progress(uintptr_t base)
 	unsigned int retry = GICD_PUP_UPDATE_RETRIES;
 
 	while ((read_gicd_dchipr(base) & GICD_DCHIPR_PUP_BIT) != 0U) {
-		if (retry-- == 0) {
+		if (retry-- == 0U) {
 			ERROR("GIC-600 connection to Routing Table Owner timed "
 					 "out\n");
 			panic();
@@ -186,11 +209,11 @@ static void gic600_multichip_validate_data(
 		panic();
 	}
 
-	for (i = 0; i < multichip_data->chip_count; i++) {
-		spi_id_min = multichip_data->spi_ids[i][SPI_MIN_INDEX];
-		spi_id_max = multichip_data->spi_ids[i][SPI_MAX_INDEX];
+	for (i = 0U; i < multichip_data->chip_count; i++) {
+		spi_id_min = multichip_data->spi_ids[i].spi_id_min;
+		spi_id_max = multichip_data->spi_ids[i].spi_id_max;
 
-		if ((spi_id_min != 0) || (spi_id_max != 0)) {
+		if ((spi_id_min != 0U) || (spi_id_max != 0U)) {
 
 			/* SPI IDs range check */
 			if (!(spi_id_min >= GIC600_SPI_ID_MIN) ||
@@ -232,8 +255,8 @@ static void gic700_multichip_validate_data(
 	}
 
 	for (i = 0U; i < multichip_data->chip_count; i++) {
-		spi_id_min = multichip_data->spi_ids[i][SPI_MIN_INDEX];
-		spi_id_max = multichip_data->spi_ids[i][SPI_MAX_INDEX];
+		spi_id_min = multichip_data->spi_ids[i].spi_id_min;
+		spi_id_max = multichip_data->spi_ids[i].spi_id_max;
 
 		if ((spi_id_min == 0U) || (spi_id_max == 0U)) {
 			continue;
@@ -342,9 +365,9 @@ void gic600_multichip_init(struct gic600_multichip_data *multichip_data)
 	set_gicd_chipr_n(multichip_data->rt_owner_base, multichip_data->rt_owner,
 			multichip_data->chip_addrs[multichip_data->rt_owner],
 			multichip_data->
-			spi_ids[multichip_data->rt_owner][SPI_MIN_INDEX],
+			spi_ids[multichip_data->rt_owner].spi_id_min,
 			multichip_data->
-			spi_ids[multichip_data->rt_owner][SPI_MAX_INDEX]);
+			spi_ids[multichip_data->rt_owner].spi_id_max);
 
 	for (i = 0; i < multichip_data->chip_count; i++) {
 		if (i == multichip_data->rt_owner)
@@ -352,7 +375,17 @@ void gic600_multichip_init(struct gic600_multichip_data *multichip_data)
 
 		set_gicd_chipr_n(multichip_data->rt_owner_base, i,
 				multichip_data->chip_addrs[i],
-				multichip_data->spi_ids[i][SPI_MIN_INDEX],
-				multichip_data->spi_ids[i][SPI_MAX_INDEX]);
+				multichip_data->spi_ids[i].spi_id_min,
+				multichip_data->spi_ids[i].spi_id_max);
 	}
+
+	plat_gic_multichip_data = multichip_data;
+}
+
+/*******************************************************************************
+ * Allow a way to query the status of the GIC600 multichip driver
+ ******************************************************************************/
+bool gic600_multichip_is_initialized(void)
+{
+	return (plat_gic_multichip_data != NULL);
 }

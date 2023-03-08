@@ -43,13 +43,13 @@ static struct gic600_multichip_data rdv1mc_multichip_data __init = {
 #endif
 	},
 	.spi_ids = {
-		{32, 255},
-		{0, 0},
+		{PLAT_ARM_GICD_BASE, 32, 255},
+		{0, 0, 0},
 #if (CSS_SGI_CHIP_COUNT > 2)
-		{0, 0},
+		{0, 0, 0},
 #endif
 #if (CSS_SGI_CHIP_COUNT > 3)
-		{0, 0},
+		{0, 0, 0},
 #endif
 	}
 };
