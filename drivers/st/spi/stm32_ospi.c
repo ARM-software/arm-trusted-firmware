@@ -17,6 +17,7 @@
 #include <drivers/st/stm32_ospi.h>
 #include <drivers/st/stm32mp_reset.h>
 #include <lib/mmio.h>
+#include <lib/utils.h>
 #include <lib/utils_def.h>
 
 #include <platform_def.h>
@@ -95,12 +96,18 @@
 #define _DT_OSPI_COMPAT		"st,stm32mp25-ospi"
 
 #define _FREQ_100MHZ		100000000U
+#define _DLYB_FREQ_50MHZ	50000000U
+
+#define _OP_READ_ID		0x9FU
+#define _MAX_ID_LEN		8U
 
 struct stm32_ospi_ctrl {
 	uintptr_t reg_base;
 	uintptr_t mm_base;
 	size_t mm_size;
 	unsigned long clock_id;
+	uint8_t read_id[_MAX_ID_LEN];
+	uint8_t bank;
 };
 
 static struct stm32_ospi_ctrl stm32_ospi;
@@ -346,33 +353,10 @@ static int stm32_ospi_dirmap_read(const struct spi_mem_op *op)
 	return stm32_ospi_send(op, fmode);
 }
 
-static int stm32_ospi_claim_bus(unsigned int cs)
-{
-	uint32_t cr;
-
-	if (cs >= _OSPI_MAX_CHIP) {
-		return -ENODEV;
-	}
-
-	/* Set chip select and enable the controller */
-	cr = _OSPI_CR_EN;
-	if (cs == 1U) {
-		cr |= _OSPI_CR_CSSEL;
-	}
-
-	mmio_clrsetbits_32(ospi_base() + _OSPI_CR, _OSPI_CR_CSSEL, cr);
-
-	return 0;
-}
-
-static void stm32_ospi_release_bus(void)
-{
-	mmio_clrbits_32(ospi_base() + _OSPI_CR, _OSPI_CR_EN);
-}
-
 static int stm32_ospi_set_speed(unsigned int hz)
 {
 	unsigned long ospi_clk = clk_get_rate(stm32_ospi.clock_id);
+	unsigned int bus_freq;
 	uint32_t prescaler = UINT8_MAX;
 	uint32_t csht;
 	int ret;
@@ -401,9 +385,180 @@ static int stm32_ospi_set_speed(unsigned int hz)
 
 	mmio_clrsetbits_32(ospi_base() + _OSPI_DCR1, _OSPI_DCR1_CSHT, csht);
 
+	bus_freq = ospi_clk / (prescaler + 1U);
+	if (bus_freq <= _DLYB_FREQ_50MHZ) {
+		mmio_setbits_32(ospi_base() + _OSPI_DCR1, _OSPI_DCR1_DLYBYP);
+	} else {
+		mmio_clrbits_32(ospi_base() + _OSPI_DCR1, _OSPI_DCR1_DLYBYP);
+	}
+
 	VERBOSE("%s: speed=%lu\n", __func__, ospi_clk / (prescaler + 1U));
 
 	return 0;
+}
+
+static int stm32_ospi_readid(void)
+{
+	static bool read_id_done;
+	uint8_t id[_MAX_ID_LEN];
+	struct spi_mem_op readid_op;
+	int ret;
+
+	zeromem(&readid_op, sizeof(struct spi_mem_op));
+	readid_op.cmd.opcode = _OP_READ_ID;
+	readid_op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	readid_op.data.nbytes = _MAX_ID_LEN;
+	readid_op.data.buf = id;
+	readid_op.data.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+
+	ret = stm32_ospi_send(&readid_op, _OSPI_CR_FMODE_INDR);
+	if (ret != 0) {
+		return ret;
+	}
+
+	VERBOSE("Flash ID 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n",
+		id[0], id[1], id[2], id[3], id[4], id[5], id[6], id[7]);
+
+	/* As first byte could be a dummy byte, do not take it into account */
+	id[0] = 0x00;
+
+	/* On stm32_ospi_readid() first execution, save the golden READID */
+	if (!read_id_done) {
+		memcpy(stm32_ospi.read_id, id, _MAX_ID_LEN);
+		read_id_done = true;
+
+		return 0;
+	}
+
+	if (memcmp(stm32_ospi.read_id, id, _MAX_ID_LEN) == 0) {
+		return 0;
+	}
+
+	return -EIO;
+}
+
+static int stm32_ospi_calibration(unsigned int freq)
+{
+	uint32_t dlyb_cr;
+	uint8_t window_len_tcr0 = 0;
+	uint8_t window_len_tcr1 = 0;
+	int ret;
+	int ret_tcr0;
+	int ret_tcr1;
+
+	/*
+	 * Set memory device at low frequency (50 MHz) and sent
+	 * READID (0x9F) command, save the answer as golden answer
+	 */
+	ret = stm32_ospi_set_speed(_DLYB_FREQ_50MHZ);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = stm32_ospi_readid();
+	if (ret != 0) {
+		return ret;
+	}
+
+	/* Set frequency at requested value and perform calibration */
+	ret = stm32_ospi_set_speed(freq);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = stm32mp_syscfg_dlyb_init(stm32_ospi.bank, false, 0);
+	if (ret != 0) {
+		return ret;
+	}
+
+	/* Perform only RX TAP selection */
+	ret_tcr0 = stm32mp_syscfg_dlyb_find_tap(stm32_ospi.bank,
+						stm32_ospi_readid,
+						true, &window_len_tcr0);
+	if (ret_tcr0 == 0) {
+		stm32mp_syscfg_dlyb_get_cr(stm32_ospi.bank, &dlyb_cr);
+	}
+
+	stm32mp_syscfg_dlyb_stop(stm32_ospi.bank);
+
+	ret = stm32mp_syscfg_dlyb_init(stm32_ospi.bank, false, 0);
+	if (ret != 0) {
+		return ret;
+	}
+
+	mmio_setbits_32(ospi_base() + _OSPI_TCR, _OSPI_TCR_SSHIFT);
+
+	ret_tcr1 = stm32mp_syscfg_dlyb_find_tap(stm32_ospi.bank,
+						stm32_ospi_readid,
+						true, &window_len_tcr1);
+	if ((ret_tcr0 != 0) && (ret_tcr1 != 0)) {
+		WARN("Calibration phase failed\n");
+
+		return ret_tcr0;
+	}
+
+	if (window_len_tcr0 >= window_len_tcr1) {
+		mmio_clrbits_32(ospi_base() + _OSPI_TCR, _OSPI_TCR_SSHIFT);
+		stm32mp_syscfg_dlyb_stop(stm32_ospi.bank);
+
+		ret = stm32mp_syscfg_dlyb_set_cr(stm32_ospi.bank, dlyb_cr);
+		if (ret != 0) {
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int stm32_ospi_claim_bus(unsigned int cs)
+{
+	static bool calibration_done;
+	uint32_t cr;
+
+	if (cs >= _OSPI_MAX_CHIP) {
+		return -ENODEV;
+	}
+
+	/* Set chip select and enable the controller */
+	cr = _OSPI_CR_EN;
+	if (cs == 1U) {
+		cr |= _OSPI_CR_CSSEL;
+	}
+
+	mmio_clrsetbits_32(ospi_base() + _OSPI_CR, _OSPI_CR_CSSEL, cr);
+
+	/* Calibration is done once */
+	if (!calibration_done) {
+		uint32_t prescaler = mmio_read_32(ospi_base() + _OSPI_DCR2) &
+						  _OSPI_DCR2_PRESCALER;
+		unsigned int bus_freq = clk_get_rate(stm32_ospi.clock_id) /
+					(prescaler + 1);
+
+		stm32mp_syscfg_dlyb_stop(stm32_ospi.bank);
+		mmio_clrbits_32(ospi_base() + _OSPI_TCR, _OSPI_TCR_SSHIFT);
+		calibration_done = true;
+
+		/* Calibration needed above 50 MHz */
+		if (bus_freq > _DLYB_FREQ_50MHZ) {
+			if (stm32_ospi_calibration(bus_freq) != 0) {
+				WARN("Set flash frequency to a safe value (%u Hz)\n",
+				     _DLYB_FREQ_50MHZ);
+
+				stm32mp_syscfg_dlyb_stop(stm32_ospi.bank);
+				mmio_clrbits_32(ospi_base() + _OSPI_TCR,
+						_OSPI_TCR_SSHIFT);
+
+				return stm32_ospi_set_speed(_DLYB_FREQ_50MHZ);
+			}
+		}
+	}
+
+	return 0;
+}
+
+static void stm32_ospi_release_bus(void)
+{
+	mmio_clrbits_32(ospi_base() + _OSPI_CR, _OSPI_CR_EN);
 }
 
 static int stm32_ospi_set_mode(unsigned int mode)
@@ -500,6 +655,7 @@ int stm32_ospi_init(void)
 		stm32_ospi.reg_base = info.base;
 		stm32_ospi.mm_size = SZ_256M;
 		stm32_ospi.mm_base = STM32MP_OSPI_MM_BASE;
+		stm32_ospi.bank = 0U;
 
 		if (info.clock < 0) {
 			return -FDT_ERR_BADVALUE;
@@ -576,6 +732,7 @@ int stm32_ospi_init(void)
 		stm32_ospi.mm_size = stm32mp_syscfg_get_mm_size(bank);
 		stm32_ospi.mm_base = bank == 0U ?
 				     mm_base : mm_base + mm_size - stm32_ospi.mm_size;
+		stm32_ospi.bank = bank;
 
 		cuint = fdt_getprop(fdt, ospi_node, "clocks", NULL);
 		if (cuint == NULL) {
@@ -611,9 +768,7 @@ int stm32_ospi_init(void)
 		}
 	}
 
-	mmio_write_32(ospi_base() + _OSPI_TCR, _OSPI_TCR_SSHIFT);
-	mmio_write_32(ospi_base() + _OSPI_DCR1,
-		      _OSPI_DCR1_DEVSIZE | _OSPI_DCR1_DLYBYP);
+	mmio_write_32(ospi_base() + _OSPI_DCR1, _OSPI_DCR1_DEVSIZE);
 
 	return spi_mem_init_slave(fdt, ospi_node, &stm32_ospi_bus_ops);
 };
