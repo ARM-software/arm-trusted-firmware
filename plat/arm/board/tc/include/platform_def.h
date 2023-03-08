@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -307,5 +307,18 @@
 
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
+
+#if ARM_GPT_SUPPORT
+/*
+ * This overrides the default PLAT_ARM_FIP_OFFSET_IN_GPT in board_css_def.h.
+ * Offset of the FIP in the GPT image. BL1 component uses this option
+ * as it does not load the partition table to get the FIP base
+ * address. At sector 48 for TC to align with ATU page size boundaries (8KiB)
+ * (i.e. after reserved sectors 0-47).
+ * Offset = 48 * 512 = 0x6000
+ */
+#undef PLAT_ARM_FIP_OFFSET_IN_GPT
+#define PLAT_ARM_FIP_OFFSET_IN_GPT		0x6000
+#endif /* ARM_GPT_SUPPORT */
 
 #endif /* PLATFORM_DEF_H */
