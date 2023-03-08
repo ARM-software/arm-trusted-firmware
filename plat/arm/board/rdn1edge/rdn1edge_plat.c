@@ -27,8 +27,8 @@ static struct gic600_multichip_data rdn1e1_multichip_data __init = {
 		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1)) >> 16
 	},
 	.spi_ids = {
-		{32, 255},
-		{0, 0}
+		{PLAT_ARM_GICD_BASE, 32, 255},
+		{0, 0, 0}
 	}
 };
 
