@@ -1424,6 +1424,9 @@ subsections:
     scope: tools
 
     subsections:
+      - title: Clang-Format
+        scope: clang-format
+
       - title: Dependabot
         scope: dependabot
 
