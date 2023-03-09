@@ -236,6 +236,9 @@ functions must be provided by the CL:
                             void *sig_ptr, unsigned int sig_len,
                             void *sig_alg, unsigned int sig_alg_len,
                             void *pk_ptr, unsigned int pk_len);
+    int (*calc_hash)(enum crypto_md_algo alg, void *data_ptr,
+                     unsigned int data_len,
+                     unsigned char output[CRYPTO_MD_MAX_SIZE])
     int (*verify_hash)(void *data_ptr, unsigned int data_len,
                        void *digest_info_ptr, unsigned int digest_info_len);
 
@@ -243,10 +246,19 @@ These functions are registered in the CM using the macro:
 
 .. code:: c
 
-    REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash);
+    REGISTER_CRYPTO_LIB(_name,
+                        _init,
+                        _verify_signature,
+                        _calc_hash,
+                        _verify_hash);
 
 ``_name`` must be a string containing the name of the CL. This name is used for
 debugging purposes.
+
+Crypto module provides a function ``_calc_hash`` to calculate and
+return the hash of the given data using the provided hash algorithm.
+This function is mainly used in the ``MEASURED_BOOT`` and ``DRTM_SUPPORT``
+features to calculate the hashes of various images/data.
 
 Image Parser Module (IPM)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -936,7 +948,7 @@ i.e. verify a hash or a digital signature. Arm platforms will use a library
 based on mbed TLS, which can be found in
 ``drivers/auth/mbedtls/mbedtls_crypto.c``. This library is registered in the
 authentication framework using the macro ``REGISTER_CRYPTO_LIB()`` and exports
-four functions:
+below functions:
 
 .. code:: c
 
@@ -945,6 +957,9 @@ four functions:
                          void *sig_ptr, unsigned int sig_len,
                          void *sig_alg, unsigned int sig_alg_len,
                          void *pk_ptr, unsigned int pk_len);
+    int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
+                             unsigned int data_len,
+                             unsigned char output[CRYPTO_MD_MAX_SIZE])
     int verify_hash(void *data_ptr, unsigned int data_len,
                     void *digest_info_ptr, unsigned int digest_info_len);
     int auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
@@ -975,6 +990,6 @@ The mbedTLS library algorithm support is configured by both the
 
 --------------
 
-*Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.*
 
 .. _TBBR-Client specification: https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
