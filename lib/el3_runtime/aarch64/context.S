@@ -788,15 +788,6 @@ endfunc fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
 
 	/*
-	 * Set SCR_EL3.EA bit to enable SErrors at EL3
-	 */
-	.macro enable_serror_at_el3
-	mrs     x8, scr_el3
-	orr     x8, x8, #SCR_EA_BIT
-	msr     scr_el3, x8
-	.endm
-
-	/*
 	 * Set the PSTATE bits not set when the exception was taken as
 	 * described in the AArch64.TakeException() pseudocode function
 	 * in ARM DDI 0487F.c page J1-7635 to a default value.
@@ -926,7 +917,6 @@ endfunc fpregs_context_restore
  */
 func prepare_el3_entry
 	save_gp_pmcr_pauth_regs
-	enable_serror_at_el3
 	/*
 	 * Set the PSTATE bits not described in the Aarch64.TakeException
 	 * pseudocode to their default values.
