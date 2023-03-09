@@ -357,6 +357,11 @@ ERRATA_A78_2376745	?=0
 # to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
 ERRATA_A78_2395406	?=0
 
+# Flag to apply erratum 2742426 workaround during reset. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still
+# open.
+ERRATA_A78_2742426	?=0
+
 # Flag to apply erratum 2772019 workaround during powerdown. This erratum
 # applies to revisions r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still
 # open.
@@ -401,6 +406,10 @@ ERRATA_A78C_2395411 	?=0
 # Flag to apply erratum 2772121 workaround during powerdown. This erratum
 # applies to revisions r0p0, r0p1 and r0p2 of the A78C cpu. It is still open.
 ERRATA_A78C_2772121 	?=0
+
+# Flag to apply erratum 2779484 workaround during reset. This erratum
+# applies to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+ERRATA_A78C_2779484 	?=0
 
 # Flag to apply erratum 1821534 workaround during reset. This erratum applies
 # to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
@@ -1044,6 +1053,10 @@ $(eval $(call add_define,ERRATA_A78_2376745))
 $(eval $(call assert_boolean,ERRATA_A78_2395406))
 $(eval $(call add_define,ERRATA_A78_2395406))
 
+# Process ERRATA_A78_2742426 flag
+$(eval $(call assert_boolean,ERRATA_A78_2742426))
+$(eval $(call add_define,ERRATA_A78_2742426))
+
 # Process ERRATA_A78_2772019 flag
 $(eval $(call assert_boolean,ERRATA_A78_2772019))
 $(eval $(call add_define,ERRATA_A78_2772019))
@@ -1087,6 +1100,10 @@ $(eval $(call add_define,ERRATA_A78C_2395411))
 # Process ERRATA_A78C_2772121 flag
 $(eval $(call assert_boolean,ERRATA_A78C_2772121))
 $(eval $(call add_define,ERRATA_A78C_2772121))
+
+# Process ERRATA_A78C_2779484 flag
+$(eval $(call assert_boolean,ERRATA_A78C_2779484))
+$(eval $(call add_define,ERRATA_A78C_2779484))
 
 # Process ERRATA_X1_1821534 flag
 $(eval $(call assert_boolean,ERRATA_X1_1821534))
