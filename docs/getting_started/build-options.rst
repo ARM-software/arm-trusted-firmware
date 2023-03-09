@@ -670,7 +670,7 @@ Common build options
    the measurements and recording them as per `PSA DRTM specification`_. For
    platforms which use BL2 to load/authenticate BL31 ``TRUSTED_BOARD_BOOT`` can
    be used and for the platforms which use ``RESET_TO_BL31`` platform owners
-   should have mechanism to authenticate BL31.
+   should have mechanism to authenticate BL31. This is an experimental feature.
 
    This option defaults to 0.
 
