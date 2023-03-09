@@ -6,10 +6,13 @@
 
 #include <common/debug.h>
 #include <drivers/arm/gic600_multichip.h>
+#include <drivers/arm/rse_comms.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 #include <nrd_plat.h>
+#include <rdfremont_mhuv3.h>
+#include <rdfremont_rse_comms.h>
 
 unsigned int plat_arm_nrd_get_platform_id(void)
 {
@@ -164,4 +167,17 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	manifest->plat_console.checksum = ~checksum + 1UL;
 
 	return 0;
+}
+
+int plat_rse_comms_init(void)
+{
+	uintptr_t snd_base, rcv_base;
+
+	/* Get sender and receiver frames for AP-RSE communication */
+	mhu_v3_get_secure_device_base(&snd_base, true);
+	mhu_v3_get_secure_device_base(&rcv_base, false);
+
+	VERBOSE("Initializing the rse_comms now\n");
+	/* Initialize the communication channel between AP and RSE */
+	return rse_comms_init(snd_base, rcv_base);
 }

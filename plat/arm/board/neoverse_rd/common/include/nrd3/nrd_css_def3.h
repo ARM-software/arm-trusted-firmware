@@ -250,4 +250,19 @@
 /* DRAM2 */
 #define NRD_CSS_DRAM2_BASE			ULL(0x8080000000)
 
+/*******************************************************************************
+ * MHUv3 related definitions
+ ******************************************************************************/
+
+#define MHU_V3_MBX_FRAME_OFFSET			UL(0x10000)
+
+/* MHUv3 Postbox and Mailbox register frame base */
+#define AP_RSE_ROOT_MHU_V3_PBX		NRD_CSS_AP_RSE_ROOT_MHU_BASE
+#define AP_RSE_ROOT_MHU_V3_MBX		NRD_CSS_AP_RSE_ROOT_MHU_BASE + \
+						MHU_V3_MBX_FRAME_OFFSET
+
+#define AP_RSE_SECURE_MHU_V3_PBX	NRD_CSS_AP_RSE_SECURE_MHU_BASE
+#define AP_RSE_SECURE_MHU_V3_MBX	NRD_CSS_AP_RSE_SECURE_MHU_BASE + \
+						MHU_V3_MBX_FRAME_OFFSET
+
 #endif /* NRD_CSS_DEF3_H */
