@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,10 @@ DEFINE_BAKERY_LOCK(gpc_lock);
 #pragma weak imx_set_cpu_pwr_on
 #pragma weak imx_set_cpu_lpm
 #pragma weak imx_set_cluster_powerdown
+#pragma weak imx_set_sys_wakeup
+#pragma weak imx_noc_slot_config
+#pragma weak imx_gpc_handler
+#pragma weak imx_anamix_override
 
 void imx_set_cpu_secure_entry(unsigned int core_id, uintptr_t sec_entrypoint)
 {
@@ -211,7 +215,6 @@ void imx_set_sys_wakeup(unsigned int last_core, bool pdn)
 	}
 }
 
-#pragma weak imx_noc_slot_config
 /*
  * this function only need to be override by platform
  * that support noc power down, for example: imx8mm.
@@ -233,7 +236,7 @@ void imx_set_sys_lpm(unsigned int last_core, bool retention)
 
 	if (retention)
 		val |= (SLPCR_EN_DSM | SLPCR_VSTBY | SLPCR_SBYOS |
-			SLPCR_BYPASS_PMIC_READY | SLPCR_A53_FASTWUP_STOP_MODE);
+			SLPCR_BYPASS_PMIC_READY);
 
 	mmio_write_32(IMX_GPC_BASE + SLPCR, val);
 
@@ -255,11 +258,6 @@ void imx_clear_rbc_count(void)
 	mmio_clrbits_32(IMX_GPC_BASE + SLPCR, SLPCR_RBC_EN |
 		(0x3f << SLPCR_RBC_COUNT_SHIFT));
 }
-
-struct pll_override {
-	uint32_t reg;
-	uint32_t override_mask;
-};
 
 struct pll_override pll[MAX_PLL_NUM] = {
 	{.reg = 0x0, .override_mask = (1 << 12) | (1 << 8), },

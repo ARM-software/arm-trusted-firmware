@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,9 +9,11 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 
+#include <dram.h>
 #include <gpc.h>
 #include <imx8m_psci.h>
 #include <plat_imx8.h>
@@ -39,6 +41,21 @@ int imx_validate_power_state(unsigned int power_state,
 	return PSCI_E_SUCCESS;
 }
 
+void imx_pwr_domain_off(const psci_power_state_t *target_state)
+{
+	uint64_t mpidr = read_mpidr_el1();
+	unsigned int core_id = MPIDR_AFFLVL0_VAL(mpidr);
+
+	plat_gic_cpuif_disable();
+	imx_set_cpu_pwr_off(core_id);
+
+	/*
+	 *  TODO: Find out why this is still
+	 * needed in order not to break suspend
+	 */
+	udelay(50);
+}
+
 void imx_domain_suspend(const psci_power_state_t *target_state)
 {
 	uint64_t base_addr = BL31_START;
@@ -57,12 +74,14 @@ void imx_domain_suspend(const psci_power_state_t *target_state)
 	}
 
 	if (is_local_state_off(CLUSTER_PWR_STATE(target_state)))
-		imx_set_cluster_powerdown(core_id, true);
+		imx_set_cluster_powerdown(core_id, CLUSTER_PWR_STATE(target_state));
 	else
 		imx_set_cluster_standby(true);
 
 	if (is_local_state_retn(SYSTEM_PWR_STATE(target_state))) {
 		imx_set_sys_lpm(core_id, true);
+		dram_enter_retention();
+		imx_anamix_override(true);
 	}
 }
 
@@ -73,18 +92,22 @@ void imx_domain_suspend_finish(const psci_power_state_t *target_state)
 
 	/* check the system level status */
 	if (is_local_state_retn(SYSTEM_PWR_STATE(target_state))) {
+		imx_anamix_override(false);
+		dram_exit_retention();
 		imx_set_sys_lpm(core_id, false);
 		imx_clear_rbc_count();
 	}
 
 	/* check the cluster level power status */
 	if (is_local_state_off(CLUSTER_PWR_STATE(target_state)))
-		imx_set_cluster_powerdown(core_id, false);
+		imx_set_cluster_powerdown(core_id, PSCI_LOCAL_STATE_RUN);
 	else
 		imx_set_cluster_standby(false);
 
 	/* check the core level power status */
 	if (is_local_state_off(CORE_PWR_STATE(target_state))) {
+		/* mark this core as awake by masking IRQ0 */
+		imx_gpc_set_a53_core_awake(core_id);
 		/* clear the core lpm setting */
 		imx_set_cpu_lpm(core_id, false);
 		/* enable the gic cpu interface */

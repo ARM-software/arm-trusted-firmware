@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,13 @@
 #define DDRC_DDR3L		BIT(0)
 #define DDR_TYPE_MASK		U(0x3f)
 #define ACTIVE_RANK_MASK	U(0x3)
+#define DDRC_ACTIVE_ONE_RANK	U(0x1)
+#define DDRC_ACTIVE_TWO_RANK	U(0x2)
+
+#define MR12			U(12)
+#define MR14			U(14)
+
+#define MAX_FSP_NUM		U(3)
 
 /* reg & config param */
 struct dram_cfg_param {
@@ -57,6 +64,8 @@ struct dram_info {
 	struct dram_timing_info *timing_info;
 	/* mr, emr, emr2, emr3, mr11, mr12, mr22, mr14 */
 	uint32_t mr_table[3][8];
+	/* used for workaround for rank to rank issue */
+	uint32_t rank_setting[3][3];
 };
 
 extern struct dram_info dram_info;

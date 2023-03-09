@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
+#include <dram.h>
 #include <gpc.h>
 #include <imx_aipstz.h>
 #include <imx_uart.h>
@@ -34,6 +35,8 @@ static const mmap_region_t imx_mmap[] = {
 	MAP_REGION_FLAT(IMX_ROM_BASE, IMX_ROM_SIZE, MT_MEMORY | MT_RO), /* ROM map */
 	MAP_REGION_FLAT(IMX_AIPS_BASE, IMX_AIPS_SIZE, MT_DEVICE | MT_RW), /* AIPS map */
 	MAP_REGION_FLAT(IMX_GIC_BASE, IMX_GIC_SIZE, MT_DEVICE | MT_RW), /* GIC map */
+	MAP_REGION_FLAT(IMX_DDRPHY_BASE, IMX_DDR_IPS_SIZE, MT_DEVICE | MT_RW), /* DDRMIX map */
+	MAP_REGION_FLAT(IMX_DRAM_BASE, IMX_DRAM_SIZE, MT_MEMORY | MT_RW | MT_NS),
 	{0},
 };
 
@@ -82,7 +85,11 @@ static void imx8mq_soc_info_init(void)
 	ocotp_val = mmio_read_32(IMX_OCOTP_BASE + OCOTP_SOC_INFO_B1);
 	if (ocotp_val == 0xff0055aa) {
 		imx_soc_revision &= ~0xff;
-		imx_soc_revision |= 0x21;
+		if (rom_version == 0x22) {
+			imx_soc_revision |= 0x22;
+		} else {
+			imx_soc_revision |= 0x21;
+		}
 		return;
 	}
 }
@@ -208,6 +215,8 @@ void bl31_platform_setup(void)
 
 	/* gpc init */
 	imx_gpc_init();
+
+	dram_info_init(SAVED_DRAM_TIMING_BASE);
 }
 
 entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)

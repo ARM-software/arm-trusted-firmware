@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,7 @@
 #define COREx_LPM_PUP(core_id)		((core_id) < 2 ? (1 << ((core_id) * 2 + 9)) : (1 << ((core_id) * 2 + 21)))
 #define SLTx_CFG(n)			((SLT0_CFG + ((n) * 4)))
 #define SLT_COREx_PUP(core_id)		(0x2 << ((core_id) * 2))
+#define SLT_COREx_PUP_ACK(core_id)	((core_id) < 2 ? (1 << ((core_id) + 16)) : (1 << ((core_id) + 27)))
 
 #define IMR_MASK_ALL	0xffffffff
 
@@ -54,6 +55,11 @@ struct imx_pwr_domain {
 	bool always_on;
 };
 
+struct pll_override {
+	uint32_t reg;
+	uint32_t override_mask;
+};
+
 DECLARE_BAKERY_LOCK(gpc_lock);
 
 /* function declare */
@@ -71,5 +77,10 @@ void imx_set_rbc_count(void);
 void imx_clear_rbc_count(void);
 void imx_anamix_override(bool enter);
 void imx_gpc_pm_domain_enable(uint32_t domain_id, bool on);
+
+#if defined(PLAT_imx8mq)
+void imx_gpc_set_a53_core_awake(uint32_t core_id);
+void imx_gpc_core_wake(uint32_t cpumask);
+#endif
 
 #endif /*IMX8M_GPC_H */
