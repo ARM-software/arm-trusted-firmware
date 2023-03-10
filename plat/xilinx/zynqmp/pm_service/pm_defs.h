@@ -243,11 +243,13 @@ enum pm_opchar_type {
 	PM_OPCHAR_TYPE_LATENCY,
 };
 
+/* TODO: move pm_ret_status from device specific location to common location */
 /**
  * @PM_RET_SUCCESS:		success
  * @PM_RET_ERROR_ARGS:		illegal arguments provided (deprecated)
  * @PM_RET_ERROR_NOTSUPPORTED:	feature not supported  (deprecated)
  * @PM_RET_ERROR_NOT_ENABLED:	feature is not enabled
+ * @PM_RET_ERROR_INVALID_CRC:	invalid crc in IPI communication
  * @PM_RET_ERROR_INTERNAL:	internal error
  * @PM_RET_ERROR_CONFLICT:	conflict
  * @PM_RET_ERROR_ACCESS:	access rights violation
@@ -262,6 +264,7 @@ enum pm_ret_status {
 	PM_RET_ERROR_ARGS = (1U),
 	PM_RET_ERROR_NOTSUPPORTED = (4U),
 	PM_RET_ERROR_NOT_ENABLED = (29U),
+	PM_RET_ERROR_INVALID_CRC = (301U),
 	PM_RET_ERROR_INTERNAL = (2000U),
 	PM_RET_ERROR_CONFLICT = (2001U),
 	PM_RET_ERROR_ACCESS = (2002U),

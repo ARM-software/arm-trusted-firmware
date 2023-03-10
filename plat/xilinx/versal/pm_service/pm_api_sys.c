@@ -196,19 +196,23 @@ enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
  *        1 - Ack IPI after reading payload
  *
  * Read value from ipi buffer response buffer.
+ * @return	Returns status, either success or error
  */
-void pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag, uint32_t ack)
+enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag, uint32_t ack)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	/* Return if interrupt is not from PMU */
 	if (pm_ipi_irq_status(primary_proc) == 0) {
-		return;
+		return ret;
 	}
 
-	pm_ipi_buff_read_callb(data, count);
+	ret = pm_ipi_buff_read_callb(data, count);
 
 	if (ack != 0U) {
 		pm_ipi_irq_clear(primary_proc);
 	}
+
+	return ret;
 }
 
 /**
