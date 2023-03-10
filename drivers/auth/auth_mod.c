@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,7 +32,6 @@
 
 #pragma weak plat_set_nv_ctr2
 #pragma weak plat_convert_pk
-
 
 static int cmp_auth_param_type_desc(const auth_param_type_desc_t *a,
 		const auth_param_type_desc_t *b)
@@ -150,8 +149,8 @@ static int auth_signature(const auth_method_param_sig_t *param,
 			  const auth_img_desc_t *img_desc,
 			  void *img, unsigned int img_len)
 {
-	void *data_ptr, *pk_ptr, *pk_hash_ptr, *sig_ptr, *sig_alg_ptr;
-	unsigned int data_len, pk_len, pk_hash_len, sig_len, sig_alg_len;
+	void *data_ptr, *pk_ptr, *pk_plat_ptr, *sig_ptr, *sig_alg_ptr;
+	unsigned int data_len, pk_len, pk_plat_len, sig_len, sig_alg_len;
 	unsigned int flags = 0;
 	int rc = 0;
 
@@ -173,51 +172,68 @@ static int auth_signature(const auth_method_param_sig_t *param,
 	/* Get the public key from the parent. If there is no parent (NULL),
 	 * the certificate has been signed with the ROTPK, so we have to get
 	 * the PK from the platform */
-	if (img_desc->parent) {
+	if (img_desc->parent != NULL) {
 		rc = auth_get_param(param->pk, img_desc->parent,
 				&pk_ptr, &pk_len);
+		return_if_error(rc);
 	} else {
-		rc = plat_get_rotpk_info(param->pk->cookie, &pk_ptr, &pk_len,
-				&flags);
-	}
-	return_if_error(rc);
+		/*
+		 * Root certificates are signed with the ROTPK, so we have to
+		 * get it from the platform.
+		 */
+		rc = plat_get_rotpk_info(param->pk->cookie, &pk_plat_ptr,
+					 &pk_plat_len, &flags);
+		return_if_error(rc);
 
-	if (flags & (ROTPK_IS_HASH | ROTPK_NOT_DEPLOYED)) {
-		/* If the PK is a hash of the key or if the ROTPK is not
-		   deployed on the platform, retrieve the key from the image */
-		pk_hash_ptr = pk_ptr;
-		pk_hash_len = pk_len;
+		assert(is_rotpk_flags_valid(flags));
+
+		/* Also retrieve the key from the image. */
 		rc = img_parser_get_auth_param(img_desc->img_type,
-					param->pk, img, img_len,
-					&pk_ptr, &pk_len);
+					       param->pk, img, img_len,
+					       &pk_ptr, &pk_len);
 		return_if_error(rc);
 
-		/* Ask the crypto module to verify the signature */
-		rc = crypto_mod_verify_signature(data_ptr, data_len,
-						 sig_ptr, sig_len,
-						 sig_alg_ptr, sig_alg_len,
-						 pk_ptr, pk_len);
-		return_if_error(rc);
-
-		if (flags & ROTPK_NOT_DEPLOYED) {
+		/*
+		 * Validate the certificate's key against the platform ROTPK.
+		 *
+		 * Platform may store key in one of the following way -
+		 * 1. Hash of ROTPK
+		 * 2. Hash if prefixed, suffixed or modified ROTPK
+		 * 3. Full ROTPK
+		 */
+		if ((flags & ROTPK_NOT_DEPLOYED) != 0U) {
 			NOTICE("ROTPK is not deployed on platform. "
 				"Skipping ROTPK verification.\n");
-		} else {
-			/* platform may store the hash of a prefixed, suffixed or modified pk */
+		} else if ((flags & ROTPK_IS_HASH) != 0U) {
+			/*
+			 * platform may store the hash of a prefixed,
+			 * suffixed or modified pk
+			 */
 			rc = plat_convert_pk(pk_ptr, pk_len, &pk_ptr, &pk_len);
 			return_if_error(rc);
 
-			/* Ask the crypto-module to verify the key hash */
+			/*
+			 * The hash of the certificate's public key must match
+			 * the hash of the ROTPK.
+			 */
 			rc = crypto_mod_verify_hash(pk_ptr, pk_len,
-				    pk_hash_ptr, pk_hash_len);
+						    pk_plat_ptr, pk_plat_len);
+			return_if_error(rc);
+		} else {
+			/* Platform supports full ROTPK */
+			if ((pk_len != pk_plat_len) ||
+			    (memcmp(pk_plat_ptr, pk_ptr, pk_len) != 0)) {
+				ERROR("plat and cert ROTPK len mismatch\n");
+				return -1;
+			}
 		}
-	} else {
-		/* Ask the crypto module to verify the signature */
-		rc = crypto_mod_verify_signature(data_ptr, data_len,
-						 sig_ptr, sig_len,
-						 sig_alg_ptr, sig_alg_len,
-						 pk_ptr, pk_len);
 	}
+
+	/* Ask the crypto module to verify the signature */
+	rc = crypto_mod_verify_signature(data_ptr, data_len,
+					 sig_ptr, sig_len,
+					 sig_alg_ptr, sig_alg_len,
+					 pk_ptr, pk_len);
 
 	return rc;
 }
