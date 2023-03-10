@@ -57,6 +57,21 @@
 /* UTP Transfer Request Completion Status */
 #define UFS_INT_UTRCS			(1 << 0)
 
+#define UFS_INT_FATAL			(UFS_INT_DFES |\
+					 UFS_INT_HCFES |\
+					 UFS_INT_SBFES)
+#define UFS_INT_ERR			(UFS_INT_FATAL |\
+					 UFS_INT_UE)
+
+#define UFS_UIC_PA_ERROR_MASK		0x8000001F
+#define UFS_UIC_DL_ERROR_MASK		0x8000FFFF
+#define UFS_UIC_NL_ERROR_MASK		0x80000007
+#define UFS_UIC_TL_ERROR_MASK		0x8000007F
+#define UFS_UIC_DME_ERROR_MASK		0x80000001
+
+#define PA_INIT_ERR			(1 << 13)
+#define PA_LAYER_GEN_ERR		(1 << 4)
+
 /* Host Controller Status */
 #define HCS				0x30
 #define HCS_UPMCRS_MASK			(7 << 8)
@@ -274,6 +289,11 @@
 #define HCE_DISABLE_TIMEOUT_US		1000
 
 #define FDEVICEINIT_TIMEOUT_MS	        1500
+
+#define UIC_CMD_TIMEOUT_MS		500
+#define QUERY_REQ_TIMEOUT_MS		1500
+#define NOP_OUT_TIMEOUT_MS		50
+#define CMD_TIMEOUT_MS		        5000
 
 /**
  * ufs_dev_desc - ufs device details from the device descriptor
