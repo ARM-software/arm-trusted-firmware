@@ -20,6 +20,7 @@ const unsigned char rd_fremont_pd_tree_desc[] = {
 	NRD_MAX_CPUS_PER_CLUSTER,
 	NRD_MAX_CPUS_PER_CLUSTER,
 	NRD_MAX_CPUS_PER_CLUSTER,
+#if (NRD_PLATFORM_VARIANT == 0)
 	NRD_MAX_CPUS_PER_CLUSTER,
 	NRD_MAX_CPUS_PER_CLUSTER,
 	NRD_MAX_CPUS_PER_CLUSTER,
@@ -28,6 +29,7 @@ const unsigned char rd_fremont_pd_tree_desc[] = {
 	NRD_MAX_CPUS_PER_CLUSTER,
 	NRD_MAX_CPUS_PER_CLUSTER,
 	NRD_MAX_CPUS_PER_CLUSTER,
+#endif
 };
 
 /*******************************************************************************
@@ -51,6 +53,7 @@ const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[] = {
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x5)),
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x6)),
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x7)),
+#if (NRD_PLATFORM_VARIANT == 0)
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x8)),
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x9)),
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0xA)),
@@ -59,4 +62,5 @@ const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[] = {
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0xD)),
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0xE)),
 	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0xF)),
+#endif
 };

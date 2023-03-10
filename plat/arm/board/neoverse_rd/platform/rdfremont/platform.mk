@@ -3,6 +3,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+RD_FREMONT_VARIANTS := 0 1
+ifneq ($(NRD_PLATFORM_VARIANT),						\
+	$(filter $(NRD_PLATFORM_VARIANT),$(RD_FREMONT_VARIANTS)))
+	$(error "NRD_PLATFORM_VARIANT for RD-FREMONT should be 0 or 1,"
+	"currently set to ${NRD_PLATFORM_VARIANT}.")
+endif
+
 # Build options
 # Major and Minor versions
 override ARM_ARCH_MAJOR			:= 8

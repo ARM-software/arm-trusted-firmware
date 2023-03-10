@@ -301,7 +301,11 @@
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp)
 
 #define PLAT_ARM_GICD_BASE		NRD_CSS_GIC_BASE
+#if (NRD_PLATFORM_VARIANT == 1)
+#define PLAT_ARM_GICR_BASE		NRD_CSS_GIC_BASE + UL(0x00100000)
+#else
 #define PLAT_ARM_GICR_BASE		NRD_CSS_GIC_BASE + UL(0x001C0000)
+#endif
 
 /*******************************************************************************
  * SDEI config

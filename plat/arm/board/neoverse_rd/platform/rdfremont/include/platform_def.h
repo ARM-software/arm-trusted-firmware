@@ -18,9 +18,13 @@
 		((ULL(1) << NRD_ADDR_BITS_PER_CHIP) * (n))
 
 /* PE-Cluster count */
-#define PLAT_ARM_CLUSTER_COUNT			U(16)
-#define NRD_MAX_CPUS_PER_CLUSTER		U(1)
-#define NRD_MAX_PE_PER_CPU			U(1)
+#if (NRD_PLATFORM_VARIANT == 1)
+#define PLAT_ARM_CLUSTER_COUNT		U(8)
+#else
+#define PLAT_ARM_CLUSTER_COUNT		U(16)
+#endif
+#define NRD_MAX_CPUS_PER_CLUSTER	U(1)
+#define NRD_MAX_PE_PER_CPU		U(1)
 
 /* Shared RAM*/
 #define NRD_CSS_SHARED_SRAM_SIZE	UL(0x000100000)
