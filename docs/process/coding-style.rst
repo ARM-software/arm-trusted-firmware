@@ -386,6 +386,27 @@ file names; this type of name reuse should be otherwise avoided.
 
   #include "a_header.h"
 
+The preferred approach for third-party headers is to include them immediately
+following system header files like in the example below, where the
+``version.h`` header from the Mbed TLS library immediately follows the
+``stddef.h`` system header.
+
+.. code:: c
+
+  /* system header files */
+  #include <stddef.h>
+
+  /* Mbed TLS header files */
+  #include <mbedtls/version.h>
+
+  /* project header files */
+  #include <drivers/auth/auth_mod.h>
+  #include <drivers/auth/tbbr_cot_common.h>
+
+  /* platform header files */
+  #include <platform_def.h>
+
+
 Include statement variants
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -463,7 +484,7 @@ Existing typedefs will be retained for compatibility.
 
 --------------
 
-*Copyright (c) 2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
 
 .. _`Linux kernel coding style`: https://www.kernel.org/doc/html/latest/process/coding-style.html
 .. _`MISRA C:2012 Guidelines`: https://www.misra.org.uk/Activities/MISRAC/tabid/160/Default.aspx
