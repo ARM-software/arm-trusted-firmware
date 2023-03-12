@@ -38,11 +38,13 @@
 						- BL_RO_DATA_BASE,	\
 					MT_RO_DATA | MT_SECURE)
 
+#if USE_COHERENT_MEM
 #define MAP_BL_COHERENT_RAM	MAP_REGION_FLAT(			\
 					BL_COHERENT_RAM_BASE,		\
 					BL_COHERENT_RAM_END		\
 						- BL_COHERENT_RAM_BASE,	\
 					MT_DEVICE | MT_RW | MT_SECURE)
+#endif
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
@@ -108,7 +110,9 @@ void bl2_plat_arch_setup(void)
 	const mmap_region_t bl_regions[] = {
 		MAP_BL2_TOTAL,
 		MAP_BL2_RO,
+#if USE_COHERENT_MEM
 		MAP_BL_COHERENT_RAM,
+#endif
 		{0}
 	};
 

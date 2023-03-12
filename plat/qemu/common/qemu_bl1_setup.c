@@ -29,11 +29,13 @@
 						- BL_RO_DATA_BASE,	\
 					MT_RO_DATA | EL3_PAS)
 
+#if USE_COHERENT_MEM
 #define MAP_BL_COHERENT_RAM	MAP_REGION_FLAT(			\
 					BL_COHERENT_RAM_BASE,		\
 					BL_COHERENT_RAM_END		\
 						- BL_COHERENT_RAM_BASE,	\
 					MT_DEVICE | MT_RW | EL3_PAS)
+#endif
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
@@ -73,7 +75,9 @@ void bl1_plat_arch_setup(void)
 	const mmap_region_t bl_regions[] = {
 		MAP_BL1_TOTAL,
 		MAP_BL1_RO,
+#if USE_COHERENT_MEM
 		MAP_BL_COHERENT_RAM,
+#endif
 		{0}
 	};
 

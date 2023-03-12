@@ -26,11 +26,13 @@
 						- BL_RO_DATA_BASE,	\
 					MT_RO_DATA | EL3_PAS)
 
+#if USE_COHERENT_MEM
 #define MAP_BL_COHERENT_RAM	MAP_REGION_FLAT(			\
 					BL_COHERENT_RAM_BASE,		\
 					BL_COHERENT_RAM_END		\
 						- BL_COHERENT_RAM_BASE,	\
 					MT_DEVICE | MT_RW | EL3_PAS)
+#endif
 
 /*
  * Placeholder variables for copying the arguments that have been passed to
@@ -87,7 +89,9 @@ void bl31_plat_arch_setup(void)
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
 		MAP_BL31_RO,
+#if USE_COHERENT_MEM
 		MAP_BL_COHERENT_RAM,
+#endif
 		{0}
 	};
 
