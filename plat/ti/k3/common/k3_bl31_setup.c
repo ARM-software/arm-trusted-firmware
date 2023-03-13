@@ -121,10 +121,6 @@ void bl31_platform_setup(void)
 	k3_gic_init();
 
 	ti_sci_init();
-
-	if (ti_sci_device_get(PLAT_BOARD_DEVICE_ID)) {
-		WARN("Unable to take system power reference\n");
-	}
 }
 
 void platform_mem_init(void)
