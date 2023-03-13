@@ -103,7 +103,7 @@ void tegra_pmc_lock_cpu_vectors(void)
 bool tegra_pmc_is_last_on_cpu(void)
 {
 	int i, cpu = read_mpidr() & MPIDR_CPU_MASK;
-	uint32_t val = tegra_pmc_read_32(PMC_PWRGATE_STATUS);;
+	uint32_t val = tegra_pmc_read_32(PMC_PWRGATE_STATUS);
 	bool status = true;
 
 	/* check if this is the last standing CPU */

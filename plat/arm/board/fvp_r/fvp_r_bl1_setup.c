@@ -109,10 +109,10 @@ void arm_bl1_plat_arch_setup(void)
 		ARM_MAP_BL_COHERENT_RAM,
 #endif
 		/* DRAM1_region: */
-		MAP_REGION_FLAT(					\
-			PLAT_ARM_DRAM1_BASE,				\
-			PLAT_ARM_DRAM1_SIZE,				\
-			MT_MEMORY | MT_SECURE | MT_EXECUTE		\
+		MAP_REGION_FLAT(
+			PLAT_ARM_DRAM1_BASE,
+			PLAT_ARM_DRAM1_SIZE,
+			MT_MEMORY | MT_SECURE | MT_EXECUTE
 			| MT_RW | MT_NON_CACHEABLE),
 		/* NULL terminator: */
 		{0}

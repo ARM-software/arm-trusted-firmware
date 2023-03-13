@@ -44,7 +44,7 @@
  * Using this value, if provided, rather than the linker generated value results in
  * more efficient code
  */
-CASSERT((PLAT_PERCPU_BAKERY_LOCK_SIZE & (CACHE_WRITEBACK_GRANULE - 1)) == 0, \
+CASSERT((PLAT_PERCPU_BAKERY_LOCK_SIZE & (CACHE_WRITEBACK_GRANULE - 1)) == 0,
 	PLAT_PERCPU_BAKERY_LOCK_SIZE_not_cacheline_multiple);
 #define PERCPU_BAKERY_LOCK_SIZE (PLAT_PERCPU_BAKERY_LOCK_SIZE)
 #else

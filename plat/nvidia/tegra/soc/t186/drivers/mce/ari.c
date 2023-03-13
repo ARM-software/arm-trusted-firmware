@@ -372,8 +372,8 @@ int32_t ari_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t en
 	 * StandbyWFI or the equivalent signal, and always keeping the IDLE
 	 * voltage/frequency request register enabled.
 	 */
-	val = (((freq & MCE_AUTO_CC3_FREQ_MASK) << MCE_AUTO_CC3_FREQ_SHIFT) |\
-		((volt & MCE_AUTO_CC3_VTG_MASK) << MCE_AUTO_CC3_VTG_SHIFT) |\
+	val = (((freq & MCE_AUTO_CC3_FREQ_MASK) << MCE_AUTO_CC3_FREQ_SHIFT) |
+		((volt & MCE_AUTO_CC3_VTG_MASK) << MCE_AUTO_CC3_VTG_SHIFT) |
 		((enable != 0U) ? MCE_AUTO_CC3_ENABLE_BIT : 0U));
 
 	return ari_request_wait(ari_base, 0U,

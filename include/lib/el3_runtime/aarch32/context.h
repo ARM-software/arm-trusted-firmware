@@ -62,7 +62,7 @@ typedef struct cpu_context {
  * ensure that the assembler and the compiler view of the offsets of
  * the structure members is the same.
  */
-CASSERT(CTX_REGS_OFFSET == __builtin_offsetof(cpu_context_t, regs_ctx), \
+CASSERT(CTX_REGS_OFFSET == __builtin_offsetof(cpu_context_t, regs_ctx),
 	assert_core_context_regs_offset_mismatch);
 
 #endif /* __ASSEMBLER__ */

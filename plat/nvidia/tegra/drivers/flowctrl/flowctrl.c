@@ -84,7 +84,7 @@ static void tegra_fc_prepare_suspend(int cpu_id, uint32_t csr)
 void tegra_fc_ccplex_pgexit_lock(void)
 {
 	unsigned int i, cpu = read_mpidr() & MPIDR_CPU_MASK;
-	uint32_t flags = tegra_fc_read_32(FLOWCTRL_FC_SEQ_INTERCEPT) & ~INTERCEPT_IRQ_PENDING;;
+	uint32_t flags = tegra_fc_read_32(FLOWCTRL_FC_SEQ_INTERCEPT) & ~INTERCEPT_IRQ_PENDING;
 	uint32_t icept_cpu_flags[] = {
 		INTERCEPT_EXIT_PG_CORE0,
 		INTERCEPT_EXIT_PG_CORE1,

@@ -692,7 +692,7 @@ void gpt_tlbi_by_pa_ll(uint64_t pa, size_t size);
 	isb();	\
 }
 #else
-#define AT(_at_inst, _va)	_at_inst(_va);
+#define AT(_at_inst, _va)	_at_inst(_va)
 #endif
 
 #endif /* ARCH_HELPERS_H */

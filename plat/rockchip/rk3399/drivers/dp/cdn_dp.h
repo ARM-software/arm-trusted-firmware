@@ -34,7 +34,7 @@ struct cdn_dp_hdcp_key_1x {
 #define HDCP_KEY_1X_STORE_DATA_ALIGN_SIZE	(6 * 64) / 8
 
 /* Checks the cdn_dp_hdcp_key_1x must be aligned on 6 x 64-bit word boundary */
-CASSERT(sizeof(struct cdn_dp_hdcp_key_1x) % HDCP_KEY_1X_STORE_DATA_ALIGN_SIZE, \
+CASSERT(sizeof(struct cdn_dp_hdcp_key_1x) % HDCP_KEY_1X_STORE_DATA_ALIGN_SIZE,
 	assert_hdcp_key_1x_store_data_align_size_mismatch);
 
 uint64_t dp_hdcp_ctrl(uint64_t type);
