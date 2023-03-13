@@ -93,8 +93,8 @@ uint32_t read_reg_porsr1(void);
  ******************************************************************************/
 bool check_boot_mode_secure(uint32_t *mode);
 
-const soc_info_t *get_soc_info();
-const devdisr5_info_t *get_devdisr5_info();
+const soc_info_t *get_soc_info(void);
+const devdisr5_info_t *get_devdisr5_info(void);
 
 void dcfg_init(dcfg_init_info_t *dcfg_init_data);
 bool is_sec_enabled(void);

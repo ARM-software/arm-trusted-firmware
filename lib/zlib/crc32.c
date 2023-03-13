@@ -279,7 +279,7 @@ local once_t made = ONCE_INIT;
   combinations of CRC register values and incoming bytes.
  */
 
-local void make_crc_table()
+local void make_crc_table(void)
 {
     unsigned i, j, n;
     z_crc_t p;
@@ -498,7 +498,7 @@ local void write_table64(out, table, k)
 }
 
 /* Actually do the deed. */
-int main()
+int main(void)
 {
     make_crc_table();
     return 0;
