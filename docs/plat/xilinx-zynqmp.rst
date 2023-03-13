@@ -76,6 +76,18 @@ make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp RESET_TO_BL31=1 DEBUG=1 \
 	ZYNQMP_ATF_MEM_BASE=<DDR address> ZYNQMP_ATF_MEM_SIZE=<size> \
 	XILINX_OF_BOARD_DTB_ADDR=<DTB address> bl31
 
+DDR Address Range Usage
+-----------------------
+
+When FSBL runs on RPU and TF-A is to be placed in DDR address range,
+then the user needs to make sure that the DDR address is beyond 256KB.
+In the RPU view, the first 256 KB is TCM memory.
+
+For this use case, with the minimum base address in DDR for TF-A,
+the build command example is;
+
+make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp RESET_TO_BL31=1 DEBUG=1 \
+	ZYNQMP_ATF_MEM_BASE=0x40000 ZYNQMP_ATF_MEM_SIZE=<size>
 
 FSBL->TF-A Parameter Passing
 ----------------------------
