@@ -87,6 +87,12 @@ define assert_numerics
     $(foreach num,$1,$(eval $(call assert_numeric,$(num))))
 endef
 
+# Convenience function to check for a given linker option. An call to
+# $(call ld_option, --no-XYZ) will return --no-XYZ if supported by the linker
+define ld_option
+	$(shell if $(LD) $(1) -v >/dev/null 2>&1; then echo $(1); fi )
+endef
+
 # CREATE_SEQ is a recursive function to create sequence of numbers from 1 to
 # $(2) and assign the sequence to $(1)
 define CREATE_SEQ
