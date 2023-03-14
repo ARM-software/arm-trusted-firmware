@@ -39,11 +39,12 @@
 #include <cortex_a9.h>
 #endif
 
-#define MAX_ERRATA_ENTRIES	15
+#define MAX_ERRATA_ENTRIES	16
 
 #define ERRATA_LIST_END		(MAX_ERRATA_ENTRIES - 1)
 
-#define UNDEF_ERRATA		{UINT_MAX, UCHAR_MAX, UCHAR_MAX, false}
+/* Default values for unused memory in the array */
+#define UNDEF_ERRATA		{UINT_MAX, UCHAR_MAX, UCHAR_MAX, false, false}
 
 #define EXTRACT_PARTNUM(x)	((x >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
 
@@ -52,7 +53,6 @@
 /*
  * CPU specific values for errata handling
  */
-
 struct em_cpu{
 	unsigned int em_errata_id;
 	unsigned char em_rxpx_lo;	/* lowest revision of errata applicable for the cpu */
