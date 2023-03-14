@@ -354,6 +354,10 @@ CPU_FLAG_LIST += ERRATA_A78_AE_2376748
 # to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
 CPU_FLAG_LIST += ERRATA_A78_AE_2395408
 
+# Flag to apply erratum 1827430 workaround during reset. This erratum applies
+# to revision r0p0 of the A78C cpu. It is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_A78C_1827430
+
 # Flag to apply erratum 2132064 workaround during reset. This erratum applies
 # to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
 CPU_FLAG_LIST += ERRATA_A78C_2132064

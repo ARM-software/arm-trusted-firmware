@@ -349,6 +349,10 @@ For Cortex-A78 AE, the following errata build flags are defined :
 
 For Cortex-A78C, the following errata build flags are defined :
 
+- ``ERRATA_A78C_1827430`` : This applies errata 1827430 workaround to
+  Cortex-A78C CPU. This needs to be enabled for revision r0p0. The erratum is
+  fixed in r0p1.
+
 - ``ERRATA_A78C_2132064`` : This applies errata 2132064 workaround to
   Cortex-A78C CPU. This needs to be enabled for revisions r0p1, r0p2 and
   it is still open.
