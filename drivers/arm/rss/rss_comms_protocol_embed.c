@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -54,7 +54,9 @@ psa_status_t rss_protocol_embed_serialize_msg(psa_handle_t handle,
 		if (in_vec[i].len > sizeof(msg->trailer) - payload_size) {
 			return PSA_ERROR_INVALID_ARGUMENT;
 		}
-		memcpy(msg->trailer + payload_size, in_vec[i].base, in_vec[i].len);
+		memcpy(msg->trailer + payload_size,
+		       in_vec[i].base,
+		       in_vec[i].len);
 		payload_size += in_vec[i].len;
 	}
 
@@ -77,12 +79,16 @@ psa_status_t rss_protocol_embed_deserialize_reply(psa_outvec *out_vec,
 	assert(return_val != NULL);
 
 	for (i = 0U; i < out_len; ++i) {
-		if (sizeof(reply) - sizeof(reply->trailer) + payload_offset > reply_size) {
+		if ((sizeof(*reply) - sizeof(reply->trailer) + payload_offset)
+		    > reply_size) {
 			return PSA_ERROR_INVALID_ARGUMENT;
 		}
 
-		memcpy(out_vec[i].base, reply->trailer + payload_offset, out_vec[i].len);
-		payload_offset += out_vec[i].len;
+		memcpy(out_vec[i].base,
+		       reply->trailer + payload_offset,
+		       reply->out_size[i]);
+		out_vec[i].len = reply->out_size[i];
+		payload_offset += reply->out_size[i];
 	}
 
 	*return_val = reply->return_val;
