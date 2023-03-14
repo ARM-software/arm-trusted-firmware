@@ -26,6 +26,7 @@
 #define CORTEX_A78C_CPUECTLR_EL1		        S3_0_C15_C1_4
 #define CORTEX_A78C_CPUECTLR_EL1_BIT_6		        (ULL(1) << 6)
 #define CORTEX_A78C_CPUECTLR_EL1_BIT_7		        (ULL(1) << 7)
+#define CORTEX_A78C_CPUECTLR_EL1_MM_ASP_EN		(ULL(1) << 53)
 
 /*******************************************************************************
  * CPU Power Control register specific definitions
