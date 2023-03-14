@@ -355,6 +355,18 @@
 /* ID_AA64MMFR3_EL1 definitions */
 #define ID_AA64MMFR3_EL1			S3_0_C0_C7_3
 
+#define ID_AA64MMFR3_EL1_S2POE_SHIFT		U(20)
+#define ID_AA64MMFR3_EL1_S2POE_MASK		ULL(0xf)
+
+#define ID_AA64MMFR3_EL1_S1POE_SHIFT		U(16)
+#define ID_AA64MMFR3_EL1_S1POE_MASK		ULL(0xf)
+
+#define ID_AA64MMFR3_EL1_S2PIE_SHIFT		U(12)
+#define ID_AA64MMFR3_EL1_S2PIE_MASK		ULL(0xf)
+
+#define ID_AA64MMFR3_EL1_S1PIE_SHIFT		U(8)
+#define ID_AA64MMFR3_EL1_S1PIE_MASK		ULL(0xf)
+
 #define ID_AA64MMFR3_EL1_TCRX_SHIFT		U(0)
 #define ID_AA64MMFR3_EL1_TCRX_MASK		ULL(0xf)
 
@@ -512,6 +524,7 @@
 #define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
+#define SCR_PIEN_BIT		(UL(1) << 45)
 #define SCR_TCR2EN_BIT		(UL(1) << 43)
 #define SCR_TRNDR_BIT		(UL(1) << 40)
 #define SCR_HXEn_BIT		(UL(1) << 38)
@@ -1319,6 +1332,15 @@
  * FEAT_TCR2 - Extended Translation Control Register
  ******************************************************************************/
 #define TCR2_EL2		S3_4_C2_C0_3
+
+/*******************************************************************************
+ * Permission indirection and overlay
+ ******************************************************************************/
+
+#define PIRE0_EL2		S3_4_C10_C2_2
+#define PIR_EL2			S3_4_C10_C2_3
+#define POR_EL2			S3_4_C10_C2_4
+#define S2PIR_EL2		S3_4_C10_C2_5
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers
