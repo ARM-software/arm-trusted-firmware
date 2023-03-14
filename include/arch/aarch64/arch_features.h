@@ -316,6 +316,24 @@ static inline bool is_feat_sxpie_supported(void)
 	return is_feat_s1pie_supported() || is_feat_s2pie_supported();
 }
 
+static unsigned int read_feat_gcs_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64pfr1_el1(), ID_AA64PFR1_EL1_GCS);
+}
+
+static inline bool is_feat_gcs_supported(void)
+{
+	if (ENABLE_FEAT_GCS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_GCS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_gcs_id_field() != 0U;
+}
+
 /*******************************************************************************
  * Functions to identify the presence of the Activity Monitors Extension
  ******************************************************************************/

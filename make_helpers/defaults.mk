@@ -188,6 +188,9 @@ ENABLE_FEAT_S2POE		:= 0
 # Flag to enable access to Stage 1 Permission Overlay (FEAT_S1POE)
 ENABLE_FEAT_S1POE		:= 0
 
+# Flag to enable access to Guarded Control Stack (FEAT_GCS)
+ENABLE_FEAT_GCS			:= 0
+
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
 

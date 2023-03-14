@@ -371,6 +371,9 @@
 #define ID_AA64MMFR3_EL1_TCRX_MASK		ULL(0xf)
 
 /* ID_AA64PFR1_EL1 definitions */
+#define ID_AA64PFR1_EL1_GCS_SHIFT	U(44)
+#define ID_AA64PFR1_EL1_GCS_MASK	ULL(0xf)
+
 #define ID_AA64PFR1_EL1_SSBS_SHIFT	U(4)
 #define ID_AA64PFR1_EL1_SSBS_MASK	ULL(0xf)
 
@@ -527,6 +530,7 @@
 #define SCR_PIEN_BIT		(UL(1) << 45)
 #define SCR_TCR2EN_BIT		(UL(1) << 43)
 #define SCR_TRNDR_BIT		(UL(1) << 40)
+#define SCR_GCSEn_BIT		(UL(1) << 39)
 #define SCR_HXEn_BIT		(UL(1) << 38)
 #define SCR_ENTP2_SHIFT		U(41)
 #define SCR_ENTP2_BIT		(UL(1) << SCR_ENTP2_SHIFT)
@@ -1349,6 +1353,12 @@
 #define PIR_EL2			S3_4_C10_C2_3
 #define POR_EL2			S3_4_C10_C2_4
 #define S2PIR_EL2		S3_4_C10_C2_5
+
+/*******************************************************************************
+ * FEAT_GCS - Guarded Control Stack Registers
+ ******************************************************************************/
+#define GCSCR_EL2		S3_4_C2_C5_0
+#define GCSPR_EL2		S3_4_C2_C5_1
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers
