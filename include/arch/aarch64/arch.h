@@ -349,6 +349,12 @@
 #define ID_AA64MMFR2_EL1_NV_SUPPORTED		ULL(0x1)
 #define ID_AA64MMFR2_EL1_NV2_SUPPORTED		ULL(0x2)
 
+/* ID_AA64MMFR3_EL1 definitions */
+#define ID_AA64MMFR3_EL1			S3_0_C0_C7_3
+
+#define ID_AA64MMFR3_EL1_TCRX_SHIFT		U(0)
+#define ID_AA64MMFR3_EL1_TCRX_MASK		ULL(0xf)
+
 /* ID_AA64PFR1_EL1 definitions */
 #define ID_AA64PFR1_EL1_SSBS_SHIFT	U(4)
 #define ID_AA64PFR1_EL1_SSBS_MASK	ULL(0xf)
@@ -501,6 +507,7 @@
 #define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
+#define SCR_TCR2EN_BIT		(UL(1) << 43)
 #define SCR_TRNDR_BIT		(UL(1) << 40)
 #define SCR_HXEn_BIT		(UL(1) << 38)
 #define SCR_ENTP2_SHIFT		U(41)
@@ -1300,6 +1307,11 @@
 #define HCRX_EL2_EnASR_BIT	(UL(1) << 2)
 #define HCRX_EL2_EnALS_BIT	(UL(1) << 1)
 #define HCRX_EL2_EnAS0_BIT	(UL(1) << 0)
+
+/*******************************************************************************
+ * FEAT_TCR2 - Extended Translation Control Register
+ ******************************************************************************/
+#define TCR2_EL2		S3_4_C2_C0_3
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers

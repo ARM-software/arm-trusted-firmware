@@ -229,6 +229,9 @@
 // Register for FEAT_HCX
 #define CTX_HCRX_EL2            U(0x1d0)
 
+// Starting with Armv8.9
+#define CTX_TCR2_EL2            U(0x1d8)
+
 /* Align to the next 16 byte boundary */
 #define CTX_EL2_SYSREGS_END	U(0x1e0)
 

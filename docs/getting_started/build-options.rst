@@ -348,6 +348,13 @@ Common build options
    values 0 to 2, to align  with the ``FEATURE_DETECTION`` mechanism.
    Default value is ``0``.
 
+-  ``ENABLE_FEAT_TCR2``: Numeric value to set the bit SCR_EL3.ENTCR2 in EL3 to
+   allow access to TCR2_EL2 (extended translation control) from EL2 as
+   well as adding TCR2_EL2 to the EL2 context save/restore operations. Its a
+   mandatory architectural feature and is enabled from v8.9 and upwards. This
+   flag can take the values 0 to 2, to align  with the ``FEATURE_DETECTION``
+   mechanism. Default value is ``0``.
+
 -  ``ENABLE_LTO``: Boolean option to enable Link Time Optimization (LTO)
    support in GCC for TF-A. This option is currently only supported for
    AArch64. Default is 0.
