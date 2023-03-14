@@ -582,10 +582,25 @@ enabled, the following constants must also be defined.
   Defines the Non-secure Access IDentity (NSAID) that the NPU shall use to
   access the protected memory that contains the NPU's firmware.
 
-- **ARM_ETHOSN_NPU_PROT_DATA_NSAID**
+- **ARM_ETHOSN_NPU_PROT_DATA_RW_NSAID**
 
-  Defines the Non-secure Access IDentity (NSAID) that the NPU shall use to
-  access the protected memory that contains inference data.
+  Defines the Non-secure Access IDentity (NSAID) that the NPU shall use for
+  read/write access to the protected memory that contains inference data.
+
+- **ARM_ETHOSN_NPU_PROT_DATA_RO_NSAID**
+
+  Defines the Non-secure Access IDentity (NSAID) that the NPU shall use for
+  read-only access to the protected memory that contains inference data.
+
+- **ARM_ETHOSN_NPU_NS_RW_DATA_NSAID**
+
+  Defines the Non-secure Access IDentity (NSAID) that the NPU shall use for
+  read/write access to the non-protected memory.
+
+- **ARM_ETHOSN_NPU_NS_RO_DATA_NSAID**
+
+  Defines the Non-secure Access IDentity (NSAID) that the NPU shall use for
+  read-only access to the non-protected memory.
 
 - **ARM_ETHOSN_NPU_FW_IMAGE_BASE** and **ARM_ETHOSN_NPU_FW_IMAGE_LIMIT**
 

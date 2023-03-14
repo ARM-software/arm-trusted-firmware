@@ -94,11 +94,12 @@
 #define SEC_NPU_ID_REG			U(0xF000)
 #define SEC_NPU_ID_ARCH_VER_SHIFT	U(0X10)
 
-#define FIRMWARE_STREAM_INDEX           U(0x0)
+#define FIRMWARE_STREAM_INDEX		U(0x0)
+#define WORKING_STREAM_INDEX		U(0x1)
 #define PLE_STREAM_INDEX		U(0x4)
-#define INPUT_STREAM_INDEX              U(0x6)
-#define INTERMEDIATE_STREAM_INDEX       U(0x7)
-#define OUTPUT_STREAM_INDEX             U(0x8)
+#define INPUT_STREAM_INDEX		U(0x6)
+#define INTERMEDIATE_STREAM_INDEX	U(0x7)
+#define OUTPUT_STREAM_INDEX		U(0x8)
 
 #define TO_EXTEND_ADDR(addr) \
 	((addr >> SEC_ADDR_EXT_SHIFT) & SEC_ADDR_EXT_MASK)
@@ -154,16 +155,23 @@ static void ethosn_configure_stream_nsaid(const struct ethosn_core_t *core,
 					  bool is_protected)
 {
 	size_t i;
-	uint32_t streams[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	uint32_t streams[9] = {[0 ... 8] = ARM_ETHOSN_NPU_NS_RO_DATA_NSAID};
 
 	streams[FIRMWARE_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_FW_NSAID;
 	streams[PLE_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_FW_NSAID;
 
+	streams[WORKING_STREAM_INDEX] = ARM_ETHOSN_NPU_NS_RW_DATA_NSAID;
+
 	if (is_protected) {
-		streams[INPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_DATA_NSAID;
+		streams[INPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_RO_DATA_NSAID;
 		streams[INTERMEDIATE_STREAM_INDEX] =
-			ARM_ETHOSN_NPU_PROT_DATA_NSAID;
-		streams[OUTPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_DATA_NSAID;
+			ARM_ETHOSN_NPU_PROT_RW_DATA_NSAID;
+		streams[OUTPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_RW_DATA_NSAID;
+	} else {
+		streams[INPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_NS_RO_DATA_NSAID;
+		streams[INTERMEDIATE_STREAM_INDEX] =
+			ARM_ETHOSN_NPU_NS_RW_DATA_NSAID;
+		streams[OUTPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_NS_RW_DATA_NSAID;
 	}
 
 	for (i = 0U; i < ARRAY_SIZE(streams); ++i) {
