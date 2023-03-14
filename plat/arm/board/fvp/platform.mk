@@ -516,3 +516,7 @@ endif
 ifeq (${SPD},spmd)
 BL31_SOURCES	+=	plat/arm/board/fvp/fvp_spmd.c
 endif
+
+ifeq (${ERRATA_ABI_SUPPORT}, 1)
+include plat/arm/board/fvp/fvp_cpu_errata.mk
+endif
