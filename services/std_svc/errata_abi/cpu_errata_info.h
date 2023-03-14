@@ -58,6 +58,8 @@ struct em_cpu{
 	unsigned char em_rxpx_lo;	/* lowest revision of errata applicable for the cpu */
 	unsigned char em_rxpx_hi;	/* highest revision of errata applicable for the cpu */
 	bool errata_enabled;		/* indicate if errata enabled */
+	/* flag to indicate if errata query is based out of non-arm interconnect */
+	bool non_arm_interconnect;
 };
 
 struct em_cpu_list{
