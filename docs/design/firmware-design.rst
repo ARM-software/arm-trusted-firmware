@@ -245,63 +245,6 @@ BL1 performs minimal architectural initialization as follows.
    specific reset handler function (see the section: "CPU specific operations
    framework").
 
--  Control register setup (for AArch64)
-
-   -  ``SCTLR_EL3``. Instruction cache is enabled by setting the ``SCTLR_EL3.I``
-      bit. Alignment and stack alignment checking is enabled by setting the
-      ``SCTLR_EL3.A`` and ``SCTLR_EL3.SA`` bits. Exception endianness is set to
-      little-endian by clearing the ``SCTLR_EL3.EE`` bit.
-
-   -  ``SCR_EL3``. The register width of the next lower exception level is set
-      to AArch64 by setting the ``SCR.RW`` bit. The ``SCR.EA`` bit is set to trap
-      both External Aborts and SError Interrupts in EL3. The ``SCR.SIF`` bit is
-      also set to disable instruction fetches from Non-secure memory when in
-      secure state.
-
-   -  ``CPTR_EL3``. Accesses to the ``CPACR_EL1`` register from EL1 or EL2, or the
-      ``CPTR_EL2`` register from EL2 are configured to not trap to EL3 by
-      clearing the ``CPTR_EL3.TCPAC`` bit. Access to the trace functionality is
-      configured not to trap to EL3 by clearing the ``CPTR_EL3.TTA`` bit.
-      Instructions that access the registers associated with Floating Point
-      and Advanced SIMD execution are configured to not trap to EL3 by
-      clearing the ``CPTR_EL3.TFP`` bit.
-
-   -  ``DAIF``. The SError interrupt is enabled by clearing the SError interrupt
-      mask bit.
-
-   -  ``MDCR_EL3``. The trap controls, ``MDCR_EL3.TDOSA``, ``MDCR_EL3.TDA`` and
-      ``MDCR_EL3.TPM``, are set so that accesses to the registers they control
-      do not trap to EL3. AArch64 Secure self-hosted debug is disabled by
-      setting the ``MDCR_EL3.SDD`` bit. Also ``MDCR_EL3.SPD32`` is set to
-      disable AArch32 Secure self-hosted privileged debug from S-EL1.
-
--  Control register setup (for AArch32)
-
-   -  ``SCTLR``. Instruction cache is enabled by setting the ``SCTLR.I`` bit.
-      Alignment checking is enabled by setting the ``SCTLR.A`` bit.
-      Exception endianness is set to little-endian by clearing the
-      ``SCTLR.EE`` bit.
-
-   -  ``SCR``. The ``SCR.SIF`` bit is set to disable instruction fetches from
-      Non-secure memory when in secure state.
-
-   -  ``CPACR``. Allow execution of Advanced SIMD instructions at PL0 and PL1,
-      by clearing the ``CPACR.ASEDIS`` bit. Access to the trace functionality
-      is configured not to trap to undefined mode by clearing the
-      ``CPACR.TRCDIS`` bit.
-
-   -  ``NSACR``. Enable non-secure access to Advanced SIMD functionality and
-      system register access to implemented trace registers.
-
-   -  ``FPEXC``. Enable access to the Advanced SIMD and floating-point
-      functionality from all Exception levels.
-
-   -  ``CPSR.A``. The Asynchronous data abort interrupt is enabled by clearing
-      the Asynchronous data abort interrupt mask bit.
-
-   -  ``SDCR``. The ``SDCR.SPD`` field is set to disable AArch32 Secure
-      self-hosted privileged debug.
-
 Platform initialization
 ^^^^^^^^^^^^^^^^^^^^^^^
 
