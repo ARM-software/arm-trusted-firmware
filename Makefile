@@ -370,8 +370,10 @@ else ifneq ($(findstring gcc,$(notdir $(LD))),)
 
 # GCC automatically adds fix-cortex-a53-843419 flag when used to link
 # which breaks some builds, so disable if errata fix is not explicitly enabled
-	ifneq (${ERRATA_A53_843419},1)
-		TF_LDFLAGS	+= 	-mno-fix-cortex-a53-843419
+	ifeq (${ARCH},aarch64)
+		ifneq (${ERRATA_A53_843419},1)
+			TF_LDFLAGS	+= 	-mno-fix-cortex-a53-843419
+		endif
 	endif
 	TF_LDFLAGS		+= 	-nostdlib
 	TF_LDFLAGS		+=	$(subst --,-Xlinker --,$(TF_LDFLAGS_$(ARCH)))
