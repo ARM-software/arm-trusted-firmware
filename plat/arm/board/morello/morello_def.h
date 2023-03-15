@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,7 @@
 #ifdef TARGET_PLATFORM_FVP
 # define MORELLO_SDS_PLATFORM_INFO_SIZE		U(8)
 #else
-# define MORELLO_SDS_PLATFORM_INFO_SIZE		U(22)
+# define MORELLO_SDS_PLATFORM_INFO_SIZE		U(26)
 #endif
 #define MORELLO_MAX_DDR_CAPACITY		U(0x1000000000)
 #define MORELLO_MAX_REMOTE_CHIP_COUNT		U(16)
