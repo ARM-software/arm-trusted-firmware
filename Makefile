@@ -642,6 +642,11 @@ endif
 ifeq ($(SPMC_AT_EL3),1)
 	$(error SPMC_AT_EL3 and ENABLE_RME cannot both be enabled.)
 endif
+ifneq (${SPD}, none)
+ifneq (${SPD}, spmd)
+       $(error ENABLE_RME is incompatible with SPD=${SPD}. Use SPD=spmd)
+endif
+endif
 include services/std_svc/rmmd/rmmd.mk
 $(warning "RME is an experimental feature")
 endif
