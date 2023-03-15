@@ -18,7 +18,7 @@ ARM_RGX="\(ARM\|Arm\|arm\)"
 exit_code=0
 
 function user_warning() {
-	echo -e "Copyright of $RED$FILE$BLANK is out of date"
+	echo -e "Copyright of $RED$FILE$BLANK is out of date/incorrect"
 	echo -e "Updated copyright to"
 	grep -nr "opyright.*$YEAR_RGX.*$ARM_RGX" "$FILE"
 	echo
@@ -38,15 +38,21 @@ while read -r FILE; do
 		if grep "opyright.*$YEAR_RGX.*-.*$YEAR_RGX.*$ARM_RGX" "$FILE" >/dev/null 2>&1
 		then
 			exit_code=1
-			sed -i "s/\(opyright.*\)$YEAR_RGX\(.*$ARM_RGX\)/\1$(date +"%Y")\2/" $FILE
+			sed -i "s/\(opyright.*\)$YEAR_RGX\(.*$ARM_RGX\)/\1$(date +"%Y"), Arm/" $FILE
 			user_warning
 		# If it is single "date" type of entry - add the copyright extension to current year.
 		elif grep "opyright.*$YEAR_RGX.*$ARM_RGX" "$FILE" >/dev/null 2>&1
 		then
 			exit_code=1
-			sed -i "s/\(opyright.*$YEAR_RGX\)\(.*$ARM_RGX\)/\1-$(date +"%Y")\2/" $FILE
+			sed -i "s/\(opyright.*$YEAR_RGX\)\(.*$ARM_RGX\)/\1-$(date +"%Y"), Arm/" $FILE
 			user_warning
 		fi
+	# Even if the year is correct - verify that Arm copyright is formatted correctly.
+	elif grep "opyright.*\(ARM\|arm\)" "$FILE">/dev/null 2>&1
+	then
+		exit_code=1
+		sed -i "s/\(opyright.*\)\(ARM\|arm\)/\1Arm/" $FILE
+		user_warning
 	fi
 done <<< "$FILES"
 
