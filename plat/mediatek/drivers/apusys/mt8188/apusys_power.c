@@ -10,6 +10,7 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
+#include <lib/spinlock.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
@@ -17,6 +18,9 @@
 #include "apusys.h"
 #include "apusys_power.h"
 #include <mtk_mmap_pool.h>
+
+static spinlock_t apu_lock;
+static bool apusys_top_on;
 
 static int apu_poll(uintptr_t reg, uint32_t mask, uint32_t value, uint32_t timeout_us)
 {
@@ -41,6 +45,135 @@ static int apu_poll(uintptr_t reg, uint32_t mask, uint32_t value, uint32_t timeo
 	      (value == 0U) ? (reg_val & ~mask) : (reg_val | mask));
 
 	return -1;
+}
+
+static void apu_xpu2apusys_d4_slv_en(enum APU_D4_SLV_CTRL en)
+{
+	switch (en) {
+	case D4_SLV_OFF:
+		mmio_setbits_32(BCRM_FMEM_PDN_BASE + INFRA_FMEM_BUS_u_SI21_CTRL_0,
+				INFRA_FMEM_BUS_u_SI21_CTRL_EN);
+		mmio_setbits_32(BCRM_FMEM_PDN_BASE + INFRA_FMEM_BUS_u_SI22_CTRL_0,
+				INFRA_FMEM_BUS_u_SI22_CTRL_EN);
+		mmio_setbits_32(BCRM_FMEM_PDN_BASE + INFRA_FMEM_BUS_u_SI11_CTRL_0,
+				INFRA_FMEM_BUS_u_SI11_CTRL_EN);
+		mmio_setbits_32(BCRM_FMEM_PDN_BASE + INFRA_FMEM_M6M7_BUS_u_SI24_CTRL_0,
+				INFRA_FMEM_M6M7_BUS_u_SI24_CTRL_EN);
+		break;
+	case D4_SLV_ON:
+		mmio_clrbits_32(BCRM_FMEM_PDN_BASE + INFRA_FMEM_BUS_u_SI21_CTRL_0,
+				INFRA_FMEM_BUS_u_SI21_CTRL_EN);
+		mmio_clrbits_32(BCRM_FMEM_PDN_BASE + INFRA_FMEM_BUS_u_SI22_CTRL_0,
+				INFRA_FMEM_BUS_u_SI22_CTRL_EN);
+		mmio_clrbits_32(BCRM_FMEM_PDN_BASE + INFRA_FMEM_BUS_u_SI11_CTRL_0,
+				INFRA_FMEM_BUS_u_SI11_CTRL_EN);
+		mmio_clrbits_32(BCRM_FMEM_PDN_BASE + INFRA_FMEM_M6M7_BUS_u_SI24_CTRL_0,
+				INFRA_FMEM_M6M7_BUS_u_SI24_CTRL_EN);
+		break;
+	default:
+		ERROR(MODULE_TAG "%s invalid op: %d\n", __func__, en);
+		break;
+	}
+}
+
+static void apu_pwr_flow_remote_sync(uint32_t cfg)
+{
+	mmio_write_32(APU_MBOX0_BASE + PWR_FLOW_SYNC_REG, (cfg & 0x1));
+}
+
+int apusys_kernel_apusys_pwr_top_on(void)
+{
+	int ret;
+
+	spin_lock(&apu_lock);
+
+	if (apusys_top_on == true) {
+		INFO(MODULE_TAG "%s: APUSYS already powered on!\n", __func__);
+		spin_unlock(&apu_lock);
+		return 0;
+	}
+
+	apu_pwr_flow_remote_sync(1);
+
+	mmio_setbits_32(APU_RPC_BASE + APU_RPC_TOP_SEL_1, AFC_ENA);
+
+	mmio_write_32(APU_RPC_BASE + APU_RPC_TOP_CON, REG_WAKEUP_SET);
+
+	ret = apu_poll(APU_RPC_BASE + APU_RPC_INTF_PWR_RDY,
+		       PWR_RDY, PWR_RDY, APU_TOP_ON_POLLING_TIMEOUT_US);
+	if (ret != 0) {
+		ERROR(MODULE_TAG "%s polling RPC RDY timeout, ret %d\n", __func__, ret);
+		spin_unlock(&apu_lock);
+		return ret;
+	}
+
+	ret = apu_poll(APU_RPC_BASE + APU_RPC_STATUS,
+		       RPC_STATUS_RDY, RPC_STATUS_RDY, APU_TOP_ON_POLLING_TIMEOUT_US);
+	if (ret != 0) {
+		ERROR(MODULE_TAG "%s polling ARE FSM timeout, ret %d\n", __func__, ret);
+		spin_unlock(&apu_lock);
+		return ret;
+	}
+
+	mmio_write_32(APU_VCORE_BASE + APUSYS_VCORE_CG_CLR, CG_CLR);
+	mmio_write_32(APU_RCX_BASE + APU_RCX_CG_CLR, CG_CLR);
+
+	apu_xpu2apusys_d4_slv_en(D4_SLV_OFF);
+
+	apusys_top_on = true;
+
+	spin_unlock(&apu_lock);
+	return ret;
+}
+
+static void apu_sleep_rpc_rcx(void)
+{
+	mmio_write_32(APU_RPC_BASE + APU_RPC_TOP_CON, REG_WAKEUP_CLR);
+	udelay(10);
+
+	mmio_setbits_32(APU_RPC_BASE + APU_RPC_TOP_SEL, (RPC_CTRL | RSV10));
+	udelay(10);
+
+	mmio_setbits_32(APU_RPC_BASE + APU_RPC_TOP_CON, CLR_IRQ);
+	udelay(10);
+
+	mmio_setbits_32(APU_RPC_BASE + APU_RPC_TOP_CON, SLEEP_REQ);
+	udelay(100);
+}
+
+int apusys_kernel_apusys_pwr_top_off(void)
+{
+	int ret;
+
+	spin_lock(&apu_lock);
+
+	if (apusys_top_on == false) {
+		INFO(MODULE_TAG "%s: APUSYS already powered off!\n", __func__);
+		spin_unlock(&apu_lock);
+		return 0;
+	}
+
+	apu_xpu2apusys_d4_slv_en(D4_SLV_ON);
+
+	if (mmio_read_32(APU_MBOX0_BASE + PWR_FLOW_SYNC_REG) == 0) {
+		apu_pwr_flow_remote_sync(1);
+	} else {
+		apu_sleep_rpc_rcx();
+	}
+
+	ret = apu_poll(APU_RPC_BASE + APU_RPC_INTF_PWR_RDY,
+		       PWR_RDY, PWR_OFF, APU_TOP_OFF_POLLING_TIMEOUT_US);
+	if (ret != 0) {
+		ERROR(MODULE_TAG "%s timeout to wait RPC sleep (val:%d), ret %d\n",
+		      __func__, APU_TOP_OFF_POLLING_TIMEOUT_US, ret);
+		spin_unlock(&apu_lock);
+		return ret;
+	}
+
+	apusys_top_on = false;
+
+	spin_unlock(&apu_lock);
+	return ret;
 }
 
 static void get_pll_pcw(const uint32_t clk_rate, uint32_t *r1, uint32_t *r2)

@@ -28,6 +28,9 @@
  * APUSYS related constants
  ******************************************************************************/
 #define BCRM_FMEM_PDN_BASE	(IO_PHYS + 0x00276000)
+#define APU_RCX_CONFIG		(IO_PHYS + 0x09020000)
+#define APU_RCX_VCORE_CONFIG	(IO_PHYS + 0x090e0000)
+#define APU_MBOX0		(IO_PHYS + 0x090e1000)
 #define APU_RPCTOP		(IO_PHYS + 0x090f0000)
 #define APU_PCUTOP		(IO_PHYS + 0x090f1000)
 #define APU_AO_CTRL		(IO_PHYS + 0x090f2000)
