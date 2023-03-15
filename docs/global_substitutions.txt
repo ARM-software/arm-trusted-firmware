@@ -69,3 +69,4 @@
 .. |UEFI| replace:: :term:`UEFI`
 .. |WDOG| replace:: :term:`WDOG`
 .. |XLAT| replace:: :term:`XLAT`
+.. |ERRATA_ABI| replace:: :term:`ERRATA_ABI`
