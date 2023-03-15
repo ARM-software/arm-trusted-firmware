@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -196,10 +196,30 @@ PLAT_INCLUDES		+=	-Iinclude/lib/psa
 
 endif
 
-# Add this include as first, before arm_common.mk. This is necessary because
-# arm_common.mk builds Mbed TLS, and platform_test.mk can change the list of
-# Mbed TLS files that are to be compiled (LIBMBEDTLS_SRCS).
-include plat/arm/board/tc/platform_test.mk
+ifeq (${PLATFORM_TEST},rss-nv-counters)
+    include drivers/arm/rss/rss_comms.mk
+
+    # Test code.
+    BL31_SOURCES	+=	plat/arm/board/tc/nv_counter_test.c
+
+    # Code under testing.
+    BL31_SOURCES	+=	lib/psa/rss_platform.c \
+				drivers/arm/rss/rss_comms.c \
+				${RSS_COMMS_SOURCES}
+
+    PLAT_INCLUDES	+=	-Iinclude/lib/psa
+
+    $(eval $(call add_define,PLATFORM_TEST))
+else ifeq (${PLATFORM_TEST},tfm-testsuite)
+    # Add this include as first, before arm_common.mk. This is necessary
+    # because arm_common.mk builds Mbed TLS, and platform_test.mk can
+    # change the list of Mbed TLS files that are to be compiled
+    # (LIBMBEDTLS_SRCS).
+    include plat/arm/board/tc/platform_test.mk
+else ifneq (${PLATFORM_TEST},)
+    $(error "Unsupported PLATFORM_TEST value")
+endif
+
 
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk

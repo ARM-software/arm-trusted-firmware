@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,9 +52,13 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 void tc_bl31_common_platform_setup(void)
 {
 	arm_bl31_platform_setup();
-#ifdef PLATFORM_TEST
-	run_platform_tests();
 
+#ifdef PLATFORM_TEST
+#if PLATFORM_TEST == rss-nv-counters
+	nv_counter_test();
+#elif PLATFORM_TEST == tfm-testsuite
+	run_platform_tests()
+#endif
 	/* Suspend booting */
 	plat_error_handler(-1);
 #endif
