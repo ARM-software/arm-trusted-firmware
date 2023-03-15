@@ -25,6 +25,21 @@
 #define TOPCKGEN_BASE		(IO_PHYS)
 
 /*******************************************************************************
+ * APUSYS related constants
+ ******************************************************************************/
+#define BCRM_FMEM_PDN_BASE	(IO_PHYS + 0x00276000)
+#define APU_RPCTOP		(IO_PHYS + 0x090f0000)
+#define APU_PCUTOP		(IO_PHYS + 0x090f1000)
+#define APU_AO_CTRL		(IO_PHYS + 0x090f2000)
+#define APU_PLL			(IO_PHYS + 0x090f3000)
+#define APU_ACC			(IO_PHYS + 0x090f4000)
+#define APU_ARETOP_ARE0		(IO_PHYS + 0x090f6000)
+#define APU_ARETOP_ARE1		(IO_PHYS + 0x090f7000)
+#define APU_ARETOP_ARE2		(IO_PHYS + 0x090f8000)
+#define APU_ACX0_RPC_LITE	(IO_PHYS + 0x09140000)
+#define BCRM_FMEM_PDN_SIZE	(0x1000)
+
+/*******************************************************************************
  * AUDIO related constants
  ******************************************************************************/
 #define AUDIO_BASE		(IO_PHYS + 0x00b10000)
