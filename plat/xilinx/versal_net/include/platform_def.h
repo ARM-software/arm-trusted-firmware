@@ -103,12 +103,15 @@
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
  * as Group 0 interrupts.
  */
-#define PLAT_VERSAL_IPI_IRQ	62
+#define PLAT_VERSAL_NET_IPI_IRQ	89
+#define PLAT_VERSAL_IPI_IRQ	PLAT_VERSAL_NET_IPI_IRQ
 
 #define PLAT_VERSAL_NET_G1S_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(VERSAL_NET_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_LEVEL)
 
-#define PLAT_VERSAL_NET_G0_IRQ_PROPS(grp)
+#define PLAT_VERSAL_NET_G0_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(PLAT_VERSAL_IPI_IRQ, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
 
 #endif /* PLATFORM_DEF_H */
