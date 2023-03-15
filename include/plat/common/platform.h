@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -256,8 +256,8 @@ static inline void bl2_plat_mboot_finish(void)
 #endif /* MEASURED_BOOT */
 
 /*******************************************************************************
- * Mandatory BL2 at EL3 functions: Must be implemented if BL2_AT_EL3 image is
- * supported
+ * Mandatory BL2 at EL3 functions: Must be implemented
+ * if RESET_TO_BL2 image is supported
  ******************************************************************************/
 void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 				  u_register_t arg2, u_register_t arg3);

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -17,7 +17,7 @@ override TRUSTED_BOARD_BOOT     := 0
 SQ_USE_SCMI_DRIVER              ?= 0
 else
 override RESET_TO_BL31          := 0
-override BL2_AT_EL3             := 1
+override RESET_TO_BL2		:= 1
 SQ_USE_SCMI_DRIVER              := 1
 BL2_CPPFLAGS                    += -DPLAT_XLAT_TABLES_DYNAMIC
 endif

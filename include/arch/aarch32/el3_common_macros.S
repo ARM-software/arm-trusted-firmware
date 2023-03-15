@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -374,7 +374,7 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.if \_init_c_runtime
-#if defined(IMAGE_BL32) || (defined(IMAGE_BL2) && BL2_AT_EL3)
+#if defined(IMAGE_BL32) || (defined(IMAGE_BL2) && RESET_TO_BL2)
 		/* -----------------------------------------------------------------
 		 * Invalidate the RW memory used by the image. This
 		 * includes the data and NOBITS sections. This is done to
@@ -426,7 +426,8 @@
 		/* Restore r12 */
 		mov	r12, r7
 
-#if defined(IMAGE_BL1) || (defined(IMAGE_BL2) && BL2_AT_EL3 && BL2_IN_XIP_MEM)
+#if defined(IMAGE_BL1) || \
+	(defined(IMAGE_BL2) && RESET_TO_BL2 && BL2_IN_XIP_MEM)
 		/* -----------------------------------------------------
 		 * Copy data from ROM to RAM.
 		 * -----------------------------------------------------

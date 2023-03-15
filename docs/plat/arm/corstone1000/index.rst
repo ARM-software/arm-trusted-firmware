@@ -47,7 +47,7 @@ Build Procedure (TF-A only)
       ARCH=aarch64 \
       TARGET_PLATFORM=<fpga or fvp> \
       ENABLE_PIE=1 \
-      BL2_AT_EL3=1 \
+      RESET_TO_BL2=1 \
       CREATE_KEYS=1 \
       GENERATE_COT=1 \
       TRUSTED_BOARD_BOOT=1 \
@@ -58,4 +58,4 @@ Build Procedure (TF-A only)
       BL33=<path to u-boot binary> \
       bl2
 
-*Copyright (c) 2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2023, Arm Limited. All rights reserved.*

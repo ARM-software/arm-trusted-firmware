@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2016-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -30,13 +30,13 @@ ARM_ARCH_MINOR			:= 0
 BASE_COMMIT			:= origin/master
 
 # Execute BL2 at EL3
-BL2_AT_EL3			:= 0
+RESET_TO_BL2			:= 0
 
 # Only use SP packages if SP layout JSON is defined
 BL2_ENABLE_SP_LOAD		:= 0
 
 # BL2 image is stored in XIP memory, for now, this option is only supported
-# when BL2_AT_EL3 is 1.
+# when RESET_TO_BL2 is 1.
 BL2_IN_XIP_MEM			:= 0
 
 # Do dcache invalidate upon BL2 entry at EL3

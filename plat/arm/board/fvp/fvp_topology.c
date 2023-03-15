@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,9 +34,9 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
 
 	/*
 	 * fconf APIs are not supported for RESET_TO_SP_MIN, RESET_TO_BL31 and
-	 * BL2_AT_EL3 systems.
+	 * RESET_TO_BL2 systems.
 	 */
-#if RESET_TO_SP_MIN || RESET_TO_BL31 || BL2_AT_EL3
+#if RESET_TO_SP_MIN || RESET_TO_BL31 || RESET_TO_BL2
 	cluster_count = FVP_CLUSTER_COUNT;
 	cpus_per_cluster = FVP_MAX_CPUS_PER_CLUSTER * FVP_MAX_PE_PER_CPU;
 #else

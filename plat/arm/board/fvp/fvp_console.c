@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,9 +24,9 @@ void arm_console_runtime_init(void)
 
 	/*
 	 * fconf APIs are not supported for RESET_TO_SP_MIN, RESET_TO_BL31 and
-	 * BL2_AT_EL3 systems.
+	 * RESET_TO_BL2 systems.
 	 */
-#if RESET_TO_SP_MIN || RESET_TO_BL31 || BL2_AT_EL3
+#if RESET_TO_SP_MIN || RESET_TO_BL31 || RESET_TO_BL2
 	uart_base = PLAT_ARM_RUN_UART_BASE;
 	uart_clk = PLAT_ARM_RUN_UART_CLK_IN_HZ;
 #else
