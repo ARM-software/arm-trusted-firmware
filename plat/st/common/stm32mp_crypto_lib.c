@@ -650,6 +650,7 @@ REGISTER_CRYPTO_LIB("stm32_crypto_lib",
 		    crypto_lib_init,
 		    crypto_verify_signature,
 		    crypto_verify_hash,
+		    NULL,
 		    crypto_auth_decrypt,
 		    crypto_convert_pk);
 
@@ -658,6 +659,7 @@ REGISTER_CRYPTO_LIB("stm32_crypto_lib",
 		    crypto_lib_init,
 		    crypto_verify_signature,
 		    crypto_verify_hash,
+		    NULL,
 		    NULL,
 		    crypto_convert_pk);
 #endif
