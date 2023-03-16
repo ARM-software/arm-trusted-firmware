@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
 / {
 	compatible = "arm,ffa-core-manifest-1.0";
 	#address-cells = <2>;
-	#size-cells = <1>;
+	#size-cells = <2>;
 
 	attribute {
 		spmc_id = <0x8000>;
@@ -78,9 +78,17 @@
 		CPU_1
 	};
 
-	memory@6000000 {
+	memory@0 {
 		device_type = "memory";
-		reg = <0x0 0x6000000 0x2000000>; /* Trusted DRAM */
+		reg = <0x0 0xfd000000 0x0 0x2000000>,
+		      <0x0 0x7000000 0x0 0x1000000>,
+		      <0x0 0xff000000 0x0 0x1000000>;
+	};
+
+	memory@1 {
+		device_type = "ns-memory";
+		reg = <0x00008800 0x80000000 0x0 0x7f000000>,
+		      <0x0 0x88000000 0x0 0x10000000>;
 	};
 
 #if MEASURED_BOOT
