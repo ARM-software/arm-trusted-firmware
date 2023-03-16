@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -168,7 +168,12 @@
 # define MAX_XLAT_TABLES		5
 #else
 # define PLAT_ARM_MMAP_ENTRIES		12
-# define MAX_XLAT_TABLES		6
+# if (defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)) && \
+defined(IMAGE_BL2) && MEASURED_BOOT
+#  define MAX_XLAT_TABLES		7
+# else
+#  define MAX_XLAT_TABLES		6
+# endif /* (SPD_tspd || SPD_opteed || SPD_spmd) && IMAGE_BL2 && MEASURED_BOOT */
 #endif
 
 /*
