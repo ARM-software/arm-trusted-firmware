@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -83,6 +83,29 @@ typedef struct {
 
 #define RCAR_COUNT_LOAD_BL33		(2U)
 #define RCAR_COUNT_LOAD_BL33X		(3U)
+
+#define CHECK_IMAGE_AREA_CNT (7U)
+#define BOOT_BL2_ADDR (0xE6304000U)
+#define BOOT_BL2_LENGTH (0x19000U)
+
+typedef struct {
+	uintptr_t dest;
+	uintptr_t length;
+} addr_loaded_t;
+
+static addr_loaded_t addr_loaded[CHECK_IMAGE_AREA_CNT] = {
+	[0] = {BOOT_BL2_ADDR, BOOT_BL2_LENGTH},
+	[1] = {BL31_BASE, RCAR_TRUSTED_SRAM_SIZE},
+#ifndef SPD_NONE
+	[2] = {BL32_BASE, BL32_SIZE}
+#endif
+};
+
+#ifndef SPD_NONE
+static uint32_t addr_loaded_cnt = 3;
+#else
+static uint32_t addr_loaded_cnt = 2;
+#endif
 
 static const plat_rcar_name_offset_t name_offset[] = {
 	{BL31_IMAGE_ID, 0U, RCAR_ATTR_SET_ALL(0, 0, 0)},
@@ -281,10 +304,11 @@ static int32_t check_load_area(uintptr_t dst, uintptr_t len)
 	uintptr_t dram_start, dram_end;
 	uintptr_t prot_start, prot_end;
 	int32_t result = IO_SUCCESS;
+	int n;
 
-	dram_start = legacy ? DRAM1_BASE : DRAM_40BIT_BASE;
+	dram_start = legacy ? DRAM1_NS_BASE : DRAM_40BIT_BASE;
 
-	dram_end = legacy ? DRAM1_BASE + DRAM1_SIZE :
+	dram_end = legacy ? DRAM1_NS_BASE + DRAM1_NS_SIZE :
 	    DRAM_40BIT_BASE + DRAM_40BIT_SIZE;
 
 	prot_start = legacy ? DRAM_PROTECTED_BASE : DRAM_40BIT_PROTECTED_BASE;
@@ -301,13 +325,54 @@ static int32_t check_load_area(uintptr_t dst, uintptr_t len)
 	if (dst >= prot_start && dst < prot_end) {
 		ERROR("BL2: dst address is on the protected area.\n");
 		result = IO_FAIL;
+		goto done;
 	}
 
 	if (len > prot_start || (dst < prot_start && dst > prot_start - len)) {
 		ERROR("BL2: %s[%d] loaded data is on the protected area.\n",
 			__func__, __LINE__);
 		result = IO_FAIL;
+		goto done;
 	}
+
+	if (addr_loaded_cnt >= CHECK_IMAGE_AREA_CNT) {
+		ERROR("BL2: max loadable non secure images reached\n");
+		result = IO_FAIL;
+		goto done;
+	}
+
+	addr_loaded[addr_loaded_cnt].dest = dst;
+	addr_loaded[addr_loaded_cnt].length = len;
+	for (n = 0; n < addr_loaded_cnt; n++) {
+		/*
+		 * Check if next image invades a previous loaded image
+		 *
+		 * IMAGE n: area from previous image:	dest| IMAGE n |length
+		 * IMAGE n+1: area from next image:	dst | IMAGE n |len
+		 *
+		 * 1. check:
+		 *      | IMAGE n |
+		 *        | IMAGE n+1 |
+		 * 2. check:
+		 *      | IMAGE n |
+		 *  | IMAGE n+1 |
+		 * 3. check:
+		 *      | IMAGE n |
+		 *  |    IMAGE n+1    |
+		 */
+		if (((dst >= addr_loaded[n].dest) &&
+		     (dst <= addr_loaded[n].dest + addr_loaded[n].length)) ||
+		    ((dst + len >= addr_loaded[n].dest) &&
+		     (dst + len <= addr_loaded[n].dest + addr_loaded[n].length)) ||
+		    ((dst <= addr_loaded[n].dest) &&
+		     (dst + len >= addr_loaded[n].dest + addr_loaded[n].length))) {
+			ERROR("BL2: next image overlap a previous image area.\n");
+			result = IO_FAIL;
+			goto done;
+		}
+	}
+	addr_loaded_cnt++;
+
 done:
 	if (result == IO_FAIL) {
 		ERROR("BL2: Out of range : dst=0x%lx len=0x%lx\n", dst, len);
