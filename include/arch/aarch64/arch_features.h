@@ -131,6 +131,24 @@ static inline bool is_armv8_5_rng_present(void)
 		ID_AA64ISAR0_RNDR_MASK);
 }
 
+static unsigned int read_feat_tcrx_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_TCRX);
+}
+
+static inline bool is_feat_tcr2_supported(void)
+{
+	if (ENABLE_FEAT_TCR2 == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_TCR2 == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_tcrx_id_field() != 0U;
+}
+
 /*******************************************************************************
  * Functions to identify the presence of the Activity Monitors Extension
  ******************************************************************************/

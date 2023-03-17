@@ -348,6 +348,13 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 #endif
 
 	/*
+	 * SCR_EL3.TCR2EN: Enable access to TCR2_ELx for AArch64 if present.
+	 */
+	if (is_feat_tcr2_supported() && (GET_RW(ep->spsr) == MODE_RW_64)) {
+		scr_el3 |= SCR_TCR2EN_BIT;
+	}
+
+	/*
 	 * CPTR_EL3 was initialized out of reset, copy that value to the
 	 * context register.
 	 */
@@ -884,6 +891,9 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		if (is_feat_hcx_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2, read_hcrx_el2());
 		}
+		if (is_feat_tcr2_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_TCR2_EL2, read_tcr2_el2());
+		}
 	}
 }
 
@@ -943,6 +953,9 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 #endif
 		if (is_feat_hcx_supported()) {
 			write_hcrx_el2(read_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2));
+		}
+		if (is_feat_tcr2_supported()) {
+			write_tcr2_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TCR2_EL2));
 		}
 	}
 }

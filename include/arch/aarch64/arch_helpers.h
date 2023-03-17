@@ -579,6 +579,12 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(hfgwtr_el2, HFGWTR_EL2)
 /* FEAT_HCX Register */
 DEFINE_RENAME_SYSREG_RW_FUNCS(hcrx_el2, HCRX_EL2)
 
+/* Armv8.9 system registers */
+DEFINE_RENAME_IDREG_READ_FUNC(id_aa64mmfr3_el1, ID_AA64MMFR3_EL1)
+
+/* FEAT_TCR2 Register */
+DEFINE_RENAME_SYSREG_RW_FUNCS(tcr2_el2, TCR2_EL2)
+
 /* DynamIQ Shared Unit power management */
 DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpwrdn_el1, CLUSTERPWRDN_EL1)
 

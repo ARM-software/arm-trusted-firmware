@@ -314,6 +314,10 @@ void detect_arch_features(void)
 	/* v8.7 features */
 	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX", 1, 1);
 
+	/* v8.9 features */
+	check_feature(ENABLE_FEAT_TCR2, read_feat_tcrx_id_field(),
+		      "TCR2", 1, 1);
+
 	/* v9.0 features */
 	check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),
 		      "BRBE", 1, 2);

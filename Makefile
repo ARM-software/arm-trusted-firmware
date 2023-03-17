@@ -1178,6 +1178,7 @@ $(eval $(call assert_numerics,\
         ENABLE_FEAT_RNG_TRAP \
         ENABLE_FEAT_SB \
         ENABLE_FEAT_SEL2 \
+        ENABLE_FEAT_TCR2 \
         ENABLE_FEAT_VHE \
         ENABLE_MPAM_FOR_LOWER_ELS \
         ENABLE_RME \
@@ -1310,6 +1311,7 @@ $(eval $(call add_defines,\
         ENABLE_FEAT_VHE \
         ENABLE_FEAT_CSV2_2 \
         ENABLE_FEAT_PAN \
+        ENABLE_FEAT_TCR2 \
         FEATURE_DETECTION \
         TWED_DELAY \
         ENABLE_FEAT_TWED \
