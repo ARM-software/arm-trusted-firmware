@@ -30,9 +30,138 @@
 static ufs_params_t ufs_params;
 static int nutrs;	/* Number of UTP Transfer Request Slots */
 
+/*
+ * ufs_uic_error_handler - UIC error interrupts handler
+ * @ignore_linereset: set to ignore PA_LAYER_GEN_ERR (UIC error)
+ *
+ * Returns
+ * 0 - ignore error
+ * -EIO - fatal error, needs re-init
+ * -EAGAIN - non-fatal error, retries are sufficient
+ */
+static int ufs_uic_error_handler(bool ignore_linereset)
+{
+	uint32_t data;
+	int result = 0;
+
+	data = mmio_read_32(ufs_params.reg_base + UECPA);
+	if (data & UFS_UIC_PA_ERROR_MASK) {
+		if (data & PA_LAYER_GEN_ERR) {
+			if (!ignore_linereset) {
+				return -EIO;
+			}
+		} else {
+			result = -EAGAIN;
+		}
+	}
+
+	data = mmio_read_32(ufs_params.reg_base + UECDL);
+	if (data & UFS_UIC_DL_ERROR_MASK) {
+		if (data & PA_INIT_ERR) {
+			return -EIO;
+		}
+		result = -EAGAIN;
+	}
+
+	/* NL/TL/DME error requires retries */
+	data = mmio_read_32(ufs_params.reg_base + UECN);
+	if (data & UFS_UIC_NL_ERROR_MASK) {
+		result = -EAGAIN;
+	}
+
+	data = mmio_read_32(ufs_params.reg_base + UECT);
+	if (data & UFS_UIC_TL_ERROR_MASK) {
+		result = -EAGAIN;
+	}
+
+	data = mmio_read_32(ufs_params.reg_base + UECDME);
+	if (data & UFS_UIC_DME_ERROR_MASK) {
+		result = -EAGAIN;
+	}
+
+	return result;
+}
+
+/*
+ * ufs_error_handler - error interrupts handler
+ * @status: interrupt status
+ * @ignore_linereset: set to ignore PA_LAYER_GEN_ERR (UIC error)
+ *
+ * Returns
+ * 0 - ignore error
+ * -EIO - fatal error, needs re-init
+ * -EAGAIN - non-fatal error, retries are sufficient
+ */
+static int ufs_error_handler(uint32_t status, bool ignore_linereset)
+{
+	int result;
+
+	if (status & UFS_INT_UE) {
+		result = ufs_uic_error_handler(ignore_linereset);
+		if (result != 0) {
+			return result;
+		}
+	}
+
+	/* Return I/O error on fatal error, it is upto the caller to re-init UFS */
+	if (status & UFS_INT_FATAL) {
+		return -EIO;
+	}
+
+	/* retry for non-fatal errors */
+	return -EAGAIN;
+}
+
+/*
+ * ufs_wait_for_int_status - wait for expected interrupt status
+ * @expected: expected interrupt status bit
+ * @timeout_ms: timeout in milliseconds to poll for
+ * @ignore_linereset: set to ignore PA_LAYER_GEN_ERR (UIC error)
+ *
+ * Returns
+ * 0 - received expected interrupt and cleared it
+ * -EIO - fatal error, needs re-init
+ * -EAGAIN - non-fatal error, caller can retry
+ * -ETIMEDOUT - timed out waiting for interrupt status
+ */
+static int ufs_wait_for_int_status(const uint32_t expected_status,
+				   unsigned int timeout_ms,
+				   bool ignore_linereset)
+{
+	uint32_t interrupt_status, interrupts_enabled;
+	int result = 0;
+
+	interrupts_enabled = mmio_read_32(ufs_params.reg_base + IE);
+	do {
+		interrupt_status = mmio_read_32(ufs_params.reg_base + IS) & interrupts_enabled;
+		if (interrupt_status & UFS_INT_ERR) {
+			mmio_write_32(ufs_params.reg_base + IS, interrupt_status & UFS_INT_ERR);
+			result = ufs_error_handler(interrupt_status, ignore_linereset);
+			if (result != 0) {
+				return result;
+			}
+		}
+
+		if (interrupt_status & expected_status) {
+			break;
+		}
+		mdelay(1);
+	} while (timeout_ms-- > 0);
+
+	if (!(interrupt_status & expected_status)) {
+		return -ETIMEDOUT;
+	}
+
+	mmio_write_32(ufs_params.reg_base + IS, expected_status);
+
+	return result;
+}
+
+
 int ufshc_send_uic_cmd(uintptr_t base, uic_cmd_t *cmd)
 {
 	unsigned int data;
+	int result;
 
 	if (base == 0 || cmd == NULL)
 		return -EINVAL;
@@ -46,10 +175,12 @@ int ufshc_send_uic_cmd(uintptr_t base, uic_cmd_t *cmd)
 	mmio_write_32(base + UCMDARG3, cmd->arg3);
 	mmio_write_32(base + UICCMD, cmd->op);
 
-	do {
-		data = mmio_read_32(base + IS);
-	} while ((data & UFS_INT_UCCS) == 0);
-	mmio_write_32(base + IS, UFS_INT_UCCS);
+	result = ufs_wait_for_int_status(UFS_INT_UCCS, UIC_CMD_TIMEOUT_MS,
+					 cmd->op == DME_SET);
+	if (result != 0) {
+		return result;
+	}
+
 	return mmio_read_32(base + UCMDARG2) & CONFIG_RESULT_CODE_MASK;
 }
 
@@ -83,9 +214,10 @@ int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 		result = ufshc_send_uic_cmd(base, &cmd);
 		if (result == 0)
 			break;
-		data = mmio_read_32(base + IS);
-		if (data & UFS_INT_UE)
-			return -EINVAL;
+		/* -EIO requires UFS re-init */
+		if (result == -EIO) {
+			return result;
+		}
 	}
 	if (retries >= UFS_UIC_COMMAND_RETRIES)
 		return -EIO;
@@ -97,7 +229,6 @@ int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 int ufshc_dme_set(unsigned int attr, unsigned int idx, unsigned int val)
 {
 	uintptr_t base;
-	unsigned int data;
 	int result, retries;
 	uic_cmd_t cmd;
 
@@ -113,9 +244,10 @@ int ufshc_dme_set(unsigned int attr, unsigned int idx, unsigned int val)
 		result = ufshc_send_uic_cmd(base, &cmd);
 		if (result == 0)
 			break;
-		data = mmio_read_32(base + IS);
-		if (data & UFS_INT_UE)
-			return -EINVAL;
+		/* -EIO requires UFS re-init */
+		if (result == -EIO) {
+			return result;
+		}
 	}
 	if (retries >= UFS_UIC_COMMAND_RETRIES)
 		return -EIO;
@@ -193,9 +325,10 @@ static int ufshc_reset(uintptr_t base)
 		return -EIO;
 	}
 
-	/* Enable Interrupts */
-	data = UFS_INT_UCCS | UFS_INT_ULSS | UFS_INT_UE | UFS_INT_UTPES |
-	       UFS_INT_DFES | UFS_INT_HCFES | UFS_INT_SBFES;
+	/* Enable UIC Interrupts alone. We can ignore other interrupts until
+	 * link is up as there might be spurious error interrupts during link-up
+	 */
+	data = UFS_INT_UCCS | UFS_INT_UHES | UFS_INT_UHXS | UFS_INT_UPMS;
 	mmio_write_32(base + IE, data);
 
 	return 0;
@@ -229,6 +362,13 @@ static int ufshc_link_startup(uintptr_t base)
 		data = mmio_read_32(base + IS);
 		if (data & UFS_INT_ULSS)
 			mmio_write_32(base + IS, UFS_INT_ULSS);
+
+		/* clear UE set due to line-reset */
+		if (data & UFS_INT_UE) {
+			mmio_write_32(base + IS, UFS_INT_UE);
+		}
+		/* clearing line-reset, UECPA is cleared on read */
+		mmio_read_32(base + UECPA);
 		return 0;
 	}
 	return -EIO;
@@ -472,21 +612,22 @@ static void ufs_send_request(int task_tag)
 	mmio_setbits_32(ufs_params.reg_base + UTRLDBR, 1 << slot);
 }
 
-static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
+static int ufs_check_resp(utp_utrd_t *utrd, int trans_type, unsigned int timeout_ms)
 {
 	utrd_header_t *hd;
 	resp_upiu_t *resp;
 	sense_data_t *sense;
 	unsigned int data;
-	int slot;
+	int slot, result;
 
 	hd = (utrd_header_t *)utrd->header;
 	resp = (resp_upiu_t *)utrd->resp_upiu;
-	do {
-		data = mmio_read_32(ufs_params.reg_base + IS);
-		if ((data & ~(UFS_INT_UCCS | UFS_INT_UTRCS)) != 0)
-			return -EIO;
-	} while ((data & UFS_INT_UTRCS) == 0);
+
+	result = ufs_wait_for_int_status(UFS_INT_UTRCS, timeout_ms, false);
+	if (result != 0) {
+		return result;
+	}
+
 	slot = utrd->task_tag - 1;
 
 	data = mmio_read_32(ufs_params.reg_base + UTRLDBR);
@@ -510,6 +651,7 @@ static int ufs_check_resp(utp_utrd_t *utrd, int trans_type)
 
 	(void)resp;
 	(void)slot;
+	(void)data;
 	return 0;
 }
 
@@ -523,7 +665,7 @@ static void ufs_send_cmd(utp_utrd_t *utrd, uint8_t cmd_op, uint8_t lun, int lba,
 		result = ufs_prepare_cmd(utrd, cmd_op, lun, lba, buf, length);
 		assert(result == 0);
 		ufs_send_request(utrd->task_tag);
-		result = ufs_check_resp(utrd, RESPONSE_UPIU);
+		result = ufs_check_resp(utrd, RESPONSE_UPIU, CMD_TIMEOUT_MS);
 		if (result == 0 || result == -EIO) {
 			break;
 		}
@@ -574,7 +716,7 @@ static void ufs_verify_init(void)
 	get_utrd(&utrd);
 	ufs_prepare_nop_out(&utrd);
 	ufs_send_request(utrd.task_tag);
-	result = ufs_check_resp(&utrd, NOP_IN_UPIU);
+	result = ufs_check_resp(&utrd, NOP_IN_UPIU, NOP_OUT_TIMEOUT_MS);
 	assert(result == 0);
 	(void)result;
 }
@@ -607,7 +749,7 @@ static void ufs_query(uint8_t op, uint8_t idn, uint8_t index, uint8_t sel,
 	get_utrd(&utrd);
 	ufs_prepare_query(&utrd, op, idn, index, sel, buf, size);
 	ufs_send_request(utrd.task_tag);
-	result = ufs_check_resp(&utrd, QUERY_RESPONSE_UPIU);
+	result = ufs_check_resp(&utrd, QUERY_RESPONSE_UPIU, QUERY_REQ_TIMEOUT_MS);
 	assert(result == 0);
 	resp = (query_resp_upiu_t *)utrd.resp_upiu;
 #ifdef UFS_RESP_DEBUG
@@ -894,6 +1036,11 @@ int ufs_init(const ufs_ops_t *ops, ufs_params_t *params)
 		ops->phy_init(&ufs_params);
 		result = ufshc_link_startup(ufs_params.reg_base);
 		assert(result == 0);
+
+		/* enable all interrupts */
+		data = UFS_INT_UCCS | UFS_INT_UHES | UFS_INT_UHXS | UFS_INT_UPMS;
+		data |= UFS_INT_UTRCS | UFS_INT_ERR;
+		mmio_write_32(ufs_params.reg_base + IE, data);
 
 		ufs_enum();
 
