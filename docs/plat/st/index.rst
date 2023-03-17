@@ -7,6 +7,7 @@ STMicroelectronics STM32 MPUs
 
    stm32mpus
    stm32mp1
+   stm32mp2
 
 --------------
 

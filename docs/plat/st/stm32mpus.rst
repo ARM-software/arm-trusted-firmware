@@ -4,7 +4,7 @@ STM32 MPUs
 STM32 MPUs are microprocessors designed by STMicroelectronics
 based on Arm Cortex-A. This page presents the common configuration of STM32
 MPUs, more details and dedicated configuration can be found in each STM32 MPU
-page (:ref:`STM32MP1`)
+page (:ref:`STM32MP1` or :ref:`STM32MP2`)
 
 Design
 ------
