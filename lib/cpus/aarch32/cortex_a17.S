@@ -159,6 +159,10 @@ func cortex_a17_cluster_pwr_dwn
 
 	bl	plat_disable_acp
 
+	/* Flush L2 caches */
+	mov	r0, #DC_OP_CISW
+	bl	dcsw_op_level2
+
 	/* Exit cluster coherency */
 	pop	{r12, lr}
 	b	cortex_a17_disable_smp
