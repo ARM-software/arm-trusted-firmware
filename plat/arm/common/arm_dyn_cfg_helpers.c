@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,11 +28,14 @@
  * Currently OP-TEE does not support reading DTBs from Secure memory
  * and this property should be removed when this feature is supported.
  */
-#define DTB_PROP_HW_SM_LOG_ADDR	"tpm_event_log_sm_addr"
+#define DTB_PROP_HW_SM_LOG_ADDR		"tpm_event_log_sm_addr"
 #endif /* SPD_opteed */
-#define DTB_PROP_HW_LOG_ADDR	"tpm_event_log_addr"
-#define DTB_PROP_HW_LOG_SIZE    "tpm_event_log_size"
+#define DTB_PROP_HW_LOG_ADDR		"tpm_event_log_addr"
+#define DTB_PROP_HW_LOG_SIZE    	"tpm_event_log_size"
+#define DTB_PROP_HW_LOG_MAX_SIZE	"tpm_event_log_max_size"
 #endif /* MEASURED_BOOT */
+
+static size_t event_log_max_size __unused;
 
 /*******************************************************************************
  * Validate the tb_fw_config is a valid DTB file and returns the node offset
@@ -180,6 +183,16 @@ static int arm_set_event_log_info(uintptr_t config_base,
 		return err;
 	}
 
+	assert(event_log_max_size != 0U);
+	err = fdtw_write_inplace_cells(dtb, node,
+				       DTB_PROP_HW_LOG_MAX_SIZE, 1,
+				       &event_log_max_size);
+	if (err < 0) {
+		ERROR("%sDTB property '%s'\n",
+		      "Unable to write ", DTB_PROP_HW_LOG_MAX_SIZE);
+		return err;
+	}
+
 	err = fdtw_write_inplace_cells(dtb, node,
 		DTB_PROP_HW_LOG_SIZE, 1, &log_size);
 	if (err < 0) {
@@ -294,7 +307,7 @@ int arm_set_nt_fw_info(
  *     0 = success
  *   < 0 = error
  */
-int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size)
+int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size, size_t log_max_size)
 {
 	/*
 	 * Read tb_fw_config device tree for Event Log properties
@@ -308,6 +321,8 @@ int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size)
 	assert(tb_fw_config_info != NULL);
 
 	tb_fw_cfg_dtb = tb_fw_config_info->config_addr;
+
+	event_log_max_size = log_max_size;
 
 	err = arm_set_event_log_info(tb_fw_cfg_dtb,
 #ifdef SPD_opteed
@@ -329,7 +344,8 @@ int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size)
  * Alongside returns Event Log address and its size.
  */
 
-int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size)
+int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size,
+		       size_t *log_max_size)
 {
 	/* As libfdt uses void *, we can't avoid this cast */
 	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
@@ -362,6 +378,17 @@ int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size)
 	if (rc != 0) {
 		ERROR("%s%s", DTB_PROP_HW_LOG_SIZE,
 		      " not specified in TB_FW config.\n");
+		return rc;
+	}
+
+	rc = fdt_read_uint32(dtb, node, DTB_PROP_HW_LOG_MAX_SIZE,
+			     (uint32_t *)log_max_size);
+	if (rc != 0) {
+		ERROR("%s%s", DTB_PROP_HW_LOG_MAX_SIZE,
+		      " not specified in TB_FW config.\n");
+		return rc;
+	} else {
+		event_log_max_size = *log_max_size;
 	}
 
 	return rc;

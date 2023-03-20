@@ -33,3 +33,11 @@ and this property should be removed when this feature is supported.
 - tpm_event_log_size [mandatory]
     - value type: <u32>
     - Event Log size.
+
+- tpm_event_log_max_size [mandatory]
+    - value type: <u32>
+    - Event Log maximum size.
+
+--------------
+
+*Copyright (c) 2023, Arm Limited and Contributors. All rights reserved.*

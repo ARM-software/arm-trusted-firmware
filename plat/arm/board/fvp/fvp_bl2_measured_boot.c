@@ -90,9 +90,11 @@ void bl2_plat_mboot_init(void)
 	uint8_t *event_log_start;
 	uint8_t *event_log_finish;
 	size_t bl1_event_log_size;
+	size_t event_log_max_size;
 	int rc;
 
-	rc = arm_get_tb_fw_info(&event_log_base, &bl1_event_log_size);
+	rc = arm_get_tb_fw_info(&event_log_base, &bl1_event_log_size,
+				&event_log_max_size);
 	if (rc != 0) {
 		ERROR("%s(): Unable to get Event Log info from TB_FW_CONFIG\n",
 		      __func__);
@@ -111,7 +113,7 @@ void bl2_plat_mboot_init(void)
 	event_log_start = (uint8_t *)((uintptr_t)event_log_base +
 				      bl1_event_log_size);
 	event_log_finish = (uint8_t *)((uintptr_t)event_log_base +
-				       PLAT_ARM_EVENT_LOG_MAX_SIZE);
+				       event_log_max_size);
 
 	event_log_init((uint8_t *)event_log_start, event_log_finish);
 

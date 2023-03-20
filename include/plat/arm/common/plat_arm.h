@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -267,8 +267,10 @@ int arm_set_nt_fw_info(
 			uintptr_t log_addr,
 #endif
 			size_t log_size, uintptr_t *ns_log_addr);
-int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size);
-int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size);
+int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size,
+		       size_t log_max_size);
+int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size,
+		       size_t *log_max_size);
 #endif /* MEASURED_BOOT */
 
 /*
