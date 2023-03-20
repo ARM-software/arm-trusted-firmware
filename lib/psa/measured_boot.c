@@ -80,22 +80,32 @@ rss_measured_boot_extend_measurement(uint8_t index,
 		.lock_measurement = lock_measurement,
 		.measurement_algo = measurement_algo,
 		.sw_type = {0},
-		/* Removing \0 */
-		.sw_type_size = (sw_type_size > 0) ? (sw_type_size - 1) : 0,
+		.sw_type_size = sw_type_size,
 	};
+
+	if (version_size > VERSION_MAX_SIZE) {
+		return PSA_ERROR_INVALID_ARGUMENT;
+	}
+
+
+	if (version_size > 0 && version[version_size - 1] == '\0') {
+		version_size--;
+	}
 
 	psa_invec in_vec[] = {
 		{.base = &extend_iov,
 			.len = sizeof(struct measured_boot_extend_iovec_t)},
 		{.base = signer_id, .len = signer_id_size},
-		{.base = version,
-			.len = (version_size > 0) ? (version_size - 1) : 0},
+		{.base = version, .len = version_size },
 		{.base = measurement_value, .len = measurement_value_size}
 	};
 
 	if (sw_type != NULL) {
 		if (extend_iov.sw_type_size > SW_TYPE_MAX_SIZE) {
 			return PSA_ERROR_INVALID_ARGUMENT;
+		}
+		if (sw_type_size > 0 && sw_type[sw_type_size - 1] == '\0') {
+			extend_iov.sw_type_size--;
 		}
 		memcpy(extend_iov.sw_type, sw_type, extend_iov.sw_type_size);
 	}
