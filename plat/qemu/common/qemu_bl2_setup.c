@@ -23,6 +23,28 @@
 
 #include "qemu_private.h"
 
+#define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
+					bl2_tzram_layout.total_base,	\
+					bl2_tzram_layout.total_size,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
+#define MAP_BL2_RO		MAP_REGION_FLAT(			\
+					BL_CODE_BASE,			\
+					BL_CODE_END - BL_CODE_BASE,	\
+					MT_CODE | MT_SECURE),		\
+				MAP_REGION_FLAT(			\
+					BL_RO_DATA_BASE,		\
+					BL_RO_DATA_END			\
+						- BL_RO_DATA_BASE,	\
+					MT_RO_DATA | MT_SECURE)
+
+#if USE_COHERENT_MEM
+#define MAP_BL_COHERENT_RAM	MAP_REGION_FLAT(			\
+					BL_COHERENT_RAM_BASE,		\
+					BL_COHERENT_RAM_END		\
+						- BL_COHERENT_RAM_BASE,	\
+					MT_DEVICE | MT_RW | MT_SECURE)
+#endif
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
@@ -83,19 +105,24 @@ void bl2_platform_setup(void)
 	/* TODO Initialize timer */
 }
 
-#ifdef __aarch64__
-#define QEMU_CONFIGURE_BL2_MMU(...)	qemu_configure_mmu_el1(__VA_ARGS__)
-#else
-#define QEMU_CONFIGURE_BL2_MMU(...)	qemu_configure_mmu_svc_mon(__VA_ARGS__)
-#endif
-
 void bl2_plat_arch_setup(void)
 {
-	QEMU_CONFIGURE_BL2_MMU(bl2_tzram_layout.total_base,
-			      bl2_tzram_layout.total_size,
-			      BL_CODE_BASE, BL_CODE_END,
-			      BL_RO_DATA_BASE, BL_RO_DATA_END,
-			      BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
+	const mmap_region_t bl_regions[] = {
+		MAP_BL2_TOTAL,
+		MAP_BL2_RO,
+#if USE_COHERENT_MEM
+		MAP_BL_COHERENT_RAM,
+#endif
+		{0}
+	};
+
+	setup_page_tables(bl_regions, plat_qemu_get_mmap());
+
+#ifdef __aarch64__
+	enable_mmu_el1(0);
+#else
+	enable_mmu_svc_mon(0);
+#endif
 }
 
 /*******************************************************************************

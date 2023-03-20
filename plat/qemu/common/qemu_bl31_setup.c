@@ -12,6 +12,28 @@
 
 #include "qemu_private.h"
 
+#define MAP_BL31_TOTAL		MAP_REGION_FLAT(			\
+					BL31_BASE,			\
+					BL31_END - BL31_BASE,		\
+					MT_MEMORY | MT_RW | EL3_PAS)
+#define MAP_BL31_RO		MAP_REGION_FLAT(			\
+					BL_CODE_BASE,			\
+					BL_CODE_END - BL_CODE_BASE,	\
+					MT_CODE | EL3_PAS),		\
+				MAP_REGION_FLAT(			\
+					BL_RO_DATA_BASE,		\
+					BL_RO_DATA_END			\
+						- BL_RO_DATA_BASE,	\
+					MT_RO_DATA | EL3_PAS)
+
+#if USE_COHERENT_MEM
+#define MAP_BL_COHERENT_RAM	MAP_REGION_FLAT(			\
+					BL_COHERENT_RAM_BASE,		\
+					BL_COHERENT_RAM_END		\
+						- BL_COHERENT_RAM_BASE,	\
+					MT_DEVICE | MT_RW | EL3_PAS)
+#endif
+
 /*
  * Placeholder variables for copying the arguments that have been passed to
  * BL3-1 from BL2.
@@ -64,10 +86,18 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
-	qemu_configure_mmu_el3(BL31_BASE, (BL31_END - BL31_BASE),
-			      BL_CODE_BASE, BL_CODE_END,
-			      BL_RO_DATA_BASE, BL_RO_DATA_END,
-			      BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
+	const mmap_region_t bl_regions[] = {
+		MAP_BL31_TOTAL,
+		MAP_BL31_RO,
+#if USE_COHERENT_MEM
+		MAP_BL_COHERENT_RAM,
+#endif
+		{0}
+	};
+
+	setup_page_tables(bl_regions, plat_qemu_get_mmap());
+
+	enable_mmu_el3(0);
 }
 
 static void qemu_gpio_init(void)

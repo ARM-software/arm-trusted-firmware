@@ -14,6 +14,29 @@
 
 #include "qemu_private.h"
 
+#define MAP_BL1_TOTAL		MAP_REGION_FLAT(			\
+					bl1_tzram_layout.total_base,	\
+					bl1_tzram_layout.total_size,	\
+					MT_MEMORY | MT_RW | EL3_PAS)
+
+#define MAP_BL1_RO		MAP_REGION_FLAT(			\
+					BL_CODE_BASE,			\
+					BL1_CODE_END - BL_CODE_BASE,	\
+					MT_CODE | EL3_PAS),		\
+				MAP_REGION_FLAT(			\
+					BL1_RO_DATA_BASE,		\
+					BL1_RO_DATA_END			\
+						- BL_RO_DATA_BASE,	\
+					MT_RO_DATA | EL3_PAS)
+
+#if USE_COHERENT_MEM
+#define MAP_BL_COHERENT_RAM	MAP_REGION_FLAT(			\
+					BL_COHERENT_RAM_BASE,		\
+					BL_COHERENT_RAM_END		\
+						- BL_COHERENT_RAM_BASE,	\
+					MT_DEVICE | MT_RW | EL3_PAS)
+#endif
+
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
 
@@ -49,11 +72,21 @@ void bl1_early_platform_setup(void)
 
 void bl1_plat_arch_setup(void)
 {
-	QEMU_CONFIGURE_BL1_MMU(bl1_tzram_layout.total_base,
-				bl1_tzram_layout.total_size,
-				BL_CODE_BASE, BL1_CODE_END,
-				BL1_RO_DATA_BASE, BL1_RO_DATA_END,
-				BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
+	const mmap_region_t bl_regions[] = {
+		MAP_BL1_TOTAL,
+		MAP_BL1_RO,
+#if USE_COHERENT_MEM
+		MAP_BL_COHERENT_RAM,
+#endif
+		{0}
+	};
+
+	setup_page_tables(bl_regions, plat_qemu_get_mmap());
+#ifdef __aarch64__
+	enable_mmu_el3(0);
+#else
+	enable_mmu_svc_mon(0);
+#endif
 }
 
 void bl1_platform_setup(void)

@@ -19,6 +19,11 @@ endif
 # Enable new version of image loading on QEMU platforms
 LOAD_IMAGE_V2		:=	1
 
+CTX_INCLUDE_AARCH32_REGS := 0
+ifeq (${CTX_INCLUDE_AARCH32_REGS}, 1)
+$(error "This is an AArch64-only port; CTX_INCLUDE_AARCH32_REGS must be disabled")
+endif
+
 ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
@@ -36,6 +41,18 @@ PLAT_BL_COMMON_SOURCES	:=	${PLAT_QEMU_COMMON_PATH}/qemu_common.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_console.c		\
 				drivers/arm/pl011/${ARCH}/pl011_console.S
 
+# Treating this as a memory-constrained port for now
+USE_COHERENT_MEM	:=	0
+
+# This can be overridden depending on CPU(s) used in the QEMU image
+HW_ASSISTED_COHERENCY	:=	1
+
+QEMU_CPU_LIBS		:=	lib/cpus/aarch64/cortex_a57.S			\
+				lib/cpus/aarch64/cortex_a72.S			\
+				lib/cpus/aarch64/neoverse_n_common.S		\
+				lib/cpus/aarch64/neoverse_n1.S			\
+				lib/cpus/aarch64/qemu_max.S
+
 include lib/xlat_tables_v2/xlat_tables.mk
 PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
@@ -49,9 +66,7 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				${PLAT_QEMU_COMMON_PATH}/${ARCH}/plat_helpers.S	\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl1_setup.c
 
-BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a57.S			\
-				lib/cpus/aarch64/cortex_a72.S			\
-				lib/cpus/aarch64/qemu_max.S			\
+BL1_SOURCES		+=	${QEMU_CPU_LIBS}
 
 BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
 				drivers/io/io_storage.c				\
@@ -77,9 +92,7 @@ QEMU_GIC_SOURCES	:=	${GICV3_SOURCES}				\
 				plat/common/plat_gicv3.c			\
 				${PLAT_QEMU_COMMON_PATH}/qemu_gicv3.c
 
-BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a57.S			\
-				lib/cpus/aarch64/cortex_a72.S			\
-				lib/cpus/aarch64/qemu_max.S			\
+BL31_SOURCES		+=	${QEMU_CPU_LIBS}				\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/common/plat_psci_common.c			\
