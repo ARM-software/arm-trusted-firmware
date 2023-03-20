@@ -3,6 +3,18 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.1..refs/tags/lts-v2.8.2) (2023-03-20)
+
+### Resolved issues (since lts-v2.8.1)
+
+- **Platforms**
+
+  - **Xilinx**
+
+    - **ZynqMP**
+
+      - fix(zynqmp): enable A53 workaround(errata 1530924) ([3c5ba11ca] (https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3c5ba11ca800e41e36ea97b696cd3ce9c64d5412)))
+
 ## [lts-2.8.1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.0..refs/tags/lts-v2.8.1) (2023-02-28)
 
 ### Resolved issues (since lts-v2.8.0)
