@@ -38,13 +38,24 @@ define uppercase
 $(eval uppercase_result:=$(call uppercase_internal,$(uppercase_table),$(1)))$(uppercase_result)
 endef
 
+# Convenience function for setting a variable to 0 if not previously set
+# $(eval $(call default_zero,FOO))
+define default_zero
+	$(eval $(1) ?= 0)
+endef
+
+# Convenience function for setting a list of variables to 0 if not previously set
+# $(eval $(call default_zeros,FOO BAR))
+define default_zeros
+	$(foreach var,$1,$(eval $(call default_zero,$(var))))
+endef
+
 # Convenience function for adding build definitions
 # $(eval $(call add_define,FOO)) will have:
 # -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
 define add_define
     DEFINES			+=	-D$(1)$(if $(value $(1)),=$(value $(1)),)
 endef
-
 
 # Convenience function for addding multiple build definitions
 # $(eval $(call add_defines,FOO BOO))
