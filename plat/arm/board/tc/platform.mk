@@ -161,7 +161,7 @@ override CTX_INCLUDE_AARCH32_REGS	:= 0
 
 override CTX_INCLUDE_PAUTH_REGS	:= 1
 
-override ENABLE_SPE_FOR_LOWER_ELS	:= 0
+override ENABLE_SPE_FOR_NS	:= 0
 
 override ENABLE_AMU := 1
 override ENABLE_AMU_AUXILIARY_COUNTERS := 1

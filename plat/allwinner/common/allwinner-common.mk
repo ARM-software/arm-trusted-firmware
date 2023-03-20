@@ -87,7 +87,7 @@ endif
 COLD_BOOT_SINGLE_CPU		:=	1
 
 # Do not enable SPE (not supported on ARM v8.0).
-ENABLE_SPE_FOR_LOWER_ELS	:=	0
+ENABLE_SPE_FOR_NS		:=	0
 
 # Do not enable SVE (not supported on ARM v8.0).
 ENABLE_SVE_FOR_NS		:=	0

@@ -193,7 +193,6 @@
 // Only if MTE registers in use
 #define CTX_TFSR_EL2		U(0x100)
 
-// Only if ENABLE_MPAM_FOR_LOWER_ELS==1
 #define CTX_MPAM2_EL2		U(0x108)
 #define CTX_MPAMHCR_EL2		U(0x110)
 #define CTX_MPAMVPM0_EL2	U(0x118)
@@ -514,26 +513,14 @@ void el1_sysregs_context_restore(el1_sysregs_t *regs);
 #if CTX_INCLUDE_EL2_REGS
 void el2_sysregs_context_save_common(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_common(el2_sysregs_t *regs);
-#if ENABLE_SPE_FOR_LOWER_ELS
-void el2_sysregs_context_save_spe(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_spe(el2_sysregs_t *regs);
-#endif /* ENABLE_SPE_FOR_LOWER_ELS */
 #if CTX_INCLUDE_MTE_REGS
 void el2_sysregs_context_save_mte(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_mte(el2_sysregs_t *regs);
 #endif /* CTX_INCLUDE_MTE_REGS */
-#if ENABLE_MPAM_FOR_LOWER_ELS
-void el2_sysregs_context_save_mpam(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_mpam(el2_sysregs_t *regs);
-#endif /* ENABLE_MPAM_FOR_LOWER_ELS */
 #if ENABLE_FEAT_ECV
 void el2_sysregs_context_save_ecv(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_ecv(el2_sysregs_t *regs);
 #endif /* ENABLE_FEAT_ECV */
-#if ENABLE_FEAT_VHE
-void el2_sysregs_context_save_vhe(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_vhe(el2_sysregs_t *regs);
-#endif /* ENABLE_FEAT_VHE */
 #if RAS_EXTENSION
 void el2_sysregs_context_save_ras(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_ras(el2_sysregs_t *regs);

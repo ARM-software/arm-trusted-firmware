@@ -90,16 +90,6 @@ static void read_feat_pan(void)
 #endif
 }
 
-/******************************************************
- * Feature : FEAT_VHE (Virtualization Host Extensions)
- *****************************************************/
-static void read_feat_vhe(void)
-{
-#if (ENABLE_FEAT_VHE == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_1_vhe_present(), "VHE");
-#endif
-}
-
 /*******************************************************************************
  * Feature : FEAT_RAS (Reliability, Availability, and Serviceability Extension)
  ******************************************************************************/
@@ -127,16 +117,6 @@ static void read_feat_dit(void)
 {
 #if (ENABLE_FEAT_DIT == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_4_feat_dit_present(), "DIT");
-#endif
-}
-
-/****************************************************************************
- * Feature : FEAT_MPAM (Memory Partitioning and Monitoring (MPAM) Extension)
- ***************************************************************************/
-static void read_feat_mpam(void)
-{
-#if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_ALWAYS)
-	feat_detect_panic(get_mpam_version() != 0U, "MPAM");
 #endif
 }
 
@@ -281,7 +261,7 @@ void detect_arch_features(void)
 
 	/* v8.1 features */
 	read_feat_pan();
-	read_feat_vhe();
+	check_feature(ENABLE_FEAT_VHE, read_feat_vhe_id_field(), "VHE", 1, 1);
 
 	/* v8.2 features */
 	read_feat_ras();
@@ -293,7 +273,8 @@ void detect_arch_features(void)
 	read_feat_dit();
 	check_feature(ENABLE_FEAT_AMUv1, read_feat_amu_id_field(),
 		      "AMUv1", 1, 2);
-	read_feat_mpam();
+	check_feature(ENABLE_MPAM_FOR_LOWER_ELS, read_feat_mpam_version(),
+		      "MPAM", 1, 1);
 	read_feat_nv2();
 	read_feat_sel2();
 	check_feature(ENABLE_TRF_FOR_NS, read_feat_trf_id_field(),

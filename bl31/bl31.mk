@@ -87,7 +87,7 @@ BL31_SOURCES		+=	services/std_svc/trng/trng_main.c	\
 				services/std_svc/trng/trng_entropy_pool.c
 endif
 
-ifeq (${ENABLE_SPE_FOR_LOWER_ELS},1)
+ifneq (${ENABLE_SPE_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/spe/spe.c
 endif
 
@@ -108,7 +108,7 @@ BL31_SOURCES		+=	lib/extensions/sve/sve.c
 endif
 endif
 
-ifeq (${ENABLE_MPAM_FOR_LOWER_ELS},1)
+ifneq (${ENABLE_MPAM_FOR_LOWER_ELS},0)
 BL31_SOURCES		+=	lib/extensions/mpam/mpam.c
 endif
 

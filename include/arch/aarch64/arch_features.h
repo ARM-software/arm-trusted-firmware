@@ -27,10 +27,22 @@ static inline bool is_armv8_1_pan_present(void)
 		ID_AA64MMFR1_EL1_PAN_MASK) != 0U;
 }
 
-static inline bool is_armv8_1_vhe_present(void)
+static inline unsigned int read_feat_vhe_id_field(void)
 {
-	return ((read_id_aa64mmfr1_el1() >> ID_AA64MMFR1_EL1_VHE_SHIFT) &
-		ID_AA64MMFR1_EL1_VHE_MASK) != 0U;
+	return ISOLATE_FIELD(read_id_aa64mmfr1_el1(), ID_AA64MMFR1_EL1_VHE);
+}
+
+static inline bool is_feat_vhe_supported(void)
+{
+	if (ENABLE_FEAT_VHE == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_VHE == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_vhe_id_field() != 0U;
 }
 
 static inline bool is_armv8_2_ttcnp_present(void)
@@ -184,12 +196,25 @@ static inline bool is_armv8_6_feat_amuv1p1_present(void)
  * 0x11: v1.1 Armv8.4 or later
  *
  */
-static inline unsigned int get_mpam_version(void)
+static inline unsigned int read_feat_mpam_version(void)
 {
 	return (unsigned int)((((read_id_aa64pfr0_el1() >>
 		ID_AA64PFR0_MPAM_SHIFT) & ID_AA64PFR0_MPAM_MASK) << 4) |
 				((read_id_aa64pfr1_el1() >>
 		ID_AA64PFR1_MPAM_FRAC_SHIFT) & ID_AA64PFR1_MPAM_FRAC_MASK));
+}
+
+static inline bool is_feat_mpam_supported(void)
+{
+	if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_mpam_version() != 0U;
 }
 
 static inline unsigned int read_feat_hcx_id_field(void)
@@ -249,10 +274,22 @@ static inline bool is_armv8_0_feat_csv2_2_present(void)
 /**********************************************************************************
  * Function to identify the presence of FEAT_SPE (Statistical Profiling Extension)
  *********************************************************************************/
-static inline bool is_armv8_2_feat_spe_present(void)
+static inline unsigned int read_feat_spe_id_field(void)
 {
-	return (((read_id_aa64dfr0_el1() >> ID_AA64DFR0_PMS_SHIFT) &
-		ID_AA64DFR0_PMS_MASK) != ID_AA64DFR0_SPE_NOT_SUPPORTED);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_PMS);
+}
+
+static inline bool is_feat_spe_supported(void)
+{
+	if (ENABLE_SPE_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_SPE_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_spe_id_field() != 0U;
 }
 
 /*******************************************************************************

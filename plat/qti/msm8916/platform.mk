@@ -44,7 +44,7 @@ WARMBOOT_ENABLE_DCACHE_EARLY	:= 1
 
 # Disable features unsupported in ARMv8.0
 ENABLE_AMU			:= 0
-ENABLE_SPE_FOR_LOWER_ELS	:= 0
+ENABLE_SPE_FOR_NS		:= 0
 ENABLE_SVE_FOR_NS		:= 0
 
 # MSM8916 uses ARM Cortex-A53 r0p0 so likely all the errata apply

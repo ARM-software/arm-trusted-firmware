@@ -364,7 +364,7 @@ static void fpga_prepare_dtb(void)
 	fpga_dtb_update_clock(fdt, system_freq);
 
 	/* Check whether we support the SPE PMU. Remove the DT node if not. */
-	if (!spe_supported()) {
+	if (!is_feat_spe_supported()) {
 		int node = fdt_node_offset_by_compatible(fdt, 0,
 				     "arm,statistical-profiling-extension-v1");
 

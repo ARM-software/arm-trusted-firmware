@@ -428,10 +428,11 @@ Common build options
    handle context switching for SME, SVE, and FPU/SIMD registers to ensure that
    no data is leaked to non-secure world. This is experimental. Default is 0.
 
--  ``ENABLE_SPE_FOR_LOWER_ELS`` : Boolean option to enable Statistical Profiling
+-  ``ENABLE_SPE_FOR_NS`` : Numeric value to enable Statistical Profiling
    extensions. This is an optional architectural feature for AArch64.
-   The default is 1 but is automatically disabled when the target architecture
-   is AArch32.
+   This flag can take the values 0 to 2, to align with the ``FEATURE_DETECTION``
+   mechanism. The default is 2 but is automatically disabled when the target
+   architecture is AArch32.
 
 -  ``ENABLE_SVE_FOR_NS``: Boolean option to enable Scalable Vector Extension
    (SVE) for the Non-secure world only. SVE is an optional architectural feature
