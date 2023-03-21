@@ -94,7 +94,7 @@ func rainier_reset_func
 	bl	errata_n1_1868343_wa
 #endif
 
-#if ENABLE_AMU
+#if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, actlr_el3
 	orr	x0, x0, #RAINIER_ACTLR_AMEN_BIT

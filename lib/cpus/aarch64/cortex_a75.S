@@ -121,7 +121,7 @@ func cortex_a75_reset_func
 	bl	errata_dsu_936184_wa
 #endif
 
-#if ENABLE_AMU
+#if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, actlr_el3
 	orr	x0, x0, #CORTEX_A75_ACTLR_AMEN_BIT

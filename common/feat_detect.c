@@ -187,7 +187,7 @@ void detect_arch_features(void)
 
 	/* v8.4 features */
 	read_feat_dit();
-	check_feature(ENABLE_FEAT_AMUv1, read_feat_amu_id_field(),
+	check_feature(ENABLE_FEAT_AMU, read_feat_amu_id_field(),
 		      "AMUv1", 1, 2);
 	check_feature(ENABLE_MPAM_FOR_LOWER_ELS, read_feat_mpam_version(),
 		      "MPAM", 1, 17);

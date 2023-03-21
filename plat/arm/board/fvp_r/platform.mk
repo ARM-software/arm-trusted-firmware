@@ -69,7 +69,7 @@ FVP_R_BL_COMMON_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
 endif
 
 # Enable Activity Monitor Unit extensions by default
-ENABLE_AMU			:=	1
+ENABLE_FEAT_AMU			:=	2
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
 FVP_R_BL_COMMON_SOURCES	+=	plat/arm/board/fvp_r/fvp_r_stack_protector.c

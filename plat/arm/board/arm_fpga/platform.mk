@@ -33,7 +33,7 @@ $(eval $(call add_define,FPGA_PRELOADED_DTB_BASE))
 FPGA_PRELOADED_CMD_LINE := 0x1000
 $(eval $(call add_define,FPGA_PRELOADED_CMD_LINE))
 
-ENABLE_AMU		:=	1
+ENABLE_FEAT_AMU		:=	2
 
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0

@@ -214,7 +214,7 @@ func cortex_a78_ae_reset_func
 	bl	errata_a78_ae_2395408_wa
 #endif
 
-#if ENABLE_AMU
+#if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, actlr_el3
 	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT

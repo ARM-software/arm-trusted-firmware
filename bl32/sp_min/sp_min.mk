@@ -28,7 +28,7 @@ ifeq (${ENABLE_PMF}, 1)
 BL32_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
-ifeq (${ENABLE_AMU},1)
+ifneq (${ENABLE_FEAT_AMU},0)
 BL32_SOURCES		+=	${AMU_SOURCES}
 endif
 

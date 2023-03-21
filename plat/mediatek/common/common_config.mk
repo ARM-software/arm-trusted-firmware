@@ -19,7 +19,7 @@ GIC_DEBUG := 0
 ENABLE_STACK_PROTECTOR := strong
 # AMU, Kernel will access amuserenr_el0 if PE supported
 # Firmware _must_ implement AMU support
-ENABLE_AMU := 1
+ENABLE_FEAT_AMU := 2
 VENDOR_EXTEND_PUBEVENT_ENABLE := 1
 
 # MTK define options

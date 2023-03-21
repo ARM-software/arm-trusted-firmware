@@ -136,7 +136,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 static void enable_extensions_nonsecure(bool el2_unused)
 {
 #if IMAGE_BL32
-#if ENABLE_AMU
+#if ENABLE_FEAT_AMU
 	amu_enable(el2_unused);
 #endif
 

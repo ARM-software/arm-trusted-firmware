@@ -319,12 +319,12 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config,${FVP_HW_CONFIG}))
 endif
 
 # Enable Activity Monitor Unit extensions by default
-ENABLE_AMU			:=	1
+ENABLE_FEAT_AMU			:=	2
 
 # Enable dynamic mitigation support by default
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 
-ifeq (${ENABLE_AMU},1)
+ifneq (${ENABLE_FEAT_AMU},0)
 BL31_SOURCES		+=	lib/cpus/aarch64/cpuamu.c		\
 				lib/cpus/aarch64/cpuamu_helpers.S
 

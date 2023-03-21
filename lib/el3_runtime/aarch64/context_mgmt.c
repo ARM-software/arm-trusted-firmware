@@ -485,7 +485,7 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 		spe_enable(el2_unused);
 	}
 
-#if ENABLE_AMU
+#if ENABLE_FEAT_AMU
 	amu_enable(el2_unused, ctx);
 #endif
 
