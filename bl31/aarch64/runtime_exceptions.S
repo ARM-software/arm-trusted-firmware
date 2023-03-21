@@ -55,7 +55,7 @@
 	 * delegated to platform EA handler.
 	 *
 	 * Without RAS_EXTENSION, this macro synchronizes pending errors using
-         * a DSB, unmasks Asynchronous External Aborts and saves X30 before
+	 * a DSB, unmasks Asynchronous External Aborts and saves X30 before
 	 * setting the flag CTX_IS_IN_EL3.
 	 */
 	.macro check_and_unmask_ea
@@ -506,6 +506,17 @@ sync_handler64:
 	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
 	bfi	x7, x18, #0, #1
 
+	mov	sp, x12
+
+	/*
+	 * Per SMCCC documentation, bits [23:17] must be zero for Fast
+	 * SMCs. Other values are reserved for future use. Ensure that
+	 * these bits are zeroes, if not report as unknown SMC.
+	 */
+	tbz	x0, #FUNCID_TYPE_SHIFT, 2f  /* Skip check if its a Yield Call*/
+	tst	x0, #(FUNCID_FC_RESERVED_MASK << FUNCID_FC_RESERVED_SHIFT)
+	b.ne	smc_unknown
+
 	/*
 	 * Per SMCCCv1.3 a caller can set the SVE hint bit in the SMC FID
 	 * passed through x0. Copy the SVE hint bit to flags and mask the
@@ -513,10 +524,9 @@ sync_handler64:
 	 * A service/dispatcher can retrieve the SVE hint bit state from
 	 * flags using the appropriate helper.
 	 */
+2:
 	bfi	x7, x0, #FUNCID_SVE_HINT_SHIFT, #FUNCID_SVE_HINT_MASK
 	bic	x0, x0, #(FUNCID_SVE_HINT_MASK << FUNCID_SVE_HINT_SHIFT)
-
-	mov	sp, x12
 
 	/* Get the unique owning entity number */
 	ubfx	x16, x0, #FUNCID_OEN_SHIFT, #FUNCID_OEN_WIDTH
@@ -584,7 +594,7 @@ smc_unknown:
 	 * Unknown SMC call. Populate return value with SMC_UNK and call
 	 * el3_exit() which will restore the remaining architectural state
 	 * i.e., SYS, GP and PAuth registers(if any) prior to issuing the ERET
-         * to the desired lower EL.
+	 * to the desired lower EL.
 	 */
 	mov	x0, #SMC_UNK
 	str	x0, [x6, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
