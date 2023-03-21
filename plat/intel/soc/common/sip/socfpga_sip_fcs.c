@@ -1269,7 +1269,7 @@ int intel_fcs_mac_verify_smmu_update_finalize(uint32_t session_id,
 		memcpy((uint8_t *) &payload[i], (uint8_t *) mac_offset,
 		src_size - data_size);
 
-		memset((void *)&dst_addr, 0, sizeof(dst_size));
+		memset((void *) dst_addr, 0, *dst_size);
 
 		i += (src_size - data_size) / MBOX_WORD_BYTE;
 	}
@@ -1874,7 +1874,7 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_i
 		memcpy((uint8_t *) &payload[i], (uint8_t *) sig_pubkey_offset,
 			src_size - data_size);
 
-		memset((void *)&dst_addr, 0, sizeof(dst_size));
+		memset((void *) dst_addr, 0, *dst_size);
 
 		i += (src_size - data_size) / MBOX_WORD_BYTE;
 	}
