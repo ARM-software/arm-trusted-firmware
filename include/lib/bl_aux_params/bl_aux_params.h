@@ -13,7 +13,7 @@
 
 /*
  * Handler function that handles an individual aux parameter. Return true if
- * the parameter was handled, and flase if bl_aux_params_parse() should make its
+ * the parameter was handled, and false if bl_aux_params_parse() should make its
  * own attempt at handling it (for generic parameters).
  */
 typedef bool (*bl_aux_param_handler_t)(struct bl_aux_param_header *param);
