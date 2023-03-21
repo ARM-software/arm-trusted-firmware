@@ -274,7 +274,7 @@ void detect_arch_features(void)
 	check_feature(ENABLE_FEAT_AMUv1, read_feat_amu_id_field(),
 		      "AMUv1", 1, 2);
 	check_feature(ENABLE_MPAM_FOR_LOWER_ELS, read_feat_mpam_version(),
-		      "MPAM", 1, 1);
+		      "MPAM", 1, 17);
 	read_feat_nv2();
 	read_feat_sel2();
 	check_feature(ENABLE_TRF_FOR_NS, read_feat_trf_id_field(),
