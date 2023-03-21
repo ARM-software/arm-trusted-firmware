@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,9 @@
 	_func(MTK_SIP_APUSYS_CONTROL, 0x51E) \
 	_func(MTK_SIP_DP_CONTROL, 0x523) \
 	_func(MTK_SIP_KERNEL_GIC_OP, 0x526)
+
+#define MTK_SIP_SMC_FROM_S_EL1_TABLE(_func) \
+	_func(MTK_SIP_TEE_MPU_PERM_SET, 0x031)
 
 #define MTK_SIP_SMC_FROM_BL33_TABLE(_func) \
 	_func(MTK_SIP_KERNEL_BOOT, 0x115)

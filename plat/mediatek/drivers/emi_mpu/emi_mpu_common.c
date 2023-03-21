@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <lib/mmio.h>
 #include <emi_mpu.h>
 #include <lib/mtk_init/mtk_init.h>
+#include <mtk_sip_svc.h>
 
 #if ENABLE_EMI_MPU_SW_LOCK
 static unsigned char region_lock_state[EMI_MPU_REGION_NUM];
@@ -110,6 +111,16 @@ int emi_mpu_set_protection(struct emi_region_info_t *region_info)
 
 	return 0;
 }
+
+u_register_t mtk_emi_mpu_sip_handler(u_register_t x1, u_register_t x2,
+				     u_register_t x3, u_register_t x4,
+				     void *handle, struct smccc_res *smccc_ret)
+{
+	/* TODO: implement emi mpu handler */
+
+	return 0;
+}
+DECLARE_SMC_HANDLER(MTK_SIP_TEE_MPU_PERM_SET, mtk_emi_mpu_sip_handler);
 
 int emi_mpu_init(void)
 {

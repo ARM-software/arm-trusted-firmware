@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,6 +93,15 @@ struct emi_region_info_t {
 	unsigned int apc[EMI_MPU_DGROUP_NUM];
 };
 
+enum MPU_REQ_ORIGIN_ZONE_ID {
+	MPU_REQ_ORIGIN_TEE_ZONE_SVP = 0,
+	MPU_REQ_ORIGIN_TEE_ZONE_TUI = 1,
+	MPU_REQ_ORIGIN_TEE_ZONE_WFD = 2,
+	MPU_REQ_ORIGIN_TEE_ZONE_MAX = 3,
+	MPU_REQ_ORIGIN_ZONE_INVALID = 0x7FFFFFFF,
+};
+
 void emi_mpu_init(void);
+int32_t emi_mpu_sip_handler(uint64_t encoded_addr, uint64_t zone_size, uint64_t zone_info);
 
 #endif
