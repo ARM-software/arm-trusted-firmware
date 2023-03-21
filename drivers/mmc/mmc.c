@@ -452,11 +452,6 @@ static int mmc_send_op_cond(void)
 	int ret, n;
 	unsigned int resp_data[4];
 
-	ret = mmc_reset_to_idle();
-	if (ret != 0) {
-		return ret;
-	}
-
 	for (n = 0; n < SEND_OP_COND_MAX_RETRIES; n++) {
 		ret = mmc_send_cmd(MMC_CMD(1), OCR_SECTOR_MODE |
 				   OCR_VDD_MIN_2V7 | OCR_VDD_MIN_1V7,
