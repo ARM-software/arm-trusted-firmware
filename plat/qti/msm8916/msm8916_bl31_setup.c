@@ -119,8 +119,8 @@ static void msm8916_configure_timer(void)
 	/* Set timer frequency */
 	mmio_write_32(APCS_QTMR + CNTCTLBASE_CNTFRQ, plat_get_syscnt_freq2());
 
-	/* Make frame 0 available to non-secure world */
-	mmio_write_32(APCS_QTMR + CNTNSAR, BIT_32(CNTNSAR_NS_SHIFT(0)));
+	/* Make all timer frames available to non-secure world */
+	mmio_write_32(APCS_QTMR + CNTNSAR, GENMASK_32(7, 0));
 }
 
 /*
