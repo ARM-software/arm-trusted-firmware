@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,4 +39,10 @@ void sbsa_wdog_start(uintptr_t base, uint64_t ms)
 void sbsa_wdog_stop(uintptr_t base)
 {
 	mmio_write_32(base + SBSA_WDOG_WCS_OFFSET, (0x0));
+}
+
+/* Refresh the secure watchdog timer explicitly */
+void sbsa_wdog_refresh(uintptr_t refresh_base)
+{
+	mmio_write_32(refresh_base + SBSA_WDOG_WRR_OFFSET, SBSA_WDOG_WRR_REFRESH);
 }

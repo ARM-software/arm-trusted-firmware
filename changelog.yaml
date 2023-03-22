@@ -877,6 +877,9 @@ subsections:
                 deprecated:
                   - drivers/tzc380
 
+          - title: SBSA
+            scope: sbsa
+
       - title: Marvell
         scope: marvell-drivers
 
