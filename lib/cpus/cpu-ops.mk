@@ -1081,7 +1081,11 @@ ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
 endif
 
 # process all flags
+ifeq (${ENABLE_ERRATA_ALL},1)
+$(eval $(call default_ones, $(CPU_FLAG_LIST)))
+else
 $(eval $(call default_zeros, $(CPU_FLAG_LIST)))
+endif
 $(eval $(call add_defines, $(CPU_FLAG_LIST)))
 $(eval $(call assert_booleans, $(CPU_FLAG_LIST)))
 
