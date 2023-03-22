@@ -10,7 +10,7 @@
 #if ENABLE_TRF_FOR_NS
 void trf_enable(void);
 #else
-void trf_enable(void)
+static inline void trf_enable(void)
 {
 }
 #endif /* ENABLE_TRF_FOR_NS */

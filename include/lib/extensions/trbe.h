@@ -10,7 +10,7 @@
 #if ENABLE_TRBE_FOR_NS
 void trbe_enable(void);
 #else
-void trbe_enable(void)
+static inline void trbe_enable(void)
 {
 }
 #endif /* ENABLE_TRBE_FOR_NS */
