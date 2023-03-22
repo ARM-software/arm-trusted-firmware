@@ -14,38 +14,6 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-#ifdef TARGET_PLATFORM_FVP
-/*
- * Platform information structure stored in SDS.
- * This structure holds information about platform's DDR
- * size which is an information about multichip setup
- *	- Local DDR size in bytes, DDR memory in main board
- */
-struct morello_plat_info {
-	uint64_t local_ddr_size;
-} __packed;
-#else
-/*
- * Platform information structure stored in SDS.
- * This structure holds information about platform's DDR
- * size which is an information about multichip setup
- *	- Local DDR size in bytes, DDR memory in main board
- *	- Remote DDR size in bytes, DDR memory in remote board
- *	- remote_chip_count
- *	- multichip mode
- *	- scc configuration
- *	- silicon revision
- */
-struct morello_plat_info {
-	uint64_t local_ddr_size;
-	uint64_t remote_ddr_size;
-	uint8_t remote_chip_count;
-	bool multichip_mode;
-	uint32_t scc_config;
-	uint32_t silicon_revision;
-} __packed;
-#endif
-
 /* In client mode, a part of the DDR memory is reserved for Tag bits.
  * Calculate the usable memory size after subtracting the Tag memory.
  */
