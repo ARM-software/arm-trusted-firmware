@@ -364,6 +364,7 @@ extern const unsigned int arm_pm_idle_states[];
 /* secure watchdog */
 void plat_arm_secure_wdt_start(void);
 void plat_arm_secure_wdt_stop(void);
+void plat_arm_secure_wdt_refresh(void);
 
 /* Get SOC-ID of ARM platform */
 uint32_t plat_arm_get_soc_id(void);

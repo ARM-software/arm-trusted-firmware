@@ -13,6 +13,7 @@
 #include <common/debug.h>
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
+#include <drivers/arm/sbsa.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <plat/arm/common/plat_arm.h>
@@ -81,3 +82,37 @@ void __init bl31_plat_arch_setup(void)
 
 	fconf_populate("HW_CONFIG", hw_config_info->config_addr);
 }
+
+#if defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)
+void tc_bl31_plat_runtime_setup(void)
+{
+	arm_bl31_plat_runtime_setup();
+
+	/* Start secure watchdog timer. */
+	plat_arm_secure_wdt_start();
+}
+
+void bl31_plat_runtime_setup(void)
+{
+	tc_bl31_plat_runtime_setup();
+}
+
+/*
+ * Platform handler for Group0 secure interrupt.
+ */
+int plat_spmd_handle_group0_interrupt(uint32_t intid)
+{
+	/* Trusted Watchdog timer is the only source of Group0 interrupt now. */
+	if (intid == SBSA_SECURE_WDOG_INTID) {
+		INFO("Watchdog restarted\n");
+		/* Refresh the timer. */
+		plat_arm_secure_wdt_refresh();
+
+		/* Deactivate the corresponding interrupt. */
+		plat_ic_end_of_interrupt(intid);
+		return 0;
+	}
+
+	return -1;
+}
+#endif /*defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)*/
