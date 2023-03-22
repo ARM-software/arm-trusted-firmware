@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2021-2023, Stephan Gerhold <stephan@gerhold.net>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,10 +121,6 @@ static void msm8916_configure_timer(void)
 
 	/* Make frame 0 available to non-secure world */
 	mmio_write_32(APCS_QTMR + CNTNSAR, BIT_32(CNTNSAR_NS_SHIFT(0)));
-	mmio_write_32(APCS_QTMR + CNTACR_BASE(0),
-		      BIT_32(CNTACR_RPCT_SHIFT) | BIT_32(CNTACR_RVCT_SHIFT) |
-		      BIT_32(CNTACR_RFRQ_SHIFT) | BIT_32(CNTACR_RVOFF_SHIFT) |
-		      BIT_32(CNTACR_RWVT_SHIFT) | BIT_32(CNTACR_RWPT_SHIFT));
 }
 
 /*
