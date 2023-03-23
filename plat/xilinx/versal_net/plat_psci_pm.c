@@ -196,7 +196,6 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
 	int32_t pstate = psci_get_pstate_type(power_state);
-	uint64_t i;
 
 	assert(req_state);
 
@@ -204,8 +203,7 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 	if (pstate == PSTATE_TYPE_STANDBY) {
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
 	} else {
-		for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
-			req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
 	}
 
 	/* We expect the 'state id' to be zero */
