@@ -46,13 +46,6 @@
 #define PM_LOAD_PDI			0x701U
 #define PM_LOAD_GET_HANDOFF_PARAMS	0x70BU
 
-/* IOCTL IDs for clock driver */
-#define IOCTL_SET_PLL_FRAC_MODE		8U
-#define	IOCTL_GET_PLL_FRAC_MODE		9U
-#define	IOCTL_SET_PLL_FRAC_DATA		10U
-#define	IOCTL_GET_PLL_FRAC_DATA		11U
-#define	IOCTL_SET_SGI			25U
-
 /* System shutdown macros */
 #define	XPM_SHUTDOWN_TYPE_SHUTDOWN	0U
 #define	XPM_SHUTDOWN_TYPE_RESET		1U
@@ -65,6 +58,44 @@
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
+
+//ioctl id
+enum {
+	IOCTL_GET_RPU_OPER_MODE = 0,
+	IOCTL_SET_RPU_OPER_MODE = 1,
+	IOCTL_RPU_BOOT_ADDR_CONFIG = 2,
+	IOCTL_TCM_COMB_CONFIG = 3,
+	IOCTL_SET_TAPDELAY_BYPASS = 4,
+	IOCTL_SET_SGMII_MODE = 5,
+	IOCTL_SD_DLL_RESET = 6,
+	IOCTL_SET_SD_TAPDELAY = 7,
+	 /* Ioctl for clock driver */
+	IOCTL_SET_PLL_FRAC_MODE = 8,
+	IOCTL_GET_PLL_FRAC_MODE = 9,
+	IOCTL_SET_PLL_FRAC_DATA = 10,
+	IOCTL_GET_PLL_FRAC_DATA = 11,
+	IOCTL_WRITE_GGS = 12,
+	IOCTL_READ_GGS = 13,
+	IOCTL_WRITE_PGGS = 14,
+	IOCTL_READ_PGGS = 15,
+	/* IOCTL for ULPI reset */
+	IOCTL_ULPI_RESET = 16,
+	/* Set healthy bit value */
+	IOCTL_SET_BOOT_HEALTH_STATUS = 17,
+	IOCTL_AFI = 18,
+	/* Probe counter read/write */
+	IOCTL_PROBE_COUNTER_READ = 19,
+	IOCTL_PROBE_COUNTER_WRITE = 20,
+	IOCTL_OSPI_MUX_SELECT = 21,
+	/* IOCTL for USB power request */
+	IOCTL_USB_SET_STATE = 22,
+	/* IOCTL to get last reset reason */
+	IOCTL_GET_LAST_RESET_REASON = 23,
+	/* AI engine NPI ISR clear */
+	IOCTL_AIE_ISR_CLEAR = 24,
+	/* Register SGI to TF-A */
+	IOCTL_SET_SGI = 25,
+};
 
 /**
  * @PM_PLL_PARAM_DIV2:		Enable for divide by 2 function inside the PLL
