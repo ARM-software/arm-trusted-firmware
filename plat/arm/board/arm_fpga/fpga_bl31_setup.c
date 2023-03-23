@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <errno.h>
 
+#include <arch_features.h>
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
 #include <drivers/arm/gicv3.h>
