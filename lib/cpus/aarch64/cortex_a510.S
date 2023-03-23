@@ -382,7 +382,11 @@ func errata_cortex_a510_2684597_wa
 	bl	check_errata_2684597
 	cbz	x0, 2f
 
-	tsb	csync
+	/*
+	 * Many assemblers do not yet understand the "tsb csync" mnemonic,
+	 * so use the equivalent hint instruction.
+	 */
+	hint	#18			/* tsb csync */
 2:
 	ret	x17
 endfunc errata_cortex_a510_2684597_wa
