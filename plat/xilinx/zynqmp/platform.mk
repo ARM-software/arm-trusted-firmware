@@ -116,6 +116,9 @@ else
 endif
 $(eval $(call add_define_val,ZYNQMP_CONSOLE,ZYNQMP_CONSOLE_ID_${ZYNQMP_CONSOLE}))
 
+# Build PM code as a Library
+include plat/xilinx/zynqmp/libpm.mk
+
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
@@ -123,19 +126,12 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				common/fdt_fixup.c				\
 				${LIBFDT_SRCS}					\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
-				plat/xilinx/common/pm_service/pm_ipi.c		\
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/zynqmp/bl31_zynqmp_setup.c		\
 				plat/xilinx/zynqmp/plat_psci.c			\
 				plat/xilinx/zynqmp/plat_zynqmp.c		\
 				plat/xilinx/zynqmp/plat_topology.c		\
-				plat/xilinx/zynqmp/sip_svc_setup.c		\
-				plat/xilinx/zynqmp/pm_service/pm_svc_main.c	\
-				plat/xilinx/zynqmp/pm_service/pm_api_sys.c	\
-				plat/xilinx/zynqmp/pm_service/pm_api_pinctrl.c	\
-				plat/xilinx/zynqmp/pm_service/pm_api_ioctl.c	\
-				plat/xilinx/zynqmp/pm_service/pm_api_clock.c	\
-				plat/xilinx/zynqmp/pm_service/pm_client.c
+				plat/xilinx/zynqmp/sip_svc_setup.c
 
 ifeq (${SDEI_SUPPORT},1)
 BL31_SOURCES		+=	plat/xilinx/zynqmp/zynqmp_ehf.c			\
