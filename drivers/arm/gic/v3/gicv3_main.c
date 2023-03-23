@@ -330,6 +330,8 @@ void gicv3_cpuif_enable(unsigned int proc_num)
 	/* Enable Group1 Secure interrupts */
 	write_icc_igrpen1_el3(read_icc_igrpen1_el3() |
 				IGRPEN1_EL3_ENABLE_G1S_BIT);
+	/* and restore the original */
+	write_scr_el3(scr_el3);
 	isb();
 	/* Add DSB to ensure visibility of System register writes */
 	dsb();
