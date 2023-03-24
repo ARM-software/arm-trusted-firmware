@@ -308,6 +308,13 @@ Common build options
    flag can take the values 0 to 2, to align  with the ``FEATURE_DETECTION``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_MTE_PERM``: Numeric value to enable support for
+   ``FEAT_MTE_PERM``, which introduces Allocation tag access permission to
+   memory region attributes. ``FEAT_MTE_PERM`` is a optional architectural
+   feature available from v8.9 and upwards.  This flag can take the values 0 to
+   2, to align  with the ``FEATURE_DETECTION`` mechanism. Default value is
+   ``0``.
+
 -  ``ENABLE_FEAT_PAN``: Numeric value to enable the ``FEAT_PAN`` (Privileged
    Access Never) extension. ``FEAT_PAN`` adds a bit to PSTATE, generating a
    permission fault for any privileged data access from EL1/EL2 to virtual
