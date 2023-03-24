@@ -34,12 +34,6 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/${ARCH}		\
 RESET_TO_BL31			:= 1
 COLD_BOOT_SINGLE_CPU		:= 1
 
-# Build config flags
-# ------------------
-BL31_BASE			?= 0x86500000
-BL32_BASE			?= 0x86000000
-PRELOADED_BL33_BASE		?= 0x8f600000
-
 # Have different sections for code and rodata
 SEPARATE_CODE_AND_RODATA	:= 1
 
@@ -64,6 +58,12 @@ ERRATA_A53_836870		:= 1
 ERRATA_A53_843419		:= 1
 ERRATA_A53_855873		:= 0	# Workaround works only for >= r0p3
 ERRATA_A53_1530924		:= 1
+
+# Build config flags
+# ------------------
+BL31_BASE			?= 0x86500000
+BL32_BASE			?= BL31_LIMIT
+PRELOADED_BL33_BASE		?= 0x8f600000
 
 $(eval $(call add_define,BL31_BASE))
 $(eval $(call add_define,BL32_BASE))
