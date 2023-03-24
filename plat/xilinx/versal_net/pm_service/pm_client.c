@@ -18,6 +18,7 @@
 #include <lib/mmio.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
+#include <lib/spinlock.h>
 #include <plat/common/platform.h>
 
 #include <plat_ipi.h>
@@ -29,7 +30,34 @@
 #define UNDEFINED_CPUID		(~0)
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpu_pwrctrl_val, S3_0_C15_C2_7)
+
+/*
+ * ARM v8.2, the cache will turn off automatically when cpu
+ * power down. Therefore, there is no doubt to use the spin_lock here.
+ */
+#if !HW_ASSISTED_COHERENCY
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
+static inline void pm_client_lock_get(void)
+{
+	bakery_lock_get(&pm_client_secure_lock);
+}
+
+static inline void pm_client_lock_release(void)
+{
+	bakery_lock_release(&pm_client_secure_lock);
+}
+#else
+spinlock_t pm_client_secure_lock;
+static inline void pm_client_lock_get(void)
+{
+	spin_lock(&pm_client_secure_lock);
+}
+
+static inline void pm_client_lock_release(void)
+{
+	spin_unlock(&pm_client_secure_lock);
+}
+#endif
 
 static const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_ID_APU,
@@ -154,7 +182,7 @@ void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
 	uint32_t cpu_id = plat_my_core_pos();
 	uintptr_t val;
 
-	bakery_lock_get(&pm_client_secure_lock);
+	pm_client_lock_get();
 
 	/* TODO: Set wakeup source */
 
@@ -177,7 +205,7 @@ void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
 	mmio_write_32(APU_PCIL_CORE_X_IEN_WAKE_REG(cpu_id),
 		      APU_PCIL_CORE_X_IEN_WAKE_MASK);
 
-	bakery_lock_release(&pm_client_secure_lock);
+	pm_client_lock_release();
 }
 
 /**
@@ -213,7 +241,7 @@ void pm_client_wakeup(const struct pm_proc *proc)
 		return;
 	}
 
-	bakery_lock_get(&pm_client_secure_lock);
+	pm_client_lock_get();
 
 	/* Clear powerdown request */
 	val = read_cpu_pwrctrl_val();
@@ -232,7 +260,7 @@ void pm_client_wakeup(const struct pm_proc *proc)
 	mmio_write_32(APU_PCIL_CORE_X_IDS_WAKE_REG(cpuid),
 		      APU_PCIL_CORE_X_IDS_WAKE_MASK);
 
-	bakery_lock_release(&pm_client_secure_lock);
+	pm_client_lock_release();
 }
 
 /**
@@ -249,7 +277,7 @@ void pm_client_abort_suspend(void)
 	/* Enable interrupts at processor level (for current cpu) */
 	gicv3_cpuif_enable(plat_my_core_pos());
 
-	bakery_lock_get(&pm_client_secure_lock);
+	pm_client_lock_get();
 
 	/* Clear powerdown request */
 	val = read_cpu_pwrctrl_val();
@@ -262,5 +290,5 @@ void pm_client_abort_suspend(void)
 	mmio_write_32(APU_PCIL_CORE_X_IDS_POWER_REG(cpu_id),
 			APU_PCIL_CORE_X_IDS_POWER_MASK);
 
-	bakery_lock_release(&pm_client_secure_lock);
+	pm_client_lock_release();
 }

@@ -10,6 +10,7 @@
 #include <arch_helpers.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
+#include <lib/spinlock.h>
 #include <ipi.h>
 #include <plat_ipi.h>
 #include <plat_private.h>
@@ -21,7 +22,33 @@
 #define ERROR_CODE_MASK		(0xFFFFU)
 #define PM_OFFSET		(0U)
 
+/*
+ * ARM v8.2, the cache will turn off automatically when cpu
+ * power down. Therefore, there is no doubt to use the spin_lock here.
+ */
+#if !HW_ASSISTED_COHERENCY
 DEFINE_BAKERY_LOCK(pm_secure_lock);
+static inline void pm_ipi_lock_get(void)
+{
+	bakery_lock_get(&pm_secure_lock);
+}
+
+static inline void pm_ipi_lock_release(void)
+{
+	bakery_lock_release(&pm_secure_lock);
+}
+#else
+spinlock_t pm_secure_lock;
+static inline void pm_ipi_lock_get(void)
+{
+	spin_lock(&pm_secure_lock);
+}
+
+static inline void pm_ipi_lock_release(void)
+{
+	spin_unlock(&pm_secure_lock);
+}
+#endif
 
 /**
  * pm_ipi_init() - Initialize IPI peripheral for communication with
@@ -36,7 +63,6 @@ DEFINE_BAKERY_LOCK(pm_secure_lock);
  */
 void pm_ipi_init(const struct pm_proc *proc)
 {
-	bakery_lock_init(&pm_secure_lock);
 	ipi_mb_open(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
 }
 
@@ -90,11 +116,11 @@ enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
 {
 	enum pm_ret_status ret;
 
-	bakery_lock_get(&pm_secure_lock);
+	pm_ipi_lock_get();
 
 	ret = pm_ipi_send_common(proc, payload, IPI_NON_BLOCKING);
 
-	bakery_lock_release(&pm_secure_lock);
+	pm_ipi_lock_release();
 
 	return ret;
 }
@@ -113,11 +139,11 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
 {
 	enum pm_ret_status ret;
 
-	bakery_lock_get(&pm_secure_lock);
+	pm_ipi_lock_get();
 
 	ret = pm_ipi_send_common(proc, payload, IPI_BLOCKING);
 
-	bakery_lock_release(&pm_secure_lock);
+	pm_ipi_lock_release();
 
 	return ret;
 }
@@ -249,7 +275,7 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 {
 	enum pm_ret_status ret;
 
-	bakery_lock_get(&pm_secure_lock);
+	pm_ipi_lock_get();
 
 	ret = pm_ipi_send_common(proc, payload, IPI_BLOCKING);
 	if (ret != PM_RET_SUCCESS) {
@@ -259,7 +285,7 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 	ret = ERROR_CODE_MASK & (pm_ipi_buff_read(proc, value, count));
 
 unlock:
-	bakery_lock_release(&pm_secure_lock);
+	pm_ipi_lock_release();
 
 	return ret;
 }
