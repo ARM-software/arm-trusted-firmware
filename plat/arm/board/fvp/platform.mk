@@ -102,7 +102,8 @@ FVP_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
 				plat/arm/common/arm_tzc400.c
 
 
-PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
+PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include		\
+				-Iinclude/lib/psa
 
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/fvp_common.c
@@ -204,7 +205,6 @@ BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
 # provide hardcoded token/key on request.
 BL31_SOURCES		+=	lib/psa/delegated_attestation.c
 
-PLAT_INCLUDES		+=	-Iinclude/lib/psa
 endif
 
 ifeq (${ENABLE_FEAT_RNG_TRAP},1)
