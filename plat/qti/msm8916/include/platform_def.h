@@ -16,11 +16,11 @@
  * the overall limit to 128 KiB. This could be increased if needed by placing
  * the "msm8916_entry_point" variable explicitly in the first 64 KiB of BL31.
  */
-#define BL31_LIMIT			(BL31_BASE + 0x20000)	/* 128 KiB */
-#define BL31_PROGBITS_LIMIT		(BL31_BASE + 0x10000)	/* 64 KiB */
+#define BL31_LIMIT			(BL31_BASE + SZ_128K)
+#define BL31_PROGBITS_LIMIT		(BL31_BASE + SZ_64K)
 
 #define CACHE_WRITEBACK_GRANULE		U(64)
-#define PLATFORM_STACK_SIZE		U(0x1000)
+#define PLATFORM_STACK_SIZE		SZ_4K
 
 /* CPU topology: single cluster with 4 cores */
 #define PLATFORM_CLUSTER_COUNT		U(1)
