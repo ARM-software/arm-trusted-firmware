@@ -283,6 +283,7 @@ uint32_t intel_fcs_decryption(uint32_t src_addr, uint32_t src_size,
 	uint32_t load_size;
 	uintptr_t id_offset;
 
+	inv_dcache_range(src_addr, src_size); /* flush cache before mmio read to avoid reading old values */
 	id_offset = src_addr + FCS_OWNER_ID_OFFSET;
 	fcs_decrypt_payload payload = {
 		FCS_DECRYPTION_DATA_0,
@@ -392,6 +393,7 @@ int intel_fcs_decryption_ext(uint32_t session_id, uint32_t context_id,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
+	inv_dcache_range(src_addr, src_size); /* flush cache before mmio read to avoid reading old values */
 	id_offset = src_addr + FCS_OWNER_ID_OFFSET;
 	fcs_decrypt_ext_payload payload = {
 		session_id,
@@ -822,6 +824,7 @@ int intel_fcs_get_crypto_service_key_info(uint32_t session_id, uint32_t key_id,
 				CMD_CASUAL, (uint32_t *) dst_addr, &resp_len);
 
 	if (resp_len > 0) {
+		inv_dcache_range(dst_addr, (resp_len * MBOX_WORD_BYTE)); /* flush cache before mmio read to avoid reading old values */
 		op_status = mmio_read_32(dst_addr) &
 			FCS_CS_KEY_RESP_STATUS_MASK;
 	}
