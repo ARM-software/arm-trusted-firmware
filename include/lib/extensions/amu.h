@@ -16,13 +16,21 @@
 
 #if ENABLE_FEAT_AMU
 #if __aarch64__
-void amu_enable(bool el2_unused, cpu_context_t *ctx);
+void amu_enable(cpu_context_t *ctx);
+void amu_init_el3(void);
+void amu_init_el2_unused(void);
 #else
 void amu_enable(bool el2_unused);
 #endif
 #else
 #if __aarch64__
-static inline void amu_enable(bool el2_unused, cpu_context_t *ctx)
+void amu_enable(cpu_context_t *ctx)
+{
+}
+void amu_init_el3(void)
+{
+}
+void amu_init_el2_unused(void)
 {
 }
 #else
