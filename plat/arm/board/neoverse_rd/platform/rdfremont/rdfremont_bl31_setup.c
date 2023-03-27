@@ -6,12 +6,14 @@
 
 #include <common/debug.h>
 #include <drivers/arm/gic600_multichip.h>
+#include <drivers/arm/rse_comms.h>
 #include <drivers/arm/smmu_v3.h>
 
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <nrd_plat.h>
 #include <nrd_variant.h>
+#include <rdfremont_rse_comms.h>
 
 #if (NRD_PLATFORM_VARIANT == 2)
 static const mmap_region_t rdfremontmc_dynamic_mmap[] = {
@@ -123,4 +125,8 @@ void bl31_platform_setup(void)
 	}
 #endif /* NRD_PLATFORM_VARIANT == 2 */
 	nrd_bl31_common_platform_setup();
+
+	if (plat_rse_comms_init() != 0) {
+		WARN("Failed initializing AP-RSE comms.\n");
+	}
 }

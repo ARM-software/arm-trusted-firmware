@@ -40,4 +40,12 @@
 /* Address bits */
 #define NRD_ADDR_BITS_PER_CHIP		U(36)  /* 64GB */
 
+/*
+ * In the current implementation, the RoT Service request that requires the
+ * biggest message buffer is the RSE_DELEGATED_ATTEST_GET_PLATFORM_TOKEN. The
+ * maximum required buffer size is calculated based on the platform-specific
+ * needs of this request.
+ */
+#define PLAT_RSE_COMMS_PAYLOAD_MAX_SIZE	UL(0x1000)
+
 #endif /* PLATFORM_DEF_H */

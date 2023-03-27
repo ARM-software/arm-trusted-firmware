@@ -38,7 +38,11 @@ ifeq (${NRD_PLATFORM_VARIANT}, 2)
 GICV3_IMPL_GIC600_MULTICHIP	:= 1
 endif
 
+# RD-Fremont uses MHUv3
+PLAT_MHU_VERSION := 3
+
 include plat/arm/board/neoverse_rd/common/nrd-common.mk
+include drivers/arm/rse/rse_comms.mk
 
 RDFREMONT_BASE	=	plat/arm/board/neoverse_rd/platform/rdfremont
 
@@ -68,7 +72,9 @@ BL2_SOURCES	+=	${RDFREMONT_BASE}/rdfremont_trusted_boot.c
 endif
 
 BL31_SOURCES	+=	${NRD_CPU_SOURCES}				\
+			${RSE_COMMS_SOURCES}				\
 			${RDFREMONT_BASE}/rdfremont_bl31_setup.c	\
+			${RDFREMONT_BASE}/rdfremont_mhuv3.c		\
 			${RDFREMONT_BASE}/rdfremont_topology.c		\
 			${RDFREMONT_BASE}/rdfremont_plat_attest_token.c	\
 			${RDFREMONT_BASE}/rdfremont_realm_attest_key.c	\
