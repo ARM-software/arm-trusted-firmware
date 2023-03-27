@@ -10,7 +10,7 @@
 #if ENABLE_BRBE_FOR_NS
 void brbe_enable(void);
 #else
-void brbe_enable(void)
+static inline void brbe_enable(void)
 {
 }
 #endif /* ENABLE_BRBE_FOR_NS */

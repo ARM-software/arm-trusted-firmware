@@ -1097,6 +1097,7 @@ $(eval $(call assert_booleans,\
         ENABLE_AMU_FCONF \
         AMU_RESTRICT_COUNTERS \
         ENABLE_ASSERTIONS \
+        ENABLE_FEAT_SB \
         ENABLE_PIE \
         ENABLE_PMF \
         ENABLE_PSCI_STAT \
@@ -1150,7 +1151,6 @@ $(eval $(call assert_booleans,\
         COT_DESC_IN_DTB \
         USE_SP804_TIMER \
         PSA_FWU_SUPPORT \
-        ENABLE_SYS_REG_TRACE_FOR_NS \
         ENABLE_MPMM \
         ENABLE_MPMM_FCONF \
         SIMICS_BUILD \
@@ -1182,13 +1182,13 @@ $(eval $(call assert_numerics,\
         ENABLE_FEAT_PAN \
         ENABLE_FEAT_RNG \
         ENABLE_FEAT_RNG_TRAP \
-        ENABLE_FEAT_SB \
         ENABLE_FEAT_SEL2 \
         ENABLE_FEAT_TCR2 \
         ENABLE_FEAT_VHE \
         ENABLE_MPAM_FOR_LOWER_ELS \
         ENABLE_RME \
         ENABLE_SPE_FOR_NS \
+        ENABLE_SYS_REG_TRACE_FOR_NS \
         ENABLE_TRF_FOR_NS \
         FW_ENC_STATUS \
         NR_OF_FW_BANKS \

@@ -140,9 +140,9 @@ static void enable_extensions_nonsecure(bool el2_unused)
 	amu_enable(el2_unused);
 #endif
 
-#if ENABLE_SYS_REG_TRACE_FOR_NS
-	sys_reg_trace_enable();
-#endif /* ENABLE_SYS_REG_TRACE_FOR_NS */
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_enable();
+	}
 
 	if (is_feat_trf_supported()) {
 		trf_enable();

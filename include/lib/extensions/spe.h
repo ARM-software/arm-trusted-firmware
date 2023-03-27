@@ -13,10 +13,10 @@
 void spe_enable(bool el2_unused);
 void spe_disable(void);
 #else
-void spe_enable(bool el2_unused)
+static inline void spe_enable(bool el2_unused)
 {
 }
-void spe_disable(void)
+static inline void spe_disable(void)
 {
 }
 #endif

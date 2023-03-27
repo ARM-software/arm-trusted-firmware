@@ -459,7 +459,7 @@ endif
 endif
 
 # enable trace system registers access to NS by default
-ENABLE_SYS_REG_TRACE_FOR_NS	:= 1
+ENABLE_SYS_REG_TRACE_FOR_NS	:= 2
 
 # enable trace filter control registers access to NS by default
 ENABLE_TRF_FOR_NS		:= 2
@@ -469,6 +469,12 @@ ENABLE_FEAT_FGT			:= 2
 ENABLE_FEAT_HCX			:= 2
 ENABLE_FEAT_TCR2		:= 2
 
+CTX_INCLUDE_NEVE_REGS		:= 2
+ENABLE_FEAT_CSV2_2		:= 2
+ENABLE_FEAT_ECV			:= 2
+ENABLE_FEAT_PAN			:= 2
+ENABLE_FEAT_SEL2		:= 2
+ENABLE_FEAT_TWED		:= 2
 ENABLE_FEAT_VHE			:= 2
 ENABLE_MPAM_FOR_LOWER_ELS	:= 2
 

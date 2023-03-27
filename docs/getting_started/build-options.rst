@@ -327,12 +327,11 @@ Common build options
    Default value is ``0``. ``FEAT_RNG_TRAP`` is an optional feature from
    Armv8.5 onwards.
 
--  ``ENABLE_FEAT_SB``: Numeric value to enable the ``FEAT_SB`` (Speculation
-   Barrier) extension allowing access to ``sb`` instruction. ``FEAT_SB`` is an
-   optional feature and defaults to ``0`` for pre-Armv8.5 CPUs but are mandatory
-   for Armv8.5 or later CPUs. This flag can take values 0 to 2, to align with
-   ``FEATURE_DETECTION`` mechanism. It is enabled from v8.5 and upwards and if
-   needed could be overidden from platforms explicitly. Default value is ``0``.
+-  ``ENABLE_FEAT_SB``: Boolean option to let the TF-A code use the ``FEAT_SB``
+   (Speculation Barrier) instruction ``FEAT_SB`` is an optional feature and
+   defaults to ``0`` for pre-Armv8.5 CPUs, but is mandatory for Armv8.5 or
+   later CPUs. It is enabled from v8.5 and upwards and if needed can be
+   overidden from platforms explicitly.
 
 -  ``ENABLE_FEAT_SEL2``: Numeric value to enable the ``FEAT_SEL2`` (Secure EL2)
    extension. ``FEAT_SEL2`` is a mandatory feature available on Arm v8.4.
@@ -1079,10 +1078,11 @@ Common build options
   ``FEATURE_DETECTION`` mechanism. The default is 0 and it is automatically
   disabled when the target architecture is AArch32.
 
-- ``ENABLE_SYS_REG_TRACE_FOR_NS``: Boolean option to enable trace system
+- ``ENABLE_SYS_REG_TRACE_FOR_NS``: Numeric value to enable trace system
   registers access from NS ELs, NS-EL2 or NS-EL1 (when NS-EL2 is implemented
   but unused). This feature is available if trace unit such as ETMv4.x, and
-  ETE(extending ETM feature) is implemented. This flag is disabled by default.
+  ETE(extending ETM feature) is implemented. This flag can take the values
+  0 to 2, to align with the ``FEATURE_DETECTION`` mechanism. The default is 0.
 
 - ``ENABLE_TRF_FOR_NS``: Numeric value to enable trace filter control registers
   access from NS ELs, NS-EL2 or NS-EL1 (when NS-EL2 is implemented but unused),

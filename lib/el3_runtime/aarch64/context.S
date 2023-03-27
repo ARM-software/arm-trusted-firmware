@@ -17,22 +17,10 @@
 	.global	el2_sysregs_context_save_mte
 	.global	el2_sysregs_context_restore_mte
 #endif /* CTX_INCLUDE_MTE_REGS */
-#if ENABLE_FEAT_ECV
-	.global	el2_sysregs_context_save_ecv
-	.global	el2_sysregs_context_restore_ecv
-#endif /* ENABLE_FEAT_ECV */
 #if RAS_EXTENSION
 	.global	el2_sysregs_context_save_ras
 	.global	el2_sysregs_context_restore_ras
 #endif /* RAS_EXTENSION */
-#if CTX_INCLUDE_NEVE_REGS
-	.global	el2_sysregs_context_save_nv2
-	.global	el2_sysregs_context_restore_nv2
-#endif /* CTX_INCLUDE_NEVE_REGS */
-#if ENABLE_FEAT_CSV2_2
-	.global	el2_sysregs_context_save_csv2
-	.global	el2_sysregs_context_restore_csv2
-#endif /* ENABLE_FEAT_CSV2_2 */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	.global	el1_sysregs_context_save
@@ -222,20 +210,6 @@ func el2_sysregs_context_restore_mte
 endfunc el2_sysregs_context_restore_mte
 #endif /* CTX_INCLUDE_MTE_REGS */
 
-#if ENABLE_FEAT_ECV
-func el2_sysregs_context_save_ecv
-	mrs	x11, CNTPOFF_EL2
-	str	x11, [x0, #CTX_CNTPOFF_EL2]
-	ret
-endfunc el2_sysregs_context_save_ecv
-
-func el2_sysregs_context_restore_ecv
-	ldr	x11, [x0, #CTX_CNTPOFF_EL2]
-	msr	CNTPOFF_EL2, x11
-	ret
-endfunc el2_sysregs_context_restore_ecv
-#endif /* ENABLE_FEAT_ECV */
-
 #if RAS_EXTENSION
 func el2_sysregs_context_save_ras
 	/*
@@ -259,46 +233,6 @@ func el2_sysregs_context_restore_ras
 	ret
 endfunc el2_sysregs_context_restore_ras
 #endif /* RAS_EXTENSION */
-
-#if CTX_INCLUDE_NEVE_REGS
-func el2_sysregs_context_save_nv2
-	/*
-	 * VNCR_EL2 register is saved only when FEAT_NV2 is supported.
-	 */
-	mrs	x16, vncr_el2
-	str	x16, [x0, #CTX_VNCR_EL2]
-	ret
-endfunc el2_sysregs_context_save_nv2
-
-func el2_sysregs_context_restore_nv2
-	/*
-	 * VNCR_EL2 register is restored only when FEAT_NV2 is supported.
-	 */
-	ldr	x16, [x0, #CTX_VNCR_EL2]
-	msr	vncr_el2, x16
-	ret
-endfunc el2_sysregs_context_restore_nv2
-#endif /* CTX_INCLUDE_NEVE_REGS */
-
-#if ENABLE_FEAT_CSV2_2
-func el2_sysregs_context_save_csv2
-	/*
-	 * SCXTNUM_EL2 register is saved only when FEAT_CSV2_2 is supported.
-	 */
-	mrs	x13, scxtnum_el2
-	str	x13, [x0, #CTX_SCXTNUM_EL2]
-	ret
-endfunc el2_sysregs_context_save_csv2
-
-func el2_sysregs_context_restore_csv2
-	/*
-	 * SCXTNUM_EL2 register is restored only when FEAT_CSV2_2 is supported.
-	 */
-	ldr	x13, [x0, #CTX_SCXTNUM_EL2]
-	msr	scxtnum_el2, x13
-	ret
-endfunc el2_sysregs_context_restore_csv2
-#endif /* ENABLE_FEAT_CSV2_2 */
 
 #endif /* CTX_INCLUDE_EL2_REGS */
 

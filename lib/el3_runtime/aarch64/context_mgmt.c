@@ -134,7 +134,7 @@ static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_in
 #endif /* CTX_INCLUDE_MTE_REGS */
 
 	/* Enable S-EL2 if the next EL is EL2 and S-EL2 is present */
-	if ((GET_EL(ep->spsr) == MODE_EL2) && is_armv8_4_sel2_present()) {
+	if ((GET_EL(ep->spsr) == MODE_EL2) && is_feat_sel2_supported()) {
 		if (GET_RW(ep->spsr) != MODE_RW_64) {
 			ERROR("S-EL2 can not be used in AArch32\n.");
 			panic();
@@ -171,10 +171,10 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 
 	scr_el3 |= SCR_NS_BIT | SCR_NSE_BIT;
 
-#if ENABLE_FEAT_CSV2_2
-	/* Enable access to the SCXTNUM_ELx registers. */
-	scr_el3 |= SCR_EnSCXT_BIT;
-#endif
+	if (is_feat_csv2_2_supported()) {
+		/* Enable access to the SCXTNUM_ELx registers. */
+		scr_el3 |= SCR_EnSCXT_BIT;
+	}
 
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 }
@@ -227,10 +227,10 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	scr_el3 |= SCR_TERR_BIT;
 #endif
 
-#if ENABLE_FEAT_CSV2_2
-	/* Enable access to the SCXTNUM_ELx registers. */
-	scr_el3 |= SCR_EnSCXT_BIT;
-#endif
+	if (is_feat_csv2_2_supported()) {
+		/* Enable access to the SCXTNUM_ELx registers. */
+		scr_el3 |= SCR_EnSCXT_BIT;
+	}
 
 #ifdef IMAGE_BL31
 	/*
@@ -380,22 +380,21 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 			scr_el3 |= SCR_FGTEN_BIT;
 		}
 
-		if (get_armv8_6_ecv_support()
-		    == ID_AA64MMFR0_EL1_ECV_SELF_SYNCH) {
+		if (is_feat_ecv_supported()) {
 			scr_el3 |= SCR_ECVEN_BIT;
 		}
 	}
 
-#if ENABLE_FEAT_TWED
 	/* Enable WFE trap delay in SCR_EL3 if supported and configured */
-	/* Set delay in SCR_EL3 */
-	scr_el3 &= ~(SCR_TWEDEL_MASK << SCR_TWEDEL_SHIFT);
-	scr_el3 |= ((TWED_DELAY & SCR_TWEDEL_MASK)
-			<< SCR_TWEDEL_SHIFT);
+	if (is_feat_twed_supported()) {
+		/* Set delay in SCR_EL3 */
+		scr_el3 &= ~(SCR_TWEDEL_MASK << SCR_TWEDEL_SHIFT);
+		scr_el3 |= ((TWED_DELAY & SCR_TWEDEL_MASK)
+				<< SCR_TWEDEL_SHIFT);
 
-	/* Enable WFE delay */
-	scr_el3 |= SCR_TWEDEn_BIT;
-#endif /* ENABLE_FEAT_TWED */
+		/* Enable WFE delay */
+		scr_el3 |= SCR_TWEDEn_BIT;
+	}
 
 	/*
 	 * Populate EL3 state so that we've the right context
@@ -510,9 +509,9 @@ static void manage_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 		brbe_enable();
 	}
 
-#if ENABLE_SYS_REG_TRACE_FOR_NS
-	sys_reg_trace_enable(ctx);
-#endif /* ENABLE_SYS_REG_TRACE_FOR_NS */
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_enable(ctx);
+	}
 
 	if (is_feat_trf_supported()) {
 		trf_enable();
@@ -957,9 +956,11 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 			el2_sysregs_context_save_fgt(el2_sysregs_ctx);
 		}
 
-#if ENABLE_FEAT_ECV
-		el2_sysregs_context_save_ecv(el2_sysregs_ctx);
-#endif
+		if (is_feat_ecv_v2_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_CNTPOFF_EL2,
+				      read_cntpoff_el2());
+		}
+
 		if (is_feat_vhe_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_CONTEXTIDR_EL2,
 				      read_contextidr_el2());
@@ -969,15 +970,21 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 #if RAS_EXTENSION
 		el2_sysregs_context_save_ras(el2_sysregs_ctx);
 #endif
-#if CTX_INCLUDE_NEVE_REGS
-		el2_sysregs_context_save_nv2(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_nv2_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_VNCR_EL2,
+				      read_vncr_el2());
+		}
+
 		if (is_feat_trf_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2, read_trfcr_el2());
 		}
-#if ENABLE_FEAT_CSV2_2
-		el2_sysregs_context_save_csv2(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_csv2_2_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_SCXTNUM_EL2,
+				      read_scxtnum_el2());
+		}
+
 		if (is_feat_hcx_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2, read_hcrx_el2());
 		}
@@ -1020,9 +1027,11 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 			el2_sysregs_context_restore_fgt(el2_sysregs_ctx);
 		}
 
-#if ENABLE_FEAT_ECV
-		el2_sysregs_context_restore_ecv(el2_sysregs_ctx);
-#endif
+		if (is_feat_ecv_v2_supported()) {
+			write_cntpoff_el2(read_ctx_reg(el2_sysregs_ctx,
+						       CTX_CNTPOFF_EL2));
+		}
+
 		if (is_feat_vhe_supported()) {
 			write_contextidr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_CONTEXTIDR_EL2));
 			write_ttbr1_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TTBR1_EL2));
@@ -1030,15 +1039,19 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 #if RAS_EXTENSION
 		el2_sysregs_context_restore_ras(el2_sysregs_ctx);
 #endif
-#if CTX_INCLUDE_NEVE_REGS
-		el2_sysregs_context_restore_nv2(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_nv2_supported()) {
+			write_vncr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_VNCR_EL2));
+		}
 		if (is_feat_trf_supported()) {
 			write_trfcr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2));
 		}
-#if ENABLE_FEAT_CSV2_2
-		el2_sysregs_context_restore_csv2(el2_sysregs_ctx);
-#endif
+
+		if (is_feat_csv2_2_supported()) {
+			write_scxtnum_el2(read_ctx_reg(el2_sysregs_ctx,
+						       CTX_SCXTNUM_EL2));
+		}
+
 		if (is_feat_hcx_supported()) {
 			write_hcrx_el2(read_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2));
 		}

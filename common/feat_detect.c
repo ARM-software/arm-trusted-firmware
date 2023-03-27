@@ -60,36 +60,6 @@ check_feature(int state, unsigned long field, const char *feat_name,
 	}
 }
 
-/******************************************
- * Feature : FEAT_SB (Speculation Barrier)
- *****************************************/
-static void read_feat_sb(void)
-{
-#if (ENABLE_FEAT_SB == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_0_feat_sb_present(), "SB");
-#endif
-}
-
-/******************************************************
- * Feature : FEAT_CSV2_2 (Cache Speculation Variant 2)
- *****************************************************/
-static void read_feat_csv2_2(void)
-{
-#if (ENABLE_FEAT_CSV2_2 == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_0_feat_csv2_2_present(), "CSV2_2");
-#endif
-}
-
-/***********************************************
- * Feature : FEAT_PAN (Privileged Access Never)
- **********************************************/
-static void read_feat_pan(void)
-{
-#if (ENABLE_FEAT_PAN == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_1_pan_present(), "PAN");
-#endif
-}
-
 /*******************************************************************************
  * Feature : FEAT_RAS (Reliability, Availability, and Serviceability Extension)
  ******************************************************************************/
@@ -120,28 +90,6 @@ static void read_feat_dit(void)
 #endif
 }
 
-/**************************************************************
- * Feature : FEAT_NV2 (Enhanced Nested Virtualization Support)
- *************************************************************/
-static void read_feat_nv2(void)
-{
-#if (CTX_INCLUDE_NEVE_REGS == FEAT_STATE_ALWAYS)
-	unsigned int nv = get_armv8_4_feat_nv_support();
-
-	feat_detect_panic((nv == ID_AA64MMFR2_EL1_NV2_SUPPORTED), "NV2");
-#endif
-}
-
-/***********************************
- * Feature : FEAT_SEL2 (Secure EL2)
- **********************************/
-static void read_feat_sel2(void)
-{
-#if (ENABLE_FEAT_SEL2 == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_4_sel2_present(), "SEL2");
-#endif
-}
-
 /************************************************
  * Feature : FEAT_MTE (Memory Tagging Extension)
  ***********************************************/
@@ -151,16 +99,6 @@ static void read_feat_mte(void)
 	unsigned int mte = get_armv8_5_mte_support();
 
 	feat_detect_panic((mte != MTE_UNIMPLEMENTED), "MTE");
-#endif
-}
-
-/***********************************************
- * Feature : FEAT_RNG (Random Number Generator)
- **********************************************/
-static void read_feat_rng(void)
-{
-#if (ENABLE_FEAT_RNG == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_5_rng_present(), "RNG");
 #endif
 }
 
@@ -181,29 +119,6 @@ static void read_feat_amuv1p1(void)
 {
 #if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_ALWAYS)
 	feat_detect_panic(is_armv8_6_feat_amuv1p1_present(), "AMUv1p1");
-#endif
-}
-
-/*******************************************************
- * Feature : FEAT_ECV (Enhanced Counter Virtualization)
- ******************************************************/
-static void read_feat_ecv(void)
-{
-#if (ENABLE_FEAT_ECV == FEAT_STATE_ALWAYS)
-	unsigned int ecv = get_armv8_6_ecv_support();
-
-	feat_detect_panic(((ecv == ID_AA64MMFR0_EL1_ECV_SUPPORTED) ||
-			(ecv == ID_AA64MMFR0_EL1_ECV_SELF_SYNCH)), "ECV");
-#endif
-}
-
-/***********************************************************
- * Feature : FEAT_TWED (Delayed Trapping of WFE Instruction)
- **********************************************************/
-static void read_feat_twed(void)
-{
-#if (ENABLE_FEAT_TWED == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_6_twed_present(), "TWED");
 #endif
 }
 
@@ -256,11 +171,12 @@ void detect_arch_features(void)
 	tainted = false;
 
 	/* v8.0 features */
-	read_feat_sb();
-	read_feat_csv2_2();
+	check_feature(ENABLE_FEAT_SB, read_feat_sb_id_field(), "SB", 1, 1);
+	check_feature(ENABLE_FEAT_CSV2_2, read_feat_csv2_id_field(),
+		      "CSV2_2", 2, 3);
 
 	/* v8.1 features */
-	read_feat_pan();
+	check_feature(ENABLE_FEAT_PAN, read_feat_pan_id_field(), "PAN", 1, 3);
 	check_feature(ENABLE_FEAT_VHE, read_feat_vhe_id_field(), "VHE", 1, 1);
 
 	/* v8.2 features */
@@ -274,23 +190,26 @@ void detect_arch_features(void)
 	check_feature(ENABLE_FEAT_AMUv1, read_feat_amu_id_field(),
 		      "AMUv1", 1, 2);
 	check_feature(ENABLE_MPAM_FOR_LOWER_ELS, read_feat_mpam_version(),
-		      "MPAM", 1, 1);
-	read_feat_nv2();
-	read_feat_sel2();
+		      "MPAM", 1, 17);
+	check_feature(CTX_INCLUDE_NEVE_REGS, read_feat_nv_id_field(),
+		      "NV2", 2, 2);
+	check_feature(ENABLE_FEAT_SEL2, read_feat_sel2_id_field(),
+		      "SEL2", 1, 1);
 	check_feature(ENABLE_TRF_FOR_NS, read_feat_trf_id_field(),
 		      "TRF", 1, 1);
 
 	/* v8.5 features */
 	read_feat_mte();
-	read_feat_rng();
+	check_feature(ENABLE_FEAT_RNG, read_feat_rng_id_field(), "RNG", 1, 1);
 	read_feat_bti();
 	read_feat_rng_trap();
 
 	/* v8.6 features */
 	read_feat_amuv1p1();
 	check_feature(ENABLE_FEAT_FGT, read_feat_fgt_id_field(), "FGT", 1, 1);
-	read_feat_ecv();
-	read_feat_twed();
+	check_feature(ENABLE_FEAT_ECV, read_feat_ecv_id_field(), "ECV", 1, 2);
+	check_feature(ENABLE_FEAT_TWED, read_feat_twed_id_field(),
+		      "TWED", 1, 1);
 
 	/* v8.7 features */
 	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX", 1, 1);
