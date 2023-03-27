@@ -175,8 +175,8 @@ Arm® Ethos™-N NPU driver
 ^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Joshua Slater <joshua.slater@arm.com>
 :|G|: `jslater8`_
-:|M|: Mikael Olsson <mikael.olsson@arm.com>
-:|G|: `mikaelolsson-arm`_
+:|M|: Ştefana Simion <stefana.simion@arm.com>
+:|G|: `stefanasimion`_
 :|F|: drivers/arm/ethosn/
 :|F|: include/drivers/arm/ethosn.h
 :|F|: plat/arm/common/fconf/fconf_ethosn_getter.c
@@ -908,7 +908,6 @@ Conventional Changelog Extensions
 .. _marex: https://github.com/marex
 .. _masahir0y: https://github.com/masahir0y
 .. _michalsimek: https://github.com/michalsimek
-.. _mikaelolsson-arm: https://github.com/mikaelolsson-arm
 .. _mmind: https://github.com/mmind
 .. _MrVan: https://github.com/MrVan
 .. _mtk-rex-bc-chen: https://github.com/mtk-rex-bc-chen
@@ -927,6 +926,7 @@ Conventional Changelog Extensions
 .. _smaeul: https://github.com/smaeul
 .. _soby-mathew: https://github.com/soby-mathew
 .. _sreekare: https://github.com/sreekare
+.. _stefanasimion: https://github.com/stefanasimion
 .. _stephan-gh: https://github.com/stephan-gh
 .. _sieumunt: https://github.com/sieumunt
 .. _BenjaminLimJL: https://github.com/BenjaminLimJL
