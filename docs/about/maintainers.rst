@@ -179,6 +179,10 @@ Arm® Ethos™-N NPU driver
 :|G|: `mikaelolsson-arm`_
 :|F|: drivers/arm/ethosn/
 :|F|: include/drivers/arm/ethosn.h
+:|F|: include/drivers/arm/ethosn_cert.h
+:|F|: include/drivers/arm/ethosn_fip.h
+:|F|: include/drivers/arm/ethosn_oid.h
+:|F|: plat/arm/board/juno/juno_ethosn_tzmp1_def.h
 :|F|: plat/arm/common/fconf/fconf_ethosn_getter.c
 :|F|: include/plat/arm/common/fconf_ethosn_getter.h
 :|F|: fdts/juno-ethosn.dtsi
