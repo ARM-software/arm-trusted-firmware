@@ -11,8 +11,9 @@
 #include <stdint.h>
 
 #include "pm_defs.h"
+#include "zynqmp_pm_defs.h"
 
-enum pm_query_id {
+enum pm_query_ids {
 	PM_QID_INVALID,
 	PM_QID_CLOCK_GET_NAME,
 	PM_QID_CLOCK_GET_TOPOLOGY,
@@ -150,7 +151,7 @@ enum pm_ret_status pm_clock_setparent(uint32_t clock_id,
 				      uint32_t parent_index);
 enum pm_ret_status pm_clock_getparent(uint32_t clock_id,
 				      uint32_t *parent_index);
-void pm_query_data(enum pm_query_id qid, uint32_t arg1, uint32_t arg2,
+void pm_query_data(enum pm_query_ids qid, uint32_t arg1, uint32_t arg2,
 		   uint32_t arg3, uint32_t *data);
 enum pm_ret_status pm_sha_hash(uint32_t address_high,
 				    uint32_t address_low,

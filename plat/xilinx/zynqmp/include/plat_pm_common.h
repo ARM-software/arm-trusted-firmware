@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +15,7 @@
 
 #include <stdint.h>
 #include <common/debug.h>
-#include "pm_defs.h"
+#include "zynqmp_pm_defs.h"
 
 
 #define ZYNQMP_TZ_VERSION_MAJOR		1
