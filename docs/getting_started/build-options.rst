@@ -230,11 +230,6 @@ Common build options
    payload. Please refer to the "Booting an EL3 payload" section for more
    details.
 
--  ``ENABLE_AMU``: Boolean option to enable Activity Monitor Unit extensions.
-   This is an optional architectural feature available on v8.4 onwards. Some
-   v8.2 implementations also implement an AMU and this option can be used to
-   enable this feature on those systems as well. Default is 0.
-
 -  ``ENABLE_AMU_AUXILIARY_COUNTERS``: Enables support for AMU auxiliary counters
    (also known as group 1 counters). These are implementation-defined counters,
    and as such require additional platform configuration. Default is 0.
@@ -261,13 +256,12 @@ Common build options
    builds, but this behaviour can be overridden in each platform's Makefile or
    in the build command line.
 
--  ``ENABLE_FEAT_AMUv1``: Numeric value to enable access to the HAFGRTR_EL2
-   (Hypervisor Activity Monitors Fine-Grained Read Trap Register) during EL2
-   to EL3 context save/restore operations. This flag can take the values 0 to 2,
-   to align with the ``FEATURE_DETECTION`` mechanism. It is an optional feature
-   available on v8.4 and onwards and must be set to either 1 or 2 alongside
-   ``ENABLE_FEAT_FGT``, to access the HAFGRTR_EL2 register.
-   Default value is ``0``.
+-  ``ENABLE_FEAT_AMU``: Numeric value to enable Activity Monitor Unit
+   extensions. This flag can take the values 0 to 2, to align with the
+   ``FEATURE_DETECTION`` mechanism. This is an optional architectural feature
+   available on v8.4 onwards. Some v8.2 implementations also implement an AMU
+   and this option can be used to enable this feature on those systems as well.
+   This flag can take the values 0 to 2, the default is 0.
 
 -  ``ENABLE_FEAT_AMUv1p1``: Numeric value to enable the ``FEAT_AMUv1p1``
    extension. ``FEAT_AMUv1p1`` is an optional feature available on Arm v8.6

@@ -163,7 +163,7 @@ override CTX_INCLUDE_PAUTH_REGS	:= 1
 
 override ENABLE_SPE_FOR_NS	:= 0
 
-override ENABLE_AMU := 1
+override ENABLE_FEAT_AMU := 1
 override ENABLE_AMU_AUXILIARY_COUNTERS := 1
 override ENABLE_AMU_FCONF := 1
 

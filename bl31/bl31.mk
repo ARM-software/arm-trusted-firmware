@@ -91,7 +91,7 @@ ifneq (${ENABLE_SPE_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/spe/spe.c
 endif
 
-ifeq (${ENABLE_AMU},1)
+ifneq (${ENABLE_FEAT_AMU},0)
 BL31_SOURCES		+=	${AMU_SOURCES}
 endif
 

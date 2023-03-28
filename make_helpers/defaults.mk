@@ -133,9 +133,6 @@ ENABLE_BTI			:= 0
 # Use BRANCH_PROTECTION to enable PAUTH.
 ENABLE_PAUTH			:= 0
 
-# Flag to enable access to the HAFGRTR_EL2 register
-ENABLE_FEAT_AMUv1		:= 0
-
 # Flag to enable AMUv1p1 extension.
 ENABLE_FEAT_AMUv1p1		:= 0
 
@@ -367,7 +364,7 @@ endif
 # enabled at ELX.
 CTX_INCLUDE_MTE_REGS		:= 0
 
-ENABLE_AMU			:= 0
+ENABLE_FEAT_AMU			:= 0
 ENABLE_AMU_AUXILIARY_COUNTERS	:= 0
 ENABLE_AMU_FCONF		:= 0
 AMU_RESTRICT_COUNTERS		:= 0

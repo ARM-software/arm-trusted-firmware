@@ -14,10 +14,22 @@
 
 #include <platform_def.h>
 
+#if ENABLE_FEAT_AMU
 #if __aarch64__
 void amu_enable(bool el2_unused, cpu_context_t *ctx);
 #else
 void amu_enable(bool el2_unused);
+#endif
+#else
+#if __aarch64__
+static inline void amu_enable(bool el2_unused, cpu_context_t *ctx)
+{
+}
+#else
+static inline void amu_enable(bool el2_unused)
+{
+}
+#endif
 #endif
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS

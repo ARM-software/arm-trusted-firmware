@@ -545,7 +545,7 @@ func neoverse_n2_reset_func
 	bl	errata_n2_2388450_wa
 #endif
 
-#if ENABLE_AMU
+#if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, cptr_el3
 	orr	x0, x0, #TAM_BIT
