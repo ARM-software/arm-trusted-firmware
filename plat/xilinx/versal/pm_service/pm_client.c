@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,7 +122,7 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 	uint32_t reg_num;
 	uint32_t device_id;
 	uint8_t pm_wakeup_nodes_set[XPM_NODEIDX_DEV_MAX] = { 0U };
-	uintptr_t isenabler1 = PLAT_VERSAL_GICD_BASE + GICD_ISENABLER + 4;
+	uintptr_t isenabler1 = PLAT_GICD_BASE_VALUE + GICD_ISENABLER + 4;
 
 	for (reg_num = 0U; reg_num < NUM_GICD_ISENABLER; reg_num++) {
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;

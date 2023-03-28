@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -102,8 +103,8 @@ exit_print_gic_regs:
 	 * ---------------------------------------------
 	 */
 	.macro plat_crash_print_regs
-	mov_imm	x17, PLAT_VERSAL_GICD_BASE
-	mov_imm	x16, PLAT_VERSAL_GICR_BASE
+	mov_imm	x17, PLAT_GICD_BASE_VALUE
+	mov_imm	x16, PLAT_GICR_BASE_VALUE
 	versal_print_gic_regs
 	.endm
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (C) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -109,8 +109,8 @@ exit_print_gic_regs:
 	 * Uncomment it when versions are stable
 	 */
 	/*
-	mov_imm	x17, PLAT_VERSAL_NET_GICD_BASE
-	mov_imm	x16, PLAT_VERSAL_NET_GICR_BASE
+	mov_imm	x17, PLAT_GICD_BASE_VALUE
+	mov_imm	x16, PLAT_GICR_BASE_VALUE
 	versal_net_print_gic_regs
 	*/
 	.endm
