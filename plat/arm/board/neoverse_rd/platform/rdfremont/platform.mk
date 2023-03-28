@@ -43,11 +43,13 @@ PLAT_MHU_VERSION := 3
 
 include plat/arm/board/neoverse_rd/common/nrd-common.mk
 include drivers/arm/rse/rse_comms.mk
+include drivers/auth/mbedtls/mbedtls_common.mk
 
 RDFREMONT_BASE	=	plat/arm/board/neoverse_rd/platform/rdfremont
 
 PLAT_INCLUDES	+=	-I${NRD_COMMON_BASE}/include/nrd3/		\
-			-I${RDFREMONT_BASE}/include/
+			-I${RDFREMONT_BASE}/include/			\
+			-Iinclude/lib/psa
 
 NRD_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_v3.S
 
@@ -72,6 +74,7 @@ BL2_SOURCES	+=	${RDFREMONT_BASE}/rdfremont_trusted_boot.c
 endif
 
 BL31_SOURCES	+=	${NRD_CPU_SOURCES}				\
+			${MBEDTLS_SOURCES}				\
 			${RSE_COMMS_SOURCES}				\
 			${RDFREMONT_BASE}/rdfremont_bl31_setup.c	\
 			${RDFREMONT_BASE}/rdfremont_mhuv3.c		\
@@ -80,6 +83,8 @@ BL31_SOURCES	+=	${NRD_CPU_SOURCES}				\
 			${RDFREMONT_BASE}/rdfremont_realm_attest_key.c	\
 			drivers/arm/smmu/smmu_v3.c			\
 			drivers/cfi/v2m/v2m_flash.c			\
+			lib/psa/cca_attestation.c			\
+			lib/psa/delegated_attestation.c			\
 			lib/utils/mem_region.c				\
 			plat/arm/common/arm_nor_psci_mem_protect.c
 ifeq (${NRD_PLATFORM_VARIANT}, 2)
