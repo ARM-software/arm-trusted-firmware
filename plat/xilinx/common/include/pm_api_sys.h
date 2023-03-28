@@ -40,6 +40,7 @@ enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t device_id,
 					uint8_t enable, uint32_t flag);
 enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag,
 			 uint32_t ack);
+void pm_client_set_wakeup_sources(uint32_t node_id);
 enum pm_ret_status pm_pll_set_param(uint32_t clk_id, uint32_t param,
 				    uint32_t value, uint32_t flag);
 enum pm_ret_status pm_pll_get_param(uint32_t clk_id, uint32_t param,

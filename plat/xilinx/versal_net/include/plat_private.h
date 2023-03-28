@@ -43,6 +43,4 @@ int32_t sip_svc_setup_init(void);
  */
 int request_intr_type_el3(uint32_t irq, interrupt_type_handler_t fiq_handler);
 
-#define IOCTL_OSPI_MUX_SELECT		(21U)
-
 #endif /* PLAT_PRIVATE_H */

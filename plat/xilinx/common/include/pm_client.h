@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,10 @@
 void pm_client_suspend(const struct pm_proc *proc, uint32_t state);
 void pm_client_abort_suspend(void);
 void pm_client_wakeup(const struct pm_proc *proc);
+
+#if !defined(PLAT_zynqmp)
+enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq);
+#endif
 
 /* Global variables to be set in pm_client.c */
 extern const struct pm_proc *primary_proc;

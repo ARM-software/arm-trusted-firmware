@@ -10,13 +10,19 @@
  * IPI interrupts
  */
 
-#include <pm_common.h>
-#include <pm_ipi.h>
+#include <drivers/arm/gic_common.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
 #include <plat/common/platform.h>
-#include "pm_api_sys.h"
-#include "pm_client.h"
-#include "pm_defs.h"
+#include <platform_def.h>
+#include <pm_api_sys.h>
+#include <pm_client.h>
+#include <pm_common.h>
+#include <pm_defs.h>
+#include <pm_ipi.h>
 #include "pm_svc_main.h"
+
+#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5U) + 1U)
 
 /* default shutdown/reboot scope is system(2) */
 static uint32_t pm_shutdown_scope = XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM;
@@ -32,6 +38,57 @@ uint32_t pm_get_shutdown_scope(void)
 }
 
 /* PM API functions */
+
+/**
+ * pm_client_set_wakeup_sources - Set all devices with enabled interrupts as
+ *                                wake sources in the XilPM.
+ * @node_id:    Node id of processor
+ */
+void pm_client_set_wakeup_sources(uint32_t node_id)
+{
+	uint32_t reg_num, device_id;
+	uint8_t pm_wakeup_nodes_set[XPM_NODEIDX_DEV_MAX] = {0U};
+	uint32_t isenabler1 = PLAT_GICD_BASE_VALUE + GICD_ISENABLER + 4U;
+
+	zeromem(&pm_wakeup_nodes_set, (u_register_t)sizeof(pm_wakeup_nodes_set));
+
+	for (reg_num = 0U; reg_num < NUM_GICD_ISENABLER; reg_num++) {
+		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
+		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
+
+		if (reg == 0U) {
+			continue;
+		}
+
+		while (reg != 0U) {
+			enum pm_device_node_idx node_idx;
+			uint32_t idx, irq, lowest_set = reg & (-reg);
+			enum pm_ret_status ret;
+
+			idx = (uint32_t)__builtin_ctz(lowest_set);
+			irq = base_irq + idx;
+
+			if (irq > IRQ_MAX) {
+				break;
+			}
+
+			node_idx = irq_to_pm_node_idx(irq);
+			reg &= ~lowest_set;
+
+			if (node_idx > XPM_NODEIDX_DEV_MIN) {
+				if (pm_wakeup_nodes_set[node_idx] == 0U) {
+					/* Get device ID from node index */
+					device_id = PERIPH_DEVID((uint32_t)node_idx);
+					ret = pm_set_wakeup_source(node_id,
+								   device_id, 1U,
+								   SECURE_FLAG);
+					pm_wakeup_nodes_set[node_idx] = (ret == PM_RET_SUCCESS) ?
+										 1U : 0U;
+				}
+			}
+		}
+	}
+}
 
 /**
  * pm_handle_eemi_call() - PM call for processor to send eemi payload
@@ -404,7 +461,7 @@ enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 	PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, flag, PM_QUERY_DATA, qid,
 			 arg1, arg2, arg3);
 
-	ret = pm_feature_check(PM_QUERY_DATA, &version[0], flag);
+	ret = pm_feature_check((uint32_t)PM_QUERY_DATA, &version[0], flag);
 	if (ret == PM_RET_SUCCESS) {
 		fw_api_version = version[0] & 0xFFFFU;
 		if ((fw_api_version == 2U) &&
@@ -458,10 +515,10 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		ret =  pm_pll_get_mode(arg1, value, flag);
 		break;
 	case IOCTL_SET_PLL_FRAC_DATA:
-		ret =  pm_pll_set_param(arg1, PM_PLL_PARAM_DATA, arg2, flag);
+		ret =  pm_pll_set_param(arg1, (uint32_t)PM_PLL_PARAM_DATA, arg2, flag);
 		break;
 	case IOCTL_GET_PLL_FRAC_DATA:
-		ret =  pm_pll_get_param(arg1, PM_PLL_PARAM_DATA, value, flag);
+		ret =  pm_pll_get_param(arg1, (uint32_t)PM_PLL_PARAM_DATA, value, flag);
 		break;
 	case IOCTL_SET_SGI:
 		/* Get the sgi number */
