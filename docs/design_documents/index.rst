@@ -10,6 +10,7 @@ Design Documents
    measured_boot_poc
    drtm_poc
    rss
+   psci_osi_mode
 
 --------------
 

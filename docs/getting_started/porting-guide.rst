@@ -538,6 +538,15 @@ memory layout implies some image overlaying like in Arm standard platforms.
 
    Defines the maximum address that the TSP's progbits sections can occupy.
 
+If the platform supports OS-initiated mode, i.e. the build option
+``PSCI_OS_INIT_MODE`` is enabled, and if the platform's maximum power domain
+level for PSCI_CPU_SUSPEND differs from ``PLAT_MAX_PWR_LVL``, the following
+constant must be defined.
+
+-  **#define : PLAT_MAX_CPU_SUSPEND_PWR_LVL**
+
+   Defines the maximum power domain level that PSCI_CPU_SUSPEND should apply to.
+
 If the platform port uses the PL061 GPIO driver, the following constant may
 optionally be defined:
 
@@ -2809,6 +2818,10 @@ system. The context of the Distributor can be large and may require it to be
 allocated in a special area if it cannot fit in the platform's global static
 data, for example in DRAM. The Distributor can then be powered down using an
 implementation-defined sequence.
+
+If the build option ``PSCI_OS_INIT_MODE`` is enabled, the generic code expects
+the platform to return PSCI_E_SUCCESS on success, or either PSCI_E_DENIED or
+PSCI_E_INVALID_PARAMS as appropriate for any invalid requests.
 
 plat_psci_ops.pwr_domain_pwr_down_wfi()
 .......................................

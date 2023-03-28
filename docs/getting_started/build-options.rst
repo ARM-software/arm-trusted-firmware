@@ -734,6 +734,9 @@ Common build options
    enabled on Arm platforms, the option ``ARM_RECOM_STATE_ID_ENC`` needs to be
    set to 1 as well.
 
+-  ``PSCI_OS_INIT_MODE``: Boolean flag to enable support for optional PSCI
+   OS-initiated mode. This option defaults to 0.
+
 -  ``RAS_EXTENSION``: Numeric value to enable Armv8.2 RAS features. RAS features
    are an optional extension for pre-Armv8.2 CPUs, but are mandatory for Armv8.2
    or later CPUs. This flag can take the values 0 to 2, to align with the

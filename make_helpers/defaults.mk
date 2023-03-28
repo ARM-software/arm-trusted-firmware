@@ -255,6 +255,9 @@ PROGRAMMABLE_RESET_ADDRESS	:= 0
 # Flag used to choose the power state format: Extended State-ID or Original
 PSCI_EXTENDED_STATE_ID		:= 0
 
+# Enable PSCI OS-initiated mode support
+PSCI_OS_INIT_MODE		:= 0
+
 # Enable RAS support
 RAS_EXTENSION			:= 0
 

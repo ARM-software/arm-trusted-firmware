@@ -60,6 +60,10 @@ int psci_cpu_suspend(unsigned int power_state,
 	entry_point_info_t ep;
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 	plat_local_state_t cpu_pd_state;
+#if PSCI_OS_INIT_MODE
+	unsigned int cpu_idx = plat_my_core_pos();
+	plat_local_state_t prev[PLAT_MAX_PWR_LVL];
+#endif
 
 	/* Validate the power_state parameter */
 	rc = psci_validate_power_state(power_state, &state_info);
@@ -95,6 +99,18 @@ int psci_cpu_suspend(unsigned int power_state,
 		cpu_pd_state = state_info.pwr_domain_state[PSCI_CPU_PWR_LVL];
 		psci_set_cpu_local_state(cpu_pd_state);
 
+#if PSCI_OS_INIT_MODE
+		/*
+		 * If in OS-initiated mode, save a copy of the previous
+		 * requested local power states and update the new requested
+		 * local power states for this CPU.
+		 */
+		if (psci_suspend_mode == OS_INIT) {
+			psci_update_req_local_pwr_states(target_pwrlvl, cpu_idx,
+							 &state_info, prev);
+		}
+#endif
+
 #if ENABLE_PSCI_STAT
 		plat_psci_stat_accounting_start(&state_info);
 #endif
@@ -109,6 +125,16 @@ int psci_cpu_suspend(unsigned int power_state,
 
 		/* Upon exit from standby, set the state back to RUN. */
 		psci_set_cpu_local_state(PSCI_LOCAL_STATE_RUN);
+
+#if PSCI_OS_INIT_MODE
+		/*
+		 * If in OS-initiated mode, restore the previous requested
+		 * local power states for this CPU.
+		 */
+		if (psci_suspend_mode == OS_INIT) {
+			psci_restore_req_local_pwr_states(cpu_idx, prev);
+		}
+#endif
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 		PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
@@ -142,12 +168,12 @@ int psci_cpu_suspend(unsigned int power_state,
 	 * might return if the power down was abandoned for any reason, e.g.
 	 * arrival of an interrupt
 	 */
-	psci_cpu_suspend_start(&ep,
-			    target_pwrlvl,
-			    &state_info,
-			    is_power_down_state);
+	rc = psci_cpu_suspend_start(&ep,
+				    target_pwrlvl,
+				    &state_info,
+				    is_power_down_state);
 
-	return PSCI_E_SUCCESS;
+	return rc;
 }
 
 
@@ -187,12 +213,12 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	 * might return if the power down was abandoned for any reason, e.g.
 	 * arrival of an interrupt
 	 */
-	psci_cpu_suspend_start(&ep,
-			    PLAT_MAX_PWR_LVL,
-			    &state_info,
-			    PSTATE_TYPE_POWERDOWN);
+	rc = psci_cpu_suspend_start(&ep,
+				    PLAT_MAX_PWR_LVL,
+				    &state_info,
+				    PSTATE_TYPE_POWERDOWN);
 
-	return PSCI_E_SUCCESS;
+	return rc;
 }
 
 int psci_cpu_off(void)
@@ -357,18 +383,47 @@ int psci_features(unsigned int psci_fid)
 	/* Format the feature flags */
 	if ((psci_fid == PSCI_CPU_SUSPEND_AARCH32) ||
 	    (psci_fid == PSCI_CPU_SUSPEND_AARCH64)) {
-		/*
-		 * The trusted firmware does not support OS Initiated Mode.
-		 */
 		unsigned int ret = ((FF_PSTATE << FF_PSTATE_SHIFT) |
-			(((FF_SUPPORTS_OS_INIT_MODE == 1U) ? 0U : 1U)
-				<< FF_MODE_SUPPORT_SHIFT));
-		return (int) ret;
+			(FF_SUPPORTS_OS_INIT_MODE << FF_MODE_SUPPORT_SHIFT));
+		return (int)ret;
 	}
 
 	/* Return 0 for all other fid's */
 	return PSCI_E_SUCCESS;
 }
+
+#if PSCI_OS_INIT_MODE
+int psci_set_suspend_mode(unsigned int mode)
+{
+	if (psci_suspend_mode == mode) {
+		return PSCI_E_SUCCESS;
+	}
+
+	if (mode == PLAT_COORD) {
+		/* Check if the current CPU is the last ON CPU in the system */
+		if (!psci_is_last_on_cpu_safe()) {
+			return PSCI_E_DENIED;
+		}
+	}
+
+	if (mode == OS_INIT) {
+		/*
+		 * Check if all CPUs in the system are ON or if the current
+		 * CPU is the last ON CPU in the system.
+		 */
+		if (!(psci_are_all_cpus_on_safe() ||
+		      psci_is_last_on_cpu_safe())) {
+			return PSCI_E_DENIED;
+		}
+	}
+
+	psci_suspend_mode = mode;
+	psci_flush_dcache_range((uintptr_t)&psci_suspend_mode,
+				sizeof(psci_suspend_mode));
+
+	return PSCI_E_SUCCESS;
+}
+#endif
 
 /*******************************************************************************
  * PSCI top level handler for servicing SMCs.
@@ -453,6 +508,12 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 			ret = (u_register_t)psci_features(r1);
 			break;
 
+#if PSCI_OS_INIT_MODE
+		case PSCI_SET_SUSPEND_MODE:
+			ret = (u_register_t)psci_set_suspend_mode(r1);
+			break;
+#endif
+
 #if ENABLE_PSCI_STAT
 		case PSCI_STAT_RESIDENCY_AARCH32:
 			ret = psci_stat_residency(r1, r2);
@@ -506,6 +567,10 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 			ret = psci_migrate_info_up_cpu();
 			break;
 
+		case PSCI_FEATURES:
+			ret = (u_register_t)psci_features(x1);
+			break;
+
 		case PSCI_NODE_HW_STATE_AARCH64:
 			ret = (u_register_t)psci_node_hw_state(
 					x1, (unsigned int) x2);
@@ -514,6 +579,12 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_SYSTEM_SUSPEND_AARCH64:
 			ret = (u_register_t)psci_system_suspend(x1, x2);
 			break;
+
+#if PSCI_OS_INIT_MODE
+		case PSCI_SET_SUSPEND_MODE:
+			ret = (u_register_t)psci_set_suspend_mode(x1);
+			break;
+#endif
 
 #if ENABLE_PSCI_STAT
 		case PSCI_STAT_RESIDENCY_AARCH64:
