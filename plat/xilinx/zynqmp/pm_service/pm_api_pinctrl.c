@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,10 +15,10 @@
 #include <plat/common/platform.h>
 
 #include "pm_api_pinctrl.h"
-#include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_common.h"
 #include "pm_ipi.h"
+#include "zynqmp_pm_api_sys.h"
 
 struct pinctrl_function {
 	char name[FUNCTION_NAME_LEN];

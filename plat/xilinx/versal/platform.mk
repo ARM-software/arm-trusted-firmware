@@ -1,4 +1,5 @@
 # Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -82,6 +83,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/pm_service/pm_ipi.c		\
+				plat/xilinx/common/pm_service/pm_api_sys.c	\
+				plat/xilinx/common/pm_service/pm_svc_main.c	\
 				plat/xilinx/versal/bl31_versal_setup.c		\
 				plat/xilinx/versal/plat_psci.c			\
 				plat/xilinx/versal/plat_versal.c		\
@@ -89,8 +92,6 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/versal/sip_svc_setup.c		\
 				plat/xilinx/versal/versal_gicv3.c		\
 				plat/xilinx/versal/versal_ipi.c			\
-				plat/xilinx/versal/pm_service/pm_svc_main.c	\
-				plat/xilinx/versal/pm_service/pm_api_sys.c	\
 				plat/xilinx/versal/pm_service/pm_client.c
 
 ifeq ($(HARDEN_SLS_ALL), 1)
