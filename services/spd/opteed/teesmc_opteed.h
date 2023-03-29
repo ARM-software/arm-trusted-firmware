@@ -157,4 +157,13 @@
 #define NSSMC_OPTEED_CALL_LOAD_IMAGE \
 	NSSMC_OPTEED_CALL(NSSMC_OPTEED_FUNCID_LOAD_IMAGE)
 
+/*
+ * Returns the UID of the OP-TEE image loading service if image loading is
+ * enabled and the image had not been loaded yet. Otherwise this call will be
+ * passed through to OP-TEE where it will return the OP-TEE UID.
+ */
+#define NSSMC_OPTEED_FUNCID_CALLS_UID 0xFF01
+#define NSSMC_OPTEED_CALL_UID \
+	NSSMC_OPTEED_CALL(NSSMC_OPTEED_FUNCID_CALLS_UID)
+
 #endif /*TEESMC_OPTEED_H*/
