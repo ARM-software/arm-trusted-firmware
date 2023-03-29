@@ -24,6 +24,7 @@ MODULES-y += $(MTK_PLAT)/common/lpm
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
 MODULES-y += $(MTK_PLAT)/lib/system_reset
+MODULES-y += $(MTK_PLAT)/drivers/apusys
 MODULES-y += $(MTK_PLAT)/drivers/audio
 MODULES-y += $(MTK_PLAT)/drivers/cirq
 MODULES-y += $(MTK_PLAT)/drivers/cpu_pm
