@@ -479,6 +479,17 @@ ENABLE_FEAT_TWED		:= 2
 ENABLE_FEAT_VHE			:= 2
 ENABLE_MPAM_FOR_LOWER_ELS	:= 2
 
+# Enable SME access to NS by default
+ifeq (${ARCH},aarch64)
+ifeq (${SPM_MM}, 0)
+ifeq (${ENABLE_RME}, 0)
+ifeq (${CTX_INCLUDE_FPREGS}, 0)
+	ENABLE_SME_FOR_NS		:= 2
+endif
+endif
+endif
+endif
+
 ifeq (${SPMC_AT_EL3}, 1)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp/fvp_el3_spmc.c
 endif

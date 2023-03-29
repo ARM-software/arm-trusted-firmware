@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,7 +8,6 @@
 #define SME_H
 
 #include <stdbool.h>
-
 #include <context.h>
 
 /*
@@ -21,7 +20,16 @@
  */
 #define SME_SMCR_LEN_MAX	U(0x1FF)
 
+#if ENABLE_SME_FOR_NS
 void sme_enable(cpu_context_t *context);
 void sme_disable(cpu_context_t *context);
+#else
+static inline void sme_enable(cpu_context_t *context)
+{
+}
+static inline void sme_disable(cpu_context_t *context)
+{
+}
+#endif /* ENABLE_SME_FOR_NS */
 
 #endif /* SME_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -117,19 +117,14 @@ static void rmm_el2_context_init(el2_sysregs_t *regs)
  ******************************************************************************/
 static void manage_extensions_realm(cpu_context_t *ctx)
 {
-#if ENABLE_SVE_FOR_NS
+	if (is_feat_sve_supported()) {
 	/*
 	 * Enable SVE and FPU in realm context when it is enabled for NS.
 	 * Realm manager must ensure that the SVE and FPU register
 	 * contexts are properly managed.
 	 */
-	sve_enable(ctx);
-#else
-	/*
-	 * Disable SVE and FPU in realm context when it is disabled for NS.
-	 */
-	sve_disable(ctx);
-#endif /* ENABLE_SVE_FOR_NS */
+		sve_enable(ctx);
+	}
 }
 
 /*******************************************************************************

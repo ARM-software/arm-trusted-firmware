@@ -373,7 +373,7 @@ ENABLE_AMU_FCONF		:= 0
 AMU_RESTRICT_COUNTERS		:= 0
 
 # Enable SVE for non-secure world by default
-ENABLE_SVE_FOR_NS		:= 1
+ENABLE_SVE_FOR_NS		:= 2
 # SVE is only supported on AArch64 so disable it on AArch32.
 ifeq (${ARCH},aarch32)
 	override ENABLE_SVE_FOR_NS	:= 0
@@ -388,7 +388,7 @@ ENABLE_SME_FOR_NS		:= 0
 ENABLE_SME_FOR_SWD		:= 0
 
 # If SME is enabled then force SVE off
-ifeq (${ENABLE_SME_FOR_NS},1)
+ifneq (${ENABLE_SME_FOR_NS},0)
 	override ENABLE_SVE_FOR_NS	:= 0
 	override ENABLE_SVE_FOR_SWD	:= 0
 endif
