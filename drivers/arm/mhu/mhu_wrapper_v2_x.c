@@ -308,5 +308,10 @@ size_t mhu_get_max_message_size(void)
 
 	assert(num_channels != 0);
 
-	return num_channels * sizeof(uint32_t);
+	/*
+	 * Returns only usable size of memory. As one channel is specifically
+	 * used to inform about the size of payload, discard it from avialable
+	 * memory size.
+	 */
+	return (num_channels - 1) * sizeof(uint32_t);
 }
