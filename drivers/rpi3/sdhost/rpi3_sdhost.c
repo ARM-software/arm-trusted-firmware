@@ -245,13 +245,12 @@ static void rpi3_sdhost_reset(void)
 
 static void rpi3_sdhost_initialize(void)
 {
-	uintptr_t reg_base = rpi3_sdhost_params.reg_base;
-
 	assert((rpi3_sdhost_params.reg_base & MMC_BLOCK_MASK) == 0);
 
 	rpi3_sdhost_reset();
 
-	mmio_write_32(reg_base + HC_CLOCKDIVISOR, HC_CLOCKDIVISOR_PREFERVAL);
+	rpi3_sdhost_set_ios(rpi3_sdhost_params.clk_rate_initial,
+		rpi3_sdhost_params.bus_width);
 	udelay(300);
 }
 
