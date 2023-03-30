@@ -24,6 +24,57 @@ FVP_GICR_REGION_PROTECTION		:= 0
 
 FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 
+# This is a very trickly TEMPORARY fix. Enabling ALL features exceeds BL31's
+# progbits limit. We need a way to build all useful configurations while waiting
+# on the fvp to increase its SRAM size. The problem is twofild:
+#  1. the cleanup that introduced these enables cleaned up tf-a a little too
+#     well and things that previously (incorrectly) were enabled, no longer are.
+#     A bunch of CI configs build subtly incorrectly and this combo makes it
+#     necessary to forcefully and unconditionally enable them here.
+#  2. the progbits limit is exceeded only when the tsp is involved. However,
+#     there are tsp CI configs that run on very high architecture revisions so
+#     disabling everything isn't an option.
+# The fix is to enable everything, as before. When the tsp is included, though,
+# we need to slim the size down. In that case, disable all optional features,
+# that will not be present in CI when the tsp is.
+# TODO: make all of this unconditional (or only base the condition on
+# ARM_ARCH_* when the makefile supports it).
+ifneq (${SPD}, tspd)
+	ENABLE_FEAT_AMU			:= 2
+	ENABLE_FEAT_AMUv1p1		:= 2
+	ENABLE_FEAT_HCX			:= 2
+	ENABLE_MPAM_FOR_LOWER_ELS	:= 2
+	ENABLE_FEAT_RNG			:= 2
+	ENABLE_FEAT_TWED		:= 2
+ifeq (${ARCH},aarch64)
+ifeq (${SPM_MM}, 0)
+ifeq (${ENABLE_RME}, 0)
+ifeq (${CTX_INCLUDE_FPREGS}, 0)
+	ENABLE_SME_FOR_NS		:= 2
+endif
+endif
+endif
+endif
+endif
+
+# enable unconditionally for all builds
+ifeq (${ARCH}, aarch64)
+ifeq (${ENABLE_RME},0)
+	ENABLE_BRBE_FOR_NS		:= 2
+endif
+endif
+ENABLE_TRBE_FOR_NS		:= 2
+ENABLE_SYS_REG_TRACE_FOR_NS	:= 2
+ENABLE_FEAT_CSV2_2		:= 2
+ENABLE_FEAT_PAN			:= 2
+ENABLE_FEAT_VHE			:= 2
+CTX_INCLUDE_NEVE_REGS		:= 2
+ENABLE_FEAT_SEL2		:= 2
+ENABLE_TRF_FOR_NS		:= 2
+ENABLE_FEAT_ECV			:= 2
+ENABLE_FEAT_FGT			:= 2
+ENABLE_FEAT_TCR2		:= 2
+
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
@@ -318,10 +369,6 @@ $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config,${FVP_HW_CONFIG}))
 endif
 
-# Enable Activity Monitor Unit extensions by default
-ENABLE_FEAT_AMU			:=	2
-ENABLE_FEAT_AMUv1p1		:=	2
-
 # Enable dynamic mitigation support by default
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 
@@ -445,49 +492,6 @@ BL2_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
 # FVP being a development platform, enable capability to disable Authentication
 # dynamically if TRUSTED_BOARD_BOOT is set.
 DYN_DISABLE_AUTH	:=	1
-endif
-
-# enable trace buffer control registers access to NS by default
-ENABLE_TRBE_FOR_NS		:= 2
-
-# enable branch record buffer control registers access in NS by default
-# only enable for aarch64
-# do not enable when ENABLE_RME=1
-ifeq (${ARCH}, aarch64)
-ifeq (${ENABLE_RME},0)
-	ENABLE_BRBE_FOR_NS		:= 2
-endif
-endif
-
-# enable trace system registers access to NS by default
-ENABLE_SYS_REG_TRACE_FOR_NS	:= 2
-
-# enable trace filter control registers access to NS by default
-ENABLE_TRF_FOR_NS		:= 2
-
-# Linux relies on EL3 enablement if those features are present
-ENABLE_FEAT_FGT			:= 2
-ENABLE_FEAT_HCX			:= 2
-ENABLE_FEAT_TCR2		:= 2
-
-CTX_INCLUDE_NEVE_REGS		:= 2
-ENABLE_FEAT_CSV2_2		:= 2
-ENABLE_FEAT_ECV			:= 2
-ENABLE_FEAT_PAN			:= 2
-ENABLE_FEAT_SEL2		:= 2
-ENABLE_FEAT_TWED		:= 2
-ENABLE_FEAT_VHE			:= 2
-ENABLE_MPAM_FOR_LOWER_ELS	:= 2
-
-# Enable SME access to NS by default
-ifeq (${ARCH},aarch64)
-ifeq (${SPM_MM}, 0)
-ifeq (${ENABLE_RME}, 0)
-ifeq (${CTX_INCLUDE_FPREGS}, 0)
-	ENABLE_SME_FOR_NS		:= 2
-endif
-endif
-endif
 endif
 
 ifeq (${SPMC_AT_EL3}, 1)
