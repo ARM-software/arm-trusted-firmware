@@ -41,7 +41,7 @@ GIC_ENABLE_V4_EXTN	:=      1
 GICV3_SUPPORT_GIC600	:=	1
 
 # Enable SVE
-ENABLE_SVE_FOR_NS	:=	1
+ENABLE_SVE_FOR_NS	:=	2
 ENABLE_SVE_FOR_SWD	:=	1
 
 # enable trace buffer control registers access to NS by default
