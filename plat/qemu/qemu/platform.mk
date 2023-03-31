@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -306,8 +306,8 @@ ENABLE_FEAT_RNG			:= 2
 
 # Later QEMU versions support SME and SVE.
 ifneq (${ARCH},aarch32)
-	ENABLE_SVE_FOR_NS	:= 1
-	ENABLE_SME_FOR_NS	:= 1
+	ENABLE_SVE_FOR_NS	:= 2
+	ENABLE_SME_FOR_NS	:= 2
 endif
 
 qemu_fw.bios: bl1 fip
