@@ -1,16 +1,27 @@
-Qualcomm Snapdragon 410 (MSM8916/APQ8016)
-=========================================
+Qualcomm MSM8916
+================
+The MSM8916 platform port in TF-A supports multiple similar Qualcomm SoCs:
 
-The `Qualcomm Snapdragon 410`_ is Qualcomm's first 64-bit SoC, released in 2014
-with four ARM Cortex-A53 cores. There are differents variants (MSM8916,
-APQ8016(E), ...) that are all very similar. A popular device based on APQ8016E
-is the `DragonBoard 410c`_ single-board computer, but the SoC is also used in
-various mid-range smartphones/tablets.
++-----------------------+----------------+-------------------+-----------------+
+| System-on-Chip (SoC)  | TF-A Platform  | Application CPU   | Supports        |
++=======================+================+===================+=================+
+| `Snapdragon 410`_     |``PLAT=msm8916``| 4x ARM Cortex-A53 | AArch64/AArch32 |
+| (MSM8x16, APQ8016(E)) |                |                   |                 |
+| (`DragonBoard 410c`_) |                |                   |                 |
++-----------------------+----------------+-------------------+-----------------+
+| `Snapdragon 615`_     |``PLAT=msm8939``| 4x ARM Cortex-A53 | AArch64/AArch32 |
+| (MSM8x39, APQ8039)    |                | 4x ARM Cortex-A53 |                 |
++-----------------------+----------------+-------------------+-----------------+
+| `Snapdragon 210`_     |``PLAT=msm8909``| 4x ARM Cortex-A7  | AArch32 only    |
+| (MSM8x09, APQ8009)    |                |                   |                 |
++-----------------------+----------------+-------------------+-----------------+
+| `Snapdragon X5 Modem`_|``PLAT=mdm9607``| 1x ARM Cortex-A7  | AArch32 only    |
+| (MDM9x07)             |                |                   |                 |
++-----------------------+----------------+-------------------+-----------------+
 
-The TF-A port for MSM8916 provides a minimal, community-maintained
-EL3 firmware. It is primarily based on information from the public
-`Snapdragon 410E Technical Reference Manual`_ combined with a lot of
-trial and error to actually make it work.
+It provides a minimal, community-maintained EL3 firmware and PSCI implementation,
+based on information from the public `Snapdragon 410E Technical Reference Manual`_
+combined with a lot of trial and error to actually make it work.
 
 .. note::
 	Unlike the :doc:`QTI SC7180/SC7280 <qti>` ports, this port does **not**
@@ -56,24 +67,27 @@ booted using an additional shim loader such as `tfalkstub`_.
 
 Build
 -----
-It is possible to build for either AArch64 or AArch32. AArch64 is the preferred
-build option.
+It is possible to build for either AArch64 or AArch32. Some platforms use 32-bit
+CPUs that only support AArch32 (see table above). For all others AArch64 is the
+preferred build option.
 
 AArch64 (BL31)
 ^^^^^^^^^^^^^^
-Setup the cross compiler for AArch64 and build BL31 for ``msm8916``::
+Setup the cross compiler for AArch64 and build BL31 for one of the platforms in
+the table above::
 
-	$ make CROSS_COMPILE=aarch64-none-elf- PLAT=msm8916
+	$ make CROSS_COMPILE=aarch64-none-elf- PLAT=...
 
-The BL31 ELF image is generated in ``build/msm8916/release/bl31/bl31.elf``.
+The BL31 ELF image is generated in ``build/$PLAT/release/bl31/bl31.elf``.
 
 AArch32 (BL32/SP_MIN)
 ^^^^^^^^^^^^^^^^^^^^^
-Setup the cross compiler for AArch32 and build BL32 with SP_MIN for ``msm8916``::
+Setup the cross compiler for AArch32 and build BL32 with SP_MIN for one of the
+platforms in the table above::
 
-	$ make CROSS_COMPILE=arm-none-eabi- PLAT=msm8916 ARCH=aarch32 AARCH32_SP=sp_min
+	$ make CROSS_COMPILE=arm-none-eabi- PLAT=... ARCH=aarch32 AARCH32_SP=sp_min
 
-The BL32 ELF image is generated in ``build/msm8916/release/bl32/bl32.elf``.
+The BL32 ELF image is generated in ``build/$PLAT/release/bl32/bl32.elf``.
 
 Build Options
 -------------
@@ -186,7 +200,10 @@ this (with ``DEBUG=1``, otherwise only the ``NOTICE`` lines are shown)::
 	[0] welcome to lk
 	...
 
-.. _Qualcomm Snapdragon 410: https://www.qualcomm.com/products/snapdragon-processors-410
+.. _Snapdragon 210: https://www.qualcomm.com/products/snapdragon-processors-210
+.. _Snapdragon 410: https://www.qualcomm.com/products/snapdragon-processors-410
+.. _Snapdragon 615: https://www.qualcomm.com/products/snapdragon-processors-615
+.. _Snapdragon X5 Modem: https://www.qualcomm.com/products/snapdragon-modems-4g-lte-x5
 .. _DragonBoard 410c: https://www.96boards.org/product/dragonboard410c/
 .. _Snapdragon 410E Technical Reference Manual: https://developer.qualcomm.com/download/sd410/snapdragon-410e-technical-reference-manual.pdf
 .. _U-Boot for DragonBoard 410c: https://u-boot.readthedocs.io/en/latest/board/qualcomm/dragonboard410c.html
