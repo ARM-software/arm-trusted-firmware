@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -134,6 +134,7 @@ static void sp_min_prepare_next_image_entry(void)
 	assert(NON_SECURE == GET_SECURITY_STATE(next_image_info->h.attr));
 
 	INFO("SP_MIN: Preparing exit to normal world\n");
+	print_entry_point_info(next_image_info);
 
 	psci_prepare_next_non_secure_ctx(next_image_info);
 	smc_set_next_ctx(NON_SECURE);
