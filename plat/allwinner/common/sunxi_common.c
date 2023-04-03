@@ -183,5 +183,5 @@ int32_t plat_get_soc_revision(void)
 {
 	uint32_t reg = mmio_read_32(SRAM_VER_REG);
 
-	return reg & GENMASK_32(7, 0);
+	return reg & SUNXI_VER_BITS_MASK;
 }

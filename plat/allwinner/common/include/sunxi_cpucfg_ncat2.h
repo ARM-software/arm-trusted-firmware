@@ -28,4 +28,9 @@
 #define SUNXI_AA64nAA32_REG		SUNXI_CPUCFG_GEN_CTRL_REG0
 #define SUNXI_AA64nAA32_OFFSET		4
 
+static inline bool sunxi_cpucfg_has_per_cluster_regs(void)
+{
+	return true;
+}
+
 #endif /* SUNXI_CPUCFG_H */
