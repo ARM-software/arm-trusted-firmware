@@ -648,3 +648,19 @@ enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
 
 	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
+
+/**
+ * pm_get_chipid() - Read silicon ID registers
+ * @value:	Buffer for two 32bit words.
+ *
+ * @return:	Returns status, either success or error+reason and,
+ *		optionally, @value.
+ */
+enum pm_ret_status pm_get_chipid(uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	PM_PACK_PAYLOAD1(payload, LIBPM_MODULE_ID, SECURE_FLAG, PM_GET_CHIPID);
+
+	return pm_ipi_send_sync(primary_proc, payload, value, 2);
+}
