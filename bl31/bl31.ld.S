@@ -132,7 +132,10 @@ SECTIONS {
     RELA_SECTION >RAM
 
 #ifdef BL31_PROGBITS_LIMIT
-    ASSERT(. <= BL31_PROGBITS_LIMIT, "BL31 progbits has exceeded its limit.")
+    ASSERT(
+        . <= BL31_PROGBITS_LIMIT,
+        "BL31 progbits has exceeded its limit. Consider disabling some features."
+    )
 #endif /* BL31_PROGBITS_LIMIT */
 
 #if SEPARATE_NOBITS_REGION
