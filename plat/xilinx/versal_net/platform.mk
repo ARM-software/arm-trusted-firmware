@@ -99,6 +99,7 @@ endif
 BL31_SOURCES		+=	plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
+				plat/xilinx/common/versal.c			\
 				${PLAT_PATH}/bl31_versal_net_setup.c		\
 				${PLAT_PATH}/plat_topology.c			\
 				common/fdt_fixup.c				\
