@@ -121,6 +121,31 @@ func check_errata_827319
 #endif
 endfunc check_errata_827319
 
+/*
+ * Errata workaround for Cortex A53 Errata #835769.
+ * This applies to revisions <= r0p4 of Cortex A53.
+ * This workaround is statically enabled at build time.
+ */
+func check_errata_835769
+	cmp	x0, #0x04
+	b.hi	errata_not_applies
+	/*
+	 * Fix potentially available for revisions r0p2, r0p3 and r0p4.
+	 * If r0p2, r0p3 or r0p4; check for fix in REVIDR, else exit.
+	 */
+	cmp	x0, #0x01
+	mov	x0, #ERRATA_APPLIES
+	b.ls	exit_check_errata_835769
+	/* Load REVIDR. */
+	mrs	x1, revidr_el1
+	/* If REVIDR[7] is set (fix exists) set ERRATA_NOT_APPLIES, else exit. */
+	tbz	x1, #7, exit_check_errata_835769
+errata_not_applies:
+	mov	x0, #ERRATA_NOT_APPLIES
+exit_check_errata_835769:
+	ret
+endfunc check_errata_835769
+
 	/* ---------------------------------------------------------------------
 	 * Disable the cache non-temporal hint.
 	 *
@@ -138,24 +163,48 @@ endfunc check_errata_827319
 	 * Shall clobber: x0-x17
 	 * ---------------------------------------------------------------------
 	 */
-func a53_disable_non_temporal_hint
+func errata_a53_836870_wa
 	/*
 	 * Compare x0 against revision r0p3
 	 */
 	mov	x17, x30
-	bl	check_errata_disable_non_temporal_hint
+	bl	check_errata_836870
 	cbz	x0, 1f
 	mrs	x1, CORTEX_A53_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A53_CPUACTLR_EL1_DTAH
 	msr	CORTEX_A53_CPUACTLR_EL1, x1
 1:
 	ret	x17
-endfunc a53_disable_non_temporal_hint
+endfunc errata_a53_836870_wa
 
-func check_errata_disable_non_temporal_hint
+func check_errata_836870
 	mov	x1, #0x03
 	b	cpu_rev_var_ls
-endfunc check_errata_disable_non_temporal_hint
+endfunc check_errata_836870
+
+/*
+ * Errata workaround for Cortex A53 Errata #843419.
+ * This applies to revisions <= r0p4 of Cortex A53.
+ * This workaround is statically enabled at build time.
+ */
+func check_errata_843419
+	mov	x1, #ERRATA_APPLIES
+	mov	x2, #ERRATA_NOT_APPLIES
+	cmp	x0, #0x04
+	csel	x0, x1, x2, ls
+	/*
+	 * Fix potentially available for revision r0p4.
+	 * If r0p4 check for fix in REVIDR, else exit.
+	 */
+	b.ne	exit_check_errata_843419
+	/* Load REVIDR. */
+	mrs	x3, revidr_el1
+	/* If REVIDR[8] is set (fix exists) set ERRATA_NOT_APPLIES, else exit. */
+	tbz	x3, #8, exit_check_errata_843419
+	mov	x0, x2
+exit_check_errata_843419:
+	ret
+endfunc check_errata_843419
 
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #855873.
@@ -190,55 +239,6 @@ func check_errata_855873
 	b	cpu_rev_var_hs
 endfunc check_errata_855873
 
-/*
- * Errata workaround for Cortex A53 Errata #835769.
- * This applies to revisions <= r0p4 of Cortex A53.
- * This workaround is statically enabled at build time.
- */
-func check_errata_835769
-	cmp	x0, #0x04
-	b.hi	errata_not_applies
-	/*
-	 * Fix potentially available for revisions r0p2, r0p3 and r0p4.
-	 * If r0p2, r0p3 or r0p4; check for fix in REVIDR, else exit.
-	 */
-	cmp	x0, #0x01
-	mov	x0, #ERRATA_APPLIES
-	b.ls	exit_check_errata_835769
-	/* Load REVIDR. */
-	mrs	x1, revidr_el1
-	/* If REVIDR[7] is set (fix exists) set ERRATA_NOT_APPLIES, else exit. */
-	tbz	x1, #7, exit_check_errata_835769
-errata_not_applies:
-	mov	x0, #ERRATA_NOT_APPLIES
-exit_check_errata_835769:
-	ret
-endfunc check_errata_835769
-
-/*
- * Errata workaround for Cortex A53 Errata #843419.
- * This applies to revisions <= r0p4 of Cortex A53.
- * This workaround is statically enabled at build time.
- */
-func check_errata_843419
-	mov	x1, #ERRATA_APPLIES
-	mov	x2, #ERRATA_NOT_APPLIES
-	cmp	x0, #0x04
-	csel	x0, x1, x2, ls
-	/*
-	 * Fix potentially available for revision r0p4.
-	 * If r0p4 check for fix in REVIDR, else exit.
-	 */
-	b.ne	exit_check_errata_843419
-	/* Load REVIDR. */
-	mrs	x3, revidr_el1
-	/* If REVIDR[8] is set (fix exists) set ERRATA_NOT_APPLIES, else exit. */
-	tbz	x3, #8, exit_check_errata_843419
-	mov	x0, x2
-exit_check_errata_843419:
-	ret
-endfunc check_errata_843419
-
 	/* --------------------------------------------------
 	 * Errata workaround for Cortex A53 Errata #1530924.
 	 * This applies to all revisions of Cortex A53.
@@ -271,7 +271,7 @@ func cortex_a53_reset_func
 
 #if ERRATA_A53_836870
 	mov	x0, x18
-	bl	a53_disable_non_temporal_hint
+	bl	errata_a53_836870_wa
 #endif
 
 #if ERRATA_A53_855873
@@ -370,7 +370,7 @@ func cortex_a53_errata_report
 	report_errata ERRATA_A53_826319, cortex_a53, 826319
 	report_errata ERRATA_A53_827319, cortex_a53, 827319
 	report_errata ERRATA_A53_835769, cortex_a53, 835769
-	report_errata ERRATA_A53_836870, cortex_a53, disable_non_temporal_hint
+	report_errata ERRATA_A53_836870, cortex_a53, 836870
 	report_errata ERRATA_A53_843419, cortex_a53, 843419
 	report_errata ERRATA_A53_855873, cortex_a53, 855873
 	report_errata ERRATA_A53_1530924, cortex_a53, 1530924
