@@ -117,7 +117,8 @@ For Cortex-A53, the following errata build flags are defined :
 
 -  ``ERRATA_A53_836870``: This applies errata 836870 workaround to Cortex-A53
    CPU. This needs to be enabled only for revision <= r0p3 of the CPU. From
-   r0p4 and onwards, this errata is enabled by default in hardware.
+   r0p4 and onwards, this errata is enabled by default in hardware. Identical to
+   ``A53_DISABLE_NON_TEMPORAL_HINT``.
 
 -  ``ERRATA_A53_843419``: This applies erratum 843419 workaround at link time
    to Cortex-A53 CPU.  This needs to be enabled for some variants of revision
