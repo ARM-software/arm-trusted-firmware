@@ -436,11 +436,12 @@ Common build options
    This is to avoid corruption of the Non-secure world data in the Z-registers
    which are aliased by the SIMD and FP registers. The build option is not
    compatible with the ``CTX_INCLUDE_FPREGS`` build option, and will raise an
-   assert on platforms where SVE is implemented and ``ENABLE_SVE_FOR_NS`` set to
-   1. This flag can take the values 0 to 2, to align with the ``FEATURE_DETECTION``
-   mechanism. The default is 1 but is automatically disabled when
-   ENABLE_SME_FOR_NS=1 since SME encompasses SVE. At this time, this build
-   option cannot be used on systems that have SPM_MM enabled.
+   assert on platforms where SVE is implemented and ``ENABLE_SVE_FOR_NS`` enabled.
+   This flag can take the values 0 to 2, to align with the ``FEATURE_DETECTION``
+   mechanism. The default is 2 but is automatically disabled when
+   ENABLE_SME_FOR_NS is enabled ( set to 1 or 2) since SME encompasses SVE.
+   At this time, this build option cannot be used on systems that have SPM_MM
+   enabled.
 
 -  ``ENABLE_SVE_FOR_SWD``: Boolean option to enable SVE for the Secure world.
    SVE is an optional architectural feature for AArch64. Note that this option
