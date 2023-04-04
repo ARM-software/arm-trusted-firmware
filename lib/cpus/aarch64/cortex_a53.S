@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,11 +11,6 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 #include <lib/cpus/errata.h>
-
-#if A53_DISABLE_NON_TEMPORAL_HINT
-#undef ERRATA_A53_836870
-#define ERRATA_A53_836870	1
-#endif
 
 	/* ---------------------------------------------
 	 * Disable L1 data cache and unified L2 cache
@@ -42,14 +37,8 @@ func cortex_a53_disable_smp
 	ret
 endfunc cortex_a53_disable_smp
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A53 Errata #819472.
-	 * This applies only to revision <= r0p1 of Cortex A53.
-	 * Due to the nature of the errata it is applied unconditionally
-	 * when built in, report it as applicable in this case
-	 * ---------------------------------------------------
-	 */
-func check_errata_819472
+/* Due to the nature of the errata it is applied unconditionally when chosen */
+check_erratum_custom_start cortex_a53, ERRATUM(819472)
 #if ERRATA_A53_819472
 	mov x0, #ERRATA_APPLIES
 	ret
@@ -57,16 +46,13 @@ func check_errata_819472
 	mov	x1, #0x01
 	b	cpu_rev_var_ls
 #endif
-endfunc check_errata_819472
+check_erratum_custom_end cortex_a53, ERRATUM(819472)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A53 Errata #824069.
-	 * This applies only to revision <= r0p2 of Cortex A53.
-	 * Due to the nature of the errata it is applied unconditionally
-	 * when built in, report it as applicable in this case
-	 * ---------------------------------------------------
-	 */
-func check_errata_824069
+/* erratum workaround is interleaved with generic code */
+add_erratum_entry cortex_a53, ERRATUM(819472), ERRATUM_ALWAYS_CHOSEN, NO_APPLY_AT_RESET
+
+/* Due to the nature of the errata it is applied unconditionally when chosen */
+check_erratum_custom_start cortex_a53, ERRATUM(824069)
 #if ERRATA_A53_824069
 	mov x0, #ERRATA_APPLIES
 	ret
@@ -74,44 +60,22 @@ func check_errata_824069
 	mov	x1, #0x02
 	b	cpu_rev_var_ls
 #endif
-endfunc check_errata_824069
+check_erratum_custom_end cortex_a53, ERRATUM(824069)
 
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A53 Errata #826319.
-	 * This applies only to revision <= r0p2 of Cortex A53.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
-func errata_a53_826319_wa
-	/*
-	 * Compare x0 against revision r0p2
-	 */
-	mov	x17, x30
-	bl	check_errata_826319
-	cbz	x0, 1f
+/* erratum workaround is interleaved with generic code */
+add_erratum_entry cortex_a53, ERRATUM(824069), ERRATUM_ALWAYS_CHOSEN, NO_APPLY_AT_RESET
+
+workaround_reset_start cortex_a53, ERRATUM(826319), ERRATA_A53_826319
 	mrs	x1, CORTEX_A53_L2ACTLR_EL1
 	bic	x1, x1, #CORTEX_A53_L2ACTLR_ENABLE_UNIQUECLEAN
 	orr	x1, x1, #CORTEX_A53_L2ACTLR_DISABLE_CLEAN_PUSH
 	msr	CORTEX_A53_L2ACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a53_826319_wa
+workaround_reset_end cortex_a53, ERRATUM(826319)
 
-func check_errata_826319
-	mov	x1, #0x02
-	b	cpu_rev_var_ls
-endfunc check_errata_826319
+check_erratum_ls cortex_a53, ERRATUM(826319), CPU_REV(0, 2)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A53 Errata #827319.
-	 * This applies only to revision <= r0p2 of Cortex A53.
-	 * Due to the nature of the errata it is applied unconditionally
-	 * when built in, report it as applicable in this case
-	 * ---------------------------------------------------
-	 */
-func check_errata_827319
+/* Due to the nature of the errata it is applied unconditionally when chosen */
+check_erratum_custom_start cortex_a53, ERRATUM(827319)
 #if ERRATA_A53_827319
 	mov x0, #ERRATA_APPLIES
 	ret
@@ -119,14 +83,12 @@ func check_errata_827319
 	mov	x1, #0x02
 	b	cpu_rev_var_ls
 #endif
-endfunc check_errata_827319
+check_erratum_custom_end cortex_a53, ERRATUM(827319)
 
-/*
- * Errata workaround for Cortex A53 Errata #835769.
- * This applies to revisions <= r0p4 of Cortex A53.
- * This workaround is statically enabled at build time.
- */
-func check_errata_835769
+/* erratum workaround is interleaved with generic code */
+add_erratum_entry cortex_a53, ERRATUM(827319), ERRATUM_ALWAYS_CHOSEN, NO_APPLY_AT_RESET
+
+check_erratum_custom_start cortex_a53, ERRATUM(835769)
 	cmp	x0, #0x04
 	b.hi	errata_not_applies
 	/*
@@ -144,50 +106,28 @@ errata_not_applies:
 	mov	x0, #ERRATA_NOT_APPLIES
 exit_check_errata_835769:
 	ret
-endfunc check_errata_835769
+check_erratum_custom_end cortex_a53, ERRATUM(835769)
 
-	/* ---------------------------------------------------------------------
+/* workaround at build time */
+add_erratum_entry cortex_a53, ERRATUM(835769), ERRATA_A53_835769, NO_APPLY_AT_RESET
+
+	/*
 	 * Disable the cache non-temporal hint.
 	 *
 	 * This ignores the Transient allocation hint in the MAIR and treats
 	 * allocations the same as non-transient allocation types. As a result,
 	 * the LDNP and STNP instructions in AArch64 behave the same as the
 	 * equivalent LDP and STP instructions.
-	 *
-	 * This is relevant only for revisions <= r0p3 of Cortex-A53.
-	 * From r0p4 and onwards, the bit to disable the hint is enabled by
-	 * default at reset.
-	 *
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------------------------
 	 */
-func errata_a53_836870_wa
-	/*
-	 * Compare x0 against revision r0p3
-	 */
-	mov	x17, x30
-	bl	check_errata_836870
-	cbz	x0, 1f
+workaround_reset_start cortex_a53, ERRATUM(836870), ERRATA_A53_836870 | A53_DISABLE_NON_TEMPORAL_HINT
 	mrs	x1, CORTEX_A53_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A53_CPUACTLR_EL1_DTAH
 	msr	CORTEX_A53_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a53_836870_wa
+workaround_reset_end cortex_a53, ERRATUM(836870)
 
-func check_errata_836870
-	mov	x1, #0x03
-	b	cpu_rev_var_ls
-endfunc check_errata_836870
+check_erratum_ls cortex_a53, ERRATUM(836870), CPU_REV(0, 3)
 
-/*
- * Errata workaround for Cortex A53 Errata #843419.
- * This applies to revisions <= r0p4 of Cortex A53.
- * This workaround is statically enabled at build time.
- */
-func check_errata_843419
+check_erratum_custom_start cortex_a53, ERRATUM(843419)
 	mov	x1, #ERRATA_APPLIES
 	mov	x2, #ERRATA_NOT_APPLIES
 	cmp	x0, #0x04
@@ -204,81 +144,31 @@ func check_errata_843419
 	mov	x0, x2
 exit_check_errata_843419:
 	ret
-endfunc check_errata_843419
+check_erratum_custom_end cortex_a53, ERRATUM(843419)
 
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A53 Errata #855873.
-	 *
-	 * This applies only to revisions >= r0p3 of Cortex A53.
+/* workaround at build time */
+add_erratum_entry cortex_a53, ERRATUM(843419), ERRATA_A53_843419, NO_APPLY_AT_RESET
+
+	/*
 	 * Earlier revisions of the core are affected as well, but don't
 	 * have the chicken bit in the CPUACTLR register. It is expected that
 	 * the rich OS takes care of that, especially as the workaround is
 	 * shared with other erratas in those revisions of the CPU.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
 	 */
-func errata_a53_855873_wa
-	/*
-	 * Compare x0 against revision r0p3 and higher
-	 */
-        mov     x17, x30
-        bl      check_errata_855873
-        cbz     x0, 1f
-
+workaround_reset_start cortex_a53, ERRATUM(855873), ERRATA_A53_855873
 	mrs	x1, CORTEX_A53_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A53_CPUACTLR_EL1_ENDCCASCI
 	msr	CORTEX_A53_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a53_855873_wa
+workaround_reset_end cortex_a53, ERRATUM(855873)
 
-func check_errata_855873
-	mov	x1, #0x03
-	b	cpu_rev_var_hs
-endfunc check_errata_855873
+check_erratum_hs cortex_a53, ERRATUM(855873), CPU_REV(0, 3)
 
-	/* --------------------------------------------------
-	 * Errata workaround for Cortex A53 Errata #1530924.
-	 * This applies to all revisions of Cortex A53.
-	 * --------------------------------------------------
-	 */
-func check_errata_1530924
-#if ERRATA_A53_1530924
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_1530924
+check_erratum_chosen cortex_a53, ERRATUM(1530924), ERRATA_A53_1530924
 
-	/* -------------------------------------------------
-	 * The CPU Ops reset function for Cortex-A53.
-	 * Shall clobber: x0-x19
-	 * -------------------------------------------------
-	 */
-func cortex_a53_reset_func
-	mov	x19, x30
-	bl	cpu_get_rev_var
-	mov	x18, x0
+/* erratum has no workaround in the cpu. Generic code must take care */
+add_erratum_entry cortex_a53, ERRATUM(1530924), ERRATA_A53_1530924, NO_APPLY_AT_RESET
 
-
-#if ERRATA_A53_826319
-	mov	x0, x18
-	bl	errata_a53_826319_wa
-#endif
-
-#if ERRATA_A53_836870
-	mov	x0, x18
-	bl	errata_a53_836870_wa
-#endif
-
-#if ERRATA_A53_855873
-	mov	x0, x18
-	bl	errata_a53_855873_wa
-#endif
-
+cpu_reset_func_start cortex_a53
 	/* ---------------------------------------------
 	 * Enable the SMP bit.
 	 * ---------------------------------------------
@@ -286,9 +176,7 @@ func cortex_a53_reset_func
 	mrs	x0, CORTEX_A53_ECTLR_EL1
 	orr	x0, x0, #CORTEX_A53_ECTLR_SMP_BIT
 	msr	CORTEX_A53_ECTLR_EL1, x0
-	isb
-	ret	x19
-endfunc cortex_a53_reset_func
+cpu_reset_func_end cortex_a53
 
 func cortex_a53_core_pwr_dwn
 	mov	x18, x30
@@ -351,34 +239,7 @@ func cortex_a53_cluster_pwr_dwn
 	b	cortex_a53_disable_smp
 endfunc cortex_a53_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex A53. Must follow AAPCS.
- */
-func cortex_a53_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_A53_819472, cortex_a53, 819472
-	report_errata ERRATA_A53_824069, cortex_a53, 824069
-	report_errata ERRATA_A53_826319, cortex_a53, 826319
-	report_errata ERRATA_A53_827319, cortex_a53, 827319
-	report_errata ERRATA_A53_835769, cortex_a53, 835769
-	report_errata ERRATA_A53_836870, cortex_a53, 836870
-	report_errata ERRATA_A53_843419, cortex_a53, 843419
-	report_errata ERRATA_A53_855873, cortex_a53, 855873
-	report_errata ERRATA_A53_1530924, cortex_a53, 1530924
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_a53_errata_report
-#endif
+errata_report_shim cortex_a53
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a53 specific
