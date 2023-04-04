@@ -71,6 +71,36 @@ func cortex_a57_disable_ext_debug
 	ret
 endfunc cortex_a57_disable_ext_debug
 
+	/* --------------------------------------------------------------------
+	 * Disable the over-read from the LDNP instruction.
+	 *
+	 * This applies to all revisions <= r1p2. The performance degradation
+	 * observed with LDNP/STNP has been fixed on r1p3 and onwards.
+	 *
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * ---------------------------------------------------------------------
+	 */
+func a57_disable_ldnp_overread
+	/*
+	 * Compare x0 against revision r1p2
+	 */
+	mov	x17, x30
+	bl	check_errata_disable_ldnp_overread
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_OVERREAD
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
+1:
+	ret	x17
+endfunc a57_disable_ldnp_overread
+
+func check_errata_disable_ldnp_overread
+	mov	x1, #0x12
+	b	cpu_rev_var_ls
+endfunc check_errata_disable_ldnp_overread
+
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A57 Errata #806969.
 	 * This applies only to revision r0p0 of Cortex A57.
@@ -181,36 +211,6 @@ func check_errata_817169
 	mov	x0, #ERRATA_APPLIES
 	ret
 endfunc check_errata_817169
-
-	/* --------------------------------------------------------------------
-	 * Disable the over-read from the LDNP instruction.
-	 *
-	 * This applies to all revisions <= r1p2. The performance degradation
-	 * observed with LDNP/STNP has been fixed on r1p3 and onwards.
-	 *
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------------------------
-	 */
-func a57_disable_ldnp_overread
-	/*
-	 * Compare x0 against revision r1p2
-	 */
-	mov	x17, x30
-	bl	check_errata_disable_ldnp_overread
-	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_OVERREAD
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc a57_disable_ldnp_overread
-
-func check_errata_disable_ldnp_overread
-	mov	x1, #0x12
-	b	cpu_rev_var_ls
-endfunc check_errata_disable_ldnp_overread
 
 	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A57 Errata #826974.
@@ -378,6 +378,20 @@ func check_errata_859972
 	b	cpu_rev_var_ls
 endfunc check_errata_859972
 
+	/* --------------------------------------------------
+	 * Errata workaround for Cortex A57 Errata #1319537.
+	 * This applies to all revisions of Cortex A57.
+	 * --------------------------------------------------
+	 */
+func check_errata_1319537
+#if ERRATA_A57_1319537
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_1319537
+
 func check_errata_cve_2017_5715
 #if WORKAROUND_CVE_2017_5715
 	mov	x0, #ERRATA_APPLIES
@@ -396,19 +410,14 @@ func check_errata_cve_2018_3639
 	ret
 endfunc check_errata_cve_2018_3639
 
-	/* --------------------------------------------------
-	 * Errata workaround for Cortex A57 Errata #1319537.
-	 * This applies to all revisions of Cortex A57.
-	 * --------------------------------------------------
-	 */
-func check_errata_1319537
-#if ERRATA_A57_1319537
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
 #else
 	mov	x0, #ERRATA_MISSING
 #endif
 	ret
-endfunc check_errata_1319537
+endfunc check_errata_cve_2022_23960
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A57.
@@ -510,15 +519,6 @@ func cortex_a57_reset_func
 	isb
 	ret	x19
 endfunc cortex_a57_reset_func
-
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
 
 func check_smccc_arch_workaround_3
 	mov	x0, #ERRATA_APPLIES
