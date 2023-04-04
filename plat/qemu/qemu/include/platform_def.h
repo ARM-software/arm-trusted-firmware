@@ -244,8 +244,7 @@
  * interrupts.
  *****************************************************************************/
 #define PLATFORM_G1S_PROPS(grp)						\
-	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY,	\
-					   grp, GIC_INTR_CFG_EDGE),	\
+	DESC_G1S_IRQ_SEC_SGI_0(grp)					\
 	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY,	\
 					   grp, GIC_INTR_CFG_EDGE),	\
 	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY,	\
@@ -261,13 +260,33 @@
 	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY,	\
 					   grp, GIC_INTR_CFG_EDGE)
 
-#define PLATFORM_G0_PROPS(grp)
+#if SDEI_SUPPORT
+#define DESC_G0_IRQ_SEC_SGI(grp)					\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_0, PLAT_SDEI_NORMAL_PRI, (grp), \
+					   GIC_INTR_CFG_EDGE)
+#define DESC_G1S_IRQ_SEC_SGI_0(grp)
+#else
+#define DESC_G0_IRQ_SEC_SGI(grp)
+#define DESC_G1S_IRQ_SEC_SGI_0(grp)					\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_0, PLAT_SDEI_NORMAL_PRI, (grp),	\
+					   GIC_INTR_CFG_EDGE),
+#endif
+
+#define PLATFORM_G0_PROPS(grp)		DESC_G0_IRQ_SEC_SGI(grp)
 
 /*
  * DT related constants
  */
 #define PLAT_QEMU_DT_BASE		NS_DRAM0_BASE
 #define PLAT_QEMU_DT_MAX_SIZE		0x100000
+
+/*
+ * Platforms macros to support SDEI
+ */
+#define PLAT_PRI_BITS			U(3)
+#define PLAT_SDEI_CRITICAL_PRI		0x60
+#define PLAT_SDEI_NORMAL_PRI		0x70
+#define PLAT_SDEI_SGI_PRIVATE		QEMU_IRQ_SEC_SGI_0
 
 /*
  * System counter

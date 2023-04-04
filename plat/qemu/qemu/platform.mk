@@ -230,6 +230,10 @@ BL31_SOURCES		+=	${QEMU_CPU_LIBS}			\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl31_setup.c		\
 				${QEMU_GIC_SOURCES}
 
+ifeq (${SDEI_SUPPORT}, 1)
+BL31_SOURCES		+=	plat/qemu/common/qemu_sdei.c
+endif
+
 # Pointer Authentication sources
 ifeq (${ENABLE_PAUTH}, 1)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c	\
@@ -322,4 +326,8 @@ qemu_fw.rom: qemu_fw.bios
 
 ifneq (${BL33},)
 all: qemu_fw.bios qemu_fw.rom
+endif
+
+ifeq (${EL3_EXCEPTION_HANDLING},1)
+BL31_SOURCES		+=	plat/common/aarch64/plat_ehf.c
 endif
