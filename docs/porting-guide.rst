@@ -26,6 +26,13 @@ provide their own implementation if the default implementation is inadequate.
       defined. We intend to convert existing weak functions over time. Until
       then, you will find references to *weak* functions in this document.
 
+Please review the :ref:`Threat Model` documents as part of the porting
+effort. Some platform interfaces play a key role in mitigating against some of
+the threats. Failing to fulfill these expectations could undermine the security
+guarantees offered by TF-A. These platform responsibilities are highlighted in
+the threat assessment section, under the "`Mitigations implemented?`" box for
+each threat.
+
 Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
 modifications for each BL stage in detail.
