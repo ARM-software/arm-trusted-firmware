@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <plat/arm/soc/common/soc_css.h>
 #include <plat/common/platform.h>
 
+#include "juno_ethosn_tzmp1_def.h"
 #include "juno_tzmp1_def.h"
 
 #ifdef JUNO_TZMP1
@@ -78,6 +79,15 @@ static void init_v550(void)
 
 #endif /* JUNO_TZMP1 */
 
+#ifdef JUNO_ETHOSN_TZMP1
+
+static const arm_tzc_regions_info_t juno_ethosn_tzmp1_tzc_regions[] = {
+	JUNO_ETHOSN_TZMP_REGIONS_DEF,
+	{},
+};
+
+#endif /* JUNO_ETHOSN_TZMP1 */
+
 /*******************************************************************************
  * Set up the MMU-401 SSD tables. The power-on configuration has all stream IDs
  * assigned to Non-Secure except some for the DMA-330. Assign those back to the
@@ -140,6 +150,17 @@ void plat_arm_security_setup(void)
 	     (void *)JUNO_AP_TZC_SHARE_DRAM1_BASE);
 	INFO("TZC protected shared memory end address for TZMP usecase: %p\n",
 	     (void *)JUNO_AP_TZC_SHARE_DRAM1_END);
+#elif defined(JUNO_ETHOSN_TZMP1)
+	arm_tzc400_setup(PLAT_ARM_TZC_BASE, juno_ethosn_tzmp1_tzc_regions);
+	INFO("TZC protected shared memory range for NPU TZMP usecase: %p - %p\n",
+	     (void *)JUNO_ETHOSN_NS_DRAM2_BASE,
+	     (void *)JUNO_ETHOSN_NS_DRAM2_END);
+	INFO("TZC protected Data memory range for NPU TZMP usecase: %p - %p\n",
+	     (void *)JUNO_ETHOSN_DATA_TZC_PROT_DRAM2_BASE,
+	     (void *)JUNO_ETHOSN_DATA_TZC_PROT_DRAM2_END);
+	INFO("TZC protected FW memory range for NPU TZMP usecase: %p - %p\n",
+	     (void *)JUNO_ETHOSN_FW_TZC_PROT_DRAM2_BASE,
+	     (void *)JUNO_ETHOSN_FW_TZC_PROT_DRAM2_END);
 #else
 	arm_tzc400_setup(PLAT_ARM_TZC_BASE, NULL);
 #endif

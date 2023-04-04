@@ -53,6 +53,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #if TRUSTED_BOARD_BOOT && !RESET_TO_BL2
 	ARM_MAP_BL1_RW,
 #endif
+#ifdef JUNO_ETHOSN_TZMP1
+	JUNO_ETHOSN_PROT_FW_RW,
+#endif
 	{0}
 };
 #endif
@@ -76,6 +79,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 	SOC_CSS_MAP_DEVICE,
 	ARM_DTB_DRAM_NS,
+#ifdef JUNO_ETHOSN_TZMP1
+	JUNO_ETHOSN_PROT_FW_RO,
+#endif
 	{0}
 };
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2020-2023, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,4 +23,41 @@
 		mbedtls_heap_addr = <0x0 0x0>;
 		mbedtls_heap_size = <0x0>;
 	};
+
+#if ARM_IO_IN_DTB
+	arm-io_policies {
+		fip-handles {
+			compatible = "arm,io-fip-handle";
+			scp_bl2_uuid = "9766fd3d-89be-e849-ae5d-78a140608213";
+			bl31_uuid = "47d4086d-4cfe-9846-9b95-2950cbbd5a00";
+			bl32_uuid = "05d0e189-53dc-1347-8d2b-500a4b7a3e38";
+			bl32_extra1_uuid = "0b70c29b-2a5a-7840-9f65-0a5682738288";
+			bl32_extra2_uuid = "8ea87bb1-cfa2-3f4d-85fd-e7bba50220d9";
+			bl33_uuid = "d6d0eea7-fcea-d54b-9782-9934f234b6e4";
+			hw_cfg_uuid = "08b8f1d9-c9cf-9349-a962-6fbc6b7265cc";
+			soc_fw_cfg_uuid = "9979814b-0376-fb46-8c8e-8d267f7859e0";
+			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
+			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
+			cca_cert_uuid = "36d83d85-761d-4daf-96f1-cd99d6569b00";
+			core_swd_cert_uuid = "52222d31-820f-494d-8bbc-ea6825d3c35a";
+			plat_cert_uuid = "d43cd902-5b9f-412e-8ac6-92b6d18be60d";
+			t_key_cert_uuid = "827ee890-f860-e411-a1b4-777a21b4f94c";
+			scp_fw_key_uuid = "024221a1-f860-e411-8d9b-f33c0e15a014";
+			soc_fw_key_uuid = "8ab8becc-f960-e411-9ad0-eb4822d8dcf8";
+			tos_fw_key_cert_uuid = "9477d603-fb60-e411-85dd-b7105b8cee04";
+			nt_fw_key_cert_uuid = "8ad5832a-fb60-e411-8aaf-df30bbc49859";
+			scp_fw_content_cert_uuid = "44be6f04-5e63-e411-b28b-73d8eaae9656";
+			soc_fw_content_cert_uuid = "e2b20c20-5e63-e411-9ce8-abccf92bb666";
+			tos_fw_content_cert_uuid = "a49f4411-5e63-e411-8728-3f05722af33d";
+			nt_fw_content_cert_uuid = "8ec4c1f3-5d63-e411-a7a9-87ee40b23fa7";
+			plat_sp_content_cert_uuid = "776dfd44-8697-4c3b-91eb-c13e025a2a6f";
+#if ARM_ETHOSN_NPU_TZMP1
+			arm_ethosn_npu_fw_uuid = "cfd499b5-a3bc-4a7e-98cb-48a41cb8dae1";
+			arm_ethosn_npu_fw_key_cert_uuid = "5666d004-ab98-40aa-8988-b72a03a256e2";
+			arm_ethosn_npu_fw_content_cert_uuid = "a5c418da-430f-48b1-88cd-93f67889d9ed";
+#endif
+		};
+	};
+#endif /* ARM_IO_IN_DTB */
+
 };

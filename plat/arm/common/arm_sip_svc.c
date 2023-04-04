@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019,2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,6 +33,14 @@ static int arm_sip_setup(void)
 	}
 
 #endif /* USE_DEBUGFS */
+
+#if ARM_ETHOSN_NPU_DRIVER
+
+	if (ethosn_smc_setup() != 0) {
+		return 1;
+	}
+
+#endif /* ARM_ETHOSN_NPU_DRIVER */
 
 	return 0;
 }

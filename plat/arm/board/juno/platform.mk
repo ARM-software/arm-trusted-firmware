@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -43,7 +43,11 @@ $(eval $(call add_define,JUNO_AARCH32_EL3_RUNTIME))
 JUNO_TZMP1		:=	0
 $(eval $(call assert_boolean,JUNO_TZMP1))
 ifeq (${JUNO_TZMP1}, 1)
-$(eval $(call add_define,JUNO_TZMP1))
+  ifeq (${ARM_ETHOSN_NPU_TZMP1},1)
+    $(error JUNO_TZMP1 cannot be used together with ARM_ETHOSN_NPU_TZMP1)
+  else
+    $(eval $(call add_define,JUNO_TZMP1))
+  endif
 endif
 
 TRNG_SUPPORT		:=	1
@@ -102,8 +106,16 @@ BL1_SOURCES		+=	drivers/arm/css/sds/sds.c
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
-BL1_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
-BL2_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
+   # Enable Juno specific TBBR images
+   $(eval $(call add_define,PLAT_TBBR_IMG_DEF))
+   DTC_CPPFLAGS += ${PLAT_INCLUDES}
+
+   BL1_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
+   BL2_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
+
+   ifeq (${COT_DESC_IN_DTB},0)
+      BL2_SOURCES	+=	plat/arm/board/juno/juno_tbbr_cot_bl2.c
+   endif
 endif
 
 endif
