@@ -37,8 +37,11 @@ FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 # The fix is to enable everything, as before. When the tsp is included, though,
 # we need to slim the size down. In that case, disable all optional features,
 # that will not be present in CI when the tsp is.
+# Similarly, DRTM support is only tested on v8.0 models. Disable everything just
+# for it.
 # TODO: make all of this unconditional (or only base the condition on
 # ARM_ARCH_* when the makefile supports it).
+ifneq (${DRTM_SUPPORT}, 1)
 ifneq (${SPD}, tspd)
 	ENABLE_FEAT_AMU			:= 2
 	ENABLE_FEAT_AMUv1p1		:= 2
@@ -74,6 +77,7 @@ ENABLE_TRF_FOR_NS		:= 2
 ENABLE_FEAT_ECV			:= 2
 ENABLE_FEAT_FGT			:= 2
 ENABLE_FEAT_TCR2		:= 2
+endif
 
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
