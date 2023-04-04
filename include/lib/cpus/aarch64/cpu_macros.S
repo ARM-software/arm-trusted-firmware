@@ -527,6 +527,27 @@
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
+.macro check_erratum_chosen _cpu:req, _cve:req, _id:req, _chosen:req
+	func check_erratum_\_cpu\()_\_id
+		.if \_chosen
+			mov	x0, #ERRATA_APPLIES
+		.else
+			mov	x0, #ERRATA_MISSING
+		.endif
+		ret
+	endfunc check_erratum_\_cpu\()_\_id
+.endm
+
+/* provide a shorthand for the name format for annoying errata */
+.macro check_erratum_custom_start _cpu:req, _cve:req, _id:req
+	func check_erratum_\_cpu\()_\_id
+.endm
+
+.macro check_erratum_custom_end _cpu:req, _cve:req, _id:req
+	endfunc check_erratum_\_cpu\()_\_id
+.endm
+
+
 /*******************************************************************************
  * CPU reset function wrapper
  ******************************************************************************/
