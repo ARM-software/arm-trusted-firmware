@@ -427,6 +427,23 @@
 .endm
 
 /*
+ * Clear a bit in a system register. Can clear multiple bits but is limited by
+ *  the way the BIC instrucion encodes them.
+ *
+ * see sysreg_bit_set for usage
+ */
+.macro sysreg_bit_clear _reg:req, _bit:req
+	mrs	x1, \_reg
+	bic	x1, x1, #\_bit
+	msr	\_reg, x1
+.endm
+
+.macro override_vector_table _table:req
+	adr	x1, \_table
+	msr	vbar_el3, x1
+.endm
+
+/*
  * Apply erratum
  *
  * _cpu:
@@ -496,6 +513,27 @@
 		b	cpu_rev_var_range
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
+
+.macro check_erratum_chosen _cpu:req, _cve:req, _id:req, _chosen:req
+	func check_erratum_\_cpu\()_\_id
+		.if \_chosen
+			mov	x0, #ERRATA_APPLIES
+		.else
+			mov	x0, #ERRATA_MISSING
+		.endif
+		ret
+	endfunc check_erratum_\_cpu\()_\_id
+.endm
+
+/* provide a shorthand for the name format for annoying errata */
+.macro check_erratum_custom_start _cpu:req, _cve:req, _id:req
+	func check_erratum_\_cpu\()_\_id
+.endm
+
+.macro check_erratum_custom_end _cpu:req, _cve:req, _id:req
+	endfunc check_erratum_\_cpu\()_\_id
+.endm
+
 
 /*******************************************************************************
  * CPU reset function wrapper
