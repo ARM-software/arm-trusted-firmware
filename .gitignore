@@ -11,6 +11,7 @@ build/
 
 # Ignore build products from tools
 tools/**/*.o
+tools/**/*.d
 tools/renesas/rcar_layout_create/*.bin
 tools/renesas/rcar_layout_create/*.srec
 tools/renesas/rcar_layout_create/*.map
