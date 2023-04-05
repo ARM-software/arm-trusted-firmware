@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -60,80 +60,35 @@ func cortex_a57_disable_ext_debug
 	mov	x0, #1
 	msr	osdlr_el1, x0
 	isb
-#if ERRATA_A57_817169
-	/*
-	 * Invalidate any TLB address
-	 */
-	mov	x0, #0
-	tlbi	vae3, x0
-#endif
+
+	apply_erratum cortex_a57, ERRATUM(817169), ERRATA_A57_817169
+
 	dsb	sy
 	ret
 endfunc cortex_a57_disable_ext_debug
 
-	/* --------------------------------------------------------------------
-	 * Disable the over-read from the LDNP instruction.
-	 *
-	 * This applies to all revisions <= r1p2. The performance degradation
-	 * observed with LDNP/STNP has been fixed on r1p3 and onwards.
-	 *
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------------------------
-	 */
-func a57_disable_ldnp_overread
-	/*
-	 * Compare x0 against revision r1p2
-	 */
-	mov	x17, x30
-	bl	check_errata_disable_ldnp_overread
-	cbz	x0, 1f
+/*
+ * Disable the over-read from the LDNP/STNP instruction. The SDEN doesn't
+ * provide and erratum number, so assign it an obvious 1
+ */
+workaround_reset_start cortex_a57, ERRATUM(1), A57_DISABLE_NON_TEMPORAL_HINT
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_OVERREAD
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc a57_disable_ldnp_overread
+workaround_reset_end cortex_a57, ERRATUM(1)
 
-func check_errata_disable_ldnp_overread
-	mov	x1, #0x12
-	b	cpu_rev_var_ls
-endfunc check_errata_disable_ldnp_overread
+check_erratum_ls cortex_a57, ERRATUM(1), CPU_REV(1, 2)
 
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #806969.
-	 * This applies only to revision r0p0 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
-func errata_a57_806969_wa
-	/*
-	 * Compare x0 against revision r0p0
-	 */
-	mov	x17, x30
-	bl	check_errata_806969
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(806969), ERRATA_A57_806969
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_NO_ALLOC_WBWA
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a57_806969_wa
+workaround_reset_end cortex_a57, ERRATUM(806969)
 
-func check_errata_806969
-	mov	x1, #0x00
-	b	cpu_rev_var_ls
-endfunc check_errata_806969
+check_erratum_ls cortex_a57, ERRATUM(806969), CPU_REV(0, 0)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #813419.
-	 * This applies only to revision r0p0 of Cortex A57.
-	 * ---------------------------------------------------
-	 */
-func check_errata_813419
+/* erratum always worked around, but report it correctly */
+check_erratum_custom_start cortex_a57, ERRATUM(813419)
 	/*
 	 * Even though this is only needed for revision r0p0, it
 	 * is always applied due to limitations of the current
@@ -141,146 +96,57 @@ func check_errata_813419
 	 */
 	mov	x0, #ERRATA_APPLIES
 	ret
-endfunc check_errata_813419
+check_erratum_custom_end cortex_a57, ERRATUM(813419)
+add_erratum_entry cortex_a57, ERRATUM(813419), ERRATUM_ALWAYS_CHOSEN, NO_APPLY_AT_RESET
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #813420.
-	 * This applies only to revision r0p0 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------
-	 */
-func errata_a57_813420_wa
-	/*
-	 * Compare x0 against revision r0p0
-	 */
-	mov	x17, x30
-	bl	check_errata_813420
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(813420), ERRATA_A57_813420
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DCC_AS_DCCI
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a57_813420_wa
+workaround_reset_end cortex_a57, ERRATUM(813420)
 
-func check_errata_813420
-	mov	x1, #0x00
-	b	cpu_rev_var_ls
-endfunc check_errata_813420
+check_erratum_ls cortex_a57, ERRATUM(813420), CPU_REV(0, 0)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #814670.
-	 * This applies only to revision r0p0 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------
-	 */
-func errata_a57_814670_wa
-	/*
-	 * Compare x0 against revision r0p0
-	 */
-	mov	x17, x30
-	bl	check_errata_814670
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(814670), ERRATA_A57_814670
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_DMB_NULLIFICATION
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_a57_814670_wa
+workaround_reset_end cortex_a57, ERRATUM(814670)
 
-func check_errata_814670
-	mov	x1, #0x00
-	b	cpu_rev_var_ls
-endfunc check_errata_814670
+check_erratum_ls cortex_a57, ERRATUM(814670), CPU_REV(0, 0)
 
-	/* ----------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #817169.
-	 * This applies only to revision <= r0p1 of Cortex A57.
-	 * ----------------------------------------------------
-	 */
-func check_errata_817169
+workaround_runtime_start cortex_a57, ERRATUM(817169), ERRATA_A57_817169, CORTEX_A57_MIDR
+	/* Invalidate any TLB address */
+	mov	x0, #0
+	tlbi	vae3, x0
+workaround_runtime_end cortex_a57, ERRATUM(817169), NO_ISB
+
+check_erratum_custom_start cortex_a57, ERRATUM(817169)
 	/*
 	 * Even though this is only needed for revision <= r0p1, it
 	 * is always applied because of the low cost of the workaround.
 	 */
 	mov	x0, #ERRATA_APPLIES
 	ret
-endfunc check_errata_817169
+check_erratum_custom_end cortex_a57, ERRATUM(817169)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #826974.
-	 * This applies only to revision <= r1p1 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------
-	 */
-func errata_a57_826974_wa
-	/*
-	 * Compare x0 against revision r1p1
-	 */
-	mov	x17, x30
-	bl	check_errata_826974
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(826974), ERRATA_A57_826974
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_DMB
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a57_826974_wa
+workaround_reset_end cortex_a57, ERRATUM(826974)
 
-func check_errata_826974
-	mov	x1, #0x11
-	b	cpu_rev_var_ls
-endfunc check_errata_826974
+check_erratum_ls cortex_a57, ERRATUM(826974), CPU_REV(1, 1)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #826977.
-	 * This applies only to revision <= r1p1 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------
-	 */
-func errata_a57_826977_wa
-	/*
-	 * Compare x0 against revision r1p1
-	 */
-	mov	x17, x30
-	bl	check_errata_826977
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(826977), ERRATA_A57_826977
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_GRE_NGRE_AS_NGNRE
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a57_826977_wa
+workaround_reset_end cortex_a57, ERRATUM(826977)
 
-func check_errata_826977
-	mov	x1, #0x11
-	b	cpu_rev_var_ls
-endfunc check_errata_826977
+check_erratum_ls cortex_a57, ERRATUM(826977), CPU_REV(1, 1)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #828024.
-	 * This applies only to revision <= r1p1 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------
-	 */
-func errata_a57_828024_wa
-	/*
-	 * Compare x0 against revision r1p1
-	 */
-	mov	x17, x30
-	bl	check_errata_828024
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(828024), ERRATA_A57_828024
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	/*
 	 * Setting the relevant bits in CPUACTLR_EL1 has to be done in 2
@@ -291,213 +157,67 @@ func errata_a57_828024_wa
 	orr	x1, x1, #(CORTEX_A57_CPUACTLR_EL1_DIS_L1_STREAMING | \
 			  CORTEX_A57_CPUACTLR_EL1_DIS_STREAMING)
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a57_828024_wa
+workaround_reset_end cortex_a57, ERRATUM(828024)
 
-func check_errata_828024
-	mov	x1, #0x11
-	b	cpu_rev_var_ls
-endfunc check_errata_828024
+check_erratum_ls cortex_a57, ERRATUM(828024), CPU_REV(1, 1)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #829520.
-	 * This applies only to revision <= r1p2 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------
-	 */
-func errata_a57_829520_wa
-	/*
-	 * Compare x0 against revision r1p2
-	 */
-	mov	x17, x30
-	bl	check_errata_829520
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(829520), ERRATA_A57_829520
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_INDIRECT_PREDICTOR
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a57_829520_wa
+workaround_reset_end cortex_a57, ERRATUM(829520)
 
-func check_errata_829520
-	mov	x1, #0x12
-	b	cpu_rev_var_ls
-endfunc check_errata_829520
+check_erratum_ls cortex_a57, ERRATUM(829520), CPU_REV(1, 2)
 
-	/* ---------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #833471.
-	 * This applies only to revision <= r1p2 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------
-	 */
-func errata_a57_833471_wa
-	/*
-	 * Compare x0 against revision r1p2
-	 */
-	mov	x17, x30
-	bl	check_errata_833471
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(833471), ERRATA_A57_833471
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_FORCE_FPSCR_FLUSH
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a57_833471_wa
+workaround_reset_end cortex_a57, ERRATUM(833471)
 
-func check_errata_833471
-	mov	x1, #0x12
-	b	cpu_rev_var_ls
-endfunc check_errata_833471
+check_erratum_ls cortex_a57, ERRATUM(833471), CPU_REV(1, 2)
 
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A57 Errata #859972.
-	 * This applies only to revision <= r1p3 of Cortex A57.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber:
-	 * --------------------------------------------------
-	 */
-func errata_a57_859972_wa
-	mov	x17, x30
-	bl	check_errata_859972
-	cbz	x0, 1f
+workaround_reset_start cortex_a57, ERRATUM(859972), ERRATA_A57_859972
 	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_INSTR_PREFETCH
 	msr	CORTEX_A57_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a57_859972_wa
+workaround_reset_end cortex_a57, ERRATUM(859972)
 
-func check_errata_859972
-	mov	x1, #0x13
-	b	cpu_rev_var_ls
-endfunc check_errata_859972
+check_erratum_ls cortex_a57, ERRATUM(859972), CPU_REV(1, 3)
 
-	/* --------------------------------------------------
-	 * Errata workaround for Cortex A57 Errata #1319537.
-	 * This applies to all revisions of Cortex A57.
-	 * --------------------------------------------------
-	 */
-func check_errata_1319537
-#if ERRATA_A57_1319537
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_1319537
+check_erratum_chosen cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537
+/* erratum has no workaround in the cpu. Generic code must take care */
+add_erratum_entry cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537, NO_APPLY_AT_RESET
 
-func check_errata_cve_2017_5715
-#if WORKAROUND_CVE_2017_5715
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2017_5715
-
-func check_errata_cve_2018_3639
-#if WORKAROUND_CVE_2018_3639
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2018_3639
-
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-	/* -------------------------------------------------
-	 * The CPU Ops reset function for Cortex-A57.
-	 * Shall clobber: x0-x19
-	 * -------------------------------------------------
-	 */
-func cortex_a57_reset_func
-	mov	x19, x30
-	bl	cpu_get_rev_var
-	mov	x18, x0
-
-#if ERRATA_A57_806969
-	mov	x0, x18
-	bl	errata_a57_806969_wa
-#endif
-
-#if ERRATA_A57_813420
-	mov	x0, x18
-	bl	errata_a57_813420_wa
-#endif
-
-#if ERRATA_A57_814670
-	mov	x0, x18
-	bl	errata_a57_814670_wa
-#endif
-
-#if A57_DISABLE_NON_TEMPORAL_HINT
-	mov	x0, x18
-	bl	a57_disable_ldnp_overread
-#endif
-
-#if ERRATA_A57_826974
-	mov	x0, x18
-	bl	errata_a57_826974_wa
-#endif
-
-#if ERRATA_A57_826977
-	mov	x0, x18
-	bl	errata_a57_826977_wa
-#endif
-
-#if ERRATA_A57_828024
-	mov	x0, x18
-	bl	errata_a57_828024_wa
-#endif
-
-#if ERRATA_A57_829520
-	mov	x0, x18
-	bl	errata_a57_829520_wa
-#endif
-
-#if ERRATA_A57_833471
-	mov	x0, x18
-	bl	errata_a57_833471_wa
-#endif
-
-#if ERRATA_A57_859972
-	mov	x0, x18
-	bl	errata_a57_859972_wa
-#endif
-
-#if IMAGE_BL31 && ( WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960 )
-	/* ---------------------------------------------------------------
-	 * Override vector table & enable existing workaround if either of
-	 * the build flags are enabled
-	 * ---------------------------------------------------------------
-	 */
+workaround_reset_start cortex_a57, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
+#if IMAGE_BL31
 	adr	x0, wa_cve_2017_5715_mmu_vbar
 	msr	vbar_el3, x0
-	/* isb will be performed before returning from this function */
 #endif
+workaround_reset_end cortex_a57, CVE(2017, 5715)
 
-#if WORKAROUND_CVE_2018_3639
+check_erratum_chosen cortex_a57, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
+
+workaround_reset_start cortex_a57, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 	mrs	x0, CORTEX_A57_CPUACTLR_EL1
 	orr	x0, x0, #CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_STORE
 	msr	CORTEX_A57_CPUACTLR_EL1, x0
 	isb
 	dsb	sy
-#endif
+workaround_reset_end cortex_a57, CVE(2018, 3639)
 
+check_erratum_chosen cortex_a57, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
+
+workaround_reset_start cortex_a57, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+#if IMAGE_BL31
+	adr	x0, wa_cve_2017_5715_mmu_vbar
+	msr	vbar_el3, x0
+#endif
+workaround_reset_end cortex_a57, CVE(2022, 23960)
+
+check_erratum_chosen cortex_a57, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+cpu_reset_func_start cortex_a57
 #if A57_ENABLE_NONCACHEABLE_LOAD_FWD
 	/* ---------------------------------------------
 	 * Enable higher performance non-cacheable load
@@ -516,9 +236,7 @@ func cortex_a57_reset_func
 	mrs	x0, CORTEX_A57_ECTLR_EL1
 	orr	x0, x0, #CORTEX_A57_ECTLR_SMP_BIT
 	msr	CORTEX_A57_ECTLR_EL1, x0
-	isb
-	ret	x19
-endfunc cortex_a57_reset_func
+cpu_reset_func_end cortex_a57
 
 func check_smccc_arch_workaround_3
 	mov	x0, #ERRATA_APPLIES
@@ -619,42 +337,7 @@ func cortex_a57_cluster_pwr_dwn
 	b	cortex_a57_disable_ext_debug
 endfunc cortex_a57_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex A57. Must follow AAPCS.
- */
-func cortex_a57_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_A57_806969, cortex_a57, 806969
-	report_errata ERRATA_A57_813419, cortex_a57, 813419
-	report_errata ERRATA_A57_813420, cortex_a57, 813420
-	report_errata ERRATA_A57_814670, cortex_a57, 814670
-	report_errata ERRATA_A57_817169, cortex_a57, 817169
-	report_errata A57_DISABLE_NON_TEMPORAL_HINT, cortex_a57, \
-		disable_ldnp_overread
-	report_errata ERRATA_A57_826974, cortex_a57, 826974
-	report_errata ERRATA_A57_826977, cortex_a57, 826977
-	report_errata ERRATA_A57_828024, cortex_a57, 828024
-	report_errata ERRATA_A57_829520, cortex_a57, 829520
-	report_errata ERRATA_A57_833471, cortex_a57, 833471
-	report_errata ERRATA_A57_859972, cortex_a57, 859972
-	report_errata ERRATA_A57_1319537, cortex_a57, 1319537
-	report_errata WORKAROUND_CVE_2017_5715, cortex_a57, cve_2017_5715
-	report_errata WORKAROUND_CVE_2018_3639, cortex_a57, cve_2018_3639
-	report_errata WORKAROUND_CVE_2022_23960, cortex_a57, cve_2022_23960
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_a57_errata_report
-#endif
+errata_report_shim cortex_a57
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a57 specific
@@ -679,7 +362,7 @@ endfunc cortex_a57_cpu_reg_dump
 
 declare_cpu_ops_wa cortex_a57, CORTEX_A57_MIDR, \
 	cortex_a57_reset_func, \
-	check_errata_cve_2017_5715, \
+	check_erratum_cortex_a57_5715, \
 	CPU_NO_EXTRA2_FUNC, \
 	check_smccc_arch_workaround_3, \
 	cortex_a57_core_pwr_dwn, \
