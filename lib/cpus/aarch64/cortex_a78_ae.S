@@ -23,13 +23,10 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 workaround_reset_start cortex_a78_ae, ERRATUM(1941500), ERRATA_A78_AE_1941500
-	/* Set bit 8 in ECTLR_EL1 */
-	mrs	x0, CORTEX_A78_AE_CPUECTLR_EL1
-	bic	x0, x0, #CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
-	msr	CORTEX_A78_AE_CPUECTLR_EL1, x0
+	sysreg_bit_clear CORTEX_A78_AE_CPUECTLR_EL1, CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
 workaround_reset_end cortex_a78_ae, ERRATUM(1941500)
 
-check_erratum_range cortex_a78_ae, ERRATUM(1941500), CPU_REV(0, 0), CPU_REV(0, 1)
+check_erratum_ls cortex_a78_ae, ERRATUM(1941500), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a78_ae, ERRATUM(1951502), ERRATA_A78_AE_1951502
 	msr	S3_6_c15_c8_0, xzr
@@ -59,7 +56,7 @@ workaround_reset_start cortex_a78_ae, ERRATUM(1951502), ERRATA_A78_AE_1951502
 	msr	S3_6_c15_c8_1, x0
 workaround_reset_end cortex_a78_ae, ERRATUM(1951502)
 
-check_erratum_range cortex_a78_ae, ERRATUM(1951502), CPU_REV(0, 0), CPU_REV(0, 1)
+check_erratum_ls cortex_a78_ae, ERRATUM(1951502), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a78_ae, ERRATUM(2376748), ERRATA_A78_AE_2376748
 	/* -------------------------------------------------------
@@ -70,12 +67,10 @@ workaround_reset_start cortex_a78_ae, ERRATUM(2376748), ERRATA_A78_AE_2376748
 	 * that share data.
 	 * -------------------------------------------------------
 	 */
-	mrs	x0, CORTEX_A78_AE_ACTLR2_EL1
-	orr	x0, x0, #CORTEX_A78_AE_ACTLR2_EL1_BIT_0
-	msr	CORTEX_A78_AE_ACTLR2_EL1, x0
+	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, CORTEX_A78_AE_ACTLR2_EL1_BIT_0
 workaround_reset_end cortex_a78_ae, ERRATUM(2376748)
 
-check_erratum_range cortex_a78_ae, ERRATUM(2376748), CPU_REV(0, 0), CPU_REV(0, 1)
+check_erratum_ls cortex_a78_ae, ERRATUM(2376748), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a78_ae, ERRATUM(2395408), ERRATA_A78_AE_2395408
 	/* --------------------------------------------------------
@@ -84,12 +79,10 @@ workaround_reset_start cortex_a78_ae, ERRATUM(2395408), ERRATA_A78_AE_2395408
 	 * CPUACTLR2_EL1[40] to 1.
 	 * --------------------------------------------------------
 	 */
-	mrs	x0, CORTEX_A78_AE_ACTLR2_EL1
-	orr	x0, x0, #CORTEX_A78_AE_ACTLR2_EL1_BIT_40
-	msr	CORTEX_A78_AE_ACTLR2_EL1, x0
+	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, CORTEX_A78_AE_ACTLR2_EL1_BIT_40
 workaround_reset_end cortex_a78_ae, ERRATUM(2395408)
 
-check_erratum_range cortex_a78_ae, ERRATUM(2395408), CPU_REV(0, 0), CPU_REV(0, 1)
+check_erratum_ls cortex_a78_ae, ERRATUM(2395408), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
@@ -97,7 +90,7 @@ workaround_reset_start cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_2396
 	 * The Cortex-A78AE generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
-	override_vector_table  wa_cve_vbar_cortex_a78_ae
+	override_vector_table wa_cve_vbar_cortex_a78_ae
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a78_ae, CVE(2022, 23960)
 
@@ -106,14 +99,10 @@ check_erratum_chosen cortex_a78_ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 cpu_reset_func_start cortex_a78_ae
 #if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
-	mrs	x0, actlr_el3
-	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT
-	msr	actlr_el3, x0
+	sysreg_bit_clear actlr_el3, CORTEX_A78_ACTLR_TAM_BIT
 
 	/* Make sure accesses from non-secure EL0/EL1 are not trapped to EL2 */
-	mrs	x0, actlr_el2
-	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT
-	msr	actlr_el2, x0
+	sysreg_bit_clear actlr_el2, CORTEX_A78_ACTLR_TAM_BIT
 
 	/* Enable group0 counters */
 	mov	x0, #CORTEX_A78_AMU_GROUP0_MASK
@@ -134,9 +123,7 @@ func cortex_a78_ae_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * -------------------------------------------------------
 	 */
-	mrs	x0, CORTEX_A78_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
-	msr	CORTEX_A78_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A78_CPUPWRCTLR_EL1, CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
 	ret
 endfunc cortex_a78_ae_core_pwr_dwn
