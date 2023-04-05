@@ -18,9 +18,7 @@
 	 * ---------------------------------------------
 	 */
 func cortex_a57_disable_dcache
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
+	sysreg_bit_clear sctlr_el3, SCTLR_C_BIT
 	isb
 	ret
 endfunc cortex_a57_disable_dcache
@@ -46,9 +44,7 @@ endfunc cortex_a57_disable_l2_prefetch
 	 * ---------------------------------------------
 	 */
 func cortex_a57_disable_smp
-	mrs	x0, CORTEX_A57_ECTLR_EL1
-	bic	x0, x0, #CORTEX_A57_ECTLR_SMP_BIT
-	msr	CORTEX_A57_ECTLR_EL1, x0
+	sysreg_bit_clear CORTEX_A57_ECTLR_EL1, CORTEX_A57_ECTLR_SMP_BIT
 	ret
 endfunc cortex_a57_disable_smp
 
@@ -72,45 +68,29 @@ endfunc cortex_a57_disable_ext_debug
  * provide and erratum number, so assign it an obvious 1
  */
 workaround_reset_start cortex_a57, ERRATUM(1), A57_DISABLE_NON_TEMPORAL_HINT
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_OVERREAD
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_OVERREAD
 workaround_reset_end cortex_a57, ERRATUM(1)
 
 check_erratum_ls cortex_a57, ERRATUM(1), CPU_REV(1, 2)
 
 workaround_reset_start cortex_a57, ERRATUM(806969), ERRATA_A57_806969
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_NO_ALLOC_WBWA
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_NO_ALLOC_WBWA
 workaround_reset_end cortex_a57, ERRATUM(806969)
 
 check_erratum_ls cortex_a57, ERRATUM(806969), CPU_REV(0, 0)
 
 /* erratum always worked around, but report it correctly */
-check_erratum_custom_start cortex_a57, ERRATUM(813419)
-	/*
-	 * Even though this is only needed for revision r0p0, it
-	 * is always applied due to limitations of the current
-	 * errata framework.
-	 */
-	mov	x0, #ERRATA_APPLIES
-	ret
-check_erratum_custom_end cortex_a57, ERRATUM(813419)
+check_erratum_ls cortex_a57, ERRATUM(813419), CPU_REV(0, 0)
 add_erratum_entry cortex_a57, ERRATUM(813419), ERRATUM_ALWAYS_CHOSEN, NO_APPLY_AT_RESET
 
 workaround_reset_start cortex_a57, ERRATUM(813420), ERRATA_A57_813420
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DCC_AS_DCCI
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DCC_AS_DCCI
 workaround_reset_end cortex_a57, ERRATUM(813420)
 
 check_erratum_ls cortex_a57, ERRATUM(813420), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a57, ERRATUM(814670), ERRATA_A57_814670
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_DMB_NULLIFICATION
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_DMB_NULLIFICATION
 workaround_reset_end cortex_a57, ERRATUM(814670)
 
 check_erratum_ls cortex_a57, ERRATUM(814670), CPU_REV(0, 0)
@@ -121,27 +101,16 @@ workaround_runtime_start cortex_a57, ERRATUM(817169), ERRATA_A57_817169, CORTEX_
 	tlbi	vae3, x0
 workaround_runtime_end cortex_a57, ERRATUM(817169), NO_ISB
 
-check_erratum_custom_start cortex_a57, ERRATUM(817169)
-	/*
-	 * Even though this is only needed for revision <= r0p1, it
-	 * is always applied because of the low cost of the workaround.
-	 */
-	mov	x0, #ERRATA_APPLIES
-	ret
-check_erratum_custom_end cortex_a57, ERRATUM(817169)
+check_erratum_ls cortex_a57, ERRATUM(817169), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a57, ERRATUM(826974), ERRATA_A57_826974
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_DMB
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_DMB
 workaround_reset_end cortex_a57, ERRATUM(826974)
 
 check_erratum_ls cortex_a57, ERRATUM(826974), CPU_REV(1, 1)
 
 workaround_reset_start cortex_a57, ERRATUM(826977), ERRATA_A57_826977
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_GRE_NGRE_AS_NGNRE
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_GRE_NGRE_AS_NGNRE
 workaround_reset_end cortex_a57, ERRATUM(826977)
 
 check_erratum_ls cortex_a57, ERRATUM(826977), CPU_REV(1, 1)
@@ -162,25 +131,19 @@ workaround_reset_end cortex_a57, ERRATUM(828024)
 check_erratum_ls cortex_a57, ERRATUM(828024), CPU_REV(1, 1)
 
 workaround_reset_start cortex_a57, ERRATUM(829520), ERRATA_A57_829520
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_INDIRECT_PREDICTOR
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_INDIRECT_PREDICTOR
 workaround_reset_end cortex_a57, ERRATUM(829520)
 
 check_erratum_ls cortex_a57, ERRATUM(829520), CPU_REV(1, 2)
 
 workaround_reset_start cortex_a57, ERRATUM(833471), ERRATA_A57_833471
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_FORCE_FPSCR_FLUSH
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_FORCE_FPSCR_FLUSH
 workaround_reset_end cortex_a57, ERRATUM(833471)
 
 check_erratum_ls cortex_a57, ERRATUM(833471), CPU_REV(1, 2)
 
 workaround_reset_start cortex_a57, ERRATUM(859972), ERRATA_A57_859972
-	mrs	x1, CORTEX_A57_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_INSTR_PREFETCH
-	msr	CORTEX_A57_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_INSTR_PREFETCH
 workaround_reset_end cortex_a57, ERRATUM(859972)
 
 check_erratum_ls cortex_a57, ERRATUM(859972), CPU_REV(1, 3)
@@ -191,17 +154,14 @@ add_erratum_entry cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537, NO_APPLY_AT_
 
 workaround_reset_start cortex_a57, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #if IMAGE_BL31
-	adr	x0, wa_cve_2017_5715_mmu_vbar
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_2017_5715_mmu_vbar
 #endif
 workaround_reset_end cortex_a57, CVE(2017, 5715)
 
 check_erratum_chosen cortex_a57, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 
 workaround_reset_start cortex_a57, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
-	mrs	x0, CORTEX_A57_CPUACTLR_EL1
-	orr	x0, x0, #CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_STORE
-	msr	CORTEX_A57_CPUACTLR_EL1, x0
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_STORE
 	isb
 	dsb	sy
 workaround_reset_end cortex_a57, CVE(2018, 3639)
@@ -210,8 +170,7 @@ check_erratum_chosen cortex_a57, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 workaround_reset_start cortex_a57, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
-	adr	x0, wa_cve_2017_5715_mmu_vbar
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_2017_5715_mmu_vbar
 #endif
 workaround_reset_end cortex_a57, CVE(2022, 23960)
 
@@ -219,23 +178,11 @@ check_erratum_chosen cortex_a57, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 cpu_reset_func_start cortex_a57
 #if A57_ENABLE_NONCACHEABLE_LOAD_FWD
-	/* ---------------------------------------------
-	 * Enable higher performance non-cacheable load
-	 * forwarding
-	 * ---------------------------------------------
-	 */
-	mrs	x0, CORTEX_A57_CPUACTLR_EL1
-	orr	x0, x0, #CORTEX_A57_CPUACTLR_EL1_EN_NC_LOAD_FWD
-	msr	CORTEX_A57_CPUACTLR_EL1, x0
+	/* Enable higher performance non-cacheable load forwarding */
+	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_EN_NC_LOAD_FWD
 #endif
-
-	/* ---------------------------------------------
-	 * Enable the SMP bit.
-	 * ---------------------------------------------
-	 */
-	mrs	x0, CORTEX_A57_ECTLR_EL1
-	orr	x0, x0, #CORTEX_A57_ECTLR_SMP_BIT
-	msr	CORTEX_A57_ECTLR_EL1, x0
+	/* Enable the SMP bit. */
+	sysreg_bit_set CORTEX_A57_ECTLR_EL1, CORTEX_A57_ECTLR_SMP_BIT
 cpu_reset_func_end cortex_a57
 
 func check_smccc_arch_workaround_3
