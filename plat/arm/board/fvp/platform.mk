@@ -198,7 +198,9 @@ else
 					lib/cpus/aarch64/cortex_hunter.S	\
 					lib/cpus/aarch64/cortex_hunter_elp_arm.S \
 					lib/cpus/aarch64/cortex_x2.S		\
-					lib/cpus/aarch64/neoverse_poseidon.S
+					lib/cpus/aarch64/neoverse_poseidon.S	\
+					lib/cpus/aarch64/cortex_chaberton.S	\
+					lib/cpus/aarch64/cortex_blackhawk.S
 	endif
 	# AArch64/AArch32 cores
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
