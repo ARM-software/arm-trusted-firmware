@@ -3,8 +3,37 @@
  * Copyright (c) 2020-2023, STMicroelectronics - All Rights Reserved
  */
 
+/omit-if-no-ref/ &fmc_pins_a;
+/omit-if-no-ref/ &i2c2_pins_a;
+/omit-if-no-ref/ &i2c4_pins_a;
 /omit-if-no-ref/ &i2c6;
+/omit-if-no-ref/ &qspi_bk1_pins_a;
+/omit-if-no-ref/ &qspi_bk2_pins_a;
+/omit-if-no-ref/ &qspi_clk_pins_a;
+/omit-if-no-ref/ &sdmmc1_b4_pins_a;
+/omit-if-no-ref/ &sdmmc1_dir_pins_a;
+/omit-if-no-ref/ &sdmmc1_dir_pins_b;
+/omit-if-no-ref/ &sdmmc2_b4_pins_a;
+/omit-if-no-ref/ &sdmmc2_b4_pins_b;
+/omit-if-no-ref/ &sdmmc2_d47_pins_a;
+/omit-if-no-ref/ &sdmmc2_d47_pins_b;
+/omit-if-no-ref/ &sdmmc2_d47_pins_c;
+/omit-if-no-ref/ &sdmmc2_d47_pins_d;
 /omit-if-no-ref/ &spi6;
+/omit-if-no-ref/ &uart4_pins_a;
+/omit-if-no-ref/ &uart4_pins_b;
+/omit-if-no-ref/ &uart7_pins_a;
+/omit-if-no-ref/ &uart7_pins_b;
+/omit-if-no-ref/ &uart7_pins_c;
+/omit-if-no-ref/ &uart8_pins_a;
+/omit-if-no-ref/ &usart2_pins_a;
+/omit-if-no-ref/ &usart2_pins_b;
+/omit-if-no-ref/ &usart2_pins_c;
+/omit-if-no-ref/ &usart3_pins_a;
+/omit-if-no-ref/ &usart3_pins_b;
+/omit-if-no-ref/ &usart3_pins_c;
+/omit-if-no-ref/ &usbotg_fs_dp_dm_pins_a;
+/omit-if-no-ref/ &usbotg_hs_pins_a;
 
 / {
 	aliases {

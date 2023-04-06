@@ -3,6 +3,15 @@
  * Copyright (c) 2022-2023, STMicroelectronics - All Rights Reserved
  */
 
+/omit-if-no-ref/ &i2c4_pins_a;
+/omit-if-no-ref/ &sdmmc1_b4_pins_a;
+/omit-if-no-ref/ &sdmmc1_clk_pins_a;
+/omit-if-no-ref/ &sdmmc2_b4_pins_a;
+/omit-if-no-ref/ &sdmmc2_clk_pins_a;
+/omit-if-no-ref/ &uart4_pins_a;
+/omit-if-no-ref/ &uart8_pins_a;
+/omit-if-no-ref/ &usart1_pins_a;
+
 / {
 	aliases {
 #if !STM32MP_EMMC && !STM32MP_SDMMC
