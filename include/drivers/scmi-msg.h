@@ -22,7 +22,7 @@ struct scmi_msg_channel;
  *
  * @shm_addr: Address of the shared memory for the SCMI channel
  * @shm_size: Byte size of the shared memory for the SCMI channel
- * @busy: True when channel is busy, flase when channel is free
+ * @busy: True when channel is busy, false when channel is free
  * @agent_name: Agent name, SCMI protocol exposes 16 bytes max, or NULL
  */
 struct scmi_msg_channel {
