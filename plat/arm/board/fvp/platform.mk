@@ -123,29 +123,21 @@ else
 # Cores used with DSU only
 	ifeq (${CTX_INCLUDE_AARCH32_REGS}, 0)
 	# AArch64-only cores
-		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a76.S		\
+	# TODO: add all cores to the appropriate lists
+		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a65.S		\
+					lib/cpus/aarch64/cortex_a65ae.S		\
+					lib/cpus/aarch64/cortex_a76.S		\
 					lib/cpus/aarch64/cortex_a76ae.S		\
 					lib/cpus/aarch64/cortex_a77.S		\
 					lib/cpus/aarch64/cortex_a78.S		\
+					lib/cpus/aarch64/cortex_a78c.S		\
+					lib/cpus/aarch64/cortex_a710.S		\
 					lib/cpus/aarch64/neoverse_n_common.S	\
 					lib/cpus/aarch64/neoverse_n1.S		\
 					lib/cpus/aarch64/neoverse_n2.S		\
-					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/neoverse_v1.S		\
-					lib/cpus/aarch64/neoverse_v2.S	\
-					lib/cpus/aarch64/cortex_a78_ae.S	\
-					lib/cpus/aarch64/cortex_a510.S		\
-					lib/cpus/aarch64/cortex_a710.S		\
-					lib/cpus/aarch64/cortex_a715.S		\
-					lib/cpus/aarch64/cortex_x3.S 		\
-					lib/cpus/aarch64/cortex_a65.S		\
-					lib/cpus/aarch64/cortex_a65ae.S		\
-					lib/cpus/aarch64/cortex_a78c.S		\
-					lib/cpus/aarch64/cortex_hayes.S		\
-					lib/cpus/aarch64/cortex_hunter.S	\
-					lib/cpus/aarch64/cortex_hunter_elp_arm.S \
-					lib/cpus/aarch64/cortex_x2.S		\
-					lib/cpus/aarch64/neoverse_poseidon.S
+					lib/cpus/aarch64/neoverse_e1.S		\
+					lib/cpus/aarch64/cortex_x2.S
 	endif
 	# AArch64/AArch32 cores
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
