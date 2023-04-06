@@ -151,7 +151,8 @@ static void discover_list_protocols(struct scmi_msg *msg)
 	count = count_protocols_in_list(list);
 
 	if (count > a2p->skip) {
-		count = MIN(count - a2p->skip, msg->out_size - sizeof(p2a));
+		count = MIN((uint32_t)(count - a2p->skip),
+			    (uint32_t)(msg->out_size - sizeof(p2a)));
 	} else {
 		count = 0U;
 	}
