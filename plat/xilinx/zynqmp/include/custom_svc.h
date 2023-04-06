@@ -15,5 +15,6 @@ uint64_t custom_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 void custom_early_setup(void);
 void custom_mmap_add(void);
+void custom_runtime_setup(void);
 
 #endif /* CUSTOM_SVC_H */

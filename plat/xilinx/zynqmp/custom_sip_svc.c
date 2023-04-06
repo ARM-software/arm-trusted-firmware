@@ -23,3 +23,7 @@ void custom_early_setup(void)
 void custom_mmap_add(void)
 {
 }
+
+void custom_runtime_setup(void)
+{
+}
