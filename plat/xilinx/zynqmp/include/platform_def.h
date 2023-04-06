@@ -21,7 +21,9 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
+#ifndef PLATFORM_STACK_SIZE
 #define PLATFORM_STACK_SIZE 0x440
+#endif
 
 #define PLATFORM_CORE_COUNT		U(4)
 #define PLAT_NUM_POWER_DOMAINS		U(5)
