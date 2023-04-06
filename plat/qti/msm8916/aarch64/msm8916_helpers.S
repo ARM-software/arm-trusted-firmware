@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2021-2023, Stephan Gerhold <stephan@gerhold.net>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,17 +31,6 @@
 	 */
 func plat_crash_console_init
 	mov	x1, #BLSP_UART2_BASE
-
-	/*
-	 * If the non-secure world has been actively using the UART there might
-	 * be still some characters left to be sent in the FIFO. In that case,
-	 * resetting the transmitter too early might cause all output to become
-	 * corrupted. To avoid that, try to flush (wait until FIFO empty) first.
-	 */
-	mov	x4, lr
-	bl	console_uartdm_core_flush
-	mov	lr, x4
-
 	mov	x0, #1
 	b	console_uartdm_core_init
 endfunc plat_crash_console_init
