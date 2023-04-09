@@ -156,4 +156,13 @@ bool spmd_el3_ffa_msg_direct_req(uint64_t x1,
 				 void *handle,
 				 struct ffa_value *retval);
 
+uintptr_t plat_spmd_logical_sp_smc_handler(unsigned int smc_fid,
+		u_register_t x1,
+		u_register_t x2,
+		u_register_t x3,
+		u_register_t x4,
+		void *cookie,
+		void *handle,
+		u_register_t flags);
+
 #endif /* EL3_SPMD_LOGICAL_SP_H */
