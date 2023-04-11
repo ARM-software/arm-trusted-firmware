@@ -141,26 +141,27 @@ CPU executes a modified BL31 initialization, as described below.
 Platform initialization
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-In this configuration, when the CPU resets to BL31 there should be no parameters
-that can be passed in registers by previous boot stages. Instead, the platform
-code in BL31 needs to know, or be able to determine, the location of the BL32
-(if required) and BL33 images and provide this information in response to the
-``bl31_plat_get_next_image_ep_info()`` function.
-
-.. note::
-   Some platforms that configure ``RESET_TO_BL31`` might still be able to
-   receive parameters in registers depending on their actual boot sequence. On
-   those occasions, and in addition to ``RESET_TO_BL31``, these platforms should
-   set ``RESET_TO_BL31_WITH_PARAMS`` to avoid the input registers from being
-   zeroed before entering BL31.
+In this configuration, since the CPU resets to BL31, no parameters are expected
+to be passed to BL31 (see notes below for clarification).
+Instead, the platform code in BL31 needs to know, or be able to determine, the
+location of the BL32 (if required) and BL33 images and provide this information
+in response to the ``bl31_plat_get_next_image_ep_info()`` function.
 
 Additionally, platform software is responsible for carrying out any security
 initialisation, for example programming a TrustZone address space controller.
 This might be done by the Trusted Boot Firmware or by platform code in BL31.
 
+.. note::
+   Even though RESET_TO_BL31 is designed such that BL31 is the reset BL image,
+   some platforms may wish to pass some arguments to BL31 as per the defined
+   contract between BL31 and previous bootloaders. Previous bootloaders can
+   pass arguments through registers x0 through x3. BL31 will preserve them and
+   propagate them to platform code, which will handle these arguments in an
+   IMPDEF manner.
+
 --------------
 
-*Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.*
 
 .. |Default reset code flow| image:: ../resources/diagrams/default_reset_code.png
 .. |Reset code flow with programmable reset address| image:: ../resources/diagrams/reset_code_no_boot_type_check.png

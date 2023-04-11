@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,19 +66,6 @@ func bl31_entrypoint
 		_init_c_runtime=1				\
 		_exception_vectors=runtime_exceptions		\
 		_pie_fixup_size=BL31_LIMIT - BL31_BASE
-
-#if !RESET_TO_BL31_WITH_PARAMS
-	/* ---------------------------------------------------------------------
-	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
-	 * there's no argument to relay from a previous bootloader. Zero the
-	 * arguments passed to the platform layer to reflect that.
-	 * ---------------------------------------------------------------------
-	 */
-	mov	x20, 0
-	mov	x21, 0
-	mov	x22, 0
-	mov	x23, 0
-#endif /* RESET_TO_BL31_WITH_PARAMS */
 #endif /* RESET_TO_BL31 */
 
 	/* --------------------------------------------------------------------
