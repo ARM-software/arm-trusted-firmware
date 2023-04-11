@@ -33,6 +33,7 @@
 #include <libfdt.h>
 #endif  /* OPTEE_ALLOW_SMC_LOAD */
 #include <plat/common/platform.h>
+#include <services/oem/chromeos/widevine_smc_handlers.h>
 #include <tools_share/uuid.h>
 
 #include "opteed_private.h"
@@ -61,7 +62,7 @@ DEFINE_SVC_UUID2(optee_image_load_uuid,
 	0xb1eafba3, 0x5d31, 0x4612, 0xb9, 0x06,
 	0xc4, 0xc7, 0xa4, 0xbe, 0x3c, 0xc0);
 
-#define OPTEED_FDT_SIZE 256
+#define OPTEED_FDT_SIZE 1024
 static uint8_t fdt_buf[OPTEED_FDT_SIZE] __aligned(CACHE_WRITEBACK_GRANULE);
 
 #else
@@ -299,6 +300,62 @@ static int add_coreboot_node(void *fdt)
 }
 #endif /* COREBOOT */
 
+#if CROS_WIDEVINE_SMC
+/*
+ * Adds a options/widevine node with the widevine table information to a device
+ * tree. Returns zero on success or if there is no widevine table information;
+ * failure code otherwise.
+ */
+static int add_options_widevine_node(void *fdt)
+{
+	int ret;
+
+	ret = fdt_begin_node(fdt, "options");
+	if (ret)
+		return ret;
+
+	ret = fdt_begin_node(fdt, "op-tee");
+	if (ret)
+		return ret;
+
+	ret = fdt_begin_node(fdt, "widevine");
+	if (ret)
+		return ret;
+
+	if (cros_oem_tpm_auth_pk.length) {
+		ret = fdt_property(fdt, "tcg,tpm-auth-public-key",
+				   cros_oem_tpm_auth_pk.buffer,
+				   cros_oem_tpm_auth_pk.length);
+		if (ret)
+			return ret;
+	}
+
+	if (cros_oem_huk.length) {
+		ret = fdt_property(fdt, "op-tee,hardware-unique-key",
+				   cros_oem_huk.buffer, cros_oem_huk.length);
+		if (ret)
+			return ret;
+	}
+
+	if (cros_oem_rot.length) {
+		ret = fdt_property(fdt, "google,widevine-root-of-trust-ecc-p256",
+				   cros_oem_rot.buffer, cros_oem_rot.length);
+		if (ret)
+			return ret;
+	}
+
+	ret = fdt_end_node(fdt);
+	if (ret)
+		return ret;
+
+	ret = fdt_end_node(fdt);
+	if (ret)
+		return ret;
+
+	return fdt_end_node(fdt);
+}
+#endif /* CROS_WIDEVINE_SMC */
+
 /*
  * Creates a device tree for passing into OP-TEE. Currently is populated with
  * the coreboot table address.
@@ -325,6 +382,12 @@ static int create_opteed_dt(void)
 	if (ret)
 		return ret;
 #endif /* COREBOOT */
+
+#if CROS_WIDEVINE_SMC
+	ret = add_options_widevine_node(fdt_buf);
+	if (ret)
+		return ret;
+#endif /* CROS_WIDEVINE_SMC */
 
 	ret = fdt_end_node(fdt_buf);
 	if (ret)
