@@ -14,6 +14,7 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_plat_def.h"
 #include "socfpga_reset_manager.h"
+#include "socfpga_system_manager.h"
 #include "socfpga_sip_svc.h"
 
 
@@ -38,11 +39,18 @@ void socfpga_cpu_standby(plat_local_state_t cpu_state)
 int socfpga_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned int cpu_id = plat_core_pos_by_mpidr(mpidr);
+	uint32_t psci_boot = 0x00;
 
 	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
 
 	if (cpu_id == -1)
 		return PSCI_E_INTERN_FAIL;
+
+	if (cpu_id == 0x00) {
+		psci_boot = mmio_read_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_8));
+		psci_boot |= 0x20000; /* bit 17 */
+		mmio_write_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_8), psci_boot);
+	}
 
 	mmio_write_64(PLAT_CPUID_RELEASE, cpu_id);
 
