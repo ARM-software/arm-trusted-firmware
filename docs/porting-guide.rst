@@ -26,6 +26,13 @@ provide their own implementation if the default implementation is inadequate.
       defined. We intend to convert existing weak functions over time. Until
       then, you will find references to *weak* functions in this document.
 
+Please review the :ref:`Threat Model` documents as part of the porting
+effort. Some platform interfaces play a key role in mitigating against some of
+the threats. Failing to fulfill these expectations could undermine the security
+guarantees offered by TF-A. These platform responsibilities are highlighted in
+the threat assessment section, under the "`Mitigations implemented?`" box for
+each threat.
+
 Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
 modifications for each BL stage in detail.
@@ -3578,7 +3585,7 @@ layer is used to load data from non-volatile platform storage. Currently
 storage access is only required by BL1 and BL2 phases and performed inside the
 ``load_image()`` function in ``bl_common.c``.
 
-.. uml:: ../resources/diagrams/plantuml/io_framework_usage_overview.puml
+.. uml:: resources/diagrams/plantuml/io_framework_usage_overview.puml
 
 It is mandatory to implement at least one storage driver. For the Arm
 development platforms the Firmware Image Package (FIP) driver is provided as
@@ -3588,7 +3595,7 @@ The storage layer is described in the header file
 in ``drivers/io/io_storage.c`` and the driver files are located in
 ``drivers/io/``.
 
-.. uml:: ../resources/diagrams/plantuml/io_arm_class_diagram.puml
+.. uml:: resources/diagrams/plantuml/io_arm_class_diagram.puml
 
 Each IO driver must provide ``io_dev_*`` structures, as described in
 ``drivers/io/io_driver.h``. These are returned via a mandatory registration
@@ -3599,12 +3606,12 @@ Each platform should register devices and their drivers via the storage
 abstraction layer. These drivers then need to be initialized by bootloader
 phases as required in their respective ``blx_platform_setup()`` functions.
 
-.. uml:: ../resources/diagrams/plantuml/io_dev_registration.puml
+.. uml:: resources/diagrams/plantuml/io_dev_registration.puml
 
 The storage abstraction layer provides mechanisms (``io_dev_init()``) to
 initialize storage devices before IO operations are called.
 
-.. uml:: ../resources/diagrams/plantuml/io_dev_init_and_check.puml
+.. uml:: resources/diagrams/plantuml/io_dev_init_and_check.puml
 
 The basic operations supported by the layer
 include ``open()``, ``close()``, ``read()``, ``write()``, ``size()`` and ``seek()``.
