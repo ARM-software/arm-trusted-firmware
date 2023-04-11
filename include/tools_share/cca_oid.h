@@ -9,6 +9,7 @@
 
 /* Reuse the Object IDs defined by TBBR for certificate extensions. */
 #include "tbbr_oid.h"
+#include "zero_oid.h"
 
 /*
  * Assign arbitrary Object ID values that do not conflict with any of the

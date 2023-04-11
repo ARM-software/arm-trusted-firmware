@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 /* Reuse the Object IDs defined by TBBR for certificate extensions. */
 #include "tbbr_oid.h"
+#include "zero_oid.h"
 
 /*
  * Platform root-of-trust public key.
