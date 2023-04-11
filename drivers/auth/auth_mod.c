@@ -20,6 +20,8 @@
 #include <lib/fconf/fconf_tbbr_getter.h>
 #include <plat/common/platform.h>
 
+#include <tools_share/zero_oid.h>
+
 /* ASN.1 tags */
 #define ASN1_INTEGER                 0x02
 
@@ -148,7 +150,7 @@ static int auth_signature(const auth_method_param_sig_t *param,
 			  const auth_img_desc_t *img_desc,
 			  void *img, unsigned int img_len)
 {
-	void *data_ptr, *pk_ptr, *pk_plat_ptr, *sig_ptr, *sig_alg_ptr;
+	void *data_ptr, *pk_ptr, *pk_plat_ptr, *sig_ptr, *sig_alg_ptr, *pk_oid;
 	unsigned int data_len, pk_len, pk_plat_len, sig_len, sig_alg_len;
 	unsigned int flags = 0;
 	int rc = 0;
@@ -225,6 +227,25 @@ static int auth_signature(const auth_method_param_sig_t *param,
 				ERROR("plat and cert ROTPK len mismatch\n");
 				return -1;
 			}
+		}
+
+		/*
+		 * Set Zero-OID for ROTPK(subject key) as a the certificate
+		 * does not hold Key-OID information for ROTPK.
+		 */
+		if (param->pk->cookie != NULL) {
+			pk_oid = param->pk->cookie;
+		} else {
+			pk_oid = ZERO_OID;
+		}
+
+		/*
+		 * Public key is verified at this stage, notify platform
+		 * to measure and publish it.
+		 */
+		rc = plat_mboot_measure_key(pk_oid, pk_ptr, pk_len);
+		if (rc != 0) {
+			WARN("Public Key measurement failure = %d\n", rc);
 		}
 	}
 
@@ -381,6 +402,7 @@ int auth_mod_verify_img(unsigned int img_id,
 			unsigned int img_len)
 {
 	const auth_img_desc_t *img_desc = NULL;
+	const auth_param_type_desc_t *type_desc = NULL;
 	const auth_method_desc_t *auth_method = NULL;
 	void *param_ptr;
 	unsigned int param_len;
@@ -462,6 +484,21 @@ int auth_mod_verify_img(unsigned int img_id,
 			/* Copy the parameter for later use */
 			memcpy((void *)img_desc->authenticated_data[i].data.ptr,
 					(void *)param_ptr, param_len);
+
+			/*
+			 * If this is a public key then measure and publicise
+			 * it.
+			 */
+			type_desc = img_desc->authenticated_data[i].type_desc;
+			if (type_desc->type == AUTH_PARAM_PUB_KEY) {
+				rc = plat_mboot_measure_key(type_desc->cookie,
+							    param_ptr,
+							    param_len);
+				if (rc != 0) {
+					WARN("Public Key measurement "
+					     "failure = %d\n", rc);
+				}
+			}
 		}
 	}
 
