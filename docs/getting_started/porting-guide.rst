@@ -38,7 +38,7 @@ functions/definitions in ``include/plat/arm/common/`` and the corresponding
 source files in ``plat/arm/common/``. This is done so that there are no
 dependencies between platforms maintained by different people/companies. If you
 want to use any of the functionality present in ``plat/arm`` files, please
-create a pull request that moves the code to ``plat/common`` so that it can be
+propose a patch that moves the code to ``plat/common`` so that it can be
 discussed.
 
 Common modifications
@@ -54,7 +54,7 @@ Common mandatory modifications
 A platform port must enable the Memory Management Unit (MMU) as well as the
 instruction and data caches for each BL stage. Setting up the translation
 tables is the responsibility of the platform port because memory maps differ
-across platforms. A memory translation library (see ``lib/xlat_tables/``) is
+across platforms. A memory translation library (see ``lib/xlat_tables_v2/``) is
 provided to help in this setup.
 
 Note that although this library supports non-identity mappings, this is intended
