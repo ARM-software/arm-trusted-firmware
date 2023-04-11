@@ -20,7 +20,7 @@ func apply_cpu_pwr_dwn_errata
 	mov	x18, x0
 
 #if ERRATA_A510_2684597
-	bl errata_cortex_a510_2684597_wa
+	bl erratum_cortex_a510_2684597_wa
 #endif
 
 	ret	x19
