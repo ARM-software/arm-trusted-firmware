@@ -283,6 +283,7 @@ uint32_t intel_fcs_decryption(uint32_t src_addr, uint32_t src_size,
 	uint32_t load_size;
 	uintptr_t id_offset;
 
+	inv_dcache_range(src_addr, src_size); /* flush cache before mmio read to avoid reading old values */
 	id_offset = src_addr + FCS_OWNER_ID_OFFSET;
 	fcs_decrypt_payload payload = {
 		FCS_DECRYPTION_DATA_0,
@@ -392,6 +393,7 @@ int intel_fcs_decryption_ext(uint32_t session_id, uint32_t context_id,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
+	inv_dcache_range(src_addr, src_size); /* flush cache before mmio read to avoid reading old values */
 	id_offset = src_addr + FCS_OWNER_ID_OFFSET;
 	fcs_decrypt_ext_payload payload = {
 		session_id,
@@ -822,6 +824,7 @@ int intel_fcs_get_crypto_service_key_info(uint32_t session_id, uint32_t key_id,
 				CMD_CASUAL, (uint32_t *) dst_addr, &resp_len);
 
 	if (resp_len > 0) {
+		inv_dcache_range(dst_addr, (resp_len * MBOX_WORD_BYTE)); /* flush cache before mmio read to avoid reading old values */
 		op_status = mmio_read_32(dst_addr) &
 			FCS_CS_KEY_RESP_STATUS_MASK;
 	}
@@ -1269,7 +1272,7 @@ int intel_fcs_mac_verify_smmu_update_finalize(uint32_t session_id,
 		memcpy((uint8_t *) &payload[i], (uint8_t *) mac_offset,
 		src_size - data_size);
 
-		memset((void *)&dst_addr, 0, sizeof(dst_size));
+		memset((void *) dst_addr, 0, *dst_size);
 
 		i += (src_size - data_size) / MBOX_WORD_BYTE;
 	}
@@ -1874,7 +1877,7 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_i
 		memcpy((uint8_t *) &payload[i], (uint8_t *) sig_pubkey_offset,
 			src_size - data_size);
 
-		memset((void *)&dst_addr, 0, sizeof(dst_size));
+		memset((void *) dst_addr, 0, *dst_size);
 
 		i += (src_size - data_size) / MBOX_WORD_BYTE;
 	}
