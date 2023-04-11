@@ -23,10 +23,8 @@
 
 workaround_reset_start cortex_a510, ERRATUM(1922240), ERRATA_A510_1922240
 	/* Apply the workaround by setting IMP_CMPXACTLR_EL1[11:10] = 0b11. */
-	mrs	x0, CORTEX_A510_CMPXACTLR_EL1
-	mov	x1, #3
-	bfi	x0, x1, #10, #2
-	msr	CORTEX_A510_CMPXACTLR_EL1, x0
+	sysreg_bitfield_insert CORTEX_A510_CMPXACTLR_EL1, CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_DISABLE, \
+	CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_SHIFT, CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_WIDTH
 workaround_reset_end cortex_a510, ERRATUM(1922240)
 
 check_erratum_ls cortex_a510, ERRATUM(1922240), CPU_REV(0, 0)
@@ -53,10 +51,8 @@ check_erratum_range cortex_a510, ERRATUM(2041909), CPU_REV(0, 2), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a510, ERRATUM(2042739), ERRATA_A510_2042739
 	/* Apply the workaround by disabling ReadPreferUnique. */
-	mrs	x0, CORTEX_A510_CPUECTLR_EL1
-	mov	x1, #CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_DISABLE
-	bfi	x0, x1, #CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_SHIFT, #1
-	msr	CORTEX_A510_CPUECTLR_EL1, x0
+	sysreg_bitfield_insert CORTEX_A510_CPUECTLR_EL1, CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_DISABLE, \
+		CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_SHIFT, CORTEX_A510_CPUECTLR_EL1_READPREFERUNIQUE_WIDTH
 workaround_reset_end cortex_a510, ERRATUM(2042739)
 
 check_erratum_ls cortex_a510, ERRATUM(2042739), CPU_REV(0, 2)
@@ -76,18 +72,14 @@ workaround_reset_end cortex_a510, ERRATUM(2172148)
 check_erratum_ls cortex_a510, ERRATUM(2172148), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a510, ERRATUM(2218950), ERRATA_A510_2218950
-	/* Source register for BFI */
-	mov	x1, #1
-
 	/* Set bit 18 in CPUACTLR_EL1 */
-	mrs	x0, CORTEX_A510_CPUACTLR_EL1
-	bfi	x0, x1, #18, #1
-	msr	CORTEX_A510_CPUACTLR_EL1, x0
+	sysreg_bitfield_insert CORTEX_A510_CPUACTLR_EL1, CORTEX_A510_CPUACTLR_EL1_ALIAS_LOADSTORE_DISABLE, \
+	CORTEX_A510_CPUACTLR_EL1_ALIAS_LOADSTORE_SHIFT, CORTEX_A510_CPUACTLR_EL1_ALIAS_LOADSTORE_WIDTH
 
 	/* Set bit 25 in CMPXACTLR_EL1 */
-	mrs	x0, CORTEX_A510_CMPXACTLR_EL1
-	bfi	x0, x1, #25, #1
-	msr	CORTEX_A510_CMPXACTLR_EL1, x0
+	sysreg_bitfield_insert CORTEX_A510_CMPXACTLR_EL1, CORTEX_A510_CMPXACTLR_EL1_ALIAS_LOADSTORE_DISABLE, \
+	CORTEX_A510_CMPXACTLR_EL1_ALIAS_LOADSTORE_SHIFT, CORTEX_A510_CMPXACTLR_EL1_ALIAS_LOADSTORE_WIDTH
+
 workaround_reset_end cortex_a510, ERRATUM(2218950)
 
 check_erratum_ls cortex_a510, ERRATUM(2218950), CPU_REV(1, 0)
@@ -117,10 +109,8 @@ check_erratum_ls cortex_a510, ERRATUM(2250311), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a510, ERRATUM(2288014), ERRATA_A510_2288014
 	/* Apply the workaround by setting IMP_CPUACTLR_EL1[18] = 0b1. */
-	mrs	x0, CORTEX_A510_CPUACTLR_EL1
-	mov	x1, #1
-	bfi	x0, x1, #18, #1
-	msr	CORTEX_A510_CPUACTLR_EL1, x0
+	sysreg_bitfield_insert CORTEX_A510_CPUACTLR_EL1, CORTEX_A510_CPUACTLR_EL1_DATA_CORRUPT_DISABLE, \
+	CORTEX_A510_CPUACTLR_EL1_DATA_CORRUPT_SHIFT, CORTEX_A510_CPUACTLR_EL1_DATA_CORRUPT_WIDTH
 workaround_reset_end cortex_a510, ERRATUM(2288014)
 
 check_erratum_ls cortex_a510, ERRATUM(2288014), CPU_REV(1, 0)
@@ -131,9 +121,7 @@ workaround_reset_start cortex_a510, ERRATUM(2347730), ERRATA_A510_2347730
 	 * specific microarchitectural clock gating
 	 * behaviour.
 	 */
-	mrs	x1, CORTEX_A510_CPUACTLR_EL1
-	orr	x1, x1, CORTEX_A510_CPUACTLR_EL1_BIT_17
-	msr	CORTEX_A510_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, CORTEX_A510_CPUACTLR_EL1_BIT_17
 workaround_reset_end cortex_a510, ERRATUM(2347730)
 
 check_erratum_ls cortex_a510, ERRATUM(2347730), CPU_REV(1, 1)
@@ -145,22 +133,14 @@ workaround_reset_start cortex_a510, ERRATUM(2371937), ERRATA_A510_2371937
 	 * IMP_CPUECTLR_EL1.ATOM=0b010. ATOM is found
 	 * in [40:38] of CPUECTLR_EL1.
 	 */
-	mrs 	x0, CORTEX_A510_CPUECTLR_EL1
-	mov 	x1, CORTEX_A510_CPUECTLR_EL1_ATOM_EXECALLINSTRNEAR
-	bfi 	x0, x1, CORTEX_A510_CPUECTLR_EL1_ATOM, #3
-	msr 	CORTEX_A510_CPUECTLR_EL1, x0
+	sysreg_bitfield_insert CORTEX_A510_CPUECTLR_EL1, CORTEX_A510_CPUECTLR_EL1_ATOM_EXECALLINSTRNEAR, \
+		CORTEX_A510_CPUECTLR_EL1_ATOM_SHIFT, CORTEX_A510_CPUECTLR_EL1_ATOM_WIDTH
 workaround_reset_end cortex_a510, ERRATUM(2371937)
 
 check_erratum_ls cortex_a510, ERRATUM(2371937), CPU_REV(1, 1)
 
 workaround_reset_start cortex_a510, ERRATUM(2666669), ERRATA_A510_2666669
-	/*
-	 * Workaround will set IMP_CPUACTLR_EL1[38]
-	 * to 0b1.
-	 */
-	mrs	x1, CORTEX_A510_CPUACTLR_EL1
-	orr	x1, x1, CORTEX_A510_CPUACTLR_EL1_BIT_38
-	msr	CORTEX_A510_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A510_CPUACTLR_EL1, CORTEX_A510_CPUACTLR_EL1_BIT_38
 workaround_reset_end cortex_a510, ERRATUM(2666669)
 
 check_erratum_ls cortex_a510, ERRATUM(2666669), CPU_REV(1, 1)
@@ -195,9 +175,7 @@ func cortex_a510_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_A510_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A510_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_A510_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A510_CPUPWRCTLR_EL1, CORTEX_A510_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret
 endfunc cortex_a510_core_pwr_dwn
