@@ -239,6 +239,8 @@ void bl31_plat_runtime_setup(void)
 		panic();
 	}
 #endif
+
+	custom_runtime_setup();
 }
 
 /*
