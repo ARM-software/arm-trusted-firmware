@@ -89,6 +89,16 @@ the build command example is;
 make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp RESET_TO_BL31=1 DEBUG=1 \
 	ZYNQMP_ATF_MEM_BASE=0x40000 ZYNQMP_ATF_MEM_SIZE=<size>
 
+Configurable Stack Size
+-----------------------
+
+The stack size in TF-A for ZynqMP platform is configurable.
+The custom package can define the desired stack size as per the requirement in
+the make file as follows,
+
+PLATFORM_STACK_SIZE := <value>
+$(eval $(call add_define,PLATFORM_STACK_SIZE))
+
 FSBL->TF-A Parameter Passing
 ----------------------------
 
