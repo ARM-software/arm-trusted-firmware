@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,6 +44,8 @@ func check_errata_819472
 	bx	lr
 endfunc check_errata_819472
 
+add_erratum_entry cortex_a53, ERRATUM(819472), ERRATA_A53_819472
+
 	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #824069.
 	 * This applies only to revision <= r0p2 of Cortex A53.
@@ -58,6 +60,8 @@ func check_errata_824069
 	mov	r0, #ERRATA_APPLIES
 	bx	lr
 endfunc check_errata_824069
+
+add_erratum_entry cortex_a53, ERRATUM(824069), ERRATA_A53_824069
 
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #826319.
@@ -89,6 +93,8 @@ func check_errata_826319
 	b	cpu_rev_var_ls
 endfunc check_errata_826319
 
+add_erratum_entry cortex_a53, ERRATUM(826319), ERRATA_A53_826319
+
 	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #827319.
 	 * This applies only to revision <= r0p2 of Cortex A53.
@@ -103,6 +109,8 @@ func check_errata_827319
 	mov	r0, #ERRATA_APPLIES
 	bx	lr
 endfunc check_errata_827319
+
+add_erratum_entry cortex_a53, ERRATUM(827319), ERRATA_A53_827319
 
 	/* ---------------------------------------------------------------------
 	 * Disable the cache non-temporal hint.
@@ -142,6 +150,9 @@ func check_errata_disable_non_temporal_hint
 	b	cpu_rev_var_ls
 endfunc check_errata_disable_non_temporal_hint
 
+add_erratum_entry cortex_a53, ERRATUM(836870), ERRATA_A53_836870 | A53_DISABLE_NON_TEMPORAL_HINT, \
+	disable_non_temporal_hint
+
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #855873.
 	 *
@@ -175,6 +186,8 @@ func check_errata_855873
 	mov	r1, #0x03
 	b	cpu_rev_var_hs
 endfunc check_errata_855873
+
+add_erratum_entry cortex_a53, ERRATUM(855873), ERRATA_A53_855873
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A53.
@@ -284,31 +297,7 @@ func cortex_a53_cluster_pwr_dwn
 	b	cortex_a53_disable_smp
 endfunc cortex_a53_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex A53. Must follow AAPCS.
- */
-func cortex_a53_errata_report
-	push	{r12, lr}
-
-	bl	cpu_get_rev_var
-	mov	r4, r0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_A53_819472, cortex_a53, 819472
-	report_errata ERRATA_A53_824069, cortex_a53, 824069
-	report_errata ERRATA_A53_826319, cortex_a53, 826319
-	report_errata ERRATA_A53_827319, cortex_a53, 827319
-	report_errata ERRATA_A53_836870, cortex_a53, disable_non_temporal_hint
-	report_errata ERRATA_A53_855873, cortex_a53, 855873
-
-	pop	{r12, lr}
-	bx	lr
-endfunc cortex_a53_errata_report
-#endif
+errata_report_shim cortex_a53
 
 declare_cpu_ops cortex_a53, CORTEX_A53_MIDR, \
 	cortex_a53_reset_func, \
