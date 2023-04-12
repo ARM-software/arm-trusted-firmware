@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -78,6 +78,15 @@ func cortex_a72_disable_ext_debug
 	ret
 endfunc cortex_a72_disable_ext_debug
 
+func check_smccc_arch_workaround_3
+	cpu_check_csv2	x0, 1f
+	mov	x0, #ERRATA_APPLIES
+	ret
+1:
+	mov	x0, #ERRATA_NOT_APPLIES
+	ret
+endfunc check_smccc_arch_workaround_3
+
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A72 Errata #859971.
 	 * This applies only to revision <= r0p3 of Cortex A72.
@@ -102,6 +111,20 @@ func check_errata_859971
 	b	cpu_rev_var_ls
 endfunc check_errata_859971
 
+	/* --------------------------------------------------
+	 * Errata workaround for Cortex A72 Errata #1319367.
+	 * This applies to all revisions of Cortex A72.
+	 * --------------------------------------------------
+	 */
+func check_errata_1319367
+#if ERRATA_A72_1319367
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_1319367
+
 func check_errata_cve_2017_5715
 	cpu_check_csv2	x0, 1f
 #if WORKAROUND_CVE_2017_5715
@@ -124,20 +147,6 @@ func check_errata_cve_2018_3639
 	ret
 endfunc check_errata_cve_2018_3639
 
-	/* --------------------------------------------------
-	 * Errata workaround for Cortex A72 Errata #1319367.
-	 * This applies to all revisions of Cortex A72.
-	 * --------------------------------------------------
-	 */
-func check_errata_1319367
-#if ERRATA_A72_1319367
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_1319367
-
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
 	mov	x0, #ERRATA_APPLIES
@@ -146,15 +155,6 @@ func check_errata_cve_2022_23960
 #endif
 	ret
 endfunc check_errata_cve_2022_23960
-
-func check_smccc_arch_workaround_3
-	cpu_check_csv2	x0, 1f
-	mov	x0, #ERRATA_APPLIES
-	ret
-1:
-	mov	x0, #ERRATA_NOT_APPLIES
-	ret
-endfunc check_smccc_arch_workaround_3
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A72.
