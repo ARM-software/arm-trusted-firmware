@@ -92,6 +92,8 @@ void bl2_early_platform_setup2(u_register_t arg0 __unused,
 				  u_register_t arg3 __unused)
 {
 	stm32mp_save_boot_ctx_address(BOOT_CTX_ADDR);
+
+	stm32_save_header();
 }
 
 void bl2_platform_setup(void)

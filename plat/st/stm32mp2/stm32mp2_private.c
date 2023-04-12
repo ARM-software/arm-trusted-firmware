@@ -84,6 +84,8 @@ static const mmap_region_t stm32mp2_mmap[] = {
 };
 #endif
 
+static uint8_t saved_header[STM32MP_HEADER_SIZE] __maybe_unused;
+
 void configure_mmu(void)
 {
 	mmap_add(stm32mp2_mmap);
@@ -167,9 +169,20 @@ uintptr_t get_uart_address(uint32_t instance_nb)
 }
 #endif
 
+void stm32_save_header(void)
+{
+#if STM32MP_USB_PROGRAMMER && TRUSTED_BOARD_BOOT
+	memcpy(&saved_header, (uint8_t *)STM32MP_HEADER_BASE, STM32MP_HEADER_SIZE);
+#endif /* STM32MP_USB_PROGRAMMER && TRUSTED_BOARD_BOOT */
+}
+
 uintptr_t stm32_get_header_address(void)
 {
+#if STM32MP_USB_PROGRAMMER && TRUSTED_BOARD_BOOT
+	return (uintptr_t)&saved_header;
+#else
 	return STM32MP_HEADER_BASE;
+#endif /* STM32MP_USB_PROGRAMMER && TRUSTED_BOARD_BOOT */
 }
 
 uint32_t stm32mp_get_chip_version(void)
