@@ -30,6 +30,20 @@
 
 #define TRUSTY_PARAMS_LEN_BYTES      (4096*2)
 
+/*
+ * Avoid the pointer dereference of the canonical mmio_read_8() implementation.
+ * This prevents the compiler from mis-interpreting the MMIO access as an
+ * illegal memory access to a very low address (the IMX ROM is mapped at 0).
+ */
+static uint8_t mmio_read_8_ldrb(uintptr_t address)
+{
+	uint8_t reg;
+
+	__asm__ volatile ("ldrb %w0, [%1]" : "=r" (reg) : "r" (address));
+
+	return reg;
+}
+
 static const mmap_region_t imx_mmap[] = {
 	MAP_REGION_FLAT(GPV_BASE, GPV_SIZE, MT_DEVICE | MT_RW), /* GPV map */
 	MAP_REGION_FLAT(IMX_ROM_BASE, IMX_ROM_SIZE, MT_MEMORY | MT_RO), /* ROM map */
@@ -70,11 +84,11 @@ static void imx8mq_soc_info_init(void)
 	uint32_t ocotp_val;
 
 	imx_soc_revision = mmio_read_32(IMX_ANAMIX_BASE + ANAMIX_DIGPROG);
-	rom_version = mmio_read_8(IMX_ROM_BASE + ROM_SOC_INFO_A0);
+	rom_version = mmio_read_8_ldrb(IMX_ROM_BASE + ROM_SOC_INFO_A0);
 	if (rom_version == 0x10)
 		return;
 
-	rom_version = mmio_read_8(IMX_ROM_BASE + ROM_SOC_INFO_B0);
+	rom_version = mmio_read_8_ldrb(IMX_ROM_BASE + ROM_SOC_INFO_B0);
 	if (rom_version == 0x20) {
 		imx_soc_revision &= ~0xff;
 		imx_soc_revision |= rom_version;
