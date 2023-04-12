@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,49 +22,26 @@
 #error "Cortex-A65AE supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-/* -------------------------------------------------
- * The CPU Ops reset function for Cortex-A65.
- * Shall clobber: x0-x19
- * -------------------------------------------------
- */
-func cortex_a65ae_reset_func
-	mov	x19, x30
+ /*
+  * ERRATA_DSU_936184 :
+  * The errata is defined in dsu_helpers.S but applies to cortex_a65ae
+  * as well. Henceforth creating symbolic names to the already existing errata
+  * workaround functions to get them registered under the Errata Framework.
+  */
+.equ check_erratum_cortex_a65ae_936184, check_errata_dsu_936184
+.equ erratum_cortex_a65ae_936184_wa, errata_dsu_936184_wa
+add_erratum_entry cortex_a65ae, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
 
-#if ERRATA_DSU_936184
-	bl	errata_dsu_936184_wa
-#endif
-
-	ret	x19
-endfunc cortex_a65ae_reset_func
+cpu_reset_func_start cortex_a65ae
+cpu_reset_func_end cortex_a65ae
 
 func cortex_a65ae_cpu_pwr_dwn
-	mrs	x0, CORTEX_A65AE_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A65AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_A65AE_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A65AE_CPUPWRCTLR_EL1, CORTEX_A65AE_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret
 endfunc cortex_a65ae_cpu_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex-A65AE. Must follow AAPCS.
- */
-func cortex_a65ae_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_DSU_936184, cortex_a65ae, dsu_936184
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_a65ae_errata_report
-#endif
+errata_report_shim cortex_a65ae
 
 .section .rodata.cortex_a65ae_regs, "aS"
 cortex_a65ae_regs:  /* The ascii list of register names to be reported */
