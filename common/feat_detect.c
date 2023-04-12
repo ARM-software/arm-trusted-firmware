@@ -210,6 +210,14 @@ void detect_arch_features(void)
 	/* v8.9 features */
 	check_feature(ENABLE_FEAT_TCR2, read_feat_tcrx_id_field(),
 		      "TCR2", 1, 1);
+	check_feature(ENABLE_FEAT_S2PIE, read_feat_s2pie_id_field(),
+		      "S2PIE", 1, 1);
+	check_feature(ENABLE_FEAT_S1PIE, read_feat_s1pie_id_field(),
+		      "S1PIE", 1, 1);
+	check_feature(ENABLE_FEAT_S2POE, read_feat_s2poe_id_field(),
+		      "S2POE", 1, 1);
+	check_feature(ENABLE_FEAT_S1POE, read_feat_s1poe_id_field(),
+		      "S1POE", 1, 1);
 
 	/* v9.0 features */
 	check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),

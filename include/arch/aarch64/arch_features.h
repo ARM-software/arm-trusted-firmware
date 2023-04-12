@@ -234,6 +234,88 @@ static inline bool is_feat_tcr2_supported(void)
 	return read_feat_tcrx_id_field() != 0U;
 }
 
+static unsigned int read_feat_s2poe_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_S2POE);
+}
+
+static inline bool is_feat_s2poe_supported(void)
+{
+	if (ENABLE_FEAT_S2POE == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_S2POE == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_s2poe_id_field() != 0U;
+}
+
+static unsigned int read_feat_s1poe_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_S1POE);
+}
+
+static inline bool is_feat_s1poe_supported(void)
+{
+	if (ENABLE_FEAT_S1POE == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_S1POE == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_s1poe_id_field() != 0U;
+}
+
+static inline bool is_feat_sxpoe_supported(void)
+{
+	return is_feat_s1poe_supported() || is_feat_s2poe_supported();
+}
+
+static unsigned int read_feat_s2pie_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_S2PIE);
+}
+
+static inline bool is_feat_s2pie_supported(void)
+{
+	if (ENABLE_FEAT_S2PIE == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_S2PIE == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_s2pie_id_field() != 0U;
+}
+
+static unsigned int read_feat_s1pie_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_S1PIE);
+}
+
+static inline bool is_feat_s1pie_supported(void)
+{
+	if (ENABLE_FEAT_S1PIE == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_S1PIE == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_s1pie_id_field() != 0U;
+}
+
+static inline bool is_feat_sxpie_supported(void)
+{
+	return is_feat_s1pie_supported() || is_feat_s2pie_supported();
+}
+
 /*******************************************************************************
  * Functions to identify the presence of the Activity Monitors Extension
  ******************************************************************************/

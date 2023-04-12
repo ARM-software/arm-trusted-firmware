@@ -355,6 +355,14 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	}
 
 	/*
+	 * SCR_EL3.PIEN: Enable permission indirection and overlay
+	 * registers for AArch64 if present.
+	 */
+	if (is_feat_sxpie_supported() || is_feat_sxpoe_supported()) {
+		scr_el3 |= SCR_PIEN_BIT;
+	}
+
+	/*
 	 * CPTR_EL3 was initialized out of reset, copy that value to the
 	 * context register.
 	 */
@@ -994,6 +1002,16 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		if (is_feat_tcr2_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_TCR2_EL2, read_tcr2_el2());
 		}
+		if (is_feat_sxpie_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_PIRE0_EL2, read_pire0_el2());
+			write_ctx_reg(el2_sysregs_ctx, CTX_PIR_EL2, read_pir_el2());
+		}
+		if (is_feat_s2pie_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_S2PIR_EL2, read_s2pir_el2());
+		}
+		if (is_feat_sxpoe_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_POR_EL2, read_por_el2());
+		}
 	}
 }
 
@@ -1060,6 +1078,16 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 		}
 		if (is_feat_tcr2_supported()) {
 			write_tcr2_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TCR2_EL2));
+		}
+		if (is_feat_sxpie_supported()) {
+			write_pire0_el2(read_ctx_reg(el2_sysregs_ctx, CTX_PIRE0_EL2));
+			write_pir_el2(read_ctx_reg(el2_sysregs_ctx, CTX_PIR_EL2));
+		}
+		if (is_feat_s2pie_supported()) {
+			write_s2pir_el2(read_ctx_reg(el2_sysregs_ctx, CTX_S2PIR_EL2));
+		}
+		if (is_feat_sxpoe_supported()) {
+			write_por_el2(read_ctx_reg(el2_sysregs_ctx, CTX_POR_EL2));
 		}
 	}
 }

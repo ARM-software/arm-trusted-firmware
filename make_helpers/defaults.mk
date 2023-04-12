@@ -176,6 +176,18 @@ ENABLE_FEAT_TWED		:= 0
 # Flag to enable access to TCR2 (FEAT_TCR2)
 ENABLE_FEAT_TCR2		:= 0
 
+# Flag to enable access to Stage 2 Permission Indirection (FEAT_S2PIE)
+ENABLE_FEAT_S2PIE		:= 0
+
+# Flag to enable access to Stage 1 Permission Indirection (FEAT_S1PIE)
+ENABLE_FEAT_S1PIE		:= 0
+
+# Flag to enable access to Stage 2 Permission Overlay (FEAT_S2POE)
+ENABLE_FEAT_S2POE		:= 0
+
+# Flag to enable access to Stage 1 Permission Overlay (FEAT_S1POE)
+ENABLE_FEAT_S1POE		:= 0
+
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
 
