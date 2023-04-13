@@ -15,6 +15,7 @@
 struct rpi3_sdhost_params {
 	uintptr_t	reg_base;
 	uint32_t	clk_rate;
+	uint32_t	clk_rate_initial;
 	uint32_t	bus_width;
 	uint32_t        flags;
 	uint32_t	current_cmd;
@@ -56,6 +57,8 @@ void rpi3_sdhost_stop(void);
 #define HC_CMD_WRITE			0x0080
 #define HC_CMD_READ			0x0040
 #define HC_CMD_COMMAND_MASK		0x003f
+
+#define RPI3_SDHOST_MAX_CLOCK		250000000	// technically, we should obtain this number from the mailbox
 
 #define HC_CLOCKDIVISOR_MAXVAL		0x07ff
 #define HC_CLOCKDIVISOR_PREFERVAL	0x027b
