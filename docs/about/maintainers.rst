@@ -477,8 +477,8 @@ Arm Juno Platform port
 
 Arm Morello and N1SDP Platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Manoj Kumar <manoj.kumar3@arm.com>
-:|G|: `manojkumar-arm`_
+:|M|: Anurag Koul <anurag.koul@arm.com>
+:|G|: `anukou`_
 :|M|: Chandni Cherukuri <chandni.cherukuri@arm.com>
 :|G|: `chandnich`_
 :|F|: plat/arm/board/morello
@@ -954,7 +954,7 @@ Conventional Changelog Extensions
 .. _raghuncstate: https://github.com/raghuncstate
 .. _CJKay: https://github.com/cjkay
 .. _nmenon: https://github.com/nmenon
-.. _manojkumar-arm: https://github.com/manojkumar-arm
+.. _anukou: https://github.com/anukou
 .. _chandnich: https://github.com/chandnich
 .. _abdellatif-elkhlifi: https://github.com/abdellatif-elkhlifi
 .. _vishnu-banavath: https://github.com/vishnu-banavath
