@@ -3,6 +3,9 @@
  * Copyright (c) 2020-2023, STMicroelectronics - All Rights Reserved
  */
 
+/omit-if-no-ref/ &i2c6;
+/omit-if-no-ref/ &spi6;
+
 / {
 	aliases {
 		/delete-property/ mmc0;
@@ -23,8 +26,6 @@
 		/delete-node/ mmc@58005000;
 		/delete-node/ mmc@58007000;
 		/delete-node/ usbphyc@5a006000;
-		/delete-node/ spi@5c001000;
 		/delete-node/ stgen@5c008000;
-		/delete-node/ i2c@5c009000;
 	};
 };
