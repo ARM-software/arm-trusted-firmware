@@ -627,6 +627,10 @@ Common build options
    translation library (xlat tables v2) must be used; version 1 of translation
    library is not supported.
 
+-  ``IMPDEF_SYSREG_TRAP``: Numeric value to enable the handling traps for
+   implementation defined system register accesses from lower ELs. Default
+   value is ``0``.
+
 -  ``INVERTED_MEMMAP``: memmap tool print by default lower addresses at the
    bottom, higher addresses at the top. This build flag can be set to '1' to
    invert this behavior. Lower addresses will be printed at the top and higher

@@ -240,6 +240,9 @@ HASH_ALG			:= sha256
 # operations.
 HW_ASSISTED_COHERENCY		:= 0
 
+# Flag to enable trapping of implementation defined sytem registers
+IMPDEF_SYSREG_TRAP		:= 0
+
 # Set the default algorithm for the generation of Trusted Board Boot keys
 KEY_ALG				:= rsa
 

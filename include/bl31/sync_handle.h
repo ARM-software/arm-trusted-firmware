@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2022, ARM Limited. All rights reserved.
+ * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +17,7 @@
 #define ISS_SYSREG_DIRECTION_MASK	0x000001UL
 
 #define ISS_SYSREG_OPCODE_RNDR		0x30c808U
+#define ISS_SYSREG_OPCODE_IMPDEF	0x303c00U
 #define ISS_SYSREG_OPCODE_RNDRRS	0x32c808U
 
 #define TRAP_RET_UNHANDLED		-1
@@ -54,6 +56,7 @@ static inline bool is_sysreg_iss_write(uint64_t esr)
 int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx);
 
 /* Prototypes for system register emulation handlers provided by platforms. */
+int plat_handle_impdef_trap(uint64_t esr_el3, cpu_context_t *ctx);
 int plat_handle_rng_trap(uint64_t esr_el3, cpu_context_t *ctx);
 
 #endif /* __ASSEMBLER__ */

@@ -3530,6 +3530,38 @@ The return value indicates how to proceed:
 
 This function needs to be implemented by a platform if it enables FEAT_RNG_TRAP.
 
+Function : plat_handle_impdef_trap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t
+    Argument : cpu_context_t *
+    Return   : int
+
+This function is invoked by BL31's exception handler when there is a synchronous
+system register trap caused by access to the implementation defined registers.
+It allows platforms enabling ``IMPDEF_SYSREG_TRAP`` to emulate those system
+registers choosing to program bits of their choice.
+
+The first parameter (``uint64_t esr_el3``) contains the content of the ESR_EL3
+syndrome register, which encodes the instruction that was trapped.
+
+The second parameter (``cpu_context_t *ctx``) represents the CPU state in the
+lower exception level, at the time when the execution of the ``mrs`` instruction
+was trapped.
+
+The return value indicates how to proceed:
+
+-  When returning ``TRAP_RET_UNHANDLED`` (-1), the machine will panic.
+-  When returning ``TRAP_RET_REPEAT`` (0), the exception handler will return
+   to the same instruction, so its execution will be repeated.
+-  When returning ``TRAP_RET_CONTINUE`` (1), the exception handler will return
+   to the next instruction.
+
+This function needs to be implemented by a platform if it enables
+IMPDEF_SYSREG_TRAP.
+
 Build flags
 -----------
 
