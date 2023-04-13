@@ -11,7 +11,7 @@
 #include <common/debug.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
-#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
 /*

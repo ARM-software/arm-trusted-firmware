@@ -17,7 +17,7 @@
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
-#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <versal_def.h>
 #include <plat_private.h>
@@ -229,5 +229,5 @@ void bl31_plat_arch_setup(void)
 	};
 
 	setup_page_tables(bl_regions, plat_versal_get_mmap());
-	enable_mmu_el3(0);
+	enable_mmu(0);
 }

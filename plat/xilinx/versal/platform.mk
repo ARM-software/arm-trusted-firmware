@@ -53,10 +53,9 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
+include lib/xlat_tables_v2/xlat_tables.mk
 
-PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/aarch64/xlat_tables.c		\
-				drivers/arm/dcc/dcc_console.c			\
+PLAT_BL_COMMON_SOURCES	:= 	drivers/arm/dcc/dcc_console.c			\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				${GICV3_SOURCES}				\
@@ -66,7 +65,8 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				plat/arm/common/arm_common.c			\
 				plat/common/plat_gicv3.c			\
 				plat/xilinx/versal/aarch64/versal_helpers.S	\
-				plat/xilinx/versal/aarch64/versal_common.c
+				plat/xilinx/versal/aarch64/versal_common.c	\
+				${XLAT_TABLES_LIB_SRCS}
 
 VERSAL_CONSOLE	?=	pl011
 ifeq (${VERSAL_CONSOLE}, $(filter ${VERSAL_CONSOLE},pl011 pl011_0 pl011_1 dcc))
