@@ -1,11 +1,14 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef UUID_COMMON_H
 #define UUID_COMMON_H
+
+#include <stdbool.h>
+#include <stdint.h>
 
 #define UUID_BYTES_LENGTH	16
 #define UUID_STRING_LENGTH	36

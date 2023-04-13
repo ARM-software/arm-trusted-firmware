@@ -1190,6 +1190,9 @@ subsections:
             deprecated:
               - plat/nxp/common/psci
 
+      - title: UUID
+        scope: uuid
+
   - title: Documentation
     scope: docs
 
@@ -1278,4 +1281,3 @@ subsections:
 
       - title: zlib
         scope: zlib
-

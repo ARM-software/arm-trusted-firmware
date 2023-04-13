@@ -27,12 +27,14 @@
  */
 
 /*
- * Portions copyright (c) 2014-2020, ARM Limited and Contributors.
+ * Portions copyright (c) 2014-2023, Arm Limited and Contributors.
  * All rights reserved.
  */
 
 #ifndef UUID_H
 #define UUID_H
+
+#include <stdint.h>
 
 /* Length of a node address (an IEEE 802 address). */
 #define	_UUID_NODE_LEN		6
