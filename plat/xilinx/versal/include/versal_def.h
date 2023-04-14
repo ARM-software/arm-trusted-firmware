@@ -50,6 +50,7 @@
  * CCI-400 related constants
  ******************************************************************************/
 #define PLAT_ARM_CCI_BASE		0xFD000000
+#define PLAT_ARM_CCI_SIZE		0x00100000
 #define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	4
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	5
 
@@ -109,9 +110,6 @@
 
 #define CRF_RST_APU_ACPU_RESET		(1 << 0)
 #define CRF_RST_APU_ACPU_PWRON_RESET	(1 << 10)
-
-#define FPD_MAINCCI_BASE	0xFD000000
-#define FPD_MAINCCI_SIZE	0x00100000
 
 /* APU registers and bitfields */
 #define FPD_APU_BASE		0xFD5C0000U
