@@ -61,6 +61,34 @@ func check_errata_2002765
 endfunc check_errata_2002765
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Cortex-X2 Errata 2017096.
+	 * This applies only to revisions r0p0, r1p0 and r2p0
+	 * and is fixed in r2p1.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0, x1, x17
+	 * --------------------------------------------------
+	 */
+func errata_x2_2017096_wa
+	/* Compare x0 against revision r0p0 to r2p0 */
+	mov     x17, x30
+	bl      check_errata_2017096
+	cbz     x0, 1f
+	mrs     x1, CORTEX_X2_CPUECTLR_EL1
+	orr     x1, x1, CORTEX_X2_CPUECTLR_EL1_PFSTIDIS_BIT
+	msr     CORTEX_X2_CPUECTLR_EL1, x1
+
+1:
+	ret     x17
+endfunc errata_x2_2017096_wa
+
+func check_errata_2017096
+	/* Applies to r0p0, r1p0, r2p0 */
+	mov     x1, #0x20
+	b       cpu_rev_var_ls
+endfunc check_errata_2017096
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Cortex X2 Errata #2058056.
 	 * This applies to revisions r0p0, r1p0, and r2p0 and
 	 * is open.
@@ -88,63 +116,6 @@ func check_errata_2058056
 	mov	x1, #0x20
 	b	cpu_rev_var_ls
 endfunc check_errata_2058056
-
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex X2 Errata #2083908.
-	 * This applies to revision r2p0 and is open.
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x2, x17
-	 * --------------------------------------------------
-	 */
-func errata_cortex_x2_2083908_wa
-	/* Check workaround compatibility. */
-	mov	x17, x30
-	bl	check_errata_2083908
-	cbz	x0, 1f
-
-	/* Apply the workaround by setting bit 13 in CPUACTLR5_EL1. */
-	mrs	x1, CORTEX_X2_CPUACTLR5_EL1
-	orr	x1, x1, #BIT(13)
-	msr	CORTEX_X2_CPUACTLR5_EL1, x1
-
-1:
-	ret	x17
-endfunc errata_cortex_x2_2083908_wa
-
-func check_errata_2083908
-	/* Applies to r2p0 */
-	mov	x1, #0x20
-	mov	x2, #0x20
-	b	cpu_rev_var_range
-endfunc check_errata_2083908
-
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex-X2 Errata 2017096.
-	 * This applies only to revisions r0p0, r1p0 and r2p0
-	 * and is fixed in r2p1.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0, x1, x17
-	 * --------------------------------------------------
-	 */
-func errata_x2_2017096_wa
-	/* Compare x0 against revision r0p0 to r2p0 */
-	mov     x17, x30
-	bl      check_errata_2017096
-	cbz     x0, 1f
-	mrs     x1, CORTEX_X2_CPUECTLR_EL1
-	orr     x1, x1, CORTEX_X2_CPUECTLR_EL1_PFSTIDIS_BIT
-	msr     CORTEX_X2_CPUECTLR_EL1, x1
-
-1:
-	ret     x17
-endfunc errata_x2_2017096_wa
-
-func check_errata_2017096
-	/* Applies to r0p0, r1p0, r2p0 */
-	mov     x1, #0x20
-	b       cpu_rev_var_ls
-endfunc check_errata_2017096
 
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex-X2 Errata 2081180.
@@ -190,6 +161,65 @@ func check_errata_2081180
 endfunc check_errata_2081180
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Cortex X2 Errata #2083908.
+	 * This applies to revision r2p0 and is open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x2, x17
+	 * --------------------------------------------------
+	 */
+func errata_cortex_x2_2083908_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_2083908
+	cbz	x0, 1f
+
+	/* Apply the workaround by setting bit 13 in CPUACTLR5_EL1. */
+	mrs	x1, CORTEX_X2_CPUACTLR5_EL1
+	orr	x1, x1, #BIT(13)
+	msr	CORTEX_X2_CPUACTLR5_EL1, x1
+
+1:
+	ret	x17
+endfunc errata_cortex_x2_2083908_wa
+
+func check_errata_2083908
+	/* Applies to r2p0 */
+	mov	x1, #0x20
+	mov	x2, #0x20
+	b	cpu_rev_var_range
+endfunc check_errata_2083908
+
+	/* ---------------------------------------------------------
+	 * Errata Workaround for Cortex-X2 Errata 2147715.
+	 * This applies only to revisions r2p0 and is fixed in r2p1.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0, x1, x17
+	 * ---------------------------------------------------------
+	 */
+func errata_x2_2147715_wa
+	/* Compare x0 against revision r2p0 */
+	mov     x17, x30
+	bl      check_errata_2147715
+	cbz     x0, 1f
+
+	/* Apply the workaround by setting bit 22 in CPUACTLR_EL1. */
+	mrs     x1, CORTEX_X2_CPUACTLR_EL1
+	orr     x1, x1, CORTEX_X2_CPUACTLR_EL1_BIT_22
+	msr     CORTEX_X2_CPUACTLR_EL1, x1
+
+1:
+	ret     x17
+endfunc errata_x2_2147715_wa
+
+func check_errata_2147715
+	/* Applies to r2p0 */
+	mov	x1, #0x20
+	mov	x2, #0x20
+	b	cpu_rev_var_range
+endfunc check_errata_2147715
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Cortex X2 Errata 2216384.
 	 * This applies to revisions r0p0, r1p0, and r2p0
 	 * and is fixed in r2p1.
@@ -227,45 +257,6 @@ func check_errata_2216384
 	mov	x1, #0x20
 	b	cpu_rev_var_ls
 endfunc check_errata_2216384
-
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-	/* ---------------------------------------------------------
-	 * Errata Workaround for Cortex-X2 Errata 2147715.
-	 * This applies only to revisions r2p0 and is fixed in r2p1.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0, x1, x17
-	 * ---------------------------------------------------------
-	 */
-func errata_x2_2147715_wa
-	/* Compare x0 against revision r2p0 */
-	mov     x17, x30
-	bl      check_errata_2147715
-	cbz     x0, 1f
-
-	/* Apply the workaround by setting bit 22 in CPUACTLR_EL1. */
-	mrs     x1, CORTEX_X2_CPUACTLR_EL1
-	orr     x1, x1, CORTEX_X2_CPUACTLR_EL1_BIT_22
-	msr     CORTEX_X2_CPUACTLR_EL1, x1
-
-1:
-	ret     x17
-endfunc errata_x2_2147715_wa
-
-func check_errata_2147715
-	/* Applies to r2p0 */
-	mov	x1, #0x20
-	mov	x2, #0x20
-	b	cpu_rev_var_range
-endfunc check_errata_2147715
 
 	/* ---------------------------------------------------------------
 	 * Errata Workaround for Cortex-X2 Erratum 2282622.
@@ -348,6 +339,15 @@ func check_errata_2768515
 	mov	x1, #0x21
 	b	cpu_rev_var_ls
 endfunc check_errata_2768515
+
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
