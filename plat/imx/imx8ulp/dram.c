@@ -25,13 +25,22 @@
 
 #define IMX_DDRC_BASE			U(0x2E060000)
 #define SAVED_DRAM_DATA_BASE		U(0x20055000)
-#define DENALI_CTL_144			0x240
+#define IMX_DRAM_BASE			U(0x80000000)
+#define DENALI_CTL_143			U(0x23C)
+#define DENALI_CTL_144			U(0x240)
+#define DENALI_CTL_146			U(0x248)
+#define LP_STATE_CS_IDLE		U(0x404000)
+#define LP_STATE_CS_PD_CG		U(0x4F4F00)
 #define LPI_WAKEUP_EN_SHIFT		U(8)
 #define IMX_LPAV_SIM_BASE		0x2DA50000
 #define LPDDR_CTRL			0x14
 #define LPDDR_AUTO_LP_MODE_DISABLE	BIT(24)
 #define SOC_LP_CMD_SHIFT		U(15)
 #define LPDDR_CTRL2			0x18
+#define LPDDR_EN_CLKGATE		(0x1<<17)
+#define LPDDR_MAX_CLKDIV_EN		(0x1 << 16)
+#define LP_AUTO_ENTRY_EN		0x4
+#define LP_AUTO_EXIT_EN			0xF
 
 #define DENALI_CTL_00			U(0x0)
 #define DENALI_CTL_23			U(0x5c)
@@ -106,6 +115,9 @@ struct dram_timing_info {
 	/* phy freq2 config */
 	struct dram_cfg_param *phy_f2_cfg;
 	unsigned int phy_f2_cfg_num;
+	/* automatic low power config */
+	struct dram_cfg_param *auto_lp_cfg;
+	unsigned int auto_lp_cfg_num;
 	/* initialized drate table */
 	unsigned int fsp_table[3];
 };
@@ -114,11 +126,13 @@ struct dram_timing_info {
 #define PI_NUM		U(298)
 #define PHY_NUM		U(1654)
 #define PHY_DIFF_NUM	U(49)
+#define AUTO_LP_NUM	U(3)
 struct dram_cfg {
 	uint32_t ctl_cfg[CTL_NUM];
 	uint32_t pi_cfg[PI_NUM];
 	uint32_t phy_full[PHY_NUM];
 	uint32_t phy_diff[PHY_DIFF_NUM];
+	uint32_t auto_lp_cfg[AUTO_LP_NUM];
 };
 
 struct dram_timing_info *info;
@@ -126,7 +140,8 @@ struct dram_cfg *dram_timing_cfg;
 
 /* mark if dram cfg is already saved */
 static bool dram_cfg_saved;
-static uint32_t dram_class;
+static bool dram_auto_lp_true;
+static uint32_t dram_class, dram_ctl_143;
 
 /* PHY register index for frequency diff */
 uint32_t freq_specific_reg_array[PHY_DIFF_NUM] = {
@@ -198,9 +213,114 @@ static void ddr_init(void)
 	mmio_write_32(IMX_DDRC_BASE + DENALI_PHY_1537, PHY_FREQ_MULTICAST_EN(1));
 }
 
+void dram_lp_auto_disable(void)
+{
+	uint32_t lp_auto_en;
+
+	dram_timing_cfg = (struct dram_cfg *)(SAVED_DRAM_DATA_BASE +
+					      sizeof(struct dram_timing_info));
+	lp_auto_en = (mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_146) & (LP_AUTO_ENTRY_EN << 24));
+	/* Save initial config */
+	dram_ctl_143 = mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_143);
+
+	if (lp_auto_en && !dram_auto_lp_true) {
+		/* 0.a Save DDRC auto low-power mode parameter */
+		dram_timing_cfg->auto_lp_cfg[0] = mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_144);
+		dram_timing_cfg->auto_lp_cfg[1] = mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_147);
+		dram_timing_cfg->auto_lp_cfg[2] = mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_146);
+		/* Set LPI_SRPD_LONG_MCCLK_GATE_WAKEUP_F2 to Maximum */
+		mmio_setbits_32(IMX_DDRC_BASE + DENALI_CTL_143, 0xF << 24);
+		/* 0.b Disable DDRC auto low-power mode interface */
+		mmio_clrbits_32(IMX_DDRC_BASE + DENALI_CTL_146, LP_AUTO_ENTRY_EN << 24);
+		/* 0.c Read any location to get DRAM out of Self-refresh */
+		mmio_read_32(IMX_DRAM_BASE);
+		/* 0.d Confirm DRAM is out of Self-refresh */
+		while ((mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_146) &
+			LP_STATE_CS_PD_CG) != LP_STATE_CS_IDLE) {
+			;
+		}
+		/* 0.e Disable DDRC auto low-power exit */
+		mmio_clrbits_32(IMX_DDRC_BASE + DENALI_CTL_147, LP_AUTO_EXIT_EN);
+		/* dram low power mode flag */
+		dram_auto_lp_true = true;
+	}
+}
+
+void dram_lp_auto_enable(void)
+{
+	/* Switch back to Auto Low-power mode */
+	if (dram_auto_lp_true) {
+		/* 12.a Confirm DRAM is out of Self-refresh */
+		while ((mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_146) &
+			LP_STATE_CS_PD_CG) != LP_STATE_CS_IDLE) {
+			;
+		}
+		/* 12.b Enable DDRC auto low-power exit */
+		/*
+		 * 12.c TBC! : Set DENALI_CTL_144 [LPI_CTRL_REQ_EN[24]] and
+		 * [DFI_LP_VERSION[16]] back to default settings = 1b'1.
+		 */
+		/*
+		 * 12.d Reconfigure DENALI_CTL_144 [LPI_WAKEUP_EN[5:0]] bit
+		 * LPI_WAKEUP_EN[3] = 1b'1.
+		 */
+		mmio_write_32(IMX_DDRC_BASE + DENALI_CTL_144, dram_timing_cfg->auto_lp_cfg[0]);
+		mmio_write_32(IMX_DDRC_BASE + DENALI_CTL_147, dram_timing_cfg->auto_lp_cfg[1]);
+		/* 12.e Re-enable DDRC auto low-power mode interface */
+		mmio_write_32(IMX_DDRC_BASE + DENALI_CTL_146, dram_timing_cfg->auto_lp_cfg[2]);
+		/* restore ctl config */
+		mmio_write_32(IMX_DDRC_BASE + DENALI_CTL_143, dram_ctl_143);
+		/* dram low power mode flag */
+		dram_auto_lp_true = false;
+	}
+}
+
+void dram_enter_self_refresh(void)
+{
+	/* disable auto low power interface */
+	dram_lp_auto_disable();
+	/* 1. config the PCC_LPDDR4[SSADO] to 2b'11 for ACK domain 0/1's STOP */
+	mmio_setbits_32(IMX_PCC5_BASE + 0x108, 0x2 << 22);
+	/* 1.a Clock gate PCC_LPDDR4[CGC] and no software reset PCC_LPDDR4[SWRST] */
+	mmio_setbits_32(IMX_PCC5_BASE + 0x108, (BIT(30) | BIT(28)));
+
+	/*
+	 * 2. Make sure the DENALI_CTL_144[LPI_WAKEUP_EN[5:0]] has the bit
+	 * LPI_WAKEUP_EN[3] = 1b'1. This enables the option 'self-refresh
+	 * long with mem and ctlr clk gating or self-refresh power-down long
+	 * with mem and ctlr clk gating'
+	 */
+	mmio_setbits_32(IMX_DDRC_BASE + DENALI_CTL_144, BIT(3) << LPI_WAKEUP_EN_SHIFT);
+	/* TODO: Needed ? 2.a DENALI_CTL_144[LPI_TIMER_WAKEUP_F2] */
+	//mmio_setbits_32(IMX_DDRC_BASE + DENALI_CTL_144, BIT(0));
+
+	/*
+	 * 3a. Config SIM_LPAV LPDDR_CTRL[LPDDR_AUTO_LP_MODE_DISABLE] to 1b'0(enable
+	 * the logic to automatic handles low power entry/exit. This is the recommended
+	 * option over handling through software.
+	 * 3b. Config the SIM_LPAV LPDDR_CTRL[SOC_LP_CMD] to 6b'101001(encoding for
+	 * self_refresh with both DDR controller and DRAM clock gate. THis is mandatory
+	 * since LPPDR logic will be power gated).
+	 */
+	mmio_clrbits_32(IMX_LPAV_SIM_BASE + LPDDR_CTRL, LPDDR_AUTO_LP_MODE_DISABLE);
+	mmio_clrsetbits_32(IMX_LPAV_SIM_BASE + LPDDR_CTRL,
+			   0x3f << SOC_LP_CMD_SHIFT, 0x29 << SOC_LP_CMD_SHIFT);
+	/* 3.c clock gate ddr controller */
+	mmio_setbits_32(IMX_LPAV_SIM_BASE + LPDDR_CTRL2, LPDDR_EN_CLKGATE);
+	/* 3.d lpddr max clk div en */
+	mmio_clrbits_32(IMX_LPAV_SIM_BASE + LPDDR_CTRL2, LPDDR_MAX_CLKDIV_EN);
+}
+
+void dram_exit_self_refresh(void)
+{
+	dram_lp_auto_enable();
+}
+
 void dram_enter_retention(void)
 {
 	unsigned int i;
+
+	dram_lp_auto_disable();
 
 	/* 1. config the PCC_LPDDR4[SSADO] to 2b'11 for ACK domain 0/1's STOP */
 	mmio_setbits_32(IMX_PCC5_BASE + 0x108, 0x2 << 22);
@@ -438,6 +558,8 @@ void dram_exit_retention(void)
 			;
 		}
 	}
+
+	dram_lp_auto_enable();
 }
 
 #define LPDDR_DONE       (0x1<<4)
@@ -445,8 +567,6 @@ void dram_exit_retention(void)
 #define SOC_FREQ_CHG_REQ (0x1<<7)
 #define LPI_WAKEUP_EN    (0x4<<8)
 #define SOC_FREQ_REQ     (0x1<<11)
-
-#define LPDDR_EN_CLKGATE (0x1<<17)
 
 static void set_cgc2_ddrclk(uint8_t src, uint8_t div)
 {

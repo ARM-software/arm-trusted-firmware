@@ -39,8 +39,8 @@
 #define TRUSTY_PARAMS_LEN_BYTES      (4096*2)
 
 static const mmap_region_t imx_mmap[] = {
-	DEVICE0_MAP, DEVICE1_MAP, ELE_MAP,
-	SEC_SIM_MAP, SRAM0_MAP,
+	DEVICE0_MAP, DEVICE1_MAP, DEVICE2_MAP,
+	ELE_MAP, SEC_SIM_MAP, SRAM0_MAP,
 	{0}
 };
 
