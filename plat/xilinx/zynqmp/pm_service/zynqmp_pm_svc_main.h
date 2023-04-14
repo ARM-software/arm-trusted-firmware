@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, Advanced Micro Devices Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
