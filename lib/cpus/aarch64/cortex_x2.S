@@ -40,18 +40,14 @@ workaround_reset_end cortex_x2, ERRATUM(2002765)
 check_erratum_ls cortex_x2, ERRATUM(2002765), CPU_REV(2, 0)
 
 workaround_reset_start cortex_x2, ERRATUM(2017096), ERRATA_X2_2017096
-	mrs     x1, CORTEX_X2_CPUECTLR_EL1
-	orr     x1, x1, CORTEX_X2_CPUECTLR_EL1_PFSTIDIS_BIT
-	msr     CORTEX_X2_CPUECTLR_EL1, x1
+	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, CORTEX_X2_CPUECTLR_EL1_PFSTIDIS_BIT
 workaround_reset_end cortex_x2, ERRATUM(2017096)
 
 check_erratum_ls cortex_x2, ERRATUM(2017096), CPU_REV(2, 0)
 
 workaround_reset_start cortex_x2, ERRATUM(2058056), ERRATA_X2_2058056
-	mrs	x1, CORTEX_X2_CPUECTLR2_EL1
-	mov	x0, #CORTEX_X2_CPUECTLR2_EL1_PF_MODE_CNSRV
-	bfi	x1, x0, #CORTEX_X2_CPUECTLR2_EL1_PF_MODE_SHIFT, #CORTEX_X2_CPUECTLR2_EL1_PF_MODE_WIDTH
-	msr	CORTEX_X2_CPUECTLR2_EL1, x1
+	sysreg_bitfield_insert CORTEX_X2_CPUECTLR2_EL1, CORTEX_X2_CPUECTLR2_EL1_PF_MODE_CNSRV, \
+	CORTEX_X2_CPUECTLR2_EL1_PF_MODE_SHIFT, CORTEX_X2_CPUECTLR2_EL1_PF_MODE_WIDTH
 workaround_reset_end cortex_x2, ERRATUM(2058056)
 
 check_erratum_ls cortex_x2, ERRATUM(2058056), CPU_REV(2, 0)
@@ -80,26 +76,20 @@ check_erratum_ls cortex_x2, ERRATUM(2081180), CPU_REV(2, 0)
 
 workaround_reset_start cortex_x2, ERRATUM(2083908), ERRATA_X2_2083908
 	/* Apply the workaround by setting bit 13 in CPUACTLR5_EL1. */
-	mrs	x1, CORTEX_X2_CPUACTLR5_EL1
-	orr	x1, x1, #BIT(13)
-	msr	CORTEX_X2_CPUACTLR5_EL1, x1
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(13)
 workaround_reset_end cortex_x2, ERRATUM(2083908)
 
 check_erratum_range cortex_x2, ERRATUM(2083908), CPU_REV(2, 0), CPU_REV(2, 0)
 
 workaround_reset_start cortex_x2, ERRATUM(2147715), ERRATA_X2_2147715
 	/* Apply the workaround by setting bit 22 in CPUACTLR_EL1. */
-	mrs     x1, CORTEX_X2_CPUACTLR_EL1
-	orr     x1, x1, CORTEX_X2_CPUACTLR_EL1_BIT_22
-	msr     CORTEX_X2_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_X2_CPUACTLR_EL1, CORTEX_X2_CPUACTLR_EL1_BIT_22
 workaround_reset_end cortex_x2, ERRATUM(2147715)
 
 check_erratum_range cortex_x2, ERRATUM(2147715), CPU_REV(2, 0), CPU_REV(2, 0)
 
 workaround_reset_start cortex_x2, ERRATUM(2216384), ERRATA_X2_2216384
-	mrs	x1, CORTEX_X2_CPUACTLR5_EL1
-	orr	x1, x1, CORTEX_X2_CPUACTLR5_EL1_BIT_17
-	msr	CORTEX_X2_CPUACTLR5_EL1, x1
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, CORTEX_X2_CPUACTLR5_EL1_BIT_17
 
 	/* Apply instruction patching sequence */
 	ldr	x0, =0x5
@@ -116,18 +106,14 @@ check_erratum_ls cortex_x2, ERRATUM(2216384), CPU_REV(2, 0)
 
 workaround_reset_start cortex_x2, ERRATUM(2282622), ERRATA_X2_2282622
 	/* Apply the workaround */
-	mrs     x1, CORTEX_X2_CPUACTLR2_EL1
-	orr     x1, x1, #BIT(0)
-	msr     CORTEX_X2_CPUACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_X2_CPUACTLR2_EL1, BIT(0)
 workaround_reset_end cortex_x2, ERRATUM(2282622)
 
 check_erratum_ls cortex_x2, ERRATUM(2282622), CPU_REV(2, 1)
 
 workaround_reset_start cortex_x2, ERRATUM(2371105), ERRATA_X2_2371105
 	/* Set bit 40 in CPUACTLR2_EL1 */
-	mrs	x1, CORTEX_X2_CPUACTLR2_EL1
-	orr	x1, x1, #CORTEX_X2_CPUACTLR2_EL1_BIT_40
-	msr	CORTEX_X2_CPUACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_X2_CPUACTLR2_EL1, CORTEX_X2_CPUACTLR2_EL1_BIT_40
 workaround_reset_end cortex_x2, ERRATUM(2371105)
 
 check_erratum_ls cortex_x2, ERRATUM(2371105), CPU_REV(2, 0)
@@ -145,8 +131,7 @@ workaround_reset_start cortex_x2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 	 * The Cortex-X2 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_cortex_x2
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_vbar_cortex_x2
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x2, CVE(2022, 23960)
 
@@ -171,9 +156,8 @@ func cortex_x2_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_X2_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_X2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_X2_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_X2_CPUPWRCTLR_EL1, CORTEX_X2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+
 #if ERRATA_X2_2768515
 	mov	x15, x30
 	bl	cpu_get_rev_var
