@@ -5,64 +5,754 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include ${MAKE_HELPERS_DIRECTORY}$/build_macros.mk
+
 # Cortex A57 specific optimisation to skip L1 cache flush when
 # cluster is powered down.
-SKIP_A57_L1_FLUSH_PWR_DWN		?=0
+CPU_FLAG_LIST += SKIP_A57_L1_FLUSH_PWR_DWN
 
 # Flag to disable the cache non-temporal hint.
 # It is enabled by default.
 A53_DISABLE_NON_TEMPORAL_HINT		?=1
+CPU_FLAG_LIST += A53_DISABLE_NON_TEMPORAL_HINT
 
 # Flag to disable the cache non-temporal hint.
 # It is enabled by default.
 A57_DISABLE_NON_TEMPORAL_HINT		?=1
+CPU_FLAG_LIST += A57_DISABLE_NON_TEMPORAL_HINT
 
 # Flag to enable higher performance non-cacheable load forwarding.
 # It is disabled by default.
-A57_ENABLE_NONCACHEABLE_LOAD_FWD	?= 0
+CPU_FLAG_LIST += A57_ENABLE_NONCACHEABLE_LOAD_FWD
 
 WORKAROUND_CVE_2017_5715		?=1
+CPU_FLAG_LIST += WORKAROUND_CVE_2017_5715
 WORKAROUND_CVE_2018_3639		?=1
-DYNAMIC_WORKAROUND_CVE_2018_3639	?=0
+CPU_FLAG_LIST += WORKAROUND_CVE_2018_3639
+CPU_FLAG_LIST += DYNAMIC_WORKAROUND_CVE_2018_3639
 WORKAROUND_CVE_2022_23960		?=1
+CPU_FLAG_LIST += WORKAROUND_CVE_2022_23960
 
 # Flags to indicate internal or external Last level cache
 # By default internal
-NEOVERSE_Nx_EXTERNAL_LLC		?=0
+CPU_FLAG_LIST += NEOVERSE_Nx_EXTERNAL_LLC
 
-# Process A57_ENABLE_NONCACHEABLE_LOAD_FWD flag
-$(eval $(call assert_boolean,A57_ENABLE_NONCACHEABLE_LOAD_FWD))
-$(eval $(call add_define,A57_ENABLE_NONCACHEABLE_LOAD_FWD))
+# CPU Errata Build flags.
+# These should be enabled by the platform if the erratum workaround needs to be
+# applied.
 
-# Process SKIP_A57_L1_FLUSH_PWR_DWN flag
-$(eval $(call assert_boolean,SKIP_A57_L1_FLUSH_PWR_DWN))
-$(eval $(call add_define,SKIP_A57_L1_FLUSH_PWR_DWN))
+# Flag to apply erratum 794073 workaround when disabling mmu.
+CPU_FLAG_LIST += ERRATA_A9_794073
 
-# Process A53_DISABLE_NON_TEMPORAL_HINT flag
-$(eval $(call assert_boolean,A53_DISABLE_NON_TEMPORAL_HINT))
-$(eval $(call add_define,A53_DISABLE_NON_TEMPORAL_HINT))
+# Flag to apply erratum 816470 workaround during power down. This erratum
+# applies only to revision >= r3p0 of the Cortex A15 cpu.
+CPU_FLAG_LIST += ERRATA_A15_816470
 
-# Process A57_DISABLE_NON_TEMPORAL_HINT flag
-$(eval $(call assert_boolean,A57_DISABLE_NON_TEMPORAL_HINT))
-$(eval $(call add_define,A57_DISABLE_NON_TEMPORAL_HINT))
+# Flag to apply erratum 827671 workaround during reset. This erratum applies
+# only to revision >= r3p0 of the Cortex A15 cpu.
+CPU_FLAG_LIST += ERRATA_A15_827671
 
-# Process WORKAROUND_CVE_2017_5715 flag
-$(eval $(call assert_boolean,WORKAROUND_CVE_2017_5715))
-$(eval $(call add_define,WORKAROUND_CVE_2017_5715))
+# Flag to apply erratum 852421 workaround during reset. This erratum applies
+# only to revision <= r1p2 of the Cortex A17 cpu.
+CPU_FLAG_LIST += ERRATA_A17_852421
 
-# Process WORKAROUND_CVE_2018_3639 flag
-$(eval $(call assert_boolean,WORKAROUND_CVE_2018_3639))
-$(eval $(call add_define,WORKAROUND_CVE_2018_3639))
+# Flag to apply erratum 852423 workaround during reset. This erratum applies
+# only to revision <= r1p2 of the Cortex A17 cpu.
+CPU_FLAG_LIST += ERRATA_A17_852423
 
-$(eval $(call assert_boolean,DYNAMIC_WORKAROUND_CVE_2018_3639))
-$(eval $(call add_define,DYNAMIC_WORKAROUND_CVE_2018_3639))
+# Flag to apply erratum 855472 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A35 cpu.
+CPU_FLAG_LIST += ERRATA_A35_855472
 
-# Process WORKAROUND_CVE_2022_23960 flag
-$(eval $(call assert_boolean,WORKAROUND_CVE_2022_23960))
-$(eval $(call add_define,WORKAROUND_CVE_2022_23960))
+# Flag to apply erratum 819472 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A53 cpu.
+CPU_FLAG_LIST += ERRATA_A53_819472
 
-$(eval $(call assert_boolean,NEOVERSE_Nx_EXTERNAL_LLC))
-$(eval $(call add_define,NEOVERSE_Nx_EXTERNAL_LLC))
+# Flag to apply erratum 824069 workaround during reset. This erratum applies
+# only to revision <= r0p2 of the Cortex A53 cpu.
+CPU_FLAG_LIST += ERRATA_A53_824069
+
+# Flag to apply erratum 826319 workaround during reset. This erratum applies
+# only to revision <= r0p2 of the Cortex A53 cpu.
+CPU_FLAG_LIST += ERRATA_A53_826319
+
+# Flag to apply erratum 827319 workaround during reset. This erratum applies
+# only to revision <= r0p2 of the Cortex A53 cpu.
+CPU_FLAG_LIST += ERRATA_A53_827319
+
+# Flag to apply erratum 835769 workaround at compile and link time. This
+# erratum applies to revision <= r0p4 of the Cortex A53 cpu. Enabling this
+# workaround can lead the linker to create "*.stub" sections.
+CPU_FLAG_LIST += ERRATA_A53_835769
+
+# Flag to apply erratum 836870 workaround during reset. This erratum applies
+# only to revision <= r0p3 of the Cortex A53 cpu. From r0p4 and onwards, this
+# erratum workaround is enabled by default in hardware.
+CPU_FLAG_LIST += ERRATA_A53_836870
+
+# Flag to apply erratum 843419 workaround at link time.
+# This erratum applies to revision <= r0p4 of the Cortex A53 cpu. Enabling this
+# workaround could lead the linker to emit "*.stub" sections which are 4kB
+# aligned.
+CPU_FLAG_LIST += ERRATA_A53_843419
+
+# Flag to apply errata 855873 during reset. This errata applies to all
+# revisions of the Cortex A53 CPU, but this firmware workaround only works
+# for revisions r0p3 and higher. Earlier revisions are taken care
+# of by the rich OS.
+CPU_FLAG_LIST += ERRATA_A53_855873
+
+# Flag to apply erratum 1530924 workaround during reset. This erratum applies
+# to all revisions of Cortex A53 cpu.
+CPU_FLAG_LIST += ERRATA_A53_1530924
+
+# Flag to apply erratum 768277 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A55 cpu.
+CPU_FLAG_LIST += ERRATA_A55_768277
+
+# Flag to apply erratum 778703 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A55 cpu.
+CPU_FLAG_LIST += ERRATA_A55_778703
+
+# Flag to apply erratum 798797 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A55 cpu.
+CPU_FLAG_LIST += ERRATA_A55_798797
+
+# Flag to apply erratum 846532 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A55 cpu.
+CPU_FLAG_LIST += ERRATA_A55_846532
+
+# Flag to apply erratum 903758 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A55 cpu.
+CPU_FLAG_LIST += ERRATA_A55_903758
+
+# Flag to apply erratum 1221012 workaround during reset. This erratum applies
+# only to revision <= r1p0 of the Cortex A55 cpu.
+CPU_FLAG_LIST += ERRATA_A55_1221012
+
+# Flag to apply erratum 1530923 workaround during reset. This erratum applies
+# to all revisions of Cortex A55 cpu.
+CPU_FLAG_LIST += ERRATA_A55_1530923
+
+# Flag to apply erratum 806969 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_806969
+
+# Flag to apply erratum 813419 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_813419
+
+# Flag to apply erratum 813420 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_813420
+
+# Flag to apply erratum 814670 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_814670
+
+# Flag to apply erratum 817169 workaround during power down. This erratum
+# applies only to revision <= r0p1 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_817169
+
+# Flag to apply erratum 826974 workaround during reset. This erratum applies
+# only to revision <= r1p1 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_826974
+
+# Flag to apply erratum 826977 workaround during reset. This erratum applies
+# only to revision <= r1p1 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_826977
+
+# Flag to apply erratum 828024 workaround during reset. This erratum applies
+# only to revision <= r1p1 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_828024
+
+# Flag to apply erratum 829520 workaround during reset. This erratum applies
+# only to revision <= r1p2 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_829520
+
+# Flag to apply erratum 833471 workaround during reset. This erratum applies
+# only to revision <= r1p2 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_833471
+
+# Flag to apply erratum 855972 workaround during reset. This erratum applies
+# only to revision <= r1p3 of the Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_859972
+
+# Flag to apply erratum 1319537 workaround during reset. This erratum applies
+# to all revisions of Cortex A57 cpu.
+CPU_FLAG_LIST += ERRATA_A57_1319537
+
+# Flag to apply erratum 855971 workaround during reset. This erratum applies
+# only to revision <= r0p3 of the Cortex A72 cpu.
+CPU_FLAG_LIST += ERRATA_A72_859971
+
+# Flag to apply erratum 1319367 workaround during reset. This erratum applies
+# to all revisions of Cortex A72 cpu.
+CPU_FLAG_LIST += ERRATA_A72_1319367
+
+# Flag to apply erratum 852427 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A73 cpu.
+CPU_FLAG_LIST += ERRATA_A73_852427
+
+# Flag to apply erratum 855423 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A73 cpu.
+CPU_FLAG_LIST += ERRATA_A73_855423
+
+# Flag to apply erratum 764081 workaround during reset. This erratum applies
+# only to revision <= r0p0 of the Cortex A75 cpu.
+CPU_FLAG_LIST += ERRATA_A75_764081
+
+# Flag to apply erratum 790748 workaround during reset. This erratum applies
+# only to revision <= r0p0 of the Cortex A75 cpu.
+CPU_FLAG_LIST += ERRATA_A75_790748
+
+# Flag to apply erratum 1073348 workaround during reset. This erratum applies
+# only to revision <= r1p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1073348
+
+# Flag to apply erratum 1130799 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1130799
+
+# Flag to apply erratum 1220197 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1220197
+
+# Flag to apply erratum 1257314 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1257314
+
+# Flag to apply erratum 1262606 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1262606
+
+# Flag to apply erratum 1262888 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1262888
+
+# Flag to apply erratum 1275112 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1275112
+
+# Flag to apply erratum 1286807 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1286807
+
+# Flag to apply erratum 1791580 workaround during reset. This erratum applies
+# only to revision <= r4p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1791580
+
+# Flag to apply erratum 1165522 workaround during reset. This erratum applies
+# to all revisions of Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1165522
+
+# Flag to apply erratum 1868343 workaround during reset. This erratum applies
+# only to revision <= r4p0 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1868343
+
+# Flag to apply erratum 1946160 workaround during reset. This erratum applies
+# only to revisions r3p0 - r4p1 of the Cortex A76 cpu.
+CPU_FLAG_LIST += ERRATA_A76_1946160
+
+# Flag to apply erratum 2743102 workaround during powerdown. This erratum
+# applies to all revisions <= r4p1 of the Cortex A76 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A76_2743102
+
+# Flag to apply erratum 1508412 workaround during reset. This erratum applies
+# only to revision <= r1p0 of the Cortex A77 cpu.
+CPU_FLAG_LIST += ERRATA_A77_1508412
+
+# Flag to apply erratum 1925769 workaround during reset. This erratum applies
+# only to revision <= r1p1 of the Cortex A77 cpu.
+CPU_FLAG_LIST += ERRATA_A77_1925769
+
+# Flag to apply erratum 1946167 workaround during reset. This erratum applies
+# only to revision <= r1p1 of the Cortex A77 cpu.
+CPU_FLAG_LIST += ERRATA_A77_1946167
+
+# Flag to apply erratum 1791578 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1, it is still open.
+CPU_FLAG_LIST += ERRATA_A77_1791578
+
+# Flag to apply erratum 2356587 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1, it is still open.
+CPU_FLAG_LIST += ERRATA_A77_2356587
+
+# Flag to apply erratum 1800714 workaround during reset. This erratum applies
+# to revisions <= r1p1 of the Cortex A77 cpu.
+CPU_FLAG_LIST += ERRATA_A77_1800714
+
+# Flag to apply erratum 2743100 workaround during power down. This erratum
+# applies to revisions r0p0, r1p0, and r1p1, it is still open.
+CPU_FLAG_LIST += ERRATA_A77_2743100
+
+# Flag to apply erratum 1688305 workaround during reset. This erratum applies
+# to revisions r0p0 - r1p0 of the A78 cpu.
+CPU_FLAG_LIST += ERRATA_A78_1688305
+
+# Flag to apply erratum 1941498 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1 of the A78 cpu.
+CPU_FLAG_LIST += ERRATA_A78_1941498
+
+# Flag to apply erratum 1951500 workaround during reset. This erratum applies
+# to revisions r1p0 and r1p1 of the A78 cpu. The issue is present in r0p0 as
+# well but there is no workaround for that revision.
+CPU_FLAG_LIST += ERRATA_A78_1951500
+
+# Flag to apply erratum 1821534 workaround during reset. This erratum applies
+# to revisions r0p0 and r1p0 of the A78 cpu.
+CPU_FLAG_LIST += ERRATA_A78_1821534
+
+# Flag to apply erratum 1952683 workaround during reset. This erratum applies
+# to revision r0p0 of the A78 cpu and was fixed in the revision r1p0.
+CPU_FLAG_LIST += ERRATA_A78_1952683
+
+# Flag to apply erratum 2132060 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78_2132060
+
+# Flag to apply erratum 2242635 workaround during reset. This erratum applies
+# to revisions r1p0, r1p1, and r1p2 of the A78 cpu and is open. The issue is
+# present in r0p0 as well but there is no workaround for that revision.
+CPU_FLAG_LIST += ERRATA_A78_2242635
+
+# Flag to apply erratum 2376745 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78_2376745
+
+# Flag to apply erratum 2395406 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78_2395406
+
+# Flag to apply erratum 2742426 workaround during reset. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still
+# open.
+CPU_FLAG_LIST += ERRATA_A78_2742426
+
+# Flag to apply erratum 2772019 workaround during powerdown. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still
+# open.
+CPU_FLAG_LIST += ERRATA_A78_2772019
+
+# Flag to apply erratum 2779479 workaround during reset. This erratum applies
+# to revision r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78_2779479
+
+# Flag to apply erratum 1941500 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78_AE_1941500
+
+# Flag to apply erratum 1951502 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78_AE_1951502
+
+# Flag to apply erratum 2376748 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78_AE_2376748
+
+# Flag to apply erratum 2395408 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78_AE_2395408
+
+# Flag to apply erratum 2132064 workaround during reset. This erratum applies
+# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78C_2132064
+
+# Flag to apply erratum 2242638 workaround during reset. This erratum applies
+# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78C_2242638
+
+# Flag to apply erratum 2376749 workaround during reset. This erratum applies
+# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78C_2376749
+
+# Flag to apply erratum 2395411 workaround during reset. This erratum applies
+# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78C_2395411
+
+# Flag to apply erratum 2772121 workaround during powerdown. This erratum
+# applies to revisions r0p0, r0p1 and r0p2 of the A78C cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78C_2772121
+
+# Flag to apply erratum 2779484 workaround during reset. This erratum
+# applies to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78C_2779484
+
+# Flag to apply erratum 1821534 workaround during reset. This erratum applies
+# to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_X1_1821534
+
+# Flag to apply erratum 1688305 workaround during reset. This erratum applies
+# to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_X1_1688305
+
+# Flag to apply erratum 1827429 workaround during reset. This erratum applies
+# to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_X1_1827429
+
+# Flag to apply T32 CLREX workaround during reset. This erratum applies
+# only to r0p0 and r1p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1043202
+
+# Flag to apply erratum 1073348 workaround during reset. This erratum applies
+# only to revision r0p0 and r1p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1073348
+
+# Flag to apply erratum 1130799 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1130799
+
+# Flag to apply erratum 1165347 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1165347
+
+# Flag to apply erratum 1207823 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1207823
+
+# Flag to apply erratum 1220197 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1220197
+
+# Flag to apply erratum 1257314 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1257314
+
+# Flag to apply erratum 1262606 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1262606
+
+# Flag to apply erratum 1262888 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1262888
+
+# Flag to apply erratum 1275112 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1275112
+
+# Flag to apply erratum 1315703 workaround during reset. This erratum applies
+# to revisions before r3p1 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1315703
+
+# Flag to apply erratum 1542419 workaround during reset. This erratum applies
+# to revisions r3p0 - r4p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1542419
+
+# Flag to apply erratum 1868343 workaround during reset. This erratum applies
+# to revision <= r4p0 of the Neoverse N1 cpu.
+CPU_FLAG_LIST += ERRATA_N1_1868343
+
+# Flag to apply erratum 1946160 workaround during reset. This erratum applies
+# to revisions r3p0, r3p1, r4p0, and r4p1 of the Neoverse N1 cpu. The issue
+# exists in revisions r0p0, r1p0, and r2p0 as well but there is no workaround.
+CPU_FLAG_LIST += ERRATA_N1_1946160
+
+# Flag to apply erratum 2743102 workaround during powerdown. This erratum
+# applies to all revisions <= r4p1 of the Neoverse N1 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N1_2743102
+
+# Flag to apply erratum 1618635 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse V1 cpu and was fixed in the revision r1p0.
+CPU_FLAG_LIST += ERRATA_V1_1618635
+
+# Flag to apply erratum 1774420 workaround during reset. This erratum applies
+# to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_V1_1774420
+
+# Flag to apply erratum 1791573 workaround during reset. This erratum applies
+# to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_V1_1791573
+
+# Flag to apply erratum 1852267 workaround during reset. This erratum applies
+# to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_V1_1852267
+
+# Flag to apply erratum 1925756 workaround during reset. This needs to be
+# enabled for r0p0, r1p0, and r1p1 of the Neoverse V1 core, it is still open.
+CPU_FLAG_LIST += ERRATA_V1_1925756
+
+# Flag to apply erratum 1940577 workaround during reset. This erratum applies
+# to revisions r1p0 and r1p1 of the Neoverse V1 cpu.
+CPU_FLAG_LIST += ERRATA_V1_1940577
+
+# Flag to apply erratum 1966096 workaround during reset. This erratum applies
+# to revisions r1p0 and r1p1 of the Neoverse V1 CPU and is open. This issue
+# exists in r0p0 as well but there is no workaround for that revision.
+CPU_FLAG_LIST += ERRATA_V1_1966096
+
+# Flag to apply erratum 2139242 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1 of the Neoverse V1 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_V1_2139242
+
+# Flag to apply erratum 2108267 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1 of the Neoverse V1 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_V1_2108267
+
+# Flag to apply erratum 2216392 workaround during reset. This erratum applies
+# to revisions r1p0 and r1p1 of the Neoverse V1 cpu and is still open. This
+# issue exists in r0p0 as well but there is no workaround for that revision.
+CPU_FLAG_LIST += ERRATA_V1_2216392
+
+# Flag to apply erratum 2294912 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1 of the Neoverse V1 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_V1_2294912
+
+# Flag to apply erratum 2372203 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0 and r1p1 of the Neoverse V1 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_V1_2372203
+
+# Flag to apply erratum 2743093 workaround during powerdown. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2  of the Neoverse V1 cpu and is
+# still open.
+CPU_FLAG_LIST += ERRATA_V1_2743093
+
+# Flag to apply erratum 2743233 workaround during powerdown. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2 of the Neoverse V1 cpu and is
+# still open.
+CPU_FLAG_LIST += ERRATA_V1_2743233
+
+# Flag to apply erratum 2743233 workaround during powerdown. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2 of the Neoverse V1 cpu and is
+# still open.
+CPU_FLAG_LIST += ERRATA_V1_2743233
+
+# Flag to apply erratum 2779461 workaround during powerdown. This erratum
+# applies to revisions r0p0, r1p0, r1p1 and r1p2  of the Neoverse V1 cpu and is
+# still open.
+CPU_FLAG_LIST += ERRATA_V1_2779461
+
+# Flag to apply erratum 1987031 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A710_1987031
+
+# Flag to apply erratum 2081180 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A710_2081180
+
+# Flag to apply erratum 2083908 workaround during reset. This erratum applies
+# to revision r2p0 of the Cortex-A710 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A710_2083908
+
+# Flag to apply erratum 2058056 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A710_2058056
+
+# Flag to apply erratum 2055002 workaround during reset. This erratum applies
+# to revision r1p0, r2p0 of the Cortex-A710 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A710_2055002
+
+# Flag to apply erratum 2017096 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_A710_2017096
+
+# Flag to apply erratum 2267065 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
+CPU_FLAG_LIST += ERRATA_A710_2267065
+
+# Flag to apply erratum 2136059 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
+CPU_FLAG_LIST += ERRATA_A710_2136059
+
+# Flag to apply erratum 2147715 workaround during reset. This erratum applies
+# to revision r2p0 of the Cortex-A710 CPU and is fixed in revision r2p1.
+CPU_FLAG_LIST += ERRATA_A710_2147715
+
+# Flag to apply erratum 2216384 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
+CPU_FLAG_LIST += ERRATA_A710_2216384
+
+# Flag to apply erratum 2282622 workaround during reset. This erratum applies
+# to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-A710 cpu and is still
+# open.
+CPU_FLAG_LIST += ERRATA_A710_2282622
+
+# Flag to apply erratum 2291219 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
+CPU_FLAG_LIST += ERRATA_A710_2291219
+
+# Flag to apply erratum 2008768 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
+CPU_FLAG_LIST += ERRATA_A710_2008768
+
+# Flag to apply erratum 2371105 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
+CPU_FLAG_LIST += ERRATA_A710_2371105
+
+# Flag to apply erratum 2768515 workaround during power down. This erratum
+# applies to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-A710 cpu and is
+# still open.
+CPU_FLAG_LIST += ERRATA_A710_2768515
+
+# Flag to apply erratum 2002655 workaround during reset. This erratum applies
+# to revisions r0p0 of the Neoverse-N2 cpu, it is still open.
+CPU_FLAG_LIST += ERRATA_N2_2002655
+
+# Flag to apply erratum 2067956 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2067956
+
+# Flag to apply erratum 2025414 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2025414
+
+# Flag to apply erratum 2189731 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2189731
+
+# Flag to apply erratum 2138956 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2138956
+
+# Flag to apply erratum 2138953 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2138953
+
+# Flag to apply erratum 2242415 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2242415
+
+# Flag to apply erratum 2138958 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2138958
+
+# Flag to apply erratum 2242400 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2242400
+
+# Flag to apply erratum 2280757 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_N2_2280757
+
+# Flag to apply erraturm 2326639 workaroud during powerdown. This erratum
+# applies to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_N2_2326639
+
+# Flag to apply erratum 2376738 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu, it is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_N2_2376738
+
+# Flag to apply erratum 2388450 workaround during reset. This erratum applies
+# to revision r0p0 of the Neoverse N2 cpu, it is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_N2_2388450
+
+# Flag to apply erratum 2743089 workaround during during powerdown. This erratum
+# applies to all revisions <= r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
+CPU_FLAG_LIST += ERRATA_N2_2743089
+
+# Flag to apply erratum 2002765 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_X2_2002765
+
+# Flag to apply erratum 2058056 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_X2_2058056
+
+# Flag to apply erratum 2083908 workaround during reset. This erratum applies
+# to revision r2p0 of the Cortex-X2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_X2_2083908
+
+# Flag to apply erratum 2017096 workaround during reset. This erratum applies
+# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
+# r2p1.
+CPU_FLAG_LIST += ERRATA_X2_2017096
+
+# Flag to apply erratum 2081180 workaround during reset. This erratum applies
+# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
+# r2p1.
+CPU_FLAG_LIST += ERRATA_X2_2081180
+
+# Flag to apply erratum 2216384 workaround during reset. This erratum applies
+# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
+# r2p1.
+CPU_FLAG_LIST += ERRATA_X2_2216384
+
+# Flag to apply erratum 2147715 workaround during reset. This erratum applies
+# only to revision r2p0 of the Cortex-X2 cpu, it is fixed in r2p1.
+CPU_FLAG_LIST += ERRATA_X2_2147715
+
+# Flag to apply erratum 2282622 workaround during reset. This erratum applies
+# to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is still
+# open.
+CPU_FLAG_LIST += ERRATA_X2_2282622
+
+# Flag to apply erratum 2371105 workaround during reset. This erratum applies
+# to revision r0p0, r1p0 and r2p0 of the Cortex-X2 cpu and is fixed in r2p1.
+CPU_FLAG_LIST += ERRATA_X2_2371105
+
+# Flag to apply erratum 2768515 workaround during power down. This erratum
+# applies to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is
+# still open.
+CPU_FLAG_LIST += ERRATA_X2_2768515
+
+# Flag to apply erratum 2313909 workaround on powerdown. This erratum applies
+# to revisions r0p0 and r1p0 of the Cortex-X3 cpu, it is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_X3_2313909
+
+# Flag to apply erratum 2615812 workaround on powerdown. This erratum applies
+# to revisions r0p0, r1p0, r1p1 of the Cortex-X3 cpu, it is still open.
+CPU_FLAG_LIST += ERRATA_X3_2615812
+
+# Flag to apply erratum 1922240 workaround during reset. This erratum applies
+# to revision r0p0 of the Cortex-A510 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_A510_1922240
+
+# Flag to apply erratum 2288014 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0 of the Cortex-A510 cpu and is
+# fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A510_2288014
+
+# Flag to apply erratum 2042739 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1 and r0p2 of the Cortex-A510 cpu and is fixed in r0p3.
+CPU_FLAG_LIST += ERRATA_A510_2042739
+
+# Flag to apply erratum 2041909 workaround during reset. This erratum applies
+# to revision r0p2 of the Cortex-A510 cpu and is fixed in r0p3. The issue is
+# present in r0p0 and r0p1 but there is no workaround for those revisions.
+CPU_FLAG_LIST += ERRATA_A510_2041909
+
+# Flag to apply erratum 2250311 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A510_2250311
+
+# Flag to apply erratum 2218950 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A510_2218950
+
+# Flag to apply erratum 2172148 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A510_2172148
+
+# Flag to apply erratum 2347730 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3, r1p0 and r1p1 of the Cortex-A510 CPU,
+# and is fixed in r1p2.
+CPU_FLAG_LIST += ERRATA_A510_2347730
+
+# Flag to apply erratum 2371937 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3, r1p0, and r1p1. It is fixed in r1p2.
+CPU_FLAG_LIST += ERRATA_A510_2371937
+
+# Flag to apply erratum 2666669 workaround during reset. This erratum applies
+# to revisions r0p0, r0p1, r0p2, r0p3, r1p0, and r1p1. It is fixed in r1p2.
+CPU_FLAG_LIST += ERRATA_A510_2666669
+
+# Flag to apply erratum 2684597 workaround during powerdown. This erratum
+# applies to revision r0p0, r0p1, r0p2, r0p3, r1p0, r1p1 and r1p2 of the
+# Cortex-A510 cpu and is fixed in r1p3.
+CPU_FLAG_LIST += ERRATA_A510_2684597
+
+# Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
+# Applying the workaround results in higher DSU power consumption on idle.
+CPU_FLAG_LIST += ERRATA_DSU_798953
+
+# Flag to apply DSU erratum 936184. This erratum applies to DSUs containing
+# the ACP interface and revision < r2p0. Applying the workaround results in
+# higher DSU power consumption on idle.
+CPU_FLAG_LIST += ERRATA_DSU_936184
+
+# Flag to apply DSU erratum 2313941. This erratum applies to DSUs revisions
+# r0p0, r1p0, r2p0, r2p1, r3p0, r3p1 and is still open. Applying the workaround
+# results in higher DSU power consumption on idle.
+CPU_FLAG_LIST += ERRATA_DSU_2313941
 
 ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
 	ifeq (${WORKAROUND_CVE_2018_3639},0)
@@ -70,1397 +760,10 @@ ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
 	endif
 endif
 
-# CPU Errata Build flags.
-# These should be enabled by the platform if the erratum workaround needs to be
-# applied.
-
-# Flag to apply erratum 794073 workaround when disabling mmu.
-ERRATA_A9_794073	?=0
-
-# Flag to apply erratum 816470 workaround during power down. This erratum
-# applies only to revision >= r3p0 of the Cortex A15 cpu.
-ERRATA_A15_816470	?=0
-
-# Flag to apply erratum 827671 workaround during reset. This erratum applies
-# only to revision >= r3p0 of the Cortex A15 cpu.
-ERRATA_A15_827671	?=0
-
-# Flag to apply erratum 852421 workaround during reset. This erratum applies
-# only to revision <= r1p2 of the Cortex A17 cpu.
-ERRATA_A17_852421	?=0
-
-# Flag to apply erratum 852423 workaround during reset. This erratum applies
-# only to revision <= r1p2 of the Cortex A17 cpu.
-ERRATA_A17_852423	?=0
-
-# Flag to apply erratum 855472 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A35 cpu.
-ERRATA_A35_855472	?=0
-
-# Flag to apply erratum 819472 workaround during reset. This erratum applies
-# only to revision <= r0p1 of the Cortex A53 cpu.
-ERRATA_A53_819472	?=0
-
-# Flag to apply erratum 824069 workaround during reset. This erratum applies
-# only to revision <= r0p2 of the Cortex A53 cpu.
-ERRATA_A53_824069	?=0
-
-# Flag to apply erratum 826319 workaround during reset. This erratum applies
-# only to revision <= r0p2 of the Cortex A53 cpu.
-ERRATA_A53_826319	?=0
-
-# Flag to apply erratum 827319 workaround during reset. This erratum applies
-# only to revision <= r0p2 of the Cortex A53 cpu.
-ERRATA_A53_827319	?=0
-
-# Flag to apply erratum 835769 workaround at compile and link time. This
-# erratum applies to revision <= r0p4 of the Cortex A53 cpu. Enabling this
-# workaround can lead the linker to create "*.stub" sections.
-ERRATA_A53_835769	?=0
-
-# Flag to apply erratum 836870 workaround during reset. This erratum applies
-# only to revision <= r0p3 of the Cortex A53 cpu. From r0p4 and onwards, this
-# erratum workaround is enabled by default in hardware.
-ERRATA_A53_836870	?=0
-
-# Flag to apply erratum 843419 workaround at link time.
-# This erratum applies to revision <= r0p4 of the Cortex A53 cpu. Enabling this
-# workaround could lead the linker to emit "*.stub" sections which are 4kB
-# aligned.
-ERRATA_A53_843419	?=0
-
-# Flag to apply errata 855873 during reset. This errata applies to all
-# revisions of the Cortex A53 CPU, but this firmware workaround only works
-# for revisions r0p3 and higher. Earlier revisions are taken care
-# of by the rich OS.
-ERRATA_A53_855873	?=0
-
-# Flag to apply erratum 1530924 workaround during reset. This erratum applies
-# to all revisions of Cortex A53 cpu.
-ERRATA_A53_1530924	?=0
-
-# Flag to apply erratum 768277 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A55 cpu.
-ERRATA_A55_768277	?=0
-
-# Flag to apply erratum 778703 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A55 cpu.
-ERRATA_A55_778703	?=0
-
-# Flag to apply erratum 798797 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A55 cpu.
-ERRATA_A55_798797	?=0
-
-# Flag to apply erratum 846532 workaround during reset. This erratum applies
-# only to revision <= r0p1 of the Cortex A55 cpu.
-ERRATA_A55_846532	?=0
-
-# Flag to apply erratum 903758 workaround during reset. This erratum applies
-# only to revision <= r0p1 of the Cortex A55 cpu.
-ERRATA_A55_903758	?=0
-
-# Flag to apply erratum 1221012 workaround during reset. This erratum applies
-# only to revision <= r1p0 of the Cortex A55 cpu.
-ERRATA_A55_1221012	?=0
-
-# Flag to apply erratum 1530923 workaround during reset. This erratum applies
-# to all revisions of Cortex A55 cpu.
-ERRATA_A55_1530923	?=0
-
-# Flag to apply erratum 806969 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A57 cpu.
-ERRATA_A57_806969	?=0
-
-# Flag to apply erratum 813419 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A57 cpu.
-ERRATA_A57_813419	?=0
-
-# Flag to apply erratum 813420 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A57 cpu.
-ERRATA_A57_813420	?=0
-
-# Flag to apply erratum 814670 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A57 cpu.
-ERRATA_A57_814670	?=0
-
-# Flag to apply erratum 817169 workaround during power down. This erratum
-# applies only to revision <= r0p1 of the Cortex A57 cpu.
-ERRATA_A57_817169	?=0
-
-# Flag to apply erratum 826974 workaround during reset. This erratum applies
-# only to revision <= r1p1 of the Cortex A57 cpu.
-ERRATA_A57_826974	?=0
-
-# Flag to apply erratum 826977 workaround during reset. This erratum applies
-# only to revision <= r1p1 of the Cortex A57 cpu.
-ERRATA_A57_826977	?=0
-
-# Flag to apply erratum 828024 workaround during reset. This erratum applies
-# only to revision <= r1p1 of the Cortex A57 cpu.
-ERRATA_A57_828024	?=0
-
-# Flag to apply erratum 829520 workaround during reset. This erratum applies
-# only to revision <= r1p2 of the Cortex A57 cpu.
-ERRATA_A57_829520	?=0
-
-# Flag to apply erratum 833471 workaround during reset. This erratum applies
-# only to revision <= r1p2 of the Cortex A57 cpu.
-ERRATA_A57_833471	?=0
-
-# Flag to apply erratum 855972 workaround during reset. This erratum applies
-# only to revision <= r1p3 of the Cortex A57 cpu.
-ERRATA_A57_859972	?=0
-
-# Flag to apply erratum 1319537 workaround during reset. This erratum applies
-# to all revisions of Cortex A57 cpu.
-ERRATA_A57_1319537	?=0
-
-# Flag to apply erratum 855971 workaround during reset. This erratum applies
-# only to revision <= r0p3 of the Cortex A72 cpu.
-ERRATA_A72_859971	?=0
-
-# Flag to apply erratum 1319367 workaround during reset. This erratum applies
-# to all revisions of Cortex A72 cpu.
-ERRATA_A72_1319367	?=0
-
-# Flag to apply erratum 852427 workaround during reset. This erratum applies
-# only to revision r0p0 of the Cortex A73 cpu.
-ERRATA_A73_852427	?=0
-
-# Flag to apply erratum 855423 workaround during reset. This erratum applies
-# only to revision <= r0p1 of the Cortex A73 cpu.
-ERRATA_A73_855423	?=0
-
-# Flag to apply erratum 764081 workaround during reset. This erratum applies
-# only to revision <= r0p0 of the Cortex A75 cpu.
-ERRATA_A75_764081	?=0
-
-# Flag to apply erratum 790748 workaround during reset. This erratum applies
-# only to revision <= r0p0 of the Cortex A75 cpu.
-ERRATA_A75_790748	?=0
-
-# Flag to apply erratum 1073348 workaround during reset. This erratum applies
-# only to revision <= r1p0 of the Cortex A76 cpu.
-ERRATA_A76_1073348	?=0
-
-# Flag to apply erratum 1130799 workaround during reset. This erratum applies
-# only to revision <= r2p0 of the Cortex A76 cpu.
-ERRATA_A76_1130799	?=0
-
-# Flag to apply erratum 1220197 workaround during reset. This erratum applies
-# only to revision <= r2p0 of the Cortex A76 cpu.
-ERRATA_A76_1220197	?=0
-
-# Flag to apply erratum 1257314 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Cortex A76 cpu.
-ERRATA_A76_1257314	?=0
-
-# Flag to apply erratum 1262606 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Cortex A76 cpu.
-ERRATA_A76_1262606	?=0
-
-# Flag to apply erratum 1262888 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Cortex A76 cpu.
-ERRATA_A76_1262888	?=0
-
-# Flag to apply erratum 1275112 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Cortex A76 cpu.
-ERRATA_A76_1275112	?=0
-
-# Flag to apply erratum 1286807 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Cortex A76 cpu.
-ERRATA_A76_1286807	?=0
-
-# Flag to apply erratum 1791580 workaround during reset. This erratum applies
-# only to revision <= r4p0 of the Cortex A76 cpu.
-ERRATA_A76_1791580	?=0
-
-# Flag to apply erratum 1165522 workaround during reset. This erratum applies
-# to all revisions of Cortex A76 cpu.
-ERRATA_A76_1165522	?=0
-
-# Flag to apply erratum 1868343 workaround during reset. This erratum applies
-# only to revision <= r4p0 of the Cortex A76 cpu.
-ERRATA_A76_1868343	?=0
-
-# Flag to apply erratum 1946160 workaround during reset. This erratum applies
-# only to revisions r3p0 - r4p1 of the Cortex A76 cpu.
-ERRATA_A76_1946160	?=0
-
-# Flag to apply erratum 2743102 workaround during powerdown. This erratum
-# applies to all revisions <= r4p1 of the Cortex A76 cpu and is still open.
-ERRATA_A76_2743102	?=0
-
-# Flag to apply erratum 1508412 workaround during reset. This erratum applies
-# only to revision <= r1p0 of the Cortex A77 cpu.
-ERRATA_A77_1508412	?=0
-
-# Flag to apply erratum 1925769 workaround during reset. This erratum applies
-# only to revision <= r1p1 of the Cortex A77 cpu.
-ERRATA_A77_1925769	?=0
-
-# Flag to apply erratum 1946167 workaround during reset. This erratum applies
-# only to revision <= r1p1 of the Cortex A77 cpu.
-ERRATA_A77_1946167	?=0
-
-# Flag to apply erratum 1791578 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, and r1p1, it is still open.
-ERRATA_A77_1791578	?=0
-
-# Flag to apply erratum 2356587 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, and r1p1, it is still open.
-ERRATA_A77_2356587	?=0
-
-# Flag to apply erratum 1800714 workaround during reset. This erratum applies
-# to revisions <= r1p1 of the Cortex A77 cpu.
-ERRATA_A77_1800714	?=0
-
-# Flag to apply erratum 2743100 workaround during power down. This erratum
-# applies to revisions r0p0, r1p0, and r1p1, it is still open.
-ERRATA_A77_2743100	?=0
-
-# Flag to apply erratum 1688305 workaround during reset. This erratum applies
-# to revisions r0p0 - r1p0 of the A78 cpu.
-ERRATA_A78_1688305	?=0
-
-# Flag to apply erratum 1941498 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, and r1p1 of the A78 cpu.
-ERRATA_A78_1941498	?=0
-
-# Flag to apply erratum 1951500 workaround during reset. This erratum applies
-# to revisions r1p0 and r1p1 of the A78 cpu. The issue is present in r0p0 as
-# well but there is no workaround for that revision.
-ERRATA_A78_1951500	?=0
-
-# Flag to apply erratum 1821534 workaround during reset. This erratum applies
-# to revisions r0p0 and r1p0 of the A78 cpu.
-ERRATA_A78_1821534	?=0
-
-# Flag to apply erratum 1952683 workaround during reset. This erratum applies
-# to revision r0p0 of the A78 cpu and was fixed in the revision r1p0.
-ERRATA_A78_1952683	?=0
-
-# Flag to apply erratum 2132060 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
-ERRATA_A78_2132060	?=0
-
-# Flag to apply erratum 2242635 workaround during reset. This erratum applies
-# to revisions r1p0, r1p1, and r1p2 of the A78 cpu and is open. The issue is
-# present in r0p0 as well but there is no workaround for that revision.
-ERRATA_A78_2242635	?=0
-
-# Flag to apply erratum 2376745 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
-ERRATA_A78_2376745	?=0
-
-# Flag to apply erratum 2395406 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
-ERRATA_A78_2395406	?=0
-
-# Flag to apply erratum 2742426 workaround during reset. This erratum
-# applies to revisions r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still
-# open.
-ERRATA_A78_2742426	?=0
-
-# Flag to apply erratum 2772019 workaround during powerdown. This erratum
-# applies to revisions r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still
-# open.
-ERRATA_A78_2772019	?=0
-
-# Flag to apply erratum 2779479 workaround during reset. This erratum applies
-# to revision r0p0, r1p0, r1p1 and r1p2 of the A78 cpu. It is still open.
-ERRATA_A78_2779479	?=0
-
-# Flag to apply erratum 1941500 workaround during reset. This erratum applies
-# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
-ERRATA_A78_AE_1941500	?=0
-
-# Flag to apply erratum 1951502 workaround during reset. This erratum applies
-# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
-ERRATA_A78_AE_1951502	?=0
-
-# Flag to apply erratum 2376748 workaround during reset. This erratum applies
-# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
-ERRATA_A78_AE_2376748	?=0
-
-# Flag to apply erratum 2395408 workaround during reset. This erratum applies
-# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
-ERRATA_A78_AE_2395408	?=0
-
-# Flag to apply erratum 2132064 workaround during reset. This erratum applies
-# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
-ERRATA_A78C_2132064	?=0
-
-# Flag to apply erratum 2242638 workaround during reset. This erratum applies
-# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
-ERRATA_A78C_2242638	?=0
-
-# Flag to apply erratum 2376749 workaround during reset. This erratum applies
-# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
-ERRATA_A78C_2376749 	?=0
-
-# Flag to apply erratum 2395411 workaround during reset. This erratum applies
-# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
-ERRATA_A78C_2395411 	?=0
-
-# Flag to apply erratum 2772121 workaround during powerdown. This erratum
-# applies to revisions r0p0, r0p1 and r0p2 of the A78C cpu. It is still open.
-ERRATA_A78C_2772121 	?=0
-
-# Flag to apply erratum 2779484 workaround during reset. This erratum
-# applies to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
-ERRATA_A78C_2779484 	?=0
-
-# Flag to apply erratum 1821534 workaround during reset. This erratum applies
-# to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
-ERRATA_X1_1821534	?=0
-
-# Flag to apply erratum 1688305 workaround during reset. This erratum applies
-# to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
-ERRATA_X1_1688305	?=0
-
-# Flag to apply erratum 1827429 workaround during reset. This erratum applies
-# to revisions r0p0 - r1p0 of the X1 cpu and fixed in r1p1.
-ERRATA_X1_1827429	?=0
-
-# Flag to apply T32 CLREX workaround during reset. This erratum applies
-# only to r0p0 and r1p0 of the Neoverse N1 cpu.
-ERRATA_N1_1043202	?=0
-
-# Flag to apply erratum 1073348 workaround during reset. This erratum applies
-# only to revision r0p0 and r1p0 of the Neoverse N1 cpu.
-ERRATA_N1_1073348	?=0
-
-# Flag to apply erratum 1130799 workaround during reset. This erratum applies
-# only to revision <= r2p0 of the Neoverse N1 cpu.
-ERRATA_N1_1130799	?=0
-
-# Flag to apply erratum 1165347 workaround during reset. This erratum applies
-# only to revision <= r2p0 of the Neoverse N1 cpu.
-ERRATA_N1_1165347	?=0
-
-# Flag to apply erratum 1207823 workaround during reset. This erratum applies
-# only to revision <= r2p0 of the Neoverse N1 cpu.
-ERRATA_N1_1207823	?=0
-
-# Flag to apply erratum 1220197 workaround during reset. This erratum applies
-# only to revision <= r2p0 of the Neoverse N1 cpu.
-ERRATA_N1_1220197	?=0
-
-# Flag to apply erratum 1257314 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Neoverse N1 cpu.
-ERRATA_N1_1257314	?=0
-
-# Flag to apply erratum 1262606 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Neoverse N1 cpu.
-ERRATA_N1_1262606	?=0
-
-# Flag to apply erratum 1262888 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Neoverse N1 cpu.
-ERRATA_N1_1262888	?=0
-
-# Flag to apply erratum 1275112 workaround during reset. This erratum applies
-# only to revision <= r3p0 of the Neoverse N1 cpu.
-ERRATA_N1_1275112	?=0
-
-# Flag to apply erratum 1315703 workaround during reset. This erratum applies
-# to revisions before r3p1 of the Neoverse N1 cpu.
-ERRATA_N1_1315703	?=0
-
-# Flag to apply erratum 1542419 workaround during reset. This erratum applies
-# to revisions r3p0 - r4p0 of the Neoverse N1 cpu.
-ERRATA_N1_1542419	?=0
-
-# Flag to apply erratum 1868343 workaround during reset. This erratum applies
-# to revision <= r4p0 of the Neoverse N1 cpu.
-ERRATA_N1_1868343	?=0
-
-# Flag to apply erratum 1946160 workaround during reset. This erratum applies
-# to revisions r3p0, r3p1, r4p0, and r4p1 of the Neoverse N1 cpu. The issue
-# exists in revisions r0p0, r1p0, and r2p0 as well but there is no workaround.
-ERRATA_N1_1946160	?=0
-
-# Flag to apply erratum 2743102 workaround during powerdown. This erratum
-# applies to all revisions <= r4p1 of the Neoverse N1 cpu and is still open.
-ERRATA_N1_2743102	?=0
-
-# Flag to apply erratum 1618635 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse V1 cpu and was fixed in the revision r1p0.
-ERRATA_V1_1618635	?=0
-
-# Flag to apply erratum 1774420 workaround during reset. This erratum applies
-# to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
-ERRATA_V1_1774420	?=0
-
-# Flag to apply erratum 1791573 workaround during reset. This erratum applies
-# to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
-ERRATA_V1_1791573	?=0
-
-# Flag to apply erratum 1852267 workaround during reset. This erratum applies
-# to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
-ERRATA_V1_1852267	?=0
-
-# Flag to apply erratum 1925756 workaround during reset. This needs to be
-# enabled for r0p0, r1p0, and r1p1 of the Neoverse V1 core, it is still open.
-ERRATA_V1_1925756	?=0
-
-# Flag to apply erratum 1940577 workaround during reset. This erratum applies
-# to revisions r1p0 and r1p1 of the Neoverse V1 cpu.
-ERRATA_V1_1940577	?=0
-
-# Flag to apply erratum 1966096 workaround during reset. This erratum applies
-# to revisions r1p0 and r1p1 of the Neoverse V1 CPU and is open. This issue
-# exists in r0p0 as well but there is no workaround for that revision.
-ERRATA_V1_1966096	?=0
-
-# Flag to apply erratum 2139242 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, and r1p1 of the Neoverse V1 cpu and is still open.
-ERRATA_V1_2139242	?=0
-
-# Flag to apply erratum 2108267 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, and r1p1 of the Neoverse V1 cpu and is still open.
-ERRATA_V1_2108267	?=0
-
-# Flag to apply erratum 2216392 workaround during reset. This erratum applies
-# to revisions r1p0 and r1p1 of the Neoverse V1 cpu and is still open. This
-# issue exists in r0p0 as well but there is no workaround for that revision.
-ERRATA_V1_2216392	?=0
-
-# Flag to apply erratum 2294912 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, and r1p1 of the Neoverse V1 cpu and is still open.
-ERRATA_V1_2294912	?=0
-
-# Flag to apply erratum 2372203 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0 and r1p1 of the Neoverse V1 cpu and is still open.
-ERRATA_V1_2372203	?=0
-
-# Flag to apply erratum 2743093 workaround during powerdown. This erratum
-# applies to revisions r0p0, r1p0, r1p1 and r1p2  of the Neoverse V1 cpu and is
-# still open.
-ERRATA_V1_2743093	?=0
-
-# Flag to apply erratum 2743233 workaround during powerdown. This erratum
-# applies to revisions r0p0, r1p0, r1p1 and r1p2 of the Neoverse V1 cpu and is
-# still open.
-ERRATA_V1_2743233	?=0
-
-# Flag to apply erratum 2779461 workaround during powerdown. This erratum
-# applies to revisions r0p0, r1p0, r1p1 and r1p2  of the Neoverse V1 cpu and is
-# still open.
-ERRATA_V1_2779461       ?=0
-
-# Flag to apply erratum 1987031 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
-ERRATA_A710_1987031	?=0
-
-# Flag to apply erratum 2081180 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
-ERRATA_A710_2081180	?=0
-
-# Flag to apply erratum 2083908 workaround during reset. This erratum applies
-# to revision r2p0 of the Cortex-A710 cpu and is still open.
-ERRATA_A710_2083908	?=0
-
-# Flag to apply erratum 2058056 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
-ERRATA_A710_2058056	?=0
-
-# Flag to apply erratum 2055002 workaround during reset. This erratum applies
-# to revision r1p0, r2p0 of the Cortex-A710 cpu and is still open.
-ERRATA_A710_2055002	?=0
-
-# Flag to apply erratum 2017096 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
-ERRATA_A710_2017096	?=0
-
-# Flag to apply erratum 2267065 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
-ERRATA_A710_2267065	?=0
-
-# Flag to apply erratum 2136059 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
-ERRATA_A710_2136059	?=0
-
-# Flag to apply erratum 2147715 workaround during reset. This erratum applies
-# to revision r2p0 of the Cortex-A710 CPU and is fixed in revision r2p1.
-ERRATA_A710_2147715	?=0
-
-# Flag to apply erratum 2216384 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
-ERRATA_A710_2216384	?=0
-
-# Flag to apply erratum 2282622 workaround during reset. This erratum applies
-# to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-A710 cpu and is still
-# open.
-ERRATA_A710_2282622	?=0
-
-# Flag to apply erratum 2291219 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
-ERRATA_A710_2291219	?=0
-
-# Flag to apply erratum 2008768 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
-ERRATA_A710_2008768	?=0
-
-# Flag to apply erratum 2371105 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is fixed in r2p1.
-ERRATA_A710_2371105	?=0
-
-# Flag to apply erratum 2768515 workaround during power down. This erratum
-# applies to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-A710 cpu and is
-# still open.
-ERRATA_A710_2768515	?=0
-
-# Flag to apply erratum 2002655 workaround during reset. This erratum applies
-# to revisions r0p0 of the Neoverse-N2 cpu, it is still open.
-ERRATA_N2_2002655	?=0
-
-# Flag to apply erratum 2067956 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2067956	?=0
-
-# Flag to apply erratum 2025414 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2025414	?=0
-
-# Flag to apply erratum 2189731 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2189731	?=0
-
-# Flag to apply erratum 2138956 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2138956	?=0
-
-# Flag to apply erratum 2138953 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2138953	?=0
-
-# Flag to apply erratum 2242415 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2242415	?=0
-
-# Flag to apply erratum 2138958 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2138958	?=0
-
-# Flag to apply erratum 2242400 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2242400	?=0
-
-# Flag to apply erratum 2280757 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
-ERRATA_N2_2280757	?=0
-
-# Flag to apply erraturm 2326639 workaroud during powerdown. This erratum
-# applies to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
-ERRATA_N2_2326639	?=0
-
-# Flag to apply erratum 2376738 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu, it is fixed in r0p1.
-ERRATA_N2_2376738	?=0
-
-# Flag to apply erratum 2388450 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu, it is fixed in r0p1.
-ERRATA_N2_2388450	?=0
-
-# Flag to apply erratum 2743089 workaround during during powerdown. This erratum
-# applies to all revisions <= r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
-ERRATA_N2_2743089	?=0
-
-# Flag to apply erratum 2002765 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
-ERRATA_X2_2002765	?=0
-
-# Flag to apply erratum 2058056 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
-ERRATA_X2_2058056	?=0
-
-# Flag to apply erratum 2083908 workaround during reset. This erratum applies
-# to revision r2p0 of the Cortex-X2 cpu and is still open.
-ERRATA_X2_2083908	?=0
-
-# Flag to apply erratum 2017096 workaround during reset. This erratum applies
-# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
-# r2p1.
-ERRATA_X2_2017096	?=0
-
-# Flag to apply erratum 2081180 workaround during reset. This erratum applies
-# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
-# r2p1.
-ERRATA_X2_2081180	?=0
-
-# Flag to apply erratum 2216384 workaround during reset. This erratum applies
-# only to revisions r0p0, r1p0 and r2p0 of the Cortex-X2 cpu, it is fixed in
-# r2p1.
-ERRATA_X2_2216384	?=0
-
-# Flag to apply erratum 2147715 workaround during reset. This erratum applies
-# only to revision r2p0 of the Cortex-X2 cpu, it is fixed in r2p1.
-ERRATA_X2_2147715	?=0
-
-# Flag to apply erratum 2282622 workaround during reset. This erratum applies
-# to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is still
-# open.
-ERRATA_X2_2282622	?=0
-
-# Flag to apply erratum 2371105 workaround during reset. This erratum applies
-# to revision r0p0, r1p0 and r2p0 of the Cortex-X2 cpu and is fixed in r2p1.
-ERRATA_X2_2371105	?=0
-
-# Flag to apply erratum 2768515 workaround during power down. This erratum
-# applies to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is
-# still open.
-ERRATA_X2_2768515	?=0
-
-# Flag to apply erratum 2313909 workaround on powerdown. This erratum applies
-# to revisions r0p0 and r1p0 of the Cortex-X3 cpu, it is fixed in r1p1.
-ERRATA_X3_2313909	?=0
-
-# Flag to apply erratum 2615812 workaround on powerdown. This erratum applies
-# to revisions r0p0, r1p0, r1p1 of the Cortex-X3 cpu, it is still open.
-ERRATA_X3_2615812	?=0
-
-# Flag to apply erratum 1922240 workaround during reset. This erratum applies
-# to revision r0p0 of the Cortex-A510 cpu and is fixed in r0p1.
-ERRATA_A510_1922240	?=0
-
-# Flag to apply erratum 2288014 workaround during reset. This erratum applies
-# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0 of the Cortex-A510 cpu and is
-# fixed in r1p1.
-ERRATA_A510_2288014	?=0
-
-# Flag to apply erratum 2042739 workaround during reset. This erratum applies
-# to revisions r0p0, r0p1 and r0p2 of the Cortex-A510 cpu and is fixed in r0p3.
-ERRATA_A510_2042739	?=0
-
-# Flag to apply erratum 2041909 workaround during reset. This erratum applies
-# to revision r0p2 of the Cortex-A510 cpu and is fixed in r0p3. The issue is
-# present in r0p0 and r0p1 but there is no workaround for those revisions.
-ERRATA_A510_2041909	?=0
-
-# Flag to apply erratum 2250311 workaround during reset. This erratum applies
-# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
-ERRATA_A510_2250311	?=0
-
-# Flag to apply erratum 2218950 workaround during reset. This erratum applies
-# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
-ERRATA_A510_2218950	?=0
-
-# Flag to apply erratum 2172148 workaround during reset. This erratum applies
-# to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
-ERRATA_A510_2172148	?=0
-
-# Flag to apply erratum 2347730 workaround during reset. This erratum applies
-# to revisions r0p0, r0p1, r0p2, r0p3, r1p0 and r1p1 of the Cortex-A510 CPU,
-# and is fixed in r1p2.
-ERRATA_A510_2347730	?=0
-
-# Flag to apply erratum 2371937 workaround during reset. This erratum applies
-# to revisions r0p0, r0p1, r0p2, r0p3, r1p0, and r1p1. It is fixed in r1p2.
-ERRATA_A510_2371937	?=0
-
-# Flag to apply erratum 2666669 workaround during reset. This erratum applies
-# to revisions r0p0, r0p1, r0p2, r0p3, r1p0, and r1p1. It is fixed in r1p2.
-ERRATA_A510_2666669	?=0
-
-# Flag to apply erratum 2684597 workaround during powerdown. This erratum
-# applies to revision r0p0, r0p1, r0p2, r0p3, r1p0, r1p1 and r1p2 of the
-# Cortex-A510 cpu and is fixed in r1p3.
-ERRATA_A510_2684597	?=0
-
-# Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
-# Applying the workaround results in higher DSU power consumption on idle.
-ERRATA_DSU_798953	?=0
-
-# Flag to apply DSU erratum 936184. This erratum applies to DSUs containing
-# the ACP interface and revision < r2p0. Applying the workaround results in
-# higher DSU power consumption on idle.
-ERRATA_DSU_936184	?=0
-
-# Flag to apply DSU erratum 2313941. This erratum applies to DSUs revisions
-# r0p0, r1p0, r2p0, r2p1, r3p0, r3p1 and is still open. Applying the workaround
-# results in higher DSU power consumption on idle.
-ERRATA_DSU_2313941	?=0
-
-# Process ERRATA_A9_794073 flag
-$(eval $(call assert_boolean,ERRATA_A9_794073))
-$(eval $(call add_define,ERRATA_A9_794073))
-
-# Process ERRATA_A15_816470 flag
-$(eval $(call assert_boolean,ERRATA_A15_816470))
-$(eval $(call add_define,ERRATA_A15_816470))
-
-# Process ERRATA_A15_827671 flag
-$(eval $(call assert_boolean,ERRATA_A15_827671))
-$(eval $(call add_define,ERRATA_A15_827671))
-
-# Process ERRATA_A17_852421 flag
-$(eval $(call assert_boolean,ERRATA_A17_852421))
-$(eval $(call add_define,ERRATA_A17_852421))
-
-# Process ERRATA_A17_852423 flag
-$(eval $(call assert_boolean,ERRATA_A17_852423))
-$(eval $(call add_define,ERRATA_A17_852423))
-
-# Process ERRATA_A35_855472 flag
-$(eval $(call assert_boolean,ERRATA_A35_855472))
-$(eval $(call add_define,ERRATA_A35_855472))
-
-# Process ERRATA_A53_819472 flag
-$(eval $(call assert_boolean,ERRATA_A53_819472))
-$(eval $(call add_define,ERRATA_A53_819472))
-
-# Process ERRATA_A53_824069 flag
-$(eval $(call assert_boolean,ERRATA_A53_824069))
-$(eval $(call add_define,ERRATA_A53_824069))
-
-# Process ERRATA_A53_826319 flag
-$(eval $(call assert_boolean,ERRATA_A53_826319))
-$(eval $(call add_define,ERRATA_A53_826319))
-
-# Process ERRATA_A53_827319 flag
-$(eval $(call assert_boolean,ERRATA_A53_827319))
-$(eval $(call add_define,ERRATA_A53_827319))
-
-# Process ERRATA_A53_835769 flag
-$(eval $(call assert_boolean,ERRATA_A53_835769))
-$(eval $(call add_define,ERRATA_A53_835769))
-
-# Process ERRATA_A53_836870 flag
-$(eval $(call assert_boolean,ERRATA_A53_836870))
-$(eval $(call add_define,ERRATA_A53_836870))
-
-# Process ERRATA_A53_843419 flag
-$(eval $(call assert_boolean,ERRATA_A53_843419))
-$(eval $(call add_define,ERRATA_A53_843419))
-
-# Process ERRATA_A53_855873 flag
-$(eval $(call assert_boolean,ERRATA_A53_855873))
-$(eval $(call add_define,ERRATA_A53_855873))
-
-# Process ERRATA_A53_1530924 flag
-$(eval $(call assert_boolean,ERRATA_A53_1530924))
-$(eval $(call add_define,ERRATA_A53_1530924))
-
-# Process ERRATA_A55_768277 flag
-$(eval $(call assert_boolean,ERRATA_A55_768277))
-$(eval $(call add_define,ERRATA_A55_768277))
-
-# Process ERRATA_A55_778703 flag
-$(eval $(call assert_boolean,ERRATA_A55_778703))
-$(eval $(call add_define,ERRATA_A55_778703))
-
-# Process ERRATA_A55_798797 flag
-$(eval $(call assert_boolean,ERRATA_A55_798797))
-$(eval $(call add_define,ERRATA_A55_798797))
-
-# Process ERRATA_A55_846532 flag
-$(eval $(call assert_boolean,ERRATA_A55_846532))
-$(eval $(call add_define,ERRATA_A55_846532))
-
-# Process ERRATA_A55_903758 flag
-$(eval $(call assert_boolean,ERRATA_A55_903758))
-$(eval $(call add_define,ERRATA_A55_903758))
-
-# Process ERRATA_A55_1221012 flag
-$(eval $(call assert_boolean,ERRATA_A55_1221012))
-$(eval $(call add_define,ERRATA_A55_1221012))
-
-# Process ERRATA_A55_1530923 flag
-$(eval $(call assert_boolean,ERRATA_A55_1530923))
-$(eval $(call add_define,ERRATA_A55_1530923))
-
-# Process ERRATA_A57_806969 flag
-$(eval $(call assert_boolean,ERRATA_A57_806969))
-$(eval $(call add_define,ERRATA_A57_806969))
-
-# Process ERRATA_A57_813419 flag
-$(eval $(call assert_boolean,ERRATA_A57_813419))
-$(eval $(call add_define,ERRATA_A57_813419))
-
-# Process ERRATA_A57_813420 flag
-$(eval $(call assert_boolean,ERRATA_A57_813420))
-$(eval $(call add_define,ERRATA_A57_813420))
-
-# Process ERRATA_A57_814670 flag
-$(eval $(call assert_boolean,ERRATA_A57_814670))
-$(eval $(call add_define,ERRATA_A57_814670))
-
-# Process ERRATA_A57_817169 flag
-$(eval $(call assert_boolean,ERRATA_A57_817169))
-$(eval $(call add_define,ERRATA_A57_817169))
-
-# Process ERRATA_A57_826974 flag
-$(eval $(call assert_boolean,ERRATA_A57_826974))
-$(eval $(call add_define,ERRATA_A57_826974))
-
-# Process ERRATA_A57_826977 flag
-$(eval $(call assert_boolean,ERRATA_A57_826977))
-$(eval $(call add_define,ERRATA_A57_826977))
-
-# Process ERRATA_A57_828024 flag
-$(eval $(call assert_boolean,ERRATA_A57_828024))
-$(eval $(call add_define,ERRATA_A57_828024))
-
-# Process ERRATA_A57_829520 flag
-$(eval $(call assert_boolean,ERRATA_A57_829520))
-$(eval $(call add_define,ERRATA_A57_829520))
-
-# Process ERRATA_A57_833471 flag
-$(eval $(call assert_boolean,ERRATA_A57_833471))
-$(eval $(call add_define,ERRATA_A57_833471))
-
-# Process ERRATA_A57_859972 flag
-$(eval $(call assert_boolean,ERRATA_A57_859972))
-$(eval $(call add_define,ERRATA_A57_859972))
-
-# Process ERRATA_A57_1319537 flag
-$(eval $(call assert_boolean,ERRATA_A57_1319537))
-$(eval $(call add_define,ERRATA_A57_1319537))
-
-# Process ERRATA_A72_859971 flag
-$(eval $(call assert_boolean,ERRATA_A72_859971))
-$(eval $(call add_define,ERRATA_A72_859971))
-
-# Process ERRATA_A72_1319367 flag
-$(eval $(call assert_boolean,ERRATA_A72_1319367))
-$(eval $(call add_define,ERRATA_A72_1319367))
-
-# Process ERRATA_A73_852427 flag
-$(eval $(call assert_boolean,ERRATA_A73_852427))
-$(eval $(call add_define,ERRATA_A73_852427))
-
-# Process ERRATA_A73_855423 flag
-$(eval $(call assert_boolean,ERRATA_A73_855423))
-$(eval $(call add_define,ERRATA_A73_855423))
-
-# Process ERRATA_A75_764081 flag
-$(eval $(call assert_boolean,ERRATA_A75_764081))
-$(eval $(call add_define,ERRATA_A75_764081))
-
-# Process ERRATA_A75_790748 flag
-$(eval $(call assert_boolean,ERRATA_A75_790748))
-$(eval $(call add_define,ERRATA_A75_790748))
-
-# Process ERRATA_A76_1073348 flag
-$(eval $(call assert_boolean,ERRATA_A76_1073348))
-$(eval $(call add_define,ERRATA_A76_1073348))
-
-# Process ERRATA_A76_1130799 flag
-$(eval $(call assert_boolean,ERRATA_A76_1130799))
-$(eval $(call add_define,ERRATA_A76_1130799))
-
-# Process ERRATA_A76_1220197 flag
-$(eval $(call assert_boolean,ERRATA_A76_1220197))
-$(eval $(call add_define,ERRATA_A76_1220197))
-
-# Process ERRATA_A76_1257314 flag
-$(eval $(call assert_boolean,ERRATA_A76_1257314))
-$(eval $(call add_define,ERRATA_A76_1257314))
-
-# Process ERRATA_A76_1262606 flag
-$(eval $(call assert_boolean,ERRATA_A76_1262606))
-$(eval $(call add_define,ERRATA_A76_1262606))
-
-# Process ERRATA_A76_1262888 flag
-$(eval $(call assert_boolean,ERRATA_A76_1262888))
-$(eval $(call add_define,ERRATA_A76_1262888))
-
-# Process ERRATA_A76_1275112 flag
-$(eval $(call assert_boolean,ERRATA_A76_1275112))
-$(eval $(call add_define,ERRATA_A76_1275112))
-
-# Process ERRATA_A76_1286807 flag
-$(eval $(call assert_boolean,ERRATA_A76_1286807))
-$(eval $(call add_define,ERRATA_A76_1286807))
-
-# Process ERRATA_A76_1791580 flag
-$(eval $(call assert_boolean,ERRATA_A76_1791580))
-$(eval $(call add_define,ERRATA_A76_1791580))
-
-# Process ERRATA_A76_1165522 flag
-$(eval $(call assert_boolean,ERRATA_A76_1165522))
-$(eval $(call add_define,ERRATA_A76_1165522))
-
-# Process ERRATA_A76_1868343 flag
-$(eval $(call assert_boolean,ERRATA_A76_1868343))
-$(eval $(call add_define,ERRATA_A76_1868343))
-
-# Process ERRATA_A76_1946160 flag
-$(eval $(call assert_boolean,ERRATA_A76_1946160))
-$(eval $(call add_define,ERRATA_A76_1946160))
-
-# Process ERRATA_A76_2743102 flag
-$(eval $(call assert_boolean,ERRATA_A76_2743102))
-$(eval $(call add_define,ERRATA_A76_2743102))
-
-# Process ERRATA_A77_1508412 flag
-$(eval $(call assert_boolean,ERRATA_A77_1508412))
-$(eval $(call add_define,ERRATA_A77_1508412))
-
-# Process ERRATA_A77_1925769 flag
-$(eval $(call assert_boolean,ERRATA_A77_1925769))
-$(eval $(call add_define,ERRATA_A77_1925769))
-
-# Process ERRATA_A77_1946167 flag
-$(eval $(call assert_boolean,ERRATA_A77_1946167))
-$(eval $(call add_define,ERRATA_A77_1946167))
-
-# Process ERRATA_A77_1791578 flag
-$(eval $(call assert_boolean,ERRATA_A77_1791578))
-$(eval $(call add_define,ERRATA_A77_1791578))
-
-# Process ERRATA_A77_2356587 flag
-$(eval $(call assert_boolean,ERRATA_A77_2356587))
-$(eval $(call add_define,ERRATA_A77_2356587))
-
-# Process ERRATA_A77_1800714 flag
-$(eval $(call assert_boolean,ERRATA_A77_1800714))
-$(eval $(call add_define,ERRATA_A77_1800714))
-
-# Process ERRATA_A77_2743100 flag
-$(eval $(call assert_boolean,ERRATA_A77_2743100))
-$(eval $(call add_define,ERRATA_A77_2743100))
-
-# Process ERRATA_A78_1688305 flag
-$(eval $(call assert_boolean,ERRATA_A78_1688305))
-$(eval $(call add_define,ERRATA_A78_1688305))
-
-# Process ERRATA_A78_1941498 flag
-$(eval $(call assert_boolean,ERRATA_A78_1941498))
-$(eval $(call add_define,ERRATA_A78_1941498))
-
-# Process ERRATA_A78_1951500 flag
-$(eval $(call assert_boolean,ERRATA_A78_1951500))
-$(eval $(call add_define,ERRATA_A78_1951500))
-
-# Process ERRATA_A78_1821534 flag
-$(eval $(call assert_boolean,ERRATA_A78_1821534))
-$(eval $(call add_define,ERRATA_A78_1821534))
-
-# Process ERRATA_A78_1952683 flag
-$(eval $(call assert_boolean,ERRATA_A78_1952683))
-$(eval $(call add_define,ERRATA_A78_1952683))
-
-# Process ERRATA_A78_2132060 flag
-$(eval $(call assert_boolean,ERRATA_A78_2132060))
-$(eval $(call add_define,ERRATA_A78_2132060))
-
-# Process ERRATA_A78_2242635 flag
-$(eval $(call assert_boolean,ERRATA_A78_2242635))
-$(eval $(call add_define,ERRATA_A78_2242635))
-
-# Process ERRATA_A78_2376745 flag
-$(eval $(call assert_boolean,ERRATA_A78_2376745))
-$(eval $(call add_define,ERRATA_A78_2376745))
-
-# Process ERRATA_A78_2395406 flag
-$(eval $(call assert_boolean,ERRATA_A78_2395406))
-$(eval $(call add_define,ERRATA_A78_2395406))
-
-# Process ERRATA_A78_2742426 flag
-$(eval $(call assert_boolean,ERRATA_A78_2742426))
-$(eval $(call add_define,ERRATA_A78_2742426))
-
-# Process ERRATA_A78_2772019 flag
-$(eval $(call assert_boolean,ERRATA_A78_2772019))
-$(eval $(call add_define,ERRATA_A78_2772019))
-
-# Process ERRATA_A78_2779479 flag
-$(eval $(call assert_boolean,ERRATA_A78_2779479))
-$(eval $(call add_define,ERRATA_A78_2779479))
-
-# Process ERRATA_A78_AE_1941500 flag
-$(eval $(call assert_boolean,ERRATA_A78_AE_1941500))
-$(eval $(call add_define,ERRATA_A78_AE_1941500))
-
-# Process ERRATA_A78_AE_1951502 flag
-$(eval $(call assert_boolean,ERRATA_A78_AE_1951502))
-$(eval $(call add_define,ERRATA_A78_AE_1951502))
-
-# Process ERRATA_A78_AE_2376748 flag
-$(eval $(call assert_boolean,ERRATA_A78_AE_2376748))
-$(eval $(call add_define,ERRATA_A78_AE_2376748))
-
-# Process ERRATA_A78_AE_2395408 flag
-$(eval $(call assert_boolean,ERRATA_A78_AE_2395408))
-$(eval $(call add_define,ERRATA_A78_AE_2395408))
-
-# Process ERRATA_A78C_2132064 flag
-$(eval $(call assert_boolean,ERRATA_A78C_2132064))
-$(eval $(call add_define,ERRATA_A78C_2132064))
-
-# Process ERRATA_A78C_2242638 flag
-$(eval $(call assert_boolean,ERRATA_A78C_2242638))
-$(eval $(call add_define,ERRATA_A78C_2242638))
-
-# Process ERRATA_A78C_2376749 flag
-$(eval $(call assert_boolean,ERRATA_A78C_2376749))
-$(eval $(call add_define,ERRATA_A78C_2376749))
-
-# Process ERRATA_A78C_2395411 flag
-$(eval $(call assert_boolean,ERRATA_A78C_2395411))
-$(eval $(call add_define,ERRATA_A78C_2395411))
-
-# Process ERRATA_A78C_2772121 flag
-$(eval $(call assert_boolean,ERRATA_A78C_2772121))
-$(eval $(call add_define,ERRATA_A78C_2772121))
-
-# Process ERRATA_A78C_2779484 flag
-$(eval $(call assert_boolean,ERRATA_A78C_2779484))
-$(eval $(call add_define,ERRATA_A78C_2779484))
-
-# Process ERRATA_X1_1821534 flag
-$(eval $(call assert_boolean,ERRATA_X1_1821534))
-$(eval $(call add_define,ERRATA_X1_1821534))
-
-# Process ERRATA_X1_1688305 flag
-$(eval $(call assert_boolean,ERRATA_X1_1688305))
-$(eval $(call add_define,ERRATA_X1_1688305))
-
-# Process ERRATA_X1_1827429 flag
-$(eval $(call assert_boolean,ERRATA_X1_1827429))
-$(eval $(call add_define,ERRATA_X1_1827429))
-
-# Process ERRATA_N1_1043202 flag
-$(eval $(call assert_boolean,ERRATA_N1_1043202))
-$(eval $(call add_define,ERRATA_N1_1043202))
-
-# Process ERRATA_N1_1073348 flag
-$(eval $(call assert_boolean,ERRATA_N1_1073348))
-$(eval $(call add_define,ERRATA_N1_1073348))
-
-# Process ERRATA_N1_1130799 flag
-$(eval $(call assert_boolean,ERRATA_N1_1130799))
-$(eval $(call add_define,ERRATA_N1_1130799))
-
-# Process ERRATA_N1_1165347 flag
-$(eval $(call assert_boolean,ERRATA_N1_1165347))
-$(eval $(call add_define,ERRATA_N1_1165347))
-
-# Process ERRATA_N1_1207823 flag
-$(eval $(call assert_boolean,ERRATA_N1_1207823))
-$(eval $(call add_define,ERRATA_N1_1207823))
-
-# Process ERRATA_N1_1220197 flag
-$(eval $(call assert_boolean,ERRATA_N1_1220197))
-$(eval $(call add_define,ERRATA_N1_1220197))
-
-# Process ERRATA_N1_1257314 flag
-$(eval $(call assert_boolean,ERRATA_N1_1257314))
-$(eval $(call add_define,ERRATA_N1_1257314))
-
-# Process ERRATA_N1_1262606 flag
-$(eval $(call assert_boolean,ERRATA_N1_1262606))
-$(eval $(call add_define,ERRATA_N1_1262606))
-
-# Process ERRATA_N1_1262888 flag
-$(eval $(call assert_boolean,ERRATA_N1_1262888))
-$(eval $(call add_define,ERRATA_N1_1262888))
-
-# Process ERRATA_N1_1275112 flag
-$(eval $(call assert_boolean,ERRATA_N1_1275112))
-$(eval $(call add_define,ERRATA_N1_1275112))
-
-# Process ERRATA_N1_1315703 flag
-$(eval $(call assert_boolean,ERRATA_N1_1315703))
-$(eval $(call add_define,ERRATA_N1_1315703))
-
-# Process ERRATA_N1_1542419 flag
-$(eval $(call assert_boolean,ERRATA_N1_1542419))
-$(eval $(call add_define,ERRATA_N1_1542419))
-
-# Process ERRATA_N1_1868343 flag
-$(eval $(call assert_boolean,ERRATA_N1_1868343))
-$(eval $(call add_define,ERRATA_N1_1868343))
-
-# Process ERRATA_N1_1946160 flag
-$(eval $(call assert_boolean,ERRATA_N1_1946160))
-$(eval $(call add_define,ERRATA_N1_1946160))
-
-# Process ERRATA_N1_2743102 flag
-$(eval $(call assert_boolean,ERRATA_N1_2743102))
-$(eval $(call add_define,ERRATA_N1_2743102))
-
-# Process ERRATA_V1_1618635 flag
-$(eval $(call assert_boolean,ERRATA_V1_1618635))
-$(eval $(call add_define,ERRATA_V1_1618635))
-
-# Process ERRATA_V1_1774420 flag
-$(eval $(call assert_boolean,ERRATA_V1_1774420))
-$(eval $(call add_define,ERRATA_V1_1774420))
-
-# Process ERRATA_V1_1791573 flag
-$(eval $(call assert_boolean,ERRATA_V1_1791573))
-$(eval $(call add_define,ERRATA_V1_1791573))
-
-# Process ERRATA_V1_1852267 flag
-$(eval $(call assert_boolean,ERRATA_V1_1852267))
-$(eval $(call add_define,ERRATA_V1_1852267))
-
-# Process ERRATA_V1_1925756 flag
-$(eval $(call assert_boolean,ERRATA_V1_1925756))
-$(eval $(call add_define,ERRATA_V1_1925756))
-
-# Process ERRATA_V1_1940577 flag
-$(eval $(call assert_boolean,ERRATA_V1_1940577))
-$(eval $(call add_define,ERRATA_V1_1940577))
-
-# Process ERRATA_V1_1966096 flag
-$(eval $(call assert_boolean,ERRATA_V1_1966096))
-$(eval $(call add_define,ERRATA_V1_1966096))
-
-# Process ERRATA_V1_2139242 flag
-$(eval $(call assert_boolean,ERRATA_V1_2139242))
-$(eval $(call add_define,ERRATA_V1_2139242))
-
-# Process ERRATA_V1_2108267 flag
-$(eval $(call assert_boolean,ERRATA_V1_2108267))
-$(eval $(call add_define,ERRATA_V1_2108267))
-
-# Process ERRATA_V1_2216392 flag
-$(eval $(call assert_boolean,ERRATA_V1_2216392))
-$(eval $(call add_define,ERRATA_V1_2216392))
-
-# Process ERRATA_V1_2294912 flag
-$(eval $(call assert_boolean,ERRATA_V1_2294912))
-$(eval $(call add_define,ERRATA_V1_2294912))
-
-# Process ERRATA_V1_2372203 flag
-$(eval $(call assert_boolean,ERRATA_V1_2372203))
-$(eval $(call add_define,ERRATA_V1_2372203))
-
-# Process ERRATA_V1_2743093 flag
-$(eval $(call assert_boolean,ERRATA_V1_2743093))
-$(eval $(call add_define,ERRATA_V1_2743093))
-
-# Process ERRATA_V1_2743233 flag
-$(eval $(call assert_boolean,ERRATA_V1_2743233))
-$(eval $(call add_define,ERRATA_V1_2743233))
-
-# Process ERRATA_V1_2779461 flag
-$(eval $(call assert_boolean,ERRATA_V1_2779461))
-$(eval $(call add_define,ERRATA_V1_2779461))
-
-# Process ERRATA_A710_1987031 flag
-$(eval $(call assert_boolean,ERRATA_A710_1987031))
-$(eval $(call add_define,ERRATA_A710_1987031))
-
-# Process ERRATA_A710_2081180 flag
-$(eval $(call assert_boolean,ERRATA_A710_2081180))
-$(eval $(call add_define,ERRATA_A710_2081180))
-
-# Process ERRATA_A710_2083908 flag
-$(eval $(call assert_boolean,ERRATA_A710_2083908))
-$(eval $(call add_define,ERRATA_A710_2083908))
-
-# Process ERRATA_A710_2058056 flag
-$(eval $(call assert_boolean,ERRATA_A710_2058056))
-$(eval $(call add_define,ERRATA_A710_2058056))
-
-# Process ERRATA_A710_2055002 flag
-$(eval $(call assert_boolean,ERRATA_A710_2055002))
-$(eval $(call add_define,ERRATA_A710_2055002))
-
-# Process ERRATA_A710_2017096 flag
-$(eval $(call assert_boolean,ERRATA_A710_2017096))
-$(eval $(call add_define,ERRATA_A710_2017096))
-
-# Process ERRATA_A710_2267065 flag
-$(eval $(call assert_boolean,ERRATA_A710_2267065))
-$(eval $(call add_define,ERRATA_A710_2267065))
-
-# Process ERRATA_A710_2136059 flag
-$(eval $(call assert_boolean,ERRATA_A710_2136059))
-$(eval $(call add_define,ERRATA_A710_2136059))
-
-# Process ERRATA_A710_2147715 flag
-$(eval $(call assert_boolean,ERRATA_A710_2147715))
-$(eval $(call add_define,ERRATA_A710_2147715))
-
-# Process ERRATA_A710_2216384 flag
-$(eval $(call assert_boolean,ERRATA_A710_2216384))
-$(eval $(call add_define,ERRATA_A710_2216384))
-
-# Process ERRATA_A710_2282622 flag
-$(eval $(call assert_boolean,ERRATA_A710_2282622))
-$(eval $(call add_define,ERRATA_A710_2282622))
-
-# Process ERRATA_A710_2291219 flag
-$(eval $(call assert_boolean,ERRATA_A710_2291219))
-$(eval $(call add_define,ERRATA_A710_2291219))
-
-# Process ERRATA_A710_2008768 flag
-$(eval $(call assert_boolean,ERRATA_A710_2008768))
-$(eval $(call add_define,ERRATA_A710_2008768))
-
-# Process ERRATA_A710_2371105 flag
-$(eval $(call assert_boolean,ERRATA_A710_2371105))
-$(eval $(call add_define,ERRATA_A710_2371105))
-
-# Process ERRATA_A710_2768515 flag
-$(eval $(call assert_boolean,ERRATA_A710_2768515))
-$(eval $(call add_define,ERRATA_A710_2768515))
-
-# Process ERRATA_N2_2002655 flag
-$(eval $(call assert_boolean,ERRATA_N2_2002655))
-$(eval $(call add_define,ERRATA_N2_2002655))
-
-# Process ERRATA_N2_2067956 flag
-$(eval $(call assert_boolean,ERRATA_N2_2067956))
-$(eval $(call add_define,ERRATA_N2_2067956))
-
-# Process ERRATA_N2_2025414 flag
-$(eval $(call assert_boolean,ERRATA_N2_2025414))
-$(eval $(call add_define,ERRATA_N2_2025414))
-
-# Process ERRATA_N2_2189731 flag
-$(eval $(call assert_boolean,ERRATA_N2_2189731))
-$(eval $(call add_define,ERRATA_N2_2189731))
-
-# Process ERRATA_N2_2138956 flag
-$(eval $(call assert_boolean,ERRATA_N2_2138956))
-$(eval $(call add_define,ERRATA_N2_2138956))
-
-# Process ERRATA_N2_2138953 flag
-$(eval $(call assert_boolean,ERRATA_N2_2138953))
-$(eval $(call add_define,ERRATA_N2_2138953))
-
-# Process ERRATA_N2_2242415 flag
-$(eval $(call assert_boolean,ERRATA_N2_2242415))
-$(eval $(call add_define,ERRATA_N2_2242415))
-
-# Process ERRATA_N2_2138958 flag
-$(eval $(call assert_boolean,ERRATA_N2_2138958))
-$(eval $(call add_define,ERRATA_N2_2138958))
-
-# Process ERRATA_N2_2242400 flag
-$(eval $(call assert_boolean,ERRATA_N2_2242400))
-$(eval $(call add_define,ERRATA_N2_2242400))
-
-# Process ERRATA_N2_2280757 flag
-$(eval $(call assert_boolean,ERRATA_N2_2280757))
-$(eval $(call add_define,ERRATA_N2_2280757))
-
-# Process ERRATA_N2_2326639 flag
-$(eval $(call assert_boolean,ERRATA_N2_2326639))
-$(eval $(call add_define,ERRATA_N2_2326639))
-
-# Process ERRATA_N2_2376738 flag
-$(eval $(call assert_boolean,ERRATA_N2_2376738))
-$(eval $(call add_define,ERRATA_N2_2376738))
-
-# Process ERRATA_N2_2388450 flag
-$(eval $(call assert_boolean,ERRATA_N2_2388450))
-$(eval $(call add_define,ERRATA_N2_2388450))
-
-# Process ERRATA_N2_2743089 flag
-$(eval $(call assert_boolean,ERRATA_N2_2743089))
-$(eval $(call add_define,ERRATA_N2_2743089))
-
-# Process ERRATA_X2_2002765 flag
-$(eval $(call assert_boolean,ERRATA_X2_2002765))
-$(eval $(call add_define,ERRATA_X2_2002765))
-
-# Process ERRATA_X2_2058056 flag
-$(eval $(call assert_boolean,ERRATA_X2_2058056))
-$(eval $(call add_define,ERRATA_X2_2058056))
-
-# Process ERRATA_X2_2083908 flag
-$(eval $(call assert_boolean,ERRATA_X2_2083908))
-$(eval $(call add_define,ERRATA_X2_2083908))
-
-# Process ERRATA_X2_2017096 flag
-$(eval $(call assert_boolean,ERRATA_X2_2017096))
-$(eval $(call add_define,ERRATA_X2_2017096))
-
-# Process ERRATA_X2_2081180 flag
-$(eval $(call assert_boolean,ERRATA_X2_2081180))
-$(eval $(call add_define,ERRATA_X2_2081180))
-
-# Process ERRATA_X2_2216384 flag
-$(eval $(call assert_boolean,ERRATA_X2_2216384))
-$(eval $(call add_define,ERRATA_X2_2216384))
-
-# Process ERRATA_X2_2147715 flag
-$(eval $(call assert_boolean,ERRATA_X2_2147715))
-$(eval $(call add_define,ERRATA_X2_2147715))
-
-# Process ERRATA_X2_2282622 flag
-$(eval $(call assert_boolean,ERRATA_X2_2282622))
-$(eval $(call add_define,ERRATA_X2_2282622))
-
-# Process ERRATA_X2_2371105 flag
-$(eval $(call assert_boolean,ERRATA_X2_2371105))
-$(eval $(call add_define,ERRATA_X2_2371105))
-
-# Process ERRATA_X2_2768515 flag
-$(eval $(call assert_boolean,ERRATA_X2_2768515))
-$(eval $(call add_define,ERRATA_X2_2768515))
-
-# Process ERRATA_X3_2313909 flag
-$(eval $(call assert_boolean,ERRATA_X3_2313909))
-$(eval $(call add_define,ERRATA_X3_2313909))
-
-# Process ERRATA_X3_2615812 flag
-$(eval $(call assert_boolean,ERRATA_X3_2615812))
-$(eval $(call add_define,ERRATA_X3_2615812))
-
-# Process ERRATA_A510_1922240 flag
-$(eval $(call assert_boolean,ERRATA_A510_1922240))
-$(eval $(call add_define,ERRATA_A510_1922240))
-
-# Process ERRATA_A510_2288014 flag
-$(eval $(call assert_boolean,ERRATA_A510_2288014))
-$(eval $(call add_define,ERRATA_A510_2288014))
-
-# Process ERRATA_A510_2042739 flag
-$(eval $(call assert_boolean,ERRATA_A510_2042739))
-$(eval $(call add_define,ERRATA_A510_2042739))
-
-# Process ERRATA_A510_2041909 flag
-$(eval $(call assert_boolean,ERRATA_A510_2041909))
-$(eval $(call add_define,ERRATA_A510_2041909))
-
-# Process ERRATA_A510_2250311 flag
-$(eval $(call assert_boolean,ERRATA_A510_2250311))
-$(eval $(call add_define,ERRATA_A510_2250311))
-
-# Process ERRATA_A510_2218950 flag
-$(eval $(call assert_boolean,ERRATA_A510_2218950))
-$(eval $(call add_define,ERRATA_A510_2218950))
-
-# Process ERRATA_A510_2172148 flag
-$(eval $(call assert_boolean,ERRATA_A510_2172148))
-$(eval $(call add_define,ERRATA_A510_2172148))
-
-# Process ERRATA_A510_2347730 flag
-$(eval $(call assert_boolean,ERRATA_A510_2347730))
-$(eval $(call add_define,ERRATA_A510_2347730))
-
-# Process ERRATA_A510_2371937 flag
-$(eval $(call assert_boolean,ERRATA_A510_2371937))
-$(eval $(call add_define,ERRATA_A510_2371937))
-
-# Process ERRATA_A510_2666669 flag
-$(eval $(call assert_boolean,ERRATA_A510_2666669))
-$(eval $(call add_define,ERRATA_A510_2666669))
-
-# Process ERRATA_A510_2684597 flag
-$(eval $(call assert_boolean,ERRATA_A510_2684597))
-$(eval $(call add_define,ERRATA_A510_2684597))
-
-#Process ERRATA_DSU_798953 flag
-$(eval $(call assert_boolean,ERRATA_DSU_798953))
-$(eval $(call add_define,ERRATA_DSU_798953))
-
-# Process ERRATA_DSU_936184 flag
-$(eval $(call assert_boolean,ERRATA_DSU_936184))
-$(eval $(call add_define,ERRATA_DSU_936184))
-
-# Process ERRATA_DSU_2313941 flag
-$(eval $(call assert_boolean,ERRATA_DSU_2313941))
-$(eval $(call add_define,ERRATA_DSU_2313941))
+# process all flags
+$(eval $(call default_zeros, $(CPU_FLAG_LIST)))
+$(eval $(call add_defines, $(CPU_FLAG_LIST)))
+$(eval $(call assert_booleans, $(CPU_FLAG_LIST)))
 
 # Errata build flags
 ifneq (${ERRATA_A53_843419},0)
