@@ -94,10 +94,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Initialize the platform config for future decision making */
 	zynqmp_config_setup();
 
-	/* There are no parameters from BL2 if BL31 is a reset vector */
-	assert(arg0 == 0U);
-	assert(arg1 == 0U);
-
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On
 	 * Base ZYNQMP only DRAM security is programmable (via TrustZone), but
