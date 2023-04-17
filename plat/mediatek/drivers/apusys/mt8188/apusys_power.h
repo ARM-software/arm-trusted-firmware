@@ -24,6 +24,11 @@ enum APU_ARE_ID {
 	APU_ARE_NUM,
 };
 
+enum APU_D4_SLV_CTRL {
+	D4_SLV_OFF = 0,
+	D4_SLV_ON,
+};
+
 #define APU_POLL_STEP_US			(5)
 
 #define OUT_CLK_FREQ_MIN			(1500)
@@ -40,20 +45,26 @@ enum APU_ARE_ID {
 #define APU_ARE_POLLING_TIMEOUT_US		(10000)
 
 /* APU related reg */
+#define APU_VCORE_BASE				(APU_RCX_VCORE_CONFIG)
+#define APU_RCX_BASE				(APU_RCX_CONFIG)
 #define APU_RPC_BASE				(APU_RPCTOP)
 #define APU_PCU_BASE				(APU_PCUTOP)
 #define APU_ARE0_BASE				(APU_ARETOP_ARE0)
 #define APU_ARE1_BASE				(APU_ARETOP_ARE1)
 #define APU_ARE2_BASE				(APU_ARETOP_ARE2)
+#define APU_MBOX0_BASE				(APU_MBOX0)
 #define APU_AO_CTL_BASE				(APU_AO_CTRL)
 #define APU_PLL_BASE				(APU_PLL)
 #define APU_ACC_BASE				(APU_ACC)
 #define APU_ACX0_RPC_LITE_BASE			(APU_ACX0_RPC_LITE)
 
 /* RPC offset define */
+#define APU_RPC_TOP_CON				(0x0000)
 #define APU_RPC_TOP_SEL				(0x0004)
+#define APU_RPC_STATUS				(0x0014)
 #define APU_RPC_TOP_SEL_1			(0x0018)
 #define APU_RPC_HW_CON				(0x001c)
+#define APU_RPC_INTF_PWR_RDY			(0x0044)
 #define APU_RPC_SW_TYPE0			(0x0200)
 
 /* RPC control */
@@ -68,6 +79,15 @@ enum APU_ARE_ID {
 #define RPC_CTRL				(0x0000009e)
 #define RPC_TOP_CTRL				(0x0800501e)
 #define RPC_TOP_CTRL1				BIT(20)
+#define AFC_ENA					BIT(16)
+#define REG_WAKEUP_SET				BIT(8)
+#define REG_WAKEUP_CLR				BIT(12)
+#define PWR_RDY					BIT(0)
+#define PWR_OFF					(0)
+#define RPC_STATUS_RDY				BIT(29)
+#define RSV10					BIT(10)
+#define CLR_IRQ					(0x6)
+#define SLEEP_REQ				BIT(0)
 
 /* PLL offset define */
 #define PLL4H_PLL1_CON1				(0x000c)
@@ -137,6 +157,12 @@ enum APU_ARE_ID {
 #define ARE_ENTRY1_SRAM_L_INIT			(0x76543210)
 #define ARE_CONFG_INI				BIT(2)
 
+/* VCORE offset define */
+#define APUSYS_VCORE_CG_CLR			(0x0008)
+
+/* RCX offset define */
+#define APU_RCX_CG_CLR				(0x0008)
+
 /* SPM offset define */
 #define APUSYS_BUCK_ISOLATION			(0x03ec)
 
@@ -148,6 +174,18 @@ enum APU_ARE_ID {
 
 /* apu_rcx_ao_ctrl control */
 #define VCORE_ARE_REQ				BIT(2)
+
+/* xpu2apusys */
+#define INFRA_FMEM_BUS_u_SI21_CTRL_0		(0x002c)
+#define INFRA_FMEM_BUS_u_SI22_CTRL_0		(0x0044)
+#define INFRA_FMEM_BUS_u_SI11_CTRL_0		(0x0048)
+#define INFRA_FMEM_M6M7_BUS_u_SI24_CTRL_0	(0x01d0)
+
+/* xpu2apusys */
+#define INFRA_FMEM_BUS_u_SI21_CTRL_EN		BIT(12)
+#define INFRA_FMEM_BUS_u_SI22_CTRL_EN		BIT(13)
+#define INFRA_FMEM_BUS_u_SI11_CTRL_EN		BIT(11)
+#define INFRA_FMEM_M6M7_BUS_u_SI24_CTRL_EN	BIT(15)
 
 /* PCU offset define */
 #define APU_PCU_CTRL_SET			(0x0000)
@@ -188,6 +226,13 @@ enum APU_ARE_ID {
 #define APU_RPC_SW_TYPE8			(0x0220)
 #define APU_RPC_SW_TYPE9			(0x0224)
 
+/* power flow sync */
+#define PWR_FLOW_SYNC_REG			(0x0440)
+
+#define CG_CLR					(0xffffffff)
+
 int apusys_power_init(void);
+int apusys_kernel_apusys_pwr_top_on(void);
+int apusys_kernel_apusys_pwr_top_off(void);
 
 #endif /* APUSYS_POWER_H */
