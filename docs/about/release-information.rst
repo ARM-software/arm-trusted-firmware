@@ -69,9 +69,22 @@ after which it will be removed.
 +================================+=============+=========+=========================================================+
 | plat_convert_pk() function     |   Nov'22    |   2.9   | Platform conversion to manage specific PK hash          |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
+
+Removal of Deprecated Drivers
+-----------------------------
+
+As mentioned in the :ref:`Platform Ports Policy`, this is a live document
+cataloging all the deprecated drivers in TF-A project and the Release version
+after which it will be removed.
+
++--------------------------------+-------------+---------+---------------------------------------------------------+
+| Driver                         | Deprecation | Removed | Comments                                                |
+|                                | Date        | after   |                                                         |
+|                                |             | Release |                                                         |
++================================+=============+=========+=========================================================+
 | io_dummy driver                |   Nov'22    |   2.9   | No more used by any upstream platform                   |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 
 --------------
 
-*Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.*
