@@ -533,7 +533,8 @@ Common build options
    support. This option is currently only supported for AArch64. On GCC it only
    applies to TF-A proper, and not its libraries. If LTO on libraries (except
    the libc) is desired a platform can pass `-flto -ffat-lto-objects` as long as
-   GCC >= 14 is in use.  Default is 0.
+   GCC >= 14 is in use. ``ENABLE_LTO`` is enabled by default on release builds.
+   Default is 0.
 
 -  ``ENABLE_FEAT_MPAM``: Numeric value to enable lower ELs to use MPAM
    feature. MPAM is an optional Armv8.4 extension that enables various memory
