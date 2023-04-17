@@ -95,5 +95,6 @@ uint32_t get_uart_clk(void);
 uint32_t get_mmc_clk(void);
 uint32_t get_l3_clk(uint32_t ref_clk);
 uint32_t get_ref_clk(uint32_t pllglob);
+uint32_t get_cpu_clk(void);
 
 #endif

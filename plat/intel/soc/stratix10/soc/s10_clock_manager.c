@@ -316,7 +316,7 @@ uint32_t get_cpu_clk(void)
 	data32 = mmio_read_32(ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_PLLGLOB);
 	ref_clk = get_ref_clk(data32);
 
-	cpu_clk = get_l3_clk(ref_clk)/PLAT_SYS_COUNTER_CONVERT_TO_MHZ;
+	cpu_clk = get_l3_clk(ref_clk)/PLAT_HZ_CONVERT_TO_MHZ;
 
 	return cpu_clk;
 }

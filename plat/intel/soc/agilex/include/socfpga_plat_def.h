@@ -35,6 +35,4 @@
 /* Platform specific system counter */
 #define PLAT_SYS_COUNTER_FREQ_IN_MHZ	get_cpu_clk()
 
-uint32_t get_cpu_clk(void);
-
 #endif /* PLAT_SOCFPGA_DEF_H */
