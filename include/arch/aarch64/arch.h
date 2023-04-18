@@ -157,6 +157,8 @@
 #define DCCSW			U(0x2)
 #endif
 
+#define ID_REG_FIELD_MASK			ULL(0xf)
+
 /* ID_AA64PFR0_EL1 definitions */
 #define ID_AA64PFR0_EL0_SHIFT			U(0)
 #define ID_AA64PFR0_EL1_SHIFT			U(4)

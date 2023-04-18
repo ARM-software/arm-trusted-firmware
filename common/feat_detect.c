@@ -203,7 +203,7 @@ void detect_arch_features(void)
 	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX", 1, 1);
 
 	/* v8.9 features */
-	check_feature(ENABLE_FEAT_TCR2, read_feat_tcrx_id_field(),
+	check_feature(ENABLE_FEAT_TCR2, read_feat_tcr2_id_field(),
 		      "TCR2", 1, 1);
 	check_feature(ENABLE_FEAT_S2PIE, read_feat_s2pie_id_field(),
 		      "S2PIE", 1, 1);

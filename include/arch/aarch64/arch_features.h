@@ -13,7 +13,26 @@
 #include <common/feat_detect.h>
 
 #define ISOLATE_FIELD(reg, feat)					\
-	((unsigned int)(((reg) >> (feat ## _SHIFT)) & (feat ## _MASK)))
+	((unsigned int)(((reg) >> (feat)) & ID_REG_FIELD_MASK))
+
+#define CREATE_FEATURE_FUNCS_VER(name, read_func, idvalue, guard)	\
+static inline bool is_ ## name ## _supported(void)			\
+{									\
+	if ((guard) == FEAT_STATE_DISABLED) {				\
+		return false;						\
+	}								\
+	if ((guard) == FEAT_STATE_ALWAYS) {				\
+		return true;						\
+	}								\
+	return read_func() >= (idvalue);				\
+}
+
+#define CREATE_FEATURE_FUNCS(name, idreg, idfield, guard)		\
+static unsigned int read_ ## name ## _id_field(void)			\
+{									\
+	return ISOLATE_FIELD(read_ ## idreg(), idfield);		\
+}									\
+CREATE_FEATURE_FUNCS_VER(name, read_ ## name ## _id_field, 1U, guard)
 
 static inline bool is_armv7_gentimer_present(void)
 {
@@ -21,41 +40,10 @@ static inline bool is_armv7_gentimer_present(void)
 	return true;
 }
 
-static inline unsigned int read_feat_pan_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr1_el1(), ID_AA64MMFR1_EL1_PAN);
-}
-
-static inline bool is_feat_pan_supported(void)
-{
-	if (ENABLE_FEAT_PAN == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_PAN == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_pan_id_field() != 0U;
-}
-
-static inline unsigned int read_feat_vhe_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr1_el1(), ID_AA64MMFR1_EL1_VHE);
-}
-
-static inline bool is_feat_vhe_supported(void)
-{
-	if (ENABLE_FEAT_VHE == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_VHE == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_vhe_id_field() != 0U;
-}
+CREATE_FEATURE_FUNCS(feat_pan, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_PAN_SHIFT,
+		     ENABLE_FEAT_PAN)
+CREATE_FEATURE_FUNCS(feat_vhe, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_VHE_SHIFT,
+		     ENABLE_FEAT_VHE)
 
 static inline bool is_armv8_2_ttcnp_present(void)
 {
@@ -107,278 +95,51 @@ static inline unsigned int get_armv8_5_mte_support(void)
 		ID_AA64PFR1_EL1_MTE_MASK);
 }
 
-static inline unsigned int read_feat_sel2_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_SEL2);
-}
+CREATE_FEATURE_FUNCS(feat_sel2, id_aa64pfr0_el1, ID_AA64PFR0_SEL2_SHIFT,
+		     ENABLE_FEAT_SEL2)
+CREATE_FEATURE_FUNCS(feat_twed, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_TWED_SHIFT,
+		     ENABLE_FEAT_TWED)
+CREATE_FEATURE_FUNCS(feat_fgt, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT_SHIFT,
+		     ENABLE_FEAT_FGT)
+CREATE_FEATURE_FUNCS(feat_mte_perm, id_aa64pfr2_el1,
+		     ID_AA64PFR2_EL1_MTEPERM_SHIFT, ENABLE_FEAT_MTE_PERM)
+CREATE_FEATURE_FUNCS(feat_ecv, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV_SHIFT,
+		     ENABLE_FEAT_ECV)
+CREATE_FEATURE_FUNCS_VER(feat_ecv_v2, read_feat_ecv_id_field,
+			 ID_AA64MMFR0_EL1_ECV_SELF_SYNCH, ENABLE_FEAT_ECV)
 
-static inline bool is_feat_sel2_supported(void)
-{
-	if (ENABLE_FEAT_SEL2 == FEAT_STATE_DISABLED) {
-		return false;
-	}
+CREATE_FEATURE_FUNCS(feat_rng, id_aa64isar0_el1, ID_AA64ISAR0_RNDR_SHIFT,
+		     ENABLE_FEAT_RNG)
+CREATE_FEATURE_FUNCS(feat_tcr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_TCRX_SHIFT,
+		     ENABLE_FEAT_TCR2)
 
-	if (ENABLE_FEAT_SEL2 == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_sel2_id_field() != 0U;
-}
-
-static inline unsigned int read_feat_twed_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr1_el1(), ID_AA64MMFR1_EL1_TWED);
-}
-
-static inline bool is_feat_twed_supported(void)
-{
-	if (ENABLE_FEAT_TWED == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_TWED == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_twed_id_field() != 0U;
-}
-
-static unsigned int read_feat_fgt_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(), ID_AA64MMFR0_EL1_FGT);
-}
-
-static unsigned int read_feat_mte_perm_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr2_el1(), ID_AA64PFR2_EL1_MTEPERM);
-}
-
-static inline bool is_feat_fgt_supported(void)
-{
-	if (ENABLE_FEAT_FGT == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_FGT == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_fgt_id_field() != 0U;
-}
-
-static inline bool is_feat_mte_perm_supported(void)
-{
-	if (ENABLE_FEAT_MTE_PERM == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_MTE_PERM == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_mte_perm_id_field() != 0U;
-}
-
-static unsigned int read_feat_ecv_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(), ID_AA64MMFR0_EL1_ECV);
-}
-
-static inline bool is_feat_ecv_supported(void)
-{
-	if (ENABLE_FEAT_ECV == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_ECV == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_ecv_id_field() != 0U;
-}
-
-static inline bool is_feat_ecv_v2_supported(void)
-{
-	if (ENABLE_FEAT_ECV == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_ECV == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_ecv_id_field() >= ID_AA64MMFR0_EL1_ECV_SELF_SYNCH;
-}
-
-static unsigned int read_feat_rng_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64isar0_el1(), ID_AA64ISAR0_RNDR);
-}
-
-static inline bool is_feat_rng_supported(void)
-{
-	if (ENABLE_FEAT_RNG == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_RNG == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_rng_id_field() != 0U;
-}
-
-static unsigned int read_feat_tcrx_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_TCRX);
-}
-
-static inline bool is_feat_tcr2_supported(void)
-{
-	if (ENABLE_FEAT_TCR2 == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_TCR2 == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_tcrx_id_field() != 0U;
-}
-
-static unsigned int read_feat_s2poe_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_S2POE);
-}
-
-static inline bool is_feat_s2poe_supported(void)
-{
-	if (ENABLE_FEAT_S2POE == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_S2POE == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_s2poe_id_field() != 0U;
-}
-
-static unsigned int read_feat_s1poe_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_S1POE);
-}
-
-static inline bool is_feat_s1poe_supported(void)
-{
-	if (ENABLE_FEAT_S1POE == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_S1POE == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_s1poe_id_field() != 0U;
-}
-
+CREATE_FEATURE_FUNCS(feat_s2poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2POE_SHIFT,
+		     ENABLE_FEAT_S2POE)
+CREATE_FEATURE_FUNCS(feat_s1poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1POE_SHIFT,
+		     ENABLE_FEAT_S1POE)
 static inline bool is_feat_sxpoe_supported(void)
 {
 	return is_feat_s1poe_supported() || is_feat_s2poe_supported();
 }
 
-static unsigned int read_feat_s2pie_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_S2PIE);
-}
-
-static inline bool is_feat_s2pie_supported(void)
-{
-	if (ENABLE_FEAT_S2PIE == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_S2PIE == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_s2pie_id_field() != 0U;
-}
-
-static unsigned int read_feat_s1pie_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_S1PIE);
-}
-
-static inline bool is_feat_s1pie_supported(void)
-{
-	if (ENABLE_FEAT_S1PIE == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_S1PIE == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_s1pie_id_field() != 0U;
-}
-
+CREATE_FEATURE_FUNCS(feat_s2pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2PIE_SHIFT,
+		     ENABLE_FEAT_S2PIE)
+CREATE_FEATURE_FUNCS(feat_s1pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1PIE_SHIFT,
+		     ENABLE_FEAT_S1PIE)
 static inline bool is_feat_sxpie_supported(void)
 {
 	return is_feat_s1pie_supported() || is_feat_s2pie_supported();
 }
 
-static unsigned int read_feat_gcs_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr1_el1(), ID_AA64PFR1_EL1_GCS);
-}
+/* FEAT_GCS: Guarded Control Stack */
+CREATE_FEATURE_FUNCS(feat_gcs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_GCS_SHIFT,
+		     ENABLE_FEAT_GCS)
 
-static inline bool is_feat_gcs_supported(void)
-{
-	if (ENABLE_FEAT_GCS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_GCS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_gcs_id_field() != 0U;
-}
-
-/*******************************************************************************
- * Functions to identify the presence of the Activity Monitors Extension
- ******************************************************************************/
-static unsigned int read_feat_amu_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_AMU);
-}
-
-static inline bool is_feat_amu_supported(void)
-{
-	if (ENABLE_FEAT_AMU == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_AMU == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_amu_id_field() >= ID_AA64PFR0_AMU_V1;
-}
-
-static inline bool is_feat_amuv1p1_supported(void)
-{
-	if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_amu_id_field() >= ID_AA64PFR0_AMU_V1P1;
-}
+/* FEAT_AMU: Activity Monitors Extension */
+CREATE_FEATURE_FUNCS(feat_amu, id_aa64pfr0_el1, ID_AA64PFR0_AMU_SHIFT,
+		     ENABLE_FEAT_AMU)
+CREATE_FEATURE_FUNCS_VER(feat_amuv1p1, read_feat_amu_id_field,
+			 ID_AA64PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1)
 
 /*
  * Return MPAM version:
@@ -397,36 +158,12 @@ static inline unsigned int read_feat_mpam_version(void)
 		ID_AA64PFR1_MPAM_FRAC_SHIFT) & ID_AA64PFR1_MPAM_FRAC_MASK));
 }
 
-static inline bool is_feat_mpam_supported(void)
-{
-	if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_DISABLED) {
-		return false;
-	}
+CREATE_FEATURE_FUNCS_VER(feat_mpam, read_feat_mpam_version, 1U,
+			 ENABLE_MPAM_FOR_LOWER_ELS)
 
-	if (ENABLE_MPAM_FOR_LOWER_ELS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_mpam_version() != 0U;
-}
-
-static inline unsigned int read_feat_hcx_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr1_el1(), ID_AA64MMFR1_EL1_HCX);
-}
-
-static inline bool is_feat_hcx_supported(void)
-{
-	if (ENABLE_FEAT_HCX == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_HCX == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_hcx_id_field() != 0U;
-}
+/* FEAT_HCX: Extended Hypervisor Configuration Register */
+CREATE_FEATURE_FUNCS(feat_hcx, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HCX_SHIFT,
+		     ENABLE_FEAT_HCX)
 
 static inline bool is_feat_rng_trap_present(void)
 {
@@ -451,251 +188,60 @@ static inline unsigned int get_armv9_2_feat_rme_support(void)
  ********************************************************************************/
 static inline unsigned int read_feat_sb_id_field(void)
 {
-	return ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_SB);
+	return ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_SB_SHIFT);
 }
 
-/*********************************************************************************
- * Function to identify the presence of FEAT_CSV2_2 (Cache Speculation Variant 2)
- ********************************************************************************/
-static inline unsigned int read_feat_csv2_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_CSV2);
-}
+/* FEAT_CSV2_2: Cache Speculation Variant 2 */
+CREATE_FEATURE_FUNCS(feat_csv2, id_aa64pfr0_el1, ID_AA64PFR0_CSV2_SHIFT, 0)
+CREATE_FEATURE_FUNCS_VER(feat_csv2_2, read_feat_csv2_id_field,
+			 ID_AA64PFR0_CSV2_2_SUPPORTED, ENABLE_FEAT_CSV2_2)
 
-static inline bool is_feat_csv2_2_supported(void)
-{
-	if (ENABLE_FEAT_CSV2_2 == FEAT_STATE_DISABLED) {
-		return false;
-	}
+/* FEAT_SPE: Statistical Profiling Extension */
+CREATE_FEATURE_FUNCS(feat_spe, id_aa64dfr0_el1, ID_AA64DFR0_PMS_SHIFT,
+		     ENABLE_SPE_FOR_NS)
 
-	if (ENABLE_FEAT_CSV2_2 == FEAT_STATE_ALWAYS) {
-		return true;
-	}
+/* FEAT_SVE: Scalable Vector Extension */
+CREATE_FEATURE_FUNCS(feat_sve, id_aa64pfr0_el1, ID_AA64PFR0_SVE_SHIFT,
+		     ENABLE_SVE_FOR_NS)
 
-	return read_feat_csv2_id_field() >= ID_AA64PFR0_CSV2_2_SUPPORTED;
-}
+/* FEAT_RAS: Reliability, Accessibility, Serviceability */
+CREATE_FEATURE_FUNCS(feat_ras, id_aa64pfr0_el1,
+		     ID_AA64PFR0_RAS_SHIFT, ENABLE_FEAT_RAS)
 
-/**********************************************************************************
- * Function to identify the presence of FEAT_SPE (Statistical Profiling Extension)
- *********************************************************************************/
-static inline unsigned int read_feat_spe_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_PMS);
-}
+/* FEAT_DIT: Data Independent Timing instructions */
+CREATE_FEATURE_FUNCS(feat_dit, id_aa64pfr0_el1,
+		     ID_AA64PFR0_DIT_SHIFT, ENABLE_FEAT_DIT)
 
-static inline bool is_feat_spe_supported(void)
-{
-	if (ENABLE_SPE_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
+CREATE_FEATURE_FUNCS(feat_sys_reg_trace, id_aa64dfr0_el1,
+		     ID_AA64DFR0_TRACEVER_SHIFT, ENABLE_SYS_REG_TRACE_FOR_NS)
 
-	if (ENABLE_SPE_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
+/* FEAT_TRF: TraceFilter */
+CREATE_FEATURE_FUNCS(feat_trf, id_aa64dfr0_el1, ID_AA64DFR0_TRACEFILT_SHIFT,
+		     ENABLE_TRF_FOR_NS)
 
-	return read_feat_spe_id_field() != 0U;
-}
+/* FEAT_NV2: Enhanced Nested Virtualization */
+CREATE_FEATURE_FUNCS(feat_nv, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV_SHIFT, 0)
+CREATE_FEATURE_FUNCS_VER(feat_nv2, read_feat_nv_id_field,
+			 ID_AA64MMFR2_EL1_NV2_SUPPORTED, CTX_INCLUDE_NEVE_REGS)
 
-/*******************************************************************************
- * Function to identify the presence of FEAT_SVE (Scalable Vector Extension)
- ******************************************************************************/
-static inline unsigned int read_feat_sve_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_SVE);
-}
+/* FEAT_BRBE: Branch Record Buffer Extension */
+CREATE_FEATURE_FUNCS(feat_brbe, id_aa64dfr0_el1, ID_AA64DFR0_BRBE_SHIFT,
+		     ENABLE_BRBE_FOR_NS)
 
-static inline bool is_feat_sve_supported(void)
-{
-	if (ENABLE_SVE_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
+/* FEAT_TRBE: Trace Buffer Extension */
+CREATE_FEATURE_FUNCS(feat_trbe, id_aa64dfr0_el1, ID_AA64DFR0_TRACEBUFFER_SHIFT,
+		     ENABLE_TRBE_FOR_NS)
 
-	if (ENABLE_SVE_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_sve_id_field() >= ID_AA64PFR0_SVE_SUPPORTED;
-}
-
-static unsigned int read_feat_ras_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_RAS);
-}
-
-static inline bool is_feat_ras_supported(void)
-{
-	if (ENABLE_FEAT_RAS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_RAS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_ras_id_field() != 0U;
-}
-
-static unsigned int read_feat_dit_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr0_el1(), ID_AA64PFR0_DIT);
-}
-
-static inline bool is_feat_dit_supported(void)
-{
-	if (ENABLE_FEAT_DIT == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_DIT == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_dit_id_field() != 0U;
-}
-
-static inline unsigned int read_feat_tracever_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_TRACEVER);
-}
-
-static inline bool is_feat_sys_reg_trace_supported(void)
-{
-	if (ENABLE_SYS_REG_TRACE_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_SYS_REG_TRACE_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_tracever_id_field() != 0U;
-}
-
-/*************************************************************************
- * Function to identify the presence of FEAT_TRF (TraceLift)
- ************************************************************************/
-static inline unsigned int read_feat_trf_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_TRACEFILT);
-}
-
-static inline bool is_feat_trf_supported(void)
-{
-	if (ENABLE_TRF_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_TRF_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_trf_id_field() != 0U;
-}
-
-/********************************************************************************
- * Function to identify the presence of FEAT_NV2 (Enhanced Nested Virtualization
- * Support)
- *******************************************************************************/
-static inline unsigned int read_feat_nv_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64mmfr2_el1(), ID_AA64MMFR2_EL1_NV);
-}
-
-static inline bool is_feat_nv2_supported(void)
-{
-	if (CTX_INCLUDE_NEVE_REGS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (CTX_INCLUDE_NEVE_REGS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_nv_id_field() >= ID_AA64MMFR2_EL1_NV2_SUPPORTED;
-}
-
-/*******************************************************************************
- * Function to identify the presence of FEAT_BRBE (Branch Record Buffer
- * Extension)
- ******************************************************************************/
-static inline unsigned int read_feat_brbe_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_BRBE);
-}
-
-static inline bool is_feat_brbe_supported(void)
-{
-	if (ENABLE_BRBE_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_BRBE_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_brbe_id_field() != 0U;
-}
-
-/*******************************************************************************
- * Function to identify the presence of FEAT_TRBE (Trace Buffer Extension)
- ******************************************************************************/
-static inline unsigned int read_feat_trbe_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_TRACEBUFFER);
-}
-
-static inline bool is_feat_trbe_supported(void)
-{
-	if (ENABLE_TRBE_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_TRBE_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_trbe_id_field() != 0U;
-
-}
-
-/*******************************************************************************
- * Function to identify the presence of FEAT_SMEx (Scalar Matrix Extension)
- ******************************************************************************/
 static inline unsigned int read_feat_sme_fa64_id_field(void)
 {
-	return ISOLATE_FIELD(read_id_aa64smfr0_el1(), ID_AA64SMFR0_EL1_SME_FA64);
+	return ISOLATE_FIELD(read_id_aa64smfr0_el1(),
+			     ID_AA64SMFR0_EL1_SME_FA64_SHIFT);
 }
-
-static inline unsigned int read_feat_sme_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64pfr1_el1(), ID_AA64PFR1_EL1_SME);
-}
-
-static inline bool is_feat_sme_supported(void)
-{
-	if (ENABLE_SME_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_SME_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_sme_id_field() >= ID_AA64PFR1_EL1_SME_SUPPORTED;
-}
-
-static inline bool is_feat_sme2_supported(void)
-{
-	if (ENABLE_SME2_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_SME2_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_sme_id_field() >= ID_AA64PFR1_EL1_SME2_SUPPORTED;
-}
+/* FEAT_SMEx: Scalar Matrix Extension */
+CREATE_FEATURE_FUNCS(feat_sme, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
+		     ENABLE_SME_FOR_NS)
+CREATE_FEATURE_FUNCS_VER(feat_sme2, read_feat_sme_id_field,
+			 ID_AA64PFR1_EL1_SME2_SUPPORTED, ENABLE_SME2_FOR_NS)
 
 /*******************************************************************************
  * Function to get hardware granularity support
@@ -703,29 +249,30 @@ static inline bool is_feat_sme2_supported(void)
 
 static inline unsigned int read_id_aa64mmfr0_el0_tgran4_field(void)
 {
-	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(), ID_AA64MMFR0_EL1_TGRAN4);
+	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
+			     ID_AA64MMFR0_EL1_TGRAN4_SHIFT);
 }
 
 static inline unsigned int read_id_aa64mmfr0_el0_tgran16_field(void)
 {
 	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
-			     ID_AA64MMFR0_EL1_TGRAN16);
+			     ID_AA64MMFR0_EL1_TGRAN16_SHIFT);
 }
 
 static inline unsigned int read_id_aa64mmfr0_el0_tgran64_field(void)
 {
 	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
-			     ID_AA64MMFR0_EL1_TGRAN64);
+			     ID_AA64MMFR0_EL1_TGRAN64_SHIFT);
 }
 
 static inline unsigned int read_feat_pmuv3_id_field(void)
 {
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_PMUVER);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_PMUVER_SHIFT);
 }
 
 static inline unsigned int read_feat_mtpmu_id_field(void)
 {
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_MTPMU);
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_MTPMU_SHIFT);
 }
 
 static inline bool is_feat_mtpmu_supported(void)
