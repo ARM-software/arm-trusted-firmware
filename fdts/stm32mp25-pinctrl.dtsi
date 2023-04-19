@@ -7,6 +7,17 @@
 
 &pinctrl {
 	/omit-if-no-ref/
+	i2c7_pins_a: i2c7-0 {
+		pins1 {
+			pinmux = <STM32_PINMUX('D', 15, AF10)>, /* I2C7_SCL */
+				 <STM32_PINMUX('D', 14, AF10)>; /* I2C7_SDA */
+			bias-disable;
+			drive-open-drain;
+			slew-rate = <0>;
+		};
+	};
+
+	/omit-if-no-ref/
 	sdmmc1_b4_pins_a: sdmmc1-b4-0 {
 		pins1 {
 			pinmux = <STM32_PINMUX('E', 4, AF10)>, /* SDMMC1_D0 */
