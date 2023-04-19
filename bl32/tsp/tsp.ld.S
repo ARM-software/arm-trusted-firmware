@@ -16,6 +16,8 @@ MEMORY {
 }
 
 SECTIONS {
+    RAM_REGION_START = ORIGIN(RAM);
+    RAM_REGION_LENGTH = LENGTH(RAM);
     . = BL32_BASE;
 
     ASSERT(. == ALIGN(PAGE_SIZE),
@@ -121,4 +123,5 @@ SECTIONS {
 #endif /* USE_COHERENT_MEM */
 
     ASSERT(. <= BL32_LIMIT, "BL32 image has exceeded its limit.")
+    RAM_REGION_END = .;
 }
