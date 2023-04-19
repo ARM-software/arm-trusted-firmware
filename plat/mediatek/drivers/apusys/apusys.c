@@ -35,6 +35,21 @@ static u_register_t apusys_kernel_handler(u_register_t x1,
 	case MTK_APUSYS_KERNEL_OP_APUSYS_PWR_TOP_OFF:
 		ret = apusys_kernel_apusys_pwr_top_off();
 		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_SETUP_REVISER:
+		ret = apusys_kernel_apusys_rv_setup_reviser();
+		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_RESET_MP:
+		ret = apusys_kernel_apusys_rv_reset_mp();
+		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_SETUP_BOOT:
+		ret = apusys_kernel_apusys_rv_setup_boot();
+		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_START_MP:
+		ret = apusys_kernel_apusys_rv_start_mp();
+		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_STOP_MP:
+		ret = apusys_kernel_apusys_rv_stop_mp();
+		break;
 	default:
 		ERROR(MODULE_TAG "%s unknown request_ops = %x\n", MODULE_TAG, request_ops);
 		break;
