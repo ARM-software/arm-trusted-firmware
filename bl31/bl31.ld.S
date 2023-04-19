@@ -26,6 +26,8 @@ MEMORY {
 #endif /* PLAT_EXTRA_LD_SCRIPT */
 
 SECTIONS {
+    RAM_REGION_START = ORIGIN(RAM);
+    RAM_REGION_LENGTH = LENGTH(RAM);
     . = BL31_BASE;
 
     ASSERT(. == ALIGN(PAGE_SIZE),
@@ -198,6 +200,7 @@ SECTIONS {
 
     ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
 #endif /* SEPARATE_NOBITS_REGION */
+    RAM_REGION_END = .;
 
     /DISCARD/ : {
         *(.dynsym .dynstr .hash .gnu.hash)
