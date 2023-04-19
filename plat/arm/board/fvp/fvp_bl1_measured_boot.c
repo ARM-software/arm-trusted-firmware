@@ -63,7 +63,8 @@ void bl1_plat_mboot_finish(void)
 
 	event_log_cur_size = event_log_get_cur_size(event_log);
 	int rc = arm_set_tb_fw_info((uintptr_t)event_log,
-				    event_log_cur_size);
+				    event_log_cur_size,
+				    PLAT_ARM_EVENT_LOG_MAX_SIZE);
 	if (rc != 0) {
 		/*
 		 * It is a fatal error because on FVP platform, BL2 software
