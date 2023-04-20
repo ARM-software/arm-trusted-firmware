@@ -98,6 +98,13 @@ These tools are optional:
    Git hooks and helper tools. Without these tools you will need to rely on the
    CI for feedback on commit message conformance.
 
+- Poetry >= 1.3.2
+
+  Required for managing Python dependencies, this will allow you to reliably
+  reproduce a Python environment to build documentation and run analysis tools.
+  Most importantly, it ensures your system environment will not be affected by
+  dependencies in the Python scripts.
+
 Package Installation (Linux)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -177,7 +184,7 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 
 --------------
 
-*Copyright (c) 2021-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2023, Arm Limited. All rights reserved.*
 
 .. _Arm Developer website: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads
 .. _Gerrit Code Review: https://www.gerritcodereview.com/
