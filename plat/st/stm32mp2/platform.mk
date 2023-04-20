@@ -30,11 +30,29 @@ ENABLE_SVE_FOR_NS		:=	0
 # Default Device tree
 DTB_FILE_NAME			?=	stm32mp257f-ev1.dtb
 
-STM32MP25			:=	1
+STM32MP21			?=	0
+STM32MP25			?=	0
 
-# STM32 image header version v2.2
+ifneq ($(findstring stm32mp21,$(DTB_FILE_NAME)),)
+STM32MP21			:=	1
+endif
+ifneq ($(findstring stm32mp25,$(DTB_FILE_NAME)),)
+STM32MP25			:=	1
+endif
+ifneq ($(filter 1,$(STM32MP21) $(STM32MP25)), 1)
+$(warning STM32MP21=$(STM32MP21))
+$(warning STM32MP25=$(STM32MP25))
+$(warning DTB_FILE_NAME=$(DTB_FILE_NAME))
+$(error Cannot enable 2 flags STM32MP2X)
+endif
+
+# STM32 image header version v2.2 or v2.3 for STM32MP21
 STM32_HEADER_VERSION_MAJOR	:=	2
+ifeq ($(STM32MP21),1)
+STM32_HEADER_VERSION_MINOR	:=	3
+else
 STM32_HEADER_VERSION_MINOR	:=	2
+endif
 
 # Set load address for serial boot devices
 DWL_BUFFER_BASE 		?=	0x87000000
@@ -110,6 +128,7 @@ $(eval $(call assert_booleans,\
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
+		STM32MP21 \
 		STM32MP25 \
 		STM32MP_BL33_EL1 \
 )))
@@ -133,6 +152,7 @@ $(eval $(call add_defines,\
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
+		STM32MP21 \
 		STM32MP25 \
 		STM32MP_BL33_EL1 \
 )))
