@@ -26,7 +26,6 @@
 #endif
 
 #define PLATFORM_CORE_COUNT		U(4)
-#define PLAT_NUM_POWER_DOMAINS		U(5)
 #define PLAT_MAX_PWR_LVL		U(1)
 #define PLAT_MAX_RET_STATE		U(1)
 #define PLAT_MAX_OFF_STATE		U(2)
