@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) Siemens AG, 2020-2021
  *
  * SPDX-License-Identifier: BSD-3-Clause
