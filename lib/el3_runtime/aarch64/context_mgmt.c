@@ -197,21 +197,33 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	/* SCR_NS: Set the NS bit */
 	scr_el3 |= SCR_NS_BIT;
 
-#if !CTX_INCLUDE_PAUTH_REGS
-	/*
-	 * If the pointer authentication registers aren't saved during world
-	 * switches the value of the registers can be leaked from the Secure to
-	 * the Non-secure world. To prevent this, rather than enabling pointer
-	 * authentication everywhere, we only enable it in the Non-secure world.
-	 *
-	 * If the Secure world wants to use pointer authentication,
-	 * CTX_INCLUDE_PAUTH_REGS must be set to 1.
-	 */
-	scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
-#endif /* !CTX_INCLUDE_PAUTH_REGS */
-
 	/* Allow access to Allocation Tags when MTE is implemented. */
 	scr_el3 |= SCR_ATA_BIT;
+
+#if !CTX_INCLUDE_PAUTH_REGS
+	/*
+	 * Pointer Authentication feature, if present, is always enabled by default
+	 * for Non secure lower exception levels. We do not have an explicit
+	 * flag to set it.
+	 * CTX_INCLUDE_PAUTH_REGS flag, is explicitly used to enable for lower
+	 * exception levels of secure and realm worlds.
+	 *
+	 * To prevent the leakage between the worlds during world switch,
+	 * we enable it only for the non-secure world.
+	 *
+	 * If the Secure/realm world wants to use pointer authentication,
+	 * CTX_INCLUDE_PAUTH_REGS must be explicitly set to 1, in which case
+	 * it will be enabled globally for all the contexts.
+	 *
+	 * SCR_EL3.API: Set to one to not trap any PAuth instructions at ELs
+	 *  other than EL3
+	 *
+	 * SCR_EL3.APK: Set to one to not trap any PAuth key values at ELs other
+	 *  than EL3
+	 */
+	scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
+
+#endif /* CTX_INCLUDE_PAUTH_REGS */
 
 #if HANDLE_EA_EL3_FIRST_NS
 	/* SCR_EL3.EA: Route External Abort and SError Interrupt to EL3. */
@@ -308,9 +320,12 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
  ******************************************************************************/
 static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
+	u_register_t cptr_el3;
 	u_register_t scr_el3;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
+
+	state = get_el3state_ctx(ctx);
 
 	/* Clear any residual register values from the context */
 	zeromem(ctx, sizeof(*ctx));
@@ -327,6 +342,23 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	scr_el3 = read_scr();
 	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_EA_BIT | SCR_FIQ_BIT | SCR_IRQ_BIT |
 			SCR_ST_BIT | SCR_HCE_BIT | SCR_NSE_BIT);
+
+	/*
+	 * SCR_EL3.TWE: Set to zero so that execution of WFE instructions at
+	 *  EL2, EL1 and EL0 are not trapped to EL3.
+	 *
+	 * SCR_EL3.TWI: Set to zero so that execution of WFI instructions at
+	 *  EL2, EL1 and EL0 are not trapped to EL3.
+	 *
+	 * SCR_EL3.SMD: Set to zero to enable SMC calls at EL1 and above, from
+	 *  both Security states and both Execution states.
+	 *
+	 * SCR_EL3.SIF: Set to one to disable secure instruction execution from
+	 *  Non-secure memory.
+	 */
+	scr_el3 &= ~(SCR_TWE_BIT | SCR_TWI_BIT | SCR_SMD_BIT);
+
+	scr_el3 |= SCR_SIF_BIT;
 
 	/*
 	 * SCR_EL3.RW: Set the execution state, AArch32 or AArch64, for next
@@ -368,6 +400,19 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	scr_el3 |= SCR_FIEN_BIT;
 #endif
 
+#if CTX_INCLUDE_PAUTH_REGS
+	/*
+	 * Enable Pointer Authentication globally for all the worlds.
+	 *
+	 * SCR_EL3.API: Set to one to not trap any PAuth instructions at ELs
+	 *  other than EL3
+	 *
+	 * SCR_EL3.APK: Set to one to not trap any PAuth key values at ELs other
+	 *  than EL3
+	 */
+	scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
+#endif /* CTX_INCLUDE_PAUTH_REGS */
+
 	/*
 	 * SCR_EL3.TCR2EN: Enable access to TCR2_ELx for AArch64 if present.
 	 */
@@ -391,10 +436,19 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	}
 
 	/*
-	 * CPTR_EL3 was initialized out of reset, copy that value to the
-	 * context register.
+	 * Initialise CPTR_EL3, setting all fields rather than relying on hw.
+	 * All fields are architecturally UNKNOWN on reset.
+	 *
+	 * CPTR_EL3.TFP: Set to zero so that accesses to the V- or Z- registers
+	 *  by Advanced SIMD, floating-point or SVE instructions (if
+	 *  implemented) do not trap to EL3.
+	 *
+	 * CPTR_EL3.TCPAC: Set to zero so that accesses to CPACR_EL1,
+	 *  CPTR_EL2,CPACR, or HCPTR do not trap to EL3.
 	 */
-	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, read_cptr_el3());
+	cptr_el3 = CPTR_EL3_RESET_VAL & ~(TFP_BIT | TCPAC_BIT);
+
+	write_ctx_reg(state, CTX_CPTR_EL3, cptr_el3);
 
 	/*
 	 * SCR_EL3.HCE: Enable HVC instructions if next execution state is
@@ -436,7 +490,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 * Populate EL3 state so that we've the right context
 	 * before doing ERET
 	 */
-	state = get_el3state_ctx(ctx);
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 	write_ctx_reg(state, CTX_ELR_EL3, ep->pc);
 	write_ctx_reg(state, CTX_SPSR_EL3, ep->spsr);
