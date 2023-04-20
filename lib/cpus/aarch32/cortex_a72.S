@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -87,10 +87,14 @@ func check_errata_859971
 	b		cpu_rev_var_ls
 endfunc check_errata_859971
 
+add_erratum_entry cortex_a72, ERRATUM(859971), ERRATA_A72_859971
+
 func check_errata_cve_2017_5715
 	mov	r0, #ERRATA_MISSING
 	bx	lr
 endfunc check_errata_cve_2017_5715
+
+add_erratum_entry cortex_a72, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 
 func check_errata_cve_2018_3639
 #if WORKAROUND_CVE_2018_3639
@@ -101,10 +105,14 @@ func check_errata_cve_2018_3639
 	bx	lr
 endfunc check_errata_cve_2018_3639
 
+add_erratum_entry cortex_a72, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
+
 func check_errata_cve_2022_23960
 	mov	r0, #ERRATA_MISSING
 	bx	lr
 endfunc check_errata_cve_2022_23960
+
+add_erratum_entry cortex_a72, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A72.
@@ -248,29 +256,7 @@ func cortex_a72_cluster_pwr_dwn
 	b	cortex_a72_disable_ext_debug
 endfunc cortex_a72_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex A72. Must follow AAPCS.
- */
-func cortex_a72_errata_report
-	push	{r12, lr}
-
-	bl	cpu_get_rev_var
-	mov	r4, r0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_A72_859971, cortex_a72, 859971
-	report_errata WORKAROUND_CVE_2017_5715, cortex_a72, cve_2017_5715
-	report_errata WORKAROUND_CVE_2018_3639, cortex_a72, cve_2018_3639
-	report_errata WORKAROUND_CVE_2022_23960, cortex_a72, cve_2022_23960
-
-	pop	{r12, lr}
-	bx	lr
-endfunc cortex_a72_errata_report
-#endif
+errata_report_shim cortex_a72
 
 declare_cpu_ops cortex_a72, CORTEX_A72_MIDR, \
 	cortex_a72_reset_func, \
