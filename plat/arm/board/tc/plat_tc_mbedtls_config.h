@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Ltd. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Ltd. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,8 +7,8 @@
 #ifndef PLAT_TC_MBEDTLS_CONFIG_H
 #define PLAT_TC_MBEDTLS_CONFIG_H
 
-#include <mbedtls_config.h>
 #include <export/lib/utils_def_exp.h>
+#include <mbedtls_config-3.h>
 
 #ifndef TF_MBEDTLS_HEAP_SIZE
 #error TF_MBEDTLS_HEAP_SIZE is not defined
