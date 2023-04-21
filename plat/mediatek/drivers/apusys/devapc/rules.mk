@@ -6,9 +6,8 @@
 
 LOCAL_DIR := $(call GET_LOCAL_DIR)
 
-MODULE := apusys_${MTK_SOC}
+MODULE := apusys_devapc
 
-LOCAL_SRCS-y := ${LOCAL_DIR}/apusys_devapc.c
-LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_power.c
+LOCAL_SRCS-y := ${LOCAL_DIR}/apusys_dapc_v1.c
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
