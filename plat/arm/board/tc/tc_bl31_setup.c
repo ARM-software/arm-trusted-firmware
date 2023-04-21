@@ -53,15 +53,13 @@ void tc_bl31_common_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 
-#ifdef PLATFORM_TEST
-#if PLATFORM_TEST == rss-nv-counters
+#ifdef PLATFORM_TEST_NV_COUNTERS
 	nv_counter_test();
-#elif PLATFORM_TEST == tfm-testsuite
-	run_platform_tests()
+#elif PLATFORM_TEST_TFM_TESTSUITE
+	run_platform_tests();
 #endif
 	/* Suspend booting */
 	plat_error_handler(-1);
-#endif
 }
 
 const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)

@@ -76,5 +76,5 @@ ifeq (${PLATFORM_TEST},tfm-testsuite)
     $(eval $(call add_define,MEASURED_BOOT_HASH_ALG))
     $(eval $(call add_define,DELEG_ATTEST_DUMP_TOKEN_AND_KEY))
 
-    $(eval $(call add_define,PLATFORM_TEST))
+    $(eval $(call add_define,PLATFORM_TEST_TFM_TESTSUITE))
 endif

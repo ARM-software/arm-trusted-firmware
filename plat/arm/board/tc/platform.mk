@@ -209,7 +209,7 @@ ifeq (${PLATFORM_TEST},rss-nv-counters)
 
     PLAT_INCLUDES	+=	-Iinclude/lib/psa
 
-    $(eval $(call add_define,PLATFORM_TEST))
+    $(eval $(call add_define,PLATFORM_TEST_NV_COUNTERS))
 else ifeq (${PLATFORM_TEST},tfm-testsuite)
     # Add this include as first, before arm_common.mk. This is necessary
     # because arm_common.mk builds Mbed TLS, and platform_test.mk can
