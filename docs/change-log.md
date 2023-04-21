@@ -3,6 +3,26 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.5..refs/tags/lts-v2.8.6) (2023-04-20)
+
+### Resolved issues (since lts-v2.8.5)
+
+  - **Arm**
+
+    - **GIC**
+
+      - **GICv3**
+
+        - fix(gicv3): workaround for NVIDIA erratum T241-FABRIC-4 ([2e48284](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2e48284c8b5a4cf28779a30fd60d99650928865e))
+
+- **Bootloader Images**
+
+  - **BL32**
+
+    - **TSP**
+
+      - fix(tsp): use verbose for power logs ([6cc8ca9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6cc8ca93a905cfdc791ab7a7d2b8d6c366b5705e))
+
 ## [lts-2.8.5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.4..refs/tags/lts-v2.8.5) (2023-04-19)
 
 ### Resolved issues (since lts-v2.8.4)
