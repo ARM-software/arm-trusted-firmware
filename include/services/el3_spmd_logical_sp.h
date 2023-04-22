@@ -35,6 +35,16 @@ struct ffa_value {
 	uint64_t arg5;
 	uint64_t arg6;
 	uint64_t arg7;
+	uint64_t arg8;
+	uint64_t arg9;
+	uint64_t arg10;
+	uint64_t arg11;
+	uint64_t arg12;
+	uint64_t arg13;
+	uint64_t arg14;
+	uint64_t arg15;
+	uint64_t arg16;
+	uint64_t arg17;
 };
 
 /* Convenience macro to declare a SPMD logical partition descriptor. */
@@ -76,17 +86,58 @@ static inline bool is_ffa_error(struct ffa_value *retval)
 	return retval->func == FFA_ERROR;
 }
 
+static inline bool is_ffa_success(struct ffa_value *retval)
+{
+	return (retval->func == FFA_SUCCESS_SMC32) ||
+		(retval->func == FFA_SUCCESS_SMC64);
+}
+
 static inline bool is_ffa_direct_msg_resp(struct ffa_value *retval)
 {
 	return (retval->func == FFA_MSG_SEND_DIRECT_RESP_SMC32) ||
 		(retval->func == FFA_MSG_SEND_DIRECT_RESP_SMC64);
 }
 
+static inline uint16_t ffa_partition_info_regs_get_last_idx(
+	struct ffa_value args)
+{
+	return (uint16_t)(args.arg2 & 0xFFFFU);
+}
+
+static inline uint16_t ffa_partition_info_regs_get_curr_idx(
+	struct ffa_value args)
+{
+	return (uint16_t)((args.arg2 >> 16) & 0xFFFFU);
+}
+
+static inline uint16_t ffa_partition_info_regs_get_tag(struct ffa_value args)
+{
+	return (uint16_t)((args.arg2 >> 32) & 0xFFFFU);
+}
+
+static inline uint16_t ffa_partition_info_regs_get_desc_size(
+	struct ffa_value args)
+{
+	return (uint16_t)(args.arg2 >> 48);
+}
+
+bool ffa_partition_info_regs_get_part_info(
+	struct ffa_value args, uint8_t idx,
+	struct ffa_partition_info_v1_1 *partition_info);
+
+bool spmd_el3_invoke_partition_info_get(
+				const uint32_t target_uuid[4],
+				const uint16_t start_index,
+				const uint16_t tag,
+				struct ffa_value *retval);
 void spmd_logical_sp_set_spmc_initialized(void);
 void spmc_logical_sp_set_spmc_failure(void);
 
 int32_t spmd_logical_sp_init(void);
 bool is_spmd_logical_sp_dir_req_in_progress(
+		spmd_spm_core_context_t *ctx);
+
+bool is_spmd_logical_sp_info_regs_req_in_progress(
 		spmd_spm_core_context_t *ctx);
 
 bool spmd_el3_ffa_msg_direct_req(uint64_t x1,

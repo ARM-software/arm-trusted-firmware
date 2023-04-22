@@ -59,6 +59,7 @@ typedef struct spmd_spm_core_context {
 
 /* Flags to indicate ongoing requests for SPMD EL3 logical partitions */
 #define SPMD_LP_FFA_DIR_REQ_ONGOING		U(0x1)
+#define SPMD_LP_FFA_INFO_GET_REG_ONGOING	U(0x2)
 
 /*
  * Reserve ID for NS physical FFA Endpoint.

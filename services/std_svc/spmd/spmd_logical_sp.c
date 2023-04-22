@@ -149,6 +149,16 @@ static void spmd_encode_ctx_to_ffa_value(spmd_spm_core_context_t *ctx,
 	retval->arg5 = read_ctx_reg(gpregs, CTX_GPREG_X5);
 	retval->arg6 = read_ctx_reg(gpregs, CTX_GPREG_X6);
 	retval->arg7 = read_ctx_reg(gpregs, CTX_GPREG_X7);
+	retval->arg8 = read_ctx_reg(gpregs, CTX_GPREG_X8);
+	retval->arg9 = read_ctx_reg(gpregs, CTX_GPREG_X9);
+	retval->arg10 = read_ctx_reg(gpregs, CTX_GPREG_X10);
+	retval->arg11 = read_ctx_reg(gpregs, CTX_GPREG_X11);
+	retval->arg12 = read_ctx_reg(gpregs, CTX_GPREG_X12);
+	retval->arg13 = read_ctx_reg(gpregs, CTX_GPREG_X13);
+	retval->arg14 = read_ctx_reg(gpregs, CTX_GPREG_X14);
+	retval->arg15 = read_ctx_reg(gpregs, CTX_GPREG_X15);
+	retval->arg16 = read_ctx_reg(gpregs, CTX_GPREG_X16);
+	retval->arg17 = read_ctx_reg(gpregs, CTX_GPREG_X17);
 }
 
 static void spmd_logical_sp_set_dir_req_ongoing(spmd_spm_core_context_t *ctx)
@@ -161,6 +171,47 @@ static void spmd_logical_sp_reset_dir_req_ongoing(spmd_spm_core_context_t *ctx)
 	ctx->spmd_lp_sync_req_ongoing &= ~SPMD_LP_FFA_DIR_REQ_ONGOING;
 }
 
+static void spmd_build_ffa_info_get_regs(spmd_spm_core_context_t *ctx,
+					 const uint32_t uuid[4],
+					 const uint16_t start_index,
+					 const uint16_t tag)
+{
+	gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
+
+	uint64_t arg1 = (uint64_t)uuid[1] << 32 | uuid[0];
+	uint64_t arg2 = (uint64_t)uuid[3] << 32 | uuid[2];
+	uint64_t arg3 = start_index | (uint64_t)tag << 16;
+
+	write_ctx_reg(gpregs, CTX_GPREG_X0, FFA_PARTITION_INFO_GET_REGS_SMC64);
+	write_ctx_reg(gpregs, CTX_GPREG_X1, arg1);
+	write_ctx_reg(gpregs, CTX_GPREG_X2, arg2);
+	write_ctx_reg(gpregs, CTX_GPREG_X3, arg3);
+	write_ctx_reg(gpregs, CTX_GPREG_X4, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X5, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X6, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X7, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X8, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X9, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X10, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X11, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X12, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X13, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X14, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X15, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X16, 0U);
+	write_ctx_reg(gpregs, CTX_GPREG_X17, 0U);
+}
+
+static void spmd_logical_sp_set_info_regs_ongoing(spmd_spm_core_context_t *ctx)
+{
+	ctx->spmd_lp_sync_req_ongoing |= SPMD_LP_FFA_INFO_GET_REG_ONGOING;
+}
+
+static void spmd_logical_sp_reset_info_regs_ongoing(
+		spmd_spm_core_context_t *ctx)
+{
+	ctx->spmd_lp_sync_req_ongoing &= ~SPMD_LP_FFA_INFO_GET_REG_ONGOING;
+}
 #endif
 
 /*
@@ -223,6 +274,117 @@ void spmd_logical_sp_set_spmc_failure(void)
 {
 #if ENABLE_SPMD_LP
 	is_spmc_inited = false;
+#endif
+}
+
+/*
+ * This function takes an ffa_value structure populated with partition
+ * information from an FFA_PARTITION_INFO_GET_REGS ABI call, extracts
+ * the values and writes it into a ffa_partition_info_v1_1 structure for
+ * other code to consume.
+ */
+bool ffa_partition_info_regs_get_part_info(
+	struct ffa_value args, uint8_t idx,
+	struct ffa_partition_info_v1_1 *partition_info)
+{
+	uint64_t *arg_ptrs;
+	uint64_t info, uuid_lo, uuid_high;
+
+	/*
+	 * Each partition information is encoded in 3 registers, so there can be
+	 * a maximum of 5 entries.
+	 */
+	if (idx >= 5 || partition_info == NULL) {
+		return false;
+	}
+
+	/* List of pointers to args in return value. */
+	arg_ptrs = (uint64_t *)&args + ((idx * 3) + 3);
+	info = *arg_ptrs;
+
+	arg_ptrs++;
+	uuid_lo = *arg_ptrs;
+
+	arg_ptrs++;
+	uuid_high = *arg_ptrs;
+
+	partition_info->ep_id = (uint16_t)(info & 0xFFFFU);
+	partition_info->execution_ctx_count = (uint16_t)((info >> 16) & 0xFFFFU);
+	partition_info->properties = (uint32_t)(info >> 32);
+	partition_info->uuid[0] = (uint32_t)(uuid_lo & 0xFFFFFFFFU);
+	partition_info->uuid[1] = (uint32_t)((uuid_lo >> 32) & 0xFFFFFFFFU);
+	partition_info->uuid[2] = (uint32_t)(uuid_high & 0xFFFFFFFFU);
+	partition_info->uuid[3] = (uint32_t)((uuid_high >> 32) & 0xFFFFFFFFU);
+
+	return true;
+}
+
+/*
+ * This function can be used by an SPMD logical partition to invoke the
+ * FFA_PARTITION_INFO_GET_REGS ABI to the SPMC, to discover the secure
+ * partitions in the system. The function takes a UUID, start index and
+ * tag and the partition information are returned in an ffa_value structure
+ * and can be consumed by using appropriate helper functions.
+ */
+bool spmd_el3_invoke_partition_info_get(
+				const uint32_t target_uuid[4],
+				const uint16_t start_index,
+				const uint16_t tag,
+				struct ffa_value *retval)
+{
+#if ENABLE_SPMD_LP
+	uint64_t rc = UINT64_MAX;
+	spmd_spm_core_context_t *ctx = spmd_get_context();
+
+	if (retval == NULL) {
+		return false;
+	}
+
+	memset(retval, 0, sizeof(*retval));
+
+	if (!is_spmc_inited) {
+		VERBOSE("Cannot discover partition before,"
+			" SPMC is initialized.\n");
+			spmd_encode_ffa_error(retval, FFA_ERROR_DENIED);
+		return true;
+	}
+
+	if (tag != 0) {
+		VERBOSE("Tag must be zero. other tags unsupported\n");
+			spmd_encode_ffa_error(retval,
+					      FFA_ERROR_INVALID_PARAMETER);
+		return true;
+	}
+
+	/* Save the non-secure context before entering SPMC */
+	cm_el1_sysregs_context_save(NON_SECURE);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_save(NON_SECURE);
+#endif
+
+	spmd_build_ffa_info_get_regs(ctx, target_uuid, start_index, tag);
+	spmd_logical_sp_set_info_regs_ongoing(ctx);
+
+	rc = spmd_spm_core_sync_entry(ctx);
+	if (rc != 0ULL) {
+		ERROR("%s failed (%lx) on CPU%u\n", __func__, rc,
+		      plat_my_core_pos());
+		panic();
+	}
+
+	spmd_logical_sp_reset_info_regs_ongoing(ctx);
+	spmd_encode_ctx_to_ffa_value(ctx, retval);
+
+	assert(is_ffa_error(retval) || is_ffa_success(retval));
+
+	cm_el1_sysregs_context_restore(NON_SECURE);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_restore(NON_SECURE);
+#endif
+	cm_set_next_eret_context(NON_SECURE);
+	return true;
+#else
+	return false;
 #endif
 }
 
@@ -381,6 +543,17 @@ bool spmd_el3_ffa_msg_direct_req(uint64_t x1,
 	cm_set_next_eret_context(NON_SECURE);
 
 	return true;
+#else
+	return false;
+#endif
+}
+
+bool is_spmd_logical_sp_info_regs_req_in_progress(
+		spmd_spm_core_context_t *ctx)
+{
+#if ENABLE_SPMD_LP
+	return ((ctx->spmd_lp_sync_req_ongoing & SPMD_LP_FFA_INFO_GET_REG_ONGOING)
+			== SPMD_LP_FFA_INFO_GET_REG_ONGOING);
 #else
 	return false;
 #endif

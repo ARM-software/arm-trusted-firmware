@@ -852,6 +852,16 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		    SMC_GET_GP(handle, CTX_GPREG_X6),
 		    SMC_GET_GP(handle, CTX_GPREG_X7));
 
+	/*
+	 * If there is an on-going info regs from EL3 SPMD LP, unconditionally
+	 * return, we don't expect any other FF-A ABIs to be called between
+	 * calls to FFA_PARTITION_INFO_GET_REGS.
+	 */
+	if (is_spmd_logical_sp_info_regs_req_in_progress(ctx)) {
+		assert(secure_origin);
+		spmd_spm_core_sync_exit(0ULL);
+	}
+
 	switch (smc_fid) {
 	case FFA_ERROR:
 		/*
