@@ -107,6 +107,9 @@ bool spmd_check_address_in_binary_image(uint64_t address);
  *  otherwise it returns a negative value
  */
 int plat_spmd_handle_group0_interrupt(uint32_t id);
+
+uint64_t spmd_ffa_error_return(void *handle, int error_code);
+
 #endif /* __ASSEMBLER__ */
 
 #endif /* SPMD_PRIVATE_H */

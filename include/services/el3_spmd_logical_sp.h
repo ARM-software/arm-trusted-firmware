@@ -72,6 +72,12 @@ CASSERT(sizeof(struct spmd_lp_desc) == 40, assert_spmd_lp_desc_size_mismatch);
 #define SPMD_LP_ID_END		(SPMD_DIRECT_MSG_ENDPOINT_ID - 1)
 #define SPMD_LP_ID_START	(SPMD_LP_ID_END - 62)
 
+/*
+ * TODO: Arbitrary number. Can make this platform specific in the future,
+ * no known use cases for more LPs at this point.
+ */
+#define EL3_SPMD_MAX_NUM_LP	U(5)
+
 static inline bool is_spmd_lp_id(unsigned int id)
 {
 #if ENABLE_SPMD_LP
@@ -120,6 +126,9 @@ static inline uint16_t ffa_partition_info_regs_get_desc_size(
 {
 	return (uint16_t)(args.arg2 >> 48);
 }
+
+uint64_t spmd_el3_populate_logical_partition_info(void *handle, uint64_t x1,
+						  uint64_t x2, uint64_t x3);
 
 bool ffa_partition_info_regs_get_part_info(
 	struct ffa_value args, uint8_t idx,

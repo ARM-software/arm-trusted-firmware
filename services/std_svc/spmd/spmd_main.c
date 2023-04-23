@@ -87,8 +87,7 @@ uint16_t spmd_spmc_id_get(void)
  ******************************************************************************/
 static int32_t spmd_init(void);
 static int spmd_spmc_init(void *pm_addr);
-static uint64_t spmd_ffa_error_return(void *handle,
-				       int error_code);
+
 static uint64_t spmd_smc_forward(uint32_t smc_fid,
 				 bool secure_origin,
 				 uint64_t x1,
@@ -749,7 +748,7 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 /*******************************************************************************
  * Return FFA_ERROR with specified error code
  ******************************************************************************/
-static uint64_t spmd_ffa_error_return(void *handle, int error_code)
+uint64_t spmd_ffa_error_return(void *handle, int error_code)
 {
 	SMC_RET8(handle, (uint32_t) FFA_ERROR,
 		 FFA_TARGET_INFO_MBZ, (uint32_t)error_code,
@@ -1237,8 +1236,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 #if MAKE_FFA_VERSION(1, 1) <= FFA_VERSION_COMPILED
 	case FFA_PARTITION_INFO_GET_REGS_SMC64:
 		if (secure_origin) {
-			/* TODO: Future patches to enable support for this */
-			return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+			return spmd_el3_populate_logical_partition_info(handle, x1,
+								   x2, x3);
 		}
 
 		/* Call only supported with SMCCC 1.2+ */

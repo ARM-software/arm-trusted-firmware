@@ -10,10 +10,24 @@
 #include "spmd_private.h"
 
 #include <common/debug.h>
+#include <common/uuid.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <services/el3_spmd_logical_sp.h>
 #include <services/spmc_svc.h>
+#include <smccc_helpers.h>
 
+
+/*
+ * Maximum ffa_partition_info entries that can be returned by an invocation
+ * of FFA_PARTITION_INFO_GET_REGS_64 is size in bytes, of available
+ * registers/args in struct ffa_value divided by size of struct
+ * ffa_partition_info. For this ABI, arg3-arg17 in ffa_value can be used, i.e.
+ * 15 uint64_t fields. For FF-A v1.1, this value should be 5.
+ */
+#define MAX_INFO_REGS_ENTRIES_PER_CALL \
+	(uint8_t)((15 * sizeof(uint64_t)) / \
+		  sizeof(struct ffa_partition_info_v1_1))
+CASSERT(MAX_INFO_REGS_ENTRIES_PER_CALL == 5, assert_too_many_info_reg_entries);
 
 #if ENABLE_SPMD_LP
 static bool is_spmd_lp_inited;
@@ -212,6 +226,62 @@ static void spmd_logical_sp_reset_info_regs_ongoing(
 {
 	ctx->spmd_lp_sync_req_ongoing &= ~SPMD_LP_FFA_INFO_GET_REG_ONGOING;
 }
+
+static void spmd_fill_lp_info_array(
+	struct ffa_partition_info_v1_1 (*partitions)[EL3_SPMD_MAX_NUM_LP],
+	uint32_t uuid[4], uint16_t *lp_count_out)
+{
+	uint16_t lp_count = 0;
+	struct spmd_lp_desc *lp_array;
+	bool uuid_is_null = is_null_uuid(uuid);
+
+	if (SPMD_LP_DESCS_COUNT == 0U) {
+		*lp_count_out = 0;
+		return;
+	}
+
+	lp_array = get_spmd_el3_lp_array();
+	for (uint16_t index = 0; index < SPMD_LP_DESCS_COUNT; ++index) {
+		struct spmd_lp_desc *lp = &lp_array[index];
+
+		if (uuid_is_null || uuid_match(uuid, lp->uuid)) {
+			uint16_t array_index = lp_count;
+
+			++lp_count;
+
+			(*partitions)[array_index].ep_id = lp->sp_id;
+			(*partitions)[array_index].execution_ctx_count = 1;
+			(*partitions)[array_index].properties = lp->properties;
+			(*partitions)[array_index].properties |=
+				(FFA_PARTITION_INFO_GET_AARCH64_STATE <<
+				 FFA_PARTITION_INFO_GET_EXEC_STATE_SHIFT);
+			if (uuid_is_null) {
+				memcpy(&((*partitions)[array_index].uuid),
+					  &lp->uuid, sizeof(lp->uuid));
+			}
+		}
+	}
+
+	*lp_count_out = lp_count;
+}
+
+static inline void spmd_pack_lp_count_props(
+	uint64_t *xn, uint16_t ep_id, uint16_t vcpu_count,
+	uint32_t properties)
+{
+	*xn = (uint64_t)ep_id;
+	*xn |= (uint64_t)vcpu_count << 16;
+	*xn |= (uint64_t)properties << 32;
+}
+
+static inline void spmd_pack_lp_uuid(uint64_t *xn_1, uint64_t *xn_2,
+				     uint32_t uuid[4])
+{
+	*xn_1 = (uint64_t)uuid[0];
+	*xn_1 |= (uint64_t)uuid[1] << 32;
+	*xn_2 = (uint64_t)uuid[2];
+	*xn_2 |= (uint64_t)uuid[3] << 32;
+}
 #endif
 
 /*
@@ -223,6 +293,8 @@ int32_t spmd_logical_sp_init(void)
 #if ENABLE_SPMD_LP
 	int32_t rc = 0;
 	struct spmd_lp_desc *spmd_lp_descs;
+
+	assert(SPMD_LP_DESCS_COUNT <= EL3_SPMD_MAX_NUM_LP);
 
 	if (is_spmd_lp_inited == true) {
 		return 0;
@@ -298,7 +370,11 @@ bool ffa_partition_info_regs_get_part_info(
 		return false;
 	}
 
-	/* List of pointers to args in return value. */
+	/*
+	 * List of pointers to args in return value. arg0/func encodes ff-a
+	 * function, arg1 is reserved, arg2 encodes indices. arg3 and greater
+	 * values reflect partition properties.
+	 */
 	arg_ptrs = (uint64_t *)&args + ((idx * 3) + 3);
 	info = *arg_ptrs;
 
@@ -320,7 +396,102 @@ bool ffa_partition_info_regs_get_part_info(
 }
 
 /*
- * This function can be used by an SPMD logical partition to invoke the
+ * This function is called by the SPMD in response to
+ * an FFA_PARTITION_INFO_GET_REG ABI invocation by the SPMC. Secure partitions
+ * are allowed to discover the presence of EL3 SPMD logical partitions by
+ * invoking the aforementioned ABI and this function populates the required
+ * information about EL3 SPMD logical partitions.
+ */
+uint64_t spmd_el3_populate_logical_partition_info(void *handle, uint64_t x1,
+						  uint64_t x2, uint64_t x3)
+{
+#if ENABLE_SPMD_LP
+	uint32_t target_uuid[4] = { 0 };
+	uint32_t w0;
+	uint32_t w1;
+	uint32_t w2;
+	uint32_t w3;
+	uint16_t start_index;
+	uint16_t tag;
+	static struct ffa_partition_info_v1_1 partitions[EL3_SPMD_MAX_NUM_LP];
+	uint16_t lp_count = 0;
+	uint16_t max_idx = 0;
+	uint16_t curr_idx = 0;
+	uint8_t num_entries_to_ret = 0;
+	struct ffa_value ret = { 0 };
+	uint64_t *arg_ptrs = (uint64_t *)&ret + 3;
+
+	w0 = (uint32_t)(x1 & 0xFFFFFFFFU);
+	w1 = (uint32_t)(x1 >> 32);
+	w2 = (uint32_t)(x2 & 0xFFFFFFFFU);
+	w3 = (uint32_t)(x2 >> 32);
+
+	target_uuid[0] = w0;
+	target_uuid[1] = w1;
+	target_uuid[2] = w2;
+	target_uuid[3] = w3;
+
+	start_index = (uint16_t)(x3 & 0xFFFFU);
+	tag = (uint16_t)((x3 >> 16) & 0xFFFFU);
+
+	assert(handle == cm_get_context(SECURE));
+
+	if (tag != 0) {
+		VERBOSE("Tag is not 0. Cannot return partition info.\n");
+		return spmd_ffa_error_return(handle, FFA_ERROR_RETRY);
+	}
+
+	memset(&partitions, 0, sizeof(partitions));
+
+	spmd_fill_lp_info_array(&partitions, target_uuid, &lp_count);
+
+	if (lp_count == 0) {
+		VERBOSE("No SPDM EL3 logical partitions exist.\n");
+		return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
+
+	if (start_index >= lp_count) {
+		VERBOSE("start_index = %d, lp_count = %d (start index must be"
+			" less than partition count.\n",
+			start_index, lp_count);
+		return spmd_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	max_idx = lp_count - 1;
+	num_entries_to_ret = (max_idx - start_index) + 1;
+	num_entries_to_ret =
+		MIN(num_entries_to_ret, MAX_INFO_REGS_ENTRIES_PER_CALL);
+	curr_idx = start_index + num_entries_to_ret - 1;
+	assert(curr_idx <= max_idx);
+
+	ret.func = FFA_SUCCESS_SMC64;
+	ret.arg2 = (uint64_t)((sizeof(struct ffa_partition_info_v1_1) & 0xFFFFU) << 48);
+	ret.arg2 |= (uint64_t)(curr_idx << 16);
+	ret.arg2 |= (uint64_t)max_idx;
+
+	for (uint16_t idx = start_index; idx <= curr_idx; ++idx) {
+		spmd_pack_lp_count_props(arg_ptrs, partitions[idx].ep_id,
+					 partitions[idx].execution_ctx_count,
+					 partitions[idx].properties);
+		arg_ptrs++;
+		if (is_null_uuid(target_uuid)) {
+			spmd_pack_lp_uuid(arg_ptrs, (arg_ptrs + 1),
+					  partitions[idx].uuid);
+		}
+		arg_ptrs += 2;
+	}
+
+	SMC_RET18(handle, ret.func, ret.arg1, ret.arg2, ret.arg3, ret.arg4,
+		  ret.arg5, ret.arg6, ret.arg7, ret.arg8, ret.arg9, ret.arg10,
+		  ret.arg11, ret.arg12, ret.arg13, ret.arg14, ret.arg15,
+		  ret.arg16, ret.arg17);
+#else
+	return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+#endif
+}
+
+/* This function can be used by an SPMD logical partition to invoke the
  * FFA_PARTITION_INFO_GET_REGS ABI to the SPMC, to discover the secure
  * partitions in the system. The function takes a UUID, start index and
  * tag and the partition information are returned in an ffa_value structure
