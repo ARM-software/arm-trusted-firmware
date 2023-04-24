@@ -8,5 +8,6 @@
 #define APUSYS_DEVAPC_H
 
 int apusys_devapc_ao_init(void);
+int apusys_devapc_rcx_init(void);
 
 #endif /* APUSYS_DEVAPC_H */

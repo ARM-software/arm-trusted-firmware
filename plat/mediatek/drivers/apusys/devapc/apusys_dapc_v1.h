@@ -107,6 +107,13 @@ void dump_apusys_dapc_v1(const char *name, uintptr_t base, uint32_t reg_num, uin
 /******************************************************************************
  * DAPC Permission Policy
  ******************************************************************************/
+#define SLAVE_FORBID_EXCEPT_D0_SEC_RW(domain)				 \
+	APUSYS_APC_AO_ATTR(domain,					 \
+			   SEC_RW_ONLY, FORBIDDEN, FORBIDDEN, FORBIDDEN, \
+			   FORBIDDEN,   FORBIDDEN, FORBIDDEN, FORBIDDEN, \
+			   FORBIDDEN,   FORBIDDEN, FORBIDDEN, FORBIDDEN, \
+			   FORBIDDEN,   FORBIDDEN, FORBIDDEN, FORBIDDEN)
+
 #define SLAVE_FORBID_EXCEPT_D0_SEC_RW_D5_NO_PROTECT(domain)		     \
 	APUSYS_APC_AO_ATTR(domain,					     \
 			   SEC_RW_ONLY, FORBIDDEN,     FORBIDDEN, FORBIDDEN, \
@@ -155,5 +162,12 @@ void dump_apusys_dapc_v1(const char *name, uintptr_t base, uint32_t reg_num, uin
 			   FORBIDDEN,     NO_PROTECTION, FORBIDDEN, FORBIDDEN,   \
 			   FORBIDDEN,     FORBIDDEN,     FORBIDDEN, FORBIDDEN,   \
 			   FORBIDDEN,     FORBIDDEN,     FORBIDDEN, FORBIDDEN)
+
+#define SLAVE_FORBID_EXCEPT_D0_D3_SEC_RW_D5_NO_PROTECT(domain)		       \
+	APUSYS_APC_AO_ATTR(domain,					       \
+			   SEC_RW_ONLY, FORBIDDEN,     FORBIDDEN, SEC_RW_ONLY, \
+			   FORBIDDEN,   NO_PROTECTION, FORBIDDEN, FORBIDDEN,   \
+			   FORBIDDEN,   FORBIDDEN,     FORBIDDEN, FORBIDDEN,   \
+			   FORBIDDEN,   FORBIDDEN,     FORBIDDEN, FORBIDDEN)
 
 #endif /* APUSYS_DAPC_V1_H */
