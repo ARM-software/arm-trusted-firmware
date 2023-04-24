@@ -30,28 +30,17 @@ func cortex_a520_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_A520_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A520_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_A520_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A520_CPUPWRCTLR_EL1, CORTEX_A520_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret
 endfunc cortex_a520_core_pwr_dwn
 
-	/*
-	 * Errata printing function for Cortex A520. Must follow AAPCS.
-	 */
-#if REPORT_ERRATA
-func cortex_a520_errata_report
-	ret
-endfunc cortex_a520_errata_report
-#endif
+errata_report_shim cortex_a520
 
-func cortex_a520_reset_func
+cpu_reset_func_start cortex_a520
 	/* Disable speculative loads */
 	msr	SSBS, xzr
-	isb
-	ret
-endfunc cortex_a520_reset_func
+cpu_reset_func_end cortex_a520
 
 	/* ---------------------------------------------
 	 * This function provides Cortex A520 specific
