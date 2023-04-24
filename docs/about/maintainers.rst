@@ -98,6 +98,8 @@ Trusted Boot
 :|G|: `ManishVB-Arm`_
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
+:|M|: Jimmy Brisson <jimmy.brisson@arm.com>
+:|G|: `jimmy-brisson`_
 :|F|: drivers/auth/
 
 Secure Partition Manager Core (EL3 FF-A SPMC)
@@ -355,6 +357,8 @@ Measured Boot
 :|G|: `sandrine-bailleux-arm`_
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
+:|M|: Jimmy Brisson <jimmy.brisson@arm.com>
+:|G|: `jimmy-brisson`_
 :|F|: drivers/measured_boot
 :|F|: include/drivers/measured_boot
 :|F|: docs/components/measured_boot
@@ -381,6 +385,8 @@ Platform Security Architecture (PSA) APIs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|G|: `sandrine-bailleux-arm`_
+:|M|: Jimmy Brisson <jimmy.brisson@arm.com>
+:|G|: `jimmy-brisson`_
 :|F|: include/lib/psa
 :|F|: lib/psa
 
@@ -844,6 +850,8 @@ Cert_create tool
 :|G|: `ManishVB-Arm`_
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
+:|M|: Jimmy Brisson <jimmy.brisson@arm.com>
+:|G|: `jimmy-brisson`_
 :|F|: tools/cert_create/
 
 Encrypt_fw tool
@@ -969,5 +977,6 @@ Conventional Changelog Extensions
 .. _jayanthchidanand-arm: https://github.com/jayanthchidanand-arm
 .. _bytefire: https://github.com/bytefire
 .. _rupsin01: https://github.com/rupsin01
+.. _jimmy-brisson: https://github.com/theotherjimmy
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
