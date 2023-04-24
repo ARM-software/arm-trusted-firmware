@@ -404,7 +404,7 @@ defined(IMAGE_BL2) && MEASURED_BOOT
 #define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
 
-#define PLAT_SP_PRI			PLAT_RAS_PRI
+#define PLAT_SP_PRI			0x20
 
 /*
  * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
