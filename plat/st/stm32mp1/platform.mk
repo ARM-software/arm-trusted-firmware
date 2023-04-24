@@ -73,6 +73,9 @@ $(error "DECRYPTION_SUPPORT not supported on STM32MP15")
 endif
 endif
 
+PKA_USE_NIST_P256	?=	0
+PKA_USE_BRAINPOOL_P256T1 ?=	0
+
 ifeq ($(AARCH32_SP),sp_min)
 # Disable Neon support: sp_min runtime may conflict with non-secure world
 TF_CFLAGS		+=	-mfloat-abi=soft
