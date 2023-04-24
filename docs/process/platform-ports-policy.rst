@@ -10,12 +10,18 @@ Platform compatibility policy
 Platform compatibility is mainly affected by changes to Platform APIs (as
 documented in the :ref:`Porting Guide`), driver APIs (like the GICv3 drivers) or
 library interfaces (like xlat_table library). The project will try to maintain
-compatibility for upstream platforms. Due to evolving requirements and
-enhancements, there might be changes affecting platform compatibility which
-means the previous interface needs to be deprecated and a new interface
-introduced to replace it. In case the migration to the new interface is trivial,
-the contributor of the change is expected to make good effort to migrate the
-upstream platforms to the new interface.
+compatibility for upstream platforms.
+
+Due to evolving requirements and enhancements, there might be changes affecting
+platform compatibility, which means the previous interface needs to be deprecated
+and a new interface introduced to replace it. In case the migration to the new
+interface is trivial, the contributor of the change is expected to make good
+effort to migrate the upstream platforms to the new interface.
+
+The project will generally not take into account downstream platforms. If those
+are affected by a deprecation / removal decision, we encourage their maintainers
+to upstream their platform code or copy the latest version of the code being
+deprecated into their downstream tree.
 
 The deprecated interfaces are listed inside :ref:`Release Processes` as well as
 the release after which each one will be removed. When an interface is
@@ -46,6 +52,6 @@ platform ports (or soon to be) to this day.
 
 --------------
 
-*Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.*
 
 .. _TF-A public mailing list: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
