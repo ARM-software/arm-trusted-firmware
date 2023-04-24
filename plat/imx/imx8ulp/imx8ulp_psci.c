@@ -10,6 +10,7 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv3.h>
+#include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 
@@ -403,6 +404,12 @@ void imx_domain_suspend_finish(const psci_power_state_t *target_state)
 	while (mmio_read_32(DRAM_LPM_STATUS) != 0) {
 		;
 	}
+
+	/*
+	 * when resume from low power mode, need to delay for a while
+	 * before access the CMC register.
+	 */
+	udelay(5);
 
 	/* clear cluster's LPM setting. */
 	mmio_write_32(IMX_CMC1_BASE + 0x20, 0x0);
