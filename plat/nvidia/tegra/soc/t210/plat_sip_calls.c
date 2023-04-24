@@ -33,8 +33,7 @@
 /*******************************************************************************
  * Tegra210 SiP SMCs
  ******************************************************************************/
-#define TEGRA_SIP_PMC_COMMANDS_LEGACY	U(0xC2FEFE00)
-#define TEGRA_SIP_PMC_COMMANDS		U(0xC2FFFE00)
+#define TEGRA_SIP_PMC_COMMANDS		U(0xC200FE00)
 
 /*******************************************************************************
  * This function is responsible for handling all T210 SiP calls
@@ -55,10 +54,12 @@ int plat_sip_handler(uint32_t smc_fid,
 	if (!ns)
 		SMC_RET1(handle, SMC_UNK);
 
-	if ((smc_fid == TEGRA_SIP_PMC_COMMANDS) || (smc_fid == TEGRA_SIP_PMC_COMMANDS_LEGACY)) {
+	if (smc_fid == TEGRA_SIP_PMC_COMMANDS) {
+
 		/* check the address is within PMC range and is 4byte aligned */
-		if ((x2 >= TEGRA_PMC_SIZE) || (x2 & 0x3))
+		if ((x2 >= TEGRA_PMC_SIZE) || (x2 & 0x3)) {
 			return -EINVAL;
+		}
 
 		switch (x2) {
 		/* Black listed PMC registers */
