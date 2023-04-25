@@ -135,11 +135,11 @@ the following steps should suffice:
 
 (4) Now, you should be able to continue with step 5 in "`Get and build the solution`_"
     instructions. In order to enable support for Measured Boot, you need to
-    set the ``MEASURED_BOOT`` build option:
+    set the following build options:
 
     .. code:: shell
 
-       $ MEASURED_BOOT=y make -j `nproc`
+       $ MEASURED_BOOT=y MEASURED_BOOT_FTPM=y make -j `nproc`
 
     .. note::
        The build process will likely take a long time. It is strongly recommended to
