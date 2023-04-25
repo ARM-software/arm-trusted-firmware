@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -317,6 +318,7 @@ typedef struct plat_psci_ops {
 	void (*cpu_standby)(plat_local_state_t cpu_state);
 	int (*pwr_domain_on)(u_register_t mpidr);
 	void (*pwr_domain_off)(const psci_power_state_t *target_state);
+	int (*pwr_domain_off_early)(const psci_power_state_t *target_state);
 	void (*pwr_domain_suspend_pwrdown_early)(
 				const psci_power_state_t *target_state);
 #if PSCI_OS_INIT_MODE

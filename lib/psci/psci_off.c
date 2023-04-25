@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,6 +56,19 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 
 	/* Construct the psci_power_state for CPU_OFF */
 	psci_set_power_off_state(&state_info);
+
+	/*
+	 * Call the platform provided early CPU_OFF handler to allow
+	 * platforms to perform any housekeeping activities before
+	 * actually powering the CPU off. PSCI_E_DENIED indicates that
+	 * the CPU off sequence should be aborted at this time.
+	 */
+	if (psci_plat_pm_ops->pwr_domain_off_early) {
+		rc = psci_plat_pm_ops->pwr_domain_off_early(&state_info);
+		if (rc == PSCI_E_DENIED) {
+			return rc;
+		}
+	}
 
 	/*
 	 * Get the parent nodes here, this is important to do before we

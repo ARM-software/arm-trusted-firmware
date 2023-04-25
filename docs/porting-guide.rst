@@ -2785,6 +2785,22 @@ Perform the platform specific actions to power on a CPU, specified
 by the ``MPIDR`` (first argument). The generic code expects the platform to
 return PSCI_E_SUCCESS on success or PSCI_E_INTERN_FAIL for any failure.
 
+plat_psci_ops.pwr_domain_off_early() [optional]
+...............................................
+
+This optional function performs the platform specific actions to check if
+powering off the calling CPU and its higher parent power domain levels as
+indicated by the ``target_state`` (first argument) is possible or allowed.
+
+The ``target_state`` encodes the platform coordinated target local power states
+for the CPU power domain and its parent power domain levels.
+
+For this handler, the local power state for the CPU power domain will be a
+power down state where as it could be either power down, retention or run state
+for the higher power domain levels depending on the result of state
+coordination. The generic code expects PSCI_E_DENIED return code if the
+platform thinks that CPU_OFF should not proceed on the calling CPU.
+
 plat_psci_ops.pwr_domain_off()
 ..............................
 
