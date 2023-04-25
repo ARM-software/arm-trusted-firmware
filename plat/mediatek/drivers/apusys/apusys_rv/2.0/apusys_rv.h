@@ -106,5 +106,6 @@ int apusys_kernel_apusys_rv_reset_mp(void);
 int apusys_kernel_apusys_rv_setup_boot(void);
 int apusys_kernel_apusys_rv_start_mp(void);
 int apusys_kernel_apusys_rv_stop_mp(void);
+int apusys_kernel_apusys_rv_setup_sec_mem(void);
 
 #endif /* APUSYS_RV_H */
