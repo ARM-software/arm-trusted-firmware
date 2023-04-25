@@ -17,6 +17,8 @@
 
 #include <common/runtime_svc.h>
 #include <drivers/arm/gicv3.h>
+#include <lib/psci/psci.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
 #include <plat_private.h>
@@ -32,6 +34,8 @@
 #define PM_INIT_SUSPEND_CB	(30U)
 #define PM_NOTIFY_CB		(32U)
 #define EVENT_CPU_PWRDWN	(4U)
+/* 1 sec of wait timeout for secondary core down */
+#define PWRDWN_WAIT_TIMEOUT	(1000U)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_asgi1r_el1, S3_0_C12_C11_6)
 
 /* pm_up = true - UP, pm_up = false - DOWN */
@@ -63,10 +67,35 @@ static uint64_t cpu_pwrdwn_req_handler(uint32_t id, uint32_t flags,
 	return psci_cpu_off();
 }
 
+/**
+ * raise_pwr_down_interrupt() - Callback function to raise SGI.
+ * @mpidr: MPIDR for the target CPU.
+ *
+ * Raise SGI interrupt to trigger the CPU power down sequence on all the
+ * online secondary cores.
+ */
+static void raise_pwr_down_interrupt(u_register_t mpidr)
+{
+	plat_ic_raise_el3_sgi(CPU_PWR_DOWN_REQ_INTR, mpidr);
+}
+
 static void request_cpu_pwrdwn(void)
 {
+	enum pm_ret_status ret;
+
 	VERBOSE("CPU power down request received\n");
+
+	/* Send powerdown request to online secondary core(s) */
+	ret = psci_stop_other_cores(PWRDWN_WAIT_TIMEOUT, raise_pwr_down_interrupt);
+	if (ret != PSCI_E_SUCCESS) {
+		ERROR("Failed to powerdown secondary core(s)\n");
+	}
+
+	/* Clear IPI IRQ */
 	pm_ipi_irq_clear(primary_proc);
+
+	/* Deactivate IPI IRQ */
+	plat_ic_end_of_interrupt(PLAT_VERSAL_IPI_IRQ);
 }
 
 static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
@@ -96,6 +125,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 				if (pwrdwn_req_received) {
 					pwrdwn_req_received = false;
 					request_cpu_pwrdwn();
+					(void)psci_cpu_off();
 					break;
 				} else {
 					pwrdwn_req_received = true;
