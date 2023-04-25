@@ -29,8 +29,8 @@
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
 static const struct pm_ipi apu_ipi = {
-	.local_ipi_id = IPI_ID_APU,
-	.remote_ipi_id = IPI_ID_PMC,
+	.local_ipi_id = IPI_LOCAL_ID,
+	.remote_ipi_id = IPI_REMOTE_ID,
 	.buffer_base = IPI_BUFFER_LOCAL_BASE,
 };
 

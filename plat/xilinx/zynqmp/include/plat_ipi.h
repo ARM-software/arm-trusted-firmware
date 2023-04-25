@@ -34,6 +34,9 @@
  ********************************************************************/
 #define IPI_BUFFER_BASEADDR	0xFF990000U
 
+#define IPI_LOCAL_ID		IPI_ID_APU
+#define IPI_REMOTE_ID		IPI_ID_PMU0
+
 #define IPI_BUFFER_LOCAL_BASE	(IPI_BUFFER_BASEADDR + 0x400U)
 #define IPI_BUFFER_REMOTE_BASE	(IPI_BUFFER_BASEADDR + 0xE00U)
 
