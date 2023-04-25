@@ -575,6 +575,16 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 	return PSCI_E_SUCCESS;
 }
 
+int32_t tegra_soc_pwr_domain_off_early(const psci_power_state_t *target_state)
+{
+	/* Do not power off the boot CPU */
+	if (plat_is_my_cpu_primary()) {
+		return PSCI_E_DENIED;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
 int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	tegra_fc_cpu_off(read_mpidr() & MPIDR_CPU_MASK);
