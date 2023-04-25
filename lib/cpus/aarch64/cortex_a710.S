@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,6 +69,130 @@ func check_errata_1987031
 	b	cpu_rev_var_ls
 endfunc check_errata_1987031
 
+/* ---------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2008768.
+ * This applies to revision r0p0, r1p0 and r2p0.
+ * It is fixed in r2p1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0, x1, x2, x17
+ * ---------------------------------------------------------------
+ */
+func errata_a710_2008768_wa
+	mov     x17, x30
+	bl      check_errata_2008768
+	cbz     x0, 1f
+
+	/* Stash ERRSELR_EL1 in x2 */
+	mrs	x2, ERRSELR_EL1
+
+	/* Select error record 0 and clear ED bit */
+	msr	ERRSELR_EL1, xzr
+	mrs	x1, ERXCTLR_EL1
+	bfi	x1, xzr, #ERXCTLR_ED_SHIFT, #1
+	msr	ERXCTLR_EL1, x1
+
+	/* Select error record 1 and clear ED bit */
+	mov	x0, #1
+	msr	ERRSELR_EL1, x0
+	mrs	x1, ERXCTLR_EL1
+	bfi	x1, xzr, #ERXCTLR_ED_SHIFT, #1
+	msr	ERXCTLR_EL1, x1
+
+	/* Restore ERRSELR_EL1 from x2 */
+	msr	ERRSELR_EL1, x2
+
+1:
+	ret     x17
+endfunc errata_a710_2008768_wa
+
+func check_errata_2008768
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov     x1, #0x20
+	b       cpu_rev_var_ls
+endfunc check_errata_2008768
+
+/* -------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2017096.
+ * This applies to revisions r0p0, r1p0 and r2p0 of Cortex-A710.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * -------------------------------------------------------------
+ */
+func errata_a710_2017096_wa
+	/* Compare x0 against revision r0p0 to r2p0 */
+	mov     x17, x30
+	bl      check_errata_2017096
+	cbz     x0, 1f
+	mrs     x1, CORTEX_A710_CPUECTLR_EL1
+	orr     x1, x1, CORTEX_A710_CPUECTLR_EL1_PFSTIDIS_BIT
+	msr     CORTEX_A710_CPUECTLR_EL1, x1
+
+1:
+	ret     x17
+endfunc errata_a710_2017096_wa
+
+func check_errata_2017096
+	/* Applies to r0p0, r1p0, r2p0 */
+	mov     x1, #0x20
+	b       cpu_rev_var_ls
+endfunc check_errata_2017096
+
+/* ---------------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2055002.
+ * This applies to revision r1p0, r2p0 of Cortex-A710 and is still open.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * ---------------------------------------------------------------------
+ */
+func errata_a710_2055002_wa
+	/* Compare x0 against revision r2p0 */
+	mov	x17, x30
+	bl	check_errata_2055002
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A710_CPUACTLR_EL1
+	orr	x1, x1, CORTEX_A710_CPUACTLR_EL1_BIT_46
+	msr	CORTEX_A710_CPUACTLR_EL1, x1
+1:
+	ret	x17
+endfunc errata_a710_2055002_wa
+
+func check_errata_2055002
+	/* Applies to r1p0, r2p0 */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2055002
+
+/* ---------------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2058056.
+ * This applies to revisions r0p0, r1p0 and r2p0 of Cortex-A710 and is still
+ * open.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * ---------------------------------------------------------------------
+ */
+func errata_a710_2058056_wa
+	/* Compare x0 against revision r2p0 */
+	mov	x17, x30
+	bl	check_errata_2058056
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A710_CPUECTLR2_EL1
+	mov	x0, #CORTEX_A710_CPUECTLR2_EL1_PF_MODE_CNSRV
+	bfi	x1, x0, #CPUECTLR2_EL1_PF_MODE_LSB, #CPUECTLR2_EL1_PF_MODE_WIDTH
+	msr	CORTEX_A710_CPUECTLR2_EL1, x1
+1:
+	ret	x17
+endfunc errata_a710_2058056_wa
+
+func check_errata_2058056
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2058056
+
 /* --------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2081180.
  * This applies to revision r0p0, r1p0 and r2p0 of Cortex-A710.
@@ -112,59 +236,6 @@ func check_errata_2081180
 	b	cpu_rev_var_ls
 endfunc check_errata_2081180
 
-/* ---------------------------------------------------------------------
- * Errata Workaround for Cortex-A710 Erratum 2055002.
- * This applies to revision r1p0, r2p0 of Cortex-A710 and is still open.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * ---------------------------------------------------------------------
- */
-func errata_a710_2055002_wa
-	/* Compare x0 against revision r2p0 */
-	mov	x17, x30
-	bl	check_errata_2055002
-	cbz	x0, 1f
-	mrs	x1, CORTEX_A710_CPUACTLR_EL1
-	orr	x1, x1, CORTEX_A710_CPUACTLR_EL1_BIT_46
-	msr	CORTEX_A710_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a710_2055002_wa
-
-func check_errata_2055002
-	/* Applies to r1p0, r2p0 */
-	mov	x1, #0x20
-	b	cpu_rev_var_ls
-endfunc check_errata_2055002
-
-/* -------------------------------------------------------------
- * Errata Workaround for Cortex-A710 Erratum 2017096.
- * This applies to revisions r0p0, r1p0 and r2p0 of Cortex-A710.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * -------------------------------------------------------------
- */
-func errata_a710_2017096_wa
-	/* Compare x0 against revision r0p0 to r2p0 */
-	mov     x17, x30
-	bl      check_errata_2017096
-	cbz     x0, 1f
-	mrs     x1, CORTEX_A710_CPUECTLR_EL1
-	orr     x1, x1, CORTEX_A710_CPUECTLR_EL1_PFSTIDIS_BIT
-	msr     CORTEX_A710_CPUECTLR_EL1, x1
-
-1:
-	ret     x17
-endfunc errata_a710_2017096_wa
-
-func check_errata_2017096
-	/* Applies to r0p0, r1p0, r2p0 */
-	mov     x1, #0x20
-	b       cpu_rev_var_ls
-endfunc check_errata_2017096
-
 
 /* ---------------------------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2083908.
@@ -192,63 +263,6 @@ func check_errata_2083908
 	mov	x2, #CPU_REV(2, 0)
 	b	cpu_rev_var_range
 endfunc check_errata_2083908
-
-/* ---------------------------------------------------------------------
- * Errata Workaround for Cortex-A710 Erratum 2058056.
- * This applies to revisions r0p0, r1p0 and r2p0 of Cortex-A710 and is still
- * open.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * ---------------------------------------------------------------------
- */
-func errata_a710_2058056_wa
-	/* Compare x0 against revision r2p0 */
-	mov	x17, x30
-	bl	check_errata_2058056
-	cbz	x0, 1f
-	mrs	x1, CORTEX_A710_CPUECTLR2_EL1
-	mov	x0, #CORTEX_A710_CPUECTLR2_EL1_PF_MODE_CNSRV
-	bfi	x1, x0, #CPUECTLR2_EL1_PF_MODE_LSB, #CPUECTLR2_EL1_PF_MODE_WIDTH
-	msr	CORTEX_A710_CPUECTLR2_EL1, x1
-1:
-	ret	x17
-endfunc errata_a710_2058056_wa
-
-func check_errata_2058056
-	/* Applies to r0p0, r1p0 and r2p0 */
-	mov	x1, #0x20
-	b	cpu_rev_var_ls
-endfunc check_errata_2058056
-
-/* --------------------------------------------------
- * Errata Workaround for Cortex-A710 Erratum 2267065.
- * This applies to revisions r0p0, r1p0 and r2p0.
- * It is fixed in r2p1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x1, x17
- * --------------------------------------------------
- */
-func errata_a710_2267065_wa
-	/* Compare x0 against revision r2p0 */
-	mov	x17, x30
-	bl	check_errata_2267065
-	cbz	x0, 1f
-
-	/* Apply instruction patching sequence */
-	mrs	x1, CORTEX_A710_CPUACTLR_EL1
-	orr	x1, x1, CORTEX_A710_CPUACTLR_EL1_BIT_22
-	msr	CORTEX_A710_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a710_2267065_wa
-
-func check_errata_2267065
-	/* Applies to r0p0, r1p0 and r2p0 */
-	mov	x1, #0x20
-	b	cpu_rev_var_ls
-endfunc check_errata_2267065
 
 /* ---------------------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2136059.
@@ -353,6 +367,35 @@ func check_errata_2216384
 	b	cpu_rev_var_ls
 endfunc check_errata_2216384
 
+/* --------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2267065.
+ * This applies to revisions r0p0, r1p0 and r2p0.
+ * It is fixed in r2p1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x1, x17
+ * --------------------------------------------------
+ */
+func errata_a710_2267065_wa
+	/* Compare x0 against revision r2p0 */
+	mov	x17, x30
+	bl	check_errata_2267065
+	cbz	x0, 1f
+
+	/* Apply instruction patching sequence */
+	mrs	x1, CORTEX_A710_CPUACTLR_EL1
+	orr	x1, x1, CORTEX_A710_CPUACTLR_EL1_BIT_22
+	msr	CORTEX_A710_CPUACTLR_EL1, x1
+1:
+	ret	x17
+endfunc errata_a710_2267065_wa
+
+func check_errata_2267065
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2267065
+
 /* ---------------------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2282622.
  * This applies to revision r0p0, r1p0, r2p0 and r2p1.
@@ -410,49 +453,6 @@ func check_errata_2291219
 	mov	x1, #0x20
 	b	cpu_rev_var_ls
 endfunc check_errata_2291219
-
-/* ---------------------------------------------------------------
- * Errata Workaround for Cortex-A710 Erratum 2008768.
- * This applies to revision r0p0, r1p0 and r2p0.
- * It is fixed in r2p1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0, x1, x2, x17
- * ---------------------------------------------------------------
- */
-func errata_a710_2008768_wa
-	mov     x17, x30
-	bl      check_errata_2008768
-	cbz     x0, 1f
-
-	/* Stash ERRSELR_EL1 in x2 */
-	mrs	x2, ERRSELR_EL1
-
-	/* Select error record 0 and clear ED bit */
-	msr	ERRSELR_EL1, xzr
-	mrs	x1, ERXCTLR_EL1
-	bfi	x1, xzr, #ERXCTLR_ED_SHIFT, #1
-	msr	ERXCTLR_EL1, x1
-
-	/* Select error record 1 and clear ED bit */
-	mov	x0, #1
-	msr	ERRSELR_EL1, x0
-	mrs	x1, ERXCTLR_EL1
-	bfi	x1, xzr, #ERXCTLR_ED_SHIFT, #1
-	msr	ERXCTLR_EL1, x1
-
-	/* Restore ERRSELR_EL1 from x2 */
-	msr	ERRSELR_EL1, x2
-
-1:
-	ret     x17
-endfunc errata_a710_2008768_wa
-
-func check_errata_2008768
-	/* Applies to r0p0, r1p0 and r2p0 */
-	mov     x1, #0x20
-	b       cpu_rev_var_ls
-endfunc check_errata_2008768
 
 /* -------------------------------------------------------
  * Errata Workaround for Cortex-A710 Erratum 2371105.
