@@ -38,7 +38,7 @@ DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 static const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_ID_APU,
 	.remote_ipi_id = IPI_ID_PMU0,
-	.buffer_base = IPI_BUFFER_APU_BASE,
+	.buffer_base = IPI_BUFFER_LOCAL_BASE,
 };
 
 static uint32_t suspend_mode = PM_SUSPEND_MODE_STD;

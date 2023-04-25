@@ -62,7 +62,7 @@ static inline void pm_client_lock_release(void)
 static const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_ID_APU,
 	.remote_ipi_id = IPI_ID_PMC,
-	.buffer_base = IPI_BUFFER_APU_BASE,
+	.buffer_base = IPI_BUFFER_LOCAL_BASE,
 };
 
 /* Order in pm_procs_all array must match cpu ids */

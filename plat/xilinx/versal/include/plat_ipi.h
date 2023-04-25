@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,16 +29,11 @@
  ********************************************************************/
 #define IPI_BUFFER_BASEADDR	0xFF3F0000U
 
-#define IPI_BUFFER_APU_BASE	(IPI_BUFFER_BASEADDR + 0x400U)
-#define IPI_BUFFER_PMC_BASE	(IPI_BUFFER_BASEADDR + 0x200U)
+#define IPI_BUFFER_LOCAL_BASE	(IPI_BUFFER_BASEADDR + 0x400U)
+#define IPI_BUFFER_REMOTE_BASE	(IPI_BUFFER_BASEADDR + 0x200U)
 
-#define IPI_BUFFER_TARGET_APU_OFFSET	0x80U
-#define IPI_BUFFER_TARGET_PMC_OFFSET	0x40U
-
-#define IPI_BUFFER_REMOTE_BASE	IPI_BUFFER_PMC_BASE
-
-#define IPI_BUFFER_TARGET_LOCAL_OFFSET	IPI_BUFFER_TARGET_APU_OFFSET
-#define IPI_BUFFER_TARGET_REMOTE_OFFSET	IPI_BUFFER_TARGET_PMC_OFFSET
+#define IPI_BUFFER_TARGET_LOCAL_OFFSET	0x80U
+#define IPI_BUFFER_TARGET_REMOTE_OFFSET	0x40U
 
 #define IPI_BUFFER_MAX_WORDS	8
 
