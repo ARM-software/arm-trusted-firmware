@@ -51,4 +51,20 @@
 /* Configure IPI table for versal */
 void versal_ipi_config_table_init(void);
 
+/* IPI registers and bitfields */
+#define PMC_REG_BASE		U(0xFF320000)
+#define PMC_IPI_TRIG_BIT	(1U << 1U)
+#define IPI0_REG_BASE		U(0xFF330000)
+#define IPI0_TRIG_BIT		(1U << 2U)
+#define IPI1_REG_BASE		U(0xFF340000)
+#define IPI1_TRIG_BIT		(1U << 3U)
+#define IPI2_REG_BASE		U(0xFF350000)
+#define IPI2_TRIG_BIT		(1U << 4U)
+#define IPI3_REG_BASE		U(0xFF360000)
+#define IPI3_TRIG_BIT		(1U << 5U)
+#define IPI4_REG_BASE		U(0xFF370000)
+#define IPI4_TRIG_BIT		(1U << 5U)
+#define IPI5_REG_BASE		U(0xFF380000)
+#define IPI5_TRIG_BIT		(1U << 6U)
+
 #endif /* PLAT_IPI_H */

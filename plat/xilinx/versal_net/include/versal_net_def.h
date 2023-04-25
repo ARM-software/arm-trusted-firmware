@@ -154,23 +154,6 @@
 #define PLAT_VERSAL_NET_CRASH_UART_CLK_IN_HZ	VERSAL_NET_UART_CLOCK
 #define VERSAL_NET_CONSOLE_BAUDRATE		VERSAL_NET_UART_BAUDRATE
 
-/*******************************************************************************
- * IPI registers and bitfields
- ******************************************************************************/
-#define IPI0_REG_BASE		(0xEB330000U)
-#define IPI0_TRIG_BIT		(1 << 2)
-#define PMC_IPI_TRIG_BIT	(1 << 1)
-#define IPI1_REG_BASE		(0xEB340000U)
-#define IPI1_TRIG_BIT		(1 << 3)
-#define IPI2_REG_BASE		(0xEB350000U)
-#define IPI2_TRIG_BIT		(1 << 4)
-#define IPI3_REG_BASE		(0xEB360000U)
-#define IPI3_TRIG_BIT		(1 << 5)
-#define IPI4_REG_BASE		(0xEB370000U)
-#define IPI4_TRIG_BIT		(1 << 6)
-#define IPI5_REG_BASE		(0xEB380000U)
-#define IPI5_TRIG_BIT		(1 << 7)
-
 /* Processor core device IDs */
 #define PM_DEV_CLUSTER0_ACPU_0	(0x1810C0AFU)
 #define PM_DEV_CLUSTER0_ACPU_1	(0x1810C0B0U)
