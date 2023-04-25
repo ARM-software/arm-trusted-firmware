@@ -31,11 +31,13 @@
 #define INVALID_SGI    0xFFU
 #define PM_INIT_SUSPEND_CB	(30U)
 #define PM_NOTIFY_CB		(32U)
+#define EVENT_CPU_PWRDWN	(4U)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_asgi1r_el1, S3_0_C12_C11_6)
 
 /* pm_up = true - UP, pm_up = false - DOWN */
 static bool pm_up;
 static uint32_t sgi = (uint32_t)INVALID_SGI;
+static bool pwrdwn_req_received;
 
 static void notify_os(void)
 {
@@ -46,6 +48,12 @@ static void notify_os(void)
 
 	reg = (cpu | (sgi << XSCUGIC_SGIR_EL1_INITID_SHIFT));
 	write_icc_asgi1r_el1(reg);
+}
+
+static void request_cpu_pwrdwn(void)
+{
+	VERBOSE("CPU power down request received\n");
+	pm_ipi_irq_clear(primary_proc);
 }
 
 static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
@@ -65,8 +73,21 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 
 	switch (payload[0]) {
 	case PM_INIT_SUSPEND_CB:
+		if (sgi != INVALID_SGI) {
+			notify_os();
+		}
+		break;
 	case PM_NOTIFY_CB:
 		if (sgi != INVALID_SGI) {
+			if (payload[2] == EVENT_CPU_PWRDWN) {
+				if (pwrdwn_req_received) {
+					pwrdwn_req_received = false;
+					request_cpu_pwrdwn();
+					break;
+				} else {
+					pwrdwn_req_received = true;
+				}
+			}
 			notify_os();
 		}
 		break;
