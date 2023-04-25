@@ -101,6 +101,9 @@ subsections:
       - title: Extended Cache Index (FEAT_CCIDX)
         scope: ccidx
 
+      - title: Extended Translation Control Register (FEAT_TCR2).
+        scope: tcr2
+
       - title: CPU feature / ID register handling in general
         scope: cpufeat
 
