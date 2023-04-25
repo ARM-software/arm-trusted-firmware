@@ -50,6 +50,19 @@ static void notify_os(void)
 	write_icc_asgi1r_el1(reg);
 }
 
+static uint64_t cpu_pwrdwn_req_handler(uint32_t id, uint32_t flags,
+				       void *handle, void *cookie)
+{
+	uint32_t cpu_id = plat_my_core_pos();
+
+	VERBOSE("Powering down CPU %d\n", cpu_id);
+
+	/* Deactivate CPU power down SGI */
+	plat_ic_end_of_interrupt(CPU_PWR_DOWN_REQ_INTR);
+
+	return psci_cpu_off();
+}
+
 static void request_cpu_pwrdwn(void)
 {
 	VERBOSE("CPU power down request received\n");
@@ -159,6 +172,12 @@ int32_t pm_setup(void)
 
 	pm_ipi_init(primary_proc);
 	pm_up = true;
+
+	/* register SGI handler for CPU power down request */
+	ret = request_intr_type_el3(CPU_PWR_DOWN_REQ_INTR, cpu_pwrdwn_req_handler);
+	if (ret != 0) {
+		WARN("BL31: registering SGI interrupt failed\n");
+	}
 
 	/*
 	 * Enable IPI IRQ

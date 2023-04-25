@@ -10,6 +10,7 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
+#include <plat_common.h>
 #include "versal_net_def.h"
 
 /*******************************************************************************
@@ -124,6 +125,8 @@
 
 #define PLAT_ARM_G0_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(PLAT_VERSAL_IPI_IRQ, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(CPU_PWR_DOWN_REQ_INTR, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_EDGE)
 
 #define IRQ_MAX		200U

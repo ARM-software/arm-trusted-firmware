@@ -40,3 +40,16 @@ Xilinx Versal NET platform specific build options
 *   `TFA_NO_PM` : Platform Management support.
     -    0 : Enable Platform Management (Default)
     -    1 : Disable Platform Management
+
+*   `CPU_PWRDWN_SGI`: Select the SGI for triggering CPU power down request to
+                      secondary cores on receiving power down callback from
+                      firmware. Options:
+
+    -   `0`   : SGI 0
+    -   `1`   : SGI 1
+    -   `2`   : SGI 2
+    -   `3`   : SGI 3
+    -   `4`   : SGI 4
+    -   `5`   : SGI 5
+    -   `6`   : SGI 6 (Default)
+    -   `7`   : SGI 7
