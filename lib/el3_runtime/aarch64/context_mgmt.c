@@ -376,6 +376,13 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	}
 
 	/*
+	 * SCR_EL3.GCSEn: Enable GCS registers for AArch64 if present.
+	 */
+	if ((is_feat_gcs_supported()) && (GET_RW(ep->spsr) == MODE_RW_64)) {
+		scr_el3 |= SCR_GCSEn_BIT;
+	}
+
+	/*
 	 * CPTR_EL3 was initialized out of reset, copy that value to the
 	 * context register.
 	 */
@@ -1039,6 +1046,10 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		if (is_feat_sxpoe_supported()) {
 			write_ctx_reg(el2_sysregs_ctx, CTX_POR_EL2, read_por_el2());
 		}
+		if (is_feat_gcs_supported()) {
+			write_ctx_reg(el2_sysregs_ctx, CTX_GCSPR_EL2, read_gcspr_el2());
+			write_ctx_reg(el2_sysregs_ctx, CTX_GCSCR_EL2, read_gcscr_el2());
+		}
 	}
 }
 
@@ -1115,6 +1126,10 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 		}
 		if (is_feat_sxpoe_supported()) {
 			write_por_el2(read_ctx_reg(el2_sysregs_ctx, CTX_POR_EL2));
+		}
+		if (is_feat_gcs_supported()) {
+			write_gcscr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_GCSCR_EL2));
+			write_gcspr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_GCSPR_EL2));
 		}
 	}
 }

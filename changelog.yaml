@@ -104,6 +104,9 @@ subsections:
       - title: CPU feature / ID register handling in general
         scope: cpufeat
 
+      - title: Guarded Control Stack (FEAT_GCS)
+        scope: gcs
+
       - title: Support for the `HCRX_EL2` register (FEAT_HCX)
         scope: hcx
 

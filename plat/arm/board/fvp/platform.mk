@@ -49,6 +49,7 @@ ifneq (${SPD}, tspd)
 	ENABLE_MPAM_FOR_LOWER_ELS	:= 2
 	ENABLE_FEAT_RNG			:= 2
 	ENABLE_FEAT_TWED		:= 2
+	ENABLE_FEAT_GCS			:= 2
 ifeq (${ARCH},aarch64)
 ifeq (${SPM_MM}, 0)
 ifeq (${ENABLE_RME}, 0)
