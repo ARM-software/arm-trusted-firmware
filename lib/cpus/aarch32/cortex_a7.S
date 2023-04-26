@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,14 +69,7 @@ func cortex_a7_cluster_pwr_dwn
 	b	cortex_a7_disable_smp
 endfunc cortex_a7_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex-A7. Must follow AAPCS.
- */
-func cortex_a7_errata_report
-	bx	lr
-endfunc cortex_a7_errata_report
-#endif
+errata_report_shim cortex_a7
 
 declare_cpu_ops cortex_a7, CORTEX_A7_MIDR, \
 	cortex_a7_reset_func, \
