@@ -100,10 +100,10 @@ These tools are optional:
 
 - Poetry >= 1.3.2
 
-  Required for managing Python dependencies, this will allow you to reliably
-  reproduce a Python environment to build documentation and run analysis tools.
-  Most importantly, it ensures your system environment will not be affected by
-  dependencies in the Python scripts.
+   Required for managing Python dependencies, this will allow you to reliably
+   reproduce a Python environment to build documentation and run analysis tools.
+   Most importantly, it ensures your system environment will not be affected by
+   dependencies in the Python scripts.
 
 Package Installation (Linux)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
