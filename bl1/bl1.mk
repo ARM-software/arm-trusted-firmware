@@ -29,4 +29,10 @@ ifeq (${TRUSTED_BOARD_BOOT},1)
 BL1_SOURCES		+=	bl1/bl1_fwu.c
 endif
 
+ifneq ($(findstring gcc,$(notdir $(LD))),)
+        BL1_LDFLAGS	+=	-Wl,--sort-section=alignment
+else ifneq ($(findstring ld,$(notdir $(LD))),)
+        BL1_LDFLAGS	+=	--sort-section=alignment
+endif
+
 BL1_DEFAULT_LINKER_SCRIPT_SOURCE := bl1/bl1.ld.S
