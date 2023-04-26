@@ -245,7 +245,7 @@ configure it.
 
 .. _Linaro release software stack: http://releases.linaro.org/members/arm/platforms/
 .. _Juno platform software user guide: https://git.linaro.org/landing-teams/working/arm/arm-reference-platforms.git/about/docs/juno/user-guide.rst
-.. _TF-A downloads page: https://downloads.trustedfirmware.org/tf-a/css_scp_2.8.0/juno/
+.. _TF-A downloads page: https://downloads.trustedfirmware.org/tf-a/css_scp_2.12.0/juno/
 .. _build the binaries from source: https://github.com/ARM-software/SCP-firmware/blob/master/user_guide.md#scp-firmware-user-guide
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Juno Getting Started Guide: https://developer.arm.com/documentation/den0928/f/?lang=en
