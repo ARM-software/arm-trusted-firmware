@@ -161,14 +161,22 @@ static int ufs_wait_for_int_status(const uint32_t expected_status,
 int ufshc_send_uic_cmd(uintptr_t base, uic_cmd_t *cmd)
 {
 	unsigned int data;
-	int result;
+	int result, retries;
 
 	if (base == 0 || cmd == NULL)
 		return -EINVAL;
 
-	data = mmio_read_32(base + HCS);
-	if ((data & HCS_UCRDY) == 0)
+	for (retries = 0; retries < 100; retries++) {
+		data = mmio_read_32(base + HCS);
+		if ((data & HCS_UCRDY) != 0) {
+			break;
+		}
+		mdelay(1);
+	}
+	if (retries >= 100) {
 		return -EBUSY;
+	}
+
 	mmio_write_32(base + IS, ~0);
 	mmio_write_32(base + UCMDARG1, cmd->arg1);
 	mmio_write_32(base + UCMDARG2, cmd->arg2);
@@ -187,7 +195,6 @@ int ufshc_send_uic_cmd(uintptr_t base, uic_cmd_t *cmd)
 int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 {
 	uintptr_t base;
-	unsigned int data;
 	int result, retries;
 	uic_cmd_t cmd;
 
@@ -197,19 +204,11 @@ int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 		return -EINVAL;
 
 	base = ufs_params.reg_base;
-	for (retries = 0; retries < 100; retries++) {
-		data = mmio_read_32(base + HCS);
-		if ((data & HCS_UCRDY) != 0)
-			break;
-		mdelay(1);
-	}
-	if (retries >= 100)
-		return -EBUSY;
-
 	cmd.arg1 = (attr << 16) | GEN_SELECTOR_IDX(idx);
 	cmd.arg2 = 0;
 	cmd.arg3 = 0;
 	cmd.op = DME_GET;
+
 	for (retries = 0; retries < UFS_UIC_COMMAND_RETRIES; ++retries) {
 		result = ufshc_send_uic_cmd(base, &cmd);
 		if (result == 0)
