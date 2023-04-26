@@ -10,6 +10,12 @@ RMM_SOURCES		+=	services/std_svc/rmmd/trp/trp_entry.S \
 
 RMM_DEFAULT_LINKER_SCRIPT_SOURCE := services/std_svc/rmmd/trp/linker.ld.S
 
+ifneq ($(findstring gcc,$(notdir $(LD))),)
+        RMM_LDFLAGS	+=	-Wl,--sort-section=alignment
+else ifneq ($(findstring ld,$(notdir $(LD))),)
+        RMM_LDFLAGS	+=	--sort-section=alignment
+endif
+
 # Include the platform-specific TRP Makefile
 # If no platform-specific TRP Makefile exists, it means TRP is not supported
 # on this platform.
