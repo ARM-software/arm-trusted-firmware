@@ -73,18 +73,30 @@ struct ti_sci_msg_hdr {
 } __packed;
 
 /**
- * struct ti_sci_msg_resp_version - Response for a message
+ * struct ti_sci_msg_version_req - Request for firmware version information
+ * @hdr:	Generic header
+ *
+ * Request for TI_SCI_MSG_VERSION
+ */
+struct ti_sci_msg_req_version {
+	struct ti_sci_msg_hdr hdr;
+} __packed;
+
+/**
+ * struct ti_sci_msg_resp_version - Response for firmware version information
  * @hdr:		Generic header
  * @firmware_description: String describing the firmware
  * @firmware_revision:	Firmware revision
  * @abi_major:		Major version of the ABI that firmware supports
  * @abi_minor:		Minor version of the ABI that firmware supports
+ * @sub_version:	Sub-version number of the firmware
+ * @patch_version:	Patch-version number of the firmware.
  *
  * In general, ABI version changes follow the rule that minor version increments
  * are backward compatible. Major revision changes in ABI may not be
  * backward compatible.
  *
- * Response to a generic message with message type TI_SCI_MSG_VERSION
+ * Response to request TI_SCI_MSG_VERSION
  */
 struct ti_sci_msg_resp_version {
 	struct ti_sci_msg_hdr hdr;
@@ -93,6 +105,8 @@ struct ti_sci_msg_resp_version {
 	uint16_t firmware_revision;
 	uint8_t abi_major;
 	uint8_t abi_minor;
+	uint8_t sub_version;
+	uint8_t patch_version;
 } __packed;
 
 /**
