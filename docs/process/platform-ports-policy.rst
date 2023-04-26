@@ -32,20 +32,19 @@ public mailing list`_ to notify platforms that they should migrate away from the
 deprecated interfaces. Platforms are expected to migrate before the removal of
 the deprecated interface.
 
-Platform deprecation policy
----------------------------
+Deprecation policy
+------------------
 
-If a platform is no longer maintained, it is best to deprecate it to keep the
-projects' source tree clean and healthy. Deprecation can be a 1-stage or 2-stage
-process (up to the platform maintainers).
+If a platform, driver or library interface is no longer maintained, it is best
+to deprecate it to keep the projects' source tree clean and healthy. Deprecation
+can be a 1-stage or 2-stage process (up to the maintainers).
 
- - *2-stage*: The platform's source code can be kept in the repository for a
-   cooling off period before deleting it (typically 2 release cycles). In this
-   case, we keep track ot the *Deprecated* version separately from the *Deleted*
-   version.
+ - *2-stage*: The source code can be kept in the repository for a cooling off
+   period before deleting it (typically 2 release cycles). In this case, we keep
+   track of the *Deprecated* version separately from the *Deleted* version.
 
- - *1-stage*: The platform's source code can be deleted straight away. In this
-   case, both versions are the same.
+ - *1-stage*: The source code can be deleted straight away. In this case, both
+   versions are the same.
 
 The :ref:`Platform Ports` page provides a list of all deprecated/deleted
 platform ports (or soon to be) to this day.
