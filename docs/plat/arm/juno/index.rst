@@ -56,7 +56,7 @@ installed.
 
 #. Obtain SCP binaries (Juno)
 
-   This version of TF-A is tested with SCP version 2.8.0 on Juno. You can
+   This version of TF-A is tested with SCP version 2.12.0 on Juno. You can
    download pre-built SCP binaries (``scp_bl1.bin`` and ``scp_bl2.bin``)
    from `TF-A downloads page`_. Alternatively, you can `build
    the binaries from source`_.
