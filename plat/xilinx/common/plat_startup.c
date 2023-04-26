@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +15,7 @@
 
 
 /*
- * ATFHandoffParams
+ * TFAHandoffParams
  * Parameter		bitfield	encoding
  * -----------------------------------------------------------------------------
  * Exec State		0		0 -> Aarch64, 1-> Aarch32
@@ -133,7 +134,7 @@ static int32_t get_fsbl_estate(const struct xfsbl_partition *partition)
  * Populates the bl32 and bl33 image info structures
  * @bl32:	BL32 image info structure
  * @bl33:	BL33 image info structure
- * atf_handoff_addr:  ATF handoff address
+ * tfa_handoff_addr:  TF-A handoff address
  *
  * Process the handoff parameters from the FSBL and populate the BL32 and BL33
  * image info structures accordingly.
@@ -141,31 +142,31 @@ static int32_t get_fsbl_estate(const struct xfsbl_partition *partition)
  * Return: Return the status of the handoff. The value will be from the
  *         fsbl_handoff enum.
  */
-enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
+enum fsbl_handoff fsbl_tfa_handover(entry_point_info_t *bl32,
 					entry_point_info_t *bl33,
-					uint64_t atf_handoff_addr)
+					uint64_t tfa_handoff_addr)
 {
-	const struct xfsbl_atf_handoff_params *ATFHandoffParams;
-	if (!atf_handoff_addr) {
-		WARN("BL31: No ATF handoff structure passed\n");
+	const struct xfsbl_tfa_handoff_params *TFAHandoffParams;
+	if (!tfa_handoff_addr) {
+		WARN("BL31: No TFA handoff structure passed\n");
 		return FSBL_HANDOFF_NO_STRUCT;
 	}
 
-	ATFHandoffParams = (struct xfsbl_atf_handoff_params *)atf_handoff_addr;
-	if ((ATFHandoffParams->magic[0] != 'X') ||
-	    (ATFHandoffParams->magic[1] != 'L') ||
-	    (ATFHandoffParams->magic[2] != 'N') ||
-	    (ATFHandoffParams->magic[3] != 'X')) {
-		ERROR("BL31: invalid ATF handoff structure at %" PRIx64 "\n",
-		      atf_handoff_addr);
+	TFAHandoffParams = (struct xfsbl_tfa_handoff_params *)tfa_handoff_addr;
+	if ((TFAHandoffParams->magic[0] != 'X') ||
+	    (TFAHandoffParams->magic[1] != 'L') ||
+	    (TFAHandoffParams->magic[2] != 'N') ||
+	    (TFAHandoffParams->magic[3] != 'X')) {
+		ERROR("BL31: invalid TF-A handoff structure at %" PRIx64 "\n",
+		      tfa_handoff_addr);
 		return FSBL_HANDOFF_INVAL_STRUCT;
 	}
 
-	VERBOSE("BL31: ATF handoff params at:0x%" PRIx64 ", entries:%u\n",
-		atf_handoff_addr, ATFHandoffParams->num_entries);
-	if (ATFHandoffParams->num_entries > FSBL_MAX_PARTITIONS) {
-		ERROR("BL31: ATF handoff params: too many partitions (%u/%u)\n",
-		      ATFHandoffParams->num_entries, FSBL_MAX_PARTITIONS);
+	VERBOSE("BL31: TF-A handoff params at:0x%" PRIx64 ", entries:%u\n",
+		tfa_handoff_addr, TFAHandoffParams->num_entries);
+	if (TFAHandoffParams->num_entries > FSBL_MAX_PARTITIONS) {
+		ERROR("BL31: TF-A handoff params: too many partitions (%u/%u)\n",
+		      TFAHandoffParams->num_entries, FSBL_MAX_PARTITIONS);
 		return FSBL_HANDOFF_TOO_MANY_PARTS;
 	}
 
@@ -174,29 +175,29 @@ enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
 	 * (bl32, bl33). I.e. the last applicable images in the handoff
 	 * structure will be used for the hand off
 	 */
-	for (size_t i = 0; i < ATFHandoffParams->num_entries; i++) {
+	for (size_t i = 0; i < TFAHandoffParams->num_entries; i++) {
 		entry_point_info_t *image;
 		int32_t target_estate, target_secure, target_cpu;
 		uint32_t target_endianness, target_el;
 
 		VERBOSE("BL31: %zd: entry:0x%" PRIx64 ", flags:0x%" PRIx64 "\n", i,
-			ATFHandoffParams->partition[i].entry_point,
-			ATFHandoffParams->partition[i].flags);
+			TFAHandoffParams->partition[i].entry_point,
+			TFAHandoffParams->partition[i].flags);
 
-		target_cpu = get_fsbl_cpu(&ATFHandoffParams->partition[i]);
+		target_cpu = get_fsbl_cpu(&TFAHandoffParams->partition[i]);
 		if (target_cpu != FSBL_FLAGS_A53_0) {
 			WARN("BL31: invalid target CPU (%i)\n", target_cpu);
 			continue;
 		}
 
-		target_el = get_fsbl_el(&ATFHandoffParams->partition[i]);
+		target_el = get_fsbl_el(&TFAHandoffParams->partition[i]);
 		if ((target_el == FSBL_FLAGS_EL3) ||
 		    (target_el == FSBL_FLAGS_EL0)) {
 			WARN("BL31: invalid exception level (%i)\n", target_el);
 			continue;
 		}
 
-		target_secure = get_fsbl_ss(&ATFHandoffParams->partition[i]);
+		target_secure = get_fsbl_ss(&TFAHandoffParams->partition[i]);
 		if (target_secure == FSBL_FLAGS_SECURE &&
 		    target_el == FSBL_FLAGS_EL2) {
 			WARN("BL31: invalid security state (%i) for exception level (%i)\n",
@@ -204,8 +205,8 @@ enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
 			continue;
 		}
 
-		target_estate = get_fsbl_estate(&ATFHandoffParams->partition[i]);
-		target_endianness = get_fsbl_endian(&ATFHandoffParams->partition[i]);
+		target_estate = get_fsbl_estate(&TFAHandoffParams->partition[i]);
+		target_endianness = get_fsbl_endian(&TFAHandoffParams->partition[i]);
 
 		if (target_secure == FSBL_FLAGS_SECURE) {
 			image = bl32;
@@ -245,9 +246,9 @@ enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
 
 		VERBOSE("Setting up %s entry point to:%" PRIx64 ", el:%x\n",
 			target_secure == FSBL_FLAGS_SECURE ? "BL32" : "BL33",
-			ATFHandoffParams->partition[i].entry_point,
+			TFAHandoffParams->partition[i].entry_point,
 			target_el);
-		image->pc = ATFHandoffParams->partition[i].entry_point;
+		image->pc = TFAHandoffParams->partition[i].entry_point;
 
 		if (target_endianness == SPSR_E_BIG) {
 			EP_SET_EE(image->h.attr, EP_EE_BIG);

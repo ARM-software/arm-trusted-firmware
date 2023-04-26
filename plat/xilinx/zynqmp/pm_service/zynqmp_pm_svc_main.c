@@ -95,7 +95,7 @@ static void trigger_wdt_restart(void)
  *
  * When WDT event is received in PMU, PMU needs to notify master to do cleanup
  * if required. PMU sets up timer and starts timer to overflow in zero time upon
- * WDT event. ATF handles this timer event and takes necessary action required
+ * WDT event. TF-A handles this timer event and takes necessary action required
  * for warm restart.
  *
  * In presence of non-secure software layers (EL1/2) sets the interrupt
@@ -131,7 +131,7 @@ static uint64_t ttc_fiq_handler(uint32_t id, uint32_t flags, void *handle,
  *
  * Function registered as INTR_TYPE_EL3 interrupt handler
  *
- * On receiving WDT event from PMU, ATF generates SGI7 to all running CPUs.
+ * On receiving WDT event from PMU, TF-A generates SGI7 to all running CPUs.
  * In response to SGI7 interrupt, each CPUs do clean up if required and last
  * running CPU calls system restart.
  */

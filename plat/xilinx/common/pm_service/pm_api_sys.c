@@ -572,7 +572,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint32_t module_id;
 
-	/* Return version of API which are implemented in ATF only */
+	/* Return version of API which are implemented in TF-A only */
 	switch (api_id) {
 	case PM_GET_CALLBACK_DATA:
 	case PM_GET_TRUSTZONE_VERSION:

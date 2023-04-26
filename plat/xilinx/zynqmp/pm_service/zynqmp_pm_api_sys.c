@@ -38,7 +38,7 @@
 
 /**
  * struct eemi_api_dependency - Dependent EEMI APIs which are implemented
- * on both the ATF and firmware
+ * on both the TF-A and firmware
  *
  * @id:		EEMI API id or IOCTL id to be checked
  * @api_id:	Dependent EEMI API
@@ -48,7 +48,7 @@ typedef struct __attribute__((packed)) {
 	uint8_t api_id;
 } eemi_api_dependency;
 
-/* Dependent APIs for ATF to check their version from firmware */
+/* Dependent APIs for TF-A to check their version from firmware */
 static const eemi_api_dependency api_dep_table[] = {
 	{
 		.id = PM_SELF_SUSPEND,
@@ -216,8 +216,8 @@ static const eemi_api_dependency api_dep_table[] = {
 	},
 };
 
-/* Expected firmware API version to ATF */
-static const uint8_t atf_expected_ver_id[] = {
+/* Expected firmware API version to TF-A */
+static const uint8_t tfa_expected_ver_id[] = {
 	[PM_SELF_SUSPEND] = FW_API_BASE_VERSION,
 	[PM_REQ_WAKEUP] = FW_API_BASE_VERSION,
 	[PM_ABORT_SUSPEND] = FW_API_BASE_VERSION,
@@ -764,8 +764,8 @@ enum pm_ret_status check_api_dependency(uint8_t id)
 				return ret;
 			}
 
-			/* Check if fw version matches ATF expected version */
-			if (version != atf_expected_ver_id[api_dep_table[i].api_id]) {
+			/* Check if fw version matches TF-A expected version */
+			if (version != tfa_expected_ver_id[api_dep_table[i].api_id]) {
 				return PM_RET_ERROR_NOTSUPPORTED;
 			}
 		}
@@ -775,13 +775,13 @@ enum pm_ret_status check_api_dependency(uint8_t id)
 }
 
 /**
- * feature_check_atf() - These are API's completely implemented in ATF
+ * feature_check_tfa() - These are API's completely implemented in TF-A
  * @api_id	API ID to check
  * @version	Returned supported API version
  *
  * @return	Returns status, either success or error+reason
  */
-static enum pm_ret_status feature_check_atf(uint32_t api_id, uint32_t *version,
+static enum pm_ret_status feature_check_tfa(uint32_t api_id, uint32_t *version,
 					    uint32_t *bit_mask)
 {
 	switch (api_id) {
@@ -793,7 +793,7 @@ static enum pm_ret_status feature_check_atf(uint32_t api_id, uint32_t *version,
 	case PM_GET_CALLBACK_DATA:
 	case PM_GET_TRUSTZONE_VERSION:
 	case PM_SET_SUSPEND_MODE:
-		*version = ATF_API_BASE_VERSION;
+		*version = TFA_API_BASE_VERSION;
 		return PM_RET_SUCCESS;
 	default:
 		return PM_RET_ERROR_NO_FEATURE;
@@ -801,14 +801,14 @@ static enum pm_ret_status feature_check_atf(uint32_t api_id, uint32_t *version,
 }
 
 /**
- * get_atf_version_for_partial_apis() - Return ATF version for partially
+ * get_tfa_version_for_partial_apis() - Return TF-A version for partially
  * implemented APIs
  * @api_id	API ID to check
  * @version	Returned supported API version
  *
  * @return	Returns status, either success or error+reason
  */
-static enum pm_ret_status get_atf_version_for_partial_apis(uint32_t api_id,
+static enum pm_ret_status get_tfa_version_for_partial_apis(uint32_t api_id,
 							   uint32_t *version)
 {
 	switch (api_id) {
@@ -830,7 +830,7 @@ static enum pm_ret_status get_atf_version_for_partial_apis(uint32_t api_id,
 	case PM_PLL_SET_MODE:
 	case PM_PLL_GET_MODE:
 	case PM_REGISTER_ACCESS:
-		*version = ATF_API_BASE_VERSION;
+		*version = TFA_API_BASE_VERSION;
 		return PM_RET_SUCCESS;
 	case PM_FEATURE_CHECK:
 		*version = FW_API_VERSION_2;
@@ -842,7 +842,7 @@ static enum pm_ret_status get_atf_version_for_partial_apis(uint32_t api_id,
 
 /**
  * feature_check_partial() - These are API's partially implemented in
- * ATF and firmware both
+ * TF-A and firmware both
  * @api_id	API ID to check
  * @version	Returned supported API version
  *
@@ -877,7 +877,7 @@ static enum pm_ret_status feature_check_partial(uint32_t api_id,
 		if (status != PM_RET_SUCCESS) {
 			return status;
 		}
-		return get_atf_version_for_partial_apis(api_id, version);
+		return get_tfa_version_for_partial_apis(api_id, version);
 	default:
 		return PM_RET_ERROR_NO_FEATURE;
 	}
@@ -898,13 +898,13 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 	uint32_t ret_payload[PAYLOAD_ARG_CNT] = {0U};
 	uint32_t status;
 
-	/* Get API version implemented in ATF */
-	status = feature_check_atf(api_id, version, bit_mask);
+	/* Get API version implemented in TF-A */
+	status = feature_check_tfa(api_id, version, bit_mask);
 	if (status != PM_RET_ERROR_NO_FEATURE) {
 		return status;
 	}
 
-	/* Get API version implemented by firmware and ATF both */
+	/* Get API version implemented by firmware and TF-A both */
 	status = feature_check_partial(api_id, version);
 	if (status != PM_RET_ERROR_NO_FEATURE) {
 		return status;
@@ -913,7 +913,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 	/* Get API version implemented by firmware */
 	status = fw_api_version(api_id, ret_payload, 3);
 	/* IOCTL call may return failure whose ID is not implemented in
-	 * firmware but implemented in ATF
+	 * firmware but implemented in TF-A
 	 */
 	if ((api_id != PM_IOCTL) && (status != PM_RET_SUCCESS)) {
 		return status;
@@ -921,7 +921,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 
 	*version = ret_payload[0];
 
-	/* Update IOCTL bit mask which are implemented in ATF */
+	/* Update IOCTL bit mask which are implemented in TF-A */
 	if ((api_id == PM_IOCTL) || (api_id == PM_GET_OP_CHARACTERISTIC)) {
 		if (len < 2) {
 			return PM_RET_ERROR_ARGS;
@@ -929,8 +929,8 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 		bit_mask[0] = ret_payload[1];
 		bit_mask[1] = ret_payload[2];
 		if (api_id == PM_IOCTL) {
-			/* Get IOCTL's implemented by ATF */
-			status = atf_ioctl_bitmask(bit_mask);
+			/* Get IOCTL's implemented by TF-A */
+			status = tfa_ioctl_bitmask(bit_mask);
 		}
 	} else {
 		/* Requires for MISRA */

@@ -71,7 +71,7 @@ static inline void bl31_set_default_config(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	uint64_t atf_handoff_addr;
+	uint64_t tfa_handoff_addr;
 
 	if (ZYNQMP_CONSOLE_IS(cadence) || (ZYNQMP_CONSOLE_IS(cadence1))) {
 		/* Register the console to provide early debug support */
@@ -107,15 +107,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
-	atf_handoff_addr = mmio_read_32(PMU_GLOBAL_GEN_STORAGE6);
+	tfa_handoff_addr = mmio_read_32(PMU_GLOBAL_GEN_STORAGE6);
 
 	if (zynqmp_get_bootmode() == ZYNQMP_BOOTMODE_JTAG) {
 		bl31_set_default_config();
 	} else {
 		/* use parameters from FSBL */
-		enum fsbl_handoff ret = fsbl_atf_handover(&bl32_image_ep_info,
+		enum fsbl_handoff ret = fsbl_tfa_handover(&bl32_image_ep_info,
 							  &bl33_image_ep_info,
-							  atf_handoff_addr);
+							  tfa_handoff_addr);
 		if (ret != FSBL_HANDOFF_SUCCESS) {
 			panic();
 		}

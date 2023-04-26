@@ -727,7 +727,7 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
  * pm_update_ioctl_bitmask() -  API to get supported IOCTL ID mask
  * @bit_mask		Returned bit mask of supported IOCTL IDs
  */
-enum pm_ret_status atf_ioctl_bitmask(uint32_t *bit_mask)
+enum pm_ret_status tfa_ioctl_bitmask(uint32_t *bit_mask)
 {
 	uint8_t supported_ids[] = {
 		IOCTL_GET_RPU_OPER_MODE,

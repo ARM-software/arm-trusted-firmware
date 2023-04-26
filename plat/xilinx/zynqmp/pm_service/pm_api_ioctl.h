@@ -55,5 +55,5 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 				uint32_t arg1,
 				uint32_t arg2,
 				uint32_t *value);
-enum pm_ret_status atf_ioctl_bitmask(uint32_t *bit_mask);
+enum pm_ret_status tfa_ioctl_bitmask(uint32_t *bit_mask);
 #endif /* PM_API_IOCTL_H */
