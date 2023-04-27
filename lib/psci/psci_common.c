@@ -829,8 +829,11 @@ void psci_release_pwr_domain_locks(unsigned int end_pwrlvl,
  ******************************************************************************/
 int psci_validate_mpidr(u_register_t mpidr)
 {
-	if (plat_core_pos_by_mpidr(mpidr) < 0)
+	int pos = plat_core_pos_by_mpidr(mpidr);
+
+	if ((pos < 0) || ((unsigned int)pos >= PLATFORM_CORE_COUNT)) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	return PSCI_E_SUCCESS;
 }

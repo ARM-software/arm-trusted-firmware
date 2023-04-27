@@ -65,12 +65,9 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	unsigned int target_idx;
 
 	/* Calling function must supply valid input arguments */
+	assert(ret >= 0);
+	assert((unsigned int)ret < PLATFORM_CORE_COUNT);
 	assert(ep != NULL);
-
-	if ((ret < 0) || (ret >= (int)PLATFORM_CORE_COUNT)) {
-		ERROR("Unexpected core index.\n");
-		panic();
-	}
 
 	target_idx = (unsigned int)ret;
 
