@@ -100,7 +100,7 @@ def main(
     if symbols:
         expr = (
             r"(.*)(TEXT|BSS|RODATA|STACKS|_OPS|PMF|XLAT|GOT|FCONF"
-            r"|R.M)(.*)(START|END)__$"
+            r"|R.M)(.*)(START|UNALIGNED|END)__$"
         )
         printer.print_symbol_table(
             parser.filter_symbols(parser.symbols, expr), parser.module_names

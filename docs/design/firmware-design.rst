@@ -1559,8 +1559,10 @@ The following linker symbols are defined for this purpose:
 -  ``__RO_START__``
 -  ``__RO_END__``
 -  ``__TEXT_START__``
+-  ``__TEXT_END_UNALIGNED__``
 -  ``__TEXT_END__``
 -  ``__RODATA_START__``
+-  ``__RODATA_END_UNALIGNED__``
 -  ``__RODATA_END__``
 
 BL1's linker symbols
