@@ -11,6 +11,7 @@
 #include "apusys.h"
 #include "apusys_devapc.h"
 #include "apusys_power.h"
+#include "apusys_rv.h"
 #include "apusys_security_ctrl_plat.h"
 #include <lib/mtk_init/mtk_init.h>
 #include <mtk_sip_svc.h>
@@ -54,6 +55,7 @@ int apusys_init(void)
 	}
 
 	apusys_security_ctrl_init();
+	apusys_rv_mbox_mpu_init();
 
 	return 0;
 }
