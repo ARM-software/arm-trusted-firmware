@@ -60,11 +60,11 @@ uint32_t zynqmp_get_uart_clk(void)
 
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
 static const struct {
-	uint32_t id;
-	uint32_t ver;
-	char *name;
+	uint8_t id;
 	bool evexists;
-} zynqmp_devices[] = {
+	uint16_t ver;
+	char *name;
+} __packed zynqmp_devices[] = {
 	{
 		.id = 0x10,
 		.name = "XCZU3EG",
