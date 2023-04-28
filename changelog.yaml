@@ -128,7 +128,7 @@ subsections:
       - title: Trapping support for RNDR/RNDRRS (FEAT_RNG_TRAP)
         scope: rng-trap
 
-      - title: Scalable Matrix Extension (FEAT_SME)
+      - title: Scalable Matrix Extension (FEAT_SME, FEAT_SME2)
         scope: sme
 
       - title: Statistical profiling Extension (FEAT_SPE)

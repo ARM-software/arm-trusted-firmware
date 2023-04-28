@@ -657,4 +657,17 @@ static inline bool is_feat_sme_supported(void)
 	return read_feat_sme_id_field() >= ID_AA64PFR1_EL1_SME_SUPPORTED;
 }
 
+static inline bool is_feat_sme2_supported(void)
+{
+	if (ENABLE_SME2_FOR_NS == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_SME2_FOR_NS == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_sme_id_field() >= ID_AA64PFR1_EL1_SME2_SUPPORTED;
+}
+
 #endif /* ARCH_FEATURES_H */
