@@ -186,11 +186,12 @@
 	.space	SPINLOCK_ASM_SIZE
 	.endm
 
-#if RAS_EXTENSION
+	/*
+	 * With RAS extension executes esb instruction, else NOP
+	 */
 	.macro esb
 	.inst	0xd503221f
 	.endm
-#endif
 
 	/*
 	 * Helper macro to read system register value into x0
