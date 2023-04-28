@@ -229,7 +229,7 @@ You can find additional definitions in the `Arm Glossary`_.
       Trusted Platform Module
 
    TRNG
-      True Randon Number Generator (hardware based)
+      True Random Number Generator (hardware based)
 
    TSP
       Test Secure Payload
