@@ -67,7 +67,7 @@ after which it will be removed.
 |                                | Date        | after   |                                                         |
 |                                |             | Release |                                                         |
 +================================+=============+=========+=========================================================+
-| plat_convert_pk() function     |   Nov'22    |   2.9   | Platform conversion to manage specific PK hash          |
+| None at this time              |             |         |                                                         |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 
 Removal of Deprecated Drivers
