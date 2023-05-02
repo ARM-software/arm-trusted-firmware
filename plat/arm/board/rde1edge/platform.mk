@@ -1,8 +1,11 @@
 #
-# Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2018-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
+
+$(warning Platform ${PLAT} is deprecated. \
+  Some of the features might not work as expected)
 
 include plat/arm/css/sgi/sgi-common.mk
 
