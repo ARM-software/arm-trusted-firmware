@@ -9,8 +9,10 @@
 
 void tc_bl31_common_platform_setup(void);
 
-#ifdef PLATFORM_TEST
+#ifdef PLATFORM_TEST_TFM_TESTSUITE
 void run_platform_tests(void);
+#endif
+#ifdef PLATFORM_TEST_NV_COUNTERS
 void nv_counter_test(void);
 #endif
 
