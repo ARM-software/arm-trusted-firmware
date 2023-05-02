@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -43,10 +43,14 @@ FWU_CERT		:=	${BUILD_PLAT}/fwu_cert.crt
 # Default non-volatile counter values (overridable by the platform)
 TFW_NVCTR_VAL		?=	0
 NTFW_NVCTR_VAL		?=	0
+CCAFW_NVCTR_VAL		?=	0
 
 # Pass the non-volatile counters to the cert_create tool
 $(eval $(call CERT_ADD_CMD_OPT,${TFW_NVCTR_VAL},--tfw-nvctr))
 $(eval $(call CERT_ADD_CMD_OPT,${NTFW_NVCTR_VAL},--ntfw-nvctr))
+ifeq (${COT},cca)
+$(eval $(call CERT_ADD_CMD_OPT,${CCAFW_NVCTR_VAL},--ccafw-nvctr))
+endif
 
 # Add Trusted Key certificate to the fiptool and cert_create command line options
 ifneq (${COT},cca)
