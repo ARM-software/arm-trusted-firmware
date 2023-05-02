@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,5 +24,8 @@
 #define PLAT_PK_OID				"1.3.6.1.4.1.4128.2100.1105"
 /* Realm Monitor Manager (RMM) Hash */
 #define RMM_HASH_OID				"1.3.6.1.4.1.4128.2100.1106"
+
+/* CCAFirmwareNVCounter - Non-volatile counter extension */
+#define CCA_FW_NVCOUNTER_OID			"1.3.6.1.4.1.4128.2100.3"
 
 #endif /* CCA_OID_H */

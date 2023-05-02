@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,7 @@ static cert_t cot_certs[] = {
 		.key = ROT_KEY,
 		.issuer = CCA_CONTENT_CERT,
 		.ext = {
-			TRUSTED_FW_NVCOUNTER_EXT,
+			CCA_FW_NVCOUNTER_EXT,
 			SOC_AP_FW_HASH_EXT,
 			SOC_FW_CONFIG_HASH_EXT,
 			RMM_HASH_EXT,
@@ -139,6 +139,17 @@ REGISTER_COT(cot_certs);
 
 /* Certificate extensions. */
 static ext_t cot_ext[] = {
+	[CCA_FW_NVCOUNTER_EXT] = {
+		.oid = CCA_FW_NVCOUNTER_OID,
+		.opt = "ccafw-nvctr",
+		.help_msg = "CCA Firmware Non-Volatile counter value",
+		.sn = "CCANVCounter",
+		.ln = "CCA Non-Volatile counter",
+		.asn1_type = V_ASN1_INTEGER,
+		.type = EXT_TYPE_NVCOUNTER,
+		.attr.nvctr_type = NVCTR_TYPE_CCAFW
+	},
+
 	[TRUSTED_FW_NVCOUNTER_EXT] = {
 		.oid = TRUSTED_FW_NVCOUNTER_OID,
 		.opt = "tfw-nvctr",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,8 @@ enum ext_type_e {
 /* NV-Counter types */
 enum nvctr_type_e {
 	NVCTR_TYPE_TFW,
-	NVCTR_TYPE_NTFW
+	NVCTR_TYPE_NTFW,
+	NVCTR_TYPE_CCAFW
 };
 
 /*
