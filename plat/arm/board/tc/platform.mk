@@ -53,9 +53,6 @@ ENABLE_SYS_REG_TRACE_FOR_NS     := 1
 # enable trace filter control registers access to NS by default
 ENABLE_TRF_FOR_NS               := 1
 
-# Enable RSS-required FIP UUIDs
-$(shell cp plat/arm/board/tc/plat_fiptool.mk ${PLAT_DIR})
-
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
