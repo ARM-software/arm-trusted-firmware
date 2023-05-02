@@ -37,7 +37,7 @@ func errata_x1_1821534_wa
 	bl	check_errata_1821534
 	cbz	x0, 1f
 	mrs	x1, CORTEX_X1_ACTLR2_EL1
-	orr	x1, x1, BIT(2)
+	orr	x1, x1, #BIT(2)
 	msr	CORTEX_X1_ACTLR2_EL1, x1
 	isb
 1:
@@ -64,7 +64,7 @@ func errata_x1_1688305_wa
 	bl	check_errata_1688305
 	cbz	x0, 1f
 	mrs	x0, CORTEX_X1_ACTLR2_EL1
-	orr	x0, x0, BIT(1)
+	orr	x0, x0, #BIT(1)
 	msr	CORTEX_X1_ACTLR2_EL1, x0
 	isb
 
@@ -92,7 +92,7 @@ func errata_x1_1827429_wa
 	bl	check_errata_1827429
 	cbz	x0, 1f
 	mrs	x0, CORTEX_X1_CPUECTLR_EL1
-	orr	x0, x0, BIT(53)
+	orr	x0, x0, #BIT(53)
 	msr	CORTEX_X1_CPUECTLR_EL1, x0
 	isb
 
