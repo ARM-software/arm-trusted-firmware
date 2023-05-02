@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -67,11 +67,16 @@ endif
 # ARM development platforms
 TFW_NVCTR_VAL	?=	31
 NTFW_NVCTR_VAL	?=	223
+# The CCA Non-Volatile Counter only exists on some Arm development platforms.
+# On others, we mock it by aliasing it to the Trusted Firmware Non-Volatile counter,
+# hence we set both counters to the same default value.
+CCAFW_NVCTR_VAL	?=	31
 else
 # Certificate NV-Counters when CryptoCell is integrated. For development
 # platforms we set the counter to first valid value.
 TFW_NVCTR_VAL	?=	0
 NTFW_NVCTR_VAL	?=	0
+CCAFW_NVCTR_VAL	?=	0
 endif
 BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \
 				${ARM_ROTPK_S}

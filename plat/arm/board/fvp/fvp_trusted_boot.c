@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,7 @@
 #include <plat/arm/common/fconf_nv_cntr_getter.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-#include <tools_share/tbbr_oid.h>
+#include <tools_share/cca_oid.h>
 
 /*
  * Return the ROTPK hash in the following ASN.1 structure in DER format:
@@ -57,6 +57,10 @@ int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 	} else if (strcmp(oid, NON_TRUSTED_FW_NVCOUNTER_OID) == 0) {
 		nv_ctr_addr = FCONF_GET_PROPERTY(cot, nv_cntr_addr,
 						NON_TRUSTED_NV_CTR_ID);
+	} else if (strcmp(oid, CCA_FW_NVCOUNTER_OID) == 0) {
+		/* FVP does not support the CCA NV Counter so use the Trusted NV */
+		nv_ctr_addr = FCONF_GET_PROPERTY(cot, nv_cntr_addr,
+						TRUSTED_NV_CTR_ID);
 	} else {
 		return 1;
 	}
@@ -68,4 +72,38 @@ int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 	 * and the above write operation has been silently ignored.
 	 */
 	return (mmio_read_32(nv_ctr_addr) == nv_ctr) ? 0 : 1;
+}
+
+/*
+ * Return the non-volatile counter value stored in the platform. The cookie
+ * will contain the OID of the counter in the certificate.
+ *
+ * Return: 0 = success, Otherwise = error
+ */
+int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
+{
+	const char *oid;
+	uint32_t *nv_ctr_addr;
+
+	assert(cookie != NULL);
+	assert(nv_ctr != NULL);
+
+	oid = (const char *)cookie;
+	if (strcmp(oid, TRUSTED_FW_NVCOUNTER_OID) == 0) {
+		nv_ctr_addr = (uint32_t *)FCONF_GET_PROPERTY(cot, nv_cntr_addr,
+							TRUSTED_NV_CTR_ID);
+	} else if (strcmp(oid, NON_TRUSTED_FW_NVCOUNTER_OID) == 0) {
+		nv_ctr_addr = (uint32_t *)FCONF_GET_PROPERTY(cot, nv_cntr_addr,
+							NON_TRUSTED_NV_CTR_ID);
+	} else if (strcmp(oid, CCA_FW_NVCOUNTER_OID) == 0) {
+		/* FVP does not support the CCA NV Counter so use the Trusted NV */
+		nv_ctr_addr = (uint32_t *)FCONF_GET_PROPERTY(cot, nv_cntr_addr,
+							TRUSTED_NV_CTR_ID);
+	} else {
+		return 1;
+	}
+
+	*nv_ctr = (unsigned int)(*nv_ctr_addr);
+
+	return 0;
 }
