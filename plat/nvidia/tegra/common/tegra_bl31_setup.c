@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,21 +92,16 @@ plat_params_from_bl2_t *bl31_get_plat_params(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	struct tegra_bl31_params *arg_from_bl2 = (struct tegra_bl31_params *) arg0;
-	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
+	struct tegra_bl31_params *arg_from_bl2 = plat_get_bl31_params();
+	plat_params_from_bl2_t *plat_params = plat_get_bl31_plat_params();
 	int32_t ret;
 
 	/*
-	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
-	 * there's no argument to relay from a previous bootloader. Platforms
-	 * might use custom ways to get arguments.
+	 * Tegra platforms will receive boot parameters through custom
+	 * mechanisms. So, we ignore the input parameters.
 	 */
-	if (arg_from_bl2 == NULL) {
-		arg_from_bl2 = plat_get_bl31_params();
-	}
-	if (plat_params == NULL) {
-		plat_params = plat_get_bl31_plat_params();
-	}
+	(void)arg0;
+	(void)arg1;
 
 	/*
 	 * Copy BL3-3, BL3-2 entry point information.
