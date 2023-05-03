@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,7 +24,7 @@
 
 /* The macros below are used to identify FFA calls from the SMC function ID */
 #define FFA_FNUM_MIN_VALUE	U(0x60)
-#define FFA_FNUM_MAX_VALUE	U(0x8B)
+#define FFA_FNUM_MAX_VALUE	U(0x8C)
 #define is_ffa_fid(fid) __extension__ ({		\
 	__typeof__(fid) _fid = (fid);			\
 	((GET_SMC_NUM(_fid) >= FFA_FNUM_MIN_VALUE) &&	\
@@ -118,6 +118,7 @@
 #define FFA_FNUM_MSG_SEND2			U(0x86)
 #define FFA_FNUM_SECONDARY_EP_REGISTER		U(0x87)
 #define FFA_FNUM_PARTITION_INFO_GET_REGS	U(0x8B)
+#define FFA_FNUM_EL3_INTR_HANDLE		U(0x8C)
 
 /* FFA SMC32 FIDs */
 #define FFA_ERROR		FFA_FID(SMC_32, FFA_FNUM_ERROR)
@@ -163,6 +164,7 @@
 #define FFA_MEM_FRAG_TX	FFA_FID(SMC_32, FFA_FNUM_MEM_FRAG_TX)
 #define FFA_SPM_ID_GET		FFA_FID(SMC_32, FFA_FNUM_SPM_ID_GET)
 #define FFA_NORMAL_WORLD_RESUME	FFA_FID(SMC_32, FFA_FNUM_NORMAL_WORLD_RESUME)
+#define FFA_EL3_INTR_HANDLE	FFA_FID(SMC_32, FFA_FNUM_EL3_INTR_HANDLE)
 
 /* FFA SMC64 FIDs */
 #define FFA_ERROR_SMC64		FFA_FID(SMC_64, FFA_FNUM_ERROR)

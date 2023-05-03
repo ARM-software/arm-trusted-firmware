@@ -249,6 +249,74 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	SMC_RET0(&ctx->cpu_ctx);
 }
 
+/*******************************************************************************
+ * spmd_group0_interrupt_handler_nwd
+ * Group0 secure interrupt in the normal world are trapped to EL3. Delegate the
+ * handling of the interrupt to the platform handler, and return only upon
+ * successfully handling the Group0 interrupt.
+ ******************************************************************************/
+static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
+						  uint32_t flags,
+						  void *handle,
+						  void *cookie)
+{
+	uint32_t intid;
+
+	/* Sanity check the security state when the exception was generated. */
+	assert(get_interrupt_src_ss(flags) == NON_SECURE);
+
+	/* Sanity check the pointer to this cpu's context. */
+	assert(handle == cm_get_context(NON_SECURE));
+
+	assert(id == INTR_ID_UNAVAILABLE);
+
+	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
+
+	intid = plat_ic_get_pending_interrupt_id();
+
+	if (plat_spmd_handle_group0_interrupt(intid) < 0) {
+		ERROR("Group0 interrupt %u not handled\n", intid);
+		panic();
+	}
+
+	return 0U;
+}
+
+/*******************************************************************************
+ * spmd_handle_group0_intr_swd
+ * SPMC delegates handling of Group0 secure interrupt to EL3 firmware using
+ * FFA_EL3_INTR_HANDLE SMC call. Further, SPMD delegates the handling of the
+ * interrupt to the platform handler, and returns only upon successfully
+ * handling the Group0 interrupt.
+ ******************************************************************************/
+static uint64_t spmd_handle_group0_intr_swd(void *handle)
+{
+	uint32_t intid;
+
+	/* Sanity check the pointer to this cpu's context */
+	assert(handle == cm_get_context(SECURE));
+
+	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
+
+	intid = plat_ic_get_pending_interrupt_id();
+
+	/*
+	 * TODO: Currently due to a limitation in SPMD implementation, the
+	 * platform handler is expected to not delegate handling to NWd while
+	 * processing Group0 secure interrupt.
+	 */
+	if (plat_spmd_handle_group0_interrupt(intid) < 0) {
+		/* Group0 interrupt was not handled by the platform. */
+		ERROR("Group0 interrupt %u not handled\n", intid);
+		panic();
+	}
+
+	/* Return success. */
+	SMC_RET8(handle, FFA_SUCCESS_SMC32, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+		 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+		 FFA_PARAM_MBZ);
+}
+
 #if ENABLE_RME && SPMD_SPM_AT_SEL2 && !RESET_TO_BL31
 static int spmd_dynamic_map_mem(uintptr_t base_addr, size_t size,
 				 unsigned int attr, uintptr_t *align_addr,
@@ -492,6 +560,16 @@ static int spmd_spmc_init(void *pm_addr)
 		panic();
 	}
 
+	/*
+	 * Register an interrupt handler routing Group0 interrupts to SPMD
+	 * while the NWd is running.
+	 */
+	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
+					     spmd_group0_interrupt_handler_nwd,
+					     flags);
+	if (rc != 0) {
+		panic();
+	}
 	return 0;
 }
 
@@ -1089,6 +1167,12 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 					handle, flags);
 		break; /* Not reached */
 #endif
+	case FFA_EL3_INTR_HANDLE:
+		if (secure_origin) {
+			return spmd_handle_group0_intr_swd(handle);
+		} else {
+			return spmd_ffa_error_return(handle, FFA_ERROR_DENIED);
+		}
 	default:
 		WARN("SPM: Unsupported call 0x%08x\n", smc_fid);
 		return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);

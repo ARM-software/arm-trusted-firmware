@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,6 +93,13 @@ spmd_spm_core_context_t *spmd_get_context(void);
 int spmd_pm_secondary_ep_register(uintptr_t entry_point);
 bool spmd_check_address_in_binary_image(uint64_t address);
 
+/*
+ * Platform hook in EL3 firmware to handle for Group0 secure interrupt.
+ * Return values:
+ *  0 = success
+ *  otherwise it returns a negative value
+ */
+int plat_spmd_handle_group0_interrupt(uint32_t id);
 #endif /* __ASSEMBLER__ */
 
 #endif /* SPMD_PRIVATE_H */

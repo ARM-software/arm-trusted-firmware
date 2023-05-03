@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -162,3 +162,14 @@ int plat_spmc_shmem_reclaim(struct ffa_mtd *desc)
 	return 0;
 }
 #endif
+
+#if defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)
+/*
+ * A dummy implementation of the platform handler for Group0 secure interrupt.
+ */
+int plat_spmd_handle_group0_interrupt(uint32_t intid)
+{
+	(void)intid;
+	return -1;
+}
+#endif /*defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)*/

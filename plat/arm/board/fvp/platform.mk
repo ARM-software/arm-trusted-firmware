@@ -512,3 +512,7 @@ ifeq (${PLATFORM_TEST_EA_FFH}, 1)
     endif
 BL31_SOURCES	+= plat/arm/board/fvp/aarch64/fvp_ea.c
 endif
+
+ifeq (${SPD},spmd)
+BL31_SOURCES	+=	plat/arm/board/fvp/fvp_spmd.c
+endif

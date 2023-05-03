@@ -56,6 +56,7 @@ BL31_SOURCES	+=	drivers/cfi/v2m/v2m_flash.c				\
 			plat/arm/board/corstone1000/common/corstone1000_security.c		\
 			plat/arm/board/corstone1000/common/corstone1000_plat.c		\
 			plat/arm/board/corstone1000/common/corstone1000_pm.c		\
+			plat/arm/board/corstone1000/common/corstone1000_bl31_setup.c	\
 			${CORSTONE1000_CPU_LIBS}					\
 			${CORSTONE1000_GIC_SOURCES}
 
