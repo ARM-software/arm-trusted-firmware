@@ -57,12 +57,10 @@ ifneq (${SPD}, tspd)
 	ENABLE_FEAT_TWED		:= 2
 	ENABLE_FEAT_GCS			:= 2
 ifeq (${ARCH}, aarch64)
-ifneq (${SPD}, spmd)
 ifeq (${SPM_MM}, 0)
 ifeq (${CTX_INCLUDE_FPREGS}, 0)
 	ENABLE_SME_FOR_NS		:= 2
 	ENABLE_SME2_FOR_NS		:= 2
-endif
 endif
 endif
 endif
