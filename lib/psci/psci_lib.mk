@@ -22,7 +22,7 @@ PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
 
 ifeq (${ARCH}, aarch64)
 PSCI_LIB_SOURCES	+=	lib/el3_runtime/aarch64/context.S	\
-				lib/cpus/aarch64/runtime_errata.S
+				lib/psci/aarch64/runtime_errata.S
 endif
 
 ifeq (${USE_COHERENT_MEM}, 1)
