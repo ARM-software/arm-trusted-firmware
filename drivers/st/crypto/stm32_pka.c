@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2022-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,11 @@
 #include <plat/common/platform.h>
 
 #include <platform_def.h>
+
+#if !PKA_USE_NIST_P256 && !PKA_USE_BRAINPOOL_P256R1 && !PKA_USE_BRAINPOOL_P256T1 && \
+	!PKA_USE_NIST_P521
+#error "At least one ECDSA curve needs to be selected"
+#endif
 
 /*
  * For our comprehension in this file
