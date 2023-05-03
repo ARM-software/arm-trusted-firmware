@@ -125,15 +125,18 @@
 .endm
 
 	/* -----------------------------------------------------
-	 * unsigned int plat_is_my_cpu_primary(void);
+	 * bool plat_is_my_cpu_primary(void);
 	 *
 	 * This function checks if this is the Primary CPU
+	 *
+	 * Registers clobbered: x0, x1
 	 * -----------------------------------------------------
 	 */
 func plat_is_my_cpu_primary
 	mrs	x0, mpidr_el1
-	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
-	cmp	x0, #TEGRA_PRIMARY_CPU
+	adr	x1, tegra_primary_cpu_mpid
+	ldr	x1, [x1]
+	cmp	x0, x1
 	cset	x0, eq
 	ret
 endfunc plat_is_my_cpu_primary
@@ -250,6 +253,14 @@ _end:	mov	x0, x20
 	cbnz	x18, 1f
 	adr	x18, bl31_entrypoint
 	str	x18, [x17]
+
+	/* -----------------------------------
+	 * save the boot CPU MPID value
+	 * -----------------------------------
+	 */
+	mrs	x0, mpidr_el1
+	adr	x1, tegra_primary_cpu_mpid
+	str	x0, [x1]
 
 1:	cpu_init_common
 
@@ -425,4 +436,11 @@ tegra_bl31_phys_base:
 	 * --------------------------------------------------
 	 */
 tegra_console_base:
+	.quad	0
+
+	/* --------------------------------------------------
+	 * MPID value for the boot CPU
+	 * --------------------------------------------------
+	 */
+tegra_primary_cpu_mpid:
 	.quad	0

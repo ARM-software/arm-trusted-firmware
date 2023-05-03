@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -87,6 +87,16 @@ static void tegra_cpu_standby(plat_local_state_t cpu_state)
 static int32_t tegra_pwr_domain_on(u_register_t mpidr)
 {
 	return tegra_soc_pwr_domain_on(mpidr);
+}
+
+/*******************************************************************************
+ * Handler called when a power domain is about to be turned off. The
+ * target_state encodes the power state that each level should transition to.
+ * Return error if CPU off sequence is not allowed for the current core.
+ ******************************************************************************/
+static int tegra_pwr_domain_off_early(const psci_power_state_t *target_state)
+{
+	return tegra_soc_pwr_domain_off_early(target_state);
 }
 
 /*******************************************************************************
@@ -268,6 +278,7 @@ static int32_t tegra_validate_ns_entrypoint(uintptr_t entrypoint)
 static plat_psci_ops_t tegra_plat_psci_ops = {
 	.cpu_standby			= tegra_cpu_standby,
 	.pwr_domain_on			= tegra_pwr_domain_on,
+	.pwr_domain_off_early		= tegra_pwr_domain_off_early,
 	.pwr_domain_off			= tegra_pwr_domain_off,
 	.pwr_domain_suspend_pwrdown_early = tegra_pwr_domain_suspend_pwrdown_early,
 	.pwr_domain_suspend		= tegra_pwr_domain_suspend,
