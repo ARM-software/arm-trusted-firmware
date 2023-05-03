@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -53,6 +53,7 @@ void tc_bl31_common_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 
+#if defined(PLATFORM_TEST_NV_COUNTERS) || defined(PLATFORM_TEST_TFM_TESTSUITE)
 #ifdef PLATFORM_TEST_NV_COUNTERS
 	nv_counter_test();
 #elif PLATFORM_TEST_TFM_TESTSUITE
@@ -60,6 +61,7 @@ void tc_bl31_common_platform_setup(void)
 #endif
 	/* Suspend booting */
 	plat_error_handler(-1);
+#endif
 }
 
 const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
