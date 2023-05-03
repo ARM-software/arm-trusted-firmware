@@ -75,13 +75,15 @@ enum plat_spm_cond_pll {
 #define SPM_COND_CHECK_FAIL		BIT(31)
 
 struct mt_spm_cond_tables {
+	char *name;
 	unsigned int table_cg[PLAT_SPM_COND_MAX];
 	unsigned int table_pll;
 	unsigned int table_all_pll;
 	void *priv;
 };
 
-unsigned int mt_spm_cond_check(const struct mt_spm_cond_tables *src,
+unsigned int mt_spm_cond_check(int state_id,
+			       const struct mt_spm_cond_tables *src,
 			       const struct mt_spm_cond_tables *dest,
 			       struct mt_spm_cond_tables *res);
 unsigned int mt_spm_dump_all_pll(const struct mt_spm_cond_tables *src,

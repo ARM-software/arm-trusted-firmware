@@ -24,6 +24,7 @@
 
 wake_reason_t __spm_output_wake_reason(const struct wake_status *wakesta)
 {
+	uint32_t bk_vtcxo_dur, spm_26m_off_pct;
 	wake_reason_t wr = WR_UNKNOWN;
 
 	if (wakesta == NULL) {
@@ -44,6 +45,33 @@ wake_reason_t __spm_output_wake_reason(const struct wake_status *wakesta)
 		if ((wakesta->wake_misc & WAKE_MISC_PCM_TIMER_EVENT) != 0U) {
 			wr = WR_PCM_TIMER;
 		}
+	}
+
+	INFO("r12 = 0x%x, r12_ext = 0x%x, r13 = 0x%x, debug_flag = 0x%x 0x%x\n",
+	     wakesta->tr.comm.r12, wakesta->r12_ext, wakesta->tr.comm.r13, wakesta->tr.comm.debug_flag,
+	     wakesta->tr.comm.debug_flag1);
+	INFO("raw_sta = 0x%x 0x%x 0x%x, idle_sta = 0x%x, cg_check_sta = 0x%x\n",
+	     wakesta->tr.comm.raw_sta, wakesta->md32pcm_wakeup_sta,
+	     wakesta->md32pcm_event_sta, wakesta->idle_sta,
+	     wakesta->cg_check_sta);
+	INFO("req_sta = 0x%x 0x%x 0x%x 0x%x 0x%x, isr = 0x%x\n",
+	     wakesta->tr.comm.req_sta0, wakesta->tr.comm.req_sta1, wakesta->tr.comm.req_sta2,
+	     wakesta->tr.comm.req_sta3, wakesta->tr.comm.req_sta4, wakesta->isr);
+	INFO("rt_req_sta0 = 0x%x, rt_req_sta1 = 0x%x, rt_req_sta2 = 0x%x\n",
+	     wakesta->rt_req_sta0, wakesta->rt_req_sta1, wakesta->rt_req_sta2);
+	INFO("rt_req_sta3 = 0x%x, dram_sw_con_3 = 0x%x, raw_ext_sta = 0x%x\n",
+	     wakesta->rt_req_sta3, wakesta->rt_req_sta4, wakesta->raw_ext_sta);
+	INFO("wake_misc = 0x%x, pcm_flag = 0x%x 0x%x 0x%x 0x%x, req = 0x%x\n",
+	     wakesta->wake_misc, wakesta->sw_flag0, wakesta->sw_flag1,
+	     wakesta->tr.comm.b_sw_flag0, wakesta->tr.comm.b_sw_flag1, wakesta->src_req);
+	INFO("clk_settle = 0x%x, wlk_cntcv_l = 0x%x, wlk_cntcv_h = 0x%x\n",
+	     wakesta->clk_settle, mmio_read_32(SYS_TIMER_VALUE_L),
+	     mmio_read_32(SYS_TIMER_VALUE_H));
+
+	if (wakesta->tr.comm.timer_out != 0U) {
+		bk_vtcxo_dur = mmio_read_32(SPM_BK_VTCXO_DUR);
+		spm_26m_off_pct = (100 * bk_vtcxo_dur) / wakesta->tr.comm.timer_out;
+		INFO("spm_26m_off_pct = %u\n", spm_26m_off_pct);
 	}
 
 	return wr;
@@ -331,12 +359,27 @@ void __spm_get_wakeup_status(struct wake_status *wakesta, unsigned int ext_statu
 	wakesta->tr.comm.b_sw_flag0 = mmio_read_32(SPM_SW_RSV_7);	/* SPM_SW_RSV_7 */
 	wakesta->tr.comm.b_sw_flag1 = mmio_read_32(SPM_SW_RSV_8);	/* SPM_SW_RSV_8 */
 
+	/* record below spm info for debug */
+	wakesta->src_req = mmio_read_32(SPM_SRC_REQ);
+
+	/* get HW CG check status */
+	wakesta->cg_check_sta = mmio_read_32(SPM_CG_CHECK_STA);
+
+	wakesta->rt_req_sta0 = mmio_read_32(SPM_SW_RSV_2);
+	wakesta->rt_req_sta1 = mmio_read_32(SPM_SW_RSV_3);
+	wakesta->rt_req_sta2 = mmio_read_32(SPM_SW_RSV_4);
+	wakesta->rt_req_sta3 = mmio_read_32(SPM_SW_RSV_5);
+	wakesta->rt_req_sta4 = mmio_read_32(SPM_SW_RSV_6);
+
 	/* get ISR status */
 	wakesta->isr = mmio_read_32(SPM_IRQ_STA);
 
 	/* get SW flag status */
 	wakesta->sw_flag0 = mmio_read_32(SPM_SW_FLAG_0);
 	wakesta->sw_flag1 = mmio_read_32(SPM_SW_FLAG_1);
+
+	/* get CLK SETTLE */
+	wakesta->clk_settle = mmio_read_32(SPM_CLK_SETTLE);
 
 	/* check abort */
 	wakesta->is_abort = wakesta->tr.comm.debug_flag & DEBUG_ABORT_MASK;
