@@ -17,6 +17,7 @@
 /* Vendor header */
 #include "apusys.h"
 #include "apusys_power.h"
+#include "apusys_rv.h"
 #include <mtk_mmap_pool.h>
 
 static spinlock_t apu_lock;
@@ -45,6 +46,43 @@ static int apu_poll(uintptr_t reg, uint32_t mask, uint32_t value, uint32_t timeo
 	      (value == 0U) ? (reg_val & ~mask) : (reg_val | mask));
 
 	return -1;
+}
+
+static void apu_backup_restore(enum APU_BACKUP_RESTORE_CTRL ctrl)
+{
+	int i;
+	static struct apu_restore_data apu_restore_data[] = {
+		{ UP_NORMAL_DOMAIN_NS, 0 },
+		{ UP_PRI_DOMAIN_NS, 0 },
+		{ UP_IOMMU_CTRL, 0 },
+		{ UP_CORE0_VABASE0, 0 },
+		{ UP_CORE0_MVABASE0, 0 },
+		{ UP_CORE0_VABASE1, 0 },
+		{ UP_CORE0_MVABASE1, 0 },
+		{ UP_CORE0_VABASE2, 0 },
+		{ UP_CORE0_MVABASE2, 0 },
+		{ UP_CORE0_VABASE3, 0 },
+		{ UP_CORE0_MVABASE3, 0 },
+		{ MD32_SYS_CTRL, 0 },
+		{ MD32_CLK_CTRL, 0 },
+		{ UP_WAKE_HOST_MASK0, 0 }
+	};
+
+	switch (ctrl) {
+	case APU_CTRL_BACKUP:
+		for (i = 0; i < ARRAY_SIZE(apu_restore_data); i++) {
+			apu_restore_data[i].data = mmio_read_32(apu_restore_data[i].reg);
+		}
+		break;
+	case APU_CTRL_RESTORE:
+		for (i = 0; i < ARRAY_SIZE(apu_restore_data); i++) {
+			mmio_write_32(apu_restore_data[i].reg, apu_restore_data[i].data);
+		}
+		break;
+	default:
+		ERROR(MODULE_TAG "%s invalid op: %d\n", __func__, ctrl);
+		break;
+	}
 }
 
 static void apu_xpu2apusys_d4_slv_en(enum APU_D4_SLV_CTRL en)
@@ -120,6 +158,8 @@ int apusys_kernel_apusys_pwr_top_on(void)
 
 	apu_xpu2apusys_d4_slv_en(D4_SLV_OFF);
 
+	apu_backup_restore(APU_CTRL_RESTORE);
+
 	apusys_top_on = true;
 
 	spin_unlock(&apu_lock);
@@ -152,6 +192,8 @@ int apusys_kernel_apusys_pwr_top_off(void)
 		spin_unlock(&apu_lock);
 		return 0;
 	}
+
+	apu_backup_restore(APU_CTRL_BACKUP);
 
 	apu_xpu2apusys_d4_slv_en(D4_SLV_ON);
 
