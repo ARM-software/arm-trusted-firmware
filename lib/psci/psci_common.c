@@ -451,8 +451,8 @@ void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
  * enter. This function will be called after coordination of requested power
  * states has been done for each power level.
  *****************************************************************************/
-static void psci_set_target_local_pwr_states(unsigned int end_pwrlvl,
-					const psci_power_state_t *target_state)
+void psci_set_target_local_pwr_states(unsigned int end_pwrlvl,
+				      const psci_power_state_t *target_state)
 {
 	unsigned int parent_idx, lvl;
 	const plat_local_state_t *pd_state = target_state->pwr_domain_state;
@@ -473,7 +473,6 @@ static void psci_set_target_local_pwr_states(unsigned int end_pwrlvl,
 		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
 }
-
 
 /*******************************************************************************
  * PSCI helper function to get the parent nodes corresponding to a cpu_index.
@@ -595,9 +594,6 @@ void psci_do_state_coordination(unsigned int end_pwrlvl,
 		state_info->pwr_domain_state[lvl] = PSCI_LOCAL_STATE_RUN;
 
 	}
-
-	/* Update the target state in the power domain nodes */
-	psci_set_target_local_pwr_states(end_pwrlvl, state_info);
 }
 
 #if PSCI_OS_INIT_MODE
@@ -683,9 +679,6 @@ exit:
 		psci_restore_req_local_pwr_states(cpu_idx, prev);
 		return rc;
 	}
-
-	/* Update the target state in the power domain nodes */
-	psci_set_target_local_pwr_states(end_pwrlvl, state_info);
 
 	return rc;
 }

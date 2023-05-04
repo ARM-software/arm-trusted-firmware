@@ -4,7 +4,7 @@ PSCI OS-initiated mode
 :Author: Maulik Shah & Wing Li
 :Organization: Qualcomm Innovation Center, Inc. & Google LLC
 :Contact: Maulik Shah <quic_mkshah@quicinc.com> & Wing Li <wingers@google.com>
-:Status: RFC
+:Status: Accepted
 
 .. contents:: Table of Contents
 
@@ -367,9 +367,11 @@ To add support for OS-initiated mode, the following changes are proposed:
     ``psci_validate_state_coordination``. If validation fails, propagate the
     error up the call stack.
 
-* Update the return type of the platform specific ``pwr_domain_suspend``
-  handler from ``void`` to ``int``, to allow the platform to optionally perform
-  validations based on hardware states.
+* Add a new optional member ``pwr_domain_validate_suspend`` to
+  ``plat_psci_ops_t`` to allow the platform to optionally perform validations
+  based on hardware states.
+
+* The platform specific ``pwr_domain_suspend`` handler remains unchanged.
 
 .. image:: ../resources/diagrams/psci-osi-mode.png
 
