@@ -191,18 +191,6 @@ static void qti_node_power_off(const psci_power_state_t *target_state)
 	}
 }
 
-#if PSCI_OS_INIT_MODE
-static int qti_node_suspend(const psci_power_state_t *target_state)
-{
-	qtiseclib_psci_node_suspend((const uint8_t *)target_state->
-				    pwr_domain_state);
-	if (is_cpu_off(target_state)) {
-		plat_qti_gic_cpuif_disable();
-		qti_set_cpupwrctlr_val();
-	}
-	return PSCI_E_SUCCESS;
-}
-#else
 static void qti_node_suspend(const psci_power_state_t *target_state)
 {
 	qtiseclib_psci_node_suspend((const uint8_t *)target_state->
@@ -212,7 +200,6 @@ static void qti_node_suspend(const psci_power_state_t *target_state)
 		qti_set_cpupwrctlr_val();
 	}
 }
-#endif
 
 static void qti_node_suspend_finish(const psci_power_state_t *target_state)
 {
