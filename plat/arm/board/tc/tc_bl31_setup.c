@@ -53,7 +53,7 @@ void tc_bl31_common_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 
-#if defined(PLATFORM_TEST_NV_COUNTERS) || defined(PLATFORM_TEST_TFM_TESTSUITE)
+#ifdef PLATFORM_TESTS
 #ifdef PLATFORM_TEST_NV_COUNTERS
 	nv_counter_test();
 #elif PLATFORM_TEST_TFM_TESTSUITE
