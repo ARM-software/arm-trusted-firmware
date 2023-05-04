@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,16 +52,19 @@
  * terminology. On a GICv2 system or mode, the interrupts will be treated as
  * Group 0 interrupts.
  */
-#define CSS_G1S_IRQ_PROPS(grp) \
+#define CSS_G1S_INT_PROPS(grp) \
 	INTR_PROP_DESC(CSS_IRQ_MHU, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_LEVEL), \
 	INTR_PROP_DESC(CSS_IRQ_GPU_SMMU_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_LEVEL), \
 	INTR_PROP_DESC(CSS_IRQ_TZC, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_LEVEL), \
-	INTR_PROP_DESC(CSS_IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY, grp, \
-			GIC_INTR_CFG_LEVEL), \
 	INTR_PROP_DESC(CSS_IRQ_SEC_SYS_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL)
+
+#define CSS_G1S_IRQ_PROPS(grp) \
+	CSS_G1S_INT_PROPS(grp), \
+	INTR_PROP_DESC(CSS_IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_LEVEL)
 
 #if CSS_USE_SCMI_SDS_DRIVER

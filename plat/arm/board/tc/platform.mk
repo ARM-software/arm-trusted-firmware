@@ -118,7 +118,8 @@ BL31_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				lib/fconf/fconf_dyn_cfg_getter.c	\
 				drivers/cfi/v2m/v2m_flash.c		\
 				lib/utils/mem_region.c			\
-				plat/arm/common/arm_nor_psci_mem_protect.c
+				plat/arm/common/arm_nor_psci_mem_protect.c	\
+				drivers/arm/sbsa/sbsa.c
 
 BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 

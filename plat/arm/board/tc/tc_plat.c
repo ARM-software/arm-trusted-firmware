@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -147,10 +147,15 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 
 void plat_arm_secure_wdt_start(void)
 {
-	sbsa_wdog_start(SBSA_SECURE_WDOG_BASE, SBSA_SECURE_WDOG_TIMEOUT);
+	sbsa_wdog_start(SBSA_SECURE_WDOG_CONTROL_BASE, SBSA_SECURE_WDOG_TIMEOUT);
 }
 
 void plat_arm_secure_wdt_stop(void)
 {
-	sbsa_wdog_stop(SBSA_SECURE_WDOG_BASE);
+	sbsa_wdog_stop(SBSA_SECURE_WDOG_CONTROL_BASE);
+}
+
+void plat_arm_secure_wdt_refresh(void)
+{
+	sbsa_wdog_refresh(SBSA_SECURE_WDOG_REFRESH_BASE);
 }
