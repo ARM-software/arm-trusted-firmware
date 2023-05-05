@@ -49,11 +49,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	fconf_populate("FW_CONFIG", arg1);
 }
 
-void tc_bl31_common_platform_setup(void)
-{
-	arm_bl31_platform_setup();
-
 #ifdef PLATFORM_TESTS
+static __dead2 void tc_run_platform_tests(void)
+{
 #ifdef PLATFORM_TEST_NV_COUNTERS
 	nv_counter_test();
 #elif PLATFORM_TEST_TFM_TESTSUITE
@@ -61,6 +59,15 @@ void tc_bl31_common_platform_setup(void)
 #endif
 	/* Suspend booting, no matter the tests outcome. */
 	plat_error_handler(-1);
+}
+#endif
+
+void tc_bl31_common_platform_setup(void)
+{
+	arm_bl31_platform_setup();
+
+#ifdef PLATFORM_TESTS
+	tc_run_platform_tests();
 #endif
 }
 
