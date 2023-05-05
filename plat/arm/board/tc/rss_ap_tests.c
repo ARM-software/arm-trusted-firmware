@@ -60,6 +60,7 @@ void run_platform_tests(void)
 {
 	size_t i;
 	int ret;
+	int failures = 0;
 
 	ret = run_tests();
 	if (ret != 0) {
@@ -69,7 +70,11 @@ void run_platform_tests(void)
 
 	printf("\n\n");
 
-	/* Print a summary of all the tests that had been run. */
+	/*
+	 * Print a summary of all the tests that had been run.
+	 * Also count the number of tests failure and report that back to the
+	 * caller.
+	 */
 	printf("SUMMARY:\n");
 	for (i = 0; i < ARRAY_SIZE(test_suites); ++i) {
 
@@ -80,6 +85,7 @@ void run_platform_tests(void)
 			printf("    %s PASSED.\n", suite->name);
 			break;
 		case TEST_FAILED:
+			failures++;
 			printf("    %s FAILED.\n", suite->name);
 			break;
 		case TEST_SKIPPED:
@@ -93,5 +99,5 @@ void run_platform_tests(void)
 
 	printf("\n\n");
 
-	return 0;
+	return failures;
 }
