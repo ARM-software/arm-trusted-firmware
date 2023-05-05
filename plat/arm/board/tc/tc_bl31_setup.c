@@ -52,12 +52,21 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #ifdef PLATFORM_TESTS
 static __dead2 void tc_run_platform_tests(void)
 {
+	int tests_failed;
+
+	printf("\nStarting platform tests...\n");
+
 #ifdef PLATFORM_TEST_NV_COUNTERS
-	nv_counter_test();
+	tests_failed = nv_counter_test();
 #elif PLATFORM_TEST_TFM_TESTSUITE
-	run_platform_tests();
+	tests_failed = run_platform_tests();
 #endif
+
+	printf("Platform tests %s.\n",
+	       (tests_failed != 0) ? "failed" : "succeeded");
+
 	/* Suspend booting, no matter the tests outcome. */
+	printf("Suspend booting...\n");
 	plat_error_handler(-1);
 }
 #endif
