@@ -59,7 +59,7 @@ void tc_bl31_common_platform_setup(void)
 #elif PLATFORM_TEST_TFM_TESTSUITE
 	run_platform_tests();
 #endif
-	/* Suspend booting */
+	/* Suspend booting, no matter the tests outcome. */
 	plat_error_handler(-1);
 #endif
 }
