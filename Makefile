@@ -414,6 +414,10 @@ ifeq ($(findstring clang,$(notdir $(CC))),)
 WARNINGS	+=		-Wunused-but-set-variable -Wmaybe-uninitialized	\
 				-Wpacked-bitfield-compat -Wshift-overflow=2 \
 				-Wlogical-op
+
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105523
+TF_CFLAGS		+= 	$(call cc_option, --param=min-pagesize=0)
+
 else
 # using clang
 WARNINGS	+=		-Wshift-overflow -Wshift-sign-overflow \
