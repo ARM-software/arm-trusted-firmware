@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,6 +75,7 @@
  * The SCMI Channel is placed right after the SDS region
  */
 #define CSS_SCMI_PAYLOAD_BASE		(PLAT_ARM_SDS_MEM_BASE + PLAT_ARM_SDS_MEM_SIZE_MAX)
+#define CSS_SCMI_PAYLOAD_SIZE_MAX	0x100 /* 2x128 bytes for bidirectional communication */
 #define CSS_SCMI_MHU_DB_REG_OFF		MHU_CPU_INTR_S_SET_OFFSET
 
 /* Trusted mailbox base address common to all CSS */
