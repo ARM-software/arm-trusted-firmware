@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,13 +43,14 @@ void bl31_platform_setup(void)
 #ifdef TARGET_PLATFORM_SOC
 	int ret;
 
-	ret = sds_init();
+	ret = sds_init(SDS_SCP_AP_REGION_ID);
 	if (ret != SDS_OK) {
 		ERROR("SDS initialization failed. ret:%d\n", ret);
 		panic();
 	}
 
-	ret = sds_struct_read(MORELLO_SDS_PLATFORM_INFO_STRUCT_ID,
+	ret = sds_struct_read(SDS_SCP_AP_REGION_ID,
+				MORELLO_SDS_PLATFORM_INFO_STRUCT_ID,
 				MORELLO_SDS_PLATFORM_INFO_OFFSET,
 				&plat_info,
 				MORELLO_SDS_PLATFORM_INFO_SIZE,
