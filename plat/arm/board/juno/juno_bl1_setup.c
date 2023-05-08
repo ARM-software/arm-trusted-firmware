@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,13 +32,14 @@ static int is_watchdog_reset(void)
 	int ret;
 	uint32_t scp_reset_synd_flags;
 
-	ret = sds_init();
+	ret = sds_init(SDS_SCP_AP_REGION_ID);
 	if (ret != SDS_OK) {
 		ERROR("SCP SDS initialization failed\n");
 		panic();
 	}
 
-	ret = sds_struct_read(SDS_RESET_SYNDROME_STRUCT_ID,
+	ret = sds_struct_read(SDS_SCP_AP_REGION_ID,
+					SDS_RESET_SYNDROME_STRUCT_ID,
 					SDS_RESET_SYNDROME_OFFSET,
 					&scp_reset_synd_flags,
 					SDS_RESET_SYNDROME_SIZE,
