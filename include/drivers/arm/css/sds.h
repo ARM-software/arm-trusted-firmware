@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,12 +79,33 @@ typedef enum {
 	SDS_ACCESS_MODE_CACHED,
 } sds_access_mode_t;
 
-int sds_init(void);
-int sds_struct_exists(unsigned int structure_id);
-int sds_struct_read(uint32_t structure_id, unsigned int fld_off, void *data,
-		size_t size, sds_access_mode_t mode);
-int sds_struct_write(uint32_t structure_id, unsigned int fld_off, void *data,
-		size_t size, sds_access_mode_t mode);
+/*
+ * The following structure describes a SDS memory region. Its items are used
+ * to track and maintain the state of the memory region reserved for usage
+ * by the SDS framework.
+ *
+ * The base address of the SDS memory region is platform specific. The
+ * SDS description structure must already contain the address when it is
+ * returned by the plat_sds_get_regions() platform API during SDS region
+ * initialization.
+ * The size of the SDS memory region is dynamically discovered during the
+ * initialization of the region and written into the 'size' item of the
+ * SDS description structure.
+ */
+typedef struct {
+	uintptr_t base;	/* Pointer to the base of the SDS memory region */
+	size_t size;	/* Size of the SDS memory region in bytes */
+} sds_region_desc_t;
+
+/* API to get the platform specific SDS region description(s) */
+sds_region_desc_t *plat_sds_get_regions(unsigned int *region_count);
+
+int sds_init(unsigned int region_id);
+int sds_struct_exists(unsigned int region_id, unsigned int structure_id);
+int sds_struct_read(unsigned int region_id, uint32_t structure_id,
+	unsigned int fld_off, void *data, size_t size, sds_access_mode_t mode);
+int sds_struct_write(unsigned int region_id, uint32_t structure_id,
+	unsigned int fld_off, void *data, size_t size, sds_access_mode_t mode);
 #endif /*__ASSEMBLER__ */
 
 #endif /* SDS_H */

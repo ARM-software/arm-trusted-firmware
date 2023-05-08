@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,7 @@ int css_scp_boot_image_xfer(void *image, unsigned int image_size)
 	int ret;
 	unsigned int image_offset, image_flags;
 
-	ret = sds_init();
+	ret = sds_init(SDS_SCP_AP_REGION_ID);
 	if (ret != SDS_OK) {
 		ERROR("SCP SDS initialization failed\n");
 		panic();
@@ -28,13 +28,15 @@ int css_scp_boot_image_xfer(void *image, unsigned int image_size)
 
 	VERBOSE("Writing SCP image metadata\n");
 	image_offset = (uintptr_t) image - ARM_TRUSTED_SRAM_BASE;
-	ret = sds_struct_write(SDS_SCP_IMG_STRUCT_ID, SDS_SCP_IMG_ADDR_OFFSET,
+	ret = sds_struct_write(SDS_SCP_AP_REGION_ID,
+			SDS_SCP_IMG_STRUCT_ID, SDS_SCP_IMG_ADDR_OFFSET,
 			&image_offset, SDS_SCP_IMG_ADDR_SIZE,
 			SDS_ACCESS_MODE_NON_CACHED);
 	if (ret != SDS_OK)
 		goto sds_fail;
 
-	ret = sds_struct_write(SDS_SCP_IMG_STRUCT_ID, SDS_SCP_IMG_SIZE_OFFSET,
+	ret = sds_struct_write(SDS_SCP_AP_REGION_ID,
+			SDS_SCP_IMG_STRUCT_ID, SDS_SCP_IMG_SIZE_OFFSET,
 			&image_size, SDS_SCP_IMG_SIZE_SIZE,
 			SDS_ACCESS_MODE_NON_CACHED);
 	if (ret != SDS_OK)
@@ -42,7 +44,8 @@ int css_scp_boot_image_xfer(void *image, unsigned int image_size)
 
 	VERBOSE("Marking SCP image metadata as valid\n");
 	image_flags = SDS_SCP_IMG_VALID_FLAG_BIT;
-	ret = sds_struct_write(SDS_SCP_IMG_STRUCT_ID, SDS_SCP_IMG_FLAG_OFFSET,
+	ret = sds_struct_write(SDS_SCP_AP_REGION_ID,
+			SDS_SCP_IMG_STRUCT_ID, SDS_SCP_IMG_FLAG_OFFSET,
 			&image_flags, SDS_SCP_IMG_FLAG_SIZE,
 			SDS_ACCESS_MODE_NON_CACHED);
 	if (ret != SDS_OK)
@@ -68,7 +71,8 @@ int css_scp_boot_ready(void)
 
 	/* Wait for the SCP RAM Firmware to complete its initialization process */
 	while (retry > 0) {
-		ret = sds_struct_read(SDS_FEATURE_AVAIL_STRUCT_ID, 0,
+		ret = sds_struct_read(SDS_SCP_AP_REGION_ID,
+				SDS_FEATURE_AVAIL_STRUCT_ID, 0,
 				&scp_feature_availability_flags,
 				SDS_FEATURE_AVAIL_SIZE,
 				SDS_ACCESS_MODE_NON_CACHED);
