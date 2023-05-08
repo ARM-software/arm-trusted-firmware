@@ -34,13 +34,13 @@ static int arm_sip_setup(void)
 
 #endif /* USE_DEBUGFS */
 
-#if ARM_ETHOSN_NPU_DRIVER
+#if ETHOSN_NPU_DRIVER
 
 	if (ethosn_smc_setup() != 0) {
 		return 1;
 	}
 
-#endif /* ARM_ETHOSN_NPU_DRIVER */
+#endif /* ETHOSN_NPU_DRIVER */
 
 	return 0;
 }
@@ -81,14 +81,14 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 
 #endif /* USE_DEBUGFS */
 
-#if ARM_ETHOSN_NPU_DRIVER
+#if ETHOSN_NPU_DRIVER
 
 	if (is_ethosn_fid(smc_fid)) {
 		return ethosn_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
 					  handle, flags);
 	}
 
-#endif /* ARM_ETHOSN_NPU_DRIVER */
+#endif /* ETHOSN_NPU_DRIVER */
 
 	switch (smc_fid) {
 	case ARM_SIP_SVC_EXE_STATE_SWITCH: {
@@ -114,10 +114,10 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 		/* PMF calls */
 		call_count += PMF_NUM_SMC_CALLS;
 
-#if ARM_ETHOSN_NPU_DRIVER
+#if ETHOSN_NPU_DRIVER
 		/* ETHOSN calls */
 		call_count += ETHOSN_NUM_SMC_CALLS;
-#endif /* ARM_ETHOSN_NPU_DRIVER */
+#endif          /* ETHOSN_NPU_DRIVER */
 
 		/* State switch call */
 		call_count += 1;

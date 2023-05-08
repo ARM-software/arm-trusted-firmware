@@ -114,48 +114,6 @@ ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
   endif
 endif
 
-# Arm(R) Ethos(TM)-N NPU SiP service
-ARM_ETHOSN_NPU_DRIVER			:=	0
-$(eval $(call assert_boolean,ARM_ETHOSN_NPU_DRIVER))
-$(eval $(call add_define,ARM_ETHOSN_NPU_DRIVER))
-
-# Arm(R) Ethos(TM)-N NPU TZMP1
-ARM_ETHOSN_NPU_TZMP1			:=	0
-$(eval $(call assert_boolean,ARM_ETHOSN_NPU_TZMP1))
-$(eval $(call add_define,ARM_ETHOSN_NPU_TZMP1))
-ifeq (${ARM_ETHOSN_NPU_TZMP1},1)
-  ifeq (${ARM_ETHOSN_NPU_DRIVER},0)
-    $(error ARM_ETHOSN_NPU_TZMP1 is only available if ARM_ETHOSN_NPU_DRIVER=1)
-  endif
-  ifeq (${PLAT},juno)
-    $(eval $(call add_define,JUNO_ETHOSN_TZMP1))
-  else
-    $(error ARM_ETHOSN_NPU_TZMP1 only supported on Juno platform, not ${PLAT})
-  endif
-
-  ifeq (${TRUSTED_BOARD_BOOT},0)
-    # We rely on TRUSTED_BOARD_BOOT to prevent the firmware code from being
-    # tampered with, which is required to protect the confidentiality of protected
-    # inference data.
-    $(error ARM_ETHOSN_NPU_TZMP1 is only available if TRUSTED_BOARD_BOOT is enabled)
-  endif
-
-  # We need the FW certificate and key certificate
-  $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/npu_fw_key.crt,--npu-fw-key-cert))
-  $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/npu_fw_content.crt,--npu-fw-cert))
-  # Needed for our OIDs to be available in tbbr_cot_bl2.c
-  $(eval $(call add_define, PLAT_DEF_OID))
-  PLAT_INCLUDES	+=	-I${PLAT_DIR}certificate/include
-  PLAT_INCLUDES	+=	-Iinclude/drivers/arm/
-
-  # We need the firmware to be built into the FIP
-  $(eval $(call TOOL_ADD_IMG,ARM_ETHOSN_NPU_FW,--npu-fw))
-
-  # Needed so that UUIDs from the FIP are available in BL2
-  $(eval $(call add_define,PLAT_DEF_FIP_UUID))
-  PLAT_INCLUDES		+=	-I${PLAT_DIR}fip
-endif # ARM_ETHOSN_NPU_TZMP1
-
 # Use an implementation of SHA-256 with a smaller memory footprint but reduced
 # speed.
 $(eval $(call add_define,MBEDTLS_SHA256_SMALLER))
@@ -348,18 +306,18 @@ BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_topology.c			\
 				plat/common/plat_psci_common.c
 
-ifneq ($(filter 1,${ENABLE_PMF} ${ARM_ETHOSN_NPU_DRIVER}),)
+ifneq ($(filter 1,${ENABLE_PMF} ${ETHOSN_NPU_DRIVER}),)
 ARM_SVC_HANDLER_SRCS :=
 
 ifeq (${ENABLE_PMF},1)
 ARM_SVC_HANDLER_SRCS	+=	lib/pmf/pmf_smc.c
 endif
 
-ifeq (${ARM_ETHOSN_NPU_DRIVER},1)
+ifeq (${ETHOSN_NPU_DRIVER},1)
 ARM_SVC_HANDLER_SRCS	+=	plat/arm/common/fconf/fconf_ethosn_getter.c	\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/arm/ethosn/ethosn_smc.c
-ifeq (${ARM_ETHOSN_NPU_TZMP1},1)
+ifeq (${ETHOSN_NPU_TZMP1},1)
 ARM_SVC_HANDLER_SRCS	+=	drivers/arm/ethosn/ethosn_big_fw.c
 endif
 endif

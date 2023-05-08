@@ -7,7 +7,7 @@
 PLAT_DEF_OID := 1
 
 ifeq (${PLAT_DEF_OID},1)
-  ifeq (${ARM_ETHOSN_NPU_DRIVER},1)
+  ifeq (${ETHOSN_NPU_DRIVER},1)
     $(eval $(call add_define, PLAT_DEF_OID))
     $(eval $(call add_define, PDEF_CERTS))
     $(eval $(call add_define, PDEF_EXTS))

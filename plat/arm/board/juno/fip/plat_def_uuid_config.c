@@ -12,11 +12,11 @@
 #include "plat_def_fip_uuid.h"
 
 toc_entry_t plat_def_toc_entries[] = {
-#ifdef ARM_ETHOSN_NPU_TZMP1
+#ifdef ETHOSN_NPU_TZMP1
 	ETHOSN_FW_KEY_CERTIFICATE_DEF,
 	ETHOSN_FW_CONTENT_CERTIFICATE_DEF,
 	ETHOSN_FW_DEF,
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 	{
 		.name = NULL,
 		.uuid = { { 0 } },

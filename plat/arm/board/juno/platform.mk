@@ -43,8 +43,8 @@ $(eval $(call add_define,JUNO_AARCH32_EL3_RUNTIME))
 JUNO_TZMP1		:=	0
 $(eval $(call assert_boolean,JUNO_TZMP1))
 ifeq (${JUNO_TZMP1}, 1)
-  ifeq (${ARM_ETHOSN_NPU_TZMP1},1)
-    $(error JUNO_TZMP1 cannot be used together with ARM_ETHOSN_NPU_TZMP1)
+  ifeq (${ETHOSN_NPU_TZMP1},1)
+    $(error JUNO_TZMP1 cannot be used together with ETHOSN_NPU_TZMP1)
   else
     $(eval $(call add_define,JUNO_TZMP1))
   endif
@@ -207,6 +207,7 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
 
+include drivers/arm/ethosn/ethosn_npu.mk
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
 include plat/arm/soc/common/soc_css.mk

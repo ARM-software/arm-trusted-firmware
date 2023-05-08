@@ -51,10 +51,10 @@
 			tos_fw_content_cert_uuid = "a49f4411-5e63-e411-8728-3f05722af33d";
 			nt_fw_content_cert_uuid = "8ec4c1f3-5d63-e411-a7a9-87ee40b23fa7";
 			plat_sp_content_cert_uuid = "776dfd44-8697-4c3b-91eb-c13e025a2a6f";
-#if ARM_ETHOSN_NPU_TZMP1
-			arm_ethosn_npu_fw_uuid = "cfd499b5-a3bc-4a7e-98cb-48a41cb8dae1";
-			arm_ethosn_npu_fw_key_cert_uuid = "5666d004-ab98-40aa-8988-b72a03a256e2";
-			arm_ethosn_npu_fw_content_cert_uuid = "a5c418da-430f-48b1-88cd-93f67889d9ed";
+#if ETHOSN_NPU_TZMP1
+			ethosn_npu_fw_uuid = "cfd499b5-a3bc-4a7e-98cb-48a41cb8dae1";
+			ethosn_npu_fw_key_cert_uuid = "5666d004-ab98-40aa-8988-b72a03a256e2";
+			ethosn_npu_fw_content_cert_uuid = "a5c418da-430f-48b1-88cd-93f67889d9ed";
 #endif
 		};
 	};

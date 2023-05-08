@@ -17,9 +17,9 @@
 
 #include <platform_def.h>
 
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 #include "ethosn_big_fw.h"
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 
 /*
  * Number of Arm(R) Ethos(TM)-N NPU (NPU) devices available
@@ -51,11 +51,11 @@
 #define SEC_AUXCTLR_STASHING_VAL	U(0xA5000000)
 
 #define SEC_DEL_REG			U(0x0004)
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 #define SEC_DEL_VAL			U(0x808)
 #else
 #define SEC_DEL_VAL			U(0x80C)
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 #define SEC_DEL_EXCC_MASK		U(0x20)
 
 #define SEC_SECCTLR_REG			U(0x0010)
@@ -104,8 +104,8 @@
 #define TO_EXTEND_ADDR(addr) \
 	((addr >> SEC_ADDR_EXT_SHIFT) & SEC_ADDR_EXT_MASK)
 
-#if ARM_ETHOSN_NPU_TZMP1
-CASSERT(ARM_ETHOSN_NPU_FW_IMAGE_BASE > 0U, assert_ethosn_invalid_fw_image_base);
+#if ETHOSN_NPU_TZMP1
+CASSERT(ETHOSN_NPU_FW_IMAGE_BASE > 0U, assert_ethosn_invalid_fw_image_base);
 static const struct ethosn_big_fw *big_fw;
 
 #define FW_INITVTOR_ADDR(big_fw) \
@@ -115,7 +115,7 @@ static const struct ethosn_big_fw *big_fw;
 #define SYSCTRL0_INITVTOR_ADDR(value) \
 	(value & SEC_SYSCTRL0_INITVTOR_MASK)
 
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 
 static bool ethosn_get_device_and_core(uintptr_t core_addr,
 				       const struct ethosn_device_t **dev_match,
@@ -142,7 +142,7 @@ static bool ethosn_get_device_and_core(uintptr_t core_addr,
 	return false;
 }
 
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 static uint32_t ethosn_core_read_arch_version(uintptr_t core_addr)
 {
 	uint32_t npu_id = mmio_read_32(ETHOSN_CORE_SEC_REG(core_addr,
@@ -155,23 +155,23 @@ static void ethosn_configure_stream_nsaid(const struct ethosn_core_t *core,
 					  bool is_protected)
 {
 	size_t i;
-	uint32_t streams[9] = {[0 ... 8] = ARM_ETHOSN_NPU_NS_RO_DATA_NSAID};
+	uint32_t streams[9] = {[0 ... 8] = ETHOSN_NPU_NS_RO_DATA_NSAID};
 
-	streams[FIRMWARE_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_FW_NSAID;
-	streams[PLE_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_FW_NSAID;
+	streams[FIRMWARE_STREAM_INDEX] = ETHOSN_NPU_PROT_FW_NSAID;
+	streams[PLE_STREAM_INDEX] = ETHOSN_NPU_PROT_FW_NSAID;
 
-	streams[WORKING_STREAM_INDEX] = ARM_ETHOSN_NPU_NS_RW_DATA_NSAID;
+	streams[WORKING_STREAM_INDEX] = ETHOSN_NPU_NS_RW_DATA_NSAID;
 
 	if (is_protected) {
-		streams[INPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_RO_DATA_NSAID;
+		streams[INPUT_STREAM_INDEX] = ETHOSN_NPU_PROT_RO_DATA_NSAID;
 		streams[INTERMEDIATE_STREAM_INDEX] =
-			ARM_ETHOSN_NPU_PROT_RW_DATA_NSAID;
-		streams[OUTPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_PROT_RW_DATA_NSAID;
+			ETHOSN_NPU_PROT_RW_DATA_NSAID;
+		streams[OUTPUT_STREAM_INDEX] = ETHOSN_NPU_PROT_RW_DATA_NSAID;
 	} else {
-		streams[INPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_NS_RO_DATA_NSAID;
+		streams[INPUT_STREAM_INDEX] = ETHOSN_NPU_NS_RO_DATA_NSAID;
 		streams[INTERMEDIATE_STREAM_INDEX] =
-			ARM_ETHOSN_NPU_NS_RW_DATA_NSAID;
-		streams[OUTPUT_STREAM_INDEX] = ARM_ETHOSN_NPU_NS_RW_DATA_NSAID;
+			ETHOSN_NPU_NS_RW_DATA_NSAID;
+		streams[OUTPUT_STREAM_INDEX] = ETHOSN_NPU_NS_RW_DATA_NSAID;
 	}
 
 	for (i = 0U; i < ARRAY_SIZE(streams); ++i) {
@@ -188,7 +188,7 @@ static void ethosn_configure_vector_table(uintptr_t core_addr)
 			FW_INITVTOR_ADDR(big_fw));
 }
 
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 
 static void ethosn_configure_events(uintptr_t core_addr)
 {
@@ -343,7 +343,7 @@ static bool ethosn_core_reset(uintptr_t core_addr, bool hard_reset)
 
 static int ethosn_core_boot_fw(uintptr_t core_addr)
 {
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 	const uintptr_t sysctrl0_reg = ETHOSN_CORE_SEC_REG(core_addr, SEC_SYSCTRL0_REG);
 	const uint32_t sysctrl0_val = mmio_read_32(sysctrl0_reg);
 	const bool waiting = (sysctrl0_val & SEC_SYSCTRL0_CPU_WAIT);
@@ -363,7 +363,7 @@ static int ethosn_core_boot_fw(uintptr_t core_addr)
 	return ETHOSN_SUCCESS;
 #else
 	return ETHOSN_NOT_SUPPORTED;
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 }
 
 static int ethosn_core_full_reset(const struct ethosn_device_t *device,
@@ -392,17 +392,17 @@ static int ethosn_core_full_reset(const struct ethosn_device_t *device,
 	if (!device->has_reserved_memory) {
 		ethosn_configure_smmu_streams(device, core, asset_alloc_idx);
 
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 		ethosn_configure_stream_nsaid(core, is_protected);
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 	}
 
 	ethosn_configure_stream_addr_extends(device, core->addr);
 	ethosn_configure_stream_attr_ctlr(core->addr);
 
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 	ethosn_configure_vector_table(core->addr);
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 
 	ethosn_delegate_to_ns(core->addr);
 
@@ -481,7 +481,7 @@ static uintptr_t ethosn_smc_core_handler(uint32_t fid,
 static uintptr_t ethosn_smc_fw_prop_handler(u_register_t fw_property,
 					    void *handle)
 {
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 	switch (fw_property) {
 	case ETHOSN_FW_PROP_VERSION:
 		SMC_RET4(handle, ETHOSN_SUCCESS,
@@ -507,7 +507,7 @@ static uintptr_t ethosn_smc_fw_prop_handler(u_register_t fw_property,
 	}
 #else
 	SMC_RET1(handle, ETHOSN_NOT_SUPPORTED);
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 }
 
 uintptr_t ethosn_smc_handler(uint32_t smc_fid,
@@ -554,17 +554,17 @@ uintptr_t ethosn_smc_handler(uint32_t smc_fid,
 
 int ethosn_smc_setup(void)
 {
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 	struct ethosn_device_t *dev;
 	uint32_t arch_ver;
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 
 	if (ETHOSN_NUM_DEVICES == 0U) {
 		ERROR("ETHOSN: No NPU found\n");
 		return ETHOSN_FAILURE;
 	}
 
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 
 	/* Only one NPU core is supported in the TZMP1 setup */
 	if ((ETHOSN_NUM_DEVICES != 1U) ||
@@ -580,7 +580,7 @@ int ethosn_smc_setup(void)
 	}
 
 	arch_ver = ethosn_core_read_arch_version(dev->cores[0U].addr);
-	big_fw = (struct ethosn_big_fw *)ARM_ETHOSN_NPU_FW_IMAGE_BASE;
+	big_fw = (struct ethosn_big_fw *)ETHOSN_NPU_FW_IMAGE_BASE;
 
 	if (!ethosn_big_fw_verify_header(big_fw, arch_ver)) {
 		return ETHOSN_FAILURE;
@@ -591,7 +591,7 @@ int ethosn_smc_setup(void)
 	       big_fw->fw_ver_patch);
 #else
 	NOTICE("ETHOSN: Setup succeeded\n");
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 
 	return 0;
 }

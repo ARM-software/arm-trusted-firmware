@@ -32,9 +32,9 @@ static unsigned char nt_fw_config_hash_buf[HASH_DER_LEN];
 #if defined(SPD_spmd)
 static unsigned char sp_pkg_hash_buf[MAX_SP_IDS][HASH_DER_LEN];
 #endif /* SPD_spmd */
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 static unsigned char npu_fw_image_hash_buf[HASH_DER_LEN];
-#endif /* ARM_ETHOSN_NPU_TZMP1 */
+#endif /* ETHOSN_NPU_TZMP1 */
 
 
 static auth_param_type_desc_t non_trusted_nv_ctr = AUTH_PARAM_TYPE_DESC(
@@ -87,12 +87,12 @@ static auth_param_type_desc_t sp_pkg7_hash = AUTH_PARAM_TYPE_DESC(
 static auth_param_type_desc_t sp_pkg8_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, SP_PKG8_HASH_OID);
 #endif /* SPD_spmd */
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 static auth_param_type_desc_t npu_fw_cert_pk = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_PUB_KEY, ETHOSN_NPU_FW_CONTENT_CERT_PK_OID);
 static auth_param_type_desc_t npu_fw_image_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, ETHOSN_NPU_FW_BINARY_OID);
-#endif /* ARM_ETHOSN_NPU_TZMP1 */
+#endif /* ETHOSN_NPU_TZMP1 */
 
 /*
  * Trusted key certificate
@@ -662,9 +662,9 @@ DEFINE_SIP_SP_PKG(7);
 DEFINE_SIP_SP_PKG(8);
 #endif /* SPD_spmd */
 
-#if ARM_ETHOSN_NPU_TZMP1
+#if ETHOSN_NPU_TZMP1
 static const auth_img_desc_t npu_fw_key_cert = {
-	.img_id = ARM_ETHOSN_NPU_FW_KEY_CERT_ID,
+	.img_id = ETHOSN_NPU_FW_KEY_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &trusted_key_cert,
 	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
@@ -697,7 +697,7 @@ static const auth_img_desc_t npu_fw_key_cert = {
 };
 
 static const auth_img_desc_t npu_fw_content_cert = {
-	.img_id = ARM_ETHOSN_NPU_FW_CONTENT_CERT_ID,
+	.img_id = ETHOSN_NPU_FW_CONTENT_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &npu_fw_key_cert,
 	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
@@ -730,7 +730,7 @@ static const auth_img_desc_t npu_fw_content_cert = {
 };
 
 static const auth_img_desc_t npu_fw_image = {
-	.img_id = ARM_ETHOSN_NPU_FW_IMAGE_ID,
+	.img_id = ETHOSN_NPU_FW_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &npu_fw_content_cert,
 	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
@@ -743,7 +743,7 @@ static const auth_img_desc_t npu_fw_image = {
 		}
 	}
 };
-#endif /* ARM_ETHOSN_NPU_TZMP1 */
+#endif /* ETHOSN_NPU_TZMP1 */
 
 
 static const auth_img_desc_t * const cot_desc[] = {
@@ -778,11 +778,11 @@ static const auth_img_desc_t * const cot_desc[] = {
 	[SP_PKG7_ID]				=	&sp_pkg7,
 	[SP_PKG8_ID]				=       &sp_pkg8,
 #endif
-#if ARM_ETHOSN_NPU_TZMP1
-	[ARM_ETHOSN_NPU_FW_KEY_CERT_ID]		=	&npu_fw_key_cert,
-	[ARM_ETHOSN_NPU_FW_CONTENT_CERT_ID]	=	&npu_fw_content_cert,
-	[ARM_ETHOSN_NPU_FW_IMAGE_ID]		=	&npu_fw_image,
-#endif /* ARM_ETHOSN_NPU_TZMP1 */
+#if ETHOSN_NPU_TZMP1
+	[ETHOSN_NPU_FW_KEY_CERT_ID]		=	&npu_fw_key_cert,
+	[ETHOSN_NPU_FW_CONTENT_CERT_ID]		=	&npu_fw_content_cert,
+	[ETHOSN_NPU_FW_IMAGE_ID]		=	&npu_fw_image,
+#endif /* ETHOSN_NPU_TZMP1 */
 };
 
 /* Register the CoT in the authentication module */
