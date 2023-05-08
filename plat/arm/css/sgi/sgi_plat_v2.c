@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,9 +8,11 @@
 
 #include <platform_def.h>
 
+#include <lib/utils_def.h>
+#include <drivers/arm/css/sds.h>
+#include <drivers/arm/sbsa.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-#include <drivers/arm/sbsa.h>
 
 #if SPM_MM
 #include <services/spm_mm_partition.h>
@@ -175,4 +177,15 @@ void plat_arm_secure_wdt_start(void)
 void plat_arm_secure_wdt_stop(void)
 {
 	sbsa_wdog_stop(SBSA_SECURE_WDOG_BASE);
+}
+
+static sds_region_desc_t sgi_sds_regions[] = {
+	{ .base = PLAT_ARM_SDS_MEM_BASE },
+};
+
+sds_region_desc_t *plat_sds_get_regions(unsigned int *region_count)
+{
+	*region_count = ARRAY_SIZE(sgi_sds_regions);
+
+	return sgi_sds_regions;
 }

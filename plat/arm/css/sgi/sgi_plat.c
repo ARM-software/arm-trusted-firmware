@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,8 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/arm/ccn.h>
+#include <drivers/arm/css/sds.h>
+#include <lib/utils_def.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <drivers/arm/sbsa.h>
@@ -173,4 +175,15 @@ void plat_arm_secure_wdt_start(void)
 void plat_arm_secure_wdt_stop(void)
 {
 	sbsa_wdog_stop(SBSA_SECURE_WDOG_BASE);
+}
+
+static sds_region_desc_t sgi_sds_regions[] = {
+	{ .base = PLAT_ARM_SDS_MEM_BASE },
+};
+
+sds_region_desc_t *plat_sds_get_regions(unsigned int *region_count)
+{
+	*region_count = ARRAY_SIZE(sgi_sds_regions);
+
+	return sgi_sds_regions;
 }

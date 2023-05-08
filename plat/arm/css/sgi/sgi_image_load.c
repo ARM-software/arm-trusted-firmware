@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,13 +30,14 @@ void plat_arm_sgi_get_isolated_cpu_list(struct isolated_cpu_mpid_list *list)
 {
 	int ret;
 
-	ret = sds_init();
+	ret = sds_init(SDS_SCP_AP_REGION_ID);
 	if (ret != SDS_OK) {
 		ERROR("SDS initialization failed, error: %d\n", ret);
 		panic();
 	}
 
-	ret = sds_struct_read(SDS_ISOLATED_CPU_LIST_ID, 0, &list->num_entries,
+	ret = sds_struct_read(SDS_SCP_AP_REGION_ID,
+			SDS_ISOLATED_CPU_LIST_ID, 0, &list->num_entries,
 			sizeof(list->num_entries), SDS_ACCESS_MODE_CACHED);
 	if (ret != SDS_OK) {
 		INFO("SDS CPU num elements read failed, error: %d\n", ret);
@@ -54,7 +55,8 @@ void plat_arm_sgi_get_isolated_cpu_list(struct isolated_cpu_mpid_list *list)
 		return;
 	}
 
-	ret = sds_struct_read(SDS_ISOLATED_CPU_LIST_ID,
+	ret = sds_struct_read(SDS_SCP_AP_REGION_ID,
+			SDS_ISOLATED_CPU_LIST_ID,
 			sizeof(list->num_entries),
 			&list->mpid_list,
 			sizeof(list->mpid_list[0]) * list->num_entries,
@@ -152,4 +154,3 @@ bl_params_t *plat_get_next_bl_params(void)
 
 	return arm_get_next_bl_params();
 }
-
