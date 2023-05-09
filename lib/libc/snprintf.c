@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -85,6 +85,7 @@ static void unsigned_num_print(char **s, size_t n, size_t *chars_printed,
  *
  * %x (or %X) - hexadecimal format
  * %d or %i - signed decimal format
+ * %c - character format
  * %s - string format
  * %u - unsigned decimal format
  * %p - pointer format
@@ -180,6 +181,9 @@ loop:
 
 				unsigned_num_print(&s, n, &chars_printed,
 						   unum, 10, padc, padn, false);
+				break;
+			case 'c':
+				CHECK_AND_PUT_CHAR(s, n, chars_printed, va_arg(args, int));
 				break;
 			case 's':
 				str = va_arg(args, char *);
