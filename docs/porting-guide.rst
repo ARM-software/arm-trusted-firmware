@@ -591,32 +591,32 @@ configuration must be performed:
 If the platform port uses the Arm® Ethos™-N NPU driver with TZMP1 support
 enabled, the following constants and configuration must also be defined:
 
-- **ARM_ETHOSN_NPU_PROT_FW_NSAID**
+- **ETHOSN_NPU_PROT_FW_NSAID**
 
   Defines the Non-secure Access IDentity (NSAID) that the NPU shall use to
   access the protected memory that contains the NPU's firmware.
 
-- **ARM_ETHOSN_NPU_PROT_DATA_RW_NSAID**
+- **ETHOSN_NPU_PROT_DATA_RW_NSAID**
 
   Defines the Non-secure Access IDentity (NSAID) that the NPU shall use for
   read/write access to the protected memory that contains inference data.
 
-- **ARM_ETHOSN_NPU_PROT_DATA_RO_NSAID**
+- **ETHOSN_NPU_PROT_DATA_RO_NSAID**
 
   Defines the Non-secure Access IDentity (NSAID) that the NPU shall use for
   read-only access to the protected memory that contains inference data.
 
-- **ARM_ETHOSN_NPU_NS_RW_DATA_NSAID**
+- **ETHOSN_NPU_NS_RW_DATA_NSAID**
 
   Defines the Non-secure Access IDentity (NSAID) that the NPU shall use for
   read/write access to the non-protected memory.
 
-- **ARM_ETHOSN_NPU_NS_RO_DATA_NSAID**
+- **ETHOSN_NPU_NS_RO_DATA_NSAID**
 
   Defines the Non-secure Access IDentity (NSAID) that the NPU shall use for
   read-only access to the non-protected memory.
 
-- **ARM_ETHOSN_NPU_FW_IMAGE_BASE** and **ARM_ETHOSN_NPU_FW_IMAGE_LIMIT**
+- **ETHOSN_NPU_FW_IMAGE_BASE** and **ETHOSN_NPU_FW_IMAGE_LIMIT**
 
   Defines the physical address range that the NPU's firmware will be loaded
   into and executed from.
@@ -634,10 +634,10 @@ enabled, the following constants and configuration must also be defined:
 - Add MMU mappings such that:
 
  - BL2 can write the NPU firmware into the region defined by
-   ``ARM_ETHOSN_NPU_FW_IMAGE_BASE`` and ``ARM_ETHOSN_NPU_FW_IMAGE_LIMIT``
+   ``ETHOSN_NPU_FW_IMAGE_BASE`` and ``ETHOSN_NPU_FW_IMAGE_LIMIT``
  - BL31 (SiP service) can read the NPU firmware from the same region
 
-- Add the firmware image ID ``ARM_ETHOSN_NPU_FW_IMAGE_ID`` to the list of images
+- Add the firmware image ID ``ETHOSN_NPU_FW_IMAGE_ID`` to the list of images
   loaded by BL2.
 
 Please see the reference implementation code for the Juno platform as an example.

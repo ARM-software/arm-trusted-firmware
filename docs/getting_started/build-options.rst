@@ -519,6 +519,20 @@ Common build options
    Firmware as error. It can take the value 1 (flag the use of deprecated
    APIs as error) or 0. The default is 0.
 
+-  ``ETHOSN_NPU_DRIVER``: boolean option to enable a SiP service that can
+   configure an Arm® Ethos™-N NPU. To use this service the target platform's
+   ``HW_CONFIG`` must include the device tree nodes for the NPU. Currently, only
+   the Arm Juno platform has this included in its ``HW_CONFIG`` and the platform
+   only loads the ``HW_CONFIG`` in AArch64 builds. Default is 0.
+
+-  ``ETHOSN_NPU_TZMP1``: boolean option to enable TZMP1 support for the
+   Arm® Ethos™-N NPU. Requires ``ETHOSN_NPU_DRIVER`` and
+   ``TRUSTED_BOARD_BOOT`` to be enabled.
+
+-  ``ETHOSN_NPU_FW``: location of the NPU firmware binary
+   (```ethosn.bin```). This firmware image will be included in the FIP and
+   loaded at runtime.
+
 -  ``EL3_EXCEPTION_HANDLING``: When set to ``1``, enable handling of exceptions
    targeted at EL3. When set ``0`` (default), no exceptions are expected or
    handled at EL3, and a panic will result. The exception to this rule is when
