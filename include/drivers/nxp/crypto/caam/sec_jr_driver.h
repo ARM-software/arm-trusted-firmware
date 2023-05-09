@@ -57,7 +57,7 @@ typedef void (*user_callback) (uint32_t *desc, uint32_t status,
 /*
  * Structure encompassing a job descriptor which is to be processed
  * by SEC. User should also initialise this structure with the callback
- * function pointer which will be called by driver after recieving proccessed
+ * function pointer which will be called by driver after receiving proccessed
  * descriptor from SEC. User data is also passed in this data structure which
  * will be sent as an argument to the user callback function.
  */

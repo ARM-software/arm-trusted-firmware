@@ -213,7 +213,7 @@ int init_gwin(int ap_index)
 	 * remote AP should be accompanied with proper configuration to
 	 * GWIN registers group and therefore the GWIN Miss feature
 	 * should be set into Bypass mode, need to make sure all GWIN regions
-	 * are defined correctly that will assure no GWIN miss occurrance
+	 * are defined correctly that will assure no GWIN miss occurrence
 	 * JIRA-AURORA2-1630
 	 */
 	INFO("Update GWIN miss bypass\n");

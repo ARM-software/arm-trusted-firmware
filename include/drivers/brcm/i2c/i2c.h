@@ -78,7 +78,7 @@ uint32_t i2c_get_bus_speed(uint32_t bus_id);
  *
  * Description:
  *	This function reads I2C data from a device without specifying
- *	a command regsiter.
+ *	a command register.
  *
  * Parameters:
  *	bus_id  - I2C bus ID
@@ -95,7 +95,7 @@ int i2c_recv_byte(uint32_t bus_id, uint8_t devaddr, uint8_t *value);
  *
  * Description:
  *	This function send I2C data to a device without specifying
- *	a command regsiter.
+ *	a command register.
  *
  * Parameters:
  *	bus_id  - I2C bus ID

@@ -635,7 +635,7 @@ enum pm_ret_status pm_get_chipid(uint32_t *value)
  * pm_secure_rsaaes() - Load the secure images.
  *
  * This function provides access to the xilsecure library to load
- * the authenticated, encrypted, and authenicated/encrypted images.
+ * the authenticated, encrypted, and authenticated/encrypted images.
  *
  * address_low: lower 32-bit Linear memory space address
  *

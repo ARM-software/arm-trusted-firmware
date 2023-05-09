@@ -296,7 +296,7 @@ failed:
 	return ret;
 }
 
-/* Update SWREG firmware for all power doman for A2 chip */
+/* Update SWREG firmware for all power domain for A2 chip */
 int swreg_firmware_update(void)
 {
 	enum sw_reg reg_id;

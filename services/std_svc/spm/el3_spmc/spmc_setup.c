@@ -90,7 +90,7 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 			   boot_header->offset_boot_info_desc);
 
 	/*
-	 * We must use the FF-A version coresponding to the version implemented
+	 * We must use the FF-A version corresponding to the version implemented
 	 * by the SP. Currently this can only be v1.1.
 	 */
 	boot_header->version = sp->ffa_version;

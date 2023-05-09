@@ -17,7 +17,7 @@
 #include "sec_hw_specific.h"
 
 
-/* Callback function after Instantiation decsriptor is submitted to SEC */
+/* Callback function after Instantiation descriptor is submitted to SEC */
 static void rng_done(uint32_t *desc, uint32_t status, void *arg,
 		     void *job_ring)
 {
@@ -183,7 +183,7 @@ int hw_rng_instantiate(void)
 		/*if instantiate_rng(...) fails, the loop will rerun
 		 *and the kick_trng(...) function will modify the
 		 *upper and lower limits of the entropy sampling
-		 *interval, leading to a sucessful initialization of
+		 *interval, leading to a successful initialization of
 		 */
 		ret = instantiate_rng();
 	} while ((ret == -1) && (ent_delay < RTSDCTL_ENT_DLY_MAX));

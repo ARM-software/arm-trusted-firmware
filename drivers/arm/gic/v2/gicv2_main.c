@@ -252,7 +252,7 @@ void gicv2_end_of_interrupt(unsigned int id)
 	 * Ensure the write to peripheral registers are *complete* before the write
 	 * to GIC_EOIR.
 	 *
-	 * Note: The completion gurantee depends on various factors of system design
+	 * Note: The completion guarantee depends on various factors of system design
 	 * and the barrier is the best core can do by which execution of further
 	 * instructions waits till the barrier is alive.
 	 */

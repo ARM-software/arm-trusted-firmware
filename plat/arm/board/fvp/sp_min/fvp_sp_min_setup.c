@@ -84,7 +84,7 @@ void sp_min_plat_arch_setup(void)
 	     (void *)hw_config_info->config_addr);
 
 	/*
-	 * Preferrably we expect this address and size are page aligned,
+	 * Preferably we expect this address and size are page aligned,
 	 * but if they are not then align it.
 	 */
 	hw_config_base_align = page_align(hw_config_info->config_addr, DOWN);

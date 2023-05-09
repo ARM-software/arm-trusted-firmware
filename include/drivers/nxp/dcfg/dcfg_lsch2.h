@@ -55,7 +55,7 @@
 #define DISR5_DDRC1_MASK		0x1
 #define DISR5_OCRAM_MASK		0x40
 
-/* DCFG regsiters bit masks */
+/* DCFG registers bit masks */
 #define RCWSR0_SYS_PLL_RAT_SHIFT	25
 #define RCWSR0_SYS_PLL_RAT_MASK		0x1f
 #define RCWSR0_MEM_PLL_RAT_SHIFT	16

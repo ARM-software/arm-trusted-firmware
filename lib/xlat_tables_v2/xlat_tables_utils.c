@@ -585,7 +585,7 @@ int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
 		base_va += PAGE_SIZE;
 	}
 
-	/* Ensure that the last descriptor writen is seen by the system. */
+	/* Ensure that the last descriptor written is seen by the system. */
 	dsbish();
 
 	return 0;

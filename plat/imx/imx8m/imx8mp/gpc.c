@@ -337,7 +337,7 @@ void imx_gpc_init(void)
 	/*
 	 * Set the CORE & SCU power up timing:
 	 * SW = 0x1, SW2ISO = 0x1;
-	 * the CPU CORE and SCU power up timming counter
+	 * the CPU CORE and SCU power up timing counter
 	 * is drived  by 32K OSC, each domain's power up
 	 * latency is (SW + SW2ISO) / 32768
 	 */

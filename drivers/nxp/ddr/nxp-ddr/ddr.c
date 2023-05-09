@@ -293,7 +293,7 @@ static int cal_odt(const unsigned int clk,
 	}
 
 	if (pdodt == NULL) {
-		ERROR("Error determing ODT.\n");
+		ERROR("Error determining ODT.\n");
 		return -EINVAL;
 	}
 
@@ -916,7 +916,7 @@ long long dram_init(struct ddr_info *priv
 	debug("Program controller registers\n");
 	ret = write_ddrc_regs(priv);
 	if (ret != 0) {
-		ERROR("Programing DDRC error\n");
+		ERROR("Programming DDRC error\n");
 		return ret;
 	}
 

@@ -755,7 +755,7 @@ void stm32mp1_ddr_init(struct stm32mp_ddr_priv *priv,
 	stm32mp1_ddrphy_idone_wait(priv->phy);
 
 	/*
-	 * 12. set back registers in step 8 to the orginal values if desidered
+	 * 12. set back registers in step 8 to the original values if desidered
 	 */
 	stm32mp1_refresh_restore(priv->ctl, config->c_reg.rfshctl3,
 				 config->c_reg.pwrctl);

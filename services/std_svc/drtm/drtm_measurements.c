@@ -47,7 +47,7 @@ static int drtm_event_log_measure_and_record(uintptr_t data_base,
 	metadata.pcr = pcr;
 
 	/*
-	 * Measure the payloads requested by D-CRTM and DCE commponents
+	 * Measure the payloads requested by D-CRTM and DCE components
 	 * Hash algorithm decided by the Event Log driver at build-time
 	 */
 	rc = event_log_measure(data_base, data_size, hash_data);

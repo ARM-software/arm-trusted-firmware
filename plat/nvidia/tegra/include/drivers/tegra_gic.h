@@ -19,7 +19,7 @@ typedef struct pcpu_fiq_state {
 } pcpu_fiq_state_t;
 
 /*******************************************************************************
- * Fucntion declarations
+ * Function declarations
  ******************************************************************************/
 void tegra_gic_cpuif_deactivate(void);
 void tegra_gic_init(void);

@@ -322,7 +322,7 @@ static void gic700_multichip_validate_data(
 }
 
 /*******************************************************************************
- * Intialize GIC-600 and GIC-700 Multichip operation.
+ * Initialize GIC-600 and GIC-700 Multichip operation.
  ******************************************************************************/
 void gic600_multichip_init(struct gic600_multichip_data *multichip_data)
 {

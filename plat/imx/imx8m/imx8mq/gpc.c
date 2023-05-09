@@ -417,7 +417,7 @@ void imx_gpc_init(void)
 	/* set all mix/PU in A53 domain */
 	mmio_write_32(IMX_GPC_BASE + PGC_CPU_0_1_MAPPING, 0xfffd);
 
-	/* set SCU timming */
+	/* set SCU timing */
 	mmio_write_32(IMX_GPC_BASE + PGC_SCU_TIMING,
 		      (0x59 << 10) | 0x5B | (0x2 << 20));
 

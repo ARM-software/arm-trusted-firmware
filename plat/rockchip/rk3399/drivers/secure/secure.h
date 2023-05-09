@@ -32,7 +32,7 @@
 /* security config pmu slave ip */
 /* All of slaves  is ns */
 #define SGRF_PMU_SLV_S_NS		BIT_WITH_WMSK(0)
-/* slaves secure attr is configed */
+/* slaves secure attr is configured */
 #define SGRF_PMU_SLV_S_CFGED		WMSK_BIT(0)
 #define SGRF_PMU_SLV_CRYPTO1_NS		WMSK_BIT(1)
 

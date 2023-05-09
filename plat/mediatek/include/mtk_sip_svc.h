@@ -97,7 +97,7 @@ struct smc_descriptor {
 };
 
 /*
- * This function should be implemented in MediaTek SOC directory. It fullfills
+ * This function should be implemented in MediaTek SOC directory. It fulfills
  * MTK_SIP_SET_AUTHORIZED_SECURE_REG SiP call by checking the sreg with the
  * predefined secure register list, if a match was found, set val to sreg.
  *

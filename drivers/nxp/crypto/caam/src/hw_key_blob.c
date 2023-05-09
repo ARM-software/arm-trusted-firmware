@@ -18,7 +18,7 @@
 #include "sec_hw_specific.h"
 
 
-/* Callback function after Instantiation decsriptor is submitted to SEC
+/* Callback function after Instantiation descriptor is submitted to SEC
  */
 static void blob_done(uint32_t *desc, uint32_t status, void *arg,
 		      void *job_ring)

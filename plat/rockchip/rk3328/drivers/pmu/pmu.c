@@ -202,7 +202,7 @@ void __dead2 rockchip_soc_soft_reset(void)
 	dsb();
 	/*
 	 * Maybe the HW needs some times to reset the system,
-	 * so we do not hope the core to excute valid codes.
+	 * so we do not hope the core to execute valid codes.
 	 */
 	while (1)
 		;
@@ -210,7 +210,7 @@ void __dead2 rockchip_soc_soft_reset(void)
 
 /*
  * For PMIC RK805, its sleep pin is connect with gpio2_d2 from rk3328.
- * If the PMIC is configed for responding the sleep pin to power off it,
+ * If the PMIC is configured for responding the sleep pin to power off it,
  * once the pin is output high,  it will get the pmic power off.
  */
 void __dead2 rockchip_soc_system_off(void)
@@ -462,7 +462,7 @@ static __sramfunc void sram_udelay(uint32_t us)
 
 /*
  * For PMIC RK805, its sleep pin is connect with gpio2_d2 from rk3328.
- * If the PMIC is configed for responding the sleep pin
+ * If the PMIC is configured for responding the sleep pin
  * to get it into sleep mode,
  * once the pin is output high,  it will get the pmic into sleep mode.
  */

@@ -2049,7 +2049,7 @@ int stm32mp1_clk_init(void)
 
 		stm32mp1_pll_start(i);
 	}
-	/* Wait and start PLLs ouptut when ready */
+	/* Wait and start PLLs output when ready */
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
 		if (!pllcfg_valid[i]) {
 			continue;

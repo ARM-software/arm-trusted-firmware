@@ -531,7 +531,7 @@ static int update_bbt(uint32_t idx, uint32_t blk,
 		return 0;
 
 	/* special case for lgb == 0 */
-	/* if blk <= lgb retrun */
+	/* if blk <= lgb return */
 	if (nand->lgb != 0 && blk <= nand->lgb)
 		return 0;
 

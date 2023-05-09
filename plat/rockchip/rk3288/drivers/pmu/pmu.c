@@ -288,7 +288,7 @@ int rockchip_soc_cores_pwr_dm_on(unsigned long mpidr, uint64_t entrypoint)
 	/*
 	 * We communicate with the bootrom to active the cpus other
 	 * than cpu0, after a blob of initialize code, they will
-	 * stay at wfe state, once they are actived, they will check
+	 * stay at wfe state, once they are activated, they will check
 	 * the mailbox:
 	 * sram_base_addr + 4: 0xdeadbeaf
 	 * sram_base_addr + 8: start address for pc

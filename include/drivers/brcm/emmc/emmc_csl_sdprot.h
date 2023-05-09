@@ -139,7 +139,7 @@
  * The Common I/O area shall be implemented on all SDIO cards and
  * is accessed the the host via I/O reads and writes to function 0,
  * the registers within the CIA are provided to enable/disable
- * the operationo fthe i/o funciton.
+ * the operationo fthe i/o function.
  */
 
 /* cccr_sdio_rev */
@@ -303,7 +303,7 @@
 #define SBSDIO_CIS_BASE_COMMON		0x1000
 /* function 0(common) cis size in bytes */
 #define SBSDIO_CIS_FUNC0_LIMIT		0x020
-/* funciton 1 cis size in bytes */
+/* function 1 cis size in bytes */
 #define SBSDIO_CIS_SIZE_LIMIT		0x200
 /* cis offset addr is < 17 bits */
 #define SBSDIO_CIS_OFT_ADDR_MASK	0x1FFFF
@@ -313,7 +313,7 @@
 /* indirect cis access (in sprom) */
 /* 8 control bytes first, CIS starts from 8th uint8_t */
 #define SBSDIO_SPROM_CIS_OFFSET		0x8
-/* sdio uint8_t mode: maximum length of one data comamnd */
+/* sdio uint8_t mode: maximum length of one data command */
 #define SBSDIO_BYTEMODE_DATALEN_MAX	64
 /* 4317 supports less */
 #define SBSDIO_BYTEMODE_DATALEN_MAX_4317	52

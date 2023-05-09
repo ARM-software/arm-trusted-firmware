@@ -346,7 +346,7 @@ int ddrc_set_regs(const unsigned long clk,
 
 #ifdef ERRATA_DDR_A008511
 	/* Part 1 of 2 */
-	/* This erraum only applies to verion 5.2.1 */
+	/* This erraum only applies to version 5.2.1 */
 	if (get_ddrc_version(ddr) == 0x50200) {
 		ERROR("Unsupported SoC.\n");
 	} else if (get_ddrc_version(ddr) == 0x50201) {

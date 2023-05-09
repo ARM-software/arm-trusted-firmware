@@ -561,7 +561,7 @@ static __pmusramfunc int dram_switch_to_next_index(
 
 	ch_count = sdram_params->num_channels;
 
-	/* LPDDR4 f2 cann't do training, all training will fail */
+	/* LPDDR4 f2 can't do training, all training will fail */
 	for (ch = 0; ch < ch_count; ch++) {
 		/*
 		 * Without this disabled for LPDDR4 we end up writing 0's

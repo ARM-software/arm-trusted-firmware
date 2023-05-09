@@ -60,7 +60,7 @@
 #define TEGRA_CLK_SE			TEGRA194_CLK_SE
 
 /*******************************************************************************
- * Tegra Miscellanous register constants
+ * Tegra Miscellaneous register constants
  ******************************************************************************/
 #define TEGRA_MISC_BASE			U(0x00100000)
 

@@ -147,7 +147,7 @@ const mmap_region_t plat_stratix10_mmap[] = {
 
 /*******************************************************************************
  * Perform the very early platform specific architectural setup here. At the
- * moment this is only intializes the mmu in a quick and dirty way.
+ * moment this is only initializes the mmu in a quick and dirty way.
  ******************************************************************************/
 void bl31_plat_arch_setup(void)
 {

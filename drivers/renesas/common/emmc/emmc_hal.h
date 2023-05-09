@@ -512,7 +512,7 @@ typedef struct {
 	/* maximum block count which can be transferred at once */
 	uint32_t max_block_count;
 
-	/* maximum clock frequence in Hz supported by HW */
+	/* maximum clock frequency in Hz supported by HW */
 	uint32_t max_clock_freq;
 
 	/* maximum data bus width supported by HW */

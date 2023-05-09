@@ -1190,7 +1190,7 @@ static void bl2_init_generic_timer(void)
 		break;
 	}
 #endif /* RCAR_LSI == RCAR_E3 */
-	/* Update memory mapped and register based freqency */
+	/* Update memory mapped and register based frequency */
 	write_cntfrq_el0((u_register_t )reg_cntfid);
 	mmio_write_32(ARM_SYS_CNTCTL_BASE + (uintptr_t)CNTFID_OFF, reg_cntfid);
 	/* Enable counter */

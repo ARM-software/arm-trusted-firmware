@@ -100,7 +100,7 @@ typedef struct sc_rpc_async_msg_s {
 void sc_call_rpc(sc_ipc_t ipc, sc_rpc_msg_t *msg, bool no_resp);
 
 /*!
- * This is an internal function to dispath an RPC call that has
+ * This is an internal function to dispatch an RPC call that has
  * arrived via IPC over an MU. It is called by server-side SCFW.
  *
  * @param[in]     mu          MU message arrived on

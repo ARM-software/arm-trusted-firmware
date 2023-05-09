@@ -46,7 +46,7 @@ typedef struct crypto_lib_desc_s {
 	const char *name;
 
 	/* Initialize library. This function is not expected to fail. All errors
-	 * must be handled inside the function, asserting or panicing in case of
+	 * must be handled inside the function, asserting or panicking in case of
 	 * a non-recoverable error */
 	void (*init)(void);
 

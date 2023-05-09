@@ -24,7 +24,7 @@
 /*
  * The log is initialized and used before BL31 xlat tables are initialized,
  * therefore the log memory is a device memory at that point. Make sure the
- * memory is correclty aligned and accessed only with up-to 32bit, aligned,
+ * memory is correctly aligned and accessed only with up-to 32bit, aligned,
  * writes.
  */
 CASSERT((RCAR_BL31_LOG_BASE & 0x7) == 0, assert_bl31_log_base_unaligned);
