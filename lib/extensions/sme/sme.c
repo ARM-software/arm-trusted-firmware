@@ -65,9 +65,6 @@ void sme_enable(cpu_context_t *context)
 	/* Reset CPTR_EL3 value. */
 	write_cptr_el3(cptr_el3);
 	isb();
-
-	/* Enable SVE/FPU in addition to SME. */
-	sve_enable(context);
 }
 
 void sme_disable(cpu_context_t *context)
