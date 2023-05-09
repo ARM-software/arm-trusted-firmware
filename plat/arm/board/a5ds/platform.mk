@@ -100,6 +100,8 @@ NEED_BL32 := yes
 
 MULTI_CONSOLE_API		:=	1
 
+ARM_DISABLE_TRUSTED_WDOG	:=	1
+
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/aarch32/nonlpae_tables.c
 
 # Use translation tables library v1 when using Cortex-A5
