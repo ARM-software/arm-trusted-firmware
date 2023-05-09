@@ -1759,6 +1759,10 @@ BL image during boot.
 
                    DRAM
     0xffffffff +----------+
+               | EL3 TZC  |
+    0xffe00000 |----------| (secure)
+               | AP TZC   |
+    0xff000000 +----------+
                :          :
     0x82100000 |----------|
                |HW_CONFIG |
@@ -1800,6 +1804,10 @@ BL image during boot.
 
                      DRAM
     0xffffffff +--------------+
+               |   EL3 TZC    |
+    0xffe00000 |--------------|  (secure)
+               |   AP TZC     |
+    0xff000000 +--------------+
                :              :
     0x82100000 |--------------|
                |  HW_CONFIG   |
@@ -1840,7 +1848,10 @@ BL image during boot.
 
                    DRAM
     0xffffffff +----------+
-               |  BL32    |  (secure)
+               |  EL3 TZC |
+    0xffe00000 |----------|  (secure)
+               |  AP TZC  |
+               |  (BL32)  |
     0xff000000 +----------+
                |          |
     0x82100000 |----------|
@@ -1880,6 +1891,20 @@ BL image during boot.
 
 ::
 
+                  DRAM
+    0xFFFFFFFF +----------+
+               |  SCP TZC |
+    0xFFE00000 |----------|
+               |  EL3 TZC |
+    0xFFC00000 |----------|  (secure)
+               |  AP TZC  |
+    0xFF000000 +----------+
+               |          |
+               :          :  (non-secure)
+               |          |
+    0x80000000 +----------+
+
+
                   Flash0
     0x0C000000 +----------+
                :          :
@@ -1909,9 +1934,14 @@ BL image during boot.
 ::
 
                    DRAM
-    0xFFE00000 +----------+
-               |  BL32    |  (secure)
-    0xFF000000 |----------|
+    0xFFFFFFFF +----------+
+               |  SCP TZC |
+    0xFFE00000 |----------|
+               |  EL3 TZC |
+    0xFFC00000 |----------|  (secure)
+               |  AP TZC  |
+               |  (BL32)  |
+    0xFF000000 +----------+
                |          |
                :          :  (non-secure)
                |          |
