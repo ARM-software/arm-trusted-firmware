@@ -505,6 +505,11 @@ endif
 
 PSCI_OS_INIT_MODE	:=	1
 
+ifeq (${SPD},spmd)
+BL31_SOURCES	+=	plat/arm/board/fvp/fvp_spmd.c
+endif
+
+# Test specific macros, keep them at bottom of this file
 $(eval $(call add_define,PLATFORM_TEST_EA_FFH))
 ifeq (${PLATFORM_TEST_EA_FFH}, 1)
     ifeq (${HANDLE_EA_EL3_FIRST_NS}, 0)
@@ -513,6 +518,9 @@ ifeq (${PLATFORM_TEST_EA_FFH}, 1)
 BL31_SOURCES	+= plat/arm/board/fvp/aarch64/fvp_ea.c
 endif
 
-ifeq (${SPD},spmd)
-BL31_SOURCES	+=	plat/arm/board/fvp/fvp_spmd.c
+$(eval $(call add_define,PLATFORM_TEST_RAS_FFH))
+ifeq (${PLATFORM_TEST_RAS_FFH}, 1)
+    ifeq (${RAS_EXTENSION}, 0)
+         $(error "PLATFORM_TEST_RAS_FFH expects RAS_EXTENSION to be 1")
+    endif
 endif
