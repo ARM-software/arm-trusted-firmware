@@ -524,3 +524,7 @@ ifeq (${PLATFORM_TEST_RAS_FFH}, 1)
          $(error "PLATFORM_TEST_RAS_FFH expects RAS_EXTENSION to be 1")
     endif
 endif
+
+ifeq (${ERRATA_ABI_SUPPORT}, 1)
+include plat/arm/board/fvp/fvp_cpu_errata.mk
+endif
