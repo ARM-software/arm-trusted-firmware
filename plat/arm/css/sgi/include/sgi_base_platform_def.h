@@ -206,7 +206,7 @@
 
 #define PLAT_SP_PRI				PLAT_RAS_PRI
 
-#if SPM_MM && RAS_EXTENSION
+#if SPM_MM && RAS_FFH_SUPPORT
 /*
  * CPER buffer memory of 128KB is reserved and it is placed adjacent to the
  * memory shared between EL3 and S-EL0.
@@ -235,7 +235,7 @@
  */
 #define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
-#endif /* SPM_MM && RAS_EXTENSION */
+#endif /* SPM_MM && RAS_FFH_SUPPORT */
 
 /* Platform ID address */
 #define SSC_VERSION                     (SSC_REG_BASE + SSC_VERSION_OFFSET)

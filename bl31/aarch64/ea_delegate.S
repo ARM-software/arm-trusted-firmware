@@ -153,7 +153,7 @@ endfunc handle_lower_el_async_ea
  * x1: EA syndrome
  */
 func delegate_sync_ea
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 	/*
 	 * Check for Uncontainable error type. If so, route to the platform
 	 * fatal error handler rather than the generic EA one.
@@ -183,7 +183,7 @@ endfunc delegate_sync_ea
  * x1: EA syndrome
  */
 func delegate_async_ea
-#if RAS_EXTENSION
+#if RAS_FFH_SUPPORT
 	/* Check Exception Class to ensure SError, as this function should
 	 * only be invoked for SError. If that is not the case, which implies
 	 * either an HW error or programming error, panic.

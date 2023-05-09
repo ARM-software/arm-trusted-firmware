@@ -794,17 +794,23 @@ ifeq ($(RESET_TO_BL2)-$(BL2_IN_XIP_MEM),0-1)
 $(error "BL2_IN_XIP_MEM is only supported when RESET_TO_BL2 is enabled")
 endif
 
-# For RAS_EXTENSION, require that EAs are handled in EL3 first
+# RAS_EXTENSION is deprecated, provide alternate build options
 ifeq ($(RAS_EXTENSION),1)
+    $(error "RAS_EXTENSION is now deprecated, please use ENABLE_FEAT_RAS and RAS_FFH_SUPPORT instead")
+endif
+# RAS firmware first handling requires that EAs are handled in EL3 first
+ifeq ($(RAS_FFH_SUPPORT),1)
+    ifneq ($(ENABLE_FEAT_RAS),1)
+        $(error For RAS_FFH_SUPPORT, ENABLE_FEAT_RAS must also be 1)
+    endif
     ifneq ($(HANDLE_EA_EL3_FIRST_NS),1)
-        $(error For RAS_EXTENSION, HANDLE_EA_EL3_FIRST_NS must also be 1)
+        $(error For RAS_FFH_SUPPORT, HANDLE_EA_EL3_FIRST_NS must also be 1)
     endif
 endif
-
-# When FAULT_INJECTION_SUPPORT is used, require that RAS_EXTENSION is enabled
+# When FAULT_INJECTION_SUPPORT is used, require that FEAT_RAS is enabled
 ifeq ($(FAULT_INJECTION_SUPPORT),1)
-    ifneq ($(RAS_EXTENSION),1)
-        $(error For FAULT_INJECTION_SUPPORT, RAS_EXTENSION must also be 1)
+    ifeq ($(ENABLE_FEAT_RAS),0)
+        $(error For FAULT_INJECTION_SUPPORT, ENABLE_FEAT_RAS must not be 0)
     endif
 endif
 
@@ -1180,6 +1186,7 @@ $(eval $(call assert_booleans,\
 	ERRATA_ABI_SUPPORT \
 	ERRATA_NON_ARM_INTERCONNECT \
 	CONDITIONAL_CMO \
+	RAS_FFH_SUPPORT \
 )))
 
 $(eval $(call assert_numerics,\
@@ -1198,6 +1205,7 @@ $(eval $(call assert_numerics,\
         ENABLE_FEAT_AMU \
         ENABLE_FEAT_AMUv1p1 \
         ENABLE_FEAT_CSV2_2 \
+        ENABLE_FEAT_RAS	\
         ENABLE_FEAT_DIT \
         ENABLE_FEAT_ECV \
         ENABLE_FEAT_FGT \
@@ -1224,7 +1232,6 @@ $(eval $(call assert_numerics,\
         FW_ENC_STATUS \
         NR_OF_FW_BANKS \
         NR_OF_IMAGES_IN_FW_BANK \
-        RAS_EXTENSION \
         TWED_DELAY \
         ENABLE_FEAT_TWED \
         SVE_VECTOR_LEN \
@@ -1297,7 +1304,8 @@ $(eval $(call add_defines,\
         PROGRAMMABLE_RESET_ADDRESS \
         PSCI_EXTENDED_STATE_ID \
         PSCI_OS_INIT_MODE \
-        RAS_EXTENSION \
+        ENABLE_FEAT_RAS \
+        RAS_FFH_SUPPORT \
         RESET_TO_BL31 \
         SEPARATE_CODE_AND_RODATA \
         SEPARATE_BL2_NOLOAD_REGION \

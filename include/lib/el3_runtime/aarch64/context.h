@@ -523,10 +523,6 @@ void el2_sysregs_context_restore_common(el2_sysregs_t *regs);
 void el2_sysregs_context_save_mte(el2_sysregs_t *regs);
 void el2_sysregs_context_restore_mte(el2_sysregs_t *regs);
 #endif /* CTX_INCLUDE_MTE_REGS */
-#if RAS_EXTENSION
-void el2_sysregs_context_save_ras(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_ras(el2_sysregs_t *regs);
-#endif /* RAS_EXTENSION */
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 #if CTX_INCLUDE_FPREGS

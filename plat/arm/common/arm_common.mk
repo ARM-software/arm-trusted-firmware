@@ -386,7 +386,7 @@ endif
 endif
 
 # RAS sources
-ifeq (${RAS_EXTENSION},1)
+ifeq (${RAS_FFH_SUPPORT},1)
 BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
 				lib/extensions/ras/ras_common.c
 endif

@@ -276,8 +276,9 @@ PSCI_EXTENDED_STATE_ID		:= 0
 # Enable PSCI OS-initiated mode support
 PSCI_OS_INIT_MODE		:= 0
 
-# Enable RAS support
-RAS_EXTENSION			:= 0
+# Enable RAS Support
+ENABLE_FEAT_RAS			:= 0
+RAS_FFH_SUPPORT			:= 0
 
 # By default, BL1 acts as the reset handler, not BL31
 RESET_TO_BL31			:= 0

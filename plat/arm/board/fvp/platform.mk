@@ -50,6 +50,7 @@ ifneq (${SPD}, tspd)
 	ENABLE_FEAT_RNG			:= 2
 	ENABLE_FEAT_TWED		:= 2
 	ENABLE_FEAT_GCS			:= 2
+	ENABLE_FEAT_RAS			:= 2
 ifeq (${ARCH}, aarch64)
 ifneq (${SPD}, spmd)
 ifeq (${SPM_MM}, 0)
@@ -387,7 +388,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
 endif
 endif
 
-ifeq (${RAS_EXTENSION},1)
+ifeq (${RAS_FFH_SUPPORT},1)
 BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c
 endif
 
