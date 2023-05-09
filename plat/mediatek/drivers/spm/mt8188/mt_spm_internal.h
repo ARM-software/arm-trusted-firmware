@@ -628,11 +628,19 @@ struct wake_status {
 	uint32_t md32pcm_event_sta;	/* MD32PCM_EVENT_STA */
 	uint32_t wake_misc;		/* SPM_SW_RSV_5 */
 	uint32_t idle_sta;		/* SUBSYS_IDLE_STA */
+	uint32_t cg_check_sta;		/* SPM_CG_CHECK_STA */
 	uint32_t sw_flag0;		/* SPM_SW_FLAG_0 */
 	uint32_t sw_flag1;		/* SPM_SW_FLAG_1 */
 	uint32_t isr;			/* SPM_IRQ_STA */
+	uint32_t clk_settle;		/* SPM_CLK_SETTLE */
+	uint32_t src_req;		/* SPM_SRC_REQ */
 	uint32_t log_index;
 	uint32_t is_abort;
+	uint32_t rt_req_sta0;		/* SPM_SW_RSV_2 */
+	uint32_t rt_req_sta1;		/* SPM_SW_RSV_3 */
+	uint32_t rt_req_sta2;		/* SPM_SW_RSV_4 */
+	uint32_t rt_req_sta3;		/* SPM_SW_RSV_5 */
+	uint32_t rt_req_sta4;		/* SPM_SW_RSV_6 */
 };
 
 struct spm_lp_scen {

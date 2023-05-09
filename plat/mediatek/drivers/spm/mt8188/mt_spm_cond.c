@@ -126,12 +126,14 @@ static struct idle_cond_info idle_cg_info[PLAT_SPM_COND_MAX] = {
 #define PLL_APLL4	MT_LP_TZ_APMIXEDSYS(0x404)
 #define PLL_APLL5	MT_LP_TZ_APMIXEDSYS(0x418)
 
-unsigned int mt_spm_cond_check(const struct mt_spm_cond_tables *src,
+unsigned int mt_spm_cond_check(int state_id,
+			       const struct mt_spm_cond_tables *src,
 			       const struct mt_spm_cond_tables *dest,
 			       struct mt_spm_cond_tables *res)
 {
 	unsigned int b_res = 0U;
 	unsigned int i;
+	bool is_system_suspend = IS_PLAT_SUSPEND_ID(state_id);
 
 	if ((src == NULL) || (dest == NULL)) {
 		return SPM_COND_CHECK_FAIL;
@@ -140,6 +142,11 @@ unsigned int mt_spm_cond_check(const struct mt_spm_cond_tables *src,
 	for (i = 0; i < PLAT_SPM_COND_MAX; i++) {
 		if (res != NULL) {
 			res->table_cg[i] = (src->table_cg[i] & dest->table_cg[i]);
+			if (is_system_suspend && ((res->table_cg[i]) != 0U)) {
+				INFO("suspend: %s block[%u](0x%lx) = 0x%08x\n",
+				     dest->name, i, idle_cg_info[i].addr,
+				     res->table_cg[i]);
+			}
 
 			if ((res->table_cg[i]) != 0U) {
 				b_res |= BIT(i);
@@ -159,6 +166,10 @@ unsigned int mt_spm_cond_check(const struct mt_spm_cond_tables *src,
 		}
 	} else if ((src->table_pll & dest->table_pll) != 0U) {
 		b_res |= SPM_COND_CHECK_BLOCKED_PLL;
+	}
+
+	if (is_system_suspend && ((b_res) != 0U)) {
+		INFO("suspend: %s total blocked = 0x%08x\n", dest->name, b_res);
 	}
 
 	return b_res;

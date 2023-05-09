@@ -53,6 +53,7 @@ static unsigned int bus26m_ext_opand2;
 static struct mt_irqremain *refer2remain_irq;
 
 static struct mt_spm_cond_tables cond_bus26m = {
+	.name = "bus26m",
 	.table_cg = {
 		0xFF5DD002,	/* MTCMOS1 */
 		0x0000003C,	/* MTCMOS2 */
@@ -175,7 +176,7 @@ bool spm_is_valid_rc_bus26m(unsigned int cpu, int state_id)
 		(IS_PLAT_SUSPEND_ID(state_id) || (state_id == MT_PLAT_PWR_STATE_SYSTEM_BUS)));
 }
 
-static int update_rc_condition(const void *val)
+static int update_rc_condition(int state_id, const void *val)
 {
 	const struct mt_spm_cond_tables *tlb = (const struct mt_spm_cond_tables *)val;
 	const struct mt_spm_cond_tables *tlb_check =
@@ -185,7 +186,7 @@ static int update_rc_condition(const void *val)
 		return MT_RM_STATUS_BAD;
 	}
 
-	status.is_cond_block = mt_spm_cond_check(tlb, tlb_check,
+	status.is_cond_block = mt_spm_cond_check(state_id, tlb, tlb_check,
 						 (status.is_valid & MT_SPM_RC_VALID_COND_LATCH) ?
 						 &cond_bus26m_res : NULL);
 	status.all_pll_dump = mt_spm_dump_all_pll(tlb, tlb_check,
@@ -279,7 +280,7 @@ int spm_update_rc_bus26m(int state_id, int type, const void *val)
 
 	switch (type) {
 	case PLAT_RC_UPDATE_CONDITION:
-		res = update_rc_condition(val);
+		res = update_rc_condition(state_id, val);
 		break;
 	case PLAT_RC_UPDATE_REMAIN_IRQS:
 		update_rc_remain_irqs(val);
