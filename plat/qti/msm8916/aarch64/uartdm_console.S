@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2021-2023, Stephan Gerhold <stephan@gerhold.net>
  *
  * Based on aarch64/skeleton_console.S:
  * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
@@ -65,7 +65,21 @@ endfunc console_uartdm_register
 	 * -----------------------------------------------------------
 	 */
 func console_uartdm_core_init
-	/* Reset receiver */
+	/*
+	 * Try to flush remaining characters from the TX FIFO before resetting
+	 * the transmitter. Unfortunately there is no good way to check if
+	 * the transmitter is actually enabled (and will finish eventually),
+	 * so use a timeout to avoid looping forever.
+	 */
+	mov	w2, #65536
+1:
+	ldr	w3, [x1, #UART_DM_SR]
+	tbnz	w3, #UART_DM_SR_TXEMT_BIT, 2f
+	subs	w2, w2, #1
+	b.ne	1b
+	/* Timeout */
+
+2:	/* Reset receiver */
 	mov	w3, #UART_DM_CR_RESET_RX
 	str	w3, [x1, #UART_DM_CR]
 
@@ -113,9 +127,20 @@ endfunc console_uartdm_putc
 	 * -----------------------------------------------------------
 	 */
 func console_uartdm_core_putc
+	cmp	w0, #'\n'
+	b.ne	2f
+
 1:	/* Loop until TX FIFO has space */
 	ldr	w2, [x1, #UART_DM_SR]
 	tbz	w2, #UART_DM_SR_TXRDY_BIT, 1b
+
+	/* Prepend '\r' to '\n' */
+	mov	w2, #'\r'
+	str	w2, [x1, #UART_DM_TF]
+
+2:	/* Loop until TX FIFO has space */
+	ldr	w2, [x1, #UART_DM_SR]
+	tbz	w2, #UART_DM_SR_TXRDY_BIT, 2b
 
 	/* Write character to FIFO */
 	str	w0, [x1, #UART_DM_TF]

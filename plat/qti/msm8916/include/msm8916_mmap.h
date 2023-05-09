@@ -8,9 +8,9 @@
 #define MSM8916_MMAP_H
 
 #define PCNOC_BASE		0x00000000
-#define PCNOC_SIZE		0x8000000	/* 128 MiB */
+#define PCNOC_SIZE		SZ_128M
 #define APCS_BASE		0x0b000000
-#define APCS_SIZE		0x800000	/* 8 MiB */
+#define APCS_SIZE		SZ_8M
 
 #define MPM_BASE		(PCNOC_BASE + 0x04a0000)
 #define MPM_PS_HOLD		(MPM_BASE + 0xb000)

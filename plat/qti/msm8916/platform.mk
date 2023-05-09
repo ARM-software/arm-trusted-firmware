@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+# Copyright (c) 2021-2023, Stephan Gerhold <stephan@gerhold.net>
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -45,6 +45,10 @@ WARMBOOT_ENABLE_DCACHE_EARLY	:= 1
 # Disable features unsupported in ARMv8.0
 ENABLE_SPE_FOR_NS		:= 0
 ENABLE_SVE_FOR_NS		:= 0
+
+# Disable workarounds unnecessary for Cortex-A53
+WORKAROUND_CVE_2017_5715	:= 0
+WORKAROUND_CVE_2022_23960	:= 0
 
 # MSM8916 uses ARM Cortex-A53 r0p0 so likely all the errata apply
 ERRATA_A53_819472		:= 1
