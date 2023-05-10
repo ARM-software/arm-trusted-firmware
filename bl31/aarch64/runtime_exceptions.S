@@ -72,9 +72,7 @@
 
 	/*
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
-	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
-	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
-	 * Also set the PSTATE to a known state.
+	 * Also save PMCR_EL0 and  set the PSTATE to a known state.
 	 */
 	bl	prepare_el3_entry
 
@@ -164,9 +162,7 @@
 
 	/*
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
-	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
-	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
-	 * Also set the PSTATE to a known state.
+	 * Also save PMCR_EL0 and  set the PSTATE to a known state.
 	 */
 	bl	prepare_el3_entry
 
@@ -440,9 +436,7 @@ sync_handler64:
 
 	/*
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
-	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
-	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
-	 * Also set the PSTATE to a known state.
+	 * Also save PMCR_EL0 and  set the PSTATE to a known state.
 	 */
 	bl	prepare_el3_entry
 
