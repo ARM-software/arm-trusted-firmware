@@ -245,7 +245,7 @@ static uint64_t hikey_debug_fiq_handler(uint32_t id,
 
 	return 0;
 }
-#elif defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)
+#elif defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
 /*
  * A dummy implementation of the platform handler for Group0 secure interrupt.
  */

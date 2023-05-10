@@ -83,7 +83,7 @@ void __init bl31_plat_arch_setup(void)
 	fconf_populate("HW_CONFIG", hw_config_info->config_addr);
 }
 
-#if defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)
+#if defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
 void tc_bl31_plat_runtime_setup(void)
 {
 	arm_bl31_plat_runtime_setup();
@@ -115,4 +115,4 @@ int plat_spmd_handle_group0_interrupt(uint32_t intid)
 
 	return -1;
 }
-#endif /*defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)*/
+#endif /*defined(SPD_spmd) && (SPMC_AT_EL3 == 0)*/
