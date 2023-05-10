@@ -160,7 +160,7 @@ void bl31_platform_setup(void)
 		remote_dmc_ecc_setup(plat_info.remote_ddr_size);
 }
 
-#if defined(SPD_spmd)
+#if defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
 /*
  * A dummy implementation of the platform handler for Group0 secure interrupt.
  */
@@ -169,4 +169,4 @@ int plat_spmd_handle_group0_interrupt(uint32_t intid)
 	(void)intid;
 	return -1;
 }
-#endif /*defined(SPD_spmd)*/
+#endif /*defined(SPD_spmd) && (SPMC_AT_EL3 == 0)*/

@@ -163,7 +163,7 @@ int plat_spmc_shmem_reclaim(struct ffa_mtd *desc)
 }
 #endif
 
-#if defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)
+#if defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
 /*
  * A dummy implementation of the platform handler for Group0 secure interrupt.
  */
@@ -172,4 +172,4 @@ int plat_spmd_handle_group0_interrupt(uint32_t intid)
 	(void)intid;
 	return -1;
 }
-#endif /*defined(SPD_spmd) && (SPMD_SPM_AT_SEL2 == 1)*/
+#endif /*defined(SPD_spmd) && (SPMC_AT_EL3 == 0)*/
