@@ -132,21 +132,29 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 }
 
 #if ZYNQMP_WDT_RESTART
-static interrupt_type_handler_t type_el3_interrupt_table[MAX_INTR_EL3];
+static zynmp_intr_info_type_el3_t type_el3_interrupt_table[MAX_INTR_EL3];
 
 int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 {
+	static uint32_t index;
+	uint32_t i;
+
 	/* Validate 'handler' and 'id' parameters */
-	if (!handler || id >= MAX_INTR_EL3) {
+	if (!handler || index >= MAX_INTR_EL3) {
 		return -EINVAL;
 	}
 
 	/* Check if a handler has already been registered */
-	if (type_el3_interrupt_table[id]) {
-		return -EALREADY;
+	for (i = 0; i < index; i++) {
+		if (id == type_el3_interrupt_table[i].id) {
+			return -EALREADY;
+		}
 	}
 
-	type_el3_interrupt_table[id] = handler;
+	type_el3_interrupt_table[index].id = id;
+	type_el3_interrupt_table[index].handler = handler;
+
+	index++;
 
 	return 0;
 }
@@ -155,12 +163,19 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 					  void *handle, void *cookie)
 {
 	uint32_t intr_id;
-	interrupt_type_handler_t handler;
+	uint32_t i;
+	interrupt_type_handler_t handler = NULL;
 
 	intr_id = plat_ic_get_pending_interrupt_id();
-	handler = type_el3_interrupt_table[intr_id];
+
+	for (i = 0; i < MAX_INTR_EL3; i++) {
+		if (intr_id == type_el3_interrupt_table[i].id) {
+			handler = type_el3_interrupt_table[i].handler;
+		}
+	}
+
 	if (handler != NULL) {
-		handler(intr_id, flags, handle, cookie);
+		return handler(intr_id, flags, handle, cookie);
 	}
 
 	return 0;

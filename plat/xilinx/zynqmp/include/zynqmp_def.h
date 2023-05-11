@@ -135,7 +135,8 @@
 #define ARM_IRQ_SEC_SGI_6		14
 #define ARM_IRQ_SEC_SGI_7		15
 
-#define MAX_INTR_EL3			128
+/* number of interrupt handlers. increase as required */
+#define MAX_INTR_EL3			2
 
 /*******************************************************************************
  * UART related constants
