@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -731,7 +731,7 @@ MEASURED_BOOT
 #  define TSP_SEC_MEM_SIZE		PLAT_ARM_TRUSTED_DRAM_SIZE
 #  define BL32_BASE			PLAT_ARM_TRUSTED_DRAM_BASE
 #  define BL32_LIMIT			(PLAT_ARM_TRUSTED_DRAM_BASE	\
-						+ (UL(1) << 21))
+						+ SZ_4M)
 # elif ARM_TSP_RAM_LOCATION_ID == ARM_DRAM_ID
 #  define TSP_SEC_MEM_BASE		ARM_AP_TZC_DRAM1_BASE
 #  define TSP_SEC_MEM_SIZE		ARM_AP_TZC_DRAM1_SIZE
