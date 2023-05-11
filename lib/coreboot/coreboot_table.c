@@ -46,6 +46,8 @@ typedef struct {
 
 coreboot_memrange_t coreboot_memranges[COREBOOT_MAX_MEMRANGES];
 coreboot_serial_t coreboot_serial;
+uint64_t coreboot_table_addr;
+uint32_t coreboot_table_size;
 
 /*
  * The coreboot table is parsed before the MMU is enabled (i.e. with strongly
@@ -108,6 +110,12 @@ coreboot_memory_t coreboot_get_memory_type(uintptr_t start, size_t size)
 	return CB_MEM_NONE;
 }
 
+void coreboot_get_table_location(uint64_t *address, uint32_t *size)
+{
+	*address = coreboot_table_addr;
+	*size = coreboot_table_size;
+}
+
 void coreboot_table_setup(void *base)
 {
 	cb_header_t *header = base;
@@ -118,6 +126,8 @@ void coreboot_table_setup(void *base)
 		ERROR("coreboot table signature corrupt!\n");
 		return;
 	}
+	coreboot_table_addr = (uint64_t) base;
+	coreboot_table_size = header->header_bytes + header->table_bytes;
 
 	ptr = base + header->header_bytes;
 	for (i = 0; i < header->table_entries; i++) {

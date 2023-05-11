@@ -31,4 +31,5 @@ $(warning "OPTEE_ALLOW_SMC_LOAD is enabled which may result in an insecure \
 	platform")
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
 $(eval $(call add_define,OPTEE_ALLOW_SMC_LOAD))
+include lib/libfdt/libfdt.mk
 endif
