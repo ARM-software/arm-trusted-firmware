@@ -46,6 +46,7 @@
 
 /* APU_MD32_SYSCTRL */
 #define MD32_SYS_CTRL			(APU_MD32_SYSCTRL + 0x0000)
+#define UP_INT_EN2			(APU_MD32_SYSCTRL + 0x000c)
 #define MD32_CLK_CTRL			(APU_MD32_SYSCTRL + 0x00b8)
 #define UP_WAKE_HOST_MASK0		(APU_MD32_SYSCTRL + 0x00bc)
 #define UP_WAKE_HOST_MASK1		(APU_MD32_SYSCTRL + 0x00c0)
@@ -58,11 +59,13 @@
 #define MD32_PM_ARUSER_IOMMU_EN		BIT(3)
 #define MD32_SOFT_RSTN			BIT(0)
 #define MD32_CLK_EN			(1)
+#define MD32_CLK_DIS			(0)
 #define WDT_IRQ_EN			BIT(0)
 #define MBOX0_IRQ_EN			BIT(21)
 #define MBOX1_IRQ_EN			BIT(22)
 #define MBOX2_IRQ_EN			BIT(23)
 #define RESET_DEALY_US			(10)
+#define DBG_APB_EN			BIT(31)
 
 /* APU_AO_CTRL */
 #define MD32_PRE_DEFINE			(APU_AO_CTRL + 0x0000)
@@ -81,7 +84,9 @@
 
 /* APU_MD32_WDT */
 #define WDT_INT				(APU_MD32_WDT + 0x0)
+#define WDT_CTRL0			(APU_MD32_WDT + 0x4)
 #define WDT_INT_W1C			(1)
+#define WDT_EN				BIT(31)
 
 /* APU MBOX */
 #define MBOX_FUNC_CFG			(0xb0)
@@ -107,5 +112,9 @@ int apusys_kernel_apusys_rv_setup_boot(void);
 int apusys_kernel_apusys_rv_start_mp(void);
 int apusys_kernel_apusys_rv_stop_mp(void);
 int apusys_kernel_apusys_rv_setup_sec_mem(void);
+int apusys_kernel_apusys_rv_disable_wdt_isr(void);
+int apusys_kernel_apusys_rv_clear_wdt_isr(void);
+int apusys_kernel_apusys_rv_cg_gating(void);
+int apusys_kernel_apusys_rv_cg_ungating(void);
 
 #endif /* APUSYS_RV_H */
