@@ -2622,16 +2622,29 @@ TF-A makes use of Armv8-A Architecture Extensions where applicable. This
 section lists the usage of Architecture Extensions, and build flags
 controlling them.
 
-In general, and unless individually mentioned, the build options
-``ARM_ARCH_MAJOR`` and ``ARM_ARCH_MINOR`` select the Architecture Extension to
-target when building TF-A. Subsequent Arm Architecture Extensions are backward
-compatible with previous versions.
+Build options
+~~~~~~~~~~~~~
 
-The build system only requires that ``ARM_ARCH_MAJOR`` and ``ARM_ARCH_MINOR`` have a
-valid numeric value. These build options only control whether or not
-Architecture Extension-specific code is included in the build. Otherwise, TF-A
-targets the base Armv8.0-A architecture; i.e. as if ``ARM_ARCH_MAJOR`` == 8
-and ``ARM_ARCH_MINOR`` == 0, which are also their respective default values.
+``ARM_ARCH_MAJOR`` and ``ARM_ARCH_MINOR``
+
+These build options serve dual purpose
+
+- Determine the architecture extension support in TF-A build: All the mandatory
+  architectural features up to ``ARM_ARCH_MAJOR.ARM_ARCH_MINOR`` are included
+  and unconditionally enabled by TF-A build system.
+
+- Passed to compiler via "-march" option to generate binary target : Tell the
+  compiler to emit instructions upto ``ARM_ARCH_MAJOR.ARM_ARCH_MINOR``
+
+The build system requires that the platform provides a valid numeric value based on
+CPU architecture extension, otherwise it defaults to base Armv8.0-A architecture.
+Subsequent Arm Architecture versions also support extensions which were introduced
+in previous versions.
+
+**TO-DO** : Its planned to decouple the two functionalities and introduce a new macro
+for compiler usage. The requirement for this decoupling arises becasue TF-A code
+always provides support for the latest and greatest architecture features but this
+is not the case for the target compiler.
 
 .. seealso:: :ref:`Build Options`
 
