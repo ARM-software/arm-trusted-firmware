@@ -25,12 +25,12 @@ tables. The details of this library can be found in
 :ref:`Translation (XLAT) Tables Library`.
 
 TF-A can be built to support either AArch64 or AArch32 execution state.
-.. note::
 
- The descriptions in this chapter are for the Arm TrustZone architecture.
- For changes to the firmware design for the
- `Arm Confidential Compute Architecture (Arm CCA)`_ please refer to the
- chapter :ref:`Realm Management Extension (RME)`.
+.. note::
+    The descriptions in this chapter are for the Arm TrustZone architecture.
+    For changes to the firmware design for the `Arm Confidential Compute
+    Architecture (Arm CCA)`_ please refer to the chapter :ref:`Realm Management
+    Extension (RME)`.
 
 Cold boot
 ---------
