@@ -461,8 +461,15 @@ A sample can be found at `[7]`_:
 - *cpus* node provide the platform topology and allows MPIDR to VMPIDR mapping.
   Note the primary core is declared first, then secondary cores are declared
   in reverse order.
-- The *memory* node provides platform information on the ranges of memory
-  available to the SPMC.
+- The *memory* nodes provide platform information on the ranges of memory
+  available for use by SPs at runtime. These ranges relate to either
+  secure or non-secure memory, depending on the *device_type* field.
+  If the field specifies "memory" the range is secure, else if it specifies
+  "ns-memory" the memory is non-secure. The system integrator must exclude
+  the memory used by other components that are not SPs, such as the monitor,
+  or the SPMC itself, the OS Kernel/Hypervisor, or other NWd VMs. The SPMC
+  limits the SP's address space such that they do not access memory outside
+  of those ranges.
 
 SPMC boot
 ~~~~~~~~~
@@ -562,7 +569,12 @@ an S-EL2 SPMC:
 - Memory regions are mapped in the SP EL1&0 Stage-2 translation regime at
   load time (or EL1&0 Stage-1 for an S-EL1 SPMC). A memory region node can
   specify RX/TX buffer regions in which case it is not necessary for an SP
-  to explicitly invoke the ``FFA_RXTX_MAP`` interface.
+  to explicitly invoke the ``FFA_RXTX_MAP`` interface. The memory referred
+  shall be contained within the memory ranges defined in SPMC manifest. The
+  NS bit in the attributes field should be consistent with the security
+  state of the range that it relates to. I.e. non-secure memory shall be
+  part of a non-secure memory range, and secure memory shall be contained
+  in a secure memory range of a given platform.
 - Device regions are mapped in the SP EL1&0 Stage-2 translation regime (or
   EL1&0 Stage-1 for an S-EL1 SPMC) as peripherals and possibly allocate
   additional resources (e.g. interrupts).
