@@ -5,7 +5,7 @@
  */
 
 #ifndef SCP_CMD_H
-#define SCP_SMD_H
+#define SCP_CMD_H
 
 #include <stdint.h>
 
