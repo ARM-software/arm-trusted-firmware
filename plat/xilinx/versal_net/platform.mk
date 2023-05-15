@@ -17,6 +17,7 @@ PSCI_EXTENDED_STATE_ID := 1
 SEPARATE_CODE_AND_RODATA := 1
 override RESET_TO_BL31 := 1
 PL011_GENERIC_UART := 1
+IPI_CRC_CHECK := 0
 GIC_ENABLE_V4_EXTN :=  0
 GICV3_SUPPORT_GIC600 := 1
 TFA_NO_PM := 0
@@ -47,6 +48,10 @@ ifdef VERSAL_NET_BL32_MEM_BASE
         $(error "VERSAL_NET_BL32_BASE defined without VERSAL_NET_BL32_SIZE")
     endif
     $(eval $(call add_define,VERSAL_NET_BL32_MEM_SIZE))
+endif
+
+ifdef IPI_CRC_CHECK
+    $(eval $(call add_define,IPI_CRC_CHECK))
 endif
 
 USE_COHERENT_MEM := 0
