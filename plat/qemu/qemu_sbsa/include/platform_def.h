@@ -215,6 +215,8 @@
 /*
  * GIC related constants
  * We use GICv3 where CPU Interface registers are not memory mapped
+ *
+ * Legacy values - on platform version 0.1+ they are read from DT
  */
 #define GICD_BASE			0x40060000
 #define GICR_BASE			0x40080000

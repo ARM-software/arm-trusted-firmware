@@ -6,6 +6,7 @@
 
 #include <assert.h>
 
+#include <common/fdt_wrappers.h>
 #include <common/runtime_svc.h>
 #include <libfdt.h>
 #include <smccc_helpers.h>
@@ -25,6 +26,55 @@ static int platform_version_minor;
  * need version of whole 'virtual hardware platform'.
  */
 #define SIP_SVC_VERSION  SIP_FUNCTION_ID(1)
+
+#define SIP_SVC_GET_GIC  SIP_FUNCTION_ID(100)
+
+void sbsa_set_gic_bases(const uintptr_t gicd_base, const uintptr_t gicr_base);
+uintptr_t sbsa_get_gicd(void);
+uintptr_t sbsa_get_gicr(void);
+
+void read_platform_config_from_dt(void *dtb)
+{
+	int node;
+	const fdt64_t *data;
+	int err;
+	uintptr_t gicd_base;
+	uintptr_t gicr_base;
+
+	/*
+	 * QEMU gives us this DeviceTree node:
+	 *
+	 * intc {
+		reg = < 0x00 0x40060000 0x00 0x10000
+			0x00 0x40080000 0x00 0x4000000>;
+	};
+	 */
+	node = fdt_path_offset(dtb, "/intc");
+	if (node < 0) {
+		return;
+	}
+
+	data = fdt_getprop(dtb, node, "reg", NULL);
+	if (data == NULL) {
+		return;
+	}
+
+	err = fdt_get_reg_props_by_index(dtb, node, 0, &gicd_base, NULL);
+	if (err < 0) {
+		ERROR("Failed to read GICD reg property of GIC node\n");
+		return;
+	}
+	INFO("GICD base = 0x%lx\n", gicd_base);
+
+	err = fdt_get_reg_props_by_index(dtb, node, 1, &gicr_base, NULL);
+	if (err < 0) {
+		ERROR("Failed to read GICR reg property of GIC node\n");
+		return;
+	}
+	INFO("GICR base = 0x%lx\n", gicr_base);
+
+	sbsa_set_gic_bases(gicd_base, gicr_base);
+}
 
 void read_platform_version(void *dtb)
 {
@@ -60,6 +110,8 @@ void sip_svc_init(void)
 
 	read_platform_version(dtb);
 	INFO("Platform version: %d.%d\n", platform_version_major, platform_version_minor);
+
+	read_platform_config_from_dt(dtb);
 }
 
 /*
@@ -87,6 +139,9 @@ uintptr_t sbsa_sip_smc_handler(uint32_t smc_fid,
 	case SIP_SVC_VERSION:
 		INFO("Platform version requested\n");
 		SMC_RET3(handle, NULL, platform_version_major, platform_version_minor);
+
+	case SIP_SVC_GET_GIC:
+		SMC_RET3(handle, NULL, sbsa_get_gicd(), sbsa_get_gicr());
 
 	default:
 		ERROR("%s: unhandled SMC (0x%x) (function id: %d)\n", __func__, smc_fid,

@@ -89,13 +89,13 @@ endif
 include drivers/arm/gic/v3/gicv3.mk
 
 QEMU_GIC_SOURCES	:=	${GICV3_SOURCES}				\
-				plat/common/plat_gicv3.c			\
-				${PLAT_QEMU_COMMON_PATH}/qemu_gicv3.c
+				plat/common/plat_gicv3.c
 
 BL31_SOURCES		+=	${QEMU_CPU_LIBS}				\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/common/plat_psci_common.c			\
+				${PLAT_QEMU_PATH}/sbsa_gic.c 			\
 				${PLAT_QEMU_PATH}/sbsa_pm.c			\
 				${PLAT_QEMU_PATH}/sbsa_sip_svc.c		\
 				${PLAT_QEMU_PATH}/sbsa_topology.c		\
