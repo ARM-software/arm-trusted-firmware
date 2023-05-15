@@ -20,6 +20,8 @@
 /* PE-Cluster count */
 #if (NRD_PLATFORM_VARIANT == 1)
 #define PLAT_ARM_CLUSTER_COUNT		U(8)
+#elif (NRD_PLATFORM_VARIANT == 2)
+#define PLAT_ARM_CLUSTER_COUNT		U(4)
 #else
 #define PLAT_ARM_CLUSTER_COUNT		U(16)
 #endif

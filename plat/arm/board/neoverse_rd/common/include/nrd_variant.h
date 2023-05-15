@@ -34,6 +34,7 @@
 
 /* SID Version values for RD-Fremont variants */
 #define RD_FREMONT_CFG1_SID_VER_PART_NUM	0x07F9
+#define RD_FREMONT_CFG2_SID_VER_PART_NUM	0x07EE
 
 /* Structure containing Neoverse RD platform variant information */
 typedef struct nrd_platform_info {

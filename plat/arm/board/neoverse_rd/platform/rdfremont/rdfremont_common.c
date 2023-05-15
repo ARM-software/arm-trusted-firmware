@@ -5,6 +5,7 @@
  */
 
 #include <common/debug.h>
+#include <drivers/arm/gic600_multichip.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>

@@ -3,11 +3,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-RD_FREMONT_VARIANTS := 0 1
+RD_FREMONT_VARIANTS := 0 1 2
 ifneq ($(NRD_PLATFORM_VARIANT),						\
 	$(filter $(NRD_PLATFORM_VARIANT),$(RD_FREMONT_VARIANTS)))
-	$(error "NRD_PLATFORM_VARIANT for RD-FREMONT should be 0 or 1,"
+	$(error "NRD_PLATFORM_VARIANT for RD-FREMONT should be 0, 1, or 2,"
 	"currently set to ${NRD_PLATFORM_VARIANT}.")
+endif
+
+$(eval $(call CREATE_SEQ,SEQ,4))
+ifneq ($(NRD_CHIP_COUNT),$(filter $(NRD_CHIP_COUNT),$(SEQ)))
+	$(error  "Chip count for RD-Fremont-MC should be either $(SEQ) \
+	currently it is set to ${NRD_CHIP_COUNT}.")
 endif
 
 # Build options
@@ -26,6 +32,11 @@ override CTX_INCLUDE_AARCH32_REGS	:= 0
 
 # RD-Fremont platform uses GIC-700 which is based on GICv4.1
 GIC_ENABLE_V4_EXTN			:= 1
+
+# Enable GIC multichip extension only for multichip platforms
+ifeq (${NRD_PLATFORM_VARIANT}, 2)
+GICV3_IMPL_GIC600_MULTICHIP	:= 1
+endif
 
 include plat/arm/board/neoverse_rd/common/nrd-common.mk
 
@@ -63,6 +74,9 @@ BL31_SOURCES	+=	${NRD_CPU_SOURCES}				\
 			drivers/cfi/v2m/v2m_flash.c			\
 			lib/utils/mem_region.c				\
 			plat/arm/common/arm_nor_psci_mem_protect.c
+ifeq (${NRD_PLATFORM_VARIANT}, 2)
+BL31_SOURCES	+=	drivers/arm/gic/v3/gic600_multichip.c
+endif
 
 # XLAT options for RD-Fremont variants
 BL31_CFLAGS	+=      -DPLAT_XLAT_TABLES_DYNAMIC

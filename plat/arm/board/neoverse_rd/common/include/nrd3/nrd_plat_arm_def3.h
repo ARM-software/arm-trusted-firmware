@@ -589,7 +589,11 @@
  */
 
 /* Number of DRAM banks */
+#if (NRD_PLATFORM_VARIANT == 2)
+#define ARM_DRAM_NUM_BANKS		U(8)
+#else
 #define ARM_DRAM_NUM_BANKS		U(2)
+#endif
 
 /*******************************************************************************
  * DRAM bank1 specific defines.
