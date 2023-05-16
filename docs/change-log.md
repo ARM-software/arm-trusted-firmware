@@ -3,6 +3,1024 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [2.9.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.8.0..refs/tags/v2.9.0) (2023-05-16)
+
+### ⚠ BREAKING CHANGES
+
+- **Libraries**
+
+  - **EL3 Runtime**
+
+    - **RAS**
+
+      - The previous RAS_EXTENSION is now deprecated. The equivalent functionality can be achieved by the following 2 options:
+         - ENABLE_FEAT_RAS
+         - RAS_FFH_SUPPORT
+
+        **See:** replace RAS_EXTENSION with FEAT_RAS ([9202d51](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9202d51990c192e8bc041e6f53d5ce63ee908665))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - unify REGISTER_CRYPTO_LIB
+
+      **See:** unify REGISTER_CRYPTO_LIB ([dee99f1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dee99f10b1dcea09091f4a1d53185153802dfb64))
+
+  - **Arm**
+
+    - **Ethos-N**
+
+      - The Linux Kernel NPU driver can no longer directly configure and boot the NPU in a TZMP1 build. The API version has therefore been given a major version bump with this change.
+
+        **See:** add protected NPU firmware setup ([6dcf3e7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6dcf3e774457cf00b91abda715adfbefce822877))
+
+      - Building the FIP when TZMP1 support is enabled in the NPU driver now requires a parameter to specify the NPU firmware file.
+
+        **See:** load NPU firmware at BL2 ([33bcaed](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/33bcaed1211ab27968433b546979687bc1182630))
+
+- **Build System**
+
+  - BL2_AT_EL3 renamed to RESET_TO_BL2 across the repository.
+
+    **See:** distinguish BL2 as TF-A entry point and BL2 running at EL3 ([42d4d3b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/42d4d3baacb3b11c68163ec85de1bf2e34e0c882))
+
+  - check boolean flags are not empty
+
+    **See:** check boolean flags are not empty ([1369fb8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1369fb82c8e809c1a59a0d99184dbfd2d0b81afa))
+
+  - All input and output linker section names have been prefixed with the period character, e.g. `cpu_ops` -> `.cpu_ops`.
+
+    **See:** always prefix section names with `.` ([da04341](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/da04341ed52d214139fe2d16667ef5b58c38e502))
+
+  - The `EXTRA_LINKERFILE` build system variable has been replaced with the `<IMAGE>_LINKER_SCRIPT_SOURCES` variable. See the commit message for more information.
+
+    **See:** permit multiple linker scripts ([a6ff006](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a6ff0067ab57d848d3fb28a3eb2b47e6cf2a6092))
+
+  - The `LINKERFILE`, `BL_LINKERFILE` and `<IMAGE_LINKERFILE>` build system variables have been renamed. See the commit message for more information.
+
+    **See:** clarify linker script generation ([8227493](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/82274936374bf630bf5256370e93a531fdda6372))
+
+### Resolved Issues
+
+- **Architecture**
+
+  - **CPU feature / ID register handling in general**
+
+    - context-switch: move FGT availability check to callers ([de8c489](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/de8c489247458c00f7b48301fb5c5273c7a628fc))
+    - make stub enable functions "static inline" ([d7f3ed3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d7f3ed3655b85223583d8c2d9e719f364266ef26))
+    - resolve build errors due to compiler optimization ([e8f0dd5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e8f0dd58da231b81ba0ce6f27aaf1e31b4d4c429))
+
+  - **Memory Partitioning and Monitoring (MPAM) Extension (FEAT_MPAM)**
+
+    - feat_detect: support major/minor ([1f8be7f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1f8be7fc66fb59b197dde3b4ea83314b1728c6b8))
+    - remove unwanted param for "endfunc" macro ([0e0bd25](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0e0bd250ef08ba70b34db9eb0cab0f6ef4d08edf))
+    - run-time checks for mpam save/restore routines ([ed80440](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ed804406bf2ee04bde1c17683cec6f679ea1e160))
+
+  - **Pointer Authentication Extension**
+
+    - make pauth_helpers linking generic ([90ce8b8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/90ce8b8718d079b9e906d06bdd6a72da6cc5b636))
+
+  - **Performance Monitors Extension (FEAT_PMUv3)**
+
+    - switch FVP PMUv3 SPIs to PPI ([d7c455d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d7c455d8cca85de4a520da33db6523c9c8a7ee38))
+    - unconditionally save PMCR_EL0 ([1d6d680](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1d6d6802dd547c8b378a9a47572ee72e68cceb3b))
+
+  - **Scalable Matrix Extension (FEAT_SME, FEAT_SME2)**
+
+    - disable SME for SPD=spmd ([2fd2fce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2fd2fcedff0595a7050328fa60dc4850d6b424bf))
+
+  - **Statistical profiling Extension (FEAT_SPE)**
+
+    - drop SPE EL2 context switch code ([16e3ddb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/16e3ddba1f049106387dfe21989243d2fc4cf061))
+
+- **Platforms**
+
+  - **Allwinner**
+
+    - check RSB availability in DT on H6 ([658b315](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/658b3154d5b06a467b65cb79d31da751ffc6f5a4))
+
+  - **Arm**
+
+    - arm_rotpk_header undefined reference ([95302e4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/95302e4b234589e0487996a5c0f1e111c21ffedc))
+
+    - **A5DS**
+
+      - add default value for ARM_DISABLE_TRUSTED_WDOG ([115ab63](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/115ab63872ab36f8202f4c4aab093c4e9182d4e7))
+
+    - **CSS**
+
+      - fix invalid redistributor poweroff ([60719e4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/60719e4e0965aead49d927f12bf2a37bd2629012))
+
+    - **FPGA**
+
+      - include missing header file ([b7253a1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b7253a14cdc633a606472ec4e5aa4123158e2013))
+
+    - **FVP**
+
+      - correct ehf priority for SPM_MM ([fb2fd55](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fb2fd558d8102ad79e5970714e0afec31a6138d7))
+      - incorrect UUID name in FVP tb_fw_config ([7f2bf23](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7f2bf23dec6e6467704d7d71ec44bee030912987))
+      - unconditionally include lib/psa headers ([72db458](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/72db45852d84db6ade0da2a232a44df3e5228b6d))
+      - work around BL31 progbits exceeded ([138221c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/138221c2457b9d04101b84084c07d576b0eb5a51))
+      - work around DRTM_SUPPORT BL31 progbits exceeded ([7762e5d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7762e5d0ed5c28b0a77dc25cc566cf54a69af7e6))
+
+    - **Morello**
+
+      - add platform-specific power domain functions ([02a5bcb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/02a5bcb0bc3c8596894b6d0ec8c979b330db387a))
+
+    - **N1SDP**
+
+      - add platform-specific power domain functions ([5bdafc4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5bdafc4099b446609965f9132e6c52a7bdeb9ac8))
+
+    - **RD**
+
+      - **RD-N1 Edge**
+
+        - change variable type to fix gcc sign conversion error ([3a3e0e5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3a3e0e5371e99b3764fd8e8d98a447911f3bb915))
+
+    - **TC**
+
+      - increase TC_TZC_DRAM1_SIZE ([7e3f6a8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7e3f6a87d74efec780c0832c0535dd64ef830cfa))
+      - change the FIP offset to 8 KiB boundary ([d07b8aa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d07b8aac39abc3026233e316686f4643d076f8d6))
+      - change the properties of optee reserved memory ([2fff46c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2fff46c80fe4aa27cd55ad4bfbe43c3823095259))
+      - enable dynamic feature detection of FEAT_SVE for NormalWorld ([67265f2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/67265f2f6d7604147080033a1c99150e9a020f28))
+      - enable the execution of both platform tests ([657b90e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/657b90ea1aa2831a7feed31f07fc8e92213e6465))
+      - only suspend booting after running plat tests ([9b26655](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9b266556d308c0af6f932fedd1c41fbda05204aa))
+      - unify TC ROM start addresses ([f9e11c7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f9e11c724bb7c919dc9bd5dd8fca1e04140374d2))
+      - update the name of mbedtls config header ([d5fc899](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d5fc8992c7b63675b6fc4b2c00a1e1acfdaaeee2))
+
+  - **Broadcom**
+
+    - add braces around bodies of conditionals ([9f58bfb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9f58bfbbe90d2891c289cd27ab7d2ede8b5572d4))
+
+  - **Intel**
+
+    - add mailbox error return status for FCS_DECRYPTION ([76ed322](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/76ed32236aa396cb0e15eb049bea03710ca1992d))
+    - agilex bitstream pre-authenticate ([4b3d323](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4b3d323acdd21d8853e38e135bf990b3767ca354))
+    - fix Agilex and N5X clock manager to main PLL C0 ([5f06bff](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5f06bffa831638fd95d2160209000ef36d2a22ce))
+    - fix fcs_client crashed when increased param size ([c42402c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c42402cdf8a3dfc6f6e62a92b2898066e8cc46f6))
+    - fix pinmux handoff bug on Agilex ([e6c0389](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e6c038909193b83bc293de9b1eb65440e75f8c91))
+    - fix print out ERROR when encounter SEU_Err ([1a0bf6e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1a0bf6e1d8fe899359535c0a0a68c2be5e5acaf4))
+    - fix sp_timer0 is not disabled in firewall on Agilex ([8de7167](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8de7167eb661ff730a79bd2c6db15c22fdc62c8a))
+    - fix the pointer of block memory to fill in and bytes being set ([afe9fcc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/afe9fcc3d262ca279a747c8ab6fa8bacf79c76fb))
+    - flash dcache before mmio read ([731622f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/731622fe757ab2bcc0492ad27bafecf24206ddac))
+    - mailbox store QSPI ref clk in scratch reg ([7f9e9e4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7f9e9e4b40152c0cb52bcc53ac3d32fd1c978416))
+    - missing NCORE CCU snoop filter fix in BL2 ([b34a48c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b34a48c1ce0dd7e44eac4ceb0537b337857b057f))
+    - remove checking on TEMP and VOLT checking for HWMON ([68ac5fe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/68ac5fe14c0220673d7ee88a99b3d02be1fef530))
+    - update boot scratch to indicate to Uboot is PSCI ON ([7f7a16a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7f7a16a6c0a49af593fa080eb66f72a20bb07299))
+
+  - **NVIDIA**
+
+    - **Tegra**
+
+      - append major revision to the chip_id value ([33c4766](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/33c476601cf48a4b02259b8cb43819acd824804f))
+      - remove dependency on CPU registers to get boot parameters ([0b9f05f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0b9f05fcaea069bff6894d99ec5babc4be29ca67))
+
+      - **Tegra 210**
+
+        - support legacy SMC_ID 0xC2FEFE00 ([40a4e2d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/40a4e2d84c38ffae899eaa2c33c1e280312919cf))
+
+  - **NXP**
+
+    - **i.MX**
+
+      - **i.MX 8M**
+
+        - add ddr4 dvfs sw workaround for ERR050712 ([e00fe11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e00fe11df3fee04c7f3137817294d464466dab22))
+        - backup mr12/14 value from lpddr4 chip ([a2655f4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a2655f48697416b8350ba5b3f7f44f1f0be79d4e))
+        - correct the rank info get fro mstr ([5277c09](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5277c09606450daaffa43f3cf15fcc427d7ba612))
+        - fix coverity out of bound access issue ([0331b1c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0331b1c6111d198195298a2885dbd93cac1ad26a))
+        - fix the current fsp init ([25c4323](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/25c43233e866326326f9f82bfae03357c396a99f))
+        - fix the dfiphymaster setting after dvfs ([ad0cbbf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ad0cbbf513dfabe51a401c06be504e57d6b143ca))
+        - fix the dram retention random hang on some imx8mq Rev2.0 ([4bf5019](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4bf5019228cf89e0cbc2cd03627f755d51e3e198))
+        - fix the rank to rank space issue ([3330084](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3330084979e4c1a39a92f0642000664c79a00dda))
+
+        - **i.MX 8Q**
+
+          - fix compilation with gcc >= 12.x ([e75a3b6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e75a3b6e89c4bce11d1885426f22262def9bd664))
+
+    - **Layerscape**
+
+      - fix errata a008850 ([c45791b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c45791b2f20909c9a9d2bae84dafc17f55892fc8))
+      - fix nv_storage assert checking ([5d599b7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5d599b71ea6e0020f4f9d0e7af303726483217bc))
+      - unlock write access SMMU_CBn_ACTLR ([0ca1d8f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0ca1d8fba3bee32242b123ae28ad5c83a657aa0d))
+
+      - **LX2**
+
+        - init global data before using it ([50aa0ea](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/50aa0ea7acd21e7e9920a91a14db14a9f8c63700))
+
+      - **LS1046A**
+
+        - 4 keys secureboot failure resolved ([c0c157a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c0c157a680fcb100afed3e1ea9d342deea72ea05))
+
+  - **QEMU**
+
+    - enable dynamic feature detection of FEAT_SVE for NormalWorld ([fc259b6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fc259b6c3a551efbc810c8e08e82b7b5378f57ba))
+
+    - **SBSA**
+
+      - enable FGT ([c598692](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c598692d0c6a79dd10c34d5a4a740c90261cfc65))
+      - enable SVE and SME ([9bff7ce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9bff7ce37545162d417953ac36c6878216815b94))
+
+  - **QTI**
+
+    - **MSM8916**
+
+      - add timeout for crash console TX flush ([7e002c8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7e002c8a13172c44f55ab49062861479b6622884))
+      - drop unneeded initialization of CNTACR ([d833af3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d833af3ab50cd2cfecb8868c3d5340df1572f042))
+      - flush dcache after writing msm8916_entry_point ([01ba69c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/01ba69cd9b833047653186858a6929e6c9379989))
+      - print \r before \n on UART console ([3fb7e40](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3fb7e40a21b1570a8ce1cd1708134fa7a05d94fb))
+
+  - **Raspberry Pi**
+
+    - **Raspberry Pi 3**
+
+      - initialize SD card host controller ([bd96d53](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bd96d533dc28c4c938aa54905787688823cbccac))
+
+  - **Renesas**
+
+    - align incompatible function pointers ([90c4b3b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/90c4b3b62d5303c22fdc5f65f0db784de0f4ac95))
+
+  - **Rockchip**
+
+    - use semicolon instead of comma ([8557d49](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8557d491b6dbd6cbf27cc2ae6425f6cb29ca2c35))
+
+  - **ST**
+
+    - add U suffix for unsigned numbers ([9c1aa12](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9c1aa1253c9c77487b73d46a89941e81e80864eb))
+    - explicitly check operators precedence ([56048fe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/56048fe215997ab6788ebd251e8cde094392dfc7))
+    - include utils.h to solve compilation error ([377846b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/377846b65e8eb946a6560f1200ca4ca0e1eb8b99))
+    - make metadata_block_spec static ([d1d8a9b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d1d8a9bad0be53792e219625b0d327cc4855378f))
+    - rework secure-status check in fdt_get_status() ([0ebaf22](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0ebaf222899c1c33fe8bd0e69bd2c287ebe1154b))
+    - use Boolean type for tests ([45d2d49](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/45d2d495e77c9c8f3e80774e48a80e4882c8ac0d))
+    - use indices when counting GPIOs in DT ([e7d7544](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e7d75448b9e46dee22fe23b37c28a522b9ec3a6c))
+
+    - **STM32MP1**
+
+      - add const for strings in stm32mp_get_soc_name() ([d7f5bed](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d7f5bed90eaacee0a223bcf23438dfb76dee08e6))
+      - add missing platform.h include ([6e55f9e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6e55f9e2cde0426c39ccda87b00047f85d30f97d))
+      - always define PKA algos flags ([e0e2d64](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e0e2d64f47654e4d86d0e400977eab0e4a01523e))
+      - remove boolean check on PLAT_TBBR_IMG_DEF ([231a0ad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/231a0adb6abc35c125d4177749af37042575eca2))
+      - rework DWL buffer cache invalidation ([127ed00](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/127ed0008e03abb98b5447cb80c5634dfa554e7d))
+
+  - **Texas Instruments**
+
+    - do not take system power reference in bl31_platform_setup() ([9977948](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9977948112d732935362a3fe8518e3b2e4b7f6b7))
+    - fix typo in boot authentication message name ([81f525e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/81f525ecc75a3d8b344a27881098fcaab65f2d8f))
+
+  - **Xilinx**
+
+    - fix misra defects ([964e559](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/964e55928c8f966633cc57e41987aa00890f5da7))
+    - handle CRC failure in IPI ([5e92be5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5e92be5121e8ecd81a0f89eaae0d1a7ac8f4bfd7))
+    - handle CRC failure in IPI callback ([6173d91](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6173d914d673249ec47c080909c31a1654545913))
+    - initialize values to device enum members ([5c62d59](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5c62d599274b5d9facd4996b50c1a1e153b247a4))
+    - remove asserts around arg0/arg1 ([8be2044](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8be20446706c6b2fe911804385f308817495d2d4))
+    - remove unnecessary condition ([c984123](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c984123669a7ba7b8d1dc168db8e130ee52bbb1e))
+    - remove unused mailbox macros ([15f49cb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/15f49cb49d7daf2cd771c80d3dd80ff15874b40b))
+    - resolve integer handling issue ([4e46db4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4e46db40fc86ddc0556c42ba01198d13002fcf14))
+    - use lib/smccc.h macros instead of trusty spd ([0ee07d7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0ee07d796cece8074eb296415c88872504dee682))
+
+    - **Versal**
+
+      - check smc_fid 23:16 bits ([4a50363](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4a50363aaeaa16edafcff17486006049b30e1e2f))
+      - fix incorrect regbase for PMC IPI ([c4185d5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c4185d5103080621393edb770a56aa274f9af1a7))
+      - initialize the variable with value 0 in pm code ([cd73d62](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cd73d62b0e0920ca4e6c4fea7ab65bcbd63e07de))
+      - print proper atf handoff source ([0fe002c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0fe002c9be899f005316ea196ad4c6b08815d482))
+      - replace FPD_MAINCCI* macros ([245d30e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/245d30efe617af68c674b411d63c680dca1c21dd))
+      - sync location based on IPI_ID macros ([92a43bd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/92a43bdf366502c6919bbd2c8e4f687c51d9738c))
+
+      - **Versal NET**
+
+        - fix irq for IPI0 ([95bbfbc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/95bbfbc6e0789cba871e2518dba76ff9bf712331))
+        - clear power down bit during wakeup ([5f0f7e4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5f0f7e47e05f98587d424c2162d1ce20af4f588d))
+        - clear power down interrupt status before enable ([2d056db](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2d056db4e4981e0f8a58de0d1e44e46058b308f4))
+        - correct aff level for cpu off ([6ada9dc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6ada9dc325aaa29e2f4c87575093401197856639))
+        - disable wakeup interrupt during client wakeup ([e663f09](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e663f09b3cc2a3c933191c110557c6ffe5db6d6c))
+        - enable wake interrupt during client suspend ([39fffe5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/39fffe552fb04028de750e6080d9a8ba46e89b8c))
+        - fix setting power down state ([1f79bdf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1f79bdfd9ae105135a0192017d6f9368045228e9))
+        - populate gic v3 rdist data statically ([355dc3d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/355dc3d4deacf73a3d354682bcda454e6d13ed66))
+        - resolve misra 10.6 warnings ([8c23775](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8c23775e88bfc4ffa2b0eaf815d4f79992d344e6))
+        - resolve misra rule 20.7 warnings ([21d1966](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/21d1966a23b57425a400730270c8694e37b1a85c))
+        - use spin_lock instead of bakery_lock ([0b3a2cf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0b3a2cf0226878ad7098cc6cd1a97ade74fd9c38))
+
+    - **ZynqMP**
+
+      - add bitmask for get_op_char API ([ad4b667](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ad4b667d3ba7ece4cf28106aef6f91259b5b06ee))
+      - check return status of pm_get_api_version ([c92ad36](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c92ad369ca3a548ecbf30add110b1561fe416c10))
+      - check smc_fid 23:16 bits ([09b342a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/09b342a9d3aa030bde6d52e39203b9b8c8e6b106))
+      - conditional reservation of memory in DTB ([c52a142](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c52a142b7ceb397b4d66cc90f2bc717acc7263cd))
+      - enable A53 workaround(errata 1530924) ([d8133d7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d8133d7785969b417cbace293db6393c55844fac))
+      - fix bl31_zynqmp_setup.c coding style ([26ef5c2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/26ef5c29c62def3a21591dd216180d86063acdb4))
+      - fix DT reserved allocated size ([2c03915](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2c03915322ede112030fcfb8097d4697b92fcc2f))
+      - fix xck24 silicon ID ([f156590](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f156590767d5f80e942fa3f88a9b6a94c13ceb55))
+      - initialize uint32 with value 0U in pm code ([e65584a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e65584a017fadf002d5bdd1e95527c48610a6963))
+      - move EM SMC range to SIP range ([acbae39](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/acbae3998bd829ae4b31ea9da59055e3624991a5))
+      - panic w/o handoff structure in !JTAG ([fbe4dbe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fbe4dbeec906038795f72d8f9284a812bd6a852d))
+      - remove redundant api_version check ([d0b58c8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d0b58c8a9bff3cabfdb59e052ab7eaecfe64b305))
+      - remove unused PLAT_NUM_POWER_DOMAINS ([72c3124](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/72c3124f584609275424bf52a20fd707d4f1af6a))
+      - separate EM from PM SMCs ([a911396](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a9113966c35af281e9c8972b1209646963ff55d0))
+      - update MAX_XLAT_TABLES for DDR memory range ([12446ce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/12446ce89e351959aebb610eb2e35cdc7eb84d26))
+      - update the conflicting EEMI API IDs ([bcc1348](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bcc1348b6bb2fcd987c8f047fa9f526f32768258))
+      - with DEBUG=1 move bl31 to DDR range ([2537f07](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2537f0725ee7d8f46bef3e5b49134419b5c3367b))
+
+- **Bootloader Images**
+
+  - **BL31**
+
+    - avoid clearing of argument registers in RESET_TO_BL31 case ([3e14df6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3e14df6f63303adb134d525b373ec7f08c1b1dc6))
+
+  - **BL32**
+
+    - **TSP**
+
+      - loop / crash if mmap of region fails ([8c353e0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8c353e0058e95cfa20c9a760ebd0908a9a9aa1c1))
+      - use verbose for power logs ([3354915](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3354915fff2ad5f97551c22a44a90f4ff7b7cc9b))
+
+- **Services**
+
+  - **RME**
+
+    - update sample platform attestation token ([19c1dce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/19c1dcef88cb837abe175b89739e75e27539a561))
+
+    - **TRP**
+
+      - preserve RMI SMC X4 when not used as return ([b96253d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b96253db08383c3edfb417c505c8da6f7b1dbe75))
+
+    - **RMMD**
+
+      - add missing padding to RMM Boot Manifest and initialize it ([dc0ca64](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dc0ca64e4b6c86090eee025293e7ae7f1fe1cf12))
+
+  - **SPM**
+
+    - **EL3 SPMC**
+
+      - fix coverity scan warnings ([1543d17](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1543d17b9876add1cb89c1f5ffe0e6a129f5809e))
+      - improve bound check for descriptor ([def7590](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/def7590b3e34ff69b297c239cb8948d0bdc9c691))
+      - report execution state in partition info get ([62cd8f3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/62cd8f3147ed7fb146168c59cab3ba0e006210ad))
+
+    - **SPMD**
+
+      - fix build error with spmd ([fd51b21](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fd51b21573ec2e0d815caecb89cc323aac0fca6d))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - do not put RAS check before using esb ([9ec2ca2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9ec2ca2d453176179f923d7e0fbaac05341ebdc6))
+    - use hint instruction for "tsb csync" ([7a181b7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7a181b7d046a710db5238fb37047816636d2bb8a))
+    - workaround for Cortex-A510 erratum 2684597 ([aea4ccf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/aea4ccf8d9f3eabbc931f0e82df65ffca28c25e5))
+    - workaround for Cortex-A710 erratum 2282622 ([89d85ad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/89d85ad0aad4fef7f56a9e18968b49e2b843ca9d))
+    - workaround for Cortex-A710 erratum 2768515 ([b87b02c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b87b02cf1d93f2be2113192cd5f1927e33121a80))
+    - workaround for Cortex-A78 erratum 2742426 ([a63332c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a63332c517ac5699644d3e2fbf159d3e35c32549))
+    - workaround for Cortex-A78 erratum 2772019 ([b10afcc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b10afcce5ff1202e1cd922dbd3c1e5980b478429))
+    - workaround for Cortex-A78 erratum 2779479 ([7d1700c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7d1700c4d475358539c9a84cb325183c86a06f33))
+    - workaround for Cortex-A78C erratum 1827430 ([672eb21](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/672eb21e26a41657b8146372d4283e794b430c5f))
+    - workaround for Cortex-A78C erratum 1827440 ([b01a59e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b01a59eb2a0456ca3ae6b8d020068ba846f813d4))
+    - workaround for Cortex-A78C erratum 2772121 ([00230e3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/00230e37e3c21fed4a46eeb69dea9d808f8402b4))
+    - workaround for Cortex-A78C erratum 2779484 ([66bf3ba](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/66bf3ba482e46137e19f368f1386436a33eaba74))
+    - workaround for Cortex-X2 erratum 2282622 ([f9c6301](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f9c6301d743405bd91b9a1fe433ce14fa60a830f))
+    - workaround for Cortex-X2 erratum 2768515 ([1cfde82](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1cfde82227558a8cc1792c068bc7a7cdf8feab43))
+    - workaround for Cortex-X3 erratum 2615812 ([c7e698c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c7e698cfdedbe2b1c8212dd71477f289f7644953))
+    - workaround for Neoverse N2 erratum 2743089 ([1ee7c82](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1ee7c8232c153203d104f148a33e6f641d503f96))
+    - workaround for Neoverse V1 errata 2743233 ([f1c3eae](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f1c3eae9e091a63b42eebae8b03d4d470c9c3f75))
+    - workaround for Neoverse V1 errata 2779461 ([2757da0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2757da06149238041308060e5cb51f0870a02a15))
+    - workaround for Neoverse V1 erratum 2743093 ([31747f0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/31747f057b13b5934b607b7021139e58a55f7766))
+    - workaround platforms non-arm interconnect ([ab062f0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ab062f0510d42b2019667e3f4df82a1f57121412))
+
+  - **EL3 Runtime**
+
+    - allow SErrors when executing in EL3 ([1cbe42a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1cbe42a510812a4a4415a26ba46821cad1c04b68))
+    - do not save scr_el3 during EL3 entry ([e61713b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e61713b00715fc988a970687f9bf53418b81b0ca))
+    - restore SPSR/ELR/SCR after esb ([ff1d2ef](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ff1d2ef387f085fdada4a122284b3b044fdde09c))
+
+    - **RAS**
+
+      - do not put RAS check before esb macro ([7d5036b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7d5036b8ec911d83ede6eb73f1693b6f160d90ed))
+
+  - **FCONF**
+
+    - fix FCONF_ARM_IO_UUID_NUMBER value ([e208f32](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e208f3244b311a23b3e7fa1c03b3e98a6228714a))
+    - make struct fconf_populator static ([40e740d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/40e740dc14e807455d8db99dc758af355aa7fa8f))
+
+  - **OP-TEE**
+
+    - address late comments and fix bad rc ([8d7c80f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8d7c80fa4c5ab17e25d6d82ff0b1e67795e903fb))
+    - return UUID for image loading service ([85ab882](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/85ab88238183be1e27835e14e3588fb73e0f6aa7))
+
+  - **PSCI**
+
+    - do not panic on illegal MPIDR ([8a6d0d2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8a6d0d262ae03db0a0bedd047a2df6f95e8823f6))
+    - potential array overflow with cpu on ([6632741](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/66327414fb1e3248d443f4eb2835f437625fb92c))
+    - remove unreachable switch/case blocks ([ad27f4b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ad27f4b5d918bbd1feb9a2deed3cb0e2ae39616e))
+    - tighten psci_power_down_wfi behaviour ([695a48b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/695a48b5b4366d1005f8b9a0fc83726914668fb5))
+
+  - **GPT**
+
+    - fix compilation error for gpt_rme.c ([a0d5147](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a0d5147b8282374e107461421bb229272fde924b))
+
+  - **SMCCC**
+
+    - check smc_fid [23:17] bits ([f8a3579](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f8a35797b919d8ea041480bd5eb2a334e7056e0b))
+
+  - **C Standard Library**
+
+    - properly define SCHAR_MIN ([06c01b0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/06c01b085fb28fcfe26d747da2ba33415dbd52b9))
+    - remove __putchar alias ([28dc825](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/28dc82580e50961f9b76933b20d576a6afc5035c))
+
+  - **Context Management**
+
+    - enable SCXTNUM access ([01cf14d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/01cf14dd41cae9c68cb5e76a815747a0d2a19a4a))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - avoid out-of-bounds read in auth_nvctr() ([abb8f93](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/abb8f936fd0ad085b1966bdc2cddf040ba3865e3))
+    - forbid junk after extensions ([fd37982](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fd37982a19a4a2911912ce321b9468993a0919ad))
+    - only accept v3 X.509 certificates ([e9e4a2a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e9e4a2a6fd33d8fc21b00cfc9816a3dd3fef47fe))
+    - properly validate X.509 extensions ([f5c5185](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f5c51855d36e399e6e22cc1eb94f6b58e51b3b6d))
+    - reject invalid padding in digests ([f47547b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f47547b35462571636a76b737602e827ae43bc24))
+    - reject junk after certificates ([ca34dbc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ca34dbc0cdb1c4e1ab62aa4dd195cf9389b9edb7))
+    - reject padding after BIT STRING in signatures ([a8c8c5e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a8c8c5ef2a8f5a27772eb708f2201429dd8d32b2))
+    - require at least one extension to be present ([72460f5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/72460f50e2437a85ce5229c430931aab8f4a0d5b))
+    - require bit strings to have no unused bits ([8816dbb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8816dbb3819e626d14e1bb9702f6446cb80e26f0))
+    - use NULL instead of 0 for pointer check ([654b65b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/654b65b36d60a9c08e1d0cd88b35cd7bc2c813af))
+
+    - **mbedTLS**
+
+      - fix mbedtls coverity issues ([a9edc32](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a9edc32c8964ffe047909b4847edd710b5879f35))
+
+  - **Console**
+
+    - correct scopes for console symbols ([03bd481](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/03bd48102b575a9c86eed73866a5f9cd4d03e2d5))
+    - fix crash on spin_unlock with cache disabled ([5fb6946](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5fb6946ad70f5c6e82502a704633bba1dd82e507))
+
+  - **I/O**
+
+    - compare function pointers with NULL ([06d223c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/06d223cb4f54543299b96d40a682e33f9147e192))
+
+  - **MMC**
+
+    - align part config type ([53cbc94](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/53cbc949670877d1b661782ab452f6fac2302ce3))
+    - do not modify r_data in mmc_send_cmd() ([bf78a65](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bf78a6504254be9bf2cee38828a72f84773d4aa7))
+    - explicitly check operators precedence ([14cda51](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/14cda5168de45bbbcce1a5152140111d4fc8fd21))
+    - remove redundant reset_to_idle call ([bc0a738](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bc0a73866f3e4f7138892b228eb592be118b40d2))
+
+  - **GUID Partition Tables Support**
+
+    - add missing curly braces ([1290662](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1290662034578b4e52443c79f34dfd7c284c0435))
+    - add U suffix for unsigned numbers ([d1c6c49](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d1c6c495541b6e387179f987acbef274a12c7535))
+
+  - **SCMI**
+
+    - change function prototype to fix gcc error ([f0f2c90](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f0f2c90365d933ee0a160b4bf5723fc303d9ab73))
+    - fix compilation error in scmi base ([7c38934](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7c3893423d6ba5088f92f4ebdb626285759a1bcd))
+
+  - **UFS**
+
+    - device present (DP) field is set to '1' ([83103d1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/83103d1264fe3cd7d54f3a89121d6889b4d33980))
+    - flush the entire PRDT ([83ef869](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/83ef8698f9d1477c892cad15b4e48574ed634903))
+    - only allow using one slot ([56db7b8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/56db7b8b08d5bb350a02e1f794dc6eb02827917f))
+    - poll UCRDY for all commands ([6e57b2f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6e57b2f00e36e63da765e3aa1650b03772999726))
+    - set the PRDT length field properly ([20fdbcf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/20fdbcf502bd457a4b74ffa9a610d573594f1f6c))
+
+  - **Arm**
+
+    - **Ethos-N**
+
+      - add workaround for erratum 2838783 ([5a89947](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5a89947ab3ef8541b7adb6058af9ef141073043d))
+
+    - **GIC**
+
+      - wrap cache enabled assert under plat_can_cmo ([78fbb0e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/78fbb0ec8372a638b2b2a0276776892141ff43f8))
+
+      - **GICv3**
+
+        - fixed bug in the initialization of GICv3 SGIs/(E)PPIs interrupt priorities ([5d68e89](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5d68e8913ea983b21eb4a1163e6215ff8f8e96e4))
+        - restore scr_el3 after changing it ([1d0d5e4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1d0d5e40206c693e24b0a4de7dbcfc4b79f3138e))
+        - workaround for NVIDIA erratum T241-FABRIC-4 ([a02a45d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a02a45dfef4b02fa363a5f843ba6a0aac52d181f))
+
+    - **RSS**
+
+      - do not consider MHU_ERR_ALREADY_INIT as error ([55a7aa9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/55a7aa9252acfc9712a914e74bcddefc3a8d6390))
+      - fix msg deserialization bugs in comms ([dda0528](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dda052851a78fad150b6565ea4bb75644bd37dce))
+      - remove null-terminator from RSS metadata ([85a14bc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/85a14bc0a9598668c4678f9eda2ba497acba5ced))
+
+  - **NXP**
+
+    - fix fspi coverity issue ([5199b3b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5199b3b93c6ada8dd830f625f77987d3474a6f98))
+    - fix sd secure boot failure ([236ca56](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/236ca5667e8ac82aa53d4e933a78e6ca1ebf456e))
+    - fix tzc380 memory regions config ([07d8e34](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/07d8e34fdd5a81b6fe5f805560be44c1063cea79))
+    - use semicolon instead of comma ([50b8ea1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/50b8ea115f117e17646d73fe7606bee14bd02630))
+
+    - **NXP Crypto**
+
+      - fix coverity issue ([e492299](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e49229911f4e08e317453883886a113f3332b776))
+      - fix secure boot assert inclusion ([334badb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/334badb50f3ad55762785a6ba0266c2eb4d93e8e))
+
+    - **DDR**
+
+      - add checking return value ([e83812f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e83812f11a2d725931de88308c5b520d88bcca86))
+      - apply Max CDD values for warm boot ([00bb8c3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/00bb8c37e0fe57ae2126857ce2d2700106a76884))
+      - fix coverity issue ([2d541cb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2d541cbcbe90217df107e1ac0c4adb76d647b283))
+      - fix underrun coverity issue ([87612ea](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/87612eaefff34548b72fed0d8c93dcf73f9b8c81))
+      - use CDDWW for write to read delay ([fa01056](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fa0105693c85eacf6eda22eca63f220d304f7768))
+
+  - **ST**
+
+    - **Clock**
+
+      - avoid arithmetics on pointers ([4198fa1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4198fa1db7297d8385bb6624d4bd475870e5bf12))
+      - give the size for parent_mp13 and dividers_mp13 tables ([ee21709](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ee21709e98a9e0f60a46d79caf5b702a0b7941cc))
+      - remove useless switch ([69a2e32](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/69a2e320b6798ce3cf5cb27bf70e3384cfac3ebb))
+      - use Boolean type for tests ([c3ae7da](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c3ae7da02dd8b358239dde47c3325e333af81056))
+
+    - **Crypto**
+
+      - move flag control into source code ([6a187a0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6a187a002ee72ef865222870b2ecf99cf4d4efb8))
+      - remove platdata functions ([6b3ca0a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6b3ca0a81723290e2d9b33c406c0e65c1870baa8))
+      - set get_plain_pk_from_asn1() static ([70a422b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/70a422ba83df3f572af1d2931e950feb78592ca3))
+
+    - **GPIO**
+
+      - define shift as uint32_t ([5d942ff](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5d942ff1964131bf33f445f66175fe8211c77e23))
+
+    - **SDMMC2**
+
+      - check transfer size before filling register ([029f81e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/029f81e04c0232843f3e546fa080778a1008a9c5))
+
+    - **ST PMIC**
+
+      - define pmic_regs table size ([3cebeec](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3cebeec2ae452d33ec0cea322f4ab18137e41631))
+      - enclose macro parameter in parentheses ([be7195d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/be7195d06cb7731fe0d906c6eabe6cb6f39f29b1))
+
+    - **Regulator**
+
+      - enclose macro parameters in parentheses ([91af163](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/91af163cbbfab936e70568998e8b9dcb10203b8e))
+      - explicitly check operators precedence ([68083e7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/68083e7ad5ded7adbeca147546bbda6c14cab049))
+      - rework for_each_*rdev macros ([6a3ffb5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6a3ffb53910f136d14ddad5042da01a03e5087c4))
+      - use Boolean type for tests ([9a00daf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9a00daf9dd0a25da45a43142ca27126e6e26a622))
+
+    - **USB**
+
+      - replace redundant checks with asserts ([02af589](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/02af589cfa8d8aefaffeef3390e3fb8fdf51978f))
+
+- **Style**
+
+  - correct some typos ([1b491ee](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1b491eead580d7849a45a38f2c6a935a5d8d1160))
+
+- **Miscellaneous**
+
+  - **AArch64**
+
+    - allow build with ARM_ARCH_MINOR=4 ([78f56ee](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/78f56ee71c9ffe7a6ee36268f0fe1f7ca7d01738))
+
+  - **FDT Wrappers**
+
+    - use correct prototypes ([e0c56fd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e0c56fd71fbd7e8ef307777db8940fb2cf3c9957))
+
+  - **FDTs**
+
+    - **STM32MP1**
+
+      - **STM32MP15**
+
+        - use /omit-if-no-ref/ for spi and i2c ([d480df2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d480df2116fc0d629d52f654bc218ee36251cb33))
+        - use interrupts-extended for i2c2 ([600c8f7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/600c8f7d953d466e0ec5fd04bd6ef2e44c9c9125))
+
+  - **PIE**
+
+    - pass `-fpie` to the preprocessor as well ([966660e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/966660ecd0c8a3d6e4d18a5352bb431e71a9a793))
+
+  - **UUID**
+
+    - add missing `#include` directives ([12562af](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/12562af369e897c67aa45bfeb97cd7bb5d500cf6))
+
+  - add missing click dependency ([ff12683](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ff12683e87e44ead813600fac5415e05e7f95700))
+  - add parenthesis for tests in MIN, MAX and CLAMP macros ([8406db1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8406db14fbba19c25d000eaeab538a0474795da1))
+  - increase BL32 limit ([c2a7612](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c2a76122c88e9ba5de493e1aa765ad170614a31d))
+  - remove old-style declarations ([f4b8470](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f4b8470feee4437fb3984baeee8c61ed91f63f51))
+  - remove useless "return" at void functions ([af4d8c6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/af4d8c6d505c001ee78ea9dd9d8dd76ba039af9b))
+  - unify fallthrough annotations ([e138400](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e138400d1c19a561eaf9f23b0cadc07226684561))
+
+- **Documentation**
+
+  - add a build.tools.python entry ([4052d95](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4052d9583c850feeb8add29734bda0ef0343c238))
+  - add few missed links for Security Advisories ([43f3a9c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/43f3a9c4d67da76a00f9050e7cfe1333da51ff92))
+  - add plantuml as a dependency ([65982a9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/65982a94ef113d5d652d8e1a521b219be75fca42))
+  - add readthedocs configuration file ([8a84776](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8a84776340bf4215d235b7b6dc09cf94aed8c6b3))
+  - deprecate plat_convert_pk() in v2.9 ([e0f58c7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e0f58c7fb685560933e3583cb1dfab8fb2963692))
+  - make required compiler version == rather than >= ([415195c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/415195c03e6e1b3a5335ee242ab4116d2d1ac0b1))
+  - python version must be string ([3aa919e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3aa919eb278e7e0b23742ea043d79e1b1f1d75c6))
+  - specify python version to 3.10 ([a7773c5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a7773c590d0319bdf3b4ddc67c7b22180020224b))
+
+- **Build System**
+
+  - add a default value for INVERTED_MEMMAP ([4d32f91](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4d32f9138d61719bbaab57fdd853877a7e06b1cd))
+  - allow lower address access with gcc-12 ([dea23e2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dea23e245fb890c6c06eff7d1aed8fffa981fc05))
+  - allow warnings when using lld ([ebac692](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ebac6922d1f6fc16c5d3953dfb512553001dcdd3))
+  - partially fix qemu aarch32 build ([c68736d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c68736dab5631af3d9a1d33cb911e90e67e8ee34))
+
+- **Tools**
+
+  - **NXP Tools**
+
+    - fix coverity issue ([4fa0f09](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4fa0f097399c7d396bc14a6692476ada6981c458))
+
+  - **Secure Partition Tool**
+
+    - add dependency to SP image ([4daeaf3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4daeaf341a347a60fd481fb4a1530f18f8e4c058))
+
+  - **Certificate Creation Tool**
+
+    - change WARN to VERBOSE ([76a85cf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/76a85cfa0ab5e7093ad18601b7e73a1e425d8025))
+
+- **Dependencies**
+
+  - add missing aeabi_memset.S ([bdedee5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bdedee5a0f156d05eb62c704e702bfd1c506dc5d))
+
+### New Features
+
+- **Architecture**
+
+  - **Extended Translation Control Register (FEAT_TCR2).**
+
+    - add FEAT_TCR2 to the changelog ([a366640](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a366640cf22d7d0e610564f81e189f6037ff9473))
+    - support FEAT_TCR2 ([d333160](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d3331603664ca7d4ab1510df09e722e6ffb1df29))
+
+  - **CPU feature / ID register handling in general**
+
+    - enable FEAT_SME for FEAT_STATE_CHECKED ([45007ac](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/45007acd46981b9f289f03b283eb53e7ba37bb67))
+    - enable FEAT_SVE for FEAT_STATE_CHECKED ([2b0bc4e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2b0bc4e028a75d75c6d6942ddd404ef331db29be))
+    - extend check_feature() to deal with min/max ([a4cccb4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a4cccb4f6cbbb35d12bd5f8779f3c6d8d762619c))
+
+  - **Guarded Control Stack (FEAT_GCS)**
+
+    - support guarded control stack ([688ab57](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/688ab57b9349adb19277d88f2469ceeadb8ba083))
+
+  - **Support for the `HCRX_EL2` register (FEAT_HCX)**
+
+    - initialize HCRX_EL2 to its default value ([ddb615b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ddb615b419074727ac0a1430cf0f88bd018ac8df))
+
+  - **Scalable Matrix Extension (FEAT_SME, FEAT_SME2)**
+
+    - enable SME2 functionality for NS world ([03d3c0d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/03d3c0d729e24713d657209bedf74d255550babb))
+
+- **Platforms**
+
+  - **Allwinner**
+
+    - add extra CPU control registers ([b15e2cd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b15e2cda14b3ffddebd8b40cc5c31c1c0e9cbf0d))
+    - add function to detect H616 die variant ([fbde260](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fbde260b11171f0f67afbc631e22fe26366ff448))
+    - add support for Allwinner T507 SoC ([018c1d8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/018c1d878fbfd696ebeda52b5188e4658b87bf75))
+
+  - **Arm**
+
+    - add ARM_ROTPK_LOCATION variant full key ([5f89928](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5f899286eac994b8337959ad924a43c1a4a543c9))
+    - carveout DRAM1 area for Event Log ([6b2e961](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6b2e961fb1428c3fe213c524164a00fcaee495c4))
+
+    - **FVP**
+
+      - add Event Log maximum size property in DT ([1cf3e2f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1cf3e2f0a8eb0d6324ce3db68dd5c78bdb690a8a))
+      - copy the Event Log to TZC secured DRAM area ([191aa5d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/191aa5d3fc793c5c4cd8960d1ef7b95010cc9d87))
+      - define ns memory in the SPMC manifest ([7f28179](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7f28179a46b40ede461326dd329eb832c0d72b0d))
+      - emulate trapped RNDR ([1ae7552](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1ae75529bc2e5a213c3e458898c219c34aa99f65))
+      - enable errata management interface ([d3bed15](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d3bed15851a1b35b2608f7275f1294c8d4f7aee7))
+      - enable FEAT_FGT by default ([15107da](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/15107daad6b83b4ee1edfebf420b6779a054318e))
+      - enable FEAT_HCX by default ([2e12418](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2e1241888ee82a5a9b3b30acd83a1f4ea6732f1b))
+      - enable support for PSCI OS-initiated mode ([e75cc24](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e75cc247c744d21e52f834a442bf1c26d0ab6161))
+      - increase BL1_RW and BL2 size ([dbb9c1f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dbb9c1f5b69134ca43c944d84b413331a64fba15))
+      - introduce PLATFORM_TEST_EA_FFH config ([fe38cc6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fe38cc68975b23084b4ba512254926941c865a07))
+      - introduce PLATFORM_TEST_RAS_FFH config ([5602ce1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5602ce1d8db3256a7766776cb908b1f716c2d463))
+      - update device tree with load addresses of TOS_FW config ([1779762](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/177976286e347acd905d8082f31c201b9900d28e))
+
+    - **Juno**
+
+      - support ARM_IO_IN_DTB option for Juno ([2fad320](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2fad320f5623edcdd23297ab57c4b9b0b0ef872c))
+
+    - **Morello**
+
+      - add GPU DT node ([cd94c3d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cd94c3d6ad5e738c2583486b7a973bd8e516089b))
+      - add support for HW_CONFIG ([be79071](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/be79071ef73b4b08cca310ec7e7d915faea8f036))
+      - implement methods to retrieve soc-id information ([cc266bc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cc266bcd8c0a1d839151b69436fdf2c1ad07b0a1))
+
+    - **RD**
+
+      - **RD-N2**
+
+        - add platform id value for rdn2 variant 3 ([028c619](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/028c6190d9f3d892a84b5b9cbfdbbab808a73acb))
+
+    - **TC**
+
+      - enable MPAM functionality of L3 DSU cache ([b45ec8c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b45ec8cea483a38e358146b99205504ff7f98001))
+      - add delegated attest and measurement tests ([25dd217](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/25dd2172ae564c74b7e8b42aa96d5ee9a865ec75))
+      - allow secure watchdog timer to trigger periodically ([28b2d86](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/28b2d86cd28ffc54c6272defcd6f123a925012f1))
+      - use smmu 700 ([ed80eab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ed80eab6a686ce1042300cfbdb90e13366aa08d4))
+
+  - **Intel**
+
+    - extending to support SMMU in FCS ([4687021](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4687021d2eedea880ad8596b32e85da72f8cba02))
+    - fix bridge disable and reset ([9ce8251](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9ce82519c65f0dd93d2673ebb967d02f52b19a04))
+    - implement timer init divider via CPU frequency for N5X ([02a9d70](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/02a9d70c4deaa2102386611ac6b305838003148d))
+    - setup FPGA interface for Agilex ([3905f57](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3905f57134853f47f6e859b8b6322a7dbbfc49f7))
+
+  - **MediaTek**
+
+    - add APU init flow ([5243091](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5243091633b8fe8057cec176ac31adb72fdf3506))
+    - add new features of LPM ([917abdd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/917abdd99012d01ef4fa804ecec1503bef68ed9b))
+    - add SiP service for OP-TEE ([621eaab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/621eaab5cc3c9d98783700b7515b1da118b3d21c))
+    - add SMC handler for EMI MPU ([c842cc0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c842cc0e5d1432a681cbddce62a852ff282169ae))
+    - add SPM's SSPM notifier ([c234ad1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c234ad17d7d7278e1afa0f416982bb0f60a04dcf))
+
+    - **MT8188**
+
+      - add apu power on/off control ([8e38b92](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8e38b928490516d308bdceebc4ad032852bf2716))
+      - add MT8188 SPM debug logs ([f85b34b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f85b34b112eec006c14afab0eadbd45d1b0d0e7e))
+      - add MT8188 SPM support ([45d5075](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/45d507599e213f8f3a26502c3ca8de6b1cfdc611))
+      - add SPM feature support ([f299efb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f299efbea685aa8075ec4d6d0f70d189cce3ee07))
+      - add the register definitions accessed by SPM ([1a64689](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1a64689df5e7bf78aa8724c1d75f414ea62750eb))
+      - enable SPM and LPM ([380f64b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/380f64b2e39c60cb9a1f751b25cbce11c5e03e20))
+      - keep infra and peri on when system suspend ([e56a939](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e56a939cabb5ae0fe967c19ddacf97304c563f37))
+      - update INFRA IOMMU enable flow ([98415e1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/98415e1a80ca025a000241cf3fc175272890c0e8))
+
+    - **MT8195**
+
+      - add support for SMC from OP-TEE ([ccc61e1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ccc61e10029b8ddfcb5cb65201862a18ebbc953d))
+
+  - **NVIDIA**
+
+    - **Tegra**
+
+      - implement 'pwr_domain_off_early' handler ([96d07af](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/96d07af402a5d191b7d1200a75c1b206f21cc395))
+
+  - **NXP**
+
+    - **i.MX**
+
+      - **i.MX 8M**
+
+        - add more dram pll setting ([4234b90](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4234b902ae37ca05640888e31405ec97c8cde316))
+        - fix the ddr4 dvfs random hang on imx8m ([093888c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/093888caaf54cbfe38d4b68406d98fbcf5c7d81f))
+        - update the ddr4 dvfs flow to include ddr3l support ([0e39488](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0e39488ff3f2edac04d7f5acb58d9a22baa3a69e))
+        - use non-fast wakeup stop mode for system suspend ([ef4e5f0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ef4e5f0f105f184f02ad4d1cc17cecec9b45502a))
+
+        - **i.MX 8Q**
+
+          - add anamix pll override setting for DSM mode ([387a1df](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/387a1df18e0b5bf1d305c72df284b1b89f3c1cd3))
+          - add BL31 PIE support ([8cfa94b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8cfa94b7a7fc398cc0ea803891f6277065bb7575))
+          - add the dram retention support for imx8mq ([dd108c3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dd108c3c1fe3f958a38ae255e57b41e5453d077f))
+          - add version for B2 ([99475c5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/99475c5dcc14123dda51bda32d21753f0b4c357d))
+          - add workaround code for ERR11171 on imx8mq ([88a2646](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/88a264657fad2f71369fec4b53478e8a595d10e9))
+          - always set up console ([36be108](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/36be10861e851e7e4df06bb08aab60d8e878d2b2))
+          - correct the slot ack setting for STOP mode ([724ac3e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/724ac3e2c23441d11f642f2ae91c8a8834ea179f))
+          - enable dram dvfs support on imx8mq ([8962bdd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8962bdd603508f649fd7a332e580c0e456ccc0ad))
+          - make IMX_BOOT_UART_BASE configurable via build parameter ([202737e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/202737efda85b2ea61934123b8ffa492f5dc3679))
+          - remove empty bl31_plat_runtime_setup ([7698dba](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7698dbab96072881e0912322db5036529bf8553c))
+
+      - **i.MX 8**
+
+        - add support for debug uart on lpuart1 ([8406447](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8406447f13c65fe93aab7ed641b7e8fe3eb47a0b))
+
+    - **Layerscape**
+
+      - **LX2**
+
+        - enable OCRAM ECC ([e8faff3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e8faff3da962ce112e32d8f1fdb8155e078eae75))
+        - support more variants ([c07f5e9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c07f5e9e50959a3667e5a96ac808d1d16bb72698))
+
+  - **QEMU**
+
+    - add "neoverse-n1" cpu support ([226f4c8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/226f4c8e35c4441e80ad523b9105eab4ca630396))
+    - add A76/N1 cpu support for virt ([6b66693](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6b66693685f828a51c7f78bfa402d6b192169a6d))
+    - combine TF-A artefacts into ROM file ([63bb905](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/63bb90569792893a4e7401004c23cde488fda0cc))
+    - increase max cpus per cluster to 16 ([73a7aca](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/73a7aca2a53d4dbb62909c5741830eee9eac5ee8))
+    - increase size of bl2 ([db2bf3a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/db2bf3ac193f66f365b962b911e7bb2ffbde0a25))
+    - make coherent memory section optional ([af994ae](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/af994ae8a089ead6082ca82036d30074f554ed52))
+    - support el3 spmc ([302f053](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/302f05354f5aab340c315e0d04915367c65c6b27))
+    - support pointer authentication ([cffc956](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cffc956edf3a14508ed5740c1ed093326ca67e72))
+    - support s-el2 spmc ([36802e2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/36802e2c792f79ab630b53298dfd4f1e5a95d173))
+    - update abi between spmd and spmc ([25ae7ad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/25ae7ad1878244f78206cc7c91f7bdbd267331a1))
+
+  - **QTI**
+
+    - **SC7280**
+
+      - add support for PSCI_OS_INIT_MODE ([e528bbe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e528bbec74af359714203c7f8d356074733ea9cd))
+
+    - **MSM8916**
+
+      - expose more timer frames ([1781bf1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1781bf1c40594e3a3f36404da793d5c7a6bca533))
+
+  - **ST**
+
+    - mandate dtc version 1.4.7 ([38ac8bb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/38ac8bbbe450343e8545a44f370ff9da57cbed26))
+
+    - **STM32MP1**
+
+      - add mbedtls-3.3 support config ([c9498c8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c9498c8f56387ad23530dcc6e57940d2b118d907))
+
+  - **Texas Instruments**
+
+    - add PSCI system_off support ([0bdef26](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0bdef264c2bd356e2a89fc5ac7c438694618d272))
+    - add sub and patch version number support ([852378f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/852378fd60d8cc536799639774f1e4ffe124131d))
+    - disable L2 dataless UniqueClean evictions ([10d5cf1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/10d5cf1b26f03d61a90cdcff5163965fa48e291c))
+    - do not handle EAs in EL3 ([2fcd408](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2fcd408bb3a6756767a43c073c597cef06e7f2d5))
+    - set L2 cache data ram latency on A72 cores to 4 cycles ([aee2f33](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/aee2f33a675891f660fc0d06e739ce85f3472075))
+    - set L2 cache ECC and and parity on A72 cores ([81858a3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/81858a353f8e45f5cc57ce855188043b1745ea08))
+    - set snoop-delayed exclusive handling on A72 cores ([5668db7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5668db72b724dc256d9b300f6938a08625624a48))
+    - synchronize access to secure proxy threads ([312eec3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/312eec3ecde9837f61fc0d7b46b4197ec2257ee7))
+
+  - **Xilinx**
+
+    - add device node indexes ([407eb6f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/407eb6fda06d7be034dc7f1c537183f64126f074))
+    - sync copyright format ([2774965](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/27749653c7dbea1bd5b34a39085bc7cb12d46501))
+
+    - **Versal**
+
+      - replace irq array with switch case ([0ec6c31](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0ec6c31320c6d86e89dce8775af2bbdfa7a302fa))
+      - switch to xlat_v2 ([0e9f54e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0e9f54e5bb7f4b44bca9c63cce37913070fea23a))
+
+      - **Versal NET**
+
+        - add jtag dcc support ([30e8bc3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/30e8bc365c1007da97f93c71e5fa16b6be56b679))
+        - add support for set wakeup source ([c38d90f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c38d90f7964ddf186f4cbaad6da91dd0a44627e3))
+        - add support for uart1 console ([2f1b4c5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2f1b4c55502262dba0ccd147f87cdb38cf4131f2))
+
+    - **ZynqMP**
+
+      - add hooks for custom runtime setup ([88a8938](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/88a8938e62989b7319b20c46c046aa8845852ce9))
+      - add hooks for mmap and early setup ([7013400](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/70134000842cbc7c052031dd453bdec8f4cb73f1))
+      - add SMCCC_ARCH_SOC_ID support ([8f9ba3f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8f9ba3f344545740fc44e90fb8322c7728ae94ec))
+      - add support for custom sip service ([496d708](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/496d708154d893fb9f412390acd433337faccecc))
+      - build pm code as library ([3af2ee9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3af2ee906842378ee91f07aa4ea5565cd1a0f8c2))
+      - bump up version of query_data API ([aaf5ce7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/aaf5ce77fb22f54a8ca7bc8d3be6172dacbfc0c1))
+      - make stack size configurable ([5753665](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/57536653e62765f9529d045b118ad881369bc73a))
+
+- **Services**
+
+  - **RME**
+
+    - read DRAM information from FVP DTB ([8268590](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/826859049859a5bd88e142695e10a559d85721c1))
+    - set DRAM information in Boot Manifest platform data ([a97bfa5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a97bfa5ff18b2682e3b9c528cbd5fb16ceec3393))
+
+    - **RMM**
+
+      - add support for the 2nd DRAM bank ([346cfe2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/346cfe2b46a83bc9e6656f43ec55a196503b154a))
+
+  - **SPM**
+
+    - **EL3 SPMC**
+
+      - make platform logical partition optional ([555677f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/555677fe81c5e1888254ac36acb0a02b3850dc46))
+
+    - **SPMD**
+
+      - add support for FFA_EL3_INTR_HANDLE_32 ABI ([6671b3d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6671b3d8224a8c4c3fea7cbe66b56945c432393f))
+      - copy tos_fw_config in secure region ([0cea2ae](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0cea2ae07db089e60322677021da4743a084f9ca))
+      - fail safe if SPM fails to initialize ([0d33649](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0d33649e3e2a21def73327522b9861b4619fc5c2))
+      - introduce FFA_PARTITION_INFO_GET_REGS ([eaaf517](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/eaaf517cd1bd8c9d5e3e6d2d202a69a0cbcb45bf))
+      - introduce platform handler for Group0 interrupt ([f0b64e5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f0b64e507e9105813d9a5d16f70101cf0d8ca5a4))
+      - map SPMC manifest region as EL3_PAS ([8c829a9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8c829a9240109dd7a66a3c26f734f23477b12551))
+      - register handler for group0 interrupt from NWd ([a1e0e87](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a1e0e871f10201a9dbdc1dadfd27904888246adc))
+
+  - **ERRATA_ABI**
+
+    - errata management firmware interface ([ffea384](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ffea3844c00daf8dee466840a4932cac04b3eb57))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add support for blackhawk cpu ([6578343](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6578343bb2aab6ec5ae309097047a83445aa12da))
+    - add support for chaberton cpu ([516a52f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/516a52f6f5cda6acb311ffd6e8fb77f2e09c1357))
+
+  - **EL3 Runtime**
+
+    - handle traps for IMPDEF registers accesses ([0ed3be6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0ed3be6fc2c8d275862959d1ee6a0354cc01ad5d))
+    - introduce system register trap handler ([ccd81f1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ccd81f1e097c3eafe38523110c8eebabbe662508))
+
+  - **FCONF**
+
+    - rename 'ns-load-address' to 'secondary-load-address' ([05e5503](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/05e550302103a527b9f8d3869942c203c7b2dd65))
+
+  - **OP-TEE**
+
+    - add device tree for coreboot table ([f4bbf43](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f4bbf435554e87de31c0a70039aa03b19962aaea))
+    - add loading OP-TEE image via an SMC ([05c69cf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/05c69cf75edf53478e23fce157fea72372b49597))
+
+  - **PSCI**
+
+    - add support for OS-initiated mode ([606b743](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/606b7430077c15695a5b3bcfbad4975f00c9bf95))
+    - add support for PSCI_SET_SUSPEND_MODE ([b88a441](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b88a4416b5e5f2bda2240c632ba79e15a9a75c45))
+    - introduce 'pwr_domain_off_early' hook ([6cf4ae9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6cf4ae979a5f8be23927b97ecfe789dabcb53dbd))
+    - update PSCI_FEATURES ([9a70e69](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9a70e69e059863d7aec11883e6345b54058264e0))
+
+  - **C Standard Library**
+
+    - add %c to printf/snprintf ([44d9706](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/44d9706e5428d8e3588d04565c7cd738ffc1e472))
+    - add support for fallthrough statement ([023f1be](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/023f1bed1dde23564e3b66a99c4a45b09e38992b))
+
+  - **PSA**
+
+    - add read_measurement API ([6d0525a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6d0525aafe17e7affb0f71e86a5121989c150c42))
+    - interface with RSS for NV counters ([8374508](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8374508b00909cdffbe6233cf8fddcb49924faed))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - compare platform and certificate ROTPK for authentication ([f1e693a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f1e693a77548950cfffcb1d5a4b67cf349e0aed9))
+
+    - **mbedTLS**
+
+      - add support for mbedtls-3.3 ([51e0615](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/51e061591bbf13af2486c3bb5f37ed609578d145))
+
+  - **UFS**
+
+    - adds timeout and error handling ([2c5bce3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2c5bce3833848dac4fbb2ae19be418145e68c8a1))
+
+  - **Arm**
+
+    - **Ethos-N**
+
+      - add check for NPU in SiP setup ([a2cdbb1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a2cdbb1df088cde410aea1d5989dfc500aaf7939))
+      - add event and aux control support ([7820777](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7820777fa3c8ca454ab40d5d8a8ba0e311bbb6f9))
+      - add multiple asset allocators ([8a921e3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8a921e354575cd16aaa6f2f5a2aeaaaea35ab886))
+      - add NPU firmware validation ([313b776](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/313b776f851ed184abb265df2b6269fe78f48ecd))
+      - add NPU sleeping SMC call ([2a2e3e8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2a2e3e87706b56fd1b8e787d3a552cfc12725934))
+      - add NPU support in fiptool ([c91b08c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c91b08c8a44aafac4f72c64aa8d4777b8c73647e))
+      - add protected NPU firmware setup ([6dcf3e7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6dcf3e774457cf00b91abda715adfbefce822877))
+      - add protected NPU TZMP1 regions ([d77c11e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d77c11e896e04be93caa4a56e50646af6806843f))
+      - add reserved memory address support ([a19a024](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a19a0241a6f1573e11d4d747dabb756d15ac4801))
+      - add reset type to reset SMC calls ([fa37d30](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fa37d30856fef6742bd82e4e0a3252a4d0b9e091))
+      - add separate RO and RW NSAIDs ([986c4e9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/986c4e991ace5cb40bed35145184e66863c47152))
+      - add SMC call to get FW properties ([e9812dd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e9812ddca6e72c0501ef1e84753f335dcafb74cd))
+      - add stream extends and attr support ([e64abe7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e64abe7bdaeed99093ae5b4aab8956a04ff4075a))
+      - add support for NPU to cert_create ([f309607](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f309607229e049a6ff9cbc858efa4dd0c0b921b8))
+      - add support to set up NSAID ([70a296e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/70a296ee8641802dc60754aec5b18d8347820a5c))
+      - load NPU firmware at BL2 ([33bcaed](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/33bcaed1211ab27968433b546979687bc1182630))
+
+    - **GIC**
+
+      - **GICv3**
+
+        - enlarge the range for intr_num of structure interrupt_prop_t ([d5eee8f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d5eee8f3fbf53fce84c979e68433a27c93e3e96b))
+
+    - **RSS**
+
+      - add TC platform UUIDs for RSS images ([6ef63af](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6ef63af65f55e9402e4cdc534928faceb9c6e003))
+
+    - **SBSA**
+
+      - helper api for refreshing watchdog timer ([e8166d3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e8166d3e5937b8db43921b5049672b16af7f58e0))
+
+- **Miscellaneous**
+
+  - **AArch64**
+
+    - make ID system register reads non-volatile ([c2fb8ef](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c2fb8ef66ccc8222c70ab802cdaf29f1592cbbb6))
+
+  - **FDTs**
+
+    - **STM32MP1**
+
+      - use /omit-if-no-ref/ for pins nodes ([0aae96c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0aae96cfb9ef826d207f2d18d4a9f21fa1a5dee7))
+
+      - **STM32MP15**
+
+        - add support for prtt1x board family ([3812ceb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3812ceba8fcd682faeed6e71190a848771fd2022))
+
+  - **PIE/POR**
+
+    - support permission indirection and overlay ([062b6c6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/062b6c6bf23f9656332b0aa3fed59c15f34f9361))
+
+- **Documentation**
+
+  - allow verbose build ([f771a34](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f771a3446356d92c6c27df5c4f3bb07a2561b36b))
+
+- **Build System**
+
+  - add support for new binutils versions ([1f49db5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1f49db5f25cdd4e43825c9bcc0575070b80f628c))
+  - allow additional CFLAGS for library build ([5a65fcd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5a65fcd5f9c67baa681f664e4596760ca1f2606a))
+
+  - **Git Hooks**
+
+    - add pre-commit hook ([cf9346c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cf9346cb83804feb083b56a668eb0a462983e038))
+
+  - add support for poetry ([793f72c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/793f72c06ca1c2782f800c9f20980ca6b7870072))
+
+- **Tools**
+
+  - **Firmware Image Package Tool**
+
+    - handle FIP in a disk partition ([06e69f7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/06e69f7c94637c693ea5eb26038096c196d10f07))
+
+- **Dependencies**
+
+  - **Compiler runtime libraries**
+
+    - update source files ([658ce7a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/658ce7ad8eceb40741cd40f1639a6d923f922fad))
+
 ## [2.8.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.7.0..refs/tags/v2.8.0) (2022-11-15)
 
 ### ⚠ BREAKING CHANGES
@@ -3580,7 +4598,7 @@ issues in each release of Trusted Firmware-A.
 - Platforms
 
   - Arm
-    - Fixed missing copyrights in arm-gic.h file
+    - Fixed missing copyrights in Arm-gic.h file
     - Fixed the order of header files in several dts files
     - Fixed error message printing in board makefile
     - Fixed bug of overriding the last node in image load helper API
@@ -6842,7 +7860,7 @@ releases of TF-A.
 
 ______________________________________________________________________
 
-*Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
 
 [mbed tls releases]: https://tls.mbed.org/tech-updates/releases
 [pr#1002]: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193
