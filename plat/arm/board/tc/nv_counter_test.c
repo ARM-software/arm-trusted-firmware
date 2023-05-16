@@ -13,7 +13,7 @@
 
 #include <platform_def.h>
 
-void nv_counter_test(void)
+int nv_counter_test(void)
 {
 	psa_status_t status;
 	uint32_t old_val;
@@ -23,7 +23,7 @@ void nv_counter_test(void)
 	status = rss_comms_init(PLAT_RSS_AP_SND_MHU_BASE, PLAT_RSS_AP_RCV_MHU_BASE);
 	if (status != PSA_SUCCESS) {
 		printf("Failed to initialize RSS communication channel\n");
-		plat_error_handler(-1);
+		return -1;
 	}
 
 	for (id = 0; id < 3; id++) {
@@ -31,28 +31,30 @@ void nv_counter_test(void)
 		if (status != PSA_SUCCESS) {
 			printf("Failed during first id=(%d) rss_platform_nv_counter_read\n",
 				       id);
-			plat_error_handler(-1);
+			return -1;
 		}
 
 		status = rss_platform_nv_counter_increment(id);
 		if (status != PSA_SUCCESS) {
 			printf("Failed during id=(%d) rss_platform_nv_counter_increment\n",
 					id);
-			plat_error_handler(-1);
+			return -1;
 		}
 
 		status = rss_platform_nv_counter_read(id, sizeof(new_val), (uint8_t *)&new_val);
 		if (status != PSA_SUCCESS) {
 			printf("Failed during second id=(%d) rss_platform_nv_counter_read\n",
 					id);
-			plat_error_handler(-1);
+			return -1;
 		}
 
 		if (old_val + 1 != new_val) {
 			printf("Failed nv_counter_test: old_val (%d) + 1 != new_val (%d)\n",
 					old_val, new_val);
-			plat_error_handler(-1);
+			return -1;
 		}
 	}
 	printf("Passed nv_counter_test\n");
+
+	return 0;
 }

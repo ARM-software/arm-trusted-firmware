@@ -196,28 +196,32 @@ PLAT_INCLUDES		+=	-Iinclude/lib/psa
 
 endif
 
-ifeq (${PLATFORM_TEST},rss-nv-counters)
-    include drivers/arm/rss/rss_comms.mk
+ifneq (${PLATFORM_TEST},)
+    $(eval $(call add_define,PLATFORM_TESTS))
 
-    # Test code.
-    BL31_SOURCES	+=	plat/arm/board/tc/nv_counter_test.c
+    ifeq (${PLATFORM_TEST},rss-nv-counters)
+        include drivers/arm/rss/rss_comms.mk
 
-    # Code under testing.
-    BL31_SOURCES	+=	lib/psa/rss_platform.c \
+        # Test code.
+        BL31_SOURCES	+=	plat/arm/board/tc/nv_counter_test.c
+
+        # Code under testing.
+        BL31_SOURCES	+=	lib/psa/rss_platform.c \
 				drivers/arm/rss/rss_comms.c \
 				${RSS_COMMS_SOURCES}
 
-    PLAT_INCLUDES	+=	-Iinclude/lib/psa
+        PLAT_INCLUDES	+=	-Iinclude/lib/psa
 
-    $(eval $(call add_define,PLATFORM_TEST_NV_COUNTERS))
-else ifeq (${PLATFORM_TEST},tfm-testsuite)
-    # Add this include as first, before arm_common.mk. This is necessary
-    # because arm_common.mk builds Mbed TLS, and platform_test.mk can
-    # change the list of Mbed TLS files that are to be compiled
-    # (LIBMBEDTLS_SRCS).
-    include plat/arm/board/tc/platform_test.mk
-else ifneq (${PLATFORM_TEST},)
-    $(error "Unsupported PLATFORM_TEST value")
+        $(eval $(call add_define,PLATFORM_TEST_NV_COUNTERS))
+    else ifeq (${PLATFORM_TEST},tfm-testsuite)
+        # Add this include as first, before arm_common.mk. This is necessary
+        # because arm_common.mk builds Mbed TLS, and platform_test.mk can
+        # change the list of Mbed TLS files that are to be compiled
+        # (LIBMBEDTLS_SRCS).
+        include plat/arm/board/tc/platform_test.mk
+    else
+        $(error "Unsupported PLATFORM_TEST value")
+    endif
 endif
 
 
