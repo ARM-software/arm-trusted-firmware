@@ -443,6 +443,10 @@ static uint32_t intel_rsu_status(uint64_t *respbuf, unsigned int respbuf_sz)
 
 static uint32_t intel_rsu_update(uint64_t update_address)
 {
+	if (update_address > SIZE_MAX) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
 	intel_rsu_update_address = update_address;
 	return INTEL_SIP_SMC_STATUS_OK;
 }

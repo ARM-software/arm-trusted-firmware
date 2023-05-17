@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <string.h>
 
 #include "socfpga_handoff.h"
@@ -16,6 +17,10 @@ int socfpga_get_handoff(handoff *reverse_hoff_ptr)
 	int i;
 	uint32_t *buffer;
 	handoff *handoff_ptr = (handoff *) PLAT_HANDOFF_OFFSET;
+
+	if (sizeof(*handoff_ptr) > sizeof(handoff)) {
+		return -EOVERFLOW;
+	}
 
 	memcpy(reverse_hoff_ptr, handoff_ptr, sizeof(handoff));
 	buffer = (uint32_t *)reverse_hoff_ptr;

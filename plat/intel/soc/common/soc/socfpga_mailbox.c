@@ -183,6 +183,7 @@ int mailbox_read_response_async(unsigned int *job_id, uint32_t *header,
 	uint32_t resp_data;
 	uint32_t ret_resp_len = 0;
 	uint8_t is_done = 0;
+	uint32_t resp_len_check = 0;
 
 	if ((mailbox_resp_ctr.flag & MBOX_PAYLOAD_FLAG_BUSY) != 0) {
 		ret_resp_len = MBOX_RESP_LEN(
@@ -240,6 +241,12 @@ int mailbox_read_response_async(unsigned int *job_id, uint32_t *header,
 		if ((ret_resp_len > 0) && (response != NULL) && (resp_len != NULL)) {
 			if (*resp_len > ret_resp_len) {
 				*resp_len = ret_resp_len;
+			}
+
+			resp_len_check = (uint32_t) *resp_len;
+
+			if (resp_len_check > MBOX_DATA_MAX_LEN) {
+				return MBOX_RET_ERROR;
 			}
 
 			memcpy((uint8_t *) response,
