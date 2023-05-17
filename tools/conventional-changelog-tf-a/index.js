@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -166,6 +166,17 @@ function writerOpts(config) {
             writerOpts.footerPartial = readFileSync(resolve(__dirname, "./templates/footer.hbs"), "utf-8");
 
             writerOpts.transform = function (commit, context) {
+                /*
+                 * Feedback on the generated changelog has shown that having build system changes
+                 * appear at the top of a section throws some people off. We make an exception for
+                 * scopeless `build`-type changes and treat them as though they actually have the
+                 * `build` scope.
+                 */
+
+                if ((commit.type === "build") && (commit.scope == null)) {
+                    commit.scope = "build";
+                }
+
                 /*
                  * Fix up commit trailers, which for some reason are not correctly recognized and
                  * end up showing up in the breaking changes.
