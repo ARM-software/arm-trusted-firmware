@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #define SOCFPGA_F2SDRAMMGR_SIDEBANDMGR_FLAGOUTCLR0	0x54
 #define SOCFPGA_F2SDRAMMGR_SIDEBANDMGR_FLAGOUTSET0	0x50
 
+#define FLAGOUTCLR0_F2SDRAM0_ENABLE		(BIT(8))
 #define FLAGOUTSETCLR_F2SDRAM0_ENABLE		(BIT(1))
 #define FLAGOUTSETCLR_F2SDRAM1_ENABLE		(BIT(4))
 #define FLAGOUTSETCLR_F2SDRAM2_ENABLE		(BIT(7))
