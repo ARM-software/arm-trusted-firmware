@@ -91,7 +91,7 @@ Partition Properties
       - 0x2: 64k
 
 - boot-order
-   - value type: <u32>
+   - value type: <u16>
    - A unique number amongst all partitions that specifies if this partition
      must be booted before others. The partition with the smaller number will be
      booted first.
