@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -523,8 +523,18 @@ void mailbox_hps_qspi_enable(void)
 void mailbox_reset_cold(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
-	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, NULL, 0U,
-				CMD_CASUAL, NULL, NULL);
+
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, 0U, 0U,
+				 CMD_CASUAL, NULL, NULL);
+}
+
+void mailbox_reset_warm(uint32_t reset_type)
+{
+	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
+
+	reset_type = 0x01; // Warm reset header data must be 1
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, &reset_type, 1U,
+				 CMD_CASUAL, NULL, NULL);
 }
 
 int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, unsigned int resp_buf_len)
@@ -679,9 +689,10 @@ int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf)
 				&resp_len);
 }
 
-int mailbox_seu_err_status(uint32_t *resp_buf, uint32_t resp_buf_len)
+int mailbox_seu_err_status(uint32_t *resp_buf, unsigned int resp_buf_len)
 {
+
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_SEU_ERR_READ, NULL, 0U,
 				CMD_CASUAL, resp_buf,
-				&resp_buf_len);;
+				&resp_buf_len);
 }
