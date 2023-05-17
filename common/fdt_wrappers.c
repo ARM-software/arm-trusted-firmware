@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,6 +86,19 @@ int fdt_read_uint64(const void *dtb, int node, const char *prop_name,
 
 	*value = ((uint64_t)array[0] << 32) | array[1];
 	return 0;
+}
+
+uint64_t fdt_read_uint64_default(const void *dtb, int node,
+				 const char *prop_name, uint64_t dflt_value)
+{
+	uint64_t ret = dflt_value;
+	int err = fdt_read_uint64(dtb, node, prop_name, &ret);
+
+	if (err < 0) {
+		return dflt_value;
+	}
+
+	return ret;
 }
 
 /*
