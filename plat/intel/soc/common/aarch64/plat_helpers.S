@@ -34,6 +34,11 @@
 func plat_secondary_cold_boot_setup
 	/* Wait until the it gets reset signal from rstmgr gets populated */
 poll_mailbox:
+#if	PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	mov_imm x0, PLAT_SEC_ENTRY
+	cbz	x0, poll_mailbox
+	br      x0
+#else
 	wfi
 	mov_imm	x0, PLAT_SEC_ENTRY
 	ldr	x1, [x0]
@@ -44,7 +49,12 @@ poll_mailbox:
 	cmp	x3, x4
 	b.ne	poll_mailbox
 	br	x1
+#endif
 endfunc plat_secondary_cold_boot_setup
+
+#if	((PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10) || \
+	(PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX) || \
+	(PLATFORM_MODEL == PLAT_SOCFPGA_N5X))
 
 func platform_is_primary_cpu
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
@@ -52,6 +62,21 @@ func platform_is_primary_cpu
 	cset	x0, eq
 	ret
 endfunc platform_is_primary_cpu
+
+#else
+
+func platform_is_primary_cpu
+	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
+	cmp x0, #(PLAT_PRIMARY_CPU_A76)
+	b.eq primary_cpu
+	cmp x0, #(PLAT_PRIMARY_CPU_A55)
+	b.eq primary_cpu
+primary_cpu:
+	cset	x0, eq
+	ret
+endfunc platform_is_primary_cpu
+
+#endif
 
 func plat_is_my_cpu_primary
 	mrs	x0, mpidr_el1
@@ -62,11 +87,27 @@ func plat_my_core_pos
 	mrs	x0, mpidr_el1
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	add	x0, x1, x0, LSR #8
+#else
 	add	x0, x1, x0, LSR #6
+#endif
 	ret
 endfunc plat_my_core_pos
 
 func warm_reset_req
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	bl	plat_is_my_cpu_primary
+	cbnz	x0, warm_reset
+warm_reset:
+	mov_imm x1, PLAT_SEC_ENTRY
+	str	xzr, [x1]
+	mrs	x1, rmr_el3
+	orr	x1, x1, #0x02
+	msr	rmr_el3, x1
+	isb
+	dsb	sy
+#else
 	str	xzr, [x4]
 	bl	plat_is_my_cpu_primary
 	cbz	x0, cpu_in_wfi
@@ -80,8 +121,25 @@ func warm_reset_req
 cpu_in_wfi:
 	wfi
 	b	cpu_in_wfi
+#endif
 endfunc warm_reset_req
 
+/* TODO: Zephyr warm reset test */
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+func plat_get_my_entrypoint
+	ldr	x4, =L2_RESET_DONE_REG
+	ldr	x5, [x4]
+	ldr	x1, =PLAT_L2_RESET_REQ
+	cmp	x1, x5
+	b.eq	zephyr_reset_req
+	mov_imm	x1, PLAT_SEC_ENTRY
+	ldr	x0, [x1]
+	ret
+zephyr_reset_req:
+	ldr	x0, =0x00
+	ret
+endfunc plat_get_my_entrypoint
+#else
 func plat_get_my_entrypoint
 	ldr	x4, =L2_RESET_DONE_REG
 	ldr	x5, [x4]
@@ -92,7 +150,7 @@ func plat_get_my_entrypoint
 	ldr	x0, [x1]
 	ret
 endfunc plat_get_my_entrypoint
-
+#endif
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)
@@ -138,6 +196,13 @@ func platform_mem_init
 	ret
 endfunc platform_mem_init
 
+	/* --------------------------------------------------------
+	 * macro plat_secondary_cpus_bl31_entry;
+	 *
+	 * el3_entrypoint_common init param configuration.
+	 * Called very early in the secondary cores boot process.
+	 * --------------------------------------------------------
+	 */
 func plat_secondary_cpus_bl31_entry
 	el3_entrypoint_common                                   \
 		_init_sctlr=0                                   \

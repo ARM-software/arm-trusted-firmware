@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,12 +24,6 @@
 
 /* sysmgr.boot_scratch_cold4 & 5 used for CPU release address for SPL */
 #define PLAT_CPU_RELEASE_ADDR			0xffd12210
-
-/*
- * sysmgr.boot_scratch_cold6 & 7 (64bit) are used to indicate L2 reset
- * is done and HPS should trigger warm reset via RMR_EL3.
- */
-#define L2_RESET_DONE_REG			0xFFD12218
 
 /* Magic word to indicate L2 reset is completed */
 #define L2_RESET_DONE_STATUS			0x1228E5E7

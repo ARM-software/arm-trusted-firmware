@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,11 @@ void enable_nonsecure_access(void)
 void enable_ns_peripheral_access(void)
 {
 	mmio_write_32(SOCFPGA_L4_PER_SCR(NAND_REGISTER), DISABLE_L4_FIREWALL);
+#if	((PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10) || \
+	(PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX) || \
+	(PLATFORM_MODEL == PLAT_SOCFPGA_N5X))
 	mmio_write_32(SOCFPGA_L4_PER_SCR(NAND_DATA), DISABLE_L4_FIREWALL);
+#endif
 
 	mmio_write_32(SOCFPGA_L4_SYS_SCR(NAND_ECC), DISABLE_L4_FIREWALL);
 	mmio_write_32(SOCFPGA_L4_SYS_SCR(NAND_READ_ECC), DISABLE_L4_FIREWALL);
@@ -87,8 +91,18 @@ void enable_ns_peripheral_access(void)
 	mmio_write_32(SOCFPGA_L4_SYS_SCR(WATCHDOG1), DISABLE_L4_FIREWALL);
 	mmio_write_32(SOCFPGA_L4_SYS_SCR(WATCHDOG2), DISABLE_L4_FIREWALL);
 	mmio_write_32(SOCFPGA_L4_SYS_SCR(WATCHDOG3), DISABLE_L4_FIREWALL);
+#if	PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	mmio_write_32(SOCFPGA_L4_SYS_SCR(WATCHDOG4), DISABLE_L4_FIREWALL);
+#endif
 
 	mmio_write_32(SOCFPGA_L4_SYS_SCR(DAP), DISABLE_L4_FIREWALL);
+
+#if	PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	mmio_write_32(SOCFPGA_L4_SYS_SCR(PWRMGR), DISABLE_L4_FIREWALL);
+
+	mmio_write_32(SOCFPGA_L4_SYS_SCR(USB1_RXECC), DISABLE_L4_FIREWALL);
+	mmio_write_32(SOCFPGA_L4_SYS_SCR(USB1_TXECC), DISABLE_L4_FIREWALL);
+#endif
 
 	mmio_write_32(SOCFPGA_L4_SYS_SCR(L4_NOC_PROBES), DISABLE_L4_FIREWALL);
 
