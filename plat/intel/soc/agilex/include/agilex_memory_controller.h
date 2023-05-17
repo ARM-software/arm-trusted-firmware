@@ -158,6 +158,19 @@
 #define AGX_SDRAM_0_LB_ADDR				0x0
 #define AGX_DDR_SIZE					0x40000000
 
+/* Macros */
+#define SOCFPGA_MEMCTRL_ECCCTRL1					0x008
+#define SOCFPGA_MEMCTRL_ERRINTEN					0x010
+#define SOCFPGA_MEMCTRL_ERRINTENS					0x014
+#define SOCFPGA_MEMCTRL_ERRINTENR					0x018
+#define SOCFPGA_MEMCTRL_INTMODE					0x01C
+#define SOCFPGA_MEMCTRL_INTSTAT					0x020
+#define SOCFPGA_MEMCTRL_DIAGINTTEST					0x024
+#define SOCFPGA_MEMCTRL_DERRADDRA					0x02C
+
+#define SOCFPGA_MEMCTRL(_reg)		(SOCFPGA_MEMCTRL_REG_BASE \
+						+ (SOCFPGA_MEMCTRL_##_reg))
+
 int init_hard_memory_controller(void);
 
 #endif

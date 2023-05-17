@@ -7,7 +7,7 @@
 #include <lib/mmio.h>
 
 #include "agilex_pinmux.h"
-#include "socfpga_system_manager.h"
+#include "agilex_system_manager.h"
 
 const uint32_t sysmgr_pinmux_array_sel[] = {
 	0x00000000, 0x00000001, /* usb */

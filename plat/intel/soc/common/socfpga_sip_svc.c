@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,9 +12,10 @@
 
 #include "socfpga_fcs.h"
 #include "socfpga_mailbox.h"
+#include "socfpga_plat_def.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"
-
+#include "socfpga_system_manager.h"
 
 /* Total buffer the driver can hold */
 #define FPGA_CONFIG_BUFFER_SIZE 4

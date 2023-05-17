@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,8 +7,10 @@
 #include <lib/mmio.h>
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
+#include <platform_def.h>
 
 #include "socfpga_mailbox.h"
+#include "socfpga_plat_def.h"
 #include "socfpga_sip_svc.h"
 #include "socfpga_system_manager.h"
 
