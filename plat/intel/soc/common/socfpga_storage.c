@@ -22,6 +22,7 @@
 #include <lib/mmio.h>
 #include <tools_share/firmware_image_package.h>
 
+#include "drivers/sdmmc/sdmmc.h"
 #include "socfpga_private.h"
 
 
@@ -144,8 +145,8 @@ void socfpga_io_setup(int boot_source)
 		register_io_dev = &register_io_dev_block;
 		boot_dev_spec.buffer.offset	= PLAT_MMC_DATA_BASE;
 		boot_dev_spec.buffer.length	= SOCFPGA_MMC_BLOCK_SIZE;
-		boot_dev_spec.ops.read		= mmc_read_blocks;
-		boot_dev_spec.ops.write		= mmc_write_blocks;
+		boot_dev_spec.ops.read		= SDMMC_READ_BLOCKS;
+		boot_dev_spec.ops.write		= SDMMC_WRITE_BLOCKS;
 		boot_dev_spec.block_size	= MMC_BLOCK_SIZE;
 		break;
 
