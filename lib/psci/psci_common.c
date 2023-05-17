@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1035,6 +1035,13 @@ void psci_warmboot_entrypoint(void)
 		psci_cpu_on_finish(cpu_idx, &state_info);
 	else
 		psci_cpu_suspend_finish(cpu_idx, &state_info);
+
+	/*
+	 * Generic management: Now we just need to retrieve the
+	 * information that we had stashed away during the cpu_on
+	 * call to set this cpu on its way.
+	 */
+	cm_prepare_el3_exit_ns();
 
 	/*
 	 * Set the requested and target state of this CPU and all the higher
