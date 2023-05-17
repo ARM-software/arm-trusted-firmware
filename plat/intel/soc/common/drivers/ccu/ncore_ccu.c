@@ -8,6 +8,7 @@
 #include <common/debug.h>
 #include <errno.h>
 #include <lib/mmio.h>
+#include <platform_def.h>
 
 #include "ncore_ccu.h"
 #include "socfpga_plat_def.h"
