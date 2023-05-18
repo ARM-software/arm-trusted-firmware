@@ -980,13 +980,6 @@ ifeq (${ARCH},aarch32)
 	endif
 endif #(ARCH=aarch32)
 
-# Ensure ENABLE_RME is not used with SME
-ifeq (${ENABLE_RME},1)
-	ifneq (${ENABLE_SME_FOR_NS},0)
-                $(error "ENABLE_SME_FOR_NS cannot be used with ENABLE_RME")
-	endif
-endif
-
 ifneq (${ENABLE_SME_FOR_NS},0)
 	ifeq (${ENABLE_SVE_FOR_NS},0)
                 $(error "ENABLE_SME_FOR_NS requires ENABLE_SVE_FOR_NS")

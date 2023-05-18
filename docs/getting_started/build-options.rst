@@ -452,9 +452,9 @@ Common build options
    world to trap to EL3. Requires ``ENABLE_SVE_FOR_NS`` to be set as SME is a
    superset of SVE. SME is an optional architectural feature for AArch64
    and TF-A support is experimental. At this time, this build option cannot be
-   used on systems that have SPD=spmd/SPM_MM or ENABLE_RME, and attempting to
-   build with these options will fail. This flag can take the values 0 to 2, to
-   align with the ``FEATURE_DETECTION`` mechanism. Default is 0.
+   used on systems that have SPD=spmd/SPM_MM and atempting to build with this
+   option will fail. This flag can take the values 0 to 2, to align with the
+   ``FEATURE_DETECTION`` mechanism. Default is 0.
 
 -  ``ENABLE_SME2_FOR_NS``: Numeric value to enable Scalable Matrix Extension
    version 2 (SME2) for the non-secure world only. SME2 is an optional

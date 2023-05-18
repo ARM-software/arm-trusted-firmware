@@ -30,6 +30,7 @@
 #include <platform_def.h>
 #include <services/rmmd_svc.h>
 #include <smccc_helpers.h>
+#include <lib/extensions/sme.h>
 #include <lib/extensions/sve.h>
 #include "rmmd_initial_context.h"
 #include "rmmd_private.h"
@@ -134,6 +135,16 @@ static void manage_extensions_realm(cpu_context_t *ctx)
 	}
 
 	pmuv3_enable(ctx);
+
+	/*
+	 * If SME/SME2 is supported and enabled for NS world, then enables SME
+	 * for Realm world. RMM will save/restore required registers that are
+	 * shared with SVE/FPU so that Realm can use FPU or SVE.
+	 */
+	if (is_feat_sme_supported()) {
+		/* sme_enable() also enables SME2 if supported by hardware */
+		sme_enable(ctx);
+	}
 }
 
 /*******************************************************************************
