@@ -35,7 +35,6 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
 {
 	ops->pwr_domain_off = morello_pwr_domain_off;
-	ops->pwr_domain_suspend = morello_pwr_domain_suspend;
 	return css_scmi_override_pm_ops(ops);
 }
 
