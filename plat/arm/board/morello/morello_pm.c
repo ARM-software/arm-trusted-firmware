@@ -11,19 +11,13 @@
 #include "morello_private.h"
 
 /*******************************************************************************
- * Morello specific functions called when turning off or suspending a power
- * domain. Both additionally disable the GIC redistributor interface as cores
- * are disabled to let cluster-PPU state transition to completion when a
- * cluster is powered down.
+ * Morello specific function called when turning off a power domain.
+ * Additionally disables the GIC redistributor interface as cores are disabled
+ * to let cluster-PPU state transition to completion when a cluster is
+ * powered down.
  ******************************************************************************/
 void morello_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	css_pwr_domain_off(target_state);
-	plat_arm_gic_redistif_off();
-}
-
-void morello_pwr_domain_suspend(const psci_power_state_t *target_state)
-{
-	css_pwr_domain_suspend(target_state);
 	plat_arm_gic_redistif_off();
 }
