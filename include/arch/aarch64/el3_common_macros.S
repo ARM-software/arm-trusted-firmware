@@ -67,13 +67,6 @@
 	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, (SCR_RESET_VAL | SCR_EA_BIT | SCR_SIF_BIT)
-#if ENABLE_RME
-	/*
-	 * TODO: Settting the EEL2 bit to allow EL3 access to secure only registers
-	 * in context management. This will need to be refactored.
-	 */
-	orr	x0, x0, #SCR_EEL2_BIT
-#endif
 	msr	scr_el3, x0
 
 	/* ---------------------------------------------------------------------
