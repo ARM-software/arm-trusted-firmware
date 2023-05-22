@@ -133,7 +133,7 @@
  * Platform memory map related constants
  ******************************************************************************/
 #define TZRAM_BASE			0x54600000
-#define TZRAM_SIZE			0x00030000
+#define TZRAM_SIZE			0x00040000
 
 /*******************************************************************************
  * BL31 specific defines.
