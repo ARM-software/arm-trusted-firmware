@@ -50,6 +50,8 @@ Maintainers
 :|G|: `raghuncstate`_
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
+:|M|: Yann Gautier <yann.gautier@st.com>
+:|G|: `Yann-lms`_
 
 LTS Maintainers
 ---------------
