@@ -8,6 +8,7 @@
 #ifndef ARCH_HELPERS_H
 #define ARCH_HELPERS_H
 
+#include <assert.h>
 #include <cdefs.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -351,6 +352,17 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
  * DynamIQ Shared Unit power management
  */
 DEFINE_COPROCR_RW_FUNCS(clusterpwrdn, CLUSTERPWRDN)
+
+/*
+ * RNDR is AArch64 only, so just provide a placeholder here to make the
+ * linker happy.
+ */
+static inline u_register_t read_rndr(void)
+{
+	assert(1);
+
+	return 0;
+}
 
 /* Previously defined accessor functions with incomplete register names  */
 #define dsb()			dsbsy()
