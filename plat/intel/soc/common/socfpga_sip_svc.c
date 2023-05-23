@@ -648,6 +648,16 @@ uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+/* SDM SEU Error services */
+static uint32_t intel_sdm_seu_err_read(uint64_t *respbuf, unsigned int respbuf_sz)
+{
+	if (mailbox_seu_err_status((uint32_t *)respbuf, respbuf_sz) < 0) {
+		return INTEL_SIP_SMC_SEU_ERR_READ_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 /*
  * This function is responsible for handling all SiP calls from the NS world
  */
@@ -664,7 +674,7 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 	uint32_t retval = 0, completed_addr[3];
 	uint32_t retval2 = 0;
 	uint32_t mbox_error = 0;
-	uint64_t retval64, rsu_respbuf[9];
+	uint64_t retval64, rsu_respbuf[9], seu_respbuf[3];
 	int status = INTEL_SIP_SMC_STATUS_OK;
 	int mbox_status;
 	unsigned int len_in_resp;
@@ -1169,6 +1179,15 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 		SMC_RET3(handle, INTEL_SIP_SMC_STATUS_OK,
 					SIP_SVC_VERSION_MAJOR,
 					SIP_SVC_VERSION_MINOR);
+
+	case INTEL_SIP_SMC_SEU_ERR_STATUS:
+		status = intel_sdm_seu_err_read(seu_respbuf,
+					ARRAY_SIZE(seu_respbuf));
+		if (status) {
+			SMC_RET1(handle, status);
+		} else {
+			SMC_RET3(handle, seu_respbuf[0], seu_respbuf[1], seu_respbuf[2]);
+		}
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,

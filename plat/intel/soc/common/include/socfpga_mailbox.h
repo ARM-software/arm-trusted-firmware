@@ -63,6 +63,9 @@
 #define MBOX_CMD_QSPI_SET_CS				0x34
 #define MBOX_CMD_QSPI_DIRECT				0x3B
 
+/* SEU Commands */
+#define MBOX_CMD_SEU_ERR_READ				0x3C
+
 /* RSU Commands */
 #define MBOX_GET_SUBPARTITION_TABLE			0x5A
 #define MBOX_RSU_STATUS					0x5B
@@ -241,5 +244,6 @@ int mailbox_rsu_update(uint32_t *flash_offset);
 int mailbox_hps_stage_notify(uint32_t execution_stage);
 int mailbox_hwmon_readtemp(uint32_t chan, uint32_t *resp_buf);
 int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf);
+int mailbox_seu_err_status(uint32_t *resp_buf, uint32_t resp_buf_len);
 
 #endif /* SOCFPGA_MBOX_H */
