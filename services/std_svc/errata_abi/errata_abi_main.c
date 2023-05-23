@@ -407,7 +407,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if CORTEX_A715_H_INC
 {
-	.cpu_partnumber = CORTEX_MAKALU_MIDR,
+	.cpu_partnumber = CORTEX_A715_MIDR,
 	.cpu_errata_list = {
 		[0] = {2701951, 0x00, 0x11, ERRATA_A715_2701951, \
 			ERRATA_NON_ARM_INTERCONNECT},
