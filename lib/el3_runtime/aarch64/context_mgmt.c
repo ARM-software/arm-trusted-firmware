@@ -270,15 +270,6 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_SCTLR_EL2,
 			sctlr_el2);
 
-	/*
-	 * Program the ICC_SRE_EL2 to make sure the correct bits are set
-	 * when restoring NS context.
-	 */
-	u_register_t icc_sre_el2 = ICC_SRE_DIB_BIT | ICC_SRE_DFB_BIT |
-				   ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT;
-	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_ICC_SRE_EL2,
-			icc_sre_el2);
-
 	if (is_feat_hcx_supported()) {
 		/*
 		 * Initialize register HCRX_EL2 with its init value.
@@ -329,6 +320,24 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 
 	/* Clear any residual register values from the context */
 	zeromem(ctx, sizeof(*ctx));
+
+	/*
+	 * The lower-EL context is zeroed so that no stale values leak to a world.
+	 * It is assumed that an all-zero lower-EL context is good enough for it
+	 * to boot correctly. However, there are very few registers where this
+	 * is not true and some values need to be recreated.
+	 */
+#if CTX_INCLUDE_EL2_REGS
+	el2_sysregs_t *el2_ctx = get_el2_sysregs_ctx(ctx);
+
+	/*
+	 * These bits are set in the gicv3 driver. Losing them (especially the
+	 * SRE bit) is problematic for all worlds. Henceforth recreate them.
+	 */
+	u_register_t icc_sre_el2 = ICC_SRE_DIB_BIT | ICC_SRE_DFB_BIT |
+				   ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT;
+	write_ctx_reg(el2_ctx, CTX_ICC_SRE_EL2, icc_sre_el2);
+#endif /* CTX_INCLUDE_EL2_REGS */
 
 	/*
 	 * SCR_EL3 was initialised during reset sequence in macro
