@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <platform_def.h>
 
 #include "socfpga_emac.h"
+#include "socfpga_plat_def.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_system_manager.h"
 

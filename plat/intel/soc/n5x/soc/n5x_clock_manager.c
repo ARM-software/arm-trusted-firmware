@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,8 @@
 #include <lib/mmio.h>
 
 #include "n5x_clock_manager.h"
-#include "socfpga_system_manager.h"
+#include "n5x_system_manager.h"
+
 
 
 uint64_t clk_get_pll_output_hz(void)
@@ -87,6 +88,7 @@ uint64_t get_l4_clk(void)
 
 	default:
 		return 0;
+		break;
 	}
 
 	clock /= BIT(((get_clk_freq(CLKMGR_MAINPLL_NOCDIV)) >>
@@ -125,6 +127,7 @@ uint32_t get_mpu_clk(void)
 
 	default:
 		return 0;
+		break;
 	}
 
 	clock /= BIT(((get_clk_freq(CLKMGR_MAINPLL_NOCDIV)) >>

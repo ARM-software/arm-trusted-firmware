@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,8 +11,8 @@
 #include <lib/mmio.h>
 
 #include "agilex_clock_manager.h"
+#include "agilex_system_manager.h"
 #include "socfpga_handoff.h"
-#include "socfpga_system_manager.h"
 
 
 uint32_t wait_pll_lock(void)

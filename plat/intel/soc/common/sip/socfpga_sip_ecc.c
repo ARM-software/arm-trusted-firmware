@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
  */
 
 #include <assert.h>
@@ -11,9 +11,11 @@
 
 #include "socfpga_fcs.h"
 #include "socfpga_mailbox.h"
+#include "socfpga_plat_def.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"
 #include "socfpga_system_manager.h"
+
 
 uint32_t intel_ecc_dbe_notification(uint64_t dbe_value)
 {
