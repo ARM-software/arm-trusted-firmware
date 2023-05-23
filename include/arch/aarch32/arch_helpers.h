@@ -217,6 +217,7 @@ DEFINE_SYSREG_RW_FUNCS(cpsr)
  ******************************************************************************/
 DEFINE_COPROCR_READ_FUNC(mpidr, MPIDR)
 DEFINE_COPROCR_READ_FUNC(midr, MIDR)
+DEFINE_COPROCR_READ_FUNC(id_mmfr3, ID_MMFR3)
 DEFINE_COPROCR_READ_FUNC(id_mmfr4, ID_MMFR4)
 DEFINE_COPROCR_READ_FUNC(id_dfr0, ID_DFR0)
 DEFINE_COPROCR_READ_FUNC(id_pfr0, ID_PFR0)

@@ -116,4 +116,22 @@ static inline bool is_feat_spe_supported(void)
 	return false;
 }
 
+static inline unsigned int read_feat_pan_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_mmfr3(), ID_MMFR3_PAN);
+}
+
+static inline bool is_feat_pan_supported(void)
+{
+	if (ENABLE_FEAT_PAN == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_PAN == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_pan_id_field() != 0U;
+}
+
 #endif /* ARCH_FEATURES_H */

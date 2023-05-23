@@ -119,6 +119,10 @@
 #define ID_DFR1_MTPMU_MASK	U(0xf)
 #define ID_DFR1_MTPMU_SUPPORTED	U(1)
 
+/* ID_MMFR3 definitions */
+#define ID_MMFR3_PAN_SHIFT	U(16)
+#define ID_MMFR3_PAN_MASK	U(0xf)
+
 /* ID_MMFR4 definitions */
 #define ID_MMFR4_CNP_SHIFT	U(12)
 #define ID_MMFR4_CNP_LENGTH	U(4)
@@ -533,6 +537,7 @@
 #define DCISW		p15, 0, c7, c6, 2
 #define CTR		p15, 0, c0, c0, 1
 #define CNTFRQ		p15, 0, c14, c0, 0
+#define ID_MMFR3	p15, 0, c0, c1, 7
 #define ID_MMFR4	p15, 0, c0, c2, 6
 #define ID_DFR0		p15, 0, c0, c1, 2
 #define ID_DFR1		p15, 0, c0, c3, 5
