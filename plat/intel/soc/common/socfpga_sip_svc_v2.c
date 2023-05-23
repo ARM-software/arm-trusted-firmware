@@ -158,6 +158,10 @@ uintptr_t sip_smc_handler_v2(uint32_t smc_fid,
 		status = intel_hps_set_bridges(x2, x3);
 		SMC_RET2(handle, status, x1);
 
+	case INTEL_SIP_SMC_V2_RSU_UPDATE_ADDR:
+		status = intel_rsu_update(x2);
+		SMC_RET2(handle, status, x1);
+
 	case INTEL_SIP_SMC_V2_MAILBOX_SEND_COMMAND:
 		status = intel_v2_mbox_send_cmd(x1, (uint32_t *)x2, x3);
 		SMC_RET2(handle, status, x1);
