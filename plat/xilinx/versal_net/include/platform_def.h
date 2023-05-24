@@ -38,13 +38,13 @@
  */
 #ifndef VERSAL_NET_ATF_MEM_BASE
 # define BL31_BASE			U(0xBBF00000)
-# define BL31_LIMIT			U(0xBBFFFFFF)
+# define BL31_LIMIT			U(0xBC000000)
 #else
 # define BL31_BASE			U(VERSAL_NET_ATF_MEM_BASE)
-# define BL31_LIMIT			U(VERSAL_NET_ATF_MEM_BASE + VERSAL_NET_ATF_MEM_SIZE - 1)
+# define BL31_LIMIT			U(VERSAL_NET_ATF_MEM_BASE + VERSAL_NET_ATF_MEM_SIZE)
 # ifdef VERSAL_NET_ATF_MEM_PROGBITS_SIZE
 #  define BL31_PROGBITS_LIMIT		U(VERSAL_NET_ATF_MEM_BASE + \
-					  VERSAL_NET_ATF_MEM_PROGBITS_SIZE - 1)
+					  VERSAL_NET_ATF_MEM_PROGBITS_SIZE)
 # endif
 #endif
 
@@ -53,10 +53,10 @@
  ******************************************************************************/
 #ifndef VERSAL_NET_BL32_MEM_BASE
 # define BL32_BASE			U(0x60000000)
-# define BL32_LIMIT			U(0x7FFFFFFF)
+# define BL32_LIMIT			U(0x80000000)
 #else
 # define BL32_BASE			U(VERSAL_NET_BL32_MEM_BASE)
-# define BL32_LIMIT			U(VERSAL_NET_BL32_MEM_BASE + VERSAL_NET_BL32_MEM_SIZE - 1)
+# define BL32_LIMIT			U(VERSAL_NET_BL32_MEM_BASE + VERSAL_NET_BL32_MEM_SIZE)
 #endif
 
 /*******************************************************************************
@@ -72,7 +72,7 @@
  * TSP  specific defines.
  ******************************************************************************/
 #define TSP_SEC_MEM_BASE		BL32_BASE
-#define TSP_SEC_MEM_SIZE		(BL32_LIMIT - BL32_BASE + 1U)
+#define TSP_SEC_MEM_SIZE		(BL32_LIMIT - BL32_BASE)
 
 /* ID of the secure physical generic timer interrupt used by the TSP */
 #define TSP_IRQ_SEC_PHY_TIMER		ARM_IRQ_SEC_PHY_TIMER
