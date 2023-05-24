@@ -1073,6 +1073,7 @@ int intel_fcs_mac_verify_update_finalize(uint32_t session_id,
 	uint32_t resp_len;
 	uint32_t payload[FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
 	uintptr_t mac_offset;
+	uint32_t dst_size_check = 0;
 
 	if (dst_size == NULL || mbox_error == NULL) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
@@ -1094,6 +1095,14 @@ int intel_fcs_mac_verify_update_finalize(uint32_t session_id,
 
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	dst_size_check = *dst_size;
+	if ((dst_size_check > FCS_MAX_DATA_SIZE ||
+		dst_size_check < FCS_MIN_DATA_SIZE) ||
+		(src_size > FCS_MAX_DATA_SIZE ||
+		src_size < FCS_MIN_DATA_SIZE)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -1149,6 +1158,12 @@ int intel_fcs_mac_verify_update_finalize(uint32_t session_id,
 		FCS_CS_FIELD_FLAG_FINALIZE) {
 		/* Copy mac data to command */
 		mac_offset = src_addr + data_size;
+
+		if ((i + ((src_size - data_size) / MBOX_WORD_BYTE)) >
+			FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE) {
+			return INTEL_SIP_SMC_STATUS_REJECTED;
+		}
+
 		memcpy((uint8_t *) &payload[i], (uint8_t *) mac_offset,
 		src_size - data_size);
 
@@ -1189,7 +1204,7 @@ int intel_fcs_mac_verify_smmu_update_finalize(uint32_t session_id,
 	uint32_t resp_len;
 	uint32_t payload[FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
 	uintptr_t mac_offset;
-
+	uint32_t dst_size_check = 0;
 	/*
 	 * Source data must be 4 bytes aligned
 	 * User data must be 8 bytes aligned
@@ -1211,6 +1226,14 @@ int intel_fcs_mac_verify_smmu_update_finalize(uint32_t session_id,
 
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	dst_size_check = *dst_size;
+	if ((dst_size_check > FCS_MAX_DATA_SIZE ||
+		dst_size_check < FCS_MIN_DATA_SIZE) ||
+		(src_size > FCS_MAX_DATA_SIZE ||
+		src_size < FCS_MIN_DATA_SIZE)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -1269,6 +1292,12 @@ int intel_fcs_mac_verify_smmu_update_finalize(uint32_t session_id,
 		 * mac_offset = MAC data
 		 */
 		mac_offset = dst_addr;
+
+		if ((i + ((src_size - data_size) / MBOX_WORD_BYTE)) >
+			FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE) {
+			return INTEL_SIP_SMC_STATUS_REJECTED;
+		}
+
 		memcpy((uint8_t *) &payload[i], (uint8_t *) mac_offset,
 		src_size - data_size);
 
@@ -1316,6 +1345,7 @@ int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
 	uint32_t payload[FCS_ECDSA_HASH_SIGN_CMD_MAX_WORD_SIZE] = {0U};
 	uint32_t resp_len;
 	uintptr_t hash_data_addr;
+	uint32_t dst_size_check = 0;
 
 	if ((dst_size == NULL) || (mbox_error == NULL)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
@@ -1328,6 +1358,14 @@ int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
 
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	dst_size_check = *dst_size;
+	if ((dst_size_check > FCS_MAX_DATA_SIZE ||
+		dst_size_check < FCS_MIN_DATA_SIZE) ||
+		(src_size > FCS_MAX_DATA_SIZE ||
+		src_size < FCS_MIN_DATA_SIZE)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -1357,6 +1395,12 @@ int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
 	/* Hash Data */
 	i++;
 	hash_data_addr = src_addr;
+
+	if ((i + ((src_size) / MBOX_WORD_BYTE)) >
+		FCS_ECDSA_HASH_SIGN_CMD_MAX_WORD_SIZE) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
 	memcpy((uint8_t *) &payload[i], (uint8_t *) hash_data_addr,
 			src_size);
 
@@ -1400,6 +1444,7 @@ int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t session_id, uint32_t conte
 	uint32_t payload[FCS_ECDSA_HASH_SIG_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
 	uint32_t resp_len;
 	uintptr_t hash_sig_pubkey_addr;
+	uint32_t dst_size_check = 0;
 
 	if ((dst_size == NULL) || (mbox_error == NULL)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
@@ -1412,6 +1457,14 @@ int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t session_id, uint32_t conte
 
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	dst_size_check = *dst_size;
+	if ((dst_size_check > FCS_MAX_DATA_SIZE ||
+		dst_size_check < FCS_MIN_DATA_SIZE) ||
+		(src_size > FCS_MAX_DATA_SIZE ||
+		src_size < FCS_MIN_DATA_SIZE)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -1443,6 +1496,12 @@ int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t session_id, uint32_t conte
 	/* Hash Data Word, Signature Data Word and Public Key Data word */
 	i++;
 	hash_sig_pubkey_addr = src_addr;
+
+	if ((i + ((src_size) / MBOX_WORD_BYTE)) >
+		FCS_ECDSA_HASH_SIG_VERIFY_CMD_MAX_WORD_SIZE) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
 	memcpy((uint8_t *) &payload[i],
 			(uint8_t *) hash_sig_pubkey_addr, src_size);
 
@@ -1690,6 +1749,7 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(uint32_t session_id,
 	uint32_t payload[FCS_ECDSA_SHA2_DATA_SIG_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
 	uint32_t resp_len;
 	uintptr_t sig_pubkey_offset;
+	uint32_t dst_size_check = 0;
 
 	if ((dst_size == NULL) || (mbox_error == NULL)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
@@ -1697,6 +1757,10 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(uint32_t session_id,
 
 	if (fcs_sha2_data_sig_verify_param.session_id != session_id ||
 		fcs_sha2_data_sig_verify_param.context_id != context_id) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (data_size > src_size) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -1711,6 +1775,14 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(uint32_t session_id,
 
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	dst_size_check = *dst_size;
+	if ((dst_size_check > FCS_MAX_DATA_SIZE ||
+		dst_size_check < FCS_MIN_DATA_SIZE) ||
+		(src_size > FCS_MAX_DATA_SIZE ||
+		src_size < FCS_MIN_DATA_SIZE)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -1761,6 +1833,12 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(uint32_t session_id,
 		FCS_CS_FIELD_FLAG_FINALIZE) {
 		/* Signature + Public Key Data */
 		sig_pubkey_offset = src_addr + data_size;
+
+		if ((i + ((src_size - data_size) / MBOX_WORD_BYTE)) >
+			FCS_ECDSA_SHA2_DATA_SIG_VERIFY_CMD_MAX_WORD_SIZE) {
+			return INTEL_SIP_SMC_STATUS_REJECTED;
+		}
+
 		memcpy((uint8_t *) &payload[i], (uint8_t *) sig_pubkey_offset,
 			src_size - data_size);
 
@@ -1801,6 +1879,7 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_i
 	uint32_t payload[FCS_ECDSA_SHA2_DATA_SIG_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
 	uint32_t resp_len;
 	uintptr_t sig_pubkey_offset;
+	uint32_t dst_size_check = 0;
 
 	/*
 	 * Source data must be 4 bytes aligned
@@ -1819,8 +1898,20 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_i
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
+	if (data_size > src_size) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	dst_size_check = *dst_size;
+	if ((dst_size_check > FCS_MAX_DATA_SIZE ||
+		dst_size_check < FCS_MIN_DATA_SIZE) ||
+		(src_size > FCS_MAX_DATA_SIZE ||
+		src_size < FCS_MIN_DATA_SIZE)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -1874,6 +1965,12 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_i
 		 * sig_pubkey_offset is Signature + Public Key Data
 		 */
 		sig_pubkey_offset = dst_addr;
+
+		if ((i + ((src_size - data_size) / MBOX_WORD_BYTE)) >
+			FCS_ECDSA_SHA2_DATA_SIG_VERIFY_CMD_MAX_WORD_SIZE) {
+			return INTEL_SIP_SMC_STATUS_REJECTED;
+		}
+
 		memcpy((uint8_t *) &payload[i], (uint8_t *) sig_pubkey_offset,
 			src_size - data_size);
 
@@ -1990,10 +2087,12 @@ int intel_fcs_ecdh_request_finalize(uint32_t session_id, uint32_t context_id,
 	uint32_t payload[FCS_ECDH_REQUEST_CMD_MAX_WORD_SIZE] = {0U};
 	uint32_t resp_len;
 	uintptr_t pubkey;
+	uint32_t dst_size_check = 0;
 
 	if ((dst_size == NULL) || (mbox_error == NULL)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
+
 
 	if (fcs_ecdh_request_param.session_id != session_id ||
 		fcs_ecdh_request_param.context_id != context_id) {
@@ -2002,6 +2101,14 @@ int intel_fcs_ecdh_request_finalize(uint32_t session_id, uint32_t context_id,
 
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	dst_size_check = *dst_size;
+	if ((dst_size_check > FCS_MAX_DATA_SIZE ||
+		dst_size_check < FCS_MIN_DATA_SIZE) ||
+		(src_size > FCS_MAX_DATA_SIZE ||
+		src_size < FCS_MIN_DATA_SIZE)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -2028,6 +2135,12 @@ int intel_fcs_ecdh_request_finalize(uint32_t session_id, uint32_t context_id,
 	i++;
 	/* Public key data */
 	pubkey = src_addr;
+
+	if ((i + ((src_size) / MBOX_WORD_BYTE)) >
+		FCS_ECDH_REQUEST_CMD_MAX_WORD_SIZE) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
 	memcpy((uint8_t *) &payload[i], (uint8_t *) pubkey, src_size);
 	i += src_size / MBOX_WORD_BYTE;
 
@@ -2161,6 +2274,11 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t session_id,
 		FCS_CS_FIELD_FLAG_INIT) {
 		fcs_aes_crypt_payload[i] = fcs_aes_init_payload.key_id;
 		i++;
+
+		if ((i + ((fcs_aes_init_payload.param_size) / MBOX_WORD_BYTE)) >
+			FCS_AES_CMD_MAX_WORD_SIZE) {
+			return INTEL_SIP_SMC_STATUS_REJECTED;
+		}
 
 		memcpy((uint8_t *) &fcs_aes_crypt_payload[i],
 			(uint8_t *) fcs_aes_init_payload.crypto_param,
