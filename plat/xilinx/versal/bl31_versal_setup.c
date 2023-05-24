@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -97,6 +97,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	/* Initialize the platform config for future decision making */
 	versal_config_setup();
+
+	/* Get platform related information */
+	board_detection();
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On

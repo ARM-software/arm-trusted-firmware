@@ -5,14 +5,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <plat_ipi.h>
-#include <versal_def.h>
-#include <plat_private.h>
 #include <common/debug.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
+
+#include <plat_common.h>
+#include <plat_ipi.h>
+#include <plat_private.h>
+#include <pm_api_sys.h>
+#include <versal_def.h>
+
+uint32_t platform_id, platform_version;
 
 /*
  * Table of regions to map using the MMU.
@@ -53,3 +58,18 @@ uint32_t plat_get_syscnt_freq2(void)
 	return VERSAL_CPU_CLOCK;
 }
 
+void board_detection(void)
+{
+	uint32_t plat_info[2];
+
+	if (pm_get_chipid(plat_info) != PM_RET_SUCCESS) {
+		/* If the call is failed we cannot proceed with further
+		 * setup. TF-A to panic in this situation.
+		 */
+		NOTICE("Failed to read the chip information");
+		panic();
+	}
+
+	platform_id = FIELD_GET(PLATFORM_MASK, plat_info[1]);
+	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, plat_info[1]);
+}

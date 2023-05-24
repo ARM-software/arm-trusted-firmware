@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,9 @@ void versal_config_setup(void);
 
 const mmap_region_t *plat_versal_get_mmap(void);
 
+extern uint32_t platform_id, platform_version;
+
+void board_detection(void);
 void plat_versal_gic_driver_init(void);
 void plat_versal_gic_init(void);
 void plat_versal_gic_cpuif_enable(void);

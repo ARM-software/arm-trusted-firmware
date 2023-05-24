@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,9 @@
 
 #include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
+
+#define PLATFORM_MASK                  GENMASK(27U, 24U)
+#define PLATFORM_VERSION_MASK          GENMASK(31U, 28U)
 
 /* number of interrupt handlers. increase as required */
 #define MAX_INTR_EL3			2

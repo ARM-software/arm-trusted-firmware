@@ -13,12 +13,6 @@
 #include <plat/common/common_def.h>
 
 #define MAX_INTR_EL3			2
-/* This part is taken from U-Boot project under GPL that's why dual license above */
-#define __bf_shf(x) (__builtin_ffsll(x) - 1U)
-#define FIELD_GET(_mask, _reg)						\
-	({								\
-		(typeof(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask));	\
-	})
 
 /* List all consoles */
 #define VERSAL_NET_CONSOLE_ID_pl011	U(1)

@@ -85,6 +85,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/common/pm_service/pm_ipi.c		\
 				plat/xilinx/common/pm_service/pm_api_sys.c	\
 				plat/xilinx/common/pm_service/pm_svc_main.c	\
+				plat/xilinx/common/versal.c			\
 				plat/xilinx/versal/bl31_versal_setup.c		\
 				plat/xilinx/versal/plat_psci.c			\
 				plat/xilinx/versal/plat_versal.c		\
