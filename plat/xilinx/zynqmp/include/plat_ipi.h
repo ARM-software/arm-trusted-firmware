@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,10 +34,11 @@
  ********************************************************************/
 #define IPI_BUFFER_BASEADDR	0xFF990000U
 
-#define IPI_BUFFER_APU_BASE	(IPI_BUFFER_BASEADDR + 0x400U)
-#define IPI_BUFFER_PMU_BASE	(IPI_BUFFER_BASEADDR + 0xE00U)
+#define IPI_LOCAL_ID		IPI_ID_APU
+#define IPI_REMOTE_ID		IPI_ID_PMU0
 
-#define IPI_BUFFER_REMOTE_BASE	IPI_BUFFER_PMU_BASE
+#define IPI_BUFFER_LOCAL_BASE	(IPI_BUFFER_BASEADDR + 0x400U)
+#define IPI_BUFFER_REMOTE_BASE	(IPI_BUFFER_BASEADDR + 0xE00U)
 
 #define IPI_BUFFER_TARGET_LOCAL_OFFSET	0x80U
 #define IPI_BUFFER_TARGET_REMOTE_OFFSET	0x1C0U

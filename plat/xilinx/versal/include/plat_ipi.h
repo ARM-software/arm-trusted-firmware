@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,16 +29,14 @@
  ********************************************************************/
 #define IPI_BUFFER_BASEADDR	0xFF3F0000U
 
-#define IPI_BUFFER_APU_BASE	(IPI_BUFFER_BASEADDR + 0x400U)
-#define IPI_BUFFER_PMC_BASE	(IPI_BUFFER_BASEADDR + 0x200U)
+#define IPI_LOCAL_ID		IPI_ID_APU
+#define IPI_REMOTE_ID		IPI_ID_PMC
 
-#define IPI_BUFFER_TARGET_APU_OFFSET	0x80U
-#define IPI_BUFFER_TARGET_PMC_OFFSET	0x40U
+#define IPI_BUFFER_LOCAL_BASE	(IPI_BUFFER_BASEADDR + (IPI_LOCAL_ID * 0x200U))
+#define IPI_BUFFER_REMOTE_BASE	(IPI_BUFFER_BASEADDR + (IPI_REMOTE_ID * 0x200U))
 
-#define IPI_BUFFER_REMOTE_BASE	IPI_BUFFER_PMC_BASE
-
-#define IPI_BUFFER_TARGET_LOCAL_OFFSET	IPI_BUFFER_TARGET_APU_OFFSET
-#define IPI_BUFFER_TARGET_REMOTE_OFFSET	IPI_BUFFER_TARGET_PMC_OFFSET
+#define IPI_BUFFER_TARGET_LOCAL_OFFSET	(IPI_LOCAL_ID * 0x40U)
+#define IPI_BUFFER_TARGET_REMOTE_OFFSET	(IPI_REMOTE_ID * 0x40U)
 
 #define IPI_BUFFER_MAX_WORDS	8
 
@@ -50,5 +49,21 @@
 
 /* Configure IPI table for versal */
 void versal_ipi_config_table_init(void);
+
+/* IPI registers and bitfields */
+#define PMC_REG_BASE		U(0xFF320000)
+#define PMC_IPI_TRIG_BIT	(1U << 1U)
+#define IPI0_REG_BASE		U(0xFF330000)
+#define IPI0_TRIG_BIT		(1U << 2U)
+#define IPI1_REG_BASE		U(0xFF340000)
+#define IPI1_TRIG_BIT		(1U << 3U)
+#define IPI2_REG_BASE		U(0xFF350000)
+#define IPI2_TRIG_BIT		(1U << 4U)
+#define IPI3_REG_BASE		U(0xFF360000)
+#define IPI3_TRIG_BIT		(1U << 5U)
+#define IPI4_REG_BASE		U(0xFF370000)
+#define IPI4_TRIG_BIT		(1U << 5U)
+#define IPI5_REG_BASE		U(0xFF380000)
+#define IPI5_TRIG_BIT		(1U << 6U)
 
 #endif /* PLAT_IPI_H */

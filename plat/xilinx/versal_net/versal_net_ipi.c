@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,17 +9,9 @@
  * Versal NET IPI agent registers access management
  */
 
-#include <errno.h>
-#include <string.h>
-
-#include <common/debug.h>
-#include <common/runtime_svc.h>
-#include <lib/bakery_lock.h>
-#include <lib/mmio.h>
-
+#include <lib/utils_def.h>
 #include <ipi.h>
 #include <plat_ipi.h>
-#include <plat_private.h>
 
 /* versal_net ipi configuration table */
 static const struct ipi_config versal_net_ipi_table[IPI_ID_MAX] = {
