@@ -50,6 +50,8 @@ uint64_t tsp_main(void)
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count,
 	     tsp_stats[linear_id].cpu_on_count);
+
+	console_flush();
 	return (uint64_t) &tsp_vector_table;
 }
 
