@@ -197,6 +197,7 @@ else
 					lib/cpus/aarch64/cortex_a76ae.S		\
 					lib/cpus/aarch64/cortex_a77.S		\
 					lib/cpus/aarch64/cortex_a78.S		\
+					lib/cpus/aarch64/cortex_a78_ae.S	\
 					lib/cpus/aarch64/cortex_a78c.S		\
 					lib/cpus/aarch64/cortex_a710.S		\
 					lib/cpus/aarch64/neoverse_n_common.S	\
