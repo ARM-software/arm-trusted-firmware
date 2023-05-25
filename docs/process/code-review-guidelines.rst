@@ -1,11 +1,6 @@
 Code Review Guidelines
 ======================
 
-This document provides TF-A specific details about the project's code review
-process. It should be read in conjunction with the `Project Maintenance
-Process`_, which it supplements.
-
-
 Why do we do code reviews?
 --------------------------
 
@@ -23,8 +18,34 @@ Code reviews are meant to benefit everyone through team work. It is not about
 unfairly criticizing or belittling the work of any contributor.
 
 
-Good practices
---------------
+Overview of the code review process
+-----------------------------------
+
+All contributions to Trusted Firmware-A project are reviewed by the community to
+ensure they meet the project's expectations before they get merged, according to
+the `Project Maintenance Process`_ defined for all `Trusted Firmware` projects.
+
+Technical ownership of most parts of the codebase falls on the :ref:`code
+owners`. All patches are ultimately merged by the :ref:`maintainers`.
+
+Approval of a patch is tracked using Gerrit `labels`. For a patch to be merged,
+it must get all of the following votes:
+
+- At least one ``Code-Owner-Review+1`` up-vote, and no ``Code-Owner-Review-1``
+  down-vote.
+
+- At least one ``Maintainer-Review+1`` up-vote, and no ``Maintainer-Review-1``
+  down-vote.
+
+- ``Verified+1`` vote applied by the automated Continuous Integration (CI)
+  system.
+
+Note that, in some instances, the maintainers might give a waiver for some of
+the CI failures and manually override the ``Verified+1`` score.
+
+
+Good practices for all reviewers
+--------------------------------
 
 To ensure the code review gives the greatest possible benefit, participants in
 the project should:
@@ -211,6 +232,6 @@ concerns, questions, or any other type of blocking comment, they should set
 
 --------------
 
-*Copyright (c) 2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
