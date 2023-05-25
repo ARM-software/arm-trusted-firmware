@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -217,6 +217,8 @@ struct ffa_mtd_v1_0 {
 	struct ffa_emad_v1_0 emad[];
 };
 CASSERT(sizeof(struct ffa_mtd_v1_0) == 32, assert_ffa_mtd_size_v1_0_mismatch);
+CASSERT(offsetof(struct ffa_mtd_v1_0, emad) == 32,
+	assert_ffa_mtd_size_v1_0_mismatch_2);
 
 /**
  * struct ffa_mtd - Memory transaction descriptor for FF-A v1.1.
@@ -254,5 +256,8 @@ struct ffa_mtd {
 	uint64_t reserved_40_47;
 };
 CASSERT(sizeof(struct ffa_mtd) == 48, assert_ffa_mtd_size_mismatch);
+CASSERT(offsetof(struct ffa_mtd, emad_count) ==
+	offsetof(struct ffa_mtd_v1_0, emad_count),
+	assert_ffa_mtd_emad_count_offset_mismatch);
 
 #endif /* EL3_SPMC_FFA_MEM_H */
