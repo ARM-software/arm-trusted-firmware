@@ -292,4 +292,13 @@
 #endif
 	.endm
 
+	/*
+	 * Macro to unmask External Aborts by changing PSTATE.A bit.
+	 * Put explicit synchronization event to ensure newly unmasked interrupt
+	 * is taken immediately.
+	 */
+	.macro  unmask_async_ea
+	msr     daifclr, #DAIF_ABT_BIT
+	isb
+	.endm
 #endif /* ASM_MACROS_S */

@@ -21,4 +21,6 @@
 /* RAS event signalled as peripheral interrupt */
 #define ERROR_INTERRUPT		3
 
+#define ASYNC_EA_REPLAY_COUNTER	U(100)
+
 #endif /* EA_HANDLE_H */

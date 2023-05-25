@@ -689,7 +689,8 @@ sve_not_enabled:
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 
 #ifdef IMAGE_BL31
-	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
+	/* Clear the EL3 flag as we are exiting el3 */
+	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_NESTED_EA_FLAG]
 #endif /* IMAGE_BL31 */
 
 	exception_return
