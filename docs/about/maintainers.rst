@@ -17,6 +17,10 @@ Review Guidelines`.
 Maintainers
 -----------
 
+.. note::
+   If you wish to become a maintainer for TF-A project, please refer to the
+   :ref:`Project Maintenance Processes`.
+
 :|M|: Dan Handley <dan.handley@arm.com>
 :|G|: `danh-arm`_
 :|M|: Soby Mathew <soby.mathew@arm.com>
