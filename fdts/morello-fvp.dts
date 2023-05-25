@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +22,32 @@
 		secure-firmware@ff000000 {
 			reg = <0 0xff000000 0 0x01000000>;
 			no-map;
+		};
+	};
+
+	/*
+	 * The timings below are just to demonstrate working cpuidle.
+	 * These values may be inaccurate.
+	 */
+	idle-states {
+		entry-method = "psci";
+
+		cluster_sleep: cluster-sleep {
+			compatible = "arm,idle-state";
+			arm,psci-suspend-param = <0x40000022>;
+			local-timer-stop;
+			entry-latency-us = <500>;
+			exit-latency-us = <1000>;
+			min-residency-us = <2500>;
+		};
+
+		cpu_sleep: cpu-sleep {
+			compatible = "arm,idle-state";
+			arm,psci-suspend-param = <0x40000002>;
+			local-timer-stop;
+			entry-latency-us = <150>;
+			exit-latency-us = <300>;
+			min-residency-us = <200>;
 		};
 	};
 
@@ -53,6 +79,7 @@
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&cpu_sleep &cluster_sleep>;
 		};
 		CPU1: cpu1@100 {
 			compatible = "arm,armv8";
@@ -60,6 +87,7 @@
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&cpu_sleep &cluster_sleep>;
 		};
 		CPU2: cpu2@10000 {
 			compatible = "arm,armv8";
@@ -67,6 +95,7 @@
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 1>;
+			cpu-idle-states = <&cpu_sleep &cluster_sleep>;
 		};
 		CPU3: cpu3@10100 {
 			compatible = "arm,armv8";
@@ -74,6 +103,7 @@
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 1>;
+			cpu-idle-states = <&cpu_sleep &cluster_sleep>;
 		};
 	};
 
