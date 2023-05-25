@@ -65,6 +65,17 @@
 #define TRDC_N_BASE			U(0x49010000)
 #define TRDC_x_SISE			U(0x20000)
 
+#define WDOG3_BASE			U(0x42490000)
+#define WDOG_CS				U(0x0)
+#define WDOG_CS_ULK			BIT(11)
+#define WDOG_CNT			U(0x4)
+#define WDOG_TOVAL			U(0x8)
+
+#define BBNSM_BASE			U(0x44440000)
+#define BBNSM_CTRL			U(0x8)
+#define BBNSM_DP_EN			BIT(24)
+#define BBNSM_TOSP			BIT(25)
+
 #define SRC_BASE			U(0x44460000)
 #define GPC_BASE			U(0x44470000)
 #define BLK_CTRL_S_BASE			U(0x444F0000)

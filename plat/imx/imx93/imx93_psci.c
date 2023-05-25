@@ -144,11 +144,37 @@ void imx_pwr_domain_off(const psci_power_state_t *target_state)
 	gpc_set_cpu_mode(CPU_A55C0 + core_id, CM_MODE_SUSPEND);
 }
 
+void __dead2 imx_system_reset(void)
+{
+	mmio_write_32(WDOG3_BASE + WDOG_CNT, 0xd928c520);
+	while ((mmio_read_32(WDOG3_BASE + WDOG_CS) & WDOG_CS_ULK) == 0U) {
+		;
+	}
+
+	mmio_write_32(WDOG3_BASE + WDOG_TOVAL, 0x10);
+	mmio_write_32(WDOG3_BASE + WDOG_CS, 0x21e3);
+
+	while (1) {
+		wfi();
+	}
+}
+
+void __dead2 imx_system_off(void)
+{
+	mmio_setbits_32(BBNSM_BASE + BBNSM_CTRL, BBNSM_DP_EN | BBNSM_TOSP);
+
+	while (1) {
+		wfi();
+	}
+}
+
 static const plat_psci_ops_t imx_plat_psci_ops = {
 	.validate_ns_entrypoint = imx_validate_ns_entrypoint,
 	.pwr_domain_on = imx_pwr_domain_on,
 	.pwr_domain_off = imx_pwr_domain_off,
 	.pwr_domain_on_finish = imx_pwr_domain_on_finish,
+	.system_reset = imx_system_reset,
+	.system_off = imx_system_off,
 };
 
 /* export the platform specific psci ops */
