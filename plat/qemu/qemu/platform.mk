@@ -12,7 +12,7 @@ ifeq (${ARM_ARCH_MAJOR},7)
 # Qemu Cortex-A15 model does not implement the virtualization extension.
 # For this reason, we cannot set ARM_CORTEX_A15=yes and must define all
 # the ARMv7 build directives.
-MARCH32_DIRECTIVE 	:= 	-mcpu=cortex-a15
+MARCH_DIRECTIVE 	:= 	-mcpu=cortex-a15
 $(eval $(call add_define,ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING))
 $(eval $(call add_define,ARMV7_SUPPORTS_GENERIC_TIMER))
 $(eval $(call add_define,ARMV7_SUPPORTS_VFP))

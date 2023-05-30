@@ -2733,12 +2733,12 @@ Directive ``ARM_CORTEX_A<x>`` and ``ARM_WITH_NEON`` are used to set
 the toolchain  target architecture directive.
 
 Platform may choose to not define straight the toolchain target architecture
-directive by defining ``MARCH32_DIRECTIVE``.
+directive by defining ``MARCH_DIRECTIVE``.
 I.e:
 
 .. code:: make
 
-   MARCH32_DIRECTIVE := -mach=armv7-a
+   MARCH_DIRECTIVE := -mach=armv7-a
 
 Code Structure
 --------------
