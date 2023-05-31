@@ -9,8 +9,8 @@
 #include <common/debug.h>
 #include <cortex_a53.h>
 #include <cpu_macros.S>
-#include <lib/cpus/errata_report.h>
 #include <plat_macros.S>
+#include <lib/cpus/errata.h>
 
 #if A53_DISABLE_NON_TEMPORAL_HINT
 #undef ERRATA_A53_836870

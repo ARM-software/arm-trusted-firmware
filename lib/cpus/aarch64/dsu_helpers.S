@@ -6,7 +6,7 @@
 
 #include <asm_macros.S>
 #include <dsu_def.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 
 	/* -----------------------------------------------------------------------
 	 * DSU erratum 798953 check function

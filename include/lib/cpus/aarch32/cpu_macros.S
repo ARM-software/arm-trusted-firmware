@@ -1,82 +1,13 @@
 /*
- * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef CPU_MACROS_S
 #define CPU_MACROS_S
 
-#include <arch.h>
-#include <lib/cpus/errata_report.h>
-
-#if defined(IMAGE_BL1) || defined(IMAGE_BL32)  \
-	|| (defined(IMAGE_BL2) && RESET_TO_BL2)
-#define IMAGE_AT_EL3
-#endif
-
-#define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
-				(MIDR_PN_MASK << MIDR_PN_SHIFT)
-
-/* The number of CPU operations allowed */
-#define CPU_MAX_PWR_DWN_OPS		2
-
-/* Special constant to specify that CPU has no reset function */
-#define CPU_NO_RESET_FUNC		0
-
-/* Word size for 32-bit CPUs */
-#define CPU_WORD_SIZE			4
-
-/*
- * Whether errata status needs reporting. Errata status is printed in debug
- * builds for both BL1 and BL32 images.
- */
-#if (defined(IMAGE_BL1) || defined(IMAGE_BL32)) && DEBUG
-# define REPORT_ERRATA	1
-#else
-# define REPORT_ERRATA	0
-#endif
-
-
-	.equ	CPU_MIDR_SIZE, CPU_WORD_SIZE
-	.equ	CPU_RESET_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_PWR_DWN_OPS_SIZE, CPU_WORD_SIZE * CPU_MAX_PWR_DWN_OPS
-	.equ	CPU_ERRATA_FUNC_SIZE, CPU_WORD_SIZE
-	.equ	CPU_ERRATA_LOCK_SIZE, CPU_WORD_SIZE
-	.equ	CPU_ERRATA_PRINTED_SIZE, CPU_WORD_SIZE
-
-#ifndef IMAGE_AT_EL3
-	.equ	CPU_RESET_FUNC_SIZE, 0
-#endif
-
-/* The power down core and cluster is needed only in BL32 */
-#ifndef IMAGE_BL32
-	.equ	CPU_PWR_DWN_OPS_SIZE, 0
-#endif
-
-/* Fields required to print errata status  */
-#if !REPORT_ERRATA
-	.equ	CPU_ERRATA_FUNC_SIZE, 0
-#endif
-
-/* Only BL32 requires mutual exclusion and printed flag. */
-#if !(REPORT_ERRATA && defined(IMAGE_BL32))
-	.equ	CPU_ERRATA_LOCK_SIZE, 0
-	.equ	CPU_ERRATA_PRINTED_SIZE, 0
-#endif
-
-
-/*
- * Define the offsets to the fields in cpu_ops structure.
- * Every offset is defined based on the offset and size of the previous
- * field.
- */
-	.equ	CPU_MIDR, 0
-	.equ	CPU_RESET_FUNC, CPU_MIDR + CPU_MIDR_SIZE
-	.equ	CPU_PWR_DWN_OPS, CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
-	.equ	CPU_ERRATA_FUNC, CPU_PWR_DWN_OPS + CPU_PWR_DWN_OPS_SIZE
-	.equ	CPU_ERRATA_LOCK, CPU_ERRATA_FUNC + CPU_ERRATA_FUNC_SIZE
-	.equ	CPU_ERRATA_PRINTED, CPU_ERRATA_LOCK + CPU_ERRATA_LOCK_SIZE
-	.equ	CPU_OPS_SIZE, CPU_ERRATA_PRINTED + CPU_ERRATA_PRINTED_SIZE
+#include <lib/cpus/cpu_ops.h>
+#include <lib/cpus/errata.h>
 
 	/*
 	 * Write given expressions as words
@@ -142,6 +73,29 @@
 	fill_constants CPU_MAX_PWR_DWN_OPS, \_power_down_ops
 #endif
 
+	/*
+	 * It is possible (although unlikely) that a cpu may have no errata in
+	 * code. In that case the start label will not be defined. The list is
+	 * inteded to be used in a loop, so define it as zero-length for
+	 * predictable behaviour. Since this macro is always called at the end
+	 * of the cpu file (after all errata have been parsed) we can be sure
+	 * that we are at the end of the list. Some cpus call the macro twice,
+	 * so only do this once.
+	 */
+	.pushsection .rodata.errata_entries
+	.ifndef \_name\()_errata_list_start
+		\_name\()_errata_list_start:
+	.endif
+	/* some call this multiple times, so only do this once */
+	.ifndef \_name\()_errata_list_end
+		\_name\()_errata_list_end:
+	.endif
+	.popsection
+
+	/* and now put them in cpu_ops */
+	.word \_name\()_errata_list_start
+	.word \_name\()_errata_list_end
+
 #if REPORT_ERRATA
 	.ifndef \_name\()_cpu_str
 	  /*
@@ -166,6 +120,7 @@
 	 * this class.
 	 */
 	.word \_name\()_errata_report
+	.word \_name\()_cpu_str
 
 #ifdef IMAGE_BL32
 	/* Pointers to errata lock and reported flag */
@@ -228,4 +183,77 @@
 	beq	\_label
 	.endm
 
+/*
+ * NOTE an erratum and CVE id could clash. However, both numbers are very large
+ * and the probablity is minuscule. Working around this makes code very
+ * complicated and extremely difficult to read so it is not considered. In the
+ * unlikely event that this does happen, prepending the CVE id with a 0 should
+ * resolve the conflict
+ */
+
+/*
+ * Add an entry for this erratum to the errata framework
+ *
+ * _cpu:
+ *	Name of cpu as given to declare_cpu_ops
+ *
+ * _cve:
+ *	Whether erratum is a CVE. CVE year if yes, 0 otherwise
+ *
+ * _id:
+ *	Erratum or CVE number. Please combine with the previous field with the
+ *	ERRATUM or CVE macros
+ *
+ * _chosen:
+ *	Compile time flag on whether the erratum is included
+ *
+ * _special:
+ *	The special non-standard name of an erratum
+ */
+.macro add_erratum_entry _cpu:req, _cve:req, _id:req, _chosen:req, _special
+	.pushsection .rodata.errata_entries
+		.align	2
+		.ifndef \_cpu\()_errata_list_start
+		\_cpu\()_errata_list_start:
+		.endif
+
+		/* unused on AArch32, maintain for portability */
+		.word	0
+		/* TODO(errata ABI): this prevents all checker functions from
+		 * being optimised away. Can be done away with unless the ABI
+		 * needs them */
+		.ifnb \_special
+			.word	check_errata_\_special
+		.elseif \_cve
+			.word	check_errata_cve_\_cve\()_\_id
+		.else
+			.word	check_errata_\_id
+		.endif
+		/* Will fit CVEs with up to 10 character in the ID field */
+		.word	\_id
+		.hword	\_cve
+		.byte	\_chosen
+		/* TODO(errata ABI): mitigated field for known but unmitigated
+		 * errata*/
+		.byte	0x1
+	.popsection
+.endm
+
+/*
+ * Maintain compatibility with the old scheme of "each cpu has its own reporter".
+ * TODO remove entirely once all cpus have been converted. This includes the
+ * cpu_ops entry, as print_errata_status can call this directly for all cpus
+ */
+.macro errata_report_shim _cpu:req
+	#if REPORT_ERRATA
+	func \_cpu\()_errata_report
+		push	{r12, lr}
+
+		bl generic_errata_report
+
+		pop	{r12, lr}
+		bx	lr
+	endfunc \_cpu\()_errata_report
+	#endif
+.endm
 #endif /* CPU_MACROS_S */
