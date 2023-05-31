@@ -58,6 +58,11 @@
 #define END_KEY_BASE			(SOC_KEYS_BASE + 0x0044)
 #define END_KEY_SIZE			U(32)
 
+/* Base Element RAM error definitions */
+#define SOC_NS_RAM_ERR_REC_BASE		UL(0x2A4C0000)
+#define NS_RAM_ECC_CE_INT		U(87)
+#define NS_RAM_ECC_UE_INT		U(88)
+
 #define SOC_PLATFORM_PERIPH_MAP_DEVICE	MAP_REGION_FLAT(			\
 						SOC_PLATFORM_PERIPH_BASE, 	\
 						SOC_PLATFORM_PERIPH_SIZE, 	\

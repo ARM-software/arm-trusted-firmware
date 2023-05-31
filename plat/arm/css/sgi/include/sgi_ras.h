@@ -55,4 +55,9 @@ struct sgi_ras_ev_map *sgi_find_ras_event_map_by_intr(uint32_t intr_num);
  */
 int sgi_ras_platform_setup(struct plat_sgi_ras_config *config);
 
+/* Base element RAM RAS interrupt handler function. */
+int sgi_ras_sram_intr_handler(const struct err_record_info *err_rec,
+				int probe_data,
+				const struct err_handler_data *const data);
+
 #endif /* SGI_RAS_H */
