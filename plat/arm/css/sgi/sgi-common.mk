@@ -54,10 +54,6 @@ BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_bl31_setup.c	\
 				${CSS_ENT_BASE}/sgi_topology.c
 
-ifeq (${RAS_FFH_SUPPORT},1)
-BL31_SOURCES		+=	${CSS_ENT_BASE}/sgi_ras.c
-endif
-
 ifneq (${RESET_TO_BL31},0)
   $(error "Using BL31 as the reset vector is not supported on ${PLAT} platform. \
   Please set RESET_TO_BL31 to 0.")
