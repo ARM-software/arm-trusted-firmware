@@ -24,9 +24,17 @@ ehf_pri_desc_t plat_exceptions[] = {
 	/* Normal priority SDEI */
 	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_SDEI_NORMAL_PRI),
 #endif
+
 #if SPM_MM
+#if RAS_FFH_SUPPORT
+#if (PLAT_SP_PRI != PLAT_RAS_PRI)
 	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_SP_PRI),
 #endif
+#else
+	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_SP_PRI),
+#endif
+#endif
+
 	/* Platform specific exceptions description */
 #ifdef PLAT_EHF_DESC
 	PLAT_EHF_DESC,
