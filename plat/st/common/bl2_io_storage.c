@@ -335,6 +335,14 @@ static int try_nand_backup_partitions(unsigned int image_id)
 		return -ENOSPC;
 	}
 
+#if PSA_FWU_SUPPORT
+	if (((image_block_spec.offset < STM32MP_NAND_FIP_B_OFFSET) &&
+	     ((image_block_spec.offset + nand_block_sz) >= STM32MP_NAND_FIP_B_OFFSET)) ||
+	    (image_block_spec.offset + nand_block_sz >= STM32MP_NAND_FIP_B_MAX_OFFSET)) {
+		return 0;
+	}
+#endif
+
 	image_block_spec.offset += nand_block_sz;
 
 	return 0;
@@ -573,7 +581,14 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 #if STM32MP_SPI_NAND
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_SPI:
 #endif
+/*
+ * With FWU Multi Bank feature enabled, the selection of
+ * the image to boot will be done by fwu_init calling the
+ * platform hook, plat_fwu_set_images_source.
+ */
+#if !PSA_FWU_SUPPORT
 		image_block_spec.offset = STM32MP_NAND_FIP_OFFSET;
+#endif
 		break;
 #endif
 
@@ -639,7 +654,7 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 	return rc;
 }
 
-#if (STM32MP_SDMMC || STM32MP_EMMC || STM32MP_SPI_NOR) && PSA_FWU_SUPPORT
+#if PSA_FWU_SUPPORT
 /*
  * In each boot in non-trial mode, we set the BKP register to
  * FWU_MAX_TRIAL_REBOOT, and return the active_index from metadata.
@@ -753,6 +768,19 @@ void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
 			}
 			break;
 #endif
+#if (STM32MP_RAW_NAND || STM32MP_SPI_NAND)
+		case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC:
+		case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_SPI:
+			if (guidcmp(img_guid, &STM32MP_NAND_FIP_A_GUID) == 0) {
+				image_spec->offset = STM32MP_NAND_FIP_A_OFFSET;
+			} else if (guidcmp(img_guid, &STM32MP_NAND_FIP_B_GUID) == 0) {
+				image_spec->offset = STM32MP_NAND_FIP_B_OFFSET;
+			} else {
+				ERROR("Invalid uuid mentioned in metadata\n");
+				panic();
+			}
+			break;
+#endif
 		default:
 			panic();
 			break;
@@ -805,6 +833,19 @@ static int plat_set_image_source(unsigned int image_id,
 		spec->length = sizeof(struct fwu_metadata);
 		break;
 #endif
+
+#if (STM32MP_RAW_NAND || STM32MP_SPI_NAND)
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC:
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_SPI:
+		if (image_id == FWU_METADATA_IMAGE_ID) {
+			spec->offset = STM32MP_NAND_METADATA1_OFFSET;
+		} else {
+			spec->offset = STM32MP_NAND_METADATA2_OFFSET;
+		}
+
+		spec->length = sizeof(struct fwu_metadata);
+		break;
+#endif
 	default:
 		panic();
 		break;
@@ -825,4 +866,4 @@ int plat_fwu_set_metadata_image_source(unsigned int image_id,
 
 	return plat_set_image_source(image_id, handle, image_spec);
 }
-#endif /* (STM32MP_SDMMC || STM32MP_EMMC || STM32MP_SPI_NOR) && PSA_FWU_SUPPORT */
+#endif /* PSA_FWU_SUPPORT */
