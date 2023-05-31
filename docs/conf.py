@@ -9,18 +9,25 @@
 #
 # See the options documentation at http://www.sphinx-doc.org/en/master/config
 
-import os
 
 # -- Project information -----------------------------------------------------
 
 project = "Trusted Firmware-A"
+author = "Trusted Firmware-A contributors"
+version = "2.9.0"
+release = "2.9.0"
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["myst_parser", "sphinx.ext.autosectionlabel", "sphinxcontrib.plantuml"]
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autosectionlabel",
+    "sphinxcontrib.plantuml",
+    "sphinxcontrib.inkscapeconverter",
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -48,7 +55,8 @@ exclude_patterns = [".env", "env", ".venv", "venv"]
 pygments_style = "sphinx"
 
 # Load the contents of the global substitutions file into the 'rst_prolog'
-# variable. This ensures that the substitutions are all inserted into each page.
+# variable. This ensures that the substitutions are all inserted into each
+# page.
 with open("global_substitutions.txt", "r") as subs:
     rst_prolog = subs.read()
 
@@ -93,3 +101,11 @@ autosectionlabel_maxdepth = 1
 # -- Options for plantuml ----------------------------------------------------
 
 plantuml_output_format = "svg_img"
+
+# -- Options for latexmk  ----------------------------------------------------
+
+latex_engine = "xelatex"
+latex_elements = {
+    "maxlistdepth": "10",
+    "pointsize": "11pt",
+}

@@ -101,6 +101,25 @@ module.exports = {
             "type": "json"
         },
         {
+            "filename": "docs/conf.py",
+            "updater": {
+                "readVersion": function (contents) {
+                    const _ver = contents.match(/version\s=.*"(\d)\.(\d)\.(\d)/);
+
+                    return `${_ver[1]}.${_ver[2]}.${_ver[2]}`;
+                },
+
+                "writeVersion": function (contents, version) {
+                    const _ver = 'version = "' + version + '"'
+                    const _rel = 'release = "' + version + '"'
+
+                    contents = contents.replace(/^(version\s=\s")((\d).?)*$/m, _ver)
+                    contents = contents.replace(/^(release\s=\s")((\d).?)*$/m, _rel)
+                    return contents
+                }
+            },
+        },
+        {
             "filename": "tools/conventional-changelog-tf-a/package.json",
             "type": "json"
         },
