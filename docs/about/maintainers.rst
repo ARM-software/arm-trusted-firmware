@@ -2,12 +2,11 @@ Project Maintenance
 ===================
 
 Trusted Firmware-A (TF-A) is an open governance community project. All
-contributions are ultimately merged by the maintainers listed below. Technical
-ownership of most parts of the codebase falls on the code owners listed
-below. An acknowledgement from these code owners is required before the
-maintainers merge a contribution.
+contributions are reviewed and merged by the community members listed below.
 
-More details may be found in the `Project Maintenance Process`_ document.
+For more details on the roles of `maintainers`, `code owners` and general
+information about code reviews in TF-A project, please refer to the :ref:`Code
+Review Guidelines`.
 
 .. |M| replace:: **Mail**
 .. |G| replace:: **GitHub ID**
@@ -17,6 +16,10 @@ More details may be found in the `Project Maintenance Process`_ document.
 
 Maintainers
 -----------
+
+.. note::
+   If you wish to become a maintainer for TF-A project, please refer to the
+   :ref:`Project Maintenance Processes`.
 
 :|M|: Dan Handley <dan.handley@arm.com>
 :|G|: `danh-arm`_
@@ -980,5 +983,3 @@ Conventional Changelog Extensions
 .. _bytefire: https://github.com/bytefire
 .. _rupsin01: https://github.com/rupsin01
 .. _jimmy-brisson: https://github.com/theotherjimmy
-
-.. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/

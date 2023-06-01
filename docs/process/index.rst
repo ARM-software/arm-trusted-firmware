@@ -13,4 +13,5 @@ Processes & Policies
    contributing
    code-review-guidelines
    faq
+   maintenance
    security-hardening
