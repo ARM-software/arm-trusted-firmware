@@ -20,6 +20,8 @@ MEMORY {
 #endif /* PLAT_SP_MIN_EXTRA_LD_SCRIPT */
 
 SECTIONS {
+    RAM_REGION_START = ORIGIN(RAM);
+    RAM_REGION_LENGTH = LENGTH(RAM);
     . = BL32_BASE;
 
     ASSERT(. == ALIGN(PAGE_SIZE),
@@ -149,4 +151,5 @@ SECTIONS {
     }
 
     ASSERT(. <= BL32_LIMIT, "BL32 image has exceeded its limit.")
+    RAM_REGION_END = .;
 }

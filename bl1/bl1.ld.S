@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,11 @@ MEMORY {
 }
 
 SECTIONS {
+    ROM_REGION_START = ORIGIN(ROM);
+    ROM_REGION_LENGTH = LENGTH(ROM);
+    RAM_REGION_START = ORIGIN(RAM);
+    RAM_REGION_LENGTH = LENGTH(RAM);
+
     . = BL1_RO_BASE;
 
     ASSERT(. == ALIGN(PAGE_SIZE),
@@ -97,6 +102,7 @@ SECTIONS {
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
         "cpu_ops not defined for this platform.")
 
+    ROM_REGION_END = .;
     . = BL1_RW_BASE;
 
     ASSERT(BL1_RW_BASE == ALIGN(PAGE_SIZE),
@@ -157,4 +163,5 @@ SECTIONS {
 #endif /* USE_COHERENT_MEM */
 
     ASSERT(. <= BL1_RW_LIMIT, "BL1's RW section has exceeded its limit.")
+    RAM_REGION_END = .;
 }

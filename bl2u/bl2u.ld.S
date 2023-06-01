@@ -18,6 +18,8 @@ MEMORY {
 }
 
 SECTIONS {
+    RAM_REGION_START = ORIGIN(RAM);
+    RAM_REGION_LENGTH = LENGTH(RAM);
     . = BL2U_BASE;
 
     ASSERT(. == ALIGN(PAGE_SIZE),
@@ -115,4 +117,5 @@ SECTIONS {
     __BSS_SIZE__ = SIZEOF(.bss);
 
     ASSERT(. <= BL2U_LIMIT, "BL2U image has exceeded its limit.")
+    RAM_REGION_END = .;
 }

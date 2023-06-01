@@ -5,6 +5,12 @@ description = "Trusted Firmware-A (TF-A) Python dependencies."
 authors = ["Arm Ltd."]
 license = "BSD-3-Clause"
 readme = "readme.rst"
+packages = [
+	{ include = "memory", from = "tools/memory"}
+]
+
+[tool.poetry.scripts]
+memory = "memory.memmap:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -18,3 +24,9 @@ pip-tools = "^6.4.0"
 
 [tool.poetry.group.ci.dependencies]
 click = "^8.1.3"
+
+[tool.poetry.group.memory.dependencies]
+pyelftools = "^0.29"
+anytree = "^2.8.0"
+click = "^8.1.3"
+prettytable = "^3.5.0"
