@@ -103,9 +103,6 @@ static bool should_enable_regulator(const void *fdt, int node)
 	if (!fdt_node_is_enabled(fdt, node)) {
 		return false;
 	}
-	if (fdt_getprop(fdt, node, "phandle", NULL) != NULL) {
-		return true;
-	}
 	if (fdt_getprop(fdt, node, "regulator-always-on", NULL) != NULL) {
 		return true;
 	}
