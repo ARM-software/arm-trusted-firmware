@@ -25,7 +25,7 @@
 #include <cortex_a78.h>
 #include <cortex_a78_ae.h>
 #include <cortex_a78c.h>
-#include <cortex_makalu.h>
+#include <cortex_a715.h>
 #include <cortex_x1.h>
 #include <cortex_x2.h>
 #include <neoverse_n1.h>
