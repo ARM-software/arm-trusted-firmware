@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  * Copyright (c) 2022-2023, Linaro.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include <drivers/measured_boot/event_log/event_log.h>
+#include <drivers/measured_boot/metadata.h>
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 #include <tools_share/tbbr_oid.h>
@@ -20,16 +21,16 @@ static uint64_t event_log_base;
 
 /* QEMU table with platform specific image IDs, names and PCRs */
 static const event_log_metadata_t qemu_event_log_metadata[] = {
-	{ BL31_IMAGE_ID, EVLOG_BL31_STRING, PCR_0 },
-	{ BL32_IMAGE_ID, EVLOG_BL32_STRING, PCR_0 },
-	{ BL32_EXTRA1_IMAGE_ID, EVLOG_BL32_EXTRA1_STRING, PCR_0 },
-	{ BL32_EXTRA2_IMAGE_ID, EVLOG_BL32_EXTRA2_STRING, PCR_0 },
-	{ BL33_IMAGE_ID, EVLOG_BL33_STRING, PCR_0 },
-	{ HW_CONFIG_ID, EVLOG_HW_CONFIG_STRING, PCR_0 },
-	{ NT_FW_CONFIG_ID, EVLOG_NT_FW_CONFIG_STRING, PCR_0 },
-	{ SCP_BL2_IMAGE_ID, EVLOG_SCP_BL2_STRING, PCR_0 },
-	{ SOC_FW_CONFIG_ID, EVLOG_SOC_FW_CONFIG_STRING, PCR_0 },
-	{ TOS_FW_CONFIG_ID, EVLOG_TOS_FW_CONFIG_STRING, PCR_0 },
+	{ BL31_IMAGE_ID, MBOOT_BL31_IMAGE_STRING, PCR_0 },
+	{ BL32_IMAGE_ID, MBOOT_BL32_IMAGE_STRING, PCR_0 },
+	{ BL32_EXTRA1_IMAGE_ID, MBOOT_BL32_EXTRA1_IMAGE_STRING, PCR_0 },
+	{ BL32_EXTRA2_IMAGE_ID, MBOOT_BL32_EXTRA2_IMAGE_STRING, PCR_0 },
+	{ BL33_IMAGE_ID, MBOOT_BL33_IMAGE_STRING, PCR_0 },
+	{ HW_CONFIG_ID, MBOOT_HW_CONFIG_STRING, PCR_0 },
+	{ NT_FW_CONFIG_ID, MBOOT_NT_FW_CONFIG_STRING, PCR_0 },
+	{ SCP_BL2_IMAGE_ID, MBOOT_SCP_BL2_IMAGE_STRING, PCR_0 },
+	{ SOC_FW_CONFIG_ID, MBOOT_SOC_FW_CONFIG_STRING, PCR_0 },
+	{ TOS_FW_CONFIG_ID, MBOOT_TOS_FW_CONFIG_STRING, PCR_0 },
 
 	{ EVLOG_INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
 };
