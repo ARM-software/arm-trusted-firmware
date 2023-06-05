@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -228,9 +228,9 @@ int dt_match_instance_by_compatible(const char *compatible, uintptr_t address)
  * This function gets DDR size information from the DT.
  * Returns value in bytes on success, and 0 on failure.
  ******************************************************************************/
-uint32_t dt_get_ddr_size(void)
+size_t dt_get_ddr_size(void)
 {
-	static uint32_t size;
+	static size_t size;
 	int node;
 
 	if (size != 0U) {
@@ -240,12 +240,12 @@ uint32_t dt_get_ddr_size(void)
 	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
 	if (node < 0) {
 		INFO("%s: Cannot read DDR node in DT\n", __func__);
-		return 0;
+		return 0U;
 	}
 
-	size = fdt_read_uint32_default(fdt, node, "st,mem-size", 0U);
+	size = (size_t)fdt_read_uint32_default(fdt, node, "st,mem-size", 0U);
 
-	flush_dcache_range((uintptr_t)&size, sizeof(uint32_t));
+	flush_dcache_range((uintptr_t)&size, sizeof(size_t));
 
 	return size;
 }
