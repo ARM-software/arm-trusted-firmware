@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,7 @@ enum {
 /* Certificate extensions. */
 enum {
 	/* Extensions used in certificates owned by the silicon provider. */
+	CCA_FW_NVCOUNTER_EXT,
 	TRUSTED_FW_NVCOUNTER_EXT,
 	TRUSTED_BOOT_FW_HASH_EXT,
 	TRUSTED_BOOT_FW_CONFIG_HASH_EXT,

@@ -42,8 +42,8 @@ static unsigned char plat_pk_buf[PK_DER_LEN];
 /*
  * Parameter type descriptors.
  */
-static auth_param_type_desc_t trusted_nv_ctr = AUTH_PARAM_TYPE_DESC(
-		AUTH_PARAM_NV_CTR, TRUSTED_FW_NVCOUNTER_OID);
+static auth_param_type_desc_t cca_nv_ctr = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_NV_CTR, CCA_FW_NVCOUNTER_OID);
 static auth_param_type_desc_t subject_pk = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_PUB_KEY, 0);
 static auth_param_type_desc_t sig = AUTH_PARAM_TYPE_DESC(
@@ -69,6 +69,8 @@ static auth_param_type_desc_t rmm_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, RMM_HASH_OID);
 
 #ifdef IMAGE_BL2
+static auth_param_type_desc_t trusted_nv_ctr = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_NV_CTR, TRUSTED_FW_NVCOUNTER_OID);
 static auth_param_type_desc_t non_trusted_nv_ctr = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_NV_CTR, NON_TRUSTED_FW_NVCOUNTER_OID);
 
@@ -127,8 +129,8 @@ static const auth_img_desc_t cca_content_cert = {
 		[1] = {
 			.type = AUTH_METHOD_NV_CTR,
 			.param.nv_ctr = {
-				.cert_nv_ctr = &trusted_nv_ctr,
-				.plat_nv_ctr = &trusted_nv_ctr
+				.cert_nv_ctr = &cca_nv_ctr,
+				.plat_nv_ctr = &cca_nv_ctr
 			}
 		}
 	},
