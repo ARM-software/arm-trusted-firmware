@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -176,31 +176,15 @@ static void stm32mp1_get_string(const char *desc, uint8_t *unicode, uint16_t *le
  */
 static void update_serial_num_string(void)
 {
-	uint8_t i;
 	char serial_string[SIZ_STRING_SERIAL + 2U];
 	/* serial number is set to 0 */
-	uint32_t deviceserial[UID_WORD_NB] = {0U, 0U, 0U};
-	uint32_t otp;
-	uint32_t len;
+	uint32_t deviceserial[UID_WORD_NB] = { 0U, 0U, 0U };
 	uint16_t length;
 
-	if (stm32_get_otp_index(UID_OTP, &otp, &len) != 0) {
-		ERROR("BSEC: Get UID_OTP number Error\n");
+	if (stm32_get_uid_otp(deviceserial) != 0) {
 		return;
 	}
 
-	if ((len / __WORD_BIT) != UID_WORD_NB) {
-		ERROR("BSEC: Get UID_OTP length Error\n");
-		return;
-	}
-
-	for (i = 0; i < UID_WORD_NB; i++) {
-		if (bsec_shadow_read_otp(&deviceserial[i], i + otp) !=
-		    BSEC_OK) {
-			ERROR("BSEC: UID%d Error\n", i);
-			return;
-		}
-	}
 	/* build serial number with OTP value as in ROM code */
 	snprintf(serial_string, sizeof(serial_string), "%08X%08X%08X",
 		 deviceserial[0], deviceserial[1], deviceserial[2]);
