@@ -79,6 +79,10 @@ support:
 
 - mbed TLS == 3.4.1 (tag: ``mbedtls-3.4.1``)
 
+The following libraries are required for DICE Protection Environment support:
+
+- QCBOR == 1.2 (tag: ``v1.2``)
+
 These tools are optional:
 
 - Device Tree Compiler (DTC) >= 1.4.7
@@ -184,7 +188,7 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 
 --------------
 
-*Copyright (c) 2021-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2024, Arm Limited. All rights reserved.*
 
 .. _Arm Developer website: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads
 .. _Gerrit Code Review: https://www.gerritcodereview.com/
