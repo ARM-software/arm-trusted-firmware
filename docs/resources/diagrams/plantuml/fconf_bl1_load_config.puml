@@ -21,7 +21,7 @@ bl1_main -> fvp_bl1_setup : bl1_platform_setup()
 fvp_bl1_setup -> arm_bl1_setup : arm_bl1_platform_setup()
 arm_bl1_setup -> arm_io_storage : plat_arm_io_setup()
 note over arm_io_storage : register and setup fip
-arm_bl1_setup -> fconf : set_fw_config_info(fw_config_base, max_size)
+arm_bl1_setup -> fconf : set_config_info(fw_config_base, max_size, FW_CONFIG_ID)
 note over fconf
 	set fw_config information
 	(address, size, image_id)

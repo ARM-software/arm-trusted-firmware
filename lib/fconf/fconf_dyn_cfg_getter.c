@@ -83,7 +83,7 @@ int fconf_populate_dtb_registry(uintptr_t config)
 
 	/*
 	 * In case of BL1, fw_config dtb information is already
-	 * populated in global dtb_infos array by 'set_fw_config_info'
+	 * populated in global dtb_infos array by 'set_config_info'
 	 * function, Below check is present to avoid re-population of
 	 * fw_config information.
 	 *
