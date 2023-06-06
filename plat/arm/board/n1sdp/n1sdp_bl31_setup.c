@@ -52,8 +52,8 @@ static struct gic600_multichip_data n1sdp_multichip_data __init = {
 		PLAT_ARM_GICD_BASE >> 16
 	},
 	.spi_ids = {
-		{PLAT_ARM_GICD_BASE, 32, 479},
-		{PLAT_ARM_GICD_BASE, 512, 959}
+		{PLAT_ARM_GICD_BASE, 32, 511},
+		{PLAT_ARM_GICD_BASE, 512, 991}
 	}
 };
 
