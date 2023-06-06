@@ -85,6 +85,17 @@ license text is included in those source files.
 
    See the original `Linux MIT license`_.
 
+-  Some source files originating from the `Open Profile for DICE`_ project.
+   These files are licensed under the Apache License, Version 2.0, which is a
+   permissive license compatible with BSD-3-Clause. Any contributions to this
+   code must also be made under the terms of `Apache License 2.0`_.
+   These files are:
+
+   -  ``include/lib/dice/dice.h``
+
 .. _FreeBSD: http://www.freebsd.org
 .. _Linux MIT license: https://raw.githubusercontent.com/torvalds/linux/master/LICENSES/preferred/MIT
 .. _SCC: http://www.simple-cc.org/
+.. _Open Profile for DICE: https://pigweed.googlesource.com/open-dice/
+.. _Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.txt
+
