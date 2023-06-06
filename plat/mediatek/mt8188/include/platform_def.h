@@ -28,17 +28,25 @@
  * APUSYS related constants
  ******************************************************************************/
 #define BCRM_FMEM_PDN_BASE	(IO_PHYS + 0x00276000)
+#define APU_MD32_SYSCTRL	(IO_PHYS + 0x09001000)
+#define APU_MD32_WDT		(IO_PHYS + 0x09002000)
 #define APU_RCX_CONFIG		(IO_PHYS + 0x09020000)
+#define APU_CTRL_DAPC_RCX_BASE	(IO_PHYS + 0x09034000)
+#define APU_NOC_DAPC_RCX_BASE	(IO_PHYS + 0x09038000)
+#define APU_REVISER		(IO_PHYS + 0x0903c000)
 #define APU_RCX_VCORE_CONFIG	(IO_PHYS + 0x090e0000)
 #define APU_MBOX0		(IO_PHYS + 0x090e1000)
+#define APU_MBOX1		(IO_PHYS + 0x090e2000)
 #define APU_RPCTOP		(IO_PHYS + 0x090f0000)
 #define APU_PCUTOP		(IO_PHYS + 0x090f1000)
 #define APU_AO_CTRL		(IO_PHYS + 0x090f2000)
 #define APU_PLL			(IO_PHYS + 0x090f3000)
 #define APU_ACC			(IO_PHYS + 0x090f4000)
+#define APU_SEC_CON		(IO_PHYS + 0x090f5000)
 #define APU_ARETOP_ARE0		(IO_PHYS + 0x090f6000)
 #define APU_ARETOP_ARE1		(IO_PHYS + 0x090f7000)
 #define APU_ARETOP_ARE2		(IO_PHYS + 0x090f8000)
+#define APU_CTRL_DAPC_AO_BASE	(IO_PHYS + 0x090fc000)
 #define APU_ACX0_RPC_LITE	(IO_PHYS + 0x09140000)
 #define BCRM_FMEM_PDN_SIZE	(0x1000)
 
@@ -193,7 +201,7 @@
  * Platform memory map related constants
  ******************************************************************************/
 #define TZRAM_BASE			(0x54600000)
-#define TZRAM_SIZE			(0x00030000)
+#define TZRAM_SIZE			(0x00040000)
 
 /*******************************************************************************
  * BL31 specific defines.

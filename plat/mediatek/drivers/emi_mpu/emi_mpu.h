@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,5 +60,6 @@ struct emi_region_info_t {
 int emi_mpu_init(void);
 int emi_mpu_set_protection(struct emi_region_info_t *region_info);
 void set_emi_mpu_regions(void);
+int set_apu_emi_mpu_region(void);
 
 #endif

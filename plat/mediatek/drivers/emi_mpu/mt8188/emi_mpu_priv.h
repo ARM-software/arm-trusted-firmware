@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,5 +41,10 @@
 #define DRAM_OFFSET			(0x40000000 >> EMI_MPU_ALIGN_BITS)
 
 #define EMI_MPU_DGROUP_NUM		(EMI_MPU_DOMAIN_NUM / 8)
+
+/* APU EMI MPU Setting */
+#define APUSYS_SEC_BUF_EMI_REGION	(21)
+#define APUSYS_SEC_BUF_PA		(0x55000000)
+#define APUSYS_SEC_BUF_SZ		(0x100000)
 
 #endif

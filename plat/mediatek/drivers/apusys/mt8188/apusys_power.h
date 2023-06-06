@@ -29,6 +29,16 @@ enum APU_D4_SLV_CTRL {
 	D4_SLV_ON,
 };
 
+enum APU_BACKUP_RESTORE_CTRL {
+	APU_CTRL_BACKUP		= 0,
+	APU_CTRL_RESTORE	= 1,
+};
+
+struct apu_restore_data {
+	uint32_t reg;
+	uint32_t data;
+};
+
 #define APU_POLL_STEP_US			(5)
 
 #define OUT_CLK_FREQ_MIN			(1500)
