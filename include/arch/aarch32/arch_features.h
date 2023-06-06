@@ -110,10 +110,56 @@ static inline bool is_feat_dit_supported(void)
 	return read_feat_dit_id_field() != 0U;
 }
 
-static inline bool is_feat_spe_supported(void)
+static inline unsigned int read_feat_pan_id_field(void)
 {
-	/* FEAT_SPE is AArch64 only */
-	return false;
+	return ISOLATE_FIELD(read_id_mmfr3(), ID_MMFR3_PAN);
 }
+
+static inline bool is_feat_pan_supported(void)
+{
+	if (ENABLE_FEAT_PAN == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_PAN == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_pan_id_field() != 0U;
+}
+
+/*
+ * TWED, ECV, CSV2, RAS are only used by the AArch64 EL2 context switch
+ * code. In fact, EL2 context switching is only needed for AArch64 (since
+ * there is no secure AArch32 EL2), so just disable these features here.
+ */
+static inline bool is_feat_twed_supported(void) { return false; }
+static inline bool is_feat_ecv_supported(void) { return false; }
+static inline bool is_feat_ecv_v2_supported(void) { return false; }
+static inline bool is_feat_csv2_2_supported(void) { return false; }
+static inline bool is_feat_ras_supported(void) { return false; }
+
+/* The following features are supported in AArch64 only. */
+static inline bool is_feat_vhe_supported(void) { return false; }
+static inline bool is_feat_sel2_supported(void) { return false; }
+static inline bool is_feat_fgt_supported(void) { return false; }
+static inline bool is_feat_tcr2_supported(void) { return false; }
+static inline bool is_feat_spe_supported(void) { return false; }
+static inline bool is_feat_rng_supported(void) { return false; }
+static inline bool is_feat_gcs_supported(void) { return false; }
+static inline bool is_feat_mpam_supported(void) { return false; }
+static inline bool is_feat_hcx_supported(void) { return false; }
+static inline bool is_feat_sve_supported(void) { return false; }
+static inline bool is_feat_brbe_supported(void) { return false; }
+static inline bool is_feat_trbe_supported(void) { return false; }
+static inline bool is_feat_nv2_supported(void) { return false; }
+static inline bool is_feat_sme_supported(void) { return false; }
+static inline bool is_feat_sme2_supported(void) { return false; }
+static inline bool is_feat_s2poe_supported(void) { return false; }
+static inline bool is_feat_s1poe_supported(void) { return false; }
+static inline bool is_feat_sxpoe_supported(void) { return false; }
+static inline bool is_feat_s2pie_supported(void) { return false; }
+static inline bool is_feat_s1pie_supported(void) { return false; }
+static inline bool is_feat_sxpie_supported(void) { return false; }
 
 #endif /* ARCH_FEATURES_H */
