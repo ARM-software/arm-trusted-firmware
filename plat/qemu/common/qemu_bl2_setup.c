@@ -18,6 +18,7 @@
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
 #include <lib/optee_utils.h>
+#include <lib/transfer_list.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
@@ -49,6 +50,10 @@
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
+#if HANDOFF
+static struct transfer_list_header *bl2_tl;
+#endif
+
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			       u_register_t arg2, u_register_t arg3)
 {
@@ -71,6 +76,46 @@ static void security_setup(void)
 	 */
 }
 
+#if HANDOFF
+static void update_dt(void)
+{
+	struct transfer_list_entry *te;
+	// int frag_id = 0;
+	void *fdt;
+	// void *fdto;
+	int ret;
+
+	fdt = (void *)(uintptr_t)ARM_PRELOADED_DTB_BASE;
+	ret = fdt_open_into(fdt, fdt, PLAT_QEMU_DT_MAX_SIZE);
+	if (ret < 0) {
+		ERROR("Invalid Device Tree at %p: error %d\n", fdt, ret);
+		return;
+	}
+
+	if (dt_add_psci_node(fdt)) {
+		ERROR("Failed to add PSCI Device Tree node\n");
+		return;
+	}
+
+	if (dt_add_psci_cpu_enable_methods(fdt)) {
+		ERROR("Failed to add PSCI cpu enable methods in Device Tree\n");
+		return;
+	}
+
+	ret = fdt_pack(fdt);
+	if (ret < 0) {
+		ERROR("Failed to pack Device Tree at %p: error %d\n", fdt, ret);
+		return;
+	}
+
+	// create a TE
+	te = transfer_list_add(bl2_tl, TL_TAG_FDT, fdt_totalsize(fdt), fdt);
+	if (!te) {
+		ERROR("Failed to add FDT entry to Tranfer List\n");
+		return;
+	}
+}
+#else
 static void update_dt(void)
 {
 	int ret;
@@ -96,13 +141,28 @@ static void update_dt(void)
 	if (ret < 0)
 		ERROR("Failed to pack Device Tree at %p: error %d\n", fdt, ret);
 }
+#endif
 
 void bl2_platform_setup(void)
 {
+#if HANDOFF
+	bl2_tl = transfer_list_init((void *)(uintptr_t)FW_HANDOFF_BASE,
+				    FW_HANDOFF_SIZE);
+	if (!bl2_tl)
+		ERROR("Failed to initialize Transfer List at 0x%lx\n",
+		      (unsigned long)FW_HANDOFF_BASE);
+#endif
 	security_setup();
 	update_dt();
 
 	/* TODO Initialize timer */
+}
+
+void qemu_bl2_sync_transfer_list(void)
+{
+#if HANDOFF
+	transfer_list_update_checksum(bl2_tl);
+#endif
 }
 
 void bl2_plat_arch_setup(void)
@@ -288,6 +348,13 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 		bl_mem_params->ep_info.args.arg2 = 0U;
 		bl_mem_params->ep_info.args.arg3 = 0U;
 #else
+#if HANDOFF
+		if (bl2_tl) {
+			bl_mem_params->ep_info.args.arg1 =
+						TRANSFER_LIST_SIGNATURE;
+			bl_mem_params->ep_info.args.arg3 = FW_NS_HANDOFF_BASE;
+		}
+#endif
 		/* BL33 expects to receive the primary CPU MPID (through r0) */
 		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
 #endif

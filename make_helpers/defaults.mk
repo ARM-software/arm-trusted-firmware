@@ -235,6 +235,9 @@ GICV2_G0_FOR_EL3		:= 0
 # by lower ELs.
 HANDLE_EA_EL3_FIRST_NS		:= 0
 
+# Enable Handoff protocol using transfer lists
+HANDOFF				:= 0
+
 # Secure hash algorithm flag, accepts 3 values: sha256, sha384 and sha512.
 # The default value is sha256.
 HASH_ALG			:= sha256

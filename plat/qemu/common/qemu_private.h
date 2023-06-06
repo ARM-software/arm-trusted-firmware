@@ -37,4 +37,6 @@ int qemu_set_nt_fw_info(
 			size_t log_size,
 			uintptr_t *ns_log_addr);
 
+void qemu_bl2_sync_transfer_list(void);
+
 #endif /* QEMU_PRIVATE_H */

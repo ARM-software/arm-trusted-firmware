@@ -47,6 +47,14 @@
 #define MAP_FLASH1	MAP_REGION_FLAT(QEMU_FLASH1_BASE, QEMU_FLASH1_SIZE, \
 					MT_MEMORY | MT_RO | MT_SECURE)
 
+#ifdef FW_HANDOFF_BASE
+#define MAP_FW_HANDOFF MAP_REGION_FLAT(FW_HANDOFF_BASE, FW_HANDOFF_SIZE, \
+				       MT_MEMORY | MT_RW | MT_SECURE)
+#endif
+#ifdef FW_NS_HANDOFF_BASE
+#define MAP_FW_NS_HANDOFF MAP_REGION_FLAT(FW_NS_HANDOFF_BASE, FW_HANDOFF_SIZE, \
+					  MT_MEMORY | MT_RW | MT_NS)
+#endif
 /*
  * Table of regions for various BL stages to map using the MMU.
  * This doesn't include TZRAM as the 'mem_layout' argument passed to
@@ -85,6 +93,9 @@ static const mmap_region_t plat_qemu_mmap[] = {
 #else
 	MAP_BL32_MEM,
 #endif
+#ifdef MAP_FW_HANDOFF
+	MAP_FW_HANDOFF,
+#endif
 	{0}
 };
 #endif
@@ -97,6 +108,12 @@ static const mmap_region_t plat_qemu_mmap[] = {
 #endif
 #ifdef MAP_DEVICE2
 	MAP_DEVICE2,
+#endif
+#ifdef MAP_FW_HANDOFF
+	MAP_FW_HANDOFF,
+#endif
+#ifdef MAP_FW_NS_HANDOFF
+	MAP_FW_NS_HANDOFF,
 #endif
 #if SPM_MM
 	MAP_NS_DRAM0,
