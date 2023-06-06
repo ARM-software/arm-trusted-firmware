@@ -27,20 +27,17 @@
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_N1_BHB_LOOP_COUNT, neoverse_n1
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Erratum 1043202.
- * This applies to revision r0p0 and r1p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
+/*
+ * ERRATA_DSU_936184:
+ * The errata is defined in dsu_helpers.S and applies to Neoverse N1.
+ * Henceforth creating symbolic names to the already existing errata
+ * workaround functions to get them registered under the Errata Framework.
  */
-func errata_n1_1043202_wa
-	/* Compare x0 against revision r1p0 */
-	mov	x17, x30
-	bl	check_errata_1043202
-	cbz	x0, 1f
+.equ check_erratum_neoverse_n1_936184, check_errata_dsu_936184
+.equ erratum_neoverse_n1_936184_wa, errata_dsu_936184_wa
+add_erratum_entry neoverse_n1, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
 
+workaround_reset_start neoverse_n1, ERRATUM(1043202), ERRATA_N1_1043202
 	/* Apply instruction patching sequence */
 	ldr	x0, =0x0
 	msr	CPUPSELR_EL3, x0
@@ -50,294 +47,92 @@ func errata_n1_1043202_wa
 	msr	CPUPMR_EL3, x0
 	ldr	x0, =0x800200071
 	msr	CPUPCR_EL3, x0
-	isb
-1:
-	ret	x17
-endfunc errata_n1_1043202_wa
+workaround_reset_end neoverse_n1, ERRATUM(1043202)
 
-func check_errata_1043202
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1043202
+check_erratum_ls neoverse_n1, ERRATUM(1043202), CPU_REV(1, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1073348
- * This applies to revision r0p0 and r1p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1073348_wa
-	/* Compare x0 against revision r1p0 */
-	mov	x17, x30
-	bl	check_errata_1073348
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1073348), ERRATA_N1_1073348
 	mrs	x1, NEOVERSE_N1_CPUACTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR_EL1_BIT_6
 	msr	NEOVERSE_N1_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1073348_wa
+workaround_reset_end neoverse_n1, ERRATUM(1073348)
 
-func check_errata_1073348
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1073348
+check_erratum_ls neoverse_n1, ERRATUM(1073348), CPU_REV(1, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1130799
- * This applies to revision <=r2p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1130799_wa
-	/* Compare x0 against revision r2p0 */
-	mov	x17, x30
-	bl	check_errata_1130799
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1130799), ERRATA_N1_1130799
 	mrs	x1, NEOVERSE_N1_CPUACTLR2_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_59
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1130799_wa
+workaround_reset_end neoverse_n1, ERRATUM(1130799)
 
-func check_errata_1130799
-	/* Applies to <=r2p0 */
-	mov	x1, #0x20
-	b	cpu_rev_var_ls
-endfunc check_errata_1130799
+check_erratum_ls neoverse_n1, ERRATUM(1130799), CPU_REV(2, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1165347
- * This applies to revision <=r2p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1165347_wa
-	/* Compare x0 against revision r2p0 */
-	mov	x17, x30
-	bl	check_errata_1165347
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1165347), ERRATA_N1_1165347
 	mrs	x1, NEOVERSE_N1_CPUACTLR2_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_0
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_15
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1165347_wa
+workaround_reset_end neoverse_n1, ERRATUM(1165347)
 
-func check_errata_1165347
-	/* Applies to <=r2p0 */
-	mov	x1, #0x20
-	b	cpu_rev_var_ls
-endfunc check_errata_1165347
+check_erratum_ls neoverse_n1, ERRATUM(1165347), CPU_REV(2, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1207823
- * This applies to revision <=r2p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1207823_wa
-	/* Compare x0 against revision r2p0 */
-	mov	x17, x30
-	bl	check_errata_1207823
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1207823), ERRATA_N1_1207823
 	mrs	x1, NEOVERSE_N1_CPUACTLR2_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_11
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1207823_wa
+workaround_reset_end neoverse_n1, ERRATUM(1207823)
 
-func check_errata_1207823
-	/* Applies to <=r2p0 */
-	mov	x1, #0x20
-	b	cpu_rev_var_ls
-endfunc check_errata_1207823
+check_erratum_ls neoverse_n1, ERRATUM(1207823), CPU_REV(2, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1220197
- * This applies to revision <=r2p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1220197_wa
-	/* Compare x0 against revision r2p0 */
-	mov	x17, x30
-	bl	check_errata_1220197
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1220197), ERRATA_N1_1220197
 	mrs	x1, NEOVERSE_N1_CPUECTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_WS_THR_L2_MASK
 	msr	NEOVERSE_N1_CPUECTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1220197_wa
+workaround_reset_end neoverse_n1, ERRATUM(1220197)
 
-func check_errata_1220197
-	/* Applies to <=r2p0 */
-	mov	x1, #0x20
-	b	cpu_rev_var_ls
-endfunc check_errata_1220197
+check_erratum_ls neoverse_n1, ERRATUM(1220197), CPU_REV(2, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1257314
- * This applies to revision <=r3p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1257314_wa
-	/* Compare x0 against revision r3p0 */
-	mov	x17, x30
-	bl	check_errata_1257314
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1257314), ERRATA_N1_1257314
 	mrs	x1, NEOVERSE_N1_CPUACTLR3_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR3_EL1_BIT_10
 	msr	NEOVERSE_N1_CPUACTLR3_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1257314_wa
+workaround_reset_end neoverse_n1, ERRATUM(1257314)
 
-func check_errata_1257314
-	/* Applies to <=r3p0 */
-	mov	x1, #0x30
-	b	cpu_rev_var_ls
-endfunc check_errata_1257314
+check_erratum_ls neoverse_n1, ERRATUM(1257314), CPU_REV(3, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1262606
- * This applies to revision <=r3p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1262606_wa
-	/* Compare x0 against revision r3p0 */
-	mov	x17, x30
-	bl	check_errata_1262606
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1262606), ERRATA_N1_1262606
 	mrs	x1, NEOVERSE_N1_CPUACTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
 	msr	NEOVERSE_N1_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1262606_wa
+workaround_reset_end neoverse_n1, ERRATUM(1262606)
 
-func check_errata_1262606
-	/* Applies to <=r3p0 */
-	mov	x1, #0x30
-	b	cpu_rev_var_ls
-endfunc check_errata_1262606
+check_erratum_ls neoverse_n1, ERRATUM(1262606), CPU_REV(3, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1262888
- * This applies to revision <=r3p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1262888_wa
-	/* Compare x0 against revision r3p0 */
-	mov	x17, x30
-	bl	check_errata_1262888
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1262888), ERRATA_N1_1262888
 	mrs	x1, NEOVERSE_N1_CPUECTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUECTLR_EL1_MM_TLBPF_DIS_BIT
 	msr	NEOVERSE_N1_CPUECTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1262888_wa
+workaround_reset_end neoverse_n1, ERRATUM(1262888)
 
-func check_errata_1262888
-	/* Applies to <=r3p0 */
-	mov	x1, #0x30
-	b	cpu_rev_var_ls
-endfunc check_errata_1262888
+check_erratum_ls neoverse_n1, ERRATUM(1262888), CPU_REV(3, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata #1275112
- * This applies to revision <=r3p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1275112_wa
-	/* Compare x0 against revision r3p0 */
-	mov	x17, x30
-	bl	check_errata_1275112
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1275112), ERRATA_N1_1275112
 	mrs	x1, NEOVERSE_N1_CPUACTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
 	msr	NEOVERSE_N1_CPUACTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_n1_1275112_wa
+workaround_reset_end neoverse_n1, ERRATUM(1275112)
 
-func check_errata_1275112
-	/* Applies to <=r3p0 */
-	mov	x1, #0x30
-	b	cpu_rev_var_ls
-endfunc check_errata_1275112
+check_erratum_ls neoverse_n1, ERRATUM(1275112), CPU_REV(3, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Erratum 1315703.
- * This applies to revision <= r3p0 of Neoverse N1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1315703_wa
-	/* Compare x0 against revision r3p1 */
-	mov	x17, x30
-	bl	check_errata_1315703
-	cbz	x0, 1f
-
+workaround_reset_start neoverse_n1, ERRATUM(1315703), ERRATA_N1_1315703
 	mrs	x0, NEOVERSE_N1_CPUACTLR2_EL1
 	orr	x0, x0, #NEOVERSE_N1_CPUACTLR2_EL1_BIT_16
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x0
+workaround_reset_end neoverse_n1, ERRATUM(1315703)
 
-1:
-	ret	x17
-endfunc errata_n1_1315703_wa
+check_erratum_ls neoverse_n1, ERRATUM(1315703), CPU_REV(3, 0)
 
-func check_errata_1315703
-	/* Applies to everything <= r3p0. */
-	mov	x1, #0x30
-	b	cpu_rev_var_ls
-endfunc check_errata_1315703
-
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Erratum 1542419.
- * This applies to revisions r3p0 - r4p0 of Neoverse N1
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1542419_wa
-	/* Compare x0 against revision r3p0 and r4p0 */
-	mov	x17, x30
-	bl	check_errata_1542419
-	cbz	x0, 1f
-
+workaround_reset_start neoverse_n1, ERRATUM(1542419), ERRATA_N1_1542419
 	/* Apply instruction patching sequence */
 	ldr	x0, =0x0
 	msr	CPUPSELR_EL3, x0
@@ -348,67 +143,19 @@ func errata_n1_1542419_wa
 	ldr	x0, =0x08000020007D
 	msr	CPUPCR_EL3, x0
 	isb
-1:
-	ret	x17
-endfunc errata_n1_1542419_wa
+workaround_reset_end neoverse_n1, ERRATUM(1542419)
 
-func check_errata_1542419
-	/* Applies to everything r3p0 - r4p0. */
-	mov	x1, #0x30
-	mov	x2, #0x40
-	b	cpu_rev_var_range
-endfunc check_errata_1542419
+check_erratum_range neoverse_n1, ERRATUM(1542419), CPU_REV(3, 0), CPU_REV(4, 0)
 
-	/* --------------------------------------------------
-	 * Errata Workaround for Neoverse N1 Errata #1868343.
-	 * This applies to revision <= r4p0 of Neoverse N1.
-	 * This workaround is the same as the workaround for
-	 * errata 1262606 and 1275112 but applies to a wider
-	 * revision range.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
-func errata_n1_1868343_wa
-	/*
-	 * Compare x0 against revision r4p0
-	 */
-	mov	x17, x30
-	bl	check_errata_1868343
-	cbz	x0, 1f
+workaround_reset_start neoverse_n1, ERRATUM(1868343), ERRATA_N1_1868343
 	mrs	x1, NEOVERSE_N1_CPUACTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
 	msr	NEOVERSE_N1_CPUACTLR_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_n1_1868343_wa
+workaround_reset_end neoverse_n1, ERRATUM(1868343)
 
-func check_errata_1868343
-	/* Applies to everything <= r4p0 */
-	mov	x1, #0x40
-	b	cpu_rev_var_ls
-endfunc check_errata_1868343
+check_erratum_ls neoverse_n1, ERRATUM(1868343), CPU_REV(4, 0)
 
-	/* --------------------------------------------------
-	 * Errata Workaround for Neoverse N1 Errata #1946160.
-	 * This applies to revisions r3p0, r3p1, r4p0, and
-	 * r4p1 of Neoverse N1. It also exists in r0p0, r1p0,
-	 * and r2p0 but there is no fix in these revisions.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
-func errata_n1_1946160_wa
-	/*
-	 * Compare x0 against r3p0 - r4p1
-	 */
-	mov	x17, x30
-	bl	check_errata_1946160
-	cbz	x0, 1f
-
+workaround_reset_start neoverse_n1, ERRATUM(1946160), ERRATA_N1_1946160
 	mov	x0, #3
 	msr	S3_6_C15_C8_0, x0
 	ldr	x0, =0x10E3900002
@@ -417,7 +164,6 @@ func errata_n1_1946160_wa
 	msr	S3_6_C15_C8_3, x0
 	ldr	x0, =0x2001003FF
 	msr	S3_6_C15_C8_1, x0
-
 	mov	x0, #4
 	msr	S3_6_C15_C8_0, x0
 	ldr	x0, =0x10E3800082
@@ -426,7 +172,6 @@ func errata_n1_1946160_wa
 	msr	S3_6_C15_C8_3, x0
 	ldr	x0, =0x2001003FF
 	msr	S3_6_C15_C8_1, x0
-
 	mov	x0, #5
 	msr	S3_6_C15_C8_0, x0
 	ldr	x0, =0x10E3800200
@@ -435,51 +180,30 @@ func errata_n1_1946160_wa
 	msr	S3_6_C15_C8_3, x0
 	ldr	x0, =0x2001003FF
 	msr	S3_6_C15_C8_1, x0
-
 	isb
-1:
-	ret	x17
-endfunc errata_n1_1946160_wa
+workaround_reset_end neoverse_n1, ERRATUM(1946160)
 
-func check_errata_1946160
-	/* Applies to r3p0 - r4p1. */
-	mov	x1, #0x30
-	mov	x2, #0x41
-	b	cpu_rev_var_range
-endfunc check_errata_1946160
+check_erratum_range neoverse_n1, ERRATUM(1946160), CPU_REV(3, 0), CPU_REV(4, 1)
 
-	/* ----------------------------------------------------
-	 * Errata Workaround for Neoverse N1 Errata #2743102
-	 * This applies to revisions <= r4p1 and is still open.
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ----------------------------------------------------
-	 */
-func errata_n1_2743102_wa
-	mov	x17, x30
-	bl	check_errata_2743102
-	cbz	x0, 1f
-
+workaround_runtime_start neoverse_n1, ERRATUM(2743102), ERRATA_N1_2743102
 	/* dsb before isb of power down sequence */
 	dsb	sy
-1:
-	ret	x17
-endfunc errata_n1_2743102_wa
+workaround_runtime_end neoverse_n1, ERRATUM(2743102)
 
-func check_errata_2743102
-	/* Applies to all revisions <= r4p1 */
-	mov	x1, #0x41
-	b	cpu_rev_var_ls
-endfunc check_errata_2743102
+check_erratum_ls neoverse_n1, ERRATUM(2743102), CPU_REV(4, 1)
 
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
+workaround_reset_start neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+#if IMAGE_BL31
+	/*
+	 * The Neoverse-N1 generic vectors are overridden to apply errata
+	 * mitigation on exception entry from lower ELs.
+	 */
+	adr	x0, wa_cve_vbar_neoverse_n1
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 */
+workaround_reset_end neoverse_n1, CVE(2022, 23960)
+
+check_erratum_chosen neoverse_n1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 /* --------------------------------------------------
  * Disable speculative loads if Neoverse N1 supports
@@ -501,9 +225,7 @@ func neoverse_n1_disable_speculative_loads
 	ret
 endfunc neoverse_n1_disable_speculative_loads
 
-func neoverse_n1_reset_func
-	mov	x19, x30
-
+cpu_reset_func_start neoverse_n1
 	bl neoverse_n1_disable_speculative_loads
 
 	/* Forces all cacheable atomic instructions to be near */
@@ -511,79 +233,6 @@ func neoverse_n1_reset_func
 	orr	x0, x0, #NEOVERSE_N1_CPUACTLR2_EL1_BIT_2
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x0
 	isb
-
-	bl	cpu_get_rev_var
-	mov	x18, x0
-
-#if ERRATA_N1_1043202
-	mov	x0, x18
-	bl	errata_n1_1043202_wa
-#endif
-
-#if ERRATA_N1_1073348
-	mov	x0, x18
-	bl	errata_n1_1073348_wa
-#endif
-
-#if ERRATA_N1_1130799
-	mov	x0, x18
-	bl	errata_n1_1130799_wa
-#endif
-
-#if ERRATA_N1_1165347
-	mov	x0, x18
-	bl	errata_n1_1165347_wa
-#endif
-
-#if ERRATA_N1_1207823
-	mov	x0, x18
-	bl	errata_n1_1207823_wa
-#endif
-
-#if ERRATA_N1_1220197
-	mov	x0, x18
-	bl	errata_n1_1220197_wa
-#endif
-
-#if ERRATA_N1_1257314
-	mov	x0, x18
-	bl	errata_n1_1257314_wa
-#endif
-
-#if ERRATA_N1_1262606
-	mov	x0, x18
-	bl	errata_n1_1262606_wa
-#endif
-
-#if ERRATA_N1_1262888
-	mov	x0, x18
-	bl	errata_n1_1262888_wa
-#endif
-
-#if ERRATA_N1_1275112
-	mov	x0, x18
-	bl	errata_n1_1275112_wa
-#endif
-
-#if ERRATA_N1_1315703
-	mov	x0, x18
-	bl	errata_n1_1315703_wa
-#endif
-
-#if ERRATA_N1_1542419
-	mov	x0, x18
-	bl	errata_n1_1542419_wa
-#endif
-
-#if ERRATA_N1_1868343
-	mov	x0, x18
-	bl	errata_n1_1868343_wa
-#endif
-
-#if ERRATA_N1_1946160
-	mov	x0, x18
-	bl	errata_n1_1946160_wa
-#endif
 
 #if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
@@ -607,23 +256,7 @@ func neoverse_n1_reset_func
 	orr     x0, x0, NEOVERSE_N1_CPUECTLR_EL1_EXTLLC_BIT
 	msr     NEOVERSE_N1_CPUECTLR_EL1, x0
 #endif
-
-#if ERRATA_DSU_936184
-	bl	errata_dsu_936184_wa
-#endif
-
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
-	/*
-	 * The Neoverse-N1 generic vectors are overridden to apply errata
-         * mitigation on exception entry from lower ELs.
-	 */
-	adr	x0, wa_cve_vbar_neoverse_n1
-	msr	vbar_el3, x0
-#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
-
-	isb
-	ret	x19
-endfunc neoverse_n1_reset_func
+cpu_reset_func_end neoverse_n1
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -640,49 +273,14 @@ func neoverse_n1_core_pwr_dwn
 #if ERRATA_N1_2743102
 	mov	x15, x30
 	bl	cpu_get_rev_var
-	bl	errata_n1_2743102_wa
+	bl	erratum_neoverse_n1_2743102_wa
 	mov	x30, x15
 #endif /* ERRATA_N1_2743102 */
 	isb
 	ret
 endfunc neoverse_n1_core_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Neoverse N1. Must follow AAPCS.
- */
-func neoverse_n1_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_N1_1043202, neoverse_n1, 1043202
-	report_errata ERRATA_N1_1073348, neoverse_n1, 1073348
-	report_errata ERRATA_N1_1130799, neoverse_n1, 1130799
-	report_errata ERRATA_N1_1165347, neoverse_n1, 1165347
-	report_errata ERRATA_N1_1207823, neoverse_n1, 1207823
-	report_errata ERRATA_N1_1220197, neoverse_n1, 1220197
-	report_errata ERRATA_N1_1257314, neoverse_n1, 1257314
-	report_errata ERRATA_N1_1262606, neoverse_n1, 1262606
-	report_errata ERRATA_N1_1262888, neoverse_n1, 1262888
-	report_errata ERRATA_N1_1275112, neoverse_n1, 1275112
-	report_errata ERRATA_N1_1315703, neoverse_n1, 1315703
-	report_errata ERRATA_N1_1542419, neoverse_n1, 1542419
-	report_errata ERRATA_N1_1868343, neoverse_n1, 1868343
-	report_errata ERRATA_N1_1946160, neoverse_n1, 1946160
-	report_errata ERRATA_N1_2743102, neoverse_n1, 2743102
-	report_errata ERRATA_DSU_936184, neoverse_n1, dsu_936184
-	report_errata WORKAROUND_CVE_2022_23960, neoverse_n1, cve_2022_23960
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc neoverse_n1_errata_report
-#endif
+errata_report_shim neoverse_n1
 
 /*
  * Handle trap of EL0 IC IVAU instructions to EL3 by executing a TLB
