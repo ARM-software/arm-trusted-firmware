@@ -12,8 +12,51 @@
 
 void set_emi_mpu_regions(void)
 {
-	/* TODO: set emi mpu region */
-	INFO("%s, emi mpu is not setting currently\n", __func__);
+	struct emi_region_info_t region_info;
+
+	/* SCP core0 DRAM */
+	region_info.start = 0x50000000ULL;
+	region_info.end = 0x528FFFFFULL;
+	region_info.region = 2;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* SCP core1 DRAM */
+	region_info.start = 0x70000000ULL;
+	region_info.end = 0x729FFFFFULL;
+	region_info.region = 3;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* DSP protect address */
+	region_info.start = 0x60000000ULL;
+	region_info.end = 0x610FFFFFULL;
+	region_info.region = 4;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
+
+	/* All default settings */
+	region_info.start = 0x40000000ULL;
+	region_info.end = 0x1FFFF0000ULL;
+	region_info.region = 31;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, NO_PROTECTION, NO_PROTECTION,
+			      NO_PROTECTION, FORBIDDEN, NO_PROTECTION, NO_PROTECTION,
+			      NO_PROTECTION, SEC_R_NSEC_RW, NO_PROTECTION, FORBIDDEN,
+			      NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION);
+	emi_mpu_set_protection(&region_info);
 }
 
 int set_apu_emi_mpu_region(void)
