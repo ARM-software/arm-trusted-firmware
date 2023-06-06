@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,6 +54,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	/* Initialize the console to provide early debug support */
 	qemu_console_init();
+
+/* Platform names have to be lowercase. */
+#ifdef PLAT_qemu_sbsa
+	sip_svc_init();
+#endif
 
 	/*
 	 * Check params passed from BL2
