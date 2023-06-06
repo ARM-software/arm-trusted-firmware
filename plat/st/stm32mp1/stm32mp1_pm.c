@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -161,17 +161,15 @@ static void __dead2 stm32_system_reset(void)
 static int stm32_validate_power_state(unsigned int power_state,
 				      psci_power_state_t *req_state)
 {
-	int pstate = psci_get_pstate_type(power_state);
-
-	if (pstate != 0) {
+	if (psci_get_pstate_type(power_state) != 0U) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 
-	if (psci_get_pstate_pwrlvl(power_state)) {
+	if (psci_get_pstate_pwrlvl(power_state) != 0U) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 
-	if (psci_get_pstate_id(power_state)) {
+	if (psci_get_pstate_id(power_state) != 0U) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 

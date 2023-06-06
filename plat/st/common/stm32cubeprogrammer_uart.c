@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -480,6 +480,8 @@ static int uart_read(uint8_t id, uintptr_t buffer, size_t length)
 			return ret;
 		}
 	}
+
+	stm32_uart_flush(&handle.uart);
 
 	return 0;
 }

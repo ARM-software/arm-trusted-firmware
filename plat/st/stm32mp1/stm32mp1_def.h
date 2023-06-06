@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -647,11 +647,12 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 /*******************************************************************************
  * Device Tree defines
  ******************************************************************************/
-#define DT_BSEC_COMPAT			"st,stm32mp15-bsec"
 #if STM32MP13
+#define DT_BSEC_COMPAT			"st,stm32mp13-bsec"
 #define DT_DDR_COMPAT			"st,stm32mp13-ddr"
 #endif
 #if STM32MP15
+#define DT_BSEC_COMPAT			"st,stm32mp15-bsec"
 #define DT_DDR_COMPAT			"st,stm32mp1-ddr"
 #endif
 #define DT_IWDG_COMPAT			"st,stm32mp1-iwdg"
