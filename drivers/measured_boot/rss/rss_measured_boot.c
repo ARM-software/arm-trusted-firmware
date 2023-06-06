@@ -128,7 +128,7 @@ int rss_mboot_set_signer_id(struct rss_mboot_metadata *metadata_ptr,
 	while (metadata_ptr->id != RSS_MBOOT_INVALID_ID) {
 		/* Get the metadata associated with this key-oid */
 		if (metadata_ptr->pk_oid == pk_oid) {
-			if (!hash_calc_done) {
+			if (hash_calc_done == false) {
 				/* Calculate public key hash */
 				rc = crypto_mod_calc_hash(CRYPTO_MD_ID,
 							  (void *)pk_ptr,
