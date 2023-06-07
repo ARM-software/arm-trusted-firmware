@@ -50,6 +50,27 @@ class TfaBuildParser:
             reverse=True,
         )
 
+    def get_mem_usage_dict(self) -> dict:
+        """Returns map of memory usage per memory type for each module."""
+        mem_map = {}
+        for k, v in self._modules.items():
+            mod_mem_map = v.get_elf_memory_layout()
+            if len(mod_mem_map):
+                mem_map[k] = mod_mem_map
+        return mem_map
+
+    def get_mem_tree_as_dict(self) -> dict:
+        """Returns _tree of modules, segments and segments and their total
+        memory usage."""
+        return {
+            k: {
+                "name": k,
+                **v.get_mod_mem_usage_dict(),
+                **{"children": v.get_seg_map_as_dict()},
+            }
+            for k, v in self._modules.items()
+        }
+
     @property
     def module_names(self):
         """Returns sorted list of module names."""

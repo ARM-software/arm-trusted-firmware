@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+from anytree import RenderTree
+from anytree.importer import DictImporter
+from prettytable import PrettyTable
+
 
 class TfaPrettyPrinter:
     """A class for printing the memory layout of ELF files.
@@ -15,6 +19,8 @@ class TfaPrettyPrinter:
 
     def __init__(self, columns: int = None, as_decimal: bool = False):
         self.term_size = columns if columns and columns > 120 else 120
+        self._tree = None
+        self._footprint = None
         self._symbol_map = None
         self.as_decimal = as_decimal
 
@@ -22,6 +28,10 @@ class TfaPrettyPrinter:
         if not fmt and type(args[0]) is int:
             fmt = f">{width}x" if not self.as_decimal else f">{width}"
         return [f"{arg:{fmt}}" if fmt else arg for arg in args]
+
+    def format_row(self, leading, *args, width=10, fmt=None):
+        formatted_args = self.format_args(*args, width=width, fmt=fmt)
+        return leading + " ".join(formatted_args)
 
     @staticmethod
     def map_elf_symbol(
@@ -49,6 +59,37 @@ class TfaPrettyPrinter:
         )
 
         return leading + sec_row_l + sec_row + sec_row_r
+
+    def print_footprint(
+        self, app_mem_usage: dict, sort_key: str = None, fields: list = None
+    ):
+        assert len(app_mem_usage), "Empty memory layout dictionary!"
+        if not fields:
+            fields = ["Component", "Start", "Limit", "Size", "Free", "Total"]
+
+        sort_key = fields[0] if not sort_key else sort_key
+
+        # Iterate through all the memory types, create a table for each
+        # type, rows represent a single module.
+        for mem in sorted(set(k for _, v in app_mem_usage.items() for k in v)):
+            table = PrettyTable(
+                sortby=sort_key,
+                title=f"Memory Usage (bytes) [{mem.upper()}]",
+                field_names=fields,
+            )
+
+            for mod, vals in app_mem_usage.items():
+                if mem in vals.keys():
+                    val = vals[mem]
+                    table.add_row(
+                        [
+                            mod.upper(),
+                            *self.format_args(
+                                *[val[k.lower()] for k in fields[1:]]
+                            ),
+                        ]
+                    )
+            print(table, "\n")
 
     def print_symbol_table(
         self,
@@ -91,3 +132,29 @@ class TfaPrettyPrinter:
         self._symbol_map = ["Memory Layout:"]
         self._symbol_map += list(reversed(_symbol_map))
         print("\n".join(self._symbol_map))
+
+    def print_mem_tree(
+        self, mem_map_dict, modules, depth=1, min_pad=12, node_right_pad=12
+    ):
+        # Start column should have some padding between itself and its data
+        # values.
+        anchor = min_pad + node_right_pad * (depth - 1)
+        headers = ["start", "end", "size"]
+
+        self._tree = [
+            (f"{'name':<{anchor}}" + " ".join(f"{arg:>10}" for arg in headers))
+        ]
+
+        for mod in sorted(modules):
+            root = DictImporter().import_(mem_map_dict[mod])
+            for pre, fill, node in RenderTree(root, maxlevel=depth):
+                leading = f"{pre}{node.name}".ljust(anchor)
+                self._tree.append(
+                    self.format_row(
+                        leading,
+                        node.start,
+                        node.end,
+                        node.size,
+                    )
+                )
+        print("\n".join(self._tree), "\n")
