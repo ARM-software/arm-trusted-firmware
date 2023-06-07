@@ -17,19 +17,3 @@ void bl1_arch_setup(void)
 {
 	/* v8-R64 does not include SCRs. */
 }
-
-/*******************************************************************************
- * Set the Secure EL1 required architectural state
- ******************************************************************************/
-void bl1_arch_next_el_setup(void)
-{
-	u_register_t next_sctlr;
-
-	/* Use the same endianness than the current BL */
-	next_sctlr = (read_sctlr_el2() & SCTLR_EE_BIT);
-
-	/* Set SCTLR Secure EL1 */
-	next_sctlr |= SCTLR_EL1_RES1;
-
-	write_sctlr_el1(next_sctlr);
-}

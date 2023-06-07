@@ -24,15 +24,6 @@ func bl2_run_next_image
 	tlbi	alle3
 	bl	bl2_el3_plat_prepare_exit
 
-#if ENABLE_PAUTH
-	/* ---------------------------------------------
-	 * Disable pointer authentication before jumping
-	 * to next boot image.
-	 * ---------------------------------------------
-	 */
-	bl	pauth_disable_el3
-#endif /* ENABLE_PAUTH */
-
 	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
 	msr	elr_el3, x0
 	msr	spsr_el3, x1

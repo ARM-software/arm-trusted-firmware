@@ -17,7 +17,6 @@ extern entry_point_info_t *bl2_ep_info;
  * Function prototypes
  *****************************************/
 void bl1_arch_setup(void);
-void bl1_arch_next_el_setup(void);
 
 void bl1_prepare_next_image(unsigned int image_id);
 void bl1_run_bl2_in_root(void);
