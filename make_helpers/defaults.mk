@@ -176,6 +176,9 @@ endif
 # Option to build TF with Measured Boot support
 MEASURED_BOOT			:= 0
 
+# Option to enable the DICE Protection Environmnet as a Measured Boot backend
+DICE_PROTECTION_ENVIRONMENT	:=0
+
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0
 
