@@ -144,6 +144,62 @@ void imx_pwr_domain_off(const psci_power_state_t *target_state)
 	gpc_set_cpu_mode(CPU_A55C0 + core_id, CM_MODE_SUSPEND);
 }
 
+void imx_pwr_domain_suspend(const psci_power_state_t *target_state)
+{
+	uint64_t mpidr = read_mpidr_el1();
+	unsigned int core_id = MPIDR_AFFLVL1_VAL(mpidr);
+
+	/* do cpu level config */
+	if (is_local_state_off(CORE_PWR_STATE(target_state))) {
+		plat_gic_cpuif_disable();
+		imx_set_cpu_boot_entry(core_id, secure_entrypoint);
+		/* config the target mode to WAIT */
+		gpc_set_cpu_mode(CPU_A55C0 + core_id, CM_MODE_WAIT);
+	}
+
+	/* do cluster level config */
+	if (!is_local_state_run(CLUSTER_PWR_STATE(target_state))) {
+		/* config the A55 cluster target mode to WAIT */
+		gpc_set_cpu_mode(CPU_A55_PLAT, CM_MODE_WAIT);
+
+		/* config DSU for cluster power down with L3 MEM RET */
+		if (is_local_state_retn(CLUSTER_PWR_STATE(target_state))) {
+			write_clusterpwrdn(DSU_CLUSTER_PWR_OFF | BIT(1));
+		}
+	}
+}
+
+void imx_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
+{
+	uint64_t mpidr = read_mpidr_el1();
+	unsigned int core_id = MPIDR_AFFLVL1_VAL(mpidr);
+
+	/* cluster level */
+	if (!is_local_state_run(CLUSTER_PWR_STATE(target_state))) {
+		/* set the cluster's target mode to RUN */
+		gpc_set_cpu_mode(CPU_A55_PLAT, CM_MODE_RUN);
+	}
+
+	/* do core level */
+	if (is_local_state_off(CORE_PWR_STATE(target_state))) {
+		/* set A55 CORE's power mode to RUN */
+		gpc_set_cpu_mode(CPU_A55C0 + core_id, CM_MODE_RUN);
+		plat_gic_cpuif_enable();
+	}
+}
+
+void imx_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	unsigned int i;
+
+	for (i = IMX_PWR_LVL0; i <= PLAT_MAX_PWR_LVL; i++) {
+		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
+
+	SYSTEM_PWR_STATE(req_state) = PLAT_MAX_RET_STATE;
+	CLUSTER_PWR_STATE(req_state) = PLAT_MAX_RET_STATE;
+}
+
 void __dead2 imx_system_reset(void)
 {
 	mmio_write_32(WDOG3_BASE + WDOG_CNT, 0xd928c520);
@@ -170,9 +226,13 @@ void __dead2 imx_system_off(void)
 
 static const plat_psci_ops_t imx_plat_psci_ops = {
 	.validate_ns_entrypoint = imx_validate_ns_entrypoint,
+	.validate_power_state = imx_validate_power_state,
 	.pwr_domain_on = imx_pwr_domain_on,
 	.pwr_domain_off = imx_pwr_domain_off,
 	.pwr_domain_on_finish = imx_pwr_domain_on_finish,
+	.pwr_domain_suspend = imx_pwr_domain_suspend,
+	.pwr_domain_suspend_finish = imx_pwr_domain_suspend_finish,
+	.get_sys_suspend_power_state = imx_get_sys_suspend_power_state,
 	.system_reset = imx_system_reset,
 	.system_off = imx_system_off,
 };
