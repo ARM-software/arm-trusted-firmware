@@ -26,18 +26,18 @@ struct xfsbl_partition {
 	uint64_t flags;
 };
 
-/* Structure for handoff parameters to ARM Trusted Firmware (ATF) */
-struct xfsbl_atf_handoff_params {
+/* Structure for handoff parameters to TrustedFirmware-A (TF-A) */
+struct xfsbl_tfa_handoff_params {
 	uint8_t magic[4];
 	uint32_t num_entries;
 	struct xfsbl_partition partition[FSBL_MAX_PARTITIONS];
 };
 
-#define ATF_HANDOFF_PARAMS_MAX_SIZE	sizeof(struct xfsbl_atf_handoff_params)
+#define TFA_HANDOFF_PARAMS_MAX_SIZE	sizeof(struct xfsbl_tfa_handoff_params)
 
-enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
+enum fsbl_handoff fsbl_tfa_handover(entry_point_info_t *bl32,
 					entry_point_info_t *bl33,
-					uint64_t atf_handoff_addr);
+					uint64_t tfa_handoff_addr);
 
 /* JEDEC Standard Manufacturer's Identification Code and Bank ID JEP106 */
 #define JEDEC_XILINX_MFID	U(0x49)

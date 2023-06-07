@@ -67,10 +67,10 @@ static inline void bl31_set_default_config(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	uint64_t atf_handoff_addr;
-	uint32_t payload[PAYLOAD_ARG_CNT], max_size = ATF_HANDOFF_PARAMS_MAX_SIZE;
+	uint64_t tfa_handoff_addr;
+	uint32_t payload[PAYLOAD_ARG_CNT], max_size = TFA_HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
-	uint64_t addr[ATF_HANDOFF_PARAMS_MAX_SIZE];
+	uint64_t addr[TFA_HANDOFF_PARAMS_MAX_SIZE];
 
 	if (VERSAL_CONSOLE_IS(pl011) || (VERSAL_CONSOLE_IS(pl011_1))) {
 		static console_t versal_runtime_console;
@@ -119,15 +119,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	ret_status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	if (ret_status == PM_RET_SUCCESS) {
 		INFO("BL31: GET_HANDOFF_PARAMS call success=%d\n", ret_status);
-		atf_handoff_addr = (uintptr_t)&addr;
+		tfa_handoff_addr = (uintptr_t)&addr;
 	} else {
-		ERROR("BL31: GET_HANDOFF_PARAMS Failed, read atf_handoff_addr from reg\n");
-		atf_handoff_addr = mmio_read_32(PMC_GLOBAL_GLOB_GEN_STORAGE4);
+		ERROR("BL31: GET_HANDOFF_PARAMS Failed, read tfa_handoff_addr from reg\n");
+		tfa_handoff_addr = mmio_read_32(PMC_GLOBAL_GLOB_GEN_STORAGE4);
 	}
 
-	enum fsbl_handoff ret = fsbl_atf_handover(&bl32_image_ep_info,
+	enum fsbl_handoff ret = fsbl_tfa_handover(&bl32_image_ep_info,
 						  &bl33_image_ep_info,
-						  atf_handoff_addr);
+						  tfa_handoff_addr);
 	if (ret == FSBL_HANDOFF_NO_STRUCT || ret == FSBL_HANDOFF_INVAL_STRUCT) {
 		bl31_set_default_config();
 	} else if (ret == FSBL_HANDOFF_TOO_MANY_PARTS) {
