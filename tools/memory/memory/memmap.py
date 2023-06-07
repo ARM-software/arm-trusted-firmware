@@ -66,6 +66,11 @@ from memory.printer import TfaPrettyPrinter
     default=False,
     help="Display numbers in decimal base.",
 )
+@click.option(
+    "--no-elf-images",
+    is_flag=True,
+    help="Analyse the build's map files instead of ELF images.",
+)
 def main(
     root: Path,
     platform: str,
@@ -76,11 +81,12 @@ def main(
     depth: int,
     width: int,
     d: bool,
+    no_elf_images: bool,
 ):
     build_path = root if root else Path("build/", platform, build_type)
     click.echo(f"build-path: {build_path.resolve()}")
 
-    parser = TfaBuildParser(build_path)
+    parser = TfaBuildParser(build_path, map_backend=no_elf_images)
     printer = TfaPrettyPrinter(columns=width, as_decimal=d)
 
     if footprint or not (tree or symbols):
