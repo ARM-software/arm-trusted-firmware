@@ -43,5 +43,6 @@ int dpe_set_signer_id(struct dpe_metadata *metadata,
  * How to share context handle is platform specific.
  */
 void plat_dpe_share_context_handle(int *ctx_handle);
+void plat_dpe_get_context_handle(int *ctx_handle);
 
 #endif /* DICE_PROT_ENV_H */

@@ -67,7 +67,7 @@ void dpe_init(struct dpe_metadata *metadata)
 		metadata++;
 	}
 
-	/* TODO: Obtain ctx handle and assign it to initial_context_handle */
+	plat_dpe_get_context_handle(&initial_context_handle);
 }
 
 int dpe_measure_and_record(struct dpe_metadata *metadata,

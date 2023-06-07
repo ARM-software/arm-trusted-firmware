@@ -173,6 +173,24 @@ void plat_dpe_share_context_handle(int *ctx_handle)
 	new_ctx_handle = *ctx_handle;
 }
 
+void plat_dpe_get_context_handle(int *ctx_handle)
+{
+	int rc;
+
+	rc = arm_get_tb_fw_info(ctx_handle);
+	if (rc != 0) {
+		ERROR("Unable to get DPE context handle from TB_FW_CONFIG\n");
+		/*
+		 * It is a fatal error because on FVP platform, BL2 software
+		 * assumes that a valid DPE context_handle is passed through
+		 * the DTB object by BL1.
+		 */
+		plat_panic_handler();
+	}
+
+	VERBOSE("Received DPE context handle: 0x%x\n", *ctx_handle);
+}
+
 void bl2_plat_mboot_init(void)
 {
 	/* Initialize the communication channel between AP and RSS */
