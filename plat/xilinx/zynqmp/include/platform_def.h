@@ -47,10 +47,10 @@
 # define BL31_LIMIT			U(0x80000)
 #endif
 #else
-# define BL31_BASE			(ZYNQMP_ATF_MEM_BASE)
-# define BL31_LIMIT			(ZYNQMP_ATF_MEM_BASE + ZYNQMP_ATF_MEM_SIZE)
+# define BL31_BASE			U(ZYNQMP_ATF_MEM_BASE)
+# define BL31_LIMIT			(UL(ZYNQMP_ATF_MEM_BASE) + U(ZYNQMP_ATF_MEM_SIZE))
 # ifdef ZYNQMP_ATF_MEM_PROGBITS_SIZE
-#  define BL31_PROGBITS_LIMIT		(ZYNQMP_ATF_MEM_BASE + ZYNQMP_ATF_MEM_PROGBITS_SIZE)
+#  define BL31_PROGBITS_LIMIT		(UL(ZYNQMP_ATF_MEM_BASE) + U(ZYNQMP_ATF_MEM_PROGBITS_SIZE))
 # endif
 #endif
 
@@ -61,8 +61,8 @@
 # define BL32_BASE			U(0x60000000)
 # define BL32_LIMIT			U(0x80000000)
 #else
-# define BL32_BASE			(ZYNQMP_BL32_MEM_BASE)
-# define BL32_LIMIT			(ZYNQMP_BL32_MEM_BASE + ZYNQMP_BL32_MEM_SIZE)
+# define BL32_BASE			U(ZYNQMP_BL32_MEM_BASE)
+# define BL32_LIMIT			(UL(ZYNQMP_BL32_MEM_BASE) + U(ZYNQMP_BL32_MEM_SIZE))
 #endif
 
 /*******************************************************************************
@@ -71,7 +71,7 @@
 #ifndef PRELOADED_BL33_BASE
 # define PLAT_ARM_NS_IMAGE_BASE	U(0x8000000)
 #else
-# define PLAT_ARM_NS_IMAGE_BASE	PRELOADED_BL33_BASE
+# define PLAT_ARM_NS_IMAGE_BASE	U(PRELOADED_BL33_BASE)
 #endif
 
 /*******************************************************************************
