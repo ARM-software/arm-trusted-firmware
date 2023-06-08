@@ -760,6 +760,12 @@ spmc_validate_mtd_start(struct ffa_mtd *desc, uint32_t ffa_version,
 	return 0;
 }
 
+static inline const struct ffa_emad_v1_0 *
+emad_advance(const struct ffa_emad_v1_0 *emad, size_t offset)
+{
+	return (const struct ffa_emad_v1_0 *)((const uint8_t *)emad + offset);
+}
+
 /**
  * spmc_shmem_check_obj - Check that counts in descriptor match overall size.
  * @obj:	  Object containing ffa_memory_region_descriptor.
@@ -771,7 +777,8 @@ spmc_validate_mtd_start(struct ffa_mtd *desc, uint32_t ffa_version,
 static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 				uint32_t ffa_version)
 {
-	const struct ffa_emad_v1_0 *emad;
+	const struct ffa_emad_v1_0 *first_emad;
+	const struct ffa_emad_v1_0 *end_emad;
 	size_t emad_size;
 	uint32_t comp_mrd_offset = 0;
 
@@ -788,10 +795,14 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		panic();
 	}
 
-	emad = spmc_shmem_obj_get_emad(&obj->desc, 0,
-				       ffa_version, &emad_size);
+	first_emad = spmc_shmem_obj_get_emad(&obj->desc, 0,
+					     ffa_version, &emad_size);
+	end_emad = emad_advance(first_emad, obj->desc.emad_count * emad_size);
 
-	for (size_t emad_num = 0; emad_num < obj->desc.emad_count; emad_num++) {
+	/* Loop through the endpoint descriptors, validating each of them. */
+	for (const struct ffa_emad_v1_0 *emad = first_emad;
+	     emad < end_emad;
+	     emad = emad_advance(emad, emad_size)) {
 		size_t size;
 		size_t count;
 		size_t expected_size;
@@ -801,17 +812,6 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		struct ffa_comp_mrd *comp;
 		ffa_endpoint_id16_t ep_id;
 
-		/*
-		 * Validate the calculated emad address resides within the
-		 * descriptor.
-		 */
-		if ((uintptr_t) emad >
-		    ((uintptr_t) &obj->desc + obj->desc_size - emad_size)) {
-			ERROR("BUG: Invalid emad access not detected earlier.\n");
-			panic();
-		}
-
-		emad = (const struct ffa_emad_v1_0 *)((const uint8_t *)emad + emad_size);
 		offset = emad->comp_mrd_offset;
 
 		/*
