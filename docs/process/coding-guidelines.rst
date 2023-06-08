@@ -449,17 +449,20 @@ Generally, prefer code written in C over assembly. Assembly code is less
 portable, harder to understand, maintain and audit security wise. Also, static
 analysis tools generally don't analyze assembly code.
 
-There are, however, legitimate uses of assembly language. These include:
+If specific system-level instructions must be used (like cache maintenance
+operations), please consider using inline assembly. The ``arch_helpers.h`` files
+already define inline functions for a lot of these.
 
-  - Early boot code executed before the C runtime environment is setup.
+There are, however, legitimate uses of assembly language. These are usually
+early boot (eg. cpu reset sequences) and exception handling code before the C
+runtime environment is set up.
 
-  - Exception handling code.
-
-  - Low-level code where the exact sequence of instructions executed on the CPU
-    matters, such as CPU reset sequences.
-
-  - Low-level code where specific system-level instructions must be used, such
-    as cache maintenance operations.
+When writing assembly please note that a wide variety of common instruction
+sequences have helper macros in ``asm_macros.S`` which are preferred over
+writing them directly. This is especially important for debugging purposes as
+debug symbols must manually be included. Please use the ``func_prologue`` and
+``func_epilogue`` macros if you need to use the stack. Also, obeying the
+Procedure Call Standard (PCS) is generally recommended.
 
 Do not use weak functions
 -------------------------
