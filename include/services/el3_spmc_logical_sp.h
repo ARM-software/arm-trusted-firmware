@@ -49,8 +49,7 @@ struct el3_lp_desc {
  * Function & variable prototypes.
  ******************************************************************************/
 int el3_sp_desc_validate(void);
-uintptr_t handle_el3_sp(uint32_t smc_fid, void *cookie, void *handle,
-						unsigned int flags);
+
 IMPORT_SYM(uintptr_t, __EL3_LP_DESCS_START__,	EL3_LP_DESCS_START);
 IMPORT_SYM(uintptr_t, __EL3_LP_DESCS_END__,	EL3_LP_DESCS_END);
 
