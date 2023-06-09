@@ -5,10 +5,10 @@ Measured Boot is the process of cryptographically measuring the code and
 critical data used at boot time, for example using a TPM, so that the
 security state can be attested later.
 
-The current implementation of the driver included in Trusted Firmware-A
-(TF-A) stores the measurements into a `TCG event log`_ in secure
-memory. No other means of recording measurements (such as a discrete TPM) is
-supported right now.
+The current implementation of the driver included in |TF-A| supports several
+backends and each has a different means to store the measurements.
+This section focuses on the `TCG event log`_ backend, which stores measurements
+in secure memory.
 
 The driver also provides mechanisms to pass the Event Log to normal world if
 needed.
