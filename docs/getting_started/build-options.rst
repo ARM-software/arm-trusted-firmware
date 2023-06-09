@@ -531,7 +531,8 @@ Common build options
    through feature specific build flags are supported by the PE or not by
    validating them either at boot phase or at runtime based on the value
    possessed by the feature flag (0 to 2) and report error messages at an early
-   stage.
+   stage. This flag will also enable errata ordering checking for ``DEBUG``
+   builds.
 
    This prevents and benefits us from EL3 runtime exceptions during context save
    and restore routines guarded by these build flags. Henceforth validating them

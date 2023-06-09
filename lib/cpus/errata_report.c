@@ -34,38 +34,51 @@
 #define CVE_FORMAT	"%s: %s: CPU workaround for CVE %u_%u was %s\n"
 #define ERRATUM_FORMAT	"%s: %s: CPU workaround for erratum %u was %s\n"
 
-#define PRINT_STATUS_DISPATCH(status, ...)					\
-	do {									\
-		assert(status <= ERRATA_MISSING);				\
-		switch (status) {						\
-		case ERRATA_NOT_APPLIES:					\
-			VERBOSE(__VA_ARGS__, "not applied");			\
-			break;							\
-		case ERRATA_APPLIES:						\
-			INFO(__VA_ARGS__, "applied");				\
-			break;							\
-		case ERRATA_MISSING:						\
-			WARN(__VA_ARGS__, "missing!");				\
-			break;							\
-		}								\
-	} while (0)
 
+static __unused void print_status(int status, char *cpu_str, uint16_t cve, uint32_t id)
+{
+	if (status == ERRATA_MISSING) {
+		if (cve) {
+			WARN(CVE_FORMAT, BL_STRING, cpu_str, cve, id, "missing!");
+		} else {
+			WARN(ERRATUM_FORMAT, BL_STRING, cpu_str, id, "missing!");
+		}
+	} else if (status == ERRATA_APPLIES) {
+		if (cve) {
+			INFO(CVE_FORMAT, BL_STRING, cpu_str, cve, id, "applied");
+		}  else {
+			INFO(ERRATUM_FORMAT, BL_STRING, cpu_str, id, "applied");
+		}
+	} else {
+		if (cve) {
+			VERBOSE(CVE_FORMAT, BL_STRING, cpu_str, cve, id, "not applied");
+		}  else {
+			VERBOSE(ERRATUM_FORMAT, BL_STRING, cpu_str, id, "not applied");
+		}
+	}
+}
 
 #if !REPORT_ERRATA
 void print_errata_status(void) {}
 #else /* !REPORT_ERRATA */
-/* New errata status message printer */
+/*
+ * New errata status message printer
+ * The order checking function is hidden behind the FEATURE_DETECTION flag to
+ * save space. This functionality is only useful on development and platform
+ * bringup builds, when FEATURE_DETECTION should be used anyway
+ */
 void __unused generic_errata_report(void)
 {
 	struct cpu_ops *cpu_ops = get_cpu_ops_ptr();
 	struct erratum_entry *entry = cpu_ops->errata_list_start;
 	struct erratum_entry *end = cpu_ops->errata_list_end;
 	long rev_var = cpu_get_rev_var();
+#if FEATURE_DETECTION
 	uint32_t last_erratum_id = 0;
 	uint16_t last_cve_yr = 0;
 	bool check_cve = false;
-	/* unused because assert goes away on release */
-	bool failed __unused = false;
+	bool failed = false;
+#endif /* FEATURE_DETECTION */
 
 	for (; entry != end; entry += 1) {
 		uint64_t status = entry->check_func(rev_var);
@@ -81,10 +94,10 @@ void __unused generic_errata_report(void)
 			status = ERRATA_MISSING;
 		}
 
-		if (entry->cve) {
-			PRINT_STATUS_DISPATCH(status, CVE_FORMAT, BL_STRING,
-				cpu_ops->cpu_str, entry->cve, entry->id);
+		print_status(status, cpu_ops->cpu_str, entry->cve, entry->id);
 
+#if FEATURE_DETECTION
+		if (entry->cve) {
 			if (last_cve_yr > entry->cve ||
 			   (last_cve_yr == entry->cve && last_erratum_id >= entry->id)) {
 				ERROR("CVE %u_%u was out of order!\n",
@@ -94,9 +107,6 @@ void __unused generic_errata_report(void)
 			check_cve = true;
 			last_cve_yr = entry->cve;
 		} else {
-			PRINT_STATUS_DISPATCH(status, ERRATUM_FORMAT, BL_STRING,
-				cpu_ops->cpu_str, entry->id);
-
 			if (last_erratum_id >= entry->id || check_cve) {
 				ERROR("Erratum %u was out of order!\n",
 				      entry->id);
@@ -104,13 +114,16 @@ void __unused generic_errata_report(void)
 			}
 		}
 		last_erratum_id = entry->id;
+#endif /* FEATURE_DETECTION */
 	}
 
+#if FEATURE_DETECTION
 	/*
 	 * enforce errata and CVEs are in ascending order and that CVEs are
 	 * after errata
 	 */
 	assert(!failed);
+#endif /* FEATURE_DETECTION */
 }
 
 /*
