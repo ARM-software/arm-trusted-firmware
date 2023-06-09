@@ -36,22 +36,26 @@ static int active_cores = 0;
 #endif
 
 /**
- * pm_context - Structure which contains data for power management
- * @api_version		version of PM API, must match with one on PMU side
- * @payload		payload array used to store received
- *			data from ipi buffer registers
+ * typedef pm_ctx_t - Structure which contains data for power management.
+ * @api_version: version of PM API, must match with one on PMU side.
+ * @payload: payload array used to store received.
+ *           data from ipi buffer registers.
+ *
  */
-static struct {
+typedef struct {
 	uint32_t api_version;
 	uint32_t payload[PAYLOAD_ARG_CNT];
-} pm_ctx;
+} pm_ctx_t;
+
+static pm_ctx_t pm_ctx;
 
 #if ZYNQMP_WDT_RESTART
 /**
- * trigger_wdt_restart() - Trigger warm restart event to APU cores
+ * trigger_wdt_restart() - Trigger warm restart event to APU cores.
  *
  * This function triggers SGI for all active APU CPUs. SGI handler then
  * power down CPU and call system reset.
+ *
  */
 static void trigger_wdt_restart(void)
 {
@@ -83,15 +87,15 @@ static void trigger_wdt_restart(void)
 }
 
 /**
- * ttc_fiq_handler() - TTC Handler for timer event
- * @id         number of the highest priority pending interrupt of the type
- *             that this handler was registered for
- * @flags      security state, bit[0]
- * @handler    pointer to 'cpu_context' structure of the current CPU for the
- *             security state specified in the 'flags' parameter
- * @cookie     unused
+ * ttc_fiq_handler() - TTC Handler for timer event.
+ * @id: number of the highest priority pending interrupt of the type
+ *      that this handler was registered for.
+ * @flags: security state, bit[0].
+ * @handle: pointer to 'cpu_context' structure of the current CPU for the
+ *           security state specified in the 'flags' parameter.
+ * @cookie: unused.
  *
- * Function registered as INTR_TYPE_EL3 interrupt handler
+ * Function registered as INTR_TYPE_EL3 interrupt handler.
  *
  * When WDT event is received in PMU, PMU needs to notify master to do cleanup
  * if required. PMU sets up timer and starts timer to overflow in zero time upon
@@ -101,6 +105,9 @@ static void trigger_wdt_restart(void)
  * In presence of non-secure software layers (EL1/2) sets the interrupt
  * at registered entrance in GIC and informs that PMU responded or demands
  * action.
+ *
+ * Return: 0 on success.
+ *
  */
 static uint64_t ttc_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 				void *cookie)
@@ -121,19 +128,21 @@ static uint64_t ttc_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 }
 
 /**
- * zynqmp_sgi7_irq() - Handler for SGI7 IRQ
- * @id         number of the highest priority pending interrupt of the type
- *             that this handler was registered for
- * @flags      security state, bit[0]
- * @handler    pointer to 'cpu_context' structure of the current CPU for the
- *             security state specified in the 'flags' parameter
- * @cookie     unused
+ * zynqmp_sgi7_irq() - Handler for SGI7 IRQ.
+ * @id: number of the highest priority pending interrupt of the type
+ *      that this handler was registered for.
+ * @flags: security state, bit[0].
+ * @handle: pointer to 'cpu_context' structure of the current CPU for the
+ *           security state specified in the 'flags' parameter.
+ * @cookie: unused.
  *
  * Function registered as INTR_TYPE_EL3 interrupt handler
  *
  * On receiving WDT event from PMU, TF-A generates SGI7 to all running CPUs.
  * In response to SGI7 interrupt, each CPUs do clean up if required and last
  * running CPU calls system restart.
+ *
+ * Return: This function does not return a value and it enters into wfi.
  */
 static uint64_t __unused __dead2 zynqmp_sgi7_irq(uint32_t id, uint32_t flags,
 						 void *handle, void *cookie)
@@ -168,7 +177,9 @@ static uint64_t __unused __dead2 zynqmp_sgi7_irq(uint32_t id, uint32_t flags,
 }
 
 /**
- * pm_wdt_restart_setup() - Setup warm restart interrupts
+ * pm_wdt_restart_setup() - Setup warm restart interrupts.
+ *
+ * Return: Returns status, 0 on success or error+reason.
  *
  * This function sets up handler for SGI7 and TTC interrupts
  * used for warm restart.
@@ -194,17 +205,18 @@ err:
 #endif
 
 /**
- * pm_setup() - PM service setup
+ * pm_setup() - PM service setup.
  *
- * @return	On success, the initialization function must return 0.
- *		Any other return value will cause the framework to ignore
- *		the service
+ * Return: On success, the initialization function must return 0.
+ *         Any other return value will cause the framework to ignore
+ *         the service.
  *
  * Initialization functions for ZynqMP power management for
  * communicaton with PMU.
  *
  * Called from sip_svc_setup initialization function with the
  * rt_svc_init signature.
+ *
  */
 int32_t pm_setup(void)
 {
@@ -249,19 +261,24 @@ int32_t pm_setup(void)
 
 /**
  * pm_smc_handler() - SMC handler for PM-API calls coming from EL1/EL2.
- * @smc_fid - Function Identifier
- * @x1 - x4 - Arguments
- * @cookie  - Unused
- * @handler - Pointer to caller's context structure
- *
- * @return  - Unused
+ * @smc_fid: Function Identifier.
+ * @x1: Arguments.
+ * @x2: Arguments.
+ * @x3: Arguments.
+ * @x4: Arguments.
+ * @cookie: Unused.
+ * @handle: Pointer to caller's context structure.
+ * @flags: SECURE_FLAG or NON_SECURE_FLAG.
  *
  * Determines that smc_fid is valid and supported PM SMC Function ID from the
  * list of pm_api_ids, otherwise completes the request with
- * the unknown SMC Function ID
+ * the unknown SMC Function ID.
  *
  * The SMC calls for PM service are forwarded from SIP Service SMC handler
- * function with rt_svc_handle signature
+ * function with rt_svc_handle signature.
+ *
+ * Return: Unused.
+ *
  */
 uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 			uint64_t x4, const void *cookie, void *handle, uint64_t flags)

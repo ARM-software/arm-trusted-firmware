@@ -59,7 +59,9 @@
  * Enum definitions
  ********************************************************************/
 
-//ioctl id
+/*
+ * ioctl id
+ */
 enum {
 	IOCTL_GET_RPU_OPER_MODE = 0,
 	IOCTL_SET_RPU_OPER_MODE = 1,
@@ -98,16 +100,18 @@ enum {
 };
 
 /**
- * @PM_PLL_PARAM_DIV2:		Enable for divide by 2 function inside the PLL
- * @PM_PLL_PARAM_FBDIV:		Feedback divisor integer portion for the PLL
- * @PM_PLL_PARAM_DATA:		Feedback divisor fractional portion for the PLL
- * @PM_PLL_PARAM_PRE_SRC:	Clock source for PLL input
- * @PM_PLL_PARAM_POST_SRC:	Clock source for PLL Bypass mode
- * @PM_PLL_PARAM_LOCK_DLY:	Lock circuit config settings for lock windowsize
- * @PM_PLL_PARAM_LOCK_CNT:	Lock circuit counter setting
- * @PM_PLL_PARAM_LFHF:		PLL loop filter high frequency capacitor control
- * @PM_PLL_PARAM_CP:		PLL charge pump control
- * @PM_PLL_PARAM_RES:		PLL loop filter resistor control
+ * enum pm_pll_param - enum represents the parameters for a phase-locked loop.
+ * @PM_PLL_PARAM_DIV2: Enable for divide by 2 function inside the PLL.
+ * @PM_PLL_PARAM_FBDIV: Feedback divisor integer portion for the PLL.
+ * @PM_PLL_PARAM_DATA: Feedback divisor fractional portion for the PLL.
+ * @PM_PLL_PARAM_PRE_SRC: Clock source for PLL input.
+ * @PM_PLL_PARAM_POST_SRC: Clock source for PLL Bypass mode.
+ * @PM_PLL_PARAM_LOCK_DLY: Lock circuit config settings for lock windowsize.
+ * @PM_PLL_PARAM_LOCK_CNT: Lock circuit counter setting.
+ * @PM_PLL_PARAM_LFHF: PLL loop filter high frequency capacitor control.
+ * @PM_PLL_PARAM_CP: PLL charge pump control.
+ * @PM_PLL_PARAM_RES: PLL loop filter resistor control.
+ * @PM_PLL_PARAM_MAX: Represents the maximum parameter value for the PLL
  */
 enum pm_pll_param {
 	PM_PLL_PARAM_DIV2,
@@ -205,7 +209,7 @@ enum pm_opchar_type {
 	PM_OPCHAR_TYPE_LATENCY,
 };
 
-/**
+/*
  * Subsystem IDs
  */
 typedef enum {
@@ -223,20 +227,24 @@ typedef enum {
 
 /* TODO: move pm_ret_status from device specific location to common location */
 /**
- * @PM_RET_SUCCESS:		success
- * @PM_RET_ERROR_ARGS:		illegal arguments provided (deprecated)
- * @PM_RET_ERROR_NOTSUPPORTED:	feature not supported  (deprecated)
- * @PM_RET_ERROR_NOFEATURE:	feature is not available
- * @PM_RET_ERROR_INVALID_CRC:	invalid crc in IPI communication
- * @PM_RET_ERROR_NOT_ENABLED:   feature is not enabled
- * @PM_RET_ERROR_INTERNAL:	internal error
- * @PM_RET_ERROR_CONFLICT:	conflict
- * @PM_RET_ERROR_ACCESS:	access rights violation
- * @PM_RET_ERROR_INVALID_NODE:	invalid node
- * @PM_RET_ERROR_DOUBLE_REQ:	duplicate request for same node
- * @PM_RET_ERROR_ABORT_SUSPEND:	suspend procedure has been aborted
- * @PM_RET_ERROR_TIMEOUT:	timeout in communication with PMU
- * @PM_RET_ERROR_NODE_USED:	node is already in use
+ * enum pm_ret_status - enum represents the return status codes for a PM
+ *                      operation.
+ * @PM_RET_SUCCESS: success.
+ * @PM_RET_ERROR_ARGS: illegal arguments provided (deprecated).
+ * @PM_RET_ERROR_NOTSUPPORTED: feature not supported  (deprecated).
+ * @PM_RET_ERROR_NOFEATURE: feature is not available.
+ * @PM_RET_ERROR_INVALID_CRC: invalid crc in IPI communication.
+ * @PM_RET_ERROR_NOT_ENABLED: feature is not enabled.
+ * @PM_RET_ERROR_INTERNAL: internal error.
+ * @PM_RET_ERROR_CONFLICT: conflict.
+ * @PM_RET_ERROR_ACCESS: access rights violation.
+ * @PM_RET_ERROR_INVALID_NODE: invalid node.
+ * @PM_RET_ERROR_DOUBLE_REQ: duplicate request for same node.
+ * @PM_RET_ERROR_ABORT_SUSPEND: suspend procedure has been aborted.
+ * @PM_RET_ERROR_TIMEOUT: timeout in communication with PMU.
+ * @PM_RET_ERROR_NODE_USED: node is already in use.
+ * @PM_RET_ERROR_NO_FEATURE: indicates that the requested feature is not
+ *                           supported.
  */
 enum pm_ret_status {
 	PM_RET_SUCCESS,
@@ -256,7 +264,7 @@ enum pm_ret_status {
 	PM_RET_ERROR_NO_FEATURE = 2008
 };
 
-/**
+/*
  * Qids
  */
 enum pm_query_id {

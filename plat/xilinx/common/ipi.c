@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,10 +46,9 @@ static const struct ipi_config *ipi_table;
 static uint32_t ipi_total;
 
 /**
- * ipi_config_init() - Initialize IPI configuration data
- *
- * @ipi_config_table  - IPI configuration table
- * @ipi_total - Total number of IPI available
+ * ipi_config_table_init() - Initialize IPI configuration data.
+ * @ipi_config_table: IPI configuration table.
+ * @total_ipi: Total number of IPI available.
  *
  */
 void ipi_config_table_init(const struct ipi_config *ipi_config_table,
@@ -58,12 +58,13 @@ void ipi_config_table_init(const struct ipi_config *ipi_config_table,
 	ipi_total = total_ipi;
 }
 
-/* is_ipi_mb_within_range() - verify if IPI mailbox is within range
+/**
+ * is_ipi_mb_within_range() - verify if IPI mailbox is within range.
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
  *
- * @local  - local IPI ID
- * @remote - remote IPI ID
+ * Return: - 1 if within range, 0 if not.
  *
- * return - 1 if within range, 0 if not
  */
 static inline int is_ipi_mb_within_range(uint32_t local, uint32_t remote)
 {
@@ -77,13 +78,13 @@ static inline int is_ipi_mb_within_range(uint32_t local, uint32_t remote)
 }
 
 /**
- * ipi_mb_validate() - validate IPI mailbox access
+ * ipi_mb_validate() - validate IPI mailbox access.
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
+ * @is_secure: indicate if the requester is from secure software.
  *
- * @local  - local IPI ID
- * @remote - remote IPI ID
- * @is_secure - indicate if the requester is from secure software
+ * Return: 0 success, negative value for errors.
  *
- * return - 0 success, negative value for errors
  */
 int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure)
 {
@@ -104,9 +105,8 @@ int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure)
 
 /**
  * ipi_mb_open() - Open IPI mailbox.
- *
- * @local  - local IPI ID
- * @remote - remote IPI ID
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
  *
  */
 void ipi_mb_open(uint32_t local, uint32_t remote)
@@ -119,9 +119,8 @@ void ipi_mb_open(uint32_t local, uint32_t remote)
 
 /**
  * ipi_mb_release() - Open IPI mailbox.
- *
- * @local  - local IPI ID
- * @remote - remote IPI ID
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
  *
  */
 void ipi_mb_release(uint32_t local, uint32_t remote)
@@ -131,13 +130,13 @@ void ipi_mb_release(uint32_t local, uint32_t remote)
 }
 
 /**
- * ipi_mb_enquire_status() - Enquire IPI mailbox status
+ * ipi_mb_enquire_status() - Enquire IPI mailbox status.
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
  *
- * @local  - local IPI ID
- * @remote - remote IPI ID
+ * Return: 0 idle, positive value for pending sending or receiving,
+ *         negative value for errors.
  *
- * return - 0 idle, positive value for pending sending or receiving,
- *          negative value for errors
  */
 int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
 {
@@ -156,11 +155,11 @@ int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
 	return ret;
 }
 
-/* ipi_mb_notify() - Trigger IPI mailbox notification
- *
- * @local - local IPI ID
- * @remote - remote IPI ID
- * @is_blocking - if to trigger the notification in blocking mode or not.
+/**
+ * ipi_mb_notify() - Trigger IPI mailbox notification.
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
+ * @is_blocking: if to trigger the notification in blocking mode or not.
  *
  * It sets the remote bit in the IPI agent trigger register.
  *
@@ -179,10 +178,10 @@ void ipi_mb_notify(uint32_t local, uint32_t remote, uint32_t is_blocking)
 	}
 }
 
-/* ipi_mb_ack() - Ack IPI mailbox notification from the other end
- *
- * @local - local IPI ID
- * @remote - remote IPI ID
+/**
+ * ipi_mb_ack() - Ack IPI mailbox notification from the other end.
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
  *
  * It will clear the remote bit in the isr register.
  *
@@ -193,10 +192,10 @@ void ipi_mb_ack(uint32_t local, uint32_t remote)
 		      IPI_BIT_MASK(remote));
 }
 
-/* ipi_mb_disable_irq() - Disable IPI mailbox notification interrupt
- *
- * @local - local IPI ID
- * @remote - remote IPI ID
+/**
+ * ipi_mb_disable_irq() - Disable IPI mailbox notification interrupt.
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
  *
  * It will mask the remote bit in the idr register.
  *
@@ -207,10 +206,10 @@ void ipi_mb_disable_irq(uint32_t local, uint32_t remote)
 		      IPI_BIT_MASK(remote));
 }
 
-/* ipi_mb_enable_irq() - Enable IPI mailbox notification interrupt
- *
- * @local - local IPI ID
- * @remote - remote IPI ID
+/**
+ * ipi_mb_enable_irq() - Enable IPI mailbox notification interrupt.
+ * @local: local IPI ID.
+ * @remote: remote IPI ID.
  *
  * It will mask the remote bit in the idr register.
  *

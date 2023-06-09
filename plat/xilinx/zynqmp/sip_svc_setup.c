@@ -40,9 +40,13 @@ DEFINE_SVC_UUID2(zynqmp_sip_uuid,
 	0xb9, 0x25, 0x82, 0x2d, 0xe3, 0xa5);
 
 /**
- * sip_svc_setup() - Setup SiP Service
+ * sip_svc_setup() - Setup SiP Service.
  *
- * Invokes PM setup
+ * Return: On success, the initialization function must return 0.
+ *         Any other return value will cause the framework to ignore
+ *         the service.
+ *
+ * Invokes PM setup.
  */
 static int32_t sip_svc_setup(void)
 {
@@ -52,9 +56,19 @@ static int32_t sip_svc_setup(void)
 
 /**
  * sip_svc_smc_handler() - Top-level SiP Service SMC handler
+ * @smc_fid: Function Identifier.
+ * @x1: SMC64 Arguments 1 from kernel.
+ * @x2: SMC64 Arguments 2 from kernel.
+ * @x3: SMC64 Arguments 3 from kernel(upper 32-bits).
+ * @x4: SMC64 Arguments 4 from kernel.
+ * @cookie: Unused
+ * @handle: Pointer to caller's context structure.
+ * @flags: SECURE_FLAG or NON_SECURE_FLAG.
  *
  * Handler for all SiP SMC calls. Handles standard SIP requests
  * and calls PM SMC handler if the call is for a PM-API function.
+ *
+ * Return: Unused.
  */
 static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 			      u_register_t x1,

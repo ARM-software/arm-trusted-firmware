@@ -65,10 +65,10 @@ static const struct ipi_config versal_net_ipi_table[IPI_ID_MAX] = {
 	},
 };
 
-/* versal_net_ipi_config_table_init() - Initialize versal_net IPI configuration data
- *
- * @ipi_config_table  - IPI configuration table
- * @ipi_total - Total number of IPI available
+/* versal_net_ipi_config_table_init() - Initialize versal_net IPI configuration
+ *                                      data.
+ * @ipi_config_table: IPI configuration table.
+ * @ipi_total: Total number of IPI available.
  *
  */
 void versal_net_ipi_config_table_init(void)

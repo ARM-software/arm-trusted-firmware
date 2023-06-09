@@ -28,9 +28,10 @@
 static uint32_t pm_shutdown_scope = XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM;
 
 /**
- * pm_get_shutdown_scope() - Get the currently set shutdown scope
+ * pm_get_shutdown_scope() - Get the currently set shutdown scope.
  *
- * @return	Shutdown scope value
+ * Return: Shutdown scope value.
+ *
  */
 uint32_t pm_get_shutdown_scope(void)
 {
@@ -42,7 +43,8 @@ uint32_t pm_get_shutdown_scope(void)
 /**
  * pm_client_set_wakeup_sources - Set all devices with enabled interrupts as
  *                                wake sources in the XilPM.
- * @node_id:    Node id of processor
+ * @node_id: Node id of processor.
+ *
  */
 void pm_client_set_wakeup_sources(uint32_t node_id)
 {
@@ -91,13 +93,19 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
 }
 
 /**
- * pm_handle_eemi_call() - PM call for processor to send eemi payload
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
- * @x0 to x5	Arguments received per SMC64 standard
- * @result	Payload received from firmware
+ * pm_handle_eemi_call() - PM call for processor to send eemi payload.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
+ * @x0: Arguments received per SMC64 standard.
+ * @x1: Arguments received per SMC64 standard.
+ * @x2: Arguments received per SMC64 standard.
+ * @x3: Arguments received per SMC64 standard.
+ * @x4: Arguments received per SMC64 standard.
+ * @x5: Arguments received per SMC64 standard.
+ * @result: Payload received from firmware.
  *
- * @return	 PM_RET_SUCCESS on success or error code
+ * Return: PM_RET_SUCCESS on success or error code.
+ *
  */
 enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 				       uint32_t x2, uint32_t x3, uint32_t x4,
@@ -119,17 +127,18 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 
 /**
  * pm_self_suspend() - PM call for processor to suspend itself
- * @nid		Node id of the processor or subsystem
- * @latency	Requested maximum wakeup latency (not supported)
- * @state	Requested state
- * @address	Resume address
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ * @nid: Node id of the processor or subsystem.
+ * @latency: Requested maximum wakeup latency (not supported).
+ * @state: Requested state.
+ * @address: Resume address.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * This is a blocking call, it will return only once PMU has responded.
  * On a wakeup, resume address will be automatically set by PMU.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_self_suspend(uint32_t nid,
 				   uint32_t latency,
@@ -160,15 +169,16 @@ enum pm_ret_status pm_self_suspend(uint32_t nid,
 
 /**
  * pm_abort_suspend() - PM call to announce that a prior suspend request
- *			is to be aborted.
- * @reason	Reason for the abort
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ *                      is to be aborted.
+ * @reason: Reason for the abort.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * Calling PU expects the PMU to abort the initiated suspend procedure.
  * This is a non-blocking call without any acknowledge.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason, uint32_t flag)
 {
@@ -188,15 +198,16 @@ enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason, uint32_t flag)
 
 /**
  * pm_req_suspend() - PM call to request for another PU or subsystem to
- *		      be suspended gracefully.
- * @target	Node id of the targeted PU or subsystem
- * @ack		Flag to specify whether acknowledge is requested
- * @latency	Requested wakeup latency (not supported)
- * @state	Requested state (not supported)
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ *                    be suspended gracefully.
+ * @target: Node id of the targeted PU or subsystem.
+ * @ack: Flag to specify whether acknowledge is requested.
+ * @latency: Requested wakeup latency (not supported)
+ * @state: Requested state (not supported).
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_req_suspend(uint32_t target, uint8_t ack,
 				  uint32_t latency, uint32_t state,
@@ -216,21 +227,22 @@ enum pm_ret_status pm_req_suspend(uint32_t target, uint8_t ack,
 
 /**
  * pm_req_wakeup() - PM call for processor to wake up selected processor
- *		     or subsystem
- * @target	Device ID of the processor or subsystem to wake up
- * @set_address	Resume address presence indicator
- *		1 - resume address specified, 0 - otherwise
- * @address	Resume address
- * @ack		Flag to specify whether acknowledge requested
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ *                   or subsystem.
+ * @target: Device ID of the processor or subsystem to wake up.
+ * @set_address: Resume address presence indicator.
+ *               1 - resume address specified, 0 - otherwise.
+ * @address: Resume address.
+ * @ack: Flag to specify whether acknowledge requested.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * This API function is either used to power up another APU core for SMP
  * (by PSCI) or to power up an entirely different PU or subsystem, such
  * as RPU0, RPU, or PL_CORE_xx. Resume address for the target PU will be
  * automatically set by PMC.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
 				 uintptr_t address, uint8_t ack, uint32_t flag)
@@ -245,15 +257,17 @@ enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
 }
 
 /**
- * pm_get_callbackdata() - Read from IPI response buffer
- * @data - array of PAYLOAD_ARG_CNT elements
- * @flag - 0 - Call from secure source
- *	   1 - Call from non-secure source
- * @ack - 0 - Do not ack IPI after reading payload
- *        1 - Ack IPI after reading payload
+ * pm_get_callbackdata() - Read from IPI response buffer.
+ * @data: array of PAYLOAD_ARG_CNT elements.
+ * @count: Number of values to return.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
+ * @ack: 0 - Do not ack IPI after reading payload.
+ *       1 - Ack IPI after reading payload.
  *
  * Read value from ipi buffer response buffer.
- * @return	Returns status, either success or error
+ * Return: Returns status, either success or error.
+ *
  */
 enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag, uint32_t ack)
 {
@@ -273,19 +287,19 @@ enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t fl
 }
 
 /**
- * pm_pll_set_param() - Set PLL parameter
+ * pm_pll_set_param() - Set PLL parameter.
+ * @clk_id: PLL clock ID.
+ * @param: PLL parameter ID.
+ * @value: Value to set for PLL parameter.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * This API is deprecated and maintained here for backward compatibility.
  * New use of this API should be avoided for versal platform.
  * This API and its use cases will be removed for versal platform.
  *
- * @clk_id	PLL clock ID
- * @param	PLL parameter ID
- * @value	Value to set for PLL parameter
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ * Return: Returns status, either success or error+reason.
  *
- * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_pll_set_param(uint32_t clk_id, uint32_t param,
 				    uint32_t value, uint32_t flag)
@@ -300,19 +314,19 @@ enum pm_ret_status pm_pll_set_param(uint32_t clk_id, uint32_t param,
 }
 
 /**
- * pm_pll_get_param() - Get PLL parameter value
+ * pm_pll_get_param() - Get PLL parameter value.
+ * @clk_id: PLL clock ID.
+ * @param: PLL parameter ID.
+ * @value: Buffer to store PLL parameter value.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * This API is deprecated and maintained here for backward compatibility.
  * New use of this API should be avoided for versal platform.
  * This API and its use cases will be removed for versal platform.
  *
- * @clk_id	PLL clock ID
- * @param	PLL parameter ID
- * @value:	Buffer to store PLL parameter value
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ * Return: Returns status, either success or error+reason.
  *
- * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_pll_get_param(uint32_t clk_id, uint32_t param,
 				    uint32_t *value, uint32_t flag)
@@ -327,18 +341,18 @@ enum pm_ret_status pm_pll_get_param(uint32_t clk_id, uint32_t param,
 }
 
 /**
- * pm_pll_set_mode() - Set PLL mode
+ * pm_pll_set_mode() - Set PLL mode.
+ * @clk_id: PLL clock ID.
+ * @mode: PLL mode.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * This API is deprecated and maintained here for backward compatibility.
  * New use of this API should be avoided for versal platform.
  * This API and its use cases will be removed for versal platform.
  *
- * @clk_id	PLL clock ID
- * @mode	PLL mode
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ * Return: Returns status, either success or error+reason.
  *
- * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_pll_set_mode(uint32_t clk_id, uint32_t mode,
 				   uint32_t flag)
@@ -353,18 +367,18 @@ enum pm_ret_status pm_pll_set_mode(uint32_t clk_id, uint32_t mode,
 }
 
 /**
- * pm_pll_get_mode() - Get PLL mode
+ * pm_pll_get_mode() - Get PLL mode.
+ * @clk_id: PLL clock ID.
+ * @mode: Buffer to store PLL mode.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * This API is deprecated and maintained here for backward compatibility.
  * New use of this API should be avoided for versal platform.
  * This API and its use cases will be removed for versal platform.
  *
- * @clk_id	PLL clock ID
- * @mode:	Buffer to store PLL mode
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ * Return: Returns status, either success or error+reason.
  *
- * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_pll_get_mode(uint32_t clk_id, uint32_t *mode,
 				   uint32_t flag)
@@ -380,13 +394,14 @@ enum pm_ret_status pm_pll_get_mode(uint32_t clk_id, uint32_t *mode,
 
 /**
  * pm_force_powerdown() - PM call to request for another PU or subsystem to
- *			  be powered down forcefully
- * @target	Device ID of the PU node to be forced powered down.
- * @ack		Flag to specify whether acknowledge is requested
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ *                        be powered down forcefully.
+ * @target: Device ID of the PU node to be forced powered down.
+ * @ack: Flag to specify whether acknowledge is requested
+ * @flag: 0 - Call from secure source
+ *        1 - Call from non-secure source
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack,
 				      uint32_t flag)
@@ -405,13 +420,14 @@ enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack,
 }
 
 /**
- * pm_system_shutdown() - PM call to request a system shutdown or restart
- * @type	Shutdown or restart? 0=shutdown, 1=restart, 2=setscope
- * @subtype	Scope: 0=APU-subsystem, 1=PS, 2=system
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ * pm_system_shutdown() - PM call to request a system shutdown or restart.
+ * @type: Shutdown or restart? 0=shutdown, 1=restart, 2=setscope.
+ * @subtype: Scope: 0=APU-subsystem, 1=PS, 2=system.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype,
 				      uint32_t flag)
@@ -432,22 +448,22 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype,
 }
 
 /**
- * pm_query_data() -  PM API for querying firmware data
+ * pm_query_data() -  PM API for querying firmware data.
+ * @qid: The type of data to query.
+ * @arg1: Argument 1 to requested query data call.
+ * @arg2: Argument 2 to requested query data call.
+ * @arg3: Argument 3 to requested query data call.
+ * @data: Returned output data.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * This API is deprecated and maintained here for backward compatibility.
  * New use of this API should be avoided for versal platform.
  * This API and its use cases will be removed for versal platform.
  *
- * @qid	The type of data to query
- * @arg1	Argument 1 to requested query data call
- * @arg2	Argument 2 to requested query data call
- * @arg3	Argument 3 to requested query data call
- * @data	Returned output data
- * @flag 0 - Call from secure source
- *	1 - Call from non-secure source
+ * Return: 0 if success else non-zero error code of type
+ *         enum pm_ret_status.
  *
- * @retur - 0 if success else non-zero error code of type
- * enum pm_ret_status
  */
 enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 				 uint32_t arg3, uint32_t *data, uint32_t flag)
@@ -481,25 +497,25 @@ enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 	return ret;
 }
 /**
- * pm_api_ioctl() -  PM IOCTL API for device control and configs
+ * pm_api_ioctl() -  PM IOCTL API for device control and configs.
+ * @device_id: Device ID.
+ * @ioctl_id: ID of the requested IOCTL.
+ * @arg1: Argument 1 to requested IOCTL call.
+ * @arg2: Argument 2 to requested IOCTL call.
+ * @arg3: Argument 3 to requested IOCTL call.
+ * @value: Returned output value.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
  * This API is deprecated and maintained here for backward compatibility.
  * New use of this API should be avoided for versal platform.
  * This API and its use cases will be removed for versal platform.
  *
- * @device_id	Device ID
- * @ioctl_id	ID of the requested IOCTL
- * @arg1	Argument 1 to requested IOCTL call
- * @arg2	Argument 2 to requested IOCTL call
- * @arg3	Argument 3 to requested IOCTL call
- * @value	Returned output value
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
- *
  * This function calls IOCTL to firmware for device control and configuration.
  *
- * @return	Returns status, either 0 on success or non-zero error code
- * of type enum pm_ret_status
+ * Return: Returns status, either 0 on success or non-zero error code
+ *         of type enum pm_ret_status.
+ *
  */
 enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 				uint32_t arg1, uint32_t arg2, uint32_t arg3,
@@ -536,14 +552,16 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 }
 
 /**
- * pm_set_wakeup_source() - PM call to specify the wakeup source while suspended
- * @target	Device id of the targeted PU or subsystem
- * @wkup_node	Device id of the wakeup peripheral
- * @enable	Enable or disable the specified peripheral as wake source
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ * pm_set_wakeup_source() - PM call to specify the wakeup source while
+ *                          suspended.
+ * @target: Device id of the targeted PU or subsystem
+ * @wkup_device: Device id of the wakeup peripheral
+ * @enable: Enable or disable the specified peripheral as wake source
+ * @flag: 0 - Call from secure source
+ *        1 - Call from non-secure source
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 					uint8_t enable, uint32_t flag)
@@ -556,15 +574,16 @@ enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 }
 
 /**
- * pm_feature_check() - Returns the supported API version if supported
- * @api_id	API ID to check
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
- * @ret_payload pointer to array of PAYLOAD_ARG_CNT number of
- *		words Returned supported API version and bitmasks
- *		for IOCTL and QUERY ID
+ * pm_feature_check() - Returns the supported API version if supported.
+ * @api_id: API ID to check.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
+ * @ret_payload: pointer to array of PAYLOAD_ARG_CNT number of
+ *               words Returned supported API version and bitmasks
+ *               for IOCTL and QUERY ID
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 				    uint32_t flag)
@@ -601,17 +620,17 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 }
 
 /**
- * pm_load_pdi() - Load the PDI
+ * pm_load_pdi() - Load the PDI. This function provides support to load
+ *                 PDI from linux.
  *
- * This function provides support to load PDI from linux
+ * @src: Source device of pdi(DDR, OCM, SD etc).
+ * @address_low: lower 32-bit Linear memory space address.
+ * @address_high: higher 32-bit Linear memory space address.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
- * src:        Source device of pdi(DDR, OCM, SD etc)
- * address_low: lower 32-bit Linear memory space address
- * address_high: higher 32-bit Linear memory space address
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ * Return: Returns status, either success or error+reason.
  *
- * @return      Returns status, either success or error+reason
  */
 enum pm_ret_status pm_load_pdi(uint32_t src, uint32_t address_low,
 			       uint32_t address_high, uint32_t flag)
@@ -626,15 +645,16 @@ enum pm_ret_status pm_load_pdi(uint32_t src, uint32_t address_low,
 
 /**
  * pm_register_notifier() - PM call to register a subsystem to be notified
- * 			    about the device event
- * @device_id	Device ID for the Node to which the event is related
- * @event	Event in question
- * @wake	Wake subsystem upon capturing the event if value 1
- * @enable	Enable the registration for value 1, disable for value 0
- * @flag	0 - Call from secure source
- *		1 - Call from non-secure source
+ *                          about the device event.
+ * @device_id: Device ID for the Node to which the event is related.
+ * @event: Event in question.
+ * @wake: Wake subsystem upon capturing the event if value 1.
+ * @enable: Enable the registration for value 1, disable for value 0.
+ * @flag: 0 - Call from secure source.
+ *        1 - Call from non-secure source.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
 					uint32_t wake, uint32_t enable,
@@ -650,11 +670,11 @@ enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
 }
 
 /**
- * pm_get_chipid() - Read silicon ID registers
- * @value:	Buffer for two 32bit words.
+ * pm_get_chipid() - Read silicon ID registers.
+ * @value: Buffer for two 32bit words.
  *
- * @return:	Returns status, either success or error+reason and,
- *		optionally, @value.
+ * Return: Returns status, either success or error+reason and,
+ *         optionally, @value.
  */
 enum pm_ret_status pm_get_chipid(uint32_t *value)
 {

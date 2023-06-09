@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,14 +52,14 @@ static inline void pm_ipi_lock_release(void)
 
 /**
  * pm_ipi_init() - Initialize IPI peripheral for communication with
- *		   remote processor
+ *                 remote processor.
+ * @proc: Pointer to the processor who is initiating request.
  *
- * @proc	Pointer to the processor who is initiating request
- * @return	On success, the initialization function must return 0.
- *		Any other return value will cause the framework to ignore
- *		the service
+ * Return: On success, the initialization function must return 0.
+ *         Any other return value will cause the framework to ignore
+ *         the service.
  *
- * Called from pm_setup initialization function
+ * Called from pm_setup initialization function.
  */
 void pm_ipi_init(const struct pm_proc *proc)
 {
@@ -67,14 +67,16 @@ void pm_ipi_init(const struct pm_proc *proc)
 }
 
 /**
- * pm_ipi_send_common() - Sends IPI request to the remote processor
- * @proc	Pointer to the processor who is initiating request
- * @payload	API id and call arguments to be written in IPI buffer
+ * pm_ipi_send_common() - Sends IPI request to the remote processor.
+ * @proc: Pointer to the processor who is initiating request.
+ * @payload: API id and call arguments to be written in IPI buffer.
+ * @is_blocking: if to trigger the notification in blocking mode or not.
  *
  * Send an IPI request to the power controller. Caller needs to hold
  * the 'pm_secure_lock' lock.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 					     uint32_t payload[PAYLOAD_ARG_CNT],
@@ -103,13 +105,14 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 
 /**
  * pm_ipi_send_non_blocking() - Sends IPI request to the remote processor
- *			        without blocking notification
- * @proc	Pointer to the processor who is initiating request
- * @payload	API id and call arguments to be written in IPI buffer
+ *                              without blocking notification.
+ * @proc: Pointer to the processor who is initiating request.
+ * @payload: API id and call arguments to be written in IPI buffer.
  *
  * Send an IPI request to the power controller.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
 					    uint32_t payload[PAYLOAD_ARG_CNT])
@@ -126,13 +129,14 @@ enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
 }
 
 /**
- * pm_ipi_send() - Sends IPI request to the remote processor
- * @proc	Pointer to the processor who is initiating request
- * @payload	API id and call arguments to be written in IPI buffer
+ * pm_ipi_send() - Sends IPI request to the remote processor.
+ * @proc: Pointer to the processor who is initiating request.
+ * @payload: API id and call arguments to be written in IPI buffer.
  *
  * Send an IPI request to the power controller.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
 			       uint32_t payload[PAYLOAD_ARG_CNT])
@@ -151,12 +155,13 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
 
 /**
  * pm_ipi_buff_read() - Reads IPI response after remote processor has handled
- *			interrupt
- * @proc	Pointer to the processor who is waiting and reading response
- * @value	Used to return value from IPI buffer element (optional)
- * @count	Number of values to return in @value
+ *                      interrupt.
+ * @proc: Pointer to the processor who is waiting and reading response.
+ * @value: Used to return value from IPI buffer element (optional).
+ * @count: Number of values to return in @value.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 					   uint32_t *value, size_t count)
@@ -208,13 +213,15 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 
 /**
  * pm_ipi_buff_read_callb() - Callback function that reads value from
- *			      ipi response buffer
- * @value	Used to return value from IPI buffer element
- * @count	Number of values to return in @value
+ *                            ipi response buffer.
+ * @value: Used to return value from IPI buffer element.
+ * @count: Number of values to return in @value.
  *
  * This callback function fills requested data in @value from ipi response
  * buffer.
- * @return 	Returns status, either success or error
+ *
+ * Return: Returns status, either success or error.
+ *
  */
 enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 {
@@ -258,16 +265,17 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 }
 
 /**
- * pm_ipi_send_sync() - Sends IPI request to the remote processor
- * @proc	Pointer to the processor who is initiating request
- * @payload	API id and call arguments to be written in IPI buffer
- * @value	Used to return value from IPI buffer element (optional)
- * @count	Number of values to return in @value
+ * pm_ipi_send_sync() - Sends IPI request to the remote processor.
+ * @proc: Pointer to the processor who is initiating request.
+ * @payload: API id and call arguments to be written in IPI buffer.
+ * @value: Used to return value from IPI buffer element (optional).
+ * @count: Number of values to return in @value.
  *
  * Send an IPI request to the power controller and wait for it to be handled.
  *
- * @return	Returns status, either success or error+reason and, optionally,
- *		@value
+ * Return: Returns status, either success or error+reason and, optionally,
+ *         @value.
+ *
  */
 enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 				    uint32_t payload[PAYLOAD_ARG_CNT],

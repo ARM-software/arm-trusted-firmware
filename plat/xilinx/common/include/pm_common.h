@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,10 +34,11 @@
 				 TZ_VERSION_MINOR)
 
 /**
- * pm_ipi - struct for capturing IPI-channel specific info
- * @local_ipi_id	Local IPI agent ID
- * @remote_ipi_id	Remote IPI Agent ID
- * @buffer_base	base address for payload buffer
+ * struct pm_ipi - struct for capturing IPI-channel specific info.
+ * @local_ipi_id: Local IPI agent ID.
+ * @remote_ipi_id: Remote IPI Agent ID.
+ * @buffer_base: base address for payload buffer.
+ *
  */
 struct pm_ipi {
 	const uint32_t local_ipi_id;
@@ -45,11 +47,12 @@ struct pm_ipi {
 };
 
 /**
- * pm_proc - struct for capturing processor related info
- * @node_id	node-ID of the processor
- * @pwrdn_mask	cpu-specific mask to be used for power control register
- * @ipi		pointer to IPI channel structure
- *		(in APU all processors share one IPI channel)
+ * struct pm_proc - struct for capturing processor related info.
+ * @node_id: node-ID of the processor.
+ * @pwrdn_mask: cpu-specific mask to be used for power control register.
+ * @ipi: pointer to IPI channel structure.
+ *       (in APU all processors share one IPI channel)
+ *
  */
 struct pm_proc {
 	const uint32_t node_id;

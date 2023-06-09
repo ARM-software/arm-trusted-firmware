@@ -68,7 +68,7 @@ enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
 					uint32_t flag);
 enum pm_ret_status pm_get_chipid(uint32_t *value);
 
-/**
+/*
  * Assigning of argument values into array elements.
  */
 #define PM_PACK_PAYLOAD1(pl, mid, flag, arg0) {	\

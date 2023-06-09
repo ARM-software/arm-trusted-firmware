@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,9 +50,10 @@ static int32_t versal_net_pwr_domain_on(u_register_t mpidr)
 }
 
 /**
- * versal_net_pwr_domain_off() - This function performs actions to turn off core
+ * versal_net_pwr_domain_off() - This function performs actions to turn off
+ *                               core.
+ * @target_state: Targeted state.
  *
- * @param target_state	Targeted state
  */
 static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 {
@@ -80,8 +81,10 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 }
 
 /**
- * versal_net_system_reset() - This function sends the reset request
- * to firmware for the system to reset.  This function does not return.
+ * versal_net_system_reset() - This function sends the reset request to firmware
+ *                             for the system to reset. This function does not
+ *                             return.
+ *
  */
 static void __dead2 versal_net_system_reset(void)
 {
@@ -96,9 +99,9 @@ static void __dead2 versal_net_system_reset(void)
 
 /**
  * versal_net_pwr_domain_suspend() - This function sends request to PMC to suspend
- * core.
+ *                                   core.
+ * @target_state: Targeted state.
  *
- * @param target_state	Targeted state
  */
 static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
@@ -140,9 +143,9 @@ static void versal_net_pwr_domain_on_finish(const psci_power_state_t *target_sta
 
 /**
  * versal_net_pwr_domain_suspend_finish() - This function performs actions to finish
- * suspend procedure.
+ *                                          suspend procedure.
+ * @target_state: Targeted state.
  *
- * @param target_state	Targeted state
  */
 static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
@@ -168,7 +171,8 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 
 /**
  * versal_net_system_off() - This function sends the system off request
- * to firmware.  This function does not return.
+ *                           to firmware. This function does not return.
+ *
  */
 static void __dead2 versal_net_system_off(void)
 {
@@ -183,12 +187,12 @@ static void __dead2 versal_net_system_off(void)
 
 /**
  * versal_net_validate_power_state() - This function ensures that the power state
- * parameter in request is valid.
+ *                                     parameter in request is valid.
+ * @power_state: Power state of core.
+ * @req_state: Requested state.
  *
- * @param power_state		Power state of core
- * @param req_state		Requested state
+ * Return: Returns status, either PSCI_E_SUCCESS or reason.
  *
- * @return Returns status, either PSCI_E_SUCCESS or reason
  */
 static int32_t versal_net_validate_power_state(unsigned int power_state,
 					       psci_power_state_t *req_state)
@@ -215,9 +219,10 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 }
 
 /**
- * versal_net_get_sys_suspend_power_state() - Get power state for system suspend
+ * versal_net_get_sys_suspend_power_state() - Get power state for system
+ *                                            suspend.
+ * @req_state: Requested state.
  *
- * @param req_state	Requested state
  */
 static void versal_net_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {

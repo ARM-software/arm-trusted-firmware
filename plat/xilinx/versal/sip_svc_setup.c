@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,7 +41,9 @@ DEFINE_SVC_UUID2(versal_sip_uuid,
 /**
  * sip_svc_setup() - Setup SiP Service
  *
- * Invokes PM setup
+ * Return: 0 on success,negative error code on failure.
+ *
+ * Invokes PM setup.
  */
 static int32_t sip_svc_setup(void)
 {
@@ -51,10 +54,20 @@ static int32_t sip_svc_setup(void)
 }
 
 /**
- * sip_svc_smc_handler() - Top-level SiP Service SMC handler
+ * sip_svc_smc_handler() - Top-level SiP Service SMC handler.
+ * @smc_fid: Function Identifier.
+ * @x1: SMC64 Arguments 1 from kernel.
+ * @x2: SMC64 Arguments 2 from kernel.
+ * @x3: SMC64 Arguments 3 from kernel(upper 32-bits).
+ * @x4: SMC64 Arguments 4 from kernel.
+ * @cookie: Unused
+ * @handle: Pointer to caller's context structure.
+ * @flags: SECURE_FLAG or NON_SECURE_FLAG.
  *
  * Handler for all SiP SMC calls. Handles standard SIP requests
  * and calls PM SMC handler if the call is for a PM-API function.
+ *
+ * Return: Unused.
  */
 uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 			     u_register_t x1,

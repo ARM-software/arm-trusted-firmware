@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,21 +47,25 @@
 #define UNSIGNED32_MASK			0xFFFFFFFFU /* 32bit mask */
 
 /**
- * ipi_smc_handler() - SMC handler for IPI SMC calls
+ * ipi_smc_handler() - SMC handler for IPI SMC calls.
+ * @smc_fid: Function identifier.
+ * @x1: Arguments.
+ * @x2: Arguments.
+ * @x3: Arguments.
+ * @x4: Arguments.
+ * @cookie: Unused.
+ * @handle: Pointer to caller's context structure.
+ * @flags: SECURE_FLAG or NON_SECURE_FLAG.
  *
- * @smc_fid - Function identifier
- * @x1 - x4 - Arguments
- * @cookie  - Unused
- * @handler - Pointer to caller's context structure
- *
- * @return  - Unused
+ * Return: Unused.
  *
  * Determines that smc_fid is valid and supported PM SMC Function ID from the
  * list of pm_api_ids, otherwise completes the request with
- * the unknown SMC Function ID
+ * the unknown SMC Function ID.
  *
  * The SMC calls for PM service are forwarded from SIP Service SMC handler
- * function with rt_svc_handle signature
+ * function with rt_svc_handle signature.
+ *
  */
 uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 			 uint64_t x3, uint64_t x4, const void *cookie,
