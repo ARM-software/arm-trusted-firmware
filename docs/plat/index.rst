@@ -27,6 +27,7 @@ Platform Ports
    warp7
    imx8
    imx8m
+   imx9
    nxp/index
    poplar
    qemu
