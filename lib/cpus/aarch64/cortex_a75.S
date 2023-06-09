@@ -16,17 +16,13 @@
 #endif
 
 workaround_reset_start cortex_a75, ERRATUM(764081), ERRATA_A75_764081
-	mrs	x1, sctlr_el3
-	orr	x1, x1 ,#SCTLR_IESB_BIT
-	msr	sctlr_el3, x1
+	sysreg_bit_set sctlr_el3, SCTLR_IESB_BIT
 workaround_reset_end cortex_a75, ERRATUM(764081)
 
 check_erratum_ls cortex_a75, ERRATUM(764081), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a75, ERRATUM(790748), ERRATA_A75_790748
-	mrs	x1, CORTEX_A75_CPUACTLR_EL1
-	orr	x1, x1 ,#(1 << 13)
-	msr	CORTEX_A75_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A75_CPUACTLR_EL1, (1 << 13)
 workaround_reset_end cortex_a75, ERRATUM(790748)
 
 check_erratum_ls cortex_a75, ERRATUM(790748), CPU_REV(0, 0)
@@ -51,8 +47,7 @@ add_erratum_entry cortex_a75, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
 
 workaround_reset_start cortex_a75, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #if IMAGE_BL31
-	adr	x0, wa_cve_2017_5715_bpiall_vbar
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_2017_5715_bpiall_vbar
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a75, CVE(2017, 5715)
 
@@ -70,9 +65,7 @@ check_erratum_custom_start cortex_a75, CVE(2017, 5715)
 check_erratum_custom_end cortex_a75, CVE(2017, 5715)
 
 workaround_reset_start cortex_a75, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
-	mrs	x0, CORTEX_A75_CPUACTLR_EL1
-	orr	x0, x0, #CORTEX_A75_CPUACTLR_EL1_DISABLE_LOAD_PASS_STORE
-	msr	CORTEX_A75_CPUACTLR_EL1, x0
+	sysreg_bit_set CORTEX_A75_CPUACTLR_EL1, CORTEX_A75_CPUACTLR_EL1_DISABLE_LOAD_PASS_STORE
 workaround_reset_end cortex_a75, CVE(2018, 3639)
 
 check_erratum_chosen cortex_a75, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
@@ -114,15 +107,11 @@ check_erratum_custom_end cortex_a75, CVE(2022, 23960)
 cpu_reset_func_start cortex_a75
 #if ENABLE_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
-	mrs	x0, actlr_el3
-	orr	x0, x0, #CORTEX_A75_ACTLR_AMEN_BIT
-	msr	actlr_el3, x0
+	sysreg_bit_set actlr_el3, CORTEX_A75_ACTLR_AMEN_BIT
 	isb
 
 	/* Make sure accesses from EL0/EL1 are not trapped to EL2 */
-	mrs	x0, actlr_el2
-	orr	x0, x0, #CORTEX_A75_ACTLR_AMEN_BIT
-	msr	actlr_el2, x0
+	sysreg_bit_set actlr_el2, CORTEX_A75_ACTLR_AMEN_BIT
 	isb
 
 	/* Enable group0 counters */
@@ -151,9 +140,8 @@ func cortex_a75_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------
 	 */
-	mrs	x0, CORTEX_A75_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A75_CORE_PWRDN_EN_MASK
-	msr	CORTEX_A75_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A75_CPUPWRCTLR_EL1, \
+		CORTEX_A75_CORE_PWRDN_EN_MASK
 	isb
 	ret
 endfunc cortex_a75_core_pwr_dwn
