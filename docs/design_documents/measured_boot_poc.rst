@@ -10,6 +10,8 @@ backends and each has a different means to store the measurements.
 This section focuses on the `TCG event log`_ backend, which stores measurements
 in secure memory.
 
+See details of :ref:`Measured Boot Design`.
+
 The driver also provides mechanisms to pass the Event Log to normal world if
 needed.
 
