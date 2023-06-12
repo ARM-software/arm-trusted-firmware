@@ -619,6 +619,13 @@ NXP i.MX8M platform port
 :|F|: docs/plat/imx8m.rst
 :|F|: plat/imx/imx8m/
 
+NXP i.MX9 platform port
+^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Jacky Bai <ping.bai@nxp.com>
+:|G|: `JackyBai`_
+:|F|: docs/plat/imx9.rst
+:|F|: plat/imx/imx93/
+
 NXP QorIQ Layerscape common code for platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Pankaj Gupta <pankaj.gupta@nxp.com>
