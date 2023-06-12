@@ -41,6 +41,7 @@ SECTIONS {
         *bl1_entrypoint.o(.text*)
         *(SORT_BY_ALIGNMENT(.text*))
         *(.vectors)
+        __TEXT_END_UNALIGNED__ = .;
 
         . = ALIGN(PAGE_SIZE);
 
@@ -72,6 +73,7 @@ SECTIONS {
          * aligned and lld does not align the LMA to the alignment specified
          * on the .data section.
          */
+        __RODATA_END_UNALIGNED__ = .;
         __RODATA_END__ = .;
 
         . = ALIGN(16);
