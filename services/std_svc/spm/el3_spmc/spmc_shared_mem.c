@@ -743,10 +743,12 @@ spmc_validate_mtd_start(struct ffa_mtd *desc, uint32_t ffa_version,
 	/*
 	 * Overflow is impossible: the arithmetic happens in at least 64-bit
 	 * precision, but all of the operands are bounded by UINT32_MAX, and
-	 * ((2^32 - 1)^2 + (2^32 - 1) + (2^32 - 1)) = ((2^32 - 1) * (2^32 + 1))
+	 *   ((2^32 - 1) * (2^32 - 1) + (2^32 - 1) + (2^32 - 1))
+	 * = ((2^32 - 1) * ((2^32 - 1) + 1 + 1))
+	 * = ((2^32 - 1) * (2^32 + 1))
 	 * = (2^64 - 1).
 	 */
-	CASSERT(sizeof(desc->emad_count == 4), assert_emad_count_max_too_large);
+	CASSERT(sizeof(desc->emad_count) == 4, assert_emad_count_max_too_large);
 	emad_end = (desc->emad_count * (unsigned long long)emad_size) +
 		   (unsigned long long)sizeof(struct ffa_comp_mrd) +
 		   (unsigned long long)emad_offset;
