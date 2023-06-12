@@ -39,4 +39,9 @@ int dpe_measure_and_record(struct dpe_metadata *metadata,
 int dpe_set_signer_id(struct dpe_metadata *metadata,
 		      const void *pk_oid, const void *pk_ptr, size_t pk_len);
 
+/* Child components inherit their first valid context handle from their parents.
+ * How to share context handle is platform specific.
+ */
+void plat_dpe_share_context_handle(int *ctx_handle);
+
 #endif /* DICE_PROT_ENV_H */

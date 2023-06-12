@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include <common/debug.h>
 #include <drivers/arm/rss_comms.h>
 #include <drivers/measured_boot/metadata.h>
 #include <drivers/measured_boot/rss/dice_prot_env.h>
@@ -43,6 +44,13 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.id = DPE_INVALID_ID }
 };
 
+/* Context handle is meant to be used by BL2. Sharing it via TB_FW_CONFIG */
+static int new_ctx_handle;
+
+void plat_dpe_share_context_handle(int *ctx_handle)
+{
+	new_ctx_handle = *ctx_handle;
+}
 
 void bl1_plat_mboot_init(void)
 {
@@ -55,5 +63,17 @@ void bl1_plat_mboot_init(void)
 
 void bl1_plat_mboot_finish(void)
 {
-	/* Nothing to do. */
+	int rc;
+
+	VERBOSE("Share DPE context handle with BL2: 0x%x\n", new_ctx_handle);
+	rc = arm_set_tb_fw_info(&new_ctx_handle);
+	if (rc != 0) {
+		ERROR("Unable to set DPE context handle in TB_FW_CONFIG\n");
+		/*
+		 * It is a fatal error because on TC platform, BL2 software
+		 * assumes that a valid DPE context_handle is passed through
+		 * the DTB object by BL1.
+		 */
+		plat_panic_handler();
+	}
 }
