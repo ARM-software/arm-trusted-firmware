@@ -298,6 +298,8 @@ void psci_restore_req_local_pwr_states(unsigned int cpu_idx,
 #endif
 void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
 				      psci_power_state_t *target_state);
+void psci_set_target_local_pwr_states(unsigned int end_pwrlvl,
+				      const psci_power_state_t *target_state);
 int psci_validate_entry_point(entry_point_info_t *ep,
 			uintptr_t entrypoint, u_register_t context_id);
 void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,

@@ -319,13 +319,13 @@ typedef struct plat_psci_ops {
 	int (*pwr_domain_on)(u_register_t mpidr);
 	void (*pwr_domain_off)(const psci_power_state_t *target_state);
 	int (*pwr_domain_off_early)(const psci_power_state_t *target_state);
+#if PSCI_OS_INIT_MODE
+	int (*pwr_domain_validate_suspend)(
+				const psci_power_state_t *target_state);
+#endif
 	void (*pwr_domain_suspend_pwrdown_early)(
 				const psci_power_state_t *target_state);
-#if PSCI_OS_INIT_MODE
-	int (*pwr_domain_suspend)(const psci_power_state_t *target_state);
-#else
 	void (*pwr_domain_suspend)(const psci_power_state_t *target_state);
-#endif
 	void (*pwr_domain_on_finish)(const psci_power_state_t *target_state);
 	void (*pwr_domain_on_finish_late)(
 				const psci_power_state_t *target_state);

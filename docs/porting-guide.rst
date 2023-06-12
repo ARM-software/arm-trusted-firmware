@@ -2818,6 +2818,17 @@ power down state where as it could be either power down, retention or run state
 for the higher power domain levels depending on the result of state
 coordination. The generic code expects the handler to succeed.
 
+plat_psci_ops.pwr_domain_validate_suspend() [optional]
+......................................................
+
+This is an optional function that is only compiled into the build if the build
+option ``PSCI_OS_INIT_MODE`` is enabled.
+
+If implemented, this function allows the platform to perform platform specific
+validations based on hardware states. The generic code expects this function to
+return PSCI_E_SUCCESS on success, or either PSCI_E_DENIED or
+PSCI_E_INVALID_PARAMS as appropriate for any invalid requests.
+
 plat_psci_ops.pwr_domain_suspend_pwrdown_early() [optional]
 ...........................................................
 
@@ -2875,10 +2886,6 @@ system. The context of the Distributor can be large and may require it to be
 allocated in a special area if it cannot fit in the platform's global static
 data, for example in DRAM. The Distributor can then be powered down using an
 implementation-defined sequence.
-
-If the build option ``PSCI_OS_INIT_MODE`` is enabled, the generic code expects
-the platform to return PSCI_E_SUCCESS on success, or either PSCI_E_DENIED or
-PSCI_E_INVALID_PARAMS as appropriate for any invalid requests.
 
 plat_psci_ops.pwr_domain_pwr_down_wfi()
 .......................................
