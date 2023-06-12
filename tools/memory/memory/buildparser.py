@@ -8,14 +8,16 @@ import re
 from pathlib import Path
 
 from memory.elfparser import TfaElfParser
+from memory.mapparser import TfaMapParser
 
 
 class TfaBuildParser:
     """A class for performing analysis on the memory layout of a TF-A build."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, map_backend=False):
         self._modules = dict()
         self._path = path
+        self.map_backend = map_backend
         self._parse_modules()
 
     def __getitem__(self, module: str):
@@ -23,15 +25,24 @@ class TfaBuildParser:
         return self._modules[module]
 
     def _parse_modules(self):
-        """Parse ELF files in the build path."""
-        for elf_file in self._path.glob("**/*.elf"):
-            module_name = elf_file.name.split("/")[-1].split(".")[0]
-            with open(elf_file, "rb") as file:
-                self._modules[module_name] = TfaElfParser(file)
+        """Parse the build files using the selected backend."""
+        backend = TfaElfParser
+        files = list(self._path.glob("**/*.elf"))
+        io_perms = "rb"
+
+        if self.map_backend or len(files) == 0:
+            backend = TfaMapParser
+            files = self._path.glob("**/*.map")
+            io_perms = "r"
+
+        for file in files:
+            module_name = file.name.split("/")[-1].split(".")[0]
+            with open(file, io_perms) as f:
+                self._modules[module_name] = backend(f)
 
         if not len(self._modules):
             raise FileNotFoundError(
-                f"failed to find ELF files in path {self._path}!"
+                f"failed to find files to analyse in path {self._path}!"
             )
 
     @property
@@ -54,7 +65,7 @@ class TfaBuildParser:
         """Returns map of memory usage per memory type for each module."""
         mem_map = {}
         for k, v in self._modules.items():
-            mod_mem_map = v.get_elf_memory_layout()
+            mod_mem_map = v.get_memory_layout()
             if len(mod_mem_map):
                 mem_map[k] = mod_mem_map
         return mem_map

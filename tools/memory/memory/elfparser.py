@@ -131,7 +131,7 @@ class TfaElfParser:
         """Get a dictionary of segments and their section mappings."""
         return [asdict(v) for k, v in self._segments.items()]
 
-    def get_elf_memory_layout(self):
+    def get_memory_layout(self):
         """Get the total memory consumed by this module from the memory
         configuration.
             {"rom": {"start": 0x0, "end": 0xFF, "length": ... }

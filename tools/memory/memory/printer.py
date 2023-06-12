@@ -95,13 +95,16 @@ class TfaPrettyPrinter:
         self,
         symbols: list,
         modules: list,
-        start: int = 11,
+        start: int = 12,
     ):
         assert len(symbols), "Empty symbol list!"
         modules = sorted(modules)
         col_width = int((self.term_size - start) / len(modules))
+        address_fixed_width = 11
 
-        num_fmt = "0=#010x" if not self.as_decimal else ">10"
+        num_fmt = (
+            f"0=#0{address_fixed_width}x" if not self.as_decimal else ">10"
+        )
 
         _symbol_map = [
             " " * start
