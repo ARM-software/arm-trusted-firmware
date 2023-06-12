@@ -1,0 +1,13 @@
+/*
+ * Copyright (c) 2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+/ {
+#if DICE_PROTECTION_ENVIRONMENT
+	#include "dice_prot_env.dtsi"
+#endif
+};

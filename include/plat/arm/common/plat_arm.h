@@ -290,6 +290,12 @@ void arm_bl1_set_mbedtls_heap(void);
 int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 
 #if MEASURED_BOOT
+#if DICE_PROTECTION_ENVIRONMENT
+int arm_set_nt_fw_info(int *ctx_handle);
+int arm_set_tb_fw_info(int *ctx_handle);
+int arm_get_tb_fw_info(int *ctx_handle);
+#else
+/* Specific to event log backend */
 int arm_set_tos_fw_info(uintptr_t log_addr, size_t log_size);
 int arm_set_nt_fw_info(
 /*
@@ -304,6 +310,7 @@ int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size,
 		       size_t log_max_size);
 int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size,
 		       size_t *log_max_size);
+#endif /* DICE_PROTECTION_ENVIRONMENT */
 #endif /* MEASURED_BOOT */
 
 /*

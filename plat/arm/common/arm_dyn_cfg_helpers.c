@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -124,6 +124,150 @@ int arm_set_dtb_mbedtls_heap_info(void *dtb, void *heap_addr, size_t heap_size)
 }
 
 #if MEASURED_BOOT
+#if DICE_PROTECTION_ENVIRONMENT
+
+#include <common/desc_image_load.h>
+
+#define DTB_PROP_DPE_CTX_HANDLE		"dpe_ctx_handle"
+
+static int arm_set_dpe_context_handle(uintptr_t config_base,
+				      int *ctx_handle)
+{
+	/* As libfdt uses void *, we can't avoid this cast */
+	void *dtb = (void *)config_base;
+	const char *compatible = "arm,dpe_ctx_handle";
+	int err, node;
+
+	/*
+	 * Verify that the DTB is valid, before attempting to write to it,
+	 * and get the DTB root node.
+	 */
+
+	/* Check if the pointer to DT is correct */
+	err = fdt_check_header(dtb);
+	if (err < 0) {
+		WARN("Invalid DTB file passed\n");
+		return err;
+	}
+
+	/* Assert the node offset point to compatible property */
+	node = fdt_node_offset_by_compatible(dtb, -1, compatible);
+	if (node < 0) {
+		WARN("The compatible property '%s' not%s", compatible,
+			" found in the config\n");
+		return node;
+	}
+
+	VERBOSE("Dyn cfg: '%s'%s", compatible, " found in the config\n");
+
+	err = fdtw_write_inplace_cells(dtb, node,
+		DTB_PROP_DPE_CTX_HANDLE, 1, ctx_handle);
+	if (err < 0) {
+		ERROR("%sDTB property '%s'\n",
+			"Unable to write ", DTB_PROP_DPE_CTX_HANDLE);
+	} else {
+		/*
+		 * Ensure that the info written to the DTB is visible
+		 * to other images.
+		 */
+		flush_dcache_range(config_base, fdt_totalsize(dtb));
+	}
+
+	return err;
+}
+
+/*
+ * This function writes the DPE context handle value to the NT_FW_CONFIG DTB.
+ *
+ * This function is supposed to be called only by BL2.
+ *
+ * Returns:
+ *	0 = success
+ *    < 0 = error
+ */
+int arm_set_nt_fw_info(int *ctx_handle)
+{
+	uintptr_t config_base;
+	const bl_mem_params_node_t *cfg_mem_params;
+
+	/* Get the config load address and size from NT_FW_CONFIG */
+	cfg_mem_params = get_bl_mem_params_node(NT_FW_CONFIG_ID);
+	assert(cfg_mem_params != NULL);
+
+	config_base = cfg_mem_params->image_info.image_base;
+
+	/* Write the context handle value in the DTB */
+	return arm_set_dpe_context_handle(config_base, ctx_handle);
+}
+
+/*
+ * This function writes the DPE context handle value to the TB_FW_CONFIG DTB.
+ *
+ * This function is supposed to be called only by BL1.
+ *
+ * Returns:
+ *	0 = success
+ *    < 0 = error
+ */
+int arm_set_tb_fw_info(int *ctx_handle)
+{
+	/*
+	 * Read tb_fw_config device tree for Event Log properties
+	 * and write the Event Log address and its size in the DTB
+	 */
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
+	uintptr_t tb_fw_cfg_dtb;
+
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	assert(tb_fw_config_info != NULL);
+
+	tb_fw_cfg_dtb = tb_fw_config_info->config_addr;
+
+	/* Write the context handle value in the DTB */
+	return arm_set_dpe_context_handle(tb_fw_cfg_dtb, ctx_handle);
+}
+
+/*
+ * This function reads the initial DPE context handle from TB_FW_CONFIG DTB.
+ *
+ * This function is supposed to be called only by BL2.
+ *
+ * Returns:
+ *	0 = success
+ *    < 0 = error
+ */
+
+int arm_get_tb_fw_info(int *ctx_handle)
+{
+	/* As libfdt uses void *, we can't avoid this cast */
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
+	int node, rc;
+
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	assert(tb_fw_config_info != NULL);
+
+	void *dtb = (void *)tb_fw_config_info->config_addr;
+	const char *compatible = "arm,dpe_ctx_handle";
+
+	/* Assert the node offset point to compatible property */
+	node = fdt_node_offset_by_compatible(dtb, -1, compatible);
+	if (node < 0) {
+		WARN("The compatible property '%s'%s", compatible,
+		     " not specified in TB_FW config.\n");
+		return node;
+	}
+
+	VERBOSE("Dyn cfg: '%s'%s", compatible, " found in the config\n");
+
+	rc = fdt_read_uint32(dtb, node, DTB_PROP_DPE_CTX_HANDLE, (uint32_t *)ctx_handle);
+	if (rc != 0) {
+		ERROR("%s%s", DTB_PROP_DPE_CTX_HANDLE,
+		      " not specified in TB_FW config.\n");
+	}
+
+	return rc;
+}
+#else
 /*
  * Write the Event Log address and its size in the DTB.
  *
@@ -393,4 +537,5 @@ int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size,
 
 	return rc;
 }
+#endif /* DICE_PROTECTION_ENVIRONMENT */
 #endif /* MEASURED_BOOT */

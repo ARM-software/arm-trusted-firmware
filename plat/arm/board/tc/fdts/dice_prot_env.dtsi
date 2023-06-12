@@ -1,0 +1,11 @@
+/*
+ * Copyright (c) 2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/* DICE Protection Environment Client Config */
+dice_protection_environment: context_handle {
+	compatible = "arm,dpe_ctx_handle";
+	dpe_ctx_handle = <0x0>;
+};
