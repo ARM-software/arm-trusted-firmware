@@ -248,6 +248,7 @@ const fdt32_t *fdt_rcc_read_prop(const char *prop_name, int *lenp)
 	return cuint;
 }
 
+#if defined(IMAGE_BL32)
 /*
  * Get the secure state for rcc node in device tree.
  * @return: true if rcc is configured for secure world access, false if not.
@@ -266,6 +267,7 @@ bool fdt_get_rcc_secure_state(void)
 
 	return true;
 }
+#endif
 
 /*
  * Get the clock ID of the given node in device tree.
