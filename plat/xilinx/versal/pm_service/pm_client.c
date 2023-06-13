@@ -121,6 +121,48 @@ enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
 	case 57:
 		dev_idx = XPM_NODEIDX_DEV_GEM_0;
 		break;
+	case 58:
+	case 59:
+		dev_idx = XPM_NODEIDX_DEV_GEM_1;
+		break;
+	case 60:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_0;
+		break;
+	case 61:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_1;
+		break;
+	case 62:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_2;
+		break;
+	case 63:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_3;
+		break;
+	case 64:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_4;
+		break;
+	case 65:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_5;
+		break;
+	case 66:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_6;
+		break;
+	case 67:
+		dev_idx = XPM_NODEIDX_DEV_ADMA_7;
+		break;
+	case 74:
+		dev_idx = XPM_NODEIDX_DEV_USB_0;
+		break;
+	case 126:
+	case 127:
+		dev_idx = XPM_NODEIDX_DEV_SDIO_0;
+		break;
+	case 128:
+	case 129:
+		dev_idx = XPM_NODEIDX_DEV_SDIO_1;
+		break;
+	case 142:
+		dev_idx = XPM_NODEIDX_DEV_RTC;
+		break;
 	default:
 		dev_idx = XPM_NODEIDX_DEV_MIN;
 		break;
