@@ -319,6 +319,54 @@ void stm32mp_print_boardinfo(void)
 	}
 }
 
+/* Return true when SoC provides a single Cortex-A35 core, and false otherwise */
+bool stm32mp_is_single_core(void)
+{
+	bool single_core = false;
+
+	switch (get_part_number()) {
+	case STM32MP251A_PART_NB:
+	case STM32MP251C_PART_NB:
+	case STM32MP251D_PART_NB:
+	case STM32MP251F_PART_NB:
+		single_core = true;
+		break;
+	default:
+		break;
+	}
+
+	return single_core;
+}
+
+/* Return true when device is in closed state */
+uint32_t stm32mp_check_closed_device(void)
+{
+	return STM32MP_CHIP_SEC_OPEN;
+}
+
+/* Return true when device supports secure boot */
+bool stm32mp_is_auth_supported(void)
+{
+	bool supported = false;
+
+	switch (get_part_number()) {
+	case STM32MP251C_PART_NB:
+	case STM32MP251F_PART_NB:
+	case STM32MP253C_PART_NB:
+	case STM32MP253F_PART_NB:
+	case STM32MP255C_PART_NB:
+	case STM32MP255F_PART_NB:
+	case STM32MP257C_PART_NB:
+	case STM32MP257F_PART_NB:
+		supported = true;
+		break;
+	default:
+		break;
+	}
+
+	return supported;
+}
+
 bool stm32mp_is_wakeup_from_standby(void)
 {
 	/* TODO add source code to determine if platform is waking up from standby mode */
