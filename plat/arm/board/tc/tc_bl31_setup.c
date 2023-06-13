@@ -59,6 +59,8 @@ static __dead2 void tc_run_platform_tests(void)
 
 #ifdef PLATFORM_TEST_NV_COUNTERS
 	tests_failed = nv_counter_test();
+#elif PLATFORM_TEST_ROTPK
+	tests_failed = rotpk_test();
 #elif PLATFORM_TEST_TFM_TESTSUITE
 	tests_failed = run_platform_tests();
 #endif
