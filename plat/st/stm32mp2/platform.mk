@@ -98,5 +98,21 @@ endif
 
 BL2_SOURCES			+=	drivers/st/ddr/stm32mp2_ddr_helpers.c
 
+# BL31 sources
+BL31_SOURCES			+=	${FDT_WRAPPERS_SOURCES}
+
+BL31_SOURCES			+=	plat/st/stm32mp2/bl31_plat_setup.c			\
+					plat/st/stm32mp2/stm32mp2_pm.c				\
+					plat/st/stm32mp2/stm32mp2_topology.c
+# Generic GIC v2
+include drivers/arm/gic/v2/gicv2.mk
+
+BL31_SOURCES			+=	${GICV2_SOURCES}					\
+					plat/common/plat_gicv2.c				\
+					plat/st/common/stm32mp_gic.c
+
+# Generic PSCI
+BL31_SOURCES			+=	plat/common/plat_psci_common.c
+
 # Compilation rules
 include plat/st/common/common_rules.mk

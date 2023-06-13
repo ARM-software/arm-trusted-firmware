@@ -34,6 +34,23 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
+
+	/* Fill BL31 related information */
+	{
+		.image_id = BL31_IMAGE_ID,
+
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+				      VERSION_2, entry_point_info_t,
+				      SECURE | EXECUTABLE | EP_FIRST_EXE),
+
+		.ep_info.spsr = SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS),
+
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+				      VERSION_2, image_info_t,
+				      IMAGE_ATTRIB_SKIP_LOADING),
+
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
 };
 
 REGISTER_BL_IMAGE_DESCS(bl2_mem_params_descs)

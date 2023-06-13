@@ -71,6 +71,7 @@
  ******************************************************************************/
 #define STM32MP_SYSRAM_BASE			U(0x0E000000)
 #define STM32MP_SYSRAM_SIZE			U(0x00040000)
+#define STM32MP_SEC_SYSRAM_SIZE			STM32MP_SYSRAM_SIZE
 
 /* DDR configuration */
 #define STM32MP_DDR_BASE			U(0x80000000)
@@ -105,6 +106,10 @@ enum ddr_type {
 
 #define STM32MP_BL2_RO_SIZE			U(0x00020000) /* 128 KB */
 #define STM32MP_BL2_SIZE			U(0x00029000) /* 164 KB for BL2 */
+
+/* Allocate remaining sysram to BL31 */
+#define STM32MP_BL31_SIZE			(STM32MP_SEC_SYSRAM_SIZE - \
+						 STM32MP_BL2_SIZE)
 
 #define STM32MP_BL2_BASE			(STM32MP_SYSRAM_BASE + \
 						 STM32MP_SYSRAM_SIZE - \

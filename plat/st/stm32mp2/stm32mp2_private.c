@@ -12,12 +12,22 @@
 
 #define BKPR_BOOT_MODE	96U
 
+#if defined(IMAGE_BL31)
+/* BL31 only uses the first half of the SYSRAM */
+#define MAP_SYSRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
+					STM32MP_SYSRAM_SIZE / 2U, \
+					MT_MEMORY | \
+					MT_RW | \
+					MT_SECURE | \
+					MT_EXECUTE_NEVER)
+#else
 #define MAP_SYSRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
 					STM32MP_SYSRAM_SIZE, \
 					MT_MEMORY | \
 					MT_RW | \
 					MT_SECURE | \
 					MT_EXECUTE_NEVER)
+#endif
 
 #define MAP_DEVICE	MAP_REGION_FLAT(STM32MP_DEVICE_BASE, \
 					STM32MP_DEVICE_SIZE, \
@@ -27,6 +37,13 @@
 					MT_EXECUTE_NEVER)
 
 #if defined(IMAGE_BL2)
+static const mmap_region_t stm32mp2_mmap[] = {
+	MAP_SYSRAM,
+	MAP_DEVICE,
+	{0}
+};
+#endif
+#if defined(IMAGE_BL31)
 static const mmap_region_t stm32mp2_mmap[] = {
 	MAP_SYSRAM,
 	MAP_DEVICE,
