@@ -249,6 +249,7 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	SMC_RET0(&ctx->cpu_ctx);
 }
 
+#if (EL3_EXCEPTION_HANDLING == 0)
 /*******************************************************************************
  * spmd_group0_interrupt_handler_nwd
  * Group0 secure interrupt in the normal world are trapped to EL3. Delegate the
@@ -281,6 +282,7 @@ static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
 
 	return 0U;
 }
+#endif
 
 /*******************************************************************************
  * spmd_handle_group0_intr_swd
@@ -561,6 +563,18 @@ static int spmd_spmc_init(void *pm_addr)
 	}
 
 	/*
+	 * Permit configurations where the SPM resides at S-EL1/2 and upon a
+	 * Group0 interrupt triggering while the normal world runs, the
+	 * interrupt is routed either through the EHF or directly to the SPMD:
+	 *
+	 * EL3_EXCEPTION_HANDLING=0: the Group0 interrupt is routed to the SPMD
+	 *                   for handling by spmd_group0_interrupt_handler_nwd.
+	 *
+	 * EL3_EXCEPTION_HANDLING=1: the Group0 interrupt is routed to the EHF.
+	 *
+	 */
+#if (EL3_EXCEPTION_HANDLING == 0)
+	/*
 	 * Register an interrupt handler routing Group0 interrupts to SPMD
 	 * while the NWd is running.
 	 */
@@ -570,6 +584,8 @@ static int spmd_spmc_init(void *pm_addr)
 	if (rc != 0) {
 		panic();
 	}
+#endif
+
 	return 0;
 }
 
