@@ -43,6 +43,7 @@ mbedtls mbedtls_asn1_get_alg_null
 mbedtls mbedtls_asn1_get_bitstring_null
 mbedtls mbedtls_asn1_get_bool
 mbedtls mbedtls_asn1_get_int
+mbedtls mbedtls_asn1_get_len
 mbedtls mbedtls_asn1_get_tag
 mbedtls mbedtls_free
 mbedtls mbedtls_md
