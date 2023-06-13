@@ -8,6 +8,9 @@
 #ifndef PSA_MANIFEST_SID_H
 #define PSA_MANIFEST_SID_H
 
+/******** RSS_SP_CRYPTO ********/
+#define RSS_CRYPTO_HANDLE				(0x40000100U)
+
 /******** RSS_SP_PLATFORM ********/
 #define RSS_PLATFORM_SERVICE_HANDLE			(0x40000105U)
 
