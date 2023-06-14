@@ -782,6 +782,7 @@ STM32MP1 platform port
 ^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|G|: `Yann-lms`_
+:|F|: docs/plat/st/*
 :|F|: docs/plat/stm32mp1.rst
 :|F|: drivers/st/
 :|F|: fdts/stm32\*
