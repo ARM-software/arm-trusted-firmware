@@ -277,8 +277,6 @@ endif
 BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
 				drivers/st/ddr/stm32mp1_ram.c
 
-BL2_SOURCES		+=	plat/st/stm32mp1/plat_image_load.c
-
 ifeq ($(AARCH32_SP),sp_min)
 # Create DTB file for BL32
 ${BUILD_PLAT}/fdts/%-bl32.dts: fdts/%.dts fdts/${BL32_DTSI} | ${BUILD_PLAT} fdt_dirs
