@@ -26,6 +26,15 @@ STM32_TF_A_COPIES		:=	2
 # such as metadata (2) and fsbl-m (2) to find all the FIP partitions (default is 2).
 PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 6)))
 
+# Device tree
+BL2_DTSI			:=	stm32mp25-bl2.dtsi
+FDT_SOURCES			:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
+
+# Macros and rules to build TF binary
+STM32_TF_STM32			:=	$(addprefix ${BUILD_PLAT}/tf-a-, $(patsubst %.dtb,%.stm32,$(DTB_FILE_NAME)))
+STM32_LD_FILE			:=	plat/st/stm32mp2/${ARCH}/stm32mp2.ld.S
+STM32_BINARY_MAPPING		:=	plat/st/stm32mp2/${ARCH}/stm32mp2.S
+
 # STM32MP2x is based on Cortex-A35, which is Armv8.0, and does not support BTI
 # Disable mbranch-protection to avoid adding useless code
 TF_CFLAGS			+=	-mbranch-protection=none

@@ -45,6 +45,24 @@ enum ddr_type {
 };
 #endif
 
+/* Section used inside TF binaries */
+#define STM32MP_PARAM_LOAD_SIZE			U(0x00002400) /* 9 KB for param */
+/* 512 Octets reserved for header */
+#define STM32MP_HEADER_SIZE			U(0x00000200)
+#define STM32MP_HEADER_BASE			(STM32MP_SEC_SYSRAM_BASE +	\
+						 STM32MP_PARAM_LOAD_SIZE)
+
+/* round_up(STM32MP_PARAM_LOAD_SIZE + STM32MP_HEADER_SIZE, PAGE_SIZE) */
+#define STM32MP_HEADER_RESERVED_SIZE		U(0x3000)
+
+#define STM32MP_BINARY_BASE			(STM32MP_SEC_SYSRAM_BASE +	\
+						 STM32MP_PARAM_LOAD_SIZE +	\
+						 STM32MP_HEADER_SIZE)
+
+#define STM32MP_BINARY_SIZE			(STM32MP_SEC_SYSRAM_SIZE -	\
+						 (STM32MP_PARAM_LOAD_SIZE +	\
+						  STM32MP_HEADER_SIZE))
+
 #define STM32MP_BL2_SIZE			U(0x0002A000) /* 168 KB for BL2 */
 
 #define STM32MP_BL2_BASE			(STM32MP_SEC_SYSRAM_BASE + \
@@ -59,6 +77,12 @@ enum ddr_type {
  * BL stm32mp2_mmap size + mmap regions in *_plat_arch_setup
  */
 #define MAX_MMAP_REGIONS			6
+
+/* DTB initialization value */
+#define STM32MP_BL2_DTB_SIZE			U(0x00005000) /* 20 KB for DTB */
+
+#define STM32MP_BL2_DTB_BASE			(STM32MP_BL2_BASE - \
+						 STM32MP_BL2_DTB_SIZE)
 
 #define STM32MP_BL33_BASE			(STM32MP_DDR_BASE + U(0x04000000))
 #define STM32MP_BL33_MAX_SIZE			U(0x400000)
