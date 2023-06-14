@@ -11,6 +11,7 @@
 #ifndef __ASSEMBLER__
 #include <drivers/st/bsec.h>
 #endif
+#include <drivers/st/stm32mp25_rcc.h>
 #include <dt-bindings/clock/stm32mp25-clks.h>
 #include <dt-bindings/clock/stm32mp25-clksrc.h>
 #include <dt-bindings/reset/stm32mp25-resets.h>
@@ -71,6 +72,58 @@ enum ddr_type {
  * STM32MP2 PWR
  ******************************************************************************/
 #define PWR_BASE				U(0x44210000)
+
+/*******************************************************************************
+ * STM32MP2 GPIO
+ ******************************************************************************/
+#define GPIOA_BASE				U(0x44240000)
+#define GPIOB_BASE				U(0x44250000)
+#define GPIOC_BASE				U(0x44260000)
+#define GPIOD_BASE				U(0x44270000)
+#define GPIOE_BASE				U(0x44280000)
+#define GPIOF_BASE				U(0x44290000)
+#define GPIOG_BASE				U(0x442A0000)
+#define GPIOH_BASE				U(0x442B0000)
+#define GPIOI_BASE				U(0x442C0000)
+#define GPIOJ_BASE				U(0x442D0000)
+#define GPIOK_BASE				U(0x442E0000)
+#define GPIOZ_BASE				U(0x46200000)
+#define GPIO_BANK_OFFSET			U(0x10000)
+
+#define STM32MP_GPIOS_PIN_MAX_COUNT		16
+#define STM32MP_GPIOZ_PIN_MAX_COUNT		8
+
+/*******************************************************************************
+ * STM32MP2 UART
+ ******************************************************************************/
+#define USART1_BASE				U(0x40330000)
+#define USART2_BASE				U(0x400E0000)
+#define USART3_BASE				U(0x400F0000)
+#define UART4_BASE				U(0x40100000)
+#define UART5_BASE				U(0x40110000)
+#define USART6_BASE				U(0x40220000)
+#define UART7_BASE				U(0x40370000)
+#define UART8_BASE				U(0x40380000)
+#define UART9_BASE				U(0x402C0000)
+#define STM32MP_NB_OF_UART			U(9)
+
+/* For UART crash console */
+#define STM32MP_DEBUG_USART_CLK_FRQ		64000000
+/* USART2 on HSI@64MHz, TX on GPIOA4 Alternate 6 */
+#define STM32MP_DEBUG_USART_BASE		USART2_BASE
+#define DEBUG_UART_TX_GPIO_BANK_ADDRESS		GPIOA_BASE
+#define DEBUG_UART_TX_GPIO_BANK_CLK_REG		RCC_GPIOACFGR
+#define DEBUG_UART_TX_GPIO_BANK_CLK_EN		RCC_GPIOxCFGR_GPIOxEN
+#define DEBUG_UART_TX_GPIO_PORT			4
+#define DEBUG_UART_TX_GPIO_ALTERNATE		6
+#define DEBUG_UART_TX_CLKSRC_REG		RCC_XBAR8CFGR
+#define DEBUG_UART_TX_CLKSRC			XBAR_SRC_HSI
+#define DEBUG_UART_TX_EN_REG			RCC_USART2CFGR
+#define DEBUG_UART_TX_EN			RCC_UARTxCFGR_UARTxEN
+#define DEBUG_UART_RST_REG			RCC_USART2CFGR
+#define DEBUG_UART_RST_BIT			RCC_UARTxCFGR_UARTxRST
+#define DEBUG_UART_PREDIV_CFGR			RCC_PREDIV8CFGR
+#define DEBUG_UART_FINDIV_CFGR			RCC_FINDIV8CFGR
 
 /*******************************************************************************
  * STM32MP2 SDMMC

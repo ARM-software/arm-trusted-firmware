@@ -34,7 +34,7 @@ TF_CFLAGS			+=	-mbranch-protection=none
 PLAT_INCLUDES			+=	-Iplat/st/stm32mp2/include/
 
 PLAT_BL_COMMON_SOURCES		+=	lib/cpus/${ARCH}/cortex_a35.S
-
+PLAT_BL_COMMON_SOURCES		+=	drivers/st/uart/${ARCH}/stm32_console.S
 PLAT_BL_COMMON_SOURCES		+=	plat/st/stm32mp2/${ARCH}/stm32mp2_helper.S
 
 BL2_SOURCES			+=	plat/st/stm32mp2/plat_bl2_mem_params_desc.c
