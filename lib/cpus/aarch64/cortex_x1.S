@@ -24,25 +24,19 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 workaround_reset_start cortex_x1, ERRATUM(1688305), ERRATA_X1_1688305
-	mrs	x0, CORTEX_X1_ACTLR2_EL1
-	orr	x0, x0, #BIT(1)
-	msr	CORTEX_X1_ACTLR2_EL1, x0
+	sysreg_bit_set CORTEX_X1_ACTLR2_EL1, BIT(1)
 workaround_reset_end cortex_x1, ERRATUM(1688305)
 
 check_erratum_ls cortex_x1, ERRATUM(1688305), CPU_REV(1, 0)
 
 workaround_reset_start cortex_x1, ERRATUM(1821534), ERRATA_X1_1821534
-	mrs	x1, CORTEX_X1_ACTLR2_EL1
-	orr	x1, x1, #BIT(2)
-	msr	CORTEX_X1_ACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_X1_ACTLR2_EL1, BIT(2)
 workaround_reset_end cortex_x1, ERRATUM(1821534)
 
 check_erratum_ls cortex_x1, ERRATUM(1821534), CPU_REV(1, 0)
 
 workaround_reset_start cortex_x1, ERRATUM(1827429), ERRATA_X1_1827429
-	mrs	x0, CORTEX_X1_CPUECTLR_EL1
-	orr	x0, x0, #BIT(53)
-	msr	CORTEX_X1_CPUECTLR_EL1, x0
+	sysreg_bit_set CORTEX_X1_CPUECTLR_EL1, BIT(53)
 workaround_reset_end cortex_x1, ERRATUM(1827429)
 
 check_erratum_ls cortex_x1, ERRATUM(1827429), CPU_REV(1, 0)
@@ -55,8 +49,7 @@ workaround_reset_start cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 	 * The Cortex-X1 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_cortex_x1
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_vbar_cortex_x1
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x1, CVE(2022, 23960)
 
@@ -68,13 +61,7 @@ cpu_reset_func_end cortex_x1
 	 * ---------------------------------------------
 	 */
 func cortex_x1_core_pwr_dwn
-	/* ---------------------------------------------
-	 * Enable CPU power down bit in power control register
-	 * ---------------------------------------------
-	 */
-	mrs	x0, CORTEX_X1_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_X1_CORE_PWRDN_EN_MASK
-	msr	CORTEX_X1_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_X1_CPUPWRCTLR_EL1, CORTEX_X1_CORE_PWRDN_EN_MASK
 	isb
 	ret
 endfunc cortex_x1_core_pwr_dwn
