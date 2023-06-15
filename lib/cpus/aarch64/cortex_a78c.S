@@ -23,18 +23,14 @@
 
 workaround_reset_start cortex_a78c, ERRATUM(1827430), ERRATA_A78C_1827430
 	/* Disable allocation of splintered pages in the L2 TLB */
-	mrs	x1, CORTEX_A78C_CPUECTLR_EL1
-	orr	x1, x1, CORTEX_A78C_CPUECTLR_EL1_MM_ASP_EN
-	msr	CORTEX_A78C_CPUECTLR_EL1, x1
+	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, CORTEX_A78C_CPUECTLR_EL1_MM_ASP_EN
 workaround_reset_end cortex_a78c, ERRATUM(1827430)
 
 check_erratum_ls cortex_a78c, ERRATUM(1827430), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a78c, ERRATUM(1827440), ERRATA_A78C_1827440
 	/* Force Atomic Store to WB memory be done in L1 data cache */
-	mrs	x1, CORTEX_A78C_CPUACTLR2_EL1
-	orr	x1, x1, #BIT(2)
-	msr	CORTEX_A78C_CPUACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, BIT(2)
 workaround_reset_end cortex_a78c, ERRATUM(1827440)
 
 check_erratum_ls cortex_a78c, ERRATUM(1827440), CPU_REV(0, 0)
@@ -46,10 +42,7 @@ workaround_reset_start cortex_a78c, ERRATUM(2132064), ERRATA_A78C_2132064
 	 * the value indicated: ecltr[7:6], PF_MODE = 2'b11
 	 * --------------------------------------------------------
 	 */
-	mrs	x0, CORTEX_A78C_CPUECTLR_EL1
-	orr	x0, x0, #CORTEX_A78C_CPUECTLR_EL1_BIT_6
-	orr	x0, x0, #CORTEX_A78C_CPUECTLR_EL1_BIT_7
-	msr	CORTEX_A78C_CPUECTLR_EL1, x0
+	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, (CORTEX_A78C_CPUECTLR_EL1_BIT_6 | CORTEX_A78C_CPUECTLR_EL1_BIT_7)
 workaround_reset_end cortex_a78c, ERRATUM(2132064)
 
 check_erratum_range cortex_a78c, ERRATUM(2132064), CPU_REV(0, 1), CPU_REV(0, 2)
@@ -68,19 +61,13 @@ workaround_reset_end cortex_a78c, ERRATUM(2242638)
 check_erratum_range cortex_a78c, ERRATUM(2242638), CPU_REV(0, 1), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a78c, ERRATUM(2376749), ERRATA_A78C_2376749
-	/* Set CPUACTLR2_EL1[0] to 1. */
-	mrs	x1, CORTEX_A78C_CPUACTLR2_EL1
-	orr	x1, x1, #CORTEX_A78C_CPUACTLR2_EL1_BIT_0
-	msr	CORTEX_A78C_CPUACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, CORTEX_A78C_CPUACTLR2_EL1_BIT_0
 workaround_reset_end cortex_a78c, ERRATUM(2376749)
 
 check_erratum_range cortex_a78c, ERRATUM(2376749), CPU_REV(0, 1), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a78c, ERRATUM(2395411), ERRATA_A78C_2395411
-	/* Set CPUACTRL2_EL1[40] to 1. */
-	mrs 	x1, CORTEX_A78C_CPUACTLR2_EL1
-	orr 	x1, x1, #CORTEX_A78C_CPUACTLR2_EL1_BIT_40
-	msr 	CORTEX_A78C_CPUACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A78C_CPUACTLR2_EL1, CORTEX_A78C_CPUACTLR2_EL1_BIT_40
 workaround_reset_end cortex_a78c, ERRATUM(2395411)
 
 check_erratum_range cortex_a78c, ERRATUM(2395411), CPU_REV(0, 1), CPU_REV(0, 2)
@@ -93,10 +80,7 @@ workaround_runtime_end cortex_a78c, ERRATUM(2772121)
 check_erratum_ls cortex_a78c, ERRATUM(2772121), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a78c, ERRATUM(2779484), ERRATA_A78C_2779484
-	/* Apply the workaround */
-	mrs	x1, CORTEX_A78C_ACTLR3_EL1
-	orr	x1, x1, #BIT(47)
-	msr	CORTEX_A78C_ACTLR3_EL1, x1
+	sysreg_bit_set CORTEX_A78C_ACTLR3_EL1, BIT(47)
 workaround_reset_end cortex_a78c, ERRATUM(2779484)
 
 check_erratum_range cortex_a78c, ERRATUM(2779484), CPU_REV(0, 1), CPU_REV(0, 2)
@@ -109,8 +93,7 @@ workaround_reset_start cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 	 * The Cortex-A78c generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_cortex_a78c
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_vbar_cortex_a78c
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a78c, CVE(2022, 23960)
 
@@ -128,9 +111,7 @@ func cortex_a78c_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_A78C_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A78C_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
-	msr	CORTEX_A78C_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A78C_CPUPWRCTLR_EL1, CORTEX_A78C_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 
 	apply_erratum cortex_a78c, ERRATUM(2772121), ERRATA_A78C_2772121
 
