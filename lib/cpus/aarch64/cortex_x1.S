@@ -23,135 +23,45 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X1_BHB_LOOP_COUNT, cortex_x1
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* --------------------------------------------------
- * Errata Workaround for X1 Erratum 1688305.
- * This applies to revision r0p0 and r1p0 of X1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_x1_1688305_wa
-	/* Compare x0 against revision r1p0 */
-	mov	x17, x30
-	bl	check_errata_1688305
-	cbz	x0, 1f
+workaround_reset_start cortex_x1, ERRATUM(1688305), ERRATA_X1_1688305
 	mrs	x0, CORTEX_X1_ACTLR2_EL1
 	orr	x0, x0, #BIT(1)
 	msr	CORTEX_X1_ACTLR2_EL1, x0
-	isb
+workaround_reset_end cortex_x1, ERRATUM(1688305)
 
-1:
-	ret	x17
-endfunc errata_x1_1688305_wa
+check_erratum_ls cortex_x1, ERRATUM(1688305), CPU_REV(1, 0)
 
-func check_errata_1688305
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1688305
-
-/* --------------------------------------------------
- * Errata Workaround for X1 Erratum 1821534.
- * This applies to revision r0p0 and r1p0 of X1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_x1_1821534_wa
-	/* Compare x0 against revision r1p0 */
-	mov	x17, x30
-	bl	check_errata_1821534
-	cbz	x0, 1f
+workaround_reset_start cortex_x1, ERRATUM(1821534), ERRATA_X1_1821534
 	mrs	x1, CORTEX_X1_ACTLR2_EL1
 	orr	x1, x1, #BIT(2)
 	msr	CORTEX_X1_ACTLR2_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_x1_1821534_wa
+workaround_reset_end cortex_x1, ERRATUM(1821534)
 
-func check_errata_1821534
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1821534
+check_erratum_ls cortex_x1, ERRATUM(1821534), CPU_REV(1, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for X1 Erratum 1827429.
- * This applies to revision r0p0 and r1p0 of X1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_x1_1827429_wa
-	/* Compare x0 against revision r1p0 */
-	mov	x17, x30
-	bl	check_errata_1827429
-	cbz	x0, 1f
+workaround_reset_start cortex_x1, ERRATUM(1827429), ERRATA_X1_1827429
 	mrs	x0, CORTEX_X1_CPUECTLR_EL1
 	orr	x0, x0, BIT(53)
 	msr	CORTEX_X1_CPUECTLR_EL1, x0
-	isb
+workaround_reset_end cortex_x1, ERRATUM(1827429)
 
-1:
-	ret	x17
-endfunc errata_x1_1827429_wa
+check_erratum_ls cortex_x1, ERRATUM(1827429), CPU_REV(1, 0)
 
-func check_errata_1827429
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1827429
+check_erratum_chosen cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-	/* -------------------------------------------------
-	 * The CPU Ops reset function for Cortex-X1.
-	 * Shall clobber: x0-x19
-	 * -------------------------------------------------
-	 */
-func cortex_x1_reset_func
-	mov	x19, x30
-	bl	cpu_get_rev_var
-	mov	x18, x0
-
-#if ERRATA_X1_1821534
-	mov	x0, x18
-	bl	errata_x1_1821534_wa
-#endif
-
-#if ERRATA_X1_1688305
-	mov	x0, x18
-	bl	errata_x1_1688305_wa
-#endif
-
-#if ERRATA_X1_1827429
-	mov	x0, x18
-	bl	errata_x1_1827429_wa
-#endif
-
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+workaround_reset_start cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+#if IMAGE_BL31
 	/*
 	 * The Cortex-X1 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
 	adr	x0, wa_cve_vbar_cortex_x1
 	msr	vbar_el3, x0
-#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+#endif /* IMAGE_BL31 */
+workaround_reset_end cortex_x1, CVE(2022, 23960)
 
-	isb
-	ret	x19
-endfunc cortex_x1_reset_func
+cpu_reset_func_start cortex_x1
+cpu_reset_func_end cortex_x1
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -169,29 +79,7 @@ func cortex_x1_core_pwr_dwn
 	ret
 endfunc cortex_x1_core_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex X1. Must follow AAPCS.
- */
-func cortex_x1_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_X1_1688305, cortex_x1, 1688305
-	report_errata ERRATA_X1_1821534, cortex_x1, 1821534
-	report_errata ERRATA_X1_1827429, cortex_x1, 1827429
-	report_errata WORKAROUND_CVE_2022_23960, cortex_x1, cve_2022_23960
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_x1_errata_report
-#endif
+errata_report_shim cortex_x1
 
        /* ---------------------------------------------
 	* This function provides Cortex X1 specific
