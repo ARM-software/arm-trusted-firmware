@@ -244,6 +244,13 @@ subsections:
           - title: Corstone-1000
             scope: corstone-1000
 
+      - title: Aspeed
+        scope: aspeed
+
+        subsections:
+          - title: AST2700
+            scope: ast2700
+
       - title: Broadcom
         scope: brcm
 

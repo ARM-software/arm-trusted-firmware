@@ -8,6 +8,7 @@ Platform Ports
 
    allwinner
    arm/index
+   ast2700
    meson-axg
    meson-gxbb
    meson-gxl
