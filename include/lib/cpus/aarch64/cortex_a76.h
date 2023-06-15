@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,6 +36,7 @@
 #define CORTEX_A76_CPUACTLR2_EL1				S3_0_C15_C1_1
 
 #define CORTEX_A76_CPUACTLR2_EL1_BIT_2				(ULL(1) << 2)
+#define CORTEX_A76_CPUACTLR2_EL1_BIT_59 			(ULL(1) << 59)
 
 #define CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE	(ULL(1) << 16)
 
