@@ -595,7 +595,7 @@
 #define MDCR_TDOSA_BIT		(ULL(1) << 10)
 #define MDCR_TDA_BIT		(ULL(1) << 9)
 #define MDCR_TPM_BIT		(ULL(1) << 6)
-#define MDCR_EL3_RESET_VAL	ULL(0x0)
+#define MDCR_EL3_RESET_VAL	MDCR_MTPME_BIT
 
 /* MDCR_EL2 definitions */
 #define MDCR_EL2_MTPME		(U(1) << 28)
