@@ -314,7 +314,7 @@ provide this information....
 
 --------------
 
-*Copyright (c) 2014-2021, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMCCC: https://developer.arm.com/docs/den0028/latest
-.. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
+.. _PSCI: https://developer.arm.com/documentation/den0022/latest/

@@ -249,4 +249,4 @@ configure it.
 .. _build the binaries from source: https://github.com/ARM-software/SCP-firmware/blob/master/user_guide.md#scp-firmware-user-guide
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Juno Getting Started Guide: https://developer.arm.com/documentation/den0928/f/?lang=en
-.. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
+.. _PSCI: https://developer.arm.com/documentation/den0022/latest/
