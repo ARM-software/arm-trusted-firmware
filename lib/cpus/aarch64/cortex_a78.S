@@ -25,27 +25,19 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 workaround_reset_start cortex_a78, ERRATUM(1688305), ERRATA_A78_1688305
-	mrs     x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #CORTEX_A78_ACTLR2_EL1_BIT_1
-	msr     CORTEX_A78_ACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_1
 workaround_reset_end cortex_a78, ERRATUM(1688305)
 
 check_erratum_ls cortex_a78, ERRATUM(1688305), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a78, ERRATUM(1821534), ERRATA_A78_1821534
-	/* Set bit 2 in ACTLR2_EL1 */
-	mrs     x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #CORTEX_A78_ACTLR2_EL1_BIT_2
-	msr     CORTEX_A78_ACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_2
 workaround_reset_end cortex_a78, ERRATUM(1821534)
 
 check_erratum_ls cortex_a78, ERRATUM(1821534), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a78, ERRATUM(1941498), ERRATA_A78_1941498
-	/* Set bit 8 in ECTLR_EL1 */
-	mrs	x1, CORTEX_A78_CPUECTLR_EL1
-	orr	x1, x1, #CORTEX_A78_CPUECTLR_EL1_BIT_8
-	msr	CORTEX_A78_CPUECTLR_EL1, x1
+	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, CORTEX_A78_CPUECTLR_EL1_BIT_8
 workaround_reset_end cortex_a78, ERRATUM(1941498)
 
 check_erratum_ls cortex_a78, ERRATUM(1941498), CPU_REV(1, 1)
@@ -129,19 +121,13 @@ workaround_reset_end cortex_a78, ERRATUM(2242635)
 check_erratum_range cortex_a78, ERRATUM(2242635), CPU_REV(1, 0), CPU_REV(1, 2)
 
 workaround_reset_start cortex_a78, ERRATUM(2376745), ERRATA_A78_2376745
-	/* Apply the workaround. */
-	mrs	x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #BIT(0)
-	msr	CORTEX_A78_ACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, BIT(0)
 workaround_reset_end cortex_a78, ERRATUM(2376745)
 
 check_erratum_ls cortex_a78, ERRATUM(2376745), CPU_REV(1, 2)
 
 workaround_reset_start cortex_a78, ERRATUM(2395406), ERRATA_A78_2395406
-	/* Apply the workaround. */
-	mrs	x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #BIT(40)
-	msr	CORTEX_A78_ACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, BIT(40)
 workaround_reset_end cortex_a78, ERRATUM(2395406)
 
 check_erratum_ls cortex_a78, ERRATUM(2395406), CPU_REV(1, 2)
@@ -164,10 +150,7 @@ workaround_runtime_end cortex_a78, ERRATUM(2772019)
 check_erratum_ls cortex_a78, ERRATUM(2772019), CPU_REV(1, 2)
 
 workaround_reset_start cortex_a78, ERRATUM(2779479), ERRATA_A78_2779479
-	/* Apply the workaround */
-	mrs	x1, CORTEX_A78_ACTLR3_EL1
-	orr	x1, x1, #BIT(47)
-	msr	CORTEX_A78_ACTLR3_EL1, x1
+	sysreg_bit_set CORTEX_A78_ACTLR3_EL1, BIT(47)
 workaround_reset_end cortex_a78, ERRATUM(2779479)
 
 check_erratum_ls cortex_a78, ERRATUM(2779479), CPU_REV(1, 2)
@@ -178,8 +161,7 @@ workaround_reset_start cortex_a78, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 	 * The Cortex-X1 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_cortex_a78
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_vbar_cortex_a78
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a78, CVE(2022, 23960)
 
@@ -188,14 +170,10 @@ check_erratum_chosen cortex_a78, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 cpu_reset_func_start cortex_a78
 #if ENABLE_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
-	mrs	x0, actlr_el3
-	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT
-	msr	actlr_el3, x0
+	sysreg_bit_clear actlr_el3, CORTEX_A78_ACTLR_TAM_BIT
 
 	/* Make sure accesses from non-secure EL0/EL1 are not trapped to EL2 */
-	mrs	x0, actlr_el2
-	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT
-	msr	actlr_el2, x0
+	sysreg_bit_clear actlr_el2, CORTEX_A78_ACTLR_TAM_BIT
 
 	/* Enable group0 counters */
 	mov	x0, #CORTEX_A78_AMU_GROUP0_MASK
@@ -212,13 +190,7 @@ cpu_reset_func_end cortex_a78
 	 * ---------------------------------------------
 	 */
 func cortex_a78_core_pwr_dwn
-	/* ---------------------------------------------
-	 * Enable CPU power down bit in power control register
-	 * ---------------------------------------------
-	 */
-	mrs	x0, CORTEX_A78_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
-	msr	CORTEX_A78_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A78_CPUPWRCTLR_EL1, CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 
 	apply_erratum cortex_a78, ERRATUM(2772019), ERRATA_A78_2772019
 
