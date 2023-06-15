@@ -33,8 +33,7 @@ workaround_reset_start cortex_a76ae, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 	 * The Cortex-A76ae generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_cortex_a76ae
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_vbar_cortex_a76ae
 	isb
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a76ae, CVE(2022, 23960)
@@ -49,13 +48,7 @@ errata_report_shim cortex_a76ae
 	 * ----------------------------------------------------
 	 */
 func cortex_a76ae_core_pwr_dwn
-	/* ---------------------------------------------------
-	 * Enable CPU power down bit in power control register
-	 * ---------------------------------------------------
-	 */
-	mrs	x0, CORTEX_A76AE_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A76AE_CORE_PWRDN_EN_MASK
-	msr	CORTEX_A76AE_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A76AE_CPUPWRCTLR_EL1, CORTEX_A76AE_CORE_PWRDN_EN_MASK
 	isb
 	ret
 endfunc cortex_a76ae_core_pwr_dwn
