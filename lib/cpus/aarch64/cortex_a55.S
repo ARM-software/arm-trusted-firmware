@@ -38,20 +38,14 @@ add_erratum_entry cortex_a55, ERRATUM(798953), ERRATA_DSU_798953, APPLY_AT_RESET
 add_erratum_entry cortex_a55, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
 
 workaround_reset_start cortex_a55, ERRATUM(768277), ERRATA_A55_768277
-	mrs	x1, CORTEX_A55_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
-	msr	CORTEX_A55_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A55_CPUACTLR_EL1, CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
 workaround_reset_end cortex_a55, ERRATUM(768277)
 
 check_erratum_ls cortex_a55, ERRATUM(768277), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a55, ERRATUM(778703), ERRATA_A55_778703
-	mrs	x1, CORTEX_A55_CPUECTLR_EL1
-	orr	x1, x1, #CORTEX_A55_CPUECTLR_EL1_L1WSCTL
-	msr	CORTEX_A55_CPUECTLR_EL1, x1
-	mrs	x1, CORTEX_A55_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A55_CPUACTLR_EL1_DISABLE_WRITE_STREAMING
-	msr	CORTEX_A55_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A55_CPUECTLR_EL1, CORTEX_A55_CPUECTLR_EL1_L1WSCTL
+	sysreg_bit_set CORTEX_A55_CPUACTLR_EL1, CORTEX_A55_CPUACTLR_EL1_DISABLE_WRITE_STREAMING
 workaround_reset_end cortex_a55, ERRATUM(778703)
 
 check_erratum_custom_start cortex_a55, ERRATUM(778703)
@@ -70,25 +64,19 @@ check_erratum_custom_start cortex_a55, ERRATUM(778703)
 check_erratum_custom_end cortex_a55, ERRATUM(778703)
 
 workaround_reset_start cortex_a55, ERRATUM(798797), ERRATA_A55_798797
-	mrs	x1, CORTEX_A55_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A55_CPUACTLR_EL1_DISABLE_L1_PAGEWALKS
-	msr	CORTEX_A55_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A55_CPUACTLR_EL1, CORTEX_A55_CPUACTLR_EL1_DISABLE_L1_PAGEWALKS
 workaround_reset_end cortex_a55, ERRATUM(798797)
 
 check_erratum_ls cortex_a55, ERRATUM(798797), CPU_REV(0, 0)
 
 workaround_reset_start cortex_a55, ERRATUM(846532), ERRATA_A55_846532
-	mrs	x1, CORTEX_A55_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
-	msr	CORTEX_A55_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A55_CPUACTLR_EL1, CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
 workaround_reset_end cortex_a55, ERRATUM(846532)
 
 check_erratum_ls cortex_a55, ERRATUM(846532), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a55, ERRATUM(903758), ERRATA_A55_903758
-	mrs	x1, CORTEX_A55_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A55_CPUACTLR_EL1_DISABLE_L1_PAGEWALKS
-	msr	CORTEX_A55_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A55_CPUACTLR_EL1, CORTEX_A55_CPUACTLR_EL1_DISABLE_L1_PAGEWALKS
 workaround_reset_end cortex_a55, ERRATUM(903758)
 
 check_erratum_ls cortex_a55, ERRATUM(903758), CPU_REV(0, 1)
@@ -135,13 +123,7 @@ errata_report_shim cortex_a55
 	 * ---------------------------------------------
 	 */
 func cortex_a55_core_pwr_dwn
-	/* ---------------------------------------------
-	 * Enable CPU power down bit in power control register
-	 * ---------------------------------------------
-	 */
-	mrs	x0, CORTEX_A55_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A55_CORE_PWRDN_EN_MASK
-	msr	CORTEX_A55_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A55_CPUPWRCTLR_EL1, CORTEX_A55_CORE_PWRDN_EN_MASK
 	isb
 	ret
 endfunc cortex_a55_core_pwr_dwn
