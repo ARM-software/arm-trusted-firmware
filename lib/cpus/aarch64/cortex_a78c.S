@@ -17,6 +17,10 @@
 #error "cortex_a78c must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+#if WORKAROUND_CVE_2022_23960
+	wa_cve_2022_23960_bhb_vector_table CORTEX_A78C_BHB_LOOP_COUNT, cortex_a78c
+#endif /* WORKAROUND_CVE_2022_23960 */
+
 /* --------------------------------------------------
  * Errata Workaround for A78C Erratum 1827430.
  * This applies to revision r0p0 of the Cortex A78C
@@ -70,69 +74,6 @@ func check_errata_1827440
 	mov	x1, #0x00
 	b	cpu_rev_var_ls
 endfunc check_errata_1827440
-
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78C Erratum 2376749.
- * This applies to revision r0p1 and r0p2 of the A78C
- * and is currently open. It is a Cat B erratum.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x4, x17
- * --------------------------------------------------
- */
-func errata_a78c_2376749_wa
-	/* Check revision */
-	mov	x17, x30
-	bl	check_errata_2376749
-	cbz	x0, 1f
-	/* Set CPUACTLR2_EL1[0] to 1. */
-	mrs	x1, CORTEX_A78C_CPUACTLR2_EL1
-	orr	x1, x1, #CORTEX_A78C_CPUACTLR2_EL1_BIT_0
-	msr	CORTEX_A78C_CPUACTLR2_EL1, x1
-1:
-	ret	x17
-endfunc errata_a78c_2376749_wa
-
-func check_errata_2376749
-	/* Applies to r0p1 and r0p2*/
-	mov	x1, #0x01
-	mov	x2, #0x02
-	b	cpu_rev_var_range
-endfunc check_errata_2376749
-
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78C Erratum 2395411.
- * This applies to revision r0p1 and r0p2 of the A78C
- * and is currently open. It is a Cat B erratum.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x4, x17
- * --------------------------------------------------
- */
-func errata_a78c_2395411_wa
-	/* Check revision. */
-	mov 	x17, x30
-	bl 	check_errata_2395411
-	cbz 	x0, 1f
-
-	/* Set CPUACTRL2_EL1[40] to 1. */
-	mrs 	x1, CORTEX_A78C_CPUACTLR2_EL1
-	orr 	x1, x1, #CORTEX_A78C_CPUACTLR2_EL1_BIT_40
-	msr 	CORTEX_A78C_CPUACTLR2_EL1, x1
-1:
-	ret 	x17
-endfunc errata_a78c_2395411_wa
-
-func check_errata_2395411
-	/* Applies to r0p1 and r0p2 */
-	mov 	x1, #0x01
-	mov 	x2, #0x02
-	b 	cpu_rev_var_range
-endfunc check_errata_2395411
-
-#if WORKAROUND_CVE_2022_23960
-	wa_cve_2022_23960_bhb_vector_table CORTEX_A78C_BHB_LOOP_COUNT, cortex_a78c
-#endif /* WORKAROUND_CVE_2022_23960 */
 
 /* --------------------------------------------------
  * Errata Workaround for A78C Erratum 2132064.
@@ -205,6 +146,65 @@ func check_errata_2242638
 	mov	x2, #CPU_REV(0, 2)
 	b	cpu_rev_var_range
 endfunc check_errata_2242638
+
+/* --------------------------------------------------
+ * Errata Workaround for Cortex A78C Erratum 2376749.
+ * This applies to revision r0p1 and r0p2 of the A78C
+ * and is currently open. It is a Cat B erratum.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x4, x17
+ * --------------------------------------------------
+ */
+func errata_a78c_2376749_wa
+	/* Check revision */
+	mov	x17, x30
+	bl	check_errata_2376749
+	cbz	x0, 1f
+	/* Set CPUACTLR2_EL1[0] to 1. */
+	mrs	x1, CORTEX_A78C_CPUACTLR2_EL1
+	orr	x1, x1, #CORTEX_A78C_CPUACTLR2_EL1_BIT_0
+	msr	CORTEX_A78C_CPUACTLR2_EL1, x1
+1:
+	ret	x17
+endfunc errata_a78c_2376749_wa
+
+func check_errata_2376749
+	/* Applies to r0p1 and r0p2*/
+	mov	x1, #0x01
+	mov	x2, #0x02
+	b	cpu_rev_var_range
+endfunc check_errata_2376749
+
+/* --------------------------------------------------
+ * Errata Workaround for Cortex A78C Erratum 2395411.
+ * This applies to revision r0p1 and r0p2 of the A78C
+ * and is currently open. It is a Cat B erratum.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x4, x17
+ * --------------------------------------------------
+ */
+func errata_a78c_2395411_wa
+	/* Check revision. */
+	mov 	x17, x30
+	bl 	check_errata_2395411
+	cbz 	x0, 1f
+
+	/* Set CPUACTRL2_EL1[40] to 1. */
+	mrs 	x1, CORTEX_A78C_CPUACTLR2_EL1
+	orr 	x1, x1, #CORTEX_A78C_CPUACTLR2_EL1_BIT_40
+	msr 	CORTEX_A78C_CPUACTLR2_EL1, x1
+1:
+	ret 	x17
+endfunc errata_a78c_2395411_wa
+
+func check_errata_2395411
+	/* Applies to r0p1 and r0p2 */
+	mov 	x1, #0x01
+	mov 	x2, #0x02
+	b 	cpu_rev_var_range
+endfunc check_errata_2395411
 
 /* ----------------------------------------------------------------
  * Errata Workaround for A78C Erratum 2772121.
