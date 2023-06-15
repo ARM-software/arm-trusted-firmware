@@ -1509,43 +1509,6 @@ This function returns SMC_ARCH_CALL_SUCCESS if the platform supports
 the SMCCC function specified in the argument; otherwise returns
 SMC_ARCH_CALL_NOT_SUPPORTED.
 
-Function : plat_mboot_measure_image()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : unsigned int, image_info_t *
-    Return   : int
-
-When the MEASURED_BOOT flag is enabled:
-
--  This function measures the given image and records its measurement using
-   the measured boot backend driver.
--  On the Arm FVP port, this function measures the given image using its
-   passed id and information and then records that measurement in the
-   Event Log buffer.
--  This function must return 0 on success, a signed integer error code
-   otherwise.
-
-When the MEASURED_BOOT flag is disabled, this function doesn't do anything.
-
-Function : plat_mboot_measure_critical_data()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : unsigned int, const void *, size_t
-    Return   : int
-
-When the MEASURED_BOOT flag is enabled:
-
--  This function measures the given critical data structure and records its
-   measurement using the measured boot backend driver.
--  This function must return 0 on success, a signed integer error code
-   otherwise.
-
-When the MEASURED_BOOT flag is disabled, this function doesn't do anything.
-
 Function : plat_can_cmo()
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1813,42 +1776,6 @@ This function must return 0 on success, a non-null error code otherwise.
 The default implementation of this function asserts therefore platforms must
 override it when using the FWU feature.
 
-Function : bl1_plat_mboot_init() [optional]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : void
-
-When the MEASURED_BOOT flag is enabled:
-
--  This function is used to initialize the backend driver(s) of measured boot.
--  On the Arm FVP port, this function is used to initialize the Event Log
-   backend driver, and also to write header information in the Event Log buffer.
-
-When the MEASURED_BOOT flag is disabled, this function doesn't do anything.
-
-Function : bl1_plat_mboot_finish() [optional]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : void
-
-When the MEASURED_BOOT flag is enabled:
-
--  This function is used to finalize the measured boot backend driver(s),
-   and also, set the information for the next bootloader component to
-   extend the measurement if needed.
--  On the Arm FVP port, this function is used to pass the base address of
-   the Event Log buffer and its size to BL2 via tb_fw_config to extend the
-   Event Log buffer with the measurement of various images loaded by BL2.
-   It results in panic on error.
-
-When the MEASURED_BOOT flag is disabled, this function doesn't do anything.
-
 Boot Loader Stage 2 (BL2)
 -------------------------
 
@@ -1979,42 +1906,6 @@ This function moves the current boot redundancy source to the next
 element in the boot sequence. If there are no more boot sources then it
 must return 0, otherwise it must return 1. The default implementation
 of this always returns 0.
-
-Function : bl2_plat_mboot_init() [optional]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : void
-
-When the MEASURED_BOOT flag is enabled:
-
--  This function is used to initialize the backend driver(s) of measured boot.
--  On the Arm FVP port, this function is used to initialize the Event Log
-   backend driver with the Event Log buffer information (base address and
-   size) received from BL1. It results in panic on error.
-
-When the MEASURED_BOOT flag is disabled, this function doesn't do anything.
-
-Function : bl2_plat_mboot_finish() [optional]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : void
-
-When the MEASURED_BOOT flag is enabled:
-
--  This function is used to finalize the measured boot backend driver(s),
-   and also, set the information for the next bootloader component to extend
-   the measurement if needed.
--  On the Arm FVP port, this function is used to pass the Event Log buffer
-   information (base address and size) to non-secure(BL33) and trusted OS(BL32)
-   via nt_fw and tos_fw config respectively. It results in panic on error.
-
-When the MEASURED_BOOT flag is disabled, this function doesn't do anything.
 
 Boot Loader Stage 2 (BL2) at EL3
 --------------------------------
@@ -3663,6 +3554,12 @@ The abstraction currently depends on structures being statically allocated
 by the drivers and callers, as the system does not yet provide a means of
 dynamically allocating memory. This may also have the affect of limiting the
 amount of open resources per driver.
+
+Measured Boot Platform Interface
+--------------------------------
+
+Enabling the MEASURED_BOOT flag adds extra platform requirements. Please refer
+to :ref:`Measured Boot Design` for more details.
 
 --------------
 
