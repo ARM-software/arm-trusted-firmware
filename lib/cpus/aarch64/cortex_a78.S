@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,6 +50,34 @@ func check_errata_1688305
 	mov	x1, #0x10
 	b	cpu_rev_var_ls
 endfunc check_errata_1688305
+
+/* --------------------------------------------------
+ * Errata Workaround for Cortex A78 Errata #1821534.
+ * This applies to revisions r0p0 and r1p0.
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_a78_1821534_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_1821534
+	cbz	x0, 1f
+
+	/* Set bit 2 in ACTLR2_EL1 */
+	mrs     x1, CORTEX_A78_ACTLR2_EL1
+	orr	x1, x1, #CORTEX_A78_ACTLR2_EL1_BIT_2
+	msr     CORTEX_A78_ACTLR2_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a78_1821534_wa
+
+func check_errata_1821534
+	/* Applies to r0p0 and r1p0 */
+	mov	x1, #0x10
+	b	cpu_rev_var_ls
+endfunc check_errata_1821534
 
 /* --------------------------------------------------
  * Errata Workaround for Cortex A78 Errata #1941498.
@@ -132,34 +160,6 @@ func check_errata_1951500
 	mov	x2, #CPU_REV(1, 1)
 	b	cpu_rev_var_range
 endfunc check_errata_1951500
-
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78 Errata #1821534.
- * This applies to revisions r0p0 and r1p0.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_a78_1821534_wa
-	/* Check revision. */
-	mov	x17, x30
-	bl	check_errata_1821534
-	cbz	x0, 1f
-
-	/* Set bit 2 in ACTLR2_EL1 */
-	mrs     x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #CORTEX_A78_ACTLR2_EL1_BIT_2
-	msr     CORTEX_A78_ACTLR2_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_a78_1821534_wa
-
-func check_errata_1821534
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1821534
 
 /* --------------------------------------------------
  * Errata Workaround for Cortex A78 Errata 1952683.
@@ -553,9 +553,9 @@ func cortex_a78_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A78_1688305, cortex_a78, 1688305
+	report_errata ERRATA_A78_1821534, cortex_a78, 1821534
 	report_errata ERRATA_A78_1941498, cortex_a78, 1941498
 	report_errata ERRATA_A78_1951500, cortex_a78, 1951500
-	report_errata ERRATA_A78_1821534, cortex_a78, 1821534
 	report_errata ERRATA_A78_1952683, cortex_a78, 1952683
 	report_errata ERRATA_A78_2132060, cortex_a78, 2132060
 	report_errata ERRATA_A78_2242635, cortex_a78, 2242635
