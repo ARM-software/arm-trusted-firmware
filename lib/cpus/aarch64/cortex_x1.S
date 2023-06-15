@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Google LLC. All rights reserved.
+ * Copyright (c) 2022-2023, Google LLC. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,33 +24,6 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 /* --------------------------------------------------
- * Errata Workaround for X1 Erratum 1821534.
- * This applies to revision r0p0 and r1p0 of X1.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_x1_1821534_wa
-	/* Compare x0 against revision r1p0 */
-	mov	x17, x30
-	bl	check_errata_1821534
-	cbz	x0, 1f
-	mrs	x1, CORTEX_X1_ACTLR2_EL1
-	orr	x1, x1, BIT(2)
-	msr	CORTEX_X1_ACTLR2_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_x1_1821534_wa
-
-func check_errata_1821534
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1821534
-
-/* --------------------------------------------------
  * Errata Workaround for X1 Erratum 1688305.
  * This applies to revision r0p0 and r1p0 of X1.
  * Inputs:
@@ -64,7 +37,7 @@ func errata_x1_1688305_wa
 	bl	check_errata_1688305
 	cbz	x0, 1f
 	mrs	x0, CORTEX_X1_ACTLR2_EL1
-	orr	x0, x0, BIT(1)
+	orr	x0, x0, #BIT(1)
 	msr	CORTEX_X1_ACTLR2_EL1, x0
 	isb
 
@@ -77,6 +50,33 @@ func check_errata_1688305
 	mov	x1, #0x10
 	b	cpu_rev_var_ls
 endfunc check_errata_1688305
+
+/* --------------------------------------------------
+ * Errata Workaround for X1 Erratum 1821534.
+ * This applies to revision r0p0 and r1p0 of X1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_x1_1821534_wa
+	/* Compare x0 against revision r1p0 */
+	mov	x17, x30
+	bl	check_errata_1821534
+	cbz	x0, 1f
+	mrs	x1, CORTEX_X1_ACTLR2_EL1
+	orr	x1, x1, #BIT(2)
+	msr	CORTEX_X1_ACTLR2_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_x1_1821534_wa
+
+func check_errata_1821534
+	/* Applies to r0p0 and r1p0 */
+	mov	x1, #0x10
+	b	cpu_rev_var_ls
+endfunc check_errata_1821534
 
 /* --------------------------------------------------
  * Errata Workaround for X1 Erratum 1827429.
@@ -183,8 +183,8 @@ func cortex_x1_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
-	report_errata ERRATA_X1_1821534, cortex_x1, 1821534
 	report_errata ERRATA_X1_1688305, cortex_x1, 1688305
+	report_errata ERRATA_X1_1821534, cortex_x1, 1821534
 	report_errata ERRATA_X1_1827429, cortex_x1, 1827429
 	report_errata WORKAROUND_CVE_2022_23960, cortex_x1, cve_2022_23960
 
