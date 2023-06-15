@@ -23,6 +23,10 @@
  * secure (TZ)		2		0 -> Non secure, 1 -> secure
  * EL			3:4		00 -> EL0, 01 -> EL1, 10 -> EL2, 11 -> EL3
  * CPU#			5:6		00 -> A53_0, 01 -> A53_1, 10 -> A53_2, 11 -> A53_3
+ * Reserved		7:10		Reserved
+ * Cluster#		11:12		00 -> Cluster 0, 01 -> Cluster 1, 10 -> Cluster 2,
+ *					11 -> Cluster (Applicable for Versal NET only).
+ * Reserved		13:16		Reserved
  */
 
 #define XBL_FLAGS_ESTATE_SHIFT		0U
@@ -53,6 +57,13 @@
 #define XBL_FLAGS_A53_1		1U
 #define XBL_FLAGS_A53_2		2U
 #define XBL_FLAGS_A53_3		3U
+
+#if defined(PLAT_versal_net)
+#define XBL_FLAGS_CLUSTER_SHIFT		11U
+#define XBL_FLAGS_CLUSTER_MASK		GENMASK(11, 12)
+
+#define XBL_FLAGS_CLUSTER_0		0U
+#endif /* PLAT_versal_net */
 
 /**
  * get_xbl_cpu() - Get the target CPU for partition.
@@ -130,6 +141,21 @@ static int32_t get_xbl_estate(const struct xbl_partition *partition)
 	return flags >> XBL_FLAGS_ESTATE_SHIFT;
 }
 
+#if defined(PLAT_versal_net)
+/**
+ * get_xbl_cluster - Get the cluster number
+ * @partition: pointer to the partition structure.
+ *
+ * Return: cluster number for the partition.
+ */
+static int32_t get_xbl_cluster(const struct xbl_partition *partition)
+{
+	uint64_t flags = partition->flags & XBL_FLAGS_CLUSTER_MASK;
+
+	return (int32_t)(flags >> XBL_FLAGS_CLUSTER_SHIFT);
+}
+#endif /* PLAT_versal_net */
+
 /**
  * xbl_tfa_handover() - Populates the bl32 and bl33 image info structures.
  * @bl32: BL32 image info structure.
@@ -184,6 +210,17 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		VERBOSE("BL31: %zd: entry:0x%" PRIx64 ", flags:0x%" PRIx64 "\n", i,
 			HandoffParams->partition[i].entry_point,
 			HandoffParams->partition[i].flags);
+
+#if defined(PLAT_versal_net)
+		uint32_t target_cluster;
+
+		target_cluster = get_xbl_cluster(&HandoffParams->partition[i]);
+		if (target_cluster != XBL_FLAGS_CLUSTER_0) {
+			WARN("BL31: invalid target Cluster (%i)\n",
+			     target_cluster);
+			continue;
+		}
+#endif /* PLAT_versal_net */
 
 		target_cpu = get_xbl_cpu(&HandoffParams->partition[i]);
 		if (target_cpu != XBL_FLAGS_A53_0) {
