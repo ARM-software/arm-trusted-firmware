@@ -117,7 +117,7 @@ void bl2_plat_mboot_init(void)
 
 	event_log_init((uint8_t *)event_log_start, event_log_finish);
 
-	rss_measured_boot_init();
+	rss_measured_boot_init(fvp_rss_mboot_metadata);
 }
 
 int plat_mboot_measure_critical_data(unsigned int critical_data_id,
