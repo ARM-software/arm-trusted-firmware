@@ -20,7 +20,7 @@
 						SMCCC_VERSION_MINOR_SHIFT))
 
 #define SMCCC_MAJOR_VERSION U(1)
-#define SMCCC_MINOR_VERSION U(2)
+#define SMCCC_MINOR_VERSION U(4)
 
 /*******************************************************************************
  * Bit definitions inside the function id as per the SMC calling convention
