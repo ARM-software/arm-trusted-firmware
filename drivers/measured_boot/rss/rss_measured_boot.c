@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,23 +32,10 @@
 #  error Invalid Measured Boot algorithm.
 #endif /* MBOOT_ALG_ID */
 
-/* Pointer to struct rss_mboot_metadata */
-static struct rss_mboot_metadata *plat_metadata_ptr;
-
 /* Functions' declarations */
-void rss_measured_boot_init(void)
+void rss_measured_boot_init(struct rss_mboot_metadata *metadata_ptr)
 {
-	/* At this point it is expected that communication channel over MHU
-	 * is already initialised by platform init.
-	 */
-	struct rss_mboot_metadata *metadata_ptr;
-
-	/* Get pointer to platform's struct rss_mboot_metadata structure */
-	plat_metadata_ptr = plat_rss_mboot_get_metadata();
-	assert(plat_metadata_ptr != NULL);
-
-	/* Use a local variable to preserve the value of the global pointer */
-	metadata_ptr = plat_metadata_ptr;
+	assert(metadata_ptr != NULL);
 
 	/* Init the non-const members of the metadata structure */
 	while (metadata_ptr->id != RSS_MBOOT_INVALID_ID) {
@@ -58,13 +45,15 @@ void rss_measured_boot_init(void)
 	}
 }
 
-int rss_mboot_measure_and_record(uintptr_t data_base, uint32_t data_size,
+int rss_mboot_measure_and_record(struct rss_mboot_metadata *metadata_ptr,
+				 uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id)
 {
 	unsigned char hash_data[CRYPTO_MD_MAX_SIZE];
 	int rc;
 	psa_status_t ret;
-	const struct rss_mboot_metadata *metadata_ptr = plat_metadata_ptr;
+
+	assert(metadata_ptr != NULL);
 
 	/* Get the metadata associated with this image. */
 	while ((metadata_ptr->id != RSS_MBOOT_INVALID_ID) &&
@@ -103,13 +92,15 @@ int rss_mboot_measure_and_record(uintptr_t data_base, uint32_t data_size,
 	return 0;
 }
 
-int rss_mboot_set_signer_id(unsigned int img_id,
+int rss_mboot_set_signer_id(struct rss_mboot_metadata *metadata_ptr,
+			    unsigned int img_id,
 			    const void *pk_ptr,
 			    size_t pk_len)
 {
 	unsigned char hash_data[CRYPTO_MD_MAX_SIZE];
-	struct rss_mboot_metadata *metadata_ptr = plat_metadata_ptr;
 	int rc;
+
+	assert(metadata_ptr != NULL);
 
 	/* Get the metadata associated with this image. */
 	while ((metadata_ptr->id != RSS_MBOOT_INVALID_ID) &&

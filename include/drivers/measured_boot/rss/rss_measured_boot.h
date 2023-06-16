@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,12 +44,14 @@ struct rss_mboot_metadata {
 };
 
 /* Functions' declarations */
-void rss_measured_boot_init(void);
-struct rss_mboot_metadata *plat_rss_mboot_get_metadata(void);
-int rss_mboot_measure_and_record(uintptr_t data_base, uint32_t data_size,
+void rss_measured_boot_init(struct rss_mboot_metadata *metadata_ptr);
+int rss_mboot_measure_and_record(struct rss_mboot_metadata *metadata_ptr,
+				 uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id);
 
 /* TODO: These metadata are currently not available during TF-A boot */
-int rss_mboot_set_signer_id(unsigned int img_id, const void *pk_ptr, size_t pk_len);
+int rss_mboot_set_signer_id(struct rss_mboot_metadata *metadata_ptr,
+			    unsigned int img_id, const void *pk_ptr,
+			    size_t pk_len);
 
 #endif /* RSS_MEASURED_BOOT_H */
