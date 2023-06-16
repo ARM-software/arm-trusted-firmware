@@ -3,7 +3,7 @@ PSCI Library Integration guide for Armv8-A AArch32 systems
 
 This document describes the PSCI library interface with a focus on how to
 integrate with a suitable Trusted OS for an Armv8-A AArch32 system. The PSCI
-Library implements the PSCI Standard as described in `PSCI spec`_ and is meant
+Library implements the PSCI Standard as described in `PSCI`_ and is meant
 to be integrated with EL3 Runtime Software which invokes the PSCI Library
 interface appropriately. **EL3 Runtime Software** refers to software executing
 at the highest secure privileged mode, which is EL3 in AArch64 or Secure SVC/
@@ -74,7 +74,7 @@ PSCI CPU context management
 ---------------------------
 
 PSCI library is in charge of initializing/restoring the non-secure CPU system
-registers according to `PSCI specification`_ during cold/warm boot.
+registers according to `PSCI`_ during cold/warm boot.
 This is referred to as ``PSCI CPU Context Management``. Registers that need to
 be preserved across CPU power down/power up cycles are maintained in
 ``cpu_context_t`` data structure. The initialization of other non-secure CPU
@@ -120,8 +120,8 @@ to CPU context ``cpu_context_t`` data and these are described in
 PSCI Library Interface
 ----------------------
 
-The PSCI library implements the `PSCI Specification`_. The interfaces
-to this library are declared in ``psci_lib.h`` and are as listed below:
+The PSCI library implements the `PSCI`_. The interfaces to this library are
+declared in ``psci_lib.h`` and are as listed below:
 
 .. code:: c
 
@@ -254,7 +254,7 @@ PSCI service range specified in `SMCCC`_. The function ID ``smc_fid`` (first
 argument) determines the PSCI API to be called. The ``x1`` to ``x4`` (2nd to 5th
 arguments), are the values of the registers r1 - r4 (in AArch32) or x1 - x4
 (in AArch64) when the SMC is received. These are the arguments to PSCI API as
-described in `PSCI spec`_. The 'flags' (8th argument) is a bit field parameter
+described in `PSCI`_. The 'flags' (8th argument) is a bit field parameter
 and is detailed in 'smccc.h' header. It includes whether the call is from the
 secure or non-secure world. The ``cookie`` (6th argument) and the ``handle``
 (7th argument) are not used and are reserved for future use.
@@ -273,7 +273,7 @@ Interface : psci_warmboot_entrypoint()
     Return   : void
 
 This function performs the warm boot initialization/restoration as mandated by
-`PSCI spec`_. For AArch32, on wakeup from power down the CPU resets to secure SVC
+`PSCI`_. For AArch32, on wakeup from power down the CPU resets to secure SVC
 mode and the EL3 Runtime Software must perform the prerequisite initializations
 mentioned at top of this section. This function must be called with Data cache
 disabled (unless build option ``HW_ASSISTED_COHERENCY`` is enabled) but with MMU
@@ -496,7 +496,7 @@ A brief description of each callback is given below:
    This callback is called in response to PSCI_MIGRATE_INFO_TYPE or
    PSCI_MIGRATE_INFO_UP_CPU APIs. The return value of this callback must
    correspond to the return value of PSCI_MIGRATE_INFO_TYPE API as described
-   in `PSCI spec`_. If the secure payload is a Uniprocessor (UP)
+   in `PSCI`_. If the secure payload is a Uniprocessor (UP)
    implementation, then it must update the mpidr of the CPU it is resident in
    via ``resident_cpu`` (first argument). The updates to ``resident_cpu`` is
    ignored if the secure payload is a multiprocessor (MP) implementation.
@@ -528,9 +528,7 @@ workarounds.
 
 --------------
 
-*Copyright (c) 2016-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.*
 
-.. _PSCI spec: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
+.. _PSCI: https://developer.arm.com/documentation/den0022/latest/
 .. _SMCCC: https://developer.arm.com/docs/den0028/latest
-.. _PSCI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _PSCI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf

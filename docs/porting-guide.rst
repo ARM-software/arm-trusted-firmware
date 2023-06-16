@@ -3668,7 +3668,7 @@ amount of open resources per driver.
 
 *Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
 
-.. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
+.. _PSCI: https://developer.arm.com/documentation/den0022/latest/
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
 .. _3.0 (GICv3): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
 .. _FreeBSD: https://www.freebsd.org

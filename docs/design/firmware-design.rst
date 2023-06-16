@@ -9,12 +9,12 @@ The TBB sequence starts when the platform is powered on and runs up
 to the stage where it hands-off control to firmware running in the normal
 world in DRAM. This is the cold boot path.
 
-TF-A also implements the `Power State Coordination Interface PDD`_ as a
-runtime service. PSCI is the interface from normal world software to firmware
-implementing power management use-cases (for example, secondary CPU boot,
-hotplug and idle). Normal world software can access TF-A runtime services via
-the Arm SMC (Secure Monitor Call) instruction. The SMC instruction must be
-used as mandated by the SMC Calling Convention (`SMCCC`_).
+TF-A also implements the `PSCI`_ as a runtime service. PSCI is the interface
+from normal world software to firmware implementing power management use-cases
+(for example, secondary CPU boot, hotplug and idle). Normal world software can
+access TF-A runtime services via the Arm SMC (Secure Monitor Call) instruction.
+The SMC instruction must be used as mandated by the SMC Calling Convention
+(`SMCCC`_).
 
 TF-A implements a framework for configuring and managing interrupts generated
 in either security state. The details of the interrupt management framework
@@ -400,8 +400,7 @@ initialization is complete. Hence, BL2 populates a platform-specific area of
 memory with the entrypoint and Saved Program Status Register (``SPSR``) of the
 normal world software image. The entrypoint is the load address of the BL33
 image. The ``SPSR`` is determined as specified in Section 5.13 of the
-`Power State Coordination Interface PDD`_. This information is passed to the
-EL3 Runtime Software.
+`PSCI`_. This information is passed to the EL3 Runtime Software.
 
 AArch64 BL31 (EL3 Runtime Software) execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -952,8 +951,8 @@ TODO: Provide design walkthrough of PSCI implementation.
 
 The PSCI v1.1 specification categorizes APIs as optional and mandatory. All the
 mandatory APIs in PSCI v1.1, PSCI v1.0 and in PSCI v0.2 draft specification
-`Power State Coordination Interface PDD`_ are implemented. The table lists
-the PSCI v1.1 APIs and their support in generic code.
+`PSCI`_ are implemented. The table lists the PSCI v1.1 APIs and their support
+in generic code.
 
 An API implementation might have a dependency on platform code e.g. CPU_SUSPEND
 requires the platform to export a part of the implementation. Hence the level
@@ -2790,7 +2789,7 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 
 -  `Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D)`_
 
--  `Power State Coordination Interface PDD`_
+-  `PSCI`_
 
 -  `SMC Calling Convention`_
 
@@ -2800,10 +2799,8 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 
 *Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
 
-.. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMCCC: https://developer.arm.com/docs/den0028/latest
-.. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
-.. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
+.. _PSCI: https://developer.arm.com/documentation/den0022/latest/
 .. _Arm ARM: https://developer.arm.com/docs/ddi0487/latest
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 .. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
