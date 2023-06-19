@@ -16,9 +16,7 @@
 	 * ---------------------------------------------
 	 */
 func cortex_a35_disable_dcache
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
+	sysreg_bit_clear sctlr_el3, SCTLR_C_BIT
 	isb
 	ret
 endfunc cortex_a35_disable_dcache
@@ -28,18 +26,14 @@ endfunc cortex_a35_disable_dcache
 	 * ---------------------------------------------
 	 */
 func cortex_a35_disable_smp
-	mrs	x0, CORTEX_A35_CPUECTLR_EL1
-	bic	x0, x0, #CORTEX_A35_CPUECTLR_SMPEN_BIT
-	msr	CORTEX_A35_CPUECTLR_EL1, x0
+	sysreg_bit_clear CORTEX_A35_CPUECTLR_EL1, CORTEX_A35_CPUECTLR_SMPEN_BIT
 	isb
 	dsb	sy
 	ret
 endfunc cortex_a35_disable_smp
 
 workaround_reset_start cortex_a35, ERRATUM(855472), ERRATA_A35_855472
-	 mrs	x1, CORTEX_A35_CPUACTLR_EL1
-	 orr	x1, x1, #CORTEX_A35_CPUACTLR_EL1_ENDCCASCI
-	 msr	CORTEX_A35_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A35_CPUACTLR_EL1, CORTEX_A35_CPUACTLR_EL1_ENDCCASCI
 workaround_reset_end cortex_a35, ERRATUM(855472)
 
 check_erratum_ls cortex_a35, ERRATUM(855472), CPU_REV(0, 0)
@@ -53,9 +47,7 @@ cpu_reset_func_start cortex_a35
 	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, CORTEX_A35_CPUECTLR_EL1
-	orr	x0, x0, #CORTEX_A35_CPUECTLR_SMPEN_BIT
-	msr	CORTEX_A35_CPUECTLR_EL1, x0
+	sysreg_bit_set CORTEX_A35_CPUECTLR_EL1, CORTEX_A35_CPUECTLR_SMPEN_BIT
 cpu_reset_func_end cortex_a35
 
 func cortex_a35_core_pwr_dwn
