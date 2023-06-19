@@ -10,6 +10,8 @@
 
 #include <pm_common.h>
 
+extern bool pwrdwn_req_received;
+
 /******************************************************************************/
 /**
  * SECURE_REDUNDANT_CALL() - Adds redundancy to the function call. This is to
@@ -30,6 +32,7 @@
 		status_tmp = function(__VA_ARGS__); \
 	}
 
+void request_cpu_pwrdwn(void);
 int32_t pm_setup(void);
 uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 			uint64_t x4, const void *cookie, void *handle,

@@ -41,7 +41,7 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(icc_asgi1r_el1, S3_0_C12_C11_6)
 /* pm_up = true - UP, pm_up = false - DOWN */
 static bool pm_up;
 static uint32_t sgi = (uint32_t)INVALID_SGI;
-static bool pwrdwn_req_received;
+bool pwrdwn_req_received;
 
 static void notify_os(void)
 {
@@ -79,7 +79,7 @@ static void raise_pwr_down_interrupt(u_register_t mpidr)
 	plat_ic_raise_el3_sgi(CPU_PWR_DOWN_REQ_INTR, mpidr);
 }
 
-static void request_cpu_pwrdwn(void)
+void request_cpu_pwrdwn(void)
 {
 	enum pm_ret_status ret;
 

@@ -14,10 +14,12 @@
 #include <plat/common/platform.h>
 #include <plat_arm.h>
 
+#include <drivers/delay_timer.h>
 #include <plat_private.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include <pm_common.h>
+#include "pm_ipi.h"
 #include "pm_svc_main.h"
 #include "versal_net_def.h"
 
@@ -88,9 +90,31 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
  */
 static void __dead2 versal_net_system_reset(void)
 {
-	/* Send the system reset request to the PMC */
-	pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
-			  pm_get_shutdown_scope(), SECURE_FLAG);
+	uint32_t ret, timeout = 10000U;
+
+	request_cpu_pwrdwn();
+
+	/*
+	 * Send the system reset request to the firmware if power down request
+	 * is not received from firmware.
+	 */
+	if (!pwrdwn_req_received) {
+		(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
+					 pm_get_shutdown_scope(), SECURE_FLAG);
+
+		/*
+		 * Wait for system shutdown request completed and idle callback
+		 * not received.
+		 */
+		do {
+			ret = ipi_mb_enquire_status(primary_proc->ipi->local_ipi_id,
+						    primary_proc->ipi->remote_ipi_id);
+			udelay(100);
+			timeout--;
+		} while ((ret != IPI_MB_STATUS_RECV_PENDING) && (timeout > 0U));
+	}
+
+	(void)psci_cpu_off();
 
 	while (1) {
 		wfi();
