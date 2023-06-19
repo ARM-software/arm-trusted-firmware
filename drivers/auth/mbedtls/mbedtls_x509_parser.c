@@ -135,8 +135,38 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 		if ((oid != NULL) &&
 		    ((size_t)oid_len == strlen(oid_str)) &&
 		    (strcmp(oid, oid_str) == 0)) {
+			/* Extension must be ASN.1 DER */
+			if (len < 2) {
+				/* too short */
+				return IMG_PARSER_ERR_FORMAT;
+			}
+
+			if ((p[0] & 0x1F) == 0x1F) {
+				/* multi-byte ASN.1 DER tag, not allowed */
+				return IMG_PARSER_ERR_FORMAT;
+			}
+
+			if ((p[0] & 0xDF) == 0) {
+				/* UNIVERSAL 0 tag, not allowed */
+				return IMG_PARSER_ERR_FORMAT;
+			}
+
 			*ext = (void *)p;
 			*ext_len = (unsigned int)len;
+
+			/* Advance past the tag byte */
+			p++;
+
+			if (mbedtls_asn1_get_len(&p, end_ext_data, &len)) {
+				/* not valid DER */
+				return IMG_PARSER_ERR_FORMAT;
+			}
+
+			if (p + len != end_ext_data) {
+				/* junk after ASN.1 object */
+				return IMG_PARSER_ERR_FORMAT;
+			}
+
 			return IMG_PARSER_OK;
 		}
 

@@ -172,16 +172,19 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 	int rc;
 
 	/*
-	 * Digest info should be an MBEDTLS_ASN1_SEQUENCE
-	 * and consume all bytes.
+	 * Digest info should be an MBEDTLS_ASN1_SEQUENCE, but padding after
+	 * it is allowed.  This is necessary to support multiple hash
+	 * algorithms.
 	 */
 	p = (unsigned char *)digest_info_ptr;
 	end = p + digest_info_len;
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				  MBEDTLS_ASN1_SEQUENCE);
-	if (rc != 0 || ((size_t)(end - p) != len)) {
+	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
 	}
+
+	end = p + len;
 
 	/* Get the hash algorithm */
 	rc = mbedtls_asn1_get_alg(&p, end, &hash_oid, &params);
