@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -424,6 +424,36 @@
 	mrs	x1, \_reg
 	orr	x1, x1, #\_bit
 	msr	\_reg, x1
+.endm
+
+/*
+ * Clear a bit in a system register. Can clear multiple bits but is limited by
+ *  the way the BIC instrucion encodes them.
+ *
+ * see sysreg_bit_set for usage
+ */
+.macro sysreg_bit_clear _reg:req, _bit:req
+	mrs	x1, \_reg
+	bic	x1, x1, #\_bit
+	msr	\_reg, x1
+.endm
+
+.macro override_vector_table _table:req
+	adr	x1, \_table
+	msr	vbar_el3, x1
+.endm
+
+/*
+ * BFI : Inserts bitfield into a system register.
+ *
+ * BFI{cond} Rd, Rn, #lsb, #width
+ */
+.macro sysreg_bitfield_insert _reg:req, _src:req, _lsb:req, _width:req
+	/* Source value for BFI */
+	mov	x1, #\_src
+	mrs	x0, \_reg
+	bfi	x0, x1, #\_lsb, #\_width
+	msr	\_reg, x0
 .endm
 
 /*
