@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,6 +34,11 @@ func cortex_a73_disable_smp
 	dsb	sy
 	ret
 endfunc cortex_a73_disable_smp
+
+func check_smccc_arch_workaround_3
+	mov	x0, #ERRATA_APPLIES
+	ret
+endfunc check_smccc_arch_workaround_3
 
 	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A73 Errata #852427.
@@ -90,6 +95,45 @@ func check_errata_855423
 	mov	x1, #0x01
 	b	cpu_rev_var_ls
 endfunc check_errata_855423
+
+func check_errata_cve_2017_5715
+	cpu_check_csv2	x0, 1f
+#if WORKAROUND_CVE_2017_5715
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+1:
+	mov	x0, #ERRATA_NOT_APPLIES
+	ret
+endfunc check_errata_cve_2017_5715
+
+func check_errata_cve_2018_3639
+#if WORKAROUND_CVE_2018_3639
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2018_3639
+
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960
+	cpu_check_csv2	x0, 1f
+	mov	x0, #ERRATA_APPLIES
+	ret
+ 1:
+# if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+# else
+	mov	x0, #ERRATA_MISSING
+# endif /* WORKAROUND_CVE_2022_23960 */
+	ret
+#endif /* WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960 */
+	mov	x0, #ERRATA_MISSING
+	ret
+endfunc check_errata_cve_2022_23960
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A73.
@@ -207,49 +251,6 @@ func cortex_a73_cluster_pwr_dwn
 	b	cortex_a73_disable_smp
 endfunc cortex_a73_cluster_pwr_dwn
 
-func check_errata_cve_2017_5715
-	cpu_check_csv2	x0, 1f
-#if WORKAROUND_CVE_2017_5715
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-1:
-	mov	x0, #ERRATA_NOT_APPLIES
-	ret
-endfunc check_errata_cve_2017_5715
-
-func check_errata_cve_2018_3639
-#if WORKAROUND_CVE_2018_3639
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2018_3639
-
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960
-	cpu_check_csv2	x0, 1f
-	mov	x0, #ERRATA_APPLIES
-	ret
- 1:
-# if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-# else
-	mov	x0, #ERRATA_MISSING
-# endif /* WORKAROUND_CVE_2022_23960 */
-	ret
-#endif /* WORKAROUND_CVE_2017_5715 || WORKAROUND_CVE_2022_23960 */
-	mov	x0, #ERRATA_MISSING
-	ret
-endfunc check_errata_cve_2022_23960
-
-func check_smccc_arch_workaround_3
-	mov	x0, #ERRATA_APPLIES
-	ret
-endfunc check_smccc_arch_workaround_3
 
 #if REPORT_ERRATA
 /*
