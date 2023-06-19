@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,47 +36,19 @@ func cortex_a35_disable_smp
 	ret
 endfunc cortex_a35_disable_smp
 
-	 /* ---------------------------------------------------
-	 * Errata Workaround for Cortex A35 Errata #855472.
-	 * This applies to revisions r0p0 of Cortex A35.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ---------------------------------------------------
-	 */
-func errata_a35_855472_wa
-	 /*
-	  * Compare x0 against revision r0p0
-	  */
-	 mov	x17, x30
-	 bl	check_errata_855472
-	 cbz	x0, 1f
+workaround_reset_start cortex_a35, ERRATUM(855472), ERRATA_A35_855472
 	 mrs	x1, CORTEX_A35_CPUACTLR_EL1
 	 orr	x1, x1, #CORTEX_A35_CPUACTLR_EL1_ENDCCASCI
 	 msr	CORTEX_A35_CPUACTLR_EL1, x1
-	 isb
-1:
-	ret	x17
-endfunc errata_a35_855472_wa
+workaround_reset_end cortex_a35, ERRATUM(855472)
 
-func check_errata_855472
-	mov	x1, #0x00
-	b	cpu_rev_var_ls
-endfunc check_errata_855472
+check_erratum_ls cortex_a35, ERRATUM(855472), CPU_REV(0, 0)
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A35.
-	 * Clobbers: x0
 	 * -------------------------------------------------
 	 */
-func cortex_a35_reset_func
-	mov	x19, x30
-	bl	cpu_get_rev_var
-
-#if ERRATA_A35_855472
-	bl	errata_a35_855472_wa
-#endif
-
+cpu_reset_func_start cortex_a35
 	/* ---------------------------------------------
 	 * Enable the SMP bit.
 	 * ---------------------------------------------
@@ -84,9 +56,7 @@ func cortex_a35_reset_func
 	mrs	x0, CORTEX_A35_CPUECTLR_EL1
 	orr	x0, x0, #CORTEX_A35_CPUECTLR_SMPEN_BIT
 	msr	CORTEX_A35_CPUECTLR_EL1, x0
-	isb
-	ret	x19
-endfunc cortex_a35_reset_func
+cpu_reset_func_end cortex_a35
 
 func cortex_a35_core_pwr_dwn
 	mov	x18, x30
@@ -149,27 +119,7 @@ func cortex_a35_cluster_pwr_dwn
 	b	cortex_a35_disable_smp
 endfunc cortex_a35_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex A35. Must follow AAPCS.
- */
-func cortex_a35_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_A35_855472, cortex_a35, 855472
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_a35_errata_report
-#endif
-
+errata_report_shim cortex_a35
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a35 specific
