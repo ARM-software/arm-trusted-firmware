@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,62 +25,6 @@
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X3_BHB_LOOP_COUNT, cortex_x3
 #endif /* WORKAROUND_CVE_2022_23960 */
-
-	/* ----------------------------------------------------
-	 * HW will do the cache maintenance while powering down
-	 * ----------------------------------------------------
-	 */
-func cortex_x3_core_pwr_dwn
-#if ERRATA_X3_2313909
-	mov	x15, x30
-	bl	cpu_get_rev_var
-	bl	errata_cortex_x3_2313909_wa
-	mov	x30, x15
-#endif /* ERRATA_X3_2313909 */
-
-	/* ---------------------------------------------------
-	 * Enable CPU power down bit in power control register
-	 * ---------------------------------------------------
-	 */
-	mrs	x0, CORTEX_X3_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_X3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_X3_CPUPWRCTLR_EL1, x0
-	isb
-	ret
-endfunc cortex_x3_core_pwr_dwn
-
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-func cortex_x3_reset_func
-	mov	x19, x30
-	/* Disable speculative loads */
-	msr	SSBS, xzr
-
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
-	/*
-	 * The Cortex-X3 generic vectors are overridden to apply
-	 * errata mitigation on exception entry from lower ELs.
-         */
-	adr	x0, wa_cve_vbar_cortex_x3
-	msr	vbar_el3, x0
-#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
-
-	bl	cpu_get_rev_var
-
-#if ERRATA_X3_2615812
-	bl	errata_cortex_x3_2615812_wa
-#endif /* ERRATA_X3_2615812 */
-
-	isb
-	ret	x19
-endfunc cortex_x3_reset_func
 
 /* ----------------------------------------------------------------------
  * Errata Workaround for Cortex-X3 Erratum 2313909 on power down request.
@@ -138,6 +82,62 @@ func check_errata_2615812
 	mov	x1, #0x11
 	b	cpu_rev_var_ls
 endfunc check_errata_2615812
+
+func check_errata_cve_2022_23960
+#if WORKAROUND_CVE_2022_23960
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2022_23960
+
+func cortex_x3_reset_func
+	mov	x19, x30
+	/* Disable speculative loads */
+	msr	SSBS, xzr
+
+#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+	/*
+	 * The Cortex-X3 generic vectors are overridden to apply
+	 * errata mitigation on exception entry from lower ELs.
+         */
+	adr	x0, wa_cve_vbar_cortex_x3
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+
+	bl	cpu_get_rev_var
+
+#if ERRATA_X3_2615812
+	bl	errata_cortex_x3_2615812_wa
+#endif /* ERRATA_X3_2615812 */
+
+	isb
+	ret	x19
+endfunc cortex_x3_reset_func
+
+	/* ----------------------------------------------------
+	 * HW will do the cache maintenance while powering down
+	 * ----------------------------------------------------
+	 */
+func cortex_x3_core_pwr_dwn
+#if ERRATA_X3_2313909
+	mov	x15, x30
+	bl	cpu_get_rev_var
+	bl	errata_cortex_x3_2313909_wa
+	mov	x30, x15
+#endif /* ERRATA_X3_2313909 */
+
+	/* ---------------------------------------------------
+	 * Enable CPU power down bit in power control register
+	 * ---------------------------------------------------
+	 */
+	mrs	x0, CORTEX_X3_CPUPWRCTLR_EL1
+	orr	x0, x0, #CORTEX_X3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	msr	CORTEX_X3_CPUPWRCTLR_EL1, x0
+	isb
+	ret
+endfunc cortex_x3_core_pwr_dwn
 
 #if REPORT_ERRATA
 	/*
