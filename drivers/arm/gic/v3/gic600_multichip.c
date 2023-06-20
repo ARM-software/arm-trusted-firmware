@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  * Copyright (c) 2022-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -217,7 +217,7 @@ static void gic600_multichip_validate_data(
 
 			/* SPI IDs range check */
 			if (!(spi_id_min >= GIC600_SPI_ID_MIN) ||
-			    !(spi_id_max < GIC600_SPI_ID_MAX) ||
+			    !(spi_id_max <= GIC600_SPI_ID_MAX) ||
 			    !(spi_id_min <= spi_id_max) ||
 			    !((spi_id_max - spi_id_min + 1) % 32 == 0)) {
 				ERROR("Invalid SPI IDs {%u, %u} passed for "

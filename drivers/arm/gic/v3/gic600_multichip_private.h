@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2023, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,7 +39,7 @@
 
 /* SPI interrupt id minimum and maximum range */
 #define GIC600_SPI_ID_MIN		32
-#define GIC600_SPI_ID_MAX		960
+#define GIC600_SPI_ID_MAX		991
 
 #define GIC700_SPI_ID_MIN		32
 #define GIC700_SPI_ID_MAX		991
