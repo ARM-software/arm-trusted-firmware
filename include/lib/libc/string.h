@@ -5,6 +5,7 @@
  */
 /*
  * Portions copyright (c) 2018-2020, ARM Limited and Contributors.
+ * Portions copyright (c) 2023, Intel Corporation. All rights reserved.
  * All rights reserved.
  */
 
@@ -14,6 +15,7 @@
 #include <stddef.h>
 
 void *memcpy(void *dst, const void *src, size_t len);
+int memcpy_s(void *dst, size_t dsize, void *src, size_t ssize);
 void *memmove(void *dst, const void *src, size_t len);
 int memcmp(const void *s1, const void *s2, size_t len);
 int strcmp(const char *s1, const char *s2);
