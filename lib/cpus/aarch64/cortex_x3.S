@@ -27,10 +27,7 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 workaround_runtime_start cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
-	/* Set bit 36 in ACTLR2_EL1 */
-	mrs	x1, CORTEX_X3_CPUACTLR2_EL1
-	orr	x1, x1, #CORTEX_X3_CPUACTLR2_EL1_BIT_36
-	msr	CORTEX_X3_CPUACTLR2_EL1, x1
+	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, CORTEX_X3_CPUACTLR2_EL1_BIT_36
 workaround_runtime_end cortex_x3, ERRATUM(2313909), NO_ISB
 
 check_erratum_ls cortex_x3, ERRATUM(2313909), CPU_REV(1, 0)
@@ -47,8 +44,7 @@ check_erratum_ls cortex_x3, ERRATUM(2615812), CPU_REV(1, 1)
 
 workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
-        adr     x0, wa_cve_vbar_cortex_x3
-        msr     vbar_el3, x0
+	override_vector_table wa_cve_vbar_cortex_x3
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x3, CVE(2022, 23960)
 
@@ -69,9 +65,7 @@ apply_erratum cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_X3_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_X3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_X3_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_X3_CPUPWRCTLR_EL1, CORTEX_X3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret
 endfunc cortex_x3_core_pwr_dwn
