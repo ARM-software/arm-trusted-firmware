@@ -519,7 +519,8 @@ sync_handler64:
 	 * flags using the appropriate helper.
 	 */
 2:
-	bfi	x7, x0, #FUNCID_SVE_HINT_SHIFT, #FUNCID_SVE_HINT_MASK
+	and	x16, x0, #(FUNCID_SVE_HINT_MASK << FUNCID_SVE_HINT_SHIFT)
+	orr	x7, x7, x16
 	bic	x0, x0, #(FUNCID_SVE_HINT_MASK << FUNCID_SVE_HINT_SHIFT)
 
 	/* Get the unique owning entity number */
