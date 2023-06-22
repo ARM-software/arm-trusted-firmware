@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,7 +42,7 @@ func check_errata_a9_794073
 	mov	r0, #ERRATA_MISSING
 #endif
 	bx	lr
-endfunc check_errata_cve_2017_5715
+endfunc check_errata_a9_794073
 
 func check_errata_cve_2017_5715
 #if WORKAROUND_CVE_2017_5715
@@ -77,7 +77,7 @@ endfunc cortex_a9_errata_report
 
 func cortex_a9_reset_func
 #if IMAGE_BL32 && WORKAROUND_CVE_2017_5715
-	ldr	r0, =workaround_bpiall_runtime_exceptions
+	ldr	r0, =wa_cve_2017_5715_bpiall_vbar
 	stcopr	r0, VBAR
 	stcopr	r0, MVBAR
 	/* isb will be applied in the course of the reset func */
