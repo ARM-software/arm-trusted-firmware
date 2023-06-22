@@ -777,16 +777,16 @@ emad_advance(const struct ffa_emad_v1_0 *emad, size_t offset)
 static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 				uint32_t ffa_version)
 {
-	uint64_t total_page_count;
+	unsigned long long total_page_count;
 	const struct ffa_emad_v1_0 *first_emad;
 	const struct ffa_emad_v1_0 *end_emad;
 	size_t emad_size;
-	uint32_t comp_mrd_offset = 0;
+	uint32_t comp_mrd_offset;
 	size_t header_emad_size;
 	size_t size;
 	size_t count;
 	size_t expected_size;
-	struct ffa_comp_mrd *comp;
+	const struct ffa_comp_mrd *comp;
 
 	if (obj->desc_filled != obj->desc_size) {
 		ERROR("BUG: %s called on incomplete object (%zu != %zu)\n",
@@ -807,9 +807,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 	comp_mrd_offset = first_emad->comp_mrd_offset;
 
 	/* Loop through the endpoint descriptors, validating each of them. */
-	for (const struct ffa_emad_v1_0 *emad = first_emad;
-	     emad < end_emad;
-	     emad = emad_advance(emad, emad_size)) {
+	for (const struct ffa_emad_v1_0 *emad = first_emad; emad < end_emad;) {
 		ffa_endpoint_id16_t ep_id;
 
 		/*
@@ -835,6 +833,23 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 			ERROR("%s: mismatching offsets provided, %u != %u\n",
 			       __func__, emad->comp_mrd_offset, comp_mrd_offset);
 			return FFA_ERROR_INVALID_PARAMETER;
+		}
+
+		/* Advance to the next endpoint descriptor */
+		emad = emad_advance(emad, emad_size);
+
+		/*
+		 * Ensure neither this emad nor any subsequent emads have
+		 * the same partition ID as the previous emad.
+		 */
+		for (const struct ffa_emad_v1_0 *other_emad = emad;
+		     other_emad < end_emad;
+		     other_emad = emad_advance(other_emad, emad_size)) {
+			if (ep_id == other_emad->mapd.endpoint_id) {
+				WARN("%s: Duplicated endpoint id 0x%x\n",
+				     __func__, emad->mapd.endpoint_id);
+				return FFA_ERROR_INVALID_PARAMETER;
+			}
 		}
 	}
 
@@ -869,16 +884,18 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 	}
 	size -= comp_mrd_offset;
 
+	/* Check that there is enough space for the composite descriptor. */
 	if (size < sizeof(struct ffa_comp_mrd)) {
 		WARN("%s: invalid object, offset %u, total size %zu, no header space.\n",
 		     __func__, comp_mrd_offset, obj->desc_size);
 		return FFA_ERROR_INVALID_PARAMETER;
 	}
-	size -= sizeof(struct ffa_comp_mrd);
+	size -= sizeof(*comp);
 
 	count = size / sizeof(struct ffa_cons_mrd);
 
-	comp = spmc_shmem_obj_get_comp_mrd(obj, ffa_version);
+	comp = (const struct ffa_comp_mrd *)
+	       ((const uint8_t *)(&obj->desc) + comp_mrd_offset);
 
 	if (comp->address_range_count != count) {
 		WARN("%s: invalid object, desc count %u != %zu\n",
@@ -886,6 +903,7 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 		return FFA_ERROR_INVALID_PARAMETER;
 	}
 
+	/* Ensure that the expected and actual sizes are equal. */
 	expected_size = comp_mrd_offset + sizeof(*comp) +
 		count * sizeof(struct ffa_cons_mrd);
 
@@ -897,14 +915,30 @@ static int spmc_shmem_check_obj(struct spmc_shmem_obj *obj,
 
 	total_page_count = 0;
 
+	/*
+	 * comp->address_range_count is 32-bit, so 'count' must fit in a
+	 * uint32_t at this point.
+	 */
 	for (size_t i = 0; i < count; i++) {
-		total_page_count +=
-			comp->address_range_array[i].page_count;
+		const struct ffa_cons_mrd *mrd = comp->address_range_array + i;
+
+		if (!is_aligned(mrd->address, PAGE_SIZE)) {
+			WARN("%s: invalid object, address in region descriptor "
+			     "%zu not 4K aligned (got 0x%016llx)",
+			     __func__, i, (unsigned long long)mrd->address);
+		}
+
+		/*
+		 * No overflow possible: total_page_count can hold at
+		 * least 2^64 - 1, but will be have at most 2^32 - 1.
+		 * values added to it, each of which cannot exceed 2^32 - 1.
+		 */
+		total_page_count += mrd->page_count;
 	}
+
 	if (comp->total_page_count != total_page_count) {
-		WARN("%s: invalid object, desc total_page_count %u != %" PRIu64 "\n",
-		     __func__, comp->total_page_count,
-		total_page_count);
+		WARN("%s: invalid object, desc total_page_count %u != %llu\n",
+		     __func__, comp->total_page_count, total_page_count);
 		return FFA_ERROR_INVALID_PARAMETER;
 	}
 
@@ -970,11 +1004,8 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 			       void *smc_handle)
 {
 	int ret;
-	size_t emad_size;
 	uint32_t handle_low;
 	uint32_t handle_high;
-	struct ffa_emad_v1_0 *emad;
-	struct ffa_emad_v1_0 *other_emad;
 
 	if (mbox->rxtx_page_count == 0U) {
 		WARN("%s: buffer pair not registered.\n", __func__);
@@ -1055,26 +1086,6 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 	ret = spmc_shmem_check_obj(obj, ffa_version);
 	if (ret != 0) {
 		goto err_bad_desc;
-	}
-
-	/* Ensure partition IDs are not duplicated. */
-	for (size_t i = 0; i < obj->desc.emad_count; i++) {
-		emad = spmc_shmem_obj_get_emad(&obj->desc, i, ffa_version,
-					       &emad_size);
-
-		for (size_t j = i + 1; j < obj->desc.emad_count; j++) {
-			other_emad = spmc_shmem_obj_get_emad(&obj->desc, j,
-							     ffa_version,
-							     &emad_size);
-
-			if (emad->mapd.endpoint_id ==
-				other_emad->mapd.endpoint_id) {
-				WARN("%s: Duplicated endpoint id 0x%x\n",
-				     __func__, emad->mapd.endpoint_id);
-				ret = FFA_ERROR_INVALID_PARAMETER;
-				goto err_bad_desc;
-			}
-		}
 	}
 
 	ret = spmc_shmem_check_state_obj(obj, ffa_version);
