@@ -11,18 +11,20 @@
  */
 
 #include <assert.h>
-#include <plat_ipi.h>
-#include <platform_def.h>
-#include <versal_def.h>
+
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv3.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
-#include <drivers/arm/gicv3.h>
-#include <drivers/arm/gic_common.h>
 #include <plat/common/platform.h>
+
+#include <plat_ipi.h>
+#include <platform_def.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_defs.h"
+#include <versal_def.h>
 
 #define UNDEFINED_CPUID		(~0)
 
