@@ -10,6 +10,7 @@
 
 #include "msm8916_gicv2.h"
 #include <msm8916_mmap.h>
+#include <platform_def.h>
 
 #define IRQ_SEC_SGI_0		8
 #define IRQ_SEC_SGI_1		9
@@ -19,8 +20,6 @@
 #define IRQ_SEC_SGI_5		13
 #define IRQ_SEC_SGI_6		14
 #define IRQ_SEC_SGI_7		15
-
-#define IRQ_SEC_PHY_TIMER	(16 + 2)	/* PPI #2 */
 
 static const interrupt_prop_t msm8916_interrupt_props[] = {
 	INTR_PROP_DESC(IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY,
@@ -53,6 +52,10 @@ static const gicv2_driver_data_t msm8916_gic_data = {
 void msm8916_gicv2_init(void)
 {
 	gicv2_driver_init(&msm8916_gic_data);
+}
+
+void msm8916_gicv2_configure(void)
+{
 	gicv2_distif_init();
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();

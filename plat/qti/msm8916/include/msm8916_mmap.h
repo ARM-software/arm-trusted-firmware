@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2021-2023, Stephan Gerhold <stephan@gerhold.net>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,8 +23,9 @@
 #define APPS_SMMU_BASE		(PCNOC_BASE + 0x1e00000)
 #define APPS_SMMU_QCOM		(APPS_SMMU_BASE + 0xf0000)
 
-#define BLSP_UART1_BASE		(PCNOC_BASE + 0x78af000)
-#define BLSP_UART2_BASE		(PCNOC_BASE + 0x78b0000)
+#define BLSP1_BASE		(PCNOC_BASE + 0x7880000)
+#define BLSP1_UART_BASE(n)	(BLSP1_BASE + 0x2f000 + (((n) - 1) * 0x1000))
+#define BLSP_UART_BASE		BLSP1_UART_BASE(QTI_UART_NUM)
 
 #define APCS_QGIC2_BASE		(APCS_BASE + 0x00000)
 #define APCS_QGIC2_GICD		(APCS_QGIC2_BASE + 0x0000)

@@ -8,5 +8,6 @@
 #define MSM8916_GICV2_H
 
 void msm8916_gicv2_init(void);
+void msm8916_gicv2_configure(void);
 
 #endif /* MSM8916_GICV2_H */

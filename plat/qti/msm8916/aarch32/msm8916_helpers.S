@@ -25,26 +25,26 @@
 	/* -------------------------------------------------
 	 * int plat_crash_console_init(void)
 	 * Initialize the crash console.
-	 * Out: x0 - 1 on success, 0 on error
-	 * Clobber list : x0 - x4
+	 * Out: r0 - 1 on success, 0 on error
+	 * Clobber list : r0 - r4
 	 * -------------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x1, BLSP_UART_BASE
-	mov	x0, #1
+	ldr	r1, =BLSP_UART_BASE
+	mov	r0, #1
 	b	console_uartdm_core_init
 endfunc plat_crash_console_init
 
 	/* -------------------------------------------------
 	 * int plat_crash_console_putc(int c)
 	 * Print a character on the crash console.
-	 * In : w0 - character to be printed
-	 * Out: w0 - printed character on success
-	 * Clobber list : x1, x2
+	 * In : r0 - character to be printed
+	 * Out: r0 - printed character on success
+	 * Clobber list : r1, r2
 	 * -------------------------------------------------
 	 */
 func plat_crash_console_putc
-	mov_imm	x1, BLSP_UART_BASE
+	ldr	r1, =BLSP_UART_BASE
 	b	console_uartdm_core_putc
 endfunc plat_crash_console_putc
 
@@ -52,11 +52,11 @@ endfunc plat_crash_console_putc
 	 * void plat_crash_console_flush(void)
 	 * Force a write of all buffered data that has not
 	 * been output.
-	 * Clobber list : x1, x2
+	 * Clobber list : r1, r2
 	 * -------------------------------------------------
 	 */
 func plat_crash_console_flush
-	mov_imm	x1, BLSP_UART_BASE
+	ldr	r1, =BLSP_UART_BASE
 	b	console_uartdm_core_flush
 endfunc plat_crash_console_flush
 
@@ -67,67 +67,46 @@ endfunc plat_crash_console_flush
 	 */
 func plat_panic_handler
 	/* Try to shutdown/reset */
-	mov_imm	x0, MPM_PS_HOLD
-	str	wzr, [x0]
+	ldr	r0, =MPM_PS_HOLD
+	mov	r1, #0
+	str	r1, [r0]
 1:	b	1b
 endfunc plat_panic_handler
 
 	/* -------------------------------------------------
 	 * unsigned int plat_my_core_pos(void)
-	 * Out: x0 - index of the calling CPU
+	 * Out: r0 - index of the calling CPU
 	 * -------------------------------------------------
 	 */
 func plat_my_core_pos
 	/* There is just a single cluster so this is very simple */
-	mrs	x0, mpidr_el1
-	and	x0, x0, #MPIDR_CPU_MASK
-	ret
+	ldcopr	r0, MPIDR
+	and	r0, r0, #MPIDR_CPU_MASK
+	bx	lr
 endfunc plat_my_core_pos
 
 	/* -------------------------------------------------
 	 * uintptr_t plat_get_my_entrypoint(void)
 	 * Distinguish cold and warm boot and return warm boot
 	 * entry address if available.
-	 * Out: x0 - warm boot entry point or 0 on cold boot
+	 * Out: r0 - warm boot entry point or 0 on cold boot
 	 * -------------------------------------------------
 	 */
 func plat_get_my_entrypoint
-	ldr	x0, msm8916_entry_point
-	cbz	x0, 1f
-	ret
-1:
+	ldr	r0, =msm8916_entry_point
+	ldr	r0, [r0]
+	cmp	r0, #0
+	bxne	lr
+
 	/*
 	 * Cold boot: Disable TCM redirect to L2 cache as early as
 	 * possible to avoid crashes when making use of the cache.
 	 */
-	mov_imm	x1, APCS_CFG
-	ldr	w2, [x1, #APCS_TCM_START_ADDR]
-	and	w2, w2, #~APCS_TCM_REDIRECT_EN_0
-	str	w2, [x1, #APCS_TCM_START_ADDR]
-
-	/*
-	 * After reset the CPU always starts executing at the fixed reset
-	 * address (0x0), which does not match the link address of BL31.
-	 * The "boot remapper" redirects all memory accesses to the real
-	 * physical address in DRAM.
-	 *
-	 * For warm boots, this is already handled by loading the real
-	 * entry point address above.
-	 *
-	 * For cold boots, check if the CPU is using the boot remapper,
-	 * i.e. if bl31_entrypoint appears to be at the reset address (0x0).
-	 */
-	adr	x1, bl31_entrypoint
-	cbnz	x1, 2f
-
-	/*
-	 * Add the real BL31_BASE offset to the return address in the link
-	 * register so the CPU will continue at the real address after return.
-	 */
-	mov_imm	x1, BL31_BASE
-	add	lr, lr, x1
-2:
-	ret
+	ldr	r1, =APCS_CFG
+	ldr	r2, [r1, #APCS_TCM_START_ADDR]
+	and	r2, r2, #~APCS_TCM_REDIRECT_EN_0
+	str	r2, [r1, #APCS_TCM_START_ADDR]
+	bx	lr
 endfunc plat_get_my_entrypoint
 
 	/* -------------------------------------------------
@@ -138,7 +117,7 @@ endfunc plat_get_my_entrypoint
 	 */
 func platform_mem_init
 	/* Nothing to do here, all memory is already initialized */
-	ret
+	bx	lr
 endfunc platform_mem_init
 
 	.data
@@ -149,4 +128,4 @@ endfunc platform_mem_init
 	 * -------------------------------------------------
 	 */
 msm8916_entry_point:
-	.quad	0
+	.word	0
