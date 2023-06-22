@@ -175,6 +175,15 @@ Arm FVP Build Options
 - ``FVP_TRUSTED_SRAM_SIZE``: Size (in kilobytes) of the Trusted SRAM region to
   utilize when building for the FVP platform. This option defaults to 256.
 
+Arm Juno Build Options
+----------------------
+
+-  ``JUNO_AARCH32_EL3_RUNTIME``: This build flag enables you to execute EL3
+   runtime software in AArch32 mode, which is required to run AArch32 on Juno.
+   By default this flag is set to '0'. Enabling this flag builds BL1 and BL2 in
+   AArch64 and facilitates the loading of ``SP_MIN`` and BL33 as AArch32 executable
+   images.
+
 --------------
 
 .. |FIP in a GPT image| image:: ../../resources/diagrams/FIP_in_a_GPT_image.png

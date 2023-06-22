@@ -648,12 +648,6 @@ Common build options
    invert this behavior. Lower addresses will be printed at the top and higher
    addresses at the bottom.
 
--  ``JUNO_AARCH32_EL3_RUNTIME``: This build flag enables you to execute EL3
-   runtime software in AArch32 mode, which is required to run AArch32 on Juno.
-   By default this flag is set to '0'. Enabling this flag builds BL1 and BL2 in
-   AArch64 and facilitates the loading of ``SP_MIN`` and BL33 as AArch32 executable
-   images.
-
 -  ``KEY_ALG``: This build flag enables the user to select the algorithm to be
    used for generating the PKCS keys and subsequent signing of the certificate.
    It accepts 5 values: ``rsa``, ``rsa_1_5``, ``ecdsa``, ``ecdsa-brainpool-regular``
