@@ -83,6 +83,7 @@ static void spmc_cpu_on_finish_handler(u_register_t unused)
 	/* Update the runtime model and state of the partition. */
 	ec->rt_model = RT_MODEL_INIT;
 	ec->rt_state = RT_STATE_RUNNING;
+	ec->dir_req_origin_id = INV_SP_ID;
 
 	INFO("SP (0x%x) init start on core%u.\n", sp->sp_id, linear_id);
 
@@ -132,6 +133,7 @@ static int32_t spmc_send_pm_msg(uint8_t pm_msg_type,
 	/* Update the runtime model and state of the partition. */
 	ec->rt_model = RT_MODEL_DIR_REQ;
 	ec->rt_state = RT_STATE_RUNNING;
+	ec->dir_req_origin_id = FFA_SPMC_ID;
 
 	rc = spmc_sp_synchronous_entry(ec);
 	if (rc != 0ULL) {
