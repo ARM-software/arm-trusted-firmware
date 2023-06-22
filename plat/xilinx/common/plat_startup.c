@@ -231,7 +231,8 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		target_el = get_xbl_el(&HandoffParams->partition[i]);
 		if ((target_el == XBL_FLAGS_EL3) ||
 		    (target_el == XBL_FLAGS_EL0)) {
-			WARN("BL31: invalid exception level (%i)\n", target_el);
+			WARN("BL31: invalid target exception level(%i)\n",
+			     target_el);
 			continue;
 		}
 
