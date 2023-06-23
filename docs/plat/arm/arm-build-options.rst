@@ -169,6 +169,12 @@ Arm CSS Platform-Specific Build Options
    require all the CPUs to execute the CPU specific power down sequence to
    complete a warm reboot sequence in which only the CPUs are power cycled.
 
+Arm FVP Build Options
+---------------------
+
+- ``FVP_TRUSTED_SRAM_SIZE``: Size (in kilobytes) of the Trusted SRAM region to
+  utilize when building for the FVP platform. This option defaults to 256.
+
 --------------
 
 .. |FIP in a GPT image| image:: ../../resources/diagrams/FIP_in_a_GPT_image.png
