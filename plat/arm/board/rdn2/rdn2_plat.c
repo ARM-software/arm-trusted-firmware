@@ -8,6 +8,7 @@
 #include <drivers/arm/gic600_multichip.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+#include <rdn2_ras.h>
 #include <sgi_soc_platform_def_v2.h>
 #include <sgi_plat.h>
 
@@ -134,5 +135,9 @@ void bl31_platform_setup(void)
 #endif
 
 	sgi_bl31_common_platform_setup();
+
+#if RAS_FFH_SUPPORT
+	sgi_ras_platform_setup(&ras_config);
+#endif
 }
 #endif /* IMAGE_BL31 */

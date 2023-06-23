@@ -8,7 +8,7 @@
 #define PLATFORM_DEF_H
 
 #include <lib/utils_def.h>
-
+#include <sgi_sdei.h>
 #include <sgi_soc_platform_def_v2.h>
 
 #if (CSS_SGI_PLATFORM_VARIANT == 1)

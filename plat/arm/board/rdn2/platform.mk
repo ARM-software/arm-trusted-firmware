@@ -69,6 +69,12 @@ BL31_SOURCES	+=	drivers/arm/gic/v3/gic600_multichip.c
 BL31_CFLAGS		+=	-DPLAT_XLAT_TABLES_DYNAMIC
 endif
 
+ifeq (${RAS_FFH_SUPPORT},1)
+BL31_SOURCES		+=	${RDN2_BASE}/rdn2_ras.c			\
+				${CSS_ENT_BASE}/ras/sgi_ras_common.c	\
+				${CSS_ENT_BASE}/ras/sgi_ras_sram.c
+endif
+
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	${RDN2_BASE}/fdts/${PLAT}_fw_config.dts	\
 				${RDN2_BASE}/fdts/${PLAT}_tb_fw_config.dts

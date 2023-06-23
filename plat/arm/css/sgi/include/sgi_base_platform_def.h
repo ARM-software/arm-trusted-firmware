@@ -204,7 +204,11 @@
 					SOC_CSS_DEVICE_SIZE,	\
 					MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
+#if RAS_FFH_SUPPORT
 #define PLAT_SP_PRI				PLAT_RAS_PRI
+#else
+#define PLAT_SP_PRI				0x10
+#endif
 
 #if SPM_MM && RAS_FFH_SUPPORT
 /*

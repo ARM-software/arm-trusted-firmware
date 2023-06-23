@@ -106,10 +106,6 @@ void sgi_bl31_common_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 
-#if RAS_FFH_SUPPORT
-	sgi_ras_intr_handler_setup();
-#endif
-
 	/* Configure the warm reboot SGI for primary core */
 	css_setup_cpu_pwr_down_intr();
 

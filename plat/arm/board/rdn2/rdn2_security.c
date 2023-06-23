@@ -8,8 +8,16 @@
 #include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
 
+#define RDN2_TZC_CPER_REGION					\
+	{CSS_SGI_SP_CPER_BUF_BASE, (CSS_SGI_SP_CPER_BUF_BASE +	\
+	CSS_SGI_SP_CPER_BUF_SIZE) - 1, TZC_REGION_S_NONE,	\
+	PLAT_ARM_TZC_NS_DEV_ACCESS}
+
 static const arm_tzc_regions_info_t tzc_regions[] = {
 	ARM_TZC_REGIONS_DEF,
+#if RAS_FFH_SUPPORT
+	RDN2_TZC_CPER_REGION,
+#endif
 	{}
 };
 
