@@ -1946,12 +1946,13 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 };
 
 /**
- * pm_api_pinctrl_get_num_pins() - PM call to request number of pins
- * @npins	Number of pins
+ * pm_api_pinctrl_get_num_pins() - PM call to request number of pins.
+ * @npins: Number of pins.
  *
- * This function is used by master to get number of pins
+ * This function is used by master to get number of pins.
  *
- * @return	Returns success.
+ * Return: Returns success.
+ *
  */
 enum pm_ret_status pm_api_pinctrl_get_num_pins(uint32_t *npins)
 {
@@ -1961,12 +1962,13 @@ enum pm_ret_status pm_api_pinctrl_get_num_pins(uint32_t *npins)
 }
 
 /**
- * pm_api_pinctrl_get_num_functions() - PM call to request number of functions
- * @nfuncs	Number of functions
+ * pm_api_pinctrl_get_num_functions() - PM call to request number of functions.
+ * @nfuncs: Number of functions.
  *
- * This function is used by master to get number of functions
+ * This function is used by master to get number of functions.
  *
- * @return	Returns success.
+ * Return: Returns success.
+ *
  */
 enum pm_ret_status pm_api_pinctrl_get_num_functions(uint32_t *nfuncs)
 {
@@ -1977,13 +1979,14 @@ enum pm_ret_status pm_api_pinctrl_get_num_functions(uint32_t *nfuncs)
 
 /**
  * pm_api_pinctrl_get_num_func_groups() - PM call to request number of
- *					  function groups
- * @fid		Function Id
- * @ngroups	Number of function groups
+ *					  function groups.
+ * @fid: Function Id.
+ * @ngroups: Number of function groups.
  *
- * This function is used by master to get number of function groups
+ * This function is used by master to get number of function groups.
  *
- * @return	Returns success.
+ * Return: Returns success.
+ *
  */
 enum pm_ret_status pm_api_pinctrl_get_num_func_groups(uint32_t fid,
 						      uint32_t *ngroups)
@@ -1998,12 +2001,13 @@ enum pm_ret_status pm_api_pinctrl_get_num_func_groups(uint32_t fid,
 }
 
 /**
- * pm_api_pinctrl_get_function_name() - PM call to request a function name
- * @fid		Function ID
- * @name	Name of function (max 16 bytes)
+ * pm_api_pinctrl_get_function_name() - PM call to request a function name.
+ * @fid: Function ID.
+ * @name: Name of function (max 16 bytes).
  *
  * This function is used by master to get name of function specified
  * by given function ID.
+ *
  */
 void pm_api_pinctrl_get_function_name(uint32_t fid, char *name)
 {
@@ -2016,10 +2020,10 @@ void pm_api_pinctrl_get_function_name(uint32_t fid, char *name)
 
 /**
  * pm_api_pinctrl_get_function_groups() - PM call to request first 6 function
- *					  groups of function Id
- * @fid		Function ID
- * @index	Index of next function groups
- * @groups	Function groups
+ *					  groups of function Id.
+ * @fid: Function ID.
+ * @index: Index of next function groups.
+ * @groups: Function groups.
  *
  * This function is used by master to get function groups specified
  * by given function Id. This API will return 6 function groups with
@@ -2031,6 +2035,7 @@ void pm_api_pinctrl_get_function_name(uint32_t fid, char *name)
  * function groups 6, 7, 8, 9, 10 and 11 and so on.
  *
  * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
 						      uint32_t index,
@@ -2061,10 +2066,10 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
 
 /**
  * pm_api_pinctrl_get_pin_groups() - PM call to request first 6 pin
- *				     groups of pin
- * @pin		Pin
- * @index	Index of next pin groups
- * @groups	pin groups
+ *                                   groups of pin.
+ * @pin: Pin.
+ * @index: Index of next pin groups.
+ * @groups: pin groups.
  *
  * This function is used by master to get pin groups specified
  * by given pin Id. This API will return 6 pin groups with
@@ -2076,6 +2081,7 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
  * pin groups 6, 7, 8, 9, 10 and 11 and so on.
  *
  * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_api_pinctrl_get_pin_groups(uint32_t pin,
 						 uint32_t index,

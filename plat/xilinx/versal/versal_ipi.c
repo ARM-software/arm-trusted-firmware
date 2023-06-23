@@ -65,10 +65,9 @@ static const struct ipi_config versal_ipi_table[] = {
 	},
 };
 
-/* versal_ipi_config_table_init() - Initialize versal IPI configuration data
- *
- * @ipi_config_table  - IPI configuration table
- * @ipi_total - Total number of IPI available
+/* versal_ipi_config_table_init() - Initialize versal IPI configuration data.
+ * @ipi_config_table: IPI configuration table.
+ * @ipi_total: Total number of IPI available.
  *
  */
 void versal_ipi_config_table_init(void)

@@ -15,12 +15,12 @@
 
 /**
  * plat_is_smccc_feature_available() - This function checks whether SMCCC
- *					feature is availabile for platform.
- * @fid: SMCCC function id
+ *                                     feature is availabile for platform.
+ * @fid: SMCCC function id.
  *
- * Return:
- * * SMC_ARCH_CALL_SUCCESS		- if SMCCC feature is available
- * * SMC_ARCH_CALL_NOT_SUPPORTED	- Otherwise
+ * Return: SMC_ARCH_CALL_SUCCESS - if SMCCC feature is available.
+ *         SMC_ARCH_CALL_NOT_SUPPORTED - Otherwise.
+ *
  */
 int32_t plat_is_smccc_feature_available(u_register_t fid)
 {
@@ -33,12 +33,12 @@ int32_t plat_is_smccc_feature_available(u_register_t fid)
 }
 
 /**
- * plat_get_soc_version() - Get the SOC version of the platform
+ * plat_get_soc_version() - Get the SOC version of the platform.
+ *
+ * Return: SiP defined SoC version in JEP-106.
  *
  * This function is called when the SoC_ID_type == 0.
- * For further details please refer to section 7.4 of SMC Calling Convention
- *
- * Return:  SiP defined SoC version in JEP-106
+ * For further details please refer to section 7.4 of SMC Calling Convention.
  */
 int32_t plat_get_soc_version(void)
 {
@@ -50,12 +50,12 @@ int32_t plat_get_soc_version(void)
 }
 
 /**
- * plat_get_soc_revision() - Get the SOC revision for the platform
+ * plat_get_soc_revision() - Get the SOC revision for the platform.
+ *
+ * Return: SiP defined SoC revision.
  *
  * This function is called when the  SoC_ID_type == 1
  * For further details please refer to section 7.4 of SMC Calling Convention
- *
- * Return:  SiP defined SoC revision
  */
 int32_t plat_get_soc_revision(void)
 {

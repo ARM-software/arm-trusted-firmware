@@ -85,7 +85,7 @@ static const struct ipi_config zynqmp_ipi_table[] = {
 };
 
 /**
- * zynqmp_ipi_config_table_init() - Initialize ZynqMP IPI configuration data
+ * zynqmp_ipi_config_table_init() - Initialize ZynqMP IPI configuration data.
  *
  */
 void zynqmp_ipi_config_table_init(void)

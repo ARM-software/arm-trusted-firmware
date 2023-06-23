@@ -198,14 +198,15 @@
 	}
 
 /**
- * struct pm_clock_node - Clock topology node information
- * @type:	Topology type (mux/div1/div2/gate/pll/fixed factor)
- * @offset:	Offset in control register
- * @width:	Width of the specific type in control register
- * @clkflags:	Clk specific flags
- * @typeflags:	Type specific flags
- * @mult:	Multiplier for fixed factor
- * @div:	Divisor for fixed factor
+ * struct pm_clock_node - Clock topology node information.
+ * @type: Topology type (mux/div1/div2/gate/pll/fixed factor).
+ * @offset: Offset in control register.
+ * @width: Width of the specific type in control register.
+ * @clkflags: Clk specific flags.
+ * @typeflags: Type specific flags.
+ * @mult: Multiplier for fixed factor.
+ * @div: Divisor for fixed factor.
+ *
  */
 struct pm_clock_node {
 	uint16_t clkflags;
@@ -218,13 +219,15 @@ struct pm_clock_node {
 };
 
 /**
- * struct pm_clock - Clock structure
- * @name:	Clock name
- * @control_reg:	Control register address
- * @status_reg:	Status register address
- * @parents:	Parents for first clock node. Lower byte indicates parent
- *		clock id and upper byte indicate flags for that id.
- * pm_clock_node:	Clock nodes
+ * struct pm_clock - Clock structure.
+ * @name: Clock name.
+ * @num_nodes: number of nodes.
+ * @control_reg: Control register address.
+ * @status_reg: Status register address.
+ * @parents: Parents for first clock node. Lower byte indicates parent
+ *           clock id and upper byte indicate flags for that id.
+ * @nodes: Clock nodes.
+ *
  */
 struct pm_clock {
 	char name[CLK_NAME_LEN];
@@ -236,8 +239,9 @@ struct pm_clock {
 };
 
 /**
- * struct pm_clock - Clock structure
- * @name:		Clock name
+ * struct pm_ext_clock - Clock structure.
+ * @name: Clock name.
+ *
  */
 struct pm_ext_clock {
 	char name[CLK_NAME_LEN];
@@ -2386,8 +2390,8 @@ static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB,
 };
 
 /**
- * pm_clock_valid - Check if clock is valid or not
- * @clock_id	Id of the clock to be queried
+ * pm_clock_valid - Check if clock is valid or not.
+ * @clock_id: Id of the clock to be queried.
  *
  * This function is used to check if given clock is valid
  * or not for the chip variant.
@@ -2396,6 +2400,7 @@ static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB,
  * different variants.
  *
  * Return: Returns 1 if clock is valid else 0.
+ *
  */
 static bool pm_clock_valid(uint32_t clock_id)
 {
@@ -2409,12 +2414,13 @@ static bool pm_clock_valid(uint32_t clock_id)
 }
 
 /**
- * pm_clock_type - Get clock's type
- * @clock_id	Id of the clock to be queried
+ * pm_clock_type - Get clock's type.
+ * @clock_id: Id of the clock to be queried.
  *
  * This function is used to check type of clock (OUTPUT/EXTERNAL).
  *
  * Return: Returns type of clock (OUTPUT/EXTERNAL).
+ *
  */
 static uint32_t pm_clock_type(uint32_t clock_id)
 {
@@ -2423,12 +2429,13 @@ static uint32_t pm_clock_type(uint32_t clock_id)
 }
 
 /**
- * pm_api_clock_get_num_clocks() - PM call to request number of clocks
- * @nclocks	Number of clocks
+ * pm_api_clock_get_num_clocks() - PM call to request number of clocks.
+ * @nclocks: Number of clocks.
  *
  * This function is used by master to get number of clocks.
  *
- * @return	Returns success.
+ * Return: Returns success.
+ *
  */
 enum pm_ret_status pm_api_clock_get_num_clocks(uint32_t *nclocks)
 {
@@ -2438,12 +2445,13 @@ enum pm_ret_status pm_api_clock_get_num_clocks(uint32_t *nclocks)
 }
 
 /**
- * pm_api_clock_get_name() - PM call to request a clock's name
- * @clock_id	Clock ID
- * @name	Name of clock (max 16 bytes)
+ * pm_api_clock_get_name() - PM call to request a clock's name.
+ * @clock_id: Clock ID.
+ * @name: Name of clock (max 16 bytes).
  *
  * This function is used by master to get nmae of clock specified
  * by given clock ID.
+ *
  */
 void pm_api_clock_get_name(uint32_t clock_id, char *name)
 {
@@ -2461,17 +2469,18 @@ void pm_api_clock_get_name(uint32_t clock_id, char *name)
 }
 
 /**
- * pm_api_clock_get_topology() - PM call to request a clock's topology
- * @clock_id	Clock ID
- * @index	Topology index for next toplogy node
- * @topology	Buffer to store nodes in topology and flags
+ * pm_api_clock_get_topology() - PM call to request a clock's topology.
+ * @clock_id: Clock ID.
+ * @index: Topology index for next toplogy node.
+ * @topology: Buffer to store nodes in topology and flags.
  *
  * This function is used by master to get topology information for the
  * clock specified by given clock ID. Each response would return 3
  * topology nodes. To get next nodes, caller needs to call this API with
  * index of next node. Index starts from 0.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
 					     uint32_t index,
@@ -2519,15 +2528,16 @@ enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
 
 /**
  * pm_api_clock_get_fixedfactor_params() - PM call to request a clock's fixed
- *					   factor parameters for fixed clock
- * @clock_id	Clock ID
- * @mul		Multiplication value
- * @div		Divisor value
+ *					   factor parameters for fixed clock.
+ * @clock_id: Clock ID.
+ * @mul: Multiplication value.
+ * @div: Divisor value.
  *
  * This function is used by master to get fixed factor parameers for the
  * fixed clock. This API is application only for the fixed clock.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_api_clock_get_fixedfactor_params(uint32_t clock_id,
 						       uint32_t *mul,
@@ -2566,10 +2576,10 @@ enum pm_ret_status pm_api_clock_get_fixedfactor_params(uint32_t clock_id,
 }
 
 /**
- * pm_api_clock_get_parents() - PM call to request a clock's first 3 parents
- * @clock_id	Clock ID
- * @index	Index of next parent
- * @parents	Parents of the given clock
+ * pm_api_clock_get_parents() - PM call to request a clock's first 3 parents.
+ * @clock_id: Clock ID.
+ * @index: Index of next parent.
+ * @parents: Parents of the given clock.
  *
  * This function is used by master to get clock's parents information.
  * This API will return 3 parents with a single response. To get other
@@ -2580,7 +2590,8 @@ enum pm_ret_status pm_api_clock_get_fixedfactor_params(uint32_t clock_id,
  * 2. Next call, index should be 3 which will return parent 3,4 and 5 and
  * so on.
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 					    uint32_t index,
@@ -2622,14 +2633,15 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 }
 
 /**
- * pm_api_clock_get_attributes() - PM call to request a clock's attributes
- * @clock_id	Clock ID
- * @attr	Clock attributes
+ * pm_api_clock_get_attributes() - PM call to request a clock's attributes.
+ * @clock_id: Clock ID.
+ * @attr: Clock attributes.
  *
  * This function is used by master to get clock's attributes
  * (e.g. valid, clock type, etc).
  *
- * @return	Returns status, either success or error+reason
+ * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_api_clock_get_attributes(uint32_t clock_id,
 					       uint32_t *attr)
@@ -2648,14 +2660,15 @@ enum pm_ret_status pm_api_clock_get_attributes(uint32_t clock_id,
 }
 
 /**
- * pm_api_clock_get_max_divisor - PM call to get max divisor
- * @clock_id	Clock ID
- * @div_type	Divisor Type (TYPE_DIV1 or TYPE_DIV2)
- * @max_div	Maximum supported divisor
+ * pm_api_clock_get_max_divisor - PM call to get max divisor.
+ * @clock_id: Clock ID.
+ * @div_type: Divisor Type (TYPE_DIV1 or TYPE_DIV2).
+ * @max_div: Maximum supported divisor.
  *
  * This function is used by master to get maximum supported value.
  *
  * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 						uint8_t div_type,
@@ -2685,15 +2698,16 @@ enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 }
 
 /**
- * struct pm_pll - PLL related data required to map IOCTL-based PLL control
- * implemented by linux to system-level EEMI APIs
- * @nid:	PLL node ID
- * @cid:	PLL clock ID
- * @pre_src:	Pre-source PLL clock ID
- * @post_src:	Post-source PLL clock ID
- * @div2:	DIV2 PLL clock ID
- * @bypass:	PLL output clock ID that maps to bypass select output
- * @mode:	PLL mode currently set via IOCTL (PLL_FRAC_MODE/PLL_INT_MODE)
+ * struct pm_pll - PLL related data required to map IOCTL-based PLL control.
+ * implemented by linux to system-level EEMI APIs.
+ * @nid: PLL node ID.
+ * @cid: PLL clock ID.
+ * @pre_src: Pre-source PLL clock ID.
+ * @post_src: Post-source PLL clock ID.
+ * @div2: DIV2 PLL clock ID.
+ * @bypass: PLL output clock ID that maps to bypass select output.
+ * @mode: PLL mode currently set via IOCTL (PLL_FRAC_MODE/PLL_INT_MODE).
+ *
  */
 struct pm_pll {
 	const enum pm_node_id nid;
@@ -2745,10 +2759,11 @@ static struct pm_pll pm_plls[] = {
 };
 
 /**
- * pm_clock_get_pll() - Get PLL structure by PLL clock ID
- * @clock_id	Clock ID of the target PLL
+ * pm_clock_get_pll() - Get PLL structure by PLL clock ID.
+ * @clock_id: Clock ID of the target PLL.
  *
- * @return	Pointer to PLL structure if found, NULL otherwise
+ * Return: Pointer to PLL structure if found, NULL otherwise.
+ *
  */
 struct pm_pll *pm_clock_get_pll(enum clock_id clock_id)
 {
@@ -2764,11 +2779,12 @@ struct pm_pll *pm_clock_get_pll(enum clock_id clock_id)
 }
 
 /**
- * pm_clock_get_pll_node_id() - Get PLL node ID by PLL clock ID
- * @clock_id	Clock ID of the target PLL
- * @node_id	Location to store node ID of the target PLL
+ * pm_clock_get_pll_node_id() - Get PLL node ID by PLL clock ID.
+ * @clock_id: Clock ID of the target PLL.
+ * @node_id: Location to store node ID of the target PLL.
  *
- * @return	PM_RET_SUCCESS if node ID is found, PM_RET_ERROR_ARGS otherwise
+ * Return: PM_RET_SUCCESS if node ID is found, PM_RET_ERROR_ARGS otherwise.
+ *
  */
 enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 					    enum pm_node_id *node_id)
@@ -2784,10 +2800,12 @@ enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 }
 
 /**
- * pm_clock_get_pll_by_related_clk() - Get PLL structure by PLL-related clock ID
- * @clock_id	Clock ID
+ * pm_clock_get_pll_by_related_clk() - Get PLL structure by PLL-related clock
+ *                                     ID.
+ * @clock_id: Clock ID.
  *
- * @return	Pointer to PLL structure if found, NULL otherwise
+ * Return: Pointer to PLL structure if found, NULL otherwise.
+ *
  */
 struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
 {
@@ -2806,13 +2824,14 @@ struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
 }
 
 /**
- * pm_clock_pll_enable() - "Enable" the PLL clock (lock the PLL)
- * @pll: PLL to be locked
+ * pm_clock_pll_enable() - "Enable" the PLL clock (lock the PLL).
+ * @pll: PLL to be locked.
  *
  * This function is used to map IOCTL/linux-based PLL handling to system-level
- * EEMI APIs
+ * EEMI APIs.
  *
- * Return: Error if the argument is not valid or status as returned by PMU
+ * Return: Error if the argument is not valid or status as returned by PMU.
+ *
  */
 enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
 {
@@ -2829,13 +2848,14 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
 }
 
 /**
- * pm_clock_pll_disable - "Disable" the PLL clock (bypass/reset the PLL)
- * @pll		PLL to be bypassed/reset
+ * pm_clock_pll_disable - "Disable" the PLL clock (bypass/reset the PLL).
+ * @pll: PLL to be bypassed/reset.
  *
  * This function is used to map IOCTL/linux-based PLL handling to system-level
- * EEMI APIs
+ * EEMI APIs.
  *
- * Return: Error if the argument is not valid or status as returned by PMU
+ * Return: Error if the argument is not valid or status as returned by PMU.
+ *
  */
 enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
 {
@@ -2847,15 +2867,15 @@ enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
 }
 
 /**
- * pm_clock_pll_get_state - Get state of the PLL
- * @pll		Pointer to the target PLL structure
- * @state	Location to store the state: 1/0 ("Enabled"/"Disabled")
+ * pm_clock_pll_get_state - Get state of the PLL.
+ * @pll: Pointer to the target PLL structure.
+ * @state: Location to store the state: 1/0 ("Enabled"/"Disabled").
  *
  * "Enable" actually means that the PLL is locked and its bypass is deasserted,
  * "Disable" means that it is bypassed.
  *
  * Return: PM_RET_ERROR_ARGS error if the argument is not valid, success if
- * returned state value is valid or an error if returned by PMU
+ *         returned state value is valid or an error if returned by PMU.
  */
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 					  uint32_t *state)
@@ -2882,16 +2902,17 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 }
 
 /**
- * pm_clock_pll_set_parent - Set the clock parent for PLL-related clock id
- * @pll			Target PLL structure
- * @clock_id		Id of the clock
- * @parent_index	parent index (=mux select value)
+ * pm_clock_pll_set_parent - Set the clock parent for PLL-related clock id.
+ * @pll: Target PLL structure.
+ * @clock_id: Id of the clock.
+ * @parent_index: parent index (=mux select value).
  *
  * The whole clock-tree implementation relies on the fact that parent indexes
  * match to the multiplexer select values. This function has to rely on that
  * assumption as well => parent_index is actually the mux select value.
  *
  * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
@@ -2917,14 +2938,15 @@ enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 }
 
 /**
- * pm_clock_pll_get_parent - Get mux select value of PLL-related clock parent
- * @pll			Target PLL structure
- * @clock_id		Id of the clock
- * @parent_index	parent index (=mux select value)
+ * pm_clock_pll_get_parent - Get mux select value of PLL-related clock parent.
+ * @pll: Target PLL structure.
+ * @clock_id: Id of the clock.
+ * @parent_index: parent index (=mux select value).
  *
  * This function is used by master to get parent index for PLL-related clock.
  *
  * Return: Returns status, either success or error+reason.
+ *
  */
 enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
@@ -2954,13 +2976,14 @@ enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 }
 
 /**
- * pm_clock_set_pll_mode() -  Set PLL mode
- * @clock_id	PLL clock id
- * @mode	Mode fractional/integer
+ * pm_clock_set_pll_mode() -  Set PLL mode.
+ * @clock_id: PLL clock id.
+ * @mode: Mode fractional/integer.
  *
  * This function buffers/saves the PLL mode that is set.
  *
- * @return      Success if mode is buffered or error if an argument is invalid
+ * Return: Success if mode is buffered or error if an argument is invalid.
+ *
  */
 enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 					 uint32_t mode)
@@ -2976,13 +2999,14 @@ enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 }
 
 /**
- * pm_clock_get_pll_mode() -  Get PLL mode
- * @clock_id	PLL clock id
- * @mode	Location to store the mode (fractional/integer)
+ * pm_clock_get_pll_mode() -  Get PLL mode.
+ * @clock_id: PLL clock id.
+ * @mode: Location to store the mode (fractional/integer).
  *
  * This function returns buffered PLL mode.
  *
- * @return      Success if mode is stored or error if an argument is invalid
+ * Return: Success if mode is stored or error if an argument is invalid.
+ *
  */
 enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
 					 uint32_t *mode)
@@ -2998,10 +3022,11 @@ enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
 }
 
 /**
- * pm_clock_id_is_valid() -  Check if given clock ID is valid
- * @clock_id   ID of the clock to be checked
+ * pm_clock_id_is_valid() -  Check if given clock ID is valid.
+ * @clock_id: ID of the clock to be checked.
  *
- * @return     Returns success if clock_id is valid, otherwise an error
+ * Return: Returns success if clock_id is valid, otherwise an error.
+ *
  */
 enum pm_ret_status pm_clock_id_is_valid(uint32_t clock_id)
 {
@@ -3017,11 +3042,12 @@ enum pm_ret_status pm_clock_id_is_valid(uint32_t clock_id)
 }
 
 /**
- * pm_clock_has_div() - Check if the clock has divider with given ID
- * @clock_id	Clock ID
- * @div_id	Divider ID
+ * pm_clock_has_div() - Check if the clock has divider with given ID.
+ * @clock_id: Clock ID.
+ * @div_id: Divider ID.
  *
- * @return	True(1)=clock has the divider, false(0)=otherwise
+ * Return: True(1)=clock has the divider, false(0)=otherwise.
+ *
  */
 uint8_t pm_clock_has_div(uint32_t clock_id, enum pm_clock_div_id div_id)
 {

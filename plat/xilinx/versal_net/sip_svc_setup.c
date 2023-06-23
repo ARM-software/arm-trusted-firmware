@@ -43,6 +43,9 @@ DEFINE_SVC_UUID2(versal_net_sip_uuid,
 
 /**
  * sip_svc_setup() - Setup SiP Service
+ *
+ * Return: 0 on success, negative error code on failure.
+ *
  */
 static int32_t sip_svc_setup(void)
 {

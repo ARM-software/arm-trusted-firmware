@@ -35,7 +35,7 @@ enum pm_register_access_id {
 	CONFIG_REG_READ,
 };
 
-/**
+/*
  * Assigning of argument values into array elements.
  */
 #define PM_PACK_PAYLOAD1(pl, arg0) {	\
