@@ -210,7 +210,8 @@ endif
 
 BL2_SOURCES		+=	plat/${SOC_DIR}/driver/ihost_pll_config.c \
 				plat/${SOC_DIR}/src/bl2_setup.c \
-				plat/${SOC_DIR}/driver/swreg.c
+				plat/${SOC_DIR}/driver/swreg.c \
+				lib/cpus/aarch64/cpu_helpers.S
 
 ifeq (${USE_DDR},yes)
 PLAT_INCLUDES		+=	-Iplat/${SOC_DIR}/driver/ddr/soc/include
