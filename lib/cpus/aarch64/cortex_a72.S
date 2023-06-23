@@ -47,9 +47,7 @@ endfunc cortex_a72_disable_l2_prefetch
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_hw_prefetcher
-	mrs	x0, CORTEX_A72_CPUACTLR_EL1
-	orr	x0, x0, #CORTEX_A72_CPUACTLR_EL1_DISABLE_L1_DCACHE_HW_PFTCH
-	msr	CORTEX_A72_CPUACTLR_EL1, x0
+	sysreg_bit_set CORTEX_A72_CPUACTLR_EL1, CORTEX_A72_CPUACTLR_EL1_DISABLE_L1_DCACHE_HW_PFTCH
 	isb
 	dsb	ish
 	ret
@@ -60,9 +58,7 @@ endfunc cortex_a72_disable_hw_prefetcher
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_smp
-	mrs	x0, CORTEX_A72_ECTLR_EL1
-	bic	x0, x0, #CORTEX_A72_ECTLR_SMP_BIT
-	msr	CORTEX_A72_ECTLR_EL1, x0
+	sysreg_bit_clear CORTEX_A72_ECTLR_EL1, CORTEX_A72_ECTLR_SMP_BIT
 	ret
 endfunc cortex_a72_disable_smp
 
@@ -88,9 +84,7 @@ func check_smccc_arch_workaround_3
 endfunc check_smccc_arch_workaround_3
 
 workaround_reset_start cortex_a72, ERRATUM(859971), ERRATA_A72_859971
-	mrs	x1, CORTEX_A72_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A72_CPUACTLR_EL1_DIS_INSTR_PREFETCH
-	msr	CORTEX_A72_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A72_CPUACTLR_EL1, CORTEX_A72_CPUACTLR_EL1_DIS_INSTR_PREFETCH
 workaround_reset_end cortex_a72, ERRATUM(859971)
 
 check_erratum_ls cortex_a72, ERRATUM(859971), CPU_REV(0, 3)
@@ -102,8 +96,7 @@ add_erratum_entry cortex_a72, ERRATUM(1319367), ERRATA_A72_1319367, NO_APPLY_AT_
 
 workaround_reset_start cortex_a72, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #if IMAGE_BL31
-	adr	x0, wa_cve_2017_5715_mmu_vbar
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_2017_5715_mmu_vbar
 #endif
 workaround_reset_end cortex_a72, CVE(2017, 5715)
 
@@ -121,9 +114,7 @@ check_erratum_custom_start cortex_a72, CVE(2017, 5715)
 check_erratum_custom_end cortex_a72, CVE(2017, 5715)
 
 workaround_reset_start cortex_a72, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
-	mrs	x0, CORTEX_A72_CPUACTLR_EL1
-	orr	x0, x0, #CORTEX_A72_CPUACTLR_EL1_DIS_LOAD_PASS_STORE
-	msr	CORTEX_A72_CPUACTLR_EL1, x0
+	sysreg_bit_set CORTEX_A72_CPUACTLR_EL1, CORTEX_A72_CPUACTLR_EL1_DIS_LOAD_PASS_STORE
 	isb
 	dsb	sy
 workaround_reset_end cortex_a72, CVE(2018, 3639)
@@ -169,9 +160,7 @@ cpu_reset_func_start cortex_a72
 	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, CORTEX_A72_ECTLR_EL1
-	orr	x0, x0, #CORTEX_A72_ECTLR_SMP_BIT
-	msr	CORTEX_A72_ECTLR_EL1, x0
+	sysreg_bit_set CORTEX_A72_ECTLR_EL1, CORTEX_A72_ECTLR_SMP_BIT
 
 cpu_reset_func_end cortex_a72
 
