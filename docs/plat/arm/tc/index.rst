@@ -19,7 +19,7 @@ is the CPUs supported as below:
 
 -  TC0 has support for Cortex A510, Cortex A710 and Cortex X2.
 -  TC1 has support for Cortex A510, Cortex Makalu and Cortex X3.
--  TC2 has support for Hayes and Hunter Arm CPUs.
+-  TC2 has support for Hayes and Cortex A720 Arm CPUs.
 
 
 Boot Sequence
@@ -58,6 +58,6 @@ Build Procedure (TF-A only)
 
 --------------
 
-*Copyright (c) 2020-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
 
 .. _Arm Toolchain: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads

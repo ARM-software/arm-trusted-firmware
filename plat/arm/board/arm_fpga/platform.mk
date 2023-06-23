@@ -61,14 +61,14 @@ else
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a510.S			\
 				lib/cpus/aarch64/cortex_a710.S			\
 				lib/cpus/aarch64/cortex_a715.S			\
+				lib/cpus/aarch64/cortex_a720.S			\
 				lib/cpus/aarch64/cortex_x3.S 			\
 				lib/cpus/aarch64/cortex_x4.S			\
 				lib/cpus/aarch64/neoverse_n_common.S		\
 				lib/cpus/aarch64/neoverse_n1.S			\
 				lib/cpus/aarch64/neoverse_n2.S			\
 				lib/cpus/aarch64/neoverse_v1.S			\
-				lib/cpus/aarch64/cortex_hayes.S			\
-				lib/cpus/aarch64/cortex_hunter.S
+				lib/cpus/aarch64/cortex_hayes.S
 
 # AArch64/AArch32 cores
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S	\

@@ -77,7 +77,7 @@ revisions of Cortex-A73 and Cortex-A75 that implements FEAT_CSV2).
 +----------------------+
 | Cortex-A715          |
 +----------------------+
-| Cortex-Hunter        |
+| Cortex-A720          |
 +----------------------+
 | Neoverse-N1          |
 +----------------------+
