@@ -23,6 +23,7 @@
 #include <plat_pm_helpers.h>
 #include <plat_private.h>
 #include <pm_pd_regs.h>
+#include <rk3588_clk.h>
 #include <rockchip_sip_svc.h>
 #include <secure.h>
 #include <soc.h>
@@ -164,12 +165,14 @@ static void dsu_core_save(void)
 		pmusram_data.dsu_ddr_fw_con_reg[i] =
 			mmio_read_32(FIREWALL_DSU_BASE + FIREWALL_DSU_CON(i));
 
+	pvtplls_suspend();
 	pd_dsu_core_save();
 }
 
 static void dsu_core_restore(void)
 {
 	pd_dsu_core_restore();
+	pvtplls_resume();
 }
 
 static uint32_t clk_save[CRU_CLKGATE_CON_CNT + PHPCRU_CLKGATE_CON_CNT +

@@ -162,6 +162,9 @@
 #define	SCMI_SHARE_MEM_BASE	(SHARE_MEM_BASE + SHARE_MEM_SIZE)
 #define	SCMI_SHARE_MEM_SIZE	SIZE_K(4)
 
+#define SMT_BUFFER_BASE		SCMI_SHARE_MEM_BASE
+#define SMT_BUFFER0_BASE	SMT_BUFFER_BASE
+
 /**************************************************************************
  * UART related constants
  **************************************************************************/

@@ -11,6 +11,7 @@
 #define SIP_SVC_CALL_COUNT		0x8200ff00
 #define SIP_SVC_UID			0x8200ff01
 #define SIP_SVC_VERSION			0x8200ff03
+#define RK_SIP_SCMI_AGENT0		0x82000010
 
 /* rockchip SiP Service Calls version numbers */
 #define RK_SIP_SVC_VERSION_MAJOR	0x0

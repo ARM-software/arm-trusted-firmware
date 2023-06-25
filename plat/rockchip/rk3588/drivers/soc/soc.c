@@ -19,6 +19,7 @@
 #include <pmu.h>
 
 #include <plat_private.h>
+#include <rk3588_clk.h>
 #include <secure.h>
 #include <soc.h>
 
@@ -89,8 +90,10 @@ static void system_reset_init(void)
 
 void plat_rockchip_soc_init(void)
 {
+	rockchip_clock_init();
 	secure_timer_init();
 	timer_hp_init();
 	system_reset_init();
 	sgrf_init();
+	rockchip_init_scmi_server();
 }

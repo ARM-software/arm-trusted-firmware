@@ -141,6 +141,7 @@ uint32_t rockchip_get_uart_base(void);
 uint32_t rockchip_get_uart_baudrate(void);
 uint32_t rockchip_get_uart_clock(void);
 
+void rockchip_init_scmi_server(void);
 #endif /* __ASSEMBLER__ */
 
 /******************************************************************************

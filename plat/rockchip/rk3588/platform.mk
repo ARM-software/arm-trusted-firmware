@@ -21,13 +21,16 @@ include drivers/arm/gic/v3/gicv3.mk
 
 PLAT_INCLUDES		:=	-Iinclude/plat/common				\
 				-Idrivers/arm/gic/v3/				\
+				-Idrivers/scmi-msg/				\
 				-I${RK_PLAT_COMMON}/				\
 				-I${RK_PLAT_COMMON}/drivers/pmu/		\
 				-I${RK_PLAT_COMMON}/drivers/parameter/		\
 				-I${RK_PLAT_COMMON}/include/			\
 				-I${RK_PLAT_COMMON}/pmusram/			\
+				-I${RK_PLAT_COMMON}/scmi/			\
 				-I${RK_PLAT_SOC}/				\
 				-I${RK_PLAT_SOC}/drivers/pmu/			\
+				-I${RK_PLAT_SOC}/drivers/scmi/			\
 				-I${RK_PLAT_SOC}/drivers/secure/		\
 				-I${RK_PLAT_SOC}/drivers/soc/			\
 				-I${RK_PLAT_SOC}/include/
@@ -50,6 +53,11 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				drivers/ti/uart/aarch64/16550_console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
+				drivers/scmi-msg/base.c				\
+				drivers/scmi-msg/clock.c			\
+				drivers/scmi-msg/entry.c			\
+				drivers/scmi-msg/reset_domain.c			\
+				drivers/scmi-msg/smt.c				\
 				lib/cpus/aarch64/cortex_a55.S			\
 				lib/cpus/aarch64/cortex_a76.S			\
 				${RK_PLAT_COMMON}/aarch64/plat_helpers.S	\
@@ -61,11 +69,16 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				${RK_PLAT_COMMON}/params_setup.c                \
 				${RK_PLAT_COMMON}/pmusram/cpus_on_fixed_addr.S	\
 				${RK_PLAT_COMMON}/rockchip_sip_svc.c		\
+				${RK_PLAT_COMMON}/scmi/scmi.c			\
+				${RK_PLAT_COMMON}/scmi/scmi_clock.c		\
+				${RK_PLAT_COMMON}/scmi/scmi_rstd.c		\
 				${RK_PLAT_SOC}/plat_sip_calls.c         	\
 				${RK_PLAT_SOC}/drivers/secure/secure.c		\
 				${RK_PLAT_SOC}/drivers/soc/soc.c		\
 				${RK_PLAT_SOC}/drivers/pmu/pmu.c		\
-				${RK_PLAT_SOC}/drivers/pmu/pm_pd_regs.c
+				${RK_PLAT_SOC}/drivers/pmu/pm_pd_regs.c		\
+				${RK_PLAT_SOC}/drivers/scmi/rk3588_clk.c	\
+				${RK_PLAT_SOC}/drivers/scmi/rk3588_rstd.c
 
 CTX_INCLUDE_AARCH32_REGS :=     0
 ENABLE_PLAT_COMPAT	:=	0
