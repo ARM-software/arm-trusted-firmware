@@ -57,8 +57,7 @@
 	 * EL (KFH) or handles it in EL3 (FFH) based on EA routing model.
 	 */
 	.macro	sync_and_handle_pending_serror
-	dsb	sy
-	isb
+	synchronize_errors
 	mrs	x30, ISR_EL1
 	tbz	x30, #ISR_A_SHIFT, 2f
 #if HANDLE_EA_EL3_FIRST_NS

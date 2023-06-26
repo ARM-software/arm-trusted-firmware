@@ -649,23 +649,9 @@ sve_not_enabled:
 1:
 #endif /* IMAGE_BL31 && DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
-/*
- * This is a hot path, so we don't want to do some actual FEAT_RAS runtime
- * detection here. The "esb" is a cheaper variant, so using "dsb" in the
- * ENABLE_FEAT_RAS==2 case is not ideal, but won't hurt.
- */
-#if IMAGE_BL31 && ENABLE_FEAT_RAS == 1
-	/* ----------------------------------------------------------
-	 * Issue Error Synchronization Barrier to synchronize SErrors
-	 * before exiting EL3. We're running with EAs unmasked, so
-	 * any synchronized errors would be taken immediately;
-	 * therefore no need to inspect DISR_EL1 register.
- 	 * ----------------------------------------------------------
-	 */
-	esb
-#else
-	dsb	sy
-#endif /* IMAGE_BL31 && ENABLE_FEAT_RAS */
+#if IMAGE_BL31
+	synchronize_errors
+#endif /* IMAGE_BL31 */
 
 	/* ----------------------------------------------------------
 	 * Restore SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET
