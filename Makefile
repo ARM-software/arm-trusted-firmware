@@ -599,6 +599,12 @@ ifneq (${SPD},none)
 		ifneq ($(SP_LAYOUT_FILE),)
 		BL2_ENABLE_SP_LOAD := 1
 		endif
+
+		ifeq ($(SPMC_AT_EL3_SEL0_SP),1)
+			ifneq ($(SPMC_AT_EL3),1)
+			$(error SEL0 SP cannot be enabled without SPMC at EL3)
+			endif
+		endif
 	else
 		# All other SPDs in spd directory
 		SPD_DIR := spd
@@ -1191,6 +1197,7 @@ $(eval $(call assert_booleans,\
 	SPIN_ON_BL1_EXIT \
 	SPM_MM \
 	SPMC_AT_EL3 \
+	SPMC_AT_EL3_SEL0_SP \
 	SPMD_SPM_AT_SEL2 \
 	ENABLE_SPMD_LP \
 	TRANSFER_LIST \
@@ -1355,6 +1362,7 @@ $(eval $(call add_defines,\
 	SPIN_ON_BL1_EXIT \
 	SPM_MM \
 	SPMC_AT_EL3 \
+	SPMC_AT_EL3_SEL0_SP \
 	SPMD_SPM_AT_SEL2 \
 	TRANSFER_LIST \
 	TRUSTED_BOARD_BOOT \

@@ -900,6 +900,10 @@ Common build options
    disabled). This configuration supports pre-Armv8.4 platforms (aka not
    implementing the ``FEAT_SEL2`` extension). This is an experimental feature.
 
+-  ``SPMC_AT_EL3_SEL0_SP`` : Boolean option to enable SEL0 SP load support when
+   ``SPMC_AT_EL3`` is enabled. The default value if ``0`` (disabled). This
+   option cannot be enabled (``1``) when (``SPMC_AT_EL3``) is disabled.
+
 -  ``SPMC_OPTEE`` : This boolean option is used jointly with the SPM
    Dispatcher option (``SPD=spmd``) and with ``SPMD_SPM_AT_SEL2=0`` to
    indicate that the SPMC at S-EL1 is OP-TEE and an OP-TEE specific loading
