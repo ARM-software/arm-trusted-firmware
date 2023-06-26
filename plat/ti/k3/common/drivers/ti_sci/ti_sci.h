@@ -141,10 +141,13 @@ int ti_sci_clock_get_freq(uint32_t dev_id, uint8_t clk_id, uint64_t *freq);
  * Core control operations
  *
  * - ti_sci_core_reboot() - Command to request system reset
+ * - ti_sci_query_fw_caps() - Get the FW/SoC capabilities
+ *              @fw_caps: Each bit in fw_caps indicating one FW/SOC capability
  *
  * Return: 0 if all went well, else returns appropriate error value.
  */
 int ti_sci_core_reboot(void);
+int ti_sci_query_fw_caps(uint64_t *fw_caps);
 
 /**
  * Processor control operations

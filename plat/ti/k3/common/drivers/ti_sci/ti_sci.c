@@ -211,6 +211,42 @@ int ti_sci_get_revision(struct ti_sci_msg_resp_version *rev_info)
 }
 
 /**
+ * ti_sci_query_fw_caps() - Get the FW/SoC capabilities
+ * @handle:		Pointer to TI SCI handle
+ * @fw_caps:		Each bit in fw_caps indicating one FW/SOC capability
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+int ti_sci_query_fw_caps(uint64_t *fw_caps)
+{
+	struct ti_sci_msg_hdr req;
+	struct ti_sci_msg_resp_query_fw_caps resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_QUERY_FW_CAPS, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret != 0U) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret != 0U) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (fw_caps)
+		*fw_caps = resp.fw_caps;
+
+	return 0;
+}
+
+/**
  * ti_sci_device_set_state() - Set device state
  *
  * @id:		Device identifier
