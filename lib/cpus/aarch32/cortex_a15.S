@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,6 +62,7 @@ func check_errata_816470
 	bx	lr
 endfunc check_errata_816470
 
+add_erratum_entry cortex_a15, ERRATUM(816470), ERRATA_A15_816470
 	/* ----------------------------------------------------
 	 * Errata Workaround for Cortex A15 Errata #827671.
 	 * This applies only to revision >= r3p0 of Cortex A15.
@@ -91,6 +92,8 @@ func check_errata_827671
 	b	cpu_rev_var_hs
 endfunc check_errata_827671
 
+add_erratum_entry cortex_a15, ERRATUM(827671), ERRATA_A15_827671
+
 func check_errata_cve_2017_5715
 #if WORKAROUND_CVE_2017_5715
 	mov	r0, #ERRATA_APPLIES
@@ -99,6 +102,8 @@ func check_errata_cve_2017_5715
 #endif
 	bx	lr
 endfunc check_errata_cve_2017_5715
+
+add_erratum_entry cortex_a15, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 
 func check_errata_cve_2022_23960
 #if WORKAROUND_CVE_2022_23960
@@ -109,29 +114,7 @@ func check_errata_cve_2022_23960
 	bx	lr
 endfunc check_errata_cve_2022_23960
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex A15. Must follow AAPCS.
- */
-func cortex_a15_errata_report
-	push	{r12, lr}
-
-	bl	cpu_get_rev_var
-	mov	r4, r0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_A15_816470, cortex_a15, 816470
-	report_errata ERRATA_A15_827671, cortex_a15, 827671
-	report_errata WORKAROUND_CVE_2017_5715, cortex_a15, cve_2017_5715
-	report_errata WORKAROUND_CVE_2022_23960, cortex_a15, cve_2022_23960
-
-	pop	{r12, lr}
-	bx	lr
-endfunc cortex_a15_errata_report
-#endif
+add_erratum_entry cortex_a15, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 func cortex_a15_reset_func
 	mov	r5, lr
@@ -184,6 +167,8 @@ func cortex_a15_cluster_pwr_dwn
 	pop	{r12, lr}
 	b	cortex_a15_disable_smp
 endfunc cortex_a15_cluster_pwr_dwn
+
+errata_report_shim cortex_a15
 
 declare_cpu_ops cortex_a15, CORTEX_A15_MIDR, \
 	cortex_a15_reset_func, \
