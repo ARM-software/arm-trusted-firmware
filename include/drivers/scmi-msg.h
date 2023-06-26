@@ -113,10 +113,12 @@ const char *plat_scmi_clock_get_name(unsigned int agent_id,
  * @scmi_id: SCMI clock ID
  * @rates: If NULL, function returns, else output rates array
  * @nb_elts: Array size of @rates.
+ * @start_idx: Start index of rates array
  * Return an SCMI compliant error code
  */
 int32_t plat_scmi_clock_rates_array(unsigned int agent_id, unsigned int scmi_id,
-				    unsigned long *rates, size_t *nb_elts);
+				    unsigned long *rates, size_t *nb_elts,
+				    uint32_t start_idx);
 
 /*
  * Get clock possible rate as range with regular steps in Hertz
