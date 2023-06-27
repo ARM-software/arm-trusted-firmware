@@ -217,18 +217,16 @@ endif #(FEAT_RME)
 ################################################################################
 ifeq (${ARM_ARCH_MAJOR},7)
 	target32-directive	= 	-target arm-none-eabi
-# Will set march32-directive from platform configuration
+# Will set march-directive from platform configuration
 else
 	target32-directive	= 	-target armv8a-none-eabi
 
 # Set the compiler's target architecture profile based on
 # ARM_ARCH_MAJOR ARM_ARCH_MINOR options
 	ifeq (${ARM_ARCH_MINOR},0)
-		march32-directive	= 	-march=armv${ARM_ARCH_MAJOR}-a
-		march64-directive	= 	-march=armv${ARM_ARCH_MAJOR}-a
+		march-directive	= 	-march=armv${ARM_ARCH_MAJOR}-a
 	else
-		march32-directive	= 	-march=armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a
-		march64-directive	= 	-march=armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a
+		march-directive	= 	-march=armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a
 	endif #(ARM_ARCH_MINOR)
 endif #(ARM_ARCH_MAJOR)
 
@@ -273,24 +271,20 @@ endif #(SUPPORT_STACK_MEMTAG)
 # Set the compiler's architecture feature modifiers
 ifneq ($(arch-features), none)
 	# Strip "none+" from arch-features
-	arch-features		:=	$(subst none+,,$(arch-features))
-	ifeq ($(ARCH), aarch32)
-		march32-directive	:=	$(march32-directive)+$(arch-features)
-	else
-		march64-directive	:=	$(march64-directive)+$(arch-features)
-	endif
+	arch-features	:=	$(subst none+,,$(arch-features))
+	march-directive	:=	$(march-directive)+$(arch-features)
 # Print features
         $(info Arm Architecture Features specified: $(subst +, ,$(arch-features)))
 endif #(arch-features)
 
 ifneq ($(findstring clang,$(notdir $(CC))),)
 	ifneq ($(findstring armclang,$(notdir $(CC))),)
-		TF_CFLAGS_aarch32	:=	-target arm-arm-none-eabi $(march32-directive)
-		TF_CFLAGS_aarch64	:=	-target aarch64-arm-none-eabi $(march64-directive)
+		TF_CFLAGS_aarch32	:=	-target arm-arm-none-eabi $(march-directive)
+		TF_CFLAGS_aarch64	:=	-target aarch64-arm-none-eabi $(march-directive)
 		LD			:=	$(LINKER)
 	else
-		TF_CFLAGS_aarch32	=	$(target32-directive) $(march32-directive)
-		TF_CFLAGS_aarch64	:=	-target aarch64-elf $(march64-directive)
+		TF_CFLAGS_aarch32	=	$(target32-directive) $(march-directive)
+		TF_CFLAGS_aarch64	:=	-target aarch64-elf $(march-directive)
 		LD			:=	$(shell $(CC) --print-prog-name ld.lld)
 
 		AR			:=	$(shell $(CC) --print-prog-name llvm-ar)
@@ -302,8 +296,8 @@ ifneq ($(findstring clang,$(notdir $(CC))),)
 	PP		:=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 	AS		:=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring gcc,$(notdir $(CC))),)
-	TF_CFLAGS_aarch32	=	$(march32-directive)
-	TF_CFLAGS_aarch64	=	$(march64-directive)
+	TF_CFLAGS_aarch32	=	$(march-directive)
+	TF_CFLAGS_aarch64	=	$(march-directive)
 	ifeq ($(ENABLE_LTO),1)
 		# Enable LTO only for aarch64
 		ifeq (${ARCH},aarch64)
@@ -314,8 +308,8 @@ else ifneq ($(findstring gcc,$(notdir $(CC))),)
 	endif
 	LD			=	$(LINKER)
 else
-	TF_CFLAGS_aarch32	=	$(march32-directive)
-	TF_CFLAGS_aarch64	=	$(march64-directive)
+	TF_CFLAGS_aarch32	=	$(march-directive)
+	TF_CFLAGS_aarch64	=	$(march-directive)
 	LD			=	$(LINKER)
 endif #(clang)
 
@@ -355,8 +349,7 @@ ifneq (${BP_OPTION},none)
 	TF_CFLAGS_aarch64	+=	-mbranch-protection=${BP_OPTION}
 endif #(BP_OPTION)
 
-ASFLAGS_aarch32		=	$(march32-directive)
-ASFLAGS_aarch64		=	$(march64-directive)
+ASFLAGS		+=	$(march-directive)
 
 ##############################################################################
 # WARNINGS Configuration
@@ -444,7 +437,7 @@ endif #(E)
 ################################################################################
 CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc	\
 				$(ERRORS) $(WARNINGS)
-ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
+ASFLAGS			+=	$(CPPFLAGS)                 			\
 				-ffreestanding -Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 				-ffunction-sections -fdata-sections		\
