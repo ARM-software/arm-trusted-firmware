@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,26 +60,6 @@ func check_errata_1043202
 	mov	x1, #0x10
 	b	cpu_rev_var_ls
 endfunc check_errata_1043202
-
-/* --------------------------------------------------
- * Disable speculative loads if Neoverse N1 supports
- * SSBS.
- *
- * Shall clobber: x0.
- * --------------------------------------------------
- */
-func neoverse_n1_disable_speculative_loads
-	/* Check if the PE implements SSBS */
-	mrs	x0, id_aa64pfr1_el1
-	tst	x0, #(ID_AA64PFR1_EL1_SSBS_MASK << ID_AA64PFR1_EL1_SSBS_SHIFT)
-	b.eq	1f
-
-	/* Disable speculative loads */
-	msr	SSBS, xzr
-
-1:
-	ret
-endfunc neoverse_n1_disable_speculative_loads
 
 /* --------------------------------------------------
  * Errata Workaround for Neoverse N1 Errata #1073348
@@ -500,6 +480,26 @@ func check_errata_cve_2022_23960
 #endif
 	ret
 endfunc check_errata_cve_2022_23960
+
+/* --------------------------------------------------
+ * Disable speculative loads if Neoverse N1 supports
+ * SSBS.
+ *
+ * Shall clobber: x0.
+ * --------------------------------------------------
+ */
+func neoverse_n1_disable_speculative_loads
+	/* Check if the PE implements SSBS */
+	mrs	x0, id_aa64pfr1_el1
+	tst	x0, #(ID_AA64PFR1_EL1_SSBS_MASK << ID_AA64PFR1_EL1_SSBS_SHIFT)
+	b.eq	1f
+
+	/* Disable speculative loads */
+	msr	SSBS, xzr
+
+1:
+	ret
+endfunc neoverse_n1_disable_speculative_loads
 
 func neoverse_n1_reset_func
 	mov	x19, x30
