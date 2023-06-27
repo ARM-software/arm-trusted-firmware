@@ -57,17 +57,13 @@ workaround_reset_end neoverse_n2, ERRATUM(2002655)
 check_erratum_ls neoverse_n2, ERRATUM(2002655), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_n2, ERRATUM(2025414), ERRATA_N2_2025414
-	mrs     x1, NEOVERSE_N2_CPUECTLR_EL1
-	orr     x1, x1, NEOVERSE_N2_CPUECTLR_EL1_PFSTIDIS_BIT
-	msr     NEOVERSE_N2_CPUECTLR_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUECTLR_EL1, NEOVERSE_N2_CPUECTLR_EL1_PFSTIDIS_BIT
 workaround_reset_end neoverse_n2, ERRATUM(2025414)
 
 check_erratum_ls neoverse_n2, ERRATUM(2025414), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_n2, ERRATUM(2067956), ERRATA_N2_2067956
-	mrs	x1, NEOVERSE_N2_CPUACTLR_EL1
-	orr	x1, x1, NEOVERSE_N2_CPUACTLR_EL1_BIT_46
-	msr	NEOVERSE_N2_CPUACTLR_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR_EL1, NEOVERSE_N2_CPUACTLR_EL1_BIT_46
 workaround_reset_end neoverse_n2, ERRATUM(2067956)
 
 check_erratum_ls neoverse_n2, ERRATUM(2067956), CPU_REV(0, 0)
@@ -107,27 +103,20 @@ check_erratum_ls neoverse_n2, ERRATUM(2138956), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_n2, ERRATUM(2138958), ERRATA_N2_2138958
 	/* Apply instruction patching sequence */
-	mrs	x1, NEOVERSE_N2_CPUACTLR5_EL1
-	orr	x1, x1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_13
-	msr	NEOVERSE_N2_CPUACTLR5_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR5_EL1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_13
 workaround_reset_end neoverse_n2, ERRATUM(2138958)
 
 check_erratum_ls neoverse_n2, ERRATUM(2138958), CPU_REV(0, 0)
 
-
 workaround_reset_start neoverse_n2, ERRATUM(2189731), ERRATA_N2_2189731
-	mrs     x1, NEOVERSE_N2_CPUACTLR5_EL1
-	orr     x1, x1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_44
-	msr     NEOVERSE_N2_CPUACTLR5_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR5_EL1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_44
 workaround_reset_end neoverse_n2, ERRATUM(2189731)
 
 check_erratum_ls neoverse_n2, ERRATUM(2189731), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_n2, ERRATUM(2242400), ERRATA_N2_2242400
 	/* Apply instruction patching sequence */
-	mrs	x1, NEOVERSE_N2_CPUACTLR5_EL1
-	orr	x1, x1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_17
-	msr	NEOVERSE_N2_CPUACTLR5_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR5_EL1, NEOVERSE_N2_CPUACTLR5_EL1_BIT_17
 	ldr	x0, =0x2
 	msr	S3_6_c15_c8_0, x0
 	ldr	x0, =0x10F600E000
@@ -141,29 +130,21 @@ workaround_reset_end neoverse_n2, ERRATUM(2242400)
 check_erratum_ls neoverse_n2, ERRATUM(2242400), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_n2, ERRATUM(2242415), ERRATA_N2_2242415
-	/* Apply instruction patching sequence */
-	mrs	x1, NEOVERSE_N2_CPUACTLR_EL1
-	orr	x1, x1, NEOVERSE_N2_CPUACTLR_EL1_BIT_22
-	msr	NEOVERSE_N2_CPUACTLR_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR_EL1, NEOVERSE_N2_CPUACTLR_EL1_BIT_22
 workaround_reset_end neoverse_n2, ERRATUM(2242415)
 
 check_erratum_ls neoverse_n2, ERRATUM(2242415), CPU_REV(0, 0)
 
-
 workaround_reset_start neoverse_n2, ERRATUM(2280757), ERRATA_N2_2280757
 	/* Apply instruction patching sequence */
-	mrs	x1, NEOVERSE_N2_CPUACTLR_EL1
-	orr	x1, x1, NEOVERSE_N2_CPUACTLR_EL1_BIT_22
-	msr	NEOVERSE_N2_CPUACTLR_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR_EL1, NEOVERSE_N2_CPUACTLR_EL1_BIT_22
 workaround_reset_end neoverse_n2, ERRATUM(2280757)
 
 check_erratum_ls neoverse_n2, ERRATUM(2280757), CPU_REV(0, 0)
 
 workaround_runtime_start neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639
 	/* Set bit 36 in ACTLR2_EL1 */
-	mrs	x1, NEOVERSE_N2_CPUACTLR2_EL1
-	orr	x1, x1, #NEOVERSE_N2_CPUACTLR2_EL1_BIT_36
-	msr	NEOVERSE_N2_CPUACTLR2_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, NEOVERSE_N2_CPUACTLR2_EL1_BIT_36
 workaround_runtime_end neoverse_n2, ERRATUM(2326639)
 
 check_erratum_ls neoverse_n2, ERRATUM(2326639), CPU_REV(0, 0)
@@ -173,22 +154,17 @@ workaround_reset_start neoverse_n2, ERRATUM(2376738), ERRATA_N2_2376738
 	 * ST to behave like PLD/PFRM LD and not cause
 	 * invalidations to other PE caches.
 	 */
-	mrs	x1, NEOVERSE_N2_CPUACTLR2_EL1
-	orr	x1, x1,	NEOVERSE_N2_CPUACTLR2_EL1_BIT_0
-	msr	NEOVERSE_N2_CPUACTLR2_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, NEOVERSE_N2_CPUACTLR2_EL1_BIT_0
 workaround_reset_end neoverse_n2, ERRATUM(2376738)
 
 check_erratum_ls neoverse_n2, ERRATUM(2376738), CPU_REV(0, 0)
 
 workaround_reset_start neoverse_n2, ERRATUM(2388450), ERRATA_N2_2388450
 	/*Set bit 40 in ACTLR2_EL1 */
-	mrs	x1, NEOVERSE_N2_CPUACTLR2_EL1
-	orr	x1, x1, #NEOVERSE_N2_CPUACTLR2_EL1_BIT_40
-	msr	NEOVERSE_N2_CPUACTLR2_EL1, x1
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, NEOVERSE_N2_CPUACTLR2_EL1_BIT_40
 workaround_reset_end neoverse_n2, ERRATUM(2388450)
 
 check_erratum_ls neoverse_n2, ERRATUM(2388450), CPU_REV(0, 0)
-
 
 workaround_runtime_start neoverse_n2, ERRATUM(2743089), ERRATA_N2_2743089
 	/* dsb before isb of power down sequence */
@@ -197,15 +173,13 @@ workaround_runtime_end neoverse_n2, ERRATUM(2743089)
 
 check_erratum_ls neoverse_n2, ERRATUM(2743089), CPU_REV(0, 2)
 
-
 workaround_reset_start neoverse_n2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
 	 * The Neoverse-N2 generic vectors are overridden to apply errata
          * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_neoverse_n2
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_vbar_neoverse_n2
 #endif /* IMAGE_BL31 */
 workaround_reset_end neoverse_n2, CVE(2022,23960)
 
@@ -226,54 +200,34 @@ cpu_reset_func_start neoverse_n2
 	msr	SSBS, xzr
 1:
 	/* Force all cacheable atomic instructions to be near */
-	mrs	x0, NEOVERSE_N2_CPUACTLR2_EL1
-	orr	x0, x0, #NEOVERSE_N2_CPUACTLR2_EL1_BIT_2
-	msr	NEOVERSE_N2_CPUACTLR2_EL1, x0
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, NEOVERSE_N2_CPUACTLR2_EL1_BIT_2
 
 #if ENABLE_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
-	mrs	x0, cptr_el3
-	orr	x0, x0, #TAM_BIT
-	msr	cptr_el3, x0
-
+	sysreg_bit_set cptr_el3, TAM_BIT
 	/* Make sure accesses from EL0/EL1 are not trapped to EL2 */
-	mrs	x0, cptr_el2
-	orr	x0, x0, #TAM_BIT
-	msr	cptr_el2, x0
-
+	sysreg_bit_set cptr_el2, TAM_BIT
 	/* No need to enable the counters as this would be done at el3 exit */
 #endif
 
 #if NEOVERSE_Nx_EXTERNAL_LLC
 	/* Some systems may have External LLC, core needs to be made aware */
-	mrs	x0, NEOVERSE_N2_CPUECTLR_EL1
-	orr	x0, x0, NEOVERSE_N2_CPUECTLR_EL1_EXTLLC_BIT
-	msr	NEOVERSE_N2_CPUECTLR_EL1, x0
+	sysreg_bit_set NEOVERSE_N2_CPUECTLR_EL1, NEOVERSE_N2_CPUECTLR_EL1_EXTLLC_BIT
 #endif
 cpu_reset_func_end neoverse_n2
 
 func neoverse_n2_core_pwr_dwn
-#if ERRATA_N2_2326639
-	mov	x15, x30
-	bl	cpu_get_rev_var
-	bl	erratum_neoverse_n2_2326639_wa
-	mov	x30, x15
-#endif /* ERRATA_N2_2326639 */
 
+	apply_erratum neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * No need to do cache maintenance here.
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, NEOVERSE_N2_CPUPWRCTLR_EL1
-	orr	x0, x0, #NEOVERSE_N2_CORE_PWRDN_EN_BIT
-	msr	NEOVERSE_N2_CPUPWRCTLR_EL1, x0
-#if ERRATA_N2_2743089
-	mov	x15, x30
-	bl	cpu_get_rev_var
-	bl	erratum_neoverse_n2_2743089_wa
-	mov	x30, x15
-#endif /* ERRATA_N2_2743089 */
+	sysreg_bit_set NEOVERSE_N2_CPUPWRCTLR_EL1, NEOVERSE_N2_CORE_PWRDN_EN_BIT
+
+	apply_erratum neoverse_n2, ERRATUM(2743089), ERRATA_N2_2743089
+
 	isb
 	ret
 endfunc neoverse_n2_core_pwr_dwn
