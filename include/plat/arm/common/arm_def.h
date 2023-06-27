@@ -503,7 +503,8 @@
  * Define limit of firmware configuration memory:
  * ARM_FW_CONFIG + ARM_BL2_MEM_DESC memory
  */
-#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + (PAGE_SIZE * 2))
+#define ARM_FW_CONFIGS_SIZE		(PAGE_SIZE * 2)
+#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + ARM_FW_CONFIGS_SIZE)
 
 #if ENABLE_RME
 /*
