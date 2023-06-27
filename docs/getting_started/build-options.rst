@@ -45,6 +45,12 @@ Common build options
    compiling TF-A. Its value must be a numeric, and defaults to 0. See also,
    *Armv8 Architecture Extensions* in :ref:`Firmware Design`.
 
+-  ``ARM_BL2_SP_LIST_DTS``: Path to DTS file snippet to override the hardcoded
+   SP nodes in tb_fw_config.
+
+-  ``ARM_SPMC_MANIFEST_DTS`` : path to an alternate manifest file used as the
+   SPMC Core manifest. Valid when ``SPD=spmd`` is selected.
+
 -  ``BL2``: This is an optional build option which specifies the path to BL2
    image for the ``fip`` target. In this case, the BL2 in the TF-A will not be
    built.
@@ -727,6 +733,10 @@ Common build options
    1 (do save and restore). 0 is the default. An SPD may set this to 1 if it
    wants the timer registers to be saved and restored.
 
+-  ``OPTEE_SP_FW_CONFIG``: DTC build flag to include OP-TEE as SP in
+   tb_fw_config device tree. This flag is defined only when
+   ``ARM_SPMC_MANIFEST_DTS`` manifest file name contains pattern optee_sp.
+
 -  ``OVERRIDE_LIBC``: This option allows platforms to override the default libc
    for the BL image. It can be either 0 (include) or 1 (remove). The default
    value is 0.
@@ -935,6 +945,9 @@ Common build options
    .. note::
       When ``EL3_EXCEPTION_HANDLING`` is ``1``, ``TSP_NS_INTR_ASYNC_PREEMPT``
       must also be set to ``1``.
+
+-  ``TS_SP_FW_CONFIG``: DTC build flag to include Trusted Services (Crypto and
+   internal-trusted-storage) as SP in tb_fw_config device tree.
 
 -  ``TWED_DELAY``: Numeric value to be set in order to delay the trapping of
    WFE instruction. ``ENABLE_FEAT_TWED`` build option must be enabled to set
