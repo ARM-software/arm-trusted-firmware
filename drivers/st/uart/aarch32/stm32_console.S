@@ -236,7 +236,7 @@ func console_stm32_core_flush
 #endif /* ENABLE_ASSERTIONS */
 	/* Skip flush if UART is not enabled */
 	ldr	r1, [r0, #USART_CR1]
-	ands	r1, r1, #USART_CR1_UE
+	tst	r1, #USART_CR1_UE
 	beq	1f
 	/* Check Transmit Data Register Empty */
 txe_loop_3:
