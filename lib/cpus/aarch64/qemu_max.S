@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,14 +47,7 @@ func qemu_max_cluster_pwr_dwn
 	b	dcsw_op_all
 endfunc qemu_max_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for QEMU "max". Must follow AAPCS.
- */
-func qemu_max_errata_report
-	ret
-endfunc qemu_max_errata_report
-#endif
+errata_report_shim qemu_max
 
 	/* ---------------------------------------------
 	 * This function provides cpu specific
