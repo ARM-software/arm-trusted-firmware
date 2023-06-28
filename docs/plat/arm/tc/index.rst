@@ -17,7 +17,7 @@ Currently, the main difference between TC0 (TARGET_PLATFORM=0), TC1
 (TARGET_PLATFORM=1), TC2 (TARGET_PLATFORM=2) platforms w.r.t to TF-A
 is the CPUs supported as below:
 
--  TC0 has support for Cortex A510, Cortex A710 and Cortex X2.
+-  TC0 has support for Cortex A510, Cortex A710 and Cortex X2. (Note TC0 is now deprecated)
 -  TC1 has support for Cortex A510, Cortex Makalu and Cortex X3.
 -  TC2 has support for Hayes and Hunter Arm CPUs.
 

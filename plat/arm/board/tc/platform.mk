@@ -6,8 +6,7 @@
 include common/fdt_wrappers.mk
 
 ifeq ($(TARGET_PLATFORM), 0)
-$(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
-Some of the features might not work as expected)
+	$(error Platform ${PLAT}$(TARGET_PLATFORM) is deprecated.)
 endif
 
 ifeq ($(shell expr $(TARGET_PLATFORM) \<= 2), 0)
@@ -69,13 +68,6 @@ override ARM_PLAT_MT	:=	1
 TC_BASE	=	plat/arm/board/tc
 
 PLAT_INCLUDES		+=	-I${TC_BASE}/include/
-
-# CPU libraries for TARGET_PLATFORM=0
-ifeq (${TARGET_PLATFORM}, 0)
-TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a510.S	\
-			lib/cpus/aarch64/cortex_a710.S	\
-			lib/cpus/aarch64/cortex_x2.S
-endif
 
 # CPU libraries for TARGET_PLATFORM=1
 ifeq (${TARGET_PLATFORM}, 1)

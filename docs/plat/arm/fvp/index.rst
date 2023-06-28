@@ -51,7 +51,6 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Morello``            (Version 0.11/33)
 -  ``FVP_RD_E1_edge``         (Version 11.17/29)
 -  ``FVP_RD_V1``              (Version 11.17/29)
--  ``FVP_TC0`` (Version 11.17/18)
 -  ``FVP_TC1`` (Version 11.17/33)
 -  ``FVP_TC2`` (Version 11.18/28)
 
@@ -631,7 +630,7 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
 
 --------------
 
-*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
 
 .. _FW_CONFIG for FVP: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/plat/arm/board/fvp/fdts/fvp_fw_config.dts
 .. _Arm's website: `FVP models`_
