@@ -260,6 +260,10 @@ void qti_get_sys_suspend_power_state(psci_power_state_t *req_state)
 		    state_id & QTI_LOCAL_PSTATE_MASK;
 		state_id >>= QTI_LOCAL_PSTATE_WIDTH;
 	}
+
+#if PSCI_OS_INIT_MODE
+	req_state->last_at_pwrlvl = PLAT_MAX_PWR_LVL;
+#endif
 }
 
 /*
