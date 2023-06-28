@@ -26,8 +26,10 @@ static int platform_version_minor;
  * need version of whole 'virtual hardware platform'.
  */
 #define SIP_SVC_VERSION  SIP_FUNCTION_ID(1)
-
 #define SIP_SVC_GET_GIC  SIP_FUNCTION_ID(100)
+#define SIP_SVC_GET_GIC_ITS SIP_FUNCTION_ID(101)
+
+static uint64_t gic_its_addr;
 
 void sbsa_set_gic_bases(const uintptr_t gicd_base, const uintptr_t gicr_base);
 uintptr_t sbsa_get_gicd(void);
@@ -45,9 +47,12 @@ void read_platform_config_from_dt(void *dtb)
 	 * QEMU gives us this DeviceTree node:
 	 *
 	 * intc {
-		reg = < 0x00 0x40060000 0x00 0x10000
-			0x00 0x40080000 0x00 0x4000000>;
-	};
+	 *	 reg = < 0x00 0x40060000 0x00 0x10000
+	 *		 0x00 0x40080000 0x00 0x4000000>;
+	 *       its {
+	 *               reg = <0x00 0x44081000 0x00 0x20000>;
+	 *       };
+	 * };
 	 */
 	node = fdt_path_offset(dtb, "/intc");
 	if (node < 0) {
@@ -74,6 +79,18 @@ void read_platform_config_from_dt(void *dtb)
 	INFO("GICR base = 0x%lx\n", gicr_base);
 
 	sbsa_set_gic_bases(gicd_base, gicr_base);
+
+	node = fdt_path_offset(dtb, "/intc/its");
+	if (node < 0) {
+		return;
+	}
+
+	err = fdt_get_reg_props_by_index(dtb, node, 0, &gic_its_addr, NULL);
+	if (err < 0) {
+		ERROR("Failed to read GICI reg property of GIC node\n");
+		return;
+	}
+	INFO("GICI base = 0x%lx\n", gic_its_addr);
 }
 
 void read_platform_version(void *dtb)
@@ -142,6 +159,9 @@ uintptr_t sbsa_sip_smc_handler(uint32_t smc_fid,
 
 	case SIP_SVC_GET_GIC:
 		SMC_RET3(handle, NULL, sbsa_get_gicd(), sbsa_get_gicr());
+
+	case SIP_SVC_GET_GIC_ITS:
+		SMC_RET2(handle, NULL, gic_its_addr);
 
 	default:
 		ERROR("%s: unhandled SMC (0x%x) (function id: %d)\n", __func__, smc_fid,
