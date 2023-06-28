@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -151,8 +151,16 @@
  * current BL3-1 debug size plus a little space for growth.
  */
 #define BL31_BASE			(BL31_LIMIT - 0x60000)
-#define BL31_LIMIT			(BL_RAM_BASE + BL_RAM_SIZE)
+#define BL31_LIMIT			(BL_RAM_BASE + BL_RAM_SIZE - FW_HANDOFF_SIZE)
 #define BL31_PROGBITS_LIMIT		BL1_RW_BASE
+
+#if TRANSFER_LIST
+#define FW_HANDOFF_BASE			BL31_LIMIT
+#define FW_HANDOFF_LIMIT		(FW_HANDOFF_BASE + FW_HANDOFF_SIZE)
+#define FW_HANDOFF_SIZE			0x4000
+#else
+#define FW_HANDOFF_SIZE			0
+#endif
 
 
 /*
@@ -172,14 +180,18 @@
 # define BL32_MEM_BASE			BL_RAM_BASE
 # define BL32_MEM_SIZE			BL_RAM_SIZE
 # define BL32_BASE			BL32_SRAM_BASE
-# define BL32_LIMIT			BL32_SRAM_LIMIT
+# define BL32_LIMIT			(BL32_SRAM_LIMIT - FW_HANDOFF_SIZE)
 #elif BL32_RAM_LOCATION_ID == SEC_DRAM_ID
 # define BL32_MEM_BASE			SEC_DRAM_BASE
 # define BL32_MEM_SIZE			SEC_DRAM_SIZE
 # define BL32_BASE			BL32_DRAM_BASE
-# define BL32_LIMIT			BL32_DRAM_LIMIT
+# define BL32_LIMIT			(BL32_DRAM_LIMIT - FW_HANDOFF_SIZE)
 #else
 # error "Unsupported BL32_RAM_LOCATION_ID value"
+#endif
+
+#if TRANSFER_LIST
+#define FW_NS_HANDOFF_BASE		(NS_IMAGE_OFFSET - FW_HANDOFF_SIZE)
 #endif
 
 #define NS_IMAGE_OFFSET			(NS_DRAM0_BASE + 0x20000000)
