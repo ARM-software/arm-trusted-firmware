@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,7 @@
 #include <context.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/amu.h>
+#include <lib/extensions/pmuv3.h>
 #include <lib/extensions/sys_reg_trace.h>
 #include <lib/extensions/trf.h>
 #include <lib/utils.h>
@@ -147,6 +148,12 @@ static void enable_extensions_nonsecure(bool el2_unused)
 	if (is_feat_trf_supported()) {
 		trf_enable();
 	}
+
+	/*
+	 * Also applies to PMU < v3. The PMU is only disabled for EL3 and Secure
+	 * state execution. This does not affect lower NS ELs.
+	 */
+	pmuv3_disable_el3();
 #endif
 }
 

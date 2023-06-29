@@ -523,6 +523,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				drivers/console/multi_console.c		\
 				lib/${ARCH}/cache_helpers.S		\
 				lib/${ARCH}/misc_helpers.S		\
+				lib/extensions/pmuv3/${ARCH}/pmuv3.c	\
 				plat/common/plat_bl_common.c		\
 				plat/common/plat_log_common.c		\
 				plat/common/${ARCH}/plat_common.c	\
@@ -1147,7 +1148,6 @@ $(eval $(call assert_booleans,\
 	CTX_INCLUDE_FPREGS \
 	CTX_INCLUDE_EL2_REGS \
 	DEBUG \
-	DISABLE_MTPMU \
 	DYN_DISABLE_AUTH \
 	EL3_EXCEPTION_HANDLING \
 	ENABLE_AMU_AUXILIARY_COUNTERS \
@@ -1225,6 +1225,7 @@ $(eval $(call assert_numerics,\
 	CTX_INCLUDE_MTE_REGS \
 	CTX_INCLUDE_NEVE_REGS \
 	CRYPTO_SUPPORT \
+	DISABLE_MTPMU \
 	ENABLE_BRBE_FOR_NS \
 	ENABLE_TRBE_FOR_NS \
 	ENABLE_BTI \

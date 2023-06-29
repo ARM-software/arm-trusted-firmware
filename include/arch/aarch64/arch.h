@@ -221,6 +221,12 @@
 #define ID_AA64DFR0_TRACEFILT_MASK	U(0xf)
 #define ID_AA64DFR0_TRACEFILT_SUPPORTED	U(1)
 #define ID_AA64DFR0_TRACEFILT_LENGTH	U(4)
+#define ID_AA64DFR0_PMUVER_LENGTH	U(4)
+#define ID_AA64DFR0_PMUVER_SHIFT	U(8)
+#define ID_AA64DFR0_PMUVER_MASK		U(0xf)
+#define ID_AA64DFR0_PMUVER_PMUV3	U(1)
+#define ID_AA64DFR0_PMUVER_PMUV3P7	U(7)
+#define ID_AA64DFR0_PMUVER_IMP_DEF	U(0xf)
 
 /* ID_AA64DFR0_EL1.PMS definitions (for ARMv8.2+) */
 #define ID_AA64DFR0_PMS_SHIFT		U(32)
@@ -237,6 +243,7 @@
 #define ID_AA64DFR0_MTPMU_SHIFT		U(48)
 #define ID_AA64DFR0_MTPMU_MASK		ULL(0xf)
 #define ID_AA64DFR0_MTPMU_SUPPORTED	ULL(1)
+#define ID_AA64DFR0_MTPMU_DISABLED	ULL(15)
 
 /* ID_AA64DFR0_EL1.BRBE definitions */
 #define ID_AA64DFR0_BRBE_SHIFT		U(52)
@@ -595,16 +602,16 @@
 #define MDCR_TDOSA_BIT		(ULL(1) << 10)
 #define MDCR_TDA_BIT		(ULL(1) << 9)
 #define MDCR_TPM_BIT		(ULL(1) << 6)
-#define MDCR_EL3_RESET_VAL	ULL(0x0)
+#define MDCR_EL3_RESET_VAL	MDCR_MTPME_BIT
 
 /* MDCR_EL2 definitions */
 #define MDCR_EL2_MTPME		(U(1) << 28)
-#define MDCR_EL2_HLP		(U(1) << 26)
+#define MDCR_EL2_HLP_BIT	(U(1) << 26)
 #define MDCR_EL2_E2TB(x)	((x) << 24)
 #define MDCR_EL2_E2TB_EL1	U(0x3)
-#define MDCR_EL2_HCCD		(U(1) << 23)
+#define MDCR_EL2_HCCD_BIT	(U(1) << 23)
 #define MDCR_EL2_TTRF		(U(1) << 19)
-#define MDCR_EL2_HPMD		(U(1) << 17)
+#define MDCR_EL2_HPMD_BIT	(U(1) << 17)
 #define MDCR_EL2_TPMS		(U(1) << 14)
 #define MDCR_EL2_E2PB(x)	((x) << 12)
 #define MDCR_EL2_E2PB_EL1	U(0x3)
@@ -615,6 +622,7 @@
 #define MDCR_EL2_HPME_BIT	(U(1) << 7)
 #define MDCR_EL2_TPM_BIT	(U(1) << 6)
 #define MDCR_EL2_TPMCR_BIT	(U(1) << 5)
+#define MDCR_EL2_HPMN_MASK	U(0x1f)
 #define MDCR_EL2_RESET_VAL	U(0x0)
 
 /* HSTR_EL2 definitions */

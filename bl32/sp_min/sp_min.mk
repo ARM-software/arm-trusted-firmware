@@ -20,10 +20,6 @@ BL32_SOURCES		+=	bl32/sp_min/sp_min_main.c		\
 				services/std_svc/std_svc_setup.c	\
 				${PSCI_LIB_SOURCES}
 
-ifeq (${DISABLE_MTPMU},1)
-BL32_SOURCES		+=	lib/extensions/mtpmu/aarch32/mtpmu.S
-endif
-
 ifeq (${ENABLE_PMF}, 1)
 BL32_SOURCES		+=	lib/pmf/pmf_main.c
 endif

@@ -985,6 +985,9 @@ void psci_warmboot_entrypoint(void)
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 
+	/* Init registers that never change for the lifetime of TF-A */
+	cm_manage_extensions_el3();
+
 	/*
 	 * Verify that we have been explicitly turned ON or resumed from
 	 * suspend.

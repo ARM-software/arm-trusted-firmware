@@ -207,10 +207,10 @@ Common build options
    of the binary image. If set to 1, then only the ELF image is built.
    0 is the default.
 
--  ``DISABLE_MTPMU``: Boolean option to disable FEAT_MTPMU if implemented
-   (Armv8.6 onwards). Its default value is 0 to keep consistency with platforms
-   that do not implement FEAT_MTPMU. For more information on FEAT_MTPMU,
-   check the latest Arm ARM.
+-  ``DISABLE_MTPMU``: Numeric option to disable ``FEAT_MTPMU`` (Multi Threaded
+   PMU). ``FEAT_MTPMU`` is an optional feature available on Armv8.6 onwards.
+   This flag can take values 0 to 2, to align with the ``FEATURE_DETECTION``
+   mechanism. Default is ``0``.
 
 -  ``DYN_DISABLE_AUTH``: Provides the capability to dynamically disable Trusted
    Board Boot authentication at runtime. This option is meant to be enabled only
