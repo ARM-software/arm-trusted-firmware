@@ -76,7 +76,7 @@ workaround_reset_start neoverse_n2, ERRATUM(2138953), ERRATA_N2_2138953
 	msr	NEOVERSE_N2_CPUECTLR2_EL1, x1
 workaround_reset_end neoverse_n2, ERRATUM(2138953)
 
-check_erratum_ls neoverse_n2, ERRATUM(2138953), CPU_REV(0, 0)
+check_erratum_ls neoverse_n2, ERRATUM(2138953), CPU_REV(0, 3)
 
 workaround_reset_start neoverse_n2, ERRATUM(2138956), ERRATA_N2_2138956
 	/* Apply instruction patching sequence */
@@ -157,7 +157,7 @@ workaround_reset_start neoverse_n2, ERRATUM(2376738), ERRATA_N2_2376738
 	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, NEOVERSE_N2_CPUACTLR2_EL1_BIT_0
 workaround_reset_end neoverse_n2, ERRATUM(2376738)
 
-check_erratum_ls neoverse_n2, ERRATUM(2376738), CPU_REV(0, 0)
+check_erratum_ls neoverse_n2, ERRATUM(2376738), CPU_REV(0, 3)
 
 workaround_reset_start neoverse_n2, ERRATUM(2388450), ERRATA_N2_2388450
 	/*Set bit 40 in ACTLR2_EL1 */
