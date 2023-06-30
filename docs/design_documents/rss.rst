@@ -134,12 +134,10 @@ RSS provides the following runtime services:
 - ``Delegated attestation``: Query the platform attestation token and derive a
   delegated attestation key. More info on the delegated attestation service
   in RSS can be found in the ``delegated_attestation_integration_guide`` [4]_ .
-- ``OTP assets management``: RSS provides access for AP to assets in OTP.
-  These are keys for image signature verification and non-volatile counters
-  for anti-rollback protection. Only RSS has direct access to the OTP. Public
-  keys used by AP during the trusted boot process can be requested from RSS.
-  Furthermore, AP can request RSS to increase a non-volatile counter. Please
-  refer to the ``RSS key management`` [5]_ document for more details.
+- ``OTP assets management``: Public keys used by AP during the trusted boot
+  process can be requested from RSS. Furthermore, AP can request RSS to
+  increase a non-volatile counter. Please refer to the
+  ``RSS key management`` [5]_ document for more details.
 
 Runtime service API
 ^^^^^^^^^^^^^^^^^^^
@@ -594,6 +592,57 @@ JSON format:
         "CCA_PLATFORM_CONFIG": "b'EFBEADDE'",
         "CCA_PLATFORM_VERIFICATION_SERVICE": "www.trustedfirmware.org"
     }
+
+RSS OTP Assets Management
+-------------------------
+
+RSS provides access for AP to assets in OTP, which include keys for image
+signature verification and non-volatile counters for anti-rollback protection.
+
+Non-Volatile Counter API
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+AP/RSS interface for retrieving and incrementing non-volatile counters API is
+as follows.
+
+Defined here:
+
+- ``include/lib/psa/rss_platform_api.h``
+
+.. code-block:: c
+
+    psa_status_t rss_platform_nv_counter_increment(uint32_t counter_id)
+
+    psa_status_t rss_platform_nv_counter_read(uint32_t counter_id,
+            uint32_t size, uint8_t *val)
+
+Through this service, we can read/increment any of the 3 non-volatile
+counters used on an Arm CCA platform:
+
+- ``Non-volatile counter for CCA firmware (BL2, BL31, RMM).``
+- ``Non-volatile counter for secure firmware.``
+- ``Non-volatile counter for non-secure firmware.``
+
+Public Key API
+^^^^^^^^^^^^^^
+
+AP/RSS interface for reading the ROTPK is as follows.
+
+Defined here:
+
+- ``include/lib/psa/rss_platform_api.h``
+
+.. code-block:: c
+
+    psa_status_t rss_platform_key_read(enum rss_key_id_builtin_t key,
+            uint8_t *data, size_t data_size, size_t *data_length)
+
+Through this service, we can read any of the 3 ROTPKs used on an
+Arm CCA platform:
+
+- ``ROTPK for CCA firmware (BL2, BL31, RMM).``
+- ``ROTPK for secure firmware.``
+- ``ROTPK for non-secure firmware.``
 
 References
 ----------
