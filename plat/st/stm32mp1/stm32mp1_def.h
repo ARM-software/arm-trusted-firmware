@@ -416,12 +416,6 @@ enum ddr_type {
 #define STM32MP_SDMMC2_BASE		U(0x58007000)
 #define STM32MP_SDMMC3_BASE		U(0x48004000)
 
-#define STM32MP_MMC_INIT_FREQ			U(400000)	/*400 KHz*/
-#define STM32MP_SD_NORMAL_SPEED_MAX_FREQ	U(25000000)	/*25 MHz*/
-#define STM32MP_SD_HIGH_SPEED_MAX_FREQ		U(50000000)	/*50 MHz*/
-#define STM32MP_EMMC_NORMAL_SPEED_MAX_FREQ	U(26000000)	/*26 MHz*/
-#define STM32MP_EMMC_HIGH_SPEED_MAX_FREQ	U(52000000)	/*52 MHz*/
-
 /*******************************************************************************
  * STM32MP1 BSEC / OTP
  ******************************************************************************/
