@@ -112,11 +112,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	if (zynqmp_get_bootmode() == ZYNQMP_BOOTMODE_JTAG) {
 		bl31_set_default_config();
 	} else {
-		/* use parameters from FSBL */
-		enum fsbl_handoff ret = fsbl_tfa_handover(&bl32_image_ep_info,
+		/* use parameters from XBL */
+		enum xbl_handoff ret = xbl_handover(&bl32_image_ep_info,
 							  &bl33_image_ep_info,
 							  tfa_handoff_addr);
-		if (ret != FSBL_HANDOFF_SUCCESS) {
+		if (ret != XBL_HANDOFF_SUCCESS) {
 			panic();
 		}
 	}
