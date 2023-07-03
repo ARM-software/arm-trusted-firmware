@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -159,11 +159,11 @@ override CTX_INCLUDE_PAUTH_REGS	:= 1
 override ENABLE_SPE_FOR_NS	:= 0
 
 override ENABLE_FEAT_AMU := 1
-override ENABLE_AMU_AUXILIARY_COUNTERS := 1
-override ENABLE_AMU_FCONF := 1
+ENABLE_AMU_AUXILIARY_COUNTERS := 1
+ENABLE_AMU_FCONF := 1
 
-override ENABLE_MPMM := 1
-override ENABLE_MPMM_FCONF := 1
+ENABLE_MPMM := 1
+ENABLE_MPMM_FCONF := 1
 
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
