@@ -451,15 +451,15 @@ static int32_t rcar_dev_init(io_dev_info_t *dev_info, const uintptr_t name)
 #endif
 
 	rcar_image_number = header[0];
-	for (i = 0; i < rcar_image_number + 2; i++) {
-		rcar_image_header[i] = header[i * 2 + 1];
-		rcar_image_header_prttn[i] = header[i * 2 + 2];
-	}
-
 	if (rcar_image_number == 0 || rcar_image_number > RCAR_MAX_BL3X_IMAGE) {
 		WARN("Firmware Image Package header check failed.\n");
 		rc = IO_FAIL;
 		goto error;
+	}
+
+	for (i = 0; i < rcar_image_number + 2; i++) {
+		rcar_image_header[i] = header[i * 2 + 1];
+		rcar_image_header_prttn[i] = header[i * 2 + 2];
 	}
 
 	rc = io_seek(handle, IO_SEEK_SET, offset + RCAR_SECTOR6_CERT_OFFSET);
