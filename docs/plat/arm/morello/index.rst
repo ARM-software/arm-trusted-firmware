@@ -12,9 +12,19 @@ Further information on Morello Platform is available at `info <https://developer
 Boot Sequence
 -------------
 
-The execution begins from SCP_BL1 which loads the SCP_BL2 and starts its
-execution. SCP_BL2 powers up the AP which starts execution at AP_BL31. The AP
-then continues executing and hands off execution to Non-secure world (UEFI).
+The SCP initializes the RVBAR registers to point to the AP_BL1. Once RVBAR is
+initialized, the primary core is powered on. The primary core boots the AP_BL1.
+It performs minimum initialization necessary to load and authenticate the AP
+firmware image (the FIP image) from the AP QSPI NOR Flash Memory into the
+Trusted SRAM.
+
+AP_BL1 authenticates and loads the AP_BL2 image. AP_BL2 performs additional
+initializations, and then authenticates and loads the AP_BL31 and AP_BL33.
+AP_BL2 then transfers execution control to AP_BL31, which is the EL3 runtime
+firmware. Execution is finally handed off to AP_BL33, which is the non-secure
+world (UEFI).
+
+SCP -> AP_BL1 -> AP_BL2 -> AP_BL31 -> AP_BL33
 
 Build Procedure (TF-A only)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -30,4 +40,4 @@ Build Procedure (TF-A only)
 
       make PLAT=morello all
 
-*Copyright (c) 2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
