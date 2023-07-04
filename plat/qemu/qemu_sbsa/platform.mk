@@ -51,6 +51,7 @@ QEMU_CPU_LIBS		:=	lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				lib/cpus/aarch64/neoverse_n_common.S		\
 				lib/cpus/aarch64/neoverse_n1.S			\
+				lib/cpus/aarch64/neoverse_v1.S			\
 				lib/cpus/aarch64/qemu_max.S
 
 include lib/xlat_tables_v2/xlat_tables.mk
