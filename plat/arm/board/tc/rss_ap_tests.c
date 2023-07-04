@@ -56,7 +56,7 @@ static int run_tests(void)
 	return 0;
 }
 
-void run_platform_tests(void)
+int run_platform_tests(void)
 {
 	size_t i;
 	int ret;
