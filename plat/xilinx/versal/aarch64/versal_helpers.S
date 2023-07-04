@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
 #include <asm_macros.S>
+
+#include <arch.h>
 #include <drivers/arm/gicv3.h>
+
 #include <platform_def.h>
 
 	.globl	plat_secondary_cold_boot_setup

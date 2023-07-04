@@ -21,9 +21,9 @@
 #include <lib/utils.h>
 
 #include <plat_ipi.h>
-#include <zynqmp_def.h>
 #include "pm_client.h"
 #include "pm_ipi.h"
+#include <zynqmp_def.h>
 #include "zynqmp_pm_api_sys.h"
 
 #define IRQ_MAX		84U

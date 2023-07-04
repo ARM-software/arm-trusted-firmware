@@ -13,11 +13,12 @@
 #include <lib/mmio.h>
 #include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables.h>
+#include <plat/common/platform.h>
+#include <services/arm_arch_svc.h>
+
 #include <plat_ipi.h>
 #include <plat_private.h>
 #include <plat_startup.h>
-#include <plat/common/platform.h>
-#include <services/arm_arch_svc.h>
 
 #include "zynqmp_pm_api_sys.h"
 

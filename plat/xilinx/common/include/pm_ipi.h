@@ -9,8 +9,9 @@
 #ifndef PM_IPI_H
 #define PM_IPI_H
 
-#include <plat_ipi.h>
 #include <stddef.h>
+
+#include <plat_ipi.h>
 #include "pm_common.h"
 
 #define IPI_BLOCKING		1

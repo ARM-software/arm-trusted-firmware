@@ -9,9 +9,9 @@
 
 #include <bl31/ehf.h>
 #include <common/debug.h>
+#include <plat/common/platform.h>
 #include <services/sdei.h>
 
-#include <plat/common/platform.h>
 #include <platform_def.h>
 
 int arm_validate_ns_entrypoint(uintptr_t entrypoint)

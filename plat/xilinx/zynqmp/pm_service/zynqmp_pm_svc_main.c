@@ -12,14 +12,12 @@
 
 #include <errno.h>
 
-#include <common/runtime_svc.h>
-#if ZYNQMP_WDT_RESTART
 #include <arch_helpers.h>
+#include <common/runtime_svc.h>
 #include <drivers/arm/gicv2.h>
 #include <lib/mmio.h>
 #include <lib/spinlock.h>
 #include <plat/common/platform.h>
-#endif
 
 #include <plat_private.h>
 #include "pm_client.h"

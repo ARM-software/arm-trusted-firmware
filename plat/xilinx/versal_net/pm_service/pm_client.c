@@ -16,9 +16,8 @@
 #include <drivers/arm/gicv3.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
-#include <lib/mmio.h>
-#include <lib/utils.h>
 #include <lib/spinlock.h>
+#include <lib/utils.h>
 #include <plat/common/platform.h>
 
 #include <plat_ipi.h>

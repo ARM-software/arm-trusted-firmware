@@ -9,8 +9,8 @@
 #ifndef PLAT_PRIVATE_H
 #define PLAT_PRIVATE_H
 
-#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <bl31/interrupt_mgmt.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 typedef struct versal_intr_info_type_el3 {
 	uint32_t id;

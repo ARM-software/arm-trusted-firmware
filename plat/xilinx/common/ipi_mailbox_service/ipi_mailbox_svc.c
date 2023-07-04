@@ -18,10 +18,9 @@
 #include <lib/mmio.h>
 
 #include <ipi.h>
+#include "ipi_mailbox_svc.h"
 #include <plat_ipi.h>
 #include <plat_private.h>
-
-#include "ipi_mailbox_svc.h"
 
 /*********************************************************************
  * Macros definitions

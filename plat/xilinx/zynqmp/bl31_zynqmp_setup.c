@@ -11,20 +11,20 @@
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <drivers/arm/dcc.h>
-#include <drivers/console.h>
-#include <plat/arm/common/plat_arm.h>
-#include <plat/common/platform.h>
-#include <lib/mmio.h>
-
-#include <custom_svc.h>
-#include <plat_startup.h>
-#include <plat_private.h>
-#include <zynqmp_def.h>
-
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
+#include <drivers/arm/dcc.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
 #include <libfdt.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/common/platform.h>
+
+#include <custom_svc.h>
+#include <plat_private.h>
+#include <plat_startup.h>
+#include <zynqmp_def.h>
+
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;

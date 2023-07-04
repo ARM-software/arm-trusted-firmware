@@ -11,15 +11,18 @@
  */
 
 #include <errno.h>
-#include <plat_private.h>
 #include <stdbool.h>
+
+#include "../drivers/arm/gic/v3/gicv3_private.h"
+
 #include <common/runtime_svc.h>
+#include <drivers/arm/gicv3.h>
 #include <plat/common/platform.h>
+
+#include <plat_private.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
-#include <drivers/arm/gicv3.h>
-#include "../drivers/arm/gic/v3/gicv3_private.h"
 
 #define MODE				0x80000000U
 

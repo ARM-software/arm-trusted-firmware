@@ -8,8 +8,7 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <plat_arm.h>
-#include <plat_private.h>
+
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -19,12 +18,14 @@
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
-#include <versal_def.h>
+#include <plat_arm.h>
+
 #include <plat_private.h>
 #include <plat_startup.h>
-#include <pm_ipi.h>
-#include "pm_client.h"
 #include "pm_api_sys.h"
+#include "pm_client.h"
+#include <pm_ipi.h>
+#include <versal_def.h>
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
