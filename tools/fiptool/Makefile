@@ -68,9 +68,9 @@ DEPS := $(patsubst %.o,%.d,$(OBJECTS))
 
 .PHONY: all clean distclean --openssl
 
-all: ${PROJECT}
+all: --openssl ${PROJECT}
 
-${PROJECT}: --openssl ${OBJECTS} Makefile
+${PROJECT}: ${OBJECTS} Makefile
 	@echo "  HOSTLD  $@"
 	${Q}${HOSTCC} ${OBJECTS} -o $@ ${LDLIBS}
 	@${ECHO_BLANK_LINE}
