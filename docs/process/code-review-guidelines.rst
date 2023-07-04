@@ -94,6 +94,14 @@ contributor you are expected to:
    directory to have the freedom to change it in any way. This way, your changes
    benefit everyone and will be maintained over time.
 
+-  It is the patch-author's responsibility to respond to review comments within
+   21 days. In the event that the patch-author does not respond within this
+   timeframe, the maintainer is entitled to abandon the patch(es).
+   Patch author(s) may be busy with other priorities, causing a delay in
+   responding to active review comments after posting patch(es). In such a
+   situation, if the author's patch(es) is/are abandoned, they can restore
+   their work for review by resolving comments, merge-conflicts, and revising
+   their original submissions.
 
 Guidelines for all reviewers
 ----------------------------
