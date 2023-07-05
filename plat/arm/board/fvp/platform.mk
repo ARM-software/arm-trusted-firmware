@@ -462,3 +462,7 @@ ENABLE_TRF_FOR_NS		:= 1
 ifeq (${SPMC_AT_EL3}, 1)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp/fvp_el3_spmc.c
 endif
+
+ifeq (${ERRATA_ABI_SUPPORT}, 1)
+include plat/arm/board/fvp/fvp_cpu_errata.mk
+endif

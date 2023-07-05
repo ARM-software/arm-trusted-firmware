@@ -653,6 +653,9 @@ subsections:
       - title: TRNG
         scope: trng
 
+      - title: ERRATA_ABI
+        scope: errata_abi
+
   - title: Libraries
 
     subsections:

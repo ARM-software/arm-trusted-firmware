@@ -417,6 +417,8 @@ endif
 
 GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
 
+TF_LDFLAGS		+=	-z noexecstack
+
 # LD = armlink
 ifneq ($(findstring armlink,$(notdir $(LD))),)
 TF_LDFLAGS		+=	--diag_error=warning --lto_level=O1
@@ -443,12 +445,17 @@ TF_LDFLAGS		+=	$(subst --,-Xlinker --,$(TF_LDFLAGS_$(ARCH)))
 
 # LD = gcc-ld (ld) or llvm-ld (ld.lld) or other
 else
-TF_LDFLAGS		+=	--fatal-warnings -O1
+# With ld.bfd version 2.39 and newer new warnings are added. Skip those since we
+# are not loaded by a elf loader.
+TF_LDFLAGS		+=	$(call ld_option, --no-warn-rwx-segments)
+TF_LDFLAGS		+=	-O1
 TF_LDFLAGS		+=	--gc-sections
 # ld.lld doesn't recognize the errata flags,
-# therefore don't add those in that case
+# therefore don't add those in that case.
+# ld.lld reports section type mismatch warnings,
+# therefore don't add --fatal-warnings to it.
 ifeq ($(findstring ld.lld,$(notdir $(LD))),)
-TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
+TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH)) --fatal-warnings
 endif
 endif
 
@@ -1081,6 +1088,8 @@ $(eval $(call assert_booleans,\
         SIMICS_BUILD \
         FEATURE_DETECTION \
 	TRNG_SUPPORT \
+	ERRATA_ABI_SUPPORT \
+	ERRATA_NON_ARM_INTERCONNECT \
 	CONDITIONAL_CMO \
 )))
 
@@ -1201,6 +1210,8 @@ $(eval $(call add_defines,\
         TRUSTED_BOARD_BOOT \
         CRYPTO_SUPPORT \
         TRNG_SUPPORT \
+        ERRATA_ABI_SUPPORT \
+	ERRATA_NON_ARM_INTERCONNECT \
         USE_COHERENT_MEM \
         USE_DEBUGFS \
         ARM_IO_IN_DTB \

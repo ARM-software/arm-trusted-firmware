@@ -70,6 +70,9 @@ You can find additional definitions in the `Arm Glossary`_.
    EHF
       Exception Handling Framework
 
+   ERRATA_ABI
+      Errata management firmware interface
+
    FCONF
       Firmware Configuration Framework
 
