@@ -39,7 +39,7 @@
 #include <cortex_a9.h>
 #endif
 
-#define MAX_ERRATA_ENTRIES	16
+#define MAX_ERRATA_ENTRIES	32
 
 #define ERRATA_LIST_END		(MAX_ERRATA_ENTRIES - 1)
 
