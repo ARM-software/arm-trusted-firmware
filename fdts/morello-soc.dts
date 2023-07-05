@@ -6,6 +6,7 @@
 
 /dts-v1/;
 #include "morello.dtsi"
+#include "morello-coresight.dtsi"
 
 / {
 	model = "Arm Morello System Development Platform";
@@ -28,28 +29,28 @@
 	cpus {
 		#address-cells = <2>;
 		#size-cells = <0>;
-		cpu0@0 {
+		cpu0: cpu0@0 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x0>;
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
 		};
-		cpu1@100 {
+		cpu1: cpu1@100 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x100>;
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
 		};
-		cpu2@10000 {
+		cpu2: cpu2@10000 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x10000>;
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 1>;
 		};
-		cpu3@10100 {
+		cpu3: cpu3@10100 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x10100>;
 			device_type = "cpu";
