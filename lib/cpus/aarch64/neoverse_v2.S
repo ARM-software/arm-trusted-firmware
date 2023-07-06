@@ -38,6 +38,12 @@ func neoverse_v2_core_pwr_dwn
 	mrs	x0, NEOVERSE_V2_CPUPWRCTLR_EL1
 	orr	x0, x0, #NEOVERSE_V2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	msr	NEOVERSE_V2_CPUPWRCTLR_EL1, x0
+#if ERRATA_V2_2801372
+	mov	x15, x30
+	bl	cpu_get_rev_var
+	bl	errata_neoverse_v2_2801372_wa
+	mov	x30, x15
+#endif /* ERRATA_V2_2801372 */
 	isb
 	ret
 endfunc neoverse_v2_core_pwr_dwn
@@ -50,6 +56,30 @@ func check_errata_cve_2022_23960
 #endif
 	ret
 endfunc check_errata_cve_2022_23960
+
+	/* ----------------------------------------------------
+	 * Errata Workaround for Neoverse V2 Errata #2801372
+	 * This applies to revisions <= r0p1 and is fixed in r0p2.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * ----------------------------------------------------
+	 */
+func errata_neoverse_v2_2801372_wa
+	mov	x17, x30
+	bl	check_errata_2801372
+	cbz	x0, 1f
+
+	/* dsb before isb of power down sequence */
+	dsb	sy
+1:
+	ret	x17
+endfunc errata_neoverse_v2_2801372_wa
+
+func check_errata_2801372
+	/* Applies to all revisions <= r0p1 */
+	mov	x1, #0x01
+	b	cpu_rev_var_ls
+endfunc check_errata_2801372
 
 func neoverse_v2_reset_func
 	/* Disable speculative loads */
@@ -82,6 +112,7 @@ func neoverse_v2_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata WORKAROUND_CVE_2022_23960, neoverse_v2, cve_2022_23960
+	report_errata ERRATA_V2_2801372, neoverse_v2, 2801372
 
 	ldp	x8, x30, [sp], #16
 	ret
