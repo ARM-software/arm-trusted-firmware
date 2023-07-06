@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,6 +74,10 @@
 #define SOCFPGA_NOC_FW_L4_SYS_SCR_WATCHDOG2			0x0070
 #define SOCFPGA_NOC_FW_L4_SYS_SCR_WATCHDOG3			0x0074
 #define SOCFPGA_NOC_FW_L4_SYS_SCR_DAP				0x0078
+#define SOCFPGA_NOC_FW_L4_SYS_SCR_WATCHDOG4			0x007c
+#define SOCFPGA_NOC_FW_L4_SYS_SCR_PWRMGR			0x0080
+#define SOCFPGA_NOC_FW_L4_SYS_SCR_USB1_RXECC			0x0084
+#define SOCFPGA_NOC_FW_L4_SYS_SCR_USB1_TXECC			0x0088
 #define SOCFPGA_NOC_FW_L4_SYS_SCR_L4_NOC_PROBES			0x0090
 #define SOCFPGA_NOC_FW_L4_SYS_SCR_L4_NOC_QOS			0x0094
 

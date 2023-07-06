@@ -87,6 +87,18 @@
 #define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(400000000)
 #define PLAT_HZ_CONVERT_TO_MHZ	(1000000)
 
+/*******************************************************************************
+ * SDMMC related pointer function
+ ******************************************************************************/
+#define SDMMC_READ_BLOCKS	mmc_read_blocks
+#define SDMMC_WRITE_BLOCKS	mmc_write_blocks
+
+/*******************************************************************************
+ * sysmgr.boot_scratch_cold6 & 7 (64bit) are used to indicate L2 reset
+ * is done and HPS should trigger warm reset via RMR_EL3.
+ ******************************************************************************/
+#define L2_RESET_DONE_REG			0xFFD12218
+
 /* Platform specific system counter */
 #define PLAT_SYS_COUNTER_FREQ_IN_MHZ	get_cpu_clk()
 

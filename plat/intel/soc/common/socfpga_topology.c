@@ -33,8 +33,8 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
 		return -1;
 
-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
+	cluster_id = (mpidr >> PLAT_CLUSTER_ID_MPIDR_AFF_SHIFT) & MPIDR_AFFLVL_MASK;
+	cpu_id = (mpidr >> PLAT_CPU_ID_MPIDR_AFF_SHIFT) & MPIDR_AFFLVL_MASK;
 
 	if (cluster_id >= PLATFORM_CLUSTER_COUNT)
 		return -1;
