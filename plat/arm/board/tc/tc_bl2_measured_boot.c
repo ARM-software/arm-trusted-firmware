@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,7 +45,7 @@ void bl2_plat_mboot_init(void)
 	(void)rss_comms_init(PLAT_RSS_AP_SND_MHU_BASE,
 			     PLAT_RSS_AP_RCV_MHU_BASE);
 
-	rss_measured_boot_init();
+	rss_measured_boot_init(tc_rss_mboot_metadata);
 }
 
 void bl2_plat_mboot_finish(void)
