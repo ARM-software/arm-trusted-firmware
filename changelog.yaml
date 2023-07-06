@@ -406,6 +406,13 @@ subsections:
               - title: i.MX 8
                 scope: imx8
 
+              - title: i.MX 9
+                scope: imx9
+
+                subsections:
+                  - title: i.MX93
+                    scope: imx93
+
           - title: Layerscape
             scope: layerscape
 
@@ -1043,6 +1050,9 @@ subsections:
 
           - title: TZC-380
             scope: nxp-tzc380
+
+          - title: TRDC
+            scope: imx-trdc
 
       - title: Renesas
         scope: renesas-drivers
