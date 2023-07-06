@@ -782,6 +782,10 @@ CPU_FLAG_LIST += ERRATA_A510_2684597
 # erratum applies to revisions r0p0, rop1. Fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_V2_2719103
 
+# Flag to apply erratum 2801372 workaround for all configurations.
+# This erratum applies to revisions r0p0, r0p1. Fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_V2_2801372
+
 # Flag to apply erratum 2701951 workaround for non-arm interconnect ip.
 # This erratum applies to revisions r0p0, r1p0, and r1p1. Its is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_A715_2701951
