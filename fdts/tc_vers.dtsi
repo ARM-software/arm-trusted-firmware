@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#if TARGET_PLATFORM <= 2
+#define INT_MBOX_RX		317
+#define MHU_TX_ADDR(pref)	pref##45000000 /* hex */
+#define MHU_RX_ADDR(pref)	pref##45010000 /* hex */
+#define MPAM_ADDR		0x1 0x00010000 /* 0x1_0001_0000 */
+#define UARTCLK_FREQ		5000000
+#elif TARGET_PLATFORM == 3
+#define INT_MBOX_RX		300
+#define MHU_TX_ADDR(pref)	pref##46040000 /* hex */
+#define MHU_RX_ADDR(pref)	pref##46140000 /* hex */
+#define MPAM_ADDR		0x0 0x5f010000 /* 0x5f01_0000 */
+#define UARTCLK_FREQ		3750000
+#endif /* TARGET_PLATFORM == 3 */
+
+/ {
+#if TARGET_PLATFORM <= 2
+	cmn-pmu {
+		compatible = "arm,ci-700";
+		reg = <0x0 0x50000000 0x0 0x10000000>;
+		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH>;
+	};
+#endif /* TARGET_PLATFORM <= 2 */
+};

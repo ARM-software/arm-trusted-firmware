@@ -8,6 +8,7 @@
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
+#include "tc_vers.dtsi"
 
 / {
 	compatible = "arm,tc";
@@ -254,33 +255,27 @@
 		};
 	};
 
-	mbox_db_rx: mhu@45010000 {
+	mbox_db_rx: mhu@MHU_RX_ADDR() {
 		compatible = "arm,mhuv2-rx","arm,primecell";
-		reg = <0x0 0x45010000 0x0 0x1000>;
+		reg = <0x0 MHU_RX_ADDR(0x) 0x0 0x1000>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
 		#mbox-cells = <2>;
-		interrupts = <GIC_SPI 317 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <GIC_SPI INT_MBOX_RX IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "mhu_rx";
 		mhu-protocol = "doorbell";
 		arm,mhuv2-protocols = <0 1>;
 	};
 
-	mbox_db_tx: mhu@45000000 {
+	mbox_db_tx: mhu@MHU_TX_ADDR() {
 		compatible = "arm,mhuv2-tx","arm,primecell";
-		reg = <0x0 0x45000000 0x0 0x1000>;
+		reg = <0x0 MHU_TX_ADDR(0x) 0x0 0x1000>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
 		#mbox-cells = <2>;
 		interrupt-names = "mhu_tx";
 		mhu-protocol = "doorbell";
 		arm,mhuv2-protocols = <0 1>;
-	};
-
-	cmn-pmu {
-		compatible = "arm,ci-700";
-		reg = <0x0 0x50000000 0x0 0x10000000>;
-		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
 	scmi {
@@ -344,7 +339,7 @@
 	soc_uartclk: uartclk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <50000000>;
+		clock-frequency = <UARTCLK_FREQ>;
 		clock-output-names = "uartclk";
 	};
 
@@ -552,7 +547,7 @@
 	 */
 	msc0 {
 		compatible = "arm,mpam-msc";
-		reg = <0x1 0x00010000 0x0 0x2000>;
+		reg = <MPAM_ADDR 0x0 0x2000>;
 	};
 
 	ete0 {

@@ -5,17 +5,13 @@
 
 include common/fdt_wrappers.mk
 
-ifeq ($(TARGET_PLATFORM), 0)
-	$(error Platform ${PLAT}$(TARGET_PLATFORM) is deprecated.)
-endif
-
-ifeq ($(TARGET_PLATFORM), 1)
+ifneq ($(shell expr $(TARGET_PLATFORM) \<= 1), 0)
         $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
           Some of the features might not work as expected)
 endif
 
-ifeq ($(shell expr $(TARGET_PLATFORM) \<= 2), 0)
-        $(error TARGET_PLATFORM must be less than or equal to 2)
+ifeq ($(shell expr $(TARGET_PLATFORM) \<= 3), 0)
+        $(error TARGET_PLATFORM must be less than or equal to 3)
 endif
 
 $(eval $(call add_define,TARGET_PLATFORM))
@@ -85,6 +81,13 @@ ifeq (${TARGET_PLATFORM}, 2)
 TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a520.S \
 			lib/cpus/aarch64/cortex_a720.S \
 			lib/cpus/aarch64/cortex_x4.S
+endif
+
+# CPU libraries for TARGET_PLATFORM=3
+ifeq (${TARGET_PLATFORM}, 3)
+TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a520.S \
+			lib/cpus/aarch64/cortex_chaberton.S \
+			lib/cpus/aarch64/cortex_blackhawk.S
 endif
 
 INTERCONNECT_SOURCES	:=	${TC_BASE}/tc_interconnect.c
