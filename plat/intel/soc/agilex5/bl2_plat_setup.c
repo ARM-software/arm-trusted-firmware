@@ -68,7 +68,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 {
 	static console_t console;
 
-	handoff reverse_handoff_ptr;
+	handoff reverse_handoff_ptr = { 0 };
 
 	generic_delay_timer_init();
 	config_clkmgr_handoff(&reverse_handoff_ptr);
