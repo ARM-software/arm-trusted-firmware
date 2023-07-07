@@ -52,8 +52,6 @@ void socfpga_delay_timer_init(void)
 	socfpga_delay_timer_init_args();
 	mmio_write_32(SOCFPGA_GLOBAL_TIMER, SOCFPGA_GLOBAL_TIMER_EN);
 
-	NOTICE("BL31 CLK freq = %d MHz\n", PLAT_SYS_COUNTER_FREQ_IN_MHZ);
-
 	asm volatile("msr cntp_ctl_el0, %0" : : "r" (SOCFPGA_GLOBAL_TIMER_EN));
 	asm volatile("msr cntp_tval_el0, %0" : : "r" (~0));
 

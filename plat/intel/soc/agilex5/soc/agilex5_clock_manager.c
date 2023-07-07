@@ -14,6 +14,7 @@
 #include "agilex5_clock_manager.h"
 #include "agilex5_system_manager.h"
 #include "socfpga_handoff.h"
+#include "socfpga_system_manager.h"
 
 uint32_t wait_pll_lock(void)
 {
@@ -250,4 +251,10 @@ uint32_t get_mmc_clk(void)
 	NOTICE("mmc_clk = %d Hz\n", mmc_clk);
 
 	return mmc_clk;
+}
+
+/* Return mpu_periph_clk tick */
+unsigned int plat_get_syscnt_freq2(void)
+{
+	return PLAT_SYS_COUNTER_FREQ_IN_TICKS;
 }
