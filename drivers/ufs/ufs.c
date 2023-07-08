@@ -540,6 +540,7 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 
 	query_upiu->trans_type = QUERY_REQUEST_UPIU;
 	query_upiu->task_tag = utrd->task_tag;
+	query_upiu->data_segment_len = htobe16(length);
 	query_upiu->ts.desc.opcode = op;
 	query_upiu->ts.desc.idn = idn;
 	query_upiu->ts.desc.index = index;
