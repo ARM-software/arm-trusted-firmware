@@ -1376,6 +1376,13 @@
 #define HCRX_EL2_INIT_VAL	ULL(0x0)
 
 /*******************************************************************************
+ * FEAT_FGT - Definitions for Fine-Grained Trap registers
+ ******************************************************************************/
+#define HFGITR_EL2_INIT_VAL	ULL(0x180000000000000)
+#define HFGRTR_EL2_INIT_VAL	ULL(0xC4000000000000)
+#define HFGWTR_EL2_INIT_VAL	ULL(0xC4000000000000)
+
+/*******************************************************************************
  * FEAT_TCR2 - Extended Translation Control Register
  ******************************************************************************/
 #define TCR2_EL2		S3_4_C2_C0_3

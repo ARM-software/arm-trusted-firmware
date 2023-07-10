@@ -279,6 +279,20 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_HCRX_EL2,
 			HCRX_EL2_INIT_VAL);
 	}
+
+	if (is_feat_fgt_supported()) {
+		/*
+		 * Initialize HFG*_EL2 registers with a default value so legacy
+		 * systems unaware of FEAT_FGT do not get trapped due to their lack
+		 * of initialization for this feature.
+		 */
+		write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_HFGITR_EL2,
+			HFGITR_EL2_INIT_VAL);
+		write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_HFGRTR_EL2,
+			HFGRTR_EL2_INIT_VAL);
+		write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_HFGWTR_EL2,
+			HFGWTR_EL2_INIT_VAL);
+	}
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	manage_extensions_nonsecure(ctx);
@@ -829,7 +843,26 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			if (is_feat_hcx_supported()) {
 				write_hcrx_el2(HCRX_EL2_INIT_VAL);
 			}
+
+			/*
+			 * Initialize Fine-grained trap registers introduced
+			 * by FEAT_FGT so all traps are initially disabled when
+			 * switching to EL2 or a lower EL, preventing undesired
+			 * behavior.
+			 */
+			if (is_feat_fgt_supported()) {
+				/*
+				 * Initialize HFG*_EL2 registers with a default
+				 * value so legacy systems unaware of FEAT_FGT
+				 * do not get trapped due to their lack of
+				 * initialization for this feature.
+				 */
+				write_hfgitr_el2(HFGITR_EL2_INIT_VAL);
+				write_hfgrtr_el2(HFGRTR_EL2_INIT_VAL);
+				write_hfgwtr_el2(HFGWTR_EL2_INIT_VAL);
+			}
 		}
+
 
 		if ((scr_el3 & SCR_HCE_BIT) != 0U) {
 			/* Use SCTLR_EL1.EE value to initialise sctlr_el2 */
