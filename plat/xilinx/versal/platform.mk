@@ -45,12 +45,17 @@ endif
 VERSAL_PLATFORM ?= silicon
 $(eval $(call add_define_val,VERSAL_PLATFORM,VERSAL_PLATFORM_ID_${VERSAL_PLATFORM}))
 
+ifdef XILINX_OF_BOARD_DTB_ADDR
+$(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
+endif
+
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/common/ipi_mailbox_service/	\
 				-Iplat/xilinx/versal/include/			\
 				-Iplat/xilinx/versal/pm_service/
 
+include lib/libfdt/libfdt.mk
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
@@ -80,6 +85,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/plat_psci_common.c			\
 				plat/xilinx/common/ipi.c			\
+				plat/xilinx/common/plat_fdt.c			\
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/pm_service/pm_ipi.c		\
@@ -93,7 +99,9 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/versal/sip_svc_setup.c		\
 				plat/xilinx/versal/versal_gicv3.c		\
 				plat/xilinx/versal/versal_ipi.c			\
-				plat/xilinx/versal/pm_service/pm_client.c
+				plat/xilinx/versal/pm_service/pm_client.c	\
+				common/fdt_fixup.c				\
+				${LIBFDT_SRCS}
 
 ifeq ($(HARDEN_SLS_ALL), 1)
 TF_CFLAGS_aarch64      +=      -mharden-sls=all

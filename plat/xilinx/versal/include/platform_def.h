@@ -76,8 +76,29 @@
  ******************************************************************************/
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 32)
+
+#define XILINX_OF_BOARD_DTB_MAX_SIZE	U(0x200000)
+
+#define PLAT_OCM_BSE			U(0xFFFE0000)
+#define PLAT_OCM_LIMIT			U(0xFFFFFFFF)
+
+#define IS_TFA_IN_OCM(x)	((x >= PLAT_OCM_BASE) && (x < PLAT_OCM_LIMIT))
+
+#ifndef MAX_MMAP_REGIONS
+#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
+#define MAX_MMAP_REGIONS		9
+#else
 #define MAX_MMAP_REGIONS		8
-#define MAX_XLAT_TABLES			5
+#endif
+#endif
+
+#ifndef MAX_XLAT_TABLES
+#if !IS_TFA_IN_OCM(BL31_BASE)
+#define MAX_XLAT_TABLES		9
+#else
+#define MAX_XLAT_TABLES		5
+#endif
+#endif
 
 #define CACHE_WRITEBACK_SHIFT	6
 #define CACHE_WRITEBACK_GRANULE	(1 << CACHE_WRITEBACK_SHIFT)
