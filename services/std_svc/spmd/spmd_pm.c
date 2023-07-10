@@ -122,8 +122,20 @@ static int32_t spmd_cpu_off_handler(u_register_t unused)
 	assert(ctx->state != SPMC_STATE_OFF);
 
 	/* Build an SPMD to SPMC direct message request. */
-	spmd_build_spmc_message(get_gpregs_ctx(&ctx->cpu_ctx),
-				FFA_FWK_MSG_PSCI, PSCI_CPU_OFF);
+	gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
+	spmd_build_spmc_message(gpregs, FFA_FWK_MSG_PSCI, PSCI_CPU_OFF);
+
+	/* Clear remaining x8 - x17 at EL3/SEL2 or EL3/SEL1 boundary. */
+	write_ctx_reg(gpregs, CTX_GPREG_X8, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X9, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X10, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X11, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X12, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X13, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X14, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X15, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X16, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X17, 0);
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0ULL) {
