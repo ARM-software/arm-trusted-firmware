@@ -49,3 +49,7 @@ endif
 
 BL2_DEFAULT_LINKER_SCRIPT_SOURCE := bl2/bl2_el3.ld.S
 endif
+
+ifeq (${ENABLE_PMF},1)
+BL2_SOURCES		+=	lib/pmf/pmf_main.c
+endif
