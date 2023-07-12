@@ -273,12 +273,15 @@ static uint64_t spmd_group0_interrupt_handler_nwd(uint32_t id,
 
 	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
 
-	intid = plat_ic_get_pending_interrupt_id();
+	intid = plat_ic_acknowledge_interrupt();
 
 	if (plat_spmd_handle_group0_interrupt(intid) < 0) {
 		ERROR("Group0 interrupt %u not handled\n", intid);
 		panic();
 	}
+
+	/* Deactivate the corresponding Group0 interrupt. */
+	plat_ic_end_of_interrupt(intid);
 
 	return 0U;
 }
@@ -300,7 +303,7 @@ static uint64_t spmd_handle_group0_intr_swd(void *handle)
 
 	assert(plat_ic_get_pending_interrupt_type() == INTR_TYPE_EL3);
 
-	intid = plat_ic_get_pending_interrupt_id();
+	intid = plat_ic_acknowledge_interrupt();
 
 	/*
 	 * TODO: Currently due to a limitation in SPMD implementation, the
@@ -312,6 +315,9 @@ static uint64_t spmd_handle_group0_intr_swd(void *handle)
 		ERROR("Group0 interrupt %u not handled\n", intid);
 		panic();
 	}
+
+	/* Deactivate the corresponding Group0 interrupt. */
+	plat_ic_end_of_interrupt(intid);
 
 	/* Return success. */
 	SMC_RET8(handle, FFA_SUCCESS_SMC32, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
@@ -1187,7 +1193,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		if (secure_origin) {
 			return spmd_handle_group0_intr_swd(handle);
 		} else {
-			return spmd_ffa_error_return(handle, FFA_ERROR_DENIED);
+			return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
 		}
 	default:
 		WARN("SPM: Unsupported call 0x%08x\n", smc_fid);
