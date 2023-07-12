@@ -27,16 +27,14 @@ bool xlat_arch_is_granule_size_supported(size_t size)
 	if (size == PAGE_SIZE_4KB) {
 		tgranx = read_id_aa64mmfr0_el0_tgran4_field();
 		/* MSB of TGRAN4 field will be '1' for unsupported feature */
-		return ((tgranx >= ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED) &&
-			(tgranx < 8U));
+		return (tgranx < 8U);
 	} else if (size == PAGE_SIZE_16KB) {
 		tgranx = read_id_aa64mmfr0_el0_tgran16_field();
 		return (tgranx >= ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED);
 	} else if (size == PAGE_SIZE_64KB) {
 		tgranx = read_id_aa64mmfr0_el0_tgran64_field();
 		/* MSB of TGRAN64 field will be '1' for unsupported feature */
-		return ((tgranx >= ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED) &&
-			(tgranx < 8U));
+		return (tgranx < 8U);
 	} else {
 		return false;
 	}
