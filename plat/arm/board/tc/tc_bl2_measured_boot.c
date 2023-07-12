@@ -9,6 +9,7 @@
 #include <drivers/arm/rss_comms.h>
 #include <drivers/measured_boot/rss/rss_measured_boot.h>
 #include <lib/psa/measured_boot.h>
+#include <tools_share/tbbr_oid.h>
 
 #include <plat/common/common_def.h>
 #include <platform_def.h>
@@ -22,18 +23,21 @@ struct rss_mboot_metadata tc_rss_mboot_metadata[] = {
 		.slot = U(9),
 		.signer_id_size = SIGNER_ID_MIN_SIZE,
 		.sw_type = RSS_MBOOT_BL31_STRING,
+		.pk_oid = BL31_IMAGE_KEY_OID,
 		.lock_measurement = true },
 	{
 		.id = HW_CONFIG_ID,
 		.slot = U(10),
 		.signer_id_size = SIGNER_ID_MIN_SIZE,
 		.sw_type = RSS_MBOOT_HW_CONFIG_STRING,
+		.pk_oid = HW_CONFIG_KEY_OID,
 		.lock_measurement = true },
 	{
 		.id = SOC_FW_CONFIG_ID,
 		.slot = U(11),
 		.signer_id_size = SIGNER_ID_MIN_SIZE,
 		.sw_type = RSS_MBOOT_SOC_FW_CONFIG_STRING,
+		.pk_oid = SOC_FW_CONFIG_KEY_OID,
 		.lock_measurement = true },
 	{
 		.id = RSS_MBOOT_INVALID_ID }
