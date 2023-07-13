@@ -3,6 +3,31 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.6..refs/tags/lts-v2.8.7) (2023-07-13)
+
+### Resolved issues (since lts-v2.8.6)
+
+- **Build System**
+
+  - fix(build): allow warnings when using lld ([37bee49](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/37bee4983192451a00ed9dd5987e8e856fb09714))
+  - build(makefile): add helper to detect linker options ([8782b88](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8782b8849147aef0e0f8dcf54ec3f2d980acbf50))
+  - feat(build): add support for new binutils versions ([1fdc979](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1fdc9797f32c711c35a8a61a591607c8fa8a5468))
+
+- **Services**
+
+  - **Errata ABI**
+
+    - feat(errata_abi): errata management firmware interface ([bb9d6fa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bb9d6faa41ee9d60fdd310f446870b1dbcc41b03))
+    - refactor(errata_abi): factor in non-arm interconnect ([4a001ff](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4a001ffb68e0a8f306ca84a6c1c3142dff728aa2))
+    - fix(cpus): workaround platforms non-arm interconnect ([f718c87](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f718c8723aca40164340c416a0e9d96a37719fe5))
+    - docs(errata_abi): document the errata abi changes ([66dab5c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/66dab5c69420fc728a74d10a83f0abc0e4c4f756))
+
+- **Platforms**
+
+  - **FVP**
+
+    - feat(fvp): enable errata management interface ([b8bb1e3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b8bb1e347e5486583edda32e47af53a43165a3aa))
+
 ## [lts-2.8.6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.5..refs/tags/lts-v2.8.6) (2023-04-20)
 
 ### Resolved issues (since lts-v2.8.5)
