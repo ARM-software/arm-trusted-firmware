@@ -108,4 +108,5 @@ latex_engine = "xelatex"
 latex_elements = {
     "maxlistdepth": "10",
     "pointsize": "11pt",
+    "extraclassoptions": "openany"
 }
