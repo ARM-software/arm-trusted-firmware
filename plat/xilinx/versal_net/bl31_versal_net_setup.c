@@ -12,17 +12,15 @@
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <common/fdt_fixup.h>
-#include <common/fdt_wrappers.h>
 #include <drivers/arm/dcc.h>
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
-#include <libfdt.h>
 #include <plat/common/platform.h>
 #include <plat_arm.h>
 
+#include <plat_fdt.h>
 #include <plat_private.h>
 #include <plat_startup.h>
 #include <pm_api_sys.h>
@@ -226,6 +224,8 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 
 void bl31_platform_setup(void)
 {
+	prepare_dtb();
+
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_versal_net_gic_driver_init();
 	plat_versal_net_gic_init();
@@ -250,6 +250,10 @@ void bl31_plat_runtime_setup(void)
 void bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
+#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
+		MAP_REGION_FLAT(XILINX_OF_BOARD_DTB_ADDR, XILINX_OF_BOARD_DTB_MAX_SIZE,
+				MT_MEMORY | MT_RW | MT_NS),
+#endif
 		MAP_REGION_FLAT(BL31_BASE, BL31_END - BL31_BASE,
 			MT_MEMORY | MT_RW | MT_SECURE),
 		MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE,

@@ -65,6 +65,10 @@ endif
 
 $(eval $(call add_define_val,VERSAL_NET_CONSOLE,VERSAL_NET_CONSOLE_ID_${VERSAL_NET_CONSOLE}))
 
+ifdef XILINX_OF_BOARD_DTB_ADDR
+$(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
+endif
+
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/common/ipi_mailbox_service/	\
@@ -101,7 +105,8 @@ BL31_SOURCES		+=	plat/xilinx/common/pm_service/pm_api_sys.c	\
 else
 BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
 endif
-BL31_SOURCES		+=	plat/xilinx/common/plat_startup.c		\
+BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
+				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/versal.c			\
