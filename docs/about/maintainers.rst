@@ -196,12 +196,14 @@ Arm® Ethos™-N NPU driver
 
 JTAG DCC console driver
 ^^^^^^^^^^^^^^^^^^^^^^^
-:M: Michal Simek <michal.simek@amd.com>
-:G: `michalsimek`_
-:M: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@amd.com>
-:G: `venkatesh`_
-:F: drivers/arm/dcc/
-:F: include/drivers/arm/dcc.h
+:|M|: Michal Simek <michal.simek@amd.com>
+:|G|: `michalsimek`_
+:|M|: Amit Nagal <amit.nagal@amd.com>
+:|G|: `amit-nagal`_
+:|M|: Akshay Belsare <akshay.belsare@amd.com>
+:|G|: `Akshay-Belsare`_
+:|F|: drivers/arm/dcc/
+:|F|: include/drivers/arm/dcc.h
 
 Power State Coordination Interface (PSCI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -798,8 +800,10 @@ Xilinx platform port
 ^^^^^^^^^^^^^^^^^^^^
 :|M|: Michal Simek <michal.simek@amd.com>
 :|G|: `michalsimek`_
-:|M|: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@amd.com>
-:|G|: `venkatesh`_
+:|M|: Amit Nagal <amit.nagal@amd.com>
+:|G|: `amit-nagal`_
+:|M|: Akshay Belsare <akshay.belsare@amd.com>
+:|G|: `Akshay-Belsare`_
 :|F|: docs/plat/xilinx\*
 :|F|: plat/xilinx/
 
@@ -963,7 +967,6 @@ Conventional Changelog Extensions
 .. _TonyXie06: https://github.com/TonyXie06
 .. _TravMurav: https://github.com/TravMurav
 .. _vwadekar: https://github.com/vwadekar
-.. _venkatesh: https://github.com/vabbarap
 .. _Yann-lms: https://github.com/Yann-lms
 .. _manish-pandey-arm: https://github.com/manish-pandey-arm
 .. _mardyk01: https://github.com/mardyk01
@@ -997,3 +1000,5 @@ Conventional Changelog Extensions
 .. _jimmy-brisson: https://github.com/theotherjimmy
 .. _ChiaweiW: https://github.com/chiaweiw
 .. _Neal-liu: https://github.com/neal-liu
+.. _amit-nagal: https://github.com/amit-nagal
+.. _Akshay-Belsare: https://github.com/Akshay-Belsare
