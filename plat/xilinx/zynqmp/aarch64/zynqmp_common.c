@@ -229,20 +229,9 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	size_t i, j, len;
 	const char *name = "EG/EV";
 
-#ifdef IMAGE_BL32
-	/*
-	 * For BL32, get the chip id info directly by reading corresponding
-	 * registers instead of making pm call. This has limitation
-	 * that these registers should be configured to have access
-	 * from APU which is default case.
-	 */
-	chipid[0] = mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_IDCODE_OFFSET);
-	chipid[1] = mmio_read_32(EFUSE_BASEADDR + EFUSE_IPDISABLE_OFFSET);
-#else
 	if (pm_get_chipid(chipid) != PM_RET_SUCCESS) {
 		return "XCZUUNKN";
 	}
-#endif
 
 	id = chipid[0] & (ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
 			  ZYNQMP_CSU_IDCODE_SVD_MASK);
