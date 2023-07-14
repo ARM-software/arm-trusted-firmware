@@ -35,7 +35,7 @@ int rotpk_test(void)
 
 	status = rss_comms_init(PLAT_RSS_AP_SND_MHU_BASE, PLAT_RSS_AP_RCV_MHU_BASE);
 	if (status != PSA_SUCCESS) {
-		printf("Failed to initialize RSS communication channel\n");
+		printf("Failed to initialize RSS communication channel - psa_status = %d\n", status);
 		return -1;
 	}
 
@@ -43,7 +43,7 @@ int rotpk_test(void)
 		status = rss_platform_key_read(key_ids[i].key_id, key_buf,
 			       sizeof(key_buf), &key_size);
 		if (status != PSA_SUCCESS) {
-			printf("Failed to retrieve %s\n", key_ids[i].key_id_name);
+			printf("Failed to retrieve %s - psa_status = %d\n", key_ids[i].key_id_name, status);
 			return -1;
 		}
 		print_hex(key_ids[i].key_id_name, key_size, key_buf);
