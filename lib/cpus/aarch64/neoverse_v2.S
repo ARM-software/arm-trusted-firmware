@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +22,26 @@
 #error "Neoverse V2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+workaround_runtime_start neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
+	/* dsb before isb of power down sequence */
+	dsb	sy
+workaround_runtime_end neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
+
+check_erratum_ls neoverse_v2, ERRATUM(2801372), CPU_REV(0, 1)
+
+workaround_reset_start neoverse_v2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
+#if IMAGE_BL31
+	/*
+	 * The Neoverse-V2 generic vectors are overridden to apply errata
+         * mitigation on exception entry from lower ELs.
+	 */
+	adr	x0, wa_cve_vbar_neoverse_v2
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 */
+workaround_reset_end neoverse_v2, CVE(2022,23960)
+
+check_erratum_chosen neoverse_v2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V2_BHB_LOOP_COUNT, neoverse_v2
 #endif /* WORKAROUND_CVE_2022_23960 */
@@ -38,87 +58,19 @@ func neoverse_v2_core_pwr_dwn
 	mrs	x0, NEOVERSE_V2_CPUPWRCTLR_EL1
 	orr	x0, x0, #NEOVERSE_V2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	msr	NEOVERSE_V2_CPUPWRCTLR_EL1, x0
-#if ERRATA_V2_2801372
-	mov	x15, x30
-	bl	cpu_get_rev_var
-	bl	errata_neoverse_v2_2801372_wa
-	mov	x30, x15
-#endif /* ERRATA_V2_2801372 */
+
+	apply_erratum neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
+
 	isb
 	ret
 endfunc neoverse_v2_core_pwr_dwn
 
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-	/* ----------------------------------------------------
-	 * Errata Workaround for Neoverse V2 Errata #2801372
-	 * This applies to revisions <= r0p1 and is fixed in r0p2.
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * ----------------------------------------------------
-	 */
-func errata_neoverse_v2_2801372_wa
-	mov	x17, x30
-	bl	check_errata_2801372
-	cbz	x0, 1f
-
-	/* dsb before isb of power down sequence */
-	dsb	sy
-1:
-	ret	x17
-endfunc errata_neoverse_v2_2801372_wa
-
-func check_errata_2801372
-	/* Applies to all revisions <= r0p1 */
-	mov	x1, #0x01
-	b	cpu_rev_var_ls
-endfunc check_errata_2801372
-
-func neoverse_v2_reset_func
+cpu_reset_func_start neoverse_v2
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+cpu_reset_func_end neoverse_v2
 
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
-	/*
-	 * The Neoverse V2 vectors are overridden to apply
-	 * errata mitigation on exception entry from lower ELs.
-	 */
-	adr	x0, wa_cve_vbar_neoverse_v2
-	msr	vbar_el3, x0
-#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
-	isb
-	ret
-endfunc neoverse_v2_reset_func
-
-#if REPORT_ERRATA
-/*
- * Errata printing function for Neoverse V2. Must follow AAPCS.
- */
-func neoverse_v2_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata WORKAROUND_CVE_2022_23960, neoverse_v2, cve_2022_23960
-	report_errata ERRATA_V2_2801372, neoverse_v2, 2801372
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc neoverse_v2_errata_report
-#endif
-
+errata_report_shim neoverse_v2
 	/* ---------------------------------------------
 	 * This function provides Neoverse V2-
 	 * specific register information for crash
