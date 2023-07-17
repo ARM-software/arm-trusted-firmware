@@ -69,13 +69,13 @@ static void msm8916_enable_blsp_uart(void)
 
 	/* Enable AHB clock */
 	mmio_setbits_32(GCC_APCS_CLOCK_BRANCH_ENA_VOTE, BLSP1_AHB_CLK_ENA);
-	while (mmio_read_32(GCC_BLSP1_AHB_CBCR) & CLK_OFF)
-		;
+	while (mmio_read_32(GCC_BLSP1_AHB_CBCR) & CLK_OFF) {
+	}
 
 	/* Enable BLSP UART clock */
 	mmio_setbits_32(GCC_BLSP1_UART_APPS_CBCR(QTI_UART_NUM), CLK_ENABLE);
-	while (mmio_read_32(GCC_BLSP1_UART_APPS_CBCR(QTI_UART_NUM)) & CLK_OFF)
-		;
+	while (mmio_read_32(GCC_BLSP1_UART_APPS_CBCR(QTI_UART_NUM)) & CLK_OFF) {
+	}
 }
 
 void msm8916_early_platform_setup(void)

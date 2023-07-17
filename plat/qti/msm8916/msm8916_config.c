@@ -87,8 +87,8 @@ static void msm8916_configure_smmu(void)
 {
 	/* Enable SMMU configuration clock to enable register access */
 	mmio_setbits_32(GCC_APCS_SMMU_CLOCK_BRANCH_ENA_VOTE, SMMU_CFG_CLK_ENA);
-	while (mmio_read_32(GCC_SMMU_CFG_CBCR) & CLK_OFF)
-		;
+	while (mmio_read_32(GCC_SMMU_CFG_CBCR) & CLK_OFF) {
+	}
 
 	/* Route all context bank interrupts to non-secure interrupt */
 	mmio_write_32(APPS_SMMU_INTR_SEL_NS, APPS_SMMU_INTR_SEL_NS_EN_ALL);
