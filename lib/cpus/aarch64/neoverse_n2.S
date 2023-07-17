@@ -181,6 +181,13 @@ workaround_runtime_end neoverse_n2, ERRATUM(2743089)
 
 check_erratum_ls neoverse_n2, ERRATUM(2743089), CPU_REV(0, 2)
 
+workaround_reset_start neoverse_n2, ERRATUM(2779511), ERRATA_N2_2779511
+	/* Set bit 47 in ACTLR3_EL1 */
+	sysreg_bit_set NEOVERSE_N2_CPUACTLR3_EL1, NEOVERSE_N2_CPUACTLR3_EL1_BIT_47
+workaround_reset_end neoverse_n2, ERRATUM(2779511)
+
+check_erratum_ls neoverse_n2, ERRATUM(2779511), CPU_REV(0, 2)
+
 workaround_reset_start neoverse_n2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
