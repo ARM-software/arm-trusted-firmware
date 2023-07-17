@@ -655,6 +655,10 @@ For Neoverse N2, the following errata build flags are defined :
    interconnect IP. This needs to be enabled for revisions r0p0, r0p1 and r0p2.
    It is fixed in r0p3.
 
+-  ``ERRATA_N2_2779511``: This applies errata 2779511 workaround to Neoverse-N2
+   CPU. This needs to be enabled for revisions r0p0, r0p1 and r0p2. It is fixed
+   in r0p3.
+
 For Cortex-X2, the following errata build flags are defined :
 
 -  ``ERRATA_X2_2002765``: This applies errata 2002765 workaround to Cortex-X2
