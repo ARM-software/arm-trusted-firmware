@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,4 +23,15 @@ void sys_reg_trace_enable(cpu_context_t *ctx)
 	val = read_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3);
 	val &= ~TTA_BIT;
 	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, val);
+}
+
+void sys_reg_trace_init_el2_unused(void)
+{
+	/*
+	 * CPTR_EL2.TTA: Set to zero so that Non-secure System register accesses
+	 *  to the trace registers from both Execution states do not trap to
+	 *  EL2. If PE trace unit System registers are not implemented then this
+	 *  bit is reserved, and must be set to zero.
+	 */
+	write_cptr_el2(read_cptr_el2() & ~CPTR_EL2_TTA_BIT);
 }

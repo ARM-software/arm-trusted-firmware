@@ -188,95 +188,66 @@ static __unused bool amu_group1_supported(void)
  * Enable counters. This function is meant to be invoked by the context
  * management library before exiting from EL3.
  */
-void amu_enable(bool el2_unused, cpu_context_t *ctx)
+void amu_enable(cpu_context_t *ctx)
 {
-	uint64_t amcfgr_el0_ncg;		/* Number of counter groups */
-	uint64_t amcgcr_el0_cg0nc;		/* Number of group 0 counters */
-
-	uint64_t amcntenset0_el0_px = 0x0;	/* Group 0 enable mask */
-	uint64_t amcntenset1_el0_px = 0x0;	/* Group 1 enable mask */
-
-	if (el2_unused) {
-		/*
-		 * CPTR_EL2.TAM: Set to zero so any accesses to the Activity
-		 * Monitor registers do not trap to EL2.
-		 */
-		write_cptr_el2_tam(0U);
-	}
-
 	/*
-	 * Retrieve and update the CPTR_EL3 value from the context mentioned
-	 * in 'ctx'. Set CPTR_EL3.TAM to zero so that any accesses to
-	 * the Activity Monitor registers do not trap to EL3.
+	 * Set CPTR_EL3.TAM to zero so that any accesses to the Activity Monitor
+	 * registers do not trap to EL3.
 	 */
 	ctx_write_cptr_el3_tam(ctx, 0U);
 
-	/*
-	 * Retrieve the number of architected counters. All of these counters
-	 * are enabled by default.
-	 */
+	/* Initialize FEAT_AMUv1p1 features if present. */
+	if (is_feat_amuv1p1_supported()) {
+		/*
+		 * Set SCR_EL3.AMVOFFEN to one so that accesses to virtual
+		 * offset registers at EL2 do not trap to EL3
+		 */
+		ctx_write_scr_el3_amvoffen(ctx, 1U);
+	}
+}
 
-	amcgcr_el0_cg0nc = read_amcgcr_el0_cg0nc();
-	amcntenset0_el0_px = (UINT64_C(1) << (amcgcr_el0_cg0nc)) - 1U;
+void amu_init_el3(void)
+{
+	uint64_t group0_impl_ctr = read_amcgcr_el0_cg0nc();
+	uint64_t group0_en_mask = (1 << (group0_impl_ctr)) - 1U;
+	uint64_t num_ctr_groups = read_amcfgr_el0_ncg();
 
-	assert(amcgcr_el0_cg0nc <= AMU_AMCGCR_CG0NC_MAX);
-
-	/*
-	 * The platform may opt to enable specific auxiliary counters. This can
-	 * be done via the common FCONF getter, or via the platform-implemented
-	 * function.
-	 */
+	/* Enable all architected counters by default */
+	write_amcntenset0_el0_px(group0_en_mask);
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
-	const struct amu_topology *topology;
+	if (num_ctr_groups > 0U) {
+		uint64_t amcntenset1_el0_px = 0x0; /* Group 1 enable mask */
+		const struct amu_topology *topology;
 
+		/*
+		 * The platform may opt to enable specific auxiliary counters.
+		 * This can be done via the common FCONF getter, or via the
+		 * platform-implemented function.
+		 */
 #if ENABLE_AMU_FCONF
-	topology = FCONF_GET_PROPERTY(amu, config, topology);
+		topology = FCONF_GET_PROPERTY(amu, config, topology);
 #else
-	topology = plat_amu_topology();
+		topology = plat_amu_topology();
 #endif /* ENABLE_AMU_FCONF */
 
-	if (topology != NULL) {
-		unsigned int core_pos = plat_my_core_pos();
+		if (topology != NULL) {
+			unsigned int core_pos = plat_my_core_pos();
 
-		amcntenset1_el0_px = topology->cores[core_pos].enable;
-	} else {
-		ERROR("AMU: failed to generate AMU topology\n");
+			amcntenset1_el0_px = topology->cores[core_pos].enable;
+		} else {
+			ERROR("AMU: failed to generate AMU topology\n");
+		}
+
+		write_amcntenset1_el0_px(amcntenset1_el0_px);
+	}
+#else /* ENABLE_AMU_AUXILIARY_COUNTERS */
+	if (num_ctr_groups > 0U) {
+		VERBOSE("AMU: auxiliary counters detected but support is disabled\n");
 	}
 #endif /* ENABLE_AMU_AUXILIARY_COUNTERS */
 
-	/*
-	 * Enable the requested counters.
-	 */
-
-	write_amcntenset0_el0_px(amcntenset0_el0_px);
-
-	amcfgr_el0_ncg = read_amcfgr_el0_ncg();
-	if (amcfgr_el0_ncg > 0U) {
-		write_amcntenset1_el0_px(amcntenset1_el0_px);
-
-#if !ENABLE_AMU_AUXILIARY_COUNTERS
-		VERBOSE("AMU: auxiliary counters detected but support is disabled\n");
-#endif
-	}
-
-	/* Initialize FEAT_AMUv1p1 features if present. */
 	if (is_feat_amuv1p1_supported()) {
-		if (el2_unused) {
-			/*
-			 * Make sure virtual offsets are disabled if EL2 not
-			 * used.
-			 */
-			write_hcr_el2_amvoffen(0U);
-		} else {
-			/*
-			 * Virtual offset registers are only accessible from EL3
-			 * and EL2, when clear, this bit traps accesses from EL2
-			 * so we set it to 1 when EL2 is present.
-			 */
-			ctx_write_scr_el3_amvoffen(ctx, 1U);
-		}
-
 #if AMU_RESTRICT_COUNTERS
 		/*
 		 * FEAT_AMUv1p1 adds a register field to restrict access to
@@ -295,6 +266,21 @@ void amu_enable(bool el2_unused, cpu_context_t *ctx)
 #if ENABLE_MPMM
 	mpmm_enable();
 #endif
+}
+
+void amu_init_el2_unused(void)
+{
+	/*
+	 * CPTR_EL2.TAM: Set to zero so any accesses to the Activity Monitor
+	 *  registers do not trap to EL2.
+	 */
+	write_cptr_el2_tam(0U);
+
+	/* Initialize FEAT_AMUv1p1 features if present. */
+	if (is_feat_amuv1p1_supported()) {
+		/* Make sure virtual offsets are disabled if EL2 not used. */
+		write_hcr_el2_amvoffen(0U);
+	}
 }
 
 /* Read the group 0 counter identified by the given `idx`. */
@@ -526,10 +512,10 @@ static void *amu_context_restore(const void *arg)
 
 	uint64_t hcr_el2_amvoffen = 0;	/* AMU virtual offsets enabled */
 
-	uint64_t amcfgr_el0_ncg;	/* Number of counter groups */
 	uint64_t amcgcr_el0_cg0nc;	/* Number of group 0 counters */
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
+	uint64_t amcfgr_el0_ncg;	/* Number of counter groups */
 	uint64_t amcgcr_el0_cg1nc;	/* Number of group 1 counters */
 	uint64_t amcg1idr_el0_voff;	/* Auxiliary counters with virtual offsets */
 #endif
@@ -541,7 +527,6 @@ static void *amu_context_restore(const void *arg)
 	core_pos = plat_my_core_pos();
 	ctx = &amu_ctxs_[core_pos];
 
-	amcfgr_el0_ncg = read_amcfgr_el0_ncg();
 	amcgcr_el0_cg0nc = read_amcgcr_el0_cg0nc();
 
 	if (is_feat_amuv1p1_supported()) {
@@ -549,20 +534,10 @@ static void *amu_context_restore(const void *arg)
 	}
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
+	amcfgr_el0_ncg = read_amcfgr_el0_ncg();
 	amcgcr_el0_cg1nc = (amcfgr_el0_ncg > 0U) ? read_amcgcr_el0_cg1nc() : 0U;
 	amcg1idr_el0_voff = (hcr_el2_amvoffen != 0U) ? read_amcg1idr_el0_voff() : 0U;
 #endif
-
-	/*
-	 * Sanity check that all counters were disabled when the context was
-	 * previously saved.
-	 */
-
-	assert(read_amcntenset0_el0_px() == 0U);
-
-	if (amcfgr_el0_ncg > 0U) {
-		assert(read_amcntenset1_el0_px() == 0U);
-	}
 
 	/*
 	 * Restore the counter values from the local context.

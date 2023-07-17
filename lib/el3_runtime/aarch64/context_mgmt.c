@@ -496,21 +496,53 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 }
 
 /*******************************************************************************
- * Enable architecture extensions on first entry to Non-secure world.
- * When EL2 is implemented but unused `el2_unused` is non-zero, otherwise
- * it is zero. This function updates some registers in-place and its contents
- * are being prepared to be moved to cm_manage_extensions_el3 and
- * cm_manage_extensions_nonsecure.
+ * Enable architecture extensions for EL3 execution. This function only updates
+ * registers in-place which are expected to either never change or be
+ * overwritten by el3_exit.
  ******************************************************************************/
-static void manage_extensions_nonsecure_mixed(bool el2_unused, cpu_context_t *ctx)
-{
 #if IMAGE_BL31
+void cm_manage_extensions_el3(void)
+{
 	if (is_feat_spe_supported()) {
-		spe_enable(el2_unused);
+		spe_init_el3();
 	}
 
 	if (is_feat_amu_supported()) {
-		amu_enable(el2_unused, ctx);
+		amu_init_el3();
+	}
+
+	if (is_feat_sme_supported()) {
+		sme_init_el3();
+	}
+
+	if (is_feat_mpam_supported()) {
+		mpam_init_el3();
+	}
+
+	if (is_feat_trbe_supported()) {
+		trbe_init_el3();
+	}
+
+	if (is_feat_brbe_supported()) {
+		brbe_init_el3();
+	}
+
+	if (is_feat_trf_supported()) {
+		trf_init_el3();
+	}
+
+	pmuv3_init_el3();
+}
+#endif /* IMAGE_BL31 */
+
+/*******************************************************************************
+ * Enable architecture extensions on first entry to Non-secure world.
+ ******************************************************************************/
+static void manage_extensions_nonsecure(cpu_context_t *ctx)
+{
+#if IMAGE_BL31
+	if (is_feat_amu_supported()) {
+		amu_enable(ctx);
 	}
 
 	/* Enable SVE and FPU/SIMD */
@@ -522,46 +554,10 @@ static void manage_extensions_nonsecure_mixed(bool el2_unused, cpu_context_t *ct
 		sme_enable(ctx);
 	}
 
-	if (is_feat_mpam_supported()) {
-		mpam_enable(el2_unused);
-	}
-
-	if (is_feat_trbe_supported()) {
-		trbe_enable();
-	}
-
-	if (is_feat_brbe_supported()) {
-		brbe_enable();
-	}
-
 	if (is_feat_sys_reg_trace_supported()) {
 		sys_reg_trace_enable(ctx);
 	}
 
-	if (is_feat_trf_supported()) {
-		trf_enable();
-	}
-#endif
-}
-
-/*******************************************************************************
- * Enable architecture extensions for EL3 execution. This function only updates
- * registers in-place which are expected to either never change or be
- * overwritten by el3_exit.
- ******************************************************************************/
-#if IMAGE_BL31
-void cm_manage_extensions_el3(void)
-{
-	pmuv3_disable_el3();
-}
-#endif /* IMAGE_BL31 */
-
-/*******************************************************************************
- * Enable architecture extensions on first entry to Non-secure world.
- ******************************************************************************/
-static void manage_extensions_nonsecure(cpu_context_t *ctx)
-{
-#if IMAGE_BL31
 	pmuv3_enable(ctx);
 #endif /* IMAGE_BL31 */
 }
@@ -573,7 +569,39 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 static void manage_extensions_nonsecure_el2_unused(void)
 {
 #if IMAGE_BL31
+	if (is_feat_spe_supported()) {
+		spe_init_el2_unused();
+	}
+
+	if (is_feat_amu_supported()) {
+		amu_init_el2_unused();
+	}
+
+	if (is_feat_mpam_supported()) {
+		mpam_init_el2_unused();
+	}
+
+	if (is_feat_trbe_supported()) {
+		trbe_init_el2_unused();
+	}
+
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_init_el2_unused();
+	}
+
+	if (is_feat_trf_supported()) {
+		trf_init_el2_unused();
+	}
+
 	pmuv3_init_el2_unused();
+
+	if (is_feat_sve_supported()) {
+		sve_init_el2_unused();
+	}
+
+	if (is_feat_sme_supported()) {
+		sme_init_el2_unused();
+	}
 #endif /* IMAGE_BL31 */
 }
 
@@ -606,6 +634,7 @@ static void manage_extensions_secure(cpu_context_t *ctx)
 		 * Enable SME, SVE, FPU/SIMD in secure context, secure manager
 		 * must ensure SME, SVE, and FPU/SIMD context properly managed.
 		 */
+			sme_init_el3();
 			sme_enable(ctx);
 		} else {
 		/*
@@ -656,7 +685,6 @@ void cm_prepare_el3_exit(uint32_t security_state)
 {
 	u_register_t sctlr_elx, scr_el3, mdcr_el2;
 	cpu_context_t *ctx = cm_get_context(security_state);
-	bool el2_unused = false;
 	uint64_t hcr_el2 = 0U;
 
 	assert(ctx != NULL);
@@ -694,8 +722,6 @@ void cm_prepare_el3_exit(uint32_t security_state)
 #endif
 			write_sctlr_el2(sctlr_elx);
 		} else if (el2_implemented != EL_IMPL_NONE) {
-			el2_unused = true;
-
 			/*
 			 * EL2 present but unused, need to disable safely.
 			 * SCTLR_EL2 can be ignored in this case.
@@ -719,24 +745,8 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * Initialise CPTR_EL2 setting all fields rather than
 			 * relying on the hw. All fields have architecturally
 			 * UNKNOWN reset values.
-			 *
-			 * CPTR_EL2.TCPAC: Set to zero so that Non-secure EL1
-			 *  accesses to the CPACR_EL1 or CPACR from both
-			 *  Execution states do not trap to EL2.
-			 *
-			 * CPTR_EL2.TTA: Set to zero so that Non-secure System
-			 *  register accesses to the trace registers from both
-			 *  Execution states do not trap to EL2.
-			 *  If PE trace unit System registers are not implemented
-			 *  then this bit is reserved, and must be set to zero.
-			 *
-			 * CPTR_EL2.TFP: Set to zero so that Non-secure accesses
-			 *  to SIMD and floating-point functionality from both
-			 *  Execution states do not trap to EL2.
 			 */
-			write_cptr_el2(CPTR_EL2_RESET_VAL &
-					~(CPTR_EL2_TCPAC_BIT | CPTR_EL2_TTA_BIT
-					| CPTR_EL2_TFP_BIT));
+			write_cptr_el2(CPTR_EL2_RESET_VAL);
 
 			/*
 			 * Initialise CNTHCTL_EL2. All fields are
@@ -787,16 +797,6 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * relying on hw. Some fields are architecturally
 			 * UNKNOWN on reset.
 			 *
-			 * MDCR_EL2.TTRF: Set to zero so that access to Trace
-			 *  Filter Control register TRFCR_EL1 at EL1 is not
-			 *  trapped to EL2. This bit is RES0 in versions of
-			 *  the architecture earlier than ARMv8.4.
-			 *
-			 * MDCR_EL2.TPMS: Set to zero so that accesses to
-			 *  Statistical Profiling control registers from EL1
-			 *  do not trap to EL2. This bit is RES0 when SPE is
-			 *  not implemented.
-			 *
 			 * MDCR_EL2.TDRA: Set to zero so that Non-secure EL0 and
 			 *  EL1 System register accesses to the Debug ROM
 			 *  registers are not trapped to EL2.
@@ -810,16 +810,10 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 *
 			 * MDCR_EL2.TDE: Set to zero so that debug exceptions
 			 *  are not routed to EL2.
-			 *
-			 * MDCR_EL2.E2TB: Set to zero so that the trace Buffer
-			 *  owning exception level is NS-EL1 and, tracing is
-			 *  prohibited at NS-EL2. These bits are RES0 when
-			 *  FEAT_TRBE is not implemented.
 			 */
-			mdcr_el2 = ((MDCR_EL2_RESET_VAL) & ~(MDCR_EL2_TTRF |
-				     MDCR_EL2_TDRA_BIT | MDCR_EL2_TDOSA_BIT |
-				     MDCR_EL2_TDA_BIT | MDCR_EL2_TDE_BIT |
-				     MDCR_EL2_E2TB(MDCR_EL2_E2TB_EL1)));
+			mdcr_el2 = ((MDCR_EL2_RESET_VAL) &
+				   ~(MDCR_EL2_TDRA_BIT | MDCR_EL2_TDOSA_BIT |
+				     MDCR_EL2_TDA_BIT | MDCR_EL2_TDE_BIT));
 
 			write_mdcr_el2(mdcr_el2);
 
@@ -844,7 +838,6 @@ void cm_prepare_el3_exit(uint32_t security_state)
 
 			manage_extensions_nonsecure_el2_unused();
 		}
-		manage_extensions_nonsecure_mixed(el2_unused, ctx);
 	}
 
 	cm_el1_sysregs_context_restore(security_state);
@@ -1149,23 +1142,15 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 void cm_prepare_el3_exit_ns(void)
 {
 #if CTX_INCLUDE_EL2_REGS
+#if ENABLE_ASSERTIONS
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	assert(ctx != NULL);
 
 	/* Assert that EL2 is used. */
-#if ENABLE_ASSERTIONS
-	el3_state_t *state = get_el3state_ctx(ctx);
-	u_register_t scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
-#endif
+	u_register_t scr_el3 = read_ctx_reg(get_el3state_ctx(ctx), CTX_SCR_EL3);
 	assert(((scr_el3 & SCR_HCE_BIT) != 0UL) &&
 			(el_implemented(2U) != EL_IMPL_NONE));
-
-	/*
-	 * Currently some extensions are configured using
-	 * direct register updates. Therefore, do this here
-	 * instead of when setting up context.
-	 */
-	manage_extensions_nonsecure_mixed(0, ctx);
+#endif /* ENABLE_ASSERTIONS */
 
 	/*
 	 * Set the NS bit to be able to access the ICC_SRE_EL2

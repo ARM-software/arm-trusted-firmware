@@ -37,6 +37,16 @@ void sve_enable(cpu_context_t *context)
 		(ZCR_EL3_LEN_MASK & CONVERT_SVE_LENGTH(SVE_VECTOR_LEN)));
 }
 
+void sve_init_el2_unused(void)
+{
+	/*
+	 * CPTR_EL2.TFP: Set to zero so that Non-secure accesses to Advanced
+	 *  SIMD and floating-point functionality from both Execution states do
+	 *  not trap to EL2.
+	 */
+	write_cptr_el2(read_cptr_el2() & ~CPTR_EL2_TFP_BIT);
+}
+
 void sve_disable(cpu_context_t *context)
 {
 	u_register_t reg;
