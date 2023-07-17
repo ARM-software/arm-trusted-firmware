@@ -262,7 +262,8 @@ The following metadata can be stored alongside the measurement:
 - ``SW type``: Optional. Short text description (e.g.: BL1, BL2, BL31, etc.)
 
 .. Note::
-    Signer-id and version info is not implemented in TF-A yet.
+    Version info is not implemented in TF-A yet.
+
 
 The caller must specify in which measurement slot to extend a certain
 measurement and metadata. A measurement slot can be extended by multiple
@@ -321,8 +322,37 @@ structure is defined in
             size_t  version_size;
             uint8_t sw_type[SW_TYPE_MAX_SIZE];
             size_t  sw_type_size;
+            void    *pk_oid;
             bool    lock_measurement;
     };
+
+Signer-ID API
+^^^^^^^^^^^^^
+
+This function calculates the hash of a public key (signer-ID) using the
+``Measurement algorithm`` and stores it in the ``rss_mboot_metadata`` field
+named ``signer_id``.
+Prior to calling this function, the caller must ensure that the ``signer_id``
+field points to the zero-filled buffer.
+
+Defined here:
+
+- ``include/drivers/measured_boot/rss/rss_measured_boot.h``
+
+.. code-block:: c
+
+   int rss_mboot_set_signer_id(struct rss_mboot_metadata *metadata_ptr,
+                               const void *pk_oid,
+                               const void *pk_ptr,
+                               size_t pk_len)
+
+
+- First parameter is the pointer to the ``rss_mboot_metadata`` structure.
+- Second parameter is the pointer to the key-OID of the public key.
+- Third parameter is the pointer to the public key buffer.
+- Fourth parameter is the size of public key buffer.
+- This function returns 0 on success, a signed integer error code
+  otherwise.
 
 Build time config options
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -361,8 +391,8 @@ Sample console log
     INFO:    Image id=24 loaded: 0x4001300 - 0x400153a
     INFO:    Measured boot extend measurement:
     INFO:     - slot        : 7
-    INFO:     - signer_id   : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:                   : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    INFO:     - signer_id   : b0 f3 82 09 12 97 d8 3a 37 7a 72 47 1b ec 32 73
+    INFO:                   : e9 92 32 e2 49 59 f6 5e 8b 4a 4a 46 d8 22 9a da
     INFO:     - version     :
     INFO:     - version_size: 0
     INFO:     - sw_type     : TB_FW_CONFIG
@@ -377,8 +407,8 @@ Sample console log
     INFO:    Image id=1 loaded: 0x404d000 - 0x406412a
     INFO:    Measured boot extend measurement:
     INFO:     - slot        : 8
-    INFO:     - signer_id   : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:                   : 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    INFO:     - signer_id   : b0 f3 82 09 12 97 d8 3a 37 7a 72 47 1b ec 32 73
+    INFO:                   : e9 92 32 e2 49 59 f6 5e 8b 4a 4a 46 d8 22 9a da
     INFO:     - version     :
     INFO:     - version_size: 0
     INFO:     - sw_type     : BL_2
@@ -483,31 +513,31 @@ Binary format:
     INFO:            a2 6a df 34 c3 29 48 9a dc 38 04 67 31 2e 35 2e
     INFO:            30 2b 30 01 60 02 58 20 b8 01 65 a7 78 8b c6 59
     INFO:            42 8d 33 10 85 d1 49 0a dc 9e c3 ee df 85 1b d2
-    INFO:            f0 73 73 6a 0c 07 11 b8 a4 05 58 20 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 00 00 00 04 60 01 6a
+    INFO:            f0 73 73 6a 0c 07 11 b8 a4 05 58 20 b0 f3 82 09
+    INFO:            12 97 d8 3a 37 7a 72 47 1b ec 32 73 e9 92 32 e2
+    INFO:            49 59 f6 5e 8b 4a 4a 46 d8 22 9a da 04 60 01 6a
     INFO:            46 57 5f 43 4f 4e 46 49 47 00 02 58 20 21 9e a0
     INFO:            13 82 e6 d7 97 5a 11 13 a3 5f 45 39 68 b1 d9 a3
     INFO:            ea 6a ab 84 23 3b 8c 06 16 98 20 ba b9 a4 05 58
-    INFO:            20 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:            00 04 60 01 6d 54 42 5f 46 57 5f 43 4f 4e 46 49
+    INFO:            20 b0 f3 82 09 12 97 d8 3a 37 7a 72 47 1b ec 32
+    INFO:            73 e9 92 32 e2 49 59 f6 5e 8b 4a 4a 46 d8 22 9a
+    INFO:            da 04 60 01 6d 54 42 5f 46 57 5f 43 4f 4e 46 49
     INFO:            47 00 02 58 20 41 39 f6 c2 10 84 53 c5 17 ae 9a
     INFO:            e5 be c1 20 7b cc 24 24 f3 9d 20 a8 fb c7 b3 10
-    INFO:            e3 ee af 1b 05 a4 05 58 20 00 00 00 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 04 60 01 65 42 4c 5f
+    INFO:            e3 ee af 1b 05 a4 05 58 20 b0 f3 82 09 12 97 d8
+    INFO:            3a 37 7a 72 47 1b ec 32 73 e9 92 32 e2 49 59 f6
+    INFO:            5e 8b 4a 4a 46 d8 22 9a da 04 60 01 65 42 4c 5f
     INFO:            32 00 02 58 20 5c 96 20 e1 e3 3b 0f 2c eb c1 8e
     INFO:            1a 02 a6 65 86 dd 34 97 a7 4c 98 13 bf 74 14 45
-    INFO:            2d 30 28 05 c3 a4 05 58 20 00 00 00 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 04 60 01 6e 53 45 43
+    INFO:            2d 30 28 05 c3 a4 05 58 20 b0 f3 82 09 12 97 d8
+    INFO:            3a 37 7a 72 47 1b ec 32 73 e9 92 32 e2 49 59 f6
+    INFO:            5e 8b 4a 4a 46 d8 22 9a da 04 60 01 6e 53 45 43
     INFO:            55 52 45 5f 52 54 5f 45 4c 33 00 02 58 20 f6 fb
     INFO:            62 99 a5 0c df db 02 0b 72 5b 1c 0b 63 6e 94 ee
     INFO:            66 50 56 3a 29 9c cb 38 f0 ec 59 99 d4 2e a4 05
-    INFO:            58 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:            00 00 04 60 01 6a 48 57 5f 43 4f 4e 46 49 47 00
+    INFO:            58 20 b0 f3 82 09 12 97 d8 3a 37 7a 72 47 1b ec
+    INFO:            32 73 e9 92 32 e2 49 59 f6 5e 8b 4a 4a 46 d8 22
+    INFO:            9a da 04 60 01 6a 48 57 5f 43 4f 4e 46 49 47 00
     INFO:            02 58 20 98 5d 87 21 84 06 33 9d c3 1f 91 f5 68
     INFO:            8d a0 5a f0 d7 7e 20 51 ce 3b f2 a5 c3 05 2e 3c
     INFO:            8b 52 31 19 01 09 78 1c 68 74 74 70 3a 2f 2f 61
@@ -559,31 +589,31 @@ JSON format:
                 "MEASUREMENT_VALUE": "b'B80165A7788BC659428D331085D1490ADC9EC3EEDF851BD2F073736A0C0711B8'"
             },
             {
-                "SIGNER_ID": "b'0000000000000000000000000000000000000000000000000000000000000000'",
+                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
                 "SW_COMPONENT_VERSION": "",
                 "SW_COMPONENT_TYPE": "FW_CONFIG\u0000",
                 "MEASUREMENT_VALUE": "b'219EA01382E6D7975A1113A35F453968B1D9A3EA6AAB84233B8C06169820BAB9'"
             },
             {
-                "SIGNER_ID": "b'0000000000000000000000000000000000000000000000000000000000000000'",
+                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
                 "SW_COMPONENT_VERSION": "",
                 "SW_COMPONENT_TYPE": "TB_FW_CONFIG\u0000",
                 "MEASUREMENT_VALUE": "b'4139F6C2108453C517AE9AE5BEC1207BCC2424F39D20A8FBC7B310E3EEAF1B05'"
             },
             {
-                "SIGNER_ID": "b'0000000000000000000000000000000000000000000000000000000000000000'",
+                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
                 "SW_COMPONENT_VERSION": "",
                 "SW_COMPONENT_TYPE": "BL_2\u0000",
                 "MEASUREMENT_VALUE": "b'5C9620E1E33B0F2CEBC18E1A02A66586DD3497A74C9813BF7414452D302805C3'"
             },
             {
-                "SIGNER_ID": "b'0000000000000000000000000000000000000000000000000000000000000000'",
+                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
                 "SW_COMPONENT_VERSION": "",
                 "SW_COMPONENT_TYPE": "SECURE_RT_EL3\u0000",
                 "MEASUREMENT_VALUE": "b'F6FB6299A50CDFDB020B725B1C0B636E94EE6650563A299CCB38F0EC5999D42E'"
             },
             {
-                "SIGNER_ID": "b'0000000000000000000000000000000000000000000000000000000000000000'",
+                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
                 "SW_COMPONENT_VERSION": "",
                 "SW_COMPONENT_TYPE": "HW_CONFIG\u0000",
                 "MEASUREMENT_VALUE": "b'985D87218406339DC31F91F5688DA05AF0D77E2051CE3BF2A5C3052E3C8B5231'"
