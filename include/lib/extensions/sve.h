@@ -10,17 +10,17 @@
 #include <context.h>
 
 #if (ENABLE_SME_FOR_NS || ENABLE_SVE_FOR_NS)
-void sve_enable(cpu_context_t *context);
 void sve_init_el2_unused(void);
-void sve_disable(cpu_context_t *context);
+void sve_enable_per_world(per_world_context_t *per_world_ctx);
+void sve_disable_per_world(per_world_context_t *per_world_ctx);
 #else
-static inline void sve_enable(cpu_context_t *context)
-{
-}
 static inline void sve_init_el2_unused(void)
 {
 }
-static inline void sve_disable(cpu_context_t *context)
+static inline void sve_enable_per_world(per_world_context_t *per_world_ctx)
+{
+}
+static inline void sve_disable_per_world(per_world_context_t *per_world_ctx)
 {
 }
 #endif /* ( ENABLE_SME_FOR_NS | ENABLE_SVE_FOR_NS ) */

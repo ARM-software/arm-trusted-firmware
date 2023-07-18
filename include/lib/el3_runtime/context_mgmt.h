@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,6 +39,7 @@ void cm_prepare_el3_exit_ns(void);
 #ifdef __aarch64__
 #if IMAGE_BL31
 void cm_manage_extensions_el3(void);
+void manage_extensions_nonsecure_per_world(void);
 #endif
 #if CTX_INCLUDE_EL2_REGS
 void cm_el2_sysregs_context_save(uint32_t security_state);
@@ -88,6 +89,7 @@ static inline void cm_set_next_context(void *context)
 void *cm_get_next_context(void);
 void cm_set_next_context(void *context);
 static inline void cm_manage_extensions_el3(void) {}
+static inline void manage_extensions_nonsecure_per_world(void) {}
 #endif /* __aarch64__ */
 
 #endif /* CONTEXT_MGMT_H */

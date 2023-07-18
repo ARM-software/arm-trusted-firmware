@@ -10,29 +10,27 @@
 #include <arch_helpers.h>
 #include <lib/extensions/sys_reg_trace.h>
 
-void sys_reg_trace_enable(cpu_context_t *ctx)
+void sys_reg_trace_enable_per_world(per_world_context_t *per_world_ctx)
 {
 	/*
 	 * CPTR_EL3.TTA: Set to zero so that System register accesses to the
 	 *  trace registers do not trap to EL3.
 	 */
-	uint64_t val = read_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3);
-
+	uint64_t val = per_world_ctx->ctx_cptr_el3;
 	val &= ~(TTA_BIT);
-	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, val);
+	per_world_ctx->ctx_cptr_el3 = val;
 }
 
-void sys_reg_trace_disable(cpu_context_t *ctx)
+void sys_reg_trace_disable_per_world(per_world_context_t *per_world_ctx)
 {
 	/*
 	 * CPTR_EL3.TTA: Set to one so that System register accesses to the
 	 *  trace registers trap to EL3, unless it is trapped by CPACR.TRCDIS,
 	 *  CPACR_EL1.TTA, or CPTR_EL2.TTA
 	 */
-	uint64_t val = read_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3);
-
+	uint64_t val = per_world_ctx->ctx_cptr_el3;
 	val |= TTA_BIT;
-	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, val);
+	per_world_ctx->ctx_cptr_el3 = val;
 }
 
 void sys_reg_trace_init_el2_unused(void)
