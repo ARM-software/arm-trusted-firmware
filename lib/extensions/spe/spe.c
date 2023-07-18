@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,14 @@
 #include <arch_helpers.h>
 #include <lib/el3_runtime/pubsub.h>
 #include <lib/extensions/spe.h>
+
+#include <plat/common/platform.h>
+
+typedef struct spe_ctx {
+	u_register_t pmblimitr_el1;
+} spe_ctx_t;
+
+static struct spe_ctx spe_ctxs[PLATFORM_CORE_COUNT];
 
 static inline void psb_csync(void)
 {
@@ -89,4 +97,35 @@ static void *spe_drain_buffers_hook(const void *arg)
 	return (void *)0;
 }
 
+static void *spe_context_save(const void *arg)
+{
+	unsigned int core_pos;
+	struct spe_ctx *ctx;
+
+	if (is_feat_spe_supported()) {
+		core_pos = plat_my_core_pos();
+		ctx = &spe_ctxs[core_pos];
+		ctx->pmblimitr_el1 = read_pmblimitr_el1();
+	}
+
+	return NULL;
+}
+
+static void *spe_context_restore(const void *arg)
+{
+	unsigned int core_pos;
+	struct spe_ctx *ctx;
+
+	if (is_feat_spe_supported()) {
+		core_pos = plat_my_core_pos();
+		ctx = &spe_ctxs[core_pos];
+		write_pmblimitr_el1(ctx->pmblimitr_el1);
+	}
+
+	return NULL;
+}
+
 SUBSCRIBE_TO_EVENT(cm_entering_secure_world, spe_drain_buffers_hook);
+
+SUBSCRIBE_TO_EVENT(psci_suspend_pwrdown_start, spe_context_save);
+SUBSCRIBE_TO_EVENT(psci_suspend_pwrdown_finish, spe_context_restore);

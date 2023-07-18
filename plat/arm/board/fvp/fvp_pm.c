@@ -1,17 +1,15 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 
-#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv3.h>
 #include <drivers/arm/fvp/fvp_pwrc.h>
-#include <lib/extensions/spe.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/arm/common/arm_config.h>
@@ -53,14 +51,6 @@ const unsigned int arm_pm_idle_states[] = {
 static void fvp_cluster_pwrdwn_common(void)
 {
 	uint64_t mpidr = read_mpidr_el1();
-
-	/*
-	 * On power down we need to disable statistical profiling extensions
-	 * before exiting coherency.
-	 */
-	if (is_feat_spe_supported()) {
-		spe_disable();
-	}
 
 	/* Disable coherency if this cluster is to be turned off */
 	fvp_interconnect_disable();
