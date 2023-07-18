@@ -35,8 +35,7 @@ workaround_reset_start neoverse_v2, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 	 * The Neoverse-V2 generic vectors are overridden to apply errata
          * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_neoverse_v2
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_vbar_neoverse_v2
 #endif /* IMAGE_BL31 */
 workaround_reset_end neoverse_v2, CVE(2022,23960)
 
@@ -55,10 +54,7 @@ func neoverse_v2_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, NEOVERSE_V2_CPUPWRCTLR_EL1
-	orr	x0, x0, #NEOVERSE_V2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	NEOVERSE_V2_CPUPWRCTLR_EL1, x0
-
+	sysreg_bit_set NEOVERSE_V2_CPUPWRCTLR_EL1, NEOVERSE_V2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	apply_erratum neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
 
 	isb
