@@ -306,6 +306,35 @@ func check_errata_1966096
 endfunc check_errata_1966096
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Neoverse V1 Errata #2108267.
+	 * This applies to revisions r0p0, r1p0, and r1p1, it
+	 * is still open.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x1, x17
+	 * --------------------------------------------------
+	 */
+func errata_neoverse_v1_2108267_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_2108267
+	cbz	x0, 1f
+
+	/* Apply the workaround. */
+	mrs	x1, NEOVERSE_V1_CPUECTLR_EL1
+	mov	x0, #NEOVERSE_V1_CPUECTLR_EL1_PF_MODE_CNSRV
+	bfi	x1, x0, #CPUECTLR_EL1_PF_MODE_LSB, #CPUECTLR_EL1_PF_MODE_WIDTH
+	msr	NEOVERSE_V1_CPUECTLR_EL1, x1
+1:
+	ret	x17
+endfunc errata_neoverse_v1_2108267_wa
+
+func check_errata_2108267
+	/* Applies to r0p0, r1p0, r1p1 */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_2108267
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Neoverse V1 Errata #2139242.
 	 * This applies to revisions r0p0, r1p0, and r1p1, it
 	 * is still open.
@@ -339,35 +368,6 @@ func check_errata_2139242
 	mov	x1, #0x11
 	b	cpu_rev_var_ls
 endfunc check_errata_2139242
-
-	/* --------------------------------------------------
-	 * Errata Workaround for Neoverse V1 Errata #2108267.
-	 * This applies to revisions r0p0, r1p0, and r1p1, it
-	 * is still open.
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x1, x17
-	 * --------------------------------------------------
-	 */
-func errata_neoverse_v1_2108267_wa
-	/* Check workaround compatibility. */
-	mov	x17, x30
-	bl	check_errata_2108267
-	cbz	x0, 1f
-
-	/* Apply the workaround. */
-	mrs	x1, NEOVERSE_V1_CPUECTLR_EL1
-	mov	x0, #NEOVERSE_V1_CPUECTLR_EL1_PF_MODE_CNSRV
-	bfi	x1, x0, #CPUECTLR_EL1_PF_MODE_LSB, #CPUECTLR_EL1_PF_MODE_WIDTH
-	msr	NEOVERSE_V1_CPUECTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_neoverse_v1_2108267_wa
-
-func check_errata_2108267
-	/* Applies to r0p0, r1p0, r1p1 */
-	mov	x1, #0x11
-	b	cpu_rev_var_ls
-endfunc check_errata_2108267
 
 	/* --------------------------------------------------
 	 * Errata Workaround for Neoverse V1 Errata #2216392.
