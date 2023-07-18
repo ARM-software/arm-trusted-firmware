@@ -205,6 +205,20 @@ ifneq (${PLATFORM_TEST},)
         PLAT_INCLUDES	+=	-Iinclude/lib/psa
 
         $(eval $(call add_define,PLATFORM_TEST_NV_COUNTERS))
+    else ifeq (${PLATFORM_TEST},rss-rotpk)
+        include drivers/arm/rss/rss_comms.mk
+
+        # Test code.
+        BL31_SOURCES	+=	plat/arm/board/tc/rotpk_test.c
+
+        # Code under testing.
+        BL31_SOURCES	+=	lib/psa/rss_platform.c \
+				drivers/arm/rss/rss_comms.c \
+				${RSS_COMMS_SOURCES}
+
+        PLAT_INCLUDES	+=	-Iinclude/lib/psa
+
+        $(eval $(call add_define,PLATFORM_TEST_ROTPK))
     else ifeq (${PLATFORM_TEST},tfm-testsuite)
         # Add this include as first, before arm_common.mk. This is necessary
         # because arm_common.mk builds Mbed TLS, and platform_test.mk can
