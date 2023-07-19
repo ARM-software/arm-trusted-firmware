@@ -122,12 +122,9 @@ int plat_spmd_handle_group0_interrupt(uint32_t intid)
 {
 	/* Trusted Watchdog timer is the only source of Group0 interrupt now. */
 	if (intid == SBSA_SECURE_WDOG_INTID) {
-		INFO("Watchdog restarted\n");
 		/* Refresh the timer. */
 		plat_arm_secure_wdt_refresh();
 
-		/* Deactivate the corresponding interrupt. */
-		plat_ic_end_of_interrupt(intid);
 		return 0;
 	}
 
