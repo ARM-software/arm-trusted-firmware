@@ -33,6 +33,15 @@ func reset_handler
 	/* Get the matching cpu_ops pointer */
 	bl	get_cpu_ops_ptr
 
+#if ENABLE_ASSERTIONS
+	/*
+	 * Assert if invalid cpu_ops obtained. If this is not valid, it may
+	 * suggest that the proper CPU file hasn't been included.
+	 */
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+
 	/* Get the cpu_ops reset handler */
 	ldr	x2, [x0, #CPU_RESET_FUNC]
 	mov	x30, x19
