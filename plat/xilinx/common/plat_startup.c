@@ -157,10 +157,10 @@ static int32_t get_xbl_cluster(const struct xbl_partition *partition)
 #endif /* PLAT_versal_net */
 
 /**
- * xbl_tfa_handover() - Populates the bl32 and bl33 image info structures.
+ * xbl_handover() - Populates the bl32 and bl33 image info structures.
  * @bl32: BL32 image info structure.
  * @bl33: BL33 image info structure.
- * @tfa_handoff_addr: TF-A handoff address.
+ * @handoff_addr: TF-A handoff address.
  *
  * Process the handoff parameters from the XBL and populate the BL32 and BL33
  * image info structures accordingly.
