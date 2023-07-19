@@ -3,7 +3,37 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-ifeq (${PLATFORM_TEST},tfm-testsuite)
+$(eval $(call add_define,PLATFORM_TESTS))
+
+ifeq (${PLATFORM_TEST},rss-nv-counters)
+    include drivers/arm/rss/rss_comms.mk
+
+    # Test code.
+    BL31_SOURCES	+=	plat/arm/board/tc/nv_counter_test.c
+
+    # Code under testing.
+    BL31_SOURCES	+=	lib/psa/rss_platform.c \
+				drivers/arm/rss/rss_comms.c \
+				${RSS_COMMS_SOURCES}
+
+    PLAT_INCLUDES	+=	-Iinclude/lib/psa
+
+    $(eval $(call add_define,PLATFORM_TEST_NV_COUNTERS))
+else ifeq (${PLATFORM_TEST},rss-rotpk)
+    include drivers/arm/rss/rss_comms.mk
+
+    # Test code.
+    BL31_SOURCES	+=	plat/arm/board/tc/rotpk_test.c
+
+    # Code under testing.
+    BL31_SOURCES	+=	lib/psa/rss_platform.c \
+				drivers/arm/rss/rss_comms.c \
+				${RSS_COMMS_SOURCES}
+
+    PLAT_INCLUDES	+=	-Iinclude/lib/psa
+
+    $(eval $(call add_define,PLATFORM_TEST_ROTPK))
+else ifeq (${PLATFORM_TEST},tfm-testsuite)
 
     # The variables need to be set to compile the platform test:
     ifeq (${TF_M_TESTS_PATH},)
@@ -77,4 +107,6 @@ ifeq (${PLATFORM_TEST},tfm-testsuite)
     $(eval $(call add_define,DELEG_ATTEST_DUMP_TOKEN_AND_KEY))
 
     $(eval $(call add_define,PLATFORM_TEST_TFM_TESTSUITE))
+else
+    $(error "Unsupported PLATFORM_TEST value")
 endif
