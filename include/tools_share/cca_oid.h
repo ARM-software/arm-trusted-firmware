@@ -9,7 +9,6 @@
 
 /* Reuse the Object IDs defined by TBBR for certificate extensions. */
 #include "tbbr_oid.h"
-#include "zero_oid.h"
 
 /*
  * Assign arbitrary Object ID values that do not conflict with any of the
@@ -28,5 +27,18 @@
 
 /* CCAFirmwareNVCounter - Non-volatile counter extension */
 #define CCA_FW_NVCOUNTER_OID			"1.3.6.1.4.1.4128.2100.3"
+
+/*
+ * First undef previous definitions from tbbr_oid.h.
+ * CCA ROTPK authenticates BL31 and its configuration image in
+ * CCA CoT.
+ **/
+#undef BL31_IMAGE_KEY_OID
+#undef SOC_FW_CONFIG_KEY_OID
+#undef HW_CONFIG_KEY_OID
+#define BL31_IMAGE_KEY_OID			ZERO_OID
+#define SOC_FW_CONFIG_KEY_OID			ZERO_OID
+#define HW_CONFIG_KEY_OID			ZERO_OID
+#define RMM_IMAGE_KEY_OID			ZERO_OID
 
 #endif /* CCA_OID_H */
