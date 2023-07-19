@@ -8,5 +8,6 @@
 #define MSM8916_CONFIG_H
 
 void msm8916_configure(void);
+void msm8916_configure_early(void);
 
 #endif /* MSM8916_CONFIG_H */

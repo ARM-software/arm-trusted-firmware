@@ -47,7 +47,14 @@ struct uartdm_gpios {
 };
 
 static const struct uartdm_gpios uartdm_gpio_map[] = {
+#if defined(PLAT_msm8909)
+	{4, 5, 0x2}, {20, 21, 0x3},
+#elif defined(PLAT_msm8916) || defined(PLAT_msm8939)
 	{0, 1, 0x2}, {4, 5, 0x2},
+#elif defined(PLAT_mdm9607)
+	{12, 13, 0x2}, {4, 5, 0x2}, {0, 1, 0x1},
+	{16, 17, 0x2}, {8, 9, 0x2}, {20, 21, 0x2},
+#endif
 };
 
 /*
@@ -69,13 +76,13 @@ static void msm8916_enable_blsp_uart(void)
 
 	/* Enable AHB clock */
 	mmio_setbits_32(GCC_APCS_CLOCK_BRANCH_ENA_VOTE, BLSP1_AHB_CLK_ENA);
-	while (mmio_read_32(GCC_BLSP1_AHB_CBCR) & CLK_OFF)
-		;
+	while (mmio_read_32(GCC_BLSP1_AHB_CBCR) & CLK_OFF) {
+	}
 
 	/* Enable BLSP UART clock */
 	mmio_setbits_32(GCC_BLSP1_UART_APPS_CBCR(QTI_UART_NUM), CLK_ENABLE);
-	while (mmio_read_32(GCC_BLSP1_UART_APPS_CBCR(QTI_UART_NUM)) & CLK_OFF)
-		;
+	while (mmio_read_32(GCC_BLSP1_UART_APPS_CBCR(QTI_UART_NUM)) & CLK_OFF) {
+	}
 }
 
 void msm8916_early_platform_setup(void)

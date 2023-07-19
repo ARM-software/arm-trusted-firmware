@@ -25,11 +25,20 @@
 #define CACHE_WRITEBACK_GRANULE		U(64)
 #define PLATFORM_STACK_SIZE		SZ_4K
 
-/* CPU topology: single cluster with 4 cores */
+/* CPU topology: one or two clusters with 4 cores each */
+#ifdef PLAT_msm8939
+#define PLATFORM_CLUSTER_COUNT		U(2)
+#else
 #define PLATFORM_CLUSTER_COUNT		U(1)
-#define PLATFORM_MAX_CPUS_PER_CLUSTER	U(4)
+#endif
+#if defined(PLAT_mdm9607)
+#define PLATFORM_CPU_PER_CLUSTER_SHIFT	U(0)	/* 1 */
+#else
+#define PLATFORM_CPU_PER_CLUSTER_SHIFT	U(2)	/* 4 */
+#endif
+#define PLATFORM_CPUS_PER_CLUSTER	(1 << PLATFORM_CPU_PER_CLUSTER_SHIFT)
 #define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER_COUNT * \
-					 PLATFORM_MAX_CPUS_PER_CLUSTER)
+					 PLATFORM_CPUS_PER_CLUSTER)
 
 /* Power management */
 #define PLATFORM_SYSTEM_COUNT		U(1)
