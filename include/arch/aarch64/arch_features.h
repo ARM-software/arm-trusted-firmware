@@ -148,6 +148,11 @@ static unsigned int read_feat_fgt_id_field(void)
 	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(), ID_AA64MMFR0_EL1_FGT);
 }
 
+static unsigned int read_feat_mte_perm_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64pfr2_el1(), ID_AA64PFR2_EL1_MTEPERM);
+}
+
 static inline bool is_feat_fgt_supported(void)
 {
 	if (ENABLE_FEAT_FGT == FEAT_STATE_DISABLED) {
@@ -159,6 +164,19 @@ static inline bool is_feat_fgt_supported(void)
 	}
 
 	return read_feat_fgt_id_field() != 0U;
+}
+
+static inline bool is_feat_mte_perm_supported(void)
+{
+	if (ENABLE_FEAT_MTE_PERM == FEAT_STATE_DISABLED) {
+		return false;
+	}
+
+	if (ENABLE_FEAT_MTE_PERM == FEAT_STATE_ALWAYS) {
+		return true;
+	}
+
+	return read_feat_mte_perm_id_field() != 0U;
 }
 
 static unsigned int read_feat_ecv_id_field(void)

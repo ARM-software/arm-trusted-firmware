@@ -213,6 +213,8 @@ void detect_arch_features(void)
 		      "S2POE", 1, 1);
 	check_feature(ENABLE_FEAT_S1POE, read_feat_s1poe_id_field(),
 		      "S1POE", 1, 1);
+	check_feature(ENABLE_FEAT_MTE_PERM, read_feat_mte_perm_id_field(),
+		      "MTE_PERM", 1, 1);
 
 	/* v9.0 features */
 	check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),

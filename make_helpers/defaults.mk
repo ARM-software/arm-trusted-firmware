@@ -191,6 +191,9 @@ ENABLE_FEAT_S1POE		:= 0
 # Flag to enable access to Guarded Control Stack (FEAT_GCS)
 ENABLE_FEAT_GCS			:= 0
 
+# Flag to enable NoTagAccess memory region attribute for stage 2 of translation.
+ENABLE_FEAT_MTE_PERM		:= 0
+
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
 

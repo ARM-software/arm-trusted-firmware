@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -269,6 +269,7 @@ DEFINE_IDREG_READ_FUNC(id_aa64isar1_el1)
 DEFINE_RENAME_IDREG_READ_FUNC(id_aa64isar2_el1, ID_AA64ISAR2_EL1)
 DEFINE_IDREG_READ_FUNC(id_aa64pfr0_el1)
 DEFINE_IDREG_READ_FUNC(id_aa64pfr1_el1)
+DEFINE_RENAME_IDREG_READ_FUNC(id_aa64pfr2_el1, ID_AA64PFR2_EL1)
 DEFINE_IDREG_READ_FUNC(id_aa64dfr0_el1)
 DEFINE_IDREG_READ_FUNC(id_afr0_el1)
 DEFINE_SYSREG_READ_FUNC(CurrentEl)
