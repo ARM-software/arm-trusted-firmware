@@ -152,92 +152,6 @@
 	b	handle_lower_el_sync_ea
 	.endm
 
-
-	/* ---------------------------------------------------------------------
-	 * This macro handles FIQ or IRQ interrupts i.e. EL3, S-EL1 and NS
-	 * interrupts.
-	 * ---------------------------------------------------------------------
-	 */
-	.macro	handle_interrupt_exception label
-
-	/*
-	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
-	 * Also save PMCR_EL0 and  set the PSTATE to a known state.
-	 */
-	bl	prepare_el3_entry
-
-#if ENABLE_PAUTH
-	/* Load and program APIAKey firmware key */
-	bl	pauth_load_bl31_apiakey
-#endif
-
-	/* Save the EL3 system registers needed to return from this exception */
-	mrs	x0, spsr_el3
-	mrs	x1, elr_el3
-	stp	x0, x1, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-
-	/* Switch to the runtime stack i.e. SP_EL0 */
-	ldr	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
-	mov	x20, sp
-	msr	spsel, #MODE_SP_EL0
-	mov	sp, x2
-
-	/*
-	 * Find out whether this is a valid interrupt type.
-	 * If the interrupt controller reports a spurious interrupt then return
-	 * to where we came from.
-	 */
-	bl	plat_ic_get_pending_interrupt_type
-	cmp	x0, #INTR_TYPE_INVAL
-	b.eq	interrupt_exit_\label
-
-	/*
-	 * Get the registered handler for this interrupt type.
-	 * A NULL return value could be 'cause of the following conditions:
-	 *
-	 * a. An interrupt of a type was routed correctly but a handler for its
-	 *    type was not registered.
-	 *
-	 * b. An interrupt of a type was not routed correctly so a handler for
-	 *    its type was not registered.
-	 *
-	 * c. An interrupt of a type was routed correctly to EL3, but was
-	 *    deasserted before its pending state could be read. Another
-	 *    interrupt of a different type pended at the same time and its
-	 *    type was reported as pending instead. However, a handler for this
-	 *    type was not registered.
-	 *
-	 * a. and b. can only happen due to a programming error. The
-	 * occurrence of c. could be beyond the control of Trusted Firmware.
-	 * It makes sense to return from this exception instead of reporting an
-	 * error.
-	 */
-	bl	get_interrupt_type_handler
-	cbz	x0, interrupt_exit_\label
-	mov	x21, x0
-
-	mov	x0, #INTR_ID_UNAVAILABLE
-
-	/* Set the current security state in the 'flags' parameter */
-	mrs	x2, scr_el3
-	ubfx	x1, x2, #0, #1
-
-	/* Restore the reference to the 'handle' i.e. SP_EL3 */
-	mov	x2, x20
-
-	/* x3 will point to a cookie (not used now) */
-	mov	x3, xzr
-
-	/* Call the interrupt type handler */
-	blr	x21
-
-interrupt_exit_\label:
-	/* Return from exception, possibly in a different security state */
-	b	el3_exit
-
-	.endm
-
-
 vector_base runtime_exceptions
 
 	/* ---------------------------------------------------------------------
@@ -342,14 +256,14 @@ vector_entry irq_aarch64
 	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
-	handle_interrupt_exception irq_aarch64
+	b	handle_interrupt_exception
 end_vector_entry irq_aarch64
 
 vector_entry fiq_aarch64
 	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
-	handle_interrupt_exception fiq_aarch64
+	b 	handle_interrupt_exception
 end_vector_entry fiq_aarch64
 
 vector_entry serror_aarch64
@@ -385,14 +299,14 @@ vector_entry irq_aarch32
 	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
-	handle_interrupt_exception irq_aarch32
+	b	handle_interrupt_exception
 end_vector_entry irq_aarch32
 
 vector_entry fiq_aarch32
 	save_x30
 	apply_at_speculative_wa
 	check_and_unmask_ea
-	handle_interrupt_exception fiq_aarch32
+	b	handle_interrupt_exception
 end_vector_entry fiq_aarch32
 
 vector_entry serror_aarch32
@@ -609,6 +523,90 @@ rt_svc_fw_critical_error:
 	no_ret	report_unhandled_exception
 #endif
 endfunc sync_exception_handler
+
+	/* ---------------------------------------------------------------------
+	 * This function handles FIQ or IRQ interrupts i.e. EL3, S-EL1 and NS
+	 * interrupts.
+	 *
+	 * Note that x30 has been explicitly saved and can be used here
+	 * ---------------------------------------------------------------------
+	 */
+func handle_interrupt_exception
+	/*
+	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
+	 * Also save PMCR_EL0 and  set the PSTATE to a known state.
+	 */
+	bl	prepare_el3_entry
+
+#if ENABLE_PAUTH
+	/* Load and program APIAKey firmware key */
+	bl	pauth_load_bl31_apiakey
+#endif
+
+	/* Save the EL3 system registers needed to return from this exception */
+	mrs	x0, spsr_el3
+	mrs	x1, elr_el3
+	stp	x0, x1, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+
+	/* Switch to the runtime stack i.e. SP_EL0 */
+	ldr	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
+	mov	x20, sp
+	msr	spsel, #MODE_SP_EL0
+	mov	sp, x2
+
+	/*
+	 * Find out whether this is a valid interrupt type.
+	 * If the interrupt controller reports a spurious interrupt then return
+	 * to where we came from.
+	 */
+	bl	plat_ic_get_pending_interrupt_type
+	cmp	x0, #INTR_TYPE_INVAL
+	b.eq	interrupt_exit
+
+	/*
+	 * Get the registered handler for this interrupt type.
+	 * A NULL return value could be 'cause of the following conditions:
+	 *
+	 * a. An interrupt of a type was routed correctly but a handler for its
+	 *    type was not registered.
+	 *
+	 * b. An interrupt of a type was not routed correctly so a handler for
+	 *    its type was not registered.
+	 *
+	 * c. An interrupt of a type was routed correctly to EL3, but was
+	 *    deasserted before its pending state could be read. Another
+	 *    interrupt of a different type pended at the same time and its
+	 *    type was reported as pending instead. However, a handler for this
+	 *    type was not registered.
+	 *
+	 * a. and b. can only happen due to a programming error. The
+	 * occurrence of c. could be beyond the control of Trusted Firmware.
+	 * It makes sense to return from this exception instead of reporting an
+	 * error.
+	 */
+	bl	get_interrupt_type_handler
+	cbz	x0, interrupt_exit
+	mov	x21, x0
+
+	mov	x0, #INTR_ID_UNAVAILABLE
+
+	/* Set the current security state in the 'flags' parameter */
+	mrs	x2, scr_el3
+	ubfx	x1, x2, #0, #1
+
+	/* Restore the reference to the 'handle' i.e. SP_EL3 */
+	mov	x2, x20
+
+	/* x3 will point to a cookie (not used now) */
+	mov	x3, xzr
+
+	/* Call the interrupt type handler */
+	blr	x21
+
+interrupt_exit:
+	/* Return from exception, possibly in a different security state */
+	b	el3_exit
+endfunc handle_interrupt_exception
 
 	/* ---------------------------------------------------------------------
 	 * The following code handles exceptions caused by BRK instructions.
