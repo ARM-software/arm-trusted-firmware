@@ -1118,6 +1118,65 @@ returning through EL3 and running the non-trusted firmware (BL33):
    ``bl31_main()`` will set up the return to the normal world firmware BL33 and
    continue the boot process in the normal world.
 
+Exception handling in BL31
+--------------------------
+
+When exception occurs, PE must execute handler corresponding to exception. The
+location in memory where the handler is stored is called the exception vector.
+For ARM architecture, exception vectors are stored in a table, called the exception
+vector table.
+
+Each EL (except EL0) has its own vector table, VBAR_ELn register stores the base
+of vector table. Refer to `AArch64 exception vector table`_
+
+Current EL with SP_EL0
+~~~~~~~~~~~~~~~~~~~~~~
+
+-  Sync exception : Not expected except for BRK instruction, its debugging tool which
+   a programmer may place at specific points in a program, to check the state of
+   processor flags at these points in the code.
+
+-  IRQ/FIQ : Unexpected exception, panic
+
+-  SError : "plat_handle_el3_ea", defaults to panic
+
+Current EL with SP_ELx
+~~~~~~~~~~~~~~~~~~~~~~
+
+-  Sync exception : Unexpected exception, panic
+
+-  IRQ/FIQ : Unexpected exception, panic
+
+-  SError : "plat_handle_el3_ea" Except for special handling of lower EL's SError exception
+   which gets triggered in EL3 when PSTATE.A is unmasked. Its only applicable when lower
+   EL's EA is routed to EL3 (FFH_SUPPORT=1).
+
+Lower EL Exceptions
+~~~~~~~~~~~~~~~~~~~
+
+Applies to all the exceptions in both AArch64/AArch32 mode of lower EL.
+
+Before handling any lower EL exception, we synchronize the errors at EL3 entry to ensure
+that any errors pertaining to lower EL is isolated/identified. If we continue without
+identifying these errors early on then these errors will trigger in EL3 (as SError from
+current EL) any time after PSTATE.A is unmasked. This is wrong because the error originated
+in lower EL but exception happened in EL3.
+
+To solve this problem, synchronize the errors at EL3 entry and check for any pending
+errors (async EA). If there is no pending error then continue with original exception.
+If there is a pending error then, handle them based on routing model of EA's. Refer to
+:ref:`Reliability, Availability, and Serviceability (RAS) Extensions` for details about
+routing models.
+
+-  KFH : Reflect it back to lower EL using **reflect_pending_async_ea_to_lower_el()**
+
+-  FFH : Handle the synchronized error first using **handle_pending_async_ea()** after
+   that continue with original exception. It is the only scenario where EL3 is capable
+   of doing nested exception handling.
+
+After synchronizing and handling lower EL SErrors, unmask EA (PSTATE.A) to ensure
+that any further EA's caused by EL3 are caught.
+
 Crash Reporting in BL31
 -----------------------
 
@@ -2803,5 +2862,6 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 .. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
 .. _Arm Confidential Compute Architecture (Arm CCA): https://www.arm.com/why-arm/architecture/security-features/arm-confidential-compute-architecture
+.. _AArch64 exception vector table: https://developer.arm.com/documentation/100933/0100/AArch64-exception-vector-table
 
 .. |Image 1| image:: ../resources/diagrams/rt-svc-descs-layout.png
