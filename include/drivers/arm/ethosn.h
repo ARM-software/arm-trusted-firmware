@@ -47,7 +47,7 @@
 #define is_ethosn_fid(_fid) (((_fid) & ETHOSN_FID_MASK) == ETHOSN_FID_VALUE)
 
 /* Service version  */
-#define ETHOSN_VERSION_MAJOR U(3)
+#define ETHOSN_VERSION_MAJOR U(4)
 #define ETHOSN_VERSION_MINOR U(0)
 
 /* Return codes for function calls */
