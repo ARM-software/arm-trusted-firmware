@@ -7,15 +7,16 @@
 PLAT_QEMU_PATH		:=	plat/qemu/qemu_sbsa
 PLAT_QEMU_COMMON_PATH	:=	plat/qemu/common
 
-include plat/qemu/common/common.mk
-
-CRASH_REPORTING	:=	1
-
 ifeq (${SPM_MM},1)
 NEED_BL32		:=	yes
 EL3_EXCEPTION_HANDLING	:=	1
 GICV2_G0_FOR_EL3	:=	1
 endif
+
+include plat/qemu/common/common.mk
+
+CRASH_REPORTING	:=	1
+
 
 # Enable new version of image loading on QEMU platforms
 LOAD_IMAGE_V2		:=	1

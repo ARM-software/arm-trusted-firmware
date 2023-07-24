@@ -74,11 +74,17 @@ BL31_SOURCES		+=	${QEMU_CPU_LIBS}				\
 				${QEMU_GIC_SOURCES}
 
 # CPU flag enablement
+ifeq (${ARCH},aarch64)
 
 # Later QEMU versions support SME and SVE.
-ifeq (${ARCH},aarch64)
+# SPM_MM is not compatible with ENABLE_SVE_FOR_NS (build breaks)
+ifeq (${SPM_MM},1)
+	ENABLE_SVE_FOR_NS	:= 0
+	ENABLE_SME_FOR_NS	:= 0
+else
 	ENABLE_SVE_FOR_NS	:= 2
 	ENABLE_SME_FOR_NS	:= 2
+endif
 endif
 
 # QEMU will use the RNDR instruction for the stack protector canary.
