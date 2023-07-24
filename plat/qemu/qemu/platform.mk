@@ -156,18 +156,11 @@ else
 $(error "Incorrect GIC driver chosen for QEMU platform")
 endif
 
-ifeq (${ARM_ARCH_MAJOR},8)
-BL31_SOURCES		+=	${QEMU_CPU_LIBS}			\
-				lib/semihosting/semihosting.c		\
-				lib/semihosting/${ARCH}/semihosting_call.S \
-				plat/common/plat_psci_common.c		\
-				drivers/arm/pl061/pl061_gpio.c		\
+ifeq (${ARCH},aarch64)
+BL31_SOURCES		+=	drivers/arm/pl061/pl061_gpio.c		\
 				drivers/gpio/gpio.c			\
-				${PLAT_QEMU_COMMON_PATH}/qemu_pm.c			\
-				${PLAT_QEMU_COMMON_PATH}/topology.c			\
-				${PLAT_QEMU_COMMON_PATH}/aarch64/plat_helpers.S	\
-				${PLAT_QEMU_COMMON_PATH}/qemu_bl31_setup.c		\
-				${QEMU_GIC_SOURCES}
+				${PLAT_QEMU_COMMON_PATH}/qemu_pm.c	\
+				${PLAT_QEMU_COMMON_PATH}/topology.c
 
 ifeq (${SDEI_SUPPORT}, 1)
 BL31_SOURCES		+=	plat/qemu/common/qemu_sdei.c
