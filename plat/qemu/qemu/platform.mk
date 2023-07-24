@@ -23,17 +23,6 @@ $(eval $(call add_define,ARMV7_SUPPORTS_GENERIC_TIMER))
 $(eval $(call add_define,ARMV7_SUPPORTS_VFP))
 # Qemu expects a BL32 boot stage.
 NEED_BL32		:=	yes
-else
-CTX_INCLUDE_AARCH32_REGS := 0
-ifeq (${CTX_INCLUDE_AARCH32_REGS}, 1)
-$(error "This is an AArch64-only port; CTX_INCLUDE_AARCH32_REGS must be disabled")
-endif
-
-# Treating this as a memory-constrained port for now
-USE_COHERENT_MEM	:=	0
-
-# This can be overridden depending on CPU(s) used in the QEMU image
-HW_ASSISTED_COHERENCY	:=	1
 endif # ARMv7
 
 ifeq (${SPD},opteed)

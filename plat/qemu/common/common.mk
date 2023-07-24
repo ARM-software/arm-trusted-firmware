@@ -86,3 +86,16 @@ ENABLE_FEAT_RNG			:= 2
 
 # QEMU 7.2+ has support for FGT and Linux needs it enabled to boot on max
 ENABLE_FEAT_FGT			:= 2
+
+ifeq (${ARCH},aarch64)
+# Treating this as a memory-constrained port for now
+USE_COHERENT_MEM	:=	0
+
+# This can be overridden depending on CPU(s) used in the QEMU image
+HW_ASSISTED_COHERENCY	:=	1
+
+CTX_INCLUDE_AARCH32_REGS := 0
+ifeq (${CTX_INCLUDE_AARCH32_REGS}, 1)
+$(error "This is an AArch64-only port; CTX_INCLUDE_AARCH32_REGS must be disabled")
+endif
+endif

@@ -20,20 +20,9 @@ endif
 # Enable new version of image loading on QEMU platforms
 LOAD_IMAGE_V2		:=	1
 
-CTX_INCLUDE_AARCH32_REGS := 0
-ifeq (${CTX_INCLUDE_AARCH32_REGS}, 1)
-$(error "This is an AArch64-only port; CTX_INCLUDE_AARCH32_REGS must be disabled")
-endif
-
 ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
-
-# Treating this as a memory-constrained port for now
-USE_COHERENT_MEM	:=	0
-
-# This can be overridden depending on CPU(s) used in the QEMU image
-HW_ASSISTED_COHERENCY	:=	1
 
 BL2_SOURCES		+=	$(LIBFDT_SRCS)
 
