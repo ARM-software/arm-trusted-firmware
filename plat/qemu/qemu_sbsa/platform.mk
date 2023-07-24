@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+PLAT_QEMU_PATH		:=	plat/qemu/qemu_sbsa
+PLAT_QEMU_COMMON_PATH	:=	plat/qemu/common
+
 include plat/qemu/common/common.mk
 
 CRASH_REPORTING	:=	1
@@ -26,15 +29,6 @@ ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
 
-PLAT_QEMU_PATH		:=	plat/qemu/qemu_sbsa
-PLAT_QEMU_COMMON_PATH	:=	plat/qemu/common
-PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
-				-I${PLAT_QEMU_COMMON_PATH}/include		\
-				-I${PLAT_QEMU_PATH}/include			\
-				-Iinclude/common/tbbr
-
-PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
-
 PLAT_BL_COMMON_SOURCES	:=	${PLAT_QEMU_COMMON_PATH}/qemu_common.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_console.c		\
 				drivers/arm/pl011/${ARCH}/pl011_console.S
@@ -44,13 +38,6 @@ USE_COHERENT_MEM	:=	0
 
 # This can be overridden depending on CPU(s) used in the QEMU image
 HW_ASSISTED_COHERENCY	:=	1
-
-QEMU_CPU_LIBS		:=	lib/cpus/aarch64/cortex_a57.S			\
-				lib/cpus/aarch64/cortex_a72.S			\
-				lib/cpus/aarch64/neoverse_n_common.S		\
-				lib/cpus/aarch64/neoverse_n1.S			\
-				lib/cpus/aarch64/neoverse_v1.S			\
-				lib/cpus/aarch64/qemu_max.S
 
 include lib/xlat_tables_v2/xlat_tables.mk
 PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
