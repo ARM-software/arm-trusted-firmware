@@ -7,6 +7,9 @@
 PLAT_QEMU_PATH		:=      plat/qemu/qemu
 PLAT_QEMU_COMMON_PATH	:=      plat/qemu/common
 
+SEPARATE_CODE_AND_RODATA := 1
+ENABLE_STACK_PROTECTOR	 := 0
+
 include plat/qemu/common/common.mk
 
 # Use the GICv2 driver on QEMU by default
@@ -199,9 +202,6 @@ QEMU_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/$(notdir $(basename ${QEMU_TOS_FW_CONFI
 # Add the TOS_FW_CONFIG to FIP
 $(eval $(call TOOL_ADD_PAYLOAD,${QEMU_TOS_FW_CONFIG},--tos-fw-config,${QEMU_TOS_FW_CONFIG}))
 endif
-
-SEPARATE_CODE_AND_RODATA := 1
-ENABLE_STACK_PROTECTOR	 := 0
 
 BL32_RAM_LOCATION	:=	tdram
 ifeq (${BL32_RAM_LOCATION}, tsram)
