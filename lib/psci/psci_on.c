@@ -225,11 +225,4 @@ void psci_cpu_on_finish(unsigned int cpu_idx, const psci_power_state_t *state_in
 	/* Populate the mpidr field within the cpu node array */
 	/* This needs to be done only once */
 	psci_cpu_pd_nodes[cpu_idx].mpidr = read_mpidr() & MPIDR_AFFINITY_MASK;
-
-	/*
-	 * Generic management: Now we just need to retrieve the
-	 * information that we had stashed away during the cpu_on
-	 * call to set this cpu on its way.
-	 */
-	cm_prepare_el3_exit_ns();
 }

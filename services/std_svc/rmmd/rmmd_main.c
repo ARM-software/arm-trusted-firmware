@@ -128,6 +128,11 @@ static void manage_extensions_realm(cpu_context_t *ctx)
 		sve_enable(ctx);
 	}
 
+	/* NS can access this but Realm shouldn't */
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_disable(ctx);
+	}
+
 	pmuv3_enable(ctx);
 }
 

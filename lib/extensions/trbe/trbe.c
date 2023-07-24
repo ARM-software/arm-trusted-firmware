@@ -24,13 +24,18 @@ void trbe_init_el3(void)
 	u_register_t val;
 
 	/*
+	 * MDCR_EL3.NSTBE = 0b0
+	 *  Trace Buffer owning Security state is Non-secure state. If FEAT_RME
+	 *  is not implemented, this field is RES0.
+	 *
 	 * MDCR_EL3.NSTB = 0b11
-	 * Allow access of trace buffer control registers from NS-EL1
-	 * and NS-EL2, tracing is prohibited in Secure and Realm state
-	 * (if implemented).
+	 *  Allow access of trace buffer control registers from NS-EL1 and
+	 *  NS-EL2, tracing is prohibited in Secure and Realm state (if
+	 *  implemented).
 	 */
 	val = read_mdcr_el3();
 	val |= MDCR_NSTB(MDCR_NSTB_EL1);
+	val &= ~(MDCR_NSTBE_BIT);
 	write_mdcr_el3(val);
 }
 

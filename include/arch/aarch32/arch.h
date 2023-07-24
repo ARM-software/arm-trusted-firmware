@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -197,11 +197,11 @@
 #define SDCR_SPD_LEGACY		U(0x0)
 #define SDCR_SPD_DISABLE	U(0x2)
 #define SDCR_SPD_ENABLE		U(0x3)
-#define SDCR_SCCD_BIT		(U(1) << 23)
-#define SDCR_TTRF_BIT		(U(1) << 19)
 #define SDCR_SPME_BIT		(U(1) << 17)
-#define SDCR_RESET_VAL		U(0x0)
+#define SDCR_TTRF_BIT		(U(1) << 19)
+#define SDCR_SCCD_BIT		(U(1) << 23)
 #define SDCR_MTPME_BIT		(U(1) << 28)
+#define SDCR_RESET_VAL		U(0x0)
 
 /* HSCTLR definitions */
 #define HSCTLR_RES1	((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \

@@ -16,9 +16,9 @@ void trf_init_el3(void)
 
 	/*
 	 * Allow access of trace filter control registers from
-	 * non-monitor mode
+	 * non-monitor mode.
 	 */
 	val = read_sdcr();
-	val &= ~SDCR_TTRF_BIT;
+	val &= ~(SDCR_TTRF_BIT);
 	write_sdcr(val);
 }

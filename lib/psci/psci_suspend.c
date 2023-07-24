@@ -367,11 +367,4 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx, const psci_power_state_t *sta
 	psci_set_suspend_pwrlvl(PSCI_INVALID_PWR_LVL);
 
 	PUBLISH_EVENT(psci_suspend_pwrdown_finish);
-
-	/*
-	 * Generic management: Now we just need to retrieve the
-	 * information that we had stashed away during the suspend
-	 * call to set this cpu on its way.
-	 */
-	cm_prepare_el3_exit_ns();
 }

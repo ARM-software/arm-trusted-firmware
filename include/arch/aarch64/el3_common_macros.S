@@ -115,33 +115,11 @@
 	 * MDCR_EL3.TDA: Set to zero to allow EL0, EL1 and EL2 access to the
 	 *  debug registers, other than those registers that are controlled by
 	 *  MDCR_EL3.TDOSA.
-	 *
-	 * MDCR_EL3.TPM: Set to zero so that EL0, EL1, and EL2 System register
-	 *  accesses to all Performance Monitors registers do not trap to EL3.
-	 *
-	 * MDCR_EL3.NSTB, MDCR_EL3.NSTBE: Set to zero so that Trace Buffer
-	 *  owning security state is Secure state. If FEAT_TRBE is implemented,
-	 *  accesses to Trace Buffer control registers at EL2 and EL1 in any
-	 *  security state generates trap exceptions to EL3.
-	 *  If FEAT_TRBE is not implemented, these bits are RES0.
-	 *
-	 * MDCR_EL3.TTRF: Set to one so that access to trace filter control
-	 *  registers in non-monitor mode generate EL3 trap exception,
-	 *  unless the access generates a higher priority exception when trace
-	 *  filter control(FEAT_TRF) is implemented.
-	 *  When FEAT_TRF is not implemented, this bit is RES0.
-	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, ((MDCR_EL3_RESET_VAL | MDCR_SDD_BIT | \
 		      MDCR_SPD32(MDCR_SPD32_DISABLE)) & \
-		    ~(MDCR_TDOSA_BIT | MDCR_TDA_BIT | MDCR_TPM_BIT | \
-		      MDCR_NSTB(MDCR_NSTB_EL1) | MDCR_NSTBE | MDCR_TTRF_BIT))
+		    ~(MDCR_TDOSA_BIT | MDCR_TDA_BIT))
 
-	mrs	x1, id_aa64dfr0_el1
-	ubfx	x1, x1, #ID_AA64DFR0_TRACEFILT_SHIFT, #ID_AA64DFR0_TRACEFILT_LENGTH
-	cbz	x1, 1f
-	orr	x0, x0, #MDCR_TTRF_BIT
-1:
 	msr	mdcr_el3, x0
 
 	/* ---------------------------------------------------------------------
@@ -158,15 +136,6 @@
 	 * CPTR_EL3.TCPAC: Set to zero so that any accesses to CPACR_EL1,
 	 *  CPTR_EL2, CPACR, or HCPTR do not trap to EL3.
 	 *
-	 * CPTR_EL3.TTA: Set to one so that accesses to the trace system
-	 *  registers trap to EL3 from all exception levels and security
-	 *  states when system register trace is implemented.
-	 *  When system register trace is not implemented, this bit is RES0 and
-	 *  hence set to zero.
-	 *
-	 * CPTR_EL3.TTA: Set to zero so that System register accesses to the
-	 *  trace registers do not trap to EL3.
-	 *
 	 * CPTR_EL3.TFP: Set to zero so that accesses to the V- or Z- registers
 	 *  by Advanced SIMD, floating-point or SVE instructions (if implemented)
 	 *  do not trap to EL3.
@@ -181,12 +150,7 @@
 	 *  to EL3 by default.
 	 */
 
-	mov_imm x0, (CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TTA_BIT | TFP_BIT))
-	mrs	x1, id_aa64dfr0_el1
-	ubfx	x1, x1, #ID_AA64DFR0_TRACEVER_SHIFT, #ID_AA64DFR0_TRACEVER_LENGTH
-	cbz	x1, 1f
-	orr	x0, x0, #TTA_BIT
-1:
+	mov_imm x0, (CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TFP_BIT))
 	msr	cptr_el3, x0
 
 	/*

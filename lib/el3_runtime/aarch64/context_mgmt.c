@@ -562,6 +562,20 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 #endif /* IMAGE_BL31 */
 }
 
+/* TODO: move to lib/extensions/pauth when it has been ported to FEAT_STATE */
+static __unused void enable_pauth_el2(void)
+{
+	u_register_t hcr_el2 = read_hcr_el2();
+	/*
+	 * For Armv8.3 pointer authentication feature, disable traps to EL2 when
+	 *  accessing key registers or using pointer authentication instructions
+	 *  from lower ELs.
+	 */
+	hcr_el2 |= (HCR_API_BIT | HCR_APK_BIT);
+
+	write_hcr_el2(hcr_el2);
+}
+
 /*******************************************************************************
  * Enable architecture extensions in-place at EL2 on first entry to Non-secure
  * world when EL2 is empty and unused.
@@ -602,6 +616,10 @@ static void manage_extensions_nonsecure_el2_unused(void)
 	if (is_feat_sme_supported()) {
 		sme_init_el2_unused();
 	}
+
+#if ENABLE_PAUTH
+	enable_pauth_el2();
+#endif /* ENABLE_PAUTH */
 #endif /* IMAGE_BL31 */
 }
 
@@ -644,6 +662,11 @@ static void manage_extensions_secure(cpu_context_t *ctx)
 			sme_disable(ctx);
 		}
 	}
+
+	/* NS can access this but Secure shouldn't */
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_disable(ctx);
+	}
 #endif /* IMAGE_BL31 */
 }
 
@@ -672,6 +695,109 @@ void cm_init_my_context(const entry_point_info_t *ep)
 	cm_setup_context(ctx, ep);
 }
 
+/* EL2 present but unused, need to disable safely. SCTLR_EL2 can be ignored */
+static __unused void init_nonsecure_el2_unused(cpu_context_t *ctx)
+{
+	u_register_t hcr_el2 = HCR_RESET_VAL;
+	u_register_t mdcr_el2;
+	u_register_t scr_el3;
+
+	scr_el3 = read_ctx_reg(get_el3state_ctx(ctx), CTX_SCR_EL3);
+
+	/* Set EL2 register width: Set HCR_EL2.RW to match SCR_EL3.RW */
+	if ((scr_el3 & SCR_RW_BIT) != 0U) {
+		hcr_el2 |= HCR_RW_BIT;
+	}
+
+	write_hcr_el2(hcr_el2);
+
+	/*
+	 * Initialise CPTR_EL2 setting all fields rather than relying on the hw.
+	 * All fields have architecturally UNKNOWN reset values.
+	 */
+	write_cptr_el2(CPTR_EL2_RESET_VAL);
+
+	/*
+	 * Initialise CNTHCTL_EL2. All fields are architecturally UNKNOWN on
+	 * reset and are set to zero except for field(s) listed below.
+	 *
+	 * CNTHCTL_EL2.EL1PTEN: Set to one to disable traps to Hyp mode of
+	 * Non-secure EL0 and EL1 accesses to the physical timer registers.
+	 *
+	 * CNTHCTL_EL2.EL1PCTEN: Set to one to disable traps to Hyp mode of
+	 * Non-secure EL0 and EL1 accesses to the physical counter registers.
+	 */
+	write_cnthctl_el2(CNTHCTL_RESET_VAL | EL1PCEN_BIT | EL1PCTEN_BIT);
+
+	/*
+	 * Initialise CNTVOFF_EL2 to zero as it resets to an architecturally
+	 * UNKNOWN value.
+	 */
+	write_cntvoff_el2(0);
+
+	/*
+	 * Set VPIDR_EL2 and VMPIDR_EL2 to match MIDR_EL1 and MPIDR_EL1
+	 * respectively.
+	 */
+	write_vpidr_el2(read_midr_el1());
+	write_vmpidr_el2(read_mpidr_el1());
+
+	/*
+	 * Initialise VTTBR_EL2. All fields are architecturally UNKNOWN on reset.
+	 *
+	 * VTTBR_EL2.VMID: Set to zero. Even though EL1&0 stage 2 address
+	 * translation is disabled, cache maintenance operations depend on the
+	 * VMID.
+	 *
+	 * VTTBR_EL2.BADDR: Set to zero as EL1&0 stage 2 address translation is
+	 * disabled.
+	 */
+	write_vttbr_el2(VTTBR_RESET_VAL &
+		     ~((VTTBR_VMID_MASK << VTTBR_VMID_SHIFT) |
+		       (VTTBR_BADDR_MASK << VTTBR_BADDR_SHIFT)));
+
+	/*
+	 * Initialise MDCR_EL2, setting all fields rather than relying on hw.
+	 * Some fields are architecturally UNKNOWN on reset.
+	 *
+	 * MDCR_EL2.TDRA: Set to zero so that Non-secure EL0 and EL1 System
+	 * register accesses to the Debug ROM registers are not trapped to EL2.
+	 *
+	 * MDCR_EL2.TDOSA: Set to zero so that Non-secure EL1 System register
+	 * accesses to the powerdown debug registers are not trapped to EL2.
+	 *
+	 * MDCR_EL2.TDA: Set to zero so that System register accesses to the
+	 * debug registers do not trap to EL2.
+	 *
+	 * MDCR_EL2.TDE: Set to zero so that debug exceptions are not routed to
+	 * EL2.
+	 */
+	mdcr_el2 = MDCR_EL2_RESET_VAL &
+		 ~(MDCR_EL2_TDRA_BIT | MDCR_EL2_TDOSA_BIT | MDCR_EL2_TDA_BIT |
+		   MDCR_EL2_TDE_BIT);
+
+	write_mdcr_el2(mdcr_el2);
+
+	/*
+	 * Initialise HSTR_EL2. All fields are architecturally UNKNOWN on reset.
+	 *
+	 * HSTR_EL2.T<n>: Set all these fields to zero so that Non-secure EL0 or
+	 * EL1 accesses to System registers do not trap to EL2.
+	 */
+	write_hstr_el2(HSTR_EL2_RESET_VAL & ~(HSTR_EL2_T_MASK));
+
+	/*
+	 * Initialise CNTHP_CTL_EL2. All fields are architecturally UNKNOWN on
+	 * reset.
+	 *
+	 * CNTHP_CTL_EL2:ENABLE: Set to zero to disable the EL2 physical timer
+	 * and prevent timer interrupts.
+	 */
+	write_cnthp_ctl_el2(CNTHP_CTL_RESET_VAL & ~(CNTHP_CTL_ENABLE_BIT));
+
+	manage_extensions_nonsecure_el2_unused();
+}
+
 /*******************************************************************************
  * Prepare the CPU system registers for first entry into realm, secure, or
  * normal world.
@@ -683,9 +809,8 @@ void cm_init_my_context(const entry_point_info_t *ep)
  ******************************************************************************/
 void cm_prepare_el3_exit(uint32_t security_state)
 {
-	u_register_t sctlr_elx, scr_el3, mdcr_el2;
+	u_register_t sctlr_elx, scr_el3;
 	cpu_context_t *ctx = cm_get_context(security_state);
-	uint64_t hcr_el2 = 0U;
 
 	assert(ctx != NULL);
 
@@ -722,121 +847,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 #endif
 			write_sctlr_el2(sctlr_elx);
 		} else if (el2_implemented != EL_IMPL_NONE) {
-			/*
-			 * EL2 present but unused, need to disable safely.
-			 * SCTLR_EL2 can be ignored in this case.
-			 *
-			 * Set EL2 register width appropriately: Set HCR_EL2
-			 * field to match SCR_EL3.RW.
-			 */
-			if ((scr_el3 & SCR_RW_BIT) != 0U)
-				hcr_el2 |= HCR_RW_BIT;
-
-			/*
-			 * For Armv8.3 pointer authentication feature, disable
-			 * traps to EL2 when accessing key registers or using
-			 * pointer authentication instructions from lower ELs.
-			 */
-			hcr_el2 |= (HCR_API_BIT | HCR_APK_BIT);
-
-			write_hcr_el2(hcr_el2);
-
-			/*
-			 * Initialise CPTR_EL2 setting all fields rather than
-			 * relying on the hw. All fields have architecturally
-			 * UNKNOWN reset values.
-			 */
-			write_cptr_el2(CPTR_EL2_RESET_VAL);
-
-			/*
-			 * Initialise CNTHCTL_EL2. All fields are
-			 * architecturally UNKNOWN on reset and are set to zero
-			 * except for field(s) listed below.
-			 *
-			 * CNTHCTL_EL2.EL1PTEN: Set to one to disable traps to
-			 *  Hyp mode of Non-secure EL0 and EL1 accesses to the
-			 *  physical timer registers.
-			 *
-			 * CNTHCTL_EL2.EL1PCTEN: Set to one to disable traps to
-			 *  Hyp mode of  Non-secure EL0 and EL1 accesses to the
-			 *  physical counter registers.
-			 */
-			write_cnthctl_el2(CNTHCTL_RESET_VAL |
-						EL1PCEN_BIT | EL1PCTEN_BIT);
-
-			/*
-			 * Initialise CNTVOFF_EL2 to zero as it resets to an
-			 * architecturally UNKNOWN value.
-			 */
-			write_cntvoff_el2(0);
-
-			/*
-			 * Set VPIDR_EL2 and VMPIDR_EL2 to match MIDR_EL1 and
-			 * MPIDR_EL1 respectively.
-			 */
-			write_vpidr_el2(read_midr_el1());
-			write_vmpidr_el2(read_mpidr_el1());
-
-			/*
-			 * Initialise VTTBR_EL2. All fields are architecturally
-			 * UNKNOWN on reset.
-			 *
-			 * VTTBR_EL2.VMID: Set to zero. Even though EL1&0 stage
-			 *  2 address translation is disabled, cache maintenance
-			 *  operations depend on the VMID.
-			 *
-			 * VTTBR_EL2.BADDR: Set to zero as EL1&0 stage 2 address
-			 *  translation is disabled.
-			 */
-			write_vttbr_el2(VTTBR_RESET_VAL &
-				~((VTTBR_VMID_MASK << VTTBR_VMID_SHIFT)
-				| (VTTBR_BADDR_MASK << VTTBR_BADDR_SHIFT)));
-
-			/*
-			 * Initialise MDCR_EL2, setting all fields rather than
-			 * relying on hw. Some fields are architecturally
-			 * UNKNOWN on reset.
-			 *
-			 * MDCR_EL2.TDRA: Set to zero so that Non-secure EL0 and
-			 *  EL1 System register accesses to the Debug ROM
-			 *  registers are not trapped to EL2.
-			 *
-			 * MDCR_EL2.TDOSA: Set to zero so that Non-secure EL1
-			 *  System register accesses to the powerdown debug
-			 *  registers are not trapped to EL2.
-			 *
-			 * MDCR_EL2.TDA: Set to zero so that System register
-			 *  accesses to the debug registers do not trap to EL2.
-			 *
-			 * MDCR_EL2.TDE: Set to zero so that debug exceptions
-			 *  are not routed to EL2.
-			 */
-			mdcr_el2 = ((MDCR_EL2_RESET_VAL) &
-				   ~(MDCR_EL2_TDRA_BIT | MDCR_EL2_TDOSA_BIT |
-				     MDCR_EL2_TDA_BIT | MDCR_EL2_TDE_BIT));
-
-			write_mdcr_el2(mdcr_el2);
-
-			/*
-			 * Initialise HSTR_EL2. All fields are architecturally
-			 * UNKNOWN on reset.
-			 *
-			 * HSTR_EL2.T<n>: Set all these fields to zero so that
-			 *  Non-secure EL0 or EL1 accesses to System registers
-			 *  do not trap to EL2.
-			 */
-			write_hstr_el2(HSTR_EL2_RESET_VAL & ~(HSTR_EL2_T_MASK));
-			/*
-			 * Initialise CNTHP_CTL_EL2. All fields are
-			 * architecturally UNKNOWN on reset.
-			 *
-			 * CNTHP_CTL_EL2:ENABLE: Set to zero to disable the EL2
-			 *  physical timer and prevent timer interrupts.
-			 */
-			write_cnthp_ctl_el2(CNTHP_CTL_RESET_VAL &
-						~(CNTHP_CTL_ENABLE_BIT));
-
-			manage_extensions_nonsecure_el2_unused();
+			init_nonsecure_el2_unused(ctx);
 		}
 	}
 
