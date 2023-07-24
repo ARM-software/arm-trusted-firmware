@@ -51,13 +51,6 @@ ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
 
-PLAT_BL_COMMON_SOURCES	:=	${PLAT_QEMU_COMMON_PATH}/qemu_common.c			\
-				${PLAT_QEMU_COMMON_PATH}/qemu_console.c		  \
-				drivers/arm/pl011/${ARCH}/pl011_console.S
-
-include lib/xlat_tables_v2/xlat_tables.mk
-PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
-
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c			\
@@ -130,31 +123,7 @@ ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
     include drivers/auth/mbedtls/mbedtls_crypto.mk
 endif
 
-BL1_SOURCES		+=	drivers/io/io_semihosting.c		\
-				drivers/io/io_storage.c			\
-				drivers/io/io_fip.c			\
-				drivers/io/io_memmap.c			\
-				lib/semihosting/semihosting.c		\
-				lib/semihosting/${ARCH}/semihosting_call.S \
-				${PLAT_QEMU_COMMON_PATH}/qemu_io_storage.c		\
-				${PLAT_QEMU_COMMON_PATH}/${ARCH}/plat_helpers.S	\
-				${PLAT_QEMU_COMMON_PATH}/qemu_bl1_setup.c	\
-				${QEMU_CPU_LIBS}
-
-BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
-				drivers/io/io_storage.c			\
-				drivers/io/io_fip.c			\
-				drivers/io/io_memmap.c			\
-				lib/semihosting/semihosting.c		\
-				lib/semihosting/${ARCH}/semihosting_call.S		\
-				${PLAT_QEMU_COMMON_PATH}/qemu_io_storage.c		\
-				${PLAT_QEMU_COMMON_PATH}/${ARCH}/plat_helpers.S		\
-				${PLAT_QEMU_COMMON_PATH}/qemu_bl2_setup.c		\
-				${PLAT_QEMU_COMMON_PATH}/qemu_bl2_mem_params_desc.c	\
-				${PLAT_QEMU_COMMON_PATH}/qemu_image_load.c		\
-				common/fdt_fixup.c					\
-				${FDT_WRAPPERS_SOURCES}					\
-				common/desc_image_load.c				\
+BL2_SOURCES		+=	${FDT_WRAPPERS_SOURCES}					\
 				common/uuid.c
 
 ifeq ($(add-lib-optee),yes)
@@ -251,9 +220,6 @@ endif
 
 SEPARATE_CODE_AND_RODATA := 1
 ENABLE_STACK_PROTECTOR	 := 0
-ifneq ($(ENABLE_STACK_PROTECTOR), 0)
-	PLAT_BL_COMMON_SOURCES += ${PLAT_QEMU_COMMON_PATH}/qemu_stack_protector.c
-endif
 
 BL32_RAM_LOCATION	:=	tdram
 ifeq (${BL32_RAM_LOCATION}, tsram)

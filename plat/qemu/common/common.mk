@@ -27,3 +27,39 @@ QEMU_CPU_LIBS		:=	lib/cpus/aarch64/aem_generic.S		\
 
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
 endif
+
+PLAT_BL_COMMON_SOURCES	:=	${PLAT_QEMU_COMMON_PATH}/qemu_common.c		\
+				${PLAT_QEMU_COMMON_PATH}/qemu_console.c		\
+				drivers/arm/pl011/${ARCH}/pl011_console.S
+
+include lib/xlat_tables_v2/xlat_tables.mk
+PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
+
+ifneq ($(ENABLE_STACK_PROTECTOR), 0)
+	PLAT_BL_COMMON_SOURCES += ${PLAT_QEMU_COMMON_PATH}/qemu_stack_protector.c
+endif
+
+BL1_SOURCES		+=	drivers/io/io_semihosting.c		\
+				drivers/io/io_storage.c			\
+				drivers/io/io_fip.c			\
+				drivers/io/io_memmap.c			\
+				lib/semihosting/semihosting.c		\
+				lib/semihosting/${ARCH}/semihosting_call.S	\
+				${PLAT_QEMU_COMMON_PATH}/qemu_io_storage.c	\
+				${PLAT_QEMU_COMMON_PATH}/${ARCH}/plat_helpers.S	\
+				${PLAT_QEMU_COMMON_PATH}/qemu_bl1_setup.c	\
+				${QEMU_CPU_LIBS}
+
+BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
+				drivers/io/io_storage.c			\
+				drivers/io/io_fip.c			\
+				drivers/io/io_memmap.c			\
+				lib/semihosting/semihosting.c		\
+				lib/semihosting/${ARCH}/semihosting_call.S		\
+				${PLAT_QEMU_COMMON_PATH}/qemu_io_storage.c		\
+				${PLAT_QEMU_COMMON_PATH}/${ARCH}/plat_helpers.S		\
+				${PLAT_QEMU_COMMON_PATH}/qemu_bl2_setup.c		\
+				${PLAT_QEMU_COMMON_PATH}/qemu_bl2_mem_params_desc.c	\
+				${PLAT_QEMU_COMMON_PATH}/qemu_image_load.c		\
+				common/desc_image_load.c		\
+				common/fdt_fixup.c

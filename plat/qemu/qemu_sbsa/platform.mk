@@ -29,47 +29,13 @@ ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
 
-PLAT_BL_COMMON_SOURCES	:=	${PLAT_QEMU_COMMON_PATH}/qemu_common.c		\
-				${PLAT_QEMU_COMMON_PATH}/qemu_console.c		\
-				drivers/arm/pl011/${ARCH}/pl011_console.S
-
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0
 
 # This can be overridden depending on CPU(s) used in the QEMU image
 HW_ASSISTED_COHERENCY	:=	1
 
-include lib/xlat_tables_v2/xlat_tables.mk
-PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
-
-BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
-				drivers/io/io_storage.c				\
-				drivers/io/io_fip.c				\
-				drivers/io/io_memmap.c				\
-				lib/semihosting/semihosting.c			\
-				lib/semihosting/${ARCH}/semihosting_call.S	\
-				${PLAT_QEMU_COMMON_PATH}/qemu_io_storage.c	\
-				${PLAT_QEMU_COMMON_PATH}/${ARCH}/plat_helpers.S	\
-				${PLAT_QEMU_COMMON_PATH}/qemu_bl1_setup.c
-
-BL1_SOURCES		+=	${QEMU_CPU_LIBS}
-
-BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
-				drivers/io/io_storage.c				\
-				drivers/io/io_fip.c				\
-				drivers/io/io_memmap.c				\
-				lib/semihosting/semihosting.c			\
-				lib/semihosting/${ARCH}/semihosting_call.S	\
-				${PLAT_QEMU_COMMON_PATH}/qemu_io_storage.c	\
-				${PLAT_QEMU_COMMON_PATH}/${ARCH}/plat_helpers.S	\
-				${PLAT_QEMU_COMMON_PATH}/qemu_bl2_setup.c	\
-				common/fdt_fixup.c				\
-				$(LIBFDT_SRCS)
-ifeq (${LOAD_IMAGE_V2},1)
-BL2_SOURCES		+=	${PLAT_QEMU_COMMON_PATH}/qemu_bl2_mem_params_desc.c	\
-				${PLAT_QEMU_COMMON_PATH}/qemu_image_load.c		\
-				common/desc_image_load.c
-endif
+BL2_SOURCES		+=	$(LIBFDT_SRCS)
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
@@ -98,9 +64,6 @@ endif
 
 SEPARATE_CODE_AND_RODATA	:= 1
 ENABLE_STACK_PROTECTOR		:= 0
-ifneq ($(ENABLE_STACK_PROTECTOR), 0)
-	PLAT_BL_COMMON_SOURCES	+=	${PLAT_QEMU_COMMON_PATH}/qemu_stack_protector.c
-endif
 
 MULTI_CONSOLE_API	:= 1
 
