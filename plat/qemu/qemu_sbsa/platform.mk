@@ -4,11 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-include common/fdt_wrappers.mk
+include plat/qemu/common/common.mk
 
 CRASH_REPORTING	:=	1
-
-include lib/libfdt/libfdt.mk
 
 ifeq (${SPM_MM},1)
 NEED_BL32		:=	yes

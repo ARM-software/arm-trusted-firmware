@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include plat/qemu/common/common.mk
+
 # Use the GICv2 driver on QEMU by default
 QEMU_USE_GIC_DRIVER	:= QEMU_GICV2
 
@@ -41,8 +43,6 @@ ifeq ($(SPMC_OPTEE),1)
 $(eval $(call add_define,SPMC_OPTEE))
 add-lib-optee 		:= 	yes
 endif
-
-include lib/libfdt/libfdt.mk
 
 ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
@@ -184,7 +184,7 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl2_mem_params_desc.c	\
 				${PLAT_QEMU_COMMON_PATH}/qemu_image_load.c		\
 				common/fdt_fixup.c					\
-				common/fdt_wrappers.c					\
+				${FDT_WRAPPERS_SOURCES}					\
 				common/desc_image_load.c				\
 				common/uuid.c
 
