@@ -234,15 +234,6 @@ $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 ARM_PRELOADED_DTB_BASE := PLAT_QEMU_DT_BASE
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
 
-# QEMU will use the RNDR instruction for the stack protector canary.
-ENABLE_FEAT_RNG			:= 2
-
-# Later QEMU versions support SME and SVE.
-ifneq (${ARCH},aarch32)
-	ENABLE_SVE_FOR_NS	:= 2
-	ENABLE_SME_FOR_NS	:= 2
-endif
-
 qemu_fw.bios: bl1 fip
 	$(ECHO) "  DD      $@"
 	$(Q)cp ${BUILD_PLAT}/bl1.bin ${BUILD_PLAT}/$@

@@ -77,10 +77,3 @@ $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 
 ARM_PRELOADED_DTB_BASE := PLAT_QEMU_DT_BASE
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
-
-# Later QEMU versions support SME and SVE.
-ENABLE_SVE_FOR_NS	:= 2
-ENABLE_SME_FOR_NS	:= 2
-
-# QEMU 7.2+ has support for FGT and Linux needs it enabled to boot on max
-ENABLE_FEAT_FGT 	:= 2
