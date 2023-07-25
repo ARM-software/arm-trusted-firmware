@@ -399,7 +399,8 @@ struct em_cpu_list cpu_list[] = {
 	.cpu_errata_list = {
 		[0] = {2719103, 0x00, 0x01, ERRATA_V2_2719103, \
 			ERRATA_NON_ARM_INTERCONNECT},
-		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+		[1] = {2801372, 0x00, 0x01, ERRATA_V2_2801372},
+		[2 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
 #endif /* NEOVERSE_V2_H_INC */
