@@ -32,8 +32,8 @@ workaround_reset_start neoverse_poseidon, CVE(2022,23960), WORKAROUND_CVE_2022_2
 	 * The Neoverse-poseidon generic vectors are overridden to apply errata
          * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_neoverse_poseidon
-	msr	vbar_el3, x0
+	override_vector_table wa_cve_vbar_neoverse_poseidon
+
 #endif /* IMAGE_BL31 */
 workaround_reset_end neoverse_poseidon, CVE(2022,23960)
 
@@ -48,9 +48,9 @@ func neoverse_poseidon_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------
 	 */
-	mrs	x0, NEOVERSE_POSEIDON_CPUPWRCTLR_EL1
-	orr	x0, x0, #NEOVERSE_POSEIDON_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	NEOVERSE_POSEIDON_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set NEOVERSE_POSEIDON_CPUPWRCTLR_EL1, \
+		NEOVERSE_POSEIDON_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+
 	isb
 	ret
 endfunc neoverse_poseidon_core_pwr_dwn
