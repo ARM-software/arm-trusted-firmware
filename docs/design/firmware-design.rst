@@ -2636,18 +2636,16 @@ These build options serve dual purpose
   architectural features up to ``ARM_ARCH_MAJOR.ARM_ARCH_MINOR`` are included
   and unconditionally enabled by TF-A build system.
 
-- Passed to compiler via "-march" option to generate binary target : Tell the
-  compiler to emit instructions upto ``ARM_ARCH_MAJOR.ARM_ARCH_MINOR``
+- ``ARM_ARCH_MAJOR`` and ``ARM_ARCH_MINOR`` are passed to a march.mk build utility
+  this will try to come up with an appropriate -march value to be passed to compiler
+  by probing the compiler and checking what's supported by the compiler and what's best
+  that can be used. But if platform provides a ``MARCH_DIRECTIVE`` then it will used
+  directly and compiler probing will be skipped.
 
 The build system requires that the platform provides a valid numeric value based on
 CPU architecture extension, otherwise it defaults to base Armv8.0-A architecture.
 Subsequent Arm Architecture versions also support extensions which were introduced
 in previous versions.
-
-**TO-DO** : Its planned to decouple the two functionalities and introduce a new macro
-for compiler usage. The requirement for this decoupling arises becasue TF-A code
-always provides support for the latest and greatest architecture features but this
-is not the case for the target compiler.
 
 .. seealso:: :ref:`Build Options`
 
@@ -2738,7 +2736,7 @@ I.e:
 
 .. code:: make
 
-   MARCH_DIRECTIVE := -mach=armv7-a
+   MARCH_DIRECTIVE := -march=armv7-a
 
 Code Structure
 --------------
