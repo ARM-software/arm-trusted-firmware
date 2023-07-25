@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +26,19 @@
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_POSEIDON_BHB_LOOP_COUNT, neoverse_poseidon
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+workaround_reset_start neoverse_poseidon, CVE(2022,23960), WORKAROUND_CVE_2022_23960
+#if IMAGE_BL31
+	/*
+	 * The Neoverse-poseidon generic vectors are overridden to apply errata
+         * mitigation on exception entry from lower ELs.
+	 */
+	adr	x0, wa_cve_vbar_neoverse_poseidon
+	msr	vbar_el3, x0
+#endif /* IMAGE_BL31 */
+workaround_reset_end neoverse_poseidon, CVE(2022,23960)
+
+check_erratum_chosen neoverse_poseidon, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -42,52 +55,12 @@ func neoverse_poseidon_core_pwr_dwn
 	ret
 endfunc neoverse_poseidon_core_pwr_dwn
 
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-func neoverse_poseidon_reset_func
+cpu_reset_func_start neoverse_poseidon
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+cpu_reset_func_end neoverse_poseidon
 
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
-	/*
-	 * The Neoverse Poseidon generic vectors are overridden to apply
-	 * errata mitigation on exception entry from lower ELs.
-	 */
-	adr	x0, wa_cve_vbar_neoverse_poseidon
-	msr	vbar_el3, x0
-#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
-
-	isb
-	ret
-endfunc neoverse_poseidon_reset_func
-
-#if REPORT_ERRATA
-	/*
-	 * Errata printing function for Neoverse Poseidon. Must follow AAPCS.
-	 */
-func neoverse_poseidon_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata WORKAROUND_CVE_2022_23960, neoverse_poseidon, cve_2022_23960
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc neoverse_poseidon_errata_report
-#endif
+errata_report_shim neoverse_poseidon
 
 	/* ---------------------------------------------
 	 * This function provides Neoverse-Poseidon specific
