@@ -275,6 +275,11 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+		scmi_devpd: protocol@11 {
+			reg = <0x11>;
+			#power-domain-cells = <1>;
+		};
+
 		scmi_dvfs: protocol@13 {
 			reg = <0x13>;
 			#clock-cells = <1>;
@@ -473,13 +478,11 @@
 		reg = <0x0 0x2d000000 0x0 0x200000>;
 		interrupts = <0 66 4>, <0 67 4>, <0 65 4>;
 		interrupt-names = "JOB", "MMU", "GPU";
-		clocks = <&gpu_clk>, <&gpu_core_clk>;
-		clock-names = "clk_mali", "shadercores";
+		clocks = <&gpu_core_clk>;
+		clock-names = "shadercores";
+		power-domains = <&scmi_devpd 9>;
+		scmi-perf-domain = <3>;
 		iommus = <&smmu_700 0x200>;
-		operating-points = <
-			/* KHz uV */
-			50000 820000
-		>;
 	};
 
 	power_model@simple {
@@ -511,6 +514,7 @@
 		clocks = <&scmi_clk 0>;
 		clock-names = "aclk";
 		iommus = <&smmu_700 0x100>;
+		power-domains = <&scmi_devpd 10>;
 		pl0: pipeline@0 {
 			reg = <0>;
 			clocks = <&scmi_clk 1>;
