@@ -194,10 +194,12 @@
 		interrupts = <GIC_SPI 138 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&dpu_aclk>;
 
-		hdmi-transmitter@70 {
+		hdmi_tx: hdmi-transmitter@70 {
 			compatible = "nxp,tda998x";
 			reg = <0x70>;
 			video-ports = <0x234501>;
+			#sound-dai-cells = <0>;
+			audio-ports = <2 0x03>;
 			port {
 				tda998x_0_input: endpoint {
 					remote-endpoint = <&dp_pl0_out0>;
@@ -254,6 +256,52 @@
 				#clock-cells = <1>;
 			};
 		};
+	};
+
+	iofpga_i2s: xlnx-i2s@1c150000 {
+		#sound-dai-cells = <0>;
+		compatible = "xlnx,i2s-transmitter-1.0";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x0 0x1c150000 0x0 0x10000>;
+		xlnx,dwidth = <0x18>;
+		xlnx,num-channels = <1>;
+	};
+
+	audio_formatter: audio-formatter@1c100000 {
+		compatible = "xlnx,audio-formatter-1.0";
+		reg = <0x0 0x1c000000 0x0 0x10000>;
+		#sound-dai-cells = <0>;
+		interrupt-names = "irq_mm2s";
+		interrupts = <GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>;
+		clock-names = "s_axi_lite_aclk", "aud_mclk", "m_axis_mm2s_aclk";
+		clocks = <&soc_refclk85mhz>, <&i2s_audclk>, <&soc_refclk85mhz>;
+	};
+
+	sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,bitclock-master = <&audio_master>;
+		simple-audio-card,frame-master = <&audio_master>;
+		audio_master: simple-audio-card,cpu {
+			sound-dai = <&iofpga_i2s>;
+			clocks = <&i2s_audclk>;
+		};
+
+		simple-audio-card,codec {
+			sound-dai = <&hdmi_tx>;
+		};
+
+		simple-audio-card,plat {
+			sound-dai = <&audio_formatter>;
+		};
+	};
+
+	i2s_audclk: i2s_audclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <12288000>;
+		clock-output-names = "iofpga:i2s_audclk";
 	};
 };
 
