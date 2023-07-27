@@ -25,7 +25,6 @@
 
 #define IMX_DDRC_BASE			U(0x2E060000)
 #define SAVED_DRAM_DATA_BASE		U(0x20055000)
-#define IMX_DRAM_BASE			U(0x80000000)
 #define DENALI_CTL_143			U(0x23C)
 #define DENALI_CTL_144			U(0x240)
 #define DENALI_CTL_146			U(0x248)
@@ -233,7 +232,7 @@ void dram_lp_auto_disable(void)
 		/* 0.b Disable DDRC auto low-power mode interface */
 		mmio_clrbits_32(IMX_DDRC_BASE + DENALI_CTL_146, LP_AUTO_ENTRY_EN << 24);
 		/* 0.c Read any location to get DRAM out of Self-refresh */
-		mmio_read_32(IMX_DRAM_BASE);
+		mmio_read_32(DEVICE2_BASE);
 		/* 0.d Confirm DRAM is out of Self-refresh */
 		while ((mmio_read_32(IMX_DDRC_BASE + DENALI_CTL_146) &
 			LP_STATE_CS_PD_CG) != LP_STATE_CS_IDLE) {
