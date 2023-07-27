@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -441,6 +441,19 @@
 .macro override_vector_table _table:req
 	adr	x1, \_table
 	msr	vbar_el3, x1
+.endm
+
+/*
+ * BFI : Inserts bitfield into a system register.
+ *
+ * BFI{cond} Rd, Rn, #lsb, #width
+ */
+.macro sysreg_bitfield_insert _reg:req, _src:req, _lsb:req, _width:req
+	/* Source value for BFI */
+	mov	x1, #\_src
+	mrs	x0, \_reg
+	bfi	x0, x1, #\_lsb, #\_width
+	msr	\_reg, x0
 .endm
 
 /*
