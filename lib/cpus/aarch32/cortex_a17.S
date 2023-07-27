@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,6 +63,8 @@ func check_errata_852421
 	b	cpu_rev_var_ls
 endfunc check_errata_852421
 
+add_erratum_entry cortex_a17, ERRATUM(852421), ERRATA_A17_852421
+
 	/* ----------------------------------------------------
 	 * Errata Workaround for Cortex A17 Errata #852423.
 	 * This applies only to revision <= r1p2 of Cortex A17.
@@ -91,6 +93,8 @@ func check_errata_852423
 	b	cpu_rev_var_ls
 endfunc check_errata_852423
 
+add_erratum_entry cortex_a17, ERRATUM(852423), ERRATA_A17_852423
+
 func check_errata_cve_2017_5715
 #if WORKAROUND_CVE_2017_5715
 	mov	r0, #ERRATA_APPLIES
@@ -100,28 +104,9 @@ func check_errata_cve_2017_5715
 	bx	lr
 endfunc check_errata_cve_2017_5715
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex A17. Must follow AAPCS.
- */
-func cortex_a17_errata_report
-	push	{r12, lr}
+add_erratum_entry cortex_a17, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 
-	bl	cpu_get_rev_var
-	mov	r4, r0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_A17_852421, cortex_a17, 852421
-	report_errata ERRATA_A17_852423, cortex_a17, 852423
-	report_errata WORKAROUND_CVE_2017_5715, cortex_a17, cve_2017_5715
-
-	pop	{r12, lr}
-	bx	lr
-endfunc cortex_a17_errata_report
-#endif
+errata_report_shim cortex_a17
 
 func cortex_a17_reset_func
 	mov	r5, lr
@@ -139,7 +124,7 @@ func cortex_a17_reset_func
 #endif
 
 #if IMAGE_BL32 && WORKAROUND_CVE_2017_5715
-	ldr	r0, =workaround_bpiall_runtime_exceptions
+	ldr	r0, =wa_cve_2017_5715_bpiall_vbar
 	stcopr	r0, VBAR
 	stcopr	r0, MVBAR
 	/* isb will be applied in the course of the reset func */
