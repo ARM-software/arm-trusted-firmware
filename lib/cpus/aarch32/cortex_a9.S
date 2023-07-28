@@ -68,7 +68,7 @@ func cortex_a9_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a9, cve_2017_5715
-	report_errata ERRATA_A9_794073, cortex_a9, a9_79407
+	report_errata ERRATA_A9_794073, cortex_a9, a9_794073
 
 	pop	{r12, lr}
 	bx	lr
