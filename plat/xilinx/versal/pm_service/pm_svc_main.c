@@ -18,6 +18,7 @@
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
+#include "pm_svc_main.h"
 #include <drivers/arm/gicv3.h>
 #include "../drivers/arm/gic/v3/gicv3_private.h"
 
@@ -352,6 +353,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t pm_arg[PAYLOAD_ARG_CNT] = {0};
 	uint32_t security_flag = NON_SECURE_FLAG;
 	uint32_t api_id;
+	bool status = false, status_tmp = false;
 
 	/* Handle case where PM wasn't initialized properly */
 	if (pm_up == false) {
@@ -361,8 +363,11 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	/*
 	 * Mark BIT24 payload (i.e 1st bit of pm_arg[3] ) as secure (0)
 	 * if smc called is secure
+	 *
+	 * Add redundant macro call to immune the code from glitches
 	 */
-	if (is_caller_secure(flags)) {
+	SECURE_REDUNDANT_CALL(status, status_tmp, is_caller_secure, flags);
+	if ((status != false) && (status_tmp != false)) {
 		security_flag = SECURE_FLAG;
 	}
 
