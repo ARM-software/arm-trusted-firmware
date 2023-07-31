@@ -26,31 +26,22 @@
         wa_cve_2022_23960_bhb_vector_table CORTEX_A720_BHB_LOOP_COUNT, cortex_a720
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-func cortex_a720_reset_func
-	/* Disable speculative loads */
-	msr	SSBS, xzr
-
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+workaround_reset_start cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+#if IMAGE_BL31
 	/*
 	 * The Cortex A720 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_cortex_a720
-	msr	vbar_el3, x0
-#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+	override_vector_table wa_cve_vbar_cortex_a720
+#endif /* IMAGE_BL31 */
+workaround_reset_end cortex_a720, CVE(2022, 23960)
 
-	isb
-	ret
-endfunc cortex_a720_reset_func
+check_erratum_chosen cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+cpu_reset_func_start cortex_a720
+	/* Disable speculative loads */
+	msr	SSBS, xzr
+cpu_reset_func_end cortex_a720
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -61,33 +52,13 @@ func cortex_a720_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_A720_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A720_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_A720_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A720_CPUPWRCTLR_EL1, CORTEX_A720_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+
 	isb
 	ret
 endfunc cortex_a720_core_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex A720. Must follow AAPCS.
- */
-func cortex_a720_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata WORKAROUND_CVE_2022_23960, cortex_a720, cve_2022_23960
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_a720_errata_report
-#endif
+errata_report_shim cortex_a720
 
 	/* ---------------------------------------------
 	 * This function provides Cortex A720-specific

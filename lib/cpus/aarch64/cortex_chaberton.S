@@ -21,12 +21,10 @@
 #error "Cortex Chaberton supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-func cortex_chaberton_reset_func
+cpu_reset_func_start cortex_chaberton
 	/* Disable speculative loads */
 	msr	SSBS, xzr
-	isb
-	ret
-endfunc cortex_chaberton_reset_func
+cpu_reset_func_end cortex_chaberton
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -37,21 +35,12 @@ func cortex_chaberton_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_CHABERTON_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_CHABERTON_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_CHABERTON_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_CHABERTON_CPUPWRCTLR_EL1, CORTEX_CHABERTON_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret
 endfunc cortex_chaberton_core_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex Chaberton. Must follow AAPCS.
- */
-func cortex_chaberton_errata_report
-	ret
-endfunc cortex_chaberton_errata_report
-#endif
+errata_report_shim cortex_chaberton
 
 	/* ---------------------------------------------
 	 * This function provides Cortex Chaberton specific

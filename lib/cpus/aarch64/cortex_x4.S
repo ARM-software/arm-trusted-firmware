@@ -26,31 +26,22 @@
         wa_cve_2022_23960_bhb_vector_table CORTEX_X4_BHB_LOOP_COUNT, cortex_x4
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-func cortex_x4_reset_func
-	/* Disable speculative loads */
-	msr	SSBS, xzr
-
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
+workaround_reset_start cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+#if IMAGE_BL31
 	/*
 	 * The Cortex X4 generic vectors are overridden to apply errata
 	 * mitigation on exception entry from lower ELs.
 	 */
-	adr	x0, wa_cve_vbar_cortex_x4
-	msr	vbar_el3, x0
-#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
+	override_vector_table wa_cve_vbar_cortex_x4
+#endif /* IMAGE_BL31 */
+workaround_reset_end cortex_x4, CVE(2022, 23960)
 
-	isb
-	ret
-endfunc cortex_x4_reset_func
+check_erratum_chosen cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+cpu_reset_func_start cortex_x4
+	/* Disable speculative loads */
+	msr	SSBS, xzr
+cpu_reset_func_end cortex_x4
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -61,33 +52,12 @@ func cortex_x4_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_X4_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_X4_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_X4_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_X4_CPUPWRCTLR_EL1, CORTEX_X4_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret
 endfunc cortex_x4_core_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex X4. Must follow AAPCS.
- */
-func cortex_x4_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata WORKAROUND_CVE_2022_23960, cortex_x4, cve_2022_23960
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_x4_errata_report
-#endif
+errata_report_shim cortex_x4
 
 	/* ---------------------------------------------
 	 * This function provides Cortex X4-specific
