@@ -34,7 +34,7 @@ static const struct ipi_config versal_net_ipi_table[IPI_ID_MAX] = {
 	[IPI_ID_PMC] = {
 		.ipi_bit_mask = PMC_IPI_TRIG_BIT,
 		.ipi_reg_base = IPI0_REG_BASE,
-		.secure_only = 0,
+		.secure_only = IPI_SECURE_MASK,
 	},
 
 	/* RPU0 IPI */
