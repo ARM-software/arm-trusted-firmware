@@ -20,7 +20,7 @@ static const struct ipi_config versal_ipi_table[] = {
 	[IPI_ID_PMC] = {
 		.ipi_bit_mask = PMC_IPI_TRIG_BIT,
 		.ipi_reg_base = PMC_REG_BASE,
-		.secure_only = 0U,
+		.secure_only = IPI_SECURE_MASK,
 	},
 
 	/* A72 IPI */
