@@ -628,6 +628,13 @@ subsections:
               - plat/zynqmp
               - plat/xilinx/zynqmp
 
+      - title: Nuvoton
+        scope: nuvoton
+
+        subsections:
+          - title: npcm845x
+            scope: npcm845x
+
   - title: Bootloader Images
     scope: bl
 
