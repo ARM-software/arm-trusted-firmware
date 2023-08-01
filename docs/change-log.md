@@ -3,6 +3,16 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.7..refs/tags/lts-v2.8.8) (2023-08-01)
+
+### Resolved issues (since lts-v2.8.7)
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - fix(cpus): workaround for Neoverse V2 erratum 2801372 ([ec3fafa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ec3fafa24307686b957de0899ba30bfbb5a70380))
+
 ## [lts-2.8.7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.6..refs/tags/lts-v2.8.7) (2023-07-13)
 
 ### Resolved issues (since lts-v2.8.6)
