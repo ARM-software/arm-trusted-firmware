@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * Portions copyright (c) 2018-2019, ARM Limited and Contributors.
+ * Portions copyright (c) 2018-2019, Arm Limited and Contributors.
  * All rights reserved.
  */
 
