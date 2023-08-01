@@ -84,7 +84,8 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	PLAT_BAUDRATE, &console);
 
 	/* Store magic number */
-	mmio_write_32(L2_RESET_DONE_REG, PLAT_L2_RESET_REQ);
+	// TODO: Temp workaround to ungate testing
+	// mmio_write_32(L2_RESET_DONE_REG, PLAT_L2_RESET_REQ);
 }
 
 void bl2_el3_plat_arch_setup(void)
