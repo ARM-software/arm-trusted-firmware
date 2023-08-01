@@ -72,7 +72,8 @@ endif
 ifeq (${RAS_FFH_SUPPORT},1)
 BL31_SOURCES		+=	${RDN2_BASE}/rdn2_ras.c			\
 				${CSS_ENT_BASE}/ras/sgi_ras_common.c	\
-				${CSS_ENT_BASE}/ras/sgi_ras_sram.c
+				${CSS_ENT_BASE}/ras/sgi_ras_sram.c	\
+				${CSS_ENT_BASE}/ras/sgi_ras_cpu.c
 endif
 
 # Add the FDT_SOURCES and options for Dynamic Config

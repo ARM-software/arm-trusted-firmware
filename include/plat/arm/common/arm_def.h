@@ -782,6 +782,9 @@ MEASURED_BOOT
 #define PLAT_SDEI_CRITICAL_PRI		0x60
 #define PLAT_SDEI_NORMAL_PRI		0x70
 
+/* CPU Fault Handling Interrupt(FHI) PPI interrupt ID */
+#define PLAT_CORE_FAULT_IRQ		17
+
 /* ARM platforms use 3 upper bits of secure interrupt priority */
 #define PLAT_PRI_BITS			3
 

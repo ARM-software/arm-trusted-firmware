@@ -60,4 +60,9 @@ int sgi_ras_sram_intr_handler(const struct err_record_info *err_rec,
 				int probe_data,
 				const struct err_handler_data *const data);
 
+/* CPU RAS interrupt handler */
+int sgi_ras_cpu_intr_handler(const struct err_record_info *err_rec,
+				int probe_data,
+				const struct err_handler_data *const data);
+
 #endif /* SGI_RAS_H */

@@ -40,7 +40,11 @@ static const uintptr_t *gicr_frames = gicr_base_addrs;
 
 static const interrupt_prop_t arm_interrupt_props[] = {
 	PLAT_ARM_G1S_IRQ_PROPS(INTR_GROUP1S),
-	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0)
+	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0),
+#if RAS_FFH_SUPPORT
+	INTR_PROP_DESC(PLAT_CORE_FAULT_IRQ, PLAT_RAS_PRI, INTR_GROUP0,
+			GIC_INTR_CFG_LEVEL)
+#endif
 };
 
 /*
