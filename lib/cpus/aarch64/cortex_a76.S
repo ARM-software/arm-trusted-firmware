@@ -299,57 +299,44 @@ endfunc apply_cve_2018_3639_sync_wa
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
 workaround_reset_start cortex_a76, ERRATUM(1073348), ERRATA_A76_1073348
-	mrs	x1, CORTEX_A76_CPUACTLR_EL1
-	orr	x1, x1 ,#CORTEX_A76_CPUACTLR_EL1_DISABLE_STATIC_PREDICTION
-	msr	CORTEX_A76_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A76_CPUACTLR_EL1 ,CORTEX_A76_CPUACTLR_EL1_DISABLE_STATIC_PREDICTION
 workaround_reset_end cortex_a76, ERRATUM(1073348)
 
 check_erratum_ls cortex_a76, ERRATUM(1073348), CPU_REV(1, 0)
 
 workaround_reset_start cortex_a76, ERRATUM(1130799), ERRATA_A76_1130799
-	mrs	x1, CORTEX_A76_CPUACTLR2_EL1
-	orr	x1, x1 ,#CORTEX_A76_CPUACTLR2_EL1_BIT_59
+	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, CORTEX_A76_CPUACTLR2_EL1_BIT_59
 	msr	CORTEX_A76_CPUACTLR2_EL1, x1
 workaround_reset_end cortex_a76, ERRATUM(1130799)
 
 check_erratum_ls cortex_a76, ERRATUM(1130799), CPU_REV(2, 0)
 
 workaround_reset_start cortex_a76, ERRATUM(1220197), ERRATA_A76_1220197
-	mrs	x1, CORTEX_A76_CPUECTLR_EL1
-	orr	x1, x1, #CORTEX_A76_CPUECTLR_EL1_WS_THR_L2
-	msr	CORTEX_A76_CPUECTLR_EL1, x1
+	sysreg_bit_set CORTEX_A76_CPUECTLR_EL1, CORTEX_A76_CPUECTLR_EL1_WS_THR_L2
 workaround_reset_end cortex_a76, ERRATUM(1220197)
 
 check_erratum_ls cortex_a76, ERRATUM(1220197), CPU_REV(2, 0)
 
 workaround_reset_start cortex_a76, ERRATUM(1257314), ERRATA_A76_1257314
-	mrs	x1, CORTEX_A76_CPUACTLR3_EL1
-	orr	x1, x1, CORTEX_A76_CPUACTLR3_EL1_BIT_10
-	msr	CORTEX_A76_CPUACTLR3_EL1, x1
+	sysreg_bit_set CORTEX_A76_CPUACTLR3_EL1, CORTEX_A76_CPUACTLR3_EL1_BIT_10
 workaround_reset_end cortex_a76, ERRATUM(1257314)
 
 check_erratum_ls cortex_a76, ERRATUM(1257314), CPU_REV(3, 0)
 
 workaround_reset_start cortex_a76, ERRATUM(1262606), ERRATA_A76_1262606
-	mrs	x1, CORTEX_A76_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A76_CPUACTLR_EL1_BIT_13
-	msr	CORTEX_A76_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A76_CPUACTLR_EL1, CORTEX_A76_CPUACTLR_EL1_BIT_13
 workaround_reset_end cortex_a76, ERRATUM(1262606)
 
 check_erratum_ls cortex_a76, ERRATUM(1262606), CPU_REV(3, 0)
 
 workaround_reset_start cortex_a76, ERRATUM(1262888), ERRATA_A76_1262888
-	mrs	x1, CORTEX_A76_CPUECTLR_EL1
-	orr	x1, x1, CORTEX_A76_CPUECTLR_EL1_BIT_51
-	msr	CORTEX_A76_CPUECTLR_EL1, x1
+	sysreg_bit_set CORTEX_A76_CPUECTLR_EL1, CORTEX_A76_CPUECTLR_EL1_BIT_51
 workaround_reset_end cortex_a76, ERRATUM(1262888)
 
 check_erratum_ls cortex_a76, ERRATUM(1262888), CPU_REV(3, 0)
 
 workaround_reset_start cortex_a76, ERRATUM(1275112), ERRATA_A76_1275112
-	mrs	x1, CORTEX_A76_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A76_CPUACTLR_EL1_BIT_13
-	msr	CORTEX_A76_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A76_CPUACTLR_EL1, CORTEX_A76_CPUACTLR_EL1_BIT_13
 workaround_reset_end cortex_a76, ERRATUM(1275112)
 
 check_erratum_ls cortex_a76, ERRATUM(1275112), CPU_REV(3, 0)
@@ -365,17 +352,13 @@ check_erratum_custom_start cortex_a76, ERRATUM(1286807)
 check_erratum_custom_end cortex_a76, ERRATUM(1286807)
 
 workaround_reset_start cortex_a76, ERRATUM(1791580), ERRATA_A76_1791580
-	mrs	x1, CORTEX_A76_CPUACTLR2_EL1
-	orr	x1, x1, CORTEX_A76_CPUACTLR2_EL1_BIT_2
-	msr	CORTEX_A76_CPUACTLR2_EL1, x1
+	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, CORTEX_A76_CPUACTLR2_EL1_BIT_2
 workaround_reset_end cortex_a76, ERRATUM(1791580)
 
 check_erratum_ls cortex_a76, ERRATUM(1791580), CPU_REV(4, 0)
 
 workaround_reset_start cortex_a76, ERRATUM(1868343), ERRATA_A76_1868343
-	mrs	x1, CORTEX_A76_CPUACTLR_EL1
-	orr	x1, x1, #CORTEX_A76_CPUACTLR_EL1_BIT_13
-	msr	CORTEX_A76_CPUACTLR_EL1, x1
+	sysreg_bit_set CORTEX_A76_CPUACTLR_EL1, CORTEX_A76_CPUACTLR_EL1_BIT_13
 workaround_reset_end cortex_a76, ERRATUM(1868343)
 
 check_erratum_ls cortex_a76, ERRATUM(1868343), CPU_REV(4, 0)
@@ -421,9 +404,7 @@ check_erratum_ls cortex_a76, ERRATUM(2743102), CPU_REV(4, 1)
 check_erratum_chosen cortex_a76, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 
 func cortex_a76_disable_wa_cve_2018_3639
-	mrs	x0, CORTEX_A76_CPUACTLR2_EL1
-	bic	x0, x0, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
-	msr	CORTEX_A76_CPUACTLR2_EL1, x0
+	sysreg_bit_clear CORTEX_A76_CPUACTLR2_EL1, CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
 	isb
 	ret
 endfunc cortex_a76_disable_wa_cve_2018_3639
@@ -481,9 +462,7 @@ cpu_reset_func_start cortex_a76
 #endif
 #if DYNAMIC_WORKAROUND_CVE_2018_3639
 	cbnz	x0, 1f
-	mrs	x0, CORTEX_A76_CPUACTLR2_EL1
-	orr	x0, x0, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
-	msr	CORTEX_A76_CPUACTLR2_EL1, x0
+	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
 	isb
 
 #ifdef IMAGE_BL31
@@ -494,8 +473,7 @@ cpu_reset_func_start cortex_a76
 	 * If the below vector table is used, skip overriding it again for
 	 *  CVE_2022_23960 as both use the same vbar.
 	 */
-	adr	x0, cortex_a76_wa_cve_vbar
-	msr	vbar_el3, x0
+	override_vector_table cortex_a76_wa_cve_vbar
 	isb
 	b	2f
 #endif /* IMAGE_BL31 */
@@ -510,8 +488,7 @@ cpu_reset_func_start cortex_a76
 	 * mitigation on exception entry from lower ELs. This will be bypassed
 	 * if DYNAMIC_WORKAROUND_CVE_2018_3639 has overridden the vectors.
 	 */
-	adr	x0, cortex_a76_wa_cve_vbar
-	msr	vbar_el3, x0
+	override_vector_table cortex_a76_wa_cve_vbar
 	isb
 #endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
 2:
@@ -526,9 +503,7 @@ func cortex_a76_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------
 	 */
-	mrs	x0, CORTEX_A76_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A76_CORE_PWRDN_EN_MASK
-	msr	CORTEX_A76_CPUPWRCTLR_EL1, x0
+	sysreg_bit_set CORTEX_A76_CPUPWRCTLR_EL1, CORTEX_A76_CORE_PWRDN_EN_MASK
 
 	apply_erratum cortex_a76, ERRATUM(2743102), ERRATA_A76_2743102
 
