@@ -47,8 +47,8 @@
 #define MAX_XLAT_TABLES			11
 #define MAX_MMAP_REGIONS		12
 #else
-#define MAX_XLAT_TABLES			8
-#define MAX_MMAP_REGIONS		9
+#define MAX_XLAT_TABLES			10
+#define MAX_MMAP_REGIONS		11
 #endif
 
 #define PLAT_GICD_BASE			U(0x2d400000)
