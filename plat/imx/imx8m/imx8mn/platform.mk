@@ -65,6 +65,9 @@ BL32_SIZE		?=	0x2000000
 $(eval $(call add_define,BL32_SIZE))
 
 IMX_BOOT_UART_BASE	?=	0x30890000
+ifeq (${IMX_BOOT_UART_BASE},auto)
+    override IMX_BOOT_UART_BASE	:=	0
+endif
 $(eval $(call add_define,IMX_BOOT_UART_BASE))
 
 EL3_EXCEPTION_HANDLING := $(SDEI_SUPPORT)

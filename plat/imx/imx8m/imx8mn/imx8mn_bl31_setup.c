@@ -122,7 +122,7 @@ static void bl31_tzc380_setup(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3)
 {
-	unsigned int console_base = 0U;
+	unsigned int console_base = IMX_BOOT_UART_BASE;
 	static console_t console;
 	unsigned int val;
 	int i;
@@ -143,9 +143,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	val = mmio_read_32(IMX_IOMUX_GPR_BASE + 0x2c);
 	mmio_write_32(IMX_IOMUX_GPR_BASE + 0x2c, val | 0x3DFF0000);
 
-#if IMX_BOOT_UART_BASE
-	console_base = IMX_BOOT_UART_BASE;
-#endif
 	if (console_base == 0U) {
 		console_base = imx8m_uart_get_base();
 	}
