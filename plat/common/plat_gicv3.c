@@ -237,9 +237,12 @@ void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority)
 
 int plat_ic_has_interrupt_type(unsigned int type)
 {
-	assert((type == INTR_TYPE_EL3) || (type == INTR_TYPE_S_EL1) ||
-			(type == INTR_TYPE_NS));
-	return 1;
+	if ((type == INTR_TYPE_EL3) || (type == INTR_TYPE_S_EL1) ||
+			(type == INTR_TYPE_NS)) {
+		return 1;
+	}
+
+	return 0;
 }
 
 void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)

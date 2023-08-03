@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -44,6 +44,7 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				plat/rpi/common/rpi3_io_storage.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
+				plat/common/plat_gicv2.c		\
 				plat/common/plat_psci_common.c		\
 				plat/rpi/rpi3/rpi3_bl31_setup.c		\
 				plat/rpi/common/rpi3_pm.c		\
