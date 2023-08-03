@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  * Portions copyright (c) 2021-2022, ProvenRun S.A.S. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -46,10 +46,6 @@
 #pragma weak plat_ic_set_spi_routing
 #pragma weak plat_ic_set_interrupt_pending
 #pragma weak plat_ic_clear_interrupt_pending
-
-CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
-	(INTR_TYPE_NS == INTR_GROUP1NS) &&
-	(INTR_TYPE_EL3 == INTR_GROUP0), assert_interrupt_type_mismatch);
 
 /*
  * This function returns the highest priority pending interrupt at
@@ -116,12 +112,26 @@ uint32_t plat_ic_acknowledge_interrupt(void)
 
 /*
  * This function returns the type of the interrupt `id`, depending on how
- * the interrupt has been configured in the interrupt controller
+ * the interrupt has been configured in the interrupt controller.
  */
 uint32_t plat_ic_get_interrupt_type(uint32_t id)
 {
+	unsigned int group;
+
 	assert(IS_IN_EL3());
-	return gicv3_get_interrupt_type(id, plat_my_core_pos());
+	group = gicv3_get_interrupt_group(id, plat_my_core_pos());
+
+	switch (group) {
+	case INTR_GROUP0:
+		return INTR_TYPE_EL3;
+	case INTR_GROUP1S:
+		return INTR_TYPE_S_EL1;
+	case INTR_GROUP1NS:
+		return INTR_TYPE_NS;
+	default:
+		assert(false); /* Unreachable */
+		return INTR_TYPE_EL3;
+	}
 }
 
 /*
@@ -234,7 +244,25 @@ int plat_ic_has_interrupt_type(unsigned int type)
 
 void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
 {
-	gicv3_set_interrupt_type(id, plat_my_core_pos(), type);
+	unsigned int group;
+
+	switch (type) {
+	case INTR_TYPE_EL3:
+		group = INTR_GROUP0;
+		break;
+	case INTR_TYPE_S_EL1:
+		group = INTR_GROUP1S;
+		break;
+	case INTR_TYPE_NS:
+		group = INTR_GROUP1NS;
+		break;
+	default:
+		assert(false); /* Unreachable */
+		group = INTR_GROUP0;
+		break;
+	}
+
+	gicv3_set_interrupt_group(id, plat_my_core_pos(), group);
 }
 
 void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
