@@ -435,23 +435,6 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
-	case PM_CLOCK_SETRATE:
-		ret = pm_clock_setrate(pm_arg[0],
-		       ((uint64_t)pm_arg[2]) << 32 | pm_arg[1]);
-
-		SMC_RET1(handle, (uint64_t)ret);
-
-	case PM_CLOCK_GETRATE:
-	{
-		uint64_t value = 0;
-
-		ret = pm_clock_getrate(pm_arg[0], &value);
-		SMC_RET2(handle, (uint64_t)ret |
-				  (((uint64_t)value & 0xFFFFFFFFU) << 32U),
-			 (value >> 32U) & 0xFFFFFFFFU);
-
-	}
-
 	case PM_CLOCK_SETPARENT:
 		ret = pm_clock_setparent(pm_arg[0], pm_arg[1]);
 		SMC_RET1(handle, (uint64_t)ret);

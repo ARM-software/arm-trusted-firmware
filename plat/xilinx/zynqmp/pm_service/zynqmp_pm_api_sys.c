@@ -1321,39 +1321,6 @@ enum pm_ret_status pm_clock_getdivider(uint32_t clock_id,
 }
 
 /**
- * pm_clock_setrate - Set the clock rate for given id.
- * @clock_id: Id of the clock.
- * @rate: rate value in hz.
- *
- * This function is used by master to set rate for any clock.
- *
- * Return: Returns status, either success or error+reason.
- *
- */
-enum pm_ret_status pm_clock_setrate(uint32_t clock_id,
-				    uint64_t rate)
-{
-	return PM_RET_ERROR_NOTSUPPORTED;
-}
-
-/**
- * pm_clock_getrate - Get the clock rate for given id.
- * @clock_id: Id of the clock.
- * @rate: rate value in hz.
- *
- * This function is used by master to get rate
- * for any clock.
- *
- * Return: Returns status, either success or error+reason.
- *
- */
-enum pm_ret_status pm_clock_getrate(uint32_t clock_id,
-				    uint64_t *rate)
-{
-	return PM_RET_ERROR_NOTSUPPORTED;
-}
-
-/**
  * pm_clock_setparent - Set the clock parent for given id.
  * @clock_id: Id of the clock.
  * @parent_index: Index of the parent clock into clock's parents array.

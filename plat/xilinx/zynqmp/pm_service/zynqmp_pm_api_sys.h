@@ -143,10 +143,6 @@ enum pm_ret_status pm_clock_setdivider(uint32_t clock_id,
 				       uint32_t divider);
 enum pm_ret_status pm_clock_getdivider(uint32_t clock_id,
 				       uint32_t *divider);
-enum pm_ret_status pm_clock_setrate(uint32_t clock_id,
-				    uint64_t rate);
-enum pm_ret_status pm_clock_getrate(uint32_t clock_id,
-				    uint64_t *rate);
 enum pm_ret_status pm_clock_setparent(uint32_t clock_id,
 				      uint32_t parent_index);
 enum pm_ret_status pm_clock_getparent(uint32_t clock_id,
