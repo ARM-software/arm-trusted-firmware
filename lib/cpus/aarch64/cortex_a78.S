@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,77 +24,25 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A78_BHB_LOOP_COUNT, cortex_a78
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* --------------------------------------------------
- * Errata Workaround for A78 Erratum 1688305.
- * This applies to revision r0p0 and r1p0 of A78.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_a78_1688305_wa
-	/* Compare x0 against revision r1p0 */
-	mov	x17, x30
-	bl	check_errata_1688305
-	cbz	x0, 1f
-	mrs     x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #CORTEX_A78_ACTLR2_EL1_BIT_1
-	msr     CORTEX_A78_ACTLR2_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_a78_1688305_wa
+workaround_reset_start cortex_a78, ERRATUM(1688305), ERRATA_A78_1688305
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_1
+workaround_reset_end cortex_a78, ERRATUM(1688305)
 
-func check_errata_1688305
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1688305
+check_erratum_ls cortex_a78, ERRATUM(1688305), CPU_REV(1, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78 Errata #1941498.
- * This applies to revisions r0p0, r1p0, and r1p1.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_a78_1941498_wa
-	/* Compare x0 against revision <= r1p1 */
-	mov	x17, x30
-	bl	check_errata_1941498
-	cbz	x0, 1f
+workaround_reset_start cortex_a78, ERRATUM(1821534), ERRATA_A78_1821534
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_2
+workaround_reset_end cortex_a78, ERRATUM(1821534)
 
-	/* Set bit 8 in ECTLR_EL1 */
-	mrs	x1, CORTEX_A78_CPUECTLR_EL1
-	orr	x1, x1, #CORTEX_A78_CPUECTLR_EL1_BIT_8
-	msr	CORTEX_A78_CPUECTLR_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_a78_1941498_wa
+check_erratum_ls cortex_a78, ERRATUM(1821534), CPU_REV(1, 0)
 
-func check_errata_1941498
-	/* Check for revision <= r1p1, might need to be updated later. */
-	mov	x1, #0x11
-	b	cpu_rev_var_ls
-endfunc check_errata_1941498
+workaround_reset_start cortex_a78, ERRATUM(1941498), ERRATA_A78_1941498
+	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, CORTEX_A78_CPUECTLR_EL1_BIT_8
+workaround_reset_end cortex_a78, ERRATUM(1941498)
 
-/* --------------------------------------------------
- * Errata Workaround for A78 Erratum 1951500.
- * This applies to revisions r1p0 and r1p1 of A78.
- * The issue also exists in r0p0 but there is no fix
- * in that revision.
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_a78_1951500_wa
-	/* Compare x0 against revisions r1p0 - r1p1 */
-	mov	x17, x30
-	bl	check_errata_1951500
-	cbz	x0, 1f
+check_erratum_ls cortex_a78, ERRATUM(1941498), CPU_REV(1, 1)
 
+workaround_reset_start cortex_a78, ERRATUM(1951500), ERRATA_A78_1951500
 	msr	S3_6_c15_c8_0, xzr
 	ldr	x0, =0x10E3900002
 	msr	S3_6_c15_c8_2, x0
@@ -120,60 +68,11 @@ func errata_a78_1951500_wa
 	msr	S3_6_c15_c8_3, x0
 	ldr	x0, =0x2001003FF
 	msr	S3_6_c15_c8_1, x0
+workaround_reset_end cortex_a78, ERRATUM(1951500)
 
-	isb
-1:
-	ret	x17
-endfunc errata_a78_1951500_wa
+check_erratum_range cortex_a78, ERRATUM(1951500), CPU_REV(1, 0), CPU_REV(1, 1)
 
-func check_errata_1951500
-	/* Applies to revisions r1p0 and r1p1. */
-	mov	x1, #CPU_REV(1, 0)
-	mov	x2, #CPU_REV(1, 1)
-	b	cpu_rev_var_range
-endfunc check_errata_1951500
-
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78 Errata #1821534.
- * This applies to revisions r0p0 and r1p0.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_a78_1821534_wa
-	/* Check revision. */
-	mov	x17, x30
-	bl	check_errata_1821534
-	cbz	x0, 1f
-
-	/* Set bit 2 in ACTLR2_EL1 */
-	mrs     x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #CORTEX_A78_ACTLR2_EL1_BIT_2
-	msr     CORTEX_A78_ACTLR2_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_a78_1821534_wa
-
-func check_errata_1821534
-	/* Applies to r0p0 and r1p0 */
-	mov	x1, #0x10
-	b	cpu_rev_var_ls
-endfunc check_errata_1821534
-
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78 Errata 1952683.
- * This applies to revision r0p0.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_a78_1952683_wa
-	/* Check revision. */
-	mov	x17, x30
-	bl	check_errata_1952683
-	cbz	x0, 1f
-
+workaround_reset_start cortex_a78, ERRATUM(1952683), ERRATA_A78_1952683
 	ldr	x0,=0x5
 	msr	S3_6_c15_c8_0,x0
 	ldr	x0,=0xEEE10A10
@@ -194,61 +93,21 @@ func errata_a78_1952683_wa
 	msr	S3_6_c15_c8_3,x0
 	ldr	x0,=0x40000080023ff
 	msr	S3_6_c15_c8_1,x0
-	isb
-1:
-	ret	x17
-endfunc errata_a78_1952683_wa
+workaround_reset_end cortex_a78, ERRATUM(1952683)
 
-func check_errata_1952683
-	/* Applies to r0p0 only */
-	mov	x1, #0x00
-	b	cpu_rev_var_ls
-endfunc check_errata_1952683
+check_erratum_ls cortex_a78, ERRATUM(1952683), CPU_REV(0, 0)
 
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78 Errata 2132060.
- * This applies to revisions r0p0, r1p0, r1p1, and r1p2.
- * It is still open.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x1, x17
- * --------------------------------------------------
- */
-func errata_a78_2132060_wa
-	/* Check revision. */
-	mov	x17, x30
-	bl	check_errata_2132060
-	cbz	x0, 1f
-
+workaround_reset_start cortex_a78, ERRATUM(2132060), ERRATA_A78_2132060
 	/* Apply the workaround. */
 	mrs	x1, CORTEX_A78_CPUECTLR_EL1
 	mov	x0, #CORTEX_A78_CPUECTLR_EL1_PF_MODE_CNSRV
 	bfi	x1, x0, #CPUECTLR_EL1_PF_MODE_LSB, #CPUECTLR_EL1_PF_MODE_WIDTH
 	msr	CORTEX_A78_CPUECTLR_EL1, x1
-1:
-	ret	x17
-endfunc errata_a78_2132060_wa
+workaround_reset_end cortex_a78, ERRATUM(2132060)
 
-func check_errata_2132060
-	/* Applies to r0p0, r0p1, r1p1, and r1p2 */
-	mov	x1, #0x12
-	b	cpu_rev_var_ls
-endfunc check_errata_2132060
+check_erratum_ls cortex_a78, ERRATUM(2132060), CPU_REV(1, 2)
 
-/* --------------------------------------------------------------------
- * Errata Workaround for A78 Erratum 2242635.
- * This applies to revisions r1p0, r1p1, and r1p2 of the Cortex A78
- * processor and is still open.
- * The issue also exists in r0p0 but there is no fix in that revision.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------------------------
- */
-func errata_a78_2242635_wa
-	/* Compare x0 against revisions r1p0 - r1p2 */
-	mov	x17, x30
-	bl	check_errata_2242635
-	cbz	x0, 1f
-
+workaround_reset_start cortex_a78, ERRATUM(2242635), ERRATA_A78_2242635
 	ldr	x0, =0x5
 	msr	S3_6_c15_c8_0, x0 /* CPUPSELR_EL3 */
 	ldr	x0, =0x10F600E000
@@ -257,242 +116,64 @@ func errata_a78_2242635_wa
 	msr	S3_6_c15_c8_3, x0 /* CPUPMR_EL3 */
 	ldr	x0, =0x80000000003FF
 	msr	S3_6_c15_c8_1, x0 /* CPUPCR_EL3 */
+workaround_reset_end cortex_a78, ERRATUM(2242635)
 
-	isb
-1:
-	ret	x17
-endfunc errata_a78_2242635_wa
+check_erratum_range cortex_a78, ERRATUM(2242635), CPU_REV(1, 0), CPU_REV(1, 2)
 
-func check_errata_2242635
-	/* Applies to revisions r1p0 through r1p2. */
-	mov	x1, #CPU_REV(1, 0)
-	mov	x2, #CPU_REV(1, 2)
-	b	cpu_rev_var_range
-endfunc check_errata_2242635
+workaround_reset_start cortex_a78, ERRATUM(2376745), ERRATA_A78_2376745
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, BIT(0)
+workaround_reset_end cortex_a78, ERRATUM(2376745)
 
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78 Errata 2376745.
- * This applies to revisions r0p0, r1p0, r1p1, and r1p2.
- * It is still open.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x1, x17
- * --------------------------------------------------
- */
-func errata_a78_2376745_wa
-	/* Check revision. */
-	mov	x17, x30
-	bl	check_errata_2376745
-	cbz	x0, 1f
+check_erratum_ls cortex_a78, ERRATUM(2376745), CPU_REV(1, 2)
 
-	/* Apply the workaround. */
-	mrs	x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #BIT(0)
-	msr	CORTEX_A78_ACTLR2_EL1, x1
-1:
-	ret	x17
-endfunc errata_a78_2376745_wa
+workaround_reset_start cortex_a78, ERRATUM(2395406), ERRATA_A78_2395406
+	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, BIT(40)
+workaround_reset_end cortex_a78, ERRATUM(2395406)
 
-func check_errata_2376745
-	/* Applies to r0p0, r0p1, r1p1, and r1p2 */
-	mov	x1, #CPU_REV(1, 2)
-	b	cpu_rev_var_ls
-endfunc check_errata_2376745
+check_erratum_ls cortex_a78, ERRATUM(2395406), CPU_REV(1, 2)
 
-/* --------------------------------------------------
- * Errata Workaround for Cortex A78 Errata 2395406.
- * This applies to revisions r0p0, r1p0, r1p1, and r1p2.
- * It is still open.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x1, x17
- * --------------------------------------------------
- */
-func errata_a78_2395406_wa
-	/* Check revision. */
-	mov	x17, x30
-	bl	check_errata_2395406
-	cbz	x0, 1f
-
-	/* Apply the workaround. */
-	mrs	x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, #BIT(40)
-	msr	CORTEX_A78_ACTLR2_EL1, x1
-1:
-	ret	x17
-endfunc errata_a78_2395406_wa
-
-func check_errata_2395406
-	/* Applies to r0p0, r0p1, r1p1, and r1p2 */
-	mov	x1, #CPU_REV(1, 2)
-	b	cpu_rev_var_ls
-endfunc check_errata_2395406
-
-/* ----------------------------------------------------
- * Errata Workaround for Cortex A78 Errata 2742426.
- * This applies to revisions r0p0, r1p0, r1p1 and r1p2.
- * It is still open.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x1, x17
- * ----------------------------------------------------
- */
-func errata_a78_2742426_wa
-	/* Check revision. */
-	mov	x17, x30
-	bl	check_errata_2742426
-	cbz	x0, 1f
-
+workaround_reset_start cortex_a78, ERRATUM(2742426), ERRATA_A78_2742426
 	/* Apply the workaround */
 	mrs	x1, CORTEX_A78_ACTLR5_EL1
 	bic	x1, x1, #BIT(56)
 	orr	x1, x1, #BIT(55)
 	msr	CORTEX_A78_ACTLR5_EL1, x1
+workaround_reset_end cortex_a78, ERRATUM(2742426)
 
-1:
-	ret	x17
-endfunc errata_a78_2742426_wa
+check_erratum_ls cortex_a78, ERRATUM(2742426), CPU_REV(1, 2)
 
-func check_errata_2742426
-	/* Applies to r0p0, r1p0, r1p1, r1p2 */
-	mov	x1, #CPU_REV(1, 2)
-	b	cpu_rev_var_ls
-endfunc check_errata_2742426
-
-/* ----------------------------------------------------
- * Errata Workaround for Cortex-A78 Errata 2772019
- * This applies to revisions <= r1p2 and is still open.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * ----------------------------------------------------
- */
-func errata_a78_2772019_wa
-	mov	x17, x30
-	bl	check_errata_2772019
-	cbz	x0, 1f
-
-
+workaround_runtime_start cortex_a78, ERRATUM(2772019), ERRATA_A78_2772019
 	/* dsb before isb of power down sequence */
 	dsb	sy
-1:
-	ret	x17
-endfunc errata_a78_2772019_wa
+workaround_runtime_end cortex_a78, ERRATUM(2772019)
 
-func check_errata_2772019
-	/* Applies to all revisions <= r1p2 */
-	mov	x1, #0x12
-	b	cpu_rev_var_ls
-endfunc check_errata_2772019
+check_erratum_ls cortex_a78, ERRATUM(2772019), CPU_REV(1, 2)
 
-/* ----------------------------------------------------
- * Errata Workaround for Cortex A78 Errata 2779479.
- * This applies to revisions r0p0, r1p0, r1p1, and r1p2.
- * It is still open.
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x1, x17
- * ----------------------------------------------------
- */
-func errata_a78_2779479_wa
-	/* Check revision. */
-	mov	x17, x30
-	bl	check_errata_2779479
-	cbz	x0, 1f
+workaround_reset_start cortex_a78, ERRATUM(2779479), ERRATA_A78_2779479
+	sysreg_bit_set CORTEX_A78_ACTLR3_EL1, BIT(47)
+workaround_reset_end cortex_a78, ERRATUM(2779479)
 
-	/* Apply the workaround */
-	mrs	x1, CORTEX_A78_ACTLR3_EL1
-	orr	x1, x1, #BIT(47)
-	msr	CORTEX_A78_ACTLR3_EL1, x1
+check_erratum_ls cortex_a78, ERRATUM(2779479), CPU_REV(1, 2)
 
-1:
-	ret	x17
-endfunc errata_a78_2779479_wa
-
-func check_errata_2779479
-	/* Applies to r0p0, r1p0, r1p1, r1p2 */
-	mov	x1, #CPU_REV(1, 2)
-	b	cpu_rev_var_ls
-endfunc check_errata_2779479
-
-func check_errata_cve_2022_23960
-#if WORKAROUND_CVE_2022_23960
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2022_23960
-
-	/* -------------------------------------------------
-	 * The CPU Ops reset function for Cortex-A78
-	 * -------------------------------------------------
+workaround_reset_start cortex_a78, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+#if IMAGE_BL31
+	/*
+	 * The Cortex-X1 generic vectors are overridden to apply errata
+	 * mitigation on exception entry from lower ELs.
 	 */
-func cortex_a78_reset_func
-	mov	x19, x30
-	bl	cpu_get_rev_var
-	mov	x18, x0
+	override_vector_table wa_cve_vbar_cortex_a78
+#endif /* IMAGE_BL31 */
+workaround_reset_end cortex_a78, CVE(2022, 23960)
 
-#if ERRATA_A78_1688305
-	mov     x0, x18
-	bl	errata_a78_1688305_wa
-#endif
+check_erratum_chosen cortex_a78, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
-#if ERRATA_A78_1941498
-	mov     x0, x18
-	bl	errata_a78_1941498_wa
-#endif
-
-#if ERRATA_A78_1951500
-	mov	x0, x18
-	bl	errata_a78_1951500_wa
-#endif
-
-#if ERRATA_A78_1821534
-	mov	x0, x18
-	bl	errata_a78_1821534_wa
-#endif
-
-#if ERRATA_A78_1952683
-	mov	x0, x18
-	bl	errata_a78_1952683_wa
-#endif
-
-#if ERRATA_A78_2132060
-	mov	x0, x18
-	bl	errata_a78_2132060_wa
-#endif
-
-#if ERRATA_A78_2242635
-	mov	x0, x18
-	bl	errata_a78_2242635_wa
-#endif
-
-#if ERRATA_A78_2376745
-	mov	x0, x18
-	bl	errata_a78_2376745_wa
-#endif
-
-#if ERRATA_A78_2395406
-	mov	x0, x18
-	bl	errata_a78_2395406_wa
-#endif
-
-#if ERRATA_A78_2742426
-	mov	x0, x18
-	bl	errata_a78_2742426_wa
-#endif
-
-#if ERRATA_A78_2779479
-	mov	x0, x18
-	bl	errata_a78_2779479_wa
-#endif
-
+cpu_reset_func_start cortex_a78
 #if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
-	mrs	x0, actlr_el3
-	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT
-	msr	actlr_el3, x0
+	sysreg_bit_clear actlr_el3, CORTEX_A78_ACTLR_TAM_BIT
 
 	/* Make sure accesses from non-secure EL0/EL1 are not trapped to EL2 */
-	mrs	x0, actlr_el2
-	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT
-	msr	actlr_el2, x0
+	sysreg_bit_clear actlr_el2, CORTEX_A78_ACTLR_TAM_BIT
 
 	/* Enable group0 counters */
 	mov	x0, #CORTEX_A78_AMU_GROUP0_MASK
@@ -502,74 +183,22 @@ func cortex_a78_reset_func
 	mov	x0, #CORTEX_A78_AMU_GROUP1_MASK
 	msr	CPUAMCNTENSET1_EL0, x0
 #endif
-
-#if IMAGE_BL31 && WORKAROUND_CVE_2022_23960
-	/*
-	 * The Cortex-A78 generic vectors are overridden to apply errata
-	 * mitigation on exception entry from lower ELs.
-	 */
-	adr	x0, wa_cve_vbar_cortex_a78
-	msr	vbar_el3, x0
-#endif /* IMAGE_BL31 && WORKAROUND_CVE_2022_23960 */
-
-	isb
-	ret	x19
-endfunc cortex_a78_reset_func
+cpu_reset_func_end cortex_a78
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
 	 */
 func cortex_a78_core_pwr_dwn
-	/* ---------------------------------------------
-	 * Enable CPU power down bit in power control register
-	 * ---------------------------------------------
-	 */
-	mrs	x0, CORTEX_A78_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
-	msr	CORTEX_A78_CPUPWRCTLR_EL1, x0
-#if ERRATA_A78_2772019
-	mov	x15, x30
-	bl	cpu_get_rev_var
-	bl	errata_a78_2772019_wa
-	mov	x30, x15
-#endif /* ERRATA_A78_2772019 */
+	sysreg_bit_set CORTEX_A78_CPUPWRCTLR_EL1, CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
+
+	apply_erratum cortex_a78, ERRATUM(2772019), ERRATA_A78_2772019
+
 	isb
 	ret
 endfunc cortex_a78_core_pwr_dwn
 
-	/*
-	 * Errata printing function for cortex_a78. Must follow AAPCS.
-	 */
-#if REPORT_ERRATA
-func cortex_a78_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_A78_1688305, cortex_a78, 1688305
-	report_errata ERRATA_A78_1941498, cortex_a78, 1941498
-	report_errata ERRATA_A78_1951500, cortex_a78, 1951500
-	report_errata ERRATA_A78_1821534, cortex_a78, 1821534
-	report_errata ERRATA_A78_1952683, cortex_a78, 1952683
-	report_errata ERRATA_A78_2132060, cortex_a78, 2132060
-	report_errata ERRATA_A78_2242635, cortex_a78, 2242635
-	report_errata ERRATA_A78_2376745, cortex_a78, 2376745
-	report_errata ERRATA_A78_2395406, cortex_a78, 2395406
-	report_errata ERRATA_A78_2742426, cortex_a78, 2742426
-	report_errata ERRATA_A78_2772019, cortex_a78, 2772019
-	report_errata ERRATA_A78_2779479, cortex_a78, 2779479
-	report_errata WORKAROUND_CVE_2022_23960, cortex_a78, cve_2022_23960
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_a78_errata_report
-#endif
+errata_report_shim cortex_a78
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a78 specific
