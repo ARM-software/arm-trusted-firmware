@@ -157,7 +157,7 @@ non-secure payload (BL33).
 
  git clone https://git.trustedfirmware.org/TF-A/tf-a-tests.git
  cd tf-a-tests
- make CROSS_COMPILE=aarch64-none-elf- PLAT=fvp DEBUG=1 all pack_realm
+ make CROSS_COMPILE=aarch64-none-elf- PLAT=fvp DEBUG=1 ENABLE_REALM_PAYLOAD_TESTS=1 all
 
 This produces a TF-A Tests binary (**tftf.bin**) with Realm payload packaged
 and **sp_layout.json** in the **build/fvp/debug** directory.
