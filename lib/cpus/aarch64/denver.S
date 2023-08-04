@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -207,7 +207,14 @@ func denver_disable_dco
 2:	ret
 endfunc denver_disable_dco
 
-func check_errata_cve_2017_5715
+workaround_reset_start denver, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
+#if IMAGE_BL31
+	adr	x1, workaround_bpflush_runtime_exceptions
+	msr	vbar_el3, x1
+#endif
+workaround_reset_end denver, CVE(2017, 5715)
+
+check_erratum_custom_start denver, CVE(2017, 5715)
 	mov	x0, #ERRATA_MISSING
 #if WORKAROUND_CVE_2017_5715
 	/*
@@ -224,43 +231,9 @@ func check_errata_cve_2017_5715
 1:
 #endif
 	ret
-endfunc check_errata_cve_2017_5715
+check_erratum_custom_end denver, CVE(2017, 5715)
 
-func check_errata_cve_2018_3639
-#if WORKAROUND_CVE_2018_3639
-	mov	x0, #ERRATA_APPLIES
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-endfunc check_errata_cve_2018_3639
-
-	/* -------------------------------------------------
-	 * The CPU Ops reset function for Denver.
-	 * -------------------------------------------------
-	 */
-func denver_reset_func
-
-	mov	x19, x30
-
-#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
-	/*
-	 * Check if the CPU supports the special instruction
-	 * required to flush the indirect branch predictor and
-	 * RSB. Support for this operation can be determined by
-	 * comparing bits 19:16 of ID_AFR0_EL1 with 0b0001.
-	 */
-	mrs	x0, id_afr0_el1
-	mov	x1, #0x10000
-	and	x0, x0, x1
-	cmp	x0, #0
-	adr	x1, workaround_bpflush_runtime_exceptions
-	mrs	x2, vbar_el3
-	csel	x0, x1, x2, ne
-	msr	vbar_el3, x0
-#endif
-
-#if WORKAROUND_CVE_2018_3639
+workaround_reset_start denver, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 	/*
 	 * Denver CPUs with DENVER_MIDR_PN3 or earlier, use different
 	 * bits in the ACTLR_EL3 register to disable speculative
@@ -277,8 +250,11 @@ func denver_reset_func
 	msr	actlr_el3, x0
 	isb
 	dsb	sy
-#endif
+workaround_reset_end denver, CVE(2018, 3639)
 
+check_erratum_chosen denver, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
+
+cpu_reset_func_start denver
 	/* ----------------------------------------------------
 	 * Reset ACTLR.PMSTATE to C1 state
 	 * ----------------------------------------------------
@@ -293,9 +269,7 @@ func denver_reset_func
 	 * ----------------------------------------------------
 	 */
 	bl	denver_enable_dco
-
-	ret	x19
-endfunc denver_reset_func
+cpu_reset_func_end denver
 
 	/* ----------------------------------------------------
 	 * The CPU Ops core power down function for Denver.
@@ -322,27 +296,7 @@ func denver_cluster_pwr_dwn
 	ret
 endfunc denver_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-	/*
-	 * Errata printing function for Denver. Must follow AAPCS.
-	 */
-func denver_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata WORKAROUND_CVE_2017_5715, denver, cve_2017_5715
-	report_errata WORKAROUND_CVE_2018_3639, denver, cve_2018_3639
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc denver_errata_report
-#endif
+errata_report_shim denver
 
 	/* ---------------------------------------------
 	 * This function provides Denver specific
@@ -367,7 +321,7 @@ endfunc denver_cpu_reg_dump
 .macro	denver_cpu_ops_wa midr
 	declare_cpu_ops_wa denver, \midr, \
 		denver_reset_func, \
-		check_errata_cve_2017_5715, \
+		check_erratum_denver_5715, \
 		CPU_NO_EXTRA2_FUNC, \
 		CPU_NO_EXTRA3_FUNC, \
 		denver_core_pwr_dwn, \
