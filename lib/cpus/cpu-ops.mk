@@ -612,43 +612,43 @@ CPU_FLAG_LIST += ERRATA_A710_2701952
 CPU_FLAG_LIST += ERRATA_A710_2768515
 
 # Flag to apply erratum 2002655 workaround during reset. This erratum applies
-# to revisions r0p0 of the Neoverse-N2 cpu, it is still open.
+# to revisions r0p0 of the Neoverse-N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2002655
 
 # Flag to apply erratum 2067956 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2067956
 
 # Flag to apply erratum 2025414 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2025414
 
 # Flag to apply erratum 2189731 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2189731
 
 # Flag to apply erratum 2138956 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2138956
 
 # Flag to apply erratum 2138953 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0, r0p1, r0p2, r0p3 of the Neoverse N2 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_N2_2138953
 
 # Flag to apply erratum 2242415 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2242415
 
 # Flag to apply erratum 2138958 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2138958
 
 # Flag to apply erratum 2242400 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2242400
 
 # Flag to apply erratum 2280757 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu and is still open.
+# to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2280757
 
 # Flag to apply erraturm 2326639 workaroud during powerdown. This erratum
@@ -656,7 +656,7 @@ CPU_FLAG_LIST += ERRATA_N2_2280757
 CPU_FLAG_LIST += ERRATA_N2_2326639
 
 # Flag to apply erratum 2376738 workaround during reset. This erratum applies
-# to revision r0p0 of the Neoverse N2 cpu, it is fixed in r0p1.
+# to revision r0p0, r0p1, r0p2, r0p3 of the Neoverse N2 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_N2_2376738
 
 # Flag to apply erratum 2388450 workaround during reset. This erratum applies
@@ -668,9 +668,17 @@ CPU_FLAG_LIST += ERRATA_N2_2388450
 # r0p3.
 CPU_FLAG_LIST += ERRATA_N2_2728475
 
+# Flag to apply erratum 2743014 workaround during reset. This erratum applies
+# to r0p0, r0p1, r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
+CPU_FLAG_LIST += ERRATA_N2_2743014
+
 # Flag to apply erratum 2743089 workaround during during powerdown. This erratum
 # applies to all revisions <= r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
 CPU_FLAG_LIST += ERRATA_N2_2743089
+
+# Flag to apply erratum 2779511 workaround during reset. This erratum applies
+# to r0p0, r0p1, r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
+CPU_FLAG_LIST += ERRATA_N2_2779511
 
 # Flag to apply erratum 2002765 workaround during reset. This erratum applies
 # to revisions r0p0, r1p0, and r2p0 of the Cortex-X2 cpu and is still open.
