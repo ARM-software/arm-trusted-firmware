@@ -76,7 +76,9 @@ check_erratum_chosen cortex_a73, CVE(2018, 3639), WORKAROUND_CVE_2018_3639
 workaround_reset_start cortex_a73, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/* Skip installing vector table again for CVE_2022_23960 */
-	override_vector_table wa_cve_2017_5715_bpiall_vbar
+	adr	x0, wa_cve_2017_5715_bpiall_vbar
+	mrs	x1, vbar_el3
+
 	cmp	x0, x1
 	b.eq	1f
 	msr     vbar_el3, x0
