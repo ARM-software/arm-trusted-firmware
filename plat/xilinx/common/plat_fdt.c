@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
+#include <common/debug.h>
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
+#include <libfdt.h>
 
 #include <plat_fdt.h>
 #include <platform_def.h>
