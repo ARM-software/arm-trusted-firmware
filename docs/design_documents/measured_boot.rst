@@ -204,6 +204,28 @@ Responsibilities of these platform interfaces are -
    In FVP, Non volatile counters get measured and recorded as Critical data
    using the backend via this interface.
 
+#. **Function : plat_mboot_measure_key()**
+
+   .. code-block:: c
+
+      int plat_mboot_measure_key(const void *pk_oid, const void *pk_ptr,
+                                 size_t pk_len);
+
+   - This function is used by the platform to measure the passed key and
+     publicise it using any of the supported backends.
+   - The authentication module within the trusted boot framework calls this
+     function for every ROTPK involved in verifying the signature of a root
+     certificate and for every subsidiary key that gets extracted from a key
+     certificate for later authentication of a content certificate.
+   - A cookie, passed as the first argument, serves as a key-OID pointer
+     associated with the public key data, passed as the second argument.
+   - Public key data size is passed as the third argument to this function.
+   - This function must return 0 on success, a signed integer error code
+     otherwise.
+   - In FVP platform, this function is used to calculate the hash of the given
+     key and forward this hash to RSS alongside the measurement of the image
+     which the key signs.
+
 --------------
 
 *Copyright (c) 2023, Arm Limited. All rights reserved.*

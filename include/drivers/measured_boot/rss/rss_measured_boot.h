@@ -40,6 +40,7 @@ struct rss_mboot_metadata {
 	size_t  version_size;
 	uint8_t sw_type[SW_TYPE_MAX_SIZE];
 	size_t  sw_type_size;
+	void    *pk_oid;
 	bool    lock_measurement;
 };
 
@@ -49,9 +50,8 @@ int rss_mboot_measure_and_record(struct rss_mboot_metadata *metadata_ptr,
 				 uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id);
 
-/* TODO: These metadata are currently not available during TF-A boot */
 int rss_mboot_set_signer_id(struct rss_mboot_metadata *metadata_ptr,
-			    unsigned int img_id, const void *pk_ptr,
+			    const void *pk_oid, const void *pk_ptr,
 			    size_t pk_len);
 
 #endif /* RSS_MEASURED_BOOT_H */

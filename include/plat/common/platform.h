@@ -146,6 +146,8 @@ int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data);
 int plat_mboot_measure_critical_data(unsigned int critical_data_id,
 				     const void *base,
 				     size_t size);
+int plat_mboot_measure_key(const void *pk_oid, const void *pk_ptr,
+			   size_t pk_len);
 #else
 static inline int plat_mboot_measure_image(unsigned int image_id __unused,
 					   image_info_t *image_data __unused)
@@ -156,6 +158,12 @@ static inline int plat_mboot_measure_critical_data(
 					unsigned int critical_data_id __unused,
 					const void *base __unused,
 					size_t size __unused)
+{
+	return 0;
+}
+static inline int plat_mboot_measure_key(const void *pk_oid __unused,
+					 const void *pk_ptr __unused,
+					 size_t pk_len __unused)
 {
 	return 0;
 }

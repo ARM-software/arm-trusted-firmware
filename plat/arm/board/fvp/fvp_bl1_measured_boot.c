@@ -9,6 +9,7 @@
 #include <drivers/measured_boot/event_log/event_log.h>
 #include <drivers/measured_boot/rss/rss_measured_boot.h>
 #include <plat/arm/common/plat_arm.h>
+#include <tools_share/zero_oid.h>
 
 /* Event Log data */
 static uint8_t event_log[PLAT_ARM_EVENT_LOG_MAX_SIZE];
@@ -31,18 +32,21 @@ struct rss_mboot_metadata fvp_rss_mboot_metadata[] = {
 		.slot = U(6),
 		.signer_id_size = SIGNER_ID_MIN_SIZE,
 		.sw_type = RSS_MBOOT_FW_CONFIG_STRING,
+		.pk_oid = ZERO_OID,
 		.lock_measurement = true },
 	{
 		.id = TB_FW_CONFIG_ID,
 		.slot = U(7),
 		.signer_id_size = SIGNER_ID_MIN_SIZE,
 		.sw_type = RSS_MBOOT_TB_FW_CONFIG_STRING,
+		.pk_oid = ZERO_OID,
 		.lock_measurement = true },
 	{
 		.id = BL2_IMAGE_ID,
 		.slot = U(8),
 		.signer_id_size = SIGNER_ID_MIN_SIZE,
 		.sw_type = RSS_MBOOT_BL2_STRING,
+		.pk_oid = ZERO_OID,
 		.lock_measurement = true },
 
 	{

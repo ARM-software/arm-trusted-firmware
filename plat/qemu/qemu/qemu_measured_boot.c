@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Arm Limited. All rights reserved.
- * Copyright (c) 2022, Linaro.
+ * Copyright (c) 2022-2023, Linaro.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -116,5 +116,11 @@ int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
 		return err;
 	}
 
+	return 0;
+}
+
+int plat_mboot_measure_key(const void *pk_oid, const void *pk_ptr,
+			   size_t pk_len)
+{
 	return 0;
 }
