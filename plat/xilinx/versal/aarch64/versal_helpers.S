@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <asm_macros.S>
 
 #include <arch.h>
+#include <asm_macros.S>
 #include <drivers/arm/gicv3.h>
 
 #include <platform_def.h>
