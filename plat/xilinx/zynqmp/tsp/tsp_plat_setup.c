@@ -28,9 +28,6 @@ void tsp_early_platform_setup(void)
 				       &tsp_boot_console);
 	console_set_scope(&tsp_boot_console,
 			  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT);
-
-	/* Initialize the platform config for future decision making */
-	zynqmp_config_setup();
 }
 
 /*******************************************************************************

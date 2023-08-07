@@ -20,7 +20,7 @@ override WARMBOOT_ENABLE_DCACHE_EARLY := 1
 EL3_EXCEPTION_HANDLING := $(SDEI_SUPPORT)
 
 # pncd SPD requires secure SGI to be handled at EL1
-ifeq (${SPD},pncd)
+ifeq (${SPD}, $(filter ${SPD},pncd tspd))
 ifeq (${ZYNQMP_WDT_RESTART},1)
 $(error "Error: ZYNQMP_WDT_RESTART and SPD=pncd are incompatible")
 endif
