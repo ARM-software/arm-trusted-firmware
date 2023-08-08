@@ -95,20 +95,6 @@ Arm Platform Build Options
    platforms. If this option is specified, then the path to the CryptoCell
    SBROM library must be specified via ``CCSBROM_LIB_PATH`` flag.
 
--  ``ARM_ETHOSN_NPU_DRIVER``: boolean option to enable a SiP service that can
-   configure an Arm® Ethos™-N NPU. To use this service the target platform's
-   ``HW_CONFIG`` must include the device tree nodes for the NPU. Currently, only
-   the Arm Juno platform has this included in its ``HW_CONFIG`` and the platform
-   only loads the ``HW_CONFIG`` in AArch64 builds. Default is 0.
-
--  ``ARM_ETHOSN_NPU_TZMP1``: boolean option to enable TZMP1 support for the
-   Arm® Ethos™-N NPU. Requires ``ARM_ETHOSN_NPU_DRIVER`` and
-   ``TRUSTED_BOARD_BOOT`` to be enabled.
-
--  ``ARM_ETHOSN_NPU_FW``: location of the NPU firmware binary
-   (```ethosn.bin```). This firmware image will be included in the FIP and
-   loaded at runtime.
-
 -  ``ARM_GPT_SUPPORT``: Enable GPT parser to get the entry address and length of
    the various partitions present in the GPT image. This support is available
    only for the BL2 component, and it is disabled by default.

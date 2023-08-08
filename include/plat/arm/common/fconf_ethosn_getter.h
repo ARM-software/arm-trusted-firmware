@@ -57,8 +57,6 @@ struct ethosn_config_t {
 	struct ethosn_device_t devices[ETHOSN_DEV_NUM_MAX];
 };
 
-int fconf_populate_arm_ethosn(uintptr_t config);
-
 extern struct ethosn_config_t ethosn_config;
 
 #endif /* FCONF_ETHOSN_GETTER_H */

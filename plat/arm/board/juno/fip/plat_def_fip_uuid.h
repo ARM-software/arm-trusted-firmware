@@ -7,8 +7,8 @@
 #ifndef PLAT_DEF_FIP_UUID_H
 #define PLAT_DEF_FIP_UUID_H
 
-#ifdef ARM_ETHOSN_NPU_TZMP1
+#ifdef ETHOSN_NPU_TZMP1
 #include <drivers/arm/ethosn_fip.h>
-#endif
+#endif /* ETHOSN_NPU_TZMP1 */
 
 #endif /* PLAT_DEF_FIP_UUID_H */

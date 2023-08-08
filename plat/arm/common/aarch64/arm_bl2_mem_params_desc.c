@@ -223,17 +223,17 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	},
 #endif /* EL3_PAYLOAD_BASE */
 
-# if ARM_ETHOSN_NPU_TZMP1
+# if ETHOSN_NPU_TZMP1
 	{
-		.image_id = ARM_ETHOSN_NPU_FW_IMAGE_ID,
+		.image_id = ETHOSN_NPU_FW_IMAGE_ID,
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
 				      VERSION_2, image_info_t, 0),
-		.image_info.image_base = ARM_ETHOSN_NPU_FW_IMAGE_BASE,
-		.image_info.image_max_size = ARM_ETHOSN_NPU_FW_IMAGE_LIMIT -
-			ARM_ETHOSN_NPU_FW_IMAGE_BASE,
+		.image_info.image_base = ETHOSN_NPU_FW_IMAGE_BASE,
+		.image_info.image_max_size = ETHOSN_NPU_FW_IMAGE_LIMIT -
+			ETHOSN_NPU_FW_IMAGE_BASE,
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
-# endif
+#endif /* ETHOSN_NPU_TZMP1 */
 };
 
 REGISTER_BL_IMAGE_DESCS(bl2_mem_params_descs)

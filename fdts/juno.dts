@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,6 @@
 
 };
 
-#if ARM_ETHOSN_NPU_DRIVER
+#if ETHOSN_NPU_DRIVER
 	#include "juno-ethosn.dtsi"
 #endif
