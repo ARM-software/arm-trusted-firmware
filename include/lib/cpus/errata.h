@@ -66,6 +66,9 @@ CASSERT(sizeof(struct erratum_entry) == ERRATUM_ENTRY_SIZE,
 #define NO_ASSERT		0
 #define NO_APPLY_AT_RESET	0
 #define APPLY_AT_RESET		1
+#define GET_CPU_REV		1
+#define NO_GET_CPU_REV		0
+
 /* useful for errata that end up always being worked around */
 #define ERRATUM_ALWAYS_CHOSEN	1
 
