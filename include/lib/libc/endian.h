@@ -28,7 +28,7 @@
  * $FreeBSD$
  */
 /*
- * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * Portions copyright (c) 2018, Arm Limited and Contributors.
  * All rights reserved.
  */
 
