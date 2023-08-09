@@ -407,10 +407,6 @@ ifneq (${ENABLE_STACK_PROTECTOR},0)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp/fvp_stack_protector.c
 endif
 
-ifeq (${ARCH},aarch32)
-    NEED_BL32 := yes
-endif
-
 # Enable the dynamic translation tables library.
 ifeq ($(filter 1,${RESET_TO_BL2} ${ARM_XLAT_TABLES_LIB_V1}),)
     ifeq (${ARCH},aarch32)

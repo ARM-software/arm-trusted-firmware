@@ -75,11 +75,14 @@ BL31_BASE			?= 0x86500000
 PRELOADED_BL33_BASE		?= 0x8f600000
 
 ifeq (${ARCH},aarch64)
-BL32_BASE			?= BL31_LIMIT
-$(eval $(call add_define,BL31_BASE))
+    BL32_BASE			?= BL31_LIMIT
+    $(eval $(call add_define,BL31_BASE))
 else
-# There is no BL31 on aarch32, so reuse its location for BL32
-BL32_BASE			?= $(BL31_BASE)
+    ifeq (${AARCH32_SP},none)
+	$(error Variable AARCH32_SP has to be set for AArch32)
+    endif
+    # There is no BL31 on aarch32, so reuse its location for BL32
+    BL32_BASE			?= $(BL31_BASE)
 endif
 $(eval $(call add_define,BL32_BASE))
 

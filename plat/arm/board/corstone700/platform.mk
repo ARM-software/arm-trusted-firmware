@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -24,6 +24,10 @@ PLAT_INCLUDES		:=	-Iplat/arm/board/corstone700/common/include	\
 				-Iplat/arm/board/corstone700/common/drivers/mhu
 
 NEED_BL32		:=	yes
+
+ifeq (${AARCH32_SP},none)
+    $(error Variable AARCH32_SP has to be set for AArch32)
+endif
 
 # Include GICv2 driver files
 include drivers/arm/gic/v2/gicv2.mk

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -97,6 +97,10 @@ FDT_SOURCES		+=	plat/arm/board/a5ds/fdts/a5ds_fw_config.dts \
 endif
 
 NEED_BL32 := yes
+
+ifeq (${AARCH32_SP},none)
+    $(error Variable AARCH32_SP has to be set for AArch32)
+endif
 
 MULTI_CONSOLE_API		:=	1
 
