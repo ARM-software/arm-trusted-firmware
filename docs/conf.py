@@ -26,7 +26,7 @@ extensions = [
     "myst_parser",
     "sphinx.ext.autosectionlabel",
     "sphinxcontrib.plantuml",
-    "sphinxcontrib.inkscapeconverter",
+    "sphinxcontrib.rsvgconverter",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
