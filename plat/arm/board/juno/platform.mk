@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -62,6 +62,10 @@ override BL31_SOURCES =
 # be specifed via `BL32` build option.
   ifneq (${ARCH}, aarch32)
     override BL32_SOURCES =
+  endif
+else
+  ifeq (${ARCH}, aarch32)
+    $(error JUNO_AARCH32_EL3_RUNTIME has to be enabled to build BL32 for AArch32)
   endif
 endif
 
