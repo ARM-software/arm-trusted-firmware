@@ -72,6 +72,7 @@ BL31_SOURCES	+=	${NRD_CPU_SOURCES}				\
 			${RDFREMONT_BASE}/rdfremont_topology.c		\
 			${RDFREMONT_BASE}/rdfremont_plat_attest_token.c	\
 			${RDFREMONT_BASE}/rdfremont_realm_attest_key.c	\
+			drivers/arm/smmu/smmu_v3.c			\
 			drivers/cfi/v2m/v2m_flash.c			\
 			lib/utils/mem_region.c				\
 			plat/arm/common/arm_nor_psci_mem_protect.c

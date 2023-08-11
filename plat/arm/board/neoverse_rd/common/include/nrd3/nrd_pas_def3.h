@@ -205,6 +205,9 @@
  * 0x280000000      |1.5GB   |L1 GPT |ANY    |SMMU & NCI IO            |
  * 0x2DFFFFFFF      |        |       |       |                         |
  * ---------------------------------------------------------------------
+ * 0x300000000      |128MB   |L1 GPT |ROOT   |GPC SMMU                 |
+ * 0x308000000      |        |       |       |                         |
+ * ---------------------------------------------------------------------
  * 0x8080000000     |6GB     |L1 GPT |ANY    |DRAM 2 CHIP 0            |
  * 0x81FFFFFFFF     |        |       |       |                         |
  * ---------------------------------------------------------------------
@@ -547,6 +550,12 @@
 			NRD_CSS_SMMU_NCI_IO_BASE,			\
 			NRD_CSS_SMMU_NCI_IO_SIZE,			\
 			GPT_GPI_ANY)
+
+#define NRD_PAS_GPC_SMMUV3						\
+		GPT_MAP_REGION_GRANULE(					\
+			NRD_CSS_GPC_SMMUV3_BASE,			\
+			NRD_CSS_GPC_SMMUV3_SIZE,			\
+			GPT_GPI_ROOT)
 
 #define NRD_PAS_DRAM2_CHIP0						\
 		GPT_MAP_REGION_GRANULE(					\

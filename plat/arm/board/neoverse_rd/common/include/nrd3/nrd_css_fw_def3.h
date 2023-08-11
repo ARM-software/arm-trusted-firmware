@@ -75,6 +75,12 @@
 			ARM_SHARED_RAM_SIZE,				\
 			MT_MEMORY | MT_RW | EL3_PAS)
 
+#define NRD_CSS_GPC_SMMU_SMMUV3_MMAP					\
+		MAP_REGION_FLAT(					\
+			NRD_CSS_GPC_SMMUV3_BASE,			\
+			NRD_CSS_GPC_SMMUV3_SIZE,			\
+			MT_DEVICE | MT_RW | EL3_PAS)
+
 #define NRD_CSS_BL1_RW_MMAP						\
 		MAP_REGION_FLAT(					\
 			BL1_RW_BASE,					\
