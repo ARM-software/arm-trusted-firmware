@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,11 +62,8 @@ vector_base sp_min_vector_table
  * The Cold boot/Reset entrypoint for SP_MIN
  */
 func sp_min_entrypoint
-#if !RESET_TO_SP_MIN
 	/* ---------------------------------------------------------------
-	 * Preceding bootloader has populated r0 with a pointer to a
-	 * 'bl_params_t' structure & r1 with a pointer to platform
-	 * specific structure
+	 * Stash the previous bootloader arguments r0 - r3 for later use.
 	 * ---------------------------------------------------------------
 	 */
 	mov	r9, r0
@@ -74,6 +71,7 @@ func sp_min_entrypoint
 	mov	r11, r2
 	mov	r12, r3
 
+#if !RESET_TO_SP_MIN
 	/* ---------------------------------------------------------------------
 	 * For !RESET_TO_SP_MIN systems, only the primary CPU ever reaches
 	 * sp_min_entrypoint() during the cold boot flow, so the cold/warm boot
@@ -91,11 +89,6 @@ func sp_min_entrypoint
 		_init_c_runtime=1				\
 		_exception_vectors=sp_min_vector_table		\
 		_pie_fixup_size=FIXUP_SIZE
-
-	/* ---------------------------------------------------------------------
-	 * Relay the previous bootloader's arguments to the platform layer
-	 * ---------------------------------------------------------------------
-	 */
 #else
 	/* ---------------------------------------------------------------------
 	 * For RESET_TO_SP_MIN systems which have a programmable reset address,
@@ -111,24 +104,16 @@ func sp_min_entrypoint
 		_init_c_runtime=1				\
 		_exception_vectors=sp_min_vector_table		\
 		_pie_fixup_size=FIXUP_SIZE
-
-	/* ---------------------------------------------------------------------
-	 * For RESET_TO_SP_MIN systems, BL32 (SP_MIN) is the first bootloader
-	 * to run so there's no argument to relay from a previous bootloader.
-	 * Zero the arguments passed to the platform layer to reflect that.
-	 * ---------------------------------------------------------------------
-	 */
-	mov	r9, #0
-	mov	r10, #0
-	mov	r11, #0
-	mov	r12, #0
-
 #endif /* RESET_TO_SP_MIN */
 
 #if SP_MIN_WITH_SECURE_FIQ
 	route_fiq_to_sp_min r4
 #endif
 
+	/* ---------------------------------------------------------------------
+	 * Relay the previous bootloader's arguments to the platform layer
+	 * ---------------------------------------------------------------------
+	 */
 	mov	r0, r9
 	mov	r1, r10
 	mov	r2, r11
