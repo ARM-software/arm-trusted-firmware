@@ -22,6 +22,7 @@ tools/renesas/rzg_layout_create/*.map
 tools/renesas/rzg_layout_create/*.elf
 tools/fiptool/fiptool
 tools/fiptool/fiptool.exe
+tools/memory/memory/__pycache__/
 tools/cert_create/src/*.o
 tools/cert_create/src/**/*.o
 tools/cert_create/cert_create
