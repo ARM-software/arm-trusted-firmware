@@ -53,6 +53,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/soc/socfpga_reset_manager.c	\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
+		plat/intel/soc/common/drivers/ddr/ddr.c	\
 		plat/intel/soc/common/drivers/wdt/watchdog.c
 
 include lib/zlib/zlib.mk

@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
 #include "ddr.h"
 #include <lib/mmio.h>
 #include "socfpga_handoff.h"
@@ -339,4 +340,144 @@ int ddr_init(void)
 
 	NOTICE("DDR init successfully\n");
 	return status;
+}
+
+int ddr_config_scrubber(phys_addr_t umctl2_base, enum ddr_type umctl2_type)
+{
+	uint32_t temp[9] = {0};
+	int ret = 0;
+
+	/* Write default value to prevent scrubber stop due to lower power */
+	mmio_write_32(0, umctl2_base + DDR4_PWRCTL_OFFSET);
+
+	/* To backup user configurations in temp array */
+	temp[0] = mmio_read_32(umctl2_base + DDR4_SBRCTL_OFFSET);
+	temp[1] = mmio_read_32(umctl2_base + DDR4_SBRWDATA0_OFFSET);
+	temp[2] = mmio_read_32(umctl2_base + DDR4_SBRSTART0_OFFSET);
+	if (umctl2_type == DDR_TYPE_DDR4) {
+		temp[3] = mmio_read_32(umctl2_base + DDR4_SBRWDATA1_OFFSET);
+		temp[4] = mmio_read_32(umctl2_base + DDR4_SBRSTART1_OFFSET);
+	}
+	temp[5] = mmio_read_32(umctl2_base + DDR4_SBRRANGE0_OFFSET);
+	temp[6] = mmio_read_32(umctl2_base + DDR4_SBRRANGE1_OFFSET);
+	temp[7] = mmio_read_32(umctl2_base + DDR4_ECCCFG0_OFFSET);
+	temp[8] = mmio_read_32(umctl2_base + DDR4_ECCCFG1_OFFSET);
+
+	if (umctl2_type != DDR_TYPE_DDR4) {
+		/* Lock ECC region, ensure this regions is not being accessed */
+		mmio_setbits_32(umctl2_base + DDR4_ECCCFG1_OFFSET,
+			     LPDDR4_ECCCFG1_ECC_REGIONS_PARITY_LOCK);
+	}
+	/* Disable input traffic per port */
+	mmio_clrbits_32(umctl2_base + DDR4_PCTRL0_OFFSET, DDR4_PCTRL0_PORT_EN);
+	/* Disables scrubber */
+	mmio_clrbits_32(umctl2_base + DDR4_SBRCTL_OFFSET, DDR4_SBRCTL_SCRUB_EN);
+	/* Polling all scrub writes data have been sent */
+	ret = poll_idle_status((umctl2_base + DDR4_SBRSTAT_OFFSET),
+			       DDR4_SBRSTAT_SCRUB_BUSY, true, 5000);
+
+	if (ret) {
+		INFO("%s: Timeout while waiting for", __func__);
+		INFO(" sending all scrub data\n");
+		return ret;
+	}
+
+	/* LPDDR4 supports inline ECC only */
+	if (umctl2_type != DDR_TYPE_DDR4) {
+		/*
+		 * Setting all regions for protected, this is required for
+		 * srubber to init whole LPDDR4 expect ECC region
+		 */
+		mmio_write_32(((ONE_EIGHT <<
+		       LPDDR4_ECCCFG0_ECC_REGION_MAP_GRANU_SHIFT) |
+		       (ALL_PROTECTED << LPDDR4_ECCCFG0_ECC_REGION_MAP_SHIFT)),
+		       umctl2_base + DDR4_ECCCFG0_OFFSET);
+	}
+
+	/* Scrub_burst = 1, scrub_mode = 1(performs writes) */
+	mmio_write_32(DDR4_SBRCTL_SCRUB_BURST_1 | DDR4_SBRCTL_SCRUB_WRITE,
+	       umctl2_base + DDR4_SBRCTL_OFFSET);
+
+	/* Wipe DDR content after calibration */
+	ret = ddr_zerofill_scrubber(umctl2_base, umctl2_type);
+	if (ret) {
+		ERROR("Failed to clear DDR content\n");
+	}
+
+	/* Polling all scrub writes data have been sent */
+	ret = poll_idle_status((umctl2_base + DDR4_SBRSTAT_OFFSET),
+			       DDR4_SBRSTAT_SCRUB_BUSY, true, 5000);
+	if (ret) {
+		INFO("%s: Timeout while waiting for", __func__);
+		INFO(" sending all scrub data\n");
+		return ret;
+	}
+
+	/* Disables scrubber */
+	mmio_clrbits_32(umctl2_base + DDR4_SBRCTL_OFFSET, DDR4_SBRCTL_SCRUB_EN);
+
+	/* Restore user configurations */
+	mmio_write_32(temp[0], umctl2_base + DDR4_SBRCTL_OFFSET);
+	mmio_write_32(temp[1], umctl2_base + DDR4_SBRWDATA0_OFFSET);
+	mmio_write_32(temp[2], umctl2_base + DDR4_SBRSTART0_OFFSET);
+	if (umctl2_type == DDR_TYPE_DDR4) {
+		mmio_write_32(temp[3], umctl2_base + DDR4_SBRWDATA1_OFFSET);
+		mmio_write_32(temp[4], umctl2_base + DDR4_SBRSTART1_OFFSET);
+	}
+	mmio_write_32(temp[5], umctl2_base + DDR4_SBRRANGE0_OFFSET);
+	mmio_write_32(temp[6], umctl2_base + DDR4_SBRRANGE1_OFFSET);
+	mmio_write_32(temp[7], umctl2_base + DDR4_ECCCFG0_OFFSET);
+	mmio_write_32(temp[8], umctl2_base + DDR4_ECCCFG1_OFFSET);
+
+	/* Enables ECC scrub on scrubber */
+	if (!(mmio_read_32(umctl2_base + DDR4_SBRCTL_OFFSET) & DDR4_SBRCTL_SCRUB_WRITE)) {
+		/* Enables scrubber */
+		mmio_setbits_32(umctl2_base + DDR4_SBRCTL_OFFSET, DDR4_SBRCTL_SCRUB_EN);
+	}
+
+	return 0;
+}
+
+int ddr_zerofill_scrubber(phys_addr_t umctl2_base, enum ddr_type umctl2_type)
+{
+	int ret = 0;
+
+	/* Zeroing whole DDR */
+	mmio_write_32(0, umctl2_base + DDR4_SBRWDATA0_OFFSET);
+	mmio_write_32(0, umctl2_base + DDR4_SBRSTART0_OFFSET);
+	if (umctl2_type == DDR_TYPE_DDR4) {
+		mmio_write_32(0, umctl2_base + DDR4_SBRWDATA1_OFFSET);
+		mmio_write_32(0, umctl2_base + DDR4_SBRSTART1_OFFSET);
+	}
+	mmio_write_32(0, umctl2_base + DDR4_SBRRANGE0_OFFSET);
+	mmio_write_32(0, umctl2_base + DDR4_SBRRANGE1_OFFSET);
+
+	NOTICE("Enabling scrubber (zeroing whole DDR) ...\n");
+
+	/* Enables scrubber */
+	mmio_setbits_32(umctl2_base + DDR4_SBRCTL_OFFSET, DDR4_SBRCTL_SCRUB_EN);
+	/* Polling all scrub writes commands have been sent */
+	ret = poll_idle_status((umctl2_base + DDR4_SBRSTAT_OFFSET),
+			       DDR4_SBRSTAT_SCRUB_DONE, true, 5000);
+	if (ret) {
+		INFO("%s: Timeout while waiting for", __func__);
+		INFO(" sending all scrub commands\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+int poll_idle_status(uint32_t addr, uint32_t mask, uint32_t match, uint32_t delay_ms)
+{
+	int time_out = delay_ms;
+
+	while (time_out-- > 0) {
+
+		if ((mmio_read_32(addr) & mask) == match) {
+			return 0;
+		}
+		udelay(1000);
+	}
+	return -ETIMEDOUT;
 }
