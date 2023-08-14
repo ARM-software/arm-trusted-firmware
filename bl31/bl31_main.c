@@ -163,6 +163,7 @@ void bl31_main(void)
 	if (bl32_init != NULL) {
 		INFO("BL31: Initializing BL32\n");
 
+		console_flush();
 		int32_t rc = (*bl32_init)();
 
 		if (rc == 0) {
@@ -178,6 +179,7 @@ void bl31_main(void)
 	if (rmm_init != NULL) {
 		INFO("BL31: Initializing RMM\n");
 
+		console_flush();
 		int32_t rc = (*rmm_init)();
 
 		if (rc == 0) {
