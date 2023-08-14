@@ -13,16 +13,17 @@ analysis.
 Performance Measurement Framework
 ---------------------------------
 
-The Performance Measurement Framework `PMF`_ is a framework that provides
-mechanisms for collecting and retrieving timestamps at runtime from the
-Performance Measurement Unit (`PMU`_). The PMU is a generalized abstraction for
-accessing CPU hardware registers used to measure hardware events. This means,
-for instance, that the PMU might be used to place instrumentation points at
-logical locations in code for tracing purposes.
+The Performance Measurement Framework :ref:`PMF <firmware_design_pmf>`
+is a framework that provides mechanisms for collecting and retrieving timestamps
+at runtime from the Performance Measurement Unit
+(:ref:`PMU <Performance Monitoring Unit>`).
+The PMU is a generalized abstraction for accessing CPU hardware registers used to
+measure hardware events. This means, for instance, that the PMU might be used to
+place instrumentation points at logical locations in code for tracing purposes.
 
 TF-A utilises the PMF as a backend for the two instrumentation services it
 provides--PSCI Statistics and Runtime Instrumentation. The PMF is used by
-these services to facilitate collection and retrieval of timestamps.  For
+these services to facilitate collection and retrieval of timestamps. For
 instance, the PSCI Statistics service registers the PMF service
 ``psci_svc`` to track its residency statistics.
 
@@ -112,6 +113,4 @@ was requested, it is captured in the warm boot path.
 
 *Copyright (c) 2023, Arm Limited. All rights reserved.*
 
-.. _PMF: ../design/firmware-design.html#performance-measurement-framework
-.. _PMU: performance-monitoring-unit.html
 .. _PSCI: https://developer.arm.com/documentation/den0022/latest/

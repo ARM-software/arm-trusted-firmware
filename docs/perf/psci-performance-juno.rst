@@ -34,8 +34,9 @@ The following source trees and binaries were used:
 - TF-A [`v2.9-rc0`_]
 - TFTF [`v2.9-rc0`_]
 
-Please see the Runtime Instrumentation `Testing Methodology`_ page for more
-details.
+Please see the Runtime Instrumentation :ref:`Testing Methodology
+<Runtime Instrumentation Methodology>`
+page for more details.
 
 Procedure
 ---------
@@ -418,4 +419,3 @@ effects, given that these measurements are at the nano-second level.
 .. _Juno R1 platform: https://developer.arm.com/documentation/100122/latest/
 .. _TF master as of 31/01/2017: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/?id=c38b36d
 .. _v2.9-rc0: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/?h=v2.9-rc0
-.. _Testing Methodology: ../perf/psci-performance-methodology.html
