@@ -49,6 +49,15 @@
 #define EL3_LP_DESCS
 #endif
 
+#if ENABLE_SPMD_LP
+#define SPMD_LP_DESCS					\
+	. = ALIGN(STRUCT_ALIGN);			\
+	__SPMD_LP_DESCS_START__ = .;			\
+	KEEP(*(.spmd_lp_descs))			\
+	__SPMD_LP_DESCS_END__ = .;
+#else
+#define SPMD_LP_DESCS
+#endif
 #define PMF_SVC_DESCS					\
 	. = ALIGN(STRUCT_ALIGN);			\
 	__PMF_SVC_DESCS_START__ = .;			\
@@ -100,7 +109,8 @@
 	CPU_OPS						\
 	GOT						\
 	BASE_XLAT_TABLE_RO				\
-	EL3_LP_DESCS
+	EL3_LP_DESCS					\
+	SPMD_LP_DESCS
 
 /*
  * .data must be placed at a lower address than the stacks if the stack

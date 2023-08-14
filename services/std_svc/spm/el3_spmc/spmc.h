@@ -213,30 +213,6 @@ struct ns_endpoint_desc {
 	uint32_t ffa_version;
 };
 
-/**
- * Holds information returned for each partition by the FFA_PARTITION_INFO_GET
- * interface.
- */
-struct ffa_partition_info_v1_0 {
-	uint16_t ep_id;
-	uint16_t execution_ctx_count;
-	uint32_t properties;
-};
-
-/* Extended structure for v1.1. */
-struct ffa_partition_info_v1_1 {
-	uint16_t ep_id;
-	uint16_t execution_ctx_count;
-	uint32_t properties;
-	uint32_t uuid[4];
-};
-
-/* FF-A Partition Info Get related macros. */
-#define FFA_PARTITION_INFO_GET_PROPERTIES_V1_0_MASK	U(0x7)
-#define FFA_PARTITION_INFO_GET_EXEC_STATE_SHIFT 	U(8)
-#define FFA_PARTITION_INFO_GET_AARCH32_STATE 		U(0)
-#define FFA_PARTITION_INFO_GET_AARCH64_STATE 		U(1)
-
 /* Reference to power management hooks */
 extern const spd_pm_ops_t spmc_pm;
 

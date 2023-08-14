@@ -52,7 +52,14 @@ typedef struct spmd_spm_core_context {
 	cpu_context_t cpu_ctx;
 	spmc_state_t state;
 	bool secure_interrupt_ongoing;
+#if ENABLE_SPMD_LP
+	uint8_t spmd_lp_sync_req_ongoing;
+#endif
 } spmd_spm_core_context_t;
+
+/* Flags to indicate ongoing requests for SPMD EL3 logical partitions */
+#define SPMD_LP_FFA_DIR_REQ_ONGOING		U(0x1)
+#define SPMD_LP_FFA_INFO_GET_REG_ONGOING	U(0x2)
 
 /*
  * Reserve ID for NS physical FFA Endpoint.
@@ -100,6 +107,9 @@ bool spmd_check_address_in_binary_image(uint64_t address);
  *  otherwise it returns a negative value
  */
 int plat_spmd_handle_group0_interrupt(uint32_t id);
+
+uint64_t spmd_ffa_error_return(void *handle, int error_code);
+
 #endif /* __ASSEMBLER__ */
 
 #endif /* SPMD_PRIVATE_H */

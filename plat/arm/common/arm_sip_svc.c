@@ -13,6 +13,9 @@
 #include <lib/pmf/pmf.h>
 #include <plat/arm/common/arm_sip_svc.h>
 #include <plat/arm/common/plat_arm.h>
+#if ENABLE_SPMD_LP
+#include <services/el3_spmd_logical_sp.h>
+#endif
 #include <tools_share/uuid.h>
 
 /* ARM SiP Service UUID */
@@ -133,8 +136,13 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 		SMC_RET2(handle, ARM_SIP_SVC_VERSION_MAJOR, ARM_SIP_SVC_VERSION_MINOR);
 
 	default:
+#if ENABLE_SPMD_LP
+		return plat_spmd_logical_sp_smc_handler(smc_fid, x1, x2, x3, x4,
+				cookie, handle, flags);
+#else
 		WARN("Unimplemented ARM SiP Service Call: 0x%x \n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
+#endif
 	}
 
 }
