@@ -176,10 +176,17 @@ void arm_setup_romlib(void);
 #define STATE_SW_E_DENIED		(-3)
 
 /* plat_get_rotpk_info() flags */
-#define ARM_ROTPK_REGS_ID		1
-#define ARM_ROTPK_DEVEL_RSA_ID		2
-#define ARM_ROTPK_DEVEL_ECDSA_ID	3
+#define ARM_ROTPK_REGS_ID			1
+#define ARM_ROTPK_DEVEL_RSA_ID			2
+#define ARM_ROTPK_DEVEL_ECDSA_ID		3
 #define ARM_ROTPK_DEVEL_FULL_DEV_RSA_KEY_ID	4
+#define ARM_ROTPK_DEVEL_FULL_DEV_ECDSA_KEY_ID	5
+
+#define ARM_USE_DEVEL_ROTPK							\
+	(ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) ||			\
+	(ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID) ||			\
+	(ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_FULL_DEV_RSA_KEY_ID) ||	\
+	(ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_FULL_DEV_ECDSA_KEY_ID)
 
 /* IO storage utility functions */
 int arm_io_setup(void);

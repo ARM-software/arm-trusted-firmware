@@ -39,6 +39,16 @@ else ifeq (${ARM_ROTPK_LOCATION}, devel_full_dev_rsa_key)
 	ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_full_dev_rsa_rotpk.S
 $(warning Development keys support for FVP is deprecated. Use `regs` \
 option instead)
+else ifeq (${ARM_ROTPK_LOCATION}, devel_full_dev_ecdsa_key)
+	CRYPTO_ALG=ec
+	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_FULL_DEV_ECDSA_KEY_ID
+ifeq (${KEY_SIZE},384)
+	ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_full_dev_ecdsa_p384_rotpk.S
+else
+	ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_full_dev_ecdsa_p256_rotpk.S
+endif
+$(warning Development keys support for FVP is deprecated. Use `regs` \
+option instead)
 else
 $(error "Unsupported ARM_ROTPK_LOCATION value")
 endif
