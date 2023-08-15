@@ -47,27 +47,12 @@ static entry_point_info_t bl33_image_ep_info;
 					BL31_END - BL31_START, \
 					MT_MEMORY | MT_RW | EL3_PAS)
 
-#if RECLAIM_INIT_CODE
-IMPORT_SYM(unsigned long, __INIT_CODE_START__, BL_INIT_CODE_BASE);
-IMPORT_SYM(unsigned long, __INIT_CODE_END__, BL_CODE_END_UNALIGNED);
-
-#define	BL_INIT_CODE_END	((BL_CODE_END_UNALIGNED + PAGE_SIZE - 1) & \
-					~(PAGE_SIZE - 1))
-
-#define MAP_BL_INIT_CODE	MAP_REGION_FLAT( \
-					BL_INIT_CODE_BASE, \
-					BL_INIT_CODE_END - \
-					BL_INIT_CODE_BASE, \
-					MT_CODE | MT_SECURE)
-#endif /* RECLAIM_INIT_CODE */
-
 #if SEPARATE_NOBITS_REGION
 #define MAP_BL31_NOBITS		MAP_REGION_FLAT( \
 					BL31_NOBITS_BASE, \
 					BL31_NOBITS_LIMIT - \
 					BL31_NOBITS_BASE, \
 					MT_MEMORY | MT_RW | EL3_PAS)
-
 #endif /* SEPARATE_NOBITS_REGION */
 
 /******************************************************************************
@@ -324,9 +309,6 @@ void __init npcm845x_bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
-#if RECLAIM_INIT_CODE
-		MAP_BL_INIT_CODE,
-#endif /* RECLAIM_INIT_CODE */
 #if SEPARATE_NOBITS_REGION
 		MAP_BL31_NOBITS,
 #endif /* SEPARATE_NOBITS_REGION */
