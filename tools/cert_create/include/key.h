@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,7 +44,7 @@ enum{
 static const unsigned int KEY_SIZES[KEY_ALG_MAX_NUM][KEY_SIZE_MAX_NUM] = {
 	{ 2048, 1024, 3072, 4096 },	/* KEY_ALG_RSA */
 #ifndef OPENSSL_NO_EC
-	{},				/* KEY_ALG_ECDSA_NIST */
+	{ 256, 384 },			/* KEY_ALG_ECDSA_NIST */
 	{},				/* KEY_ALG_ECDSA_BRAINPOOL_R */
 	{}				/* KEY_ALG_ECDSA_BRAINPOOL_T */
 #endif /* OPENSSL_NO_EC */
