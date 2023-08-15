@@ -107,11 +107,21 @@ endif
 
 ifeq (${TF_MBEDTLS_KEY_SIZE},)
     ifneq ($(findstring rsa,${TF_MBEDTLS_KEY_ALG}),)
-	ifeq (${KEY_SIZE},)
+        ifeq (${KEY_SIZE},)
             TF_MBEDTLS_KEY_SIZE		:=	2048
-	else
+        else ifneq ($(filter $(KEY_SIZE), 1024 2048 3072 4096),)
             TF_MBEDTLS_KEY_SIZE		:=	${KEY_SIZE}
-	endif
+        else
+            $(error "Invalid value for KEY_SIZE: ${KEY_SIZE}")
+        endif
+    else ifneq ($(findstring ecdsa,${TF_MBEDTLS_KEY_ALG}),)
+        ifeq (${KEY_SIZE},)
+            TF_MBEDTLS_KEY_SIZE		:=	256
+        else ifneq ($(filter $(KEY_SIZE), 256 384),)
+            TF_MBEDTLS_KEY_SIZE		:=	${KEY_SIZE}
+        else
+            $(error "Invalid value for KEY_SIZE: ${KEY_SIZE}")
+        endif
     endif
 endif
 
