@@ -367,3 +367,9 @@ PSA_CRYPTO			:= 0
 # Disabled by default because it constitutes an attack vector into TF-A. It
 # should only be enabled if there is a use case for it.
 ENABLE_CONSOLE_GETC		:= 0
+
+# Build option to disable EL2 when it is not used.
+# Most platforms switch from EL3 to NS-EL2 and hence the unused NS-EL2
+# functions must be enabled by platforms if they require it.
+# Disabled by default.
+INIT_UNUSED_NS_EL2		:= 0

@@ -711,6 +711,7 @@ static __unused void enable_pauth_el2(void)
 	write_hcr_el2(hcr_el2);
 }
 
+#if INIT_UNUSED_NS_EL2
 /*******************************************************************************
  * Enable architecture extensions in-place at EL2 on first entry to Non-secure
  * world when EL2 is empty and unused.
@@ -757,6 +758,7 @@ static void manage_extensions_nonsecure_el2_unused(void)
 #endif /* ENABLE_PAUTH */
 #endif /* IMAGE_BL31 */
 }
+#endif /* INIT_UNUSED_NS_EL2 */
 
 /*******************************************************************************
  * Enable architecture extensions on first entry to Secure world.
@@ -809,8 +811,9 @@ void cm_init_my_context(const entry_point_info_t *ep)
 }
 
 /* EL2 present but unused, need to disable safely. SCTLR_EL2 can be ignored */
-static __unused void init_nonsecure_el2_unused(cpu_context_t *ctx)
+static void init_nonsecure_el2_unused(cpu_context_t *ctx)
 {
+#if INIT_UNUSED_NS_EL2
 	u_register_t hcr_el2 = HCR_RESET_VAL;
 	u_register_t mdcr_el2;
 	u_register_t scr_el3;
@@ -909,6 +912,7 @@ static __unused void init_nonsecure_el2_unused(cpu_context_t *ctx)
 	write_cnthp_ctl_el2(CNTHP_CTL_RESET_VAL & ~(CNTHP_CTL_ENABLE_BIT));
 
 	manage_extensions_nonsecure_el2_unused();
+#endif /* INIT_UNUSED_NS_EL2 */
 }
 
 /*******************************************************************************
