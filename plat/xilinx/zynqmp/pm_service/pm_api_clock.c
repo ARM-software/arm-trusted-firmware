@@ -2458,7 +2458,7 @@ void pm_api_clock_get_name(uint32_t clock_id, char *name)
 	if (clock_id == CLK_MAX) {
 		memcpy(name, END_OF_CLK, sizeof(END_OF_CLK) > CLK_NAME_LEN ?
 					 CLK_NAME_LEN : sizeof(END_OF_CLK));
-	} else if (!pm_clock_valid(clock_id)) {
+	} else if ((clock_id > CLK_MAX) || (!pm_clock_valid(clock_id))) {
 		memset(name, 0, CLK_NAME_LEN);
 	} else if (clock_id < CLK_MAX_OUTPUT_CLK) {
 		memcpy(name, clocks[clock_id].name, CLK_NAME_LEN);
