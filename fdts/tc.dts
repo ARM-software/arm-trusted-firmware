@@ -6,6 +6,9 @@
 
 /dts-v1/;
 
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
 / {
 	compatible = "arm,tc";
 	interrupt-parent = <&gic>;
@@ -501,6 +504,10 @@
 		#iommu-cells = <1>;
 		compatible = "arm,smmu-v3";
 		reg = <0x0 0x3f000000 0x0 0x5000000>;
+		interrupts = <GIC_SPI 228 IRQ_TYPE_EDGE_RISING>,
+			     <GIC_SPI 229 IRQ_TYPE_EDGE_RISING>,
+			     <GIC_SPI 230 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "cmdq-sync", "gerror";
 		dma-coherent;
 	};
 
