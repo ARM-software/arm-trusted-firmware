@@ -516,15 +516,6 @@ CASSERT(CTX_PAUTH_REGS_OFFSET == __builtin_offsetof(cpu_context_t, pauth_ctx),
 void el1_sysregs_context_save(el1_sysregs_t *regs);
 void el1_sysregs_context_restore(el1_sysregs_t *regs);
 
-#if CTX_INCLUDE_EL2_REGS
-void el2_sysregs_context_save_common(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_common(el2_sysregs_t *regs);
-#if CTX_INCLUDE_MTE_REGS
-void el2_sysregs_context_save_mte(el2_sysregs_t *regs);
-void el2_sysregs_context_restore_mte(el2_sysregs_t *regs);
-#endif /* CTX_INCLUDE_MTE_REGS */
-#endif /* CTX_INCLUDE_EL2_REGS */
-
 #if CTX_INCLUDE_FPREGS
 void fpregs_context_save(fp_regs_t *regs);
 void fpregs_context_restore(fp_regs_t *regs);
