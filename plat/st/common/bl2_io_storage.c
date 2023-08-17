@@ -56,7 +56,7 @@ uintptr_t enc_dev_handle;
 #if STM32MP_SDMMC || STM32MP_EMMC
 static struct mmc_device_info mmc_info;
 
-static uint32_t block_buffer[MMC_BLOCK_SIZE] __aligned(MMC_BLOCK_SIZE);
+static uint8_t block_buffer[MMC_BLOCK_SIZE] __aligned(MMC_BLOCK_SIZE);
 
 static io_block_dev_spec_t mmc_block_dev_spec = {
 	/* It's used as temp buffer in block driver */
