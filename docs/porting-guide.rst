@@ -3463,6 +3463,15 @@ build system.
    to ``no``. If any of the options ``EL3_PAYLOAD_BASE`` or ``PRELOADED_BL33_BASE``
    are used, this flag will be set to ``no`` automatically.
 
+-  **ARM_ARCH_MAJOR and ARM_ARCH_MINOR**
+   By default, ARM_ARCH_MAJOR.ARM_ARCH_MINOR is set to 8.0 in ``defaults.mk``,
+   if the platform makefile/build defines or uses the correct ARM_ARCH_MAJOR and
+   ARM_ARCH_MINOR then mandatory Architectural features available for that Arch
+   version will be enabled by default and any optional Arch feature supported by
+   the Architecture and available in TF-A can be enabled from platform specific
+   makefile. Look up to ``arch_features.mk`` for details pertaining to mandatory
+   and optional Arch specific features.
+
 Platform include paths
 ----------------------
 

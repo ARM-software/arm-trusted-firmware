@@ -63,16 +63,6 @@ CTX_INCLUDE_AARCH32_REGS	:= 1
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
 
-# Include pointer authentication (ARMv8.3-PAuth) registers in cpu context. This
-# must be set to 1 if the platform wants to use this feature in the Secure
-# world. It is not needed to use it in the Non-secure world.
-CTX_INCLUDE_PAUTH_REGS		:= 0
-
-# Include Nested virtualization control (Armv8.4-NV) registers in cpu context.
-# This must be set to 1 if architecture implements Nested Virtualization
-# Extension and platform wants to use this feature in the Secure world
-CTX_INCLUDE_NEVE_REGS		:= 0
-
 # Debug build
 DEBUG				:= 0
 
@@ -85,16 +75,9 @@ DEFAULT_PLAT			:= fvp
 # Disable the generation of the binary image (ELF only).
 DISABLE_BIN_GENERATION		:= 0
 
-# Disable MTPMU if FEAT_MTPMU is supported. Default is 0 to keep backwards
-# compatibility.
-DISABLE_MTPMU			:= 0
-
 # Enable capability to disable authentication dynamically. Only meant for
 # development platforms.
 DYN_DISABLE_AUTH		:= 0
-
-# Build option to enable MPAM for lower ELs
-ENABLE_MPAM_FOR_LOWER_ELS	:= 0
 
 # Enable the Maximum Power Mitigation Mechanism on supporting cores.
 ENABLE_MPMM			:= 0
@@ -111,9 +94,6 @@ ENABLE_PMF			:= 0
 # Flag to enable PSCI STATs functionality
 ENABLE_PSCI_STAT		:= 0
 
-# Flag to enable Realm Management Extension (FEAT_RME)
-ENABLE_RME			:= 0
-
 # Flag to enable runtime instrumentation using PMF
 ENABLE_RUNTIME_INSTRUMENTATION	:= 0
 
@@ -122,77 +102,6 @@ ENABLE_STACK_PROTECTOR		:= 0
 
 # Flag to enable exception handling in EL3
 EL3_EXCEPTION_HANDLING		:= 0
-
-# Flag to enable Branch Target Identification.
-# Internal flag not meant for direct setting.
-# Use BRANCH_PROTECTION to enable BTI.
-ENABLE_BTI			:= 0
-
-# Flag to enable Pointer Authentication.
-# Internal flag not meant for direct setting.
-# Use BRANCH_PROTECTION to enable PAUTH.
-ENABLE_PAUTH			:= 0
-
-# Flag to enable AMUv1p1 extension.
-ENABLE_FEAT_AMUv1p1		:= 0
-
-# Flag to enable CSV2_2 extension.
-ENABLE_FEAT_CSV2_2 		:= 0
-
-# Flag to enable access to the HCRX_EL2 register by setting SCR_EL3.HXEn.
-ENABLE_FEAT_HCX			:= 0
-
-# Flag to enable access to the HDFGRTR_EL2 register
-ENABLE_FEAT_FGT			:= 0
-
-# Flag to enable access to the CNTPOFF_EL2 register
-ENABLE_FEAT_ECV			:= 0
-
-# Flag to enable use of the DIT feature.
-ENABLE_FEAT_DIT			:= 0
-
-# Flag to enable access to Privileged Access Never bit of PSTATE.
-ENABLE_FEAT_PAN			:= 0
-
-# Flag to enable access to the Random Number Generator registers
-ENABLE_FEAT_RNG			:= 0
-
-# Flag to enable support for EL3 trapping of reads of the RNDR and RNDRRS
-# registers, by setting SCR_EL3.TRNDR.
-ENABLE_FEAT_RNG_TRAP		:= 0
-
-# Flag to enable Speculation Barrier Instruction
-ENABLE_FEAT_SB			:= 0
-
-# Flag to enable Secure EL-2 feature.
-ENABLE_FEAT_SEL2		:= 0
-
-# Flag to enable Virtualization Host Extensions
-ENABLE_FEAT_VHE 		:= 0
-
-# Flag to enable delayed trapping of WFE instruction (FEAT_TWED)
-ENABLE_FEAT_TWED		:= 0
-
-# Flag to enable access to TCR2 (FEAT_TCR2)
-ENABLE_FEAT_TCR2		:= 0
-
-# Flag to enable access to Stage 2 Permission Indirection (FEAT_S2PIE)
-ENABLE_FEAT_S2PIE		:= 0
-
-# Flag to enable access to Stage 1 Permission Indirection (FEAT_S1PIE)
-ENABLE_FEAT_S1PIE		:= 0
-
-# Flag to enable access to Stage 2 Permission Overlay (FEAT_S2POE)
-ENABLE_FEAT_S2POE		:= 0
-
-# Flag to enable access to Stage 1 Permission Overlay (FEAT_S1POE)
-ENABLE_FEAT_S1POE		:= 0
-
-# Flag to enable access to Guarded Control Stack (FEAT_GCS)
-ENABLE_FEAT_GCS			:= 0
-
-# Flag to enable NoTagAccess memory region attribute for stage 2 of translation.
-ENABLE_FEAT_MTE_PERM		:= 0
 
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
@@ -279,8 +188,7 @@ PSCI_EXTENDED_STATE_ID		:= 0
 # Enable PSCI OS-initiated mode support
 PSCI_OS_INIT_MODE		:= 0
 
-# Enable RAS Support
-ENABLE_FEAT_RAS			:= 0
+# Enable RAS Firmware First Handling Support
 RAS_FFH_SUPPORT			:= 0
 
 # By default, BL1 acts as the reset handler, not BL31
@@ -379,39 +287,8 @@ V				:= 0
 # platforms).
 WARMBOOT_ENABLE_DCACHE_EARLY	:= 0
 
-# Build option to enable/disable the Statistical Profiling Extensions
-ENABLE_SPE_FOR_NS		:= 2
-
-# SPE is only supported on AArch64 so disable it on AArch32.
-ifeq (${ARCH},aarch32)
-	override ENABLE_SPE_FOR_NS := 0
-endif
-
-# Include Memory Tagging Extension registers in cpu context. This must be set
-# to 1 if the platform wants to use this feature in the Secure world and MTE is
-# enabled at ELX.
-CTX_INCLUDE_MTE_REGS		:= 0
-
-ENABLE_FEAT_AMU			:= 0
-ENABLE_AMU_AUXILIARY_COUNTERS	:= 0
-ENABLE_AMU_FCONF		:= 0
-AMU_RESTRICT_COUNTERS		:= 0
-
-# Enable SVE for non-secure world by default
-ENABLE_SVE_FOR_NS		:= 2
-# SVE is only supported on AArch64 so disable it on AArch32.
-ifeq (${ARCH},aarch32)
-	override ENABLE_SVE_FOR_NS	:= 0
-endif
-ENABLE_SVE_FOR_SWD		:= 0
-
 # Default SVE vector length to maximum architected value
 SVE_VECTOR_LEN			:= 2048
-
-# SME defaults to disabled
-ENABLE_SME_FOR_NS		:= 0
-ENABLE_SME_FOR_SWD		:= 0
-ENABLE_SME2_FOR_NS		:= 0
 
 SANITIZE_UB := off
 
@@ -466,38 +343,6 @@ NR_OF_IMAGES_IN_FW_BANK		:= 1
 
 # Disable Firmware update support by default
 PSA_FWU_SUPPORT			:= 0
-
-# By default, disable access of trace buffer control registers from NS
-# lower ELs  i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
-# if FEAT_TRBE is implemented.
-# Note FEAT_TRBE is only supported on AArch64 - therefore do not enable in
-# AArch32.
-ifneq (${ARCH},aarch32)
-	ENABLE_TRBE_FOR_NS		:= 0
-else
-	override ENABLE_TRBE_FOR_NS	:= 0
-endif
-
-# By default, disable access to branch record buffer control registers from NS
-# lower ELs i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
-# if FEAT_BRBE is implemented.
-ENABLE_BRBE_FOR_NS		:= 0
-
-# By default, disable access of trace system registers from NS lower
-# ELs  i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused if
-# system register trace is implemented.
-ENABLE_SYS_REG_TRACE_FOR_NS	:= 0
-
-# By default, disable trace filter control registers access to NS
-# lower ELs, i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
-# if FEAT_TRF is implemented.
-ENABLE_TRF_FOR_NS		:= 0
-
-# In v8.6+ platforms with delayed trapping of WFE being supported
-# via FEAT_TWED, this flag takes the delay value to be set in the
-# SCR_EL3.TWEDEL(4bit) field, when FEAT_TWED is implemented.
-# By default it takes 0, and need to be updated by the platforms.
-TWED_DELAY			:= 0
 
 # By default, disable the mocking of RSS provided services
 PLAT_RSS_NOT_SUPPORTED		:= 0
