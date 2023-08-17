@@ -36,5 +36,6 @@
 #endif
 		scp-fw-version = <0x0>;
 		scp-fw-commit = <0x0>;
+		tfa-fw-version = "unknown-dirty_00000000";
 	};
 };

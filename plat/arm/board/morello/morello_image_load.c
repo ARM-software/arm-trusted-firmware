@@ -41,6 +41,7 @@ static inline uint64_t get_mem_client_mode(uint64_t size)
  *#endif
  *		scp-fw-version = <0x0>;
  *		scp-fw-commit = <0x0>;
+ *		tfa-fw-version = "unknown-dirty_00000000";
  *	};
  ******************************************************************************/
 static int plat_morello_append_config_node(struct morello_plat_info *plat_info,
@@ -138,6 +139,11 @@ static int plat_morello_append_config_node(struct morello_plat_info *plat_info,
 	if (err < 0) {
 		ERROR("NT_FW_CONFIG: Failed to set scp-fw-commit\n");
 		return -1;
+	}
+
+	err = fdt_setprop_string(fdt, nodeoffset_fw, "tfa-fw-version", version_string);
+	if (err < 0) {
+		WARN("NT_FW_CONFIG: Unable to set tfa-fw-version\n");
 	}
 
 	err = fdt_setprop_u64(fdt, nodeoffset_plat, "local-ddr-size",
