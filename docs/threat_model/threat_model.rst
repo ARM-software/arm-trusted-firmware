@@ -7,11 +7,6 @@ Introduction
 
 This document provides a generic threat model for TF-A firmware.
 
-.. note::
-
- This threat model doesn't consider Root and Realm worlds introduced by
- :ref:`Realm Management Extension (RME)`.
-
 ********************
 Target of Evaluation
 ********************
@@ -35,6 +30,9 @@ assumptions:
 
 - There is no Secure-EL2. We don't consider threats that may come with
   Secure-EL2 software.
+
+- There are no Root and Realm worlds. These are introduced by :ref:`Realm
+  Management Extension (RME)`.
 
 - No experimental features are enabled. We do not consider threats that may come
   from them.
