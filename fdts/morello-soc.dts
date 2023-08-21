@@ -35,6 +35,15 @@
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
+			operating-points = <
+				/* kHz		uV */
+				2600000		925000
+				2400000		875000
+				2200000		825000
+				2000000		775000
+				1800000		750000
+			>;
+			#cooling-cells = <2>;
 		};
 		cpu1: cpu1@100 {
 			compatible = "arm,armv8";
@@ -42,6 +51,15 @@
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
+			operating-points = <
+				/* kHz		uV */
+				2600000		925000
+				2400000		875000
+				2200000		825000
+				2000000		775000
+				1800000		750000
+			>;
+			#cooling-cells = <2>;
 		};
 		cpu2: cpu2@10000 {
 			compatible = "arm,armv8";
@@ -49,6 +67,15 @@
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 1>;
+			operating-points = <
+				/* kHz		uV */
+				2600000		925000
+				2400000		875000
+				2200000		825000
+				2000000		775000
+				1800000		750000
+			>;
+			#cooling-cells = <2>;
 		};
 		cpu3: cpu3@10100 {
 			compatible = "arm,armv8";
@@ -56,6 +83,15 @@
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 1>;
+			operating-points = <
+				/* kHz		uV */
+				2600000		925000
+				2400000		875000
+				2200000		825000
+				2000000		775000
+				1800000		750000
+			>;
+			#cooling-cells = <2>;
 		};
 	};
 
@@ -254,6 +290,92 @@
 			scmi_clk: protocol@14 {
 				reg = <0x14>;
 				#clock-cells = <1>;
+			};
+			scmi_sensor: protocol@15 {
+				reg = <0x15>;
+				#thermal-sensor-cells = <1>;
+			};
+		};
+	};
+
+	thermal-zones {
+		clus0-thermal {
+			polling-delay-passive = <200>; /* ms */
+			polling-delay = <1000>; /* ms */
+
+			thermal-sensors = <&scmi_sensor 0>;
+
+			trips {
+				clus0_alarm: clus0-alarm {
+					temperature = <85000>; /* millicelsius */
+					hysteresis = <1000>; /* millicelsius */
+					type = "passive";
+				};
+				clus0_shutdown: clus0-shutdown {
+					temperature = <90000>; /* millicelsius */
+					hysteresis = <0>; /* millicelsius */
+					type = "critical";
+				};
+			};
+
+			cooling-maps {
+				map0 {
+					trip = <&clus0_alarm>;
+					cooling-device = <&cpu0 4 4>, <&cpu1 4 4>;
+				};
+			};
+		};
+		clus1-thermal {
+			polling-delay-passive = <200>; /* ms */
+			polling-delay = <1000>; /* ms */
+
+			thermal-sensors = <&scmi_sensor 1>;
+			trips {
+				clus1_alarm: clus1-alarm {
+					temperature = <85000>; /* millicelsius */
+					hysteresis = <1000>; /* millicelsius */
+					type = "passive";
+				};
+				clus1_shutdown: clus1-shutdown {
+					temperature = <90000>; /* millicelsius */
+					hysteresis = <0>; /* millicelsius */
+					type = "critical";
+				};
+			};
+
+			cooling-maps {
+				map0 {
+					trip = <&clus1_alarm>;
+					cooling-device = <&cpu2 4 4>, <&cpu3 4 4>;
+				};
+			};
+		};
+		sys-thermal {
+			polling-delay-passive = <200>; /* ms */
+			polling-delay = <1000>; /* ms */
+
+			thermal-sensors = <&scmi_sensor 2>;
+			trips {
+				sys_alarm: sys-alarm {
+					temperature = <85000>; /* millicelsius */
+					hysteresis = <1000>; /* millicelsius */
+					type = "passive";
+				};
+				sys_shutdown: sys-shutdown {
+					temperature = <90000>; /* millicelsius */
+					hysteresis = <0>; /* millicelsius */
+					type = "critical";
+				};
+			};
+
+			cooling-maps {
+				map0 {
+					trip = <&sys_alarm>;
+					cooling-device = <&cpu0 4 4>,
+						<&cpu1 4 4>,
+						<&cpu2 4 4>,
+						<&cpu3 4 4>;
+				};
 			};
 		};
 	};
