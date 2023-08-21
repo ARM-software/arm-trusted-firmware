@@ -158,12 +158,6 @@ ifeq (${SDEI_SUPPORT}, 1)
 BL31_SOURCES		+=	plat/qemu/common/qemu_sdei.c
 endif
 
-# Pointer Authentication sources
-ifeq (${ENABLE_PAUTH}, 1)
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c	\
-				lib/extensions/pauth/pauth_helpers.S
-endif
-
 ifeq (${SPD},spmd)
 BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
 				common/uuid.c				\
