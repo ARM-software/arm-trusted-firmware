@@ -224,6 +224,15 @@ const struct clk_stm32 *_clk_get(struct stm32_clk_priv *priv, int id)
 	return NULL;
 }
 
+static const struct stm32_clk_ops *_clk_get_ops(struct stm32_clk_priv *priv, int id)
+{
+	const struct clk_stm32 *clk = _clk_get(priv, id);
+
+	assert(clk->ops != NO_OPS);
+
+	return priv->ops_array[clk->ops];
+}
+
 #define clk_div_mask(_width) GENMASK(((_width) - 1U), 0U)
 
 static unsigned int _get_table_div(const struct clk_div_table *table,
@@ -377,7 +386,7 @@ int _clk_stm32_set_parent_by_index(struct stm32_clk_priv *priv, int clk, int sel
 
 int _clk_stm32_get_parent(struct stm32_clk_priv *priv, int clk_id)
 {
-	const struct clk_stm32 *clk = _clk_get(priv, clk_id);
+	const struct stm32_clk_ops *ops = _clk_get_ops(priv, clk_id);
 	const struct parent_cfg *parent;
 	uint16_t mux_id;
 	int sel;
@@ -394,8 +403,8 @@ int _clk_stm32_get_parent(struct stm32_clk_priv *priv, int clk_id)
 	mux_id &= MUX_PARENT_MASK;
 	parent = &priv->parents[mux_id];
 
-	if (clk->ops->get_parent != NULL) {
-		sel = clk->ops->get_parent(priv, clk_id);
+	if (ops->get_parent != NULL) {
+		sel = ops->get_parent(priv, clk_id);
 	} else {
 		sel = clk_mux_get_parent(priv, mux_id);
 	}
@@ -464,7 +473,7 @@ int clk_get_index(struct stm32_clk_priv *priv, unsigned long binding_id)
 
 unsigned long _clk_stm32_get_rate(struct stm32_clk_priv *priv, int id)
 {
-	const struct clk_stm32 *clk = _clk_get(priv, id);
+	const struct stm32_clk_ops *ops = _clk_get_ops(priv, id);
 	int parent;
 
 	if ((unsigned int)id >= priv->num) {
@@ -476,14 +485,14 @@ unsigned long _clk_stm32_get_rate(struct stm32_clk_priv *priv, int id)
 		return 0UL;
 	}
 
-	if (clk->ops->recalc_rate != NULL) {
+	if (ops->recalc_rate != NULL) {
 		unsigned long prate = 0UL;
 
 		if (parent != CLK_IS_ROOT) {
 			prate = _clk_stm32_get_rate(priv, parent);
 		}
 
-		return clk->ops->recalc_rate(priv, id, prate);
+		return ops->recalc_rate(priv, id, prate);
 	}
 
 	if (parent == CLK_IS_ROOT) {
@@ -520,10 +529,10 @@ bool _stm32_clk_is_flags(struct stm32_clk_priv *priv, int id, uint8_t flag)
 
 int clk_stm32_enable_call_ops(struct stm32_clk_priv *priv, uint16_t id)
 {
-	const struct clk_stm32 *clk = _clk_get(priv, id);
+	const struct stm32_clk_ops *ops = _clk_get_ops(priv, id);
 
-	if (clk->ops->enable != NULL) {
-		clk->ops->enable(priv, id);
+	if (ops->enable != NULL) {
+		ops->enable(priv, id);
 	}
 
 	return 0;
@@ -550,7 +559,7 @@ static int _clk_stm32_enable_core(struct stm32_clk_priv *priv, int id)
 
 	priv->gate_refcounts[id]++;
 
-	if (priv->gate_refcounts[id] == UINT_MAX) {
+	if (priv->gate_refcounts[id] == UINT8_MAX) {
 		ERROR("%s: %d max enable count !", __func__, id);
 		panic();
 	}
@@ -571,10 +580,10 @@ int _clk_stm32_enable(struct stm32_clk_priv *priv, int id)
 
 void clk_stm32_disable_call_ops(struct stm32_clk_priv *priv, uint16_t id)
 {
-	const struct clk_stm32 *clk = _clk_get(priv, id);
+	const struct stm32_clk_ops *ops = _clk_get_ops(priv, id);
 
-	if (clk->ops->disable != NULL) {
-		clk->ops->disable(priv, id);
+	if (ops->disable != NULL) {
+		ops->disable(priv, id);
 	}
 }
 
@@ -619,10 +628,10 @@ void _clk_stm32_disable(struct stm32_clk_priv *priv, int id)
 
 bool _clk_stm32_is_enabled(struct stm32_clk_priv *priv, int id)
 {
-	const struct clk_stm32 *clk = _clk_get(priv, id);
+	const struct stm32_clk_ops *ops = _clk_get_ops(priv, id);
 
-	if (clk->ops->is_enabled != NULL) {
-		return clk->ops->is_enabled(priv, id);
+	if (ops->is_enabled != NULL) {
+		return ops->is_enabled(priv, id);
 	}
 
 	return priv->gate_refcounts[id];
@@ -1081,12 +1090,10 @@ int clk_stm32_init(struct stm32_clk_priv *priv, uintptr_t base)
 	priv->base = base;
 
 	for (i = 0U; i < priv->num; i++) {
-		const struct clk_stm32 *clk = _clk_get(priv, i);
+		const struct stm32_clk_ops *ops = _clk_get_ops(priv, i);
 
-		assert(clk->ops != NULL);
-
-		if (clk->ops->init != NULL) {
-			clk->ops->init(priv, i);
+		if (ops->init != NULL) {
+			ops->init(priv, i);
 		}
 	}
 
