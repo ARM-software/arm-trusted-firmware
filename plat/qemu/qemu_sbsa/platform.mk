@@ -7,6 +7,15 @@
 PLAT_QEMU_PATH		:=	plat/qemu/qemu_sbsa
 PLAT_QEMU_COMMON_PATH	:=	plat/qemu/common
 
+MULTI_CONSOLE_API	:= 1
+CRASH_REPORTING		:= 1
+
+# Disable the PSCI platform compatibility layer
+ENABLE_PLAT_COMPAT	:= 0
+
+SEPARATE_CODE_AND_RODATA := 1
+ENABLE_STACK_PROTECTOR	 := 0
+
 ifeq (${SPM_MM},1)
 NEED_BL32		:=	yes
 EL3_EXCEPTION_HANDLING	:=	1
@@ -14,9 +23,6 @@ GICV2_G0_FOR_EL3	:=	1
 endif
 
 include plat/qemu/common/common.mk
-
-CRASH_REPORTING	:=	1
-
 
 # Enable new version of image loading on QEMU platforms
 LOAD_IMAGE_V2		:=	1
@@ -43,14 +49,6 @@ BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 ifeq (${SPM_MM},1)
 	BL31_SOURCES		+=	${PLAT_QEMU_COMMON_PATH}/qemu_spm.c
 endif
-
-SEPARATE_CODE_AND_RODATA	:= 1
-ENABLE_STACK_PROTECTOR		:= 0
-
-MULTI_CONSOLE_API	:= 1
-
-# Disable the PSCI platform compatibility layer
-ENABLE_PLAT_COMPAT	:= 0
 
 # Use known base for UEFI if not given from command line
 # By default BL33 is at FLASH1 base

@@ -85,7 +85,6 @@ else
 	ENABLE_SVE_FOR_NS	:= 2
 	ENABLE_SME_FOR_NS	:= 2
 endif
-endif
 
 # QEMU will use the RNDR instruction for the stack protector canary.
 ENABLE_FEAT_RNG			:= 2
@@ -93,7 +92,6 @@ ENABLE_FEAT_RNG			:= 2
 # QEMU 7.2+ has support for FGT and Linux needs it enabled to boot on max
 ENABLE_FEAT_FGT			:= 2
 
-ifeq (${ARCH},aarch64)
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0
 
