@@ -413,7 +413,7 @@ int ti_sci_device_put_no_wait(uint32_t id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_DEVICE_STATE, 0,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_STATE, 0,
 				    &req, sizeof(req),
 				    NULL, 0,
 				    &xfer);
@@ -1389,7 +1389,7 @@ int ti_sci_proc_set_boot_ctrl_no_wait(uint8_t proc_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_DEVICE_STATE, 0,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CTRL, 0,
 				    &req, sizeof(req),
 				    NULL, 0,
 				    &xfer);
@@ -1623,7 +1623,7 @@ int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_DEVICE_STATE, 0,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_WAIT_PROC_BOOT_STATUS, 0,
 				    &req, sizeof(req),
 				    NULL, 0,
 				    &xfer);
@@ -1669,7 +1669,7 @@ int ti_sci_enter_sleep(uint8_t proc_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_DEVICE_STATE, 0,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_ENTER_SLEEP, 0,
 				    &req, sizeof(req),
 				    NULL, 0,
 				    &xfer);
