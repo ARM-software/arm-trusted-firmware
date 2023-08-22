@@ -60,6 +60,7 @@ BL2_SOURCES		+=	\
 		plat/intel/soc/agilex5/soc/agilex5_power_manager.c	\
 		plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/common/socfpga_image_load.c		\
+		plat/intel/soc/common/socfpga_ros.c			\
 		plat/intel/soc/common/socfpga_storage.c			\
 		plat/intel/soc/common/socfpga_vab.c				\
 		plat/intel/soc/common/soc/socfpga_emac.c		\

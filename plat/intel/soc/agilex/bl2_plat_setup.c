@@ -28,6 +28,7 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_private.h"
 #include "socfpga_reset_manager.h"
+#include "socfpga_ros.h"
 #include "socfpga_system_manager.h"
 #include "wdt/watchdog.h"
 
@@ -92,6 +93,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 void bl2_el3_plat_arch_setup(void)
 {
 
+	unsigned long offset = 0;
 	const mmap_region_t bl_regions[] = {
 		MAP_REGION_FLAT(BL2_BASE, BL2_END - BL2_BASE,
 			MT_MEMORY | MT_RW | MT_SECURE),
@@ -123,14 +125,17 @@ void bl2_el3_plat_arch_setup(void)
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:
 		dw_mmc_init(&params, &mmc_info);
-		socfpga_io_setup(boot_source);
+		socfpga_io_setup(boot_source, PLAT_SDMMC_DATA_BASE);
 		break;
 
 	case BOOT_SOURCE_QSPI:
 		cad_qspi_init(0, QSPI_CONFIG_CPHA, QSPI_CONFIG_CPOL,
 			QSPI_CONFIG_CSDA, QSPI_CONFIG_CSDADS,
 			QSPI_CONFIG_CSEOT, QSPI_CONFIG_CSSOT, 0);
-		socfpga_io_setup(boot_source);
+		if (ros_qspi_get_ssbl_offset(&offset) != ROS_RET_OK) {
+			offset = PLAT_QSPI_DATA_BASE;
+		}
+		socfpga_io_setup(boot_source, offset);
 		break;
 
 	default:

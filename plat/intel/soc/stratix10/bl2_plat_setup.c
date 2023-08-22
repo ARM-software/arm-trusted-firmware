@@ -122,14 +122,14 @@ void bl2_el3_plat_arch_setup(void)
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:
 		dw_mmc_init(&params, &mmc_info);
-		socfpga_io_setup(boot_source);
+		socfpga_io_setup(boot_source, PLAT_SDMMC_DATA_BASE);
 		break;
 
 	case BOOT_SOURCE_QSPI:
 		cad_qspi_init(0, QSPI_CONFIG_CPHA, QSPI_CONFIG_CPOL,
 			QSPI_CONFIG_CSDA, QSPI_CONFIG_CSDADS,
 			QSPI_CONFIG_CSEOT, QSPI_CONFIG_CSSOT, 0);
-		socfpga_io_setup(boot_source);
+		socfpga_io_setup(boot_source, PLAT_QSPI_DATA_BASE);
 		break;
 
 	default:
