@@ -102,4 +102,11 @@ CTX_INCLUDE_AARCH32_REGS := 0
 ifeq (${CTX_INCLUDE_AARCH32_REGS}, 1)
 $(error "This is an AArch64-only port; CTX_INCLUDE_AARCH32_REGS must be disabled")
 endif
+
+# Pointer Authentication sources
+ifeq (${ENABLE_PAUTH}, 1)
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c
+CTX_INCLUDE_PAUTH_REGS	:=	1
+endif
+
 endif
