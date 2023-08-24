@@ -34,13 +34,20 @@ cpu_reset_func_end cortex_gelas
 	 * ----------------------------------------------------
 	 */
 func cortex_gelas_core_pwr_dwn
+#if ENABLE_SME_FOR_NS
         /* ---------------------------------------------------
-         * Disable SME
+         * Disable SME if enabled and supported
          * ---------------------------------------------------
          */
+	mrs     x0, ID_AA64PFR1_EL1
+	ubfx	x0, x0, #ID_AA64PFR1_EL1_SME_SHIFT, \
+		#ID_AA64PFR1_EL1_SME_WIDTH
+        cmp     x0, #ID_AA64PFR1_EL1_SME_NOT_SUPPORTED
+	b.eq	1f
 	msr	CORTEX_GELAS_SVCRSM, xzr
 	msr	CORTEX_GELAS_SVCRZA, xzr
-
+1:
+#endif
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
