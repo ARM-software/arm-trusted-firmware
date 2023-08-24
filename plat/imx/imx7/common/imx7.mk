@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -109,4 +109,8 @@ endif
 
 ifeq (${ARCH},aarch64)
   $(error Error: AArch64 not supported on i.mx7)
+endif
+
+ifeq (${AARCH32_SP}, none)
+    $(error Variable AARCH32_SP has to be set for AArch32)
 endif

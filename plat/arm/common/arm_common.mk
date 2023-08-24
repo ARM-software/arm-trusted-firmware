@@ -6,6 +6,12 @@
 
 include common/fdt_wrappers.mk
 
+ifeq (${ARCH},aarch32)
+    ifeq (${AARCH32_SP},none)
+        $(error Variable AARCH32_SP has to be set for AArch32)
+    endif
+endif
+
 ifeq (${ARCH}, aarch64)
   # On ARM standard platorms, the TSP can execute from Trusted SRAM, Trusted
   # DRAM (if available) or the TZC secured area of DRAM.
