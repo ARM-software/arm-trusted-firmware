@@ -57,9 +57,18 @@ struct emi_region_info_t {
 	unsigned int apc[EMI_MPU_DGROUP_NUM];
 };
 
+enum MPU_REQ_ORIGIN_ZONE_ID {
+	MPU_REQ_ORIGIN_TEE_ZONE_SVP = 0,
+	MPU_REQ_ORIGIN_TEE_ZONE_TUI = 1,
+	MPU_REQ_ORIGIN_TEE_ZONE_WFD = 2,
+	MPU_REQ_ORIGIN_TEE_ZONE_MAX = 3,
+	MPU_REQ_ORIGIN_ZONE_INVALID = 0x7FFFFFFF,
+};
+
 int emi_mpu_init(void);
+int emi_mpu_optee_handler(uint64_t encoded_addr, uint64_t zone_size,
+						  uint64_t zone_info);
 int emi_mpu_set_protection(struct emi_region_info_t *region_info);
 void set_emi_mpu_regions(void);
 int set_apu_emi_mpu_region(void);
-
 #endif
