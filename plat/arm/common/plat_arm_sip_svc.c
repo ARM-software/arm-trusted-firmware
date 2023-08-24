@@ -25,6 +25,28 @@ uintptr_t plat_arm_sip_handler(uint32_t smc_fid,
 				void *handle,
 				u_register_t flags)
 {
+#if PLAT_TEST_SPM
+	bool secure_origin;
+
+	/* Determine which security state this SMC originated from */
+	secure_origin = is_caller_secure(flags);
+
+	switch (smc_fid) {
+	case ARM_SIP_SET_INTERRUPT_PENDING:
+		if (!secure_origin) {
+			SMC_RET1(handle, SMC_UNK);
+		}
+
+		VERBOSE("SiP Call- Set interrupt pending %d\n", (uint32_t)x1);
+		plat_ic_set_interrupt_pending(x1);
+
+		SMC_RET1(handle, SMC_OK);
+		break; /* Not reached */
+	default:
+		break;
+	}
+#endif
+
 #if ENABLE_SPMD_LP
 	return plat_spmd_logical_sp_smc_handler(smc_fid, x1, x2, x3, x4,
 				cookie, handle, flags);

@@ -35,6 +35,13 @@
 #define ARM_SIP_SVC_VERSION_MAJOR		U(0x0)
 #define ARM_SIP_SVC_VERSION_MINOR		U(0x2)
 
+/*
+ * Arm SiP SMC calls that are primarily used for testing purposes.
+ */
+#if PLAT_TEST_SPM
+#define ARM_SIP_SET_INTERRUPT_PENDING	U(0x82000100)
+#endif
+
 /* SiP handler specific to each Arm platform. */
 uintptr_t plat_arm_sip_handler(uint32_t smc_fid,
 				u_register_t x1,
