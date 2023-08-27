@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# To report supported idle states
+# this has to be defined before allwinner-common.mk
+SUNXI_AMEND_DTB		:=	1
+
 # The differences between the platform are covered by the include files.
 include plat/allwinner/common/allwinner-common.mk
 
