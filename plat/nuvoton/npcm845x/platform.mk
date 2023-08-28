@@ -9,7 +9,7 @@
 # This is a debug flag for bring-up. It allows reducing CPU numbers
 # SECONDARY_BRINGUP	:=	1
 RESET_TO_BL31	:=	1
-PMD_SPM_AT_SEL2	:= 0
+SPMD_SPM_AT_SEL2	:= 0
 #temporary until the RAM size is reduced
 USE_COHERENT_MEM	:=	1
 
@@ -21,28 +21,11 @@ ifeq (${ARCH}, aarch64)
 # Trusted DRAM (if available) or the TZC secured area of DRAM.
 # TZC secured DRAM is the default.
 
-ARM_TSP_RAM_LOCATION	?=	dram
-
-ifeq (${ARM_TSP_RAM_LOCATION}, tsram)
-ARM_TSP_RAM_LOCATION_ID	=	ARM_TRUSTED_SRAM_ID
-else ifeq (${ARM_TSP_RAM_LOCATION}, tdram)
-ARM_TSP_RAM_LOCATION_ID	=	ARM_TRUSTED_DRAM_ID
-else ifeq (${ARM_TSP_RAM_LOCATION}, dram)
-ARM_TSP_RAM_LOCATION_ID	=	ARM_DRAM_ID
-else
-$(error "Unsupported ARM_TSP_RAM_LOCATION value")
-endif
-
-# Process flags
 # Process ARM_BL31_IN_DRAM flag
 ARM_BL31_IN_DRAM	:=	0
 $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
-else
-ARM_TSP_RAM_LOCATION_ID	=	ARM_TRUSTED_SRAM_ID
 endif
-
-$(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
 
 # For the original power-state parameter format, the State-ID can be encoded
 # according to the recommended encoding or zero. This flag determines which
@@ -370,12 +353,6 @@ $(info Including ${IMG_PARSER_LIB_MK})
 include ${IMG_PARSER_LIB_MK}
 endif
 
-ifeq (${RECLAIM_INIT_CODE}, 1)
-ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
-$(error "To reclaim init code xlat tables v2 must be used")
-endif
-endif
-
 ifeq (${MEASURED_BOOT},1)
 MEASURED_BOOT_MK := drivers/measured_boot/measured_boot.mk
 $(info Including ${MEASURED_BOOT_MK})
@@ -392,6 +369,3 @@ BL2U_SOURCES	:=
 
 DEBUG_CONSOLE	?=	0
 $(eval $(call add_define,DEBUG_CONSOLE))
-
-$(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
-
