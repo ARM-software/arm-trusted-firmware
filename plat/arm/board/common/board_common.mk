@@ -52,8 +52,6 @@ endif
 # Force generation of the new hash if ROT_KEY is specified
 ifdef ROT_KEY
 	HASH_PREREQUISITES = $(ROT_KEY) FORCE
-else
-	HASH_PREREQUISITES = $(ROT_KEY)
 endif
 
 $(ARM_ROTPK_HASH) : $(HASH_PREREQUISITES)
