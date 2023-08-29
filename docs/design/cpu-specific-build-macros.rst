@@ -603,6 +603,9 @@ For Neoverse N2, the following errata build flags are defined :
 -  ``ERRATA_N2_2002655``: This applies errata 2002655 workaround to Neoverse-N2
    CPU. This needs to be enabled for revision r0p0 of the CPU and is fixed in r0p1.
 
+-  ``ERRATA_N2_2009478``: This applies errata 2009478 workaround to Neoverse-N2
+   CPU. This needs to be enabled for revision r0p0 of the CPU and is fixed in r0p1.
+
 -  ``ERRATA_N2_2067956``: This applies errata 2067956 workaround to Neoverse-N2
    CPU. This needs to be enabled for revision r0p0 of the CPU and is fixed in r0p1.
 
