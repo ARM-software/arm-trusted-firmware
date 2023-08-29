@@ -12,11 +12,17 @@
 #include <plat_fdt.h>
 #include <platform_def.h>
 
-#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
 void prepare_dtb(void)
 {
-	void *dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+	void *dtb;
 	int ret;
+#if !defined(XILINX_OF_BOARD_DTB_ADDR)
+	return;
+#else
+	dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+#endif
+	if (IS_TFA_IN_OCM(BL31_BASE))
+		return;
 
 	/* Return if no device tree is detected */
 	if (fdt_check_header(dtb) != 0) {
@@ -45,8 +51,3 @@ void prepare_dtb(void)
 	clean_dcache_range((uintptr_t)dtb, fdt_blob_size(dtb));
 	INFO("Changed device tree to advertise PSCI and reserved memories.\n");
 }
-#else
-void prepare_dtb(void)
-{
-}
-#endif
