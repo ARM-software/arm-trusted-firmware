@@ -41,13 +41,13 @@
 #define MAX_MMAP_REGIONS		U(32)
 
 /* BL31 region */
-#define BL31_BASE			ULL(0x400000000)
-#define BL31_SIZE			ULL(0x400000)
+#define BL31_BASE			ULL(0x430000000)
+#define BL31_SIZE			SZ_512K
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
 /* BL32 region */
 #define BL32_BASE			BL31_LIMIT
-#define BL32_SIZE			ULL(0x400000)
+#define BL32_SIZE			SZ_16M
 #define BL32_LIMIT			(BL32_BASE + BL32_SIZE)
 
 /* console */
