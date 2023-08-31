@@ -195,6 +195,7 @@ enum ddr_type {
 					 SRAM1_SIZE - \
 					 PLATFORM_MTD_MAX_PAGE_SIZE)
 #endif
+
 /*******************************************************************************
  * STM32MP1 device/io map related constants (used for MMU)
  ******************************************************************************/
@@ -533,9 +534,6 @@ enum ddr_type {
 
 /* UID OTP */
 #define UID_WORD_NB			U(3)
-
-/* FWU configuration (max supported value is 15) */
-#define FWU_MAX_TRIAL_REBOOT		U(3)
 
 /*******************************************************************************
  * STM32MP1 TAMP
