@@ -23,9 +23,12 @@
 #define PLAT_CPU_ID_MPIDR_AFF_SHIFT				MPIDR_AFF1_SHIFT
 #define PLAT_L2_RESET_REQ			0xB007C0DE
 
-/* System Counter */ /* TODO: Update back to 400MHz */
-#define PLAT_SYS_COUNTER_FREQ_IN_TICKS				(80000000)
-#define PLAT_SYS_COUNTER_FREQ_IN_MHZ				(80)
+/* System Counter */
+/* TODO: Update back to 400MHz.
+ * This shall be updated to read from L4 clock instead of hardcoded.
+ */
+#define PLAT_SYS_COUNTER_FREQ_IN_TICKS				(400000000)
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ				(400)
 
 /* FPGA config helpers */
 #define INTEL_SIP_SMC_FPGA_CONFIG_ADDR				0x400000
