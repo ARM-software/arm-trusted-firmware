@@ -361,6 +361,7 @@ else ifneq ($(findstring gcc,$(notdir $(LD))),)
 
 	TF_LDFLAGS		+=	-Wl,-z,common-page-size=4096 #Configure page size constants
 	TF_LDFLAGS		+=	-Wl,-z,max-page-size=4096
+	TF_LDFLAGS		+=	-Wl,--build-id=none
 
 	ifeq ($(ENABLE_LTO),1)
 		ifeq (${ARCH},aarch64)
@@ -388,6 +389,7 @@ else
 
 	TF_LDFLAGS		+=	-z common-page-size=4096 # Configure page size constants
 	TF_LDFLAGS		+=	-z max-page-size=4096
+	TF_LDFLAGS		+=	--build-id=none
 
 # ld.lld doesn't recognize the errata flags,
 # therefore don't add those in that case.
