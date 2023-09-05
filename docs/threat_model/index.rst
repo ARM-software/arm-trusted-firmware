@@ -31,7 +31,6 @@ data flow diagram, as well as a list of threats we have identified using the
    :caption: Contents
 
    threat_model
-   threat_model_spm
    threat_model_el3_spm
    threat_model_fvp_r
    threat_model_rss_interface
