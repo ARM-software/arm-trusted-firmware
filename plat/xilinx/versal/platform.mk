@@ -49,6 +49,11 @@ ifdef XILINX_OF_BOARD_DTB_ADDR
 $(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
 endif
 
+PLAT_XLAT_TABLES_DYNAMIC := 0
+ifeq (${PLAT_XLAT_TABLES_DYNAMIC},1)
+$(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+endif
+
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/common/ipi_mailbox_service/	\

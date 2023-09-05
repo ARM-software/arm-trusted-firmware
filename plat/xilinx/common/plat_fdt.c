@@ -8,6 +8,7 @@
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
 #include <libfdt.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <plat_fdt.h>
 #include <platform_def.h>
@@ -23,6 +24,17 @@ void prepare_dtb(void)
 #endif
 	if (IS_TFA_IN_OCM(BL31_BASE))
 		return;
+
+#if defined(PLAT_XLAT_TABLES_DYNAMIC)
+	ret = mmap_add_dynamic_region((unsigned long long)dtb,
+				      (uintptr_t)dtb,
+				      XILINX_OF_BOARD_DTB_MAX_SIZE,
+				      MT_MEMORY | MT_RW | MT_NS);
+	if (ret != 0) {
+		WARN("Failed to add dynamic region for dtb: error %d\n", ret);
+		return;
+	}
+#endif
 
 	/* Return if no device tree is detected */
 	if (fdt_check_header(dtb) != 0) {
@@ -49,5 +61,15 @@ void prepare_dtb(void)
 	}
 
 	clean_dcache_range((uintptr_t)dtb, fdt_blob_size(dtb));
+
+#if defined(PLAT_XLAT_TABLES_DYNAMIC)
+	ret = mmap_remove_dynamic_region((uintptr_t)dtb,
+					 XILINX_OF_BOARD_DTB_MAX_SIZE);
+	if (ret != 0) {
+		WARN("Failed to remove dynamic region for dtb: error %d\n", ret);
+		return;
+	}
+#endif
+
 	INFO("Changed device tree to advertise PSCI and reserved memories.\n");
 }
