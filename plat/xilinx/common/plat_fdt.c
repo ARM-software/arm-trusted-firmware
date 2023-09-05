@@ -60,7 +60,7 @@ void prepare_dtb(void)
 		return;
 	}
 
-	clean_dcache_range((uintptr_t)dtb, fdt_blob_size(dtb));
+	flush_dcache_range((uintptr_t)dtb, fdt_blob_size(dtb));
 
 #if defined(PLAT_XLAT_TABLES_DYNAMIC)
 	ret = mmap_remove_dynamic_region((uintptr_t)dtb,
