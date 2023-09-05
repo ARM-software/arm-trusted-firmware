@@ -20,7 +20,7 @@
 	attribute {
 		spmc_id = <0x8000>;
 		maj_ver = <0x1>;
-		min_ver = <0x1>;
+		min_ver = <0x2>;
 		exec_state = <0x0>;
 		load_address = <0x0 0x6000000>;
 		entrypoint = <0x0 0x6000000>;
