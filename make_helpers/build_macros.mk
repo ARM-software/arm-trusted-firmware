@@ -573,7 +573,7 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) \
 		$(BUILD_DIR)/build_message.o $(OBJS)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
-	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Wl,-Map=$(MAPFILE) \
+	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Wl,-Map=$(MAPFILE) \
 		$(addprefix -Wl$(comma)--script$(comma),$(LINKER_SCRIPTS)) -Wl,--script,$(DEFAULT_LINKER_SCRIPT) \
 		$(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
