@@ -301,19 +301,26 @@ static int calc_hash(enum crypto_md_algo md_algo, void *data_ptr,
 		     unsigned int data_len,
 		     unsigned char output[CRYPTO_MD_MAX_SIZE])
 {
-	const mbedtls_md_info_t *md_info;
+	size_t hash_length;
+	psa_status_t status;
+	psa_algorithm_t psa_md_alg;
 
-	md_info = mbedtls_md_info_from_type(md_type(md_algo));
-	if (md_info == NULL) {
-		return CRYPTO_ERR_HASH;
-	}
+	/* convert the md_alg to psa_algo */
+	psa_md_alg = mbedtls_md_psa_alg_from_type(md_type(md_algo));
 
 	/*
 	 * Calculate the hash of the data, it is safe to pass the
 	 * 'output' hash buffer pointer considering its size is always
 	 * bigger than or equal to MBEDTLS_MD_MAX_SIZE.
 	 */
-	return mbedtls_md(md_info, data_ptr, data_len, output);
+	status = psa_hash_compute(psa_md_alg, data_ptr, (size_t)data_len,
+				  (uint8_t *)output, CRYPTO_MD_MAX_SIZE,
+				  &hash_length);
+	if (status != PSA_SUCCESS) {
+		return CRYPTO_ERR_HASH;
+	}
+
+	return CRYPTO_SUCCESS;
 }
 #endif /*
 	* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
