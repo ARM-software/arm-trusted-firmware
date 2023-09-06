@@ -89,6 +89,9 @@ override ARM_PLAT_MT			:=	1
 
 override ARM_BL31_IN_DRAM		:=	1
 
+override PSCI_EXTENDED_STATE_ID		:=	1
+override ARM_RECOM_STATE_ID_ENC		:=	1
+
 # Errata workarounds:
 ERRATA_N1_1868343			:=	1
 

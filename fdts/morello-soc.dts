@@ -26,6 +26,32 @@
 		};
 	};
 
+	/*
+	 * The timings below are just to demonstrate working cpuidle.
+	 * These values may be inaccurate.
+	 */
+	idle-states {
+		entry-method = "psci";
+
+		cluster_sleep: cluster-sleep {
+			compatible = "arm,idle-state";
+			arm,psci-suspend-param = <0x40000022>;
+			local-timer-stop;
+			entry-latency-us = <500>;
+			exit-latency-us = <1000>;
+			min-residency-us = <2500>;
+		};
+
+		cpu_sleep: cpu-sleep {
+			compatible = "arm,idle-state";
+			arm,psci-suspend-param = <0x40000002>;
+			local-timer-stop;
+			entry-latency-us = <150>;
+			exit-latency-us = <300>;
+			min-residency-us = <200>;
+		};
+	};
+
 	cpus {
 		#address-cells = <2>;
 		#size-cells = <0>;
@@ -44,6 +70,7 @@
 				1800000		750000
 			>;
 			#cooling-cells = <2>;
+			cpu-idle-states = <&cpu_sleep &cluster_sleep>;
 		};
 		cpu1: cpu1@100 {
 			compatible = "arm,armv8";
@@ -60,6 +87,7 @@
 				1800000		750000
 			>;
 			#cooling-cells = <2>;
+			cpu-idle-states = <&cpu_sleep &cluster_sleep>;
 		};
 		cpu2: cpu2@10000 {
 			compatible = "arm,armv8";
@@ -76,6 +104,7 @@
 				1800000		750000
 			>;
 			#cooling-cells = <2>;
+			cpu-idle-states = <&cpu_sleep &cluster_sleep>;
 		};
 		cpu3: cpu3@10100 {
 			compatible = "arm,armv8";
@@ -92,6 +121,7 @@
 				1800000		750000
 			>;
 			#cooling-cells = <2>;
+			cpu-idle-states = <&cpu_sleep &cluster_sleep>;
 		};
 	};
 
