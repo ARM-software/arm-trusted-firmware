@@ -42,6 +42,16 @@ CASSERT(CRYPTO_MD_MAX_SIZE >= MBEDTLS_MD_MAX_SIZE,
 	* CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 	*/
 
+static inline psa_algorithm_t mbedtls_md_psa_alg_from_type(
+						mbedtls_md_type_t md_type)
+{
+	assert((md_type == MBEDTLS_MD_SHA256) ||
+	       (md_type == MBEDTLS_MD_SHA384) ||
+	       (md_type == MBEDTLS_MD_SHA512));
+
+	return PSA_ALG_CATEGORY_HASH | (psa_algorithm_t) (md_type + 0x5);
+}
+
 /*
  * AlgorithmIdentifier  ::=  SEQUENCE  {
  *     algorithm               OBJECT IDENTIFIER,
@@ -195,11 +205,11 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 {
 	mbedtls_asn1_buf hash_oid, params;
 	mbedtls_md_type_t md_alg;
-	const mbedtls_md_info_t *md_info;
 	unsigned char *p, *end, *hash;
-	unsigned char data_hash[MBEDTLS_MD_MAX_SIZE];
 	size_t len;
 	int rc;
+	psa_status_t status;
+	psa_algorithm_t psa_md_alg;
 
 	/*
 	 * Digest info should be an MBEDTLS_ASN1_SEQUENCE, but padding after
@@ -222,38 +232,35 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 		return CRYPTO_ERR_HASH;
 	}
 
-	rc = mbedtls_oid_get_md_alg(&hash_oid, &md_alg);
-	if (rc != 0) {
-		return CRYPTO_ERR_HASH;
-	}
-
-	md_info = mbedtls_md_info_from_type(md_alg);
-	if (md_info == NULL) {
-		return CRYPTO_ERR_HASH;
-	}
-
 	/* Hash should be octet string type and consume all bytes */
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_OCTET_STRING);
 	if ((rc != 0) || ((size_t)(end - p) != len)) {
 		return CRYPTO_ERR_HASH;
 	}
-
-	/* Length of hash must match the algorithm's size */
-	if (len != mbedtls_md_get_size(md_info)) {
-		return CRYPTO_ERR_HASH;
-	}
 	hash = p;
 
-	/* Calculate the hash of the data */
-	p = (unsigned char *)data_ptr;
-	rc = mbedtls_md(md_info, p, data_len, data_hash);
+	rc = mbedtls_oid_get_md_alg(&hash_oid, &md_alg);
 	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
 	}
 
-	/* Compare values */
-	rc = memcmp(data_hash, hash, mbedtls_md_get_size(md_info));
-	if (rc != 0) {
+	/* convert the md_alg to psa_algo */
+	psa_md_alg = mbedtls_md_psa_alg_from_type(md_alg);
+
+	/* Length of hash must match the algorithm's size */
+	if (len != PSA_HASH_LENGTH(psa_md_alg)) {
+		return CRYPTO_ERR_HASH;
+	}
+
+	/*
+	 * Calculate Hash and compare it against the retrieved hash from
+	 * the certificate (one shot API).
+	 */
+	status = psa_hash_compare(psa_md_alg,
+				  data_ptr, (size_t)data_len,
+				  (const uint8_t *)hash, len);
+
+	if (status != PSA_SUCCESS) {
 		return CRYPTO_ERR_HASH;
 	}
 
