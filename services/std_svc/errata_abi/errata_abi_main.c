@@ -418,6 +418,17 @@ struct em_cpu_list cpu_list[] = {
 	}
 },
 #endif /* CORTEX_A715_H_INC */
+
+#if CORTEX_X3_H_INC
+{
+	.cpu_partnumber = CORTEX_X3_MIDR,
+	.cpu_errata_list = {
+		[0] = {2313909, 0x00, 0x10, ERRATA_X3_2313909},
+		[1] = {2615812, 0x00, 0x11, ERRATA_X3_2615812},
+		[2 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+	}
+},
+#endif /* CORTEX_X3_H_INC */
 };
 
 /*
