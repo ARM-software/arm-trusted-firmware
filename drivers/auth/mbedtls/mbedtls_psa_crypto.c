@@ -16,11 +16,14 @@
 #include <mbedtls/platform.h>
 #include <mbedtls/version.h>
 #include <mbedtls/x509.h>
+#include <psa/crypto.h>
+#include <psa/crypto_platform.h>
+#include <psa/crypto_types.h>
+#include <psa/crypto_values.h>
 
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/auth/mbedtls/mbedtls_common.h>
-
 #include <plat/common/platform.h>
 
 #define LIB_NAME		"mbed TLS PSA"
@@ -57,12 +60,37 @@ CASSERT(CRYPTO_MD_MAX_SIZE >= MBEDTLS_MD_MAX_SIZE,
  */
 
 /*
+ * We pretend using an external RNG (through MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
+ * mbedTLS config option) so we need to provide an implementation of
+ * mbedtls_psa_external_get_random(). Provide a fake one, since we do not
+ * actually have any external RNG and TF-A itself doesn't engage in
+ * cryptographic operations that demands randomness.
+ */
+psa_status_t mbedtls_psa_external_get_random(
+			mbedtls_psa_external_random_context_t *context,
+			uint8_t *output, size_t output_size,
+			size_t *output_length)
+{
+	return PSA_ERROR_INSUFFICIENT_ENTROPY;
+}
+
+/*
  * Initialize the library and export the descriptor
  */
 static void init(void)
 {
 	/* Initialize mbed TLS */
 	mbedtls_init();
+
+	/* Initialise PSA mbedTLS */
+	psa_status_t status = psa_crypto_init();
+
+	if (status != PSA_SUCCESS) {
+		ERROR("Failed to initialize %s crypto (%d).\n", LIB_NAME, status);
+		panic();
+	}
+
+	INFO("PSA crypto initialized successfully!\n");
 }
 
 #if CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY || \
