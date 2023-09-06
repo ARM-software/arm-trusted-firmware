@@ -136,6 +136,13 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	imx_csu_init(csu_cfg);
 
+	/*
+	 * Configure the force_incr programmable bit in GPV_5 of PL301_display, which fixes
+	 * partial write issue. The AXI2AHB bridge is used for masters that access the TCM
+	 * through system bus. Please refer to errata ERR050362 for more information.
+	 */
+	mmio_setbits_32((GPV5_BASE_ADDR + FORCE_INCR_OFFSET), FORCE_INCR_BIT_MASK);
+
 	/* config the ocram memory range for secure access */
 	mmio_write_32(IMX_IOMUX_GPR_BASE + 0x2c, 0x4c1);
 	val = mmio_read_32(IMX_IOMUX_GPR_BASE + 0x2c);
