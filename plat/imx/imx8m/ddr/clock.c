@@ -91,6 +91,10 @@ void dram_pll_init(unsigned int drate)
 	case 4000:
 		mmio_write_32(DRAM_PLL_CTRL + 0x4, (250 << 12) | (3 << 4) | 1);
 		break;
+	case 3733:
+	case 3732:
+		mmio_write_32(DRAM_PLL_CTRL + 0x4, (311 << 12) | (4 << 4) | 1);
+		break;
 	case 3200:
 		mmio_write_32(DRAM_PLL_CTRL + 0x4, (200 << 12) | (3 << 4) | 1);
 		break;
