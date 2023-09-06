@@ -193,9 +193,9 @@ void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority)
 	gicv2_set_interrupt_priority(id, priority);
 }
 
-int plat_ic_has_interrupt_type(unsigned int type)
+bool plat_ic_has_interrupt_type(unsigned int type)
 {
-	int has_interrupt_type = 0;
+	bool has_interrupt_type = false;
 
 	switch (type) {
 #if GICV2_G0_FOR_EL3
@@ -204,7 +204,7 @@ int plat_ic_has_interrupt_type(unsigned int type)
 	case INTR_TYPE_S_EL1:
 #endif
 	case INTR_TYPE_NS:
-		has_interrupt_type = 1;
+		has_interrupt_type = true;
 		break;
 	default:
 		/* Do nothing in default case */

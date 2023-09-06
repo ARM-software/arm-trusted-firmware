@@ -235,14 +235,14 @@ void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority)
 	gicv3_set_interrupt_priority(id, plat_my_core_pos(), priority);
 }
 
-int plat_ic_has_interrupt_type(unsigned int type)
+bool plat_ic_has_interrupt_type(unsigned int type)
 {
 	if ((type == INTR_TYPE_EL3) || (type == INTR_TYPE_S_EL1) ||
 			(type == INTR_TYPE_NS)) {
-		return 1;
+		return true;
 	}
 
-	return 0;
+	return false;
 }
 
 void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)

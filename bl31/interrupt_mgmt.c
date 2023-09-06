@@ -47,7 +47,7 @@ static intr_type_desc_t intr_type_descs[MAX_INTR_TYPES];
  ******************************************************************************/
 static int32_t validate_interrupt_type(uint32_t type)
 {
-	if (plat_ic_has_interrupt_type(type) != 0) {
+	if (plat_ic_has_interrupt_type(type)) {
 		return 0;
 	}
 
