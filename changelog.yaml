@@ -1350,5 +1350,8 @@ subsections:
       - title: Node Package Manager (NPM)
         scope: npm
 
+      - title: Poetry
+        scope: poetry
+
       - title: zlib
         scope: zlib
