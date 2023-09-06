@@ -1036,6 +1036,10 @@ ENABLE_FEAT_RNG		=	$(if $(findstring rng,${arch-features}),1,0)
 # Determine if FEAT_SB is supported
 ENABLE_FEAT_SB		=	$(if $(findstring sb,${arch-features}),1,0)
 
+ifeq ($(PSA_CRYPTO),1)
+        $(info PSA_CRYPTO is an experimental feature)
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -1217,6 +1221,7 @@ $(eval $(call assert_booleans,\
 	ERRATA_NON_ARM_INTERCONNECT \
 	CONDITIONAL_CMO \
 	RAS_FFH_SUPPORT \
+	PSA_CRYPTO	\
 )))
 
 # Numeric_Flags
@@ -1407,6 +1412,7 @@ $(eval $(call add_defines,\
 	IMPDEF_SYSREG_TRAP \
 	SVE_VECTOR_LEN \
 	ENABLE_SPMD_LP \
+	PSA_CRYPTO	\
 )))
 
 ifeq (${SANITIZE_UB},trap)

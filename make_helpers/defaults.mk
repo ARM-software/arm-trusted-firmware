@@ -359,3 +359,6 @@ CONDITIONAL_CMO			:= 0
 
 # By default, disable SPMD Logical partitions
 ENABLE_SPMD_LP			:= 0
+
+# By default, disable PSA crypto (use MbedTLS legacy crypto API).
+PSA_CRYPTO			:= 0
