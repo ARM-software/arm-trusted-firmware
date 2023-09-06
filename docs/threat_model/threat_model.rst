@@ -36,6 +36,9 @@ assumptions:
 - There are no Root and Realm worlds. These are introduced by :ref:`Realm
   Management Extension (RME)`.
 
+  The :ref:`Threat Model for TF-A with Arm CCA support` covers these types of
+  configurations.
+
 - No experimental features are enabled. We do not consider threats that may come
   from them.
 
@@ -273,6 +276,8 @@ As our :ref:`Target of Evaluation` is made of several, distinct firmware images,
 some threats are confined in specific images, while others apply to each of
 them. To help developers implement mitigations in the right place, threats below
 are categorized based on the firmware image that should mitigate them.
+
+.. _General Threats:
 
 General Threats for All Firmware Images
 ---------------------------------------
@@ -608,6 +613,8 @@ General Threats for All Firmware Images
 +------------------------+-----------------------------------------------------+
 
 
+.. _Boot Firmware Threats:
+
 Threats to be Mitigated by the Boot Firmware
 --------------------------------------------
 
@@ -841,6 +848,8 @@ nonetheless once execution has reached the runtime EL3 firmware.
  Platforms must carefully evaluate the security of the default implementation
  since the |SRTM| includes all secure world components.
 
+
+.. _Runtime Firmware Threats:
 
 Threats to be Mitigated by the Runtime EL3 Firmware
 ---------------------------------------------------
