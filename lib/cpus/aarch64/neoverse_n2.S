@@ -68,6 +68,22 @@ workaround_reset_end neoverse_n2, ERRATUM(2067956)
 
 check_erratum_ls neoverse_n2, ERRATUM(2067956), CPU_REV(0, 0)
 
+workaround_runtime_start neoverse_n2, ERRATUM(2009478), ERRATA_N2_2009478
+	/* Stash ERRSELR_EL1 in x2 */
+	mrs     x2, ERRSELR_EL1
+
+	/* Select error record 0 and clear ED bit */
+	msr     ERRSELR_EL1, xzr
+	mrs     x1, ERXCTLR_EL1
+	bfi     x1, xzr, #ERXCTLR_ED_SHIFT, #1
+	msr     ERXCTLR_EL1, x1
+
+	/* Restore ERRSELR_EL1 from x2 */
+	msr     ERRSELR_EL1, x2
+workaround_runtime_end neoverse_n2, ERRATUM(2009478), NO_ISB
+
+check_erratum_ls neoverse_n2, ERRATUM(2009478), CPU_REV(0, 0)
+
 workaround_reset_start neoverse_n2, ERRATUM(2138953), ERRATA_N2_2138953
 	/* Apply instruction patching sequence */
 	mrs	x1, NEOVERSE_N2_CPUECTLR2_EL1
@@ -233,7 +249,9 @@ cpu_reset_func_end neoverse_n2
 
 func neoverse_n2_core_pwr_dwn
 
-	apply_erratum neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639
+	apply_erratum neoverse_n2, ERRATUM(2009478), ERRATA_N2_2009478
+	apply_erratum neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639, NO_GET_CPU_REV
+
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * No need to do cache maintenance here.
