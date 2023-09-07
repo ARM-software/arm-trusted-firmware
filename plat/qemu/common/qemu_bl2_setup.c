@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,24 +29,24 @@
 #define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
 					bl2_tzram_layout.total_base,	\
 					bl2_tzram_layout.total_size,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #define MAP_BL2_RO		MAP_REGION_FLAT(			\
 					BL_CODE_BASE,			\
 					BL_CODE_END - BL_CODE_BASE,	\
-					MT_CODE | MT_SECURE),		\
+					MT_CODE | EL3_PAS),		\
 				MAP_REGION_FLAT(			\
 					BL_RO_DATA_BASE,		\
 					BL_RO_DATA_END			\
 						- BL_RO_DATA_BASE,	\
-					MT_RO_DATA | MT_SECURE)
+					MT_RO_DATA | EL3_PAS)
 
 #if USE_COHERENT_MEM
 #define MAP_BL_COHERENT_RAM	MAP_REGION_FLAT(			\
 					BL_COHERENT_RAM_BASE,		\
 					BL_COHERENT_RAM_END		\
 						- BL_COHERENT_RAM_BASE,	\
-					MT_DEVICE | MT_RW | MT_SECURE)
+					MT_DEVICE | MT_RW | EL3_PAS)
 #endif
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
