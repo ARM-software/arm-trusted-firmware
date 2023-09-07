@@ -141,6 +141,19 @@ static const mmap_region_t plat_qemu_mmap[] = {
 };
 #endif
 
+#ifdef IMAGE_RMM
+const mmap_region_t plat_qemu_mmap[] = {
+	MAP_DEVICE0,
+#ifdef MAP_DEVICE1
+	MAP_DEVICE1,
+#endif
+#ifdef MAP_DEVICE2
+	MAP_DEVICE2,
+#endif
+	{0}
+};
+#endif
+
 /*******************************************************************************
  * Returns QEMU platform specific memory map regions.
  ******************************************************************************/
