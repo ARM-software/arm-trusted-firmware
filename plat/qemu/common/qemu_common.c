@@ -11,6 +11,9 @@
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <services/el3_spmc_ffa_memory.h>
+#if ENABLE_RME
+#include <services/rmm_core_manifest.h>
+#endif
 
 #include <plat/common/platform.h>
 #include "qemu_private.h"
@@ -190,3 +193,76 @@ int plat_spmd_handle_group0_interrupt(uint32_t intid)
 	return -1;
 }
 #endif /*defined(SPD_spmd) && (SPMC_AT_EL3 == 0)*/
+
+#if ENABLE_RME
+/*
+ * Get a pointer to the RMM-EL3 Shared buffer and return it
+ * through the pointer passed as parameter.
+ *
+ * This function returns the size of the shared buffer.
+ */
+size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared)
+{
+	*shared = (uintptr_t)RMM_SHARED_BASE;
+
+	return (size_t)RMM_SHARED_SIZE;
+}
+
+int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
+{
+	uint64_t checksum;
+	uintptr_t base;
+	uint64_t size;
+	struct ns_dram_bank *bank_ptr;
+
+	assert(manifest != NULL);
+
+	manifest->version = RMMD_MANIFEST_VERSION;
+	manifest->padding = 0U; /* RES0 */
+	manifest->plat_data = (uintptr_t)NULL;
+	manifest->plat_dram.num_banks = 1;
+
+	/*
+	 * Array ns_dram_banks[] follows ns_dram_info structure:
+	 *
+	 * +-----------------------------------+
+	 * |  offset  |   field   |  comment   |
+	 * +----------+-----------+------------+
+	 * |    0     |  version  | 0x00000002 |
+	 * +----------+-----------+------------+
+	 * |    4     |  padding  | 0x00000000 |
+	 * +----------+-----------+------------+
+	 * |    8     | plat_data |    NULL    |
+	 * +----------+-----------+------------+
+	 * |    16    | num_banks |            |
+	 * +----------+-----------+            |
+	 * |    24    |   banks   | plat_dram  |
+	 * +----------+-----------+            |
+	 * |    32    | checksum  |            |
+	 * +----------+-----------+------------+
+	 * |    40    |  base 0   |            |
+	 * +----------+-----------+   bank[0]  |
+	 * |    48    |  size 0   |            |
+	 * +----------+-----------+------------+
+	 */
+	bank_ptr = (struct ns_dram_bank *)
+			((uintptr_t)&manifest->plat_dram.checksum +
+			sizeof(manifest->plat_dram.checksum));
+
+	manifest->plat_dram.banks = bank_ptr;
+
+	/* Calculate checksum of plat_dram structure */
+	checksum = 1 + (uint64_t)bank_ptr;
+
+	base = NS_DRAM0_BASE;
+	size = NS_DRAM0_SIZE;
+	bank_ptr[0].base = base;
+	bank_ptr[0].size = size;
+	checksum += base + size;
+
+	/* Checksum must be 0 */
+	manifest->plat_dram.checksum = ~checksum + 1UL;
+
+	return 0;
+}
+#endif  /* ENABLE_RME */
