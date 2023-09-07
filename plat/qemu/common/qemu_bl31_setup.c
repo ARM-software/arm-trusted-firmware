@@ -8,6 +8,7 @@
 
 #include <common/bl_common.h>
 #include <drivers/arm/pl061_gpio.h>
+#include <lib/gpt_rme/gpt_rme.h>
 #include <plat/common/platform.h>
 
 #include "qemu_private.h"
@@ -108,6 +109,20 @@ void bl31_plat_arch_setup(void)
 	setup_page_tables(bl_regions, plat_qemu_get_mmap());
 
 	enable_mmu_el3(0);
+
+#if ENABLE_RME
+	/*
+	 * Initialise Granule Protection library and enable GPC for the primary
+	 * processor. The tables have already been initialized by a previous BL
+	 * stage, so there is no need to provide any PAS here. This function
+	 * sets up pointers to those tables.
+	 */
+	if (gpt_runtime_init() < 0) {
+		ERROR("gpt_runtime_init() failed!\n");
+		panic();
+	}
+#endif /* ENABLE_RME */
+
 }
 
 static void qemu_gpio_init(void)
