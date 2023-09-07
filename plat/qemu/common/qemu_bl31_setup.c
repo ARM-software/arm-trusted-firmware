@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -96,6 +96,11 @@ void bl31_plat_arch_setup(void)
 		MAP_BL31_RO,
 #if USE_COHERENT_MEM
 		MAP_BL_COHERENT_RAM,
+#endif
+#if ENABLE_RME
+		MAP_GPT_L0_REGION,
+		MAP_GPT_L1_REGION,
+		MAP_RMM_SHARED_MEM,
 #endif
 		{0}
 	};

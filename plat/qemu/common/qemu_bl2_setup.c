@@ -11,6 +11,7 @@
 
 #include <platform_def.h>
 
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -101,6 +102,18 @@ static void update_dt(void)
 		return;
 	}
 
+#if ENABLE_RME
+	if (fdt_add_reserved_memory(fdt, "rmm", REALM_DRAM_BASE,
+				    REALM_DRAM_SIZE)) {
+		ERROR("Failed to reserve RMM memory in Device Tree\n");
+		return;
+	}
+
+	INFO("Reserved RMM memory [0x%lx, 0x%lx] in Device tree\n",
+	     (uintptr_t)REALM_DRAM_BASE,
+	     (uintptr_t)REALM_DRAM_BASE + REALM_DRAM_SIZE - 1);
+#endif
+
 	ret = fdt_pack(fdt);
 	if (ret < 0)
 		ERROR("Failed to pack Device Tree at %p: error %d\n", fdt, ret);
@@ -146,16 +159,28 @@ void bl2_plat_arch_setup(void)
 #if USE_COHERENT_MEM
 		MAP_BL_COHERENT_RAM,
 #endif
+#if ENABLE_RME
+		MAP_RMM_DRAM,
+		MAP_GPT_L0_REGION,
+		MAP_GPT_L1_REGION,
+#endif
 		{0}
 	};
 
 	setup_page_tables(bl_regions, plat_qemu_get_mmap());
+
+#if ENABLE_RME
+	/* BL2 runs in EL3 when RME enabled. */
+	assert(get_armv9_2_feat_rme_support() != 0U);
+	enable_mmu_el3(0);
+#else /* ENABLE_RME */
 
 #ifdef __aarch64__
 	enable_mmu_el1(0);
 #else
 	enable_mmu_svc_mon(0);
 #endif
+#endif /* ENABLE_RME */
 }
 
 /*******************************************************************************
