@@ -10,8 +10,8 @@ The following source trees and binaries were used:
 - TFTF [`v2.9-rc0`_]
 - SCP/MCP `Prebuilt Images`_
 
-Please see the Runtime Instrumentation `Testing Methodology`_ page for more
-details.
+Please see the Runtime Instrumentation :ref:`Testing Methodology
+<Runtime Instrumentation Methodology>` page for more details.
 
 Procedure
 ---------
@@ -200,4 +200,3 @@ core to the deepest power level.
 .. _user guide: https://gitlab.arm.com/arm-reference-solutions/arm-reference-solutions-docs/-/blob/master/docs/n1sdp/user-guide.rst
 .. _Prebuilt Images:  https://downloads.trustedfirmware.org/tf-a/css_scp_2.11.0/n1sdp/release/
 .. _N1SDP: https://developer.arm.com/documentation/101489/latest
-.. _Testing Methodology: ../perf/psci-performance-methodology.html

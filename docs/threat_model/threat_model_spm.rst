@@ -4,7 +4,7 @@ SPMC Threat Model
 ************************
 Introduction
 ************************
-This document provides a threat model for the TF-A `Secure Partition Manager`_
+This document provides a threat model for the TF-A :ref:`Secure Partition Manager`
 (SPM) implementation or more generally the S-EL2 reference firmware running on
 systems implementing the FEAT_SEL2 (formerly Armv8.4 Secure EL2) architecture
 extension. The SPM implementation is based on the `Arm Firmware Framework for
@@ -28,7 +28,8 @@ Target of Evaluation
 ************************
 In this threat model, the target of evaluation is the S-EL2 firmware or the
 ``Secure Partition Manager Core`` component (SPMC).
-The monitor and SPMD at EL3 are covered by the `Generic TF-A threat model`_.
+The monitor and SPMD at EL3 are covered by the :ref:`Generic TF-A threat model
+<threat_analysis>`.
 
 The scope for this threat model is:
 
@@ -92,7 +93,8 @@ Components outside of the broken lines are considered untrusted.
 Threat Analysis
 *********************
 
-This threat model follows a similar methodology to the `Generic TF-A threat model`_.
+This threat model follows a similar methodology to the :ref:`Generic TF-A threat model
+<threat_analysis>`.
 The following sections define:
 
 - Trust boundaries
@@ -141,7 +143,8 @@ The following threat agents are identified:
 Threat types
 ============================
 
-The following threat categories as exposed in the `Generic TF-A threat model`_
+The following threat categories as exposed in the :ref:`Generic TF-A threat model
+<threat_analysis>`
 are re-used:
 
 - Spoofing
@@ -1333,7 +1336,5 @@ element of the data flow diagram.
 *Copyright (c) 2021-2023, Arm Limited. All rights reserved.*
 
 .. _Arm Firmware Framework for Arm A-profile: https://developer.arm.com/docs/den0077/latest
-.. _Secure Partition Manager: ../components/secure-partition-manager.html
-.. _Generic TF-A threat model: ./threat_model.html#threat-analysis
 .. _FF-A ACS: https://github.com/ARM-software/ff-a-acs/releases
 
