@@ -1182,7 +1182,12 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 						handle, flags);
 		}
 		break; /* Not reached */
-
+	case FFA_MSG_SEND_DIRECT_RESP2_SMC64:
+		/* Forward direct message to the other world */
+		return spmd_smc_forward(smc_fid, secure_origin,
+					x1, x2, x3, x4, cookie,
+					handle, flags);
+		break; /* Not reached */
 	case FFA_RX_RELEASE:
 	case FFA_RXTX_MAP_SMC32:
 	case FFA_RXTX_MAP_SMC64:
