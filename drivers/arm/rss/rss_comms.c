@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -84,8 +84,8 @@ psa_status_t psa_call(psa_handle_t handle, int32_t type, const psa_invec *in_vec
 	psa_status_t return_val;
 	size_t idx;
 
-	if (type > INT16_MAX || type < INT16_MIN || in_len > PSA_MAX_IOVEC
-	    || out_len > PSA_MAX_IOVEC) {
+	if (type > PSA_CALL_TYPE_MAX || type < PSA_CALL_TYPE_MIN ||
+	    in_len > PSA_MAX_IOVEC   || out_len > PSA_MAX_IOVEC) {
 		return PSA_ERROR_INVALID_ARGUMENT;
 	}
 
