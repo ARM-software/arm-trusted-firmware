@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,9 +13,6 @@
 #include <lib/pmf/pmf.h>
 #include <plat/arm/common/arm_sip_svc.h>
 #include <plat/arm/common/plat_arm.h>
-#if ENABLE_SPMD_LP
-#include <services/el3_spmd_logical_sp.h>
-#endif
 #include <tools_share/uuid.h>
 
 /* ARM SiP Service UUID */
@@ -136,15 +133,16 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 		SMC_RET2(handle, ARM_SIP_SVC_VERSION_MAJOR, ARM_SIP_SVC_VERSION_MINOR);
 
 	default:
-#if ENABLE_SPMD_LP
-		return plat_spmd_logical_sp_smc_handler(smc_fid, x1, x2, x3, x4,
-				cookie, handle, flags);
-#else
-		WARN("Unimplemented ARM SiP Service Call: 0x%x \n", smc_fid);
-		SMC_RET1(handle, SMC_UNK);
-#endif
+		break;
 	}
 
+	/*
+	 * Fall back to allow Arm platform specific handler.
+	 * TODO: Refactor needed to move out generic handlers from this file and
+	 * only keep Arm Platform specific handlers here.
+	 */
+	return plat_arm_sip_handler(smc_fid, x1, x2, x3, x4,
+					cookie, handle, flags);
 }
 
 

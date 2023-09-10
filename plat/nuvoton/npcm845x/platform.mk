@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
 #
 # Copyright (c) 2017-2023 Nuvoton Ltd.
 #
@@ -273,9 +273,11 @@ ifeq (${ENABLE_PMF}, 1)
 ifeq (${ARCH}, aarch64)
 BL31_SOURCES	+=	plat/arm/common/aarch64/execution_state_switch.c \
 		plat/arm/common/arm_sip_svc.c \
+		plat/arm/common/plat_arm_sip_svc.c \
 		lib/pmf/pmf_smc.c
 else
 BL32_SOURCES	+=	plat/arm/common/arm_sip_svc.c \
+		plat/arm/common/plat_arm_sip_svc.c \
 		lib/pmf/pmf_smc.c
 endif
 endif
