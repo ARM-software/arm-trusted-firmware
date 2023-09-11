@@ -168,7 +168,7 @@ void stm32mp_syscfg_fixed_io_comp(enum syscfg_io_ids id, uint32_t pmos, uint32_t
 	mmio_write_32(cccr_addr, value);
 }
 
-#if STM32MP_SPI_NAND || STM32MP_SPI_NOR
+#if STM32MP_SPI_NAND || STM32MP_SPI_NOR || STM32MP_HYPERFLASH
 /*
  * SYSCFG DLYBOS register offsets (base relative)
  */

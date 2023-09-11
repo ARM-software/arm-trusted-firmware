@@ -39,6 +39,7 @@ Available storage medias are:
 - ``STM32MP_RAW_NAND``
 - ``STM32MP_SPI_NAND``
 - ``STM32MP_SPI_NOR``
+- ``STM32MP_HYPERFLASH``
 
 Serial boot devices:
 
@@ -86,4 +87,4 @@ Usually, two copies of fsbl are used (fsbl1 and fsbl2) instead of one partition 
 
 --------------
 
-*Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved*
+*Copyright (c) 2023-2026, STMicroelectronics - All Rights Reserved*

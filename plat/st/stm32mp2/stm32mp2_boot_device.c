@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <errno.h>
 
+#include <drivers/hyperflash.h>
 #include <drivers/nand.h>
 #include <drivers/raw_nand.h>
 #include <drivers/spi_nand.h>
@@ -167,6 +168,15 @@ int plat_get_nor_data(struct nor_device *device)
 	device->read_op.dummy.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	device->read_op.data.buswidth = SPI_MEM_BUSWIDTH_4_LINE;
 	device->read_op.data.dir = SPI_MEM_DATA_IN;
+
+	return 0;
+}
+#endif
+
+#if STM32MP_HYPERFLASH
+int plat_get_hyperflash_data(struct hyperflash_device *device)
+{
+	device->size = SZ_64M;
 
 	return 0;
 }

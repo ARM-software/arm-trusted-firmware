@@ -259,11 +259,11 @@ ifeq (${STM32MP_RAW_NAND},1)
 BL2_SOURCES			+=	drivers/st/fmc/stm32_fmc2_nand.c
 endif
 
-ifneq ($(filter 1,${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR}),)
-BL2_SOURCES		+=	drivers/st/spi/stm32_ospi.c
+ifneq ($(filter 1,${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR} ${STM32MP_HYPERFLASH}),)
+BL2_SOURCES			+=	drivers/st/spi/stm32_ospi.c
 endif
 
-ifneq ($(filter 1,${STM32MP_RAW_NAND} ${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR}),)
+ifneq ($(filter 1,${STM32MP_RAW_NAND} ${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR} ${STM32MP_HYPERFLASH}),)
 BL2_SOURCES			+=	plat/st/stm32mp2/stm32mp2_boot_device.c
 endif
 
