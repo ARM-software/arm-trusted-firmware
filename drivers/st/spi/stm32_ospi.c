@@ -12,7 +12,11 @@
 #include <common/fdt_wrappers.h>
 #include <drivers/clk.h>
 #include <drivers/delay_timer.h>
+#if STM32MP_HYPERFLASH
+#include <drivers/hyperflash.h>
+#else
 #include <drivers/spi_mem.h>
+#endif
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_ospi.h>
 #include <drivers/st/stm32mp_reset.h>
@@ -38,6 +42,7 @@
 #define _OSPI_TCR		0x108U
 #define _OSPI_IR		0x110U
 #define _OSPI_ABR		0x120U
+#define _OSPI_HLCR		0x200U
 
 /* OCTOSPI control register */
 #define _OSPI_CR_EN		BIT_32(0)
@@ -55,6 +60,9 @@
 #define _OSPI_DCR1_CSHT		GENMASK_32(13, 8)
 #define _OSPI_DCR1_CSHT_SHIFT	8U
 #define _OSPI_DCR1_DEVSIZE	GENMASK_32(20, 16)
+#define _OSPI_DCR1_MTYP		GENMASK_32(26, 24)
+#define _OSPI_DCR1_MTYP_SHIFT	24U
+#define _OSPI_DCR1_MTYP_HB_MM	4U
 
 /* OCTOSPI device configuration register 2 */
 #define _OSPI_DCR2_PRESCALER	GENMASK_32(7, 0)
@@ -72,15 +80,28 @@
 #define _OSPI_FCR_CSMF		BIT_32(3)
 
 /* OCTOSPI communication configuration register */
+#define _OSPI_CCR_ADMODE	GENMASK_32(10, 8)
 #define _OSPI_CCR_ADMODE_SHIFT	8U
+#define _OSPI_CCR_ADMODE_8LINES 4U
+#define _OSPI_CCR_ADDTR		BIT_32(11)
+#define _OSPI_CCR_ADSIZE	GENMASK_32(13, 12)
 #define _OSPI_CCR_ADSIZE_SHIFT	12U
-#define _OSPI_CCR_ABMODE_SHIFT	16U
-#define _OSPI_CCR_ABSIZE_SHIFT	20U
+#define _OSPI_CCR_ADSIZE_32BITS 3U
+#define _OSPI_CCR_DMODE		GENMASK_32(26, 24)
 #define _OSPI_CCR_DMODE_SHIFT	24U
+#define _OSPI_CCR_DMODE_8LINES	4U
+#define _OSPI_CCR_DDTR		BIT_32(27)
+#define _OSPI_CCR_DQSE		BIT_32(29)
 
 /* OCTOSPI timing configuration register */
 #define _OSPI_TCR_DCYC		GENMASK_32(4, 0)
+#define _OSPI_TCR_DHQC		BIT_32(28)
 #define _OSPI_TCR_SSHIFT	BIT_32(30)
+
+/* OCTOSPI hyperbus latency configuration register */
+#define _OSPI_HLCR_WZL		BIT_32(1)
+#define _OSPI_HLCR_TACC		GENMASK_32(15, 8)
+#define _OSPI_HLCR_TACC_SHIFT	8U
 
 #define _OSPI_MAX_CHIP		2U
 #define _OSPI_MAX_RESET		2U
@@ -97,6 +118,7 @@
 
 #define _FREQ_100MHZ		100000000U
 #define _DLYB_FREQ_50MHZ	50000000U
+#define _OSPI_NSEC_PER_SEC	1000000000U
 
 #define _OP_READ_ID		0x9FU
 #define _MAX_ID_LEN		8U
@@ -131,7 +153,7 @@ static int stm32_ospi_wait_for_not_busy(void)
 	return 0;
 }
 
-static int stm32_ospi_wait_cmd(const struct spi_mem_op *op)
+static int stm32_ospi_wait_cmd(void)
 {
 	int ret = 0;
 	uint64_t timeout;
@@ -171,21 +193,18 @@ static void stm32_ospi_write_fifo(uint8_t *val, uintptr_t addr)
 	mmio_write_8(addr, *val);
 }
 
-static int stm32_ospi_poll(const struct spi_mem_op *op)
+static int stm32_ospi_poll(uint8_t *buf, uint32_t nbytes, bool read)
 {
 	void (*fifo)(uint8_t *val, uintptr_t addr);
 	uint32_t len;
-	uint8_t *buf;
 
-	if (op->data.dir == SPI_MEM_DATA_IN) {
+	if (read) {
 		fifo = stm32_ospi_read_fifo;
 	} else {
 		fifo = stm32_ospi_write_fifo;
 	}
 
-	buf = (uint8_t *)op->data.buf;
-
-	for (len = op->data.nbytes; len != 0U; len--) {
+	for (len = nbytes; len != 0U; len--) {
 		uint64_t timeout = timeout_init_us(_OSPI_FIFO_TIMEOUT_US);
 
 		while ((mmio_read_32(ospi_base() + _OSPI_SR) &
@@ -202,15 +221,262 @@ static int stm32_ospi_poll(const struct spi_mem_op *op)
 	return 0;
 }
 
-static int stm32_ospi_mm(const struct spi_mem_op *op)
+static int stm32_ospi_mm(uint8_t *buf, uint32_t nbytes, size_t addr)
 {
-	memcpy(op->data.buf,
-	       (void *)(stm32_ospi.mm_base + (size_t)op->addr.val),
-	       op->data.nbytes);
+	uintptr_t from = stm32_ospi.mm_base + addr;
+
+	while (nbytes >= sizeof(uint8_t)) {
+		*buf = mmio_read_8(from);
+		buf += sizeof(uint8_t);
+		from += sizeof(uint8_t);
+		nbytes -= sizeof(uint8_t);
+		dmbsy();
+	}
 
 	return 0;
 }
 
+#if STM32MP_HYPERFLASH
+static int stm32_ospi_hb_read(unsigned int offset, uint8_t *buffer,
+			      size_t length, size_t *length_read)
+{
+	*length_read = length;
+
+	return stm32_ospi_mm(buffer, length, offset);
+}
+
+static int stm32_ospi_hb_xfer(unsigned int offset, uint16_t wdata,
+			      uint16_t *rdata)
+{
+	int ret;
+
+	mmio_clrsetbits_32(ospi_base() + _OSPI_CR, _OSPI_CR_FMODE,
+			   rdata != NULL ?
+			   _OSPI_CR_FMODE_INDR << _OSPI_CR_FMODE_SHIFT :
+			   _OSPI_CR_FMODE_INDW << _OSPI_CR_FMODE_SHIFT);
+	mmio_write_32(ospi_base() + _OSPI_AR, offset);
+
+	if (rdata != NULL) {
+		ret = stm32_ospi_poll((uint8_t *)rdata, 2, true);
+	} else {
+		ret = stm32_ospi_poll((uint8_t *)&wdata, 2, false);
+	}
+	if (ret != 0) {
+		return ret;
+	}
+
+	/* Wait end of tx in indirect mode */
+	ret = stm32_ospi_wait_cmd();
+	if (ret != 0) {
+		return ret;
+	}
+
+	VERBOSE("%s: %s 0x%x @ 0x%x\n", __func__,
+		rdata != NULL ? "read" : "write",
+		rdata != NULL ? (unsigned int)*rdata : (unsigned int)wdata,
+		offset);
+
+	return ret;
+}
+
+static uint16_t stm32_ospi_hb_read16(uint32_t offset)
+{
+	int ret;
+	uint16_t rdata = 0U;
+
+	ret = stm32_ospi_hb_xfer(offset, 0, &rdata);
+	if (ret != 0) {
+		ERROR("%s failed, ret=%i\n", __func__, ret);
+		panic();
+	}
+
+	return rdata;
+}
+
+static void stm32_ospi_hb_write16(uint16_t value, uint32_t offset)
+{
+	int ret;
+
+	ret = stm32_ospi_hb_xfer(offset, value, NULL);
+	if (ret != 0) {
+		ERROR("%s failed, ret=%i\n", __func__, ret);
+		panic();
+	}
+};
+
+static int stm32_ospi_hb_test_cfi(void)
+{
+	int ret = -EIO;
+	uint16_t qry[3];
+
+	/* Reset/Exit from CFI */
+	stm32_ospi_hb_write16(0xF0, 0);
+	/* Enter in CFI */
+	stm32_ospi_hb_write16(0x98, 0xAA);
+
+	qry[0] = stm32_ospi_hb_read16(0x20);
+	qry[1] = stm32_ospi_hb_read16(0x22);
+	qry[2] = stm32_ospi_hb_read16(0x24);
+	if ((qry[0] == 'Q') && (qry[1] == 'R') && (qry[2] == 'Y')) {
+		ret = 0;
+	}
+
+	/* Reset/Exit from CFI */
+	stm32_ospi_hb_write16(0xF0, 0);
+	stm32_ospi_hb_write16(0xFF, 0);
+
+	return ret;
+}
+
+static int stm32_ospi_hb_calibrate(uint32_t prescaler, unsigned int bus_freq)
+{
+	uint16_t period_ps = 0U;
+	uint8_t window_len = 0U;
+	int ret;
+	bool bypass_mode = false;
+
+	if (prescaler != 0U) {
+		mmio_setbits_32(ospi_base() + _OSPI_TCR, _OSPI_TCR_DHQC);
+	}
+
+	if (bus_freq <= _DLYB_FREQ_50MHZ) {
+		bypass_mode = true;
+		period_ps = _OSPI_NSEC_PER_SEC / (bus_freq / 1000U);
+	}
+
+	ret = stm32mp_syscfg_dlyb_init(stm32_ospi.bank, bypass_mode,
+				       period_ps);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (bypass_mode || (prescaler != 0U)) {
+		/* perform only RX TAP selection */
+		ret = stm32mp_syscfg_dlyb_find_tap(stm32_ospi.bank,
+						   stm32_ospi_hb_test_cfi,
+						   true, &window_len);
+	} else {
+		/* perform RX/TX TAP selection */
+		ret = stm32mp_syscfg_dlyb_find_tap(stm32_ospi.bank,
+						   stm32_ospi_hb_test_cfi,
+						   false, &window_len);
+	}
+
+	if (ret != 0) {
+		ERROR("Calibration failed\n");
+
+		if (!bypass_mode) {
+			stm32mp_syscfg_dlyb_stop(stm32_ospi.bank);
+		}
+	}
+
+	return ret;
+}
+
+static int stm32_ospi_hb_init(void *fdt, int bus_node)
+{
+	int ret;
+	int nchips = 0;
+	int bus_subnode = 0;
+	const fdt32_t *cuint = NULL;
+	bool wzl = false;
+	unsigned int tacc = 0U;
+	unsigned int max_freq = 0U;
+	unsigned long ospi_clk = clk_get_rate(stm32_ospi.clock_id);
+	uint32_t prescaler = UINT8_MAX;
+	unsigned int bus_freq;
+	unsigned int period;
+	uint32_t ccr;
+
+	if (ospi_clk == 0U) {
+		return -EINVAL;
+	}
+
+	fdt_for_each_subnode(bus_subnode, fdt, bus_node) {
+		nchips++;
+	}
+
+	if (nchips != 1) {
+		ERROR("Only one hyperflash device is currently supported\n");
+		return -EINVAL;
+	}
+
+	fdt_for_each_subnode(bus_subnode, fdt, bus_node) {
+		cuint = fdt_getprop(fdt, bus_subnode, "st,max-frequency", NULL);
+		if (cuint == NULL) {
+			ERROR("Max frequency not set\n");
+			return -EINVAL;
+		}
+		max_freq = fdt32_to_cpu(*cuint);
+
+		cuint = fdt_getprop(fdt, bus_subnode, "st,tacc-ns", NULL);
+		if (cuint != NULL) {
+			tacc = fdt32_to_cpu(*cuint);
+		}
+
+		if ((fdt_getprop(fdt, bus_subnode, "st,wzl", NULL)) != NULL) {
+			wzl = true;
+		}
+	}
+
+	/* Enable the controller */
+	mmio_setbits_32(ospi_base() + _OSPI_CR, _OSPI_CR_EN);
+
+	/* Set MTYP to HyperBus memory-map mode */
+	mmio_clrsetbits_32(ospi_base() + _OSPI_DCR1, _OSPI_DCR1_MTYP,
+			   _OSPI_DCR1_MTYP_HB_MM << _OSPI_DCR1_MTYP_SHIFT);
+
+	/* Set the prescaler */
+	if (max_freq > 0U) {
+		prescaler = div_round_up(ospi_clk, max_freq) - 1U;
+		if (prescaler > UINT8_MAX) {
+			prescaler = UINT8_MAX;
+		}
+	}
+
+	mmio_clrsetbits_32(ospi_base() + _OSPI_DCR2, _OSPI_DCR2_PRESCALER,
+			   prescaler);
+
+	/* Configure data length for 2 bytes read/write */
+	mmio_write_32(ospi_base() + _OSPI_DLR, 1U);
+
+	/*
+	 * Set access time latency
+	 * Set write zero latency
+	 */
+	bus_freq = ospi_clk / (prescaler + 1U);
+	period = _OSPI_NSEC_PER_SEC / bus_freq;
+	mmio_clrsetbits_32(ospi_base() + _OSPI_HLCR,
+			   _OSPI_HLCR_TACC | _OSPI_HLCR_WZL,
+			   div_round_up(tacc, period) << _OSPI_HLCR_TACC_SHIFT);
+	if (wzl) {
+		mmio_setbits_32(ospi_base() + _OSPI_HLCR, _OSPI_HLCR_WZL);
+	}
+
+	/* Configure read access */
+	ccr = _OSPI_CCR_DQSE | _OSPI_CCR_DDTR | _OSPI_CCR_ADDTR;
+	ccr |= _OSPI_CCR_DMODE_8LINES << _OSPI_CCR_DMODE_SHIFT;
+	ccr |= _OSPI_CCR_ADSIZE_32BITS << _OSPI_CCR_ADSIZE_SHIFT;
+	ccr |= _OSPI_CCR_ADMODE_8LINES << _OSPI_CCR_ADMODE_SHIFT;
+	mmio_write_32(ospi_base() + _OSPI_CCR, ccr);
+
+	/* Calibrate the DLL */
+	ret = stm32_ospi_hb_calibrate(prescaler, bus_freq);
+	if (ret != 0) {
+		return ret;
+	}
+
+	/* Set the controller in memory map mode */
+	mmio_clrsetbits_32(ospi_base() + _OSPI_CR, _OSPI_CR_FMODE,
+			   _OSPI_CR_FMODE_MM << _OSPI_CR_FMODE_SHIFT);
+
+	return 0;
+}
+
+static const struct hyperflash_ctrl_ops stm32_ospi_ctrl_ops = {
+	.read = stm32_ospi_hb_read,
+};
+#else /* STM32MP_HYPERFLASH */
 static int stm32_ospi_tx(const struct spi_mem_op *op, uint8_t fmode)
 {
 	if (op->data.nbytes == 0U) {
@@ -218,10 +484,12 @@ static int stm32_ospi_tx(const struct spi_mem_op *op, uint8_t fmode)
 	}
 
 	if (fmode == _OSPI_CR_FMODE_MM) {
-		return stm32_ospi_mm(op);
+		return stm32_ospi_mm((uint8_t *)op->data.buf, op->data.nbytes,
+				     (size_t)op->addr.val);
 	}
 
-	return stm32_ospi_poll(op);
+	return stm32_ospi_poll((uint8_t *)op->data.buf, op->data.nbytes,
+			       op->data.dir == SPI_MEM_DATA_IN);
 }
 
 static unsigned int stm32_ospi_get_mode(uint8_t buswidth)
@@ -301,7 +569,7 @@ static int stm32_ospi_send(const struct spi_mem_op *op, uint8_t fmode)
 	}
 
 	/* Wait end of TX in indirect mode */
-	ret = stm32_ospi_wait_cmd(op);
+	ret = stm32_ospi_wait_cmd();
 	if (ret != 0) {
 		goto abort;
 	}
@@ -617,6 +885,7 @@ static const struct spi_bus_ops stm32_ospi_bus_ops = {
 	.exec_op = stm32_ospi_exec_op,
 	.dirmap_read = stm32_ospi_dirmap_read,
 };
+#endif /* STM32MP_HYPERFLASH */
 
 int stm32_ospi_init(void)
 {
@@ -770,5 +1039,12 @@ int stm32_ospi_init(void)
 
 	mmio_write_32(ospi_base() + _OSPI_DCR1, _OSPI_DCR1_DEVSIZE);
 
+#if STM32MP_HYPERFLASH
+	/* Init Hyperflash framework */
+	hyperflash_ctrl_init(&stm32_ospi_ctrl_ops);
+
+	return stm32_ospi_hb_init(fdt, ospi_node);
+#else /* STM32MP_HYPERFLASH */
 	return spi_mem_init_slave(fdt, ospi_node, &stm32_ospi_bus_ops);
+#endif /* STM32MP_HYPERFLASH */
 };
