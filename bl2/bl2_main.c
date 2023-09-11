@@ -16,7 +16,9 @@
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/console.h>
 #include <drivers/fwu/fwu.h>
+#include <lib/bootmarker_capture.h>
 #include <lib/extensions/pauth.h>
+#include <lib/pmf/pmf.h>
 #include <plat/common/platform.h>
 
 #include "bl2_private.h"
@@ -25,6 +27,11 @@
 #define NEXT_IMAGE	"BL31"
 #else
 #define NEXT_IMAGE	"BL32"
+#endif
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	PMF_REGISTER_SERVICE(bl_svc, PMF_RT_INSTR_SVC_ID,
+		BL_TOTAL_IDS, PMF_DUMP_ENABLE);
 #endif
 
 #if RESET_TO_BL2
@@ -81,6 +88,10 @@ void bl2_main(void)
 {
 	entry_point_info_t *next_bl_ep_info;
 
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	PMF_CAPTURE_TIMESTAMP(bl_svc, BL2_ENTRY, PMF_CACHE_MAINT);
+#endif
+
 	NOTICE("BL2: %s\n", version_string);
 	NOTICE("BL2: %s\n", build_message);
 
@@ -118,14 +129,18 @@ void bl2_main(void)
 	disable_mmu_icache_secure();
 #endif /* !__aarch64__ */
 
-	console_flush();
-
 #if ENABLE_PAUTH
 	/*
 	 * Disable pointer authentication before running next boot image
 	 */
 	pauth_disable_el1();
 #endif /* ENABLE_PAUTH */
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	PMF_CAPTURE_TIMESTAMP(bl_svc, BL2_EXIT, PMF_CACHE_MAINT);
+#endif
+
+	console_flush();
 
 	/*
 	 * Run next BL image via an SMC to BL1. Information on how to pass
@@ -137,6 +152,9 @@ void bl2_main(void)
 
 	NOTICE("BL2: Booting " NEXT_IMAGE "\n");
 	print_entry_point_info(next_bl_ep_info);
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	PMF_CAPTURE_TIMESTAMP(bl_svc, BL2_EXIT, PMF_CACHE_MAINT);
+#endif
 	console_flush();
 
 #if ENABLE_PAUTH

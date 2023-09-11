@@ -25,6 +25,10 @@ ifeq (${TRUSTED_BOARD_BOOT},1)
 BL1_SOURCES		+=	bl1/bl1_fwu.c
 endif
 
+ifeq (${ENABLE_PMF},1)
+BL1_SOURCES		+=	lib/pmf/pmf_main.c
+endif
+
 ifneq ($(findstring gcc,$(notdir $(LD))),)
         BL1_LDFLAGS	+=	-Wl,--sort-section=alignment
 else ifneq ($(findstring ld,$(notdir $(LD))),)
