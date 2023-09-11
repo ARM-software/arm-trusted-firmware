@@ -71,7 +71,7 @@ supporting tools:
 The following libraries are required for Trusted Board Boot and Measured Boot
 support:
 
-- mbed TLS == 3.4.0 (tag: ``mbedtls-3.4.0``)
+- mbed TLS == 3.4.1 (tag: ``mbedtls-3.4.1``)
 
 These tools are optional:
 
