@@ -34,7 +34,6 @@ SEPARATE_CODE_AND_RODATA	:= 1
 USE_COHERENT_MEM		:= 1
 
 # Use multi console API
-MULTI_CONSOLE_API		:= 1
 
 PLAT_PICOPI_UART		:=5
 $(eval $(call add_define,PLAT_PICOPI_UART))

@@ -7,7 +7,6 @@
 PLAT_QEMU_PATH		:=	plat/qemu/qemu_sbsa
 PLAT_QEMU_COMMON_PATH	:=	plat/qemu/common
 
-MULTI_CONSOLE_API	:= 1
 CRASH_REPORTING		:= 1
 
 # Disable the PSCI platform compatibility layer

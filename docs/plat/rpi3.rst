@@ -296,11 +296,6 @@ The following is not currently supported:
   address by changing the file ``armstub8.bin``, so there's no point in using
   TF-A in this case.
 
-- ``MULTI_CONSOLE_API=0``: The multi console API must be enabled. Note that the
-  crash console uses the internal 16550 driver functions directly in order to be
-  able to print error messages during early crashes before setting up the
-  multi console API.
-
 Building the firmware for kernels that don't support PSCI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
