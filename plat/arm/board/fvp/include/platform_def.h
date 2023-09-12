@@ -168,8 +168,8 @@
 #  define MAX_XLAT_TABLES		6
 # endif
 #elif !USE_ROMLIB
-# define PLAT_ARM_MMAP_ENTRIES		11
-# define MAX_XLAT_TABLES		5
+# define PLAT_ARM_MMAP_ENTRIES		12
+# define MAX_XLAT_TABLES		6
 #else
 # define PLAT_ARM_MMAP_ENTRIES		12
 # if (defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)) && \
@@ -437,7 +437,12 @@ defined(IMAGE_BL2) && MEASURED_BOOT
 /*
  * Maximum size of Event Log buffer used in Measured Boot Event Log driver
  */
+#if ENABLE_RME && (defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd))
+/* Account for additional measurements of secure partitions and SPM. */
+#define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x800)
+#else
 #define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
+#endif
 
 /*
  * Maximum size of Event Log buffer used for DRTM
