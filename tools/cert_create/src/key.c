@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include <openssl/conf.h>
+#include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 
@@ -189,27 +190,58 @@ int key_create(key_t *key, int type, int key_bits)
 	return 0;
 }
 
+static EVP_PKEY *key_load_pkcs11(const char *uri)
+{
+	char *key_pass;
+	ENGINE *e;
+
+	ENGINE_load_builtin_engines();
+	e = ENGINE_by_id("pkcs11");
+	if (!e) {
+		fprintf(stderr, "Cannot Load PKCS#11 ENGINE\n");
+		return NULL;
+	}
+
+	if (!ENGINE_init(e)) {
+		fprintf(stderr, "Cannot ENGINE_init\n");
+		return NULL;
+	}
+
+	key_pass = getenv("PKCS11_PIN");
+	if (key_pass) {
+		if (!ENGINE_ctrl_cmd_string(e, "PIN", key_pass, 0)) {
+			fprintf(stderr, "Cannot Set PKCS#11 PIN\n");
+			return NULL;
+		}
+	}
+	return ENGINE_load_private_key(e, uri, NULL, NULL);
+}
+
 int key_load(key_t *key, unsigned int *err_code)
 {
 	FILE *fp;
-	EVP_PKEY *k;
 
 	if (key->fn) {
-		/* Load key from file */
-		fp = fopen(key->fn, "r");
-		if (fp) {
-			k = PEM_read_PrivateKey(fp, &key->key, NULL, NULL);
-			fclose(fp);
-			if (k) {
-				*err_code = KEY_ERR_NONE;
-				return 1;
-			} else {
-				ERROR("Cannot load key from %s\n", key->fn);
-				*err_code = KEY_ERR_LOAD;
-			}
+		if (!strncmp(key->fn, "pkcs11:", 7)) {
+			/* Load key through pkcs11 */
+			key->key = key_load_pkcs11(key->fn);
 		} else {
-			WARN("Cannot open file %s\n", key->fn);
-			*err_code = KEY_ERR_OPEN;
+			/* Load key from file */
+			fp = fopen(key->fn, "r");
+			if (fp) {
+				key->key = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
+				fclose(fp);
+			} else {
+				WARN("Cannot open file %s\n", key->fn);
+				*err_code = KEY_ERR_OPEN;
+			}
+		}
+		if (key->key) {
+			*err_code = KEY_ERR_NONE;
+			return 1;
+		} else {
+			ERROR("Cannot load key from %s\n", key->fn);
+			*err_code = KEY_ERR_LOAD;
 		}
 	} else {
 		VERBOSE("Key filename not specified\n");
