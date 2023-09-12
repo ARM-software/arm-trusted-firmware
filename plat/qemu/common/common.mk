@@ -20,12 +20,25 @@ QEMU_CPU_LIBS		:=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				lib/cpus/aarch64/cortex_a76.S		\
+				lib/cpus/aarch64/cortex_a710.S		\
 				lib/cpus/aarch64/neoverse_n_common.S	\
 				lib/cpus/aarch64/neoverse_n1.S		\
 				lib/cpus/aarch64/neoverse_v1.S		\
 				lib/cpus/aarch64/qemu_max.S
 
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
+
+# Cpu core architecture level:
+# v8.0: a53, a57, a72
+# v8.2: a76, n1
+# v8.4: v1
+# v9.0: a710
+#
+# let treat v9.0 as v8.5 as they share cpu features
+# https://developer.arm.com/documentation/102378/0201/Armv8-x-and-Armv9-x-extensions-and-features
+
+ARM_ARCH_MAJOR		:=	8
+ARM_ARCH_MINOR		:=	5
 endif
 
 PLAT_BL_COMMON_SOURCES	:=	${PLAT_QEMU_COMMON_PATH}/qemu_common.c		\
