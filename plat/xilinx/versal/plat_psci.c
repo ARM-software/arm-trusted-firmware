@@ -186,6 +186,7 @@ static void __dead2 versal_system_reset(void)
  */
 static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 {
+	uint32_t ret, fw_api_version, version[PAYLOAD_ARG_CNT] = {0U};
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
@@ -205,8 +206,17 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
-			      SECURE_FLAG);
+	ret = pm_feature_check((uint32_t)PM_SELF_SUSPEND, &version[0], SECURE_FLAG);
+	if (ret == PM_RET_SUCCESS) {
+		fw_api_version = version[0] & 0xFFFFU;
+		if (fw_api_version >= 3U) {
+			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,
+					      SECURE_FLAG);
+		} else {
+			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
+					      SECURE_FLAG);
+		}
+	}
 }
 
 /**
