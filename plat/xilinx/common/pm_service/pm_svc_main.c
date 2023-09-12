@@ -45,13 +45,7 @@ bool pwrdwn_req_received;
 
 static void notify_os(void)
 {
-	int32_t cpu;
-	uint32_t reg;
-
-	cpu = plat_my_core_pos() + 1U;
-
-	reg = (cpu | (sgi << XSCUGIC_SGIR_EL1_INITID_SHIFT));
-	write_icc_asgi1r_el1(reg);
+	plat_ic_raise_ns_sgi(sgi, read_mpidr_el1());
 }
 
 static uint64_t cpu_pwrdwn_req_handler(uint32_t id, uint32_t flags,
