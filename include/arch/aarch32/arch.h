@@ -796,5 +796,6 @@
 #define DSU_CLUSTER_PWR_OFF	0
 #define DSU_CLUSTER_PWR_ON	1
 #define DSU_CLUSTER_PWR_MASK	U(1)
+#define DSU_CLUSTER_MEM_RET	BIT(1)
 
 #endif /* ARCH_H */
