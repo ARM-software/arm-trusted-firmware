@@ -127,6 +127,13 @@ ifeq (${NRD_PLATFORM_VARIANT}, 2)
 BL31_SOURCES	+=	drivers/arm/gic/v3/gic600_multichip.c
 endif
 
+ifneq (${PLAT_RESET_TO_BL31}, 1)
+ifeq ($(SPMD_SPM_AT_SEL2),1)
+# Firmware Configuration Framework sources
+BL31_SOURCES    +=    ${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
+endif
+endif
+
 # XLAT options for RD-V3 variants
 BL31_CFLAGS	+=      -DPLAT_XLAT_TABLES_DYNAMIC
 BL2_CFLAGS	+=      -DPLAT_XLAT_TABLES_DYNAMIC

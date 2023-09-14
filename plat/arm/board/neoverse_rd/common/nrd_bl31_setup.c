@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,8 @@
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
 #include <drivers/generic_delay_timer.h>
+#include <lib/fconf/fconf.h>
+#include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/arm/css/common/css_pm.h>
 #include <plat/common/platform.h>
@@ -155,6 +157,21 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Initialize generic timer */
 	generic_delay_timer_init();
 
+#if SPMD_SPM_AT_SEL2 && !RESET_TO_BL31
+	INFO("BL31 FCONF: FW_CONFIG address = 0x%lx\n", (uintptr_t)arg1);
+	/* Initialize BL31's copy of the DTB registry because SPMD needs the
+	 * TOS_FW_CONFIG's addresses to make a copy.
+	 */
+	fconf_populate("FW_CONFIG", arg1);
+
+	/* arg1 is supposed to point to SOC_FW_CONFIG */
+	const struct dyn_cfg_dtb_info_t *soc_fw_config_info;
+
+	soc_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, SOC_FW_CONFIG_ID);
+	if (soc_fw_config_info != NULL) {
+		arg1 = soc_fw_config_info->config_addr;
+	}
+#endif /* SPMD_SPM_AT_SEL2 && !RESET_TO_BL31 */
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 }
 
