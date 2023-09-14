@@ -168,8 +168,13 @@
 #  define MAX_XLAT_TABLES		6
 # endif
 #elif !USE_ROMLIB
-# define PLAT_ARM_MMAP_ENTRIES		12
-# define MAX_XLAT_TABLES		6
+# if ENABLE_RME && defined(IMAGE_BL2)
+#  define PLAT_ARM_MMAP_ENTRIES		12
+#  define MAX_XLAT_TABLES		6
+# else
+#  define PLAT_ARM_MMAP_ENTRIES		11
+#  define MAX_XLAT_TABLES		5
+# endif /* (IMAGE_BL2 && ENABLE_RME) */
 #else
 # define PLAT_ARM_MMAP_ENTRIES		12
 # if (defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)) && \
