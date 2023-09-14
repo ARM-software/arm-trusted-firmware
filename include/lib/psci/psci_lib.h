@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -94,6 +94,7 @@ int psci_stop_other_cores(unsigned int wait_ms,
 bool psci_is_last_on_cpu_safe(void);
 bool psci_are_all_cpus_on_safe(void);
 void psci_pwrdown_cpu(unsigned int power_level);
+void psci_do_manage_extensions(void);
 
 #endif /* __ASSEMBLER__ */
 
