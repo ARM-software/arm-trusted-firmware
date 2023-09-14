@@ -1,0 +1,85 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/dts-v1/;
+
+#define	AFF	00
+
+#include "rdv3-defs.dtsi"
+
+/ {
+	compatible = "arm,ffa-core-manifest-1.0";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	attribute {
+		spmc_id = <0x8000>;
+		maj_ver = <0x1>;
+		min_ver = <0x1>;
+		exec_state = <0x0>;
+		load_address = <0x0 0xfa889000>;
+		entrypoint = <0x0 0xfa889000>;
+		binary_size = <0x177000>;
+	};
+
+	hypervisor {
+		compatible = "hafnium,hafnium";
+		vm1 {
+			is_ffa_partition;
+			debug_name = "stmm";
+			load_address = <0xFAA00000>;
+			vcpu_count = <1>;
+			mem_size = <0x300000>;
+		};
+	};
+
+	cpus {
+		#address-cells = <0x2>;
+		#size-cells = <0x0>;
+
+		CPU_0
+
+		/*
+		 * SPMC (Hafnium) requires secondary core nodes are declared
+		 * in descending order.
+		 */
+#if (NRD_PLATFORM_VARIANT != 1)
+		CPU(F)
+		CPU(E)
+		CPU(D)
+		CPU(C)
+		CPU(B)
+		CPU(A)
+		CPU(9)
+		CPU(8)
+#endif
+		CPU(7)
+		CPU(6)
+		CPU(5)
+		CPU(4)
+		CPU(3)
+		CPU(2)
+		CPU(1)
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = /* Trusted DRAM for SPMC and SP */
+		      <0x0 0xfa889000 0x0 0x400000
+		      /* Trusted DRAM for SP Heap*/
+		      0x0 0xfad00000 0x0 0x500000>;
+	};
+
+	memory@1 {
+		device_type = "ns-memory";
+		/* DRAM for SP NS mappings*/
+		reg = <0x0 0x80000000 0x0 0x78FE0000>;
+	};
+	memory@2 {
+		device_type = "device-memory";
+		reg = /* AP Memory Expansion 2 - Secure Flash*/
+		      <0x6 0x04000000 0x0 0x04000000>;
+	};
+};

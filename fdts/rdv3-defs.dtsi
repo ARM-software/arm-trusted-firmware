@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef	RD_V3_DEFS_DTSI
+#define	RD_V3_DEFS_DTSI
+
+#define CONCAT(x, y)	x##y
+#define CONC(x, y)	CONCAT(x, y)
+
+#define	ADR(n)	\
+	CPU##n:cpu@n##0000 {
+
+#define	PRE			\
+	device_type = "cpu";	\
+	compatible = "arm,armv8";
+
+#define	CPU_0		\
+	CPU0:cpu@0 {	\
+	PRE		\
+	reg = <0x0 0x0>;\
+	};
+
+#define POST };
+
+/*
+ * n - CPU number
+ */
+#define	CPU(n)	\
+	ADR(n)	\
+	PRE		\
+	reg = <0x0 CONC(0x, CONC(n, 0000))>;	\
+	POST
+
+#endif	/* RD_V3_DEFS_DTSI */
