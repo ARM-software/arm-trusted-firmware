@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -226,7 +226,7 @@
 #define QEMU_FLASH1_SIZE		0x04000000
 
 #define PLAT_QEMU_FIP_BASE		0x00040000
-#define PLAT_QEMU_FIP_MAX_SIZE		0x00400000
+#define PLAT_QEMU_FIP_MAX_SIZE		(QEMU_FLASH0_SIZE - PLAT_QEMU_FIP_BASE)
 
 #define DEVICE0_BASE			0x08000000
 #define DEVICE0_SIZE			0x01000000
