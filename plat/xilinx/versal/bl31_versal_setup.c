@@ -224,7 +224,8 @@ void bl31_plat_arch_setup(void)
 	plat_arm_interconnect_enter_coherency();
 
 	const mmap_region_t bl_regions[] = {
-#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
+#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE) && \
+	(!defined(PLAT_XLAT_TABLES_DYNAMIC)))
 		MAP_REGION_FLAT(XILINX_OF_BOARD_DTB_ADDR, XILINX_OF_BOARD_DTB_MAX_SIZE,
 				MT_MEMORY | MT_RW | MT_NS),
 #endif
