@@ -113,7 +113,11 @@ bool stm32mp_lock_available(void)
 	const uint32_t c_m_bits = SCTLR_M_BIT | SCTLR_C_BIT;
 
 	/* The spinlocks are used only when MMU and data cache are enabled */
+#ifdef __aarch64__
+	return (read_sctlr_el3() & c_m_bits) == c_m_bits;
+#else
 	return (read_sctlr() & c_m_bits) == c_m_bits;
+#endif
 }
 
 int stm32mp_map_ddr_non_cacheable(void)

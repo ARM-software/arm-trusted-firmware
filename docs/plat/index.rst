@@ -42,7 +42,7 @@ Platform Ports
    rockchip
    socionext-uniphier
    synquacer
-   stm32mp1
+   st/index
    ti-k3
    xilinx-versal-net
    xilinx-versal

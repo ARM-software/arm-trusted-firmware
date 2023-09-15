@@ -146,6 +146,7 @@ BL2_SOURCES			+=	$(ZLIB_SOURCES)
 
 BL2_SOURCES			+=	drivers/io/io_fip.c				\
 					plat/st/common/bl2_io_storage.c			\
+					plat/st/common/plat_image_load.c		\
 					plat/st/common/stm32mp_fconf_io.c
 
 BL2_SOURCES			+=	drivers/io/io_block.c				\

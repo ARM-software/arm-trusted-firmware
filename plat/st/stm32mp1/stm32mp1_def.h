@@ -195,6 +195,7 @@ enum ddr_type {
 					 SRAM1_SIZE - \
 					 PLATFORM_MTD_MAX_PAGE_SIZE)
 #endif
+
 /*******************************************************************************
  * STM32MP1 device/io map related constants (used for MMU)
  ******************************************************************************/
@@ -416,12 +417,6 @@ enum ddr_type {
 #define STM32MP_SDMMC2_BASE		U(0x58007000)
 #define STM32MP_SDMMC3_BASE		U(0x48004000)
 
-#define STM32MP_MMC_INIT_FREQ			U(400000)	/*400 KHz*/
-#define STM32MP_SD_NORMAL_SPEED_MAX_FREQ	U(25000000)	/*25 MHz*/
-#define STM32MP_SD_HIGH_SPEED_MAX_FREQ		U(50000000)	/*50 MHz*/
-#define STM32MP_EMMC_NORMAL_SPEED_MAX_FREQ	U(26000000)	/*26 MHz*/
-#define STM32MP_EMMC_HIGH_SPEED_MAX_FREQ	U(52000000)	/*52 MHz*/
-
 /*******************************************************************************
  * STM32MP1 BSEC / OTP
  ******************************************************************************/
@@ -540,9 +535,6 @@ enum ddr_type {
 /* UID OTP */
 #define UID_WORD_NB			U(3)
 
-/* FWU configuration (max supported value is 15) */
-#define FWU_MAX_TRIAL_REBOOT		U(3)
-
 /*******************************************************************************
  * STM32MP1 TAMP
  ******************************************************************************/
@@ -642,7 +634,7 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 /* 3 PWR + 1 VREFBUF + 14 PMIC regulators + 1 FIXED */
 #define PLAT_NB_RDEVS			U(19)
 /* 2 FIXED */
-#define PLAT_NB_FIXED_REGS		U(2)
+#define PLAT_NB_FIXED_REGUS		U(2)
 
 /*******************************************************************************
  * Device Tree defines

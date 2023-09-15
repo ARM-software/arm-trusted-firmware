@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -248,6 +248,7 @@ const fdt32_t *fdt_rcc_read_prop(const char *prop_name, int *lenp)
 	return cuint;
 }
 
+#if defined(IMAGE_BL32)
 /*
  * Get the secure state for rcc node in device tree.
  * @return: true if rcc is configured for secure world access, false if not.
@@ -266,6 +267,7 @@ bool fdt_get_rcc_secure_state(void)
 
 	return true;
 }
+#endif
 
 /*
  * Get the clock ID of the given node in device tree.
@@ -320,6 +322,19 @@ unsigned long fdt_get_uart_clock_freq(uintptr_t instance)
 }
 
 /*******************************************************************************
+ * This function sets the STGEN counter value.
+ ******************************************************************************/
+static void stgen_set_counter(unsigned long long counter)
+{
+#ifdef __aarch64__
+	mmio_write_64(STGEN_BASE + CNTCV_OFF, counter);
+#else
+	mmio_write_32(STGEN_BASE + CNTCVL_OFF, (uint32_t)counter);
+	mmio_write_32(STGEN_BASE + CNTCVU_OFF, (uint32_t)(counter >> 32));
+#endif
+}
+
+/*******************************************************************************
  * This function configures and restores the STGEN counter depending on the
  * connected clock.
  ******************************************************************************/
@@ -337,8 +352,7 @@ void stm32mp_stgen_config(unsigned long rate)
 	mmio_clrbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
 	counter = stm32mp_stgen_get_counter() * rate / cntfid0;
 
-	mmio_write_32(STGEN_BASE + CNTCVL_OFF, (uint32_t)counter);
-	mmio_write_32(STGEN_BASE + CNTCVU_OFF, (uint32_t)(counter >> 32));
+	stgen_set_counter(counter);
 	mmio_write_32(STGEN_BASE + CNTFID_OFF, rate);
 	mmio_setbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
 
@@ -353,8 +367,12 @@ void stm32mp_stgen_config(unsigned long rate)
  ******************************************************************************/
 unsigned long long stm32mp_stgen_get_counter(void)
 {
+#ifdef __aarch64__
+	return mmio_read_64(STGEN_BASE + CNTCV_OFF);
+#else
 	return (((unsigned long long)mmio_read_32(STGEN_BASE + CNTCVU_OFF) << 32) |
 		mmio_read_32(STGEN_BASE + CNTCVL_OFF));
+#endif
 }
 
 /*******************************************************************************
@@ -371,7 +389,6 @@ void stm32mp_stgen_restore_counter(unsigned long long value,
 			mmio_read_32(STGEN_BASE + CNTFID_OFF)) / 1000U);
 
 	mmio_clrbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
-	mmio_write_32(STGEN_BASE + CNTCVL_OFF, (uint32_t)cnt);
-	mmio_write_32(STGEN_BASE + CNTCVU_OFF, (uint32_t)(cnt >> 32));
+	stgen_set_counter(cnt);
 	mmio_setbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
 }
