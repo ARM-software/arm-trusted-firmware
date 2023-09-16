@@ -83,7 +83,7 @@ static int mmc_send_cmd(unsigned int idx, unsigned int arg,
 static int mmc_device_state(void)
 {
 	int retries = MMC_DEFAULT_MAX_RETRIES;
-	unsigned int resp_data[4];
+	unsigned int resp_data[4] = {0};
 
 	do {
 		int ret;
