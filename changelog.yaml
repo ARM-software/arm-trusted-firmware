@@ -609,6 +609,9 @@ subsections:
           - plat/xilinx
 
         subsections:
+          - title: DCC (Debug Communication Channel)
+            scope: dcc
+
           - title: Versal
             scope: versal
 
