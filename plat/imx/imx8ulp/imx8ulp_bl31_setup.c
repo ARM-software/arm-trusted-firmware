@@ -52,6 +52,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	static console_t console;
 
+	/* config the TPM5 clock */
+	mmio_write_32(IMX_PCC3_BASE + 0xd0, 0x92000000);
+	mmio_write_32(IMX_PCC3_BASE + 0xd0, 0xd2000000);
 
 	/* enable the GPIO D,E,F non-secure access by default */
 	mmio_write_32(IMX_PCC4_BASE + 0x78, 0xc0000000);
