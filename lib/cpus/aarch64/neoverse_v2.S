@@ -22,6 +22,13 @@
 #error "Neoverse V2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+workaround_reset_start neoverse_v2, ERRATUM(2331132), ERRATA_V2_2331132
+	sysreg_bitfield_insert NEOVERSE_V2_CPUECTLR2_EL1, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_CNSRV, \
+		NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_LSB, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_WIDTH
+workaround_reset_end neoverse_v2, ERRATUM(2331132)
+
+check_erratum_ls neoverse_v2, ERRATUM(2331132), CPU_REV(0, 2)
+
 workaround_runtime_start neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
 	/* dsb before isb of power down sequence */
 	dsb	sy

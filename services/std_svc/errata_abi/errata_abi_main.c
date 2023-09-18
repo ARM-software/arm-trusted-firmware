@@ -399,10 +399,11 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = NEOVERSE_V2_MIDR,
 	.cpu_errata_list = {
-		[0] = {2719103, 0x00, 0x01, ERRATA_V2_2719103, \
+		[0] = {2331132, 0x00, 0x02, ERRATA_V2_2331132},
+		[1] = {2719103, 0x00, 0x01, ERRATA_V2_2719103, \
 			ERRATA_NON_ARM_INTERCONNECT},
-		[1] = {2801372, 0x00, 0x01, ERRATA_V2_2801372},
-		[2 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+		[2] = {2801372, 0x00, 0x01, ERRATA_V2_2801372},
+		[3 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
 #endif /* NEOVERSE_V2_H_INC */
