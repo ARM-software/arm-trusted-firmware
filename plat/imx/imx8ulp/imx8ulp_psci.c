@@ -131,6 +131,14 @@ void imx_pwr_domain_off(const psci_power_state_t *target_state)
 
 /* APD power mode config */
 ps_apd_pwr_mode_cfgs_t apd_pwr_mode_cfgs = {
+	[DPD_PWR_MODE] = {
+		.swt_board_offs = 0x180,
+		.swt_mem_offs = 0x188,
+		.pmic_cfg = PMIC_CFG(0x23, 0xa, 0x2),
+		.pad_cfg = PAD_CFG(0xc, 0x0, 0x01e80a02),
+		.bias_cfg = BIAS_CFG(0x0, 0x2, 0x2, 0x0),
+	},
+
 	/* PD */
 	[PD_PWR_MODE] = {
 		.swt_board_offs = 0x170,
@@ -159,6 +167,12 @@ ps_apd_pwr_mode_cfgs_t apd_pwr_mode_cfgs = {
 
 /* APD power switch config */
 ps_apd_swt_cfgs_t apd_swt_cfgs = {
+	[DPD_PWR_MODE] = {
+		.swt_board[0] = SWT_BOARD(0x00060003, 0x7c),
+		.swt_mem[0] = SWT_MEM(0x0, 0x0, 0x1ffff),
+		.swt_mem[1] = SWT_MEM(0x003fffff, 0x003fffff, 0x0),
+	},
+
 	[PD_PWR_MODE] = {
 		.swt_board[0] = SWT_BOARD(0x00060003, 0x00001e74),
 		.swt_mem[0] = SWT_MEM(0x00010c00, 0x0, 0x1ffff),
@@ -363,10 +377,55 @@ void imx_get_sys_suspend_power_state(psci_power_state_t *req_state)
 	}
 }
 
+void __dead2 imx_system_off(void)
+{
+	unsigned int i;
+
+	/* config the all the core into OFF mode and IRQ masked. */
+	for (i = 0U; i < PLATFORM_CORE_COUNT; i++) {
+		/* disable wakeup from wkpu */
+		mmio_write_32(WKPUx(i), 0x0);
+
+		/* reset the core reset entry to 0x1000 */
+		imx_pwr_set_cpu_entry(i, 0x1000);
+
+		/* config the core power mode to off */
+		mmio_write_32(AD_COREx_LPMODE(i), 0x3);
+	}
+
+	plat_gic_cpuif_disable();
+
+	/* Config the power mode info for entering DPD mode and ACT mode */
+	imx_set_pwr_mode_cfg(ADMA_PWR_MODE);
+	imx_set_pwr_mode_cfg(ACT_PWR_MODE);
+	imx_set_pwr_mode_cfg(DPD_PWR_MODE);
+
+	/* Set the APD domain into DPD mode */
+	mmio_write_32(IMX_CMC1_BASE + 0x10, 0x7);
+	mmio_write_32(IMX_CMC1_BASE + 0x20, 0x1f);
+
+	/* make sure no pending upower wakeup */
+	upwr_xcp_set_rtd_apd_llwu(APD_DOMAIN, 0, NULL);
+	upower_wait_resp();
+
+	/* enable the upower wakeup from wuu, act as APD boot up method  */
+	mmio_write_32(IMX_PCC3_BASE + 0x98, 0xc0800000);
+	mmio_setbits_32(IMX_WUU1_BASE + 0x18, BIT(4));
+
+	/* make sure no pad wakeup event is pending */
+	mmio_write_32(IMX_WUU1_BASE + 0x20, 0xffffffff);
+
+	wfi();
+
+	ERROR("power off failed.\n");
+	panic();
+}
+
 static const plat_psci_ops_t imx_plat_psci_ops = {
 	.pwr_domain_on = imx_pwr_domain_on,
 	.pwr_domain_on_finish = imx_pwr_domain_on_finish,
 	.validate_ns_entrypoint = imx_validate_ns_entrypoint,
+	.system_off = imx_system_off,
 	.system_reset = imx8ulp_system_reset,
 	.pwr_domain_off = imx_pwr_domain_off,
 	.pwr_domain_suspend = imx_domain_suspend,
