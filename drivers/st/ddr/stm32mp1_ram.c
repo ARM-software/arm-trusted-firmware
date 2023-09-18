@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -56,7 +56,8 @@ static int stm32mp1_ddr_setup(void)
 	int ret;
 	struct stm32mp_ddr_config config;
 	int node;
-	uint32_t uret;
+	uintptr_t uret;
+	size_t retsize;
 	void *fdt;
 
 	const struct stm32mp_ddr_param param[] = {
@@ -106,25 +107,27 @@ static int stm32mp1_ddr_setup(void)
 	}
 
 	uret = stm32mp_ddr_test_data_bus();
-	if (uret != 0U) {
-		ERROR("DDR data bus test: can't access memory @ 0x%x\n",
+	if (uret != 0UL) {
+		ERROR("DDR data bus test: can't access memory @ 0x%lx\n",
 		      uret);
 		panic();
 	}
 
 	uret = stm32mp_ddr_test_addr_bus(config.info.size);
-	if (uret != 0U) {
-		ERROR("DDR addr bus test: can't access memory @ 0x%x\n",
+	if (uret != 0UL) {
+		ERROR("DDR addr bus test: can't access memory @ 0x%lx\n",
 		      uret);
 		panic();
 	}
 
-	uret = stm32mp_ddr_check_size();
-	if (uret < config.info.size) {
-		ERROR("DDR size: 0x%x does not match DT config: 0x%x\n",
-		      uret, config.info.size);
+	retsize = stm32mp_ddr_check_size();
+	if (retsize < config.info.size) {
+		ERROR("DDR size: 0x%zx does not match DT config: 0x%zx\n",
+		      retsize, config.info.size);
 		panic();
 	}
+
+	INFO("Memory size = 0x%zx (%zu MB)\n", retsize, retsize / (1024U * 1024U));
 
 	if (stm32mp_unmap_ddr() != 0) {
 		panic();

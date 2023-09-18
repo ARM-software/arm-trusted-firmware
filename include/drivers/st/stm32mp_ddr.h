@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -53,8 +53,8 @@ struct stm32mp_ddr_priv {
 
 struct stm32mp_ddr_info {
 	const char *name;
-	uint32_t speed; /* in kHZ */
-	uint32_t size;  /* Memory size in byte = col * row * width */
+	uint32_t speed; /* in kHz */
+	size_t size;    /* Memory size in byte = col * row * width */
 };
 
 #define TIMEOUT_US_1S	1000000U
