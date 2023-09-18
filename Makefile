@@ -151,69 +151,6 @@ PYTHON			?=	python3
 DOCS_PATH		?=	docs
 
 ################################################################################
-# Process BRANCH_PROTECTION value and set
-# Pointer Authentication and Branch Target Identification flags
-################################################################################
-ifeq (${BRANCH_PROTECTION},0)
-	# Default value turns off all types of branch protection
-	BP_OPTION := none
-else ifneq (${ARCH},aarch64)
-        $(error BRANCH_PROTECTION requires AArch64)
-else ifeq (${BRANCH_PROTECTION},1)
-	# Enables all types of branch protection features
-	BP_OPTION := standard
-	ENABLE_BTI := 1
-	ENABLE_PAUTH := 1
-else ifeq (${BRANCH_PROTECTION},2)
-	# Return address signing to its standard level
-	BP_OPTION := pac-ret
-	ENABLE_PAUTH := 1
-else ifeq (${BRANCH_PROTECTION},3)
-	# Extend the signing to include leaf functions
-	BP_OPTION := pac-ret+leaf
-	ENABLE_PAUTH := 1
-else ifeq (${BRANCH_PROTECTION},4)
-	# Turn on branch target identification mechanism
-	BP_OPTION := bti
-	ENABLE_BTI := 1
-else
-        $(error Unknown BRANCH_PROTECTION value ${BRANCH_PROTECTION})
-endif #(BRANCH_PROTECTION)
-
-################################################################################
-# RME dependent flags configuration
-################################################################################
-# FEAT_RME
-ifeq (${ENABLE_RME},1)
-	# RME doesn't support PIE
-	ifneq (${ENABLE_PIE},0)
-                $(error ENABLE_RME does not support PIE)
-	endif
-
-	# RME doesn't support BRBE
-	ifneq (${ENABLE_BRBE_FOR_NS},0)
-                $(error ENABLE_RME does not support BRBE.)
-	endif
-
-	# RME requires AARCH64
-	ifneq (${ARCH},aarch64)
-                $(error ENABLE_RME requires AArch64)
-	endif
-
-	# RME requires el2 context to be saved for now.
-	CTX_INCLUDE_EL2_REGS := 1
-	CTX_INCLUDE_AARCH32_REGS := 0
-	ARM_ARCH_MAJOR := 8
-	ARM_ARCH_MINOR := 5
-	ENABLE_FEAT_ECV = 1
-	ENABLE_FEAT_FGT = 1
-	CTX_INCLUDE_PAUTH_REGS := 1
-
-	# RME enables CSV2_2 extension by default.
-	ENABLE_FEAT_CSV2_2 = 1
-endif #(FEAT_RME)
-
-################################################################################
 # Compiler Configuration based on ARCH_MAJOR and ARCH_MINOR flags
 ################################################################################
 ifeq (${ARM_ARCH_MAJOR},7)
@@ -227,39 +164,6 @@ endif #(ARM_ARCH_MAJOR)
 # Get Architecture Feature Modifiers
 ################################################################################
 arch-features		=	${ARM_ARCH_FEATURE}
-
-####################################################
-# Enable required options for Memory Stack Tagging.
-####################################################
-
-# Memory tagging is supported in architecture Armv8.5-A AArch64 and onwards
-ifeq ($(ARCH), aarch64)
-	# Check if revision is greater than or equal to 8.5
-	ifeq "8.5" "$(word 1, $(sort 8.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-		mem_tag_arch_support	= 	yes
-	endif
-endif #(ARCH=aarch64)
-
-# Currently, these options are enabled only for clang and armclang compiler.
-ifeq (${SUPPORT_STACK_MEMTAG},yes)
-	ifdef mem_tag_arch_support
-		# Check for armclang and clang compilers
-		ifneq ( ,$(filter $(notdir $(CC)),armclang clang))
-		# Add "memtag" architecture feature modifier if not specified
-			ifeq ( ,$(findstring memtag,$(arch-features)))
-				arch-features	:=	$(arch-features)+memtag
-			endif	# memtag
-			ifeq ($(notdir $(CC)),armclang)
-				TF_CFLAGS	+=	-mmemtag-stack
-			else ifeq ($(notdir $(CC)),clang)
-				TF_CFLAGS	+=	-fsanitize=memtag
-			endif	# armclang
-		endif
-	else
-                $(error "Error: stack memory tagging is not supported for  \
-                 architecture ${ARCH},armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a")
-	endif #(mem_tag_arch_support)
-endif #(SUPPORT_STACK_MEMTAG)
 
 # Set the compiler's architecture feature modifiers
 ifneq ($(arch-features), none)
@@ -333,10 +237,6 @@ endif #(AARCH32_INSTRUCTION_SET)
 
 TF_CFLAGS_aarch32	+=	-mno-unaligned-access
 TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
-
-ifneq (${BP_OPTION},none)
-	TF_CFLAGS_aarch64	+=	-mbranch-protection=${BP_OPTION}
-endif #(BP_OPTION)
 
 ASFLAGS		+=	$(march-directive)
 
@@ -501,6 +401,14 @@ DTC_CPPFLAGS		+=	-P -nostdinc -Iinclude -Ifdts -undef \
 				-x assembler-with-cpp $(DEFINES)
 
 ################################################################################
+# Setup ARCH_MAJOR/MINOR before parsing arch_features.
+################################################################################
+ifeq (${ENABLE_RME},1)
+	ARM_ARCH_MAJOR := 8
+	ARM_ARCH_MINOR := 6
+endif
+
+################################################################################
 # Common sources and include directories
 ################################################################################
 include ${MAKE_HELPERS_DIRECTORY}arch_features.mk
@@ -519,13 +427,6 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				plat/common/${ARCH}/platform_helpers.S	\
 				${COMPILER_RT_SRCS}
 
-# Pointer Authentication sources
-ifeq (${ENABLE_PAUTH}, 1)
-# arm/common/aarch64/arm_pauth.c contains a sample platform hook to complete the
-# Pauth support. As it's not secure, it must be reimplemented for real platforms
-	BL_COMMON_SOURCES	+=	lib/extensions/pauth/pauth_helpers.S
-endif
-
 ifeq ($(notdir $(CC)),armclang)
 	BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
 endif
@@ -542,6 +443,104 @@ INCLUDES		+=	-Iinclude				\
 				${SPD_INCLUDES}
 
 include common/backtrace/backtrace.mk
+
+################################################################################
+# Process BRANCH_PROTECTION value and set
+# Pointer Authentication and Branch Target Identification flags
+################################################################################
+ifeq (${BRANCH_PROTECTION},0)
+	# Default value turns off all types of branch protection
+	BP_OPTION := none
+else ifneq (${ARCH},aarch64)
+        $(error BRANCH_PROTECTION requires AArch64)
+else ifeq (${BRANCH_PROTECTION},1)
+	# Enables all types of branch protection features
+	BP_OPTION := standard
+	ENABLE_BTI := 1
+	ENABLE_PAUTH := 1
+else ifeq (${BRANCH_PROTECTION},2)
+	# Return address signing to its standard level
+	BP_OPTION := pac-ret
+	ENABLE_PAUTH := 1
+else ifeq (${BRANCH_PROTECTION},3)
+	# Extend the signing to include leaf functions
+	BP_OPTION := pac-ret+leaf
+	ENABLE_PAUTH := 1
+else ifeq (${BRANCH_PROTECTION},4)
+	# Turn on branch target identification mechanism
+	BP_OPTION := bti
+	ENABLE_BTI := 1
+else
+        $(error Unknown BRANCH_PROTECTION value ${BRANCH_PROTECTION})
+endif #(BRANCH_PROTECTION)
+
+ifeq ($(ENABLE_PAUTH),1)
+	CTX_INCLUDE_PAUTH_REGS := 1
+endif
+ifneq (${BP_OPTION},none)
+	TF_CFLAGS_aarch64	+=	-mbranch-protection=${BP_OPTION}
+endif #(BP_OPTION)
+
+# Pointer Authentication sources
+ifeq (${ENABLE_PAUTH}, 1)
+# arm/common/aarch64/arm_pauth.c contains a sample platform hook to complete the
+# Pauth support. As it's not secure, it must be reimplemented for real platforms
+	BL_COMMON_SOURCES	+=	lib/extensions/pauth/pauth_helpers.S
+endif
+
+####################################################
+# Enable required options for Memory Stack Tagging.
+####################################################
+
+# Currently, these options are enabled only for clang and armclang compiler.
+ifeq (${SUPPORT_STACK_MEMTAG},yes)
+    ifdef mem_tag_arch_support
+        # Check for armclang and clang compilers
+        ifneq ( ,$(filter $(notdir $(CC)),armclang clang))
+        # Add "memtag" architecture feature modifier if not specified
+            ifeq ( ,$(findstring memtag,$(arch-features)))
+                arch-features	:=	$(arch-features)+memtag
+            endif	# memtag
+            ifeq ($(notdir $(CC)),armclang)
+                TF_CFLAGS	+=	-mmemtag-stack
+            else ifeq ($(notdir $(CC)),clang)
+                TF_CFLAGS	+=	-fsanitize=memtag
+            endif	# armclang
+        endif
+    else
+        $(error "Error: stack memory tagging is not supported for  \
+        architecture ${ARCH},armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a")
+	endif #(mem_tag_arch_support)
+endif #(SUPPORT_STACK_MEMTAG)
+
+################################################################################
+# RME dependent flags configuration, Enable optional features for RME.
+################################################################################
+# FEAT_RME
+ifeq (${ENABLE_RME},1)
+	# RME doesn't support PIE
+	ifneq (${ENABLE_PIE},0)
+                $(error ENABLE_RME does not support PIE)
+	endif
+
+	# RME doesn't support BRBE
+	ifneq (${ENABLE_BRBE_FOR_NS},0)
+                $(error ENABLE_RME does not support BRBE.)
+	endif
+
+	# RME requires AARCH64
+	ifneq (${ARCH},aarch64)
+                $(error ENABLE_RME requires AArch64)
+	endif
+
+	# RME requires el2 context to be saved for now.
+	CTX_INCLUDE_EL2_REGS := 1
+	CTX_INCLUDE_AARCH32_REGS := 0
+	CTX_INCLUDE_PAUTH_REGS := 1
+
+	# RME enables CSV2_2 extension by default.
+	ENABLE_FEAT_CSV2_2 = 1
+endif #(FEAT_RME)
 
 ################################################################################
 # Generic definitions
