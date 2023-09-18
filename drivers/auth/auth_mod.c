@@ -150,8 +150,8 @@ static int auth_signature(const auth_method_param_sig_t *param,
 			  const auth_img_desc_t *img_desc,
 			  void *img, unsigned int img_len)
 {
-	void *data_ptr, *pk_ptr, *pk_plat_ptr, *sig_ptr, *sig_alg_ptr, *pk_oid;
-	unsigned int data_len, pk_len, pk_plat_len, sig_len, sig_alg_len;
+	void *data_ptr, *pk_ptr, *cnv_pk_ptr, *pk_plat_ptr, *sig_ptr, *sig_alg_ptr, *pk_oid;
+	unsigned int data_len, pk_len, cnv_pk_len, pk_plat_len, sig_len, sig_alg_len;
 	unsigned int flags = 0;
 	int rc = 0;
 
@@ -210,14 +210,14 @@ static int auth_signature(const auth_method_param_sig_t *param,
 			 * platform may store the hash of a prefixed,
 			 * suffixed or modified pk
 			 */
-			rc = crypto_mod_convert_pk(pk_ptr, pk_len, &pk_ptr, &pk_len);
+			rc = crypto_mod_convert_pk(pk_ptr, pk_len, &cnv_pk_ptr, &cnv_pk_len);
 			return_if_error(rc);
 
 			/*
 			 * The hash of the certificate's public key must match
 			 * the hash of the ROTPK.
 			 */
-			rc = crypto_mod_verify_hash(pk_ptr, pk_len,
+			rc = crypto_mod_verify_hash(cnv_pk_ptr, cnv_pk_len,
 						    pk_plat_ptr, pk_plat_len);
 			return_if_error(rc);
 		} else {
