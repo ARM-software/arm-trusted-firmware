@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,5 +22,13 @@
  ******************************************************************************/
 #define NEOVERSE_V2_CPUPWRCTLR_EL1			S3_0_C15_C2_7
 #define NEOVERSE_V2_CPUPWRCTLR_EL1_CORE_PWRDN_BIT	U(1)
+
+/*******************************************************************************
+ * CPU Extended Control register 2 specific definitions.
+ ******************************************************************************/
+#define NEOVERSE_V2_CPUECTLR2_EL1			S3_0_C15_C1_5
+#define NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_CNSRV		ULL(9)
+#define NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_LSB		U(11)
+#define NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_WIDTH		U(4)
 
 #endif /* NEOVERSE_V2_H */
