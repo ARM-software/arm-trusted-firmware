@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,9 +16,6 @@
 	.globl	plat_is_my_cpu_primary
 	.globl	platform_mem_init
 	.globl	plat_my_core_pos
-	.globl	plat_crash_console_init
-	.globl	plat_crash_console_putc
-	.globl	plat_crash_console_flush
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -69,43 +66,3 @@ endfunc plat_my_core_pos
 func platform_mem_init
 	ret
 endfunc platform_mem_init
-
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_init(void)
-	 * Function to initialize the crash console
-	 * without a C Runtime to print crash report.
-	 * Clobber list : x0, x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_init
-/*	mov_imm	x0, PLAT_VERSAL_NET_CRASH_UART_BASE
-	mov_imm	x1, PLAT_VERSAL_NET_CRASH_UART_CLK_IN_HZ
-	mov_imm	x2, VERSAL_NET_CONSOLE_BAUDRATE
-	b	console_pl011_core_init */
-endfunc plat_crash_console_init
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_putc(int c)
-	 * Function to print a character on the crash
-	 * console without a C Runtime.
-	 * Clobber list : x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_putc
-	mov_imm	x1, PLAT_VERSAL_NET_CRASH_UART_BASE
-	b	console_pl011_core_putc
-endfunc plat_crash_console_putc
-
-	/* ---------------------------------------------
-	 * void plat_crash_console_flush()
-	 * Function to force a write of all buffered
-	 * data that hasn't been output.
-	 * Out : void.
-	 * Clobber list : x0, x1
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_flush
-	mov_imm	x0, PLAT_VERSAL_NET_CRASH_UART_BASE
-	b	console_pl011_core_flush
-endfunc plat_crash_console_flush
