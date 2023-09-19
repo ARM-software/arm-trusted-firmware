@@ -102,8 +102,6 @@ ifeq (${AARCH32_SP},none)
     $(error Variable AARCH32_SP has to be set for AArch32)
 endif
 
-MULTI_CONSOLE_API		:=	1
-
 ARM_DISABLE_TRUSTED_WDOG	:=	1
 
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/aarch32/nonlpae_tables.c

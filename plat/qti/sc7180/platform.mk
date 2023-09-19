@@ -32,8 +32,6 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
 
 RESET_TO_BL31			:=	0
 
-MULTI_CONSOLE_API		:=	1
-
 QTI_SDI_BUILD := 0
 $(eval $(call assert_boolean,QTI_SDI_BUILD))
 $(eval $(call add_define,QTI_SDI_BUILD))

@@ -64,7 +64,6 @@ BL31_SOURCES		+=	${RK_PLAT_COMMON}/drivers/parameter/ddr_parameter.c
 endif
 
 ENABLE_PLAT_COMPAT	:=	0
-MULTI_CONSOLE_API	:=	1
 
 include lib/libfdt/libfdt.mk
 

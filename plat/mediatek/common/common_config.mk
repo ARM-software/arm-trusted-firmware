@@ -6,7 +6,6 @@
 
 # indicate the reset vector address can be programmed
 PROGRAMMABLE_RESET_ADDRESS := 1
-MULTI_CONSOLE_API := 1
 COLD_BOOT_SINGLE_CPU := 1
 # Build flag to include AArch32 registers in cpu context save and restore during
 # world switch. This flag must be set to 0 for AArch64-only platforms.

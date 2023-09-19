@@ -71,5 +71,3 @@ $(eval $(call add_define,MTK_SIP_SET_AUTHORIZED_SECURE_REG_ENABLE))
 
 # Do not enable SVE
 ENABLE_SVE_FOR_NS		:=	0
-
-MULTI_CONSOLE_API		:=	1
