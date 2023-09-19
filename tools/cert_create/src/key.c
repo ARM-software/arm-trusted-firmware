@@ -192,15 +192,14 @@ int key_create(key_t *key, int type, int key_bits)
 int key_load(key_t *key, unsigned int *err_code)
 {
 	FILE *fp;
-	EVP_PKEY *k;
 
 	if (key->fn) {
 		/* Load key from file */
 		fp = fopen(key->fn, "r");
 		if (fp) {
-			k = PEM_read_PrivateKey(fp, &key->key, NULL, NULL);
+			key->key = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
 			fclose(fp);
-			if (k) {
+			if (key->key) {
 				*err_code = KEY_ERR_NONE;
 				return 1;
 			} else {
