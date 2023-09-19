@@ -88,9 +88,11 @@ $(eval $(call add_define_val,VERSAL_CONSOLE,VERSAL_CONSOLE_ID_${VERSAL_CONSOLE})
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a72.S			\
+				common/fdt_wrappers.c                           \
 				plat/common/plat_psci_common.c			\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/common/plat_fdt.c			\
+				plat/xilinx/common/plat_console.c               \
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/pm_service/pm_ipi.c		\
