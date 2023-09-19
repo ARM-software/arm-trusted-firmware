@@ -37,4 +37,10 @@
 #define NEOVERSE_V2_CPUACTLR2_EL1			S3_0_C15_C1_1
 #define NEOVERSE_V2_CPUACTLR2_EL1_BIT_0			(ULL(1) << 0)
 
+/*******************************************************************************
+ * CPU Auxiliary Control register 3 specific definitions.
+ ******************************************************************************/
+#define NEOVERSE_V2_CPUACTLR3_EL1			S3_0_C15_C1_2
+#define NEOVERSE_V2_CPUACTLR3_EL1_BIT_47		(ULL(1) << 47)
+
 #endif /* NEOVERSE_V2_H */
