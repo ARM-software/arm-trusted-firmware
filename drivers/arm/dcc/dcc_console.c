@@ -150,3 +150,9 @@ int console_dcc_register(void)
 {
 	return console_register(&dcc_console.console);
 }
+
+void console_dcc_unregister(void)
+{
+	dcc_console_flush(&dcc_console.console);
+	(void)console_unregister(&dcc_console.console);
+}
