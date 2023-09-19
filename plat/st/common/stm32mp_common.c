@@ -168,9 +168,9 @@ int stm32_get_otp_value_from_idx(const uint32_t otp_idx, uint32_t *otp_val)
 	assert(otp_val != NULL);
 
 #if defined(IMAGE_BL2)
-	ret = bsec_shadow_read_otp(otp_val, otp_idx);
+	ret = stm32_otp_shadow_read(otp_val, otp_idx);
 #elif defined(IMAGE_BL31) || defined(IMAGE_BL32)
-	ret = bsec_read_otp(otp_val, otp_idx);
+	ret = stm32_otp_read(otp_val, otp_idx);
 #else
 #error "Not supported"
 #endif

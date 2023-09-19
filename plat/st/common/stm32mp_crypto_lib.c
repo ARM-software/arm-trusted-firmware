@@ -11,7 +11,6 @@
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/io/io_storage.h>
-#include <drivers/st/bsec.h>
 #include <drivers/st/stm32_hash.h>
 #include <drivers/st/stm32_pka.h>
 #include <drivers/st/stm32_rng.h>
