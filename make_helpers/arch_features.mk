@@ -55,11 +55,6 @@ CTX_INCLUDE_PAUTH_REGS		:=	0
 # Flag to enable Secure EL-2 feature.
 ENABLE_FEAT_SEL2		:=	0
 
-# Include nested virtualization control (Armv8.4-NV) registers in cpu context.
-# This must be set to 1 if architecture implements Nested Virtualization
-# Extension and platform wants to use this feature in the Secure world.
-CTX_INCLUDE_NEVE_REGS		:=	0
-
 # By default, disable trace filter control register access to lower non-secure
 # exception levels, i.e. NS-EL2, or NS-EL1 if NS-EL2 is implemented, but
 # trace filter control register access is unused if FEAT_TRF is implemented.
@@ -127,7 +122,6 @@ endif
 # Enable the features which are mandatory from ARCH version 8.4 and upwards.
 ifeq "8.4" "$(word 1, $(sort 8.4 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
 ENABLE_FEAT_SEL2			:=	1
-CTX_INCLUDE_NEVE_REGS			:=	1
 ENABLE_TRF_FOR_NS			:=	1
 ENABLE_FEAT_DIT				:=	1
 endif
@@ -221,6 +215,11 @@ AMU_RESTRICT_COUNTERS			?=	0
 
 # Build option to enable MPAM for lower ELs.
 ENABLE_MPAM_FOR_LOWER_ELS		?=	0
+
+# Include nested virtualization control (Armv8.4-NV) registers in cpu context.
+# This must be set to 1 if architecture implements Nested Virtualization
+# Extension and platform wants to use this feature in the Secure world.
+CTX_INCLUDE_NEVE_REGS			?=	0
 
 #----
 # 8.5
