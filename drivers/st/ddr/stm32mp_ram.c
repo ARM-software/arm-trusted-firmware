@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,8 +23,8 @@ int stm32mp_ddr_dt_get_info(void *fdt, int node, struct stm32mp_ddr_info *info)
 		VERBOSE("%s: no st,mem-speed\n", __func__);
 		return -EINVAL;
 	}
-	ret = fdt_read_uint32(fdt, node, "st,mem-size", &info->size);
-	if (ret < 0) {
+	info->size = dt_get_ddr_size();
+	if (info->size == 0U) {
 		VERBOSE("%s: no st,mem-size\n", __func__);
 		return -EINVAL;
 	}
