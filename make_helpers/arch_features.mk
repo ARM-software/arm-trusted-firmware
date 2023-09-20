@@ -36,19 +36,6 @@ ENABLE_FEAT_VHE			:=	0
 ENABLE_FEAT_RAS			:=	0
 
 #----
-# 8.3
-#----
-
-# Flag to enable Pointer Authentication. Internal flag not meant for
-# direct setting. Use BRANCH_PROTECTION to enable PAUTH.
-ENABLE_PAUTH			:=	0
-
-# Include pointer authentication (ARMv8.3-PAuth) registers in cpu context. This
-# must be set to 1 if the platform wants to use this feature in the Secure
-# world. It is not necessary for use in the Non-secure world.
-CTX_INCLUDE_PAUTH_REGS		:=	0
-
-#----
 # 8.4
 #----
 
@@ -72,11 +59,6 @@ ENABLE_FEAT_RNG			:=	0
 
 # Flag to enable Speculation Barrier Instruction.
 ENABLE_FEAT_SB			:=	0
-
-# Flag to enable Branch Target Identification.
-# Internal flag not meant for direct setting.
-# Use BRANCH_PROTECTION to enable BTI.
-ENABLE_BTI			:=	0
 
 #----
 # 8.6
@@ -204,6 +186,19 @@ else ifeq (${ARCH},aarch32)
 endif
 
 #----
+# 8.3
+#----
+
+# Flag to enable Pointer Authentication. Internal flag not meant for
+# direct setting. Use BRANCH_PROTECTION to enable PAUTH.
+ENABLE_PAUTH                            ?=	0
+
+# Include pointer authentication (ARMv8.3-PAuth) registers in cpu context. This
+# must be set to 1 if the platform wants to use this feature in the Secure
+# world. It is not necessary for use in the Non-secure world.
+CTX_INCLUDE_PAUTH_REGS		        ?=	0
+
+#----
 # 8.4
 #----
 
@@ -242,6 +237,11 @@ ENABLE_FEAT_RNG_TRAP			?=	0
 # to 1 if the platform wants to use this feature in the Secure world and MTE is
 # enabled at ELX.
 CTX_INCLUDE_MTE_REGS			?=	0
+
+# Flag to enable Branch Target Identification.
+# Internal flag not meant for direct setting.
+# Use BRANCH_PROTECTION to enable BTI.
+ENABLE_BTI			        ?=	0
 
 #----
 # 8.6
