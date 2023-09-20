@@ -709,8 +709,11 @@ subsections:
       - title: TRNG
         scope: trng
 
-      - title: ERRATA_ABI
-        scope: errata_abi
+      - title: ERRATA ABI
+        scope: errata-abi
+
+        deprecated:
+          - errata_abi
 
   - title: Libraries
 
