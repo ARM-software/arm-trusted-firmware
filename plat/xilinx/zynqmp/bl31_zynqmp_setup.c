@@ -81,7 +81,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 					       ZYNQMP_UART_BAUDRATE,
 					       &bl31_boot_console);
 		console_set_scope(&bl31_boot_console,
-				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT);
+				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT |
+				  CONSOLE_FLAG_CRASH);
 	} else if (ZYNQMP_CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug */
 		int32_t rc = console_dcc_register();
