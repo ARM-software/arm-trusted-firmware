@@ -75,8 +75,8 @@ ifeq (${ARCH}, aarch64)
 ifeq (${ENABLE_RME},0)
 	ENABLE_BRBE_FOR_NS		:= 2
 endif
+    ENABLE_TRBE_FOR_NS		:= 2
 endif
-ENABLE_TRBE_FOR_NS		:= 2
 ENABLE_SYS_REG_TRACE_FOR_NS	:= 2
 ENABLE_FEAT_CSV2_2		:= 2
 ENABLE_FEAT_DIT			:= 2

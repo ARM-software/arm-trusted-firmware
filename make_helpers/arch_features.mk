@@ -182,25 +182,25 @@ ENABLE_SYS_REG_TRACE_FOR_NS		?=	0
 # Build option to enable/disable the Statistical Profiling Extension,
 # keep it enabled by default for AArch64.
 ifeq (${ARCH},aarch64)
-	ENABLE_SPE_FOR_NS		?=	2
+       ENABLE_SPE_FOR_NS		?=	2
 else ifeq (${ARCH},aarch32)
-	ifdef ENABLE_SPE_FOR_NS
-		$(error ENABLE_SPE_FOR_NS is not supported for AArch32)
-	else
-		ENABLE_SPE_FOR_NS 	:=	0
-	endif
+       ifdef ENABLE_SPE_FOR_NS
+              $(error ENABLE_SPE_FOR_NS is not supported for AArch32)
+       else
+              ENABLE_SPE_FOR_NS		:=	0
+       endif
 endif
 
 # Enable SVE for non-secure world by default.
 ifeq (${ARCH},aarch64)
-	ENABLE_SVE_FOR_NS		?=	2
+       ENABLE_SVE_FOR_NS		?=	2
 # SVE is only supported on AArch64 so disable it on AArch32.
 else ifeq (${ARCH},aarch32)
-	ifdef ENABLE_SVE_FOR_NS
-		$(error ENABLE_SVE_FOR_NS is not supported for AArch32)
-	else
-		ENABLE_SVE_FOR_NS 	:=	0
-	endif
+       ifdef ENABLE_SVE_FOR_NS
+              $(error ENABLE_SVE_FOR_NS is not supported for AArch32)
+       else
+              ENABLE_SVE_FOR_NS 	:=	0
+       endif
 endif
 
 #----
@@ -291,13 +291,13 @@ ENABLE_SVE_FOR_SWD			?=	0
 # Note FEAT_TRBE is only supported on AArch64 - therefore do not enable in
 # AArch32.
 ifeq (${ARCH},aarch64)
-	ENABLE_TRBE_FOR_NS		?=	0
+        ENABLE_TRBE_FOR_NS		?=	0
 else ifeq (${ARCH},aarch32)
-	ifdef ENABLE_TRBE_FOR_NS
-		$(error ENABLE_TRBE_FOR_NS is not supported for AArch32)
-	else
-		ENABLE_TRBE_FOR_NS 	:=	0
-	endif
+        ifdef ENABLE_TRBE_FOR_NS
+                $(error ENABLE_TRBE_FOR_NS is not supported for AArch32)
+        else
+                ENABLE_TRBE_FOR_NS 	:=	0
+        endif
 endif
 
 #----
