@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -695,4 +695,10 @@ int mailbox_seu_err_status(uint32_t *resp_buf, unsigned int resp_buf_len)
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_SEU_ERR_READ, NULL, 0U,
 				CMD_CASUAL, resp_buf,
 				&resp_buf_len);
+}
+
+int mailbox_safe_inject_seu_err(uint32_t *arg, unsigned int len)
+{
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_SAFE_INJECT_SEU_ERR, arg, len,
+			CMD_CASUAL, NULL, NULL);
 }
