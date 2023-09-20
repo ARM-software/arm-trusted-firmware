@@ -108,12 +108,14 @@ BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
 endif
 BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
 				plat/xilinx/common/plat_startup.c		\
+				plat/xilinx/common/plat_console.c		\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/versal.c			\
 				${PLAT_PATH}/bl31_versal_net_setup.c		\
 				${PLAT_PATH}/plat_topology.c			\
 				common/fdt_fixup.c				\
+				common/fdt_wrappers.c				\
 				${LIBFDT_SRCS}					\
 				${PLAT_PATH}/sip_svc_setup.c			\
 				${PLAT_PATH}/versal_net_gicv3.c			\

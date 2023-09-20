@@ -12,13 +12,11 @@
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <drivers/arm/dcc.h>
-#include <drivers/arm/pl011.h>
-#include <drivers/console.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <plat_arm.h>
+#include <plat_console.h>
 
 #include <plat_fdt.h>
 #include <plat_private.h>
@@ -69,13 +67,11 @@ static inline void bl31_set_default_config(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	int32_t rc;
 #if !(TFA_NO_PM)
 	uint64_t tfa_handoff_addr, buff[HANDOFF_PARAMS_MAX_SIZE] = {0};
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
 #endif /* !(TFA_NO_PM) */
-	uint32_t uart_clk = get_uart_clk();
 
 	board_detection();
 
@@ -97,30 +93,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 	}
 
-	if (CONSOLE_IS(pl011_0) || CONSOLE_IS(pl011_1)) {
-		static console_t versal_net_runtime_console;
-
-		/* Initialize the console to provide early debug support */
-		rc = console_pl011_register(UART_BASE, uart_clk,
-				    UART_BAUDRATE,
-				    &versal_net_runtime_console);
-		if (rc == 0) {
-			panic();
-		}
-
-		console_set_scope(&versal_net_runtime_console, CONSOLE_FLAG_BOOT |
-				CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
-	} else if (CONSOLE_IS(dcc)) {
-		/* Initialize the dcc console for debug.
-		 * dcc is over jtag and does not configures uart0 or uart1.
-		 */
-		rc = console_dcc_register();
-		if (rc == 0) {
-			panic();
-		}
-	} else {
-		/* No console device found. */
-	}
+	setup_console();
 
 	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),
 	       platform_version / 10U, platform_version % 10U);
