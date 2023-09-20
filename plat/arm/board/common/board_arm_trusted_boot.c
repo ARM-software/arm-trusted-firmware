@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -219,6 +219,15 @@ int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
 	} else if (strcmp(oid, NON_TRUSTED_FW_NVCOUNTER_OID) == 0) {
 		nv_ctr_addr = (uint32_t *)FCONF_GET_PROPERTY(cot, nv_cntr_addr,
 							NON_TRUSTED_NV_CTR_ID);
+#if defined(ARM_COT_cca)
+	} else if (strcmp(oid, CCA_FW_NVCOUNTER_OID) == 0) {
+		/*
+		 * Use Trusted NV counter for platforms that don't support
+		 * the CCA NV Counter.
+		 */
+		nv_ctr_addr = (uint32_t *)FCONF_GET_PROPERTY(cot, nv_cntr_addr,
+							TRUSTED_NV_CTR_ID);
+#endif
 	} else {
 		return 1;
 	}
