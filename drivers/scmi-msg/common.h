@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2020, Linaro Limited
  */
 #ifndef SCMI_MSG_COMMON_H
@@ -15,6 +15,7 @@
 #include "clock.h"
 #include "power_domain.h"
 #include "reset_domain.h"
+#include "sensor.h"
 
 #define SCMI_VERSION			0x20000U
 #define SCMI_IMPL_VERSION		0U
@@ -117,6 +118,13 @@ scmi_msg_handler_t scmi_msg_get_rstd_handler(struct scmi_msg *msg);
  * Return a function handler for the message or NULL
  */
 scmi_msg_handler_t scmi_msg_get_pd_handler(struct scmi_msg *msg);
+
+/*
+ * scmi_msg_get_sensor_handler - Return a handler for a sensor message
+ * @msg - message to process
+ * Return a function handler for the message or NULL
+ */
+scmi_msg_handler_t scmi_msg_get_sensor_handler(struct scmi_msg *msg);
 
 /*
  * Process Read, process and write response for input SCMI message
