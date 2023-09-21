@@ -55,6 +55,8 @@ int imx_kernel_entry_handler(uint32_t smc_fid, u_register_t x1,
 
 #define IMX_SIP_SCMI			0xC20000FE
 
+#define IMX_SIP_HIFI_XRDC		0xC200000E
+
 #if defined(PLAT_imx8mq)
 int imx_soc_info_handler(uint32_t smc_fid, u_register_t x1,
 			 u_register_t x2, u_register_t x3);
@@ -100,5 +102,6 @@ uint64_t imx_buildinfo_handler(uint32_t smc_fid, u_register_t x1,
 			       u_register_t x2, u_register_t x3,
 			       u_register_t x4);
 int scmi_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2, u_register_t x3);
+int imx_hifi_xrdc(uint32_t smc_fid);
 
 #endif /* __IMX_SIP_SVC_H__ */

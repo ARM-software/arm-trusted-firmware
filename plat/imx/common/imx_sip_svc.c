@@ -37,6 +37,9 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 		scmi_smt_fastcall_smc_entry(0);
 		SMC_RET1(handle, 0);
 		break;
+	case IMX_SIP_HIFI_XRDC:
+		SMC_RET1(handle, imx_hifi_xrdc(smc_fid));
+		break;
 #endif
 #if defined(PLAT_imx8mq)
 	case IMX_SIP_GET_SOC_INFO:
