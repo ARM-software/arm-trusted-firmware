@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
- * Copyright (c) 2021-2022, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2021-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,7 +23,7 @@
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 workaround_reset_start cortex_a78_ae, ERRATUM(1941500), ERRATA_A78_AE_1941500
-	sysreg_bit_clear CORTEX_A78_AE_CPUECTLR_EL1, CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
+	sysreg_bit_set CORTEX_A78_AE_CPUECTLR_EL1, CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
 workaround_reset_end cortex_a78_ae, ERRATUM(1941500)
 
 check_erratum_ls cortex_a78_ae, ERRATUM(1941500), CPU_REV(0, 1)
