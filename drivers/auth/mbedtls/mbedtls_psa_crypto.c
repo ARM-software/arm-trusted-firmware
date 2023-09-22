@@ -105,6 +105,26 @@ static void init(void)
 
 #if CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY || \
 CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
+
+static void construct_psa_key_alg_and_type(mbedtls_pk_type_t pk_alg,
+					   mbedtls_md_type_t md_alg,
+					   psa_algorithm_t *psa_alg,
+					   psa_key_type_t *psa_key_type)
+{
+	psa_algorithm_t psa_md_alg = mbedtls_md_psa_alg_from_type(md_alg);
+
+	switch (pk_alg) {
+	case MBEDTLS_PK_RSASSA_PSS:
+		*psa_alg = PSA_ALG_RSA_PSS(psa_md_alg);
+		*psa_key_type = PSA_KEY_TYPE_RSA_PUBLIC_KEY;
+		break;
+	default:
+		*psa_alg = PSA_ALG_NONE;
+		*psa_key_type = PSA_KEY_TYPE_NONE;
+		break;
+	}
+}
+
 /*
  * Verify a signature.
  *
@@ -120,12 +140,16 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	mbedtls_asn1_buf signature;
 	mbedtls_md_type_t md_alg;
 	mbedtls_pk_type_t pk_alg;
-	mbedtls_pk_context pk = {0};
 	int rc;
 	void *sig_opts = NULL;
-	const mbedtls_md_info_t *md_info;
 	unsigned char *p, *end;
-	unsigned char hash[MBEDTLS_MD_MAX_SIZE];
+
+	/* construct PSA key algo and type */
+	psa_status_t status = PSA_SUCCESS;
+	psa_key_attributes_t psa_key_attr = PSA_KEY_ATTRIBUTES_INIT;
+	psa_key_id_t psa_key_id = PSA_KEY_ID_NULL;
+	psa_key_type_t psa_key_type;
+	psa_algorithm_t psa_alg;
 
 	/* Get pointers to signature OID and parameters */
 	p = (unsigned char *)sig_alg;
@@ -141,16 +165,6 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 		return CRYPTO_ERR_SIGNATURE;
 	}
 
-	/* Parse the public key */
-	mbedtls_pk_init(&pk);
-	p = (unsigned char *)pk_ptr;
-	end = (unsigned char *)(p + pk_len);
-	rc = mbedtls_pk_parse_subpubkey(&p, end, &pk);
-	if (rc != 0) {
-		rc = CRYPTO_ERR_SIGNATURE;
-		goto end2;
-	}
-
 	/* Get the signature (bitstring) */
 	p = (unsigned char *)sig_ptr;
 	end = (unsigned char *)(p + sig_len);
@@ -158,28 +172,45 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	rc = mbedtls_asn1_get_bitstring_null(&p, end, &signature.len);
 	if ((rc != 0) || ((size_t)(end - p) != signature.len)) {
 		rc = CRYPTO_ERR_SIGNATURE;
-		goto end1;
+		goto end2;
 	}
 	signature.p = p;
 
-	/* Calculate the hash of the data */
-	md_info = mbedtls_md_info_from_type(md_alg);
-	if (md_info == NULL) {
+	/* Convert this pk_alg and md_alg to PSA key type and key algorithm */
+	construct_psa_key_alg_and_type(pk_alg, md_alg,
+				       &psa_alg, &psa_key_type);
+
+
+	if ((psa_alg == PSA_ALG_NONE) || (psa_key_type == PSA_KEY_TYPE_NONE)) {
 		rc = CRYPTO_ERR_SIGNATURE;
-		goto end1;
-	}
-	p = (unsigned char *)data_ptr;
-	rc = mbedtls_md(md_info, p, data_len, hash);
-	if (rc != 0) {
-		rc = CRYPTO_ERR_SIGNATURE;
-		goto end1;
+		goto end2;
 	}
 
-	/* Verify the signature */
-	rc = mbedtls_pk_verify_ext(pk_alg, sig_opts, &pk, md_alg, hash,
-			mbedtls_md_get_size(md_info),
-			signature.p, signature.len);
-	if (rc != 0) {
+	/* filled-in key_attributes */
+	psa_set_key_algorithm(&psa_key_attr, psa_alg);
+	psa_set_key_type(&psa_key_attr, psa_key_type);
+	psa_set_key_usage_flags(&psa_key_attr, PSA_KEY_USAGE_VERIFY_MESSAGE);
+
+	/* Get the key_id using import API */
+	status = psa_import_key(&psa_key_attr,
+				pk_ptr,
+				(size_t)pk_len,
+				&psa_key_id);
+
+	if (status != PSA_SUCCESS) {
+		rc = CRYPTO_ERR_SIGNATURE;
+		goto end2;
+	}
+
+	/*
+	 * Hash calculation and Signature verification of the given data payload
+	 * is wrapped under the psa_verify_message function.
+	 */
+	status = psa_verify_message(psa_key_id, psa_alg,
+				    data_ptr, data_len,
+				    signature.p, signature.len);
+
+	if (status != PSA_SUCCESS) {
 		rc = CRYPTO_ERR_SIGNATURE;
 		goto end1;
 	}
@@ -188,7 +219,10 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	rc = CRYPTO_SUCCESS;
 
 end1:
-	mbedtls_pk_free(&pk);
+	/*
+	 * Destroy the key if it is created successfully
+	 */
+	psa_destroy_key(psa_key_id);
 end2:
 	mbedtls_free(sig_opts);
 	return rc;
