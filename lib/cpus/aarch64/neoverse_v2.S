@@ -22,6 +22,32 @@
 #error "Neoverse V2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+workaround_reset_start neoverse_v2, ERRATUM(2331132), ERRATA_V2_2331132
+	sysreg_bitfield_insert NEOVERSE_V2_CPUECTLR2_EL1, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_CNSRV, \
+		NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_LSB, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_WIDTH
+workaround_reset_end neoverse_v2, ERRATUM(2331132)
+
+check_erratum_ls neoverse_v2, ERRATUM(2331132), CPU_REV(0, 2)
+
+workaround_reset_start neoverse_v2, ERRATUM(2719105), ERRATA_V2_2719105
+	sysreg_bit_set NEOVERSE_V2_CPUACTLR2_EL1, NEOVERSE_V2_CPUACTLR2_EL1_BIT_0
+workaround_reset_end neoverse_v2, ERRATUM(2719105)
+
+check_erratum_ls neoverse_v2, ERRATUM(2719105), CPU_REV(0, 1)
+
+workaround_reset_start neoverse_v2, ERRATUM(2743011), ERRATA_V2_2743011
+	sysreg_bit_set NEOVERSE_V2_CPUACTLR5_EL1, NEOVERSE_V2_CPUACTLR5_EL1_BIT_55
+	sysreg_bit_clear NEOVERSE_V2_CPUACTLR5_EL1, NEOVERSE_V2_CPUACTLR5_EL1_BIT_56
+workaround_reset_end neoverse_v2, ERRATUM(2743011)
+
+check_erratum_ls neoverse_v2, ERRATUM(2743011), CPU_REV(0, 1)
+
+workaround_reset_start neoverse_v2, ERRATUM(2779510), ERRATA_V2_2779510
+	sysreg_bit_set NEOVERSE_V2_CPUACTLR3_EL1, NEOVERSE_V2_CPUACTLR3_EL1_BIT_47
+workaround_reset_end neoverse_v2, ERRATUM(2779510)
+
+check_erratum_ls neoverse_v2, ERRATUM(2779510), CPU_REV(0, 1)
+
 workaround_runtime_start neoverse_v2, ERRATUM(2801372), ERRATA_V2_2801372
 	/* dsb before isb of power down sequence */
 	dsb	sy
