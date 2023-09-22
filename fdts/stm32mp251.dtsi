@@ -328,6 +328,13 @@
 			reg = <0x44230000 0x10000>;
 		};
 
+		ddr: ddr@48040000 {
+			compatible = "st,stm32mp2-ddr";
+			reg = <0x48040000 0x10000>,
+			      <0x48c00000 0x400000>;
+			status = "okay";
+		};
+
 		pinctrl: pinctrl@44240000 {
 			#address-cells = <1>;
 			#size-cells = <1>;
