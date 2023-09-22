@@ -54,6 +54,10 @@
 	vref-supply = <&vref_ddr>;
 };
 
+&hash {
+	status = "okay";
+};
+
 &i2c7 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c7_pins_a>;
@@ -186,6 +190,10 @@
 	};
 };
 
+&pka {
+	status = "okay";
+};
+
 &pwr {
 	vddio1: vddio1 {
 		vddio1-supply = <&vddio_sdcard>;
@@ -205,6 +213,10 @@
 };
 
 &rng {
+	status = "okay";
+};
+
+&saes {
 	status = "okay";
 };
 
