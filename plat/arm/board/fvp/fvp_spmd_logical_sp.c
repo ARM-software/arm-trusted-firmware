@@ -32,7 +32,7 @@ static void fvp_get_partition_info(void)
 		panic();
 	}
 
-	num_partitions = ffa_partition_info_regs_get_last_idx(ret) + 1;
+	num_partitions = ffa_partition_info_regs_get_last_idx(&ret) + 1;
 	if (num_partitions > SPMD_LP_MAX_SUPPORTED_SP) {
 		panic();
 	}
@@ -41,7 +41,7 @@ static void fvp_get_partition_info(void)
 
 	for (uint16_t i = 0; i < num_partitions; i++) {
 		INFO("***Start Partition***\n");
-		if (!ffa_partition_info_regs_get_part_info(ret, i, &part_info[i]))
+		if (!ffa_partition_info_regs_get_part_info(&ret, i, &part_info[i]))
 			panic();
 		INFO("\tPartition ID: 0x%x\n", part_info[i].ep_id);
 		INFO("\tvCPU count:0x%x\n", part_info[i].execution_ctx_count);

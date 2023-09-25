@@ -356,7 +356,7 @@ void spmd_logical_sp_set_spmc_failure(void)
  * other code to consume.
  */
 bool ffa_partition_info_regs_get_part_info(
-	struct ffa_value args, uint8_t idx,
+	struct ffa_value *args, uint8_t idx,
 	struct ffa_partition_info_v1_1 *partition_info)
 {
 	uint64_t *arg_ptrs;
@@ -375,7 +375,7 @@ bool ffa_partition_info_regs_get_part_info(
 	 * function, arg1 is reserved, arg2 encodes indices. arg3 and greater
 	 * values reflect partition properties.
 	 */
-	arg_ptrs = (uint64_t *)&args + ((idx * 3) + 3);
+	arg_ptrs = (uint64_t *)args + ((idx * 3) + 3);
 	info = *arg_ptrs;
 
 	arg_ptrs++;
