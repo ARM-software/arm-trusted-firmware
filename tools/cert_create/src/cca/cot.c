@@ -414,35 +414,35 @@ static key_t cot_keys[] = {
 	[ROT_KEY] = {
 		.id = ROT_KEY,
 		.opt = "rot-key",
-		.help_msg = "Root Of Trust key (input/output file)",
+		.help_msg = "Root Of Trust key file or PKCS11 URI",
 		.desc = "Root Of Trust key"
 	},
 
 	[SWD_ROT_KEY] = {
 		.id = SWD_ROT_KEY,
 		.opt = "swd-rot-key",
-		.help_msg = "Secure World Root of Trust key",
+		.help_msg = "Secure World Root of Trust key file or PKCS11 URI",
 		.desc = "Secure World Root of Trust key"
 	},
 
 	[CORE_SWD_KEY] = {
 		.id = CORE_SWD_KEY,
 		.opt = "core-swd-key",
-		.help_msg = "Core Secure World key",
+		.help_msg = "Core Secure World key file or PKCS11 URI",
 		.desc = "Core Secure World key"
 	},
 
 	[PROT_KEY] = {
 		.id = PROT_KEY,
 		.opt = "prot-key",
-		.help_msg = "Platform Root of Trust key",
+		.help_msg = "Platform Root of Trust key file or PKCS11 URI",
 		.desc = "Platform Root of Trust key"
 	},
 
 	[PLAT_KEY] = {
 		.id = PLAT_KEY,
 		.opt = "plat-key",
-		.help_msg = "Platform key",
+		.help_msg = "Platform key file or PKCS11 URI",
 		.desc = "Platform key"
 	},
 };

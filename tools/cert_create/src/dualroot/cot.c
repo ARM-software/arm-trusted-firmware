@@ -540,42 +540,42 @@ static key_t cot_keys[] = {
 	[ROT_KEY] = {
 		.id = ROT_KEY,
 		.opt = "rot-key",
-		.help_msg = "Root Of Trust key (input/output file)",
+		.help_msg = "Root Of Trust key file or PKCS11 URI",
 		.desc = "Root Of Trust key"
 	},
 
 	[TRUSTED_WORLD_KEY] = {
 		.id = TRUSTED_WORLD_KEY,
 		.opt = "trusted-world-key",
-		.help_msg = "Trusted World key (input/output file)",
+		.help_msg = "Trusted World key file or PKCS11 URI",
 		.desc = "Trusted World key"
 	},
 
 	[SCP_FW_CONTENT_CERT_KEY] = {
 		.id = SCP_FW_CONTENT_CERT_KEY,
 		.opt = "scp-fw-key",
-		.help_msg = "SCP Firmware Content Certificate key (input/output file)",
+		.help_msg = "SCP Firmware Content Certificate key file or PKCS11 URI",
 		.desc = "SCP Firmware Content Certificate key"
 	},
 
 	[SOC_FW_CONTENT_CERT_KEY] = {
 		.id = SOC_FW_CONTENT_CERT_KEY,
 		.opt = "soc-fw-key",
-		.help_msg = "SoC Firmware Content Certificate key (input/output file)",
+		.help_msg = "SoC Firmware Content Certificate key file or PKCS11 URI",
 		.desc = "SoC Firmware Content Certificate key"
 	},
 
 	[TRUSTED_OS_FW_CONTENT_CERT_KEY] = {
 		.id = TRUSTED_OS_FW_CONTENT_CERT_KEY,
 		.opt = "tos-fw-key",
-		.help_msg = "Trusted OS Firmware Content Certificate key (input/output file)",
+		.help_msg = "Trusted OS Firmware Content Certificate key file or PKCS11 URI",
 		.desc = "Trusted OS Firmware Content Certificate key"
 	},
 
 	[PROT_KEY] = {
 		.id = PROT_KEY,
 		.opt = "prot-key",
-		.help_msg = "Platform Root of Trust key",
+		.help_msg = "Platform Root of Trust key file or PKCS11 URI",
 		.desc = "Platform Root of Trust key"
 	},
 };

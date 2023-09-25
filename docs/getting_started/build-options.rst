@@ -80,9 +80,9 @@ Common build options
    BL31 image for the ``fip`` target. In this case, the BL31 in TF-A will not
    be built.
 
--  ``BL31_KEY``: This option is used when ``GENERATE_COT=1``. It specifies the
-   file that contains the BL31 private key in PEM format. If ``SAVE_KEYS=1``,
-   this file name will be used to save the key.
+-  ``BL31_KEY``: This option is used when ``GENERATE_COT=1``. It specifies a
+   file that contains the BL31 private key in PEM format or a PKCS11 URI. If
+   ``SAVE_KEYS=1``, only a file is accepted and it will be used to save the key.
 
 -  ``BL32``: This is an optional build option which specifies the path to
    BL32 image for the ``fip`` target. In this case, the BL32 in TF-A will not
@@ -94,16 +94,16 @@ Common build options
 -  ``BL32_EXTRA2``: This is an optional build option which specifies the path to
    Trusted OS Extra2 image for the ``fip`` target.
 
--  ``BL32_KEY``: This option is used when ``GENERATE_COT=1``. It specifies the
-   file that contains the BL32 private key in PEM format. If ``SAVE_KEYS=1``,
-   this file name will be used to save the key.
+-  ``BL32_KEY``: This option is used when ``GENERATE_COT=1``. It specifies a
+   file that contains the BL32 private key in PEM format or a PKCS11 URI. If
+   ``SAVE_KEYS=1``, only a file is accepted and it will be used to save the key.
 
 -  ``BL33``: Path to BL33 image in the host file system. This is mandatory for
    ``fip`` target in case TF-A BL2 is used.
 
--  ``BL33_KEY``: This option is used when ``GENERATE_COT=1``. It specifies the
-   file that contains the BL33 private key in PEM format. If ``SAVE_KEYS=1``,
-   this file name will be used to save the key.
+-  ``BL33_KEY``: This option is used when ``GENERATE_COT=1``. It specifies a
+   file that contains the BL33 private key in PEM format or a PKCS11 URI. If
+   ``SAVE_KEYS=1``, only a file is accepted and it will be used to save the key.
 
 -  ``BRANCH_PROTECTION``: Numeric value to enable ARMv8.3 Pointer Authentication
    and ARMv8.5 Branch Target Identification support for TF-A BL images themselves.
@@ -749,8 +749,9 @@ Common build options
       MARCH_DIRECTIVE := -march=armv8.5-a
 
 -  ``NON_TRUSTED_WORLD_KEY``: This option is used when ``GENERATE_COT=1``. It
-   specifies the file that contains the Non-Trusted World private key in PEM
-   format. If ``SAVE_KEYS=1``, this file name will be used to save the key.
+   specifies a file that contains the Non-Trusted World private key in PEM
+   format or a PKCS11 URI. If ``SAVE_KEYS=1``, only a file is accepted and it
+   will be used to save the key.
 
 -  ``NS_BL2U``: Path to NS_BL2U image in the host file system. This image is
    optional. It is only needed if the platform makefile specifies that it
@@ -827,10 +828,10 @@ Common build options
    instead of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
    entrypoint) or 1 (CPU reset to SP_MIN entrypoint). The default value is 0.
 
--  ``ROT_KEY``: This option is used when ``GENERATE_COT=1``. It specifies the
-   file that contains the ROT private key in PEM format and enforces public key
-   hash generation. If ``SAVE_KEYS=1``, this
-   file name will be used to save the key.
+-  ``ROT_KEY``: This option is used when ``GENERATE_COT=1``. It specifies a
+   file that contains the ROT private key in PEM format or a PKCS11 URI and
+   enforces public key hash generation. If ``SAVE_KEYS=1``, only a file is
+   accepted and it will be used to save the key.
 
 -  ``SAVE_KEYS``: This option is used when ``GENERATE_COT=1``. It tells the
    certificate generation tool to save the keys used to establish the Chain of
@@ -840,9 +841,9 @@ Common build options
    If a SCP_BL2 image is present then this option must be passed for the ``fip``
    target.
 
--  ``SCP_BL2_KEY``: This option is used when ``GENERATE_COT=1``. It specifies the
-   file that contains the SCP_BL2 private key in PEM format. If ``SAVE_KEYS=1``,
-   this file name will be used to save the key.
+-  ``SCP_BL2_KEY``: This option is used when ``GENERATE_COT=1``. It specifies a
+   file that contains the SCP_BL2 private key in PEM format or a PKCS11 URI.
+   If ``SAVE_KEYS=1``, only a file is accepted and it will be used to save the key.
 
 -  ``SCP_BL2U``: Path to SCP_BL2U image in the host file system. This image is
    optional. It is only needed if the platform makefile specifies that it
@@ -959,8 +960,9 @@ Common build options
       already exist in disk, they will be overwritten without further notice.
 
 -  ``TRUSTED_WORLD_KEY``: This option is used when ``GENERATE_COT=1``. It
-   specifies the file that contains the Trusted World private key in PEM
-   format. If ``SAVE_KEYS=1``, this file name will be used to save the key.
+   specifies a file that contains the Trusted World private key in PEM
+   format or a PKCS11 URI. If ``SAVE_KEYS=1``, only a file is accepted and
+   it will be used to save the key.
 
 -  ``TSP_INIT_ASYNC``: Choose BL32 initialization method as asynchronous or
    synchronous, (see "Initializing a BL32 Image" section in
