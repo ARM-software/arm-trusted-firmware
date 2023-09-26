@@ -28,7 +28,7 @@
 #define ERRATA_LIST_END		(MAX_PLAT_CPU_ERRATA_ENTRIES - 1)
 
 /* Default values for unused memory in the array */
-#define UNDEF_ERRATA		{UINT_MAX, UCHAR_MAX, UCHAR_MAX, false, false}
+#define UNDEF_ERRATA		{UINT_MAX, UCHAR_MAX, UCHAR_MAX}
 
 #define EXTRACT_PARTNUM(x)	((x >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
 
@@ -41,9 +41,6 @@ struct em_cpu{
 	unsigned int em_errata_id;
 	unsigned char em_rxpx_lo;	/* lowest revision of errata applicable for the cpu */
 	unsigned char em_rxpx_hi;	/* highest revision of errata applicable for the cpu */
-	bool errata_enabled;		/* indicate if errata enabled */
-	/* flag to indicate if errata query is based out of non-arm interconnect */
-	bool non_arm_interconnect;
 };
 
 struct em_cpu_list{

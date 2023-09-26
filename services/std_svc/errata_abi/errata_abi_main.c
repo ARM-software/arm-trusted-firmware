@@ -13,7 +13,6 @@
 #include <services/errata_abi_svc.h>
 #include <smccc_helpers.h>
 
-
 /*
  * Global pointer that points to the specific
  * structure based on the MIDR part number
@@ -26,7 +25,7 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = CORTEX_A78_MIDR,
 	.cpu_errata_list = {
-		[0] = {2712571, 0x00, 0x12, ERRATA_A78_2712571, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2712571, 0x00, 0x12},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
@@ -36,7 +35,7 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = CORTEX_A78_AE_MIDR,
 	.cpu_errata_list = {
-		[0] = {2712574, 0x00, 0x02, ERRATA_A78_AE_2712574, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2712574, 0x00, 0x02},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
@@ -46,7 +45,7 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = CORTEX_A78C_MIDR,
 	.cpu_errata_list = {
-		[0] = {2712575, 0x01, 0x02, ERRATA_A78C_2712575, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2712575, 0x01, 0x02},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
@@ -56,7 +55,7 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = NEOVERSE_V1_MIDR,
 	.cpu_errata_list = {
-		[0] = {2701953, 0x00, 0x11, ERRATA_V1_2701953, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2701953, 0x00, 0x11},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
@@ -66,7 +65,7 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = CORTEX_A710_MIDR,
 	.cpu_errata_list = {
-		[0] = {2701952, 0x00, 0x21, ERRATA_A710_2701952, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2701952, 0x00, 0x21},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
@@ -76,7 +75,7 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = NEOVERSE_N2_MIDR,
 	.cpu_errata_list = {
-		[0] = {2728475, 0x00, 0x02, ERRATA_N2_2728475, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2728475, 0x00, 0x02},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
@@ -86,7 +85,7 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = CORTEX_X2_MIDR,
 	.cpu_errata_list = {
-		[0] = {2701952, 0x00, 0x21, ERRATA_X2_2701952, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2701952, 0x00, 0x21},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
@@ -96,7 +95,7 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = NEOVERSE_V2_MIDR,
 	.cpu_errata_list = {
-		[0] = {2719103, 0x00, 0x01, ERRATA_V2_2719103, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2719103, 0x00, 0x01},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
@@ -106,13 +105,55 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = CORTEX_A715_MIDR,
 	.cpu_errata_list = {
-		[0] = {2701951, 0x00, 0x11, ERRATA_A715_2701951, ERRATA_NON_ARM_INTERCONNECT},
+		[0] = {2701951, 0x00, 0x11},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
 #endif /* CORTEX_A715_H_INC */
 
 };
+
+#if ERRATA_NON_ARM_INTERCONNECT
+
+/* Check if the errata is enabled for non-arm interconnect */
+static int32_t non_arm_interconnect_errata(uint32_t errata_id, long rev_var)
+{
+	int32_t ret_val = EM_UNKNOWN_ERRATUM;
+
+	/* Determine the number of cpu listed in the cpu list */
+	uint8_t size_cpulist = ARRAY_SIZE(cpu_list);
+
+	/* Read the midr reg to extract cpu, revision and variant info */
+	uint32_t midr_val = read_midr();
+
+	for (uint8_t i = 0U; i < size_cpulist; i++) {
+		cpu_ptr = &cpu_list[i];
+		/*
+		 * If the cpu partnumber in the cpu list, matches the midr
+		 * part number, check to see if the errata ID matches
+		 */
+		if (EXTRACT_PARTNUM(midr_val) == EXTRACT_PARTNUM(cpu_ptr->cpu_partnumber)) {
+
+			struct em_cpu *ptr = NULL;
+
+			for (int j = 0; j < MAX_PLAT_CPU_ERRATA_ENTRIES; j++) {
+				ptr = &cpu_ptr->cpu_errata_list[j];
+				assert(ptr != NULL);
+				if (errata_id == ptr->em_errata_id) {
+					if (RXPX_RANGE(rev_var, ptr->em_rxpx_lo, ptr->em_rxpx_hi)) {
+						ret_val = EM_AFFECTED;
+						break;
+					}
+					ret_val = EM_NOT_AFFECTED;
+					break;
+				}
+			}
+			break;
+		}
+	}
+	return ret_val;
+}
+#endif
 
 /* Function to check if the errata exists for the specific CPU and rxpx */
 int32_t verify_errata_implemented(uint32_t errata_id, uint32_t forward_flag)
@@ -123,6 +164,14 @@ int32_t verify_errata_implemented(uint32_t errata_id, uint32_t forward_flag)
 	long rev_var;
 
 	ret_val = EM_UNKNOWN_ERRATUM;
+	rev_var = cpu_get_rev_var();
+
+#if ERRATA_NON_ARM_INTERCONNECT
+	ret_val = non_arm_interconnect_errata(errata_id, rev_var);
+	if (ret_val != EM_UNKNOWN_ERRATUM) {
+		return ret_val;
+	}
+#endif
 
 	cpu_ops = get_cpu_ops_ptr();
 	assert(cpu_ops != NULL);
@@ -133,11 +182,9 @@ int32_t verify_errata_implemented(uint32_t errata_id, uint32_t forward_flag)
 	end = cpu_ops->errata_list_end;
 	assert(end != NULL);
 
-	rev_var = cpu_get_rev_var();
-
 	end--; /* point to the last erratum entry of the queried cpu */
 
-	while (entry <= end) {
+	while ((entry <= end) && (ret_val == EM_UNKNOWN_ERRATUM)) {
 		if (entry->id == errata_id) {
 			if (entry->check_func(rev_var)) {
 				if (entry->chosen)
