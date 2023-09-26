@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,39 +11,21 @@
 #include <arch_helpers.h>
 
 #if __aarch64__
-#include <cortex_a35.h>
-#include <cortex_a510.h>
-#include <cortex_a520.h>
-#include <cortex_a53.h>
-#include <cortex_a57.h>
-#include <cortex_a55.h>
 #include <cortex_a710.h>
-#include <cortex_a72.h>
-#include <cortex_a73.h>
-#include <cortex_a75.h>
-#include <cortex_a76.h>
-#include <cortex_a77.h>
+#include <cortex_a715.h>
 #include <cortex_a78.h>
 #include <cortex_a78_ae.h>
 #include <cortex_a78c.h>
-#include <cortex_a715.h>
-#include <cortex_x1.h>
 #include <cortex_x2.h>
-#include <cortex_x3.h>
-#include <neoverse_n1.h>
 #include <neoverse_n2.h>
 #include <neoverse_v1.h>
 #include <neoverse_v2.h>
-#else
-#include <cortex_a15.h>
-#include <cortex_a17.h>
-#include <cortex_a57.h>
-#include <cortex_a9.h>
 #endif
 
-#define MAX_ERRATA_ENTRIES	32
+/* Max number of platform based errata with no workaround in EL3 */
+#define MAX_PLAT_CPU_ERRATA_ENTRIES	2
 
-#define ERRATA_LIST_END		(MAX_ERRATA_ENTRIES - 1)
+#define ERRATA_LIST_END		(MAX_PLAT_CPU_ERRATA_ENTRIES - 1)
 
 /* Default values for unused memory in the array */
 #define UNDEF_ERRATA		{UINT_MAX, UCHAR_MAX, UCHAR_MAX, false, false}
@@ -65,9 +47,8 @@ struct em_cpu{
 };
 
 struct em_cpu_list{
-	/* field to hold cpu specific part number defined in midr reg */
-	unsigned long cpu_partnumber;
-	struct   em_cpu cpu_errata_list[MAX_ERRATA_ENTRIES];
+	unsigned long cpu_partnumber;	/* cpu specific part number defined in midr reg */
+	struct   em_cpu cpu_errata_list[MAX_PLAT_CPU_ERRATA_ENTRIES];
 };
 
 int32_t verify_errata_implemented(uint32_t errata_id, uint32_t forward_flag);
