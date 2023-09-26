@@ -1,6 +1,6 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause */
+/* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
 /*
- * Copyright (C) 2023, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2023-2024, STMicroelectronics - All Rights Reserved
  */
 
 #ifndef _DT_BINDINGS_CLOCK_STM32MP25_CLKSRC_H_
@@ -108,9 +108,8 @@
 #define MUX_DSIPHY	18
 #define MUX_LVDSPHY	19
 #define MUX_DTS		20
-#define MUX_CPU1	21
-#define MUX_D3PER	22
-#define MUX_NB		23
+#define MUX_D3PER	21
+#define MUX_NB		22
 
 #define MUXSEL_HSI		0
 #define MUXSEL_HSE		1
@@ -144,7 +143,7 @@
 #define MUX_USB3PCIEPHY_FLEX34	0x0
 #define MUX_USB3PCIEPHY_HSE	0x1
 
-#define MUX_DSIBLANE_FLEX28	0x0
+#define MUX_DSIBLANE_DSIPHY	0x0
 #define MUX_DSIBLANE_FLEX27	0x1
 
 #define MUX_DSIPHY_FLEX28	0x0
@@ -219,8 +218,8 @@
 
 /* define for st,drive */
 #define LSEDRV_LOWEST		0
-#define LSEDRV_MEDIUM_LOW	1
-#define LSEDRV_MEDIUM_HIGH	2
+#define LSEDRV_MEDIUM_LOW	2
+#define LSEDRV_MEDIUM_HIGH	1
 #define LSEDRV_HIGHEST		3
 
 #endif /* _DT_BINDINGS_CLOCK_STM32MP25_CLKSRC_H_ */
