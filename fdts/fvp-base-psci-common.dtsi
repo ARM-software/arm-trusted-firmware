@@ -27,11 +27,12 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
+	chosen {
+		stdout-path = "serial0:115200n8";
 #if (ENABLE_RME == 1)
-	chosen { bootargs = "console=ttyAMA0 earlycon=pl011,0x1c090000 root=/dev/vda ip=on";};
-#else
-	chosen {};
+		bootargs = "console=ttyAMA0 earlycon=pl011,0x1c090000 root=/dev/vda ip=on";
 #endif
+	};
 
 	aliases {
 		serial0 = &v2m_serial0;
