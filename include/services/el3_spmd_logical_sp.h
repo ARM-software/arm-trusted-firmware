@@ -105,33 +105,33 @@ static inline bool is_ffa_direct_msg_resp(struct ffa_value *retval)
 }
 
 static inline uint16_t ffa_partition_info_regs_get_last_idx(
-	struct ffa_value args)
+	struct ffa_value *args)
 {
-	return (uint16_t)(args.arg2 & 0xFFFFU);
+	return (uint16_t)(args->arg2 & 0xFFFFU);
 }
 
 static inline uint16_t ffa_partition_info_regs_get_curr_idx(
-	struct ffa_value args)
+	struct ffa_value *args)
 {
-	return (uint16_t)((args.arg2 >> 16) & 0xFFFFU);
+	return (uint16_t)((args->arg2 >> 16) & 0xFFFFU);
 }
 
-static inline uint16_t ffa_partition_info_regs_get_tag(struct ffa_value args)
+static inline uint16_t ffa_partition_info_regs_get_tag(struct ffa_value *args)
 {
-	return (uint16_t)((args.arg2 >> 32) & 0xFFFFU);
+	return (uint16_t)((args->arg2 >> 32) & 0xFFFFU);
 }
 
 static inline uint16_t ffa_partition_info_regs_get_desc_size(
-	struct ffa_value args)
+	struct ffa_value *args)
 {
-	return (uint16_t)(args.arg2 >> 48);
+	return (uint16_t)(args->arg2 >> 48);
 }
 
 uint64_t spmd_el3_populate_logical_partition_info(void *handle, uint64_t x1,
 						  uint64_t x2, uint64_t x3);
 
 bool ffa_partition_info_regs_get_part_info(
-	struct ffa_value args, uint8_t idx,
+	struct ffa_value *args, uint8_t idx,
 	struct ffa_partition_info_v1_1 *partition_info);
 
 bool spmd_el3_invoke_partition_info_get(
