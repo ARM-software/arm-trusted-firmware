@@ -177,6 +177,7 @@ int plat_get_spi_nand_data(struct spinand_device *device)
 {
 	zeromem(&device->spi_read_cache_op, sizeof(struct spi_mem_op));
 	device->spi_read_cache_op.cmd.opcode = SPI_NAND_OP_READ_FROM_CACHE_4X;
+	device->spi_read_cache_op.cmd.nbytes = 1U;
 	device->spi_read_cache_op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	device->spi_read_cache_op.addr.nbytes = 2U;
 	device->spi_read_cache_op.addr.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
@@ -197,6 +198,7 @@ int plat_get_nor_data(struct nor_device *device)
 
 	zeromem(&device->read_op, sizeof(struct spi_mem_op));
 	device->read_op.cmd.opcode = SPI_NOR_OP_READ_1_1_4;
+	device->read_op.cmd.nbytes = 1U;
 	device->read_op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	device->read_op.addr.nbytes = 3U;
 	device->read_op.addr.buswidth = SPI_MEM_BUSWIDTH_1_LINE;

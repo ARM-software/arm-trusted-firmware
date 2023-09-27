@@ -69,7 +69,7 @@ static bool spi_mem_check_buswidth_req(uint8_t buswidth, bool tx)
 	return false;
 }
 
-static bool spi_mem_supports_op(const struct spi_mem_op *op)
+static bool spi_mem_check_buswidth(const struct spi_mem_op *op)
 {
 	if (!spi_mem_check_buswidth_req(op->cmd.buswidth, true)) {
 		return false;
@@ -92,6 +92,49 @@ static bool spi_mem_supports_op(const struct spi_mem_op *op)
 	}
 
 	return true;
+}
+
+bool spi_mem_dtr_supports_op(const struct spi_mem_op *op)
+{
+	if ((op->cmd.buswidth == 8U) && ((op->cmd.nbytes % 2U) != 0U)) {
+		return false;
+	}
+
+	if ((op->addr.nbytes != 0U) && (op->addr.buswidth == 8U) &&
+	    ((op->addr.nbytes % 2U) != 0U)) {
+		return false;
+	}
+
+	if ((op->dummy.nbytes != 0U) && (op->dummy.buswidth == 8U) &&
+	    ((op->dummy.nbytes % 2U) != 0U)) {
+		return false;
+	}
+
+	return spi_mem_check_buswidth(op);
+}
+
+bool spi_mem_default_supports_op(const struct spi_mem_op *op)
+{
+	if (op->cmd.dtr || op->addr.dtr || op->dummy.dtr || op->data.dtr) {
+		return false;
+	}
+
+	if (op->cmd.nbytes != 1U) {
+		return false;
+	}
+
+	return spi_mem_check_buswidth(op);
+}
+
+static bool spi_mem_supports_op(const struct spi_mem_op *op)
+{
+	const struct spi_bus_ops *ops = spi_slave.ops;
+
+	if (ops->supports_op != NULL) {
+		return ops->supports_op(op);
+	}
+
+	return spi_mem_default_supports_op(op);
 }
 
 static int spi_mem_set_speed_mode(void)
@@ -160,9 +203,9 @@ int spi_mem_exec_op(const struct spi_mem_op *op)
 	const struct spi_bus_ops *ops = spi_slave.ops;
 	int ret;
 
-	VERBOSE("%s: cmd:%x mode:%d.%d.%d.%d addqr:%" PRIx64 " len:%x\n",
-		__func__, op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
-		op->dummy.buswidth, op->data.buswidth,
+	VERBOSE("%s: cmd:%x dtr:%d mode:%d.%d.%d.%d addqr:%" PRIx64 " len:%x\n",
+		__func__, op->cmd.opcode, op->cmd.dtr, op->cmd.buswidth,
+		op->addr.buswidth, op->dummy.buswidth, op->data.buswidth,
 		op->addr.val, op->data.nbytes);
 
 	if (!spi_mem_supports_op(op)) {
@@ -196,9 +239,9 @@ int spi_mem_dirmap_read(const struct spi_mem_op *op)
 	const struct spi_bus_ops *ops = spi_slave.ops;
 	int ret;
 
-	VERBOSE("%s: cmd:%x mode:%d.%d.%d.%d addr:%" PRIx64 " len:%x\n",
-		__func__, op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
-		op->dummy.buswidth, op->data.buswidth,
+	VERBOSE("%s: cmd:%x dtr:%d mode:%d.%d.%d.%d addr:%" PRIx64 " len:%x\n",
+		__func__, op->cmd.opcode, op->cmd.dtr, op->cmd.buswidth,
+		op->addr.buswidth, op->dummy.buswidth, op->data.buswidth,
 		op->addr.val, op->data.nbytes);
 
 	if (op->data.dir != SPI_MEM_DATA_IN) {

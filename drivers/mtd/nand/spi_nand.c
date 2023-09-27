@@ -38,6 +38,7 @@ static int spi_nand_reg(bool read_reg, uint8_t reg, uint8_t *val,
 		op.cmd.opcode = SPI_NAND_OP_SET_FEATURE;
 	}
 
+	op.cmd.nbytes = 1U;
 	op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	op.addr.val = reg;
 	op.addr.nbytes = 1U;
@@ -131,6 +132,7 @@ static int spi_nand_reset(void)
 
 	zeromem(&op, sizeof(struct spi_mem_op));
 	op.cmd.opcode = SPI_NAND_OP_RESET;
+	op.cmd.nbytes = 1U;
 	op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 
 	ret = spi_mem_exec_op(&op);
@@ -147,6 +149,7 @@ static int spi_nand_read_id(uint8_t *id)
 
 	zeromem(&op, sizeof(struct spi_mem_op));
 	op.cmd.opcode = SPI_NAND_OP_READ_ID;
+	op.cmd.nbytes = 1U;
 	op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	op.data.dir = SPI_MEM_DATA_IN;
 	op.data.nbytes = SPI_NAND_MAX_ID_LEN;
@@ -167,6 +170,7 @@ static int spi_nand_load_page(unsigned int page)
 
 	zeromem(&op, sizeof(struct spi_mem_op));
 	op.cmd.opcode = SPI_NAND_OP_LOAD_PAGE;
+	op.cmd.nbytes = 1U;
 	op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	op.addr.val = (block_nb << block_sh) | page_nb;
 	op.addr.nbytes = 3U;
@@ -274,6 +278,7 @@ int spi_nand_init(unsigned long long *size, unsigned int *erase_size)
 	spinand_dev.nand_dev->nb_planes = 1;
 
 	spinand_dev.spi_read_cache_op.cmd.opcode = SPI_NAND_OP_READ_FROM_CACHE;
+	spinand_dev.spi_read_cache_op.cmd.nbytes = 1U;
 	spinand_dev.spi_read_cache_op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	spinand_dev.spi_read_cache_op.addr.nbytes = 2U;
 	spinand_dev.spi_read_cache_op.addr.buswidth = SPI_MEM_BUSWIDTH_1_LINE;

@@ -42,6 +42,7 @@ static int spi_nor_reg(uint8_t reg, uint8_t *buf, size_t len,
 
 	zeromem(&op, sizeof(struct spi_mem_op));
 	op.cmd.opcode = reg;
+	op.cmd.nbytes = 1U;
 	op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	op.data.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	op.data.dir = dir;
@@ -329,6 +330,7 @@ int spi_nor_init(unsigned long long *size, unsigned int *erase_size)
 
 	/* Default read command used */
 	nor_dev.read_op.cmd.opcode = SPI_NOR_OP_READ;
+	nor_dev.read_op.cmd.nbytes = 1U;
 	nor_dev.read_op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
 	nor_dev.read_op.addr.nbytes = 3U;
 	nor_dev.read_op.addr.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
