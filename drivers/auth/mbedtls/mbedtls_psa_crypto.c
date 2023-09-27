@@ -28,6 +28,13 @@
 
 #define LIB_NAME		"mbed TLS PSA"
 
+/* Maximum length of R_S pair in the ECDSA signature in bytes */
+#define MAX_ECDSA_R_S_PAIR_LEN	64U
+
+/* Size of ASN.1 length and tag in bytes*/
+#define SIZE_OF_ASN1_LEN	1U
+#define SIZE_OF_ASN1_TAG	1U
+
 #if CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
 CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 /*
@@ -108,6 +115,7 @@ CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 
 static void construct_psa_key_alg_and_type(mbedtls_pk_type_t pk_alg,
 					   mbedtls_md_type_t md_alg,
+					   psa_ecc_family_t psa_ecc_family,
 					   psa_algorithm_t *psa_alg,
 					   psa_key_type_t *psa_key_type)
 {
@@ -118,12 +126,171 @@ static void construct_psa_key_alg_and_type(mbedtls_pk_type_t pk_alg,
 		*psa_alg = PSA_ALG_RSA_PSS(psa_md_alg);
 		*psa_key_type = PSA_KEY_TYPE_RSA_PUBLIC_KEY;
 		break;
+	case MBEDTLS_PK_ECDSA:
+		*psa_alg = PSA_ALG_ECDSA(psa_md_alg);
+		*psa_key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(psa_ecc_family);
+		break;
 	default:
 		*psa_alg = PSA_ALG_NONE;
 		*psa_key_type = PSA_KEY_TYPE_NONE;
 		break;
 	}
 }
+
+
+#if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA || \
+TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
+
+/*
+ * This is a helper function to detect padding byte (if the MSB bit of the
+ * first data byte is set to 1, for example 0x80) and on detection, ignore the
+ * padded byte(0x00) and increase the buffer pointer beyond padded byte and
+ * decrease the length of the buffer by 1.
+ *
+ * On Success returns 0, error otherwise.
+ **/
+static inline int ignore_asn1_int_padding_byte(unsigned char **buf_start,
+					       size_t *buf_len)
+{
+	unsigned char *local_buf = *buf_start;
+
+	/* Check for negative number */
+	if ((local_buf[0] & 0x80U) != 0U) {
+		return -1;
+	}
+
+	if ((local_buf[0] == 0U) && (local_buf[1] > 0x7FU) &&
+	    (*buf_len > 1U)) {
+		*buf_start = &local_buf[1];
+		(*buf_len)--;
+	}
+
+	return 0;
+}
+
+/*
+ * This is a helper function that gets a pointer to the encoded ECDSA publicKey
+ * and its length (as per RFC5280) and returns corresponding decoded publicKey
+ * and its length. As well, it retrieves the family of ECC key in the PSA
+ * format.
+ *
+ * This function returns error(CRYPTO_ERR_SIGNATURE) on ASN.1 parsing failure,
+ * otherwise success(0).
+ **/
+static int get_ecdsa_pkinfo_from_asn1(unsigned char **pk_start,
+				      unsigned int *pk_len,
+				      psa_ecc_family_t *psa_ecc_family)
+{
+	mbedtls_asn1_buf alg_oid, alg_params;
+	mbedtls_ecp_group_id grp_id;
+	int rc;
+	unsigned char *pk_end;
+	size_t len;
+	size_t curve_bits;
+	unsigned char *pk_ptr = *pk_start;
+
+	pk_end = pk_ptr + *pk_len;
+	rc = mbedtls_asn1_get_tag(&pk_ptr, pk_end, &len,
+				  MBEDTLS_ASN1_CONSTRUCTED |
+				  MBEDTLS_ASN1_SEQUENCE);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	pk_end = pk_ptr + len;
+	rc = mbedtls_asn1_get_alg(&pk_ptr, pk_end, &alg_oid, &alg_params);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	if (alg_params.tag == MBEDTLS_ASN1_OID) {
+		if (mbedtls_oid_get_ec_grp(&alg_params, &grp_id) != 0) {
+			return CRYPTO_ERR_SIGNATURE;
+		}
+		*psa_ecc_family = mbedtls_ecc_group_to_psa(grp_id,
+							   &curve_bits);
+	} else {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	pk_end = pk_ptr + len - (alg_oid.len + alg_params.len +
+		 2 * (SIZE_OF_ASN1_LEN + SIZE_OF_ASN1_TAG));
+	rc = mbedtls_asn1_get_bitstring_null(&pk_ptr, pk_end, &len);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	*pk_start = pk_ptr;
+	*pk_len = len;
+
+	return rc;
+}
+
+/*
+ * Ecdsa-Sig-Value  ::=  SEQUENCE  {
+ *   r     INTEGER,
+ *   s     INTEGER
+ * }
+ *
+ * This helper function that gets a pointer to the encoded ECDSA signature and
+ * its length (as per RFC5280) and returns corresponding decoded signature
+ * (R_S pair) and its size.
+ *
+ * This function returns error(CRYPTO_ERR_SIGNATURE) on ASN.1 parsing failure,
+ * otherwise success(0).
+ **/
+static int get_ecdsa_signature_from_asn1(unsigned char *sig_ptr,
+					 size_t *sig_len,
+					 unsigned char *r_s_pair)
+{
+	int rc;
+	unsigned char *sig_end;
+	size_t len, r_len, s_len;
+
+	sig_end = sig_ptr + *sig_len;
+	rc = mbedtls_asn1_get_tag(&sig_ptr, sig_end, &len,
+				  MBEDTLS_ASN1_CONSTRUCTED |
+				  MBEDTLS_ASN1_SEQUENCE);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	sig_end = sig_ptr + len;
+	rc = mbedtls_asn1_get_tag(&sig_ptr, sig_end, &r_len,
+				  MBEDTLS_ASN1_INTEGER);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	if (ignore_asn1_int_padding_byte(&sig_ptr, &r_len) != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	(void)memcpy((void *)&r_s_pair[0], (const void *)sig_ptr, r_len);
+
+	sig_ptr = sig_ptr + r_len;
+	sig_end = sig_ptr + len - (r_len + (SIZE_OF_ASN1_LEN +
+		  SIZE_OF_ASN1_TAG));
+	rc = mbedtls_asn1_get_tag(&sig_ptr, sig_end, &s_len,
+				  MBEDTLS_ASN1_INTEGER);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	if (ignore_asn1_int_padding_byte(&sig_ptr, &s_len) != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	(void)memcpy((void *)&r_s_pair[r_len], (const void *)sig_ptr, s_len);
+
+	*sig_len = s_len + r_len;
+
+	return 0;
+}
+#endif /*
+	* TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA || \
+	* TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
+	**/
 
 /*
  * Verify a signature.
@@ -143,6 +310,10 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	int rc;
 	void *sig_opts = NULL;
 	unsigned char *p, *end;
+	unsigned char *local_sig_ptr;
+	size_t local_sig_len;
+	psa_ecc_family_t psa_ecc_family = 0U;
+	__unused unsigned char reformatted_sig[MAX_ECDSA_R_S_PAIR_LEN] = {0};
 
 	/* construct PSA key algo and type */
 	psa_status_t status = PSA_SUCCESS;
@@ -174,10 +345,36 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 		rc = CRYPTO_ERR_SIGNATURE;
 		goto end2;
 	}
-	signature.p = p;
+
+	local_sig_ptr = p;
+	local_sig_len = signature.len;
+
+#if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA || \
+TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
+	if (pk_alg == MBEDTLS_PK_ECDSA) {
+		rc = get_ecdsa_signature_from_asn1(local_sig_ptr,
+						   &local_sig_len,
+						   reformatted_sig);
+		if (rc != 0) {
+			goto end2;
+		}
+
+		local_sig_ptr = reformatted_sig;
+
+		rc = get_ecdsa_pkinfo_from_asn1((unsigned char **)&pk_ptr,
+						&pk_len,
+						&psa_ecc_family);
+		if (rc != 0) {
+			goto end2;
+		}
+	}
+#endif /*
+	* TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA || \
+	* TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
+	**/
 
 	/* Convert this pk_alg and md_alg to PSA key type and key algorithm */
-	construct_psa_key_alg_and_type(pk_alg, md_alg,
+	construct_psa_key_alg_and_type(pk_alg, md_alg, psa_ecc_family,
 				       &psa_alg, &psa_key_type);
 
 
@@ -208,7 +405,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	 */
 	status = psa_verify_message(psa_key_id, psa_alg,
 				    data_ptr, data_len,
-				    signature.p, signature.len);
+				    local_sig_ptr, local_sig_len);
 
 	if (status != PSA_SUCCESS) {
 		rc = CRYPTO_ERR_SIGNATURE;
