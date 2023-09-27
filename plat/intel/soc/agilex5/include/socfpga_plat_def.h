@@ -83,7 +83,7 @@
 #define GIC_SIZE						(0x00100000)
 
 #define BL2_BASE						(0x00000000)
-#define BL2_LIMIT						(0x0001b000)
+#define BL2_LIMIT						(0x0002b000)
 
 #define BL31_BASE						(0x80000000)
 #define BL31_LIMIT						(0x82000000)
