@@ -21,6 +21,7 @@
 #include <plat/common/platform.h>
 
 #include <custom_svc.h>
+#include <plat_fdt.h>
 #include <plat_private.h>
 #include <plat_startup.h>
 #include <zynqmp_def.h>
@@ -183,55 +184,9 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 }
 #endif
 
-#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
-static void prepare_dtb(void)
-{
-	void *dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
-	int ret;
-
-	/* Return if no device tree is detected */
-	if (fdt_check_header(dtb) != 0) {
-		NOTICE("Can't read DT at %p\n", dtb);
-		return;
-	}
-
-	ret = fdt_open_into(dtb, dtb, XILINX_OF_BOARD_DTB_MAX_SIZE);
-	if (ret < 0) {
-		ERROR("Invalid Device Tree at %p: error %d\n", dtb, ret);
-		return;
-	}
-
-	if (dt_add_psci_node(dtb)) {
-		ERROR("Failed to add PSCI Device Tree node\n");
-		return;
-	}
-
-	if (dt_add_psci_cpu_enable_methods(dtb)) {
-		ERROR("Failed to add PSCI cpu enable methods in Device Tree\n");
-		return;
-	}
-
-	/* Reserve memory used by Trusted Firmware. */
-	if (fdt_add_reserved_memory(dtb, "tf-a", BL31_BASE,
-				   (size_t) (BL31_LIMIT - BL31_BASE))) {
-		WARN("Failed to add reserved memory nodes for BL31 to DT.\n");
-	}
-
-	ret = fdt_pack(dtb);
-	if (ret < 0) {
-		ERROR("Failed to pack Device Tree at %p: error %d\n", dtb, ret);
-	}
-
-	clean_dcache_range((uintptr_t)dtb, fdt_blob_size(dtb));
-	INFO("Changed device tree to advertise PSCI and reserved memories.\n");
-}
-#endif
-
 void bl31_platform_setup(void)
 {
-#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
 	prepare_dtb();
-#endif
 
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_arm_gic_driver_init();
