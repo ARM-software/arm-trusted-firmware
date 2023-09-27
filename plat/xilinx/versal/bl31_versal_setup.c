@@ -74,12 +74,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	enum pm_ret_status ret_status;
 	uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
 
-	if (VERSAL_CONSOLE_IS(pl011) || (VERSAL_CONSOLE_IS(pl011_1))) {
+	if (CONSOLE_IS(pl011) || (CONSOLE_IS(pl011_1))) {
 		static console_t versal_runtime_console;
 		/* Initialize the console to provide early debug support */
-		int32_t rc = console_pl011_register((uintptr_t)VERSAL_UART_BASE,
-						(uint32_t)VERSAL_UART_CLOCK,
-						(uint32_t)VERSAL_UART_BAUDRATE,
+		int32_t rc = console_pl011_register((uintptr_t)UART_BASE,
+						(uint32_t)UART_CLOCK,
+						(uint32_t)UART_BAUDRATE,
 						&versal_runtime_console);
 		if (rc == 0) {
 			panic();
@@ -87,7 +87,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 		console_set_scope(&versal_runtime_console, (uint32_t)(CONSOLE_FLAG_BOOT |
 				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH));
-	} else if (VERSAL_CONSOLE_IS(dcc)) {
+	} else if (CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug */
 		int32_t rc = console_dcc_register();
 		if (rc == 0) {

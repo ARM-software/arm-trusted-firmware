@@ -73,17 +73,17 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	uint64_t tfa_handoff_addr;
 
-	if (ZYNQMP_CONSOLE_IS(cadence) || (ZYNQMP_CONSOLE_IS(cadence1))) {
+	if (CONSOLE_IS(cadence) || (CONSOLE_IS(cadence1))) {
 		/* Register the console to provide early debug support */
 		static console_t bl31_boot_console;
-		(void)console_cdns_register(ZYNQMP_UART_BASE,
-					       zynqmp_get_uart_clk(),
-					       ZYNQMP_UART_BAUDRATE,
+		(void)console_cdns_register(UART_BASE,
+					       get_uart_clk(),
+					       UART_BAUDRATE,
 					       &bl31_boot_console);
 		console_set_scope(&bl31_boot_console,
 				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT |
 				  CONSOLE_FLAG_CRASH);
-	} else if (ZYNQMP_CONSOLE_IS(dcc)) {
+	} else if (CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug */
 		int32_t rc = console_dcc_register();
 		if (rc == 0) {

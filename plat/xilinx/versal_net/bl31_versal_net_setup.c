@@ -101,12 +101,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 	}
 
-	if (VERSAL_NET_CONSOLE_IS(pl011_0) || VERSAL_NET_CONSOLE_IS(pl011_1)) {
+	if (CONSOLE_IS(pl011_0) || CONSOLE_IS(pl011_1)) {
 		static console_t versal_net_runtime_console;
 
 		/* Initialize the console to provide early debug support */
-		rc = console_pl011_register(VERSAL_NET_UART_BASE, uart_clock,
-				    VERSAL_NET_UART_BAUDRATE,
+		rc = console_pl011_register(UART_BASE, uart_clock,
+				    UART_BAUDATE,
 				    &versal_net_runtime_console);
 		if (rc == 0) {
 			panic();
@@ -114,7 +114,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 		console_set_scope(&versal_net_runtime_console, CONSOLE_FLAG_BOOT |
 				CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
-	} else if (VERSAL_NET_CONSOLE_IS(dcc)) {
+	} else if (CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug.
 		 * dcc is over jtag and does not configures uart0 or uart1.
 		 */
