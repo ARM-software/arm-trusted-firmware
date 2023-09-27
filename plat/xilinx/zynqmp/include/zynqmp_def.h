@@ -152,9 +152,6 @@
 # error "invalid ZYNQMP_CONSOLE"
 #endif
 
-#define ZYNQMP_CRASH_UART_BASE		ZYNQMP_UART_BASE
-/* impossible to call C routine how it is done now - hardcode any value */
-#define ZYNQMP_CRASH_UART_CLK_IN_HZ	100000000 /* FIXME */
 /* Must be non zero */
 #define ZYNQMP_UART_BAUDRATE		115200
 

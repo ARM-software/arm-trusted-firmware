@@ -71,10 +71,6 @@
 # error "invalid VERSAL_CONSOLE"
 #endif
 
-#define PLAT_VERSAL_CRASH_UART_BASE		VERSAL_UART_BASE
-#define PLAT_VERSAL_CRASH_UART_CLK_IN_HZ	VERSAL_UART_CLOCK
-#define VERSAL_CONSOLE_BAUDRATE			VERSAL_UART_BAUDRATE
-
 /*******************************************************************************
  * Platform related constants
  ******************************************************************************/
