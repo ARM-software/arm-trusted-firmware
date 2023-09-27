@@ -118,7 +118,7 @@
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE		UL(0x400)
 #elif defined(IMAGE_BL31)
-# if SPM_MM
+# if SPM_MM || SPMD_SPM_AT_SEL2
 #  define PLATFORM_STACK_SIZE		UL(0x500)
 # else
 #  define PLATFORM_STACK_SIZE		UL(0x400)
