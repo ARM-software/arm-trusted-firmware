@@ -122,6 +122,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		if (rc == 0) {
 			panic();
 		}
+	} else {
+		/* No console device found. */
 	}
 
 	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),

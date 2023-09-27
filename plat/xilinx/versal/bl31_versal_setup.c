@@ -94,7 +94,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			panic();
 		}
 	} else {
-		NOTICE("BL31: Did not register for any console.\n");
+		/* No console device found. */
 	}
 
 	/* Initialize the platform config for future decision making */
