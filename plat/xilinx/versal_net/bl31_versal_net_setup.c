@@ -113,7 +113,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		}
 
 		console_set_scope(&versal_net_runtime_console, CONSOLE_FLAG_BOOT |
-				CONSOLE_FLAG_RUNTIME);
+				CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	} else if (VERSAL_NET_CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug.
 		 * dcc is over jtag and does not configures uart0 or uart1.

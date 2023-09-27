@@ -86,7 +86,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		}
 
 		console_set_scope(&versal_runtime_console, (uint32_t)(CONSOLE_FLAG_BOOT |
-				  CONSOLE_FLAG_RUNTIME));
+				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH));
 	} else if (VERSAL_CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug */
 		int32_t rc = console_dcc_register();
