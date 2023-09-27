@@ -10,6 +10,7 @@
 #include <cortex_a35.h>
 #include <platform_def.h>
 
+	.globl	platform_mem_init
 	.globl	plat_is_my_cpu_primary
 	.globl	plat_my_core_pos
 	.globl	plat_secondary_cold_boot_setup
@@ -17,6 +18,12 @@
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
 	.globl	plat_crash_console_flush
+
+/* void platform_mem_init(void); */
+func platform_mem_init
+	/* DRAM init. is done by preceding MCU */
+	ret
+endfunc platform_mem_init
 
 /* unsigned int plat_is_my_cpu_primary(void); */
 func plat_is_my_cpu_primary
@@ -36,6 +43,21 @@ func plat_my_core_pos
 	madd	x0, x0, x2, x1
 	ret
 endfunc plat_my_core_pos
+
+/* void plat_secondary_cold_boot_setup (void); */
+func plat_secondary_cold_boot_setup
+	mov	x0, xzr
+	bl	plat_my_core_pos
+	mov_imm	x1, SCU_CPU_SMP_EP0
+	add	x1, x1, x0, lsl #3
+
+poll_smp_mbox_go:
+	wfe
+	ldr	x0, [x1]
+	cmp	x0, xzr
+	beq	poll_smp_mbox_go
+	br	x0
+endfunc plat_secondary_cold_boot_setup
 
 /* unsigned int plat_get_syscnt_freq2(void); */
 func plat_get_syscnt_freq2

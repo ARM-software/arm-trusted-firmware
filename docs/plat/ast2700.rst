@@ -7,11 +7,11 @@ Each core operates at 1.6GHz.
 Boot Flow
 ---------
 
-    BootRom --> BL1/BL2 --> TF-A BL31 --> BL32 (optional) --> BL33 --> Linux Kernel
+    BootRom --> TF-A BL31 --> BL32 --> BL33 --> Linux Kernel
 
 How to build
 ------------
 
 .. code:: shell
 
-    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=ast2700
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=ast2700 SPD=opteed
