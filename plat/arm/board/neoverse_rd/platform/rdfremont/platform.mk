@@ -102,3 +102,5 @@ $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config))
 # Features for RD-Fremont variants
 override ENABLE_FEAT_MPAM	:= 2
 override ENABLE_FEAT_AMU	:= 2
+override ENABLE_SVE_FOR_SWD	:= 1
+override ENABLE_SVE_FOR_NS	:= 2
