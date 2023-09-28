@@ -902,6 +902,9 @@ subsections:
                   - title: GIC-600AE
                     scope: gic600ae
 
+              - title: GICv2
+                scope: gicv2
+
           - title: SMMU
             scope: smmu
 

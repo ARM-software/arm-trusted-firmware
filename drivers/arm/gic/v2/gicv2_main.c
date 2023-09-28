@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  * Portions copyright (c) 2021-2022, ProvenRun S.A.S. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -390,7 +390,7 @@ void gicv2_set_interrupt_priority(unsigned int id, unsigned int priority)
  * This function assigns group for the interrupt identified by id. The group can
  * be any of GICV2_INTR_GROUP*
  ******************************************************************************/
-void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
+void gicv2_set_interrupt_group(unsigned int id, unsigned int group)
 {
 	assert(driver_data != NULL);
 	assert(driver_data->gicd_base != 0U);
@@ -398,7 +398,7 @@ void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
 
 	/* Serialize read-modify-write to Distributor registers */
 	spin_lock(&gic_lock);
-	switch (type) {
+	switch (group) {
 	case GICV2_INTR_GROUP1:
 		gicd_set_igroupr(driver_data->gicd_base, id);
 		break;

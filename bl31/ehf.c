@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -458,7 +458,7 @@ void __init ehf_init(void)
 	int ret __unused;
 
 	/* Ensure EL3 interrupts are supported */
-	assert(plat_ic_has_interrupt_type(INTR_TYPE_EL3) != 0);
+	assert(plat_ic_has_interrupt_type(INTR_TYPE_EL3));
 
 	/*
 	 * Make sure that priority water mark has enough bits to represent the
