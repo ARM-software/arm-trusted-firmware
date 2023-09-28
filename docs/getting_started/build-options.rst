@@ -748,6 +748,19 @@ Common build options
 
       MARCH_DIRECTIVE := -march=armv8.5-a
 
+-  ``HARDEN_SLS``: used to pass -mharden-sls=all from the TF-A build
+   options to the compiler currently supporting only of the options.
+   GCC documentation:
+   https://gcc.gnu.org/onlinedocs/gcc/AArch64-Options.html#index-mharden-sls
+
+   An example usage:
+
+   .. code:: make
+
+      HARDEN_SLS := 1
+
+   This option defaults to 0.
+
 -  ``NON_TRUSTED_WORLD_KEY``: This option is used when ``GENERATE_COT=1``. It
    specifies a file that contains the Non-Trusted World private key in PEM
    format or a PKCS11 URI. If ``SAVE_KEYS=1``, only a file is accepted and it
