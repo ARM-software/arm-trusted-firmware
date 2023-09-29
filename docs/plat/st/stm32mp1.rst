@@ -205,6 +205,7 @@ __________________
         --nt-fw <u-boot_directory>/u-boot-nodtb.bin \
         --hw-config <u-boot_directory>/u-boot.dtb \
         --fw-config build/stm32mp1/release/fdts/fw-config.dtb \
+        --trusted-key-cert build/stm32mp1/release/trusted_key.crt \
         --tos-fw-cert build/stm32mp1/release/tos_fw_content.crt \
         --tos-fw-key-cert build/stm32mp1/release/tos_fw_key.crt \
         --nt-fw-cert build/stm32mp1/release/nt_fw_content.crt \
