@@ -1,10 +1,13 @@
 #
-# Copyright (c) 2019-2021, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2023, NVIDIA CORPORATION. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 include common/fdt_wrappers.mk
+
+ARM_ARCH_MAJOR := 8
+ARM_ARCH_MINOR := 2
 
 # platform configs
 ENABLE_CONSOLE_SPE			:= 1
@@ -34,7 +37,6 @@ $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # enable RAS handling
 HANDLE_EA_EL3_FIRST_NS			:= 1
-ENABLE_FEAT_RAS				:= 1
 RAS_FFH_SUPPORT				:= 1
 
 # platform files
