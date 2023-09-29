@@ -10,6 +10,7 @@
 #include <drivers/arm/gicv3.h>
 #include <drivers/console.h>
 #include <drivers/ti/uart/uart_16550.h>
+#include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -55,7 +56,14 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	console_set_scope(&console, CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 
-	bl31_params_parse_helper(arg0, &bl32_ep_info, &bl33_ep_info);
+	SET_PARAM_HEAD(&bl32_ep_info, PARAM_EP, VERSION_2, 0);
+	bl32_ep_info.pc = BL32_BASE;
+	SET_SECURITY_STATE(bl32_ep_info.h.attr, SECURE);
+
+	SET_PARAM_HEAD(&bl33_ep_info, PARAM_EP, VERSION_2, 0);
+	bl33_ep_info.pc = mmio_read_64(SCU_CPU_SMP_EP0);
+	bl33_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	SET_SECURITY_STATE(bl33_ep_info.h.attr, NON_SECURE);
 }
 
 void bl31_plat_arch_setup(void)
