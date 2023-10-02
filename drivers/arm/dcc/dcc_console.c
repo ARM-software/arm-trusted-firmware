@@ -114,12 +114,6 @@ static int32_t dcc_console_getc(struct console *console)
 	return __dcc_getchar();
 }
 
-int32_t dcc_console_init(unsigned long base_addr, uint32_t uart_clk,
-		      uint32_t baud_rate)
-{
-	return 0; /* No init needed */
-}
-
 /**
  * dcc_console_flush() - Function to force a write of all buffered data
  *		          that hasn't been output.
@@ -149,4 +143,10 @@ static struct dcc_console dcc_console = {
 int console_dcc_register(void)
 {
 	return console_register(&dcc_console.console);
+}
+
+void console_dcc_unregister(void)
+{
+	dcc_console_flush(&dcc_console.console);
+	(void)console_unregister(&dcc_console.console);
 }

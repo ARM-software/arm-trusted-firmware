@@ -15,5 +15,6 @@
  * framework.
  */
 int console_dcc_register(void);
+void console_dcc_unregister(void);
 
 #endif /* DCC */
