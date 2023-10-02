@@ -386,7 +386,7 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 #define DDRPHYC_BASE				U(0x48C00000)
 
 /*******************************************************************************
- * Miscellaneous STM32MP1 peripherals base address
+ * Miscellaneous STM32MP2 peripherals base address
  ******************************************************************************/
 #define BSEC_BASE				U(0x44000000)
 #define DBGMCU_BASE				U(0x4A010000)
