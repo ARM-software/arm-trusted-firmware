@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -103,6 +103,41 @@
 
 #define round_down(value, boundary)		\
 	((value) & ~round_boundary(value, boundary))
+
+/* add operation together with checking whether the operation overflowed
+ * The result is '*res',
+ * return 0 on success and 1 on overflow
+ */
+#define add_overflow(a, b, res) __builtin_add_overflow((a), (b), (res))
+
+/*
+ * Round up a value to align with a given size and
+ * check whether overflow happens.
+ * The rounduped value is '*res',
+ * return 0 on success and 1 on overflow
+ */
+#define round_up_overflow(v, size, res) (__extension__({ \
+	typeof(res) __res = res; \
+	typeof(*(__res)) __roundup_tmp = 0; \
+	typeof(v) __roundup_mask = (typeof(v))(size) - 1; \
+	\
+	add_overflow((v), __roundup_mask, &__roundup_tmp) ? 1 : \
+		(void)(*(__res) = __roundup_tmp & ~__roundup_mask), 0; \
+}))
+
+/*
+ * Add a with b, then round up the result to align with a given size and
+ * check whether overflow happens.
+ * The rounduped value is '*res',
+ * return 0 on success and 1 on overflow
+ */
+#define add_with_round_up_overflow(a, b, size, res) (__extension__({ \
+	typeof(a) __a = (a); \
+	typeof(__a) __add_res = 0; \
+	\
+	add_overflow((__a), (b), &__add_res) ? 1 : \
+		round_up_overflow(__add_res, (size), (res)) ? 1 : 0; \
+}))
 
 /**
  * Helper macro to ensure a value lies on a given boundary.

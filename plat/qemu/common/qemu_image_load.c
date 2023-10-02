@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/desc_image_load.h>
+
+#include "qemu_private.h"
 
 /*******************************************************************************
  * This function is a wrapper of a common function which flushes the data
@@ -13,6 +15,7 @@
 void plat_flush_next_bl_params(void)
 {
 	flush_bl_params_desc();
+	qemu_bl2_sync_transfer_list();
 }
 
 /*******************************************************************************
