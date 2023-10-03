@@ -37,7 +37,6 @@ static int apu_poll(uintptr_t reg, uint32_t mask, uint32_t value, uint32_t timeo
 		if ((reg_val & mask) == value) {
 			return 0;
 		}
-
 		udelay(APU_POLL_STEP_US);
 	} while (--count);
 
@@ -169,15 +168,19 @@ int apusys_kernel_apusys_pwr_top_on(void)
 static void apu_sleep_rpc_rcx(void)
 {
 	mmio_write_32(APU_RPC_BASE + APU_RPC_TOP_CON, REG_WAKEUP_CLR);
+	dsb();
 	udelay(10);
 
 	mmio_setbits_32(APU_RPC_BASE + APU_RPC_TOP_SEL, (RPC_CTRL | RSV10));
+	dsb();
 	udelay(10);
 
 	mmio_setbits_32(APU_RPC_BASE + APU_RPC_TOP_CON, CLR_IRQ);
+	dsb();
 	udelay(10);
 
 	mmio_setbits_32(APU_RPC_BASE + APU_RPC_TOP_CON, SLEEP_REQ);
+	dsb();
 	udelay(100);
 }
 
@@ -313,12 +316,15 @@ static void apu_acc_init(void)
 static void apu_buck_off_cfg(void)
 {
 	mmio_write_32(APU_RPC_BASE + APU_RPC_HW_CON, BUCK_PROT_REQ_SET);
+	dsb();
 	udelay(10);
 
 	mmio_write_32(APU_RPC_BASE + APU_RPC_HW_CON, BUCK_ELS_EN_SET);
+	dsb();
 	udelay(10);
 
 	mmio_write_32(APU_RPC_BASE + APU_RPC_HW_CON, BUCK_AO_RST_B_CLR);
+	dsb();
 	udelay(10);
 }
 
@@ -425,15 +431,19 @@ static void apu_aoc_init(void)
 {
 	mmio_clrbits_32(SPM_BASE + APUSYS_BUCK_ISOLATION, IPU_EXT_BUCK_ISO);
 	mmio_write_32(APU_RPC_BASE + APU_RPC_HW_CON, BUCK_ELS_EN_CLR);
+	dsb();
 	udelay(10);
 
 	mmio_write_32(APU_RPC_BASE + APU_RPC_HW_CON, BUCK_AO_RST_B_SET);
+	dsb();
 	udelay(10);
 
 	mmio_write_32(APU_RPC_BASE + APU_RPC_HW_CON, BUCK_PROT_REQ_CLR);
+	dsb();
 	udelay(10);
 
 	mmio_write_32(APU_RPC_BASE + APU_RPC_HW_CON, SRAM_AOC_ISO_CLR);
+	dsb();
 	udelay(10);
 }
 

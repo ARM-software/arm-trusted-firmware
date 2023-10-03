@@ -88,6 +88,7 @@ int apusys_kernel_apusys_rv_reset_mp(void)
 
 	mmio_write_32(MD32_SYS_CTRL, MD32_SYS_CTRL_RST);
 
+	dsb();
 	udelay(RESET_DEALY_US);
 
 	mmio_write_32(MD32_SYS_CTRL, MD32_G2B_CG_EN | MD32_DBG_EN | MD32_DM_AWUSER_IOMMU_EN |
