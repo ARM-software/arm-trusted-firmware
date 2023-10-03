@@ -320,6 +320,14 @@ uint64_t rmmd_rmi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	 * is.
 	 */
 	if (src_sec_state == SMC_FROM_NON_SECURE) {
+		/*
+		 * If SVE hint bit is set in the flags then update the SMC
+		 * function id and pass it on to the lower EL.
+		 */
+		if (is_sve_hint_set(flags)) {
+			smc_fid |= (FUNCID_SVE_HINT_MASK <<
+				    FUNCID_SVE_HINT_SHIFT);
+		}
 		VERBOSE("RMMD: RMI call from non-secure world.\n");
 		return rmmd_smc_forward(NON_SECURE, REALM, smc_fid,
 					x1, x2, x3, x4, handle);
