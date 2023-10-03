@@ -409,7 +409,7 @@ static int uart_read(uint8_t id, uintptr_t buffer, size_t length)
 	handle.addr = (uint8_t *)buffer;
 	handle.len = length;
 
-	INFO("UART: read phase %u at 0x%lx size 0x%x\n",
+	INFO("UART: read phase %u at 0x%lx size 0x%zx\n",
 	     id, buffer, length);
 	while (!start_done) {
 		ret = uart_receive_command(&command);

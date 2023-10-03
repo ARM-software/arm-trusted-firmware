@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022, STMicroelectronics - All Rights Reserved
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2023, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,7 +35,7 @@ void dt_fill_device_info(struct dt_node_info *info, int node);
 int dt_get_node(struct dt_node_info *info, int offset, const char *compat);
 int dt_get_stdout_uart_info(struct dt_node_info *info);
 int dt_match_instance_by_compatible(const char *compatible, uintptr_t address);
-uint32_t dt_get_ddr_size(void);
+size_t dt_get_ddr_size(void);
 uint32_t dt_get_pwr_vdd_voltage(void);
 struct rdev *dt_get_vdd_regulator(void);
 struct rdev *dt_get_cpu_regulator(void);

@@ -187,6 +187,10 @@ int stm32_rng_read(uint8_t *out, uint32_t size)
 
 		count = 4U;
 		while (len != 0U) {
+			if ((mmio_read_32(stm32_rng.base + RNG_SR) & RNG_SR_DRDY) == 0U) {
+				break;
+			}
+
 			data32 = mmio_read_32(stm32_rng.base + RNG_DR);
 			count--;
 
