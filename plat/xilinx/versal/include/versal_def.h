@@ -23,7 +23,7 @@
 #define VERSAL_CONSOLE_ID_pl011_1	2
 #define VERSAL_CONSOLE_ID_dcc		3
 
-#define VERSAL_CONSOLE_IS(con)	(VERSAL_CONSOLE_ID_ ## con == VERSAL_CONSOLE)
+#define CONSOLE_IS(con)	(VERSAL_CONSOLE_ID_ ## con == VERSAL_CONSOLE)
 
 /* List all supported platforms */
 #define VERSAL_PLATFORM_ID_versal_virt	1
@@ -63,40 +63,36 @@
 #define VERSAL_UART0_BASE		0xFF000000
 #define VERSAL_UART1_BASE		0xFF010000
 
-#if VERSAL_CONSOLE_IS(pl011) || VERSAL_CONSOLE_IS(dcc)
-# define VERSAL_UART_BASE	VERSAL_UART0_BASE
-#elif VERSAL_CONSOLE_IS(pl011_1)
-# define VERSAL_UART_BASE	VERSAL_UART1_BASE
+#if CONSOLE_IS(pl011) || CONSOLE_IS(dcc)
+# define UART_BASE	VERSAL_UART0_BASE
+#elif CONSOLE_IS(pl011_1)
+# define UART_BASE	VERSAL_UART1_BASE
 #else
 # error "invalid VERSAL_CONSOLE"
 #endif
-
-#define PLAT_VERSAL_CRASH_UART_BASE		VERSAL_UART_BASE
-#define PLAT_VERSAL_CRASH_UART_CLK_IN_HZ	VERSAL_UART_CLOCK
-#define VERSAL_CONSOLE_BAUDRATE			VERSAL_UART_BAUDRATE
 
 /*******************************************************************************
  * Platform related constants
  ******************************************************************************/
 #if VERSAL_PLATFORM_IS(versal_virt)
 # define PLATFORM_NAME		"Versal Virt"
-# define VERSAL_UART_CLOCK	25000000
-# define VERSAL_UART_BAUDRATE	115200
+# define UART_CLOCK	25000000
+# define UART_BAUDRATE	115200
 # define VERSAL_CPU_CLOCK	2720000
 #elif VERSAL_PLATFORM_IS(silicon)
 # define PLATFORM_NAME		"Versal Silicon"
-# define VERSAL_UART_CLOCK	100000000
-# define VERSAL_UART_BAUDRATE	115200
+# define UART_CLOCK	100000000
+# define UART_BAUDRATE	115200
 # define VERSAL_CPU_CLOCK	100000000
 #elif VERSAL_PLATFORM_IS(spp_itr6)
 # define PLATFORM_NAME		"SPP ITR6"
-# define VERSAL_UART_CLOCK	25000000
-# define VERSAL_UART_BAUDRATE	115200
+# define UART_CLOCK	25000000
+# define UART_BAUDRATE	115200
 # define VERSAL_CPU_CLOCK	2720000
 #elif VERSAL_PLATFORM_IS(emu_itr6)
 # define PLATFORM_NAME		"EMU ITR6"
-# define VERSAL_UART_CLOCK	212000
-# define VERSAL_UART_BAUDRATE	9600
+# define UART_CLOCK	212000
+# define UART_BAUDRATE	9600
 # define VERSAL_CPU_CLOCK	212000
 #endif
 

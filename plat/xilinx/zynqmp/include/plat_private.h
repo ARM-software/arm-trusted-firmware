@@ -19,7 +19,7 @@ void zynqmp_config_setup(void);
 uint32_t zynqmp_calc_core_pos(u_register_t mpidr);
 
 /* ZynqMP specific functions */
-uint32_t zynqmp_get_uart_clk(void);
+uint32_t get_uart_clk(void);
 uint32_t zynqmp_get_bootmode(void);
 
 #if ZYNQMP_WDT_RESTART

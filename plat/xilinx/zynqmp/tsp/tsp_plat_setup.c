@@ -22,9 +22,9 @@ void tsp_early_platform_setup(void)
 	 * messages from TSP
 	 */
 	static console_t tsp_boot_console;
-	(void)console_cdns_register(ZYNQMP_UART_BASE,
-				       zynqmp_get_uart_clk(),
-				       ZYNQMP_UART_BAUDRATE,
+	(void)console_cdns_register(UART_BASE,
+				       get_uart_clk(),
+				       UART_BAUDRATE,
 				       &tsp_boot_console);
 	console_set_scope(&tsp_boot_console,
 			  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT);

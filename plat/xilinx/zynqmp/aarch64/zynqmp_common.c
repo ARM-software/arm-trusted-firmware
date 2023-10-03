@@ -48,7 +48,7 @@ static uint32_t zynqmp_get_silicon_ver(void)
 	return ver;
 }
 
-uint32_t zynqmp_get_uart_clk(void)
+uint32_t get_uart_clk(void)
 {
 	unsigned int ver = zynqmp_get_silicon_ver();
 

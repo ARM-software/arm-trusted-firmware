@@ -15,7 +15,7 @@
 #define ZYNQMP_CONSOLE_ID_cadence1	2
 #define ZYNQMP_CONSOLE_ID_dcc		3
 
-#define ZYNQMP_CONSOLE_IS(con)	(ZYNQMP_CONSOLE_ID_ ## con == ZYNQMP_CONSOLE)
+#define CONSOLE_IS(con)	(ZYNQMP_CONSOLE_ID_ ## con == ZYNQMP_CONSOLE)
 
 /* Default counter frequency */
 #define ZYNQMP_DEFAULT_COUNTER_FREQ	0U
@@ -144,19 +144,16 @@
 #define ZYNQMP_UART0_BASE		U(0xFF000000)
 #define ZYNQMP_UART1_BASE		U(0xFF010000)
 
-#if ZYNQMP_CONSOLE_IS(cadence) || ZYNQMP_CONSOLE_IS(dcc)
-# define ZYNQMP_UART_BASE	ZYNQMP_UART0_BASE
-#elif ZYNQMP_CONSOLE_IS(cadence1)
-# define ZYNQMP_UART_BASE	ZYNQMP_UART1_BASE
+#if CONSOLE_IS(cadence) || CONSOLE_IS(dcc)
+# define UART_BASE	ZYNQMP_UART0_BASE
+#elif CONSOLE_IS(cadence1)
+# define UART_BASE	ZYNQMP_UART1_BASE
 #else
 # error "invalid ZYNQMP_CONSOLE"
 #endif
 
-#define ZYNQMP_CRASH_UART_BASE		ZYNQMP_UART_BASE
-/* impossible to call C routine how it is done now - hardcode any value */
-#define ZYNQMP_CRASH_UART_CLK_IN_HZ	100000000 /* FIXME */
 /* Must be non zero */
-#define ZYNQMP_UART_BAUDRATE		115200
+#define UART_BAUDRATE		115200
 
 /* Silicon version detection */
 #define ZYNQMP_SILICON_VER_MASK		0xF000
