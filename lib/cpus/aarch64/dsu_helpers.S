@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <asm_macros.S>
 #include <dsu_def.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 
 	/* -----------------------------------------------------------------------
 	 * DSU erratum 798953 check function
@@ -44,11 +44,11 @@ endfunc check_errata_dsu_798953
 	/* --------------------------------------------------
 	 * Errata Workaround for DSU erratum #798953.
 	 *
-	 * Can clobber only: x0-x17
+	 * Can clobber only: x0-x8
 	 * --------------------------------------------------
 	 */
 func errata_dsu_798953_wa
-	mov	x17, x30
+	mov	x8, x30
 	bl	check_errata_dsu_798953
 	cbz	x0, 1f
 
@@ -58,7 +58,7 @@ func errata_dsu_798953_wa
 	msr	CLUSTERACTLR_EL1, x0
 	isb
 1:
-	ret	x17
+	ret	x8
 endfunc errata_dsu_798953_wa
 
 	/* -----------------------------------------------------------------------
@@ -72,7 +72,7 @@ endfunc errata_dsu_798953_wa
 	 * This function is called from both assembly and C environment. So it
 	 * follows AAPCS.
 	 *
-	 * Clobbers: x0-x15
+	 * Clobbers: x0-x4
 	 * -----------------------------------------------------------------------
 	 */
 	.globl	check_errata_dsu_936184
@@ -83,7 +83,7 @@ endfunc errata_dsu_798953_wa
 	 * Default behaviour respresents SCU is always present with DSU.
 	 * CPUs can override this definition if required.
 	 *
-	 * Can clobber only: x0-x14
+	 * Can clobber only: x0-x3
 	 * --------------------------------------------------------------------
 	 */
 func is_scu_present_in_dsu
@@ -92,7 +92,7 @@ func is_scu_present_in_dsu
 endfunc is_scu_present_in_dsu
 
 func check_errata_dsu_936184
-	mov	x15, x30
+	mov	x4, x30
 	bl	is_scu_present_in_dsu
 	cmp	x0, xzr
 	/* Default error status */
@@ -116,17 +116,17 @@ func check_errata_dsu_936184
 	b.hs	1f
 	mov	x0, #ERRATA_APPLIES
 1:
-	ret	x15
+	ret	x4
 endfunc check_errata_dsu_936184
 
 	/* --------------------------------------------------
 	 * Errata Workaround for DSU erratum #936184.
 	 *
-	 * Can clobber only: x0-x17
+	 * Can clobber only: x0-x8
 	 * --------------------------------------------------
 	 */
 func errata_dsu_936184_wa
-	mov	x17, x30
+	mov	x8, x30
 	bl	check_errata_dsu_936184
 	cbz	x0, 1f
 
@@ -137,7 +137,7 @@ func errata_dsu_936184_wa
 	msr	CLUSTERACTLR_EL1, x0
 	isb
 1:
-	ret	x17
+	ret	x8
 endfunc errata_dsu_936184_wa
 
 	/* -----------------------------------------------------------------------
@@ -176,11 +176,11 @@ endfunc check_errata_dsu_2313941
 	/* --------------------------------------------------
 	 * Errata Workaround for DSU erratum #2313941.
 	 *
-	 * Can clobber only: x0-x17
+	 * Can clobber only: x0-x8
 	 * --------------------------------------------------
 	 */
 func errata_dsu_2313941_wa
-	mov	x17, x30
+	mov	x8, x30
 	bl	check_errata_dsu_2313941
 	cbz	x0, 1f
 
@@ -190,6 +190,5 @@ func errata_dsu_2313941_wa
 	msr	CLUSTERACTLR_EL1, x0
 	isb
 1:
-	ret	x17
+	ret	x8
 endfunc errata_dsu_2313941_wa
-

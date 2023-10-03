@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -58,23 +58,16 @@ ifeq (${HW_ASSISTED_COHERENCY}, 0)
 				lib/cpus/aarch64/cortex_a73.S
 else
 # AArch64-only cores
-	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a76.S		\
-				lib/cpus/aarch64/cortex_a76ae.S		\
-				lib/cpus/aarch64/cortex_a77.S		\
-				lib/cpus/aarch64/cortex_a78.S		\
-				lib/cpus/aarch64/neoverse_n_common.S	\
-				lib/cpus/aarch64/neoverse_n1.S		\
-				lib/cpus/aarch64/neoverse_n2.S		\
-				lib/cpus/aarch64/neoverse_e1.S		\
-				lib/cpus/aarch64/neoverse_v1.S		\
-				lib/cpus/aarch64/cortex_a78_ae.S	\
-				lib/cpus/aarch64/cortex_a65.S		\
-				lib/cpus/aarch64/cortex_a65ae.S		\
-				lib/cpus/aarch64/cortex_a510.S		\
-				lib/cpus/aarch64/cortex_a710.S		\
-				lib/cpus/aarch64/cortex_a715.S		\
-				lib/cpus/aarch64/cortex_x3.S 		\
-				lib/cpus/aarch64/cortex_a78c.S
+	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a510.S			\
+				lib/cpus/aarch64/cortex_a520.S			\
+				lib/cpus/aarch64/cortex_a715.S			\
+				lib/cpus/aarch64/cortex_a720.S			\
+				lib/cpus/aarch64/cortex_x3.S 			\
+				lib/cpus/aarch64/cortex_x4.S			\
+				lib/cpus/aarch64/neoverse_n_common.S		\
+				lib/cpus/aarch64/neoverse_n1.S			\
+				lib/cpus/aarch64/neoverse_n2.S			\
+				lib/cpus/aarch64/neoverse_v1.S
 
 # AArch64/AArch32 cores
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S	\

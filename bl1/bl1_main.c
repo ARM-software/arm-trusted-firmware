@@ -17,7 +17,7 @@
 #include <drivers/auth/auth_mod.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/console.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 #include <smccc_helpers.h>

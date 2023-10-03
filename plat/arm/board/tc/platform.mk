@@ -84,9 +84,9 @@ endif
 
 # CPU libraries for TARGET_PLATFORM=2
 ifeq (${TARGET_PLATFORM}, 2)
-TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_hayes.S \
-			lib/cpus/aarch64/cortex_hunter.S \
-			lib/cpus/aarch64/cortex_hunter_elp_arm.S
+TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a520.S \
+			lib/cpus/aarch64/cortex_a720.S \
+			lib/cpus/aarch64/cortex_x4.S
 endif
 
 INTERCONNECT_SOURCES	:=	${TC_BASE}/tc_interconnect.c

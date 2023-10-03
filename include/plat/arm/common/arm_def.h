@@ -503,7 +503,8 @@
  * Define limit of firmware configuration memory:
  * ARM_FW_CONFIG + ARM_BL2_MEM_DESC memory
  */
-#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + (PAGE_SIZE * 2))
+#define ARM_FW_CONFIGS_SIZE		(PAGE_SIZE * 2)
+#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + ARM_FW_CONFIGS_SIZE)
 
 #if ENABLE_RME
 /*
@@ -556,15 +557,15 @@
  * As the BL31 image size appears to be increased when built with the ENABLE_PIE
  * option, set BL2 base address to have enough space for BL31 in Trusted SRAM.
  */
-#define BL2_BASE			(ARM_TRUSTED_SRAM_BASE + \
-					(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1) + \
-					0x3000)
+#define BL2_OFFSET			(0x5000)
 #else
 /* Put BL2 towards the middle of the Trusted SRAM */
-#define BL2_BASE			(ARM_TRUSTED_SRAM_BASE + \
-					(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1) + \
-					0x2000)
+#define BL2_OFFSET			(0x2000)
 #endif /* ENABLE_PIE */
+
+#define BL2_BASE			(ARM_TRUSTED_SRAM_BASE + \
+					    (PLAT_ARM_TRUSTED_SRAM_SIZE >> 1) + \
+					    BL2_OFFSET)
 #define BL2_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 
 #else

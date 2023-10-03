@@ -28,10 +28,10 @@
 
 #define UINT8_LEN			8U
 #define UINT64_LEN			(UINT8_LEN * sizeof(uint64_t))
-#define WORD_SIZE			(sizeof(uint64_t))
+#define PKA_WORD_SIZE			(sizeof(uint64_t))
 #define OP_NBW_FROM_LEN(len)		(DIV_ROUND_UP_2EVAL((len), UINT64_LEN) + 1)
 #define OP_NBW_FROM_SIZE(s)		OP_NBW_FROM_LEN((s) * UINT8_LEN)
-#define OP_SIZE_FROM_SIZE(s)		(OP_NBW_FROM_SIZE(s) * WORD_SIZE)
+#define OP_SIZE_FROM_SIZE(s)		(OP_NBW_FROM_SIZE(s) * PKA_WORD_SIZE)
 
 #define DT_PKA_COMPAT			"st,stm32-pka64"
 

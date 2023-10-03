@@ -30,6 +30,7 @@ CORTEX_A76_H_INC	:= 1
 CORTEX_A77_H_INC	:= 1
 CORTEX_A78_H_INC	:= 1
 NEOVERSE_N1_H_INC	:= 1
+NEOVERSE_N2_H_INC	:= 1
 NEOVERSE_V1_H_INC	:= 1
 CORTEX_A78_AE_H_INC	:= 1
 CORTEX_A510_H_INC	:= 1
@@ -41,6 +42,7 @@ $(eval $(call add_define, CORTEX_A76_H_INC))
 $(eval $(call add_define, CORTEX_A77_H_INC))
 $(eval $(call add_define, CORTEX_A78_H_INC))
 $(eval $(call add_define, NEOVERSE_N1_H_INC))
+$(eval $(call add_define, NEOVERSE_N2_H_INC))
 $(eval $(call add_define, NEOVERSE_V1_H_INC))
 $(eval $(call add_define, CORTEX_A78_AE_H_INC))
 $(eval $(call add_define, CORTEX_A510_H_INC))

@@ -1303,8 +1303,9 @@ the BL1 and BL31 images. It in turn calls the platform and CPU specific reset
 handling functions.
 
 Details for implementing a CPU specific reset handler can be found in
-Section 8. Details for implementing a platform specific reset handler can be
-found in the :ref:`Porting Guide` (see the ``plat_reset_handler()`` function).
+:ref:`firmware_design_cpu_specific_reset_handling`. Details for implementing a
+platform specific reset handler can be found in the :ref:`Porting Guide` (see
+the``plat_reset_handler()`` function).
 
 When adding functionality to a reset handler, keep in mind that if a different
 reset handling behavior is required between the first and the subsequent
@@ -1398,12 +1399,38 @@ configuration, these CPU specific files must be included in the build by
 the platform makefile. The generic CPU specific operations framework code exists
 in ``lib/cpus/aarch64/cpu_helpers.S``.
 
+CPU PCS
+~~~~~~~
+
+All assembly functions in CPU files are asked to follow a modified version of
+the Procedure Call Standard (PCS) in their internals. This is done to ensure
+calling these functions from outside the file doesn't unexpectedly corrupt
+registers in the very early environment and to help the internals to be easier
+to understand. Please see the :ref:`firmware_design_cpu_errata_implementation`
+for any function specific restrictions.
+
++--------------+---------------------------------+
+|   register   | use                             |
++==============+=================================+
+|   x0 - x15   | scratch                         |
++--------------+---------------------------------+
+|   x16, x17   | do not use (used by the linker) |
++--------------+---------------------------------+
+|     x18      | do not use (platform register)  |
++--------------+---------------------------------+
+|   x19 - x28  | callee saved                    |
++--------------+---------------------------------+
+|   x29, x30   | FP, LR                          |
++--------------+---------------------------------+
+
+.. _firmware_design_cpu_specific_reset_handling:
+
 CPU specific Reset Handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After a reset, the state of the CPU when it calls generic reset handler is:
-MMU turned off, both instruction and data caches turned off and not part
-of any coherency domain.
+MMU turned off, both instruction and data caches turned off, not part
+of any coherency domain and no stack.
 
 The BL entrypoint code first invokes the ``plat_reset_handler()`` to allow
 the platform to perform any system initialization required and any system
@@ -1413,10 +1440,9 @@ array and returns it. Note that only the part number and implementer fields
 in midr are used to find the matching ``cpu_ops`` entry. The ``reset_func()`` in
 the returned ``cpu_ops`` is then invoked which executes the required reset
 handling for that CPU and also any errata workarounds enabled by the platform.
-This function must preserve the values of general purpose registers x20 to x29.
 
-Refer to Section "Guidelines for Reset Handlers" for general guidelines
-regarding placement of code in a reset handler.
+It should be defined using the ``cpu_reset_func_{start,end}`` macros and its
+body may only clobber x0 to x14 with x14 being the cpu_rev parameter.
 
 CPU specific power down sequence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1449,10 +1475,10 @@ reporting framework calls ``do_cpu_reg_dump`` which retrieves the matching
 be reported and a pointer to the ASCII list of register names in a format
 expected by the crash reporting framework.
 
-.. _firmware_design_cpu_errata_reporting:
+.. _firmware_design_cpu_errata_implementation:
 
-CPU errata status reporting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CPU errata implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Errata workarounds for CPUs supported in TF-A are applied during both cold and
 warm boots, shortly after reset. Individual Errata workarounds are enabled as
@@ -1460,59 +1486,92 @@ build options. Some errata workarounds have potential run-time implications;
 therefore some are enabled by default, others not. Platform ports shall
 override build options to enable or disable errata as appropriate. The CPU
 drivers take care of applying errata workarounds that are enabled and applicable
-to a given CPU. Refer to :ref:`arm_cpu_macros_errata_workarounds` for more
-information.
+to a given CPU.
 
-Functions in CPU drivers that apply errata workaround must follow the
-conventions listed below.
+Each erratum has a build flag in ``lib/cpus/cpu-ops.mk`` of the form:
+``ERRATA_<cpu_num>_<erratum_id>``. It also has a short description in
+:ref:`arm_cpu_macros_errata_workarounds` on when it should apply.
 
-The errata workaround must be authored as two separate functions:
+Errata framework
+^^^^^^^^^^^^^^^^
 
--  One that checks for errata. This function must determine whether that errata
-   applies to the current CPU. Typically this involves matching the current
-   CPUs revision and variant against a value that's known to be affected by the
-   errata. If the function determines that the errata applies to this CPU, it
-   must return ``ERRATA_APPLIES``; otherwise, it must return
-   ``ERRATA_NOT_APPLIES``. The utility functions ``cpu_get_rev_var`` and
-   ``cpu_rev_var_ls`` functions may come in handy for this purpose.
+The errata framework is a convention and a small library to allow errata to be
+automatically discovered. It enables compliant errata to be automatically
+applied and reported at runtime (either by status reporting or the errata ABI).
 
-For an errata identified as ``E``, the check function must be named
-``check_errata_E``.
+To write a compliant mitigation for erratum number ``erratum_id`` on a cpu that
+declared itself (with ``declare_cpu_ops``) as ``cpu_name`` one needs 3 things:
 
-This function will be invoked at different times, both from assembly and from
-C run time. Therefore it must follow AAPCS, and must not use stack.
+#. A CPU revision checker function: ``check_erratum_<cpu_name>_<erratum_id>``
 
--  Another one that applies the errata workaround. This function would call the
-   check function described above, and applies errata workaround if required.
+   It should check whether this erratum applies on this revision of this CPU.
+   It will be called with the CPU revision as its first parameter (x0) and
+   should return one of ``ERRATA_APPLIES`` or ``ERRATA_NOT_APPLIES``.
 
-CPU drivers that apply errata workaround can optionally implement an assembly
-function that report the status of errata workarounds pertaining to that CPU.
-For a driver that registers the CPU, for example, ``cpux`` via ``declare_cpu_ops``
-macro, the errata reporting function, if it exists, must be named
-``cpux_errata_report``. This function will always be called with MMU enabled; it
-must follow AAPCS and may use stack.
+   It may only clobber x0 to x4. The rest should be treated as callee-saved.
+
+#. A workaround function: ``erratum_<cpu_name>_<erratum_id>_wa``
+
+   It should obtain the cpu revision (with ``cpu_get_rev_var``), call its
+   revision checker, and perform the mitigation, should the erratum apply.
+
+   It may only clobber x0 to x8. The rest should be treated as callee-saved.
+
+#. Register itself to the framework
+
+   Do this with
+   ``add_erratum_entry <cpu_name>, ERRATUM(<erratum_id>), <errata_flag>``
+   where the ``errata_flag`` is the enable flag in ``cpu-ops.mk`` described
+   above.
+
+See the next section on how to do this easily.
+
+.. note::
+
+ CVEs have the format ``CVE_<year>_<number>``. To fit them in the framework, the
+ ``erratum_id`` for the checker and the workaround functions become the
+ ``number`` part of its name and the ``ERRATUM(<number>)`` part of the
+ registration should instead be ``CVE(<year>, <number>)``. In the extremely
+ unlikely scenario where a CVE and an erratum numbers clash, the CVE number
+ should be prefixed with a zero.
+
+ Also, their build flag should be ``WORKAROUND_CVE_<year>_<number>``.
+
+.. note::
+
+ AArch32 uses the legacy convention. The checker function has the format
+ ``check_errata_<erratum_id>`` and the workaround has the format
+ ``errata_<cpu_number>_<erratum_id>_wa`` where ``cpu_number`` is the shortform
+ letter and number name of the CPU.
+
+ For CVEs the ``erratum_id`` also becomes ``cve_<year>_<number>``.
+
+Errata framework helpers
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Writing these errata involves lots of boilerplate and repetitive code. On
+AArch64 there are helpers to omit most of this. They are located in
+``include/lib/cpus/aarch64/cpu_macros.S`` and the preferred way to implement
+errata. Please see their comments on how to use them.
+
+The most common type of erratum workaround, one that just sets a "chicken" bit
+in some arbitrary register, would have an implementation for the Cortex-A77,
+erratum #1925769 like::
+
+    workaround_reset_start cortex_a77, ERRATUM(1925769), ERRATA_A77_1925769
+        sysreg_bit_set CORTEX_A77_CPUECTLR_EL1, CORTEX_A77_CPUECTLR_EL1_BIT_8
+    workaround_reset_end cortex_a77, ERRATUM(1925769)
+
+    check_erratum_ls cortex_a77, ERRATUM(1925769), CPU_REV(1, 1)
+
+Status reporting
+^^^^^^^^^^^^^^^^
 
 In a debug build of TF-A, on a CPU that comes out of reset, both BL1 and the
-runtime firmware (BL31 in AArch64, and BL32 in AArch32) will invoke errata
-status reporting function, if one exists, for that type of CPU.
-
-To report the status of each errata workaround, the function shall use the
-assembler macro ``report_errata``, passing it:
-
--  The build option that enables the errata;
-
--  The name of the CPU: this must be the same identifier that CPU driver
-   registered itself with, using ``declare_cpu_ops``;
-
--  And the errata identifier: the identifier must match what's used in the
-   errata's check function described above.
-
-The errata status reporting function will be called once per CPU type/errata
-combination during the software's active life time.
-
-It's expected that whenever an errata workaround is submitted to TF-A, the
-errata reporting function is appropriately extended to report its status as
-well.
+runtime firmware (BL31 in AArch64, and BL32 in AArch32) will invoke a generic
+errata status reporting function. It will read the ``errata_entries`` list of
+that cpu and will report whether each known erratum was applied and, if not,
+whether it should have been.
 
 Reporting the status of errata workaround is for informational purpose only; it
 has no functional significance.

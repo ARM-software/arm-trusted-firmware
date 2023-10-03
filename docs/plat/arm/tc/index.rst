@@ -17,10 +17,9 @@ Currently, the main difference between TC0 (TARGET_PLATFORM=0), TC1
 (TARGET_PLATFORM=1), TC2 (TARGET_PLATFORM=2) platforms w.r.t to TF-A
 is the CPUs supported as below:
 
--  TC0 has support for Cortex A510, Cortex A710 and Cortex X2.
--  TC1 has support for Cortex A510, Cortex Makalu and Cortex X3.
--  TC2 has support for Hayes and Hunter Arm CPUs.
-
+-  TC0 has support for Cortex A510, Cortex A710 and Cortex X2. (Note TC0 is now deprecated)
+-  TC1 has support for Cortex A510, Cortex A715 and Cortex X3.
+-  TC2 has support for Cortex A520, Cortex A720 and Cortex x4.
 
 Boot Sequence
 -------------
@@ -58,6 +57,6 @@ Build Procedure (TF-A only)
 
 --------------
 
-*Copyright (c) 2020-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
 
 .. _Arm Toolchain: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads

@@ -6,7 +6,7 @@
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
-#include <lib/cpus/errata_report.h>
+#include <lib/cpus/errata.h>
 #include <lib/cpus/wa_cve_2017_5715.h>
 #include <lib/cpus/wa_cve_2018_3639.h>
 #include <lib/cpus/wa_cve_2022_23960.h>
