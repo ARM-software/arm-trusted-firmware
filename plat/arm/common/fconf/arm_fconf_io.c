@@ -45,10 +45,9 @@ static const io_block_spec_t gpt_spec = {
 	 * each sector has 4 partition entries, and there are
 	 * 2 reserved sectors i.e. protective MBR and primary
 	 * GPT header hence length gets calculated as,
-	 * length = 512 * (128/4 + 2)
+	 * length = PLAT_PARTITION_BLOCK_SIZE * (128/4 + 2)
 	 */
-	.length         = PLAT_PARTITION_BLOCK_SIZE *
-			  (PLAT_PARTITION_MAX_ENTRIES / 4 + 2),
+	.length         = LBA(PLAT_PARTITION_MAX_ENTRIES / 4 + 2),
 };
 
 /*

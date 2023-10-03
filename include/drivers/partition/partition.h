@@ -29,6 +29,8 @@ CASSERT((PLAT_PARTITION_BLOCK_SIZE == 512) ||
 
 #define LEGACY_PARTITION_BLOCK_SIZE	512
 
+#define LBA(n) ((unsigned long long)(n) * PLAT_PARTITION_BLOCK_SIZE)
+
 typedef struct partition_entry {
 	uint64_t		start;
 	uint64_t		length;
