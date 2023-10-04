@@ -88,6 +88,7 @@ static io_mtd_dev_spec_t spi_nor_dev_spec = {
 	.ops = {
 		.init = spi_nor_init,
 		.read = spi_nor_read,
+		.reset = spi_nor_reset,
 	},
 };
 #endif
@@ -602,6 +603,15 @@ void stm32mp_io_setup(void)
 		panic();
 		break;
 	}
+}
+
+void stm32mp_io_exit(void)
+{
+	int io_result __maybe_unused;
+
+	/* Close connection to device */
+	io_result = io_dev_close(storage_dev_handle);
+	assert(io_result == 0);
 }
 
 int bl2_plat_handle_pre_image_load(unsigned int image_id)
