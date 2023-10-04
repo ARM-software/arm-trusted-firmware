@@ -26,6 +26,7 @@
 #define BANK_SIZE		0x1000000U
 
 #define SPI_READY_TIMEOUT_US	40000U
+#define SPI_NOR_SRST_US		100U
 
 static struct nor_device nor_dev;
 
@@ -215,6 +216,47 @@ static int spi_nor_quad_enable(void)
 	return 0;
 }
 
+static int spi_nor_macronix_octal_dtr_enable(void)
+{
+	struct spi_mem_op op;
+	uint8_t buf;
+	int ret;
+
+	zeromem(&op, sizeof(struct spi_mem_op));
+	op.cmd.opcode = SPI_NOR_OP_WR_CR2;
+	op.cmd.nbytes = 1U;
+	op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	op.addr.nbytes = 4U;
+	op.addr.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	op.data.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	op.data.dir = SPI_MEM_DATA_OUT;
+	op.data.nbytes = 1U;
+	op.data.buf = &buf;
+
+	ret = spi_nor_write_en();
+	if (ret != 0) {
+		return ret;
+	}
+
+	buf = SPI_NOR_REG_MXIC_DC_20;
+	op.addr.val = SPI_NOR_REG_MXIC_CR2_DC;
+
+	ret = spi_mem_exec_op(&op);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = spi_nor_write_en();
+	if (ret != 0) {
+		return ret;
+	}
+
+	buf = SPI_NOR_REG_MXIC_OPI_DTR_EN;
+	op.addr.val = SPI_NOR_REG_MXIC_CR2_MODE;
+
+	return spi_mem_exec_op(&op);
+}
+
 static int spi_nor_clean_bar(void)
 {
 	int ret;
@@ -359,6 +401,24 @@ int spi_nor_init(unsigned long long *size, unsigned int *erase_size)
 		return ret;
 	}
 
+	if (nor_dev.read_op.cmd.nbytes == 2U) {
+		ret = -EOPNOTSUPP;
+
+		/* Only OCTAL DTR mode is currently supported */
+		if (nor_dev.read_op.cmd.buswidth == 8U) {
+			switch (id) {
+			case MACRONIX_ID:
+				INFO("Enable Macronix octal DTR support\n");
+				ret = spi_nor_macronix_octal_dtr_enable();
+				break;
+			default:
+				break;
+			}
+		}
+
+		return ret;
+	}
+
 	if ((nor_dev.flags & SPI_NOR_USE_BANK) != 0U) {
 		switch (id) {
 		case SPANSION_ID:
@@ -391,4 +451,66 @@ int spi_nor_init(unsigned long long *size, unsigned int *erase_size)
 	}
 
 	return ret;
+}
+
+int spi_nor_reset(void)
+{
+	struct spi_mem_op op;
+	bool repeat = false;
+	int ret;
+
+	/* Software reset to be done for octal DTR */
+	if (nor_dev.read_op.cmd.nbytes != 2U) {
+		return 0;
+	}
+
+	/* Detect if opcode is repeated or inverted */
+	if (((nor_dev.read_op.cmd.opcode & 0xFF00U) >> 8U) ==
+	    (nor_dev.read_op.cmd.opcode & 0x00FFU)) {
+		repeat = true;
+	}
+
+	zeromem(&op, sizeof(struct spi_mem_op));
+	op.cmd.nbytes = 2U;
+	op.cmd.buswidth = SPI_MEM_BUSWIDTH_8_LINE;
+	op.cmd.dtr = true;
+	op.addr.dtr = true;
+	op.dummy.dtr = true;
+	op.data.dtr = true;
+	op.data.dir = SPI_MEM_DATA_OUT;
+
+	/* Software reset enable */
+	op.cmd.opcode = (SPI_NOR_OP_SRSTEN << 8U);
+	if (repeat) {
+		op.cmd.opcode |= (SPI_NOR_OP_SRSTEN & 0xFFU);
+	} else {
+		op.cmd.opcode |= (~SPI_NOR_OP_SRSTEN & 0xFFU);
+	}
+
+	ret = spi_mem_exec_op(&op);
+	if (ret != 0) {
+		return ret;
+	}
+
+	/* Software reset */
+	op.cmd.opcode = (SPI_NOR_OP_SRST << 8U);
+	if (repeat) {
+		op.cmd.opcode |= (SPI_NOR_OP_SRST & 0xFFU);
+	} else {
+		op.cmd.opcode |= (~SPI_NOR_OP_SRST & 0xFFU);
+	}
+
+	ret = spi_mem_exec_op(&op);
+	if (ret != 0) {
+		return ret;
+	}
+
+	/*
+	 * Software Reset is not instant, and the delay varies
+	 * from flash to flash. Looking at a few flashes, most
+	 * read command range somewhere below 100 microseconds.
+	 */
+	udelay(SPI_NOR_SRST_US);
+
+	return 0;
 }
