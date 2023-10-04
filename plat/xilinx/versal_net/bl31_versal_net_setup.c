@@ -106,7 +106,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 		/* Initialize the console to provide early debug support */
 		rc = console_pl011_register(UART_BASE, uart_clock,
-				    UART_BAUDATE,
+				    UART_BAUDRATE,
 				    &versal_net_runtime_console);
 		if (rc == 0) {
 			panic();
