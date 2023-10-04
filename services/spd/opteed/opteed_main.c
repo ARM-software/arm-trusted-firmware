@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,7 @@
 #include <lib/coreboot.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/optee_utils.h>
+#include <lib/transfer_list.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #if OPTEE_ALLOW_SMC_LOAD
 #include <libfdt.h>
@@ -36,6 +37,10 @@
 
 #include "opteed_private.h"
 #include "teesmc_opteed.h"
+
+#if OPTEE_ALLOW_SMC_LOAD
+static struct transfer_list_header *bl31_tl;
+#endif
 
 /*******************************************************************************
  * Address of the entrypoint vector table in OPTEE. It is
@@ -123,9 +128,13 @@ static int32_t opteed_setup(void)
 #else
 	entry_point_info_t *optee_ep_info;
 	uint32_t linear_id;
-	uint64_t opteed_pageable_part;
-	uint64_t opteed_mem_limit;
-	uint64_t dt_addr;
+	uint64_t arg0;
+	uint64_t arg1;
+	uint64_t arg2;
+	uint64_t arg3;
+	struct transfer_list_header *tl = NULL;
+	struct transfer_list_entry *te = NULL;
+	void *dt = NULL;
 
 	linear_id = plat_my_core_pos();
 
@@ -150,17 +159,39 @@ static int32_t opteed_setup(void)
 	if (!optee_ep_info->pc)
 		return 1;
 
-	opteed_rw = optee_ep_info->args.arg0;
-	opteed_pageable_part = optee_ep_info->args.arg1;
-	opteed_mem_limit = optee_ep_info->args.arg2;
-	dt_addr = optee_ep_info->args.arg3;
+	if (TRANSFER_LIST &&
+		optee_ep_info->args.arg1 == (TRANSFER_LIST_SIGNATURE |
+					REGISTER_CONVENTION_VERSION_MASK)) {
+		tl = (void *)optee_ep_info->args.arg3;
+		if (transfer_list_check_header(tl) == TL_OPS_NON) {
+			return 1;
+		}
 
-	opteed_init_optee_ep_state(optee_ep_info,
-				opteed_rw,
-				optee_ep_info->pc,
-				opteed_pageable_part,
-				opteed_mem_limit,
-				dt_addr,
+		opteed_rw = GET_RW(optee_ep_info->spsr);
+		te = transfer_list_find(tl, TL_TAG_FDT);
+		dt = transfer_list_entry_data(te);
+
+		if (opteed_rw == OPTEE_AARCH64) {
+			arg0 = (uint64_t)dt;
+			arg2 = 0;
+		} else {
+			arg2 = (uint64_t)dt;
+			arg0 = 0;
+		}
+
+		arg1 = optee_ep_info->args.arg1;
+		arg3 = optee_ep_info->args.arg3;
+	} else {
+		/* Default handoff arguments */
+		opteed_rw = optee_ep_info->args.arg0;
+		arg0 = optee_ep_info->args.arg1; /* opteed_pageable_part */
+		arg1 = optee_ep_info->args.arg2; /* opteed_mem_limit */
+		arg2 = optee_ep_info->args.arg3; /* dt_addr */
+		arg3 = 0;
+	}
+
+	opteed_init_optee_ep_state(optee_ep_info, opteed_rw, optee_ep_info->pc,
+				arg0, arg1, arg2, arg3,
 				&opteed_sp_context[linear_id]);
 
 	/*
@@ -302,6 +333,26 @@ static int create_opteed_dt(void)
 	return fdt_finish(fdt_buf);
 }
 
+static int32_t create_smc_tl(const void *fdt, uint32_t fdt_sz)
+{
+#if TRANSFER_LIST
+	bl31_tl = transfer_list_init((void *)(uintptr_t)FW_HANDOFF_BASE,
+				FW_HANDOFF_SIZE);
+	if (!bl31_tl) {
+		ERROR("Failed to initialize Transfer List at 0x%lx\n",
+		(unsigned long)FW_HANDOFF_BASE);
+		return -1;
+	}
+
+	if (!transfer_list_add(bl31_tl, TL_TAG_FDT, fdt_sz, fdt)) {
+		return -1;
+	}
+	return 0;
+#else
+	return -1;
+#endif
+}
+
 /*******************************************************************************
  * This function is responsible for handling the SMC that loads the OP-TEE
  * binary image via a non-secure SMC call. It takes the size and physical
@@ -326,6 +377,10 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint32_t data_pa)
 	entry_point_info_t optee_ep_info;
 	uint32_t linear_id = plat_my_core_pos();
 	uint64_t dt_addr = 0;
+	uint64_t arg0 = 0;
+	uint64_t arg1 = 0;
+	uint64_t arg2 = 0;
+	uint64_t arg3 = 0;
 
 	mapped_data_pa = page_align(data_pa, DOWN);
 	mapped_data_va = mapped_data_pa;
@@ -394,12 +449,36 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint32_t data_pa)
 	dt_addr = (uint64_t)fdt_buf;
 	flush_dcache_range(dt_addr, OPTEED_FDT_SIZE);
 
+	if (TRANSFER_LIST &&
+	    !create_smc_tl((void *)dt_addr, OPTEED_FDT_SIZE)) {
+		struct transfer_list_entry *te = NULL;
+		void *dt = NULL;
+
+		te = transfer_list_find(bl31_tl, TL_TAG_FDT);
+		dt = transfer_list_entry_data(te);
+
+		if (opteed_rw == OPTEE_AARCH64) {
+			arg0 = (uint64_t)dt;
+			arg2 = 0;
+		} else {
+			arg2 = (uint64_t)dt;
+			arg0 = 0;
+		}
+		arg1 = TRANSFER_LIST_SIGNATURE |
+			REGISTER_CONVENTION_VERSION_MASK;
+		arg3 = (uint64_t)bl31_tl;
+	} else {
+		/* Default handoff arguments */
+		arg2 = dt_addr;
+	}
+
 	opteed_init_optee_ep_state(&optee_ep_info,
 				   opteed_rw,
 				   image_pa,
-				   0,
-				   0,
-				   dt_addr,
+				   arg0,
+				   arg1,
+				   arg2,
+				   arg3,
 				   &opteed_sp_context[linear_id]);
 	if (opteed_init_with_entry_point(&optee_ep_info) == 0) {
 		rc = -EFAULT;
