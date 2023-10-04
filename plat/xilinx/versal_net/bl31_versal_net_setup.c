@@ -69,33 +69,29 @@ static inline void bl31_set_default_config(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	uint32_t uart_clock;
 	int32_t rc;
 #if !(TFA_NO_PM)
 	uint64_t tfa_handoff_addr, buff[HANDOFF_PARAMS_MAX_SIZE] = {0};
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
 #endif /* !(TFA_NO_PM) */
+	uint32_t uart_clk = get_uart_clk();
 
 	board_detection();
 
 	switch (platform_id) {
 	case VERSAL_NET_SPP:
 		cpu_clock = 1000000;
-		uart_clock = 1000000;
 		break;
 	case VERSAL_NET_EMU:
 		cpu_clock = 3660000;
-		uart_clock = 25000000;
 		break;
 	case VERSAL_NET_QEMU:
 		/* Random values now */
 		cpu_clock = 100000000;
-		uart_clock = 25000000;
 		break;
 	case VERSAL_NET_SILICON:
 		cpu_clock = 100000000;
-		uart_clock = 100000000;
 		break;
 	default:
 		panic();
@@ -105,7 +101,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		static console_t versal_net_runtime_console;
 
 		/* Initialize the console to provide early debug support */
-		rc = console_pl011_register(UART_BASE, uart_clock,
+		rc = console_pl011_register(UART_BASE, uart_clk,
 				    UART_BAUDRATE,
 				    &versal_net_runtime_console);
 		if (rc == 0) {

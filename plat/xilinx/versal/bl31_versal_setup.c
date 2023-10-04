@@ -73,12 +73,13 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
 	uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
+	uint32_t uart_clk = get_uart_clk();
 
 	if (CONSOLE_IS(pl011) || (CONSOLE_IS(pl011_1))) {
 		static console_t versal_runtime_console;
 		/* Initialize the console to provide early debug support */
 		int32_t rc = console_pl011_register((uintptr_t)UART_BASE,
-						(uint32_t)UART_CLOCK,
+						uart_clk,
 						(uint32_t)UART_BAUDRATE,
 						&versal_runtime_console);
 		if (rc == 0) {
