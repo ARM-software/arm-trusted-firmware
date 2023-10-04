@@ -111,6 +111,8 @@
 #define SMC_OK				ULL(0)
 #define SMC_UNK				-1
 #define SMC_PREEMPTED			-2	/* Not defined by the SMCCC */
+#define SMC_DENIED			-3	/* Not defined by the SMCCC */
+#define SMC_INVALID_PARAM		-4	/* Not defined by the SMCCC */
 
 /* Return codes for Arm Architecture Service SMC calls */
 #define SMC_ARCH_CALL_SUCCESS		0
