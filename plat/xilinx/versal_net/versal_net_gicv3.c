@@ -31,8 +31,8 @@
 static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
 static const interrupt_prop_t versal_net_interrupt_props[] = {
-	PLAT_VERSAL_NET_G1S_IRQ_PROPS(INTR_GROUP1S),
-	PLAT_VERSAL_NET_G0_IRQ_PROPS(INTR_GROUP0)
+	PLAT_ARM_G1S_IRQ_PROPS(INTR_GROUP1S),
+	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0)
 };
 
 /*
@@ -63,8 +63,8 @@ static uint32_t versal_net_gicv3_mpidr_hash(u_register_t mpidr)
 }
 
 static const gicv3_driver_data_t versal_net_gic_data __unused = {
-	.gicd_base = PLAT_GICD_BASE_VALUE,
-	.gicr_base = PLAT_GICR_BASE_VALUE,
+	.gicd_base = PLAT_ARM_GICD_BASE,
+	.gicr_base = PLAT_ARM_GICR_BASE,
 	.interrupt_props = versal_net_interrupt_props,
 	.interrupt_props_num = ARRAY_SIZE(versal_net_interrupt_props),
 	.rdistif_num = PLATFORM_CORE_COUNT,

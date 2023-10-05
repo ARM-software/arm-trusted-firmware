@@ -103,8 +103,8 @@ exit_print_gic_regs:
 	 * ---------------------------------------------
 	 */
 	.macro plat_crash_print_regs
-	mov_imm	x17, PLAT_GICD_BASE_VALUE
-	mov_imm	x16, PLAT_GICR_BASE_VALUE
+	mov_imm	x17, PLAT_ARM_GICD_BASE
+	mov_imm	x16, PLAT_ARM_GICR_BASE
 	versal_print_gic_regs
 	.endm
 

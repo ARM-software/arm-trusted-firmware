@@ -103,8 +103,8 @@
 #define CACHE_WRITEBACK_SHIFT	6
 #define CACHE_WRITEBACK_GRANULE	(1 << CACHE_WRITEBACK_SHIFT)
 
-#define PLAT_GICD_BASE_VALUE	U(0xF9000000)
-#define PLAT_GICR_BASE_VALUE	U(0xF9080000)
+#define PLAT_ARM_GICD_BASE	U(0xF9000000)
+#define PLAT_ARM_GICR_BASE	U(0xF9080000)
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
