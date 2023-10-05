@@ -23,7 +23,11 @@ $(info MBEDTLS_VERSION_MAJOR is [${MBEDTLS_MAJOR}] MBEDTLS_VERSION_MINOR is [${M
 ifeq (${MBEDTLS_MAJOR}, 2)
 	MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/mbedtls_config-2.h>"
 else ifeq (${MBEDTLS_MAJOR}, 3)
-	MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/mbedtls_config-3.h>"
+	ifeq (${PSA_CRYPTO},1)
+		MBEDTLS_CONFIG_FILE     ?=      "<drivers/auth/mbedtls/psa_mbedtls_config.h>"
+	else
+		MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/mbedtls_config-3.h>"
+	endif
 endif
 
 $(eval $(call add_define,MBEDTLS_CONFIG_FILE))
@@ -75,6 +79,18 @@ else ifeq (${MBEDTLS_MAJOR}, 3)
 	# Mbedtls-3.
 	# [1]: https://github.com/Mbed-TLS/mbedtls/issues/6910
 	LIBMBEDTLS_CFLAGS += -Wno-error=redundant-decls
+endif
+
+ifeq (${PSA_CRYPTO},1)
+LIBMBEDTLS_SRCS         += $(addprefix ${MBEDTLS_DIR}/library/,    	\
+					psa_crypto.c                   	\
+					psa_crypto_client.c            	\
+					psa_crypto_driver_wrappers.c   	\
+					psa_crypto_hash.c              	\
+					psa_crypto_rsa.c               	\
+					psa_crypto_ecp.c               	\
+					psa_crypto_slot_management.c   	\
+					)
 endif
 
 # The platform may define the variable 'TF_MBEDTLS_KEY_ALG' to select the key
