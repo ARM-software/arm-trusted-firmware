@@ -67,9 +67,11 @@ integration problems). If this happens, the dependent patch will need reworking.
 What are these strange comments in my changes?
 ----------------------------------------------
 
-All the comments from ``ci-bot-user`` are associated with Continuous Integration
-infrastructure. The links published on the comment are not currently accessible,
-but would be after the CI has been transitioned to `trustedfirmware.org`_.
+All the comments from ``TrustedFirmware Code Review`` user (email:
+``ci@trustedfirmware.org``) are associated with Continuous Integration (CI)
+infrastructure. The links published on the comments redirect to the CI web
+interface at http://ci.trustedfirmware.org, where details of the tests failures,
+if any, can be examined.
 
 --------------
 
@@ -77,4 +79,3 @@ but would be after the CI has been transitioned to `trustedfirmware.org`_.
 
 .. _Gerrit Upload Patch Set documentation: https://review.trustedfirmware.org/Documentation/intro-user.html#upload-patch-set
 .. _Gerrit Replace Changes documentation: https://review.trustedfirmware.org/Documentation/user-upload.html#push_replace
-.. _trustedfirmware.org: https://www.trustedfirmware.org/
