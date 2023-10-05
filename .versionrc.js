@@ -94,16 +94,19 @@ module.exports = {
                 "readVersion": function (contents) {
                     const major = contents.match(/^VERSION_MAJOR\s*:=\s*(\d+?)$/m)[1];
                     const minor = contents.match(/^VERSION_MINOR\s*:=\s*(\d+?)$/m)[1];
+                    const patch = contents.match(/^VERSION_PATCH\s*:=\s*(\d+?)$/m)[1];
 
-                    return `${major}.${minor}.0`;
+                    return `${major}.${minor}.${patch}`;
                 },
 
                 "writeVersion": function (contents, version) {
                     const major = version.split(".")[0];
                     const minor = version.split(".")[1];
+                    const patch = version.split(".")[2];
 
                     contents = contents.replace(/^(VERSION_MAJOR\s*:=\s*)(\d+?)$/m, `$1${major}`);
                     contents = contents.replace(/^(VERSION_MINOR\s*:=\s*)(\d+?)$/m, `$1${minor}`);
+                    contents = contents.replace(/^(VERSION_PATCH\s*:=\s*)(\d+?)$/m, `$1${patch}`);
 
                     return contents;
                 }

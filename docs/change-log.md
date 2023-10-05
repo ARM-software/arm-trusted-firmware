@@ -3,6 +3,194 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.8..refs/tags/lts-v2.8.9) (2023-10-03)
+
+### Miscellaneous
+
+- **Platforms**
+
+  - **Broadcom**
+
+    - include cpu_helpers.S for bl2 build ([3166e1e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3166e1eac3560957b7a4558e09296cebec9d2128))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - remove redundant asserts ([48455d6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/48455d666793cd5897cca444a9b26da62761366f))
+    - rename hayes to a520 ([5232549](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5232549b27e8259cfce0c85f70a084da0b04bb4e))
+    - rename hunter to a720 ([51bf80f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/51bf80ff4778640cb58c763c1d60e74bbf571e24))
+    - rename hunter_elp to cortex-x4 ([b755a63](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b755a6334eeb5c852623d89ebd604eda36383601))
+    - rename Makalu to Cortex-A715 ([3ca8e4b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3ca8e4ba7530f4f3c1c8485fc22c16ecc8f7b3b3))
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add a concise way to implement AArch64 errata ([0fe4e97](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0fe4e9786a8f8c823253f8f6ba3fa315e2db8cba))
+    - add a way to automatically report errata ([58c9e89](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/58c9e89e538fef0349c78102ed1d74c90e3c28b0))
+    - add errata framework helpers ([d45aac6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d45aac6a25017fa7a91f65752b6bec50724990f1))
+    - add more errata framework helpers ([ea07792](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ea0779285367b022e9720beffd056e35e533ea9b))
+    - conform DSU errata to errata framework PCS ([16e0e7d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/16e0e7dba23fda6a17593cf8f54688c3326fff78))
+    - make revision procedure call optional ([2c3d9c9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2c3d9c95ba5c49456b287cb8a888c179f19d6b4b))
+    - wrappers to propagate AArch32 errata info ([08f6794](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/08f67942f5bebf940b994c6197bff79ef1ec5b15))
+
+- **Build System**
+
+  - manage patch version in Makefile ([02b628d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/02b628dcad1ad894e7661f88c9300b49af1679b9))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add Cortex-A17 errata framework information ([0dcd7a0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0dcd7a0f489d31e82e6112248b7978038159f8ee))
+    - add Cortex-A32 errata framework information ([6fb49e2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6fb49e248686c16aeef4aa31a70338e5ea7a67f5))
+    - add Cortex-A57 errata framework information ([7e58e9a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7e58e9aeb137165adcb6eb5bca7b21057dcbdde9))
+    - add Cortex-A72 errata information ([53cc8c3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/53cc8c350a2492106645de1365a0ba2f69ae10d8))
+    - convert Cortex-A15 to use the errata framework ([863e088](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/863e088cf5463af75fdf773108c440a5094be4ba))
+    - convert Cortex-A35 to use the errata framework ([40df88f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/40df88fc7638bbdbfc4a42ce6b5c5c1eba0b4c79))
+    - convert Cortex-A710 to use the errata framework ([9d06128](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9d061289f490c30fd13b656d2f089938167ae858))
+    - convert Cortex-A715 to the errata framework ([537b475](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/537b475b33df264883d92e4cb610d73a17c414e3))
+    - convert Cortex-A72 to use cpu helpers ([3e3d65d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3e3d65d38265dd9a194924fde6ccf737e17ee642))
+    - convert Cortex-A73 to use the errata framework ([ae105c1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ae105c12462f9b2cac3bc800354fb370a6ff0ce5))
+    - convert Cortex-X3 to use the errata framework ([16dabc6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/16dabc66187137e0230245497b6b63eda00064e4))
+    - convert Neoverse N2 to framework ([8d90ed4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8d90ed473d659574dc6a0d2df74165a4ffef61d3))
+    - convert Neoverse N2 to use CPU helpers ([528bb87](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/528bb878d447de5fcacd6623f69d5bd505a712bc))
+    - convert Neoverse Poseidon to framework ([52cf624](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/52cf624d186a30d80b95cab4cf9377dc06a8abfa))
+    - convert Neoverse Poseidon to use CPU helpers ([9ac07c2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9ac07c2f7098ff24d114c42fa3ec64ddb1d9507c))
+    - convert Neoverse V1 to framework ([7462bcd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7462bcd59768183abc5d4cfc65aeacad187a1450))
+    - convert Neoverse V1 to use CPU helpers ([f16eefa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f16eefaf007a687d00dd19759ac63cfbd14e3249))
+    - convert Neoverse V2 to framework ([3416e36](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3416e3627eda5d80b9364be13f593a198bffb2bf))
+    - convert Neoverse V2 to use CPU helpers ([86a4339](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/86a43396624d23e8dd4019eaefc8e8b13c920706))
+    - convert Neoverse-E1 to framework ([203ccea](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/203ccea2b23167fefb4d848672645e720461d651))
+    - convert Neoverse-N1 to framework ([faca0ba](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/faca0ba41add31957c91e6f39d2f4fb61ec7a74b))
+    - convert Neoverse-N1 to use helpers ([06ec92b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/06ec92b02ff290d0203261eeb7618d394bdac20e))
+    - convert print_errata_status to C ([30abae0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/30abae00bc4dfeee57a3b4a214eff8769fa83099))
+    - convert QEMU Max to use the errata framework ([bd5d3d7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bd5d3d7115da498f57df2ba8c084c40d5d9daecf))
+    - convert Rainier to use errata framework ([762fb0a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/762fb0a27a51c21c8580b82e88026f8e44e07e33))
+    - convert the Cortex-A35 to use the cpu helpers ([7ee0753](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7ee075329dd132407529dd8e8a788008f07e25c4))
+    - convert the Cortex-A5 to use the errata framework ([8ffb1e6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8ffb1e6a548ea38697e9e58e611d6a6adb3495c3))
+    - convert the Cortex-A510 to use cpu helpers ([57d6e26](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/57d6e265c071cd9ae235fffcd1eeb68e06644b35))
+    - convert the Cortex-A510 to use the errata framework ([f0552cd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f0552cda2d5ad24a5567ab86305010b89453149d))
+    - convert the Cortex-A53 to use cpu helpers ([5a24bc2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5a24bc219b43a4ae085abe3d6b914fe715615dac))
+    - convert the Cortex-A53 to use the errata framework ([2ee42c4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2ee42c4393a987c825af784ceb25827b68526016))
+    - convert the Cortex-A55 to use cpu helpers ([dd205c6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dd205c6dbbbef81018dbcbc316e8f649d43d06f1))
+    - convert the Cortex-A55 to use the errata framework ([fb6523d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fb6523d9eedab24017c84ff97e5d491daa801486))
+    - convert the Cortex-A57 to use cpu helpers ([809c29b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/809c29ba926c6ff9c361274b0a8693c26fe8f973))
+    - convert the Cortex-A57 to use the errata framework ([8aa1eab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8aa1eabb92e74c2eafe9cc7e3dd71f5dfa4bfe18))
+    - convert the Cortex-A65AE to use the errata framework ([e35181a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e35181a0b70276577395b0c7eb7d335a62e63cf5))
+    - convert the Cortex-A710 to use cpu helpers ([5d6268a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5d6268acdb9a18c1a8ac156bed700b09365a8f49))
+    - convert the Cortex-A72 to use the errata framework ([93462ce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/93462cef92d7ebdf7cb44780c690afc1bc3b3a86))
+    - convert the Cortex-A73 to use the cpu helpers ([a1d9d96](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a1d9d961b6db3709d77aec5a7f1a07c52a389f9d))
+    - convert the Cortex-A75 to use cpu helpers ([a9b5842](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a9b5842a6092bbba3e697b224e6484a5557ad10c))
+    - convert the Cortex-A75 to use the errata framework ([fc4a40c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fc4a40cd751c039252b8e5898e56aa2d958215f9))
+    - convert the Cortex-A76 to use cpu helpers ([75c74c8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/75c74c88144afb3c4318f30b620b35d3355fc413))
+    - convert the Cortex-A76 to use the errata framework ([1ab1ecc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1ab1ecc56ac71753e1fc26c57a77aed9122ec1f9))
+    - convert the Cortex-A76AE to use cpu helpers ([ed151c0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ed151c0d4dd77c5142c07d9ee0f6efe2229e345d))
+    - convert the Cortex-A76AE to use the errata framework ([d5d7792](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d5d77921012e7ee5666bf1428df3c9a4e4cb4dfe))
+    - convert the Cortex-A77 to use the bit set helpers ([8fb8aaf](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8fb8aaf6fe0f557770c36ce4a7c0495f15b7fa6e))
+    - convert the Cortex-A77 to use the errata framework ([2addd83](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2addd83ab2df9c8d082c57c64a039ce048d499ef))
+    - convert the Cortex-A78 to use cpu helpers ([47f4a86](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/47f4a863c65169ce79dfc0f2c4ffa9b42cc3d09c))
+    - convert the Cortex-A78 to use the errata framework ([cc88cfb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cc88cfb1946332e5e64cf951ae8225c1dcf64f2e))
+    - convert the Cortex-A78AE to use cpu helpers ([c91dad2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c91dad222acb19d9528198419bc3ff64328bbec2))
+    - convert the Cortex-A78AE to use the errata framework ([d413a7b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d413a7bb032da5dc59be42274de5edcfbe4f84e6))
+    - convert the Cortex-A78C to use cpu helpers ([4cec69c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4cec69c28bc000c09110a71f1bc9430419ec34a5))
+    - convert the Cortex-A78C to use the errata framework ([e707838](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e7078388a7ae417e96146fbd8efa571e4ca0cdf6))
+    - convert the Cortex-X1 to use cpu helpers ([de824c7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/de824c757dfd4686f853f2645013d405121316d9))
+    - convert the Cortex-X1 to use the errata framework ([dfdad36](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dfdad365008722edc5b22d8c722eda9f4727516b))
+    - convert the Cortex-x2 to use cpu helpers ([e5e8b58](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e5e8b58105cd97e929790bd78b57a50ae8f7c637))
+    - convert the Cortex-x2 to use the errata framework ([5a94e5c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5a94e5ccf67585ea3bf23e6da438b2d8977a168c))
+    - convert the Cortex-X3 to use the cpu helpers ([525f390](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/525f390cef3e3349a62701172909b08c3a4a4714))
+    - convert the Denver cpu to use the errata framework ([99f116e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/99f116e48f76549a19433390015bb59e1e3d5c44))
+    - move cpu_ops field defines to a header ([49d1200](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/49d12009b677051879add3d3d7364a686ab3fa3c))
+    - rename errata_report.h to errata.h ([f8b2166](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f8b2166c778d182a847a00f61ea2d50394ea85cd))
+    - reorder Cortex-A510 errata by ascending order ([502f254](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/502f254e94b3474c3b49c272a900952fd51116a5))
+    - reorder Cortex-A53 errata by ascending order ([53ebfc4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/53ebfc4fb82a1705ed9da630a3736f47a2776c45))
+    - reorder Cortex-A57 errata by ascending order ([8ca70b1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8ca70b1312df92393ab24d3750bc03abe5f5822c))
+    - reorder Cortex-A710 errata by ascending order ([64f4c46](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/64f4c4665d97dc11276cef7125fcf733e9896b0d))
+    - reorder Cortex-A72 errata by ascending order ([5e7ee47](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5e7ee47f6cd3d33deab7b881b3fa6500d0968090))
+    - reorder Cortex-A73 errata by ascending order ([1b5699b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1b5699b5eb1cf3fd26e5b43f442770baacd5718b))
+    - reorder Cortex-A77 errata by ascending order ([26a1c7b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/26a1c7b75a5f4961ae84b0dda82c5b515cf3e116))
+    - reorder Cortex-A78 errata by ascending order ([2865d37](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2865d37ad45868b91d3f1c7e7d350890485855d1))
+    - reorder Cortex-A78C errata by ascending order ([d2174fe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d2174fe480d1b83bedbf8ba9077e8d1fb60ff6fb))
+    - reorder Cortex-X1 errata by ascending order ([4be4a9b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4be4a9b19145518c23860b4062ec789a9191af79))
+    - reorder Cortex-x2 errata by ascending order ([86b014d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/86b014d7e8f4a86101847f1d37d84544927a4d2c))
+    - reorder Cortex-X3 errata by ascending order ([ebc0174](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ebc017480b47dd9cdd1d2b62a6a42c34a54d7fd5))
+    - reorder Neoverse N2 errata by ascending order ([530fcd7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/530fcd71de3559650b445ea65ef132b8b635609a))
+    - reorder Neoverse V1 errata by ascending order ([0efeacc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0efeacc818535907c282be99a154b8b4504810eb))
+    - reorder Neoverse-N1 .S file ([4a5ef5d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4a5ef5dcf91eaf960e42bdf7e48fa9a217dad334))
+    - use cpu errata wrappers Cortex-A12 aarch32 cpu ([5fd93d4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5fd93d47fc3fe6007ec2e7a82025bfab704cba87))
+    - use cpu errata wrappers Cortex-A7 and A9 aarch32 cpus ([d959cef](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d959cef5111cdcf56adee331db152f482eaaadd0))
+    - use cpu errata wrappers for aarch64 hunter based cpus ([a581522](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a581522edd619adf1d5734660c86ca5bd68d6bdb))
+
+### Build System
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FPGA**
+
+      - reduce cpu_libs to tc and neoverse ([8d1fd9e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8d1fd9e6188dcdc089c571ceeb8127692514f0da))
+      - remove a710 from fpga build ([0a1fc65](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0a1fc656c5ee2775ef016b48b42df7fb914fbe8d))
+
+    - **FVP**
+
+      - reduce the number of cpu libraries included by default ([4089e8e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4089e8e2a2a33c920775fcb12e41339accf4694b))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - bl2 start address for RESET_TO_BL2+ENABLE_PIE ([451f0c9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/451f0c9c2708b9359dac3105e49f697308a60c45))
+
+    - **FVP**
+
+      - adjust BL31 maximum size as per total SRAM size ([80ccc42](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/80ccc423bc9c1b4ab160f72a08b5f015acf813de))
+      - resolve broken workaround reference ([aebb533](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/aebb533091b8197fde92e9bb78045fc4c44fe7d6))
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - added Neoverse N2 to Errata ABI list ([4b1dc22](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4b1dc22f2bc957433e20df6d0a09ab62759ab44e))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - fix minor issue seen with a9 cpu ([b087d2d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b087d2d357b0b3707c0590167a1b8449a068a988))
+    - reduce generic_errata_report()'s size ([edc4668](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/edc4668486ce27ffd69c65564eb8b93654cad9a0))
+    - revert erroneous use of override_vector_table macro in Cortex-A73 ([a5627d5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a5627d501a7e4d718094d32ae5d43dad1a890505))
+    - workaround for Neoverse N2 erratum 2743014 ([4e4d88b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4e4d88b64fff1d81b7fb636aa4ea2dcbe6a52112))
+    - workaround for Neoverse N2 erratum 2779511 ([16f2a34](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/16f2a3480afd36a14f06ea25605f1acab2c4858e))
+
+- **Documentation**
+
+  - updated certain Neoverse N2 erratum status in docs ([9d6d133](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9d6d133ed4bed0af1f371efea5000c2ff3b0a238))
+
+### Documentation
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - document the errata framework ([5a13a46](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5a13a46aa55ab268a0361daed54c2d223777a2c8))
+
+- **Documentation**
+
+  - **Changelog**
+
+    - changelog for lts-v2.8.9 release ([897a8f6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/897a8f63f0d72e817fb75bdd239e52925f043b03))
+    - display all sections ([a43c627](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a43c627bb2717ca38c0e06e33f9246ce2c892f31))
+    - update errata-abi topic ([30f65b1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/30f65b1801cb631e216b1121097eeffb39af4667))
+
 ## [lts-2.8.8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.7..refs/tags/lts-v2.8.8) (2023-08-01)
 
 ### Resolved issues (since lts-v2.8.7)
@@ -7043,7 +7231,7 @@ releases of TF-A.
 
 ______________________________________________________________________
 
-*Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
 
 [mbed tls releases]: https://tls.mbed.org/tech-updates/releases
 [pr#1002]: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193
