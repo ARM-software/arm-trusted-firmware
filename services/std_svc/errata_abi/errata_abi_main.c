@@ -428,10 +428,11 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = CORTEX_X3_MIDR,
 	.cpu_errata_list = {
-		[0] = {2313909, 0x00, 0x10, ERRATA_X3_2313909},
-		[1] = {2615812, 0x00, 0x11, ERRATA_X3_2615812},
-		[2] = {2742421, 0x00, 0x11, ERRATA_X3_2742421},
-		[3 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+		[0] = {2070301, 0x00, 0x12, ERRATA_X3_2070301},
+		[1] = {2313909, 0x00, 0x10, ERRATA_X3_2313909},
+		[2] = {2615812, 0x00, 0x11, ERRATA_X3_2615812},
+		[3] = {2742421, 0x00, 0x11, ERRATA_X3_2742421},
+		[4 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
 #endif /* CORTEX_X3_H_INC */
