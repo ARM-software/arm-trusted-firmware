@@ -180,6 +180,11 @@ Common build options
    registers to be included when saving and restoring the CPU context. Default
    is 0.
 
+-  ``CTX_INCLUDE_MPAM_REGS``: Boolean option that, when set to 1, will cause the
+   Memory System Resource Partitioning and Monitoring (MPAM)
+   registers to be included when saving and restoring the CPU context.
+   Default is '0'.
+
 -  ``CTX_INCLUDE_MTE_REGS``: Numeric value to include Memory Tagging Extension
    registers in cpu context. This must be enabled, if the platform wants to use
    this feature in the Secure world and MTE is enabled at ELX. This flag can
