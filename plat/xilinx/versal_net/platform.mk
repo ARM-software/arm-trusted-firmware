@@ -121,6 +121,7 @@ BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
 				${PLAT_PATH}/bl31_versal_net_setup.c		\
 				common/fdt_fixup.c				\
 				common/fdt_wrappers.c				\
+				plat/arm/common/arm_gicv3.c 			\
 				${LIBFDT_SRCS}					\
 				${PLAT_PATH}/sip_svc_setup.c			\
-				${PLAT_PATH}/versal_net_gicv3.c
+				${XLAT_TABLES_LIB_SRCS}

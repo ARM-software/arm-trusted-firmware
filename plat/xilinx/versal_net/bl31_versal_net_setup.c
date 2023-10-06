@@ -216,8 +216,8 @@ void bl31_platform_setup(void)
 	prepare_dtb();
 
 	/* Initialize the gic cpu and distributor interfaces */
-	plat_versal_net_gic_driver_init();
-	plat_versal_net_gic_init();
+	plat_arm_gic_driver_init();
+	plat_arm_gic_init();
 }
 
 void bl31_plat_runtime_setup(void)

@@ -66,7 +66,7 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 	}
 
 	/* Prevent interrupts from spuriously waking up this cpu */
-	plat_versal_net_gic_cpuif_disable();
+	plat_arm_gic_cpuif_disable();
 
 	/*
 	 * Send request to PMC to power down the appropriate APU CPU
@@ -114,10 +114,10 @@ static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state
 			__func__, i, target_state->pwr_domain_state[i]);
 	}
 
-	plat_versal_net_gic_cpuif_disable();
+	plat_arm_gic_cpuif_disable();
 
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
-		plat_versal_net_gic_save();
+		plat_arm_gic_save();
 	}
 
 	state = target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE ?
@@ -135,10 +135,10 @@ static void versal_net_pwr_domain_on_finish(const psci_power_state_t *target_sta
 	(void)target_state;
 
 	/* Enable the gic cpu interface */
-	plat_versal_net_gic_pcpu_init();
+	plat_arm_gic_pcpu_init();
 
 	/* Program the gic per-cpu distributor or re-distributor interface */
-	plat_versal_net_gic_cpuif_enable();
+	plat_arm_gic_cpuif_enable();
 }
 
 /**
@@ -163,10 +163,10 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 
 	/* APU was turned off, so restore GIC context */
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
-		plat_versal_net_gic_resume();
+		plat_arm_gic_resume();
 	}
 
-	plat_versal_net_gic_cpuif_enable();
+	plat_arm_gic_cpuif_enable();
 }
 
 /**
