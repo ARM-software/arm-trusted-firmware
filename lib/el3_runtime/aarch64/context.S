@@ -557,7 +557,6 @@ func el3_exit
 	msr	spsel, #MODE_SP_ELX
 	str	x17, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
 
-#if IMAGE_BL31
 	/* ----------------------------------------------------------
 	 * Restore CPTR_EL3.
 	 * ZCR is only restored if SVE is supported and enabled.
@@ -567,6 +566,7 @@ func el3_exit
 	ldp	x19, x20, [sp, #CTX_EL3STATE_OFFSET + CTX_CPTR_EL3]
 	msr	cptr_el3, x19
 
+#if IMAGE_BL31
 	ands	x19, x19, #CPTR_EZ_BIT
 	beq	sve_not_enabled
 
