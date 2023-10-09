@@ -127,6 +127,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				${LIBFDT_SRCS}					\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/plat_startup.c		\
+				plat/xilinx/common/plat_fdt.c			\
 				plat/xilinx/zynqmp/bl31_zynqmp_setup.c		\
 				plat/xilinx/zynqmp/plat_psci.c			\
 				plat/xilinx/zynqmp/plat_zynqmp.c		\
