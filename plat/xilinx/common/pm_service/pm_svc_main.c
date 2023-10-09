@@ -100,6 +100,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 
 	VERBOSE("Received IPI FIQ from firmware\n");
 
+	console_flush();
 	(void)plat_ic_acknowledge_interrupt();
 
 	ret = pm_get_callbackdata(payload, ARRAY_SIZE(payload), 0, 0);
