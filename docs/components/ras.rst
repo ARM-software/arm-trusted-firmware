@@ -63,17 +63,19 @@ will be added in future**
 TF-A build options
 ==================
 
-- **ENABLE_FEAT_RAS**: Manage FEAT_RAS extension when switching the world.
-- **RAS_FFH_SUPPORT**: Pull in necessary framework and platform hooks for Firmware first
-  handling(FFH) of RAS errors.
+- **ENABLE_FEAT_RAS**: Enable RAS extension feature at EL3.
+- **HANDLE_EA_EL3_FIRST_NS**: Required for FFH
 - **RAS_TRAP_NS_ERR_REC_ACCESS**: Trap Non-secure access of RAS error record registers.
-- **RAS_EXTENSION**: Deprecated macro, equivalent to ENABLE_FEAT_RAS and RAS_FFH_SUPPORT
-  put together.
+- **RAS_EXTENSION**: Deprecated macro, equivalent to ENABLE_FEAT_RAS and
+  HANDLE_EA_EL3_FIRST_NS put together.
+
+RAS internal macros
+
+- **FFH_SUPPORT**: Gets enabled if **HANDLE_EA_EL3_FIRST_NS** is enabled.
 
 RAS feature has dependency on some other TF-A build flags
 
 - **EL3_EXCEPTION_HANDLING**: Required for FFH
-- **HANDLE_EA_EL3_FIRST_NS**: Required for FFH
 - **FAULT_INJECTION_SUPPORT**: Required for testing RAS feature on fvp platform
 
 RAS Framework
@@ -238,7 +240,7 @@ Engaging the RAS framework
 Enabling RAS support is a platform choice
 
 The RAS support in |TF-A| introduces a default implementation of
-``plat_ea_handler``, the External Abort handler in EL3. When ``RAS_FFH_SUPPORT``
+``plat_ea_handler``, the External Abort handler in EL3. When ``ENABLE_FEAT_RAS``
 is set to ``1``, it'll first call ``ras_ea_handler()`` function, which is the
 top-level RAS exception handler. ``ras_ea_handler`` is responsible for iterating
 to through platform-supplied error records, probe them, and when an error is

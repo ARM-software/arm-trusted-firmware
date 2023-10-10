@@ -3298,10 +3298,10 @@ Function : plat_ea_handler
     Argument : uint64_t
     Return   : void
 
-This function is invoked by the RAS framework for the platform to handle an
-External Abort received at EL3. The intention of the function is to attempt to
-resolve the cause of External Abort and return; if that's not possible, to
-initiate orderly shutdown of the system.
+This function is invoked by the runtime exception handling framework for the
+platform to handle an External Abort received at EL3. The intention of the
+function is to attempt to resolve the cause of External Abort and return;
+if that's not possible then an orderly shutdown of the system is initiated.
 
 The first parameter (``int ea_reason``) indicates the reason for External Abort.
 Its value is one of ``ERROR_EA_*`` constants defined in ``ea_handle.h``.
@@ -3316,13 +3316,8 @@ The third parameter (``void *cookie``) is unused for now. The fourth parameter
 (``uint64_t flags``) indicates the preempted security state. These parameters
 are received from the top-level exception handler.
 
-If ``RAS_FFH_SUPPORT`` is set to ``1``, the default implementation of this
-function iterates through RAS handlers registered by the platform. If any of the
-RAS handlers resolve the External Abort, no further action is taken.
-
-If ``RAS_FFH_SUPPORT`` is set to ``0``, or if none of the platform RAS handlers
-could resolve the External Abort, the default implementation prints an error
-message, and panics.
+This function must be implemented if a platform expects Firmware First handling
+of External Aborts.
 
 Function : plat_handle_uncontainable_ea
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

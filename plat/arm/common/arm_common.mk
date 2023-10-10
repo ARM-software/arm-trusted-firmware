@@ -352,7 +352,7 @@ endif
 endif
 
 # RAS sources
-ifeq (${RAS_FFH_SUPPORT},1)
+ifeq (${ENABLE_FEAT_RAS}-${HANDLE_EA_EL3_FIRST_NS},1-1)
 BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
 				lib/extensions/ras/ras_common.c
 endif

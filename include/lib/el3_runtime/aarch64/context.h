@@ -71,7 +71,7 @@
  * KFH mode : Used as counter value
  */
 #define CTX_NESTED_EA_FLAG	U(0x48)
-#if HANDLE_EA_EL3_FIRST_NS
+#if FFH_SUPPORT
  #define CTX_SAVED_ESR_EL3	U(0x50)
  #define CTX_SAVED_SPSR_EL3	U(0x58)
  #define CTX_SAVED_GPREG_LR	U(0x60)

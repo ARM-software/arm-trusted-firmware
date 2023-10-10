@@ -60,7 +60,7 @@
 	synchronize_errors
 	mrs	x30, ISR_EL1
 	tbz	x30, #ISR_A_SHIFT, 2f
-#if HANDLE_EA_EL3_FIRST_NS
+#if FFH_SUPPORT
 	mrs	x30, scr_el3
 	tst	x30, #SCR_EA_BIT
 	b.eq	1f
@@ -175,7 +175,7 @@ vector_entry fiq_sp_elx
 end_vector_entry fiq_sp_elx
 
 vector_entry serror_sp_elx
-#if HANDLE_EA_EL3_FIRST_NS
+#if FFH_SUPPORT
 	/*
 	 * This will trigger if the exception was taken due to SError in EL3 or
 	 * because of pending asynchronous external aborts from lower EL that got
