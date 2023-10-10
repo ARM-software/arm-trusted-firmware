@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "trusted-firmware-a"
+version = "2.8.0"
+description = "Trusted Firmware-A (TF-A) Python dependencies."
+authors = ["Arm Ltd."]
+license = "BSD-3-Clause"
+readme = "readme.rst"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.doc.dependencies]
+sphinx = "^5.3.0"
+myst-parser = "^0.18.1"
+sphinxcontrib-plantuml = "^0.24.1"
+sphinx-rtd-theme = "^1.1.1"
+pip-tools = "^6.4.0"
+

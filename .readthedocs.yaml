@@ -15,10 +15,12 @@ build:
     python: "3.10"
   apt_packages:
     - plantuml
-
-python:
-  install:
-    - requirements: docs/requirements.txt
+  jobs:
+    post_create_environment:
+      - pip install poetry
+      - poetry config virtualenvs.create false
+    post_install:
+      - poetry install --with docs
 
 sphinx:
   configuration: docs/conf.py
