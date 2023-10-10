@@ -29,6 +29,7 @@
 #include <imx8m_caam.h>
 #include <imx8m_ccm.h>
 #include <imx8m_csu.h>
+#include <imx8m_snvs.h>
 #include <plat_imx8.h>
 
 #define TRUSTY_PARAMS_LEN_BYTES      (4096*2)
@@ -187,6 +188,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #endif
 #endif
 
+#if !defined(SPD_opteed) && !defined(SPD_trusty)
+	enable_snvs_privileged_access();
+#endif
+
 	bl31_tzc380_setup();
 }
 
@@ -208,8 +213,10 @@ void bl31_plat_arch_setup(void)
 #if USE_COHERENT_MEM
 		MAP_COHERENT_MEM,
 #endif
+#if defined(SPD_opteed) || defined(SPD_trusty)
 		/* Map TEE memory */
 		MAP_BL32_TOTAL,
+#endif
 		{0}
 	};
 
