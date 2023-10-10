@@ -813,8 +813,10 @@ Common build options
 
 -  ``ENABLE_FEAT_RAS``: Numeric value to enable Armv8.2 RAS features. RAS features
    are an optional extension for pre-Armv8.2 CPUs, but are mandatory for Armv8.2
-   or later CPUs. This flag can take the values 0 to 2, to align with the
-   ``FEATURE_DETECTION`` mechanism.
+   or later CPUs. This flag can take the values 0 or 1. The default value is 0.
+   NOTE: This flag enables use of IESB capability to reduce entry latency into
+   EL3 even when RAS error handling is not performed on the platform. Hence this
+   flag is recommended to be turned on Armv8.2 and later CPUs.
 
 -  ``RAS_FFH_SUPPORT``: Support to enable Firmware first handling of RAS errors
    originating from NS world. When ``RAS_FFH_SUPPORT`` is set to ``1``,

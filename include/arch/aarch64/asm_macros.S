@@ -309,12 +309,7 @@
 	 * entry and exception return, so there is no need for any explicit instruction.
 	 */
 	.macro synchronize_errors
-	/*
-	 * This is a hot path, so we don't want to do some actual FEAT_RAS runtime
-	 * detection here. For ENABLE_FEAT_RAS==2, its not ideal but won't hurt as
-	 * state 2 is mostly used by configurable platforms(fvp/qemu).
-	*/
-#if ENABLE_FEAT_RAS != 1
+#if !ENABLE_FEAT_RAS
 	/* Complete any stores that may return an abort */
 	dsb	sy
 	/* Synchronise the CPU context with the completion of the dsb */

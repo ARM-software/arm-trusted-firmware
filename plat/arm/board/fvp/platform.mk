@@ -56,7 +56,6 @@ ifneq (${SPD}, tspd)
 	ENABLE_FEAT_RNG			:= 2
 	ENABLE_FEAT_TWED		:= 2
 	ENABLE_FEAT_GCS			:= 2
-	ENABLE_FEAT_RAS			:= 2
 ifeq (${ARCH}, aarch64)
 ifneq (${SPD}, spmd)
 ifeq (${SPM_MM}, 0)

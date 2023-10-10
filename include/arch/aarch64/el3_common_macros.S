@@ -208,7 +208,7 @@
 		 */
 		mov_imm	x0, (SCTLR_RESET_VAL & ~(SCTLR_EE_BIT | SCTLR_WXN_BIT \
 				| SCTLR_SA_BIT | SCTLR_A_BIT | SCTLR_DSSBS_BIT))
-#if ENABLE_FEAT_RAS == 1
+#if ENABLE_FEAT_RAS
 		/* If FEAT_RAS is present assume FEAT_IESB is also present */
 		orr	x0, x0, #SCTLR_IESB_BIT
 #endif
