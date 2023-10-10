@@ -70,7 +70,7 @@ workaround_reset_start cortex_a78_ae, ERRATUM(2376748), ERRATA_A78_AE_2376748
 	sysreg_bit_set CORTEX_A78_AE_ACTLR2_EL1, CORTEX_A78_AE_ACTLR2_EL1_BIT_0
 workaround_reset_end cortex_a78_ae, ERRATUM(2376748)
 
-check_erratum_ls cortex_a78_ae, ERRATUM(2376748), CPU_REV(0, 1)
+check_erratum_ls cortex_a78_ae, ERRATUM(2376748), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a78_ae, ERRATUM(2395408), ERRATA_A78_AE_2395408
 	/* --------------------------------------------------------

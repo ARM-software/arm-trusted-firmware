@@ -335,26 +335,26 @@ For Cortex-A78, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r1p0, r1p1 and r1p2 and
    it is still open.
 
-For Cortex-A78 AE, the following errata build flags are defined :
+For Cortex-A78AE, the following errata build flags are defined :
 
 - ``ERRATA_A78_AE_1941500`` : This applies errata 1941500 workaround to
-   Cortex-A78 AE CPU. This needs to be enabled for revisions r0p0 and r0p1.
+   Cortex-A78AE CPU. This needs to be enabled for revisions r0p0 and r0p1.
    This erratum is still open.
 
 - ``ERRATA_A78_AE_1951502`` : This applies errata 1951502 workaround to
-  Cortex-A78 AE CPU. This needs to be enabled for revisions r0p0 and r0p1. This
+  Cortex-A78AE CPU. This needs to be enabled for revisions r0p0 and r0p1. This
   erratum is still open.
 
 - ``ERRATA_A78_AE_2376748`` : This applies errata 2376748 workaround to
-  Cortex-A78 AE CPU. This needs to be enabled for revisions r0p0 and r0p1. This
-  erratum is still open.
+  Cortex-A78AE CPU. This needs to be enabled for revisions r0p0, r0p1 and r0p2.
+  This erratum is still open.
 
 - ``ERRATA_A78_AE_2395408`` : This applies errata 2395408 workaround to
-  Cortex-A78 AE CPU. This needs to be enabled for revisions r0p0 and r0p1. This
+  Cortex-A78AE CPU. This needs to be enabled for revisions r0p0 and r0p1. This
   erratum is still open.
 
 - ``ERRATA_A78_AE_2712574`` : This applies erratum 2712574 workaround to
-  Cortex-A78 AE CPU. This erratum affects system configurations that do not use
+  Cortex-A78AE CPU. This erratum affects system configurations that do not use
   an ARM interconnect IP. This needs to be enabled for revisions r0p0, r0p1 and
   r0p2. This erratum is still open.
 
