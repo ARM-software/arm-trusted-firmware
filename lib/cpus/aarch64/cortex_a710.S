@@ -80,14 +80,14 @@ workaround_reset_start cortex_a710, ERRATUM(2055002), ERRATA_A710_2055002
 	sysreg_bit_set	CORTEX_A710_CPUACTLR_EL1, CORTEX_A710_CPUACTLR_EL1_BIT_46
 workaround_reset_end cortex_a710, ERRATUM(2055002)
 
-check_erratum_ls cortex_a710, ERRATUM(2055002), CPU_REV(2, 0)
+check_erratum_range cortex_a710, ERRATUM(2055002), CPU_REV(1, 0), CPU_REV(2, 0)
 
 workaround_reset_start cortex_a710, ERRATUM(2058056), ERRATA_A710_2058056
 	sysreg_bitfield_insert CORTEX_A710_CPUECTLR2_EL1, CORTEX_A710_CPUECTLR2_EL1_PF_MODE_CNSRV, \
 		CPUECTLR2_EL1_PF_MODE_LSB, CPUECTLR2_EL1_PF_MODE_WIDTH
 workaround_reset_end cortex_a710, ERRATUM(2058056)
 
-check_erratum_ls cortex_a710, ERRATUM(2058056), CPU_REV(2, 0)
+check_erratum_ls cortex_a710, ERRATUM(2058056), CPU_REV(2, 1)
 
 workaround_reset_start cortex_a710, ERRATUM(2081180), ERRATA_A710_2081180
 	ldr	x0,=0x3

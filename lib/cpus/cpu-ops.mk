@@ -557,7 +557,8 @@ CPU_FLAG_LIST += ERRATA_A710_2081180
 CPU_FLAG_LIST += ERRATA_A710_2083908
 
 # Flag to apply erratum 2058056 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0 and r2p0 of the Cortex-A710 cpu and is still open.
+# to revisions r0p0, r1p0, r2p0 and r2p1 of the Cortex-A710 cpu and is still
+# open.
 CPU_FLAG_LIST += ERRATA_A710_2058056
 
 # Flag to apply erratum 2055002 workaround during reset. This erratum applies
