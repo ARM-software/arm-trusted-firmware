@@ -108,6 +108,7 @@ int putchar(int c)
 		return EOF;
 }
 
+#if ENABLE_CONSOLE_GETC
 int console_getc(void)
 {
 	int err = ERROR_NO_VALID_CONSOLE;
@@ -127,6 +128,7 @@ int console_getc(void)
 
 	return err;
 }
+#endif
 
 void console_flush(void)
 {

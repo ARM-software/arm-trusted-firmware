@@ -29,12 +29,20 @@
 	.endif
 	str	r1, [r0, #CONSOLE_T_PUTC]
 
+	/*
+	 * If ENABLE_CONSOLE_GETC support is disabled, but a getc callback is
+	 * specified nonetheless, the assembler will abort on encountering the
+	 * CONSOLE_T_GETC macro, which is undefined.
+	 */
 	.ifne \getc
 	  ldr	r1, =console_\_driver\()_getc
+	  str	r1, [r0, #CONSOLE_T_GETC]
 	.else
+#if ENABLE_CONSOLE_GETC
 	  mov	r1, #0
+	  str	r1, [r0, #CONSOLE_T_GETC]
+#endif
 	.endif
-	str	r1, [r0, #CONSOLE_T_GETC]
 
 	.ifne \flush
 	  ldr	r1, =console_\_driver\()_flush

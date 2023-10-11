@@ -33,7 +33,7 @@ func console_imx_uart_register
 
 	mov	x0, x6
 	mov	x30, x7
-	finish_console_register imx_uart putc=1, getc=1, flush=1
+	finish_console_register imx_uart putc=1, getc=ENABLE_CONSOLE_GETC, flush=1
 
 register_fail:
 	ret	x7

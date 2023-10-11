@@ -135,6 +135,16 @@ Several build options can be used to check for security issues. Refer to the
   it is recommended to develop against ``W=2`` (which will eventually become the
   default).
 
+Additional guidelines are provided below for some security-related build
+options:
+
+- The ``ENABLE_CONSOLE_GETC`` build flag should be set to 0 to disable the
+  `getc()` feature, which allows the firmware to read characters from the
+  console. Keeping this feature enabled is considered dangerous from a security
+  point of view because it potentially allows an attacker to inject arbitrary
+  data into the firmware. It should only be enabled on a need basis if there is
+  a use case for it, for example in a testing or factory environment.
+
 .. rubric:: References
 
 -  `Arm ARM`_

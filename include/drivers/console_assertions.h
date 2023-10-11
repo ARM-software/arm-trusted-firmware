@@ -19,8 +19,10 @@ CASSERT(CONSOLE_T_FLAGS == __builtin_offsetof(console_t, flags),
 	assert_console_t_flags_offset_mismatch);
 CASSERT(CONSOLE_T_PUTC == __builtin_offsetof(console_t, putc),
 	assert_console_t_putc_offset_mismatch);
+#if ENABLE_CONSOLE_GETC
 CASSERT(CONSOLE_T_GETC == __builtin_offsetof(console_t, getc),
 	assert_console_t_getc_offset_mismatch);
+#endif
 CASSERT(CONSOLE_T_FLUSH == __builtin_offsetof(console_t, flush),
 	assert_console_t_flush_offset_mismatch);
 CASSERT(CONSOLE_T_DRVDATA == sizeof(console_t),

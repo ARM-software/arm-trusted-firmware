@@ -1191,6 +1191,12 @@ Common build options
   per the `PSA Crypto API specification`_. This feature is only supported if
   using MbedTLS 3.x version. By default it is disabled (``0``).
 
+- ``ENABLE_CONSOLE_GETC``: Boolean option to enable `getc()` feature in console
+  driver(s). By default it is disabled (``0``) because it constitutes an attack
+  vector into TF-A by potentially allowing an attacker to inject arbitrary data.
+  This option should only be enabled on a need basis if there is a use case for
+  reading characters from the console.
+
 GICv3 driver options
 --------------------
 

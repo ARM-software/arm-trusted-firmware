@@ -118,7 +118,7 @@ func console_16550_register
 register_16550:
 	mov	x0, x6
 	mov	x30, x7
-	finish_console_register 16550 putc=1, getc=1, flush=1
+	finish_console_register 16550 putc=1, getc=ENABLE_CONSOLE_GETC, flush=1
 
 register_fail:
 	ret	x7
