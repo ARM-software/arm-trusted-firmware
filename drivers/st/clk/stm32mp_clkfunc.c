@@ -335,6 +335,19 @@ static void stgen_set_counter(unsigned long long counter)
 }
 
 /*******************************************************************************
+ * This function returns the STGEN counter value.
+ ******************************************************************************/
+static unsigned long long stm32mp_stgen_get_counter(void)
+{
+#ifdef __aarch64__
+	return mmio_read_64(STGEN_BASE + CNTCV_OFF);
+#else
+	return (((unsigned long long)mmio_read_32(STGEN_BASE + CNTCVU_OFF) << 32) |
+		mmio_read_32(STGEN_BASE + CNTCVL_OFF));
+#endif
+}
+
+/*******************************************************************************
  * This function configures and restores the STGEN counter depending on the
  * connected clock.
  ******************************************************************************/
@@ -374,35 +387,4 @@ void stm32mp_stgen_restore_rate(void)
 	rate = mmio_read_32(STGEN_BASE + CNTFID_OFF);
 
 	write_cntfrq_el0((u_register_t)rate);
-}
-
-/*******************************************************************************
- * This function returns the STGEN counter value.
- ******************************************************************************/
-unsigned long long stm32mp_stgen_get_counter(void)
-{
-#ifdef __aarch64__
-	return mmio_read_64(STGEN_BASE + CNTCV_OFF);
-#else
-	return (((unsigned long long)mmio_read_32(STGEN_BASE + CNTCVU_OFF) << 32) |
-		mmio_read_32(STGEN_BASE + CNTCVL_OFF));
-#endif
-}
-
-/*******************************************************************************
- * This function restores the STGEN counter value.
- * It takes a first input value as a counter backup value to be restored and a
- * offset in ms to be added.
- ******************************************************************************/
-void stm32mp_stgen_restore_counter(unsigned long long value,
-				   unsigned long long offset_in_ms)
-{
-	unsigned long long cnt;
-
-	cnt = value + ((offset_in_ms *
-			mmio_read_32(STGEN_BASE + CNTFID_OFF)) / 1000U);
-
-	mmio_clrbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
-	stgen_set_counter(cnt);
-	mmio_setbits_32(STGEN_BASE + CNTCR_OFF, CNTCR_EN);
 }
