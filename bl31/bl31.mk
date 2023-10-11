@@ -39,7 +39,6 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				bl31/interrupt_mgmt.c				\
 				bl31/aarch64/bl31_entrypoint.S			\
 				bl31/aarch64/crash_reporting.S			\
-				bl31/aarch64/ea_delegate.S			\
 				bl31/aarch64/runtime_exceptions.S		\
 				bl31/bl31_context_mgmt.c			\
 				bl31/bl31_traps.c				\
@@ -65,6 +64,10 @@ endif
 
 ifeq (${EL3_EXCEPTION_HANDLING},1)
 BL31_SOURCES		+=	bl31/ehf.c
+endif
+
+ifeq (${FFH_SUPPORT},1)
+BL31_SOURCES		+=	bl31/aarch64/ea_delegate.S
 endif
 
 ifeq (${SDEI_SUPPORT},1)

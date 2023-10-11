@@ -18,12 +18,8 @@
 	.globl	handle_lower_el_sync_ea
 	.globl	handle_lower_el_async_ea
 	.globl	handle_pending_async_ea
-	.globl	reflect_pending_async_ea_to_lower_el
 /*
- * This function forms the tail end of Synchronous Exception entry from lower
- * EL, and expects to handle Synchronous External Aborts from lower EL and CPU
- * Implementation Defined Exceptions. If any other kind of exception is detected,
- * then this function reports unhandled exception.
+ * This function handles Synchronous External Aborts from lower EL.
  *
  * It delegates the handling of the EA to platform handler, and upon successfully
  * handling the EA, exits EL3; otherwise panics.
@@ -41,27 +37,8 @@ func handle_lower_el_sync_ea
 	cmp	x30, #EC_DABORT_LOWER_EL
 	b.eq	1f
 
-	/* Save GP registers */
-	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-
-	/* Get the cpu_ops pointer */
-	bl	get_cpu_ops_ptr
-
-	/* Get the cpu_ops exception handler */
-	ldr	x0, [x0, #CPU_E_HANDLER_FUNC]
-
-	/*
-	 * If the reserved function pointer is NULL, this CPU does not have an
-	 * implementation defined exception handler function
-	 */
-	cbz	x0, 2f
-	mrs	x1, esr_el3
-	ubfx	x1, x1, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	blr	x0
-	b	2f
-
+	/* EA other than above are unhandled exceptions */
+	no_ret	report_unhandled_exception
 1:
 	/*
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
@@ -82,14 +59,6 @@ func handle_lower_el_sync_ea
 	/* el3_exit assumes SP_EL0 on entry */
 	msr	spsel, #MODE_SP_EL0
 	b	el3_exit
-2:
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-
-	/* Synchronous exceptions other than the above are assumed to be EA */
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	no_ret	report_unhandled_exception
 endfunc handle_lower_el_sync_ea
 
 
@@ -125,33 +94,18 @@ func handle_lower_el_async_ea
 endfunc handle_lower_el_async_ea
 
 /*
- * NOTE 1 : Synchronized async EA handling
- *
- * Comment here applicable to following two functions
- *   - handle_pending_async_ea
- *   - reflect_pending_async_ea_to_lower_el
- *
- * Must be called from exception vector directly.
- *
- * These special handling is required to cater for handling async EA from
- * lower EL synchronized at EL3 entry.
+ * Handler for async EA from lower EL synchronized at EL3 entry in FFH mode.
  *
  * This scenario may arise when there is an error (EA) in the system which is not
  * yet signaled to PE while executing in lower EL. During entry into EL3, the errors
  * are synchronized either implicitly or explicitly causing async EA to pend at EL3.
  *
- * On detecting the pending EA (via ISR_EL1.A), based on routing model of EA
- * either handle it in EL3 using "handle_pending_async_ea" (FFH)  or return to
- * lower EL using "reflect_pending_async_ea_to_lower_el" (KFH) .
- */
-
-/*
- * Refer to NOTE 1 : Firmware First Handling (FFH)
- *  Called when FFH is enabled and outgoing world is Non-Secure (scr_el3.ea = 1).
+ * On detecting the pending EA (via ISR_EL1.A), if the EA routing model is Firmware
+ * First handling (FFH, SCR_EL3.EA = 1) this handler first handles the pending EA
+ * and then handles the original exception.
  *
  * This function assumes x30 has been saved.
  */
-#if HANDLE_EA_EL3_FIRST_NS
 func handle_pending_async_ea
 	/*
 	 * Prepare for nested handling of EA. Stash sysregs clobbered by nested
@@ -206,83 +160,6 @@ func handle_pending_async_ea
 1:
 	exception_return
 endfunc handle_pending_async_ea
-#endif /* HANDLE_EA_EL3_FIRST_NS */
-
-/*
- * Refer to NOTE 1 : Kernel First handling (KFH)
- *   Called in following scenarios
- *     - Always, if outgoing world is either Secure or Realm
- *     - KFH mode if outgoing world is Non-secure.
- *
- * This function assumes x30 has been saved.
- */
-
-func reflect_pending_async_ea_to_lower_el
-	/*
-	 * As the original exception was not handled we need to ensure that we return
-	 * back to the instruction which caused the exception. To acheive that, eret
-	 * to "elr-4" (Label "subtract_elr_el3") for SMC or simply eret otherwise
-	 * (Label "skip_smc_check").
-	 *
-	 * LIMITATION: It could be that async EA is masked at the target exception level
-	 * or the priority of async EA wrt to the EL3/secure interrupt is lower, which
-	 * causes back and forth between lower EL and EL3. In case of back and forth between
-	 * lower EL and EL3, we can track the loop count in "CTX_NESTED_EA_FLAG" and leverage
-	 * previous ELR in "CTX_SAVED_ELR_EL3" to detect this cycle and further panic
-	 * to indicate a problem here (Label "check_loop_ctr").
-	 * However, setting SCR_EL3.IESB = 1, should give priority to SError handling
-	 * as per AArch64.TakeException pseudo code in Arm ARM.
-	 *
-	 * TODO: In future if EL3 gets a capability to inject a virtual SError to lower
-	 * ELs, we can remove the el3_panic and handle the original exception first and
-	 * inject SError to lower EL before ereting back.
-	 */
-	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
-	ldr	x29, [sp, #CTX_EL3STATE_OFFSET + CTX_SAVED_ELR_EL3]
-	mrs	x28, elr_el3
-	cmp	x29, x28
-	b.eq	check_loop_ctr
-	str	x28, [sp, #CTX_EL3STATE_OFFSET + CTX_SAVED_ELR_EL3]
-	/* Zero the loop counter */
-	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_NESTED_EA_FLAG]
-	b	skip_loop_ctr
-check_loop_ctr:
-	ldr	x29, [sp, #CTX_EL3STATE_OFFSET + CTX_NESTED_EA_FLAG]
-	add	x29, x29, #1
-	str	x29, [sp, #CTX_EL3STATE_OFFSET + CTX_NESTED_EA_FLAG]
-	cmp	x29, #ASYNC_EA_REPLAY_COUNTER
-	b.ge	el3_panic
-skip_loop_ctr:
-	/*
-	 * Logic to distinguish if we came from SMC or any other exception.
-	 * Use offsets in vector entry to get which exception we are handling.
-	 * In each vector entry of size 0x200, address "0x0-0x80" is for sync
-	 * exception and "0x80-0x200" is for async exceptions.
-	 * Use vector base address (vbar_el3) and exception offset (LR) to
-	 * calculate whether the address we came from is any of the following
-	 * "0x0-0x80", "0x200-0x280", "0x400-0x480" or "0x600-0x680"
-	 */
-	mrs	x29, vbar_el3
-	sub	x30, x30, x29
-	and	x30, x30, #0x1ff
-	cmp	x30, #0x80
-	b.ge	skip_smc_check
-	/* Its a synchronous exception, Now check if it is SMC or not? */
-	mrs	x30, esr_el3
-	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	cmp	x30, #EC_AARCH32_SMC
-	b.eq	subtract_elr_el3
-	cmp	x30, #EC_AARCH64_SMC
-	b.eq	subtract_elr_el3
-	b	skip_smc_check
-subtract_elr_el3:
-	sub	x28, x28, #4
-skip_smc_check:
-	msr	elr_el3, x28
-	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	exception_return
-endfunc reflect_pending_async_ea_to_lower_el
 
 /*
  * Prelude for Synchronous External Abort handling. This function assumes that
