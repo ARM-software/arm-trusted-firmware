@@ -350,6 +350,43 @@ endfunc fpregs_context_restore
 #endif /* ENABLE_FEAT_DIT */
 	.endm /* set_unset_pstate_bits */
 
+/*-------------------------------------------------------------------------
+ * This macro checks the ENABLE_FEAT_MPAM state, performs ID register
+ * check to see if the platform supports MPAM extension and restores MPAM3
+ * register value if it is FEAT_STATE_ENABLED/FEAT_STATE_CHECKED.
+ *
+ * This is particularly more complicated because we can't check
+ * if the platform supports MPAM  by looking for status of a particular bit
+ * in the MDCR_EL3 or CPTR_EL3 register like other extensions.
+ * ------------------------------------------------------------------------
+ */
+
+	.macro	restore_mpam3_el3
+#if ENABLE_FEAT_MPAM
+#if ENABLE_FEAT_MPAM == 2
+
+	mrs x8, id_aa64pfr0_el1
+	lsr x8, x8, #(ID_AA64PFR0_MPAM_SHIFT)
+	and x8, x8, #(ID_AA64PFR0_MPAM_MASK)
+	mrs x7, id_aa64pfr1_el1
+	lsr x7, x7, #(ID_AA64PFR1_MPAM_FRAC_SHIFT)
+	and x7, x7, #(ID_AA64PFR1_MPAM_FRAC_MASK)
+	orr x7, x7, x8
+	cbz x7, no_mpam
+#endif
+	/* -----------------------------------------------------------
+	 * Restore MPAM3_EL3 register as per context state
+	 * Currently we only enable MPAM for NS world and trap to EL3
+	 * for MPAM access in lower ELs of Secure and Realm world
+	 * -----------------------------------------------------------
+	 */
+	ldr	x17, [sp, #CTX_EL3STATE_OFFSET + CTX_MPAM3_EL3]
+	msr	S3_6_C10_C5_0, x17 /* mpam3_el3 */
+
+no_mpam:
+#endif
+	.endm /* restore_mpam3_el3 */
+
 /* ------------------------------------------------------------------
  * The following macro is used to save and restore all the general
  * purpose and ARMv8.3-PAuth (if enabled) registers.
@@ -573,6 +610,9 @@ func el3_exit
 	isb
 	msr	S3_6_C1_C2_0, x20 /* zcr_el3 */
 sve_not_enabled:
+
+	restore_mpam3_el3
+
 #endif /* IMAGE_BL31 */
 
 #if IMAGE_BL31 && DYNAMIC_WORKAROUND_CVE_2018_3639
