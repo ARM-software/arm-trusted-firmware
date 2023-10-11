@@ -71,7 +71,7 @@ func console_spe_register
 	cbz	x3, register_fail
 	str	x0, [x3, #CONSOLE_T_BASE]
 	mov	x0, x3
-	finish_console_register spe putc=1, getc=1, flush=1
+	finish_console_register spe putc=1, getc=ENABLE_CONSOLE_GETC, flush=1
 
 register_fail:
 	mov	w0, wzr

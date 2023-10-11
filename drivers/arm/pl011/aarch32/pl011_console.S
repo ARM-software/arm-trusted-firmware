@@ -116,7 +116,7 @@ func console_pl011_register
 
 	mov	r0, r4
 	pop	{r4, lr}
-	finish_console_register pl011 putc=1, getc=1, flush=1
+	finish_console_register pl011 putc=1, getc=ENABLE_CONSOLE_GETC, flush=1
 
 register_fail:
 	pop	{r4, pc}

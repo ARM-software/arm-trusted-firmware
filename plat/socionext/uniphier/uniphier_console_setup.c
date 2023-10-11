@@ -30,7 +30,9 @@ static console_t uniphier_console = {
 		 CONSOLE_FLAG_CRASH |
 		 CONSOLE_FLAG_TRANSLATE_CRLF,
 	.putc = uniphier_console_putc,
+#if ENABLE_CONSOLE_GETC
 	.getc = uniphier_console_getc,
+#endif
 	.flush = uniphier_console_flush,
 };
 

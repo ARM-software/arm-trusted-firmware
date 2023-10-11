@@ -124,7 +124,7 @@ func console_16550_register
 register_16550:
 	mov	r0, r4
 	pop	{r4, lr}
-	finish_console_register 16550 putc=1, getc=1, flush=1
+	finish_console_register 16550 putc=1, getc=ENABLE_CONSOLE_GETC, flush=1
 
 register_fail:
 	pop	{r4, pc}

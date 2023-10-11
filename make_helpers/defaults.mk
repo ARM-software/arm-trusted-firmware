@@ -362,3 +362,8 @@ ENABLE_SPMD_LP			:= 0
 
 # By default, disable PSA crypto (use MbedTLS legacy crypto API).
 PSA_CRYPTO			:= 0
+
+# getc() support from the console(s).
+# Disabled by default because it constitutes an attack vector into TF-A. It
+# should only be enabled if there is a use case for it.
+ENABLE_CONSOLE_GETC		:= 0

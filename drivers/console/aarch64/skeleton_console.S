@@ -63,7 +63,7 @@ func console_xxx_register
 	 * If any of the argument is unspecified, then the corresponding
 	 * entry in console_t is set to 0.
 	 */
-	finish_console_register xxx putc=1, getc=1, flush=1
+	finish_console_register xxx putc=1, getc=ENABLE_CONSOLE_GETC, flush=1
 
 	/* Jump here if hardware init fails or parameters are invalid. */
 register_fail:

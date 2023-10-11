@@ -1223,6 +1223,7 @@ $(eval $(call assert_booleans,\
 	CONDITIONAL_CMO \
 	RAS_FFH_SUPPORT \
 	PSA_CRYPTO	\
+	ENABLE_CONSOLE_GETC \
 )))
 
 # Numeric_Flags
@@ -1414,6 +1415,7 @@ $(eval $(call add_defines,\
 	SVE_VECTOR_LEN \
 	ENABLE_SPMD_LP \
 	PSA_CRYPTO	\
+	ENABLE_CONSOLE_GETC \
 )))
 
 ifeq (${SANITIZE_UB},trap)

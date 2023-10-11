@@ -30,12 +30,19 @@
 	  str	xzr, [x0, #CONSOLE_T_PUTC]
 	.endif
 
+	/*
+	 * If ENABLE_CONSOLE_GETC support is disabled, but a getc callback is
+	 * specified nonetheless, the assembler will abort on encountering the
+	 * CONSOLE_T_GETC macro, which is undefined.
+	 */
 	.ifne \getc
 	  adrp	x1, console_\_driver\()_getc
 	  add	x1, x1, :lo12:console_\_driver\()_getc
 	  str	x1, [x0, #CONSOLE_T_GETC]
 	.else
+#if ENABLE_CONSOLE_GETC
 	  str	xzr, [x0, #CONSOLE_T_GETC]
+#endif
 	.endif
 
 	.ifne \flush
