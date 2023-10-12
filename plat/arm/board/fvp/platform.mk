@@ -72,9 +72,7 @@ endif
 
 # enable unconditionally for all builds
 ifeq (${ARCH}, aarch64)
-ifeq (${ENABLE_RME},0)
-	ENABLE_BRBE_FOR_NS		:= 2
-endif
+    ENABLE_BRBE_FOR_NS		:= 2
     ENABLE_TRBE_FOR_NS		:= 2
 endif
 ENABLE_SYS_REG_TRACE_FOR_NS	:= 2
