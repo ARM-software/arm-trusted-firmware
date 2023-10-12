@@ -54,7 +54,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
 #endif
-#if SPM_MM
+#if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
 	ARM_SP_IMAGE_MMAP,
 #endif
 #if TRUSTED_BOARD_BOOT && !RESET_TO_BL2
@@ -73,7 +73,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	CSS_SGI_MAP_DEVICE,
 	SOC_PLATFORM_PERIPH_MAP_DEVICE,
 	SOC_SYSTEM_PERIPH_MAP_DEVICE,
-#if SPM_MM
+#if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
 	{0}

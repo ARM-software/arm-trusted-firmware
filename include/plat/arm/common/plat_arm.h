@@ -53,7 +53,7 @@ typedef struct arm_tzc_regions_info {
 		PLAT_ARM_TZC_NS_DEV_ACCESS}
 #endif
 
-#if SPM_MM
+#if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
 #define ARM_TZC_REGIONS_DEF						\
 	{ARM_AP_TZC_DRAM1_BASE, ARM_EL3_TZC_DRAM1_END + ARM_L1_GPT_SIZE,\
 		TZC_REGION_S_RDWR, 0},					\
