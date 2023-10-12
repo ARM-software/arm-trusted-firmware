@@ -165,7 +165,6 @@ AUTH_SOURCES			:=	drivers/auth/auth_mod.c				\
 ifeq (${GENERATE_COT},1)
 TFW_NVCTR_VAL			:=	0
 NTFW_NVCTR_VAL			:=	0
-KEY_SIZE			:=
 KEY_ALG				:=	ecdsa
 HASH_ALG			:=	sha256
 
@@ -178,6 +177,7 @@ endif
 
 endif
 TF_MBEDTLS_KEY_ALG		:=	ecdsa
+KEY_SIZE			:=	256
 
 ifneq (${MBEDTLS_DIR},)
 MBEDTLS_MAJOR=$(shell grep -hP "define MBEDTLS_VERSION_MAJOR" \
