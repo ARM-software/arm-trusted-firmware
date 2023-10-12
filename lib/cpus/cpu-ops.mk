@@ -769,6 +769,11 @@ CPU_FLAG_LIST += ERRATA_A510_2042739
 # present in r0p0 and r0p1 but there is no workaround for those revisions.
 CPU_FLAG_LIST += ERRATA_A510_2041909
 
+# Flag to aply erratum 2080326 workaround during reset. This erratum applies
+# to revision r0p2 of the Cortex-A510 cpu and is fixed in r0p3. The issue is
+# also present in r0p0 and r0p1 but there is no workaround for those revisions.
+CPU_FLAG_LIST += ERRATA_A510_2080326
+
 # Flag to apply erratum 2250311 workaround during reset. This erratum applies
 # to revisions r0p0, r0p1, r0p2, r0p3 and r1p0, and is fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_A510_2250311
