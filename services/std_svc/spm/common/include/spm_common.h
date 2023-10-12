@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,10 +32,14 @@
 #ifndef __ASSEMBLER__
 
 #include <stdint.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 /* Assembly helpers */
 uint64_t spm_secure_partition_enter(uint64_t *c_rt_ctx);
 void __dead2 spm_secure_partition_exit(uint64_t c_rt_ctx, uint64_t ret);
+
+/* Helper to obtain a reference to the SP's translation table context */
+xlat_ctx_t *spm_get_sp_xlat_context(void);
 
 #endif /* __ASSEMBLER__ */
 

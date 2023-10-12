@@ -101,7 +101,7 @@ SECTIONS {
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
         "cpu_ops not defined for this platform.")
 
-#if SPM_MM
+#if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
 #   ifndef SPM_SHIM_EXCEPTIONS_VMA
 #       define SPM_SHIM_EXCEPTIONS_VMA RAM
 #   endif /* SPM_SHIM_EXCEPTIONS_VMA */
@@ -128,7 +128,7 @@ SECTIONS {
     PROVIDE(__SPM_SHIM_EXCEPTIONS_LMA__ = LOADADDR(.spm_shim_exceptions));
 
     . = LOADADDR(.spm_shim_exceptions) + SIZEOF(.spm_shim_exceptions);
-#endif /* SPM_MM */
+#endif /* SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP) */
 
     __RW_START__ = .;
 

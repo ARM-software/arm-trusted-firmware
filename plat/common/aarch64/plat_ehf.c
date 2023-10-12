@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, Broadcom
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,7 +25,7 @@ ehf_pri_desc_t plat_exceptions[] = {
 	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_SDEI_NORMAL_PRI),
 #endif
 
-#if SPM_MM
+#if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
 #if RAS_FFH_SUPPORT
 #if (PLAT_SP_PRI != PLAT_RAS_PRI)
 	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_SP_PRI),

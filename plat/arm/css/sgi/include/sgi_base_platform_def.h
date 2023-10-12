@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,7 +33,7 @@
  * chips are accessed - secure ram, css device and soc device regions.
  */
 #if defined(IMAGE_BL31)
-# if SPM_MM
+# if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
 #  define PLAT_ARM_MMAP_ENTRIES		(9  + ((CSS_SGI_CHIP_COUNT - 1) * 3))
 #  define MAX_XLAT_TABLES		(7  + ((CSS_SGI_CHIP_COUNT - 1) * 3))
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	10
@@ -210,7 +210,7 @@
 #define PLAT_SP_PRI				0x10
 #endif
 
-#if SPM_MM && RAS_FFH_SUPPORT
+#if (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)) && RAS_FFH_SUPPORT
 /*
  * CPER buffer memory of 128KB is reserved and it is placed adjacent to the
  * memory shared between EL3 and S-EL0.
@@ -232,7 +232,7 @@
 #define PLAT_ARM_SP_IMAGE_STACK_BASE		(PLAT_SP_IMAGE_NS_BUF_BASE +   \
 						 PLAT_SP_IMAGE_NS_BUF_SIZE +   \
 						 CSS_SGI_SP_CPER_BUF_SIZE)
-#elif SPM_MM
+#elif (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP))
 /*
  * Secure partition stack follows right after the memory region that is shared
  * between EL3 and S-EL0.

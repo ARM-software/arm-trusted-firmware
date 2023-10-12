@@ -240,6 +240,9 @@ SPM_MM				:= 0
 # Use the FF-A SPMC implementation in EL3.
 SPMC_AT_EL3			:= 0
 
+# Enable SEL0 SP when SPMC is enabled at EL3
+SPMC_AT_EL3_SEL0_SP		:=0
+
 # Use SPM at S-EL2 as a default config for SPMD
 SPMD_SPM_AT_SEL2		:= 1
 

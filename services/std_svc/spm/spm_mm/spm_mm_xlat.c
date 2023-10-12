@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,32 +15,10 @@
 #include <services/spm_mm_svc.h>
 
 #include "spm_mm_private.h"
-#include "spm_mm_shim_private.h"
-
-/* Place translation tables by default along with the ones used by BL31. */
-#ifndef PLAT_SP_IMAGE_XLAT_SECTION_NAME
-#define PLAT_SP_IMAGE_XLAT_SECTION_NAME	".xlat_table"
-#endif
-#ifndef PLAT_SP_IMAGE_BASE_XLAT_SECTION_NAME
-#define PLAT_SP_IMAGE_BASE_XLAT_SECTION_NAME	".bss"
-#endif
-
-/* Allocate and initialise the translation context for the secure partitions. */
-REGISTER_XLAT_CONTEXT2(sp,
-		       PLAT_SP_IMAGE_MMAP_REGIONS,
-		       PLAT_SP_IMAGE_MAX_XLAT_TABLES,
-		       PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
-		       EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME,
-		       PLAT_SP_IMAGE_BASE_XLAT_SECTION_NAME);
+#include "spm_shim_private.h"
 
 /* Lock used for SP_MEMORY_ATTRIBUTES_GET and SP_MEMORY_ATTRIBUTES_SET */
 static spinlock_t mem_attr_smc_lock;
-
-/* Get handle of Secure Partition translation context */
-xlat_ctx_t *spm_get_sp_xlat_context(void)
-{
-	return &sp_xlat_ctx;
-};
 
 /*
  * Attributes are encoded using a different format in the SMC interface than in
