@@ -634,8 +634,9 @@ int cad_qspi_indirect_page_bound_write(uint32_t offset,
 int cad_qspi_read_bank(uint8_t *buffer, uint32_t offset, uint32_t size)
 {
 	int status;
-	uint32_t read_count = 0, *read_data;
+	uint32_t read_count = 0;
 	int level = 1, count = 0, i;
+	uint8_t *read_data;
 
 	status = cad_qspi_indirect_read_start_bank(offset, size);
 
@@ -647,11 +648,11 @@ int cad_qspi_read_bank(uint8_t *buffer, uint32_t offset, uint32_t size)
 			level = CAD_QSPI_SRAMFILL_INDRDPART(
 				mmio_read_32(CAD_QSPI_OFFSET +
 					CAD_QSPI_SRAMFILL));
-			read_data = (uint32_t *)(buffer + read_count);
+			read_data = (uint8_t *)(buffer + read_count);
 			for (i = 0; i < level; ++i)
-				*read_data++ = mmio_read_32(CAD_QSPIDATA_OFST);
+				*read_data++ = mmio_read_8(CAD_QSPIDATA_OFST);
 
-			read_count += level * sizeof(uint32_t);
+			read_count += level * sizeof(uint8_t);
 			count++;
 		} while (level > 0);
 	}
