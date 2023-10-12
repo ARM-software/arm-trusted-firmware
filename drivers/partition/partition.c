@@ -56,32 +56,32 @@ static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
 	/* MBR partition table is in LBA0. */
 	result = io_seek(image_handle, IO_SEEK_SET, MBR_OFFSET);
 	if (result != 0) {
-		WARN("Failed to seek (%i)\n", result);
+		VERBOSE("Failed to seek (%i)\n", result);
 		return result;
 	}
 	result = io_read(image_handle, (uintptr_t)&mbr_sector,
 			 PLAT_PARTITION_BLOCK_SIZE, &bytes_read);
 	if ((result != 0) || (bytes_read != PLAT_PARTITION_BLOCK_SIZE)) {
-		WARN("Failed to read data (%i)\n", result);
+		VERBOSE("Failed to read data (%i)\n", result);
 		return result;
 	}
 
 	/* Check MBR boot signature. */
 	if ((mbr_sector[LEGACY_PARTITION_BLOCK_SIZE - 2] != MBR_SIGNATURE_FIRST) ||
 	    (mbr_sector[LEGACY_PARTITION_BLOCK_SIZE - 1] != MBR_SIGNATURE_SECOND)) {
-		WARN("MBR boot signature failure\n");
+		VERBOSE("MBR boot signature failure\n");
 		return -ENOENT;
 	}
 
 	tmp = (mbr_entry_t *)(&mbr_sector[MBR_PRIMARY_ENTRY_OFFSET]);
 
 	if (tmp->first_lba != 1) {
-		WARN("MBR header may have an invalid first LBA\n");
+		VERBOSE("MBR header may have an invalid first LBA\n");
 		return -EINVAL;
 	}
 
 	if ((tmp->sector_nums == 0) || (tmp->sector_nums == UINT32_MAX)) {
-		WARN("MBR header entry has an invalid number of sectors\n");
+		VERBOSE("MBR header entry has an invalid number of sectors\n");
 		return -EINVAL;
 	}
 
@@ -103,21 +103,21 @@ static int load_gpt_header(uintptr_t image_handle, size_t header_offset,
 
 	result = io_seek(image_handle, IO_SEEK_SET, header_offset);
 	if (result != 0) {
-		WARN("Failed to seek into the GPT image at offset (%zu)\n",
-		     header_offset);
+		VERBOSE("Failed to seek into the GPT image at offset (%zu)\n",
+			header_offset);
 		return result;
 	}
 	result = io_read(image_handle, (uintptr_t)&header,
 			 sizeof(gpt_header_t), &bytes_read);
 	if ((result != 0) || (sizeof(gpt_header_t) != bytes_read)) {
-		WARN("GPT header read error(%i) or read mismatch occurred"
-		     "expected(%zu) and actual(%zu)\n", result,
-		     sizeof(gpt_header_t), bytes_read);
+		VERBOSE("GPT header read error(%i) or read mismatch occurred,"
+			"expected(%zu) and actual(%zu)\n", result,
+			sizeof(gpt_header_t), bytes_read);
 		return result;
 	}
 	if (memcmp(header.signature, GPT_SIGNATURE,
 			   sizeof(header.signature)) != 0) {
-		WARN("GPT header signature failure\n");
+		VERBOSE("GPT header signature failure\n");
 		return -EINVAL;
 	}
 
@@ -162,20 +162,20 @@ static int load_mbr_entry(uintptr_t image_handle, mbr_entry_t *mbr_entry,
 	/* MBR partition table is in LBA0. */
 	result = io_seek(image_handle, IO_SEEK_SET, MBR_OFFSET);
 	if (result != 0) {
-		WARN("Failed to seek (%i)\n", result);
+		VERBOSE("Failed to seek (%i)\n", result);
 		return result;
 	}
 	result = io_read(image_handle, (uintptr_t)&mbr_sector,
 			 PLAT_PARTITION_BLOCK_SIZE, &bytes_read);
 	if (result != 0) {
-		WARN("Failed to read data (%i)\n", result);
+		VERBOSE("Failed to read data (%i)\n", result);
 		return result;
 	}
 
 	/* Check MBR boot signature. */
 	if ((mbr_sector[LEGACY_PARTITION_BLOCK_SIZE - 2] != MBR_SIGNATURE_FIRST) ||
 	    (mbr_sector[LEGACY_PARTITION_BLOCK_SIZE - 1] != MBR_SIGNATURE_SECOND)) {
-		WARN("MBR Entry boot signature failure\n");
+		VERBOSE("MBR Entry boot signature failure\n");
 		return -ENOENT;
 	}
 	offset = (uintptr_t)&mbr_sector +
@@ -218,9 +218,9 @@ static int load_gpt_entry(uintptr_t image_handle, gpt_entry_t *entry)
 	result = io_read(image_handle, (uintptr_t)entry, sizeof(gpt_entry_t),
 			&bytes_read);
 	if ((result != 0) || (sizeof(gpt_entry_t) != bytes_read)) {
-		WARN("GPT Entry read error(%i) or read mismatch occurred"
-		     "expected(%zu) and actual(%zu)\n", result,
-		     sizeof(gpt_entry_t), bytes_read);
+		VERBOSE("GPT Entry read error(%i) or read mismatch occurred,"
+			"expected(%zu) and actual(%zu)\n", result,
+			sizeof(gpt_entry_t), bytes_read);
 		return -EINVAL;
 	}
 
@@ -240,16 +240,16 @@ static int load_partition_gpt(uintptr_t image_handle,
 
 	result = io_seek(image_handle, IO_SEEK_SET, gpt_entry_offset);
 	if (result != 0) {
-		WARN("Failed to seek (%i), Failed loading GPT partition"
-		     "table entries\n", result);
+		VERBOSE("Failed to seek (%i), Failed loading GPT partition"
+			"table entries\n", result);
 		return result;
 	}
 
 	for (i = 0; i < list.entry_count; i++) {
 		result = load_gpt_entry(image_handle, &entry);
 		if (result != 0) {
-			WARN("Failed to load gpt entry data(%i) error is (%i)\n",
-			     i, result);
+			VERBOSE("Failed to load gpt entry data(%i) error is (%i)\n",
+				i, result);
 			return result;
 		}
 
@@ -259,7 +259,7 @@ static int load_partition_gpt(uintptr_t image_handle,
 		}
 	}
 	if (i == 0) {
-		WARN("No Valid GPT Entries found\n");
+		VERBOSE("No Valid GPT Entries found\n");
 		return -EINVAL;
 	}
 	/*
@@ -287,8 +287,8 @@ static int load_backup_gpt(unsigned int image_id, unsigned int sector_nums)
 
 	result = plat_get_image_source(image_id, &dev_handle, &image_spec);
 	if (result != 0) {
-		WARN("Failed to obtain reference to image id=%u (%i)\n",
-		     image_id, result);
+		VERBOSE("Failed to obtain reference to image id=%u (%i)\n",
+			image_id, result);
 		return result;
 	}
 
@@ -309,7 +309,7 @@ static int load_backup_gpt(unsigned int image_id, unsigned int sector_nums)
 
 	result = io_open(dev_handle, image_spec, &image_handle);
 	if (result != 0) {
-		WARN("Failed to access image id (%i)\n", result);
+		VERBOSE("Failed to access image id (%i)\n", result);
 		return result;
 	}
 
@@ -349,8 +349,8 @@ static int load_primary_gpt(uintptr_t image_handle, unsigned int first_lba)
 	gpt_header_offset = LBA(first_lba);
 	result = load_gpt_header(image_handle, gpt_header_offset, &part_lba);
 	if ((result != 0) || (part_lba == 0)) {
-		WARN("Failed to retrieve Primary GPT header,"
-		     "trying to retrieve back-up GPT header\n");
+		VERBOSE("Failed to retrieve Primary GPT header,"
+			"trying to retrieve back-up GPT header\n");
 		return result;
 	}
 
@@ -368,20 +368,20 @@ int load_partition_table(unsigned int image_id)
 
 	result = plat_get_image_source(image_id, &dev_handle, &image_spec);
 	if (result != 0) {
-		WARN("Failed to obtain reference to image id=%u (%i)\n",
-		     image_id, result);
+		VERBOSE("Failed to obtain reference to image id=%u (%i)\n",
+			image_id, result);
 		return result;
 	}
 
 	result = io_open(dev_handle, image_spec, &image_handle);
 	if (result != 0) {
-		WARN("Failed to access image id=%u (%i)\n", image_id, result);
+		VERBOSE("Failed to access image id=%u (%i)\n", image_id, result);
 		return result;
 	}
 
 	result = load_mbr_header(image_handle, &mbr_entry);
 	if (result != 0) {
-		WARN("Failed to access image id=%u (%i)\n", image_id, result);
+		VERBOSE("Failed to access image id=%u (%i)\n", image_id, result);
 		goto out;
 	}
 	if (mbr_entry.type == PARTITION_TYPE_GPT) {
