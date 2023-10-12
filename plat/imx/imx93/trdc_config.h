@@ -40,6 +40,7 @@ struct trdc_mbc_config trdc_a_mbc[] = {
 	{ 1, 2, 1, MBC_BLK_ALL, 2, true  }, /* MBC1 CM33 system TCM for M33 DID2 */
 
 	{ 0, 3, 0, MBC_BLK_ALL, 0, false }, /* MBC0 AIPS1 for A55 DID3 */
+	{ 0, 3, 0, 79, 0, true }, /* MBC0 AIPS1 BLK_CTRL_S_AONMIX  for A55 DID3 */
 	{ 0, 3, 1, MBC_BLK_ALL, 0, false }, /* MBC0 Sentinel_SOC_In for A55 DID3 */
 	{ 0, 3, 2, MBC_BLK_ALL, 0, false }, /* MBC0 GPIO1 for A55 DID3 */
 	{ 1, 3, 0, MBC_BLK_ALL, 1, false }, /* MBC1 CM33 code TCM for A55 DID3 */
