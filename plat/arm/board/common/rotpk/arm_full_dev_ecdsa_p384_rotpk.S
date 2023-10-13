@@ -4,15 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/* corstone1000 platform provides custom values for the macros defined in
- * arm_def.h , so only platform_def.h needs to be included
- */
-#if !defined(TARGET_PLATFORM_FVP) && !defined(TARGET_PLATFORM_FPGA)
-#include "plat/arm/common/arm_def.h"
-#else
-#include <platform_def.h>
-#endif
-
 	.global arm_rotpk_key
 	.global arm_rotpk_key_end
 
@@ -32,7 +23,3 @@ arm_rotpk_key:
 	.byte 0x22, 0x58, 0x2F, 0x87, 0xF1, 0x6C, 0x27, 0xBE, 0x99, 0x6F, 0x5F
 	.byte 0x6C, 0x14, 0xC5, 0x37, 0x0C, 0x73, 0xB4, 0xE4, 0x8A, 0x63
 arm_rotpk_key_end:
-
-.if ARM_ROTPK_KEY_LEN != arm_rotpk_key_end - arm_rotpk_key
-.error "Invalid ROTPK length."
-.endif
