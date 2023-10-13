@@ -33,9 +33,14 @@ endfunc platform_mem_init
 	 */
 func plat_secondary_cold_boot_setup
 	dsb	sy
+1:
 	wfi
-	/* This shouldn't be reached */
-	b	.
+	/*
+	 * This shouldn't be reached, but when a debugger halts the
+	 * secondary core it causes exit from wfi.
+	 * Put back the core in wfi.
+	 */
+	b	1b
 endfunc plat_secondary_cold_boot_setup
 
 	/* ----------------------------------------------
