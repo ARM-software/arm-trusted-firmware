@@ -46,6 +46,8 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/soc/socfpga_reset_manager.c
 
+$(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
+
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 RESET_TO_BL2			:= 1
 BL2_INV_DCACHE			:= 0

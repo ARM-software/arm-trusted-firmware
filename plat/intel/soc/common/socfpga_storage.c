@@ -55,6 +55,12 @@ static const io_uuid_spec_t bl33_uuid_spec = {
 	.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 };
 
+# if ARM_LINUX_KERNEL_AS_BL33 != 0
+static const io_uuid_spec_t nt_fw_config_uuid_spec = {
+	.uuid = UUID_NT_FW_CONFIG,
+};
+# endif
+
 uintptr_t a2_lba_offset;
 const char a2[] = {0xa2, 0x0};
 
@@ -101,6 +107,13 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t) &bl33_uuid_spec,
 		check_fip
 	},
+# if ARM_LINUX_KERNEL_AS_BL33 != 0
+	[NT_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&nt_fw_config_uuid_spec,
+		check_fip
+	},
+# endif
 	[GPT_IMAGE_ID] = {
 		&boot_dev_handle,
 		(uintptr_t) &gpt_block_spec,

@@ -99,6 +99,10 @@ USE_COHERENT_MEM := 0
 CTX_INCLUDE_AARCH32_REGS := 0
 ERRATA_A55_1530923 := 1
 
+# Don't have the Linux kernel as a BL33 image by default
+ARM_LINUX_KERNEL_AS_BL33	:=	0
+$(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
+$(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
