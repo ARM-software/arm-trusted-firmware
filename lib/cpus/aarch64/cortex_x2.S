@@ -50,7 +50,7 @@ workaround_reset_start cortex_x2, ERRATUM(2058056), ERRATA_X2_2058056
 	CORTEX_X2_CPUECTLR2_EL1_PF_MODE_SHIFT, CORTEX_X2_CPUECTLR2_EL1_PF_MODE_WIDTH
 workaround_reset_end cortex_x2, ERRATUM(2058056)
 
-check_erratum_ls cortex_x2, ERRATUM(2058056), CPU_REV(2, 0)
+check_erratum_ls cortex_x2, ERRATUM(2058056), CPU_REV(2, 1)
 
 workaround_reset_start cortex_x2, ERRATUM(2081180), ERRATA_X2_2081180
 	/* Apply instruction patching sequence */
