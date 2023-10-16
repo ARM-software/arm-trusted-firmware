@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -112,7 +113,12 @@ static int key_create_ecdsa(key_t *key, int key_bits, const char *curve)
 
 static int key_create_ecdsa_nist(key_t *key, int key_bits)
 {
-	return key_create_ecdsa(key, key_bits, "prime256v1");
+	if (key_bits == 384) {
+		return key_create_ecdsa(key, key_bits, "secp384r1");
+	} else {
+		assert(key_bits == 256);
+		return key_create_ecdsa(key, key_bits, "prime256v1");
+	}
 }
 
 static int key_create_ecdsa_brainpool_r(key_t *key, int key_bits)
@@ -154,7 +160,12 @@ err:
 
 static int key_create_ecdsa_nist(key_t *key, int key_bits)
 {
-	return key_create_ecdsa(key, key_bits, NID_X9_62_prime256v1);
+	if (key_bits == 384) {
+		return key_create_ecdsa(key, key_bits, NID_secp384r1);
+	} else {
+		assert(key_bits == 256);
+		return key_create_ecdsa(key, key_bits, NID_X9_62_prime256v1);
+	}
 }
 
 static int key_create_ecdsa_brainpool_r(key_t *key, int key_bits)
