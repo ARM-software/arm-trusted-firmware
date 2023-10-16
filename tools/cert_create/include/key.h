@@ -74,7 +74,7 @@ key_t *key_get_by_opt(const char *opt);
 int key_new(key_t *key);
 #endif
 int key_create(key_t *key, int type, int key_bits);
-int key_load(key_t *key, unsigned int *err_code);
+unsigned int key_load(key_t *key);
 int key_store(key_t *key);
 void key_cleanup(void);
 

@@ -239,38 +239,34 @@ err:
 
 }
 
-int key_load(key_t *key, unsigned int *err_code)
+unsigned int key_load(key_t *key)
 {
-	FILE *fp;
-
-	if (key->fn) {
-		if (!strncmp(key->fn, "pkcs11:", 7)) {
-			/* Load key through pkcs11 */
-			key->key = key_load_pkcs11(key->fn);
-		} else {
-			/* Load key from file */
-			fp = fopen(key->fn, "r");
-			if (fp) {
-				key->key = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
-				fclose(fp);
-			} else {
-				WARN("Cannot open file %s\n", key->fn);
-				*err_code = KEY_ERR_OPEN;
-			}
-		}
-		if (key->key) {
-			*err_code = KEY_ERR_NONE;
-			return 1;
-		} else {
-			ERROR("Cannot load key from %s\n", key->fn);
-			*err_code = KEY_ERR_LOAD;
-		}
-	} else {
+	if (key->fn == NULL) {
 		VERBOSE("Key not specified\n");
-		*err_code = KEY_ERR_FILENAME;
+		return KEY_ERR_FILENAME;
 	}
 
-	return 0;
+	if (strncmp(key->fn, "pkcs11:", 7) == 0) {
+		/* Load key through pkcs11 */
+		key->key = key_load_pkcs11(key->fn);
+	} else {
+		/* Load key from file */
+		FILE *fp = fopen(key->fn, "r");
+		if (fp == NULL) {
+			WARN("Cannot open file %s\n", key->fn);
+			return KEY_ERR_OPEN;
+		}
+
+		key->key = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
+		fclose(fp);
+	}
+
+	if (key->key == NULL) {
+		ERROR("Cannot load key from %s\n", key->fn);
+		return KEY_ERR_LOAD;
+	}
+
+	return KEY_ERR_NONE;
 }
 
 int key_store(key_t *key)
