@@ -137,7 +137,8 @@ static void dcc_console_flush(struct console *console)
 static struct dcc_console dcc_console = {
 	.console = {
 		.flags = CONSOLE_FLAG_BOOT |
-			CONSOLE_FLAG_RUNTIME,
+			CONSOLE_FLAG_RUNTIME |
+			CONSOLE_FLAG_CRASH,
 		.putc = dcc_console_putc,
 #if ENABLE_CONSOLE_GETC
 		.getc = dcc_console_getc,
