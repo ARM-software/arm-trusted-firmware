@@ -178,6 +178,14 @@ workaround_reset_end cortex_a710, ERRATUM(2371105)
 
 check_erratum_ls cortex_a710, ERRATUM(2371105), CPU_REV(2, 0)
 
+workaround_reset_start cortex_a710, ERRATUM(2742423), ERRATA_A710_2742423
+	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
+	sysreg_bit_set CORTEX_A710_CPUACTLR5_EL1, BIT(55)
+	sysreg_bit_clear CORTEX_A710_CPUACTLR5_EL1, BIT(56)
+workaround_reset_end cortex_a710, ERRATUM(2742423)
+
+check_erratum_ls cortex_a710, ERRATUM(2742423), CPU_REV(2, 1)
+
 workaround_runtime_start cortex_a710, ERRATUM(2768515), ERRATA_A710_2768515
 	/* dsb before isb of power down sequence */
 	dsb	sy
