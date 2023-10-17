@@ -118,6 +118,14 @@ workaround_reset_end cortex_x2, ERRATUM(2371105)
 
 check_erratum_ls cortex_x2, ERRATUM(2371105), CPU_REV(2, 0)
 
+workaround_reset_start cortex_x2, ERRATUM(2742423), ERRATA_X2_2742423
+	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
+	sysreg_bit_set CORTEX_X2_CPUACTLR5_EL1, BIT(55)
+	sysreg_bit_clear CORTEX_X2_CPUACTLR5_EL1, BIT(56)
+workaround_reset_end cortex_x2, ERRATUM(2742423)
+
+check_erratum_ls cortex_x2, ERRATUM(2742423), CPU_REV(2, 1)
+
 workaround_reset_start cortex_x2, ERRATUM(2768515), ERRATA_X2_2768515
 	/* dsb before isb of power down sequence */
 	dsb	sy
