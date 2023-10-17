@@ -748,6 +748,10 @@ CPU_FLAG_LIST += ERRATA_X2_2371105
 # and is still open.
 CPU_FLAG_LIST += ERRATA_X2_2701952
 
+# Flag to apply erratum 2742423 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_X2_2742423
+
 # Flag to apply erratum 2768515 workaround during power down. This erratum
 # applies to revision r0p0, r1p0, r2p0 and r2p1 of the Cortex-X2 cpu and is
 # still open.
