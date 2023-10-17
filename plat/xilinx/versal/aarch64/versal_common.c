@@ -73,3 +73,8 @@ void board_detection(void)
 	platform_id = FIELD_GET(PLATFORM_MASK, plat_info[1]);
 	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, plat_info[1]);
 }
+
+uint32_t get_uart_clk(void)
+{
+	return UART_CLOCK;
+}

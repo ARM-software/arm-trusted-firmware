@@ -88,6 +88,30 @@ void board_detection(void)
 	      platform_version / 10U, platform_version % 10U);
 }
 
+uint32_t get_uart_clk(void)
+{
+	uint32_t uart_clock;
+
+	switch (platform_id) {
+	case VERSAL_NET_SPP:
+		uart_clock = 1000000;
+		break;
+	case VERSAL_NET_EMU:
+		uart_clock = 25000000;
+		break;
+	case VERSAL_NET_QEMU:
+		uart_clock = 25000000;
+		break;
+	case VERSAL_NET_SILICON:
+		uart_clock = 100000000;
+		break;
+	default:
+		panic();
+	}
+
+	return uart_clock;
+}
+
 void versal_net_config_setup(void)
 {
 	uint32_t val;
