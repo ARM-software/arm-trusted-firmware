@@ -185,7 +185,7 @@ ENABLE_SYS_REG_TRACE_FOR_NS		?=	0
 ifeq (${ARCH},aarch64)
        ENABLE_SPE_FOR_NS		?=	2
 else ifeq (${ARCH},aarch32)
-       ifdef ENABLE_SPE_FOR_NS
+       ifneq ($(or $(ENABLE_SPE_FOR_NS),0),0)
               $(error ENABLE_SPE_FOR_NS is not supported for AArch32)
        else
               ENABLE_SPE_FOR_NS		:=	0
@@ -197,7 +197,7 @@ ifeq (${ARCH},aarch64)
        ENABLE_SVE_FOR_NS		?=	2
 # SVE is only supported on AArch64 so disable it on AArch32.
 else ifeq (${ARCH},aarch32)
-       ifdef ENABLE_SVE_FOR_NS
+       ifneq ($(or $(ENABLE_SVE_FOR_NS),0),0)
               $(error ENABLE_SVE_FOR_NS is not supported for AArch32)
        else
               ENABLE_SVE_FOR_NS 	:=	0
@@ -303,10 +303,10 @@ ENABLE_SVE_FOR_SWD			?=	0
 ifeq (${ARCH},aarch64)
         ENABLE_TRBE_FOR_NS		?=	0
 else ifeq (${ARCH},aarch32)
-        ifdef ENABLE_TRBE_FOR_NS
-                $(error ENABLE_TRBE_FOR_NS is not supported for AArch32)
+        ifneq ($(or $(ENABLE_TRBE_FOR_NS),0),0)
+               $(error ENABLE_TRBE_FOR_NS is not supported for AArch32)
         else
-                ENABLE_TRBE_FOR_NS 	:=	0
+               ENABLE_TRBE_FOR_NS 	:=	0
         endif
 endif
 
