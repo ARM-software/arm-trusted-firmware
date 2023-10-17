@@ -661,9 +661,13 @@ CPU_FLAG_LIST += ERRATA_N2_2242400
 # to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2280757
 
-# Flag to apply erraturm 2326639 workaroud during powerdown. This erratum
+# Flag to apply erratum 2326639 workaroud during powerdown. This erratum
 # applies to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_N2_2326639
+
+# Flag to apply erratum 2340933 workaroud during reset. This erratum
+# applies to revision r0p0 of the Neoverse N2 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_N2_2340933
 
 # Flag to apply erratum 2346952 workaround during reset. This erratum applies
 # to r0p0, r0p1, r0p2 of the Neoverse N2 cpu, it is fixed in r0p3.
