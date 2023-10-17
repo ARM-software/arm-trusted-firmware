@@ -29,6 +29,13 @@ workaround_reset_end neoverse_v2, ERRATUM(2331132)
 
 check_erratum_ls neoverse_v2, ERRATUM(2331132), CPU_REV(0, 2)
 
+workaround_reset_start neoverse_v2, ERRATUM(2662553), ERRATA_V2_2662553
+	sysreg_bitfield_insert NEOVERSE_V2_CPUECTLR2_EL1, NEOVERSE_V2_CPUECTLR2_EL1_TXREQ_STATIC_FULL, \
+		NEOVERSE_V2_CPUECTLR2_EL1_TXREQ_LSB, NEOVERSE_V2_CPUECTLR2_EL1_TXREQ_WIDTH
+workaround_reset_end neoverse_v2, ERRATUM(2662553)
+
+check_erratum_ls neoverse_v2, ERRATUM(2662553), CPU_REV(0, 1)
+
 workaround_reset_start neoverse_v2, ERRATUM(2719105), ERRATA_V2_2719105
 	sysreg_bit_set NEOVERSE_V2_CPUACTLR2_EL1, NEOVERSE_V2_CPUACTLR2_EL1_BIT_0
 workaround_reset_end neoverse_v2, ERRATUM(2719105)
