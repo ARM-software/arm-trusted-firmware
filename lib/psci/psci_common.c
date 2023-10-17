@@ -665,6 +665,8 @@ int psci_validate_state_coordination(unsigned int end_pwrlvl,
 			}
 			goto exit;
 		}
+
+		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
 
 	/*
