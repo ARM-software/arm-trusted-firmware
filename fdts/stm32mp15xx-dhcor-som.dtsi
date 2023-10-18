@@ -4,6 +4,7 @@
  * Author: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  * Copyright (C) 2020 Marek Vasut <marex@denx.de>
  * Copyright (C) 2022 DH electronics GmbH
+ * Copyright (C) 2023, STMicroelectronics - All Rights Reserved
  */
 
 #include "stm32mp15-pinctrl.dtsi"
@@ -164,7 +165,9 @@
 
 &qspi {
 	pinctrl-names = "default";
-	pinctrl-0 = <&qspi_clk_pins_a &qspi_bk1_pins_a>;
+	pinctrl-0 = <&qspi_clk_pins_a
+		     &qspi_bk1_pins_a
+		     &qspi_cs1_pins_a>;
 	reg = <0x58003000 0x1000>, <0x70000000 0x200000>;
 	#address-cells = <1>;
 	#size-cells = <0>;

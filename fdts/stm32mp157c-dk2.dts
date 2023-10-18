@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2019 - All Rights Reserved
+ * Copyright (C) 2019-2023, STMicroelectronics - All Rights Reserved
  * Author: Alexandre Torgue <alexandre.torgue@st.com> for STMicroelectronics.
  */
 
@@ -17,9 +17,6 @@
 	compatible = "st,stm32mp157c-dk2", "st,stm32mp157";
 
 	aliases {
-		serial0 = &uart4;
-		serial1 = &usart3;
-		serial2 = &uart7;
 		serial3 = &usart2;
 	};
 

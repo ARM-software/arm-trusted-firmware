@@ -67,7 +67,7 @@
 		      <0x0 0x4ac60000 0x0 0x2000>;
 	};
 
-	timer: timer {
+	timer {
 		compatible = "arm,armv8-timer";
 		interrupt-parent = <&intc>;
 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,

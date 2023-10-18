@@ -427,7 +427,7 @@ enum ddr_type {
 
 /* OTP labels */
 #define CFG0_OTP			"cfg0_otp"
-#define PART_NUMBER_OTP			"part_number_otp"
+#define PART_NUMBER_OTP			"part-number-otp"
 #if STM32MP15
 #define PACKAGE_OTP			"package_otp"
 #endif
