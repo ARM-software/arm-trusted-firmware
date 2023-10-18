@@ -422,6 +422,15 @@ Granule Protection Tables Library (GPT-RME)
 :|F|: lib/gpt_rme
 :|F|: include/lib/gpt_rme
 
+Firmware Handoff Library (Transfer List)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Raymond Mao <raymond.mao@linaro.org>
+:|G|: `raymo200915`_
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|G|: `harrisonmutai-arm`_
+:|F|: lib/transfer_list
+:|F|: include/lib/transfer_list.h
+
 Platform Ports
 ~~~~~~~~~~~~~~
 
@@ -1028,3 +1037,5 @@ Conventional Changelog Extensions
 .. _rutigl: https://github.com/rutigl
 .. _avifishman: https://github.com/avifishman
 .. _xueliang-zhong-arm: https://github.com/xueliang-zhong-arm
+.. _raymo200915: https://github.com/raymo200915
+.. _harrisonmutai-arm: https://github.com/harrisonmutai-arm
