@@ -16,3 +16,8 @@ void bl2_platform_setup(void)
 {
 	arm_bl2_platform_setup();
 }
+
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	return arm_bl2_plat_handle_post_image_load(image_id);
+}

@@ -39,3 +39,8 @@ void bl2_platform_setup(void)
 	generic_delay_timer_init();
 #endif /* USE_SP804_TIMER */
 }
+
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	return arm_bl2_plat_handle_post_image_load(image_id);
+}
