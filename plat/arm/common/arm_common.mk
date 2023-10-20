@@ -331,9 +331,11 @@ endif
 ifeq (${ARCH}, aarch64)
 BL31_SOURCES		+=	plat/arm/common/aarch64/execution_state_switch.c\
 				plat/arm/common/arm_sip_svc.c			\
+				plat/arm/common/plat_arm_sip_svc.c		\
 				${ARM_SVC_HANDLER_SRCS}
 else
 BL32_SOURCES		+=	plat/arm/common/arm_sip_svc.c			\
+				plat/arm/common/plat_arm_sip_svc.c		\
 				${ARM_SVC_HANDLER_SRCS}
 endif
 endif

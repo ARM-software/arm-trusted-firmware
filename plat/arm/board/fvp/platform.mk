@@ -28,6 +28,9 @@ FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 # the FVP platform. This option defaults to 256.
 FVP_TRUSTED_SRAM_SIZE	:= 256
 
+# Macro to enable helpers for running SPM tests. Disabled by default.
+PLAT_TEST_SPM	:= 0
+
 # This is a very trickly TEMPORARY fix. Enabling ALL features exceeds BL31's
 # progbits limit. We need a way to build all useful configurations while waiting
 # on the fvp to increase its SRAM size. The problem is twofild:
@@ -535,3 +538,6 @@ endif
 ifeq (${ERRATA_ABI_SUPPORT}, 1)
 include plat/arm/board/fvp/fvp_cpu_errata.mk
 endif
+
+# Build macro necessary for running SPM tests on FVP platform
+$(eval $(call add_define,PLAT_TEST_SPM))

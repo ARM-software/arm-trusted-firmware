@@ -35,6 +35,11 @@
 			load_address = <0x7000000>;
 			vcpu_count = <8>;
 			mem_size = <1048576>;
+			/*
+			 * Platform specific SiP SMC call handled at EL3. Used
+			 * to pend an interrupt for testing purpose.
+			 */
+			smc_whitelist = <0x82000100>;
 		};
 		vm2 {
 			is_ffa_partition;

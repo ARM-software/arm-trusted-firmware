@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019,2021-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019,2021-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,5 +34,22 @@
 /* ARM SiP Service Calls version numbers */
 #define ARM_SIP_SVC_VERSION_MAJOR		U(0x0)
 #define ARM_SIP_SVC_VERSION_MINOR		U(0x2)
+
+/*
+ * Arm SiP SMC calls that are primarily used for testing purposes.
+ */
+#if PLAT_TEST_SPM
+#define ARM_SIP_SET_INTERRUPT_PENDING	U(0x82000100)
+#endif
+
+/* SiP handler specific to each Arm platform. */
+uintptr_t plat_arm_sip_handler(uint32_t smc_fid,
+				u_register_t x1,
+				u_register_t x2,
+				u_register_t x3,
+				u_register_t x4,
+				void *cookie,
+				void *handle,
+				u_register_t flags);
 
 #endif /* ARM_SIP_SVC_H */
