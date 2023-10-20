@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+toolchains := aarch64
+
+include ../../../make_helpers/toolchain.mk
+
 ###################################################
 # makefile
 ###################################################

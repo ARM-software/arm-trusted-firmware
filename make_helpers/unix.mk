@@ -57,4 +57,7 @@ ${1} : ${2}
 	-${Q}rm -rf  "${1}"
     endef
 
+    nul := /dev/null
+
+    which = $(shell which $(1) 2>$(nul))
 endif

@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+toolchains := rk3399-m0
+
+include ../../../../../make_helpers/toolchain.mk
+
 # Cross Compile
 M0_CROSS_COMPILE ?= arm-none-eabi-
 
