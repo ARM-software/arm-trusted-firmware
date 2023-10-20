@@ -7,6 +7,7 @@
 #include <assert.h>
 
 #include <drivers/generic_delay_timer.h>
+#include <drivers/partition/partition.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -94,7 +95,15 @@ void arm_bl2_el3_plat_arch_setup(void)
 
 void bl2_el3_plat_arch_setup(void)
 {
+	int __maybe_unused ret;
 	arm_bl2_el3_plat_arch_setup();
+#if ARM_GPT_SUPPORT
+	ret = gpt_partition_init();
+	if (ret != 0) {
+		ERROR("GPT partition initialisation failed!\n");
+		panic();
+	}
+#endif /* ARM_GPT_SUPPORT */
 }
 
 void bl2_el3_plat_prepare_exit(void)
