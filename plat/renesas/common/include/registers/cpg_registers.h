@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,7 @@
 #define CPG_SRCR2	(CPG_BASE + 0x00B0U)
 /* CPG module stop status 2 */
 #define CPG_MSTPSR2	(CPG_BASE + 0x0040U)
-/* CPG module stop status 2 */
+/* CPG module stop status 3 */
 #define CPG_MSTPSR3	(CPG_BASE + 0x0048U)
 /* CPG write protect */
 #define CPG_CPGWPR	(CPG_BASE + 0x0900U)
