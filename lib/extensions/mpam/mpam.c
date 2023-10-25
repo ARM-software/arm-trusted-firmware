@@ -11,14 +11,19 @@
 #include <arch_helpers.h>
 #include <lib/extensions/mpam.h>
 
-void mpam_init_el3(void)
+void mpam_enable(cpu_context_t *context)
 {
+	u_register_t mpam3_el3;
+
+	mpam3_el3 = read_ctx_reg(get_el3state_ctx(context), CTX_MPAM3_EL3);
+
 	/*
 	 * Enable MPAM, and disable trapping to EL3 when lower ELs access their
-	 * own MPAM registers.
+	 * own MPAM registers
 	 */
-	write_mpam3_el3(MPAM3_EL3_MPAMEN_BIT);
-
+	mpam3_el3 = (mpam3_el3 | MPAM3_EL3_MPAMEN_BIT) &
+				~(MPAM3_EL3_TRAPLOWER_BIT);
+	write_ctx_reg(get_el3state_ctx(context), CTX_MPAM3_EL3, mpam3_el3);
 }
 
 /*

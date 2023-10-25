@@ -106,7 +106,7 @@ ifneq (${ENABLE_SVE_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/sve/sve.c
 endif
 
-ifneq (${ENABLE_MPAM_FOR_LOWER_ELS},0)
+ifneq (${ENABLE_FEAT_MPAM},0)
 BL31_SOURCES		+=	lib/extensions/mpam/mpam.c
 endif
 

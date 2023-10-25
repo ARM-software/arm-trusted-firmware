@@ -159,7 +159,7 @@ static inline unsigned int read_feat_mpam_version(void)
 }
 
 CREATE_FEATURE_FUNCS_VER(feat_mpam, read_feat_mpam_version, 1U,
-			 ENABLE_MPAM_FOR_LOWER_ELS)
+			 ENABLE_FEAT_MPAM)
 
 /* FEAT_HCX: Extended Hypervisor Configuration Register */
 CREATE_FEATURE_FUNCS(feat_hcx, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HCX_SHIFT,

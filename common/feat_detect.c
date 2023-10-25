@@ -169,7 +169,7 @@ void detect_arch_features(void)
 	check_feature(ENABLE_FEAT_DIT, read_feat_dit_id_field(), "DIT", 1, 1);
 	check_feature(ENABLE_FEAT_AMU, read_feat_amu_id_field(),
 		      "AMUv1", 1, 2);
-	check_feature(ENABLE_MPAM_FOR_LOWER_ELS, read_feat_mpam_version(),
+	check_feature(ENABLE_FEAT_MPAM, read_feat_mpam_version(),
 		      "MPAM", 1, 17);
 	check_feature(CTX_INCLUDE_NEVE_REGS, read_feat_nv_id_field(),
 		      "NV2", 2, 2);
