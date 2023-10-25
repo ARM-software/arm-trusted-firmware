@@ -142,8 +142,6 @@ void bl2_el3_early_platform_setup(u_register_t arg0,
 				  u_register_t arg2 __unused,
 				  u_register_t arg3 __unused)
 {
-	stm32mp_setup_early_console();
-
 	stm32mp_save_boot_ctx_address(arg0);
 }
 
