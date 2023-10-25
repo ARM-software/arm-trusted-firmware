@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2022 - All Rights Reserved
+ * Copyright (C) 2022-2023, STMicroelectronics - All Rights Reserved
  * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for STMicroelectronics.
  */
 #include <dt-bindings/clock/stm32mp13-clks.h>
@@ -276,23 +276,20 @@
 		};
 
 		fmc: memory-controller@58002000 {
-			#address-cells = <2>;
-			#size-cells = <1>;
 			compatible = "st,stm32mp1-fmc2-ebi";
 			reg = <0x58002000 0x1000>;
-			clocks = <&rcc FMC_K>;
-			resets = <&rcc FMC_R>;
-			status = "disabled";
-
 			ranges = <0 0 0x60000000 0x04000000>, /* EBI CS 1 */
 				 <1 0 0x64000000 0x04000000>, /* EBI CS 2 */
 				 <2 0 0x68000000 0x04000000>, /* EBI CS 3 */
 				 <3 0 0x6c000000 0x04000000>, /* EBI CS 4 */
 				 <4 0 0x80000000 0x10000000>; /* NAND */
+			#address-cells = <2>;
+			#size-cells = <1>;
+			clocks = <&rcc FMC_K>;
+			resets = <&rcc FMC_R>;
+			status = "disabled";
 
 			nand-controller@4,0 {
-				#address-cells = <1>;
-				#size-cells = <0>;
 				compatible = "st,stm32mp1-fmc2-nfc";
 				reg = <4 0x00000000 0x1000>,
 				      <4 0x08010000 0x1000>,
@@ -300,6 +297,8 @@
 				      <4 0x01000000 0x1000>,
 				      <4 0x09010000 0x1000>,
 				      <4 0x09020000 0x1000>;
+				#address-cells = <1>;
+				#size-cells = <0>;
 				interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
 				status = "disabled";
 			};
@@ -341,7 +340,7 @@
 			status = "disabled";
 		};
 
-		usbh_ohci: usbh-ohci@5800c000 {
+		usbh_ohci: usb@5800c000 {
 			compatible = "generic-ohci";
 			reg = <0x5800c000 0x1000>;
 			clocks = <&rcc USBH>;
@@ -350,7 +349,7 @@
 			status = "disabled";
 		};
 
-		usbh_ehci: usbh-ehci@5800d000 {
+		usbh_ehci: usb@5800d000 {
 			compatible = "generic-ehci";
 			reg = <0x5800d000 0x1000>;
 			clocks = <&rcc USBH>;
@@ -424,7 +423,7 @@
 			cfg0_otp: cfg0_otp@0 {
 				reg = <0x0 0x2>;
 			};
-			part_number_otp: part_number_otp@4 {
+			part_number_otp: part-number-otp@4 {
 				reg = <0x4 0x2>;
 			};
 			monotonic_otp: monotonic_otp@10 {
@@ -470,7 +469,6 @@
 			ranges = <0 0x50002000 0x8400>;
 			interrupt-parent = <&exti>;
 			st,syscfg = <&exti 0x60 0xff>;
-			pins-are-numbered;
 
 			gpioa: gpio@50002000 {
 				gpio-controller;

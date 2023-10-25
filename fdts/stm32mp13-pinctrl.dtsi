@@ -6,6 +6,7 @@
 #include <dt-bindings/pinctrl/stm32-pinfunc.h>
 
 &pinctrl {
+	/omit-if-no-ref/
 	i2c4_pins_a: i2c4-0 {
 		pins {
 			pinmux = <STM32_PINMUX('E', 15, AF6)>, /* I2C4_SCL */
@@ -16,6 +17,7 @@
 		};
 	};
 
+	/omit-if-no-ref/
 	sdmmc1_b4_pins_a: sdmmc1-b4-0 {
 		pins {
 			pinmux = <STM32_PINMUX('C', 8, AF12)>, /* SDMMC1_D0 */
@@ -29,6 +31,7 @@
 		};
 	};
 
+	/omit-if-no-ref/
 	sdmmc1_clk_pins_a: sdmmc1-clk-0 {
 		pins {
 			pinmux = <STM32_PINMUX('C', 12, AF12)>; /* SDMMC1_CK */
@@ -38,6 +41,7 @@
 		};
 	};
 
+	/omit-if-no-ref/
 	sdmmc2_b4_pins_a: sdmmc2-b4-0 {
 		pins {
 			pinmux = <STM32_PINMUX('B', 14, AF10)>, /* SDMMC2_D0 */
@@ -51,6 +55,7 @@
 		};
 	};
 
+	/omit-if-no-ref/
 	sdmmc2_clk_pins_a: sdmmc2-clk-0 {
 		pins {
 			pinmux = <STM32_PINMUX('E', 3, AF10)>; /* SDMMC2_CK */
@@ -60,6 +65,7 @@
 		};
 	};
 
+	/omit-if-no-ref/
 	uart4_pins_a: uart4-0 {
 		pins1 {
 			pinmux = <STM32_PINMUX('D', 6, AF8)>; /* UART4_TX */
@@ -73,6 +79,7 @@
 		};
 	};
 
+	/omit-if-no-ref/
 	usart1_pins_a: usart1-0 {
 		pins1 {
 			pinmux = <STM32_PINMUX('C', 0, AF7)>, /* USART1_TX */
@@ -88,6 +95,7 @@
 		};
 	};
 
+	/omit-if-no-ref/
 	uart8_pins_a: uart8-0 {
 		pins1 {
 			pinmux = <STM32_PINMUX('E', 1, AF8)>; /* UART8_TX */

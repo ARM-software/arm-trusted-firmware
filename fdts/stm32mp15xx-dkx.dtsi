@@ -8,6 +8,12 @@
 #include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
 
 / {
+	aliases {
+		serial0 = &uart4;
+		serial1 = &usart3;
+		serial2 = &uart7;
+	};
+
 	memory@c0000000 {
 		device_type = "memory";
 		reg = <0xc0000000 0x20000000>;
