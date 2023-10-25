@@ -72,7 +72,7 @@ tf-a-%.bin: tf-a-%.elf
 tf-a-%.stm32: tf-a-%.bin ${STM32_DEPS}
 	@echo
 	@echo "Generate $@"
-	$(eval LOADADDR = $(shell cat $(@:.stm32=.map) | grep RAM | awk '{print $$2}'))
+	$(eval LOADADDR = $(shell cat $(@:.stm32=.map) | grep '^RAM' | awk '{print $$2}'))
 	$(eval ENTRY = $(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
 	${Q}${STM32IMAGE} -s $< -d $@ \
 		-l $(LOADADDR) -e ${ENTRY} \
