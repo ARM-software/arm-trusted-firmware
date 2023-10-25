@@ -2332,6 +2332,16 @@ static int stm32_clk_parse_fdt(struct stm32_clk_platdata *pdata)
 	return 0;
 }
 
+void stm32mp1_clk_rcc_regs_lock(void)
+{
+	clk_stm32_rcc_regs_lock();
+}
+
+void stm32mp1_clk_rcc_regs_unlock(void)
+{
+	clk_stm32_rcc_regs_unlock();
+}
+
 int stm32mp1_clk_init(void)
 {
 	int ret;

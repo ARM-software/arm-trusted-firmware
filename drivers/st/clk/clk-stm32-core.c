@@ -28,7 +28,7 @@ struct stm32_clk_priv *clk_stm32_get_priv(void)
 	return stm32_clock_data;
 }
 
-static void stm32mp1_clk_lock(struct spinlock *lock)
+static void _clk_lock(struct spinlock *lock)
 {
 	if (stm32mp_lock_available()) {
 		/* Assume interrupts are masked */
@@ -36,21 +36,21 @@ static void stm32mp1_clk_lock(struct spinlock *lock)
 	}
 }
 
-static void stm32mp1_clk_unlock(struct spinlock *lock)
+static void _clk_unlock(struct spinlock *lock)
 {
 	if (stm32mp_lock_available()) {
 		spin_unlock(lock);
 	}
 }
 
-void stm32mp1_clk_rcc_regs_lock(void)
+void clk_stm32_rcc_regs_lock(void)
 {
-	stm32mp1_clk_lock(&reg_lock);
+	_clk_lock(&reg_lock);
 }
 
-void stm32mp1_clk_rcc_regs_unlock(void)
+void clk_stm32_rcc_regs_unlock(void)
 {
-	stm32mp1_clk_unlock(&reg_lock);
+	_clk_unlock(&reg_lock);
 }
 
 #define TIMEOUT_US_1S	U(1000000)
@@ -571,9 +571,9 @@ int _clk_stm32_enable(struct stm32_clk_priv *priv, int id)
 {
 	int ret;
 
-	stm32mp1_clk_lock(&refcount_lock);
+	_clk_lock(&refcount_lock);
 	ret = _clk_stm32_enable_core(priv, id);
-	stm32mp1_clk_unlock(&refcount_lock);
+	_clk_unlock(&refcount_lock);
 
 	return ret;
 }
@@ -619,11 +619,11 @@ static void _clk_stm32_disable_core(struct stm32_clk_priv *priv, int id)
 
 void _clk_stm32_disable(struct stm32_clk_priv *priv, int id)
 {
-	stm32mp1_clk_lock(&refcount_lock);
+	_clk_lock(&refcount_lock);
 
 	_clk_stm32_disable_core(priv, id);
 
-	stm32mp1_clk_unlock(&refcount_lock);
+	_clk_unlock(&refcount_lock);
 }
 
 bool _clk_stm32_is_enabled(struct stm32_clk_priv *priv, int id)
