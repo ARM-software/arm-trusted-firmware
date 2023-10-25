@@ -137,6 +137,7 @@ static inline bool is_feat_twed_supported(void) { return false; }
 static inline bool is_feat_ecv_supported(void) { return false; }
 static inline bool is_feat_ecv_v2_supported(void) { return false; }
 static inline bool is_feat_csv2_2_supported(void) { return false; }
+static inline bool is_feat_csv2_3_supported(void) { return false; }
 static inline bool is_feat_ras_supported(void) { return false; }
 
 /* The following features are supported in AArch64 only. */

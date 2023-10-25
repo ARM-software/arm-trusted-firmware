@@ -169,6 +169,10 @@ ENABLE_FEAT_TCR2		?=	0
 # Flag to enable CSV2_2 extension.
 ENABLE_FEAT_CSV2_2			?=	0
 
+# Flag to enable CSV2_3 extension. FEAT_CSV2_3 enables access to the
+# SCXTNUM_ELx register.
+ENABLE_FEAT_CSV2_3			?=	0
+
 # By default, disable access of trace system registers from NS lower
 # ELs  i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused if
 # system register trace is implemented. This feature is available if
