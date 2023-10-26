@@ -13,7 +13,7 @@ BL2_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_dev_rotpk.S
-ifneq (${ARM_CRYPTOCELL_INTEG}, 1)
+
 # ROTPK hash location
 ifeq (${ARM_ROTPK_LOCATION}, regs)
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_REGS_ID
@@ -79,13 +79,7 @@ NTFW_NVCTR_VAL	?=	223
 # On others, we mock it by aliasing it to the Trusted Firmware Non-Volatile counter,
 # hence we set both counters to the same default value.
 CCAFW_NVCTR_VAL	?=	31
-else
-# Certificate NV-Counters when CryptoCell is integrated. For development
-# platforms we set the counter to first valid value.
-TFW_NVCTR_VAL	?=	0
-NTFW_NVCTR_VAL	?=	0
-CCAFW_NVCTR_VAL	?=	0
-endif
+
 BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \
 				${ARM_ROTPK_S}
 BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \

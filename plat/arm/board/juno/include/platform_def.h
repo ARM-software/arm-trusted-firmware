@@ -32,9 +32,6 @@
 #define PLATFORM_CORE_COUNT		(JUNO_CLUSTER0_CORE_COUNT + \
 					JUNO_CLUSTER1_CORE_COUNT)
 
-/* Cryptocell HW Base address */
-#define PLAT_CRYPTOCELL_BASE		UL(0x60050000)
-
 /*
  * Other platform porting definitions are provided by included headers
  */

@@ -105,9 +105,6 @@ void arm_bl1_plat_arch_setup(void)
 		ARM_MAP_ROMLIB_CODE,
 		ARM_MAP_ROMLIB_DATA,
 #endif
-#if ARM_CRYPTOCELL_INTEG
-		ARM_MAP_BL_COHERENT_RAM,
-#endif
 		/* DRAM1_region: */
 		MAP_REGION_FLAT(
 			PLAT_ARM_DRAM1_BASE,
