@@ -39,11 +39,17 @@ prefix:
 	 * ---------------------------------------------
 	 */
 	.macro arm_print_gic_regs
-	/* Check for GICv3 system register access */
+	/* Check for GICv3/v4 system register access.
+	 * ID_AA64PFR0_GIC indicates presence of the CPU
+	 * system registers by either 0b0011 or 0xb0001.
+	 * A value of 0b000 means CPU system registers aren't
+	 * available and the code needs to use the memory
+	 * mapped registers like in GICv2.
+	 */
 	mrs	x7, id_aa64pfr0_el1
 	ubfx	x7, x7, #ID_AA64PFR0_GIC_SHIFT, #ID_AA64PFR0_GIC_WIDTH
-	cmp	x7, #1
-	b.ne	print_gicv2
+	cmp	x7, #0
+	b.eq	print_gicv2
 
 	/* Check for SRE enable */
 	mrs	x8, ICC_SRE_EL3
