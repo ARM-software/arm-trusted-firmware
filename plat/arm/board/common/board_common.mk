@@ -12,7 +12,7 @@ BL1_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 BL2_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
-ifneq (${ARM_CRYPTOCELL_INTEG}, 1)
+
 # ROTPK hash location
 ifeq (${ARM_ROTPK_LOCATION}, regs)
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_REGS_ID
@@ -60,12 +60,7 @@ endif
 # ARM development platforms
 TFW_NVCTR_VAL	?=	31
 NTFW_NVCTR_VAL	?=	223
-else
-# Certificate NV-Counters when CryptoCell is integrated. For development
-# platforms we set the counter to first valid value.
-TFW_NVCTR_VAL	?=	0
-NTFW_NVCTR_VAL	?=	0
-endif
+
 BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \
 				plat/arm/board/common/rotpk/arm_dev_rotpk.S
 BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \

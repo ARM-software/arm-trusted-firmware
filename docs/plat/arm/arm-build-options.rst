@@ -86,11 +86,6 @@ Arm Platform Build Options
    of the translation tables library instead of version 2. It is set to 0 by
    default, which selects version 2.
 
--  ``ARM_CRYPTOCELL_INTEG`` : bool option to enable TF-A to invoke Arm®
-   TrustZone® CryptoCell functionality for Trusted Board Boot on capable Arm
-   platforms. If this option is specified, then the path to the CryptoCell
-   SBROM library must be specified via ``CCSBROM_LIB_PATH`` flag.
-
 -  ``ARM_ETHOSN_NPU_DRIVER``: boolean option to enable a SiP service that can
    configure an Arm® Ethos™-N NPU. To use this service the target platform's
    ``HW_CONFIG`` must include the device tree nodes for the NPU. Currently, only

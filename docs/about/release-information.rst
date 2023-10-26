@@ -73,6 +73,21 @@ after which it will be removed.
 |                                |             | 2.8     |                                                         |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 
+Removal of Deprecated Drivers
+-----------------------------
+
+As mentioned in the :ref:`Platform Ports Policy`, this is a live document
+cataloging all the deprecated drivers in TF-A project and the Release version
+after which it will be removed.
+
++--------------------------------+-------------+---------+---------------------------------------------------------+
+| Driver                         | Deprecation | Removed | Comments                                                |
+|                                | Date        | after   |                                                         |
+|                                |             | Release |                                                         |
++================================+=============+=========+=========================================================+
+| None at this time.             |             |         |                                                         |
++--------------------------------+-------------+---------+---------------------------------------------------------+
+
 --------------
 
 *Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.*
