@@ -20,7 +20,7 @@ typedef struct versal_intr_info_type_el3 {
 void versal_net_config_setup(void);
 uint32_t get_uart_clk(void);
 
-const mmap_region_t *plat_versal_net_get_mmap(void);
+const mmap_region_t *plat_get_mmap(void);
 
 void plat_versal_net_gic_driver_init(void);
 void plat_versal_net_gic_init(void);

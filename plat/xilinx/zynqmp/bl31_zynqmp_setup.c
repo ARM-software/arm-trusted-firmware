@@ -219,6 +219,6 @@ void bl31_plat_arch_setup(void)
 
 	custom_mmap_add();
 
-	setup_page_tables(bl_regions, plat_arm_get_mmap());
+	setup_page_tables(bl_regions, plat_get_mmap());
 	enable_mmu_el3(0);
 }

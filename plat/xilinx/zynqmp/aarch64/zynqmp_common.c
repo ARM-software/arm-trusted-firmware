@@ -27,12 +27,17 @@
  * This doesn't include TZRAM as the 'mem_layout' argument passed to
  * configure_mmu_elx() will give the available subset of that,
  */
-const mmap_region_t plat_arm_mmap[] = {
+const mmap_region_t plat_zynqmp_mmap[] = {
 	{ DEVICE0_BASE, DEVICE0_BASE, DEVICE0_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
 	{ DEVICE1_BASE, DEVICE1_BASE, DEVICE1_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
 	{ CRF_APB_BASE, CRF_APB_BASE, CRF_APB_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
 	{0}
 };
+
+const mmap_region_t *plat_get_mmap(void)
+{
+	return plat_zynqmp_mmap;
+}
 
 static uint32_t zynqmp_get_silicon_ver(void)
 {

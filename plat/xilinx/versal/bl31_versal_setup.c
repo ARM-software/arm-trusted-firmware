@@ -218,6 +218,6 @@ void bl31_plat_arch_setup(void)
 		{0}
 	};
 
-	setup_page_tables(bl_regions, plat_versal_get_mmap());
+	setup_page_tables(bl_regions, plat_get_mmap());
 	enable_mmu(0);
 }
