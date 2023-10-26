@@ -3,6 +3,49 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.10](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.9..refs/tags/lts-v2.8.10) (2023-10-24)
+
+### Miscellaneous
+
+- **Documentation**
+
+  - reformat sphinx configuration ([6996249](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6996249b5651083a837ca397db34ae21c003a315))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - increase BL2 size for CRYPTO_SUPPORT & ROMLIB ([dcb497f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dcb497f33a60f1302ddf8931f241673fafe9214a))
+
+- **Documentation**
+
+  - add a build.tools.python entry ([688ca84](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/688ca84d3f0254592a654da07328160771b8750c))
+  - add missing click dependency ([7b51cb7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7b51cb7ae17ff8bf7f7ea31a976a8c21efc117a7))
+  - add plantuml as a dependency ([599ca0e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/599ca0e970550980d07853c2a273c49f90b283cb))
+  - add readthedocs configuration file ([e9c63eb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e9c63eba3ab888b002707f4a091c920c77c4350f))
+  - fix build errors for latexpdf ([3cc3413](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3cc34130f6a131c31ee4fea559b153a873549062))
+  - pin poetry to version used in CI ([7711c80](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7711c80124da759d4cd8e86ee1eca2bb940d90c3))
+  - python version must be string ([d853a38](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d853a38dd0656b52d87f95bd31c125c724fe2737))
+  - specify python version to 3.10 ([6c43474](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6c43474742d6e73aa31a0e1e212e967c237561a9))
+  - use rsvg-convert as the conversion backend ([ea884b9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ea884b9921a7c3c6e4337c9e28303a5244b5b9b0))
+
+### New Features
+
+- **Libraries**
+
+  - **C Standard Library**
+
+    - add %c to printf/snprintf ([55b2443](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/55b2443449020fd7b0328ae47088abd581b84bcf))
+
+- **Documentation**
+
+  - add support for poetry ([3921cfe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3921cfe18b24ebaaaf50cf1d9ff595472e87f9a0))
+  - update Mbed-TLS version to v2.28.5 ([7084697](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7084697f196beaa02b6769893b11d4abaef9d98a))
+
 ## [lts-2.8.9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.8..refs/tags/lts-v2.8.9) (2023-10-03)
 
 ### Miscellaneous
