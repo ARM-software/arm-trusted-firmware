@@ -45,7 +45,7 @@
 #else
 #error "Invalid value for TF_MBEDTLS_KEY_SIZE"
 #endif
-#else /* Only using ECDSA keys. */
+#elif TF_MBEDTLS_USE_ECDSA
 #if TF_MBEDTLS_KEY_SIZE == 384
 #define PK_DER_LEN                      120
 #elif TF_MBEDTLS_KEY_SIZE == 256
@@ -53,7 +53,9 @@
 #else
 #error "Invalid value for TF_MBEDTLS_KEY_SIZE"
 #endif
-#endif
+#else
+#error "Invalid value of algorithm"
+#endif /* TF_MBEDTLS_USE_RSA */
 
 #if TF_MBEDTLS_HASH_ALG_ID == TF_MBEDTLS_SHA256
 #define HASH_DER_LEN                    51
