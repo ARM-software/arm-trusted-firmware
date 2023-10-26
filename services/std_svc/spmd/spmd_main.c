@@ -110,6 +110,12 @@ void spmd_build_spmc_message(gp_regs_t *gpregs, uint8_t target_func,
 		 spmd_spmc_id_get());
 	write_ctx_reg(gpregs, CTX_GPREG_X2, BIT(31) | target_func);
 	write_ctx_reg(gpregs, CTX_GPREG_X3, message);
+
+	/* Zero out x4-x7 for the direct request emitted towards the SPMC. */
+	write_ctx_reg(gpregs, CTX_GPREG_X4, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X5, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X6, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X7, 0);
 }
 
 
@@ -945,6 +951,21 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 						SPMD_FWK_MSG_FFA_VERSION_REQ,
 						input_version);
 
+			/*
+			 * Ensure x8-x17 NS GP register values are untouched when returning
+			 * from the SPMC.
+			 */
+			write_ctx_reg(gpregs, CTX_GPREG_X8, SMC_GET_GP(handle, CTX_GPREG_X8));
+			write_ctx_reg(gpregs, CTX_GPREG_X9, SMC_GET_GP(handle, CTX_GPREG_X9));
+			write_ctx_reg(gpregs, CTX_GPREG_X10, SMC_GET_GP(handle, CTX_GPREG_X10));
+			write_ctx_reg(gpregs, CTX_GPREG_X11, SMC_GET_GP(handle, CTX_GPREG_X11));
+			write_ctx_reg(gpregs, CTX_GPREG_X12, SMC_GET_GP(handle, CTX_GPREG_X12));
+			write_ctx_reg(gpregs, CTX_GPREG_X13, SMC_GET_GP(handle, CTX_GPREG_X13));
+			write_ctx_reg(gpregs, CTX_GPREG_X14, SMC_GET_GP(handle, CTX_GPREG_X14));
+			write_ctx_reg(gpregs, CTX_GPREG_X15, SMC_GET_GP(handle, CTX_GPREG_X15));
+			write_ctx_reg(gpregs, CTX_GPREG_X16, SMC_GET_GP(handle, CTX_GPREG_X16));
+			write_ctx_reg(gpregs, CTX_GPREG_X17, SMC_GET_GP(handle, CTX_GPREG_X17));
+
 			rc = spmd_spm_core_sync_entry(ctx);
 
 			if ((rc != 0ULL) ||
@@ -958,6 +979,14 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			} else {
 				ret = SMC_GET_GP(gpregs, CTX_GPREG_X3);
 			}
+
+			/*
+			 * x0-x4 are updated by spmd_smc_forward below.
+			 * Zero out x5-x7 in the FFA_VERSION response.
+			 */
+			write_ctx_reg(gpregs, CTX_GPREG_X5, 0);
+			write_ctx_reg(gpregs, CTX_GPREG_X6, 0);
+			write_ctx_reg(gpregs, CTX_GPREG_X7, 0);
 
 			/*
 			 * Return here after SPMC has handled FFA_VERSION.
