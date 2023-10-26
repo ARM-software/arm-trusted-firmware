@@ -106,11 +106,18 @@ void trp_main(void)
 /*******************************************************************************
  * Returning RMI version back to Normal World
  ******************************************************************************/
-static void trp_ret_rmi_version(struct trp_smc_result *smc_ret)
+static void trp_ret_rmi_version(unsigned long long rmi_version,
+				struct trp_smc_result *smc_ret)
 {
+	if (rmi_version != RMI_ABI_VERSION) {
+		smc_ret->x[0] = RMI_ERROR_INPUT;
+	} else {
+		smc_ret->x[0] = RMI_SUCCESS;
+	}
 	VERBOSE("RMM version is %u.%u\n", RMI_ABI_VERSION_MAJOR,
 					  RMI_ABI_VERSION_MINOR);
-	smc_ret->x[0] = RMI_ABI_VERSION;
+	smc_ret->x[1] = RMI_ABI_VERSION;
+	smc_ret->x[2] = RMI_ABI_VERSION;
 }
 
 /*******************************************************************************
@@ -163,7 +170,7 @@ void trp_rmi_handler(unsigned long fid,
 
 	switch (fid) {
 	case RMI_RMM_REQ_VERSION:
-		trp_ret_rmi_version(smc_ret);
+		trp_ret_rmi_version(x1, smc_ret);
 		break;
 	case RMI_RMM_GRANULE_DELEGATE:
 		trp_asc_mark_realm(x1, smc_ret);

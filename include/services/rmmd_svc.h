@@ -91,6 +91,10 @@
 #define E_RMM_NOMEM			-4
 #define E_RMM_INVAL			-5
 
+/* Return error codes from RMI SMCs */
+#define RMI_SUCCESS			0
+#define RMI_ERROR_INPUT			1
+
 /* Acceptable SHA sizes for Challenge object */
 #define SHA256_DIGEST_SIZE	32U
 #define SHA384_DIGEST_SIZE	48U
