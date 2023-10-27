@@ -11,6 +11,7 @@
 #include <drivers/arm/sp804_delay_timer.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
+#include <lib/transfer_list.h>
 
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
@@ -42,6 +43,8 @@ struct bl_params *plat_get_next_bl_params(void)
 	struct bl_params *arm_bl_params;
 	const struct dyn_cfg_dtb_info_t *hw_config_info __unused;
 	bl_mem_params_node_t *param_node __unused;
+	static struct transfer_list_header *ns_tl __unused;
+	struct transfer_list_entry *te __unused;
 
 	arm_bl_params = arm_get_next_bl_params();
 
@@ -81,6 +84,23 @@ struct bl_params *plat_get_next_bl_params(void)
 	param_node = get_bl_mem_params_node(HW_CONFIG_ID);
 	assert(param_node != NULL);
 
+	bl_mem_params_node_t *bl33_param_node = get_bl_mem_params_node(BL33_IMAGE_ID);
+	assert(bl33_param_node != NULL);
+
+#if TRANSFER_LIST
+	ns_tl = transfer_list_init((void *)FW_NS_HANDOFF_BASE, FW_HANDOFF_SIZE);
+	assert(ns_tl != NULL);
+
+	/* Update BL33's ep info with NS HW config address  */
+	te = transfer_list_add(ns_tl, TL_TAG_FDT, param_node->image_info.image_size,
+			       (void *)hw_config_info->config_addr);
+	assert(te != NULL);
+
+	bl33_param_node->ep_info.args.arg1 = TRANSFER_LIST_SIGNATURE | REGISTER_CONVENTION_VERSION_MASK;
+	bl33_param_node->ep_info.args.arg2 = 0;
+	bl33_param_node->ep_info.args.arg3 = (uintptr_t)ns_tl;
+	bl33_param_node->ep_info.args.arg0 = te ? (uintptr_t)transfer_list_entry_data(te) : 0;
+#else
 	/* Copy HW config from Secure address to NS address */
 	memcpy((void *)hw_config_info->secondary_config_addr,
 	       (void *)hw_config_info->config_addr,
@@ -94,11 +114,8 @@ struct bl_params *plat_get_next_bl_params(void)
 	flush_dcache_range(hw_config_info->secondary_config_addr,
 			   param_node->image_info.image_size);
 
-	param_node = get_bl_mem_params_node(BL33_IMAGE_ID);
-	assert(param_node != NULL);
-
-	/* Update BL33's ep info with NS HW config address  */
-	param_node->ep_info.args.arg1 = hw_config_info->secondary_config_addr;
+	bl33_param_node->ep_info.args.arg1 = hw_config_info->secondary_config_addr;
+#endif /* TRANSFER_LIST */
 #endif /* !RESET_TO_BL2 && !EL3_PAYLOAD_BASE */
 
 	return arm_bl_params;

@@ -71,6 +71,14 @@ arm_config_t arm_config;
 					DEVICE2_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
+#if TRANSFER_LIST
+#ifdef FW_NS_HANDOFF_BASE
+#define MAP_FW_NS_HANDOFF MAP_REGION_FLAT(FW_NS_HANDOFF_BASE, \
+					  FW_HANDOFF_SIZE,    \
+					  MT_MEMORY | MT_RW | MT_NS)
+#endif
+#endif
+
 /*
  * Table of memory regions for various BL stages to map using the MMU.
  * This doesn't include Trusted SRAM as setup_page_tables() already takes care
@@ -182,6 +190,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #if ENABLE_RME
 	ARM_MAP_GPT_L1_DRAM,
 	ARM_MAP_EL3_RMM_SHARED_MEM,
+#endif
+#ifdef MAP_FW_NS_HANDOFF
+	MAP_FW_NS_HANDOFF,
 #endif
 	{0}
 };
