@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,10 +12,6 @@
 #include <tools_share/uuid.h>
 
 #define PARTITION_TYPE_GPT		0xee
-#define GPT_HEADER_OFFSET		PLAT_PARTITION_BLOCK_SIZE
-#define GPT_ENTRY_OFFSET		(GPT_HEADER_OFFSET +		\
-					 PLAT_PARTITION_BLOCK_SIZE)
-
 #define GPT_SIGNATURE			"EFI PART"
 
 typedef struct gpt_entry {
@@ -45,7 +41,7 @@ typedef struct gpt_header {
 	/* size of a single partition entry (usually 128) */
 	unsigned int		part_size;
 	unsigned int		part_crc;
-} gpt_header_t;
+} __packed gpt_header_t;
 
 int parse_gpt_entry(gpt_entry_t *gpt_entry, partition_entry_t *entry);
 

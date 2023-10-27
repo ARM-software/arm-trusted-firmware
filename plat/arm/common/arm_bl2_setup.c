@@ -69,6 +69,8 @@ CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 void arm_bl2_early_platform_setup(uintptr_t fw_config,
 				  struct meminfo *mem_layout)
 {
+	int __maybe_unused ret;
+
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
@@ -82,9 +84,13 @@ void arm_bl2_early_platform_setup(uintptr_t fw_config,
 
 	/* Load partition table */
 #if ARM_GPT_SUPPORT
-	partition_init(GPT_IMAGE_ID);
-#endif /* ARM_GPT_SUPPORT */
+	ret = gpt_partition_init();
+	if (ret != 0) {
+		ERROR("GPT partition initialisation failed!\n");
+		panic();
+	}
 
+#endif /* ARM_GPT_SUPPORT */
 }
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
