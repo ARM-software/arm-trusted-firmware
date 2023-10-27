@@ -216,7 +216,8 @@ else
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/cortex_x2.S		\
 					lib/cpus/aarch64/cortex_gelas.S		\
-					lib/cpus/aarch64/nevis.S
+					lib/cpus/aarch64/nevis.S		\
+					lib/cpus/aarch64/travis.S
 	endif
 	# AArch64/AArch32 cores
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
