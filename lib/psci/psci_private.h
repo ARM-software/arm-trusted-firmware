@@ -286,7 +286,6 @@ extern const spd_pm_ops_t *psci_spd_pm;
 int psci_validate_power_state(unsigned int power_state,
 			      psci_power_state_t *state_info);
 void psci_query_sys_suspend_pwrstate(psci_power_state_t *state_info);
-int psci_validate_mpidr(u_register_t mpidr);
 void psci_init_req_local_pwr_states(void);
 #if PSCI_OS_INIT_MODE
 void psci_update_req_local_pwr_states(unsigned int end_pwrlvl,

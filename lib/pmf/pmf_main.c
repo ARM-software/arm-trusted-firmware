@@ -165,7 +165,7 @@ int pmf_get_timestamp_smc(unsigned int tid,
 	/* Search for registered service. */
 	svc_desc = get_service(tid);
 
-	if ((svc_desc == NULL) || (plat_core_pos_by_mpidr(mpidr) < 0)) {
+	if (svc_desc == NULL) {
 		*ts_value = 0;
 		return -EINVAL;
 	} else {
