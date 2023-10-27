@@ -72,6 +72,20 @@ unsigned int plat_my_core_pos(void);
 int plat_core_pos_by_mpidr(u_register_t mpidr);
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 
+/*******************************************************************************
+ * Simple routine to determine whether a mpidr is valid or not.
+ ******************************************************************************/
+static inline bool is_valid_mpidr(u_register_t mpidr)
+{
+	int pos = plat_core_pos_by_mpidr(mpidr);
+
+	if ((pos < 0) || ((unsigned int)pos >= PLATFORM_CORE_COUNT)) {
+		return false;
+	}
+
+	return true;
+}
+
 #if STACK_PROTECTOR_ENABLED
 /*
  * Return a new value to be used for the stack protection's canary.
