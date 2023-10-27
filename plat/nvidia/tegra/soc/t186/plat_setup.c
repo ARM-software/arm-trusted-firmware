@@ -302,14 +302,14 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 	 */
 	if ((cluster_id >= (u_register_t)PLATFORM_CLUSTER_COUNT) ||
 	    (cpu_id >= (u_register_t)PLATFORM_MAX_CPUS_PER_CLUSTER)) {
-		ret = PSCI_E_NOT_PRESENT;
+		ret = -1;
 	} else {
 		/* calculate the core position */
 		pos = cpu_id + (cluster_id << 2U);
 
 		/* check for non-existent CPUs */
 		if ((pos == TEGRA186_CLUSTER0_CORE2) || (pos == TEGRA186_CLUSTER0_CORE3)) {
-			ret = PSCI_E_NOT_PRESENT;
+			ret = -1;
 		} else {
 			ret = (int32_t)pos;
 		}
