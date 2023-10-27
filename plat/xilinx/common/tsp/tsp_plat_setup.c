@@ -76,9 +76,11 @@ void tsp_plat_arch_setup(void)
 			MT_CODE | MT_SECURE),
 		MAP_REGION_FLAT(BL_RO_DATA_BASE, BL_RO_DATA_END - BL_RO_DATA_BASE,
 			MT_RO_DATA | MT_SECURE),
+#if defined(PLAT_zynqmp) || defined(PLAT_versal)
 		MAP_REGION_FLAT(BL_COHERENT_RAM_BASE,
 			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
 			MT_DEVICE | MT_RW | MT_SECURE),
+#endif
 		{0}
 	};
 
