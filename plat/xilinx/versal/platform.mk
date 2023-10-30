@@ -54,6 +54,9 @@ ifeq (${PLAT_XLAT_TABLES_DYNAMIC},1)
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
 endif
 
+# enable assert() for release/debug builds
+ENABLE_ASSERTIONS := 1
+
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/common/ipi_mailbox_service/	\
