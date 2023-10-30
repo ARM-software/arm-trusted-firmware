@@ -76,6 +76,12 @@ void bl31_plat_arch_setup(void)
 			BL_END - BL_CODE_END,
 			MT_RW_DATA | MT_SECURE);
 
+#if USE_COHERENT_MEM
+	mmap_add_region(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_BASE,
+			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
+			MT_DEVICE | MT_RW | MT_SECURE);
+#endif
+
 	mmap_add_region(BL32_BASE, BL32_BASE, BL32_SIZE,
 			MT_MEMORY | MT_RW);
 
