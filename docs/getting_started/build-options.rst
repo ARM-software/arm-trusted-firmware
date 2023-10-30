@@ -1195,7 +1195,8 @@ Common build options
   The platform will use PSA compliant Crypto APIs during authentication and
   image measurement process by enabling this option. It uses APIs defined as
   per the `PSA Crypto API specification`_. This feature is only supported if
-  using MbedTLS 3.x version. By default it is disabled (``0``).
+  using MbedTLS 3.x version. By default it is disabled (``0``), and this is an
+  experimental feature.
 
 - ``ENABLE_CONSOLE_GETC``: Boolean option to enable `getc()` feature in console
   driver(s). By default it is disabled (``0``) because it constitutes an attack
