@@ -69,6 +69,9 @@ ifdef XILINX_OF_BOARD_DTB_ADDR
 $(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
 endif
 
+# enable assert() for release/debug builds
+ENABLE_ASSERTIONS := 1
+
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/common/ipi_mailbox_service/	\
