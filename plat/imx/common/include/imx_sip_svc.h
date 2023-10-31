@@ -68,7 +68,9 @@ int imx_gpc_handler(uint32_t smc_fid, u_register_t x1,
 		    u_register_t x2, u_register_t x3);
 #endif
 
-#if defined(PLAT_imx8mm) || defined(PLAT_imx8mq)
+#if defined(PLAT_imx8mm) || defined(PLAT_imx8mq) || defined(PLAT_imx8mn) || \
+	defined(PLAT_imx8mp)
+
 int imx_src_handler(uint32_t smc_fid, u_register_t x1,
 		    u_register_t x2, u_register_t x3, void *handle);
 #endif
