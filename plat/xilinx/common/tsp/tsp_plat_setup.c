@@ -7,6 +7,7 @@
 
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #include <plat/arm/common/plat_arm.h>
 #include <platform_tsp.h>
@@ -25,10 +26,18 @@ void tsp_early_platform_setup(void)
 	static console_t tsp_boot_console;
 	int32_t rc;
 
+#if defined(PLAT_zynqmp)
 	rc = console_cdns_register((uintptr_t)UART_BASE,
 				   (uint32_t)get_uart_clk(),
 				   (uint32_t)UART_BAUDRATE,
 				   &tsp_boot_console);
+#else
+	rc = console_pl011_register((uintptr_t)UART_BASE,
+				    (uint32_t)get_uart_clk(),
+				    (uint32_t)UART_BAUDRATE,
+				    &tsp_boot_console);
+#endif
+
 	if (rc == 0) {
 		panic();
 	}
@@ -42,8 +51,16 @@ void tsp_early_platform_setup(void)
  ******************************************************************************/
 void tsp_platform_setup(void)
 {
+/*
+ * For ZynqMP, the GICv2 driver needs to be initialized in S-EL1,
+ * and for other platforms, the GICv3 driver is initialized in EL3.
+ * This is because S-EL1 can use GIC system registers to manage
+ * interrupts and does not need to be initialized again in SEL1.
+ */
+#if defined(PLAT_zynqmp)
 	plat_arm_gic_driver_init();
 	plat_arm_gic_init();
+#endif
 }
 
 /*******************************************************************************
