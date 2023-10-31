@@ -217,13 +217,13 @@ AMU_RESTRICT_COUNTERS			?=	0
 # Build option to enable MPAM for lower ELs.
 # Enabling it by default
 ifeq (${ARCH},aarch64)
-	ENABLE_FEAT_MPAM		?=	2
+        ENABLE_FEAT_MPAM		?=	2
 else ifeq (${ARCH},aarch32)
-	ifdef ENABLE_FEAT_MPAM
-		$(error ENABLE_FEAT_MPAM is not supported for AArch32)
-	else
-		ENABLE_FEAT_MPAM	:=	0
-	endif
+        ifneq ($(or $(ENABLE_FEAT_MPAM),0),0)
+                $(error ENABLE_FEAT_MPAM is not supported for AArch32)
+        else
+                ENABLE_FEAT_MPAM	:=	0
+        endif
 endif
 
 # Include nested virtualization control (Armv8.4-NV) registers in cpu context.
