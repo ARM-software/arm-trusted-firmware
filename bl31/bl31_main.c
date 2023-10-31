@@ -121,6 +121,9 @@ void bl31_main(void)
 	/* Init registers that never change for the lifetime of TF-A */
 	cm_manage_extensions_el3();
 
+	/* Init per-world context registers for non-secure world */
+	manage_extensions_nonsecure_per_world();
+
 	NOTICE("BL31: %s\n", version_string);
 	NOTICE("BL31: %s\n", build_message);
 

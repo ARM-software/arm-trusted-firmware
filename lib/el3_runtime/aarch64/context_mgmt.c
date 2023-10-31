@@ -20,6 +20,7 @@
 #include <context.h>
 #include <drivers/arm/gicv3.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/el3_runtime/cpu_data.h>
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
 #include <lib/extensions/brbe.h>
@@ -38,8 +39,12 @@
 CASSERT(((TWED_DELAY & ~SCR_TWEDEL_MASK) == 0U), assert_twed_delay_value_check);
 #endif /* ENABLE_FEAT_TWED */
 
+per_world_context_t per_world_context[CPU_DATA_CONTEXT_NUM];
+static bool has_secure_perworld_init;
+
 static void manage_extensions_nonsecure(cpu_context_t *ctx);
 static void manage_extensions_secure(cpu_context_t *ctx);
+static void manage_extensions_secure_per_world(void);
 
 static void setup_el1_context(cpu_context_t *ctx, const struct entry_point_info *ep)
 {
@@ -146,6 +151,18 @@ static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_in
 #endif
 
 	manage_extensions_secure(ctx);
+
+	/**
+	 * manage_extensions_secure_per_world api has to be executed once,
+	 * as the registers getting initialised, maintain constant value across
+	 * all the cpus for the secure world.
+	 * Henceforth, this check ensures that the registers are initialised once
+	 * and avoids re-initialization from multiple cores.
+	 */
+	if (!has_secure_perworld_init) {
+		manage_extensions_secure_per_world();
+	}
+
 }
 
 #if ENABLE_RME
@@ -301,7 +318,6 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
  ******************************************************************************/
 static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
-	u_register_t cptr_el3;
 	u_register_t scr_el3;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
@@ -423,21 +439,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	if ((is_feat_gcs_supported()) && (GET_RW(ep->spsr) == MODE_RW_64)) {
 		scr_el3 |= SCR_GCSEn_BIT;
 	}
-
-	/*
-	 * Initialise CPTR_EL3, setting all fields rather than relying on hw.
-	 * All fields are architecturally UNKNOWN on reset.
-	 *
-	 * CPTR_EL3.TFP: Set to zero so that accesses to the V- or Z- registers
-	 *  by Advanced SIMD, floating-point or SVE instructions (if
-	 *  implemented) do not trap to EL3.
-	 *
-	 * CPTR_EL3.TCPAC: Set to zero so that accesses to CPACR_EL1,
-	 *  CPTR_EL2,CPACR, or HCPTR do not trap to EL3.
-	 */
-	cptr_el3 = CPTR_EL3_RESET_VAL & ~(TFP_BIT | TCPAC_BIT);
-
-	write_ctx_reg(state, CTX_CPTR_EL3, cptr_el3);
 
 	/*
 	 * SCR_EL3.HCE: Enable HVC instructions if next execution state is
@@ -600,6 +601,82 @@ void cm_manage_extensions_el3(void)
 #endif /* IMAGE_BL31 */
 
 /*******************************************************************************
+ * Initialise per_world_context for Non-Secure world.
+ * This function enables the architecture extensions, which have same value
+ * across the cores for the non-secure world.
+ ******************************************************************************/
+#if IMAGE_BL31
+void manage_extensions_nonsecure_per_world(void)
+{
+	if (is_feat_sme_supported()) {
+		sme_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
+	}
+
+	if (is_feat_sve_supported()) {
+		sve_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
+	}
+
+	if (is_feat_amu_supported()) {
+		amu_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
+	}
+
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
+	}
+}
+#endif /* IMAGE_BL31 */
+
+/*******************************************************************************
+ * Initialise per_world_context for Secure world.
+ * This function enables the architecture extensions, which have same value
+ * across the cores for the secure world.
+ ******************************************************************************/
+
+static void manage_extensions_secure_per_world(void)
+{
+#if IMAGE_BL31
+	if (is_feat_sme_supported()) {
+
+		if (ENABLE_SME_FOR_SWD) {
+		/*
+		 * Enable SME, SVE, FPU/SIMD in secure context, SPM must ensure
+		 * SME, SVE, and FPU/SIMD context properly managed.
+		 */
+			sme_enable_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
+		} else {
+		/*
+		 * Disable SME, SVE, FPU/SIMD in secure context so non-secure
+		 * world can safely use the associated registers.
+		 */
+			sme_disable_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
+		}
+	}
+	if (is_feat_sve_supported()) {
+		if (ENABLE_SVE_FOR_SWD) {
+		/*
+		 * Enable SVE and FPU in secure context, SPM must ensure
+		 * that the SVE and FPU register contexts are properly managed.
+		 */
+			sve_enable_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
+		} else {
+		/*
+		 * Disable SVE and FPU in secure context so non-secure world
+		 * can safely use them.
+		 */
+			sve_disable_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
+		}
+	}
+
+	/* NS can access this but Secure shouldn't */
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_disable_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
+	}
+
+	has_secure_perworld_init = true;
+#endif /* IMAGE_BL31 */
+}
+
+/*******************************************************************************
  * Enable architecture extensions on first entry to Non-secure world.
  ******************************************************************************/
 static void manage_extensions_nonsecure(cpu_context_t *ctx)
@@ -609,17 +686,8 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 		amu_enable(ctx);
 	}
 
-	/* Enable SVE and FPU/SIMD */
-	if (is_feat_sve_supported()) {
-		sve_enable(ctx);
-	}
-
 	if (is_feat_sme_supported()) {
 		sme_enable(ctx);
-	}
-
-	if (is_feat_sys_reg_trace_supported()) {
-		sys_reg_trace_enable(ctx);
 	}
 
 	if (is_feat_mpam_supported()) {
@@ -696,23 +764,6 @@ static void manage_extensions_nonsecure_el2_unused(void)
 static void manage_extensions_secure(cpu_context_t *ctx)
 {
 #if IMAGE_BL31
-	if (is_feat_sve_supported()) {
-		if (ENABLE_SVE_FOR_SWD) {
-		/*
-		 * Enable SVE and FPU in secure context, secure manager must
-		 * ensure that the SVE and FPU register contexts are properly
-		 * managed.
-		 */
-			sve_enable(ctx);
-		} else {
-		/*
-		 * Disable SVE and FPU in secure context so non-secure world
-		 * can safely use them.
-		 */
-			sve_disable(ctx);
-		}
-	}
-
 	if (is_feat_sme_supported()) {
 		if (ENABLE_SME_FOR_SWD) {
 		/*
@@ -728,11 +779,6 @@ static void manage_extensions_secure(cpu_context_t *ctx)
 		 */
 			sme_disable(ctx);
 		}
-	}
-
-	/* NS can access this but Secure shouldn't */
-	if (is_feat_sys_reg_trace_supported()) {
-		sys_reg_trace_disable(ctx);
 	}
 #endif /* IMAGE_BL31 */
 }

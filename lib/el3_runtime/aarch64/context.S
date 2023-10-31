@@ -570,6 +570,25 @@ func save_and_update_ptw_el1_sys_regs
 	ret
 endfunc save_and_update_ptw_el1_sys_regs
 
+/* -----------------------------------------------------------------
+* The below macro returns the address of the per_world context for
+* the security state, retrieved through "get_security_state" macro.
+* The per_world context address is returned in the register argument.
+* Clobbers: x9, x10
+* ------------------------------------------------------------------
+*/
+
+.macro get_per_world_context _reg:req
+	ldr 	x10, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	get_security_state x9, x10
+	mov_imm	x10, (CTX_GLOBAL_EL3STATE_END - CTX_CPTR_EL3)
+	mul	x9, x9, x10
+	adrp	x10, per_world_context
+	add	x10, x10, :lo12:per_world_context
+	add	x9, x9, x10
+	mov 	\_reg, x9
+.endm
+
 /* ------------------------------------------------------------------
  * This routine assumes that the SP_EL3 is pointing to a valid
  * context structure from where the gp regs and other special
@@ -600,7 +619,11 @@ func el3_exit
 	 * Synchronization is required before zcr_el3 is addressed.
 	 * ----------------------------------------------------------
 	 */
-	ldp	x19, x20, [sp, #CTX_EL3STATE_OFFSET + CTX_CPTR_EL3]
+
+	/* The address of the per_world context is stored in x9 */
+	get_per_world_context x9
+
+	ldp	x19, x20, [x9, #CTX_CPTR_EL3]
 	msr	cptr_el3, x19
 
 #if IMAGE_BL31

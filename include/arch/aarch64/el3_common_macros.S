@@ -441,4 +441,20 @@
 #endif
 	.endm
 
+/* -----------------------------------------------------------------
+ * The below macro reads SCR_EL3 from the context structure to
+ * determine the security state of the context upon ERET.
+ * ------------------------------------------------------------------
+ */
+	.macro get_security_state _ret:req, _scr_reg:req
+		ubfx 	\_ret, \_scr_reg, #SCR_NSE_SHIFT, #1
+		cmp 	\_ret, #1
+		beq 	realm_state
+		bfi	\_ret, \_scr_reg, #0, #1
+		b 	end
+	realm_state:
+		mov 	\_ret, #2
+	end:
+	.endm
+
 #endif /* EL3_COMMON_MACROS_S */

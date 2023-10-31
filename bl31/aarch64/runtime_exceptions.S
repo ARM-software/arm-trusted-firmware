@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -401,7 +401,7 @@ sync_handler64:
 
 #if ENABLE_RME
 	/* Copy SCR_EL3.NSE bit to the flag to indicate caller's security */
-	ubfx	x7, x18, #SCR_NSE_SHIFT, 1
+	ubfx	x7, x18, #SCR_NSE_SHIFT, #1
 
 	/*
 	 * Shift copied SCR_EL3.NSE bit by 5 to create space for
