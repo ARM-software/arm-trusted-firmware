@@ -5,4 +5,4 @@
 
 # TSP source files specific to ZynqMP platform
 BL32_SOURCES		+=	plat/common/aarch64/platform_mp_stack.S		\
-				plat/xilinx/zynqmp/tsp/tsp_plat_setup.c
+				plat/xilinx/common/tsp/tsp_plat_setup.c

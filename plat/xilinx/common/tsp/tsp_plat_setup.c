@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023, Advanced Micro Devices. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,10 +23,16 @@ void tsp_early_platform_setup(void)
 	 * messages from TSP
 	 */
 	static console_t tsp_boot_console;
-	(void)console_cdns_register(UART_BASE,
-				       get_uart_clk(),
-				       UART_BAUDRATE,
-				       &tsp_boot_console);
+	int32_t rc;
+
+	rc = console_cdns_register((uintptr_t)UART_BASE,
+				   (uint32_t)get_uart_clk(),
+				   (uint32_t)UART_BAUDRATE,
+				   &tsp_boot_console);
+	if (rc == 0) {
+		panic();
+	}
+
 	console_set_scope(&tsp_boot_console,
 			  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT);
 }
