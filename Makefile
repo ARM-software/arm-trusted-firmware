@@ -414,7 +414,6 @@ endif
 ################################################################################
 # Common sources and include directories
 ################################################################################
-include ${MAKE_HELPERS_DIRECTORY}arch_features.mk
 include lib/compiler-rt/compiler-rt.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
@@ -502,6 +501,12 @@ ifneq (${SPD},none)
 
 		ifneq ($(SP_LAYOUT_FILE),)
 		BL2_ENABLE_SP_LOAD := 1
+		endif
+
+		ifeq ($(SPMC_AT_EL3_SEL0_SP),1)
+			ifneq ($(SPMC_AT_EL3),1)
+			$(error SEL0 SP cannot be enabled without SPMC at EL3)
+			endif
 		endif
 	else
 		# All other SPDs in spd directory
@@ -649,111 +654,6 @@ ifeq (${ENABLE_RME},1)
 	# RME enables CSV2_2 extension by default.
 	ENABLE_FEAT_CSV2_2 = 1
 endif #(FEAT_RME)
-
-################################################################################
-# Generic definitions
-################################################################################
-include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
-
-ifeq (${BUILD_BASE},)
-     BUILD_BASE		:=	./build
-endif
-BUILD_PLAT		:=	$(abspath ${BUILD_BASE})/${PLAT}/${BUILD_TYPE}
-
-SPDS			:=	$(sort $(filter-out none, $(patsubst services/spd/%,%,$(wildcard services/spd/*))))
-
-# Platforms providing their own TBB makefile may override this value
-INCLUDE_TBBR_MK		:=	1
-
-################################################################################
-# Include SPD Makefile if one has been specified
-################################################################################
-
-ifneq (${SPD},none)
-	ifeq (${ARCH},aarch32)
-                $(error "Error: SPD is incompatible with AArch32.")
-	endif
-
-	ifdef EL3_PAYLOAD_BASE
-                $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
-                $(warning "The SPD and its BL32 companion will be present but \
-                ignored.")
-	endif
-
-	ifeq (${SPD},spmd)
-	# SPMD is located in std_svc directory
-		SPD_DIR := std_svc
-
-		ifeq ($(SPMD_SPM_AT_SEL2),1)
-			CTX_INCLUDE_EL2_REGS := 1
-			ifeq ($(SPMC_AT_EL3),1)
-                                $(error SPM cannot be enabled in both S-EL2 and EL3.)
-			endif
-		endif
-
-		ifeq ($(findstring optee_sp,$(ARM_SPMC_MANIFEST_DTS)),optee_sp)
-			DTC_CPPFLAGS	+=	-DOPTEE_SP_FW_CONFIG
-		endif
-
-		ifeq ($(TS_SP_FW_CONFIG),1)
-		DTC_CPPFLAGS	+=	-DTS_SP_FW_CONFIG
-		endif
-
-		ifneq ($(ARM_BL2_SP_LIST_DTS),)
-		DTC_CPPFLAGS += -DARM_BL2_SP_LIST_DTS=$(ARM_BL2_SP_LIST_DTS)
-		endif
-
-		ifneq ($(SP_LAYOUT_FILE),)
-		BL2_ENABLE_SP_LOAD := 1
-		endif
-
-		ifeq ($(SPMC_AT_EL3_SEL0_SP),1)
-			ifneq ($(SPMC_AT_EL3),1)
-			$(error SEL0 SP cannot be enabled without SPMC at EL3)
-			endif
-		endif
-	else
-		# All other SPDs in spd directory
-		SPD_DIR := spd
-	endif #(SPD)
-
-	# We expect to locate an spd.mk under the specified SPD directory
-	SPD_MAKE	:=	$(wildcard services/${SPD_DIR}/${SPD}/${SPD}.mk)
-
-	ifeq (${SPD_MAKE},)
-                $(error Error: No services/${SPD_DIR}/${SPD}/${SPD}.mk located)
-	endif
-        $(info Including ${SPD_MAKE})
-        include ${SPD_MAKE}
-
-	# If there's BL32 companion for the chosen SPD, we expect that the SPD's
-	# Makefile would set NEED_BL32 to "yes". In this case, the build system
-	# supports two mutually exclusive options:
-	# * BL32 is built from source: then BL32_SOURCES must contain the list
-	#   of source files to build BL32
-	# * BL32 is a prebuilt binary: then BL32 must point to the image file
-	#   that will be included in the FIP
-	# If both BL32_SOURCES and BL32 are defined, the binary takes precedence
-	# over the sources.
-endif #(SPD=none)
-
-ifeq (${ENABLE_SPMD_LP}, 1)
-ifneq (${SPD},spmd)
-        $(error Error: ENABLE_SPMD_LP requires SPD=spmd.)
-endif
-ifeq ($(SPMC_AT_EL3),1)
-        $(error SPMC at EL3 not supported when enabling SPMD Logical partitions.)
-endif
-endif
-
-ifeq (${CTX_INCLUDE_EL2_REGS}, 1)
-	ifeq (${SPD},none)
-		ifeq (${ENABLE_RME},0)
-                        $(error CTX_INCLUDE_EL2_REGS is available only when SPD \
-                        or RME is enabled)
-		endif
-	endif
-endif
 
 ################################################################################
 # Include rmmd Makefile if RME is enabled
