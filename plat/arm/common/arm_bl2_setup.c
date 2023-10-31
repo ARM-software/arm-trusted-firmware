@@ -318,8 +318,3 @@ int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
 #endif
 	return arm_bl2_handle_post_image_load(image_id);
 }
-
-int bl2_plat_handle_post_image_load(unsigned int image_id)
-{
-	return arm_bl2_plat_handle_post_image_load(image_id);
-}

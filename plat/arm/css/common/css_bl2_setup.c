@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -84,3 +84,8 @@ void bl2_platform_setup(void)
 # endif /* EL3_PAYLOAD_BASE */
 
 #endif /* CSS_USE_SCMI_SDS_DRIVER */
+
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	return arm_bl2_plat_handle_post_image_load(image_id);
+}
