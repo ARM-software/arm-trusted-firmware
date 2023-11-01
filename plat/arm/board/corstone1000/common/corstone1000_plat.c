@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,36 +33,16 @@ const mmap_region_t plat_arm_mmap[] = {
 static void set_fip_image_source(void)
 {
 	const struct plat_io_policy *policy;
-	/*
-	 * metadata for firmware update is written at 0x0000 offset of the flash.
-	 * PLAT_ARM_BOOT_BANK_FLAG contains the boot bank that TF-M is booted.
-	 * As per firmware update spec, at a given point of time, only one bank
-	 * is active. This means, TF-A should boot from the same bank as TF-M.
-	 */
-	volatile uint32_t *boot_bank_flag = (uint32_t *)(PLAT_ARM_BOOT_BANK_FLAG);
-
-	if (*boot_bank_flag > 1) {
-		VERBOSE("Boot_bank is set higher than possible values");
-	}
-
-	VERBOSE("Boot bank flag = %u.\n\r", *boot_bank_flag);
-
 	policy = FCONF_GET_PROPERTY(arm, io_policies, FIP_IMAGE_ID);
 
 	assert(policy != NULL);
 	assert(policy->image_spec != 0UL);
 
+	/* FIP Partition contains Signature area at the beginning which TF-A doesn't expect */
 	io_block_spec_t *spec = (io_block_spec_t *)policy->image_spec;
+	spec->offset += FIP_SIGNATURE_AREA_SIZE;
+	spec->length -= FIP_SIGNATURE_AREA_SIZE;
 
-	if ((*boot_bank_flag) == 0) {
-		VERBOSE("Booting from bank 0: fip offset = 0x%lx\n\r",
-						PLAT_ARM_FIP_BASE_BANK0);
-		spec->offset = PLAT_ARM_FIP_BASE_BANK0;
-	} else {
-		VERBOSE("Booting from bank 1: fip offset = 0x%lx\n\r",
-						PLAT_ARM_FIP_BASE_BANK1);
-		spec->offset = PLAT_ARM_FIP_BASE_BANK1;
-	}
 }
 
 void bl2_platform_setup(void)
