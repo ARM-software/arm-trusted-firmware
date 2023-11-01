@@ -4,5 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 # TSP source files specific to ZynqMP platform
-BL32_SOURCES		+=	plat/common/aarch64/platform_mp_stack.S		\
-				plat/xilinx/common/tsp/tsp_plat_setup.c
+
+PLAT_XILINX_COMMON := plat/xilinx/common/
+
+include ${PLAT_XILINX_COMMON}/tsp/tsp.mk
