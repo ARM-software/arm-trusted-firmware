@@ -204,13 +204,13 @@
 					SOC_CSS_DEVICE_SIZE,	\
 					MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
-#if RAS_FFH_SUPPORT
+#if ENABLE_FEAT_RAS && FFH_SUPPORT
 #define PLAT_SP_PRI				PLAT_RAS_PRI
 #else
 #define PLAT_SP_PRI				0x10
 #endif
 
-#if (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)) && RAS_FFH_SUPPORT
+#if (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)) && ENABLE_FEAT_RAS && FFH_SUPPORT
 /*
  * CPER buffer memory of 128KB is reserved and it is placed adjacent to the
  * memory shared between EL3 and S-EL0.
@@ -239,7 +239,7 @@
  */
 #define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
-#endif /* SPM_MM && RAS_FFH_SUPPORT */
+#endif /* SPM_MM && ENABLE_FEAT_RAS && FFH_SUPPORT */
 
 /* Platform ID address */
 #define SSC_VERSION                     (SSC_REG_BASE + SSC_VERSION_OFFSET)

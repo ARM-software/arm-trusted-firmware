@@ -154,7 +154,7 @@ int plat_sip_handler(uint32_t smc_fid,
 		     void *handle,
 		     uint64_t flags);
 
-#if RAS_FFH_SUPPORT
+#if ENABLE_FEAT_RAS && FFH_SUPPORT
 void tegra194_ras_enable(void);
 void tegra194_ras_corrected_err_clear(uint64_t *cookie);
 #endif

@@ -484,7 +484,7 @@ REGISTER_RAS_INTERRUPTS(carmel_ras_interrupts);
 void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags)
 {
-#if RAS_FFH_SUPPORT
+#if ENABLE_FEAT_RAS
 	tegra194_ea_handler(ea_reason, syndrome, cookie, handle, flags);
 #else
 	plat_default_ea_handler(ea_reason, syndrome, cookie, handle, flags);

@@ -15,7 +15,7 @@
 
 static const arm_tzc_regions_info_t tzc_regions[] = {
 	ARM_TZC_REGIONS_DEF,
-#if RAS_FFH_SUPPORT
+#if ENABLE_FEAT_RAS && FFH_SUPPORT
 	RDN2_TZC_CPER_REGION,
 #endif
 	{}

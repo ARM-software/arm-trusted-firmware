@@ -292,4 +292,29 @@
 #endif
 	.endm
 
+	/*
+	 * Macro to unmask External Aborts by changing PSTATE.A bit.
+	 * Put explicit synchronization event to ensure newly unmasked interrupt
+	 * is taken immediately.
+	 */
+	.macro  unmask_async_ea
+	msr     daifclr, #DAIF_ABT_BIT
+	isb
+	.endm
+
+	/* Macro for error synchronization on exception boundries.
+	 * With FEAT_RAS enabled, it is assumed that FEAT_IESB is also present
+	 * and enabled.
+	 * FEAT_IESB provides an implicit error synchronization event at exception
+	 * entry and exception return, so there is no need for any explicit instruction.
+	 */
+	.macro synchronize_errors
+#if !ENABLE_FEAT_RAS
+	/* Complete any stores that may return an abort */
+	dsb	sy
+	/* Synchronise the CPU context with the completion of the dsb */
+	isb
+#endif
+	.endm
+
 #endif /* ASM_MACROS_S */

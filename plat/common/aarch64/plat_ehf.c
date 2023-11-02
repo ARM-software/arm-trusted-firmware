@@ -12,7 +12,7 @@
  * Enumeration of priority levels on ARM platforms.
  */
 ehf_pri_desc_t plat_exceptions[] = {
-#if RAS_FFH_SUPPORT
+#if ENABLE_FEAT_RAS && FFH_SUPPORT
 	/* RAS Priority */
 	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_RAS_PRI),
 #endif
@@ -26,7 +26,7 @@ ehf_pri_desc_t plat_exceptions[] = {
 #endif
 
 #if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
-#if RAS_FFH_SUPPORT
+#if ENABLE_FEAT_RAS && FFH_SUPPORT
 #if (PLAT_SP_PRI != PLAT_RAS_PRI)
 	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_SP_PRI),
 #endif
