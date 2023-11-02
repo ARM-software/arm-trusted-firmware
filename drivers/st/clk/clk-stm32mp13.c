@@ -974,8 +974,8 @@ static int stm32mp1_set_hsidiv(uint8_t hsidiv)
 	timeout = timeout_init_us(HSIDIV_TIMEOUT);
 	while ((mmio_read_32(address) & RCC_OCRDYR_HSIDIVRDY) == 0U) {
 		if (timeout_elapsed(timeout)) {
-			ERROR("HSIDIV failed @ 0x%lx: 0x%x\n",
-			      address, mmio_read_32(address));
+			EARLY_ERROR("HSIDIV failed @ 0x%lx: 0x%x\n",
+				    address, mmio_read_32(address));
 			return -ETIMEDOUT;
 		}
 	}
@@ -997,7 +997,7 @@ static int stm32mp1_hsidiv(unsigned long hsifreq)
 	}
 
 	if (hsidiv == 4U) {
-		ERROR("Invalid clk-hsi frequency\n");
+		EARLY_ERROR("Invalid clk-hsi frequency\n");
 		return -EINVAL;
 	}
 
@@ -1239,7 +1239,7 @@ static void clk_stm32_pll_config_vco(struct stm32_clk_priv *priv,
 	uint32_t value = 0;
 
 	if (clk_stm32_pll_compute_cfgr1(priv, pll, vco, &value) != 0) {
-		ERROR("Invalid Vref clock !\n");
+		EARLY_ERROR("Invalid Vref clock !\n");
 		panic();
 	}
 
