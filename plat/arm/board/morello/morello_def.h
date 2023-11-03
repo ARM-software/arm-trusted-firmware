@@ -15,6 +15,15 @@
 						MORELLO_NS_SRAM_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
+/* SDS Firmware version defines */
+#define MORELLO_SDS_FIRMWARE_VERSION_STRUCT_ID	U(2)
+#define MORELLO_SDS_FIRMWARE_VERSION_OFFSET	U(0)
+#ifdef TARGET_PLATFORM_FVP
+# define MORELLO_SDS_FIRMWARE_VERSION_SIZE	U(8)
+#else
+# define MORELLO_SDS_FIRMWARE_VERSION_SIZE	U(16)
+#endif
+
 /* SDS Platform information defines */
 #define MORELLO_SDS_PLATFORM_INFO_STRUCT_ID	U(8)
 #define MORELLO_SDS_PLATFORM_INFO_OFFSET	U(0)
@@ -122,8 +131,40 @@ struct morello_plat_info {
 } __packed;
 #endif
 
-/* Compile time assertion to ensure the size of structure is of the required bytes */
+/* SDS Firmware revision struct definition */
+#ifdef TARGET_PLATFORM_FVP
+/*
+ * Firmware revision structure stored in SDS.
+ * This structure holds information about firmware versions.
+ *	- SCP firmware version
+ *	- SCP firmware commit
+ */
+struct morello_firmware_version {
+	uint32_t scp_fw_ver;
+	uint32_t scp_fw_commit;
+} __packed;
+#else
+/*
+ * Firmware revision structure stored in SDS.
+ * This structure holds information about firmware versions.
+ *	- SCP firmware version
+ *	- SCP firmware commit
+ *	- MCC firmware version
+ *	- PCC firmware version
+ */
+struct morello_firmware_version {
+	uint32_t scp_fw_ver;
+	uint32_t scp_fw_commit;
+	uint32_t mcc_fw_ver;
+	uint32_t pcc_fw_ver;
+} __packed;
+#endif
+
+/* Compile time assertions to ensure the size of structures are of the required bytes */
 CASSERT(sizeof(struct morello_plat_info) == MORELLO_SDS_PLATFORM_INFO_SIZE,
 		assert_invalid_plat_info_size);
+
+CASSERT(sizeof(struct morello_firmware_version) == MORELLO_SDS_FIRMWARE_VERSION_SIZE,
+		assert_invalid_firmware_version_size);
 
 #endif /* MORELLO_DEF_H */

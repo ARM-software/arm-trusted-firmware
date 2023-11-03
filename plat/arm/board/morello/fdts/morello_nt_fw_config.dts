@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,5 +22,20 @@
 		multichip-mode = <0x0>;
 		scc-config = <0x0>;
 #endif
+	};
+
+	/*
+	 * Placeholder for firmware-version node with default values.
+	 * The value will be set to the correct values during
+	 * the BL2 stage of boot.
+	 */
+	firmware-version {
+#ifdef TARGET_PLATFORM_SOC
+		mcc-fw-version = <0x0>;
+		pcc-fw-version = <0x0>;
+#endif
+		scp-fw-version = <0x0>;
+		scp-fw-commit = <0x0>;
+		tfa-fw-version = "unknown-dirty_00000000";
 	};
 };
