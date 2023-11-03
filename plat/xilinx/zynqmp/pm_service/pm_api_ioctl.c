@@ -174,67 +174,6 @@ static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(uint32_t type,
 }
 
 /**
- * pm_ioctl_set_sgmii_mode() -  Set SGMII mode for the GEM device.
- * @nid: Node ID of the device.
- * @value: Enable/Disable.
- *
- * This function enable/disable SGMII mode for the GEM device.
- * While enabling SGMII mode, it also ties the GEM PCS Signal
- * Detect to 1 and selects EMIO for RX clock generation.
- *
- * Return: Returns status, either success or error+reason.
- *
- */
-static enum pm_ret_status pm_ioctl_set_sgmii_mode(enum pm_node_id nid,
-						  uint32_t value)
-{
-	uint32_t val, mask, shift;
-	enum pm_ret_status ret;
-
-	if (value != PM_SGMII_DISABLE && value != PM_SGMII_ENABLE) {
-		return PM_RET_ERROR_ARGS;
-	}
-
-	switch (nid) {
-	case NODE_ETH_0:
-		shift = 0;
-		break;
-	case NODE_ETH_1:
-		shift = 1;
-		break;
-	case NODE_ETH_2:
-		shift = 2;
-		break;
-	case NODE_ETH_3:
-		shift = 3;
-		break;
-	default:
-		return PM_RET_ERROR_ARGS;
-	}
-
-	if (value == PM_SGMII_DISABLE) {
-		mask = GEM_SGMII_MASK << GEM_CLK_CTRL_OFFSET * shift;
-		ret = pm_mmio_write(IOU_GEM_CLK_CTRL, mask, 0U);
-	} else {
-		/* Tie the GEM PCS Signal Detect to 1 */
-		mask = SGMII_SD_MASK << SGMII_SD_OFFSET * shift;
-		val = SGMII_PCS_SD_1 << SGMII_SD_OFFSET * shift;
-		ret = pm_mmio_write(IOU_GEM_CTRL, mask, val);
-		if (ret != PM_RET_SUCCESS) {
-			return ret;
-		}
-
-		/* Set the GEM to SGMII mode */
-		mask = GEM_CLK_CTRL_MASK << GEM_CLK_CTRL_OFFSET * shift;
-		val = GEM_RX_SRC_SEL_GTR | GEM_SGMII_MODE;
-		val <<= GEM_CLK_CTRL_OFFSET * shift;
-		ret =  pm_mmio_write(IOU_GEM_CLK_CTRL, mask, val);
-	}
-
-	return ret;
-}
-
-/**
  * pm_ioctl_sd_dll_reset() -  Reset DLL logic.
  * @nid: Node ID of the device.
  * @type: Reset type.
@@ -684,9 +623,6 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 	case IOCTL_SET_TAPDELAY_BYPASS:
 		ret = pm_ioctl_set_tapdelay_bypass(arg1, arg2);
 		break;
-	case IOCTL_SET_SGMII_MODE:
-		ret = pm_ioctl_set_sgmii_mode(nid, arg1);
-		break;
 	case IOCTL_SD_DLL_RESET:
 		ret = pm_ioctl_sd_dll_reset(nid, arg1);
 		break;
@@ -752,7 +688,6 @@ enum pm_ret_status tfa_ioctl_bitmask(uint32_t *bit_mask)
 		IOCTL_RPU_BOOT_ADDR_CONFIG,
 		IOCTL_TCM_COMB_CONFIG,
 		IOCTL_SET_TAPDELAY_BYPASS,
-		IOCTL_SET_SGMII_MODE,
 		IOCTL_SD_DLL_RESET,
 		IOCTL_SET_SD_TAPDELAY,
 		IOCTL_SET_PLL_FRAC_MODE,
