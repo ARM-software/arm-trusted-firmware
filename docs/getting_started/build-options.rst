@@ -436,39 +436,11 @@ Common build options
    be enabled. If ``ENABLE_PMF`` is set, the residency statistics are tracked in
    software.
 
-- ``ENABLE_RME``: Numeric value to enable support for the ARMv9 Realm
-   Management Extension. This flag can take the values 0 to 2, to align with
-   the ``FEATURE_DETECTION`` mechanism. Default value is 0. This is currently
-   an experimental feature.
-
 -  ``ENABLE_RUNTIME_INSTRUMENTATION``: Boolean option to enable runtime
    instrumentation which injects timestamp collection points into TF-A to
    allow runtime performance to be measured. Currently, only PSCI is
    instrumented. Enabling this option enables the ``ENABLE_PMF`` build option
    as well. Default is 0.
-
--  ``ENABLE_SME_FOR_NS``: Numeric value to enable Scalable Matrix Extension
-   (SME), SVE, and FPU/SIMD for the non-secure world only. These features share
-   registers so are enabled together. Using this option without
-   ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
-   world to trap to EL3. Requires ``ENABLE_SVE_FOR_NS`` to be set as SME is a
-   superset of SVE. SME is an optional architectural feature for AArch64
-   and TF-A support is experimental. At this time, this build option cannot be
-   used on systems that have SPD=spmd/SPM_MM and atempting to build with this
-   option will fail. This flag can take the values 0 to 2, to align with the
-   ``FEATURE_DETECTION`` mechanism. Default is 0.
-
--  ``ENABLE_SME2_FOR_NS``: Numeric value to enable Scalable Matrix Extension
-   version 2 (SME2) for the non-secure world only. SME2 is an optional
-   architectural feature for AArch64 and TF-A support is experimental.
-   This should be set along with ENABLE_SME_FOR_NS=1, if not, the default SME
-   accesses will still be trapped. This flag can take the values 0 to 2, to
-   align with the ``FEATURE_DETECTION`` mechanism. Default is 0.
-
--  ``ENABLE_SME_FOR_SWD``: Boolean option to enable the Scalable Matrix
-   Extension for secure world. Used along with SVE and FPU/SIMD.
-   ENABLE_SME_FOR_NS and ENABLE_SVE_FOR_SWD must also be set to use this.
-   This is experimental. Default is 0.
 
 -  ``ENABLE_SPE_FOR_NS`` : Numeric value to enable Statistical Profiling
    extensions. This is an optional architectural feature for AArch64.
@@ -554,44 +526,6 @@ Common build options
 
    This feature is intended for testing purposes only, and is advisable to keep
    disabled for production images.
-
--  ``FEATURE_DETECTION``: Boolean option to enable the architectural features
-   detection mechanism. It detects whether the Architectural features enabled
-   through feature specific build flags are supported by the PE or not by
-   validating them either at boot phase or at runtime based on the value
-   possessed by the feature flag (0 to 2) and report error messages at an early
-   stage. This flag will also enable errata ordering checking for ``DEBUG``
-   builds.
-
-   This prevents and benefits us from EL3 runtime exceptions during context save
-   and restore routines guarded by these build flags. Henceforth validating them
-   before their usage provides more control on the actions taken under them.
-
-   The mechanism permits the build flags to take values 0, 1 or 2 and
-   evaluates them accordingly.
-
-   Lets consider ``ENABLE_FEAT_HCX``, build flag for ``FEAT_HCX`` as an example:
-
-   ::
-
-     ENABLE_FEAT_HCX = 0: Feature disabled statically at compile time.
-     ENABLE_FEAT_HCX = 1: Feature Enabled and the flag is validated at boottime.
-     ENABLE_FEAT_HCX = 2: Feature Enabled and the flag is validated at runtime.
-
-   In the above example, if the feature build flag, ``ENABLE_FEAT_HCX`` set to
-   0, feature is disabled statically during compilation. If it is defined as 1,
-   feature is validated, wherein FEAT_HCX is detected at boot time. In case not
-   implemented by the PE, a hard panic is generated. Finally, if the flag is set
-   to 2, feature is validated at runtime.
-
-   Note that the entire implementation is divided into two phases, wherein as
-   as part of phase-1 we are supporting the values 0,1. Value 2 is currently not
-   supported and is planned to be handled explicilty in phase-2 implementation.
-
-   FEATURE_DETECTION macro is disabled by default, and is currently an
-   experimental procedure. Platforms can explicitly make use of this by
-   mechanism, by enabling it to validate whether they have set their build flags
-   properly at an early phase.
 
 -  ``FIP_NAME``: This is an optional build option which specifies the FIP
    filename for the ``fip`` target. Default is ``fip.bin``.
@@ -727,15 +661,6 @@ Common build options
    feature. This flag can be enabled with ``TRUSTED_BOARD_BOOT`` in order to
    provide trust that the code taking the measurements and recording them has
    not been tampered with.
-
-   This option defaults to 0.
-
--  ``DRTM_SUPPORT``: Boolean flag to enable support for Dynamic Root of Trust
-   for Measurement (DRTM). This feature has trust dependency on BL31 for taking
-   the measurements and recording them as per `PSA DRTM specification`_. For
-   platforms which use BL2 to load/authenticate BL31 ``TRUSTED_BOARD_BOOT`` can
-   be used and for the platforms which use ``RESET_TO_BL31`` platform owners
-   should have mechanism to authenticate BL31. This is an experimental feature.
 
    This option defaults to 0.
 
@@ -894,7 +819,7 @@ Common build options
    Dispatcher option (``SPD=spmd``). When enabled (1) it indicates the SPMC
    component runs at the EL3 exception level. The default value is ``0`` (
    disabled). This configuration supports pre-Armv8.4 platforms (aka not
-   implementing the ``FEAT_SEL2`` extension). This is an experimental feature.
+   implementing the ``FEAT_SEL2`` extension).
 
 -  ``SPMC_AT_EL3_SEL0_SP`` : Boolean option to enable SEL0 SP load support when
    ``SPMC_AT_EL3`` is enabled. The default value if ``0`` (disabled). This
@@ -913,12 +838,6 @@ Common build options
    state or at EL3 if ``SPMC_AT_EL3`` is enabled. The latter configurations
    support pre-Armv8.4 platforms (aka not implementing the ``FEAT_SEL2``
    extension).
-
--  ``ENABLE_SPMD_LP`` : This boolean option is used jointly with the SPM
-   Dispatcher option (``SPD=spmd``). When enabled (1) it indicates support
-   for logical partitions in EL3, managed by the SPMD as defined in the FF-A
-   1.2 specification. This flag is disabled by default. This flag must not be
-   used if ``SPMC_AT_EL3`` is enabled. This is an experimental feature.
 
 -  ``SPM_MM`` : Boolean option to enable the Management Mode (MM)-based Secure
    Partition Manager (SPM) implementation. The default value is ``0``
@@ -944,11 +863,6 @@ Common build options
    of 2048 which should be suitable for most configurations, the
    hardware will limit the effective VL to the maximum physically supported
    VL.
-
--  ``TRANSFER_LIST``: Setting this to ``1`` enables support for Firmware
-   Handoff using Transfer List defined in `Firmware Handoff specification`_.
-   This defaults to ``0``. Please note that this is an experimental feature
-   based on Firmware Handoff specification v0.9.
 
 -  ``TRNG_SUPPORT``: Setting this to ``1`` enables support for True
    Random Number Generator Interface to BL31 image. This defaults to ``0``.
@@ -1007,10 +921,6 @@ Common build options
    TF-A" section in :ref:`Firmware Design`). It can take the value 1
    (Coherent memory region is included) or 0 (Coherent memory region is
    excluded). Default is 1.
-
--  ``USE_DEBUGFS``: When set to 1 this option activates an EXPERIMENTAL feature
-   exposing a virtual filesystem interface through BL31 as a SiP SMC function.
-   Default is 0.
 
 -  ``ARM_IO_IN_DTB``: This flag determines whether to use IO based on the
    firmware configuration framework. This will move the io_policies into a
@@ -1185,13 +1095,6 @@ Common build options
   errata mitigation for platforms with a non-arm interconnect using the errata
   ABI. By default its disabled (``0``).
 
-- ``PSA_CRYPTO``: Boolean option for enabling MbedTLS PSA crypto APIs support.
-  The platform will use PSA compliant Crypto APIs during authentication and
-  image measurement process by enabling this option. It uses APIs defined as
-  per the `PSA Crypto API specification`_. This feature is only supported if
-  using MbedTLS 3.x version. By default it is disabled (``0``), and this is an
-  experimental feature.
-
 - ``ENABLE_CONSOLE_GETC``: Boolean option to enable `getc()` feature in console
   driver(s). By default it is disabled (``0``) because it constitutes an attack
   vector into TF-A by potentially allowing an attacker to inject arbitrary data.
@@ -1288,8 +1191,118 @@ commands can be used:
     # Resume execution
     continue
 
+.. _build_options_experimental:
+
+Experimental build options
+---------------------------
+
+Common build options
+~~~~~~~~~~~~~~~~~~~~
+
+-  ``DRTM_SUPPORT``: Boolean flag to enable support for Dynamic Root of Trust
+   for Measurement (DRTM). This feature has trust dependency on BL31 for taking
+   the measurements and recording them as per `PSA DRTM specification`_. For
+   platforms which use BL2 to load/authenticate BL31 ``TRUSTED_BOARD_BOOT`` can
+   be used and for the platforms which use ``RESET_TO_BL31`` platform owners
+   should have mechanism to authenticate BL31. This option defaults to 0.
+
+-  ``ENABLE_RME``: Numeric value to enable support for the ARMv9 Realm
+   Management Extension. This flag can take the values 0 to 2, to align with
+   the ``FEATURE_DETECTION`` mechanism. Default value is 0.
+
+-  ``ENABLE_SME_FOR_NS``: Numeric value to enable Scalable Matrix Extension
+   (SME), SVE, and FPU/SIMD for the non-secure world only. These features share
+   registers so are enabled together. Using this option without
+   ENABLE_SME_FOR_SWD=1 will cause SME, SVE, and FPU/SIMD instructions in secure
+   world to trap to EL3. Requires ``ENABLE_SVE_FOR_NS`` to be set as SME is a
+   superset of SVE. SME is an optional architectural feature for AArch64.
+   At this time, this build option cannot be used on systems that have
+   SPD=spmd/SPM_MM and atempting to build with this option will fail.
+   This flag can take the values 0 to 2, to align with the ``FEATURE_DETECTION``
+   mechanism. Default is 0.
+
+-  ``ENABLE_SME2_FOR_NS``: Numeric value to enable Scalable Matrix Extension
+   version 2 (SME2) for the non-secure world only. SME2 is an optional
+   architectural feature for AArch64.
+   This should be set along with ENABLE_SME_FOR_NS=1, if not, the default SME
+   accesses will still be trapped. This flag can take the values 0 to 2, to
+   align with the ``FEATURE_DETECTION`` mechanism. Default is 0.
+
+-  ``ENABLE_SME_FOR_SWD``: Boolean option to enable the Scalable Matrix
+   Extension for secure world. Used along with SVE and FPU/SIMD.
+   ENABLE_SME_FOR_NS and ENABLE_SVE_FOR_SWD must also be set to use this.
+   Default is 0.
+
+-  ``ENABLE_SPMD_LP`` : This boolean option is used jointly with the SPM
+   Dispatcher option (``SPD=spmd``). When enabled (1) it indicates support
+   for logical partitions in EL3, managed by the SPMD as defined in the
+   FF-A v1.2 specification. This flag is disabled by default. This flag
+   must not be used if ``SPMC_AT_EL3`` is enabled.
+
+-  ``FEATURE_DETECTION``: Boolean option to enable the architectural features
+   detection mechanism. It detects whether the Architectural features enabled
+   through feature specific build flags are supported by the PE or not by
+   validating them either at boot phase or at runtime based on the value
+   possessed by the feature flag (0 to 2) and report error messages at an early
+   stage. This flag will also enable errata ordering checking for ``DEBUG``
+   builds.
+
+   This prevents and benefits us from EL3 runtime exceptions during context save
+   and restore routines guarded by these build flags. Henceforth validating them
+   before their usage provides more control on the actions taken under them.
+
+   The mechanism permits the build flags to take values 0, 1 or 2 and
+   evaluates them accordingly.
+
+   Lets consider ``ENABLE_FEAT_HCX``, build flag for ``FEAT_HCX`` as an example:
+
+   ::
+
+     ENABLE_FEAT_HCX = 0: Feature disabled statically at compile time.
+     ENABLE_FEAT_HCX = 1: Feature Enabled and the flag is validated at boottime.
+     ENABLE_FEAT_HCX = 2: Feature Enabled and the flag is validated at runtime.
+
+   In the above example, if the feature build flag, ``ENABLE_FEAT_HCX`` set to
+   0, feature is disabled statically during compilation. If it is defined as 1,
+   feature is validated, wherein FEAT_HCX is detected at boot time. In case not
+   implemented by the PE, a hard panic is generated. Finally, if the flag is set
+   to 2, feature is validated at runtime.
+
+   Note that the entire implementation is divided into two phases, wherein as
+   as part of phase-1 we are supporting the values 0,1. Value 2 is currently not
+   supported and is planned to be handled explicilty in phase-2 implementation.
+
+   ``FEATURE_DETECTION`` macro is disabled by default. Platforms can explicitly
+   make use of this by mechanism, by enabling it to validate whether they have
+   set their build flags properly at an early phase.
+
+-  ``PSA_CRYPTO``: Boolean option for enabling MbedTLS PSA crypto APIs support.
+   The platform will use PSA compliant Crypto APIs during authentication and
+   image measurement process by enabling this option. It uses APIs defined as
+   per the `PSA Crypto API specification`_. This feature is only supported if
+   using MbedTLS 3.x version. It is disabled (``0``) by default.
+
+-  ``TRANSFER_LIST``: Setting this to ``1`` enables support for Firmware
+   Handoff using Transfer List defined in `Firmware Handoff specification`_.
+   This defaults to ``0``. Current implementation follows the Firmware Handoff
+   specification v0.9.
+
+-  ``USE_DEBUGFS``: When set to 1 this option exposes a virtual filesystem
+   interface through BL31 as a SiP SMC function.
+   Default is disabled (0).
+
 Firmware update options
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
+
+-  ``PSA_FWU_SUPPORT``: Enable the firmware update mechanism as per the
+   `PSA FW update specification`_. The default value is 0.
+   PSA firmware update implementation has few limitations, such as:
+
+   -  BL2 is not part of the protocol-updatable images. If BL2 needs to
+      be updated, then it should be done through another platform-defined
+      mechanism.
+
+   -  It assumes the platform's hardware supports CRC32 instructions.
 
 -  ``NR_OF_FW_BANKS``: Define the number of firmware banks. This flag is used
    in defining the firmware update metadata structure. This flag is by default
@@ -1300,14 +1313,6 @@ Firmware update options
    the `PSA FW update specification`_.
    This flag is used in defining the firmware update metadata structure. This
    flag is by default set to '1'.
-
--  ``PSA_FWU_SUPPORT``: Enable the firmware update mechanism as per the
-   `PSA FW update specification`_. The default value is 0, and this is an
-   experimental feature.
-   PSA firmware update implementation has some limitations, such as BL2 is
-   not part of the protocol-updatable images, if BL2 needs to be updated, then
-   it should be done through another platform-defined mechanism, and it assumes
-   that the platform's hardware supports CRC32 instructions.
 
 --------------
 
