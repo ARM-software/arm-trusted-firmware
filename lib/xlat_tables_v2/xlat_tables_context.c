@@ -200,7 +200,7 @@ int xlat_make_tables_readonly(void)
  * region. Therefore, in this case we have to assume that the whole address
  * space size might be mapped.
  */
-#ifdef PLAT_XLAT_TABLES_DYNAMIC
+#if PLAT_XLAT_TABLES_DYNAMIC
 #define MAX_PHYS_ADDR	tf_xlat_ctx.pa_max_address
 #else
 #define MAX_PHYS_ADDR	tf_xlat_ctx.max_pa
