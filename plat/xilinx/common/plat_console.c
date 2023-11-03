@@ -18,6 +18,7 @@
 #include <drivers/console.h>
 #include <libfdt.h>
 #include <plat_console.h>
+#include <plat_fdt.h>
 
 #include <platform_def.h>
 #include <plat_private.h>
@@ -146,13 +147,7 @@ static int fdt_get_uart_info(dt_uart_info_t *info)
 	int node, ret = 0;
 	void *dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
 
-	if (fdt_check_header(dtb) != 0) {
-		ERROR("Can't read DT at %p\n", dtb);
-		ret  = -FDT_ERR_NOTFOUND;
-		goto error;
-	}
-
-	ret = fdt_open_into(dtb, dtb, XILINX_OF_BOARD_DTB_MAX_SIZE);
+	ret = is_valid_dtb(dtb);
 	if (ret < 0) {
 		ERROR("Invalid Device Tree at %p: error %d\n", dtb, ret);
 		ret  = -FDT_ERR_NOTFOUND;
