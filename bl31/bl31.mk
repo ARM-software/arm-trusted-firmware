@@ -27,7 +27,6 @@ include lib/extensions/amu/amu.mk
 include lib/mpmm/mpmm.mk
 
 ifeq (${SPMC_AT_EL3},1)
-  $(warning "EL3 SPMC is an experimental feature")
   $(info Including EL3 SPMC makefile)
   include services/std_svc/spm/common/spm.mk
   include services/std_svc/spm/el3_spmc/spmc.mk
