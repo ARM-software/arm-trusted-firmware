@@ -19,6 +19,11 @@ To build ATF for different platform (supported are "silicon"(default) and "versa
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal VERSAL_PLATFORM=versal_virt bl31
 ```
 
+To build bl32 TSP you have to rebuild bl31 too
+```bash
+make CROSS_COMPILE=aarch64-none-elf- PLAT=versal SPD=tspd RESET_TO_BL31=1 bl31 bl32
+```
+
 To build TF-A for JTAG DCC console
 ```bash
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal bl31 VERSAL_CONSOLE=dcc

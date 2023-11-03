@@ -13,8 +13,11 @@
 #include <bl31/interrupt_mgmt.h>
 #include <common/bl_common.h>
 #include <drivers/cadence/cdns_uart.h>
+#include <lib/xlat_tables/xlat_tables.h>
 
 void zynqmp_config_setup(void);
+
+const mmap_region_t *plat_get_mmap(void);
 
 uint32_t zynqmp_calc_core_pos(u_register_t mpidr);
 

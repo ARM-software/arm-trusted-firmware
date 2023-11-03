@@ -14,6 +14,11 @@ To build:
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal_net bl31
 ```
 
+To build bl32 TSP you have to rebuild bl31 too
+```bash
+make CROSS_COMPILE=aarch64-none-elf- PLAT=versal_net SPD=tspd RESET_TO_BL31=1 bl31 bl32
+```
+
 To build TF-A for JTAG DCC console:
 ```bash
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal_net VERSAL_NET_CONSOLE=dcc bl31

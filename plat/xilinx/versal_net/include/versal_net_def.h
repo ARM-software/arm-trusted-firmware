@@ -128,6 +128,7 @@
  * IRQ constants
  ******************************************************************************/
 #define VERSAL_NET_IRQ_SEC_PHY_TIMER	U(29)
+#define ARM_IRQ_SEC_PHY_TIMER	29
 
 /*******************************************************************************
  * UART related constants

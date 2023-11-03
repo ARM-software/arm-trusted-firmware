@@ -115,6 +115,19 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 	} else {
 		INFO("BL31: PLM to TF-A handover success %u\n", ret);
+
+		/*
+		 * The BL32 load address is indicated as 0x0 in the handoff
+		 * parameters, which is different from the default/user-provided
+		 * load address of 0x60000000 but the flags are correctly
+		 * configured. Consequently, in this scenario, set the PC
+		 * to the requested BL32_BASE address.
+		 */
+
+		/* TODO: Remove the following check once this is fixed from PLM */
+		if (bl32_image_ep_info.pc == 0 && bl32_image_ep_info.spsr != 0) {
+			bl32_image_ep_info.pc = (uintptr_t)BL32_BASE;
+		}
 	}
 
 	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
@@ -218,6 +231,6 @@ void bl31_plat_arch_setup(void)
 		{0}
 	};
 
-	setup_page_tables(bl_regions, plat_versal_get_mmap());
+	setup_page_tables(bl_regions, plat_get_mmap());
 	enable_mmu(0);
 }

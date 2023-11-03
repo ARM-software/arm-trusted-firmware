@@ -33,7 +33,7 @@ const mmap_region_t plat_versal_mmap[] = {
 	{ 0 }
 };
 
-const mmap_region_t *plat_versal_get_mmap(void)
+const mmap_region_t *plat_get_mmap(void)
 {
 	return plat_versal_mmap;
 }
