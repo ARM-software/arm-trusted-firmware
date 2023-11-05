@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2024, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,7 @@
 struct rcar_gen3_dbsc_qos_settings h3_v11_qos[] = {
 	/* BUFCAM settings */
 	/* DBSC_DBCAM0CNF0 not set */
-	{ DBSC_DBCAM0CNF1, 0x00044218 },
+	{ DBSC_DBCAM0CNF1, 0x00048218U },
 	{ DBSC_DBCAM0CNF2, 0x000000F4 },
 	/* DBSC_DBCAM0CNF3 not set */
 	{ DBSC_DBSCHCNT0, 0x080F0037 },
