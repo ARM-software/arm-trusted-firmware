@@ -25,6 +25,18 @@ issues found, additional release candidates may be created to fix the issues.
          code freeze       ver w.x       code freeze     ver y.z
 
 
+Version numbering
+~~~~~~~~~~~~~~~~~
+TF-A version is given in Makefile, through several macros:
+
+- VERSION_MAJOR
+- VERSION_MINOR
+- VERSION_PATCH
+
+For example, TF-A v2.10 has VERSION_MAJOR=2, VERSION_MINOR=10 and VERSION_PATCH=0.
+
+This VERSION_PATCH macro is only increased for LTS releases.
+
 Upcoming Releases
 ~~~~~~~~~~~~~~~~~
 
