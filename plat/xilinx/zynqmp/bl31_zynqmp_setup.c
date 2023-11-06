@@ -190,6 +190,8 @@ void bl31_plat_runtime_setup(void)
 #endif
 
 	custom_runtime_setup();
+
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*
