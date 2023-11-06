@@ -49,6 +49,10 @@ ifdef ZYNQMP_ATF_MEM_BASE
     ifdef ZYNQMP_ATF_MEM_PROGBITS_SIZE
         $(eval $(call add_define,ZYNQMP_ATF_MEM_PROGBITS_SIZE))
     endif
+
+    # enable assert() when TF-A runs from DDR memory.
+    ENABLE_ASSERTIONS := 1
+
 endif
 
 ifdef ZYNQMP_BL32_MEM_BASE
