@@ -161,7 +161,7 @@ workaround_reset_start neoverse_v1, ERRATUM(2108267), ERRATA_V1_2108267
 	msr	NEOVERSE_V1_CPUECTLR_EL1, x1
 workaround_reset_end neoverse_v1, ERRATUM(2108267)
 
-check_erratum_ls neoverse_v1, ERRATUM(2108267), CPU_REV(1, 1)
+check_erratum_ls neoverse_v1, ERRATUM(2108267), CPU_REV(1, 2)
 
 workaround_reset_start neoverse_v1, ERRATUM(2139242), ERRATA_V1_2139242
 	mov	x0, #0x3
@@ -194,7 +194,7 @@ workaround_reset_start neoverse_v1, ERRATUM(2294912), ERRATA_V1_2294912
 	sysreg_bit_set NEOVERSE_V1_ACTLR2_EL1, NEOVERSE_V1_ACTLR2_EL1_BIT_0
 workaround_reset_end neoverse_v1, ERRATUM(2294912)
 
-check_erratum_ls neoverse_v1, ERRATUM(2294912), CPU_REV(1, 1)
+check_erratum_ls neoverse_v1, ERRATUM(2294912), CPU_REV(1, 2)
 
 workaround_reset_start neoverse_v1, ERRATUM(2372203), ERRATA_V1_2372203
 	/* Set bit 40 in ACTLR2_EL1 */

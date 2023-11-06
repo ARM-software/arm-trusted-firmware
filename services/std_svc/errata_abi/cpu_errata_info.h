@@ -28,6 +28,7 @@
 #include <cortex_a715.h>
 #include <cortex_x1.h>
 #include <cortex_x2.h>
+#include <cortex_x3.h>
 #include <neoverse_n1.h>
 #include <neoverse_n2.h>
 #include <neoverse_v1.h>

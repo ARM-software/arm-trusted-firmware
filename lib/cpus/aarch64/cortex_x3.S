@@ -26,6 +26,13 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X3_BHB_LOOP_COUNT, cortex_x3
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+workaround_reset_start cortex_x3, ERRATUM(2070301), ERRATA_X3_2070301
+	sysreg_bitfield_insert CORTEX_X3_CPUECTLR2_EL1, CORTEX_X3_CPUECTLR2_EL1_PF_MODE_CNSRV, \
+	CORTEX_X3_CPUECTLR2_EL1_PF_MODE_LSB, CORTEX_X3_CPUECTLR2_EL1_PF_MODE_WIDTH
+workaround_reset_end cortex_x3, ERRATUM(2070301)
+
+check_erratum_ls cortex_x3, ERRATUM(2070301), CPU_REV(1, 2)
+
 workaround_runtime_start cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
 	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, CORTEX_X3_CPUACTLR2_EL1_BIT_36
 workaround_runtime_end cortex_x3, ERRATUM(2313909), NO_ISB
@@ -41,6 +48,14 @@ workaround_reset_start cortex_x3, ERRATUM(2615812), ERRATA_X3_2615812
 workaround_reset_end cortex_x3, ERRATUM(2615812)
 
 check_erratum_ls cortex_x3, ERRATUM(2615812), CPU_REV(1, 1)
+
+workaround_reset_start cortex_x3, ERRATUM(2742421), ERRATA_X3_2742421
+	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
+	sysreg_bit_set CORTEX_X3_CPUACTLR5_EL1, CORTEX_X3_CPUACTLR5_EL1_BIT_55
+	sysreg_bit_clear CORTEX_X3_CPUACTLR5_EL1, CORTEX_X3_CPUACTLR5_EL1_BIT_56
+workaround_reset_end cortex_x3, ERRATUM(2742421)
+
+check_erratum_ls cortex_x3, ERRATUM(2742421), CPU_REV(1, 1)
 
 workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
