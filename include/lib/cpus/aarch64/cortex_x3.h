@@ -47,4 +47,10 @@
 #define CORTEX_X3_CPUECTLR2_EL1_PF_MODE_WIDTH	U(4)
 #define CORTEX_X3_CPUECTLR2_EL1_PF_MODE_CNSRV	ULL(0x9)
 
+/*******************************************************************************
+ * CPU Auxiliary Control register 3 specific definitions.
+ ******************************************************************************/
+#define CORTEX_X3_CPUACTLR3_EL1			S3_0_C15_C1_2
+#define CORTEX_X3_CPUACTLR3_EL1_BIT_47		(ULL(1) << 47)
+
 #endif /* CORTEX_X3_H */
