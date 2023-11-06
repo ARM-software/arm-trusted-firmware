@@ -710,8 +710,8 @@ static int sdei_interrupt_bind(unsigned int intr_num)
 	sdei_ev_map_t *map;
 	bool retry = true, shared_mapping;
 
-	/* SGIs are not allowed to be bound */
-	if (plat_ic_is_sgi(intr_num) != 0)
+	/* Interrupt must be either PPI or SPI */
+	if (!(plat_ic_is_ppi(intr_num) || plat_ic_is_spi(intr_num)))
 		return SDEI_EINVAL;
 
 	shared_mapping = (plat_ic_is_spi(intr_num) != 0);
