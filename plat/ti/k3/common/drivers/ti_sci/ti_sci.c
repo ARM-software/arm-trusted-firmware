@@ -155,14 +155,14 @@ static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 	ret = k3_sec_proxy_clear_rx_thread(SP_RESPONSE);
 	if (ret) {
 		ERROR("Could not clear response queue (%d)\n", ret);
-		return ret;
+		goto unlock;
 	}
 
 	/* Send the message */
 	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, tx_msg);
 	if (ret) {
 		ERROR("Message sending failed (%d)\n", ret);
-		return ret;
+		goto unlock;
 	}
 
 	/* Get the response if requested */
@@ -170,13 +170,14 @@ static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 		ret = ti_sci_get_response(rx_msg, SP_RESPONSE);
 		if (ret != 0U) {
 			ERROR("Failed to get response (%d)\n", ret);
-			return ret;
+			goto unlock;
 		}
 	}
 
+unlock:
 	bakery_lock_release(&ti_sci_xfer_lock);
 
-	return 0;
+	return ret;
 }
 
 /**
