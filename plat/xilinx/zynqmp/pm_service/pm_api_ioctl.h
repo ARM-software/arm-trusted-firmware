@@ -36,10 +36,6 @@
 #define	PM_TAPDELAY_BYPASS_DISABLE 0U
 #define	PM_TAPDELAY_BYPASS_ENABLE 1U
 
-//sgmii mode
-#define	PM_SGMII_DISABLE 0U
-#define	PM_SGMII_ENABLE 1U
-
 enum tap_delay_type {
 	PM_TAPDELAY_INPUT,
 	PM_TAPDELAY_OUTPUT,

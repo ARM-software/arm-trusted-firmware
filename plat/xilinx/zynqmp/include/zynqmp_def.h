@@ -221,20 +221,6 @@
 #define IOU_TAPDLY_BYPASS			U(0XFF180390)
 #define TAP_DELAY_MASK				U(0x7)
 
-/* SGMII mode */
-#define IOU_GEM_CTRL				U(0xFF180360)
-#define IOU_GEM_CLK_CTRL			U(0xFF180308)
-#define SGMII_SD_MASK				U(0x3)
-#define SGMII_SD_OFFSET				U(2)
-#define SGMII_PCS_SD_0				U(0x0)
-#define SGMII_PCS_SD_1				U(0x1)
-#define SGMII_PCS_SD_PHY			U(0x2)
-#define GEM_SGMII_MASK				U(0x4)
-#define GEM_CLK_CTRL_MASK			U(0xF)
-#define GEM_CLK_CTRL_OFFSET			U(5)
-#define GEM_RX_SRC_SEL_GTR			U(0x1)
-#define GEM_SGMII_MODE				U(0x4)
-
 /* SD DLL reset */
 #define ZYNQMP_SD_DLL_CTRL			U(0xFF180358)
 #define ZYNQMP_SD0_DLL_RST_MASK			U(0x00000004)

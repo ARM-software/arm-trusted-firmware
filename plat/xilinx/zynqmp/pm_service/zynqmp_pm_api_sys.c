@@ -163,10 +163,6 @@ static const eemi_api_dependency api_dep_table[] = {
 		.api_id = PM_MMIO_WRITE,
 	},
 	{
-		.id = IOCTL_SET_SGMII_MODE,
-		.api_id = PM_MMIO_WRITE,
-	},
-	{
 		.id = IOCTL_SD_DLL_RESET,
 		.api_id = PM_MMIO_WRITE,
 	},
