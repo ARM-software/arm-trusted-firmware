@@ -898,7 +898,7 @@ Common build options
    Dispatcher option (``SPD=spmd``). When enabled (1) it indicates the SPMC
    component runs at the EL3 exception level. The default value is ``0`` (
    disabled). This configuration supports pre-Armv8.4 platforms (aka not
-   implementing the ``FEAT_SEL2`` extension). This is an experimental feature.
+   implementing the ``FEAT_SEL2`` extension).
 
 -  ``SPMC_AT_EL3_SEL0_SP`` : Boolean option to enable SEL0 SP load support when
    ``SPMC_AT_EL3`` is enabled. The default value if ``0`` (disabled). This
