@@ -130,6 +130,12 @@ convention:
    -  For other BL3x images, if the firmware configuration file is loaded by
       BL2, then its address is passed in ``arg0`` and if HW_CONFIG is loaded
       then its address is passed in ``arg1``.
+   -  In case SPMC_AT_EL3 is enabled, populate the BL32 image base, size and max
+      limit in the entry point information, since there is no platform function
+      to retrieve these in generic code. We choose ``arg2``, ``arg3`` and
+      ``arg4`` since the generic code uses ``arg1`` for stashing the SP manifest
+      size. The SPMC setup uses these arguments to update SP manifest with
+      actual SP's base address and it size.
    -  In case of the Arm FVP platform, FW_CONFIG address passed in ``arg1`` to
       BL31/SP_MIN, and the SOC_FW_CONFIG and HW_CONFIG details are retrieved
       from FW_CONFIG device tree.
