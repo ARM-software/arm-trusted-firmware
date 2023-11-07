@@ -29,9 +29,8 @@ int psci_cpu_on(u_register_t target_cpu,
 	int rc;
 	entry_point_info_t ep;
 
-	/* Determine if the cpu exists of not */
-	rc = psci_validate_mpidr(target_cpu);
-	if (rc != PSCI_E_SUCCESS)
+	/* Validate the target CPU */
+	if (!is_valid_mpidr(target_cpu))
 		return PSCI_E_INVALID_PARAMS;
 
 	/* Validate the entry point and get the entry_point_info */
@@ -245,19 +244,18 @@ int psci_cpu_off(void)
 int psci_affinity_info(u_register_t target_affinity,
 		       unsigned int lowest_affinity_level)
 {
-	int ret;
 	unsigned int target_idx;
+
+	/* Validate the target affinity */
+	if (!is_valid_mpidr(target_affinity))
+		return PSCI_E_INVALID_PARAMS;
 
 	/* We dont support level higher than PSCI_CPU_PWR_LVL */
 	if (lowest_affinity_level > PSCI_CPU_PWR_LVL)
 		return PSCI_E_INVALID_PARAMS;
 
 	/* Calculate the cpu index of the target */
-	ret = plat_core_pos_by_mpidr(target_affinity);
-	if (ret == -1) {
-		return PSCI_E_INVALID_PARAMS;
-	}
-	target_idx = (unsigned int)ret;
+	target_idx = (unsigned int) plat_core_pos_by_mpidr(target_affinity);
 
 	/*
 	 * Generic management:
@@ -285,6 +283,10 @@ int psci_migrate(u_register_t target_cpu)
 	int rc;
 	u_register_t resident_cpu_mpidr;
 
+	/* Validate the target cpu */
+	if (!is_valid_mpidr(target_cpu))
+		return PSCI_E_INVALID_PARAMS;
+
 	rc = psci_spd_migrate_info(&resident_cpu_mpidr);
 	if (rc != PSCI_TOS_UP_MIG_CAP)
 		return (rc == PSCI_TOS_NOT_UP_MIG_CAP) ?
@@ -298,8 +300,7 @@ int psci_migrate(u_register_t target_cpu)
 		return PSCI_E_NOT_PRESENT;
 
 	/* Check the validity of the specified target cpu */
-	rc = psci_validate_mpidr(target_cpu);
-	if (rc != PSCI_E_SUCCESS)
+	if (!is_valid_mpidr(target_cpu))
 		return PSCI_E_INVALID_PARAMS;
 
 	assert((psci_spd_pm != NULL) && (psci_spd_pm->svc_migrate != NULL));
@@ -339,8 +340,7 @@ int psci_node_hw_state(u_register_t target_cpu,
 	int rc;
 
 	/* Validate target_cpu */
-	rc = psci_validate_mpidr(target_cpu);
-	if (rc != PSCI_E_SUCCESS)
+	if (!is_valid_mpidr(target_cpu))
 		return PSCI_E_INVALID_PARAMS;
 
 	/* Validate power_level against PLAT_MAX_PWR_LVL */

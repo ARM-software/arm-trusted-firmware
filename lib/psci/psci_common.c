@@ -818,20 +818,6 @@ void psci_release_pwr_domain_locks(unsigned int end_pwrlvl,
 }
 
 /*******************************************************************************
- * Simple routine to determine whether a mpidr is valid or not.
- ******************************************************************************/
-int psci_validate_mpidr(u_register_t mpidr)
-{
-	int pos = plat_core_pos_by_mpidr(mpidr);
-
-	if ((pos < 0) || ((unsigned int)pos >= PLATFORM_CORE_COUNT)) {
-		return PSCI_E_INVALID_PARAMS;
-	}
-
-	return PSCI_E_SUCCESS;
-}
-
-/*******************************************************************************
  * This function determines the full entrypoint information for the requested
  * PSCI entrypoint on power on/resume and returns it.
  ******************************************************************************/
