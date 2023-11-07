@@ -222,7 +222,7 @@ Responsibilities of these platform interfaces are -
    - Public key data size is passed as the third argument to this function.
    - This function must return 0 on success, a signed integer error code
      otherwise.
-   - In FVP platform, this function is used to calculate the hash of the given
+   - In TC2 platform, this function is used to calculate the hash of the given
      key and forward this hash to RSS alongside the measurement of the image
      which the key signs.
 
