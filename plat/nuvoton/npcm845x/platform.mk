@@ -140,23 +140,9 @@ $(error For SEPARATE_NOBITS_REGION, RECLAIM_INIT_CODE cannot be supported)
 endif
 endif
 
-# Disable ARM Cryptocell by default
-ARM_CRYPTOCELL_INTEG	:=	0
-$(eval $(call assert_boolean,ARM_CRYPTOCELL_INTEG))
-$(eval $(call add_define,ARM_CRYPTOCELL_INTEG))
-
 # Enable PIE support for RESET_TO_BL31 case
 ifeq (${RESET_TO_BL31},1)
 ENABLE_PIE	:=	1
-endif
-
-# CryptoCell integration relies on coherent buffers for passing data from
-# the AP CPU to the CryptoCell
-
-ifeq (${ARM_CRYPTOCELL_INTEG},1)
-ifeq (${USE_COHERENT_MEM},0)
-$(error "ARM_CRYPTOCELL_INTEG needs USE_COHERENT_MEM to be set.")
-endif
 endif
 
 PLAT_INCLUDES	:=	-Iinclude/plat/nuvoton/npcm845x \
@@ -339,11 +325,7 @@ BL2_SOURCES	+=	${AUTH_SOURCES} \
 $(eval $(call TOOL_ADD_IMG,ns_bl2u,--fwu,FWU_))
 
 # We expect to locate the *.mk files under the directories specified below
-ifeq (${ARM_CRYPTOCELL_INTEG},0)
 CRYPTO_LIB_MK	:=	drivers/auth/mbedtls/mbedtls_crypto.mk
-else
-CRYPTO_LIB_MK	:=	drivers/auth/cryptocell/cryptocell_crypto.mk
-endif
 
 IMG_PARSER_LIB_MK := drivers/auth/mbedtls/mbedtls_x509.mk
 
