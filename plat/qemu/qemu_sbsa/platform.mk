@@ -18,7 +18,6 @@ ENABLE_STACK_PROTECTOR	 := 0
 ifeq (${SPM_MM},1)
 NEED_BL32		:=	yes
 EL3_EXCEPTION_HANDLING	:=	1
-GICV2_G0_FOR_EL3	:=	1
 endif
 
 include plat/qemu/common/common.mk
