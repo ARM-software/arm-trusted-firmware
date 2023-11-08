@@ -722,6 +722,11 @@ Common build options
    platform makefile named ``platform.mk``. For example, to build TF-A for the
    Arm Juno board, select PLAT=juno.
 
+-  ``PLATFORM_REPORT_CTX_MEM_USE``: Reports the context memory allocated for
+   each core as well as the global context. The data includes the memory used
+   by each world and each privileged exception level. This build option is
+   applicable only for ``ARCH=aarch64`` builds. The default value is 0.
+
 -  ``PRELOADED_BL33_BASE``: This option enables booting a preloaded BL33 image
    instead of the normal boot flow. When defined, it must specify the entry
    point address for the preloaded BL33 image. This option is incompatible with

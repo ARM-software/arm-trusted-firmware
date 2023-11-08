@@ -1244,6 +1244,7 @@ $(eval $(call assert_booleans,\
 	PSA_CRYPTO	\
 	ENABLE_CONSOLE_GETC \
 	INIT_UNUSED_NS_EL2	\
+	PLATFORM_REPORT_CTX_MEM_USE \
 )))
 
 # Numeric_Flags
@@ -1437,7 +1438,15 @@ $(eval $(call add_defines,\
 	PSA_CRYPTO	\
 	ENABLE_CONSOLE_GETC \
 	INIT_UNUSED_NS_EL2	\
+	PLATFORM_REPORT_CTX_MEM_USE \
 )))
+
+ifeq (${PLATFORM_REPORT_CTX_MEM_USE}, 1)
+ifeq (${DEBUG}, 0)
+        $(warning "PLATFORM_REPORT_CTX_MEM_USE can be applied when DEBUG=1 only")
+        override PLATFORM_REPORT_CTX_MEM_USE := 0
+endif
+endif
 
 ifeq (${SANITIZE_UB},trap)
         $(eval $(call add_define,MONITOR_TRAPS))

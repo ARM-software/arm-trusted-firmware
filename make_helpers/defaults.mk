@@ -378,3 +378,6 @@ INIT_UNUSED_NS_EL2		:= 0
 # Disable including MPAM EL2 registers in context by default since currently
 # it's only enabled for NS world
 CTX_INCLUDE_MPAM_REGS		:= 0
+
+# Enable context memory usage reporting during BL31 setup.
+PLATFORM_REPORT_CTX_MEM_USE	:= 0
