@@ -109,7 +109,7 @@ static uint32_t fdt_add_uart_info(dt_uart_info_t *info, int node, void *dtb)
 {
 	uintptr_t base_addr;
 	const char *com;
-	uint32_t ret = 0;
+	int32_t ret = 0;
 
 	com = fdt_getprop(dtb, node, "compatible", NULL);
 	if (com != NULL) {
@@ -144,7 +144,7 @@ error:
  */
 static int fdt_get_uart_info(dt_uart_info_t *info)
 {
-	int node, ret = 0;
+	int node = 0, ret = 0;
 	void *dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
 
 	ret = is_valid_dtb(dtb);
@@ -178,9 +178,9 @@ error:
  *
  * Return: On success, it returns 0; on failure, it returns an error+reason.
  */
-static int check_fdt_uart_info(dt_uart_info_t *info)
+static int32_t check_fdt_uart_info(dt_uart_info_t *info)
 {
-	uint32_t ret = 0;
+	int32_t ret = 0;
 
 	if (info->status == 0) {
 		ret = -ENODEV;
@@ -219,7 +219,7 @@ static void console_boot_end(console_t *boot_console)
 static void setup_runtime_console(uint32_t clock, dt_uart_info_t *info)
 {
 	static console_t bl31_runtime_console;
-	uint32_t rc;
+	int32_t rc;
 
 #if defined(PLAT_zynqmp)
 	rc = console_cdns_register(info->base,
@@ -260,6 +260,7 @@ static int32_t runtime_console_init(dt_uart_info_t *uart_info,
 	rc = fdt_get_uart_info(uart_info);
 	if (rc < 0) {
 		rc = -FDT_ERR_NOTFOUND;
+		goto error;
 	}
 
 	if (strncmp(uart_info->compatible, DT_UART_COMPAT,
@@ -283,13 +284,14 @@ static int32_t runtime_console_init(dt_uart_info_t *uart_info,
 		WARN("BL31: No console device found in DT.\n");
 	}
 
+error:
 	return rc;
 }
 #endif
 
 void setup_console(void)
 {
-	uint32_t rc;
+	int32_t rc;
 	uint32_t uart_clk = get_uart_clk();
 
 #if defined(PLAT_zynqmp)
