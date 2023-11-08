@@ -32,7 +32,7 @@ PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
 
 # Cpu core architecture level:
 # v8.0: a53, a57, a72
-# v8.2: a76, n1
+# v8.2: a55, a76, n1
 # v8.4: v1
 # v9.0: a710, n2
 #
