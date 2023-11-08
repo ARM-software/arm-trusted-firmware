@@ -198,7 +198,7 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	while (bl_params != NULL) {
 		if (bl_params->image_id == BL32_IMAGE_ID) {
 			bl32_image_ep_info = *bl_params->ep_info;
-#if defined(SPMC_AT_EL3)
+#if SPMC_AT_EL3
 			/*
 			 * Populate the BL32 image base, size and max limit in
 			 * the entry point information, since there is no
