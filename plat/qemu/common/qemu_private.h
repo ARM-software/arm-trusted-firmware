@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#include <lib/xlat_tables/xlat_tables_compat.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 void plat_qemu_io_setup(void);
 int qemu_io_register_sp_pkg(const char *name, const char *uuid,
