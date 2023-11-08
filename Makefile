@@ -41,10 +41,6 @@ PLAT				:= ${DEFAULT_PLAT}
 
 CHECKCODE_ARGS		:=	--no-patch
 # Do not check the coding style on imported library files or documentation files
-INC_ARM_DIRS_TO_CHECK	:=	$(sort $(filter-out                     \
-					include/drivers/arm/cryptocell,	\
-					$(wildcard include/drivers/arm/*)))
-INC_ARM_DIRS_TO_CHECK	+=	include/drivers/arm/cryptocell/*.h
 INC_DRV_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/drivers/arm,		\
 					$(wildcard include/drivers/*)))

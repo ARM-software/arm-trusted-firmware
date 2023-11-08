@@ -90,11 +90,6 @@ Arm Platform Build Options
    of the translation tables library instead of version 2. It is set to 0 by
    default, which selects version 2.
 
--  ``ARM_CRYPTOCELL_INTEG`` : bool option to enable TF-A to invoke Arm®
-   TrustZone® CryptoCell functionality for Trusted Board Boot on capable Arm
-   platforms. If this option is specified, then the path to the CryptoCell
-   SBROM library must be specified via ``CCSBROM_LIB_PATH`` flag.
-
 -  ``ARM_GPT_SUPPORT``: Enable GPT parser to get the entry address and length of
    the various partitions present in the GPT image. This support is available
    only for the BL2 component, and it is disabled by default.

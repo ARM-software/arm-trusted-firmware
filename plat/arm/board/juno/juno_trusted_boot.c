@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <drivers/arm/cryptocell/cc_rotpk.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
@@ -109,10 +108,6 @@ static int juno_get_rotpk_info_regs(void **key_ptr, unsigned int *key_len,
 int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 			unsigned int *flags)
 {
-#if ARM_CRYPTOCELL_INTEG
-	return arm_get_rotpk_info_cc(key_ptr, key_len, flags);
-#else
-
 #if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) || \
     (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
 	return arm_get_rotpk_info_dev(key_ptr, key_len, flags);
@@ -121,6 +116,4 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 #else
 	return 1;
 #endif
-
-#endif /* ARM_CRYPTOCELL_INTEG */
 }
