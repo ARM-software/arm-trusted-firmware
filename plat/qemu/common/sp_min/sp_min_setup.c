@@ -16,7 +16,7 @@
 #include <drivers/arm/gicv2.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
-#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
 #include "../qemu_private.h"

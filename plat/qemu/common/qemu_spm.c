@@ -9,7 +9,7 @@
 #include <common/debug.h>
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
-#include <lib/xlat_tables/xlat_tables_compat.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <services/spm_mm_partition.h>
 
 #include <platform_def.h>
