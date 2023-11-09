@@ -3,6 +3,86 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.10..refs/tags/lts-v2.8.11) (2023-11-09)
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add Cortex-A53 errata framework information ([e9211ca](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e9211ca09ab4183688cdd2d167fbab609bead286))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Xilinx**
+
+    - **Versal**
+
+      - fix incorrect regbase for PMC IPI ([9026a50](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9026a5048e76e381682046be123b2c3f3ff48ed3))
+      - make pmc ipi channel as secure ([941bb1a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/941bb1a156e2c00f89dd0a4d8c93b3234695dde7))
+      - sync location based on IPI_ID macros ([80ac1fa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/80ac1fa3d34e19531ba33b68b3fcba03097cf171))
+
+      - **Versal NET**
+
+        - add redundant call to avoid glitches ([a110bfd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a110bfdbc04de1dd3f993a53919be22513587de1))
+        - change flag to increase security ([31c71fc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/31c71fcbd6d73bb722b2c29531b29a5f850b45d5))
+        - make pmc ipi channel as secure ([ac7a591](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ac7a5911bb1fc472ffe42da6386c76ae96ce851a))
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - fix the rev-var for Cortex-A710 ([3256475](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3256475fbbe41a7a28bd3dd05525db2268d4e792))
+    - update the Cortex-A76 errata ABI struct ([b534019](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b53401956625096a47c2ba45aff984eaf0ccfd59))
+    - update the Cortex-A78C errata ABI struct ([eb1a1a5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/eb1a1a5f24025888d76ee7a0940989958c8fe5d8))
+    - update the neoverse-N1 errata ABI struct ([09ddb2e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/09ddb2e1bd87495ae342c61ba14a5c5b6665b21c))
+    - update the Neoverse-N2 errata ABI struct ([f5f97fb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f5f97fb9bcb251a6d41f95ee0689fbac0b6f6e10))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - fix the rev-var for Cortex-A710 ([89e3579](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/89e3579672d1fc501f57e58c76a2f195314d242b))
+    - fix the rev-var of Cortex-X2 ([24cf111](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/24cf111550966d56a53cb4c6df01910871e56f51))
+    - fix the rev-var of Neoverse-V1 ([02bf8ca](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/02bf8ca78023bae3e45c5b52a7d3b1181005612c))
+    - update the fix for Cortex-A78AE erratum 1941500 ([dbc7d9b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dbc7d9b602406ba7d5ad192c3dbf8ae68e105992))
+    - update the rev-var for Cortex-A78AE ([589ee7e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/589ee7e8e1d27e9e596933c23dc0e33be94bbff4))
+    - workaround for Cortex-A510 erratum 2080326 ([af8088b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/af8088be609096c90c9f5324e032bd3602b42bf0))
+    - workaround for Cortex-A710 erratum 2742423 ([d7c6699](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d7c6699a2ba8589d668f209a1b11e7d42c81f440))
+    - workaround for Cortex-X2 erratum 2742423 ([6fff64f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6fff64f5758695c1dfae06ada8f13238c54738bc))
+    - workaround for Cortex-X3 erratum 2070301 ([1c70671](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1c70671c34582634bf32cd5611e4fa6f19105514))
+    - workaround for Cortex-X3 erratum 2742421 ([d55ab35](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d55ab3509503257fa66daa55260c4f252c772e3c))
+    - workaround for Neoverse N2 erratum 2009478 ([be171bb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/be171bbeefd79bb3e30be1174de98f74c67fcc4f))
+    - workaround for Neoverse N2 erratum 2340933 ([9f7275a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9f7275a3e447dccbef0083de40daa853f52a558e))
+    - workaround for Neoverse N2 erratum 2346952 ([26bb39d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/26bb39dc3e755865dda54c571284866ecba2fe70))
+    - workaround for Neoverse V2 erratum 2331132 ([bce2814](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bce281426a73cb2a3e528de24fc4fbacf93dbc97))
+    - workaround for Neoverse V2 erratum 2719105 ([61d9822](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/61d98226e11cf25aea3e053e081d3aa4d03a858a))
+    - workaround for Neoverse V2 erratum 2743011 ([28b3d98](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/28b3d9822ca907669a1f054c3d5e54855f56ae4b))
+    - workaround for Neoverse V2 erratum 2779510 ([ff996c2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ff996c20c96da81fa5e9efdfc4ed0fd4ffc2214f))
+
+### New Features
+
+- **Platforms**
+
+  - **NXP**
+
+    - **i.MX**
+
+      - **i.MX 8M**
+
+        - **i.MX 8M Nano**
+
+          - add workaround for errata ERR050362 ([885611f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/885611fbb7abb8a61b7922aac0d2bfea0eb73469))
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - add support for Cortex-X3 ([030992e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/030992e26875d2d5dc4ef605f2c1ab8aed45db86))
+
 ## [lts-2.8.10](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.9..refs/tags/lts-v2.8.10) (2023-10-24)
 
 ### Miscellaneous
