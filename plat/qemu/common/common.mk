@@ -29,18 +29,6 @@ QEMU_CPU_LIBS		:=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/qemu_max.S
 
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
-
-# Cpu core architecture level:
-# v8.0: a53, a57, a72
-# v8.2: a55, a76, n1
-# v8.4: v1
-# v9.0: a710, n2
-#
-# let treat v9.0 as v8.5 as they share cpu features
-# https://developer.arm.com/documentation/102378/0201/Armv8-x-and-Armv9-x-extensions-and-features
-
-ARM_ARCH_MAJOR		:=	8
-ARM_ARCH_MINOR		:=	5
 endif
 
 PLAT_BL_COMMON_SOURCES	:=	${PLAT_QEMU_COMMON_PATH}/qemu_common.c		\
@@ -91,7 +79,44 @@ BL31_SOURCES		+=	${QEMU_CPU_LIBS}				\
 # CPU flag enablement
 ifeq (${ARCH},aarch64)
 
-# Later QEMU versions support SME and SVE.
+# Cpu core architecture level:
+# v8.0: a53, a57, a72
+# v8.2: a55, a76, n1
+# v8.4: v1
+# v9.0: a710, n2
+#
+#
+# We go v8.0 by default and will enable all features we want
+
+ARM_ARCH_MAJOR		:=	8
+ARM_ARCH_MINOR		:=	0
+
+# 8.0
+ENABLE_FEAT_CSV2_2	:=	2
+
+# 8.1
+ENABLE_FEAT_PAN		:=	2
+ENABLE_FEAT_VHE		:=	2
+
+# 8.2
+# TF-A currently does not permit dynamic detection of FEAT_RAS
+# so this is the only safe setting
+ENABLE_FEAT_RAS		:=	0
+
+# 8.4
+ENABLE_FEAT_SEL2	:=	2
+ENABLE_FEAT_DIT		:=	2
+
+# 8.5
+ENABLE_FEAT_RNG		:=	2
+ENABLE_FEAT_SB		:=	2
+
+# 8.6
+ENABLE_FEAT_FGT		:=	2
+
+# 8.7
+ENABLE_FEAT_HCX		:=	2
+
 # SPM_MM is not compatible with ENABLE_SVE_FOR_NS (build breaks)
 ifeq (${SPM_MM},1)
 	ENABLE_SVE_FOR_NS	:= 0
@@ -100,12 +125,6 @@ else
 	ENABLE_SVE_FOR_NS	:= 2
 	ENABLE_SME_FOR_NS	:= 2
 endif
-
-# QEMU will use the RNDR instruction for the stack protector canary.
-ENABLE_FEAT_RNG			:= 2
-
-# QEMU 7.2+ has support for FGT and Linux needs it enabled to boot on max
-ENABLE_FEAT_FGT			:= 2
 
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0
