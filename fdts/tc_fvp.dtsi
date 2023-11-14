@@ -1,0 +1,38 @@
+/*
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/ {
+	rtc@1c170000 {
+		compatible = "arm,pl031", "arm,primecell";
+		reg = <0x0 0x1C170000 0x0 0x1000>;
+		interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&soc_refclk>;
+		clock-names = "apb_pclk";
+	};
+
+	kmi@1c060000 {
+		compatible = "arm,pl050", "arm,primecell";
+		reg = <0x0 0x001c060000 0x0 0x1000>;
+		interrupts = <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
+		clock-names = "KMIREFCLK", "apb_pclk";
+	};
+
+	kmi@1c070000 {
+		compatible = "arm,pl050", "arm,primecell";
+		reg = <0x0 0x001c070000 0x0 0x1000>;
+		interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
+		clock-names = "KMIREFCLK", "apb_pclk";
+	};
+
+	virtio_block@1c130000 {
+		compatible = "virtio,mmio";
+		reg = <0x0 0x1c130000 0x0 0x200>;
+		/* spec lists this wrong */
+		interrupts = <GIC_SPI 204 IRQ_TYPE_LEVEL_HIGH>;
+	};
+};
