@@ -393,6 +393,10 @@ CPU_FLAG_LIST += ERRATA_A78C_2395411
 # It is still open.
 CPU_FLAG_LIST += ERRATA_A78C_2712575
 
+# Flag to apply erratum 2743232 workaround during reset. This erratum applies
+# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78C_2743232
+
 # Flag to apply erratum 2772121 workaround during powerdown. This erratum
 # applies to revisions r0p0, r0p1 and r0p2 of the A78C cpu. It is still open.
 CPU_FLAG_LIST += ERRATA_A78C_2772121
