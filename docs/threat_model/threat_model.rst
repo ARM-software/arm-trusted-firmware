@@ -63,8 +63,10 @@ are considered untrusted by TF-A.
   |                 |   images include TF-A BL2 and BL31 images, as well as  |
   |                 |   other secure and non-secure images.                  |
   +-----------------+--------------------------------------------------------+
-  |       DF2       | | TF-A log system framework outputs debug messages     |
-  |                 |   over a UART interface.                               |
+  |       DF2       | | TF-A log system framework outputs debug or           |
+  |                 |   informative messages over a UART interface.          |
+  |                 |                                                        |
+  |                 | | Also, characters can be read from a UART interface.  |
   +-----------------+--------------------------------------------------------+
   |       DF3       | | Debug and trace IP on a platform can allow access    |
   |                 |   to registers and memory of TF-A.                     |
@@ -552,6 +554,57 @@ General Threats for All Firmware Images
 |                        |   soon as they are not needed anymore.              |
 +------------------------+-----------------------------------------------------+
 | Mitigations            | | Yes / Platform specific                           |
+| implemented?           |                                                     |
++------------------------+-----------------------------------------------------+
+
+
++------------------------+-----------------------------------------------------+
+| ID                     | 15                                                  |
++========================+=====================================================+
+| Threat                 | | **Improper handling of input data received over   |
+|                        |   a UART interface may allow an attacker to tamper  |
+|                        |   with TF-A execution environment.**                |
+|                        |                                                     |
+|                        | | The consequences of the attack depend on the      |
+|                        |   the exact usage of input data received over UART. |
+|                        |   Examples are injection of arbitrary data,         |
+|                        |   sensitive data tampering, influencing the         |
+|                        |   execution path, denial of service (if using       |
+|                        |   blocking I/O). This list may not be exhaustive.   |
++------------------------+-----------------------------------------------------+
+| Diagram Elements       | DF2, DF4, DF5                                       |
++------------------------+-----------------------------------------------------+
+| Affected TF-A          | BL1, BL2, BL31                                      |
+| Components             |                                                     |
++------------------------+-----------------------------------------------------+
+| Assets                 | Sensitive Data, Code Execution, Availability        |
++------------------------+-----------------------------------------------------+
+| Threat Agent           | NSCode, SecCode                                     |
++------------------------+-----------------------------------------------------+
+| Threat Type            | Tampering, Information Disclosure, Denial of        |
+|                        | service, Elevation of privilege.                    |
++------------------------+-------------------+----------------+----------------+
+| Application            | Server            | IoT            | Mobile         |
++------------------------+-------------------+----------------+----------------+
+| Impact                 |  Critical (5)     | Critical (5)   | Critical (5)   |
++------------------------+-------------------+----------------+----------------+
+| Likelihood             |  Critical (5)     | Critical (5)   | Critical (5)   |
++------------------------+-------------------+----------------+----------------+
+| Total Risk Rating      |  Critical (25)    | Critical (25)  | Critical (25)  |
++------------------------+-------------------+----------------+----------------+
+| Mitigations            | | By default, the code to read input data from UART |
+|                        |   interfaces is disabled (see `ENABLE_CONSOLE_GETC` |
+|                        |   build option). It should only be enabled on a     |
+|                        |   need basis.                                       |
+|                        |                                                     |
+|                        | | Data received over UART interfaces should be      |
+|                        |   treated as untrusted data. As such, it should be  |
+|                        |   properly sanitized and handled with caution.      |
++------------------------+-----------------------------------------------------+
+| Mitigations            | | Platform specific.                                |
+| implemented?           |                                                     |
+|                        | | Generic code does not read any input data from    |
+|                        |   UART interface(s).                                |
 +------------------------+-----------------------------------------------------+
 
 

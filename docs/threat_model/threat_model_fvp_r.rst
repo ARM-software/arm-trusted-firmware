@@ -90,8 +90,10 @@ implementation:
       and since the MPU configuration is equivalent with that for the fvp
       platform and others, this is not expected to be a concern.
 
+    - ID 15:  Improper handling of input data received over a UART interface may
+      allow an attacker to tamper with TF-A execution environment.
 
 
 --------------
 
-*Copyright (c) 2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2023, Arm Limited. All rights reserved.*

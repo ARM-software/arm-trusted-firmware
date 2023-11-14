@@ -25,7 +25,7 @@ digraph tfa_dfd {
     nsec [label="Non-secure\nClients"]
     sec [label="Secure\nClients"]
     dbg [label="Debug & Trace"]
-    logs [label="Logs\n(UART)"]
+    uart [label="UART"]
     nvm [label="Non-volatile\nMemory"]
 
 
@@ -65,7 +65,7 @@ digraph tfa_dfd {
 
     # Interactions between nodes
     nvm -> bl31 [lhead=cluster_tfa label="DF1"]
-    logs -> bl31 [dir="back" lhead=cluster_tfa label="DF2"]
+    uart -> bl31 [dir="both" lhead=cluster_tfa label="DF2"]
     dbg -> bl2 [dir="both" lhead=cluster_tfa label="DF3"]
     sec -> bl2 [dir="both" lhead=cluster_tfa label="DF4"]
     nsec -> bl1 [dir="both" lhead=cluster_tfa, label="DF5"]
