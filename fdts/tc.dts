@@ -22,7 +22,7 @@
 	};
 
 	chosen {
-		stdout-path = "serial0:115200n8";
+		stdout-path = STDOUT_PATH;
 	};
 
 	cpus {
@@ -411,7 +411,7 @@
 		};
 	};
 
-	gic: interrupt-controller@2c010000 {
+	gic: interrupt-controller@GIC_CTRL_ADDR {
 		compatible = "arm,gic-v3";
 		#address-cells = <2>;
 		#interrupt-cells = <3>;
@@ -419,7 +419,7 @@
 		ranges;
 		interrupt-controller;
 		reg = <0x0 0x30000000 0 0x10000>, /* GICD */
-		      <0x0 0x30080000 0 0x200000>; /* GICR */
+		      <0x0 0x30080000 0 GIC_GICR_OFFSET>; /* GICR */
 		interrupts = <GIC_PPI 0x9 IRQ_TYPE_LEVEL_LOW>;
 	};
 
@@ -434,7 +434,7 @@
 	soc_refclk: refclk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <100000000>;
+		clock-frequency = <1000000000>;
 		clock-output-names = "apb_pclk";
 	};
 
@@ -452,9 +452,10 @@
 		clock-output-names = "uartclk";
 	};
 
+	/* soc_uart0 on FPGA, ap_ns_uart on FVP */
 	os_uart: serial@2a400000 {
 		compatible = "arm,pl011", "arm,primecell";
-		reg = <0x0 0x2A400000 0x0 0x1000>;
+		reg = <0x0 0x2A400000 0x0 UART_OFFSET>;
 		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&soc_uartclk>, <&soc_refclk>;
 		clock-names = "uartclk", "apb_pclk";
@@ -479,24 +480,21 @@
 
 		display-timings {
 			timing-panel {
-				clock-frequency = <25175000>;
-				hactive = <640>;
-				vactive = <480>;
-				hfront-porch = <16>;
-				hback-porch = <48>;
-				hsync-len = <96>;
-				vfront-porch = <10>;
-				vback-porch = <33>;
-				vsync-len = <2>;
+				VENCODER_TIMING;
 			};
 		};
 
 	};
 
 	ethernet@18000000 {
-		compatible = "smsc,lan91c111";
+		compatible = ETH_COMPATIBLE;
 		reg = <0x0 0x18000000 0x0 0x10000>;
 		interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>;
+
+		/* FPGA only but will work on FVP. Keep for simplicity */
+		phy-mode = "mii";
+		reg-io-width = <2>;
+		smsc,irq-push-pull;
 	};
 
 	kmi@1c060000 {
@@ -549,10 +547,10 @@
 		reg = <0x0 0x001c050000 0x0 0x1000>;
 		interrupts = <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>,
 			     <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
-		cd-gpios = <&sysreg 0 0>;
+		MMC_REMOVABLE;
 		wp-gpios = <&sysreg 1 0>;
-		bus-width = <8>;
-		max-frequency = <12000000>;
+		bus-width = <4>;
+		max-frequency = <25000000>;
 		vmmc-supply = <&fixed_3v3>;
 		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
 		clock-names = "mclk", "apb_pclk";
@@ -614,14 +612,12 @@
 		reg = <0 0x2cc00000 0 0x20000>;
 		interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "DPU";
-		clocks = <&scmi_clk 0>;
-		clock-names = "aclk";
+		DPU_CLK_ATTR1;
 		iommus = <&smmu_700 0x100>;
 		power-domains = <&scmi_devpd DPU_SCMI_PD_IDX>;
 		pl0: pipeline@0 {
 			reg = <0>;
-			clocks = <&scmi_clk 1>;
-			clock-names = "pxclk";
+			DPU_CLK_ATTR2;
 			pl_id = <0>;
 			ports {
 				#address-cells = <1>;
@@ -637,8 +633,7 @@
 
 		pl1: pipeline@1 {
 			reg = <1>;
-			clocks = <&scmi_clk 2>;
-			clock-names = "pxclk";
+			DPU_CLK_ATTR3;
 			pl_id = <1>;
 			ports {
 				#address-cells = <1>;

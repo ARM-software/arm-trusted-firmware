@@ -41,6 +41,73 @@
 #define UARTCLK_FREQ		3750000
 #endif /* TARGET_PLATFORM == 3 */
 
+#if TARGET_FLAVOUR_FVP
+#define STDOUT_PATH		"serial0:115200n8"
+#define GIC_CTRL_ADDR		2c010000
+#define GIC_GICR_OFFSET		0x200000
+#define UART_OFFSET		0x1000
+#define VENCODER_TIMING_CLK 25175000
+#define VENCODER_TIMING								\
+	clock-frequency = <VENCODER_TIMING_CLK>;				\
+	hactive = <640>;							\
+	vactive = <480>;							\
+	hfront-porch = <16>;							\
+	hback-porch = <48>;							\
+	hsync-len = <96>;							\
+	vfront-porch = <10>;							\
+	vback-porch = <33>;							\
+	vsync-len = <2>
+#define ETH_COMPATIBLE		"smsc,lan91c111"
+#define MMC_REMOVABLE		cd-gpios = <&sysreg 0 0>
+
+#else /* TARGET_FLAVOUR_FPGA */
+
+#define STDOUT_PATH		"serial0:38400n8"
+#define GIC_CTRL_ADDR		30000000
+#define GIC_GICR_OFFSET		0x1000000
+#define UART_OFFSET		0x10000
+/* 1440x3200@120 framebuffer */
+#define VENCODER_TIMING_CLK 836000000
+#define VENCODER_TIMING								\
+	clock-frequency = <VENCODER_TIMING_CLK>;				\
+	hactive = <1440>;							\
+	vactive = <3200>;							\
+	hfront-porch = <136>;							\
+	hback-porch = <296>;							\
+	hsync-len = <160>;							\
+	vfront-porch = <3>;							\
+	vback-porch = <217>;							\
+	vsync-len = <10>
+#define ETH_COMPATIBLE		"smsc,lan9115"
+#define MMC_REMOVABLE		non-removable
+#endif /* TARGET_FLAVOUR_FPGA */
+
+/* Use SCMI controlled clocks */
+#if TC_DPU_USE_SCMI_CLK
+#define DPU_CLK_ATTR1								\
+	clocks = <&scmi_clk 0>;							\
+	clock-names = "aclk"
+
+#define DPU_CLK_ATTR2								\
+	clocks = <&scmi_clk 1>;							\
+	clock-names = "pxclk"
+
+#define DPU_CLK_ATTR3								\
+	clocks = <&scmi_clk 2>;							\
+	clock-names = "pxclk"							\
+/* Use fixed clocks */
+#else /* !TC_DPU_USE_SCMI_CLK */
+#define DPU_CLK_ATTR1								\
+	clocks = <&dpu_aclk>;							\
+	clock-names = "aclk"
+
+#define DPU_CLK_ATTR2								\
+	clocks = <&dpu_pixel_clk>, <&dpu_aclk>;					\
+	clock-names = "pxclk", "aclk"
+
+#define DPU_CLK_ATTR3 DPU_CLK_ATTR2
+#endif /* !TC_DPU_USE_SCMI_CLK */
+
 / {
 #if TARGET_PLATFORM <= 2
 	cmn-pmu {
@@ -49,4 +116,20 @@
 		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH>;
 	};
 #endif /* TARGET_PLATFORM <= 2 */
+
+#if !TC_DPU_USE_SCMI_CLK
+	dpu_aclk: dpu_aclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <VENCODER_TIMING_CLK>;
+		clock-output-names = "fpga:dpu_aclk";
+	};
+
+	dpu_pixel_clk: dpu-pixel-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <VENCODER_TIMING_CLK>;
+		clock-output-names = "pxclk";
+	};
+#endif /* !TC_DPU_USE_SCMI_CLK */
 };

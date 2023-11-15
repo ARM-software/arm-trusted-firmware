@@ -6,6 +6,8 @@
 include common/fdt_wrappers.mk
 
 TARGET_FLAVOUR			:=	fvp
+# DPU with SCMI may not necessarily work, so allow its independence
+TC_DPU_USE_SCMI_CLK		:=	1
 
 ifneq ($(shell expr $(TARGET_PLATFORM) \<= 1), 0)
         $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
@@ -23,6 +25,7 @@ endif
 $(eval $(call add_defines, \
 	TARGET_PLATFORM \
 	TARGET_FLAVOUR_$(call uppercase,${TARGET_FLAVOUR}) \
+	TC_DPU_USE_SCMI_CLK \
 ))
 
 CSS_LOAD_SCP_IMAGES	:=	1
