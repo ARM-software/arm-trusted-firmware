@@ -20,8 +20,12 @@
 /* NAND flash device information struct */
 static cnf_dev_info_t dev_info;
 
-/* Scratch buffers for read and write operations */
-static uint8_t scratch_buff[PLATFORM_MTD_MAX_PAGE_SIZE];
+/*
+ * Scratch buffers for read and write operations
+ * DMA transfer of Cadence NAND expects data 8 bytes aligned
+ * to be written to register
+ */
+static uint8_t scratch_buff[PLATFORM_MTD_MAX_PAGE_SIZE] __aligned(8);
 
 /* Wait for controller to be in idle state */
 static inline void cdns_nand_wait_idle(void)
@@ -111,7 +115,8 @@ int cdns_nand_reset(uint8_t thread_id)
 	cdns_nand_wait_thread_ready(thread_id);
 
 	/* Select memory */
-	mmio_write_32(CNF_CMDREG(CMD_REG4), (CNF_DEF_DEVICE << CNF_CMDREG4_MEM));
+	mmio_write_32(CNF_CMDREG(CMD_REG4),
+			(CNF_DEF_DEVICE << CNF_CMDREG4_MEM));
 
 	/* Issue reset command */
 	uint32_t reg = (CNF_WORK_MODE_PIO << CNF_CMDREG0_CT);
@@ -150,21 +155,19 @@ static void cdns_nand_set_opr_mode(uint8_t opr_mode)
 
 		/* Async mode timing settings */
 		mmio_write_32(CNF_MINICTRL(ASYNC_TOGGLE_TIMINGS),
-								(2 << CNF_ASYNC_TIMINGS_TRH) |
-								(4 << CNF_ASYNC_TIMINGS_TRP) |
-								(2 << CNF_ASYNC_TIMINGS_TWH) |
-								(4 << CNF_ASYNC_TIMINGS_TWP));
+				(2 << CNF_ASYNC_TIMINGS_TRH) |
+				(4 << CNF_ASYNC_TIMINGS_TRP) |
+				(2 << CNF_ASYNC_TIMINGS_TWH) |
+				(4 << CNF_ASYNC_TIMINGS_TWP));
 
 		/* Set extended read and write mode */
 		reg |= (1 << CNF_DLL_PHY_EXT_RD_MODE);
 		reg |= (1 << CNF_DLL_PHY_EXT_WR_MODE);
 
 		/* Set operation work mode in common settings */
-		uint32_t data = mmio_read_32(CNF_MINICTRL(CMN_SETTINGS));
-
-		data |= (CNF_OPR_WORK_MODE_SDR << CNF_CMN_SETTINGS_OPR);
-		mmio_write_32(CNF_MINICTRL(CMN_SETTINGS), data);
-
+		mmio_clrsetbits_32(CNF_MINICTRL(CMN_SETTINGS),
+				CNF_CMN_SETTINGS_OPR_MASK,
+				CNF_OPR_WORK_MODE_SDR);
 	} else if (opr_mode == CNF_OPR_WORK_MODE_NVDDR) {
 		; /* ToDo: add DDR mode settings also once available on SIMICS */
 	} else {
@@ -189,13 +192,13 @@ static void cdns_nand_transfer_config(void)
 
 	/* DMA burst select */
 	mmio_write_32(CNF_CTRLCFG(DMA_SETTINGS),
-					(CNF_DMA_BURST_SIZE_MAX << CNF_DMA_SETTINGS_BURST) |
-					(1 << CNF_DMA_SETTINGS_OTE));
+			(CNF_DMA_BURST_SIZE_MAX << CNF_DMA_SETTINGS_BURST) |
+			(1 << CNF_DMA_SETTINGS_OTE));
 
 	/* Enable pre-fetching for 1K */
 	mmio_write_32(CNF_CTRLCFG(FIFO_TLEVEL),
-					(CNF_DMA_PREFETCH_SIZE << CNF_FIFO_TLEVEL_POS) |
-					(CNF_DMA_PREFETCH_SIZE << CNF_FIFO_TLEVEL_DMA_SIZE));
+			(CNF_DMA_PREFETCH_SIZE << CNF_FIFO_TLEVEL_POS) |
+			(CNF_DMA_PREFETCH_SIZE << CNF_FIFO_TLEVEL_DMA_SIZE));
 
 	/* Select access type */
 	mmio_write_32(CNF_CTRLCFG(MULTIPLANE_CFG), 0);
@@ -235,12 +238,13 @@ static int cdns_nand_update_dev_info(void)
 
 	/* Calculate block size and total device size */
 	dev_info.block_size = (dev_info.npages_per_block * dev_info.page_size);
-	dev_info.total_size = (dev_info.block_size * dev_info.nblocks_per_lun *
-							dev_info.nluns);
+	dev_info.total_size = ((unsigned long long)dev_info.block_size *
+				(unsigned long long)dev_info.nblocks_per_lun *
+				dev_info.nluns);
 
-	VERBOSE("CNF params: page %d, spare %d, block %d, total %lld\n",
-				dev_info.page_size, dev_info.spare_size,
-				dev_info.block_size, dev_info.total_size);
+	VERBOSE("CNF params: page_size %d, spare_size %d, block_size %u, total_size %llu\n",
+		dev_info.page_size, dev_info.spare_size,
+		dev_info.block_size, dev_info.total_size);
 
 	return 0;
 }
@@ -323,25 +327,44 @@ int cdns_nand_init_mtd(unsigned long long *size, unsigned int *erase_size)
 	return 0;
 }
 
+static uint32_t cdns_nand_get_row_address(uint32_t page, uint32_t block)
+{
+	uint32_t row_address = 0U;
+	uint32_t req_bits = 0U;
+
+	/* The device info is not populated yet. */
+	if (dev_info.npages_per_block == 0U)
+		return 0;
+
+	for (uint32_t i = 0U; i < sizeof(uint32_t) * 8; i++) {
+		if ((1U << i) & dev_info.npages_per_block)
+			req_bits = i;
+	}
+
+	row_address = ((page & GENMASK_32((req_bits - 1), 0)) |
+			(block << req_bits));
+
+	return row_address;
+}
+
 /* NAND Flash page read */
 static int cdns_nand_read_page(uint32_t block, uint32_t page, uintptr_t buffer)
 {
+
 	/* Wait for thread to be ready */
 	cdns_nand_wait_thread_ready(CNF_DEF_TRD);
 
 	/* Select device */
 	mmio_write_32(CNF_CMDREG(CMD_REG4),
-					(CNF_DEF_DEVICE << CNF_CMDREG4_MEM));
+			(CNF_DEF_DEVICE << CNF_CMDREG4_MEM));
 
 	/* Set host memory address for DMA transfers */
-	mmio_write_32(CNF_CMDREG(CMD_REG2), (buffer & 0xFFFF));
-	mmio_write_32(CNF_CMDREG(CMD_REG3), ((buffer >> 32) & 0xFFFF));
+	mmio_write_32(CNF_CMDREG(CMD_REG2), (buffer & UINT32_MAX));
+	mmio_write_32(CNF_CMDREG(CMD_REG3), ((buffer >> 32) & UINT32_MAX));
 
 	/* Set row address */
-	uint32_t row_address = 0U;
-
-	row_address |= ((page & 0x3F) | (block << 6));
-	mmio_write_32(CNF_CMDREG(CMD_REG1), row_address);
+	mmio_write_32(CNF_CMDREG(CMD_REG1),
+			cdns_nand_get_row_address(page, block));
 
 	/* Page read command */
 	uint32_t reg = (CNF_WORK_MODE_PIO << CNF_CMDREG0_CT);
@@ -375,8 +398,8 @@ int cdns_nand_read(unsigned int offset, uintptr_t buffer, size_t length,
 	uint32_t page = 0U;
 	int result = 0;
 
-	VERBOSE("CNF: block %u-%u, page_start %u, len %zu, offset %u\n",
-				block, end_block, page_start, length, offset);
+	INFO("CNF: %s: block %u-%u, page_start %u, len %zu, offset %u\n",
+		__func__, block, end_block, page_start, length, offset);
 
 	if ((offset >= dev_info.total_size) ||
 		(offset + length-1 >= dev_info.total_size) ||
@@ -392,7 +415,7 @@ int cdns_nand_read(unsigned int offset, uintptr_t buffer, size_t length,
 			if ((start_offset != 0U) || (length < dev_info.page_size)) {
 				/* Partial page read */
 				result = cdns_nand_read_page(block, page,
-				(uintptr_t)scratch_buff);
+							(uintptr_t)scratch_buff);
 				if (result != 0) {
 					return result;
 				}
