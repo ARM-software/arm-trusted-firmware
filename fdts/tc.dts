@@ -383,28 +383,6 @@
 
 	};
 
-	hdlcd: hdlcd@7ff60000 {
-		compatible = "arm,hdlcd";
-		reg = <0x0 0x7ff60000 0x0 0x1000>;
-		interrupts = <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&fake_hdlcd_clk>;
-		clock-names = "pxlclk";
-		status = "disabled";
-
-		port {
-			hdlcd_out: endpoint {
-				remote-endpoint = <&vencoder_in>;
-			};
-		};
-	};
-
-	fake_hdlcd_clk: fake-hdlcd-clk {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <25175000>;
-		clock-output-names = "pxlclk";
-	};
-
 	ethernet@18000000 {
 		compatible = "smsc,lan91c111";
 		reg = <0x0 0x18000000 0x0 0x10000>;
