@@ -232,6 +232,14 @@
 		method = "smc";
 	};
 
+	cpu-pmu {
+		compatible = "arm,armv8-pmuv3";
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
+				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>
+		;
+	};
+
 	sram: sram@6000000 {
 		compatible = "mmio-sram";
 		reg = <0x0 0x06000000 0x0 0x8000>;
@@ -360,7 +368,6 @@
 
 	vencoder {
 		compatible = "drm,virtual-encoder";
-
 		port {
 			vencoder_in: endpoint {
 				remote-endpoint = <&dp_pl0_out0>;
