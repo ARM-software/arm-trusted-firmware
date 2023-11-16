@@ -67,6 +67,8 @@ LTS Maintainers
 :|G|: `bytefire`_
 :|M|: Varun Wadekar <vwadekar@nvidia.com>
 :|G|: `vwadekar`_
+:|M|: Yann Gautier <yann.gautier@st.com>
+:|G|: `Yann-lms`_
 
 .. _code owners:
 
