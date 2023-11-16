@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mtk_iommu_plat.h>
+#include <mtk_iommu_priv.h>
 #include <mtk_mmap_pool.h>
 #include <platform_def.h>
 
@@ -42,7 +42,7 @@
 #define MMU_DEV_PCIE_0		(0)
 #define IFR_CFG_GROUP_NUM	(1)
 
-static struct mtk_smi_larb_config mt8188_larb_cfg[SMI_LARB_NUM] = {
+static struct mtk_smi_larb_config mt8188_larb_cfg[] = {
 	[SMI_L0_ID] = LARB_CFG_ENTRY(SMI_LARB_0_BASE, 7, 0),
 	[SMI_L1_ID] = LARB_CFG_ENTRY(SMI_LARB_1_BASE, 7, 0),
 	[SMI_L2_ID] = LARB_CFG_ENTRY(SMI_LARB_2_BASE, 5, 0),
@@ -80,12 +80,24 @@ static uint32_t mt8188_ifr_mst_cfg_base[IFR_CFG_GROUP_NUM] = {
 static uint32_t mt8188_ifr_mst_cfg_offs[IFR_CFG_GROUP_NUM] = {
 	PERICFG_AO_IOMMU_1,
 };
-static struct mtk_ifr_mst_config mt8188_ifr_mst_cfg[MMU_DEV_NUM] = {
+static struct mtk_ifr_mst_config mt8188_ifr_mst_cfg[] = {
 	[MMU_DEV_PCIE_0] = IFR_MST_CFG_ENTRY(0, 18),
 };
 
 struct mtk_smi_larb_config *g_larb_cfg = &mt8188_larb_cfg[0];
+const unsigned int g_larb_num = ARRAY_SIZE(mt8188_larb_cfg);
+
+static struct mtk_secure_iommu_config mt8188_secure_iommu_config[] = {
+	SEC_IOMMU_CFG_ENTRY(VDO_SECURE_IOMMU_BASE),
+	SEC_IOMMU_CFG_ENTRY(VPP_SECURE_IOMMU_BASE),
+};
+
+struct mtk_secure_iommu_config *g_sec_iommu_cfg = &mt8188_secure_iommu_config[0];
+const unsigned int g_sec_iommu_num = ARRAY_SIZE(mt8188_secure_iommu_config);
+
 struct mtk_ifr_mst_config *g_ifr_mst_cfg = &mt8188_ifr_mst_cfg[0];
+const unsigned int g_ifr_mst_num = ARRAY_SIZE(mt8188_ifr_mst_cfg);
+
 uint32_t *g_ifr_mst_cfg_base = &mt8188_ifr_mst_cfg_base[0];
 uint32_t *g_ifr_mst_cfg_offs = &mt8188_ifr_mst_cfg_offs[0];
 

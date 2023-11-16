@@ -5,7 +5,7 @@
  */
 
 #include <stddef.h>
-#include <mtk_iommu_plat.h>
+#include <mtk_iommu_priv.h>
 
 /* defination */
 /* smi larb */
@@ -23,12 +23,23 @@
 /* infra master */
 #define IFR_CFG_MMU_EN_MSK(r_bit)	(0x3 << (r_bit))
 
+/* secure iommu */
+#define MMU_INT_CONTROL0		(0x120)
+#define INT_CLR				BIT(12)
+#define MMU_FAULT_ST1			(0x134)
+#define MMU_AXI_0_ERR_MASK		GENMASK(6, 0)
+#define MMU_AXI_FAULT_STATUS(bus)	(0x13c + (bus) * 8)
+#define MMU_AXI_INVLD_PA(bus)		(0x140 + (bus) * 8)
+#define MMU_AXI_INT_ID(bus)		(0x150 + (bus) * 4)
+
 /* smi larb configure */
 /*
  * If multimedia security config is enabled, the SMI config register must be
  * configurated in security world.
  * And the SRAM path is also configurated here to enhance security.
  */
+#ifdef ATF_MTK_SMI_LARB_CFG_SUPPORT
+
 static void mtk_smi_larb_port_config_to_sram(
 				const struct mtk_smi_larb_config *larb,
 				uint32_t port_id)
@@ -55,7 +66,7 @@ static int mtk_smi_larb_port_config_sec(uint32_t larb_id, uint32_t mmu_en_msk)
 	uint32_t to_sram;
 	uint8_t mmu_en;
 
-	if (larb_id >= SMI_LARB_NUM) {
+	if (larb_id >= g_larb_num) {
 		return MTK_SIP_E_INVALID_PARAM;
 	}
 
@@ -75,6 +86,11 @@ static int mtk_smi_larb_port_config_sec(uint32_t larb_id, uint32_t mmu_en_msk)
 	return MTK_SIP_E_SUCCESS;
 }
 
+#endif /* ATF_MTK_SMI_LARB_CFG_SUPPORT */
+
+/* infra iommu configure */
+#ifdef ATF_MTK_INFRA_MASTER_CFG_SUPPORT
+
 static int mtk_infra_master_config_sec(uint32_t dev_id_msk, uint32_t enable)
 {
 	const struct mtk_ifr_mst_config *ifr_cfg;
@@ -82,11 +98,11 @@ static int mtk_infra_master_config_sec(uint32_t dev_id_msk, uint32_t enable)
 
 	mtk_infra_iommu_enable_protect();
 
-	if (dev_id_msk >= BIT(MMU_DEV_NUM)) {
+	if (dev_id_msk >= BIT(g_ifr_mst_num)) {
 		return MTK_SIP_E_INVALID_PARAM;
 	}
 
-	for (dev_id = 0U; dev_id < MMU_DEV_NUM; dev_id++) {
+	for (dev_id = 0U; dev_id < g_ifr_mst_num; dev_id++) {
 		if ((dev_id_msk & BIT(dev_id)) == 0U) {
 			continue;
 		}
@@ -105,10 +121,50 @@ static int mtk_infra_master_config_sec(uint32_t dev_id_msk, uint32_t enable)
 
 	return MTK_SIP_E_SUCCESS;
 }
+#endif /* ATF_MTK_INFRA_MASTER_CFG_SUPPORT */
 
-static u_register_t mtk_iommu_handler(u_register_t x1, u_register_t x2,
-				      u_register_t x3, u_register_t x4,
-				      void *handle, struct smccc_res *smccc_ret)
+/* secure iommu */
+#ifdef ATF_MTK_IOMMU_CFG_SUPPORT
+/* Report secure IOMMU fault status to normal world for the debug version */
+static int mtk_secure_iommu_fault_report(uint32_t sec_mmu_base,
+					 uint32_t *f_sta, uint32_t *f_pa,
+					 uint32_t *f_id)
+{
+	const struct mtk_secure_iommu_config *mmu_cfg = NULL;
+	uint32_t __maybe_unused bus_id, fault_type;
+	uint32_t i;
+	int ret = MTK_SIP_E_NOT_SUPPORTED;
+
+	for (i = 0; i < g_sec_iommu_num; i++) {
+		if (g_sec_iommu_cfg[i].base == sec_mmu_base) {
+			mmu_cfg = &g_sec_iommu_cfg[i];
+			break;
+		}
+	}
+
+	if (!mmu_cfg)
+		return MTK_SIP_E_INVALID_PARAM;
+#if DEBUG
+	fault_type = mmio_read_32(mmu_cfg->base + MMU_FAULT_ST1);
+	bus_id = (fault_type & MMU_AXI_0_ERR_MASK) ? 0 : 1;
+
+	if (f_sta)
+		*f_sta = mmio_read_32(mmu_cfg->base + MMU_AXI_FAULT_STATUS(bus_id));
+	if (f_pa)
+		*f_pa = mmio_read_32(mmu_cfg->base + MMU_AXI_INVLD_PA(bus_id));
+	if (f_id)
+		*f_id = mmio_read_32(mmu_cfg->base + MMU_AXI_INT_ID(bus_id));
+	ret = MTK_SIP_E_SUCCESS;
+#endif
+	mmio_setbits_32(mmu_cfg->base + MMU_INT_CONTROL0, INT_CLR);
+
+	return ret;
+}
+#endif /* ATF_MTK_IOMMU_CFG_SUPPORT */
+
+u_register_t mtk_iommu_handler(u_register_t x1, u_register_t x2,
+			u_register_t x3, u_register_t x4,
+			void *handle, struct smccc_res *smccc_ret)
 {
 	uint32_t cmd_id = x1, mdl_id = x2, val = x3;
 	int ret = MTK_SIP_E_NOT_SUPPORTED;
@@ -117,12 +173,25 @@ static u_register_t mtk_iommu_handler(u_register_t x1, u_register_t x2,
 	(void)handle;
 
 	switch (cmd_id) {
+#ifdef ATF_MTK_SMI_LARB_CFG_SUPPORT
 	case IOMMU_ATF_CMD_CONFIG_SMI_LARB:
 		ret = mtk_smi_larb_port_config_sec(mdl_id, val);
 		break;
+#endif
+#ifdef ATF_MTK_INFRA_MASTER_CFG_SUPPORT
 	case IOMMU_ATF_CMD_CONFIG_INFRA_IOMMU:
 		ret = mtk_infra_master_config_sec(mdl_id, val);
 		break;
+#endif
+#ifdef ATF_MTK_IOMMU_CFG_SUPPORT
+	case IOMMU_ATF_CMD_GET_SECURE_IOMMU_STATUS:
+		(void)val;
+		ret = mtk_secure_iommu_fault_report(mdl_id,
+					(uint32_t *)&smccc_ret->a1,
+					(uint32_t *)&smccc_ret->a2,
+					(uint32_t *)&smccc_ret->a3);
+		break;
+#endif
 	default:
 		break;
 	}
