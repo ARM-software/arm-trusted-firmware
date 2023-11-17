@@ -247,14 +247,6 @@ uint32_t intel_fcs_encryption(uint32_t src_addr, uint32_t src_size,
 	int status;
 	uint32_t load_size;
 
-	fcs_encrypt_payload payload = {
-		FCS_ENCRYPTION_DATA_0,
-		src_addr,
-		src_size,
-		dst_addr,
-		dst_size };
-	load_size = sizeof(payload) / MBOX_WORD_BYTE;
-
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, dst_size)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
@@ -263,6 +255,14 @@ uint32_t intel_fcs_encryption(uint32_t src_addr, uint32_t src_size,
 	if (!is_size_4_bytes_aligned(src_size)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
+
+	fcs_encrypt_payload payload = {
+		FCS_ENCRYPTION_DATA_0,
+		src_addr,
+		src_size,
+		dst_addr,
+		dst_size };
+	load_size = sizeof(payload) / MBOX_WORD_BYTE;
 
 	status = mailbox_send_cmd_async(send_id, MBOX_FCS_ENCRYPT_REQ,
 				(uint32_t *) &payload, load_size,
@@ -283,6 +283,15 @@ uint32_t intel_fcs_decryption(uint32_t src_addr, uint32_t src_size,
 	uint32_t load_size;
 	uintptr_t id_offset;
 
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(src_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
 	inv_dcache_range(src_addr, src_size); /* flush cache before mmio read to avoid reading old values */
 	id_offset = src_addr + FCS_OWNER_ID_OFFSET;
 	fcs_decrypt_payload payload = {
@@ -294,15 +303,6 @@ uint32_t intel_fcs_decryption(uint32_t src_addr, uint32_t src_size,
 		dst_addr,
 		dst_size };
 	load_size = sizeof(payload) / MBOX_WORD_BYTE;
-
-	if (!is_address_in_ddr_range(src_addr, src_size) ||
-		!is_address_in_ddr_range(dst_addr, dst_size)) {
-		return INTEL_SIP_SMC_STATUS_REJECTED;
-	}
-
-	if (!is_size_4_bytes_aligned(src_size)) {
-		return INTEL_SIP_SMC_STATUS_REJECTED;
-	}
 
 	status = mailbox_send_cmd_async(send_id, MBOX_FCS_DECRYPT_REQ,
 				(uint32_t *) &payload, load_size,
@@ -2023,6 +2023,10 @@ int intel_fcs_ecdsa_get_pubkey_finalize(uint32_t session_id, uint32_t context_id
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
+	if (!is_address_in_ddr_range(dst_addr, *dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
 	if (fcs_ecdsa_get_pubkey_param.session_id != session_id ||
 		fcs_ecdsa_get_pubkey_param.context_id != context_id) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
@@ -2234,7 +2238,8 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t session_id,
 	}
 
 	if ((!is_8_bytes_aligned(dst_addr)) ||
-		(!is_32_bytes_aligned(dst_size))) {
+		(!is_32_bytes_aligned(dst_size)) ||
+		(!is_address_in_ddr_range(dst_addr, dst_size))) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
