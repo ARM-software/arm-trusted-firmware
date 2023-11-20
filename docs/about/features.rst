@@ -108,6 +108,28 @@ Current features
 
 -  Position-Independent Executable (PIE) support.
 
+Experimental features
+---------------------
+
+A feature is considered experimental when still in development or isn't known
+to the TF-A team as widely deployed or proven on end products. It is generally
+advised such options aren't pulled into real deployments, or done with the
+appropriate level of supplementary integration testing.
+
+A feature is no longer considered experimental when it is generally agreed
+the said feature has reached a level of maturity and quality comparable to
+other features that have been integrated into products.
+
+Experimental build options are found in following section
+:ref:`build_options_experimental`. Their use through the build emits a warning
+message.
+
+Additionally the following libraries are marked experimental when included
+in a platform:
+
+-  MPU translation library ``lib/xlat_mpu``
+-  RSS comms driver ``drivers/arm/rss``
+
 Still to come
 -------------
 
