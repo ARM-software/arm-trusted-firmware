@@ -181,10 +181,8 @@ static int psci_get_stat(u_register_t target_cpu, unsigned int power_state,
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 	plat_local_state_t local_state;
 
-	/* Validate the target_cpu parameter and determine the cpu index */
+	/* Determine the cpu index */
 	target_idx = (unsigned int) plat_core_pos_by_mpidr(target_cpu);
-	if (target_idx == (unsigned int) -1)
-		return PSCI_E_INVALID_PARAMS;
 
 	/* Validate the power_state parameter */
 	if (psci_plat_pm_ops->translate_power_state_by_mpidr == NULL)
@@ -228,6 +226,11 @@ u_register_t psci_stat_residency(u_register_t target_cpu,
 		unsigned int power_state)
 {
 	psci_stat_t psci_stat;
+
+	/* Validate the target cpu */
+	if (!is_valid_mpidr(target_cpu))
+		return 0;
+
 	int rc = psci_get_stat(target_cpu, power_state, &psci_stat);
 
 	if (rc == PSCI_E_SUCCESS)
@@ -241,6 +244,11 @@ u_register_t psci_stat_count(u_register_t target_cpu,
 	unsigned int power_state)
 {
 	psci_stat_t psci_stat;
+
+	/* Validate the target cpu */
+	if (!is_valid_mpidr(target_cpu))
+		return 0;
+
 	int rc = psci_get_stat(target_cpu, power_state, &psci_stat);
 
 	if (rc == PSCI_E_SUCCESS)

@@ -35,8 +35,6 @@
 
 #define LOWEST_INTR_PRIORITY		0xff
 
-#define is_valid_affinity(_mpidr)	(plat_core_pos_by_mpidr(_mpidr) >= 0)
-
 CASSERT(PLAT_SDEI_CRITICAL_PRI < PLAT_SDEI_NORMAL_PRI,
 		sdei_critical_must_have_higher_priority);
 
@@ -262,7 +260,7 @@ static int validate_flags(uint64_t flags, uint64_t mpidr)
 	/* Validate flags */
 	switch (flags) {
 	case SDEI_REGF_RM_PE:
-		if (!is_valid_affinity(mpidr))
+		if (!is_valid_mpidr(mpidr))
 			return SDEI_EINVAL;
 		break;
 	case SDEI_REGF_RM_ANY:
@@ -710,8 +708,8 @@ static int sdei_interrupt_bind(unsigned int intr_num)
 	sdei_ev_map_t *map;
 	bool retry = true, shared_mapping;
 
-	/* SGIs are not allowed to be bound */
-	if (plat_ic_is_sgi(intr_num) != 0)
+	/* Interrupt must be either PPI or SPI */
+	if (!(plat_ic_is_ppi(intr_num) || plat_ic_is_spi(intr_num)))
 		return SDEI_EINVAL;
 
 	shared_mapping = (plat_ic_is_spi(intr_num) != 0);
@@ -926,7 +924,7 @@ static int sdei_signal(int ev_num, uint64_t target_pe)
 		return SDEI_EINVAL;
 
 	/* Validate target */
-	if (plat_core_pos_by_mpidr(target_pe) < 0)
+	if (!is_valid_mpidr(target_pe))
 		return SDEI_EINVAL;
 
 	/* Raise SGI. Platform will validate target_pe */

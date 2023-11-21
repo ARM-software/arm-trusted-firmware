@@ -61,13 +61,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 {
 	int rc;
 	aff_info_state_t target_aff_state;
-	int ret = plat_core_pos_by_mpidr(target_cpu);
-	unsigned int target_idx = (unsigned int)ret;
-
-	/* Calling function must supply valid input arguments */
-	assert(ret >= 0);
-	assert(ep != NULL);
-
+	unsigned int target_idx = (unsigned int)plat_core_pos_by_mpidr(target_cpu);
 
 	/*
 	 * This function must only be called on platforms where the

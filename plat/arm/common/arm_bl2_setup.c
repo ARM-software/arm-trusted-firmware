@@ -181,11 +181,8 @@ static void arm_bl2_plat_gpt_setup(void)
  ******************************************************************************/
 void arm_bl2_plat_arch_setup(void)
 {
-#if USE_COHERENT_MEM && !ARM_CRYPTOCELL_INTEG
-	/*
-	 * Ensure ARM platforms don't use coherent memory in BL2 unless
-	 * cryptocell integration is enabled.
-	 */
+#if USE_COHERENT_MEM
+	/* Ensure ARM platforms don't use coherent memory in BL2. */
 	assert((BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE) == 0U);
 #endif
 
@@ -195,9 +192,6 @@ void arm_bl2_plat_arch_setup(void)
 #if USE_ROMLIB
 		ARM_MAP_ROMLIB_CODE,
 		ARM_MAP_ROMLIB_DATA,
-#endif
-#if ARM_CRYPTOCELL_INTEG
-		ARM_MAP_BL_COHERENT_RAM,
 #endif
 		ARM_MAP_BL_CONFIG_REGION,
 #if ENABLE_RME
