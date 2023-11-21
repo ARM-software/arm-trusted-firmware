@@ -9,6 +9,11 @@ ifeq ($(TARGET_PLATFORM), 0)
 	$(error Platform ${PLAT}$(TARGET_PLATFORM) is deprecated.)
 endif
 
+ifeq ($(TARGET_PLATFORM), 1)
+        $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
+          Some of the features might not work as expected)
+endif
+
 ifeq ($(shell expr $(TARGET_PLATFORM) \<= 2), 0)
         $(error TARGET_PLATFORM must be less than or equal to 2)
 endif

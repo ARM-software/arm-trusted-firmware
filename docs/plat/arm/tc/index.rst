@@ -18,7 +18,7 @@ Currently, the main difference between TC0 (TARGET_PLATFORM=0), TC1
 is the CPUs supported as below:
 
 -  TC0 has support for Cortex A510, Cortex A710 and Cortex X2. (Note TC0 is now deprecated)
--  TC1 has support for Cortex A510, Cortex A715 and Cortex X3.
+-  TC1 has support for Cortex A510, Cortex A715 and Cortex X3. (Note TC1 is now deprecated)
 -  TC2 has support for Cortex A520, Cortex A720 and Cortex x4.
 
 Boot Sequence
