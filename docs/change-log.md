@@ -3,6 +3,48 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.12](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.11..refs/tags/lts-v2.8.12) (2023-11-21)
+
+### ⚠ BREAKING CHANGES
+
+- **Drivers**
+
+  - **Authentication**
+
+    - remove CryptoCell-712/713 support
+
+      **See:** remove CryptoCell-712/713 support ([0327d4a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0327d4a6378dc30949d00526fdcd916e31eb8370))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **NVIDIA**
+
+    - **Tegra**
+
+      - return correct error code for plat_core_pos_by_mpidr ([2705269](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/270526916d74edc92c96706a8484bc06323bc3e1))
+
+- **Libraries**
+
+  - **SMCCC**
+
+    - ensure that mpidr passed through SMC is valid ([256a548](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/256a548c1b357cf549dfb9659fc3dfc184440a7b))
+
+- **Miscellaneous**
+
+  - **SDEI**
+
+    - ensure that interrupt ID is valid ([c717485](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c7174859bfc697585ba9d61e0afb236d83b4780a))
+
+### Miscellaneous
+
+- **Drivers**
+
+  - **Authentication**
+
+    - remove CryptoCell-712/713 support ([0327d4a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0327d4a6378dc30949d00526fdcd916e31eb8370))
+
 ## [lts-2.8.11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.10..refs/tags/lts-v2.8.11) (2023-11-09)
 
 ### Code Refactoring
