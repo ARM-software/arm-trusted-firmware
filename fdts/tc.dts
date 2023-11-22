@@ -398,10 +398,12 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+#if TC_SCMI_PD_CTRL_EN
 		scmi_devpd: protocol@11 {
 			reg = <0x11>;
 			#power-domain-cells = <1>;
 		};
+#endif /* TC_SCMI_PD_CTRL_EN */
 
 		scmi_dvfs: protocol@13 {
 			reg = <0x13>;
@@ -550,9 +552,14 @@
 		interrupt-names = "JOB", "MMU", "GPU";
 		clocks = <&gpu_core_clk>;
 		clock-names = "shadercores";
+#if TC_SCMI_PD_CTRL_EN
 		power-domains = <&scmi_devpd GPU_SCMI_PD_IDX>;
 		scmi-perf-domain = <3>;
+#endif /* TC_SCMI_PD_CTRL_EN */
+
+#if TC_IOMMU_EN
 		iommus = <&smmu_700 0x200>;
+#endif /* TC_IOMMU_EN */
 	};
 
 	power_model_simple {
@@ -567,6 +574,7 @@
 		thermal-zone = "";
 	};
 
+#if TC_IOMMU_EN
 	smmu_700: iommu@3f000000 {
 		#iommu-cells = <1>;
 		compatible = "arm,smmu-v3";
@@ -577,6 +585,7 @@
 		interrupt-names = "eventq", "cmdq-sync", "gerror";
 		dma-coherent;
 	};
+#endif /* TC_IOMMU_EN */
 
 	dp0: display@2cc00000 {
 		#address-cells = <1>;
@@ -586,8 +595,13 @@
 		interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "DPU";
 		DPU_CLK_ATTR1;
+#if TC_IOMMU_EN
 		iommus = <&smmu_700 0x100>;
+#endif /* TC_IOMMU_EN */
+#if  TC_SCMI_PD_CTRL_EN && (TARGET_PLATFORM != 3)
 		power-domains = <&scmi_devpd DPU_SCMI_PD_IDX>;
+#endif /*  TC_SCMI_PD_CTRL_EN && (TARGET_PLATFORM != 3) */
+
 		pl0: pipeline@0 {
 			reg = <0>;
 			DPU_CLK_ATTR2;

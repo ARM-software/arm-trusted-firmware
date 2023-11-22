@@ -7,8 +7,11 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
+/* If SCMI power domain control is enabled */
+#if TC_SCMI_PD_CTRL_EN
 #define GPU_SCMI_PD_IDX		(PLAT_MAX_CPUS_PER_CLUSTER + 1)
 #define DPU_SCMI_PD_IDX		(PLAT_MAX_CPUS_PER_CLUSTER + 2)
+#endif /* TC_SCMI_PD_CTRL_EN */
 
 /* All perf is normalized against the big core */
 #define BIG_CAPACITY		1024

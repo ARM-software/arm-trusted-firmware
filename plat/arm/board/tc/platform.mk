@@ -8,6 +8,10 @@ include common/fdt_wrappers.mk
 TARGET_FLAVOUR			:=	fvp
 # DPU with SCMI may not necessarily work, so allow its independence
 TC_DPU_USE_SCMI_CLK		:=	1
+# SCMI power domain control enable
+TC_SCMI_PD_CTRL_EN		:=	1
+# IOMMU: Enable the use of system or individual MMUs
+TC_IOMMU_EN			:=	1
 
 ifneq ($(shell expr $(TARGET_PLATFORM) \<= 1), 0)
         $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
@@ -26,6 +30,8 @@ $(eval $(call add_defines, \
 	TARGET_PLATFORM \
 	TARGET_FLAVOUR_$(call uppercase,${TARGET_FLAVOUR}) \
 	TC_DPU_USE_SCMI_CLK \
+	TC_SCMI_PD_CTRL_EN \
+	TC_IOMMU_EN \
 ))
 
 CSS_LOAD_SCP_IMAGES	:=	1
