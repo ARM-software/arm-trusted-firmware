@@ -621,6 +621,12 @@ subsections:
             scope: stm32mp2
 
             subsections:
+              - title: STM32MP21
+                scope: stm32mp21
+
+              - title: STM32MP23
+                scope: stm32mp23
+
               - title: STM32MP25
                 scope: stm32mp25
 
@@ -1352,6 +1358,12 @@ subsections:
                 scope: stm32mp2-fdts
 
                 subsections:
+                  - title: STM32MP21
+                    scope: stm32mp21-fdts
+
+                  - title: STM32MP23
+                    scope: stm32mp23-fdts
+
                   - title: STM32MP25
                     scope: stm32mp25-fdts
 
