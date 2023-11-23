@@ -103,12 +103,8 @@ MTK_PROJECT_CFG := $(MTK_PLAT)/project/$(PLAT)/project_config.mk
 MTK_OPTIONS := $(MTK_PLAT)/build_helpers/options.mk
 MTK_COND_EVAL := $(MTK_PLAT)/build_helpers/conditional_eval_options.mk
 
-# Indicate which BL should be built in command line
-ifeq (${NEED_BL32},yes)
-MTK_BL := bl32
-else
 MTK_BL := bl31
-endif
+
 # Include common, platform, board level config
 include $(MTK_COMMON_CFG)
 include $(MTK_PLAT_CFG)
