@@ -105,7 +105,7 @@
  * A buffer of ~35KB is added to account for future expansion of the image,
  * making it a total of 100KB.
  */
-#define CSS_SGI_BL31_SIZE		(100 * 1024)	/* 100 KB */
+#define CSS_SGI_BL31_SIZE		(116 * 1024)	/* 116 KB */
 #define PLAT_ARM_MAX_BL31_SIZE		(CSS_SGI_BL31_SIZE +		\
 						PLAT_ARM_MAX_BL2_SIZE +	\
 						PLAT_ARM_MAX_BL1_RW_SIZE)
@@ -217,7 +217,7 @@
  */
 #define CSS_SGI_SP_CPER_BUF_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE + \
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
-#define CSS_SGI_SP_CPER_BUF_SIZE	ULL(0x20000)
+#define CSS_SGI_SP_CPER_BUF_SIZE	ULL(0x10000)
 #define CSS_SGI_SP_CPER_BUF_MMAP	MAP_REGION2(			       \
 						CSS_SGI_SP_CPER_BUF_BASE,      \
 						CSS_SGI_SP_CPER_BUF_BASE,      \
