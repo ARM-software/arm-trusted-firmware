@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -61,7 +61,6 @@ static void log_measurement(uint8_t index,
 	INFO(" - locking     : %s\n", lock_measurement ? "true" : "false");
 }
 
-#if !PLAT_RSS_NOT_SUPPORTED
 psa_status_t
 rss_measured_boot_extend_measurement(uint8_t index,
 				     const uint8_t *signer_id,
@@ -175,47 +174,3 @@ psa_status_t rss_measured_boot_read_measurement(uint8_t index,
 
 	return status;
 }
-
-#else /* !PLAT_RSS_NOT_SUPPORTED */
-
-psa_status_t
-rss_measured_boot_extend_measurement(uint8_t index,
-				     const uint8_t *signer_id,
-				     size_t signer_id_size,
-				     const uint8_t *version,
-				     size_t version_size,
-				     uint32_t measurement_algo,
-				     const uint8_t *sw_type,
-				     size_t sw_type_size,
-				     const uint8_t *measurement_value,
-				     size_t measurement_value_size,
-				     bool lock_measurement)
-{
-	log_measurement(index, signer_id, signer_id_size,
-			version, version_size, sw_type, sw_type_size,
-			measurement_algo, measurement_value,
-			measurement_value_size, lock_measurement);
-
-	return PSA_SUCCESS;
-}
-
-psa_status_t rss_measured_boot_read_measurement(uint8_t index,
-					uint8_t *signer_id,
-					size_t signer_id_size,
-					size_t *signer_id_len,
-					uint8_t *version,
-					size_t version_size,
-					size_t *version_len,
-					uint32_t *measurement_algo,
-					uint8_t *sw_type,
-					size_t sw_type_size,
-					size_t *sw_type_len,
-					uint8_t *measurement_value,
-					size_t measurement_value_size,
-					size_t *measurement_value_len,
-					bool *is_locked)
-{
-	return PSA_SUCCESS;
-}
-
-#endif /* !PLAT_RSS_NOT_SUPPORTED */
