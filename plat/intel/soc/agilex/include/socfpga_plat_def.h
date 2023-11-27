@@ -65,7 +65,7 @@
 #define DEVICE4_SIZE				(0x0100000000)
 
 #define BL2_BASE		(0xffe00000)
-#define BL2_LIMIT		(0xffe1b000)
+#define BL2_LIMIT		(0xffe2b000)
 
 #define BL31_BASE		(0x1000)
 #define BL31_LIMIT		(0x81000)
