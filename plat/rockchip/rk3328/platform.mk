@@ -65,6 +65,7 @@ include lib/libfdt/libfdt.mk
 
 # Enable workarounds for selected Cortex-A53 errata
 ERRATA_A53_855873	:=	1
+ERRATA_A53_1530924	:=      1
 
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 $(eval $(call add_define,PLAT_SKIP_OPTEE_S_EL1_INT_REGISTER))

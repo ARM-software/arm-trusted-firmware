@@ -569,6 +569,9 @@ subsections:
               - rockchip/rk3399
               - rk3399/suspend
 
+          - title: RK3328
+            scope: rk3328
+
       - title: Socionext
         scope: socionext
 
