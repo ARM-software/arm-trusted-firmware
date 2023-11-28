@@ -95,3 +95,6 @@ $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config))
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0
 override ENABLE_FEAT_AMU		:= 1
+
+# Enable the flag since RD-N2 has a system level cache
+NEOVERSE_Nx_EXTERNAL_LLC		:=	1
