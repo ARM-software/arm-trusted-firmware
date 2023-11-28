@@ -90,7 +90,7 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 #endif
 	case  IMX_SIP_BUILDINFO:
 		SMC_RET1(handle, imx_buildinfo_handler(smc_fid, x1, x2, x3, x4));
-#if defined(PLAT_imx95)
+#if defined(PLAT_imx95) || defined(PLAT_imx94)
 	case IMX_SIP_GET_SOC_INFO:
 		return imx9_soc_info_handler(smc_fid, handle);
 #endif
