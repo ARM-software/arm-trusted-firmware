@@ -115,14 +115,14 @@ void configure_mmu(void)
 uintptr_t stm32_get_gpio_bank_base(unsigned int bank)
 {
 #if STM32MP13
-	assert((GPIO_BANK_A == 0) && (bank <= GPIO_BANK_I));
+	assert(bank <= GPIO_BANK_I);
 #endif
 #if STM32MP15
 	if (bank == GPIO_BANK_Z) {
 		return GPIOZ_BASE;
 	}
 
-	assert((GPIO_BANK_A == 0) && (bank <= GPIO_BANK_K));
+	assert(bank <= GPIO_BANK_K);
 #endif
 
 	return GPIOA_BASE + (bank * GPIO_BANK_OFFSET);
@@ -131,14 +131,14 @@ uintptr_t stm32_get_gpio_bank_base(unsigned int bank)
 uint32_t stm32_get_gpio_bank_offset(unsigned int bank)
 {
 #if STM32MP13
-	assert((GPIO_BANK_A == 0) && (bank <= GPIO_BANK_I));
+	assert(bank <= GPIO_BANK_I);
 #endif
 #if STM32MP15
 	if (bank == GPIO_BANK_Z) {
 		return 0;
 	}
 
-	assert((GPIO_BANK_A == 0) && (bank <= GPIO_BANK_K));
+	assert(bank <= GPIO_BANK_K);
 #endif
 
 	return bank * GPIO_BANK_OFFSET;
@@ -161,14 +161,14 @@ bool stm32_gpio_is_secure_at_reset(unsigned int bank)
 unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
 {
 #if STM32MP13
-	assert((GPIO_BANK_A == 0) && (bank <= GPIO_BANK_I));
+	assert(bank <= GPIO_BANK_I);
 #endif
 #if STM32MP15
 	if (bank == GPIO_BANK_Z) {
 		return GPIOZ;
 	}
 
-	assert((GPIO_BANK_A == 0) && (bank <= GPIO_BANK_K));
+	assert(bank <= GPIO_BANK_K);
 #endif
 
 	return GPIOA + (bank - GPIO_BANK_A);
