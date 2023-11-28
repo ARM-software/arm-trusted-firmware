@@ -755,4 +755,10 @@
 			compatible = "android,trusty-irq-v1";
 		};
 	};
+
+	/* used in U-boot, Linux doesn't care */
+	arm_ffa {
+		compatible = "arm,ffa";
+		method = "smc";
+	};
 };
