@@ -81,6 +81,42 @@ static scmi_channel_plat_info_t plat3_rd_scmi_info[] = {
 		.db_modify_mask = 0x1,
 		.ring_doorbell = &mhu_ring_doorbell,
 	},
+	#if (NRD_CHIP_COUNT > 1)
+	{
+		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
+					NRD_REMOTE_CHIP_MEM_OFFSET(1),
+		.db_reg_addr = PLAT_CSS_MHU_BASE +
+					NRD_REMOTE_CHIP_MEM_OFFSET(1) +
+					MHU_V3_SENDER_REG_SET(0),
+		.db_preserve_mask = 0xfffffffe,
+		.db_modify_mask = 0x1,
+		.ring_doorbell = &mhu_ring_doorbell,
+	},
+	#endif
+	#if (NRD_CHIP_COUNT > 2)
+	{
+		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
+					NRD_REMOTE_CHIP_MEM_OFFSET(2),
+		.db_reg_addr = PLAT_CSS_MHU_BASE +
+					NRD_REMOTE_CHIP_MEM_OFFSET(2) +
+					MHU_V3_SENDER_REG_SET(0),
+		.db_preserve_mask = 0xfffffffe,
+		.db_modify_mask = 0x1,
+		.ring_doorbell = &mhu_ring_doorbell,
+	},
+	#endif
+	#if (NRD_CHIP_COUNT > 3)
+	{
+		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
+					NRD_REMOTE_CHIP_MEM_OFFSET(3),
+		.db_reg_addr = PLAT_CSS_MHU_BASE +
+					NRD_REMOTE_CHIP_MEM_OFFSET(3) +
+					MHU_V3_SENDER_REG_SET(0),
+		.db_preserve_mask = 0xfffffffe,
+		.db_modify_mask = 0x1,
+		.ring_doorbell = &mhu_ring_doorbell,
+	},
+	#endif
 };
 
 scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
@@ -96,7 +132,8 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 		}
 		return &plat_rd_scmi_info[channel_id];
 	} else if (nrd_plat_info.platform_id == RD_FREMONT_SID_VER_PART_NUM ||
-		nrd_plat_info.platform_id == RD_FREMONT_CFG1_SID_VER_PART_NUM) {
+		nrd_plat_info.platform_id == RD_FREMONT_CFG1_SID_VER_PART_NUM ||
+		nrd_plat_info.platform_id == RD_FREMONT_CFG2_SID_VER_PART_NUM) {
 		if (channel_id >= ARRAY_SIZE(plat3_rd_scmi_info)) {
 			panic();
 		}
