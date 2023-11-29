@@ -73,3 +73,6 @@ ifneq ($(CSS_SGI_PLATFORM_VARIANT),0)
 endif
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0
+
+# Enable the flag since RD-N1-EDGE has a system level cache
+NEOVERSE_Nx_EXTERNAL_LLC		:=	1
