@@ -72,6 +72,14 @@ workaround_reset_end cortex_a78c, ERRATUM(2395411)
 
 check_erratum_range cortex_a78c, ERRATUM(2395411), CPU_REV(0, 1), CPU_REV(0, 2)
 
+workaround_reset_start cortex_a78c, ERRATUM(2743232), ERRATA_A78C_2743232
+	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
+	sysreg_bit_set CORTEX_A78C_ACTLR5_EL1, BIT(55)
+	sysreg_bit_clear CORTEX_A78C_ACTLR5_EL1, BIT(56)
+workaround_reset_end cortex_a78c, ERRATUM(2743232)
+
+check_erratum_range cortex_a78c, ERRATUM(2743232), CPU_REV(0, 1), CPU_REV(0, 2)
+
 workaround_runtime_start cortex_a78c, ERRATUM(2772121), ERRATA_A78C_2772121
 	/* dsb before isb of power down sequence */
 	dsb	sy

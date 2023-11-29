@@ -47,4 +47,9 @@
 #define CORTEX_A78C_IMP_CPUPOR_EL3			S3_6_C15_C8_2
 #define CORTEX_A78C_IMP_CPUPMR_EL3			S3_6_C15_C8_3
 
+/*******************************************************************************
+ * CPU Auxiliary Control register 5 specific definitions.
+ ******************************************************************************/
+#define CORTEX_A78C_ACTLR5_EL1				S3_0_C15_C9_0
+
 #endif /* CORTEX_A78C_H */
