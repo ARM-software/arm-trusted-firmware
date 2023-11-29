@@ -838,6 +838,10 @@ CPU_FLAG_LIST += ERRATA_A510_2684597
 # to revisions r0p0, r0p1 and r0p2. It is still open.
 CPU_FLAG_LIST += ERRATA_V2_2331132
 
+# Flag to apply erratum 2618597 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1. It is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_V2_2618597
+
 # Flag to apply erratum 2662553 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1. It is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_V2_2662553
