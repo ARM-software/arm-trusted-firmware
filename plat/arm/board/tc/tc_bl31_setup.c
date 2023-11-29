@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,6 +75,25 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
+	/*
+	 * Pass the hw_config to BL33 in R0. You'll notice that
+	 * arm_bl31_early_platform_setup does something similar but only behind
+	 * ARM_LINUX_KERNEL_AS_BL33 and we want to pass the DTB even to a
+	 * bootloader. Lucky for us, it copies the ep_info BL2 gave us to BL33
+	 * unconditionally in the generic case so hijack that.
+	 * TODO: this goes away with firmware handoff when it will be proper
+	 */
+
+	bl_params_node_t *bl_params = ((bl_params_t *)arg0)->head;
+
+	while (bl_params != NULL) {
+		if (bl_params->image_id == BL33_IMAGE_ID) {
+			bl_params->ep_info->args.arg0 = arg2;
+			break;
+		}
+		bl_params = bl_params->next_params_info;
+	}
+
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 
 	/* Fill the properties struct with the info from the config dtb */
