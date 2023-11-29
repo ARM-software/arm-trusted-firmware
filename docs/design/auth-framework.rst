@@ -254,8 +254,8 @@ These functions are registered in the CM using the macro:
     REGISTER_CRYPTO_LIB(_name,
                         _init,
                         _verify_signature,
-                        _calc_hash,
                         _verify_hash,
+                        _calc_hash,
                         _auth_decrypt,
                         _convert_pk);
 
