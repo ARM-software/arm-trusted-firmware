@@ -159,8 +159,8 @@ as per the following table:
    ``E_RMM_BOOT_SUCCESS``,Boot successful,0
    ``E_RMM_BOOT_ERR_UNKNOWN``,Unknown error,-1
    ``E_RMM_BOOT_VERSION_NOT_VALID``,Boot Interface version reported by EL3 is not supported by RMM,-2
-   ``E_RMM_BOOT_CPUS_OUT_OF_RAGE``,Number of CPUs reported by EL3 larger than maximum supported by RMM,-3
-   ``E_RMM_BOOT_CPU_ID_OUT_OF_RAGE``,Current CPU Id is higher or equal than the number of CPUs supported by RMM,-4
+   ``E_RMM_BOOT_CPUS_OUT_OF_RANGE``,Number of CPUs reported by EL3 larger than maximum supported by RMM,-3
+   ``E_RMM_BOOT_CPU_ID_OUT_OF_RANGE``,Current CPU Id is higher or equal than the number of CPUs supported by RMM,-4
    ``E_RMM_BOOT_INVALID_SHARED_BUFFER``,Invalid pointer to shared memory area,-5
    ``E_RMM_BOOT_MANIFEST_VERSION_NOT_SUPPORTED``,Version reported by the Boot Manifest not supported by RMM,-6
    ``E_RMM_BOOT_MANIFEST_DATA_ERROR``,Error parsing core Boot Manifest,-7
