@@ -64,6 +64,7 @@ struct stm32_clk_platdata {
 	uint32_t *clksrc;
 	uint32_t nclkdiv;
 	uint32_t *clkdiv;
+	bool lse_css;
 };
 
 struct stm32_clk_priv {
@@ -2072,6 +2073,7 @@ static int stm32_clk_configure_clk(struct stm32_clk_priv *priv, uint32_t data)
 	uint32_t sel = (data & CLK_SEL_MASK) >> CLK_SEL_SHIFT;
 	uint32_t enable = (data & CLK_ON_MASK) >> CLK_ON_SHIFT;
 	unsigned long binding_id = ((unsigned long)data & CLK_ID_MASK) >> CLK_ID_SHIFT;
+	struct stm32_clk_platdata *pdata = priv->pdata;
 
 	if (binding_id == RTC) {
 		uintptr_t address = stm32mp_rcc_base() + RCC_BDCR;
@@ -2081,6 +2083,10 @@ static int stm32_clk_configure_clk(struct stm32_clk_priv *priv, uint32_t data)
 					   (sel & RCC_SELR_SRC_MASK) << RCC_BDCR_RTCSRC_SHIFT);
 
 			mmio_setbits_32(address, RCC_BDCR_RTCCKEN);
+			/* Configure LSE CSS */
+			if (pdata->lse_css) {
+				mmio_setbits_32(priv->base + RCC_BDCR, RCC_BDCR_LSECSSON);
+			}
 		}
 	}
 
@@ -2176,7 +2182,6 @@ int stm32mp1_clk_init(void)
 	struct stm32_pll_dt_cfg *pll_conf = pdata->pll;
 	int ret;
 	enum stm32mp1_pll_id i;
-	bool lse_css = false;
 	bool pll3_preserve = false;
 	bool pll4_preserve = false;
 	bool pll4_bootrom = false;
@@ -2209,7 +2214,7 @@ int stm32mp1_clk_init(void)
 
 		bypass = fdt_clk_read_bool(name, "st,bypass");
 		digbyp = fdt_clk_read_bool(name, "st,digbypass");
-		lse_css = fdt_clk_read_bool(name, "st,css");
+		pdata->lse_css = fdt_clk_read_bool(name, "st,css");
 		lsedrv = fdt_clk_read_uint32_default(name, "st,drive",
 						     LSEDRV_MEDIUM_HIGH);
 		stm32mp1_lse_enable(bypass, digbyp, lsedrv);
@@ -2380,10 +2385,6 @@ int stm32mp1_clk_init(void)
 			VERBOSE("vs bootrom on USB boot\n");
 			return -FDT_ERR_BADVALUE;
 		}
-	}
-
-	if (lse_css) {
-		mmio_setbits_32(priv->base + RCC_BDCR, RCC_BDCR_LSECSSON);
 	}
 
 	/* Switch OFF HSI if not found in device-tree */
