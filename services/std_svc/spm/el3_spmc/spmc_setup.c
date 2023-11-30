@@ -20,6 +20,7 @@
 #include <plat/common/platform.h>
 #include <services/ffa_svc.h>
 #include "spm_common.h"
+#include "spm_shim_private.h"
 #include "spmc.h"
 #include <tools_share/firmware_image_package.h>
 
@@ -29,6 +30,26 @@
  * Statically allocate a page of memory for passing boot information to an SP.
  */
 static uint8_t ffa_boot_info_mem[PAGE_SIZE] __aligned(PAGE_SIZE);
+
+/*
+ * We need to choose one execution context from all those available for a S-EL0
+ * SP. This execution context will be used subsequently irrespective of which
+ * physical CPU the SP runs on.
+ */
+#define SEL0_SP_EC_INDEX 0
+#define SP_MEM_READ 0x1
+#define SP_MEM_WRITE 0x2
+#define SP_MEM_EXECUTE 0x4
+#define SP_MEM_NON_SECURE 0x8
+#define SP_MEM_READ_ONLY SP_MEM_READ
+#define SP_MEM_READ_WRITE (SP_MEM_READ | SP_MEM_WRITE)
+
+/* Type of the memory region in SP's manifest. */
+enum sp_memory_region_type {
+	SP_MEM_REGION_DEVICE,
+	SP_MEM_REGION_MEMORY,
+	SP_MEM_REGION_NOT_SPECIFIED
+};
 
 /*
  * This function creates a initialization descriptor in the memory reserved
@@ -143,13 +164,309 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 }
 
 /*
- * We are assuming that the index of the execution
- * context used is the linear index of the current physical cpu.
+ * S-EL1 partitions can be assigned with multiple execution contexts, each
+ * pinned to the physical CPU. Each execution context index corresponds to the
+ * respective liner core position.
+ * S-EL0 partitions execute in a single execution context (index 0).
  */
 unsigned int get_ec_index(struct secure_partition_desc *sp)
 {
-	return plat_my_core_pos();
+	return (sp->runtime_el == S_EL0) ?
+		SEL0_SP_EC_INDEX : plat_my_core_pos();
 }
+
+#if SPMC_AT_EL3_SEL0_SP
+/* Setup spsr in entry point info for common context management code to use. */
+void spmc_el0_sp_spsr_setup(entry_point_info_t *ep_info)
+{
+	/* Setup Secure Partition SPSR for S-EL0 SP. */
+	ep_info->spsr = SPSR_64(MODE_EL0, MODE_SP_EL0, DISABLE_ALL_EXCEPTIONS);
+}
+
+static void read_optional_string(void *manifest, int32_t offset,
+				 char *property, char *out, size_t len)
+{
+	const fdt32_t *prop;
+	int lenp;
+
+	prop = fdt_getprop(manifest, offset, property, &lenp);
+	if (prop == NULL) {
+		out[0] = '\0';
+	} else {
+		memcpy(out, prop, MIN(lenp, (int)len));
+	}
+}
+
+/*******************************************************************************
+ * This function will parse the Secure Partition Manifest for fetching secure
+ * partition specific memory/device region details. It will find base address,
+ * size, memory attributes for each region and then add the respective region
+ * into secure parition's translation context.
+ ******************************************************************************/
+static void populate_sp_regions(struct secure_partition_desc *sp,
+				void *sp_manifest, int node,
+				enum sp_memory_region_type type)
+{
+	uintptr_t base_address;
+	uint32_t mem_attr, mem_region, size;
+	struct mmap_region sp_mem_regions = {0};
+	int32_t offset, ret;
+	char *compatibility[SP_MEM_REGION_NOT_SPECIFIED] = {
+		"arm,ffa-manifest-device-regions",
+		"arm,ffa-manifest-memory-regions"
+	};
+	char description[10];
+	char *property;
+	char *region[SP_MEM_REGION_NOT_SPECIFIED] = {
+		"device regions",
+		"memory regions"
+	};
+
+	if (type >= SP_MEM_REGION_NOT_SPECIFIED) {
+		WARN("Invalid region type\n");
+		return;
+	}
+
+	INFO("Mapping SP's %s\n", region[type]);
+
+	if (fdt_node_check_compatible(sp_manifest, node,
+				      compatibility[type]) != 0) {
+		WARN("Incompatible region node in manifest\n");
+		return;
+	}
+
+	for (offset = fdt_first_subnode(sp_manifest, node), mem_region = 0;
+	     offset >= 0;
+	     offset = fdt_next_subnode(sp_manifest, offset), mem_region++) {
+		read_optional_string(sp_manifest, offset, "description",
+				     description, sizeof(description));
+
+		INFO("Mapping: region: %d, %s\n", mem_region, description);
+
+		property = "base-address";
+		ret = fdt_read_uint64(sp_manifest, offset, property,
+					&base_address);
+		if (ret < 0) {
+			WARN("Missing:%s for %s.\n", property, description);
+			continue;
+		}
+
+		property = "pages-count";
+		ret = fdt_read_uint32(sp_manifest, offset, property, &size);
+		if (ret < 0) {
+			WARN("Missing: %s for %s.\n", property, description);
+			continue;
+		}
+		size *= PAGE_SIZE;
+
+		property = "attributes";
+		ret = fdt_read_uint32(sp_manifest, offset, property, &mem_attr);
+		if (ret < 0) {
+			WARN("Missing: %s for %s.\n", property, description);
+			continue;
+		}
+
+		sp_mem_regions.attr = MT_USER;
+		if (type == SP_MEM_REGION_DEVICE) {
+			sp_mem_regions.attr |= MT_EXECUTE_NEVER;
+		} else {
+			sp_mem_regions.attr |= MT_MEMORY;
+			if ((mem_attr & SP_MEM_EXECUTE) == SP_MEM_EXECUTE) {
+				sp_mem_regions.attr &= ~MT_EXECUTE_NEVER;
+			} else {
+				sp_mem_regions.attr |= MT_EXECUTE_NEVER;
+			}
+		}
+
+		if ((mem_attr & SP_MEM_READ_WRITE) == SP_MEM_READ_WRITE) {
+			sp_mem_regions.attr |= MT_RW;
+		}
+
+		if ((mem_attr & SP_MEM_NON_SECURE) == SP_MEM_NON_SECURE) {
+			sp_mem_regions.attr |= MT_NS;
+		} else {
+			sp_mem_regions.attr |= MT_SECURE;
+		}
+
+		sp_mem_regions.base_pa = base_address;
+		sp_mem_regions.base_va = base_address;
+		sp_mem_regions.size = size;
+
+		INFO("Adding PA: 0x%llx VA: 0x%lx Size: 0x%lx attr:0x%x\n",
+		     sp_mem_regions.base_pa,
+		     sp_mem_regions.base_va,
+		     sp_mem_regions.size,
+		     sp_mem_regions.attr);
+
+		if (type == SP_MEM_REGION_DEVICE) {
+			sp_mem_regions.granularity = XLAT_BLOCK_SIZE(1);
+		} else {
+			sp_mem_regions.granularity = XLAT_BLOCK_SIZE(3);
+		}
+		mmap_add_region_ctx(sp->xlat_ctx_handle, &sp_mem_regions);
+	}
+}
+
+static void spmc_el0_sp_setup_mmu(struct secure_partition_desc *sp,
+				  cpu_context_t *ctx)
+{
+	xlat_ctx_t *xlat_ctx;
+	uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+
+	xlat_ctx = sp->xlat_ctx_handle;
+	init_xlat_tables_ctx(sp->xlat_ctx_handle);
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, 0, xlat_ctx->base_table,
+		      xlat_ctx->pa_max_address, xlat_ctx->va_max_address,
+		      EL1_EL0_REGIME);
+
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_MAIR_EL1,
+		      mmu_cfg_params[MMU_CFG_MAIR]);
+
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_TCR_EL1,
+		      mmu_cfg_params[MMU_CFG_TCR]);
+
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_TTBR0_EL1,
+		      mmu_cfg_params[MMU_CFG_TTBR0]);
+}
+
+static void spmc_el0_sp_setup_sctlr_el1(cpu_context_t *ctx)
+{
+	u_register_t sctlr_el1;
+
+	/* Setup SCTLR_EL1 */
+	sctlr_el1 = read_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1);
+
+	sctlr_el1 |=
+		/*SCTLR_EL1_RES1 |*/
+		/* Don't trap DC CVAU, DC CIVAC, DC CVAC, DC CVAP, or IC IVAU */
+		SCTLR_UCI_BIT |
+		/* RW regions at xlat regime EL1&0 are forced to be XN. */
+		SCTLR_WXN_BIT |
+		/* Don't trap to EL1 execution of WFI or WFE at EL0. */
+		SCTLR_NTWI_BIT | SCTLR_NTWE_BIT |
+		/* Don't trap to EL1 accesses to CTR_EL0 from EL0. */
+		SCTLR_UCT_BIT |
+		/* Don't trap to EL1 execution of DZ ZVA at EL0. */
+		SCTLR_DZE_BIT |
+		/* Enable SP Alignment check for EL0 */
+		SCTLR_SA0_BIT |
+		/* Don't change PSTATE.PAN on taking an exception to EL1 */
+		SCTLR_SPAN_BIT |
+		/* Allow cacheable data and instr. accesses to normal memory. */
+		SCTLR_C_BIT | SCTLR_I_BIT |
+		/* Enable MMU. */
+		SCTLR_M_BIT;
+
+	sctlr_el1 &= ~(
+		/* Explicit data accesses at EL0 are little-endian. */
+		SCTLR_E0E_BIT |
+		/*
+		 * Alignment fault checking disabled when at EL1 and EL0 as
+		 * the UEFI spec permits unaligned accesses.
+		 */
+		SCTLR_A_BIT |
+		/* Accesses to DAIF from EL0 are trapped to EL1. */
+		SCTLR_UMA_BIT
+	);
+
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_el1);
+}
+
+static void spmc_el0_sp_setup_system_registers(struct secure_partition_desc *sp,
+					       cpu_context_t *ctx)
+{
+
+	spmc_el0_sp_setup_mmu(sp, ctx);
+
+	spmc_el0_sp_setup_sctlr_el1(ctx);
+
+	/* Setup other system registers. */
+
+	/* Shim Exception Vector Base Address */
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_VBAR_EL1,
+			SPM_SHIM_EXCEPTIONS_PTR);
+#if NS_TIMER_SWITCH
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_CNTKCTL_EL1,
+		      EL0PTEN_BIT | EL0VTEN_BIT | EL0PCTEN_BIT | EL0VCTEN_BIT);
+#endif
+
+	/*
+	 * FPEN: Allow the Secure Partition to access FP/SIMD registers.
+	 * Note that SPM will not do any saving/restoring of these registers on
+	 * behalf of the SP. This falls under the SP's responsibility.
+	 * TTA: Enable access to trace registers.
+	 * ZEN (v8.2): Trap SVE instructions and access to SVE registers.
+	 */
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_CPACR_EL1,
+			CPACR_EL1_FPEN(CPACR_EL1_FP_TRAP_NONE));
+}
+
+/* Setup context of an EL0 Secure Partition.  */
+void spmc_el0_sp_setup(struct secure_partition_desc *sp,
+		       int32_t boot_info_reg,
+		       void *sp_manifest)
+{
+	mmap_region_t sel1_exception_vectors =
+		MAP_REGION_FLAT(SPM_SHIM_EXCEPTIONS_START,
+				SPM_SHIM_EXCEPTIONS_SIZE,
+				MT_CODE | MT_SECURE | MT_PRIVILEGED);
+	cpu_context_t *ctx;
+	int node;
+	int offset = 0;
+
+	ctx = &sp->ec[SEL0_SP_EC_INDEX].cpu_ctx;
+
+	sp->xlat_ctx_handle->xlat_regime = EL1_EL0_REGIME;
+
+	/* This region contains the exception vectors used at S-EL1. */
+	mmap_add_region_ctx(sp->xlat_ctx_handle,
+			    &sel1_exception_vectors);
+
+	/*
+	 * If the SP manifest specified the register to pass the address of the
+	 * boot information, then map the memory region to pass boot
+	 * information.
+	 */
+	if (boot_info_reg >= 0) {
+		mmap_region_t ffa_boot_info_region = MAP_REGION_FLAT(
+			(uintptr_t) ffa_boot_info_mem,
+			PAGE_SIZE,
+			MT_RO_DATA | MT_SECURE | MT_USER);
+		mmap_add_region_ctx(sp->xlat_ctx_handle, &ffa_boot_info_region);
+	}
+
+	/*
+	 * Parse the manifest for any device regions that the SP wants to be
+	 * mapped in its translation regime.
+	 */
+	node = fdt_subnode_offset_namelen(sp_manifest, offset,
+					  "device-regions",
+					  sizeof("device-regions") - 1);
+	if (node < 0) {
+		WARN("Not found device-region configuration for SP.\n");
+	} else {
+		populate_sp_regions(sp, sp_manifest, node,
+				    SP_MEM_REGION_DEVICE);
+	}
+
+	/*
+	 * Parse the manifest for any memory regions that the SP wants to be
+	 * mapped in its translation regime.
+	 */
+	node = fdt_subnode_offset_namelen(sp_manifest, offset,
+					  "memory-regions",
+					  sizeof("memory-regions") - 1);
+	if (node < 0) {
+		WARN("Not found memory-region configuration for SP.\n");
+	} else {
+		populate_sp_regions(sp, sp_manifest, node,
+				    SP_MEM_REGION_MEMORY);
+	}
+
+	spmc_el0_sp_setup_system_registers(sp, ctx);
+
+}
+#endif /* SPMC_AT_EL3_SEL0_SP */
 
 /* S-EL1 partition specific initialisation. */
 void spmc_el1_sp_setup(struct secure_partition_desc *sp,
@@ -210,12 +527,6 @@ void spmc_sp_common_setup(struct secure_partition_desc *sp,
 		}
 		sp->sp_id = sp_id;
 	}
-
-	/*
-	 * We currently only support S-EL1 partitions so ensure this is the
-	 * case.
-	 */
-	assert(sp->runtime_el == S_EL1);
 
 	/* Check if the SP wants to use the FF-A boot protocol. */
 	if (boot_info_reg >= 0) {

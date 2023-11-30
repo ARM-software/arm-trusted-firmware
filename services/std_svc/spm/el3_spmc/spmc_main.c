@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,17 @@
 #include "spmc_shared_mem.h"
 
 #include <platform_def.h>
+
+/* FFA_MEM_PERM_* helpers */
+#define FFA_MEM_PERM_MASK		U(7)
+#define FFA_MEM_PERM_DATA_MASK		U(3)
+#define FFA_MEM_PERM_DATA_SHIFT		U(0)
+#define FFA_MEM_PERM_DATA_NA		U(0)
+#define FFA_MEM_PERM_DATA_RW		U(1)
+#define FFA_MEM_PERM_DATA_RES		U(2)
+#define FFA_MEM_PERM_DATA_RO		U(3)
+#define FFA_MEM_PERM_INST_EXEC          (U(0) << 2)
+#define FFA_MEM_PERM_INST_NON_EXEC      (U(1) << 2)
 
 /* Declare the maximum number of SPs and El3 LPs. */
 #define MAX_SP_LP_PARTITIONS SECURE_PARTITION_COUNT + MAX_EL3_LP_DESCS_COUNT
@@ -390,6 +401,11 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
 
+	/* Protect the runtime state of a UP S-EL0 SP with a lock. */
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
+
 	/*
 	 * Check that the target execution context is in a waiting state before
 	 * forwarding the direct request to it.
@@ -398,6 +414,11 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 	if (sp->ec[idx].rt_state != RT_STATE_WAITING) {
 		VERBOSE("SP context on core%u is not waiting (%u).\n",
 			idx, sp->ec[idx].rt_model);
+
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
+
 		return spmc_ffa_error_return(handle, FFA_ERROR_BUSY);
 	}
 
@@ -408,6 +429,11 @@ static uint64_t direct_req_smc_handler(uint32_t smc_fid,
 	sp->ec[idx].rt_state = RT_STATE_RUNNING;
 	sp->ec[idx].rt_model = RT_MODEL_DIR_REQ;
 	sp->ec[idx].dir_req_origin_id = src_id;
+
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
+	}
+
 	return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
 			       handle, cookie, flags, dst_id);
 }
@@ -462,6 +488,10 @@ static uint64_t direct_resp_smc_handler(uint32_t smc_fid,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
 
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
+
 	/* Sanity check state is being tracked correctly in the SPMC. */
 	idx = get_ec_index(sp);
 	assert(sp->ec[idx].rt_state == RT_STATE_RUNNING);
@@ -470,12 +500,18 @@ static uint64_t direct_resp_smc_handler(uint32_t smc_fid,
 	if (sp->ec[idx].rt_model != RT_MODEL_DIR_REQ) {
 		VERBOSE("SP context on core%u not handling direct req (%u).\n",
 			idx, sp->ec[idx].rt_model);
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
 	}
 
 	if (sp->ec[idx].dir_req_origin_id != dst_id) {
 		WARN("Invalid direct resp partition ID 0x%x != 0x%x on core%u.\n",
 		     dst_id, sp->ec[idx].dir_req_origin_id, idx);
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
 	}
 
@@ -484,6 +520,10 @@ static uint64_t direct_resp_smc_handler(uint32_t smc_fid,
 
 	/* Clear the ongoing direct request ID. */
 	sp->ec[idx].dir_req_origin_id = INV_SP_ID;
+
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
+	}
 
 	/*
 	 * If the receiver is not the SPMC then forward the response to the
@@ -536,9 +576,15 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 	 * Get the execution context of the SP that invoked FFA_MSG_WAIT.
 	 */
 	idx = get_ec_index(sp);
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
 
 	/* Ensure SP execution context was in the right runtime model. */
 	if (sp->ec[idx].rt_model == RT_MODEL_DIR_REQ) {
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
 	}
 
@@ -550,6 +596,9 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 	 * state is updated after the exit.
 	 */
 	if (sp->ec[idx].rt_model == RT_MODEL_INIT) {
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		spmc_sp_synchronous_exit(&sp->ec[idx], x4);
 		/* Should not get here */
 		panic();
@@ -567,7 +616,17 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 		cm_el1_sysregs_context_save(secure_state_in);
 		cm_el1_sysregs_context_restore(secure_state_out);
 		cm_set_next_eret_context(secure_state_out);
+
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
+
 		SMC_RET0(cm_get_context(secure_state_out));
+	}
+
+	/* Protect the runtime state of a S-EL0 SP with a lock. */
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
 	}
 
 	/* Forward the response to the Normal world. */
@@ -1343,14 +1402,21 @@ static uint64_t ffa_run_handler(uint32_t smc_fid,
 	}
 
 	idx = get_ec_index(sp);
+
 	if (idx != vcpu_id) {
 		ERROR("Cannot run vcpu %d != %d.\n", idx, vcpu_id);
 		return spmc_ffa_error_return(handle,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
 	rt_state = &((sp->ec[idx]).rt_state);
 	rt_model = &((sp->ec[idx]).rt_model);
 	if (*rt_state == RT_STATE_RUNNING) {
+		if (sp->runtime_el == S_EL0) {
+			spin_unlock(&sp->rt_state_lock);
+		}
 		ERROR("Partition (0x%x) is already running.\n", target_id);
 		return spmc_ffa_error_return(handle, FFA_ERROR_BUSY);
 	}
@@ -1376,6 +1442,10 @@ static uint64_t ffa_run_handler(uint32_t smc_fid,
 	 * its state.
 	 */
 	*rt_state = RT_STATE_RUNNING;
+
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
+	}
 
 	return spmc_smc_return(smc_fid, secure_origin, x1, 0, 0, 0,
 			       handle, cookie, flags, target_id);
@@ -1505,6 +1575,223 @@ static uint64_t ffa_sec_ep_register_handler(uint32_t smc_fid,
 }
 
 /*******************************************************************************
+ * Permissions are encoded using a different format in the FFA_MEM_PERM_* ABIs
+ * than in the Trusted Firmware, where the mmap_attr_t enum type is used. This
+ * function converts a permission value from the FF-A format to the mmap_attr_t
+ * format by setting MT_RW/MT_RO, MT_USER/MT_PRIVILEGED and
+ * MT_EXECUTE/MT_EXECUTE_NEVER. The other fields are left as 0 because they are
+ * ignored by the function xlat_change_mem_attributes_ctx().
+ ******************************************************************************/
+static unsigned int ffa_perm_to_mmap_perm(unsigned int perms)
+{
+	unsigned int tf_attr = 0U;
+	unsigned int access;
+
+	/* Deal with data access permissions first. */
+	access = (perms & FFA_MEM_PERM_DATA_MASK) >> FFA_MEM_PERM_DATA_SHIFT;
+
+	switch (access) {
+	case FFA_MEM_PERM_DATA_RW:
+		/* Return 0 if the execute is set with RW. */
+		if ((perms & FFA_MEM_PERM_INST_NON_EXEC) != 0) {
+			tf_attr |= MT_RW | MT_USER | MT_EXECUTE_NEVER;
+		}
+		break;
+
+	case FFA_MEM_PERM_DATA_RO:
+		tf_attr |= MT_RO | MT_USER;
+		/* Deal with the instruction access permissions next. */
+		if ((perms & FFA_MEM_PERM_INST_NON_EXEC) == 0) {
+			tf_attr |= MT_EXECUTE;
+		} else {
+			tf_attr |= MT_EXECUTE_NEVER;
+		}
+		break;
+
+	case FFA_MEM_PERM_DATA_NA:
+	default:
+		return tf_attr;
+	}
+
+	return tf_attr;
+}
+
+/*******************************************************************************
+ * Handler to set the permissions of a set of contiguous pages of a S-EL0 SP
+ ******************************************************************************/
+static uint64_t ffa_mem_perm_set_handler(uint32_t smc_fid,
+					 bool secure_origin,
+					 uint64_t x1,
+					 uint64_t x2,
+					 uint64_t x3,
+					 uint64_t x4,
+					 void *cookie,
+					 void *handle,
+					 uint64_t flags)
+{
+	struct secure_partition_desc *sp;
+	unsigned int idx;
+	uintptr_t base_va = (uintptr_t) x1;
+	size_t size = (size_t)(x2 * PAGE_SIZE);
+	uint32_t tf_attr;
+	int ret;
+
+	/* This request cannot originate from the Normal world. */
+	if (!secure_origin) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
+
+	if (size == 0) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Get the context of the current SP. */
+	sp = spmc_get_current_sp_ctx();
+	if (sp == NULL) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* A S-EL1 SP has no business invoking this ABI. */
+	if (sp->runtime_el == S_EL1) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	if ((x3 & ~((uint64_t)FFA_MEM_PERM_MASK)) != 0) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Get the execution context of the calling SP. */
+	idx = get_ec_index(sp);
+
+	/*
+	 * Ensure that the S-EL0 SP is initialising itself. We do not need to
+	 * synchronise this operation through a spinlock since a S-EL0 SP is UP
+	 * and can only be initialising on this cpu.
+	 */
+	if (sp->ec[idx].rt_model != RT_MODEL_INIT) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	VERBOSE("Setting memory permissions:\n");
+	VERBOSE("  Start address  : 0x%lx\n", base_va);
+	VERBOSE("  Number of pages: %lu (%zu bytes)\n", x2, size);
+	VERBOSE("  Attributes     : 0x%x\n", (uint32_t)x3);
+
+	/* Convert inbound permissions to TF-A permission attributes */
+	tf_attr = ffa_perm_to_mmap_perm((unsigned int)x3);
+	if (tf_attr == 0U) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Request the change in permissions */
+	ret = xlat_change_mem_attributes_ctx(sp->xlat_ctx_handle,
+					     base_va, size, tf_attr);
+	if (ret != 0) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	SMC_RET1(handle, FFA_SUCCESS_SMC32);
+}
+
+/*******************************************************************************
+ * Permissions are encoded using a different format in the FFA_MEM_PERM_* ABIs
+ * than in the Trusted Firmware, where the mmap_attr_t enum type is used. This
+ * function converts a permission value from the mmap_attr_t format to the FF-A
+ * format.
+ ******************************************************************************/
+static unsigned int mmap_perm_to_ffa_perm(unsigned int attr)
+{
+	unsigned int perms = 0U;
+	unsigned int data_access;
+
+	if ((attr & MT_USER) == 0) {
+		/* No access from EL0. */
+		data_access = FFA_MEM_PERM_DATA_NA;
+	} else {
+		if ((attr & MT_RW) != 0) {
+			data_access = FFA_MEM_PERM_DATA_RW;
+		} else {
+			data_access = FFA_MEM_PERM_DATA_RO;
+		}
+	}
+
+	perms |= (data_access & FFA_MEM_PERM_DATA_MASK)
+		<< FFA_MEM_PERM_DATA_SHIFT;
+
+	if ((attr & MT_EXECUTE_NEVER) != 0U) {
+		perms |= FFA_MEM_PERM_INST_NON_EXEC;
+	}
+
+	return perms;
+}
+
+/*******************************************************************************
+ * Handler to get the permissions of a set of contiguous pages of a S-EL0 SP
+ ******************************************************************************/
+static uint64_t ffa_mem_perm_get_handler(uint32_t smc_fid,
+					 bool secure_origin,
+					 uint64_t x1,
+					 uint64_t x2,
+					 uint64_t x3,
+					 uint64_t x4,
+					 void *cookie,
+					 void *handle,
+					 uint64_t flags)
+{
+	struct secure_partition_desc *sp;
+	unsigned int idx;
+	uintptr_t base_va = (uintptr_t)x1;
+	uint32_t tf_attr = 0;
+	int ret;
+
+	/* This request cannot originate from the Normal world. */
+	if (!secure_origin) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
+
+	/* Get the context of the current SP. */
+	sp = spmc_get_current_sp_ctx();
+	if (sp == NULL) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* A S-EL1 SP has no business invoking this ABI. */
+	if (sp->runtime_el == S_EL1) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	/* Get the execution context of the calling SP. */
+	idx = get_ec_index(sp);
+
+	/*
+	 * Ensure that the S-EL0 SP is initialising itself. We do not need to
+	 * synchronise this operation through a spinlock since a S-EL0 SP is UP
+	 * and can only be initialising on this cpu.
+	 */
+	if (sp->ec[idx].rt_model != RT_MODEL_INIT) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
+	}
+
+	/* Request the permissions */
+	ret = xlat_get_mem_attributes_ctx(sp->xlat_ctx_handle, base_va, &tf_attr);
+	if (ret != 0) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Convert TF-A permission to FF-A permissions attributes. */
+	x2 = mmap_perm_to_ffa_perm(tf_attr);
+
+	SMC_RET3(handle, FFA_SUCCESS_SMC32, 0, x2);
+}
+
+/*******************************************************************************
  * This function will parse the Secure Partition Manifest. From manifest, it
  * will fetch details for preparing Secure partition image context and secure
  * partition image boot arguments if any.
@@ -1588,7 +1875,7 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 	 * since this is currently a hardcoded value for S-EL1 partitions
 	 * we don't need to save it here, just validate.
 	 */
-	if (config_32 != PLATFORM_CORE_COUNT) {
+	if ((sp->runtime_el == S_EL1) && (config_32 != PLATFORM_CORE_COUNT)) {
 		ERROR("SP Execution Context Count (%u) must be %u.\n",
 			config_32, PLATFORM_CORE_COUNT);
 		return -EINVAL;
@@ -1704,7 +1991,8 @@ static int find_and_prepare_sp_context(void)
 	 * the manifest as boot information later.
 	 */
 	next_image_ep_info->args.arg1 = fdt_totalsize(sp_manifest);
-	INFO("Manifest size = %lu bytes.\n", next_image_ep_info->args.arg1);
+	INFO("Manifest adr = %lx , size = %lu bytes\n", manifest_base,
+	     next_image_ep_info->args.arg1);
 
 	/*
 	 * Select an SP descriptor for initialising the partition's execution
@@ -1712,6 +2000,11 @@ static int find_and_prepare_sp_context(void)
 	 */
 	sp = spmc_get_current_sp_ctx();
 
+#if SPMC_AT_EL3_SEL0_SP
+	/* Assign translation tables context. */
+	sp_desc->xlat_ctx_handle = spm_get_sp_xlat_context();
+
+#endif /* SPMC_AT_EL3_SEL0_SP */
 	/* Initialize entry point information for the SP */
 	SET_PARAM_HEAD(next_image_ep_info, PARAM_EP, VERSION_1,
 		       SECURE | EP_ST_ENABLE);
@@ -1725,7 +2018,7 @@ static int find_and_prepare_sp_context(void)
 	}
 
 	/* Check that the runtime EL in the manifest was correct. */
-	if (sp->runtime_el != S_EL1) {
+	if (sp->runtime_el != S_EL0 && sp->runtime_el != S_EL1) {
 		ERROR("Unexpected runtime EL: %d\n", sp->runtime_el);
 		return -EINVAL;
 	}
@@ -1734,11 +2027,29 @@ static int find_and_prepare_sp_context(void)
 	spmc_sp_common_setup(sp, next_image_ep_info, boot_info_reg);
 
 	/* Perform any initialisation specific to S-EL1 SPs. */
-	spmc_el1_sp_setup(sp, next_image_ep_info);
+	if (sp->runtime_el == S_EL1) {
+		spmc_el1_sp_setup(sp, next_image_ep_info);
+	}
+
+#if SPMC_AT_EL3_SEL0_SP
+	/* Setup spsr in endpoint info for common context management routine. */
+	if (sp->runtime_el == S_EL0) {
+		spmc_el0_sp_spsr_setup(next_image_ep_info);
+	}
+#endif /* SPMC_AT_EL3_SEL0_SP */
 
 	/* Initialize the SP context with the required ep info. */
 	spmc_sp_common_ep_commit(sp, next_image_ep_info);
 
+#if SPMC_AT_EL3_SEL0_SP
+	/*
+	 * Perform any initialisation specific to S-EL0 not set by common
+	 * context management routine.
+	 */
+	if (sp->runtime_el == S_EL0) {
+		spmc_el0_sp_setup(sp, boot_info_reg, sp_manifest);
+	}
+#endif /* SPMC_AT_EL3_SEL0_SP */
 	return 0;
 }
 
@@ -2050,6 +2361,14 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 	case FFA_MEM_RECLAIM:
 		return spmc_ffa_mem_reclaim(smc_fid, secure_origin, x1, x2, x3,
 					    x4, cookie, handle, flags);
+
+	case FFA_MEM_PERM_GET:
+		return ffa_mem_perm_get_handler(smc_fid, secure_origin, x1, x2,
+						x3, x4, cookie, handle, flags);
+
+	case FFA_MEM_PERM_SET:
+		return ffa_mem_perm_set_handler(smc_fid, secure_origin, x1, x2,
+						x3, x4, cookie, handle, flags);
 
 	default:
 		WARN("Unsupported FF-A call 0x%08x.\n", smc_fid);
