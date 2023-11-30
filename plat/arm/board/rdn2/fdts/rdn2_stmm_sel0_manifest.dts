@@ -38,7 +38,7 @@
 	xlat-granule = <0>; /* 4KiB */
 	boot-order = <0>;
 	messaging-method = <0x3>; /* Direct request/response supported. */
-	power-management-messages = <0x1>;
+	power-management-messages = <0>;
 	gp-register-num = <0>;
 
 	device-regions {
