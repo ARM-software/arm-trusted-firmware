@@ -95,6 +95,7 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix,
  *
  * The following padding specifiers are supported by this print
  * %0NN - Left-pad the number with 0s (NN is a decimal number)
+ * %NN - Left-pad the number with spaces (NN is a decimal number)
  *
  * The print exits on all other formats specifiers other than valid
  * combinations of the above specifiers.
@@ -181,6 +182,27 @@ loop:
 				padc = '0';
 				padn = 0;
 				fmt++;
+
+				for (;;) {
+					char ch = *fmt;
+					if ((ch < '0') || (ch > '9')) {
+						goto loop;
+					}
+					padn = (padn * 10) + (ch - '0');
+					fmt++;
+				}
+				assert(0); /* Unreachable */
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				padc = ' ';
+				padn = 0;
 
 				for (;;) {
 					char ch = *fmt;
