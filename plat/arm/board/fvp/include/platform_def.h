@@ -111,7 +111,7 @@
 #define PLAT_SPMC_SHMEM_DATASTORE_SIZE 512 * 1024
 
 /* Define memory configuration for device tree files. */
-#define PLAT_ARM_HW_CONFIG_SIZE			U(0x10000)
+#define PLAT_ARM_HW_CONFIG_SIZE			U(0x4000)
 
 #if SPMC_AT_EL3
 /*
