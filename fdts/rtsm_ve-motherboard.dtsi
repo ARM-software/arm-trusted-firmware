@@ -230,6 +230,25 @@
 					interrupts = <42>;
 				};
 
+				virtio@140000 {
+					compatible = "virtio,mmio";
+					reg = <0x140000 0x200>;
+					interrupts = <43>;
+				};
+
+				virtio@150000 {
+					compatible = "virtio,mmio";
+					reg = <0x150000 0x200>;
+					interrupts = <44>;
+				};
+
+				virtio@200000 {
+					compatible = "virtio,mmio";
+					reg = <0x200000 0x200>;
+					interrupts = <46>;
+					status = "disabled";
+				};
+
 				rtc@170000 {
 					compatible = "arm,pl031", "arm,primecell";
 					reg = <0x170000 0x1000>;
