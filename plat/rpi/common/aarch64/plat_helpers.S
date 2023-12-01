@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -164,10 +164,16 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, PLAT_RPI_MINI_UART_BASE
+	mov_imm	x0, PLAT_RPI_CRASH_UART_BASE
+#if PLAT_RPI_CRASH_UART_BASE == PLAT_RPI_PL011_UART_BASE
+	mov_imm	x1, RPI4_PL011_UART_CLOCK
+	mov_imm	x2, PLAT_RPI_UART_BAUDRATE
+	b	console_pl011_core_init
+#else
 	mov	x1, xzr
 	mov	x2, xzr
 	b	console_16550_core_init
+#endif
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -178,8 +184,12 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-	mov_imm	x1, PLAT_RPI_MINI_UART_BASE
+	mov_imm	x1, PLAT_RPI_CRASH_UART_BASE
+#if PLAT_RPI_CRASH_UART_BASE == PLAT_RPI_PL011_UART_BASE
+	b	console_pl011_core_putc
+#else
 	b	console_16550_core_putc
+#endif
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
@@ -191,8 +201,12 @@ endfunc plat_crash_console_putc
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush
-	mov_imm	x0, PLAT_RPI_MINI_UART_BASE
+	mov_imm	x0, PLAT_RPI_CRASH_UART_BASE
+#if PLAT_RPI_CRASH_UART_BASE == PLAT_RPI_PL011_UART_BASE
+	b	console_pl011_core_flush
+#else
 	b	console_16550_core_flush
+#endif
 endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------

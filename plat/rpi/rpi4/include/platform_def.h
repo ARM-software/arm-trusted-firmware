@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -131,6 +131,7 @@
 #define PLAT_RPI_PL011_UART_BASE	RPI4_PL011_UART_BASE
 #define PLAT_RPI_PL011_UART_CLOCK       RPI4_PL011_UART_CLOCK
 #define PLAT_RPI_UART_BAUDRATE          ULL(115200)
+#define PLAT_RPI_CRASH_UART_BASE	PLAT_RPI_MINI_UART_BASE
 
 /*
  * System counter
