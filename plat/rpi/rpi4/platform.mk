@@ -15,6 +15,7 @@ PLAT_INCLUDES		:=	-Iplat/rpi/common/include		\
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				drivers/arm/pl011/aarch64/pl011_console.S \
 				plat/rpi/common/rpi3_common.c		\
+				plat/rpi/common/rpi3_console_dual.c	\
 				${XLAT_TABLES_LIB_SRCS}
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\

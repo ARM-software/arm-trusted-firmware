@@ -7,14 +7,20 @@
 #ifndef RPI_SHARED_H
 #define RPI_SHARED_H
 
+#include <stddef.h>
 #include <stdint.h>
+
+#include <drivers/console.h>
 
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
 
-/* Utility functions */
+/* Serial console functions */
 void rpi3_console_init(void);
+int rpi3_register_used_uart(console_t *console);
+
+/* Utility functions */
 void rpi3_setup_page_tables(uintptr_t total_base, size_t total_size,
 			    uintptr_t code_start, uintptr_t code_limit,
 			    uintptr_t rodata_start, uintptr_t rodata_limit
