@@ -27,10 +27,19 @@
 	 *
 	 *  This function uses the plat_rpi3_calc_core_pos()
 	 *  definition to get the index of the calling CPU.
+	 *
+	 *  When MT is set, lowest affinity represents the thread ID.
+	 *  Since we only support one thread per core, discard this field
+	 *  so cluster and core IDs go back into Aff1 and Aff0 respectively.
+	 *  The upper bits are also affected, but plat_rpi3_calc_core_pos()
+	 *  does not use them.
 	 * -----------------------------------------------------
 	 */
 func plat_my_core_pos
 	mrs	x0, mpidr_el1
+	tst	x0, #MPIDR_MT_MASK
+	lsr	x1, x0, #MPIDR_AFFINITY_BITS
+	csel	x0, x1, x0, ne
 	b	plat_rpi3_calc_core_pos
 endfunc plat_my_core_pos
 
