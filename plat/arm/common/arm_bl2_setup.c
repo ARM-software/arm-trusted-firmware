@@ -19,6 +19,9 @@
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/gpt_rme/gpt_rme.h>
+#if TRANSFER_LIST
+#include <lib/transfer_list.h>
+#endif
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
@@ -57,6 +60,9 @@ CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 #endif /* ENABLE_RME */
 
 #pragma weak arm_bl2_plat_handle_post_image_load
+
+static struct transfer_list_header *secure_tl __unused;
+static struct transfer_list_header *ns_tl __unused;
 
 /*******************************************************************************
  * BL1 has passed the extents of the trusted SRAM that should be visible to BL2
@@ -103,7 +109,18 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_
  */
 void bl2_plat_preload_setup(void)
 {
+#if TRANSFER_LIST
+	secure_tl = transfer_list_init((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
+				       PLAT_ARM_FW_HANDOFF_SIZE);
+	if (secure_tl == NULL) {
+		ERROR("Initialisation of secure transfer list failed!\n");
+		panic();
+	}
+
+	arm_transfer_list_dyn_cfg_init(secure_tl);
+#else
 	arm_bl2_dyn_cfg_init();
+#endif
 
 #if ARM_GPT_SUPPORT && !PSA_FWU_SUPPORT
 	/* Always use the FIP from bank 0 */
@@ -123,6 +140,16 @@ void arm_bl2_platform_setup(void)
 
 #if defined(PLAT_ARM_MEM_PROT_ADDR)
 	arm_nor_psci_do_static_mem_protect();
+#endif
+
+#if TRANSFER_LIST
+	ns_tl = transfer_list_init((void *)FW_NS_HANDOFF_BASE,
+				   PLAT_ARM_FW_HANDOFF_SIZE);
+
+	if (ns_tl == NULL) {
+		ERROR("Non-secure transfer list initialisation failed!");
+		panic();
+	}
 #endif
 }
 
@@ -265,5 +292,20 @@ int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
 		return 0;
 	}
 #endif
+
+#if TRANSFER_LIST
+	if (image_id == HW_CONFIG_ID) {
+		arm_transfer_list_copy_hw_config(secure_tl, ns_tl);
+	}
+#endif /* TRANSFER_LIST */
+
 	return arm_bl2_handle_post_image_load(image_id);
+}
+
+void arm_bl2_setup_next_ep_info(bl_mem_params_node_t *next_param_node)
+{
+	assert(transfer_list_set_handoff_args(
+		       secure_tl, &next_param_node->ep_info) != NULL);
+
+	arm_transfer_list_populate_ep_info(next_param_node, secure_tl, ns_tl);
 }

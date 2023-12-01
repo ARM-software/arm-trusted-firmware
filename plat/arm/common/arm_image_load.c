@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,10 @@
 #pragma weak plat_get_bl_image_load_info
 #pragma weak plat_get_next_bl_params
 
-static bl_params_t *next_bl_params_cpy_ptr;
+#if TRANSFER_LIST
+static bl_params_t next_bl_params_cpy;
+#endif
+bl_params_t *next_bl_params_cpy_ptr;
 
 /*******************************************************************************
  * This function flushes the data structures so that they are visible
@@ -96,9 +99,15 @@ struct bl_load_info *plat_get_bl_image_load_info(void)
  ******************************************************************************/
 struct bl_params *arm_get_next_bl_params(void)
 {
-	bl_mem_params_node_t *bl2_mem_params_descs_cpy
-			= (bl_mem_params_node_t *)ARM_BL2_MEM_DESC_BASE;
-	const bl_params_t *next_bl_params;
+	bl_mem_params_node_t *bl2_mem_params_descs_cpy __unused;
+	const bl_params_t *next_bl_params __unused;
+
+#if TRANSFER_LIST
+	next_bl_params_cpy_ptr = &next_bl_params_cpy;
+	SET_PARAM_HEAD(next_bl_params_cpy_ptr, PARAM_BL_PARAMS, VERSION_2, 0U);
+#else
+	bl2_mem_params_descs_cpy =
+		(bl_mem_params_node_t *)ARM_BL2_MEM_DESC_BASE;
 
 	next_bl_params_cpy_ptr =
 		(bl_params_t *)(ARM_BL2_MEM_DESC_BASE +
@@ -127,6 +136,7 @@ struct bl_params *arm_get_next_bl_params(void)
 						(sizeof(bl_params_t)));
 
 	populate_next_bl_params_config(next_bl_params_cpy_ptr);
+#endif /* TRANSFER_LIST */
 
 	return next_bl_params_cpy_ptr;
 }

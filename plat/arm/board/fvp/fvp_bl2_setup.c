@@ -20,8 +20,6 @@
 
 #include "fvp_private.h"
 
-static struct transfer_list_header *ns_tl __unused;
-
 #if ENABLE_RME
 /*
  * The GPT library might modify the gpt regions structure to optimize
@@ -60,10 +58,6 @@ void bl2_platform_setup(void)
 {
 	arm_bl2_platform_setup();
 
-#if TRANSFER_LIST
-	ns_tl = transfer_list_init((void *)FW_NS_HANDOFF_BASE, FW_HANDOFF_SIZE);
-	assert(ns_tl != NULL);
-#endif
 	/* Initialize System level generic or SP804 timer */
 	fvp_timer_init();
 }
@@ -81,15 +75,14 @@ const arm_gpt_info_t *plat_arm_get_gpt_info(void)
 struct bl_params *plat_get_next_bl_params(void)
 {
 	struct bl_params *arm_bl_params;
-	const struct dyn_cfg_dtb_info_t *hw_config_info __unused;
-	struct transfer_list_entry *te __unused;
 	bl_mem_params_node_t *param_node __unused;
+	const struct dyn_cfg_dtb_info_t *fw_config_info __unused;
+	const struct dyn_cfg_dtb_info_t *hw_config_info __unused;
+	entry_point_info_t *ep __unused;
+	uint32_t next_exe_img_id __unused;
+	uintptr_t fw_config_base __unused;
 
 	arm_bl_params = arm_get_next_bl_params();
-
-#if !RESET_TO_BL2 && !EL3_PAYLOAD_BASE
-	const struct dyn_cfg_dtb_info_t *fw_config_info;
-	uintptr_t fw_config_base = 0UL;
 
 #if __aarch64__
 	/* Get BL31 image node */
@@ -99,6 +92,15 @@ struct bl_params *plat_get_next_bl_params(void)
 	param_node = get_bl_mem_params_node(BL32_IMAGE_ID);
 #endif /* __aarch64__ */
 	assert(param_node != NULL);
+
+#if TRANSFER_LIST
+	arm_bl_params->head = &param_node->params_node_mem;
+	arm_bl_params->head->ep_info = &param_node->ep_info;
+	arm_bl_params->head->image_id = param_node->image_id;
+
+	arm_bl2_setup_next_ep_info(param_node);
+#elif !RESET_TO_BL2 && !EL3_PAYLOAD_BASE
+	fw_config_base = 0UL;
 
 	/* Update the next image's ep info with the FW config address */
 	fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, FW_CONFIG_ID);
@@ -113,49 +115,29 @@ struct bl_params *plat_get_next_bl_params(void)
 	param_node = get_bl_mem_params_node(BL33_IMAGE_ID);
 	assert(param_node != NULL);
 
-#if TRANSFER_LIST
-	/* Update BL33's ep info with NS HW config address  */
-	te = transfer_list_find(ns_tl, TL_TAG_FDT);
-	assert(te != NULL);
-
-	param_node->ep_info.args.arg1 = TRANSFER_LIST_SIGNATURE |
-					REGISTER_CONVENTION_VERSION_MASK;
-	param_node->ep_info.args.arg2 = 0;
-	param_node->ep_info.args.arg3 = (uintptr_t)ns_tl;
-	param_node->ep_info.args.arg0 =
-		te ? (uintptr_t)transfer_list_entry_data(te) : 0;
-#else
 	hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
 	assert(hw_config_info != NULL);
 
 	param_node->ep_info.args.arg1 = hw_config_info->secondary_config_addr;
 #endif /* TRANSFER_LIST */
-#endif /* !RESET_TO_BL2 && !EL3_PAYLOAD_BASE */
 
 	return arm_bl_params;
 }
 
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
-#if !RESET_TO_BL2 && !EL3_PAYLOAD_BASE
+#if !RESET_TO_BL2 && !EL3_PAYLOAD_BASE && !TRANSFER_LIST
 	if (image_id == HW_CONFIG_ID) {
-		const struct dyn_cfg_dtb_info_t *hw_config_info;
+		const struct dyn_cfg_dtb_info_t *hw_config_info __unused;
 		struct transfer_list_entry *te __unused;
+		bl_mem_params_node_t *param_node __unused;
 
-		const bl_mem_params_node_t *param_node =
-			get_bl_mem_params_node(image_id);
+		param_node = get_bl_mem_params_node(image_id);
 		assert(param_node != NULL);
 
 		hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
 		assert(hw_config_info != NULL);
 
-#if TRANSFER_LIST
-		/* Update BL33's ep info with NS HW config address  */
-		te = transfer_list_add(ns_tl, TL_TAG_FDT,
-				       param_node->image_info.image_size,
-				       (void *)hw_config_info->config_addr);
-		assert(te != NULL);
-#else
 		memcpy((void *)hw_config_info->secondary_config_addr,
 		       (void *)hw_config_info->config_addr,
 		       (size_t)param_node->image_info.image_size);
@@ -166,9 +148,8 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		 */
 		flush_dcache_range(hw_config_info->secondary_config_addr,
 				   param_node->image_info.image_size);
-#endif /* TRANSFER_LIST */
 	}
-#endif /* !RESET_TO_BL2 && !EL3_PAYLOAD_BASE */
+#endif /* !RESET_TO_BL2 && !EL3_PAYLOAD_BASE && !TRANSFER_LIST*/
 
 	return arm_bl2_plat_handle_post_image_load(image_id);
 }

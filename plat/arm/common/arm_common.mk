@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -298,6 +298,10 @@ BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
 				plat/arm/common/arm_topology.c			\
 				plat/common/plat_psci_common.c
+
+ifeq (${TRANSFER_LIST}, 1)
+	TRANSFER_LIST_SOURCES += plat/arm/common/arm_transfer_list.c
+endif
 
 ifneq ($(filter 1,${ENABLE_PMF} ${ETHOSN_NPU_DRIVER}),)
 ARM_SVC_HANDLER_SRCS :=

@@ -13,13 +13,18 @@
 #include <drivers/console.h>
 #include <lib/debugfs.h>
 #include <lib/extensions/ras.h>
+#include <lib/fconf/fconf.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/mmio.h>
+#if TRANSFER_LIST
+#include <lib/transfer_list.h>
+#endif
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
+static struct transfer_list_header *secure_tl __unused;
 /*
  * Placeholder variables for copying the arguments that have been passed to
  * BL31 from BL2.
@@ -35,8 +40,12 @@ static entry_point_info_t rmm_image_ep_info;
  * Check that BL31_BASE is above ARM_FW_CONFIG_LIMIT. The reserved page
  * is required for SOC_FW_CONFIG/TOS_FW_CONFIG passed from BL2.
  */
+#if TRANSFER_LIST
+CASSERT(BL31_BASE >= PLAT_ARM_EL3_FW_HANDOFF_LIMIT, assert_bl31_base_overflows);
+#else
 CASSERT(BL31_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl31_base_overflows);
-#endif
+#endif /* TRANSFER_LIST */
+#endif /* RESET_TO_BL31 */
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl31_early_platform_setup2
@@ -115,6 +124,44 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
  * while creating page tables. BL2 has flushed this information to memory, so
  * we are guaranteed to pick up good data.
  ******************************************************************************/
+#if TRANSFER_LIST
+void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
+					  u_register_t arg2, u_register_t arg3)
+{
+	struct transfer_list_entry *te = NULL;
+	struct entry_point_info *ep;
+
+	secure_tl = (struct transfer_list_header *)arg3;
+
+	/*
+	 * Populate the global entry point structures used to execute subsequent
+	 * images.
+	 */
+	while ((te = transfer_list_next(secure_tl, te)) != NULL) {
+		ep = transfer_list_entry_data(te);
+
+		if (te->tag_id == TL_TAG_EXEC_EP_INFO64) {
+			switch (GET_SECURITY_STATE(ep->h.attr)) {
+			case NON_SECURE:
+				bl33_image_ep_info = *ep;
+				break;
+#if ENABLE_RME
+			case REALM:
+				rmm_image_ep_info = *ep;
+				break;
+#endif
+			case SECURE:
+				bl32_image_ep_info = *ep;
+				break;
+			default:
+				ERROR("Unrecognized Image Security State %lu\n",
+				      GET_SECURITY_STATE(ep->h.attr));
+				panic();
+			}
+		}
+	}
+}
+#else
 void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_config,
 				uintptr_t hw_config, void *plat_params_from_bl2)
 {
@@ -258,11 +305,16 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	bl33_image_ep_info.args.arg3 = 0U;
 # endif
 }
+#endif
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3)
 {
+#if TRANSFER_LIST
+	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
+#else
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
+#endif
 
 	/*
 	 * Initialize Interconnect for this cluster during cold boot.
@@ -448,5 +500,15 @@ void __init arm_bl31_plat_arch_setup(void)
 
 void __init bl31_plat_arch_setup(void)
 {
+	struct transfer_list_entry *te __unused;
+
 	arm_bl31_plat_arch_setup();
+
+#if TRANSFER_LIST
+	te = transfer_list_find(secure_tl, TL_TAG_FDT);
+	assert(te != NULL);
+
+	/* Populate HW_CONFIG device tree with the mapped address */
+	fconf_populate("HW_CONFIG", (uintptr_t)transfer_list_entry_data(te));
+#endif
 }
