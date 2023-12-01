@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,8 @@ void rpi3_setup_page_tables(uintptr_t total_base, size_t total_size,
 #endif
 			    );
 
+uintptr_t rpi4_get_dtb_address(void);
+
 /* Optional functions required in the Raspberry Pi 3 port */
 unsigned int plat_rpi3_calc_core_pos(u_register_t mpidr);
 
@@ -37,5 +39,11 @@ void plat_rpi3_io_setup(void);
 int rpi3_vc_hardware_get_board_revision(uint32_t *revision);
 
 int plat_rpi_get_model(void);
+
+/*******************************************************************************
+ * Platform implemented functions
+ ******************************************************************************/
+
+void plat_rpi_bl31_custom_setup(void);
 
 #endif /* RPI3_PRIVATE_H */

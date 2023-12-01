@@ -19,12 +19,13 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\
 				plat/rpi/common/aarch64/plat_helpers.S	\
-				plat/rpi/rpi4/aarch64/armstub8_header.S	\
+				plat/rpi/common/aarch64/armstub8_header.S \
 				drivers/delay_timer/delay_timer.c	\
 				drivers/gpio/gpio.c			\
 				drivers/rpi3/gpio/rpi3_gpio.c		\
 				plat/common/plat_gicv2.c                \
-				plat/rpi/rpi4/rpi4_bl31_setup.c		\
+				plat/rpi/common/rpi4_bl31_setup.c	\
+				plat/rpi/rpi4/rpi4_setup.c		\
 				plat/rpi/common/rpi3_pm.c		\
 				plat/common/plat_psci_common.c		\
 				plat/rpi/common/rpi3_topology.c		\
