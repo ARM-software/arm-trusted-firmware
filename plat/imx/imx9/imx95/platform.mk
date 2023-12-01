@@ -49,3 +49,8 @@ USE_COHERENT_MEM	:=	0
 PROGRAMMABLE_RESET_ADDRESS := 1
 COLD_BOOT_SINGLE_CPU := 1
 ERRATA_A55_1530923 := 1
+
+BL32_BASE               ?=      0x8C000000
+BL32_SIZE               ?=      0x02000000
+$(eval $(call add_define,BL32_BASE))
+$(eval $(call add_define,BL32_SIZE))
