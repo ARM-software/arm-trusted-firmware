@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Linaro Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2024, Linaro Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,6 +42,8 @@ enum transfer_list_tag_id {
 	TL_TAG_HOB_LIST = 3,
 	TL_TAG_ACPI_TABLE_AGGREGATE = 4,
 	TL_TAG_OPTEE_PAGABLE_PART = 0x100,
+	TL_TAG_DT_SPMC_MANIFEST = 0x101,
+	TL_TAG_EXEC_EP_INFO64 = 0x102,
 };
 
 enum transfer_list_ops {
