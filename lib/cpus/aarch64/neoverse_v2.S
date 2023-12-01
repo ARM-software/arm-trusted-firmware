@@ -29,6 +29,18 @@ workaround_reset_end neoverse_v2, ERRATUM(2331132)
 
 check_erratum_ls neoverse_v2, ERRATUM(2331132), CPU_REV(0, 2)
 
+workaround_reset_start neoverse_v2, ERRATUM(2618597), ERRATA_V2_2618597
+        /* Disable retention control for WFI and WFE. */
+        mrs     x0, NEOVERSE_V2_CPUPWRCTLR_EL1
+        bfi     x0, xzr, #NEOVERSE_V2_CPUPWRCTLR_EL1_WFI_RET_CTRL_SHIFT, \
+		#NEOVERSE_V2_CPUPWRCTLR_EL1_WFI_RET_CTRL_WIDTH
+        bfi     x0, xzr, #NEOVERSE_V2_CPUPWRCTLR_EL1_WFE_RET_CTRL_SHIFT, \
+		#NEOVERSE_V2_CPUPWRCTLR_EL1_WFE_RET_CTRL_WIDTH
+        msr     NEOVERSE_V2_CPUPWRCTLR_EL1, x0
+workaround_reset_end neoverse_v2, ERRATUM(2618597)
+
+check_erratum_ls neoverse_v2, ERRATUM(2618597), CPU_REV(0, 1)
+
 workaround_reset_start neoverse_v2, ERRATUM(2662553), ERRATA_V2_2662553
 	sysreg_bitfield_insert NEOVERSE_V2_CPUECTLR2_EL1, NEOVERSE_V2_CPUECTLR2_EL1_TXREQ_STATIC_FULL, \
 		NEOVERSE_V2_CPUECTLR2_EL1_TXREQ_LSB, NEOVERSE_V2_CPUECTLR2_EL1_TXREQ_WIDTH
