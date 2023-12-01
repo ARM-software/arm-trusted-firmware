@@ -107,7 +107,13 @@
 #define CIRQ_SPI_START		(96)
 
 /*******************************************************************************
- * MM IOMMU & SMI related constants
+ * MM IOMMU related constants
+ ******************************************************************************/
+#define VDO_SECURE_IOMMU_BASE	(IO_PHYS + 0x0c028000 + 0x4000)
+#define VPP_SECURE_IOMMU_BASE	(IO_PHYS + 0x04018000 + 0x4000)
+
+/*******************************************************************************
+ * SMI larb constants
  ******************************************************************************/
 #define SMI_LARB_0_BASE		(IO_PHYS + 0x0c022000)
 #define SMI_LARB_1_BASE		(IO_PHYS + 0x0c023000)
