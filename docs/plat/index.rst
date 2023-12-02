@@ -37,6 +37,7 @@ Platform Ports
    qti-msm8916
    rpi3
    rpi4
+   rpi5
    rcar-gen3
    rz-g2
    rockchip

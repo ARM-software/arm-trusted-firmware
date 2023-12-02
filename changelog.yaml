@@ -541,6 +541,9 @@ subsections:
           - title: Raspberry Pi 4
             scope: rpi4
 
+          - title: Raspberry Pi 5
+            scope: rpi5
+
       - title: Renesas
         scope: renesas
 
