@@ -39,9 +39,9 @@ RESET_TO_BL31		:=	1
 COLD_BOOT_SINGLE_CPU	:=	0
 
 # Tune compiler for Cortex-A72
-ifeq ($(notdir $($(ARCH)-cc)),armclang)
+ifeq ($($(ARCH)-cc-id),arm-clang)
     TF_CFLAGS_aarch64	+=	-mcpu=cortex-a72
-else ifneq ($(findstring clang,$(notdir $($(ARCH)-cc))),)
+else ifneq ($(filter %-clang,$($(ARCH)-cc-id)),)
     TF_CFLAGS_aarch64	+=	-mcpu=cortex-a72
 else
     TF_CFLAGS_aarch64	+=	-mtune=cortex-a72

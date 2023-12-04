@@ -82,7 +82,7 @@ override LIBC_SRCS :=	$(addprefix lib/libc/,		\
 INCLUDES	+=	-Iinclude/lib/libc		\
 			-Iinclude/lib/libc/$(ARCH)	\
 
-ifneq ($(findstring armlink,$(notdir $($(ARCH)-ld))),)
+ifeq ($($(ARCH)-ld-id),arm-link)
 # o suppress warnings for section mismatches, undefined symbols
 # o use only those libraries that are specified in the input file
 #   list to resolve references

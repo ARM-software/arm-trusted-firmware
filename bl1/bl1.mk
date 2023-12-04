@@ -29,9 +29,9 @@ ifeq (${ENABLE_PMF},1)
 BL1_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
-ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
+ifeq ($($(ARCH)-ld-id),gnu-gcc)
         BL1_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(findstring ld,$(notdir $($(ARCH)-ld))),)
+else ifneq ($(filter llvm-lld gnu-ld,$($(ARCH)-ld-id)),)
         BL1_LDFLAGS	+=	--sort-section=alignment
 endif
 
