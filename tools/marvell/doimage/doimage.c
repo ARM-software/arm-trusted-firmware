@@ -18,6 +18,7 @@
 #include <libconfig.h>	/* for parsing config file */
 
 /* mbedTLS stuff */
+#include <mbedtls/version.h>
 #if defined(MBEDTLS_BIGNUM_C) && defined(MBEDTLS_ENTROPY_C) && \
 	defined(MBEDTLS_SHA256_C) && \
 	defined(MBEDTLS_PK_PARSE_C) && defined(MBEDTLS_FS_IO) && \
@@ -28,7 +29,6 @@
 #include <mbedtls/md.h>
 #include <mbedtls/pk.h>
 #include <mbedtls/sha256.h>
-#include <mbedtls/version.h>
 #include <mbedtls/x509.h>
 #else
 #error "Bad mbedTLS configuration!"
