@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2023 Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -10,9 +10,9 @@ RMM_SOURCES		+=	services/std_svc/rmmd/trp/trp_entry.S \
 
 RMM_DEFAULT_LINKER_SCRIPT_SOURCE := services/std_svc/rmmd/trp/linker.ld.S
 
-ifneq ($(findstring gcc,$(notdir $(LD))),)
+ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
         RMM_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(findstring ld,$(notdir $(LD))),)
+else ifneq ($(findstring ld,$(notdir $($(ARCH)-ld))),)
         RMM_LDFLAGS	+=	--sort-section=alignment
 endif
 

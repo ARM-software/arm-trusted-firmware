@@ -21,7 +21,7 @@
 # armv8.6-a armv8.7-a armv8.8-a armv8-r armv9-a
 # [...]
 #
-GCC_MARCH_OUTPUT := $(shell $(CC) -march=foo -Q --help=target -v 2>&1)
+GCC_MARCH_OUTPUT := $(shell $($(ARCH)-cc) -march=foo -Q --help=target -v 2>&1)
 
 # This function is used to find the best march value supported by the given compiler.
 # We try to use `GCC_MARCH_OUTPUT` which has verbose message with supported march values we filter that
@@ -54,7 +54,7 @@ else
     provided-march = armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a
 endif
 
-ifeq ($(findstring clang,$(notdir $(CC))),)
+ifeq ($(findstring clang,$(notdir $($(ARCH)-cc))),)
 
 # We expect from Platform to provide a correct Major/Minor value but expecting something
 # from compiler with unsupported march means we shouldn't fail without trying anything,

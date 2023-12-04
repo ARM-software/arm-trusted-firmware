@@ -84,8 +84,6 @@ INC_DIR += -I ./include -I ${PLAT_INCLUDE} -I ${OPENSSL_DIR}/include
 LIB_DIR := -L ${OPENSSL_DIR}/lib -L ${OPENSSL_DIR}
 LIB := -lssl -lcrypto
 
-HOSTCC ?= gcc
-
 .PHONY: all clean realclean --openssl
 
 all: --openssl ${BINARY}
@@ -94,12 +92,12 @@ ${BINARY}: ${OBJECTS} Makefile
 	@echo "  HOSTLD  $@"
 	@echo 'const char build_msg[] = "Built : "__TIME__", "__DATE__; \
                 const char platform_msg[] = "${PLAT_MSG}";' | \
-                ${HOSTCC} -c ${HOSTCCFLAGS} -xc - -o src/build_msg.o
-	${Q}${HOSTCC} src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
+                $(host-cc) -c ${HOSTCCFLAGS} -xc - -o src/build_msg.o
+	${Q}$(host-cc) src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
 
 %.o: %.c
 	@echo "  HOSTCC  $<"
-	${Q}${HOSTCC} -c ${HOSTCCFLAGS} ${INC_DIR} $< -o $@
+	${Q}$(host-cc) -c ${HOSTCCFLAGS} ${INC_DIR} $< -o $@
 
 --openssl:
 ifeq ($(DEBUG),1)

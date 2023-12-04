@@ -42,13 +42,6 @@ CFLAGS			:= -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-common
 ASFLAGS			:= -Wa,--gdwarf-2
 LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none
 
-# Cross tool
-CC			:= ${M0_CROSS_COMPILE}gcc
-CPP			:= ${M0_CROSS_COMPILE}gcc -E
-AR			:= ${M0_CROSS_COMPILE}gcc-ar
-OC			:= ${M0_CROSS_COMPILE}objcopy
-OD			:= ${M0_CROSS_COMPILE}objdump
-
 # NOTE: The line continuation '\' is required in the next define otherwise we
 # end up with a line-feed characer at the end of the last c filename.
 # Also bare this issue in mind if extending the list of supported filetypes.
@@ -79,7 +72,7 @@ $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 
 $(OBJ) : $(2)
 	@echo "  CC      $$<"
-	$$(Q)$$(CC) $$(COMMON_FLAGS) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
+	$$(Q)$(rk3399-m0-cc) $$(COMMON_FLAGS) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
 endef
 
 define MAKE_S
@@ -87,7 +80,7 @@ $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 
 $(OBJ) : $(2)
 	@echo "  AS      $$<"
-	$$(Q)$$(CC) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
+	$$(Q)$(rk3399-m0-cc) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
 endef
 
 define MAKE_OBJS
@@ -108,20 +101,20 @@ all: $(BIN) $(BIN_PMU)
 .DEFAULT_GOAL := all
 
 $(LINKERFILE): $(LINKERFILE_SRC)
-	$(CC) $(COMMON_FLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
+	$(rk3399-m0-cc) $(COMMON_FLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
 -include $(LINKERFILE).d
 
 $(ELF) : $(OBJS) $(OBJS_COMMON) $(LINKERFILE)
 	@echo "  LD      $@"
-	$(Q)$(CC) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
+	$(Q)$(rk3399-m0-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
 
 %.bin : %.elf
 	@echo "  BIN     $@"
-	$(Q)$(OC) -O binary $< $@
+	$(Q)$(rk3399-m0-oc) -O binary $< $@
 
 $(ELF_PMU) : $(OBJS_COMMON) $(OBJS_PMU) $(LINKERFILE)
 	@echo "  LD      $@"
-	$(Q)$(CC) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
+	$(Q)$(rk3399-m0-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
 
 $(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES_COMMON),$(1)))
 $(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES),$(1)))
