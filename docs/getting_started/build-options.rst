@@ -671,6 +671,19 @@ Common build options
 
    This option defaults to 0.
 
+-  ``HARDEN_SLS``: used to pass -mharden-sls=all from the TF-A build
+   options to the compiler currently supporting only of the options.
+   GCC documentation:
+   https://gcc.gnu.org/onlinedocs/gcc/AArch64-Options.html#index-mharden-sls
+
+   An example usage:
+
+   .. code:: make
+
+      HARDEN_SLS := 1
+
+   This option defaults to 0.
+
 -  ``NON_TRUSTED_WORLD_KEY``: This option is used when ``GENERATE_COT=1``. It
    specifies the file that contains the Non-Trusted World private key in PEM
    format. If ``SAVE_KEYS=1``, this file name will be used to save the key.

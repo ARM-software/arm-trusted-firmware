@@ -386,6 +386,10 @@ WARNINGS	+=		-Wunused-but-set-variable -Wmaybe-uninitialized	\
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105523
 TF_CFLAGS		+= 	$(call cc_option, --param=min-pagesize=0)
 
+ifeq ($(HARDEN_SLS), 1)
+        TF_CFLAGS_aarch64       +=      $(call cc_option, -mharden-sls=all)
+endif
+
 else
 # using clang
 WARNINGS	+=		-Wshift-overflow -Wshift-sign-overflow \
@@ -1049,6 +1053,7 @@ $(eval $(call assert_booleans,\
         GENERATE_COT \
         GICV2_G0_FOR_EL3 \
         HANDLE_EA_EL3_FIRST_NS \
+	HARDEN_SLS \
         HW_ASSISTED_COHERENCY \
         INVERTED_MEMMAP \
         MEASURED_BOOT \
