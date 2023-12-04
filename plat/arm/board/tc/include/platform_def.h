@@ -44,7 +44,7 @@
  */
 #define TC_TZC_DRAM1_BASE		(ARM_AP_TZC_DRAM1_BASE -	\
 					 TC_TZC_DRAM1_SIZE)
-#define TC_TZC_DRAM1_SIZE		96 * SZ_1M	/* 96 MB */
+#define TC_TZC_DRAM1_SIZE		(96 * SZ_1M)	/* 96 MB */
 #define TC_TZC_DRAM1_END		(TC_TZC_DRAM1_BASE +		\
 					 TC_TZC_DRAM1_SIZE - 1)
 
@@ -52,8 +52,8 @@
 #define TC_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
 					 ARM_TZC_DRAM1_SIZE -		\
 					 TC_TZC_DRAM1_SIZE)
-#define TC_NS_DRAM1_END		(TC_NS_DRAM1_BASE +		\
-					 TC_NS_DRAM1_SIZE - 1)
+#define TC_NS_DRAM1_END			(TC_NS_DRAM1_BASE + TC_NS_DRAM1_SIZE - 1)
+
 
 /*
  * Mappings for TC DRAM1 (non-secure) and TC TZC DRAM1 (secure)
@@ -224,6 +224,10 @@
 #endif /* TARGET_PLATFORM == 3 */
 #define PLAT_ARM_DRAM2_SIZE		ULL(0x180000000)
 #define PLAT_ARM_DRAM2_END		(PLAT_ARM_DRAM2_BASE + PLAT_ARM_DRAM2_SIZE - 1ULL)
+
+#define TC_NS_MTE_SIZE			(256 * SZ_1M)
+/* the SCP puts the carveout at the end of DRAM2 */
+#define TC_NS_DRAM2_SIZE		(PLAT_ARM_DRAM2_SIZE - TC_NS_MTE_SIZE)
 
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	CSS_G1S_INT_PROPS(grp)
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp),	\

@@ -348,6 +348,13 @@
 		};
 	};
 
+	memory {
+		device_type = "memory";
+		reg = <0x0 TC_NS_DRAM1_BASE 0x0 TC_NS_DRAM1_SIZE>,
+		      <HI(PLAT_ARM_DRAM2_BASE) LO(PLAT_ARM_DRAM2_BASE)
+		       HI(TC_NS_DRAM2_SIZE) LO(TC_NS_DRAM2_SIZE)>;
+	};
+
 	psci {
 		compatible = "arm,psci-1.0", "arm,psci-0.2";
 		method = "smc";
@@ -367,11 +374,11 @@
 
 	sram: sram@6000000 {
 		compatible = "mmio-sram";
-		reg = <0x0 0x06000000 0x0 0x8000>;
+		reg = <0x0 PLAT_ARM_NSRAM_BASE 0x0 PLAT_ARM_NSRAM_SIZE>;
 
 		#address-cells = <1>;
 		#size-cells = <1>;
-		ranges = <0 0x0 0x06000000 0x8000>;
+		ranges = <0 0x0 PLAT_ARM_NSRAM_BASE PLAT_ARM_NSRAM_SIZE>;
 
 		cpu_scp_scmi_mem: scp-shmem@0 {
 			compatible = "arm,scmi-shmem";
