@@ -244,8 +244,16 @@ void rcar_read_certificate(uint64_t cert, uint32_t *len, uintptr_t *dst)
 			dstl = cert + RCAR_CERT_INFO_DST_OFFSET;
 			break;
 		}
+		val = mmio_read_32(size);
+		if (val > (UINT32_MAX / 4)) {
+			ERROR("BL2: %s[%d] uint32 overflow!\n",
+				__func__, __LINE__);
+			*dst = 0;
+			*len = 0;
+			return;
+		}
 
-		*len = mmio_read_32(size) * 4U;
+		*len = val * 4U;
 		dsth = dstl + 4U;
 		*dst = ((uintptr_t) mmio_read_32(dsth) << 32) +
 		    ((uintptr_t) mmio_read_32(dstl));
@@ -253,7 +261,14 @@ void rcar_read_certificate(uint64_t cert, uint32_t *len, uintptr_t *dst)
 	}
 
 	size = cert + RCAR_CERT_INFO_SIZE_OFFSET;
-	*len = mmio_read_32(size) * 4U;
+	val = mmio_read_32(size);
+	if (val > (UINT32_MAX / 4)) {
+		ERROR("BL2: %s[%d] uint32 overflow!\n", __func__, __LINE__);
+		*dst = 0;
+		*len = 0;
+		return;
+	}
+	*len = val * 4U;
 	dstl = cert + RCAR_CERT_INFO_DST_OFFSET;
 	dsth = dstl + 4U;
 	*dst = ((uintptr_t) mmio_read_32(dsth) << 32) +
@@ -276,7 +291,7 @@ static int32_t check_load_area(uintptr_t dst, uintptr_t len)
 
 	prot_end = prot_start + DRAM_PROTECTED_SIZE;
 
-	if (dst < dram_start || dst > dram_end - len) {
+	if (dst < dram_start || len > dram_end || dst > dram_end - len) {
 		ERROR("BL2: dst address is on the protected area.\n");
 		result = IO_FAIL;
 		goto done;
@@ -288,8 +303,9 @@ static int32_t check_load_area(uintptr_t dst, uintptr_t len)
 		result = IO_FAIL;
 	}
 
-	if (dst < prot_start && dst > prot_start - len) {
-		ERROR("BL2: loaded data is on the protected area.\n");
+	if (len > prot_start || (dst < prot_start && dst > prot_start - len)) {
+		ERROR("BL2: %s[%d] loaded data is on the protected area.\n",
+			__func__, __LINE__);
 		result = IO_FAIL;
 	}
 done:
@@ -435,15 +451,15 @@ static int32_t rcar_dev_init(io_dev_info_t *dev_info, const uintptr_t name)
 #endif
 
 	rcar_image_number = header[0];
-	for (i = 0; i < rcar_image_number + 2; i++) {
-		rcar_image_header[i] = header[i * 2 + 1];
-		rcar_image_header_prttn[i] = header[i * 2 + 2];
-	}
-
 	if (rcar_image_number == 0 || rcar_image_number > RCAR_MAX_BL3X_IMAGE) {
 		WARN("Firmware Image Package header check failed.\n");
 		rc = IO_FAIL;
 		goto error;
+	}
+
+	for (i = 0; i < rcar_image_number + 2; i++) {
+		rcar_image_header[i] = header[i * 2 + 1];
+		rcar_image_header_prttn[i] = header[i * 2 + 2];
 	}
 
 	rc = io_seek(handle, IO_SEEK_SET, offset + RCAR_SECTOR6_CERT_OFFSET);
