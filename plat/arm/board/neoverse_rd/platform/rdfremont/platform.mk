@@ -81,3 +81,19 @@ endif
 # XLAT options for RD-Fremont variants
 BL31_CFLAGS	+=      -DPLAT_XLAT_TABLES_DYNAMIC
 BL2_CFLAGS	+=      -DPLAT_XLAT_TABLES_DYNAMIC
+
+# Add the FDT_SOURCES and options for Dynamic Config
+FDT_SOURCES	+=	${RDFREMONT_BASE}/fdts/${PLAT}_fw_config.dts	\
+			${RDFREMONT_BASE}/fdts/${PLAT}_tb_fw_config.dts \
+			${RDFREMONT_BASE}/fdts/${PLAT}_nt_fw_config.dts
+
+FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
+TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
+NT_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
+
+# Add the FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
+# Add the TB_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
+# Add the NT_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config))
