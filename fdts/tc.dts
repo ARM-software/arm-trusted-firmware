@@ -337,13 +337,13 @@
 			linux,cma-default;
 		};
 
-		optee@f8e00000 {
+		optee {
 			compatible = "restricted-dma-pool";
-			reg = <0x00000000 0xf8e00000 0 0x00200000>;
+			reg = <0x0 TC_NS_OPTEE_BASE 0x0 TC_NS_OPTEE_SIZE>;
 		};
 
-		fwu_mm@fca00000 {
-			reg = <0x00000000 0xfca00000 0 0x00400000>;
+		fwu_mm {
+			reg = <0x0 TC_NS_FWU_BASE 0x0 TC_NS_FWU_SIZE>;
 			no-map;
 		};
 	};

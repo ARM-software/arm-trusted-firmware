@@ -28,6 +28,12 @@
  *   - Region to load secure partitions
  *
  *
+ *  0xf8a0_0000  ------------------   TC_NS_FWU_BASE
+ *               |    FWU shmem   |
+ *               |      (4MB)     |
+ *  0xf8e0_0000  ------------------   TC_NS_OPTEE_BASE
+ *               |  OP-TEE shmem  |
+ *               |      (2MB)     |
  *  0xF900_0000  ------------------   TC_TZC_DRAM1_BASE
  *               |                |
  *               |      SPMC      |
@@ -54,6 +60,10 @@
 					 TC_TZC_DRAM1_SIZE)
 #define TC_NS_DRAM1_END			(TC_NS_DRAM1_BASE + TC_NS_DRAM1_SIZE - 1)
 
+#define TC_NS_OPTEE_SIZE		(2 * SZ_1M)
+#define TC_NS_OPTEE_BASE		(TC_NS_DRAM1_BASE + TC_NS_DRAM1_SIZE - TC_NS_OPTEE_SIZE)
+#define TC_NS_FWU_SIZE			(4 * SZ_1M)
+#define TC_NS_FWU_BASE			(TC_NS_OPTEE_BASE - TC_NS_FWU_SIZE)
 
 /*
  * Mappings for TC DRAM1 (non-secure) and TC TZC DRAM1 (secure)
