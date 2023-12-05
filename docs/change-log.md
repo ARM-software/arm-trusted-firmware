@@ -3,6 +3,32 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.13](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.12..refs/tags/lts-v2.8.13) (2023-12-05)
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A78C erratum 2743232 ([9cdc77a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9cdc77adabd51bbd6647b696bef28d0220f31967))
+    - workaround for Cortex-X3 erratum 2779509 ([f1a90ce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f1a90ce20245cf69d263393837572e7357ff641f))
+    - workaround for Neoverse V1 erratum 2348377 ([67fa085](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/67fa085cf61c598a6e3ecba9afd581c2fd5e9007))
+    - workaround for Neoverse V2 erratum 2618597 ([3a4bdce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3a4bdcedea5d6ac834720f92107bc9d3ad987a38))
+    - workaround for Neoverse V2 erratum 2662553 ([366dc1f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/366dc1f2121520358a2c82a9e8699b9a955b8a61))
+
+- **Build System**
+
+  - allow lower address access with gcc-12 ([8c1c54e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8c1c54e70612ca751f2de88d5ece2c046be3a276))
+
+### New Features
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - add support for SLS mitigation ([7ecb8ad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7ecb8add5ba4d810623169e19490bb9d8b1eb3f0))
+
 ## [lts-2.8.12](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.11..refs/tags/lts-v2.8.12) (2023-11-21)
 
 ### ⚠ BREAKING CHANGES
