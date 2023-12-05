@@ -9,6 +9,7 @@
 #include <libfdt.h>
 #include <tc_plat.h>
 
+#include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/arm/css/css_mhu_doorbell.h>
@@ -18,6 +19,34 @@
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+
+#include <psa/crypto_platform.h>
+#include <psa/crypto_types.h>
+#include <psa/crypto_values.h>
+
+#ifdef PLATFORM_TEST_TFM_TESTSUITE
+/*
+ * We pretend using an external RNG (through MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
+ * mbedTLS config option) so we need to provide an implementation of
+ * mbedtls_psa_external_get_random(). Provide a fake one, since we do not
+ * actually use any of external RNG and this function is only needed during
+ * the execution of TF-M testsuite during exporting the public part of the
+ * delegated attestation key.
+ */
+psa_status_t mbedtls_psa_external_get_random(
+			mbedtls_psa_external_random_context_t *context,
+			uint8_t *output, size_t output_size,
+			size_t *output_length)
+{
+	for (size_t i = 0U; i < output_size; i++) {
+		output[i] = (uint8_t)(read_cntpct_el0() & 0xFFU);
+	}
+
+	*output_length = output_size;
+
+	return PSA_SUCCESS;
+}
+#endif /* PLATFORM_TEST_TFM_TESTSUITE */
 
 static scmi_channel_plat_info_t tc_scmi_plat_info[] = {
 	{
