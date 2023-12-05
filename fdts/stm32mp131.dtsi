@@ -481,6 +481,12 @@
 					reg = <0x78 0x4>;
 				};
 			};
+
+			boot_info: boot-info {
+				compatible = "st,stm32mp-bootinfo";
+				nvmem-cells = <&boot_mode>, <&fwu_info>;
+				nvmem-cell-names = "boot-mode", "fwu-info";
+			};
 		};
 
 		/*

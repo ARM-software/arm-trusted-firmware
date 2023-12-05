@@ -11,6 +11,7 @@
 #include <common/debug.h>
 #include <drivers/clk.h>
 #include <drivers/delay_timer.h>
+#include <drivers/st/nvmem.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp_clkfunc.h>
 #include <drivers/st/stm32mp_reset.h>
@@ -365,6 +366,11 @@ void stm32_display_board_info(uint32_t board_id)
 void stm32_save_boot_info(boot_api_context_t *boot_context)
 {
 	uint32_t auth_status;
+	struct nvmem_cell boot_mode = { 0 };
+	uint32_t reg_val = 0;
+	uint32_t clear = BOOT_ITF_MASK | BOOT_INST_MASK | BOOT_PART_MASK |
+			 BOOT_AUTH_MASK;
+	uint32_t set;
 
 	assert(boot_context->boot_interface_instance <= (BOOT_INST_MASK >> BOOT_INST_SHIFT));
 	assert(boot_context->boot_interface_selected <= (BOOT_ITF_MASK >> BOOT_ITF_SHIFT));
@@ -385,81 +391,191 @@ void stm32_save_boot_info(boot_api_context_t *boot_context)
 		break;
 	}
 
-	clk_enable(TAMP_BKP_REG_CLK);
+	set = (boot_context->boot_interface_instance << BOOT_INST_SHIFT) |
+	      (boot_context->boot_interface_selected << BOOT_ITF_SHIFT) |
+	      (boot_context->boot_partition_used_toboot << BOOT_PART_SHIFT) |
+	      (auth_status << BOOT_AUTH_SHIFT);
 
-	mmio_clrsetbits_32(stm32_get_bkpr_boot_mode_addr(),
-			   BOOT_ITF_MASK | BOOT_INST_MASK | BOOT_PART_MASK | BOOT_AUTH_MASK,
-			   (boot_context->boot_interface_instance << BOOT_INST_SHIFT) |
-			   (boot_context->boot_interface_selected << BOOT_ITF_SHIFT) |
-			   (boot_context->boot_partition_used_toboot << BOOT_PART_SHIFT) |
-			   (auth_status << BOOT_AUTH_SHIFT));
-
-	clk_disable(TAMP_BKP_REG_CLK);
+	stm32_get_boot_mode_cell(&boot_mode);
+	nvmem_cell_read(&boot_mode, (uint8_t *)&reg_val, sizeof(reg_val), NULL);
+	reg_val &= ~clear;
+	reg_val |= set;
+	nvmem_cell_write(&boot_mode, (uint8_t *)&reg_val, sizeof(reg_val));
 }
 
 void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance)
 {
 	static uint32_t itf;
+	struct nvmem_cell boot_mode = { 0 };
+	uint32_t reg_val = 0;
 
 	if (itf == 0U) {
-		clk_enable(TAMP_BKP_REG_CLK);
-
-		itf = mmio_read_32(stm32_get_bkpr_boot_mode_addr()) &
-		      (BOOT_ITF_MASK | BOOT_INST_MASK);
-
-		clk_disable(TAMP_BKP_REG_CLK);
+		stm32_get_boot_mode_cell(&boot_mode);
+		nvmem_cell_read(&boot_mode, (uint8_t *)&reg_val,
+				sizeof(reg_val), NULL);
+		itf = reg_val & (BOOT_ITF_MASK | BOOT_INST_MASK);
 	}
 
 	*interface = (itf & BOOT_ITF_MASK) >> BOOT_ITF_SHIFT;
 	*instance = (itf & BOOT_INST_MASK) >> BOOT_INST_SHIFT;
 }
 
+static int stm32_get_bootinfo_cell(const char *name, struct nvmem_cell *cell)
+{
+	void *fdt = NULL;
+	int node = 0;
+	int ret;
+
+	if (fdt_get_address(&fdt) == 0) {
+		ret = -ENODEV;
+	} else {
+		node = fdt_node_offset_by_compatible(fdt, -1,
+						     "st,stm32mp-bootinfo");
+		if (node >= 0) {
+			ret = nvmem_get_cell_by_name(fdt, node, name, cell);
+		} else {
+			ret = -ENODEV;
+		}
+	}
+	return ret;
+}
+
+#if STM32MP15
+int stm32_get_magic_number_cell(struct nvmem_cell *magic_number)
+{
+	static struct nvmem_cell s_magic_number;
+	static bool initialized;
+
+	if (!initialized) {
+		stm32_get_bootinfo_cell("magic-number", &s_magic_number);
+		initialized = true;
+	}
+
+	memcpy(magic_number, &s_magic_number, sizeof(*magic_number));
+
+	return 0;
+}
+
+int stm32_get_core1_branch_address_cell(struct nvmem_cell *core1_branch_address)
+{
+	static struct nvmem_cell s_core1_branch_address;
+	static bool initialized;
+
+	if (!initialized) {
+		stm32_get_bootinfo_cell("core1-branch-address", &s_core1_branch_address);
+		initialized = true;
+	}
+
+	memcpy(core1_branch_address, &s_core1_branch_address, sizeof(*core1_branch_address));
+
+	return 0;
+}
+#endif
+
+int stm32_get_fwu_info_cell(struct nvmem_cell *fwu_info)
+{
+	static struct nvmem_cell s_fwu_info;
+	static bool initialized;
+
+	if (!initialized) {
+		stm32_get_bootinfo_cell("fwu-info", &s_fwu_info);
+		initialized = true;
+	}
+
+	memcpy(fwu_info, &s_fwu_info, sizeof(*fwu_info));
+
+	return 0;
+}
+
+int stm32_get_boot_mode_cell(struct nvmem_cell *boot_mode)
+{
+	static struct nvmem_cell s_boot_mode;
+	static bool initialized;
+
+	if (!initialized) {
+		stm32_get_bootinfo_cell("boot-mode", &s_boot_mode);
+		initialized = true;
+	}
+
+	memcpy(boot_mode, &s_boot_mode, sizeof(*boot_mode));
+
+	return 0;
+}
+
 #if PSA_FWU_SUPPORT
+static int stm32_nvmem_cell_clrset(struct nvmem_cell *cell, uint32_t clear,
+				   uint32_t set)
+{
+	int ret = 0;
+	uint32_t reg_val = 0;
+
+	ret = nvmem_cell_read(cell, (uint8_t *)&reg_val, sizeof(reg_val), NULL);
+	if (ret != 0) {
+		return ret;
+	}
+
+	reg_val &= ~clear;
+	reg_val |= set;
+
+	ret = nvmem_cell_write(cell, (uint8_t *)&reg_val, sizeof(reg_val));
+	if (ret != 0) {
+		return ret;
+	}
+
+	return 0;
+}
+
 void stm32_fwu_set_boot_idx(void)
 {
-	clk_enable(TAMP_BKP_REG_CLK);
-	mmio_clrsetbits_32(stm32_get_bkpr_fwu_info_addr(),
-			   FWU_INFO_IDX_MSK,
-			   (plat_fwu_get_boot_idx() << FWU_INFO_IDX_OFF) &
-			   FWU_INFO_IDX_MSK);
-	clk_disable(TAMP_BKP_REG_CLK);
+	struct nvmem_cell fwu_info = { 0 };
+
+	uint32_t clear = FWU_INFO_IDX_MSK;
+	uint32_t set = (plat_fwu_get_boot_idx() << FWU_INFO_IDX_OFF) &
+		       FWU_INFO_IDX_MSK;
+
+	stm32_get_fwu_info_cell(&fwu_info);
+
+	stm32_nvmem_cell_clrset(&fwu_info, clear, set);
 }
 
 uint32_t stm32_get_and_dec_fwu_trial_boot_cnt(void)
 {
-	uintptr_t bkpr_fwu_cnt = stm32_get_bkpr_fwu_info_addr();
+	struct nvmem_cell fwu_info_cell = { 0 };
 	uint32_t try_cnt;
+	uint32_t fwu_info = 0;
 
-	clk_enable(TAMP_BKP_REG_CLK);
-	try_cnt = (mmio_read_32(bkpr_fwu_cnt) & FWU_INFO_CNT_MSK) >> FWU_INFO_CNT_OFF;
+	stm32_get_fwu_info_cell(&fwu_info_cell);
+
+	nvmem_cell_read(&fwu_info_cell, (uint8_t *)&fwu_info, sizeof(fwu_info),
+			NULL);
+
+	try_cnt = (fwu_info & FWU_INFO_CNT_MSK) >> FWU_INFO_CNT_OFF;
 
 	assert(try_cnt <= FWU_MAX_TRIAL_REBOOT);
 
 	if (try_cnt != 0U) {
-		mmio_clrsetbits_32(bkpr_fwu_cnt, FWU_INFO_CNT_MSK,
-				   (try_cnt - 1U) << FWU_INFO_CNT_OFF);
+		stm32_nvmem_cell_clrset(&fwu_info_cell, FWU_INFO_CNT_MSK,
+					(try_cnt - 1U) << FWU_INFO_CNT_OFF);
 	}
-	clk_disable(TAMP_BKP_REG_CLK);
 
 	return try_cnt;
 }
 
 void stm32_set_max_fwu_trial_boot_cnt(void)
 {
-	uintptr_t bkpr_fwu_cnt = stm32_get_bkpr_fwu_info_addr();
+	struct nvmem_cell fwu_info_cell = { 0 };
 
-	clk_enable(TAMP_BKP_REG_CLK);
-	mmio_clrsetbits_32(bkpr_fwu_cnt, FWU_INFO_CNT_MSK,
-			   (FWU_MAX_TRIAL_REBOOT << FWU_INFO_CNT_OFF) & FWU_INFO_CNT_MSK);
-	clk_disable(TAMP_BKP_REG_CLK);
+	stm32_get_fwu_info_cell(&fwu_info_cell);
+	stm32_nvmem_cell_clrset(&fwu_info_cell, FWU_INFO_CNT_MSK,
+				(FWU_MAX_TRIAL_REBOOT << FWU_INFO_CNT_OFF) &
+					FWU_INFO_CNT_MSK);
 }
 
 void stm32_clear_fwu_trial_boot_cnt(void)
 {
-	uintptr_t bkpr_fwu_cnt = stm32_get_bkpr_fwu_info_addr();
+	struct nvmem_cell fwu_info_cell = { 0 };
 
-	clk_enable(TAMP_BKP_REG_CLK);
-	mmio_clrbits_32(bkpr_fwu_cnt, FWU_INFO_CNT_MSK);
-	clk_disable(TAMP_BKP_REG_CLK);
+	stm32_get_fwu_info_cell(&fwu_info_cell);
+	stm32_nvmem_cell_clrset(&fwu_info_cell, FWU_INFO_CNT_MSK, 0U);
 }
 #endif /* PSA_FWU_SUPPORT */

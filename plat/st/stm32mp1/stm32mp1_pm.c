@@ -13,6 +13,7 @@
 #include <drivers/arm/gic_common.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/clk.h>
+#include <drivers/st/nvmem.h>
 #include <drivers/st/stm32mp_reset.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
@@ -61,10 +62,18 @@ static void stm32_cpu_standby(plat_local_state_t cpu_state)
 static int stm32_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned long current_cpu_mpidr = read_mpidr_el1();
-	uintptr_t bkpr_core1_addr =
-		tamp_bkpr(BOOT_API_CORE1_BRANCH_ADDRESS_TAMP_BCK_REG_IDX);
-	uintptr_t bkpr_core1_magic =
-		tamp_bkpr(BOOT_API_CORE1_MAGIC_NUMBER_TAMP_BCK_REG_IDX);
+	struct nvmem_cell magic_number = { 0 };
+	struct nvmem_cell branch_address = { 0 };
+	int ret = 0;
+
+	ret = stm32_get_magic_number_cell(&magic_number);
+	if (ret != 0) {
+		return -ENODEV;
+	}
+	ret = stm32_get_core1_branch_address_cell(&branch_address);
+	if (ret != 0) {
+		return -ENODEV;
+	}
 
 	if (mpidr == current_cpu_mpidr) {
 		return PSCI_E_INVALID_PARAMS;
@@ -80,10 +89,12 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 	cntfrq_core0 = read_cntfrq_el0();
 
 	/* Write entrypoint in backup RAM register */
-	mmio_write_32(bkpr_core1_addr, stm32_sec_entrypoint);
+	nvmem_cell_write(&branch_address, (uint8_t *)&stm32_sec_entrypoint,
+			 sizeof(stm32_sec_entrypoint));
 
 	/* Write magic number in backup register */
-	mmio_write_32(bkpr_core1_magic, BOOT_API_A7_CORE1_MAGIC_NUMBER);
+	nvmem_cell_write(&magic_number, (uint8_t *)&stm32_sec_entrypoint,
+			 sizeof(stm32_sec_entrypoint));
 
 	clk_disable(RTCAPB);
 
