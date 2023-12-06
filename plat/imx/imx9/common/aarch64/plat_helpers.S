@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2025 NXP.
+ * Copyright 2022-2026 NXP.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 	.globl	plat_calc_core_pos
 	.globl	plat_arm_calc_core_pos
 	.globl	platform_mem_init
+	.globl	plat_reset_handler
 
 	/* ----------------------------------------------
 	 * unsigned int plat_is_my_cpu_primary(void);
@@ -60,3 +61,38 @@ endfunc plat_arm_calc_core_pos
 func platform_mem_init
 	ret
 endfunc platform_mem_init
+
+func plat_reset_handler
+#if defined(PLAT_imx93)
+	/* Check if IRQ22 (s401 halt_ack) is pending in GPC IMR6 */
+	mov	x0, #GPC_BASE
+	ldr	w1, [x0, #0x968]
+	tbnz	w1, #28, suspend
+	ret
+suspend:
+	/* Clear the s401 halt_ack req via BLK_CTRL_S LPCG_A55 */
+	mov	x0, #BLK_CTRL_S_BASE
+	mov	w1, #0x100
+	str	w1, [x0, #0x134]
+	/* Delay for halt_ack deassert propagation */
+	nop
+	nop
+	str	wzr, [x0, #0x134]
+
+	/* Enable core power down */
+	mrs	x0, CORTEX_A55_CPUPWRCTLR_EL1
+	orr	x0, x0, #CORTEX_A55_CORE_PWRDN_EN_MASK
+	msr	CORTEX_A55_CPUPWRCTLR_EL1, x0
+	isb
+
+	/* Enable cluster power down */
+	mrs	x0, CLUSTERPWRDN_EL1
+	orr	x0, x0, #DSU_CLUSTER_PWR_OFF | BIT(1)
+	msr	CLUSTERPWRDN_EL1, x0
+	isb
+
+	wfi
+#else
+	ret
+#endif
+endfunc plat_reset_handler
