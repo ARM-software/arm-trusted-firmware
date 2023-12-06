@@ -7,6 +7,23 @@
 #define GIC_CTRL_ADDR		2c010000
 #define GIC_GICR_OFFSET		0x200000
 #define UART_OFFSET		0x1000
+
+#ifdef TC_RESOLUTION_1920X1080P60
+
+#define VENCODER_TIMING_CLK 148500000
+#define VENCODER_TIMING								\
+	clock-frequency = <VENCODER_TIMING_CLK>;				\
+	hactive = <1920>;							\
+	vactive = <1080>;							\
+	hfront-porch = <88>;							\
+	hback-porch = <148>;							\
+	hsync-len = <44>;							\
+	vfront-porch = <4>;							\
+	vback-porch = <36>;							\
+	vsync-len = <5>
+
+#else /* TC_RESOLUTION_640X480P60 */
+
 #define VENCODER_TIMING_CLK 25175000
 #define VENCODER_TIMING								\
 	clock-frequency = <VENCODER_TIMING_CLK>;				\
@@ -18,6 +35,8 @@
 	vfront-porch = <10>;							\
 	vback-porch = <33>;							\
 	vsync-len = <2>
+
+#endif
 
 / {
 	chosen {
