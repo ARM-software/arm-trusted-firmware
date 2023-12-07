@@ -135,6 +135,9 @@ uintptr_t stm32_get_bkpr_boot_mode_addr(void);
 /* Display board information from the value found in OTP fuse */
 void stm32_display_board_info(uint32_t board_id);
 
+int stm32_tamp_nvram_init(void);
+int stm32_tamp_nvram_update_rights(void);
+
 #if PSA_FWU_SUPPORT
 uintptr_t stm32_get_bkpr_fwu_info_addr(void);
 void stm32_fwu_set_boot_idx(void);

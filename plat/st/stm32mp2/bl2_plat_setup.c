@@ -191,6 +191,10 @@ void bl2_plat_arch_setup(void)
 	mmio_write_32(RISAB3_BASE + RISAB_CR, RISAB_CR_SRWIAD);
 #endif
 
+	if (stm32_tamp_nvram_init() < 0) {
+		panic();
+	}
+
 	if (stm32_iwdg_init() < 0) {
 		panic();
 	}

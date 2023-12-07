@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -283,6 +283,10 @@ void bl2_plat_arch_setup(void)
 	}
 
 	if (stm32mp1_clk_init() < 0) {
+		panic();
+	}
+
+	if (stm32_tamp_nvram_init() < 0) {
 		panic();
 	}
 

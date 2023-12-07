@@ -639,6 +639,7 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 #define DT_RCC_CLK_COMPAT			"st,stm32mp25-rcc"
 #endif
 #define DT_SDMMC2_COMPAT			"st,stm32mp25-sdmmc2"
+#define DT_TAMP_NVRAM_COMPAT			"st,stm32mp25-tamp-nvram"
 #define DT_UART_COMPAT				"st,stm32h7-uart"
 
 #endif /* STM32MP2_DEF_H */
