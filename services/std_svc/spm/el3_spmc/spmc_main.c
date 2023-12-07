@@ -1902,6 +1902,11 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 	if (ret != 0) {
 		WARN("Missing Power Management Messages entry.\n");
 	} else {
+		if ((sp->runtime_el == S_EL0) && (config_32 != 0)) {
+			ERROR("Power messages not supported for S-EL0 SP\n");
+			return -EINVAL;
+		}
+
 		/*
 		 * Ensure only the currently supported power messages have
 		 * been requested.
