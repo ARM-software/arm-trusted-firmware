@@ -20,9 +20,11 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
+#ifdef PLATFORM_TEST_TFM_TESTSUITE
 #include <psa/crypto_platform.h>
 #include <psa/crypto_types.h>
 #include <psa/crypto_values.h>
+#endif /* PLATFORM_TEST_TFM_TESTSUITE */
 
 #ifdef PLATFORM_TEST_TFM_TESTSUITE
 /*
