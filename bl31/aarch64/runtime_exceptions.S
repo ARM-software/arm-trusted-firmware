@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -476,20 +476,32 @@ sysreg_handler64:
 	bl	handle_sysreg_trap
 	/*
 	 * returns:
-	 *   -1: unhandled trap, panic
+	 *   -1: unhandled trap, UNDEF injection into lower EL
 	 *    0: handled trap, return to the trapping instruction (repeating it)
 	 *    1: handled trap, return to the next instruction
 	 */
 
 	tst	w0, w0
-	b.mi	elx_panic	/* negative return value: panic */
-	b.eq	1f		/* zero: do not change ELR_EL3 */
+	b.mi	2f	/* negative: undefined exception injection */
 
-	/* advance the PC to continue after the instruction */
+	b.eq	1f	/* zero: do not change ELR_EL3 */
+	/* positive: advance the PC to continue after the instruction */
 	ldr	x1, [x19, #CTX_EL3STATE_OFFSET + CTX_ELR_EL3]
 	add	x1, x1, #4
 	str	x1, [x19, #CTX_EL3STATE_OFFSET + CTX_ELR_EL3]
 1:
+	b	el3_exit
+2:
+	/*
+	 * UNDEF injection to lower EL, the support is only provided for lower
+	 * EL in AArch64 mode, for AArch32 mode it will do elx_panic as before.
+	 */
+	mrs	x0, spsr_el3
+	tst	x0, #(SPSR_M_MASK << SPSR_M_SHIFT)
+	b.ne	elx_panic
+	/* Pass context pointer as an argument to inject_undef64 */
+	mov	x0, x19
+	bl	inject_undef64
 	b	el3_exit
 
 smc_unknown:

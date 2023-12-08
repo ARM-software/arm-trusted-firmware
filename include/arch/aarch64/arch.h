@@ -75,6 +75,19 @@
 #define INVALID_MPID		U(0xFFFFFFFF)
 
 /*******************************************************************************
+ * Definitions for Exception vector offsets
+ ******************************************************************************/
+#define CURRENT_EL_SP0		0x0
+#define CURRENT_EL_SPX		0x200
+#define LOWER_EL_AARCH64	0x400
+#define LOWER_EL_AARCH32	0x600
+
+#define SYNC_EXCEPTION		0x0
+#define IRQ_EXCEPTION		0x80
+#define FIQ_EXCEPTION		0x100
+#define SERROR_EXCEPTION	0x180
+
+/*******************************************************************************
  * Definitions for CPU system register interface to GICv3
  ******************************************************************************/
 #define ICC_IGRPEN1_EL1		S3_0_C12_C12_7
