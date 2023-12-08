@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -61,7 +61,7 @@ BL31_SOURCES	+=	${RK_GIC_SOURCES}				\
 			${RK_PLAT_SOC}/plat_sip_calls.c			\
 			${RK_PLAT_SOC}/drivers/gpio/rk3399_gpio.c	\
 			${RK_PLAT_SOC}/drivers/pmu/pmu.c		\
-			${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c		\
+			${RK_PLAT_SOC}/drivers/pmu/pmu_fw.S		\
 			${RK_PLAT_SOC}/drivers/pmu/m0_ctl.c		\
 			${RK_PLAT_SOC}/drivers/pwm/pwm.c		\
 			${RK_PLAT_SOC}/drivers/secure/secure.c		\
@@ -102,7 +102,7 @@ endif
 # CCACHE_EXTRAFILES is needed because ccache doesn't handle .incbin
 export CCACHE_EXTRAFILES
 ${BUILD_PLAT}/bl31/pmu_fw.o: CCACHE_EXTRAFILES=$(RK3399M0FW):$(RK3399M0PMUFW)
-${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c: $(RK3399M0FW)
+${RK_PLAT_SOC}/drivers/pmu/pmu_fw.S: $(RK3399M0FW)
 
 $(eval $(call MAKE_PREREQ_DIR,${BUILD_M0},${BUILD_PLAT}))
 .PHONY: $(RK3399M0FW)
