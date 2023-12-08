@@ -18,7 +18,11 @@
 #if COREBOOT
 #include <common/desc_image_load.h>
 
+#ifndef VDK
 #include <drivers/ti/uart/uart_16550.h>
+#else  // defined(VDK), use pl011 as uart driver
+#include <drivers/arm/pl011.h>
+#endif
 #include <lib/coreboot.h>
 #include <plat_params.h>
 #endif
@@ -29,6 +33,9 @@
 #endif
 #include <lib/mtk_init/mtk_init.h>
 #include <mtk_mmap_pool.h>
+
+#include <tegrabl_cpubl_params.h>
+#include <tegrabl_hv_info.h>
 
 IMPORT_SYM(uintptr_t, __RW_START__, RW_START);
 IMPORT_SYM(uintptr_t, __DATA_START__, DATA_START);
@@ -90,6 +97,60 @@ void *get_mtk_bl31_fw_config(int index)
 	return arg;
 }
 #endif
+
+void hv_cpubl(void)
+{
+	int i;
+	struct mb2_cpubl_params *params = (struct mb2_cpubl_params *)CPUBL_PARAMS_BASE_PHY;
+	struct hv_sys_info_type *hv_info = (struct hv_sys_info_type *)HV_INFO_BASE_PHY;
+
+	memset(&params->byte_array[0], 0, sizeof(struct mb2_cpubl_params));
+	memset(&hv_info->byte_array[0], 0, sizeof(struct hv_sys_info_type));
+
+	// CPUBL
+	params->version = 0;
+	params->uart_instance = 0;
+	params->secureos_type = 0;
+	params->boot_type = 1;
+	params->fw_load_flag_raw = 0;
+	params->feature_flag_raw = 0;
+	params->boot_chain_selection_mode = 0;
+	params->hvinfo_page_address = HV_INFO_BASE_PHY;
+	// CARVEOUT_CCPLEX_INTERWORLD_SHMEM = 28U
+	params->carveout_info[28].base = CPUBL_PARAMS_BASE_PHY;
+	params->carveout_info[28].size = CPUBL_PARAMS_BASE_SIZE;
+
+	// HV INFO
+	hv_info->num_pt_entries = 3;
+
+	memcpy(&hv_info->pt_entries[0].part_name, "A_guest-linux", BL_PARTITION_NAME_LENGTH);
+	hv_info->pt_entries[0].part_info.dev_id = 30U;
+	hv_info->pt_entries[0].part_info.start_addr = 0x0;
+	hv_info->pt_entries[0].part_info.num_bytes = 0x10000000;
+	hv_info->pt_entries[0].part_info.part_type = QB_PARTITION_TYPE_OS;
+
+	memcpy(&hv_info->pt_entries[1].part_name, "A_guest2-linux", BL_PARTITION_NAME_LENGTH);
+	hv_info->pt_entries[1].part_info.dev_id = 30U;
+	hv_info->pt_entries[1].part_info.start_addr = 0x10000000;
+	hv_info->pt_entries[1].part_info.num_bytes = 0x10000000;
+	hv_info->pt_entries[1].part_info.part_type = QB_PARTITION_TYPE_OS;
+
+	memcpy(&hv_info->pt_entries[2].part_name, "A_guest3-linux", BL_PARTITION_NAME_LENGTH);
+	hv_info->pt_entries[2].part_info.dev_id = 30U;
+	hv_info->pt_entries[2].part_info.start_addr = 0x20000000;
+	hv_info->pt_entries[2].part_info.num_bytes = 0x10000000;
+	hv_info->pt_entries[2].part_info.part_type = QB_PARTITION_TYPE_OS;
+
+	INFO("Add DRIVE hypervisor cpupl params. paddr = 0x%x, size = 0x%x\n", CPUBL_PARAMS_BASE_PHY, CPUBL_PARAMS_RESERVED_SIZE);
+	INFO("Add DRIVE hypervisor hv info. paddr = 0x%x, size = 0x%lx\n", HV_INFO_BASE_PHY, sizeof(struct hv_sys_info_type));
+	INFO("[UFS PT] num_pt_entries = %d\n", hv_info->num_pt_entries);
+	for (i = 0; i < hv_info->num_pt_entries; i++) {
+		INFO("[UFS PT] entry %d: part_name = %s, dev_id = %d, start_addr = 0x%lx, num_bytes = 0x%lx, part_type = %d\n",
+			 i, hv_info->pt_entries[i].part_name, hv_info->pt_entries[i].part_info.dev_id, hv_info->pt_entries[i].part_info.start_addr,
+			 hv_info->pt_entries[i].part_info.num_bytes, hv_info->pt_entries[i].part_info.part_type);
+	}
+}
+
 /*****************************************************************************
  * Perform the very early platform specific architectural setup shared between
  * ARM standard platforms. This only does basic initialization. Later
@@ -103,7 +164,7 @@ void bl31_early_platform_setup2(u_register_t from_bl2,
 {
 #if COREBOOT
 	static console_t console;
-
+#ifndef VDK
 	params_early_setup(soc_fw_config);
 	if (coreboot_serial.type) {
 		console_16550_register(coreboot_serial.baseaddr,
@@ -111,7 +172,16 @@ void bl31_early_platform_setup2(u_register_t from_bl2,
 				       coreboot_serial.baud,
 				       &console);
 	}
+#else  /* defined(VDK), use pl011 */
+	console_pl011_register(UART0_BASE, UART_CLOCK, UART_BAUDRATE, &console);
+#endif
+#ifndef VDK
 	bl31_params_parse_helper(from_bl2, &bl32_ep_info, &bl33_ep_info);
+#else  /* defined(VDK), use compile option PRELOADED_BL33_BASE, and fixed to aarch64 EL2 */
+	bl33_ep_info.pc = PRELOADED_BL33_BASE;
+	bl33_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	SET_SECURITY_STATE(bl33_ep_info.h.attr, NON_SECURE);
+#endif
 #else
 	struct mtk_bl_param_t *p_mtk_bl_param = (struct mtk_bl_param_t *)from_bl2;
 
@@ -126,11 +196,13 @@ void bl31_early_platform_setup2(u_register_t from_bl2,
 	bl31_fw_config.reserved = (void *)plat_params_from_bl2;
 #endif
 
-	INFO("MTK BL31 start\n");
+	INFO("MTK TEST BL31 start !! \n");
 	/* Init delay function */
 	generic_delay_timer_init();
 	/* Initialize module initcall */
 	mtk_init_one_level(MTK_INIT_LVL_EARLY_PLAT);
+
+	hv_cpubl();
 }
 
 void bl31_plat_arch_setup(void)

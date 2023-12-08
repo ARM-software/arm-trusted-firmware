@@ -31,7 +31,7 @@ include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 
 # Assertions enabled for DEBUG builds by default
-ENABLE_ASSERTIONS		:= ${DEBUG}
+ENABLE_ASSERTIONS		:= 0
 ENABLE_PMF			:= ${ENABLE_RUNTIME_INSTRUMENTATION}
 PLAT				:= ${DEFAULT_PLAT}
 
