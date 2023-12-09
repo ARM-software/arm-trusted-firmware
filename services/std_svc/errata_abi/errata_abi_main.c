@@ -460,7 +460,8 @@ struct em_cpu_list cpu_list[] = {
 	.cpu_partnumber = CORTEX_A520_MIDR,
 	.cpu_errata_list = {
 		[0] = {2630792, 0x00, 0x01, ERRATA_A520_2630792},
-		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+		[1] = {2858100, 0x00, 0x01, ERRATA_A520_2858100},
+		[2 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
 #endif /* CORTEX_A520_H_INC */
