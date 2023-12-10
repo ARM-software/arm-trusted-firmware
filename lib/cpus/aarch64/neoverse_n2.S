@@ -252,9 +252,9 @@ cpu_reset_func_start neoverse_n2
 
 #if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
-	sysreg_bit_set cptr_el3, TAM_BIT
+	sysreg_bit_clear cptr_el3, TAM_BIT
 	/* Make sure accesses from EL0/EL1 are not trapped to EL2 */
-	sysreg_bit_set cptr_el2, TAM_BIT
+	sysreg_bit_clear cptr_el2, TAM_BIT
 	/* No need to enable the counters as this would be done at el3 exit */
 #endif
 
