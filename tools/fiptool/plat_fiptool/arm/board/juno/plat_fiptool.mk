@@ -11,6 +11,6 @@ HOSTCCFLAGS += -DPLAT_DEF_FIP_UUID
 ifeq (${ETHOSN_NPU_TZMP1},1)
 HOSTCCFLAGS += -DETHOSN_NPU_TZMP1
 endif
-INCLUDE_PATHS += -I./ -I${PLAT_DIR}fip -I../../include/
-OBJECTS += ${PLAT_DIR}fip/plat_def_uuid_config.o
+INCLUDE_PATHS += -I./ -I../../plat/arm/board/juno/fip -I../../include
+OBJECTS += plat_fiptool/arm/board/juno/plat_def_uuid_config.o
 endif
