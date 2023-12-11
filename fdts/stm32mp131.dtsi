@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) 2022-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2026, STMicroelectronics - All Rights Reserved
  * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for STMicroelectronics.
  */
 #include <dt-bindings/clock/stm32mp13-clks.h>
@@ -458,6 +458,31 @@
 				reg = <0x170 0x10>;
 			};
 		};
+
+		tamp: tamp@5c00a000 {
+			compatible = "st,stm32-tamp", "syscon", "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x5c00a000 0x400>;
+			ranges;
+
+			nvram: nvram@5c00a100 {
+				compatible = "st,stm32mp15-tamp-nvram";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0x5c00a100 0x80>;
+
+				fwu_info: tamp-bkp@28 {
+					/* see firmware update info feature */
+					reg = <0x28 0x4>;
+				};
+				boot_mode: tamp-bkp@78 {
+					/* see boot mode selection feature */
+					reg = <0x78 0x4>;
+				};
+			};
+		};
+
 		/*
 		 * Break node order to solve dependency probe issue between
 		 * pinctrl and exti.
