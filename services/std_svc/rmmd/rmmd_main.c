@@ -134,6 +134,8 @@ static void manage_extensions_realm(cpu_context_t *ctx)
 
 static void manage_extensions_realm_per_world(void)
 {
+	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_REALM]);
+
 	if (is_feat_sve_supported()) {
 	/*
 	 * Enable SVE and FPU in realm context when it is enabled for NS.

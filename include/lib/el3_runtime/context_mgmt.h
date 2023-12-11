@@ -40,7 +40,9 @@ void cm_prepare_el3_exit_ns(void);
 #if IMAGE_BL31
 void cm_manage_extensions_el3(void);
 void manage_extensions_nonsecure_per_world(void);
+void cm_el3_arch_init_per_world(per_world_context_t *per_world_ctx);
 #endif
+
 #if CTX_INCLUDE_EL2_REGS
 void cm_el2_sysregs_context_save(uint32_t security_state);
 void cm_el2_sysregs_context_restore(uint32_t security_state);
