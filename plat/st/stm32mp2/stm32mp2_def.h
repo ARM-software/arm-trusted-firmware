@@ -487,6 +487,10 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 }
 #endif
 
+/* TAMP BACKUP REGISTER */
+#define PLAT_NB_NVMEM_DEVS			U(1)
+#define MAX_TAMP_BACKUP_REGS_ZONES		U(7)
+
 /*******************************************************************************
  * STM32MP2 USB
  ******************************************************************************/

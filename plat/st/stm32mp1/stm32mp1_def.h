@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2026, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -533,6 +533,10 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 	return TAMP_BKP_REGISTER_BASE + (idx << 2);
 }
 #endif
+
+/* TAMP BACKUP REGISTER */
+#define PLAT_NB_NVMEM_DEVS		U(1)
+#define MAX_TAMP_BACKUP_REGS_ZONES	U(3)
 
 /*******************************************************************************
  * STM32MP1 USB
