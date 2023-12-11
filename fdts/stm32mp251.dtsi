@@ -358,6 +358,35 @@
 			reg = <0x44230000 0x10000>;
 		};
 
+		tamp: tamp@46010000 {
+			compatible = "st,stm32mp25-tamp";
+			reg = <0x46010000 0x400>;
+			clocks = <&rcc CK_BUS_RTC>;
+			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+
+			nvram: nvram@46010100 {
+				compatible = "st,stm32mp25-tamp-nvram";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				reg = <0x46010100 0x200>;
+
+				stop2_entrypoint: tamp-bkp@2c {
+					reg = <0x2c 0x4>;
+				};
+				fwu_info: tamp-bkp@c0 {
+					/* see firmware update info feature */
+					reg = <0xc0 0x4>;
+				};
+				boot_mode: tamp-bkp@180 {
+					reg = <0x180 0x4>;
+				};
+
+			};
+		};
+
 		ddr: ddr@48040000 {
 			compatible = "st,stm32mp2-ddr";
 			reg = <0x48040000 0x10000>,
