@@ -7,13 +7,33 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
+#define GPU_SCMI_PD_IDX		(PLAT_MAX_CPUS_PER_CLUSTER + 1)
+#define DPU_SCMI_PD_IDX		(PLAT_MAX_CPUS_PER_CLUSTER + 2)
+
+/* All perf is normalized against the big core */
+#define BIG_CAPACITY		1024
+
 #if TARGET_PLATFORM <= 2
+#if TARGET_FLAVOUR_FVP
+#define LIT_CAPACITY		406
+#define MID_CAPACITY		912
+#else /* TARGET_FLAVOUR_FPGA */
+#define LIT_CAPACITY		280
+#define MID_CAPACITY		775
+/* this is an area optimized configuration of the big core */
+#define BIG2_CAPACITY		930
+#endif /* TARGET_FLAVOUR_FPGA */
+
 #define INT_MBOX_RX		317
 #define MHU_TX_ADDR(pref)	pref##45000000 /* hex */
 #define MHU_RX_ADDR(pref)	pref##45010000 /* hex */
 #define MPAM_ADDR		0x1 0x00010000 /* 0x1_0001_0000 */
 #define UARTCLK_FREQ		5000000
 #elif TARGET_PLATFORM == 3
+
+#define LIT_CAPACITY		239
+#define MID_CAPACITY		686
+
 #define INT_MBOX_RX		300
 #define MHU_TX_ADDR(pref)	pref##46040000 /* hex */
 #define MHU_RX_ADDR(pref)	pref##46140000 /* hex */

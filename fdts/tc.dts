@@ -8,6 +8,7 @@
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
+#include "platform_def.h"
 #include "tc_vers.dtsi"
 
 / {
@@ -54,6 +55,26 @@
 				core7 {
 					cpu = <&CPU7>;
 				};
+#if TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2
+				core8 {
+					cpu = <&CPU8>;
+				};
+				core9 {
+					cpu = <&CPU9>;
+				};
+				core10 {
+					cpu = <&CPU10>;
+				};
+				core11 {
+					cpu = <&CPU11>;
+				};
+				core12 {
+					cpu = <&CPU12>;
+				};
+				core13 {
+					cpu = <&CPU13>;
+				};
+#endif /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2 */
 			};
 		};
 
@@ -89,19 +110,16 @@
 
 				mpmm_gear0: counter@0 {
 					reg = <0>;
-
 					enable-at-el3;
 				};
 
 				mpmm_gear1: counter@1 {
 					reg = <1>;
-
 					enable-at-el3;
 				};
 
 				mpmm_gear2: counter@2 {
 					reg = <2>;
-
 					enable-at-el3;
 				};
 			};
@@ -114,7 +132,7 @@
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			capacity-dmips-mhz = <406>;
+			capacity-dmips-mhz = <LIT_CAPACITY>;
 			amu = <&amu>;
 			supports-mpmm;
 		};
@@ -126,7 +144,7 @@
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			capacity-dmips-mhz = <406>;
+			capacity-dmips-mhz = <LIT_CAPACITY>;
 			amu = <&amu>;
 			supports-mpmm;
 		};
@@ -136,9 +154,14 @@
 			compatible = "arm,armv8";
 			reg = <0x200>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 0>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			capacity-dmips-mhz = <406>;
+#if TARGET_PLATFORM <= 2
+			clocks = <&scmi_dvfs 0>;
+			capacity-dmips-mhz = <LIT_CAPACITY>;
+#elif TARGET_PLATFORM == 3
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+#endif /* TARGET_PLATFORM == 3 */
 			amu = <&amu>;
 			supports-mpmm;
 		};
@@ -148,9 +171,14 @@
 			compatible = "arm,armv8";
 			reg = <0x300>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 0>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			capacity-dmips-mhz = <406>;
+#if TARGET_PLATFORM <= 2
+			clocks = <&scmi_dvfs 0>;
+			capacity-dmips-mhz = <LIT_CAPACITY>;
+#elif TARGET_PLATFORM == 3
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+#endif /* TARGET_PLATFORM == 3 */
 			amu = <&amu>;
 			supports-mpmm;
 		};
@@ -162,7 +190,7 @@
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			capacity-dmips-mhz = <912>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
 			amu = <&amu>;
 			supports-mpmm;
 		};
@@ -174,7 +202,7 @@
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			capacity-dmips-mhz = <912>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
 			amu = <&amu>;
 			supports-mpmm;
 		};
@@ -184,9 +212,14 @@
 			compatible = "arm,armv8";
 			reg = <0x600>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			capacity-dmips-mhz = <912>;
+#if TARGET_PLATFORM <= 2
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+#elif TARGET_PLATFORM == 3
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG_CAPACITY>;
+#endif /* TARGET_PLATFORM == 3 */
 			amu = <&amu>;
 			supports-mpmm;
 		};
@@ -196,13 +229,85 @@
 			compatible = "arm,armv8";
 			reg = <0x700>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 2>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			capacity-dmips-mhz = <1024>;
+#if TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+#else
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG_CAPACITY>;
+#endif /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2 */
 			amu = <&amu>;
 			supports-mpmm;
 		};
 
+#if TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2
+		CPU8:cpu@800 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x800>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU9:cpu@900 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x900>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG2_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU10:cpu@A00 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0xA00>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG2_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU11:cpu@B00 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0xB00>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG2_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU12:cpu@C00 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0xC00>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 3>;
+			capacity-dmips-mhz = <BIG_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU13:cpu@D00 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0xD00>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 3>;
+			capacity-dmips-mhz = <BIG_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+#endif /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2 */
 	};
 
 	reserved-memory {
@@ -238,6 +343,10 @@
 		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
 				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>
+#if TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2
+				    ,<&CPU8>,  <&CPU9>,  <&CPU10>, <&CPU11>,
+				     <&CPU12>, <&CPU13>
+#endif /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2 */
 		;
 	};
 
@@ -470,7 +579,7 @@
 		interrupt-names = "JOB", "MMU", "GPU";
 		clocks = <&gpu_core_clk>;
 		clock-names = "shadercores";
-		power-domains = <&scmi_devpd 9>;
+		power-domains = <&scmi_devpd GPU_SCMI_PD_IDX>;
 		scmi-perf-domain = <3>;
 		iommus = <&smmu_700 0x200>;
 	};
@@ -508,7 +617,7 @@
 		clocks = <&scmi_clk 0>;
 		clock-names = "aclk";
 		iommus = <&smmu_700 0x100>;
-		power-domains = <&scmi_devpd 10>;
+		power-domains = <&scmi_devpd DPU_SCMI_PD_IDX>;
 		pl0: pipeline@0 {
 			reg = <0>;
 			clocks = <&scmi_clk 1>;
@@ -589,6 +698,38 @@
 		compatible = "arm,embedded-trace-extension";
 		cpu = <&CPU7>;
 	};
+
+#if TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2
+	ete8 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU8>;
+	};
+
+	ete9 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU9>;
+	};
+
+	ete10 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU10>;
+	};
+
+	ete11 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU11>;
+	};
+
+	ete12 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU12>;
+	};
+
+	ete13 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU13>;
+	};
+#endif /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM <= 2 */
 
 	trbe {
 		compatible = "arm,trace-buffer-extension";

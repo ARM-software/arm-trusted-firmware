@@ -17,8 +17,6 @@
 #include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 
-#define PLATFORM_CORE_COUNT		8
-
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00080000	/* 512 KB */
 
 /*
@@ -258,8 +256,14 @@
 					 CSS_SCMI_PAYLOAD_SIZE_MAX)
 
 #define PLAT_ARM_CLUSTER_COUNT		U(1)
+#if TARGET_FLAVOUR_FPGA && TARGET_PLATFORM == 2
+#define PLAT_MAX_CPUS_PER_CLUSTER	U(14)
+#else /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM == 2 */
 #define PLAT_MAX_CPUS_PER_CLUSTER	U(8)
+#endif /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM == 2 */
 #define PLAT_MAX_PE_PER_CPU		U(1)
+
+#define PLATFORM_CORE_COUNT		(PLAT_MAX_CPUS_PER_CLUSTER * PLAT_ARM_CLUSTER_COUNT)
 
 /* Message Handling Unit (MHU) base addresses */
 #if TARGET_PLATFORM <= 2

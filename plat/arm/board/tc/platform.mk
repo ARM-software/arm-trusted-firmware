@@ -5,6 +5,8 @@
 
 include common/fdt_wrappers.mk
 
+TARGET_FLAVOUR			:=	fvp
+
 ifneq ($(shell expr $(TARGET_PLATFORM) \<= 1), 0)
         $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
           Some of the features might not work as expected)
@@ -14,7 +16,14 @@ ifeq ($(shell expr $(TARGET_PLATFORM) \<= 3), 0)
         $(error TARGET_PLATFORM must be less than or equal to 3)
 endif
 
-$(eval $(call add_define,TARGET_PLATFORM))
+ifeq ($(filter ${TARGET_FLAVOUR}, fvp fpga),)
+        $(error TARGET_FLAVOUR must be fvp or fpga)
+endif
+
+$(eval $(call add_defines, \
+	TARGET_PLATFORM \
+	TARGET_FLAVOUR_$(call uppercase,${TARGET_FLAVOUR}) \
+))
 
 CSS_LOAD_SCP_IMAGES	:=	1
 
