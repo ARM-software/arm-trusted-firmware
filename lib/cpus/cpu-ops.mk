@@ -777,6 +777,10 @@ CPU_FLAG_LIST += ERRATA_X3_2615812
 # to revisions r0p0, r1p0 and r1p1 of the Cortex-X3 cpu, it is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_X3_2742421
 
+# Flag to apply erratum 2743088 workaround on powerdown. This erratum applies
+# to revisions r0p0, r1p0 and r1p1 of the Cortex-X3 cpu, it is fixed in r1p2.
+CPU_FLAG_LIST += ERRATA_X3_2743088
+
 # Flag to apply erratum 2779509 workaround on reset. This erratum applies
 # to revisions r0p0, r1p0, r1p1 of the Cortex-X3 cpu, it is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_X3_2779509
