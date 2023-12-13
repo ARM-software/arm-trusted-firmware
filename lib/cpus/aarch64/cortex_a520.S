@@ -21,6 +21,11 @@
 #error "Cortex A520 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+workaround_reset_start cortex_a520, ERRATUM(2630792), ERRATA_A520_2630792
+	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(38)
+workaround_reset_end cortex_a520, ERRATUM(2630792)
+
+check_erratum_ls cortex_a520, ERRATUM(2630792), CPU_REV(0, 1)
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
