@@ -18,6 +18,7 @@
 #include <versal_def.h>
 
 uint32_t platform_id, platform_version;
+uint32_t cpu_clock = VERSAL_CPU_CLOCK;
 
 /*
  * Table of regions to map using the MMU.
@@ -55,7 +56,21 @@ void versal_config_setup(void)
 
 uint32_t plat_get_syscnt_freq2(void)
 {
-	return VERSAL_CPU_CLOCK;
+	uint32_t counter_freq = 0;
+	uint32_t ret = 0;
+
+	counter_freq = mmio_read_32(IOU_SCNTRS_BASE
+				    + IOU_SCNTRS_BASE_FREQ_OFFSET);
+
+	if (counter_freq != 0U) {
+		ret = counter_freq;
+	} else {
+		INFO("Indicates counter frequency %dHz setting to %dHz\n",
+		     counter_freq, cpu_clock);
+		ret = cpu_clock;
+	}
+
+	return ret;
 }
 
 void board_detection(void)

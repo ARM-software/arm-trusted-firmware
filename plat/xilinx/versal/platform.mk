@@ -96,6 +96,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/common/plat_fdt.c			\
 				plat/xilinx/common/plat_console.c               \
+				plat/xilinx/common/plat_clkfunc.c               \
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/pm_service/pm_ipi.c		\

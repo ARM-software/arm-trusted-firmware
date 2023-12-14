@@ -17,6 +17,7 @@
 #include <plat/common/platform.h>
 #include <plat_arm.h>
 #include <plat_console.h>
+#include <plat_clkfunc.h>
 
 #include <plat_fdt.h>
 #include <plat_private.h>
@@ -71,6 +72,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
 	uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
+
+	set_cnt_freq();
 
 	setup_console();
 
