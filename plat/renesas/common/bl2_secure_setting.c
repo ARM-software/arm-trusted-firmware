@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -107,8 +107,10 @@ static const struct {
 	/*
 	 * Security group 0 attribute setting for master ports 3
 	 * Security group 1 attribute setting for master ports 3
-	 *	{SEC_GRP0CR3,           0x00000000U},
-	 *	{SEC_GRP1CR3,           0x00000000U},
+	 */
+	{ SEC_GRP0CR3, 0x00003780U },
+	{ SEC_GRP1CR3, 0x00003780U },
+	/*
 	 * Security group 0 attribute setting for slave ports 0
 	 * Security group 1 attribute setting for slave ports 0
 	 *	{SEC_GRP0COND0,         0x00000000U},
@@ -259,46 +261,12 @@ static const struct {
 };
 
 /* AXI settings */
-static const struct {
+struct axi_t {
 	uint32_t reg;
 	uint32_t val;
-} axi[] = {
-	/*
-	 * DRAM protection
-	 * AXI dram protected area division
-	 */
-	{AXI_DPTDIVCR0,  0x0E0403F0U},
-	{AXI_DPTDIVCR1,  0x0E0407E0U},
-	{AXI_DPTDIVCR2,  0x0E080000U},
-	{AXI_DPTDIVCR3,  0x0E080000U},
-	{AXI_DPTDIVCR4,  0x0E080000U},
-	{AXI_DPTDIVCR5,  0x0E080000U},
-	{AXI_DPTDIVCR6,  0x0E080000U},
-	{AXI_DPTDIVCR7,  0x0E080000U},
-	{AXI_DPTDIVCR8,  0x0E080000U},
-	{AXI_DPTDIVCR9,  0x0E080000U},
-	{AXI_DPTDIVCR10, 0x0E080000U},
-	{AXI_DPTDIVCR11, 0x0E080000U},
-	{AXI_DPTDIVCR12, 0x0E080000U},
-	{AXI_DPTDIVCR13, 0x0E080000U},
-	{AXI_DPTDIVCR14, 0x0E080000U},
-	/* AXI dram protected area setting */
-	{AXI_DPTCR0,  0x0E000000U},
-	{AXI_DPTCR1,  0x0E000E0EU},
-	{AXI_DPTCR2,  0x0E000000U},
-	{AXI_DPTCR3,  0x0E000000U},
-	{AXI_DPTCR4,  0x0E000000U},
-	{AXI_DPTCR5,  0x0E000000U},
-	{AXI_DPTCR6,  0x0E000000U},
-	{AXI_DPTCR7,  0x0E000000U},
-	{AXI_DPTCR8,  0x0E000000U},
-	{AXI_DPTCR9,  0x0E000000U},
-	{AXI_DPTCR10, 0x0E000000U},
-	{AXI_DPTCR11, 0x0E000000U},
-	{AXI_DPTCR12, 0x0E000000U},
-	{AXI_DPTCR13, 0x0E000000U},
-	{AXI_DPTCR14, 0x0E000000U},
-	{AXI_DPTCR15, 0x0E000000U},
+};
+
+static const struct axi_t axi[] = {
 	/*
 	 * SRAM ptotection
 	 * AXI sram protected area division
@@ -337,6 +305,47 @@ static const struct {
 	{AXI_SPTCR15, 0x0E000000U}
 };
 
+static const struct axi_t axi_dram[] = {
+	/*
+	 * DRAM protection
+	 * AXI dram protected area division
+	 */
+	{AXI_DPTDIVCR0,  0x0E0403F0U},
+	{AXI_DPTDIVCR1,  0x0E0407E0U},
+	{AXI_DPTDIVCR2,  0x0E080000U},
+	{AXI_DPTDIVCR3,  0x0E080000U},
+	{AXI_DPTDIVCR4,  0x0E080000U},
+	{AXI_DPTDIVCR5,  0x0E080000U},
+	{AXI_DPTDIVCR6,  0x0E080000U},
+	{AXI_DPTDIVCR7,  0x0E080000U},
+	{AXI_DPTDIVCR8,  0x0E080000U},
+	{AXI_DPTDIVCR9,  0x0E080000U},
+	{AXI_DPTDIVCR10, 0x0E080000U},
+	{AXI_DPTDIVCR11, 0x0E080000U},
+	{AXI_DPTDIVCR12, 0x0E080000U},
+	{AXI_DPTDIVCR13, 0x0E080000U},
+	{AXI_DPTDIVCR14, 0x0E080000U},
+	/* AXI dram protected area setting */
+	{AXI_DPTCR0,  0x0E000000U},
+	{AXI_DPTCR1,  0x0E000E0EU},
+	{AXI_DPTCR2,  0x0E000000U},
+	{AXI_DPTCR3,  0x0E000000U},
+	{AXI_DPTCR4,  0x0E000000U},
+	{AXI_DPTCR5,  0x0E000000U},
+	{AXI_DPTCR6,  0x0E000000U},
+	{AXI_DPTCR7,  0x0E000000U},
+	{AXI_DPTCR8,  0x0E000000U},
+	{AXI_DPTCR9,  0x0E000000U},
+	{AXI_DPTCR10, 0x0E000000U},
+	{AXI_DPTCR11, 0x0E000000U},
+	{AXI_DPTCR12, 0x0E000000U},
+	{AXI_DPTCR13, 0x0E000000U},
+	{AXI_DPTCR14, 0x0E000000U},
+	{AXI_DPTCR15, 0x0E000000U},
+	/* AXI sram protected area setting */
+	{AXI_SPTCR15, 0x0E000000U}
+};
+
 static void lifec_security_setting(void)
 {
 	uint32_t i;
@@ -345,13 +354,22 @@ static void lifec_security_setting(void)
 		mmio_write_32(lifec[i].reg, lifec[i].val);
 }
 
-/* SRAM/DRAM protection setting */
+/* SRAM protection setting */
 static void axi_security_setting(void)
 {
 	uint32_t i;
 
 	for (i = 0; i < ARRAY_SIZE(axi); i++)
 		mmio_write_32(axi[i].reg, axi[i].val);
+}
+
+/* DRAM protection setting */
+void bl2_ram_security_setting_finish(void)
+{
+	uint32_t i;
+
+	for (i = 0; i < ARRAY_SIZE(axi_dram); i++)
+		mmio_write_32(axi_dram[i].reg, axi_dram[i].val);
 }
 
 void bl2_secure_setting(void)

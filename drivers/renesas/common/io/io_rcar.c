@@ -598,13 +598,6 @@ static int32_t rcar_file_open(io_dev_info_t *info, const uintptr_t file_spec,
 
 	rcar_read_certificate((uint64_t) cert, &len, &dst);
 
-	/* Baylibre: HACK */
-	if (spec->offset == BL31_IMAGE_ID && len < RCAR_TRUSTED_SRAM_SIZE) {
-		WARN("%s,%s\n", "r-car ignoring the BL31 size from certificate",
-		     "using RCAR_TRUSTED_SRAM_SIZE instead");
-		len = RCAR_TRUSTED_SRAM_SIZE;
-	}
-
 	current_file.partition = partition;
 	current_file.no_load = noload;
 	current_file.offset = offset;
