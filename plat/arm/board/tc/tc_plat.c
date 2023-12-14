@@ -30,6 +30,7 @@
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
+	TC_MAP_NS_DRAM1,
 	TC_FLASH0_RO,
 	TC_MAP_DEVICE,
 	{0}
