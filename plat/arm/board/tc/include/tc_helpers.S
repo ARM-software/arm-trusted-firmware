@@ -81,6 +81,10 @@ func TC_HANDLER(3)
 	ret
 endfunc TC_HANDLER(3)
 
+func TC_HANDLER(4)
+	ret
+endfunc TC_HANDLER(4)
+
 	/* -----------------------------------------------------
 	 * void plat_reset_handler(void);
 	 * -----------------------------------------------------
