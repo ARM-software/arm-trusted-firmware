@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,7 +31,7 @@
 #define DRAM_LIMIT			ULL(0x0000010000000000)
 #define DRAM1_BASE			U(0x40000000)
 #define DRAM1_SIZE			U(0x80000000)
-#define DRAM1_NS_BASE			(DRAM1_BASE + U(0x10000000))
+#define DRAM1_NS_BASE			(DRAM1_BASE + U(0x08000000))
 #define DRAM1_NS_SIZE			(DRAM1_SIZE - DRAM1_NS_BASE)
 #define DRAM_40BIT_BASE			ULL(0x0400000000)
 #define DRAM_40BIT_SIZE			ULL(0x0400000000)
