@@ -587,12 +587,12 @@
 	};
 #endif /* TC_IOMMU_EN */
 
-	dp0: display@2cc00000 {
+	dp0: display@DPU_ADDR() {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "arm,mali-d71";
-		reg = <0 0x2cc00000 0 0x20000>;
-		interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
+		reg = <HI(DPU_ADDR(0x)) LO(DPU_ADDR(0x)) 0 0x20000>;
+		interrupts = <GIC_SPI DPU_IRQ IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "DPU";
 		DPU_CLK_ATTR1;
 #if TC_IOMMU_EN

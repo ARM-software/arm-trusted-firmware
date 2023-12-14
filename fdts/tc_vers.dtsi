@@ -62,6 +62,13 @@
 	vsync-len = <2>
 #define ETH_COMPATIBLE		"smsc,lan91c111"
 #define MMC_REMOVABLE		cd-gpios = <&sysreg 0 0>
+#if TARGET_PLATFORM <= 2
+#define DPU_ADDR(pref)		pref##2cc00000
+#define DPU_IRQ			69
+#else /* TARGET_PLATFORM >= 3 */
+#define DPU_ADDR(pref)		pref##4000000000
+#define DPU_IRQ			579
+#endif /* TARGET_PLATFORM >= 3 */
 
 #else /* TARGET_FLAVOUR_FPGA */
 
@@ -83,6 +90,8 @@
 	vsync-len = <10>
 #define ETH_COMPATIBLE		"smsc,lan9115"
 #define MMC_REMOVABLE		non-removable
+#define DPU_ADDR(pref)		pref##2cc00000
+#define DPU_IRQ			69
 #endif /* TARGET_FLAVOUR_FPGA */
 
 /* Use SCMI controlled clocks */
