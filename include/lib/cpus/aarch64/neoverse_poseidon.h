@@ -9,6 +9,7 @@
 
 
 #define NEOVERSE_POSEIDON_VNAE_MIDR				U(0x410FD830)
+#define NEOVERSE_POSEIDON_V_MIDR				U(0x410FD840)
 
 /* Neoverse Poseidon loop count for CVE-2022-23960 mitigation */
 #define NEOVERSE_POSEIDON_BHB_LOOP_COUNT			U(132)

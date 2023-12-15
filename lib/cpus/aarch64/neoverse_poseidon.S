@@ -84,3 +84,7 @@ endfunc neoverse_poseidon_cpu_reg_dump
 declare_cpu_ops neoverse_poseidon, NEOVERSE_POSEIDON_VNAE_MIDR, \
 	neoverse_poseidon_reset_func, \
 	neoverse_poseidon_core_pwr_dwn
+
+declare_cpu_ops neoverse_poseidon, NEOVERSE_POSEIDON_V_MIDR, \
+	neoverse_poseidon_reset_func, \
+	neoverse_poseidon_core_pwr_dwn
