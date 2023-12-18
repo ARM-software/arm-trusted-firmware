@@ -689,9 +689,19 @@ uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
 }
 
 /* SDM SEU Error services */
-static uint32_t intel_sdm_seu_err_read(uint64_t *respbuf, unsigned int respbuf_sz)
+static uint32_t intel_sdm_seu_err_read(uint32_t *respbuf, unsigned int respbuf_sz)
 {
-	if (mailbox_seu_err_status((uint32_t *)respbuf, respbuf_sz) < 0) {
+	if (mailbox_seu_err_status(respbuf, respbuf_sz) < 0) {
+		return INTEL_SIP_SMC_SEU_ERR_READ_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+/* SDM SAFE SEU Error inject services */
+static uint32_t intel_sdm_safe_inject_seu_err(uint32_t *command, uint32_t len)
+{
+	if (mailbox_safe_inject_seu_err(command, len) < 0) {
 		return INTEL_SIP_SMC_SEU_ERR_READ_ERROR;
 	}
 
@@ -714,7 +724,8 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 	uint32_t retval = 0, completed_addr[3];
 	uint32_t retval2 = 0;
 	uint32_t mbox_error = 0;
-	uint64_t retval64, rsu_respbuf[9], seu_respbuf[3];
+	uint64_t retval64, rsu_respbuf[9];
+	uint32_t seu_respbuf[3];
 	int status = INTEL_SIP_SMC_STATUS_OK;
 	int mbox_status;
 	unsigned int len_in_resp;
@@ -1228,6 +1239,10 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 		} else {
 			SMC_RET3(handle, seu_respbuf[0], seu_respbuf[1], seu_respbuf[2]);
 		}
+
+	case INTEL_SIP_SMC_SAFE_INJECT_SEU_ERR:
+		status = intel_sdm_safe_inject_seu_err((uint32_t *)&x1, (uint32_t)x2);
+		SMC_RET1(handle, status);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,

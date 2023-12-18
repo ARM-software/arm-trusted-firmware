@@ -68,6 +68,7 @@
 
 /* SEU Commands */
 #define MBOX_CMD_SEU_ERR_READ				0x3C
+#define MBOX_CMD_SAFE_INJECT_SEU_ERR			0x41
 
 /* RSU Commands */
 #define MBOX_GET_SUBPARTITION_TABLE			0x5A
@@ -107,7 +108,7 @@
 #define MBOX_GET_MEASUREMENT				0x183
 
 /* Miscellaneous commands */
-#define MBOX_GET_ROM_PATCH_SHA384	0x1B0
+#define MBOX_GET_ROM_PATCH_SHA384			0x1B0
 
 /* Mailbox Definitions */
 
@@ -196,9 +197,9 @@
 #define RSU_VERSION_ACMF_MASK				0xff00
 
 /* Config Status Macros */
-#define CONFIG_STATUS_WORD_SIZE			16U
-#define CONFIG_STATUS_FW_VER_OFFSET		1
-#define CONFIG_STATUS_FW_VER_MASK		0x00FFFFFF
+#define CONFIG_STATUS_WORD_SIZE				16U
+#define CONFIG_STATUS_FW_VER_OFFSET			1
+#define CONFIG_STATUS_FW_VER_MASK			0x00FFFFFF
 
 /* Data structure */
 
@@ -249,5 +250,6 @@ int mailbox_hps_stage_notify(uint32_t execution_stage);
 int mailbox_hwmon_readtemp(uint32_t chan, uint32_t *resp_buf);
 int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf);
 int mailbox_seu_err_status(uint32_t *resp_buf, uint32_t resp_buf_len);
+int mailbox_safe_inject_seu_err(uint32_t *arg, unsigned int len);
 
 #endif /* SOCFPGA_MBOX_H */
