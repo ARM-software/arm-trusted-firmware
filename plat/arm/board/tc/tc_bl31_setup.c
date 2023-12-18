@@ -66,11 +66,26 @@ static scmi_channel_plat_info_t tc_scmi_plat_info = {
 	.db_modify_mask = 0x1,
 	.ring_doorbell = &mhu_ring_doorbell,
 };
+
+static void enable_ns_mcn_pmu(void)
+{
+	/*
+	 * Enable non-secure access to MCN PMU registers
+	 */
+	for (int i = 0; i < MCN_INSTANCES; i++) {
+		uintptr_t mcn_scr = MCN_MICROARCH_BASE_ADDR + MCN_SCR_OFFSET +
+			(i * MCN_ADDRESS_SPACE_SIZE);
+		mmio_setbits_32(mcn_scr, 1 << MCN_SCR_PMU_BIT);
+	}
+}
 #endif
 
 void bl31_platform_setup(void)
 {
 	tc_bl31_common_platform_setup();
+#if TARGET_PLATFORM == 3
+	enable_ns_mcn_pmu();
+#endif
 }
 
 scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id __unused)
