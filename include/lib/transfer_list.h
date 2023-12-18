@@ -10,23 +10,30 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <common/ep_info.h>
 #include <lib/utils_def.h>
 
-#define	TRANSFER_LIST_SIGNATURE		U(0x006ed0ff)
-#define TRANSFER_LIST_VERSION		U(0x0001)
+#define TRANSFER_LIST_SIGNATURE U(0x4a0fb10b)
+#define TRANSFER_LIST_VERSION U(0x0001)
 
-// Init value of maximum alignment required by any TE data in the TL
-// specified as a power of two
-#define TRANSFER_LIST_INIT_MAX_ALIGN	U(3)
+/*
+ * Init value of maximum alignment required by any TE data in the TL
+ * specified as a power of two
+ */
+#define TRANSFER_LIST_INIT_MAX_ALIGN U(3)
 
-// alignment required by TE header start address, in bytes
-#define TRANSFER_LIST_GRANULE		U(8)
+/* Alignment required by TE header start address, in bytes */
+#define TRANSFER_LIST_GRANULE U(8)
 
-// version of the register convention used.
-// Set to 1 for both AArch64 and AArch32 according to fw handoff spec v0.9
+/*
+ * Version of the register convention used.
+ * Set to 1 for both AArch64 and AArch32 according to fw handoff spec v0.9
+ */
 #define REGISTER_CONVENTION_VERSION_MASK (1 << 24)
 
 #ifndef __ASSEMBLER__
+
+#define TL_FLAGS_HAS_CHECKSUM BIT(0)
 
 enum transfer_list_tag_id {
 	TL_TAG_EMPTY = 0,
@@ -34,23 +41,26 @@ enum transfer_list_tag_id {
 	TL_TAG_HOB_BLOCK = 2,
 	TL_TAG_HOB_LIST = 3,
 	TL_TAG_ACPI_TABLE_AGGREGATE = 4,
+	TL_TAG_OPTEE_PAGABLE_PART = 0x100,
 };
 
 enum transfer_list_ops {
-	TL_OPS_NON,	// invalid for any operation
-	TL_OPS_ALL,	// valid for all operations
-	TL_OPS_RO,	// valid for read only
-	TL_OPS_CUS,	// either abort or switch to special code to interpret
+	TL_OPS_NON, /* invalid for any operation */
+	TL_OPS_ALL, /* valid for all operations */
+	TL_OPS_RO, /* valid for read only */
+	TL_OPS_CUS, /* abort or switch to special code to interpret */
 };
 
 struct transfer_list_header {
-	uint32_t	signature;
-	uint8_t		checksum;
-	uint8_t		version;
-	uint8_t		hdr_size;
-	uint8_t		alignment;	// max alignment of TE data
-	uint32_t	size;		// TL header + all TEs
-	uint32_t	max_size;
+	uint32_t signature;
+	uint8_t checksum;
+	uint8_t version;
+	uint8_t hdr_size;
+	uint8_t alignment; /* max alignment of TE data */
+	uint32_t size; /* TL header + all TEs */
+	uint32_t max_size;
+	uint32_t flags;
+	uint32_t reserved; /* spare bytes */
 	/*
 	 * Commented out element used to visualize dynamic part of the
 	 * data structure.
@@ -64,10 +74,10 @@ struct transfer_list_header {
 };
 
 struct transfer_list_entry {
-	uint16_t	tag_id;
-	uint8_t		reserved0;	// place holder
-	uint8_t		hdr_size;
-	uint32_t	data_size;
+	uint16_t tag_id;
+	uint8_t reserved0; /* place holder */
+	uint8_t hdr_size;
+	uint32_t data_size;
 	/*
 	 * Commented out element used to visualize dynamic part of the
 	 * data structure.
@@ -80,11 +90,16 @@ struct transfer_list_entry {
 };
 
 void transfer_list_dump(struct transfer_list_header *tl);
+entry_point_info_t *
+transfer_list_set_handoff_args(struct transfer_list_header *tl,
+			       entry_point_info_t *ep_info);
 struct transfer_list_header *transfer_list_init(void *addr, size_t max_size);
 
-struct transfer_list_header *transfer_list_relocate(struct transfer_list_header *tl,
-						    void *addr, size_t max_size);
-enum transfer_list_ops transfer_list_check_header(const struct transfer_list_header *tl);
+struct transfer_list_header *
+transfer_list_relocate(struct transfer_list_header *tl, void *addr,
+		       size_t max_size);
+enum transfer_list_ops
+transfer_list_check_header(const struct transfer_list_header *tl);
 
 void transfer_list_update_checksum(struct transfer_list_header *tl);
 bool transfer_list_verify_checksum(const struct transfer_list_header *tl);
@@ -94,18 +109,22 @@ bool transfer_list_set_data_size(struct transfer_list_header *tl,
 				 uint32_t new_data_size);
 
 void *transfer_list_entry_data(struct transfer_list_entry *entry);
-bool transfer_list_rem(struct transfer_list_header *tl, struct transfer_list_entry *entry);
+bool transfer_list_rem(struct transfer_list_header *tl,
+		       struct transfer_list_entry *entry);
 
 struct transfer_list_entry *transfer_list_add(struct transfer_list_header *tl,
-					      uint16_t tag_id, uint32_t data_size,
+					      uint16_t tag_id,
+					      uint32_t data_size,
 					      const void *data);
 
-struct transfer_list_entry *transfer_list_add_with_align(struct transfer_list_header *tl,
-							 uint16_t tag_id, uint32_t data_size,
-							 const void *data, uint8_t alignment);
+struct transfer_list_entry *
+transfer_list_add_with_align(struct transfer_list_header *tl, uint16_t tag_id,
+			     uint32_t data_size, const void *data,
+			     uint8_t alignment);
 
-struct transfer_list_entry *transfer_list_next(struct transfer_list_header *tl,
-					       struct transfer_list_entry *last);
+struct transfer_list_entry *
+transfer_list_next(struct transfer_list_header *tl,
+		   struct transfer_list_entry *last);
 
 struct transfer_list_entry *transfer_list_find(struct transfer_list_header *tl,
 					       uint16_t tag_id);

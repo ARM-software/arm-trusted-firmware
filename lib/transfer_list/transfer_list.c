@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch.h>
 #include <assert.h>
 #include <inttypes.h>
 #include <string.h>
@@ -20,26 +21,63 @@ void transfer_list_dump(struct transfer_list_header *tl)
 	if (!tl) {
 		return;
 	}
-	NOTICE("Dump transfer list:\n");
-	NOTICE("signature  0x%x\n", tl->signature);
-	NOTICE("checksum   0x%x\n", tl->checksum);
-	NOTICE("version    0x%x\n", tl->version);
-	NOTICE("hdr_size   0x%x\n", tl->hdr_size);
-	NOTICE("alignment  0x%x\n", tl->alignment);
-	NOTICE("size       0x%x\n", tl->size);
-	NOTICE("max_size   0x%x\n", tl->max_size);
+	INFO("Dump transfer list:\n");
+	INFO("signature  0x%x\n", tl->signature);
+	INFO("checksum   0x%x\n", tl->checksum);
+	INFO("version    0x%x\n", tl->version);
+	INFO("hdr_size   0x%x\n", tl->hdr_size);
+	INFO("alignment  0x%x\n", tl->alignment);
+	INFO("size       0x%x\n", tl->size);
+	INFO("max_size   0x%x\n", tl->max_size);
+	INFO("flags      0x%x\n", tl->flags);
 	while (true) {
 		te = transfer_list_next(tl, te);
 		if (!te) {
 			break;
 		}
-		NOTICE("Entry %d:\n", i++);
-		NOTICE("tag_id     0x%x\n", te->tag_id);
-		NOTICE("hdr_size   0x%x\n", te->hdr_size);
-		NOTICE("data_size  0x%x\n", te->data_size);
-		NOTICE("data_addr  0x%lx\n",
-		(unsigned long)transfer_list_entry_data(te));
+		INFO("Entry %d:\n", i++);
+		INFO("tag_id     0x%x\n", te->tag_id);
+		INFO("hdr_size   0x%x\n", te->hdr_size);
+		INFO("data_size  0x%x\n", te->data_size);
+		INFO("data_addr  0x%lx\n",
+		     (unsigned long)transfer_list_entry_data(te));
 	}
+}
+
+/*******************************************************************************
+ * Set the handoff arguments according to the transfer list payload
+ * Return pointer to the entry point info if arguments are set properly
+ * or NULL if not
+ ******************************************************************************/
+entry_point_info_t *
+transfer_list_set_handoff_args(struct transfer_list_header *tl,
+			       entry_point_info_t *ep_info)
+{
+	struct transfer_list_entry *te = NULL;
+	void *dt = NULL;
+
+	if (!ep_info || !tl || transfer_list_check_header(tl) == TL_OPS_NON) {
+		return NULL;
+	}
+
+	te = transfer_list_find(tl, TL_TAG_FDT);
+	dt = transfer_list_entry_data(te);
+
+	ep_info->args.arg1 = TRANSFER_LIST_SIGNATURE |
+			     REGISTER_CONVENTION_VERSION_MASK;
+	ep_info->args.arg3 = (uintptr_t)tl;
+
+	if (GET_RW(ep_info->spsr) == MODE_RW_32) {
+		/* aarch32 */
+		ep_info->args.arg0 = 0;
+		ep_info->args.arg2 = (uintptr_t)dt;
+	} else {
+		/* aarch64 */
+		ep_info->args.arg0 = (uintptr_t)dt;
+		ep_info->args.arg2 = 0;
+	}
+
+	return ep_info;
 }
 
 /*******************************************************************************
@@ -65,9 +103,10 @@ struct transfer_list_header *transfer_list_init(void *addr, size_t max_size)
 	tl->signature = TRANSFER_LIST_SIGNATURE;
 	tl->version = TRANSFER_LIST_VERSION;
 	tl->hdr_size = sizeof(*tl);
-	tl->alignment = TRANSFER_LIST_INIT_MAX_ALIGN; // initial max align
-	tl->size = sizeof(*tl); // initial size is the size of header
+	tl->alignment = TRANSFER_LIST_INIT_MAX_ALIGN; /* initial max align */
+	tl->size = sizeof(*tl); /* initial size is the size of header */
 	tl->max_size = max_size;
+	tl->flags = TL_FLAGS_HAS_CHECKSUM;
 
 	transfer_list_update_checksum(tl);
 
@@ -77,11 +116,11 @@ struct transfer_list_header *transfer_list_init(void *addr, size_t max_size)
 /*******************************************************************************
  * Relocating a transfer list to a reserved memory region specified
  * Compliant to 2.4.6 of Firmware handoff specification (v0.9)
- * Return true on success or false on error
+ * Return pointer to the relocated transfer list or NULL on error
  ******************************************************************************/
-struct transfer_list_header *transfer_list_relocate(
-						struct transfer_list_header *tl,
-						void *addr, size_t max_size)
+struct transfer_list_header *
+transfer_list_relocate(struct transfer_list_header *tl, void *addr,
+		       size_t max_size)
 {
 	uintptr_t new_addr, align_mask, align_off;
 	struct transfer_list_header *new_tl;
@@ -101,7 +140,7 @@ struct transfer_list_header *transfer_list_relocate(
 
 	new_max_size = max_size - (new_addr - (uintptr_t)addr);
 
-	// the new space is not sufficient for the tl
+	/* the new space is not sufficient for the tl */
 	if (tl->size > new_max_size) {
 		return NULL;
 	}
@@ -120,37 +159,39 @@ struct transfer_list_header *transfer_list_relocate(
  * Compliant to 2.4.1 of Firmware handoff specification (v0.9)
  * Return transfer list operation status code
  ******************************************************************************/
-enum transfer_list_ops transfer_list_check_header(
-					const struct transfer_list_header *tl)
+enum transfer_list_ops
+transfer_list_check_header(const struct transfer_list_header *tl)
 {
 	if (!tl) {
 		return TL_OPS_NON;
 	}
 
 	if (tl->signature != TRANSFER_LIST_SIGNATURE) {
-		ERROR("Bad transfer list signature %#"PRIx32"\n",
+		ERROR("Bad transfer list signature %#" PRIx32 "\n",
 		      tl->signature);
 		return TL_OPS_NON;
 	}
 
 	if (!tl->max_size) {
-		ERROR("Bad transfer list max size %#"PRIx32"\n",
+		ERROR("Bad transfer list max size %#" PRIx32 "\n",
 		      tl->max_size);
 		return TL_OPS_NON;
 	}
 
 	if (tl->size > tl->max_size) {
-		ERROR("Bad transfer list size %#"PRIx32"\n", tl->size);
+		ERROR("Bad transfer list size %#" PRIx32 "\n", tl->size);
 		return TL_OPS_NON;
 	}
 
 	if (tl->hdr_size != sizeof(struct transfer_list_header)) {
-		ERROR("Bad transfer list header size %#"PRIx32"\n", tl->hdr_size);
+		ERROR("Bad transfer list header size %#" PRIx32 "\n",
+		      tl->hdr_size);
 		return TL_OPS_NON;
 	}
 
 	if (!transfer_list_verify_checksum(tl)) {
-		ERROR("Bad transfer list checksum %#"PRIx32"\n", tl->checksum);
+		ERROR("Bad transfer list checksum %#" PRIx32 "\n",
+		      tl->checksum);
 		return TL_OPS_NON;
 	}
 
@@ -190,14 +231,13 @@ struct transfer_list_entry *transfer_list_next(struct transfer_list_header *tl,
 
 	if (last) {
 		va = (uintptr_t)last;
-		// check if the total size overflow
-		if (add_overflow(last->hdr_size,
-			last->data_size, &sz)) {
+		/* check if the total size overflow */
+		if (add_overflow(last->hdr_size, last->data_size, &sz)) {
 			return NULL;
 		}
-		// roundup to the next entry
-		if (add_with_round_up_overflow(va, sz,
-			TRANSFER_LIST_GRANULE, &va)) {
+		/* roundup to the next entry */
+		if (add_with_round_up_overflow(va, sz, TRANSFER_LIST_GRANULE,
+					       &va)) {
 			return NULL;
 		}
 	} else {
@@ -207,9 +247,8 @@ struct transfer_list_entry *transfer_list_next(struct transfer_list_header *tl,
 	te = (struct transfer_list_entry *)va;
 
 	if (va + sizeof(*te) > tl_ev || te->hdr_size < sizeof(*te) ||
-		add_overflow(te->hdr_size, te->data_size, &sz) ||
-		add_overflow(va, sz, &ev) ||
-		ev > tl_ev) {
+	    add_overflow(te->hdr_size, te->data_size, &sz) ||
+	    add_overflow(va, sz, &ev) || ev > tl_ev) {
 		return NULL;
 	}
 
@@ -226,10 +265,6 @@ static uint8_t calc_byte_sum(const struct transfer_list_header *tl)
 	uint8_t cs = 0;
 	size_t n = 0;
 
-	if (!tl) {
-		return 0;
-	}
-
 	for (n = 0; n < tl->size; n++) {
 		cs += b[n];
 	}
@@ -245,7 +280,7 @@ void transfer_list_update_checksum(struct transfer_list_header *tl)
 {
 	uint8_t cs;
 
-	if (!tl) {
+	if (!tl || !(tl->flags & TL_FLAGS_HAS_CHECKSUM)) {
 		return;
 	}
 
@@ -262,6 +297,14 @@ void transfer_list_update_checksum(struct transfer_list_header *tl)
  ******************************************************************************/
 bool transfer_list_verify_checksum(const struct transfer_list_header *tl)
 {
+	if (!tl) {
+		return false;
+	}
+
+	if (!(tl->flags & TL_FLAGS_HAS_CHECKSUM)) {
+		return true;
+	}
+
 	return !calc_byte_sum(tl);
 }
 
@@ -284,27 +327,31 @@ bool transfer_list_set_data_size(struct transfer_list_header *tl,
 	}
 	tl_old_ev = (uintptr_t)tl + tl->size;
 
-	// calculate the old and new end of TE
-	// both must be roundup to align with TRANSFER_LIST_GRANULE
+	/*
+	 * calculate the old and new end of TE
+	 * both must be roundup to align with TRANSFER_LIST_GRANULE
+	 */
 	if (add_overflow(te->hdr_size, te->data_size, &sz) ||
-		add_with_round_up_overflow((uintptr_t)te, sz,
-		TRANSFER_LIST_GRANULE, &old_ev)) {
+	    add_with_round_up_overflow((uintptr_t)te, sz, TRANSFER_LIST_GRANULE,
+				       &old_ev)) {
 		return false;
 	}
 	if (add_overflow(te->hdr_size, new_data_size, &sz) ||
-		add_with_round_up_overflow((uintptr_t)te, sz,
-		TRANSFER_LIST_GRANULE, &new_ev)) {
+	    add_with_round_up_overflow((uintptr_t)te, sz, TRANSFER_LIST_GRANULE,
+				       &new_ev)) {
 		return false;
 	}
 
 	if (new_ev > old_ev) {
-		// move distance should be roundup
-		// to meet the requirement of TE data max alignment
-		// ensure that the increased size doesn't exceed
-		// the max size of TL
+		/*
+		 * move distance should be roundup
+		 * to meet the requirement of TE data max alignment
+		 * ensure that the increased size doesn't exceed
+		 * the max size of TL
+		 */
 		mov_dis = new_ev - old_ev;
-		if (round_up_overflow(mov_dis, 1 << tl->alignment,
-			&mov_dis) || tl->size + mov_dis > tl->max_size) {
+		if (round_up_overflow(mov_dis, 1 << tl->alignment, &mov_dis) ||
+		    tl->size + mov_dis > tl->max_size) {
 			return false;
 		}
 		ru_new_ev = old_ev + mov_dis;
@@ -316,7 +363,7 @@ bool transfer_list_set_data_size(struct transfer_list_header *tl,
 	}
 
 	if (gap >= sizeof(*dummy_te)) {
-		// create a dummy TE to fill up the gap
+		/* create a dummy TE to fill up the gap */
 		dummy_te = (struct transfer_list_entry *)new_ev;
 		dummy_te->tag_id = TL_TAG_EMPTY;
 		dummy_te->reserved0 = 0;
@@ -335,7 +382,7 @@ bool transfer_list_set_data_size(struct transfer_list_header *tl,
  * Return true on success or false on error
  ******************************************************************************/
 bool transfer_list_rem(struct transfer_list_header *tl,
-			struct transfer_list_entry *te)
+		       struct transfer_list_entry *te)
 {
 	if (!tl || !te || (uintptr_t)te > (uintptr_t)tl + tl->size) {
 		return false;
@@ -369,11 +416,13 @@ struct transfer_list_entry *transfer_list_add(struct transfer_list_header *tl,
 	tl_ev = (uintptr_t)tl + tl->size;
 	ev = tl_ev;
 
-	// skip the step 1 (optional step)
-	// new TE will be added into the tail
+	/*
+	 * skip the step 1 (optional step)
+	 * new TE will be added into the tail
+	 */
 	if (add_overflow(sizeof(*te), data_size, &sz) ||
-		add_with_round_up_overflow(ev, sz,
-		TRANSFER_LIST_GRANULE, &ev) || ev > max_tl_ev) {
+	    add_with_round_up_overflow(ev, sz, TRANSFER_LIST_GRANULE, &ev) ||
+	    ev > max_tl_ev) {
 		return NULL;
 	}
 
@@ -385,7 +434,7 @@ struct transfer_list_entry *transfer_list_add(struct transfer_list_header *tl,
 	tl->size += ev - tl_ev;
 
 	if (data) {
-		// get TE data pointer
+		/* get TE data pointer */
 		te_data = transfer_list_entry_data(te);
 		if (!te_data) {
 			return NULL;
@@ -404,10 +453,10 @@ struct transfer_list_entry *transfer_list_add(struct transfer_list_header *tl,
  * Compliant to 2.4.4 of Firmware handoff specification (v0.9)
  * Return pointer to the added transfer entry or NULL on error
  ******************************************************************************/
-struct transfer_list_entry *transfer_list_add_with_align(
-					struct transfer_list_header *tl,
-					uint16_t tag_id, uint32_t data_size,
-					const void *data, uint8_t alignment)
+struct transfer_list_entry *
+transfer_list_add_with_align(struct transfer_list_header *tl, uint16_t tag_id,
+			     uint32_t data_size, const void *data,
+			     uint8_t alignment)
 {
 	struct transfer_list_entry *te = NULL;
 	uintptr_t tl_ev, ev, new_tl_ev;
@@ -421,15 +470,17 @@ struct transfer_list_entry *transfer_list_add_with_align(
 	ev = tl_ev + sizeof(struct transfer_list_entry);
 
 	if (!is_aligned(ev, 1 << alignment)) {
-		// TE data address is not aligned to the new alignment
-		// fill the gap with an empty TE as a placeholder before
-		// adding the desire TE
+		/*
+		 * TE data address is not aligned to the new alignment
+		 * fill the gap with an empty TE as a placeholder before
+		 * adding the desire TE
+		 */
 		new_tl_ev = round_up(ev, 1 << alignment) -
-				sizeof(struct transfer_list_entry);
-		dummy_te_data_sz = new_tl_ev - tl_ev -
-					sizeof(struct transfer_list_entry);
+			    sizeof(struct transfer_list_entry);
+		dummy_te_data_sz =
+			new_tl_ev - tl_ev - sizeof(struct transfer_list_entry);
 		if (!transfer_list_add(tl, TL_TAG_EMPTY, dummy_te_data_sz,
-					NULL)) {
+				       NULL)) {
 			return NULL;
 		}
 	}
