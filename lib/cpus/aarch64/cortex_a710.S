@@ -193,6 +193,12 @@ workaround_runtime_end cortex_a710, ERRATUM(2768515), NO_ISB
 
 check_erratum_ls cortex_a710, ERRATUM(2768515), CPU_REV(2, 1)
 
+workaround_reset_start cortex_a710, ERRATUM(2778471), ERRATA_A710_2778471
+	sysreg_bit_set CORTEX_A710_CPUACTLR3_EL1, BIT(47)
+workaround_reset_end cortex_a710, ERRATUM(2778471)
+
+check_erratum_ls cortex_a710, ERRATUM(2778471), CPU_REV(2, 1)
+
 workaround_reset_start cortex_a710, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*

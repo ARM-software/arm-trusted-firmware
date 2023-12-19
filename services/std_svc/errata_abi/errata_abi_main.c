@@ -332,7 +332,8 @@ struct em_cpu_list cpu_list[] = {
 			ERRATA_NON_ARM_INTERCONNECT},
 		[15] = {2742423, 0x00, 0x21, ERRATA_A710_2742423},
 		[16] = {2768515, 0x00, 0x21, ERRATA_A710_2768515},
-		[17 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+		[17] = {2778471, 0x00, 0x21, ERRATA_A710_2778471},
+		[18 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
 #endif /* CORTEX_A710_H_INC */
@@ -384,7 +385,8 @@ struct em_cpu_list cpu_list[] = {
 			ERRATA_NON_ARM_INTERCONNECT},
 		[10] = {2742423, 0x00, 0x21, ERRATA_X2_2742423},
 		[11] = {2768515, 0x00, 0x21, ERRATA_X2_2768515},
-		[12 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+		[12] = {2778471, 0x00, 0x21, ERRATA_X2_2778471},
+		[13 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
 #endif /* CORTEX_X2_H_INC */
@@ -452,6 +454,17 @@ struct em_cpu_list cpu_list[] = {
 	}
 },
 #endif /* CORTEX_X3_H_INC */
+
+#if CORTEX_A520_H_INC
+{
+	.cpu_partnumber = CORTEX_A520_MIDR,
+	.cpu_errata_list = {
+		[0] = {2630792, 0x00, 0x01, ERRATA_A520_2630792},
+		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+	}
+},
+#endif /* CORTEX_A520_H_INC */
+
 };
 
 /*

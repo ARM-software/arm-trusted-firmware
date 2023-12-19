@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,6 +37,11 @@
 #define CORTEX_A710_CPUACTLR2_EL1				S3_0_C15_C1_1
 #define CORTEX_A710_CPUACTLR2_EL1_BIT_40			(ULL(1) << 40)
 #define CORTEX_A710_CPUACTLR2_EL1_BIT_36			(ULL(1) << 36)
+
+/*******************************************************************************
+ * CPU Auxiliary Control register 3 specific definitions.
+ ******************************************************************************/
+#define CORTEX_A710_CPUACTLR3_EL1				S3_0_C15_C1_2
 
 /*******************************************************************************
  * CPU Auxiliary Control register 5 specific definitions.
