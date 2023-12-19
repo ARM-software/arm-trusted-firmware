@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -230,6 +230,40 @@ uint32_t get_ref_clk(uint32_t pllglob)
 	return ref_clk;
 }
 
+/* Calculate clock frequency based on parameter */
+uint32_t get_clk_freq(uint32_t psrc_reg, uint32_t main_pllc, uint32_t per_pllc)
+{
+	uint32_t clk_psrc, ref_clk;
+	uint32_t pllc_reg, pllc_div, pllglob_reg;
+
+	clk_psrc = mmio_read_32(ALT_CLKMGR_MAINPLL + psrc_reg);
+
+	switch (ALT_CLKMGR_PSRC(clk_psrc)) {
+	case ALT_CLKMGR_SRC_MAIN:
+		pllc_reg = ALT_CLKMGR_MAINPLL + main_pllc;
+		pllglob_reg = ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_PLLGLOB;
+		break;
+	case ALT_CLKMGR_SRC_PER:
+		pllc_reg = ALT_CLKMGR_PERPLL + per_pllc;
+		pllglob_reg = ALT_CLKMGR_PERPLL + ALT_CLKMGR_PERPLL_PLLGLOB;
+		break;
+	default:
+		return 0;
+	}
+
+	ref_clk = get_ref_clk(mmio_read_32(pllglob_reg));
+
+	pllc_div = mmio_read_32(pllc_reg) & 0xff;
+
+	if (pllc_div != 0) {
+		ref_clk = (ref_clk / pllc_div) / (clk_psrc + 1);
+		return ref_clk;
+	} else {
+		VERBOSE("PLL DIV is 0\n");
+		return 0;
+	}
+}
+
 /* Calculate L3 interconnect main clock */
 uint32_t get_l3_clk(uint32_t ref_clk)
 {
@@ -308,6 +342,17 @@ uint32_t get_mmc_clk(void)
 	return mmc_clk;
 }
 
+/* Return MPU clock */
+uint32_t get_mpu_clk(void)
+{
+	uint32_t mpu_clk;
+
+	mpu_clk = get_clk_freq(ALT_CLKMGR_MAINPLL_NOCCLK, ALT_CLKMGR_MAINPLL_PLLC0,
+				ALT_CLKMGR_PERPLL_PLLC0);
+
+	return mpu_clk;
+}
+
 /* Get cpu freq clock */
 uint32_t get_cpu_clk(void)
 {
@@ -319,4 +364,19 @@ uint32_t get_cpu_clk(void)
 	cpu_clk = get_l3_clk(ref_clk)/PLAT_HZ_CONVERT_TO_MHZ;
 
 	return cpu_clk;
+}
+
+/* Return mpu_periph_clk clock frequency */
+uint32_t get_mpu_periph_clk(void)
+{
+	uint32_t mpu_periph_clk = 0;
+	/* mpu_periph_clk is mpu_clk, via a static /4 divider  */
+	mpu_periph_clk = (get_mpu_clk()/4)/PLAT_HZ_CONVERT_TO_MHZ;
+	return mpu_periph_clk;
+}
+
+/* Return mpu_periph_clk tick */
+unsigned int plat_get_syscnt_freq2(void)
+{
+	return PLAT_SYS_COUNTER_FREQ_IN_TICKS;
 }

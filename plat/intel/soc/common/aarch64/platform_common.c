@@ -11,12 +11,6 @@
 
 #include "socfpga_private.h"
 
-
-unsigned int plat_get_syscnt_freq2(void)
-{
-	return PLAT_SYS_COUNTER_FREQ_IN_TICKS;
-}
-
 unsigned long socfpga_get_ns_image_entrypoint(void)
 {
 	return PLAT_NS_IMAGE_OFFSET;

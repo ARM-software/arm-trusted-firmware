@@ -8,8 +8,8 @@
 #ifndef PLAT_SOCFPGA_DEF_H
 #define PLAT_SOCFPGA_DEF_H
 
-#include "n5x_system_manager.h"
 #include <platform_def.h>
+#include "n5x_system_manager.h"
 
 /* Platform Setting */
 #define PLATFORM_MODEL						PLAT_SOCFPGA_N5X
@@ -90,7 +90,7 @@
 #define PLAT_GICD_BASE			(PLAT_GIC_BASE + 0x1000)
 #define PLAT_GICR_BASE			0
 
-#define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(400000000)
+#define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(get_mpu_periph_clk() * PLAT_HZ_CONVERT_TO_MHZ)
 #define PLAT_HZ_CONVERT_TO_MHZ	(1000000)
 
 /*******************************************************************************
@@ -106,6 +106,6 @@
 #define L2_RESET_DONE_REG			0xFFD12218
 
 /* Platform specific system counter */
-#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	get_cpu_clk()
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	get_mpu_periph_clk()
 
 #endif /* PLAT_SOCFPGA_DEF_H */

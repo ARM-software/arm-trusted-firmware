@@ -407,3 +407,18 @@ uint32_t get_cpu_clk(void)
 
 	return cpu_clk;
 }
+
+/* Return mpu_periph_clk clock frequency */
+uint32_t get_mpu_periph_clk(void)
+{
+	uint32_t mpu_periph_clk = 0;
+	/* mpu_periph_clk is mpu_clk, via a static /4 divider  */
+	mpu_periph_clk = (get_mpu_clk()/4)/PLAT_HZ_CONVERT_TO_MHZ;
+	return mpu_periph_clk;
+}
+
+/* Return mpu_periph_clk tick */
+unsigned int plat_get_syscnt_freq2(void)
+{
+	return PLAT_SYS_COUNTER_FREQ_IN_TICKS;
+}
