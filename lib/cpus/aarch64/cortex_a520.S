@@ -26,6 +26,12 @@ workaround_reset_start cortex_a520, ERRATUM(2630792), ERRATA_A520_2630792
 workaround_reset_end cortex_a520, ERRATUM(2630792)
 
 check_erratum_ls cortex_a520, ERRATUM(2630792), CPU_REV(0, 1)
+
+workaround_reset_start cortex_a520, ERRATUM(2858100), ERRATA_A520_2858100
+	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(29)
+workaround_reset_end cortex_a520, ERRATUM(2858100)
+
+check_erratum_ls cortex_a520, ERRATUM(2858100), CPU_REV(0, 1)
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
