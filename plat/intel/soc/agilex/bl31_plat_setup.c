@@ -136,8 +136,6 @@ void bl31_platform_setup(void)
 		(uint64_t)plat_secondary_cpus_bl31_entry);
 
 	mailbox_hps_stage_notify(HPS_EXECUTION_STATE_SSBL);
-
-	ncore_enable_ocram_firewall();
 }
 
 const mmap_region_t plat_agilex_mmap[] = {

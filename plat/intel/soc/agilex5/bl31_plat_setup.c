@@ -167,10 +167,6 @@ void bl31_platform_setup(void)
 	gicv3_rdistif_init(plat_my_core_pos());
 	gicv3_cpuif_enable(plat_my_core_pos());
 	mailbox_hps_stage_notify(HPS_EXECUTION_STATE_SSBL);
-#if !defined(SIMICS_RUN)
-	ncore_enable_ocram_firewall();
-#endif
-
 }
 
 const mmap_region_t plat_agilex_mmap[] = {
