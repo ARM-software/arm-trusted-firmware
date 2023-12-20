@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,6 +32,12 @@ workaround_reset_start cortex_x3, ERRATUM(2070301), ERRATA_X3_2070301
 workaround_reset_end cortex_x3, ERRATUM(2070301)
 
 check_erratum_ls cortex_x3, ERRATUM(2070301), CPU_REV(1, 2)
+
+workaround_runtime_start cortex_x3, ERRATUM(2302506), ERRATA_X3_2302506
+	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, BIT(0)
+workaround_runtime_end cortex_x3, ERRATUM(2302506), NO_ISB
+
+check_erratum_ls cortex_x3, ERRATUM(2302506), CPU_REV(1, 1)
 
 workaround_runtime_start cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
 	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, CORTEX_X3_CPUACTLR2_EL1_BIT_36
