@@ -581,7 +581,7 @@ endfunc save_and_update_ptw_el1_sys_regs
 .macro get_per_world_context _reg:req
 	ldr 	x10, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 	get_security_state x9, x10
-	mov_imm	x10, (CTX_GLOBAL_EL3STATE_END - CTX_CPTR_EL3)
+	mov_imm	x10, (CTX_PERWORLD_EL3STATE_END - CTX_CPTR_EL3)
 	mul	x9, x9, x10
 	adrp	x10, per_world_context
 	add	x10, x10, :lo12:per_world_context

@@ -341,9 +341,9 @@
 /*******************************************************************************
  * Registers initialised in a per-world context.
  ******************************************************************************/
-#define CTX_CPTR_EL3		U(0x0)
-#define CTX_ZCR_EL3		U(0x8)
-#define CTX_GLOBAL_EL3STATE_END	U(0x10)
+#define CTX_CPTR_EL3			U(0x0)
+#define CTX_ZCR_EL3			U(0x8)
+#define CTX_PERWORLD_EL3STATE_END	U(0x10)
 
 #ifndef __ASSEMBLER__
 

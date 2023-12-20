@@ -600,6 +600,28 @@ void cm_manage_extensions_el3(void)
 }
 #endif /* IMAGE_BL31 */
 
+/******************************************************************************
+ * Function to initialise the registers with the RESET values in the context
+ * memory, which are maintained per world.
+ ******************************************************************************/
+#if IMAGE_BL31
+void cm_el3_arch_init_per_world(per_world_context_t *per_world_ctx)
+{
+	/*
+	 * Initialise CPTR_EL3, setting all fields rather than relying on hw.
+	 *
+	 * CPTR_EL3.TFP: Set to zero so that accesses to the V- or Z- registers
+	 *  by Advanced SIMD, floating-point or SVE instructions (if
+	 *  implemented) do not trap to EL3.
+	 *
+	 * CPTR_EL3.TCPAC: Set to zero so that accesses to CPACR_EL1,
+	 *  CPTR_EL2,CPACR, or HCPTR do not trap to EL3.
+	 */
+	uint64_t cptr_el3 = CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TFP_BIT);
+	per_world_ctx->ctx_cptr_el3 = cptr_el3;
+}
+#endif /* IMAGE_BL31 */
+
 /*******************************************************************************
  * Initialise per_world_context for Non-Secure world.
  * This function enables the architecture extensions, which have same value
@@ -608,6 +630,8 @@ void cm_manage_extensions_el3(void)
 #if IMAGE_BL31
 void manage_extensions_nonsecure_per_world(void)
 {
+	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_NS]);
+
 	if (is_feat_sme_supported()) {
 		sme_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
 	}
@@ -631,10 +655,11 @@ void manage_extensions_nonsecure_per_world(void)
  * This function enables the architecture extensions, which have same value
  * across the cores for the secure world.
  ******************************************************************************/
-
 static void manage_extensions_secure_per_world(void)
 {
 #if IMAGE_BL31
+	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
+
 	if (is_feat_sme_supported()) {
 
 		if (ENABLE_SME_FOR_SWD) {
