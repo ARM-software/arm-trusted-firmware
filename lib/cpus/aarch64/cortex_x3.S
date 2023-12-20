@@ -33,6 +33,12 @@ workaround_reset_end cortex_x3, ERRATUM(2070301)
 
 check_erratum_ls cortex_x3, ERRATUM(2070301), CPU_REV(1, 2)
 
+workaround_reset_start cortex_x3, ERRATUM(2266875), ERRATA_X3_2266875
+        sysreg_bit_set CORTEX_X3_CPUACTLR_EL1, BIT(22)
+workaround_reset_end cortex_x3, ERRATUM(2266875)
+
+check_erratum_ls cortex_x3, ERRATUM(2266875), CPU_REV(1, 0)
+
 workaround_runtime_start cortex_x3, ERRATUM(2302506), ERRATA_X3_2302506
 	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, BIT(0)
 workaround_runtime_end cortex_x3, ERRATUM(2302506), NO_ISB
