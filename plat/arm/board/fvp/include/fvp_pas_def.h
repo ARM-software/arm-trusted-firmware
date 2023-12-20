@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef ARM_PAS_DEF_H
-#define ARM_PAS_DEF_H
+#ifndef FVP_PAS_DEF_H
+#define FVP_PAS_DEF_H
 
 #include <lib/gpt_rme/gpt_rme.h>
-#include <plat/arm/common/arm_def.h>
+#include <platform_def.h>
 
 /*****************************************************************************
  * PAS regions used to initialize the Granule Protection Table (GPT)
@@ -114,4 +114,4 @@
 /* GPT Configuration options */
 #define PLATFORM_L0GPTSZ		GPCCR_L0GPTSZ_30BITS
 
-#endif /* ARM_PAS_DEF_H */
+#endif /* FVP_PAS_DEF_H */

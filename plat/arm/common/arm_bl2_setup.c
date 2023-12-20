@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,9 +23,6 @@
 #include <lib/optee_utils.h>
 #endif
 #include <lib/utils.h>
-#if ENABLE_RME
-#include <plat/arm/common/arm_pas_def.h>
-#endif
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
@@ -135,35 +132,33 @@ void bl2_platform_setup(void)
 }
 
 #if ENABLE_RME
-static void arm_bl2_plat_gpt_setup(void)
+static void arm_bl2_gpt_setup(void)
 {
 	/*
-	 * The GPT library might modify the gpt regions structure to optimize
-	 * the layout, so the array cannot be constant.
+	 * It is to be noted that any Arm platform that reuses arm_bl2_gpt_setup
+	 * must implement plat_arm_get_gpt_info within its platform code
 	 */
-	pas_region_t pas_regions[] = {
-		ARM_PAS_KERNEL,
-		ARM_PAS_SECURE,
-		ARM_PAS_REALM,
-		ARM_PAS_EL3_DRAM,
-		ARM_PAS_GPTS,
-		ARM_PAS_KERNEL_1
-	};
+	const arm_gpt_info_t *arm_gpt_info =
+		plat_arm_get_gpt_info();
+
+	if (arm_gpt_info == NULL) {
+		ERROR("arm_gpt_info not initialized!!\n");
+		panic();
+	}
 
 	/* Initialize entire protected space to GPT_GPI_ANY. */
-	if (gpt_init_l0_tables(GPCCR_PPS_64GB, ARM_L0_GPT_BASE,
-		ARM_L0_GPT_SIZE) < 0) {
+	if (gpt_init_l0_tables(arm_gpt_info->pps, arm_gpt_info->l0_base,
+		arm_gpt_info->l0_size) < 0) {
 		ERROR("gpt_init_l0_tables() failed!\n");
 		panic();
 	}
 
 	/* Carve out defined PAS ranges. */
-	if (gpt_init_pas_l1_tables(GPCCR_PGS_4K,
-				   ARM_L1_GPT_BASE,
-				   ARM_L1_GPT_SIZE,
-				   pas_regions,
-				   (unsigned int)(sizeof(pas_regions) /
-				   sizeof(pas_region_t))) < 0) {
+	if (gpt_init_pas_l1_tables(arm_gpt_info->pgs,
+				   arm_gpt_info->l1_base,
+				   arm_gpt_info->l1_size,
+				   arm_gpt_info->pas_region_base,
+				   arm_gpt_info->pas_region_count) < 0) {
 		ERROR("gpt_init_pas_l1_tables() failed!\n");
 		panic();
 	}
@@ -216,7 +211,7 @@ void arm_bl2_plat_arch_setup(void)
 	enable_mmu_el3(0);
 
 	/* Initialise and enable granule protection after MMU. */
-	arm_bl2_plat_gpt_setup();
+	arm_bl2_gpt_setup();
 #else
 	enable_mmu_el1(0);
 #endif
