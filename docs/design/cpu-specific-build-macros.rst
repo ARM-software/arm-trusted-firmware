@@ -384,6 +384,10 @@ For Cortex-A78C, the following errata build flags are defined :
   Cortex-A78C CPU. This needs to be enabled for revisions r0p1 and r0p2. This
   erratum is still open.
 
+- ``ERRATA_A78C_2683027`` : This applies errata 2683027 workaround to
+  Cortex-A78C CPU. This needs to be enabled for revisions r0p1 and r0p2. This
+  erratum is still open.
+
 - ``ERRATA_A78C_2712575`` : This applies erratum 2712575 workaround to
   Cortex-A78C CPU, this erratum affects system configurations that do not use
   an ARM interconnect IP. This needs to be enabled for revisions r0p1 and r0p2
