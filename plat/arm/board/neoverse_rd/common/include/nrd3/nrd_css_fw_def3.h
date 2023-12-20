@@ -48,6 +48,16 @@
 #define NRD_CSS_AP_SECURE_WDOG_TIMEOUT	UL(100)
 
 /*******************************************************************************
+ * RMM Console Config
+ ******************************************************************************/
+
+#define NRD_CSS_RMM_CONSOLE_BASE		NRD_CSS_REALM_UART_BASE
+#define NRD_CSS_RMM_CONSOLE_BAUD		ARM_CONSOLE_BAUDRATE
+#define NRD_CSS_RMM_CONSOLE_CLK_IN_HZ		UL(14745600)
+#define NRD_CSS_RMM_CONSOLE_NAME		"pl011"
+#define NRD_CSS_RMM_CONSOLE_COUNT		UL(1)
+
+/*******************************************************************************
  * MMU mapping
  ******************************************************************************/
 

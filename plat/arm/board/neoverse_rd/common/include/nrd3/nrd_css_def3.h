@@ -16,7 +16,6 @@
 
 /* Shared RAM */
 #define NRD_CSS_SHARED_SRAM_BASE		UL(0x00000000)
-#define NRD_CSS_SHARED_SRAM_SIZE		UL(0x00100000)
 
 /* General Peripherals */
 #define NRD_CSS_PERIPH_BASE			UL(0x20000000)

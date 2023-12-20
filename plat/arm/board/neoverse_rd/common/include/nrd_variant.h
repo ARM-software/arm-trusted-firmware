@@ -28,6 +28,10 @@
 #define RD_V2_SID_VER_PART_NUM			0x07F2
 #define RD_V2_CONFIG_ID				0x1
 
+/* SID Version values for RD-Fremont */
+#define RD_FREMONT_SID_VER_PART_NUM		0x07EE
+#define RD_FREMONT_CONFIG_ID			0x0
+
 /* Structure containing Neoverse RD platform variant information */
 typedef struct nrd_platform_info {
 	unsigned int platform_id;	/* Part Number of the platform */
