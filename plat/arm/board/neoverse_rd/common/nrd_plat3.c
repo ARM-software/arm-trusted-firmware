@@ -42,6 +42,8 @@ const mmap_region_t plat_arm_mmap[] = {
 #if TRUSTED_BOARD_BOOT && !RESET_TO_BL2
 	NRD_CSS_BL1_RW_MMAP,
 #endif
+	NRD_CSS_GPT_L1_DRAM_MMAP,
+	NRD_CSS_RMM_REGION_MMAP,
 	{0}
 };
 #endif /* IMAGE_BL2 */
@@ -55,6 +57,8 @@ const mmap_region_t plat_arm_mmap[] = {
 	NRD_CSS_PERIPH_MMAP(0),
 	NRD_ROS_PLATFORM_PERIPH_MMAP,
 	NRD_ROS_SYSTEM_PERIPH_MMAP,
+	NRD_CSS_GPT_L1_DRAM_MMAP,
+	NRD_CSS_EL3_RMM_SHARED_MEM_MMAP,
 	{0}
 };
 #endif /* IMAGE_BL31 */

@@ -87,4 +87,22 @@
 			ARM_NS_DRAM1_SIZE,				\
 			MT_MEMORY | MT_RW | MT_NS)
 
+#define NRD_CSS_GPT_L1_DRAM_MMAP					\
+		MAP_REGION_FLAT(					\
+			ARM_L1_GPT_BASE,				\
+			ARM_L1_GPT_SIZE,				\
+			MT_MEMORY | MT_RW | EL3_PAS)
+
+#define NRD_CSS_EL3_RMM_SHARED_MEM_MMAP					\
+		MAP_REGION_FLAT(					\
+			ARM_EL3_RMM_SHARED_BASE,			\
+			ARM_EL3_RMM_SHARED_SIZE,			\
+			MT_MEMORY | MT_RW | MT_REALM)
+
+#define NRD_CSS_RMM_REGION_MMAP						\
+		MAP_REGION_FLAT(					\
+			ARM_REALM_BASE,					\
+			ARM_REALM_SIZE,					\
+			MT_MEMORY | MT_RW | MT_REALM)
+
 #endif /* NRD_CSS_FW_DEF3_H */

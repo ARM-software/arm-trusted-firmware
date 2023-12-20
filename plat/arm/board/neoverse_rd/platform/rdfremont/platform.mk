@@ -60,6 +60,7 @@ endif
 
 BL2_SOURCES	+=	${RDFREMONT_BASE}/rdfremont_security.c		\
 			${RDFREMONT_BASE}/rdfremont_err.c		\
+			${RDFREMONT_BASE}/rdfremont_bl2_setup.c		\
 			lib/utils/mem_region.c				\
 			plat/arm/common/arm_nor_psci_mem_protect.c
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
