@@ -114,6 +114,16 @@ uint32_t get_uart_clk(void)
 
 void versal_net_config_setup(void)
 {
+	generic_delay_timer_init();
+
+#if (TFA_NO_PM == 0)
+	/* Configure IPI data for versal_net */
+	versal_net_ipi_config_table_init();
+#endif
+}
+
+void syscnt_freq_config_setup(void)
+{
 	uint32_t val;
 	uintptr_t crl_base, iou_scntrs_base, psx_base;
 
@@ -137,16 +147,22 @@ void versal_net_config_setup(void)
 		      cpu_clock);
 	mmio_write_32(iou_scntrs_base + VERSAL_NET_IOU_SCNTRS_COUNTER_CONTROL_REG_OFFSET,
 		      VERSAL_NET_IOU_SCNTRS_CONTROL_EN);
-
-	generic_delay_timer_init();
-
-#if (TFA_NO_PM == 0)
-	/* Configure IPI data for versal_net */
-	versal_net_ipi_config_table_init();
-#endif
 }
 
 uint32_t plat_get_syscnt_freq2(void)
 {
-	return cpu_clock;
+	uint32_t counter_freq = 0;
+	uint32_t ret = 0;
+
+	counter_freq = mmio_read_32(VERSAL_NET_IOU_SCNTRS +
+				    VERSAL_NET_IOU_SCNTRS_BASE_FREQ_OFFSET);
+	if (counter_freq != 0U) {
+		ret = counter_freq;
+	} else {
+		INFO("Indicates counter frequency %dHz setting to %dHz\n",
+		     counter_freq, cpu_clock);
+		ret  = cpu_clock;
+	}
+
+	return ret;
 }

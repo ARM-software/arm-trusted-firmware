@@ -18,6 +18,7 @@ typedef struct versal_intr_info_type_el3 {
 } versal_intr_info_type_el3_t;
 
 void versal_net_config_setup(void);
+void syscnt_freq_config_setup(void);
 uint32_t get_uart_clk(void);
 
 const mmap_region_t *plat_get_mmap(void);
