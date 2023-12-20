@@ -128,7 +128,7 @@ void syscnt_freq_config_setup(void)
 	uintptr_t crl_base, iou_scntrs_base, psx_base;
 
 	crl_base = VERSAL_NET_CRL;
-	iou_scntrs_base = VERSAL_NET_IOU_SCNTRS;
+	iou_scntrs_base = IOU_SCNTRS_BASE;
 	psx_base = PSX_CRF;
 
 	/* Reset for system timestamp generator in FPX */
@@ -143,10 +143,10 @@ void syscnt_freq_config_setup(void)
 	mmio_write_32(crl_base + VERSAL_NET_CRL_RST_TIMESTAMP_OFFSET, 0);
 
 	/* Program freq register in System counter and enable system counter. */
-	mmio_write_32(iou_scntrs_base + VERSAL_NET_IOU_SCNTRS_BASE_FREQ_OFFSET,
+	mmio_write_32(iou_scntrs_base + IOU_SCNTRS_BASE_FREQ_OFFSET,
 		      cpu_clock);
-	mmio_write_32(iou_scntrs_base + VERSAL_NET_IOU_SCNTRS_COUNTER_CONTROL_REG_OFFSET,
-		      VERSAL_NET_IOU_SCNTRS_CONTROL_EN);
+	mmio_write_32(iou_scntrs_base + IOU_SCNTRS_COUNTER_CONTROL_REG_OFFSET,
+		      IOU_SCNTRS_CONTROL_EN);
 }
 
 uint32_t plat_get_syscnt_freq2(void)
@@ -154,8 +154,8 @@ uint32_t plat_get_syscnt_freq2(void)
 	uint32_t counter_freq = 0;
 	uint32_t ret = 0;
 
-	counter_freq = mmio_read_32(VERSAL_NET_IOU_SCNTRS +
-				    VERSAL_NET_IOU_SCNTRS_BASE_FREQ_OFFSET);
+	counter_freq = mmio_read_32(IOU_SCNTRS_BASE +
+				    IOU_SCNTRS_BASE_FREQ_OFFSET);
 	if (counter_freq != 0U) {
 		ret = counter_freq;
 	} else {
