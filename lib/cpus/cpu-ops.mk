@@ -388,6 +388,10 @@ CPU_FLAG_LIST += ERRATA_A78C_2376749
 # to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
 CPU_FLAG_LIST += ERRATA_A78C_2395411
 
+# Flag to apply erratum 2683027 workaround during reset. This erratum applies
+# to revisions r0p1 and r0p2 of the A78C cpu. It is still open.
+CPU_FLAG_LIST += ERRATA_A78C_2683027
+
 # Flag to apply erratum 2712575 workaround for non-arm interconnect ip. This
 # erratum applies to revisions r0p1 and r0p2 of the A78C cpu.
 # It is still open.
