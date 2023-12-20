@@ -1,0 +1,29 @@
+/*
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+&hafnium {
+	vm1 {
+		is_ffa_partition;
+		vcpu_count = <8>;
+		/* partition information filled in separately */
+	};
+#ifdef TS_SP_FW_CONFIG
+	vm2 {
+		is_ffa_partition;
+		debug_name = "internal-trusted-storage";
+		load_address = <0xfee00000>;
+		vcpu_count = <1>;
+		mem_size = <0x200000>; /* 2MB TZC DRAM */
+	};
+	vm3 {
+		is_ffa_partition;
+		debug_name = "crypto";
+		load_address = <0xfec00000>;
+		vcpu_count = <1>;
+		mem_size = <0x200000>; /* 2MB TZC DRAM */
+	};
+#endif
+};

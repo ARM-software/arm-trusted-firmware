@@ -70,7 +70,8 @@ override ARM_PLAT_MT	:=	1
 
 TC_BASE	=	plat/arm/board/tc
 
-PLAT_INCLUDES		+=	-I${TC_BASE}/include/
+PLAT_INCLUDES		+=	-I${TC_BASE}/include/ \
+				-I${TC_BASE}/fdts/
 
 # CPU libraries for TARGET_PLATFORM=1
 ifeq (${TARGET_PLATFORM}, 1)
@@ -133,7 +134,7 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 
 ifeq (${SPD},spmd)
 ifeq ($(ARM_SPMC_MANIFEST_DTS),)
-ARM_SPMC_MANIFEST_DTS	:=	${TC_BASE}/fdts/${PLAT}_spmc_manifest.dts
+ARM_SPMC_MANIFEST_DTS	:=	${TC_BASE}/fdts/${PLAT}_spmc_test_manifest.dts
 endif
 
 FDT_SOURCES		+=	${ARM_SPMC_MANIFEST_DTS}
