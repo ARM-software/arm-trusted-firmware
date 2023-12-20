@@ -54,25 +54,6 @@ void versal_config_setup(void)
 	generic_delay_timer_init();
 }
 
-uint32_t plat_get_syscnt_freq2(void)
-{
-	uint32_t counter_freq = 0;
-	uint32_t ret = 0;
-
-	counter_freq = mmio_read_32(IOU_SCNTRS_BASE
-				    + IOU_SCNTRS_BASE_FREQ_OFFSET);
-
-	if (counter_freq != 0U) {
-		ret = counter_freq;
-	} else {
-		INFO("Indicates counter frequency %dHz setting to %dHz\n",
-		     counter_freq, cpu_clock);
-		ret = cpu_clock;
-	}
-
-	return ret;
-}
-
 void board_detection(void)
 {
 	uint32_t plat_info[2];
