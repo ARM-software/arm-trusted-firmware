@@ -42,6 +42,8 @@ assumptions:
 - No experimental features are enabled. We do not consider threats that may come
   from them.
 
+- The platform's hardware complies with the `PSR specification`_, defining the
+  bare-minimum security prerequisites for System-on-Chips (SoC).
 
 Data Flow Diagram
 =================
@@ -1101,3 +1103,4 @@ Threats to be Mitigated by an External Agent Outside of TF-A
 .. _Secure Development Guidelines: https://trustedfirmware-a.readthedocs.io/en/latest/process/security-hardening.html#secure-development-guidelines
 .. _Trusted Firmware-A Tests: https://git.trustedfirmware.org/TF-A/tf-a-tests.git/about/
 .. _OP-TEE Dispatcher: https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/components/spd/optee-dispatcher.rst
+.. _PSR Specification: https://developer.arm.com/documentation/den0106/0100

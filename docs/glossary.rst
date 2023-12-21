@@ -142,6 +142,9 @@ You can find additional definitions in the `Arm Glossary`_.
    PSA
       Platform Security Architecture
 
+   PSR
+     Platform Security Requirements
+
    PSCI
       Power State Coordination Interface
 
