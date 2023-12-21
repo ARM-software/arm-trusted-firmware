@@ -1482,4 +1482,17 @@
 /* alternative system register encoding for the "sb" speculation barrier */
 #define SYSREG_SB			S0_3_C3_C0_7
 
+#define CLUSTERPMCR_EL1			S3_0_C15_C5_0
+#define CLUSTERPMCNTENSET_EL1		S3_0_C15_C5_1
+#define CLUSTERPMCCNTR_EL1		S3_0_C15_C6_0
+#define CLUSTERPMOVSSET_EL1		S3_0_C15_C5_3
+#define CLUSTERPMOVSCLR_EL1		S3_0_C15_C5_4
+#define CLUSTERPMSELR_EL1		S3_0_C15_C5_5
+#define CLUSTERPMXEVTYPER_EL1		S3_0_C15_C6_1
+#define CLUSTERPMXEVCNTR_EL1		S3_0_C15_C6_2
+
+#define CLUSTERPMCR_E_BIT		BIT(0)
+#define CLUSTERPMCR_N_SHIFT		U(11)
+#define CLUSTERPMCR_N_MASK		U(0x1f)
+
 #endif /* ARCH_H */

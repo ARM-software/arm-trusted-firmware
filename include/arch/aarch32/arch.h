@@ -795,7 +795,21 @@
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers
  ******************************************************************************/
-#define CLUSTERPWRDN	p15, 0, c15, c3, 6
+#define CLUSTERPWRDN		p15, 0, c15, c3, 6
+#define CLUSTERPMCR		p15, 0, c15, c5, 0
+#define CLUSTERPMCNTENSET	p15, 0, c15, c5, 1
+#define CLUSTERPMCCNTR		p15, 0, c15, c6, 0
+#define CLUSTERPMOVSSET		p15, 0, c15, c5, 3
+#define CLUSTERPMOVSCLR		p15, 0, c15, c5, 4
+#define CLUSTERPMSELR		p15, 0, c15, c5, 5
+#define CLUSTERPMXEVTYPER	p15, 0,	c15, c6, 1
+#define CLUSTERPMXEVCNTR	p15, 0, c15, c6, 2
+
+/* CLUSTERPMCR register definitions */
+#define CLUSTERPMCR_E_BIT	BIT(0)
+#define CLUSTERPMCR_N_SHIFT	U(11)
+#define CLUSTERPMCR_N_MASK	U(0x1f)
+
 
 /* CLUSTERPWRDN register definitions */
 #define DSU_CLUSTER_PWR_OFF	0

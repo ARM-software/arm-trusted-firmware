@@ -768,6 +768,11 @@ Common build options
    ``EL3_PAYLOAD_BASE``. If both are defined, ``EL3_PAYLOAD_BASE`` has priority
    over ``PRELOADED_BL33_BASE``.
 
+-  ``PRESERVE_DSU_PMU_REGS``: This options when enabled allows the platform to
+   save/restore the DynamIQ Shared Unit's(DSU) Performance Monitoring Unit(PMU)
+   registers when the cluster goes through a power cycle. This is disabled by
+   default and platforms that require this feature have to enable them.
+
 -  ``PROGRAMMABLE_RESET_ADDRESS``: This option indicates whether the reset
    vector address can be programmed or is fixed on the platform. It can take
    either 0 (fixed) or 1 (programmable). Default is 0. If the platform has a

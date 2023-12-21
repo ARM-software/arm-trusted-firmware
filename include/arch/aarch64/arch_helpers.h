@@ -663,8 +663,16 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(gcscre0_el1, GCSCRE0_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(gcspr_el1, GCSPR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(gcspr_el0, GCSPR_EL0)
 
-/* DynamIQ Shared Unit power management */
+/* DynamIQ Control registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpwrdn_el1, CLUSTERPWRDN_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmcr_el1, CLUSTERPMCR_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmcntenset_el1, CLUSTERPMCNTENSET_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmccntr_el1, CLUSTERPMCCNTR_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmovsset_el1, CLUSTERPMOVSSET_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmovsclr_el1, CLUSTERPMOVSCLR_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmselr_el1, CLUSTERPMSELR_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmxevcntr_el1, CLUSTERPMXEVCNTR_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmxevtyper_el1, CLUSTERPMXEVTYPER_EL1)
 
 /* CPU Power/Performance Management registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpuppmcr_el3, CPUPPMCR_EL3)
@@ -827,8 +835,32 @@ void gpt_tlbi_by_pa_ll(uint64_t pa, size_t size);
 #define read_cpacr()		read_cpacr_el1()
 #define write_cpacr(_v)		write_cpacr_el1(_v)
 
-#define read_clusterpwrdn()	read_clusterpwrdn_el1()
-#define write_clusterpwrdn(_v)	write_clusterpwrdn_el1(_v)
+#define read_clusterpwrdn()		read_clusterpwrdn_el1()
+#define write_clusterpwrdn(_v)		write_clusterpwrdn_el1(_v)
+
+#define read_clusterpmcr()		read_clusterpmcr_el1()
+#define write_clusterpmcr(_v)		write_clusterpmcr_el1(_v)
+
+#define read_clusterpmcntenset()	read_clusterpmcntenset_el1()
+#define write_clusterpmcntenset(_v)	write_clusterpmcntenset_el1(_v)
+
+#define read_clusterpmccntr()		read_clusterpmccntr_el1()
+#define write_clusterpmccntr(_v)	write_clusterpmccntr_el1(_v)
+
+#define read_clusterpmovsset()		read_clusterpmovsset_el1()
+#define write_clusterpmovsset(_v)	write_clusterpmovsset_el1(_v)
+
+#define read_clusterpmovsclr()		read_clusterpmovsclr_el1()
+#define write_clusterpmovsclr(_v)	write_clusterpmovsclr_el1(_v)
+
+#define read_clusterpmselr()		read_clusterpmselr_el1()
+#define write_clusterpmselr(_v)		write_clusterpmselr_el1(_v)
+
+#define read_clusterpmxevcntr()		read_clusterpmxevcntr_el1()
+#define write_clusterpmxevcntr(_v)	write_clusterpmxevcntr_el1(_v)
+
+#define read_clusterpmxevtyper()	read_clusterpmxevtyper_el1()
+#define write_clusterpmxevtyper(_v)	write_clusterpmxevtyper_el1(_v)
 
 #if ERRATA_SPECULATIVE_AT
 /*
