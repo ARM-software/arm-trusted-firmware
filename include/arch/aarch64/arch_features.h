@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -89,12 +89,8 @@ static inline bool is_armv8_5_bti_present(void)
 		ID_AA64PFR1_EL1_BT_MASK) == BTI_IMPLEMENTED;
 }
 
-static inline unsigned int get_armv8_5_mte_support(void)
-{
-	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_MTE_SHIFT) &
-		ID_AA64PFR1_EL1_MTE_MASK);
-}
-
+CREATE_FEATURE_FUNCS(feat_mte, id_aa64pfr1_el1, ID_AA64PFR1_EL1_MTE_SHIFT,
+		     ENABLE_FEAT_MTE)
 CREATE_FEATURE_FUNCS(feat_sel2, id_aa64pfr0_el1, ID_AA64PFR0_SEL2_SHIFT,
 		     ENABLE_FEAT_SEL2)
 CREATE_FEATURE_FUNCS(feat_twed, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_TWED_SHIFT,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -123,22 +123,10 @@ static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_in
 	scr_el3 |= get_scr_el3_from_routing_model(SECURE);
 #endif
 
-#if !CTX_INCLUDE_MTE_REGS || ENABLE_ASSERTIONS
-	/* Get Memory Tagging Extension support level */
-	unsigned int mte = get_armv8_5_mte_support();
-#endif
-	/*
-	 * Allow access to Allocation Tags when CTX_INCLUDE_MTE_REGS
-	 * is set, or when MTE is only implemented at EL0.
-	 */
-#if CTX_INCLUDE_MTE_REGS
-	assert((mte == MTE_IMPLEMENTED_ELX) || (mte == MTE_IMPLEMENTED_ASY));
-	scr_el3 |= SCR_ATA_BIT;
-#else
-	if (mte == MTE_IMPLEMENTED_EL0) {
+	/* Allow access to Allocation Tags when mte is set*/
+	if (is_feat_mte_supported()) {
 		scr_el3 |= SCR_ATA_BIT;
 	}
-#endif /* CTX_INCLUDE_MTE_REGS */
 
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 
@@ -1267,9 +1255,10 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
 
 	el2_sysregs_context_save_common(el2_sysregs_ctx);
-#if CTX_INCLUDE_MTE_REGS
-	write_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2, read_tfsr_el2());
-#endif
+
+	if (is_feat_mte_supported()) {
+		write_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2, read_tfsr_el2());
+	}
 
 #if CTX_INCLUDE_MPAM_REGS
 	if (is_feat_mpam_supported()) {

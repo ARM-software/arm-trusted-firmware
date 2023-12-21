@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -295,7 +295,7 @@ static void sdei_set_elr_spsr(sdei_entry_t *se, sdei_dispatch_context_t *disp_ct
 	}
 
 	/* If MTE is implemented in the client el set the TCO bit */
-	if (get_armv8_5_mte_support() >= MTE_IMPLEMENTED_ELX) {
+	if (is_feat_mte_supported()) {
 		sdei_spsr |= SPSR_TCO_BIT_AARCH64;
 	}
 

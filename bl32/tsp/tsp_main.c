@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -238,7 +238,7 @@ smc_args_t *tsp_smc_handler(uint64_t func,
 	service_arg0 = (uint64_t)service_args;
 	service_arg1 = (uint64_t)(service_args >> 64U);
 
-#if CTX_INCLUDE_MTE_REGS
+#if ENABLE_FEAT_MTE
 	/*
 	 * Write a dummy value to an MTE register, to simulate usage in the
 	 * secure world
