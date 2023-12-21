@@ -108,11 +108,6 @@ struct clk_oscillator_data {
 
 };
 
-struct clk_fixed_rate {
-	const char *name;
-	unsigned long fixed_rate;
-};
-
 struct clk_gate_cfg {
 	uint32_t offset;
 	uint8_t bit_idx;
