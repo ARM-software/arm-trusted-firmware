@@ -137,7 +137,7 @@
  * little space for growth. Current size is considering that TRUSTED_BOARD_BOOT
  * and MEASURED_BOOT is enabled.
  */
-# define PLAT_ARM_MAX_BL2_SIZE		0x26000
+# define PLAT_ARM_MAX_BL2_SIZE		0x29000
 
 
 /*
