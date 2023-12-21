@@ -423,6 +423,7 @@ static int is_out_of_sec_range(uint64_t reg_addr)
 	case(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_1)):	/* BOOT_SCRATCH_COLD1 */
 	case(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_8)):	/* BOOT_SCRATCH_COLD8 */
 	case(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_9)):	/* BOOT_SCRATCH_COLD9 */
+#endif
 	case(SOCFPGA_ECC_QSPI(CTRL)):			/* ECC_QSPI_CTRL */
 	case(SOCFPGA_ECC_QSPI(ERRINTEN)):		/* ECC_QSPI_ERRINTEN */
 	case(SOCFPGA_ECC_QSPI(ERRINTENS)):		/* ECC_QSPI_ERRINTENS */
@@ -434,7 +435,7 @@ static int is_out_of_sec_range(uint64_t reg_addr)
 	case(SOCFPGA_ECC_QSPI(INTSTAT)):		/* ECC_QSPI_INTSTAT */
 	case(SOCFPGA_ECC_QSPI(INTTEST)):		/* ECC_QSPI_INTMODE */
 		return 0;
-#endif
+
 	default:
 		break;
 	}
@@ -462,12 +463,10 @@ uint32_t intel_secure_reg_write(uint64_t reg_addr, uint32_t val,
 	}
 
 	switch (reg_addr) {
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
 	case(SOCFPGA_ECC_QSPI(INTSTAT)):		/* ECC_QSPI_INTSTAT */
 	case(SOCFPGA_ECC_QSPI(INTTEST)):		/* ECC_QSPI_INTMODE */
 		mmio_write_16(reg_addr, val);
 		break;
-#endif
 	default:
 		mmio_write_32(reg_addr, val);
 		break;
