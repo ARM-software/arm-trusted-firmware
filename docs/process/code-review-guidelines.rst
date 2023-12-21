@@ -242,4 +242,4 @@ concerns, questions, or any other type of blocking comment, they should set
 
 *Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
 
-.. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
+.. _Project Maintenance Process: https://trusted-firmware-docs.readthedocs.io/en/latest/generic_processes/project_maintenance_process.html

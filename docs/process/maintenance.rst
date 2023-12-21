@@ -51,5 +51,5 @@ To put an individual's name up for election,
    and update the list of maintainers on the :ref:`Project
    Maintenance<maintainers>` page.
 
-.. _trustedfirmware.org Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
-.. _here: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/#how-to-become-a-maintainer
+.. _trustedfirmware.org Project Maintenance Process: https://trusted-firmware-docs.readthedocs.io/en/latest/generic_processes/project_maintenance_process.html
+.. _here: https://trusted-firmware-docs.readthedocs.io/en/latest/generic_processes/project_maintenance_process.html#how-to-become-a-maintainer
