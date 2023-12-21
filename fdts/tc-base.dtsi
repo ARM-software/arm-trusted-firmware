@@ -487,6 +487,14 @@
 #if TC_IOMMU_EN
 		iommus = <&smmu_700 0x200>;
 #endif /* TC_IOMMU_EN */
+		pbha {
+			int-id-override = <0 0x22>, <2 0x23>, <4 0x23>, <7 0x22>,
+					  <8 0x22>, <9 0x22>, <10 0x22>, <11 0x22>,
+					  <12 0x22>, <13 0x22>, <16 0x22>, <17 0x32>,
+					  <18 0x32>, <19 0x22>, <20 0x22>, <21 0x32>,
+					  <22 0x32>, <24 0x22>, <28 0x32>;
+			propagate-bits = <0x0f>;
+		};
 	};
 
 	power_model_simple {
