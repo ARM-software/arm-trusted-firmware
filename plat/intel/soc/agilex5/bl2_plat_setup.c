@@ -86,6 +86,11 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	/* Store magic number */
 	// TODO: Temp workaround to ungate testing
 	// mmio_write_32(L2_RESET_DONE_REG, PLAT_L2_RESET_REQ);
+
+	if (!intel_mailbox_is_fpga_not_ready()) {
+		socfpga_bridges_enable(SOC2FPGA_MASK | LWHPS2FPGA_MASK |
+					FPGA2SOC_MASK | F2SDRAM0_MASK);
+	}
 }
 
 void bl2_el3_plat_arch_setup(void)
