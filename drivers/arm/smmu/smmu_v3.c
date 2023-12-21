@@ -69,17 +69,9 @@ int __init smmuv3_security_init(uintptr_t smmu_base)
 	return smmuv3_poll(smmu_base + SMMU_S_GBPA, SMMU_S_GBPA_UPDATE, 0U);
 }
 
-/*
- * Initialize the SMMU by invalidating all secure caches and TLBs.
- * Abort all incoming transactions in order to implement a default
- * deny policy on reset
- */
+/* Initialize the SMMU by invalidating all secure caches and TLBs. */
 int __init smmuv3_init(uintptr_t smmu_base)
 {
-	/* Abort all incoming transactions */
-	if (smmuv3_security_init(smmu_base) != 0)
-		return -1;
-
 	/*
 	 * Initiate invalidation of secure caches and TLBs if the SMMU
 	 * supports secure state. If not, it's implementation defined
