@@ -378,9 +378,11 @@ endfunc fpregs_context_restore
 	 * Restore MPAM3_EL3 register as per context state
 	 * Currently we only enable MPAM for NS world and trap to EL3
 	 * for MPAM access in lower ELs of Secure and Realm world
+	 * x9 holds address of the per_world context
 	 * -----------------------------------------------------------
 	 */
-	ldr	x17, [sp, #CTX_EL3STATE_OFFSET + CTX_MPAM3_EL3]
+
+	ldr	x17, [x9, #CTX_MPAM3_EL3]
 	msr	S3_6_C10_C5_0, x17 /* mpam3_el3 */
 
 no_mpam:
