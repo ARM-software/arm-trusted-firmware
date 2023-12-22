@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2022-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,7 +13,6 @@ ifeq (${PLATFORM_TEST},rss-nv-counters)
 
     # Code under testing.
     BL31_SOURCES	+=	lib/psa/rss_platform.c \
-				drivers/arm/rss/rss_comms.c \
 				${RSS_COMMS_SOURCES}
 
     PLAT_INCLUDES	+=	-Iinclude/lib/psa
@@ -27,13 +26,13 @@ else ifeq (${PLATFORM_TEST},rss-rotpk)
 
     # Code under testing.
     BL31_SOURCES	+=	lib/psa/rss_platform.c \
-				drivers/arm/rss/rss_comms.c \
 				${RSS_COMMS_SOURCES}
 
     PLAT_INCLUDES	+=	-Iinclude/lib/psa
 
     $(eval $(call add_define,PLATFORM_TEST_ROTPK))
 else ifeq (${PLATFORM_TEST},tfm-testsuite)
+    include drivers/arm/rss/rss_comms.mk
 
     # The variables need to be set to compile the platform test:
     ifeq (${TF_M_TESTS_PATH},)
@@ -56,7 +55,7 @@ else ifeq (${PLATFORM_TEST},tfm-testsuite)
 
     MBEDTLS_CONFIG_FILE		=	"<plat_tc_mbedtls_config.h>"
 
-    LIBMBEDTLS_SRCS		+= 	$(addprefix ${MBEDTLS_DIR}/library/,	\
+    LIBMBEDTLS_SRCS		+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
 					entropy.c				\
 					entropy_poll.c				\
 					hmac_drbg.c				\
@@ -69,30 +68,31 @@ else ifeq (${PLATFORM_TEST},tfm-testsuite)
 					psa_crypto_slot_management.c		\
 					)
 
-    BL31_SOURCES	+=	${RSS_COMMS_SOURCES} 				\
-				plat/arm/common/arm_dyn_cfg.c 			\
-				${TC_BASE}/rss_ap_tests.c 			\
-				${TC_BASE}/rss_ap_testsuites.c 			\
+    BL31_SOURCES	+=	${RSS_COMMS_SOURCES}				\
+				plat/arm/common/arm_dyn_cfg.c			\
+				${TC_BASE}/rss_ap_tests.c			\
+				${TC_BASE}/rss_ap_testsuites.c			\
 				${TC_BASE}/rss_ap_test_stubs.c			\
-				$(TF_M_TESTS_PATH)/test/framework/test_framework.c \
+				$(TF_M_TESTS_PATH)/tests_reg/test/framework/test_framework.c \
 				$(MEASURED_BOOT_TESTS_PATH)/measured_boot_common.c \
 				$(MEASURED_BOOT_TESTS_PATH)/measured_boot_tests_common.c \
 				$(DELEGATED_ATTEST_TESTS_PATH)/delegated_attest_test.c \
-				drivers/auth/mbedtls/mbedtls_common.c 		\
-				lib/psa/measured_boot.c 			\
+				drivers/auth/mbedtls/mbedtls_common.c		\
+				lib/psa/measured_boot.c				\
 				lib/psa/delegated_attestation.c
 
     PLAT_INCLUDES	+=	-I$(TF_M_EXTRAS_PATH)/partitions/measured_boot/interface/include \
 				-I$(TF_M_EXTRAS_PATH)/partitions/delegated_attestation/interface/include \
-				-I$(TF_M_TESTS_PATH)/test/framework 		\
-				-I$(TF_M_TESTS_PATH)/log 			\
-				-I$(TF_M_TESTS_PATH)/test/secure_fw/suites/extra \
-				-I$(MEASURED_BOOT_TESTS_PATH)/non_secure 	\
-				-I$(DELEGATED_ATTEST_TESTS_PATH) 		\
-				-I$(DELEGATED_ATTEST_TESTS_PATH)/non_secure \
-				-Iplat/arm/board/tc 				\
-				-Iinclude/drivers/auth/mbedtls 			\
-				-Iinclude/drivers/arm
+				-I$(TF_M_TESTS_PATH)/tests_reg/test/framework	\
+				-I$(TF_M_TESTS_PATH)/tests_reg/test/secure_fw/suites/extra \
+				-I$(TF_M_TESTS_PATH)/lib/log			\
+				-I$(MEASURED_BOOT_TESTS_PATH)/non_secure	\
+				-I$(DELEGATED_ATTEST_TESTS_PATH)		\
+				-I$(DELEGATED_ATTEST_TESTS_PATH)/non_secure	\
+				-Iplat/arm/board/tc				\
+				-Iinclude/drivers/auth/mbedtls			\
+				-Iinclude/drivers/arm				\
+				-Iinclude/lib/psa
 
     # Some of the PSA functions are declared in multiple header files, that
     # triggers this warning.
