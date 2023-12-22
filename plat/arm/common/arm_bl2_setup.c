@@ -33,13 +33,18 @@
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
 /* Base address of fw_config received from BL1 */
-static uintptr_t config_base;
+static uintptr_t config_base __unused;
 
 /*
  * Check that BL2_BASE is above ARM_FW_CONFIG_LIMIT. This reserved page is
  * for `meminfo_t` data structure and fw_configs passed from BL1.
  */
+#if TRANSFER_LIST
+CASSERT(BL2_BASE >= PLAT_ARM_EL3_FW_HANDOFF_BASE + PLAT_ARM_FW_HANDOFF_SIZE,
+	assert_bl2_base_overflows);
+#else
 CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
+#endif /* TRANSFER_LIST */
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl2_early_platform_setup2
@@ -72,15 +77,27 @@ static struct transfer_list_header *ns_tl __unused;
 void arm_bl2_early_platform_setup(uintptr_t fw_config,
 				  struct meminfo *mem_layout)
 {
+	struct transfer_list_entry *te __unused;
 	int __maybe_unused ret;
 
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
+#if TRANSFER_LIST
+	// TODO: modify the prototype of this function fw_config != bl2_tl
+	secure_tl = (struct transfer_list_header *)fw_config;
+
+	te = transfer_list_find(secure_tl, TL_TAG_SRAM_LAYOUT64);
+	assert(te != NULL);
+
+	bl2_tzram_layout = *(meminfo_t *)transfer_list_entry_data(te);
+	transfer_list_rem(secure_tl, te);
+#else
+	config_base = fw_config;
+
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;
-
-	config_base = fw_config;
+#endif
 
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
@@ -110,13 +127,6 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_
 void bl2_plat_preload_setup(void)
 {
 #if TRANSFER_LIST
-	secure_tl = transfer_list_init((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
-				       PLAT_ARM_FW_HANDOFF_SIZE);
-	if (secure_tl == NULL) {
-		ERROR("Initialisation of secure transfer list failed!\n");
-		panic();
-	}
-
 	arm_transfer_list_dyn_cfg_init(secure_tl);
 #else
 	arm_bl2_dyn_cfg_init();
@@ -178,11 +188,13 @@ void arm_bl2_plat_arch_setup(void)
 		ARM_MAP_ROMLIB_CODE,
 		ARM_MAP_ROMLIB_DATA,
 #endif
+#if !TRANSFER_LIST
 		ARM_MAP_BL_CONFIG_REGION,
+#endif /* TRANSFER_LIST */
 #if ENABLE_RME
 		ARM_MAP_L0_GPT_REGION,
 #endif
-		{0}
+		{ 0 }
 	};
 
 #if ENABLE_RME
@@ -211,10 +223,17 @@ void arm_bl2_plat_arch_setup(void)
 
 void bl2_plat_arch_setup(void)
 {
-	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
-
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info __unused;
+	struct transfer_list_entry *te __unused;
 	arm_bl2_plat_arch_setup();
 
+#if TRANSFER_LIST
+	te = transfer_list_find(secure_tl, TL_TAG_TB_FW_CONFIG);
+	assert(te != NULL);
+
+	fconf_populate("TB_FW", (uintptr_t)transfer_list_entry_data(te));
+	transfer_list_rem(secure_tl, te);
+#else
 	/* Fill the properties struct with the info from the config dtb */
 	fconf_populate("FW_CONFIG", config_base);
 
@@ -223,6 +242,7 @@ void bl2_plat_arch_setup(void)
 	assert(tb_fw_config_info != NULL);
 
 	fconf_populate("TB_FW", tb_fw_config_info->config_addr);
+#endif
 }
 
 int arm_bl2_handle_post_image_load(unsigned int image_id)
