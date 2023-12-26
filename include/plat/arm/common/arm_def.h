@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #include <drivers/arm/gic_common.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/arm/board/common/rotpk/rotpk_def.h>
 #include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
@@ -19,11 +20,6 @@
  * Definitions common to all ARM standard platforms
  *****************************************************************************/
 
-/*
- * Root of trust key lengths
- */
-#define ARM_ROTPK_HEADER_LEN		19
-#define ARM_ROTPK_HASH_LEN		32
 
 /* Special value used to verify platform parameters from BL2 to BL31 */
 #define ARM_BL31_PLAT_PARAM_VAL		ULL(0x0f1e2d3c4b5a6978)
