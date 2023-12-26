@@ -56,17 +56,17 @@
  * chips are accessed - secure ram, css device and soc device regions.
  */
 #if defined(IMAGE_BL31)
-#  define PLAT_ARM_MMAP_ENTRIES		(6 + ((NRD_CHIP_COUNT - 1) * 3))
-#  define MAX_XLAT_TABLES		(6 + ((NRD_CHIP_COUNT - 1) * 3))
+#  define PLAT_ARM_MMAP_ENTRIES		(7 + ((NRD_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(7 + ((NRD_CHIP_COUNT - 1) * 3))
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		U(8)
 # define MAX_XLAT_TABLES		U(5)
 #elif defined(IMAGE_BL2)
-# define PLAT_ARM_MMAP_ENTRIES		(11 + (NRD_CHIP_COUNT - 1))
+# define PLAT_ARM_MMAP_ENTRIES		(13 + (NRD_CHIP_COUNT - 1))
 # define MAX_XLAT_TABLES		(11  + ((NRD_CHIP_COUNT - 1) * 2))
 #else
-# define PLAT_ARM_MMAP_ENTRIES		U(6)
-# define MAX_XLAT_TABLES		U(6)
+# define PLAT_ARM_MMAP_ENTRIES		U(7)
+# define MAX_XLAT_TABLES		U(7)
 #endif
 
 /*******************************************************************************
@@ -428,17 +428,190 @@
 #define NTFW_CTR_SIZE			U(4)
 
 /*******************************************************************************
+ * SRAM layout
+ ******************************************************************************/
+
+/*
+ *              Trusted SRAM
+ * 0x00100000 +--------------+
+ *            |    L0 GPT    |
+ * 0x000E0000 +--------------+  loaded by BL2  +----------------+
+ *            |   BL1 (rw)   |  <<<<<<<<<<<<<  |                |
+ *            |--------------|  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+ *            |     BL2      |  <<<<<<<<<<<<<  |                |
+ *            |--------------|  <<<<<<<<<<<<<  |----------------|
+ *            |              |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
+ *            |              |                 +----------------+
+ *            +--------------+
+ *            |    CONFIG    |
+ * 0x0001A000 +--------------+
+ *            |    Shared    |
+ * 0x00019000 +--------------+
+ *            |   BL1 (ro)   |
+ * 0x00000000 +--------------+
+ */
+
+/*******************************************************************************
+ * BL1 RO specifics
+ ******************************************************************************/
+
+/*
+ * SRAM region to store BL1 code and RO. This has been carved out at the bottom
+ * of SRAM
+ */
+
+#define BL1_RO_BASE			NRD_CSS_BL1_RO_BASE
+#define BL1_RO_LIMIT			(NRD_CSS_BL1_RO_BASE		\
+					 + NRD_CSS_BL1_RO_SIZE)
+
+/*******************************************************************************
+ * L0 GPT specifics
+ ******************************************************************************/
+
+/*
+ * L0 GPT has to be aligned to its size. In order to avoid holes due to
+ * alignment, place L0 GPT at the top of SRAM.
+ */
+#define ARM_L0_GPT_SIZE			UL(0x00020000) /* 128KB */
+#define ARM_L0_GPT_BASE			NRD_CSS_SHARED_SRAM_SIZE -	\
+					ARM_L0_GPT_SIZE
+
+#define ARM_L0_GPT_LIMIT		(ARM_L0_GPT_BASE + ARM_L0_GPT_SIZE)
+
+/*******************************************************************************
+ * Arm shared RAM specifics
+ ******************************************************************************/
+
+#define ARM_SHARED_RAM_BASE		(NRD_CSS_BL1_RO_BASE +		\
+					 NRD_CSS_BL1_RO_SIZE)
+#define ARM_SHARED_RAM_SIZE		UL(0x00001000)	/* 4 KB */
+
+/*******************************************************************************
+ * Arm BL RAM specifics
+ ******************************************************************************/
+
+/*Rest of SRAM till L0 GPT base */
+#define ARM_BL_RAM_BASE			(ARM_SHARED_RAM_BASE +		\
+					 ARM_SHARED_RAM_SIZE)
+#define ARM_BL_RAM_SIZE			(ARM_L0_GPT_BASE -		\
+					 ARM_BL_RAM_BASE)
+
+/*******************************************************************************
+ * FW_CONFIG specifics
+ ******************************************************************************/
+
+/*
+ * To enable FW_CONFIG to be loaded by BL1, define the corresponding base
+ * and limit. Leave enough space of BL2 meminfo.
+ */
+#define ARM_FW_CONFIG_BASE		(ARM_BL_RAM_BASE + sizeof(meminfo_t))
+#define ARM_FW_CONFIG_LIMIT		((ARM_BL_RAM_BASE + PAGE_SIZE) \
+					+ (PAGE_SIZE / 2U))
+
+/*
+ * Boot parameters passed from BL2 to BL31/BL32 are stored here
+ */
+#define ARM_BL2_MEM_DESC_BASE		(ARM_FW_CONFIG_LIMIT)
+#define ARM_BL2_MEM_DESC_LIMIT		(ARM_BL2_MEM_DESC_BASE		\
+					+ (PAGE_SIZE / 2U))
+
+/*
+ * Define limit of firmware configuration memory:
+ * ARM_FW_CONFIG + ARM_BL2_MEM_DESC memory
+ */
+#define ARM_FW_CONFIGS_SIZE		(PAGE_SIZE * 2)
+#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + ARM_FW_CONFIGS_SIZE)
+
+/*******************************************************************************
+ * BL1 RW specifics
+ ******************************************************************************/
+
+#define BL1_RW_BASE			(ARM_BL_RAM_BASE +		\
+					 ARM_BL_RAM_SIZE -		\
+					 PLAT_ARM_MAX_BL1_RW_SIZE)
+#define BL1_RW_LIMIT			(ARM_BL_RAM_BASE +		\
+					 ARM_BL_RAM_SIZE)
+
+/*******************************************************************************
+ * BL2 specific defines.
+ ******************************************************************************/
+
+/* Put BL2 just below BL1. */
+#define BL2_BASE			(BL1_RW_BASE - PLAT_ARM_MAX_BL2_SIZE)
+#define BL2_LIMIT			BL1_RW_BASE
+
+/*******************************************************************************
+ * BL31 specific defines.
+ ******************************************************************************/
+
+/* Keep BL31 below BL2 in the Trusted SRAM.*/
+#define BL31_BASE			((ARM_BL_RAM_BASE +		\
+					  ARM_BL_RAM_SIZE) -		\
+					  PLAT_ARM_MAX_BL31_SIZE)
+#define BL31_PROGBITS_LIMIT		BL2_BASE
+#define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+
+/*
+ * The max number of regions like RO(code), coherent and data required by
+ * different BL stages which need to be mapped in the MMU.
+ */
+#define ARM_BL_REGIONS			7
+
+#define MAX_MMAP_REGIONS		(PLAT_ARM_MMAP_ENTRIES +	\
+					 ARM_BL_REGIONS)
+
+/*******************************************************************************
  * MMU mapping
  ******************************************************************************/
 
 #define V2M_MAP_FLASH0_RW						\
-		MAP_REGION_FLAT(V2M_FLASH0_BASE,			\
+		MAP_REGION_FLAT(					\
+			V2M_FLASH0_BASE,				\
 			V2M_FLASH0_SIZE,				\
 			MT_DEVICE | MT_RW | EL3_PAS)
 
 #define V2M_MAP_FLASH0_RO						\
-		MAP_REGION_FLAT(V2M_FLASH0_BASE,			\
+		MAP_REGION_FLAT(					\
+			V2M_FLASH0_BASE,				\
 			V2M_FLASH0_SIZE,				\
 			MT_RO_DATA | EL3_PAS)
+
+#define ARM_MAP_L0_GPT_REGION						\
+		MAP_REGION_FLAT(					\
+			ARM_L0_GPT_BASE,				\
+			ARM_L0_GPT_SIZE,				\
+			MT_MEMORY | MT_RW | MT_ROOT)
+
+#define ARM_MAP_BL_CONFIG_REGION					\
+		MAP_REGION_FLAT(					\
+			ARM_BL_RAM_BASE,				\
+			(ARM_FW_CONFIGS_LIMIT - ARM_BL_RAM_BASE),	\
+			MT_MEMORY | MT_RW | EL3_PAS)
+
+#if SEPARATE_CODE_AND_RODATA
+#define ARM_MAP_BL_RO							\
+		MAP_REGION_FLAT(					\
+			BL_CODE_BASE,					\
+			(BL_CODE_END - BL_CODE_BASE),			\
+			MT_CODE | EL3_PAS),				\
+		MAP_REGION_FLAT(					\
+			BL_RO_DATA_BASE,				\
+			(BL_RO_DATA_END - BL_RO_DATA_BASE),		\
+			MT_RO_DATA | EL3_PAS)
+#else
+#define ARM_MAP_BL_RO							\
+		MAP_REGION_FLAT(					\
+			BL_CODE_BASE,					\
+			(BL_CODE_END - BL_CODE_BASE),			\
+			MT_CODE | EL3_PAS)
+#endif
+
+#if USE_COHERENT_MEM
+#define ARM_MAP_BL_COHERENT_RAM						\
+		MAP_REGION_FLAT(					\
+			BL_COHERENT_RAM_BASE,				\
+			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,	\
+			MT_DEVICE | MT_RW | EL3_PAS)
+#endif
 
 #endif /* NRD_PLAT_ARM_DEF3_H */

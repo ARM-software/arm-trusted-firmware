@@ -19,6 +19,7 @@
  */
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
+	NRD_CSS_SHARED_RAM_MMAP(0),
 	NRD_ROS_FLASH0_RO_MMAP,
 	NRD_CSS_PERIPH_MMAP(0),
 	NRD_ROS_PLATFORM_PERIPH_MMAP,
@@ -29,6 +30,7 @@ const mmap_region_t plat_arm_mmap[] = {
 
 #if IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
+	NRD_CSS_SHARED_RAM_MMAP(0),
 	NRD_ROS_FLASH0_RO_MMAP,
 #ifdef PLAT_ARM_MEM_PROT_ADDR
 	NRD_ROS_V2M_MEM_PROTECT_MMAP,
@@ -36,12 +38,16 @@ const mmap_region_t plat_arm_mmap[] = {
 	NRD_CSS_PERIPH_MMAP(0),
 	NRD_ROS_PLATFORM_PERIPH_MMAP,
 	NRD_ROS_SYSTEM_PERIPH_MMAP,
+#if TRUSTED_BOARD_BOOT && !RESET_TO_BL2
+	NRD_CSS_BL1_RW_MMAP,
+#endif
 	{0}
 };
 #endif /* IMAGE_BL2 */
 
 #if IMAGE_BL31
 const mmap_region_t plat_arm_mmap[] = {
+	NRD_CSS_SHARED_RAM_MMAP(0),
 #ifdef PLAT_ARM_MEM_PROT_ADDR
 	NRD_ROS_V2M_MEM_PROTECT_MMAP,
 #endif

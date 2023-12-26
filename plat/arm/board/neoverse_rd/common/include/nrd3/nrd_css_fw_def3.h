@@ -18,6 +18,9 @@
 
 #define NRD_CSS_BL1_RW_SIZE		UL(64 * 1024)	/* 64KB */
 
+#define NRD_CSS_BL1_RO_BASE		NRD_CSS_SHARED_SRAM_BASE
+#define NRD_CSS_BL1_RO_SIZE		UL(0x00019000)
+
 # define NRD_CSS_BL2_SIZE		UL(0x30000)
 
 /*
@@ -52,5 +55,18 @@
 			NRD_CSS_PERIPH_BASE,				\
 			NRD_CSS_PERIPH_SIZE,				\
 			MT_DEVICE | MT_RW | EL3_PAS)
+
+#define NRD_CSS_SHARED_RAM_MMAP(n)					\
+		MAP_REGION_FLAT(					\
+			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
+			ARM_SHARED_RAM_BASE,				\
+			ARM_SHARED_RAM_SIZE,				\
+			MT_MEMORY | MT_RW | EL3_PAS)
+
+#define NRD_CSS_BL1_RW_MMAP						\
+		MAP_REGION_FLAT(					\
+			BL1_RW_BASE,					\
+			BL1_RW_LIMIT - BL1_RW_BASE,			\
+			MT_MEMORY | MT_RW | EL3_PAS)
 
 #endif /* NRD_CSS_FW_DEF3_H */
