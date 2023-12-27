@@ -88,7 +88,7 @@ Security Advisories
 .. |TFV-9| replace:: :ref:`Advisory TFV-9 (CVE-2022-23960)`
 .. |TFV-10| replace:: :ref:`Advisory TFV-10 (CVE-2022-47630)`
 
-.. _TrustedFirmware.org security incident process: https://developer.trustedfirmware.org/w/collaboration/security_center/
+.. _TrustedFirmware.org security incident process: https://trusted-firmware-docs.readthedocs.io/en/latest/security_center/
 
 --------------
 
