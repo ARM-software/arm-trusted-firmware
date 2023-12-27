@@ -13,6 +13,38 @@ TC_SCMI_PD_CTRL_EN		:=	1
 # IOMMU: Enable the use of system or individual MMUs
 TC_IOMMU_EN			:=	1
 
+# System setup
+CSS_USE_SCMI_SDS_DRIVER		:=	1
+HW_ASSISTED_COHERENCY		:=	1
+USE_COHERENT_MEM		:=	0
+GIC_ENABLE_V4_EXTN		:=      1
+GICV3_SUPPORT_GIC600		:=	1
+override NEED_BL2U		:=	no
+override ARM_PLAT_MT		:=	1
+
+# CPU setup
+ARM_ARCH_MINOR			:=	7
+BRANCH_PROTECTION		:=	1
+ENABLE_FEAT_MPAM		:=	1 # default is 2, optimise
+ENABLE_SVE_FOR_NS		:=	2 # to show we use it
+ENABLE_SVE_FOR_SWD		:=	1
+ENABLE_TRBE_FOR_NS		:=	1
+ENABLE_SYS_REG_TRACE_FOR_NS	:=	1
+ENABLE_FEAT_AMU			:=	1
+ENABLE_AMU_FCONF		:=	1
+ENABLE_AMU_AUXILIARY_COUNTERS	:=	1
+ENABLE_MPMM			:=	1
+ENABLE_MPMM_FCONF		:=	1
+
+CTX_INCLUDE_AARCH32_REGS	:=	0
+
+ifeq (${SPD},spmd)
+	SPMD_SPM_AT_SEL2	:=	1
+	ENABLE_FEAT_MTE		:=	1
+	CTX_INCLUDE_PAUTH_REGS	:=	1
+endif
+
+
 ifneq ($(shell expr $(TARGET_PLATFORM) \<= 1), 0)
         $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
           Some of the features might not work as expected)
@@ -36,51 +68,12 @@ $(eval $(call add_defines, \
 
 CSS_LOAD_SCP_IMAGES	:=	1
 
-CSS_USE_SCMI_SDS_DRIVER	:=	1
-
-ENABLE_FEAT_RAS		:=	1
-
-SDEI_SUPPORT		:=	0
-
-EL3_EXCEPTION_HANDLING	:=	0
-
-HANDLE_EA_EL3_FIRST_NS	:=	0
-
-# System coherency is managed in hardware
-HW_ASSISTED_COHERENCY	:=	1
-
-# When building for systems with hardware-assisted coherency, there's no need to
-# use USE_COHERENT_MEM. Require that USE_COHERENT_MEM must be set to 0 too.
-USE_COHERENT_MEM	:=	0
-
-GIC_ENABLE_V4_EXTN	:=      1
-
-# GIC-600 configuration
-GICV3_SUPPORT_GIC600	:=	1
-
-# Enable SVE
-ENABLE_SVE_FOR_NS	:=	2
-ENABLE_SVE_FOR_SWD	:=	1
-
-# enable trace buffer control registers access to NS by default
-ENABLE_TRBE_FOR_NS              := 1
-
-# enable trace system registers access to NS by default
-ENABLE_SYS_REG_TRACE_FOR_NS     := 1
-
-# enable trace filter control registers access to NS by default
-ENABLE_TRF_FOR_NS               := 1
-
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
 ENT_GIC_SOURCES		:=	${GICV3_SOURCES}		\
 				plat/common/plat_gicv3.c	\
 				plat/arm/common/arm_gicv3.c
-
-override NEED_BL2U	:=	no
-
-override ARM_PLAT_MT	:=	1
 
 TC_BASE	=	plat/arm/board/tc
 
@@ -173,19 +166,6 @@ $(eval TC_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(TC_HW_CONFIG_DTS))
 
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TC_HW_CONFIG},--hw-config,${TC_HW_CONFIG}))
-
-override CTX_INCLUDE_AARCH32_REGS	:= 0
-
-override CTX_INCLUDE_PAUTH_REGS	:= 1
-
-override ENABLE_SPE_FOR_NS	:= 0
-
-override ENABLE_FEAT_AMU := 1
-ENABLE_AMU_AUXILIARY_COUNTERS := 1
-ENABLE_AMU_FCONF := 1
-
-ENABLE_MPMM := 1
-ENABLE_MPMM_FCONF := 1
 
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
