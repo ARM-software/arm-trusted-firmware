@@ -12,11 +12,11 @@
 #include <platform_def.h>
 
 /* Platform Setting */
-#define PLATFORM_MODEL						PLAT_SOCFPGA_AGILEX
-#define BOOT_SOURCE							BOOT_SOURCE_SDMMC
-#define PLAT_PRIMARY_CPU					0
+#define PLATFORM_MODEL				PLAT_SOCFPGA_AGILEX
+#define BOOT_SOURCE				BOOT_SOURCE_SDMMC
+#define PLAT_PRIMARY_CPU			0
 #define PLAT_CLUSTER_ID_MPIDR_AFF_SHIFT		MPIDR_AFF1_SHIFT
-#define PLAT_CPU_ID_MPIDR_AFF_SHIFT			MPIDR_AFF0_SHIFT
+#define PLAT_CPU_ID_MPIDR_AFF_SHIFT		MPIDR_AFF0_SHIFT
 
 /* FPGA config helpers */
 #define INTEL_SIP_SMC_FPGA_CONFIG_ADDR		0x400000
@@ -34,6 +34,7 @@
 #define SOCFPGA_MEMCTRL_REG_BASE		0xf8011100
 #define SOCFPGA_RSTMGR_REG_BASE			0xffd11000
 #define SOCFPGA_SYSMGR_REG_BASE			0xffd12000
+#define SOCFPGA_ECC_QSPI_REG_BASE		0xffa22000
 
 #define SOCFPGA_L4_PER_SCR_REG_BASE             0xffd21000
 #define SOCFPGA_L4_SYS_SCR_REG_BASE             0xffd21100
@@ -64,17 +65,17 @@
 #define DEVICE4_BASE				(0x2000000000)
 #define DEVICE4_SIZE				(0x0100000000)
 
-#define BL2_BASE		(0xffe00000)
-#define BL2_LIMIT		(0xffe2b000)
+#define BL2_BASE				(0xffe00000)
+#define BL2_LIMIT				(0xffe2b000)
 
-#define BL31_BASE		(0x1000)
-#define BL31_LIMIT		(0x81000)
+#define BL31_BASE				(0x1000)
+#define BL31_LIMIT				(0x81000)
 
 /*******************************************************************************
  * UART related constants
  ******************************************************************************/
-#define PLAT_UART0_BASE		(0xFFC02000)
-#define PLAT_UART1_BASE		(0xFFC02100)
+#define PLAT_UART0_BASE				(0xFFC02000)
+#define PLAT_UART1_BASE				(0xFFC02100)
 
 /*******************************************************************************
  * WDT related constants
@@ -84,10 +85,10 @@
 /*******************************************************************************
  * GIC related constants
  ******************************************************************************/
-#define PLAT_GIC_BASE			(0xFFFC0000)
-#define PLAT_GICC_BASE			(PLAT_GIC_BASE + 0x2000)
-#define PLAT_GICD_BASE			(PLAT_GIC_BASE + 0x1000)
-#define PLAT_GICR_BASE			0
+#define PLAT_GIC_BASE				(0xFFFC0000)
+#define PLAT_GICC_BASE				(PLAT_GIC_BASE + 0x2000)
+#define PLAT_GICD_BASE				(PLAT_GIC_BASE + 0x1000)
+#define PLAT_GICR_BASE				0
 
 #define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(get_mpu_periph_clk() * PLAT_HZ_CONVERT_TO_MHZ)
 #define PLAT_HZ_CONVERT_TO_MHZ	(1000000)
@@ -95,8 +96,8 @@
 /*******************************************************************************
  * SDMMC related pointer function
  ******************************************************************************/
-#define SDMMC_READ_BLOCKS	mmc_read_blocks
-#define SDMMC_WRITE_BLOCKS	mmc_write_blocks
+#define SDMMC_READ_BLOCKS			mmc_read_blocks
+#define SDMMC_WRITE_BLOCKS			mmc_write_blocks
 
 /*******************************************************************************
  * sysmgr.boot_scratch_cold6 & 7 (64bit) are used to indicate L2 reset
