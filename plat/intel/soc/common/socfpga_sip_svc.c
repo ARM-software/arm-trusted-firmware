@@ -229,6 +229,10 @@ static int intel_fpga_config_start(uint32_t flag)
 		request_type = BITSTREAM_AUTH;
 	}
 
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	intel_smmu_hps_remapper_init(0U);
+#endif
+
 	mailbox_clear_response();
 
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_CANCEL, NULL, 0U,
@@ -309,6 +313,10 @@ static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 		is_fpga_config_buffer_full()) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
+
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	intel_smmu_hps_remapper_init(&mem);
+#endif
 
 	for (i = 0; i < FPGA_CONFIG_BUFFER_SIZE; i++) {
 		int j = (i + current_buffer) % FPGA_CONFIG_BUFFER_SIZE;
@@ -710,6 +718,24 @@ static uint32_t intel_sdm_safe_inject_seu_err(uint32_t *command, uint32_t len)
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
+
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+/* SMMU HPS Remapper */
+void intel_smmu_hps_remapper_init(uint64_t *mem)
+{
+	/* Read out Bit 1 value */
+	uint32_t remap = (mmio_read_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_POR_1)) & 0x02);
+
+	if (remap == 0x00) {
+		/* Update DRAM Base address for SDM SMMU */
+		mmio_write_32(SOCFPGA_SYSMGR(SDM_BE_ARADDR_REMAP), DRAM_BASE);
+		mmio_write_32(SOCFPGA_SYSMGR(SDM_BE_AWADDR_REMAP), DRAM_BASE);
+		*mem = *mem - DRAM_BASE;
+	} else {
+		*mem = *mem - DRAM_BASE;
+	}
+}
+#endif
 
 /*
  * This function is responsible for handling all SiP calls from the NS world

@@ -243,6 +243,10 @@ void mailbox_clear_response(void);
 int intel_mailbox_get_config_status(uint32_t cmd, bool init_done);
 int intel_mailbox_is_fpga_not_ready(void);
 
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+void intel_smmu_hps_remapper_init(uint64_t *mem);
+#endif
+
 int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, uint32_t resp_buf_len);
 int mailbox_rsu_status(uint32_t *resp_buf, uint32_t resp_buf_len);
 int mailbox_rsu_update(uint32_t *flash_offset);
