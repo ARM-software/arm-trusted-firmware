@@ -33,6 +33,8 @@
  */
 #define NRD_CSS_BL31_SIZE		UL(116 * 1024)	/* 116 KB */
 
+#define NRD_CSS_DRAM1_CARVEOUT_SIZE	UL(0x0C000000)	/* 117MB */
+
 /*******************************************************************************
  * Console config
  ******************************************************************************/
@@ -68,5 +70,11 @@
 			BL1_RW_BASE,					\
 			BL1_RW_LIMIT - BL1_RW_BASE,			\
 			MT_MEMORY | MT_RW | EL3_PAS)
+
+#define NRD_CSS_NS_DRAM1_MMAP						\
+		MAP_REGION_FLAT(					\
+			ARM_NS_DRAM1_BASE,				\
+			ARM_NS_DRAM1_SIZE,				\
+			MT_MEMORY | MT_RW | MT_NS)
 
 #endif /* NRD_CSS_FW_DEF3_H */

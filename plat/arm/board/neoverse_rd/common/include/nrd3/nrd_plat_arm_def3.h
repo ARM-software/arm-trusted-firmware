@@ -62,7 +62,7 @@
 # define PLAT_ARM_MMAP_ENTRIES		U(8)
 # define MAX_XLAT_TABLES		U(5)
 #elif defined(IMAGE_BL2)
-# define PLAT_ARM_MMAP_ENTRIES		(13 + (NRD_CHIP_COUNT - 1))
+# define PLAT_ARM_MMAP_ENTRIES		(14 + (NRD_CHIP_COUNT - 1))
 # define MAX_XLAT_TABLES		(11  + ((NRD_CHIP_COUNT - 1) * 2))
 #else
 # define PLAT_ARM_MMAP_ENTRIES		U(7)
@@ -561,6 +561,124 @@
 					 ARM_BL_REGIONS)
 
 /*******************************************************************************
+ * DRAM layout
+ ******************************************************************************/
+
+/*
+ * The top 100MB of DRAM1 is configured as follows:
+ *   - L1 GPT DRAM: Reserved for L1 GPT if RME is enabled
+ *   - TF-A <-> RMM SHARED: Area shared for communication between TF-A and RMM
+ *   - REALM DRAM: Reserved for Realm world if RME is enabled
+ *
+ *                    DRAM layout
+ *               +------------------+
+ *               |   REALM (RMM)    |
+ *               |   (32MB - 4KB)   |
+ *               +------------------+
+ *               |                  |
+ *               |   TF-A <-> RMM   |
+ *               |   SHARED (4KB)   |
+ *               +------------------+
+ *               |       L1 GPT     |
+ *               |                  |
+ *     DRAM1 End +------------------+
+ */
+
+/* Number of DRAM banks */
+#define ARM_DRAM_NUM_BANKS		U(2)
+
+/*******************************************************************************
+ * DRAM bank1 specific defines.
+ ******************************************************************************/
+
+/* Bank-1 DRAM */
+#define ARM_DRAM1_BASE			UL(0x80000000)
+#define ARM_DRAM1_SIZE			UL(0x80000000)
+#define ARM_DRAM1_END			(ARM_DRAM1_BASE +		\
+					 ARM_DRAM1_SIZE - 1U)
+
+/*******************************************************************************
+ * DRAM bank2 specific defines.
+ ******************************************************************************/
+
+/* Bank-2 DRAM */
+#define ARM_DRAM2_BASE			PLAT_ARM_DRAM2_BASE
+#define ARM_DRAM2_SIZE			PLAT_ARM_DRAM2_SIZE
+#define ARM_DRAM2_END			(ARM_DRAM2_BASE +		\
+					 ARM_DRAM2_SIZE - 1U)
+
+/*******************************************************************************
+ * L1GPT specific defines.
+ ******************************************************************************/
+
+/* 2MB per L1 entry, PPS - 48 bits, PGS - 4KB, L0GPTSZ - 16GB */
+#define ARM_L1_GPT_SIZE			(UL(40 * 1024 * 1024) +		\
+					((NRD_CHIP_COUNT - 1) *		\
+					(4 * 1024 * 1024)))
+
+#define ARM_L1_GPT_BASE			(ARM_DRAM1_BASE +		\
+					 ARM_DRAM1_SIZE -		\
+					 ARM_L1_GPT_SIZE)
+#define ARM_L1_GPT_END			(ARM_L1_GPT_BASE +		\
+					 ARM_L1_GPT_SIZE - 1U)
+
+/*******************************************************************************
+ * "RMM TF-A shared region" specific defines.
+ ******************************************************************************/
+
+/* PLAT_ARM_EL3_RMM_SHARED_SIZE */
+#define ARM_EL3_RMM_SHARED_SIZE		(PAGE_SIZE)    /* 4KB */
+
+#define ARM_EL3_RMM_SHARED_BASE		(ARM_L1_GPT_BASE -		\
+					 ARM_EL3_RMM_SHARED_SIZE)
+
+#define ARM_EL3_RMM_SHARED_END		(ARM_EL3_RMM_SHARED_BASE +	\
+					 ARM_EL3_RMM_SHARED_SIZE - 1U)
+
+/*******************************************************************************
+ * RMM specific defines.
+ ******************************************************************************/
+
+/* ARM_REALM_SIZE */
+#define ARM_REALM_SIZE			(UL(0x02600000) -		\
+					 ARM_EL3_RMM_SHARED_SIZE)
+#define ARM_REALM_BASE			(ARM_EL3_RMM_SHARED_BASE -	\
+					 ARM_REALM_SIZE)
+
+#define ARM_REALM_END			(ARM_REALM_BASE + ARM_REALM_SIZE - 1U)
+
+#define RMM_BASE			(ARM_REALM_BASE)
+#define RMM_LIMIT			(RMM_BASE + ARM_REALM_SIZE)
+#define RMM_SHARED_BASE			(ARM_EL3_RMM_SHARED_BASE)
+#define RMM_SHARED_SIZE			(ARM_EL3_RMM_SHARED_SIZE)
+
+/*******************************************************************************
+ * NRD_CSS_CARVEOUT_RESERVED region specific defines.
+ ******************************************************************************/
+
+#define NRD_CSS_CARVEOUT_RESERVED_BASE	(ARM_DRAM1_BASE +		\
+					 ARM_DRAM1_SIZE -		\
+					 NRD_CSS_DRAM1_CARVEOUT_SIZE)
+#define NRD_CSS_CARVEOUT_RESERVED_SIZE	(NRD_CSS_DRAM1_CARVEOUT_SIZE -	\
+					(ARM_EL3_RMM_SHARED_SIZE +	\
+					 ARM_REALM_SIZE +		\
+					 ARM_L1_GPT_SIZE))
+
+#define NRD_CSS_CARVEOUT_RESERVED_END	(NRD_CSS_CARVEOUT_RESERVED_BASE +\
+					 NRD_CSS_CARVEOUT_RESERVED_SIZE - 1U)
+
+/*******************************************************************************
+ * NS RAM specific defines specific defines.
+ ******************************************************************************/
+
+#define ARM_NS_DRAM1_BASE		ARM_DRAM1_BASE
+#define ARM_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
+					 NRD_CSS_DRAM1_CARVEOUT_SIZE)
+
+#define ARM_NS_DRAM1_END		(ARM_NS_DRAM1_BASE +		\
+					 ARM_NS_DRAM1_SIZE - 1U)
+
+/*******************************************************************************
  * MMU mapping
  ******************************************************************************/
 
@@ -613,5 +731,11 @@
 			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,	\
 			MT_DEVICE | MT_RW | EL3_PAS)
 #endif
+
+#define ARM_MAP_DRAM2							\
+		MAP_REGION_FLAT(					\
+			ARM_DRAM2_BASE,					\
+			ARM_DRAM2_SIZE,					\
+			MT_MEMORY | MT_RW | MT_NS)
 
 #endif /* NRD_PLAT_ARM_DEF3_H */
