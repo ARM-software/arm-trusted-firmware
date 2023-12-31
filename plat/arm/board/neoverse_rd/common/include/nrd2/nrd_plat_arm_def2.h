@@ -339,19 +339,6 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
  * ROS peripheral config
  ******************************************************************************/
 
-#define SOC_CSS_NIC400_USB_EHCI			U(0)
-#define SOC_CSS_NIC400_TLX_MASTER		U(1)
-#define SOC_CSS_NIC400_USB_OHCI			U(2)
-#define SOC_CSS_NIC400_PL354_SMC		U(3)
-#define SOC_CSS_NIC400_APB4_BRIDGE		U(4)
-#define SOC_CSS_NIC400_BOOTSEC_BRIDGE		U(5)
-#define SOC_CSS_NIC400_BOOTSEC_BRIDGE_UART1	UL(1 << 12)
-
-#define SOC_CSS_PCIE_CONTROL_BASE		UL(0x0ef20000)
-
-/* SoC NIC-400 Global Programmers View (GPV) */
-#define SOC_CSS_NIC400_BASE			UL(0x0ED00000)
-
 /* Non-volatile counters */
 #define SOC_TRUSTED_NVCTR_BASE		NRD_ROS_PLATFORM_PERIPH_BASE +	\
 						UL(0x00E70000)
@@ -359,15 +346,6 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
 #define TFW_NVCTR_SIZE			U(4)
 #define NTFW_CTR_BASE			(SOC_TRUSTED_NVCTR_BASE + 0x0004)
 #define NTFW_CTR_SIZE			U(4)
-
-/* Keys */
-#define SOC_KEYS_BASE				UL(0x0EE80000)
-#define TZ_PUB_KEY_HASH_BASE			(SOC_KEYS_BASE + 0x0000)
-#define TZ_PUB_KEY_HASH_SIZE			U(32)
-#define HU_KEY_BASE				(SOC_KEYS_BASE + 0x0020)
-#define HU_KEY_SIZE				U(16)
-#define END_KEY_BASE				(SOC_KEYS_BASE + 0x0044)
-#define END_KEY_SIZE				U(32)
 
 /*******************************************************************************
  * MMU config
