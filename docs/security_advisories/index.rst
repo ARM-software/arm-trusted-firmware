@@ -15,3 +15,4 @@ Security Advisories
    security-advisory-tfv-8.rst
    security-advisory-tfv-9.rst
    security-advisory-tfv-10.rst
+   security-advisory-tfv-11.rst
