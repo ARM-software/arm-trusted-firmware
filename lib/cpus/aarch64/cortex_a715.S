@@ -32,6 +32,34 @@ workaround_reset_end cortex_a715, ERRATUM(2331818)
 
 check_erratum_ls cortex_a715, ERRATUM(2331818), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a715, ERRATUM(2344187), ERRATA_A715_2344187
+	/* GCR_EL1 is only present with FEAT_MTE2. */
+	mrs x1, ID_AA64PFR1_EL1
+	ubfx x0, x1, ID_AA64PFR1_EL1_MTE_SHIFT, #4
+	cmp x0, #MTE_IMPLEMENTED_ELX
+	bne #1f
+	sysreg_bit_set GCR_EL1, GCR_EL1_RRND_BIT
+
+1:
+	/* Mitigation upon ERETAA and ERETAB. */
+	mov x0, #2
+	msr CORTEX_A715_CPUPSELR_EL3, x0
+	isb
+	ldr x0, =0xd69f0bff
+	msr CORTEX_A715_CPUPOR_EL3, x0
+	ldr x0, =0xfffffbff
+	msr CORTEX_A715_CPUPMR_EL3, x0
+	mov x1, #0
+	orr x1, x1, #(1<<0)
+	orr x1, x1, #(3<<4)
+	orr x1, x1, #(0xf<<6)
+	orr x1, x1, #(1<<13)
+	orr x1, x1, #(1<<53)
+	msr CORTEX_A715_CPUPCR_EL3, x1
+workaround_reset_end cortex_a715, ERRATUM(2344187)
+
+check_erratum_ls cortex_a715, ERRATUM(2344187), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a715, ERRATUM(2420947), ERRATA_A715_2420947
         sysreg_bit_set CORTEX_A715_CPUACTLR2_EL1, BIT(33)
 workaround_reset_end cortex_a715, ERRATUM(2420947)
