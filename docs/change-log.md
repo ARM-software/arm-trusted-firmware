@@ -3,6 +3,20 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.14](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.13..refs/tags/lts-v2.8.14) (2024-01-03)
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A520 erratum 2630792 ([03237dd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/03237dd7b2c2d508303d2c023b6c5e0f7d2eac9b))
+    - workaround for Cortex-A520 erratum 2858100 ([d04495b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d04495b1af503553c709b988679610a8aef85246))
+    - workaround for Cortex-A710 erratum 2778471 ([0dec81e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0dec81ebff57cacbf11fd333b3834cbc1454a5dd))
+    - workaround for Cortex-X2 erratum 2778471 ([45bf33e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/45bf33eba1fda076b525112e5c9111863725191f))
+    - add Cortex-A520 definitions ([5442738](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5442738cf6e7ee2d99d7811c9efbf214ac1e3859))
+
 ## [lts-2.8.13](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.12..refs/tags/lts-v2.8.13) (2023-12-05)
 
 ### Resolved Issues
@@ -7422,7 +7436,7 @@ releases of TF-A.
 
 ______________________________________________________________________
 
-*Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.*
 
 [mbed tls releases]: https://tls.mbed.org/tech-updates/releases
 [pr#1002]: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193
