@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023, STMicroelectronics - All Rights Reserved
+# Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -45,6 +45,8 @@ PLAT_INCLUDES			+=	-Iplat/st/stm32mp2/include/
 PLAT_BL_COMMON_SOURCES		+=	lib/cpus/${ARCH}/cortex_a35.S
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/uart/${ARCH}/stm32_console.S
 PLAT_BL_COMMON_SOURCES		+=	plat/st/stm32mp2/${ARCH}/stm32mp2_helper.S
+
+PLAT_BL_COMMON_SOURCES		+=	drivers/st/bsec/bsec3.c
 
 BL2_SOURCES			+=	plat/st/stm32mp2/plat_bl2_mem_params_desc.c
 BL2_SOURCES			+=	plat/st/stm32mp2/bl2_plat_setup.c

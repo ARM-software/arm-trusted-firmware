@@ -158,6 +158,96 @@ enum ddr_type {
 #define STM32MP_SDMMC3_BASE			U(0x48240000)
 
 /*******************************************************************************
+ * STM32MP2 BSEC / OTP
+ ******************************************************************************/
+/*
+ * 367 available OTPs, the other are masked
+ * - ECIES key: 368 to 375 (only readable by bootrom)
+ * - HWKEY: 376 to 383 (never reloadable or readable)
+ */
+#define STM32MP2_OTP_MAX_ID			U(0x16F)
+#define STM32MP2_MID_OTP_START			U(0x80)
+#define STM32MP2_UPPER_OTP_START		U(0x100)
+
+/* OTP labels */
+#define PART_NUMBER_OTP				"part-number-otp"
+#define PACKAGE_OTP				"package-otp"
+#define HCONF1_OTP				"otp124"
+#define NAND_OTP				"otp16"
+#define NAND2_OTP				"otp20"
+#define BOARD_ID_OTP				"board-id"
+#define UID_OTP					"uid-otp"
+#define LIFECYCLE2_OTP				"otp18"
+#define PKH_OTP					"otp144"
+#define ENCKEY_OTP				"otp260"
+
+/* OTP mask */
+/* PACKAGE */
+#define PACKAGE_OTP_PKG_MASK			GENMASK_32(2, 0)
+#define PACKAGE_OTP_PKG_SHIFT			U(0)
+
+/* IWDG OTP */
+#define HCONF1_OTP_IWDG_HW_POS			U(0)
+#define HCONF1_OTP_IWDG_FZ_STOP_POS		U(1)
+#define HCONF1_OTP_IWDG_FZ_STANDBY_POS		U(2)
+
+/* NAND OTP */
+/* NAND parameter storage flag */
+#define NAND_PARAM_STORED_IN_OTP		BIT_32(31)
+
+/* NAND page size in bytes */
+#define NAND_PAGE_SIZE_MASK			GENMASK_32(30, 29)
+#define NAND_PAGE_SIZE_SHIFT			U(29)
+#define NAND_PAGE_SIZE_2K			U(0)
+#define NAND_PAGE_SIZE_4K			U(1)
+#define NAND_PAGE_SIZE_8K			U(2)
+
+/* NAND block size in pages */
+#define NAND_BLOCK_SIZE_MASK			GENMASK_32(28, 27)
+#define NAND_BLOCK_SIZE_SHIFT			U(27)
+#define NAND_BLOCK_SIZE_64_PAGES		U(0)
+#define NAND_BLOCK_SIZE_128_PAGES		U(1)
+#define NAND_BLOCK_SIZE_256_PAGES		U(2)
+
+/* NAND number of block (in unit of 256 blocks) */
+#define NAND_BLOCK_NB_MASK			GENMASK_32(26, 19)
+#define NAND_BLOCK_NB_SHIFT			U(19)
+#define NAND_BLOCK_NB_UNIT			U(256)
+
+/* NAND bus width in bits */
+#define NAND_WIDTH_MASK				BIT_32(18)
+#define NAND_WIDTH_SHIFT			U(18)
+
+/* NAND number of ECC bits per 512 bytes */
+#define NAND_ECC_BIT_NB_MASK			GENMASK_32(17, 15)
+#define NAND_ECC_BIT_NB_SHIFT			U(15)
+#define NAND_ECC_BIT_NB_UNSET			U(0)
+#define NAND_ECC_BIT_NB_1_BITS			U(1)
+#define NAND_ECC_BIT_NB_4_BITS			U(2)
+#define NAND_ECC_BIT_NB_8_BITS			U(3)
+#define NAND_ECC_ON_DIE				U(4)
+
+/* NAND number of planes */
+#define NAND_PLANE_BIT_NB_MASK			BIT_32(14)
+
+/* NAND2 OTP */
+#define NAND2_PAGE_SIZE_SHIFT			U(16)
+
+/* NAND2 config distribution */
+#define NAND2_CONFIG_DISTRIB			BIT_32(0)
+#define NAND2_PNAND_NAND2_SNAND_NAND1		U(0)
+#define NAND2_PNAND_NAND1_SNAND_NAND2		U(1)
+
+/* MONOTONIC OTP */
+#define MAX_MONOTONIC_VALUE			U(32)
+
+/* UID OTP */
+#define UID_WORD_NB				U(3)
+
+/* Lifecycle OTP */
+#define SECURE_BOOT_CLOSED_SECURE		GENMASK_32(3, 0)
+
+/*******************************************************************************
  * STM32MP2 TAMP
  ******************************************************************************/
 #define PLAT_MAX_TAMP_INT			U(5)
