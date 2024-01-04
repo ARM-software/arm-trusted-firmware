@@ -222,6 +222,10 @@ ifeq (${MEASURED_BOOT},1)
     endif
 endif
 
+ifeq (${TRNG_SUPPORT},1)
+	BL31_SOURCES	+=	plat/arm/board/tc/tc_trng.c
+endif
+
 ifneq (${PLATFORM_TEST},)
     # Add this include as first, before arm_common.mk. This is necessary
     # because arm_common.mk builds Mbed TLS, and platform_test.mk can
