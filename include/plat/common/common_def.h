@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,38 @@
 
 #include <platform_def.h>
 
+#ifdef __aarch64__
+#define SZ_32				UL(0x00000020)
+#define SZ_64				UL(0x00000040)
+#define SZ_128				UL(0x00000080)
+#define SZ_256				UL(0x00000100)
+#define SZ_512				UL(0x00000200)
+
+#define SZ_1K				UL(0x00000400)
+#define SZ_2K				UL(0x00000800)
+#define SZ_4K				UL(0x00001000)
+#define SZ_8K				UL(0x00002000)
+#define SZ_16K				UL(0x00004000)
+#define SZ_32K				UL(0x00008000)
+#define SZ_64K				UL(0x00010000)
+#define SZ_128K				UL(0x00020000)
+#define SZ_256K				UL(0x00040000)
+#define SZ_512K				UL(0x00080000)
+
+#define SZ_1M				UL(0x00100000)
+#define SZ_2M				UL(0x00200000)
+#define SZ_4M				UL(0x00400000)
+#define SZ_8M				UL(0x00800000)
+#define SZ_16M				UL(0x01000000)
+#define SZ_32M				UL(0x02000000)
+#define SZ_64M				UL(0x04000000)
+#define SZ_128M				UL(0x08000000)
+#define SZ_256M				UL(0x10000000)
+#define SZ_512M				UL(0x20000000)
+
+#define SZ_1G				UL(0x40000000)
+#define SZ_2G				UL(0x80000000)
+#else /* !__aarch64__ */
 #define SZ_32				U(0x00000020)
 #define SZ_64				U(0x00000040)
 #define SZ_128				U(0x00000080)
@@ -42,6 +74,7 @@
 
 #define SZ_1G				U(0x40000000)
 #define SZ_2G				U(0x80000000)
+#endif /* __aarch64__ */
 
 /******************************************************************************
  * Required platform porting definitions that are expected to be common to
