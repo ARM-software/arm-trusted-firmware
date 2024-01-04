@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) 2022-2023, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2024, STMicroelectronics - All Rights Reserved
  * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for STMicroelectronics.
  */
 #include <dt-bindings/clock/stm32mp13-clks.h>
@@ -420,25 +420,25 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			cfg0_otp: cfg0_otp@0 {
+			cfg0_otp: cfg0-otp@0 {
 				reg = <0x0 0x2>;
 			};
 			part_number_otp: part-number-otp@4 {
 				reg = <0x4 0x2>;
 			};
-			monotonic_otp: monotonic_otp@10 {
+			monotonic_otp: monotonic-otp@10 {
 				reg = <0x10 0x4>;
 			};
-			nand_otp: cfg9_otp@24 {
+			nand_otp: cfg9-otp@24 {
 				reg = <0x24 0x4>;
 			};
-			nand2_otp: cfg10_otp@28 {
+			nand2_otp: cfg10-otp@28 {
 				reg = <0x28 0x4>;
 			};
-			uid_otp: uid_otp@34 {
+			uid_otp: uid-otp@34 {
 				reg = <0x34 0xc>;
 			};
-			hw2_otp: hw2_otp@48 {
+			hw2_otp: hw2-otp@48 {
 				reg = <0x48 0x4>;
 			};
 			ts_cal1: calib@5c {
@@ -447,14 +447,14 @@
 			ts_cal2: calib@5e {
 				reg = <0x5e 0x2>;
 			};
-			pkh_otp: pkh_otp@60 {
+			pkh_otp: pkh-otp@60 {
 				reg = <0x60 0x20>;
 			};
-			mac_addr: mac_addr@e4 {
+			mac_addr: mac@e4 {
 				reg = <0xe4 0xc>;
 				st,non-secure-otp;
 			};
-			enckey_otp: enckey_otp@170 {
+			oem_enc_key: oem-enc-key@170 {
 				reg = <0x170 0x10>;
 			};
 		};
