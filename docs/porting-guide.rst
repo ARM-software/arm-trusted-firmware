@@ -1712,6 +1712,18 @@ This function can be used by the platforms to update/use image information
 corresponding to ``image_id``. This function is invoked in BL1, both in cold
 boot and FWU code path, before loading the image.
 
+Function : bl1_plat_calc_bl2_layout() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : const meminfo_t *bl1_mem_layout, meminfo_t *bl2_mem_layout
+    Return   : void
+
+This utility function calculates the memory layout of BL2, representing it in a
+`meminfo_t` structure. The default implementation derives this layout from the
+positioning of BL1’s RW data at the top of the memory layout.
+
 Function : bl1_plat_handle_post_image_load() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

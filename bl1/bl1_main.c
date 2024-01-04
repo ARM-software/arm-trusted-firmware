@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,27 +37,6 @@ uint64_t bl1_apiakey[2];
 	PMF_REGISTER_SERVICE(bl_svc, PMF_RT_INSTR_SVC_ID,
 		BL_TOTAL_IDS, PMF_DUMP_ENABLE)
 #endif
-
-/*******************************************************************************
- * Helper utility to calculate the BL2 memory layout taking into consideration
- * the BL1 RW data assuming that it is at the top of the memory layout.
- ******************************************************************************/
-void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
-			meminfo_t *bl2_mem_layout)
-{
-	assert(bl1_mem_layout != NULL);
-	assert(bl2_mem_layout != NULL);
-
-	/*
-	 * Remove BL1 RW data from the scope of memory visible to BL2.
-	 * This is assuming BL1 RW data is at the top of bl1_mem_layout.
-	 */
-	assert(BL1_RW_BASE > bl1_mem_layout->total_base);
-	bl2_mem_layout->total_base = bl1_mem_layout->total_base;
-	bl2_mem_layout->total_size = BL1_RW_BASE - bl1_mem_layout->total_base;
-
-	flush_dcache_range((uintptr_t)bl2_mem_layout, sizeof(meminfo_t));
-}
 
 /*******************************************************************************
  * Setup function for BL1.

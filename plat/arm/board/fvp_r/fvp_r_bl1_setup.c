@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -235,7 +235,7 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	 */
 	bl33_secram_layout = (meminfo_t *) bl1_secram_layout->total_base;
 
-	bl1_calc_bl2_mem_layout(bl1_secram_layout, bl33_secram_layout);
+	bl1_plat_calc_bl2_layout(bl1_secram_layout, bl33_secram_layout);
 
 	ep_info->args.arg1 = (uintptr_t)bl33_secram_layout;
 
