@@ -114,6 +114,7 @@ endif
 BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/plat_console.c		\
+				plat/xilinx/common/plat_clkfunc.c		\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/versal.c			\

@@ -111,6 +111,10 @@
 #define CRF_RST_APU_ACPU_RESET		(1 << 0)
 #define CRF_RST_APU_ACPU_PWRON_RESET	(1 << 10)
 
+/* IOU SCNTRS */
+#define IOU_SCNTRS_BASE	U(0xFF140000)
+#define IOU_SCNTRS_BASE_FREQ_OFFSET	U(0x20)
+
 /* APU registers and bitfields */
 #define FPD_APU_BASE		0xFD5C0000U
 #define FPD_APU_CONFIG_0	(FPD_APU_BASE + 0x20U)

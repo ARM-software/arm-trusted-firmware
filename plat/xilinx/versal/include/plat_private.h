@@ -22,7 +22,7 @@ void versal_config_setup(void);
 
 const mmap_region_t *plat_get_mmap(void);
 
-extern uint32_t platform_id, platform_version;
+extern uint32_t cpu_clock, platform_id, platform_version;
 
 void board_detection(void);
 void plat_versal_gic_driver_init(void);
