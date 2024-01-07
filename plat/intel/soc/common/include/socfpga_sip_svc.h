@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -64,6 +65,7 @@
 #define INTEL_SIP_SMC_RSU_COPY_MAX_RETRY				0xC2000013
 #define INTEL_SIP_SMC_RSU_DCMF_STATUS					0xC2000014
 #define INTEL_SIP_SMC_RSU_COPY_DCMF_STATUS				0xC2000015
+#define INTEL_SIP_SMC_RSU_GET_DEVICE_INFO				0xC2000016
 
 /* Hardware monitor */
 #define INTEL_SIP_SMC_HWMON_READTEMP					0xC2000020
