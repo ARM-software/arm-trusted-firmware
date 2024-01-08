@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 
 #include <platform_def.h>
 
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -23,30 +24,33 @@
 #endif
 #include <lib/utils.h>
 #include <plat/common/platform.h>
+#if ENABLE_RME
+#include <qemu_pas_def.h>
+#endif
 
 #include "qemu_private.h"
 
 #define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
 					bl2_tzram_layout.total_base,	\
 					bl2_tzram_layout.total_size,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #define MAP_BL2_RO		MAP_REGION_FLAT(			\
 					BL_CODE_BASE,			\
 					BL_CODE_END - BL_CODE_BASE,	\
-					MT_CODE | MT_SECURE),		\
+					MT_CODE | EL3_PAS),		\
 				MAP_REGION_FLAT(			\
 					BL_RO_DATA_BASE,		\
 					BL_RO_DATA_END			\
 						- BL_RO_DATA_BASE,	\
-					MT_RO_DATA | MT_SECURE)
+					MT_RO_DATA | EL3_PAS)
 
 #if USE_COHERENT_MEM
 #define MAP_BL_COHERENT_RAM	MAP_REGION_FLAT(			\
 					BL_COHERENT_RAM_BASE,		\
 					BL_COHERENT_RAM_END		\
 						- BL_COHERENT_RAM_BASE,	\
-					MT_DEVICE | MT_RW | MT_SECURE)
+					MT_DEVICE | MT_RW | EL3_PAS)
 #endif
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
@@ -101,6 +105,18 @@ static void update_dt(void)
 		return;
 	}
 
+#if ENABLE_RME
+	if (fdt_add_reserved_memory(fdt, "rmm", REALM_DRAM_BASE,
+				    REALM_DRAM_SIZE)) {
+		ERROR("Failed to reserve RMM memory in Device Tree\n");
+		return;
+	}
+
+	INFO("Reserved RMM memory [0x%lx, 0x%lx] in Device tree\n",
+	     (uintptr_t)REALM_DRAM_BASE,
+	     (uintptr_t)REALM_DRAM_BASE + REALM_DRAM_SIZE - 1);
+#endif
+
 	ret = fdt_pack(fdt);
 	if (ret < 0)
 		ERROR("Failed to pack Device Tree at %p: error %d\n", fdt, ret);
@@ -138,6 +154,53 @@ void qemu_bl2_sync_transfer_list(void)
 #endif
 }
 
+#if ENABLE_RME
+static void bl2_plat_gpt_setup(void)
+{
+	/*
+	 * The GPT library might modify the gpt regions structure to optimize
+	 * the layout, so the array cannot be constant.
+	 */
+	pas_region_t pas_regions[] = {
+		QEMU_PAS_ROOT,
+		QEMU_PAS_SECURE,
+		QEMU_PAS_GPTS,
+		QEMU_PAS_NS0,
+		QEMU_PAS_REALM,
+		QEMU_PAS_NS1,
+	};
+
+	/*
+	 * Initialize entire protected space to GPT_GPI_ANY. With each L0 entry
+	 * covering 1GB (currently the only supported option), then covering
+	 * 256TB of RAM (48-bit PA) would require a 2MB L0 region. At the
+	 * moment we use a 8KB table, which covers 1TB of RAM (40-bit PA).
+	 */
+	if (gpt_init_l0_tables(GPCCR_PPS_1TB, PLAT_QEMU_L0_GPT_BASE,
+			       PLAT_QEMU_L0_GPT_SIZE) < 0) {
+		ERROR("gpt_init_l0_tables() failed!\n");
+		panic();
+	}
+
+	/* Carve out defined PAS ranges. */
+	if (gpt_init_pas_l1_tables(GPCCR_PGS_4K,
+				   PLAT_QEMU_L1_GPT_BASE,
+				   PLAT_QEMU_L1_GPT_SIZE,
+				   pas_regions,
+				   (unsigned int)(sizeof(pas_regions) /
+						  sizeof(pas_region_t))) < 0) {
+		ERROR("gpt_init_pas_l1_tables() failed!\n");
+		panic();
+	}
+
+	INFO("Enabling Granule Protection Checks\n");
+	if (gpt_enable() < 0) {
+		ERROR("gpt_enable() failed!\n");
+		panic();
+	}
+}
+#endif
+
 void bl2_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
@@ -146,16 +209,31 @@ void bl2_plat_arch_setup(void)
 #if USE_COHERENT_MEM
 		MAP_BL_COHERENT_RAM,
 #endif
+#if ENABLE_RME
+		MAP_RMM_DRAM,
+		MAP_GPT_L0_REGION,
+		MAP_GPT_L1_REGION,
+#endif
 		{0}
 	};
 
 	setup_page_tables(bl_regions, plat_qemu_get_mmap());
+
+#if ENABLE_RME
+	/* BL2 runs in EL3 when RME enabled. */
+	assert(get_armv9_2_feat_rme_support() != 0U);
+	enable_mmu_el3(0);
+
+	/* Initialise and enable granule protection after MMU. */
+	bl2_plat_gpt_setup();
+#else /* ENABLE_RME */
 
 #ifdef __aarch64__
 	enable_mmu_el1(0);
 #else
 	enable_mmu_svc_mon(0);
 #endif
+#endif /* ENABLE_RME */
 }
 
 /*******************************************************************************

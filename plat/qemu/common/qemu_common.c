@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,45 +11,48 @@
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <services/el3_spmc_ffa_memory.h>
+#if ENABLE_RME
+#include <services/rmm_core_manifest.h>
+#endif
 
 #include <plat/common/platform.h>
 #include "qemu_private.h"
 
 #define MAP_DEVICE0	MAP_REGION_FLAT(DEVICE0_BASE,			\
 					DEVICE0_SIZE,			\
-					MT_DEVICE | MT_RW | MT_SECURE)
+					MT_DEVICE | MT_RW | EL3_PAS)
 
 #ifdef DEVICE1_BASE
 #define MAP_DEVICE1	MAP_REGION_FLAT(DEVICE1_BASE,			\
 					DEVICE1_SIZE,			\
-					MT_DEVICE | MT_RW | MT_SECURE)
+					MT_DEVICE | MT_RW | EL3_PAS)
 #endif
 
 #ifdef DEVICE2_BASE
 #define MAP_DEVICE2	MAP_REGION_FLAT(DEVICE2_BASE,			\
 					DEVICE2_SIZE,			\
-					MT_DEVICE | MT_RW | MT_SECURE)
+					MT_DEVICE | MT_RW | EL3_PAS)
 #endif
 
 #define MAP_SHARED_RAM	MAP_REGION_FLAT(SHARED_RAM_BASE,		\
 					SHARED_RAM_SIZE,		\
-					MT_DEVICE  | MT_RW | MT_SECURE)
+					MT_DEVICE  | MT_RW | EL3_PAS)
 
 #define MAP_BL32_MEM	MAP_REGION_FLAT(BL32_MEM_BASE, BL32_MEM_SIZE,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #define MAP_NS_DRAM0	MAP_REGION_FLAT(NS_DRAM0_BASE, NS_DRAM0_SIZE,	\
 					MT_MEMORY | MT_RW | MT_NS)
 
 #define MAP_FLASH0	MAP_REGION_FLAT(QEMU_FLASH0_BASE, QEMU_FLASH0_SIZE, \
-					MT_MEMORY | MT_RO | MT_SECURE)
+					MT_MEMORY | MT_RO | EL3_PAS)
 
 #define MAP_FLASH1	MAP_REGION_FLAT(QEMU_FLASH1_BASE, QEMU_FLASH1_SIZE, \
-					MT_MEMORY | MT_RO | MT_SECURE)
+					MT_MEMORY | MT_RO | EL3_PAS)
 
 #ifdef FW_HANDOFF_BASE
 #define MAP_FW_HANDOFF MAP_REGION_FLAT(FW_HANDOFF_BASE, FW_HANDOFF_SIZE, \
-				       MT_MEMORY | MT_RW | MT_SECURE)
+				       MT_MEMORY | MT_RW | EL3_PAS)
 #endif
 #ifdef FW_NS_HANDOFF_BASE
 #define MAP_FW_NS_HANDOFF MAP_REGION_FLAT(FW_NS_HANDOFF_BASE, FW_HANDOFF_SIZE, \
@@ -138,6 +141,19 @@ static const mmap_region_t plat_qemu_mmap[] = {
 };
 #endif
 
+#ifdef IMAGE_RMM
+const mmap_region_t plat_qemu_mmap[] = {
+	MAP_DEVICE0,
+#ifdef MAP_DEVICE1
+	MAP_DEVICE1,
+#endif
+#ifdef MAP_DEVICE2
+	MAP_DEVICE2,
+#endif
+	{0}
+};
+#endif
+
 /*******************************************************************************
  * Returns QEMU platform specific memory map regions.
  ******************************************************************************/
@@ -190,3 +206,76 @@ int plat_spmd_handle_group0_interrupt(uint32_t intid)
 	return -1;
 }
 #endif /*defined(SPD_spmd) && (SPMC_AT_EL3 == 0)*/
+
+#if ENABLE_RME
+/*
+ * Get a pointer to the RMM-EL3 Shared buffer and return it
+ * through the pointer passed as parameter.
+ *
+ * This function returns the size of the shared buffer.
+ */
+size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared)
+{
+	*shared = (uintptr_t)RMM_SHARED_BASE;
+
+	return (size_t)RMM_SHARED_SIZE;
+}
+
+int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
+{
+	uint64_t checksum;
+	uintptr_t base;
+	uint64_t size;
+	struct ns_dram_bank *bank_ptr;
+
+	assert(manifest != NULL);
+
+	manifest->version = RMMD_MANIFEST_VERSION;
+	manifest->padding = 0U; /* RES0 */
+	manifest->plat_data = (uintptr_t)NULL;
+	manifest->plat_dram.num_banks = 1;
+
+	/*
+	 * Array ns_dram_banks[] follows ns_dram_info structure:
+	 *
+	 * +-----------------------------------+
+	 * |  offset  |   field   |  comment   |
+	 * +----------+-----------+------------+
+	 * |    0     |  version  | 0x00000002 |
+	 * +----------+-----------+------------+
+	 * |    4     |  padding  | 0x00000000 |
+	 * +----------+-----------+------------+
+	 * |    8     | plat_data |    NULL    |
+	 * +----------+-----------+------------+
+	 * |    16    | num_banks |            |
+	 * +----------+-----------+            |
+	 * |    24    |   banks   | plat_dram  |
+	 * +----------+-----------+            |
+	 * |    32    | checksum  |            |
+	 * +----------+-----------+------------+
+	 * |    40    |  base 0   |            |
+	 * +----------+-----------+   bank[0]  |
+	 * |    48    |  size 0   |            |
+	 * +----------+-----------+------------+
+	 */
+	bank_ptr = (struct ns_dram_bank *)
+			((uintptr_t)&manifest->plat_dram.checksum +
+			sizeof(manifest->plat_dram.checksum));
+
+	manifest->plat_dram.banks = bank_ptr;
+
+	/* Calculate checksum of plat_dram structure */
+	checksum = 1 + (uint64_t)bank_ptr;
+
+	base = NS_DRAM0_BASE;
+	size = NS_DRAM0_SIZE;
+	bank_ptr[0].base = base;
+	bank_ptr[0].size = size;
+	checksum += base + size;
+
+	/* Checksum must be 0 */
+	manifest->plat_dram.checksum = ~checksum + 1UL;
+
+	return 0;
+}
+#endif  /* ENABLE_RME */

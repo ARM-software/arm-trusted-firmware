@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -171,7 +171,8 @@
 #define BL32_SRAM_BASE			BL_RAM_BASE
 #define BL32_SRAM_LIMIT			BL31_BASE
 #define BL32_DRAM_BASE			SEC_DRAM_BASE
-#define BL32_DRAM_LIMIT			(SEC_DRAM_BASE + SEC_DRAM_SIZE)
+#define BL32_DRAM_LIMIT			(SEC_DRAM_BASE + SEC_DRAM_SIZE - \
+					 RME_GPT_DRAM_SIZE)
 
 #define SEC_SRAM_ID			0
 #define SEC_DRAM_ID			1
@@ -199,7 +200,7 @@
 
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
-#define MAX_MMAP_REGIONS		(11 + MAX_MMAP_REGIONS_SPMC)
+#define MAX_MMAP_REGIONS		(13 + MAX_MMAP_REGIONS_SPMC)
 #define MAX_XLAT_TABLES			(6 + MAX_XLAT_TABLES_SPMC)
 #define MAX_IO_DEVICES			4
 #define MAX_IO_HANDLES			4
@@ -226,7 +227,7 @@
 #define QEMU_FLASH1_SIZE		0x04000000
 
 #define PLAT_QEMU_FIP_BASE		0x00040000
-#define PLAT_QEMU_FIP_MAX_SIZE		0x00400000
+#define PLAT_QEMU_FIP_MAX_SIZE		(QEMU_FLASH0_SIZE - PLAT_QEMU_FIP_BASE)
 
 #define DEVICE0_BASE			0x08000000
 #define DEVICE0_SIZE			0x01000000
@@ -338,4 +339,72 @@
 #define MAX_MMAP_REGIONS_SPMC		0
 #define MAX_XLAT_TABLES_SPMC		0
 #endif
+
+#if ENABLE_RME
+
+/*
+ * Reserve some space at the end of secure DRAM for the Granule Protection
+ * Tables
+ */
+#define PLAT_QEMU_L0_GPT_BASE		(PLAT_QEMU_L1_GPT_BASE -	\
+					 PLAT_QEMU_L0_GPT_SIZE)
+#define PLAT_QEMU_L0_GPT_SIZE		(2 * PAGE_SIZE)
+
+#define PLAT_QEMU_L1_GPT_BASE		(SEC_DRAM_BASE + SEC_DRAM_SIZE - \
+					 PLAT_QEMU_L1_GPT_SIZE)
+#define PLAT_QEMU_L1_GPT_END		(PLAT_QEMU_L1_GPT_BASE +	\
+					 PLAT_QEMU_L1_GPT_SIZE - 1U)
+#define PLAT_QEMU_L1_GPT_SIZE		UL(0x00100000)	/* 1MB */
+
+#define RME_GPT_DRAM_BASE		PLAT_QEMU_L0_GPT_BASE
+#define RME_GPT_DRAM_SIZE		(PLAT_QEMU_L1_GPT_SIZE +	\
+					 PLAT_QEMU_L0_GPT_SIZE)
+
+#ifndef __ASSEMBLER__
+/* L0 table greater than 4KB must be naturally aligned */
+CASSERT((PLAT_QEMU_L0_GPT_BASE & (PLAT_QEMU_L0_GPT_SIZE - 1)) == 0,
+	assert_l0_gpt_naturally_aligned);
+#endif
+
+/* Reserved some DRAM space for RMM (24MB) */
+#define REALM_DRAM_BASE			(NS_DRAM0_BASE + PLAT_QEMU_DT_MAX_SIZE)
+#define REALM_DRAM_SIZE			0x01800000
+
+#define PLAT_QEMU_RMM_SIZE		(REALM_DRAM_SIZE - RMM_SHARED_SIZE)
+#define PLAT_QEMU_RMM_SHARED_SIZE	(PAGE_SIZE)	/* 4KB */
+
+#define RMM_BASE			(REALM_DRAM_BASE)
+#define RMM_LIMIT			(RMM_BASE + PLAT_QEMU_RMM_SIZE)
+#define RMM_SHARED_BASE			(RMM_LIMIT)
+#define RMM_SHARED_SIZE			PLAT_QEMU_RMM_SHARED_SIZE
+
+#define MAP_GPT_L0_REGION	MAP_REGION_FLAT(			\
+					PLAT_QEMU_L0_GPT_BASE,		\
+					PLAT_QEMU_L0_GPT_SIZE,		\
+					MT_MEMORY | MT_RW | EL3_PAS)
+
+#define MAP_GPT_L1_REGION	MAP_REGION_FLAT(			\
+					PLAT_QEMU_L1_GPT_BASE,		\
+					PLAT_QEMU_L1_GPT_SIZE,		\
+					MT_MEMORY | MT_RW | EL3_PAS)
+/*
+ * We add the RMM_SHARED size to RMM mapping to map the region as a block.
+ * Else we end up requiring more pagetables in BL2 for ROMLIB build.
+ */
+#define MAP_RMM_DRAM		MAP_REGION_FLAT(			\
+					RMM_BASE,			\
+					(PLAT_QEMU_RMM_SIZE +		\
+					 RMM_SHARED_SIZE),		\
+					MT_MEMORY | MT_RW | MT_REALM)
+
+#define MAP_RMM_SHARED_MEM	MAP_REGION_FLAT(			\
+					RMM_SHARED_BASE,		\
+					RMM_SHARED_SIZE,		\
+					MT_MEMORY | MT_RW | MT_REALM)
+#else /* !ENABLE_RME */
+
+#define RME_GPT_DRAM_SIZE		0
+
+#endif /* ENABLE_RME */
+
 #endif /* PLATFORM_DEF_H */

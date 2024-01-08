@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 
 #include <common/bl_common.h>
 #include <drivers/arm/pl061_gpio.h>
+#include <lib/gpt_rme/gpt_rme.h>
 #include <plat/common/platform.h>
 
 #include "qemu_private.h"
@@ -40,6 +41,9 @@
  */
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
+#if ENABLE_RME
+static entry_point_info_t rmm_image_ep_info;
+#endif
 
 /*******************************************************************************
  * Perform any BL3-1 early platform setup.  Here is an opportunity to copy
@@ -72,12 +76,17 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl_params_node_t *bl_params = params_from_bl2->head;
 
 	/*
-	 * Copy BL33 and BL32 (if present), entry point information.
+	 * Copy BL33, BL32 and RMM (if present), entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
 	while (bl_params) {
 		if (bl_params->image_id == BL32_IMAGE_ID)
 			bl32_image_ep_info = *bl_params->ep_info;
+
+#if ENABLE_RME
+		if (bl_params->image_id == RMM_IMAGE_ID)
+			rmm_image_ep_info = *bl_params->ep_info;
+#endif
 
 		if (bl_params->image_id == BL33_IMAGE_ID)
 			bl33_image_ep_info = *bl_params->ep_info;
@@ -87,6 +96,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	if (!bl33_image_ep_info.pc)
 		panic();
+#if ENABLE_RME
+	if (!rmm_image_ep_info.pc)
+		panic();
+#endif
 }
 
 void bl31_plat_arch_setup(void)
@@ -97,12 +110,31 @@ void bl31_plat_arch_setup(void)
 #if USE_COHERENT_MEM
 		MAP_BL_COHERENT_RAM,
 #endif
+#if ENABLE_RME
+		MAP_GPT_L0_REGION,
+		MAP_GPT_L1_REGION,
+		MAP_RMM_SHARED_MEM,
+#endif
 		{0}
 	};
 
 	setup_page_tables(bl_regions, plat_qemu_get_mmap());
 
 	enable_mmu_el3(0);
+
+#if ENABLE_RME
+	/*
+	 * Initialise Granule Protection library and enable GPC for the primary
+	 * processor. The tables have already been initialized by a previous BL
+	 * stage, so there is no need to provide any PAS here. This function
+	 * sets up pointers to those tables.
+	 */
+	if (gpt_runtime_init() < 0) {
+		ERROR("gpt_runtime_init() failed!\n");
+		panic();
+	}
+#endif /* ENABLE_RME */
+
 }
 
 static void qemu_gpio_init(void)
@@ -135,8 +167,18 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	entry_point_info_t *next_image_info;
 
 	assert(sec_state_is_valid(type));
-	next_image_info = (type == NON_SECURE)
-			? &bl33_image_ep_info : &bl32_image_ep_info;
+	if (type == NON_SECURE) {
+		next_image_info = &bl33_image_ep_info;
+	}
+#if ENABLE_RME
+	else if (type == REALM) {
+		next_image_info = &rmm_image_ep_info;
+	}
+#endif
+	else {
+		next_image_info =  &bl32_image_ep_info;
+	}
+
 	/*
 	 * None of the images on the ARM development platforms can have 0x0
 	 * as the entrypoint
