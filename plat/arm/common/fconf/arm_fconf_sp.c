@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+#include <string.h>
 
 #include <common/debug.h>
 #include <common/desc_image_load.h>
@@ -27,7 +28,7 @@ struct arm_sp_t arm_sp;
 int fconf_populate_arm_sp(uintptr_t config)
 {
 	int sp_node, node, err;
-	union uuid_helper_t uuid_helper;
+	struct uuid uuid;
 	unsigned int index = 0;
 	uint32_t val32;
 	const unsigned int sip_start = SP_PKG1_ID;
@@ -68,13 +69,14 @@ int fconf_populate_arm_sp(uintptr_t config)
 
 		/* Read UUID */
 		err = fdtw_read_uuid(dtb, sp_node, "uuid", 16,
-				     (uint8_t *)&uuid_helper);
+				     (uint8_t *)&uuid);
 		if (err < 0) {
 			ERROR("FCONF: cannot read SP uuid\n");
 			return -1;
 		}
 
-		arm_sp.uuids[index] = uuid_helper;
+		memcpy_s(&arm_sp.uuids[index].uuid_struct, sizeof(struct uuid),
+			 &uuid, sizeof(struct uuid));
 
 		/* Read Load address */
 		err = fdt_read_uint32(dtb, sp_node, "load-address", &val32);
@@ -88,16 +90,16 @@ int fconf_populate_arm_sp(uintptr_t config)
 			" %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
 			" load_addr=%lx\n",
 			__func__,
-			uuid_helper.uuid_struct.time_low[0], uuid_helper.uuid_struct.time_low[1],
-			uuid_helper.uuid_struct.time_low[2], uuid_helper.uuid_struct.time_low[3],
-			uuid_helper.uuid_struct.time_mid[0], uuid_helper.uuid_struct.time_mid[1],
-			uuid_helper.uuid_struct.time_hi_and_version[0],
-			uuid_helper.uuid_struct.time_hi_and_version[1],
-			uuid_helper.uuid_struct.clock_seq_hi_and_reserved,
-			uuid_helper.uuid_struct.clock_seq_low,
-			uuid_helper.uuid_struct.node[0], uuid_helper.uuid_struct.node[1],
-			uuid_helper.uuid_struct.node[2], uuid_helper.uuid_struct.node[3],
-			uuid_helper.uuid_struct.node[4], uuid_helper.uuid_struct.node[5],
+			uuid.time_low[0], uuid.time_low[1],
+			uuid.time_low[2], uuid.time_low[3],
+			uuid.time_mid[0], uuid.time_mid[1],
+			uuid.time_hi_and_version[0],
+			uuid.time_hi_and_version[1],
+			uuid.clock_seq_hi_and_reserved,
+			uuid.clock_seq_low,
+			uuid.node[0], uuid.node[1],
+			uuid.node[2], uuid.node[3],
+			uuid.node[4], uuid.node[5],
 			arm_sp.load_addr[index]);
 
 		/* Read owner field only for dualroot CoT */
