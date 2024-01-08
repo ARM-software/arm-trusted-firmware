@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -464,6 +464,9 @@ DEFINE_SYSREG_RW_FUNCS(cntp_tval_el0)
 DEFINE_SYSREG_RW_FUNCS(cntp_cval_el0)
 DEFINE_SYSREG_READ_FUNC(cntpct_el0)
 DEFINE_SYSREG_RW_FUNCS(cnthctl_el2)
+DEFINE_SYSREG_RW_FUNCS(cntv_ctl_el0)
+DEFINE_SYSREG_RW_FUNCS(cntv_cval_el0)
+DEFINE_SYSREG_RW_FUNCS(cntkctl_el1)
 
 DEFINE_SYSREG_RW_FUNCS(vtcr_el2)
 
@@ -480,6 +483,9 @@ DEFINE_SYSREG_RW_FUNCS(vtcr_el2)
 #define clr_cntp_ctl_enable(x)  ((x) &= ~(U(1) << CNTP_CTL_ENABLE_SHIFT))
 #define clr_cntp_ctl_imask(x)   ((x) &= ~(U(1) << CNTP_CTL_IMASK_SHIFT))
 
+DEFINE_SYSREG_RW_FUNCS(tpidr_el0)
+DEFINE_SYSREG_RW_FUNCS(tpidr_el1)
+DEFINE_SYSREG_RW_FUNCS(tpidr_el2)
 DEFINE_SYSREG_RW_FUNCS(tpidr_el3)
 
 DEFINE_SYSREG_RW_FUNCS(cntvoff_el2)
@@ -489,7 +495,7 @@ DEFINE_SYSREG_RW_FUNCS(vmpidr_el2)
 
 DEFINE_SYSREG_RW_FUNCS(hacr_el2)
 DEFINE_SYSREG_RW_FUNCS(hpfar_el2)
-DEFINE_SYSREG_RW_FUNCS(tpidr_el2)
+
 DEFINE_SYSREG_RW_FUNCS(dbgvcr32_el2)
 DEFINE_RENAME_SYSREG_RW_FUNCS(ich_hcr_el2, ICH_HCR_EL2)
 DEFINE_RENAME_SYSREG_RW_FUNCS(ich_vmcr_el2, ICH_VMCR_EL2)
@@ -500,6 +506,16 @@ DEFINE_SYSREG_RW_FUNCS(mdcr_el2)
 DEFINE_SYSREG_RW_FUNCS(mdcr_el3)
 DEFINE_SYSREG_RW_FUNCS(hstr_el2)
 DEFINE_SYSREG_RW_FUNCS(pmcr_el0)
+
+DEFINE_SYSREG_RW_FUNCS(csselr_el1)
+DEFINE_SYSREG_RW_FUNCS(tpidrro_el0)
+DEFINE_SYSREG_RW_FUNCS(contextidr_el1)
+DEFINE_SYSREG_RW_FUNCS(spsr_abt)
+DEFINE_SYSREG_RW_FUNCS(spsr_und)
+DEFINE_SYSREG_RW_FUNCS(spsr_irq)
+DEFINE_SYSREG_RW_FUNCS(spsr_fiq)
+DEFINE_SYSREG_RW_FUNCS(dacr32_el2)
+DEFINE_SYSREG_RW_FUNCS(ifsr32_el2)
 
 /* GICv3 System Registers */
 

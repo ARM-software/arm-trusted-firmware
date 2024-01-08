@@ -1429,6 +1429,116 @@ void cm_prepare_el3_exit_ns(void)
 #endif /* CTX_INCLUDE_EL2_REGS */
 }
 
+static void el1_sysregs_context_save(el1_sysregs_t *ctx)
+{
+	write_ctx_reg(ctx, CTX_SPSR_EL1, read_spsr_el1());
+	write_ctx_reg(ctx, CTX_ELR_EL1, read_elr_el1());
+
+#if !ERRATA_SPECULATIVE_AT
+	write_ctx_reg(ctx, CTX_SCTLR_EL1, read_sctlr_el1());
+	write_ctx_reg(ctx, CTX_TCR_EL1, read_tcr_el1());
+#endif /* (!ERRATA_SPECULATIVE_AT) */
+
+	write_ctx_reg(ctx, CTX_CPACR_EL1, read_cpacr_el1());
+	write_ctx_reg(ctx, CTX_CSSELR_EL1, read_csselr_el1());
+	write_ctx_reg(ctx, CTX_SP_EL1, read_sp_el1());
+	write_ctx_reg(ctx, CTX_ESR_EL1, read_esr_el1());
+	write_ctx_reg(ctx, CTX_TTBR0_EL1, read_ttbr0_el1());
+	write_ctx_reg(ctx, CTX_TTBR1_EL1, read_ttbr1_el1());
+	write_ctx_reg(ctx, CTX_MAIR_EL1, read_mair_el1());
+	write_ctx_reg(ctx, CTX_AMAIR_EL1, read_amair_el1());
+	write_ctx_reg(ctx, CTX_ACTLR_EL1, read_actlr_el1());
+	write_ctx_reg(ctx, CTX_TPIDR_EL1, read_tpidr_el1());
+	write_ctx_reg(ctx, CTX_TPIDR_EL0, read_tpidr_el0());
+	write_ctx_reg(ctx, CTX_TPIDRRO_EL0, read_tpidrro_el0());
+	write_ctx_reg(ctx, CTX_PAR_EL1, read_par_el1());
+	write_ctx_reg(ctx, CTX_FAR_EL1, read_far_el1());
+	write_ctx_reg(ctx, CTX_AFSR0_EL1, read_afsr0_el1());
+	write_ctx_reg(ctx, CTX_AFSR1_EL1, read_afsr1_el1());
+	write_ctx_reg(ctx, CTX_CONTEXTIDR_EL1, read_contextidr_el1());
+	write_ctx_reg(ctx, CTX_VBAR_EL1, read_vbar_el1());
+
+#if CTX_INCLUDE_AARCH32_REGS
+	write_ctx_reg(ctx, CTX_SPSR_ABT, read_spsr_abt());
+	write_ctx_reg(ctx, CTX_SPSR_UND, read_spsr_und());
+	write_ctx_reg(ctx, CTX_SPSR_IRQ, read_spsr_irq());
+	write_ctx_reg(ctx, CTX_SPSR_FIQ, read_spsr_fiq());
+	write_ctx_reg(ctx, CTX_DACR32_EL2, read_dacr32_el2());
+	write_ctx_reg(ctx, CTX_IFSR32_EL2, read_ifsr32_el2());
+#endif /* CTX_INCLUDE_AARCH32_REGS */
+
+#if NS_TIMER_SWITCH
+	write_ctx_reg(ctx, CTX_CNTP_CTL_EL0, read_cntp_ctl_el0());
+	write_ctx_reg(ctx, CTX_CNTP_CVAL_EL0, read_cntp_cval_el0());
+	write_ctx_reg(ctx, CTX_CNTV_CTL_EL0, read_cntv_ctl_el0());
+	write_ctx_reg(ctx, CTX_CNTV_CVAL_EL0, read_cntv_cval_el0());
+	write_ctx_reg(ctx, CTX_CNTKCTL_EL1, read_cntkctl_el1());
+#endif /* NS_TIMER_SWITCH */
+
+#if ENABLE_FEAT_MTE
+	write_ctx_reg(ctx, CTX_TFSRE0_EL1, read_tfsre0_el1());
+	write_ctx_reg(ctx, CTX_TFSR_EL1, read_tfsr_el1());
+	write_ctx_reg(ctx, CTX_RGSR_EL1, read_rgsr_el1());
+	write_ctx_reg(ctx, CTX_GCR_EL1, read_gcr_el1());
+#endif /* ENABLE_FEAT_MTE */
+
+}
+
+static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
+{
+	write_spsr_el1(read_ctx_reg(ctx, CTX_SPSR_EL1));
+	write_elr_el1(read_ctx_reg(ctx, CTX_ELR_EL1));
+
+#if !ERRATA_SPECULATIVE_AT
+	write_sctlr_el1(read_ctx_reg(ctx, CTX_SCTLR_EL1));
+	write_tcr_el1(read_ctx_reg(ctx, CTX_TCR_EL1));
+#endif /* (!ERRATA_SPECULATIVE_AT) */
+
+	write_cpacr_el1(read_ctx_reg(ctx, CTX_CPACR_EL1));
+	write_csselr_el1(read_ctx_reg(ctx, CTX_CSSELR_EL1));
+	write_sp_el1(read_ctx_reg(ctx, CTX_SP_EL1));
+	write_esr_el1(read_ctx_reg(ctx, CTX_ESR_EL1));
+	write_ttbr0_el1(read_ctx_reg(ctx, CTX_TTBR0_EL1));
+	write_ttbr1_el1(read_ctx_reg(ctx, CTX_TTBR1_EL1));
+	write_mair_el1(read_ctx_reg(ctx, CTX_MAIR_EL1));
+	write_amair_el1(read_ctx_reg(ctx, CTX_AMAIR_EL1));
+	write_actlr_el1(read_ctx_reg(ctx, CTX_ACTLR_EL1));
+	write_tpidr_el1(read_ctx_reg(ctx, CTX_TPIDR_EL1));
+	write_tpidr_el0(read_ctx_reg(ctx, CTX_TPIDR_EL0));
+	write_tpidrro_el0(read_ctx_reg(ctx, CTX_TPIDRRO_EL0));
+	write_par_el1(read_ctx_reg(ctx, CTX_PAR_EL1));
+	write_far_el1(read_ctx_reg(ctx, CTX_FAR_EL1));
+	write_afsr0_el1(read_ctx_reg(ctx, CTX_AFSR0_EL1));
+	write_afsr1_el1(read_ctx_reg(ctx, CTX_AFSR1_EL1));
+	write_contextidr_el1(read_ctx_reg(ctx, CTX_CONTEXTIDR_EL1));
+	write_vbar_el1(read_ctx_reg(ctx, CTX_VBAR_EL1));
+
+#if CTX_INCLUDE_AARCH32_REGS
+	write_spsr_abt(read_ctx_reg(ctx, CTX_SPSR_ABT));
+	write_spsr_und(read_ctx_reg(ctx, CTX_SPSR_UND));
+	write_spsr_irq(read_ctx_reg(ctx, CTX_SPSR_IRQ));
+	write_spsr_fiq(read_ctx_reg(ctx, CTX_SPSR_FIQ));
+	write_dacr32_el2(read_ctx_reg(ctx, CTX_DACR32_EL2));
+	write_ifsr32_el2(read_ctx_reg(ctx, CTX_IFSR32_EL2));
+#endif /* CTX_INCLUDE_AARCH32_REGS */
+
+#if NS_TIMER_SWITCH
+	write_cntp_ctl_el0(read_ctx_reg(ctx, CTX_CNTP_CTL_EL0));
+	write_cntp_cval_el0(read_ctx_reg(ctx, CTX_CNTP_CVAL_EL0));
+	write_cntv_ctl_el0(read_ctx_reg(ctx, CTX_CNTV_CTL_EL0));
+	write_cntv_cval_el0(read_ctx_reg(ctx, CTX_CNTV_CVAL_EL0));
+	write_cntkctl_el1(read_ctx_reg(ctx, CTX_CNTKCTL_EL1));
+#endif /* NS_TIMER_SWITCH */
+
+#if ENABLE_FEAT_MTE
+	write_tfsre0_el1(read_ctx_reg(ctx, CTX_TFSRE0_EL1));
+	write_tfsr_el1(read_ctx_reg(ctx, CTX_TFSR_EL1));
+	write_rgsr_el1(read_ctx_reg(ctx, CTX_RGSR_EL1));
+	write_gcr_el1(read_ctx_reg(ctx, CTX_GCR_EL1));
+#endif /* ENABLE_FEAT_MTE */
+
+}
+
 /*******************************************************************************
  * The next four functions are used by runtime services to save and restore
  * EL1 context on the 'cpu_context' structure for the specified security
