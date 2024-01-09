@@ -36,7 +36,9 @@
 
 /* non-secure uboot base */
 /* TODO */
+#ifndef PLAT_NS_IMAGE_OFFSET
 #define PLAT_NS_IMAGE_OFFSET		U(0x80200000)
+#endif
 #define BL32_FDT_OVERLAY_ADDR           (PLAT_NS_IMAGE_OFFSET + 0x3000000)
 
 /* GICv4 base address */

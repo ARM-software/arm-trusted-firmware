@@ -42,6 +42,10 @@ USE_COHERENT_MEM	:=	0
 PROGRAMMABLE_RESET_ADDRESS :=	1
 COLD_BOOT_SINGLE_CPU	:=	1
 
+ifneq (${PRELOADED_BL33_BASE},)
+$(eval $(call add_define_val,PLAT_NS_IMAGE_OFFSET,${PRELOADED_BL33_BASE}))
+endif
+
 BL32_BASE               ?=      0x96000000
 BL32_SIZE               ?=      0x02000000
 $(eval $(call add_define,BL32_BASE))
