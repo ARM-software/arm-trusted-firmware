@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -55,6 +55,12 @@ enum drtm_retc {
 	NOT_FOUND = -4,
 	INTERNAL_ERROR = -5,
 	MEM_PROTECT_INVALID = -6,
+	COPROCESSOR_ERROR = -7,
+	OUT_OF_RESOURCE = -8,
+	INVALID_DATA = -9,
+	SECONDARY_PE_NOT_OFF = -10,
+	ALREADY_CLOSED = -11,
+	TPM_ERROR = -12
 };
 
 typedef struct {
