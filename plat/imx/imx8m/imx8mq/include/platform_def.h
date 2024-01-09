@@ -38,7 +38,9 @@
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
 /* non-secure uboot base */
+#ifndef PLAT_NS_IMAGE_OFFSET
 #define PLAT_NS_IMAGE_OFFSET		U(0x40200000)
+#endif
 #define BL32_FDT_OVERLAY_ADDR		(PLAT_NS_IMAGE_OFFSET + 0x3000000)
 
 /* GICv3 base address */
