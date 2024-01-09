@@ -231,6 +231,11 @@
 #define ID_AA64DFR0_PMUVER_PMUV3P7	U(7)
 #define ID_AA64DFR0_PMUVER_IMP_DEF	U(0xf)
 
+/* ID_AA64DFR0_EL1.SEBEP definitions */
+#define ID_AA64DFR0_SEBEP_SHIFT		U(24)
+#define ID_AA64DFR0_SEBEP_MASK		ULL(0xf)
+#define SEBEP_IMPLEMENTED		ULL(1)
+
 /* ID_AA64DFR0_EL1.PMS definitions (for ARMv8.2+) */
 #define ID_AA64DFR0_PMS_SHIFT		U(32)
 #define ID_AA64DFR0_PMS_MASK		ULL(0xf)
@@ -252,6 +257,11 @@
 #define ID_AA64DFR0_BRBE_SHIFT		U(52)
 #define ID_AA64DFR0_BRBE_MASK		ULL(0xf)
 #define ID_AA64DFR0_BRBE_SUPPORTED	ULL(1)
+
+/* ID_AA64DFR1_EL1 definitions */
+#define ID_AA64DFR1_EBEP_SHIFT		U(48)
+#define ID_AA64DFR1_EBEP_MASK		ULL(0xf)
+#define EBEP_IMPLEMENTED		ULL(1)
 
 /* ID_AA64ISAR0_EL1 definitions */
 #define ID_AA64ISAR0_RNDR_SHIFT	U(60)
@@ -358,6 +368,9 @@
 #define ID_AA64MMFR2_EL1_CCIDX_MASK		ULL(0xf)
 #define ID_AA64MMFR2_EL1_CCIDX_LENGTH		U(4)
 
+#define ID_AA64MMFR2_EL1_UAO_SHIFT		U(4)
+#define ID_AA64MMFR2_EL1_UAO_MASK		ULL(0xf)
+
 #define ID_AA64MMFR2_EL1_CNP_SHIFT		U(0)
 #define ID_AA64MMFR2_EL1_CNP_MASK		ULL(0xf)
 
@@ -386,24 +399,28 @@
 #define ID_AA64MMFR3_EL1_TCRX_MASK		ULL(0xf)
 
 /* ID_AA64PFR1_EL1 definitions */
-#define ID_AA64PFR1_EL1_GCS_SHIFT	U(44)
-#define ID_AA64PFR1_EL1_GCS_MASK	ULL(0xf)
-
-#define ID_AA64PFR1_EL1_SSBS_SHIFT	U(4)
-#define ID_AA64PFR1_EL1_SSBS_MASK	ULL(0xf)
-
-#define SSBS_UNAVAILABLE	ULL(0)	/* No architectural SSBS support */
 
 #define ID_AA64PFR1_EL1_BT_SHIFT	U(0)
 #define ID_AA64PFR1_EL1_BT_MASK		ULL(0xf)
-
 #define BTI_IMPLEMENTED		ULL(1)	/* The BTI mechanism is implemented */
+
+#define ID_AA64PFR1_EL1_SSBS_SHIFT	U(4)
+#define ID_AA64PFR1_EL1_SSBS_MASK	ULL(0xf)
+#define SSBS_UNAVAILABLE	ULL(0)	/* No architectural SSBS support */
 
 #define ID_AA64PFR1_EL1_MTE_SHIFT	U(8)
 #define ID_AA64PFR1_EL1_MTE_MASK	ULL(0xf)
 
 #define ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT	U(28)
 #define ID_AA64PFR1_EL1_RNDR_TRAP_MASK	U(0xf)
+
+#define ID_AA64PFR1_EL1_NMI_SHIFT	U(36)
+#define ID_AA64PFR1_EL1_NMI_MASK	ULL(0xf)
+#define NMI_IMPLEMENTED			ULL(1)
+
+#define ID_AA64PFR1_EL1_GCS_SHIFT	U(44)
+#define ID_AA64PFR1_EL1_GCS_MASK	ULL(0xf)
+#define GCS_IMPLEMENTED			ULL(1)
 
 #define ID_AA64PFR1_EL1_RNG_TRAP_SUPPORTED	ULL(0x1)
 #define ID_AA64PFR1_EL1_RNG_TRAP_NOT_SUPPORTED	ULL(0x0)
@@ -503,6 +520,7 @@
 #define SCTLR_TCF0_SHIFT	U(38)
 #define SCTLR_TCF0_MASK		ULL(3)
 #define SCTLR_ENTP2_BIT		(ULL(1) << 60)
+#define SCTLR_SPINTMASK_BIT	(ULL(1) << 62)
 
 /* Tag Check Faults in EL0 have no effect on the PE */
 #define	SCTLR_TCF0_NO_EFFECT	U(0)
@@ -730,6 +748,10 @@
 #define DAIF_IRQ_BIT		(U(1) << 1)
 #define DAIF_ABT_BIT		(U(1) << 2)
 #define DAIF_DBG_BIT		(U(1) << 3)
+#define SPSR_V_BIT		(U(1) << 28)
+#define SPSR_C_BIT		(U(1) << 29)
+#define SPSR_Z_BIT		(U(1) << 30)
+#define SPSR_N_BIT		(U(1) << 31)
 #define SPSR_DAIF_SHIFT		U(6)
 #define SPSR_DAIF_MASK		U(0xf)
 
@@ -750,25 +772,32 @@
 #define SPSR_M_MASK		U(0x1)
 #define SPSR_M_AARCH64		U(0x0)
 #define SPSR_M_AARCH32		U(0x1)
+#define SPSR_M_EL1H		U(0x5)
 #define SPSR_M_EL2H		U(0x9)
 
 #define SPSR_EL_SHIFT		U(2)
 #define SPSR_EL_WIDTH		U(2)
 
-#define SPSR_SSBS_SHIFT_AARCH64 U(12)
+#define SPSR_BTYPE_SHIFT_AARCH64	U(10)
+#define SPSR_BTYPE_MASK_AARCH64	U(0x3)
+#define SPSR_SSBS_SHIFT_AARCH64	U(12)
 #define SPSR_SSBS_BIT_AARCH64	(ULL(1) << SPSR_SSBS_SHIFT_AARCH64)
 #define SPSR_SSBS_SHIFT_AARCH32 U(23)
 #define SPSR_SSBS_BIT_AARCH32	(ULL(1) << SPSR_SSBS_SHIFT_AARCH32)
-
+#define SPSR_ALLINT_BIT_AARCH64	BIT_64(13)
+#define SPSR_IL_BIT		BIT_64(20)
+#define SPSR_SS_BIT		BIT_64(21)
 #define SPSR_PAN_BIT		BIT_64(22)
-
+#define SPSR_UAO_BIT_AARCH64	BIT_64(23)
 #define SPSR_DIT_BIT		BIT(24)
-
 #define SPSR_TCO_BIT_AARCH64	BIT_64(25)
+#define SPSR_PM_BIT_AARCH64	BIT_64(32)
+#define SPSR_PPEND_BIT		BIT(33)
+#define SPSR_EXLOCK_BIT_AARCH64	BIT_64(34)
+#define SPSR_NZCV		(SPSR_V_BIT | SPSR_C_BIT | SPSR_Z_BIT | SPSR_N_BIT)
 
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
-
 #define DISABLE_INTERRUPTS	(DAIF_FIQ_BIT | DAIF_IRQ_BIT)
 
 /*
@@ -946,6 +975,7 @@
 #define ESR_EC_LENGTH			U(6)
 #define ESR_ISS_SHIFT			U(0)
 #define ESR_ISS_LENGTH			U(25)
+#define ESR_IL_BIT			(U(1) << 25)
 #define EC_UNKNOWN			U(0x0)
 #define EC_WFE_WFI			U(0x1)
 #define EC_AARCH32_CP15_MRC_MCR		U(0x3)
@@ -1408,6 +1438,9 @@
  ******************************************************************************/
 #define GCSCR_EL2		S3_4_C2_C5_0
 #define GCSPR_EL2		S3_4_C2_C5_1
+#define GCSCR_EL1		S3_0_C2_C5_0
+
+#define GCSCR_EXLOCK_EN_BIT	(UL(1) << 6)
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers
