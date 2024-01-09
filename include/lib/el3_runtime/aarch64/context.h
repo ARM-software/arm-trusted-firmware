@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -208,39 +208,39 @@
 #define CTX_TFSR_EL2		U(0x100)
 
 // Starting with Armv8.6
-#define CTX_HDFGRTR_EL2		U(0x160)
-#define CTX_HAFGRTR_EL2		U(0x168)
-#define CTX_HDFGWTR_EL2		U(0x170)
-#define CTX_HFGITR_EL2		U(0x178)
-#define CTX_HFGRTR_EL2		U(0x180)
-#define CTX_HFGWTR_EL2		U(0x188)
-#define CTX_CNTPOFF_EL2		U(0x190)
+#define CTX_HDFGRTR_EL2		U(0x108)
+#define CTX_HAFGRTR_EL2		U(0x110)
+#define CTX_HDFGWTR_EL2		U(0x118)
+#define CTX_HFGITR_EL2		U(0x120)
+#define CTX_HFGRTR_EL2		U(0x128)
+#define CTX_HFGWTR_EL2		U(0x130)
+#define CTX_CNTPOFF_EL2		U(0x138)
 
 // Starting with Armv8.4
-#define CTX_CONTEXTIDR_EL2	U(0x198)
-#define CTX_TTBR1_EL2		U(0x1a0)
-#define CTX_VDISR_EL2		U(0x1a8)
-#define CTX_VSESR_EL2		U(0x1b0)
-#define CTX_VNCR_EL2		U(0x1b8)
-#define CTX_TRFCR_EL2		U(0x1c0)
+#define CTX_CONTEXTIDR_EL2	U(0x140)
+#define CTX_TTBR1_EL2		U(0x148)
+#define CTX_VDISR_EL2		U(0x150)
+#define CTX_VSESR_EL2		U(0x158)
+#define CTX_VNCR_EL2		U(0x160)
+#define CTX_TRFCR_EL2		U(0x168)
 
 // Starting with Armv8.5
-#define CTX_SCXTNUM_EL2		U(0x1c8)
+#define CTX_SCXTNUM_EL2		U(0x170)
 
 // Register for FEAT_HCX
-#define CTX_HCRX_EL2            U(0x1d0)
+#define CTX_HCRX_EL2            U(0x178)
 
 // Starting with Armv8.9
-#define CTX_TCR2_EL2            U(0x1d8)
-#define CTX_POR_EL2             U(0x1e0)
-#define CTX_PIRE0_EL2           U(0x1e8)
-#define CTX_PIR_EL2             U(0x1f0)
-#define CTX_S2PIR_EL2		U(0x1f8)
-#define CTX_GCSCR_EL2           U(0x200)
-#define CTX_GCSPR_EL2           U(0x208)
+#define CTX_TCR2_EL2            U(0x180)
+#define CTX_POR_EL2             U(0x188)
+#define CTX_PIRE0_EL2           U(0x190)
+#define CTX_PIR_EL2             U(0x198)
+#define CTX_S2PIR_EL2		U(0x1a0)
+#define CTX_GCSCR_EL2           U(0x1a8)
+#define CTX_GCSPR_EL2           U(0x1b0)
 
 /* Align to the next 16 byte boundary */
-#define CTX_EL2_SYSREGS_END	U(0x210)
+#define CTX_EL2_SYSREGS_END	U(0x1c0)
 
 #endif /* CTX_INCLUDE_EL2_REGS */
 
