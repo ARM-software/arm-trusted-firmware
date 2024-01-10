@@ -9,6 +9,7 @@
 #define PLAT_SOCFPGA_DEF_H
 
 #include "agilex_system_manager.h"
+#include <lib/utils_def.h>
 #include <platform_def.h>
 
 /* Platform Setting */
@@ -90,8 +91,8 @@
 #define PLAT_GICD_BASE				(PLAT_GIC_BASE + 0x1000)
 #define PLAT_GICR_BASE				0
 
-#define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(get_mpu_periph_clk() * PLAT_HZ_CONVERT_TO_MHZ)
-#define PLAT_HZ_CONVERT_TO_MHZ	(1000000)
+#define PLAT_SYS_COUNTER_FREQ_IN_TICKS		(400000000)
+#define PLAT_HZ_CONVERT_TO_MHZ		(1000000)
 
 /*******************************************************************************
  * SDMMC related pointer function
@@ -106,6 +107,6 @@
 #define L2_RESET_DONE_REG			0xFFD12218
 
 /* Platform specific system counter */
-#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	get_mpu_periph_clk()
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ		U(400)
 
 #endif /* PLAT_SOCFPGA_DEF_H */

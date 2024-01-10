@@ -150,7 +150,7 @@ uint32_t get_cpu_clk(void)
 {
 	uint32_t cpu_clk = 0;
 
-	cpu_clk = get_mpu_clk()/PLAT_HZ_CONVERT_TO_MHZ;
+	cpu_clk = get_l4_clk()/PLAT_HZ_CONVERT_TO_MHZ;
 
 	return cpu_clk;
 }
