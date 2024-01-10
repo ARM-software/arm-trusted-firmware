@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,13 +65,13 @@ func plat_crash_console_init
 	str	x0, [x1]
 1:
 	ldr	x0, [x1]
-	ands	x2, x0, x2
+	tst	x0, #DEBUG_UART_RST_BIT
 	beq	1b
-	bic	x2, x2, #DEBUG_UART_RST_BIT
-	str	x2, [x1]
+	bic	x0, x0, #DEBUG_UART_RST_BIT
+	str	x0, [x1]
 2:
 	ldr	x0, [x1]
-	ands	x2, x0, x2
+	tst	x0, #DEBUG_UART_RST_BIT
 	bne	2b
 	/* Enable GPIOs for UART TX */
 	mov_imm	x1, (RCC_BASE + DEBUG_UART_TX_GPIO_BANK_CLK_REG)
