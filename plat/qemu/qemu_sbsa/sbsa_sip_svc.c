@@ -47,6 +47,20 @@ void sbsa_set_gic_bases(const uintptr_t gicd_base, const uintptr_t gicr_base);
 uintptr_t sbsa_get_gicd(void);
 uintptr_t sbsa_get_gicr(void);
 
+/*
+ * QEMU provides us with minimal information about hardware platform using
+ * minimalistic DeviceTree. This is not a Linux DeviceTree. It is not even
+ * a firmware DeviceTree.
+ *
+ * It is information passed from QEMU to describe the information a hardware
+ * platform would have other mechanisms to discover at runtime, that are
+ * affected by the QEMU command line.
+ *
+ * Ultimately this device tree will be replaced by IPC calls to an emulated SCP.
+ * And when we do that, we won't then have to rewrite Normal world firmware to
+ * cope.
+ */
+
 void read_cpuinfo_from_dt(void *dtb)
 {
 	int node;
