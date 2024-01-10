@@ -26,7 +26,7 @@ typedef struct {
 } __attribute__((packed)) drtm_mem_region_t;
 
 /*
- * Memory region descriptor table structure as per DRTM beta0 section 3.13
+ * Memory region descriptor table structure as per DRTM 1.0 section 3.13
  * Table 11 MEMORY_REGION_DESCRIPTOR_TABLE
  */
 typedef struct {

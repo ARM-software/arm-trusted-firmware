@@ -74,7 +74,7 @@
 #define ARM_DRTM_FEAT_ID_MASK	ULL(0xff)
 
 /*
- * Definitions for DRTM features as per DRTM beta0 section 3.3,
+ * Definitions for DRTM features as per DRTM 1.0 section 3.3,
  * Table 6 DRTM_FEATURES
  */
 #define ARM_DRTM_TPM_FEATURES_PCR_SCHEMA_SHIFT		U(33)

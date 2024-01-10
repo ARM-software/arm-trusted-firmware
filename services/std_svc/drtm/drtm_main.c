@@ -658,7 +658,7 @@ static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 	drtm_dl_prepare_eret_to_dlme(&args, dlme_el);
 
 	/*
-	 * As per DRTM beta0 spec table #28 invalidate the instruction cache
+	 * As per DRTM 1.0 spec table #30 invalidate the instruction cache
 	 * before jumping to the DLME. This is required to defend against
 	 * potentially-malicious cache contents.
 	 */
