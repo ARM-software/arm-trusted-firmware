@@ -74,8 +74,17 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 32)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 32)
+
+#if (BL31_BASE >= (1ULL << 32U))
+/* Address range in High DDR and HBM memory range */
+#define PLAT_ADDR_SPACE_SHIFT		U(42)
+#else
+/* Address range in OCM and Low DDR memory range */
+#define PLAT_ADDR_SPACE_SHIFT		U(32)
+#endif
+
+#define PLAT_PHY_ADDR_SPACE_SIZE        (1ull << PLAT_ADDR_SPACE_SHIFT)
+#define PLAT_VIRT_ADDR_SPACE_SIZE       (1ull << PLAT_ADDR_SPACE_SHIFT)
 
 #define XILINX_OF_BOARD_DTB_MAX_SIZE	U(0x200000)
 
