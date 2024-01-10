@@ -10,6 +10,28 @@
 #include <lib/mmio.h>
 #include "socfpga_handoff.h"
 
+enum ddr_type {
+	DDR_TYPE_LPDDR4_0,
+	DDR_TYPE_LPDDR4_1,
+	DDR_TYPE_DDR4,
+	DDR_TYPE_LPDDR5_0,
+	DDR_TYPE_LPDDR5_1,
+	DDR_TYPE_DDR5,
+	DDR_TYPE_UNKNOWN
+};
+
+/* Region size for ECCCFG0.ecc_region_map */
+enum region_size {
+	ONE_EIGHT,
+	ONE_SIXTEENTH,
+	ONE_THIRTY_SECOND,
+	ONE_SIXTY_FOURTH
+};
+
+/* DATATYPE DEFINATION */
+typedef unsigned long long phys_addr_t;
+typedef unsigned long long phys_size_t;
+
 /* MACRO DEFINATION */
 #define IO96B_0_REG_BASE				0x18400000
 #define IO96B_1_REG_BASE				0x18800000
@@ -86,6 +108,34 @@
 
 #define IOSSM_MB_WRITE(addr, data)			mmio_write_32(addr, data)
 
+/* DDR4 Register */
+#define DDR4_PWRCTL_OFFSET				0x30
+#define DDR4_SBRCTL_OFFSET				0x0F24
+#define DDR4_SBRSTAT_OFFSET				0x0F28
+#define DDR4_SBRWDATA0_OFFSET				0x0F2C
+#define DDR4_SBRSTART0_OFFSET				0x0F38
+#define DDR4_SBRWDATA1_OFFSET				0x0F30
+#define DDR4_SBRSTART1_OFFSET				0x0F3C
+#define DDR4_SBRRANGE0_OFFSET				0x0F40
+#define DDR4_SBRRANGE1_OFFSET				0x0F44
+#define DDR4_ECCCFG0_OFFSET				0x70
+#define DDR4_ECCCFG1_OFFSET				0x74
+#define DDR4_PCTRL0_OFFSET				0x0490
+
+#define LPDDR4_ECCCFG0_ECC_REGION_MAP_GRANU_SHIFT	30
+#define ALL_PROTECTED					0x7F
+#define LPDDR4_ECCCFG0_ECC_REGION_MAP_SHIFT		8
+
+
+
+#define LPDDR4_ECCCFG1_ECC_REGIONS_PARITY_LOCK		BIT(4)
+#define DDR4_PCTRL0_PORT_EN				BIT(0)
+#define DDR4_SBRCTL_SCRUB_EN				BIT(0)
+#define DDR4_SBRSTAT_SCRUB_BUSY				BIT(0)
+#define DDR4_SBRCTL_SCRUB_BURST_1			BIT(4)
+#define DDR4_SBRCTL_SCRUB_WRITE				BIT(2)
+#define DDR4_SBRSTAT_SCRUB_DONE				BIT(1)
+
 /* FUNCTION DEFINATION */
 int ddr_calibration_check(void);
 
@@ -108,5 +158,11 @@ void ddr_enable_ns_access(void);
 void ddr_enable_firewall(void);
 
 bool is_ddr_init_in_progress(void);
+
+int ddr_zerofill_scrubber(phys_addr_t umctl2_base, enum ddr_type umctl2_type);
+
+int ddr_config_scrubber(phys_addr_t umctl2_base, enum ddr_type umctl2_type);
+
+int poll_idle_status(uint32_t addr, uint32_t mask, uint32_t match, uint32_t delay_ms);
 
 #endif
