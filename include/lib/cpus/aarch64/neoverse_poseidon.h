@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,7 +8,8 @@
 #define NEOVERSE_POSEIDON_H
 
 
-#define NEOVERSE_POSEIDON_MIDR                      		U(0x410FD830)
+#define NEOVERSE_POSEIDON_VNAE_MIDR				U(0x410FD830)
+#define NEOVERSE_POSEIDON_V_MIDR				U(0x410FD840)
 
 /* Neoverse Poseidon loop count for CVE-2022-23960 mitigation */
 #define NEOVERSE_POSEIDON_BHB_LOOP_COUNT			U(132)

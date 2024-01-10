@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -81,6 +81,10 @@ func neoverse_poseidon_cpu_reg_dump
 	ret
 endfunc neoverse_poseidon_cpu_reg_dump
 
-declare_cpu_ops neoverse_poseidon, NEOVERSE_POSEIDON_MIDR, \
+declare_cpu_ops neoverse_poseidon, NEOVERSE_POSEIDON_VNAE_MIDR, \
+	neoverse_poseidon_reset_func, \
+	neoverse_poseidon_core_pwr_dwn
+
+declare_cpu_ops neoverse_poseidon, NEOVERSE_POSEIDON_V_MIDR, \
 	neoverse_poseidon_reset_func, \
 	neoverse_poseidon_core_pwr_dwn
