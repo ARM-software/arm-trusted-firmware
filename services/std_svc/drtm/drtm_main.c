@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -211,7 +211,7 @@ static enum drtm_retc drtm_dl_check_cores(void)
 	running_on_single_core = psci_is_last_on_cpu_safe();
 	if (!running_on_single_core) {
 		ERROR("DRTM: invalid launch due to non-boot PE not being turned off\n");
-		return DENIED;
+		return SECONDARY_PE_NOT_OFF;
 	}
 
 	return SUCCESS;
