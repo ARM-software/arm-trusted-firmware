@@ -95,6 +95,7 @@ struct __packed dlme_data_header_v1 {
 	uint64_t dlme_addr_map_size;
 	uint64_t dlme_tpm_log_size;
 	uint64_t dlme_tcb_hashes_table_size;
+	uint64_t dlme_acpi_tables_region_size;
 	uint64_t dlme_impdef_region_size;
 } __aligned(__alignof(uint16_t /* First member's type, `uint16_t version'. */));
 
