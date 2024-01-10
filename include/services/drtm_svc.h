@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -87,7 +87,7 @@
 #define ARM_DRTM_TPM_FEATURES_TPM_HASH_SUPPORTED	ULL(0x1)
 
 #define ARM_DRTM_TPM_FEATURES_FW_HASH_SHIFT		U(0)
-#define ARM_DRTM_TPM_FEATURES_FW_HASH_MASK		ULL(0xFFFFFFFF)
+#define ARM_DRTM_TPM_FEATURES_FW_HASH_MASK		ULL(0xFFFF)
 #define ARM_DRTM_TPM_FEATURES_FW_HASH_SHA256		ULL(0xB)
 #define ARM_DRTM_TPM_FEATURES_FW_HASH_SHA384		ULL(0xC)
 #define ARM_DRTM_TPM_FEATURES_FW_HASH_SHA512		ULL(0xD)
