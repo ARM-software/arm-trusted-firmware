@@ -150,6 +150,10 @@ ERRATA_A53_835769	:=	1
 ERRATA_A53_843419	:=	1
 ERRATA_A53_855873	:=	1
 
+ifneq (${PRELOADED_BL33_BASE},)
+$(eval $(call add_define_val,PLAT_NS_IMAGE_OFFSET,${PRELOADED_BL33_BASE}))
+endif
+
 BL32_BASE		?=	0x56000000
 $(eval $(call add_define,BL32_BASE))
 
