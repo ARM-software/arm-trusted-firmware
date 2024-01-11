@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -59,8 +59,19 @@
 #define CPU_DATA_CRASH_BUF_END		CPU_DATA_CRASH_BUF_OFFSET
 #endif
 
+/* buffer space for EHF data is sizeof(pe_exc_data_t) */
+#define CPU_DATA_EHF_DATA_SIZE		8
+#define CPU_DATA_EHF_DATA_BUF_OFFSET	CPU_DATA_CRASH_BUF_END
+
+#if defined(IMAGE_BL31) && EL3_EXCEPTION_HANDLING
+#define CPU_DATA_EHF_DATA_BUF_END	(CPU_DATA_EHF_DATA_BUF_OFFSET + \
+						CPU_DATA_EHF_DATA_SIZE)
+#else
+#define CPU_DATA_EHF_DATA_BUF_END	CPU_DATA_EHF_DATA_BUF_OFFSET
+#endif	/* EL3_EXCEPTION_HANDLING */
+
 /* cpu_data size is the data size rounded up to the platform cache line size */
-#define CPU_DATA_SIZE			(((CPU_DATA_CRASH_BUF_END + \
+#define CPU_DATA_SIZE			(((CPU_DATA_EHF_DATA_BUF_END + \
 					CACHE_WRITEBACK_GRANULE - 1) / \
 						CACHE_WRITEBACK_GRANULE) * \
 							CACHE_WRITEBACK_GRANULE)
@@ -68,7 +79,7 @@
 #if ENABLE_RUNTIME_INSTRUMENTATION
 /* Temporary space to store PMF timestamps from assembly code */
 #define CPU_DATA_PMF_TS_COUNT		1
-#define CPU_DATA_PMF_TS0_OFFSET		CPU_DATA_CRASH_BUF_END
+#define CPU_DATA_PMF_TS0_OFFSET		CPU_DATA_EHF_DATA_BUF_END
 #define CPU_DATA_PMF_TS0_IDX		0
 #endif
 
@@ -157,6 +168,12 @@ CASSERT(CPU_DATA_APIAKEY_OFFSET == __builtin_offsetof
 CASSERT(CPU_DATA_CRASH_BUF_OFFSET == __builtin_offsetof
 	(cpu_data_t, crash_buf),
 	assert_cpu_data_crash_stack_offset_mismatch);
+#endif
+
+#if defined(IMAGE_BL31) && EL3_EXCEPTION_HANDLING
+CASSERT(CPU_DATA_EHF_DATA_BUF_OFFSET == __builtin_offsetof
+	(cpu_data_t, ehf_data),
+	assert_cpu_data_ehf_stack_offset_mismatch);
 #endif
 
 CASSERT(CPU_DATA_SIZE == sizeof(cpu_data_t),
