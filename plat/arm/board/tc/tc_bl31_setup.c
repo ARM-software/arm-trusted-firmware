@@ -78,6 +78,30 @@ static void enable_ns_mcn_pmu(void)
 		mmio_setbits_32(mcn_scr, 1 << MCN_SCR_PMU_BIT);
 	}
 }
+
+static void set_mcn_slc_alloc_mode(void)
+{
+	/*
+	 * SLC WRALLOCMODE and RDALLOCMODE are configured by default to
+	 * 0b01 (always alloc), configure both to 0b10 (use bus signal
+	 * attribute from interface).
+	 */
+	for (int i = 0; i < MCN_INSTANCES; i++) {
+		uintptr_t slccfg_ctl_ns = MCN_MPAM_NS_BASE_ADDR +
+			(i * MCN_ADDRESS_SPACE_SIZE) + MPAM_SLCCFG_CTL_OFFSET;
+		uintptr_t slccfg_ctl_s = MCN_MPAM_S_BASE_ADDR +
+			(i * MCN_ADDRESS_SPACE_SIZE) + MPAM_SLCCFG_CTL_OFFSET;
+
+		mmio_clrsetbits_32(slccfg_ctl_ns,
+				   (SLC_RDALLOCMODE_MASK | SLC_WRALLOCMODE_MASK),
+				   (SLC_ALLOC_BUS_SIGNAL_ATTR << SLC_RDALLOCMODE_SHIFT) |
+				   (SLC_ALLOC_BUS_SIGNAL_ATTR << SLC_WRALLOCMODE_SHIFT));
+		mmio_clrsetbits_32(slccfg_ctl_s,
+				   (SLC_RDALLOCMODE_MASK | SLC_WRALLOCMODE_MASK),
+				   (SLC_ALLOC_BUS_SIGNAL_ATTR << SLC_RDALLOCMODE_SHIFT) |
+				   (SLC_ALLOC_BUS_SIGNAL_ATTR << SLC_WRALLOCMODE_SHIFT));
+	}
+}
 #endif
 
 void bl31_platform_setup(void)
@@ -85,6 +109,7 @@ void bl31_platform_setup(void)
 	tc_bl31_common_platform_setup();
 #if TARGET_PLATFORM == 3
 	enable_ns_mcn_pmu();
+	set_mcn_slc_alloc_mode();
 #endif
 }
 
