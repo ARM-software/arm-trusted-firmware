@@ -18,7 +18,6 @@
 #include "zynqmp_pm_svc_main.h"
 
 /* SMC function IDs for SiP Service queries */
-#define ZYNQMP_SIP_SVC_CALL_COUNT	U(0x8200ff00)
 #define ZYNQMP_SIP_SVC_UID		U(0x8200ff01)
 #define ZYNQMP_SIP_SVC_VERSION		U(0x8200ff03)
 
@@ -100,10 +99,6 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 	}
 
 	switch (smc_fid) {
-	case ZYNQMP_SIP_SVC_CALL_COUNT:
-		/* PM functions + default functions */
-		SMC_RET1(handle, PM_API_MAX + 2);
-
 	case ZYNQMP_SIP_SVC_UID:
 		SMC_UUID_RET(handle, zynqmp_sip_uuid);
 
