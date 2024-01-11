@@ -15,6 +15,11 @@ ENABLE_PIE			:=	1
 PROGRAMMABLE_RESET_ADDRESS	:=	1
 BL2_IN_XIP_MEM			:=	1
 
+STM32MP_BL33_EL1		?=	1
+ifeq ($(STM32MP_BL33_EL1),1)
+INIT_UNUSED_NS_EL2		:=	1
+endif
+
 # Disable features unsupported in ARMv8.0
 ENABLE_SPE_FOR_NS		:=	0
 ENABLE_SVE_FOR_NS		:=	0
@@ -87,6 +92,7 @@ $(eval $(call assert_booleans,\
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
 		STM32MP25 \
+		STM32MP_BL33_EL1 \
 )))
 
 $(eval $(call assert_numerics,\
@@ -109,6 +115,7 @@ $(eval $(call add_defines,\
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
 		STM32MP25 \
+		STM32MP_BL33_EL1 \
 )))
 
 # STM32MP2x is based on Cortex-A35, which is Armv8.0, and does not support BTI

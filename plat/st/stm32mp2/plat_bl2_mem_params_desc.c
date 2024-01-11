@@ -10,6 +10,12 @@
 
 #include <platform_def.h>
 
+#if STM32MP_BL33_EL1
+#define BL33_MODE MODE_EL1
+#else
+#define BL33_MODE MODE_EL2
+#endif
+
 /*******************************************************************************
  * Following descriptor provides BL image/ep information that gets used
  * by BL2 to load the images and also subset of this information is
@@ -138,7 +144,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 				      VERSION_2, entry_point_info_t,
 				      NON_SECURE | EXECUTABLE),
 
-		.ep_info.spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS),
+		.ep_info.spsr = SPSR_64(BL33_MODE, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS),
 
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 				      VERSION_2, image_info_t,
