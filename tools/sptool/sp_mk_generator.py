@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -136,7 +136,10 @@ def get_load_address(sp_layout, sp, args :dict):
     ''' Helper to fetch load-address from pm file listed in sp_layout.json'''
     with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as pm_f:
         load_address_lines = [l for l in pm_f if 'load-address' in l]
-    assert(len(load_address_lines) == 1)
+
+    if len(load_address_lines) is not 1:
+        return None
+
     load_address_parsed = re.search("(0x[0-9a-f]+)", load_address_lines[0])
     return load_address_parsed.group(0)
 
@@ -240,7 +243,8 @@ def gen_fconf_fragment(sp_layout, sp, args: dict):
         else:
             load_address = get_load_address(sp_layout, sp, args)
 
-        f.write(
+        if load_address is not None:
+            f.write(
 f'''\
 {sp} {{
     uuid = "{uuid}";
@@ -249,6 +253,9 @@ f'''\
 }};
 
 ''')
+        else:
+            print("Warning: No load-address was found in the SP manifest.")
+
     return args
 
 def init_sp_actions(sys):
