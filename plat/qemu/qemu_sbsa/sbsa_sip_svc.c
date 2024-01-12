@@ -28,12 +28,101 @@ static int platform_version_minor;
 #define SIP_SVC_VERSION  SIP_FUNCTION_ID(1)
 #define SIP_SVC_GET_GIC  SIP_FUNCTION_ID(100)
 #define SIP_SVC_GET_GIC_ITS SIP_FUNCTION_ID(101)
+#define SIP_SVC_GET_CPU_COUNT SIP_FUNCTION_ID(200)
+#define SIP_SVC_GET_CPU_NODE SIP_FUNCTION_ID(201)
 
 static uint64_t gic_its_addr;
+
+typedef struct {
+	uint32_t nodeid;
+	uint32_t mpidr;
+} cpu_data;
+
+static struct {
+	uint32_t num_cpus;
+	cpu_data cpu[PLATFORM_CORE_COUNT];
+} dynamic_platform_info;
 
 void sbsa_set_gic_bases(const uintptr_t gicd_base, const uintptr_t gicr_base);
 uintptr_t sbsa_get_gicd(void);
 uintptr_t sbsa_get_gicr(void);
+
+/*
+ * QEMU provides us with minimal information about hardware platform using
+ * minimalistic DeviceTree. This is not a Linux DeviceTree. It is not even
+ * a firmware DeviceTree.
+ *
+ * It is information passed from QEMU to describe the information a hardware
+ * platform would have other mechanisms to discover at runtime, that are
+ * affected by the QEMU command line.
+ *
+ * Ultimately this device tree will be replaced by IPC calls to an emulated SCP.
+ * And when we do that, we won't then have to rewrite Normal world firmware to
+ * cope.
+ */
+
+void read_cpuinfo_from_dt(void *dtb)
+{
+	int node;
+	int prev;
+	int cpu = 0;
+	uint32_t nodeid = 0;
+	uintptr_t mpidr;
+
+	/*
+	 * QEMU gives us this DeviceTree node:
+	 * numa-node-id entries are only when NUMA config is used
+	 *
+	 *  cpus {
+	 *  	#size-cells = <0x00>;
+	 *  	#address-cells = <0x02>;
+	 *
+	 *  	cpu@0 {
+	 *  	        numa-node-id = <0x00>;
+	 *  		reg = <0x00 0x00>;
+	 *  	};
+	 *
+	 *  	cpu@1 {
+	 *  	        numa-node-id = <0x03>;
+	 *  		reg = <0x00 0x01>;
+	 *  	};
+	 *  };
+	 */
+	node = fdt_path_offset(dtb, "/cpus");
+	if (node < 0) {
+		ERROR("No information about cpus in DeviceTree.\n");
+		panic();
+	}
+
+	/*
+	 * QEMU numbers cpus from 0 and there can be /cpus/cpu-map present so we
+	 * cannot use fdt_first_subnode() here
+	 */
+	node = fdt_path_offset(dtb, "/cpus/cpu@0");
+
+	while (node > 0) {
+		if (fdt_getprop(dtb, node, "reg", NULL)) {
+			fdt_get_reg_props_by_index(dtb, node, 0, &mpidr, NULL);
+		}
+
+		if (fdt_getprop(dtb, node, "numa-node-id", NULL))  {
+			fdt_read_uint32(dtb, node, "numa-node-id", &nodeid);
+		}
+
+		dynamic_platform_info.cpu[cpu].nodeid = nodeid;
+		dynamic_platform_info.cpu[cpu].mpidr = mpidr;
+
+		INFO("CPU %d: node-id: %d, mpidr: %ld\n", cpu, nodeid, mpidr);
+
+		cpu++;
+
+		prev = node;
+		node = fdt_next_subnode(dtb, prev);
+	}
+
+	dynamic_platform_info.num_cpus = cpu;
+	INFO("Found %d cpus\n", dynamic_platform_info.num_cpus);
+}
 
 void read_platform_config_from_dt(void *dtb)
 {
@@ -129,6 +218,7 @@ void sip_svc_init(void)
 	INFO("Platform version: %d.%d\n", platform_version_major, platform_version_minor);
 
 	read_platform_config_from_dt(dtb);
+	read_cpuinfo_from_dt(dtb);
 }
 
 /*
@@ -144,6 +234,7 @@ uintptr_t sbsa_sip_smc_handler(uint32_t smc_fid,
 			       u_register_t flags)
 {
 	uint32_t ns;
+	uint64_t index;
 
 	/* Determine which security state this SMC originated from */
 	ns = is_caller_non_secure(flags);
@@ -162,6 +253,19 @@ uintptr_t sbsa_sip_smc_handler(uint32_t smc_fid,
 
 	case SIP_SVC_GET_GIC_ITS:
 		SMC_RET2(handle, NULL, gic_its_addr);
+
+	case SIP_SVC_GET_CPU_COUNT:
+		SMC_RET2(handle, NULL, dynamic_platform_info.num_cpus);
+
+	case SIP_SVC_GET_CPU_NODE:
+		index = x1;
+		if (index < PLATFORM_CORE_COUNT) {
+			SMC_RET3(handle, NULL,
+				dynamic_platform_info.cpu[index].nodeid,
+				dynamic_platform_info.cpu[index].mpidr);
+		} else {
+			SMC_RET1(handle, SMC_ARCH_CALL_INVAL_PARAM);
+		}
 
 	default:
 		ERROR("%s: unhandled SMC (0x%x) (function id: %d)\n", __func__, smc_fid,
