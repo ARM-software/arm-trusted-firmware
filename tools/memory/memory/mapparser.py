@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -57,7 +57,7 @@ class TfaMapParser:
 
             if "start" and "length" and "end" in memory_layout[region]:
                 memory_layout[region]["limit"] = (
-                    memory_layout[region]["end"]
+                    memory_layout[region]["start"]
                     + memory_layout[region]["length"]
                 )
                 memory_layout[region]["free"] = (
