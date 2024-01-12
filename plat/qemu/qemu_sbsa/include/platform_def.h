@@ -62,6 +62,11 @@
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
 /*
+ * Define the max number of memory nodes.
+ */
+#define PLAT_MAX_MEM_NODES	128
+
+/*
  * Partition memory into secure ROM, non-secure DRAM, secure "SRAM",
  * and secure DRAM.
  */
