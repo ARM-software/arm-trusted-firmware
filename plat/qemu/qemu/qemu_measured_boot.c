@@ -82,13 +82,17 @@ void bl2_plat_mboot_finish(void)
 		ERROR("%s(): Unable to update %s_FW_CONFIG\n",
 		      __func__, "NT");
 		/*
-		 * It is a fatal error because on QEMU secure world software
+		 * It is a non-fatal error because on QEMU secure world software
 		 * assumes that a valid event log exists and will use it to
-		 * record the measurements into the fTPM or sw-tpm.
+		 * record the measurements into the fTPM or sw-tpm, but the boot
+		 * can also happen without TPM on the platform. It's up to
+		 * higher layer in boot sequence to decide if this is fatal or
+		 * not, e.g. by not providing access to TPM encrypted storage.
 		 * Note: In QEMU platform, OP-TEE uses nt_fw_config to get the
 		 * secure Event Log buffer address.
 		 */
-		panic();
+		WARN("Ignoring TPM errors, continuing without\n");
+		return;
 	}
 
 	/* Copy Event Log to Non-secure memory */
