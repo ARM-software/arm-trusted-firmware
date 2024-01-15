@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -40,7 +40,7 @@ LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none
 
 # Cross tool
 CC			:= ${M0_CROSS_COMPILE}gcc
-CPP			:= ${M0_CROSS_COMPILE}cpp
+CPP			:= ${M0_CROSS_COMPILE}gcc -E
 AR			:= ${M0_CROSS_COMPILE}ar
 OC			:= ${M0_CROSS_COMPILE}objcopy
 OD			:= ${M0_CROSS_COMPILE}objdump

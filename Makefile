@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -100,14 +100,13 @@ HOSTCC			:=	gcc
 export HOSTCC
 
 CC			:=	${CROSS_COMPILE}gcc
-CPP			:=	${CROSS_COMPILE}cpp
+CPP			:=	${CROSS_COMPILE}gcc -E
 AS			:=	${CROSS_COMPILE}gcc
 AR			:=	${CROSS_COMPILE}ar
 LINKER			:=	${CROSS_COMPILE}ld
 OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
-PP			:=	${CROSS_COMPILE}gcc -E
 DTC			:=	dtc
 
 # Use ${LD}.bfd instead if it exists (as absolute path or together with $PATH).
@@ -187,7 +186,6 @@ ifneq ($(findstring clang,$(notdir $(CC))),)
 	endif
 
 	CPP		:=	$(CC) -E $(TF_CFLAGS_$(ARCH))
-	PP		:=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 	AS		:=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring gcc,$(notdir $(CC))),)
 	ifeq ($(ENABLE_LTO),1)

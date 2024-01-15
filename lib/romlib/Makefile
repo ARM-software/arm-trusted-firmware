@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,7 +8,7 @@ AS          = $(CROSS_COMPILE)as
 AR          = $(CROSS_COMPILE)ar
 LD          = $(CROSS_COMPILE)ld
 OC          = $(CROSS_COMPILE)objcopy
-CPP         = $(CROSS_COMPILE)cpp
+CPP         = $(CROSS_COMPILE)gcc -E
 ROMLIB_GEN  = ./romlib_generator.py
 BUILD_DIR   = $(BUILD_PLAT)/romlib
 LIB_DIR     = $(BUILD_PLAT)/lib
