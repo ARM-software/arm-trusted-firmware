@@ -106,7 +106,6 @@ AR			:=	${CROSS_COMPILE}gcc-ar
 LINKER			:=	${CROSS_COMPILE}ld
 OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
-NM			:=	${CROSS_COMPILE}nm
 DTC			:=	dtc
 
 # Use ${LD}.bfd instead if it exists (as absolute path or together with $PATH).

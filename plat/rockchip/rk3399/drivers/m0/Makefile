@@ -44,7 +44,6 @@ CPP			:= ${M0_CROSS_COMPILE}gcc -E
 AR			:= ${M0_CROSS_COMPILE}gcc-ar
 OC			:= ${M0_CROSS_COMPILE}objcopy
 OD			:= ${M0_CROSS_COMPILE}objdump
-NM			:= ${M0_CROSS_COMPILE}nm
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
 # end up with a line-feed characer at the end of the last c filename.
