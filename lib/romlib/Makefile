@@ -5,7 +5,7 @@
 #
 
 AS          = $(CROSS_COMPILE)gcc
-AR          = $(CROSS_COMPILE)ar
+AR          = $(CROSS_COMPILE)gcc-ar
 LD          = $(CROSS_COMPILE)ld
 OC          = $(CROSS_COMPILE)objcopy
 CPP         = $(CROSS_COMPILE)gcc -E

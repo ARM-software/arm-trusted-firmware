@@ -102,7 +102,7 @@ export HOSTCC
 CC			:=	${CROSS_COMPILE}gcc
 CPP			:=	${CROSS_COMPILE}gcc -E
 AS			:=	${CROSS_COMPILE}gcc
-AR			:=	${CROSS_COMPILE}ar
+AR			:=	${CROSS_COMPILE}gcc-ar
 LINKER			:=	${CROSS_COMPILE}ld
 OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump

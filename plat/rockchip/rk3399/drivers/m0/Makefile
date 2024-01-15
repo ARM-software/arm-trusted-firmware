@@ -41,7 +41,7 @@ LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none
 # Cross tool
 CC			:= ${M0_CROSS_COMPILE}gcc
 CPP			:= ${M0_CROSS_COMPILE}gcc -E
-AR			:= ${M0_CROSS_COMPILE}ar
+AR			:= ${M0_CROSS_COMPILE}gcc-ar
 OC			:= ${M0_CROSS_COMPILE}objcopy
 OD			:= ${M0_CROSS_COMPILE}objdump
 NM			:= ${M0_CROSS_COMPILE}nm
