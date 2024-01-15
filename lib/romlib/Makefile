@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-AS          = $(CROSS_COMPILE)as
+AS          = $(CROSS_COMPILE)gcc
 AR          = $(CROSS_COMPILE)ar
 LD          = $(CROSS_COMPILE)ld
 OC          = $(CROSS_COMPILE)objcopy
@@ -48,11 +48,11 @@ all: $(BUILD_DIR)/romlib.bin $(LIB_DIR)/libwrappers.a
 
 %.o: %.s
 	@echo "  AS      $@"
-	$(Q)$(AS) $(ASFLAGS) -o $@ $<
+	$(Q)$(AS) -c $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/%.o: %.s
 	@echo "  AS      $@"
-	$(Q)$(AS) $(ASFLAGS) -o $@ $<
+	$(Q)$(AS) -c $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/romlib.ld: romlib.ld.S
 	@echo "  PP      $@"
