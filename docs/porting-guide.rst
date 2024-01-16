@@ -3274,6 +3274,17 @@ This API is used by the crash reporting mechanism to force write of all buffered
 data on the designated crash console. It should only use general purpose
 registers x0 through x5 to do its work.
 
+Function : plat_setup_early_console [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : void
+
+This API is used to setup the early console, it is required only if the flag
+``EARLY_CONSOLE`` is enabled.
+
 .. _External Abort handling and RAS Support:
 
 External Abort handling and RAS Support
@@ -3560,7 +3571,7 @@ to :ref:`Measured Boot Design` for more details.
 
 --------------
 
-*Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI: https://developer.arm.com/documentation/den0022/latest/
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html

@@ -184,6 +184,14 @@ static inline int plat_mboot_measure_key(const void *pk_oid __unused,
 }
 #endif /* MEASURED_BOOT */
 
+#if EARLY_CONSOLE
+void plat_setup_early_console(void);
+#else
+static inline void plat_setup_early_console(void)
+{
+}
+#endif /* EARLY_CONSOLE */
+
 /*******************************************************************************
  * Mandatory BL1 functions
  ******************************************************************************/

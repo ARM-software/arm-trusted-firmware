@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -64,6 +64,9 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
  ******************************************************************************/
 void bl1_setup(void)
 {
+	/* Enable early console if EARLY_CONSOLE flag is enabled */
+	plat_setup_early_console();
+
 	/* Perform early platform-specific setup */
 	bl1_early_platform_setup();
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2016-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -392,3 +392,6 @@ CTX_INCLUDE_MPAM_REGS		:= 0
 
 # Enable context memory usage reporting during BL31 setup.
 PLATFORM_REPORT_CTX_MEM_USE	:= 0
+
+# Enable early console
+EARLY_CONSOLE			:= 0

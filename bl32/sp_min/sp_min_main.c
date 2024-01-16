@@ -175,6 +175,9 @@ uintptr_t get_arm_std_svc_args(unsigned int svc_mask)
 void sp_min_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 		  u_register_t arg3)
 {
+	/* Enable early console if EARLY_CONSOLE flag is enabled */
+	plat_setup_early_console();
+
 	/* Perform early platform-specific setup */
 	sp_min_early_platform_setup2(arg0, arg1, arg2, arg3);
 	sp_min_plat_arch_setup();

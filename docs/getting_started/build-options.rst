@@ -230,6 +230,13 @@ Common build options
    contributions are still expected to build with ``W=0`` and ``E=1`` (the
    default).
 
+-  ``EARLY_CONSOLE``: This option is used to enable early traces before default
+   console is properly setup. It introduces EARLY_* traces macros, that will
+   use the non-EARLY traces macros if the flag is enabled, or do nothing
+   otherwise. To use this feature, platforms will have to create the function
+   plat_setup_early_console().
+   Default is 0 (disabled)
+
 -  ``EL3_PAYLOAD_BASE``: This option enables booting an EL3 payload instead of
    the normal boot flow. It must specify the entry point address of the EL3
    payload. Please refer to the "Booting an EL3 payload" section for more
