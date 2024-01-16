@@ -280,7 +280,7 @@ void stm32mp1_deconfigure_uart_pins(void)
 uint32_t stm32mp_get_chip_version(void)
 {
 #if STM32MP13
-	return stm32mp1_syscfg_get_chip_version();
+	return stm32mp_syscfg_get_chip_version();
 #endif
 #if STM32MP15
 	uint32_t version = 0U;
@@ -297,7 +297,7 @@ uint32_t stm32mp_get_chip_version(void)
 uint32_t stm32mp_get_chip_dev_id(void)
 {
 #if STM32MP13
-	return stm32mp1_syscfg_get_chip_dev_id();
+	return stm32mp_syscfg_get_chip_dev_id();
 #endif
 #if STM32MP15
 	uint32_t dev_id;
