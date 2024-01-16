@@ -101,9 +101,7 @@ endef
 
 # Convenience function to check for a given linker option. An call to
 # $(call ld_option, --no-XYZ) will return --no-XYZ if supported by the linker
-define ld_option
-	$(shell if $(LD) $(1) -v >/dev/null 2>&1; then echo $(1); fi )
-endef
+ld_option = $(shell $(LD) $(1) -Wl,--version >/dev/null 2>&1 || $(LD) $(1) -v >/dev/null 2>&1 && echo $(1))
 
 # Convenience function to check for a given compiler option. A call to
 # $(call cc_option, --no-XYZ) will return --no-XYZ if supported by the compiler

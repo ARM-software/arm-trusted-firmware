@@ -354,6 +354,7 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 # LD = gcc (used when GCC LTO is enabled)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
 	# Pass ld options with Wl or Xlinker switches
+	TF_LDFLAGS		+=	$(call ld_option,-Xlinker --no-warn-rwx-segments)
 	TF_LDFLAGS		+=	-Wl,--fatal-warnings -O1
 	TF_LDFLAGS		+=	-Wl,--gc-sections
 
