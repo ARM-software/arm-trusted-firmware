@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include <arch_helpers.h>
 #include <bl31/bl31.h>
@@ -1290,6 +1291,8 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
 	case FFA_MEM_RELINQUISH:
 	case FFA_MSG_WAIT:
+	case FFA_CONSOLE_LOG_SMC32:
+	case FFA_CONSOLE_LOG_SMC64:
 
 		if (!secure_origin) {
 			return spmc_ffa_error_return(handle,
@@ -1472,6 +1475,61 @@ static uint64_t rx_release_handler(uint32_t smc_fid,
 
 	mbox->state = MAILBOX_STATE_EMPTY;
 	spin_unlock(&mbox->lock);
+
+	SMC_RET1(handle, FFA_SUCCESS_SMC32);
+}
+
+static uint64_t spmc_ffa_console_log(uint32_t smc_fid,
+				     bool secure_origin,
+				     uint64_t x1,
+				     uint64_t x2,
+				     uint64_t x3,
+				     uint64_t x4,
+				     void *cookie,
+				     void *handle,
+				     uint64_t flags)
+{
+	char *chars;
+	size_t chars_max;
+	size_t chars_count = x1;
+
+	/* Does not support request from Nwd. */
+	if (!secure_origin) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	}
+
+	assert(smc_fid == FFA_CONSOLE_LOG_SMC32 || smc_fid == FFA_CONSOLE_LOG_SMC64);
+	if (smc_fid == FFA_CONSOLE_LOG_SMC32) {
+		uint32_t registers[] = {
+			(uint32_t)x2,
+			(uint32_t)x3,
+			(uint32_t)x4,
+			(uint32_t)SMC_GET_GP(handle, CTX_GPREG_X5),
+			(uint32_t)SMC_GET_GP(handle, CTX_GPREG_X6),
+			(uint32_t)SMC_GET_GP(handle, CTX_GPREG_X7),
+		};
+		chars_max = ARRAY_SIZE(registers) * sizeof(uint32_t);
+		chars = (char *)registers;
+	} else {
+		uint64_t registers[] = {
+			x2,
+			x3,
+			x4,
+			SMC_GET_GP(handle, CTX_GPREG_X5),
+			SMC_GET_GP(handle, CTX_GPREG_X6),
+			SMC_GET_GP(handle, CTX_GPREG_X7),
+		};
+		chars_max = ARRAY_SIZE(registers) * sizeof(uint64_t);
+		chars = (char *)registers;
+	}
+
+	if ((chars_count == 0) || (chars_count > chars_max)) {
+		return spmc_ffa_error_return(handle, FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	for (size_t i = 0; (i < chars_count) && (chars[i] != '\0'); i++) {
+		putchar(chars[i]);
+	}
 
 	SMC_RET1(handle, FFA_SUCCESS_SMC32);
 }
@@ -2365,7 +2423,11 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 
 	case FFA_MEM_RECLAIM:
 		return spmc_ffa_mem_reclaim(smc_fid, secure_origin, x1, x2, x3,
-					    x4, cookie, handle, flags);
+						x4, cookie, handle, flags);
+	case FFA_CONSOLE_LOG_SMC32:
+	case FFA_CONSOLE_LOG_SMC64:
+		return spmc_ffa_console_log(smc_fid, secure_origin, x1, x2, x3,
+						x4, cookie, handle, flags);
 
 	case FFA_MEM_PERM_GET:
 		return ffa_mem_perm_get_handler(smc_fid, secure_origin, x1, x2,
