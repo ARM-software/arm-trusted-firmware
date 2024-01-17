@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -99,7 +99,7 @@ def main(
 
     if symbols:
         expr = (
-            r"(.*)(TEXT|BSS|RODATA|STACKS|_OPS|PMF|XLAT|GOT|FCONF"
+            r"(.*)(TEXT|BSS|RO|RODATA|STACKS|_OPS|PMF|XLAT|GOT|FCONF"
             r"|R.M)(.*)(START|UNALIGNED|END)__$"
         )
         printer.print_symbol_table(
