@@ -24,6 +24,17 @@
 CASSERT((offsetof(struct fwu_metadata, crc_32) == 0),
 	crc_32_must_be_first_member_of_structure);
 
+/*
+ * Ensure that the NR_OF_FW_BANKS selected by the platform is not
+ * zero and not greater than the maximum number of banks allowed
+ * by the specification.
+ */
+CASSERT((NR_OF_FW_BANKS > 0) && (NR_OF_FW_BANKS <= NR_OF_MAX_FW_BANKS),
+	assert_fwu_num_banks_invalid_value);
+
+#define FWU_METADATA_VERSION		2U
+#define FWU_FW_STORE_DESC_OFFSET	0x20U
+
 static struct fwu_metadata metadata;
 static bool is_metadata_initialized __unused;
 
@@ -51,15 +62,53 @@ static int fwu_metadata_crc_check(void)
 /*******************************************************************************
  * Check the sanity of FWU metadata.
  *
- * return -1 on error, otherwise 0
+ * return -EINVAL on error, otherwise 0
  ******************************************************************************/
 static int fwu_metadata_sanity_check(void)
 {
-	/* ToDo: add more conditions for sanity check */
-	if ((metadata.active_index >= NR_OF_FW_BANKS) ||
-	    (metadata.previous_active_index >= NR_OF_FW_BANKS)) {
-		return -1;
+	if (metadata.version != FWU_METADATA_VERSION) {
+		WARN("Incorrect FWU Metadata version of %u\n",
+		     metadata.version);
+		return -EINVAL;
 	}
+
+	if (metadata.active_index >= NR_OF_FW_BANKS) {
+		WARN("Active Index value(%u) greater than the configured value(%d)",
+		     metadata.active_index, NR_OF_FW_BANKS);
+		return -EINVAL;
+	}
+
+	if (metadata.previous_active_index >= NR_OF_FW_BANKS) {
+		WARN("Previous Active Index value(%u) greater than the configured value(%d)",
+		     metadata.previous_active_index, NR_OF_FW_BANKS);
+		return -EINVAL;
+	}
+
+#if PSA_FWU_METADATA_FW_STORE_DESC
+	if (metadata.fw_desc.num_banks != NR_OF_FW_BANKS) {
+		WARN("Number of Banks(%u) in FWU Metadata different from the configured value(%d)",
+		     metadata.fw_desc.num_banks, NR_OF_FW_BANKS);
+		return -EINVAL;
+	}
+
+	if (metadata.fw_desc.num_images != NR_OF_IMAGES_IN_FW_BANK) {
+		WARN("Number of Images(%u) in FWU Metadata different from the configured value(%d)",
+		     metadata.fw_desc.num_images, NR_OF_IMAGES_IN_FW_BANK);
+		return -EINVAL;
+	}
+
+	if (metadata.desc_offset != FWU_FW_STORE_DESC_OFFSET) {
+		WARN("Descriptor Offset(0x%x) in the FWU Metadata not equal to 0x20\n",
+		     metadata.desc_offset);
+		return -EINVAL;
+	}
+#else
+	if (metadata.desc_offset != 0U) {
+		WARN("Descriptor offset has non zero value of 0x%x\n",
+		     metadata.desc_offset);
+		return -EINVAL;
+	}
+#endif
 
 	return 0;
 }
