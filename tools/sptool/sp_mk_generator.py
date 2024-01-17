@@ -137,7 +137,7 @@ def get_load_address(sp_layout, sp, args :dict):
     with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as pm_f:
         load_address_lines = [l for l in pm_f if 'load-address' in l]
 
-    if len(load_address_lines) is not 1:
+    if len(load_address_lines) != 1:
         return None
 
     load_address_parsed = re.search("(0x[0-9a-f]+)", load_address_lines[0])
