@@ -11,6 +11,7 @@
 #include <stdint.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include "gpt_rme_private.h"
@@ -1095,8 +1096,13 @@ int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 	 * states, remove any data speculatively fetched into the target
 	 * physical address space. Issue DC CIPAPA over address range
 	 */
-	flush_dcache_to_popa_range(nse | base,
-				   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	if (is_feat_mte2_supported()) {
+		flush_dcache_to_popa_range_mte2(nse | base,
+					GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	} else {
+		flush_dcache_to_popa_range(nse | base,
+					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	}
 
 	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
 		  gpi_info.gpi_shift, gpi_info.idx, target_pas);
@@ -1107,8 +1113,13 @@ int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 
 	nse = (uint64_t)GPT_NSE_NS << GPT_NSE_SHIFT;
 
-	flush_dcache_to_popa_range(nse | base,
-				   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	if (is_feat_mte2_supported()) {
+		flush_dcache_to_popa_range_mte2(nse | base,
+					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	} else {
+		flush_dcache_to_popa_range(nse | base,
+					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	}
 
 	/* Unlock access to the L1 tables. */
 	spin_unlock(&gpt_lock);
@@ -1225,8 +1236,13 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 	}
 
 	/* Ensure that the scrubbed data has made it past the PoPA */
-	flush_dcache_to_popa_range(nse | base,
-				   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	if (is_feat_mte2_supported()) {
+		flush_dcache_to_popa_range_mte2(nse | base,
+					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	} else {
+		flush_dcache_to_popa_range(nse | base,
+					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	}
 
 	/*
 	 * Remove any data loaded speculatively
@@ -1234,8 +1250,13 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 	 */
 	nse = (uint64_t)GPT_NSE_NS << GPT_NSE_SHIFT;
 
-	flush_dcache_to_popa_range(nse | base,
-				   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	if (is_feat_mte2_supported()) {
+		flush_dcache_to_popa_range_mte2(nse | base,
+					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	} else {
+		flush_dcache_to_popa_range(nse | base,
+					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
+	}
 
 	/* Clear existing GPI encoding and transition granule. */
 	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
