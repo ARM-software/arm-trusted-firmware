@@ -28,6 +28,8 @@ ERRATA_A72_1319367	:=	1
 
 CRASH_REPORTING		:= 1
 
+NS_TIMER_SWITCH		:=	0
+
 # Split out RO data into a non-executable section
 SEPARATE_CODE_AND_RODATA :=    1
 
