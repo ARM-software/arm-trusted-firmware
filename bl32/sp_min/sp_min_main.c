@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -167,6 +167,17 @@ uintptr_t get_arm_std_svc_args(unsigned int svc_mask)
 	assert(svc_mask == PSCI_FID_MASK);
 
 	return (uintptr_t)&psci_args;
+}
+
+/******************************************************************************
+ * The SP_MIN setup function. Calls platforms init functions
+ *****************************************************************************/
+void sp_min_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+		  u_register_t arg3)
+{
+	/* Perform early platform-specific setup */
+	sp_min_early_platform_setup2(arg0, arg1, arg2, arg3);
+	sp_min_plat_arch_setup();
 }
 
 /******************************************************************************
