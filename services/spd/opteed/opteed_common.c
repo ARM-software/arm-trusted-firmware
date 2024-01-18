@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,9 +20,9 @@
  * initialize OPTEE context and entry point info for OPTEE.
  ******************************************************************************/
 void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
-				uint32_t rw, uint64_t pc,
-				uint64_t pageable_part, uint64_t mem_limit,
-				uint64_t dt_addr, optee_context_t *optee_ctx)
+				uint32_t rw, uint64_t pc, uint64_t arg0,
+				uint64_t arg1, uint64_t arg2, uint64_t arg3,
+				optee_context_t *optee_ctx)
 {
 	uint32_t ep_attr;
 
@@ -54,9 +54,10 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 							DAIF_IRQ_BIT |
 							DAIF_ABT_BIT);
 	zeromem(&optee_entry_point->args, sizeof(optee_entry_point->args));
-	optee_entry_point->args.arg0 = pageable_part;
-	optee_entry_point->args.arg1 = mem_limit;
-	optee_entry_point->args.arg2 = dt_addr;
+	optee_entry_point->args.arg0 = arg0;
+	optee_entry_point->args.arg1 = arg1;
+	optee_entry_point->args.arg2 = arg2;
+	optee_entry_point->args.arg3 = arg3;
 }
 
 /*******************************************************************************

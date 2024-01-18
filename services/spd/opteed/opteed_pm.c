@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,7 +113,7 @@ void opteed_cpu_on_finish_handler(u_register_t unused)
 
 	opteed_init_optee_ep_state(&optee_on_entrypoint, opteed_rw,
 				(uint64_t)&optee_vector_table->cpu_on_entry,
-				0, 0, 0, optee_ctx);
+				0, 0, 0, 0, optee_ctx);
 
 	/* Initialise this cpu's secure context */
 	cm_init_my_context(&optee_on_entrypoint);

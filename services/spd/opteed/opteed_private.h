@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -148,11 +148,8 @@ void __dead2 opteed_exit_sp(uint64_t c_rt_ctx, uint64_t ret);
 uint64_t opteed_synchronous_sp_entry(optee_context_t *optee_ctx);
 void __dead2 opteed_synchronous_sp_exit(optee_context_t *optee_ctx, uint64_t ret);
 void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
-				uint32_t rw,
-				uint64_t pc,
-				uint64_t pageable_part,
-				uint64_t mem_limit,
-				uint64_t dt_addr,
+				uint32_t rw, uint64_t pc, uint64_t arg0,
+				uint64_t arg1, uint64_t arg2, uint64_t arg3,
 				optee_context_t *optee_ctx);
 void opteed_cpu_on_finish_handler(u_register_t unused);
 

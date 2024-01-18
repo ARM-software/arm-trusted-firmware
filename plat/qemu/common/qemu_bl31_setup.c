@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <drivers/arm/pl061_gpio.h>
 #include <lib/gpt_rme/gpt_rme.h>
+#include <lib/transfer_list.h>
 #include <plat/common/platform.h>
 
 #include "qemu_private.h"
@@ -44,6 +45,7 @@ static entry_point_info_t bl33_image_ep_info;
 #if ENABLE_RME
 static entry_point_info_t rmm_image_ep_info;
 #endif
+static struct transfer_list_header *bl31_tl;
 
 /*******************************************************************************
  * Perform any BL3-1 early platform setup.  Here is an opportunity to copy
@@ -100,6 +102,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	if (!rmm_image_ep_info.pc)
 		panic();
 #endif
+
+	if (TRANSFER_LIST && arg1 == (TRANSFER_LIST_SIGNATURE |
+				      REGISTER_CONVENTION_VERSION_MASK) &&
+	    transfer_list_check_header((void *)arg3) != TL_OPS_NON) {
+		bl31_tl = (void *)arg3; /* saved TL address from BL2 */
+	}
 }
 
 void bl31_plat_arch_setup(void)
@@ -187,4 +195,19 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 		return next_image_info;
 	else
 		return NULL;
+}
+
+void bl31_plat_runtime_setup(void)
+{
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
+
+#if TRANSFER_LIST
+	if (bl31_tl) {
+		/*
+		 * update the TL from S to NS memory before jump to BL33
+		 * to reflect all changes in TL done by BL32
+		 */
+		memcpy((void *)FW_NS_HANDOFF_BASE, bl31_tl, bl31_tl->max_size);
+	}
+#endif
 }
