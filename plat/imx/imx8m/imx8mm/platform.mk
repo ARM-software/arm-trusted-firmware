@@ -46,6 +46,7 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				plat/imx/common/imx8_topology.c			\
 				plat/imx/common/imx_sip_handler.c		\
 				plat/imx/common/imx_sip_svc.c			\
+				plat/imx/common/imx_common.c			\
 				plat/imx/common/imx_uart_console.S		\
 				lib/cpus/aarch64/cortex_a53.S			\
 				drivers/arm/tzc/tzc380.c			\
