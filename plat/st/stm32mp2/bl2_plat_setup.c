@@ -27,7 +27,7 @@ void bl2_platform_setup(void)
 void bl2_el3_plat_arch_setup(void)
 {
 	if (stm32_otp_probe() != 0U) {
-		ERROR("OTP probe failed\n");
+		EARLY_ERROR("OTP probe failed\n");
 		panic();
 	}
 }
