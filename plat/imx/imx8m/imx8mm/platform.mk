@@ -30,7 +30,8 @@ IMX_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/common/plat_psci_common.c		\
 				plat/imx/common/plat_imx8_gic.c
 
-BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
+BL31_SOURCES		+=	common/desc_image_load.c			\
+				plat/imx/common/imx8_helpers.S			\
 				plat/imx/imx8m/gpc_common.c			\
 				plat/imx/imx8m/imx_hab.c			\
 				plat/imx/imx8m/imx_aipstz.c			\
