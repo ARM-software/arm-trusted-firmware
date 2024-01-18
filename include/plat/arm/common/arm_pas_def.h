@@ -107,7 +107,7 @@
 							       ARM_EL3_TZC_DRAM1_SIZE, \
 							       GPT_GPI_ROOT)
 
-#define	ARM_PAS_GPTS			GPT_MAP_REGION_GRANULE(ARM_L1_GPT_ADDR_BASE, \
+#define	ARM_PAS_GPTS			GPT_MAP_REGION_GRANULE(ARM_L1_GPT_BASE, \
 							       ARM_L1_GPT_SIZE, \
 							       GPT_GPI_ROOT)
 
