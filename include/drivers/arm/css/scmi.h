@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -123,6 +123,8 @@ typedef struct scmi_channel_plat_info {
 	void (*ring_doorbell)(struct scmi_channel_plat_info *plat_info);
 	/* cookie is unused now. But added for future enhancements. */
 	void *cookie;
+	/* Delay in micro-seconds while polling the channel status. */
+	uint32_t delay;
 } scmi_channel_plat_info_t;
 
 
