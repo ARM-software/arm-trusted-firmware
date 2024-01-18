@@ -19,7 +19,8 @@ IMX_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/common/plat_psci_common.c		\
 				plat/imx/common/plat_imx8_gic.c
 
-BL31_SOURCES		+=	plat/common/aarch64/crash_console_helpers.S   \
+BL31_SOURCES		+=	common/desc_image_load.c			\
+				plat/common/aarch64/crash_console_helpers.S	\
 				plat/imx/imx93/aarch64/plat_helpers.S		\
 				plat/imx/imx93/plat_topology.c			\
 				plat/imx/common/imx_common.c			\

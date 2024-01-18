@@ -31,6 +31,9 @@
 #define BL31_BASE			U(0x204E0000)
 #define BL31_LIMIT			U(0x20520000)
 
+#define OCRAM_BASE			U(0x20480000)
+#define OCRAM_SIZE			U(0xA0000)
+
 /* non-secure uboot base */
 /* TODO */
 #define PLAT_NS_IMAGE_OFFSET		U(0x80200000)
