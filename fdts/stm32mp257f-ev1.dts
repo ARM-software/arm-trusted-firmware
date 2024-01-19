@@ -37,6 +37,13 @@
 	};
 };
 
+&ddr {
+	vdd-supply = <&vdd_ddr>;
+	vtt-supply = <&vtt_ddr>;
+	vpp-supply = <&vpp_ddr>;
+	vref-supply = <&vref_ddr>;
+};
+
 &i2c7 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c7_pins_a>;
