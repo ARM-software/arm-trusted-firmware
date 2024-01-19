@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -237,13 +237,17 @@ static int populate_and_set_auth_methods(const void *dtb, int node,
 	 * verified by signature and images are verified by hash.
 	 */
 	if (type == IMG_CERT) {
-		if (root_certificate) {
-			oid = NULL;
-		} else {
-			rc = get_oid(dtb, node, "signing-key", &oid);
-			if (rc < 0) {
+		rc = get_oid(dtb, node, "signing-key", &oid);
+		if (rc < 0) {
+			/*
+			 * The signing-key property is optional in root
+			 * certificates, mandatory otherwise.
+			 */
+			if (root_certificate) {
+				oid = NULL;
+			} else {
 				ERROR("FCONF: Can't read %s property\n",
-					"signing-key");
+						"signing-key");
 				return rc;
 			}
 		}
