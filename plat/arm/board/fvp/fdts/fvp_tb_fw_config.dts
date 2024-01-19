@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, ARM Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,7 +104,11 @@
 	};
 
 #if COT_DESC_IN_DTB
-	#include "cot_descriptors.dtsi"
+	#if defined(ARM_COT_cca)
+		#include "cca_cot_descriptors.dtsi"
+	#elif defined(ARM_COT_tbbr)
+		#include "tbbr_cot_descriptors.dtsi"
+	#endif
 #endif
 
 #if MEASURED_BOOT
@@ -116,6 +120,13 @@
 #if COT_DESC_IN_DTB
 
 #include "../fvp_def.h"
+
+#if defined(ARM_COT_cca)
+/* FVP does not support the CCA NV Counter so use the Trusted one. */
+&cca_nv_counter {
+	reg = <TFW_NVCTR_BASE>;
+};
+#endif
 
 &trusted_nv_counter {
 	reg = <TFW_NVCTR_BASE>;
