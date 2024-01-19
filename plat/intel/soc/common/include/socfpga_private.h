@@ -33,7 +33,7 @@ typedef enum {
 
 void enable_nonsecure_access(void);
 
-void socfpga_io_setup(int boot_source);
+void socfpga_io_setup(int boot_source, unsigned long offset);
 
 void socfgpa_configure_mmu_el3(unsigned long total_base,
 			unsigned long total_size,

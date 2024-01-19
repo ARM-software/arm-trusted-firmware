@@ -44,6 +44,10 @@
 #define PLAT_HANDOFF_OFFSET			0xFFE3F000
 #endif
 
+#define PLAT_QSPI_DATA_BASE			(0x3C00000)
+#define PLAT_NAND_DATA_BASE			(0x0200000)
+#define PLAT_SDMMC_DATA_BASE			(0x0)
+
 /*******************************************************************************
  * Platform binary types for linking
  ******************************************************************************/

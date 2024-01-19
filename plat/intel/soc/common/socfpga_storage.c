@@ -24,16 +24,13 @@
 
 #include "drivers/sdmmc/sdmmc.h"
 #include "socfpga_private.h"
+#include "socfpga_ros.h"
 
 
 #define PLAT_FIP_BASE		(0)
 #define PLAT_FIP_MAX_SIZE	(0x1000000)
 #define PLAT_MMC_DATA_BASE	(0xffe3c000)
 #define PLAT_MMC_DATA_SIZE	(0x2000)
-#define PLAT_QSPI_DATA_BASE	(0x3C00000)
-#define PLAT_QSPI_DATA_SIZE	(0x1000000)
-#define PLAT_NAND_DATA_BASE	(0x0200000)
-#define PLAT_NAND_DATA_SIZE	(0x1000000)
 
 static const io_dev_connector_t *fip_dev_con;
 static const io_dev_connector_t *boot_dev_con;
@@ -136,9 +133,10 @@ static int check_fip(const uintptr_t spec)
 	return result;
 }
 
-void socfpga_io_setup(int boot_source)
+void socfpga_io_setup(int boot_source, unsigned long offset)
 {
 	int result;
+	fip_spec.offset = offset;
 
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:
@@ -152,7 +150,6 @@ void socfpga_io_setup(int boot_source)
 
 	case BOOT_SOURCE_QSPI:
 		register_io_dev = &register_io_dev_memmap;
-		fip_spec.offset = PLAT_QSPI_DATA_BASE;
 		break;
 
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
@@ -161,7 +158,6 @@ void socfpga_io_setup(int boot_source)
 		nand_dev_spec.ops.init = cdns_nand_init_mtd;
 		nand_dev_spec.ops.read = cdns_nand_read;
 		nand_dev_spec.ops.write = NULL;
-		fip_spec.offset = PLAT_NAND_DATA_BASE;
 		break;
 #endif
 
