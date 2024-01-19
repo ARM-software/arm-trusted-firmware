@@ -17,10 +17,24 @@ ARM_RGX="\(ARM\|Arm\|arm\)"
 
 exit_code=0
 
+PLATPROV=
+ORG=`echo "$GIT_AUTHOR_EMAIL" | awk -F '[@]' '{ print $2;}'`
+
+case $ORG in
+	amd.com)
+		PLATPROV="Advanced Micro Devices, Inc. All rights reserved."
+		;;
+	*arm.com)
+		PLATPROV="$ARM_RGX"
+		;;
+	*)
+		;;
+esac
+
 function user_warning() {
 	echo -e "Copyright of $RED$FILE$BLANK is out of date/incorrect"
 	echo -e "Updated copyright to"
-	grep -nr "opyright.*$YEAR_RGX.*$ARM_RGX" "$FILE"
+	grep -nr "opyright.*$YEAR_RGX.*$PLATPROV" "$FILE"
 	echo
 }
 
@@ -29,31 +43,45 @@ while read -r FILE; do
 	then
 		break
 	fi
-	# Check if correct copyright notice is in file.
-	# To reduce false positives, we assume files with no
-	# copyright notice do not require it.
-	if ! grep "opyright.*$YEAR_NOW.*$ARM_RGX" "$FILE">/dev/null 2>&1
+
+	# Check if copyright header exists for the org
+	if ! grep "opyright.*$YEAR_RGX.*$PLATPROV" "$FILE">/dev/null 2>&1 && [[ $ORG != *arm* ]]
 	then
-		# If it is "from_date - to_date" type of entry - change to_date entry.
-		if grep "opyright.*$YEAR_RGX.*-.*$YEAR_RGX.*$ARM_RGX" "$FILE" >/dev/null 2>&1
-		then
-			exit_code=1
-			sed -i "s/\(opyright.*\)$YEAR_RGX\(.*$ARM_RGX\)/\1$(date +"%Y"), Arm/" $FILE
-			user_warning
-		# If it is single "date" type of entry - add the copyright extension to current year.
-		elif grep "opyright.*$YEAR_RGX.*$ARM_RGX" "$FILE" >/dev/null 2>&1
-		then
-			exit_code=1
-			sed -i "s/\(opyright.*$YEAR_RGX\)\(.*$ARM_RGX\)/\1-$(date +"%Y"), Arm/" $FILE
-			user_warning
-		fi
-	# Even if the year is correct - verify that Arm copyright is formatted correctly.
-	elif grep "opyright.*\(ARM\|arm\)" "$FILE">/dev/null 2>&1
-	then
-		exit_code=1
-		sed -i "s/\(opyright.*\)\(ARM\|arm\)/\1Arm/" $FILE
-		user_warning
+		echo -e "Copyright header ""$RED""$PLATPROV""$BLANK"" is missing in ""$YELLOW""$FILE""$BLANK"
 	fi
+
+	# Check if the copyright year is updated for the org  and update it
+	if [ ! -z "$PLATPROV" ]
+	then
+		if ! grep "opyright.*$YEAR_NOW.*$PLATPROV" "$FILE">/dev/null 2>&1
+		then
+			# If it is "from_date - to_date" type of entry - change to_date entry.
+			if grep "opyright.*$YEAR_RGX.*-.*$YEAR_RGX.*$PLATPROV" "$FILE" >/dev/null 2>&1
+			then
+				exit_code=1
+				sed -i "s/\(opyright.*\)$YEAR_RGX\(.*$PLATPROV\)/\1$(date +"%Y")\2/" $FILE
+				user_warning
+			# If it is single "date" type of entry - add the copyright extension to current year.
+			elif grep "opyright.*$YEAR_RGX.*$PLATPROV" "$FILE" >/dev/null 2>&1
+			then
+				exit_code=1
+				sed -i "s/\(opyright.*$YEAR_RGX\)\(.*$PLATPROV\)/\1-$(date +"%Y")\2/" $FILE
+				user_warning
+			fi
+
+			# Even if the year is correct - verify that Arm copyright is formatted correctly.
+			if [[ $ORG == *arm* ]]
+			then
+				if grep "opyright.*\(ARM\|arm\)" "$FILE">/dev/null 2>&1
+				then
+					exit_code=1
+					sed -i "s/\(opyright.*\)\(ARM\|arm\)/\1Arm/" $FILE
+					user_warning
+				fi
+			fi
+		fi
+	fi
+
 done <<< "$FILES"
 
 if [ $exit_code -eq 1 ]
