@@ -374,12 +374,20 @@ void imx_gpc_init(void)
 	mmio_clrbits_32(IMX_SRC_BASE + SRC_OTG1PHY_SCR, 0x1);
 	mmio_clrbits_32(IMX_SRC_BASE + SRC_OTG2PHY_SCR, 0x1);
 
-	/* enable all the power domain by default */
+	/* enable all clocks by default */
 	for (i = 0; i < 101; i++) {
 		mmio_write_32(IMX_CCM_BASE + CCGR(i), 0x3);
 	}
 
-	for (i = 0; i < 20; i++) {
-		imx_gpc_pm_domain_enable(i, true);
-	}
+	/* Depending on SKU, we may be lacking e.g. a VPU and shouldn't
+	 * access that domain here, because that would lockup the SoC.
+	 * Other i.MX8M variants don't initialize any power domains, but
+	 * for 8MP we have been enabling the USB power domains since the
+	 * beginning and stopping to do this now may render systems
+	 * unrecoverable. So we'll keep initializing just the USB power
+	 * domains instead of all of them like before.
+	 */
+	imx_gpc_pm_domain_enable(HSIOMIX, true);
+	imx_gpc_pm_domain_enable(USB1_PHY, true);
+	imx_gpc_pm_domain_enable(USB2_PHY, true);
 }
