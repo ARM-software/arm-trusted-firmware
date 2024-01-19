@@ -215,12 +215,16 @@ int regulator_set_voltage(struct rdev *rdev, uint16_t mvolt)
 
 	VERBOSE("%s: set mvolt\n", rdev->desc->node_name);
 
-	if (rdev->desc->ops->set_voltage == NULL) {
-		return -ENODEV;
-	}
-
 	if ((mvolt < rdev->min_mv) || (mvolt > rdev->max_mv)) {
 		return -EPERM;
+	}
+
+	if (regulator_get_voltage(rdev) == mvolt) {
+		return 0U;
+	}
+
+	if (rdev->desc->ops->set_voltage == NULL) {
+		return -ENODEV;
 	}
 
 	lock_driver(rdev);
