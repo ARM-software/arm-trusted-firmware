@@ -14,7 +14,7 @@ Build Host
 |TF-A| can be built using either a Linux or a Windows machine as the build host.
 
 A relatively recent Linux distribution is recommended for building |TF-A|. We
-have performed tests using Ubuntu 20.04 LTS (64-bit) but other distributions
+have performed tests using Ubuntu 22.04 LTS (64-bit) but other distributions
 should also work fine as a base, provided that the necessary tools and libraries
 can be installed.
 
@@ -71,11 +71,11 @@ supporting tools:
 The following libraries are required for Trusted Board Boot and Measured Boot
 support:
 
-- mbed TLS == 2.28.8 (tag: ``mbedtls-2.28.8``)
+- mbed TLS == 3.4.0 (tag: ``mbedtls-3.4.0``)
 
 These tools are optional:
 
-- Device Tree Compiler (DTC) >= 1.4.6
+- Device Tree Compiler (DTC) >= 1.4.7
 
    Needed if you want to rebuild the provided Flattened Device Tree (FDT)
    source files (``.dts`` files). DTC is available for Linux through the package
