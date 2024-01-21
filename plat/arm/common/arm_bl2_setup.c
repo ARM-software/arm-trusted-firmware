@@ -131,46 +131,6 @@ void bl2_platform_setup(void)
 	arm_bl2_platform_setup();
 }
 
-#if ENABLE_RME
-static void arm_bl2_gpt_setup(void)
-{
-	/*
-	 * It is to be noted that any Arm platform that reuses arm_bl2_gpt_setup
-	 * must implement plat_arm_get_gpt_info within its platform code
-	 */
-	const arm_gpt_info_t *arm_gpt_info =
-		plat_arm_get_gpt_info();
-
-	if (arm_gpt_info == NULL) {
-		ERROR("arm_gpt_info not initialized!!\n");
-		panic();
-	}
-
-	/* Initialize entire protected space to GPT_GPI_ANY. */
-	if (gpt_init_l0_tables(arm_gpt_info->pps, arm_gpt_info->l0_base,
-		arm_gpt_info->l0_size) < 0) {
-		ERROR("gpt_init_l0_tables() failed!\n");
-		panic();
-	}
-
-	/* Carve out defined PAS ranges. */
-	if (gpt_init_pas_l1_tables(arm_gpt_info->pgs,
-				   arm_gpt_info->l1_base,
-				   arm_gpt_info->l1_size,
-				   arm_gpt_info->pas_region_base,
-				   arm_gpt_info->pas_region_count) < 0) {
-		ERROR("gpt_init_pas_l1_tables() failed!\n");
-		panic();
-	}
-
-	INFO("Enabling Granule Protection Checks\n");
-	if (gpt_enable() < 0) {
-		ERROR("gpt_enable() failed!\n");
-		panic();
-	}
-}
-#endif /* ENABLE_RME */
-
 /*******************************************************************************
  * Perform the very early platform specific architectural setup here.
  * When RME is enabled the secure environment is initialised before
@@ -211,7 +171,7 @@ void arm_bl2_plat_arch_setup(void)
 	enable_mmu_el3(0);
 
 	/* Initialise and enable granule protection after MMU. */
-	arm_bl2_gpt_setup();
+	arm_gpt_setup();
 #else
 	enable_mmu_el1(0);
 #endif

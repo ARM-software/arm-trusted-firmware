@@ -81,7 +81,7 @@ below.
 
 In the reference implementation for FVP models, you can find an example of PAS
 region definitions in the file ``plat/arm/board/fvp/include/fvp_pas_def.h``.
-Table creation API calls can be found in ``plat/arm/common/arm_bl2_setup.c`` and
+Table creation API calls can be found in ``plat/arm/common/arm_common.c`` and
 runtime initialization API calls can be seen in
 ``plat/arm/common/arm_bl31_setup.c``.
 
