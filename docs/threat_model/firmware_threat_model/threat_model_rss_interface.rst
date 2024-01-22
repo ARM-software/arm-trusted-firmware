@@ -24,7 +24,7 @@ it includes the RSS and highlights the interface between the AP and the RSS
 cores. The interface description only focuses on the AP-RSS interface the rest
 is the same as in the general TF-A threat-model document.
 
-.. uml:: ../resources/diagrams/plantuml/tfa_rss_dfd.puml
+.. uml:: ../../resources/diagrams/plantuml/tfa_rss_dfd.puml
   :caption: Figure 1: TF-A Data Flow Diagram including RSS
 
 .. table:: Table 1: TF-A - RSS data flow diagram
@@ -56,4 +56,4 @@ are applicable for the AP core, here only the differences are highlighted.
 
 --------------
 
-*Copyright (c) 2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2022-2024, Arm Limited. All rights reserved.*

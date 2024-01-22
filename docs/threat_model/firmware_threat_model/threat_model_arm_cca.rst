@@ -86,7 +86,7 @@ with TF-A. A description of each diagram element is given on Table 1. On the
 diagram, the red broken lines indicate trust boundaries. Components outside of
 the broken lines are considered untrusted by TF-A.
 
-.. uml:: ../resources/diagrams/plantuml/tfa_arm_cca_dfd.puml
+.. uml:: ../../resources/diagrams/plantuml/tfa_arm_cca_dfd.puml
   :caption: Figure 1: Data Flow Diagram
 
 .. table:: Table 1: Data Flow Diagram Description
@@ -220,6 +220,6 @@ of this threat model. Only deltas are pointed out.
   | 14 |     Yes     |                                                       |
   +----+-------------+-------------------------------------------------------+
 
-*Copyright (c) 2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2023-2024, Arm Limited. All rights reserved.*
 
 .. _Arm CCA Security Model: https://developer.arm.com/documentation/DEN0096/A_a

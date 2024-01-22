@@ -37,7 +37,7 @@ red broken lines indicate trust boundaries.
 
 Components outside of the broken lines are considered untrusted.
 
-.. uml:: ../resources/diagrams/plantuml/el3_spm_dfd.puml
+.. uml:: ../../resources/diagrams/plantuml/el3_spm_dfd.puml
   :caption: Figure 1: EL3 SPMC Data Flow Diagram
 
 .. table:: Table 1: EL3 SPMC Data Flow Diagram Description
@@ -644,7 +644,7 @@ element of the data flow diagram.
 
 ---------------
 
-*Copyright (c) 2022-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2022-2024, Arm Limited. All rights reserved.*
 
 .. _Arm Firmware Framework for Arm A-profile: https://developer.arm.com/docs/den0077/latest
 .. _FF-A ACS: https://github.com/ARM-software/ff-a-acs/releases

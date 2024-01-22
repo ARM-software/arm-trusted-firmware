@@ -55,7 +55,7 @@ is given on Table 1. On the diagram, the red broken lines indicate
 trust boundaries. Components outside of the broken lines
 are considered untrusted by TF-A.
 
-.. uml:: ../resources/diagrams/plantuml/tfa_dfd.puml
+.. uml:: ../../resources/diagrams/plantuml/tfa_dfd.puml
   :caption: Figure 1: TF-A Data Flow Diagram
 
 .. table:: Table 1: TF-A Data Flow Diagram Description
@@ -1090,7 +1090,7 @@ Threats to be Mitigated by an External Agent Outside of TF-A
 
 --------------
 
-*Copyright (c) 2021-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2024, Arm Limited. All rights reserved.*
 
 
 .. _STRIDE threat analysis technique: https://docs.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats#stride-model
