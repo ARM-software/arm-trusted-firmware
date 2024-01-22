@@ -18,6 +18,7 @@
 
 /* State arguments of the self suspend */
 #define PM_STATE_CPU_IDLE	0x0U
+#define PM_STATE_CPU_OFF	0x1U
 #define PM_STATE_SUSPEND_TO_RAM	0xFU
 
 #define MAX_LATENCY		(~0U)

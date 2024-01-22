@@ -56,6 +56,19 @@ Xilinx Versal platform specific build options
     -   `spp_itr6`	: SPP ITR6
     -   `emu_itr6`	: EMU ITR6
 
+*   `CPU_PWRDWN_SGI`: Select the SGI for triggering CPU power down request to
+                      secondary cores on receiving power down callback from
+                      firmware. Options:
+
+    -   `0`   : SGI 0
+    -   `1`   : SGI 1
+    -   `2`   : SGI 2
+    -   `3`   : SGI 3
+    -   `4`   : SGI 4
+    -   `5`   : SGI 5
+    -   `6`   : SGI 6 (Default)
+    -   `7`   : SGI 7
+
 # PLM->TF-A Parameter Passing
 ------------------------------
 The PLM populates a data structure with image information for the TF-A. The TF-A

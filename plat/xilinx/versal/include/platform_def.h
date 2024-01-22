@@ -9,6 +9,7 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
+#include <plat_common.h>
 #include "versal_def.h"
 
 /*******************************************************************************
@@ -112,8 +113,8 @@
 #define CACHE_WRITEBACK_SHIFT	6
 #define CACHE_WRITEBACK_GRANULE	(1 << CACHE_WRITEBACK_SHIFT)
 
-#define PLAT_GICD_BASE_VALUE	U(0xF9000000)
-#define PLAT_GICR_BASE_VALUE	U(0xF9080000)
+#define PLAT_ARM_GICD_BASE	U(0xF9000000)
+#define PLAT_ARM_GICR_BASE	U(0xF9080000)
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
@@ -131,6 +132,8 @@
 #define PLAT_VERSAL_G0_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(PLAT_VERSAL_IPI_IRQ, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(CPU_PWR_DOWN_REQ_INTR, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE)
 
 #define IRQ_MAX		142U
 

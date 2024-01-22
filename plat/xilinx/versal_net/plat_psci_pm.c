@@ -14,10 +14,12 @@
 #include <plat/common/platform.h>
 #include <plat_arm.h>
 
+#include <drivers/delay_timer.h>
 #include <plat_private.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include <pm_common.h>
+#include "pm_ipi.h"
 #include "pm_svc_main.h"
 #include "versal_net_def.h"
 
@@ -57,6 +59,7 @@ static int32_t versal_net_pwr_domain_on(u_register_t mpidr)
  */
 static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 {
+	uint32_t ret, fw_api_version, version[PAYLOAD_ARG_CNT] = {0U};
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
@@ -66,7 +69,7 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 	}
 
 	/* Prevent interrupts from spuriously waking up this cpu */
-	plat_versal_net_gic_cpuif_disable();
+	plat_arm_gic_cpuif_disable();
 
 	/*
 	 * Send request to PMC to power down the appropriate APU CPU
@@ -76,8 +79,17 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
-			SECURE_FLAG);
+	ret = pm_feature_check((uint32_t)PM_SELF_SUSPEND, &version[0], SECURE_FLAG);
+	if (ret == PM_RET_SUCCESS) {
+		fw_api_version = version[0] & 0xFFFFU;
+		if (fw_api_version >= 3U) {
+			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,
+					      SECURE_FLAG);
+		} else {
+			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
+					      SECURE_FLAG);
+		}
+	}
 }
 
 /**
@@ -88,9 +100,31 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
  */
 static void __dead2 versal_net_system_reset(void)
 {
-	/* Send the system reset request to the PMC */
-	pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
-			  pm_get_shutdown_scope(), SECURE_FLAG);
+	uint32_t ret, timeout = 10000U;
+
+	request_cpu_pwrdwn();
+
+	/*
+	 * Send the system reset request to the firmware if power down request
+	 * is not received from firmware.
+	 */
+	if (!pwrdwn_req_received) {
+		(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
+					 pm_get_shutdown_scope(), SECURE_FLAG);
+
+		/*
+		 * Wait for system shutdown request completed and idle callback
+		 * not received.
+		 */
+		do {
+			ret = ipi_mb_enquire_status(primary_proc->ipi->local_ipi_id,
+						    primary_proc->ipi->remote_ipi_id);
+			udelay(100);
+			timeout--;
+		} while ((ret != IPI_MB_STATUS_RECV_PENDING) && (timeout > 0U));
+	}
+
+	(void)psci_cpu_off();
 
 	while (1) {
 		wfi();
@@ -114,10 +148,10 @@ static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state
 			__func__, i, target_state->pwr_domain_state[i]);
 	}
 
-	plat_versal_net_gic_cpuif_disable();
+	plat_arm_gic_cpuif_disable();
 
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
-		plat_versal_net_gic_save();
+		plat_arm_gic_save();
 	}
 
 	state = target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE ?
@@ -135,10 +169,10 @@ static void versal_net_pwr_domain_on_finish(const psci_power_state_t *target_sta
 	(void)target_state;
 
 	/* Enable the gic cpu interface */
-	plat_versal_net_gic_pcpu_init();
+	plat_arm_gic_pcpu_init();
 
 	/* Program the gic per-cpu distributor or re-distributor interface */
-	plat_versal_net_gic_cpuif_enable();
+	plat_arm_gic_cpuif_enable();
 }
 
 /**
@@ -163,10 +197,10 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 
 	/* APU was turned off, so restore GIC context */
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
-		plat_versal_net_gic_resume();
+		plat_arm_gic_resume();
 	}
 
-	plat_versal_net_gic_cpuif_enable();
+	plat_arm_gic_cpuif_enable();
 }
 
 /**

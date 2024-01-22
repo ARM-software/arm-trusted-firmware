@@ -10,6 +10,7 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
+#include <plat_common.h>
 #include "versal_net_def.h"
 
 /*******************************************************************************
@@ -107,8 +108,8 @@
 #define CACHE_WRITEBACK_SHIFT	U(6)
 #define CACHE_WRITEBACK_GRANULE	(1 << CACHE_WRITEBACK_SHIFT)
 
-#define PLAT_GICD_BASE_VALUE	U(0xE2000000)
-#define PLAT_GICR_BASE_VALUE	U(0xE2060000)
+#define PLAT_ARM_GICD_BASE	U(0xE2000000)
+#define PLAT_ARM_GICR_BASE	U(0xE2060000)
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
@@ -118,13 +119,15 @@
 #define PLAT_VERSAL_NET_IPI_IRQ	89
 #define PLAT_VERSAL_IPI_IRQ	PLAT_VERSAL_NET_IPI_IRQ
 
-#define PLAT_VERSAL_NET_G1S_IRQ_PROPS(grp) \
+#define PLAT_ARM_G1S_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(VERSAL_NET_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_LEVEL)
 
-#define PLAT_VERSAL_NET_G0_IRQ_PROPS(grp) \
+#define PLAT_ARM_G0_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(PLAT_VERSAL_IPI_IRQ, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(CPU_PWR_DOWN_REQ_INTR, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE)
 
 #define IRQ_MAX		200U
 

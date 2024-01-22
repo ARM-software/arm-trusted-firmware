@@ -21,6 +21,8 @@ IPI_CRC_CHECK := 0
 GIC_ENABLE_V4_EXTN :=  0
 GICV3_SUPPORT_GIC600 := 1
 TFA_NO_PM := 0
+CPU_PWRDWN_SGI ?= 6
+$(eval $(call add_define_val,CPU_PWR_DOWN_REQ_INTR,ARM_IRQ_SEC_SGI_${CPU_PWRDWN_SGI}))
 
 override CTX_INCLUDE_AARCH32_REGS    := 0
 
@@ -121,6 +123,7 @@ BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
 				${PLAT_PATH}/bl31_versal_net_setup.c		\
 				common/fdt_fixup.c				\
 				common/fdt_wrappers.c				\
+				plat/arm/common/arm_gicv3.c 			\
 				${LIBFDT_SRCS}					\
 				${PLAT_PATH}/sip_svc_setup.c			\
-				${PLAT_PATH}/versal_net_gicv3.c
+				${XLAT_TABLES_LIB_SRCS}

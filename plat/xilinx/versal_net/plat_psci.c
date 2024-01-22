@@ -108,8 +108,8 @@ static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 static void zynqmp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
-	plat_versal_net_gic_pcpu_init();
-	plat_versal_net_gic_cpuif_enable();
+	plat_arm_gic_pcpu_init();
+	plat_arm_gic_cpuif_enable();
 }
 
 static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_state)

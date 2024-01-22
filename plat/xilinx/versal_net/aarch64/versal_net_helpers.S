@@ -12,6 +12,7 @@
 
 #include <platform_def.h>
 
+	.globl	plat_arm_calc_core_pos
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_is_my_cpu_primary
 	.globl	platform_mem_init
@@ -57,6 +58,16 @@ func plat_my_core_pos
 	mrs	x0, mpidr_el1
 	b	plat_core_pos_by_mpidr
 endfunc plat_my_core_pos
+
+	 /* -----------------------------------------------------
+	  * unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
+	  * This function uses the plat_core_pos_by_mpidr()
+	  * definition to get the index of the calling CPU.
+	  * -----------------------------------------------------
+	  */
+func plat_arm_calc_core_pos
+	b	plat_core_pos_by_mpidr
+endfunc plat_arm_calc_core_pos
 
 	/* ---------------------------------------------------------------------
 	 * We don't need to carry out any memory initialization on Versal NET
