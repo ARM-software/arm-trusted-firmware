@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #include <common/debug.h>
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
+#include <drivers/generic_delay_timer.h>
 #include <plat/arm/common/plat_arm.h>
 
 #include <plat/common/platform.h>
@@ -104,6 +105,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void sgi_bl31_common_platform_setup(void)
 {
+	generic_delay_timer_init();
+
 	arm_bl31_platform_setup();
 
 	/* Configure the warm reboot SGI for primary core */
