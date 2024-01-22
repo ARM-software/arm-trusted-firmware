@@ -20,7 +20,6 @@
 #include "pm_svc_main.h"
 
 /* SMC function IDs for SiP Service queries */
-#define VERSAL_NET_SIP_SVC_CALL_COUNT	(0x8200ff00U)
 #define VERSAL_NET_SIP_SVC_UID		(0x8200ff01U)
 #define VERSAL_NET_SIP_SVC_VERSION	(0x8200ff03U)
 
@@ -88,10 +87,6 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 
 	/* Let PM SMC handler deal with PM-related requests */
 	switch (smc_fid) {
-	case VERSAL_NET_SIP_SVC_CALL_COUNT:
-		/* PM functions + default functions */
-		SMC_RET1(handle, 2);
-
 	case VERSAL_NET_SIP_SVC_UID:
 		SMC_UUID_RET(handle, versal_net_sip_uuid);
 
