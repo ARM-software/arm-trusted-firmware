@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2023, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <cdefs.h>
 #include <stdint.h>
+
+#include <plat/common/platform.h>
 
 #include <stm32mp_common.h>
 

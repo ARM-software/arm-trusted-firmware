@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause) */
 /*
- * Copyright (C) 2020 STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2020-2024 STMicroelectronics - All Rights Reserved
  * Copyright (C) 2020 Ahmad Fatoum, Pengutronix
  */
 
@@ -157,7 +157,7 @@
 };
 
 &bsec {
-	board_id: board_id@ec {
+	board_id: board-id@ec {
 		reg = <0xec 0x4>;
 		st,non-secure-otp;
 	};

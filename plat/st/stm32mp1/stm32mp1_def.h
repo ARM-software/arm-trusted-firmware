@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -426,24 +426,24 @@ enum ddr_type {
 #define OTP_MAX_SIZE			(STM32MP1_OTP_MAX_ID + 1U)
 
 /* OTP labels */
-#define CFG0_OTP			"cfg0_otp"
+#define CFG0_OTP			"cfg0-otp"
 #define PART_NUMBER_OTP			"part-number-otp"
 #if STM32MP15
-#define PACKAGE_OTP			"package_otp"
+#define PACKAGE_OTP			"package-otp"
 #endif
-#define HW2_OTP				"hw2_otp"
+#define HW2_OTP				"hw2-otp"
 #if STM32MP13
-#define NAND_OTP			"cfg9_otp"
-#define NAND2_OTP			"cfg10_otp"
+#define NAND_OTP			"cfg9-otp"
+#define NAND2_OTP			"cfg10-otp"
 #endif
 #if STM32MP15
-#define NAND_OTP			"nand_otp"
+#define NAND_OTP			"nand-otp"
 #endif
-#define MONOTONIC_OTP			"monotonic_otp"
-#define UID_OTP				"uid_otp"
-#define PKH_OTP				"pkh_otp"
-#define ENCKEY_OTP			"enckey_otp"
-#define BOARD_ID_OTP			"board_id"
+#define MONOTONIC_OTP			"monotonic-otp"
+#define UID_OTP				"uid-otp"
+#define PKH_OTP				"pkh-otp"
+#define ENCKEY_OTP			"oem-enc-key"
+#define BOARD_ID_OTP			"board-id"
 
 /* OTP mask */
 /* CFG0 */
