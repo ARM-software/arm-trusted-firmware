@@ -160,15 +160,6 @@ endif #(ARM_ARCH_MAJOR)
 ################################################################################
 arch-features		=	${ARM_ARCH_FEATURE}
 
-# Set the compiler's architecture feature modifiers
-ifneq ($(arch-features), none)
-	# Strip "none+" from arch-features
-	arch-features	:=	$(subst none+,,$(arch-features))
-	march-directive	:=	$(march-directive)+$(arch-features)
-# Print features
-        $(info Arm Architecture Features specified: $(subst +, ,$(arch-features)))
-endif #(arch-features)
-
 ifneq ($(findstring clang,$(notdir $(CC))),)
 	ifneq ($(findstring armclang,$(notdir $(CC))),)
 		TF_CFLAGS_aarch32	:=	-target arm-arm-none-eabi
@@ -231,8 +222,6 @@ endif #(AARCH32_INSTRUCTION_SET)
 
 TF_CFLAGS_aarch32	+=	-mno-unaligned-access
 TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
-
-ASFLAGS		+=	$(march-directive)
 
 ##############################################################################
 # WARNINGS Configuration
@@ -691,6 +680,7 @@ endif
 include ${MAKE_HELPERS_DIRECTORY}march.mk
 
 TF_CFLAGS   +=	$(march-directive)
+ASFLAGS		+=	$(march-directive)
 
 # This internal flag is common option which is set to 1 for scenarios
 # when the BL2 is running in EL3 level. This occurs in two scenarios -
