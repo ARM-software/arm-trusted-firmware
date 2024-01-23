@@ -198,6 +198,7 @@ typedef struct cnf_dev_info {
 #define CNF_OPR_WORK_MODE_RES				3
 
 /* Mini controller common settings register field offsets */
+#define CNF_CMN_SETTINGS_OPR_MASK			0x00000003
 #define CNF_CMN_SETTINGS_WR_WUP				20
 #define CNF_CMN_SETTINGS_RD_WUP				16
 #define CNF_CMN_SETTINGS_DEV16				8

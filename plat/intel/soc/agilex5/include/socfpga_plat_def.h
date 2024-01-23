@@ -56,7 +56,7 @@
 #define SOCFPGA_LWSOC2FPGA_SCR_REG_BASE				0x10d21300
 
 /* Define maximum page size for NAND flash devices */
-#define PLATFORM_MTD_MAX_PAGE_SIZE				U(0x1000)
+#define PLATFORM_MTD_MAX_PAGE_SIZE				U(0x2000)
 
 /*******************************************************************************
  * Platform memory map related constants
