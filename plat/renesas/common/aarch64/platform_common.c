@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,13 +30,19 @@ extern int32_t rcar_get_certificate(const int32_t name, uint32_t *cert);
 const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 		__attribute__ ((__section__(".ro"))) = VERSION_OF_RENESAS;
 
+#if (IMAGE_BL2) && (RCAR_BL2_DCACHE != 1)
+#define RCAR_DCACHE MT_NON_CACHEABLE
+#else
+#define RCAR_DCACHE MT_MEMORY
+#endif
+
 #define MAP_SHARED_RAM		MAP_REGION_FLAT(RCAR_SHARED_MEM_BASE,	\
 					RCAR_SHARED_MEM_SIZE,		\
 					MT_MEMORY | MT_RW | MT_SECURE)
 
 #define MAP_FLASH0		MAP_REGION_FLAT(FLASH0_BASE,		\
 					FLASH0_SIZE,			\
-					MT_MEMORY | MT_RO | MT_SECURE)
+					RCAR_DCACHE | MT_RO | MT_SECURE)
 
 #define MAP_DRAM1_NS		MAP_REGION_FLAT(DRAM1_NS_BASE,		\
 					DRAM1_NS_SIZE,			\
@@ -68,7 +74,7 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 #if IMAGE_BL2
 #define MAP_DRAM0		MAP_REGION_FLAT(DRAM1_BASE,		\
 					DRAM1_SIZE,			\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					RCAR_DCACHE | MT_RW | MT_SECURE)
 
 #define MAP_REG0		MAP_REGION_FLAT(DEVICE_RCAR_BASE,	\
 					DEVICE_RCAR_SIZE,		\
@@ -76,7 +82,7 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 
 #define MAP_RAM0		MAP_REGION_FLAT(RCAR_SYSRAM_BASE,	\
 					RCAR_SYSRAM_SIZE,		\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					RCAR_DCACHE | MT_RW | MT_SECURE)
 
 #define MAP_REG1		MAP_REGION_FLAT(REG1_BASE,		\
 					REG1_SIZE,			\
@@ -84,7 +90,7 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 
 #define MAP_ROM			MAP_REGION_FLAT(ROM0_BASE,		\
 					ROM0_SIZE,			\
-					MT_MEMORY | MT_RO | MT_SECURE)
+					RCAR_DCACHE | MT_RO | MT_SECURE)
 
 #define MAP_REG2		MAP_REGION_FLAT(REG2_BASE,		\
 					REG2_SIZE,			\
@@ -92,7 +98,7 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 
 #define MAP_DRAM1		MAP_REGION_FLAT(DRAM_40BIT_BASE,	\
 					DRAM_40BIT_SIZE,		\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					RCAR_DCACHE | MT_RW | MT_SECURE)
 #endif
 
 #ifdef BL32_BASE
@@ -152,9 +158,9 @@ void rcar_configure_mmu_el3(unsigned long total_base,
 			    unsigned long coh_limit)
 {
 	mmap_add_region(total_base, total_base, total_size,
-			MT_MEMORY | MT_RW | MT_SECURE);
+			RCAR_DCACHE | MT_RW | MT_SECURE);
 	mmap_add_region(ro_start, ro_start, ro_limit - ro_start,
-			MT_MEMORY | MT_RO | MT_SECURE);
+			RCAR_DCACHE | MT_RO | MT_SECURE);
 	mmap_add_region(coh_start, coh_start, coh_limit - coh_start,
 			MT_DEVICE | MT_RW | MT_SECURE);
 	mmap_add(rcar_mmap);
@@ -169,9 +175,9 @@ void rcar_configure_mmu_el3(unsigned long total_base,
 			    unsigned long ro_limit)
 {
 	mmap_add_region(total_base, total_base, total_size,
-			MT_MEMORY | MT_RW | MT_SECURE);
+			RCAR_DCACHE | MT_RW | MT_SECURE);
 	mmap_add_region(ro_start, ro_start, ro_limit - ro_start,
-			MT_MEMORY | MT_RO | MT_SECURE);
+			RCAR_DCACHE | MT_RO | MT_SECURE);
 	mmap_add(rcar_mmap);
 
 	init_xlat_tables();
