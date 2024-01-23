@@ -1029,12 +1029,6 @@ ifeq (${ENABLE_RME},1)
 	endif
 endif
 
-# Determine if FEAT_RNG is supported
-ENABLE_FEAT_RNG		=	$(if $(findstring rng,${arch-features}),1,0)
-
-# Determine if FEAT_SB is supported
-ENABLE_FEAT_SB		=	$(if $(findstring sb,${arch-features}),1,0)
-
 ifeq ($(PSA_CRYPTO),1)
         $(info PSA_CRYPTO is an experimental feature)
 endif
@@ -1160,7 +1154,6 @@ $(eval $(call assert_booleans,\
 	ENABLE_AMU_FCONF \
 	AMU_RESTRICT_COUNTERS \
 	ENABLE_ASSERTIONS \
-	ENABLE_FEAT_SB \
 	ENABLE_PIE \
 	ENABLE_PMF \
 	ENABLE_PSCI_STAT \
@@ -1257,6 +1250,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_FEAT_RNG_TRAP \
 	ENABLE_FEAT_SEL2 \
 	ENABLE_FEAT_TCR2 \
+	ENABLE_FEAT_SB \
 	ENABLE_FEAT_S2PIE \
 	ENABLE_FEAT_S1PIE \
 	ENABLE_FEAT_S2POE \
