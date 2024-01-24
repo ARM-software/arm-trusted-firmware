@@ -185,12 +185,6 @@ Common build options
    registers to be included when saving and restoring the CPU context.
    Default is '0'.
 
--  ``CTX_INCLUDE_MTE_REGS``: Numeric value to include Memory Tagging Extension
-   registers in cpu context. This must be enabled, if the platform wants to use
-   this feature in the Secure world and MTE is enabled at ELX. This flag can
-   take values 0 to 2, to align with the ``FEATURE_DETECTION`` mechanism.
-   Default value is 0.
-
 -  ``CTX_INCLUDE_NEVE_REGS``: Numeric value, when set will cause the Armv8.4-NV
    registers to be saved/restored when entering/exiting an EL2 execution
    context. This flag can take values 0 to 2, to align with the
@@ -312,6 +306,11 @@ Common build options
    mandatory architectural feature and is enabled from v8.7 and upwards. This
    flag can take the values 0 to 2, to align  with the ``FEATURE_DETECTION``
    mechanism. Default value is ``0``.
+
+-  ``ENABLE_FEAT_MTE``: Numeric value to enable Memory Tagging Extension
+   if the platform wants to use this feature in the Secure world and MTE is
+   enabled at ELX. This flag can take values 0 to 2, to align with the
+   ``FEATURE_DETECTION`` mechanism. Default value is ``0``.
 
 -  ``ENABLE_FEAT_MTE_PERM``: Numeric value to enable support for
    ``FEAT_MTE_PERM``, which introduces Allocation tag access permission to
@@ -1334,7 +1333,7 @@ Firmware update options
 
 --------------
 
-*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
 .. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/

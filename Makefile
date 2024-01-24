@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -935,12 +935,6 @@ ifeq ($(CTX_INCLUDE_PAUTH_REGS),1)
 	endif
 endif #(CTX_INCLUDE_PAUTH_REGS)
 
-ifeq ($(CTX_INCLUDE_MTE_REGS),1)
-	ifneq (${ARCH},aarch64)
-                $(error CTX_INCLUDE_MTE_REGS requires AArch64)
-	endif
-endif #(CTX_INCLUDE_MTE_REGS)
-
 ifeq ($(PSA_FWU_SUPPORT),1)
         $(info PSA_FWU_SUPPORT is an experimental feature)
 endif #(PSA_FWU_SUPPORT)
@@ -1254,7 +1248,6 @@ $(eval $(call assert_numerics,\
 	ARM_ARCH_MINOR \
 	BRANCH_PROTECTION \
 	CTX_INCLUDE_PAUTH_REGS \
-	CTX_INCLUDE_MTE_REGS \
 	CTX_INCLUDE_NEVE_REGS \
 	CRYPTO_SUPPORT \
 	DISABLE_MTPMU \
@@ -1269,6 +1262,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_FEAT_ECV \
 	ENABLE_FEAT_FGT \
 	ENABLE_FEAT_HCX \
+	ENABLE_FEAT_MTE \
 	ENABLE_FEAT_PAN \
 	ENABLE_FEAT_RNG \
 	ENABLE_FEAT_RNG_TRAP \
@@ -1324,7 +1318,6 @@ $(eval $(call add_defines,\
 	CTX_INCLUDE_PAUTH_REGS \
 	CTX_INCLUDE_MPAM_REGS \
 	EL3_EXCEPTION_HANDLING \
-	CTX_INCLUDE_MTE_REGS \
 	CTX_INCLUDE_EL2_REGS \
 	CTX_INCLUDE_NEVE_REGS \
 	DECRYPTION_SUPPORT_${DECRYPTION_SUPPORT} \
@@ -1427,6 +1420,7 @@ $(eval $(call add_defines,\
 	ENABLE_FEAT_S2POE \
 	ENABLE_FEAT_S1POE \
 	ENABLE_FEAT_GCS \
+	ENABLE_FEAT_MTE \
 	ENABLE_FEAT_MTE_PERM \
 	FEATURE_DETECTION \
 	TWED_DELAY \

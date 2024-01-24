@@ -2771,7 +2771,7 @@ Armv8.5-A
    (at EL0 and S-EL0) if it is only supported at EL0. If instead it is
    implemented at all ELs, it is unconditionally enabled for only the normal
    world. To enable it for the secure world as well, the build option
-   ``CTX_INCLUDE_MTE_REGS`` is required. If the hardware does not implement
+   ``ENABLE_FEAT_MTE`` is required. If the hardware does not implement
    MTE support at all, it is always disabled, no matter what build options
    are used.
 
@@ -2860,7 +2860,7 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 
 --------------
 
-*Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMCCC: https://developer.arm.com/docs/den0028/latest
 .. _PSCI: https://developer.arm.com/documentation/den0022/latest/

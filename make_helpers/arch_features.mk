@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2022-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -239,10 +239,18 @@ CTX_INCLUDE_NEVE_REGS			?=	0
 # registers, by setting SCR_EL3.TRNDR.
 ENABLE_FEAT_RNG_TRAP			?=	0
 
-# Include Memory Tagging Extension registers in cpu context. This must be set
-# to 1 if the platform wants to use this feature in the Secure world and MTE is
-# enabled at ELX.
-CTX_INCLUDE_MTE_REGS			?=	0
+# Enable Memory Tagging Extension. This must be set to 1 if the platform wants
+# to use this feature in the Secure world and MTE is enabled at ELX.
+ifeq ($(CTX_INCLUDE_MTE_REGS),1)
+        $(warning CTX_INCLUDE_MTE_REGS option is deprecated use ENABLE_FEAT_MTE, Enabling ENABLE_FEAT_MTE)
+        ENABLE_FEAT_MTE                 ?=      1
+endif
+ifeq (${ARCH},aarch32)
+        ifneq ($(or $(ENABLE_FEAT_MTE),0),0)
+                $(error ENABLE_FEAT_MTE is not supported for AArch32)
+        endif
+endif
+ENABLE_FEAT_MTE		                ?=	0
 
 #----
 # 8.6
