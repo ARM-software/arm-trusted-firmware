@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -40,11 +40,10 @@ LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none
 
 # Cross tool
 CC			:= ${M0_CROSS_COMPILE}gcc
-CPP			:= ${M0_CROSS_COMPILE}cpp
-AR			:= ${M0_CROSS_COMPILE}ar
+CPP			:= ${M0_CROSS_COMPILE}gcc -E
+AR			:= ${M0_CROSS_COMPILE}gcc-ar
 OC			:= ${M0_CROSS_COMPILE}objcopy
 OD			:= ${M0_CROSS_COMPILE}objdump
-NM			:= ${M0_CROSS_COMPILE}nm
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
 # end up with a line-feed characer at the end of the last c filename.

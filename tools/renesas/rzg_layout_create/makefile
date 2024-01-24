@@ -110,8 +110,8 @@ $(OUTPUT_FILE_SA6) : $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6)
 # Compile
 ###################################################
 
-%.o:../%.c
-	$(CC) -c -I $< -o $@
+%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 .PHONY: clean
 clean:

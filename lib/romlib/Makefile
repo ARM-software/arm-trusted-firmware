@@ -1,14 +1,14 @@
 #
-# Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-AS          = $(CROSS_COMPILE)as
-AR          = $(CROSS_COMPILE)ar
+AS          = $(CROSS_COMPILE)gcc
+AR          = $(CROSS_COMPILE)gcc-ar
 LD          = $(CROSS_COMPILE)ld
 OC          = $(CROSS_COMPILE)objcopy
-CPP         = $(CROSS_COMPILE)cpp
+CPP         = $(CROSS_COMPILE)gcc -E
 ROMLIB_GEN  = ./romlib_generator.py
 BUILD_DIR   = $(BUILD_PLAT)/romlib
 LIB_DIR     = $(BUILD_PLAT)/lib
@@ -48,11 +48,11 @@ all: $(BUILD_DIR)/romlib.bin $(LIB_DIR)/libwrappers.a
 
 %.o: %.s
 	@echo "  AS      $@"
-	$(Q)$(AS) $(ASFLAGS) -o $@ $<
+	$(Q)$(AS) -c $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/%.o: %.s
 	@echo "  AS      $@"
-	$(Q)$(AS) $(ASFLAGS) -o $@ $<
+	$(Q)$(AS) -c $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/romlib.ld: romlib.ld.S
 	@echo "  PP      $@"

@@ -100,14 +100,12 @@ HOSTCC			:=	gcc
 export HOSTCC
 
 CC			:=	${CROSS_COMPILE}gcc
-CPP			:=	${CROSS_COMPILE}cpp
+CPP			:=	${CROSS_COMPILE}gcc -E
 AS			:=	${CROSS_COMPILE}gcc
-AR			:=	${CROSS_COMPILE}ar
+AR			:=	${CROSS_COMPILE}gcc-ar
 LINKER			:=	${CROSS_COMPILE}ld
 OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
-NM			:=	${CROSS_COMPILE}nm
-PP			:=	${CROSS_COMPILE}gcc -E
 DTC			:=	dtc
 
 # Use ${LD}.bfd instead if it exists (as absolute path or together with $PATH).
@@ -187,7 +185,6 @@ ifneq ($(findstring clang,$(notdir $(CC))),)
 	endif
 
 	CPP		:=	$(CC) -E $(TF_CFLAGS_$(ARCH))
-	PP		:=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 	AS		:=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring gcc,$(notdir $(CC))),)
 	ifeq ($(ENABLE_LTO),1)
@@ -356,6 +353,7 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 # LD = gcc (used when GCC LTO is enabled)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
 	# Pass ld options with Wl or Xlinker switches
+	TF_LDFLAGS		+=	$(call ld_option,-Xlinker --no-warn-rwx-segments)
 	TF_LDFLAGS		+=	-Wl,--fatal-warnings -O1
 	TF_LDFLAGS		+=	-Wl,--gc-sections
 
