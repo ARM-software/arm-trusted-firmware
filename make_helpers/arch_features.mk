@@ -8,13 +8,13 @@
 # and enables them based on the configured architecture version.
 
 # This file follows the following format:
-#   - Enable mandatory feature if applicable to an Arch Version.
+#   - Enable mandatory feature if not updated, as applicable to an Arch Version.
 #   - By default disable any mandatory features if they have not been defined yet.
 #   - Disable or enable any optional feature this would be enabled/disabled if needed by platform.
 
 #
 ################################################################################
-# Enable Mandatory features based on Arch versions.
+# Enable Mandatory features if not updated yet, based on Arch versions.
 ################################################################################
 #
 
@@ -130,7 +130,7 @@ $(eval $(call default_ones, ${sort ${FEAT_LIST}}))
 
 #
 ################################################################################
-# Set mandatory features by default to zero.
+# Set mandatory features by default to zero, if they are not already updated.
 ################################################################################
 #
 
@@ -362,9 +362,6 @@ ENABLE_FEAT_S1POE			?=	0
 # 9.0
 #----
 
-# Flag to enable Realm Management Extension (FEAT_RME).
-ENABLE_RME				?=	0
-
 # Scalable Matrix Extension for non-secure world.
 ENABLE_SME_FOR_NS			?=	0
 
@@ -389,6 +386,9 @@ endif
 #----
 # 9.2
 #----
+
+# Flag to enable Realm Management Extension (FEAT_RME).
+ENABLE_RME				?=	0
 
 # Scalable Matrix Extension version 2 for non-secure world.
 ENABLE_SME2_FOR_NS			?=	0
