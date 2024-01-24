@@ -3,6 +3,31 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.15](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.14..refs/tags/lts-v2.8.15) (2024-01-24)
+
+### Documentation
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - security advisory for CVE-2023-49100 ([10d7389](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/10d7389753566c8db7558cac86b41784a178de5a))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex X3 erratum 2743088 ([fc08e1b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fc08e1bc4f2d0b591fd84b2eabc66f7b7339fba4))
+    - workaround for Cortex-A78C erratum 2683027 ([560f140](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/560f140751ff678b58fd420c2c2ca52e64e5b452))
+    - workaround for Cortex-X3 erratum 2266875 ([eadc24b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/eadc24b6b161a878ace45314762a33d13e17d96c))
+    - workaround for Cortex-X3 erratum 2302506 ([70bd264](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/70bd2640b9bef40612aaf5713d4399f31a848849))
+
+- **Documentation**
+
+  - add few missed links for Security Advisories ([7185d05](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7185d051bc2e47d5639d489b14f17dcd698ee284))
+
 ## [lts-2.8.14](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.13..refs/tags/lts-v2.8.14) (2024-01-03)
 
 ### Resolved Issues
