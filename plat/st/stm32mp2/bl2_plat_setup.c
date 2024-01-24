@@ -164,11 +164,19 @@ static void reset_backup_domain(void)
 	 * The protection is enable at each reset by hardware
 	 * and must be disabled by software.
 	 */
+#if STM32MP21
+	mmio_setbits_32(pwr_base + PWR_BDCR, PWR_BDCR_DBP);
+
+	while ((mmio_read_32(pwr_base + PWR_BDCR) & PWR_BDCR_DBP) == 0U) {
+		;
+	}
+#else /* STM32MP21 */
 	mmio_setbits_32(pwr_base + PWR_BDCR1, PWR_BDCR1_DBD3P);
 
 	while ((mmio_read_32(pwr_base + PWR_BDCR1) & PWR_BDCR1_DBD3P) == 0U) {
 		;
 	}
+#endif /* STM32MP21 */
 
 	/* Reset backup domain on cold boot cases */
 	if ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_RTCCKEN) == 0U) {

@@ -15,7 +15,11 @@
 #ifndef __ASSEMBLER__
 #include <drivers/st/stm32mp2_clk.h>
 #endif
+#if STM32MP21
+#include <drivers/st/stm32mp21_pwr.h>
+#else
 #include <drivers/st/stm32mp2_pwr.h>
+#endif /* STM32MP21 */
 #include <dt-bindings/clock/stm32mp25-clks.h>
 #include <dt-bindings/clock/stm32mp25-clksrc.h>
 #include <dt-bindings/gpio/stm32-gpio.h>
