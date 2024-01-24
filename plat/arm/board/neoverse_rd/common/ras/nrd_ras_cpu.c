@@ -95,39 +95,39 @@ static void populate_cpu_err_data(cpu_err_info *cpu_info,
 						  CTX_TTBR1_EL1);
 
 #if CTX_INCLUDE_EL2_REGS
-	cpu_info->ErrCtxEl2Reg[0]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_ELR_EL2);
-	cpu_info->ErrCtxEl2Reg[1]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_ESR_EL2);
-	cpu_info->ErrCtxEl2Reg[2]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_FAR_EL2);
-	cpu_info->ErrCtxEl2Reg[3]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_HACR_EL2);
-	cpu_info->ErrCtxEl2Reg[4]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_HCR_EL2);
-	cpu_info->ErrCtxEl2Reg[5]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_HPFAR_EL2);
-	cpu_info->ErrCtxEl2Reg[6]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_MAIR_EL2);
-	cpu_info->ErrCtxEl2Reg[7]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_SCTLR_EL2);
-	cpu_info->ErrCtxEl2Reg[8]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_SP_EL2);
-	cpu_info->ErrCtxEl2Reg[9]   = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_SPSR_EL2);
-	cpu_info->ErrCtxEl2Reg[10]  = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_TCR_EL2);
-	cpu_info->ErrCtxEl2Reg[11]  = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_TPIDR_EL2);
-	cpu_info->ErrCtxEl2Reg[12]  = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_TTBR0_EL2);
-	cpu_info->ErrCtxEl2Reg[13]  = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_VTCR_EL2);
-	cpu_info->ErrCtxEl2Reg[14]  = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_VTTBR_EL2);
-	cpu_info->ErrCtxEl2Reg[15]  = read_ctx_reg(get_el2_sysregs_ctx(ctx),
-						   CTX_ESR_EL2);
-#endif
+	cpu_info->ErrCtxEl2Reg[0]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						elr_el2);
+	cpu_info->ErrCtxEl2Reg[1]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						esr_el2);
+	cpu_info->ErrCtxEl2Reg[2]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						far_el2);
+	cpu_info->ErrCtxEl2Reg[3]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						hacr_el2);
+	cpu_info->ErrCtxEl2Reg[4]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						hcr_el2);
+	cpu_info->ErrCtxEl2Reg[5]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						hpfar_el2);
+	cpu_info->ErrCtxEl2Reg[6]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						mair_el2);
+	cpu_info->ErrCtxEl2Reg[7]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						sctlr_el2);
+	cpu_info->ErrCtxEl2Reg[8]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						sp_el2);
+	cpu_info->ErrCtxEl2Reg[9]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						spsr_el2);
+	cpu_info->ErrCtxEl2Reg[10]  = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						tcr_el2);
+	cpu_info->ErrCtxEl2Reg[11]  = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						tpidr_el2);
+	cpu_info->ErrCtxEl2Reg[12]  = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						ttbr0_el2);
+	cpu_info->ErrCtxEl2Reg[13]  = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						vtcr_el2);
+	cpu_info->ErrCtxEl2Reg[14]  = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						vttbr_el2);
+	cpu_info->ErrCtxEl2Reg[15]  = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
+						esr_el2);
+#endif /* CTX_INCLUDE_EL2_REGS */
 
 	cpu_info->ErrCtxEl3Reg[0]   = read_ctx_reg(get_el3state_ctx(ctx),
 						   CTX_ELR_EL3);

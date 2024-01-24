@@ -109,8 +109,8 @@ __dead2 void rmmd_rmm_sync_exit(uint64_t rc)
 
 static void rmm_el2_context_init(el2_sysregs_t *regs)
 {
-	regs->ctx_regs[CTX_SPSR_EL2 >> 3] = REALM_SPSR_EL2;
-	regs->ctx_regs[CTX_SCTLR_EL2 >> 3] = SCTLR_EL2_RES1;
+	write_el2_ctx_common(regs, spsr_el2, REALM_SPSR_EL2);
+	write_el2_ctx_common(regs, sctlr_el2, SCTLR_EL2_RES1);
 }
 
 /*******************************************************************************
