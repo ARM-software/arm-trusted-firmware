@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2022-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -381,6 +381,11 @@ static int restore_context(struct stm32_saes_context *ctx)
 int stm32_saes_driver_init(void)
 {
 	int err;
+
+	if (saes_pdata.base != 0U) {
+		/* Driver is already initialized */
+		return 0;
+	}
 
 	err = stm32_saes_parse_fdt(&saes_pdata);
 	if (err != 0) {
