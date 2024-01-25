@@ -44,6 +44,11 @@
 #define CORTEX_X3_CPUACTLR5_EL1_BIT_56		(ULL(1) << 56)
 
 /*******************************************************************************
+ * CPU Auxiliary Control register 6 specific definitions.
+ ******************************************************************************/
+#define CORTEX_X3_CPUACTLR6_EL1			S3_0_C15_C8_1
+
+/*******************************************************************************
  * CPU Extended Control register 2 specific definitions.
  ******************************************************************************/
 #define CORTEX_X3_CPUECTLR2_EL1			S3_0_C15_C1_5
