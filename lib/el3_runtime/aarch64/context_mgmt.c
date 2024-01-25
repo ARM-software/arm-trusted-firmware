@@ -1333,9 +1333,10 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
 
 	el2_sysregs_context_restore_common(el2_sysregs_ctx);
-#if CTX_INCLUDE_MTE_REGS
-	write_tfsr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2));
-#endif
+
+	if (is_feat_mte_supported()) {
+		write_tfsr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2));
+	}
 
 #if CTX_INCLUDE_MPAM_REGS
 	if (is_feat_mpam_supported()) {
