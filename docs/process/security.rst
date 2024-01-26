@@ -69,6 +69,14 @@ Security Advisories
 |  |TFV-8|  | Not saving x0 to x3 registers can leak information from one      |
 |           | Normal World SMC client to another                               |
 +-----------+------------------------------------------------------------------+
+|  |TFV-9|  | Trusted Firmware-A exposure to speculative processor             |
+|           | vulnerabilities with branch prediction target reuse              |
++-----------+------------------------------------------------------------------+
+|  |TFV-10| | Incorrect validation of X.509 certificate extensions can result  |
+|           | in an out-of-bounds read                                         |
++-----------+------------------------------------------------------------------+
+|  |TFV-11| |  A Malformed SDEI SMC can cause out of bound memory read         |
++-----------+------------------------------------------------------------------+
 
 .. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
 .. _mailing list: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
@@ -81,6 +89,9 @@ Security Advisories
 .. |TFV-6| replace:: :ref:`Advisory TFV-6 (CVE-2017-5753, CVE-2017-5715, CVE-2017-5754)`
 .. |TFV-7| replace:: :ref:`Advisory TFV-7 (CVE-2018-3639)`
 .. |TFV-8| replace:: :ref:`Advisory TFV-8 (CVE-2018-19440)`
+.. |TFV-9| replace:: :ref:`Advisory TFV-9 (CVE-2022-23960)`
+.. |TFV-10| replace:: :ref:`Advisory TFV-10 (CVE-2022-47630)`
+.. |TFV-11| replace:: :ref:`Advisory TFV-11 (CVE-2023-49100)`
 
 .. _TrustedFirmware.org security incident process: https://developer.trustedfirmware.org/w/collaboration/security_center/
 

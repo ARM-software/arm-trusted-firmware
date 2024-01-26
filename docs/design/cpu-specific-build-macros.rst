@@ -384,6 +384,10 @@ For Cortex-A78C, the following errata build flags are defined :
   Cortex-A78C CPU. This needs to be enabled for revisions r0p1 and r0p2. This
   erratum is still open.
 
+- ``ERRATA_A78C_2683027`` : This applies errata 2683027 workaround to
+  Cortex-A78C CPU. This needs to be enabled for revisions r0p1 and r0p2. This
+  erratum is still open.
+
 - ``ERRATA_A78C_2712575`` : This applies erratum 2712575 workaround to
   Cortex-A78C CPU, this erratum affects system configurations that do not use
   an ARM interconnect IP. This needs to be enabled for revisions r0p1 and r0p2
@@ -771,6 +775,14 @@ For Cortex-X3, the following errata build flags are defined :
   CPU. This needs to be enabled only for revisions r0p0, r1p0, r1p1 and r1p2 of
   the CPU and is still open.
 
+- ``ERRATA_X3_2266875``: This applies errata 2266875 workaround to the Cortex-X3
+  CPU. This needs to be enabled only for revisions r0p0 and r1p0 of the CPU, it
+  is fixed in r1p1.
+
+- ``ERRATA_X3_2302506``: This applies errata 2302506 workaround to the Cortex-X3
+  CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1, it is
+  fixed in r1p2.
+
 - ``ERRATA_X3_2313909``: This applies errata 2313909 workaround to
   Cortex-X3 CPU. This needs to be enabled only for revisions r0p0 and r1p0
   of the CPU, it is fixed in r1p1.
@@ -782,6 +794,10 @@ For Cortex-X3, the following errata build flags are defined :
 - ``ERRATA_X3_2742421``: This applies errata 2742421 workaround to
   Cortex-X3 CPU. This needs to be enabled only for revisions r0p0, r1p0 and
   r1p1. It is fixed in r1p2.
+
+- ``ERRATA_X3_2743088``: This applies errata 2743088 workaround to Cortex-X3
+  CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1. It is
+  fixed in r1p2.
 
 - ``ERRATA_X3_2779509``: This applies errata 2779509 workaround to Cortex-X3
   CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1 of the
@@ -942,7 +958,7 @@ GIC Errata Workarounds
 
 --------------
 
-*Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639

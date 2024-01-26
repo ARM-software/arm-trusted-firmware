@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -71,6 +71,19 @@ workaround_reset_start cortex_a78c, ERRATUM(2395411), ERRATA_A78C_2395411
 workaround_reset_end cortex_a78c, ERRATUM(2395411)
 
 check_erratum_range cortex_a78c, ERRATUM(2395411), CPU_REV(0, 1), CPU_REV(0, 2)
+
+workaround_reset_start cortex_a78c, ERRATUM(2683027), ERRATA_A78C_2683027
+	ldr	x0, =0x3
+	msr	CORTEX_A78C_IMP_CPUPSELR_EL3, x0
+	ldr	x0, =0xEE010F10
+	msr	CORTEX_A78C_IMP_CPUPOR_EL3, x0
+	ldr	x0, =0xFF1F0FFE
+	msr	CORTEX_A78C_IMP_CPUPMR_EL3, x0
+	ldr	x0, =0x100000004003FF
+	msr	CORTEX_A78C_IMP_CPUPCR_EL3, x0
+workaround_reset_end cortex_a78c, ERRATUM(2683027)
+
+check_erratum_range cortex_a78c, ERRATUM(2683027), CPU_REV(0, 1), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a78c, ERRATUM(2743232), ERRATA_A78C_2743232
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
