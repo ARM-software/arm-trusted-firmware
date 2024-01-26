@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,9 @@
 
 /* Cortex-A35 Main ID register for revision 0 */
 #define CORTEX_A35_MIDR				U(0x410FD040)
+
+/* L2 Extended Control Register */
+#define CORTEX_A35_L2ECTLR_EL1			S3_1_C11_C0_3
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
