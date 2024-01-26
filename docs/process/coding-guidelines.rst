@@ -520,5 +520,3 @@ comply with.
 .. _`Procedure Call Standard for the Arm 64-bit Architecture`: https://github.com/ARM-software/abi-aa/blob/main/aapcs64/aapcs64.rst
 .. _`EditorConfig`: http://editorconfig.org/
 .. _`Why the “volatile” type class should not be used`: https://www.kernel.org/doc/html/latest/process/volatile-considered-harmful.html
-.. _`MISRA C:2012 Guidelines`: https://www.misra.org.uk/Activities/MISRAC/tabid/160/Default.aspx
-.. _`a spreadsheet`: https://developer.trustedfirmware.org/file/download/lamajxif3w7c4mpjeoo5/PHID-FILE-fp7c7acszn6vliqomyhn/MISRA-and-TF-Analysis-v1.3.ods
