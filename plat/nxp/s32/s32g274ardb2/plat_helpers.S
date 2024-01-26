@@ -15,6 +15,7 @@
 .globl	plat_crash_console_init
 .globl	plat_crash_console_putc
 .globl	plat_is_my_cpu_primary
+.globl	plat_my_core_pos
 .globl	plat_reset_handler
 .globl	plat_secondary_cold_boot_setup
 .globl	platform_mem_init
