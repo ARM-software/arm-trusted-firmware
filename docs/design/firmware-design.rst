@@ -2767,13 +2767,9 @@ Armv8.5-A
 -  Branch Target Identification feature is selected by ``BRANCH_PROTECTION``
    option set to 1. This option defaults to 0.
 
--  Memory Tagging Extension feature is unconditionally enabled for both worlds
-   (at EL0 and S-EL0) if it is only supported at EL0. If instead it is
-   implemented at all ELs, it is unconditionally enabled for only the normal
-   world. To enable it for the secure world as well, the build option
-   ``ENABLE_FEAT_MTE`` is required. If the hardware does not implement
-   MTE support at all, it is always disabled, no matter what build options
-   are used.
+-  Memory Tagging Extension feature is unconditionally enabled for both worlds.
+   To enable MTE at EL0 use ``ENABLE_FEAT_MTE`` is required and to enable MTE at
+   ELX ``ENABLE_FEAT_MTE2`` is required.
 
 Armv7-A
 ~~~~~~~

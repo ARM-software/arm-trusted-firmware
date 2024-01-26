@@ -319,6 +319,15 @@ ifeq (${ARCH},aarch32)
         endif
 endif
 ENABLE_FEAT_MTE		                ?=	0
+ENABLE_FEAT_MTE2		        ?=	0
+
+
+# Add a error message to indicate incorrect MTE2 selection without MTE enabled.
+ifneq ($(ENABLE_FEAT_MTE2),0)
+        ifeq ($(ENABLE_FEAT_MTE),0)
+               $(error ENABLE_FEAT_MTE2 is not supported without enabling ENABLE_FEAT_MTE)
+        endif
+endif
 
 #----
 # 8.6

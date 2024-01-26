@@ -1258,7 +1258,7 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 
 	el2_sysregs_context_save_common(el2_sysregs_ctx);
 
-	if (is_feat_mte_supported()) {
+	if (is_feat_mte2_supported()) {
 		write_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2, read_tfsr_el2());
 	}
 
@@ -1337,7 +1337,7 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 
 	el2_sysregs_context_restore_common(el2_sysregs_ctx);
 
-	if (is_feat_mte_supported()) {
+	if (is_feat_mte2_supported()) {
 		write_tfsr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2));
 	}
 
