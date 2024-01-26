@@ -17,6 +17,15 @@
 #include <lib/mmio.h>
 #include <sci/sci.h>
 
+#if defined(PLAT_imx8mn) || defined(PLAT_imx8mp)
+/*
+ * Defined in
+ * table 11. ROM event log buffer address location
+ * AN12853 "i.MX ROMs Log Events"
+ */
+#define ROM_LOG_BUFFER_ADDR	0x9E0
+#endif
+
 #if defined(PLAT_imx8qm) || defined(PLAT_imx8qx)
 
 #ifdef PLAT_imx8qm
@@ -176,6 +185,76 @@ int imx_src_handler(uint32_t smc_fid,
 	return 0;
 }
 #endif /* defined(PLAT_imx8mm) || defined(PLAT_imx8mq) */
+
+#if defined(PLAT_imx8mn) || defined(PLAT_imx8mp)
+static bool is_secondary_boot(void)
+{
+	uint32_t *rom_log_addr = (uint32_t *)ROM_LOG_BUFFER_ADDR;
+	bool is_secondary = false;
+	uint32_t *rom_log;
+	uint8_t event_id;
+
+	/* If the ROM event log pointer is not valid. */
+	if (*rom_log_addr < 0x900000 || *rom_log_addr >= 0xB00000 ||
+	    *rom_log_addr & 0x3) {
+		return false;
+	}
+
+	/* Parse the ROM event ID version 2 log */
+	rom_log = (uint32_t *)(uintptr_t)(*rom_log_addr);
+	for (size_t i = 0; i < 128; i++) {
+		event_id = rom_log[i] >> 24;
+		switch (event_id) {
+		case 0x00: /* End of list */
+			return is_secondary;
+		/* Log entries with 1 parameter, skip 1 */
+		case 0x80: /* Perform the device initialization */
+		case 0x81: /* The boot device initialization completes */
+		case 0x82: /* Execute boot device driver pre-config */
+		case 0x8F: /* The boot device initialization fails */
+		case 0x90: /* Start to read data from boot device */
+		case 0x91: /* Reading data from boot device completes */
+		case 0x9F: /* Reading data from boot device fails */
+			i += 1;
+			continue;
+		/* Log entries with 2 parameters, skip 2 */
+		case 0xA0: /* Image authentication result */
+		case 0xC0: /* Jump to the boot image soon */
+			i += 2;
+			continue;
+		/* Booted the primary boot image */
+		case 0x50:
+			is_secondary = false;
+			continue;
+		/* Booted the secondary boot image */
+		case 0x51:
+			is_secondary = true;
+			continue;
+		}
+	}
+
+	return is_secondary;
+}
+
+int imx_src_handler(uint32_t smc_fid,
+		    u_register_t x1,
+		    u_register_t x2,
+		    u_register_t x3,
+		    void *handle)
+{
+	switch (x1) {
+	case IMX_SIP_SRC_SET_SECONDARY_BOOT:
+		/* we do support that on these SoCs */
+		break;
+	case IMX_SIP_SRC_IS_SECONDARY_BOOT:
+		return is_secondary_boot();
+	default:
+		return SMC_UNK;
+	};
+
+	return 0;
+}
+#endif /* defined(PLAT_imx8mn) || defined(PLAT_imx8mp) */
 
 static uint64_t imx_get_commit_hash(u_register_t x2,
 		    u_register_t x3,
