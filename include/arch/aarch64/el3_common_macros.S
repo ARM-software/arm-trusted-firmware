@@ -64,9 +64,21 @@
 	 *
 	 * SCR_EL3.EA: Set to one to route External Aborts and SError Interrupts
 	 *  to EL3 when executing at any EL.
+	 *
+	 * SCR_EL3.EEL2: Set to one if S-EL2 is present and enabled.
+	 *
+	 * NOTE: Modifying EEL2 bit along with EA bit ensures that we mitigate
+	 * against ERRATA_V2_3099206.
 	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, (SCR_RESET_VAL | SCR_EA_BIT | SCR_SIF_BIT)
+#if IMAGE_BL31 && defined(SPD_spmd) && SPMD_SPM_AT_SEL2
+	mrs x1, id_aa64pfr0_el1
+	and x1, x1, #(ID_AA64PFR0_SEL2_MASK << ID_AA64PFR0_SEL2_SHIFT)
+	cbz x1, 1f
+	orr x0, x0, #SCR_EEL2_BIT
+#endif
+1:
 	msr	scr_el3, x0
 
 	/* ---------------------------------------------------------------------
