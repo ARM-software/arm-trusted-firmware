@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,51 +42,6 @@
 #define EVLOG_INVALID_ID	UINT32_MAX
 
 #define MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
-
-/*
- * Each event log entry has some metadata (i.e. a string) that identifies
- * what is measured.These macros define these strings.
- * Note that these strings follow the standardization recommendations
- * defined in the Arm Server Base Security Guide (a.k.a. SBSG, Arm DEN 0086),
- * where applicable. They should not be changed in the code.
- * Where the SBSG does not make recommendations, we are free to choose any
- * naming convention.
- * The key thing is to choose meaningful strings so that when the TPM event
- * log is used in attestation, the different components can be identified.
- */
-#define EVLOG_BL2_STRING		"BL_2"
-#define EVLOG_BL31_STRING		"SECURE_RT_EL3"
-#if defined(SPD_opteed)
-#define EVLOG_BL32_STRING		"SECURE_RT_EL1_OPTEE"
-#elif defined(SPD_tspd)
-#define EVLOG_BL32_STRING		"SECURE_RT_EL1_TSPD"
-#elif defined(SPD_tlkd)
-#define EVLOG_BL32_STRING		"SECURE_RT_EL1_TLKD"
-#elif defined(SPD_trusty)
-#define EVLOG_BL32_STRING		"SECURE_RT_EL1_TRUSTY"
-#else
-#define EVLOG_BL32_STRING		"SECURE_RT_EL1_UNKNOWN"
-#endif
-#define	EVLOG_BL32_EXTRA1_STRING	"SECURE_RT_EL1_OPTEE_EXTRA1"
-#define	EVLOG_BL32_EXTRA2_STRING	"SECURE_RT_EL1_OPTEE_EXTRA2"
-#define EVLOG_BL33_STRING		"BL_33"
-#define EVLOG_FW_CONFIG_STRING		"FW_CONFIG"
-#define EVLOG_HW_CONFIG_STRING		"HW_CONFIG"
-#define EVLOG_NT_FW_CONFIG_STRING	"NT_FW_CONFIG"
-#define EVLOG_SCP_BL2_STRING		"SYS_CTRL_2"
-#define EVLOG_SOC_FW_CONFIG_STRING	"SOC_FW_CONFIG"
-#define EVLOG_STM32_STRING		"STM32"
-#define EVLOG_TB_FW_CONFIG_STRING	"TB_FW_CONFIG"
-#define	EVLOG_TOS_FW_CONFIG_STRING	"TOS_FW_CONFIG"
-#define EVLOG_RMM_STRING 		"RMM"
-#define EVLOG_SP1_STRING		"SP1"
-#define EVLOG_SP2_STRING		"SP2"
-#define EVLOG_SP3_STRING		"SP3"
-#define EVLOG_SP4_STRING		"SP4"
-#define EVLOG_SP5_STRING		"SP5"
-#define EVLOG_SP6_STRING		"SP6"
-#define EVLOG_SP7_STRING		"SP7"
-#define EVLOG_SP8_STRING		"SP8"
 
 typedef struct {
 	unsigned int id;
