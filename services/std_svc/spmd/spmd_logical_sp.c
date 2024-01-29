@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -528,9 +528,10 @@ bool spmd_el3_invoke_partition_info_get(
 	}
 
 	/* Save the non-secure context before entering SPMC */
-	cm_el1_sysregs_context_save(NON_SECURE);
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_save(NON_SECURE);
+#else
+	cm_el1_sysregs_context_save(NON_SECURE);
 #endif
 
 	spmd_build_ffa_info_get_regs(ctx, target_uuid, start_index, tag);
@@ -548,9 +549,10 @@ bool spmd_el3_invoke_partition_info_get(
 
 	assert(is_ffa_error(retval) || is_ffa_success(retval));
 
-	cm_el1_sysregs_context_restore(NON_SECURE);
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_restore(NON_SECURE);
+#else
+	cm_el1_sysregs_context_restore(NON_SECURE);
 #endif
 	cm_set_next_eret_context(NON_SECURE);
 	return true;
@@ -667,9 +669,10 @@ bool spmd_el3_ffa_msg_direct_req(uint64_t x1,
 	}
 
 	/* Save the non-secure context before entering SPMC */
-	cm_el1_sysregs_context_save(NON_SECURE);
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_save(NON_SECURE);
+#else
+	cm_el1_sysregs_context_save(NON_SECURE);
 #endif
 
 	/*
@@ -707,9 +710,10 @@ bool spmd_el3_ffa_msg_direct_req(uint64_t x1,
 				ffa_endpoint_destination(x1)));
 	}
 
-	cm_el1_sysregs_context_restore(NON_SECURE);
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_restore(NON_SECURE);
+#else
+	cm_el1_sysregs_context_restore(NON_SECURE);
 #endif
 	cm_set_next_eret_context(NON_SECURE);
 
