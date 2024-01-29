@@ -2,7 +2,7 @@
  * Texas Instruments System Control Interface Driver
  *   Based on Linux and U-Boot implementation
  *
- * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2018-2024 Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -185,17 +185,20 @@ unlock:
  *
  * Updates the SCI information in the internal data structure.
  *
+ * @version: Structure containing the version info
+ *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_get_revision(struct ti_sci_msg_resp_version *rev_info)
+int ti_sci_get_revision(struct ti_sci_msg_version *version)
 {
+	struct ti_sci_msg_resp_version rev_info;
 	struct ti_sci_msg_hdr hdr;
 	struct ti_sci_xfer xfer;
 	int ret;
 
 	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_VERSION, 0x0,
 				    &hdr, sizeof(hdr),
-				    rev_info, sizeof(*rev_info),
+				    &rev_info, sizeof(rev_info),
 				    &xfer);
 	if (ret) {
 		ERROR("Message alloc failed (%d)\n", ret);
@@ -207,6 +210,14 @@ int ti_sci_get_revision(struct ti_sci_msg_resp_version *rev_info)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
+
+	memcpy(version->firmware_description, rev_info.firmware_description,
+		sizeof(rev_info.firmware_description));
+	version->abi_major = rev_info.abi_major;
+	version->abi_minor = rev_info.abi_minor;
+	version->firmware_revision = rev_info.firmware_revision;
+	version->sub_version = rev_info.sub_version;
+	version->patch_version = rev_info.patch_version;
 
 	return 0;
 }
@@ -1726,30 +1737,6 @@ int ti_sci_enter_sleep(uint8_t proc_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	return 0;
-}
-
-/**
- * ti_sci_init() - Basic initialization
- *
- * Return: 0 if all goes well, else appropriate error message
- */
-int ti_sci_init(void)
-{
-	struct ti_sci_msg_resp_version rev_info;
-	int ret;
-
-	ret = ti_sci_get_revision(&rev_info);
-	if (ret) {
-		ERROR("Unable to communicate with control firmware (%d)\n", ret);
-		return ret;
-	}
-
-	INFO("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
-	     rev_info.abi_major, rev_info.abi_minor,
-	     rev_info.firmware_revision,
-	     rev_info.firmware_description);
 
 	return 0;
 }

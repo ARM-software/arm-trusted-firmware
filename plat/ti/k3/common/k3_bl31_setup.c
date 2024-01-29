@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -119,10 +119,23 @@ void bl31_plat_arch_setup(void)
 
 void bl31_platform_setup(void)
 {
+	struct ti_sci_msg_version version;
+	int ret;
+
 	k3_gic_driver_init(K3_GIC_BASE);
 	k3_gic_init();
 
-	ti_sci_init();
+	ret = ti_sci_get_revision(&version);
+	if (ret) {
+		ERROR("Unable to communicate with the control firmware (%d)\n", ret);
+		return;
+	}
+
+	INFO("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
+	     version.abi_major, version.abi_minor,
+	     version.firmware_revision,
+	     version.firmware_description);
+
 }
 
 void platform_mem_init(void)
