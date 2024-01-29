@@ -149,5 +149,5 @@ More details may be found in the `Gerrit Change-Ids documentation`_.
 .. _Conventional Commits: https://www.conventionalcommits.org/en/v1.0.0
 .. _Gerrit Change-Ids documentation: https://review.trustedfirmware.org/Documentation/user-changeid.html
 .. _Gerrit Signed-off-by Lines guidelines: https://review.trustedfirmware.org/Documentation/user-signedoffby.html
-.. _issue: https://developer.trustedfirmware.org/project/board/1/
+.. _issue: https://github.com/TrustedFirmware-A/trusted-firmware-a/issues
 .. _quick summary: https://www.conventionalcommits.org/en/v1.0.0/#summary

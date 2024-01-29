@@ -76,7 +76,7 @@ Security Advisories
 |  |TFV-11| |  A Malformed SDEI SMC can cause out of bound memory read         |
 +-----------+------------------------------------------------------------------+
 
-.. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
+.. _issue tracker: https://github.com/TrustedFirmware-A/trusted-firmware-a/issues
 .. _mailing list: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
 
 .. |TFV-1| replace:: :ref:`Advisory TFV-1 (CVE-2016-10319)`

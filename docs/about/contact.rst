@@ -36,9 +36,8 @@ topic within the community. More details can be found `here`_.
 Issue Tracker
 ^^^^^^^^^^^^^
 
-Bug reports may be filed on the `issue tracker`_ on the TrustedFirmware.org
-website. Using this tracker gives everyone visibility of the known issues in
-TF-A.
+Bug reports may be filed on the `issue tracker`_ on Github. Using this tracker
+gives everyone visibility of the known issues in TF-A.
 
 Arm Licensees
 ^^^^^^^^^^^^^
@@ -46,7 +45,7 @@ Arm Licensees
 Arm licensees have an additional support conduit - they may contact Arm directly
 via their partner managers.
 
-.. _`issue tracker`: https://developer.trustedfirmware.org
+.. _`issue tracker`: https://github.com/TrustedFirmware-A/trusted-firmware-a/issues
 .. _`TF-A development`: https://lists.trustedfirmware.org/mailman3/lists/tf-a.lists.trustedfirmware.org/
 .. _`TF-A-Tests development`: https://lists.trustedfirmware.org/mailman3/lists/tf-a-tests.lists.trustedfirmware.org/
 .. _`summary of all the lists`: https://lists.trustedfirmware.org/mailman3/lists/
