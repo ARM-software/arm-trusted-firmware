@@ -153,11 +153,10 @@ void arm_setup_romlib(void);
 #define ARM_LOCAL_PSTATE_WIDTH		4
 #define ARM_LOCAL_PSTATE_MASK		((1 << ARM_LOCAL_PSTATE_WIDTH) - 1)
 
-#if PSCI_OS_INIT_MODE
+/* Last in Level for the OS-initiated */
 #define ARM_LAST_AT_PLVL_MASK		(ARM_LOCAL_PSTATE_MASK <<	\
 					 (ARM_LOCAL_PSTATE_WIDTH *	\
 					  (PLAT_MAX_PWR_LVL + 1)))
-#endif /* __PSCI_OS_INIT_MODE__ */
 
 /* Macros to construct the composite power state */
 
