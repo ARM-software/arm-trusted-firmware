@@ -306,6 +306,13 @@ Common build options
    0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
    Default value is ``0``.
 
+-  ``ENABLE_FEAT_CSV2_3``: Numeric value to enable support for ``FEAT_CSV2_3``
+   extension. This feature is supported in AArch64 state only and is an optional
+   feature available in Arm v8.0 implementations.
+   ``FEAT_CSV2_3`` implies the implementation of ``FEAT_CSV2_2``.
+   The flag can take values 0 to 2, to align with the ``ENABLE_FEAT``
+   mechanism. Default value is ``0``.
+
 -  ``ENABLE_FEAT_DIT``: Numeric value to enable ``FEAT_DIT`` (Data Independent
    Timing) extension. It allows setting the ``DIT`` bit of PSTATE in EL3.
    ``FEAT_DIT`` is a mandatory  architectural feature and is enabled from v8.4
