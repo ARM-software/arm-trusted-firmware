@@ -43,6 +43,8 @@
 #define MBOOT_BL32_IMAGE_STRING		"SECURE_RT_EL1_TLKD"
 #elif defined(SPD_trusty)
 #define MBOOT_BL32_IMAGE_STRING		"SECURE_RT_EL1_TRUSTY"
+#elif defined(SPD_spmd)
+#define MBOOT_BL32_IMAGE_STRING		"SECURE_RT_EL1_SPMD"
 #else
 #define MBOOT_BL32_IMAGE_STRING		"SECURE_RT_EL1_UNKNOWN"
 #endif /* SPD_opteed */
