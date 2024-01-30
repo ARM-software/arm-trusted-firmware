@@ -61,6 +61,12 @@ workaround_reset_end cortex_x3, ERRATUM(2615812)
 
 check_erratum_ls cortex_x3, ERRATUM(2615812), CPU_REV(1, 1)
 
+workaround_runtime_start cortex_x3, ERRATUM(2641945), ERRATA_X3_2641945
+	sysreg_bit_set	CORTEX_X3_CPUACTLR6_EL1, BIT(41)
+workaround_runtime_end cortex_x3, ERRATUM(2641945), NO_ISB
+
+check_erratum_ls cortex_x3, ERRATUM(2641945), CPU_REV(1, 0)
+
 workaround_reset_start cortex_x3, ERRATUM(2742421), ERRATA_X3_2742421
 	/* Set CPUACTLR5_EL1[56:55] to 2'b01 */
 	sysreg_bit_set CORTEX_X3_CPUACTLR5_EL1, CORTEX_X3_CPUACTLR5_EL1_BIT_55
