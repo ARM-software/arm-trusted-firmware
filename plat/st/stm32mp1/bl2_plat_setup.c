@@ -367,7 +367,9 @@ skip_console_init:
 	print_reset_reason();
 
 #if STM32MP15
-	update_monotonic_counter();
+	if (stm32mp_check_closed_device() == STM32MP_CHIP_SEC_CLOSED) {
+		update_monotonic_counter();
+	}
 #endif
 
 	stm32mp1_syscfg_enable_io_compensation_finish();
