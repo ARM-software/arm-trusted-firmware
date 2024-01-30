@@ -47,13 +47,13 @@ missing extensions are rarely used, however, and should not pose a problem.
 MISRA Compliance
 ----------------
 
-TF-A attempts to comply with the `MISRA C:2012 Guidelines`_. Coverity
-Static Analysis is used to regularly generate a report of current MISRA defects
-and to prevent the addition of new ones.
+TF-A attempts to comply with the `MISRA C:2012 Guidelines`_. `ECLAIR` static
+analysis is used to regularly generate a report of current MISRA defects and to
+prevent the addition of new ones.
 
-It is not possible for the project to follow all MISRA guidelines. We maintain
-`a spreadsheet`_ that lists all rules and directives and whether we aim to
-comply with them or not. A rationale is given for each deviation.
+It is not possible for the project to follow all MISRA guidelines. Table 1
+below lists all rules and directives and whether we aim to comply with them or
+not. A rationale is given for each deviation.
 
 .. note::
    Enforcing a rule does not mean that the codebase is free of defects
@@ -62,6 +62,9 @@ comply with them or not. A rationale is given for each deviation.
 .. note::
    Third-party libraries are not considered in our MISRA analysis and we do not
    intend to modify them to make them MISRA compliant.
+
+.. csv-table:: Table 1: MISRA compliance in TF-A code base
+   :file: misra-compliance.csv
 
 Indentation
 -----------
@@ -487,5 +490,4 @@ Existing typedefs will be retained for compatibility.
 *Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
 
 .. _`Linux kernel coding style`: https://www.kernel.org/doc/html/latest/process/coding-style.html
-.. _`MISRA C:2012 Guidelines`: https://www.misra.org.uk/Activities/MISRAC/tabid/160/Default.aspx
-.. _`a spreadsheet`: https://developer.trustedfirmware.org/file/download/lamajxif3w7c4mpjeoo5/PHID-FILE-fp7c7acszn6vliqomyhn/MISRA-and-TF-Analysis-v1.3.ods
+.. _`MISRA C:2012 Guidelines`: https://en.wikipedia.org/wiki/MISRA_C#MISRA_C:2012

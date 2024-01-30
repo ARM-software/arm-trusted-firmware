@@ -1,0 +1,174 @@
+Seq,Dir / Rule,Number,Source,Category,Checker Enabled,Enforced,Comments
+1,D,1.1,MISRA C 2012,Required,N/A,Yes,
+2,D,2.1,MISRA C 2012,Required,N/A,Yes,
+3,D,3.1,MISRA C 2012,Required,N/A,No,It can’t be done retroactively.
+4,D,4.1,MISRA C 2012,Required,N/A,Yes,
+5,D,4.2,MISRA C 2012,Advisory,N/A,Yes,
+6,D,4.3,MISRA C 2012,Required,Yes,Yes,
+7,D,4.4,MISRA C 2012,Advisory,Yes,Yes,
+8,D,4.5,MISRA C 2012,Advisory,Yes,Yes,
+9,D,4.6,MISRA C 2012,Advisory,No,No,We use a mix of both. It would be too disruptive for the project to change.
+10,D,4.7,MISRA C 2012,Required,Yes,Yes,
+11,D,4.8,MISRA C 2012,Advisory,No,No,Fixing all instances would involve invasive changes to the codebase for no good reason.
+12,D,4.9,MISRA C 2012,Advisory,No,No,"We mustn’t introduce new macros unless strictly needed, but this affects assert(), INFO(), etc. It creates too much noise in the report for little gain."
+13,D,4.10,MISRA C 2012,Required,Yes,Yes,
+14,D,4.11,MISRA C 2012,Required,Yes,Yes,
+15,D,4.12,MISRA C 2012,Required,Yes,Yes,
+16,D,4.13,MISRA C 2012,Advisory,Yes,Yes,
+17,D,4.14,MISRA C 2012 AMD-1,Required,Yes,Yes,
+18,R,1.1,MISRA C 2012,Required,Yes,Yes,
+19,R,1.2,MISRA C 2012,Advisory,Yes,Optional,It bans __attribute__(())  and similar helpers.
+20,R,1.3,MISRA C 2012,Required,N/A,Yes,
+21,R,2.1,MISRA C 2012,Required,Yes,Yes,
+22,R,2.2,MISRA C 2012,Required,Yes,Yes,
+23,R,2.3,MISRA C 2012,Advisory,Yes,Optional,It prevents the usage of CASSERT().
+24,R,2.4,MISRA C 2012,Advisory,No,No,Header files may use enumerations instead of defines to group sets of values.
+25,R,2.5,MISRA C 2012,Advisory,No,No,We define many headers with macros that are unused in the project but may be used by non-upstream code or may be desirable for completeness.
+26,R,2.6,MISRA C 2012,Advisory,Yes,Yes,
+27,R,2.7,MISRA C 2012,Advisory,No,No,Doesn't allow for simple implementations of porting functions that don't require all parameters.
+28,R,3.1,MISRA C 2012,Required,Yes,Yes,
+29,R,3.2,MISRA C 2012,Required,Yes,Yes,
+30,R,4.1,MISRA C 2012,Required,Yes,Yes,
+31,R,4.2,MISRA C 2012,Advisory,Yes,Yes,
+32,R,5.1,MISRA C 2012,Required,No,No,We use weak symbols that prevent us from complying with this rule.
+33,R,5.2,MISRA C 2012,Required,Yes,Yes,
+34,R,5.3,MISRA C 2012,Required,Yes,Yes,
+35,R,5.4,MISRA C 2012,Required,Yes,Yes,
+36,R,5.5,MISRA C 2012,Required,Yes,Yes,
+37,R,5.6,MISRA C 2012,Required,Yes,Yes,
+38,R,5.7,MISRA C 2012,Required,Yes,Optional,Fixing all existing defects is problematic because of compatibility issues.
+39,R,5.8,MISRA C 2012,Required,No,No,We use weak symbols that prevent us from complying with this rule.
+40,R,5.9,MISRA C 2012,Advisory,Yes,Yes,
+41,R,6.1,MISRA C 2012,Required,Yes,Yes,
+42,R,6.2,MISRA C 2012,Required,Yes,Yes,
+43,R,7.1,MISRA C 2012,Required,Yes,Yes,
+44,R,7.2,MISRA C 2012,Required,Yes,Yes,
+45,R,7.3,MISRA C 2012,Required,Yes,Yes,
+46,R,7.4,MISRA C 2012,Required,Yes,Yes,
+47,R,8.1,MISRA C 2012,Required,Yes,Yes,
+48,R,8.2,MISRA C 2012,Required,Yes,Yes,
+49,R,8.3,MISRA C 2012,Required,Yes,Yes,
+50,R,8.4,MISRA C 2012,Required,Yes,Yes,
+51,R,8.5,MISRA C 2012,Required,Yes,Yes,
+52,R,8.6,MISRA C 2012,Required,No,No,We use weak symbols that prevent us from complying with this rule.
+53,R,8.7,MISRA C 2012,Advisory,No,No,"Bans pattern of declaring funcs in private header that are used/defined in separate translation units, which seems over the top."
+54,R,8.8,MISRA C 2012,Required,Yes,Yes,
+55,R,8.9,MISRA C 2012,Advisory,Yes,Yes,
+56,R,8.10,MISRA C 2012,Required,Yes,Yes,
+57,R,8.11,MISRA C 2012,Advisory,Yes,Optional,This may not be possible in some interfaces.
+58,R,8.12,MISRA C 2012,Required,Yes,Yes,
+59,R,8.13,MISRA C 2012,Advisory,Yes,Optional,The benefits of fixing existing code aren’t worth the effort.
+60,R,8.14,MISRA C 2012,Required,Yes,Yes,
+61,R,9.1,MISRA C 2012,Mandatory,Yes,Yes,
+62,R,9.2,MISRA C 2012,Required,Yes,Yes,
+63,R,9.3,MISRA C 2012,Required,Yes,Yes,
+64,R,9.4,MISRA C 2012,Required,Yes,Yes,
+65,R,9.5,MISRA C 2012,Required,Yes,Yes,
+66,R,10.1,MISRA C 2012,Required,Yes,Optional,Fixing existing code may be counter-productive and introduce bugs.
+67,R,10.2,MISRA C 2012,Required,Yes,Yes,
+68,R,10.3,MISRA C 2012,Required,Yes,Optional,Fixing existing code may be counter-productive and introduce bugs.
+69,R,10.4,MISRA C 2012,Required,Yes,Optional,Fixing existing code may be counter-productive and introduce bugs.
+70,R,10.5,MISRA C 2012,Advisory,Yes,Yes,
+71,R,10.6,MISRA C 2012,Required,Yes,Yes,
+72,R,10.7,MISRA C 2012,Required,Yes,Yes,
+73,R,10.8,MISRA C 2012,Required,Yes,Yes,
+74,R,11.1,MISRA C 2012,Required,Yes,Yes,
+75,R,11.2,MISRA C 2012,Required,Yes,Yes,
+76,R,11.3,MISRA C 2012,Required,Yes,Yes,
+77,R,11.4,MISRA C 2012,Advisory,No,No,This would be invasive for TF (e.g. in exported linker script macros). Also bans conversion from uintptr_t.
+78,R,11.5,MISRA C 2012,Advisory,No,No,"This seems to preclude the pattern of using void * in interfaces to hide the real object, which we use extensively."
+79,R,11.6,MISRA C 2012,Required,Yes,Optional,This is needed in several cases.
+80,R,11.7,MISRA C 2012,Required,Yes,Yes,
+81,R,11.8,MISRA C 2012,Required,Yes,Yes,
+82,R,11.9,MISRA C 2012,Required,Yes,Yes,
+83,R,12.1,MISRA C 2012,Advisory,Yes,Yes,
+84,R,12.2,MISRA C 2012,Required,Yes,Yes,"This rule is fine, but there are lots of false positives in Coverity."
+85,R,12.3,MISRA C 2012,Advisory,Yes,Yes,
+86,R,12.4,MISRA C 2012,Advisory,Yes,Yes,
+87,R,12.5,MISRA C 2012 AMD-1,Mandatory,Yes,Yes,
+88,R,13.1,MISRA C 2012,Required,Yes,Yes,
+89,R,13.2,MISRA C 2012,Required,Yes,Yes,
+90,R,13.3,MISRA C 2012,Advisory,Yes,Yes,
+91,R,13.4,MISRA C 2012,Advisory,Yes,Yes,
+92,R,13.5,MISRA C 2012,Required,Yes,Yes,
+93,R,13.6,MISRA C 2012,Mandatory,Yes,Yes,
+94,R,14.1,MISRA C 2012,Required,Yes,Yes,
+95,R,14.2,MISRA C 2012,Required,Yes,Yes,
+96,R,14.3,MISRA C 2012,Required,Yes,Yes,
+97,R,14.4,MISRA C 2012,Required,Yes,Yes,
+98,R,15.1,MISRA C 2012,Advisory,No,No,In some cases goto may be useful for readability.
+99,R,15.2,MISRA C 2012,Required,Yes,Yes,
+100,R,15.3,MISRA C 2012,Required,Yes,Yes,
+101,R,15.4,MISRA C 2012,Advisory,Yes,Yes,
+102,R,15.5,MISRA C 2012,Advisory,No,No,This has no real value. It may make code less understandable than before.
+103,R,15.6,MISRA C 2012,Required,No,No,This directly contradicts the Linux style guidelines and would require many changes. We would have to remove that rule from checkpatch.
+104,R,15.7,MISRA C 2012,Required,Yes,Yes,
+105,R,16.1,MISRA C 2012,Required,No,No,Cannot comply with this unless we comply with 16.3
+106,R,16.2,MISRA C 2012,Required,Yes,Yes,
+107,R,16.3,MISRA C 2012,Required,No,No,Returns within switch statements and fall-throughs can improve readability.
+108,R,16.4,MISRA C 2012,Required,Yes,Yes,
+109,R,16.5,MISRA C 2012,Required,Yes,Yes,
+110,R,16.6,MISRA C 2012,Required,Yes,Yes,
+111,R,16.7,MISRA C 2012,Required,Yes,Yes,
+112,R,17.1,MISRA C 2012,Required,No,No,This is needed for printf.
+113,R,17.2,MISRA C 2012,Required,Yes,Yes,Bans recursion. We consider it acceptable if the max depth is known.
+114,R,17.3,MISRA C 2012,Mandatory,Yes,Yes,
+115,R,17.4,MISRA C 2012,Mandatory,Yes,Yes,
+116,R,17.5,MISRA C 2012,Advisory,Yes,Yes,
+117,R,17.6,MISRA C 2012,Mandatory,Yes,Yes,
+118,R,17.7,MISRA C 2012,Required,Yes,Optional,In some cases it doesn’t add any value to the code (like with memset() or printf()).
+119,R,17.8,MISRA C 2012,Advisory,Yes,Optional,It would make some one-line functions grow in size for no reason.
+120,R,18.1,MISRA C 2012,Required,Yes,Yes,
+121,R,18.2,MISRA C 2012,Required,Yes,Yes,
+122,R,18.3,MISRA C 2012,Required,Yes,Yes,
+123,R,18.4,MISRA C 2012,Advisory,Yes,Yes,
+124,R,18.5,MISRA C 2012,Advisory,Yes,Yes,
+125,R,18.6,MISRA C 2012,Required,Yes,Yes,
+126,R,18.7,MISRA C 2012,Required,Yes,Yes,
+127,R,18.8,MISRA C 2012,Required,Yes,Yes,
+128,R,19.1,MISRA C 2012,Mandatory,Yes,Yes,
+129,R,19.2,MISRA C 2012,Advisory,Yes,Optional,"Unions can be useful. We almost don’t use them, so it’s ok."
+130,R,20.1,MISRA C 2012,Advisory,Yes,Optional,In some files we have assembly-compatible includes followed by assembly-compatible definitions followed by C includes and C declarations. This is done to not have #ifdef in the include list.
+131,R,20.2,MISRA C 2012,Required,Yes,Yes,
+132,R,20.3,MISRA C 2012,Required,Yes,Yes,
+133,R,20.4,MISRA C 2012,Required,Yes,Yes,
+134,R,20.5,MISRA C 2012,Advisory,Yes,Yes,
+135,R,20.6,MISRA C 2012,Required,Yes,Yes,
+136,R,20.7,MISRA C 2012,Required,Yes,Yes,
+137,R,20.8,MISRA C 2012,Required,Yes,Optional,We need a new configuration system to fix all defects.
+138,R,20.9,MISRA C 2012,Required,Yes,Optional,"We use a mix of #if and #ifdef for boolean macros, which may raise some failures here. We should consistently use one or the other"
+139,R,20.10,MISRA C 2012,Advisory,Yes,Optional,"It’s good to avoid them, but they are sometimes needed."
+140,R,20.11,MISRA C 2012,Required,Yes,Yes,
+141,R,20.12,MISRA C 2012,Required,Yes,Yes,
+142,R,20.13,MISRA C 2012,Required,Yes,Yes,
+143,R,20.14,MISRA C 2012,Required,Yes,Yes,
+144,R,21.1,MISRA C 2012,Required,Yes,Yes,
+145,R,21.2,MISRA C 2012,Required,Yes,Yes,
+146,R,21.3,MISRA C 2012,Required,Yes,Yes,
+147,R,21.4,MISRA C 2012,Required,Yes,Yes,
+148,R,21.5,MISRA C 2012,Required,Yes,Yes,
+149,R,21.6,MISRA C 2012,Required,No,No,This bans printf.
+150,R,21.7,MISRA C 2012,Required,Yes,Yes,
+151,R,21.8,MISRA C 2012,Required,Yes,Yes,
+152,R,21.9,MISRA C 2012,Required,Yes,Yes,
+153,R,21.10,MISRA C 2012,Required,Yes,Yes,
+154,R,21.11,MISRA C 2012,Required,Yes,Yes,
+155,R,21.12,MISRA C 2012,Advisory,Yes,Yes,
+156,R,21.13,MISRA C 2012 AMD-1,Mandatory,Yes,Yes,
+157,R,21.14,MISRA C 2012 AMD-1,Required,Yes,Yes,
+158,R,21.15,MISRA C 2012 AMD-1,Required,Yes,Yes,
+159,R,21.16,MISRA C 2012 AMD-1,Required,Yes,Yes,
+160,R,21.17,MISRA C 2012 AMD-1,Mandatory,Yes,Yes,
+161,R,21.18,MISRA C 2012 AMD-1,Mandatory,Yes,Yes,
+162,R,21.19,MISRA C 2012 AMD-1,Mandatory,Yes,Yes,
+163,R,21.20,MISRA C 2012 AMD-1,Mandatory,Yes,Yes,
+164,R,22.1,MISRA C 2012,Required,Yes,Yes,
+165,R,22.2,MISRA C 2012,Mandatory,Yes,Yes,
+166,R,22.3,MISRA C 2012,Required,Yes,Yes,
+167,R,22.4,MISRA C 2012,Mandatory,Yes,Yes,
+168,R,22.5,MISRA C 2012,Mandatory,Yes,Yes,
+169,R,22.6,MISRA C 2012,Mandatory,Yes,Yes,
+170,R,22.7,MISRA C 2012 AMD-1,Required,Yes,Yes,
+171,R,22.8,MISRA C 2012 AMD-1,Required,Yes,Yes,
+172,R,22.9,MISRA C 2012 AMD-1,Required,Yes,Yes,
+173,R,22.10,MISRA C 2012 AMD-1,Required,Yes,Yes,
