@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <drivers/arm/sp804_delay_timer.h>
+#include <fvp_pas_def.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/transfer_list.h>
@@ -20,6 +21,32 @@
 #include "fvp_private.h"
 
 static struct transfer_list_header *ns_tl __unused;
+
+#if ENABLE_RME
+/*
+ * The GPT library might modify the gpt regions structure to optimize
+ * the layout, so the array cannot be constant.
+ */
+static pas_region_t pas_regions[] = {
+	ARM_PAS_KERNEL,
+	ARM_PAS_SECURE,
+	ARM_PAS_REALM,
+	ARM_PAS_EL3_DRAM,
+	ARM_PAS_GPTS,
+	ARM_PAS_KERNEL_1
+};
+
+static const arm_gpt_info_t arm_gpt_info = {
+	.pas_region_base  = pas_regions,
+	.pas_region_count = (unsigned int)ARRAY_SIZE(pas_regions),
+	.l0_base = (uintptr_t)ARM_L0_GPT_BASE,
+	.l1_base = (uintptr_t)ARM_L1_GPT_BASE,
+	.l0_size = (size_t)ARM_L0_GPT_SIZE,
+	.l1_size = (size_t)ARM_L1_GPT_SIZE,
+	.pps = GPCCR_PPS_64GB,
+	.pgs = GPCCR_PGS_4K
+};
+#endif
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
@@ -40,6 +67,13 @@ void bl2_platform_setup(void)
 	/* Initialize System level generic or SP804 timer */
 	fvp_timer_init();
 }
+
+#if ENABLE_RME
+const arm_gpt_info_t *plat_arm_get_gpt_info(void)
+{
+	return &arm_gpt_info;
+}
+#endif /* ENABLE_RME */
 
 /*******************************************************************************
  * This function returns the list of executable images

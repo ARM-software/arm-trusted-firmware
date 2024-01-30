@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,7 +24,6 @@
 #endif
 
 #include <plat/arm/common/arm_config.h>
-#include <plat/arm/common/arm_pas_def.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 

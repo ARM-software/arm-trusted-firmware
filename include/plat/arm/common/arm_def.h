@@ -150,10 +150,10 @@ MEASURED_BOOT
 #endif /* (SPD_tspd || SPD_opteed || SPD_spmd) && MEASURED_BOOT */
 
 #if ENABLE_RME
-#define ARM_L1_GPT_ADDR_BASE		(ARM_DRAM1_BASE +		\
+#define ARM_L1_GPT_BASE		(ARM_DRAM1_BASE +		\
 					ARM_DRAM1_SIZE -		\
 					ARM_L1_GPT_SIZE)
-#define ARM_L1_GPT_END			(ARM_L1_GPT_ADDR_BASE +		\
+#define ARM_L1_GPT_END			(ARM_L1_GPT_BASE +		\
 					ARM_L1_GPT_SIZE - 1U)
 
 #define ARM_REALM_BASE			(ARM_EL3_RMM_SHARED_BASE -	\
@@ -343,7 +343,7 @@ MEASURED_BOOT
 
 
 #define ARM_MAP_GPT_L1_DRAM	MAP_REGION_FLAT(			\
-					ARM_L1_GPT_ADDR_BASE,		\
+					ARM_L1_GPT_BASE,		\
 					ARM_L1_GPT_SIZE,		\
 					MT_MEMORY | MT_RW | EL3_PAS)
 
@@ -422,7 +422,7 @@ MEASURED_BOOT
  * Map L0_GPT with read and write permissions
  */
 #if ENABLE_RME
-#define ARM_MAP_L0_GPT_REGION		MAP_REGION_FLAT(ARM_L0_GPT_ADDR_BASE,	\
+#define ARM_MAP_L0_GPT_REGION		MAP_REGION_FLAT(ARM_L0_GPT_BASE,	\
 						ARM_L0_GPT_SIZE,		\
 						MT_MEMORY | MT_RW | MT_ROOT)
 #endif
@@ -533,8 +533,8 @@ MEASURED_BOOT
  * configuration memory, 4KB aligned.
  */
 #define ARM_L0_GPT_SIZE			(PAGE_SIZE)
-#define ARM_L0_GPT_ADDR_BASE		(ARM_FW_CONFIGS_LIMIT)
-#define ARM_L0_GPT_LIMIT		(ARM_L0_GPT_ADDR_BASE + ARM_L0_GPT_SIZE)
+#define ARM_L0_GPT_BASE		(ARM_FW_CONFIGS_LIMIT)
+#define ARM_L0_GPT_LIMIT		(ARM_L0_GPT_BASE + ARM_L0_GPT_SIZE)
 #else
 #define ARM_L0_GPT_SIZE			U(0)
 #endif
