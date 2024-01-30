@@ -502,6 +502,13 @@ subsections:
                   - title: LS1088AQDS
                     scope: ls1088aqds
 
+          - title: S32G274A
+            scope: s32g274a
+
+            subsections:
+              - title: S32G274ARDB
+                scope: s32g274ardb
+
       - title: QEMU
         scope: qemu
 

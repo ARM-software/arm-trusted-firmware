@@ -29,6 +29,7 @@ Platform Ports
    imx8m
    imx8ulp
    imx9
+   s32g274a
    npcm845x
    nxp/index
    poplar
