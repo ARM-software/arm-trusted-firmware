@@ -110,6 +110,7 @@ int dpe_measure_and_record(struct dpe_metadata *metadata,
 
 	VERBOSE("Calling dpe_derive_context, image_id: %d\n", metadata->id);
 	ret = dpe_derive_context(current_context_handle,
+				 metadata->cert_id,
 				 metadata->retain_parent_context,
 				 metadata->allow_new_context_to_derive,
 				 metadata->create_certificate,

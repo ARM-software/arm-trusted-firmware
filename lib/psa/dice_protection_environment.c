@@ -58,6 +58,8 @@ enum dpe_derive_context_input_labels_t {
 	DPE_DERIVE_CONTEXT_RETURN_CERTIFICATE = 9,
 	DPE_DERIVE_CONTEXT_ALLOW_NEW_CONTEXT_TO_EXPORT = 10,
 	DPE_DERIVE_CONTEXT_EXPORT_CDI = 11,
+	/* enum values 256 and onwards are reserved for custom arguments */
+	DPE_DERIVE_CONTEXT_CERT_ID = 256,
 };
 
 enum dpe_derive_context_output_labels_t {
@@ -70,6 +72,7 @@ enum dpe_derive_context_output_labels_t {
 
 struct derive_context_input_t {
 	int context_handle;
+	uint32_t cert_id;
 	bool retain_parent_context;
 	bool allow_new_context_to_derive;
 	bool create_certificate;
@@ -154,6 +157,9 @@ static QCBORError encode_derive_context(const struct derive_context_input_t *arg
 				   DPE_DERIVE_CONTEXT_CONTEXT_HANDLE,
 				   (UsefulBufC) { &args->context_handle,
 						  sizeof(args->context_handle) });
+	QCBOREncode_AddUInt64ToMapN(&encode_ctx,
+				    DPE_DERIVE_CONTEXT_CERT_ID,
+				    args->cert_id);
 	QCBOREncode_AddBoolToMapN(&encode_ctx,
 				  DPE_DERIVE_CONTEXT_RETAIN_PARENT_CONTEXT,
 				  args->retain_parent_context);
@@ -263,6 +269,7 @@ static int32_t dpe_client_call(const char *cmd_input, size_t cmd_input_size,
 }
 
 dpe_error_t dpe_derive_context(int context_handle,
+			       uint32_t cert_id,
 			       bool retain_parent_context,
 			       bool allow_new_context_to_derive,
 			       bool create_certificate,
@@ -288,6 +295,7 @@ dpe_error_t dpe_derive_context(int context_handle,
 
 	const struct derive_context_input_t in_args = {
 		context_handle,
+		cert_id,
 		retain_parent_context,
 		allow_new_context_to_derive,
 		create_certificate,

@@ -17,6 +17,7 @@
 
 struct dpe_metadata {
 	unsigned int id;
+	uint32_t cert_id;
 	uint8_t signer_id[SIGNER_ID_MAX_SIZE];
 	size_t  signer_id_size;
 	uint8_t version[VERSION_MAX_SIZE];

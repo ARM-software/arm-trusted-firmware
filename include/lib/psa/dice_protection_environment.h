@@ -41,6 +41,8 @@ typedef int32_t dpe_error_t;
  *
  * \param[in]  context_handle              Input context handle for the DPE
  *                                         context.
+ * \param[in]  cert_id                     Logical certificate id to which derived
+ *                                         context belongs to.
  * \param[in]  retain_parent_context       Flag to indicate whether to retain the
  *                                         parent context. True only if a client
  *                                         will call further DPE commands on the
@@ -77,6 +79,7 @@ typedef int32_t dpe_error_t;
  * \return Returns error code of type dpe_error_t
  */
 dpe_error_t dpe_derive_context(int      context_handle,
+			       uint32_t cert_id,
 			       bool     retain_parent_context,
 			       bool     allow_new_context_to_derive,
 			       bool     create_certificate,
