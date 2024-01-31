@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -94,9 +94,8 @@ static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
  * If partition numbers could be found, check & update it.
  */
 static int load_gpt_header(uintptr_t image_handle, size_t header_offset,
-			   unsigned long long *part_lba)
+			   gpt_header_t *header)
 {
-	gpt_header_t header;
 	size_t bytes_read;
 	int result;
 	uint32_t header_crc, calc_crc;
@@ -107,7 +106,7 @@ static int load_gpt_header(uintptr_t image_handle, size_t header_offset,
 			header_offset);
 		return result;
 	}
-	result = io_read(image_handle, (uintptr_t)&header,
+	result = io_read(image_handle, (uintptr_t)header,
 			 sizeof(gpt_header_t), &bytes_read);
 	if ((result != 0) || (sizeof(gpt_header_t) != bytes_read)) {
 		VERBOSE("GPT header read error(%i) or read mismatch occurred,"
@@ -115,8 +114,8 @@ static int load_gpt_header(uintptr_t image_handle, size_t header_offset,
 			sizeof(gpt_header_t), bytes_read);
 		return result;
 	}
-	if (memcmp(header.signature, GPT_SIGNATURE,
-			   sizeof(header.signature)) != 0) {
+	if (memcmp(header->signature, GPT_SIGNATURE,
+			   sizeof(header->signature)) != 0) {
 		VERBOSE("GPT header signature failure\n");
 		return -EINVAL;
 	}
@@ -126,25 +125,24 @@ static int load_gpt_header(uintptr_t image_handle, size_t header_offset,
 	 * computed by setting this field to 0, and computing the
 	 * 32-bit CRC for HeaderSize bytes.
 	 */
-	header_crc = header.header_crc;
-	header.header_crc = 0U;
+	header_crc = header->header_crc;
+	header->header_crc = 0U;
 
-	calc_crc = tf_crc32(0U, (uint8_t *)&header, sizeof(gpt_header_t));
+	calc_crc = tf_crc32(0U, (uint8_t *)header, sizeof(gpt_header_t));
 	if (header_crc != calc_crc) {
 		ERROR("Invalid GPT Header CRC: Expected 0x%x but got 0x%x.\n",
 		      header_crc, calc_crc);
 		return -EINVAL;
 	}
 
-	header.header_crc = header_crc;
+	header->header_crc = header_crc;
 
 	/* partition numbers can't exceed PLAT_PARTITION_MAX_ENTRIES */
-	list.entry_count = header.list_num;
+	list.entry_count = header->list_num;
 	if (list.entry_count > PLAT_PARTITION_MAX_ENTRIES) {
 		list.entry_count = PLAT_PARTITION_MAX_ENTRIES;
 	}
 
-	*part_lba = header.part_lba;
 	return 0;
 }
 
@@ -231,10 +229,9 @@ static int load_gpt_entry(uintptr_t image_handle, gpt_entry_t *entry)
  * Retrieve each entry in the partition table, parse the data from each
  * entry and store them in the list of partition table entries.
  */
-static int load_partition_gpt(uintptr_t image_handle,
-			      unsigned long long part_lba)
+static int load_partition_gpt(uintptr_t image_handle, gpt_header_t header)
 {
-	const signed long long gpt_entry_offset = LBA(part_lba);
+	const signed long long gpt_entry_offset = LBA(header.part_lba);
 	gpt_entry_t entry;
 	int result, i;
 
@@ -279,7 +276,7 @@ static int load_partition_gpt(uintptr_t image_handle,
 static int load_backup_gpt(unsigned int image_id, unsigned int sector_nums)
 {
 	int result;
-	unsigned long long part_lba = 0;
+	gpt_header_t header;
 	size_t gpt_header_offset;
 	uintptr_t dev_handle, image_spec, image_handle;
 	io_block_spec_t *block_spec;
@@ -316,8 +313,8 @@ static int load_backup_gpt(unsigned int image_id, unsigned int sector_nums)
 	INFO("Trying to retrieve back-up GPT header\n");
 	/* Last block is backup-GPT header, after the end of GPT entries */
 	gpt_header_offset = LBA(part_num_entries);
-	result = load_gpt_header(image_handle, gpt_header_offset, &part_lba);
-	if ((result != 0) || (part_lba == 0)) {
+	result = load_gpt_header(image_handle, gpt_header_offset, &header);
+	if ((result != 0) || (header.part_lba == 0)) {
 		ERROR("Failed to retrieve Backup GPT header,"
 		      "Partition maybe corrupted\n");
 		goto out;
@@ -327,7 +324,8 @@ static int load_backup_gpt(unsigned int image_id, unsigned int sector_nums)
 	 * Note we mapped last 33 blocks(LBA-33), first block here starts with
 	 * entries while last block was header.
 	 */
-	result = load_partition_gpt(image_handle, 0);
+	header.part_lba = 0;
+	result = load_partition_gpt(image_handle, header);
 
 out:
 	io_close(image_handle);
@@ -342,19 +340,19 @@ out:
 static int load_primary_gpt(uintptr_t image_handle, unsigned int first_lba)
 {
 	int result;
-	unsigned long long part_lba;
 	size_t gpt_header_offset;
+	gpt_header_t header;
 
 	/* Try to load Primary GPT header from LBA1 */
 	gpt_header_offset = LBA(first_lba);
-	result = load_gpt_header(image_handle, gpt_header_offset, &part_lba);
-	if ((result != 0) || (part_lba == 0)) {
+	result = load_gpt_header(image_handle, gpt_header_offset, &header);
+	if ((result != 0) || (header.part_lba == 0)) {
 		VERBOSE("Failed to retrieve Primary GPT header,"
 			"trying to retrieve back-up GPT header\n");
 		return result;
 	}
 
-	return load_partition_gpt(image_handle, part_lba);
+	return load_partition_gpt(image_handle, header);
 }
 
 /*
