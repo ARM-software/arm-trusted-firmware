@@ -628,7 +628,7 @@ uint32_t plat_fwu_get_boot_idx(void)
 
 	if (boot_idx == INVALID_BOOT_IDX) {
 		boot_idx = data->active_index;
-		if (fwu_is_trial_run_state()) {
+		if (data->bank_state[boot_idx] == FWU_BANK_STATE_VALID) {
 			if (stm32_get_and_dec_fwu_trial_boot_cnt() == 0U) {
 				WARN("Trial FWU fails %u times\n",
 				     FWU_MAX_TRIAL_REBOOT);
