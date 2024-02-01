@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * FWU metadata information as per the specification section 4.1:
- * https://developer.arm.com/documentation/den0118/a/
+ * https://developer.arm.com/documentation/den0118/latest/
  *
  */
 

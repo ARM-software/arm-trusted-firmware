@@ -1345,7 +1345,7 @@ Firmware update options
 *Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
-.. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/
+.. _PSA FW update specification: https://developer.arm.com/documentation/den0118/latest/
 .. _PSA DRTM specification: https://developer.arm.com/documentation/den0113/a
 .. _GCC: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 .. _Clang: https://clang.llvm.org/docs/DiagnosticsReference.html
