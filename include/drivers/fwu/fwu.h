@@ -14,7 +14,7 @@
 #define FWU_BANK_STATE_INVALID		0xFFU
 
 void fwu_init(void);
-bool fwu_is_trial_run_state(void);
+uint32_t fwu_get_active_bank_state(void);
 const struct fwu_metadata *fwu_get_metadata(void);
 
 #endif /* FWU_H */

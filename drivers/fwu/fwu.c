@@ -133,28 +133,23 @@ exit:
 }
 
 /*******************************************************************************
- * The system runs in the trial run state if any of the images in the active
- * firmware bank has not been accepted yet.
+ * The platform can be in one of Valid, Invalid or Accepted states.
  *
- * Returns true if the system is running in the trial state.
+ * Invalid - One or more images in the bank are corrupted, or partially
+ *           overwritten. The bank is not to be used for booting.
+ *
+ * Valid - All images of the bank are valid but at least one image has not
+ *         been accepted. This implies that the platform is in Trial State.
+ *
+ * Accepted - All images of the bank are valid and accepted.
+ *
+ * Returns the state of the current active bank
  ******************************************************************************/
-bool fwu_is_trial_run_state(void)
+uint32_t fwu_get_active_bank_state(void)
 {
-	bool trial_run = false;
-
 	assert(is_metadata_initialized);
 
-	for (unsigned int i = 0U; i < NR_OF_IMAGES_IN_FW_BANK; i++) {
-		struct fwu_image_entry *entry = &metadata.img_entry[i];
-		struct fwu_image_properties *img_props =
-			&entry->img_props[metadata.active_index];
-		if (img_props->accepted == 0) {
-			trial_run = true;
-			break;
-		}
-	}
-
-	return trial_run;
+	return metadata.bank_state[metadata.active_index];
 }
 
 const struct fwu_metadata *fwu_get_metadata(void)
