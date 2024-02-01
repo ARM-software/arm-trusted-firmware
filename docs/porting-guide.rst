@@ -2220,10 +2220,10 @@ Function : bl31_plat_runtime_setup() [optional]
     Argument : void
     Return   : void
 
-The purpose of this function is allow the platform to perform any BL31 runtime
-setup just prior to BL31 exit during cold boot. The default weak
-implementation of this function will invoke ``console_switch_state()`` to switch
-console output to consoles marked for use in the ``runtime`` state.
+The purpose of this function is to allow the platform to perform any BL31 runtime
+setup just prior to BL31 exit during cold boot. The default weak implementation
+of this function is empty. Any platform that needs to perform additional runtime
+setup, before BL31 exits, will need to override this function.
 
 Function : bl31_plat_get_next_image_ep_info() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3296,6 +3296,21 @@ Register* (``GICD_IGROUPRn``) and *Interrupt Group Modifier Register*
 (``GICD_IGRPMODRn``) is read to figure out whether the interrupt is configured
 as Group 0 secure interrupt, Group 1 secure interrupt or Group 1 NS interrupt.
 
+Registering a console
+---------------------
+
+Platforms will need to implement the TF-A console framework to register and use
+a console for visual data output in TF-A. These can be used for data output during
+the different stages of the firmware boot process and also for debugging purposes.
+
+The console framework can be used to output data on to a console using a number of
+TF-A supported UARTs. Multiple consoles can be registered at the same time with
+different output scopes (BOOT, RUNTIME, CRASH) so that data can be displayed on
+their respective consoles without unnecessary cluttering of a single console.
+
+Information for registering a console can be found in the :ref:`Console Framework` section
+of the :ref:`System Design` documentation.
+
 Common helper functions
 -----------------------
 Function : elx_panic()
@@ -3700,7 +3715,7 @@ to :ref:`Measured Boot Design` for more details.
 
 --------------
 
-*Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI: https://developer.arm.com/documentation/den0022/latest/
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
