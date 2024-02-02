@@ -261,4 +261,4 @@ Instructions for building and using the tool can be found in the
 *Copyright (c) 2015-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _X.509 v3: https://tools.ietf.org/rfc/rfc5280.txt
-.. _Trusted Board Boot Requirements (TBBR): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
+.. _Trusted Board Boot Requirements (TBBR): https://developer.arm.com/docs/den0006/latest

@@ -2866,7 +2866,7 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 .. _PSCI: https://developer.arm.com/documentation/den0022/latest/
 .. _Arm ARM: https://developer.arm.com/docs/ddi0487/latest
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
-.. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
+.. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest
 .. _Arm Confidential Compute Architecture (Arm CCA): https://www.arm.com/why-arm/architecture/security-features/arm-confidential-compute-architecture
 .. _AArch64 exception vector table: https://developer.arm.com/documentation/100933/0100/AArch64-exception-vector-table
 
