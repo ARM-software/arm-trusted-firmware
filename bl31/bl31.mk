@@ -161,6 +161,10 @@ BL31_SOURCES		+=	services/std_svc/drtm/drtm_main.c		\
 				${MBEDTLS_SOURCES}
 endif
 
+ifeq ($(CROS_WIDEVINE_SMC),1)
+BL31_SOURCES		+=	services/oem/chromeos/widevine_smc_handlers.c
+endif
+
 BL31_DEFAULT_LINKER_SCRIPT_SOURCE := bl31/bl31.ld.S
 
 ifneq ($(findstring gcc,$(notdir $(LD))),)
