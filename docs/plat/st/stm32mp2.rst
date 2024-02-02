@@ -19,8 +19,8 @@ The STM32MP25 series is available in 4 different lines which are pin-to-pin comp
 
 Each line comes with a security option (cryptography & secure boot) and a Cortex-A frequency option:
 
-- A      Basic + Cortex-A35 @ 1GHz
-- C      Secure Boot + HW Crypto + Cortex-A35 @ 1GHz
+- A      Basic + Cortex-A35 @ 1.2GHz
+- C      Secure Boot + HW Crypto + Cortex-A35 @ 1.2GHz
 - D      Basic + Cortex-A35 @ 1.5GHz
 - F      Secure Boot + HW Crypto + Cortex-A35 @ 1.5GHz
 
@@ -130,4 +130,4 @@ ___
         BL32_EXTRA1=<optee_directory>/tee-pager_v2.bin
         fip
 
-*Copyright (c) 2023, STMicroelectronics - All Rights Reserved*
+*Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved*
