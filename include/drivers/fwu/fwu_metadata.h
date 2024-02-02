@@ -17,10 +17,10 @@
 #define NR_OF_MAX_FW_BANKS	4
 
 /* Properties of image in a bank */
-struct fwu_image_properties {
+struct fwu_image_bank_info {
 
-	/* UUID of the image in this bank */
-	uuid_t img_uuid;
+	/* GUID of the image in this bank */
+	struct efi_guid img_guid;
 
 	/* [0]: bit describing the image acceptance status –
 	 *      1 means the image is accepted
@@ -36,14 +36,14 @@ struct fwu_image_properties {
 /* Image entry information */
 struct fwu_image_entry {
 
-	/* UUID identifying the image type */
-	uuid_t img_type_uuid;
+	/* GUID identifying the image type */
+	struct efi_guid img_type_guid;
 
-	/* UUID of the storage volume where the image is located */
-	uuid_t location_uuid;
+	/* GUID of the storage volume where the image is located */
+	struct efi_guid location_guid;
 
-	/* Properties of images with img_type_uuid in the different FW banks */
-	struct fwu_image_properties img_props[NR_OF_FW_BANKS];
+	/* Properties of images with img_type_guid in the different FW banks */
+	struct fwu_image_bank_info img_bank_info[NR_OF_FW_BANKS];
 
 } __packed;
 
