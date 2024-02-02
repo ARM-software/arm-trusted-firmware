@@ -6,3 +6,6 @@
 #
 
 include lib/libc/libc_common.mk
+
+LIBC_SRCS	+=	$(addprefix lib/libc/,		\
+			memset.c)

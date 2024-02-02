@@ -14,7 +14,6 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,		\
 			memcpy_s.c			\
 			memmove.c			\
 			memrchr.c			\
-			memset.c			\
 			printf.c			\
 			putchar.c			\
 			puts.c				\
