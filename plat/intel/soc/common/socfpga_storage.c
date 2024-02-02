@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,9 +29,9 @@
 
 
 #define PLAT_FIP_BASE		(0)
-#define PLAT_FIP_MAX_SIZE	(0x1000000)
-#define PLAT_MMC_DATA_BASE	(0xffe3c000)
-#define PLAT_MMC_DATA_SIZE	(0x2000)
+#define PLAT_FIP_MAX_SIZE	(0x8000000)
+#define PLAT_MMC_DATA_BASE	(0x10000000)
+#define PLAT_MMC_DATA_SIZE	(0x100000)
 
 static const io_dev_connector_t *fip_dev_con;
 static const io_dev_connector_t *boot_dev_con;
