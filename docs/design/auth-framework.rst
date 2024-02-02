@@ -505,11 +505,12 @@ uses this information to:
 
     typedef enum {
         AUTH_PARAM_NONE,
-        AUTH_PARAM_RAW_DATA,        /* Raw image data */
+        AUTH_PARAM_RAW_DATA,    /* Raw image data */
         AUTH_PARAM_SIG,         /* The image signature */
         AUTH_PARAM_SIG_ALG,     /* The image signature algorithm */
         AUTH_PARAM_HASH,        /* A hash (including the algorithm) */
         AUTH_PARAM_PUB_KEY,     /* A public key */
+        AUTH_PARAM_NV_CTR,      /* A non-volatile counter */
     } auth_param_type_t;
 
 The AM defines the following structure to identify an authentication parameter
