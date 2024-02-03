@@ -4,16 +4,16 @@
 #
 
 RD_N2_VARIANTS	:= 0 1 2 3
-ifneq ($(CSS_SGI_PLATFORM_VARIANT),\
-	$(filter $(CSS_SGI_PLATFORM_VARIANT),$(RD_N2_VARIANTS)))
- $(error "CSS_SGI_PLATFORM_VARIANT for RD-N2 should be 0, 1, 2 or 3, currently \
-	set to ${CSS_SGI_PLATFORM_VARIANT}.")
+ifneq ($(NRD_PLATFORM_VARIANT),\
+	$(filter $(NRD_PLATFORM_VARIANT),$(RD_N2_VARIANTS)))
+ $(error "NRD_PLATFORM_VARIANT for RD-N2 should be 0, 1, 2 or 3, currently \
+	set to ${NRD_PLATFORM_VARIANT}.")
 endif
 
 $(eval $(call CREATE_SEQ,SEQ,4))
-ifneq ($(CSS_SGI_CHIP_COUNT),$(filter $(CSS_SGI_CHIP_COUNT),$(SEQ)))
+ifneq ($(NRD_CHIP_COUNT),$(filter $(NRD_CHIP_COUNT),$(SEQ)))
  $(error  "Chip count for RD-N2-MC should be either $(SEQ) \
- currently it is set to ${CSS_SGI_CHIP_COUNT}.")
+ currently it is set to ${NRD_CHIP_COUNT}.")
 endif
 
 # RD-N2 platform uses GIC-700 which is based on GICv4.1
@@ -21,7 +21,7 @@ GIC_ENABLE_V4_EXTN	:=	1
 GIC_EXT_INTID		:=	1
 
 #Enable GIC Multichip Extension only for Multichip Platforms
-ifeq (${CSS_SGI_PLATFORM_VARIANT}, 2)
+ifeq (${NRD_PLATFORM_VARIANT}, 2)
 GICV3_IMPL_GIC600_MULTICHIP	:=	1
 endif
 
@@ -62,7 +62,7 @@ BL1_SOURCES		+=	${RDN2_BASE}/rdn2_trusted_boot.c
 BL2_SOURCES		+=	${RDN2_BASE}/rdn2_trusted_boot.c
 endif
 
-ifeq (${CSS_SGI_PLATFORM_VARIANT}, 2)
+ifeq (${NRD_PLATFORM_VARIANT}, 2)
 BL31_SOURCES	+=	drivers/arm/gic/v3/gic600_multichip.c
 
 # Enable dynamic addition of MMAP regions in BL31

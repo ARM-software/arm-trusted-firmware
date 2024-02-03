@@ -121,17 +121,6 @@ Arm CSS Platform-Specific Build Options
    management operations and for SCP RAM Firmware transfer. If this option
    is set to 1, then SCMI/SDS drivers will be used. Default is 0.
 
- - ``CSS_SGI_CHIP_COUNT``: Configures the number of chips on a SGI/RD platform
-   which supports multi-chip operation. If ``CSS_SGI_CHIP_COUNT`` is set to any
-   valid value greater than 1, the platform code performs required configuration
-   to support multi-chip operation.
-
-- ``CSS_SGI_PLATFORM_VARIANT``: Selects the variant of a SGI/RD platform. A
-    particular SGI/RD platform may have multiple variants which may differ in
-    core count, cluster count or other peripherals. This build option is used
-    to select the appropriate platform variant for the build. The range of
-    valid values is platform specific.
-
 - ``CSS_SYSTEM_GRACEFUL_RESET``: Build option to enable graceful powerdown of
    CPU core on reset. This build option can be used on CSS platforms that
    require all the CPUs to execute the CPU specific power down sequence to
@@ -152,8 +141,22 @@ Arm Juno Build Options
    AArch64 and facilitates the loading of ``SP_MIN`` and BL33 as AArch32 executable
    images.
 
+Arm Neoverse RD Platform Build Options
+--------------------------------------
+
+ - ``NRD_CHIP_COUNT``: Configures the number of chips on a Neoverse RD platform
+   which supports multi-chip operation. If ``NRD_CHIP_COUNT`` is set to any
+   valid value greater than 1, the platform code performs required configuration
+   to support multi-chip operation.
+
+- ``NRD_PLATFORM_VARIANT``: Selects the variant of a Neoverse RD platform. A
+  particular Neoverse RD platform may have multiple variants which may differ in
+  core count, cluster count or other peripherals. This build option is used to
+  select the appropriate platform variant for the build. The range of valid
+  values is platform specific.
+
 --------------
 
 .. |FIP in a GPT image| image:: ../../resources/diagrams/FIP_in_a_GPT_image.png
 
-*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*

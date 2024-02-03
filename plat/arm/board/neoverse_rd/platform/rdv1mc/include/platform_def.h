@@ -51,9 +51,9 @@
 
 /* Physical and virtual address space limits for MMU in AARCH64 mode */
 #define PLAT_PHY_ADDR_SPACE_SIZE	CSS_SGI_REMOTE_CHIP_MEM_OFFSET( \
-						CSS_SGI_CHIP_COUNT)
+						NRD_CHIP_COUNT)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	CSS_SGI_REMOTE_CHIP_MEM_OFFSET( \
-						CSS_SGI_CHIP_COUNT)
+						NRD_CHIP_COUNT)
 
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE		UL(0x30000000)

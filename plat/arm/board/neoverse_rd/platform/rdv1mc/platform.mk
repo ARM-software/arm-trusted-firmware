@@ -56,9 +56,9 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 
 $(eval $(call CREATE_SEQ,SEQ,4))
-ifneq ($(CSS_SGI_CHIP_COUNT),$(filter $(CSS_SGI_CHIP_COUNT),$(SEQ)))
+ifneq ($(NRD_CHIP_COUNT),$(filter $(NRD_CHIP_COUNT),$(SEQ)))
  $(error  "Chip count for RD-V1-MC should be either $(SEQ) \
- currently it is set to ${CSS_SGI_CHIP_COUNT}.")
+ currently it is set to ${NRD_CHIP_COUNT}.")
 endif
 
 FDT_SOURCES		+=	${RDV1MC_BASE}/fdts/${PLAT}_nt_fw_config.dts
@@ -70,9 +70,9 @@ $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 override CTX_INCLUDE_AARCH32_REGS	:= 0
 override ENABLE_FEAT_AMU		:= 1
 
-ifneq ($(CSS_SGI_PLATFORM_VARIANT),0)
- $(error "CSS_SGI_PLATFORM_VARIANT for RD-V1-MC should always be 0, \
-     currently set to ${CSS_SGI_PLATFORM_VARIANT}.")
+ifneq ($(NRD_PLATFORM_VARIANT),0)
+ $(error "NRD_PLATFORM_VARIANT for RD-V1-MC should always be 0, \
+     currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
 
 # Enable the flag since RD-V1-MC has a system level cache

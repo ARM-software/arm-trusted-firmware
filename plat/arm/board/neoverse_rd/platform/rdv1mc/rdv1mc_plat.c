@@ -17,12 +17,12 @@ static const mmap_region_t rdv1mc_dynamic_mmap[] = {
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(1),
 	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(1),
 	SOC_CSS_MAP_DEVICE_REMOTE_CHIP(1),
-#if (CSS_SGI_CHIP_COUNT > 2)
+#if (NRD_CHIP_COUNT > 2)
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(2),
 	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(2),
 	SOC_CSS_MAP_DEVICE_REMOTE_CHIP(2),
 #endif
-#if (CSS_SGI_CHIP_COUNT > 3)
+#if (NRD_CHIP_COUNT > 3)
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(3),
 	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(3),
 	SOC_CSS_MAP_DEVICE_REMOTE_CHIP(3)
@@ -32,14 +32,14 @@ static const mmap_region_t rdv1mc_dynamic_mmap[] = {
 static struct gic600_multichip_data rdv1mc_multichip_data __init = {
 	.rt_owner_base = PLAT_ARM_GICD_BASE,
 	.rt_owner = 0,
-	.chip_count = CSS_SGI_CHIP_COUNT,
+	.chip_count = NRD_CHIP_COUNT,
 	.chip_addrs = {
 		PLAT_ARM_GICD_BASE >> 16,
 		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1)) >> 16,
-#if (CSS_SGI_CHIP_COUNT > 2)
+#if (NRD_CHIP_COUNT > 2)
 		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(2)) >> 16,
 #endif
-#if (CSS_SGI_CHIP_COUNT > 3)
+#if (NRD_CHIP_COUNT > 3)
 		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(3)) >> 16,
 #endif
 	},
@@ -47,10 +47,10 @@ static struct gic600_multichip_data rdv1mc_multichip_data __init = {
 		{PLAT_ARM_GICD_BASE, RDV1MC_CHIP0_SPI_START,
 			RDV1MC_CHIP0_SPI_END},
 		{0, 0, 0},
-#if (CSS_SGI_CHIP_COUNT > 2)
+#if (NRD_CHIP_COUNT > 2)
 		{0, 0, 0},
 #endif
-#if (CSS_SGI_CHIP_COUNT > 3)
+#if (NRD_CHIP_COUNT > 3)
 		{0, 0, 0},
 #endif
 	}
@@ -61,11 +61,11 @@ static uintptr_t rdv1mc_multichip_gicr_frames[] = {
 	PLAT_ARM_GICR_BASE,
 	/* Chip 1's GICR BASE */
 	PLAT_ARM_GICR_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1),
-#if (CSS_SGI_CHIP_COUNT > 2)
+#if (NRD_CHIP_COUNT > 2)
 	/* Chip 2's GICR BASE */
 	PLAT_ARM_GICR_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(2),
 #endif
-#if (CSS_SGI_CHIP_COUNT > 3)
+#if (NRD_CHIP_COUNT > 3)
 	/* Chip 3's GICR BASE */
 	PLAT_ARM_GICR_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(3),
 #endif
@@ -102,12 +102,12 @@ void bl31_platform_setup(void)
 	unsigned int i;
 
 	if ((plat_arm_sgi_get_multi_chip_mode() == 0) &&
-			(CSS_SGI_CHIP_COUNT > 1)) {
-		ERROR("Chip Count is set to %u but multi-chip mode is not "
-			"enabled\n", CSS_SGI_CHIP_COUNT);
+			(NRD_CHIP_COUNT > 1)) {
+		ERROR("Chip Count is %u but multi-chip mode is not enabled\n",
+			NRD_CHIP_COUNT);
 		panic();
 	} else if ((plat_arm_sgi_get_multi_chip_mode() == 1) &&
-			(CSS_SGI_CHIP_COUNT > 1)) {
+			(NRD_CHIP_COUNT > 1)) {
 		INFO("Enabling support for multi-chip in RD-V1-MC\n");
 
 		for (i = 0; i < ARRAY_SIZE(rdv1mc_dynamic_mmap); i++) {

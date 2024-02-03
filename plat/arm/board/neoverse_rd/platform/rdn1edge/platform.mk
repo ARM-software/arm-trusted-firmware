@@ -62,14 +62,14 @@ NT_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
 $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 
 $(eval $(call CREATE_SEQ,SEQ,2))
-ifneq ($(CSS_SGI_CHIP_COUNT),$(filter $(CSS_SGI_CHIP_COUNT),$(SEQ)))
+ifneq ($(NRD_CHIP_COUNT),$(filter $(NRD_CHIP_COUNT),$(SEQ)))
  $(error  "Chip count for RDN1Edge platform should be one of $(SEQ), currently \
-   set to ${CSS_SGI_CHIP_COUNT}.")
+   set to ${NRD_CHIP_COUNT}.")
 endif
 
-ifneq ($(CSS_SGI_PLATFORM_VARIANT),0)
- $(error "CSS_SGI_PLATFORM_VARIANT for RD-N1-Edge should always be 0, \
-     currently set to ${CSS_SGI_PLATFORM_VARIANT}.")
+ifneq ($(NRD_PLATFORM_VARIANT),0)
+ $(error "NRD_PLATFORM_VARIANT for RD-N1-Edge should always be 0, \
+     currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0

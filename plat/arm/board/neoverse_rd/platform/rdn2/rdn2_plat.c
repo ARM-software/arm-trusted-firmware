@@ -15,68 +15,68 @@
 #include <rdn2_ras.h>
 
 #if defined(IMAGE_BL31)
-#if (CSS_SGI_PLATFORM_VARIANT == 2)
+#if (NRD_PLATFORM_VARIANT == 2)
 static const mmap_region_t rdn2mc_dynamic_mmap[] = {
-#if CSS_SGI_CHIP_COUNT > 1
+#if NRD_CHIP_COUNT > 1
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(1),
 	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(1),
 #endif
-#if CSS_SGI_CHIP_COUNT > 2
+#if NRD_CHIP_COUNT > 2
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(2),
 	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(2),
 #endif
-#if CSS_SGI_CHIP_COUNT > 3
+#if NRD_CHIP_COUNT > 3
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(3),
 	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(3),
 #endif
 };
 #endif
 
-#if (CSS_SGI_PLATFORM_VARIANT == 2)
+#if (NRD_PLATFORM_VARIANT == 2)
 static struct gic600_multichip_data rdn2mc_multichip_data __init = {
 	.rt_owner_base = PLAT_ARM_GICD_BASE,
 	.rt_owner = 0,
-	.chip_count = CSS_SGI_CHIP_COUNT,
+	.chip_count = NRD_CHIP_COUNT,
 	.chip_addrs = {
 		PLAT_ARM_GICD_BASE >> 16,
-#if CSS_SGI_CHIP_COUNT > 1
+#if NRD_CHIP_COUNT > 1
 		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1)) >> 16,
 #endif
-#if CSS_SGI_CHIP_COUNT > 2
+#if NRD_CHIP_COUNT > 2
 		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(2)) >> 16,
 #endif
-#if CSS_SGI_CHIP_COUNT > 3
+#if NRD_CHIP_COUNT > 3
 		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(3)) >> 16,
 #endif
 	},
 	.spi_ids = {
 		{PLAT_ARM_GICD_BASE, 32, 511},
-	#if CSS_SGI_CHIP_COUNT > 1
+	#if NRD_CHIP_COUNT > 1
 		{PLAT_ARM_GICD_BASE, 512, 991},
 	#endif
-	#if CSS_SGI_CHIP_COUNT > 2
+	#if NRD_CHIP_COUNT > 2
 		{PLAT_ARM_GICD_BASE, 4096, 4575},
 	#endif
-	#if CSS_SGI_CHIP_COUNT > 3
+	#if NRD_CHIP_COUNT > 3
 		{PLAT_ARM_GICD_BASE, 4576, 5055},
 	#endif
 	}
 };
 #endif
 
-#if (CSS_SGI_PLATFORM_VARIANT == 2)
+#if (NRD_PLATFORM_VARIANT == 2)
 static uintptr_t rdn2mc_multichip_gicr_frames[] = {
 	/* Chip 0's GICR Base */
 	PLAT_ARM_GICR_BASE,
-#if CSS_SGI_CHIP_COUNT > 1
+#if NRD_CHIP_COUNT > 1
 	/* Chip 1's GICR BASE */
 	PLAT_ARM_GICR_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1),
 #endif
-#if CSS_SGI_CHIP_COUNT > 2
+#if NRD_CHIP_COUNT > 2
 	/* Chip 2's GICR BASE */
 	PLAT_ARM_GICR_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(2),
 #endif
-#if CSS_SGI_CHIP_COUNT > 3
+#if NRD_CHIP_COUNT > 3
 	/* Chip 3's GICR BASE */
 	PLAT_ARM_GICR_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(3),
 #endif
@@ -106,13 +106,13 @@ unsigned int plat_arm_sgi_get_multi_chip_mode(void)
 #if defined(IMAGE_BL31)
 void bl31_platform_setup(void)
 {
-#if (CSS_SGI_PLATFORM_VARIANT == 2)
+#if (NRD_PLATFORM_VARIANT == 2)
 	int ret;
 	unsigned int i;
 
 	if (plat_arm_sgi_get_multi_chip_mode() == 0) {
-		ERROR("Chip Count is set to %u but multi-chip mode is not "
-			"enabled\n", CSS_SGI_CHIP_COUNT);
+		ERROR("Chip Count is %u but multi-chip mode is not enabled\n",
+			NRD_CHIP_COUNT);
 		panic();
 	} else {
 		INFO("Enabling multi-chip support for RD-N2 variant\n");

@@ -14,7 +14,7 @@
 #include <plat/arm/css/common/css_def.h>
 #include <plat/common/common_def.h>
 
-#define PLATFORM_CORE_COUNT		(CSS_SGI_CHIP_COUNT *		\
+#define PLATFORM_CORE_COUNT		(NRD_CHIP_COUNT *		\
 					PLAT_ARM_CLUSTER_COUNT *	\
 					CSS_SGI_MAX_CPUS_PER_CLUSTER *	\
 					CSS_SGI_MAX_PE_PER_CPU)
@@ -34,19 +34,19 @@
  */
 #if defined(IMAGE_BL31)
 # if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
-#  define PLAT_ARM_MMAP_ENTRIES		(10  + ((CSS_SGI_CHIP_COUNT - 1) * 3))
-#  define MAX_XLAT_TABLES		(8  + ((CSS_SGI_CHIP_COUNT - 1) * 3))
+#  define PLAT_ARM_MMAP_ENTRIES		(10  + ((NRD_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(8  + ((NRD_CHIP_COUNT - 1) * 3))
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	12
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	14
 # else
-#  define PLAT_ARM_MMAP_ENTRIES		(5 + ((CSS_SGI_CHIP_COUNT - 1) * 3))
-#  define MAX_XLAT_TABLES		(6 + ((CSS_SGI_CHIP_COUNT - 1) * 3))
+#  define PLAT_ARM_MMAP_ENTRIES		(5 + ((NRD_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(6 + ((NRD_CHIP_COUNT - 1) * 3))
 # endif
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		8
 # define MAX_XLAT_TABLES		5
 #elif defined(IMAGE_BL2)
-# define PLAT_ARM_MMAP_ENTRIES		(11 + (CSS_SGI_CHIP_COUNT - 1))
+# define PLAT_ARM_MMAP_ENTRIES		(11 + (NRD_CHIP_COUNT - 1))
 
 /*
  * MAX_XLAT_TABLES entries need to be doubled because when the address width
@@ -55,7 +55,7 @@
  * > 40 bits
  *
  */
-# define MAX_XLAT_TABLES		(7  + ((CSS_SGI_CHIP_COUNT - 1) * 2))
+# define MAX_XLAT_TABLES		(7  + ((NRD_CHIP_COUNT - 1) * 2))
 #elif !USE_ROMLIB
 # define PLAT_ARM_MMAP_ENTRIES		11
 # define MAX_XLAT_TABLES		7
@@ -90,10 +90,10 @@
  *
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		(0x20000 + ((CSS_SGI_CHIP_COUNT - 1) * \
+# define PLAT_ARM_MAX_BL2_SIZE		(0x20000 + ((NRD_CHIP_COUNT - 1) * \
 							0x2000))
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		(0x14000 + ((CSS_SGI_CHIP_COUNT - 1) * \
+# define PLAT_ARM_MAX_BL2_SIZE		(0x14000 + ((NRD_CHIP_COUNT - 1) * \
 							0x2000))
 #endif
 
@@ -269,7 +269,7 @@
 #define SBSA_SECURE_WDOG_TIMEOUT	UL(100)
 
 /* Number of SCMI channels on the platform */
-#define PLAT_ARM_SCMI_CHANNEL_COUNT	CSS_SGI_CHIP_COUNT
+#define PLAT_ARM_SCMI_CHANNEL_COUNT	NRD_CHIP_COUNT
 
 /*
  * Mapping definition of the TrustZone Controller for ARM SGI/RD platforms

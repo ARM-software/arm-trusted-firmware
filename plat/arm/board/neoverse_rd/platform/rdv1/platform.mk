@@ -59,9 +59,9 @@ $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 override CTX_INCLUDE_AARCH32_REGS	:= 0
 override ENABLE_FEAT_AMU		:= 1
 
-ifneq ($(CSS_SGI_PLATFORM_VARIANT),0)
- $(error "CSS_SGI_PLATFORM_VARIANT for RD-V1 should always be 0, \
-     currently set to ${CSS_SGI_PLATFORM_VARIANT}.")
+ifneq ($(NRD_PLATFORM_VARIANT),0)
+ $(error "NRD_PLATFORM_VARIANT for RD-V1 should always be 0, \
+     currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
 
 # Enable the flag since RD-V1 has a system level cache

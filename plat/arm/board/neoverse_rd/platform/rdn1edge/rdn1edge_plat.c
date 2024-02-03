@@ -22,7 +22,7 @@ static const mmap_region_t rdn1edge_dynamic_mmap[] = {
 static struct gic600_multichip_data rdn1e1_multichip_data __init = {
 	.rt_owner_base = PLAT_ARM_GICD_BASE,
 	.rt_owner = 0,
-	.chip_count = CSS_SGI_CHIP_COUNT,
+	.chip_count = NRD_CHIP_COUNT,
 	.chip_addrs = {
 		PLAT_ARM_GICD_BASE >> 16,
 		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1)) >> 16
@@ -70,12 +70,12 @@ void bl31_platform_setup(void)
 	unsigned int i;
 	int ret;
 
-	if (plat_arm_sgi_get_multi_chip_mode() == 0 && CSS_SGI_CHIP_COUNT > 1) {
+	if (plat_arm_sgi_get_multi_chip_mode() == 0 && NRD_CHIP_COUNT > 1) {
 		ERROR("Chip Count is set to %d but multi-chip mode not enabled\n",
-				CSS_SGI_CHIP_COUNT);
+				NRD_CHIP_COUNT);
 		panic();
 	} else if (plat_arm_sgi_get_multi_chip_mode() == 1 &&
-			CSS_SGI_CHIP_COUNT > 1) {
+			NRD_CHIP_COUNT > 1) {
 		INFO("Enabling support for multi-chip in RD-N1-Edge\n");
 
 		for (i = 0; i < ARRAY_SIZE(rdn1edge_dynamic_mmap); i++) {

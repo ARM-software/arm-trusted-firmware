@@ -38,7 +38,7 @@ static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 		.db_modify_mask = 0x1,
 		.ring_doorbell = &mhuv2_ring_doorbell,
 	},
-	#if (CSS_SGI_CHIP_COUNT > 1)
+	#if (NRD_CHIP_COUNT > 1)
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
 			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1),
@@ -49,7 +49,7 @@ static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 		.ring_doorbell = &mhuv2_ring_doorbell,
 	},
 	#endif
-	#if (CSS_SGI_CHIP_COUNT > 2)
+	#if (NRD_CHIP_COUNT > 2)
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
 			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(2),
@@ -60,7 +60,7 @@ static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 		.ring_doorbell = &mhuv2_ring_doorbell,
 	},
 	#endif
-	#if (CSS_SGI_CHIP_COUNT > 3)
+	#if (NRD_CHIP_COUNT > 3)
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
 			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(3),
