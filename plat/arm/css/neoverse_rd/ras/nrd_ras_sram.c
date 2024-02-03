@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,7 @@
 #include <services/spm_mm_svc.h>
 
 #include <platform_def.h>
-#include <sgi_ras.h>
+#include <nrd_ras.h>
 
 /* Base Element RAM Error Record offsets. */
 #define ERRSTATUS	U(0)

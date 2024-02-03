@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,7 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include <sgi_ras.h>
+#include <nrd_ras.h>
 
 static struct plat_sgi_ras_config *sgi_ras_config;
 

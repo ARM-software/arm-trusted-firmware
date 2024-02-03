@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SGI_BASE_PLATFORM_DEF_H
-#define SGI_BASE_PLATFORM_DEF_H
+#ifndef NRD_BASE_PLATFORM_DEF_H
+#define NRD_BASE_PLATFORM_DEF_H
 
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
@@ -303,4 +303,4 @@
 /* SDS ID for unusable CPU MPID list structure */
 #define SDS_ISOLATED_CPU_LIST_ID		U(128)
 
-#endif /* SGI_BASE_PLATFORM_DEF_H */
+#endif /* NRD_BASE_PLATFORM_DEF_H */

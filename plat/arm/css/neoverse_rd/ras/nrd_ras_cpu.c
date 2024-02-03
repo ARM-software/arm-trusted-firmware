@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,7 @@
 #include <services/sdei.h>
 #include <services/spm_mm_svc.h>
 
-#include <sgi_ras.h>
+#include <nrd_ras.h>
 
 #define CPU_CONTEXT_REG_GPR_ARR_SIZE 32
 #define CPU_CONTEXT_REG_EL1_ARR_SIZE 17

@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -6,7 +6,7 @@
 # RD-V1 platform uses GIC-700 which is based on GICv4.1
 GIC_ENABLE_V4_EXTN	:=	1
 
-include plat/arm/css/sgi/sgi-common.mk
+include plat/arm/css/neoverse_rd/nrd-common.mk
 
 RDV1_BASE		=	plat/arm/board/rdv1
 
@@ -14,7 +14,7 @@ PLAT_INCLUDES		+=	-I${RDV1_BASE}/include/
 
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_v1.S
 
-PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c
+PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/nrd_plat.c
 
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${RDV1_BASE}/rdv1_err.c

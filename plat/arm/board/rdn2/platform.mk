@@ -28,7 +28,7 @@ endif
 override CSS_SYSTEM_GRACEFUL_RESET	:= 1
 override EL3_EXCEPTION_HANDLING		:= 1
 
-include plat/arm/css/sgi/sgi-common.mk
+include plat/arm/css/neoverse_rd/nrd-common.mk
 
 RDN2_BASE		=	plat/arm/board/rdn2
 
@@ -37,7 +37,7 @@ PLAT_INCLUDES		+=	-I${RDN2_BASE}/include/
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n2.S \
 				lib/cpus/aarch64/neoverse_v2.S
 
-PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat_v2.c
+PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/nrd_plat_v2.c
 
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${RDN2_BASE}/rdn2_err.c
@@ -71,9 +71,9 @@ endif
 
 ifeq (${ENABLE_FEAT_RAS}-${HANDLE_EA_EL3_FIRST_NS},1-1)
 BL31_SOURCES		+=	${RDN2_BASE}/rdn2_ras.c			\
-				${CSS_ENT_BASE}/ras/sgi_ras_common.c	\
-				${CSS_ENT_BASE}/ras/sgi_ras_sram.c	\
-				${CSS_ENT_BASE}/ras/sgi_ras_cpu.c
+				${CSS_ENT_BASE}/ras/nrd_ras_common.c	\
+				${CSS_ENT_BASE}/ras/nrd_ras_sram.c	\
+				${CSS_ENT_BASE}/ras/nrd_ras_cpu.c
 endif
 
 # Add the FDT_SOURCES and options for Dynamic Config

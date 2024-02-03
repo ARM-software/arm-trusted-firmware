@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SGI_SOC_CSS_DEF_H
-#define SGI_SOC_CSS_DEF_H
+#ifndef NRD_SOC_CSS_DEF_H
+#define NRD_SOC_CSS_DEF_H
 
 #include <lib/utils_def.h>
 #include <plat/arm/board/common/v2m_def.h>
@@ -44,4 +44,4 @@
 #define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
 #define PLAT_ARM_NVM_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
 
-#endif /* SGI_SOC_CSS_DEF_H */
+#endif /* NRD_SOC_CSS_DEF_H */

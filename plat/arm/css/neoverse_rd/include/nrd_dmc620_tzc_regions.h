@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SGI_DMC620_TZC_REGIONS_H
-#define SGI_DMC620_TZC_REGIONS_H
+#ifndef NRD_DMC620_TZC_REGIONS_H
+#define NRD_DMC620_TZC_REGIONS_H
 
 #include <drivers/arm/tzc_dmc620.h>
 
@@ -33,4 +33,4 @@
 	}
 #endif /* SPM_MM */
 
-#endif /* SGI_DMC620_TZC_REGIONS_H */
+#endif /* NRD_DMC620_TZC_REGIONS_H */

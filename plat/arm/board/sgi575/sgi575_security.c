@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <platform_def.h>
 
 #include <common/debug.h>
-#include <sgi_dmc620_tzc_regions.h>
+#include <nrd_dmc620_tzc_regions.h>
 
 uintptr_t sgi575_dmc_base[] = {
 	SGI575_DMC620_BASE0,

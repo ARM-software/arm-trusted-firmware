@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,8 +8,8 @@
 #define PLATFORM_DEF_H
 
 #include <lib/utils_def.h>
-#include <sgi_sdei.h>
-#include <sgi_soc_platform_def_v2.h>
+#include <nrd_sdei.h>
+#include <nrd_soc_platform_def_v2.h>
 
 #if (CSS_SGI_PLATFORM_VARIANT == 1)
 #define PLAT_ARM_CLUSTER_COUNT		U(8)

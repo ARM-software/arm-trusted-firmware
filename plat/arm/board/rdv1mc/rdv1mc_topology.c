@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,8 @@
 #include <common/debug.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/arm/css/common/css_pm.h>
-#include <sgi_variant.h>
+
+#include <nrd_variant.h>
 
 /******************************************************************************
  * The power domain tree descriptor.

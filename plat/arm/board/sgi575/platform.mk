@@ -1,12 +1,12 @@
 #
-# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 $(warning Platform ${PLAT} is deprecated. Some of the features might not work as expected)
 
-include plat/arm/css/sgi/sgi-common.mk
+include plat/arm/css/neoverse_rd/nrd-common.mk
 
 SGI575_BASE		=	plat/arm/board/sgi575
 
@@ -14,7 +14,7 @@ PLAT_INCLUDES		+=	-I${SGI575_BASE}/include/
 
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a75.S
 
-PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c
+PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/nrd_plat.c
 
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${SGI575_BASE}/sgi575_err.c

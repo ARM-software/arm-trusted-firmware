@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <plat/common/platform.h>
-#include <sgi_plat.h>
-#include <sgi_variant.h>
+
+#include <nrd_plat.h>
+#include <nrd_variant.h>
 
 unsigned int plat_arm_sgi_get_platform_id(void)
 {

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SGI_SDEI_H
-#define SGI_SDEI_H
+#ifndef NRD_SDEI_H
+#define NRD_SDEI_H
 
 #if SDEI_SUPPORT
 
@@ -22,4 +22,4 @@
 
 #endif /* SDEI_SUPPORT */
 
-#endif /* SGI_SDEI_H */
+#endif /* NRD_SDEI_H */

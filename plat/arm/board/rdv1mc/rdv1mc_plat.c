@@ -8,8 +8,9 @@
 #include <drivers/arm/gic600_multichip.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-#include <sgi_soc_platform_def.h>
-#include <sgi_plat.h>
+
+#include <nrd_plat.h>
+#include <nrd_soc_platform_def.h>
 
 #if defined(IMAGE_BL31)
 static const mmap_region_t rdv1mc_dynamic_mmap[] = {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <platform_def.h>
 
 #include <common/debug.h>
-#include <sgi_dmc620_tzc_regions.h>
+#include <nrd_dmc620_tzc_regions.h>
 
 uintptr_t rdn1edge_dmc_base[] = {
 	RDN1EDGE_DMC620_BASE0,

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,7 +9,7 @@ $(warning Platform ${PLAT} is deprecated. Some of the features might not work as
 # GIC-600 configuration
 GICV3_IMPL_GIC600_MULTICHIP	:=	1
 
-include plat/arm/css/sgi/sgi-common.mk
+include plat/arm/css/neoverse_rd/nrd-common.mk
 
 RDN1EDGE_BASE		=	plat/arm/board/rdn1edge
 
@@ -17,7 +17,7 @@ PLAT_INCLUDES		+=	-I${RDN1EDGE_BASE}/include/
 
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n1.S
 
-PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c
+PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/nrd_plat.c
 
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${RDN1EDGE_BASE}/rdn1edge_err.c

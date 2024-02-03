@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SGI_RAS_H
-#define SGI_RAS_H
+#ifndef NRD_RAS_H
+#define NRD_RAS_H
 
 #include <lib/extensions/ras.h>
 #include <plat/common/platform.h>
@@ -65,4 +65,4 @@ int sgi_ras_cpu_intr_handler(const struct err_record_info *err_rec,
 				int probe_data,
 				const struct err_handler_data *const data);
 
-#endif /* SGI_RAS_H */
+#endif /* NRD_RAS_H */

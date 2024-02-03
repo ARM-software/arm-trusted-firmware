@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <platform_def.h>
-#include <sgi_ras.h>
-#include <sgi_sdei.h>
+
+#include <nrd_ras.h>
+#include <nrd_sdei.h>
 
 struct sgi_ras_ev_map plat_ras_map[] = {
 	/* Non Secure base RAM ECC CE interrupt */

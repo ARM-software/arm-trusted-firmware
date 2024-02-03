@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SGI_VARIANT_H
-#define SGI_VARIANT_H
+#ifndef NRD_VARIANT_H
+#define NRD_VARIANT_H
 
 /* SSC_VERSION values for SGI575 */
 #define SGI575_SSC_VER_PART_NUM			0x0783
@@ -47,4 +47,4 @@ unsigned int plat_arm_sgi_get_config_id(void);
 /* returns true if operating in multi-chip configuration */
 unsigned int plat_arm_sgi_get_multi_chip_mode(void);
 
-#endif /* SGI_VARIANT_H */
+#endif /* NRD_VARIANT_H */

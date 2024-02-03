@@ -524,7 +524,7 @@ Arm Reference Design platform ports
 :|G|: `thomas-arm`_
 :|M|: Vijayenthiran Subramaniam <vijayenthiran.subramaniam@arm.com>
 :|G|: `vijayenthiran-arm`_
-:|F|: plat/arm/css/sgi/
+:|F|: plat/arm/css/neoverse_rd/
 :|F|: plat/arm/board/rdn1edge/
 :|F|: plat/arm/board/rdn2/
 :|F|: plat/arm/board/rdv1/

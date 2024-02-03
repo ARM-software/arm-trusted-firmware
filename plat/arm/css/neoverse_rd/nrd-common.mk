@@ -6,7 +6,7 @@
 
 CSS_USE_SCMI_SDS_DRIVER		:=	1
 
-CSS_ENT_BASE			:=	plat/arm/css/sgi
+CSS_ENT_BASE			:=	plat/arm/css/neoverse_rd
 
 ENABLE_FEAT_RAS			:=	1
 
@@ -25,7 +25,7 @@ ENABLE_SVE_FOR_NS		:=	0
 
 CTX_INCLUDE_FPREGS		:=	1
 
-INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/sgi_interconnect.c
+INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/nrd_interconnect.c
 
 PLAT_INCLUDES		+=	-I${CSS_ENT_BASE}/include
 
@@ -39,18 +39,18 @@ ENT_GIC_SOURCES		:=	${GICV3_SOURCES}		\
 				plat/common/plat_gicv3.c	\
 				plat/arm/common/arm_gicv3.c
 
-PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/aarch64/sgi_helper.S
+PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/aarch64/nrd_helper.S
 
 BL1_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				drivers/arm/sbsa/sbsa.c
 
-BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_image_load.c	\
+BL2_SOURCES		+=	${CSS_ENT_BASE}/nrd_image_load.c	\
 				drivers/arm/css/sds/sds.c
 
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${ENT_GIC_SOURCES}			\
-				${CSS_ENT_BASE}/sgi_bl31_setup.c	\
-				${CSS_ENT_BASE}/sgi_topology.c          \
+				${CSS_ENT_BASE}/nrd_bl31_setup.c	\
+				${CSS_ENT_BASE}/nrd_topology.c		\
 				drivers/delay_timer/generic_delay_timer.c
 
 ifneq (${RESET_TO_BL31},0)
