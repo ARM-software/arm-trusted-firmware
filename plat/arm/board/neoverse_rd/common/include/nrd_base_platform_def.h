@@ -16,14 +16,14 @@
 
 #define PLATFORM_CORE_COUNT		(NRD_CHIP_COUNT *		\
 					PLAT_ARM_CLUSTER_COUNT *	\
-					CSS_SGI_MAX_CPUS_PER_CLUSTER *	\
-					CSS_SGI_MAX_PE_PER_CPU)
+					NRD_MAX_CPUS_PER_CLUSTER *	\
+					NRD_MAX_PE_PER_CPU)
 
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00080000	/* 512 KB */
 
 /* Remote chip address offset */
-#define CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n)	\
-		((ULL(1) << CSS_SGI_ADDR_BITS_PER_CHIP) * (n))
+#define NRD_REMOTE_CHIP_MEM_OFFSET(n)	\
+		((ULL(1) << NRD_ADDR_BITS_PER_CHIP) * (n))
 
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
@@ -100,13 +100,13 @@
 /*
  * Since BL31 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL31_SIZE is
  * calculated using the current BL31 PROGBITS debug size plus the sizes of BL2
- * and BL1-RW. CSS_SGI_BL31_SIZE - is tuned with respect to the actual BL31
+ * and BL1-RW. NRD_BL31_SIZE - is tuned with respect to the actual BL31
  * PROGBITS size which is around 64-68KB at the time this change is being made.
  * A buffer of ~35KB is added to account for future expansion of the image,
  * making it a total of 100KB.
  */
-#define CSS_SGI_BL31_SIZE		(116 * 1024)	/* 116 KB */
-#define PLAT_ARM_MAX_BL31_SIZE		(CSS_SGI_BL31_SIZE +		\
+#define NRD_BL31_SIZE			(116 * 1024)	/* 116 KB */
+#define PLAT_ARM_MAX_BL31_SIZE		(NRD_BL31_SIZE +		\
 						PLAT_ARM_MAX_BL2_SIZE +	\
 						PLAT_ARM_MAX_BL1_RW_SIZE)
 
@@ -167,32 +167,32 @@
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	CSS_G1S_IRQ_PROPS(grp)
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp)
 
-#define CSS_SGI_DEVICE_BASE	(0x20000000)
-#define CSS_SGI_DEVICE_SIZE	(0x20000000)
-#define CSS_SGI_MAP_DEVICE	MAP_REGION_FLAT(		\
-					CSS_SGI_DEVICE_BASE,	\
-					CSS_SGI_DEVICE_SIZE,	\
+#define NRD_DEVICE_BASE	(0x20000000)
+#define NRD_DEVICE_SIZE	(0x20000000)
+#define NRD_MAP_DEVICE	MAP_REGION_FLAT(		\
+					NRD_DEVICE_BASE,	\
+					NRD_DEVICE_SIZE,	\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
 #define ARM_MAP_SHARED_RAM_REMOTE_CHIP(n)					\
 			MAP_REGION_FLAT(					\
-				CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) +		\
+				NRD_REMOTE_CHIP_MEM_OFFSET(n) +		\
 				ARM_SHARED_RAM_BASE,				\
 				ARM_SHARED_RAM_SIZE,				\
 				MT_NON_CACHEABLE | MT_RW | MT_SECURE		\
 			)
 
-#define CSS_SGI_MAP_DEVICE_REMOTE_CHIP(n)					\
+#define NRD_MAP_DEVICE_REMOTE_CHIP(n)					\
 			MAP_REGION_FLAT(					\
-				CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) +		\
-				CSS_SGI_DEVICE_BASE,				\
-				CSS_SGI_DEVICE_SIZE,				\
+				NRD_REMOTE_CHIP_MEM_OFFSET(n) +		\
+				NRD_DEVICE_BASE,				\
+				NRD_DEVICE_SIZE,				\
 				MT_DEVICE | MT_RW | MT_SECURE			\
 			)
 
 #define SOC_CSS_MAP_DEVICE_REMOTE_CHIP(n)					\
 			MAP_REGION_FLAT(					\
-				CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) +		\
+				NRD_REMOTE_CHIP_MEM_OFFSET(n) +		\
 				SOC_CSS_DEVICE_BASE,				\
 				SOC_CSS_DEVICE_SIZE,				\
 				MT_DEVICE | MT_RW | MT_SECURE			\
@@ -215,13 +215,13 @@
  * CPER buffer memory of 128KB is reserved and it is placed adjacent to the
  * memory shared between EL3 and S-EL0.
  */
-#define CSS_SGI_SP_CPER_BUF_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE + \
+#define NRD_SP_CPER_BUF_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE + \
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
-#define CSS_SGI_SP_CPER_BUF_SIZE	ULL(0x10000)
-#define CSS_SGI_SP_CPER_BUF_MMAP	MAP_REGION2(			       \
-						CSS_SGI_SP_CPER_BUF_BASE,      \
-						CSS_SGI_SP_CPER_BUF_BASE,      \
-						CSS_SGI_SP_CPER_BUF_SIZE,      \
+#define NRD_SP_CPER_BUF_SIZE	ULL(0x10000)
+#define NRD_SP_CPER_BUF_MMAP	MAP_REGION2(			       \
+						NRD_SP_CPER_BUF_BASE,      \
+						NRD_SP_CPER_BUF_BASE,      \
+						NRD_SP_CPER_BUF_SIZE,      \
 						MT_RW_DATA | MT_NS | MT_USER,  \
 						PAGE_SIZE)
 
@@ -231,7 +231,7 @@
  */
 #define PLAT_ARM_SP_IMAGE_STACK_BASE		(PLAT_SP_IMAGE_NS_BUF_BASE +   \
 						 PLAT_SP_IMAGE_NS_BUF_SIZE +   \
-						 CSS_SGI_SP_CPER_BUF_SIZE)
+						 NRD_SP_CPER_BUF_SIZE)
 #elif (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP))
 /*
  * Secure partition stack follows right after the memory region that is shared
@@ -277,11 +277,11 @@
  * to multi-chip platforms.
  */
 #define SGI_PLAT_TZC_NS_REMOTE_REGIONS_DEF(n)				\
-	{CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_BASE,		\
-		CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_END,	\
+	{NRD_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_BASE,		\
+		NRD_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_END,	\
 		ARM_TZC_NS_DRAM_S_ACCESS, PLAT_ARM_TZC_NS_DEV_ACCESS},	\
-	{CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM2_BASE,		\
-		CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM2_END,	\
+	{NRD_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM2_BASE,		\
+		NRD_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM2_END,	\
 		ARM_TZC_NS_DRAM_S_ACCESS, PLAT_ARM_TZC_NS_DEV_ACCESS}
 
 #if SPM_MM

@@ -8,9 +8,9 @@
 #include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
 
-#define RDN2_TZC_CPER_REGION					\
-	{CSS_SGI_SP_CPER_BUF_BASE, (CSS_SGI_SP_CPER_BUF_BASE +	\
-	CSS_SGI_SP_CPER_BUF_SIZE) - 1, TZC_REGION_S_NONE,	\
+#define RDN2_TZC_CPER_REGION				\
+	{NRD_SP_CPER_BUF_BASE, (NRD_SP_CPER_BUF_BASE +	\
+	NRD_SP_CPER_BUF_SIZE) - 1, TZC_REGION_S_NONE,	\
 	PLAT_ARM_TZC_NS_DEV_ACCESS}
 
 static const arm_tzc_regions_info_t tzc_regions[] = {
@@ -63,7 +63,7 @@ void plat_arm_security_setup(void)
 		INFO("Configuring TrustZone Controller for Chip %u\n", i);
 
 		for (j = 0; j < TZC400_COUNT; j++) {
-			arm_tzc400_setup(CSS_SGI_REMOTE_CHIP_MEM_OFFSET(i)
+			arm_tzc400_setup(NRD_REMOTE_CHIP_MEM_OFFSET(i)
 				+ TZC400_BASE(j), tzc_regions_mc[i-1]);
 		}
 	}

@@ -10,7 +10,7 @@
 #include <drivers/arm/tzc_dmc620.h>
 
 #if SPM_MM
-#define CSS_SGI_DMC620_TZC_REGIONS_DEF				\
+#define NRD_DMC620_TZC_REGIONS_DEF				\
 	{							\
 		.region_base = ARM_AP_TZC_DRAM1_BASE,		\
 		.region_top = PLAT_SP_IMAGE_NS_BUF_BASE - 1,	\
@@ -25,7 +25,7 @@
 		.sec_attr = TZC_DMC620_REGION_S_RDWR		\
 	}
 #else
-#define CSS_SGI_DMC620_TZC_REGIONS_DEF				\
+#define NRD_DMC620_TZC_REGIONS_DEF				\
 	{							\
 		.region_base = ARM_AP_TZC_DRAM1_BASE,		\
 		.region_top = ARM_AP_TZC_DRAM1_END,		\

@@ -20,7 +20,7 @@ static const tzc_dmc620_driver_data_t rdn1edge_plat_driver_data = {
 };
 
 static const tzc_dmc620_acc_addr_data_t rdn1edge_acc_addr_data[] = {
-	CSS_SGI_DMC620_TZC_REGIONS_DEF
+	NRD_DMC620_TZC_REGIONS_DEF
 };
 
 static const tzc_dmc620_config_data_t rdn1edge_plat_config_data = {

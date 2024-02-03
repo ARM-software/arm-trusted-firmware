@@ -11,8 +11,8 @@
  ******************************************************************************/
 static const unsigned char sgi575_pd_tree_desc[] = {
 	PLAT_ARM_CLUSTER_COUNT,
-	CSS_SGI_MAX_CPUS_PER_CLUSTER,
-	CSS_SGI_MAX_CPUS_PER_CLUSTER
+	NRD_MAX_CPUS_PER_CLUSTER,
+	NRD_MAX_CPUS_PER_CLUSTER
 };
 
 /*******************************************************************************

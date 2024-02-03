@@ -15,7 +15,7 @@
  ******************************************************************************/
 unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
 {
-	return CSS_SGI_MAX_CPUS_PER_CLUSTER;
+	return NRD_MAX_CPUS_PER_CLUSTER;
 }
 
 #if ARM_PLAT_MT
@@ -24,6 +24,6 @@ unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
  *****************************************************************************/
 unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr)
 {
-	return CSS_SGI_MAX_PE_PER_CPU;
+	return NRD_MAX_PE_PER_CPU;
 }
 #endif

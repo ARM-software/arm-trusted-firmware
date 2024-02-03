@@ -41,9 +41,9 @@ static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 	#if (NRD_CHIP_COUNT > 1)
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
-			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1),
+			NRD_REMOTE_CHIP_MEM_OFFSET(1),
 		.db_reg_addr = PLAT_CSS_MHU_BASE
-			+ CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1) + SENDER_REG_SET(0),
+			+ NRD_REMOTE_CHIP_MEM_OFFSET(1) + SENDER_REG_SET(0),
 		.db_preserve_mask = 0xfffffffe,
 		.db_modify_mask = 0x1,
 		.ring_doorbell = &mhuv2_ring_doorbell,
@@ -52,9 +52,9 @@ static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 	#if (NRD_CHIP_COUNT > 2)
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
-			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(2),
+			NRD_REMOTE_CHIP_MEM_OFFSET(2),
 		.db_reg_addr = PLAT_CSS_MHU_BASE +
-			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(2) + SENDER_REG_SET(0),
+			NRD_REMOTE_CHIP_MEM_OFFSET(2) + SENDER_REG_SET(0),
 		.db_preserve_mask = 0xfffffffe,
 		.db_modify_mask = 0x1,
 		.ring_doorbell = &mhuv2_ring_doorbell,
@@ -63,9 +63,9 @@ static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 	#if (NRD_CHIP_COUNT > 3)
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE +
-			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(3),
+			NRD_REMOTE_CHIP_MEM_OFFSET(3),
 		.db_reg_addr = PLAT_CSS_MHU_BASE +
-			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(3) + SENDER_REG_SET(0),
+			NRD_REMOTE_CHIP_MEM_OFFSET(3) + SENDER_REG_SET(0),
 		.db_preserve_mask = 0xfffffffe,
 		.db_modify_mask = 0x1,
 		.ring_doorbell = &mhuv2_ring_doorbell,

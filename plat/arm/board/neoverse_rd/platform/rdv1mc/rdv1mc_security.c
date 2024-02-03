@@ -56,7 +56,7 @@ void plat_arm_security_setup(void)
 		INFO("Configuring TrustZone Controller for Chip %u\n", i);
 
 		for (j = 0; j < TZC400_COUNT; j++) {
-			arm_tzc400_setup(CSS_SGI_REMOTE_CHIP_MEM_OFFSET(i)
+			arm_tzc400_setup(NRD_REMOTE_CHIP_MEM_OFFSET(i)
 				+ TZC400_BASE(j), tzc_regions_mc[i-1]);
 		}
 	}

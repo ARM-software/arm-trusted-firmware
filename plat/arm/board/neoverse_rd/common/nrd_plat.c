@@ -37,7 +37,7 @@
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	SGI_MAP_FLASH0_RO,
-	CSS_SGI_MAP_DEVICE,
+	NRD_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
 	{0}
 };
@@ -49,17 +49,17 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef PLAT_ARM_MEM_PROT_ADDR
 	ARM_V2M_MAP_MEM_PROTECT,
 #endif
-	CSS_SGI_MAP_DEVICE,
+	NRD_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
 	ARM_MAP_NS_DRAM1,
 #if NRD_CHIP_COUNT > 1
-	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(1),
+	NRD_MAP_DEVICE_REMOTE_CHIP(1),
 #endif
 #if NRD_CHIP_COUNT > 2
-	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(2),
+	NRD_MAP_DEVICE_REMOTE_CHIP(2),
 #endif
 #if NRD_CHIP_COUNT > 3
-	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(3),
+	NRD_MAP_DEVICE_REMOTE_CHIP(3),
 #endif
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
@@ -77,7 +77,7 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
-	CSS_SGI_MAP_DEVICE,
+	NRD_MAP_DEVICE,
 #ifdef PLAT_ARM_MEM_PROT_ADDR
 	ARM_V2M_MAP_MEM_PROTECT,
 #endif
@@ -97,7 +97,7 @@ const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	ARM_SP_IMAGE_MMAP,
 	ARM_SP_IMAGE_NS_BUF_MMAP,
 #if ENABLE_FEAT_RAS && FFH_SUPPORT
-	CSS_SGI_SP_CPER_BUF_MMAP,
+	NRD_SP_CPER_BUF_MMAP,
 #endif
 	ARM_SP_IMAGE_RW_MMAP,
 	ARM_SPM_BUF_EL0_MMAP,

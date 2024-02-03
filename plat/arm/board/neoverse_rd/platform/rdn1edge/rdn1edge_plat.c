@@ -15,7 +15,7 @@
 #if defined(IMAGE_BL31)
 static const mmap_region_t rdn1edge_dynamic_mmap[] = {
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(1),
-	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(1),
+	NRD_MAP_DEVICE_REMOTE_CHIP(1),
 	SOC_CSS_MAP_DEVICE_REMOTE_CHIP(1)
 };
 
@@ -25,7 +25,7 @@ static struct gic600_multichip_data rdn1e1_multichip_data __init = {
 	.chip_count = NRD_CHIP_COUNT,
 	.chip_addrs = {
 		PLAT_ARM_GICD_BASE >> 16,
-		(PLAT_ARM_GICD_BASE + CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1)) >> 16
+		(PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(1)) >> 16
 	},
 	.spi_ids = {
 		{PLAT_ARM_GICD_BASE, RDN1E1_CHIP0_SPI_START,
@@ -37,7 +37,7 @@ static struct gic600_multichip_data rdn1e1_multichip_data __init = {
 static uintptr_t rdn1e1_multichip_gicr_frames[] = {
 	PLAT_ARM_GICR_BASE,				/* Chip 0's GICR Base */
 	PLAT_ARM_GICR_BASE +
-		CSS_SGI_REMOTE_CHIP_MEM_OFFSET(1),	/* Chip 1's GICR BASE */
+		NRD_REMOTE_CHIP_MEM_OFFSET(1),		/* Chip 1's GICR BASE */
 	UL(0)						/* Zero Termination */
 };
 #endif /* IMAGE_BL31 */

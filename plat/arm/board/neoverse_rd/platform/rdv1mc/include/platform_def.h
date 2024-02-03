@@ -11,8 +11,8 @@
 #include <nrd_soc_platform_def.h>
 
 #define PLAT_ARM_CLUSTER_COUNT		U(4)
-#define CSS_SGI_MAX_CPUS_PER_CLUSTER	U(1)
-#define CSS_SGI_MAX_PE_PER_CPU		U(1)
+#define NRD_MAX_CPUS_PER_CLUSTER	U(1)
+#define NRD_MAX_PE_PER_CPU		U(1)
 
 #define PLAT_CSS_MHU_BASE		UL(0x45400000)
 #define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
@@ -47,12 +47,12 @@
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xC0000000)
 
 /* Remote chip address offset (4TB per chip) */
-#define CSS_SGI_ADDR_BITS_PER_CHIP	U(42)
+#define NRD_ADDR_BITS_PER_CHIP	U(42)
 
 /* Physical and virtual address space limits for MMU in AARCH64 mode */
-#define PLAT_PHY_ADDR_SPACE_SIZE	CSS_SGI_REMOTE_CHIP_MEM_OFFSET( \
+#define PLAT_PHY_ADDR_SPACE_SIZE	NRD_REMOTE_CHIP_MEM_OFFSET( \
 						NRD_CHIP_COUNT)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	CSS_SGI_REMOTE_CHIP_MEM_OFFSET( \
+#define PLAT_VIRT_ADDR_SPACE_SIZE	NRD_REMOTE_CHIP_MEM_OFFSET( \
 						NRD_CHIP_COUNT)
 
 /* GIC related constants */

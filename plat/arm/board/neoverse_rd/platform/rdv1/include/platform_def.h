@@ -12,8 +12,8 @@
 #include <nrd_soc_platform_def.h>
 
 #define PLAT_ARM_CLUSTER_COUNT		U(16)
-#define CSS_SGI_MAX_CPUS_PER_CLUSTER	U(1)
-#define CSS_SGI_MAX_PE_PER_CPU		U(1)
+#define NRD_MAX_CPUS_PER_CLUSTER	U(1)
+#define NRD_MAX_PE_PER_CPU		U(1)
 
 #define PLAT_CSS_MHU_BASE		UL(0x45400000)
 #define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
@@ -47,14 +47,14 @@
 		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_VIRTIO))
 
 /* Maximum number of address bits used per chip */
-#define CSS_SGI_ADDR_BITS_PER_CHIP	U(42)
+#define NRD_ADDR_BITS_PER_CHIP	U(42)
 
 /*
  * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
  */
 #ifdef __aarch64__
-#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << CSS_SGI_ADDR_BITS_PER_CHIP)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << CSS_SGI_ADDR_BITS_PER_CHIP)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << NRD_ADDR_BITS_PER_CHIP)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << NRD_ADDR_BITS_PER_CHIP)
 #else
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)

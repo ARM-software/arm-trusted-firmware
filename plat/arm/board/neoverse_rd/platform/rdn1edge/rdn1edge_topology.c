@@ -12,11 +12,11 @@
  ******************************************************************************/
 static const unsigned char rdn1edge_pd_tree_desc[] = {
 	(PLAT_ARM_CLUSTER_COUNT) * (NRD_CHIP_COUNT),
-	CSS_SGI_MAX_CPUS_PER_CLUSTER,
-	CSS_SGI_MAX_CPUS_PER_CLUSTER,
+	NRD_MAX_CPUS_PER_CLUSTER,
+	NRD_MAX_CPUS_PER_CLUSTER,
 #if (NRD_CHIP_COUNT > 1)
-	CSS_SGI_MAX_CPUS_PER_CLUSTER,
-	CSS_SGI_MAX_CPUS_PER_CLUSTER
+	NRD_MAX_CPUS_PER_CLUSTER,
+	NRD_MAX_CPUS_PER_CLUSTER
 #endif
 };
 

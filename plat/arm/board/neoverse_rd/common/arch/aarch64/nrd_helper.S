@@ -21,15 +21,15 @@
 	 *
 	 * Helper function to calculate the core position.
 	 * (ChipId * PLAT_ARM_CLUSTER_COUNT *
-	 *  CSS_SGI_MAX_CPUS_PER_CLUSTER * CSS_SGI_MAX_PE_PER_CPU) +
-	 * (ClusterId * CSS_SGI_MAX_CPUS_PER_CLUSTER * CSS_SGI_MAX_PE_PER_CPU) +
-	 * (CPUId * CSS_SGI_MAX_PE_PER_CPU) +
+	 *  NRD_MAX_CPUS_PER_CLUSTER * NRD_MAX_PE_PER_CPU) +
+	 * (ClusterId * NRD_MAX_CPUS_PER_CLUSTER * NRD_MAX_PE_PER_CPU) +
+	 * (CPUId * NRD_MAX_PE_PER_CPU) +
 	 * ThreadId
 	 *
 	 * which can be simplified as:
 	 *
 	 * ((((ChipId * PLAT_ARM_CLUSTER_COUNT) + ClusterId) *
-	 *   CSS_SGI_MAX_CPUS_PER_CLUSTER) + CPUId) * CSS_SGI_MAX_PE_PER_CPU +
+	 *   NRD_MAX_CPUS_PER_CLUSTER) + CPUId) * NRD_MAX_PE_PER_CPU +
 	 * ThreadId
 	 * ------------------------------------------------------
 	 */
@@ -51,9 +51,9 @@ func plat_arm_calc_core_pos
 	/* Compute linear position */
 	mov     x4, #PLAT_ARM_CLUSTER_COUNT
 	madd    x2, x3, x4, x2
-	mov     x4, #CSS_SGI_MAX_CPUS_PER_CLUSTER
+	mov     x4, #NRD_MAX_CPUS_PER_CLUSTER
 	madd    x1, x2, x4, x1
-	mov     x4, #CSS_SGI_MAX_PE_PER_CPU
+	mov     x4, #NRD_MAX_PE_PER_CPU
 	madd    x0, x1, x4, x0
 	ret
 endfunc plat_arm_calc_core_pos
