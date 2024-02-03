@@ -1,0 +1,147 @@
+/*
+ * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+#include <platform_def.h>
+
+/ {
+#define MODE_SEL0		(0x1)
+
+#define SECURE_RO		0x1
+#define SECURE_RW		0x3
+#define SECURE_EXECUTE_RO 	0x5
+#define SECURE_EXECUTE_RW 	0x7
+#define NON_SECURE_RO 		0x9
+#define NON_SECURE_RW 		0xB
+#define NON_SECURE_EXECUTE_RO 	0xD
+#define NON_SECURE_EXECUTE_RW 	0xF
+	/*
+	 * FF-A compatible Secure Partition Manager parses the
+	 * manifest file and fetch the following booting arguments to
+	 * pass on to the StandAloneMM(StMM) Secure Partition.
+	 */
+	compatible = "arm,ffa-manifest-1.0";
+
+	description = "RDN2 StMM";
+	ffa-version = <0x00010001>; /* 31:16 - Major, 15:0 - Minor */
+	uuid = <0x378daedc 0xf06b4446 0x831440ab 0x933c87a3>;
+	id = <0x8001>;
+	execution-ctx-count = <1>;
+	exception-level = <MODE_SEL0>; /* S-EL0 */
+	execution-state = <0>; /* AArch64 */
+	load-address = <0x0 0xFF200000>;
+	image-size = <0x0 0x280000>;
+	xlat-granule = <0>; /* 4KiB */
+	boot-order = <0>;
+	messaging-method = <0x3>; /* Direct request/response supported. */
+	power-management-messages = <0>;
+	gp-register-num = <0>;
+
+	device-regions {
+		compatible = "arm,ffa-manifest-device-regions";
+
+		/*
+		 * System registers region for access from S-EL0.
+		 * Similar to PLAT_ARM_SECURE_MAP_SYSTEMREG.
+		 */
+		sys-regs {
+			base-address = <0x0 0x0C010000>;
+			pages-count = <0x10>;
+			attributes = <SECURE_RW>;
+		};
+
+		rtc {
+			base-address = <0x0 0x0C170000>;
+			pages-count = <0x1>;
+			attributes = <SECURE_RW>;
+		};
+
+		/*
+		 * ARM CSS SoC Expansion Peripherals.
+		 */
+		soc_components {
+			base-address = <0x0 0x0E000000>;
+			pages-count = <0x2000>;
+			attributes = <SECURE_RW>;
+		};
+
+		cluster_utility {
+			base-address = <0x0 0x20000000>;
+			pages-count = <0x20000>;
+			attributes = <SECURE_RW>;
+		};
+
+		secure_uart {
+			base-address = <0x0 0x2A410000>;
+			pages-count = <0x10>;
+			attributes = <SECURE_RW>;
+		};
+
+		/*
+		 * Used for Secure booting.
+		 */
+		nor_flash2 {
+			base-address = <0x10 0x54000000>;
+			pages-count = <0x4000>;
+			attributes = <SECURE_RW>;
+		};
+	};
+
+	memory-regions {
+		compatible = "arm,ffa-manifest-memory-regions";
+
+		/*
+		 * SPM Payload memory. Mapped as code region for S-EL0
+		 * Similar to ARM_SP_IMAGE_MMAP macro used for defining base of
+		 * the SP image.
+		 */
+		stmm_region {
+			base-address = <0x0 0xff200000>;
+			pages-count = <0x300>;
+			/* StMM will remap the regions during runtime. */
+			attributes = <SECURE_EXECUTE_RO>;
+		};
+
+		/*
+		 * Memory shared between EL3 SPMC and S-EL0.
+		 */
+		rx-tx-buffers {
+			description = "shared-buff";
+			base-address = <0x0 0xff500000>;
+			pages-count = <0x100>;
+			attributes = <SECURE_RW>;
+		};
+
+		/*
+		 * Memory shared between Normal world and S-EL0.
+		 */
+		ns_comm_buffer {
+			/*
+			 * Description is needed for StMM to identify
+			 * ns-communication buffer.
+			 */
+			description = "ns-comm";
+			base-address = <0x0 0xff600000>;
+			pages-count = <0x30>;
+			attributes = <NON_SECURE_RW>;
+		};
+
+		/*
+		 * Heap used by SP to allocate memory for DMA.
+		 */
+		heap {
+			/*
+			 * Description is needed for StMM to identify
+			 * heap buffer.
+			 */
+			description = "heap";
+			base-address = <0x0 0xFF630000>;
+			pages-count = <0x5D0>;
+			attributes = <SECURE_RW>;
+		};
+	};
+};
