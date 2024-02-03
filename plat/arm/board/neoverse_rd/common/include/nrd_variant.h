@@ -29,22 +29,22 @@
 #define RD_V2_CONFIG_ID				0x1
 
 /* Structure containing SGI platform variant information */
-typedef struct sgi_platform_info {
+typedef struct nrd_platform_info {
 	unsigned int platform_id;	/* Part Number of the platform */
 	unsigned int config_id;		/* Config Id of the platform */
 	unsigned int chip_id;		/* Chip Id or Node number */
 	unsigned int multi_chip_mode;	/* Multi-chip mode availability */
-} sgi_platform_info_t;
+} nrd_platform_info_t;
 
-extern sgi_platform_info_t sgi_plat_info;
+extern nrd_platform_info_t nrd_plat_info;
 
 /* returns the part number of the platform*/
-unsigned int plat_arm_sgi_get_platform_id(void);
+unsigned int plat_arm_nrd_get_platform_id(void);
 
 /* returns the configuration id of the platform */
-unsigned int plat_arm_sgi_get_config_id(void);
+unsigned int plat_arm_nrd_get_config_id(void);
 
 /* returns true if operating in multi-chip configuration */
-unsigned int plat_arm_sgi_get_multi_chip_mode(void);
+unsigned int plat_arm_nrd_get_multi_chip_mode(void);
 
 #endif /* NRD_VARIANT_H */

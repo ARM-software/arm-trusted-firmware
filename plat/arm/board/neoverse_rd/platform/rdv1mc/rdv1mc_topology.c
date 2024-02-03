@@ -44,7 +44,7 @@ const unsigned char rd_v1_mc_pd_tree_desc_multi_chip[] = {
  ******************************************************************************/
 const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	if (plat_arm_sgi_get_multi_chip_mode() == 1)
+	if (plat_arm_nrd_get_multi_chip_mode() == 1)
 		return rd_v1_mc_pd_tree_desc_multi_chip;
 	panic();
 }

@@ -9,6 +9,6 @@
 
 #include <nrd_ras.h>
 
-extern struct plat_sgi_ras_config ras_config;
+extern struct plat_nrd_ras_config ras_config;
 
 #endif /* RDN2_RAS_H */

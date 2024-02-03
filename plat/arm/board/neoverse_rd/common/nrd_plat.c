@@ -178,13 +178,13 @@ void plat_arm_secure_wdt_stop(void)
 	sbsa_wdog_stop(SBSA_SECURE_WDOG_BASE);
 }
 
-static sds_region_desc_t sgi_sds_regions[] = {
+static sds_region_desc_t nrd_sds_regions[] = {
 	{ .base = PLAT_ARM_SDS_MEM_BASE },
 };
 
 sds_region_desc_t *plat_sds_get_regions(unsigned int *region_count)
 {
-	*region_count = ARRAY_SIZE(sgi_sds_regions);
+	*region_count = ARRAY_SIZE(nrd_sds_regions);
 
-	return sgi_sds_regions;
+	return nrd_sds_regions;
 }

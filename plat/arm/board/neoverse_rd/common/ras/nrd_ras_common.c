@@ -13,25 +13,25 @@
 
 #include <nrd_ras.h>
 
-static struct plat_sgi_ras_config *sgi_ras_config;
+static struct plat_nrd_ras_config *nrd_ras_config;
 
 /*
  * Find event map for a given interrupt number. On success, returns pointer to
  * the event map. On error, returns NULL.
  */
-struct sgi_ras_ev_map *sgi_find_ras_event_map_by_intr(uint32_t intr_num)
+struct nrd_ras_ev_map *nrd_find_ras_event_map_by_intr(uint32_t intr_num)
 {
-	struct sgi_ras_ev_map *map;
+	struct nrd_ras_ev_map *map;
 	int size;
 	int i;
 
-	if (sgi_ras_config == NULL) {
+	if (nrd_ras_config == NULL) {
 		ERROR("RAS config is NULL\n");
 		return NULL;
 	}
 
-	map = sgi_ras_config->ev_map;
-	size = sgi_ras_config->ev_map_size;
+	map = nrd_ras_config->ev_map;
+	size = nrd_ras_config->ev_map_size;
 
 	for (i = 0; i < size; i++) {
 		if (map->intr == intr_num)
@@ -47,7 +47,7 @@ struct sgi_ras_ev_map *sgi_find_ras_event_map_by_intr(uint32_t intr_num)
  * Programs GIC registers and configures interrupt ID's as Group0 EL3
  * interrupts. Current support is to register PPI and SPI interrupts.
  */
-static void sgi_ras_intr_configure(int intr, int intr_type)
+static void nrd_ras_intr_configure(int intr, int intr_type)
 {
 	plat_ic_set_interrupt_type(intr, INTR_TYPE_EL3);
 	plat_ic_set_interrupt_priority(intr, PLAT_RAS_PRI);
@@ -67,9 +67,9 @@ static void sgi_ras_intr_configure(int intr, int intr_type)
  * Registers RAS config provided by the platform and then configures and
  * enables interrupt for each registered error. On success, return 0.
  */
-int sgi_ras_platform_setup(struct plat_sgi_ras_config *config)
+int nrd_ras_platform_setup(struct plat_nrd_ras_config *config)
 {
-	struct sgi_ras_ev_map *map;
+	struct nrd_ras_ev_map *map;
 	int size;
 	int i;
 
@@ -83,13 +83,13 @@ int sgi_ras_platform_setup(struct plat_sgi_ras_config *config)
 	 * Maintain a reference to the platform RAS config data for later
 	 * use.
 	 */
-	sgi_ras_config = config;
+	nrd_ras_config = config;
 
-	map = sgi_ras_config->ev_map;
-	size = sgi_ras_config->ev_map_size;
+	map = nrd_ras_config->ev_map;
+	size = nrd_ras_config->ev_map_size;
 
 	for (i = 0; i < size; i++) {
-		sgi_ras_intr_configure(map->intr, map->intr_type);
+		nrd_ras_intr_configure(map->intr, map->intr_type);
 		map++;
 	}
 

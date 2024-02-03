@@ -26,7 +26,7 @@ struct isolated_cpu_mpid_list {
 };
 
 /* Function to read isolated CPU MPID list from SDS. */
-void plat_arm_sgi_get_isolated_cpu_list(struct isolated_cpu_mpid_list *list)
+void plat_arm_nrd_get_isolated_cpu_list(struct isolated_cpu_mpid_list *list)
 {
 	int ret;
 
@@ -75,7 +75,7 @@ void plat_arm_sgi_get_isolated_cpu_list(struct isolated_cpu_mpid_list *list)
  *    isolated-cpu-list = <0>
  * }
  ******************************************************************************/
-static int plat_sgi_append_config_node(void)
+static int plat_nrd_append_config_node(void)
 {
 	bl_mem_params_node_t *mem_params;
 	void *fdt;
@@ -103,28 +103,28 @@ static int plat_sgi_append_config_node(void)
 		return -1;
 	}
 
-	platid = plat_arm_sgi_get_platform_id();
+	platid = plat_arm_nrd_get_platform_id();
 	err = fdt_setprop_u32(fdt, nodeoffset, "platform-id", platid);
 	if (err < 0) {
 		ERROR("Failed to set platform-id\n");
 		return -1;
 	}
 
-	platcfg = plat_arm_sgi_get_config_id();
+	platcfg = plat_arm_nrd_get_config_id();
 	err = fdt_setprop_u32(fdt, nodeoffset, "config-id", platcfg);
 	if (err < 0) {
 		ERROR("Failed to set config-id\n");
 		return -1;
 	}
 
-	platcfg = plat_arm_sgi_get_multi_chip_mode();
+	platcfg = plat_arm_nrd_get_multi_chip_mode();
 	err = fdt_setprop_u32(fdt, nodeoffset, "multi-chip-mode", platcfg);
 	if (err < 0) {
 		ERROR("Failed to set multi-chip-mode\n");
 		return -1;
 	}
 
-	plat_arm_sgi_get_isolated_cpu_list(&cpu_mpid_list);
+	plat_arm_nrd_get_isolated_cpu_list(&cpu_mpid_list);
 	if (cpu_mpid_list.num_entries > 0) {
 		err = fdt_setprop(fdt, nodeoffset, "isolated-cpu-list",
 				&cpu_mpid_list,
@@ -148,7 +148,7 @@ bl_params_t *plat_get_next_bl_params(void)
 {
 	int ret;
 
-	ret = plat_sgi_append_config_node();
+	ret = plat_nrd_append_config_node();
 	if (ret != 0)
 		panic();
 

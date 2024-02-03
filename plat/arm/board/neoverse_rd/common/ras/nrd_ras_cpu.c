@@ -143,11 +143,11 @@ static void populate_cpu_err_data(cpu_err_info *cpu_info,
 }
 
 /* CPU RAS interrupt handler */
-int sgi_ras_cpu_intr_handler(const struct err_record_info *err_rec,
+int nrd_ras_cpu_intr_handler(const struct err_record_info *err_rec,
 				int probe_data,
 				const struct err_handler_data *const data)
 {
-	struct sgi_ras_ev_map *ras_map;
+	struct nrd_ras_ev_map *ras_map;
 	mm_communicate_header_t *header;
 	cpu_err_info cpu_info = {0};
 	uint64_t clear_status;
@@ -186,7 +186,7 @@ int sgi_ras_cpu_intr_handler(const struct err_record_info *err_rec,
 	 * Find if this is a RAS interrupt. There must be an event against
 	 * this interrupt
 	 */
-	ras_map = sgi_find_ras_event_map_by_intr(intr);
+	ras_map = nrd_find_ras_event_map_by_intr(intr);
 	if (ras_map == NULL) {
 		ERROR("SGI: RAS error info for interrupt id: %d not found\n",
 			intr);

@@ -22,11 +22,11 @@
  * Base Element RAM error information data structure communicated as part of MM
  * Communication data payload.
  */
-typedef struct sgi_sram_err_info {
+typedef struct nrd_sram_err_info {
 	uint32_t err_status;
 	uint32_t err_code;
 	uint32_t err_addr;
-} sgi_sram_err_info_t;
+} nrd_sram_err_info_t;
 
 /*
  * MM Communicate message header GUID to indicate the payload is intended for
@@ -38,13 +38,13 @@ struct efi_guid sram_ecc_event_guid = {
 };
 
 /* Base element RAM RAS error interrupt handler */
-int sgi_ras_sram_intr_handler(const struct err_record_info *err_rec,
+int nrd_ras_sram_intr_handler(const struct err_record_info *err_rec,
 				int probe_data,
 				const struct err_handler_data *const data)
 {
-	struct sgi_ras_ev_map *ras_map;
+	struct nrd_ras_ev_map *ras_map;
 	mm_communicate_header_t *header;
-	sgi_sram_err_info_t sram_info;
+	nrd_sram_err_info_t sram_info;
 	uintptr_t base_addr;
 	uint32_t clear_status, intr;
 	int ret;
@@ -87,7 +87,7 @@ int sgi_ras_sram_intr_handler(const struct err_record_info *err_rec,
 	 * Find if this is a RAS interrupt. There must be an event against
 	 * this interrupt
 	 */
-	ras_map = sgi_find_ras_event_map_by_intr(intr);
+	ras_map = nrd_find_ras_event_map_by_intr(intr);
 	if (ras_map == NULL) {
 		ERROR("SGI: RAS error info for interrupt id: %d not found\n",
 			intr);

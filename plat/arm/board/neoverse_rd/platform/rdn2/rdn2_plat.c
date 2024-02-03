@@ -85,18 +85,18 @@ static uintptr_t rdn2mc_multichip_gicr_frames[] = {
 #endif
 #endif /* IMAGE_BL31 */
 
-unsigned int plat_arm_sgi_get_platform_id(void)
+unsigned int plat_arm_nrd_get_platform_id(void)
 {
 	return mmio_read_32(SID_REG_BASE + SID_SYSTEM_ID_OFFSET)
 			    & SID_SYSTEM_ID_PART_NUM_MASK;
 }
 
-unsigned int plat_arm_sgi_get_config_id(void)
+unsigned int plat_arm_nrd_get_config_id(void)
 {
 	return mmio_read_32(SID_REG_BASE + SID_SYSTEM_CFG_OFFSET);
 }
 
-unsigned int plat_arm_sgi_get_multi_chip_mode(void)
+unsigned int plat_arm_nrd_get_multi_chip_mode(void)
 {
 	return (mmio_read_32(SID_REG_BASE + SID_NODE_ID_OFFSET) &
 			     SID_MULTI_CHIP_MODE_MASK) >>
@@ -110,7 +110,7 @@ void bl31_platform_setup(void)
 	int ret;
 	unsigned int i;
 
-	if (plat_arm_sgi_get_multi_chip_mode() == 0) {
+	if (plat_arm_nrd_get_multi_chip_mode() == 0) {
 		ERROR("Chip Count is %u but multi-chip mode is not enabled\n",
 			NRD_CHIP_COUNT);
 		panic();
@@ -136,10 +136,10 @@ void bl31_platform_setup(void)
 	}
 #endif
 
-	sgi_bl31_common_platform_setup();
+	nrd_bl31_common_platform_setup();
 
 #if ENABLE_FEAT_RAS && FFH_SUPPORT
-	sgi_ras_platform_setup(&ras_config);
+	nrd_ras_platform_setup(&ras_config);
 #endif
 }
 #endif /* IMAGE_BL31 */
