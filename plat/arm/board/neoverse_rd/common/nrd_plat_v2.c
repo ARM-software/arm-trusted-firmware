@@ -24,7 +24,7 @@
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	SGI_MAP_FLASH0_RO,
+	NRD_MAP_FLASH0_RO,
 	NRD_MAP_DEVICE,
 	SOC_PLATFORM_PERIPH_MAP_DEVICE,
 	SOC_SYSTEM_PERIPH_MAP_DEVICE,
@@ -35,7 +35,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #if IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	SGI_MAP_FLASH0_RO,
+	NRD_MAP_FLASH0_RO,
 #ifdef PLAT_ARM_MEM_PROT_ADDR
 	ARM_V2M_MAP_MEM_PROTECT,
 #endif

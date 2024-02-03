@@ -28,7 +28,7 @@
 #define RD_V2_SID_VER_PART_NUM			0x07F2
 #define RD_V2_CONFIG_ID				0x1
 
-/* Structure containing SGI platform variant information */
+/* Structure containing Neoverse RD platform variant information */
 typedef struct nrd_platform_info {
 	unsigned int platform_id;	/* Part Number of the platform */
 	unsigned int config_id;		/* Config Id of the platform */

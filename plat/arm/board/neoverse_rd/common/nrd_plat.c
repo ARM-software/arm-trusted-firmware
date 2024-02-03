@@ -23,7 +23,7 @@
 #include <services/spm_mm_partition.h>
 #endif
 
-#define SGI_MAP_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
+#define NRD_MAP_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
 						V2M_FLASH0_SIZE,	\
 						MT_DEVICE | MT_RO | MT_SECURE)
 /*
@@ -36,7 +36,7 @@
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	SGI_MAP_FLASH0_RO,
+	NRD_MAP_FLASH0_RO,
 	NRD_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
 	{0}
@@ -45,7 +45,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #if IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	SGI_MAP_FLASH0_RO,
+	NRD_MAP_FLASH0_RO,
 #ifdef PLAT_ARM_MEM_PROT_ADDR
 	ARM_V2M_MAP_MEM_PROTECT,
 #endif

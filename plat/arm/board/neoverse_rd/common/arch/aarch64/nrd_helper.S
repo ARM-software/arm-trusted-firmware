@@ -38,7 +38,7 @@ func plat_arm_calc_core_pos
 	mov	x4, x0
 
 	/*
-	 * The MT bit in MPIDR is always set for SGI platforms
+	 * The MT bit in MPIDR is always set for Neoverse RD platforms
 	 * and the affinity level 0 corresponds to thread affinity level.
 	 */
 

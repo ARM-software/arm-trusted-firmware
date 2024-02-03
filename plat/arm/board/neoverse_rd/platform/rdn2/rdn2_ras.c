@@ -11,13 +11,13 @@
 
 struct nrd_ras_ev_map plat_ras_map[] = {
 	/* Non Secure base RAM ECC CE interrupt */
-	{SGI_SDEI_DS_EVENT_0, NS_RAM_ECC_CE_INT, SGI_RAS_INTR_TYPE_SPI},
+	{NRD_SDEI_DS_EVENT_0, NS_RAM_ECC_CE_INT, NRD_RAS_INTR_TYPE_SPI},
 
 	/* Non Secure base RAM ECC UE interrupt */
-	{SGI_SDEI_DS_EVENT_0, NS_RAM_ECC_UE_INT, SGI_RAS_INTR_TYPE_SPI},
+	{NRD_SDEI_DS_EVENT_0, NS_RAM_ECC_UE_INT, NRD_RAS_INTR_TYPE_SPI},
 
 	/* CPU 1-bit ECC CE error interrupt */
-	{SGI_SDEI_DS_EVENT_1, PLAT_CORE_FAULT_IRQ, SGI_RAS_INTR_TYPE_PPI}
+	{NRD_SDEI_DS_EVENT_1, PLAT_CORE_FAULT_IRQ, NRD_RAS_INTR_TYPE_PPI}
 };
 
 /* RAS error record list definition, used by the common RAS framework. */

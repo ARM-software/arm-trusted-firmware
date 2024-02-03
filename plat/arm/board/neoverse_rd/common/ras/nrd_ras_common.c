@@ -54,7 +54,7 @@ static void nrd_ras_intr_configure(int intr, int intr_type)
 	plat_ic_clear_interrupt_pending(intr);
 
 	/* Routing mode option available only for SPI interrupts */
-	if (intr_type == SGI_RAS_INTR_TYPE_SPI) {
+	if (intr_type == NRD_RAS_INTR_TYPE_SPI) {
 		plat_ic_set_spi_routing(intr, INTR_ROUTING_MODE_ANY,
 					(u_register_t)read_mpidr_el1());
 	}
@@ -75,7 +75,7 @@ int nrd_ras_platform_setup(struct plat_nrd_ras_config *config)
 
 	/* Check if parameter is valid. */
 	if (config == NULL) {
-		ERROR("SGI: Failed to register RAS config\n");
+		ERROR("NRD: Failed to register RAS config\n");
 		return -1;
 	}
 
@@ -93,7 +93,7 @@ int nrd_ras_platform_setup(struct plat_nrd_ras_config *config)
 		map++;
 	}
 
-	INFO("SGI: Platform RAS setup successful\n");
+	INFO("NRD: Platform RAS setup successful\n");
 
 	return 0;
 }

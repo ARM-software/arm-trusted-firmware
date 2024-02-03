@@ -246,10 +246,10 @@
 #ifndef __ASSEMBLER__
 /* SSC_VERSION related accessors */
 /* Returns the part number of the platform */
-#define GET_SGI_PART_NUM                                       \
+#define GET_NRD_PART_NUM                                       \
 		GET_SSC_VERSION_PART_NUM(mmio_read_32(SSC_VERSION))
 /* Returns the configuration number of the platform */
-#define GET_SGI_CONFIG_NUM                                     \
+#define GET_NRD_CONFIG_NUM                                     \
 		GET_SSC_VERSION_CONFIG(mmio_read_32(SSC_VERSION))
 #endif /* __ASSEMBLER__ */
 
@@ -272,11 +272,11 @@
 #define PLAT_ARM_SCMI_CHANNEL_COUNT	NRD_CHIP_COUNT
 
 /*
- * Mapping definition of the TrustZone Controller for ARM SGI/RD platforms
+ * Mapping definition of the TrustZone Controller for Arm Neoverse RD platforms
  * where both the DRAM regions are marked for non-secure access. This applies
  * to multi-chip platforms.
  */
-#define SGI_PLAT_TZC_NS_REMOTE_REGIONS_DEF(n)				\
+#define NRD_PLAT_TZC_NS_REMOTE_REGIONS_DEF(n)				\
 	{NRD_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_BASE,		\
 		NRD_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_END,	\
 		ARM_TZC_NS_DRAM_S_ACCESS, PLAT_ARM_TZC_NS_DEV_ACCESS},	\

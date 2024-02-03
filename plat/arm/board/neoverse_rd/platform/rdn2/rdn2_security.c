@@ -25,20 +25,20 @@ static const arm_tzc_regions_info_t tzc_regions[] = {
 static const arm_tzc_regions_info_t tzc_regions_mc[][NRD_CHIP_COUNT - 1] = {
 	{
 		/* TZC memory regions for second chip */
-		SGI_PLAT_TZC_NS_REMOTE_REGIONS_DEF(1),
+		NRD_PLAT_TZC_NS_REMOTE_REGIONS_DEF(1),
 		{}
 	},
 #if NRD_CHIP_COUNT > 2
 	{
 		/* TZC memory regions for third chip */
-		SGI_PLAT_TZC_NS_REMOTE_REGIONS_DEF(2),
+		NRD_PLAT_TZC_NS_REMOTE_REGIONS_DEF(2),
 		{}
 	},
 #endif
 #if NRD_CHIP_COUNT > 3
 	{
 		/* TZC memory regions for fourth chip */
-		SGI_PLAT_TZC_NS_REMOTE_REGIONS_DEF(3),
+		NRD_PLAT_TZC_NS_REMOTE_REGIONS_DEF(3),
 		{}
 	},
 #endif

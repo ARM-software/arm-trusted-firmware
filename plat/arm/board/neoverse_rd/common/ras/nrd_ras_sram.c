@@ -52,7 +52,7 @@ int nrd_ras_sram_intr_handler(const struct err_record_info *err_rec,
 	cm_el1_sysregs_context_save(NON_SECURE);
 	intr = data->interrupt;
 
-	INFO("SGI: Base element RAM interrupt [%d] handler\n", intr);
+	INFO("NRD: Base element RAM interrupt [%d] handler\n", intr);
 
 	/* Determine error record base address to read. */
 	base_addr = 0;
@@ -89,7 +89,7 @@ int nrd_ras_sram_intr_handler(const struct err_record_info *err_rec,
 	 */
 	ras_map = nrd_find_ras_event_map_by_intr(intr);
 	if (ras_map == NULL) {
-		ERROR("SGI: RAS error info for interrupt id: %d not found\n",
+		ERROR("NRD: RAS error info for interrupt id: %d not found\n",
 			intr);
 		return -1;
 	}

@@ -12,11 +12,11 @@
 
 /*
  * Interrupt type supported.
- * - SGI_RAS_INTR_TYPE_SPI: Denotes a SPI interrupt
- * - SGI_RAS_INTR_TYPE_PPI: Denotes a PPI interrupt
+ * - NRD_RAS_INTR_TYPE_SPI: Denotes a SPI interrupt
+ * - NRD_RAS_INTR_TYPE_PPI: Denotes a PPI interrupt
  */
-#define SGI_RAS_INTR_TYPE_SPI 0
-#define SGI_RAS_INTR_TYPE_PPI 1
+#define NRD_RAS_INTR_TYPE_SPI 0
+#define NRD_RAS_INTR_TYPE_PPI 1
 
 /*
  * MM Communicate information structure. Required to generate MM Communicate

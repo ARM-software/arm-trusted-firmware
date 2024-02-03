@@ -13,11 +13,11 @@ RDV1MC_BASE	=	plat/arm/board/neoverse_rd/platform/rdv1mc
 
 PLAT_INCLUDES		+=	-I${RDV1MC_BASE}/include/
 
-SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_v1.S
+NRD_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_v1.S
 
 PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat.c
 
-BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
+BL1_SOURCES		+=	${NRD_CPU_SOURCES}			\
 				${RDV1MC_BASE}/rdv1mc_err.c
 
 BL2_SOURCES		+=	${RDV1MC_BASE}/rdv1mc_plat.c	\
@@ -28,7 +28,7 @@ BL2_SOURCES		+=	${RDV1MC_BASE}/rdv1mc_plat.c	\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
-BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\
+BL31_SOURCES		+=	${NRD_CPU_SOURCES}			\
 				${RDV1MC_BASE}/rdv1mc_plat.c	\
 				${RDV1MC_BASE}/rdv1mc_topology.c	\
 				drivers/cfi/v2m/v2m_flash.c		\

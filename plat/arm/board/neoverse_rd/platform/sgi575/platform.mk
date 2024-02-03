@@ -12,11 +12,11 @@ SGI575_BASE		=	plat/arm/board/neoverse_rd/platform/sgi575
 
 PLAT_INCLUDES		+=	-I${SGI575_BASE}/include/
 
-SGI_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a75.S
+NRD_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a75.S
 
 PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat.c
 
-BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
+BL1_SOURCES		+=	${NRD_CPU_SOURCES}			\
 				${SGI575_BASE}/sgi575_err.c
 
 BL2_SOURCES		+=	${SGI575_BASE}/sgi575_plat.c		\
@@ -26,7 +26,7 @@ BL2_SOURCES		+=	${SGI575_BASE}/sgi575_plat.c		\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
-BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\
+BL31_SOURCES		+=	${NRD_CPU_SOURCES}			\
 				${SGI575_BASE}/sgi575_plat.c		\
 				${SGI575_BASE}/sgi575_topology.c	\
 				drivers/cfi/v2m/v2m_flash.c		\

@@ -188,7 +188,7 @@ int nrd_ras_cpu_intr_handler(const struct err_record_info *err_rec,
 	 */
 	ras_map = nrd_find_ras_event_map_by_intr(intr);
 	if (ras_map == NULL) {
-		ERROR("SGI: RAS error info for interrupt id: %d not found\n",
+		ERROR("NRD: RAS error info for interrupt id: %d not found\n",
 			intr);
 		return -1;
 	}

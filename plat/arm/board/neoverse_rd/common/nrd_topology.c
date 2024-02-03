@@ -7,7 +7,7 @@
 #include <plat/arm/common/plat_arm.h>
 
 /*
- * Common topology related methods for SGI and RD based platforms
+ * Common topology related methods for Neoverse RD platforms
  */
 /*******************************************************************************
  * This function returns the core count within the cluster corresponding to
