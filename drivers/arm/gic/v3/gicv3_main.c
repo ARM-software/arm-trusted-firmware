@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -14,6 +14,7 @@
 #include <drivers/arm/gic600_multichip.h>
 #include <drivers/arm/gicv3.h>
 #include <lib/spinlock.h>
+#include <plat/common/platform.h>
 
 #include "gicv3_private.h"
 
@@ -1291,6 +1292,31 @@ unsigned int gicv3_set_pmr(unsigned int mask)
 	 */
 	dsbishst();
 	write_icc_pmr_el1(mask);
+
+	return old_mask;
+}
+
+/*******************************************************************************
+ * This function restores the PMR register to old value and also triggers
+ * gicv3_apply_errata_wa_2384374() that flushes the GIC buffer allowing any
+ * pending interrupts to processed. Returns the original PMR.
+ ******************************************************************************/
+unsigned int gicv3_deactivate_priority(unsigned int mask)
+{
+
+	unsigned int old_mask, proc_num;
+	uintptr_t gicr_base;
+
+	old_mask = gicv3_set_pmr(mask);
+
+	proc_num = plat_my_core_pos();
+	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+	assert(gicr_base != 0UL);
+
+	/* Add DSB to ensure visibility of System register writes */
+	dsb();
+
+	gicv3_apply_errata_wa_2384374(gicr_base);
 
 	return old_mask;
 }
