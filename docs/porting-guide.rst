@@ -1607,9 +1607,6 @@ This function executes with the MMU and data caches enabled. It is responsible
 for performing any remaining platform-specific setup that can occur after the
 MMU and data cache have been enabled.
 
-if support for multiple boot sources is required, it initializes the boot
-sequence used by plat_try_next_boot_source().
-
 In Arm standard platforms, this function initializes the storage abstraction
 layer used to load the next bootloader image.
 
@@ -1892,25 +1889,7 @@ Function : bl2_plat_preload_setup [optional]
 
 This optional function performs any BL2 platform initialization
 required before image loading, that is not done later in
-bl2_platform_setup(). Specifically, if support for multiple
-boot sources is required, it initializes the boot sequence used by
-plat_try_next_boot_source().
-
-Function : plat_try_next_boot_source() [optional]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : int
-
-This optional function passes to the next boot source in the redundancy
-sequence.
-
-This function moves the current boot redundancy source to the next
-element in the boot sequence. If there are no more boot sources then it
-must return 0, otherwise it must return 1. The default implementation
-of this always returns 0.
+bl2_platform_setup().
 
 Boot Loader Stage 2 (BL2) at EL3
 --------------------------------
