@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -416,7 +416,7 @@ defined(IMAGE_BL2) && MEASURED_BOOT
 #define PLAT_SDEI_DP_EVENT_MAX_CNT	ARM_SDEI_DP_EVENT_MAX_CNT
 #define PLAT_SDEI_DS_EVENT_MAX_CNT	ARM_SDEI_DS_EVENT_MAX_CNT
 #else
-  #if PLATFORM_TEST_RAS_FFH
+  #if PLATFORM_TEST_RAS_FFH || PLATFORM_TEST_FFH_LSP_RAS_SP
   #define PLAT_ARM_PRIVATE_SDEI_EVENTS \
 	ARM_SDEI_PRIVATE_EVENTS, \
 	SDEI_EXPLICIT_EVENT(5000, SDEI_MAPF_NORMAL), \

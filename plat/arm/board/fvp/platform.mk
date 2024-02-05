@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -399,11 +399,15 @@ endif
 endif
 
 ifeq (${HANDLE_EA_EL3_FIRST_NS},1)
-ifeq (${ENABLE_FEAT_RAS},1)
-BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c
-else
-BL31_SOURCES		+= 	plat/arm/board/fvp/aarch64/fvp_ea.c
-endif
+    ifeq (${ENABLE_FEAT_RAS},1)
+    	ifeq (${PLATFORM_TEST_FFH_LSP_RAS_SP},1)
+            BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_lsp_ras_sp.c
+	else
+            BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c
+	endif
+    else
+        BL31_SOURCES		+= 	plat/arm/board/fvp/aarch64/fvp_ea.c
+    endif
 endif
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
@@ -515,6 +519,22 @@ ifeq (${PLATFORM_TEST_RAS_FFH}, 1)
     endif
     ifeq (${HANDLE_EA_EL3_FIRST_NS}, 0)
          $(error "PLATFORM_TEST_RAS_FFH expects HANDLE_EA_EL3_FIRST_NS to be 1")
+    endif
+endif
+
+$(eval $(call add_define,PLATFORM_TEST_FFH_LSP_RAS_SP))
+ifeq (${PLATFORM_TEST_FFH_LSP_RAS_SP}, 1)
+    ifeq (${PLATFORM_TEST_RAS_FFH}, 1)
+         $(error "PLATFORM_TEST_RAS_FFH is incompatible with PLATFORM_TEST_FFH_LSP_RAS_SP")
+    endif
+    ifeq (${ENABLE_SPMD_LP}, 0)
+         $(error "PLATFORM_TEST_FFH_LSP_RAS_SP expects ENABLE_SPMD_LP to be 1")
+    endif
+    ifeq (${ENABLE_FEAT_RAS}, 0)
+         $(error "PLATFORM_TEST_FFH_LSP_RAS_SP expects ENABLE_FEAT_RAS to be 1")
+    endif
+    ifeq (${HANDLE_EA_EL3_FIRST_NS}, 0)
+         $(error "PLATFORM_TEST_FFH_LSP_RAS_SP expects HANDLE_EA_EL3_FIRST_NS to be 1")
     endif
 endif
 
