@@ -184,6 +184,15 @@
  * 0x80000000       |2MB     |L1 GPT |ROOT   |L1GPT                    |
  * 0x37FFFFFF       |        |       |       |                         |
  * ---------------------------------------------------------------------
+ * 0x100080000000   |2GB     |L1 GPT |NS     |DRAM 1 CHIP 3            |
+ * 0x1000FFFFFFFF   |        |       |       |                         |
+ * ---------------------------------------------------------------------
+ * 0x200080000000   |2GB     |L1 GPT |NS     |DRAM 1 CHIP 2            |
+ * 0x2000FFFFFFFF   |        |       |       |                         |
+ * ---------------------------------------------------------------------
+ * 0x300080000000   |2GB     |L1 GPT |NS     |DRAM 1 CHIP 1            |
+ * 0x3000FFFFFFFF   |        |       |       |                         |
+ * ---------------------------------------------------------------------
  * 0x100000000      |1GB     |L1 GPT |ANY    |CMN                      |
  * 0x13FFFFFFF      |        |       |       |                         |
  * ---------------------------------------------------------------------
@@ -196,10 +205,29 @@
  * 0x280000000      |1.5GB   |L1 GPT |ANY    |SMMU & NCI IO            |
  * 0x2DFFFFFFF      |        |       |       |                         |
  * ---------------------------------------------------------------------
- * 0x8080000000     |6GB     |L1 GPT |ANY    |DRAM 2                   |
+ * 0x8080000000     |6GB     |L1 GPT |ANY    |DRAM 2 CHIP 0            |
  * 0x81FFFFFFFF     |        |       |       |                         |
+ * ---------------------------------------------------------------------
+ * 0x108080000000   |6GB     |L1 GPT |NS     |DRAM 2 CHIP 1            |
+ * 0x1081FFFFFFFF   |        |       |       |                         |
+ * ---------------------------------------------------------------------
+ * 0x208080000000   |6GB     |L1 GPT |NS     |DRAM 2 CHIP 2            |
+ * 0x2081FFFFFFFF   |        |       |       |                         |
+ * ---------------------------------------------------------------------
+ * 0x308080000000   |6GB     |L1 GPT |NS     |DRAM 2 CHIP 3            |
+ * 0x3081FFFFFFFF   |        |       |       |                         |
  * =====================================================================
  */
+
+/*******************************************************************************
+ * Multichip config
+ ******************************************************************************/
+
+#define NRD_MC_BASE(base, n)		(NRD_REMOTE_CHIP_MEM_OFFSET(n) + base)
+
+/*******************************************************************************
+ * PAS mappings
+ ******************************************************************************/
 
 #define NRD_PAS_SHARED_SRAM						\
 		GPT_MAP_REGION_GRANULE(					\
@@ -465,6 +493,24 @@
 			ARM_NS_DRAM1_SIZE,				\
 			GPT_GPI_NS)
 
+#define NRD_PAS_DRAM1_CHIP1						\
+		GPT_MAP_REGION_GRANULE(					\
+			NRD_MC_BASE(NRD_CSS_DRAM1_BASE, 1),		\
+			ARM_DRAM1_SIZE,					\
+			GPT_GPI_NS)
+
+#define NRD_PAS_DRAM1_CHIP2						\
+		GPT_MAP_REGION_GRANULE(					\
+			NRD_MC_BASE(NRD_CSS_DRAM1_BASE, 2),		\
+			ARM_DRAM1_SIZE,					\
+			GPT_GPI_NS)
+
+#define NRD_PAS_DRAM1_CHIP3						\
+		GPT_MAP_REGION_GRANULE(					\
+			NRD_MC_BASE(NRD_CSS_DRAM1_BASE, 3),		\
+			ARM_DRAM1_SIZE,					\
+			GPT_GPI_NS)
+
 #define NRD_PAS_RMM							\
 		GPT_MAP_REGION_GRANULE(					\
 			ARM_REALM_BASE,					\
@@ -502,9 +548,27 @@
 			NRD_CSS_SMMU_NCI_IO_SIZE,			\
 			GPT_GPI_ANY)
 
-#define NRD_PAS_DRAM2							\
+#define NRD_PAS_DRAM2_CHIP0						\
 		GPT_MAP_REGION_GRANULE(					\
-			ARM_DRAM2_BASE,					\
+			NRD_MC_BASE(NRD_CSS_DRAM2_BASE, 0),		\
+			ARM_DRAM2_SIZE,					\
+			GPT_GPI_NS)
+
+#define NRD_PAS_DRAM2_CHIP1						\
+		GPT_MAP_REGION_GRANULE(					\
+			NRD_MC_BASE(NRD_CSS_DRAM2_BASE, 1),		\
+			ARM_DRAM2_SIZE,					\
+			GPT_GPI_NS)
+
+#define NRD_PAS_DRAM2_CHIP2						\
+		GPT_MAP_REGION_GRANULE(					\
+			NRD_MC_BASE(NRD_CSS_DRAM2_BASE, 2),		\
+			ARM_DRAM2_SIZE,					\
+			GPT_GPI_NS)
+
+#define NRD_PAS_DRAM2_CHIP3						\
+		GPT_MAP_REGION_GRANULE(					\
+			NRD_MC_BASE(NRD_CSS_DRAM2_BASE, 3),		\
 			ARM_DRAM2_SIZE,					\
 			GPT_GPI_NS)
 
