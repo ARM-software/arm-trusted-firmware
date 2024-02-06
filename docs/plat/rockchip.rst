@@ -35,7 +35,7 @@ these images need to get build from the TF-A repository.
 
 For AARCH64 architectures the build command looks like
 
-    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl32
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
 
 while AARCH32 needs a slightly different command
 
