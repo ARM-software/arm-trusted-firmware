@@ -83,14 +83,15 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 		sgi_plat_info.platform_id == RD_V2_SID_VER_PART_NUM ||
 		sgi_plat_info.platform_id == RD_N2_CFG1_SID_VER_PART_NUM ||
 		sgi_plat_info.platform_id == RD_N2_CFG3_SID_VER_PART_NUM) {
-		if (channel_id >= ARRAY_SIZE(plat_rd_scmi_info))
+		if (channel_id >= ARRAY_SIZE(plat_rd_scmi_info)) {
 			panic();
+		}
 		return &plat_rd_scmi_info[channel_id];
-	}
-	else if (sgi_plat_info.platform_id == SGI575_SSC_VER_PART_NUM)
+	} else if (sgi_plat_info.platform_id == SGI575_SSC_VER_PART_NUM) {
 		return &sgi575_scmi_plat_info;
-	else
+	} else {
 		panic();
+	}
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
