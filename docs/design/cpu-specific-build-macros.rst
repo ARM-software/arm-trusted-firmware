@@ -872,6 +872,10 @@ For Cortex-A520, the following errata build flags are defined :
 
 For Cortex-A715, the following errata build flags are defined :
 
+-  ``ERRATA_A715_2561034``: This applies errata 2561034 workaround to
+   Cortex-A715 CPU. This needs to be enabled only for revision r1p0.
+   It is fixed in r1p1.
+
 -  ``ERRATA_A715_2701951``: This applies erratum 2701951 workaround to Cortex-A715
    CPU and affects system configurations that do not use an ARM interconnect
    IP. This needs to be applied to revisions r0p0, r1p0 and r1p1. It is fixed
