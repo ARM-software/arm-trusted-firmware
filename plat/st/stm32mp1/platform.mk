@@ -103,10 +103,12 @@ ifeq ($(STM32MP13),1)
 STM32_HASH_VER		:=	4
 STM32_RNG_VER		:=	4
 STM32_RNG_VER_MINOR	:=	2
+STM32_SAES_VER		:=	48 # 0x30
 else # Assuming STM32MP15
 STM32_HASH_VER		:=	2
 STM32_RNG_VER		:=	2
 STM32_RNG_VER_MINOR	:=	1
+STM32_SAES_VER		:=	0 # Unavailable in this platform
 endif
 
 # Download load address for serial boot devices
@@ -187,6 +189,7 @@ $(call assert_numerics,\
 		STM32_HEADER_VERSION_MAJOR \
 		STM32_RNG_VER \
 		STM32_RNG_VER_MINOR \
+		STM32_SAES_VER \
 		STM32_TF_A_COPIES \
 ))
 
@@ -203,6 +206,7 @@ $(call add_defines,\
 		STM32_HEADER_VERSION_MAJOR \
 		STM32_RNG_VER \
 		STM32_RNG_VER_MINOR \
+		STM32_SAES_VER \
 		STM32_TF_A_COPIES \
 		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_32BIT_INTERFACE \
