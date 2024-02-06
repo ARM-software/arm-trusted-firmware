@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,7 +36,7 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
 	 * fconf APIs are not supported for RESET_TO_SP_MIN, RESET_TO_BL31 and
 	 * RESET_TO_BL2 systems.
 	 */
-#if RESET_TO_SP_MIN || RESET_TO_BL31 || RESET_TO_BL2
+#if RESET_TO_SP_MIN || RESET_TO_BL31 || RESET_TO_BL2 || IMAGE_BL1
 	cluster_count = FVP_CLUSTER_COUNT;
 	cpus_per_cluster = FVP_MAX_CPUS_PER_CLUSTER * FVP_MAX_PE_PER_CPU;
 #else
@@ -106,8 +106,10 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	if (thread_id >= FVP_MAX_PE_PER_CPU)
 		return -1;
 
+#if !IMAGE_BL1
 	if (fvp_pwrc_read_psysr(mpidr) == PSYSR_INVALID)
 		return -1;
+#endif /* IMAGE_BL1 */
 
 	/*
 	 * Core position calculation for FVP platform depends on the MT bit in
