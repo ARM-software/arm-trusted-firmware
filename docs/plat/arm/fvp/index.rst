@@ -52,7 +52,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Morello`` (Version 0.11/33)
 -  ``FVP_RD_V1``
 -  ``FVP_TC1``
--  ``FVP_TC2`` (Version 11.20/24)
+-  ``FVP_TC2`` (Version 11.23/17)
 
 The latest version of the AArch32 build of TF-A has been tested on the
 following Arm FVPs without shifted affinities, and that do not support threaded
