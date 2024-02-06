@@ -285,9 +285,13 @@ void arm_sp_min_plat_arch_setup(void);
 bool arm_io_is_toc_valid(void);
 
 /* Utility functions for Dynamic Config */
-void arm_bl2_dyn_cfg_init(void);
+
 void arm_bl1_set_mbedtls_heap(void);
 int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
+
+#if IMAGE_BL2
+void arm_bl2_dyn_cfg_init(void);
+#endif /* IMAGE_BL2 */
 
 #if MEASURED_BOOT
 #if DICE_PROTECTION_ENVIRONMENT
