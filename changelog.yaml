@@ -804,6 +804,9 @@ subsections:
         deprecated:
           - lib/psa
 
+      - title: DICE Protection Environment
+        scope: dice
+
       - title: Context Management
         scope: context-mgmt
 
