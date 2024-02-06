@@ -234,7 +234,13 @@ defined(IMAGE_BL2) && MEASURED_BOOT
 /* When ARM_BL31_IN_DRAM is set, BL2 can use almost all of Trusted SRAM. */
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1F000) - FVP_BL2_ROMLIB_OPTIMIZATION)
 #else
-# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x13000) - FVP_BL2_ROMLIB_OPTIMIZATION)
+/**
+ * Default to just under half of SRAM to ensure there's enough room for really
+ * large BL31 build configurations when using the default SRAM size (256 Kb).
+ */
+#define PLAT_ARM_MAX_BL2_SIZE                                               \
+	(((PLAT_ARM_TRUSTED_SRAM_SIZE / 3) & ~PAGE_SIZE_MASK) - PAGE_SIZE - \
+	 FVP_BL2_ROMLIB_OPTIMIZATION)
 #endif
 
 #if RESET_TO_BL31
