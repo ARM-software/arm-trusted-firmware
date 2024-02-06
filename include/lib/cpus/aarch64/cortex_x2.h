@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +26,11 @@
 #define CORTEX_X2_CPUECTLR2_EL1_PF_MODE_SHIFT			U(11)
 #define CORTEX_X2_CPUECTLR2_EL1_PF_MODE_WIDTH			U(4)
 #define CORTEX_X2_CPUECTLR2_EL1_PF_MODE_CNSRV			ULL(0x9)
+
+/*******************************************************************************
+ * CPU Auxiliary Control register 3 specific definitions.
+ ******************************************************************************/
+#define CORTEX_X2_CPUACTLR3_EL1				S3_0_C15_C1_2
 
 /*******************************************************************************
  * CPU Power Control register specific definitions

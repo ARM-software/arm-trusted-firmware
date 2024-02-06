@@ -151,13 +151,22 @@ endfunc errata_dsu_936184_wa
 	 * This function is called from both assembly and C environment. So it
 	 * follows AAPCS.
 	 *
-	 * Clobbers: x0-x3
+	 * Clobbers: x0-x4
 	 * -----------------------------------------------------------------------
 	 */
 	.globl	check_errata_dsu_2313941
 	.globl	errata_dsu_2313941_wa
 
 func check_errata_dsu_2313941
+	mov	x4, x30
+	bl	is_scu_present_in_dsu
+	cmp	x0, xzr
+	/* Default error status */
+	mov	x0, #ERRATA_NOT_APPLIES
+
+	/* If SCU is not present, return without applying patch */
+	b.eq	1f
+
 	mov	x2, #ERRATA_APPLIES
 	mov	x3, #ERRATA_NOT_APPLIES
 
@@ -170,7 +179,8 @@ func check_errata_dsu_2313941
 	mov	x1, #(0x31 << CLUSTERIDR_REV_SHIFT)
 	cmp	x0, x1
 	csel	x0, x2, x3, LS
-	ret
+1:
+	ret	x4
 endfunc check_errata_dsu_2313941
 
 	/* --------------------------------------------------

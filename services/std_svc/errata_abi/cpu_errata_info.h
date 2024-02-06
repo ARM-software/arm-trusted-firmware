@@ -13,6 +13,7 @@
 #if __aarch64__
 #include <cortex_a35.h>
 #include <cortex_a510.h>
+#include <cortex_a520.h>
 #include <cortex_a53.h>
 #include <cortex_a57.h>
 #include <cortex_a55.h>

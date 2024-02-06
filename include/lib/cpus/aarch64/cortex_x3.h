@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +26,11 @@
 #define CORTEX_X3_CPUPWRCTLR_EL1_WFE_RET_CTRL_BITS_SHIFT	U(7)
 
 /*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define CORTEX_X3_CPUACTLR_EL1			S3_0_C15_C1_0
+
+/*******************************************************************************
  * CPU Auxiliary Control register 2 specific definitions.
  ******************************************************************************/
 #define CORTEX_X3_CPUACTLR2_EL1			S3_0_C15_C1_1
@@ -46,5 +51,11 @@
 #define CORTEX_X3_CPUECTLR2_EL1_PF_MODE_LSB	U(11)
 #define CORTEX_X3_CPUECTLR2_EL1_PF_MODE_WIDTH	U(4)
 #define CORTEX_X3_CPUECTLR2_EL1_PF_MODE_CNSRV	ULL(0x9)
+
+/*******************************************************************************
+ * CPU Auxiliary Control register 3 specific definitions.
+ ******************************************************************************/
+#define CORTEX_X3_CPUACTLR3_EL1			S3_0_C15_C1_2
+#define CORTEX_X3_CPUACTLR3_EL1_BIT_47		(ULL(1) << 47)
 
 #endif /* CORTEX_X3_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,6 +33,18 @@ workaround_reset_end cortex_x3, ERRATUM(2070301)
 
 check_erratum_ls cortex_x3, ERRATUM(2070301), CPU_REV(1, 2)
 
+workaround_reset_start cortex_x3, ERRATUM(2266875), ERRATA_X3_2266875
+        sysreg_bit_set CORTEX_X3_CPUACTLR_EL1, BIT(22)
+workaround_reset_end cortex_x3, ERRATUM(2266875)
+
+check_erratum_ls cortex_x3, ERRATUM(2266875), CPU_REV(1, 0)
+
+workaround_runtime_start cortex_x3, ERRATUM(2302506), ERRATA_X3_2302506
+	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, BIT(0)
+workaround_runtime_end cortex_x3, ERRATUM(2302506), NO_ISB
+
+check_erratum_ls cortex_x3, ERRATUM(2302506), CPU_REV(1, 1)
+
 workaround_runtime_start cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
 	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, CORTEX_X3_CPUACTLR2_EL1_BIT_36
 workaround_runtime_end cortex_x3, ERRATUM(2313909), NO_ISB
@@ -57,6 +69,20 @@ workaround_reset_end cortex_x3, ERRATUM(2742421)
 
 check_erratum_ls cortex_x3, ERRATUM(2742421), CPU_REV(1, 1)
 
+workaround_runtime_start cortex_x3, ERRATUM(2743088), ERRATA_X3_2743088
+	/* dsb before isb of power down sequence */
+	dsb sy
+workaround_runtime_end cortex_x3, ERRATUM(2743088), NO_ISB
+
+check_erratum_ls cortex_x3, ERRATUM(2743088), CPU_REV(1, 1)
+
+workaround_reset_start cortex_x3, ERRATUM(2779509), ERRATA_X3_2779509
+	/* Set CPUACTLR3_EL1 bit 47 */
+	sysreg_bit_set CORTEX_X3_CPUACTLR3_EL1, CORTEX_X3_CPUACTLR3_EL1_BIT_47
+workaround_reset_end cortex_x3, ERRATUM(2779509)
+
+check_erratum_ls cortex_x3, ERRATUM(2779509), CPU_REV(1, 1)
+
 workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	override_vector_table wa_cve_vbar_cortex_x3
@@ -75,12 +101,13 @@ cpu_reset_func_end cortex_x3
 	 * ----------------------------------------------------
 	 */
 func cortex_x3_core_pwr_dwn
-apply_erratum cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
+	apply_erratum cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
 	sysreg_bit_set CORTEX_X3_CPUPWRCTLR_EL1, CORTEX_X3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	apply_erratum cortex_x3, ERRATUM(2743088), ERRATA_X3_2743088
 	isb
 	ret
 endfunc cortex_x3_core_pwr_dwn
