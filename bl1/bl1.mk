@@ -12,6 +12,7 @@ BL1_SOURCES		+=	bl1/${ARCH}/bl1_arch_setup.c		\
 				lib/cpus/${ARCH}/cpu_helpers.S		\
 				lib/cpus/errata_report.c		\
 				lib/el3_runtime/${ARCH}/context_mgmt.c	\
+				lib/locks/exclusive/${ARCH}/spinlock.S	\
 				plat/common/plat_bl1_common.c		\
 				plat/common/${ARCH}/platform_up_stack.S \
 				${MBEDTLS_SOURCES}
