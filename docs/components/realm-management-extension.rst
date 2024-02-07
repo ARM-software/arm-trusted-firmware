@@ -237,7 +237,7 @@ Use the following command to run the tests on FVP.
  -C bp.ve_sysregs.exit_on_shutdown=1                            \
  -C cache_state_modelled=1                                      \
  -C bp.dram_size=4                                              \
- -C bp.secure_memory=1                                          \
+ -C bp.secure_memory=0                                          \
  -C pci.pci_smmuv3.mmu.SMMU_ROOT_IDR0=3                         \
  -C pci.pci_smmuv3.mmu.SMMU_ROOT_IIDR=0x43B                     \
  -C pci.pci_smmuv3.mmu.root_register_page_offset=0x20000        \

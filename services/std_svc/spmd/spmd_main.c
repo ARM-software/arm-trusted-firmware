@@ -844,7 +844,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	unsigned int linear_id = plat_my_core_pos();
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	bool secure_origin;
-	int32_t ret;
+	int ret;
 	uint32_t input_version;
 
 	/* Determine which security state this SMC originated from */

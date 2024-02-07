@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019,2021-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019,2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,6 +40,16 @@
  */
 #if PLAT_TEST_SPM
 #define ARM_SIP_SET_INTERRUPT_PENDING	U(0x82000100)
+#endif
+
+/**
+ * Arm SiP Service Call for the SPM to leverage RME to protect a give memory range.
+ * Protected memory range is one whose PAS was made secure.
+ * Unprotect relates to reverting a protect operation.
+ */
+#if SPMD_SPM_AT_SEL2 && ENABLE_RME
+#define PLAT_PROTECT_MEM_SMC64 0xC2000101
+#define PLAT_UNPROTECT_MEM_SMC64 0xC2000102
 #endif
 
 /* SiP handler specific to each Arm platform. */
