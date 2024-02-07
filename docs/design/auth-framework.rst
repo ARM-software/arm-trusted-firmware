@@ -1018,4 +1018,4 @@ The mbedTLS library algorithm support is configured by both the
 
 *Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.*
 
-.. _TBBR-Client specification: https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
+.. _TBBR-Client specification: https://developer.arm.com/docs/den0006/latest
