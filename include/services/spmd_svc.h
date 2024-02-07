@@ -34,7 +34,8 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 			       uint64_t x2,
 			       uint64_t x3,
 			       uint64_t x4,
-			       void *handle);
+			       void *handle,
+			       uint64_t flags);
 #endif /* __ASSEMBLER__ */
 
 #endif /* SPMD_SVC_H */

@@ -234,7 +234,7 @@ static uint64_t spmc_smc_return(uint32_t smc_fid,
 	/* If we originated in the normal world then switch contexts. */
 	else if (!secure_origin && ffa_is_secure_world_id(dst_id)) {
 		return spmd_smc_switch_state(smc_fid, secure_origin, x1, x2,
-					     x3, x4, handle);
+					     x3, x4, handle, flags);
 	} else {
 		/* Unknown State. */
 		panic();
@@ -2490,9 +2490,11 @@ static uint64_t spmc_sp_interrupt_handler(uint32_t id,
 	/*
 	 * Forward the interrupt to the S-EL1 SP. The interrupt ID is not
 	 * populated as the SP can determine this by itself.
+	 * The flags field is forced to 0 mainly to pass the SVE hint bit
+	 * cleared for consumption by the lower EL.
 	 */
 	return spmd_smc_switch_state(FFA_INTERRUPT, false,
 				     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
 				     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-				     handle);
+				     handle, 0ULL);
 }
