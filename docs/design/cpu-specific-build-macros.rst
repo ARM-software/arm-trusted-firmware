@@ -791,6 +791,10 @@ For Cortex-X3, the following errata build flags are defined :
   CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1 of the
   CPU, it is still open.
 
+- ``ERRATA_X3_2641945``: This applies errata 2641945 workaround to Cortex-X3
+  CPU. This needs to be enabled only for revisions r0p0 and r1p0 of the CPU.
+  It is fixed in r1p1.
+
 - ``ERRATA_X3_2742421``: This applies errata 2742421 workaround to
   Cortex-X3 CPU. This needs to be enabled only for revisions r0p0, r1p0 and
   r1p1. It is fixed in r1p2.
@@ -867,6 +871,10 @@ For Cortex-A520, the following errata build flags are defined :
    It is still open.
 
 For Cortex-A715, the following errata build flags are defined :
+
+-  ``ERRATA_A715_2561034``: This applies errata 2561034 workaround to
+   Cortex-A715 CPU. This needs to be enabled only for revision r1p0.
+   It is fixed in r1p1.
 
 -  ``ERRATA_A715_2701951``: This applies erratum 2701951 workaround to Cortex-A715
    CPU and affects system configurations that do not use an ARM interconnect

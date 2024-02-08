@@ -3,6 +3,70 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.10.0..refs/tags/lts-v2.10.1) (2024-02-07)
+
+### New Features
+
+- **Platforms**
+
+  - **Xilinx**
+
+    - **Versal**
+
+      - enable errata management feature ([4f5ce87](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4f5ce871f6d741329f46af024198d60370d69a28))
+
+- **Services**
+
+  - **SPM**
+
+    - **SPMD**
+
+      - initialize SCR_EL3.EEL2 bit at RESET ([5c972df](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5c972dfdff0de24580dee78953f02810685e7c7f))
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - add support for SLS mitigation ([9cec549](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9cec5496d3b01da4b6120f8498ac84fcd3877b32))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - **SGI**
+
+      - apply workarounds for N2 CPU erratum ([bdedd84](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bdedd844c51c32067a71ab837525981f95665243))
+
+  - **Rockchip**
+
+    - **RK3328**
+
+      - apply ERRATA_A53_1530924 erratum ([b7591e1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b7591e16fc3ef8cf68fca2b1eaa4add4d47feaf7))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex X3 erratum 2641945 ([84fcd04](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/84fcd04294a6ddac422cf6bd018ee43e18b10044))
+    - workaround for Cortex X3 erratum 2743088 ([88a8cd0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/88a8cd0e542ea1eaa92dcd8b5f6115dc9ed8d525))
+    - workaround for Cortex-A520 erratum 2630792 ([4a9ed7a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4a9ed7a29aaec5653918409b2a48f1612b5bec89))
+    - workaround for Cortex-A520 erratum 2858100 ([8d45e30](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8d45e30a7cf3d14d601f69d0b7e64d6440cf6747))
+    - workaround for Cortex-A710 erratum 2778471 ([e27b8ec](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e27b8ecc73509f34e505cb54844b13499666753c))
+    - workaround for Cortex-A715 erratum 2561034 ([2624951](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2624951d205e557f17ee92d2e69bebfebdd3a6b0))
+    - workaround for Cortex-A78C erratum 2683027 ([0e5e994](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0e5e994764330d26b80036b31a23143f109ed59d))
+    - workaround for Cortex-A78C erratum 2743232 ([6becda5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6becda5d11b135a3b3d59082b7f6b90fe88c5b3f))
+    - workaround for Cortex-X2 erratum 2778471 ([b312fa0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b312fa066209cd19e7f414c9dea19d267bc0431e))
+    - workaround for Cortex-X3 erratum 2266875 ([7c227dc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7c227dc447e80fa387796a613eb0e95c84f2d2b7))
+    - workaround for Cortex-X3 erratum 2302506 ([744f07a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/744f07ae75471cabb232ff5a7e06b6c4bc70567b))
+    - workaround for Cortex-X3 erratum 2779509 ([402b9a9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/402b9a9c0c6cb953508840685a7e5138d10d31aa))
+    - workaround for Neoverse V1 erratum 2348377 ([25cf284](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/25cf2844bc7c450ce3f5d7ea18d8b9f88d8cf96e))
+    - workaround for Neoverse V2 erratum 2618597 ([f98185e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f98185e1e3c5c3cd0bfb974cea723a194c1b2be2))
+    - workaround for Neoverse V2 erratum 2662553 ([d36d167](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d36d167516432566918892e38569e4d1ac534fb8))
+    - add Cortex-A520 definitions ([0685a91](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0685a91fd00555340205f18fb163656ad9b32d5f))
+    - check for SCU before accessing DSU ([f940537](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f9405375addac24e0b4640c8618e0e5a7f5debef))
+
 ## [2.10.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.9.0..refs/tags/v2.10.0) (2023-11-21)
 
 ### ⚠ BREAKING CHANGES
@@ -8839,7 +8903,7 @@ releases of TF-A.
 
 ______________________________________________________________________
 
-*Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.*
 
 [mbed tls releases]: https://tls.mbed.org/tech-updates/releases
 [pr#1002]: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193
