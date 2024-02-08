@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #ifndef USB_DEVICE_H
 #define USB_DEVICE_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <lib/utils_def.h>

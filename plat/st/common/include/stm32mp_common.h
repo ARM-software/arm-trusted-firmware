@@ -20,6 +20,12 @@
 /* FWU configuration (max supported value is 15) */
 #define FWU_MAX_TRIAL_REBOOT		U(3)
 
+/* Define maximum page size for NAND devices */
+#define PLATFORM_MTD_MAX_PAGE_SIZE	U(0x1000)
+
+/* Needed by STM32CubeProgrammer support */
+#define DWL_BUFFER_SIZE			U(0x01000000)
+
 /* Functions to save and get boot context address given by ROM code */
 void stm32mp_save_boot_ctx_address(uintptr_t address);
 uintptr_t stm32mp_get_boot_ctx_address(void);
