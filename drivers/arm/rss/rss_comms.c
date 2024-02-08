@@ -59,8 +59,10 @@ static uint8_t select_protocol_version(const psa_invec *in_vec, size_t in_len,
 	 * messages due to ATU configuration costs to allow access to the
 	 * pointers.
 	 */
-	if ((comms_embed_msg_min_size + in_size_total > comms_mhu_msg_size - sizeof(uint32_t))
-	 || (comms_embed_reply_min_size + out_size_total > comms_mhu_msg_size) - sizeof(uint32_t)) {
+	if ((comms_embed_msg_min_size + in_size_total >
+	     comms_mhu_msg_size - sizeof(uint32_t)) ||
+	    (comms_embed_reply_min_size + out_size_total >
+	     comms_mhu_msg_size - sizeof(uint32_t))) {
 		return RSS_COMMS_PROTOCOL_POINTER_ACCESS;
 	} else {
 		return RSS_COMMS_PROTOCOL_EMBED;
