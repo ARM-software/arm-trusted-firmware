@@ -2077,39 +2077,34 @@ static int find_and_prepare_sp_context(void)
 		return ret;
 	}
 
-	/* Check that the runtime EL in the manifest was correct. */
-	if (sp->runtime_el != S_EL0 && sp->runtime_el != S_EL1) {
-		ERROR("Unexpected runtime EL: %d\n", sp->runtime_el);
-		return -EINVAL;
-	}
-
 	/* Perform any common initialisation. */
 	spmc_sp_common_setup(sp, next_image_ep_info, boot_info_reg);
 
 	/* Perform any initialisation specific to S-EL1 SPs. */
 	if (sp->runtime_el == S_EL1) {
 		spmc_el1_sp_setup(sp, next_image_ep_info);
+		spmc_sp_common_ep_commit(sp, next_image_ep_info);
 	}
-
 #if SPMC_AT_EL3_SEL0_SP
-	/* Setup spsr in endpoint info for common context management routine. */
-	if (sp->runtime_el == S_EL0) {
+	/* Perform any initialisation specific to S-EL0 SPs. */
+	else if (sp->runtime_el == S_EL0) {
+		/* Setup spsr in endpoint info for common context management routine. */
 		spmc_el0_sp_spsr_setup(next_image_ep_info);
-	}
-#endif /* SPMC_AT_EL3_SEL0_SP */
 
-	/* Initialize the SP context with the required ep info. */
-	spmc_sp_common_ep_commit(sp, next_image_ep_info);
+		spmc_sp_common_ep_commit(sp, next_image_ep_info);
 
-#if SPMC_AT_EL3_SEL0_SP
-	/*
-	 * Perform any initialisation specific to S-EL0 not set by common
-	 * context management routine.
-	 */
-	if (sp->runtime_el == S_EL0) {
+		/*
+		 * Perform any initialisation specific to S-EL0 not set by common
+		 * context management routine.
+		 */
 		spmc_el0_sp_setup(sp, boot_info_reg, sp_manifest);
 	}
 #endif /* SPMC_AT_EL3_SEL0_SP */
+	else {
+		ERROR("Unexpected runtime EL: %u\n", sp->runtime_el);
+		return -EINVAL;
+	}
+
 	return 0;
 }
 
