@@ -799,6 +799,10 @@ CPU_FLAG_LIST += ERRATA_X3_2313909
 # to revisions r0p0, r1p0, r1p1 of the Cortex-X3 cpu, it is still open.
 CPU_FLAG_LIST += ERRATA_X3_2615812
 
+# Flag to apply erratum 2641945 workaround on reset. This erratum applies
+# to revisions r0p0 and r1p0 of the Cortex-X3 cpu, it is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_X3_2641945
+
 # Flag to apply erratum 2742421 workaround on reset. This erratum applies
 # to revisions r0p0, r1p0 and r1p1 of the Cortex-X3 cpu, it is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_X3_2742421
@@ -903,6 +907,10 @@ CPU_FLAG_LIST += ERRATA_V2_2779510
 # Flag to apply erratum 2801372 workaround for all configurations.
 # This erratum applies to revisions r0p0, r0p1. Fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_V2_2801372
+
+# Flag to apply erratum 2561034 workaround during reset. This erratum applies
+# only to revision r1p0. It is fixed in r1p1.
+CPU_FLAG_LIST += ERRATA_A715_2561034
 
 # Flag to apply erratum 2701951 workaround for non-arm interconnect ip.
 # This erratum applies to revisions r0p0, r1p0, and r1p1. Its is fixed in r1p2.
