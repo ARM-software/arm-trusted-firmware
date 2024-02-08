@@ -109,7 +109,9 @@ ENABLE_FEAT_DIT		:=	2
 
 # 8.5
 ENABLE_FEAT_RNG		:=	2
-ENABLE_FEAT_SB		:=	2
+# TF-A currently does not do dynamic detection of FEAT_SB.
+# Compiler puts SB instruction when it is enabled.
+ENABLE_FEAT_SB		:=	0
 
 # 8.6
 ENABLE_FEAT_FGT		:=	2
