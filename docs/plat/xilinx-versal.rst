@@ -76,3 +76,46 @@ uses that data to hand off to the loaded images. The address of the handoff
 data structure is passed in the ```PMC_GLOBAL_GLOB_GEN_STORAGE4``` register.
 The register is free to be used by other software once the TF-A is bringing up
 further firmware images.
+
+Reference DEN0028E SMC calling convention
+------------------------------------------
+
+Allocated subranges of Function Identifier to SIP services
+----------------------------------------------------------
+
++-----------------------+-------------------------------------------------------+
+|    SMC Function       | Identifier Service type                               |
++-----------------------+-------------------------------------------------------+
+| 0xC2000000-0xC200FFFF | Fast SMC64 SiP Service Calls as per SMCCC Section 6.1 |
++-----------------------+-------------------------------------------------------+
+
+IPI SMC call ranges
+-------------------
+
++---------------------------+-----------------------------------------------------------+
+| SMC Function Identifier   | Service type                                              |
++---------------------------+-----------------------------------------------------------+
+| 0xc2001000-0xc2001FFF     | Fast SMC64 SiP Service call range used for AMD-Xilinx IPI |
++---------------------------+-----------------------------------------------------------+
+
+PM SMC call ranges
+------------------
+
++---------------------------+---------------------------------------------------------------------------+
+|   SMC Function Identifier |  Service type                                                             |
++---------------------------+---------------------------------------------------------------------------+
+| 0xc2000000-0xc2000FFF     | Fast SMC64 SiP Service call range used for AMD-Xilinx Platform Management |
++---------------------------+---------------------------------------------------------------------------+
+
+SMC function IDs for SiP Service queries
+----------------------------------------
+
++--------------+--------------+--------------+
+|  Service     | Call UID     | Revision     |
++--------------+--------------+--------------+
+|  SiP Service | 0x8200_FF01  | 0x8200_FF03  |
++--------------+--------------+--------------+
+
+Call UID Query – Returns a unique identifier of the service provider.
+
+Revision Query – Returns revision details of the service implementor.
