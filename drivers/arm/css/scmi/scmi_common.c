@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/css/scmi.h>
+#include <drivers/delay_timer.h>
 
 #include "scmi_private.h"
 
@@ -60,8 +61,10 @@ void scmi_send_sync_command(scmi_channel_t *ch)
 	dmbsy();
 
 	/* Wait for channel to be free */
-	while (!SCMI_IS_CHANNEL_FREE(mbx_mem->status))
-		;
+	while (!SCMI_IS_CHANNEL_FREE(mbx_mem->status)) {
+		if (ch->info->delay != 0)
+			udelay(ch->info->delay);
+	}
 
 	/*
 	 * Ensure that any read to the SCMI payload area is done after reading

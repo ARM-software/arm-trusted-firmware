@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -50,7 +50,8 @@ BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_image_load.c	\
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${ENT_GIC_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_bl31_setup.c	\
-				${CSS_ENT_BASE}/sgi_topology.c
+				${CSS_ENT_BASE}/sgi_topology.c          \
+				drivers/delay_timer/generic_delay_timer.c
 
 ifneq (${RESET_TO_BL31},0)
   $(error "Using BL31 as the reset vector is not supported on ${PLAT} platform. \
