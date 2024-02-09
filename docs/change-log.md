@@ -3,6 +3,16 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.1..refs/tags/lts-v2.10.2) (2024-02-08)
+
+### Resolved Issues
+
+- **Build System**
+
+  - move comment for VERSION_PATCH ([822bfa3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/822bfa39ce6b961736e4f91a95f8b5d950ffb9ee))
+  - properly manage versions in .versionrc.js ([7bccacd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7bccacddee0b5c42a0f6c112ee23679248314499))
+  - update versions ([e8e5c77](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e8e5c775929d90df3395701bfef3f50591d1c28e))
+
 ## [lts-2.10.1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.10.0..refs/tags/lts-v2.10.1) (2024-02-07)
 
 ### New Features

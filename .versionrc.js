@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -84,9 +84,9 @@ module.exports = {
             "filename": "pyproject.toml",
             "updater": {
                 "readVersion": function (contents) {
-                    const _ver = contents.match(/version\s=.*"(\d)\.(\d)\.(\d)/);
+                    const _ver = contents.match(/version\s=.*"(\d+?)\.(\d+?)\.(\d+?)/);
 
-                    return `${_ver[1]}.${_ver[2]}.${_ver[2]}`;
+                    return `${_ver[1]}.${_ver[2]}.${_ver[3]}`;
                 },
 
                 "writeVersion": function (contents, version) {
@@ -104,9 +104,9 @@ module.exports = {
             "filename": "docs/conf.py",
             "updater": {
                 "readVersion": function (contents) {
-                    const _ver = contents.match(/version\s=.*"(\d)\.(\d)\.(\d)/);
+                    const _ver = contents.match(/version\s=.*"(\d+?)\.(\d+?)\.(\d+?)/);
 
-                    return `${_ver[1]}.${_ver[2]}.${_ver[2]}`;
+                    return `${_ver[1]}.${_ver[2]}.${_ver[3]}`;
                 },
 
                 "writeVersion": function (contents, version) {
