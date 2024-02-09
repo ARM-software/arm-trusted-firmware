@@ -3,6 +3,17 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.16](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.15..refs/tags/lts-v2.8.16) (2024-02-08)
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex X3 erratum 2641945 ([e80174e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e80174ea984eb8ad0723b3955e8cbe5e7747c155))
+    - workaround for Cortex-A715 erratum 2561034 ([a3cd442](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a3cd44292c02e51da5705c9c26fd2c16569ceef6))
+
 ## [lts-2.8.15](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.14..refs/tags/lts-v2.8.15) (2024-01-24)
 
 ### Documentation
