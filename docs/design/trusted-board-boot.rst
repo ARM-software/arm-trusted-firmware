@@ -1,24 +1,45 @@
 Trusted Board Boot
 ==================
 
-The Trusted Board Boot (TBB) feature prevents malicious firmware from running on
-the platform by authenticating all firmware images up to and including the
-normal world bootloader. It does this by establishing a Chain of Trust using
+The `Trusted Board Boot` (TBB) feature prevents malicious firmware from running
+on the platform by authenticating all firmware images up to and including the
+normal world bootloader. It does this by establishing a `Chain of Trust` using
 Public-Key-Cryptography Standards (PKCS).
 
 This document describes the design of Trusted Firmware-A (TF-A) TBB, which is an
 implementation of the `Trusted Board Boot Requirements (TBBR)`_ specification,
-Arm DEN0006D. It should be used in conjunction with the
-:ref:`Firmware Update (FWU)` design document, which implements a specific aspect
-of the TBBR.
+Arm DEN0006D. It should be used in conjunction with the :ref:`Firmware Update
+(FWU)` design document, which implements a specific aspect of the TBBR.
 
 Chain of Trust
 --------------
 
-A Chain of Trust (CoT) starts with a set of implicitly trusted components. On
-the Arm development platforms, these components are:
+A Chain of Trust (CoT) starts with a set of implicitly trusted components, which
+are used to establish trust in the next layer of components, and so on, in a
+`chained` manner.
 
--  A SHA-256 hash of the Root of Trust Public Key (ROTPK). It is stored in the
+The chain of trust depends on several factors, including:
+
+-  The set of firmware images in use on this platform.
+   Typically, most platforms share a common set of firmware images (BL1, BL2,
+   BL31, BL33) but extra platform-specific images might be required.
+
+-  The key provisioning scheme: which keys need to programmed into the device
+   and at which stage during the platform's manufacturing lifecycle.
+
+-  The key ownership model: who owns which key.
+
+As these vary across platforms, chains of trust also vary across
+platforms. Although each platform is free to define its own CoT based on its
+needs, TF-A provides a set of "default" CoTs fitting some typical trust models,
+which platforms may reuse. The rest of this section presents general concepts
+which apply to all these default CoTs.
+
+The implicitly trusted components forming the trust anchor are:
+
+-  A Root of Trust Public Key (ROTPK), or a hash of it.
+
+   On Arm development platforms, a SHA-256 hash of the ROTPK is stored in the
    trusted root-key storage registers. Alternatively, a development ROTPK might
    be used and its hash embedded into the BL1 and BL2 images (only for
    development purposes).
@@ -31,11 +52,11 @@ images. The certificates follow the `X.509 v3`_ standard. This standard
 enables adding custom extensions to the certificates, which are used to store
 essential information to establish the CoT.
 
-In the TBB CoT all certificates are self-signed. There is no need for a
-Certificate Authority (CA) because the CoT is not established by verifying the
-validity of a certificate's issuer but by the content of the certificate
-extensions. To sign the certificates, different signature schemes are available,
-please refer to the :ref:`Build Options` for more details.
+All certificates are self-signed. There is no need for a Certificate Authority
+(CA) because the CoT is not established by verifying the validity of a
+certificate's issuer but by the content of the certificate extensions. To sign
+the certificates, different signature schemes are available, please refer to the
+:ref:`Build Options` for more details.
 
 The certificates are categorised as "Key" and "Content" certificates. Key
 certificates are used to verify public keys which have been used to sign content
@@ -43,10 +64,23 @@ certificates. Content certificates are used to store the hash of a boot loader
 image. An image can be authenticated by calculating its hash and matching it
 with the hash extracted from the content certificate. Various hash algorithms
 are supported to calculate all hashes, please refer to the :ref:`Build Options`
-for more details.. The public keys and hashes are included as non-standard
+for more details. The public keys and hashes are included as non-standard
 extension fields in the `X.509 v3`_ certificates.
 
-The keys used to establish the CoT are:
+The next sections now present specificities of each default CoT provided in
+TF-A.
+
+Default CoT #1: TBBR
+~~~~~~~~~~~~~~~~~~~~
+
+The `TBBR` CoT is named after the specification it follows to the letter.
+
+In the TBBR CoT, all firmware binaries and certificates are (directly or
+indirectly) linked to the Root of Trust Public Key (ROTPK). Typically, the same
+vendor owns the ROTPK, the Trusted key and the Non-Trusted Key. Thus, this vendor
+is involved in signing every BL3x Key Certificate.
+
+The keys used to establish this CoT are:
 
 -  **Root of trust key**
 
@@ -132,6 +166,40 @@ The following certificates are used to authenticate the images.
 
 The SCP_BL2 and BL32 certificates are optional, but they must be present if the
 corresponding SCP_BL2 or BL32 images are present.
+
+The following diagram summarizes the part of the TBBR CoT enforced by BL2. Some
+images (SCP, debug certificates, secure partitions, configuration files) are not
+shown here for conciseness:
+
+.. image:: ../resources/diagrams/cot-tbbr.jpg
+
+Default CoT #2: Dualroot
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `dualroot` CoT is targeted at systems where the Normal World firmware is
+owned by a different entity than the Secure World Firmware, and those 2 entities
+do not wish to share any keys or have any dependency between each other when it
+comes to signing their respective images. It establishes 2 separate signing
+domains, each with its own Root of Trust key. In that sense, this CoT has 2
+roots of trust, hence the `dualroot` name.
+
+Although the dualroot CoT reuses some of the TBBR CoT components and concepts,
+it differs on the BL33 image's chain of trust, which is rooted into a new key,
+called `Platform ROTPK`, or `PROTPK` for short.
+
+The following diagram summarizes the part of the dualroot CoT enforced by
+BL2. Some images (SCP, debug certificates, secure partitions, configuration
+files) are not shown here for conciseness:
+
+.. image:: ../resources/diagrams/cot-dualroot.jpg
+
+Default CoT #3: CCA
+~~~~~~~~~~~~~~~~~~~
+
+This CoT is targeted at Arm CCA systems. The Arm CCA security model recommends
+making supply chains for the Arm CCA firmware, the secure world firmware and the
+platform owner firmware, independent. Hence, this CoT has 3 roots of trust, one
+for each supply chain.
 
 Trusted Board Boot Sequence
 ---------------------------
