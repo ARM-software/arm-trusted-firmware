@@ -443,22 +443,6 @@ ifneq (${RESET_TO_BL2}, 0)
     override BL1_SOURCES =
 endif
 
-# Include Measured Boot makefile before any Crypto library makefile.
-# Crypto library makefile may need default definitions of Measured Boot build
-# flags present in Measured Boot makefile.
-ifeq (${MEASURED_BOOT},1)
-    RSS_MEASURED_BOOT_MK := drivers/measured_boot/rss/rss_measured_boot.mk
-    $(info Including ${RSS_MEASURED_BOOT_MK})
-    include ${RSS_MEASURED_BOOT_MK}
-
-    ifneq (${MBOOT_RSS_HASH_ALG}, sha256)
-        $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA512))
-    endif
-
-    BL1_SOURCES		+=	${MEASURED_BOOT_SOURCES}
-    BL2_SOURCES		+=	${MEASURED_BOOT_SOURCES}
-endif
-
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
 
