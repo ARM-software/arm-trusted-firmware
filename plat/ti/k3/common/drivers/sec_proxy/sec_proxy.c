@@ -320,7 +320,7 @@ int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg
 
 		i = msg->len - trail_bytes;
 		while (trail_bytes--) {
-			msg->buf[i] = data_trail & 0xff;
+			msg->buf[i++] = data_trail & 0xff;
 			data_trail >>= 8;
 		}
 	}
