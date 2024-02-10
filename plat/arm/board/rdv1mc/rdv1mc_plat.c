@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,7 +43,8 @@ static struct gic600_multichip_data rdv1mc_multichip_data __init = {
 #endif
 	},
 	.spi_ids = {
-		{PLAT_ARM_GICD_BASE, 32, 255},
+		{PLAT_ARM_GICD_BASE, RDV1MC_CHIP0_SPI_START,
+			RDV1MC_CHIP0_SPI_END},
 		{0, 0, 0},
 #if (CSS_SGI_CHIP_COUNT > 2)
 		{0, 0, 0},
