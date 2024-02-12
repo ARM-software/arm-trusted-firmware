@@ -169,6 +169,8 @@ void detect_arch_features(void)
 	/* v8.5 features */
 	check_feature(ENABLE_FEAT_MTE, read_feat_mte_id_field(), "MTE",
 		      MTE_IMPLEMENTED_EL0, MTE_IMPLEMENTED_ASY);
+	check_feature(ENABLE_FEAT_MTE2, read_feat_mte_id_field(), "MTE2",
+		      MTE_IMPLEMENTED_ELX, MTE_IMPLEMENTED_ASY);
 	check_feature(ENABLE_FEAT_RNG, read_feat_rng_id_field(), "RNG", 1, 1);
 	read_feat_bti();
 	read_feat_rng_trap();

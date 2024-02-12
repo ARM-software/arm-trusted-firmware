@@ -91,6 +91,8 @@ static inline bool is_armv8_5_bti_present(void)
 
 CREATE_FEATURE_FUNCS(feat_mte, id_aa64pfr1_el1, ID_AA64PFR1_EL1_MTE_SHIFT,
 		     ENABLE_FEAT_MTE)
+CREATE_FEATURE_FUNCS_VER(feat_mte2, read_feat_mte_id_field, MTE_IMPLEMENTED_ELX,
+		     ENABLE_FEAT_MTE2)
 CREATE_FEATURE_FUNCS(feat_sel2, id_aa64pfr0_el1, ID_AA64PFR0_SEL2_SHIFT,
 		     ENABLE_FEAT_SEL2)
 CREATE_FEATURE_FUNCS(feat_twed, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_TWED_SHIFT,

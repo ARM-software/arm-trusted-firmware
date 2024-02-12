@@ -341,9 +341,14 @@ Common build options
    mechanism. Default value is ``0``.
 
 -  ``ENABLE_FEAT_MTE``: Numeric value to enable Memory Tagging Extension
-   if the platform wants to use this feature in the Secure world and MTE is
-   enabled at ELX. This flag can take values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. Default value is ``0``.
+   if the platform wants to use this feature at EL0 ``ENABLE_FEAT_MTE`` is
+   required. This flag can take values 0 to 2, to align with the ``ENABLE_FEAT``
+   feature detection mechanism. Default value is ``0``.
+
+-  ``ENABLE_FEAT_MTE2``: Numeric value to enable Memory Tagging Extension2
+   if the platform wants to use this feature and MTE2 is enabled at ELX.
+   This flag can take values 0 to 2, to align with the ``ENABLE_FEAT``
+   mechanism. Default value is ``0``.
 
 -  ``ENABLE_FEAT_MTE_PERM``: Numeric value to enable support for
    ``FEAT_MTE_PERM``, which introduces Allocation tag access permission to
