@@ -161,6 +161,15 @@ in scope of this threat model.
   ion beam (FIB) workstation or decapsulate the chip using chemicals) is
   considered out-of-scope.
 
+  Certain non-invasive physical attacks that do not need modifications to the
+  chip, notably those like Power Analysis Attacks, are out-of-scope. Power
+  analysis side-channel attacks represent a category of security threats that
+  capitalize on information leakage through a device's power consumption during
+  its normal operation. These attacks leverage the correlation between a
+  device's power usage and its internal data processing activities. This
+  correlation provides attackers with the means to extract sensitive
+  information, including cryptographic keys.
+
 Threat Types
 ============
 
