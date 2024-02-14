@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,40 +15,39 @@
 
 #include "sds_private.h"
 
-/*
- * Variables used to track and maintain the state of the memory region reserved
- * for usage by the SDS framework.
- */
+/* Array of SDS memory region descriptions */
+static sds_region_desc_t *sds_regions;
 
-/* Pointer to the base of the SDS memory region */
-static uintptr_t sds_mem_base;
-
-/* Size of the SDS memory region in bytes */
-static size_t sds_mem_size;
+/* Total count of SDS memory regions */
+static unsigned int sds_region_cnt;
 
 /*
  * Perform some non-exhaustive tests to determine whether any of the fields
  * within a Structure Header contain obviously invalid data.
  * Returns SDS_OK on success, SDS_ERR_FAIL on error.
  */
-static int sds_struct_is_valid(uintptr_t header)
+static int sds_struct_is_valid(unsigned int region_id, uintptr_t header)
 {
 	size_t struct_size = GET_SDS_HEADER_STRUCT_SIZE(header);
 
 	/* Zero is not a valid identifier */
-	if (GET_SDS_HEADER_ID(header) == 0)
+	if (GET_SDS_HEADER_ID(header) == 0) {
 		return SDS_ERR_FAIL;
+	}
 
 	/* Check SDS Schema version */
-	if (GET_SDS_HEADER_VERSION(header) == SDS_REGION_SCH_VERSION)
+	if (GET_SDS_HEADER_VERSION(header) == SDS_REGION_SCH_VERSION) {
 		return SDS_ERR_FAIL;
+	}
 
 	/* The SDS Structure sizes have to be multiple of 8 */
-	if ((struct_size == 0) || ((struct_size % 8) != 0))
+	if ((struct_size == 0) || ((struct_size % 8) != 0)) {
 		return SDS_ERR_FAIL;
+	}
 
-	if (struct_size > sds_mem_size)
+	if (struct_size > sds_regions[region_id].size) {
 		return SDS_ERR_FAIL;
+	}
 
 	return SDS_OK;
 }
@@ -57,10 +56,11 @@ static int sds_struct_is_valid(uintptr_t header)
  * Validate the SDS structure headers.
  * Returns SDS_OK on success, SDS_ERR_FAIL on error.
  */
-static int validate_sds_struct_headers(void)
+static int validate_sds_struct_headers(unsigned int region_id)
 {
 	unsigned int i, structure_count;
 	uintptr_t header;
+	uintptr_t sds_mem_base = sds_regions[region_id].base;
 
 	structure_count = GET_SDS_REGION_STRUCTURE_COUNT(sds_mem_base);
 
@@ -71,7 +71,7 @@ static int validate_sds_struct_headers(void)
 
 	/* Iterate over structure headers and validate each one */
 	for (i = 0; i < structure_count; i++) {
-		if (sds_struct_is_valid(header) != SDS_OK) {
+		if (sds_struct_is_valid(region_id, header) != SDS_OK) {
 			WARN("SDS: Invalid structure header detected\n");
 			return SDS_ERR_FAIL;
 		}
@@ -84,10 +84,12 @@ static int validate_sds_struct_headers(void)
  * Get the structure header pointer corresponding to the structure ID.
  * Returns SDS_OK on success, SDS_ERR_STRUCT_NOT_FOUND on error.
  */
-static int get_struct_header(uint32_t structure_id, struct_header_t **header)
+static int get_struct_header(unsigned int region_id, uint32_t structure_id,
+			struct_header_t **header)
 {
 	unsigned int i, structure_count;
 	uintptr_t current_header;
+	uintptr_t sds_mem_base = sds_regions[region_id].base;
 
 	assert(header);
 
@@ -116,12 +118,14 @@ static int get_struct_header(uint32_t structure_id, struct_header_t **header)
  * Returns SDS_OK if structure header exists else SDS_ERR_STRUCT_NOT_FOUND
  * if not found.
  */
-int sds_struct_exists(unsigned int structure_id)
+int sds_struct_exists(unsigned int region_id, unsigned int structure_id)
 {
 	struct_header_t *header = NULL;
 	int ret;
 
-	ret = get_struct_header(structure_id, &header);
+	assert(region_id < sds_region_cnt);
+
+	ret = get_struct_header(region_id, structure_id, &header);
 	if (ret == SDS_OK) {
 		assert(header);
 	}
@@ -136,18 +140,21 @@ int sds_struct_exists(unsigned int structure_id)
  * The `data` is the pointer to store the read data of size specified by `size`.
  * Returns SDS_OK on success or corresponding error codes on failure.
  */
-int sds_struct_read(uint32_t structure_id, unsigned int fld_off,
-		void *data, size_t size, sds_access_mode_t mode)
+int sds_struct_read(unsigned int region_id, uint32_t structure_id,
+		unsigned int fld_off, void *data, size_t size,
+		sds_access_mode_t mode)
 {
 	int status;
 	uintptr_t field_base;
 	struct_header_t *header = NULL;
 
+	assert(region_id < sds_region_cnt);
+
 	if (!data)
 		return SDS_ERR_INVALID_PARAMS;
 
 	/* Check if a structure with this ID exists */
-	status = get_struct_header(structure_id, &header);
+	status = get_struct_header(region_id, structure_id, &header);
 	if (status != SDS_OK)
 		return status;
 
@@ -182,18 +189,21 @@ int sds_struct_read(uint32_t structure_id, unsigned int fld_off,
  * The `data` is the pointer to data of size specified by `size`.
  * Returns SDS_OK on success or corresponding error codes on failure.
  */
-int sds_struct_write(uint32_t structure_id, unsigned int fld_off,
-		void *data, size_t size, sds_access_mode_t mode)
+int sds_struct_write(unsigned int region_id, uint32_t structure_id,
+		unsigned int fld_off, void *data, size_t size,
+		sds_access_mode_t mode)
 {
 	int status;
 	uintptr_t field_base;
 	struct_header_t *header = NULL;
 
+	assert(region_id < sds_region_cnt);
+
 	if (!data)
 		return SDS_ERR_INVALID_PARAMS;
 
 	/* Check if a structure with this ID exists */
-	status = get_struct_header(structure_id, &header);
+	status = get_struct_header(region_id, structure_id, &header);
 	if (status != SDS_OK)
 		return status;
 
@@ -226,12 +236,18 @@ int sds_struct_write(uint32_t structure_id, unsigned int fld_off,
 
 /*
  * Initialize the SDS driver. Also verifies the SDS version and sanity of
- * the SDS structure headers.
+ * the SDS structure headers in the given SDS region.
  * Returns SDS_OK on success, SDS_ERR_FAIL on error.
  */
-int sds_init(void)
+int sds_init(unsigned int region_id)
 {
-	sds_mem_base = (uintptr_t)PLAT_ARM_SDS_MEM_BASE;
+	if (sds_regions == NULL) {
+		sds_regions = plat_sds_get_regions(&sds_region_cnt);
+	}
+
+	assert(region_id < sds_region_cnt);
+
+	uintptr_t sds_mem_base = sds_regions[region_id].base;
 
 	if (!IS_SDS_REGION_VALID(sds_mem_base)) {
 		WARN("SDS: No valid SDS Memory Region found\n");
@@ -244,15 +260,16 @@ int sds_init(void)
 		return SDS_ERR_FAIL;
 	}
 
-	sds_mem_size = GET_SDS_REGION_SIZE(sds_mem_base);
-	if (sds_mem_size > PLAT_ARM_SDS_MEM_SIZE_MAX) {
+	sds_regions[region_id].size = GET_SDS_REGION_SIZE(sds_mem_base);
+	if (sds_regions[region_id].size > PLAT_ARM_SDS_MEM_SIZE_MAX) {
 		WARN("SDS: SDS Memory Region exceeds size limit\n");
 		return SDS_ERR_FAIL;
 	}
 
-	INFO("SDS: Detected SDS Memory Region (%zu bytes)\n", sds_mem_size);
+	INFO("SDS: Detected SDS Memory Region (%zu bytes)\n",
+		sds_regions[region_id].size);
 
-	if (validate_sds_struct_headers() != SDS_OK)
+	if (validate_sds_struct_headers(region_id) != SDS_OK)
 		return SDS_ERR_FAIL;
 
 	return SDS_OK;

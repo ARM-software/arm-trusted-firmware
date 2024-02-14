@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -239,6 +239,17 @@
 #define SBSA_SECURE_WDOG_INTID		86
 
 #define PLAT_ARM_SCMI_CHANNEL_COUNT	1
+
+/* Index of SDS region used in the communication with SCP */
+#define SDS_SCP_AP_REGION_ID		U(0)
+/* Index of SDS region used in the communication with RSS */
+#define SDS_RSS_AP_REGION_ID		U(1)
+/*
+ * Memory region for RSS's shared data storage (SDS)
+ * It is placed right after the SCMI payload area.
+ */
+#define PLAT_ARM_RSS_AP_SDS_MEM_BASE	(CSS_SCMI_PAYLOAD_BASE + \
+					 CSS_SCMI_PAYLOAD_SIZE_MAX)
 
 #define PLAT_ARM_CLUSTER_COUNT		U(1)
 #define PLAT_MAX_CPUS_PER_CLUSTER	U(8)

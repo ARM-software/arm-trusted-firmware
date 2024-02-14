@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -298,6 +298,8 @@
 
 #endif
 
+/* Index of SDS region used in the communication with SCP */
+#define SDS_SCP_AP_REGION_ID			U(0)
 /* SDS ID for unusable CPU MPID list structure */
 #define SDS_ISOLATED_CPU_LIST_ID		U(128)
 

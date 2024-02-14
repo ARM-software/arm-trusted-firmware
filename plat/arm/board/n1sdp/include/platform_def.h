@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,6 +77,10 @@
 
 #if CSS_USE_SCMI_SDS_DRIVER
 #define N1SDP_SCMI_PAYLOAD_BASE			0x45400000
+/*
+ * Index of SDS region used in the communication with SCP
+ */
+#define SDS_SCP_AP_REGION_ID			U(0)
 #else
 #define PLAT_CSS_SCP_COM_SHARED_MEM_BASE	0x45400000
 #endif
