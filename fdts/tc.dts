@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,7 @@
 	#size-cells = <2>;
 
 	aliases {
-		serial0 = &soc_uart0;
+		serial0 = &ap_ns_uart;
 	};
 
 	chosen {
@@ -327,10 +327,10 @@
 		clock-output-names = "uartclk";
 	};
 
-	soc_uart0: uart@7ff80000 {
+	ap_ns_uart: uart@2A400000 {
 		compatible = "arm,pl011", "arm,primecell";
-		reg = <0x0 0x7ff80000 0x0 0x1000>;
-		interrupts = <0x0 116 0x4>;
+		reg = <0x0 0x2A400000 0x0 0x1000>;
+		interrupts = <0x0 63 0x4>;
 		clocks = <&soc_uartclk>, <&soc_refclk100mhz>;
 		clock-names = "uartclk", "apb_pclk";
 		status = "okay";

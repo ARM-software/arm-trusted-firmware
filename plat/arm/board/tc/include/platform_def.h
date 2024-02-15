@@ -137,7 +137,7 @@
  * little space for growth. Current size is considering that TRUSTED_BOARD_BOOT
  * and MEASURED_BOOT is enabled.
  */
-# define PLAT_ARM_MAX_BL2_SIZE		0x26000
+# define PLAT_ARM_MAX_BL2_SIZE		0x29000
 
 
 /*
@@ -332,5 +332,19 @@
 #undef PLAT_ARM_FIP_OFFSET_IN_GPT
 #define PLAT_ARM_FIP_OFFSET_IN_GPT		0x6000
 #endif /* ARM_GPT_SUPPORT */
+
+/* UART related constants */
+
+#undef PLAT_ARM_BOOT_UART_BASE
+#define PLAT_ARM_BOOT_UART_BASE		0x2A410000
+
+#undef PLAT_ARM_RUN_UART_BASE
+#define PLAT_ARM_RUN_UART_BASE		0x2A400000
+
+#undef PLAT_ARM_SP_MIN_RUN_UART_BASE
+#define PLAT_ARM_SP_MIN_RUN_UART_BASE	PLAT_ARM_RUN_UART_BASE
+
+#undef PLAT_ARM_CRASH_UART_BASE
+#define PLAT_ARM_CRASH_UART_BASE	PLAT_ARM_RUN_UART_BASE
 
 #endif /* PLATFORM_DEF_H */

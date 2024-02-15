@@ -1,6 +1,5 @@
-
 /*
- * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -17,41 +16,57 @@
 #ifndef IOVEC_LEN
 #define IOVEC_LEN(arr) ((uint32_t)(sizeof(arr)/sizeof(arr[0])))
 #endif
+
 /*********************** PSA Client Macros and Types *************************/
+
 /**
  * The version of the PSA Framework API that is being used to build the calling
  * firmware. Only part of features of FF-M v1.1 have been implemented. FF-M v1.1
  * is compatible with v1.0.
  */
 #define PSA_FRAMEWORK_VERSION	(0x0101u)
+
 /**
  * Return value from psa_version() if the requested RoT Service is not present
  * in the system.
  */
 #define PSA_VERSION_NONE	(0u)
+
 /**
  * The zero-value null handle can be assigned to variables used in clients and
  * RoT Services, indicating that there is no current connection or message.
  */
 #define PSA_NULL_HANDLE		((psa_handle_t)0)
+
 /**
  * Tests whether a handle value returned by psa_connect() is valid.
  */
 #define PSA_HANDLE_IS_VALID(handle)	((psa_handle_t)(handle) > 0)
+
 /**
  * Converts the handle value returned from a failed call psa_connect() into
  * an error code.
  */
 #define PSA_HANDLE_TO_ERROR(handle)	((psa_status_t)(handle))
+
 /**
  * Maximum number of input and output vectors for a request to psa_call().
  */
 #define PSA_MAX_IOVEC		(4u)
+
+/**
+ * The minimum and maximum value that can be passed
+ * as the type parameter in a call to psa_call().
+ */
+#define PSA_CALL_TYPE_MIN	(0)
+#define PSA_CALL_TYPE_MAX	(INT16_MAX)
+
 /**
  * An IPC message type that indicates a generic client request.
  */
 #define PSA_IPC_CALL		(0)
 typedef int32_t psa_handle_t;
+
 /**
  * A read-only input memory region provided to an RoT Service.
  */
@@ -59,6 +74,7 @@ typedef struct psa_invec {
 	const void *base;	/*!< the start address of the memory buffer */
 	size_t len;		/*!< the size in bytes                      */
 } psa_invec;
+
 /**
  * A writable output memory region provided to an RoT Service.
  */

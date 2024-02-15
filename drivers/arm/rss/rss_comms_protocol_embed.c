@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,19 +9,8 @@
 #include <string.h>
 
 #include <common/debug.h>
+#include "rss_comms_protocol_common.h"
 #include "rss_comms_protocol_embed.h"
-
-#define TYPE_OFFSET	(16U)
-#define TYPE_MASK	(0xFFFFUL << TYPE_OFFSET)
-#define IN_LEN_OFFSET	(8U)
-#define IN_LEN_MASK	(0xFFUL << IN_LEN_OFFSET)
-#define OUT_LEN_OFFSET	(0U)
-#define OUT_LEN_MASK	(0xFFUL << OUT_LEN_OFFSET)
-
-#define PARAM_PACK(type, in_len, out_len)			  \
-	(((((uint32_t)type) << TYPE_OFFSET) & TYPE_MASK)	| \
-	 ((((uint32_t)in_len) << IN_LEN_OFFSET) & IN_LEN_MASK)	| \
-	 ((((uint32_t)out_len) << OUT_LEN_OFFSET) & OUT_LEN_MASK))
 
 psa_status_t rss_protocol_embed_serialize_msg(psa_handle_t handle,
 					      int16_t type,
