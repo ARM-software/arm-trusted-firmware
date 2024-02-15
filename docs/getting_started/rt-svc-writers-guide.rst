@@ -49,8 +49,11 @@ legacy 32-bit software that predates the `SMCCC`_.
     Fast        1      CPU Service calls
     Fast        2      SiP Service calls
     Fast        3      OEM Service calls
-    Fast        4      Standard Service calls
-    Fast       5-47    Reserved for future use
+    Fast        4      Standard Secure Service calls
+    Fast        5      Standard Hypervisor Service Calls
+    Fast        6      Vendor Specific Hypervisor Service Calls
+    Fast        7      Vendor Specific EL3 Monitor Calls
+    Fast       8-47    Reserved for future use
     Fast      48-49    Trusted Application calls
     Fast      50-63    Trusted OS calls
 
@@ -314,7 +317,7 @@ provide this information....
 
 --------------
 
-*Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMCCC: https://developer.arm.com/docs/den0028/latest
 .. _PSCI: https://developer.arm.com/documentation/den0022/latest/
