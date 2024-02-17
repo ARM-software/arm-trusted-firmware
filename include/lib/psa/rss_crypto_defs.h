@@ -41,25 +41,39 @@ struct rss_crypto_aead_pack_input {
  * Structure used to pack non-pointer types in a call to PSA Crypto APIs
  */
 struct rss_crypto_pack_iovec {
-    psa_key_id_t key_id;       /*!< Key id */
-    psa_algorithm_t alg;       /*!< Algorithm */
-    uint32_t op_handle;        /*!< Frontend context handle associated to a
-                                *   multipart operation
-                                */
-    uint32_t ad_length;        /*!< Additional Data length for multipart AEAD */
-    uint32_t plaintext_length; /*!< Plaintext length for multipart AEAD */
+	psa_key_id_t key_id;		/* !< Key id */
+	psa_algorithm_t alg;		/* !< Algorithm */
+	uint32_t op_handle;		/*
+					 * !< Frontend context handle
+					 * associated to a multipart operation
+					 */
+	uint32_t ad_length;		/*
+					 * !< Additional Data length for
+					 *    multipart AEAD
+					 */
+	uint32_t plaintext_length;	/*
+					 * !< Plaintext length for multipart
+					 *    AEAD
+					 */
 
-    struct rss_crypto_aead_pack_input aead_in; /*!< Packs AEAD-related inputs */
+	struct rss_crypto_aead_pack_input aead_in; /*
+						    * !< Packs AEAD-related
+						    *    inputs
+						    */
 
-    uint16_t function_id;      /*!< Used to identify the function in the
-                                *   API dispatcher to the service backend
-                                *   See rss_crypto_func_sid for detail
-                                */
-    uint16_t step;             /*!< Key derivation step */
-    union {
-        size_t capacity;       /*!< Key derivation capacity */
-        uint64_t value;        /*!< Key derivation integer for update*/
-    };
+	uint16_t function_id;	/*
+				 * !< Used to identify the function in the
+				 *    API dispatcher to the service backend
+				 *    See rss_crypto_func_sid for detail
+				 */
+	uint16_t step;		/* !< Key derivation step */
+	union {
+		size_t capacity;	/* !< Key derivation capacity */
+		uint64_t value;		/*
+					 * !< Key derivation integer for
+					 *    update
+					 */
+	};
 };
 
 #endif /* RSS_CRYPTO_DEFS_H */
