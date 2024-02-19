@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
  * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
  *
@@ -207,6 +207,7 @@ void bl31_plat_runtime_setup(void)
 		panic();
 	}
 
+	console_flush();
 	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
