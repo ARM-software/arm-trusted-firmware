@@ -12,6 +12,7 @@ RESET_TO_BL31	:=	1
 SPMD_SPM_AT_SEL2	:= 0
 #temporary until the RAM size is reduced
 USE_COHERENT_MEM	:=	1
+INIT_UNUSED_NS_EL2  := 1
 
 
 $(eval $(call add_define,RESET_TO_BL31))
@@ -21,11 +22,28 @@ ifeq (${ARCH}, aarch64)
 # Trusted DRAM (if available) or the TZC secured area of DRAM.
 # TZC secured DRAM is the default.
 
+ARM_TSP_RAM_LOCATION	?=	dram
+
+ifeq (${ARM_TSP_RAM_LOCATION}, tsram)
+ARM_TSP_RAM_LOCATION_ID	=	ARM_TRUSTED_SRAM_ID
+else ifeq (${ARM_TSP_RAM_LOCATION}, tdram)
+ARM_TSP_RAM_LOCATION_ID	=	ARM_TRUSTED_DRAM_ID
+else ifeq (${ARM_TSP_RAM_LOCATION}, dram)
+ARM_TSP_RAM_LOCATION_ID	=	ARM_DRAM_ID
+else
+$(error "Unsupported ARM_TSP_RAM_LOCATION value")
+endif
+
+# Process flags
 # Process ARM_BL31_IN_DRAM flag
 ARM_BL31_IN_DRAM	:=	0
 $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
+else
+ARM_TSP_RAM_LOCATION_ID	=	ARM_TRUSTED_SRAM_ID
 endif
+
+$(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
 
 # For the original power-state parameter format, the State-ID can be encoded
 # according to the recommended encoding or zero. This flag determines which
@@ -140,9 +158,23 @@ $(error For SEPARATE_NOBITS_REGION, RECLAIM_INIT_CODE cannot be supported)
 endif
 endif
 
+# Disable ARM Cryptocell by default
+ARM_CRYPTOCELL_INTEG	:=	0
+$(eval $(call assert_boolean,ARM_CRYPTOCELL_INTEG))
+$(eval $(call add_define,ARM_CRYPTOCELL_INTEG))
+
 # Enable PIE support for RESET_TO_BL31 case
 ifeq (${RESET_TO_BL31},1)
 ENABLE_PIE	:=	1
+endif
+
+# CryptoCell integration relies on coherent buffers for passing data from
+# the AP CPU to the CryptoCell
+
+ifeq (${ARM_CRYPTOCELL_INTEG},1)
+ifeq (${USE_COHERENT_MEM},0)
+$(error "ARM_CRYPTOCELL_INTEG needs USE_COHERENT_MEM to be set.")
+endif
 endif
 
 PLAT_INCLUDES	:=	-Iinclude/plat/nuvoton/npcm845x \
@@ -287,7 +319,8 @@ endif
 
 # Pointer Authentication sources
 ifeq (${ENABLE_PAUTH}, 1)
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c \
+		lib/extensions/pauth/pauth_helpers.S
 endif
 
 ifeq (${SPD},spmd)
@@ -325,7 +358,11 @@ BL2_SOURCES	+=	${AUTH_SOURCES} \
 $(eval $(call TOOL_ADD_IMG,ns_bl2u,--fwu,FWU_))
 
 # We expect to locate the *.mk files under the directories specified below
+ifeq (${ARM_CRYPTOCELL_INTEG},0)
 CRYPTO_LIB_MK	:=	drivers/auth/mbedtls/mbedtls_crypto.mk
+else
+CRYPTO_LIB_MK	:=	drivers/auth/cryptocell/cryptocell_crypto.mk
+endif
 
 IMG_PARSER_LIB_MK := drivers/auth/mbedtls/mbedtls_x509.mk
 
@@ -334,6 +371,12 @@ include ${CRYPTO_LIB_MK}
 
 $(info Including ${IMG_PARSER_LIB_MK})
 include ${IMG_PARSER_LIB_MK}
+endif
+
+ifeq (${RECLAIM_INIT_CODE}, 1)
+ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
+$(error "To reclaim init code xlat tables v2 must be used")
+endif
 endif
 
 ifeq (${MEASURED_BOOT},1)
@@ -352,3 +395,6 @@ BL2U_SOURCES	:=
 
 DEBUG_CONSOLE	?=	0
 $(eval $(call add_define,DEBUG_CONSOLE))
+
+$(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
+

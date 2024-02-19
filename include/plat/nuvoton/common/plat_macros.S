@@ -41,7 +41,8 @@ arm_print_gic_regs
  * BL31.
  */
 .macro plat_crash_print_regs
-	/* TODO */
+plat_print_gic_regs
+/*print_cci_regs*/
 .endm
 
 #endif /* PLAT_MACROS_S */
