@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -389,5 +389,6 @@ unsigned int plat_get_syscnt_freq2(void)
 
 void bl31_plat_runtime_setup(void)
 {
-	return;
+	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
