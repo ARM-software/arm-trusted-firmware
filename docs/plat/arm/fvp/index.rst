@@ -14,7 +14,6 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 .. note::
    The FVP models used are Version 11.22 Build 14, unless otherwise stated.
 
--  ``Foundation_Platform``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502`` (Version 11.17/21)
 -  ``FVP_Base_AEMv8A-GIC600AE`` (Version 11.17/21)
 -  ``FVP_Base_AEMvA``
@@ -630,7 +629,7 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
 
 --------------
 
-*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
 
 .. _FW_CONFIG for FVP: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/plat/arm/board/fvp/fdts/fvp_fw_config.dts
 .. _Arm's website: `FVP models`_
