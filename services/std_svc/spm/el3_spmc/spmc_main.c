@@ -1489,7 +1489,8 @@ static uint64_t spmc_ffa_console_log(uint32_t smc_fid,
 				     void *handle,
 				     uint64_t flags)
 {
-	char *chars;
+	/* Maximum number of characters is 48: 6 registers of 8 bytes each. */
+	char chars[48] = {0};
 	size_t chars_max;
 	size_t chars_count = x1;
 
@@ -1500,27 +1501,23 @@ static uint64_t spmc_ffa_console_log(uint32_t smc_fid,
 
 	assert(smc_fid == FFA_CONSOLE_LOG_SMC32 || smc_fid == FFA_CONSOLE_LOG_SMC64);
 	if (smc_fid == FFA_CONSOLE_LOG_SMC32) {
-		uint32_t registers[] = {
-			(uint32_t)x2,
-			(uint32_t)x3,
-			(uint32_t)x4,
-			(uint32_t)SMC_GET_GP(handle, CTX_GPREG_X5),
-			(uint32_t)SMC_GET_GP(handle, CTX_GPREG_X6),
-			(uint32_t)SMC_GET_GP(handle, CTX_GPREG_X7),
-		};
-		chars_max = ARRAY_SIZE(registers) * sizeof(uint32_t);
-		chars = (char *)registers;
+		uint32_t *registers = (uint32_t *)chars;
+		registers[0] = (uint32_t)x2;
+		registers[1] = (uint32_t)x3;
+		registers[2] = (uint32_t)x4;
+		registers[3] = (uint32_t)SMC_GET_GP(handle, CTX_GPREG_X5);
+		registers[4] = (uint32_t)SMC_GET_GP(handle, CTX_GPREG_X6);
+		registers[5] = (uint32_t)SMC_GET_GP(handle, CTX_GPREG_X7);
+		chars_max = 6 * sizeof(uint32_t);
 	} else {
-		uint64_t registers[] = {
-			x2,
-			x3,
-			x4,
-			SMC_GET_GP(handle, CTX_GPREG_X5),
-			SMC_GET_GP(handle, CTX_GPREG_X6),
-			SMC_GET_GP(handle, CTX_GPREG_X7),
-		};
-		chars_max = ARRAY_SIZE(registers) * sizeof(uint64_t);
-		chars = (char *)registers;
+		uint64_t *registers = (uint64_t *)chars;
+		registers[0] = x2;
+		registers[1] = x3;
+		registers[2] = x4;
+		registers[3] = SMC_GET_GP(handle, CTX_GPREG_X5);
+		registers[4] = SMC_GET_GP(handle, CTX_GPREG_X6);
+		registers[5] = SMC_GET_GP(handle, CTX_GPREG_X7);
+		chars_max = 6 * sizeof(uint64_t);
 	}
 
 	if ((chars_count == 0) || (chars_count > chars_max)) {
