@@ -966,8 +966,7 @@ static void ufs_get_device_info(struct ufs_dev_desc *card_data)
 {
 	uint8_t desc_buf[DESC_DEVICE_MAX_SIZE];
 
-	ufs_query(QUERY_READ_DESC, DESC_TYPE_DEVICE, 0, 0,
-				(uintptr_t)desc_buf, DESC_DEVICE_MAX_SIZE);
+	ufs_read_desc(DESC_TYPE_DEVICE, 0, (uintptr_t)desc_buf, DESC_DEVICE_MAX_SIZE);
 
 	/*
 	 * getting vendor (manufacturerID) and Bank Index in big endian
