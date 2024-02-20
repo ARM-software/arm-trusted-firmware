@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -47,7 +47,7 @@ ifndef BUILD_ENV_MK
             endif
         endif
     endif
-    include ${MAKE_HELPERS_DIRECTORY}${ENV_FILE_TO_INCLUDE}
+    include $(dir $(lastword $(MAKEFILE_LIST)))${ENV_FILE_TO_INCLUDE}
     ENV_FILE_TO_INCLUDE :=
 
     ifndef SHELL_COPY

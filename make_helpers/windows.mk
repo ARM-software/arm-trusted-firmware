@@ -68,6 +68,9 @@ ${1} : ${2}
 	-@if exist "$(tmp_dir)"  rd /Q /S "$(tmp_dir)"
     endef
 
+    nul := nul
+
+    which = $(shell where $(1) 2>$(nul))
 endif
 
 # Because git is not available from CMD.EXE, we need to avoid

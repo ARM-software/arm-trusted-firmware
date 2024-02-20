@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+toolchains := aarch64
+
+include ../../make_helpers/toolchain.mk
+
 AS          = $(CROSS_COMPILE)gcc
 AR          = $(CROSS_COMPILE)gcc-ar
 LD          = $(CROSS_COMPILE)ld
