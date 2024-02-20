@@ -60,6 +60,19 @@ workaround_reset_end cortex_a715, ERRATUM(2344187)
 
 check_erratum_ls cortex_a715, ERRATUM(2344187), CPU_REV(1, 0)
 
+/* Errata applies only when Static profiling extension is enabled. */
+workaround_reset_start cortex_a715, ERRATUM(2413290), ERRATA_A715_2413290
+	/* Apply the workaround by setting CPUACTLR_EL1[58:57] = 0b11. */
+	mrs x1, id_aa64dfr0_el1
+	ubfx x0, x1, ID_AA64DFR0_PMS_SHIFT, #4
+	cbz x0, 1f
+	sysreg_bit_set CORTEX_A715_CPUACTLR_EL1, BIT(57)
+	sysreg_bit_set CORTEX_A715_CPUACTLR_EL1, BIT(58)
+1:
+workaround_reset_end cortex_a715, ERRATUM(2413290)
+
+check_erratum_range cortex_a715, ERRATUM(2413290), CPU_REV(1,0), CPU_REV(1, 0)
+
 workaround_reset_start cortex_a715, ERRATUM(2420947), ERRATA_A715_2420947
         sysreg_bit_set CORTEX_A715_CPUACTLR2_EL1, BIT(33)
 workaround_reset_end cortex_a715, ERRATUM(2420947)
