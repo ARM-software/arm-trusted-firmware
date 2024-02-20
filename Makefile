@@ -155,11 +155,9 @@ ifneq ($(filter %-clang,$($(ARCH)-cc-id)),)
 	endif
 
 else ifeq ($($(ARCH)-cc-id),gnu-gcc)
-	ifeq ($(ENABLE_LTO),1)
-		# Enable LTO only for aarch64
-		ifeq (${ARCH},aarch64)
-			LTO_CFLAGS	=	-flto
-		endif
+	# Enable LTO only for aarch64
+	ifeq (${ARCH},aarch64)
+		LTO_CFLAGS	=	$(if $(filter-out 0,$(ENABLE_LTO)),-flto)
 	endif
 endif #(clang)
 
