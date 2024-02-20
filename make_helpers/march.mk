@@ -54,7 +54,7 @@ else
     provided-march = armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a
 endif
 
-ifeq ($(findstring clang,$(notdir $($(ARCH)-cc))),)
+ifeq ($(filter %-clang,$($(ARCH)-cc-id)),)
 
 # We expect from Platform to provide a correct Major/Minor value but expecting something
 # from compiler with unsupported march means we shouldn't fail without trying anything,

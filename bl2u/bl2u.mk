@@ -14,8 +14,8 @@ endif
 
 BL2U_DEFAULT_LINKER_SCRIPT_SOURCE := bl2u/bl2u.ld.S
 
-ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
+ifeq ($($(ARCH)-ld-id),gnu-gcc)
         BL2U_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(findstring ld,$(notdir $($(ARCH)-ld))),)
+else ifneq ($(filter llvm-lld gnu-ld,$($(ARCH)-ld-id)),)
         BL2U_LDFLAGS	+=	--sort-section=alignment
 endif

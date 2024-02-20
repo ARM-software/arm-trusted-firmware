@@ -57,9 +57,9 @@ endif
 
 BL32_DEFAULT_LINKER_SCRIPT_SOURCE := bl32/sp_min/sp_min.ld.S
 
-ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
+ifeq ($($(ARCH)-ld-id),gnu-gcc)
         BL32_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(findstring ld,$(notdir $($(ARCH)-ld))),)
+else ifneq ($(filter llvm-lld gnu-ld,$($(ARCH)-ld-id)),)
         BL32_LDFLAGS	+=	--sort-section=alignment
 endif
 

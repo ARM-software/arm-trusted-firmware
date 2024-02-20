@@ -24,9 +24,9 @@ BL32_SOURCES		+=	bl32/tsp/aarch64/tsp_entrypoint.S	\
 
 BL32_DEFAULT_LINKER_SCRIPT_SOURCE := bl32/tsp/tsp.ld.S
 
-ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
+ifeq ($($(ARCH)-ld-id),gnu-gcc)
         BL32_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(findstring ld,$(notdir $($(ARCH)-ld))),)
+else ifneq ($(filter llvm-lld gnu-ld,$($(ARCH)-ld-id)),)
         BL32_LDFLAGS	+=	--sort-section=alignment
 endif
 
