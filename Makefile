@@ -100,28 +100,6 @@ endif
 export Q ECHO
 
 ################################################################################
-# Toolchain
-################################################################################
-
-HOSTCC			:=	gcc
-export HOSTCC
-
-CC			:=	${CROSS_COMPILE}gcc
-CPP			:=	${CROSS_COMPILE}gcc -E
-AS			:=	${CROSS_COMPILE}gcc
-AR			:=	${CROSS_COMPILE}gcc-ar
-LINKER			:=	${CROSS_COMPILE}ld
-OC			:=	${CROSS_COMPILE}objcopy
-OD			:=	${CROSS_COMPILE}objdump
-DTC			:=	dtc
-
-# Use ${LD}.bfd instead if it exists (as absolute path or together with $PATH).
-ifneq ($(strip $(wildcard ${LD}.bfd) \
-	$(foreach dir,$(subst :, ,${PATH}),$(wildcard ${dir}/${LINKER}.bfd))),)
-LINKER			:=	${LINKER}.bfd
-endif
-
-################################################################################
 # Auxiliary tools (fiptool, cert_create, etc)
 ################################################################################
 
@@ -167,35 +145,22 @@ endif #(ARM_ARCH_MAJOR)
 ################################################################################
 arch-features		=	${ARM_ARCH_FEATURE}
 
-ifneq ($(findstring clang,$(notdir $(CC))),)
-	ifneq ($(findstring armclang,$(notdir $(CC))),)
+ifneq ($(findstring clang,$(notdir $($(ARCH)-cc))),)
+	ifneq ($(findstring armclang,$(notdir $($(ARCH)-cc))),)
 		TF_CFLAGS_aarch32	:=	-target arm-arm-none-eabi
 		TF_CFLAGS_aarch64	:=	-target aarch64-arm-none-eabi
-		LD			:=	$(LINKER)
 	else
 		TF_CFLAGS_aarch32	=	$(target32-directive)
 		TF_CFLAGS_aarch64	:=	-target aarch64-elf
-		LD			:=	$(shell $(CC) --print-prog-name ld.lld)
-
-		AR			:=	$(shell $(CC) --print-prog-name llvm-ar)
-		OD			:=	$(shell $(CC) --print-prog-name llvm-objdump)
-		OC			:=	$(shell $(CC) --print-prog-name llvm-objcopy)
 	endif
 
-	CPP		:=	$(CC) -E $(TF_CFLAGS_$(ARCH))
-	AS		:=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
-else ifneq ($(findstring gcc,$(notdir $(CC))),)
+else ifneq ($(findstring gcc,$(notdir $($(ARCH)-cc))),)
 	ifeq ($(ENABLE_LTO),1)
 		# Enable LTO only for aarch64
 		ifeq (${ARCH},aarch64)
 			LTO_CFLAGS	=	-flto
-			# Use gcc as a wrapper for the ld, recommended for LTO
-			LINKER		:=	${CROSS_COMPILE}gcc
 		endif
 	endif
-	LD			=	$(LINKER)
-else
-	LD			=	$(LINKER)
 endif #(clang)
 
 # Process Debug flag
@@ -292,7 +257,7 @@ else ifeq (${W},3)
 endif #(W)
 
 # Compiler specific warnings
-ifeq ($(findstring clang,$(notdir $(CC))),)
+ifeq ($(findstring clang,$(notdir $($(ARCH)-cc))),)
 # not using clang
 WARNINGS	+=		-Wunused-but-set-variable -Wmaybe-uninitialized	\
 				-Wpacked-bitfield-compat -Wshift-overflow=2 \
@@ -336,18 +301,18 @@ ifeq (${SANITIZE_UB},trap)
 				-fsanitize-undefined-trap-on-error
 endif #(${SANITIZE_UB},trap)
 
-GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
+GCC_V_OUTPUT		:=	$(shell $($(ARCH)-cc) -v 2>&1)
 
 TF_LDFLAGS		+=	-z noexecstack
 
 # LD = armlink
-ifneq ($(findstring armlink,$(notdir $(LD))),)
+ifneq ($(findstring armlink,$(notdir $($(ARCH)-ld))),)
 	TF_LDFLAGS		+=	--diag_error=warning --lto_level=O1
 	TF_LDFLAGS		+=	--remove --info=unused,unusedsymbols
 	TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
 
 # LD = gcc (used when GCC LTO is enabled)
-else ifneq ($(findstring gcc,$(notdir $(LD))),)
+else ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
 	# Pass ld options with Wl or Xlinker switches
 	TF_LDFLAGS		+=	$(call ld_option,-Xlinker --no-warn-rwx-segments)
 	TF_LDFLAGS		+=	-Wl,--fatal-warnings -O1
@@ -389,7 +354,7 @@ else
 # therefore don't add those in that case.
 # ld.lld reports section type mismatch warnings,
 # therefore don't add --fatal-warnings to it.
-	ifeq ($(findstring ld.lld,$(notdir $(LD))),)
+	ifeq ($(findstring ld.lld,$(notdir $($(ARCH)-ld))),)
 		TF_LDFLAGS	+=	$(TF_LDFLAGS_$(ARCH)) --fatal-warnings
 	endif
 
@@ -421,7 +386,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				plat/common/${ARCH}/platform_helpers.S	\
 				${COMPILER_RT_SRCS}
 
-ifeq ($(notdir $(CC)),armclang)
+ifeq ($(notdir $($(ARCH)-cc)),armclang)
 	BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
 endif
 
@@ -602,14 +567,14 @@ include ${MAKE_HELPERS_DIRECTORY}arch_features.mk
 ifeq (${SUPPORT_STACK_MEMTAG},yes)
     ifdef mem_tag_arch_support
         # Check for armclang and clang compilers
-        ifneq ( ,$(filter $(notdir $(CC)),armclang clang))
+        ifneq ( ,$(filter $(notdir $($(ARCH)-cc)),armclang clang))
         # Add "memtag" architecture feature modifier if not specified
             ifeq ( ,$(findstring memtag,$(arch-features)))
                 arch-features	:=	$(arch-features)+memtag
             endif	# memtag
-            ifeq ($(notdir $(CC)),armclang)
+            ifeq ($(notdir $($(ARCH)-cc)),armclang)
                 TF_CFLAGS	+=	-mmemtag-stack
-            else ifeq ($(notdir $(CC)),clang)
+            else ifeq ($(notdir $($(ARCH)-cc)),clang)
                 TF_CFLAGS	+=	-fsanitize=memtag
             endif	# armclang
         endif
@@ -723,12 +688,12 @@ endif
 PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
 ifneq ($(PIE_FOUND),)
 	TF_CFLAGS	+=	-fno-PIE
-ifneq ($(findstring gcc,$(notdir $(LD))),)
+ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
 	TF_LDFLAGS	+=	-no-pie
 endif
 endif #(PIE_FOUND)
 
-ifneq ($(findstring gcc,$(notdir $(LD))),)
+ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
 	PIE_LDFLAGS	+=	-Wl,-pie -Wl,--no-dynamic-linker
 else
 	PIE_LDFLAGS	+=	-pie --no-dynamic-linker
@@ -1455,7 +1420,7 @@ ifeq (${DYN_DISABLE_AUTH},1)
         $(eval $(call add_define,DYN_DISABLE_AUTH))
 endif
 
-ifneq ($(findstring armlink,$(notdir $(LD))),)
+ifneq ($(findstring armlink,$(notdir $($(ARCH)-ld))),)
         $(eval $(call add_define,USE_ARM_LINK))
 endif
 
@@ -1487,7 +1452,7 @@ msg_start:
 
 ifeq (${ERROR_DEPRECATED},0)
 # Check if deprecated declarations and cpp warnings should be treated as error or not.
-ifneq ($(findstring clang,$(notdir $(CC))),)
+ifneq ($(findstring clang,$(notdir $($(ARCH)-cc))),)
     CPPFLAGS		+= 	-Wno-error=deprecated-declarations
 else
     CPPFLAGS		+= 	-Wno-error=deprecated-declarations -Wno-error=cpp

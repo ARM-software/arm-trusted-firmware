@@ -11,9 +11,8 @@ $(eval $(call add_define,PDEF_CERTS))
 PLAT_INCLUDE	+= -I${PLAT_DIR}include
 
 src/stm32mp1_tbb_cert.o: ${PLAT_DIR}stm32mp1_tbb_cert.c
-	${Q}${HOSTCC} -c ${HOSTCCFLAGS} ${INC_DIR} $< -o $@
+	${Q}$(host-cc) -c ${HOSTCCFLAGS} ${INC_DIR} $< -o $@
 
 PLAT_OBJECTS	= src/stm32mp1_tbb_cert.o
 
 OBJECTS		+= $(PLAT_OBJECTS)
-

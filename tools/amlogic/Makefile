@@ -30,22 +30,20 @@ else
   Q :=
 endif
 
-HOSTCC := gcc
-
 .PHONY: all clean distclean
 
 all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
 	@echo "  HOSTLD  $@"
-	${Q}${HOSTCC} ${OBJECTS} -o $@
+	${Q}$(host-cc) ${OBJECTS} -o $@
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
 
 %.o: %.c Makefile
 	@echo "  HOSTCC  $<"
-	${Q}${HOSTCC} -c ${HOSTCCFLAGS} $< -o $@
+	${Q}$(host-cc) -c ${HOSTCCFLAGS} $< -o $@
 
 clean:
 	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})

@@ -43,7 +43,7 @@ STM32MP_EMMC_BOOT		?=	0
 STM32MP_UART_PROGRAMMER		?=	0
 STM32MP_USB_PROGRAMMER		?=	0
 
-$(eval DTC_V = $(shell $(DTC) -v | awk '{print $$NF}'))
+$(eval DTC_V = $(shell $($(ARCH)-dtc) -v | awk '{print $$NF}'))
 $(eval DTC_VERSION = $(shell printf "%d" $(shell echo ${DTC_V} | cut -d- -f1 | sed "s/\./0/g" | grep -o "[0-9]*")))
 DTC_CPPFLAGS			+=	${INCLUDES}
 DTC_FLAGS			+=	-Wno-unit_address_vs_reg

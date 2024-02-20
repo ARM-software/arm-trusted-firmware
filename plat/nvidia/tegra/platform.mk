@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -82,7 +82,7 @@ override LIBC_SRCS :=	$(addprefix lib/libc/,		\
 INCLUDES	+=	-Iinclude/lib/libc		\
 			-Iinclude/lib/libc/$(ARCH)	\
 
-ifneq ($(findstring armlink,$(notdir $(LD))),)
+ifneq ($(findstring armlink,$(notdir $($(ARCH)-ld))),)
 # o suppress warnings for section mismatches, undefined symbols
 # o use only those libraries that are specified in the input file
 #   list to resolve references

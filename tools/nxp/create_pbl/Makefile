@@ -34,30 +34,27 @@ endif
 
 INCLUDE_PATHS :=
 
-HOSTCC ?= gcc
-CC = gcc
-
 .PHONY: all clean distclean
 
 all: create_pbl byte_swap
 
 ${PROJECT_1}: ${OBJECTS_1} Makefile
 	@echo "  LD      $@"
-	${Q}${HOSTCC} ${OBJECTS_1} -o $@ ${LDLIBS}
+	${Q}$(host-cc) ${OBJECTS_1} -o $@ ${LDLIBS}
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
 
 ${PROJECT_2}: ${OBJECTS_2} Makefile
 	@echo "  LD      $@"
-	${Q}${HOSTCC} ${OBJECTS_2} -o $@ ${LDLIBS}
+	${Q}$(host-cc) ${OBJECTS_2} -o $@ ${LDLIBS}
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
 
 %.o: %.c %.h Makefile
 	@echo "  CC      $<"
-	${Q}${HOSTCC} -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
+	${Q}$(host-cc) -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
 	$(call SHELL_DELETE_ALL, ${PROJECT_1} ${OBJECTS_1})

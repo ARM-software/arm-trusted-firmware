@@ -32,22 +32,20 @@ endif
 
 INCLUDE_PATHS := -I../../include/tools_share
 
-HOSTCC ?= gcc
-
 .PHONY: all clean distclean
 
 all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
 	@echo "  HOSTLD  $@"
-	${Q}${HOSTCC} ${OBJECTS} -o $@ ${LDLIBS}
+	${Q}$(host-cc) ${OBJECTS} -o $@ ${LDLIBS}
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
 
 %.o: %.c Makefile
 	@echo "  HOSTCC  $<"
-	${Q}${HOSTCC} -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
+	${Q}$(host-cc) -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
 	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})

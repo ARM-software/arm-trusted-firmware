@@ -269,6 +269,6 @@ clean_srecord:
 .PHONY: rzg_srecord
 rzg_srecord: $(BL2_ELF_SRC) $(BL31_ELF_SRC)
 	@echo "generating srec: ${SREC_PATH}/bl2.srec"
-	$(Q)$(OC) -O srec --srec-forceS3 ${BL2_ELF_SRC}  ${SREC_PATH}/bl2.srec
+	$(Q)$($(ARCH)-oc) -O srec --srec-forceS3 ${BL2_ELF_SRC}  ${SREC_PATH}/bl2.srec
 	@echo "generating srec: ${SREC_PATH}/bl31.srec"
-	$(Q)$(OC) -O srec --srec-forceS3 ${BL31_ELF_SRC} ${SREC_PATH}/bl31.srec
+	$(Q)$($(ARCH)-oc) -O srec --srec-forceS3 ${BL31_ELF_SRC} ${SREC_PATH}/bl31.srec

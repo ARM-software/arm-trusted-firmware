@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -15,9 +15,9 @@ ifeq (${ARCH},aarch64)
 BL2_SOURCES		+=	common/aarch64/early_exceptions.S
 endif
 
-ifneq ($(findstring gcc,$(notdir $(LD))),)
+ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
         BL2_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(findstring ld,$(notdir $(LD))),)
+else ifneq ($(findstring ld,$(notdir $($(ARCH)-ld))),)
         BL2_LDFLAGS	+=	--sort-section=alignment
 endif
 

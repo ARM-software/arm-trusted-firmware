@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -57,9 +57,9 @@ endif
 
 BL32_DEFAULT_LINKER_SCRIPT_SOURCE := bl32/sp_min/sp_min.ld.S
 
-ifneq ($(findstring gcc,$(notdir $(LD))),)
+ifneq ($(findstring gcc,$(notdir $($(ARCH)-ld))),)
         BL32_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(findstring ld,$(notdir $(LD))),)
+else ifneq ($(findstring ld,$(notdir $($(ARCH)-ld))),)
         BL32_LDFLAGS	+=	--sort-section=alignment
 endif
 

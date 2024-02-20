@@ -113,12 +113,12 @@ endef
 
 # Convenience function to check for a given linker option. An call to
 # $(call ld_option, --no-XYZ) will return --no-XYZ if supported by the linker
-ld_option = $(shell $(LD) $(1) -Wl,--version >/dev/null 2>&1 || $(LD) $(1) -v >/dev/null 2>&1 && echo $(1))
+ld_option = $(shell $($(ARCH)-ld) $(1) -Wl,--version >/dev/null 2>&1 || $($(ARCH)-ld) $(1) -v >/dev/null 2>&1 && echo $(1))
 
 # Convenience function to check for a given compiler option. A call to
 # $(call cc_option, --no-XYZ) will return --no-XYZ if supported by the compiler
 define cc_option
-	$(shell if $(CC) $(1) -c -x c /dev/null -o /dev/null >/dev/null 2>&1; then echo $(1); fi )
+	$(shell if $($(ARCH)-cc) $(1) -c -x c /dev/null -o /dev/null >/dev/null 2>&1; then echo $(1); fi )
 endef
 
 # CREATE_SEQ is a recursive function to create sequence of numbers from 1 to
@@ -312,7 +312,7 @@ $(eval LIB := $(call uppercase, $(notdir $(1))))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
 	$$(ECHO) "  CC      $$<"
-	$$(Q)$$(CC) $$($(LIB)_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(MAKE_DEP) -c $$< -o $$@
+	$$(Q)$($(ARCH)-cc) $$($(LIB)_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -328,7 +328,7 @@ $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
 	$$(ECHO) "  AS      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
+	$$(Q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -351,7 +351,7 @@ $(eval BL_CFLAGS := $($(call uppercase,$(3))_CFLAGS) $(PLAT_BL_COMMON_CFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
 	$$(ECHO) "  CC      $$<"
-	$$(Q)$$(CC) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(MAKE_DEP) -c $$< -o $$@
+	$$(Q)$($(ARCH)-cc) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -374,7 +374,7 @@ $(eval BL_ASFLAGS := $($(call uppercase,$(3))_ASFLAGS) $(PLAT_BL_COMMON_ASFLAGS)
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
 	$$(ECHO) "  AS      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
+	$$(Q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -395,7 +395,7 @@ $(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) $(addprefix -D,$(BL_DEF
 
 $(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
 	$$(ECHO) "  PP      $$<"
-	$$(Q)$$(CPP) $$(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
+	$$(Q)$($(ARCH)-cpp) -E $$(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
 
 -include $(DEP)
 
@@ -493,7 +493,7 @@ all: ${LIB_DIR}/lib$(1).a
 
 ${LIB_DIR}/lib$(1).a: $(OBJS)
 	$$(ECHO) "  AR      $$@"
-	$$(Q)$$(AR) cr $$@ $$?
+	$$(Q)$($(ARCH)-ar) cr $$@ $$?
 endef
 
 # Generate the path to one or more preprocessed linker scripts given the paths
@@ -573,22 +573,22 @@ else
 	@echo 'const char build_message[] = "Built : "$(BUILD_MESSAGE_TIMESTAMP); \
 	       const char version_string[] = "${VERSION_STRING}"; \
 	       const char version[] = "${VERSION}";' | \
-		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
+		$($(ARCH)-cc) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
 endif
 ifneq ($(findstring armlink,$(notdir $(LD))),)
-	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=${1}_entrypoint \
+	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=${1}_entrypoint \
 		--predefine="-D__LINKER__=$(__LINKER__)" \
 		--predefine="-DTF_CFLAGS=$(TF_CFLAGS)" \
 		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/${1}.scat \
 		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) \
 		$(BUILD_DIR)/build_message.o $(OBJS)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
-	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Wl,-Map=$(MAPFILE) \
+	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Wl,-Map=$(MAPFILE) \
 		$(addprefix -Wl$(comma)--script$(comma),$(LINKER_SCRIPTS)) -Wl,--script,$(DEFAULT_LINKER_SCRIPT) \
 		$(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 else
-	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
+	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
 		$(addprefix -T ,$(LINKER_SCRIPTS)) --script $(DEFAULT_LINKER_SCRIPT) \
 		$(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
@@ -601,11 +601,11 @@ endif
 
 $(DUMP): $(ELF)
 	$${ECHO} "  OD      $$@"
-	$${Q}$${OD} -dx $$< > $$@
+	$${Q}$($(ARCH)-od) -dx $$< > $$@
 
 $(BIN): $(ELF)
 	$${ECHO} "  BIN     $$@"
-	$$(Q)$$(OC) -O binary $$< $$@
+	$$(Q)$($(ARCH)-oc) -O binary $$< $$@
 	@${ECHO_BLANK_LINE}
 	@echo "Built $$@ successfully"
 	@${ECHO_BLANK_LINE}
@@ -668,9 +668,9 @@ $(eval DTBDEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 $(DOBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | fdt_dirs
 	$${ECHO} "  CPP     $$<"
 	$(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
-	$$(Q)$$(CPP) $$(DTC_CPPFLAGS) -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
+	$$(Q)$($(ARCH)-cpp) -E $$(TF_CFLAGS_$(ARCH)) $$(DTC_CPPFLAGS) -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
 	$${ECHO} "  DTC     $$<"
-	$$(Q)$$(DTC) $$(DTC_FLAGS) -d $(DTBDEP) -o $$@ $(DPRE)
+	$$(Q)$($(ARCH)-dtc) $$(DTC_FLAGS) -d $(DTBDEP) -o $$@ $(DPRE)
 
 -include $(DTBDEP)
 -include $(DTSDEP)

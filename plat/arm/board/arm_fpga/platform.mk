@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -129,6 +129,6 @@ $(eval $(call MAKE_LD,$(BUILD_PLAT)/build_axf.ld,plat/arm/board/arm_fpga/build_a
 
 bl31.axf: bl31 dtbs ${BUILD_PLAT}/rom_trampoline.o ${BUILD_PLAT}/kernel_trampoline.o ${BUILD_PLAT}/build_axf.ld
 	$(ECHO) "  LD      $@"
-	$(Q)$(LD) -T ${BUILD_PLAT}/build_axf.ld -L ${BUILD_PLAT} --strip-debug -s -n -o ${BUILD_PLAT}/bl31.axf
+	$(Q)$($(ARCH)-ld) -T ${BUILD_PLAT}/build_axf.ld -L ${BUILD_PLAT} --strip-debug -s -n -o ${BUILD_PLAT}/bl31.axf
 
 all: bl31.axf

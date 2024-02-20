@@ -29,7 +29,6 @@ HOSTCCFLAGS += ${DOIMAGE_CC_FLAGS}
 # could get pulled in from firmware tree.
 INCLUDE_PATHS = -I.
 
-HOSTCC ?= gcc
 RM := rm -rf
 
 .PHONY: all clean
@@ -38,14 +37,14 @@ all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
 	@echo "  HOSTLD  $@"
-	${Q}${HOSTCC} ${OBJECTS} ${DOIMAGE_LD_FLAGS} -o $@
+	${Q}$(host-cc) ${OBJECTS} ${DOIMAGE_LD_FLAGS} -o $@
 	@echo
 	@echo "Built $@ successfully"
 	@echo
 
 %.o: %.c Makefile
 	@echo "  HOSTCC  $<"
-	${Q}${HOSTCC} -c ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
+	${Q}$(host-cc) -c ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
 	${Q}${RM} ${PROJECT}
