@@ -613,8 +613,6 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
  *     - we already boot FWU_MAX_TRIAL_REBOOT times in trial mode.
  * we select the previous_active_index.
  */
-#define INVALID_BOOT_IDX		0xFFFFFFFFU
-
 uint32_t plat_fwu_get_boot_idx(void)
 {
 	/*
@@ -622,20 +620,26 @@ uint32_t plat_fwu_get_boot_idx(void)
 	 * even if this function is called several times.
 	 */
 	static uint32_t boot_idx = INVALID_BOOT_IDX;
-	const struct fwu_metadata *data;
-
-	data = fwu_get_metadata();
 
 	if (boot_idx == INVALID_BOOT_IDX) {
+		const struct fwu_metadata *data = fwu_get_metadata();
+
 		boot_idx = data->active_index;
+
 		if (data->bank_state[boot_idx] == FWU_BANK_STATE_VALID) {
 			if (stm32_get_and_dec_fwu_trial_boot_cnt() == 0U) {
 				WARN("Trial FWU fails %u times\n",
 				     FWU_MAX_TRIAL_REBOOT);
-				boot_idx = data->previous_active_index;
+				boot_idx = fwu_get_alternate_boot_bank();
 			}
-		} else {
+		} else if (data->bank_state[boot_idx] ==
+			   FWU_BANK_STATE_ACCEPTED) {
 			stm32_set_max_fwu_trial_boot_cnt();
+		} else {
+			ERROR("The active bank(%u) of the platform is in Invalid State.\n",
+				boot_idx);
+			boot_idx = fwu_get_alternate_boot_bank();
+			stm32_clear_fwu_trial_boot_cnt();
 		}
 	}
 
@@ -667,6 +671,7 @@ void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
 
 	boot_idx = plat_fwu_get_boot_idx();
 	assert(boot_idx < NR_OF_FW_BANKS);
+	VERBOSE("Selecting to boot from bank %u\n", boot_idx);
 
 	for (i = 0U; i < NR_OF_IMAGES_IN_FW_BANK; i++) {
 		img_type_uuid = &metadata->img_entry[i].img_type_uuid;
