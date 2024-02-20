@@ -714,4 +714,13 @@ void stm32_set_max_fwu_trial_boot_cnt(void)
 			   TAMP_BOOT_FWU_INFO_CNT_MSK);
 	clk_disable(RTCAPB);
 }
+
+void stm32_clear_fwu_trial_boot_cnt(void)
+{
+	uintptr_t bkpr_fwu_cnt = tamp_bkpr(TAMP_BOOT_FWU_INFO_REG_ID);
+
+	clk_enable(RTCAPB);
+	mmio_clrbits_32(bkpr_fwu_cnt, TAMP_BOOT_FWU_INFO_CNT_MSK);
+	clk_disable(RTCAPB);
+}
 #endif /* PSA_FWU_SUPPORT */
