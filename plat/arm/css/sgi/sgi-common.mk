@@ -58,8 +58,6 @@ ifneq (${RESET_TO_BL31},0)
   Please set RESET_TO_BL31 to 0.")
 endif
 
-$(eval $(call add_define,SGI_PLAT))
-
 $(eval $(call add_define,CSS_SGI_CHIP_COUNT))
 
 $(eval $(call add_define,CSS_SGI_PLATFORM_VARIANT))
