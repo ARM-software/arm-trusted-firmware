@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -258,6 +258,9 @@ void bl31_plat_runtime_setup(void)
 	 */
 	boot_profiler_add_record("[TF] bl31 exit");
 	boot_profiler_deinit();
+
+	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*******************************************************************************
