@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -270,4 +270,7 @@ void bl31_plat_runtime_setup(void)
 	if (rc != 0)
 		panic();
 #endif
+
+	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
