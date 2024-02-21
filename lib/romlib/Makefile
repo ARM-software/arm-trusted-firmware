@@ -30,9 +30,10 @@ else
   Q :=
 endif
 
-LDFLAGS := --gc-sections -O1
+LDFLAGS := -Wl,--gc-sections -nostdlib
+
 ifeq ($(DEBUG),1)
-   LDFLAGS += -Map=$(MAPFILE)
+   LDFLAGS += -Wl,-Map=$(MAPFILE)
 endif
 
 ifeq (${ARM_ARCH_MINOR},0)

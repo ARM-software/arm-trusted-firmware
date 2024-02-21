@@ -287,7 +287,7 @@ guess-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>$(nul))
 
 guess-gnu-gcc-cpp = $(1) # Use the C compiler
 guess-gnu-gcc-as = $(1) # Use the C compiler
-guess-gnu-gcc-ld = $(if $(filter 1,$(ENABLE_LTO)),$(1),$(shell $(1) --print-prog-name ld.bfd 2>$(nul)))
+guess-gnu-gcc-ld = $(1) # Use the C compiler
 guess-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>$(nul))
 guess-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>$(nul))
 guess-gnu-gcc-ar = $(patsubst %$(notdir $(1)),%$(subst gcc,gcc-ar,$(notdir $(1))),$(1))
