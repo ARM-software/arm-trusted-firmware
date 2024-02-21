@@ -6,16 +6,16 @@
  */
 #include <assert.h>
 
-#include "rss_comms_protocol_common.h"
-#include "rss_comms_protocol_pointer_access.h"
+#include "rse_comms_protocol_common.h"
+#include "rse_comms_protocol_pointer_access.h"
 
-psa_status_t rss_protocol_pointer_access_serialize_msg(psa_handle_t handle,
+psa_status_t rse_protocol_pointer_access_serialize_msg(psa_handle_t handle,
 						       int16_t type,
 						       const psa_invec *in_vec,
 						       uint8_t in_len,
 						       const psa_outvec *out_vec,
 						       uint8_t out_len,
-						       struct rss_pointer_access_msg_t *msg,
+						       struct rse_pointer_access_msg_t *msg,
 						       size_t *msg_len)
 {
 	unsigned int i;
@@ -42,10 +42,10 @@ psa_status_t rss_protocol_pointer_access_serialize_msg(psa_handle_t handle,
 	return PSA_SUCCESS;
 }
 
-psa_status_t rss_protocol_pointer_access_deserialize_reply(psa_outvec *out_vec,
+psa_status_t rse_protocol_pointer_access_deserialize_reply(psa_outvec *out_vec,
 							   uint8_t out_len,
 							   psa_status_t *return_val,
-							   const struct rss_pointer_access_reply_t *reply,
+							   const struct rse_pointer_access_reply_t *reply,
 							   size_t reply_size)
 {
 	unsigned int i;

@@ -17,8 +17,8 @@
  * Res: Reserved.
  */
 
-#ifndef RSS_COMMS_PROTOCOL_COMMON
-#define RSS_COMMS_PROTOCOL_COMMON
+#ifndef RSE_COMMS_PROTOCOL_COMMON
+#define RSE_COMMS_PROTOCOL_COMMON
 
 #define TYPE_OFFSET	(0U)
 #define TYPE_MASK	(0xFFFFUL << TYPE_OFFSET)
@@ -32,4 +32,4 @@
 	 ((((uint32_t)(in_len)) << IN_LEN_OFFSET) & IN_LEN_MASK) | \
 	 ((((uint32_t)(out_len)) << OUT_LEN_OFFSET) & OUT_LEN_MASK))
 
-#endif /* RSS_COMMS_PROTOCOL_COMMON */
+#endif /* RSE_COMMS_PROTOCOL_COMMON */

@@ -5,11 +5,11 @@
  *
  */
 
-#ifndef RSS_COMMS_H
-#define RSS_COMMS_H
+#ifndef RSE_COMMS_H
+#define RSE_COMMS_H
 
 #include <stdint.h>
 
-int rss_comms_init(uintptr_t mhu_sender_base, uintptr_t mhu_receiver_base);
+int rse_comms_init(uintptr_t mhu_sender_base, uintptr_t mhu_receiver_base);
 
-#endif /* RSS_COMMS_H */
+#endif /* RSE_COMMS_H */

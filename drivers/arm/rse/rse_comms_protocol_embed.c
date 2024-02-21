@@ -9,16 +9,16 @@
 #include <string.h>
 
 #include <common/debug.h>
-#include "rss_comms_protocol_common.h"
-#include "rss_comms_protocol_embed.h"
+#include "rse_comms_protocol_common.h"
+#include "rse_comms_protocol_embed.h"
 
-psa_status_t rss_protocol_embed_serialize_msg(psa_handle_t handle,
+psa_status_t rse_protocol_embed_serialize_msg(psa_handle_t handle,
 					      int16_t type,
 					      const psa_invec *in_vec,
 					      uint8_t in_len,
 					      const psa_outvec *out_vec,
 					      uint8_t out_len,
-					      struct rss_embed_msg_t *msg,
+					      struct rse_embed_msg_t *msg,
 					      size_t *msg_len)
 {
 	uint32_t payload_size = 0;
@@ -55,10 +55,10 @@ psa_status_t rss_protocol_embed_serialize_msg(psa_handle_t handle,
 	return PSA_SUCCESS;
 }
 
-psa_status_t rss_protocol_embed_deserialize_reply(psa_outvec *out_vec,
+psa_status_t rse_protocol_embed_deserialize_reply(psa_outvec *out_vec,
 						  uint8_t out_len,
 						  psa_status_t *return_val,
-						  const struct rss_embed_reply_t *reply,
+						  const struct rse_embed_reply_t *reply,
 						  size_t reply_size)
 {
 	uint32_t payload_offset = 0;
