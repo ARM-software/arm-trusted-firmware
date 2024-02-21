@@ -1,45 +1,45 @@
-Runtime Security Subsystem (RSS)
-================================
+Runtime Security Engine (RSE)
+=============================
 
-This document focuses on the relationship between the Runtime Security Subsystem
-(RSS) and the application processor (AP). According to the ARM reference design
-the RSS is an independent core next to the AP and the SCP on the same die. It
+This document focuses on the relationship between the Runtime Security Engine
+(RSE) and the application processor (AP). According to the ARM reference design
+the RSE is an independent core next to the AP and the SCP on the same die. It
 provides fundamental security guarantees and runtime services for the rest of
 the system (e.g.: trusted boot, measured boot, platform attestation,
 key management, and key derivation).
 
-At power up RSS boots first from its private ROM code. It validates and loads
+At power up RSE boots first from its private ROM code. It validates and loads
 its own images and the initial images of SCP and AP. When AP and SCP are
 released from reset and their initial code is loaded then they continue their
-own boot process, which is the same as on non-RSS systems. Please refer to the
-``RSS documentation`` [1]_ for more details about the RSS boot flow.
+own boot process, which is the same as on non-RSE systems. Please refer to the
+``RSE documentation`` [1]_ for more details about the RSE boot flow.
 
-The last stage of the RSS firmware is a persistent, runtime component. Much
+The last stage of the RSE firmware is a persistent, runtime component. Much
 like AP_BL31, this is a passive entity which has no periodical task to do and
-just waits for external requests from other subsystems. RSS and other
-subsystems can communicate with each other over message exchange. RSS waits
+just waits for external requests from other subsystems. RSE and other
+subsystems can communicate with each other over message exchange. RSE waits
 in idle for the incoming request, handles them, and sends a response then goes
 back to idle.
 
-RSS communication layer
+RSE communication layer
 -----------------------
 
-The communication between RSS and other subsystems are primarily relying on the
-Message Handling Unit (MHU) module. The number of MHU interfaces between RSS
+The communication between RSE and other subsystems are primarily relying on the
+Message Handling Unit (MHU) module. The number of MHU interfaces between RSE
 and other cores is IMPDEF. Besides MHU other modules also could take part in
-the communication. RSS is capable of mapping the AP memory to its address space.
-Thereby either RSS core itself or a DMA engine if it is present, can move the
-data between memory belonging to RSS or AP. In this way, a bigger amount of data
+the communication. RSE is capable of mapping the AP memory to its address space.
+Thereby either RSE core itself or a DMA engine if it is present, can move the
+data between memory belonging to RSE or AP. In this way, a bigger amount of data
 can be transferred in a short time.
 
 The MHU comes in pairs. There is a sender and receiver side. They are connected
 to each other. An MHU interface consists of two pairs of MHUs, one sender and
 one receiver on both sides. Bidirectional communication is possible over an
-interface. One pair provides message sending from AP to RSS and the other pair
-from RSS to AP. The sender and receiver are connected via channels. There is an
+interface. One pair provides message sending from AP to RSE and the other pair
+from RSE to AP. The sender and receiver are connected via channels. There is an
 IMPDEF number of channels (e.g: 4-16) between a sender and a receiver module.
 
-The RSS communication layer provides two ways for message exchange:
+The RSE communication layer provides two ways for message exchange:
 
 - ``Embedded messaging``: The full message, including header and payload, are
   exchanged over the MHU channels. A channel is capable of delivering a single
@@ -55,16 +55,16 @@ The RSS communication layer provides two ways for message exchange:
 - ``Pointer-access messaging``: The message header and the payload are
   separated and they are conveyed in different ways. The header is sent
   over the channels, similar to the embedded messaging but the payload is
-  copied over by RSS core (or by DMA) between the sender and the receiver. This
+  copied over by RSE core (or by DMA) between the sender and the receiver. This
   could be useful in the case of long messages because transaction time is less
-  compared to the embedded messaging mode. Small payloads are copied by the RSS
+  compared to the embedded messaging mode. Small payloads are copied by the RSE
   core because setting up DMA would require more CPU cycles. The payload is
-  either copied into an internal buffer or directly read-written by RSS. Actual
-  behavior depends on RSS setup, whether the partition supports memory-mapped
+  either copied into an internal buffer or directly read-written by RSE. Actual
+  behavior depends on RSE setup, whether the partition supports memory-mapped
   ``iovec``. Therefore, the sender must handle both cases and prevent access to
-  the memory, where payload data lives, while the RSS handles the request.
+  the memory, where payload data lives, while the RSE handles the request.
 
-The RSS communication layer supports both ways of messaging in parallel. It is
+The RSE communication layer supports both ways of messaging in parallel. It is
 decided at runtime based on the message size which way to transfer the message.
 
 .. code-block:: bash
@@ -93,25 +93,25 @@ decided at runtime based on the message size which way to transfer the message.
              V                           |            | |      V           V
     +----------------------------------------------+  | |  +-------------------+
     |                                              |--+-+  |                   |
-    |                  RSS                         |       |      SRAM         |
+    |                  RSE                         |       |      SRAM         |
     |                                              |       |                   |
     +----------------------------------------------+       +-------------------+
 
 .. Note::
 
-    The RSS communication layer is not prepared for concurrent execution. The
+    The RSE communication layer is not prepared for concurrent execution. The
     current use case only requires message exchange during the boot phase. In
     the boot phase, only a single core is running and the rest of the cores are
     in reset.
 
 Message structure
 ^^^^^^^^^^^^^^^^^
-A description of the message format can be found in the ``RSS communication
+A description of the message format can be found in the ``RSE communication
 design`` [2]_ document.
 
 Source files
 ^^^^^^^^^^^^
-- RSS comms:  ``drivers/arm/rss``
+- RSE comms:  ``drivers/arm/rse``
 - MHU driver: ``drivers/arm/mhu``
 
 
@@ -119,29 +119,29 @@ API for communication over MHU
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The API is defined in these header files:
 
-- ``include/drivers/arm/rss_comms.h``
+- ``include/drivers/arm/rse_comms.h``
 - ``include/drivers/arm/mhu.h``
 
-RSS provided runtime services
+RSE provided runtime services
 -----------------------------
 
-RSS provides the following runtime services:
+RSE provides the following runtime services:
 
 - ``Measured boot``: Securely store the firmware measurements which were
   computed during the boot process and the associated metadata (image
   description, measurement algorithm, etc.). More info on measured boot service
-  in RSS can be found in the ``measured_boot_integration_guide`` [3]_ .
+  in RSE can be found in the ``measured_boot_integration_guide`` [3]_ .
 - ``Delegated attestation``: Query the platform attestation token and derive a
   delegated attestation key. More info on the delegated attestation service
-  in RSS can be found in the ``delegated_attestation_integration_guide`` [4]_ .
+  in RSE can be found in the ``delegated_attestation_integration_guide`` [4]_ .
 - ``OTP assets management``: Public keys used by AP during the trusted boot
-  process can be requested from RSS. Furthermore, AP can request RSS to
+  process can be requested from RSE. Furthermore, AP can request RSE to
   increase a non-volatile counter. Please refer to the
-  ``RSS key management`` [5]_ document for more details.
+  ``RSE key management`` [5]_ document for more details.
 
 Runtime service API
 ^^^^^^^^^^^^^^^^^^^
-The RSS provided runtime services implement a PSA aligned API. The parameter
+The RSE provided runtime services implement a PSA aligned API. The parameter
 encoding follows the PSA client protocol described in the
 ``Firmware Framework for M`` [6]_ document in chapter 4.4. The implementation is
 restricted to the static handle use case therefore only the ``psa_call`` API is
@@ -168,7 +168,7 @@ Software and API layers
          |                               |
          V                               V
     +------------------------------------------------+
-    |         RSS communication protocol             |
+    |         RSE communication protocol             |
     +------------------------------------------------+
          |                     ^
          | mhu_send_data()     | mhu_receive_data()
@@ -188,7 +188,7 @@ Software and API layers
                          |
                          V
     +------------------------------------------------+
-    |             MHU HW on RSS side                 |
+    |             MHU HW on RSE side                 |
     +------------------------------------------------+
              |                        ^
              | IRQ                    | Register access
@@ -204,17 +204,17 @@ Software and API layers
     +---------------+       +------------------------+
 
 
-RSS based Measured Boot
+RSE based Measured Boot
 -----------------------
 
 Measured Boot is the process of cryptographically measuring (computing the hash
 value of a binary) the code and critical data used at boot time. The
 measurement must be stored in a tamper-resistant way, so the security state
-of the device can be attested later to an external party. RSS provides a runtime
+of the device can be attested later to an external party. RSE provides a runtime
 service which is meant to store measurements and associated metadata alongside.
 
 Data is stored in internal SRAM which is only accessible by the secure runtime
-firmware of RSS. Data is stored in so-called measurement slots. A platform has
+firmware of RSE. Data is stored in so-called measurement slots. A platform has
 IMPDEF number of measurement slots. The measurement storage follows extend
 semantics. This means that measurements are not stored directly (as it was
 taken) instead they contribute to the current value of the measurement slot.
@@ -236,7 +236,7 @@ Defined here:
 .. code-block:: c
 
     psa_status_t
-    rss_measured_boot_extend_measurement(uint8_t        index,
+    rse_measured_boot_extend_measurement(uint8_t        index,
                                          const uint8_t *signer_id,
                                          size_t         signer_id_size,
                                          const uint8_t *version,
@@ -291,27 +291,27 @@ multiple times:
 .. Note::
 
     Extending multiple measurements in the same slot leads to some metadata
-    information loss. Since RSS is not constrained on special HW resources to
+    information loss. Since RSE is not constrained on special HW resources to
     store the measurements and metadata, therefore it is worth considering to
     store all of them one by one in distinct slots. However, they are one-by-one
     included in the platform attestation token. So, the number of distinct
     firmware image measurements has an impact on the size of the attestation
     token.
 
-The allocation of the measurement slot among RSS, Root and Realm worlds is
+The allocation of the measurement slot among RSE, Root and Realm worlds is
 platform dependent. The platform must provide an allocation of the measurement
 slot at build time. An example can be found in
 ``tf-a/plat/arm/board/tc/tc_bl1_measured_boot.c``
 Furthermore, the memory, which holds the metadata is also statically allocated
-in RSS memory. Some of the fields have a static value (measurement algorithm),
+in RSE memory. Some of the fields have a static value (measurement algorithm),
 and some of the values have a dynamic value (measurement value) which is updated
 by the bootloaders when the firmware image is loaded and measured. The metadata
 structure is defined in
-``include/drivers/measured_boot/rss/rss_measured_boot.h``.
+``include/drivers/measured_boot/rse/rse_measured_boot.h``.
 
 .. code-block:: c
 
-    struct rss_mboot_metadata {
+    struct rse_mboot_metadata {
             unsigned int id;
             uint8_t slot;
             uint8_t signer_id[SIGNER_ID_MAX_SIZE];
@@ -328,24 +328,24 @@ Signer-ID API
 ^^^^^^^^^^^^^
 
 This function calculates the hash of a public key (signer-ID) using the
-``Measurement algorithm`` and stores it in the ``rss_mboot_metadata`` field
+``Measurement algorithm`` and stores it in the ``rse_mboot_metadata`` field
 named ``signer_id``.
 Prior to calling this function, the caller must ensure that the ``signer_id``
 field points to the zero-filled buffer.
 
 Defined here:
 
-- ``include/drivers/measured_boot/rss/rss_measured_boot.h``
+- ``include/drivers/measured_boot/rse/rse_measured_boot.h``
 
 .. code-block:: c
 
-   int rss_mboot_set_signer_id(struct rss_mboot_metadata *metadata_ptr,
+   int rse_mboot_set_signer_id(struct rse_mboot_metadata *metadata_ptr,
                                const void *pk_oid,
                                const void *pk_ptr,
                                size_t pk_len)
 
 
-- First parameter is the pointer to the ``rss_mboot_metadata`` structure.
+- First parameter is the pointer to the ``rse_mboot_metadata`` structure.
 - Second parameter is the pointer to the key-OID of the public key.
 - Third parameter is the pointer to the public key buffer.
 - Fourth parameter is the size of public key buffer.
@@ -356,15 +356,15 @@ Build time config options
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``MEASURED_BOOT``: Enable measured boot. It depends on the platform
-  implementation whether RSS or TPM (or both) backend based measured boot is
+  implementation whether RSE or TPM (or both) backend based measured boot is
   enabled.
-- ``MBOOT_RSS_HASH_ALG``: Determine the hash algorithm to measure the images.
+- ``MBOOT_RSE_HASH_ALG``: Determine the hash algorithm to measure the images.
   The default value is sha-256.
 
 Measured boot flow
 ^^^^^^^^^^^^^^^^^^
 
-.. figure:: ../resources/diagrams/rss_measured_boot_flow.svg
+.. figure:: ../resources/diagrams/rse_measured_boot_flow.svg
   :align: center
 
 Sample console log
@@ -425,15 +425,15 @@ The detailed description of the delegated attestation service can be found in
 the ``Delegated Attestation Service Integration Guide`` [4]_ document.
 
 In the CCA use case, the Realm Management Monitor (RMM) relies on the delegated
-attestation service of the RSS to get a realm attestation key and the CCA
+attestation service of the RSE to get a realm attestation key and the CCA
 platform token. BL31 does not use the service for its own purpose, only calls
-it on behalf of RMM. The access to MHU interface and thereby to RSS is
+it on behalf of RMM. The access to MHU interface and thereby to RSE is
 restricted to BL31 only. Therefore, RMM does not have direct access, all calls
 need to go through BL31. The RMM dispatcher module of the BL31 is responsible
 for delivering the calls between the two parties.
 
 .. Note::
-     Currently the connection between the RMM dispatcher and the PSA/RSS layer
+     Currently the connection between the RMM dispatcher and the PSA/RSE layer
      is not yet implemented. RMM dispatcher just returns hard coded data.
 
 Delegated Attestation API
@@ -445,7 +445,7 @@ Defined here:
 .. code-block:: c
 
     psa_status_t
-    rss_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
+    rse_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
                                            uint32_t  key_bits,
                                            uint8_t  *key_buf,
                                            size_t    key_buf_size,
@@ -453,7 +453,7 @@ Defined here:
                                            uint32_t  hash_algo);
 
     psa_status_t
-    rss_delegated_attest_get_token(const uint8_t *dak_pub_hash,
+    rse_delegated_attest_get_token(const uint8_t *dak_pub_hash,
                                    size_t         dak_pub_hash_size,
                                    uint8_t       *token_buf,
                                    size_t         token_buf_size,
@@ -462,7 +462,7 @@ Defined here:
 Attestation flow
 ^^^^^^^^^^^^^^^^
 
-.. figure:: ../resources/diagrams/rss_attestation_flow.svg
+.. figure:: ../resources/diagrams/rse_attestation_flow.svg
   :align: center
 
 Sample attestation token
@@ -623,27 +623,27 @@ JSON format:
         "CCA_PLATFORM_VERIFICATION_SERVICE": "www.trustedfirmware.org"
     }
 
-RSS OTP Assets Management
+RSE OTP Assets Management
 -------------------------
 
-RSS provides access for AP to assets in OTP, which include keys for image
+RSE provides access for AP to assets in OTP, which include keys for image
 signature verification and non-volatile counters for anti-rollback protection.
 
 Non-Volatile Counter API
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-AP/RSS interface for retrieving and incrementing non-volatile counters API is
+AP/RSE interface for retrieving and incrementing non-volatile counters API is
 as follows.
 
 Defined here:
 
-- ``include/lib/psa/rss_platform_api.h``
+- ``include/lib/psa/rse_platform_api.h``
 
 .. code-block:: c
 
-    psa_status_t rss_platform_nv_counter_increment(uint32_t counter_id)
+    psa_status_t rse_platform_nv_counter_increment(uint32_t counter_id)
 
-    psa_status_t rss_platform_nv_counter_read(uint32_t counter_id,
+    psa_status_t rse_platform_nv_counter_read(uint32_t counter_id,
             uint32_t size, uint8_t *val)
 
 Through this service, we can read/increment any of the 3 non-volatile
@@ -656,15 +656,15 @@ counters used on an Arm CCA platform:
 Public Key API
 ^^^^^^^^^^^^^^
 
-AP/RSS interface for reading the ROTPK is as follows.
+AP/RSE interface for reading the ROTPK is as follows.
 
 Defined here:
 
-- ``include/lib/psa/rss_platform_api.h``
+- ``include/lib/psa/rse_platform_api.h``
 
 .. code-block:: c
 
-    psa_status_t rss_platform_key_read(enum rss_key_id_builtin_t key,
+    psa_status_t rse_platform_key_read(enum rse_key_id_builtin_t key,
             uint8_t *data, size_t data_size, size_t *data_length)
 
 Through this service, we can read any of the 3 ROTPKs used on an
@@ -677,11 +677,11 @@ Arm CCA platform:
 References
 ----------
 
-.. [1] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rss/readme.html
-.. [2] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rss/rss_comms.html
+.. [1] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rse/readme.html
+.. [2] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rse/rse_comms.html
 .. [3] https://git.trustedfirmware.org/TF-M/tf-m-extras.git/tree/partitions/measured_boot/measured_boot_integration_guide.rst
 .. [4] https://git.trustedfirmware.org/TF-M/tf-m-extras.git/tree/partitions/delegated_attestation/delegated_attest_integration_guide.rst
-.. [5] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rss/rss_key_management.html
+.. [5] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rse/rse_key_management.html
 .. [6] https://developer.arm.com/-/media/Files/pdf/PlatformSecurityArchitecture/Architect/DEN0063-PSA_Firmware_Framework-1.0.0-2.pdf?revision=2d1429fa-4b5b-461a-a60e-4ef3d8f7f4b4&hash=3BFD6F3E687F324672F18E5BE9F08EDC48087C93
 .. [7] https://developer.arm.com/documentation/DEN0096/A_a/?lang=en
 

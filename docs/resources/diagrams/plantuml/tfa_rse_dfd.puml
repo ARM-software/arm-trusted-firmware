@@ -5,7 +5,7 @@
  '/
 
 /'
-TF-A Data Flow Diagram including RSS
+TF-A Data Flow Diagram including RSE
 '/
 
 @startuml
@@ -54,12 +54,12 @@ digraph tfa_dfd {
             bl31 [label="TF-A Runtime\n(BL31)" fillcolor="#ddffb3"]
         }
 
-        # RSS cluster
-        subgraph cluster_rss{
-            label ="RSS";
+        # RSE cluster
+        subgraph cluster_rse{
+            label ="RSE";
             graph [style=filled color="#000000" fillcolor="#faf9cd"]
 
-            rss [label="Runtime Security\n\ Subsystem\n\ (RSS)" fillcolor="#ddffb3"]
+            rse [label="Runtime Security\n\ Subsystem\n\ (RSE)" fillcolor="#ddffb3"]
         }
     }
 
@@ -70,7 +70,7 @@ digraph tfa_dfd {
     sec -> bl2 [dir="both" lhead=cluster_tfa label="DF4"]
     nsec -> bl1 [dir="both" lhead=cluster_tfa, label="DF5"]
     bl2 ->  tzc [dir="both" ltail=cluster_tfa lhead=cluster_ip label="DF6" minlen=1]
-    bl31 -> rss [dir="both" ltail=cluster_tfa lhead=cluster_rss label="DF7" minlen=1]
+    bl31 -> rse [dir="both" ltail=cluster_tfa lhead=cluster_rse label="DF7" minlen=1]
 
 }
 

@@ -256,10 +256,10 @@ likely to be suitable for all platform ports.
 
    Defines the maximum address in secure RAM that the BL31 image can occupy.
 
--  **#define : PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE**
+-  **#define : PLAT_RSE_COMMS_PAYLOAD_MAX_SIZE**
 
-   Defines the maximum message size between AP and RSS. Need to define if
-   platform supports RSS.
+   Defines the maximum message size between AP and RSE. Need to define if
+   platform supports RSE.
 
 For every image, the platform must define individual identifiers that will be
 used by BL1 or BL2 to load the corresponding image into memory from non-volatile

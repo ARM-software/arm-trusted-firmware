@@ -5,7 +5,7 @@ box AP
 participant RMM
 participant BL31
 endbox
-box RSS
+box RSE
 participant DelegAttest
 participant InitAttest
 participant MeasuredBoot

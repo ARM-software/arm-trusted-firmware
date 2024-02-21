@@ -30,7 +30,7 @@ data flow diagram, as well as a list of threats we have identified using the
    threat_model
    threat_model_el3_spm
    threat_model_fvp_r
-   threat_model_rss_interface
+   threat_model_rse_interface
    threat_model_arm_cca
    threat_model_fw_update_and_recovery
 
