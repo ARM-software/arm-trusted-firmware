@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2022, 2024 ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,7 +77,8 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
 			VERSION_2, entry_point_info_t, NON_SECURE | EXECUTABLE),
 		.ep_info.pc = BL33_BASE,
-
+		.ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
+				       DISABLE_ALL_EXCEPTIONS),
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 			VERSION_2, image_info_t, 0),
 		.image_info.image_base = BL33_BASE,
