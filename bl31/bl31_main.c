@@ -212,8 +212,6 @@ void bl31_main(void)
 	 */
 	bl31_prepare_next_image_entry();
 
-	console_flush();
-
 	/*
 	 * Perform any platform specific runtime setup prior to cold boot exit
 	 * from BL31
@@ -221,9 +219,12 @@ void bl31_main(void)
 	bl31_plat_runtime_setup();
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
-	PMF_CAPTURE_TIMESTAMP(bl_svc, BL31_EXIT, PMF_CACHE_MAINT);
 	console_flush();
+	PMF_CAPTURE_TIMESTAMP(bl_svc, BL31_EXIT, PMF_CACHE_MAINT);
 #endif
+
+	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*******************************************************************************

@@ -118,12 +118,6 @@ void bl31_platform_setup(void)
 	hisi_tzpc_sec_init();
 }
 
-void bl31_plat_runtime_setup(void)
-{
-	console_flush();
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
-}
-
 void bl31_plat_arch_setup(void)
 {
 	plat_configure_mmu_el3(BL31_BASE,

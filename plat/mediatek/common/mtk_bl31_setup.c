@@ -166,9 +166,6 @@ void bl31_platform_setup(void)
 void bl31_plat_runtime_setup(void)
 {
 	mtk_init_one_level(MTK_INIT_LVL_PLAT_RUNTIME);
-
-	console_flush();
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 unsigned int plat_get_syscnt_freq2(void)

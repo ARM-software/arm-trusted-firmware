@@ -149,9 +149,3 @@ void bl31_platform_setup(void)
 	hisi_ipc_init();
 	hisi_pwrc_setup();
 }
-
-void bl31_plat_runtime_setup(void)
-{
-	console_flush();
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
-}

@@ -258,9 +258,6 @@ void bl31_plat_runtime_setup(void)
 	 */
 	boot_profiler_add_record("[TF] bl31 exit");
 	boot_profiler_deinit();
-
-	console_flush();
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*******************************************************************************

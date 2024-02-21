@@ -206,9 +206,6 @@ void bl31_plat_runtime_setup(void)
 	if (rc != 0) {
 		panic();
 	}
-
-	console_flush();
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*

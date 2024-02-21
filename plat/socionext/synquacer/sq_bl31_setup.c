@@ -209,9 +209,6 @@ void bl31_plat_runtime_setup(void)
 	struct draminfo *di = (struct draminfo *)(unsigned long)DRAMINFO_BASE;
 
 	sq_scp_get_draminfo(di);
-
-	console_flush();
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 void bl31_plat_arch_setup(void)

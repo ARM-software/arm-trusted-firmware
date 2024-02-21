@@ -136,12 +136,6 @@ void bl31_platform_setup(void)
 	plat_gic_init();
 }
 
-void bl31_plat_runtime_setup(void)
-{
-	console_flush();
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
-}
-
 entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
 {
 	if (type == NON_SECURE) {
