@@ -158,7 +158,7 @@ $(foreach tool-class,$(tool-classes), \
 #
 # Toolchains can specify a default path to any given tool with a tool class.
 # These values are used in the absence of user-specified values, and are
-# configured by the parent Makefile using variables of the form:
+# configured by the makefile for each toolchain using variables of the form:
 #
 #   - $(toolchain)-$(tool-class)-default
 #
