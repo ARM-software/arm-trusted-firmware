@@ -13,7 +13,7 @@
 
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
-#include <drivers/measured_boot/rss/dice_prot_env.h>
+#include <drivers/measured_boot/rse/dice_prot_env.h>
 #include <lib/cassert.h>
 #include <lib/psa/dice_protection_environment.h>
 

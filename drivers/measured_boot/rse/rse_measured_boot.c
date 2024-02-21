@@ -9,7 +9,7 @@
 
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
-#include <drivers/measured_boot/rss/rss_measured_boot.h>
+#include <drivers/measured_boot/rse/rse_measured_boot.h>
 #include <lib/psa/measured_boot.h>
 #include <psa/crypto_types.h>
 #include <psa/crypto_values.h>
@@ -46,12 +46,12 @@ static bool null_arr(const uint8_t *signer_id, size_t signer_id_size)
 #endif /* ENABLE_ASSERTIONS */
 
 /* Functions' declarations */
-void rss_measured_boot_init(struct rss_mboot_metadata *metadata_ptr)
+void rse_measured_boot_init(struct rse_mboot_metadata *metadata_ptr)
 {
 	assert(metadata_ptr != NULL);
 
 	/* Init the non-const members of the metadata structure */
-	while (metadata_ptr->id != RSS_MBOOT_INVALID_ID) {
+	while (metadata_ptr->id != RSE_MBOOT_INVALID_ID) {
 		assert(null_arr(metadata_ptr->signer_id, MBOOT_DIGEST_SIZE));
 		metadata_ptr->sw_type_size =
 			strlen((const char *)&metadata_ptr->sw_type) + 1;
@@ -59,7 +59,7 @@ void rss_measured_boot_init(struct rss_mboot_metadata *metadata_ptr)
 	}
 }
 
-int rss_mboot_measure_and_record(struct rss_mboot_metadata *metadata_ptr,
+int rse_mboot_measure_and_record(struct rse_mboot_metadata *metadata_ptr,
 				 uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id)
 {
@@ -70,13 +70,13 @@ int rss_mboot_measure_and_record(struct rss_mboot_metadata *metadata_ptr,
 	assert(metadata_ptr != NULL);
 
 	/* Get the metadata associated with this image. */
-	while ((metadata_ptr->id != RSS_MBOOT_INVALID_ID) &&
+	while ((metadata_ptr->id != RSE_MBOOT_INVALID_ID) &&
 		(metadata_ptr->id != data_id)) {
 		metadata_ptr++;
 	}
 
 	/* If image is not present in metadata array then skip */
-	if (metadata_ptr->id == RSS_MBOOT_INVALID_ID) {
+	if (metadata_ptr->id == RSE_MBOOT_INVALID_ID) {
 		return 0;
 	}
 
@@ -87,7 +87,7 @@ int rss_mboot_measure_and_record(struct rss_mboot_metadata *metadata_ptr,
 		return rc;
 	}
 
-	ret = rss_measured_boot_extend_measurement(
+	ret = rse_measured_boot_extend_measurement(
 						metadata_ptr->slot,
 						metadata_ptr->signer_id,
 						metadata_ptr->signer_id_size,
@@ -106,7 +106,7 @@ int rss_mboot_measure_and_record(struct rss_mboot_metadata *metadata_ptr,
 	return 0;
 }
 
-int rss_mboot_set_signer_id(struct rss_mboot_metadata *metadata_ptr,
+int rse_mboot_set_signer_id(struct rse_mboot_metadata *metadata_ptr,
 			    const void *pk_oid,
 			    const void *pk_ptr,
 			    size_t pk_len)
@@ -125,7 +125,7 @@ int rss_mboot_set_signer_id(struct rss_mboot_metadata *metadata_ptr,
 	 * The platform may decide not to measure all of the images
 	 * in the system.
 	 */
-	while (metadata_ptr->id != RSS_MBOOT_INVALID_ID) {
+	while (metadata_ptr->id != RSE_MBOOT_INVALID_ID) {
 		/* Get the metadata associated with this key-oid */
 		if (metadata_ptr->pk_oid == pk_oid) {
 			if (hash_calc_done == false) {
