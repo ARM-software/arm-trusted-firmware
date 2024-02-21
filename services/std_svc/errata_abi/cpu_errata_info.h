@@ -12,11 +12,11 @@
 
 #if __aarch64__
 #include <cortex_a710.h>
-#include <cortex_a715.h>
 #include <cortex_a78.h>
 #include <cortex_a78_ae.h>
 #include <cortex_a78c.h>
 #include <cortex_x2.h>
+#include <cortex_x3.h>
 #include <neoverse_n2.h>
 #include <neoverse_v1.h>
 #include <neoverse_v2.h>
