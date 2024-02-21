@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -209,6 +209,9 @@ void bl31_plat_runtime_setup(void)
 	struct draminfo *di = (struct draminfo *)(unsigned long)DRAMINFO_BASE;
 
 	sq_scp_get_draminfo(di);
+
+	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 void bl31_plat_arch_setup(void)
