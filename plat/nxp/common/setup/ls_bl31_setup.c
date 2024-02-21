@@ -186,6 +186,9 @@ void bl31_plat_runtime_setup(void)
 	ls_el3_interrupt_config();
 #endif
 	soc_runtime_setup();
+
+	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*******************************************************************************
