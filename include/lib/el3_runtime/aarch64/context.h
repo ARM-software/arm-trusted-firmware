@@ -574,9 +574,6 @@ CASSERT(CTX_MPAM_REGS_OFFSET == __builtin_offsetof(cpu_context_t, mpam_ctx),
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
-void el1_sysregs_context_save(el1_sysregs_t *regs);
-void el1_sysregs_context_restore(el1_sysregs_t *regs);
-
 #if CTX_INCLUDE_FPREGS
 void fpregs_context_save(fp_regs_t *regs);
 void fpregs_context_restore(fp_regs_t *regs);
