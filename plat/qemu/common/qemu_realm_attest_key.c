@@ -19,7 +19,7 @@ static const uint8_t sample_delegated_key[] = {
 
 /*
  * Get the hardcoded delegated realm attestation key as QEMU
- * does not support RSS.
+ * does not support RSE.
  */
 int plat_rmmd_get_cca_realm_attest_key(uintptr_t buf, size_t *len,
 				       unsigned int type)
