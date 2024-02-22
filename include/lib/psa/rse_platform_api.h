@@ -5,16 +5,16 @@
  *
  */
 
-#ifndef RSS_PLATFORM_API_H
-#define RSS_PLATFORM_API_H
+#ifndef RSE_PLATFORM_API_H
+#define RSE_PLATFORM_API_H
 
 #include <stdint.h>
 
 #include "psa/error.h"
-#include <rss_crypto_defs.h>
+#include <rse_crypto_defs.h>
 
-#define RSS_PLATFORM_API_ID_NV_READ       (1010)
-#define RSS_PLATFORM_API_ID_NV_INCREMENT  (1011)
+#define RSE_PLATFORM_API_ID_NV_READ       (1010)
+#define RSE_PLATFORM_API_ID_NV_INCREMENT  (1011)
 
 /*
  * Increments the given non-volatile (NV) counter by one
@@ -25,7 +25,7 @@
  *	it returns a PSA_ERROR.
  */
 psa_status_t
-rss_platform_nv_counter_increment(uint32_t counter_id);
+rse_platform_nv_counter_increment(uint32_t counter_id);
 
 /*
  * Reads the given non-volatile (NV) counter
@@ -39,7 +39,7 @@ rss_platform_nv_counter_increment(uint32_t counter_id);
  *	it returns a PSA_ERROR.
  */
 psa_status_t
-rss_platform_nv_counter_read(uint32_t counter_id,
+rse_platform_nv_counter_read(uint32_t counter_id,
 		uint32_t size, uint8_t *val);
 
 /*
@@ -54,7 +54,7 @@ rss_platform_nv_counter_read(uint32_t counter_id,
  *	it returns a PSA_ERROR.
  */
 psa_status_t
-rss_platform_key_read(enum rss_key_id_builtin_t key, uint8_t *data,
+rse_platform_key_read(enum rse_key_id_builtin_t key, uint8_t *data,
 		size_t data_size, size_t *data_length);
 
-#endif /* RSS_PLATFORM_API_H */
+#endif /* RSE_PLATFORM_API_H */

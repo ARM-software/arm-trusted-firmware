@@ -10,7 +10,7 @@
 #include <psa_manifest/sid.h>
 
 psa_status_t
-rss_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
+rse_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
 				       uint32_t  key_bits,
 				       uint8_t  *key_buf,
 				       size_t    key_buf_size,
@@ -31,8 +31,8 @@ rss_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
 		return PSA_ERROR_INVALID_ARGUMENT;
 	}
 
-	status = psa_call(RSS_DELEGATED_SERVICE_HANDLE,
-			  RSS_DELEGATED_ATTEST_GET_DELEGATED_KEY,
+	status = psa_call(RSE_DELEGATED_SERVICE_HANDLE,
+			  RSE_DELEGATED_ATTEST_GET_DELEGATED_KEY,
 			  in_vec,  IOVEC_LEN(in_vec),
 			  out_vec, IOVEC_LEN(out_vec));
 	if (status == PSA_SUCCESS) {
@@ -43,7 +43,7 @@ rss_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
 }
 
 psa_status_t
-rss_delegated_attest_get_token(const uint8_t *dak_pub_hash,
+rse_delegated_attest_get_token(const uint8_t *dak_pub_hash,
 			       size_t         dak_pub_hash_size,
 			       uint8_t       *token_buf,
 			       size_t         token_buf_size,
@@ -61,8 +61,8 @@ rss_delegated_attest_get_token(const uint8_t *dak_pub_hash,
 		return PSA_ERROR_INVALID_ARGUMENT;
 	}
 
-	status = psa_call(RSS_DELEGATED_SERVICE_HANDLE,
-			  RSS_DELEGATED_ATTEST_GET_PLATFORM_TOKEN,
+	status = psa_call(RSE_DELEGATED_SERVICE_HANDLE,
+			  RSE_DELEGATED_ATTEST_GET_PLATFORM_TOKEN,
 			  in_vec, IOVEC_LEN(in_vec),
 			  out_vec, IOVEC_LEN(out_vec));
 	if (status == PSA_SUCCESS) {

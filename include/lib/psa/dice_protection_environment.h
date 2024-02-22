@@ -14,7 +14,7 @@
 
 #include <dice.h>
 
-/* Additional defines for max size limit. These limits are set by DPE in RSS. */
+/* Additional defines for max size limit. These limits are set by DPE in RSE. */
 #define DICE_AUTHORITY_DESCRIPTOR_MAX_SIZE	64
 #define DICE_CONFIG_DESCRIPTOR_MAX_SIZE		64
 #define DICE_CODE_DESCRIPTOR_MAX_SIZE		32
@@ -28,7 +28,7 @@ typedef int32_t dpe_error_t;
 #define DPE_ARGUMENT_NOT_SUPPORTED	((dpe_error_t)4)
 #define DPE_SESSION_EXHAUSTED		((dpe_error_t)5)
 
-/* Custom values in RSS based DPE implementation */
+/* Custom values in RSE based DPE implementation */
 #define DPE_INSUFFICIENT_MEMORY		((dpe_error_t)128)
 #define DPE_ERR_CBOR_FORMATTING		((dpe_error_t)129)
 
