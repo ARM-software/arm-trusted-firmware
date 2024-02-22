@@ -173,20 +173,20 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TC_HW_CONFIG},--hw-config,${TC_HW_CONFIG}))
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
 # flags present in Measured Boot makefile.
-$(info Including rss_comms.mk)
+$(info Including rse_comms.mk)
 ifeq (${MEASURED_BOOT},1)
-        $(info Including rss_comms.mk)
-        include drivers/arm/rss/rss_comms.mk
+        $(info Including rse_comms.mk)
+        include drivers/arm/rse/rse_comms.mk
 
-	BL1_SOURCES	+=	${RSS_COMMS_SOURCES}
-	BL2_SOURCES	+=	${RSS_COMMS_SOURCES}
+	BL1_SOURCES	+=	${RSE_COMMS_SOURCES}
+	BL2_SOURCES	+=	${RSE_COMMS_SOURCES}
 	PLAT_INCLUDES	+=	-Iinclude/lib/psa
 
     ifeq (${DICE_PROTECTION_ENVIRONMENT},1)
         $(info Including qcbor.mk)
-        include drivers/measured_boot/rss/qcbor.mk
+        include drivers/measured_boot/rse/qcbor.mk
         $(info Including dice_prot_env.mk)
-        include drivers/measured_boot/rss/dice_prot_env.mk
+        include drivers/measured_boot/rse/dice_prot_env.mk
 
 	BL1_SOURCES	+=	${QCBOR_SOURCES} \
 				${DPE_SOURCES} \
@@ -206,8 +206,8 @@ ifeq (${MEASURED_BOOT},1)
 	PLAT_INCLUDES	+=	-I${QCBOR_INCLUDES} \
 				-Iinclude/lib/dice
     else
-        $(info Including rss_measured_boot.mk)
-        include drivers/measured_boot/rss/rss_measured_boot.mk
+        $(info Including rse_measured_boot.mk)
+        include drivers/measured_boot/rse/rse_measured_boot.mk
 
 	BL1_SOURCES	+=	${MEASURED_BOOT_SOURCES} \
 				plat/arm/board/tc/tc_common_measured_boot.c \

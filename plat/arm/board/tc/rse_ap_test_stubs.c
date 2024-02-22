@@ -26,7 +26,7 @@ tfm_measured_boot_extend_measurement(uint8_t index,
 				     size_t measurement_value_size,
 				     bool lock_measurement)
 {
-	return rss_measured_boot_extend_measurement(index,
+	return rse_measured_boot_extend_measurement(index,
 						    signer_id,
 						    signer_id_size,
 						    version,
@@ -56,7 +56,7 @@ tfm_measured_boot_read_measurement(uint8_t index,
 				   size_t *measurement_value_len,
 				   bool *is_locked)
 {
-	return rss_measured_boot_read_measurement(index,
+	return rse_measured_boot_read_measurement(index,
 						  signer_id,
 						  signer_id_size,
 						  signer_id_len,
@@ -80,7 +80,7 @@ tfm_delegated_attest_get_token(const uint8_t *dak_pub_hash,
 			       size_t         token_buf_size,
 			       size_t        *token_size)
 {
-	return rss_delegated_attest_get_token(dak_pub_hash,
+	return rse_delegated_attest_get_token(dak_pub_hash,
 					      dak_pub_hash_size,
 					      token_buf,
 					      token_buf_size,
@@ -95,7 +95,7 @@ tfm_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
 				       size_t   *key_size,
 				       uint32_t  hash_algo)
 {
-	return rss_delegated_attest_get_delegated_key(ecc_curve,
+	return rse_delegated_attest_get_delegated_key(ecc_curve,
 						      key_bits,
 						      key_buf,
 						      key_buf_size,

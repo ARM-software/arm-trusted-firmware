@@ -7,9 +7,9 @@
 #include <stdint.h>
 
 #include <common/debug.h>
-#include <drivers/arm/rss_comms.h>
+#include <drivers/arm/rse_comms.h>
 #include <drivers/measured_boot/metadata.h>
-#include <drivers/measured_boot/rss/dice_prot_env.h>
+#include <drivers/measured_boot/rse/dice_prot_env.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -211,9 +211,9 @@ void plat_dpe_get_context_handle(int *ctx_handle)
 
 void bl2_plat_mboot_init(void)
 {
-	/* Initialize the communication channel between AP and RSS */
-	(void)rss_comms_init(PLAT_RSS_AP_SND_MHU_BASE,
-			     PLAT_RSS_AP_RCV_MHU_BASE);
+	/* Initialize the communication channel between AP and RSE */
+	(void)rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE,
+			     PLAT_RSE_AP_RCV_MHU_BASE);
 
 	dpe_init(tc_dpe_metadata);
 }

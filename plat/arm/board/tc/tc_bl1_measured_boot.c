@@ -6,9 +6,9 @@
 
 #include <stdint.h>
 
-#include <drivers/arm/rss_comms.h>
+#include <drivers/arm/rse_comms.h>
 #include <drivers/measured_boot/metadata.h>
-#include <drivers/measured_boot/rss/rss_measured_boot.h>
+#include <drivers/measured_boot/rse/rse_measured_boot.h>
 #include <tools_share/zero_oid.h>
 
 #include <plat/arm/common/plat_arm.h>
@@ -17,7 +17,7 @@
 /* Table with platform specific image IDs and metadata. Intentionally not a
  * const struct, some members might set by bootloaders during trusted boot.
  */
-struct rss_mboot_metadata tc_rss_mboot_metadata[] = {
+struct rse_mboot_metadata tc_rse_mboot_metadata[] = {
 	{
 		.id = FW_CONFIG_ID,
 		.slot = U(6),
@@ -41,16 +41,16 @@ struct rss_mboot_metadata tc_rss_mboot_metadata[] = {
 		.lock_measurement = true },
 
 	{
-		.id = RSS_MBOOT_INVALID_ID }
+		.id = RSE_MBOOT_INVALID_ID }
 };
 
 void bl1_plat_mboot_init(void)
 {
-	/* Initialize the communication channel between AP and RSS */
-	(void)rss_comms_init(PLAT_RSS_AP_SND_MHU_BASE,
-			     PLAT_RSS_AP_RCV_MHU_BASE);
+	/* Initialize the communication channel between AP and RSE */
+	(void)rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE,
+			     PLAT_RSE_AP_RCV_MHU_BASE);
 
-	rss_measured_boot_init(tc_rss_mboot_metadata);
+	rse_measured_boot_init(tc_rse_mboot_metadata);
 }
 
 void bl1_plat_mboot_finish(void)

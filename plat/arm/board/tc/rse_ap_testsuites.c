@@ -11,7 +11,7 @@
  * necessary because both files define the function `extra_tests_init`, so a
  * linker error occurs when both are linked to BL31. This file defines a macro
  * that renames the colliding function names to something unique.
- * `plat/arm/board/tc/rss_ap_tests.c` can call the test init functions with
+ * `plat/arm/board/tc/rse_ap_tests.c` can call the test init functions with
  * their new name.
  */
 

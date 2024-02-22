@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 #include <common/desc_image_load.h>
-#include <drivers/measured_boot/rss/dice_prot_env.h>
+#include <drivers/measured_boot/rse/dice_prot_env.h>
 
 extern struct dpe_metadata tc_dpe_metadata[];
 
@@ -17,7 +17,7 @@ int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
 {
 	int err;
 
-	/* Calculate image hash and record it in the DPE service in RSS. */
+	/* Calculate image hash and record it in the DPE service in RSE. */
 	err = dpe_measure_and_record(tc_dpe_metadata,
 				     image_data->image_base,
 				     image_data->image_size,

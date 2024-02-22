@@ -8,11 +8,11 @@
 
 #include <common/debug.h>
 #include <drivers/arm/css/sds.h>
-#include <drivers/arm/rss_comms.h>
+#include <drivers/arm/rse_comms.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/measured_boot/metadata.h>
-#include <drivers/measured_boot/rss/dice_prot_env.h>
+#include <drivers/measured_boot/rse/dice_prot_env.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -53,7 +53,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 };
 
 /* Effective timeout of 10000 ms */
-#define RSS_DPE_BOOT_10US_RETRIES		1000000
+#define RSE_DPE_BOOT_10US_RETRIES		1000000
 #define TC2_SDS_DPE_CTX_HANDLE_STRUCT_ID	0x0000000A
 
 /* Context handle is meant to be used by BL2. Sharing it via TB_FW_CONFIG */
@@ -66,20 +66,20 @@ void plat_dpe_share_context_handle(int *ctx_handle)
 
 void plat_dpe_get_context_handle(int *ctx_handle)
 {
-	int retry = RSS_DPE_BOOT_10US_RETRIES;
+	int retry = RSE_DPE_BOOT_10US_RETRIES;
 	int ret;
 
 	/* Initialize System level generic or SP804 timer */
 	generic_delay_timer_init();
 
-	/* Check the initialization of the Shared Data Storage area between RSS
-	 * and AP. Since AP_BL1 is executed first then a bit later the RSS
+	/* Check the initialization of the Shared Data Storage area between RSE
+	 * and AP. Since AP_BL1 is executed first then a bit later the RSE
 	 * runtime, which initialize this area, therefore AP needs to check it
-	 * in a loop until it gets written by RSS Secure Runtime.
+	 * in a loop until it gets written by RSE Secure Runtime.
 	 */
-	VERBOSE("Waiting for DPE service initialization in RSS Secure Runtime\n");
+	VERBOSE("Waiting for DPE service initialization in RSE Secure Runtime\n");
 	while (retry > 0) {
-		ret = sds_init(SDS_RSS_AP_REGION_ID);
+		ret = sds_init(SDS_RSE_AP_REGION_ID);
 		if (ret != SDS_OK) {
 			udelay(10);
 			retry--;
@@ -93,11 +93,11 @@ void plat_dpe_get_context_handle(int *ctx_handle)
 		plat_panic_handler();
 	} else {
 		VERBOSE("DPE init succeeded in %dms.\n",
-			(RSS_DPE_BOOT_10US_RETRIES - retry) / 100);
+			(RSE_DPE_BOOT_10US_RETRIES - retry) / 100);
 	}
 
 	/* TODO: call this in a loop to avoid reading unfinished data */
-	ret = sds_struct_read(SDS_RSS_AP_REGION_ID,
+	ret = sds_struct_read(SDS_RSE_AP_REGION_ID,
 			      TC2_SDS_DPE_CTX_HANDLE_STRUCT_ID,
 			      0,
 			      ctx_handle,
@@ -113,9 +113,9 @@ void plat_dpe_get_context_handle(int *ctx_handle)
 
 void bl1_plat_mboot_init(void)
 {
-	/* Initialize the communication channel between AP and RSS */
-	(void)rss_comms_init(PLAT_RSS_AP_SND_MHU_BASE,
-			     PLAT_RSS_AP_RCV_MHU_BASE);
+	/* Initialize the communication channel between AP and RSE */
+	(void)rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE,
+			     PLAT_RSE_AP_RCV_MHU_BASE);
 
 	dpe_init(tc_dpe_metadata);
 }
