@@ -13,12 +13,13 @@ include lib/psci/psci_lib.mk
 
 INCLUDES		+=	-Iinclude/bl32/sp_min
 
-BL32_SOURCES		+=	bl32/sp_min/sp_min_main.c		\
-				bl32/sp_min/aarch32/entrypoint.S	\
-				common/runtime_svc.c			\
-				plat/common/aarch32/plat_sp_min_common.c\
+BL32_SOURCES		+=	bl32/sp_min/sp_min_main.c			\
+				bl32/sp_min/aarch32/entrypoint.S		\
+				common/runtime_svc.c				\
+				plat/common/aarch32/plat_sp_min_common.c	\
 				services/arm_arch_svc/arm_arch_svc_setup.c	\
-				services/std_svc/std_svc_setup.c	\
+				services/el3/ven_el3_svc.c			\
+				services/std_svc/std_svc_setup.c		\
 				${PSCI_LIB_SOURCES}
 
 ifeq (${ENABLE_PMF}, 1)
