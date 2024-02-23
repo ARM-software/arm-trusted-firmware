@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 #include <common/debug.h>
-#include <measured_boot.h>
+#include <drivers/measured_boot/metadata.h>
 
 #define RSS_MBOOT_INVALID_ID	UINT32_MAX
 

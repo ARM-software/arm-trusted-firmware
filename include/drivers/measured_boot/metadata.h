@@ -7,6 +7,19 @@
 #ifndef METADATA_H
 #define METADATA_H
 
+/* Minimum measurement value size that can be requested to store */
+#define MEASUREMENT_VALUE_MIN_SIZE	32U
+/* Maximum measurement value size that can be requested to store */
+#define MEASUREMENT_VALUE_MAX_SIZE	64U
+/* Minimum signer id size that can be requested to store */
+#define SIGNER_ID_MIN_SIZE		MEASUREMENT_VALUE_MIN_SIZE
+/* Maximum signer id size that can be requested to store */
+#define SIGNER_ID_MAX_SIZE		MEASUREMENT_VALUE_MAX_SIZE
+/* The theoretical maximum image version is: "255.255.65535\0" */
+#define VERSION_MAX_SIZE		14U
+/* Example sw_type: "BL_2, BL_33, etc." */
+#define SW_TYPE_MAX_SIZE		32U
+
 /*
  * Images, measured during the boot process, have some associated metadata.
  * One of these types of metadata is the image identifier strings. These macros

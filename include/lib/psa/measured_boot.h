@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -13,21 +13,6 @@
 #include <stdint.h>
 
 #include "psa/error.h"
-
-/* Minimum measurement value size that can be requested to store */
-#define MEASUREMENT_VALUE_MIN_SIZE	32U
-/* Maximum measurement value size that can be requested to store */
-#define MEASUREMENT_VALUE_MAX_SIZE	64U
-/* Minimum signer id size that can be requested to store */
-#define SIGNER_ID_MIN_SIZE		MEASUREMENT_VALUE_MIN_SIZE
-/* Maximum signer id size that can be requested to store */
-#define SIGNER_ID_MAX_SIZE		MEASUREMENT_VALUE_MAX_SIZE
-/* The theoretical maximum image version is: "255.255.65535\0" */
-#define VERSION_MAX_SIZE		14U
-/* Example sw_type: "BL_2, BL_33, etc." */
-#define SW_TYPE_MAX_SIZE		20U
-#define NUM_OF_MEASUREMENT_SLOTS	32U
-
 
 /**
  * Extends and stores a measurement to the requested slot.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include <common/debug.h>
+#include <drivers/measured_boot/metadata.h>
 #include <measured_boot.h>
 #include <psa/client.h>
 #include <psa_manifest/sid.h>

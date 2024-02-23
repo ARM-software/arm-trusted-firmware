@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,6 +9,8 @@
 #define PSA_MEASURED_BOOT_PRIVATE_H
 
 #include <stdint.h>
+
+#include <drivers/measured_boot/metadata.h>
 
 /* Measured boot message types that distinguish its services */
 #define RSS_MEASURED_BOOT_READ		1001U
