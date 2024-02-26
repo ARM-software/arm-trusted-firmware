@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -294,7 +294,6 @@ struct i2c_handle_s {
 /* STM32 specific defines */
 #define STM32_I2C_RISE_TIME_DEFAULT		25	/* ns */
 #define STM32_I2C_FALL_TIME_DEFAULT		10	/* ns */
-#define STM32_I2C_SPEED_DEFAULT			I2C_SPEED_STANDARD
 #define STM32_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
 #define STM32_I2C_ANALOG_FILTER_DELAY_MAX	260	/* ns */
 #define STM32_I2C_DIGITAL_FILTER_MAX		16
