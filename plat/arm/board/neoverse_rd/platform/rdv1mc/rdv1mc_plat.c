@@ -43,8 +43,9 @@ static struct gic600_multichip_data rdv1mc_multichip_data __init = {
 #endif
 	},
 	.spi_ids = {
-		{PLAT_ARM_GICD_BASE, RDV1MC_CHIP0_SPI_START,
-			RDV1MC_CHIP0_SPI_END},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP0_SPI_MIN,
+		NRD_CHIP0_SPI_MAX},
 		{0, 0, 0},
 #if (NRD_CHIP_COUNT > 2)
 		{0, 0, 0},

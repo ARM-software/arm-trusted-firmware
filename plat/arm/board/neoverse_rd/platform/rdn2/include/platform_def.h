@@ -74,4 +74,20 @@
 #define NRD_ADDR_BITS_PER_CHIP	U(42)	/* 4TB */
 #endif
 
+/* GIC SPI range for multichip */
+#define NRD_CHIP0_SPI_MIN		U(32)
+#define NRD_CHIP0_SPI_MAX		U(511)
+#if NRD_CHIP_COUNT > 1
+#define NRD_CHIP1_SPI_MIN		U(512)
+#define NRD_CHIP1_SPI_MAX		U(991)
+#endif
+#if NRD_CHIP_COUNT > 2
+#define NRD_CHIP2_SPI_MIN		U(4096)
+#define NRD_CHIP2_SPI_MAX		U(4575)
+#endif
+#if NRD_CHIP_COUNT > 3
+#define NRD_CHIP3_SPI_MIN		U(4576)
+#define NRD_CHIP3_SPI_MAX		U(5055)
+#endif
+
 #endif /* PLATFORM_DEF_H */

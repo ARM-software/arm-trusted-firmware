@@ -49,15 +49,23 @@ static struct gic600_multichip_data rdn2mc_multichip_data __init = {
 #endif
 	},
 	.spi_ids = {
-		{PLAT_ARM_GICD_BASE, 32, 511},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP0_SPI_MIN,
+		NRD_CHIP0_SPI_MAX},
 	#if NRD_CHIP_COUNT > 1
-		{PLAT_ARM_GICD_BASE, 512, 991},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP1_SPI_MIN,
+		NRD_CHIP1_SPI_MAX},
 	#endif
 	#if NRD_CHIP_COUNT > 2
-		{PLAT_ARM_GICD_BASE, 4096, 4575},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP2_SPI_MIN,
+		NRD_CHIP2_SPI_MAX},
 	#endif
 	#if NRD_CHIP_COUNT > 3
-		{PLAT_ARM_GICD_BASE, 4576, 5055},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP3_SPI_MIN,
+		NRD_CHIP3_SPI_MAX},
 	#endif
 	}
 };
