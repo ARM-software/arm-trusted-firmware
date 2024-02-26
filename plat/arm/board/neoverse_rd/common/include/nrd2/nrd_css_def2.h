@@ -38,4 +38,10 @@
 /*Secure Watchdog */
 #define NRD_CSS_SECURE_WDOG_BASE		UL(0x2A480000)
 
+/* MHU */
+#define NRD_CSS_AP_SCP_S_MHU_BASE		UL(0x2A920000)
+
+/* GIC */
+#define NRD_CSS_GIC_BASE			UL(0x30000000)
+
 #endif /* NRD_CSS_DEF2_H */
