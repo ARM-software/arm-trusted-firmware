@@ -8,8 +8,16 @@
 #define PLATFORM_DEF_H
 
 #include <lib/utils_def.h>
+
+#include <nrd_css_fw_def2.h>
+#include <nrd_plat_arm_def2.h>
+#include <nrd_ros_fw_def2.h>
 #include <nrd_sdei.h>
 #include <nrd_soc_platform_def_v2.h>
+
+/* Remote chip address offset */
+#define NRD_REMOTE_CHIP_MEM_OFFSET(n)					\
+		((ULL(1) << NRD_ADDR_BITS_PER_CHIP) * (n))
 
 #if (NRD_PLATFORM_VARIANT == 1)
 #define PLAT_ARM_CLUSTER_COUNT		U(8)

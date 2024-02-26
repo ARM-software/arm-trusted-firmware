@@ -7,7 +7,6 @@
 #ifndef NRD_SOC_PLATFORM_DEF_V2_H
 #define NRD_SOC_PLATFORM_DEF_V2_H
 
-#include <nrd_base_platform_def.h>
 #include <nrd_soc_css_def_v2.h>
 
 /* Map the System registers to access from S-EL0 */
