@@ -14,6 +14,15 @@
  * CSS memory map related defines
  ******************************************************************************/
 
+/* Boot ROM */
+#define NRD_CSS_SECURE_ROM_BASE			UL(0x00000000)
+
+/* DRAM2 */
+#define NRD_CSS_DRAM2_BASE			ULL(0x8080000000)
+
+/* NS SRAM */
+#define NRD_CSS_NS_SRAM_BASE			UL(0x06000000)
+
 /* PL011 UART */
 #define NRD_CSS_SEC_UART_BASE			UL(0x2A410000)
 #define NRD_CSS_NSEC_UART_BASE			UL(0x2A400000)
