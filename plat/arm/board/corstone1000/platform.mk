@@ -28,8 +28,13 @@ FIP_BL2_ARGS := tb-fw
 
 override NEED_BL2U	:=	no
 override NEED_BL31	:=	yes
-NEED_BL32		:=	yes
+NEED_BL32		?=	yes
 override NEED_BL33	:=	yes
+
+# Add CORSTONE1000_WITH_BL32 as a preprocessor define (-D option)
+ifeq (${NEED_BL32},yes)
+$(eval $(call add_define,CORSTONE1000_WITH_BL32))
+endif
 
 # Include GICv2 driver files
 include drivers/arm/gic/v2/gicv2.mk
