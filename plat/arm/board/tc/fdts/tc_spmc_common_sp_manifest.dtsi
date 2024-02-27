@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/*
+ * Secure world memory map. For a full view of the DRAM map, see platform_def.h
+ *
+ *  0xf900_c000  ------------------
+ *               |       ...      |
+ *  0xf901_c000  ------------------
+ *               |     (63MB)     |  Trusty (=/=> OP-TEE)
+ *  0xfcf1_c000  ------------------
+ *               |       ...      |
+ *  0xfd00_0000  ------------------
+ *               |     (512K)     |  Hafnium
+ *  0xfd08_0000  ------------------
+ *               |       ...      |  Hafnium stack
+ *  0xfd28_0000  ------------------
+ *               |     (11MB)     |  OP-TEE (=/=> Trusty)
+ *  0xfdd8_0000  ------------------
+ *               |       ...      |
+ *  0xfde0_0000  ------------------
+ *               |     (2MB)      |  Firmware Upgrade
+ *  0xfec0_0000  ------------------
+ *               |     (2MB)      |  Crypto
+ *  0xfee0_0000	 ------------------
+ *               |     (2MB)      |  Internal Truested Storage
+ *  0xff00_0000  ------------------
+ */
+&hafnium {
+	vm1 {
+		is_ffa_partition;
+		vcpu_count = <8>;
+		/* partition information filled in separately */
+	};
+#ifdef TS_SP_FW_CONFIG
+	vm2 {
+		is_ffa_partition;
+		debug_name = "internal-trusted-storage";
+		load_address = <0xfee00000>;
+		vcpu_count = <1>;
+		mem_size = <0x200000>; /* 2MB TZC DRAM */
+	};
+	vm3 {
+		is_ffa_partition;
+		debug_name = "crypto";
+		load_address = <0xfec00000>;
+		vcpu_count = <1>;
+		mem_size = <0x200000>; /* 2MB TZC DRAM */
+	};
+	vm4 {
+		is_ffa_partition;
+		debug_name = "firmware-update";
+		load_address = <0xfde00000>;
+		vcpu_count = <1>;
+		mem_size = <0xe00000>; /* 14MB TZC DRAM */
+	};
+#endif
+};

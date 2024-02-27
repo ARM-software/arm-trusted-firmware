@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -52,6 +52,9 @@
 #else
 #define GENMASK				GENMASK_32
 #endif
+
+#define HI(addr)			(addr >> 32)
+#define LO(addr)			(addr & 0xffffffff)
 
 /*
  * This variant of div_round_up can be used in macro definition but should not

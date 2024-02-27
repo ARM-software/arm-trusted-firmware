@@ -17,8 +17,6 @@
 #include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 
-#define PLATFORM_CORE_COUNT		8
-
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00080000	/* 512 KB */
 
 /*
@@ -30,6 +28,12 @@
  *   - Region to load secure partitions
  *
  *
+ *  0xf8a0_0000  ------------------   TC_NS_FWU_BASE
+ *               |    FWU shmem   |
+ *               |      (4MB)     |
+ *  0xf8e0_0000  ------------------   TC_NS_OPTEE_BASE
+ *               |  OP-TEE shmem  |
+ *               |      (2MB)     |
  *  0xF900_0000  ------------------   TC_TZC_DRAM1_BASE
  *               |                |
  *               |      SPMC      |
@@ -46,7 +50,7 @@
  */
 #define TC_TZC_DRAM1_BASE		(ARM_AP_TZC_DRAM1_BASE -	\
 					 TC_TZC_DRAM1_SIZE)
-#define TC_TZC_DRAM1_SIZE		96 * SZ_1M	/* 96 MB */
+#define TC_TZC_DRAM1_SIZE		(96 * SZ_1M)	/* 96 MB */
 #define TC_TZC_DRAM1_END		(TC_TZC_DRAM1_BASE +		\
 					 TC_TZC_DRAM1_SIZE - 1)
 
@@ -54,8 +58,12 @@
 #define TC_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
 					 ARM_TZC_DRAM1_SIZE -		\
 					 TC_TZC_DRAM1_SIZE)
-#define TC_NS_DRAM1_END		(TC_NS_DRAM1_BASE +		\
-					 TC_NS_DRAM1_SIZE - 1)
+#define TC_NS_DRAM1_END			(TC_NS_DRAM1_BASE + TC_NS_DRAM1_SIZE - 1)
+
+#define TC_NS_OPTEE_SIZE		(2 * SZ_1M)
+#define TC_NS_OPTEE_BASE		(TC_NS_DRAM1_BASE + TC_NS_DRAM1_SIZE - TC_NS_OPTEE_SIZE)
+#define TC_NS_FWU_SIZE			(4 * SZ_1M)
+#define TC_NS_FWU_BASE			(TC_NS_OPTEE_BASE - TC_NS_FWU_SIZE)
 
 /*
  * Mappings for TC DRAM1 (non-secure) and TC TZC DRAM1 (secure)
@@ -186,6 +194,13 @@
 #define TC_DEVICE_BASE			0x21000000
 #define TC_DEVICE_SIZE			0x5f000000
 
+#if defined(TARGET_FLAVOUR_FPGA)
+#undef V2M_FLASH0_BASE
+#undef V2M_FLASH0_SIZE
+#define V2M_FLASH0_BASE			UL(0x0C000000)
+#define V2M_FLASH0_SIZE			UL(0x02000000)
+#endif
+
 // TC_MAP_DEVICE covers different peripherals
 // available to the platform
 #define TC_MAP_DEVICE	MAP_REGION_FLAT(		\
@@ -206,11 +221,23 @@
 #define PLAT_ARM_TRUSTED_ROM_SIZE	(0x00080000 - PLAT_ARM_TRUSTED_ROM_BASE)
 
 #define PLAT_ARM_NSRAM_BASE		0x06000000
+#if TARGET_FLAVOUR_FVP
 #define PLAT_ARM_NSRAM_SIZE		0x00080000	/* 512KB */
+#else /* TARGET_FLAVOUR_FPGA */
+#define PLAT_ARM_NSRAM_SIZE		0x00008000	/* 64KB */
+#endif /* TARGET_FLAVOUR_FPGA */
 
+#if TARGET_PLATFORM <= 2
 #define PLAT_ARM_DRAM2_BASE		ULL(0x8080000000)
+#elif TARGET_PLATFORM == 3
+#define PLAT_ARM_DRAM2_BASE		ULL(0x880000000)
+#endif /* TARGET_PLATFORM == 3 */
 #define PLAT_ARM_DRAM2_SIZE		ULL(0x180000000)
 #define PLAT_ARM_DRAM2_END		(PLAT_ARM_DRAM2_BASE + PLAT_ARM_DRAM2_SIZE - 1ULL)
+
+#define TC_NS_MTE_SIZE			(256 * SZ_1M)
+/* the SCP puts the carveout at the end of DRAM2 */
+#define TC_NS_DRAM2_SIZE		(PLAT_ARM_DRAM2_SIZE - TC_NS_MTE_SIZE)
 
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	CSS_G1S_INT_PROPS(grp)
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp),	\
@@ -220,6 +247,8 @@
 
 #define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
+
+#define PLAT_ARM_SP_MAX_SIZE		U(0x2000000)
 
 /*******************************************************************************
  * Memprotect definitions
@@ -252,11 +281,21 @@
 					 CSS_SCMI_PAYLOAD_SIZE_MAX)
 
 #define PLAT_ARM_CLUSTER_COUNT		U(1)
+#if TARGET_FLAVOUR_FPGA && TARGET_PLATFORM == 2
+#define PLAT_MAX_CPUS_PER_CLUSTER	U(14)
+#else /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM == 2 */
 #define PLAT_MAX_CPUS_PER_CLUSTER	U(8)
+#endif /* TARGET_FLAVOUR_FPGA && TARGET_PLATFORM == 2 */
 #define PLAT_MAX_PE_PER_CPU		U(1)
 
+#define PLATFORM_CORE_COUNT		(PLAT_MAX_CPUS_PER_CLUSTER * PLAT_ARM_CLUSTER_COUNT)
+
 /* Message Handling Unit (MHU) base addresses */
-#define PLAT_CSS_MHU_BASE		UL(0x45400000)
+#if TARGET_PLATFORM <= 2
+	#define PLAT_CSS_MHU_BASE		UL(0x45400000)
+#elif TARGET_PLATFORM == 3
+	#define PLAT_CSS_MHU_BASE		UL(0x46000000)
+#endif /* TARGET_PLATFORM == 3 */
 #define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
 /* TC2: AP<->RSS MHUs */
@@ -335,16 +374,41 @@
 
 /* UART related constants */
 
+#define TC_UART0			0x2a400000
+#define TC_UART1			0x2a410000
+
+/*
+ * TODO: if any more undefs are needed, it's better to consider dropping the
+ * board_css_def.h include above
+ */
 #undef PLAT_ARM_BOOT_UART_BASE
-#define PLAT_ARM_BOOT_UART_BASE		0x2A410000
-
 #undef PLAT_ARM_RUN_UART_BASE
-#define PLAT_ARM_RUN_UART_BASE		0x2A400000
-
 #undef PLAT_ARM_SP_MIN_RUN_UART_BASE
 #define PLAT_ARM_SP_MIN_RUN_UART_BASE	PLAT_ARM_RUN_UART_BASE
 
 #undef PLAT_ARM_CRASH_UART_BASE
+#undef PLAT_ARM_BOOT_UART_CLK_IN_HZ
+#undef PLAT_ARM_RUN_UART_CLK_IN_HZ
+
+#if TARGET_FLAVOUR_FVP
+#define PLAT_ARM_BOOT_UART_BASE		TC_UART1
+#define TC_UARTCLK			7372800
+#else /* TARGET_FLAVOUR_FPGA */
+#define PLAT_ARM_BOOT_UART_BASE		TC_UART0
+#if TARGET_PLATFORM <= 2
+#define TC_UARTCLK			5000000
+#elif TARGET_PLATFORM >= 3
+#define TC_UARTCLK			3750000
+#endif /* TARGET_PLATFORM >= 3 */
+#undef  ARM_CONSOLE_BAUDRATE
+#define ARM_CONSOLE_BAUDRATE		38400
+#endif /* TARGET_FLAVOUR_FPGA */
+
+#define PLAT_ARM_RUN_UART_BASE		TC_UART0
+#define PLAT_ARM_SP_MIN_RUN_UART_BASE	PLAT_ARM_RUN_UART_BASE
 #define PLAT_ARM_CRASH_UART_BASE	PLAT_ARM_RUN_UART_BASE
+
+#define PLAT_ARM_BOOT_UART_CLK_IN_HZ	TC_UARTCLK
+#define PLAT_ARM_RUN_UART_CLK_IN_HZ	TC_UARTCLK
 
 #endif /* PLATFORM_DEF_H */

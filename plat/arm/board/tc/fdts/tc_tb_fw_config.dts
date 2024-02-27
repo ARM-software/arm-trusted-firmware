@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,11 +41,20 @@
 		       uuid = "d9df52d5-16a2-4bb2-9aa4-d26d3b84e8c0";
 		       load-address = <0xfec00000>;
 		};
+		firmware-update {
+		       uuid = "6823a838-1b06-470e-9774-0cce8bfb53fd";
+		       load-address = <0xfde00000>;
+		};
 #endif
 #if OPTEE_SP_FW_CONFIG
 		op-tee {
 		       uuid = "486178e0-e7f8-11e3-bc5e-0002a5d5c51b";
 		       load-address = <0xfd280000>;
+		};
+#elif TRUSTY_SP_FW_CONFIG
+		trusty {
+		       uuid = "40ee25f0-a2bc-304c-8c4c-a173c57d8af1";
+		       load-address = <0xf901c000>;
 		};
 #else
 		cactus-primary {

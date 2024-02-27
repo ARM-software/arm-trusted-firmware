@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/dts-v1/;
+
+#include <tc_spmc_manifest.dtsi>
+
+/ {
+	hypervisor {
+		vm1 {
+			is_ffa_partition;
+			debug_name = "cactus-primary";
+			load_address = <0xfe000000>;
+			vcpu_count = <8>;
+			mem_size = <1048576>;
+		};
+		vm2 {
+			is_ffa_partition;
+			debug_name = "cactus-secondary";
+			load_address = <0xfe100000>;
+			vcpu_count = <8>;
+			mem_size = <1048576>;
+		};
+		vm3 {
+			is_ffa_partition;
+			debug_name = "cactus-tertiary";
+			load_address = <0xfe200000>;
+			vcpu_count = <1>;
+			mem_size = <1048576>;
+		};
+		vm4 {
+			is_ffa_partition;
+			debug_name = "ivy";
+			load_address = <0xfe600000>;
+			vcpu_count = <1>;
+			mem_size = <1048576>;
+		};
+	};
+};

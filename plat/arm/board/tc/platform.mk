@@ -1,24 +1,38 @@
-# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 include common/fdt_wrappers.mk
 
-ifeq ($(TARGET_PLATFORM), 0)
-	$(error Platform ${PLAT}$(TARGET_PLATFORM) is deprecated.)
-endif
+TARGET_FLAVOUR			:=	fvp
+# DPU with SCMI may not necessarily work, so allow its independence
+TC_DPU_USE_SCMI_CLK		:=	1
+# SCMI power domain control enable
+TC_SCMI_PD_CTRL_EN		:=	1
+# IOMMU: Enable the use of system or individual MMUs
+TC_IOMMU_EN			:=	1
 
-ifeq ($(TARGET_PLATFORM), 1)
+ifneq ($(shell expr $(TARGET_PLATFORM) \<= 1), 0)
         $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
           Some of the features might not work as expected)
 endif
 
-ifeq ($(shell expr $(TARGET_PLATFORM) \<= 2), 0)
-        $(error TARGET_PLATFORM must be less than or equal to 2)
+ifeq ($(shell expr $(TARGET_PLATFORM) \<= 3), 0)
+        $(error TARGET_PLATFORM must be less than or equal to 3)
 endif
 
-$(eval $(call add_define,TARGET_PLATFORM))
+ifeq ($(filter ${TARGET_FLAVOUR}, fvp fpga),)
+        $(error TARGET_FLAVOUR must be fvp or fpga)
+endif
+
+$(eval $(call add_defines, \
+	TARGET_PLATFORM \
+	TARGET_FLAVOUR_$(call uppercase,${TARGET_FLAVOUR}) \
+	TC_DPU_USE_SCMI_CLK \
+	TC_SCMI_PD_CTRL_EN \
+	TC_IOMMU_EN \
+))
 
 CSS_LOAD_SCP_IMAGES	:=	1
 
@@ -70,7 +84,8 @@ override ARM_PLAT_MT	:=	1
 
 TC_BASE	=	plat/arm/board/tc
 
-PLAT_INCLUDES		+=	-I${TC_BASE}/include/
+PLAT_INCLUDES		+=	-I${TC_BASE}/include/ \
+				-I${TC_BASE}/fdts/
 
 # CPU libraries for TARGET_PLATFORM=1
 ifeq (${TARGET_PLATFORM}, 1)
@@ -84,6 +99,13 @@ ifeq (${TARGET_PLATFORM}, 2)
 TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a520.S \
 			lib/cpus/aarch64/cortex_a720.S \
 			lib/cpus/aarch64/cortex_x4.S
+endif
+
+# CPU libraries for TARGET_PLATFORM=3
+ifeq (${TARGET_PLATFORM}, 3)
+TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a520.S \
+			lib/cpus/aarch64/cortex_chaberton.S \
+			lib/cpus/aarch64/cortex_blackhawk.S
 endif
 
 INTERCONNECT_SOURCES	:=	${TC_BASE}/tc_interconnect.c
@@ -133,7 +155,7 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 
 ifeq (${SPD},spmd)
 ifeq ($(ARM_SPMC_MANIFEST_DTS),)
-ARM_SPMC_MANIFEST_DTS	:=	${TC_BASE}/fdts/${PLAT}_spmc_manifest.dts
+ARM_SPMC_MANIFEST_DTS	:=	${TC_BASE}/fdts/${PLAT}_spmc_test_manifest.dts
 endif
 
 FDT_SOURCES		+=	${ARM_SPMC_MANIFEST_DTS}
@@ -159,11 +181,11 @@ override CTX_INCLUDE_PAUTH_REGS	:= 1
 override ENABLE_SPE_FOR_NS	:= 0
 
 override ENABLE_FEAT_AMU := 1
-override ENABLE_AMU_AUXILIARY_COUNTERS := 1
-override ENABLE_AMU_FCONF := 1
+ENABLE_AMU_AUXILIARY_COUNTERS := 1
+ENABLE_AMU_FCONF := 1
 
-override ENABLE_MPMM := 1
-override ENABLE_MPMM_FCONF := 1
+ENABLE_MPMM := 1
+ENABLE_MPMM_FCONF := 1
 
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
