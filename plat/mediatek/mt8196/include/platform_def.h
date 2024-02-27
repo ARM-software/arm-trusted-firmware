@@ -36,6 +36,28 @@
 #define SPM_BASE		(IO_PHYS + 0x0C004000)
 
 /*******************************************************************************
+ * GPIO related constants
+ ******************************************************************************/
+#define GPIO_BASE		(IO_PHYS + 0x0002D000)
+#define RGU_BASE		(IO_PHYS + 0x0C00B000)
+#define DRM_BASE		(IO_PHYS + 0x0000D000)
+#define IOCFG_RT_BASE		(IO_PHYS + 0x02000000)
+#define IOCFG_RM1_BASE		(IO_PHYS + 0x02020000)
+#define IOCFG_RM2_BASE		(IO_PHYS + 0x02040000)
+#define IOCFG_RB_BASE		(IO_PHYS + 0x02060000)
+#define IOCFG_BM1_BASE		(IO_PHYS + 0x02820000)
+#define IOCFG_BM2_BASE		(IO_PHYS + 0x02840000)
+#define IOCFG_BM3_BASE		(IO_PHYS + 0x02860000)
+#define IOCFG_LT_BASE		(IO_PHYS + 0x03000000)
+#define IOCFG_LM1_BASE		(IO_PHYS + 0x03020000)
+#define IOCFG_LM2_BASE		(IO_PHYS + 0x03040000)
+#define IOCFG_LB1_BASE		(IO_PHYS + 0x030f0000)
+#define IOCFG_LB2_BASE		(IO_PHYS + 0x03110000)
+#define IOCFG_TM1_BASE		(IO_PHYS + 0x03800000)
+#define IOCFG_TM2_BASE		(IO_PHYS + 0x03820000)
+#define IOCFG_TM3_BASE		(IO_PHYS + 0x03860000)
+
+/*******************************************************************************
  * UART related constants
  ******************************************************************************/
 #define UART0_BASE	(IO_PHYS + 0x06000000)

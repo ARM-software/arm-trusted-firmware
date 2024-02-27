@@ -14,9 +14,11 @@ include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common \
+                 -I${MTK_PLAT}/drivers/gpio/ \
 		 -I${MTK_PLAT}/include \
 		 -I${MTK_PLAT}/include/${ARCH_VERSION} \
 		 -I${MTK_PLAT} \
+		 -I${MTK_PLAT_SOC}/drivers/gpio/ \
 		 -I${MTK_PLAT_SOC}/include \
 		 -Idrivers/arm/gic \
 
@@ -34,6 +36,7 @@ PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \
 
 BL31_SOURCES += drivers/delay_timer/delay_timer.c \
 		drivers/delay_timer/generic_delay_timer.c \
+		drivers/gpio/gpio.c \
 		lib/cpus/aarch64/cortex_a720.S	\
 		lib/cpus/aarch64/cortex_x4.S	\
 		lib/cpus/aarch64/cortex_x925.S \
@@ -44,6 +47,8 @@ BL31_SOURCES += drivers/delay_timer/delay_timer.c \
 		plat/common/aarch64/crash_console_helpers.S \
 		${MTK_PLAT}/common/mtk_plat_common.c \
 		${MTK_PLAT}/common/params_setup.c \
+                ${MTK_PLAT}/drivers/gpio/mtgpio_common.c \
+                $(MTK_PLAT)/$(MTK_SOC)/drivers/gpio/mtgpio.c \
 		$(MTK_PLAT)/$(MTK_SOC)/plat_mmap.c
 
 include plat/mediatek/build_helpers/mtk_build_helpers_epilogue.mk
