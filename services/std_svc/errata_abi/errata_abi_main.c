@@ -435,10 +435,11 @@ struct em_cpu_list cpu_list[] = {
 {
 	.cpu_partnumber = CORTEX_A715_MIDR,
 	.cpu_errata_list = {
-		[0] = {2561034, 0x10, 0x10, ERRATA_A715_2561034},
-		[1] = {2701951, 0x00, 0x11, ERRATA_A715_2701951, \
+		[0] = {2429384, 0x00, 0x10, ERRATA_A715_2429384},
+		[1] = {2561034, 0x10, 0x10, ERRATA_A715_2561034},
+		[2] = {2701951, 0x00, 0x11, ERRATA_A715_2701951, \
 			ERRATA_NON_ARM_INTERCONNECT},
-		[2 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+		[3 ... ERRATA_LIST_END] = UNDEF_ERRATA,
 	}
 },
 #endif /* CORTEX_A715_H_INC */
