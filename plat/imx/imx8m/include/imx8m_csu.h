@@ -31,7 +31,7 @@
 #define CSU_HP_LOCK(x)		((0x1 << (((x) % 16) * 2 + 1)))
 #define CSU_HP_CFG(x, n)	((x) << (((n) % 16) * 2))
 
-#define CSU_SA_REG(x)		(IMX_CSU_BASE + 0x218)
+#define CSU_SA_REG(x)		(IMX_CSU_BASE + (((x) / 16) * 4) + 0x218)
 #define CSU_SA_LOCK(x)		((0x1 << (((x) % 16) * 2 + 1)))
 #define CSU_SA_CFG(x, n)	((x) << (((n) % 16) * 2))
 
