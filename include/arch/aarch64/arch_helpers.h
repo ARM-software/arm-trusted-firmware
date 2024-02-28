@@ -241,6 +241,7 @@ DEFINE_SYSOP_PARAM_FUNC(xpaci)
 
 void flush_dcache_range(uintptr_t addr, size_t size);
 void flush_dcache_to_popa_range(uintptr_t addr, size_t size);
+void flush_dcache_to_popa_range_mte2(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);
 void inv_dcache_range(uintptr_t addr, size_t size);
 bool is_dcache_enabled(void);
