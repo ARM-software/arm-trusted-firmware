@@ -55,6 +55,9 @@ static inline bool is_sysreg_iss_write(uint64_t esr)
  */
 int handle_sysreg_trap(uint64_t esr_el3, cpu_context_t *ctx);
 
+/* Handler for injecting UNDEF exception to lower EL */
+void inject_undef64(cpu_context_t *ctx);
+
 /* Prototypes for system register emulation handlers provided by platforms. */
 int plat_handle_impdef_trap(uint64_t esr_el3, cpu_context_t *ctx);
 int plat_handle_rng_trap(uint64_t esr_el3, cpu_context_t *ctx);

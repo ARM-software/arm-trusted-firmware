@@ -128,6 +128,17 @@ static inline bool is_feat_pan_supported(void)
 	return read_feat_pan_id_field() != 0U;
 }
 
+static inline bool is_feat_pan_present(void)
+{
+	return  read_feat_pan_id_field() != 0U;
+}
+
+static inline unsigned int is_feat_ssbs_present(void)
+{
+	return ((read_id_pfr2() >> ID_PFR2_SSBS_SHIFT) &
+		ID_PFR2_SSBS_MASK) != SSBS_UNAVAILABLE;
+}
+
 /*
  * TWED, ECV, CSV2, RAS are only used by the AArch64 EL2 context switch
  * code. In fact, EL2 context switching is only needed for AArch64 (since
@@ -164,6 +175,10 @@ static inline bool is_feat_sxpoe_supported(void) { return false; }
 static inline bool is_feat_s2pie_supported(void) { return false; }
 static inline bool is_feat_s1pie_supported(void) { return false; }
 static inline bool is_feat_sxpie_supported(void) { return false; }
+static inline bool is_feat_uao_present(void) { return false; }
+static inline bool is_feat_nmi_present(void) { return false; }
+static inline bool is_feat_ebep_present(void) { return false; }
+static inline bool is_feat_sebep_present(void) { return false; }
 
 static inline unsigned int read_feat_pmuv3_id_field(void)
 {

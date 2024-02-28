@@ -163,6 +163,11 @@
 #define ID_PFR1_SEC_MASK	U(0xf)
 #define ID_PFR1_ELx_ENABLED	U(1)
 
+/* ID_PFR2 definitions */
+#define ID_PFR2_SSBS_SHIFT	U(4)
+#define ID_PFR2_SSBS_MASK	U(0xf)
+#define SSBS_UNAVAILABLE	U(0)
+
 /* SCTLR definitions */
 #define SCTLR_RES1_DEF		((U(1) << 23) | (U(1) << 22) | (U(1) << 4) | \
 				 (U(1) << 3))
@@ -552,6 +557,7 @@
 #define ID_DFR1		p15, 0, c0, c3, 5
 #define ID_PFR0		p15, 0, c0, c1, 0
 #define ID_PFR1		p15, 0, c0, c1, 1
+#define ID_PFR2		p15, 0, c0, c3, 4
 #define MAIR0		p15, 0, c10, c2, 0
 #define MAIR1		p15, 0, c10, c2, 1
 #define TTBCR		p15, 0, c2, c0, 2

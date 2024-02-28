@@ -42,6 +42,11 @@ static inline bool is_armv7_gentimer_present(void)
 
 CREATE_FEATURE_FUNCS(feat_pan, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_PAN_SHIFT,
 		     ENABLE_FEAT_PAN)
+static inline bool is_feat_pan_present(void)
+{
+	return read_feat_pan_id_field() != 0U;
+}
+
 CREATE_FEATURE_FUNCS(feat_vhe, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_VHE_SHIFT,
 		     ENABLE_FEAT_VHE)
 
@@ -49,6 +54,12 @@ static inline bool is_armv8_2_ttcnp_present(void)
 {
 	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_CNP_SHIFT) &
 		ID_AA64MMFR2_EL1_CNP_MASK) != 0U;
+}
+
+static inline bool is_feat_uao_present(void)
+{
+	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_UAO_SHIFT) &
+		ID_AA64MMFR2_EL1_UAO_MASK) != 0U;
 }
 
 static inline bool is_feat_pacqarma3_present(void)
@@ -87,6 +98,42 @@ static inline bool is_armv8_5_bti_present(void)
 {
 	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_BT_SHIFT) &
 		ID_AA64PFR1_EL1_BT_MASK) == BTI_IMPLEMENTED;
+}
+
+static inline unsigned int get_armv8_5_mte_support(void)
+{
+	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_MTE_SHIFT) &
+		ID_AA64PFR1_EL1_MTE_MASK);
+}
+
+static inline bool is_feat_ssbs_present(void)
+{
+	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_SSBS_SHIFT) &
+		ID_AA64PFR1_EL1_SSBS_MASK) != SSBS_UNAVAILABLE;
+}
+
+static inline bool is_feat_nmi_present(void)
+{
+	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_NMI_SHIFT) &
+		ID_AA64PFR1_EL1_NMI_MASK) == NMI_IMPLEMENTED;
+}
+
+static inline bool is_feat_gcs_present(void)
+{
+	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_GCS_SHIFT) &
+		ID_AA64PFR1_EL1_GCS_MASK) == GCS_IMPLEMENTED;
+}
+
+static inline bool is_feat_ebep_present(void)
+{
+	return ((read_id_aa64dfr1_el1() >> ID_AA64DFR1_EBEP_SHIFT) &
+		ID_AA64DFR1_EBEP_MASK) == EBEP_IMPLEMENTED;
+}
+
+static inline bool is_feat_sebep_present(void)
+{
+	return ((read_id_aa64dfr0_el1() >> ID_AA64DFR0_SEBEP_SHIFT) &
+		ID_AA64DFR0_SEBEP_MASK) == SEBEP_IMPLEMENTED;
 }
 
 CREATE_FEATURE_FUNCS(feat_mte, id_aa64pfr1_el1, ID_AA64PFR1_EL1_MTE_SHIFT,
