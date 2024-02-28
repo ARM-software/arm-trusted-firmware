@@ -213,4 +213,26 @@ enum csu_csl_idx {
 	CSU_CSL_CAAM = 114,
 };
 
+enum csu_sa_idx {
+	CSU_SA_M4 = 1,
+	CSU_SA_SDMA1 = 2,
+	CSU_SA_PCIE_CTRL1 = 3,
+	CSU_SA_USB1 = 4,
+	CSU_SA_USB2 = 5,
+	CSU_SA_VPU = 6,
+	CSU_SA_GPU = 7,
+	CSU_SA_APBHDMA = 8,
+	CSU_SA_ENET = 9,
+	CSU_SA_USDHC1 = 10,
+	CSU_SA_USDHC2 = 11,
+	CSU_SA_USDHC3 = 12,
+	CSU_SA_HUGO = 13,
+	CSU_SA_DAP = 14,
+	CSU_SA_SDMA2 = 15,
+	CSU_SA_CAAM = 16,
+	CSU_SA_SDMA3 = 17,
+	CSU_SA_LCDIF = 18,
+	CSU_SA_CSI = 19,
+};
+
 #endif /* IMX_SEC_DEF_H */
