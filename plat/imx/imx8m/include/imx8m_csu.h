@@ -20,6 +20,9 @@
 #define CSU_SEC_LEVEL_6		0x03
 #define CSU_SEC_LEVEL_7		0x0
 
+#define SEC_ACCESS		0x0
+#define NON_SEC_ACCESS		0x1
+
 #define LOCKED			0x1
 #define UNLOCKED		0x0
 
