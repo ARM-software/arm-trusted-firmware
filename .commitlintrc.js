@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,10 +8,9 @@
 
 "use strict";
 
-const fs = require("fs");
-const yaml = require("js-yaml");
-
-const { "trailer-exists": trailerExists } = require("@commitlint/rules").default;
+import fs from "fs";
+import rules from "@commitlint/rules";
+import yaml from "js-yaml";
 
 /*
  * The types and scopes accepted by both Commitlint and Commitizen are defined by the changelog
@@ -37,7 +36,7 @@ function getTypes(sections) {
 
 function getScopes(subsections) {
     return subsections.flatMap(subsection => {
-        const scope = subsection.scope ?  [ subsection.scope ] : [];
+        const scope = subsection.scope ? [subsection.scope] : [];
         const subscopes = getScopes(subsection.subsections || []);
 
         return scope.concat(subscopes);
@@ -47,13 +46,13 @@ function getScopes(subsections) {
 const types = getTypes(changelog.sections).sort(); /* Sort alphabetically */
 const scopes = getScopes(changelog.subsections).sort(); /* Sort alphabetically */
 
-module.exports = {
+export default {
     extends: ["@commitlint/config-conventional"],
     plugins: [
         {
             rules: {
-                "signed-off-by-exists": trailerExists,
-                "change-id-exists": trailerExists,
+                "signed-off-by-exists": rules["trailer-exists"],
+                "change-id-exists": rules["trailer-exists"],
             },
         },
     ],
@@ -64,7 +63,7 @@ module.exports = {
         "change-id-exists": [1, "always", "Change-Id:"], /* Warning */
         "signed-off-by-exists": [1, "always", "Signed-off-by:"], /* Warning */
 
-        "type-case": [2, "always", "lower-case" ], /* Error */
+        "type-case": [2, "always", "lower-case"], /* Error */
         "type-enum": [2, "always", types], /* Error */
 
         "scope-case": [2, "always", "lower-case"], /* Error */
