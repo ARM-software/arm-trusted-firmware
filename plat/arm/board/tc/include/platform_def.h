@@ -28,6 +28,11 @@
  *   - Region to load secure partitions
  *
  *
+ *  0x8000_0000  ------------------   TC_NS_DRAM1_BASE
+ *               |       DTB      |
+ *               |      (32K)     |
+ *  0x8000_8000  ------------------
+ *               |       ...      |
  *  0xf8a0_0000  ------------------   TC_NS_FWU_BASE
  *               |    FWU shmem   |
  *               |      (4MB)     |
@@ -79,7 +84,7 @@
 						TC_TZC_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
 
-#define PLAT_HW_CONFIG_DTB_BASE	ULL(0x83000000)
+#define PLAT_HW_CONFIG_DTB_BASE	TC_NS_DRAM1_BASE
 #define PLAT_HW_CONFIG_DTB_SIZE	ULL(0x8000)
 
 #define PLAT_DTB_DRAM_NS MAP_REGION_FLAT(	\
