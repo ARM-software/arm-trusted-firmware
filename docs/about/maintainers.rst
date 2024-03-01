@@ -646,6 +646,13 @@ NXP i.MX8M platform port
 :|F|: docs/plat/imx8m.rst
 :|F|: plat/imx/imx8m/
 
+NXP i.MX8ULP platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Jacky Bai <ping.bai@nxp.com>
+:|G|: `JackyBai`_
+:|F|: docs/plat/imx8ulp.rst
+:|F|: plat/imx/imx8ulp/
+
 NXP i.MX9 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Jacky Bai <ping.bai@nxp.com>

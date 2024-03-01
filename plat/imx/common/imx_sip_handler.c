@@ -332,3 +332,16 @@ int imx_kernel_entry_handler(uint32_t smc_fid,
 
 	return 0;
 }
+
+#if defined(PLAT_imx8ulp)
+int imx_hifi_xrdc(uint32_t smc_fid)
+{
+	mmio_setbits_32(IMX_SIM2_BASE + 0x8, BIT_32(19) | BIT_32(17) | BIT_32(18));
+	mmio_clrbits_32(IMX_SIM2_BASE + 0x8, BIT_32(16));
+
+	extern int xrdc_apply_hifi_config(void);
+	xrdc_apply_hifi_config();
+
+	return 0;
+}
+#endif

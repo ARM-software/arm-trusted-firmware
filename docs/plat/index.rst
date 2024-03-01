@@ -27,6 +27,7 @@ Platform Ports
    warp7
    imx8
    imx8m
+   imx8ulp
    imx9
    npcm845x
    nxp/index

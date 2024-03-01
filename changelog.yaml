@@ -413,6 +413,9 @@ subsections:
               - title: i.MX 8
                 scope: imx8
 
+              - title: i.MX 8ULP
+                scope: imx8ulp
+
               - title: i.MX 9
                 scope: imx9
 
