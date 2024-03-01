@@ -816,6 +816,16 @@ For Cortex-X3, the following errata build flags are defined :
   CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1 of the
   CPU. It is fixed in r1p2.
 
+For Cortex-X4, the following errata build flags are defined :
+
+- ``ERRATA_X4_2701112``: This applies erratum 2701112 workaround to Cortex-X4
+  CPU and affects system configurations that do not use an Arm interconnect IP.
+  This needs to be enabled for revisions r0p0 and is fixed in r0p1.
+  The workaround for this erratum is not implemented in EL3, but the flag can
+  be enabled/disabled at the platform level. The flag is used when the errata ABI
+  feature is enabled and can assist the Kernel in the process of
+  mitigation of the erratum.
+
 For Cortex-A510, the following errata build flags are defined :
 
 -  ``ERRATA_A510_1922240``: This applies errata 1922240 workaround to
