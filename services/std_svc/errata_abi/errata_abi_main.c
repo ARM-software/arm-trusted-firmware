@@ -111,6 +111,16 @@ struct em_cpu_list cpu_list[] = {
 },
 #endif /* CORTEX_X3_H_INC */
 
+#if CORTEX_X4_H_INC
+{
+	.cpu_partnumber = CORTEX_X4_MIDR,
+	.cpu_errata_list = {
+		[0] = {2701112, 0x00, 0x00},
+		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
+	}
+},
+#endif /* CORTEX_X4_H_INC */
+
 };
 
 #if ERRATA_NON_ARM_INTERCONNECT
