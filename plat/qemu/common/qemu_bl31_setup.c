@@ -199,8 +199,6 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 
 void bl31_plat_runtime_setup(void)
 {
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
-
 #if TRANSFER_LIST
 	if (bl31_tl) {
 		/*
@@ -210,4 +208,7 @@ void bl31_plat_runtime_setup(void)
 		memcpy((void *)FW_NS_HANDOFF_BASE, bl31_tl, bl31_tl->max_size);
 	}
 #endif
+
+	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
