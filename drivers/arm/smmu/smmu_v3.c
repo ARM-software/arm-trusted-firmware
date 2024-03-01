@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,16 +69,31 @@ int __init smmuv3_security_init(uintptr_t smmu_base)
 	return smmuv3_poll(smmu_base + SMMU_S_GBPA, SMMU_S_GBPA_UPDATE, 0U);
 }
 
-/*
- * Initialize the SMMU by invalidating all secure caches and TLBs.
- * Abort all incoming transactions in order to implement a default
- * deny policy on reset
- */
+/* Initialize the SMMU by invalidating all secure caches and TLBs. */
 int __init smmuv3_init(uintptr_t smmu_base)
 {
-	/* Abort all incoming transactions */
-	if (smmuv3_security_init(smmu_base) != 0)
+	/*
+	 * Initiate invalidation of secure caches and TLBs if the SMMU
+	 * supports secure state. If not, it's implementation defined
+	 * as to how SMMU_S_INIT register is accessed.
+	 * As per Arm SMMUv3 specification the SMMU_S_INIT register in a SMMU
+	 * with RME implementation has following properties:
+	 * a) all SMMU registers that are specified to be accessible only in
+	 *    the Secure physical address space are additionally accessible in
+	 *    Root physical address space.
+	 * b) as GPT information is permitted to be cached in a TLB, the
+	 *    SMMU_S_INIT.INV_ALL operation also invalidates all GPT information
+	 *    cached in TLBs.
+	 * Additionally, it is Root firmware’s responsibility to write to
+	 * INV_ALL before enabling SMMU_ROOT_CR0.{ACCESSEN,GPCEN}.
+	 */
+	mmio_write_32(smmu_base + SMMU_S_INIT, SMMU_S_INIT_INV_ALL);
+
+	/* Wait for global invalidation operation to finish */
+	if (smmuv3_poll(smmu_base + SMMU_S_INIT,
+			SMMU_S_INIT_INV_ALL, 0U) != 0) {
 		return -1;
+	}
 
 #if ENABLE_RME
 
@@ -137,23 +152,7 @@ int __init smmuv3_init(uintptr_t smmu_base)
 
 #endif /* ENABLE_RME */
 
-	/*
-	 * Initiate invalidation of secure caches and TLBs if the SMMU
-	 * supports secure state. If not, it's implementation defined
-	 * as to how SMMU_S_INIT register is accessed.
-	 * Arm SMMU Arch RME supplement, section 3.4: all SMMU registers
-	 * specified to be accessible only in secure physical address space are
-	 * additionally accessible in root physical address space in an SMMU
-	 * with RME.
-	 * Section 3.3: as GPT information is permitted to be cached in a TLB,
-	 * the SMMU_S_INIT.INV_ALL mechanism also invalidates GPT information
-	 * cached in TLBs.
-	 */
-	mmio_write_32(smmu_base + SMMU_S_INIT, SMMU_S_INIT_INV_ALL);
-
-	/* Wait for global invalidation operation to finish */
-	return smmuv3_poll(smmu_base + SMMU_S_INIT,
-				SMMU_S_INIT_INV_ALL, 0U);
+	return 0;
 }
 
 int smmuv3_ns_set_abort_all(uintptr_t smmu_base)
