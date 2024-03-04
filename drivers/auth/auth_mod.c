@@ -328,7 +328,6 @@ static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
 	unsigned int data_len, len, i;
 	unsigned int plat_nv_ctr;
 	int rc;
-	bool is_trial_run = false;
 
 	/* Get the counter value from current image. The AM expects the IPM
 	 * to return the counter value as a DER encoded integer */
@@ -388,9 +387,14 @@ static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
 		return 1;
 	} else if (*cert_nv_ctr > plat_nv_ctr) {
 #if PSA_FWU_SUPPORT && IMAGE_BL2
-		is_trial_run = fwu_is_trial_run_state();
+		if (fwu_get_active_bank_state() == FWU_BANK_STATE_ACCEPTED) {
+			*need_nv_ctr_upgrade = true;
+		} else {
+			*need_nv_ctr_upgrade = false;
+		}
+#else
+		*need_nv_ctr_upgrade = true;
 #endif /* PSA_FWU_SUPPORT && IMAGE_BL2 */
-		*need_nv_ctr_upgrade = !is_trial_run;
 	}
 
 	return 0;

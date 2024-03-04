@@ -351,6 +351,14 @@ NR_OF_IMAGES_IN_FW_BANK		:= 1
 # Disable Firmware update support by default
 PSA_FWU_SUPPORT			:= 0
 
+# Enable image description in FWU metadata by default when PSA_FWU_SUPPORT
+# is enabled.
+ifeq ($(PSA_FWU_SUPPORT),1)
+PSA_FWU_METADATA_FW_STORE_DESC	:= 1
+else
+PSA_FWU_METADATA_FW_STORE_DESC	:= 0
+endif
+
 # Dynamic Root of Trust for Measurement support
 DRTM_SUPPORT			:= 0
 

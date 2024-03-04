@@ -1340,12 +1340,21 @@ Firmware update options
    This flag is used in defining the firmware update metadata structure. This
    flag is by default set to '1'.
 
+- ``PSA_FWU_METADATA_FW_STORE_DESC``: To be enabled when the FWU
+   metadata contains image description. The default value is 1.
+
+   The version 2 of the FWU metadata allows for an opaque metadata
+   structure where a platform can choose to not include the firmware
+   store description in the metadata structure. This option indicates
+   if the firmware store description, which provides information on
+   the updatable images is part of the structure.
+
 --------------
 
 *Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
-.. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/
+.. _PSA FW update specification: https://developer.arm.com/documentation/den0118/latest/
 .. _PSA DRTM specification: https://developer.arm.com/documentation/den0113/a
 .. _GCC: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 .. _Clang: https://clang.llvm.org/docs/DiagnosticsReference.html

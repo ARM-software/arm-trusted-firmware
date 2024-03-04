@@ -24,6 +24,17 @@
 CASSERT((offsetof(struct fwu_metadata, crc_32) == 0),
 	crc_32_must_be_first_member_of_structure);
 
+/*
+ * Ensure that the NR_OF_FW_BANKS selected by the platform is not
+ * zero and not greater than the maximum number of banks allowed
+ * by the specification.
+ */
+CASSERT((NR_OF_FW_BANKS > 0) && (NR_OF_FW_BANKS <= NR_OF_MAX_FW_BANKS),
+	assert_fwu_num_banks_invalid_value);
+
+#define FWU_METADATA_VERSION		2U
+#define FWU_FW_STORE_DESC_OFFSET	0x20U
+
 static struct fwu_metadata metadata;
 static bool is_metadata_initialized __unused;
 
@@ -51,15 +62,53 @@ static int fwu_metadata_crc_check(void)
 /*******************************************************************************
  * Check the sanity of FWU metadata.
  *
- * return -1 on error, otherwise 0
+ * return -EINVAL on error, otherwise 0
  ******************************************************************************/
 static int fwu_metadata_sanity_check(void)
 {
-	/* ToDo: add more conditions for sanity check */
-	if ((metadata.active_index >= NR_OF_FW_BANKS) ||
-	    (metadata.previous_active_index >= NR_OF_FW_BANKS)) {
-		return -1;
+	if (metadata.version != FWU_METADATA_VERSION) {
+		WARN("Incorrect FWU Metadata version of %u\n",
+		     metadata.version);
+		return -EINVAL;
 	}
+
+	if (metadata.active_index >= NR_OF_FW_BANKS) {
+		WARN("Active Index value(%u) greater than the configured value(%d)",
+		     metadata.active_index, NR_OF_FW_BANKS);
+		return -EINVAL;
+	}
+
+	if (metadata.previous_active_index >= NR_OF_FW_BANKS) {
+		WARN("Previous Active Index value(%u) greater than the configured value(%d)",
+		     metadata.previous_active_index, NR_OF_FW_BANKS);
+		return -EINVAL;
+	}
+
+#if PSA_FWU_METADATA_FW_STORE_DESC
+	if (metadata.fw_desc.num_banks != NR_OF_FW_BANKS) {
+		WARN("Number of Banks(%u) in FWU Metadata different from the configured value(%d)",
+		     metadata.fw_desc.num_banks, NR_OF_FW_BANKS);
+		return -EINVAL;
+	}
+
+	if (metadata.fw_desc.num_images != NR_OF_IMAGES_IN_FW_BANK) {
+		WARN("Number of Images(%u) in FWU Metadata different from the configured value(%d)",
+		     metadata.fw_desc.num_images, NR_OF_IMAGES_IN_FW_BANK);
+		return -EINVAL;
+	}
+
+	if (metadata.desc_offset != FWU_FW_STORE_DESC_OFFSET) {
+		WARN("Descriptor Offset(0x%x) in the FWU Metadata not equal to 0x20\n",
+		     metadata.desc_offset);
+		return -EINVAL;
+	}
+#else
+	if (metadata.desc_offset != 0U) {
+		WARN("Descriptor offset has non zero value of 0x%x\n",
+		     metadata.desc_offset);
+		return -EINVAL;
+	}
+#endif
 
 	return 0;
 }
@@ -133,28 +182,80 @@ exit:
 }
 
 /*******************************************************************************
- * The system runs in the trial run state if any of the images in the active
- * firmware bank has not been accepted yet.
+ * Check for an alternate bank for the platform to boot from. This function will
+ * mostly be called whenever the count of the number of times a platform boots
+ * in the Trial State exceeds a pre-set limit.
+ * The function first checks if the platform can boot from the previously active
+ * bank. If not, it tries to find another bank in the accepted state.
+ * And finally, if both the checks fail, as a last resort, it tries to find
+ * a valid bank.
  *
- * Returns true if the system is running in the trial state.
+ * Returns the index of a bank to boot, else returns invalid index
+ * INVALID_BOOT_IDX.
  ******************************************************************************/
-bool fwu_is_trial_run_state(void)
+uint32_t fwu_get_alternate_boot_bank(void)
 {
-	bool trial_run = false;
+	uint32_t i;
 
-	assert(is_metadata_initialized);
+	/* First check if the previously active bank can be used */
+	if (metadata.bank_state[metadata.previous_active_index] ==
+	    FWU_BANK_STATE_ACCEPTED) {
+		return metadata.previous_active_index;
+	}
 
-	for (unsigned int i = 0U; i < NR_OF_IMAGES_IN_FW_BANK; i++) {
-		struct fwu_image_entry *entry = &metadata.img_entry[i];
-		struct fwu_image_properties *img_props =
-			&entry->img_props[metadata.active_index];
-		if (img_props->accepted == 0) {
-			trial_run = true;
-			break;
+	/* Now check for any other bank in the accepted state */
+	for (i = 0U; i < NR_OF_FW_BANKS; i++) {
+		if (i == metadata.active_index ||
+		    i == metadata.previous_active_index) {
+			continue;
+		}
+
+		if (metadata.bank_state[i] == FWU_BANK_STATE_ACCEPTED) {
+			return i;
 		}
 	}
 
-	return trial_run;
+	/*
+	 * No accepted bank found. Now try booting from a valid bank.
+	 * Give priority to the previous active bank.
+	 */
+	if (metadata.bank_state[metadata.previous_active_index] ==
+	    FWU_BANK_STATE_VALID) {
+		return metadata.previous_active_index;
+	}
+
+	for (i = 0U; i < NR_OF_FW_BANKS; i++) {
+		if (i == metadata.active_index ||
+		    i == metadata.previous_active_index) {
+			continue;
+		}
+
+		if (metadata.bank_state[i] == FWU_BANK_STATE_VALID) {
+			return i;
+		}
+	}
+
+	return INVALID_BOOT_IDX;
+}
+
+/*******************************************************************************
+ * The platform can be in one of Valid, Invalid or Accepted states.
+ *
+ * Invalid - One or more images in the bank are corrupted, or partially
+ *           overwritten. The bank is not to be used for booting.
+ *
+ * Valid - All images of the bank are valid but at least one image has not
+ *         been accepted. This implies that the platform is in Trial State.
+ *
+ * Accepted - All images of the bank are valid and accepted.
+ *
+ * Returns the state of the current active bank
+ ******************************************************************************/
+uint32_t fwu_get_active_bank_state(void)
+{
+	assert(is_metadata_initialized);
+
+	return metadata.bank_state[metadata.active_index];
 }
 
 const struct fwu_metadata *fwu_get_metadata(void)
