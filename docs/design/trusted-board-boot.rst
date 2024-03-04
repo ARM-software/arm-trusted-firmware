@@ -84,20 +84,20 @@ The keys used to establish this CoT are:
 
 -  **Root of trust key**
 
-   The private part of this key is used to sign the BL2 content certificate and
-   the trusted key certificate. The public part is the ROTPK.
+   The private part of this key is used to sign the trusted boot firmware
+   certificate and the trusted key certificate. The public part is the ROTPK.
 
 -  **Trusted world key**
 
    The private part is used to sign the key certificates corresponding to the
    secure world images (SCP_BL2, BL31 and BL32). The public part is stored in
-   one of the extension fields in the trusted world certificate.
+   one of the extension fields in the trusted key certificate.
 
 -  **Non-trusted world key**
 
    The private part is used to sign the key certificate corresponding to the
-   non secure world image (BL33). The public part is stored in one of the
-   extension fields in the trusted world certificate.
+   non-secure world image (BL33). The public part is stored in one of the
+   extension fields in the trusted key certificate.
 
 -  **BL3X keys**
 
@@ -116,10 +116,11 @@ The following images are included in the CoT:
 
 The following certificates are used to authenticate the images.
 
--  **BL2 content certificate**
+-  **Trusted boot firmware certificate**
 
-   It is self-signed with the private part of the ROT key. It contains a hash
-   of the BL2 image.
+   It is self-signed with the private part of the ROT key. It contains a hash of
+   the BL2 image and hashes of various firmware configuration files
+   (TB_FW_CONFIG, HW_CONFIG, FW_CONFIG).
 
 -  **Trusted key certificate**
 
@@ -127,45 +128,48 @@ The following certificates are used to authenticate the images.
    public part of the trusted world key and the public part of the non-trusted
    world key.
 
--  **SCP_BL2 key certificate**
+-  **SCP firmware key certificate**
 
    It is self-signed with the trusted world key. It contains the public part of
    the SCP_BL2 key.
 
--  **SCP_BL2 content certificate**
+-  **SCP firmware content certificate**
 
    It is self-signed with the SCP_BL2 key. It contains a hash of the SCP_BL2
    image.
 
--  **BL31 key certificate**
+-  **SoC firmware key certificate**
 
    It is self-signed with the trusted world key. It contains the public part of
    the BL31 key.
 
--  **BL31 content certificate**
+-  **SoC firmware content certificate**
 
-   It is self-signed with the BL31 key. It contains a hash of the BL31 image.
+   It is self-signed with the BL31 key. It contains hashes of the BL31 image and
+   its configuration file (SOC_FW_CONFIG).
 
--  **BL32 key certificate**
+-  **Trusted OS key certificate**
 
    It is self-signed with the trusted world key. It contains the public part of
    the BL32 key.
 
--  **BL32 content certificate**
+-  **Trusted OS content certificate**
 
-   It is self-signed with the BL32 key. It contains a hash of the BL32 image.
+   It is self-signed with the BL32 key. It contains hashes of the BL32 image(s)
+   and its configuration file(s) (TOS_FW_CONFIG).
 
--  **BL33 key certificate**
+-  **Non-trusted firmware key certificate**
 
    It is self-signed with the non-trusted world key. It contains the public
    part of the BL33 key.
 
--  **BL33 content certificate**
+-  **Non-trusted firmware content certificate**
 
-   It is self-signed with the BL33 key. It contains a hash of the BL33 image.
+   It is self-signed with the BL33 key. It contains hashes of the BL33 image and
+   its configuration file (NT_FW_CONFIG).
 
-The SCP_BL2 and BL32 certificates are optional, but they must be present if the
-corresponding SCP_BL2 or BL32 images are present.
+The SCP firmware and Trusted OS certificates are optional, but they must be
+present if the corresponding SCP_BL2 or BL32 images are present.
 
 The following diagram summarizes the part of the TBBR CoT enforced by BL2. Some
 images (SCP, debug certificates, secure partitions, configuration files) are not
