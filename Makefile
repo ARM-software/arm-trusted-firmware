@@ -325,6 +325,7 @@ else ifeq ($($(ARCH)-ld-id),gnu-gcc)
 	ifeq ($(ENABLE_LTO),1)
 		ifeq (${ARCH},aarch64)
 			TF_LDFLAGS	+=	-flto -fuse-linker-plugin
+			TF_LDFLAGS      +=	-flto-partition=one
 		endif
 	endif #(ENABLE_LTO)
 

@@ -127,8 +127,14 @@ $(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/rom_trampoline.S,bl31
 $(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/kernel_trampoline.S,bl31))
 $(eval $(call MAKE_LD,$(BUILD_PLAT)/build_axf.ld,plat/arm/board/arm_fpga/build_axf.ld.S,bl31))
 
+ifeq ($($(ARCH)-ld-id),gnu-gcc)
+        PLAT_LDFLAGS	+=	-Wl,--strip-debug
+else
+        PLAT_LDFLAGS	+=	--strip-debug
+endif
+
 bl31.axf: bl31 dtbs ${BUILD_PLAT}/rom_trampoline.o ${BUILD_PLAT}/kernel_trampoline.o ${BUILD_PLAT}/build_axf.ld
 	$(ECHO) "  LD      $@"
-	$(Q)$($(ARCH)-ld) -T ${BUILD_PLAT}/build_axf.ld -L ${BUILD_PLAT} --strip-debug -s -n -o ${BUILD_PLAT}/bl31.axf
+	$(Q)$($(ARCH)-ld) -T ${BUILD_PLAT}/build_axf.ld -L ${BUILD_PLAT} $(TF_LDFLAGS) $(PLAT_LDFLAGS) -s -n -o ${BUILD_PLAT}/bl31.axf
 
 all: bl31.axf
