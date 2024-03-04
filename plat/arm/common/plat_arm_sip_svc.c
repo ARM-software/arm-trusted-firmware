@@ -111,11 +111,11 @@ uintptr_t plat_arm_sip_handler(uint32_t smc_fid,
 
 #if (ENABLE_RME == 1) && (defined(SPD_spmd) && SPMD_SPM_AT_SEL2 == 1)
 	case PLAT_PROTECT_MEM_SMC64:
-		INFO("Sip Call - Protect memory\n");
+		VERBOSE("Sip Call - Protect memory\n");
 		return plat_protect_memory(true, secure_origin, x1, x2, handle);
 		break;
 	case PLAT_UNPROTECT_MEM_SMC64:
-		INFO("Sip Call - Unprotect memory\n");
+		VERBOSE("Sip Call - Unprotect memory\n");
 		return plat_protect_memory(false, secure_origin, x1, x2, handle);
 		break;
 #endif
