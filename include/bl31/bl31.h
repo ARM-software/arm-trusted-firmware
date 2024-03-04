@@ -22,6 +22,5 @@ void bl31_register_bl32_init(int32_t (*func)(void));
 void bl31_register_rmm_init(int32_t (*func)(void));
 void bl31_warm_entrypoint(void);
 void bl31_main(void);
-void bl31_lib_init(void);
 
 #endif /* BL31_H */

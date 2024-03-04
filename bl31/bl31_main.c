@@ -83,7 +83,7 @@ uintptr_t get_arm_std_svc_args(unsigned int svc_mask)
 /*******************************************************************************
  * Simple function to initialise all BL31 helper libraries.
  ******************************************************************************/
-void __init bl31_lib_init(void)
+static void __init bl31_lib_init(void)
 {
 	cm_init();
 }

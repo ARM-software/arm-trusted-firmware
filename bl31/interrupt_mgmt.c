@@ -34,7 +34,7 @@
  *
  *           All other bits are reserved and SBZ.
  ******************************************************************************/
-typedef struct intr_type_desc {
+typedef struct {
 	interrupt_type_handler_t handler;
 	u_register_t scr_el3[2];
 	uint32_t flags;

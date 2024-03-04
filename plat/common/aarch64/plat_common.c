@@ -72,12 +72,19 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 
 const char *get_el_str(unsigned int el)
 {
-	if (el == MODE_EL3) {
+	switch (el) {
+	case MODE_EL3:
 		return "EL3";
-	} else if (el == MODE_EL2) {
+	case MODE_EL2:
 		return "EL2";
+	case MODE_EL1:
+		return "EL1";
+	case MODE_EL0:
+		return "EL0";
+	default:
+		assert(false);
+		return NULL;
 	}
-	return "EL1";
 }
 
 #if FFH_SUPPORT
