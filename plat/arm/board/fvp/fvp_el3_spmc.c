@@ -7,23 +7,14 @@
 
 #include <platform_def.h>
 
-/*
- * On the FVP platform when using the EL3 SPMC implementation allocate the
- * datastore for tracking shared memory descriptors in the TZC DRAM section
- * to ensure sufficient storage can be allocated.
- * Provide an implementation of the accessor method to allow the datastore
- * details to be retrieved by the SPMC.
- * The SPMC will take care of initializing the memory region.
- */
+IMPORT_SYM(uintptr_t, __PLAT_SPMC_SHMEM_DATASTORE_START__, DATASTORE_BASE);
 
-#define PLAT_SPMC_SHMEM_DATASTORE_SIZE 512 * 1024
-
-__section(".arm_el3_tzc_dram") static uint8_t
+__section(".arm_el3_tzc_dram") __unused static uint8_t
 plat_spmc_shmem_datastore[PLAT_SPMC_SHMEM_DATASTORE_SIZE];
 
 int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
 {
-	*datastore = plat_spmc_shmem_datastore;
+	*datastore = (uint8_t *)DATASTORE_BASE;
 	*size = PLAT_SPMC_SHMEM_DATASTORE_SIZE;
 	return 0;
 }

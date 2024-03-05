@@ -18,6 +18,9 @@ SECTIONS
 	ASSERT(. == ALIGN(PAGE_SIZE),
 	"ARM_EL3_TZC_DRAM_BASE address is not aligned on a page boundary.")
 	.el3_tzc_dram (NOLOAD) : ALIGN(PAGE_SIZE) {
+	__PLAT_SPMC_SHMEM_DATASTORE_START__ = .;
+	*(.arm_spmc_shmem_datastore)
+	__PLAT_SPMC_SHMEM_DATASTORE_END__ = .;
 	__EL3_SEC_DRAM_START__ = .;
 	*(.arm_el3_tzc_dram)
 	__EL3_SEC_DRAM_UNALIGNED_END__ = .;
