@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -54,10 +54,10 @@
 	(((_fid) >= ARM_DRTM_SVC_VERSION) && ((_fid) <= ARM_DRTM_SVC_LOCK_TCB_HASH))
 
 /* ARM DRTM Service Calls version numbers */
-#define ARM_DRTM_VERSION_MAJOR		U(0)
+#define ARM_DRTM_VERSION_MAJOR		U(1)
 #define ARM_DRTM_VERSION_MAJOR_SHIFT	16
 #define ARM_DRTM_VERSION_MAJOR_MASK	U(0x7FFF)
-#define ARM_DRTM_VERSION_MINOR		U(1)
+#define ARM_DRTM_VERSION_MINOR		U(0)
 #define ARM_DRTM_VERSION_MINOR_SHIFT	0
 #define ARM_DRTM_VERSION_MINOR_MASK	U(0xFFFF)
 
@@ -74,7 +74,7 @@
 #define ARM_DRTM_FEAT_ID_MASK	ULL(0xff)
 
 /*
- * Definitions for DRTM features as per DRTM beta0 section 3.3,
+ * Definitions for DRTM features as per DRTM 1.0 section 3.3,
  * Table 6 DRTM_FEATURES
  */
 #define ARM_DRTM_TPM_FEATURES_PCR_SCHEMA_SHIFT		U(33)
@@ -87,7 +87,7 @@
 #define ARM_DRTM_TPM_FEATURES_TPM_HASH_SUPPORTED	ULL(0x1)
 
 #define ARM_DRTM_TPM_FEATURES_FW_HASH_SHIFT		U(0)
-#define ARM_DRTM_TPM_FEATURES_FW_HASH_MASK		ULL(0xFFFFFFFF)
+#define ARM_DRTM_TPM_FEATURES_FW_HASH_MASK		ULL(0xFFFF)
 #define ARM_DRTM_TPM_FEATURES_FW_HASH_SHA256		ULL(0xB)
 #define ARM_DRTM_TPM_FEATURES_FW_HASH_SHA384		ULL(0xC)
 #define ARM_DRTM_TPM_FEATURES_FW_HASH_SHA512		ULL(0xD)
