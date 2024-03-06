@@ -813,6 +813,7 @@ STMicroelectronics platform ports
 :|F|: include/drivers/st/
 :|F|: include/dt-bindings/\*/stm32\*
 :|F|: plat/st/
+:|F|: tools/fiptool/plat_fiptool/st/
 :|F|: tools/stm32image/
 
 Synquacer platform port
