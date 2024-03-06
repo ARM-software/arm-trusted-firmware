@@ -1321,6 +1321,31 @@ unsigned int gicv3_set_pmr(unsigned int mask)
 }
 
 /*******************************************************************************
+ * This function restores the PMR register to old value and also triggers
+ * gicv3_apply_errata_wa_2384374() that flushes the GIC buffer allowing any
+ * pending interrupts to processed. Returns the original PMR.
+ ******************************************************************************/
+unsigned int gicv3_deactivate_priority(unsigned int mask)
+{
+
+	unsigned int old_mask, proc_num;
+	uintptr_t gicr_base;
+
+	old_mask = gicv3_set_pmr(mask);
+
+	proc_num = plat_my_core_pos();
+	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+	assert(gicr_base != 0UL);
+
+	/* Add DSB to ensure visibility of System register writes */
+	dsb();
+
+	gicv3_apply_errata_wa_2384374(gicr_base);
+
+	return old_mask;
+}
+
+/*******************************************************************************
  * This function delegates the responsibility of discovering the corresponding
  * Redistributor frames to each CPU itself. It is a modified version of
  * gicv3_rdistif_base_addrs_probe() and is executed by each CPU in the platform
