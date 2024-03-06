@@ -800,8 +800,8 @@ RockChip platform port
 :|G|: `jwerner-chromium`_
 :|F|: plat/rockchip/
 
-STM32MP1 platform port
-^^^^^^^^^^^^^^^^^^^^^^
+STMicroelectronics platform ports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|G|: `Yann-lms`_
 :|F|: docs/plat/st/*
