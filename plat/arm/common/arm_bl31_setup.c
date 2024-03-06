@@ -338,9 +338,6 @@ void arm_bl31_plat_runtime_setup(void)
 #if PLAT_RO_XLAT_TABLES
 	arm_xlat_make_tables_readonly();
 #endif
-
-	console_flush();
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 #if RECLAIM_INIT_CODE
@@ -394,6 +391,9 @@ void __init bl31_platform_setup(void)
 void bl31_plat_runtime_setup(void)
 {
 	arm_bl31_plat_runtime_setup();
+
+	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*******************************************************************************
