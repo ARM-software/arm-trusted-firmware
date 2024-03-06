@@ -804,6 +804,8 @@ STMicroelectronics platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|G|: `Yann-lms`_
+:|M|: Maxime Méré <maxime.mere@foss.st.com>
+:|G|: `meremST`_
 :|F|: docs/plat/st/*
 :|F|: docs/plat/stm32mp1.rst
 :|F|: drivers/st/
@@ -1011,6 +1013,7 @@ Conventional Changelog Extensions
 .. _masahir0y: https://github.com/masahir0y
 .. _masahisak: https://github.com/masahisak
 .. _max-shvetsov: https://github.com/max-shvetsov
+.. _meremST: https://github.com/meremST
 .. _michalsimek: https://github.com/michalsimek
 .. _mmind: https://github.com/mmind
 .. _MrVan: https://github.com/MrVan
