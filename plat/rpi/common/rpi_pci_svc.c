@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024, Mario Bălănică <mariobalanica02@gmail.com>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * The RPi4 has a single nonstandard PCI config region. It is broken into two
+ * The RPi has a single nonstandard PCI config region. It is broken into two
  * pieces, the root port config registers and a window to a single device's
  * config space which can move between devices. There isn't (yet) an
  * authoritative public document on this since the available BCM2711 reference
@@ -29,62 +30,63 @@
 
 #include <lib/mmio.h>
 
-static spinlock_t pci_lock;
-
-#define PCIE_REG_BASE		U(RPI_IO_BASE + 0x01500000)
 #define PCIE_MISC_PCIE_STATUS	0x4068
 #define PCIE_EXT_CFG_INDEX	0x9000
-/* A small window pointing at the ECAM of the device selected by CFG_INDEX */
 #define PCIE_EXT_CFG_DATA	0x8000
+#define	PCIE_EXT_CFG_BDF_SHIFT	12
+
 #define INVALID_PCI_ADDR	0xFFFFFFFF
 
-#define	PCIE_EXT_BUS_SHIFT	20
-#define	PCIE_EXT_DEV_SHIFT	15
-#define	PCIE_EXT_FUN_SHIFT	12
+static spinlock_t pci_lock;
 
+static uint64_t pcie_rc_bases[] = { RPI_PCIE_RC_BASES };
 
 static uint64_t pci_segment_lib_get_base(uint32_t address, uint32_t offset)
 {
-	uint64_t	base;
-	uint32_t	bus, dev, fun;
-	uint32_t	status;
+	uint64_t base;
+	uint32_t seg, bus, dev, fun;
 
-	base = PCIE_REG_BASE;
+	seg = PCI_ADDR_SEG(address);
 
-	offset &= PCI_OFFSET_MASK;  /* Pick off the 4k register offset */
+	if (seg >= ARRAY_SIZE(pcie_rc_bases)) {
+		return INVALID_PCI_ADDR;
+	}
 
 	/* The root port is at the base of the PCIe register space */
-	if (address != 0U) {
-		/*
-		 * The current device must be at CFG_DATA, a 4K window mapped,
-		 * via CFG_INDEX, to the device we are accessing. At the same
-		 * time we must avoid accesses to certain areas of the cfg
-		 * space via CFG_DATA. Detect those accesses and report that
-		 * the address is invalid.
-		 */
-		base += PCIE_EXT_CFG_DATA;
-		bus = PCI_ADDR_BUS(address);
-		dev = PCI_ADDR_DEV(address);
-		fun = PCI_ADDR_FUN(address);
-		address = (bus << PCIE_EXT_BUS_SHIFT) |
-			  (dev << PCIE_EXT_DEV_SHIFT) |
-			  (fun << PCIE_EXT_FUN_SHIFT);
+	base = pcie_rc_bases[seg];
 
-		/* Allow only dev = 0 on root port and bus 1 */
-		if ((bus < 2U) && (dev > 0U)) {
-			return INVALID_PCI_ADDR;
-		}
+	bus = PCI_ADDR_BUS(address);
+	dev = PCI_ADDR_DEV(address);
+	fun = PCI_ADDR_FUN(address);
 
-		/* Assure link up before reading bus 1 */
-		status = mmio_read_32(PCIE_REG_BASE + PCIE_MISC_PCIE_STATUS);
-		if ((status & 0x30) != 0x30) {
-			return INVALID_PCI_ADDR;
-		}
-
-		/* Adjust which device the CFG_DATA window is pointing at */
-		mmio_write_32(PCIE_REG_BASE + PCIE_EXT_CFG_INDEX, address);
+	/* There can only be the root port on bus 0 */
+	if ((bus == 0U) && ((dev > 0U) || (fun > 0U))) {
+		return INVALID_PCI_ADDR;
 	}
-	return base + offset;
+
+	/* There can only be one device on bus 1 */
+	if ((bus == 1U) && (dev > 0U)) {
+		return INVALID_PCI_ADDR;
+	}
+
+	if (bus > 0) {
+#if RPI_PCIE_ECAM_SERROR_QUIRK
+		uint32_t status = mmio_read_32(base + PCIE_MISC_PCIE_STATUS);
+
+		/* Assure link up before accessing downstream of root port */
+		if ((status & 0x30) == 0U) {
+			return INVALID_PCI_ADDR;
+		}
+#endif
+		/*
+		 * Device function is mapped at CFG_DATA, a 4 KB window
+		 * movable by writing its B/D/F location to CFG_INDEX.
+		 */
+		mmio_write_32(base + PCIE_EXT_CFG_INDEX, address << PCIE_EXT_CFG_BDF_SHIFT);
+		base += PCIE_EXT_CFG_DATA;
+	}
+
+	return base + (offset & PCI_OFFSET_MASK);
 }
 
 /**
@@ -130,7 +132,7 @@ uint32_t pci_read_config(uint32_t addr, uint32_t off, uint32_t sz, uint32_t *val
 			*val = mmio_read_32(base);
 			break;
 		default: /* should be unreachable */
-			*val = 0;
+			*val = 0U;
 			ret = SMC_PCI_CALL_INVAL_PARAM;
 		}
 	}
@@ -204,9 +206,12 @@ uint32_t pci_write_config(uint32_t addr, uint32_t off, uint32_t sz, uint32_t val
 uint32_t pci_get_bus_for_seg(uint32_t seg, uint32_t *bus_range, uint32_t *nseg)
 {
 	uint32_t ret = SMC_PCI_CALL_SUCCESS;
-	*nseg = 0U; /* only a single segment */
-	if (seg == 0U) {
-		*bus_range = 0xFF00; /* start 0, end 255 */
+	uint32_t rc_count = ARRAY_SIZE(pcie_rc_bases);
+
+	*nseg = (seg < rc_count - 1U) ? seg + 1U : 0U;
+
+	if (seg < rc_count) {
+		*bus_range = 0U + (0xFF << 8); /* start 0, end 255 */
 	} else {
 		*bus_range = 0U;
 		ret = SMC_PCI_CALL_NOT_IMPL;

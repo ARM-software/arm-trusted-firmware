@@ -113,5 +113,5 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/rpi3/rng/rpi3_rng.c		\
 endif
 
 ifeq ($(SMC_PCI_SUPPORT), 1)
-BL31_SOURCES            +=      plat/rpi/rpi4/rpi4_pci_svc.c
+BL31_SOURCES            +=      plat/rpi/common/rpi_pci_svc.c
 endif
