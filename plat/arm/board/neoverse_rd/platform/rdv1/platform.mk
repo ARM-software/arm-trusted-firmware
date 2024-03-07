@@ -10,7 +10,8 @@ include plat/arm/board/neoverse_rd/common/nrd-common.mk
 
 RDV1_BASE		=	plat/arm/board/neoverse_rd/platform/rdv1
 
-PLAT_INCLUDES		+=	-I${RDV1_BASE}/include/
+PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include/nrd1/	\
+				-I${RDV1_BASE}/include/
 
 NRD_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_v1.S
 

@@ -10,7 +10,8 @@ include plat/arm/board/neoverse_rd/common/nrd-common.mk
 
 SGI575_BASE		=	plat/arm/board/neoverse_rd/platform/sgi575
 
-PLAT_INCLUDES		+=	-I${SGI575_BASE}/include/
+PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include/nrd1/	\
+				-I${SGI575_BASE}/include/
 
 NRD_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a75.S
 
