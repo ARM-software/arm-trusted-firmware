@@ -243,14 +243,14 @@ static void setup_runtime_console(uint32_t clock, dt_uart_info_t *info)
 
 
 /**
- * runtime_console_init() - Initializes the run time console information.
+ * dt_console_init() - Initializes the DT console information.
  * @uart_info: Pointer to the UART information structure.
  * @bl31_boot_console: Pointer to the console information structure.
  * @clock: UART clock.
  *
  * Return: On success, it returns 0; on failure, it returns an error+reason;
  */
-static int32_t runtime_console_init(dt_uart_info_t *uart_info,
+static int32_t dt_console_init(dt_uart_info_t *uart_info,
 			  console_t *bl31_boot_console,
 			  uint32_t clock)
 {
@@ -334,10 +334,10 @@ void setup_console(void)
 #if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
 	static dt_uart_info_t uart_info = {0};
 
-	/* Initialize the runtime console using UART information from the DTB */
-	rc = runtime_console_init(&uart_info, &console, uart_clk);
+	/* Initialize the DTB console using UART information from the DTB */
+	rc = dt_console_init(&uart_info, &console, uart_clk);
 	if (rc < 0) {
-		ERROR("Failed to initialize runtime console: %d\n", rc);
+		ERROR("Failed to initialize DT console: %d\n", rc);
 	}
 #endif
 }
