@@ -213,6 +213,7 @@ void sp_min_main(void)
 	sp_min_plat_runtime_setup();
 
 	console_flush();
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /******************************************************************************
