@@ -22,6 +22,11 @@
  ******************************************************************************/
 #define CORTEX_A715_CPUECTLR_EL1				S3_0_C15_C1_4
 
+#define CORTEX_A715_CPUPSELR_EL3				S3_6_C15_C8_0
+#define CORTEX_A715_CPUPCR_EL3					S3_6_C15_C8_1
+#define CORTEX_A715_CPUPOR_EL3					S3_6_C15_C8_2
+#define CORTEX_A715_CPUPMR_EL3					S3_6_C15_C8_3
+
 /*******************************************************************************
  * CPU Power Control register specific definitions
  ******************************************************************************/
