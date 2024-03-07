@@ -289,7 +289,7 @@ void detect_arch_features(void)
 	 * revisions so that we catch them as they come along
 	 */
 	check_feature(FEAT_STATE_ALWAYS, read_feat_pmuv3_id_field(),
-		      "PMUv3", 1, ID_AA64DFR0_PMUVER_PMUV3P7);
+		      "PMUv3", 1, ID_AA64DFR0_PMUVER_PMUV3P8);
 
 	/* v8.1 features */
 	check_feature(ENABLE_FEAT_PAN, read_feat_pan_id_field(), "PAN", 1, 3);
