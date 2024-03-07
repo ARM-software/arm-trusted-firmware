@@ -214,35 +214,36 @@ static void console_end(console_t *console)
 }
 
 /**
- * setup_runtime_console() - Registers the runtime uart with console list.
+ * register_console() - Registers the runtime uart with console list.
+ * @uart_base: UART base address
  * @clock: UART clock.
- * @info: Pointer to the UART information structure.
+ * @baud_rate: UART buad rate
+ * @console: Pointer to the console information structure.
+ * @flags: console flags.
  */
-static void setup_runtime_console(uint32_t clock, dt_uart_info_t *info)
+static void register_console(uintptr_t uart_base, uint32_t clock,
+			     uint32_t baud_rate, console_t *console,
+			     uint32_t flags)
 {
-	static console_t bl31_runtime_console;
 	int32_t rc;
 
 #if defined(PLAT_zynqmp)
-	rc = console_cdns_register(info->base,
+	rc = console_cdns_register(uart_base,
 				   clock,
-				   info->baud_rate,
-				   &bl31_runtime_console);
+				   baud_rate,
+				   console);
 #else
-	rc = console_pl011_register(info->base,
+	rc = console_pl011_register(uart_base,
 				    clock,
-				    info->baud_rate,
-				    &bl31_runtime_console);
+				    baud_rate,
+				    console);
 #endif
 	if (rc == 0) {
 		panic();
 	}
 
-	console_set_scope(&bl31_runtime_console,
-			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME |
-			  CONSOLE_FLAG_CRASH);
+	console_set_scope(console, flags);
 }
-
 
 /**
  * dt_console_init() - Initializes the DT console information.
@@ -257,6 +258,7 @@ static int32_t dt_console_init(dt_uart_info_t *uart_info,
 			  uint32_t clock)
 {
 	int32_t rc = 0;
+	static console_t dt_console;
 
 	/* Parse UART information from Device Tree Blob (DTB) */
 	rc = fdt_get_uart_info(uart_info);
@@ -269,9 +271,12 @@ static int32_t dt_console_init(dt_uart_info_t *uart_info,
 		   strlen(DT_UART_COMPAT)) == 0) {
 
 		if (check_fdt_uart_info(uart_info) == 0) {
-			setup_runtime_console(clock, uart_info);
+			register_console(uart_info->base, clock,
+					 uart_info->baud_rate, &dt_console,
+					 CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME
+					 | CONSOLE_FLAG_CRASH);
 			console_end(console);
-			INFO("Runtime console setup\n");
+			INFO("DTB console setup\n");
 		} else {
 			INFO("Early console and DTB console are same\n");
 		}
