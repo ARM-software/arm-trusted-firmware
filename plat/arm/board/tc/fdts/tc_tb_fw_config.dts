@@ -82,4 +82,7 @@
 #endif
 #endif /* ARM_BL2_SP_LIST_DTS */
 	};
+#if DICE_PROTECTION_ENVIRONMENT
+	#include "dice_prot_env.dtsi"
+#endif
 };

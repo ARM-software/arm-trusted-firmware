@@ -137,14 +137,18 @@ BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	${TC_BASE}/fdts/${PLAT}_fw_config.dts	\
-				${TC_BASE}/fdts/${PLAT}_tb_fw_config.dts
+				${TC_BASE}/fdts/${PLAT}_tb_fw_config.dts \
+				${TC_BASE}/fdts/${PLAT}_nt_fw_config.dts
 FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
 TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
+FVP_NT_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
 
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
+# Add the NT_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_NT_FW_CONFIG},--nt-fw-config,${FVP_NT_FW_CONFIG}))
 
 ifeq (${SPD},spmd)
 ifeq ($(ARM_SPMC_MANIFEST_DTS),)
@@ -170,27 +174,56 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TC_HW_CONFIG},--hw-config,${TC_HW_CONFIG}))
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
 # flags present in Measured Boot makefile.
+$(info Including rss_comms.mk)
 ifeq (${MEASURED_BOOT},1)
-    MEASURED_BOOT_MK := drivers/measured_boot/rss/rss_measured_boot.mk
-    $(info Including ${MEASURED_BOOT_MK})
-    include ${MEASURED_BOOT_MK}
-    $(info Including rss_comms.mk)
-    include drivers/arm/rss/rss_comms.mk
+        $(info Including rss_comms.mk)
+        include drivers/arm/rss/rss_comms.mk
 
-    BL1_SOURCES		+=	${MEASURED_BOOT_SOURCES} \
+	BL1_SOURCES	+=	${RSS_COMMS_SOURCES}
+	BL2_SOURCES	+=	${RSS_COMMS_SOURCES}
+	PLAT_INCLUDES	+=	-Iinclude/lib/psa
+
+    ifeq (${DICE_PROTECTION_ENVIRONMENT},1)
+        $(info Including qcbor.mk)
+        include drivers/measured_boot/rss/qcbor.mk
+        $(info Including dice_prot_env.mk)
+        include drivers/measured_boot/rss/dice_prot_env.mk
+
+	BL1_SOURCES	+=	${QCBOR_SOURCES} \
+				${DPE_SOURCES} \
+				plat/arm/board/tc/tc_common_dpe.c \
+				plat/arm/board/tc/tc_bl1_dpe.c \
+				lib/psa/dice_protection_environment.c \
+				drivers/arm/css/sds/sds.c \
+				drivers/delay_timer/delay_timer.c \
+				drivers/delay_timer/generic_delay_timer.c
+
+	BL2_SOURCES	+=	${QCBOR_SOURCES} \
+				${DPE_SOURCES} \
+				plat/arm/board/tc/tc_common_dpe.c \
+				plat/arm/board/tc/tc_bl2_dpe.c \
+				lib/psa/dice_protection_environment.c
+
+	PLAT_INCLUDES	+=	-I${QCBOR_INCLUDES} \
+				-Iinclude/lib/dice
+    else
+        $(info Including rss_measured_boot.mk)
+        include drivers/measured_boot/rss/rss_measured_boot.mk
+
+	BL1_SOURCES	+=	${MEASURED_BOOT_SOURCES} \
 				plat/arm/board/tc/tc_common_measured_boot.c \
 				plat/arm/board/tc/tc_bl1_measured_boot.c \
-				lib/psa/measured_boot.c			 \
-				${RSS_COMMS_SOURCES}
+				lib/psa/measured_boot.c
 
-    BL2_SOURCES		+=	${MEASURED_BOOT_SOURCES} \
+	BL2_SOURCES		+=	${MEASURED_BOOT_SOURCES} \
 				plat/arm/board/tc/tc_common_measured_boot.c \
 				plat/arm/board/tc/tc_bl2_measured_boot.c \
-				lib/psa/measured_boot.c			 \
-				${RSS_COMMS_SOURCES}
+				lib/psa/measured_boot.c
+    endif
+endif
 
-PLAT_INCLUDES		+=	-Iinclude/lib/psa
-
+ifeq (${TRNG_SUPPORT},1)
+	BL31_SOURCES	+=	plat/arm/board/tc/tc_trng.c
 endif
 
 ifneq (${PLATFORM_TEST},)

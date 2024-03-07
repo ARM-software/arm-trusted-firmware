@@ -30,5 +30,10 @@
 			max-size = <PLAT_HW_CONFIG_DTB_SIZE>;
 			id = <HW_CONFIG_ID>;
 		};
+		nt_fw-config {
+			load-address = <0x0 (PLAT_HW_CONFIG_DTB_BASE + PLAT_HW_CONFIG_DTB_SIZE)>;
+			max-size = <0x1000>;
+			id = <NT_FW_CONFIG_ID>;
+		};
 	};
 };

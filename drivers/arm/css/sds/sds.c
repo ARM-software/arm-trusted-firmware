@@ -250,7 +250,7 @@ int sds_init(unsigned int region_id)
 	uintptr_t sds_mem_base = sds_regions[region_id].base;
 
 	if (!IS_SDS_REGION_VALID(sds_mem_base)) {
-		WARN("SDS: No valid SDS Memory Region found\n");
+		VERBOSE("SDS: No valid SDS Memory Region found\n");
 		return SDS_ERR_FAIL;
 	}
 

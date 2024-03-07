@@ -40,6 +40,9 @@ You can find additional definitions in the `Arm Glossary`_.
       Common Vulnerabilities and Exposures. A CVE document is commonly used to
       describe a publicly-known security vulnerability.
 
+   DICE
+      Device Identifier Composition Engine
+
    DCE
       DRTM Configuration Environment
 
@@ -51,6 +54,9 @@ You can find additional definitions in the `Arm Glossary`_.
 
    DRTM
       Dynamic Root of Trust for Measurement
+
+   DPE
+      DICE Protection Environment
 
    DS-5
       Arm Development Studio 5

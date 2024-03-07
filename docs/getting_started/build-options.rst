@@ -706,6 +706,13 @@ Common build options
 
    This option defaults to 0.
 
+-  ``DICE_PROTECTION_ENVIRONMENT``: Boolean flag to specify the measured boot
+   backend when ``MEASURED_BOOT`` is enabled. The default value is ``0``. When
+   set to ``1`` then measurements and additional metadata collected during the
+   measured boot process are sent to the DICE Protection Environment for storage
+   and processing. A certificate chain, which represents the boot state of the
+   device, can be queried from the DPE.
+
 -  ``MARCH_DIRECTIVE``: used to pass a -march option from the platform build
    options to the compiler. An example usage:
 
