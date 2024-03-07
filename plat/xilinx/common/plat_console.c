@@ -23,7 +23,7 @@
 #include <platform_def.h>
 #include <plat_private.h>
 
-static console_t console;
+static console_t boot_console;
 
 #if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
 /**
@@ -187,7 +187,7 @@ static int32_t check_fdt_uart_info(dt_uart_info_t *info)
 		goto error;
 	}
 
-	if ((info->base == console.base) &&
+	if ((info->base == boot_console.base) &&
 	   (info->baud_rate == UART_BAUDRATE) && !CONSOLE_IS(dcc)) {
 		ret = -ENODEV;
 		goto error;
@@ -198,16 +198,18 @@ error:
 }
 
 /**
- * console_boot_end() - Unregister the console_t instance form the console list.
- * @boot_console: Pointer to the console information structure.
+ * console_end() - Unregister the console_t instance form the console list.
+ * @console: Pointer to the console information structure.
  */
-static void console_boot_end(console_t *boot_console)
+static void console_end(console_t *console)
 {
 	if (CONSOLE_IS(dcc)) {
 		console_dcc_unregister();
 	} else {
-		console_flush();
-		(void)console_unregister(boot_console);
+		if (console != NULL) {
+			console_flush();
+			(void)console_unregister(console);
+		}
 	}
 }
 
@@ -245,13 +247,13 @@ static void setup_runtime_console(uint32_t clock, dt_uart_info_t *info)
 /**
  * dt_console_init() - Initializes the DT console information.
  * @uart_info: Pointer to the UART information structure.
- * @bl31_boot_console: Pointer to the console information structure.
+ * @console: Pointer to the console information structure.
  * @clock: UART clock.
  *
  * Return: On success, it returns 0; on failure, it returns an error+reason;
  */
 static int32_t dt_console_init(dt_uart_info_t *uart_info,
-			  console_t *bl31_boot_console,
+			  console_t *console,
 			  uint32_t clock)
 {
 	int32_t rc = 0;
@@ -268,7 +270,7 @@ static int32_t dt_console_init(dt_uart_info_t *uart_info,
 
 		if (check_fdt_uart_info(uart_info) == 0) {
 			setup_runtime_console(clock, uart_info);
-			console_boot_end(bl31_boot_console);
+			console_end(console);
 			INFO("Runtime console setup\n");
 		} else {
 			INFO("Early console and DTB console are same\n");
@@ -279,7 +281,7 @@ static int32_t dt_console_init(dt_uart_info_t *uart_info,
 		if (rc == 0) {
 			panic();
 		}
-		console_boot_end(bl31_boot_console);
+		console_end(console);
 	} else {
 		WARN("BL31: No console device found in DT.\n");
 	}
@@ -299,12 +301,12 @@ void setup_console(void)
 		rc = console_cdns_register(UART_BASE,
 					   uart_clk,
 					   UART_BAUDRATE,
-					   &console);
+					   &boot_console);
 		if (rc == 0) {
 			panic();
 		}
 
-		console_set_scope(&console, CONSOLE_FLAG_BOOT |
+		console_set_scope(&boot_console, CONSOLE_FLAG_BOOT |
 				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 #else
@@ -313,12 +315,12 @@ void setup_console(void)
 		rc = console_pl011_register((uint32_t)UART_BASE,
 					   uart_clk,
 					   (uint32_t)UART_BAUDRATE,
-					   &console);
+					   &boot_console);
 		if (rc == 0) {
 			panic();
 		}
 
-		console_set_scope(&console, CONSOLE_FLAG_BOOT |
+		console_set_scope(&boot_console, CONSOLE_FLAG_BOOT |
 				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 #endif
@@ -335,7 +337,7 @@ void setup_console(void)
 	static dt_uart_info_t uart_info = {0};
 
 	/* Initialize the DTB console using UART information from the DTB */
-	rc = dt_console_init(&uart_info, &console, uart_clk);
+	rc = dt_console_init(&uart_info, &boot_console, uart_clk);
 	if (rc < 0) {
 		ERROR("Failed to initialize DT console: %d\n", rc);
 	}
