@@ -19,8 +19,25 @@ Levels below EL3. SMC calls for Vendor Specific EL3 Monitor Services:
 | 0xC7000000 - 0xC700FFFF   | SMC64: Vendor Specific EL3 Monitor Service Calls |
 +---------------------------+--------------------------------------------------+
 
+Vendor-specific EL3 monitor services are as follows:
+
++-----------------------------------+-----------------------+---------------------------------------------+
+| SMC Function Identifier           | Service Type          | FID's Usage                                 |
++===================================+=======================+=============================================+
+| 0x87000010 - 0x8700001F (SMC32)   | DebugFS Interface     | | 0 - 11 are in use                         |
++-----------------------------------+                       | | 12 - 15 are reserved for future expansion |
+| 0xC7000010 - 0xC700001F (SMC64)   |                       |                                             |
++-----------------------------------+-----------------------+---------------------------------------------+
+
 Source definitions for vendor-specific EL3 Monitor Service Calls are located in
 the ``ven_el3_svc.h`` header file.
+
+
+DebugFS interface
+-----------------
+
+The optional DebugFS interface is accessed through Vendor specific EL3 service. Refer
+to :ref:`DebugFS interface` documentation for further details and usage.
 
 --------------
 

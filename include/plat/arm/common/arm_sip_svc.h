@@ -22,6 +22,7 @@
 /* Function ID for requesting state switch of lower EL */
 #define ARM_SIP_SVC_EXE_STATE_SWITCH	U(0x82000020)
 
+/* Deprecated FID's Range and will be removed */
 /* DEBUGFS_SMC_32			0x82000030U */
 /* DEBUGFS_SMC_64			0xC2000030U */
 
@@ -32,8 +33,8 @@
  */
 
 /* ARM SiP Service Calls version numbers */
-#define ARM_SIP_SVC_VERSION_MAJOR		U(0x0)
-#define ARM_SIP_SVC_VERSION_MINOR		U(0x2)
+#define ARM_SIP_SVC_VERSION_MAJOR		U(0x1)
+#define ARM_SIP_SVC_VERSION_MINOR		U(0x0)
 
 /*
  * Arm SiP SMC calls that are primarily used for testing purposes.

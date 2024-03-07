@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -61,11 +61,23 @@ int debugfs_smc_setup(void);
 /* Debugfs version returned through SMC interface */
 #define DEBUGFS_VERSION		(0x000000001U)
 
-/* Function ID for accessing the debugfs interface */
-#define DEBUGFS_FID_VALUE	(0x30U)
+/* Function ID for accessing the debugfs interface from
+ * Vendor-Specific EL3 Range.
+ */
+#define DEBUGFS_FID_VALUE	(0x10U)
 
 #define is_debugfs_fid(_fid)	\
 	(((_fid) & FUNCID_NUM_MASK) == DEBUGFS_FID_VALUE)
+
+
+/* Function ID for accessing the debugfs interface from arm sip.
+ * This is now deprecated FID and will be removed after 2.12 release.
+ */
+#define DEBUGFS_FID_VALUE_DEPRECATED	(0x30U)
+
+#define is_debugfs_fid_deprecated(_fid)	\
+	(((_fid) & FUNCID_NUM_MASK) == DEBUGFS_FID_VALUE_DEPRECATED)
+
 
 /* Error code for debugfs SMC interface failures */
 #define DEBUGFS_E_INVALID_PARAMS	(-2)

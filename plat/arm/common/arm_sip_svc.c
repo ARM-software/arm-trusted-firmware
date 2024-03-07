@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,8 +73,9 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 #endif /* ENABLE_PMF */
 
 #if USE_DEBUGFS
-
-	if (is_debugfs_fid(smc_fid)) {
+	if (is_debugfs_fid_deprecated(smc_fid)) {
+		NOTICE("Debugfs Interface usage from arm-sip range is deprecated. \
+			Please migrate smc call to vendor-specific el3 range.\n");
 		return debugfs_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
 					   handle, flags);
 	}
