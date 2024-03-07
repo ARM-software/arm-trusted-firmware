@@ -1277,7 +1277,7 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	el2_sysregs_context_save_common(el2_sysregs_ctx);
 	el2_sysregs_context_save_gic(el2_sysregs_ctx);
 
-	if (is_feat_mte_supported()) {
+	if (is_feat_mte2_supported()) {
 		write_el2_ctx_mte(el2_sysregs_ctx, tfsr_el2, read_tfsr_el2());
 	}
 
@@ -1363,7 +1363,7 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	el2_sysregs_context_restore_common(el2_sysregs_ctx);
 	el2_sysregs_context_restore_gic(el2_sysregs_ctx);
 
-	if (is_feat_mte_supported()) {
+	if (is_feat_mte2_supported()) {
 		write_tfsr_el2(read_el2_ctx_mte(el2_sysregs_ctx, tfsr_el2));
 	}
 
@@ -1508,12 +1508,12 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 	write_ctx_reg(ctx, CTX_CNTKCTL_EL1, read_cntkctl_el1());
 #endif /* NS_TIMER_SWITCH */
 
-#if ENABLE_FEAT_MTE
+#if ENABLE_FEAT_MTE2
 	write_ctx_reg(ctx, CTX_TFSRE0_EL1, read_tfsre0_el1());
 	write_ctx_reg(ctx, CTX_TFSR_EL1, read_tfsr_el1());
 	write_ctx_reg(ctx, CTX_RGSR_EL1, read_rgsr_el1());
 	write_ctx_reg(ctx, CTX_GCR_EL1, read_gcr_el1());
-#endif /* ENABLE_FEAT_MTE */
+#endif /* ENABLE_FEAT_MTE2 */
 
 }
 
@@ -1563,12 +1563,12 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 	write_cntkctl_el1(read_ctx_reg(ctx, CTX_CNTKCTL_EL1));
 #endif /* NS_TIMER_SWITCH */
 
-#if ENABLE_FEAT_MTE
+#if ENABLE_FEAT_MTE2
 	write_tfsre0_el1(read_ctx_reg(ctx, CTX_TFSRE0_EL1));
 	write_tfsr_el1(read_ctx_reg(ctx, CTX_TFSR_EL1));
 	write_rgsr_el1(read_ctx_reg(ctx, CTX_RGSR_EL1));
 	write_gcr_el1(read_ctx_reg(ctx, CTX_GCR_EL1));
-#endif /* ENABLE_FEAT_MTE */
+#endif /* ENABLE_FEAT_MTE2 */
 
 }
 
