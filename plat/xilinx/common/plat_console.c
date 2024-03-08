@@ -120,17 +120,25 @@ static uint32_t fdt_add_uart_info(dt_uart_info_t *info, int node, void *dtb)
 		goto error;
 	}
 
-	ret = fdt_get_reg_props_by_index(dtb, node, 0, &base_addr, NULL);
-	if (ret >= 0) {
-		info->base = base_addr;
-	} else {
-		ERROR("Failed to retrieve base address. Error code: %d\n", ret);
+	info->status = get_node_status(dtb, node);
+	if (info->status == 0) {
+		ERROR("Uart node is disabled in DTB\n");
 		ret  = -FDT_ERR_NOTFOUND;
 		goto error;
 	}
 
-	info->status = get_node_status(dtb, node);
-	info->baud_rate = get_baudrate(dtb);
+	if (strncmp(info->compatible, DT_UART_DCC_COMPAT, strlen(DT_UART_DCC_COMPAT)) != 0) {
+		ret = fdt_get_reg_props_by_index(dtb, node, 0, &base_addr, NULL);
+		if (ret >= 0) {
+			info->base = base_addr;
+		} else {
+			ERROR("Failed to retrieve base address. Error code: %d\n", ret);
+			ret  = -FDT_ERR_NOTFOUND;
+			goto error;
+		}
+
+		info->baud_rate = get_baudrate(dtb);
+	}
 
 error:
 	return ret;
@@ -246,6 +254,54 @@ static void register_console(uintptr_t uart_base, uint32_t clock,
 }
 
 /**
+ * parse_uart_info() - Parse UART information from Device Tree Blob.
+ * @uart_info: Pointer to the UART information structure.
+ *
+ * Return: On success, it returns 0; on failure, it returns an error+reason;
+ */
+static int32_t parse_uart_info(dt_uart_info_t *uart_info)
+{
+	int32_t rc = fdt_get_uart_info(uart_info);
+
+	if (rc < 0) {
+		rc = -FDT_ERR_NOTFOUND;
+	}
+	return rc;
+}
+
+/**
+ * handle_dt_console() - Registers the DT console
+ * @uart_info: Pointer to the UART information structure.
+ * @console: Pointer to the console information structure.
+ * @clock: UART clock.
+ * @end_console: Pointer to the console information structure.
+ */
+static void handle_dt_console(dt_uart_info_t *uart_info, console_t *console,
+		uint32_t clock, console_t *end_console)
+{
+	register_console(uart_info->base, clock, uart_info->baud_rate,
+			console,  CONSOLE_FLAG_BOOT |
+			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
+	console_end(end_console);
+	INFO("DTB console setup\n");
+}
+
+
+/**
+ * handle_dcc_console() - Registers the DCC console
+ * @console: Pointer to the console information structure.
+ */
+static void handle_dcc_console(console_t *console)
+{
+	int32_t rc = console_dcc_register();
+
+	if (rc == 0) {
+		panic();
+	}
+	console_end(console);
+}
+
+/**
  * dt_console_init() - Initializes the DT console information.
  * @uart_info: Pointer to the UART information structure.
  * @console: Pointer to the console information structure.
@@ -261,32 +317,22 @@ static int32_t dt_console_init(dt_uart_info_t *uart_info,
 	static console_t dt_console;
 
 	/* Parse UART information from Device Tree Blob (DTB) */
-	rc = fdt_get_uart_info(uart_info);
+	rc = parse_uart_info(uart_info);
 	if (rc < 0) {
-		rc = -FDT_ERR_NOTFOUND;
+		goto error;
+	}
+
+	rc = check_fdt_uart_info(uart_info);
+	if (rc < 0) {
 		goto error;
 	}
 
 	if (strncmp(uart_info->compatible, DT_UART_COMPAT,
-		   strlen(DT_UART_COMPAT)) == 0) {
-
-		if (check_fdt_uart_info(uart_info) == 0) {
-			register_console(uart_info->base, clock,
-					 uart_info->baud_rate, &dt_console,
-					 CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME
-					 | CONSOLE_FLAG_CRASH);
-			console_end(console);
-			INFO("DTB console setup\n");
-		} else {
-			INFO("Early console and DTB console are same\n");
-		}
+		    strlen(DT_UART_COMPAT)) == 0) {
+		handle_dt_console(uart_info, &dt_console, clock, console);
 	} else if (strncmp(uart_info->compatible, DT_UART_DCC_COMPAT,
-			  strlen(DT_UART_DCC_COMPAT)) == 0) {
-		rc = console_dcc_register();
-		if (rc == 0) {
-			panic();
-		}
-		console_end(console);
+			strlen(DT_UART_DCC_COMPAT)) == 0) {
+		handle_dcc_console(console);
 	} else {
 		WARN("BL31: No console device found in DT.\n");
 	}
