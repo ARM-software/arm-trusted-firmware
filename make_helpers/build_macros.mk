@@ -644,12 +644,14 @@ $(eval DTSDEP := $(patsubst %.dtb,%.o.d,$(DOBJ)))
 # Dependencies of the DT compilation on its pre-compiled DTS
 $(eval DTBDEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
-$(DOBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | fdt_dirs
+$(DPRE): $(2) | fdt_dirs
 	$${ECHO} "  CPP     $$<"
 	$(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
 	$$(Q)$($(ARCH)-cpp) -E $$(TF_CFLAGS_$(ARCH)) $$(DTC_CPPFLAGS) -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
+
+$(DOBJ): $(DPRE) $(filter-out %.d,$(MAKEFILE_LIST)) | fdt_dirs
 	$${ECHO} "  DTC     $$<"
-	$$(Q)$($(ARCH)-dtc) $$(DTC_FLAGS) -d $(DTBDEP) -o $$@ $(DPRE)
+	$$(Q)$($(ARCH)-dtc) $$(DTC_FLAGS) -d $(DTBDEP) -o $$@ $$<
 
 -include $(DTBDEP)
 -include $(DTSDEP)
