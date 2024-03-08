@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <bl1/bl1.h>
 #include <bl2u/bl2u.h>
 #include <common/bl_common.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <drivers/auth/auth_mod.h>
 #include <drivers/console.h>
@@ -27,7 +28,7 @@
  ******************************************************************************/
 void bl2u_main(void)
 {
-	NOTICE("BL2U: %s\n", version_string);
+	NOTICE("BL2U: %s\n", build_version_string);
 	NOTICE("BL2U: %s\n", build_message);
 
 #if SCP_BL2U_BASE

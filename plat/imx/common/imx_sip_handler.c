@@ -9,9 +9,10 @@
 #include <stdint.h>
 #include <services/std_svc.h>
 #include <string.h>
-#include <platform_def.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <platform_def.h>
 #include <imx_sip_svc.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/mmio.h>
@@ -261,7 +262,7 @@ static uint64_t imx_get_commit_hash(u_register_t x2,
 		    u_register_t x4)
 {
 	/* Parse the version_string */
-	char *parse = (char *)version_string;
+	char *parse = (char *)build_version_string;
 	uint64_t hash = 0;
 
 	do {

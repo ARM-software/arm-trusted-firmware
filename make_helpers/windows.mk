@@ -79,16 +79,4 @@ endif
 # This can be overridden from the command line or environment.
 BUILD_STRING ?= development build
 
-# The DOS echo shell command does not strip ' characters from the command
-# parameters before printing. We therefore use an alternative method invoked
-# by defining the MAKE_BUILD_STRINGS macro.
-BUILT_TIME_DATE_STRING = const char build_message[] = "Built : "${BUILD_MESSAGE_TIMESTAMP};
-VERSION_STRING_MESSAGE = const char version_string[] = "${VERSION_STRING}";
-VERSION_MESSAGE = const char version[] = "${VERSION}";
-define MAKE_BUILD_STRINGS
-	$$(file >$1.in,$$(TF_CFLAGS) $$(CFLAGS))
-	@echo $$(BUILT_TIME_DATE_STRING) $$(VERSION_STRING_MESSAGE) $$(VERSION_MESSAGE) | \
-		$($(ARCH)-cc) @$1.in -x c -c - -o $1
-endef
-
 MSVC_NMAKE := nmake.exe

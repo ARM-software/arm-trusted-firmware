@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <arch_helpers.h>
 #include <bl32/tsp/tsp.h>
 #include <common/bl_common.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include "ffa_helpers.h"
 #include <lib/psci/psci.h>
@@ -554,7 +555,7 @@ uint64_t tsp_main(void)
 {
 	smc_args_t smc_args = {0};
 
-	NOTICE("TSP: %s\n", version_string);
+	NOTICE("TSP: %s\n", build_version_string);
 	NOTICE("TSP: %s\n", build_message);
 	INFO("TSP: Total memory base : 0x%lx\n", (unsigned long) BL32_BASE);
 	INFO("TSP: Total memory size : 0x%lx bytes\n", BL32_TOTAL_SIZE);

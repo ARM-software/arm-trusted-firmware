@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <bl1/bl1.h>
 #include <bl2/bl2.h>
 #include <common/bl_common.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <drivers/auth/auth_mod.h>
 #include <drivers/auth/crypto_mod.h>
@@ -92,7 +93,7 @@ void bl2_main(void)
 	PMF_CAPTURE_TIMESTAMP(bl_svc, BL2_ENTRY, PMF_CACHE_MAINT);
 #endif
 
-	NOTICE("BL2: %s\n", version_string);
+	NOTICE("BL2: %s\n", build_version_string);
 	NOTICE("BL2: %s\n", build_message);
 
 	/* Perform remaining generic architectural setup in S-EL1 */

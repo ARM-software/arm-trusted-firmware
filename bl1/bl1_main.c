@@ -13,6 +13,7 @@
 #include <arch_helpers.h>
 #include <bl1/bl1.h>
 #include <common/bl_common.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <drivers/auth/auth_mod.h>
 #include <drivers/auth/crypto_mod.h>
@@ -73,7 +74,7 @@ void bl1_main(void)
 
 	/* Announce our arrival */
 	NOTICE(FIRMWARE_WELCOME_STR);
-	NOTICE("BL1: %s\n", version_string);
+	NOTICE("BL1: %s\n", build_version_string);
 	NOTICE("BL1: %s\n", build_message);
 
 	INFO("BL1: RAM %p - %p\n", (void *)BL1_RAM_BASE, (void *)BL1_RAM_LIMIT);

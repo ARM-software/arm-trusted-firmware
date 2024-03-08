@@ -438,11 +438,6 @@ define SOURCES_TO_OBJS
         $(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
 endef
 
-# Allow overriding the timestamp, for example for reproducible builds, or to
-# synchronize timestamps across multiple projects.
-# This must be set to a C string (including quotes where applicable).
-BUILD_MESSAGE_TIMESTAMP ?= __TIME__", "__DATE__
-
 .PHONY: libraries
 
 # MAKE_LIB_DIRS macro defines the target for the directory where
@@ -562,30 +557,19 @@ $(eval OBJS += $(MODULE_OBJS))
 
 $(ELF): $(OBJS) $(DEFAULT_LINKER_SCRIPT) $(LINKER_SCRIPTS) | $(1)_dirs libraries $(BL_LIBS)
 	$$(ECHO) "  LD      $$@"
-ifdef MAKE_BUILD_STRINGS
-	$(call MAKE_BUILD_STRINGS,$(BUILD_DIR)/build_message.o)
-else
-	@echo 'const char build_message[] = "Built : "$(BUILD_MESSAGE_TIMESTAMP); \
-	       const char version_string[] = "${VERSION_STRING}"; \
-	       const char version[] = "${VERSION}";' | \
-		$($(ARCH)-cc) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
-endif
 ifeq ($($(ARCH)-ld-id),arm-link)
 	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=${1}_entrypoint \
 		--predefine="-D__LINKER__=$(__LINKER__)" \
 		--predefine="-DTF_CFLAGS=$(TF_CFLAGS)" \
 		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/${1}.scat \
-		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) \
-		$(BUILD_DIR)/build_message.o $(OBJS)
+		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) $(OBJS)
 else ifeq ($($(ARCH)-ld-id),gnu-gcc)
 	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Wl,-Map=$(MAPFILE) \
 		$(addprefix -Wl$(comma)--script$(comma),$(LINKER_SCRIPTS)) -Wl,--script,$(DEFAULT_LINKER_SCRIPT) \
-		$(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 else
 	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
 		$(addprefix -T ,$(LINKER_SCRIPTS)) --script $(DEFAULT_LINKER_SCRIPT) \
-		$(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 endif
 ifeq ($(DISABLE_BIN_GENERATION),1)

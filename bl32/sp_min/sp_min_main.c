@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <context.h>
@@ -175,7 +176,7 @@ uintptr_t get_arm_std_svc_args(unsigned int svc_mask)
  *****************************************************************************/
 void sp_min_main(void)
 {
-	NOTICE("SP_MIN: %s\n", version_string);
+	NOTICE("SP_MIN: %s\n", build_version_string);
 	NOTICE("SP_MIN: %s\n", build_message);
 
 	/* Perform the SP_MIN platform setup */
