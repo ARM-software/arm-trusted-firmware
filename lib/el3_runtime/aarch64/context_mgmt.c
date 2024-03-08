@@ -262,10 +262,10 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	 * Initialize SCTLR_EL2 context register using Endianness value
 	 * taken from the entrypoint attribute.
 	 */
-	u_register_t sctlr_el2 = (EP_GET_EE(ep->h.attr) != 0U) ? SCTLR_EE_BIT : 0UL;
-	sctlr_el2 |= SCTLR_EL2_RES1;
-	write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_SCTLR_EL2,
-			sctlr_el2);
+	u_register_t sctlr_el2_val = (EP_GET_EE(ep->h.attr) != 0U) ? SCTLR_EE_BIT : 0UL;
+	sctlr_el2_val |= SCTLR_EL2_RES1;
+	write_el2_ctx_common(get_el2_sysregs_ctx(ctx), sctlr_el2, sctlr_el2_val);
+
 
 	if (is_feat_hcx_supported()) {
 		/*
@@ -276,7 +276,7 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		 * this feature if not properly initialized, especially when
 		 * it comes to those bits that enable/disable traps.
 		 */
-		write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_HCRX_EL2,
+		write_el2_ctx_hcx(get_el2_sysregs_ctx(ctx), hcrx_el2,
 			HCRX_EL2_INIT_VAL);
 	}
 
@@ -286,13 +286,14 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		 * systems unaware of FEAT_FGT do not get trapped due to their lack
 		 * of initialization for this feature.
 		 */
-		write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_HFGITR_EL2,
+		write_el2_ctx_fgt(get_el2_sysregs_ctx(ctx), hfgitr_el2,
 			HFGITR_EL2_INIT_VAL);
-		write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_HFGRTR_EL2,
+		write_el2_ctx_fgt(get_el2_sysregs_ctx(ctx), hfgrtr_el2,
 			HFGRTR_EL2_INIT_VAL);
-		write_ctx_reg(get_el2_sysregs_ctx(ctx), CTX_HFGWTR_EL2,
+		write_el2_ctx_fgt(get_el2_sysregs_ctx(ctx), hfgwtr_el2,
 			HFGWTR_EL2_INIT_VAL);
 	}
+
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	manage_extensions_nonsecure(ctx);
@@ -330,9 +331,9 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 * These bits are set in the gicv3 driver. Losing them (especially the
 	 * SRE bit) is problematic for all worlds. Henceforth recreate them.
 	 */
-	u_register_t icc_sre_el2 = ICC_SRE_DIB_BIT | ICC_SRE_DFB_BIT |
+	u_register_t icc_sre_el2_val = ICC_SRE_DIB_BIT | ICC_SRE_DFB_BIT |
 				   ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT;
-	write_ctx_reg(el2_ctx, CTX_ICC_SRE_EL2, icc_sre_el2);
+	write_el2_ctx_common(el2_ctx, icc_sre_el2, icc_sre_el2_val);
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	/* Start with a clean SCR_EL3 copy as all relevant values are set */
@@ -987,7 +988,6 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			}
 		}
 
-
 		if ((scr_el3 & SCR_HCE_BIT) != 0U) {
 			/* Use SCTLR_EL1.EE value to initialise sctlr_el2 */
 			sctlr_elx = read_ctx_reg(get_el1_sysregs_ctx(ctx),
@@ -1016,26 +1016,26 @@ void cm_prepare_el3_exit(uint32_t security_state)
 
 static void el2_sysregs_context_save_fgt(el2_sysregs_t *ctx)
 {
-	write_ctx_reg(ctx, CTX_HDFGRTR_EL2, read_hdfgrtr_el2());
+	write_el2_ctx_fgt(ctx, hdfgrtr_el2, read_hdfgrtr_el2());
 	if (is_feat_amu_supported()) {
-		write_ctx_reg(ctx, CTX_HAFGRTR_EL2, read_hafgrtr_el2());
+		write_el2_ctx_fgt(ctx, hafgrtr_el2, read_hafgrtr_el2());
 	}
-	write_ctx_reg(ctx, CTX_HDFGWTR_EL2, read_hdfgwtr_el2());
-	write_ctx_reg(ctx, CTX_HFGITR_EL2, read_hfgitr_el2());
-	write_ctx_reg(ctx, CTX_HFGRTR_EL2, read_hfgrtr_el2());
-	write_ctx_reg(ctx, CTX_HFGWTR_EL2, read_hfgwtr_el2());
+	write_el2_ctx_fgt(ctx, hdfgwtr_el2, read_hdfgwtr_el2());
+	write_el2_ctx_fgt(ctx, hfgitr_el2, read_hfgitr_el2());
+	write_el2_ctx_fgt(ctx, hfgrtr_el2, read_hfgrtr_el2());
+	write_el2_ctx_fgt(ctx, hfgwtr_el2, read_hfgwtr_el2());
 }
 
 static void el2_sysregs_context_restore_fgt(el2_sysregs_t *ctx)
 {
-	write_hdfgrtr_el2(read_ctx_reg(ctx, CTX_HDFGRTR_EL2));
+	write_hdfgrtr_el2(read_el2_ctx_fgt(ctx, hdfgrtr_el2));
 	if (is_feat_amu_supported()) {
-		write_hafgrtr_el2(read_ctx_reg(ctx, CTX_HAFGRTR_EL2));
+		write_hafgrtr_el2(read_el2_ctx_fgt(ctx, hafgrtr_el2));
 	}
-	write_hdfgwtr_el2(read_ctx_reg(ctx, CTX_HDFGWTR_EL2));
-	write_hfgitr_el2(read_ctx_reg(ctx, CTX_HFGITR_EL2));
-	write_hfgrtr_el2(read_ctx_reg(ctx, CTX_HFGRTR_EL2));
-	write_hfgwtr_el2(read_ctx_reg(ctx, CTX_HFGWTR_EL2));
+	write_hdfgwtr_el2(read_el2_ctx_fgt(ctx, hdfgwtr_el2));
+	write_hfgitr_el2(read_el2_ctx_fgt(ctx, hfgitr_el2));
+	write_hfgrtr_el2(read_el2_ctx_fgt(ctx, hfgrtr_el2));
+	write_hfgwtr_el2(read_el2_ctx_fgt(ctx, hfgwtr_el2));
 }
 
 #if CTX_INCLUDE_MPAM_REGS
@@ -1148,38 +1148,37 @@ static void el2_sysregs_context_restore_mpam(mpam_t *ctx)
 static void el2_sysregs_context_save_gic(el2_sysregs_t *ctx)
 {
 #if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
-	write_ctx_reg(ctx, CTX_ICC_SRE_EL2, read_icc_sre_el2());
+	write_el2_ctx_common(ctx, icc_sre_el2, read_icc_sre_el2());
 #else
 	u_register_t scr_el3 = read_scr_el3();
 	write_scr_el3(scr_el3 | SCR_NS_BIT);
 	isb();
 
-	write_ctx_reg(ctx, CTX_ICC_SRE_EL2, read_icc_sre_el2());
+	write_el2_ctx_common(ctx, icc_sre_el2, read_icc_sre_el2());
 
 	write_scr_el3(scr_el3);
 	isb();
-
 #endif
-	write_ctx_reg(ctx, CTX_ICH_HCR_EL2, read_ich_hcr_el2());
-	write_ctx_reg(ctx, CTX_ICH_VMCR_EL2, read_ich_vmcr_el2());
+	write_el2_ctx_common(ctx, ich_hcr_el2, read_ich_hcr_el2());
+	write_el2_ctx_common(ctx, ich_vmcr_el2, read_ich_vmcr_el2());
 }
 
 static void el2_sysregs_context_restore_gic(el2_sysregs_t *ctx)
 {
 #if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
-	write_icc_sre_el2(read_ctx_reg(ctx, CTX_ICC_SRE_EL2));
+	write_icc_sre_el2(read_el2_ctx_common(ctx, icc_sre_el2));
 #else
 	u_register_t scr_el3 = read_scr_el3();
 	write_scr_el3(scr_el3 | SCR_NS_BIT);
 	isb();
 
-	write_icc_sre_el2(read_ctx_reg(ctx, CTX_ICC_SRE_EL2));
+	write_icc_sre_el2(read_el2_ctx_common(ctx, icc_sre_el2));
 
 	write_scr_el3(scr_el3);
 	isb();
 #endif
-	write_ich_hcr_el2(read_ctx_reg(ctx, CTX_ICH_HCR_EL2));
-	write_ich_vmcr_el2(read_ctx_reg(ctx, CTX_ICH_VMCR_EL2));
+	write_ich_hcr_el2(read_el2_ctx_common(ctx, ich_hcr_el2));
+	write_ich_vmcr_el2(read_el2_ctx_common(ctx, ich_vmcr_el2));
 }
 
 /* -----------------------------------------------------
@@ -1190,70 +1189,70 @@ static void el2_sysregs_context_restore_gic(el2_sysregs_t *ctx)
  */
 static void el2_sysregs_context_save_common(el2_sysregs_t *ctx)
 {
-	write_ctx_reg(ctx, CTX_ACTLR_EL2, read_actlr_el2());
-	write_ctx_reg(ctx, CTX_AFSR0_EL2, read_afsr0_el2());
-	write_ctx_reg(ctx, CTX_AFSR1_EL2, read_afsr1_el2());
-	write_ctx_reg(ctx, CTX_AMAIR_EL2, read_amair_el2());
-	write_ctx_reg(ctx, CTX_CNTHCTL_EL2, read_cnthctl_el2());
-	write_ctx_reg(ctx, CTX_CNTVOFF_EL2, read_cntvoff_el2());
-	write_ctx_reg(ctx, CTX_CPTR_EL2, read_cptr_el2());
+	write_el2_ctx_common(ctx, actlr_el2, read_actlr_el2());
+	write_el2_ctx_common(ctx, afsr0_el2, read_afsr0_el2());
+	write_el2_ctx_common(ctx, afsr1_el2, read_afsr1_el2());
+	write_el2_ctx_common(ctx, amair_el2, read_amair_el2());
+	write_el2_ctx_common(ctx, cnthctl_el2, read_cnthctl_el2());
+	write_el2_ctx_common(ctx, cntvoff_el2, read_cntvoff_el2());
+	write_el2_ctx_common(ctx, cptr_el2, read_cptr_el2());
 	if (CTX_INCLUDE_AARCH32_REGS) {
-		write_ctx_reg(ctx, CTX_DBGVCR32_EL2, read_dbgvcr32_el2());
+		write_el2_ctx_common(ctx, dbgvcr32_el2, read_dbgvcr32_el2());
 	}
-	write_ctx_reg(ctx, CTX_ELR_EL2, read_elr_el2());
-	write_ctx_reg(ctx, CTX_ESR_EL2, read_esr_el2());
-	write_ctx_reg(ctx, CTX_FAR_EL2, read_far_el2());
-	write_ctx_reg(ctx, CTX_HACR_EL2, read_hacr_el2());
-	write_ctx_reg(ctx, CTX_HCR_EL2, read_hcr_el2());
-	write_ctx_reg(ctx, CTX_HPFAR_EL2, read_hpfar_el2());
-	write_ctx_reg(ctx, CTX_HSTR_EL2, read_hstr_el2());
-	write_ctx_reg(ctx, CTX_MAIR_EL2, read_mair_el2());
-	write_ctx_reg(ctx, CTX_MDCR_EL2, read_mdcr_el2());
-	write_ctx_reg(ctx, CTX_SCTLR_EL2, read_sctlr_el2());
-	write_ctx_reg(ctx, CTX_SPSR_EL2, read_spsr_el2());
-	write_ctx_reg(ctx, CTX_SP_EL2, read_sp_el2());
-	write_ctx_reg(ctx, CTX_TCR_EL2, read_tcr_el2());
-	write_ctx_reg(ctx, CTX_TPIDR_EL2, read_tpidr_el2());
-	write_ctx_reg(ctx, CTX_TTBR0_EL2, read_ttbr0_el2());
-	write_ctx_reg(ctx, CTX_VBAR_EL2, read_vbar_el2());
-	write_ctx_reg(ctx, CTX_VMPIDR_EL2, read_vmpidr_el2());
-	write_ctx_reg(ctx, CTX_VPIDR_EL2, read_vpidr_el2());
-	write_ctx_reg(ctx, CTX_VTCR_EL2, read_vtcr_el2());
-	write_ctx_reg(ctx, CTX_VTTBR_EL2, read_vttbr_el2());
+	write_el2_ctx_common(ctx, elr_el2, read_elr_el2());
+	write_el2_ctx_common(ctx, esr_el2, read_esr_el2());
+	write_el2_ctx_common(ctx, far_el2, read_far_el2());
+	write_el2_ctx_common(ctx, hacr_el2, read_hacr_el2());
+	write_el2_ctx_common(ctx, hcr_el2, read_hcr_el2());
+	write_el2_ctx_common(ctx, hpfar_el2, read_hpfar_el2());
+	write_el2_ctx_common(ctx, hstr_el2, read_hstr_el2());
+	write_el2_ctx_common(ctx, mair_el2, read_mair_el2());
+	write_el2_ctx_common(ctx, mdcr_el2, read_mdcr_el2());
+	write_el2_ctx_common(ctx, sctlr_el2, read_sctlr_el2());
+	write_el2_ctx_common(ctx, spsr_el2, read_spsr_el2());
+	write_el2_ctx_common(ctx, sp_el2, read_sp_el2());
+	write_el2_ctx_common(ctx, tcr_el2, read_tcr_el2());
+	write_el2_ctx_common(ctx, tpidr_el2, read_tpidr_el2());
+	write_el2_ctx_common(ctx, ttbr0_el2, read_ttbr0_el2());
+	write_el2_ctx_common(ctx, vbar_el2, read_vbar_el2());
+	write_el2_ctx_common(ctx, vmpidr_el2, read_vmpidr_el2());
+	write_el2_ctx_common(ctx, vpidr_el2, read_vpidr_el2());
+	write_el2_ctx_common(ctx, vtcr_el2, read_vtcr_el2());
+	write_el2_ctx_common(ctx, vttbr_el2, read_vttbr_el2());
 }
 
 static void el2_sysregs_context_restore_common(el2_sysregs_t *ctx)
 {
-	write_actlr_el2(read_ctx_reg(ctx, CTX_ACTLR_EL2));
-	write_afsr0_el2(read_ctx_reg(ctx, CTX_AFSR0_EL2));
-	write_afsr1_el2(read_ctx_reg(ctx, CTX_AFSR1_EL2));
-	write_amair_el2(read_ctx_reg(ctx, CTX_AMAIR_EL2));
-	write_cnthctl_el2(read_ctx_reg(ctx, CTX_CNTHCTL_EL2));
-	write_cntvoff_el2(read_ctx_reg(ctx, CTX_CNTVOFF_EL2));
-	write_cptr_el2(read_ctx_reg(ctx, CTX_CPTR_EL2));
+	write_actlr_el2(read_el2_ctx_common(ctx, actlr_el2));
+	write_afsr0_el2(read_el2_ctx_common(ctx, afsr0_el2));
+	write_afsr1_el2(read_el2_ctx_common(ctx, afsr1_el2));
+	write_amair_el2(read_el2_ctx_common(ctx, amair_el2));
+	write_cnthctl_el2(read_el2_ctx_common(ctx, cnthctl_el2));
+	write_cntvoff_el2(read_el2_ctx_common(ctx, cntvoff_el2));
+	write_cptr_el2(read_el2_ctx_common(ctx, cptr_el2));
 	if (CTX_INCLUDE_AARCH32_REGS) {
-		write_dbgvcr32_el2(read_ctx_reg(ctx, CTX_DBGVCR32_EL2));
+		write_dbgvcr32_el2(read_el2_ctx_common(ctx, dbgvcr32_el2));
 	}
-	write_elr_el2(read_ctx_reg(ctx, CTX_ELR_EL2));
-	write_esr_el2(read_ctx_reg(ctx, CTX_ESR_EL2));
-	write_far_el2(read_ctx_reg(ctx, CTX_FAR_EL2));
-	write_hacr_el2(read_ctx_reg(ctx, CTX_HACR_EL2));
-	write_hcr_el2(read_ctx_reg(ctx, CTX_HCR_EL2));
-	write_hpfar_el2(read_ctx_reg(ctx, CTX_HPFAR_EL2));
-	write_hstr_el2(read_ctx_reg(ctx, CTX_HSTR_EL2));
-	write_mair_el2(read_ctx_reg(ctx, CTX_MAIR_EL2));
-	write_mdcr_el2(read_ctx_reg(ctx, CTX_MDCR_EL2));
-	write_sctlr_el2(read_ctx_reg(ctx, CTX_SCTLR_EL2));
-	write_spsr_el2(read_ctx_reg(ctx, CTX_SPSR_EL2));
-	write_sp_el2(read_ctx_reg(ctx, CTX_SP_EL2));
-	write_tcr_el2(read_ctx_reg(ctx, CTX_TCR_EL2));
-	write_tpidr_el2(read_ctx_reg(ctx, CTX_TPIDR_EL2));
-	write_ttbr0_el2(read_ctx_reg(ctx, CTX_TTBR0_EL2));
-	write_vbar_el2(read_ctx_reg(ctx, CTX_VBAR_EL2));
-	write_vmpidr_el2(read_ctx_reg(ctx, CTX_VMPIDR_EL2));
-	write_vpidr_el2(read_ctx_reg(ctx, CTX_VPIDR_EL2));
-	write_vtcr_el2(read_ctx_reg(ctx, CTX_VTCR_EL2));
-	write_vttbr_el2(read_ctx_reg(ctx, CTX_VTTBR_EL2));
+	write_elr_el2(read_el2_ctx_common(ctx, elr_el2));
+	write_esr_el2(read_el2_ctx_common(ctx, esr_el2));
+	write_far_el2(read_el2_ctx_common(ctx, far_el2));
+	write_hacr_el2(read_el2_ctx_common(ctx, hacr_el2));
+	write_hcr_el2(read_el2_ctx_common(ctx, hcr_el2));
+	write_hpfar_el2(read_el2_ctx_common(ctx, hpfar_el2));
+	write_hstr_el2(read_el2_ctx_common(ctx, hstr_el2));
+	write_mair_el2(read_el2_ctx_common(ctx, mair_el2));
+	write_mdcr_el2(read_el2_ctx_common(ctx, mdcr_el2));
+	write_sctlr_el2(read_el2_ctx_common(ctx, sctlr_el2));
+	write_spsr_el2(read_el2_ctx_common(ctx, spsr_el2));
+	write_sp_el2(read_el2_ctx_common(ctx, sp_el2));
+	write_tcr_el2(read_el2_ctx_common(ctx, tcr_el2));
+	write_tpidr_el2(read_el2_ctx_common(ctx, tpidr_el2));
+	write_ttbr0_el2(read_el2_ctx_common(ctx, ttbr0_el2));
+	write_vbar_el2(read_el2_ctx_common(ctx, vbar_el2));
+	write_vmpidr_el2(read_el2_ctx_common(ctx, vmpidr_el2));
+	write_vpidr_el2(read_el2_ctx_common(ctx, vpidr_el2));
+	write_vtcr_el2(read_el2_ctx_common(ctx, vtcr_el2));
+	write_vttbr_el2(read_el2_ctx_common(ctx, vttbr_el2));
 }
 
 /*******************************************************************************
@@ -1272,8 +1271,8 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	el2_sysregs_context_save_common(el2_sysregs_ctx);
 	el2_sysregs_context_save_gic(el2_sysregs_ctx);
 
-	if (is_feat_mte2_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2, read_tfsr_el2());
+	if (is_feat_mte_supported()) {
+		write_el2_ctx_mte(el2_sysregs_ctx, tfsr_el2, read_tfsr_el2());
 	}
 
 #if CTX_INCLUDE_MPAM_REGS
@@ -1288,51 +1287,57 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	}
 
 	if (is_feat_ecv_v2_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_CNTPOFF_EL2, read_cntpoff_el2());
+		write_el2_ctx_ecv(el2_sysregs_ctx, cntpoff_el2, read_cntpoff_el2());
 	}
 
 	if (is_feat_vhe_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_CONTEXTIDR_EL2, read_contextidr_el2());
-		write_ctx_reg(el2_sysregs_ctx, CTX_TTBR1_EL2, read_ttbr1_el2());
+		write_el2_ctx_vhe(el2_sysregs_ctx, contextidr_el2,
+					read_contextidr_el2());
+		write_el2_ctx_vhe(el2_sysregs_ctx, ttbr1_el2, read_ttbr1_el2());
 	}
 
 	if (is_feat_ras_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_VDISR_EL2, read_vdisr_el2());
-		write_ctx_reg(el2_sysregs_ctx, CTX_VSESR_EL2, read_vsesr_el2());
+		write_el2_ctx_ras(el2_sysregs_ctx, vdisr_el2, read_vdisr_el2());
+		write_el2_ctx_ras(el2_sysregs_ctx, vsesr_el2, read_vsesr_el2());
 	}
 
 	if (is_feat_nv2_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_VNCR_EL2, read_vncr_el2());
+		write_el2_ctx_neve(el2_sysregs_ctx, vncr_el2, read_vncr_el2());
 	}
 
 	if (is_feat_trf_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2, read_trfcr_el2());
+		write_el2_ctx_trf(el2_sysregs_ctx, trfcr_el2, read_trfcr_el2());
 	}
 
-	/* CSV2 version 2 and above */
 	if (is_feat_csv2_2_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_SCXTNUM_EL2, read_scxtnum_el2());
+		write_el2_ctx_csv2_2(el2_sysregs_ctx, scxtnum_el2,
+					read_scxtnum_el2());
 	}
 
 	if (is_feat_hcx_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2, read_hcrx_el2());
+		write_el2_ctx_hcx(el2_sysregs_ctx, hcrx_el2, read_hcrx_el2());
 	}
+
 	if (is_feat_tcr2_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_TCR2_EL2, read_tcr2_el2());
+		write_el2_ctx_tcr2(el2_sysregs_ctx, tcr2_el2, read_tcr2_el2());
 	}
+
 	if (is_feat_sxpie_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_PIRE0_EL2, read_pire0_el2());
-		write_ctx_reg(el2_sysregs_ctx, CTX_PIR_EL2, read_pir_el2());
+		write_el2_ctx_sxpie(el2_sysregs_ctx, pire0_el2, read_pire0_el2());
+		write_el2_ctx_sxpie(el2_sysregs_ctx, pir_el2, read_pir_el2());
 	}
-	if (is_feat_s2pie_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_S2PIR_EL2, read_s2pir_el2());
-	}
+
 	if (is_feat_sxpoe_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_POR_EL2, read_por_el2());
+		write_el2_ctx_sxpoe(el2_sysregs_ctx, por_el2, read_por_el2());
 	}
+
+	if (is_feat_s2pie_supported()) {
+		write_el2_ctx_s2pie(el2_sysregs_ctx, s2pir_el2, read_s2pir_el2());
+	}
+
 	if (is_feat_gcs_supported()) {
-		write_ctx_reg(el2_sysregs_ctx, CTX_GCSPR_EL2, read_gcspr_el2());
-		write_ctx_reg(el2_sysregs_ctx, CTX_GCSCR_EL2, read_gcscr_el2());
+		write_el2_ctx_gcs(el2_sysregs_ctx, gcscr_el2, read_gcspr_el2());
+		write_el2_ctx_gcs(el2_sysregs_ctx, gcspr_el2, read_gcscr_el2());
 	}
 }
 
@@ -1352,8 +1357,8 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	el2_sysregs_context_restore_common(el2_sysregs_ctx);
 	el2_sysregs_context_restore_gic(el2_sysregs_ctx);
 
-	if (is_feat_mte2_supported()) {
-		write_tfsr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2));
+	if (is_feat_mte_supported()) {
+		write_tfsr_el2(read_el2_ctx_mte(el2_sysregs_ctx, tfsr_el2));
 	}
 
 #if CTX_INCLUDE_MPAM_REGS
@@ -1368,50 +1373,57 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	}
 
 	if (is_feat_ecv_v2_supported()) {
-		write_cntpoff_el2(read_ctx_reg(el2_sysregs_ctx, CTX_CNTPOFF_EL2));
+		write_cntpoff_el2(read_el2_ctx_ecv(el2_sysregs_ctx, cntpoff_el2));
 	}
 
 	if (is_feat_vhe_supported()) {
-		write_contextidr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_CONTEXTIDR_EL2));
-		write_ttbr1_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TTBR1_EL2));
+		write_contextidr_el2(read_el2_ctx_vhe(el2_sysregs_ctx,
+					contextidr_el2));
+		write_ttbr1_el2(read_el2_ctx_vhe(el2_sysregs_ctx, ttbr1_el2));
 	}
 
 	if (is_feat_ras_supported()) {
-		write_vdisr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_VDISR_EL2));
-		write_vsesr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_VSESR_EL2));
+		write_vdisr_el2(read_el2_ctx_ras(el2_sysregs_ctx, vdisr_el2));
+		write_vsesr_el2(read_el2_ctx_ras(el2_sysregs_ctx, vsesr_el2));
 	}
 
 	if (is_feat_nv2_supported()) {
-		write_vncr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_VNCR_EL2));
-	}
-	if (is_feat_trf_supported()) {
-		write_trfcr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TRFCR_EL2));
+		write_vncr_el2(read_el2_ctx_neve(el2_sysregs_ctx, vncr_el2));
 	}
 
-	/* CSV2 version 2 and above */
+	if (is_feat_trf_supported()) {
+		write_trfcr_el2(read_el2_ctx_trf(el2_sysregs_ctx, trfcr_el2));
+	}
+
 	if (is_feat_csv2_2_supported()) {
-		write_scxtnum_el2(read_ctx_reg(el2_sysregs_ctx, CTX_SCXTNUM_EL2));
+		write_scxtnum_el2(read_el2_ctx_csv2_2(el2_sysregs_ctx,
+					scxtnum_el2));
 	}
 
 	if (is_feat_hcx_supported()) {
-		write_hcrx_el2(read_ctx_reg(el2_sysregs_ctx, CTX_HCRX_EL2));
+		write_hcrx_el2(read_el2_ctx_hcx(el2_sysregs_ctx, hcrx_el2));
 	}
+
 	if (is_feat_tcr2_supported()) {
-		write_tcr2_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TCR2_EL2));
+		write_tcr2_el2(read_el2_ctx_tcr2(el2_sysregs_ctx, tcr2_el2));
 	}
+
 	if (is_feat_sxpie_supported()) {
-		write_pire0_el2(read_ctx_reg(el2_sysregs_ctx, CTX_PIRE0_EL2));
-		write_pir_el2(read_ctx_reg(el2_sysregs_ctx, CTX_PIR_EL2));
+		write_pire0_el2(read_el2_ctx_sxpie(el2_sysregs_ctx, pire0_el2));
+		write_pir_el2(read_el2_ctx_sxpie(el2_sysregs_ctx, pir_el2));
 	}
-	if (is_feat_s2pie_supported()) {
-		write_s2pir_el2(read_ctx_reg(el2_sysregs_ctx, CTX_S2PIR_EL2));
-	}
+
 	if (is_feat_sxpoe_supported()) {
-		write_por_el2(read_ctx_reg(el2_sysregs_ctx, CTX_POR_EL2));
+		write_por_el2(read_el2_ctx_sxpoe(el2_sysregs_ctx, por_el2));
 	}
+
+	if (is_feat_s2pie_supported()) {
+		write_s2pir_el2(read_el2_ctx_s2pie(el2_sysregs_ctx, s2pir_el2));
+	}
+
 	if (is_feat_gcs_supported()) {
-		write_gcscr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_GCSCR_EL2));
-		write_gcspr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_GCSPR_EL2));
+		write_gcscr_el2(read_el2_ctx_gcs(el2_sysregs_ctx, gcscr_el2));
+		write_gcspr_el2(read_el2_ctx_gcs(el2_sysregs_ctx, gcspr_el2));
 	}
 }
 #endif /* CTX_INCLUDE_EL2_REGS */
