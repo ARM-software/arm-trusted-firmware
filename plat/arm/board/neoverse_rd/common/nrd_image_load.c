@@ -14,7 +14,6 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include <nrd_base_platform_def.h>
 #include <nrd_variant.h>
 
 /*

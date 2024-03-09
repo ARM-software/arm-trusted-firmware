@@ -17,8 +17,6 @@
 #include <plat/common/platform.h>
 #include <drivers/arm/sbsa.h>
 
-#include <nrd_base_platform_def.h>
-
 #if SPM_MM
 #include <services/spm_mm_partition.h>
 #endif
