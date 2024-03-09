@@ -10,13 +10,17 @@
 #ifndef NRD_PLAT_ARM_DEF1_H
 #define NRD_PLAT_ARM_DEF1_H
 
-#include <nrd_soc_css_def.h>
+#ifndef __ASSEMBLER__
+#include <lib/mmio.h>
+#endif /* __ASSEMBLER__ */
+
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/arm/board/common/v2m_def.h>
 #include <plat/arm/common/arm_def.h>
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/arm/css/common/css_def.h>
+#include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 #include <nrd_css_fw_def1.h>
 #include <nrd_ros_fw_def1.h>
@@ -163,11 +167,24 @@
 #define PLAT_ARM_CRASH_UART_CLK_IN_HZ	SOC_CSS_UART_CLK_IN_HZ
 
 /*******************************************************************************
+ * Timer config
+ ******************************************************************************/
+
+#define PLAT_ARM_NSTIMER_FRAME_ID	(0)
+
+/*******************************************************************************
  * Flash config
  ******************************************************************************/
 
+#define PLAT_ARM_FLASH_IMAGE_BASE	V2M_FLASH0_BASE
+#define PLAT_ARM_FLASH_IMAGE_MAX_SIZE	(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+#define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
+#define PLAT_ARM_NVM_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
 #define PLAT_ARM_MEM_PROT_ADDR		(V2M_FLASH0_BASE + \
 					 V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+/* IO storage framework */
+#define MAX_IO_DEVICES			(3)
+#define MAX_IO_HANDLES			(4)
 
 /*******************************************************************************
  * SCMI config
@@ -186,12 +203,29 @@
 #define SDS_ISOLATED_CPU_LIST_ID	U(128)
 
 /*******************************************************************************
- * GIC config
+ * GIC/EHF config
  ******************************************************************************/
 
-#define PLAT_ARM_NSTIMER_FRAME_ID	(0)
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	CSS_G1S_IRQ_PROPS(grp)
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp)
 #define PLAT_SP_PRI			(0x10)
+
+/*******************************************************************************
+ * Platform type identification macro
+ ******************************************************************************/
+
+/* Platform ID related accessors */
+#define BOARD_CSS_PLAT_ID_REG_ID_MASK		0x0f
+#define BOARD_CSS_PLAT_ID_REG_ID_SHIFT		0x0
+#define BOARD_CSS_PLAT_TYPE_EMULATOR		0x02
+
+#ifndef __ASSEMBLER__
+#define BOARD_CSS_GET_PLAT_TYPE(addr)					\
+		((mmio_read_32(addr) & BOARD_CSS_PLAT_ID_REG_ID_MASK)	\
+		>> BOARD_CSS_PLAT_ID_REG_ID_SHIFT)
+#endif /* __ASSEMBLER__ */
+
+/* Platform ID address */
+#define BOARD_CSS_PLAT_ID_REG_ADDR		UL(0x7ffe00e0)
 
 #endif /* NRD_PLAT_ARM_DEF1_H */
