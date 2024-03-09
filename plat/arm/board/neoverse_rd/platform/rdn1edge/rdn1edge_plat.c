@@ -10,7 +10,6 @@
 #include <plat/common/platform.h>
 
 #include <nrd_plat.h>
-#include <nrd_soc_platform_def.h>
 
 #if defined(IMAGE_BL31)
 static const mmap_region_t rdn1edge_dynamic_mmap[] = {

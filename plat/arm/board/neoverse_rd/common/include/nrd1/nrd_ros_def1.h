@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * This file is limited to include the RoS specific definitions for the first
+ * generation platforms based on the A75, N1 and V1 CPUs. RoS (Rest Of System)
+ * is used to refer to the part of the reference design platform that excludes
+ * CSS.
+ */
+
+#ifndef NRD_ROS_DEF1_H
+#define NRD_ROS_DEF1_H
+
+/*******************************************************************************
+ * ROS configs
+ ******************************************************************************/
+
+/* System Reg */
+#define CSS_SYSTEMREG_DEVICE_BASE	UL(0x1C010000)
+#define CSS_SYSTEMREG_DEVICE_SIZE	UL(0x00010000)
+
+/* NOR Flash 2 */
+#define CSS_NOR2_FLASH_DEVICE_BASE	UL(0x10000000)
+#define CSS_NOR2_FLASH_DEVICE_SIZE	UL(0x04000000)
+
+#endif /* NRD_ROS_DEF1_H */

@@ -12,7 +12,6 @@
 #include <nrd_plat_arm_def1.h>
 #include <nrd_ros_fw_def1.h>
 #include <nrd_sdei.h>
-#include <nrd_soc_platform_def.h>
 
 /* Remote chip address offset */
 #define NRD_REMOTE_CHIP_MEM_OFFSET(n)	\

@@ -7,7 +7,6 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <nrd_soc_platform_def.h>
 #include <lib/utils_def.h>
 #include <nrd_css_fw_def1.h>
 #include <nrd_plat_arm_def1.h>
