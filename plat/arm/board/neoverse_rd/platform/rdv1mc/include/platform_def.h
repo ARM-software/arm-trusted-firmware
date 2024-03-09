@@ -7,8 +7,15 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <lib/utils_def.h>
 #include <nrd_soc_platform_def.h>
+#include <lib/utils_def.h>
+#include <nrd_css_fw_def1.h>
+#include <nrd_plat_arm_def1.h>
+#include <nrd_ros_fw_def1.h>
+
+/* Remote chip address offset */
+#define NRD_REMOTE_CHIP_MEM_OFFSET(n)	\
+		((ULL(1) << NRD_ADDR_BITS_PER_CHIP) * (n))
 
 #define PLAT_ARM_CLUSTER_COUNT		U(4)
 #define NRD_MAX_CPUS_PER_CLUSTER	U(1)

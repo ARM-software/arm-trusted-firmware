@@ -10,7 +10,6 @@
 #include <plat/arm/board/common/v2m_def.h>
 #include <plat/arm/soc/common/soc_css_def.h>
 
-#include <nrd_base_platform_def.h>
 #include <nrd_soc_css_def.h>
 
 /* Map the System registers to access from S-EL0 */
