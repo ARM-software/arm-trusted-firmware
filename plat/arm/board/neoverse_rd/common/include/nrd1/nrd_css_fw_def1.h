@@ -55,13 +55,7 @@
  * MMU mappings
  ******************************************************************************/
 
-#define NRD_MAP_DEVICE							\
-		MAP_REGION_FLAT(					\
-			NRD_DEVICE_BASE,				\
-			NRD_DEVICE_SIZE,				\
-			MT_DEVICE | MT_RW | MT_SECURE)
-
-#define NRD_MAP_DEVICE_REMOTE_CHIP(n)					\
+#define NRD_MAP_DEVICE(n)						\
 		MAP_REGION_FLAT(					\
 			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
 			NRD_DEVICE_BASE,				\

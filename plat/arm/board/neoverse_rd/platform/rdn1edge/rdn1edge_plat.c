@@ -14,7 +14,7 @@
 #if defined(IMAGE_BL31)
 static const mmap_region_t rdn1edge_dynamic_mmap[] = {
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(1),
-	NRD_MAP_DEVICE_REMOTE_CHIP(1),
+	NRD_MAP_DEVICE(1),
 	SOC_CSS_MAP_DEVICE_REMOTE_CHIP(1)
 };
 
