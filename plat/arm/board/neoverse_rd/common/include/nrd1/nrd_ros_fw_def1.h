@@ -18,13 +18,7 @@
  * MMU mapping
  ******************************************************************************/
 
-#define PLAT_ARM_SECURE_MAP_DEVICE					\
-		MAP_REGION_FLAT(					\
-			SOC_CSS_DEVICE_BASE,				\
-			SOC_CSS_DEVICE_SIZE,				\
-			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
-
-#define SOC_CSS_MAP_DEVICE_REMOTE_CHIP(n)				\
+#define PLAT_ARM_SECURE_MAP_DEVICE(n)					\
 		MAP_REGION_FLAT(					\
 			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
 			SOC_CSS_DEVICE_BASE,				\

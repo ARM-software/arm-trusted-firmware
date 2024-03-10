@@ -15,7 +15,7 @@
 static const mmap_region_t rdn1edge_dynamic_mmap[] = {
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(1),
 	NRD_MAP_DEVICE(1),
-	SOC_CSS_MAP_DEVICE_REMOTE_CHIP(1)
+	PLAT_ARM_SECURE_MAP_DEVICE(1)
 };
 
 static struct gic600_multichip_data rdn1e1_multichip_data __init = {
