@@ -15,7 +15,7 @@ PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include/nrd1/	\
 
 NRD_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_v1.S
 
-PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat.c
+PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat1.c
 
 BL1_SOURCES		+=	${NRD_CPU_SOURCES}			\
 				${RDV1_BASE}/rdv1_err.c

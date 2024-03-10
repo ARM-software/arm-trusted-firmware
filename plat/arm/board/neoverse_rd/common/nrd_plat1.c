@@ -94,9 +94,6 @@ const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	PLAT_ARM_SECURE_MAP_DEVICE,
 	ARM_SP_IMAGE_MMAP,
 	ARM_SP_IMAGE_NS_BUF_MMAP,
-#if ENABLE_FEAT_RAS && FFH_SUPPORT
-	NRD_SP_CPER_BUF_MMAP,
-#endif
 	ARM_SP_IMAGE_RW_MMAP,
 	ARM_SPM_BUF_EL0_MMAP,
 	{0}
