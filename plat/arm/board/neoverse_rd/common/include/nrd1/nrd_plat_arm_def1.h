@@ -134,7 +134,7 @@
 							0x2000))
 #endif
 
-#define PLAT_ARM_MAX_BL31_SIZE		(NRD_BL31_SIZE +		\
+#define PLAT_ARM_MAX_BL31_SIZE		(NRD_CSS_BL31_SIZE +		\
 						PLAT_ARM_MAX_BL2_SIZE +	\
 						PLAT_ARM_MAX_BL1_RW_SIZE)
 
@@ -158,13 +158,13 @@
  ******************************************************************************/
 
 #define PLAT_ARM_BOOT_UART_BASE		NRD_CSS_SEC_UART_BASE
-#define PLAT_ARM_BOOT_UART_CLK_IN_HZ	SOC_CSS_UART_CLK_IN_HZ
+#define PLAT_ARM_BOOT_UART_CLK_IN_HZ	NRD_CSS_UART_CLK_IN_HZ
 
 #define PLAT_ARM_RUN_UART_BASE		NRD_CSS_SEC_UART_BASE
-#define PLAT_ARM_RUN_UART_CLK_IN_HZ	SOC_CSS_UART_CLK_IN_HZ
+#define PLAT_ARM_RUN_UART_CLK_IN_HZ	NRD_CSS_UART_CLK_IN_HZ
 
 #define PLAT_ARM_CRASH_UART_BASE	NRD_CSS_SEC_UART_BASE
-#define PLAT_ARM_CRASH_UART_CLK_IN_HZ	SOC_CSS_UART_CLK_IN_HZ
+#define PLAT_ARM_CRASH_UART_CLK_IN_HZ	NRD_CSS_UART_CLK_IN_HZ
 
 /*******************************************************************************
  * Timer config

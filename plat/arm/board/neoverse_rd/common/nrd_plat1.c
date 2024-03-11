@@ -87,7 +87,7 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	PLAT_ARM_SECURE_MAP_SYSTEMREG,
 	PLAT_ARM_SECURE_MAP_NOR2,
-	SOC_PLATFORM_SECURE_UART,
+	NRD_CSS_SECURE_UART_MMAP,
 	ARM_SP_IMAGE_MMAP,
 	ARM_SP_IMAGE_NS_BUF_MMAP,
 	ARM_SP_IMAGE_RW_MMAP,
@@ -161,7 +161,7 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 
 void plat_arm_secure_wdt_start(void)
 {
-	sbsa_wdog_start(NRD_CSS_WDOG_BASE, SBSA_SECURE_WDOG_TIMEOUT);
+	sbsa_wdog_start(NRD_CSS_WDOG_BASE, NRD_CSS_WDOG_TIMEOUT);
 }
 
 void plat_arm_secure_wdt_stop(void)

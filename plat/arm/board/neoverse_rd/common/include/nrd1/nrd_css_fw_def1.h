@@ -21,19 +21,19 @@
  * calculated using the current BL31 PROGBITS debug size plus the sizes of BL2
  * and BL1-RW.
  */
-#define NRD_BL31_SIZE			UL(116 * 1024)	/* 116 KB */
+#define NRD_CSS_BL31_SIZE		UL(116 * 1024)	/* 116 KB */
 
 /*******************************************************************************
  * Console config
  ******************************************************************************/
 
-#define SOC_CSS_UART_CLK_IN_HZ		UL(7372800)
+#define NRD_CSS_UART_CLK_IN_HZ		UL(7372800)
 
 /*******************************************************************************
  * Watchdog config
  ******************************************************************************/
 
-#define SBSA_SECURE_WDOG_TIMEOUT	UL(100)
+#define NRD_CSS_WDOG_TIMEOUT		UL(100)
 
 /*******************************************************************************
  * Platform ID
@@ -62,7 +62,7 @@
 			NRD_CSS_PERIPH_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE)
 
-#define ARM_MAP_SHARED_RAM_REMOTE_CHIP(n)				\
+#define NRD_CSS_SHARED_RAM_MMAP(n)					\
 		MAP_REGION_FLAT(					\
 			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
 			ARM_SHARED_RAM_BASE,				\
@@ -74,7 +74,7 @@
  * Stand-alone MM logs would be routed via secure UART. Define page table
  * entry for secure UART which would be common to all platforms.
  */
-#define SOC_PLATFORM_SECURE_UART					\
+#define NRD_CSS_SECURE_UART_MMAP					\
 		MAP_REGION_FLAT(					\
 			NRD_CSS_SEC_UART_BASE,				\
 			NRD_CSS_UART_SIZE,				\
