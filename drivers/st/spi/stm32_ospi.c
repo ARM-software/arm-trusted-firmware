@@ -401,6 +401,29 @@ static int stm32_ospi_hb_test_cfi(void)
 	return ret;
 }
 
+static int stm32_ospi_hb_test_jedec(void)
+{
+	int ret = -EIO;
+	uint16_t sfdp[2];
+
+	stm32_ospi_hb_write16(0xF0U, 0U);
+	stm32_ospi_hb_write16(0xAAU, 0xAAAU);
+	stm32_ospi_hb_write16(0x55U, 0x554U);
+	stm32_ospi_hb_write16(0x90U, 0xAAAU);
+
+	sfdp[0] = stm32_ospi_hb_read16(0U);
+	sfdp[1] = stm32_ospi_hb_read16(0x2U);
+
+	/* compare with "SF" & "DP" */
+	if ((sfdp[0] == 0x4653) && (sfdp[1] == 0x5044)) {
+		ret = 0;
+	}
+
+	stm32_ospi_hb_write16(0xF0U, 0U);
+
+	return ret;
+}
+
 static int stm32_ospi_hb_init(void *fdt, int bus_node)
 {
 	int ret;
@@ -408,6 +431,7 @@ static int stm32_ospi_hb_init(void *fdt, int bus_node)
 	int bus_subnode = 0;
 	const fdt32_t *cuint = NULL;
 	bool wzl = false;
+	bool jedec_flash = false;
 	unsigned int tacc = 0U;
 	unsigned int max_freq = 0U;
 	unsigned long ospi_clk = clk_get_rate(stm32_ospi.clock_id);
@@ -444,6 +468,11 @@ static int stm32_ospi_hb_init(void *fdt, int bus_node)
 
 		if ((fdt_getprop(fdt, bus_subnode, "st,wzl", NULL)) != NULL) {
 			wzl = true;
+		}
+
+		if (fdt_node_check_compatible(fdt, bus_subnode,
+					      "jedec-flash") == 0) {
+			jedec_flash = true;
 		}
 	}
 
@@ -489,8 +518,13 @@ static int stm32_ospi_hb_init(void *fdt, int bus_node)
 	mmio_write_32(ospi_base() + _OSPI_CCR, ccr);
 
 	/* Calibrate the DLL */
-	ret = stm32_ospi_dtr_calibrate(prescaler, bus_freq,
-				       stm32_ospi_hb_test_cfi);
+	if (jedec_flash) {
+		ret = stm32_ospi_dtr_calibrate(prescaler, bus_freq,
+					       stm32_ospi_hb_test_jedec);
+	} else {
+		ret = stm32_ospi_dtr_calibrate(prescaler, bus_freq,
+					       stm32_ospi_hb_test_cfi);
+	}
 	if (ret != 0) {
 		return ret;
 	}
