@@ -71,6 +71,13 @@ CSS_LOAD_SCP_IMAGES	:=	1
 # Save DSU PMU registers on cluster off and restore them on cluster on
 PRESERVE_DSU_PMU_REGS		:= 1
 
+# Specify MHU type based on platform
+ifneq ($(filter ${TARGET_PLATFORM}, 2),)
+	PLAT_MHU_VERSION	:= 2
+else
+	PLAT_MHU_VERSION	:= 3
+endif
+
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
