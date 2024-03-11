@@ -18,11 +18,11 @@
  * MMU mapping
  ******************************************************************************/
 
-#define PLAT_ARM_SECURE_MAP_DEVICE(n)					\
+#define NRD_ROS_PERIPH_MMAP(n)						\
 		MAP_REGION_FLAT(					\
 			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
-			SOC_CSS_DEVICE_BASE,				\
-			SOC_CSS_DEVICE_SIZE,				\
+			NRD_ROS_PERIPH_BASE,				\
+			NRD_ROS_PERIPH_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE)
 
 #define PLAT_ARM_SECURE_MAP_SYSTEMREG					\

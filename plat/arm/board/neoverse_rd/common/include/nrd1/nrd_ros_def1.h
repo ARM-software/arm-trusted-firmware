@@ -16,6 +16,10 @@
  * ROS configs
  ******************************************************************************/
 
+/* RoS Peripherals */
+#define NRD_ROS_PERIPH_BASE		UL(0x60000000)
+#define NRD_ROS_PERIPH_SIZE		UL(0x20000000)
+
 /* System Reg */
 #define CSS_SYSTEMREG_DEVICE_BASE	UL(0x1C010000)
 #define CSS_SYSTEMREG_DEVICE_SIZE	UL(0x00010000)

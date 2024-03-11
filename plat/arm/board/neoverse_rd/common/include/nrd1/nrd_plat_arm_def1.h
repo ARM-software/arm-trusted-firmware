@@ -40,8 +40,8 @@
 
 #if defined(IMAGE_BL31)
 # if SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)
-#  define PLAT_ARM_MMAP_ENTRIES		(10  + ((NRD_CHIP_COUNT - 1) * 3))
-#  define MAX_XLAT_TABLES		(8  + ((NRD_CHIP_COUNT - 1) * 3))
+#  define PLAT_ARM_MMAP_ENTRIES		(10 + ((NRD_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(11 + ((NRD_CHIP_COUNT - 1) * 3))
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	(12)
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	(14)
 # else
@@ -60,7 +60,7 @@
  * multichip platforms peripherals also fall into address space with width
  * > 40 bits.
  */
-# define MAX_XLAT_TABLES		(7  + ((NRD_CHIP_COUNT - 1) * 2))
+# define MAX_XLAT_TABLES		(11  + ((NRD_CHIP_COUNT - 1) * 2))
 #elif !USE_ROMLIB
 # define PLAT_ARM_MMAP_ENTRIES		(11)
 # define MAX_XLAT_TABLES		(7)
@@ -127,7 +127,7 @@
  *
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		(0x20000 + ((NRD_CHIP_COUNT - 1) * \
+# define PLAT_ARM_MAX_BL2_SIZE		(0x28000 + ((NRD_CHIP_COUNT - 1) * \
 							0x2000))
 #else
 # define PLAT_ARM_MAX_BL2_SIZE		(0x14000 + ((NRD_CHIP_COUNT - 1) * \

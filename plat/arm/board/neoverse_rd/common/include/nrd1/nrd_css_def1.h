@@ -22,8 +22,8 @@
 #define SOC_CSS_UART_SIZE		UL(0x10000)
 
 /* CSS peripherals */
-#define NRD_DEVICE_BASE			UL(0x20000000)
-#define NRD_DEVICE_SIZE			UL(0x20000000)
+#define NRD_CSS_PERIPH_BASE		UL(0x20000000)
+#define NRD_CSS_PERIPH_SIZE		UL(0x40000000)
 
 /* Secure Watchdog */
 #define SBSA_SECURE_WDOG_BASE		UL(0x2A480000)

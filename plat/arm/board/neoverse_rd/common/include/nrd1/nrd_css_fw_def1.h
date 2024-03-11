@@ -55,11 +55,11 @@
  * MMU mappings
  ******************************************************************************/
 
-#define NRD_MAP_DEVICE(n)						\
+#define NRD_CSS_PERIPH_MMAP(n)						\
 		MAP_REGION_FLAT(					\
 			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
-			NRD_DEVICE_BASE,				\
-			NRD_DEVICE_SIZE,				\
+			NRD_CSS_PERIPH_BASE,				\
+			NRD_CSS_PERIPH_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE)
 
 #define ARM_MAP_SHARED_RAM_REMOTE_CHIP(n)				\
