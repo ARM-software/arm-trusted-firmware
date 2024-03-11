@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,7 +30,7 @@ bool xlat_arch_is_granule_size_supported(size_t size)
 		return (tgranx < 8U);
 	} else if (size == PAGE_SIZE_16KB) {
 		tgranx = read_id_aa64mmfr0_el0_tgran16_field();
-		return (tgranx >= ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED);
+		return (tgranx >= TGRAN16_IMPLEMENTED);
 	} else if (size == PAGE_SIZE_64KB) {
 		tgranx = read_id_aa64mmfr0_el0_tgran64_field();
 		/* MSB of TGRAN64 field will be '1' for unsupported feature */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -157,7 +157,7 @@
 	 */
 	mrs	x0, id_aa64pfr0_el1
 	ubfx	x0, x0, #ID_AA64PFR0_DIT_SHIFT, #ID_AA64PFR0_DIT_LENGTH
-	cmp	x0, #ID_AA64PFR0_DIT_SUPPORTED
+	cmp	x0, #DIT_IMPLEMENTED
 	bne	1f
 	mov	x0, #DIT_BIT
 	msr	DIT, x0

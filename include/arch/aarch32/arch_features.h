@@ -136,7 +136,7 @@ static inline bool is_feat_pan_present(void)
 static inline unsigned int is_feat_ssbs_present(void)
 {
 	return ((read_id_pfr2() >> ID_PFR2_SSBS_SHIFT) &
-		ID_PFR2_SSBS_MASK) != SSBS_UNAVAILABLE;
+		ID_PFR2_SSBS_MASK) != SSBS_NOT_IMPLEMENTED;
 }
 
 /*
@@ -201,7 +201,7 @@ static inline bool is_feat_mtpmu_supported(void)
 
 	unsigned int mtpmu = read_feat_mtpmu_id_field();
 
-	return mtpmu != 0U && mtpmu != ID_DFR1_MTPMU_DISABLED;
+	return ((mtpmu != 0U) && (mtpmu != MTPMU_NOT_IMPLEMENTED));
 }
 
 #endif /* ARCH_FEATURES_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,7 +76,7 @@
 	orr	r0, r0, #(NSACR_RESET_VAL | NSACR_ENABLE_FP_ACCESS)
 	ldcopr	r1, ID_DFR0
 	ubfx	r1, r1, #ID_DFR0_COPTRC_SHIFT, #ID_DFR0_COPTRC_LENGTH
-	cmp	r1, #ID_DFR0_COPTRC_SUPPORTED
+	cmp	r1, #COPTRC_IMPLEMENTED
 	bne	1f
 	orr	r0, r0, #NSTRCDIS_BIT
 1:
@@ -143,7 +143,7 @@
 		      SDCR_SCCD_BIT) & ~SDCR_TTRF_BIT)
 	ldcopr	r1, ID_DFR0
 	ubfx	r1, r1, #ID_DFR0_TRACEFILT_SHIFT, #ID_DFR0_TRACEFILT_LENGTH
-	cmp	r1, #ID_DFR0_TRACEFILT_SUPPORTED
+	cmp	r1, #TRACEFILT_IMPLEMENTED
 	bne	1f
 	orr	r0, r0, #SDCR_TTRF_BIT
 1:
@@ -182,7 +182,7 @@
 	 */
 	ldcopr	r0, ID_PFR0
 	and	r0, r0, #(ID_PFR0_DIT_MASK << ID_PFR0_DIT_SHIFT)
-	cmp	r0, #ID_PFR0_DIT_SUPPORTED
+	cmp	r0, #DIT_IMPLEMENTED
 	bne	1f
 	mrs	r0, cpsr
 	orr	r0, r0, #CPSR_DIT_BIT

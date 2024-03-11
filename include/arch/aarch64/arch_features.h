@@ -113,7 +113,7 @@ static inline unsigned int is_feat_mte2_present(void)
 static inline bool is_feat_ssbs_present(void)
 {
 	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_SSBS_SHIFT) &
-		ID_AA64PFR1_EL1_SSBS_MASK) != SSBS_UNAVAILABLE;
+		ID_AA64PFR1_EL1_SSBS_MASK) != SSBS_NOT_IMPLEMENTED;
 }
 
 static inline bool is_feat_nmi_present(void)
@@ -214,7 +214,7 @@ static inline bool is_feat_rng_trap_present(void)
 {
 	return (((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT) &
 			ID_AA64PFR1_EL1_RNDR_TRAP_MASK)
-			== ID_AA64PFR1_EL1_RNG_TRAP_SUPPORTED);
+			== RNG_TRAP_IMPLEMENTED);
 }
 
 static inline unsigned int get_armv9_2_feat_rme_support(void)
@@ -255,9 +255,9 @@ static inline unsigned int read_feat_csv2_id_field(void)
 }
 
 CREATE_FEATURE_FUNCS_VER(feat_csv2_2, read_feat_csv2_id_field,
-			 ID_AA64PFR0_CSV2_2_SUPPORTED, ENABLE_FEAT_CSV2_2)
+			 CSV2_2_IMPLEMENTED, ENABLE_FEAT_CSV2_2)
 CREATE_FEATURE_FUNCS_VER(feat_csv2_3, read_feat_csv2_id_field,
-			 ID_AA64PFR0_CSV2_3_SUPPORTED, ENABLE_FEAT_CSV2_3)
+			 CSV2_3_IMPLEMENTED, ENABLE_FEAT_CSV2_3)
 
 /* FEAT_SPE: Statistical Profiling Extension */
 CREATE_FEATURE_FUNCS(feat_spe, id_aa64dfr0_el1, ID_AA64DFR0_PMS_SHIFT,
@@ -285,7 +285,7 @@ CREATE_FEATURE_FUNCS(feat_trf, id_aa64dfr0_el1, ID_AA64DFR0_TRACEFILT_SHIFT,
 /* FEAT_NV2: Enhanced Nested Virtualization */
 CREATE_FEATURE_FUNCS(feat_nv, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV_SHIFT, 0)
 CREATE_FEATURE_FUNCS_VER(feat_nv2, read_feat_nv_id_field,
-			 ID_AA64MMFR2_EL1_NV2_SUPPORTED, CTX_INCLUDE_NEVE_REGS)
+			 NV2_IMPLEMENTED, CTX_INCLUDE_NEVE_REGS)
 
 /* FEAT_BRBE: Branch Record Buffer Extension */
 CREATE_FEATURE_FUNCS(feat_brbe, id_aa64dfr0_el1, ID_AA64DFR0_BRBE_SHIFT,
@@ -304,7 +304,7 @@ static inline unsigned int read_feat_sme_fa64_id_field(void)
 CREATE_FEATURE_FUNCS(feat_sme, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
 		     ENABLE_SME_FOR_NS)
 CREATE_FEATURE_FUNCS_VER(feat_sme2, read_feat_sme_id_field,
-			 ID_AA64PFR1_EL1_SME2_SUPPORTED, ENABLE_SME2_FOR_NS)
+			 SME2_IMPLEMENTED, ENABLE_SME2_FOR_NS)
 
 /*******************************************************************************
  * Function to get hardware granularity support
@@ -350,7 +350,7 @@ static inline bool is_feat_mtpmu_supported(void)
 
 	unsigned int mtpmu = read_feat_mtpmu_id_field();
 
-	return (mtpmu != 0U) && (mtpmu != ID_AA64DFR0_MTPMU_DISABLED);
+	return (mtpmu != 0U) && (mtpmu != MTPMU_NOT_IMPLEMENTED);
 }
 
 #endif /* ARCH_FEATURES_H */

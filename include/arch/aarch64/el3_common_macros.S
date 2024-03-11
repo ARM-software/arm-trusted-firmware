@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -133,7 +133,7 @@
 #if ENABLE_FEAT_DIT > 1
 	cbz	x0, 1f
 #else
-	cmp	x0, #ID_AA64PFR0_DIT_SUPPORTED
+	cmp	x0, #DIT_IMPLEMENTED
 	ASM_ASSERT(eq)
 #endif
 
