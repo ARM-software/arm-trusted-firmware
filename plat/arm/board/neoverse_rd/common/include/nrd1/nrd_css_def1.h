@@ -17,15 +17,14 @@
  ******************************************************************************/
 
 /* PL011 UART */
-#define SOC_CSS_SEC_UART_BASE		UL(0x2A410000)
-#define SOC_CSS_NSEC_UART_BASE		UL(0x2A400000)
-#define SOC_CSS_UART_SIZE		UL(0x10000)
+#define NRD_CSS_SEC_UART_BASE		UL(0x2A410000)
+#define NRD_CSS_UART_SIZE		UL(0x10000)
 
 /* CSS peripherals */
 #define NRD_CSS_PERIPH_BASE		UL(0x20000000)
 #define NRD_CSS_PERIPH_SIZE		UL(0x40000000)
 
 /* Secure Watchdog */
-#define SBSA_SECURE_WDOG_BASE		UL(0x2A480000)
+#define NRD_CSS_WDOG_BASE		UL(0x2A480000)
 
 #endif /* NRD_CSS_DEF1_H */

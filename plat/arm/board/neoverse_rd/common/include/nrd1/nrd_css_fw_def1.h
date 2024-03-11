@@ -76,8 +76,8 @@
  */
 #define SOC_PLATFORM_SECURE_UART					\
 		MAP_REGION_FLAT(					\
-			SOC_CSS_SEC_UART_BASE,				\
-			SOC_CSS_UART_SIZE,				\
+			NRD_CSS_SEC_UART_BASE,				\
+			NRD_CSS_UART_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 #endif
 
