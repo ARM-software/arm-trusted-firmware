@@ -149,11 +149,9 @@ static void enable_extensions_nonsecure(bool el2_unused)
 		trf_init_el3();
 	}
 
-	/*
-	 * Also applies to PMU < v3. The PMU is only disabled for EL3 and Secure
-	 * state execution. This does not affect lower NS ELs.
-	 */
-	pmuv3_init_el3();
+	if (read_feat_pmuv3_id_field() >= 3U) {
+		pmuv3_init_el3();
+	}
 #endif /*  IMAGE_BL32 */
 }
 
