@@ -92,6 +92,9 @@ static void poplar_pwr_domain_suspend_finish(
 static void __dead2 poplar_system_off(void)
 {
 	ERROR("Poplar System Off: operation not handled.\n");
+	/* Turn off watchdog0 before panic() */
+	mmio_write_32((uintptr_t)(HISI_WDG0_BASE + 0xc00), 0x1ACCE551);
+	mmio_write_32((uintptr_t)(HISI_WDG0_BASE + 0x8),   0x00000000);
 	panic();
 }
 
