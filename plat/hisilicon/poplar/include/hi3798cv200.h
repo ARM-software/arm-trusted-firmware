@@ -38,7 +38,11 @@
 
 /* SCTL */
 #define REG_BASE_SCTL			(0xF8000000)
+#define REG_SC_SYSRES			(0x0004)
 #define REG_SC_GEN12			(0x00B0)
+#define REG_SC_LOCKEN			(0x020C)
+
+#define SC_UNLOCK_MAGIC			(0x4F50454E)
 
 /* CRG */
 #define REG_BASE_CRG			(0xF8A22000)
