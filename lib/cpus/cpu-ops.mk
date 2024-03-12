@@ -941,6 +941,10 @@ CPU_FLAG_LIST += ERRATA_A715_2429384
 # only to revision r1p0. It is fixed in r1p1.
 CPU_FLAG_LIST += ERRATA_A715_2561034
 
+# Flag to apply erratum 2940794 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1. It is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_A720_2940794
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 CPU_FLAG_LIST += ERRATA_DSU_798953
