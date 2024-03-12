@@ -222,27 +222,27 @@ $(foreach toolchain,$(toolchains), \
 #
 
 # Arm Compiler for Embedded
-guess-tool-arm-clang = $(shell $(1) --version 2>&1 | grep -o "Tool: armclang")
-guess-tool-arm-link = $(shell $(1) --help 2>&1 | grep -o "Tool: armlink")
-guess-tool-arm-fromelf = $(shell $(1) --help 2>&1 | grep -o "Tool: fromelf")
-guess-tool-arm-ar = $(shell $(1) --version 2>&1 | grep -o "Tool: armar")
+guess-tool-arm-clang = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Tool: armclang")
+guess-tool-arm-link = $(shell $(1) --help 2>&1 <$(nul) | grep -o "Tool: armlink")
+guess-tool-arm-fromelf = $(shell $(1) --help 2>&1 <$(nul) | grep -o "Tool: fromelf")
+guess-tool-arm-ar = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Tool: armar")
 
 # LLVM Project
-guess-tool-llvm-clang = $(shell $(1) -v 2>&1 | grep -o "clang version")
-guess-tool-llvm-lld = $(shell $(1) --help 2>&1 | grep -o "OVERVIEW: lld")
-guess-tool-llvm-objcopy = $(shell $(1) --help 2>&1 | grep -o "llvm-objcopy tool")
-guess-tool-llvm-objdump = $(shell $(1) --help 2>&1 | grep -o "llvm object file dumper")
-guess-tool-llvm-ar = $(shell $(1) --help 2>&1 | grep -o "LLVM Archiver")
+guess-tool-llvm-clang = $(shell $(1) -v 2>&1 <$(nul) | grep -o "clang version")
+guess-tool-llvm-lld = $(shell $(1) --help 2>&1 <$(nul) | grep -o "OVERVIEW: lld")
+guess-tool-llvm-objcopy = $(shell $(1) --help 2>&1 <$(nul) | grep -o "llvm-objcopy tool")
+guess-tool-llvm-objdump = $(shell $(1) --help 2>&1 <$(nul) | grep -o "llvm object file dumper")
+guess-tool-llvm-ar = $(shell $(1) --help 2>&1 <$(nul) | grep -o "LLVM Archiver")
 
 # GNU Compiler Collection & GNU Binary Utilities
-guess-tool-gnu-gcc = $(shell $(1) -v 2>&1 | grep -o "gcc version")
-guess-tool-gnu-ld = $(shell $(1) -v 2>&1 | grep -o "GNU ld")
-guess-tool-gnu-objcopy = $(shell $(1) --version 2>&1 | grep -o "GNU objcopy")
-guess-tool-gnu-objdump = $(shell $(1) --version 2>&1 | grep -o "GNU objdump")
-guess-tool-gnu-ar = $(shell $(1) --version 2>&1 | grep -o "GNU ar")
+guess-tool-gnu-gcc = $(shell $(1) -v 2>&1 <$(nul) | grep -o "gcc version")
+guess-tool-gnu-ld = $(shell $(1) -v 2>&1 <$(nul) | grep -o "GNU ld")
+guess-tool-gnu-objcopy = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU objcopy")
+guess-tool-gnu-objdump = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU objdump")
+guess-tool-gnu-ar = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU ar")
 
 # Other tools
-guess-tool-dtc = $(shell $(1) --version 2>&1 | grep -o "Version: DTC")
+guess-tool-dtc = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Version: DTC")
 
 guess-tool = $(firstword $(foreach candidate,$(1), \
         $(if $(call guess-tool-$(candidate),$(2)),$(candidate))))
