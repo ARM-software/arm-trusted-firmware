@@ -85,9 +85,9 @@ workaround_reset_end cortex_a715, ERRATUM(2429384)
 
 check_erratum_range cortex_a715, ERRATUM(2429384), CPU_REV(1, 0), CPU_REV(1, 0)
 
-workaround_runtime_start cortex_a715, ERRATUM(2561034), ERRATA_A715_2561034
+workaround_reset_start cortex_a715, ERRATUM(2561034), ERRATA_A715_2561034
 	sysreg_bit_set	CORTEX_A715_CPUACTLR2_EL1, BIT(26)
-workaround_runtime_end cortex_a715, ERRATUM(2561034), NO_ISB
+workaround_reset_end cortex_a715, ERRATUM(2561034)
 
 check_erratum_range cortex_a715, ERRATUM(2561034), CPU_REV(1, 0), CPU_REV(1, 0)
 
