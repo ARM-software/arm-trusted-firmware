@@ -704,24 +704,86 @@ static inline uint64_t el_implemented(unsigned int el)
 }
 
 /*
- * TLBIPAALLOS instruction
- * (TLB Inivalidate GPT Information by PA,
- * All Entries, Outer Shareable)
+ * TLBI PAALLOS instruction
+ * (TLB Invalidate GPT Information by PA, All Entries, Outer Shareable)
  */
 static inline void tlbipaallos(void)
 {
-	__asm__("SYS #6,c8,c1,#4");
+	__asm__("sys #6, c8, c1, #4");
 }
 
 /*
- * Invalidate TLBs of GPT entries by Physical address, last level.
+ * TLBI RPALOS instructions
+ * (TLB Range Invalidate GPT Information by PA, Last level, Outer Shareable)
  *
- * @pa: the starting address for the range
- *      of invalidation
- * @size: size of the range of invalidation
+ * command SIZE, bits [47:44] field:
+ * 0b0000	4KB
+ * 0b0001	16KB
+ * 0b0010	64KB
+ * 0b0011	2MB
+ * 0b0100	32MB
+ * 0b0101	512MB
+ * 0b0110	1GB
+ * 0b0111	16GB
+ * 0b1000	64GB
+ * 0b1001	512GB
  */
-void gpt_tlbi_by_pa_ll(uint64_t pa, size_t size);
+#define TLBI_SZ_4K		0UL
+#define TLBI_SZ_16K		1UL
+#define TLBI_SZ_64K		2UL
+#define TLBI_SZ_2M		3UL
+#define TLBI_SZ_32M		4UL
+#define TLBI_SZ_512M		5UL
+#define TLBI_SZ_1G		6UL
+#define TLBI_SZ_16G		7UL
+#define TLBI_SZ_64G		8UL
+#define TLBI_SZ_512G		9UL
 
+#define	TLBI_ADDR_SHIFT		U(12)
+#define	TLBI_SIZE_SHIFT		U(44)
+
+#define TLBIRPALOS(_addr, _size)				\
+{								\
+	u_register_t arg = ((_addr) >> TLBI_ADDR_SHIFT) |	\
+			   ((_size) << TLBI_SIZE_SHIFT);	\
+	__asm__("sys #6, c8, c4, #7, %0" : : "r" (arg));	\
+}
+
+/* Note: addr must be aligned to 4KB */
+static inline void tlbirpalos_4k(uintptr_t addr)
+{
+	TLBIRPALOS(addr, TLBI_SZ_4K);
+}
+
+/* Note: addr must be aligned to 16KB */
+static inline void tlbirpalos_16k(uintptr_t addr)
+{
+	TLBIRPALOS(addr, TLBI_SZ_16K);
+}
+
+/* Note: addr must be aligned to 64KB */
+static inline void tlbirpalos_64k(uintptr_t addr)
+{
+	TLBIRPALOS(addr, TLBI_SZ_64K);
+}
+
+/* Note: addr must be aligned to 2MB */
+static inline void tlbirpalos_2m(uintptr_t addr)
+{
+	TLBIRPALOS(addr, TLBI_SZ_2M);
+}
+
+/* Note: addr must be aligned to 32MB */
+static inline void tlbirpalos_32m(uintptr_t addr)
+{
+	TLBIRPALOS(addr, TLBI_SZ_32M);
+}
+
+/* Note: addr must be aligned to 512MB */
+static inline void tlbirpalos_512m(uintptr_t addr)
+{
+	TLBIRPALOS(addr, TLBI_SZ_512M);
+}
 
 /* Previously defined accessor functions with incomplete register names  */
 
