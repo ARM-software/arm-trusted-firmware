@@ -70,13 +70,19 @@ struct dram_info {
 
 extern struct dram_info dram_info;
 
-void dram_info_init(unsigned long dram_timing_base);
 void dram_umctl2_init(struct dram_timing_info *timing);
 void dram_phy_init(struct dram_timing_info *timing);
 
 /* dram retention */
+#if IMX_DRAM_RETENTION
+void dram_info_init(unsigned long dram_timing_base);
 void dram_enter_retention(void);
 void dram_exit_retention(void);
+#else
+static inline void dram_info_init(unsigned long dram_timing_base) {}
+static inline void dram_enter_retention(void) {}
+static inline void dram_exit_retention(void) {}
+#endif
 
 void dram_clock_switch(unsigned int target_drate, bool bypass_mode);
 
