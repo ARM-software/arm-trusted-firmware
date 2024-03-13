@@ -149,7 +149,7 @@ static void enable_extensions_nonsecure(bool el2_unused)
 		trf_init_el3();
 	}
 
-	if (read_feat_pmuv3_id_field() >= 3U) {
+	if (is_feat_pmuv3_present()) {
 		pmuv3_init_el3();
 	}
 #endif /*  IMAGE_BL32 */

@@ -12,27 +12,125 @@
 #include <arch_helpers.h>
 #include <common/feat_detect.h>
 
-#define ISOLATE_FIELD(reg, feat)					\
-	((unsigned int)(((reg) >> (feat)) & ID_REG_FIELD_MASK))
+#define ISOLATE_FIELD(reg, feat, mask)						\
+	((unsigned int)(((reg) >> (feat)) & mask))
 
-#define CREATE_FEATURE_FUNCS_VER(name, read_func, idvalue, guard)	\
-static inline bool is_ ## name ## _supported(void)			\
-{									\
-	if ((guard) == FEAT_STATE_DISABLED) {				\
-		return false;						\
-	}								\
-	if ((guard) == FEAT_STATE_ALWAYS) {				\
-		return true;						\
-	}								\
-	return read_func() >= (idvalue);				\
+#define CREATE_FEATURE_SUPPORTED(name, read_func, guard)			\
+static inline bool is_ ## name ## _supported(void)				\
+{										\
+	if ((guard) == FEAT_STATE_DISABLED) {					\
+		return false;							\
+	}									\
+	if ((guard) == FEAT_STATE_ALWAYS) {					\
+		return true;							\
+	}									\
+	return read_func();							\
 }
 
-#define CREATE_FEATURE_FUNCS(name, idreg, idfield, guard)		\
-static unsigned int read_ ## name ## _id_field(void)			\
-{									\
-	return ISOLATE_FIELD(read_ ## idreg(), idfield);		\
-}									\
-CREATE_FEATURE_FUNCS_VER(name, read_ ## name ## _id_field, 1U, guard)
+#define CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)		\
+static inline bool is_ ## name ## _present(void)				\
+{										\
+	return (ISOLATE_FIELD(read_ ## idreg(), idfield, mask) >= idval) 	\
+		? true : false; 						\
+}
+
+#define CREATE_FEATURE_FUNCS(name, idreg, idfield, mask, idval, guard)		\
+CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)			\
+CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
+
+
+/* +----------------------------+
+ * |	Features supported	|
+ * +----------------------------+
+ * |	GENTIMER		|
+ * +----------------------------+
+ * |	FEAT_PAN		|
+ * +----------------------------+
+ * |	FEAT_VHE		|
+ * +----------------------------+
+ * |	FEAT_TTCNP		|
+ * +----------------------------+
+ * |	FEAT_UAO		|
+ * +----------------------------+
+ * |	FEAT_PACQARMA3		|
+ * +----------------------------+
+ * |	FEAT_PAUTH		|
+ * +----------------------------+
+ * |	FEAT_TTST		|
+ * +----------------------------+
+ * |	FEAT_BTI		|
+ * +----------------------------+
+ * |	FEAT_MTE2		|
+ * +----------------------------+
+ * |	FEAT_SSBS		|
+ * +----------------------------+
+ * |	FEAT_NMI		|
+ * +----------------------------+
+ * |	FEAT_GCS		|
+ * +----------------------------+
+ * |	FEAT_EBEP		|
+ * +----------------------------+
+ * |	FEAT_SEBEP		|
+ * +----------------------------+
+ * |	FEAT_SEL2		|
+ * +----------------------------+
+ * |	FEAT_TWED		|
+ * +----------------------------+
+ * |	FEAT_FGT		|
+ * +----------------------------+
+ * |	FEAT_EC/ECV2		|
+ * +----------------------------+
+ * |	FEAT_RNG		|
+ * +----------------------------+
+ * |	FEAT_TCR2		|
+ * +----------------------------+
+ * |	FEAT_S2POE		|
+ * +----------------------------+
+ * |	FEAT_S1POE		|
+ * +----------------------------+
+ * |	FEAT_S2PIE		|
+ * +----------------------------+
+ * |	FEAT_S1PIE		|
+ * +----------------------------+
+ * |	FEAT_AMU/AMUV1P1	|
+ * +----------------------------+
+ * |	FEAT_MPAM		|
+ * +----------------------------+
+ * |	FEAT_HCX		|
+ * +----------------------------+
+ * |	FEAT_RNG_TRAP		|
+ * +----------------------------+
+ * |	FEAT_RME		|
+ * +----------------------------+
+ * |	FEAT_SB			|
+ * +----------------------------+
+ * |	FEAT_CSV2/CSV3		|
+ * +----------------------------+
+ * |	FEAT_SPE		|
+ * +----------------------------+
+ * |	FEAT_SVE		|
+ * +----------------------------+
+ * |	FEAT_RAS		|
+ * +----------------------------+
+ * |	FEAT_DIT		|
+ * +----------------------------+
+ * |	FEAT_SYS_REG_TRACE	|
+ * +----------------------------+
+ * |	FEAT_TRF		|
+ * +----------------------------+
+ * |	FEAT_NV/NV2		|
+ * +----------------------------+
+ * |	FEAT_BRBE		|
+ * +----------------------------+
+ * |	FEAT_TRBE		|
+ * +----------------------------+
+ * |	FEAT_SME/SME2		|
+ * +----------------------------+
+ * |	FEAT_PMUV3		|
+ * +----------------------------+
+ * |	FEAT_MTPMU		|
+ * +----------------------------+
+ */
 
 static inline bool is_armv7_gentimer_present(void)
 {
@@ -40,38 +138,28 @@ static inline bool is_armv7_gentimer_present(void)
 	return true;
 }
 
+/* FEAT_PAN: Privileged access never */
 CREATE_FEATURE_FUNCS(feat_pan, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_PAN_SHIFT,
-		     ENABLE_FEAT_PAN)
-static inline bool is_feat_pan_present(void)
-{
-	return read_feat_pan_id_field() != 0U;
-}
+		     ID_AA64MMFR1_EL1_PAN_MASK, 1U, ENABLE_FEAT_PAN)
 
+/* FEAT_VHE: Virtualization Host Extensions */
 CREATE_FEATURE_FUNCS(feat_vhe, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_VHE_SHIFT,
-		     ENABLE_FEAT_VHE)
+		     ID_AA64MMFR1_EL1_VHE_MASK, 1U, ENABLE_FEAT_VHE)
 
-static inline bool is_armv8_2_ttcnp_present(void)
-{
-	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_CNP_SHIFT) &
-		ID_AA64MMFR2_EL1_CNP_MASK) != 0U;
-}
+/* FEAT_TTCNP: Translation table common not private */
+CREATE_FEATURE_PRESENT(feat_ttcnp, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_CNP_SHIFT,
+			ID_AA64MMFR2_EL1_CNP_MASK, 1U)
 
-static inline bool is_feat_uao_present(void)
-{
-	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_UAO_SHIFT) &
-		ID_AA64MMFR2_EL1_UAO_MASK) != 0U;
-}
+/* FEAT_UAO: User access override */
+CREATE_FEATURE_PRESENT(feat_uao, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_UAO_SHIFT,
+			ID_AA64MMFR2_EL1_UAO_MASK, 1U)
 
-static inline bool is_feat_pacqarma3_present(void)
-{
-	uint64_t mask_id_aa64isar2 =
-			(ID_AA64ISAR2_GPA3_MASK << ID_AA64ISAR2_GPA3_SHIFT) |
-			(ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_SHIFT);
+/* If any of the fields is not zero, QARMA3 algorithm is present */
+CREATE_FEATURE_PRESENT(feat_pacqarma3, id_aa64isar2_el1, 0,
+			((ID_AA64ISAR2_GPA3_MASK << ID_AA64ISAR2_GPA3_SHIFT) |
+			(ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_SHIFT)), 1U)
 
-	/* If any of the fields is not zero, QARMA3 algorithm is present */
-	return (read_id_aa64isar2_el1() & mask_id_aa64isar2) != 0U;
-}
-
+/* PAUTH */
 static inline bool is_armv8_3_pauth_present(void)
 {
 	uint64_t mask_id_aa64isar1 =
@@ -88,89 +176,81 @@ static inline bool is_armv8_3_pauth_present(void)
 		is_feat_pacqarma3_present());
 }
 
-static inline bool is_armv8_4_ttst_present(void)
-{
-	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_ST_SHIFT) &
-		ID_AA64MMFR2_EL1_ST_MASK) == 1U;
-}
+/* FEAT_TTST: Small translation tables */
+CREATE_FEATURE_PRESENT(feat_ttst, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_ST_SHIFT,
+			ID_AA64MMFR2_EL1_ST_MASK, 1U)
 
-static inline bool is_armv8_5_bti_present(void)
-{
-	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_BT_SHIFT) &
-		ID_AA64PFR1_EL1_BT_MASK) == BTI_IMPLEMENTED;
-}
+/* FEAT_BTI: Branch target identification */
+CREATE_FEATURE_PRESENT(feat_bti, id_aa64pfr1_el1, ID_AA64PFR1_EL1_BT_SHIFT,
+			ID_AA64PFR1_EL1_BT_MASK, BTI_IMPLEMENTED)
 
-static inline unsigned int get_armv8_5_mte_support(void)
-{
-	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_MTE_SHIFT) &
-		ID_AA64PFR1_EL1_MTE_MASK);
-}
-static inline unsigned int is_feat_mte2_present(void)
-{
-	return get_armv8_5_mte_support() >= MTE_IMPLEMENTED_ELX;
-}
+/* FEAT_MTE2: Memory tagging extension */
+CREATE_FEATURE_FUNCS(feat_mte2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_MTE_SHIFT,
+		     ID_AA64PFR1_EL1_MTE_MASK, MTE_IMPLEMENTED_ELX, ENABLE_FEAT_MTE2)
 
-static inline bool is_feat_ssbs_present(void)
-{
-	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_SSBS_SHIFT) &
-		ID_AA64PFR1_EL1_SSBS_MASK) != SSBS_NOT_IMPLEMENTED;
-}
+/* FEAT_SSBS: Speculative store bypass safe */
+CREATE_FEATURE_PRESENT(feat_ssbs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SSBS_SHIFT,
+			ID_AA64PFR1_EL1_SSBS_MASK, 1U)
 
-static inline bool is_feat_nmi_present(void)
-{
-	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_NMI_SHIFT) &
-		ID_AA64PFR1_EL1_NMI_MASK) == NMI_IMPLEMENTED;
-}
+/* FEAT_NMI: Non-maskable interrupts */
+CREATE_FEATURE_PRESENT(feat_nmi, id_aa64pfr1_el1, ID_AA64PFR1_EL1_NMI_SHIFT,
+			ID_AA64PFR1_EL1_NMI_MASK, NMI_IMPLEMENTED)
 
-static inline bool is_feat_gcs_present(void)
-{
-	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_GCS_SHIFT) &
-		ID_AA64PFR1_EL1_GCS_MASK) == GCS_IMPLEMENTED;
-}
+/* FEAT_EBEP */
+CREATE_FEATURE_PRESENT(feat_ebep, id_aa64dfr1_el1, ID_AA64DFR1_EBEP_SHIFT,
+			ID_AA64DFR1_EBEP_MASK, EBEP_IMPLEMENTED)
 
-static inline bool is_feat_ebep_present(void)
-{
-	return ((read_id_aa64dfr1_el1() >> ID_AA64DFR1_EBEP_SHIFT) &
-		ID_AA64DFR1_EBEP_MASK) == EBEP_IMPLEMENTED;
-}
+/* FEAT_SEBEP */
+CREATE_FEATURE_PRESENT(feat_sebep, id_aa64dfr0_el1, ID_AA64DFR0_SEBEP_SHIFT,
+			ID_AA64DFR0_SEBEP_MASK, SEBEP_IMPLEMENTED)
 
-static inline bool is_feat_sebep_present(void)
-{
-	return ((read_id_aa64dfr0_el1() >> ID_AA64DFR0_SEBEP_SHIFT) &
-		ID_AA64DFR0_SEBEP_MASK) == SEBEP_IMPLEMENTED;
-}
-
-CREATE_FEATURE_FUNCS_VER(feat_mte2, get_armv8_5_mte_support, MTE_IMPLEMENTED_ELX,
-			 ENABLE_FEAT_MTE2)
+/* FEAT_SEL2: Secure EL2 */
 CREATE_FEATURE_FUNCS(feat_sel2, id_aa64pfr0_el1, ID_AA64PFR0_SEL2_SHIFT,
-		     ENABLE_FEAT_SEL2)
+		     ID_AA64PFR0_SEL2_MASK, 1U, ENABLE_FEAT_SEL2)
+
+/* FEAT_TWED: Delayed trapping of WFE */
 CREATE_FEATURE_FUNCS(feat_twed, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_TWED_SHIFT,
-		     ENABLE_FEAT_TWED)
+		     ID_AA64MMFR1_EL1_TWED_MASK, 1U, ENABLE_FEAT_TWED)
+
+/* FEAT_FGT: Fine-grained traps */
 CREATE_FEATURE_FUNCS(feat_fgt, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT_SHIFT,
-		     ENABLE_FEAT_FGT)
+		     ID_AA64MMFR0_EL1_FGT_MASK, 1U, ENABLE_FEAT_FGT)
+
+/* FEAT_ECV: Enhanced Counter Virtualization */
 CREATE_FEATURE_FUNCS(feat_ecv, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV_SHIFT,
-		     ENABLE_FEAT_ECV)
-CREATE_FEATURE_FUNCS_VER(feat_ecv_v2, read_feat_ecv_id_field,
-			 ID_AA64MMFR0_EL1_ECV_SELF_SYNCH, ENABLE_FEAT_ECV)
+		     ID_AA64MMFR0_EL1_ECV_MASK, 1U, ENABLE_FEAT_ECV)
+CREATE_FEATURE_FUNCS(feat_ecv_v2, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV_SHIFT,
+		     ID_AA64MMFR0_EL1_ECV_MASK, ID_AA64MMFR0_EL1_ECV_SELF_SYNCH, ENABLE_FEAT_ECV)
 
+/* FEAT_RNG: Random number generator */
 CREATE_FEATURE_FUNCS(feat_rng, id_aa64isar0_el1, ID_AA64ISAR0_RNDR_SHIFT,
-		     ENABLE_FEAT_RNG)
-CREATE_FEATURE_FUNCS(feat_tcr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_TCRX_SHIFT,
-		     ENABLE_FEAT_TCR2)
+		     ID_AA64ISAR0_RNDR_MASK, 1U, ENABLE_FEAT_RNG)
 
+/* FEAT_TCR2: Support TCR2_ELx regs */
+CREATE_FEATURE_FUNCS(feat_tcr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_TCRX_SHIFT,
+		     ID_AA64MMFR3_EL1_TCRX_MASK, 1U, ENABLE_FEAT_TCR2)
+
+/* FEAT_S2POE */
 CREATE_FEATURE_FUNCS(feat_s2poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2POE_SHIFT,
-		     ENABLE_FEAT_S2POE)
+		     ID_AA64MMFR3_EL1_S2POE_MASK, 1U, ENABLE_FEAT_S2POE)
+
+/* FEAT_S1POE */
 CREATE_FEATURE_FUNCS(feat_s1poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1POE_SHIFT,
-		     ENABLE_FEAT_S1POE)
+		     ID_AA64MMFR3_EL1_S1POE_MASK, 1U, ENABLE_FEAT_S1POE)
+
 static inline bool is_feat_sxpoe_supported(void)
 {
 	return is_feat_s1poe_supported() || is_feat_s2poe_supported();
 }
 
+/* FEAT_S2PIE */
 CREATE_FEATURE_FUNCS(feat_s2pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2PIE_SHIFT,
-		     ENABLE_FEAT_S2PIE)
+		     ID_AA64MMFR3_EL1_S2PIE_MASK, 1U, ENABLE_FEAT_S2PIE)
+
+/* FEAT_S1PIE */
 CREATE_FEATURE_FUNCS(feat_s1pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1PIE_SHIFT,
-		     ENABLE_FEAT_S1PIE)
+		     ID_AA64MMFR3_EL1_S1PIE_MASK, 1U, ENABLE_FEAT_S1PIE)
+
 static inline bool is_feat_sxpie_supported(void)
 {
 	return is_feat_s1pie_supported() || is_feat_s2pie_supported();
@@ -178,13 +258,15 @@ static inline bool is_feat_sxpie_supported(void)
 
 /* FEAT_GCS: Guarded Control Stack */
 CREATE_FEATURE_FUNCS(feat_gcs, id_aa64pfr1_el1, ID_AA64PFR1_EL1_GCS_SHIFT,
-		     ENABLE_FEAT_GCS)
+		     ID_AA64PFR1_EL1_GCS_MASK, 1U, ENABLE_FEAT_GCS)
 
 /* FEAT_AMU: Activity Monitors Extension */
 CREATE_FEATURE_FUNCS(feat_amu, id_aa64pfr0_el1, ID_AA64PFR0_AMU_SHIFT,
-		     ENABLE_FEAT_AMU)
-CREATE_FEATURE_FUNCS_VER(feat_amuv1p1, read_feat_amu_id_field,
-			 ID_AA64PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1)
+		     ID_AA64PFR0_AMU_MASK, 1U, ENABLE_FEAT_AMU)
+
+/* FEAT_AMUV1P1: AMU Extension v1.1 */
+CREATE_FEATURE_FUNCS(feat_amuv1p1, id_aa64pfr0_el1, ID_AA64PFR0_AMU_SHIFT,
+		     ID_AA64PFR0_AMU_MASK, ID_AA64PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1)
 
 /*
  * Return MPAM version:
@@ -195,46 +277,32 @@ CREATE_FEATURE_FUNCS_VER(feat_amuv1p1, read_feat_amu_id_field,
  * 0x11: v1.1 Armv8.4 or later
  *
  */
-static inline unsigned int read_feat_mpam_version(void)
+static inline bool is_feat_mpam_present(void)
 {
-	return (unsigned int)((((read_id_aa64pfr0_el1() >>
+	unsigned int ret = (unsigned int)((((read_id_aa64pfr0_el1() >>
 		ID_AA64PFR0_MPAM_SHIFT) & ID_AA64PFR0_MPAM_MASK) << 4) |
-				((read_id_aa64pfr1_el1() >>
-		ID_AA64PFR1_MPAM_FRAC_SHIFT) & ID_AA64PFR1_MPAM_FRAC_MASK));
+		((read_id_aa64pfr1_el1() >> ID_AA64PFR1_MPAM_FRAC_SHIFT)
+			& ID_AA64PFR1_MPAM_FRAC_MASK));
+	return ret;
 }
 
-CREATE_FEATURE_FUNCS_VER(feat_mpam, read_feat_mpam_version, 1U,
-			 ENABLE_FEAT_MPAM)
+CREATE_FEATURE_SUPPORTED(feat_mpam, is_feat_mpam_present, ENABLE_FEAT_MPAM)
 
 /* FEAT_HCX: Extended Hypervisor Configuration Register */
 CREATE_FEATURE_FUNCS(feat_hcx, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HCX_SHIFT,
-		     ENABLE_FEAT_HCX)
+		     ID_AA64MMFR1_EL1_HCX_MASK, 1U, ENABLE_FEAT_HCX)
 
-static inline bool is_feat_rng_trap_present(void)
-{
-	return (((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT) &
-			ID_AA64PFR1_EL1_RNDR_TRAP_MASK)
-			== RNG_TRAP_IMPLEMENTED);
-}
+/* FEAT_RNG_TRAP: Trapping support */
+CREATE_FEATURE_PRESENT(feat_rng_trap, id_aa64pfr1_el1, ID_AA64PFR1_EL1_RNDR_TRAP_SHIFT,
+		      ID_AA64PFR1_EL1_RNDR_TRAP_MASK, RNG_TRAP_IMPLEMENTED)
 
-static inline unsigned int get_armv9_2_feat_rme_support(void)
-{
-	/*
-	 * Return the RME version, zero if not supported.  This function can be
-	 * used as both an integer value for the RME version or compared to zero
-	 * to detect RME presence.
-	 */
-	return (unsigned int)(read_id_aa64pfr0_el1() >>
-		ID_AA64PFR0_FEAT_RME_SHIFT) & ID_AA64PFR0_FEAT_RME_MASK;
-}
+/* Return the RME version, zero if not supported. */
+CREATE_FEATURE_FUNCS(feat_rme, id_aa64pfr0_el1, ID_AA64PFR0_FEAT_RME_SHIFT,
+		    ID_AA64PFR0_FEAT_RME_MASK, 1U, ENABLE_RME)
 
-/*********************************************************************************
- * Function to identify the presence of FEAT_SB (Speculation Barrier Instruction)
- ********************************************************************************/
-static inline unsigned int read_feat_sb_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_SB_SHIFT);
-}
+/* FEAT_SB: Speculation barrier instruction */
+CREATE_FEATURE_PRESENT(feat_sb, id_aa64isar1_el1, ID_AA64ISAR1_SB_SHIFT,
+		       ID_AA64ISAR1_SB_MASK, 1U)
 
 /*
  * FEAT_CSV2: Cache Speculation Variant 2. This checks bit fields[56-59]
@@ -248,109 +316,94 @@ static inline unsigned int read_feat_sb_id_field(void)
  *          implemented.
  * 0b0011 - Feature FEAT_CSV2_3 is implemented.
  */
-static inline unsigned int read_feat_csv2_id_field(void)
-{
-	return (unsigned int)(read_id_aa64pfr0_el1() >>
-		ID_AA64PFR0_CSV2_SHIFT) & ID_AA64PFR0_CSV2_MASK;
-}
 
-CREATE_FEATURE_FUNCS_VER(feat_csv2_2, read_feat_csv2_id_field,
-			 CSV2_2_IMPLEMENTED, ENABLE_FEAT_CSV2_2)
-CREATE_FEATURE_FUNCS_VER(feat_csv2_3, read_feat_csv2_id_field,
-			 CSV2_3_IMPLEMENTED, ENABLE_FEAT_CSV2_3)
+CREATE_FEATURE_FUNCS(feat_csv2_2, id_aa64pfr0_el1, ID_AA64PFR0_CSV2_SHIFT,
+		     ID_AA64PFR0_CSV2_MASK, CSV2_2_IMPLEMENTED, ENABLE_FEAT_CSV2_2)
+CREATE_FEATURE_FUNCS(feat_csv2_3, id_aa64pfr0_el1, ID_AA64PFR0_CSV2_SHIFT,
+		     ID_AA64PFR0_CSV2_MASK, CSV2_3_IMPLEMENTED, ENABLE_FEAT_CSV2_3)
 
 /* FEAT_SPE: Statistical Profiling Extension */
 CREATE_FEATURE_FUNCS(feat_spe, id_aa64dfr0_el1, ID_AA64DFR0_PMS_SHIFT,
-		     ENABLE_SPE_FOR_NS)
+		     ID_AA64DFR0_PMS_MASK, 1U, ENABLE_SPE_FOR_NS)
 
 /* FEAT_SVE: Scalable Vector Extension */
 CREATE_FEATURE_FUNCS(feat_sve, id_aa64pfr0_el1, ID_AA64PFR0_SVE_SHIFT,
-		     ENABLE_SVE_FOR_NS)
+		     ID_AA64PFR0_SVE_MASK, 1U, ENABLE_SVE_FOR_NS)
 
 /* FEAT_RAS: Reliability, Accessibility, Serviceability */
-CREATE_FEATURE_FUNCS(feat_ras, id_aa64pfr0_el1,
-		     ID_AA64PFR0_RAS_SHIFT, ENABLE_FEAT_RAS)
+CREATE_FEATURE_FUNCS(feat_ras, id_aa64pfr0_el1, ID_AA64PFR0_RAS_SHIFT,
+		     ID_AA64PFR0_RAS_MASK, 1U, ENABLE_FEAT_RAS)
 
 /* FEAT_DIT: Data Independent Timing instructions */
-CREATE_FEATURE_FUNCS(feat_dit, id_aa64pfr0_el1,
-		     ID_AA64PFR0_DIT_SHIFT, ENABLE_FEAT_DIT)
+CREATE_FEATURE_FUNCS(feat_dit, id_aa64pfr0_el1, ID_AA64PFR0_DIT_SHIFT,
+		     ID_AA64PFR0_DIT_MASK, 1U, ENABLE_FEAT_DIT)
 
-CREATE_FEATURE_FUNCS(feat_sys_reg_trace, id_aa64dfr0_el1,
-		     ID_AA64DFR0_TRACEVER_SHIFT, ENABLE_SYS_REG_TRACE_FOR_NS)
+/* FEAT_SYS_REG_TRACE */
+CREATE_FEATURE_FUNCS(feat_sys_reg_trace, id_aa64dfr0_el1, ID_AA64DFR0_TRACEVER_SHIFT,
+		    ID_AA64DFR0_TRACEVER_MASK, 1U, ENABLE_SYS_REG_TRACE_FOR_NS)
 
 /* FEAT_TRF: TraceFilter */
 CREATE_FEATURE_FUNCS(feat_trf, id_aa64dfr0_el1, ID_AA64DFR0_TRACEFILT_SHIFT,
-		     ENABLE_TRF_FOR_NS)
+		     ID_AA64DFR0_TRACEFILT_MASK, 1U, ENABLE_TRF_FOR_NS)
 
 /* FEAT_NV2: Enhanced Nested Virtualization */
-CREATE_FEATURE_FUNCS(feat_nv, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV_SHIFT, 0)
-CREATE_FEATURE_FUNCS_VER(feat_nv2, read_feat_nv_id_field,
-			 NV2_IMPLEMENTED, CTX_INCLUDE_NEVE_REGS)
+CREATE_FEATURE_FUNCS(feat_nv, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV_SHIFT,
+		     ID_AA64MMFR2_EL1_NV_MASK, 1U, 0U)
+CREATE_FEATURE_FUNCS(feat_nv2, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_NV_SHIFT,
+		     ID_AA64MMFR2_EL1_NV_MASK, NV2_IMPLEMENTED, CTX_INCLUDE_NEVE_REGS)
 
 /* FEAT_BRBE: Branch Record Buffer Extension */
 CREATE_FEATURE_FUNCS(feat_brbe, id_aa64dfr0_el1, ID_AA64DFR0_BRBE_SHIFT,
-		     ENABLE_BRBE_FOR_NS)
+		     ID_AA64DFR0_BRBE_MASK, 1U, ENABLE_BRBE_FOR_NS)
 
 /* FEAT_TRBE: Trace Buffer Extension */
 CREATE_FEATURE_FUNCS(feat_trbe, id_aa64dfr0_el1, ID_AA64DFR0_TRACEBUFFER_SHIFT,
-		     ENABLE_TRBE_FOR_NS)
+		     ID_AA64DFR0_TRACEBUFFER_MASK, 1U, ENABLE_TRBE_FOR_NS)
 
-static inline unsigned int read_feat_sme_fa64_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64smfr0_el1(),
-			     ID_AA64SMFR0_EL1_SME_FA64_SHIFT);
-}
+/* FEAT_SME_FA64: Full A64 Instruction support in streaming SVE mode */
+CREATE_FEATURE_PRESENT(feat_sme_fa64, id_aa64smfr0_el1, ID_AA64SMFR0_EL1_SME_FA64_SHIFT,
+		    ID_AA64SMFR0_EL1_SME_FA64_MASK, 1U)
+
 /* FEAT_SMEx: Scalar Matrix Extension */
 CREATE_FEATURE_FUNCS(feat_sme, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
-		     ENABLE_SME_FOR_NS)
-CREATE_FEATURE_FUNCS_VER(feat_sme2, read_feat_sme_id_field,
-			 SME2_IMPLEMENTED, ENABLE_SME2_FOR_NS)
+		     ID_AA64PFR1_EL1_SME_MASK, 1U, ENABLE_SME_FOR_NS)
+
+CREATE_FEATURE_FUNCS(feat_sme2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
+		     ID_AA64PFR1_EL1_SME_MASK, SME2_IMPLEMENTED, ENABLE_SME2_FOR_NS)
 
 /*******************************************************************************
  * Function to get hardware granularity support
  ******************************************************************************/
 
-static inline unsigned int read_id_aa64mmfr0_el0_tgran4_field(void)
+static inline bool is_feat_tgran4K_present(void)
 {
-	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
-			     ID_AA64MMFR0_EL1_TGRAN4_SHIFT);
+	unsigned int tgranx = ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
+			     ID_AA64MMFR0_EL1_TGRAN4_SHIFT, ID_REG_FIELD_MASK);
+	return (tgranx < 8U);
 }
 
-static inline unsigned int read_id_aa64mmfr0_el0_tgran16_field(void)
+CREATE_FEATURE_PRESENT(feat_tgran16K, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_TGRAN16_SHIFT,
+		       ID_AA64MMFR0_EL1_TGRAN16_MASK, TGRAN16_IMPLEMENTED)
+
+static inline bool is_feat_tgran64K_present(void)
 {
-	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
-			     ID_AA64MMFR0_EL1_TGRAN16_SHIFT);
+	unsigned int tgranx = ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
+			     ID_AA64MMFR0_EL1_TGRAN64_SHIFT, ID_REG_FIELD_MASK);
+	return (tgranx < 8U);
 }
 
-static inline unsigned int read_id_aa64mmfr0_el0_tgran64_field(void)
+/* FEAT_PMUV3 */
+CREATE_FEATURE_PRESENT(feat_pmuv3, id_aa64dfr0_el1, ID_AA64DFR0_PMUVER_SHIFT,
+		      ID_AA64DFR0_PMUVER_MASK, 1U)
+
+/* FEAT_MTPMU */
+static inline bool is_feat_mtpmu_present(void)
 {
-	return ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
-			     ID_AA64MMFR0_EL1_TGRAN64_SHIFT);
-}
-
-static inline unsigned int read_feat_pmuv3_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_PMUVER_SHIFT);
-}
-
-static inline unsigned int read_feat_mtpmu_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_MTPMU_SHIFT);
-}
-
-static inline bool is_feat_mtpmu_supported(void)
-{
-	if (DISABLE_MTPMU == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (DISABLE_MTPMU == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	unsigned int mtpmu = read_feat_mtpmu_id_field();
-
+	unsigned int mtpmu = ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_MTPMU_SHIFT,
+					   ID_AA64DFR0_MTPMU_MASK);
 	return (mtpmu != 0U) && (mtpmu != MTPMU_NOT_IMPLEMENTED);
 }
+
+CREATE_FEATURE_SUPPORTED(feat_mtpmu, is_feat_mtpmu_present, DISABLE_MTPMU)
 
 #endif /* ARCH_FEATURES_H */

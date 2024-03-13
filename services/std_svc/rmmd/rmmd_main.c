@@ -202,7 +202,7 @@ int rmmd_setup(void)
 	int rc;
 
 	/* Make sure RME is supported. */
-	assert(get_armv9_2_feat_rme_support() != 0U);
+	assert(is_feat_rme_present());
 
 	rmm_ep_info = bl31_plat_get_next_image_ep_info(REALM);
 	if (rmm_ep_info == NULL) {

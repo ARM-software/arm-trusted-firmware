@@ -12,132 +12,112 @@
 #include <arch_helpers.h>
 #include <common/feat_detect.h>
 
-#define ISOLATE_FIELD(reg, feat)					\
-	((unsigned int)(((reg) >> (feat ## _SHIFT)) & (feat ## _MASK)))
+#define ISOLATE_FIELD(reg, feat, mask)						\
+	((unsigned int)(((reg) >> (feat)) & mask))
 
+#define CREATE_FEATURE_SUPPORTED(name, read_func, guard)			\
+static inline bool is_ ## name ## _supported(void)				\
+{										\
+	if ((guard) == FEAT_STATE_DISABLED) {					\
+		return false;							\
+	}									\
+	if ((guard) == FEAT_STATE_ALWAYS) {					\
+		return true;							\
+	}									\
+	return read_func();							\
+}
+
+#define CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)		\
+static inline bool is_ ## name ## _present(void)				\
+{										\
+	return (ISOLATE_FIELD(read_ ## idreg(), idfield, mask) >= idval) 	\
+		? true : false;							\
+}
+
+#define CREATE_FEATURE_FUNCS(name, idreg, idfield, mask, idval, guard)		\
+CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)			\
+CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
+
+
+/*
+ * +----------------------------+
+ * |	Features supported	|
+ * +----------------------------+
+ * |	GENTIMER		|
+ * +----------------------------+
+ * |	FEAT_TTCNP		|
+ * +----------------------------+
+ * |	FEAT_AMU		|
+ * +----------------------------+
+ * |	FEAT_AMUV1P1		|
+ * +----------------------------+
+ * |	FEAT_TRF		|
+ * +----------------------------+
+ * |	FEAT_SYS_REG_TRACE 	|
+ * +----------------------------+
+ * |	FEAT_DIT		|
+ * +----------------------------+
+ * |	FEAT_PAN		|
+ * +----------------------------+
+ * |	FEAT_SSBS		|
+ * +----------------------------+
+ * |	FEAT_PMUV3		|
+ * +----------------------------+
+ * |	FEAT_MTPMU		|
+ * +----------------------------+
+ */
+
+/* GENTIMER */
 static inline bool is_armv7_gentimer_present(void)
 {
-	return ISOLATE_FIELD(read_id_pfr1(), ID_PFR1_GENTIMER) != 0U;
+	return ISOLATE_FIELD(read_id_pfr1(), ID_PFR1_GENTIMER_SHIFT,
+			    ID_PFR1_GENTIMER_MASK) != 0U;
 }
 
-static inline bool is_armv8_2_ttcnp_present(void)
+/* FEAT_TTCNP: Translation table common not private */
+CREATE_FEATURE_PRESENT(feat_ttcnp, id_mmfr4, ID_MMFR4_CNP_SHIFT,
+		      ID_MMFR4_CNP_MASK, 1U)
+
+/* FEAT_AMU: Activity Monitors Extension */
+CREATE_FEATURE_FUNCS(feat_amu, id_pfr0, ID_PFR0_AMU_SHIFT,
+		    ID_PFR0_AMU_MASK, ID_PFR0_AMU_V1, ENABLE_FEAT_AMU)
+
+/* FEAT_AMUV1P1: AMU Extension v1.1 */
+CREATE_FEATURE_FUNCS(feat_amuv1p1, id_pfr0, ID_PFR0_AMU_SHIFT,
+		    ID_PFR0_AMU_MASK, ID_PFR0_AMU_V1P1, ENABLE_FEAT_AMUv1p1)
+
+/* FEAT_TRF: Tracefilter */
+CREATE_FEATURE_FUNCS(feat_trf, id_dfr0, ID_DFR0_TRACEFILT_SHIFT,
+		    ID_DFR0_TRACEFILT_MASK, 1U, ENABLE_TRF_FOR_NS)
+
+/* FEAT_SYS_REG_TRACE */
+CREATE_FEATURE_FUNCS(feat_sys_reg_trace, id_dfr0, ID_DFR0_COPTRC_SHIFT,
+		    ID_DFR0_COPTRC_MASK, 1U, ENABLE_SYS_REG_TRACE_FOR_NS)
+
+/* FEAT_DIT: Data independent timing */
+CREATE_FEATURE_FUNCS(feat_dit, id_pfr0, ID_PFR0_DIT_SHIFT,
+		    ID_PFR0_DIT_MASK, 1U, ENABLE_FEAT_DIT)
+
+/* FEAT_PAN: Privileged access never */
+CREATE_FEATURE_FUNCS(feat_pan, id_mmfr3, ID_MMFR3_PAN_SHIFT,
+		    ID_MMFR3_PAN_MASK, 1U, ENABLE_FEAT_PAN)
+
+/* FEAT_SSBS: Speculative store bypass safe */
+CREATE_FEATURE_PRESENT(feat_ssbs, id_pfr2, ID_PFR2_SSBS_SHIFT,
+		      ID_PFR2_SSBS_MASK, 1U)
+
+/* FEAT_PMUV3 */
+CREATE_FEATURE_PRESENT(feat_pmuv3, id_dfr0, ID_DFR0_PERFMON_SHIFT,
+		      ID_DFR0_PERFMON_MASK, 3U)
+
+/* FEAT_MTPMU */
+static inline bool is_feat_mtpmu_present(void)
 {
-	return ISOLATE_FIELD(read_id_mmfr4(), ID_MMFR4_CNP) != 0U;
+	unsigned int mtpmu = ISOLATE_FIELD(read_id_dfr1(), ID_DFR1_MTPMU_SHIFT,
+			    ID_DFR1_MTPMU_MASK);
+	return (mtpmu != 0U) && (mtpmu != MTPMU_NOT_IMPLEMENTED);
 }
-
-static unsigned int read_feat_amu_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_pfr0(), ID_PFR0_AMU);
-}
-
-static inline bool is_feat_amu_supported(void)
-{
-	if (ENABLE_FEAT_AMU == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_AMU == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_amu_id_field() >= ID_PFR0_AMU_V1;
-}
-
-static inline bool is_feat_amuv1p1_supported(void)
-{
-	if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_AMUv1p1 == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_amu_id_field() >= ID_PFR0_AMU_V1P1;
-}
-
-static inline unsigned int read_feat_trf_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_dfr0(), ID_DFR0_TRACEFILT);
-}
-
-static inline bool is_feat_trf_supported(void)
-{
-	if (ENABLE_TRF_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_TRF_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_trf_id_field() != 0U;
-}
-
-static inline unsigned int read_feat_coptrc_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_dfr0(), ID_DFR0_COPTRC);
-}
-
-static inline bool is_feat_sys_reg_trace_supported(void)
-{
-	if (ENABLE_SYS_REG_TRACE_FOR_NS == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_SYS_REG_TRACE_FOR_NS == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_coptrc_id_field() != 0U;
-}
-
-static inline unsigned int read_feat_dit_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_pfr0(), ID_PFR0_DIT);
-}
-
-static inline bool is_feat_dit_supported(void)
-{
-	if (ENABLE_FEAT_DIT == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_DIT == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_dit_id_field() != 0U;
-}
-
-static inline unsigned int read_feat_pan_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_mmfr3(), ID_MMFR3_PAN);
-}
-
-static inline bool is_feat_pan_supported(void)
-{
-	if (ENABLE_FEAT_PAN == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (ENABLE_FEAT_PAN == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	return read_feat_pan_id_field() != 0U;
-}
-
-static inline bool is_feat_pan_present(void)
-{
-	return  read_feat_pan_id_field() != 0U;
-}
-
-static inline unsigned int is_feat_ssbs_present(void)
-{
-	return ((read_id_pfr2() >> ID_PFR2_SSBS_SHIFT) &
-		ID_PFR2_SSBS_MASK) != SSBS_NOT_IMPLEMENTED;
-}
+CREATE_FEATURE_SUPPORTED(feat_mtpmu, is_feat_mtpmu_present, DISABLE_MTPMU)
 
 /*
  * TWED, ECV, CSV2, RAS are only used by the AArch64 EL2 context switch
@@ -178,30 +158,5 @@ static inline bool is_feat_uao_present(void) { return false; }
 static inline bool is_feat_nmi_present(void) { return false; }
 static inline bool is_feat_ebep_present(void) { return false; }
 static inline bool is_feat_sebep_present(void) { return false; }
-
-static inline unsigned int read_feat_pmuv3_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_dfr0(), ID_DFR0_PERFMON);
-}
-
-static inline unsigned int read_feat_mtpmu_id_field(void)
-{
-	return ISOLATE_FIELD(read_id_dfr1(), ID_DFR1_MTPMU);
-}
-
-static inline bool is_feat_mtpmu_supported(void)
-{
-	if (DISABLE_MTPMU == FEAT_STATE_DISABLED) {
-		return false;
-	}
-
-	if (DISABLE_MTPMU == FEAT_STATE_ALWAYS) {
-		return true;
-	}
-
-	unsigned int mtpmu = read_feat_mtpmu_id_field();
-
-	return ((mtpmu != 0U) && (mtpmu != MTPMU_NOT_IMPLEMENTED));
-}
 
 #endif /* ARCH_FEATURES_H */

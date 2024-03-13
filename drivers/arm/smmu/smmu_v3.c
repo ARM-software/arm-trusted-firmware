@@ -97,7 +97,7 @@ int __init smmuv3_init(uintptr_t smmu_base)
 
 #if ENABLE_RME
 
-	if (get_armv9_2_feat_rme_support() != 0U) {
+	if (is_feat_rme_present()) {
 		if ((mmio_read_32(smmu_base + SMMU_ROOT_IDR0) &
 				  SMMU_ROOT_IDR0_ROOT_IMPL) == 0U) {
 			WARN("Skip SMMU GPC configuration.\n");

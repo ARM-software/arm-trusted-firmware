@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,7 @@ uintptr_t xlat_get_min_virt_addr_space_size(void)
 {
 	uintptr_t ret;
 
-	if (is_armv8_4_ttst_present()) {
+	if (is_feat_ttst_present()) {
 		ret = MIN_VIRT_ADDR_SPACE_SIZE_TTST;
 	} else {
 		ret = MIN_VIRT_ADDR_SPACE_SIZE;
