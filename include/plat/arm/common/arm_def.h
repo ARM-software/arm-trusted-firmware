@@ -20,7 +20,6 @@
  * Definitions common to all ARM standard platforms
  *****************************************************************************/
 
-
 /* Special value used to verify platform parameters from BL2 to BL31 */
 #define ARM_BL31_PLAT_PARAM_VAL		ULL(0x0f1e2d3c4b5a6978)
 
@@ -110,6 +109,7 @@
  * placed here. 3MB region is reserved if RME is enabled, 2MB otherwise.
  */
 #define ARM_EL3_TZC_DRAM1_SIZE		UL(0x00300000) /* 3MB */
+/* 8 x 128KB L1 pages (GPCCR_PPS_64GB, GPCCR_PGS_4K) */
 #define ARM_L1_GPT_SIZE			UL(0x00100000) /* 1MB */
 /* 32MB - ARM_EL3_RMM_SHARED_SIZE */
 #define ARM_REALM_SIZE			(UL(0x02000000) -		\
@@ -150,7 +150,7 @@ MEASURED_BOOT
 #endif /* (SPD_tspd || SPD_opteed || SPD_spmd) && MEASURED_BOOT */
 
 #if ENABLE_RME
-#define ARM_L1_GPT_BASE		(ARM_DRAM1_BASE +		\
+#define ARM_L1_GPT_BASE			(ARM_DRAM1_BASE +		\
 					ARM_DRAM1_SIZE -		\
 					ARM_L1_GPT_SIZE)
 #define ARM_L1_GPT_END			(ARM_L1_GPT_BASE +		\
@@ -546,7 +546,7 @@ MEASURED_BOOT
  * configuration memory, 4KB aligned.
  */
 #define ARM_L0_GPT_SIZE			(PAGE_SIZE)
-#define ARM_L0_GPT_BASE		(ARM_FW_CONFIGS_LIMIT)
+#define ARM_L0_GPT_BASE			(ARM_FW_CONFIGS_LIMIT)
 #define ARM_L0_GPT_LIMIT		(ARM_L0_GPT_BASE + ARM_L0_GPT_SIZE)
 #else
 #define ARM_L0_GPT_SIZE			U(0)

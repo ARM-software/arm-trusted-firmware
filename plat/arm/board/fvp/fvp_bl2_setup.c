@@ -30,7 +30,9 @@ static pas_region_t pas_regions[] = {
 	ARM_PAS_SECURE,
 	ARM_PAS_REALM,
 	ARM_PAS_EL3_DRAM,
+#ifdef ARM_PAS_GPTS
 	ARM_PAS_GPTS,
+#endif
 	ARM_PAS_KERNEL_1
 };
 
