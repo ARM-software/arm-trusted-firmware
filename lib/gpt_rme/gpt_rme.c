@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,7 +91,7 @@ static uintptr_t gpt_l1_tbl;
  * Return
  *   true for a valid GPI, false for an invalid one.
  */
-static bool gpt_is_gpi_valid(unsigned int gpi)
+static bool is_gpi_valid(unsigned int gpi)
 {
 	if ((gpi == GPT_GPI_NO_ACCESS) || (gpi == GPT_GPI_ANY) ||
 	    ((gpi >= GPT_GPI_SECURE) && (gpi <= GPT_GPI_REALM))) {
@@ -112,8 +112,8 @@ static bool gpt_is_gpi_valid(unsigned int gpi)
  * Return
  *   True if PAS regions overlap, false if they do not.
  */
-static bool gpt_check_pas_overlap(uintptr_t base_1, size_t size_1,
-				  uintptr_t base_2, size_t size_2)
+static bool check_pas_overlap(uintptr_t base_1, size_t size_1,
+			      uintptr_t base_2, size_t size_2)
 {
 	if (((base_1 + size_1) > base_2) && ((base_2 + size_2) > base_1)) {
 		return true;
@@ -133,13 +133,13 @@ static bool gpt_check_pas_overlap(uintptr_t base_1, size_t size_1,
  * Return
  *   True if a PAS region occupies the L0 region in question, false if not.
  */
-static bool gpt_does_previous_pas_exist_here(unsigned int l0_idx,
-					     pas_region_t *pas_regions,
-					     unsigned int pas_idx)
+static bool does_previous_pas_exist_here(unsigned int l0_idx,
+					 pas_region_t *pas_regions,
+					 unsigned int pas_idx)
 {
 	/* Iterate over PAS regions up to pas_idx. */
 	for (unsigned int i = 0U; i < pas_idx; i++) {
-		if (gpt_check_pas_overlap((GPT_L0GPTSZ_ACTUAL_SIZE * l0_idx),
+		if (check_pas_overlap((GPT_L0GPTSZ_ACTUAL_SIZE * l0_idx),
 		    GPT_L0GPTSZ_ACTUAL_SIZE,
 		    pas_regions[i].base_pa, pas_regions[i].size)) {
 			return true;
@@ -164,8 +164,8 @@ static bool gpt_does_previous_pas_exist_here(unsigned int l0_idx,
  *   Negative Linux error code in the event of a failure, number of L1 regions
  *   required when successful.
  */
-static int gpt_validate_pas_mappings(pas_region_t *pas_regions,
-				     unsigned int pas_region_cnt)
+static int validate_pas_mappings(pas_region_t *pas_regions,
+				 unsigned int pas_region_cnt)
 {
 	unsigned int idx;
 	unsigned int l1_cnt = 0U;
@@ -186,7 +186,7 @@ static int gpt_validate_pas_mappings(pas_region_t *pas_regions,
 		/* Initial checks for PAS validity. */
 		if (((pas_regions[idx].base_pa + pas_regions[idx].size) >
 		    GPT_PPS_ACTUAL_SIZE(gpt_config.t)) ||
-		    !gpt_is_gpi_valid(GPT_PAS_ATTR_GPI(pas_regions[idx].attrs))) {
+		    !is_gpi_valid(GPT_PAS_ATTR_GPI(pas_regions[idx].attrs))) {
 			ERROR("[GPT] PAS[%u] is invalid!\n", idx);
 			return -EFAULT;
 		}
@@ -197,7 +197,7 @@ static int gpt_validate_pas_mappings(pas_region_t *pas_regions,
 		 * have already checked themselves against this one.
 		 */
 		for (unsigned int i = idx + 1; i < pas_region_cnt; i++) {
-			if (gpt_check_pas_overlap(pas_regions[idx].base_pa,
+			if (check_pas_overlap(pas_regions[idx].base_pa,
 			    pas_regions[idx].size,
 			    pas_regions[i].base_pa,
 			    pas_regions[i].size)) {
@@ -277,7 +277,7 @@ static int gpt_validate_pas_mappings(pas_region_t *pas_regions,
 			 * both for overlap against other PAS.
 			 */
 			if (pas_l1_cnt > 1) {
-				if (gpt_does_previous_pas_exist_here(
+				if (does_previous_pas_exist_here(
 				    GPT_L0_IDX(pas_regions[idx].base_pa +
 				    pas_regions[idx].size - 1),
 				    pas_regions, idx)) {
@@ -285,7 +285,7 @@ static int gpt_validate_pas_mappings(pas_region_t *pas_regions,
 				}
 			}
 
-			if (gpt_does_previous_pas_exist_here(
+			if (does_previous_pas_exist_here(
 			    GPT_L0_IDX(pas_regions[idx].base_pa),
 			    pas_regions, idx)) {
 				pas_l1_cnt = pas_l1_cnt - 1;
@@ -314,8 +314,8 @@ static int gpt_validate_pas_mappings(pas_region_t *pas_regions,
  * Return
  *   Negative Linux error code in the event of a failure, 0 for success.
  */
-static int gpt_validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
-				  size_t l0_mem_size)
+static int validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
+				size_t l0_mem_size)
 {
 	size_t l0_alignment;
 
@@ -365,8 +365,8 @@ static int gpt_validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
  * Return
  *   Negative Linux error code in the event of a failure, 0 for success.
  */
-static int gpt_validate_l1_params(uintptr_t l1_mem_base, size_t l1_mem_size,
-				  unsigned int l1_gpt_cnt)
+static int validate_l1_params(uintptr_t l1_mem_base, size_t l1_mem_size,
+				unsigned int l1_gpt_cnt)
 {
 	size_t l1_gpt_mem_sz;
 
@@ -412,7 +412,7 @@ static int gpt_validate_l1_params(uintptr_t l1_mem_base, size_t l1_mem_size,
  *   *pas		Pointer to the structure defining the PAS region to
  *			initialize.
  */
-static void gpt_generate_l0_blk_desc(pas_region_t *pas)
+static void generate_l0_blk_desc(pas_region_t *pas)
 {
 	uint64_t gpt_desc;
 	unsigned int end_idx;
@@ -424,7 +424,7 @@ static void gpt_generate_l0_blk_desc(pas_region_t *pas)
 
 	/*
 	 * Checking of PAS parameters has already been done in
-	 * gpt_validate_pas_mappings so no need to check the same things again.
+	 * validate_pas_mappings so no need to check the same things again.
 	 */
 
 	l0_gpt_arr = (uint64_t *)gpt_config.plat_gpt_l0_base;
@@ -465,7 +465,7 @@ static void gpt_generate_l0_blk_desc(pas_region_t *pas)
  * Return
  *   The PA of the end of the current range.
  */
-static uintptr_t gpt_get_l1_end_pa(uintptr_t cur_pa, uintptr_t end_pa)
+static uintptr_t get_l1_end_pa(uintptr_t cur_pa, uintptr_t end_pa)
 {
 	uintptr_t cur_idx;
 	uintptr_t end_idx;
@@ -492,7 +492,7 @@ static uintptr_t gpt_get_l1_end_pa(uintptr_t cur_pa, uintptr_t end_pa)
  *   first		Address of first granule in range.
  *   last		Address of last granule in range (inclusive).
  */
-static void gpt_fill_l1_tbl(uint64_t gpi, uint64_t *l1, uintptr_t first,
+static void fill_l1_tbl(uint64_t gpi, uint64_t *l1, uintptr_t first,
 			    uintptr_t last)
 {
 	uint64_t gpi_field = GPT_BUILD_L1_DESC(gpi);
@@ -537,7 +537,7 @@ static void gpt_fill_l1_tbl(uint64_t gpi, uint64_t *l1, uintptr_t first,
  * Return
  *   Pointer to the next available L1 table.
  */
-static uint64_t *gpt_get_new_l1_tbl(void)
+static uint64_t *get_new_l1_tbl(void)
 {
 	/* Retrieve the next L1 table. */
 	uint64_t *l1 = (uint64_t *)((uint64_t)(gpt_l1_tbl) +
@@ -563,7 +563,7 @@ static uint64_t *gpt_get_new_l1_tbl(void)
  * Parameters
  *   *pas		Pointer to the structure defining the PAS region.
  */
-static void gpt_generate_l0_tbl_desc(pas_region_t *pas)
+static void generate_l0_tbl_desc(pas_region_t *pas)
 {
 	uintptr_t end_pa;
 	uintptr_t cur_pa;
@@ -577,7 +577,7 @@ static void gpt_generate_l0_tbl_desc(pas_region_t *pas)
 
 	/*
 	 * Checking of PAS parameters has already been done in
-	 * gpt_validate_pas_mappings so no need to check the same things again.
+	 * validate_pas_mappings so no need to check the same things again.
 	 */
 
 	end_pa = pas->base_pa + pas->size;
@@ -600,7 +600,7 @@ static void gpt_generate_l0_tbl_desc(pas_region_t *pas)
 			l1_gpt_arr = GPT_L0_TBLD_ADDR(l0_gpt_base[l0_idx]);
 		} else {
 			/* Get a new L1 table from the L1 memory space. */
-			l1_gpt_arr = gpt_get_new_l1_tbl();
+			l1_gpt_arr = get_new_l1_tbl();
 
 			/* Fill out the L0 descriptor and flush it. */
 			l0_gpt_base[l0_idx] = GPT_L0_TBL_DESC(l1_gpt_arr);
@@ -614,7 +614,7 @@ static void gpt_generate_l0_tbl_desc(pas_region_t *pas)
 		/*
 		 * Determine the PA of the last granule in this L0 descriptor.
 		 */
-		last_gran_pa = gpt_get_l1_end_pa(cur_pa, end_pa) -
+		last_gran_pa = get_l1_end_pa(cur_pa, end_pa) -
 			       GPT_PGS_ACTUAL_SIZE(gpt_config.p);
 
 		/*
@@ -622,11 +622,11 @@ static void gpt_generate_l0_tbl_desc(pas_region_t *pas)
 		 * function needs the addresses of the first granule and last
 		 * granule in the range.
 		 */
-		gpt_fill_l1_tbl(GPT_PAS_ATTR_GPI(pas->attrs), l1_gpt_arr,
+		fill_l1_tbl(GPT_PAS_ATTR_GPI(pas->attrs), l1_gpt_arr,
 				cur_pa, last_gran_pa);
 
 		/* Advance cur_pa to first granule in next L0 region. */
-		cur_pa = gpt_get_l1_end_pa(cur_pa, end_pa);
+		cur_pa = get_l1_end_pa(cur_pa, end_pa);
 	}
 }
 
@@ -773,7 +773,7 @@ int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
 
 	/* Validate other parameters. */
-	ret = gpt_validate_l0_params(pps, l0_mem_base, l0_mem_size);
+	ret = validate_l0_params(pps, l0_mem_base, l0_mem_size);
 	if (ret != 0) {
 		return ret;
 	}
@@ -827,7 +827,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 	/* Ensure that MMU and Data caches are enabled. */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
 
-	/* PGS is needed for gpt_validate_pas_mappings so check it now. */
+	/* PGS is needed for validate_pas_mappings so check it now. */
 	if (pgs > GPT_PGS_MAX) {
 		ERROR("[GPT] Invalid PGS: 0x%x\n", pgs);
 		return -EINVAL;
@@ -842,7 +842,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 	}
 
 	/* Check if L1 GPTs are required and how many. */
-	l1_gpt_cnt = gpt_validate_pas_mappings(pas_regions, pas_count);
+	l1_gpt_cnt = validate_pas_mappings(pas_regions, pas_count);
 	if (l1_gpt_cnt < 0) {
 		return l1_gpt_cnt;
 	}
@@ -851,7 +851,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 
 	/* If L1 tables are needed then validate the L1 parameters. */
 	if (l1_gpt_cnt > 0) {
-		ret = gpt_validate_l1_params(l1_mem_base, l1_mem_size,
+		ret = validate_l1_params(l1_mem_base, l1_mem_size,
 		      l1_gpt_cnt);
 		if (ret != 0) {
 			return ret;
@@ -879,10 +879,10 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 		/* Check if a block or table descriptor is required */
 		if (GPT_PAS_ATTR_MAP_TYPE(pas_regions[idx].attrs) ==
 		    GPT_PAS_ATTR_MAP_TYPE_BLOCK) {
-			gpt_generate_l0_blk_desc(&pas_regions[idx]);
+			generate_l0_blk_desc(&pas_regions[idx]);
 
 		} else {
-			gpt_generate_l0_tbl_desc(&pas_regions[idx]);
+			generate_l0_tbl_desc(&pas_regions[idx]);
 		}
 	}
 
