@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,13 +15,13 @@
 /* GPT descriptor definitions                                                 */
 /******************************************************************************/
 
-/* GPT level 0 descriptor bit definitions. */
+/* GPT level 0 descriptor bit definitions */
 #define GPT_L0_TYPE_MASK		UL(0xF)
 #define GPT_L0_TYPE_SHIFT		U(0)
 
-/* For now, we don't support contiguous descriptors, only table and block. */
-#define GPT_L0_TYPE_TBL_DESC		UL(0x3)
-#define GPT_L0_TYPE_BLK_DESC		UL(0x1)
+/* For now, we don't support contiguous descriptors, only table and block */
+#define GPT_L0_TYPE_TBL_DESC		UL(3)
+#define GPT_L0_TYPE_BLK_DESC		UL(1)
 
 #define GPT_L0_TBL_DESC_L1ADDR_MASK	UL(0xFFFFFFFFFF)
 #define GPT_L0_TBL_DESC_L1ADDR_SHIFT	U(12)
@@ -57,7 +57,7 @@
 /* GPT platform configuration                                                 */
 /******************************************************************************/
 
-/* This value comes from GPCCR_EL3 so no externally supplied definition. */
+/* This value comes from GPCCR_EL3 so no externally supplied definition */
 #define GPT_L0GPTSZ		((unsigned int)((read_gpccr_el3() >> \
 				GPCCR_L0GPTSZ_SHIFT) & GPCCR_L0GPTSZ_MASK))
 
@@ -117,10 +117,10 @@ typedef struct gpi_info {
 	unsigned int gpi;
 } gpi_info_t;
 
-/* Max valid value for PGS. */
+/* Max valid value for PGS */
 #define GPT_PGS_MAX			(2U)
 
-/* Max valid value for PPS. */
+/* Max valid value for PPS */
 #define GPT_PPS_MAX			(6U)
 
 /******************************************************************************/
@@ -139,7 +139,7 @@ typedef struct gpi_info {
 #define GPT_L0_IDX_WIDTH(_t)		(((_t) > GPT_S_VAL) ? \
 					((_t) - GPT_S_VAL) : (0U))
 
-/* Bit shift for the L0 index field in a PA. */
+/* Bit shift for the L0 index field in a PA */
 #define GPT_L0_IDX_SHIFT		(GPT_S_VAL)
 
 /*
@@ -153,13 +153,13 @@ typedef struct gpi_info {
 #define GPT_L0_IDX_MASK(_t)		(0x3FFFFFUL >> (22U - \
 					(GPT_L0_IDX_WIDTH(_t))))
 
-/* Total number of L0 regions. */
+/* Total number of L0 regions */
 #define GPT_L0_REGION_COUNT(_t)		((GPT_L0_IDX_MASK(_t)) + 1U)
 
-/* Total size of each GPT L0 region in bytes. */
+/* Total size of each GPT L0 region in bytes */
 #define GPT_L0_REGION_SIZE		(1UL << (GPT_L0_IDX_SHIFT))
 
-/* Total size in bytes of the whole L0 table. */
+/* Total size in bytes of the whole L0 table */
 #define GPT_L0_TABLE_SIZE(_t)		((GPT_L0_REGION_COUNT(_t)) << 3U)
 
 /******************************************************************************/
@@ -175,7 +175,7 @@ typedef struct gpi_info {
  */
 #define GPT_L1_IDX_WIDTH(_p)		((GPT_S_VAL - 1U) - ((_p) + 3U))
 
-/* Bit shift for the L1 index field. */
+/* Bit shift for the L1 index field */
 #define GPT_L1_IDX_SHIFT(_p)		((_p) + 4U)
 
 /*
@@ -183,38 +183,38 @@ typedef struct gpi_info {
  *
  * The value 0x7FFFFF is 23 bits wide and is the maximum possible width of the
  * L1 index within a physical address. It is calculated by
- * ((s_max - 1) - (p_min + 4) + 1) where s_max is 39 for 512gb, the largest
+ * ((s_max - 1) - (p_min + 4) + 1) where s_max is 39 for 512GB, the largest
  * L0GPTSZ, and p_min is 12 for 4KB granules, the smallest PGS.
  */
 #define GPT_L1_IDX_MASK(_p)		(0x7FFFFFUL >> (23U - \
 					(GPT_L1_IDX_WIDTH(_p))))
 
-/* Bit shift for the index of the L1 GPI in a PA. */
+/* Bit shift for the index of the L1 GPI in a PA */
 #define GPT_L1_GPI_IDX_SHIFT(_p)	(_p)
 
-/* Mask for the index of the L1 GPI in a PA. */
+/* Mask for the index of the L1 GPI in a PA */
 #define GPT_L1_GPI_IDX_MASK		(0xF)
 
-/* Total number of entries in each L1 table. */
+/* Total number of entries in each L1 table */
 #define GPT_L1_ENTRY_COUNT(_p)		((GPT_L1_IDX_MASK(_p)) + 1U)
 
-/* Total size in bytes of each L1 table. */
+/* Total size in bytes of each L1 table */
 #define GPT_L1_TABLE_SIZE(_p)		((GPT_L1_ENTRY_COUNT(_p)) << 3U)
 
 /******************************************************************************/
 /* General helper macros                                                      */
 /******************************************************************************/
 
-/* Protected space actual size in bytes. */
+/* Protected space actual size in bytes */
 #define GPT_PPS_ACTUAL_SIZE(_t)	(1UL << (_t))
 
-/* Granule actual size in bytes. */
+/* Granule actual size in bytes */
 #define GPT_PGS_ACTUAL_SIZE(_p)	(1UL << (_p))
 
-/* L0 GPT region size in bytes. */
+/* L0 GPT region size in bytes */
 #define GPT_L0GPTSZ_ACTUAL_SIZE	(1UL << GPT_S_VAL)
 
-/* Get the index of the L0 entry from a physical address. */
+/* Get the index of the L0 entry from a physical address */
 #define GPT_L0_IDX(_pa)		((_pa) >> GPT_L0_IDX_SHIFT)
 
 /*
@@ -223,38 +223,38 @@ typedef struct gpi_info {
  */
 #define GPT_IS_L0_ALIGNED(_pa)	(((_pa) & (GPT_L0_REGION_SIZE - U(1))) == U(0))
 
-/* Get the type field from an L0 descriptor. */
+/* Get the type field from an L0 descriptor */
 #define GPT_L0_TYPE(_desc)	(((_desc) >> GPT_L0_TYPE_SHIFT) & \
 				GPT_L0_TYPE_MASK)
 
-/* Create an L0 block descriptor. */
+/* Create an L0 block descriptor */
 #define GPT_L0_BLK_DESC(_gpi)	(GPT_L0_TYPE_BLK_DESC | \
 				(((_gpi) & GPT_L0_BLK_DESC_GPI_MASK) << \
 				GPT_L0_BLK_DESC_GPI_SHIFT))
 
-/* Create an L0 table descriptor with an L1 table address. */
+/* Create an L0 table descriptor with an L1 table address */
 #define GPT_L0_TBL_DESC(_pa)	(GPT_L0_TYPE_TBL_DESC | ((uint64_t)(_pa) & \
 				(GPT_L0_TBL_DESC_L1ADDR_MASK << \
 				GPT_L0_TBL_DESC_L1ADDR_SHIFT)))
 
-/* Get the GPI from an L0 block descriptor. */
+/* Get the GPI from an L0 block descriptor */
 #define GPT_L0_BLKD_GPI(_desc)	(((_desc) >> GPT_L0_BLK_DESC_GPI_SHIFT) & \
 				GPT_L0_BLK_DESC_GPI_MASK)
 
-/* Get the L1 address from an L0 table descriptor. */
+/* Get the L1 address from an L0 table descriptor */
 #define GPT_L0_TBLD_ADDR(_desc)	((uint64_t *)(((_desc) & \
 				(GPT_L0_TBL_DESC_L1ADDR_MASK << \
 				GPT_L0_TBL_DESC_L1ADDR_SHIFT))))
 
-/* Get the index into the L1 table from a physical address. */
+/* Get the index into the L1 table from a physical address */
 #define GPT_L1_IDX(_p, _pa)	(((_pa) >> GPT_L1_IDX_SHIFT(_p)) & \
 				GPT_L1_IDX_MASK(_p))
 
-/* Get the index of the GPI within an L1 table entry from a physical address. */
+/* Get the index of the GPI within an L1 table entry from a physical address */
 #define GPT_L1_GPI_IDX(_p, _pa)	(((_pa) >> GPT_L1_GPI_IDX_SHIFT(_p)) & \
 				GPT_L1_GPI_IDX_MASK)
 
-/* Determine if an address is granule-aligned. */
+/* Determine if an address is granule-aligned */
 #define GPT_IS_L1_ALIGNED(_p, _pa) (((_pa) & (GPT_PGS_ACTUAL_SIZE(_p) - U(1))) \
 				   == U(0))
 
