@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,8 @@
 
 	.globl	spin_lock
 	.globl	spin_unlock
+	.globl	bit_lock
+	.globl	bit_unlock
 
 #if USE_SPINLOCK_CAS
 #if !ARM_ARCH_AT_LEAST(8, 1)
@@ -73,3 +75,43 @@ func spin_unlock
 	stlr	wzr, [x0]
 	ret
 endfunc spin_unlock
+
+/*
+ * Atomic bit clear and set instructions require FEAT_LSE which is
+ * mandatory from Armv8.1.
+ */
+#if ARM_ARCH_AT_LEAST(8, 1)
+
+/*
+ * Acquire bitlock using atomic bit set on byte. If the original read value
+ * has the bit set, use load exclusive semantics to monitor the address and
+ * enter WFE.
+ *
+ * void bit_lock(bitlock_t *lock, uint8_t mask);
+ */
+func bit_lock
+1:	ldsetab	w1, w2, [x0]
+	tst	w2, w1
+	b.eq	2f
+	ldxrb	w2, [x0]
+	tst	w2, w1
+	b.eq	1b
+	wfe
+	b	1b
+2:
+	ret
+endfunc bit_lock
+
+/*
+ * Use atomic bit clear store-release to unconditionally clear bitlock variable.
+ * Store operation generates an event to all cores waiting in WFE when address
+ * is monitored by the global monitor.
+ *
+ * void bit_unlock(bitlock_t *lock, uint8_t mask);
+ */
+func bit_unlock
+	stclrlb	w1, [x0]
+	ret
+endfunc bit_unlock
+
+#endif /* ARM_ARCH_AT_LEAST(8, 1) */
