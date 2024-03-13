@@ -139,6 +139,9 @@ FW_ENC_STATUS			:= 0
 # For Chain of Trust
 GENERATE_COT			:= 0
 
+# Default maximum size of GPT contiguous block
+RME_GPT_MAX_BLOCK		:= 2
+
 # Hint platform interrupt control layer that Group 0 interrupts are for EL3. By
 # default, they are for Secure EL1.
 GICV2_G0_FOR_EL3		:= 0

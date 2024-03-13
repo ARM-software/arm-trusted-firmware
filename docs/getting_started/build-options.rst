@@ -812,6 +812,11 @@ Common build options
    instead of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
    entrypoint) or 1 (CPU reset to SP_MIN entrypoint). The default value is 0.
 
+-  ``RME_GPT_MAX_BLOCK``: Numeric value in MB to define maximum size of
+   supported contiguous blocks in GPT Library. This parameter can take the
+   values 0, 2, 32 and 512. Setting this value to 0 disables use of Contigious
+   descriptors. Default value is 2.
+
 -  ``ROT_KEY``: This option is used when ``GENERATE_COT=1``. It specifies a
    file that contains the ROT private key in PEM format or a PKCS11 URI and
    enforces public key hash generation. If ``SAVE_KEYS=1``, only a file is

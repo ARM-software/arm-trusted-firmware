@@ -57,6 +57,13 @@ static const gpt_t_val_e gpt_t_lookup[] = {PPS_4GB_T, PPS_64GB_T,
  */
 static const gpt_p_val_e gpt_p_lookup[] = {PGS_4KB_P, PGS_64KB_P, PGS_16KB_P};
 
+static void shatter_2mb(uintptr_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc);
+static void shatter_32mb(uintptr_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc);
+static void shatter_512mb(uintptr_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc);
+
 /*
  * This structure contains GPT configuration data
  */
@@ -70,9 +77,160 @@ typedef struct {
 
 static gpt_config_t gpt_config;
 
+/*
+ * Number of L1 entries in 2MB, depending on GPCCR_EL3.PGS:
+ * +-------+------------+
+ * |  PGS  | L1 entries |
+ * +-------+------------+
+ * |  4KB  |     32     |
+ * +-------+------------+
+ * |  16KB |     8      |
+ * +-------+------------+
+ * |  64KB |     2      |
+ * +-------+------------+
+ */
+static unsigned int gpt_l1_cnt_2mb;
+
+/*
+ * Mask for the L1 index field, depending on
+ * GPCCR_EL3.L0GPTSZ and GPCCR_EL3.PGS:
+ * +---------+-------------------------------+
+ * |         |             PGS               |
+ * +---------+----------+----------+---------+
+ * | L0GPTSZ |   4KB    |   16KB   |   64KB  |
+ * +---------+----------+----------+---------+
+ * |  1GB    |  0x3FFF  |  0xFFF   |  0x3FF  |
+ * +---------+----------+----------+---------+
+ * |  16GB   | 0x3FFFF  |  0xFFFF  | 0x3FFF  |
+ * +---------+----------+----------+---------+
+ * |  64GB   | 0xFFFFF  | 0x3FFFF  | 0xFFFF  |
+ * +---------+----------+----------+---------+
+ * |  512GB  | 0x7FFFFF | 0x1FFFFF | 0x7FFFF |
+ * +---------+----------+----------+---------+
+ */
+static uint64_t gpt_l1_index_mask;
+
+/* Number of 128-bit L1 entries in 2MB, 32MB and 512MB */
+#define L1_QWORDS_2MB	(gpt_l1_cnt_2mb / 2U)
+#define L1_QWORDS_32MB	(L1_QWORDS_2MB * 16U)
+#define L1_QWORDS_512MB	(L1_QWORDS_32MB * 16U)
+
+/* Size in bytes of L1 entries in 2MB, 32MB */
+#define L1_BYTES_2MB	(gpt_l1_cnt_2mb * sizeof(uint64_t))
+#define L1_BYTES_32MB	(L1_BYTES_2MB * 16U)
+
+/* Get the index into the L1 table from a physical address */
+#define GPT_L1_INDEX(_pa)	\
+	(((_pa) >> (unsigned int)GPT_L1_IDX_SHIFT(gpt_config.p)) & gpt_l1_index_mask)
+
 /* These variables are used during initialization of the L1 tables */
-static unsigned int gpt_next_l1_tbl_idx;
 static uintptr_t gpt_l1_tbl;
+
+/* These variable is used during runtime */
+
+/* Bitlock base address for each 512 MB block of PPS */
+static bitlock_t *gpt_bitlock_base;
+
+static void tlbi_page_dsbosh(uintptr_t base)
+{
+	/* Look-up table for invalidation TLBs for 4KB, 16KB and 64KB pages */
+	static const gpt_tlbi_lookup_t tlbi_page_lookup[] = {
+		{ tlbirpalos_4k, ~(SZ_4K - 1UL) },
+		{ tlbirpalos_64k, ~(SZ_64K - 1UL) },
+		{ tlbirpalos_16k, ~(SZ_16K - 1UL) }
+	};
+
+	tlbi_page_lookup[gpt_config.pgs].function(
+			base & tlbi_page_lookup[gpt_config.pgs].mask);
+	dsbosh();
+}
+
+/*
+ * Helper function to fill out GPI entries in a single L1 table
+ * with Granules or Contiguous descriptor.
+ *
+ * Parameters
+ *   l1			Pointer to 2MB, 32MB or 512MB aligned L1 table entry to fill out
+ *   l1_desc		GPT Granules or Contiguous descriptor set this range to
+ *   cnt		Number of double 128-bit L1 entries to fill
+ *
+ */
+static void fill_desc(uint64_t *l1, uint64_t l1_desc, unsigned int cnt)
+{
+	uint128_t *l1_quad = (uint128_t *)l1;
+	uint128_t l1_quad_desc = (uint128_t)l1_desc | ((uint128_t)l1_desc << 64);
+
+	VERBOSE("GPT: %s(%p 0x%"PRIx64" %u)\n", __func__, l1, l1_desc, cnt);
+
+	for (unsigned int i = 0U; i < cnt; i++) {
+		*l1_quad++ = l1_quad_desc;
+	}
+}
+
+static void shatter_2mb(uintptr_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc)
+{
+	unsigned long idx = GPT_L1_INDEX(ALIGN_2MB(base));
+
+	VERBOSE("GPT: %s(0x%"PRIxPTR" 0x%"PRIx64")\n",
+				__func__, base, l1_desc);
+
+	/* Convert 2MB Contiguous block to Granules */
+	fill_desc(&gpi_info->gpt_l1_addr[idx], l1_desc, L1_QWORDS_2MB);
+}
+
+static void shatter_32mb(uintptr_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc)
+{
+	unsigned long idx = GPT_L1_INDEX(ALIGN_2MB(base));
+	const uint64_t *l1_gran = &gpi_info->gpt_l1_addr[idx];
+	uint64_t l1_cont_desc = GPT_L1_CONT_DESC(l1_desc, 2MB);
+	uint64_t *l1;
+
+	VERBOSE("GPT: %s(0x%"PRIxPTR" 0x%"PRIx64")\n",
+				__func__, base, l1_desc);
+
+	/* Get index corresponding to 32MB aligned address */
+	idx = GPT_L1_INDEX(ALIGN_32MB(base));
+	l1 = &gpi_info->gpt_l1_addr[idx];
+
+	/* 16 x 2MB blocks in 32MB */
+	for (unsigned int i = 0U; i < 16U; i++) {
+		/* Fill with Granules or Contiguous descriptors */
+		fill_desc(l1, (l1 == l1_gran) ? l1_desc : l1_cont_desc,
+							L1_QWORDS_2MB);
+		l1 = (uint64_t *)((uintptr_t)l1 + L1_BYTES_2MB);
+	}
+}
+
+static void shatter_512mb(uintptr_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc)
+{
+	unsigned long idx = GPT_L1_INDEX(ALIGN_32MB(base));
+	const uint64_t *l1_32mb = &gpi_info->gpt_l1_addr[idx];
+	uint64_t l1_cont_desc = GPT_L1_CONT_DESC(l1_desc, 32MB);
+	uint64_t *l1;
+
+	VERBOSE("GPT: %s(0x%"PRIxPTR" 0x%"PRIx64")\n",
+				__func__, base, l1_desc);
+
+	/* Get index corresponding to 512MB aligned address */
+	idx = GPT_L1_INDEX(ALIGN_512MB(base));
+	l1 = &gpi_info->gpt_l1_addr[idx];
+
+	/* 16 x 32MB blocks in 512MB */
+	for (unsigned int i = 0U; i < 16U; i++) {
+		if (l1 == l1_32mb) {
+			/* Shatter this 32MB block */
+			shatter_32mb(base, gpi_info, l1_desc);
+		} else {
+			/* Fill 32MB with Contiguous descriptors */
+			fill_desc(l1, l1_cont_desc, L1_QWORDS_32MB);
+		}
+
+		l1 = (uint64_t *)((uintptr_t)l1 + L1_BYTES_32MB);
+	}
+}
 
 /*
  * This function checks to see if a GPI value is valid.
@@ -213,10 +371,11 @@ static int validate_pas_mappings(pas_region_t *pas_regions,
 		 * to see if this PAS would fall into one that has already been
 		 * initialized.
 		 */
-		for (unsigned int i = GPT_L0_IDX(pas_regions[idx].base_pa);
-		     i <= GPT_L0_IDX(pas_regions[idx].base_pa +
-						pas_regions[idx].size - 1UL);
-		     i++) {
+		for (unsigned int i =
+			(unsigned int)GPT_L0_IDX(pas_regions[idx].base_pa);
+			i <= GPT_L0_IDX(pas_regions[idx].base_pa +
+					pas_regions[idx].size - 1UL);
+			i++) {
 			if ((GPT_L0_TYPE(l0_desc[i]) == GPT_L0_TYPE_BLK_DESC) &&
 			    (GPT_L0_BLKD_GPI(l0_desc[i]) == GPT_GPI_ANY)) {
 				/* This descriptor is unused so continue */
@@ -227,7 +386,7 @@ static int validate_pas_mappings(pas_region_t *pas_regions,
 			 * This descriptor has been initialized in a previous
 			 * call to this function so cannot be initialized again.
 			 */
-			ERROR("GPT: PAS[%u] overlaps with previous L0[%d]!\n",
+			ERROR("GPT: PAS[%u] overlaps with previous L0[%u]!\n",
 			      idx, i);
 			return -EFAULT;
 		}
@@ -318,7 +477,7 @@ static int validate_pas_mappings(pas_region_t *pas_regions,
 static int validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
 				size_t l0_mem_size)
 {
-	size_t l0_alignment;
+	size_t l0_alignment, locks_size;
 
 	/*
 	 * Make sure PPS is valid and then store it since macros need this value
@@ -346,10 +505,26 @@ static int validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
 
 	/* Check size */
 	if (l0_mem_size < GPT_L0_TABLE_SIZE(gpt_config.t)) {
-		ERROR("%sL0%s\n", "GPT: Inadequate ", " memory\n");
+		ERROR("%sL0%s\n", (const char *)"GPT: Inadequate ",
+			(const char *)" memory\n");
 		ERROR("      Expected 0x%lx bytes, got 0x%lx bytes\n",
-		      GPT_L0_TABLE_SIZE(gpt_config.t),
-		      l0_mem_size);
+			GPT_L0_TABLE_SIZE(gpt_config.t), l0_mem_size);
+		return -ENOMEM;
+	}
+
+	/*
+	 * Size of bitlocks in bytes for the protected address space
+	 * with 512MB per bitlock.
+	 */
+	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) / (SZ_512M * 8U);
+
+	/* Check space for bitlocks */
+	if (locks_size > (l0_mem_size - GPT_L0_TABLE_SIZE(gpt_config.t))) {
+		ERROR("%sbitlock%s", (const char *)"GPT: Inadequate ",
+			(const char *)" memory\n");
+		ERROR("      Expected 0x%lx bytes, got 0x%lx bytes\n",
+			locks_size,
+			l0_mem_size - GPT_L0_TABLE_SIZE(gpt_config.t));
 		return -ENOMEM;
 	}
 
@@ -397,9 +572,10 @@ static int validate_l1_params(uintptr_t l1_mem_base, size_t l1_mem_size,
 
 	/* Make sure enough space was supplied */
 	if (l1_mem_size < l1_gpt_mem_sz) {
-		ERROR("%sL1 GPTs%s", "GPT: Inadequate ", " memory\n");
+		ERROR("%sL1 GPTs%s", (const char *)"GPT: Inadequate ",
+			(const char *)" memory\n");
 		ERROR("      Expected 0x%lx bytes, got 0x%lx bytes\n",
-		      l1_gpt_mem_sz, l1_mem_size);
+			l1_gpt_mem_sz, l1_mem_size);
 		return -ENOMEM;
 	}
 
@@ -418,8 +594,7 @@ static int validate_l1_params(uintptr_t l1_mem_base, size_t l1_mem_size,
 static void generate_l0_blk_desc(pas_region_t *pas)
 {
 	uint64_t gpt_desc;
-	unsigned int end_idx;
-	unsigned int idx;
+	unsigned long idx, end_idx;
 	uint64_t *l0_gpt_arr;
 
 	assert(gpt_config.plat_gpt_l0_base != 0U);
@@ -448,7 +623,7 @@ static void generate_l0_blk_desc(pas_region_t *pas)
 	/* Generate the needed block descriptors */
 	for (; idx < end_idx; idx++) {
 		l0_gpt_arr[idx] = gpt_desc;
-		VERBOSE("GPT: L0 entry (BLOCK) index %u [%p]: GPI = 0x%"PRIx64" (0x%"PRIx64")\n",
+		VERBOSE("GPT: L0 entry (BLOCK) index %lu [%p]: GPI = 0x%"PRIx64" (0x%"PRIx64")\n",
 			idx, &l0_gpt_arr[idx],
 			(gpt_desc >> GPT_L0_BLK_DESC_GPI_SHIFT) &
 			GPT_L0_BLK_DESC_GPI_MASK, l0_gpt_arr[idx]);
@@ -482,51 +657,199 @@ static uintptr_t get_l1_end_pa(uintptr_t cur_pa, uintptr_t end_pa)
 		return end_pa;
 	}
 
-	return (cur_idx + 1U) << GPT_L0_IDX_SHIFT;
+	return (cur_idx + 1UL) << GPT_L0_IDX_SHIFT;
 }
 
 /*
- * Helper function to fill out GPI entries in a single L1 table. This function
- * fills out entire L1 descriptors at a time to save memory writes.
+ * Helper function to fill out GPI entries from 'first' granule address of
+ * the specified 'length' in a single L1 table with 'l1_desc' Contiguous
+ * descriptor.
  *
  * Parameters
- *   gpi		GPI to set this range to
  *   l1			Pointer to L1 table to fill out
- *   first		Address of first granule in range.
- *   last		Address of last granule in range (inclusive).
+ *   first		Address of first granule in range
+ *   length		Length of the range in bytes
+ *   gpi		GPI set this range to
+ *
+ * Return
+ *   Address of next granule in range.
  */
-static void fill_l1_tbl(uint64_t gpi, uint64_t *l1, uintptr_t first,
-			    uintptr_t last)
+static uintptr_t fill_l1_cont_desc(uint64_t *l1, uintptr_t first,
+				   size_t length, unsigned int gpi)
 {
-	uint64_t gpi_field = GPT_BUILD_L1_DESC(gpi);
-	uint64_t gpi_mask = ULONG_MAX;
+	/*
+	 * Look up table for contiguous blocks and descriptors.
+	 * Entries should be defined in descending block sizes:
+	 * 512MB, 32MB and 2MB.
+	 */
+	static const gpt_fill_lookup_t gpt_fill_lookup[] = {
+#if (RME_GPT_MAX_BLOCK == 512)
+		{ SZ_512M, GPT_L1_CONT_DESC_512MB },
+#endif
+#if (RME_GPT_MAX_BLOCK >= 32)
+		{ SZ_32M, GPT_L1_CONT_DESC_32MB },
+#endif
+#if (RME_GPT_MAX_BLOCK != 0)
+		{ SZ_2M, GPT_L1_CONT_DESC_2MB }
+#endif
+	};
 
-	assert(first <= last);
-	assert((first & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1)) == 0U);
-	assert((last & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1)) == 0U);
-	assert(GPT_L0_IDX(first) == GPT_L0_IDX(last));
-	assert(l1 != NULL);
+	/*
+	 * Iterate through all block sizes (512MB, 32MB and 2MB)
+	 * starting with maximum supported.
+	 */
+	for (unsigned long i = 0UL; i < ARRAY_SIZE(gpt_fill_lookup); i++) {
+		/* Calculate index */
+		unsigned long idx = GPT_L1_INDEX(first);
+
+		/* Contiguous block size */
+		size_t cont_size = gpt_fill_lookup[i].size;
+
+		if (GPT_REGION_IS_CONT(length, first, cont_size)) {
+
+			/* Generate Contiguous descriptor */
+			uint64_t l1_desc = GPT_L1_GPI_CONT_DESC(gpi,
+						gpt_fill_lookup[i].desc);
+
+			/* Number of 128-bit L1 entries in block */
+			unsigned int cnt;
+
+			switch (cont_size) {
+			case SZ_512M:
+				cnt = L1_QWORDS_512MB;
+				break;
+			case SZ_32M:
+				cnt = L1_QWORDS_32MB;
+				break;
+			default:			/* SZ_2MB */
+				cnt = L1_QWORDS_2MB;
+			}
+
+			VERBOSE("GPT: Contiguous descriptor 0x%"PRIxPTR" %luMB\n",
+				first, cont_size / SZ_1M);
+
+			/* Fill Contiguous descriptors */
+			fill_desc(&l1[idx], l1_desc, cnt);
+			first += cont_size;
+			length -= cont_size;
+
+			if (length == 0UL) {
+				break;
+			}
+		}
+	}
+
+	return first;
+}
+
+/* Build Granules descriptor with the same 'gpi' for every GPI entry */
+static uint64_t build_l1_desc(unsigned int gpi)
+{
+	uint64_t l1_desc = (uint64_t)gpi | ((uint64_t)gpi << 4);
+
+	l1_desc |= (l1_desc << 8);
+	l1_desc |= (l1_desc << 16);
+	return (l1_desc | (l1_desc << 32));
+}
+
+/*
+ * Helper function to fill out GPI entries from 'first' to 'last' granule
+ * address in a single L1 table with 'l1_desc' Granules descriptor.
+ *
+ * Parameters
+ *   l1			Pointer to L1 table to fill out
+ *   first		Address of first granule in range
+ *   last		Address of last granule in range (inclusive)
+ *   gpi		GPI set this range to
+ *
+ * Return
+ *   Address of next granule in range.
+ */
+static uintptr_t fill_l1_gran_desc(uint64_t *l1, uintptr_t first,
+				   uintptr_t last, unsigned int gpi)
+{
+	uint64_t gpi_mask;
+	unsigned long i;
+
+	/* Generate Granules descriptor */
+	uint64_t l1_desc = build_l1_desc(gpi);
 
 	/* Shift the mask if we're starting in the middle of an L1 entry */
-	gpi_mask = gpi_mask << (GPT_L1_GPI_IDX(gpt_config.p, first) << 2);
+	gpi_mask = ULONG_MAX << (GPT_L1_GPI_IDX(gpt_config.p, first) << 2);
 
 	/* Fill out each L1 entry for this region */
-	for (unsigned int i = GPT_L1_IDX(gpt_config.p, first);
-	     i <= GPT_L1_IDX(gpt_config.p, last); i++) {
+	for (i = GPT_L1_INDEX(first); i <= GPT_L1_INDEX(last); i++) {
+
 		/* Account for stopping in the middle of an L1 entry */
-		if (i == GPT_L1_IDX(gpt_config.p, last)) {
+		if (i == GPT_L1_INDEX(last)) {
 			gpi_mask &= (gpi_mask >> ((15U -
 				    GPT_L1_GPI_IDX(gpt_config.p, last)) << 2));
 		}
 
+		assert((l1[i] & gpi_mask) == (GPT_L1_ANY_DESC & gpi_mask));
+
 		/* Write GPI values */
-		assert((l1[i] & gpi_mask) ==
-		       (GPT_BUILD_L1_DESC(GPT_GPI_ANY) & gpi_mask));
-		l1[i] = (l1[i] & ~gpi_mask) | (gpi_mask & gpi_field);
+		l1[i] = (l1[i] & ~gpi_mask) | (l1_desc & gpi_mask);
 
 		/* Reset mask */
 		gpi_mask = ULONG_MAX;
 	}
+
+	return last + GPT_PGS_ACTUAL_SIZE(gpt_config.p);
+}
+
+/*
+ * Helper function to fill out GPI entries in a single L1 table.
+ * This function fills out an entire L1 table with either Contiguous
+ * or Granules descriptors depending on region length and alignment.
+ *
+ * Parameters
+ *   l1			Pointer to L1 table to fill out
+ *   first		Address of first granule in range
+ *   last		Address of last granule in range (inclusive)
+ *   gpi		GPI set this range to
+ */
+static void fill_l1_tbl(uint64_t *l1, uintptr_t first, uintptr_t last,
+			unsigned int gpi)
+{
+	assert(l1 != NULL);
+	assert(first <= last);
+	assert((first & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) == 0UL);
+	assert((last & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) == 0UL);
+	assert(GPT_L0_IDX(first) == GPT_L0_IDX(last));
+
+	while (first < last) {
+		/* Region length */
+		size_t length = last - first + GPT_PGS_ACTUAL_SIZE(gpt_config.p);
+
+		if (length < SZ_2M) {
+			/*
+			 * Fill with Granule descriptor in case of
+			 * region length < 2MB.
+			 */
+			first = fill_l1_gran_desc(l1, first, last, gpi);
+
+		} else if ((first & (SZ_2M - UL(1))) == UL(0)) {
+			/*
+			 * For region length >= 2MB and at least 2MB aligned
+			 * call to fill_l1_cont_desc will iterate through
+			 * all block sizes (512MB, 32MB and 2MB) supported and
+			 * fill corresponding Contiguous descriptors.
+			 */
+			first = fill_l1_cont_desc(l1, first, length, gpi);
+		} else {
+			/*
+			 * For not aligned region >= 2MB fill with Granules
+			 * descriptors up to the next 2MB aligned address.
+			 */
+			uintptr_t new_last = ALIGN_2MB(first + SZ_2M) -
+					GPT_PGS_ACTUAL_SIZE(gpt_config.p);
+
+			first = fill_l1_gran_desc(l1, first, new_last, gpi);
+		}
+	}
+
+	assert(first == (last + GPT_PGS_ACTUAL_SIZE(gpt_config.p)));
 }
 
 /*
@@ -543,16 +866,14 @@ static void fill_l1_tbl(uint64_t gpi, uint64_t *l1, uintptr_t first,
 static uint64_t *get_new_l1_tbl(void)
 {
 	/* Retrieve the next L1 table */
-	uint64_t *l1 = (uint64_t *)((uint64_t)(gpt_l1_tbl) +
-		       (GPT_L1_TABLE_SIZE(gpt_config.p) *
-		       gpt_next_l1_tbl_idx));
+	uint64_t *l1 = (uint64_t *)gpt_l1_tbl;
 
-	/* Increment L1 counter */
-	gpt_next_l1_tbl_idx++;
+	/* Increment L1 GPT address */
+	gpt_l1_tbl += GPT_L1_TABLE_SIZE(gpt_config.p);
 
 	/* Initialize all GPIs to GPT_GPI_ANY */
 	for (unsigned int i = 0U; i < GPT_L1_ENTRY_COUNT(gpt_config.p); i++) {
-		l1[i] = GPT_BUILD_L1_DESC(GPT_GPI_ANY);
+		l1[i] = GPT_L1_ANY_DESC;
 	}
 
 	return l1;
@@ -573,7 +894,7 @@ static void generate_l0_tbl_desc(pas_region_t *pas)
 	uintptr_t last_gran_pa;
 	uint64_t *l0_gpt_base;
 	uint64_t *l1_gpt_arr;
-	unsigned int l0_idx;
+	unsigned int l0_idx, gpi;
 
 	assert(gpt_config.plat_gpt_l0_base != 0U);
 	assert(pas != NULL);
@@ -582,18 +903,19 @@ static void generate_l0_tbl_desc(pas_region_t *pas)
 	 * Checking of PAS parameters has already been done in
 	 * validate_pas_mappings so no need to check the same things again.
 	 */
-
 	end_pa = pas->base_pa + pas->size;
 	l0_gpt_base = (uint64_t *)gpt_config.plat_gpt_l0_base;
 
 	/* We start working from the granule at base PA */
 	cur_pa = pas->base_pa;
 
-	/* Iterate over each L0 region in this memory range */
-	for (l0_idx = GPT_L0_IDX(pas->base_pa);
-	     l0_idx <= GPT_L0_IDX(end_pa - 1U);
-	     l0_idx++) {
+	/* Get GPI */
+	gpi = GPT_PAS_ATTR_GPI(pas->attrs);
 
+	/* Iterate over each L0 region in this memory range */
+	for (l0_idx = (unsigned int)GPT_L0_IDX(pas->base_pa);
+	     l0_idx <= (unsigned int)GPT_L0_IDX(end_pa - 1UL);
+	     l0_idx++) {
 		/*
 		 * See if the L0 entry is already a table descriptor or if we
 		 * need to create one.
@@ -623,8 +945,7 @@ static void generate_l0_tbl_desc(pas_region_t *pas)
 		 * function needs the addresses of the first granule and last
 		 * granule in the range.
 		 */
-		fill_l1_tbl(GPT_PAS_ATTR_GPI(pas->attrs), l1_gpt_arr,
-				cur_pa, last_gran_pa);
+		fill_l1_tbl(l1_gpt_arr, cur_pa, last_gran_pa, gpi);
 
 		/* Advance cur_pa to first granule in next L0 region */
 		cur_pa = get_l1_end_pa(cur_pa, end_pa);
@@ -644,9 +965,9 @@ static void generate_l0_tbl_desc(pas_region_t *pas)
  */
 static void flush_l0_for_pas_array(pas_region_t *pas, unsigned int pas_count)
 {
-	unsigned int idx;
-	unsigned int start_idx;
-	unsigned int end_idx;
+	unsigned long idx;
+	unsigned long start_idx;
+	unsigned long end_idx;
 	uint64_t *l0 = (uint64_t *)gpt_config.plat_gpt_l0_base;
 
 	assert(pas != NULL);
@@ -657,7 +978,7 @@ static void flush_l0_for_pas_array(pas_region_t *pas, unsigned int pas_count)
 	end_idx = GPT_L0_IDX(pas[0].base_pa + pas[0].size - 1UL);
 
 	/* Find lowest and highest L0 indices used in this PAS array */
-	for (idx = 1U; idx < pas_count; idx++) {
+	for (idx = 1UL; idx < pas_count; idx++) {
 		if (GPT_L0_IDX(pas[idx].base_pa) < start_idx) {
 			start_idx = GPT_L0_IDX(pas[idx].base_pa);
 		}
@@ -671,7 +992,7 @@ static void flush_l0_for_pas_array(pas_region_t *pas, unsigned int pas_count)
 	 * the end index value.
 	 */
 	flush_dcache_range((uintptr_t)&l0[start_idx],
-			   ((end_idx + 1U) - start_idx) * sizeof(uint64_t));
+			   ((end_idx + 1UL) - start_idx) * sizeof(uint64_t));
 }
 
 /*
@@ -767,8 +1088,10 @@ void gpt_disable(void)
 int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		       size_t l0_mem_size)
 {
-	int ret;
 	uint64_t gpt_desc;
+	size_t locks_size;
+	bitlock_t *bit_locks;
+	int ret;
 
 	/* Ensure that MMU and Data caches are enabled */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
@@ -787,9 +1110,20 @@ int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		((uint64_t *)l0_mem_base)[i] = gpt_desc;
 	}
 
-	/* Flush updated L0 tables to memory */
+	/* Initialise bitlocks at the end of L0 table */
+	bit_locks = (bitlock_t *)(l0_mem_base +
+					GPT_L0_TABLE_SIZE(gpt_config.t));
+
+	/* Size of bitlocks in bytes */
+	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) / (SZ_512M * 8U);
+
+	for (size_t i = 0UL; i < (locks_size/LOCK_SIZE); i++) {
+		bit_locks[i].lock = 0U;
+	}
+
+	/* Flush updated L0 tables and bitlocks to memory */
 	flush_dcache_range((uintptr_t)l0_mem_base,
-			   (size_t)GPT_L0_TABLE_SIZE(gpt_config.t));
+				GPT_L0_TABLE_SIZE(gpt_config.t) + locks_size);
 
 	/* Stash the L0 base address once initial setup is complete */
 	gpt_config.plat_gpt_l0_base = l0_mem_base;
@@ -806,7 +1140,7 @@ int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
  * This function can be called multiple times with different L1 memory ranges
  * and PAS regions if it is desirable to place L1 tables in different locations
  * in memory. (ex: you have multiple DDR banks and want to place the L1 tables
- * in the DDR bank that they control)
+ * in the DDR bank that they control).
  *
  * Parameters
  *   pgs		PGS value to use for table generation.
@@ -822,8 +1156,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 			   size_t l1_mem_size, pas_region_t *pas_regions,
 			   unsigned int pas_count)
 {
-	int ret;
-	int l1_gpt_cnt;
+	int l1_gpt_cnt, ret;
 
 	/* Ensure that MMU and Data caches are enabled */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
@@ -860,8 +1193,13 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 
 		/* Set up parameters for L1 table generation */
 		gpt_l1_tbl = l1_mem_base;
-		gpt_next_l1_tbl_idx = 0U;
 	}
+
+	/* Number of L1 entries in 2MB depends on GPCCR_EL3.PGS value */
+	gpt_l1_cnt_2mb = (unsigned int)GPT_L1_ENTRY_COUNT_2MB(gpt_config.p);
+
+	/* Mask for the L1 index field */
+	gpt_l1_index_mask = GPT_L1_IDX_MASK(gpt_config.p);
 
 	INFO("GPT: Boot Configuration\n");
 	INFO("  PPS/T:     0x%x/%u\n", gpt_config.pps, gpt_config.t);
@@ -894,7 +1232,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 	if (l1_gpt_cnt > 0) {
 		flush_dcache_range(l1_mem_base,
 				   GPT_L1_TABLE_SIZE(gpt_config.p) *
-				   l1_gpt_cnt);
+				   (size_t)l1_gpt_cnt);
 	}
 
 	/* Make sure that all the entries are written to the memory */
@@ -946,21 +1284,25 @@ int gpt_runtime_init(void)
 	gpt_config.pgs = (reg >> GPCCR_PGS_SHIFT) & GPCCR_PGS_MASK;
 	gpt_config.p = gpt_p_lookup[gpt_config.pgs];
 
+	/* Number of L1 entries in 2MB depends on GPCCR_EL3.PGS value */
+	gpt_l1_cnt_2mb = (unsigned int)GPT_L1_ENTRY_COUNT_2MB(gpt_config.p);
+
+	/* Mask for the L1 index field */
+	gpt_l1_index_mask = GPT_L1_IDX_MASK(gpt_config.p);
+
+	/* Bitlocks at the end of L0 table */
+	gpt_bitlock_base = (bitlock_t *)(gpt_config.plat_gpt_l0_base +
+					GPT_L0_TABLE_SIZE(gpt_config.t));
+
 	VERBOSE("GPT: Runtime Configuration\n");
 	VERBOSE("  PPS/T:     0x%x/%u\n", gpt_config.pps, gpt_config.t);
 	VERBOSE("  PGS/P:     0x%x/%u\n", gpt_config.pgs, gpt_config.p);
 	VERBOSE("  L0GPTSZ/S: 0x%x/%u\n", GPT_L0GPTSZ, GPT_S_VAL);
 	VERBOSE("  L0 base:   0x%"PRIxPTR"\n", gpt_config.plat_gpt_l0_base);
+	VERBOSE("  Bitlocks:  0x%"PRIxPTR"\n", (uintptr_t)gpt_bitlock_base);
 
 	return 0;
 }
-
-/*
- * The L1 descriptors are protected by a spinlock to ensure that multiple
- * CPUs do not attempt to change the descriptors at once. In the future it
- * would be better to have separate spinlocks for each L1 descriptor.
- */
-static spinlock_t gpt_lock;
 
 /*
  * A helper to write the value (target_pas << gpi_shift) to the index of
@@ -973,6 +1315,8 @@ static inline void write_gpt(uint64_t *gpt_l1_desc, uint64_t *gpt_l1_addr,
 	*gpt_l1_desc &= ~(GPT_L1_GRAN_DESC_GPI_MASK << gpi_shift);
 	*gpt_l1_desc |= ((uint64_t)target_pas << gpi_shift);
 	gpt_l1_addr[idx] = *gpt_l1_desc;
+
+	dsboshst();
 }
 
 /*
@@ -982,6 +1326,7 @@ static inline void write_gpt(uint64_t *gpt_l1_desc, uint64_t *gpt_l1_addr,
 static int get_gpi_params(uint64_t base, gpi_info_t *gpi_info)
 {
 	uint64_t gpt_l0_desc, *gpt_l0_base;
+	unsigned int idx_512;
 
 	gpt_l0_base = (uint64_t *)gpt_config.plat_gpt_l0_base;
 	gpt_l0_desc = gpt_l0_base[GPT_L0_IDX(base)];
@@ -993,19 +1338,310 @@ static int get_gpi_params(uint64_t base, gpi_info_t *gpi_info)
 
 	/* Get the table index and GPI shift from PA */
 	gpi_info->gpt_l1_addr = GPT_L0_TBLD_ADDR(gpt_l0_desc);
-	gpi_info->idx = GPT_L1_IDX(gpt_config.p, base);
+	gpi_info->idx = (unsigned int)GPT_L1_INDEX(base);
 	gpi_info->gpi_shift = GPT_L1_GPI_IDX(gpt_config.p, base) << 2;
 
-	gpi_info->gpt_l1_desc = (gpi_info->gpt_l1_addr)[gpi_info->idx];
-	gpi_info->gpi = (gpi_info->gpt_l1_desc >> gpi_info->gpi_shift) &
-		GPT_L1_GRAN_DESC_GPI_MASK;
+	/* 512MB block index */
+	idx_512 = (unsigned int)(base / SZ_512M);
+
+	/* Bitlock address and mask */
+	gpi_info->lock = &gpt_bitlock_base[idx_512 / LOCK_BITS];
+	gpi_info->mask = 1U << (idx_512 & (LOCK_BITS - 1U));
+
 	return 0;
+}
+
+/*
+ * Helper to retrieve the gpt_l1_desc and GPI information from gpi_info.
+ * This function is called with bitlock acquired.
+ */
+static void read_gpi(gpi_info_t *gpi_info)
+{
+	gpi_info->gpt_l1_desc = (gpi_info->gpt_l1_addr)[gpi_info->idx];
+
+	if ((gpi_info->gpt_l1_desc & GPT_L1_TYPE_CONT_DESC_MASK) ==
+				 GPT_L1_TYPE_CONT_DESC) {
+		/* Read GPI from Contiguous descriptor */
+		gpi_info->gpi = (unsigned int)GPT_L1_CONT_GPI(gpi_info->gpt_l1_desc);
+	} else {
+		/* Read GPI from Granules descriptor */
+		gpi_info->gpi = (unsigned int)((gpi_info->gpt_l1_desc >> gpi_info->gpi_shift) &
+						GPT_L1_GRAN_DESC_GPI_MASK);
+	}
+}
+
+static void flush_page_to_popa(uintptr_t addr)
+{
+	size_t size = GPT_PGS_ACTUAL_SIZE(gpt_config.p);
+
+	if (is_feat_mte2_supported()) {
+		flush_dcache_to_popa_range_mte2(addr, size);
+	} else {
+		flush_dcache_to_popa_range(addr, size);
+	}
+}
+
+/*
+ * Helper function to check if all L1 entries in 2MB block have
+ * the same Granules descriptor value.
+ *
+ * Parameters
+ *   base		Base address of the region to be checked
+ *   gpi_info		Pointer to 'gpt_config_t' structure
+ *   l1_desc		GPT Granules descriptor with all entries
+ *			set to the same GPI.
+ *
+ * Return
+ *   true if L1 all entries have the same descriptor value, false otherwise.
+ */
+__unused static bool check_fuse_2mb(uint64_t base, const gpi_info_t *gpi_info,
+					uint64_t l1_desc)
+{
+	/* Last L1 entry index in 2MB block */
+	unsigned int long idx = GPT_L1_INDEX(ALIGN_2MB(base)) +
+						gpt_l1_cnt_2mb - 1UL;
+
+	/* Number of L1 entries in 2MB block */
+	unsigned int cnt = gpt_l1_cnt_2mb;
+
+	/*
+	 * Start check from the last L1 entry and continue until the first
+	 * non-matching to the passed Granules descriptor value is found.
+	 */
+	while (cnt-- != 0U) {
+		if (gpi_info->gpt_l1_addr[idx--] != l1_desc) {
+			/* Non-matching L1 entry found */
+			return false;
+		}
+	}
+
+	return true;
+}
+
+__unused static void fuse_2mb(uint64_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc)
+{
+	/* L1 entry index of the start of 2MB block */
+	unsigned long idx_2 = GPT_L1_INDEX(ALIGN_2MB(base));
+
+	/* 2MB Contiguous descriptor */
+	uint64_t l1_cont_desc = GPT_L1_CONT_DESC(l1_desc, 2MB);
+
+	VERBOSE("GPT: %s(0x%"PRIxPTR" 0x%"PRIx64")\n", __func__, base, l1_desc);
+
+	fill_desc(&gpi_info->gpt_l1_addr[idx_2], l1_cont_desc, L1_QWORDS_2MB);
+}
+
+/*
+ * Helper function to check if all 1st L1 entries of 2MB blocks
+ * in 32MB have the same 2MB Contiguous descriptor value.
+ *
+ * Parameters
+ *   base		Base address of the region to be checked
+ *   gpi_info		Pointer to 'gpt_config_t' structure
+ *   l1_desc		GPT Granules descriptor.
+ *
+ * Return
+ *   true if all L1 entries have the same descriptor value, false otherwise.
+ */
+__unused static bool check_fuse_32mb(uint64_t base, const gpi_info_t *gpi_info,
+					uint64_t l1_desc)
+{
+	/* The 1st L1 entry index of the last 2MB block in 32MB */
+	unsigned long idx = GPT_L1_INDEX(ALIGN_32MB(base)) +
+					(15UL * gpt_l1_cnt_2mb);
+
+	/* 2MB Contiguous descriptor */
+	uint64_t l1_cont_desc = GPT_L1_CONT_DESC(l1_desc, 2MB);
+
+	/* Number of 2MB blocks in 32MB */
+	unsigned int cnt = 16U;
+
+	/* Set the first L1 entry to 2MB Contiguous descriptor */
+	gpi_info->gpt_l1_addr[GPT_L1_INDEX(ALIGN_2MB(base))] = l1_cont_desc;
+
+	/*
+	 * Start check from the 1st L1 entry of the last 2MB block and
+	 * continue until the first non-matching to 2MB Contiguous descriptor
+	 * value is found.
+	 */
+	while (cnt-- != 0U) {
+		if (gpi_info->gpt_l1_addr[idx] != l1_cont_desc) {
+			/* Non-matching L1 entry found */
+			return false;
+		}
+		idx -= gpt_l1_cnt_2mb;
+	}
+
+	return true;
+}
+
+__unused static void fuse_32mb(uint64_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc)
+{
+	/* L1 entry index of the start of 32MB block */
+	unsigned long idx_32 = GPT_L1_INDEX(ALIGN_32MB(base));
+
+	/* 32MB Contiguous descriptor */
+	uint64_t l1_cont_desc = GPT_L1_CONT_DESC(l1_desc, 32MB);
+
+	VERBOSE("GPT: %s(0x%"PRIxPTR" 0x%"PRIx64")\n", __func__, base, l1_desc);
+
+	fill_desc(&gpi_info->gpt_l1_addr[idx_32], l1_cont_desc, L1_QWORDS_32MB);
+}
+
+/*
+ * Helper function to check if all 1st L1 entries of 32MB blocks
+ * in 512MB have the same 32MB Contiguous descriptor value.
+ *
+ * Parameters
+ *   base		Base address of the region to be checked
+ *   gpi_info		Pointer to 'gpt_config_t' structure
+ *   l1_desc		GPT Granules descriptor.
+ *
+ * Return
+ *   true if all L1 entries have the same descriptor value, false otherwise.
+ */
+__unused static bool check_fuse_512mb(uint64_t base, const gpi_info_t *gpi_info,
+					uint64_t l1_desc)
+{
+	/* The 1st L1 entry index of the last 32MB block in 512MB */
+	unsigned long idx = GPT_L1_INDEX(ALIGN_512MB(base)) +
+					(15UL * 16UL * gpt_l1_cnt_2mb);
+
+	/* 32MB Contiguous descriptor */
+	uint64_t l1_cont_desc = GPT_L1_CONT_DESC(l1_desc, 32MB);
+
+	/* Number of 32MB blocks in 512MB */
+	unsigned int cnt = 16U;
+
+	/* Set the first L1 entry to 2MB Contiguous descriptor */
+	gpi_info->gpt_l1_addr[GPT_L1_INDEX(ALIGN_32MB(base))] = l1_cont_desc;
+
+	/*
+	 * Start check from the 1st L1 entry of the last 32MB block and
+	 * continue until the first non-matching to 32MB Contiguous descriptor
+	 * value is found.
+	 */
+	while (cnt-- != 0U) {
+		if (gpi_info->gpt_l1_addr[idx] != l1_cont_desc) {
+			/* Non-matching L1 entry found */
+			return false;
+		}
+		idx -= 16UL * gpt_l1_cnt_2mb;
+	}
+
+	return true;
+}
+
+__unused static void fuse_512mb(uint64_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc)
+{
+	/* L1 entry index of the start of 512MB block */
+	unsigned long idx_512 = GPT_L1_INDEX(ALIGN_512MB(base));
+
+	/* 512MB Contiguous descriptor */
+	uint64_t l1_cont_desc = GPT_L1_CONT_DESC(l1_desc, 512MB);
+
+	VERBOSE("GPT: %s(0x%"PRIxPTR" 0x%"PRIx64")\n", __func__, base, l1_desc);
+
+	fill_desc(&gpi_info->gpt_l1_addr[idx_512], l1_cont_desc, L1_QWORDS_512MB);
+}
+
+/*
+ * Helper function to convert GPI entries in a single L1 table
+ * from Granules to Contiguous descriptor.
+ *
+ * Parameters
+ *   base		Base address of the region to be written
+ *   gpi_info		Pointer to 'gpt_config_t' structure
+ *   l1_desc		GPT Granules descriptor with all entries
+ *			set to the same GPI.
+ */
+__unused static void fuse_block(uint64_t base, const gpi_info_t *gpi_info,
+				uint64_t l1_desc)
+{
+	/* Start with check for 2MB block */
+	if (!check_fuse_2mb(base, gpi_info, l1_desc)) {
+		/* Check for 2MB fusing failed */
+		return;
+	}
+
+#if (RME_GPT_MAX_BLOCK == 2)
+	fuse_2mb(base, gpi_info, l1_desc);
+#else
+	/* Check for 32MB block */
+	if (!check_fuse_32mb(base, gpi_info, l1_desc)) {
+		/* Check for 32MB fusing failed, fuse to 2MB */
+		fuse_2mb(base, gpi_info, l1_desc);
+		return;
+	}
+
+#if (RME_GPT_MAX_BLOCK == 32)
+	fuse_32mb(base, gpi_info, l1_desc);
+#else
+	/* Check for 512MB block */
+	if (!check_fuse_512mb(base, gpi_info, l1_desc)) {
+		/* Check for 512MB fusing failed, fuse to 32MB */
+		fuse_32mb(base, gpi_info, l1_desc);
+		return;
+	}
+
+	/* Fuse to 512MB */
+	fuse_512mb(base, gpi_info, l1_desc);
+
+#endif	/* RME_GPT_MAX_BLOCK == 32 */
+#endif	/* RME_GPT_MAX_BLOCK == 2 */
+}
+
+/*
+ * Helper function to convert GPI entries in a single L1 table
+ * from Contiguous to Granules descriptor. This function updates
+ * descriptor to Granules in passed 'gpt_config_t' structure as
+ * the result of shuttering.
+ *
+ * Parameters
+ *   base		Base address of the region to be written
+ *   gpi_info		Pointer to 'gpt_config_t' structure
+ *   l1_desc		GPT Granules descriptor set this range to.
+ */
+__unused static void shatter_block(uint64_t base, gpi_info_t *gpi_info,
+				   uint64_t l1_desc)
+{
+	/* Look-up table for 2MB, 32MB and 512MB locks shattering */
+	static const gpt_shatter_func gpt_shatter_lookup[] = {
+		shatter_2mb,
+		shatter_32mb,
+		shatter_512mb
+	};
+
+	/* Look-up table for invalidation TLBs for 2MB, 32MB and 512MB blocks */
+	static const gpt_tlbi_lookup_t tlbi_lookup[] = {
+		{ tlbirpalos_2m, ~(SZ_2M - 1UL) },
+		{ tlbirpalos_32m, ~(SZ_32M - 1UL) },
+		{ tlbirpalos_512m, ~(SZ_512M - 1UL) }
+	};
+
+	/* Get shattering level from Contig field of Contiguous descriptor */
+	unsigned long level = GPT_L1_CONT_CONTIG(gpi_info->gpt_l1_desc) - 1UL;
+
+	/* Shatter contiguous block */
+	gpt_shatter_lookup[level](base, gpi_info, l1_desc);
+
+	tlbi_lookup[level].function(base & tlbi_lookup[level].mask);
+	dsbosh();
+
+	/*
+	 * Update 'gpt_config_t' structure's descriptor to Granules to reflect
+	 * the shattered GPI back to caller.
+	 */
+	gpi_info->gpt_l1_desc = l1_desc;
 }
 
 /*
  * This function is the granule transition delegate service. When a granule
  * transition request occurs it is routed to this function to have the request,
- * if valid, fulfilled following A1.1.1 Delegate of RME supplement
+ * if valid, fulfilled following A1.1.1 Delegate of RME supplement.
  *
  * TODO: implement support for transitioning multiple granules at once.
  *
@@ -1022,19 +1658,15 @@ static int get_gpi_params(uint64_t base, gpi_info_t *gpi_info)
 int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 {
 	gpi_info_t gpi_info;
-	uint64_t nse;
-	int res;
+	uint64_t nse, __unused l1_desc;
 	unsigned int target_pas;
+	int res;
 
 	/* Ensure that the tables have been set up before taking requests */
 	assert(gpt_config.plat_gpt_l0_base != 0UL);
 
 	/* Ensure that caches are enabled */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
-
-	/* Delegate request can only come from REALM or SECURE */
-	assert(src_sec_state == SMC_FROM_REALM ||
-	       src_sec_state == SMC_FROM_SECURE);
 
 	/* See if this is a single or a range of granule transition */
 	if (size != GPT_PGS_ACTUAL_SIZE(gpt_config.p)) {
@@ -1060,70 +1692,82 @@ int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 		return -EINVAL;
 	}
 
-	target_pas = GPT_GPI_REALM;
-	if (src_sec_state == SMC_FROM_SECURE) {
+	/* Delegate request can only come from REALM or SECURE */
+	if ((src_sec_state != SMC_FROM_REALM) &&
+	    (src_sec_state != SMC_FROM_SECURE)) {
+		VERBOSE("GPT: Invalid caller security state 0x%x\n",
+							src_sec_state);
+		return -EINVAL;
+	}
+
+	if (src_sec_state == SMC_FROM_REALM) {
+		target_pas = GPT_GPI_REALM;
+		nse = (uint64_t)GPT_NSE_REALM << GPT_NSE_SHIFT;
+		l1_desc = GPT_L1_REALM_DESC;
+	} else {
 		target_pas = GPT_GPI_SECURE;
+		nse = (uint64_t)GPT_NSE_SECURE << GPT_NSE_SHIFT;
+		l1_desc = GPT_L1_SECURE_DESC;
+	}
+
+	res = get_gpi_params(base, &gpi_info);
+	if (res != 0) {
+		return res;
 	}
 
 	/*
-	 * Access to L1 tables is controlled by a global lock to ensure
-	 * that no more than one CPU is allowed to make changes at any
-	 * given time.
+	 * Access to each 512MB block in L1 tables is controlled by a bitlock
+	 * to ensure that no more than one CPU is allowed to make changes at
+	 * any given time.
 	 */
-	spin_lock(&gpt_lock);
-	res = get_gpi_params(base, &gpi_info);
-	if (res != 0) {
-		spin_unlock(&gpt_lock);
-		return res;
-	}
+	bit_lock(gpi_info.lock, gpi_info.mask);
+
+	read_gpi(&gpi_info);
 
 	/* Check that the current address is in NS state */
 	if (gpi_info.gpi != GPT_GPI_NS) {
 		VERBOSE("GPT: Only Granule in NS state can be delegated.\n");
 		VERBOSE("      Caller: %u, Current GPI: %u\n", src_sec_state,
 			gpi_info.gpi);
-		spin_unlock(&gpt_lock);
+		bit_unlock(gpi_info.lock, gpi_info.mask);
 		return -EPERM;
 	}
 
-	if (src_sec_state == SMC_FROM_SECURE) {
-		nse = (uint64_t)GPT_NSE_SECURE << GPT_NSE_SHIFT;
-	} else {
-		nse = (uint64_t)GPT_NSE_REALM << GPT_NSE_SHIFT;
+#if (RME_GPT_MAX_BLOCK != 0)
+	/* Check for Contiguous descriptor */
+	if ((gpi_info.gpt_l1_desc & GPT_L1_TYPE_CONT_DESC_MASK) ==
+					GPT_L1_TYPE_CONT_DESC) {
+		shatter_block(base, &gpi_info, GPT_L1_NS_DESC);
 	}
-
+#endif
 	/*
 	 * In order to maintain mutual distrust between Realm and Secure
 	 * states, remove any data speculatively fetched into the target
-	 * physical address space. Issue DC CIPAPA over address range.
+	 * physical address space.
+	 * Issue DC CIPAPA or DC_CIGDPAPA on implementations with FEAT_MTE2.
 	 */
-	if (is_feat_mte2_supported()) {
-		flush_dcache_to_popa_range_mte2(nse | base,
-					GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	} else {
-		flush_dcache_to_popa_range(nse | base,
-					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	}
+	flush_page_to_popa(base | nse);
 
 	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
 		  gpi_info.gpi_shift, gpi_info.idx, target_pas);
-	dsboshst();
 
-	gpt_tlbi_by_pa_ll(base, GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	dsbosh();
+	/* Ensure that all agents observe the new configuration */
+	tlbi_page_dsbosh(base);
 
 	nse = (uint64_t)GPT_NSE_NS << GPT_NSE_SHIFT;
 
-	if (is_feat_mte2_supported()) {
-		flush_dcache_to_popa_range_mte2(nse | base,
-					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	} else {
-		flush_dcache_to_popa_range(nse | base,
-					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	}
+	/* Ensure that the scrubbed data have made it past the PoPA */
+	flush_page_to_popa(base | nse);
 
-	/* Unlock access to the L1 tables */
-	spin_unlock(&gpt_lock);
+#if (RME_GPT_MAX_BLOCK != 0)
+	if (gpi_info.gpt_l1_desc == l1_desc) {
+		/* Try to fuse */
+		fuse_block(base, &gpi_info, l1_desc);
+	}
+#endif
+
+	/* Unlock access to 512MB block */
+	bit_unlock(gpi_info.lock, gpi_info.mask);
 
 	/*
 	 * The isb() will be done as part of context
@@ -1155,7 +1799,7 @@ int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 {
 	gpi_info_t gpi_info;
-	uint64_t nse;
+	uint64_t nse, __unused l1_desc;
 	int res;
 
 	/* Ensure that the tables have been set up before taking requests */
@@ -1163,10 +1807,6 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 
 	/* Ensure that MMU and caches are enabled */
 	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
-
-	/* Delegate request can only come from REALM or SECURE */
-	assert(src_sec_state == SMC_FROM_REALM ||
-	       src_sec_state == SMC_FROM_SECURE);
 
 	/* See if this is a single or a range of granule transition */
 	if (size != GPT_PGS_ACTUAL_SIZE(gpt_config.p)) {
@@ -1192,84 +1832,82 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 		return -EINVAL;
 	}
 
-	/*
-	 * Access to L1 tables is controlled by a global lock to ensure
-	 * that no more than one CPU is allowed to make changes at any
-	 * given time.
-	 */
-	spin_lock(&gpt_lock);
-
 	res = get_gpi_params(base, &gpi_info);
 	if (res != 0) {
-		spin_unlock(&gpt_lock);
 		return res;
 	}
 
+	/*
+	 * Access to each 512MB block in L1 tables is controlled by a bitlock
+	 * to ensure that no more than one CPU is allowed to make changes at
+	 * any given time.
+	 */
+	bit_lock(gpi_info.lock, gpi_info.mask);
+
+	read_gpi(&gpi_info);
+
 	/* Check that the current address is in the delegated state */
-	if ((src_sec_state == SMC_FROM_REALM  &&
-	     gpi_info.gpi != GPT_GPI_REALM) ||
-	    (src_sec_state == SMC_FROM_SECURE &&
-	     gpi_info.gpi != GPT_GPI_SECURE)) {
-		VERBOSE("GPT: Only Granule in REALM or SECURE state can be undelegated.\n");
+	if ((src_sec_state == SMC_FROM_REALM) &&
+		(gpi_info.gpi == GPT_GPI_REALM)) {
+		l1_desc = GPT_L1_REALM_DESC;
+		nse = (uint64_t)GPT_NSE_REALM << GPT_NSE_SHIFT;
+	} else if ((src_sec_state == SMC_FROM_SECURE) &&
+		(gpi_info.gpi == GPT_GPI_SECURE)) {
+		l1_desc = GPT_L1_SECURE_DESC;
+		nse = (uint64_t)GPT_NSE_SECURE << GPT_NSE_SHIFT;
+	} else {
+		VERBOSE("GPT: Only Granule in REALM or SECURE state can be undelegated\n");
 		VERBOSE("      Caller: %u Current GPI: %u\n", src_sec_state,
 			gpi_info.gpi);
-		spin_unlock(&gpt_lock);
+		bit_unlock(gpi_info.lock, gpi_info.mask);
 		return -EPERM;
 	}
 
-
-	/* In order to maintain mutual distrust between Realm and Secure
+#if (RME_GPT_MAX_BLOCK != 0)
+	/* Check for Contiguous descriptor */
+	if ((gpi_info.gpt_l1_desc & GPT_L1_TYPE_CONT_DESC_MASK) ==
+					GPT_L1_TYPE_CONT_DESC) {
+		shatter_block(base, &gpi_info, l1_desc);
+	}
+#endif
+	/*
+	 * In order to maintain mutual distrust between Realm and Secure
 	 * states, remove access now, in order to guarantee that writes
 	 * to the currently-accessible physical address space will not
 	 * later become observable.
 	 */
 	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
 		  gpi_info.gpi_shift, gpi_info.idx, GPT_GPI_NO_ACCESS);
-	dsboshst();
 
-	gpt_tlbi_by_pa_ll(base, GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	dsbosh();
+	/* Ensure that all agents observe the new NO_ACCESS configuration */
+	tlbi_page_dsbosh(base);
 
-	if (src_sec_state == SMC_FROM_SECURE) {
-		nse = (uint64_t)GPT_NSE_SECURE << GPT_NSE_SHIFT;
-	} else {
-		nse = (uint64_t)GPT_NSE_REALM << GPT_NSE_SHIFT;
-	}
-
-	/* Ensure that the scrubbed data has made it past the PoPA */
-	if (is_feat_mte2_supported()) {
-		flush_dcache_to_popa_range_mte2(nse | base,
-					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	} else {
-		flush_dcache_to_popa_range(nse | base,
-					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	}
+	/* Ensure that the scrubbed data have made it past the PoPA */
+	flush_page_to_popa(base | nse);
 
 	/*
-	 * Remove any data loaded speculatively
-	 * in NS space from before the scrubbing
+	 * Remove any data loaded speculatively in NS space from before
+	 * the scrubbing.
 	 */
 	nse = (uint64_t)GPT_NSE_NS << GPT_NSE_SHIFT;
 
-	if (is_feat_mte2_supported()) {
-		flush_dcache_to_popa_range_mte2(nse | base,
-					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	} else {
-		flush_dcache_to_popa_range(nse | base,
-					   GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	}
+	flush_page_to_popa(base | nse);
 
-	/* Clear existing GPI encoding and transition granule. */
+	/* Clear existing GPI encoding and transition granule */
 	write_gpt(&gpi_info.gpt_l1_desc, gpi_info.gpt_l1_addr,
 		  gpi_info.gpi_shift, gpi_info.idx, GPT_GPI_NS);
-	dsboshst();
 
 	/* Ensure that all agents observe the new NS configuration */
-	gpt_tlbi_by_pa_ll(base, GPT_PGS_ACTUAL_SIZE(gpt_config.p));
-	dsbosh();
+	tlbi_page_dsbosh(base);
 
-	/* Unlock access to the L1 tables. */
-	spin_unlock(&gpt_lock);
+#if (RME_GPT_MAX_BLOCK != 0)
+	if (gpi_info.gpt_l1_desc == GPT_L1_NS_DESC) {
+		/* Try to fuse */
+		fuse_block(base, &gpi_info, GPT_L1_NS_DESC);
+	}
+#endif
+	/* Unlock access to 512MB block */
+	bit_unlock(gpi_info.lock, gpi_info.mask);
 
 	/*
 	 * The isb() will be done as part of context
