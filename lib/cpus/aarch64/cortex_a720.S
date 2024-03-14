@@ -26,6 +26,22 @@
         wa_cve_2022_23960_bhb_vector_table CORTEX_A720_BHB_LOOP_COUNT, cortex_a720
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+workaround_reset_start cortex_a720, ERRATUM(2926083), ERRATA_A720_2926083
+/* Erratum 2926083 workaround is required only if SPE is enabled */
+#if ENABLE_SPE_FOR_NS != 0
+	/* Check if Static profiling extension is implemented or present. */
+	mrs x1, id_aa64dfr0_el1
+	ubfx x0, x1, ID_AA64DFR0_PMS_SHIFT, #4
+	cbz x0, 1f
+	/* Apply the workaround by setting CPUACTLR_EL1[58:57] = 0b11. */
+	sysreg_bit_set CORTEX_A720_CPUACTLR_EL1, BIT(57)
+	sysreg_bit_set CORTEX_A720_CPUACTLR_EL1, BIT(58)
+1:
+#endif
+workaround_reset_end cortex_a720, ERRATUM(2926083)
+
+check_erratum_ls cortex_a720, ERRATUM(2926083), CPU_REV(0, 1)
+
 workaround_reset_start cortex_a720, ERRATUM(2940794), ERRATA_A720_2940794
         sysreg_bit_set CORTEX_A720_CPUACTLR2_EL1, BIT(37)
 workaround_reset_end cortex_a720, ERRATUM(2940794)
