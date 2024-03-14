@@ -107,4 +107,9 @@
 		      <HI(PLAT_ARM_DRAM2_BASE) LO(PLAT_ARM_DRAM2_BASE)
 		       HI(TC_NS_DRAM2_SIZE) LO(TC_NS_DRAM2_SIZE)>;
 	};
+
+	memory@2 {
+		device_type = "device-memory";
+		reg =   <0x0 0x1c130000 0x0 0x10000>; /* Virtio block device */
+	};
 };
