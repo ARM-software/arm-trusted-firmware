@@ -13,6 +13,11 @@
 #define CORTEX_A720_BHB_LOOP_COUNT				U(132)
 
 /*******************************************************************************
+ * CPU Auxiliary Control register 1 specific definitions.
+ ******************************************************************************/
+#define CORTEX_A720_CPUACTLR_EL1				S3_0_C15_C1_0
+
+/*******************************************************************************
  * CPU Auxiliary Control register 2 specific definitions.
  ******************************************************************************/
 #define CORTEX_A720_CPUACTLR2_EL1				S3_0_C15_C1_1
