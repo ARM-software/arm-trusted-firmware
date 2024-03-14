@@ -15,6 +15,12 @@
 #define DT_UART_COMPAT	"arm,pl011"
 #endif
 
+/*Default console type is either CADENCE0 or CADENCE1 or PL011_0 or PL011_1
+ * Debug console type is DCC
+ **/
+#define PLAT_XLNX_CONSOLE_TYPE_DEFAULT 0
+#define PLAT_XLNX_CONSOLE_TYPE_DEBUG   1
+
 typedef struct dt_uart_info_s {
 	char compatible[30];
 	uintptr_t base;
@@ -23,5 +29,9 @@ typedef struct dt_uart_info_s {
 } dt_uart_info_t;
 
 void setup_console(void);
+
+#if defined(CONSOLE_RUNTIME)
+void console_runtime_init(void);
+#endif
 
 #endif /* PLAT_DT_UART_H */

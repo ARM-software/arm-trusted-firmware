@@ -25,7 +25,51 @@
 
 static console_t boot_console;
 
+#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE)) || \
+	defined(CONSOLE_RUNTIME)
+/**
+ * register_console() - Registers the runtime uart with console list.
+ * @uart_base: UART base address
+ * @clock: UART clock.
+ * @baud_rate: UART buad rate
+ * @console: Pointer to the console information structure.
+ * @flags: console flags.
+ */
+static void register_console(uintptr_t uart_base, uint32_t clock,
+		uint32_t baud_rate, console_t *console,
+		uint32_t flags, uint8_t console_type)
+{
+	int32_t rc = 0;
+
+	if (console_type == PLAT_XLNX_CONSOLE_TYPE_DEFAULT) {
+#if defined(PLAT_zynqmp)
+		rc = console_cdns_register(uart_base,
+				clock,
+				baud_rate,
+				console);
+#elif defined(PLAT_versal) || defined(PLAT_versal_net) || defined(PLAT_versal2)
+		rc = console_pl011_register(uart_base,
+				clock,
+				baud_rate,
+				console);
+#endif
+	} else if (console_type == PLAT_XLNX_CONSOLE_TYPE_DEBUG) {
+		rc = console_dcc_register(console);
+	} else {
+		INFO("Invalid console type\n");
+	}
+
+	if (rc == 0) {
+		panic();
+	}
+
+	console_set_scope(console, flags);
+}
+#endif
+
 #if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
+
+static console_t dt_console;
 /**
  * get_baudrate() - Get the baudrate form DTB.
  * @dtb: Address of the Device Tree Blob (DTB).
@@ -222,38 +266,6 @@ static void console_end(console_t *console)
 }
 
 /**
- * register_console() - Registers the runtime uart with console list.
- * @uart_base: UART base address
- * @clock: UART clock.
- * @baud_rate: UART buad rate
- * @console: Pointer to the console information structure.
- * @flags: console flags.
- */
-static void register_console(uintptr_t uart_base, uint32_t clock,
-			     uint32_t baud_rate, console_t *console,
-			     uint32_t flags)
-{
-	int32_t rc;
-
-#if defined(PLAT_zynqmp)
-	rc = console_cdns_register(uart_base,
-				   clock,
-				   baud_rate,
-				   console);
-#else
-	rc = console_pl011_register(uart_base,
-				    clock,
-				    baud_rate,
-				    console);
-#endif
-	if (rc == 0) {
-		panic();
-	}
-
-	console_set_scope(console, flags);
-}
-
-/**
  * parse_uart_info() - Parse UART information from Device Tree Blob.
  * @uart_info: Pointer to the UART information structure.
  *
@@ -281,7 +293,8 @@ static void handle_dt_console(dt_uart_info_t *uart_info, console_t *console,
 {
 	register_console(uart_info->base, clock, uart_info->baud_rate,
 			console,  CONSOLE_FLAG_BOOT |
-			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
+			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH,
+			PLAT_XLNX_CONSOLE_TYPE_DEFAULT);
 	console_end(end_console);
 	INFO("DTB console setup\n");
 }
@@ -314,10 +327,14 @@ static int32_t dt_console_init(dt_uart_info_t *uart_info,
 			  uint32_t clock)
 {
 	int32_t rc = 0;
-	static console_t dt_console;
 
 	/* Parse UART information from Device Tree Blob (DTB) */
 	rc = parse_uart_info(uart_info);
+	if (rc < 0) {
+		goto error;
+	}
+
+	rc = check_fdt_uart_info(uart_info);
 	if (rc < 0) {
 		goto error;
 	}
@@ -339,6 +356,64 @@ static int32_t dt_console_init(dt_uart_info_t *uart_info,
 
 error:
 	return rc;
+}
+#endif
+
+#if defined(CONSOLE_RUNTIME)
+void console_runtime_init(void)
+{
+	uint32_t uart_clk = get_uart_clk();
+	static console_t runtime_console;
+	uintptr_t rt_uart_base = 0;
+	uint32_t buad_rate = 0;
+	static dt_uart_info_t dt_info = {0};
+
+#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
+	console_t *console = &dt_console;
+#else
+	console_t *console = &boot_console;
+#endif
+
+#if (RT_CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
+	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
+				   !IS_TFA_IN_OCM(BL31_BASE)))
+	uint32_t rc = parse_uart_info(&dt_info);
+
+	if (rc < 0) {
+		goto error;
+	} else {
+		rt_uart_base = dt_info.base;
+		buad_rate = dt_info.baud_rate;
+	}
+#elif defined(PLAT_zynqmp)
+	if (RT_CONSOLE_IS(cadence) || (RT_CONSOLE_IS(cadence1))) {
+		rt_uart_base = (uintptr_t)RT_UART_BASE;
+		buad_rate = (uint32_t)UART_BAUDRATE;
+	}
+#else
+	if (RT_CONSOLE_IS(pl011) || (RT_CONSOLE_IS(pl011_1))) {
+		rt_uart_base = (uintptr_t)RT_UART_BASE;
+		buad_rate = (uint32_t)UART_BAUDRATE;
+	}
+#endif
+	/*skip console registration if runtime and boot console are same */
+	if (console->base != rt_uart_base) {
+		/* Remove runtime flag from boot console */
+		console_set_scope(console, CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH);
+
+		register_console(rt_uart_base, uart_clk, buad_rate, &runtime_console,
+				 CONSOLE_FLAG_RUNTIME, PLAT_XLNX_CONSOLE_TYPE_DEFAULT);
+		INFO("Successfully initialized runtime console\n");
+	}
+
+#if (RT_CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
+	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
+				   !IS_TFA_IN_OCM(BL31_BASE)))
+error:
+	if (rc < 0) {
+		ERROR("Failed to parse uart info in runtime console\n");
+	}
+#endif
 }
 #endif
 

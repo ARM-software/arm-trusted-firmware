@@ -17,6 +17,15 @@
 
 #define CONSOLE_IS(con)	(ZYNQMP_CONSOLE_ID_ ## con == ZYNQMP_CONSOLE)
 
+/* Runtime console */
+#define RT_CONSOLE_ID_cadence	1
+#define RT_CONSOLE_ID_cadence0	1
+#define RT_CONSOLE_ID_cadence1	2
+#define RT_CONSOLE_ID_dcc	3
+#define RT_CONSOLE_ID_dtb	4
+
+#define RT_CONSOLE_IS(con)	(RT_CONSOLE_ID_ ## con == CONSOLE_RUNTIME)
+
 /* Default counter frequency */
 #define ZYNQMP_DEFAULT_COUNTER_FREQ	0U
 
@@ -150,6 +159,17 @@
 # define UART_BASE	ZYNQMP_UART1_BASE
 #else
 # error "invalid ZYNQMP_CONSOLE"
+#endif
+
+/* Runtime console */
+#if defined(CONSOLE_RUNTIME)
+#if RT_CONSOLE_IS(cadence) || RT_CONSOLE_IS(dcc) || RT_CONSOLE_IS(dtb)
+# define RT_UART_BASE	ZYNQMP_UART0_BASE
+#elif RT_CONSOLE_IS(cadence1)
+# define RT_UART_BASE	ZYNQMP_UART1_BASE
+#else
+# error "invalid CONSOLE_RUNTIME"
+#endif
 #endif
 
 /* Must be non zero */
