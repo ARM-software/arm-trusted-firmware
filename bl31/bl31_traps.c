@@ -97,7 +97,7 @@ static u_register_t get_elr_el3(u_register_t spsr_el3, u_register_t vbar, unsign
  * NOTE: This piece of code must be reviewed every release to ensure that
  * we keep up with new ARCH features which introduces a new SPSR bit.
  */
-static u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
+u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 {
 	u_register_t new_spsr = 0;
 	u_register_t sctlr;
