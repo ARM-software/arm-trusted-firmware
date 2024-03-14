@@ -129,4 +129,9 @@
 		reg = <0x00008800 0x80000000 0x0 0x7f000000>,
 		      <0x0 0x88000000 0x1 0x00000000>;
 	};
+
+	memory@2 {
+		device_type = "device-memory";
+		reg =   <0x0 0x1c130000 0x0 0x10000>; /* Virtio block device */
+	};
 };
