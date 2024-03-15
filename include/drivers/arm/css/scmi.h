@@ -37,6 +37,7 @@
 	(GET_SCMI_MINOR_VER(drv) <= GET_SCMI_MINOR_VER(scmi))))
 
 /* SCMI Protocol identifiers */
+#define SCMI_BASE_PROTO_ID			0x10
 #define SCMI_PWR_DMN_PROTO_ID			0x11
 #define SCMI_SYS_PWR_PROTO_ID			0x12
 /* The AP core protocol is a CSS platform-specific extension */
@@ -46,6 +47,18 @@
 #define SCMI_PROTO_VERSION_MSG			0x0
 #define SCMI_PROTO_ATTR_MSG			0x1
 #define SCMI_PROTO_MSG_ATTR_MSG			0x2
+
+#define SCMI_PROTO_ATTR_MSG_LEN			4
+#define SCMI_PROTO_ATTR_RESP_LEN		12
+
+/* SCMI base protocol message IDs */
+#define SCMI_BASE_DISCOVER_AGENT		0x7
+#define SCMI_BASE_DISCOVER_AGENT_MSG_LEN	8
+#define SCMI_BASE_DISCOVER_AGENT_RESP_LEN	28
+
+#define SCMI_BASE_RESET_AGENT_CONFIGURATION	0xB
+#define SCMI_BASE_RESET_AGENT_CONFIGURATION_MSG_LEN	12
+#define SCMI_BASE_RESET_AGENT_CONFIGURATION_RESP_LEN	8
 
 /* SCMI power domain management protocol message IDs */
 #define SCMI_PWR_STATE_SET_MSG			0x4
@@ -150,6 +163,14 @@ void *scmi_init(scmi_channel_t *ch);
 int scmi_proto_msg_attr(void *p, uint32_t proto_id, uint32_t command_id,
 						uint32_t *attr);
 int scmi_proto_version(void *p, uint32_t proto_id, uint32_t *version);
+
+/*
+ * Base protocol commands. Refer to the SCMI specification for more
+ * details on these commands.
+ */
+int scmi_base_protocol_attributes(void *p, uint32_t *num_protocols, uint32_t *num_agents);
+int scmi_base_discover_agent(void *p, uint32_t agent_id, uint32_t *agent_id_resp, char *name);
+int scmi_base_reset_agent_config(void *p, uint32_t agent_id, uint32_t flags);
 
 /*
  * Power domain protocol commands. Refer to the SCMI specification for more
