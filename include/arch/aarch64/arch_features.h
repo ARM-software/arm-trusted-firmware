@@ -373,6 +373,10 @@ CREATE_FEATURE_FUNCS(feat_rme, id_aa64pfr0_el1, ID_AA64PFR0_FEAT_RME_SHIFT,
 CREATE_FEATURE_PRESENT(feat_sb, id_aa64isar1_el1, ID_AA64ISAR1_SB_SHIFT,
 		       ID_AA64ISAR1_SB_MASK, 1U)
 
+/* FEAT_MEC: Memory Encryption Contexts */
+CREATE_FEATURE_FUNCS(feat_mec, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_MEC_SHIFT,
+		ID_AA64MMFR3_EL1_MEC_MASK, 1U, ENABLE_FEAT_MEC)
+
 /*
  * FEAT_CSV2: Cache Speculation Variant 2. This checks bit fields[56-59]
  * of id_aa64pfr0_el1 register and can be used to check for below features:
