@@ -32,7 +32,8 @@ include plat/arm/board/neoverse_rd/common/nrd-common.mk
 
 RDN2_BASE		=	plat/arm/board/neoverse_rd/platform/rdn2
 
-PLAT_INCLUDES		+=	-I${RDN2_BASE}/include/
+PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include/nrd2/	\
+				-I${RDN2_BASE}/include/
 
 NRD_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n2.S \
 				lib/cpus/aarch64/neoverse_v2.S
