@@ -11,7 +11,6 @@
 #include <services/el3_spmc_ffa_memory.h>
 
 #include <nrd_plat.h>
-#include <nrd_soc_platform_def_v2.h>
 #include <rdn2_ras.h>
 
 #if defined(IMAGE_BL31)

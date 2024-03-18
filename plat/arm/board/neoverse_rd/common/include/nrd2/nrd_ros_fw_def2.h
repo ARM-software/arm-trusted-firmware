@@ -11,6 +11,8 @@
 #ifndef NRD_ROS_FW_DEF2_H
 #define NRD_ROS_FW_DEF2_H
 
+#include <nrd_ros_def2.h>
+
 /*******************************************************************************
  * MMU mapping
  ******************************************************************************/
@@ -27,6 +29,18 @@
 			SOC_MEMCNTRL_BASE,				\
 			SOC_MEMCNTRL_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE)
+
+#define PLAT_ARM_SECURE_MAP_SYSTEMREG					\
+		MAP_REGION_FLAT(					\
+			CSS_SYSTEMREG_DEVICE_BASE,			\
+			CSS_SYSTEMREG_DEVICE_SIZE,			\
+			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
+
+#define PLAT_ARM_SECURE_MAP_NOR2					\
+		MAP_REGION_FLAT(					\
+			CSS_NOR2_FLASH_DEVICE_BASE,			\
+			CSS_NOR2_FLASH_DEVICE_SIZE,			\
+			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
 /*******************************************************************************
  * TZ config

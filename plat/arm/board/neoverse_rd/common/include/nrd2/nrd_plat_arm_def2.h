@@ -13,6 +13,7 @@
 #ifndef NRD_PLAT_ARM_DEF2_H
 #define NRD_PLAT_ARM_DEF2_H
 
+#include <nrd_soc_css_def_v2.h>
 #include <plat/arm/common/arm_def.h>
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/arm/css/common/css_def.h>
