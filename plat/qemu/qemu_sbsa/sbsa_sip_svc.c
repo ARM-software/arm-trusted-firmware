@@ -30,6 +30,7 @@ static int platform_version_minor;
 #define SIP_SVC_GET_GIC_ITS SIP_FUNCTION_ID(101)
 #define SIP_SVC_GET_CPU_COUNT SIP_FUNCTION_ID(200)
 #define SIP_SVC_GET_CPU_NODE SIP_FUNCTION_ID(201)
+#define SIP_SVC_GET_CPU_TOPOLOGY SIP_FUNCTION_ID(202)
 #define SIP_SVC_GET_MEMORY_NODE_COUNT SIP_FUNCTION_ID(300)
 #define SIP_SVC_GET_MEMORY_NODE SIP_FUNCTION_ID(301)
 
@@ -46,10 +47,24 @@ typedef struct{
 	uint64_t addr_size;
 } memory_data;
 
+/*
+ * sockets: the number of sockets on sbsa-ref platform.
+ * clusters: the number of clusters in one socket.
+ * cores: the number of cores in one cluster.
+ * threads: the number of threads in one core.
+ */
+typedef struct {
+	uint32_t sockets;
+	uint32_t clusters;
+	uint32_t cores;
+	uint32_t threads;
+} cpu_topology;
+
 static struct {
 	uint32_t num_cpus;
 	uint32_t num_memnodes;
 	cpu_data cpu[PLATFORM_CORE_COUNT];
+	cpu_topology cpu_topo;
 	memory_data memory[PLAT_MAX_MEM_NODES];
 } dynamic_platform_info;
 
@@ -70,6 +85,57 @@ uintptr_t sbsa_get_gicr(void);
  * And when we do that, we won't then have to rewrite Normal world firmware to
  * cope.
  */
+
+static void read_cpu_topology_from_dt(void *dtb)
+{
+	int node;
+	uint32_t sockets = 0;
+	uint32_t clusters = 0;
+	uint32_t cores = 0;
+	uint32_t threads = 0;
+
+	/*
+	 * QEMU gives us this DeviceTree node when we config:
+	 * -smp 16,sockets=2,clusters=2,cores=2,threads=2
+	 *
+	 * topology {
+	 *	threads = <0x02>;
+	 *	cores = <0x02>;
+	 *	clusters = <0x02>;
+	 *	sockets = <0x02>;
+	 * };
+	 */
+
+	node = fdt_path_offset(dtb, "/cpus/topology");
+	if (node > 0) {
+		if (fdt_getprop(dtb, node, "sockets", NULL))  {
+			fdt_read_uint32(dtb, node, "sockets", &sockets);
+		}
+
+		if (fdt_getprop(dtb, node, "clusters", NULL))  {
+			fdt_read_uint32(dtb, node, "clusters", &clusters);
+		}
+
+		if (fdt_getprop(dtb, node, "cores", NULL))  {
+			fdt_read_uint32(dtb, node, "cores", &cores);
+		}
+
+		if (fdt_getprop(dtb, node, "threads", NULL))  {
+			fdt_read_uint32(dtb, node, "threads", &threads);
+		}
+	}
+
+	dynamic_platform_info.cpu_topo.sockets = sockets;
+	dynamic_platform_info.cpu_topo.clusters = clusters;
+	dynamic_platform_info.cpu_topo.cores = cores;
+	dynamic_platform_info.cpu_topo.threads = threads;
+
+	INFO("Cpu topology: sockets: %d, clusters: %d, cores: %d, threads: %d\n",
+		dynamic_platform_info.cpu_topo.sockets,
+		dynamic_platform_info.cpu_topo.clusters,
+		dynamic_platform_info.cpu_topo.cores,
+		dynamic_platform_info.cpu_topo.threads);
+}
 
 void read_cpuinfo_from_dt(void *dtb)
 {
@@ -135,6 +201,8 @@ void read_cpuinfo_from_dt(void *dtb)
 
 	dynamic_platform_info.num_cpus = cpu;
 	INFO("Found %d cpus\n", dynamic_platform_info.num_cpus);
+
+	read_cpu_topology_from_dt(dtb);
 }
 
 void read_meminfo_from_dt(void *dtb)
@@ -352,6 +420,18 @@ uintptr_t sbsa_sip_smc_handler(uint32_t smc_fid,
 				dynamic_platform_info.cpu[index].mpidr);
 		} else {
 			SMC_RET1(handle, SMC_ARCH_CALL_INVAL_PARAM);
+		}
+
+	case SIP_SVC_GET_CPU_TOPOLOGY:
+		if (dynamic_platform_info.cpu_topo.cores > 0) {
+			SMC_RET5(handle, NULL,
+			dynamic_platform_info.cpu_topo.sockets,
+			dynamic_platform_info.cpu_topo.clusters,
+			dynamic_platform_info.cpu_topo.cores,
+			dynamic_platform_info.cpu_topo.threads);
+		} else {
+			/* we do not know topology so we report SMC as unknown */
+			SMC_RET1(handle, SMC_UNK);
 		}
 
 	case SIP_SVC_GET_MEMORY_NODE_COUNT:
