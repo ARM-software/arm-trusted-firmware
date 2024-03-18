@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023, STMicroelectronics - All Rights Reserved
+# Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -183,12 +183,10 @@ ifneq (${MBEDTLS_DIR},)
 MBEDTLS_MAJOR=$(shell grep -hP "define MBEDTLS_VERSION_MAJOR" \
 ${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
 
-ifeq (${MBEDTLS_MAJOR}, 2)
-MBEDTLS_CONFIG_FILE		?=	"<stm32mp_mbedtls_config-2.h>"
-endif
-
 ifeq (${MBEDTLS_MAJOR}, 3)
 MBEDTLS_CONFIG_FILE		?=	"<stm32mp_mbedtls_config-3.h>"
+else
+$(error Error: TF-A only supports MbedTLS versions > 3.x)
 endif
 endif
 

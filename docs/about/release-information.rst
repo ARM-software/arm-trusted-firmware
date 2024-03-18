@@ -81,8 +81,6 @@ after which it will be removed.
 |                                | Date        | after   |                                                         |
 |                                |             | Release |                                                         |
 +================================+=============+=========+=========================================================+
-| Mbedtls-2.x                    |     2.10    |   2.10  | Support for TF-A builds with Mbedtls-2.x will be removed|
-+--------------------------------+-------------+---------+---------------------------------------------------------+
 | STM32MP15_OPTEE_RSV_SHM        |     2.10    |   3.0   | OP-TEE manages its own memory on STM32MP15              |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 
@@ -103,4 +101,4 @@ after which it will be removed.
 
 --------------
 
-*Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.*
