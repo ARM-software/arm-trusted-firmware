@@ -105,7 +105,7 @@
 							0x2000))
 #endif
 
-#define PLAT_ARM_MAX_BL31_SIZE		(NRD_BL31_SIZE +		\
+#define PLAT_ARM_MAX_BL31_SIZE		(NRD_CSS_BL31_SIZE +		\
 					PLAT_ARM_MAX_BL2_SIZE +		\
 					PLAT_ARM_MAX_BL1_RW_SIZE)
 
@@ -145,7 +145,7 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
  */
 #define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +   \
 					 PLAT_SP_IMAGE_NS_BUF_SIZE +   \
-					 NRD_SP_CPER_BUF_SIZE)
+					 NRD_CSS_SP_CPER_BUF_SIZE)
 #elif (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP))
 /*
  * Secure partition stack follows right after the memory region that is shared
@@ -159,14 +159,14 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
  * Console config
  ******************************************************************************/
 
-#define PLAT_ARM_BOOT_UART_BASE		SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_BOOT_UART_CLK_IN_HZ	SOC_CSS_UART_CLK_IN_HZ
+#define PLAT_ARM_BOOT_UART_BASE		NRD_CSS_SEC_UART_BASE
+#define PLAT_ARM_BOOT_UART_CLK_IN_HZ	NRD_CSS_UART_CLK_IN_HZ
 
-#define PLAT_ARM_RUN_UART_BASE		SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_RUN_UART_CLK_IN_HZ	SOC_CSS_UART_CLK_IN_HZ
+#define PLAT_ARM_RUN_UART_BASE		NRD_CSS_SEC_UART_BASE
+#define PLAT_ARM_RUN_UART_CLK_IN_HZ	NRD_CSS_UART_CLK_IN_HZ
 
-#define PLAT_ARM_CRASH_UART_BASE	SOC_CSS_SEC_UART_BASE
-#define PLAT_ARM_CRASH_UART_CLK_IN_HZ	SOC_CSS_UART_CLK_IN_HZ
+#define PLAT_ARM_CRASH_UART_BASE	NRD_CSS_SEC_UART_BASE
+#define PLAT_ARM_CRASH_UART_CLK_IN_HZ	NRD_CSS_UART_CLK_IN_HZ
 
 /*******************************************************************************
  * SCMI config

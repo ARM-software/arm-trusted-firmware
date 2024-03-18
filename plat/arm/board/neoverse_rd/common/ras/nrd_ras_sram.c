@@ -56,8 +56,9 @@ int nrd_ras_sram_intr_handler(const struct err_record_info *err_rec,
 
 	/* Determine error record base address to read. */
 	base_addr = 0;
-	if (intr == NS_RAM_ECC_CE_INT || intr == NS_RAM_ECC_UE_INT) {
-		base_addr = SOC_NS_RAM_ERR_REC_BASE;
+	if (intr == NRD_CSS_NS_RAM_ECC_CE_INT ||
+		intr == NRD_CSS_NS_RAM_ECC_UE_INT) {
+		base_addr = NRD_CSS_NS_RAM_ERR_REC_BASE;
 	}
 	sram_info.err_status = mmio_read_32(base_addr + ERRSTATUS);
 	sram_info.err_code = mmio_read_32(base_addr + ERRCODE);

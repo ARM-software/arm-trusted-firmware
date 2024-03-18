@@ -15,18 +15,18 @@
  ******************************************************************************/
 
 /* PL011 UART */
-#define SOC_CSS_SEC_UART_BASE			UL(0x2A410000)
-#define SOC_CSS_NSEC_UART_BASE			UL(0x2A400000)
-#define SOC_CSS_UART_SIZE			UL(0x10000)
+#define NRD_CSS_SEC_UART_BASE			UL(0x2A410000)
+#define NRD_CSS_NSEC_UART_BASE			UL(0x2A400000)
+#define NRD_CSS_UART_SIZE			UL(0x10000)
 
 /* General Peripherals */
-#define NRD_DEVICE_BASE				UL(0x20000000)
-#define NRD_DEVICE_SIZE				UL(0x20000000)
+#define NRD_CSS_PERIPH_BASE			UL(0x20000000)
+#define NRD_CSS_PERIPH_SIZE			UL(0x20000000)
 
 /* NS RAM Error record */
-#define SOC_NS_RAM_ERR_REC_BASE			UL(0x2A4C0000)
+#define NRD_CSS_NS_RAM_ERR_REC_BASE		UL(0x2A4C0000)
 
 /*Secure Watchdog */
-#define SBSA_SECURE_WDOG_BASE			UL(0x2A480000)
+#define NRD_CSS_SECURE_WDOG_BASE		UL(0x2A480000)
 
 #endif /* NRD_CSS_DEF2_H */

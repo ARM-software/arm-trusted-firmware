@@ -171,12 +171,12 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 
 void plat_arm_secure_wdt_start(void)
 {
-	sbsa_wdog_start(SBSA_SECURE_WDOG_BASE, SBSA_SECURE_WDOG_TIMEOUT);
+	sbsa_wdog_start(NRD_CSS_SECURE_WDOG_BASE, NRD_CSS_SECURE_WDOG_TIMEOUT);
 }
 
 void plat_arm_secure_wdt_stop(void)
 {
-	sbsa_wdog_stop(SBSA_SECURE_WDOG_BASE);
+	sbsa_wdog_stop(NRD_CSS_SECURE_WDOG_BASE);
 }
 
 static sds_region_desc_t nrd_sds_regions[] = {

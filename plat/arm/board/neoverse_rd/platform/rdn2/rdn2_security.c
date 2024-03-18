@@ -9,8 +9,8 @@
 #include <platform_def.h>
 
 #define RDN2_TZC_CPER_REGION				\
-	{NRD_SP_CPER_BUF_BASE, (NRD_SP_CPER_BUF_BASE +	\
-	NRD_SP_CPER_BUF_SIZE) - 1, TZC_REGION_S_NONE,	\
+	{NRD_CSS_SP_CPER_BUF_BASE, (NRD_CSS_SP_CPER_BUF_BASE +	\
+	NRD_CSS_SP_CPER_BUF_SIZE) - 1, TZC_REGION_S_NONE,	\
 	PLAT_ARM_TZC_NS_DEV_ACCESS}
 
 static const arm_tzc_regions_info_t tzc_regions[] = {

@@ -24,26 +24,26 @@
  * A buffer of ~35KB is added to account for future expansion of the image,
  * making it a total of 100KB.
  */
-#define NRD_BL31_SIZE			UL(116 * 1024)	/* 116 KB */
+#define NRD_CSS_BL31_SIZE		UL(116 * 1024)	/* 116 KB */
 
 /*******************************************************************************
  * Console config
  ******************************************************************************/
 
-#define SOC_CSS_UART_CLK_IN_HZ		UL(7372800)
+#define NRD_CSS_UART_CLK_IN_HZ		UL(7372800)
 
 /*******************************************************************************
  * Watchdog config
  ******************************************************************************/
 
-#define SBSA_SECURE_WDOG_TIMEOUT	UL(100)
+#define NRD_CSS_SECURE_WDOG_TIMEOUT	UL(100)
 
 /*******************************************************************************
  * RAS config
  ******************************************************************************/
 
-#define NS_RAM_ECC_CE_INT		U(87)
-#define NS_RAM_ECC_UE_INT		U(88)
+#define NRD_CSS_NS_RAM_ECC_CE_INT		U(87)
+#define NRD_CSS_NS_RAM_ECC_UE_INT		U(88)
 
 #if (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP))			\
 	&& ENABLE_FEAT_RAS && FFH_SUPPORT
@@ -51,9 +51,9 @@
  * CPER buffer memory of 128KB is reserved and it is placed adjacent to the
  * memory shared between EL3 and S-EL0.
  */
-#define NRD_SP_CPER_BUF_BASE		(PLAT_SP_IMAGE_NS_BUF_BASE +	\
+#define NRD_CSS_SP_CPER_BUF_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
-#define NRD_SP_CPER_BUF_SIZE		UL(0x10000)
+#define NRD_CSS_SP_CPER_BUF_SIZE	UL(0x10000)
 #endif /* SPM_MM && ENABLE_FEAT_RAS && FFH_SUPPORT */
 
 /*******************************************************************************
@@ -70,8 +70,8 @@
 #define NRD_CSS_PERIPH_MMAP(n)						\
 		MAP_REGION_FLAT(					\
 			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
-			NRD_DEVICE_BASE,				\
-			NRD_DEVICE_SIZE,				\
+			NRD_CSS_PERIPH_BASE,				\
+			NRD_CSS_PERIPH_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE)
 
 #if (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP)) &&			\
@@ -82,9 +82,9 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
  */
 #define NRD_CSS_SP_CPER_BUF_MMAP					\
 		MAP_REGION2(						\
-			NRD_SP_CPER_BUF_BASE,				\
-			NRD_SP_CPER_BUF_BASE,				\
-			NRD_SP_CPER_BUF_SIZE,				\
+			NRD_CSS_SP_CPER_BUF_BASE,			\
+			NRD_CSS_SP_CPER_BUF_BASE,			\
+			NRD_CSS_SP_CPER_BUF_SIZE,			\
 			MT_RW_DATA | MT_NS | MT_USER,			\
 			PAGE_SIZE)
 #endif
@@ -92,8 +92,8 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
 #if SPM_MM
 #define NRD_CSS_SECURE_UART_USER_MMAP					\
 		MAP_REGION_FLAT(					\
-			SOC_CSS_SEC_UART_BASE,				\
-			SOC_CSS_UART_SIZE,				\
+			NRD_CSS_SEC_UART_BASE,				\
+			NRD_CSS_UART_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 #endif
 
