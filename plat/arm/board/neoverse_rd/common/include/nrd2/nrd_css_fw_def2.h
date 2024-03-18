@@ -60,20 +60,20 @@
  * MMU mapping
  ******************************************************************************/
 
-#define ARM_MAP_SHARED_RAM_REMOTE_CHIP(n)				\
+#define NRD_CSS_SHARED_RAM_REMOTE_CHIP_MMAP(n)				\
 		MAP_REGION_FLAT(					\
 			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
 			ARM_SHARED_RAM_BASE,				\
 			ARM_SHARED_RAM_SIZE,				\
 			MT_NON_CACHEABLE | MT_RW | MT_SECURE)
 
-#define NRD_MAP_DEVICE							\
+#define NRD_CSS_PERIPH_MMAP						\
 		MAP_REGION_FLAT(					\
 			NRD_DEVICE_BASE,				\
 			NRD_DEVICE_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE)
 
-#define NRD_MAP_DEVICE_REMOTE_CHIP(n)					\
+#define NRD_CSS_PERIPH_REMOTE_CHIP_MMAP(n)				\
 		MAP_REGION_FLAT(					\
 			NRD_REMOTE_CHIP_MEM_OFFSET(n) +			\
 			NRD_DEVICE_BASE,				\
@@ -86,7 +86,7 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
  * CPER buffer memory of 128KB is reserved and it is placed adjacent to the
  * memory shared between EL3 and S-EL0.
  */
-#define NRD_SP_CPER_BUF_MMAP						\
+#define NRD_CSS_SP_CPER_BUF_MMAP					\
 		MAP_REGION2(						\
 			NRD_SP_CPER_BUF_BASE,				\
 			NRD_SP_CPER_BUF_BASE,				\
@@ -96,7 +96,7 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
 #endif
 
 #if SPM_MM
-#define SOC_PLATFORM_SECURE_UART					\
+#define NRD_CSS_SECURE_UART_USER_MMAP					\
 		MAP_REGION_FLAT(					\
 			SOC_CSS_SEC_UART_BASE,				\
 			SOC_CSS_UART_SIZE,				\
