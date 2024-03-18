@@ -25,8 +25,9 @@
 
 static console_t boot_console;
 
-#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE)) || \
-	defined(CONSOLE_RUNTIME)
+#if (CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
+	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
+				   !IS_TFA_IN_OCM(BL31_BASE))) || defined(CONSOLE_RUNTIME)
 /**
  * register_console() - Registers the runtime uart with console list.
  * @uart_base: UART base address
@@ -67,8 +68,10 @@ static void register_console(uintptr_t uart_base, uint32_t clock,
 }
 #endif
 
-#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
 
+#if (CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
+	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
+				   !IS_TFA_IN_OCM(BL31_BASE)))
 static console_t dt_console;
 /**
  * get_baudrate() - Get the baudrate form DTB.
@@ -202,21 +205,18 @@ static int fdt_get_uart_info(dt_uart_info_t *info)
 	ret = is_valid_dtb(dtb);
 	if (ret < 0) {
 		ERROR("Invalid Device Tree at %p: error %d\n", dtb, ret);
-		ret  = -FDT_ERR_NOTFOUND;
 		goto error;
 	}
 
 	node = fdt_get_stdout_node_offset(dtb);
 	if (node < 0) {
 		ERROR("DT get stdout node failed : %d\n", node);
-		ret  = -FDT_ERR_NOTFOUND;
 		goto error;
 	}
 
 	ret = fdt_add_uart_info(info, node, dtb);
 	if (ret < 0) {
 		ERROR("Failed to add DT UART info: %d\n", ret);
-		ret  = -FDT_ERR_NOTFOUND;
 		goto error;
 	}
 
@@ -366,9 +366,10 @@ void console_runtime_init(void)
 	static console_t runtime_console;
 	uintptr_t rt_uart_base = 0;
 	uint32_t buad_rate = 0;
-	static dt_uart_info_t dt_info = {0};
 
-#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
+#if (CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
+	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
+				   !IS_TFA_IN_OCM(BL31_BASE)))
 	console_t *console = &dt_console;
 #else
 	console_t *console = &boot_console;
@@ -377,6 +378,7 @@ void console_runtime_init(void)
 #if (RT_CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
 	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
 				   !IS_TFA_IN_OCM(BL31_BASE)))
+	static dt_uart_info_t dt_info = {0};
 	uint32_t rc = parse_uart_info(&dt_info);
 
 	if (rc < 0) {
@@ -422,6 +424,21 @@ void setup_console(void)
 	int32_t rc;
 	uint32_t uart_clk = get_uart_clk();
 
+#if (CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
+	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
+				   !IS_TFA_IN_OCM(BL31_BASE)))
+
+	static dt_uart_info_t uart_info = {0};
+
+	/* Initialize the DTB console using UART information from the DTB */
+	rc = dt_console_init(&uart_info, &boot_console, uart_clk);
+	if (rc < 0) {
+		ERROR("Failed to initialize DT console: %d\n", rc);
+	} else {
+		goto cnslsetup;
+	}
+#endif
+
 #if defined(PLAT_zynqmp)
 	if (CONSOLE_IS(cadence) || (CONSOLE_IS(cadence1))) {
 		rc = console_cdns_register(UART_BASE,
@@ -457,15 +474,11 @@ void setup_console(void)
 			panic();
 		}
 	}
-	INFO("BL31: Early console setup\n");
 
-#if (defined(XILINX_OF_BOARD_DTB_ADDR) && !IS_TFA_IN_OCM(BL31_BASE))
-	static dt_uart_info_t uart_info = {0};
-
-	/* Initialize the DTB console using UART information from the DTB */
-	rc = dt_console_init(&uart_info, &boot_console, uart_clk);
-	if (rc < 0) {
-		ERROR("Failed to initialize DT console: %d\n", rc);
-	}
+#if (CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
+	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
+				   !IS_TFA_IN_OCM(BL31_BASE)))
+cnslsetup:
 #endif
+	INFO("BL31: Early console setup\n");
 }

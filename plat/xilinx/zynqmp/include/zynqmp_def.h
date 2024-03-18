@@ -14,6 +14,7 @@
 #define ZYNQMP_CONSOLE_ID_cadence0	1
 #define ZYNQMP_CONSOLE_ID_cadence1	2
 #define ZYNQMP_CONSOLE_ID_dcc		3
+#define ZYNQMP_CONSOLE_ID_dtb		4
 
 #define CONSOLE_IS(con)	(ZYNQMP_CONSOLE_ID_ ## con == ZYNQMP_CONSOLE)
 
@@ -153,7 +154,8 @@
 #define ZYNQMP_UART0_BASE		U(0xFF000000)
 #define ZYNQMP_UART1_BASE		U(0xFF010000)
 
-#if CONSOLE_IS(cadence) || CONSOLE_IS(dcc)
+/* Boot console */
+#if CONSOLE_IS(cadence) || CONSOLE_IS(dcc) || CONSOLE_IS(dtb)
 # define UART_BASE	ZYNQMP_UART0_BASE
 #elif CONSOLE_IS(cadence1)
 # define UART_BASE	ZYNQMP_UART1_BASE
