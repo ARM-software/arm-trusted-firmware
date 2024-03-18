@@ -42,6 +42,9 @@
  * RAS config
  ******************************************************************************/
 
+#define NS_RAM_ECC_CE_INT		U(87)
+#define NS_RAM_ECC_UE_INT		U(88)
+
 #if (SPM_MM || (SPMC_AT_EL3 && SPMC_AT_EL3_SEL0_SP))			\
 	&& ENABLE_FEAT_RAS && FFH_SUPPORT
 /*

@@ -23,6 +23,9 @@
 #define NRD_DEVICE_BASE				UL(0x20000000)
 #define NRD_DEVICE_SIZE				UL(0x20000000)
 
+/* NS RAM Error record */
+#define SOC_NS_RAM_ERR_REC_BASE			UL(0x2A4C0000)
+
 /*Secure Watchdog */
 #define SBSA_SECURE_WDOG_BASE			UL(0x2A480000)
 

@@ -26,4 +26,12 @@
 #define SOC_MEMCNTRL_BASE			UL(0x10000000)
 #define SOC_MEMCNTRL_SIZE			UL(0x10000000)
 
+/* System peripherals */
+#define SOC_SYSTEM_PERIPH_BASE			UL(0x0C000000)
+#define SOC_SYSTEM_PERIPH_SIZE			UL(0x02000000)
+
+/* Platform peripherals */
+#define SOC_PLATFORM_PERIPH_BASE		UL(0x0E000000)
+#define SOC_PLATFORM_PERIPH_SIZE		UL(0x02000000)
+
 #endif /* NRD_ROS_DEF2_H */

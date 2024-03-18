@@ -17,6 +17,27 @@
  * MMU mapping
  ******************************************************************************/
 
+#define SOC_PLATFORM_PERIPH_MAP_DEVICE					\
+		MAP_REGION_FLAT(					\
+			SOC_PLATFORM_PERIPH_BASE,			\
+			SOC_PLATFORM_PERIPH_SIZE,			\
+			MT_DEVICE | MT_RW | MT_SECURE)
+
+#if SPM_MM
+
+#define SOC_PLATFORM_PERIPH_MAP_DEVICE_USER				\
+		MAP_REGION_FLAT(					\
+			SOC_PLATFORM_PERIPH_BASE,			\
+			SOC_PLATFORM_PERIPH_SIZE,			\
+			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
+#endif
+
+#define SOC_SYSTEM_PERIPH_MAP_DEVICE					\
+		MAP_REGION_FLAT(					\
+			SOC_SYSTEM_PERIPH_BASE,				\
+			SOC_SYSTEM_PERIPH_SIZE,				\
+			MT_DEVICE | MT_RW | MT_SECURE)
+
 #define SOC_MEMCNTRL_MAP_DEVICE						\
 		MAP_REGION_FLAT(					\
 			SOC_MEMCNTRL_BASE,				\
@@ -41,6 +62,14 @@
 			CSS_NOR2_FLASH_DEVICE_BASE,			\
 			CSS_NOR2_FLASH_DEVICE_SIZE,			\
 			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
+
+
+#define NRD_MAP_FLASH0_RO						\
+		MAP_REGION_FLAT(					\
+			V2M_FLASH0_BASE,				\
+			V2M_FLASH0_SIZE,				\
+			MT_DEVICE | MT_RO | MT_SECURE)
+
 
 /*******************************************************************************
  * TZ config

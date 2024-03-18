@@ -13,7 +13,10 @@
 #ifndef NRD_PLAT_ARM_DEF2_H
 #define NRD_PLAT_ARM_DEF2_H
 
-#include <nrd_soc_css_def_v2.h>
+#ifndef __ASSEMBLER__
+#include <lib/mmio.h>
+#endif /* __ASSEMBLER__ */
+
 #include <plat/arm/common/arm_def.h>
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/arm/css/common/css_def.h>
@@ -221,7 +224,106 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
  * Flash config
  ******************************************************************************/
 
+#define MAX_IO_DEVICES			U(3)
+#define MAX_IO_HANDLES			U(4)
+
+#define V2M_SYS_LED			U(0x8)
+
+#define V2M_SYS_LED_SS_SHIFT		U(0)
+#define V2M_SYS_LED_EL_SHIFT		U(1)
+#define V2M_SYS_LED_EC_SHIFT		U(3)
+
+#define V2M_SYS_LED_SS_MASK		U(0x01)
+#define V2M_SYS_LED_EL_MASK		U(0x03)
+#define V2M_SYS_LED_EC_MASK		U(0x1f)
+
+#define V2M_SYSREGS_BASE		UL(0x0C010000)
+
+#define V2M_FLASH0_BASE			UL(0x08000000)
+#define V2M_FLASH0_SIZE			UL(0x04000000)
+#define V2M_FLASH_BLOCK_SIZE		UL(0x00040000)	/* 256 KB */
+
+#define PLAT_ARM_FLASH_IMAGE_BASE	V2M_FLASH0_BASE
+#define PLAT_ARM_FLASH_IMAGE_MAX_SIZE	(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+
 #define PLAT_ARM_MEM_PROT_ADDR		(V2M_FLASH0_BASE +	\
 					V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+
+#define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
+#define PLAT_ARM_NVM_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+
+/*******************************************************************************
+ * Platform type identification macro
+ ******************************************************************************/
+
+/* Platform ID related accessors */
+#define BOARD_CSS_PLAT_ID_REG_ID_MASK		U(0x0F)
+#define BOARD_CSS_PLAT_ID_REG_ID_SHIFT		U(0x00)
+#define BOARD_CSS_PLAT_ID_REG_VERSION_MASK	U(0xF00)
+#define BOARD_CSS_PLAT_ID_REG_VERSION_SHIFT	U(0x08)
+#define BOARD_CSS_PLAT_TYPE_RTL			U(0x00)
+#define BOARD_CSS_PLAT_TYPE_FPGA		U(0x01)
+#define BOARD_CSS_PLAT_TYPE_EMULATOR		U(0x02)
+#define BOARD_CSS_PLAT_TYPE_FVP			U(0x03)
+
+#ifndef __ASSEMBLER__
+#define BOARD_CSS_GET_PLAT_TYPE(addr)					\
+	((mmio_read_32(addr) & BOARD_CSS_PLAT_ID_REG_ID_MASK)		\
+	>> BOARD_CSS_PLAT_ID_REG_ID_SHIFT)
+#endif /* __ASSEMBLER__ */
+
+/* Platform ID address */
+#define BOARD_CSS_PLAT_ID_REG_ADDR		UL(0x0EFE00E0)
+
+/*******************************************************************************
+ * ROS peripheral config
+ ******************************************************************************/
+
+#define SOC_CSS_NIC400_USB_EHCI			U(0)
+#define SOC_CSS_NIC400_TLX_MASTER		U(1)
+#define SOC_CSS_NIC400_USB_OHCI			U(2)
+#define SOC_CSS_NIC400_PL354_SMC		U(3)
+#define SOC_CSS_NIC400_APB4_BRIDGE		U(4)
+#define SOC_CSS_NIC400_BOOTSEC_BRIDGE		U(5)
+#define SOC_CSS_NIC400_BOOTSEC_BRIDGE_UART1	UL(1 << 12)
+
+#define SOC_CSS_PCIE_CONTROL_BASE		UL(0x0ef20000)
+
+/* SoC NIC-400 Global Programmers View (GPV) */
+#define SOC_CSS_NIC400_BASE			UL(0x0ED00000)
+
+/* Non-volatile counters */
+#define SOC_TRUSTED_NVCTR_BASE			UL(0x0EE70000)
+#define TFW_NVCTR_BASE				(SOC_TRUSTED_NVCTR_BASE	+\
+						0x0000)
+#define TFW_NVCTR_SIZE				U(4)
+#define NTFW_CTR_BASE				(SOC_TRUSTED_NVCTR_BASE +\
+						0x0004)
+#define NTFW_CTR_SIZE				U(4)
+
+/* Keys */
+#define SOC_KEYS_BASE				UL(0x0EE80000)
+#define TZ_PUB_KEY_HASH_BASE			(SOC_KEYS_BASE + 0x0000)
+#define TZ_PUB_KEY_HASH_SIZE			U(32)
+#define HU_KEY_BASE				(SOC_KEYS_BASE + 0x0020)
+#define HU_KEY_SIZE				U(16)
+#define END_KEY_BASE				(SOC_KEYS_BASE + 0x0044)
+#define END_KEY_SIZE				U(32)
+
+/*******************************************************************************
+ * MMU config
+ ******************************************************************************/
+
+#define V2M_MAP_FLASH0_RW						\
+		MAP_REGION_FLAT(					\
+			V2M_FLASH0_BASE,				\
+			V2M_FLASH0_SIZE,				\
+			MT_DEVICE | MT_RW | MT_SECURE)
+
+#define V2M_MAP_FLASH0_RO						\
+		MAP_REGION_FLAT(					\
+			V2M_FLASH0_BASE,				\
+			V2M_FLASH0_SIZE,				\
+			MT_RO_DATA | MT_SECURE)
 
 #endif /* NRD_PLAT_ARM_DEF2_H */
