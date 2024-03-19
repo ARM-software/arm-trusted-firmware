@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,7 +41,7 @@ typedef struct partition_entry {
 
 typedef struct partition_entry_list {
 	partition_entry_t	list[PLAT_PARTITION_MAX_ENTRIES];
-	int			entry_count;
+	unsigned int		entry_count;
 } partition_entry_list_t;
 
 int load_partition_table(unsigned int image_id);
