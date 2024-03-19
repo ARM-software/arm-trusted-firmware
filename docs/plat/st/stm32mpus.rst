@@ -45,6 +45,8 @@ Serial boot devices:
 - ``STM32MP_UART_PROGRAMMER``
 - ``STM32MP_USB_PROGRAMMER``
 
+Only one storage or serial device should be selected in the build command line,
+to save space and not overflow SYSRAM size, or else the platform won't build or boot.
 
 Other configuration flags:
 
@@ -75,4 +77,4 @@ Usually, two copies of fsbl are used (fsbl1 and fsbl2) instead of one partition 
 
 --------------
 
-*Copyright (c) 2023, STMicroelectronics - All Rights Reserved*
+*Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved*
