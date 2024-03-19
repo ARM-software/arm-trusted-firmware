@@ -115,8 +115,9 @@ ______
     make stm32mp15_trusted_defconfig
     make DEVICE_TREE=stm32mp157c-ev1 all
 
-OP-TEE (optional)
-_________________
+OP-TEE (recommended)
+____________________
+OP-TEE is the default BL32 supported for STMicroelectronics platforms.
 
 .. code:: bash
 
@@ -125,9 +126,10 @@ _________________
         CFG_EMBED_DTB_SOURCE_FILE=stm32mp157c-ev1.dts
 
 
-TF-A BL32 (SP_min)
-__________________
+TF-A BL32 (SP_min) (not recommended)
+____________________________________
 If you choose not to use OP-TEE, you can use TF-A SP_min.
+This is not the recommended BL32 to use, and will have very limited support.
 To build TF-A BL32, and its device tree file:
 
 .. code:: bash
@@ -217,4 +219,4 @@ __________________
 .. _STM32MP1 Series: https://www.st.com/en/microcontrollers-microprocessors/stm32mp1-series.html
 .. _STM32MP1 part number codification: https://wiki.st.com/stm32mpu/wiki/STM32MP15_microprocessor#Part_number_codification
 
-*Copyright (c) 2023, STMicroelectronics - All Rights Reserved*
+*Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved*
