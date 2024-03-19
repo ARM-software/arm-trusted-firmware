@@ -95,12 +95,6 @@
  ******************************************************************************/
 
 /*
- * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
- * plus a little space for growth.
- */
-#define PLAT_ARM_MAX_BL1_RW_SIZE	UL(64 * 1024)	/* 64 KB */
-
-/*
  * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
  */
 
@@ -112,6 +106,8 @@
 #define PLAT_ARM_MAX_ROMLIB_RO_SIZE	UL(0)
 #endif
 
+#define PLAT_ARM_MAX_BL1_RW_SIZE	NRD_CSS_BL1_RW_SIZE
+
 /*
  * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
  * little space for growth. Additional 8KiB space is added per chip in
@@ -119,17 +115,12 @@
  * peripheral access which lies in >4TB address space.
  *
  */
-#if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		(0x20000 + ((NRD_CHIP_COUNT - 1) * \
-							0x2000))
-#else
-# define PLAT_ARM_MAX_BL2_SIZE		(0x14000 + ((NRD_CHIP_COUNT - 1) * \
-							0x2000))
-#endif
+#define PLAT_ARM_MAX_BL2_SIZE		(NRD_CSS_BL2_SIZE +		\
+						((NRD_CHIP_COUNT - 1) * 0x2000))
 
 #define PLAT_ARM_MAX_BL31_SIZE		(NRD_CSS_BL31_SIZE +		\
-					PLAT_ARM_MAX_BL2_SIZE +		\
-					PLAT_ARM_MAX_BL1_RW_SIZE)
+						PLAT_ARM_MAX_BL2_SIZE +	\
+						PLAT_ARM_MAX_BL1_RW_SIZE)
 
 /*******************************************************************************
  * Stack sizes
@@ -305,9 +296,10 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
 
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xC0000000)
 
-#define V2M_SYSREGS_BASE		UL(0x0C010000)
-#define V2M_FLASH0_BASE			UL(0x08000000)
-#define V2M_FLASH0_SIZE			UL(0x04000000)
+#define V2M_SYSREGS_BASE		NRD_ROS_SYSTEM_PERIPH_BASE +	\
+						UL(0x00010000)
+#define V2M_FLASH0_BASE			NRD_ROS_SMC0_BASE
+#define V2M_FLASH0_SIZE			NRD_ROS_SMC0_SIZE
 #define V2M_FLASH_BLOCK_SIZE		UL(0x00040000)	/* 256 KB */
 
 #define PLAT_ARM_FLASH_IMAGE_BASE	V2M_FLASH0_BASE
@@ -340,7 +332,8 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
 #endif /* __ASSEMBLER__ */
 
 /* Platform ID address */
-#define BOARD_CSS_PLAT_ID_REG_ADDR		UL(0x0EFE00E0)
+#define BOARD_CSS_PLAT_ID_REG_ADDR	NRD_ROS_PLATFORM_PERIPH_BASE +	\
+						UL(0x00FE00E0)
 
 /*******************************************************************************
  * ROS peripheral config
@@ -360,13 +353,12 @@ ENABLE_FEAT_RAS && FFH_SUPPORT
 #define SOC_CSS_NIC400_BASE			UL(0x0ED00000)
 
 /* Non-volatile counters */
-#define SOC_TRUSTED_NVCTR_BASE			UL(0x0EE70000)
-#define TFW_NVCTR_BASE				(SOC_TRUSTED_NVCTR_BASE	+\
-						0x0000)
-#define TFW_NVCTR_SIZE				U(4)
-#define NTFW_CTR_BASE				(SOC_TRUSTED_NVCTR_BASE +\
-						0x0004)
-#define NTFW_CTR_SIZE				U(4)
+#define SOC_TRUSTED_NVCTR_BASE		NRD_ROS_PLATFORM_PERIPH_BASE +	\
+						UL(0x00E70000)
+#define TFW_NVCTR_BASE			(SOC_TRUSTED_NVCTR_BASE	+ 0x0000)
+#define TFW_NVCTR_SIZE			U(4)
+#define NTFW_CTR_BASE			(SOC_TRUSTED_NVCTR_BASE + 0x0004)
+#define NTFW_CTR_SIZE			U(4)
 
 /* Keys */
 #define SOC_KEYS_BASE				UL(0x0EE80000)

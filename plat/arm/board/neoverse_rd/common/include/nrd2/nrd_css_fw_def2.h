@@ -16,6 +16,13 @@
  * BL sizes
  ******************************************************************************/
 
+#define NRD_CSS_BL1_RW_SIZE		UL(64 * 1024)	/* 64KB */
+
+#if TRUSTED_BOARD_BOOT
+# define NRD_CSS_BL2_SIZE		UL(0x20000)
+#else
+# define NRD_CSS_BL2_SIZE		UL(0x14000)
+#endif
 /*
  * Since BL31 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL31_SIZE is
  * calculated using the current BL31 PROGBITS debug size plus the sizes of BL2
