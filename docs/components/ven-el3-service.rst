@@ -32,10 +32,31 @@ Vendor-specific EL3 monitor services are as follows:
 +-----------------------------------+ Measurement Framework | | 2 - 15 are reserved for future expansion. |
 | 0xC7000020 - 0xC700002F (SMC64)   | (PMF)                 |                                             |
 +-----------------------------------+-----------------------+---------------------------------------------+
+| 0x87000030 - 0x8700FFFF (SMC32)   | Reserved              | | reserved for future expansion             |
++-----------------------------------+                       |                                             |
+| 0xC7000030 - 0xC700FFFF (SMC64)   |                       |                                             |
++-----------------------------------+-----------------------+---------------------------------------------+
 
-Source definitions for vendor-specific EL3 Monitor Service Calls are located in
+Source definitions for vendor-specific EL3 Monitor Service Calls used by TF-A are located in
 the ``ven_el3_svc.h`` header file.
 
++----------------------------+----------------------------+--------------------------------+
+| VEN_EL3_SVC_VERSION_MAJOR  | VEN_EL3_SVC_VERSION_MINOR  | Changes                        |
++============================+============================+================================+
+|                          1 |                          0 | Added Debugfs and PMF services.|
++----------------------------+----------------------------+--------------------------------+
+
+*Table 1: Showing different versions of Vendor-specific service and changes done with each version*
+
+Each sub service will have its own version, one FID allocated for sub service version.
+
+Some ground rules when one should update top level version.
+ - VEN_EL3_SVC_VERSION_MAJOR is incremented when any of the sub service version discovery
+   FID changes or the FID that was allocated for discovery changes. So any breaking subfeature
+   discovery changes will lead to major version update.
+ - VEN_EL3_SVC_VERSION_MINOR is incremented when we add a new FID or a new sub service.
+   For example adding an new monitor service at 0x30, Debugfs starts at 0x10 and PMF
+   starts at 0x20 next one will start at 0x30, this will need a update to minor version.
 
 Performance Measurement Framework (PMF)
 ---------------------------------------
