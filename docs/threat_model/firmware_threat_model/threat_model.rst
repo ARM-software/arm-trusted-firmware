@@ -623,6 +623,62 @@ General Threats for All Firmware Images
 |                        |   UART interface(s).                                |
 +------------------------+-----------------------------------------------------+
 
++------------------------+-----------------------------------------------------+
+| ID                     | 16                                                  |
++========================+=====================================================+
+| Threat                 | | **An attacker could analyse the timing behaviour  |
+|                        |     of implemented methods in the system to infer   |
+|                        |     sensitive information.**                        |
+|                        |                                                     |
+|                        | | A timing side-channel attack is a type of attack  |
+|                        |   that exploits variations in the time it takes a   |
+|                        |   system to perform different operations. This      |
+|                        |   form of attack focuses on analyzing the time-     |
+|                        |   related information leakage that occurs during    |
+|                        |   the execution of cryptographic algorithms or      |
+|                        |   other security-sensitive processes. By observing  |
+|                        |   these timing differences, an attacker can gain    |
+|                        |   insights into the internal workings of a system   |
+|                        |   and potentially extract sensitive information.    |
+|                        |   Sensitive information that, when revealed even    |
+|                        |   partially, could heighten the susceptibility to   |
+|                        |   traditional attacks like brute-force attacks.     |
++------------------------+-----------------------------------------------------+
+| Diagram Elements       | DF2                                                 |
++------------------------+-----------------------------------------------------+
+| Affected TF-A          | BL1, BL2, BL31                                      |
+| Components             |                                                     |
++------------------------+-----------------------------------------------------+
+| Assets                 | Sensitive Data                                      |
++------------------------+-----------------------------------------------------+
+| Threat Agent           | AppDebug                                            |
++------------------------+-----------------------------------------------------+
+| Threat Type            | Information Disclosure                              |
++------------------------+------------------+----------------+-----------------+
+| Application            | Server           | IoT            | Mobile          |
++------------------------+------------------+----------------+-----------------+
+| Impact                 | Critical (5)     | Critical (5)   | Critical (5)    |
++------------------------+------------------+----------------+-----------------+
+| Likelihood             | Critical (5)     | Critical (5)   | Critical (5)    |
++------------------------+------------------+----------------+-----------------+
+| Total Risk Rating      | Critical (25)    | Critical (25)  | Critical (25)   |
++------------------------+------------------+----------------+-----------------+
+| Mitigations            | |  Ensure that the execution time of critical       |
+|                        |    operations is constant and independent of        |
+|                        |    secret data. This prevents attackers from        |
+|                        |    exploiting timing differences to infer           |
+|                        |    information about sensitive data.                |
+|                        |                                                     |
+|                        | |  Introduce random delays/timing jitter or dummy   |
+|                        |    operations to make the timing behavior of program|
+|                        |    execution less predictable. This can disrupt the |
+|                        |    correlation between the execution time and       |
+|                        |    sensitive data.                                  |
+|                        |                                                     |
++------------------------+-----------------------------------------------------+
+| Mitigations            | |  Not implemented                                  |
+| implemented?           |                                                     |
++------------------------+-----------------------------------------------------+
 
 .. _Boot Firmware Threats:
 
