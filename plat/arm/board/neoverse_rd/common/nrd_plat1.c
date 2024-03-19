@@ -85,8 +85,8 @@ const mmap_region_t plat_arm_mmap[] = {
 
 #if SPM_MM && defined(IMAGE_BL31)
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
-	PLAT_ARM_SECURE_MAP_SYSTEMREG,
-	PLAT_ARM_SECURE_MAP_NOR2,
+	NRD_ROS_SECURE_SYSTEMREG_USER_MMAP,
+	NRD_ROS_SECURE_NOR2_USER_MMAP,
 	NRD_CSS_SECURE_UART_MMAP,
 	ARM_SP_IMAGE_MMAP,
 	ARM_SP_IMAGE_NS_BUF_MMAP,

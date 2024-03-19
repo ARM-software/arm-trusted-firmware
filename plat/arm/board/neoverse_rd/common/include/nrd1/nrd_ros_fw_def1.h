@@ -25,13 +25,13 @@
 			NRD_ROS_PERIPH_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE)
 
-#define PLAT_ARM_SECURE_MAP_SYSTEMREG					\
+#define NRD_ROS_SECURE_SYSTEMREG_USER_MMAP				\
 		MAP_REGION_FLAT(					\
 			NRD_ROS_SYSTEMREG_BASE,				\
 			NRD_ROS_SYSTEMREG_SIZE,				\
 			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
-#define PLAT_ARM_SECURE_MAP_NOR2					\
+#define NRD_ROS_SECURE_NOR2_USER_MMAP					\
 		MAP_REGION_FLAT(					\
 			NRD_ROS_NOR2_FLASH_BASE,			\
 			NRD_ROS_NOR2_FLASH_SIZE,			\
@@ -52,7 +52,7 @@
  * where both the DRAM regions are marked for non-secure access. This applies
  * to multi-chip platforms.
  */
-#define NRD_PLAT_TZC_NS_REMOTE_REGIONS_DEF(n)				\
+#define NRD_ROS_TZC_NS_REMOTE_REGIONS_DEF(n)				\
 	{NRD_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_BASE,		\
 		NRD_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_END,		\
 		ARM_TZC_NS_DRAM_S_ACCESS, PLAT_ARM_TZC_NS_DEV_ACCESS},	\
