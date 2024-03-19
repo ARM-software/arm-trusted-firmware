@@ -116,13 +116,15 @@ struct xrdc_mrc_config imx8ulp_mrc[] = {
 
 struct xrdc_pac_msc_config imx8ulp_pdac[] = {
 	{ 0, PAC_SLOT_ALL, {0, 7, 0, 0, 0, 0, 0, 7} }, /* PAC0 */
+	{ 0, 44, {0, 7, 7, 0, 0, 0, 0, 7} }, /* PAC0 slot 44 for CGC1 */
 	{ 0, 36, {0, 0, 0, 0, 0, 0, 7, 7} }, /* PAC0 slot 36 for CMC1 */
 	{ 0, 41, {0, 0, 0, 0, 0, 0, 7, 7} }, /* PAC0 slot 41 for SIM_AD */
 	{ 1, PAC_SLOT_ALL, {0, 7, 0, 0, 0, 0, 0, 7} }, /* PAC1 */
-	{ 1, 0, {0, 7, 0, 0, 0, 0, 7, 7} }, /* PAC1 slot 0 for PCC4 */
+	{ 1, 0, {0, 7, 7, 0, 0, 0, 7, 7} }, /* PAC1 slot 0 for PCC4 */
 	{ 1, 6, {0, 7, 7, 0, 0, 0, 0, 7} }, /* PAC1 slot 6 for LPUART6 */
+	{ 1, 7, {0, 7, 7, 0, 0, 0, 0, 7} }, /* PAC1 slot 7 for LPUART7 */
 	{ 1, 9,  {0, 7, 7, 7, 0, 0, 0, 7} }, /* SAI5 for HIFI4 and eDMA2 */
-	{ 1, 12, {0, 7, 0, 0, 0, 0, 7, 7} }, /* PAC1 slot 12 for IOMUXC1 */
+	{ 1, 12, {0, 7, 7, 0, 0, 0, 7, 7} }, /* PAC1 slot 12 for IOMUXC1 */
 	{ 2, PAC_SLOT_ALL, {7, 7, 7, 7, 0, 0, 7, 7} }, /* PAC2 */
 };
 
