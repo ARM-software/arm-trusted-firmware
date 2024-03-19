@@ -116,8 +116,11 @@ subsections:
       - title: Memory Partitioning and Monitoring (MPAM) Extension (FEAT_MPAM)
         scope: mpam
 
-      - title: Memory Tagging Extension
-        scope: mte
+      - title: Memory Tagging Extension2
+        scope: mte2
+
+        deprecated:
+          - mte
 
       - title: Pointer Authentication Extension
         scope: pauth
