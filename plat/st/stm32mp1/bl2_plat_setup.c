@@ -255,11 +255,6 @@ void bl2_el3_plat_arch_setup(void)
 		mmio_clrbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
 	}
 
-#if STM32MP15
-	/* Disable MCKPROT */
-	mmio_clrbits_32(rcc_base + RCC_TZCR, RCC_TZCR_MCKPROT);
-#endif
-
 	/*
 	 * Set minimum reset pulse duration to 31ms for discrete power
 	 * supplied boards.

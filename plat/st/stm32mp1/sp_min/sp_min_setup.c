@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -181,6 +181,9 @@ void sp_min_platform_setup(void)
 	generic_delay_timer_init();
 
 	stm32mp_gic_init();
+
+	/* Disable MCU subsystem protection */
+	stm32mp1_clk_mcuss_protect(false);
 
 	if (stm32_iwdg_init() < 0) {
 		panic();
