@@ -35,6 +35,20 @@
 				NRD_MAX_PE_PER_CPU)
 
 /*******************************************************************************
+ * PA/VA config
+ ******************************************************************************/
+
+#ifdef __aarch64__
+#define PLAT_PHY_ADDR_SPACE_SIZE	NRD_REMOTE_CHIP_MEM_OFFSET( \
+						NRD_CHIP_COUNT)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	NRD_REMOTE_CHIP_MEM_OFFSET( \
+						NRD_CHIP_COUNT)
+#else
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
+#endif
+
+/*******************************************************************************
  * XLAT definitions
  ******************************************************************************/
 
@@ -171,6 +185,13 @@
  ******************************************************************************/
 
 #define PLAT_ARM_NSTIMER_FRAME_ID	(0)
+
+/*******************************************************************************
+ * Power config
+ ******************************************************************************/
+
+#define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
+#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
 
 /*******************************************************************************
  * Flash config

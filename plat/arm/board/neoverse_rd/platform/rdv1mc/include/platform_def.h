@@ -23,9 +23,6 @@
 #define PLAT_CSS_MHU_BASE		UL(0x45400000)
 #define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
-#define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
-#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
-
 /* TZC Related Constants */
 #define PLAT_ARM_TZC_BASE		UL(0x21830000)
 #define TZC400_BASE(n)			(PLAT_ARM_TZC_BASE + \
@@ -54,12 +51,6 @@
 
 /* Remote chip address offset (4TB per chip) */
 #define NRD_ADDR_BITS_PER_CHIP	U(42)
-
-/* Physical and virtual address space limits for MMU in AARCH64 mode */
-#define PLAT_PHY_ADDR_SPACE_SIZE	NRD_REMOTE_CHIP_MEM_OFFSET( \
-						NRD_CHIP_COUNT)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	NRD_REMOTE_CHIP_MEM_OFFSET( \
-						NRD_CHIP_COUNT)
 
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE		UL(0x30000000)

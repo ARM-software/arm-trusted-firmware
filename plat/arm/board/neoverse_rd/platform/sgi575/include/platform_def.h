@@ -27,24 +27,8 @@
 #define SGI575_DMC620_BASE0		UL(0x4e000000)
 #define SGI575_DMC620_BASE1		UL(0x4e100000)
 
-/* System power domain level */
-#define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
-
-#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
-
 /* Maximum number of address bits used per chip */
 #define NRD_ADDR_BITS_PER_CHIP	U(36)
-
-/*
- * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
- */
-#ifdef __aarch64__
-#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << NRD_ADDR_BITS_PER_CHIP)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << NRD_ADDR_BITS_PER_CHIP)
-#else
-#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
-#endif
 
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE		UL(0x30000000)
