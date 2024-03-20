@@ -11,11 +11,7 @@ TF-A CMake buildsystem
 Abstract
 --------
 This document presents a proposal for a new buildsystem for TF-A using CMake,
-and as part of this a reusable CMake framework for embedded projects. For a
-summary about the proposal, please see the `Phabricator wiki page
-<https://developer.trustedfirmware.org/w/tf_a/cmake-buildsystem-proposal/>`_. As
-mentioned there, the proposal consists of two phases. The subject of this
-document is the first phase only.
+and as part of this a reusable CMake framework for embedded projects.
 
 Introduction
 ------------
@@ -162,4 +158,4 @@ the settings group, we can use it for conditionally adding source files. E.g.
 
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited and Contributors. All rights reserved.*
