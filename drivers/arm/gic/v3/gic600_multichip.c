@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  * Copyright (c) 2022-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -75,7 +75,7 @@ static void set_gicd_dchipr_rt_owner(uintptr_t base, unsigned int rt_owner)
 		panic();
 	}
 
-	/* Poll till PUP is zero before intiating write */
+	/* Poll till PUP is zero before initiating write */
 	gicd_dchipr_wait_for_power_update_progress(base);
 
 	write_gicd_dchipr(base, read_gicd_dchipr(base) |
