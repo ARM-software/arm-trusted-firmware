@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -100,7 +100,7 @@ endfunc plat_crash_console_init
 	 * int plat_crash_console_putc(char c)
 	 * Prints the character on all consoles registered with the console
 	 * framework that have CONSOLE_FLAG_CRASH set. Note that this is only
-	 * helpful for crashes that occur after the platform intialization code
+	 * helpful for crashes that occur after the platform initialization code
 	 * has registered a console. Platforms using this implementation need to
 	 * ensure that all console drivers they use that have the CRASH flag set
 	 * support this (i.e. are written in assembly and comply to the register
