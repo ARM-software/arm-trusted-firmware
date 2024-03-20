@@ -22,6 +22,15 @@
 
 #define CONSOLE_IS(con)	(VERSAL_NET_CONSOLE_ID_ ## con == VERSAL_NET_CONSOLE)
 
+/* Runtime console */
+#define RT_CONSOLE_ID_pl011    1
+#define RT_CONSOLE_ID_pl011_0  1
+#define RT_CONSOLE_ID_pl011_1  2
+#define RT_CONSOLE_ID_dcc      3
+#define RT_CONSOLE_ID_dtb      4
+
+#define RT_CONSOLE_IS(con)     (RT_CONSOLE_ID_ ## con == CONSOLE_RUNTIME)
+
 /* List all platforms */
 #define VERSAL_NET_SILICON		U(0)
 #define VERSAL_NET_SPP			U(1)
@@ -143,6 +152,17 @@
 #else
 /* Default console is UART0 */
 #define UART_BASE            VERSAL_NET_UART0_BASE
+#endif
+
+/* Runtime console */
+#if defined(CONSOLE_RUNTIME)
+#if RT_CONSOLE_IS(pl011) || RT_CONSOLE_IS(dcc) || RT_CONSOLE_IS(dtb)
+# define RT_UART_BASE VERSAL_NET_UART0_BASE
+#elif RT_CONSOLE_IS(pl011_1)
+# define RT_UART_BASE VERSAL_NET_UART1_BASE
+#else
+# error "invalid CONSOLE_RUNTIME"
+#endif
 #endif
 
 /* Processor core device IDs */
