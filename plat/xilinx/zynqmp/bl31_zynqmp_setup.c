@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2023-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
 #include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <libfdt.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
@@ -220,5 +221,5 @@ void bl31_plat_arch_setup(void)
 	custom_mmap_add();
 
 	setup_page_tables(bl_regions, plat_get_mmap());
-	enable_mmu_el3(0);
+	enable_mmu(0);
 }

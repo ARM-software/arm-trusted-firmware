@@ -35,10 +35,6 @@ ENABLE_SVE_FOR_NS	:= 0
 
 WORKAROUND_CVE_2017_5715	:=	0
 
-ARM_XLAT_TABLES_LIB_V1		:=	1
-$(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
-$(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
-
 ifdef ZYNQMP_ATF_MEM_BASE
     $(eval $(call add_define,ZYNQMP_ATF_MEM_BASE))
 
@@ -96,10 +92,9 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 include lib/libfdt/libfdt.mk
 # Include GICv2 driver files
 include drivers/arm/gic/v2/gicv2.mk
+include lib/xlat_tables_v2/xlat_tables.mk
 
-PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/aarch64/xlat_tables.c		\
-				drivers/arm/dcc/dcc_console.c			\
+PLAT_BL_COMMON_SOURCES	:=	drivers/arm/dcc/dcc_console.c			\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				${GICV2_SOURCES}				\
@@ -112,7 +107,8 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				plat/xilinx/zynqmp/zynqmp_ipi.c			\
 				plat/common/aarch64/crash_console_helpers.S	\
 				plat/xilinx/zynqmp/aarch64/zynqmp_helpers.S	\
-				plat/xilinx/zynqmp/aarch64/zynqmp_common.c
+				plat/xilinx/zynqmp/aarch64/zynqmp_common.c	\
+				${XLAT_TABLES_LIB_SRCS}
 
 ZYNQMP_CONSOLE	?=	cadence
 ifeq (${ZYNQMP_CONSOLE}, $(filter ${ZYNQMP_CONSOLE},cadence cadence0 cadence1 dcc))

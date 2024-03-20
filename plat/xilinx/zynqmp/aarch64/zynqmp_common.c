@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,7 @@
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/smccc.h>
-#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <services/arm_arch_svc.h>
 
@@ -28,9 +28,9 @@
  * configure_mmu_elx() will give the available subset of that,
  */
 const mmap_region_t plat_zynqmp_mmap[] = {
-	{ DEVICE0_BASE, DEVICE0_BASE, DEVICE0_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
-	{ DEVICE1_BASE, DEVICE1_BASE, DEVICE1_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
-	{ CRF_APB_BASE, CRF_APB_BASE, CRF_APB_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
+	MAP_REGION_FLAT(DEVICE0_BASE, DEVICE0_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(DEVICE1_BASE, DEVICE1_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(CRF_APB_BASE, CRF_APB_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	{0}
 };
 
