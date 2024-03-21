@@ -13,6 +13,9 @@ RSS_COMMS_SOURCES	:=	$(addprefix drivers/arm/rss/,			\
 					rss_comms_protocol_pointer_access.c	\
 				)
 
+# Default to MHUv2 if PLAT_MHU_VERSION undefined
+PLAT_MHU_VERSION ?= 2
+
 ifeq (${PLAT_MHU_VERSION}, 3)
 RSS_COMMS_SOURCES	+=	$(addprefix drivers/arm/mhu/,			\
 					mhu_v3_x.c				\
