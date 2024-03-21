@@ -13,6 +13,7 @@
 #include <common/fdt_wrappers.h>
 #include <drivers/allwinner/axp.h>
 #include <drivers/allwinner/sunxi_rsb.h>
+#include <drivers/mentor/mi2cv.h>
 #include <lib/mmio.h>
 #include <libfdt.h>
 
@@ -23,6 +24,11 @@
 
 static uint16_t pmic_bus_addr;
 static uint8_t rsb_rt_addr;
+
+static bool is_using_rsb(void)
+{
+	return rsb_rt_addr != 0;
+}
 
 static enum pmic_type {
 	UNKNOWN,
@@ -40,12 +46,39 @@ static uint8_t get_rsb_rt_address(uint16_t hw_addr)
 
 int axp_read(uint8_t reg)
 {
-	return rsb_read(rsb_rt_addr, reg);
+	uint8_t val;
+	int ret;
+
+	if (is_using_rsb()) {
+		return rsb_read(rsb_rt_addr, reg);
+	}
+
+	ret = i2c_write(pmic_bus_addr, 0, 0, &reg, 1);
+	if (ret == 0) {
+		ret = i2c_read(pmic_bus_addr, 0, 0, &val, 1);
+	}
+	if (ret) {
+		ERROR("PMIC: Cannot read PMIC register %02x\n", reg);
+		return ret;
+	}
+
+	return val;
 }
 
 int axp_write(uint8_t reg, uint8_t val)
 {
-	return rsb_write(rsb_rt_addr, reg, val);
+	int ret;
+
+	if (is_using_rsb()) {
+		return rsb_write(rsb_rt_addr, reg, val);
+	}
+
+	ret = i2c_write(pmic_bus_addr, reg, 1, &val, 1);
+	if (ret) {
+		ERROR("PMIC: Cannot write PMIC register %02x\n", reg);
+	}
+
+	return ret;
 }
 
 static int rsb_init(int rsb_hw_addr)
@@ -82,17 +115,22 @@ static int pmic_bus_init(uint16_t socid, uint16_t rsb_hw_addr)
 {
 	int ret;
 
-	ret = sunxi_init_platform_r_twi(socid, true);
+	ret = sunxi_init_platform_r_twi(socid, is_using_rsb());
 	if (ret) {
 		INFO("Could not init platform bus: %d\n", ret);
 		pmic = UNKNOWN;
 		return ret;
 	}
 
-	ret = rsb_init(rsb_hw_addr);
-	if (ret) {
-		pmic = UNKNOWN;
-		return ret;
+	if (is_using_rsb()) {
+		ret = rsb_init(rsb_hw_addr);
+		if (ret) {
+			pmic = UNKNOWN;
+			return ret;
+		}
+	} else {
+		/* initialise mi2cv driver */
+		i2c_init((void *)SUNXI_R_I2C_BASE);
 	}
 
 	return 0;
@@ -100,7 +138,7 @@ static int pmic_bus_init(uint16_t socid, uint16_t rsb_hw_addr)
 
 int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 {
-	int node, ret;
+	int node, parent, ret;
 	uint32_t reg;
 
 	node = fdt_node_offset_by_compatible(fdt, 0, "x-powers,axp806");
@@ -119,13 +157,18 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 	}
 
 	pmic_bus_addr = reg;
-	rsb_rt_addr = get_rsb_rt_address(pmic_bus_addr);
-	if (rsb_rt_addr == 0) {
-		ERROR("PMIC: no mapping for RSB address 0x%x\n", reg);
-		return -EINVAL;
+	parent = fdt_parent_offset(fdt, node);
+	ret = fdt_node_check_compatible(fdt, parent, "allwinner,sun8i-a23-rsb");
+	if (ret == 0) {
+		rsb_rt_addr = get_rsb_rt_address(pmic_bus_addr);
+		if (rsb_rt_addr == 0) {
+			ERROR("PMIC: no mapping for RSB address 0x%x\n",
+			      pmic_bus_addr);
+			return -EINVAL;
+		}
 	}
 
-	INFO("Probing for PMIC on RSB:\n");
+	INFO("Probing for PMIC on %s:\n", is_using_rsb() ? "RSB" : "I2C");
 
 	ret = pmic_bus_init(socid, pmic_bus_addr);
 	if (ret) {
@@ -144,8 +187,17 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 		break;
 	}
 
-	/* Switch the PMIC back to I2C mode. */
-	return rsb_write(rsb_rt_addr, AXP20X_MODE_REG, AXP20X_MODE_I2C);
+	if (is_using_rsb()) {
+		/* Switch the PMIC back to I2C mode. */
+		return rsb_write(rsb_rt_addr, AXP20X_MODE_REG, AXP20X_MODE_I2C);
+	}
+
+	if (pmic == UNKNOWN) {
+		INFO("Incompatible or unknown PMIC found.\n");
+		return -ENODEV;
+	}
+
+	return 0;
 }
 
 void sunxi_power_down(void)
