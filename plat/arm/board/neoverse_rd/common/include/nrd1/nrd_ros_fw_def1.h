@@ -43,6 +43,12 @@
 			CSS_NOR2_FLASH_DEVICE_SIZE,			\
 			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
+#define NRD_MAP_FLASH0_RO						\
+		MAP_REGION_FLAT(					\
+			V2M_FLASH0_BASE,				\
+			V2M_FLASH0_SIZE,				\
+			MT_DEVICE | MT_RO | MT_SECURE)
+
 /*******************************************************************************
  * TZ config
  ******************************************************************************/

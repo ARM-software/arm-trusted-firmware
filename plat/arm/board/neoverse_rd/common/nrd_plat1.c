@@ -21,9 +21,6 @@
 #include <services/spm_mm_partition.h>
 #endif
 
-#define NRD_MAP_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
-						V2M_FLASH0_SIZE,	\
-						MT_DEVICE | MT_RO | MT_SECURE)
 /*
  * Table of regions for different BL stages to map using the MMU.
  * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
