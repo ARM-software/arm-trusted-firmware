@@ -10,97 +10,161 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/allwinner/axp.h>
 #include <drivers/allwinner/sunxi_rsb.h>
 #include <lib/mmio.h>
+#include <libfdt.h>
 
 #include <sunxi_cpucfg.h>
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
 
-#define AXP305_I2C_ADDR	0x36
-#define AXP305_HW_ADDR	0x745
-#define AXP305_RT_ADDR	0x3a
+static uint16_t pmic_bus_addr;
+static uint8_t rsb_rt_addr;
 
 static enum pmic_type {
 	UNKNOWN,
 	AXP305,
 } pmic;
 
-int axp_read(uint8_t reg)
+static uint8_t get_rsb_rt_address(uint16_t hw_addr)
 {
-	return rsb_read(AXP305_RT_ADDR, reg);
-}
-
-int axp_write(uint8_t reg, uint8_t val)
-{
-	return rsb_write(AXP305_RT_ADDR, reg, val);
-}
-
-static int rsb_init(void)
-{
-	int ret;
-
-	ret = rsb_init_controller();
-	if (ret)
-		return ret;
-
-	/* Switch to the recommended 3 MHz bus clock. */
-	ret = rsb_set_bus_speed(SUNXI_OSC24M_CLK_IN_HZ, 3000000);
-	if (ret)
-		return ret;
-
-	/* Initiate an I2C transaction to switch the PMIC to RSB mode. */
-	ret = rsb_set_device_mode(AXP20X_MODE_RSB << 16 | AXP20X_MODE_REG << 8);
-	if (ret)
-		return ret;
-
-	/* Associate the 8-bit runtime address with the 12-bit bus address. */
-	ret = rsb_assign_runtime_address(AXP305_HW_ADDR, AXP305_RT_ADDR);
-	if (ret)
-		return ret;
-
-	return axp_check_id();
-}
-
-int sunxi_pmic_setup(uint16_t socid, const void *fdt)
-{
-	int ret;
-
-	INFO("PMIC: Probing AXP305 on RSB\n");
-
-	ret = sunxi_init_platform_r_twi(socid, true);
-	if (ret) {
-		INFO("Could not init platform bus: %d\n", ret);
-		return ret;
+	switch (hw_addr) {
+	case 0x745: return 0x3a;
 	}
-
-	ret = rsb_init();
-	if (ret) {
-		INFO("Could not init RSB: %d\n", ret);
-		return ret;
-	}
-
-	pmic = AXP305;
-	axp_setup_regulators(fdt);
-
-	/* Switch the PMIC back to I2C mode. */
-	ret = axp_write(AXP20X_MODE_REG, AXP20X_MODE_I2C);
-	if (ret)
-		return ret;
 
 	return 0;
 }
 
+int axp_read(uint8_t reg)
+{
+	return rsb_read(rsb_rt_addr, reg);
+}
+
+int axp_write(uint8_t reg, uint8_t val)
+{
+	return rsb_write(rsb_rt_addr, reg, val);
+}
+
+static int rsb_init(int rsb_hw_addr)
+{
+	int ret;
+
+	ret = rsb_init_controller();
+	if (ret) {
+		return ret;
+	}
+
+	/* Switch to the recommended 3 MHz bus clock. */
+	ret = rsb_set_bus_speed(SUNXI_OSC24M_CLK_IN_HZ, 3000000);
+	if (ret) {
+		return ret;
+	}
+
+	/* Initiate an I2C transaction to switch the PMIC to RSB mode. */
+	ret = rsb_set_device_mode(AXP20X_MODE_RSB << 16 | AXP20X_MODE_REG << 8);
+	if (ret) {
+		return ret;
+	}
+
+	/* Associate the 8-bit runtime address with the 12-bit bus address. */
+	ret = rsb_assign_runtime_address(rsb_hw_addr, rsb_rt_addr);
+	if (ret) {
+		return ret;
+	}
+
+	return 0;
+}
+
+static int pmic_bus_init(uint16_t socid, uint16_t rsb_hw_addr)
+{
+	int ret;
+
+	ret = sunxi_init_platform_r_twi(socid, true);
+	if (ret) {
+		INFO("Could not init platform bus: %d\n", ret);
+		pmic = UNKNOWN;
+		return ret;
+	}
+
+	ret = rsb_init(rsb_hw_addr);
+	if (ret) {
+		pmic = UNKNOWN;
+		return ret;
+	}
+
+	return 0;
+}
+
+int sunxi_pmic_setup(uint16_t socid, const void *fdt)
+{
+	int node, ret;
+	uint32_t reg;
+
+	node = fdt_node_offset_by_compatible(fdt, 0, "x-powers,axp806");
+	if (node >= 0) {
+		pmic = AXP305;
+	}
+
+	if (pmic == UNKNOWN) {
+		INFO("PMIC: No known PMIC in DT, skipping setup.\n");
+		return -ENODEV;
+	}
+
+	if (fdt_read_uint32(fdt, node, "reg", &reg)) {
+		ERROR("PMIC: PMIC DT node does not contain reg property.\n");
+		return -EINVAL;
+	}
+
+	pmic_bus_addr = reg;
+	rsb_rt_addr = get_rsb_rt_address(pmic_bus_addr);
+	if (rsb_rt_addr == 0) {
+		ERROR("PMIC: no mapping for RSB address 0x%x\n", reg);
+		return -EINVAL;
+	}
+
+	INFO("Probing for PMIC on RSB:\n");
+
+	ret = pmic_bus_init(socid, pmic_bus_addr);
+	if (ret) {
+		return ret;
+	}
+
+	ret = axp_read(0x03);
+	switch (ret & 0xcf) {
+	case 0x40:				/* AXP305 */
+		if (pmic == AXP305) {
+			INFO("PMIC: found AXP305, setting up regulators\n");
+			axp_setup_regulators(fdt);
+		} else {
+			pmic = UNKNOWN;
+		}
+		break;
+	}
+
+	/* Switch the PMIC back to I2C mode. */
+	return rsb_write(rsb_rt_addr, AXP20X_MODE_REG, AXP20X_MODE_I2C);
+}
+
 void sunxi_power_down(void)
 {
+	int ret;
+
+	if (pmic == UNKNOWN) {
+		return;
+	}
+
+	/* Re-initialise after rich OS might have used it. */
+	ret = pmic_bus_init(SUNXI_SOC_H616, pmic_bus_addr);
+	if (ret) {
+		return;
+	}
+
 	switch (pmic) {
 	case AXP305:
-		/* Re-initialise after rich OS might have used it. */
-		sunxi_init_platform_r_twi(SUNXI_SOC_H616, true);
-		rsb_init();
-		axp_power_off();
+		axp_setbits(0x32, BIT(7));
 		break;
 	default:
 		break;
