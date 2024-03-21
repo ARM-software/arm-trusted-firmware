@@ -33,6 +33,7 @@ static bool is_using_rsb(void)
 static enum pmic_type {
 	UNKNOWN,
 	AXP305,
+	AXP313,
 } pmic;
 
 static uint8_t get_rsb_rt_address(uint16_t hw_addr)
@@ -147,6 +148,13 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 	}
 
 	if (pmic == UNKNOWN) {
+		node = fdt_node_offset_by_compatible(fdt, 0, "x-powers,axp313a");
+		if (node >= 0) {
+			pmic = AXP313;
+		}
+	}
+
+	if (pmic == UNKNOWN) {
 		INFO("PMIC: No known PMIC in DT, skipping setup.\n");
 		return -ENODEV;
 	}
@@ -185,6 +193,16 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 			pmic = UNKNOWN;
 		}
 		break;
+	case 0x48:				/* AXP1530 */
+	case 0x4b:				/* AXP313A */
+	case 0x4c:				/* AXP313B */
+		if (pmic == AXP313) {
+			INFO("PMIC: found AXP313\n");
+			/* no regulators to set up */
+		} else {
+			pmic = UNKNOWN;
+		}
+		break;
 	}
 
 	if (is_using_rsb()) {
@@ -217,6 +235,9 @@ void sunxi_power_down(void)
 	switch (pmic) {
 	case AXP305:
 		axp_setbits(0x32, BIT(7));
+		break;
+	case AXP313:
+		axp_setbits(0x1a, BIT(7));
 		break;
 	default:
 		break;
