@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,12 @@
 #if WORKAROUND_CVE_2022_23960
         wa_cve_2022_23960_bhb_vector_table CORTEX_A720_BHB_LOOP_COUNT, cortex_a720
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+workaround_reset_start cortex_a720, ERRATUM(2940794), ERRATA_A720_2940794
+        sysreg_bit_set CORTEX_A720_CPUACTLR2_EL1, BIT(37)
+workaround_reset_end cortex_a720, ERRATUM(2940794)
+
+check_erratum_ls cortex_a720, ERRATUM(2940794), CPU_REV(0, 1)
 
 workaround_reset_start cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
