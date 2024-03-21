@@ -31,6 +31,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\
 				plat/common/plat_psci_common.c		\
 				plat/rpi/common/rpi3_topology.c		\
 				common/fdt_fixup.c			\
+				common/fdt_wrappers.c			\
 				${LIBFDT_SRCS}				\
 				${GICV2_SOURCES}
 
