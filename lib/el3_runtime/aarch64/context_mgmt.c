@@ -123,8 +123,8 @@ static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_in
 	scr_el3 |= get_scr_el3_from_routing_model(SECURE);
 #endif
 
-	/* Allow access to Allocation Tags when mte is set*/
-	if (is_feat_mte_supported()) {
+	/* Allow access to Allocation Tags when FEAT_MTE2 is implemented and enabled. */
+	if (is_feat_mte2_supported()) {
 		scr_el3 |= SCR_ATA_BIT;
 	}
 
@@ -193,8 +193,10 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	/* SCR_NS: Set the NS bit */
 	scr_el3 |= SCR_NS_BIT;
 
-	/* Allow access to Allocation Tags when MTE is implemented. */
-	scr_el3 |= SCR_ATA_BIT;
+	/* Allow access to Allocation Tags when FEAT_MTE2 is implemented and enabled. */
+	if (is_feat_mte2_supported()) {
+		scr_el3 |= SCR_ATA_BIT;
+	}
 
 #if !CTX_INCLUDE_PAUTH_REGS
 	/*
