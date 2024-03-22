@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,10 +27,19 @@
 	 *
 	 *  This function uses the plat_rpi3_calc_core_pos()
 	 *  definition to get the index of the calling CPU.
+	 *
+	 *  When MT is set, lowest affinity represents the thread ID.
+	 *  Since we only support one thread per core, discard this field
+	 *  so cluster and core IDs go back into Aff1 and Aff0 respectively.
+	 *  The upper bits are also affected, but plat_rpi3_calc_core_pos()
+	 *  does not use them.
 	 * -----------------------------------------------------
 	 */
 func plat_my_core_pos
 	mrs	x0, mpidr_el1
+	tst	x0, #MPIDR_MT_MASK
+	lsr	x1, x0, #MPIDR_AFFINITY_BITS
+	csel	x0, x1, x0, ne
 	b	plat_rpi3_calc_core_pos
 endfunc plat_my_core_pos
 
@@ -164,10 +173,16 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, PLAT_RPI_MINI_UART_BASE
+	mov_imm	x0, PLAT_RPI_CRASH_UART_BASE
+#if PLAT_RPI_CRASH_UART_BASE == PLAT_RPI_PL011_UART_BASE
+	mov_imm	x1, RPI4_PL011_UART_CLOCK
+	mov_imm	x2, PLAT_RPI_UART_BAUDRATE
+	b	console_pl011_core_init
+#else
 	mov	x1, xzr
 	mov	x2, xzr
 	b	console_16550_core_init
+#endif
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -178,8 +193,12 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-	mov_imm	x1, PLAT_RPI_MINI_UART_BASE
+	mov_imm	x1, PLAT_RPI_CRASH_UART_BASE
+#if PLAT_RPI_CRASH_UART_BASE == PLAT_RPI_PL011_UART_BASE
+	b	console_pl011_core_putc
+#else
 	b	console_16550_core_putc
+#endif
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
@@ -191,8 +210,12 @@ endfunc plat_crash_console_putc
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush
-	mov_imm	x0, PLAT_RPI_MINI_UART_BASE
+	mov_imm	x0, PLAT_RPI_CRASH_UART_BASE
+#if PLAT_RPI_CRASH_UART_BASE == PLAT_RPI_PL011_UART_BASE
+	b	console_pl011_core_flush
+#else
 	b	console_16550_core_flush
+#endif
 endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------

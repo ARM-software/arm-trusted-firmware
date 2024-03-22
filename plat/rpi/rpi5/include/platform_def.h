@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024, Mario Bălănică <mariobalanica02@gmail.com>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,8 +114,8 @@
 /*
  * Other memory-related defines.
  */
-#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 32)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 40)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 40)
 
 #define MAX_MMAP_REGIONS		8
 #define MAX_XLAT_TABLES			4
@@ -127,11 +128,10 @@
 /*
  * Serial-related constants.
  */
-#define PLAT_RPI_MINI_UART_BASE		RPI4_MINI_UART_BASE
 #define PLAT_RPI_PL011_UART_BASE	RPI4_PL011_UART_BASE
-#define PLAT_RPI_PL011_UART_CLOCK       RPI4_PL011_UART_CLOCK
-#define PLAT_RPI_UART_BAUDRATE          ULL(115200)
-#define PLAT_RPI_CRASH_UART_BASE	PLAT_RPI_MINI_UART_BASE
+#define PLAT_RPI_PL011_UART_CLOCK	RPI4_PL011_UART_CLOCK
+#define PLAT_RPI_UART_BAUDRATE		ULL(115200)
+#define PLAT_RPI_CRASH_UART_BASE	PLAT_RPI_PL011_UART_BASE
 
 /*
  * System counter

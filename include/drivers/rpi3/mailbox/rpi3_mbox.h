@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,22 @@ typedef struct __packed __aligned(16) rpi3_mbox_request {
 	uint32_t	code; /* Request/response code */
 	uint32_t	tags[0];
 } rpi3_mbox_request_t;
+
+/* VideoCore -> ARM */
+#define RPI3_MBOX0_READ_OFFSET		ULL(0x00000000)
+#define RPI3_MBOX0_PEEK_OFFSET		ULL(0x00000010)
+#define RPI3_MBOX0_SENDER_OFFSET	ULL(0x00000014)
+#define RPI3_MBOX0_STATUS_OFFSET	ULL(0x00000018)
+#define RPI3_MBOX0_CONFIG_OFFSET	ULL(0x0000001C)
+/* ARM -> VideoCore */
+#define RPI3_MBOX1_WRITE_OFFSET		ULL(0x00000020)
+#define RPI3_MBOX1_PEEK_OFFSET		ULL(0x00000030)
+#define RPI3_MBOX1_SENDER_OFFSET	ULL(0x00000034)
+#define RPI3_MBOX1_STATUS_OFFSET	ULL(0x00000038)
+#define RPI3_MBOX1_CONFIG_OFFSET	ULL(0x0000003C)
+/* Mailbox status constants */
+#define RPI3_MBOX_STATUS_FULL_MASK	U(0x80000000) /* Set if full */
+#define RPI3_MBOX_STATUS_EMPTY_MASK	U(0x40000000) /* Set if empty */
 
 #define RPI3_MBOX_BUFFER_SIZE		U(256)
 

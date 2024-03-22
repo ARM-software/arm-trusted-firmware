@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,12 +39,27 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	unsigned int cluster_id, cpu_id;
 
 	mpidr &= MPIDR_AFFINITY_MASK;
+
+	/*
+	 * When MT is set, lowest affinity represents the thread ID.
+	 * Since we only support one thread per core, discard this field
+	 * so cluster and core IDs go back into Aff1 and Aff0 respectively.
+	 * The upper bits are also affected, but plat_rpi3_calc_core_pos()
+	 * does not use them.
+	 */
+	if ((read_mpidr() & MPIDR_MT_MASK) != 0) {
+		if (MPIDR_AFFLVL0_VAL(mpidr) != 0) {
+			return -1;
+		}
+		mpidr >>= MPIDR_AFFINITY_BITS;
+	}
+
 	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)) {
 		return -1;
 	}
 
-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
+	cluster_id = MPIDR_AFFLVL1_VAL(mpidr);
+	cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
 
 	if (cluster_id >= PLATFORM_CLUSTER_COUNT) {
 		return -1;

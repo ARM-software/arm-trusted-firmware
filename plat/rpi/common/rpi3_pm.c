@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,22 @@
 #ifdef RPI_HAVE_GIC
 #include <drivers/arm/gicv2.h>
 #endif
+
+/* Registers on top of RPI3_PM_BASE. */
+#define RPI3_PM_RSTC_OFFSET		ULL(0x0000001C)
+#define RPI3_PM_RSTS_OFFSET		ULL(0x00000020)
+#define RPI3_PM_WDOG_OFFSET		ULL(0x00000024)
+/* Watchdog constants */
+#define RPI3_PM_PASSWORD		U(0x5A000000)
+#define RPI3_PM_RSTC_WRCFG_MASK		U(0x00000030)
+#define RPI3_PM_RSTC_WRCFG_FULL_RESET	U(0x00000020)
+/*
+ * The RSTS register is used by the VideoCore firmware when booting the
+ * Raspberry Pi to know which partition to boot from. The partition value is
+ * formed by bits 0, 2, 4, 6, 8 and 10. Partition 63 is used by said firmware
+ * to indicate halt.
+ */
+#define RPI3_PM_RSTS_WRCFG_HALT		U(0x00000555)
 
 /* Make composite power state parameter till power level 0 */
 #if PSCI_EXTENDED_STATE_ID

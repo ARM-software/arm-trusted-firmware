@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,19 @@
 #include <lib/mmio.h>
 
 #include <rpi_hw.h>
+
+#define RPI3_RNG_CTRL_OFFSET		ULL(0x00000000)
+#define RPI3_RNG_STATUS_OFFSET		ULL(0x00000004)
+#define RPI3_RNG_DATA_OFFSET		ULL(0x00000008)
+#define RPI3_RNG_INT_MASK_OFFSET	ULL(0x00000010)
+/* Enable/disable RNG */
+#define RPI3_RNG_CTRL_ENABLE		U(0x1)
+#define RPI3_RNG_CTRL_DISABLE		U(0x0)
+/* Number of currently available words */
+#define RPI3_RNG_STATUS_NUM_WORDS_SHIFT	U(24)
+#define RPI3_RNG_STATUS_NUM_WORDS_MASK	U(0xFF)
+/* Value to mask interrupts caused by the RNG */
+#define RPI3_RNG_INT_MASK_DISABLE	U(0x1)
 
 /* Initial amount of values to discard */
 #define RNG_WARMUP_COUNT	U(0x40000)

@@ -17,6 +17,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				drivers/rpi3/gpio/rpi3_gpio.c		\
 				plat/rpi/common/aarch64/plat_helpers.S	\
 				plat/rpi/common/rpi3_common.c		\
+				plat/rpi/common/rpi3_console_dual.c	\
 				${XLAT_TABLES_LIB_SRCS}
 
 BL1_SOURCES		+=	drivers/io/io_fip.c			\
