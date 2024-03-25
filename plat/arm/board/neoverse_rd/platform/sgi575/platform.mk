@@ -65,4 +65,9 @@ ifneq ($(NRD_PLATFORM_VARIANT),0)
      currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
 
+ifneq (${RESET_TO_BL31},0)
+  $(error "Using BL31 as the reset vector is not supported on ${PLAT} platform. \
+  Please set RESET_TO_BL31 to 0.")
+endif
+
 override SPMD_SPM_AT_SEL2		:= 0
