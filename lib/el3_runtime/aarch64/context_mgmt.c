@@ -1490,6 +1490,8 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 	write_ctx_reg(ctx, CTX_AFSR1_EL1, read_afsr1_el1());
 	write_ctx_reg(ctx, CTX_CONTEXTIDR_EL1, read_contextidr_el1());
 	write_ctx_reg(ctx, CTX_VBAR_EL1, read_vbar_el1());
+	write_ctx_reg(ctx, CTX_MDCCINT_EL1, read_mdccint_el1());
+	write_ctx_reg(ctx, CTX_MDSCR_EL1, read_mdscr_el1());
 
 #if CTX_INCLUDE_AARCH32_REGS
 	write_ctx_reg(ctx, CTX_SPSR_ABT, read_spsr_abt());
@@ -1515,6 +1517,36 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 	write_ctx_reg(ctx, CTX_GCR_EL1, read_gcr_el1());
 #endif /* ENABLE_FEAT_MTE2 */
 
+#if ENABLE_FEAT_RAS
+	if (is_feat_ras_supported()) {
+		write_ctx_reg(ctx, CTX_DISR_EL1, read_disr_el1());
+	}
+#endif
+
+#if ENABLE_FEAT_S1PIE
+	if (is_feat_s1pie_supported()) {
+		write_ctx_reg(ctx, CTX_PIRE0_EL1, read_pire0_el1());
+		write_ctx_reg(ctx, CTX_PIR_EL1, read_pir_el1());
+	}
+#endif
+
+#if ENABLE_FEAT_S1POE
+	if (is_feat_s1poe_supported()) {
+		write_ctx_reg(ctx, CTX_POR_EL1, read_por_el1());
+	}
+#endif
+
+#if ENABLE_FEAT_S2POE
+	if (is_feat_s2poe_supported()) {
+		write_ctx_reg(ctx, CTX_S2POR_EL1, read_s2por_el1());
+	}
+#endif
+
+#if ENABLE_FEAT_TCR2
+	if (is_feat_tcr2_supported()) {
+		write_ctx_reg(ctx, CTX_TCR2_EL1, read_tcr2_el1());
+	}
+#endif
 }
 
 static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
@@ -1545,6 +1577,8 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 	write_afsr1_el1(read_ctx_reg(ctx, CTX_AFSR1_EL1));
 	write_contextidr_el1(read_ctx_reg(ctx, CTX_CONTEXTIDR_EL1));
 	write_vbar_el1(read_ctx_reg(ctx, CTX_VBAR_EL1));
+	write_mdccint_el1(read_ctx_reg(ctx, CTX_MDCCINT_EL1));
+	write_mdscr_el1(read_ctx_reg(ctx, CTX_MDSCR_EL1));
 
 #if CTX_INCLUDE_AARCH32_REGS
 	write_spsr_abt(read_ctx_reg(ctx, CTX_SPSR_ABT));
@@ -1570,6 +1604,36 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 	write_gcr_el1(read_ctx_reg(ctx, CTX_GCR_EL1));
 #endif /* ENABLE_FEAT_MTE2 */
 
+#if ENABLE_FEAT_RAS
+	if (is_feat_ras_supported()) {
+		write_disr_el1(read_ctx_reg(ctx, CTX_DISR_EL1));
+	}
+#endif
+
+#if ENABLE_FEAT_S1PIE
+	if (is_feat_s1pie_supported()) {
+		write_pire0_el1(read_ctx_reg(ctx, CTX_PIRE0_EL1));
+		write_pir_el1(read_ctx_reg(ctx, CTX_PIR_EL1));
+	}
+#endif
+
+#if ENABLE_FEAT_S1POE
+	if (is_feat_s1poe_supported()) {
+		write_por_el1(read_ctx_reg(ctx, CTX_POR_EL1));
+	}
+#endif
+
+#if ENABLE_FEAT_S2POE
+	if (is_feat_s2poe_supported()) {
+		write_s2por_el1(read_ctx_reg(ctx, CTX_S2POR_EL1));
+	}
+#endif
+
+#if ENABLE_FEAT_TCR2
+	if (is_feat_tcr2_supported()) {
+		write_tcr2_el1(read_ctx_reg(ctx, CTX_TCR2_EL1));
+	}
+#endif
 }
 
 /*******************************************************************************
