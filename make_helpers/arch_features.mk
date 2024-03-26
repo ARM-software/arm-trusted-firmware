@@ -307,27 +307,16 @@ CTX_INCLUDE_NEVE_REGS			?=	0
 # registers, by setting SCR_EL3.TRNDR.
 ENABLE_FEAT_RNG_TRAP			?=	0
 
-# Enable Memory Tagging Extension. This must be set to 1 if the platform wants
-# to use this feature in the Secure world and MTE is enabled at ELX.
 ifeq ($(CTX_INCLUDE_MTE_REGS),1)
-        $(warning CTX_INCLUDE_MTE_REGS option is deprecated use ENABLE_FEAT_MTE, Enabling ENABLE_FEAT_MTE)
-        ENABLE_FEAT_MTE                 ?=      1
+        $(warning CTX_INCLUDE_MTE_REGS option is deprecated, Check ENABLE_FEAT_MTE2 usage)
 endif
-ifeq (${ARCH},aarch32)
-        ifneq ($(or $(ENABLE_FEAT_MTE),0),0)
-                $(error ENABLE_FEAT_MTE is not supported for AArch32)
-        endif
+ifeq ($(ENABLE_FEAT_MTE),1)
+        $(warning ENABLE_FEAT_MTE option is deprecated, Check ENABLE_FEAT_MTE2 usage)
 endif
-ENABLE_FEAT_MTE		                ?=	0
+
+# Enable FEAT_MTE2. This must be set to 1 if the platform wants
+# to use this feature and is enabled at ELX.
 ENABLE_FEAT_MTE2		        ?=	0
-
-
-# Add a error message to indicate incorrect MTE2 selection without MTE enabled.
-ifneq ($(ENABLE_FEAT_MTE2),0)
-        ifeq ($(ENABLE_FEAT_MTE),0)
-               $(error ENABLE_FEAT_MTE2 is not supported without enabling ENABLE_FEAT_MTE)
-        endif
-endif
 
 #----
 # 8.6
@@ -351,9 +340,6 @@ DISABLE_MTPMU				?=	0
 #----
 # 8.9
 #----
-
-# Flag to enable NoTagAccess memory region attribute for stage 2 of translation.
-ENABLE_FEAT_MTE_PERM			?=	0
 
 # Flag to enable access to Stage 2 Permission Indirection (FEAT_S2PIE).
 ENABLE_FEAT_S2PIE			?=	0

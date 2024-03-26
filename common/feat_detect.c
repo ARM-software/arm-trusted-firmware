@@ -167,9 +167,7 @@ void detect_arch_features(void)
 		      "TRF", 1, 1);
 
 	/* v8.5 features */
-	check_feature(ENABLE_FEAT_MTE, read_feat_mte_id_field(), "MTE",
-		      MTE_IMPLEMENTED_EL0, MTE_IMPLEMENTED_ASY);
-	check_feature(ENABLE_FEAT_MTE2, read_feat_mte_id_field(), "MTE2",
+	check_feature(ENABLE_FEAT_MTE2, get_armv8_5_mte_support(), "MTE2",
 		      MTE_IMPLEMENTED_ELX, MTE_IMPLEMENTED_ASY);
 	check_feature(ENABLE_FEAT_RNG, read_feat_rng_id_field(), "RNG", 1, 1);
 	read_feat_bti();
@@ -204,8 +202,6 @@ void detect_arch_features(void)
 		      "S2POE", 1, 1);
 	check_feature(ENABLE_FEAT_S1POE, read_feat_s1poe_id_field(),
 		      "S1POE", 1, 1);
-	check_feature(ENABLE_FEAT_MTE_PERM, read_feat_mte_perm_id_field(),
-		      "MTE_PERM", 1, 1);
 	check_feature(ENABLE_FEAT_CSV2_3, read_feat_csv2_id_field(),
 		      "CSV2_3", 3, 3);
 

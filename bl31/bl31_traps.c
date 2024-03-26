@@ -165,7 +165,7 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 
 	/* If FEAT_MTE2 is implemented mask tag faults by setting TCO bit */
 	new_spsr |= old_spsr & SPSR_TCO_BIT_AARCH64;
-	if (read_feat_mte_id_field() >= MTE_IMPLEMENTED_ELX) {
+	if (is_feat_mte2_present()) {
 		new_spsr |= SPSR_TCO_BIT_AARCH64;
 	}
 

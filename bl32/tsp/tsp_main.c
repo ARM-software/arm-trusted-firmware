@@ -239,10 +239,10 @@ smc_args_t *tsp_smc_handler(uint64_t func,
 	service_arg1 = (uint64_t)(service_args >> 64U);
 
 	/*
-	 * Write a dummy value to an MTE register, to simulate usage in the
+	 * Write a dummy value to an MTE2 register, to simulate usage in the
 	 * secure world
 	 */
-	if (is_feat_mte_supported()) {
+	if (is_feat_mte2_supported()) {
 		write_gcr_el1(0x99);
 	}
 

@@ -159,7 +159,6 @@ static inline bool is_feat_tcr2_supported(void) { return false; }
 static inline bool is_feat_spe_supported(void) { return false; }
 static inline bool is_feat_rng_supported(void) { return false; }
 static inline bool is_feat_gcs_supported(void) { return false; }
-static inline bool is_feat_mte_supported(void) { return false; }
 static inline bool is_feat_mte2_supported(void) { return false; }
 static inline bool is_feat_mpam_supported(void) { return false; }
 static inline bool is_feat_hcx_supported(void) { return false; }

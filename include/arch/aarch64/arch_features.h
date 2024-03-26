@@ -105,6 +105,10 @@ static inline unsigned int get_armv8_5_mte_support(void)
 	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_MTE_SHIFT) &
 		ID_AA64PFR1_EL1_MTE_MASK);
 }
+static inline unsigned int is_feat_mte2_present(void)
+{
+	return get_armv8_5_mte_support() >= MTE_IMPLEMENTED_ELX;
+}
 
 static inline bool is_feat_ssbs_present(void)
 {
@@ -136,18 +140,14 @@ static inline bool is_feat_sebep_present(void)
 		ID_AA64DFR0_SEBEP_MASK) == SEBEP_IMPLEMENTED;
 }
 
-CREATE_FEATURE_FUNCS(feat_mte, id_aa64pfr1_el1, ID_AA64PFR1_EL1_MTE_SHIFT,
-		     ENABLE_FEAT_MTE)
-CREATE_FEATURE_FUNCS_VER(feat_mte2, read_feat_mte_id_field, MTE_IMPLEMENTED_ELX,
-		     ENABLE_FEAT_MTE2)
+CREATE_FEATURE_FUNCS_VER(feat_mte2, get_armv8_5_mte_support, MTE_IMPLEMENTED_ELX,
+			 ENABLE_FEAT_MTE2)
 CREATE_FEATURE_FUNCS(feat_sel2, id_aa64pfr0_el1, ID_AA64PFR0_SEL2_SHIFT,
 		     ENABLE_FEAT_SEL2)
 CREATE_FEATURE_FUNCS(feat_twed, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_TWED_SHIFT,
 		     ENABLE_FEAT_TWED)
 CREATE_FEATURE_FUNCS(feat_fgt, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_FGT_SHIFT,
 		     ENABLE_FEAT_FGT)
-CREATE_FEATURE_FUNCS(feat_mte_perm, id_aa64pfr2_el1,
-		     ID_AA64PFR2_EL1_MTEPERM_SHIFT, ENABLE_FEAT_MTE_PERM)
 CREATE_FEATURE_FUNCS(feat_ecv, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_ECV_SHIFT,
 		     ENABLE_FEAT_ECV)
 CREATE_FEATURE_FUNCS_VER(feat_ecv_v2, read_feat_ecv_id_field,
