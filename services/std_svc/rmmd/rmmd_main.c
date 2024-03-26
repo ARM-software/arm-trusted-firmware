@@ -232,8 +232,10 @@ int rmmd_setup(void)
 	assert((shared_buf_size == SZ_4K) &&
 					((void *)shared_buf_base != NULL));
 
-	/* Load the boot manifest at the beginning of the shared area */
+	/* Zero out and load the boot manifest at the beginning of the share area */
 	manifest = (struct rmm_manifest *)shared_buf_base;
+	memset((void *)manifest, 0, sizeof(manifest));
+
 	rc = plat_rmmd_load_manifest(manifest);
 	if (rc != 0) {
 		ERROR("Error loading RMM Boot Manifest (%i)\n", rc);
