@@ -14,6 +14,7 @@
 
 #include "cadence_qspi.h"
 #include "socfpga_plat_def.h"
+#include "wdt/watchdog.h"
 
 #define LESS(a, b)   (((a) < (b)) ? (a) : (b))
 #define MORE(a, b)   (((a) > (b)) ? (a) : (b))
@@ -654,6 +655,9 @@ int cad_qspi_read_bank(uint8_t *buffer, uint32_t offset, uint32_t size)
 
 			read_count += level * sizeof(uint8_t);
 			count++;
+#if ARM_LINUX_KERNEL_AS_BL33
+			watchdog_sw_rst();
+#endif
 		} while (level > 0);
 	}
 
