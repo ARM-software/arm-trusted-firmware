@@ -20,6 +20,9 @@
 #define CSU_SEC_LEVEL_6		0x03
 #define CSU_SEC_LEVEL_7		0x0
 
+#define SEC_ACCESS		0x0
+#define NON_SEC_ACCESS		0x1
+
 #define LOCKED			0x1
 #define UNLOCKED		0x0
 
@@ -27,11 +30,11 @@
 #define CSLx_LOCK(x)		((0x1 << (((x) % 2) * 16 + 8)))
 #define CSLx_CFG(x, n)		((x) << (((n) % 2) * 16))
 
-#define CSU_HP_REG(x)		(IMX_CSU_BASE + ((x) / 16) * 4 + 0x200)
+#define CSU_HP_REG(x)		(IMX_CSU_BASE + (((x) / 16) * 4) + 0x200)
 #define CSU_HP_LOCK(x)		((0x1 << (((x) % 16) * 2 + 1)))
 #define CSU_HP_CFG(x, n)	((x) << (((n) % 16) * 2))
 
-#define CSU_SA_REG(x)		(IMX_CSU_BASE + 0x218)
+#define CSU_SA_REG(x)		(IMX_CSU_BASE + (((x) / 16) * 4) + 0x218)
 #define CSU_SA_LOCK(x)		((0x1 << (((x) % 16) * 2 + 1)))
 #define CSU_SA_CFG(x, n)	((x) << (((n) % 16) * 2))
 
