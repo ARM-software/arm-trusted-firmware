@@ -593,14 +593,17 @@ static int spmd_spmc_init(void *pm_addr)
 	 */
 #if (EL3_EXCEPTION_HANDLING == 0)
 	/*
-	 * Register an interrupt handler routing Group0 interrupts to SPMD
-	 * while the NWd is running.
+	 * If EL3 interrupts are supported by the platform, register an
+	 * interrupt handler routing Group0 interrupts to SPMD while the NWd is
+	 * running.
 	 */
-	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
-					     spmd_group0_interrupt_handler_nwd,
-					     flags);
-	if (rc != 0) {
-		panic();
+	if (plat_ic_has_interrupt_type(INTR_TYPE_EL3)) {
+		rc = register_interrupt_type_handler(INTR_TYPE_EL3,
+						     spmd_group0_interrupt_handler_nwd,
+						     flags);
+		if (rc != 0) {
+			panic();
+		}
 	}
 #endif
 
