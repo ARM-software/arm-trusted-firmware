@@ -117,7 +117,10 @@ int board_uart_init(void)
 
 unsigned int plat_get_syscnt_freq2(void)
 {
-	return (unsigned int)COUNTER_FREQUENCY;
+	/*
+	 * Do not overwrite the value set by BootBlock
+	 */
+	return (unsigned int)read_cntfrq_el0();
 }
 
 /******************************************************************************
@@ -324,23 +327,13 @@ void __init npcm845x_bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
-#if RECLAIM_INIT_CODE
-		MAP_BL_INIT_CODE_NOT_USED,
-#endif /* RECLAIM_INIT_CODE */
 		ARM_MAP_BL_RO,
 #if USE_COHERENT_MEM
 		ARM_MAP_BL_COHERENT_RAM,
 #endif /* USE_COHERENT_MEM */
 		ARM_MAP_SHARED_RAM,
-#ifdef SECONDARY_BRINGUP
-		ARM_MAP_NS_DRAM1_NO_USED,
-	#ifdef BL32_BASE
-		ARM_MAP_BL32_CORE_MEM_NO_USED
-	#endif /* BL32_BASE */
-#endif /* SECONDARY_BRINGUP */
 		{0}
 	};
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 	enable_mmu_el3(0U);
-	NOTICE("Done enabling MMU\n");
 }
