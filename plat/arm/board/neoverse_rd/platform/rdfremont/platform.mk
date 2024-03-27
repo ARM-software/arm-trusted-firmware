@@ -104,3 +104,4 @@ override ENABLE_FEAT_MPAM	:= 2
 override ENABLE_FEAT_AMU	:= 2
 override ENABLE_SVE_FOR_SWD	:= 1
 override ENABLE_SVE_FOR_NS	:= 2
+override ENABLE_FEAT_MTE2	:= 2
