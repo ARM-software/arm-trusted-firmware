@@ -53,7 +53,6 @@
 
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE		UL(0x30000000)
-#define PLAT_ARM_GICC_BASE		UL(0x2C000000)
 #define PLAT_ARM_GICR_BASE		UL(0x30140000)
 
 #endif /* PLATFORM_DEF_H */

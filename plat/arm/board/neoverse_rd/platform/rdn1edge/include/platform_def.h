@@ -35,7 +35,6 @@
 
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE		UL(0x30000000)
-#define PLAT_ARM_GICC_BASE		UL(0x2C000000)
 #define PLAT_ARM_GICR_BASE		UL(0x300C0000)
 
 #define RDN1E1_CHIP0_SPI_START		U(32)
