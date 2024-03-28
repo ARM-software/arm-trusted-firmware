@@ -53,7 +53,7 @@ are explained below:
     consistency with the versioning schemes used in other parts of RMM.
 
 This document specifies the 0.2 version of Boot Interface ABI and RMM-EL3
-services specification and the 0.2 version of the Boot Manifest.
+services specification and the 0.3 version of the Boot Manifest.
 
 .. _rmm_el3_boot_interface:
 
@@ -182,17 +182,20 @@ platform information.
 
 This Boot Manifest is versioned independently of the Boot Interface, to help
 evolve the former independent of the latter.
-The current version for the Boot Manifest is ``v0.2`` and the rules explained
+The current version for the Boot Manifest is ``v0.3`` and the rules explained
 in :ref:`rmm_el3_ifc_versioning` apply on this version as well.
 
-The Boot Manifest v0.2 has the following fields:
+The Boot Manifest v0.3 has the following fields:
 
-   - version : Version of the Manifest (v0.2)
+   - version : Version of the Manifest (v0.3)
    - plat_data : Pointer to the platform specific data and not specified by this
      document. These data are optional and can be NULL.
    - plat_dram : Structure encoding the NS DRAM information on the platform. This
-     field is also optional and platform can choose to zero out this structure if
+     field is optional and platform can choose to zero out this structure if
      RMM does not need EL3 to send this information during the boot.
+   - plat_console : Structure encoding the list of consoles for RMM use on the
+     platform. This field is optional and platform can choose to not populate
+     the console list if this is not needed by the RMM for this platform.
 
 For the current version of the Boot Manifest, the core manifest contains a pointer
 to the platform data. EL3 must ensure that the whole Boot Manifest, including
@@ -533,23 +536,25 @@ _____
 RMM-EL3 Boot Manifest structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The RMM-EL3 Boot Manifest v0.2 structure contains platform boot information passed
-from EL3 to RMM. The size of the Boot Manifest is 40 bytes.
+The RMM-EL3 Boot Manifest v0.3 structure contains platform boot information passed
+from EL3 to RMM. The size of the Boot Manifest is 64 bytes.
 
 The members of the RMM-EL3 Boot Manifest structure are shown in the following
 table:
 
-+-----------+--------+----------------+----------------------------------------+
-|   Name    | Offset |     Type       |               Description              |
-+===========+========+================+========================================+
-| version   |   0    |   uint32_t     | Boot Manifest version                  |
-+-----------+--------+----------------+----------------------------------------+
-| padding   |   4    |   uint32_t     | Reserved, set to 0                     |
-+-----------+--------+----------------+----------------------------------------+
-| plat_data |   8    |   uintptr_t    | Pointer to Platform Data section       |
-+-----------+--------+----------------+----------------------------------------+
-| plat_dram |   16   | ns_dram_info   | NS DRAM Layout Info structure          |
-+-----------+--------+----------------+----------------------------------------+
++--------------+--------+----------------+----------------------------------------+
+|   Name       | Offset |     Type       |               Description              |
++==============+========+================+========================================+
+| version      |   0    |   uint32_t     | Boot Manifest version                  |
++--------------+--------+----------------+----------------------------------------+
+| padding      |   4    |   uint32_t     | Reserved, set to 0                     |
++--------------+--------+----------------+----------------------------------------+
+| plat_data    |   8    |   uintptr_t    | Pointer to Platform Data section       |
++--------------+--------+----------------+----------------------------------------+
+| plat_dram    |   16   | ns_dram_info   | NS DRAM Layout Info structure          |
++--------------+--------+----------------+----------------------------------------+
+| plat_console |   40   | console_list   | List of consoles available to RMM      |
++--------------+--------+----------------+----------------------------------------+
 
 .. _ns_dram_info_struct:
 
@@ -587,5 +592,47 @@ NS DRAM Bank structure contains information about each Non-secure DRAM bank:
 |   size    |   8    |   uint64_t     | Size of bank in bytes                  |
 +-----------+--------+----------------+----------------------------------------+
 
+.. _console_list_struct:
 
+Console List structure
+~~~~~~~~~~~~~~~~~~~~~~
+
+Console List structure contains information about the available consoles for RMM.
+The members of this structure are shown in the table below:
+
++--------------+--------+----------------+----------------------------------------+
+|   Name       | Offset |     Type       |               Description              |
++==============+========+================+========================================+
+| num_consoles |   0    |   uint64_t     | Number of consoles                     |
++--------------+--------+----------------+----------------------------------------+
+| consoles     |   8    | console_info * | Pointer to 'console_info'[] array      |
++--------------+--------+----------------+----------------------------------------+
+| checksum     |   16   |   uint64_t     | Checksum                               |
++--------------+--------+----------------+----------------------------------------+
+
+Checksum is calculated as two's complement sum of 'num_consoles', 'consoles'
+pointer and the consoles array pointed by it.
+
+.. _console_info_struct:
+
+Console Info structure
+~~~~~~~~~~~~~~~~~~~~~~
+
+Console Info structure contains information about each Console available to RMM.
+
++-----------+--------+---------------+----------------------------------------+
+|   Name    | Offset |     Type      |               Description              |
++===========+========+===============+========================================+
+| base      |   0    |   uintptr_t   | Console Base address                   |
++-----------+--------+---------------+----------------------------------------+
+| map_pages |   8    |   uint64_t    | Num of pages to map for console MMIO   |
++-----------+--------+---------------+----------------------------------------+
+| name      |   16   |   char[]      | Name of console                        |
++-----------+--------+---------------+----------------------------------------+
+| clk_in_hz |   24   |   uint64_t    | UART clock (in hz) for console         |
++-----------+--------+---------------+----------------------------------------+
+| baud_rate |   32   |   uint64_t    | Baud rate                              |
++-----------+--------+---------------+----------------------------------------+
+| flags     |   40   |   uint64_t    | Additional flags (RES0)                |
++-----------+--------+---------------+----------------------------------------+
 
