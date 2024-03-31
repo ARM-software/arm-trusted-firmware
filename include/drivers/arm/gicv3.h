@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -588,6 +588,7 @@ void gicv3_set_spi_routing(unsigned int id, unsigned int irm,
 void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num);
 void gicv3_clear_interrupt_pending(unsigned int id, unsigned int proc_num);
 unsigned int gicv3_set_pmr(unsigned int mask);
+unsigned int gicv3_deactivate_priority(unsigned int mask);
 
 void gicv3_get_component_prodid_rev(const uintptr_t gicd_base,
 				    unsigned int *gic_prod_id,

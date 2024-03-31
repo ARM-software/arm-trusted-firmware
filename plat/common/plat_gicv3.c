@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  * Portions copyright (c) 2021-2022, ProvenRun S.A.S. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -311,6 +311,11 @@ void plat_ic_clear_interrupt_pending(unsigned int id)
 unsigned int plat_ic_set_priority_mask(unsigned int mask)
 {
 	return gicv3_set_pmr(mask);
+}
+
+unsigned int plat_ic_deactivate_priority(unsigned int mask)
+{
+	return gicv3_deactivate_priority(mask);
 }
 
 unsigned int plat_ic_get_interrupt_id(unsigned int raw)

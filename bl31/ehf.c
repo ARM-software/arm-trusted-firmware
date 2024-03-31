@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -203,10 +203,20 @@ void ehf_deactivate_priority(unsigned int priority)
 	 * one stashed earlier if there are no more to deactivate.
 	 */
 	cur_pri_idx = get_pe_highest_active_idx(pe_data);
-	if (cur_pri_idx == EHF_INVALID_IDX)
+
+#if GIC600_ERRATA_WA_2384374
+	if (cur_pri_idx == EHF_INVALID_IDX) {
+		old_mask = plat_ic_deactivate_priority(pe_data->init_pri_mask);
+	} else {
+		old_mask = plat_ic_deactivate_priority(priority);
+	}
+#else
+	if (cur_pri_idx == EHF_INVALID_IDX) {
 		old_mask = plat_ic_set_priority_mask(pe_data->init_pri_mask);
-	else
+	} else {
 		old_mask = plat_ic_set_priority_mask(priority);
+	}
+#endif
 
 	if (old_mask > priority) {
 		ERROR("Deactivation priority (0x%x) lower than Priority Mask (0x%x)\n",
