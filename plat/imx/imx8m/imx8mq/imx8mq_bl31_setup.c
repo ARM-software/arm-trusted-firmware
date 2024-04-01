@@ -26,6 +26,7 @@
 #include <imx_aipstz.h>
 #include <imx_uart.h>
 #include <imx8m_caam.h>
+#include <imx8m_ccm.h>
 #include <plat_imx8.h>
 
 #define TRUSTY_PARAMS_LEN_BYTES      (4096*2)
@@ -145,6 +146,7 @@ static void bl31_tz380_setup(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			u_register_t arg2, u_register_t arg3)
 {
+	unsigned int console_base = IMX_BOOT_UART_BASE;
 	static console_t console;
 	int i;
 	/* enable CSU NS access permission */
@@ -154,7 +156,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	imx_aipstz_init(aipstz);
 
-	console_imx_uart_register(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
+	if (console_base == 0U) {
+		console_base = imx8m_uart_get_base();
+	}
+
+	console_imx_uart_register(console_base, IMX_BOOT_UART_CLK_IN_HZ,
 		IMX_CONSOLE_BAUDRATE, &console);
 	/* This console is only used for boot stage */
 	console_set_scope(&console, CONSOLE_FLAG_BOOT);
