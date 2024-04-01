@@ -34,6 +34,8 @@
 #define PM_INIT_SUSPEND_CB	(30U)
 #define PM_NOTIFY_CB		(32U)
 #define EVENT_CPU_PWRDWN	(4U)
+#define MBOX_SGI_SHARED_IPI	(7U)
+
 /* 1 sec of wait timeout for secondary core down */
 #define PWRDWN_WAIT_TIMEOUT	(1000U)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_asgi1r_el1, S3_0_C12_C11_6)
@@ -97,12 +99,32 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 {
 	uint32_t payload[4] = {0};
 	enum pm_ret_status ret;
+	int ipi_status, i;
 
 	VERBOSE("Received IPI FIQ from firmware\n");
 
 	console_flush();
 	(void)plat_ic_acknowledge_interrupt();
 
+	/* Check status register for each IPI except PMC */
+	for (i = IPI_ID_APU; i <= IPI_ID_5; i++) {
+		ipi_status = ipi_mb_enquire_status(IPI_ID_APU, i);
+
+		/* If any agent other than PMC has generated IPI FIQ then send SGI to mbox driver */
+		if (ipi_status & IPI_MB_STATUS_RECV_PENDING) {
+			plat_ic_raise_ns_sgi(MBOX_SGI_SHARED_IPI, read_mpidr_el1());
+			break;
+		}
+	}
+
+	/* If PMC has not generated interrupt then end ISR */
+	ipi_status = ipi_mb_enquire_status(IPI_ID_APU, IPI_ID_PMC);
+	if ((ipi_status & IPI_MB_STATUS_RECV_PENDING) == 0) {
+		plat_ic_end_of_interrupt(id);
+		return 0;
+	}
+
+	/* Handle PMC case */
 	ret = pm_get_callbackdata(payload, ARRAY_SIZE(payload), 0, 0);
 	if (ret != PM_RET_SUCCESS) {
 		payload[0] = ret;
