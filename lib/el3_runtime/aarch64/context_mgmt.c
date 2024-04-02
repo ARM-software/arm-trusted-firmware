@@ -1342,8 +1342,8 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	}
 
 	if (is_feat_gcs_supported()) {
-		write_el2_ctx_gcs(el2_sysregs_ctx, gcscr_el2, read_gcspr_el2());
-		write_el2_ctx_gcs(el2_sysregs_ctx, gcspr_el2, read_gcscr_el2());
+		write_el2_ctx_gcs(el2_sysregs_ctx, gcscr_el2, read_gcscr_el2());
+		write_el2_ctx_gcs(el2_sysregs_ctx, gcspr_el2, read_gcspr_el2());
 	}
 }
 
