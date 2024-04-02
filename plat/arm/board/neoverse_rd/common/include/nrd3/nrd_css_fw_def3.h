@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -110,6 +110,14 @@
 			ARM_REALM_BASE,					\
 			ARM_REALM_SIZE,					\
 			MT_MEMORY | MT_RW | MT_REALM)
+
+#if SPD_spmd && SPMD_SPM_AT_SEL2
+#define NRD_CSS_SPM_CORE_REGION_MMAP						\
+		MAP_REGION_FLAT(					\
+			BL32_BASE,					\
+			BL32_LIMIT - BL32_BASE,				\
+			MT_MEMORY | MT_RW | MT_SECURE)
+#endif
 
 #if RESET_TO_BL31
 /*******************************************************************************

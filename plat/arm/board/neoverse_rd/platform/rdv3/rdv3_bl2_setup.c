@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -59,6 +59,9 @@ static pas_region_t pas_regions[] = {
 	NRD_PAS_SCP_MCP_RSE_SHARED_SRAM,
 	NRD_PAS_GIC,
 	NRD_PAS_NS_DRAM,
+#if SPD_spmd && SPMD_SPM_AT_SEL2
+	NRD_PAS_BL32,
+#endif
 	NRD_PAS_RMM,
 	NRD_PAS_L1GPT,
 	NRD_PAS_CMN,
