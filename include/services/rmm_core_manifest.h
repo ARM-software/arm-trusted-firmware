@@ -14,7 +14,9 @@
 #include <lib/cassert.h>
 
 #define RMMD_MANIFEST_VERSION_MAJOR		U(0)
-#define RMMD_MANIFEST_VERSION_MINOR		U(2)
+#define RMMD_MANIFEST_VERSION_MINOR		U(3)
+
+#define RMM_CONSOLE_MAX_NAME_LEN		U(8)
 
 /*
  * Manifest version encoding:
@@ -60,12 +62,49 @@ CASSERT(offsetof(struct ns_dram_info, banks) == 8UL,
 CASSERT(offsetof(struct ns_dram_info, checksum) == 16UL,
 			rmm_manifest_checksum_unaligned);
 
-/* Boot manifest core structure as per v0.2 */
+/* Console info structure */
+struct console_info {
+	uintptr_t base;			/* Console base address */
+	uint64_t map_pages;		/* Num of pages to be mapped in RMM for the console MMIO */
+	char name[RMM_CONSOLE_MAX_NAME_LEN];	/* Name of console */
+	uint64_t clk_in_hz;		/* UART clock (in HZ) for the console */
+	uint64_t baud_rate;		/* Baud rate */
+	uint64_t flags;			/* Additional flags RES0 */
+};
+
+CASSERT(offsetof(struct console_info, base) == 0UL,
+			rmm_manifest_console_base_unaligned);
+CASSERT(offsetof(struct console_info, map_pages) == 8UL,
+			rmm_manifest_console_map_pages_unaligned);
+CASSERT(offsetof(struct console_info, name) == 16UL,
+			rmm_manifest_console_name_unaligned);
+CASSERT(offsetof(struct console_info, clk_in_hz) == 24UL,
+			rmm_manifest_console_clk_in_hz_unaligned);
+CASSERT(offsetof(struct console_info, baud_rate) == 32UL,
+			rmm_manifest_console_baud_rate_unaligned);
+CASSERT(offsetof(struct console_info, flags) == 40UL,
+			rmm_manifest_console_flags_unaligned);
+
+struct console_list {
+	uint64_t num_consoles;		/* Number of consoles */
+	struct console_info *consoles;	/* Pointer to ns_dram_bank[] */
+	uint64_t checksum;		/* Checksum of ns_dram_info data */
+};
+
+CASSERT(offsetof(struct console_list, num_consoles) == 0UL,
+			rmm_manifest_num_consoles);
+CASSERT(offsetof(struct console_list, consoles) == 8UL,
+			rmm_manifest_consoles);
+CASSERT(offsetof(struct console_list, checksum) == 16UL,
+			rmm_manifest_console_list_checksum);
+
+/* Boot manifest core structure as per v0.3 */
 struct rmm_manifest {
-	uint32_t version;		/* Manifest version */
-	uint32_t padding;		/* RES0 */
-	uintptr_t plat_data;		/* Manifest platform data */
-	struct ns_dram_info plat_dram;	/* Platform NS DRAM data */
+	uint32_t version;			/* Manifest version */
+	uint32_t padding;			/* RES0 */
+	uintptr_t plat_data;			/* Manifest platform data */
+	struct ns_dram_info plat_dram;		/* Platform NS DRAM data (v0.2) */
+	struct console_list plat_console;	/* Platform console list (v0.3) */
 };
 
 CASSERT(offsetof(struct rmm_manifest, version) == 0UL,
@@ -74,5 +113,7 @@ CASSERT(offsetof(struct rmm_manifest, plat_data) == 8UL,
 			rmm_manifest_plat_data_unaligned);
 CASSERT(offsetof(struct rmm_manifest, plat_dram) == 16UL,
 			rmm_manifest_plat_dram_unaligned);
+CASSERT(offsetof(struct rmm_manifest, plat_console) == 40UL,
+			rmm_manifest_plat_console_unaligned);
 
 #endif /* RMM_CORE_MANIFEST_H */
