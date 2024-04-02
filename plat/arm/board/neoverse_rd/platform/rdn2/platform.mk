@@ -104,7 +104,7 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TOS_FW_CONFIG},--tos-fw-config,${TOS_FW_CONFIG}
 endif
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0
-override ENABLE_FEAT_AMU		:= 1
+override ENABLE_FEAT_AMU		:= 2
 override ENABLE_FEAT_MTE2       	:= 2
 
 # Enable the flag since RD-N2 has a system level cache
