@@ -66,3 +66,5 @@ ifneq ($(NRD_PLATFORM_VARIANT),0)
  $(error "NRD_PLATFORM_VARIANT for SGI575 should always be 0,\
      currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
+
+override SPMD_SPM_AT_SEL2		:= 0
