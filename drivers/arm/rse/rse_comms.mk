@@ -31,4 +31,5 @@ $(error Unsupported MHU version)
 endif
 
 PLAT_INCLUDES		+=	-Idrivers/arm/rse		\
-				-Idrivers/arm/mhu
+				-Idrivers/arm/mhu		\
+				-Iinclude/lib/psa
