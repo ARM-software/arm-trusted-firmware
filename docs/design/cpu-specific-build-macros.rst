@@ -787,13 +787,22 @@ For Cortex-X3, the following errata build flags are defined :
   Cortex-X3 CPU. This needs to be enabled only for revisions r0p0 and r1p0
   of the CPU, it is fixed in r1p1.
 
+- ``ERRATA_X3_2372204``: This applies errata 2372204 workaround to
+  Cortex-X3 CPU. This needs to be enabled only for revisions r0p0 and r1p0
+  of the CPU, it is fixed in r1p1.
+
 - ``ERRATA_X3_2615812``: This applies errata 2615812 workaround to Cortex-X3
   CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1 of the
-  CPU, it is still open.
+  CPU, it is fixed in r1p2.
 
 - ``ERRATA_X3_2641945``: This applies errata 2641945 workaround to Cortex-X3
   CPU. This needs to be enabled only for revisions r0p0 and r1p0 of the CPU.
   It is fixed in r1p1.
+
+- ``ERRATA_X3_2701951``: This applies erratum 2701951 workaround to Cortex-X3
+  CPU and affects system configurations that do not use an ARM interconnect
+  IP. This needs to be applied to revisions r0p0, r1p0 and r1p1. It is fixed
+  in r1p2.
 
 - ``ERRATA_X3_2742421``: This applies errata 2742421 workaround to
   Cortex-X3 CPU. This needs to be enabled only for revisions r0p0, r1p0 and
@@ -806,6 +815,16 @@ For Cortex-X3, the following errata build flags are defined :
 - ``ERRATA_X3_2779509``: This applies errata 2779509 workaround to Cortex-X3
   CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1 of the
   CPU. It is fixed in r1p2.
+
+For Cortex-X4, the following errata build flags are defined :
+
+- ``ERRATA_X4_2701112``: This applies erratum 2701112 workaround to Cortex-X4
+  CPU and affects system configurations that do not use an Arm interconnect IP.
+  This needs to be enabled for revisions r0p0 and is fixed in r0p1.
+  The workaround for this erratum is not implemented in EL3, but the flag can
+  be enabled/disabled at the platform level. The flag is used when the errata ABI
+  feature is enabled and can assist the Kernel in the process of
+  mitigation of the erratum.
 
 For Cortex-A510, the following errata build flags are defined :
 
@@ -872,14 +891,40 @@ For Cortex-A520, the following errata build flags are defined :
 
 For Cortex-A715, the following errata build flags are defined :
 
+-  ``ERRATA_A715_2331818``: This applies errata 2331818 workaround to
+   Cortex-A715 CPU. This needs to be enabled for revisions r0p0 and r1p0.
+   It is fixed in r1p1.
+
+- ``ERRATA_A715_2344187``: This applies errata 2344187 workaround to
+   Cortex-A715 CPU. This needs to be enabled for revisions r0p0 and r1p0. It is
+   fixed in r1p1.
+
+-  ``ERRATA_A715_2413290``: This applies errata 2413290 workaround to
+   Cortex-A715 CPU. This needs to be enabled only for revision r1p0 and
+   when SPE(Statistical profiling extension)=True. The errata is fixed
+   in r1p1.
+
+-  ``ERRATA_A715_2420947``: This applies errata 2420947 workaround to
+   Cortex-A715 CPU. This needs to be enabled only for revision r1p0.
+   It is fixed in r1p1.
+
+-  ``ERRATA_A715_2429384``: This applies errata 2429384 workaround to
+   Cortex-A715 CPU. This needs to be enabled for revision r1p0. There is no
+   workaround for revision r0p0. It is fixed in r1p1.
+
 -  ``ERRATA_A715_2561034``: This applies errata 2561034 workaround to
    Cortex-A715 CPU. This needs to be enabled only for revision r1p0.
    It is fixed in r1p1.
 
--  ``ERRATA_A715_2701951``: This applies erratum 2701951 workaround to Cortex-A715
-   CPU and affects system configurations that do not use an ARM interconnect
-   IP. This needs to be applied to revisions r0p0, r1p0 and r1p1. It is fixed
-   in r1p2.
+For Cortex-A720, the following errata build flags are defined :
+
+-  ``ERRATA_A720_2926083``: This applies errata 2926083 workaround to
+   Cortex-A720 CPU. This needs to be enabled for revisions r0p0 and r0p1.
+   It is fixed in r0p2.
+
+-  ``ERRATA_A720_2940794``: This applies errata 2940794 workaround to
+   Cortex-A720 CPU. This needs to be enabled for revisions r0p0 and r0p1.
+   It is fixed in r0p2.
 
 DSU Errata Workarounds
 ----------------------

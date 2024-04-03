@@ -282,9 +282,28 @@ may be signalled to the PE. The API should return the current priority value
 that it's overwriting.
 
 In case of Arm standard platforms using GIC, the implementation of the API
-inserts to order memory updates before updating mask, then writes to the GIC
-*Priority Mask Register*, and make sure memory updates are visible before
-potential trigger due to mask update.
+inserts barriers to order memory updates before updating mask,
+then writes to the GIC *Priority Mask Register*, and make sure memory updates
+are visible before potential trigger due to mask update.
+
+Function: unsigned int plat_ic_deactivate_priority(unsigned int id); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Return   : int
+
+This API performs the operations of plat_ic_set_priority_mask along with
+calling the errata workaround gicv3_apply_errata_wa_2384374(). This is
+performed when priority mask is restored to it's older value. This API returns
+the current priority value that it's overwriting.
+
+In case of Arm standard platforms using GIC, the implementation of the API
+inserts barriers to order memory updates before updating mask, then writes
+to the GIC *Priority Mask Register*, and make sure memory updates
+are visible before potential trigger due to mask update, and
+applies 2384374 GIC errata workaround to process pending interrupt packets.
 
 .. _plat_ic_get_interrupt_id:
 

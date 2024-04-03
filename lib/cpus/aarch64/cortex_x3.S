@@ -51,6 +51,13 @@ workaround_runtime_end cortex_x3, ERRATUM(2313909), NO_ISB
 
 check_erratum_ls cortex_x3, ERRATUM(2313909), CPU_REV(1, 0)
 
+workaround_reset_start cortex_x3, ERRATUM(2372204), ERRATA_X3_2372204
+	/* Set bit 40 in CPUACTLR2_EL1 */
+	sysreg_bit_set CORTEX_X3_CPUACTLR2_EL1, BIT(40)
+workaround_reset_end cortex_x3, ERRATUM(2372204)
+
+check_erratum_ls cortex_x3, ERRATUM(2372204), CPU_REV(1, 0)
+
 workaround_reset_start cortex_x3, ERRATUM(2615812), ERRATA_X3_2615812
 	/* Disable retention control for WFI and WFE. */
 	mrs	x0, CORTEX_X3_CPUPWRCTLR_EL1
