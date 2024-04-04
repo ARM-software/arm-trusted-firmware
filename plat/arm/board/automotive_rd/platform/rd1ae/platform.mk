@@ -10,6 +10,7 @@ RD1AE_BASE		=	plat/arm/board/automotive_rd/platform/rd1ae
 
 PLAT_INCLUDES		+=	-I${RD1AE_BASE}/include/
 
+override ARM_FW_CONFIG_LOAD_ENABLE	:=	1
 override ARM_PLAT_MT			:=	1
 override ARM_RECOM_STATE_ID_ENC		:=	1
 override CSS_LOAD_SCP_IMAGES		:=	0
@@ -44,6 +45,18 @@ BL2_SOURCES	+=	${RD1AE_CPU_SOURCES}	\
 			lib/utils/mem_region.c	\
 			plat/arm/common/arm_nor_psci_mem_protect.c	\
 			drivers/arm/sbsa/sbsa.c
+
+# Add the FDT_SOURCES and options for Dynamic Config
+FDT_SOURCES	+=	${RD1AE_BASE}/fdts/${PLAT}_fw_config.dts	\
+			fdts/${PLAT}.dts
+
+FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
+HW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
+
+# Add the FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
+# Add the HW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
 
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
