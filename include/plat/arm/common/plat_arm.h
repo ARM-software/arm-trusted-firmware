@@ -262,6 +262,9 @@ void arm_bl2_setup_next_ep_info(bl_mem_params_node_t *next_param_node);
 /* BL2 at EL3 functions */
 void arm_bl2_el3_early_platform_setup(void);
 void arm_bl2_el3_plat_arch_setup(void);
+#if ARM_FW_CONFIG_LOAD_ENABLE
+void arm_bl2_el3_plat_config_load(void);
+#endif /* ARM_FW_CONFIG_LOAD_ENABLE */
 
 /* BL2U utility functions */
 void arm_bl2u_early_platform_setup(struct meminfo *mem_layout,

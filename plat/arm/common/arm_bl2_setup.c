@@ -140,6 +140,9 @@ void bl2_plat_preload_setup(void)
 
 	arm_transfer_list_dyn_cfg_init(secure_tl);
 #else
+#if ARM_FW_CONFIG_LOAD_ENABLE
+	arm_bl2_el3_plat_config_load();
+#endif /* ARM_FW_CONFIG_LOAD_ENABLE */
 	arm_bl2_dyn_cfg_init();
 #endif
 

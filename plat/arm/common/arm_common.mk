@@ -164,6 +164,25 @@ ifneq ($(filter 1,${RESET_TO_BL31} ${RESET_TO_SP_MIN}),)
 	ENABLE_PIE			:=	1
 endif
 
+# On Arm platform, disable ARM_FW_CONFIG_LOAD_ENABLE by default.
+ARM_FW_CONFIG_LOAD_ENABLE		:= 0
+$(eval $(call assert_boolean,ARM_FW_CONFIG_LOAD_ENABLE))
+$(eval $(call add_define,ARM_FW_CONFIG_LOAD_ENABLE))
+
+# In order to enable ARM_FW_CONFIG_LOAD_ENABLE for the Arm platform, the
+# platform should be reset to BL2 (RESET_TO_BL2=1), and FW_CONFIG must be
+# specified.
+ifeq (${ARM_FW_CONFIG_LOAD_ENABLE},1)
+    ifneq (${RESET_TO_BL2},1)
+        $(error RESET_TO_BL2 must be enabled when ARM_FW_CONFIG_LOAD_ENABLE \
+            is enabled)
+    endif
+    ifeq (${FW_CONFIG},)
+        $(error FW_CONFIG must be specified when ARM_FW_CONFIG_LOAD_ENABLE \
+            is enabled)
+    endif
+endif
+
 # Disable GPT parser support, use FIP image by default
 ARM_GPT_SUPPORT			:=	0
 $(eval $(call assert_boolean,ARM_GPT_SUPPORT))

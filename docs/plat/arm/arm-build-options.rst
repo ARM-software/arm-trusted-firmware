@@ -16,6 +16,12 @@ Arm Platform Build Options
    should match the frame used by the Non-Secure image (normally the Linux
    kernel). Default is true (access to the frame is allowed).
 
+-  ``ARM_FW_CONFIG_LOAD_ENABLE``: Boolean option to enable the loading of
+   FW_CONFIG device trees from the Firmware Image Package (FIP). When enabled,
+   BL2 calls the platform specific function `arm_bl2_el3_plat_config_load`.
+   This function is responsible for loading, parsing, and validating the
+   FW_CONFIG device trees from the FIP. The option depends on RESET_TO_BL2.
+
 -  ``ARM_DISABLE_TRUSTED_WDOG``: boolean option to disable the Trusted Watchdog.
    By default, Arm platforms use a watchdog to trigger a system reset in case
    an error is encountered during the boot process (for example, when an image
