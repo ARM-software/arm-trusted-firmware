@@ -234,7 +234,7 @@ int rmmd_setup(void)
 
 	/* Zero out and load the boot manifest at the beginning of the share area */
 	manifest = (struct rmm_manifest *)shared_buf_base;
-	memset((void *)manifest, 0, sizeof(manifest));
+	(void)memset((void *)manifest, 0, sizeof(struct rmm_manifest));
 
 	rc = plat_rmmd_load_manifest(manifest);
 	if (rc != 0) {
