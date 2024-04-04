@@ -3,6 +3,50 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.2..refs/tags/lts-v2.10.3) (2024-04-04)
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add support for Poseidon V CPU ([a6256d7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a6256d7a2638bfb9bdbb10ca907f891eea3f0829))
+
+### Resolved Issues
+
+- **readme:** dummy commit for sandbox release ([d70d0e5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d70d0e53401c806c03cad73a8f51c04a2985d25b))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - correct variant name for default Poseidon CPU ([ef393a3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ef393a3f9fa216f76e96c2dd7493ea448d11ba7a))
+    - add erratum 2701951 to Cortex-X3's list ([a234f54](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a234f540b7271406aeea2fb742dddaeaeafed612))
+    - fix a defect in Cortex-A715 erratum 2561034 ([e86990d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e86990d0911d20ec9bf2701485e5b22db774bb54))
+    - workaround for Cortex-A715 erratum 2331818 ([940ebbe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/940ebbe2d1d07ea8187db5b5c3b94e463a5e5dbb))
+    - workaround for Cortex-A715 erratum 2344187 ([3e3ff29](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3e3ff298a61473ce7536484a592fa74670b1ae84))
+    - workaround for Cortex-A715 erratum 2413290 ([81931a1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/81931a13a83564dea387f22b0006aaf57e94b000))
+    - workaround for Cortex-A715 erratum 2413290 ([b59307e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b59307ef8efd723edac5c2ab244a370d86dcd821))
+    - workaround for Cortex-A715 erratum 2420947 ([04c60d5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/04c60d5ef31ccee6178036611e796c9d20da1729))
+    - workaround for Cortex-A715 erratum 2429384 ([301698e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/301698e15bc87b8dc300fdd3f07bcc2781364c67))
+    - workaround for Cortex-A720 erratum 2926083 ([baf1474](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/baf14745f1173621a20e2e190b596af9579bc031))
+    - workaround for Cortex-A720 erratum 2940794 ([03636f2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/03636f2c3d60a7be28898aae5ec6d3e56d1c05ca))
+    - workaround for Cortex-X3 erratum 2372204 ([5f8f745](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5f8f745c7e996d2767d6567d2beda6bca185de1c))
+    - workaround for Cortex-X4 erratum 2701112 ([d466c5d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d466c5d4d27b5d24510a314efe8f6ddb3dd44ff8))
+
+- **Drivers**
+
+  - **Arm**
+
+    - **GIC**
+
+      - **GICv3**
+
+        - **GIC-600**
+
+          - workaround for Part 1 of GIC600 erratum 2384374 ([b7ed781](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b7ed781eea7478a724183de93a741fc3aa9f7914))
+
 ## [lts-2.10.2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.1..refs/tags/lts-v2.10.2) (2024-02-08)
 
 ### Resolved Issues
