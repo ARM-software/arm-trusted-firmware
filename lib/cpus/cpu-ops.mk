@@ -827,6 +827,10 @@ CPU_FLAG_LIST += ERRATA_X4_2701112
 # applies to all revisions <= r0p1 of the Cortex-X4 cpu, it is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_X4_2740089
 
+# Flag to apply erratum 2763018 workaround on reset. This erratum applies
+# to revisions r0p0 and r0p1 of the Cortex-X4 cpu. It is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_X4_2763018
+
 # Flag to apply erratum 1922240 workaround during reset. This erratum applies
 # to revision r0p0 of the Cortex-A510 cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_A510_1922240
