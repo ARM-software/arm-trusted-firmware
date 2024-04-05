@@ -10,7 +10,7 @@
 VERSION_MAJOR			:= 2
 VERSION_MINOR			:= 10
 # VERSION_PATCH is only used for LTS releases
-VERSION_PATCH			:= 2
+VERSION_PATCH			:= 3
 VERSION				:= ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
 
 # Default goal is build all images
