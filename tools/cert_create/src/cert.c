@@ -22,7 +22,6 @@
 #include "sha.h"
 
 #define SERIAL_RAND_BITS	64
-#define RSA_SALT_LEN		32
 
 cert_t *certs;
 unsigned int num_certs;
@@ -152,7 +151,7 @@ int cert_new(
 			goto END;
 		}
 
-		if (!EVP_PKEY_CTX_set_rsa_pss_saltlen(pKeyCtx, RSA_SALT_LEN)) {
+		if (!EVP_PKEY_CTX_set_rsa_pss_saltlen(pKeyCtx, EVP_MD_size(get_digest(md_alg)))) {
 			ERR_print_errors_fp(stdout);
 			goto END;
 		}
