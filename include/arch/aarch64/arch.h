@@ -1435,18 +1435,23 @@
 #define HFGWTR_EL2_INIT_VAL	ULL(0xC4000000000000)
 
 /*******************************************************************************
- * FEAT_TCR2 - Extended Translation Control Register
+ * FEAT_TCR2 - Extended Translation Control Registers
  ******************************************************************************/
+#define TCR2_EL1		S3_0_C2_C0_3
 #define TCR2_EL2		S3_4_C2_C0_3
 
 /*******************************************************************************
- * Permission indirection and overlay
+ * Permission indirection and overlay Registers
  ******************************************************************************/
 
+#define PIRE0_EL1		S3_0_C10_C2_2
 #define PIRE0_EL2		S3_4_C10_C2_2
+#define PIR_EL1			S3_0_C10_C2_3
 #define PIR_EL2			S3_4_C10_C2_3
+#define POR_EL1			S3_0_C10_C2_4
 #define POR_EL2			S3_4_C10_C2_4
 #define S2PIR_EL2		S3_4_C10_C2_5
+#define S2POR_EL1		S3_0_C10_C2_5
 
 /*******************************************************************************
  * FEAT_GCS - Guarded Control Stack Registers

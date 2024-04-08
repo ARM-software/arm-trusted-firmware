@@ -109,21 +109,25 @@
 #define CTX_AFSR1_EL1		U(0x98)
 #define CTX_CONTEXTIDR_EL1	U(0xa0)
 #define CTX_VBAR_EL1		U(0xa8)
+#define CTX_MDCCINT_EL1		U(0xb0)
+#define CTX_MDSCR_EL1		U(0xb8)
+
+#define CTX_AARCH64_END		U(0xc0) /* Align to the next 16 byte boundary */
 
 /*
  * If the platform is AArch64-only, there is no need to save and restore these
  * AArch32 registers.
  */
 #if CTX_INCLUDE_AARCH32_REGS
-#define CTX_SPSR_ABT		U(0xb0)	/* Align to the next 16 byte boundary */
-#define CTX_SPSR_UND		U(0xb8)
-#define CTX_SPSR_IRQ		U(0xc0)
-#define CTX_SPSR_FIQ		U(0xc8)
-#define CTX_DACR32_EL2		U(0xd0)
-#define CTX_IFSR32_EL2		U(0xd8)
-#define CTX_AARCH32_END		U(0xe0) /* Align to the next 16 byte boundary */
+#define CTX_SPSR_ABT		(CTX_AARCH64_END + U(0x0))
+#define CTX_SPSR_UND		(CTX_AARCH64_END + U(0x8))
+#define CTX_SPSR_IRQ		(CTX_AARCH64_END + U(0x10))
+#define CTX_SPSR_FIQ		(CTX_AARCH64_END + U(0x18))
+#define CTX_DACR32_EL2		(CTX_AARCH64_END + U(0x20))
+#define CTX_IFSR32_EL2		(CTX_AARCH64_END + U(0x28))
+#define CTX_AARCH32_END		(CTX_AARCH64_END + U(0x30)) /* Align to the next 16 byte boundary */
 #else
-#define CTX_AARCH32_END		U(0xb0)	/* Align to the next 16 byte boundary */
+#define CTX_AARCH32_END		CTX_AARCH64_END
 #endif /* CTX_INCLUDE_AARCH32_REGS */
 
 /*
@@ -146,17 +150,51 @@
 #define CTX_TFSR_EL1		(CTX_TIMER_SYSREGS_END + U(0x8))
 #define CTX_RGSR_EL1		(CTX_TIMER_SYSREGS_END + U(0x10))
 #define CTX_GCR_EL1		(CTX_TIMER_SYSREGS_END + U(0x18))
-
-/* Align to the next 16 byte boundary */
-#define CTX_MTE_REGS_END	(CTX_TIMER_SYSREGS_END + U(0x20))
+#define CTX_MTE_REGS_END	(CTX_TIMER_SYSREGS_END + U(0x20)) /* Align to the next 16 byte boundary */
 #else
 #define CTX_MTE_REGS_END	CTX_TIMER_SYSREGS_END
 #endif /* ENABLE_FEAT_MTE2 */
 
+#if ENABLE_FEAT_RAS
+#define CTX_DISR_EL1		(CTX_MTE_REGS_END + U(0x0))
+#define CTX_RAS_REGS_END	(CTX_MTE_REGS_END + U(0x10)) /* Align to the next 16 byte boundary */
+#else
+#define CTX_RAS_REGS_END        CTX_MTE_REGS_END
+#endif /* ENABLE_FEAT_RAS */
+
+#if ENABLE_FEAT_S1PIE
+#define CTX_PIRE0_EL1		(CTX_RAS_REGS_END + U(0x0))
+#define CTX_PIR_EL1		(CTX_RAS_REGS_END + U(0x8))
+#define CTX_S1PIE_REGS_END	(CTX_RAS_REGS_END + U(0x10)) /* Align to the next 16 byte boundary */
+#else
+#define CTX_S1PIE_REGS_END	CTX_RAS_REGS_END
+#endif /* ENABLE_FEAT_S1PIE */
+
+#if ENABLE_FEAT_S1POE
+#define CTX_POR_EL1		(CTX_S1PIE_REGS_END + U(0x0))
+#define CTX_S1POE_REGS_END	(CTX_S1PIE_REGS_END + U(0x10)) /* Align to the next 16 byte boundary */
+#else
+#define CTX_S1POE_REGS_END	CTX_S1PIE_REGS_END
+#endif /* ENABLE_FEAT_S1POE */
+
+#if ENABLE_FEAT_S2POE
+#define CTX_S2POR_EL1		(CTX_S1POE_REGS_END + U(0x0))
+#define CTX_S2POE_REGS_END	(CTX_S1POE_REGS_END + U(0x10)) /* Align to the next 16 byte boundary */
+#else
+#define CTX_S2POE_REGS_END	CTX_S1POE_REGS_END
+#endif /* ENABLE_FEAT_S2POE */
+
+#if ENABLE_FEAT_TCR2
+#define CTX_TCR2_EL1		(CTX_S2POE_REGS_END + U(0x0))
+#define CTX_TCR2_REGS_END	(CTX_S2POE_REGS_END + U(0x10)) /* Align to the next 16 byte boundary */
+#else
+#define CTX_TCR2_REGS_END       CTX_S2POE_REGS_END
+#endif /* ENABLE_FEAT_TCR2 */
+
 /*
  * End of system registers.
  */
-#define CTX_EL1_SYSREGS_END		CTX_MTE_REGS_END
+#define CTX_EL1_SYSREGS_END	CTX_TCR2_REGS_END
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'fp_regs'
