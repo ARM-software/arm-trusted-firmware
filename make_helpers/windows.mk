@@ -70,7 +70,7 @@ ${1} : ${2}
 
     nul := nul
 
-    which = $(shell where $(1) 2>$(nul))
+    which = $(shell where "$(1)" 2>$(nul))
 endif
 
 # Because git is not available from CMD.EXE, we need to avoid
