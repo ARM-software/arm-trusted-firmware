@@ -61,11 +61,12 @@ else ifeq (${PLATFORM_TEST},tfm-testsuite)
 					hmac_drbg.c				\
 					psa_crypto.c				\
 					psa_crypto_client.c			\
-					psa_crypto_driver_wrappers.c		\
+					psa_crypto_driver_wrappers_no_static.c	\
 					psa_crypto_hash.c			\
 					psa_crypto_rsa.c			\
 					psa_crypto_ecp.c			\
 					psa_crypto_slot_management.c		\
+					psa_util.c				\
 					)
 
     BL31_SOURCES	+=	${RSE_COMMS_SOURCES}				\
