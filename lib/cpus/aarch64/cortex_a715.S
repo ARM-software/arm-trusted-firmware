@@ -94,6 +94,27 @@ workaround_reset_end cortex_a715, ERRATUM(2561034)
 
 check_erratum_range cortex_a715, ERRATUM(2561034), CPU_REV(1, 0), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a715, ERRATUM(2728106), ERRATA_A715_2728106
+	mov x0, #3
+	msr CORTEX_A715_CPUPSELR_EL3, x0
+	isb
+	ldr x0, =0xd503339f
+	msr CORTEX_A715_CPUPOR_EL3, x0
+	ldr x0, =0xfffff3ff
+	msr CORTEX_A715_CPUPMR_EL3, x0
+	mov x0, #1
+	orr x0, x0, #(3<<4)
+	orr x0, x0, #(0xf<<6)
+	orr x0, x0, #(1<<13)
+	orr x0, x0, #(1<<20)
+	orr x0, x0, #(1<<22)
+	orr x0, x0, #(1<<31)
+	orr x0, x0, #(1<<50)
+	msr CORTEX_A715_CPUPCR_EL3, x0
+workaround_reset_end cortex_a715, ERRATUM(2728106)
+
+check_erratum_ls cortex_a715, ERRATUM(2728106), CPU_REV(1, 1)
+
 workaround_reset_start cortex_a715, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
