@@ -1518,6 +1518,40 @@ When CONDITIONAL_CMO flag is enabled:
 - The function must not clobber x1, x2 and x3. It's also not safe to rely on
   stack. Otherwise obey AAPCS.
 
+Struct: plat_try_images_ops [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This optional structure holds platform hooks for alternative images load.
+It has to be defined in platform code and registered by calling
+plat_setup_try_img_ops() function, passing it the address of the
+plat_try_images_ops struct.
+
+Function : plat_setup_try_img_ops [optional]
+............................................
+
+::
+
+    Argument : const struct plat_try_images_ops *
+    Return   : void
+
+This optional function is called to register platform try images ops, given
+as argument.
+
+Function : plat_try_images_ops.next_instance [optional]
+.......................................................
+
+::
+
+    Argument : unsigned int image_id
+    Return   : int
+
+This optional function tries to load images from alternative places.
+In case PSA FWU is not used, it can be any instance or media. If PSA FWU is
+used, it is mandatory that the backup image is on the same media.
+This is required for MTD devices like NAND.
+The argument is the ID of the image for which we are looking for an alternative
+place. It returns 0 in case of success and a negative errno value otherwise.
+
 Modifications specific to a Boot Loader stage
 ---------------------------------------------
 
