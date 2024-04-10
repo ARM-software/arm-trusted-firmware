@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,13 @@
 #if WORKAROUND_CVE_2022_23960
         wa_cve_2022_23960_bhb_vector_table CORTEX_X4_BHB_LOOP_COUNT, cortex_x4
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
+	/* dsb before isb of power down sequence */
+	dsb	sy
+workaround_runtime_end cortex_x4, ERRATUM(2740089)
+
+check_erratum_ls cortex_x4, ERRATUM(2740089), CPU_REV(0, 1)
 
 workaround_reset_start cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
@@ -53,6 +60,9 @@ func cortex_x4_core_pwr_dwn
 	 * ---------------------------------------------------
 	 */
 	sysreg_bit_set CORTEX_X4_CPUPWRCTLR_EL1, CORTEX_X4_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+
+	apply_erratum cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
+
 	isb
 	ret
 endfunc cortex_x4_core_pwr_dwn
