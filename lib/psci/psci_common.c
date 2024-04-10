@@ -172,7 +172,8 @@ void psci_query_sys_suspend_pwrstate(psci_power_state_t *state_info)
  ******************************************************************************/
 static bool psci_is_last_cpu_to_idle_at_pwrlvl(unsigned int end_pwrlvl)
 {
-	unsigned int my_idx, lvl, parent_idx;
+	unsigned int my_idx, lvl;
+	unsigned int parent_idx = 0;
 	unsigned int cpu_start_idx, ncpus, cpu_idx;
 	plat_local_state_t local_state;
 
