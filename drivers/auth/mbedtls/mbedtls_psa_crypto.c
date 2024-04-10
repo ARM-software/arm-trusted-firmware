@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <mbedtls/memory_buffer_alloc.h>
 #include <mbedtls/oid.h>
 #include <mbedtls/platform.h>
+#include <mbedtls/psa_util.h>
 #include <mbedtls/version.h>
 #include <mbedtls/x509.h>
 #include <psa/crypto.h>
@@ -48,16 +49,6 @@ CASSERT(CRYPTO_MD_MAX_SIZE >= MBEDTLS_MD_MAX_SIZE,
 	* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
 	* CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
 	*/
-
-static inline psa_algorithm_t mbedtls_md_psa_alg_from_type(
-						mbedtls_md_type_t md_type)
-{
-	assert((md_type == MBEDTLS_MD_SHA256) ||
-	       (md_type == MBEDTLS_MD_SHA384) ||
-	       (md_type == MBEDTLS_MD_SHA512));
-
-	return PSA_ALG_CATEGORY_HASH | (psa_algorithm_t) (md_type + 0x5);
-}
 
 /*
  * AlgorithmIdentifier  ::=  SEQUENCE  {
@@ -293,6 +284,62 @@ static int get_ecdsa_signature_from_asn1(unsigned char *sig_ptr,
 	**/
 
 /*
+ * This is a helper function that adjusts the start of the pk_start to point to
+ * the subjectPublicKey bytes within the SubjectPublicKeyInfo block.
+ *
+ *  SubjectPublicKeyInfo  ::=  SEQUENCE  {
+ *       algorithm            AlgorithmIdentifier,
+ *       subjectPublicKey     BIT STRING }
+ *
+ * This function returns error(CRYPTO_ERR_SIGNATURE) on ASN.1 parsing failure,
+ * otherwise success(0).
+ **/
+static int pk_bytes_from_subpubkey(unsigned char **pk_start,
+				   unsigned int *pk_len)
+{
+	mbedtls_asn1_buf alg_oid, alg_params;
+	int rc;
+	unsigned char *pk_end;
+	size_t len;
+	unsigned char *pk_ptr = *pk_start;
+
+	pk_end = pk_ptr + *pk_len;
+	rc = mbedtls_asn1_get_tag(&pk_ptr, pk_end, &len,
+				  MBEDTLS_ASN1_CONSTRUCTED |
+				  MBEDTLS_ASN1_SEQUENCE);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	pk_end = pk_ptr + len;
+	rc = mbedtls_asn1_get_alg(&pk_ptr, pk_end, &alg_oid, &alg_params);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+	pk_end = pk_ptr + len - (alg_oid.len + alg_params.len +
+		 2 * (SIZE_OF_ASN1_LEN + SIZE_OF_ASN1_TAG));
+	rc = mbedtls_asn1_get_bitstring_null(&pk_ptr, pk_end, &len);
+	if (rc != 0) {
+		return CRYPTO_ERR_SIGNATURE;
+	}
+
+	*pk_start = pk_ptr;
+	*pk_len = len;
+
+	return rc;
+}
+
+/*
+ * NOTE: This has been made internal in mbedtls 3.6.0 and the mbedtls team has
+ * advised that it's better to copy out the declaration than it would be to
+ * update to 3.5.2, where this function is exposed.
+ */
+int mbedtls_x509_get_sig_alg(const mbedtls_x509_buf *sig_oid,
+			     const mbedtls_x509_buf *sig_params,
+			     mbedtls_md_type_t *md_alg,
+			     mbedtls_pk_type_t *pk_alg,
+			     void **sig_opts);
+/*
  * Verify a signature.
  *
  * Parameters are passed using the DER encoding format following the ASN.1
@@ -387,6 +434,20 @@ TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
 	psa_set_key_algorithm(&psa_key_attr, psa_alg);
 	psa_set_key_type(&psa_key_attr, psa_key_type);
 	psa_set_key_usage_flags(&psa_key_attr, PSA_KEY_USAGE_VERIFY_MESSAGE);
+
+	/*
+	 * Note: In the implementation of the psa_import_key function in
+	 * version 3.6.0, the function expects the starting pointer of the
+	 * subject public key instead of the starting point of
+	 * SubjectPublicKeyInfo.
+	 * This is only needed while dealing with RSASSA_PSS (RSA Signature
+	 * scheme with Appendix based on Probabilistic Signature Scheme)
+	 * algorithm.
+	 */
+	if (pk_alg == MBEDTLS_PK_RSASSA_PSS) {
+		rc = pk_bytes_from_subpubkey((unsigned char **) &pk_ptr, &pk_len);
+		goto end2;
+	}
 
 	/* Get the key_id using import API */
 	status = psa_import_key(&psa_key_attr,

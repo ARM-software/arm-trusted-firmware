@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,6 +65,18 @@ static void init(void)
 
 #if CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_ONLY || \
 CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC
+
+
+/*
+ * NOTE: This has been made internal in mbedtls 3.6.0 and the mbedtls team has
+ * advised that it's better to copy out the declaration than it would be to
+ * update to 3.5.2, where this function is exposed.
+ */
+int mbedtls_x509_get_sig_alg(const mbedtls_x509_buf *sig_oid,
+			     const mbedtls_x509_buf *sig_params,
+			     mbedtls_md_type_t *md_alg,
+			     mbedtls_pk_type_t *pk_alg,
+			     void **sig_opts);
 /*
  * Verify a signature.
  *

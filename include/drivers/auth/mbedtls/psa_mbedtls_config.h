@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Ltd. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Ltd. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include "mbedtls_config-3.h"
 
 #define MBEDTLS_PSA_CRYPTO_C
+#define MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS
 
 /*
  * Using PSA crypto API requires an RNG right now. If we don't define the macro
