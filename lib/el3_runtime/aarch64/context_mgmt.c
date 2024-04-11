@@ -1278,7 +1278,7 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	el2_sysregs_context_save_gic(el2_sysregs_ctx);
 
 	if (is_feat_mte2_supported()) {
-		write_el2_ctx_mte(el2_sysregs_ctx, tfsr_el2, read_tfsr_el2());
+		write_el2_ctx_mte2(el2_sysregs_ctx, tfsr_el2, read_tfsr_el2());
 	}
 
 #if CTX_INCLUDE_MPAM_REGS
@@ -1364,7 +1364,7 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	el2_sysregs_context_restore_gic(el2_sysregs_ctx);
 
 	if (is_feat_mte2_supported()) {
-		write_tfsr_el2(read_el2_ctx_mte(el2_sysregs_ctx, tfsr_el2));
+		write_tfsr_el2(read_el2_ctx_mte2(el2_sysregs_ctx, tfsr_el2));
 	}
 
 #if CTX_INCLUDE_MPAM_REGS
