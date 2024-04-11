@@ -27,11 +27,11 @@
 
 		hw-config {
 			load-address = <0x0 PLAT_HW_CONFIG_DTB_BASE>;
-			max-size = <PLAT_HW_CONFIG_DTB_SIZE>;
+			max-size = <PLAT_ARM_HW_CONFIG_SIZE>;
 			id = <HW_CONFIG_ID>;
 		};
 		nt_fw-config {
-			load-address = <0x0 (PLAT_HW_CONFIG_DTB_BASE + PLAT_HW_CONFIG_DTB_SIZE)>;
+			load-address = <0x0 (PLAT_HW_CONFIG_DTB_BASE + PLAT_ARM_HW_CONFIG_SIZE)>;
 			max-size = <0x1000>;
 			id = <NT_FW_CONFIG_ID>;
 		};

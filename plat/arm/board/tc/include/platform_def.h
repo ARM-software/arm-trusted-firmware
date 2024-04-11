@@ -88,11 +88,11 @@
 						MT_MEMORY | MT_RW | MT_SECURE)
 
 #define PLAT_HW_CONFIG_DTB_BASE	TC_NS_DRAM1_BASE
-#define PLAT_HW_CONFIG_DTB_SIZE	ULL(0x8000)
+#define PLAT_ARM_HW_CONFIG_SIZE	ULL(0x8000)
 
 #define PLAT_DTB_DRAM_NS MAP_REGION_FLAT(	\
 					PLAT_HW_CONFIG_DTB_BASE,	\
-					PLAT_HW_CONFIG_DTB_SIZE,	\
+					PLAT_ARM_HW_CONFIG_SIZE,	\
 					MT_MEMORY | MT_RO | MT_NS)
 /*
  * Max size of SPMC is 2MB for tc. With SPMD enabled this value corresponds to
