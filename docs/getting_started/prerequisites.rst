@@ -11,12 +11,11 @@ document can be officially supported.
 Build Host
 ----------
 
-|TF-A| can be built using either a Linux or a Windows machine as the build host.
+|TF-A| can be compiled on both Linux and Windows-based machines.
+However, we strongly recommend using a UNIX-compatible build environment.
 
-A relatively recent Linux distribution is recommended for building |TF-A|. We
-have performed tests using Ubuntu 22.04 LTS (64-bit) but other distributions
-should also work fine as a base, provided that the necessary tools and libraries
-can be installed.
+Testing is performed using Ubuntu 22.04 LTS (64-bit), but other distributions
+should also work, provided the necessary tools and libraries are installed.
 
 .. _prerequisites_toolchain:
 
@@ -41,10 +40,6 @@ In addition, a native compiler is required to build the supporting tools.
    work. This is predominantly because TF-A carries its own copy of compiler-rt,
    which may be older than the version expected by the compiler. Fixes and bug
    reports are always welcome.
-
-.. note::
-   The software has also been built on Windows 7 Enterprise SP1, using CMD.EXE,
-   Cygwin, and Msys (MinGW) shells, using version 5.3.1 of the GNU toolchain.
 
 .. note::
    For instructions on how to select the cross compiler refer to
