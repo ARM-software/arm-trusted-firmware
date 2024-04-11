@@ -142,10 +142,10 @@ void qtiseclib_cb_get_ns_ctx(qtiseclib_dbg_a64_ctxt_regs_type *qti_ns_ctx)
 	qti_ns_ctx->elr_el3 = read_ctx_reg(get_el3state_ctx(ctx), CTX_ELR_EL3);
 
 	qti_ns_ctx->spsr_el1 =
-	    read_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SPSR_EL1);
+	    read_el1_ctx_common(get_el1_sysregs_ctx(ctx), spsr_el1);
 	qti_ns_ctx->elr_el1 =
-	    read_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_ELR_EL1);
-	qti_ns_ctx->sp_el1 = read_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SP_EL1);
+	    read_el1_ctx_common(get_el1_sysregs_ctx(ctx), elr_el1);
+	qti_ns_ctx->sp_el1 = read_el1_ctx_common(get_el1_sysregs_ctx(ctx), sp_el1);
 
 	qti_ns_ctx->x0 = read_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X0);
 	qti_ns_ctx->x1 = read_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X1);

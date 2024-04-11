@@ -319,7 +319,7 @@ static void spmc_el0_sp_setup_mmu(struct secure_partition_desc *sp,
 		      xlat_ctx->pa_max_address, xlat_ctx->va_max_address,
 		      EL1_EL0_REGIME);
 
-	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_MAIR_EL1,
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), mair_el1,
 		      mmu_cfg_params[MMU_CFG_MAIR]);
 
 	/* Store the initialised SCTLR_EL1 value in the cpu_context */
@@ -327,27 +327,27 @@ static void spmc_el0_sp_setup_mmu(struct secure_partition_desc *sp,
 	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
 		      CTX_ERRATA_SPEC_AT_TCR_EL1, mmu_cfg_params[MMU_CFG_TCR]);
 #else
-	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_TCR_EL1,
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), tcr_el1,
 		      mmu_cfg_params[MMU_CFG_TCR]);
 #endif /* ERRATA_SPECULATIVE_AT */
 
-	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_TTBR0_EL1,
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), ttbr0_el1,
 		      mmu_cfg_params[MMU_CFG_TTBR0]);
 }
 
 static void spmc_el0_sp_setup_sctlr_el1(cpu_context_t *ctx)
 {
-	u_register_t sctlr_el1;
+	u_register_t sctlr_el1_val;
 
 	/* Setup SCTLR_EL1 */
 #if (ERRATA_SPECULATIVE_AT)
-	sctlr_el1 = read_ctx_reg(get_errata_speculative_at_ctx(ctx),
+	sctlr_el1_val = read_ctx_reg(get_errata_speculative_at_ctx(ctx),
 				 CTX_ERRATA_SPEC_AT_SCTLR_EL1);
 #else
-	sctlr_el1 = read_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1);
+	sctlr_el1_val = read_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1);
 #endif /* ERRATA_SPECULATIVE_AT */
 
-	sctlr_el1 |=
+	sctlr_el1_val |=
 		/*SCTLR_EL1_RES1 |*/
 		/* Don't trap DC CVAU, DC CIVAC, DC CVAC, DC CVAP, or IC IVAU */
 		SCTLR_UCI_BIT |
@@ -368,7 +368,7 @@ static void spmc_el0_sp_setup_sctlr_el1(cpu_context_t *ctx)
 		/* Enable MMU. */
 		SCTLR_M_BIT;
 
-	sctlr_el1 &= ~(
+	sctlr_el1_val &= ~(
 		/* Explicit data accesses at EL0 are little-endian. */
 		SCTLR_E0E_BIT |
 		/*
@@ -383,9 +383,9 @@ static void spmc_el0_sp_setup_sctlr_el1(cpu_context_t *ctx)
 	/* Store the initialised SCTLR_EL1 value in the cpu_context */
 #if (ERRATA_SPECULATIVE_AT)
 	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
-		      CTX_ERRATA_SPEC_AT_SCTLR_EL1, sctlr_el1);
+		      CTX_ERRATA_SPEC_AT_SCTLR_EL1, sctlr_el1_val);
 #else
-	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_el1);
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1, sctlr_el1_val);
 #endif /* ERRATA_SPECULATIVE_AT */
 }
 
@@ -400,10 +400,10 @@ static void spmc_el0_sp_setup_system_registers(struct secure_partition_desc *sp,
 	/* Setup other system registers. */
 
 	/* Shim Exception Vector Base Address */
-	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_VBAR_EL1,
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), vbar_el1,
 			SPM_SHIM_EXCEPTIONS_PTR);
 #if NS_TIMER_SWITCH
-	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_CNTKCTL_EL1,
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), cntkctl_el1,
 		      EL0PTEN_BIT | EL0VTEN_BIT | EL0PCTEN_BIT | EL0VCTEN_BIT);
 #endif
 
@@ -414,7 +414,7 @@ static void spmc_el0_sp_setup_system_registers(struct secure_partition_desc *sp,
 	 * TTA: Enable access to trace registers.
 	 * ZEN (v8.2): Trap SVE instructions and access to SVE registers.
 	 */
-	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_CPACR_EL1,
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), cpacr_el1,
 			CPACR_EL1_FPEN(CPACR_EL1_FP_TRAP_NONE));
 }
 

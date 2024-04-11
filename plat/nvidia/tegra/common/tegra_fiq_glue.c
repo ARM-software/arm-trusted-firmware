@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -142,7 +142,7 @@ int32_t tegra_fiq_get_intr_context(void)
 	val = read_ctx_reg((gpregs_ctx), (uint32_t)(CTX_GPREG_SP_EL0));
 	write_ctx_reg((gpregs_ctx), (uint32_t)(CTX_GPREG_X2), (val));
 
-	val = read_ctx_reg((el1state_ctx), (uint32_t)(CTX_SP_EL1));
+	val = read_el1_ctx_common(el1state_ctx, sp_el1);
 	write_ctx_reg((gpregs_ctx), (uint32_t)(CTX_GPREG_X3), (val));
 
 	return 0;
