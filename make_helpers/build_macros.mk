@@ -10,11 +10,6 @@ ifneq (${eval_available},T)
     $(error This makefile only works with a Make program that supports $$(eval))
 endif
 
-# Some utility macros for manipulating awkward (whitespace) characters.
-blank			:=
-space			:=${blank} ${blank}
-comma			:= ,
-
 # A user defined function to recursively search for a filename below a directory
 #    $1 is the directory root of the recursive search (blank for current directory).
 #    $2 is the file name to search for.

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -59,5 +59,5 @@ ${1} : ${2}
 
     nul := /dev/null
 
-    which = $(shell which $(1) 2>$(nul))
+    which = $(shell command -v $(call escape-shell,$(1)) 2>$(nul))
 endif
