@@ -363,8 +363,8 @@ endif #(LD = armlink)
 # Setup ARCH_MAJOR/MINOR before parsing arch_features.
 ################################################################################
 ifeq (${ENABLE_RME},1)
-	ARM_ARCH_MAJOR := 8
-	ARM_ARCH_MINOR := 6
+	ARM_ARCH_MAJOR := 9
+	ARM_ARCH_MINOR := 2
 endif
 
 ################################################################################
