@@ -49,9 +49,9 @@ typedef struct el2_common_regs {
 	uint64_t vttbr_el2;
 } el2_common_regs_t;
 
-typedef struct el2_mte_regs {
+typedef struct el2_mte2_regs {
 	uint64_t tfsr_el2;
-} el2_mte_regs_t;
+} el2_mte2_regs_t;
 
 typedef struct el2_fgt_regs {
 	uint64_t hdfgrtr_el2;
@@ -118,8 +118,8 @@ typedef struct el2_sysregs {
 
 	el2_common_regs_t common;
 
-#if ENABLE_FEAT_MTE
-	el2_mte_regs_t mte;
+#if ENABLE_FEAT_MTE2
+	el2_mte2_regs_t mte2;
 #endif
 
 #if ENABLE_FEAT_FGT
@@ -185,14 +185,14 @@ typedef struct el2_sysregs {
 #define write_el2_ctx_common(ctx, reg, val)	((((ctx)->common).reg)	\
 							= (uint64_t) (val))
 
-#if ENABLE_FEAT_MTE
-#define read_el2_ctx_mte(ctx, reg)		(((ctx)->mte).reg)
-#define write_el2_ctx_mte(ctx, reg, val)	((((ctx)->mte).reg)	\
+#if ENABLE_FEAT_MTE2
+#define read_el2_ctx_mte2(ctx, reg)		(((ctx)->mte2).reg)
+#define write_el2_ctx_mte2(ctx, reg, val)	((((ctx)->mte2).reg)	\
 							= (uint64_t) (val))
 #else
-#define read_el2_ctx_mte(ctx, reg)		ULL(0)
-#define write_el2_ctx_mte(ctx, reg, val)
-#endif /* ENABLE_FEAT_MTE */
+#define read_el2_ctx_mte2(ctx, reg)		ULL(0)
+#define write_el2_ctx_mte2(ctx, reg, val)
+#endif /* ENABLE_FEAT_MTE2 */
 
 #if ENABLE_FEAT_FGT
 #define read_el2_ctx_fgt(ctx, reg)		(((ctx)->fgt).reg)
