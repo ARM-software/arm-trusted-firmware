@@ -366,7 +366,6 @@ bool transfer_list_set_data_size(struct transfer_list_header *tl,
 		/* create a dummy TE to fill up the gap */
 		dummy_te = (struct transfer_list_entry *)new_ev;
 		dummy_te->tag_id = TL_TAG_EMPTY;
-		dummy_te->reserved0 = 0;
 		dummy_te->hdr_size = sizeof(*dummy_te);
 		dummy_te->data_size = gap - sizeof(*dummy_te);
 	}
@@ -388,7 +387,6 @@ bool transfer_list_rem(struct transfer_list_header *tl,
 		return false;
 	}
 	te->tag_id = TL_TAG_EMPTY;
-	te->reserved0 = 0;
 	transfer_list_update_checksum(tl);
 	return true;
 }
@@ -399,7 +397,7 @@ bool transfer_list_rem(struct transfer_list_header *tl,
  * Return pointer to the added transfer entry or NULL on error
  ******************************************************************************/
 struct transfer_list_entry *transfer_list_add(struct transfer_list_header *tl,
-					      uint16_t tag_id,
+					      uint32_t tag_id,
 					      uint32_t data_size,
 					      const void *data)
 {
@@ -428,7 +426,6 @@ struct transfer_list_entry *transfer_list_add(struct transfer_list_header *tl,
 
 	te = (struct transfer_list_entry *)tl_ev;
 	te->tag_id = tag_id;
-	te->reserved0 = 0;
 	te->hdr_size = sizeof(*te);
 	te->data_size = data_size;
 	tl->size += ev - tl_ev;
@@ -454,7 +451,7 @@ struct transfer_list_entry *transfer_list_add(struct transfer_list_header *tl,
  * Return pointer to the added transfer entry or NULL on error
  ******************************************************************************/
 struct transfer_list_entry *
-transfer_list_add_with_align(struct transfer_list_header *tl, uint16_t tag_id,
+transfer_list_add_with_align(struct transfer_list_header *tl, uint32_t tag_id,
 			     uint32_t data_size, const void *data,
 			     uint8_t alignment)
 {
@@ -501,13 +498,13 @@ transfer_list_add_with_align(struct transfer_list_header *tl, uint16_t tag_id,
  * Return pointer to the found transfer entry or NULL on error
  ******************************************************************************/
 struct transfer_list_entry *transfer_list_find(struct transfer_list_header *tl,
-					       uint16_t tag_id)
+					       uint32_t tag_id)
 {
 	struct transfer_list_entry *te = NULL;
 
 	do {
 		te = transfer_list_next(tl, te);
-	} while (te && (te->tag_id != tag_id || te->reserved0 != 0));
+	} while (te && (te->tag_id != tag_id));
 
 	return te;
 }

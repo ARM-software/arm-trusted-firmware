@@ -75,9 +75,8 @@ struct transfer_list_header {
 	 */
 };
 
-struct transfer_list_entry {
-	uint16_t tag_id;
-	uint8_t reserved0; /* place holder */
+struct __attribute__((packed)) transfer_list_entry {
+	uint32_t tag_id : 24;
 	uint8_t hdr_size;
 	uint32_t data_size;
 	/*
@@ -90,6 +89,8 @@ struct transfer_list_entry {
 	 * uint8_t	data[ROUNDUP(data_size, 8)];
 	 */
 };
+
+CASSERT(sizeof(struct transfer_list_entry) == U(0x8), assert_transfer_list_entry_size);
 
 void transfer_list_dump(struct transfer_list_header *tl);
 entry_point_info_t *
@@ -115,12 +116,12 @@ bool transfer_list_rem(struct transfer_list_header *tl,
 		       struct transfer_list_entry *entry);
 
 struct transfer_list_entry *transfer_list_add(struct transfer_list_header *tl,
-					      uint16_t tag_id,
+					      uint32_t tag_id,
 					      uint32_t data_size,
 					      const void *data);
 
 struct transfer_list_entry *
-transfer_list_add_with_align(struct transfer_list_header *tl, uint16_t tag_id,
+transfer_list_add_with_align(struct transfer_list_header *tl, uint32_t tag_id,
 			     uint32_t data_size, const void *data,
 			     uint8_t alignment);
 
@@ -129,7 +130,7 @@ transfer_list_next(struct transfer_list_header *tl,
 		   struct transfer_list_entry *last);
 
 struct transfer_list_entry *transfer_list_find(struct transfer_list_header *tl,
-					       uint16_t tag_id);
+					       uint32_t tag_id);
 
 #endif /*__ASSEMBLER__*/
 #endif /*__TRANSFER_LIST_H*/
