@@ -33,3 +33,32 @@
 #include "tc-fvp.dtsi"
 #endif /* TARGET_FLAVOUR_FVP */
 #include "tc-base.dtsi"
+
+/ {
+	cpus {
+		CPU2:cpu@200 {
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+		};
+
+		CPU3:cpu@300 {
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+		};
+
+		CPU6:cpu@600 {
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG_CAPACITY>;
+		};
+
+		CPU7:cpu@700 {
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG_CAPACITY>;
+		};
+	};
+
+	cpu-pmu {
+		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
+				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>;
+	};
+};
