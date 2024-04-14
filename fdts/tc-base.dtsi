@@ -4,17 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/dts-v1/;
-
-#include <dt-bindings/interrupt-controller/arm-gic.h>
-#include <dt-bindings/interrupt-controller/irq.h>
-#include "platform_def.h"
-
-#include "tc-common.dtsi"
 #include "tc_vers.dtsi"
-#if TARGET_FLAVOUR_FVP
-#include "tc-fvp.dtsi"
-#endif /* TARGET_FLAVOUR_FVP */
 
 / {
 	compatible = "arm,tc";
