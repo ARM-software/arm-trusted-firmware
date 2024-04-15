@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define STDOUT_PATH		"serial0:38400n8"
 #define GIC_CTRL_ADDR		30000000
 #define GIC_GICR_OFFSET		0x1000000
 #define UART_OFFSET		0x10000
@@ -20,5 +19,18 @@
 	vfront-porch = <3>;							\
 	vback-porch = <217>;							\
 	vsync-len = <10>
-#define ETH_COMPATIBLE		"smsc,lan9115"
-#define MMC_REMOVABLE		non-removable
+
+/ {
+	chosen {
+		stdout-path = "serial0:38400n8";
+	};
+
+	ethernet: ethernet@18000000 {
+		compatible = "smsc,lan9115";
+		phy-mode = "mii";
+	};
+
+	mmci: mmci@1c050000 {
+		non-removable;
+	};
+};

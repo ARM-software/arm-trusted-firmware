@@ -47,7 +47,6 @@
 	};
 
 	chosen {
-		stdout-path = STDOUT_PATH;
 		/*
 		 * Add some dummy entropy for Linux so it
 		 * doesn't delay the boot waiting for it.
@@ -417,13 +416,10 @@
 
 	};
 
-	ethernet@18000000 {
-		compatible = ETH_COMPATIBLE;
+	ethernet: ethernet@18000000 {
 		reg = <0x0 0x18000000 0x0 0x10000>;
 		interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>;
 
-		/* FPGA only but will work on FVP. Keep for simplicity */
-		phy-mode = "mii";
 		reg-io-width = <2>;
 		smsc,irq-push-pull;
 	};
@@ -451,12 +447,11 @@
 		regulator-always-on;
 	};
 
-	mmci@1c050000 {
+	mmci: mmci@1c050000 {
 		compatible = "arm,pl180", "arm,primecell";
 		reg = <0x0 0x001c050000 0x0 0x1000>;
 		interrupts = <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>,
 			     <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
-		MMC_REMOVABLE;
 		wp-gpios = <&sysreg 1 0>;
 		bus-width = <4>;
 		max-frequency = <25000000>;
