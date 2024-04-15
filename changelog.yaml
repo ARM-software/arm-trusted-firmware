@@ -241,6 +241,9 @@ subsections:
               - title: RD-N2
                 scope: rdn2
 
+              - title: RD-Fremont
+                scope: rdfremont
+
                 deprecated:
                   - board/rdn2
 
