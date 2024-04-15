@@ -9,6 +9,8 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include "platform_def.h"
+
+#include "tc-common.dtsi"
 #include "tc_vers.dtsi"
 #if TARGET_FLAVOUR_FVP
 #include "tc_fvp.dtsi"
@@ -386,9 +388,9 @@
 		};
 	};
 
-	mbox_db_rx: mhu@MHU_RX_ADDR() {
+	mbox_db_rx: mhu@MHU_RX_ADDR {
 		compatible = "arm,mhuv2-rx","arm,primecell";
-		reg = <0x0 MHU_RX_ADDR(0x) 0x0 0x1000>;
+		reg = <0x0 ADDRESSIFY(MHU_RX_ADDR) 0x0 0x1000>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
 		#mbox-cells = <2>;
@@ -398,9 +400,9 @@
 		arm,mhuv2-protocols = <0 1>;
 	};
 
-	mbox_db_tx: mhu@MHU_TX_ADDR() {
+	mbox_db_tx: mhu@MHU_TX_ADDR {
 		compatible = "arm,mhuv2-tx","arm,primecell";
-		reg = <0x0 MHU_TX_ADDR(0x) 0x0 0x1000>;
+		reg = <0x0 ADDRESSIFY(MHU_TX_ADDR) 0x0 0x1000>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
 		#mbox-cells = <2>;
@@ -606,11 +608,11 @@
 	};
 #endif /* TC_IOMMU_EN */
 
-	dp0: display@DPU_ADDR() {
+	dp0: display@DPU_ADDR {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "arm,mali-d71";
-		reg = <HI(DPU_ADDR(0x)) LO(DPU_ADDR(0x)) 0 0x20000>;
+		reg = <HI(ADDRESSIFY(DPU_ADDR)) LO(ADDRESSIFY(DPU_ADDR)) 0 0x20000>;
 		interrupts = <GIC_SPI DPU_IRQ IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "DPU";
 		DPU_CLK_ATTR1;
