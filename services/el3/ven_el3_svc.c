@@ -9,6 +9,7 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <lib/debugfs.h>
+#include <lib/pmf/pmf.h>
 #include <services/ven_el3_svc.h>
 #include <tools_share/uuid.h>
 
@@ -24,6 +25,12 @@ static int ven_el3_svc_setup(void)
 		return 1;
 	}
 #endif /* USE_DEBUGFS */
+
+#if ENABLE_PMF
+	if (pmf_setup() != 0) {
+		return 1;
+	}
+#endif /* ENABLE_PMF */
 
 	return 0;
 }
@@ -50,6 +57,19 @@ static uintptr_t ven_el3_svc_handler(unsigned int smc_fid,
 			handle, flags);
 	}
 #endif /* USE_DEBUGFS */
+
+#if ENABLE_PMF
+
+	/*
+	 * Dispatch PMF calls to PMF SMC handler and return its return
+	 * value
+	 */
+	if (is_pmf_fid(smc_fid)) {
+		return pmf_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
+				handle, flags);
+	}
+
+#endif /* ENABLE_PMF */
 
 	switch (smc_fid) {
 	case VEN_EL3_SVC_UID:

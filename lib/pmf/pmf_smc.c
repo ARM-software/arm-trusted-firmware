@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,7 +36,8 @@ uintptr_t pmf_smc_handler(unsigned int smc_fid,
 		x2 = (uint32_t)x2;
 		x3 = (uint32_t)x3;
 
-		if (smc_fid == PMF_SMC_GET_TIMESTAMP_32) {
+		if (smc_fid == PMF_SMC_GET_TIMESTAMP_32 ||
+		   smc_fid == PMF_SMC_GET_TIMESTAMP_32_DEP) {
 			/*
 			 * Return error code and the captured
 			 * time-stamp to the caller.
@@ -49,7 +50,8 @@ uintptr_t pmf_smc_handler(unsigned int smc_fid,
 					(uint32_t)(ts_value >> 32));
 		}
 	} else {
-		if (smc_fid == PMF_SMC_GET_TIMESTAMP_64) {
+		if (smc_fid == PMF_SMC_GET_TIMESTAMP_64 ||
+		    smc_fid == PMF_SMC_GET_TIMESTAMP_64_DEP) {
 			/*
 			 * Return error code and the captured
 			 * time-stamp to the caller.

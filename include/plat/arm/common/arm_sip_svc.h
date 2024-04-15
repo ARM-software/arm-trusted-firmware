@@ -16,6 +16,7 @@
 /*					U(0x8200ff02) is reserved */
 #define ARM_SIP_SVC_VERSION		U(0x8200ff03)
 
+/* Deprecated FID's Range and will be removed */
 /* PMF_SMC_GET_TIMESTAMP_32		0x82000010 */
 /* PMF_SMC_GET_TIMESTAMP_64		0xC2000010 */
 

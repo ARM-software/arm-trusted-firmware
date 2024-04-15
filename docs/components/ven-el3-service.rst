@@ -24,14 +24,25 @@ Vendor-specific EL3 monitor services are as follows:
 +-----------------------------------+-----------------------+---------------------------------------------+
 | SMC Function Identifier           | Service Type          | FID's Usage                                 |
 +===================================+=======================+=============================================+
-| 0x87000010 - 0x8700001F (SMC32)   | DebugFS Interface     | | 0 - 11 are in use                         |
-+-----------------------------------+                       | | 12 - 15 are reserved for future expansion |
+| 0x87000010 - 0x8700001F (SMC32)   | DebugFS Interface     | | 0 - 11 are in use.                        |
++-----------------------------------+                       | | 12 - 15 are reserved for future expansion.|
 | 0xC7000010 - 0xC700001F (SMC64)   |                       |                                             |
++-----------------------------------+-----------------------+---------------------------------------------+
+| 0x87000020 - 0x8700002F (SMC32)   | Performance           | | 0 is in use.                              |
++-----------------------------------+ Measurement Framework | | 1 - 15 are reserved for future expansion. |
+| 0xC7000020 - 0xC700002F (SMC64)   | (PMF)                 |                                             |
 +-----------------------------------+-----------------------+---------------------------------------------+
 
 Source definitions for vendor-specific EL3 Monitor Service Calls are located in
 the ``ven_el3_svc.h`` header file.
 
+
+Performance Measurement Framework (PMF)
+---------------------------------------
+
+The :ref:`Performance Measurement Framework <firmware_design_pmf>`
+allows callers to retrieve timestamps captured at various paths in TF-A
+execution.
 
 DebugFS interface
 -----------------

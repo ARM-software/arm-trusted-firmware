@@ -22,9 +22,11 @@ DEFINE_SVC_UUID2(arm_sip_svc_uid,
 
 static int arm_sip_setup(void)
 {
+#if ENABLE_PMF
 	if (pmf_setup() != 0) {
 		return 1;
 	}
+#endif /* ENABLE_PMF */
 
 #if USE_DEBUGFS
 
@@ -60,12 +62,13 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 	int call_count = 0;
 
 #if ENABLE_PMF
-
 	/*
 	 * Dispatch PMF calls to PMF SMC handler and return its return
 	 * value
 	 */
-	if (is_pmf_fid(smc_fid)) {
+	if (is_pmf_fid_deprecated(smc_fid)) {
+		NOTICE("PMF Interface usage from arm-sip range is deprecated. \
+			Please migrate smc call to Vendor-specific el3 range.\n");
 		return pmf_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
 				handle, flags);
 	}

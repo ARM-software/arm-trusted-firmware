@@ -15,18 +15,11 @@ services:
 
 The Arm SiP implementation offers the following services:
 
--  Performance Measurement Framework (PMF)
 -  Execution State Switching service
 
 Source definitions for Arm SiP service are located in the ``arm_sip_svc.h`` header
 file.
 
-Performance Measurement Framework (PMF)
----------------------------------------
-
-The :ref:`Performance Measurement Framework <firmware_design_pmf>`
-allows callers to retrieve timestamps captured at various paths in TF-A
-execution.
 
 Execution State Switching service
 ---------------------------------
