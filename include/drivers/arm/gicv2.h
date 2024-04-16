@@ -51,7 +51,7 @@
 #define SGIR_TGTLSTFLT_MASK	U(0x3)
 #define SGIR_TGTLST_SHIFT	16
 #define SGIR_TGTLST_MASK	U(0xff)
-#define SGIR_NSATT		(U(0x1) << 16)
+#define SGIR_NSATT		(U(0x1) << 15)
 #define SGIR_INTID_MASK		ULL(0xf)
 
 #define SGIR_TGT_SPECIFIC	U(0)
