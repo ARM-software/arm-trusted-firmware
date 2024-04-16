@@ -42,7 +42,7 @@ static uintptr_t config_base __unused;
 #if TRANSFER_LIST
 CASSERT(BL2_BASE >= PLAT_ARM_EL3_FW_HANDOFF_BASE + PLAT_ARM_FW_HANDOFF_SIZE,
 	assert_bl2_base_overflows);
-#else
+#elif !RESET_TO_BL2
 CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 #endif /* TRANSFER_LIST */
 
