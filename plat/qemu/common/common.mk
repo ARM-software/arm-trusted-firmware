@@ -88,8 +88,8 @@ ifeq (${ARCH},aarch64)
 #
 # We go v8.0 by default and will enable all features we want
 
-ARM_ARCH_MAJOR		:=	8
-ARM_ARCH_MINOR		:=	0
+ARM_ARCH_MAJOR		?=	8
+ARM_ARCH_MINOR		?=	0
 
 # 8.0
 ENABLE_FEAT_CSV2_2	:=	2
@@ -106,6 +106,7 @@ ENABLE_FEAT_RAS		:=	0
 # 8.4
 ENABLE_FEAT_SEL2	:=	2
 ENABLE_FEAT_DIT		:=	2
+ENABLE_TRF_FOR_NS	:=	2
 
 # 8.5
 ENABLE_FEAT_RNG		:=	2
