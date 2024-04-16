@@ -225,6 +225,9 @@ subsections:
               - title: RD-N1 Edge
                 scope: rdn1edge
 
+              - title: RD-V1
+                scope: rdv1
+
               - title: RD-N2
                 scope: rdn2
 
