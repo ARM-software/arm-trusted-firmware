@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,11 +30,14 @@ void cm_set_context_by_index(unsigned int cpu_idx,
 void *cm_get_context(uint32_t security_state);
 void cm_set_context(void *context, uint32_t security_state);
 void cm_init_my_context(const struct entry_point_info *ep);
-void cm_init_context_by_index(unsigned int cpu_idx,
-			      const struct entry_point_info *ep);
 void cm_setup_context(cpu_context_t *ctx, const struct entry_point_info *ep);
 void cm_prepare_el3_exit(uint32_t security_state);
 void cm_prepare_el3_exit_ns(void);
+
+#if !IMAGE_BL1
+void cm_init_context_by_index(unsigned int cpu_idx,
+			      const struct entry_point_info *ep);
+#endif /* !IMAGE_BL1 */
 
 #ifdef __aarch64__
 #if IMAGE_BL31
