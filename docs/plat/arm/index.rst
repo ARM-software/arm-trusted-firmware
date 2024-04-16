@@ -14,6 +14,7 @@ Arm Development Platforms
    arm-build-options
    morello/index
    corstone1000/index
+   automotive_rd/index
 
 This chapter holds documentation related to Arm's development platforms,
 including both software models (FVPs) and hardware development boards
@@ -21,4 +22,4 @@ such as Juno.
 
 --------------
 
-*Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
