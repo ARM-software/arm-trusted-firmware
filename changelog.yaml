@@ -228,6 +228,9 @@ subsections:
               - title: RD-V1
                 scope: rdv1
 
+              - title: RD-V1-MC
+                scope: rdv1mc
+
               - title: RD-N2
                 scope: rdn2
 
