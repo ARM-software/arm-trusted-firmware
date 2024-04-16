@@ -36,6 +36,9 @@
  * Other platform porting definitions are provided by included headers
  */
 
+/* Define memory configuration for device tree files. */
+#define PLAT_ARM_HW_CONFIG_SIZE			U(0x8000)
+
 /*
  * Required ARM standard platform porting definitions
  */

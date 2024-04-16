@@ -75,6 +75,9 @@
  */
 #define PLAT_ARM_MAX_BL1_RW_SIZE		UL(0xC000)
 
+/* Define memory configuration for device tree files. */
+#define PLAT_ARM_HW_CONFIG_SIZE			U(0x8000)
+
 /*
  * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
  */

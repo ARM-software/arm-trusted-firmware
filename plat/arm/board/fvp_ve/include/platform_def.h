@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -157,6 +157,9 @@
 
 #define PLAT_PHY_ADDR_SPACE_SIZE			(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE			(1ULL << 32)
+
+/* Define memory configuration for device tree files. */
+#define PLAT_ARM_HW_CONFIG_SIZE			U(0x01000000)
 
 /*
  * This macro defines the deepest retention state possible. A higher state

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -90,11 +90,11 @@
 
 #define PLAT_ARM_DRAM2_SIZE		UL(0x80000000)
 
-#define PLAT_HW_CONFIG_DTB_SIZE		ULL(0x8000)
+#define PLAT_ARM_HW_CONFIG_SIZE		ULL(0x8000)
 
 #define ARM_DTB_DRAM_NS			MAP_REGION_FLAT(		\
 					PLAT_HW_CONFIG_DTB_BASE,	\
-					PLAT_HW_CONFIG_DTB_SIZE,	\
+					PLAT_ARM_HW_CONFIG_SIZE,	\
 					MT_MEMORY | MT_RO | MT_NS)
 
 #define V2M_FVP_R_SYSREGS_BASE		UL(0x9c010000)
