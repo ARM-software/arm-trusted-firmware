@@ -1549,6 +1549,28 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 		write_ctx_reg(ctx, CTX_TCR2_EL1, read_tcr2_el1());
 	}
 #endif
+
+#if ENABLE_TRF_FOR_NS
+	if (is_feat_trf_supported()) {
+		write_ctx_reg(ctx, CTX_TRFCR_EL1, read_trfcr_el1());
+	}
+#endif
+
+#if ENABLE_FEAT_CSV2_2
+	if (is_feat_csv2_2_supported()) {
+		write_ctx_reg(ctx, CTX_SCXTNUM_EL0, read_scxtnum_el0());
+		write_ctx_reg(ctx, CTX_SCXTNUM_EL1, read_scxtnum_el1());
+	}
+#endif
+
+#if ENABLE_FEAT_GCS
+	if (is_feat_gcs_supported()) {
+		write_ctx_reg(ctx, CTX_GCSCR_EL1, read_gcscr_el1());
+		write_ctx_reg(ctx, CTX_GCSCRE0_EL1, read_gcscre0_el1());
+		write_ctx_reg(ctx, CTX_GCSPR_EL1, read_gcspr_el1());
+		write_ctx_reg(ctx, CTX_GCSPR_EL0, read_gcspr_el0());
+	}
+#endif
 }
 
 static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
@@ -1634,6 +1656,28 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 #if ENABLE_FEAT_TCR2
 	if (is_feat_tcr2_supported()) {
 		write_tcr2_el1(read_ctx_reg(ctx, CTX_TCR2_EL1));
+	}
+#endif
+
+#if ENABLE_TRF_FOR_NS
+	if (is_feat_trf_supported()) {
+		write_trfcr_el1(read_ctx_reg(ctx, CTX_TRFCR_EL1));
+	}
+#endif
+
+#if ENABLE_FEAT_CSV2_2
+	if (is_feat_csv2_2_supported()) {
+		write_scxtnum_el0(read_ctx_reg(ctx, CTX_SCXTNUM_EL0));
+		write_scxtnum_el1(read_ctx_reg(ctx, CTX_SCXTNUM_EL1));
+	}
+#endif
+
+#if ENABLE_FEAT_GCS
+	if (is_feat_gcs_supported()) {
+		write_gcscr_el1(read_ctx_reg(ctx, CTX_GCSCR_EL1));
+		write_gcscre0_el1(read_ctx_reg(ctx, CTX_GCSCRE0_EL1));
+		write_gcspr_el1(read_ctx_reg(ctx, CTX_GCSPR_EL1));
+		write_gcspr_el0(read_ctx_reg(ctx, CTX_GCSPR_EL0));
 	}
 #endif
 }
