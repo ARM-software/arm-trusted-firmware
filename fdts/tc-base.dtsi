@@ -292,7 +292,6 @@
 		#mbox-cells = <2>;
 		interrupts = <GIC_SPI INT_MBOX_RX IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "mhu_rx";
-		mhu-protocol = "doorbell";
 		arm,mhuv2-protocols = <0 1>;
 	};
 
@@ -303,7 +302,6 @@
 		clock-names = "apb_pclk";
 		#mbox-cells = <2>;
 		interrupt-names = "mhu_tx";
-		mhu-protocol = "doorbell";
 		arm,mhuv2-protocols = <0 1>;
 	};
 
