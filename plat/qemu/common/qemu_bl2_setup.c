@@ -173,7 +173,8 @@ static void bl2_plat_gpt_setup(void)
 	 * moment we use a 8KB table, which covers 1TB of RAM (40-bit PA).
 	 */
 	if (gpt_init_l0_tables(GPCCR_PPS_1TB, PLAT_QEMU_L0_GPT_BASE,
-			       PLAT_QEMU_L0_GPT_SIZE) < 0) {
+			       PLAT_QEMU_L0_GPT_SIZE +
+			       PLAT_QEMU_GPT_BITLOCK_SIZE) < 0) {
 		ERROR("gpt_init_l0_tables() failed!\n");
 		panic();
 	}

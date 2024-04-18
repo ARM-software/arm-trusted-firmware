@@ -342,8 +342,11 @@
  * Tables
  */
 #define PLAT_QEMU_L0_GPT_BASE		(PLAT_QEMU_L1_GPT_BASE -	\
-					 PLAT_QEMU_L0_GPT_SIZE)
+					 (PLAT_QEMU_L0_GPT_SIZE +	\
+					  PLAT_QEMU_GPT_BITLOCK_SIZE))
 #define PLAT_QEMU_L0_GPT_SIZE		(2 * PAGE_SIZE)
+/* Two pages so the L0 GPT is naturally aligned.  */
+#define PLAT_QEMU_GPT_BITLOCK_SIZE	(2 * PAGE_SIZE)
 
 #define PLAT_QEMU_L1_GPT_BASE		(SEC_DRAM_BASE + SEC_DRAM_SIZE - \
 					 PLAT_QEMU_L1_GPT_SIZE)
@@ -353,7 +356,8 @@
 
 #define RME_GPT_DRAM_BASE		PLAT_QEMU_L0_GPT_BASE
 #define RME_GPT_DRAM_SIZE		(PLAT_QEMU_L1_GPT_SIZE +	\
-					 PLAT_QEMU_L0_GPT_SIZE)
+					 PLAT_QEMU_L0_GPT_SIZE +	\
+					 PLAT_QEMU_GPT_BITLOCK_SIZE)
 
 #ifndef __ASSEMBLER__
 /* L0 table greater than 4KB must be naturally aligned */
