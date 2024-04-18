@@ -74,10 +74,10 @@ global variables defined by the functions inside "library at ROM".
 Script
 ~~~~~~
 
-There is a ``romlib_generate.py`` Python script that generates the necessary
+There is a ``romlib_generator.py`` Python script that generates the necessary
 files for the "library at ROM" to work. It implements multiple functions:
 
-1. ``romlib_generate.py gentbl [args]`` - Generates the jump table by parsing
+1. ``romlib_generator.py gentbl [args]`` - Generates the jump table by parsing
    the index file.
 
 2. ``romlib_generator.py genvar [args]`` - Generates the jump table global
@@ -93,10 +93,10 @@ files for the "library at ROM" to work. It implements multiple functions:
    generate a dependency file of the included index files which can be directly
    used in makefiles.
 
-Each ``romlib_generate.py`` function has its own manual which is accessible by
+Each ``romlib_generator.py`` function has its own manual which is accessible by
 runing ``romlib_generator.py [function] --help``.
 
-``romlib_generate.py`` requires Python 3 environment.
+``romlib_generator.py`` requires Python 3 environment.
 
 
 Patching of functions in library at ROM
