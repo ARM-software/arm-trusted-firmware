@@ -59,7 +59,7 @@ The following tools are required to obtain and build |TF-A|:
 The following libraries must be available to build one or more components or
 supporting tools:
 
-- OpenSSL >= 1.1.1 (v3.0.0 to v3.0.6 highly discouraged due to security issues)
+- OpenSSL >= 1.0.0 (1.0.x, v3.0.0 to v3.0.6 highly discouraged due to security issues)
 
    Required to build the cert_create, encrypt_fw, and fiptool tools.
 
