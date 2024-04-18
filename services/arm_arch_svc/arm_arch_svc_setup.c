@@ -267,6 +267,11 @@ static uintptr_t arm_arch_svc_smc_handler(uint32_t smc_fid,
 	void *handle,
 	u_register_t flags)
 {
+	(void)x2;
+	(void)x3;
+	(void)x4;
+	(void)cookie;
+
 	switch (smc_fid) {
 	case SMCCC_VERSION:
 		SMC_RET1(handle, smccc_version());
