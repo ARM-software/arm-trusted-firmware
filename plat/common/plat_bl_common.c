@@ -50,6 +50,7 @@ int32_t plat_get_soc_name(char *soc_name __unused)
 
 int32_t plat_is_smccc_feature_available(u_register_t fid __unused)
 {
+	(void)fid;
 	return SMC_ARCH_CALL_NOT_SUPPORTED;
 }
 
