@@ -123,7 +123,10 @@ uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *spmc_ctx)
 
 	/* Restore the context assigned above */
 #if SPMD_SPM_AT_SEL2
-	cm_el2_sysregs_context_restore(SECURE);
+	/* Avoid restoring ctx during SPMC init */
+	if (spmc_ctx->state != SPMC_STATE_ON_PENDING) {
+		cm_el2_sysregs_context_restore(SECURE);
+	}
 #else
 	cm_el1_sysregs_context_restore(SECURE);
 #endif
