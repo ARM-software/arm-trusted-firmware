@@ -13,7 +13,7 @@
 
 u_register_t psci_mem_protect(unsigned int enable)
 {
-	int val;
+	int val = 0;
 
 	assert(psci_plat_pm_ops->read_mem_protect != NULL);
 	assert(psci_plat_pm_ops->write_mem_protect != NULL);

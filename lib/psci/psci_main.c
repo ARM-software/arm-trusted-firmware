@@ -28,7 +28,7 @@ int psci_cpu_on(u_register_t target_cpu,
 
 {
 	int rc;
-	entry_point_info_t *ep;
+	entry_point_info_t *ep = NULL;
 	unsigned int target_idx = (unsigned int)plat_core_pos_by_mpidr(target_cpu);
 
 	/* Validate the target CPU */
