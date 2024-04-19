@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -95,6 +95,15 @@
 		reg = <0x00008800 0x80000000 0x0 0x7f000000>,
 		      <0x0 0x88000000 0x0 0x10000000>;
 	};
+
+	memory@2 {
+		device_type = "device-memory";
+		reg = <0x0 0x1c090000 0x0 0x40000>, /* UART */
+		      <0x0 0x2bfe0000 0x0 0x20000>, /* SMMUv3TestEngine */
+		      <0x0 0x2a490000 0x0 0x20000>, /* SP805 Trusted Watchdog */
+		      <0x0 0x1c130000 0x0 0x10000>; /* Virtio block device */
+	};
+
 
 #if MEASURED_BOOT
 #include "event_log.dtsi"
