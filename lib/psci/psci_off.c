@@ -94,7 +94,7 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_off != NULL)) {
 		rc = psci_spd_pm->svc_off(0);
 		if (rc != PSCI_E_SUCCESS)
-			goto exit;
+			goto off_exit;
 	}
 
 	/*
@@ -127,7 +127,7 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	plat_psci_stat_accounting_start(&state_info);
 #endif
 
-exit:
+off_exit:
 	/*
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
