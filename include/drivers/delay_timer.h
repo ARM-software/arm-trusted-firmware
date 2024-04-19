@@ -21,7 +21,7 @@
  * the clock period in microseconds.
  ********************************************************************/
 
-typedef struct timer_ops {
+typedef struct timer_operation {
 	uint32_t (*get_timer_value)(void);
 	uint32_t clk_mult;
 	uint32_t clk_div;
