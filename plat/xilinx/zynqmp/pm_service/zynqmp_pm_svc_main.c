@@ -22,6 +22,7 @@
 #include <plat_private.h>
 #include "pm_client.h"
 #include "pm_ipi.h"
+#include "pm_svc_main.h"
 #include "zynqmp_pm_api_sys.h"
 #include "zynqmp_pm_defs.h"
 
