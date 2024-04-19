@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,18 +40,18 @@
 
 #include <stdint.h>
 
-typedef struct console {
-	struct console *next;
+typedef struct core_console {
+	struct core_console *next;
 	/*
 	 * Only the low 32 bits are used. The type is u_register_t to align the
 	 * fields of the struct to 64 bits in AArch64 and 32 bits in AArch32
 	 */
 	u_register_t flags;
-	int (*const putc)(int character, struct console *console);
+	int (*const putc)(int character, struct core_console *console);
 #if ENABLE_CONSOLE_GETC
-	int (*const getc)(struct console *console);
+	int (*const getc)(struct core_console *console);
 #endif
-	void (*const flush)(struct console *console);
+	void (*const flush)(struct core_console *console);
 	uintptr_t base;
 	/* Additional private driver data may follow here. */
 } console_t;
