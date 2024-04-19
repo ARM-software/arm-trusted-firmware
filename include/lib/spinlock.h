@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,8 +15,15 @@ typedef struct spinlock {
 	volatile uint32_t lock;
 } spinlock_t;
 
+typedef struct bitlock {
+	volatile uint8_t lock;
+} bitlock_t;
+
 void spin_lock(spinlock_t *lock);
 void spin_unlock(spinlock_t *lock);
+
+void bit_lock(bitlock_t *lock, uint8_t mask);
+void bit_unlock(bitlock_t *lock, uint8_t mask);
 
 #else
 
@@ -24,6 +31,5 @@ void spin_unlock(spinlock_t *lock);
 #define SPINLOCK_ASM_ALIGN	2
 #define SPINLOCK_ASM_SIZE	4
 
-#endif
-
+#endif /* __ASSEMBLER__ */
 #endif /* SPINLOCK_H */
