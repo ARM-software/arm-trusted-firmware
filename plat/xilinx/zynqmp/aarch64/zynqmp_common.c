@@ -348,7 +348,7 @@ static void zynqmp_print_platform_name(void)
 {
 	uint32_t ver = zynqmp_get_silicon_ver();
 	uint32_t rtl = zynqmp_get_rtl_ver();
-	char *label = "Unknown";
+	const char *label = "Unknown";
 
 	switch (ver) {
 	case ZYNQMP_CSU_VERSION_QEMU:

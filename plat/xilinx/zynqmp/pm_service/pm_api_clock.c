@@ -2486,7 +2486,7 @@ enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
 					     uint32_t index,
 					     uint32_t *topology)
 {
-	struct pm_clock_node *clock_nodes;
+	const struct pm_clock_node *clock_nodes;
 	uint8_t num_nodes;
 	uint32_t i;
 	uint16_t typeflags;
@@ -2543,7 +2543,7 @@ enum pm_ret_status pm_api_clock_get_fixedfactor_params(uint32_t clock_id,
 						       uint32_t *mul,
 						       uint32_t *div)
 {
-	struct pm_clock_node *clock_nodes;
+	const struct pm_clock_node *clock_nodes;
 	uint8_t num_nodes;
 	uint32_t type, i;
 
@@ -2598,7 +2598,7 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 					    uint32_t *parents)
 {
 	uint32_t i;
-	int32_t *clk_parents;
+	const int32_t *clk_parents;
 
 	if (!pm_clock_valid(clock_id)) {
 		return PM_RET_ERROR_ARGS;
@@ -2675,7 +2675,7 @@ enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 						uint32_t *max_div)
 {
 	uint32_t i;
-	struct pm_clock_node *nodes;
+	const struct pm_clock_node *nodes;
 
 	if (clock_id >= CLK_MAX_OUTPUT_CLK) {
 		return PM_RET_ERROR_ARGS;
@@ -2789,7 +2789,7 @@ struct pm_pll *pm_clock_get_pll(enum clock_id clock_id)
 enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 					    enum pm_node_id *node_id)
 {
-	struct pm_pll *pll = pm_clock_get_pll(clock_id);
+	const struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
 	if (pll != NULL) {
 		*node_id = pll->nid;
@@ -3011,7 +3011,7 @@ enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
 					 uint32_t *mode)
 {
-	struct pm_pll *pll = pm_clock_get_pll(clock_id);
+	const struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
 	if ((pll == NULL) || (mode == NULL)) {
 		return PM_RET_ERROR_ARGS;
@@ -3052,7 +3052,7 @@ enum pm_ret_status pm_clock_id_is_valid(uint32_t clock_id)
 uint8_t pm_clock_has_div(uint32_t clock_id, enum pm_clock_div_id div_id)
 {
 	uint32_t i;
-	struct pm_clock_node *nodes;
+	const struct pm_clock_node *nodes;
 
 	if (clock_id >= CLK_MAX_OUTPUT_CLK) {
 		return 0;

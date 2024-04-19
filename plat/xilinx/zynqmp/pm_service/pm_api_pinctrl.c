@@ -2088,7 +2088,7 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(uint32_t pin,
 						 uint16_t *groups)
 {
 	uint32_t i;
-	uint16_t *grps;
+	const uint16_t *grps;
 
 	if (pin >= MAX_PIN) {
 		return PM_RET_ERROR_ARGS;
