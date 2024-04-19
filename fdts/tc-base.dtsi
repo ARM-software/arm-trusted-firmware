@@ -303,29 +303,31 @@
 		interrupt-names = "mhu_tx";
 	};
 
-	scmi {
-		compatible = "arm,scmi";
-		mbox-names = "tx", "rx";
-		mboxes = <&mbox_db_tx 0 0 &mbox_db_rx 0 0 >;
-		shmem = <&cpu_scp_scmi_mem &cpu_scp_scmi_mem>;
-		#address-cells = <1>;
-		#size-cells = <0>;
+	firmware {
+		scmi {
+			compatible = "arm,scmi";
+			mbox-names = "tx", "rx";
+			mboxes = <&mbox_db_tx 0 0 &mbox_db_rx 0 0 >;
+			shmem = <&cpu_scp_scmi_mem &cpu_scp_scmi_mem>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 
 #if TC_SCMI_PD_CTRL_EN
-		scmi_devpd: protocol@11 {
-			reg = <0x11>;
-			#power-domain-cells = <1>;
-		};
+			scmi_devpd: protocol@11 {
+				reg = <0x11>;
+				#power-domain-cells = <1>;
+			};
 #endif /* TC_SCMI_PD_CTRL_EN */
 
-		scmi_dvfs: protocol@13 {
-			reg = <0x13>;
-			#clock-cells = <1>;
-		};
+			scmi_dvfs: protocol@13 {
+				reg = <0x13>;
+				#clock-cells = <1>;
+			};
 
-		scmi_clk: protocol@14 {
-			reg = <0x14>;
-			#clock-cells = <1>;
+			scmi_clk: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
 		};
 	};
 
