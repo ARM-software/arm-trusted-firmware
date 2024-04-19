@@ -1150,7 +1150,7 @@ enum pm_ret_status pm_clock_enable(uint32_t clock_id)
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll(clock_id);
-	if (pll) {
+	if (pll != NULL) {
 		return pm_clock_pll_enable(pll);
 	}
 
@@ -1175,7 +1175,7 @@ enum pm_ret_status pm_clock_disable(uint32_t clock_id)
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll(clock_id);
-	if (pll) {
+	if (pll != NULL) {
 		return pm_clock_pll_disable(pll);
 	}
 
@@ -1203,9 +1203,9 @@ enum pm_ret_status pm_clock_getstate(uint32_t clock_id,
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll(clock_id);
-	if (pll)
+	if (pll != NULL) {
 		return pm_clock_pll_get_state(pll, state);
-
+	}
 	/* Check if clock ID is a valid on-chip clock */
 	status = pm_clock_id_is_valid(clock_id);
 	if (status != PM_RET_SUCCESS) {
@@ -1341,7 +1341,7 @@ enum pm_ret_status pm_clock_setparent(uint32_t clock_id,
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll_by_related_clk(clock_id);
-	if (pll) {
+	if (pll != NULL) {
 		return pm_clock_pll_set_parent(pll, clock_id, parent_index);
 	}
 
@@ -1376,7 +1376,7 @@ enum pm_ret_status pm_clock_getparent(uint32_t clock_id,
 
 	/* First try to handle it as a PLL */
 	pll = pm_clock_get_pll_by_related_clk(clock_id);
-	if (pll) {
+	if (pll != NULL) {
 		return pm_clock_pll_get_parent(pll, clock_id, parent_index);
 	}
 
