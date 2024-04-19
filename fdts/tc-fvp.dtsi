@@ -10,9 +10,9 @@
 
 #ifdef TC_RESOLUTION_1920X1080P60
 
-#define VENCODER_TIMING_CLK 148500000
-#define VENCODER_TIMING								\
-	clock-frequency = <VENCODER_TIMING_CLK>;				\
+#define LCD_TIMING_CLK 148500000
+#define LCD_TIMING								\
+	clock-frequency = <LCD_TIMING_CLK>;					\
 	hactive = <1920>;							\
 	vactive = <1080>;							\
 	hfront-porch = <88>;							\
@@ -24,9 +24,9 @@
 
 #else /* TC_RESOLUTION_640X480P60 */
 
-#define VENCODER_TIMING_CLK 25175000
-#define VENCODER_TIMING								\
-	clock-frequency = <VENCODER_TIMING_CLK>;				\
+#define LCD_TIMING_CLK 25175000
+#define LCD_TIMING								\
+	clock-frequency = <LCD_TIMING_CLK>;					\
 	hactive = <640>;							\
 	vactive = <480>;							\
 	hfront-porch = <16>;							\

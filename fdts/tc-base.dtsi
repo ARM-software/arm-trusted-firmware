@@ -405,34 +405,50 @@
 	dpu_aclk: dpu_aclk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <VENCODER_TIMING_CLK>;
+		clock-frequency = <LCD_TIMING_CLK>;
 		clock-output-names = "fpga:dpu_aclk";
 	};
 
 	dpu_pixel_clk: dpu-pixel-clk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <VENCODER_TIMING_CLK>;
+		clock-frequency = <LCD_TIMING_CLK>;
 		clock-output-names = "pxclk";
 	};
 #endif /* !TC_DPU_USE_SCMI_CLK */
 
+#if TC_DPU_USE_SIMPLE_PANEL
+	vpanel {
+		compatible = "panel-dpi";
+		post-init-providers = <&pl0>;
+		port {
+			lcd_in: endpoint {
+				remote-endpoint = <&dp_pl0_out0>;
+			};
+		};
+
+		panel-timing {
+			LCD_TIMING;
+		};
+	};
+
+#else
 	vencoder {
 		compatible = "drm,virtual-encoder";
 		port {
-			vencoder_in: endpoint {
+			lcd_in: endpoint {
 				remote-endpoint = <&dp_pl0_out0>;
 			};
 		};
 
 		display-timings {
 			timing-panel {
-				VENCODER_TIMING;
+				LCD_TIMING;
 			};
 		};
 
 	};
-
+#endif
 	ethernet: ethernet@ETHERNET_ADDR {
 		reg = <0x0 ADDRESSIFY(ETHERNET_ADDR) 0x0 0x10000>;
 		interrupts = <GIC_SPI ETHERNET_INT IRQ_TYPE_LEVEL_HIGH 0>;
@@ -575,7 +591,7 @@
 				port@0 {
 					reg = <0>;
 					dp_pl0_out0: endpoint {
-						remote-endpoint = <&vencoder_in>;
+						remote-endpoint = <&lcd_in>;
 					};
 				};
 			};
