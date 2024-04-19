@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,6 +36,9 @@ static int32_t versal_pwr_domain_on(u_register_t mpidr)
 	}
 
 	proc = pm_get_proc((uint32_t)cpu_id);
+	if (!proc) {
+		return PSCI_E_INTERN_FAIL;
+	}
 
 	/* Send request to PMC to wake up selected ACPU core */
 	(void)pm_req_wakeup(proc->node_id, (versal_sec_entry & 0xFFFFFFFFU) | 0x1U,
@@ -58,6 +61,10 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint32_t state;
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
+
+	if (!proc) {
+		return;
+	}
 
 	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
@@ -95,6 +102,10 @@ static void versal_pwr_domain_suspend_finish(
 {
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
+
+	if (!proc) {
+		return;
+	}
 
 	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
@@ -189,6 +200,10 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	uint32_t ret, fw_api_version, version[PAYLOAD_ARG_CNT] = {0U};
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
+
+	if (!proc) {
+		return;
+	}
 
 	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
