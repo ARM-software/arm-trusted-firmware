@@ -203,6 +203,14 @@
 		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
+	mbox_db_rx: mhu@MHU_RX_ADDR {
+		arm,mhuv2-protocols = <0 1>;
+	};
+
+	mbox_db_tx: mhu@MHU_TX_ADDR {
+		arm,mhuv2-protocols = <0 1>;
+	};
+
 	dp0: display@DPU_ADDR {
 #if TC_SCMI_PD_CTRL_EN
 		power-domains = <&scmi_devpd (PLAT_MAX_CPUS_PER_CLUSTER + 2)>;

@@ -292,7 +292,6 @@
 		#mbox-cells = <2>;
 		interrupts = <GIC_SPI INT_MBOX_RX IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "mhu_rx";
-		arm,mhuv2-protocols = <0 1>;
 	};
 
 	mbox_db_tx: mhu@MHU_TX_ADDR {
@@ -302,7 +301,6 @@
 		clock-names = "apb_pclk";
 		#mbox-cells = <2>;
 		interrupt-names = "mhu_tx";
-		arm,mhuv2-protocols = <0 1>;
 	};
 
 	scmi {
