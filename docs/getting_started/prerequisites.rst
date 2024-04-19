@@ -71,7 +71,7 @@ supporting tools:
 The following libraries are required for Trusted Board Boot and Measured Boot
 support:
 
-- mbed TLS == 2.28.5 (tag: ``mbedtls-2.28.5``)
+- mbed TLS == 2.28.8 (tag: ``mbedtls-2.28.8``)
 
 These tools are optional:
 
@@ -178,7 +178,7 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 
 --------------
 
-*Copyright (c) 2021-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2024, Arm Limited. All rights reserved.*
 
 .. _Arm Developer website: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads
 .. _Gerrit Code Review: https://www.gerritcodereview.com/
