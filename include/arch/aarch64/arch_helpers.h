@@ -793,6 +793,15 @@ static inline void tlbirpalos_512m(uintptr_t addr)
 	TLBIRPALOS(addr, TLBI_SZ_512M);
 }
 
+/*
+ * Invalidate TLBs of GPT entries by Physical address, last level.
+ *
+ * @pa: the starting address for the range
+ *      of invalidation
+ * @size: size of the range of invalidation
+ */
+void gpt_tlbi_by_pa_ll(uint64_t pa, size_t size);
+
 /* Previously defined accessor functions with incomplete register names  */
 
 #define read_current_el()	read_CurrentEl()
