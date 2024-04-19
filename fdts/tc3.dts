@@ -71,4 +71,18 @@
 		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
 				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>;
 	};
+
+	sram: sram@6000000 {
+		cpu_scp_scmi_p2a: scp-shmem@80 {
+			compatible = "arm,scmi-shmem";
+			reg = <0x80 0x80>;
+		};
+	};
+
+	firmware {
+		scmi {
+			mboxes = <&mbox_db_tx 0 0 0 &mbox_db_rx 0 0 0 &mbox_db_rx 0 0 1>;
+			shmem = <&cpu_scp_scmi_a2p &cpu_scp_scmi_p2a>;
+		};
+	};
 };

@@ -219,6 +219,24 @@
 		arm,mhuv2-protocols = <0 1>;
 	};
 
+	firmware {
+		/*
+		 * TC2 does not have a P2A channel, but wiring one was needed to make Linux work
+		 * (by chance). At the time the SCMI driver did not support bidirectional
+		 * mailboxes so as a workaround, the A2P channel was wired for TX communication
+		 * and the synchronous replies would be read asyncrhonously as if coming from
+		 * the P2A channel, while being the actual A2P channel.
+		 *
+		 * This will not work with kernels > 5.15, but keep it around to keep TC2
+		 * working with its target kernel. Newer kernels will still work, but SCMI
+		 * won't as they check that the two regions are distinct.
+		 */
+		scmi {
+			mboxes = <&mbox_db_tx 0 0 &mbox_db_rx 0 0>;
+			shmem = <&cpu_scp_scmi_a2p &cpu_scp_scmi_a2p>;
+		};
+	};
+
 	dp0: display@DPU_ADDR {
 #if TC_SCMI_PD_CTRL_EN
 		power-domains = <&scmi_devpd (PLAT_MAX_CPUS_PER_CLUSTER + 2)>;

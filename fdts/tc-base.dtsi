@@ -278,7 +278,7 @@
 		#size-cells = <1>;
 		ranges = <0 0x0 PLAT_ARM_NSRAM_BASE PLAT_ARM_NSRAM_SIZE>;
 
-		cpu_scp_scmi_mem: scp-shmem@0 {
+		cpu_scp_scmi_a2p: scp-shmem@0 {
 			compatible = "arm,scmi-shmem";
 			reg = <0x0 0x80>;
 		};
@@ -307,8 +307,6 @@
 		scmi {
 			compatible = "arm,scmi";
 			mbox-names = "tx", "rx";
-			mboxes = <&mbox_db_tx 0 0 &mbox_db_rx 0 0 >;
-			shmem = <&cpu_scp_scmi_mem &cpu_scp_scmi_mem>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 
