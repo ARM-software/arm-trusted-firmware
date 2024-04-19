@@ -546,7 +546,7 @@ void psci_do_state_coordination(unsigned int cpu_idx, unsigned int end_pwrlvl,
 	unsigned int lvl, parent_idx;
 	unsigned int start_idx;
 	unsigned int ncpus;
-	plat_local_state_t target_state, *req_states;
+	plat_local_state_t target_state;
 
 	assert(end_pwrlvl <= PLAT_MAX_PWR_LVL);
 	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
@@ -561,7 +561,8 @@ void psci_do_state_coordination(unsigned int cpu_idx, unsigned int end_pwrlvl,
 
 		/* Get the requested power states for this power level */
 		start_idx = psci_non_cpu_pd_nodes[parent_idx].cpu_start_idx;
-		req_states = psci_get_req_local_pwr_states(lvl, start_idx);
+		plat_local_state_t const *req_states = psci_get_req_local_pwr_states(lvl,
+										start_idx);
 
 		/*
 		 * Let the platform coordinate amongst the requested states at
