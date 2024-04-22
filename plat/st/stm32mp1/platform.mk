@@ -110,6 +110,7 @@ STM32_RNG_VER		:=	2
 STM32_RNG_VER_MINOR	:=	1
 STM32_SAES_VER		:=	0 # Unavailable in this platform
 endif
+STM32_SAES_CRYP2	:=	0 # Unavailable in STM32MP1 platforms
 
 # Download load address for serial boot devices
 DWL_BUFFER_BASE 	?=	0xC7000000
@@ -167,6 +168,7 @@ $(call assert_booleans,\
 		PKA_USE_BRAINPOOL_P256T1 \
 		PKA_USE_NIST_P256 \
 		PKA_USE_NIST_P521 \
+		STM32_SAES_CRYP2 \
 		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_32BIT_INTERFACE \
 		STM32MP_DDR_DUAL_AXI_PORT \
@@ -207,6 +209,7 @@ $(call add_defines,\
 		STM32_RNG_VER \
 		STM32_RNG_VER_MINOR \
 		STM32_SAES_VER \
+		STM32_SAES_CRYP2 \
 		STM32_TF_A_COPIES \
 		STM32MP_CRYPTO_ROM_LIB \
 		STM32MP_DDR_32BIT_INTERFACE \
