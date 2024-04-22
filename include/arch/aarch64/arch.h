@@ -131,7 +131,6 @@
 #define MPAMVPM6_EL2		S3_4_C10_C6_6
 #define MPAMVPM7_EL2		S3_4_C10_C6_7
 #define MPAMVPMV_EL2		S3_4_C10_C4_1
-#define TRFCR_EL2		S3_4_C1_C2_1
 #define VNCR_EL2		S3_4_C2_C2_0
 #define PMSCR_EL2		S3_4_C9_C9_0
 #define TFSR_EL2		S3_4_C5_C6_0
@@ -1337,6 +1336,8 @@
 #define GPTBR_EL3			S3_6_C2_C1_4
 
 #define SCXTNUM_EL2			S3_4_C13_C0_7
+#define SCXTNUM_EL1			S3_0_C13_C0_7
+#define SCXTNUM_EL0			S3_3_C13_C0_7
 
 /*******************************************************************************
  * RAS system registers
@@ -1459,8 +1460,17 @@
 #define GCSCR_EL2		S3_4_C2_C5_0
 #define GCSPR_EL2		S3_4_C2_C5_1
 #define GCSCR_EL1		S3_0_C2_C5_0
+#define GCSCRE0_EL1		S3_0_C2_C5_2
+#define GCSPR_EL1		S3_0_C2_C5_1
+#define GCSPR_EL0		S3_3_C2_C5_1
 
 #define GCSCR_EXLOCK_EN_BIT	(UL(1) << 6)
+
+/*******************************************************************************
+ * FEAT_TRF - Trace Filter Control Registers
+ ******************************************************************************/
+#define TRFCR_EL2		S3_4_C1_C2_1
+#define TRFCR_EL1		S3_0_C1_C2_1
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers
