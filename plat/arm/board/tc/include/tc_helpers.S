@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -51,9 +51,6 @@ endfunc plat_arm_calc_core_pos
 
 	/* -----------------------------------------------------
 	 * void plat_reset_handler(void);
-	 *
-	 * Determine the CPU MIDR and disable power down bit for
-	 * that CPU.
 	 * -----------------------------------------------------
 	 */
 func plat_reset_handler
