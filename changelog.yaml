@@ -222,7 +222,7 @@ subsections:
               - title: SGI-575
                 scope: sgi575
 
-              - title: RD-N1 Edge
+              - title: RD-N1-Edge
                 scope: rdn1edge
 
               - title: RD-V1
