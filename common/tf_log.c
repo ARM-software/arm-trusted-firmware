@@ -61,7 +61,7 @@ void tf_log_newline(const char log_fmt[2])
 		return;
 	}
 
-	putchar('\n');
+	(void)putchar((int32_t)'\n');
 }
 
 /*
