@@ -12,7 +12,21 @@
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/arm/board/common/board_css_def.h>
 #include <plat/arm/board/common/v2m_def.h>
+
+/*
+ * arm_def.h depends on the platform system counter macros, so must define the
+ * platform macros before including arm_def.h.
+ */
+#if TARGET_PLATFORM == 4
+#ifdef ARM_SYS_CNTCTL_BASE
+#error "error: ARM_SYS_CNTCTL_BASE is defined prior to the PLAT_ARM_SYS_CNTCTL_BASE definition"
+#endif
+#define PLAT_ARM_SYS_CNTCTL_BASE	UL(0x47000000)
+#define PLAT_ARM_SYS_CNTREAD_BASE	UL(0x47010000)
+#endif
+
 #include <plat/arm/common/arm_def.h>
+
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/arm/css/common/css_def.h>
 #include <plat/arm/soc/common/soc_css_def.h>
