@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -161,6 +161,18 @@
 #define RMM_EL3_TOKEN_SIGN_PULL_RESP_OP         U(2)
 #define RMM_EL3_TOKEN_SIGN_GET_RAK_PUB_OP       U(3)
 
+/* Starting RMM-EL3 interface version 0.5 */
+
+/*
+ * Function code to support update of MEC keys.
+ * The arguments of this SMC are:
+ * 	arg0 - Function ID.
+ * 	arg1 - MECID
+ * The return arguments are:
+ * 	ret0 - Status/Error
+ */
+#define RMM_MECID_KEY_UPDATE			SMC64_RMMD_EL3_FID(U(6))
+
 /* ECC Curve types for attest key generation */
 #define ATTEST_KEY_CURVE_ECC_SECP384R1		U(0)
 
@@ -188,7 +200,7 @@
  * Increase this when a bug is fixed, or a feature is added without
  * breaking compatibility.
  */
-#define RMM_EL3_IFC_VERSION_MINOR	(U(4))
+#define RMM_EL3_IFC_VERSION_MINOR	(U(5))
 
 #define RMM_EL3_INTERFACE_VERSION				\
 	(((RMM_EL3_IFC_VERSION_MAJOR << 16) & 0x7FFFF) |	\

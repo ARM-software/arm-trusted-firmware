@@ -2350,6 +2350,24 @@ RMM image and stores it in the area specified by manifest.
 
 When ENABLE_RME is disabled, this function is not used.
 
+Function : plat_rmm_mecid_key_update() [when ENABLE_RME == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint16_t
+    Return   : int
+
+This function is invoked by BL31's RMMD when there is a request from the RMM
+monitor to update the tweak for the encryption key associated to a MECID.
+
+The first parameter (``uint16_t mecid``) contains the MECID for which the
+encryption key is to be updated.
+
+Return value is 0 upon success and -EFAULT otherwise.
+
+This function needs to be implemented by a platform if it enables RME.
+
 Function : plat_rmmd_el3_token_sign_push_req() [mandatory when RMMD_ENABLE_EL3_TOKEN_SIGN == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

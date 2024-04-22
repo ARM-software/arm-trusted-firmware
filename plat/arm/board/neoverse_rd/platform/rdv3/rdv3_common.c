@@ -187,6 +187,17 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	return 0;
 }
 
+/*
+ * Update encryption key associated with @mecid.
+ */
+int plat_rmmd_mecid_key_update(uint16_t mecid)
+{
+	/*
+	 * TODO
+	 */
+	return 0;
+}
+
 int plat_rse_comms_init(void)
 {
 	struct mhu_addr mhu_addresses;

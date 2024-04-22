@@ -746,6 +746,9 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(gpccr_el3, GPCCR_EL3)
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(fpmr, FPMR)
 
+/* FEAT_MEC Registers */
+DEFINE_RENAME_SYSREG_READ_FUNC(mecidr_el2, MECIDR_EL2)
+
 #define IS_IN_EL(x) \
 	(GET_EL(read_CurrentEl()) == MODE_EL##x)
 
