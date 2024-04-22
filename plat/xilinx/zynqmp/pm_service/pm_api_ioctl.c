@@ -165,8 +165,8 @@ static enum pm_ret_status pm_ioctl_config_tcm_comb(uint32_t value)
 static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(uint32_t type,
 						       uint32_t value)
 {
-	if ((value != PM_TAPDELAY_BYPASS_ENABLE &&
-	     value != PM_TAPDELAY_BYPASS_DISABLE) || type >= PM_TAPDELAY_MAX) {
+	if ((((value != PM_TAPDELAY_BYPASS_ENABLE) &&
+	     (value != PM_TAPDELAY_BYPASS_DISABLE)) || (type >= PM_TAPDELAY_MAX))) {
 		return PM_RET_ERROR_ARGS;
 	}
 

@@ -244,8 +244,8 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	ver = chipid[1] >> ZYNQMP_EFUSE_IPDISABLE_SHIFT;
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == id &&
-		    zynqmp_devices[i].ver == (ver & ZYNQMP_CSU_VERSION_MASK)) {
+		if ((zynqmp_devices[i].id == id) &&
+		    (zynqmp_devices[i].ver == (ver & ZYNQMP_CSU_VERSION_MASK))) {
 			break;
 		}
 	}
@@ -299,8 +299,8 @@ static char *zynqmp_print_silicon_idcode(void)
 	tmp = id;
 	tmp &= ZYNQMP_CSU_IDCODE_XILINX_ID_MASK |
 	       ZYNQMP_CSU_IDCODE_FAMILY_MASK;
-	maskid = ZYNQMP_CSU_IDCODE_XILINX_ID << ZYNQMP_CSU_IDCODE_XILINX_ID_SHIFT |
-		 ZYNQMP_CSU_IDCODE_FAMILY << ZYNQMP_CSU_IDCODE_FAMILY_SHIFT;
+	maskid = (ZYNQMP_CSU_IDCODE_XILINX_ID << ZYNQMP_CSU_IDCODE_XILINX_ID_SHIFT) |
+		 (ZYNQMP_CSU_IDCODE_FAMILY << ZYNQMP_CSU_IDCODE_FAMILY_SHIFT);
 	if (tmp != maskid) {
 		ERROR("Incorrect IDCODE 0x%x, maskid 0x%x\n", id, maskid);
 		return "UNKN";

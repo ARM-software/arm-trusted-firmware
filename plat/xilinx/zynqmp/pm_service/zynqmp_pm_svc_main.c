@@ -374,7 +374,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t value = 0U;
 
 		ret = pm_fpga_get_status(&value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+		SMC_RET1(handle, ((uint64_t)ret | (((uint64_t)value) << 32)));
 	}
 
 	case PM_SECURE_RSA_AES:
@@ -389,15 +389,15 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		}
 
 		SMC_RET2(handle,
-			 (uint64_t)result[0] | ((uint64_t)result[1] << 32),
-			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
+			 ((uint64_t)result[0] | ((uint64_t)result[1] << 32)),
+			 ((uint64_t)result[2] | ((uint64_t)result[3] << 32)));
 	case PM_IOCTL:
 	{
 		uint32_t value = 0U;
 
 		ret = pm_ioctl(pm_arg[0], pm_arg[1], pm_arg[2],
 			       pm_arg[3], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+		SMC_RET1(handle, ((uint64_t)ret | (((uint64_t)value) << 32)));
 	}
 
 	case PM_QUERY_DATA:
@@ -406,8 +406,8 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
 			      pm_arg[3], data);
-		SMC_RET2(handle, (uint64_t)data[0]  | ((uint64_t)data[1] << 32),
-			 (uint64_t)data[2] | ((uint64_t)data[3] << 32));
+		SMC_RET2(handle, ((uint64_t)data[0]  | ((uint64_t)data[1] << 32)),
+			 ((uint64_t)data[2] | ((uint64_t)data[3] << 32)));
 	}
 
 	case PM_CLOCK_ENABLE:
@@ -423,7 +423,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t value = 0U;
 
 		ret = pm_clock_getstate(pm_arg[0], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+		SMC_RET1(handle, ((uint64_t)ret | (((uint64_t)value) << 32)));
 	}
 
 	case PM_CLOCK_SETDIVIDER:
@@ -435,7 +435,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t value = 0U;
 
 		ret = pm_clock_getdivider(pm_arg[0], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+		SMC_RET1(handle, ((uint64_t)ret | (((uint64_t)value) << 32)));
 	}
 
 	case PM_CLOCK_SETPARENT:
@@ -447,7 +447,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t value = 0U;
 
 		ret = pm_clock_getparent(pm_arg[0], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
+		SMC_RET1(handle, ((uint64_t)ret | (((uint64_t)value) << 32U)));
 	}
 
 	case PM_GET_TRUSTZONE_VERSION:
@@ -472,7 +472,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		ret = pm_secure_image(pm_arg[0], pm_arg[1], pm_arg[2],
 				      pm_arg[3], &result[0]);
-		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32U),
+		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)result[0] << 32U)),
 			 result[1]);
 	}
 
@@ -482,7 +482,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		ret = pm_fpga_read(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3],
 				   &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
+		SMC_RET1(handle, ((uint64_t)ret | (((uint64_t)value) << 32U)));
 	}
 
 	case PM_SECURE_AES:
@@ -490,7 +490,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t value = 0U;
 
 		ret = pm_aes_engine(pm_arg[0], pm_arg[1], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
+		SMC_RET1(handle, ((uint64_t)ret | (((uint64_t)value) << 32U)));
 	}
 
 	case PM_PLL_SET_PARAMETER:
@@ -502,7 +502,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t value = 0U;
 
 		ret = pm_pll_get_parameter(pm_arg[0], pm_arg[1], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value << 32U));
+		SMC_RET1(handle, ((uint64_t)ret | ((uint64_t)value << 32U)));
 	}
 
 	case PM_PLL_SET_MODE:
@@ -514,7 +514,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t mode = 0U;
 
 		ret = pm_pll_get_mode(pm_arg[0], &mode);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)mode << 32U));
+		SMC_RET1(handle, ((uint64_t)ret | ((uint64_t)mode << 32U)));
 	}
 
 	case PM_REGISTER_ACCESS:
@@ -523,7 +523,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		ret = pm_register_access(pm_arg[0], pm_arg[1], pm_arg[2],
 					 pm_arg[3], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
+		SMC_RET1(handle, ((uint64_t)ret | (((uint64_t)value) << 32U)));
 	}
 
 	case PM_EFUSE_ACCESS:
@@ -538,7 +538,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		}
 #endif
 		ret = pm_efuse_access(pm_arg[0], pm_arg[1], &value);
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
+		SMC_RET1(handle, (uint64_t)ret | (((uint64_t)value) << 32U));
 	}
 
 	case PM_FPGA_GET_VERSION:
@@ -549,8 +549,8 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		PM_PACK_PAYLOAD5(payload, smc_fid & FUNCID_NUM_MASK,
 				 pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
 		ret = pm_ipi_send_sync(primary_proc, payload, ret_payload, 3U);
-		SMC_RET2(handle, (uint64_t)ret | (uint64_t)ret_payload[0] << 32U,
-			 (uint64_t)ret_payload[1] | (uint64_t)ret_payload[2] << 32U);
+		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)ret_payload[0] << 32U)),
+			 ((uint64_t)ret_payload[1] | ((uint64_t)ret_payload[2] << 32U)));
 	}
 
 	case PM_FEATURE_CHECK:
@@ -560,8 +560,8 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		ret = pm_feature_check(pm_arg[0], &version, bit_mask,
 				       ARRAY_SIZE(bit_mask));
-		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)version << 32U),
-			 (uint64_t)bit_mask[0] | ((uint64_t)bit_mask[1] << 32U));
+		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)version << 32U)),
+			 ((uint64_t)bit_mask[0] | ((uint64_t)bit_mask[1] << 32U)));
 	}
 
 	default:
@@ -570,7 +570,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 				 pm_arg[2], pm_arg[3], pm_arg[4]);
 		ret = pm_ipi_send_sync(primary_proc, payload, result,
 				       RET_PAYLOAD_ARG_CNT);
-		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32U),
-			 (uint64_t)result[1] | ((uint64_t)result[2] << 32U));
+		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)result[0] << 32U)),
+			 ((uint64_t)result[1] | ((uint64_t)result[2] << 32U)));
 	}
 }
