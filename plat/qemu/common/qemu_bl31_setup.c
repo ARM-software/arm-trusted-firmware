@@ -161,7 +161,7 @@ void bl31_platform_setup(void)
 
 unsigned int plat_get_syscnt_freq2(void)
 {
-	return SYS_COUNTER_FREQ_IN_TICKS;
+	return read_cntfrq_el0();
 }
 
 /*******************************************************************************
