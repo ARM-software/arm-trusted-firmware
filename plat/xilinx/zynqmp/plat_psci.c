@@ -169,7 +169,7 @@ static void __dead2 zynqmp_system_off(void)
 	pm_system_shutdown(PMF_SHUTDOWN_TYPE_SHUTDOWN,
 			   pm_get_shutdown_scope());
 
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }
@@ -183,7 +183,7 @@ static void __dead2 zynqmp_system_reset(void)
 	pm_system_shutdown(PMF_SHUTDOWN_TYPE_RESET,
 			   pm_get_shutdown_scope());
 
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }
@@ -204,7 +204,7 @@ static int32_t zynqmp_validate_power_state(uint32_t power_state,
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
 	}
 	/* We expect the 'state id' to be zero */
-	if (psci_get_pstate_id(power_state)) {
+	if (psci_get_pstate_id(power_state) != 0U) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 

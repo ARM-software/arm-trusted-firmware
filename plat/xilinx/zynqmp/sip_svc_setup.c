@@ -81,7 +81,7 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 	VERBOSE("SMCID: 0x%08x, x1: 0x%016" PRIx64 ", x2: 0x%016" PRIx64 ", x3: 0x%016" PRIx64 ", x4: 0x%016" PRIx64 "\n",
 		smc_fid, x1, x2, x3, x4);
 
-	if (smc_fid & SIP_FID_MASK) {
+	if ((smc_fid & (uint32_t)SIP_FID_MASK) != 0U) {
 		WARN("SMC out of SiP assinged range: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
