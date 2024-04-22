@@ -75,13 +75,6 @@
 #define PLAT_BL1_RO_LIMIT               (BL1_RO_BASE \
 					+ PLAT_ARM_TRUSTED_ROM_SIZE)
 
-#define PLAT_ARM_SYS_CNTCTL_BASE	UL(0xaa430000)
-#define PLAT_ARM_SYS_CNTREAD_BASE	UL(0xaa800000)
-#define PLAT_ARM_SYS_TIMCTL_BASE	UL(0xaa810000)
-#define PLAT_ARM_SYS_CNT_BASE_S		UL(0xaa820000)
-#define PLAT_ARM_SYS_CNT_BASE_NS	UL(0xaa830000)
-#define PLAT_ARM_SP805_TWDG_BASE	UL(0xaa490000)
-
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
 
