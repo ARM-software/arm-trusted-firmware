@@ -955,11 +955,12 @@ subsections:
             deprecated:
               - drivers/arm/mhu
 
-          - title: RSS
-            scope: rss
+          - title: RSE
+            scope: rse
 
             deprecated:
               - drivers/arm/rss
+              - rss
 
           - title: TZC
             scope: tzc
