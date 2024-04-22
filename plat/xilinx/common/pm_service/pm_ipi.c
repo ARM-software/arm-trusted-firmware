@@ -217,6 +217,7 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 {
 	size_t i;
+	size_t local_count = count;
 #if IPI_CRC_CHECK
 	uint32_t crc;
 #endif
@@ -225,8 +226,8 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 				IPI_BUFFER_REQ_OFFSET;
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 
-	if (count > IPI_BUFFER_MAX_WORDS) {
-		count = IPI_BUFFER_MAX_WORDS;
+	if (local_count > IPI_BUFFER_MAX_WORDS) {
+		local_count = IPI_BUFFER_MAX_WORDS;
 	}
 
 	for (i = 0; i < count; i++) {
@@ -240,7 +241,7 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 		/* Payload data is invalid as CRC validation failed
 		 * Clear the payload to avoid leakage of data to upper layers
 		 */
-		memset(value, 0, count);
+		memset(value, 0, local_count);
 	}
 #endif
 	return ret;
