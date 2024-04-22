@@ -70,7 +70,7 @@ static inline int is_ipi_mb_within_range(uint32_t local, uint32_t remote)
 {
 	int ret = 1;
 
-	if (remote >= ipi_total || local >= ipi_total) {
+	if ((remote >= ipi_total) || (local >= ipi_total)) {
 		ret = 0;
 	}
 
