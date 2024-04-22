@@ -291,6 +291,10 @@
 	};
 
 	gpu: gpu@2d000000 {
+		interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH 0>,
+			     <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH 0>,
+			     <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "JOB", "MMU", "GPU";
 		iommus = <&smmu_700 0x200>;
 	};
 };

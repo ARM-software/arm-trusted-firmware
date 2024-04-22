@@ -495,10 +495,6 @@
 	gpu: gpu@2d000000 {
 		compatible = "arm,mali-midgard";
 		reg = <0x0 0x2d000000 0x0 0x200000>;
-		interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH 0>,
-			     <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH 0>,
-			     <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH 0>;
-		interrupt-names = "JOB", "MMU", "GPU";
 		clocks = <&gpu_core_clk>;
 		clock-names = "shadercores";
 #if TC_SCMI_PD_CTRL_EN

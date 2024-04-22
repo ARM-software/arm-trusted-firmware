@@ -44,3 +44,10 @@
 #include "tc-fpga.dtsi"
 #endif /* TARGET_FLAVOUR_FVP */
 #include "tc3-4-base.dtsi"
+
+/ {
+	gpu: gpu@2d000000 {
+		interrupts = <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "IRQAW";
+	};
+};
