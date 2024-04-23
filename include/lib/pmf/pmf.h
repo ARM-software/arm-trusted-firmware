@@ -54,6 +54,11 @@
 #define PMF_SMC_GET_TIMESTAMP_64	U(0xC7000020)
 #define PMF_NUM_SMC_CALLS		2
 
+#define PMF_SMC_GET_VERSION_32		U(0x87000021)
+#define PMF_SMC_GET_VERSION_64		U(0xC7000021)
+
+#define PMF_SMC_VERSION			U(0x00000001)
+
 /*
  * The macros below are used to identify
  * PMF calls from the SMC function ID.

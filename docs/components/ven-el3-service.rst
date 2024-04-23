@@ -28,8 +28,8 @@ Vendor-specific EL3 monitor services are as follows:
 +-----------------------------------+                       | | 12 - 15 are reserved for future expansion.|
 | 0xC7000010 - 0xC700001F (SMC64)   |                       |                                             |
 +-----------------------------------+-----------------------+---------------------------------------------+
-| 0x87000020 - 0x8700002F (SMC32)   | Performance           | | 0 is in use.                              |
-+-----------------------------------+ Measurement Framework | | 1 - 15 are reserved for future expansion. |
+| 0x87000020 - 0x8700002F (SMC32)   | Performance           | | 0,1 is in use.                            |
++-----------------------------------+ Measurement Framework | | 2 - 15 are reserved for future expansion. |
 | 0xC7000020 - 0xC700002F (SMC64)   | (PMF)                 |                                             |
 +-----------------------------------+-----------------------+---------------------------------------------+
 

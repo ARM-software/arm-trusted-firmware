@@ -49,6 +49,10 @@ uintptr_t pmf_smc_handler(unsigned int smc_fid,
 			SMC_RET3(handle, rc, (uint32_t)ts_value,
 					(uint32_t)(ts_value >> 32));
 		}
+
+		if (smc_fid == PMF_SMC_GET_VERSION_32) {
+			SMC_RET2(handle, SMC_OK, PMF_SMC_VERSION);
+		}
 	} else {
 		if (smc_fid == PMF_SMC_GET_TIMESTAMP_64 ||
 		    smc_fid == PMF_SMC_GET_TIMESTAMP_64_DEP) {
@@ -61,6 +65,10 @@ uintptr_t pmf_smc_handler(unsigned int smc_fid,
 			rc = pmf_get_timestamp_smc((unsigned int)x1, x2,
 					(unsigned int)x3, &ts_value);
 			SMC_RET2(handle, rc, ts_value);
+		}
+
+		if (smc_fid == PMF_SMC_GET_VERSION_64) {
+			SMC_RET2(handle, SMC_OK, PMF_SMC_VERSION);
 		}
 	}
 
