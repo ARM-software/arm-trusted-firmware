@@ -343,7 +343,7 @@ enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 
 	/* encode set Address into 1st bit of address */
 	encoded_address = address;
-	encoded_address |= !!set_address;
+	encoded_address |= (uint32_t)!!set_address;
 
 	/* Send request to the PMU to perform the wake of the PU */
 	PM_PACK_PAYLOAD5(payload, PM_REQ_WAKEUP, target, encoded_address,
@@ -440,7 +440,7 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
-	if (type == PMF_SHUTDOWN_TYPE_SETSCOPE_ONLY) {
+	if (type == (uint32_t)PMF_SHUTDOWN_TYPE_SETSCOPE_ONLY) {
 		/* Setting scope for subsequent PSCI reboot or shutdown */
 		pm_shutdown_scope = subtype;
 		return PM_RET_SUCCESS;
@@ -780,7 +780,7 @@ enum pm_ret_status check_api_dependency(uint8_t id)
 
 			ret = fw_api_version(api_dep_table[i].api_id,
 					     &version_type, 1);
-			if (ret != PM_RET_SUCCESS) {
+			if (ret != (uint32_t)PM_RET_SUCCESS) {
 				return ret;
 			}
 
@@ -898,7 +898,7 @@ static enum pm_ret_status feature_check_partial(uint32_t api_id,
 	case PM_REGISTER_ACCESS:
 	case PM_FEATURE_CHECK:
 		status = check_api_dependency(api_id);
-		if (status != PM_RET_SUCCESS) {
+		if (status != (uint32_t)PM_RET_SUCCESS) {
 			return status;
 		}
 		return get_tfa_version_for_partial_apis(api_id, version);
@@ -925,13 +925,13 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 
 	/* Get API version implemented in TF-A */
 	status = feature_check_tfa(api_id, version, bit_mask);
-	if (status != PM_RET_ERROR_NO_FEATURE) {
+	if (status != (uint32_t)PM_RET_ERROR_NO_FEATURE) {
 		return status;
 	}
 
 	/* Get API version implemented by firmware and TF-A both */
 	status = feature_check_partial(api_id, version);
-	if (status != PM_RET_ERROR_NO_FEATURE) {
+	if (status != (uint32_t)PM_RET_ERROR_NO_FEATURE) {
 		return status;
 	}
 
@@ -940,20 +940,20 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 	/* IOCTL call may return failure whose ID is not implemented in
 	 * firmware but implemented in TF-A
 	 */
-	if ((api_id != PM_IOCTL) && (status != PM_RET_SUCCESS)) {
+	if ((api_id != (uint32_t)PM_IOCTL) && (status != PM_RET_SUCCESS)) {
 		return status;
 	}
 
 	*version = ret_payload[0];
 
 	/* Update IOCTL bit mask which are implemented in TF-A */
-	if ((api_id == PM_IOCTL) || (api_id == PM_GET_OP_CHARACTERISTIC)) {
-		if (len < 2) {
+	if ((api_id == (uint32_t)PM_IOCTL) || (api_id == (uint32_t)PM_GET_OP_CHARACTERISTIC)) {
+		if (len < 2U) {
 			return PM_RET_ERROR_ARGS;
 		}
 		bit_mask[0] = ret_payload[1];
 		bit_mask[1] = ret_payload[2];
-		if (api_id == PM_IOCTL) {
+		if (api_id == (uint32_t)PM_IOCTL) {
 			/* Get IOCTL's implemented by TF-A */
 			status = tfa_ioctl_bitmask(bit_mask);
 		}

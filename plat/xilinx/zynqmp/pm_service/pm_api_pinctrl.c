@@ -1991,7 +1991,7 @@ enum pm_ret_status pm_api_pinctrl_get_num_functions(uint32_t *nfuncs)
 enum pm_ret_status pm_api_pinctrl_get_num_func_groups(uint32_t fid,
 						      uint32_t *ngroups)
 {
-	if (fid >= MAX_FUNCTION) {
+	if (fid >= (uint32_t)MAX_FUNCTION) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -2011,7 +2011,7 @@ enum pm_ret_status pm_api_pinctrl_get_num_func_groups(uint32_t fid,
  */
 void pm_api_pinctrl_get_function_name(uint32_t fid, char *name)
 {
-	if (fid >= MAX_FUNCTION) {
+	if (fid >= (uint32_t)MAX_FUNCTION) {
 		(void)memcpy(name, END_OF_FUNCTION, FUNCTION_NAME_LEN);
 	} else {
 		(void)memcpy(name, pinctrl_functions[fid].name, FUNCTION_NAME_LEN);
@@ -2045,7 +2045,7 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
 	uint16_t end_of_grp_offset;
 	uint16_t i;
 
-	if (fid >= MAX_FUNCTION) {
+	if (fid >= (uint32_t)MAX_FUNCTION) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -2090,7 +2090,7 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(uint32_t pin,
 	uint32_t i;
 	const uint16_t *grps;
 
-	if (pin >= MAX_PIN) {
+	if (pin >= (uint32_t)MAX_PIN) {
 		return PM_RET_ERROR_ARGS;
 	}
 

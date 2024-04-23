@@ -270,7 +270,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 		return zynqmp_devices[i].name;
 	}
 
-	len = strlen(zynqmp_devices[i].name) - 2;
+	len = strlen(zynqmp_devices[i].name) - 2U;
 	for (j = 0; j < strlen(name); j++) {
 		zynqmp_devices[i].name[len] = name[j];
 		len++;
@@ -327,7 +327,7 @@ int32_t plat_get_soc_version(void)
 	uint32_t chip_id = zynqmp_get_silicon_ver();
 	uint32_t manfid = SOC_ID_SET_JEP_106(JEDEC_XILINX_BKID, JEDEC_XILINX_MFID);
 
-	return (int32_t)(manfid | (chip_id & 0xFFFF));
+	return (int32_t)(manfid | (chip_id & 0xFFFFU));
 }
 
 int32_t plat_get_soc_revision(void)
@@ -366,7 +366,7 @@ static void zynqmp_print_platform_name(void)
 	VERBOSE("TF-A running on %s/%s at 0x%x\n",
 		zynqmp_print_silicon_idcode(), label, BL31_BASE);
 	VERBOSE("TF-A running on v%d/RTL%d.%d\n",
-	       zynqmp_get_ps_ver(), (rtl & 0xf0) >> 4, rtl & 0xf);
+	       zynqmp_get_ps_ver(), (rtl & 0xf0U) >> 4, rtl & 0xfU);
 }
 #else
 static inline void zynqmp_print_platform_name(void) { }
@@ -375,7 +375,7 @@ static inline void zynqmp_print_platform_name(void) { }
 uint32_t zynqmp_get_bootmode(void)
 {
 	uint32_t r;
-	unsigned int ret;
+	enum pm_ret_status ret;
 
 	ret = pm_mmio_read(CRL_APB_BOOT_MODE_USER, &r);
 
@@ -411,6 +411,6 @@ uint32_t plat_get_syscnt_freq2(void)
 	if (ver == ZYNQMP_CSU_VERSION_QEMU) {
 		return 65000000;
 	} else {
-		return mmio_read_32(IOU_SCNTRS_BASEFREQ);
+		return mmio_read_32((uint64_t)IOU_SCNTRS_BASEFREQ);
 	}
 }

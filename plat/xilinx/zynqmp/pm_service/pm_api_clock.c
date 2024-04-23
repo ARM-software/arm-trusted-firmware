@@ -2455,15 +2455,15 @@ enum pm_ret_status pm_api_clock_get_num_clocks(uint32_t *nclocks)
  */
 void pm_api_clock_get_name(uint32_t clock_id, char *name)
 {
-	if (clock_id == CLK_MAX) {
+	if (clock_id == (uint32_t)CLK_MAX) {
 		(void)memcpy(name, END_OF_CLK, ((sizeof(END_OF_CLK) > CLK_NAME_LEN) ?
 					 CLK_NAME_LEN : sizeof(END_OF_CLK)));
 	} else if ((clock_id > CLK_MAX) || (!pm_clock_valid(clock_id))) {
 		(void)memset(name, 0, CLK_NAME_LEN);
-	} else if (clock_id < CLK_MAX_OUTPUT_CLK) {
+	} else if (clock_id < (uint32_t)CLK_MAX_OUTPUT_CLK) {
 		(void)memcpy(name, clocks[clock_id].name, CLK_NAME_LEN);
 	} else {
-		(void)memcpy(name, ext_clocks[clock_id - CLK_MAX_OUTPUT_CLK].name,
+		(void)memcpy(name, ext_clocks[clock_id - (uint32_t)CLK_MAX_OUTPUT_CLK].name,
 		       CLK_NAME_LEN);
 	}
 }
@@ -2646,7 +2646,7 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 enum pm_ret_status pm_api_clock_get_attributes(uint32_t clock_id,
 					       uint32_t *attr)
 {
-	if (clock_id >= CLK_MAX) {
+	if (clock_id >= (uint32_t)CLK_MAX) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -3055,7 +3055,7 @@ uint8_t pm_clock_has_div(uint32_t clock_id, enum pm_clock_div_id div_id)
 	uint32_t i;
 	const struct pm_clock_node *nodes;
 
-	if (clock_id >= CLK_MAX_OUTPUT_CLK) {
+	if (clock_id >= (uint32_t)CLK_MAX_OUTPUT_CLK) {
 		return 0;
 	}
 

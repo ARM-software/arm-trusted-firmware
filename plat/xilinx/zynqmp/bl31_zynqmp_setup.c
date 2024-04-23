@@ -96,7 +96,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
-	tfa_handoff_addr = mmio_read_32(PMU_GLOBAL_GEN_STORAGE6);
+	tfa_handoff_addr = (uint64_t)mmio_read_32(PMU_GLOBAL_GEN_STORAGE6);
 
 	if (zynqmp_get_bootmode() == ZYNQMP_BOOTMODE_JTAG) {
 		bl31_set_default_config();
@@ -109,10 +109,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			panic();
 		}
 	}
-	if (bl32_image_ep_info.pc != 0) {
+	if (bl32_image_ep_info.pc != 0U) {
 		NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
 	}
-	if (bl33_image_ep_info.pc != 0) {
+	if (bl33_image_ep_info.pc != 0U) {
 		NOTICE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
 	}
 

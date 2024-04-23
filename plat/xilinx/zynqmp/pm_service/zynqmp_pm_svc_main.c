@@ -354,7 +354,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_API_VERSION:
-		if (ipi_irq_flag == 0U) {
+		if ((uint32_t)ipi_irq_flag == 0U) {
 			/*
 			 * Enable IPI IRQ
 			 * assume the rich OS is OK to handle callback IRQs now.
