@@ -181,10 +181,10 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 	}
 
 	HandoffParams = (struct xbl_handoff_params *)handoff_addr;
-	if ((HandoffParams->magic[0] != 'X') ||
-	    (HandoffParams->magic[1] != 'L') ||
-	    (HandoffParams->magic[2] != 'N') ||
-	    (HandoffParams->magic[3] != 'X')) {
+	if ((HandoffParams->magic[0] != (uint8_t)'X') ||
+	    (HandoffParams->magic[1] != (uint8_t)'L') ||
+	    (HandoffParams->magic[2] != (uint8_t)'N') ||
+	    (HandoffParams->magic[3] != (uint8_t)'X')) {
 		ERROR("BL31: invalid handoff structure at %" PRIx64 "\n", handoff_addr);
 		return XBL_HANDOFF_INVAL_STRUCT;
 	}
@@ -223,7 +223,7 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 #endif /* PLAT_versal_net */
 
 		target_cpu = get_xbl_cpu(&HandoffParams->partition[i]);
-		if (target_cpu != XBL_FLAGS_A53_0) {
+		if (target_cpu != (int32_t)XBL_FLAGS_A53_0) {
 			WARN("BL31: invalid target CPU (%i)\n", target_cpu);
 			continue;
 		}
@@ -236,8 +236,8 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 			continue;
 		}
 
-		target_secure = get_xbl_ss(&HandoffParams->partition[i]);
-		if ((target_secure == XBL_FLAGS_SECURE) &&
+		target_secure = (int32_t)get_xbl_ss(&HandoffParams->partition[i]);
+		if ((target_secure == (int32_t)XBL_FLAGS_SECURE) &&
 		    (target_el == XBL_FLAGS_EL2)) {
 			WARN("BL31: invalid security state (%i) for exception level (%i)\n",
 			     target_secure, target_el);
@@ -247,10 +247,10 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		target_estate = get_xbl_estate(&HandoffParams->partition[i]);
 		target_endianness = get_xbl_endian(&HandoffParams->partition[i]);
 
-		if (target_secure == XBL_FLAGS_SECURE) {
+		if (target_secure == (int32_t)XBL_FLAGS_SECURE) {
 			image = bl32;
 
-			if (target_estate == XBL_FLAGS_ESTATE_A32) {
+			if (target_estate == (int32_t)XBL_FLAGS_ESTATE_A32) {
 				bl32->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
 							 target_endianness,
 							 DISABLE_ALL_EXCEPTIONS);
@@ -261,7 +261,7 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		} else {
 			image = bl33;
 
-			if (target_estate == XBL_FLAGS_ESTATE_A32) {
+			if (target_estate == (int32_t)XBL_FLAGS_ESTATE_A32) {
 				if (target_el == XBL_FLAGS_EL2) {
 					target_el = MODE32_hyp;
 				} else {
@@ -284,7 +284,7 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		}
 
 		VERBOSE("Setting up %s entry point to:%" PRIx64 ", el:%x\n",
-			(target_secure == XBL_FLAGS_SECURE) ? "BL32" : "BL33",
+			(target_secure == (int32_t)XBL_FLAGS_SECURE) ? "BL32" : "BL33",
 			HandoffParams->partition[i].entry_point,
 			target_el);
 		image->pc = HandoffParams->partition[i].entry_point;

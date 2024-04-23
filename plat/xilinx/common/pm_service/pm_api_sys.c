@@ -118,7 +118,7 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 	module_id = (x0 & MODULE_ID_MASK) >> 8U;
 
 	//default module id is for LIBPM
-	if (module_id == 0) {
+	if (module_id == 0U) {
 		module_id = LIBPM_MODULE_ID;
 	}
 
@@ -219,7 +219,7 @@ enum pm_ret_status pm_req_suspend(uint32_t target, uint8_t ack,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, LIBPM_MODULE_ID, flag, PM_REQ_SUSPEND, target,
 			 latency, state);
-	if (ack == IPI_BLOCKING) {
+	if (ack == (uint32_t)IPI_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	} else {
 		return pm_ipi_send(primary_proc, payload);
@@ -274,7 +274,7 @@ enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t fl
 {
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 	/* Return if interrupt is not from PMU */
-	if (pm_ipi_irq_status(primary_proc) == 0) {
+	if (pm_ipi_irq_status(primary_proc) == 0U) {
 		return ret;
 	}
 
@@ -307,7 +307,7 @@ enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack,
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, flag, PM_FORCE_POWERDOWN,
 			 target, ack);
 
-	if (ack == IPI_BLOCKING) {
+	if (ack == (uint32_t)IPI_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	} else {
 		return pm_ipi_send(primary_proc, payload);
@@ -432,7 +432,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 	 * feature check should be done only for LIBPM module
 	 * If module_id is 0, then we consider it LIBPM module as default id
 	 */
-	if ((module_id > 0) && (module_id != LIBPM_MODULE_ID)) {
+	if ((module_id > 0U) && (module_id != LIBPM_MODULE_ID)) {
 		return PM_RET_SUCCESS;
 	}
 

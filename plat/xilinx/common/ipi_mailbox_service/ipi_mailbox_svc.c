@@ -110,7 +110,7 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 		disable_interrupt = (x3 & IPI_SMC_ENQUIRY_DIRQ_MASK) ? 1 : 0;
 		ret = ipi_mb_enquire_status(ipi_local_id, ipi_remote_id);
-		if ((ret & IPI_MB_STATUS_RECV_PENDING) && disable_interrupt)
+		if ((((uint32_t)ret & IPI_MB_STATUS_RECV_PENDING) > 0U) && disable_interrupt)
 			ipi_mb_disable_irq(ipi_local_id, ipi_remote_id);
 		SMC_RET1(handle, ret);
 	}

@@ -226,7 +226,7 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 				IPI_BUFFER_REQ_OFFSET;
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 
-	if (local_count > IPI_BUFFER_MAX_WORDS) {
+	if (local_count > (uint32_t)IPI_BUFFER_MAX_WORDS) {
 		local_count = IPI_BUFFER_MAX_WORDS;
 	}
 
@@ -273,7 +273,7 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 		goto unlock;
 	}
 
-	ret = ERROR_CODE_MASK & (pm_ipi_buff_read(proc, value, count));
+	ret = ERROR_CODE_MASK & (uint32_t)(pm_ipi_buff_read(proc, value, count));
 
 unlock:
 	pm_ipi_lock_release();
@@ -297,7 +297,7 @@ uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
 
 	ret = ipi_mb_enquire_status(proc->ipi->local_ipi_id,
 				    proc->ipi->remote_ipi_id);
-	if (ret & IPI_MB_STATUS_RECV_PENDING) {
+	if (((uint32_t)ret & IPI_MB_STATUS_RECV_PENDING) != 0U) {
 		return 1;
 	} else {
 		return 0;
