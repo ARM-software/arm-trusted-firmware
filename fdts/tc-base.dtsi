@@ -349,6 +349,18 @@
 			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW 0>;
 	};
 
+	spe-pmu-mid {
+		compatible = "arm,statistical-profiling-extension-v1";
+		interrupts = <GIC_PPI 1 IRQ_TYPE_LEVEL_HIGH &ppi_partition_mid>;
+		status = "disabled";
+	};
+
+	spe-pmu-big {
+		compatible = "arm,statistical-profiling-extension-v1";
+		interrupts = <GIC_PPI 1 IRQ_TYPE_LEVEL_HIGH &ppi_partition_big>;
+		status = "disabled";
+	};
+
 	soc_refclk: refclk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;

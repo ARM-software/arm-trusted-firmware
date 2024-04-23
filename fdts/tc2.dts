@@ -263,6 +263,10 @@
 		};
 	};
 
+	spe-pmu-big {
+		status = "okay";
+	};
+
 	smmu_700: iommu@3f000000 {
 		status = "okay";
 	};
