@@ -14,6 +14,7 @@
 #include <drivers/clk.h>
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
+#include <drivers/st/stm32_hash.h>
 #include <drivers/st/stm32_iwdg.h>
 #include <drivers/st/stm32_rifsc.h>
 #include <drivers/st/stm32_rng.h>
@@ -152,6 +153,29 @@ static void reset_backup_domain(void)
 	}
 }
 
+#if TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH
+static bool authentication_check(boot_api_context_t *boot_context)
+{
+	if (boot_context->auth_status == BOOT_API_CTX_AUTH_FAILED) {
+		return false;
+	}
+
+	if (stm32mp_check_closed_device() != STM32MP_CHIP_SEC_CLOSED) {
+		void *pk_ptr = NULL;
+		unsigned int len = 0U;
+		unsigned int flags = 0U;
+		int rc;
+
+		rc = plat_get_rotpk_info(NULL, &pk_ptr, &len, &flags);
+		if ((rc == -EINVAL) || ((flags & ROTPK_NOT_DEPLOYED) > 0)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+#endif /* TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH */
+
 void bl2_plat_arch_setup(void)
 {
 	const char *board_model;
@@ -225,11 +249,17 @@ void bl2_plat_arch_setup(void)
 
 	print_reset_reason();
 
+#if TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH
+	if (stm32_hash_register() != 0) {
+		ERROR("HASH register fail\n");
+		panic();
+	}
+
 	if (boot_context->auth_status != BOOT_API_CTX_AUTH_NO) {
 		NOTICE("Bootrom authentication %s\n",
-		       (boot_context->auth_status == BOOT_API_CTX_AUTH_FAILED) ?
-		       "failed" : "succeeded");
+		       authentication_check(boot_context) ? "succeeded" : "failed");
 	}
+#endif /* TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH */
 
 skip_console_init:
 #if !TRUSTED_BOARD_BOOT
