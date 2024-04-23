@@ -111,9 +111,12 @@ int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure)
  */
 void ipi_mb_open(uint32_t local, uint32_t remote)
 {
-	mmio_write_32(IPI_REG_BASE(local) + IPI_IDR_OFFSET,
+	uint64_t idr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_IDR_OFFSET);
+	uint64_t isr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_ISR_OFFSET);
+
+	mmio_write_32(idr_offset,
 		      IPI_BIT_MASK(remote));
-	mmio_write_32(IPI_REG_BASE(local) + IPI_ISR_OFFSET,
+	mmio_write_32(isr_offset,
 		      IPI_BIT_MASK(remote));
 }
 
@@ -125,7 +128,9 @@ void ipi_mb_open(uint32_t local, uint32_t remote)
  */
 void ipi_mb_release(uint32_t local, uint32_t remote)
 {
-	mmio_write_32(IPI_REG_BASE(local) + IPI_IDR_OFFSET,
+	uint64_t idr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_IDR_OFFSET);
+
+	mmio_write_32(idr_offset,
 		      IPI_BIT_MASK(remote));
 }
 
@@ -142,12 +147,14 @@ int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
 {
 	int ret = 0U;
 	uint32_t status;
+	uint64_t obr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_OBR_OFFSET);
+	uint64_t isr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_ISR_OFFSET);
 
-	status = mmio_read_32(IPI_REG_BASE(local) + IPI_OBR_OFFSET);
+	status = mmio_read_32(obr_offset);
 	if ((status & IPI_BIT_MASK(remote)) != 0U) {
 		ret |= IPI_MB_STATUS_SEND_PENDING;
 	}
-	status = mmio_read_32(IPI_REG_BASE(local) + IPI_ISR_OFFSET);
+	status = mmio_read_32(isr_offset);
 	if ((status & IPI_BIT_MASK(remote)) != 0U) {
 		ret |= IPI_MB_STATUS_RECV_PENDING;
 	}
@@ -167,13 +174,14 @@ int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
 void ipi_mb_notify(uint32_t local, uint32_t remote, uint32_t is_blocking)
 {
 	uint32_t status;
+	uint64_t trig_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_TRIG_OFFSET);
+	uint64_t obr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_OBR_OFFSET);
 
-	mmio_write_32(IPI_REG_BASE(local) + IPI_TRIG_OFFSET,
+	mmio_write_32(trig_offset,
 		      IPI_BIT_MASK(remote));
 	if (is_blocking != 0U) {
 		do {
-			status = mmio_read_32(IPI_REG_BASE(local) +
-					      IPI_OBR_OFFSET);
+			status = mmio_read_32(obr_offset);
 		} while ((status & IPI_BIT_MASK(remote)) != 0U);
 	}
 }
@@ -188,7 +196,9 @@ void ipi_mb_notify(uint32_t local, uint32_t remote, uint32_t is_blocking)
  */
 void ipi_mb_ack(uint32_t local, uint32_t remote)
 {
-	mmio_write_32(IPI_REG_BASE(local) + IPI_ISR_OFFSET,
+	uint64_t isr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_ISR_OFFSET);
+
+	mmio_write_32(isr_offset,
 		      IPI_BIT_MASK(remote));
 }
 
@@ -202,7 +212,9 @@ void ipi_mb_ack(uint32_t local, uint32_t remote)
  */
 void ipi_mb_disable_irq(uint32_t local, uint32_t remote)
 {
-	mmio_write_32(IPI_REG_BASE(local) + IPI_IDR_OFFSET,
+	uint64_t idr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_IDR_OFFSET);
+
+	mmio_write_32(idr_offset,
 		      IPI_BIT_MASK(remote));
 }
 
@@ -216,6 +228,8 @@ void ipi_mb_disable_irq(uint32_t local, uint32_t remote)
  */
 void ipi_mb_enable_irq(uint32_t local, uint32_t remote)
 {
-	mmio_write_32(IPI_REG_BASE(local) + IPI_IER_OFFSET,
+	uint64_t ier_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_IER_OFFSET);
+
+	mmio_write_32(ier_offset,
 		      IPI_BIT_MASK(remote));
 }
