@@ -127,6 +127,17 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_
 void bl2_plat_preload_setup(void)
 {
 #if TRANSFER_LIST
+/* Assume the secure TL hasn't been initialised if BL2 is running at EL3. */
+#if RESET_TO_BL2
+	secure_tl = transfer_list_init((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
+				       PLAT_ARM_FW_HANDOFF_SIZE);
+
+	if (secure_tl == NULL) {
+		ERROR("Secure transfer list initialisation failed!\n");
+		panic();
+	}
+#endif
+
 	arm_transfer_list_dyn_cfg_init(secure_tl);
 #else
 	arm_bl2_dyn_cfg_init();

@@ -504,7 +504,7 @@ void __init bl31_plat_arch_setup(void)
 
 	arm_bl31_plat_arch_setup();
 
-#if TRANSFER_LIST
+#if TRANSFER_LIST && !RESET_TO_BL2
 	te = transfer_list_find(secure_tl, TL_TAG_FDT);
 	assert(te != NULL);
 
