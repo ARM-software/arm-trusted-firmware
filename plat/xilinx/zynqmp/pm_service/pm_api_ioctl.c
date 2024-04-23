@@ -266,7 +266,7 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 
 	if (type == PM_TAPDELAY_INPUT) {
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    (ZYNQMP_SD_ITAPCHGWIN_MASK << shift),
+				    (uint64_t)(ZYNQMP_SD_ITAPCHGWIN_MASK << shift),
 				    (ZYNQMP_SD_ITAPCHGWIN << shift));
 
 		if (ret != PM_RET_SUCCESS) {
@@ -275,12 +275,12 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 
 		if (value == 0U) {
 			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
+					    (uint64_t)(ZYNQMP_SD_ITAPDLYENA_MASK <<
 					     shift), 0);
 		} else {
 			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
-					    shift), (ZYNQMP_SD_ITAPDLYENA <<
+					    (uint64_t)(ZYNQMP_SD_ITAPDLYENA_MASK <<
+					    shift), (uint64_t)(ZYNQMP_SD_ITAPDLYENA <<
 					    shift));
 		}
 
@@ -289,7 +289,7 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 		}
 
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    (ZYNQMP_SD_ITAPDLYSEL_MASK << shift),
+				    (uint64_t)(ZYNQMP_SD_ITAPDLYSEL_MASK << shift),
 				    (value << shift));
 
 		if (ret != PM_RET_SUCCESS) {
@@ -297,17 +297,17 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 		}
 
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    (ZYNQMP_SD_ITAPCHGWIN_MASK << shift), 0);
+				    (uint64_t)(ZYNQMP_SD_ITAPCHGWIN_MASK << shift), 0);
 	} else if (type == PM_TAPDELAY_OUTPUT) {
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
-				    (ZYNQMP_SD_OTAPDLYENA_MASK << shift), 0);
+				    (uint64_t)(ZYNQMP_SD_OTAPDLYENA_MASK << shift), 0);
 
 		if (ret != PM_RET_SUCCESS) {
 			goto reset_release;
 		}
 
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
-				    (ZYNQMP_SD_OTAPDLYSEL_MASK << shift),
+				    (uint64_t)(ZYNQMP_SD_OTAPDLYSEL_MASK << shift),
 				    (value << shift));
 	} else {
 		ret = PM_RET_ERROR_ARGS;
@@ -422,7 +422,7 @@ static enum pm_ret_status pm_ioctl_write_ggs(uint32_t index,
 		return PM_RET_ERROR_ARGS;
 	}
 
-	return pm_mmio_write(GGS_BASEADDR + (index << 2),
+	return pm_mmio_write((uint64_t)(GGS_BASEADDR + (index << 2)),
 			     0xFFFFFFFFU, value);
 }
 
@@ -444,7 +444,7 @@ static enum pm_ret_status pm_ioctl_read_ggs(uint32_t index,
 		return PM_RET_ERROR_ARGS;
 	}
 
-	return pm_mmio_read(GGS_BASEADDR + (index << 2), value);
+	return pm_mmio_read((uint64_t)(GGS_BASEADDR + (index << 2)), value);
 }
 
 /**
@@ -465,7 +465,7 @@ static enum pm_ret_status pm_ioctl_write_pggs(uint32_t index,
 		return PM_RET_ERROR_ARGS;
 	}
 
-	return pm_mmio_write(PGGS_BASEADDR + (index << 2),
+	return pm_mmio_write((uint64_t)(PGGS_BASEADDR + (index << 2)),
 			     0xFFFFFFFFU, value);
 }
 
@@ -530,7 +530,7 @@ static enum pm_ret_status pm_ioctl_read_pggs(uint32_t index,
 		return PM_RET_ERROR_ARGS;
 	}
 
-	return pm_mmio_read(PGGS_BASEADDR + (index << 2), value);
+	return pm_mmio_read((uint64_t)(PGGS_BASEADDR + (index << 2)), value);
 }
 
 /**

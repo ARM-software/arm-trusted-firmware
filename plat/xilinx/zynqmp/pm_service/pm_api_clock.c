@@ -2685,8 +2685,9 @@ enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 	for (i = 0; i < clocks[clock_id].num_nodes; i++) {
 		if (nodes[i].type == div_type) {
 			if ((CLK_DIVIDER_POWER_OF_TWO &
-					nodes[i].typeflags) != 0U) {
-				*max_div = (1U << (BIT(nodes[i].width) - 1U));
+						nodes[i].typeflags) != 0U) {
+				*max_div = (((uint32_t)1U <<
+						((uint32_t)BIT(nodes[i].width) - (uint32_t)1U)));
 			} else {
 				*max_div = BIT(nodes[i].width) - 1U;
 			}
