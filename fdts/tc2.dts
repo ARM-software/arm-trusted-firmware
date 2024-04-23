@@ -208,7 +208,7 @@
 	cmn-pmu {
 		compatible = "arm,ci-700";
 		reg = <0x0 0x50000000 0x0 0x10000000>;
-		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH 0>;
 	};
 
 	mbox_db_rx: mhu@MHU_RX_ADDR {
