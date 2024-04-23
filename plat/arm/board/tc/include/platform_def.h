@@ -207,7 +207,21 @@
 #if defined(TARGET_FLAVOUR_FPGA)
 #undef V2M_FLASH0_BASE
 #undef V2M_FLASH0_SIZE
+#if TC_FPGA_FIP_IMG_IN_RAM
+/*
+ * Note that this is just used for the FIP, which is not required
+ * anymore once Linux has commenced booting. So we are safe allowing
+ * Linux to also make use of this memory and it doesn't need to be
+ * carved out of the devicetree.
+ *
+ * This only needs to match the RAM load address that we give the FIP
+ * on either the FPGA or FVP command line so there is no need to link
+ * it to say halfway through the RAM or anything like that.
+ */
+#define V2M_FLASH0_BASE			UL(0xB0000000)
+#else
 #define V2M_FLASH0_BASE			UL(0x0C000000)
+#endif
 #define V2M_FLASH0_SIZE			UL(0x02000000)
 #endif
 
