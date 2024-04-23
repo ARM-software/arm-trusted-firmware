@@ -143,7 +143,7 @@ void cci_enable_snoop_dvm_reqs(unsigned int master_id)
 	 * rest of bits are write ignore
 	 */
 	mmio_write_32(cci_base +
-		      SLAVE_IFACE_OFFSET(slave_if_id) + SNOOP_CTRL_REG,
+		      SLAVE_IFACE_OFFSET((u_register_t)slave_if_id) + SNOOP_CTRL_REG,
 		      DVM_EN_BIT | SNOOP_EN_BIT);
 
 	/*
@@ -171,7 +171,7 @@ void cci_disable_snoop_dvm_reqs(unsigned int master_id)
 	 * rest of bits are write ignore.
 	 */
 	mmio_write_32(cci_base +
-		      SLAVE_IFACE_OFFSET(slave_if_id) + SNOOP_CTRL_REG,
+		      SLAVE_IFACE_OFFSET((u_register_t)slave_if_id) + SNOOP_CTRL_REG,
 		      ~(DVM_EN_BIT | SNOOP_EN_BIT));
 
 	/*
