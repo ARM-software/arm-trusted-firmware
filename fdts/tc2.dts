@@ -237,6 +237,32 @@
 		};
 	};
 
+	gic: interrupt-controller@GIC_CTRL_ADDR {
+		ppi-partitions {
+			ppi_partition_little: interrupt-partition-0 {
+				affinity = <&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>;
+			};
+
+#if TARGET_FLAVOUR_FVP
+			ppi_partition_mid: interrupt-partition-1 {
+				affinity = <&CPU4>, <&CPU5>, <&CPU6>;
+			};
+
+			ppi_partition_big: interrupt-partition-2 {
+				affinity = <&CPU7>;
+			};
+#elif TARGET_FLAVOUR_FPGA
+			ppi_partition_mid: interrupt-partition-1 {
+				affinity = <&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>, <&CPU8>;
+			};
+
+			ppi_partition_big: interrupt-partition-2 {
+				affinity = <&CPU9>, <&CPU10>, <&CPU11>, <&CPU12>, <&CPU13>;
+			};
+#endif
+		};
+	};
+
 	smmu_700: iommu@3f000000 {
 		status = "okay";
 	};

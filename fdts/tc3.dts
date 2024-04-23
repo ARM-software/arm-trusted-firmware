@@ -116,6 +116,22 @@
 		};
 	};
 
+	gic: interrupt-controller@GIC_CTRL_ADDR {
+		ppi-partitions {
+			ppi_partition_little: interrupt-partition-0 {
+				affinity = <&CPU0>, <&CPU1>;
+			};
+
+			ppi_partition_mid: interrupt-partition-1 {
+				affinity = <&CPU2>, <&CPU3>, <&CPU4>, <&CPU5>;
+			};
+
+			ppi_partition_big: interrupt-partition-2 {
+				affinity = <&CPU6>, <&CPU7>;
+			};
+		};
+	};
+
 #if TARGET_FLAVOUR_FVP
 	smmu_700: iommu@3f000000 {
 		status = "okay";
