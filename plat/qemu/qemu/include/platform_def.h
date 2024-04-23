@@ -302,11 +302,6 @@
 #define PLAT_SDEI_SGI_PRIVATE		QEMU_IRQ_SEC_SGI_0
 
 /*
- * System counter
- */
-#define SYS_COUNTER_FREQ_IN_TICKS	((1000 * 1000 * 1000) / 16)
-
-/*
  * Maximum size of Event Log buffer used in Measured Boot Event Log driver
  */
 #define	PLAT_EVENT_LOG_MAX_SIZE		UL(0x400)
