@@ -50,6 +50,15 @@
 		status = "okay";
 	};
 
+	smmu_700_dpu: iommu@4002a00000 {
+		status = "okay";
+	};
+
+	dp0: display@DPU_ADDR {
+		iommus = <&smmu_700_dpu 0x000>, <&smmu_700_dpu 0x100>,
+			 <&smmu_700_dpu 0x200>, <&smmu_700_dpu 0x600>;
+	};
+
 	gpu: gpu@2d000000 {
 		interrupts = <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH 0>;
 		interrupt-names = "IRQAW";
