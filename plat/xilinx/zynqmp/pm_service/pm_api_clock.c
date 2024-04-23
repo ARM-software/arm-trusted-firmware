@@ -2514,13 +2514,13 @@ enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
 		}
 
 		topology[i] = clock_nodes[index + i].type;
-		topology[i] |= clock_nodes[index + i].clkflags <<
-					CLK_CLKFLAGS_SHIFT;
+		topology[i] |= ((uint32_t)clock_nodes[index + i].clkflags <<
+					CLK_CLKFLAGS_SHIFT);
 		typeflags = clock_nodes[index + i].typeflags;
-		topology[i] |= (typeflags & CLK_TYPEFLAGS_BITS_MASK) <<
-					CLK_TYPEFLAGS_SHIFT;
-		topology[i] |= (typeflags & CLK_TYPEFLAGS2_BITS_MASK) >>
-				(CLK_TYPEFLAGS_BITS - CLK_TYPEFLAGS2_SHIFT);
+		topology[i] |= ((uint32_t)(typeflags & CLK_TYPEFLAGS_BITS_MASK) <<
+					CLK_TYPEFLAGS_SHIFT);
+		topology[i] |= ((uint32_t)(typeflags & CLK_TYPEFLAGS2_BITS_MASK) >>
+				(CLK_TYPEFLAGS_BITS - CLK_TYPEFLAGS2_SHIFT));
 	}
 
 	return PM_RET_SUCCESS;

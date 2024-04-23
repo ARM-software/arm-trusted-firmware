@@ -322,7 +322,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t set_addr = pm_arg[1] & 0x1U;
 		uint64_t address = (uint64_t)pm_arg[2] << 32U;
 
-		address |= pm_arg[1] & (~0x1U);
+		address |= (uint64_t)(pm_arg[1] & (~0x1U));
 		ret = pm_req_wakeup(pm_arg[0], set_addr, address,
 				    pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
