@@ -97,6 +97,11 @@
 		cpus = <&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>, <&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>;
 	};
 
+	ni-pmu {
+		compatible = "arm,ni-tower";
+		reg = <0x0 0x4f000000 0x0 0x4000000>;
+	};
+
 	sram: sram@6000000 {
 		cpu_scp_scmi_p2a: scp-shmem@80 {
 			compatible = "arm,scmi-shmem";
