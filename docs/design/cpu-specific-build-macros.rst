@@ -826,6 +826,10 @@ For Cortex-X4, the following errata build flags are defined :
   feature is enabled and can assist the Kernel in the process of
   mitigation of the erratum.
 
+-  ``ERRATA_X4_2740089``: This applies errata 2740089 workaround to Cortex-X4
+   CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed
+   in r0p2.
+
 For Cortex-A510, the following errata build flags are defined :
 
 -  ``ERRATA_A510_1922240``: This applies errata 1922240 workaround to
