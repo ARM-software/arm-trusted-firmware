@@ -333,7 +333,7 @@ int32_t plat_get_soc_version(void)
 
 int32_t plat_get_soc_revision(void)
 {
-	return mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_IDCODE_OFFSET);
+	return (int32_t)mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_IDCODE_OFFSET);
 }
 
 static uint32_t zynqmp_get_ps_ver(void)

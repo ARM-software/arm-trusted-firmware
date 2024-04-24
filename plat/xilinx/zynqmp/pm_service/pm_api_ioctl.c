@@ -703,7 +703,7 @@ enum pm_ret_status tfa_ioctl_bitmask(uint32_t *bit_mask)
 		IOCTL_AFI,
 	};
 	uint8_t i, ioctl_id;
-	int32_t ret;
+	enum pm_ret_status ret;
 
 	for (i = 0U; i < ARRAY_SIZE(supported_ids); i++) {
 		ioctl_id = supported_ids[i];

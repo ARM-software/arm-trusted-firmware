@@ -2058,7 +2058,7 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
 		if ((grps + index + i) >= end_of_grp_offset) {
 			break;
 		}
-		groups[i] = (grps + index + i);
+		groups[i] = (uint16_t)(grps + index + i);
 	}
 
 	return PM_RET_SUCCESS;

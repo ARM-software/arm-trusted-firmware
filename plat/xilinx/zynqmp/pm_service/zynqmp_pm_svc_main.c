@@ -560,7 +560,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t bit_mask[2] = {0};
 
 		ret = pm_feature_check(pm_arg[0], &version_type, bit_mask,
-				       ARRAY_SIZE(bit_mask));
+				       (uint8_t)ARRAY_SIZE(bit_mask));
 		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)version_type << 32U)),
 			 ((uint64_t)bit_mask[0] | ((uint64_t)bit_mask[1] << 32U)));
 	}

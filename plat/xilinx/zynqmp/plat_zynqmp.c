@@ -18,5 +18,5 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 		return -1;
 	}
 
-	return zynqmp_calc_core_pos(mpidr);
+	return (int32_t)zynqmp_calc_core_pos(mpidr);
 }

@@ -110,8 +110,8 @@
 		.type = TYPE_MUX,			\
 		.offset = PERIPH_MUX_SHIFT,		\
 		.width = PERIPH_MUX_WIDTH,		\
-		.clkflags = CLK_SET_RATE_NO_REPARENT |	\
-			    CLK_IS_BASIC,		\
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT |\
+			    CLK_IS_BASIC),		\
 		.typeflags = NA_TYPE_FLAGS,		\
 		.mult = NA_MULT,			\
 		.div = NA_DIV,				\
@@ -122,9 +122,9 @@
 		.type = TYPE_MUX,			\
 		.offset = PERIPH_MUX_SHIFT,		\
 		.width = PERIPH_MUX_WIDTH,		\
-		.clkflags = CLK_IGNORE_UNUSED |		\
+		.clkflags = (uint16_t)(CLK_IGNORE_UNUSED |\
 			    CLK_SET_RATE_NO_REPARENT |	\
-			    CLK_IS_BASIC,		\
+			    CLK_IS_BASIC),		\
 		.typeflags = NA_TYPE_FLAGS,		\
 		.mult = NA_MULT,			\
 		.div = NA_DIV,				\
@@ -135,10 +135,10 @@
 		.type = TYPE_DIV1,				\
 		.offset = PERIPH_DIV1_SHIFT,			\
 		.width = PERIPH_DIV1_WIDTH,			\
-		.clkflags = CLK_SET_RATE_NO_REPARENT |		\
-			    CLK_IS_BASIC,			\
-		.typeflags = CLK_DIVIDER_ONE_BASED |		\
-			     CLK_DIVIDER_ALLOW_ZERO,		\
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT |\
+			    CLK_IS_BASIC),			\
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED |	\
+			     CLK_DIVIDER_ALLOW_ZERO),		\
 		.mult = NA_MULT,				\
 		.div = NA_DIV,					\
 	}
@@ -148,11 +148,11 @@
 		.type = TYPE_DIV2,				\
 		.offset = PERIPH_DIV2_SHIFT,			\
 		.width = PERIPH_DIV2_WIDTH,			\
-		.clkflags = CLK_SET_RATE_NO_REPARENT |		\
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT |\
 			    CLK_SET_RATE_PARENT |		\
-			    CLK_IS_BASIC,			\
-		.typeflags = CLK_DIVIDER_ONE_BASED |		\
-			     CLK_DIVIDER_ALLOW_ZERO,		\
+			    CLK_IS_BASIC),			\
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED |	\
+			     CLK_DIVIDER_ALLOW_ZERO),		\
 		.mult = NA_MULT,				\
 		.div = NA_DIV,					\
 	}
@@ -162,11 +162,11 @@
 		.type = TYPE_DIV##id,				\
 		.offset = PERIPH_DIV##id##_SHIFT,		\
 		.width = PERIPH_DIV##id##_WIDTH,		\
-		.clkflags = CLK_IGNORE_UNUSED |			\
+		.clkflags = (uint16_t)(CLK_IGNORE_UNUSED |	\
 			    CLK_SET_RATE_NO_REPARENT |		\
-			    CLK_IS_BASIC,			\
-		.typeflags = CLK_DIVIDER_ONE_BASED |		\
-			     CLK_DIVIDER_ALLOW_ZERO,		\
+			    CLK_IS_BASIC),			\
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED |	\
+			     CLK_DIVIDER_ALLOW_ZERO),		\
 		.mult = NA_MULT,				\
 		.div = NA_DIV,					\
 	}
@@ -176,9 +176,9 @@
 		.type = TYPE_GATE,				\
 		.offset = PERIPH_GATE_SHIFT,			\
 		.width = PERIPH_GATE_WIDTH,			\
-		.clkflags = CLK_SET_RATE_PARENT |		\
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |	\
 			    CLK_SET_RATE_GATE |			\
-			    CLK_IS_BASIC,			\
+			    CLK_IS_BASIC),			\
 		.typeflags = NA_TYPE_FLAGS,			\
 		.mult = NA_MULT,				\
 		.div = NA_DIV,					\
@@ -189,9 +189,9 @@
 		.type = TYPE_GATE,				\
 		.offset = PERIPH_GATE_SHIFT,			\
 		.width = PERIPH_GATE_WIDTH,			\
-		.clkflags = CLK_SET_RATE_PARENT |		\
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |	\
 			    CLK_IGNORE_UNUSED |			\
-			    CLK_IS_BASIC,			\
+			    CLK_IS_BASIC),			\
 		.typeflags = NA_TYPE_FLAGS,			\
 		.mult = NA_MULT,				\
 		.div = NA_DIV,					\
@@ -253,7 +253,7 @@ static struct pm_clock_node generic_pll_nodes[] = {
 		.type = TYPE_PLL,
 		.offset = NA_SHIFT,
 		.width = NA_WIDTH,
-		.clkflags = CLK_SET_RATE_NO_REPARENT,
+		.clkflags = (uint16_t)CLK_SET_RATE_NO_REPARENT,
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -265,7 +265,7 @@ static struct pm_clock_node ignore_unused_pll_nodes[] = {
 		.type = TYPE_PLL,
 		.offset = NA_SHIFT,
 		.width = NA_WIDTH,
-		.clkflags = CLK_IGNORE_UNUSED | CLK_SET_RATE_NO_REPARENT,
+		.clkflags = (uint16_t)(CLK_IGNORE_UNUSED | CLK_SET_RATE_NO_REPARENT),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -277,7 +277,7 @@ static struct pm_clock_node generic_pll_pre_src_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = PLL_PRESRC_MUX_SHIFT,
 		.width = PLL_PRESRC_MUX_WIDTH,
-		.clkflags = CLK_IS_BASIC,
+		.clkflags = (uint16_t)CLK_IS_BASIC,
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -289,7 +289,7 @@ static struct pm_clock_node generic_pll_half_nodes[] = {
 		.type = TYPE_FIXEDFACTOR,
 		.offset = NA_SHIFT,
 		.width = NA_WIDTH,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_SET_RATE_PARENT,
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT | CLK_SET_RATE_PARENT),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = 1,
 		.div = 2,
@@ -301,9 +301,9 @@ static struct pm_clock_node generic_pll_int_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = PLL_DIV2_MUX_SHIFT,
 		.width =  PLL_DIV2_MUX_WIDTH,
-		.clkflags = CLK_SET_RATE_NO_REPARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT |
 			    CLK_SET_RATE_PARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -315,7 +315,7 @@ static struct pm_clock_node generic_pll_post_src_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = PLL_POSTSRC_MUX_SHIFT,
 		.width = PLL_POSTSRC_MUX_WIDTH,
-		.clkflags = CLK_IS_BASIC,
+		.clkflags = (uint16_t)CLK_IS_BASIC,
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -327,9 +327,9 @@ static struct pm_clock_node generic_pll_system_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = PLL_BYPASS_MUX_SHIFT,
 		.width = PLL_BYPASS_MUX_WIDTH,
-		.clkflags = CLK_SET_RATE_NO_REPARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT |
 			    CLK_SET_RATE_PARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -341,7 +341,7 @@ static struct pm_clock_node acpu_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = PERIPH_MUX_SHIFT,
 		.width = PERIPH_MUX_WIDTH,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -350,8 +350,8 @@ static struct pm_clock_node acpu_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = PERIPH_DIV1_SHIFT,
 		.width = PERIPH_DIV1_WIDTH,
-		.clkflags = CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)CLK_IS_BASIC,
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -386,9 +386,9 @@ static struct pm_clock_node dp_audio_video_ref_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = PERIPH_MUX_SHIFT,
 		.width = PERIPH_MUX_WIDTH,
-		.clkflags = CLK_SET_RATE_NO_REPARENT |
-			    CLK_SET_RATE_PARENT | CLK_IS_BASIC,
-		.typeflags = CLK_FRAC,
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT |
+			    CLK_SET_RATE_PARENT | CLK_IS_BASIC),
+		.typeflags = (uint16_t)CLK_FRAC,
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -396,10 +396,10 @@ static struct pm_clock_node dp_audio_video_ref_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = PERIPH_DIV1_SHIFT,
 		.width = PERIPH_DIV1_WIDTH,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_SET_RATE_PARENT |
-			    CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO |
-			     CLK_FRAC,
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT | CLK_SET_RATE_PARENT |
+			    CLK_IS_BASIC),
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO |
+			     CLK_FRAC),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -407,10 +407,10 @@ static struct pm_clock_node dp_audio_video_ref_nodes[] = {
 		.type = TYPE_DIV2,
 		.offset = PERIPH_DIV2_SHIFT,
 		.width = PERIPH_DIV2_WIDTH,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_SET_RATE_PARENT |
-			    CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO |
-			     CLK_FRAC,
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT | CLK_SET_RATE_PARENT |
+			    CLK_IS_BASIC),
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO |
+			     CLK_FRAC),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -418,9 +418,9 @@ static struct pm_clock_node dp_audio_video_ref_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = PERIPH_GATE_SHIFT,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_GATE |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -435,8 +435,8 @@ static struct pm_clock_node usb_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = USB_GATE_SHIFT,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC |
-			    CLK_SET_RATE_GATE,
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT | CLK_IS_BASIC |
+			    CLK_SET_RATE_GATE),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -448,8 +448,8 @@ static struct pm_clock_node generic_domain_crossing_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = 8,
 		.width = 6,
-		.clkflags = CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)CLK_IS_BASIC,
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -460,8 +460,8 @@ static struct pm_clock_node rpll_to_fpd_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = 8,
 		.width = 6,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT | CLK_IS_BASIC),
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -481,9 +481,9 @@ static struct pm_clock_node acpu_half_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = 25,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_IGNORE_UNUSED |
+		.clkflags = (uint16_t)(CLK_IGNORE_UNUSED |
 			    CLK_SET_RATE_PARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -495,9 +495,9 @@ static struct pm_clock_node acpu_full_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = 24,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_IGNORE_UNUSED |
+		.clkflags = (uint16_t)(CLK_IGNORE_UNUSED |
 			    CLK_SET_RATE_PARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -509,9 +509,9 @@ static struct pm_clock_node wdt_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 0,
 		.width = 1,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -524,8 +524,8 @@ static struct pm_clock_node ddr_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = 8,
 		.width = 6,
-		.clkflags = CLK_IS_BASIC | CLK_IS_CRITICAL,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)(CLK_IS_BASIC | CLK_IS_CRITICAL),
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -537,8 +537,8 @@ static struct pm_clock_node pl_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = PERIPH_DIV1_SHIFT,
 		.width = PERIPH_DIV1_WIDTH,
-		.clkflags = CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)(CLK_IS_BASIC),
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -546,8 +546,8 @@ static struct pm_clock_node pl_nodes[] = {
 		.type = TYPE_DIV2,
 		.offset = PERIPH_DIV2_SHIFT,
 		.width = PERIPH_DIV2_WIDTH,
-		.clkflags = CLK_IS_BASIC | CLK_SET_RATE_PARENT,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)(CLK_IS_BASIC | CLK_SET_RATE_PARENT),
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -555,7 +555,7 @@ static struct pm_clock_node pl_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = PERIPH_GATE_SHIFT,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT | CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -567,7 +567,7 @@ static struct pm_clock_node gpu_pp0_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = 25,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT | CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -579,7 +579,7 @@ static struct pm_clock_node gpu_pp1_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = 26,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT | CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -592,8 +592,8 @@ static struct pm_clock_node gem_ref_ungated_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = 8,
 		.width = 6,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC),
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -601,9 +601,9 @@ static struct pm_clock_node gem_ref_ungated_nodes[] = {
 		.type = TYPE_DIV2,
 		.offset = 16,
 		.width = 6,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC |
-			    CLK_SET_RATE_PARENT,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)(CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC |
+			    CLK_SET_RATE_PARENT),
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -614,9 +614,9 @@ static struct pm_clock_node gem0_ref_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 1,
 		.width = 1,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -628,9 +628,9 @@ static struct pm_clock_node gem1_ref_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 6,
 		.width = 1,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -642,9 +642,9 @@ static struct pm_clock_node gem2_ref_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 11,
 		.width = 1,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -656,9 +656,9 @@ static struct pm_clock_node gem3_ref_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 16,
 		.width = 1,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -670,7 +670,7 @@ static struct pm_clock_node gem_tx_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = 25,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT | CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -682,7 +682,7 @@ static struct pm_clock_node gem_rx_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = 26,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_IS_BASIC,
+		.clkflags = (uint16_t)(CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -694,9 +694,9 @@ static struct pm_clock_node gem_tsu_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 20,
 		.width = 2,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -708,9 +708,9 @@ static struct pm_clock_node can0_mio_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 0,
 		.width = 7,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -722,9 +722,9 @@ static struct pm_clock_node can1_mio_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 15,
 		.width = 1,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -736,9 +736,9 @@ static struct pm_clock_node can0_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 7,
 		.width = 1,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -750,9 +750,9 @@ static struct pm_clock_node can1_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 22,
 		.width = 1,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -764,8 +764,8 @@ static struct pm_clock_node cpu_r5_core_nodes[] = {
 		.type = TYPE_GATE,
 		.offset = 25,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_IGNORE_UNUSED |
-			    CLK_IS_BASIC,
+		.clkflags = (uint16_t)(CLK_IGNORE_UNUSED |
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -777,9 +777,9 @@ static struct pm_clock_node dll_ref_nodes[] = {
 		.type = TYPE_MUX,
 		.offset = 0,
 		.width = 3,
-		.clkflags = CLK_SET_RATE_PARENT |
+		.clkflags = (uint16_t)(CLK_SET_RATE_PARENT |
 			    CLK_SET_RATE_NO_REPARENT |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC),
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -792,8 +792,8 @@ static struct pm_clock_node timestamp_ref_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = 8,
 		.width = 6,
-		.clkflags = CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+		.clkflags = (uint16_t)CLK_IS_BASIC,
+		.typeflags = (uint16_t)(CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO),
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -831,7 +831,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_APLL_PRE_SRC, CLK_NA_PARENT}),
 		.nodes = &ignore_unused_pll_nodes,
-		.num_nodes = ARRAY_SIZE(ignore_unused_pll_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(ignore_unused_pll_nodes),
 	},
 	[CLK_APLL_PRE_SRC] = {
 		.name = "apll_pre_src",
@@ -849,7 +849,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_pre_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_pre_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_pre_src_nodes),
 	},
 	[CLK_APLL_HALF] = {
 		.name = "apll_half",
@@ -857,7 +857,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_APLL_INT, CLK_NA_PARENT}),
 		.nodes = &generic_pll_half_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_half_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_half_nodes),
 	},
 	[CLK_APLL_INT_MUX] = {
 		.name = "apll_int_mux",
@@ -869,7 +869,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_int_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_int_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_int_nodes),
 	},
 	[CLK_APLL_POST_SRC] = {
 		.name = "apll_post_src",
@@ -887,7 +887,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_post_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_post_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_post_src_nodes),
 	},
 	[CLK_APLL] = {
 		.name = "apll",
@@ -899,7 +899,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_system_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_system_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_system_nodes),
 	},
 	[CLK_DPLL_INT] = {
 		.name = "dpll_int",
@@ -907,7 +907,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_DPLL_PRE_SRC, CLK_NA_PARENT}),
 		.nodes = &generic_pll_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_nodes),
 	},
 	[CLK_DPLL_PRE_SRC] = {
 		.name = "dpll_pre_src",
@@ -925,7 +925,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_pre_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_pre_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_pre_src_nodes),
 	},
 	[CLK_DPLL_HALF] = {
 		.name = "dpll_half",
@@ -933,7 +933,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_DPLL_INT, CLK_NA_PARENT}),
 		.nodes = &generic_pll_half_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_half_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_half_nodes),
 	},
 	[CLK_DPLL_INT_MUX] = {
 		.name = "dpll_int_mux",
@@ -945,7 +945,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_int_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_int_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_int_nodes),
 	},
 	[CLK_DPLL_POST_SRC] = {
 		.name = "dpll_post_src",
@@ -963,7 +963,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_post_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_post_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_post_src_nodes),
 	},
 	[CLK_DPLL] = {
 		.name = "dpll",
@@ -975,7 +975,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_system_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_system_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_system_nodes),
 	},
 	[CLK_VPLL_INT] = {
 		.name = "vpll_int",
@@ -983,7 +983,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_VPLL_PRE_SRC, CLK_NA_PARENT}),
 		.nodes = &ignore_unused_pll_nodes,
-		.num_nodes = ARRAY_SIZE(ignore_unused_pll_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(ignore_unused_pll_nodes),
 	},
 	[CLK_VPLL_PRE_SRC] = {
 		.name = "vpll_pre_src",
@@ -1001,7 +1001,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_pre_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_pre_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_pre_src_nodes),
 	},
 	[CLK_VPLL_HALF] = {
 		.name = "vpll_half",
@@ -1009,7 +1009,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_VPLL_INT, CLK_NA_PARENT}),
 		.nodes = &generic_pll_half_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_half_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_half_nodes),
 	},
 	[CLK_VPLL_INT_MUX] = {
 		.name = "vpll_int_mux",
@@ -1021,7 +1021,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_int_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_int_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_int_nodes),
 	},
 	[CLK_VPLL_POST_SRC] = {
 		.name = "vpll_post_src",
@@ -1051,7 +1051,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_system_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_system_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_system_nodes),
 	},
 	[CLK_IOPLL_INT] = {
 		.name = "iopll_int",
@@ -1059,7 +1059,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_IOPLL_PRE_SRC, CLK_NA_PARENT}),
 		.nodes = &generic_pll_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_nodes),
 	},
 	[CLK_IOPLL_PRE_SRC] = {
 		.name = "iopll_pre_src",
@@ -1077,7 +1077,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_pre_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_pre_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_pre_src_nodes),
 	},
 	[CLK_IOPLL_HALF] = {
 		.name = "iopll_half",
@@ -1085,7 +1085,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_IOPLL_INT, CLK_NA_PARENT}),
 		.nodes = &generic_pll_half_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_half_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_half_nodes),
 	},
 	[CLK_IOPLL_INT_MUX] = {
 		.name = "iopll_int_mux",
@@ -1097,7 +1097,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_int_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_int_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_int_nodes),
 	},
 	[CLK_IOPLL_POST_SRC] = {
 		.name = "iopll_post_src",
@@ -1115,7 +1115,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_post_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_post_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_post_src_nodes),
 	},
 	[CLK_IOPLL] = {
 		.name = "iopll",
@@ -1127,7 +1127,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_system_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_system_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_system_nodes),
 	},
 	[CLK_RPLL_INT] = {
 		.name = "rpll_int",
@@ -1135,7 +1135,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_RPLL_PRE_SRC, CLK_NA_PARENT}),
 		.nodes = &generic_pll_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_nodes),
 	},
 	[CLK_RPLL_PRE_SRC] = {
 		.name = "rpll_pre_src",
@@ -1154,7 +1154,7 @@ static struct pm_clock clocks[] = {
 		}),
 
 		.nodes = &generic_pll_pre_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_pre_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_pre_src_nodes),
 	},
 	[CLK_RPLL_HALF] = {
 		.name = "rpll_half",
@@ -1162,7 +1162,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = CRF_APB_PLL_STATUS,
 		.parents = &((int32_t []) {CLK_RPLL_INT, CLK_NA_PARENT}),
 		.nodes = &generic_pll_half_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_half_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_half_nodes),
 	},
 	[CLK_RPLL_INT_MUX] = {
 		.name = "rpll_int_mux",
@@ -1174,7 +1174,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_int_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_int_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_int_nodes),
 	},
 	[CLK_RPLL_POST_SRC] = {
 		.name = "rpll_post_src",
@@ -1192,7 +1192,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_post_src_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_post_src_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_post_src_nodes),
 	},
 	[CLK_RPLL] = {
 		.name = "rpll",
@@ -1204,7 +1204,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_pll_system_nodes,
-		.num_nodes = ARRAY_SIZE(generic_pll_system_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_pll_system_nodes),
 	},
 	/* Peripheral Clocks */
 	[CLK_ACPU] = {
@@ -1219,7 +1219,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &acpu_nodes,
-		.num_nodes = ARRAY_SIZE(acpu_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(acpu_nodes),
 	},
 	[CLK_ACPU_FULL] = {
 		.name = "acpu_full",
@@ -1244,7 +1244,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_DBG_FPD] = {
 		.name = "dbg_fpd",
@@ -1258,7 +1258,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_DBG_TSTMP] = {
 		.name = "dbg_tstmp",
@@ -1272,7 +1272,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_nodes),
 	},
 	[CLK_DP_VIDEO_REF] = {
 		.name = "dp_video_ref",
@@ -1286,7 +1286,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &dp_audio_video_ref_nodes,
-		.num_nodes = ARRAY_SIZE(dp_audio_video_ref_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(dp_audio_video_ref_nodes),
 	},
 	[CLK_DP_AUDIO_REF] = {
 		.name = "dp_audio_ref",
@@ -1300,7 +1300,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &dp_audio_video_ref_nodes,
-		.num_nodes = ARRAY_SIZE(dp_audio_video_ref_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(dp_audio_video_ref_nodes),
 	},
 	[CLK_DP_STC_REF] = {
 		.name = "dp_stc_ref",
@@ -1314,7 +1314,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_DPDMA_REF] = {
 		.name = "dpdma_ref",
@@ -1328,7 +1328,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_DDR_REF] = {
 		.name = "ddr_ref",
@@ -1340,7 +1340,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &ddr_nodes,
-		.num_nodes = ARRAY_SIZE(ddr_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(ddr_nodes),
 	},
 	[CLK_GPU_REF] = {
 		.name = "gpu_ref",
@@ -1354,7 +1354,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_SATA_REF] = {
 		.name = "sata_ref",
@@ -1368,7 +1368,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_PCIE_REF] = {
 		.name = "pcie_ref",
@@ -1382,7 +1382,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_GDMA_REF] = {
 		.name = "gdma_ref",
@@ -1396,7 +1396,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_GTGREF0_REF] = {
 		.name = "gtgref0_ref",
@@ -1410,7 +1410,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_TOPSW_MAIN] = {
 		.name = "topsw_main",
@@ -1424,7 +1424,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_unused_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
 	},
 	[CLK_TOPSW_LSBUS] = {
 		.name = "topsw_lsbus",
@@ -1438,7 +1438,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_unused_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
 	},
 	[CLK_IOU_SWITCH] = {
 		.name = "iou_switch",
@@ -1452,7 +1452,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_unused_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
 	},
 	[CLK_GEM0_REF_UNGATED] = {
 		.name = "gem0_ref_ung",
@@ -1574,7 +1574,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &usb_nodes,
-		.num_nodes = ARRAY_SIZE(usb_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(usb_nodes),
 	},
 	[CLK_USB1_BUS_REF] = {
 		.name = "usb1_bus_ref",
@@ -1588,7 +1588,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &usb_nodes,
-		.num_nodes = ARRAY_SIZE(usb_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(usb_nodes),
 	},
 	[CLK_USB3_DUAL_REF] = {
 		.name = "usb3_dual_ref",
@@ -1602,7 +1602,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &usb_nodes,
-		.num_nodes = ARRAY_SIZE(usb_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(usb_nodes),
 	},
 	[CLK_QSPI_REF] = {
 		.name = "qspi_ref",
@@ -1616,7 +1616,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_SDIO0_REF] = {
 		.name = "sdio0_ref",
@@ -1630,7 +1630,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_SDIO1_REF] = {
 		.name = "sdio1_ref",
@@ -1644,7 +1644,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_UART0_REF] = {
 		.name = "uart0_ref",
@@ -1658,7 +1658,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_UART1_REF] = {
 		.name = "uart1_ref",
@@ -1672,7 +1672,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_SPI0_REF] = {
 		.name = "spi0_ref",
@@ -1686,7 +1686,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_SPI1_REF] = {
 		.name = "spi1_ref",
@@ -1700,7 +1700,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_CAN0_REF] = {
 		.name = "can0_ref",
@@ -1714,7 +1714,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_CAN1_REF] = {
 		.name = "can1_ref",
@@ -1728,7 +1728,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_NAND_REF] = {
 		.name = "nand_ref",
@@ -1742,7 +1742,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_GEM_TSU_REF] = {
 		.name = "gem_tsu_ref",
@@ -1756,7 +1756,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_DLL_REF] = {
 		.name = "dll_ref",
@@ -1768,7 +1768,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &dll_ref_nodes,
-		.num_nodes = ARRAY_SIZE(dll_ref_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(dll_ref_nodes),
 	},
 	[CLK_ADMA_REF] = {
 		.name = "adma_ref",
@@ -1782,7 +1782,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_DBG_LPD] = {
 		.name = "dbg_lpd",
@@ -1796,7 +1796,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_CPU_R5] = {
 		.name = "cpu_r5",
@@ -1810,7 +1810,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_unused_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
 	},
 	[CLK_CSU_PLL] = {
 		.name = "csu_pll",
@@ -1824,7 +1824,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_PCAP] = {
 		.name = "pcap",
@@ -1838,7 +1838,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_gate_nodes),
 	},
 	[CLK_LPD_LSBUS] = {
 		.name = "lpd_lsbus",
@@ -1852,7 +1852,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_unused_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
 	},
 	[CLK_LPD_SWITCH] = {
 		.name = "lpd_switch",
@@ -1866,7 +1866,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_unused_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
 	},
 	[CLK_I2C0_REF] = {
 		.name = "i2c0_ref",
@@ -1880,7 +1880,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_I2C1_REF] = {
 		.name = "i2c1_ref",
@@ -1894,7 +1894,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_TIMESTAMP_REF] = {
 		.name = "timestamp_ref",
@@ -1912,7 +1912,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &timestamp_ref_nodes,
-		.num_nodes = ARRAY_SIZE(timestamp_ref_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(timestamp_ref_nodes),
 	},
 	[CLK_PL0_REF] = {
 		.name = "pl0_ref",
@@ -1926,7 +1926,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &pl_nodes,
-		.num_nodes = ARRAY_SIZE(pl_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(pl_nodes),
 	},
 	[CLK_PL1_REF] = {
 		.name = "pl1_ref",
@@ -1940,7 +1940,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &pl_nodes,
-		.num_nodes = ARRAY_SIZE(pl_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(pl_nodes),
 	},
 	[CLK_PL2_REF] = {
 		.name = "pl2_ref",
@@ -1954,7 +1954,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &pl_nodes,
-		.num_nodes = ARRAY_SIZE(pl_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(pl_nodes),
 	},
 	[CLK_PL3_REF] = {
 		.name = "pl3_ref",
@@ -1968,7 +1968,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &pl_nodes,
-		.num_nodes = ARRAY_SIZE(pl_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(pl_nodes),
 	},
 	[CLK_AMS_REF] = {
 		.name = "ams_ref",
@@ -1982,7 +1982,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &generic_mux_div_div_gate_nodes,
-		.num_nodes = ARRAY_SIZE(generic_mux_div_div_gate_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_mux_div_div_gate_nodes),
 	},
 	[CLK_IOPLL_TO_FPD] = {
 		.name = "iopll_to_fpd",
@@ -1990,7 +1990,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = 0,
 		.parents = &((int32_t []) {CLK_IOPLL, CLK_NA_PARENT}),
 		.nodes = &generic_domain_crossing_nodes,
-		.num_nodes = ARRAY_SIZE(generic_domain_crossing_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_domain_crossing_nodes),
 	},
 	[CLK_RPLL_TO_FPD] = {
 		.name = "rpll_to_fpd",
@@ -1998,7 +1998,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = 0,
 		.parents = &((int32_t []) {CLK_RPLL, CLK_NA_PARENT}),
 		.nodes = &rpll_to_fpd_nodes,
-		.num_nodes = ARRAY_SIZE(rpll_to_fpd_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(rpll_to_fpd_nodes),
 	},
 	[CLK_APLL_TO_LPD] = {
 		.name = "apll_to_lpd",
@@ -2006,7 +2006,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = 0,
 		.parents = &((int32_t []) {CLK_APLL, CLK_NA_PARENT}),
 		.nodes = &generic_domain_crossing_nodes,
-		.num_nodes = ARRAY_SIZE(generic_domain_crossing_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_domain_crossing_nodes),
 	},
 	[CLK_DPLL_TO_LPD] = {
 		.name = "dpll_to_lpd",
@@ -2014,7 +2014,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = 0,
 		.parents = &((int32_t []) {CLK_DPLL, CLK_NA_PARENT}),
 		.nodes = &generic_domain_crossing_nodes,
-		.num_nodes = ARRAY_SIZE(generic_domain_crossing_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_domain_crossing_nodes),
 	},
 	[CLK_VPLL_TO_LPD] = {
 		.name = "vpll_to_lpd",
@@ -2022,7 +2022,7 @@ static struct pm_clock clocks[] = {
 		.status_reg = 0,
 		.parents = &((int32_t []) {CLK_VPLL, CLK_NA_PARENT}),
 		.nodes = &generic_domain_crossing_nodes,
-		.num_nodes = ARRAY_SIZE(generic_domain_crossing_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(generic_domain_crossing_nodes),
 	},
 	[CLK_GEM0_TX] = {
 		.name = "gem0_tx",
@@ -2033,7 +2033,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_tx_nodes,
-		.num_nodes = ARRAY_SIZE(gem_tx_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_tx_nodes),
 	},
 	[CLK_GEM1_TX] = {
 		.name = "gem1_tx",
@@ -2044,7 +2044,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_tx_nodes,
-		.num_nodes = ARRAY_SIZE(gem_tx_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_tx_nodes),
 	},
 	[CLK_GEM2_TX] = {
 		.name = "gem2_tx",
@@ -2055,7 +2055,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_tx_nodes,
-		.num_nodes = ARRAY_SIZE(gem_tx_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_tx_nodes),
 	},
 	[CLK_GEM3_TX] = {
 		.name = "gem3_tx",
@@ -2066,7 +2066,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_tx_nodes,
-		.num_nodes = ARRAY_SIZE(gem_tx_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_tx_nodes),
 	},
 	[CLK_GEM0_RX] = {
 		.name = "gem0_rx",
@@ -2077,7 +2077,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_rx_nodes,
-		.num_nodes = ARRAY_SIZE(gem_rx_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_rx_nodes),
 	},
 	[CLK_GEM1_RX] = {
 		.name = "gem1_rx",
@@ -2088,7 +2088,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_rx_nodes,
-		.num_nodes = ARRAY_SIZE(gem_rx_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_rx_nodes),
 	},
 	[CLK_GEM2_RX] = {
 		.name = "gem2_rx",
@@ -2099,7 +2099,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_rx_nodes,
-		.num_nodes = ARRAY_SIZE(gem_rx_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_rx_nodes),
 	},
 	[CLK_GEM3_RX] = {
 		.name = "gem3_rx",
@@ -2110,7 +2110,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_rx_nodes,
-		.num_nodes = ARRAY_SIZE(gem_rx_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_rx_nodes),
 	},
 	[CLK_ACPU_HALF] = {
 		.name = "acpu_half",
@@ -2121,7 +2121,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &acpu_half_nodes,
-		.num_nodes = ARRAY_SIZE(acpu_half_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(acpu_half_nodes),
 	},
 	[CLK_FPD_WDT] = {
 		.name = "fpd_wdt",
@@ -2133,7 +2133,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &wdt_nodes,
-		.num_nodes = ARRAY_SIZE(wdt_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(wdt_nodes),
 	},
 	[CLK_GPU_PP0_REF] = {
 		.name = "gpu_pp0_ref",
@@ -2144,7 +2144,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gpu_pp0_nodes,
-		.num_nodes = ARRAY_SIZE(gpu_pp0_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gpu_pp0_nodes),
 	},
 	[CLK_GPU_PP1_REF] = {
 		.name = "gpu_pp1_ref",
@@ -2155,7 +2155,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gpu_pp1_nodes,
-		.num_nodes = ARRAY_SIZE(gpu_pp1_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gpu_pp1_nodes),
 	},
 	[CLK_GEM_TSU] = {
 		.name = "gem_tsu",
@@ -2169,7 +2169,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &gem_tsu_nodes,
-		.num_nodes = ARRAY_SIZE(gem_tsu_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(gem_tsu_nodes),
 	},
 	[CLK_CPU_R5_CORE] = {
 		.name = "cpu_r5_core",
@@ -2181,7 +2181,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &cpu_r5_core_nodes,
-		.num_nodes = ARRAY_SIZE(cpu_r5_core_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(cpu_r5_core_nodes),
 	},
 	[CLK_CAN0_MIO] = {
 		.name = "can0_mio",
@@ -2209,7 +2209,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &can0_nodes,
-		.num_nodes = ARRAY_SIZE(can0_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(can0_nodes),
 	},
 	[CLK_CAN1] = {
 		.name = "can1",
@@ -2221,7 +2221,7 @@ static struct pm_clock clocks[] = {
 			CLK_NA_PARENT
 		}),
 		.nodes = &can1_nodes,
-		.num_nodes = ARRAY_SIZE(can1_nodes),
+		.num_nodes = (uint8_t)ARRAY_SIZE(can1_nodes),
 	},
 	[CLK_LPD_WDT] = {
 		.name = "lpd_wdt",
@@ -2625,7 +2625,7 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 	}
 
 	for (i = 0; i < 3U; i++) {
-		parents[i] = clk_parents[index + i];
+		parents[i] = (uint32_t)clk_parents[index + i];
 		if (clk_parents[index + i] == CLK_NA_PARENT) {
 			break;
 		}
@@ -2691,7 +2691,7 @@ enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 				*max_div = (((uint32_t)1U <<
 						((uint32_t)BIT(nodes[i].width) - (uint32_t)1U)));
 			} else {
-				*max_div = BIT(nodes[i].width) - 1U;
+				*max_div = (uint32_t)BIT(nodes[i].width) - (uint32_t)1U;
 			}
 			return PM_RET_SUCCESS;
 		}
@@ -2996,7 +2996,7 @@ enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 	if ((pll == NULL) || ((mode != PLL_FRAC_MODE) && (mode != PLL_INT_MODE))) {
 		return PM_RET_ERROR_ARGS;
 	}
-	pll->mode = mode;
+	pll->mode = (uint8_t)mode;
 
 	return PM_RET_SUCCESS;
 }
