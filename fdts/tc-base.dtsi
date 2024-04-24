@@ -265,9 +265,22 @@
 		method = "smc";
 	};
 
-	cpu-pmu {
-		compatible = "arm,armv8-pmuv3";
-		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH 0>;
+	cpu-pmu-little {
+		compatible = LIT_CPU_PMU_COMPATIBLE;
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH &ppi_partition_little>;
+		status = "okay";
+	};
+
+	cpu-pmu-mid {
+		compatible = MID_CPU_PMU_COMPATIBLE;
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH &ppi_partition_mid>;
+		status = "okay";
+	};
+
+	cpu-pmu-big {
+		compatible = BIG_CPU_PMU_COMPATIBLE;
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH &ppi_partition_big>;
+		status = "okay";
 	};
 
 	sram: sram@6000000 {

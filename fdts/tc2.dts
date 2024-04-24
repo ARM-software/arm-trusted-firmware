@@ -31,6 +31,10 @@
 #define MHU_RX_INT_NUM			317
 #define MHU_RX_INT_NAME			"mhu_rx"
 
+#define LIT_CPU_PMU_COMPATIBLE		"arm,cortex-a520-pmu"
+#define MID_CPU_PMU_COMPATIBLE		"arm,cortex-a720-pmu"
+#define BIG_CPU_PMU_COMPATIBLE		"arm,cortex-x4-pmu"
+
 #define MPAM_ADDR			0x1 0x00010000 /* 0x1_0001_0000 */
 #define UARTCLK_FREQ			5000000
 
@@ -192,18 +196,6 @@
 		cpu = <&CPU13>;
 	};
 #endif /* TARGET_FLAVOUR_FPGA */
-
-	cpu-pmu {
-#if TARGET_FLAVOUR_FPGA
-		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
-				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>,
-				     <&CPU8>,  <&CPU9>,  <&CPU10>, <&CPU11>,
-				     <&CPU12>, <&CPU13>;
-#else
-		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
-				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>;
-#endif
-	};
 
 	cmn-pmu {
 		compatible = "arm,ci-700";
