@@ -2077,8 +2077,6 @@ static int stm32mp1_init_clock_tree(void)
 	return 0;
 }
 
-#define LSEDRV_MEDIUM_HIGH 2
-
 static int clk_stm32_parse_oscillator_fdt(void *fdt, int node, const char *name,
 					  struct stm32_osci_dt_cfg *osci)
 {
