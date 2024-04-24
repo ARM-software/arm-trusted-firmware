@@ -9,8 +9,36 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <platform_def.h>
 
+#if TARGET_FLAVOUR_FVP
+#define LIT_CAPACITY			406
+#define MID_CAPACITY			912
+#else /* TARGET_FLAVOUR_FPGA */
+#define LIT_CAPACITY			280
+#define MID_CAPACITY			775
+/* this is an area optimized configuration of the big core */
+#define BIG2_CAPACITY			930
+#endif /* TARGET_FLAVOUR_FPGA */
+#define BIG_CAPACITY			1024
+
+#define INT_MBOX_RX			317
+#define MHU_TX_ADDR			45000000 /* hex */
+#define MHU_RX_ADDR			45010000 /* hex */
+#define MPAM_ADDR			0x1 0x00010000 /* 0x1_0001_0000 */
+#define UARTCLK_FREQ			5000000
+
+#define DPU_ADDR			2cc00000
+#define DPU_IRQ				69
+
 #include "tc-common.dtsi"
 #if TARGET_FLAVOUR_FVP
 #include "tc-fvp.dtsi"
 #endif /* TARGET_FLAVOUR_FVP */
 #include "tc-base.dtsi"
+
+/ {
+	cmn-pmu {
+		compatible = "arm,ci-700";
+		reg = <0x0 0x50000000 0x0 0x10000000>;
+		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH>;
+	};
+};
