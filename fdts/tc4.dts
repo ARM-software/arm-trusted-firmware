@@ -17,6 +17,26 @@
 #define MID_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
 #define BIG_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
 
+#define ETHERNET_ADDR			64000000
+#define ETHERNET_INT			799
+
+#define SYS_REGS_ADDR			60080000
+
+#define MMC_ADDR			600b0000
+#define MMC_INT_0			778
+#define MMC_INT_1			779
+
+#define RTC_ADDR			600a0000
+#define RTC_INT				777
+
+#define KMI_0_ADDR			60100000
+#define KMI_0_INT			784
+#define KMI_1_ADDR			60110000
+#define KMI_1_INT			785
+
+#define VIRTIO_BLOCK_ADDR		60020000
+#define VIRTIO_BLOCK_INT		769
+
 #include "tc-common.dtsi"
 #if TARGET_FLAVOUR_FVP
 #include "tc-fvp.dtsi"

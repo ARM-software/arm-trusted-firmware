@@ -437,9 +437,9 @@
 
 	};
 
-	ethernet: ethernet@18000000 {
-		reg = <0x0 0x18000000 0x0 0x10000>;
-		interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH 0>;
+	ethernet: ethernet@ETHERNET_ADDR {
+		reg = <0x0 ADDRESSIFY(ETHERNET_ADDR) 0x0 0x10000>;
+		interrupts = <GIC_SPI ETHERNET_INT IRQ_TYPE_LEVEL_HIGH 0>;
 
 		reg-io-width = <2>;
 		smsc,irq-push-pull;
@@ -452,10 +452,9 @@
 		clock-output-names = "bp:clock24mhz";
 	};
 
-
-	sysreg: sysreg@1c010000 {
+	sysreg: sysreg@SYS_REGS_ADDR {
 		compatible = "arm,vexpress-sysreg";
-		reg = <0x0 0x001c010000 0x0 0x1000>;
+		reg = <0x0 ADDRESSIFY(SYS_REGS_ADDR) 0x0 0x1000>;
 		gpio-controller;
 		#gpio-cells = <2>;
 	};
@@ -468,11 +467,11 @@
 		regulator-always-on;
 	};
 
-	mmci: mmci@1c050000 {
+	mmci: mmci@MMC_ADDR {
 		compatible = "arm,pl180", "arm,primecell";
-		reg = <0x0 0x001c050000 0x0 0x1000>;
-		interrupts = <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH 0>,
-			     <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH 0>;
+		reg = <0x0 ADDRESSIFY(MMC_ADDR) 0x0 0x1000>;
+		interrupts = <GIC_SPI MMC_INT_0 IRQ_TYPE_LEVEL_HIGH 0>,
+			     <GIC_SPI MMC_INT_1 IRQ_TYPE_LEVEL_HIGH 0>;
 		wp-gpios = <&sysreg 1 0>;
 		bus-width = <4>;
 		max-frequency = <25000000>;
