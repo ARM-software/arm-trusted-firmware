@@ -11,7 +11,7 @@
 #include <drivers/console.h>
 
 console_t *console_list;
-static uint8_t console_state = CONSOLE_FLAG_BOOT;
+static uint32_t console_state = CONSOLE_FLAG_BOOT;
 
 IMPORT_SYM(console_t *, __STACKS_START__, stacks_start)
 IMPORT_SYM(console_t *, __STACKS_END__, stacks_end)
