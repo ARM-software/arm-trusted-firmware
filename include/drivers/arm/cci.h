@@ -102,6 +102,7 @@
 
 #ifndef __ASSEMBLER__
 
+#include <stddef.h>
 #include <stdint.h>
 
 /* Function declarations */
@@ -116,10 +117,10 @@
  * SLAVE_IF_UNUSED should be used in the map to represent no AMBA 4 master exists
  * for that interface.
  */
-void cci_init(uintptr_t base, const int *map, unsigned int num_cci_masters);
+void cci_init(uintptr_t base, const int *map, size_t num_cci_masters);
 
-void cci_enable_snoop_dvm_reqs(unsigned int master_id);
-void cci_disable_snoop_dvm_reqs(unsigned int master_id);
+void cci_enable_snoop_dvm_reqs(size_t master_id);
+void cci_disable_snoop_dvm_reqs(size_t master_id);
 
 #endif /* __ASSEMBLER__ */
 #endif /* CCI_H */
