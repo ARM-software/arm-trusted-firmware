@@ -56,7 +56,7 @@ static int32_t (*rmm_init)(void);
  * Variable to indicate whether next image to execute after BL31 is BL33
  * (non-secure & default) or BL32 (secure).
  ******************************************************************************/
-static uint32_t next_image_type = NON_SECURE;
+static uint32_t next_image_type = (uint32_t)NON_SECURE;
 
 #ifdef SUPPORT_UNKNOWN_MPID
 /*
