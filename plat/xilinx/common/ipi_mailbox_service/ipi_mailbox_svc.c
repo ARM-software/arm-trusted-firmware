@@ -78,8 +78,8 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	uint32_t ipi_remote_id;
 	uint32_t is_secure;
 
-	ipi_local_id = x1 & UNSIGNED32_MASK;
-	ipi_remote_id = x2 & UNSIGNED32_MASK;
+	ipi_local_id = (uint32_t)(x1 & UNSIGNED32_MASK);
+	ipi_remote_id = (uint32_t)(x2 & UNSIGNED32_MASK);
 
 	/* OEN Number 48 to 63 is for Trusted App and OS
 	 * GET_SMC_OEN limits the return value of OEN number to 63 by bitwise

@@ -160,7 +160,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 	/* Handle PMC case */
 	ret = pm_get_callbackdata(payload, ARRAY_SIZE(payload), 0, 0);
 	if (ret != PM_RET_SUCCESS) {
-		payload[0] = ret;
+		payload[0] = (uint32_t)ret;
 	}
 
 	switch (payload[0]) {
@@ -278,7 +278,7 @@ int32_t pm_setup(void)
 	gicd_write_irouter(gicv3_driver_data->gicd_base, PLAT_VERSAL_IPI_IRQ, MODE);
 
 	/* Register for idle callback during force power down/restart */
-	ret = pm_register_notifier(primary_proc->node_id, EVENT_CPU_PWRDWN,
+	ret = (int32_t)pm_register_notifier(primary_proc->node_id, EVENT_CPU_PWRDWN,
 				   0x0U, 0x1U, SECURE_FLAG);
 	if (ret != 0) {
 		WARN("BL31: registering idle callback for restart/force power down failed\n");
@@ -428,7 +428,7 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 
 		ret = pm_get_callbackdata(result, ARRAY_SIZE(result), security_flag, 1U);
 		if (ret != 0) {
-			result[0] = ret;
+			result[0] = (uint32_t)ret;
 		}
 
 		SMC_RET2(handle,
