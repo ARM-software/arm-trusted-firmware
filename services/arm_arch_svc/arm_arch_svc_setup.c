@@ -17,7 +17,7 @@
 
 static int32_t smccc_version(void)
 {
-	return MAKE_SMCCC_VERSION(SMCCC_MAJOR_VERSION, SMCCC_MINOR_VERSION);
+	return (int32_t)MAKE_SMCCC_VERSION(SMCCC_MAJOR_VERSION, SMCCC_MINOR_VERSION);
 }
 
 static int32_t smccc_arch_features(u_register_t arg1)
@@ -294,7 +294,7 @@ DECLARE_RT_SVC(
 		arm_arch_svc,
 		OEN_ARM_START,
 		OEN_ARM_END,
-		SMC_TYPE_FAST,
+		(uint8_t)SMC_TYPE_FAST,
 		NULL,
 		arm_arch_svc_smc_handler
 );
