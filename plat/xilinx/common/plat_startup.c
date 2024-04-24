@@ -175,7 +175,7 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 {
 	const struct xbl_handoff_params *HandoffParams;
 
-	if (!handoff_addr) {
+	if (handoff_addr == 0U) {
 		WARN("BL31: No handoff structure passed\n");
 		return XBL_HANDOFF_NO_STRUCT;
 	}

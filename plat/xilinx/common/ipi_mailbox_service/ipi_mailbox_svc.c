@@ -106,9 +106,9 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		SMC_RET1(handle, 0);
 	case IPI_MAILBOX_STATUS_ENQUIRY:
 	{
-		int32_t disable_interrupt;
+		bool disable_interrupt;
 
-		disable_interrupt = (x3 & IPI_SMC_ENQUIRY_DIRQ_MASK) ? 1 : 0;
+		disable_interrupt = ((x3 & IPI_SMC_ENQUIRY_DIRQ_MASK) != 0U);
 		ret = ipi_mb_enquire_status(ipi_local_id, ipi_remote_id);
 		if ((((uint32_t)ret & IPI_MB_STATUS_RECV_PENDING) > 0U) && disable_interrupt)
 			ipi_mb_disable_irq(ipi_local_id, ipi_remote_id);
@@ -118,15 +118,15 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	{
 		uint32_t is_blocking;
 
-		is_blocking = (x3 & IPI_SMC_NOTIFY_BLOCK_MASK) ? 1 : 0;
+		is_blocking = ((x3 & IPI_SMC_NOTIFY_BLOCK_MASK) != 0U);
 		ipi_mb_notify(ipi_local_id, ipi_remote_id, is_blocking);
 		SMC_RET1(handle, 0);
 	}
 	case IPI_MAILBOX_ACK:
 	{
-		int32_t enable_interrupt;
+		bool enable_interrupt;
 
-		enable_interrupt = (x3 & IPI_SMC_ACK_EIRQ_MASK) ? 1 : 0;
+		enable_interrupt = ((x3 & IPI_SMC_ACK_EIRQ_MASK) != 0U);
 		ipi_mb_ack(ipi_local_id, ipi_remote_id);
 		if (enable_interrupt != 0)
 			ipi_mb_enable_irq(ipi_local_id, ipi_remote_id);

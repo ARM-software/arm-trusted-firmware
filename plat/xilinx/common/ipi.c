@@ -90,11 +90,11 @@ int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure)
 {
 	int ret = 0;
 
-	if (!is_ipi_mb_within_range(local, remote)) {
+	if (is_ipi_mb_within_range(local, remote) == 0) {
 		ret = -EINVAL;
-	} else if (IPI_IS_SECURE(local) && !is_secure) {
+	} else if (IPI_IS_SECURE(local) && (is_secure == 0U)) {
 		ret = -EPERM;
-	} else if (IPI_IS_SECURE(remote) && !is_secure) {
+	} else if (IPI_IS_SECURE(remote) && (is_secure == 0U)) {
 		ret = -EPERM;
 	} else {
 		/* To fix the misra 15.7 warning */
