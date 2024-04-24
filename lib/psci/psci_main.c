@@ -300,7 +300,7 @@ int psci_affinity_info(u_register_t target_affinity,
 	flush_cpu_data_by_index(target_idx,
 				psci_svc_cpu_data.aff_info_state);
 
-	return psci_get_aff_info_state_by_idx(target_idx);
+	return (int)psci_get_aff_info_state_by_idx(target_idx);
 }
 
 int psci_migrate(u_register_t target_cpu)
