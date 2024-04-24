@@ -13,47 +13,6 @@
 #define DPU_SCMI_PD_IDX		(PLAT_MAX_CPUS_PER_CLUSTER + 2)
 #endif /* TC_SCMI_PD_CTRL_EN */
 
-#if TARGET_FLAVOUR_FVP
-#define STDOUT_PATH		"serial0:115200n8"
-#define GIC_CTRL_ADDR		2c010000
-#define GIC_GICR_OFFSET		0x200000
-#define UART_OFFSET		0x1000
-#define VENCODER_TIMING_CLK 25175000
-#define VENCODER_TIMING								\
-	clock-frequency = <VENCODER_TIMING_CLK>;				\
-	hactive = <640>;							\
-	vactive = <480>;							\
-	hfront-porch = <16>;							\
-	hback-porch = <48>;							\
-	hsync-len = <96>;							\
-	vfront-porch = <10>;							\
-	vback-porch = <33>;							\
-	vsync-len = <2>
-#define ETH_COMPATIBLE		"smsc,lan91c111"
-#define MMC_REMOVABLE		cd-gpios = <&sysreg 0 0>
-
-#else /* TARGET_FLAVOUR_FPGA */
-
-#define STDOUT_PATH		"serial0:38400n8"
-#define GIC_CTRL_ADDR		30000000
-#define GIC_GICR_OFFSET		0x1000000
-#define UART_OFFSET		0x10000
-/* 1440x3200@120 framebuffer */
-#define VENCODER_TIMING_CLK 836000000
-#define VENCODER_TIMING								\
-	clock-frequency = <VENCODER_TIMING_CLK>;				\
-	hactive = <1440>;							\
-	vactive = <3200>;							\
-	hfront-porch = <136>;							\
-	hback-porch = <296>;							\
-	hsync-len = <160>;							\
-	vfront-porch = <3>;							\
-	vback-porch = <217>;							\
-	vsync-len = <10>
-#define ETH_COMPATIBLE		"smsc,lan9115"
-#define MMC_REMOVABLE		non-removable
-#endif /* TARGET_FLAVOUR_FPGA */
-
 /* Use SCMI controlled clocks */
 #if TC_DPU_USE_SCMI_CLK
 #define DPU_CLK_ATTR1								\

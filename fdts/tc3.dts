@@ -31,6 +31,8 @@
 #include "tc-common.dtsi"
 #if TARGET_FLAVOUR_FVP
 #include "tc-fvp.dtsi"
+#else
+#include "tc-fpga.dtsi"
 #endif /* TARGET_FLAVOUR_FVP */
 #include "tc-base.dtsi"
 
