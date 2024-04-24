@@ -78,7 +78,7 @@ static int32_t validate_routing_model(uint32_t type, uint32_t flags)
  * routing model (expressed through the IRQ and FIQ bits) for a security state
  * which was stored through a call to 'set_routing_model()' earlier.
  ******************************************************************************/
-u_register_t get_scr_el3_from_routing_model(uint32_t security_state)
+u_register_t get_scr_el3_from_routing_model(size_t security_state)
 {
 	u_register_t scr_el3;
 

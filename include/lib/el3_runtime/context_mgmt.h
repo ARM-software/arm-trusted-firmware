@@ -23,15 +23,15 @@ struct entry_point_info;
  ******************************************************************************/
 void cm_init(void);
 void *cm_get_context_by_index(unsigned int cpu_idx,
-			      unsigned int security_state);
+			      size_t security_state);
 void cm_set_context_by_index(unsigned int cpu_idx,
 			     void *context,
 			     unsigned int security_state);
-void *cm_get_context(uint32_t security_state);
+void *cm_get_context(size_t security_state);
 void cm_set_context(void *context, uint32_t security_state);
 void cm_init_my_context(const struct entry_point_info *ep);
 void cm_setup_context(cpu_context_t *ctx, const struct entry_point_info *ep);
-void cm_prepare_el3_exit(uint32_t security_state);
+void cm_prepare_el3_exit(size_t security_state);
 void cm_prepare_el3_exit_ns(void);
 
 #ifdef __aarch64__

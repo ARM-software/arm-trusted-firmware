@@ -83,6 +83,7 @@
 #ifndef __ASSEMBLER__
 
 #include <errno.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /*******************************************************************************
@@ -143,7 +144,7 @@ typedef uint64_t (*interrupt_type_handler_t)(uint32_t id,
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-u_register_t get_scr_el3_from_routing_model(uint32_t security_state);
+u_register_t get_scr_el3_from_routing_model(size_t security_state);
 int32_t set_routing_model(uint32_t type, uint32_t flags);
 int32_t register_interrupt_type_handler(uint32_t type,
 					interrupt_type_handler_t handler,
