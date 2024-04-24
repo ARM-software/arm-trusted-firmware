@@ -800,10 +800,12 @@ RockChip platform port
 :|G|: `jwerner-chromium`_
 :|F|: plat/rockchip/
 
-STM32MP1 platform port
-^^^^^^^^^^^^^^^^^^^^^^
+STMicroelectronics platform ports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|G|: `Yann-lms`_
+:|M|: Maxime Méré <maxime.mere@foss.st.com>
+:|G|: `meremST`_
 :|F|: docs/plat/st/*
 :|F|: docs/plat/stm32mp1.rst
 :|F|: drivers/st/
@@ -811,6 +813,7 @@ STM32MP1 platform port
 :|F|: include/drivers/st/
 :|F|: include/dt-bindings/\*/stm32\*
 :|F|: plat/st/
+:|F|: tools/fiptool/plat_fiptool/st/
 :|F|: tools/stm32image/
 
 Synquacer platform port
@@ -955,95 +958,96 @@ Conventional Changelog Extensions
 :|G|: `CJKay`_
 :|F|: tools/conventional-changelog-tf-a
 
+.. _abdellatif-elkhlifi: https://github.com/abdellatif-elkhlifi
+.. _Akshay-Belsare: https://github.com/Akshay-Belsare
 .. _AlexeiFedorov: https://github.com/AlexeiFedorov
+.. _amit-nagal: https://github.com/amit-nagal
 .. _andersdellien-arm: https://github.com/andersdellien-arm
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
-.. _bijucdas: https://github.com/bijucdas
-.. _bryanodonoghue: https://github.com/bryanodonoghue
+.. _anukou: https://github.com/anukou
+.. _arugan02: https://github.com/arugan02
+.. _arve-android: https://github.com/arve-android
+.. _avifishman: https://github.com/avifishman
 .. _b49020: https://github.com/b49020
+.. _BenjaminLimJL: https://github.com/BenjaminLimJL
+.. _bijucdas: https://github.com/bijucdas
+.. _bipinravi-arm: https://github.com/bipinravi-arm
+.. _bryanodonoghue: https://github.com/bryanodonoghue
+.. _bytefire: https://github.com/bytefire
 .. _carlocaione: https://github.com/carlocaione
+.. _chandnich: https://github.com/chandnich
+.. _ChiaweiW: https://github.com/chiaweiw
+.. _CJKay: https://github.com/cjkay
 .. _danh-arm: https://github.com/danh-arm
 .. _davidvincze: https://github.com/davidvincze
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
 .. _grandpaul: https://github.com/grandpaul
+.. _harrisonmutai-arm: https://github.com/harrisonmutai-arm
+.. _hilamirandakuzi1: https://github.com/hilamirandakuzi1
 .. _hzhuang1: https://github.com/hzhuang1
 .. _JackyBai: https://github.com/JackyBai
+.. _J-Alves: https://github.com/J-Alves
+.. _jason-ch-chen: https://github.com/jason-ch-chen
+.. _javieralso-arm: https://github.com/javieralso-arm
+.. _jayanthchidanand-arm: https://github.com/jayanthchidanand-arm
 .. _jcorbier: https://github.com/jcorbier
 .. _jenswi-linaro: https://github.com/jenswi-linaro
+.. _JiafeiPan: https://github.com/JiafeiPan
+.. _jimmy-brisson: https://github.com/theotherjimmy
+.. _joannafarley-arm: https://github.com/joannafarley-arm
 .. _jslater8: https://github.com/jslater8
 .. _jwerner-chromium: https://github.com/jwerner-chromium
 .. _kostapr: https://github.com/kostapr
 .. _lachitp: https://github.com/lachitp
+.. _laurenw-arm: https://github.com/laurenw-arm
+.. _leon-chen-mtk: https://github.com/leon-chen-mtk
+.. _linyidi: https://github.com/linyidi
+.. _madhukar-Arm: https://github.com/madhukar-Arm
+.. _manish-pandey-arm: https://github.com/manish-pandey-arm
+.. _ManishVB-Arm: https://github.com/ManishVB-Arm
+.. _marcbonnici: https://github.com/marcbonnici
+.. _marcone: https://github.com/marcone
+.. _mardyk01: https://github.com/mardyk01
 .. _marex: https://github.com/marex
 .. _masahir0y: https://github.com/masahir0y
 .. _masahisak: https://github.com/masahisak
+.. _max-shvetsov: https://github.com/max-shvetsov
+.. _meremST: https://github.com/meremST
 .. _michalsimek: https://github.com/michalsimek
 .. _mmind: https://github.com/mmind
 .. _MrVan: https://github.com/MrVan
 .. _mtk-rex-bc-chen: https://github.com/mtk-rex-bc-chen
-.. _leon-chen-mtk: https://github.com/leon-chen-mtk
-.. _jason-ch-chen: https://github.com/jason-ch-chen
-.. _linyidi: https://github.com/linyidi
+.. _Neal-liu: https://github.com/neal-liu
 .. _niej: https://github.com/niej
+.. _nmenon: https://github.com/nmenon
 .. _npoushin: https://github.com/npoushin
+.. _odeprez: https://github.com/odeprez
+.. _pangupta: https://github.com/pangupta
 .. _prabhakarlad: https://github.com/prabhakarlad
 .. _quic_mkf: https://github.com/quicmkf
+.. _raghuncstate: https://github.com/raghuncstate
+.. _raymo200915: https://github.com/raymo200915
 .. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
+.. _rupsin01: https://github.com/rupsin01
+.. _rutigl: https://github.com/rutigl
 .. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
 .. _sgorecha: https://github.com/sgorecha
 .. _shawnguo2: https://github.com/shawnguo2
+.. _sieumunt: https://github.com/sieumunt
 .. _smaeul: https://github.com/smaeul
 .. _soby-mathew: https://github.com/soby-mathew
 .. _sreekare: https://github.com/sreekare
 .. _stefanasimion: https://github.com/stefanasimion
 .. _stephan-gh: https://github.com/stephan-gh
-.. _sieumunt: https://github.com/sieumunt
-.. _BenjaminLimJL: https://github.com/BenjaminLimJL
 .. _thomas-arm: https://github.com/thomas-arm
 .. _TonyXie06: https://github.com/TonyXie06
 .. _TravMurav: https://github.com/TravMurav
-.. _vwadekar: https://github.com/vwadekar
-.. _Yann-lms: https://github.com/Yann-lms
-.. _manish-pandey-arm: https://github.com/manish-pandey-arm
-.. _mardyk01: https://github.com/mardyk01
-.. _odeprez: https://github.com/odeprez
-.. _bipinravi-arm: https://github.com/bipinravi-arm
-.. _joannafarley-arm: https://github.com/joannafarley-arm
-.. _ManishVB-Arm: https://github.com/ManishVB-Arm
-.. _max-shvetsov: https://github.com/max-shvetsov
-.. _javieralso-arm: https://github.com/javieralso-arm
-.. _laurenw-arm: https://github.com/laurenw-arm
-.. _J-Alves: https://github.com/J-Alves
-.. _madhukar-Arm: https://github.com/madhukar-Arm
-.. _raghuncstate: https://github.com/raghuncstate
-.. _CJKay: https://github.com/cjkay
-.. _nmenon: https://github.com/nmenon
-.. _anukou: https://github.com/anukou
-.. _chandnich: https://github.com/chandnich
-.. _abdellatif-elkhlifi: https://github.com/abdellatif-elkhlifi
-.. _vishnu-banavath: https://github.com/vishnu-banavath
-.. _vijayenthiran-arm: https://github.com/vijayenthiran-arm
-.. _arugan02: https://github.com/arugan02
 .. _uarif1: https://github.com/uarif1
-.. _pangupta: https://github.com/pangupta
-.. _JiafeiPan: https://github.com/JiafeiPan
-.. _arve-android: https://github.com/arve-android
-.. _marcone: https://github.com/marcone
-.. _marcbonnici: https://github.com/marcbonnici
-.. _jayanthchidanand-arm: https://github.com/jayanthchidanand-arm
-.. _bytefire: https://github.com/bytefire
-.. _rupsin01: https://github.com/rupsin01
-.. _jimmy-brisson: https://github.com/theotherjimmy
-.. _ChiaweiW: https://github.com/chiaweiw
-.. _Neal-liu: https://github.com/neal-liu
-.. _amit-nagal: https://github.com/amit-nagal
-.. _Akshay-Belsare: https://github.com/Akshay-Belsare
-.. _hilamirandakuzi1: https://github.com/hilamirandakuzi1
-.. _rutigl: https://github.com/rutigl
-.. _avifishman: https://github.com/avifishman
+.. _vijayenthiran-arm: https://github.com/vijayenthiran-arm
+.. _vishnu-banavath: https://github.com/vishnu-banavath
+.. _vwadekar: https://github.com/vwadekar
 .. _xueliang-zhong-arm: https://github.com/xueliang-zhong-arm
-.. _raymo200915: https://github.com/raymo200915
-.. _harrisonmutai-arm: https://github.com/harrisonmutai-arm
+.. _Yann-lms: https://github.com/Yann-lms
