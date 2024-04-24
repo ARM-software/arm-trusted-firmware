@@ -253,7 +253,7 @@ int32_t pm_setup(void)
 		ret = status;
 	}
 
-	pm_up = !status;
+	pm_up = (status == 0);
 
 	return ret;
 }

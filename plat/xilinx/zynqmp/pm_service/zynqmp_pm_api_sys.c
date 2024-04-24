@@ -710,7 +710,7 @@ enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count)
 {
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 	/* Return if interrupt is not from PMU */
-	if (!pm_ipi_irq_status(primary_proc)) {
+	if ((pm_ipi_irq_status(primary_proc) == 0U)) {
 		return ret;
 	}
 

@@ -42,9 +42,9 @@ const mmap_region_t *plat_get_mmap(void)
 
 static uint32_t zynqmp_get_silicon_ver(void)
 {
-	static unsigned int ver;
+	static uint32_t ver;
 
-	if (!ver) {
+	if (ver == 0U) {
 		ver = mmio_read_32(ZYNQMP_CSU_BASEADDR +
 				   ZYNQMP_CSU_VERSION_OFFSET);
 		ver &= ZYNQMP_SILICON_VER_MASK;
@@ -326,8 +326,9 @@ int32_t plat_get_soc_version(void)
 {
 	uint32_t chip_id = zynqmp_get_silicon_ver();
 	uint32_t manfid = SOC_ID_SET_JEP_106(JEDEC_XILINX_BKID, JEDEC_XILINX_MFID);
+	uint32_t result = (manfid | (chip_id & 0xFFFFU));
 
-	return (int32_t)(manfid | (chip_id & 0xFFFFU));
+	return (int32_t)result;
 }
 
 int32_t plat_get_soc_revision(void)
@@ -366,7 +367,7 @@ static void zynqmp_print_platform_name(void)
 	VERBOSE("TF-A running on %s/%s at 0x%x\n",
 		zynqmp_print_silicon_idcode(), label, BL31_BASE);
 	VERBOSE("TF-A running on v%d/RTL%d.%d\n",
-	       zynqmp_get_ps_ver(), (rtl & 0xf0U) >> 4, rtl & 0xfU);
+	       zynqmp_get_ps_ver(), (rtl & 0xf0U) >> 4U, rtl & 0xfU);
 }
 #else
 static inline void zynqmp_print_platform_name(void) { }

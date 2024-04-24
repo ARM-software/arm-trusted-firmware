@@ -2455,15 +2455,17 @@ enum pm_ret_status pm_api_clock_get_num_clocks(uint32_t *nclocks)
  */
 void pm_api_clock_get_name(uint32_t clock_id, char *name)
 {
-	if (clock_id == (uint32_t)CLK_MAX) {
+	uint32_t clock_id_num = clock_id;
+
+	if (clock_id_num == CLK_MAX) {
 		(void)memcpy(name, END_OF_CLK, ((sizeof(END_OF_CLK) > CLK_NAME_LEN) ?
 					 CLK_NAME_LEN : sizeof(END_OF_CLK)));
 	} else if ((clock_id > CLK_MAX) || (!pm_clock_valid(clock_id))) {
 		(void)memset(name, 0, CLK_NAME_LEN);
-	} else if (clock_id < (uint32_t)CLK_MAX_OUTPUT_CLK) {
-		(void)memcpy(name, clocks[clock_id].name, CLK_NAME_LEN);
+	} else if (clock_id_num < (uint32_t)CLK_MAX_OUTPUT_CLK) {
+		(void)memcpy(name, clocks[clock_id_num].name, CLK_NAME_LEN);
 	} else {
-		(void)memcpy(name, ext_clocks[clock_id - (uint32_t)CLK_MAX_OUTPUT_CLK].name,
+		(void)memcpy(name, ext_clocks[clock_id_num - (uint32_t)CLK_MAX_OUTPUT_CLK].name,
 		       CLK_NAME_LEN);
 	}
 }
