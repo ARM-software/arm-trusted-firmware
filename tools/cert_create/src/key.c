@@ -168,6 +168,7 @@ static int key_create_ecdsa_nist(key_t *key, int key_bits)
 	}
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 static int key_create_ecdsa_brainpool_r(key_t *key, int key_bits)
 {
 	return key_create_ecdsa(key, key_bits, NID_brainpoolP256r1);
@@ -177,6 +178,7 @@ static int key_create_ecdsa_brainpool_t(key_t *key, int key_bits)
 {
 	return key_create_ecdsa(key, key_bits, NID_brainpoolP256t1);
 }
+#endif
 #endif /* USING_OPENSSL3 */
 #endif /* OPENSSL_NO_EC */
 
@@ -185,8 +187,10 @@ static const key_create_fn_t key_create_fn[KEY_ALG_MAX_NUM] = {
 	[KEY_ALG_RSA] = key_create_rsa,
 #ifndef OPENSSL_NO_EC
 	[KEY_ALG_ECDSA_NIST] = key_create_ecdsa_nist,
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 	[KEY_ALG_ECDSA_BRAINPOOL_R] = key_create_ecdsa_brainpool_r,
 	[KEY_ALG_ECDSA_BRAINPOOL_T] = key_create_ecdsa_brainpool_t,
+#endif
 #endif /* OPENSSL_NO_EC */
 };
 

@@ -85,8 +85,10 @@ static const char *key_algs_str[] = {
 	[KEY_ALG_RSA] = "rsa",
 #ifndef OPENSSL_NO_EC
 	[KEY_ALG_ECDSA_NIST] = "ecdsa",
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 	[KEY_ALG_ECDSA_BRAINPOOL_R] = "ecdsa-brainpool-regular",
 	[KEY_ALG_ECDSA_BRAINPOOL_T] = "ecdsa-brainpool-twisted",
+#endif
 #endif /* OPENSSL_NO_EC */
 };
 
@@ -269,8 +271,12 @@ static const cmd_opt_t common_cmd_opt[] = {
 	},
 	{
 		{ "key-alg", required_argument, NULL, 'a' },
-		"Key algorithm: 'rsa' (default)- RSAPSS scheme as per PKCS#1 v2.1, " \
+		"Key algorithm: 'rsa' (default)- RSAPSS scheme as per PKCS#1 v2.1, "
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 		"'ecdsa', 'ecdsa-brainpool-regular', 'ecdsa-brainpool-twisted'"
+#else
+		"'ecdsa'"
+#endif
 	},
 	{
 		{ "key-size", required_argument, NULL, 'b' },
