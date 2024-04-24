@@ -285,22 +285,22 @@
 	};
 
 	mbox_db_rx: mhu@MHU_RX_ADDR {
-		compatible = "arm,mhuv2-rx","arm,primecell";
-		reg = <0x0 ADDRESSIFY(MHU_RX_ADDR) 0x0 0x1000>;
+		compatible = MHU_RX_COMPAT;
+		reg = <0x0 ADDRESSIFY(MHU_RX_ADDR) 0x0 MHU_OFFSET>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
-		#mbox-cells = <2>;
-		interrupts = <GIC_SPI INT_MBOX_RX IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-names = "mhu_rx";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupts = <GIC_SPI MHU_RX_INT_NUM IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = MHU_RX_INT_NAME;
 	};
 
 	mbox_db_tx: mhu@MHU_TX_ADDR {
-		compatible = "arm,mhuv2-tx","arm,primecell";
-		reg = <0x0 ADDRESSIFY(MHU_TX_ADDR) 0x0 0x1000>;
+		compatible = MHU_TX_COMPAT;
+		reg = <0x0 ADDRESSIFY(MHU_TX_ADDR) 0x0 MHU_OFFSET>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
-		#mbox-cells = <2>;
-		interrupt-names = "mhu_tx";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupt-names = MHU_TX_INT_NAME;
 	};
 
 	firmware {

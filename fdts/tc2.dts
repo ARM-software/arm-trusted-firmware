@@ -20,9 +20,17 @@
 #endif /* TARGET_FLAVOUR_FPGA */
 #define BIG_CAPACITY			1024
 
-#define INT_MBOX_RX			317
 #define MHU_TX_ADDR			45000000 /* hex */
+#define MHU_TX_COMPAT			"arm,mhuv2-tx","arm,primecell"
+#define MHU_TX_INT_NAME			"mhu_tx"
+
 #define MHU_RX_ADDR			45010000 /* hex */
+#define MHU_RX_COMPAT			"arm,mhuv2-rx","arm,primecell"
+#define MHU_OFFSET			0x1000
+#define MHU_MBOX_CELLS			2
+#define MHU_RX_INT_NUM			317
+#define MHU_RX_INT_NAME			"mhu_rx"
+
 #define MPAM_ADDR			0x1 0x00010000 /* 0x1_0001_0000 */
 #define UARTCLK_FREQ			5000000
 
