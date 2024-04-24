@@ -95,7 +95,7 @@ int console_putc(int c)
 	console_t *console;
 
 	for (console = console_list; console != NULL; console = console->next) {
-		if ((console->flags & console_state) && (console->putc != NULL)) {
+		if (((console->flags & console_state) != 0U) && (console->putc != NULL)) {
 			int ret = do_putc(c, console);
 			if ((err == ERROR_NO_VALID_CONSOLE) || (ret < err)) {
 				err = ret;
@@ -123,7 +123,7 @@ int console_getc(void)
 	do {	/* Keep polling while at least one console works correctly. */
 		for (console = console_list; console != NULL;
 		     console = console->next)
-			if ((console->flags & console_state) && (console->getc != NULL)) {
+			if (((console->flags & console_state) != 0U) && (console->getc != NULL)) {
 				int ret = console->getc(console);
 				if (ret >= 0) {
 					return ret;
@@ -143,7 +143,7 @@ void console_flush(void)
 	console_t *console;
 
 	for (console = console_list; console != NULL; console = console->next)
-		if ((console->flags & console_state) && (console->flush != NULL)) {
+		if (((console->flags & console_state) != 0U) && (console->flush != NULL)) {
 			console->flush(console);
 		}
 }
