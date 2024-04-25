@@ -154,7 +154,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 	ipi_status = ipi_mb_enquire_status(IPI_ID_APU, IPI_ID_PMC);
 	if (((uint32_t)ipi_status & IPI_MB_STATUS_RECV_PENDING) == 0U) {
 		plat_ic_end_of_interrupt(id);
-		return 0;
+		goto exit_label;
 	}
 
 	/* Handle PMC case */
@@ -201,6 +201,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 	/* Clear FIQ */
 	plat_ic_end_of_interrupt(id);
 
+exit_label:
 	return 0;
 }
 
@@ -218,21 +219,19 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
  */
 int32_t pm_register_sgi(uint32_t sgi_num, uint32_t reset)
 {
+	int32_t ret = 0;
+
 	if (reset == 1U) {
 		sgi = INVALID_SGI;
-		return 0;
+	} else if (sgi != INVALID_SGI) {
+		ret = -EBUSY;
+	} else if (sgi_num >= GICV3_MAX_SGI_TARGETS) {
+		ret = -EINVAL;
+	} else {
+		sgi = (uint32_t)sgi_num;
 	}
 
-	if (sgi != INVALID_SGI) {
-		return -EBUSY;
-	}
-
-	if (sgi_num >= GICV3_MAX_SGI_TARGETS) {
-		return -EINVAL;
-	}
-
-	sgi = (uint32_t)sgi_num;
-	return 0;
+	return ret;
 }
 
 /**

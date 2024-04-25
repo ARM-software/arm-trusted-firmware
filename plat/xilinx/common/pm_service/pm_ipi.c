@@ -294,14 +294,17 @@ void pm_ipi_irq_clear(const struct pm_proc *proc)
 uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
 {
 	int32_t ret;
+	int32_t result = 0;
 
 	ret = ipi_mb_enquire_status(proc->ipi->local_ipi_id,
 				    proc->ipi->remote_ipi_id);
 	if (((uint32_t)ret & IPI_MB_STATUS_RECV_PENDING) != 0U) {
-		return 1;
+		result = 1;
 	} else {
-		return 0;
+		result = 0;
 	}
+
+	return result;
 }
 
 #if IPI_CRC_CHECK

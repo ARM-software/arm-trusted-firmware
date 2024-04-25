@@ -123,14 +123,17 @@ static uint32_t get_xbl_ss(const struct xbl_partition *partition)
 static uint32_t get_xbl_endian(const struct xbl_partition *partition)
 {
 	uint64_t flags = partition->flags & XBL_FLAGS_ENDIAN_MASK;
+	uint32_t spsr_value = 0U;
 
 	flags >>= XBL_FLAGS_ENDIAN_SHIFT;
 
 	if (flags == XBL_FLAGS_ENDIAN_BE) {
-		return SPSR_E_BIG;
+		spsr_value = SPSR_E_BIG;
 	} else {
-		return SPSR_E_LITTLE;
+		spsr_value = SPSR_E_LITTLE;
 	}
+
+	return spsr_value;
 }
 
 /**
@@ -182,10 +185,12 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 					uint64_t handoff_addr)
 {
 	const struct xbl_handoff_params *HandoffParams;
+	enum xbl_handoff xbl_status = XBL_HANDOFF_SUCCESS;
 
 	if (handoff_addr == 0U) {
 		WARN("BL31: No handoff structure passed\n");
-		return XBL_HANDOFF_NO_STRUCT;
+		xbl_status = XBL_HANDOFF_NO_STRUCT;
+		goto exit_label;
 	}
 
 	HandoffParams = (struct xbl_handoff_params *)handoff_addr;
@@ -194,7 +199,8 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 	    (HandoffParams->magic[2] != (uint8_t)'N') ||
 	    (HandoffParams->magic[3] != (uint8_t)'X')) {
 		ERROR("BL31: invalid handoff structure at %" PRIx64 "\n", handoff_addr);
-		return XBL_HANDOFF_INVAL_STRUCT;
+		xbl_status = XBL_HANDOFF_INVAL_STRUCT;
+		goto exit_label;
 	}
 
 	VERBOSE("BL31: TF-A handoff params at:0x%" PRIx64 ", entries:%u\n",
@@ -202,7 +208,8 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 	if (HandoffParams->num_entries > XBL_MAX_PARTITIONS) {
 		ERROR("BL31: TF-A handoff params: too many partitions (%u/%u)\n",
 		      HandoffParams->num_entries, XBL_MAX_PARTITIONS);
-		return XBL_HANDOFF_TOO_MANY_PARTS;
+		xbl_status = XBL_HANDOFF_TOO_MANY_PARTS;
+		goto exit_label;
 	}
 
 	/*
@@ -304,5 +311,6 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		}
 	}
 
-	return XBL_HANDOFF_SUCCESS;
+exit_label:
+	return xbl_status;
 }

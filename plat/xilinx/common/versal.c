@@ -25,12 +25,17 @@
  */
 int32_t plat_is_smccc_feature_available(u_register_t fid)
 {
+	int32_t ret = 0;
+
 	switch (fid) {
 	case SMCCC_ARCH_SOC_ID:
-		return SMC_ARCH_CALL_SUCCESS;
+		ret = SMC_ARCH_CALL_SUCCESS;
+		break;
 	default:
-		return SMC_ARCH_CALL_NOT_SUPPORTED;
+		ret = SMC_ARCH_CALL_NOT_SUPPORTED;
 	}
+
+	return ret;
 }
 
 /**
