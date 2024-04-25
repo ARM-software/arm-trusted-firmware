@@ -32,12 +32,13 @@ include plat/arm/board/neoverse_rd/common/nrd-common.mk
 
 RDN2_BASE		=	plat/arm/board/neoverse_rd/platform/rdn2
 
-PLAT_INCLUDES		+=	-I${RDN2_BASE}/include/
+PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include/nrd2/	\
+				-I${RDN2_BASE}/include/
 
 NRD_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n2.S \
 				lib/cpus/aarch64/neoverse_v2.S
 
-PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat_v2.c
+PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat2.c
 
 BL1_SOURCES		+=	${NRD_CPU_SOURCES}			\
 				${RDN2_BASE}/rdn2_err.c
@@ -103,7 +104,9 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TOS_FW_CONFIG},--tos-fw-config,${TOS_FW_CONFIG}
 endif
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0
-override ENABLE_FEAT_AMU		:= 1
+override ENABLE_FEAT_AMU		:= 2
+override ENABLE_FEAT_MTE2       	:= 2
+override SPMD_SPM_AT_SEL2		:= 0
 
 # Enable the flag since RD-N2 has a system level cache
 NEOVERSE_Nx_EXTERNAL_LLC		:=	1

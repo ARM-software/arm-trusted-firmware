@@ -42,6 +42,7 @@ ENT_GIC_SOURCES		:=	${GICV3_SOURCES}		\
 PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/arch/aarch64/nrd_helper.S
 
 BL1_SOURCES		+=	${INTERCONNECT_SOURCES}			\
+				${NRD_COMMON_BASE}/nrd_bl1_setup.c	\
 				drivers/arm/sbsa/sbsa.c
 
 BL2_SOURCES		+=	${NRD_COMMON_BASE}/nrd_image_load.c	\
@@ -77,5 +78,4 @@ USE_COHERENT_MEM	:=	0
 
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
-include plat/arm/soc/common/soc_css.mk
 include plat/arm/board/common/board_common.mk

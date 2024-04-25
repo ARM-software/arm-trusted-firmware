@@ -11,10 +11,10 @@
 
 struct nrd_ras_ev_map plat_ras_map[] = {
 	/* Non Secure base RAM ECC CE interrupt */
-	{NRD_SDEI_DS_EVENT_0, NS_RAM_ECC_CE_INT, NRD_RAS_INTR_TYPE_SPI},
+	{NRD_SDEI_DS_EVENT_0, NRD_CSS_NS_RAM_ECC_CE_INT, NRD_RAS_INTR_TYPE_SPI},
 
 	/* Non Secure base RAM ECC UE interrupt */
-	{NRD_SDEI_DS_EVENT_0, NS_RAM_ECC_UE_INT, NRD_RAS_INTR_TYPE_SPI},
+	{NRD_SDEI_DS_EVENT_0, NRD_CSS_NS_RAM_ECC_UE_INT, NRD_RAS_INTR_TYPE_SPI},
 
 	/* CPU 1-bit ECC CE error interrupt */
 	{NRD_SDEI_DS_EVENT_1, PLAT_CORE_FAULT_IRQ, NRD_RAS_INTR_TYPE_PPI}
@@ -23,7 +23,7 @@ struct nrd_ras_ev_map plat_ras_map[] = {
 /* RAS error record list definition, used by the common RAS framework. */
 struct err_record_info plat_err_records[] = {
 	/* Base element RAM Non-secure error record. */
-	ERR_RECORD_MEMMAP_V1(SOC_NS_RAM_ERR_REC_BASE, 4, NULL,
+	ERR_RECORD_MEMMAP_V1(NRD_CSS_NS_RAM_ERR_REC_BASE, 4, NULL,
 				&nrd_ras_sram_intr_handler, 0),
 	ERR_RECORD_SYSREG_V1(0, 1, NULL, &nrd_ras_cpu_intr_handler, 0),
 };
@@ -34,10 +34,10 @@ struct ras_interrupt plat_ras_interrupts[] = {
 		.intr_number = PLAT_CORE_FAULT_IRQ,
 		.err_record = &plat_err_records[1],
 	}, {
-		.intr_number = NS_RAM_ECC_CE_INT,
+		.intr_number = NRD_CSS_NS_RAM_ECC_CE_INT,
 		.err_record = &plat_err_records[0],
 	}, {
-		.intr_number = NS_RAM_ECC_UE_INT,
+		.intr_number = NRD_CSS_NS_RAM_ECC_UE_INT,
 		.err_record = &plat_err_records[0],
 	},
 };

@@ -37,7 +37,8 @@
 #define PLAT_ARM_GICD_BASE		UL(0x30000000)
 #define PLAT_ARM_GICR_BASE		UL(0x300C0000)
 
-#define RDN1E1_CHIP0_SPI_START		U(32)
-#define RDN1E1_CHIP0_SPI_END		U(991)
+/* GIC SPI range for multichip */
+#define NRD_CHIP0_SPI_MIN		U(32)
+#define NRD_CHIP0_SPI_MAX		U(991)
 
 #endif /* PLATFORM_DEF_H */

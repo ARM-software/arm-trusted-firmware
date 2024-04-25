@@ -9,8 +9,8 @@
 #include <platform_def.h>
 
 #define RDN2_TZC_CPER_REGION				\
-	{NRD_SP_CPER_BUF_BASE, (NRD_SP_CPER_BUF_BASE +	\
-	NRD_SP_CPER_BUF_SIZE) - 1, TZC_REGION_S_NONE,	\
+	{NRD_CSS_SP_CPER_BUF_BASE, (NRD_CSS_SP_CPER_BUF_BASE +	\
+	NRD_CSS_SP_CPER_BUF_SIZE) - 1, TZC_REGION_S_NONE,	\
 	PLAT_ARM_TZC_NS_DEV_ACCESS}
 
 static const arm_tzc_regions_info_t tzc_regions[] = {
@@ -25,20 +25,20 @@ static const arm_tzc_regions_info_t tzc_regions[] = {
 static const arm_tzc_regions_info_t tzc_regions_mc[][NRD_CHIP_COUNT - 1] = {
 	{
 		/* TZC memory regions for second chip */
-		NRD_PLAT_TZC_NS_REMOTE_REGIONS_DEF(1),
+		NRD_ROS_TZC_NS_REMOTE_REGIONS_DEF(1),
 		{}
 	},
 #if NRD_CHIP_COUNT > 2
 	{
 		/* TZC memory regions for third chip */
-		NRD_PLAT_TZC_NS_REMOTE_REGIONS_DEF(2),
+		NRD_ROS_TZC_NS_REMOTE_REGIONS_DEF(2),
 		{}
 	},
 #endif
 #if NRD_CHIP_COUNT > 3
 	{
 		/* TZC memory regions for fourth chip */
-		NRD_PLAT_TZC_NS_REMOTE_REGIONS_DEF(3),
+		NRD_ROS_TZC_NS_REMOTE_REGIONS_DEF(3),
 		{}
 	},
 #endif

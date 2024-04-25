@@ -11,23 +11,22 @@
 #include <services/el3_spmc_ffa_memory.h>
 
 #include <nrd_plat.h>
-#include <nrd_soc_platform_def_v2.h>
 #include <rdn2_ras.h>
 
 #if defined(IMAGE_BL31)
 #if (NRD_PLATFORM_VARIANT == 2)
 static const mmap_region_t rdn2mc_dynamic_mmap[] = {
 #if NRD_CHIP_COUNT > 1
-	ARM_MAP_SHARED_RAM_REMOTE_CHIP(1),
-	NRD_MAP_DEVICE_REMOTE_CHIP(1),
+	NRD_CSS_SHARED_RAM_MMAP(1),
+	NRD_CSS_PERIPH_MMAP(1),
 #endif
 #if NRD_CHIP_COUNT > 2
-	ARM_MAP_SHARED_RAM_REMOTE_CHIP(2),
-	NRD_MAP_DEVICE_REMOTE_CHIP(2),
+	NRD_CSS_SHARED_RAM_MMAP(2),
+	NRD_CSS_PERIPH_MMAP(2),
 #endif
 #if NRD_CHIP_COUNT > 3
-	ARM_MAP_SHARED_RAM_REMOTE_CHIP(3),
-	NRD_MAP_DEVICE_REMOTE_CHIP(3),
+	NRD_CSS_SHARED_RAM_MMAP(3),
+	NRD_CSS_PERIPH_MMAP(3),
 #endif
 };
 #endif
@@ -50,15 +49,23 @@ static struct gic600_multichip_data rdn2mc_multichip_data __init = {
 #endif
 	},
 	.spi_ids = {
-		{PLAT_ARM_GICD_BASE, 32, 511},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP0_SPI_MIN,
+		NRD_CHIP0_SPI_MAX},
 	#if NRD_CHIP_COUNT > 1
-		{PLAT_ARM_GICD_BASE, 512, 991},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP1_SPI_MIN,
+		NRD_CHIP1_SPI_MAX},
 	#endif
 	#if NRD_CHIP_COUNT > 2
-		{PLAT_ARM_GICD_BASE, 4096, 4575},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP2_SPI_MIN,
+		NRD_CHIP2_SPI_MAX},
 	#endif
 	#if NRD_CHIP_COUNT > 3
-		{PLAT_ARM_GICD_BASE, 4576, 5055},
+		{PLAT_ARM_GICD_BASE,
+		NRD_CHIP3_SPI_MIN,
+		NRD_CHIP3_SPI_MAX},
 	#endif
 	}
 };
