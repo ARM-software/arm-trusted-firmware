@@ -114,6 +114,8 @@ Secure Partition Manager Core (EL3 FF-A SPMC)
 :|M|: Marc Bonnici <marc.bonnici@arm.com>
 :|G|: `marcbonnici`_
 :|F|: services/std_svc/spm/el3_spmc/\*
+:|F|: include/services/el3_spmc\_\*
+:|F|: include/services/spmc_svc.h
 
 Secure Partition Manager Dispatcher (SPMD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1061,3 +1063,7 @@ Conventional Changelog Extensions
 .. _vwadekar: https://github.com/vwadekar
 .. _xueliang-zhong-arm: https://github.com/xueliang-zhong-arm
 .. _Yann-lms: https://github.com/Yann-lms
+
+--------------
+
+*Copyright (c) 2019-2024, Arm Limited and Contributors. All rights reserved.*
