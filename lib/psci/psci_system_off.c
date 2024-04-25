@@ -65,8 +65,9 @@ u_register_t psci_system_reset2(uint32_t reset_type, u_register_t cookie)
 		/*
 		 * Only WARM_RESET is allowed for architectural type resets.
 		 */
-		if (reset_type != PSCI_RESET2_SYSTEM_WARM_RESET)
+		if (reset_type != PSCI_RESET2_SYSTEM_WARM_RESET) {
 			return (u_register_t) PSCI_E_INVALID_PARAMS;
+		}
 		if ((psci_plat_pm_ops->write_mem_protect != NULL) &&
 		    (psci_plat_pm_ops->write_mem_protect(0) < 0)) {
 			return (u_register_t) PSCI_E_NOT_SUPPORTED;

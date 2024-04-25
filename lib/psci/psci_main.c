@@ -31,13 +31,15 @@ int psci_cpu_on(u_register_t target_cpu,
 	entry_point_info_t ep;
 
 	/* Validate the target CPU */
-	if (!is_valid_mpidr(target_cpu))
+	if (!is_valid_mpidr(target_cpu)) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	/* Validate the entry point and get the entry_point_info */
 	rc = psci_validate_entry_point(&ep, entrypoint, context_id);
-	if (rc != PSCI_E_SUCCESS)
+	if (rc != PSCI_E_SUCCESS) {
 		return rc;
+	}
 
 	/*
 	 * To turn this cpu on, specify which power
@@ -102,8 +104,9 @@ int psci_cpu_suspend(unsigned int power_state,
 
 	/* Fast path for CPU standby.*/
 	if (is_cpu_standby_req(is_power_down_state, target_pwrlvl)) {
-		if  (psci_plat_pm_ops->cpu_standby == NULL)
+		if  (psci_plat_pm_ops->cpu_standby == NULL) {
 			return PSCI_E_INVALID_PARAMS;
+		}
 
 		/*
 		 * Set the state of the CPU power domain to the platform
@@ -171,8 +174,9 @@ int psci_cpu_suspend(unsigned int power_state,
 	 */
 	if (is_power_down_state != 0U) {
 		rc = psci_validate_entry_point(&ep, entrypoint, context_id);
-		if (rc != PSCI_E_SUCCESS)
+		if (rc != PSCI_E_SUCCESS) {
 			return rc;
+		}
 	}
 
 	/*
@@ -199,13 +203,15 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	unsigned int cpu_idx = plat_my_core_pos();
 
 	/* Check if the current CPU is the last ON CPU in the system */
-	if (!psci_is_last_on_cpu(cpu_idx))
+	if (!psci_is_last_on_cpu(cpu_idx)) {
 		return PSCI_E_DENIED;
+	}
 
 	/* Validate the entry point and get the entry_point_info */
 	rc = psci_validate_entry_point(&ep, entrypoint, context_id);
-	if (rc != PSCI_E_SUCCESS)
+	if (rc != PSCI_E_SUCCESS) {
 		return rc;
+	}
 
 	/* Query the psci_power_state for system suspend */
 	psci_query_sys_suspend_pwrstate(&state_info);
@@ -214,9 +220,9 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	 * Check if platform allows suspend to Highest power level
 	 * (System level)
 	 */
-	if (psci_find_target_suspend_lvl(&state_info) < PLAT_MAX_PWR_LVL)
+	if (psci_find_target_suspend_lvl(&state_info) < PLAT_MAX_PWR_LVL) {
 		return PSCI_E_DENIED;
-
+	}
 	/* Ensure that the psci_power_state makes sense */
 	assert(psci_validate_suspend_req(&state_info, PSTATE_TYPE_POWERDOWN)
 						== PSCI_E_SUCCESS);
@@ -264,13 +270,14 @@ int psci_affinity_info(u_register_t target_affinity,
 	unsigned int target_idx;
 
 	/* Validate the target affinity */
-	if (!is_valid_mpidr(target_affinity))
+	if (!is_valid_mpidr(target_affinity)) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	/* We dont support level higher than PSCI_CPU_PWR_LVL */
-	if (lowest_affinity_level > PSCI_CPU_PWR_LVL)
+	if (lowest_affinity_level > PSCI_CPU_PWR_LVL) {
 		return PSCI_E_INVALID_PARAMS;
-
+	}
 	/* Calculate the cpu index of the target */
 	target_idx = (unsigned int) plat_core_pos_by_mpidr(target_affinity);
 
@@ -305,20 +312,23 @@ int psci_migrate(u_register_t target_cpu)
 		return PSCI_E_INVALID_PARAMS;
 
 	rc = psci_spd_migrate_info(&resident_cpu_mpidr);
-	if (rc != PSCI_TOS_UP_MIG_CAP)
+	if (rc != PSCI_TOS_UP_MIG_CAP) {
 		return (rc == PSCI_TOS_NOT_UP_MIG_CAP) ?
 			  PSCI_E_DENIED : PSCI_E_NOT_SUPPORTED;
+	}
 
 	/*
 	 * Migrate should only be invoked on the CPU where
 	 * the Secure OS is resident.
 	 */
-	if (resident_cpu_mpidr != read_mpidr_el1())
+	if (resident_cpu_mpidr != read_mpidr_el1()) {
 		return PSCI_E_NOT_PRESENT;
+	}
 
 	/* Check the validity of the specified target cpu */
-	if (!is_valid_mpidr(target_cpu))
+	if (!is_valid_mpidr(target_cpu)) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	assert((psci_spd_pm != NULL) && (psci_spd_pm->svc_migrate != NULL));
 
@@ -380,23 +390,23 @@ int psci_features(unsigned int psci_fid)
 {
 	unsigned int local_caps = psci_caps;
 
-	if (psci_fid == SMCCC_VERSION)
+	if (psci_fid == SMCCC_VERSION) {
 		return PSCI_E_SUCCESS;
-
+	}
 	/* Check if it is a 64 bit function */
-	if (((psci_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_64)
+	if (((psci_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_64) {
 		local_caps &= PSCI_CAP_64BIT_MASK;
-
+	}
 	/* Check for invalid fid */
 	if (!(is_std_svc_call(psci_fid) && is_valid_fast_smc(psci_fid)
-			&& is_psci_fid(psci_fid)))
+			&& is_psci_fid(psci_fid))) {
 		return PSCI_E_NOT_SUPPORTED;
-
+	}
 
 	/* Check if the psci fid is supported or not */
-	if ((local_caps & define_psci_cap(psci_fid)) == 0U)
+	if ((local_caps & define_psci_cap(psci_fid)) == 0U) {
 		return PSCI_E_NOT_SUPPORTED;
-
+	}
 	/* Format the feature flags */
 	if ((psci_fid == PSCI_CPU_SUSPEND_AARCH32) ||
 	    (psci_fid == PSCI_CPU_SUSPEND_AARCH64)) {
@@ -458,12 +468,14 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 {
 	u_register_t ret;
 
-	if (is_caller_secure(flags))
+	if (is_caller_secure(flags)) {
 		return (u_register_t)SMC_UNK;
+	}
 
 	/* Check the fid against the capabilities */
-	if ((psci_caps & define_psci_cap(smc_fid)) == 0U)
+	if ((psci_caps & define_psci_cap(smc_fid)) == 0U) {
 		return (u_register_t)SMC_UNK;
+	}
 
 	if (((smc_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_32) {
 		/* 32-bit PSCI function, clear top parameter bits */
