@@ -220,9 +220,9 @@ unsigned int gicv2_get_pending_interrupt_id(void)
 	 * Find out which non-secure interrupt it is under the assumption that
 	 * the GICC_CTLR.AckCtl bit is 0.
 	 */
-	if (id == PENDING_G1_INTID)
+	if (id == PENDING_G1_INTID) {
 		id = gicc_read_ahppir(driver_data->gicc_base) & INT_ID_MASK;
-
+	}
 	return id;
 }
 
@@ -301,9 +301,9 @@ void gicv2_set_pe_target_mask(unsigned int proc_num)
 	assert(proc_num < driver_data->target_masks_num);
 
 	/* Return if the target mask is already populated */
-	if (driver_data->target_masks[proc_num] != 0U)
+	if (driver_data->target_masks[proc_num] != 0U) {
 		return;
-
+	}
 	/*
 	 * Update target register corresponding to this CPU and flush for it to
 	 * be visible to other CPUs.
