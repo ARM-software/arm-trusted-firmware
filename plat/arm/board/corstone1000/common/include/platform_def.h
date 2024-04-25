@@ -88,9 +88,6 @@
  *	partition size: 176 KB
  *	content: BL2
  *
- * <ARM_NS_SHARED_RAM_BASE> = <ARM_TRUSTED_SRAM_BASE> + 1 MB
- *	partition size: 512 KB
- *	content: BL33 (u-boot)
  */
 
 /* DDR memory */
@@ -115,11 +112,8 @@
 /* The remaining Trusted SRAM is used to load the BL images */
 #define TOTAL_SRAM_SIZE		(SZ_4M)  /* 4 MB */
 
-/* Last 512KB of CVM is allocated for shared RAM as an example openAMP */
-#define ARM_NS_SHARED_RAM_SIZE	(512 * SZ_1K)
 
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	(TOTAL_SRAM_SIZE - \
-					 ARM_NS_SHARED_RAM_SIZE - \
 					 ARM_SHARED_RAM_SIZE)
 
 #define PLAT_ARM_MAX_BL2_SIZE	(180 * SZ_1K)  /* 180 KB */
@@ -157,11 +151,6 @@
 #define PLAT_ARM_SPMC_SIZE	PLAT_ARM_MAX_BL32_SIZE
 
 /* NS memory */
-
-/* The last 512KB of the SRAM is allocated as shared memory */
-#define ARM_NS_SHARED_RAM_BASE	(ARM_TRUSTED_SRAM_BASE + TOTAL_SRAM_SIZE - \
-				 (PLAT_ARM_MAX_BL31_SIZE + \
-				  PLAT_ARM_MAX_BL32_SIZE))
 
 #define BL33_BASE		ARM_DRAM1_BASE
 #define PLAT_ARM_MAX_BL33_SIZE	(12 * SZ_1M)  /* 12 MB*/
@@ -277,7 +266,7 @@
 
 #define PLAT_ARM_NSTIMER_FRAME_ID	U(1)
 
-#define PLAT_ARM_NS_IMAGE_BASE		(ARM_NS_SHARED_RAM_BASE)
+#define PLAT_ARM_NS_IMAGE_BASE		(BL33_BASE)
 
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
@@ -305,11 +294,6 @@
 				ARM_SHARED_RAM_BASE, \
 				ARM_SHARED_RAM_SIZE, \
 				MT_MEMORY | MT_RW | MT_SECURE)
-
-#define ARM_MAP_NS_SHARED_RAM	MAP_REGION_FLAT( \
-				ARM_NS_SHARED_RAM_BASE, \
-				ARM_NS_SHARED_RAM_SIZE, \
-				MT_MEMORY | MT_RW | MT_NS)
 
 #define ARM_MAP_NS_DRAM1	MAP_REGION_FLAT( \
 				ARM_NS_DRAM1_BASE, \
