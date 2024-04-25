@@ -4,17 +4,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-$(warning Platform ${PLAT} is deprecated. Some of the features might not work as expected)
-
 include plat/arm/board/neoverse_rd/common/nrd-common.mk
 
 SGI575_BASE		=	plat/arm/board/neoverse_rd/platform/sgi575
 
-PLAT_INCLUDES		+=	-I${SGI575_BASE}/include/
+PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include/nrd1/	\
+				-I${SGI575_BASE}/include/
 
 NRD_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a75.S
 
-PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat.c
+PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat1.c
 
 BL1_SOURCES		+=	${NRD_CPU_SOURCES}			\
 				${SGI575_BASE}/sgi575_err.c
@@ -65,3 +64,5 @@ ifneq ($(NRD_PLATFORM_VARIANT),0)
  $(error "NRD_PLATFORM_VARIANT for SGI575 should always be 0,\
      currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
+
+override SPMD_SPM_AT_SEL2		:= 0

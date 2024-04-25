@@ -17,15 +17,10 @@
 #include <plat/common/platform.h>
 #include <drivers/arm/sbsa.h>
 
-#include <nrd_base_platform_def.h>
-
 #if SPM_MM
 #include <services/spm_mm_partition.h>
 #endif
 
-#define NRD_MAP_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
-						V2M_FLASH0_SIZE,	\
-						MT_DEVICE | MT_RO | MT_SECURE)
 /*
  * Table of regions for different BL stages to map using the MMU.
  * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
@@ -37,8 +32,8 @@
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	NRD_MAP_FLASH0_RO,
-	NRD_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
+	NRD_CSS_PERIPH_MMAP(0),
+	NRD_ROS_PERIPH_MMAP(0),
 	{0}
 };
 #endif
@@ -49,17 +44,17 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef PLAT_ARM_MEM_PROT_ADDR
 	ARM_V2M_MAP_MEM_PROTECT,
 #endif
-	NRD_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
+	NRD_CSS_PERIPH_MMAP(0),
+	NRD_ROS_PERIPH_MMAP(0),
 	ARM_MAP_NS_DRAM1,
 #if NRD_CHIP_COUNT > 1
-	NRD_MAP_DEVICE_REMOTE_CHIP(1),
+	NRD_CSS_PERIPH_MMAP(1),
 #endif
 #if NRD_CHIP_COUNT > 2
-	NRD_MAP_DEVICE_REMOTE_CHIP(2),
+	NRD_CSS_PERIPH_MMAP(2),
 #endif
 #if NRD_CHIP_COUNT > 3
-	NRD_MAP_DEVICE_REMOTE_CHIP(3),
+	NRD_CSS_PERIPH_MMAP(3),
 #endif
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
@@ -77,11 +72,11 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
-	NRD_MAP_DEVICE,
+	NRD_CSS_PERIPH_MMAP(0),
 #ifdef PLAT_ARM_MEM_PROT_ADDR
 	ARM_V2M_MAP_MEM_PROTECT,
 #endif
-	SOC_CSS_MAP_DEVICE,
+	NRD_ROS_PERIPH_MMAP(0),
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
@@ -90,15 +85,11 @@ const mmap_region_t plat_arm_mmap[] = {
 
 #if SPM_MM && defined(IMAGE_BL31)
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
-	PLAT_ARM_SECURE_MAP_SYSTEMREG,
-	PLAT_ARM_SECURE_MAP_NOR2,
-	SOC_PLATFORM_SECURE_UART,
-	PLAT_ARM_SECURE_MAP_DEVICE,
+	NRD_ROS_SECURE_SYSTEMREG_USER_MMAP,
+	NRD_ROS_SECURE_NOR2_USER_MMAP,
+	NRD_CSS_SECURE_UART_MMAP,
 	ARM_SP_IMAGE_MMAP,
 	ARM_SP_IMAGE_NS_BUF_MMAP,
-#if ENABLE_FEAT_RAS && FFH_SUPPORT
-	NRD_SP_CPER_BUF_MMAP,
-#endif
 	ARM_SP_IMAGE_RW_MMAP,
 	ARM_SPM_BUF_EL0_MMAP,
 	{0}
@@ -170,12 +161,12 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 
 void plat_arm_secure_wdt_start(void)
 {
-	sbsa_wdog_start(SBSA_SECURE_WDOG_BASE, SBSA_SECURE_WDOG_TIMEOUT);
+	sbsa_wdog_start(NRD_CSS_WDOG_BASE, NRD_CSS_WDOG_TIMEOUT);
 }
 
 void plat_arm_secure_wdt_stop(void)
 {
-	sbsa_wdog_stop(SBSA_SECURE_WDOG_BASE);
+	sbsa_wdog_stop(NRD_CSS_WDOG_BASE);
 }
 
 static sds_region_desc_t nrd_sds_regions[] = {

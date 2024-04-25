@@ -215,25 +215,27 @@ subsections:
           - title: N1SDP
             scope: n1sdp
 
-          - title: RD
-            scope: rd
+          - title: Neoverse-RD
+            scope: neoverse-rd
 
             subsections:
-              - title: RD-N1 Edge
+              - title: SGI-575
+                scope: sgi575
+
+              - title: RD-N1-Edge
                 scope: rdn1edge
+
+              - title: RD-V1
+                scope: rdv1
+
+              - title: RD-V1-MC
+                scope: rdv1mc
 
               - title: RD-N2
                 scope: rdn2
 
                 deprecated:
                   - board/rdn2
-
-          - title: SGI
-            scope: sgi
-
-            deprecated:
-              - plat/sgi
-              - plat/arm/sgi
 
           - title: TC
             scope: tc

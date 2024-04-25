@@ -4,8 +4,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-$(warning Platform ${PLAT} is deprecated. Some of the features might not work as expected)
-
 # GIC-600 configuration
 GICV3_IMPL_GIC600_MULTICHIP	:=	1
 
@@ -13,11 +11,12 @@ include plat/arm/board/neoverse_rd/common/nrd-common.mk
 
 RDN1EDGE_BASE		=	plat/arm/board/neoverse_rd/platform/rdn1edge
 
-PLAT_INCLUDES		+=	-I${RDN1EDGE_BASE}/include/
+PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include/nrd1/	\
+				-I${RDN1EDGE_BASE}/include/
 
 NRD_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n1.S
 
-PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat.c
+PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/nrd_plat1.c
 
 BL1_SOURCES		+=	${NRD_CPU_SOURCES}			\
 				${RDN1EDGE_BASE}/rdn1edge_err.c
@@ -73,6 +72,7 @@ ifneq ($(NRD_PLATFORM_VARIANT),0)
 endif
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0
+override SPMD_SPM_AT_SEL2		:= 0
 
 # Enable the flag since RD-N1-EDGE has a system level cache
 NEOVERSE_Nx_EXTERNAL_LLC		:=	1
