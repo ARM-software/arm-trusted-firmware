@@ -2406,9 +2406,11 @@ static bool pm_clock_valid(uint32_t clock_id)
 {
 	unsigned int i;
 
-	for (i = 0U; i < ARRAY_SIZE(pm_clk_invalid_list); i++)
-		if (pm_clk_invalid_list[i] == clock_id)
+	for (i = 0U; i < ARRAY_SIZE(pm_clk_invalid_list); i++) {
+		if (pm_clk_invalid_list[i] == clock_id) {
 			return 0;
+		}
+	}
 
 	return 1;
 }
@@ -3064,11 +3066,13 @@ uint8_t pm_clock_has_div(uint32_t clock_id, enum pm_clock_div_id div_id)
 	nodes = *clocks[clock_id].nodes;
 	for (i = 0; i < clocks[clock_id].num_nodes; i++) {
 		if (nodes[i].type == TYPE_DIV1) {
-			if (div_id == PM_CLOCK_DIV0_ID)
+			if (div_id == PM_CLOCK_DIV0_ID) {
 				return 1;
+			}
 		} else if (nodes[i].type == TYPE_DIV2) {
-			if (div_id == PM_CLOCK_DIV1_ID)
+			if (div_id == PM_CLOCK_DIV1_ID) {
 				return 1;
+			}
 		} else {
 			/* To fix the misra 15.7 warning */
 		}

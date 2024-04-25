@@ -101,9 +101,10 @@ static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 		return;
 	}
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 
 	state = (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) ?
 		PM_STATE_SUSPEND_TO_RAM : PM_STATE_CPU_IDLE;
