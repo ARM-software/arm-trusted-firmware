@@ -139,6 +139,16 @@ Exception Handling Framework (EHF)
 :|G|: `manish-pandey-arm`_
 :|F|: bl31/ehf.c
 
+Runtime Exceptions and Interrupt Management
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: bl31/aarch64/
+:|F|: bl31/interrupt_mgmt.c
+:|F|: include/bl31/interrupt_mgmt.h
+
 Realm Management Monitor Dispatcher (RMMD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Javier Almansa Sobrino <javier.almansasobrino@arm.com>
