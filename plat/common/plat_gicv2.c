@@ -80,9 +80,9 @@ uint32_t plat_ic_get_pending_interrupt_type(void)
 #endif
 	}
 
-	if (id == GIC_SPURIOUS_INTERRUPT)
+	if (id == GIC_SPURIOUS_INTERRUPT) {
 		return INTR_TYPE_INVAL;
-
+	}
 	return INTR_TYPE_NS;
 }
 
@@ -142,8 +142,9 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 	assert(sec_state_is_valid(security_state));
 
 	/* Non-secure interrupts are signaled on the IRQ line always */
-	if (type == INTR_TYPE_NS)
+	if (type == INTR_TYPE_NS) {
 		return __builtin_ctz(SCR_IRQ_BIT);
+	}
 
 	/*
 	 * Secure interrupts are signaled using the IRQ line if the FIQ is
@@ -329,8 +330,9 @@ unsigned int plat_ic_get_interrupt_id(unsigned int raw)
 {
 	unsigned int id = (raw & INT_ID_MASK);
 
-	if (id == GIC_SPURIOUS_INTERRUPT)
+	if (id == GIC_SPURIOUS_INTERRUPT) {
 		id = INTR_ID_UNAVAILABLE;
+	}
 
 	return id;
 }

@@ -51,8 +51,9 @@ void bl2_el3_plat_prepare_exit(void)
 
 void __dead2 plat_error_handler(int err)
 {
-	while (1)
+	while (1) {
 		wfi();
+	}
 }
 
 void bl2_plat_preload_setup(void)

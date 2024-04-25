@@ -59,10 +59,11 @@ static u_register_t calc_stat_residency(unsigned long long pwrupts,
 	residency_div = read_cntfrq_el0() / MHZ_TICKS_PER_SEC;
 	assert(residency_div > 0U);
 
-	if (pwrupts < pwrdnts)
+	if (pwrupts < pwrdnts) {
 		res = MAX_TS - pwrdnts + pwrupts;
-	else
+	} else {
 		res = pwrupts - pwrdnts;
+	}
 
 	return res / residency_div;
 }
@@ -170,8 +171,9 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 	do {
 		temp = *st;
 		st++;
-		if (temp < target)
+		if (temp < target) {
 			target = temp;
+		}
 		n--;
 	} while (n > 0U);
 
