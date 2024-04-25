@@ -474,6 +474,18 @@ Context Management
 :|F|: lib/el3_runtime/
 :|F|: include/lib/el3_runtime/
 
+Runtime Services
+^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: services/std_svc/std_svc_setup.c
+:|F|: common/runtime_svc.c
+:|F|: include/common/runtime_svc.h
+:|F|: include/services/arm_arch_svc.h
+:|F|: include/services/std_svc.h
+
 Platform Ports
 ~~~~~~~~~~~~~~
 
