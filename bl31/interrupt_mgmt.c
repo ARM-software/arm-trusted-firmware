@@ -219,9 +219,9 @@ int32_t register_interrupt_type_handler(uint32_t type,
  ******************************************************************************/
 interrupt_type_handler_t get_interrupt_type_handler(uint32_t type)
 {
-	if (validate_interrupt_type(type) != 0)
+	if (validate_interrupt_type(type) != 0) {
 		return NULL;
-
+	}
 	return intr_type_descs[type].handler;
 }
 
