@@ -451,6 +451,20 @@ Firmware Handoff Library (Transfer List)
 :|F|: lib/transfer_list
 :|F|: include/lib/transfer_list.h
 
+Context Management
+^^^^^^^^^^^^^^^^^^
+:|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
+:|G|: `jayanthchidanand-arm`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: bl1/aarch32/bl1_context_mgmt.c
+:|F|: bl1/aarch64/bl1_context_mgmt.c
+:|F|: bl31/bl31_context_mgmt.c
+:|F|: lib/el3_runtime/
+:|F|: include/lib/el3_runtime/
+
 Platform Ports
 ~~~~~~~~~~~~~~
 
