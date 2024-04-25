@@ -131,8 +131,9 @@ loop:
 					(void)putchar('-');
 					unum = (unsigned long long int)-num;
 					padn--;
-				} else
+				} else {
 					unum = (unsigned long long int)num;
+				}
 
 				count += unsigned_num_print(unum, 10,
 							    padc, padn, uppercase);
@@ -164,8 +165,9 @@ loop:
 							    padc, padn, uppercase);
 				break;
 			case 'z':
-				if (sizeof(size_t) == 8U)
+				if (sizeof(size_t) == 8U) {
 					l_count = 2;
+				}
 
 				fmt++;
 				goto loop;

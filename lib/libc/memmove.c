@@ -24,8 +24,9 @@ void *memmove(void *dst, const void *src, size_t len)
 		const char *end = dst;
 		const char *s = (const char *)src + len;
 		char *d = (char *)dst + len;
-		while (d != end)
+		while (d != end) {
 			*--d = *--s;
+		}
 	}
 	return dst;
 }
