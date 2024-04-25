@@ -87,6 +87,13 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 	uint32_t linear_id;
 	optee_context_t *optee_ctx;
 
+#if OPTEE_ALLOW_SMC_LOAD
+	if (optee_vector_table == NULL) {
+		/* OPTEE is not loaded yet, ignore this interrupt */
+		SMC_RET0(handle);
+	}
+#endif
+
 	/* Check the security state when the exception was generated */
 	assert(get_interrupt_src_ss(flags) == NON_SECURE);
 
@@ -115,6 +122,24 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 	SMC_RET1(&optee_ctx->cpu_ctx, read_elr_el3());
 }
 
+/*
+ * Registers an interrupt handler for S-EL1 interrupts when generated during
+ * code executing in the non-secure state. Panics if it fails to do so.
+ */
+static void register_opteed_interrupt_handler(void)
+{
+	u_register_t flags;
+	uint64_t rc;
+
+	flags = 0;
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+			opteed_sel1_interrupt_handler,
+			flags);
+	if (rc)
+		panic();
+}
+
 /*******************************************************************************
  * OPTEE Dispatcher setup. The OPTEED finds out the OPTEE entrypoint and type
  * (aarch32/aarch64) if not already known and initialises the context for entry
@@ -125,6 +150,11 @@ static int32_t opteed_setup(void)
 #if OPTEE_ALLOW_SMC_LOAD
 	opteed_allow_load = true;
 	INFO("Delaying OP-TEE setup until we receive an SMC call to load it\n");
+	/*
+	 * We must register the interrupt handler now so that the interrupt
+	 * priorities are not changed after starting the linux kernel.
+	 */
+	register_opteed_interrupt_handler();
 	return 0;
 #else
 	entry_point_info_t *optee_ep_info;
@@ -575,7 +605,6 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 	cpu_context_t *ns_cpu_context;
 	uint32_t linear_id = plat_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
-	uint64_t rc;
 
 	/*
 	 * Determine which security state this SMC originated from
@@ -709,18 +738,9 @@ static uintptr_t opteed_smc_handler(uint32_t smc_fid,
 			 */
 			psci_register_spd_pm_hook(&opteed_pm);
 
-			/*
-			 * Register an interrupt handler for S-EL1 interrupts
-			 * when generated during code executing in the
-			 * non-secure state.
-			 */
-			flags = 0;
-			set_interrupt_rm_flag(flags, NON_SECURE);
-			rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
-						opteed_sel1_interrupt_handler,
-						flags);
-			if (rc)
-				panic();
+#if !OPTEE_ALLOW_SMC_LOAD
+			register_opteed_interrupt_handler();
+#endif
 		}
 
 		/*
