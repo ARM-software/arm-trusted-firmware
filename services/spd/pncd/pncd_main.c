@@ -55,8 +55,9 @@ static void context_save(unsigned long security_state)
 	assert(sec_state_is_valid(security_state));
 
 	cm_el1_sysregs_context_save((uint32_t) security_state);
+
 #if CTX_INCLUDE_FPREGS
-	fpregs_context_save(get_fpregs_ctx(cm_get_context(security_state)));
+	simd_ctx_save((uint32_t)security_state, false);
 #endif
 }
 
@@ -72,8 +73,9 @@ static void *context_restore(unsigned long security_state)
 
 	/* Restore state */
 	cm_el1_sysregs_context_restore((uint32_t) security_state);
+
 #if CTX_INCLUDE_FPREGS
-	fpregs_context_restore(get_fpregs_ctx(cm_get_context(security_state)));
+	simd_ctx_restore((uint32_t)security_state);
 #endif
 
 	cm_set_next_eret_context((uint32_t) security_state);
