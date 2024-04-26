@@ -258,7 +258,7 @@ static int32_t dpe_client_call(const char *cmd_input, size_t cmd_input_size,
 		{ cmd_output, *cmd_output_size },
 	};
 
-	err = psa_call(RSS_DPE_SERVICE_HANDLE, 0,
+	err = psa_call(RSE_DPE_SERVICE_HANDLE, 0,
 			in_vec, IOVEC_LEN(in_vec), out_vec, IOVEC_LEN(out_vec));
 
 	if (err == PSA_SUCCESS) {

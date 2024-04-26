@@ -15,9 +15,9 @@
 
 #include "psa/error.h"
 
-/* RSS Delegated Attestation message types that distinguish its services. */
-#define RSS_DELEGATED_ATTEST_GET_DELEGATED_KEY      1001U
-#define RSS_DELEGATED_ATTEST_GET_PLATFORM_TOKEN     1002U
+/* RSE Delegated Attestation message types that distinguish its services. */
+#define RSE_DELEGATED_ATTEST_GET_DELEGATED_KEY      1001U
+#define RSE_DELEGATED_ATTEST_GET_PLATFORM_TOKEN     1002U
 
 /**
  * The aim of these APIs to get a derived signing key (private only) for the
@@ -28,13 +28,13 @@
  * key is bind to the platform token (details below).
  *
  * Expected usage model:
- *  - First rss_delegated_attest_get_delegated_key() API need to be called to
+ *  - First rse_delegated_attest_get_delegated_key() API need to be called to
  *    obtain the private part of the delegated attestation key. The public part
  *    of key is computed by the cryptographic library when the key is
  *    registered.
- *  - Secondly the rss_delegated_attest_get_token() must be called to obtain
+ *  - Secondly the rse_delegated_attest_get_token() must be called to obtain
  *    platform attestation token. The hash of the public key (computed by
- *    the hash_algo indicated in the rss_delegated_attest_get_delegated_key()
+ *    the hash_algo indicated in the rse_delegated_attest_get_delegated_key()
  *    call) must be the input of this call. This ensures that nothing but the
  *    previously derived delegated key is bindable to the platform token.
  */
@@ -74,7 +74,7 @@
  *     platform attestation token as they are cryptographically linked together.
  */
 psa_status_t
-rss_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
+rse_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
 				       uint32_t  key_bits,
 				       uint8_t  *key_buf,
 				       size_t    key_buf_size,
@@ -100,7 +100,7 @@ rss_delegated_attest_get_delegated_key(uint8_t   ecc_curve,
  * code will be returned.
  */
 psa_status_t
-rss_delegated_attest_get_token(const uint8_t *dak_pub_hash,
+rse_delegated_attest_get_token(const uint8_t *dak_pub_hash,
 			       size_t         dak_pub_hash_size,
 			       uint8_t       *token_buf,
 			       size_t         token_buf_size,

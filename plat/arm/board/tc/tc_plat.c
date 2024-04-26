@@ -165,7 +165,7 @@ void plat_arm_secure_wdt_refresh(void)
 
 static sds_region_desc_t tc_sds_regions[] = {
 	{ .base = PLAT_ARM_SDS_MEM_BASE },
-	{ .base = PLAT_ARM_RSS_AP_SDS_MEM_BASE },
+	{ .base = PLAT_ARM_RSE_AP_SDS_MEM_BASE },
 };
 
 sds_region_desc_t *plat_sds_get_regions(unsigned int *region_count)

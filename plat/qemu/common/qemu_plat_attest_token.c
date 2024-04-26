@@ -98,7 +98,7 @@ static const uint8_t sample_platform_token[] = {
 
 /*
  * Get the hardcoded platform attestation token as QEMU does not support
- * RSS.
+ * RSE.
  */
 int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
 				   uintptr_t hash, size_t hash_size)

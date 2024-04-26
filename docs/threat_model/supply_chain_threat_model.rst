@@ -115,7 +115,7 @@ description of each component and where they are sourced from.
 - *EDK2 UEFI*: Normal world bootloader from the EDK2 project [7]_. We use EDK2
   UEFI binaries hosted on tf.org servers for testing [8]_.
 
-Other software components used to test TF-A include U-Boot, Linux kernel, RSS,
+Other software components used to test TF-A include U-Boot, Linux kernel, RSE,
 MCP, and file systems, all sourced from the Arm Reference Platforms teams.
 
 TF-A Toolchain

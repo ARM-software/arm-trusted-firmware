@@ -193,11 +193,11 @@
 
 /*
  * In the current implementation the RoT Service request that requires the
- * biggest message buffer is the RSS_DELEGATED_ATTEST_GET_PLATFORM_TOKEN. The
+ * biggest message buffer is the RSE_DELEGATED_ATTEST_GET_PLATFORM_TOKEN. The
  * maximum required buffer size is calculated based on the platform-specific
  * needs of this request.
  */
-#define PLAT_RSS_COMMS_PAYLOAD_MAX_SIZE	0x500
+#define PLAT_RSE_COMMS_PAYLOAD_MAX_SIZE	0x500
 
 #define TC_DEVICE_BASE			0x21000000
 #define TC_DEVICE_SIZE			0x5f000000
@@ -279,13 +279,13 @@
 
 /* Index of SDS region used in the communication with SCP */
 #define SDS_SCP_AP_REGION_ID		U(0)
-/* Index of SDS region used in the communication with RSS */
-#define SDS_RSS_AP_REGION_ID		U(1)
+/* Index of SDS region used in the communication with RSE */
+#define SDS_RSE_AP_REGION_ID		U(1)
 /*
- * Memory region for RSS's shared data storage (SDS)
+ * Memory region for RSE's shared data storage (SDS)
  * It is placed right after the SCMI payload area.
  */
-#define PLAT_ARM_RSS_AP_SDS_MEM_BASE	(CSS_SCMI_PAYLOAD_BASE + \
+#define PLAT_ARM_RSE_AP_SDS_MEM_BASE	(CSS_SCMI_PAYLOAD_BASE + \
 					 CSS_SCMI_PAYLOAD_SIZE_MAX)
 
 #define PLAT_ARM_CLUSTER_COUNT		U(1)
@@ -306,9 +306,9 @@
 #endif /* TARGET_PLATFORM == 3 */
 #define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
-/* TC2: AP<->RSS MHUs */
-#define PLAT_RSS_AP_SND_MHU_BASE	UL(0x2A840000)
-#define PLAT_RSS_AP_RCV_MHU_BASE	UL(0x2A850000)
+/* TC2: AP<->RSE MHUs */
+#define PLAT_RSE_AP_SND_MHU_BASE	UL(0x2A840000)
+#define PLAT_RSE_AP_RCV_MHU_BASE	UL(0x2A850000)
 
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1

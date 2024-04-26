@@ -337,12 +337,12 @@ Message Handling Unit (MHU) driver
 :|F|: include/drivers/arm/mhu.h
 :|F|: drivers/arm/mhu
 
-Runtime Security Subsystem (RSS) comms driver
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Runtime Security Engine (RSE) comms driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: David Vincze <david.vincze@arm.com>
 :|G|: `davidvincze`_
-:|F|: include/drivers/arm/rss_comms.h
-:|F|: drivers/arm/rss
+:|F|: include/drivers/arm/rse_comms.h
+:|F|: drivers/arm/rse
 
 Libfdt wrappers
 ^^^^^^^^^^^^^^^

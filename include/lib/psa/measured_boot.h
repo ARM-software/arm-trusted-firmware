@@ -43,11 +43,11 @@
  *	- When the requested slot is not accessible to the caller.
  */
 
-/* Not a standard PSA API, just an extension therefore use the 'rss_' prefix
+/* Not a standard PSA API, just an extension therefore use the 'rse_' prefix
  * rather than the usual 'psa_'.
  */
 psa_status_t
-rss_measured_boot_extend_measurement(uint8_t index,
+rse_measured_boot_extend_measurement(uint8_t index,
 				     const uint8_t *signer_id,
 				     size_t signer_id_size,
 				     const uint8_t *version,
@@ -92,7 +92,7 @@ rss_measured_boot_extend_measurement(uint8_t index,
  * PSA_ERROR_DOES_NOT_EXIST
  *	- The requested slot is empty, does not contain a measurement.
  */
-psa_status_t rss_measured_boot_read_measurement(uint8_t index,
+psa_status_t rse_measured_boot_read_measurement(uint8_t index,
 					uint8_t *signer_id,
 					size_t signer_id_size,
 					size_t *signer_id_len,

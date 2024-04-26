@@ -91,10 +91,10 @@ The Measured Boot implementation in TF-A supports:
    and the variable length crypto agile structure called TCG_PCR_EVENT2. Event
    Log driver implemented in TF-A covers later part.
 
-#. RSS
+#. RSE
 
    It is one of physical backend to extend the measurements. Please refer this
-   document :ref:`Runtime Security Subsystem (RSS)` for more details.
+   document :ref:`Runtime Security Engine (RSE)` for more details.
 
 Platform Interface
 ------------------
@@ -121,7 +121,7 @@ Responsibilities of these platform interfaces are -
       void bl2_plat_mboot_init(void);
 
    Initialise all Measured Boot backends supported by the platform
-   (e.g. Event Log buffer, RSS). As these functions do not return any value,
+   (e.g. Event Log buffer, RSE). As these functions do not return any value,
    the platform should deal with error management, such as logging the error
    somewhere, or panicking the system if this is considered a fatal error.
 
@@ -147,7 +147,7 @@ Responsibilities of these platform interfaces are -
 
      - If it is Event Log backend, then record the measurement in TCG Event Log
        format.
-     - If it is a secure crypto-processor (like RSS), then extend the designated
+     - If it is a secure crypto-processor (like RSE), then extend the designated
        PCR (or slot) with the given measurement.
    - This function must return 0 on success, a signed integer error code
      otherwise.
@@ -223,7 +223,7 @@ Responsibilities of these platform interfaces are -
    - This function must return 0 on success, a signed integer error code
      otherwise.
    - In TC2 platform, this function is used to calculate the hash of the given
-     key and forward this hash to RSS alongside the measurement of the image
+     key and forward this hash to RSE alongside the measurement of the image
      which the key signs.
 
 --------------

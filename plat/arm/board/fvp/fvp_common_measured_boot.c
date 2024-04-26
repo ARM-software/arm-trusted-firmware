@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,12 +9,10 @@
 
 #include <common/desc_image_load.h>
 #include <drivers/measured_boot/event_log/event_log.h>
-#include <drivers/measured_boot/rss/rss_measured_boot.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
 extern event_log_metadata_t fvp_event_log_metadata[];
-extern struct rss_mboot_metadata fvp_rss_mboot_metadata[];
 
 int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
 {

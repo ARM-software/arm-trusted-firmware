@@ -128,7 +128,7 @@ Additionally the following libraries are marked experimental when included
 in a platform:
 
 -  MPU translation library ``lib/xlat_mpu``
--  RSS comms driver ``drivers/arm/rss``
+-  RSE comms driver ``drivers/arm/rse``
 
 Still to come
 -------------
