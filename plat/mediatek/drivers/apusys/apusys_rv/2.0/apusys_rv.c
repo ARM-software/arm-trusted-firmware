@@ -37,17 +37,7 @@ void apusys_rv_mbox_mpu_init(void)
 
 int apusys_kernel_apusys_rv_setup_reviser(void)
 {
-	static bool apusys_rv_setup_reviser_called;
-
 	spin_lock(&apusys_rv_lock);
-
-	if (apusys_rv_setup_reviser_called) {
-		WARN(MODULE_TAG "%s: already initialized\n", __func__);
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
-	apusys_rv_setup_reviser_called = true;
 
 	mmio_write_32(USERFW_CTXT, CFG_4GB_SEL_EN | CFG_4GB_SEL);
 	mmio_write_32(SECUREFW_CTXT, CFG_4GB_SEL_EN | CFG_4GB_SEL);
@@ -74,17 +64,7 @@ int apusys_kernel_apusys_rv_setup_reviser(void)
 
 int apusys_kernel_apusys_rv_reset_mp(void)
 {
-	static bool apusys_rv_reset_mp_called;
-
 	spin_lock(&apusys_rv_lock);
-
-	if (apusys_rv_reset_mp_called) {
-		WARN(MODULE_TAG "%s: already initialized\n", __func__);
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
-	apusys_rv_reset_mp_called = true;
 
 	mmio_write_32(MD32_SYS_CTRL, MD32_SYS_CTRL_RST);
 
@@ -106,17 +86,7 @@ int apusys_kernel_apusys_rv_reset_mp(void)
 
 int apusys_kernel_apusys_rv_setup_boot(void)
 {
-	static bool apusys_rv_setup_boot_called;
-
 	spin_lock(&apusys_rv_lock);
-
-	if (apusys_rv_setup_boot_called) {
-		WARN(MODULE_TAG "%s: already initialized\n", __func__);
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
-	apusys_rv_setup_boot_called = true;
 
 	mmio_write_32(MD32_BOOT_CTRL, APU_SEC_FW_IOVA);
 
@@ -130,55 +100,17 @@ int apusys_kernel_apusys_rv_setup_boot(void)
 
 int apusys_kernel_apusys_rv_start_mp(void)
 {
-	static bool apusys_rv_start_mp_called;
-
 	spin_lock(&apusys_rv_lock);
-
-	if (apusys_rv_start_mp_called) {
-		WARN(MODULE_TAG "%s: already initialized\n", __func__);
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
-	apusys_rv_start_mp_called = true;
-
 	mmio_write_32(MD32_RUNSTALL, MD32_RUN);
-
 	spin_unlock(&apusys_rv_lock);
 
 	return 0;
 }
 
-static bool watch_dog_is_timeout(void)
-{
-	if (mmio_read_32(WDT_INT) != WDT_INT_W1C) {
-		ERROR(MODULE_TAG "%s: WDT does not timeout\n", __func__);
-		return false;
-	}
-	return true;
-}
-
 int apusys_kernel_apusys_rv_stop_mp(void)
 {
-	static bool apusys_rv_stop_mp_called;
-
 	spin_lock(&apusys_rv_lock);
-
-	if (apusys_rv_stop_mp_called) {
-		WARN(MODULE_TAG "%s: already initialized\n", __func__);
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
-	if (watch_dog_is_timeout() == false) {
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
-	apusys_rv_stop_mp_called = true;
-
 	mmio_write_32(MD32_RUNSTALL, MD32_STALL);
-
 	spin_unlock(&apusys_rv_lock);
 
 	return 0;
@@ -186,18 +118,9 @@ int apusys_kernel_apusys_rv_stop_mp(void)
 
 int apusys_kernel_apusys_rv_setup_sec_mem(void)
 {
-	static bool apusys_rv_setup_sec_mem_called;
 	int ret;
 
 	spin_lock(&apusys_rv_lock);
-
-	if (apusys_rv_setup_sec_mem_called) {
-		WARN(MODULE_TAG "%s: already initialized\n", __func__);
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
-	apusys_rv_setup_sec_mem_called = true;
 
 	ret = set_apu_emi_mpu_region();
 	if (ret != 0) {
@@ -230,12 +153,6 @@ int apusys_kernel_apusys_rv_clear_wdt_isr(void)
 int apusys_kernel_apusys_rv_cg_gating(void)
 {
 	spin_lock(&apusys_rv_lock);
-
-	if (watch_dog_is_timeout() == false) {
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
 	mmio_write_32(MD32_CLK_CTRL, MD32_CLK_DIS);
 	spin_unlock(&apusys_rv_lock);
 
@@ -245,12 +162,6 @@ int apusys_kernel_apusys_rv_cg_gating(void)
 int apusys_kernel_apusys_rv_cg_ungating(void)
 {
 	spin_lock(&apusys_rv_lock);
-
-	if (watch_dog_is_timeout() == false) {
-		spin_unlock(&apusys_rv_lock);
-		return -1;
-	}
-
 	mmio_write_32(MD32_CLK_CTRL, MD32_CLK_EN);
 	spin_unlock(&apusys_rv_lock);
 
