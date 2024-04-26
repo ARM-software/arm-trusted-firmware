@@ -3,6 +3,18 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.18](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.17..refs/tags/lts-v2.8.18) (2024-04-26)
+
+### New Features
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - upgrade to version v2.28.8 ([a1cb5f6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a1cb5f656e5e19741e840e452aa51f71fe24efbb))
+
 ## [lts-2.8.17](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.16..refs/tags/lts-v2.8.17) (2024-04-12)
 
 ### Code Refactoring
