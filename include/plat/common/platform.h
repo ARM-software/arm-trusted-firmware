@@ -243,7 +243,11 @@ __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved);
 int bl1_plat_handle_pre_image_load(unsigned int image_id);
 int bl1_plat_handle_post_image_load(unsigned int image_id);
 
-#if (MEASURED_BOOT || DICE_PROTECTION_ENVIRONMENT)
+/* Utility functions */
+void bl1_plat_calc_bl2_layout(const meminfo_t *bl1_mem_layout,
+			      meminfo_t *bl2_mem_layout);
+
+#if MEASURED_BOOT
 void bl1_plat_mboot_init(void);
 void bl1_plat_mboot_finish(void);
 #else

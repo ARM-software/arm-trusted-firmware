@@ -411,6 +411,8 @@ MEASURED_BOOT
 #define ARM_V2M_MAP_MEM_PROTECT		MAP_REGION_FLAT(PLAT_ARM_MEM_PROT_ADDR,	\
 						V2M_FLASH_BLOCK_SIZE,		\
 						MT_DEVICE | MT_RW | MT_SECURE)
+
+#if !TRANSFER_LIST
 /*
  * Map the region for device tree configuration with read and write permissions
  */
@@ -418,6 +420,8 @@ MEASURED_BOOT
 						(ARM_FW_CONFIGS_LIMIT		\
 							- ARM_BL_RAM_BASE),	\
 						MT_MEMORY | MT_RW | EL3_PAS)
+#endif
+
 /*
  * Map L0_GPT with read and write permissions
  */
@@ -505,6 +509,14 @@ MEASURED_BOOT
  */
 #define CACHE_WRITEBACK_GRANULE		(U(1) << ARM_CACHE_WRITEBACK_SHIFT)
 
+/* Define memory configuration for trusted boot device tree files. */
+#ifdef PLAT_ARM_TB_FW_CONFIG_SIZE
+#define ARM_TB_FW_CONFIG_MAX_SIZE	PLAT_ARM_TB_FW_CONFIG_SIZE
+#else
+#define ARM_TB_FW_CONFIG_MAX_SIZE	U(0x400)
+#endif
+
+#if !TRANSFER_LIST
 /*
  * To enable FW_CONFIG to be loaded by BL1, define the corresponding base
  * and limit. Leave enough space of BL2 meminfo.
@@ -526,6 +538,7 @@ MEASURED_BOOT
  */
 #define ARM_FW_CONFIGS_SIZE		(PAGE_SIZE * 2)
 #define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + ARM_FW_CONFIGS_SIZE)
+#endif
 
 #if ENABLE_RME
 /*

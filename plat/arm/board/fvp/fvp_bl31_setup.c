@@ -5,12 +5,15 @@
  */
 
 #include <assert.h>
+
+#include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/arm/smmu_v3.h>
 #include <fconf_hw_config_getter.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/mmio.h>
+
 #include <plat/arm/common/arm_config.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
@@ -25,6 +28,9 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
+#if TRANSFER_LIST
+	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
+#else
 #if !RESET_TO_BL31 && !RESET_TO_BL2
 	const struct dyn_cfg_dtb_info_t *soc_fw_config_info;
 
@@ -48,8 +54,8 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 	assert(hw_config_info->secondary_config_addr != 0UL);
 	arg2 = hw_config_info->secondary_config_addr;
 #endif /* !RESET_TO_BL31 && !RESET_TO_BL2 */
-
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
+#endif /* TRANSFER_LIST */
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();
@@ -88,6 +94,7 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 	}
 }
 
+#if !TRANSFER_LIST
 void __init bl31_plat_arch_setup(void)
 {
 	int rc __unused;
@@ -142,6 +149,7 @@ void __init bl31_plat_arch_setup(void)
 	}
 #endif /* !RESET_TO_BL31 && !RESET_TO_BL2 && !ARM_XLAT_TABLES_LIB_V1 */
 }
+#endif /* TRANSFER_LIST */
 
 unsigned int plat_get_syscnt_freq2(void)
 {

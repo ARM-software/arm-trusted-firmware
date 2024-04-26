@@ -9,12 +9,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <common/desc_image_load.h>
 #include <drivers/arm/tzc_common.h>
 #include <lib/bakery_lock.h>
 #include <lib/cassert.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/spinlock.h>
+#include <lib/transfer_list.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 
@@ -254,6 +256,7 @@ uint32_t arm_get_spsr_for_bl33_entry(void);
 int arm_bl2_plat_handle_post_image_load(unsigned int image_id);
 int arm_bl2_handle_post_image_load(unsigned int image_id);
 struct bl_params *arm_get_next_bl_params(void);
+void arm_bl2_setup_next_ep_info(bl_mem_params_node_t *next_param_node);
 
 /* BL2 at EL3 functions */
 void arm_bl2_el3_early_platform_setup(void);
@@ -266,11 +269,24 @@ void arm_bl2u_platform_setup(void);
 void arm_bl2u_plat_arch_setup(void);
 
 /* BL31 utility functions */
+#if TRANSFER_LIST
+void arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
+				   u_register_t arg2, u_register_t arg3);
+#else
 void arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_config,
 				uintptr_t hw_config, void *plat_params_from_bl2);
+#endif
 void arm_bl31_platform_setup(void);
 void arm_bl31_plat_runtime_setup(void);
 void arm_bl31_plat_arch_setup(void);
+
+/* Firmware Handoff utility functions */
+void arm_transfer_list_dyn_cfg_init(struct transfer_list_header *secure_tl);
+void arm_transfer_list_populate_ep_info(bl_mem_params_node_t *next_param_node,
+					struct transfer_list_header *secure_tl,
+					struct transfer_list_header *ns_tl);
+void arm_transfer_list_copy_hw_config(struct transfer_list_header *secure_tl,
+				      struct transfer_list_header *ns_tl);
 
 /* TSP utility functions */
 void arm_tsp_early_platform_setup(void);

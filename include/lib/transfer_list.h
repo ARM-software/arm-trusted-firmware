@@ -44,6 +44,8 @@ enum transfer_list_tag_id {
 	TL_TAG_OPTEE_PAGABLE_PART = 0x100,
 	TL_TAG_DT_SPMC_MANIFEST = 0x101,
 	TL_TAG_EXEC_EP_INFO64 = 0x102,
+	TL_TAG_TB_FW_CONFIG = 0x103,
+	TL_TAG_SRAM_LAYOUT64 = 0x104,
 };
 
 enum transfer_list_ops {
