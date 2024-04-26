@@ -3,6 +3,28 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.3..refs/tags/lts-v2.10.4) (2024-04-26)
+
+### Documentation
+
+- decrease the minimum supported OpenSSL ([f491e09](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f491e09e664088c6f777277b4f82f8fac8c328a8))
+
+### Resolved Issues
+
+- **Architecture**
+
+  - **Performance Monitors Extension (FEAT_PMUv3)**
+
+    - fix breakage on ARMv7 CPUs with SP_min as BL32 ([867271f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/867271ff8135b1f904ff46a09835283648f392c9))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A715 erratum 2728106 ([1edbf2a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1edbf2ae58df6b55fe58c7d723ec7bb61dac32dd))
+    - workaround for Cortex-X4 erratum 2740089 ([3609b0a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3609b0a953958356c4ac6dad38b501b386bfdd96))
+    - workaround for Cortex-X4 erratum 2763018 ([200931d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/200931d2dcecdb7960813f66aace21899ac59640))
+
 ## [lts-2.10.3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.2..refs/tags/lts-v2.10.3) (2024-04-05)
 
 ### Code Refactoring
