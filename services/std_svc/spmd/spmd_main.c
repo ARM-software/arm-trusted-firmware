@@ -215,6 +215,14 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	cm_el2_sysregs_context_save(NON_SECURE);
 #else
 	cm_el1_sysregs_context_save(NON_SECURE);
+
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	/*
+	 * The hint bit denoting absence of SVE live state is effectively false
+	 * in this scenario where execution was trapped to EL3 due to FIQ.
+	 */
+	simd_ctx_save(NON_SECURE, false);
+#endif
 #endif
 
 	/* Convey the event to the SPMC through the FFA_INTERRUPT interface. */
@@ -230,7 +238,14 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	/* Mark current core as handling a secure interrupt. */
 	ctx->secure_interrupt_ongoing = true;
 
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	simd_ctx_restore(SECURE);
+#endif
 	rc = spmd_spm_core_sync_entry(ctx);
+
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	simd_ctx_save(SECURE, false);
+#endif
 	if (rc != 0ULL) {
 		ERROR("%s failed (%" PRId64 ") on CPU%u\n", __func__, rc, plat_my_core_pos());
 	}
@@ -241,6 +256,10 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	cm_el2_sysregs_context_restore(NON_SECURE);
 #else
 	cm_el1_sysregs_context_restore(NON_SECURE);
+
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	simd_ctx_restore(NON_SECURE);
+#endif
 #endif
 	cm_set_next_eret_context(NON_SECURE);
 
@@ -678,6 +697,10 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 	cm_el2_sysregs_context_save(secure_state_in);
 #else
 	cm_el1_sysregs_context_save(secure_state_in);
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	/* Forward the hint bit denoting the absence of SVE live state. */
+	simd_ctx_save(secure_state_in, (!secure_origin && (is_sve_hint_set(flags) == true)));
+#endif
 #endif
 
 	/* Restore outgoing security state */
@@ -685,6 +708,9 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 	cm_el2_sysregs_context_restore(secure_state_out);
 #else
 	cm_el1_sysregs_context_restore(secure_state_out);
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	simd_ctx_restore(secure_state_out);
+#endif
 #endif
 	cm_set_next_eret_context(secure_state_out);
 

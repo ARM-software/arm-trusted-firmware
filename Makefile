@@ -457,6 +457,9 @@ ifneq (${SPD},none)
 			ifeq ($(SPMC_AT_EL3),1)
                                 $(error SPM cannot be enabled in both S-EL2 and EL3.)
 			endif
+			ifeq ($(CTX_INCLUDE_SVE_REGS),1)
+                                $(error SVE context management not needed with Hafnium SPMC.)
+			endif
 		endif
 
 		ifeq ($(findstring optee_sp,$(ARM_SPMC_MANIFEST_DTS)),optee_sp)
