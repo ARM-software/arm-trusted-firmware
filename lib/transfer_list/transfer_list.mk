@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -15,6 +15,7 @@ TRANSFER_LIST_SOURCES	+=	$(addprefix lib/transfer_list/,	\
 
 BL31_SOURCES	+=	$(TRANSFER_LIST_SOURCES)
 BL2_SOURCES	+=	$(TRANSFER_LIST_SOURCES)
+BL1_SOURCES	+=	$(TRANSFER_LIST_SOURCES)
 
 endif	# TRANSFER_LIST
 
