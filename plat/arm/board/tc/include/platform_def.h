@@ -168,17 +168,9 @@
  * Size of cacheable stacks
  */
 #if defined(IMAGE_BL1)
-# if TRUSTED_BOARD_BOOT
 #  define PLATFORM_STACK_SIZE		0x1000
-# else
-#  define PLATFORM_STACK_SIZE		0x440
-# endif
 #elif defined(IMAGE_BL2)
-# if TRUSTED_BOARD_BOOT
 #  define PLATFORM_STACK_SIZE		0x1000
-# else
-#  define PLATFORM_STACK_SIZE		0x400
-# endif
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE		0x400
 #elif defined(IMAGE_BL31)
