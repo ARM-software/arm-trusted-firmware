@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -752,6 +752,21 @@ MEASURED_BOOT
 #  undef BL32_BASE
 # endif /* defined(SPD_none) && !SPM_MM || !SPMC_AT_EL3 */
 #endif /* defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME */
+
+#if RESET_TO_BL31 && defined(SPD_spmd) && defined(PLAT_ARM_SPMC_MANIFEST_BASE)
+#define ARM_SPMC_MANIFEST_BASE  PLAT_ARM_SPMC_MANIFEST_BASE
+#else
+
+/*
+ * SPM expects SPM Core manifest base address in x0, which in !RESET_TO_BL31
+ * case loaded after base of non shared SRAM(after 4KB offset of SRAM). But in
+ * RESET_TO_BL31 case all non shared SRAM is allocated to BL31, so to avoid
+ * overwriting of manifest keep it in the last page.
+ */
+#define ARM_SPMC_MANIFEST_BASE		(ARM_TRUSTED_SRAM_BASE +	    \
+					 PLAT_ARM_TRUSTED_SRAM_SIZE -\
+					 PAGE_SIZE)
+#endif
 
 /*******************************************************************************
  * FWU Images: NS_BL1U, BL2U & NS_BL2U defines.

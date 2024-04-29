@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -210,14 +210,7 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
 
 #if defined(SPD_spmd)
-	/* SPM (hafnium in secure world) expects SPM Core manifest base address
-	 * in x0, which in !RESET_TO_BL31 case loaded after base of non shared
-	 * SRAM(after 4KB offset of SRAM). But in RESET_TO_BL31 case all non
-	 * shared SRAM is allocated to BL31, so to avoid overwriting of manifest
-	 * keep it in the last page.
-	 */
-	bl32_image_ep_info.args.arg0 = ARM_TRUSTED_SRAM_BASE +
-				PLAT_ARM_TRUSTED_SRAM_SIZE - PAGE_SIZE;
+	bl32_image_ep_info.args.arg0 = ARM_SPMC_MANIFEST_BASE;
 #endif
 
 # endif /* BL32_BASE */
