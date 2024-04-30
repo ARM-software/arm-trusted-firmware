@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <platform_def.h>
+
+#define MHU_TX_ADDR			46240000 /* hex */
+#define MHU_RX_ADDR			46250000 /* hex */
+
+#define LIT_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
+#define MID_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
+#define BIG_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
+
+#include "tc-common.dtsi"
+#if TARGET_FLAVOUR_FVP
+#include "tc-fvp.dtsi"
+#else
+#include "tc-fpga.dtsi"
+#endif /* TARGET_FLAVOUR_FVP */
+#include "tc3-4-base.dtsi"
