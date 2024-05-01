@@ -18,12 +18,12 @@ BL32_SOURCES		+=	bl32/sp_min/sp_min_main.c			\
 				common/runtime_svc.c				\
 				plat/common/aarch32/plat_sp_min_common.c	\
 				services/arm_arch_svc/arm_arch_svc_setup.c	\
-				services/el3/ven_el3_svc.c			\
 				services/std_svc/std_svc_setup.c		\
 				${PSCI_LIB_SOURCES}
 
 ifeq (${ENABLE_PMF}, 1)
-BL32_SOURCES		+=	lib/pmf/pmf_main.c
+BL32_SOURCES		+=	services/el3/ven_el3_svc.c			\
+				lib/pmf/pmf_main.c
 endif
 
 ifneq (${ENABLE_FEAT_AMU},0)
