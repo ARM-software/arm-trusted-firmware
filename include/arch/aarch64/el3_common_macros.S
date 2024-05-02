@@ -77,6 +77,11 @@
 	 * SCR_EL3.{API,APK}: For Armv8.3 pointer authentication feature,
 	 * disable traps to EL3 when accessing key registers or using pointer
 	 * authentication instructions from lower ELs.
+	 *
+	 * SCR_EL3.EEL2: Set to one if S-EL2 is present and enabled.
+	 *
+	 * NOTE: Modifying EEL2 bit along with EA bit ensures that we mitigate
+	 * against ERRATA_V2_3099206.
 	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, ((SCR_RESET_VAL | SCR_EA_BIT | SCR_SIF_BIT) \
@@ -89,12 +94,11 @@
 	 */
 	orr	x0, x0, #(SCR_API_BIT | SCR_APK_BIT)
 #endif
-#if ENABLE_RME
-	/*
-	 * TODO: Settting the EEL2 bit to allow EL3 access to secure only registers
-	 * in context management. This will need to be refactored.
-	 */
-	orr	x0, x0, #SCR_EEL2_BIT
+#if (IMAGE_BL31 && defined(SPD_spmd) && SPMD_SPM_AT_SEL2) || ENABLE_RME
+	mrs x1, id_aa64pfr0_el1
+	and x1, x1, #(ID_AA64PFR0_SEL2_MASK << ID_AA64PFR0_SEL2_SHIFT)
+	cbz x1, 1f
+	orr x0, x0, #SCR_EEL2_BIT
 #endif
 	msr	scr_el3, x0
 
