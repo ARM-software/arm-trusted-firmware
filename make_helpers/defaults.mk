@@ -294,9 +294,6 @@ COT				:= tbbr
 # Use tbbr_oid.h instead of platform_oid.h
 USE_TBBR_DEFS			:= 1
 
-# Build verbosity
-V				:= 0
-
 # Whether to enable D-Cache early during warm boot. This is usually
 # applicable for platforms wherein interconnect programming is not
 # required to enable cache coherency after warm reset (eg: single cluster

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -134,7 +134,7 @@ all : bl1_romlib.bin
 endif
 
 bl1_romlib.bin : $(BUILD_PLAT)/bl1.bin romlib.bin
-	@echo "Building combined BL1 and ROMLIB binary for Juno $@"
+	$(s)echo "Building combined BL1 and ROMLIB binary for Juno $@"
 	./lib/romlib/gen_combined_bl1_romlib.sh -o bl1_romlib.bin $(BUILD_PLAT)
 
 # Errata workarounds for Cortex-A53:

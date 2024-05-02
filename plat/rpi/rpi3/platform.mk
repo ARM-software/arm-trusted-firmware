@@ -73,13 +73,13 @@ all: armstub
 # This target concatenates BL1 and the FIP so that the base addresses match the
 # ones defined in the memory map
 armstub: bl1 fip
-	@echo "  CAT     $@"
-	${Q}cp ${BUILD_PLAT}/bl1.bin ${RPI3_BL1_PAD_BIN}
-	${Q}truncate --size=131072 ${RPI3_BL1_PAD_BIN}
-	${Q}cat ${RPI3_BL1_PAD_BIN} ${BUILD_PLAT}/fip.bin > ${RPI3_ARMSTUB8_BIN}
-	@${ECHO_BLANK_LINE}
-	@echo "Built $@ successfully"
-	@${ECHO_BLANK_LINE}
+	$(s)echo "  CAT     $@"
+	$(q)cp ${BUILD_PLAT}/bl1.bin ${RPI3_BL1_PAD_BIN}
+	$(q)truncate --size=131072 ${RPI3_BL1_PAD_BIN}
+	$(q)cat ${RPI3_BL1_PAD_BIN} ${BUILD_PLAT}/fip.bin > ${RPI3_ARMSTUB8_BIN}
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo
 
 # Build config flags
 # ------------------
@@ -213,11 +213,11 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     certificates: $(ROT_KEY)
 
     $(ROT_KEY): | $(BUILD_PLAT)
-	@echo "  OPENSSL $@"
-	$(Q)${OPENSSL_BIN_PATH}/openssl genrsa 2048 > $@ 2>/dev/null
+	$(s)echo "  OPENSSL $@"
+	$(q)${OPENSSL_BIN_PATH}/openssl genrsa 2048 > $@ 2>/dev/null
 
     $(ROTPK_HASH): $(ROT_KEY)
-	@echo "  OPENSSL $@"
-	$(Q)${OPENSSL_BIN_PATH}/openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
+	$(s)echo "  OPENSSL $@"
+	$(q)${OPENSSL_BIN_PATH}/openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
 	${OPENSSL_BIN_PATH}/openssl dgst -sha256 -binary > $@ 2>/dev/null
 endif

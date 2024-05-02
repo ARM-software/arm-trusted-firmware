@@ -1,6 +1,6 @@
 #
 # Copyright 2018-2020 NXP
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -73,7 +73,7 @@ endif
 ifeq (${FUSE_PROV_FILE},)
 else
 ${BUILD_PLAT}/${FUSE_PROV_FILE_SB}: ${FUSE_PROV_FILE}
-	@echo " Generating CSF Header for $@ $<"
+	$(s)echo " Generating CSF Header for $@ $<"
 	$(CST_DIR)/create_hdr_esbc --in $< --out $@ --app_off ${CSF_HDR_SZ} \
 					--app $< ${FUSE_INPUT_FILE}
 endif
@@ -81,7 +81,7 @@ endif
 ifeq (${FUSE_UP_FILE},)
 else
 ${BUILD_PLAT}/${FUSE_UP_FILE_SB}: ${FUSE_UP_FILE}
-	@echo " Generating CSF Header for $@ $<"
+	$(s)echo " Generating CSF Header for $@ $<"
 	$(CST_DIR)/create_hdr_esbc --in $< --out $@ --app_off ${CSF_HDR_SZ} \
 					--app $< ${FUSE_INPUT_FILE}
 endif
@@ -94,6 +94,6 @@ ifeq (${FUSE_FIP_DEPS},)
 endif
 	${FIPTOOL} create ${FUSE_FIP_ARGS} $@
 	${FIPTOOL} info $@
-	@${ECHO_BLANK_LINE}
-	@echo "Built $@ successfully"
-	@${ECHO_BLANK_LINE}
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo

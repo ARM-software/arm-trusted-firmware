@@ -148,8 +148,8 @@ endef
 #   $(2) = output encrypted firmware binary
 define ENCRYPT_FW
 $(2): $(1) enctool
-	$$(ECHO) "  ENC     $$<"
-	$$(Q)$$(ENCTOOL) $$(ENC_ARGS) -i $$< -o $$@
+	$$(s)echo "  ENC     $$<"
+	$$(q)$$(ENCTOOL) $$(ENC_ARGS) -i $$< -o $$@
 endef
 
 # TOOL_ADD_PAYLOAD appends the command line arguments required by fiptool to
@@ -267,8 +267,8 @@ endef
 # GZIP
 define GZIP_RULE
 $(1): $(2)
-	$(ECHO) "  GZIP    $$@"
-	$(Q)gzip -n -f -9 $$< --stdout > $$@
+	$(s)echo "  GZIP    $$@"
+	$(q)gzip -n -f -9 $$< --stdout > $$@
 endef
 
 GZIP_SUFFIX := .gz
@@ -290,8 +290,8 @@ $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval LIB := $(call uppercase, $(notdir $(1))))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
-	$$(ECHO) "  CC      $$<"
-	$$(Q)$($(ARCH)-cc) $$($(LIB)_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(MAKE_DEP) -c $$< -o $$@
+	$$(s)echo "  CC      $$<"
+	$$(q)$($(ARCH)-cc) $$($(LIB)_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -306,8 +306,8 @@ $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
-	$$(ECHO) "  AS      $$<"
-	$$(Q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
+	$$(s)echo "  AS      $$<"
+	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -329,8 +329,8 @@ $(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) $(addprefix -D,$(BL_DEF
 $(eval BL_CFLAGS := $($(call uppercase,$(3))_CFLAGS) $(PLAT_BL_COMMON_CFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
-	$$(ECHO) "  CC      $$<"
-	$$(Q)$($(ARCH)-cc) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(MAKE_DEP) -c $$< -o $$@
+	$$(s)echo "  CC      $$<"
+	$$(q)$($(ARCH)-cc) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -352,8 +352,8 @@ $(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) $(addprefix -D,$(BL_DEF
 $(eval BL_ASFLAGS := $($(call uppercase,$(3))_ASFLAGS) $(PLAT_BL_COMMON_ASFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
-	$$(ECHO) "  AS      $$<"
-	$$(Q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
+	$$(s)echo "  AS      $$<"
+	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -373,8 +373,8 @@ $(eval BL_INCLUDE_DIRS := $($(call uppercase,$(3))_INCLUDE_DIRS) $(PLAT_BL_COMMO
 $(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)) $(PLAT_BL_COMMON_CPPFLAGS))
 
 $(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
-	$$(ECHO) "  PP      $$<"
-	$$(Q)$($(ARCH)-cpp) -E $$(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
+	$$(s)echo "  PP      $$<"
+	$$(q)$($(ARCH)-cpp) -E $$(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
 
 -include $(DEP)
 
@@ -466,8 +466,8 @@ endif
 all: ${LIB_DIR}/lib$(1).a
 
 ${LIB_DIR}/lib$(1).a: $(OBJS)
-	$$(ECHO) "  AR      $$@"
-	$$(Q)$($(ARCH)-ar) cr $$@ $$?
+	$$(s)echo "  AR      $$@"
+	$$(q)$($(ARCH)-ar) cr $$@ $$?
 endef
 
 # Generate the path to one or more preprocessed linker scripts given the paths
@@ -540,38 +540,38 @@ endif
 $(eval OBJS += $(MODULE_OBJS))
 
 $(ELF): $(OBJS) $(DEFAULT_LINKER_SCRIPT) $(LINKER_SCRIPTS) | $(1)_dirs libraries $(BL_LIBS)
-	$$(ECHO) "  LD      $$@"
+	$$(s)echo "  LD      $$@"
 ifeq ($($(ARCH)-ld-id),arm-link)
-	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=${1}_entrypoint \
+	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=${1}_entrypoint \
 		--predefine=$(call escape-shell,-D__LINKER__=$(__LINKER__)) \
 		--predefine=$(call escape-shell,-DTF_CFLAGS=$(TF_CFLAGS)) \
 		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/${1}.scat \
 		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) $(OBJS)
 else ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Wl,-Map=$(MAPFILE) \
+	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Wl,-Map=$(MAPFILE) \
 		$(addprefix -Wl$(comma)--script$(comma),$(LINKER_SCRIPTS)) -Wl,--script,$(DEFAULT_LINKER_SCRIPT) \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 else
-	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
+	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) -Map=$(MAPFILE) \
 		$(addprefix -T ,$(LINKER_SCRIPTS)) --script $(DEFAULT_LINKER_SCRIPT) \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 endif
 ifeq ($(DISABLE_BIN_GENERATION),1)
-	@${ECHO_BLANK_LINE}
-	@echo "Built $$@ successfully"
-	@${ECHO_BLANK_LINE}
+	$(s)echo
+	$(s)echo "Built $$@ successfully"
+	$(s)echo
 endif
 
 $(DUMP): $(ELF)
-	$${ECHO} "  OD      $$@"
-	$${Q}$($(ARCH)-od) -dx $$< > $$@
+	$$(s)echo "  OD      $$@"
+	$$(q)$($(ARCH)-od) -dx $$< > $$@
 
 $(BIN): $(ELF)
-	$${ECHO} "  BIN     $$@"
-	$$(Q)$($(ARCH)-oc) -O binary $$< $$@
-	@${ECHO_BLANK_LINE}
-	@echo "Built $$@ successfully"
-	@${ECHO_BLANK_LINE}
+	$$(s)echo "  BIN     $$@"
+	$$(q)$($(ARCH)-oc) -O binary $$< $$@
+	$(s)echo
+	$(s)echo "Built $$@ successfully"
+	$(s)echo
 
 .PHONY: $(1)
 ifeq ($(DISABLE_BIN_GENERATION),1)
@@ -629,13 +629,13 @@ $(eval DTSDEP := $(patsubst %.dtb,%.o.d,$(DOBJ)))
 $(eval DTBDEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
 $(DPRE): $(2) | fdt_dirs
-	$${ECHO} "  CPP     $$<"
+	$$(s)echo "  CPP     $$<"
 	$(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
-	$$(Q)$($(ARCH)-cpp) -E $$(TF_CFLAGS_$(ARCH)) $$(DTC_CPPFLAGS) -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
+	$$(q)$($(ARCH)-cpp) -E $$(TF_CFLAGS_$(ARCH)) $$(DTC_CPPFLAGS) -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
 
 $(DOBJ): $(DPRE) $(filter-out %.d,$(MAKEFILE_LIST)) | fdt_dirs
-	$${ECHO} "  DTC     $$<"
-	$$(Q)$($(ARCH)-dtc) $$(DTC_FLAGS) -d $(DTBDEP) -o $$@ $$<
+	$$(s)echo "  DTC     $$<"
+	$$(q)$($(ARCH)-dtc) $$(DTC_FLAGS) -d $(DTBDEP) -o $$@ $$<
 
 -include $(DTBDEP)
 -include $(DTSDEP)

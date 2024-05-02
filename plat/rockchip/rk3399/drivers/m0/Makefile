@@ -6,6 +6,7 @@
 
 toolchains := rk3399-m0
 
+include ../../../../../make_helpers/common.mk
 include ../../../../../make_helpers/toolchain.mk
 
 # Cross Compile
@@ -17,13 +18,6 @@ ARCH		:= cortex-m0
 # Build platform
 PLAT_M0		?= rk3399m0
 PLAT_M0_PMU	?= rk3399m0pmu
-
-ifeq (${V},0)
-	Q=@
-else
-	Q=
-endif
-export Q
 
 .SUFFIXES:
 
@@ -71,16 +65,16 @@ $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 -include $(patsubst %.o,%.d,$(OBJ))
 
 $(OBJ) : $(2)
-	@echo "  CC      $$<"
-	$$(Q)$(rk3399-m0-cc) $$(COMMON_FLAGS) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
+	$(s)echo "  CC      $$<"
+	$$(q)$(rk3399-m0-cc) $$(COMMON_FLAGS) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
 endef
 
 define MAKE_S
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 
 $(OBJ) : $(2)
-	@echo "  AS      $$<"
-	$$(Q)$(rk3399-m0-cc) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
+	$(s)echo "  AS      $$<"
+	$$(q)$(rk3399-m0-cc) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
 endef
 
 define MAKE_OBJS
@@ -105,16 +99,16 @@ $(LINKERFILE): $(LINKERFILE_SRC)
 -include $(LINKERFILE).d
 
 $(ELF) : $(OBJS) $(OBJS_COMMON) $(LINKERFILE)
-	@echo "  LD      $@"
-	$(Q)$(rk3399-m0-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
+	$(s)echo "  LD      $@"
+	$(q)$(rk3399-m0-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
 
 %.bin : %.elf
-	@echo "  BIN     $@"
-	$(Q)$(rk3399-m0-oc) -O binary $< $@
+	$(s)echo "  BIN     $@"
+	$(q)$(rk3399-m0-oc) -O binary $< $@
 
 $(ELF_PMU) : $(OBJS_COMMON) $(OBJS_PMU) $(LINKERFILE)
-	@echo "  LD      $@"
-	$(Q)$(rk3399-m0-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
+	$(s)echo "  LD      $@"
+	$(q)$(rk3399-m0-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
 
 $(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES_COMMON),$(1)))
 $(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES),$(1)))

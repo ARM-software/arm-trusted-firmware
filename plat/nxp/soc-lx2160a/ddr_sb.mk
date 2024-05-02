@@ -36,7 +36,7 @@ DDR_INPUT_FILE:= drivers/nxp/auth/csf_hdr_parser/${CSF_FILE}
 endif
 
 %.sb: %
-	@echo " Generating CSF Header for $@ $<"
+	$(s)echo " Generating CSF Header for $@ $<"
 	$(CST_DIR)/create_hdr_esbc --in $< --out $@ --app_off ${CSF_HDR_SZ} \
 					--app $< ${DDR_INPUT_FILE}
 

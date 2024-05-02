@@ -84,13 +84,13 @@ endif
 
 $(BUILD_PLAT)/$(BOOT_IMAGE): $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/$(FIP_NAME)
 	$(if $(shell find $(BUILD_PLAT)/bl1.bin -type f -size +128k),$(error "Image '$(BUILD_PLAT)/bl1.bin' is bigger than 128kB"))
-	@cp $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
-	@truncate -s %128K $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
-	@cat $(BUILD_PLAT)/$(FIP_NAME) >> $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
-	@truncate -s %4 $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
-	@$(ECHO_BLANK_LINE)
-	@echo "Built $@ successfully"
-	@$(ECHO_BLANK_LINE)
+	$(q)cp $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	$(q)truncate -s %128K $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	$(q)cat $(BUILD_PLAT)/$(FIP_NAME) >> $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	$(q)truncate -s %4 $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo
 
 .PHONY: mrvl_bootimage
 mrvl_bootimage: $(BUILD_PLAT)/$(BOOT_IMAGE)

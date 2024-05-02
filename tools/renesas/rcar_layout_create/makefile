@@ -6,6 +6,7 @@
 
 toolchains := aarch64
 
+include ../../../make_helpers/common.mk
 include ../../../make_helpers/toolchain.mk
 
 ###################################################

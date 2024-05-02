@@ -131,14 +131,14 @@ $(BUILD_PLAT)/bl2/imx8mp_rotpk.o: $(ROTPK_HASH)
 certificates: $(ROT_KEY)
 
 $(ROT_KEY): | $(BUILD_PLAT)
-	@echo "  OPENSSL $@"
-	@if [ ! -f $(ROT_KEY) ]; then \
+	$(s)echo "  OPENSSL $@"
+	$(q)if [ ! -f $(ROT_KEY) ]; then \
 		${OPENSSL_BIN_PATH}/openssl genrsa 2048 > $@ 2>/dev/null; \
 	fi
 
 $(ROTPK_HASH): $(ROT_KEY)
-	@echo "  OPENSSL $@"
-	$(Q)${OPENSSL_BIN_PATH}/openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
+	$(s)echo "  OPENSSL $@"
+	$(q)${OPENSSL_BIN_PATH}/openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
 	${OPENSSL_BIN_PATH}/openssl dgst -sha256 -binary > $@ 2>/dev/null
 endif
 

@@ -6,6 +6,7 @@
 
 toolchains := host
 
+include ../../../make_helpers/common.mk
 include ../../../make_helpers/toolchain.mk
 
 PROJECT = doimage
@@ -36,16 +37,16 @@ RM := rm -rf
 all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
-	@echo "  HOSTLD  $@"
-	${Q}$(host-cc) ${OBJECTS} ${DOIMAGE_LD_FLAGS} -o $@
-	@echo
-	@echo "Built $@ successfully"
-	@echo
+	$(s)echo "  HOSTLD  $@"
+	$(q)$(host-cc) ${OBJECTS} ${DOIMAGE_LD_FLAGS} -o $@
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo
 
 %.o: %.c Makefile
-	@echo "  HOSTCC  $<"
-	${Q}$(host-cc) -c ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
+	$(s)echo "  HOSTCC  $<"
+	$(q)$(host-cc) -c ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
-	${Q}${RM} ${PROJECT}
-	${Q}${RM} ${OBJECTS}
+	$(q)${RM} ${PROJECT}
+	$(q)${RM} ${OBJECTS}

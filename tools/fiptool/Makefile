@@ -9,13 +9,13 @@ toolchains := host
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
+include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
 FIPTOOL ?= fiptool${BIN_EXT}
 PROJECT := $(notdir ${FIPTOOL})
 OBJECTS := fiptool.o tbbr_config.o
-V ?= 0
 STATIC ?= 0
 
 override CPPFLAGS += -D_GNU_SOURCE -D_XOPEN_SOURCE=700
@@ -55,12 +55,6 @@ endif # STATIC
 
 HOSTCCFLAGS += ${DEFINES}
 
-ifeq (${V},0)
-  Q := @
-else
-  Q :=
-endif
-
 ifneq (${PLAT},)
 TF_PLATFORM_ROOT	:=	../../plat/
 include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
@@ -81,22 +75,22 @@ DEPS := $(patsubst %.o,%.d,$(OBJECTS))
 all: --openssl ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
-	@echo "  HOSTLD  $@"
-	${Q}$(host-cc) ${OBJECTS} -o $@ $(LDOPTS)
-	@${ECHO_BLANK_LINE}
-	@echo "Built $@ successfully"
-	@${ECHO_BLANK_LINE}
+	$(s)echo "  HOSTLD  $@"
+	$(q)$(host-cc) ${OBJECTS} -o $@ $(LDOPTS)
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo
 
 %.o: %.c Makefile
-	@echo "  HOSTCC  $<"
-	${Q}$(host-cc) -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} -MD -MP $< -o $@
+	$(s)echo "  HOSTCC  $<"
+	$(q)$(host-cc) -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} -MD -MP $< -o $@
 
 -include $(DEPS)
 
 --openssl:
 ifeq ($(STATIC),0)
 ifeq ($(DEBUG),1)
-	@echo "Selected OpenSSL version: ${OPENSSL_CURRENT_VER}"
+	$(s)echo "Selected OpenSSL version: ${OPENSSL_CURRENT_VER}"
 endif
 endif # STATIC
 

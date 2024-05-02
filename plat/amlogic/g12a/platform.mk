@@ -81,10 +81,10 @@ all: ${BUILD_PLAT}/bl31.img
 distclean realclean clean: cleanimage
 
 cleanimage:
-	${Q}${MAKE} -C ${DOIMAGEPATH} clean
+	$(q)${MAKE} -C ${DOIMAGEPATH} clean
 
 ${DOIMAGETOOL}:
-	${Q}${MAKE} -C ${DOIMAGEPATH}
+	$(q)${MAKE} -C ${DOIMAGEPATH}
 
 ${BUILD_PLAT}/bl31.img: ${BUILD_PLAT}/bl31.bin ${DOIMAGETOOL}
 	${DOIMAGETOOL} ${BUILD_PLAT}/bl31.bin ${BUILD_PLAT}/bl31.img
