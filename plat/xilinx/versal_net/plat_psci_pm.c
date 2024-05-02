@@ -63,6 +63,10 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
+	if (!proc) {
+		return;
+	}
+
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
@@ -143,6 +147,10 @@ static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
+	if (!proc) {
+		return;
+	}
+
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
@@ -185,6 +193,10 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 {
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
+
+	if (!proc) {
+		return;
+	}
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",

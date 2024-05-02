@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,7 +42,11 @@ static int32_t zynqmp_pwr_domain_on(u_register_t mpidr)
 	if (cpu_id == -1) {
 		return PSCI_E_INTERN_FAIL;
 	}
+
 	proc = pm_get_proc(cpu_id);
+	if (!proc) {
+		return PSCI_E_INTERN_FAIL;
+	}
 
 	/* Check the APU proc status before wakeup */
 	ret = pm_get_node_status(proc->node_id, buff);
@@ -63,6 +67,10 @@ static void zynqmp_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
+
+	if (!proc) {
+		return;
+	}
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
@@ -88,6 +96,10 @@ static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint32_t state;
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
+
+	if (!proc) {
+		return;
+	}
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
@@ -120,6 +132,10 @@ static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_st
 {
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
+
+	if (!proc) {
+		return;
+	}
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
