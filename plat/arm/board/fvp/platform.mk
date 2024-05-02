@@ -323,10 +323,6 @@ else
 BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
 endif
 
-ifeq (${TRANSFER_LIST}, 1)
-include lib/transfer_list/transfer_list.mk
-endif
-
 # Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
 ifdef UNIX_MK
 FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
@@ -384,6 +380,17 @@ endif
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config,${FVP_TB_FW_CONFIG}))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config,${FVP_HW_CONFIG}))
+endif
+
+ifeq (${TRANSFER_LIST}, 1)
+include lib/transfer_list/transfer_list.mk
+
+ifeq ($(RESET_TO_BL31), 1)
+HW_CONFIG			:=	${FVP_HW_CONFIG}
+FW_HANDOFF_SIZE		:=	20000
+
+$(eval $(call add_define,ARM_PRELOADED_DTB_OFFSET))
+endif
 endif
 
 # Enable dynamic mitigation support by default

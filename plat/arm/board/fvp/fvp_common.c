@@ -210,7 +210,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef MAP_FW_NS_HANDOFF
 	MAP_FW_NS_HANDOFF,
 #endif
-#ifdef MAP_EL3_FW_HANDOFF
+#if defined(MAP_EL3_FW_HANDOFF) && !RESET_TO_BL31
 	MAP_EL3_FW_HANDOFF,
 #endif
 	{ 0 }
