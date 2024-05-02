@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,7 +31,6 @@ extern const struct pm_proc *primary_proc;
 
 #if defined(PLAT_zynqmp)
 enum pm_ret_status pm_set_suspend_mode(uint32_t mode);
-const struct pm_proc *pm_get_proc_by_node(enum pm_node_id nid);
 #endif /* PLAT_zynqmp */
 
 #endif /* PM_CLIENT_H */
