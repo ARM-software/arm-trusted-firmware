@@ -14,7 +14,6 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/fdt_fixup.h>
-#include <common/fdt_wrappers.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
