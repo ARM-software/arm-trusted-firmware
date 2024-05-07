@@ -5,6 +5,7 @@
  */
 
 #include <arch_helpers.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <drivers/arm/css/sds.h>
@@ -142,7 +143,7 @@ static int plat_morello_append_config_node(struct morello_plat_info *plat_info,
 		return -1;
 	}
 
-	err = fdt_setprop_string(fdt, nodeoffset_fw, "tfa-fw-version", version_string);
+	err = fdt_setprop_string(fdt, nodeoffset_fw, "tfa-fw-version", build_version_string);
 	if (err < 0) {
 		WARN("NT_FW_CONFIG: Unable to set tfa-fw-version\n");
 	}

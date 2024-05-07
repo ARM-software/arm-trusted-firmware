@@ -12,6 +12,7 @@
 #include <arch_helpers.h>
 #include <bl32/tsp/tsp.h>
 #include <common/bl_common.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <lib/spinlock.h>
 #include <plat/common/platform.h>
@@ -27,7 +28,7 @@
  ******************************************************************************/
 uint64_t tsp_main(void)
 {
-	NOTICE("TSP: %s\n", version_string);
+	NOTICE("TSP: %s\n", build_version_string);
 	NOTICE("TSP: %s\n", build_message);
 	INFO("TSP: Total memory base : 0x%lx\n", (unsigned long) BL32_BASE);
 	INFO("TSP: Total memory size : 0x%lx bytes\n", BL32_TOTAL_SIZE);

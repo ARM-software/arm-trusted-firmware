@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -180,8 +180,6 @@ int load_auth_image(unsigned int image_id, image_info_t *image_data);
 void dyn_disable_auth(void);
 #endif
 
-extern const char build_message[];
-extern const char version_string[];
 const char *get_version(void);
 
 void print_entry_point_info(const entry_point_info_t *ep_info);

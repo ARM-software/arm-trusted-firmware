@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <drivers/auth/auth_mod.h>
 #include <drivers/io/io_storage.h>
@@ -275,6 +276,5 @@ void print_entry_point_info(const entry_point_info_t *ep_info)
  */
 const char *get_version(void)
 {
-	extern const char version[];
-	return version;
+	return build_version;
 }

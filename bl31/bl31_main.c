@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <bl31/bl31.h>
 #include <bl31/ehf.h>
 #include <common/bl_common.h>
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <common/feat_detect.h>
 #include <common/runtime_svc.h>
@@ -128,7 +129,7 @@ void bl31_main(void)
 	/* Init per-world context registers for non-secure world */
 	manage_extensions_nonsecure_per_world();
 
-	NOTICE("BL31: %s\n", version_string);
+	NOTICE("BL31: %s\n", build_version_string);
 	NOTICE("BL31: %s\n", build_message);
 
 #if FEATURE_DETECTION

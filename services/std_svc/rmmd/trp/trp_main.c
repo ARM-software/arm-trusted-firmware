@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/build_message.h>
 #include <common/debug.h>
 #include <plat/common/platform.h>
 #include <services/rmm_core_manifest.h>
@@ -86,7 +87,7 @@ int trp_validate_warmboot_args(uint64_t x0, uint64_t x1,
 /* Main function for TRP */
 void trp_main(void)
 {
-	NOTICE("TRP: %s\n", version_string);
+	NOTICE("TRP: %s\n", build_version_string);
 	NOTICE("TRP: %s\n", build_message);
 	NOTICE("TRP: Supported RMM-EL3 Interface ABI: v.%u.%u\n",
 		TRP_RMM_EL3_ABI_VERS_MAJOR, TRP_RMM_EL3_ABI_VERS_MINOR);
