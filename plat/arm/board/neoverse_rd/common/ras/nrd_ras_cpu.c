@@ -92,7 +92,7 @@ static void populate_cpu_err_data(cpu_err_info *cpu_info,
 	cpu_info->ErrCtxEl1Reg[16] = read_el1_ctx_common(get_el1_sysregs_ctx(ctx),
 						  ttbr1_el1);
 
-#if CTX_INCLUDE_EL2_REGS
+#if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
 	cpu_info->ErrCtxEl2Reg[0]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
 						elr_el2);
 	cpu_info->ErrCtxEl2Reg[1]   = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
@@ -125,7 +125,7 @@ static void populate_cpu_err_data(cpu_err_info *cpu_info,
 						vttbr_el2);
 	cpu_info->ErrCtxEl2Reg[15]  = read_el2_ctx_common(get_el2_sysregs_ctx(ctx),
 						esr_el2);
-#endif /* CTX_INCLUDE_EL2_REGS */
+#endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
 
 	cpu_info->ErrCtxEl3Reg[0]   = read_ctx_reg(get_el3state_ctx(ctx),
 						   CTX_ELR_EL3);
