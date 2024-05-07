@@ -68,6 +68,9 @@ $(eval $(call add_defines, \
 
 CSS_LOAD_SCP_IMAGES	:=	1
 
+# Save DSU PMU registers on cluster off and restore them on cluster on
+PRESERVE_DSU_PMU_REGS		:= 1
+
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
@@ -128,6 +131,7 @@ BL31_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				${TC_BASE}/tc_topology.c	\
 				lib/fconf/fconf.c			\
 				lib/fconf/fconf_dyn_cfg_getter.c	\
+				drivers/arm/css/dsu/dsu.c			\
 				drivers/cfi/v2m/v2m_flash.c		\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c	\
