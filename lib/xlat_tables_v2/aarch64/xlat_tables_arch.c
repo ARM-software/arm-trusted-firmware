@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,19 +22,14 @@
  */
 bool xlat_arch_is_granule_size_supported(size_t size)
 {
-	unsigned int tgranx;
-
 	if (size == PAGE_SIZE_4KB) {
-		tgranx = read_id_aa64mmfr0_el0_tgran4_field();
 		/* MSB of TGRAN4 field will be '1' for unsupported feature */
-		return (tgranx < 8U);
+		return is_feat_tgran4K_present();
 	} else if (size == PAGE_SIZE_16KB) {
-		tgranx = read_id_aa64mmfr0_el0_tgran16_field();
-		return (tgranx >= ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED);
+		return is_feat_tgran16K_present();
 	} else if (size == PAGE_SIZE_64KB) {
-		tgranx = read_id_aa64mmfr0_el0_tgran64_field();
 		/* MSB of TGRAN64 field will be '1' for unsupported feature */
-		return (tgranx < 8U);
+		return is_feat_tgran64K_present();
 	} else {
 		return false;
 	}
@@ -135,7 +130,7 @@ uintptr_t xlat_get_min_virt_addr_space_size(void)
 {
 	uintptr_t ret;
 
-	if (is_armv8_4_ttst_present())
+	if (is_feat_ttst_present())
 		ret = MIN_VIRT_ADDR_SPACE_SIZE_TTST;
 	else
 		ret = MIN_VIRT_ADDR_SPACE_SIZE;
@@ -312,7 +307,7 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	/* Set TTBR bits as well */
 	ttbr0 = (uint64_t) base_table;
 
-	if (is_armv8_2_ttcnp_present()) {
+	if (is_feat_ttcnp_present()) {
 		/* Enable CnP bit so as to share page tables with all PEs. */
 		ttbr0 |= TTBR_CNP_BIT;
 	}

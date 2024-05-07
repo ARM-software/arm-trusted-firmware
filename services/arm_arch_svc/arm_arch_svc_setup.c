@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,7 +54,7 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		 * If architectural SSBS is available on this PE, no firmware
 		 * mitigation via SMCCC_ARCH_WORKAROUND_2 is required.
 		 */
-		if (ssbs != SSBS_UNAVAILABLE)
+		if (ssbs != SSBS_NOT_IMPLEMENTED)
 			return 1;
 
 		/*

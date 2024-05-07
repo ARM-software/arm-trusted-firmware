@@ -217,7 +217,7 @@ void arm_bl2_plat_arch_setup(void)
 #ifdef __aarch64__
 #if ENABLE_RME
 	/* BL2 runs in EL3 when RME enabled. */
-	assert(get_armv9_2_feat_rme_support() != 0U);
+	assert(is_feat_rme_present());
 	enable_mmu_el3(0);
 
 	/* Initialise and enable granule protection after MMU. */

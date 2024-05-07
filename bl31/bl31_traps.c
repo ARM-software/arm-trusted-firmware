@@ -36,7 +36,7 @@ static bool is_tge_enabled(void)
 {
 	u_register_t hcr_el2 = read_hcr_el2();
 
-	return ((read_feat_vhe_id_field() != 0U) && ((hcr_el2 & HCR_TGE_BIT) != 0U));
+	return ((is_feat_vhe_present()) && ((hcr_el2 & HCR_TGE_BIT) != 0U));
 }
 
 /*
@@ -116,7 +116,7 @@ u_register_t create_spsr(u_register_t old_spsr, unsigned int target_el)
 
 	/* If FEAT_BTI is present, clear BTYPE bits */
 	new_spsr |= old_spsr & (SPSR_BTYPE_MASK_AARCH64 << SPSR_BTYPE_SHIFT_AARCH64);
-	if (is_armv8_5_bti_present()) {
+	if (is_feat_bti_present()) {
 		new_spsr &= ~(SPSR_BTYPE_MASK_AARCH64 << SPSR_BTYPE_SHIFT_AARCH64);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -214,7 +214,7 @@ uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 			/* Set GP bit for block and page code entries
 			 * if BTI mechanism is implemented.
 			 */
-			if (is_armv8_5_bti_present() &&
+			if (is_feat_bti_present() &&
 			   ((attr & (MT_TYPE_MASK | MT_RW |
 				MT_EXECUTE_NEVER)) == MT_CODE)) {
 				desc |= GP;

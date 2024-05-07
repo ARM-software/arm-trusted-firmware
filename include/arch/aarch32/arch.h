@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -111,18 +111,18 @@
 #define ID_DFR0_PERFMON_PMUV3P5		U(6)
 #define ID_DFR0_COPTRC_SHIFT		U(12)
 #define ID_DFR0_COPTRC_MASK		U(0xf)
-#define ID_DFR0_COPTRC_SUPPORTED	U(1)
+#define COPTRC_IMPLEMENTED		U(1)
 #define ID_DFR0_COPTRC_LENGTH		U(4)
 #define ID_DFR0_TRACEFILT_SHIFT		U(28)
 #define ID_DFR0_TRACEFILT_MASK		U(0xf)
-#define ID_DFR0_TRACEFILT_SUPPORTED	U(1)
+#define TRACEFILT_IMPLEMENTED		U(1)
 #define ID_DFR0_TRACEFILT_LENGTH	U(4)
 
 /* ID_DFR1_EL1 definitions */
 #define ID_DFR1_MTPMU_SHIFT	U(0)
 #define ID_DFR1_MTPMU_MASK	U(0xf)
-#define ID_DFR1_MTPMU_SUPPORTED	U(1)
-#define ID_DFR1_MTPMU_DISABLED	U(15)
+#define MTPMU_IMPLEMENTED	U(1)
+#define MTPMU_NOT_IMPLEMENTED	U(15)
 
 /* ID_MMFR3 definitions */
 #define ID_MMFR3_PAN_SHIFT	U(16)
@@ -141,14 +141,13 @@
 #define ID_PFR0_AMU_SHIFT	U(20)
 #define ID_PFR0_AMU_LENGTH	U(4)
 #define ID_PFR0_AMU_MASK	U(0xf)
-#define ID_PFR0_AMU_NOT_SUPPORTED	U(0x0)
 #define ID_PFR0_AMU_V1		U(0x1)
 #define ID_PFR0_AMU_V1P1	U(0x2)
 
 #define ID_PFR0_DIT_SHIFT	U(24)
 #define ID_PFR0_DIT_LENGTH	U(4)
 #define ID_PFR0_DIT_MASK	U(0xf)
-#define ID_PFR0_DIT_SUPPORTED	(U(1) << ID_PFR0_DIT_SHIFT)
+#define DIT_IMPLEMENTED		(U(1) << ID_PFR0_DIT_SHIFT)
 
 /* ID_PFR1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
@@ -166,7 +165,7 @@
 /* ID_PFR2 definitions */
 #define ID_PFR2_SSBS_SHIFT	U(4)
 #define ID_PFR2_SSBS_MASK	U(0xf)
-#define SSBS_UNAVAILABLE	U(0)
+#define SSBS_NOT_IMPLEMENTED	U(0)
 
 /* SCTLR definitions */
 #define SCTLR_RES1_DEF		((U(1) << 23) | (U(1) << 22) | (U(1) << 4) | \
