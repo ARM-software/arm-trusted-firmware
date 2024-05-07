@@ -168,7 +168,7 @@ int mailbox_read_response(unsigned int *job_id, uint32_t *response,
 		}
 
 		if (MBOX_RESP_ERR(resp_data) > 0U) {
-			INFO("Error in response: %x\n", resp_data);
+			INFO("SDM response: Return Code: 0x%x\n", MBOX_RESP_ERR(resp_data));
 			return -MBOX_RESP_ERR(resp_data);
 		}
 
@@ -337,7 +337,7 @@ int mailbox_poll_response(uint32_t job_id, uint32_t urgent, uint32_t *response,
 			}
 
 			if (MBOX_RESP_ERR(resp_data) > 0U) {
-				INFO("Error in response: %x\n", resp_data);
+				INFO("SDM response: Return Code: 0x%x\n", MBOX_RESP_ERR(resp_data));
 				return -MBOX_RESP_ERR(resp_data);
 			}
 
