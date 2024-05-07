@@ -109,6 +109,11 @@ endfunc neoverse_v2_core_pwr_dwn
 cpu_reset_func_start neoverse_v2
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+
+#if NEOVERSE_Vx_EXTERNAL_LLC
+	/* Some systems may have External LLC, core needs to be made aware */
+	sysreg_bit_set NEOVERSE_V2_CPUECTLR_EL1, NEOVERSE_V2_CPUECTLR_EL1_EXTLLC_BIT
+#endif
 cpu_reset_func_end neoverse_v2
 
 errata_report_shim neoverse_v2
