@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,12 +79,8 @@ int arm_validate_power_state(unsigned int power_state,
 	 *  search if the number of entries justify the additional complexity.
 	 */
 	for (i = 0; !!arm_pm_idle_states[i]; i++) {
-#if PSCI_OS_INIT_MODE
 		if ((power_state & ~ARM_LAST_AT_PLVL_MASK) ==
 					arm_pm_idle_states[i])
-#else
-		if (power_state == arm_pm_idle_states[i])
-#endif /* __PSCI_OS_INIT_MODE__ */
 			break;
 	}
 
