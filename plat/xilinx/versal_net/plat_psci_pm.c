@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -38,7 +38,7 @@ static int32_t versal_net_pwr_domain_on(u_register_t mpidr)
 	}
 
 	proc = pm_get_proc(cpu_id);
-	if (!proc) {
+	if (proc == NULL) {
 		return PSCI_E_INTERN_FAIL;
 	}
 
@@ -63,7 +63,7 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	if (!proc) {
+	if (proc == NULL) {
 		return;
 	}
 
@@ -147,7 +147,7 @@ static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	if (!proc) {
+	if (proc == NULL) {
 		return;
 	}
 
@@ -194,7 +194,7 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	if (!proc) {
+	if (proc == NULL) {
 		return;
 	}
 
