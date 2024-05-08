@@ -1,0 +1,219 @@
+/*
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/dts-v1/;
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <platform_def.h>
+
+#if TARGET_FLAVOUR_FVP
+#define LIT_CAPACITY			406
+#define MID_CAPACITY			912
+#else /* TARGET_FLAVOUR_FPGA */
+#define LIT_CAPACITY			280
+#define MID_CAPACITY			775
+/* this is an area optimized configuration of the big core */
+#define BIG2_CAPACITY			930
+#endif /* TARGET_FLAVOUR_FPGA */
+#define BIG_CAPACITY			1024
+
+#define INT_MBOX_RX			317
+#define MHU_TX_ADDR			45000000 /* hex */
+#define MHU_RX_ADDR			45010000 /* hex */
+#define MPAM_ADDR			0x1 0x00010000 /* 0x1_0001_0000 */
+#define UARTCLK_FREQ			5000000
+
+#define DPU_ADDR			2cc00000
+#define DPU_IRQ				69
+
+#include "tc-common.dtsi"
+#if TARGET_FLAVOUR_FVP
+#include "tc-fvp.dtsi"
+#else
+#include "tc-fpga.dtsi"
+#endif /* TARGET_FLAVOUR_FVP */
+#include "tc-base.dtsi"
+
+/ {
+	cpus {
+#if TARGET_FLAVOUR_FPGA
+		cpu-map {
+			cluster0 {
+				core8 {
+					cpu = <&CPU8>;
+				};
+				core9 {
+					cpu = <&CPU9>;
+				};
+				core10 {
+					cpu = <&CPU10>;
+				};
+				core11 {
+					cpu = <&CPU11>;
+				};
+				core12 {
+					cpu = <&CPU12>;
+				};
+				core13 {
+					cpu = <&CPU13>;
+				};
+			};
+		};
+#endif
+
+		CPU2:cpu@200 {
+			clocks = <&scmi_dvfs 0>;
+			capacity-dmips-mhz = <LIT_CAPACITY>;
+		};
+
+		CPU3:cpu@300 {
+			clocks = <&scmi_dvfs 0>;
+			capacity-dmips-mhz = <LIT_CAPACITY>;
+		};
+
+		CPU6:cpu@600 {
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+		};
+
+		CPU7:cpu@700 {
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+		};
+
+#if TARGET_FLAVOUR_FPGA
+		CPU8:cpu@800 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x800>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 1>;
+			capacity-dmips-mhz = <MID_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU9:cpu@900 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x900>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG2_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU10:cpu@A00 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0xA00>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG2_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU11:cpu@B00 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0xB00>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 2>;
+			capacity-dmips-mhz = <BIG2_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU12:cpu@C00 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0xC00>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 3>;
+			capacity-dmips-mhz = <BIG_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+
+		CPU13:cpu@D00 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0xD00>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 3>;
+			capacity-dmips-mhz = <BIG_CAPACITY>;
+			amu = <&amu>;
+			supports-mpmm;
+		};
+#endif
+	};
+
+#if TARGET_FLAVOUR_FPGA
+	ete8 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU8>;
+	};
+
+	ete9 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU9>;
+	};
+
+	ete10 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU10>;
+	};
+
+	ete11 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU11>;
+	};
+
+	ete12 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU12>;
+	};
+
+	ete13 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU13>;
+	};
+#endif /* TARGET_FLAVOUR_FPGA */
+
+	cpu-pmu {
+#if TARGET_FLAVOUR_FPGA
+		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
+				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>,
+				     <&CPU8>,  <&CPU9>,  <&CPU10>, <&CPU11>,
+				     <&CPU12>, <&CPU13>;
+#else
+		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
+				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>;
+#endif
+	};
+
+	cmn-pmu {
+		compatible = "arm,ci-700";
+		reg = <0x0 0x50000000 0x0 0x10000000>;
+		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	mbox_db_rx: mhu@MHU_RX_ADDR {
+		arm,mhuv2-protocols = <0 1>;
+	};
+
+	mbox_db_tx: mhu@MHU_TX_ADDR {
+		arm,mhuv2-protocols = <0 1>;
+	};
+
+	dp0: display@DPU_ADDR {
+#if TC_SCMI_PD_CTRL_EN
+		power-domains = <&scmi_devpd (PLAT_MAX_CPUS_PER_CLUSTER + 2)>;
+#endif
+	};
+};

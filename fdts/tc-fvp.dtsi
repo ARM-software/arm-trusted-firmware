@@ -4,7 +4,34 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define GIC_CTRL_ADDR		2c010000
+#define GIC_GICR_OFFSET		0x200000
+#define UART_OFFSET		0x1000
+#define VENCODER_TIMING_CLK 25175000
+#define VENCODER_TIMING								\
+	clock-frequency = <VENCODER_TIMING_CLK>;				\
+	hactive = <640>;							\
+	vactive = <480>;							\
+	hfront-porch = <16>;							\
+	hback-porch = <48>;							\
+	hsync-len = <96>;							\
+	vfront-porch = <10>;							\
+	vback-porch = <33>;							\
+	vsync-len = <2>
+
 / {
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	ethernet: ethernet@18000000 {
+		compatible = "smsc,lan91c111";
+	};
+
+	mmci: mmci@1c050000 {
+		cd-gpios = <&sysreg 0 0>;
+	};
+
 	rtc@1c170000 {
 		compatible = "arm,pl031", "arm,primecell";
 		reg = <0x0 0x1C170000 0x0 0x1000>;

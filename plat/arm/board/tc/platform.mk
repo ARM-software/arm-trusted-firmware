@@ -163,7 +163,7 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TC_TOS_FW_CONFIG},--tos-fw-config,${TC_TOS_FW_C
 endif
 
 #Device tree
-TC_HW_CONFIG_DTS	:=	fdts/tc.dts
+TC_HW_CONFIG_DTS	:=	fdts/${PLAT}${TARGET_PLATFORM}.dts
 TC_HW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
 FDT_SOURCES		+=	${TC_HW_CONFIG_DTS}
 $(eval TC_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(TC_HW_CONFIG_DTS)))
