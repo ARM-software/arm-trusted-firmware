@@ -1,5 +1,5 @@
 #
-# Copyright 2021 NXP
+# Copyright 2021-2024 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -28,7 +28,12 @@ ifeq ($(CONSOLE), PL011)
 CONSOLE_SOURCES		:=	drivers/arm/pl011/aarch64/pl011_console.S	\
 				${PLAT_DRIVERS_PATH}/console/console_pl011.c
 else
+ifeq ($(CONSOLE), LINFLEX)
+CONSOLE_SOURCES		:=	${PLAT_DRIVERS_PATH}/console/linflex_console.S
+else
 	$(error -> CONSOLE not set!)
+endif
+
 endif
 endif
 

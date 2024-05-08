@@ -1,0 +1,99 @@
+NXP S32G274A
+============
+
+S32G2 is an NXP vehicle network processor combining ASIL D safety, hardware
+security, high-performance real-time and application processing and network
+acceleration. S32G2 supports the needs of new vehicle architectures:
+service-oriented gateways, domain controllers, zonal processors, safety
+processors and more. It is equipped with 4 Cortex-A53 cores operating at
+1.0GHz.
+
+The TF-A includes support for one single S32G2-based board called S32G274ARDB2.
+The S32G-VNP-RDB2 is a compact, highly optimized and integrated board
+engineering for vehicle service-oriented gateway (SoG), domain control
+applications, high-performance processing, safety and security applications.
+More details about this board can be found at `s32g274ardb2`_.
+
+Boot Flow
+---------
+
+::
+
+   BootROM -> BL2 (SRAM) -> BL31 (SRAM) -> BL33 (DDR - TODO)
+
+.. warning::
+   This boot flow is a preliminary version that will serve as a foundation for
+   upcoming S32G2 contributions. The execution will hang after the BL31 stage
+   due to U-Boot being deployed in SRAM instead of DDR. This issue will be
+   resolved with the addition of the DDR driver.
+
+Code Locations
+--------------
+
+- Downstream TF-A:
+  `link: <https://github.com/nxp-auto-linux/arm-trusted-firmware>`__
+
+- Downstream U-Boot:
+  `link <https://github.com/nxp-auto-linux/u-boot>`__
+
+- Downstream Linux:
+  `link <https://github.com/nxp-auto-linux/linux>`__
+
+How to build
+------------
+
+The port currently available on the S32G274ARDB2 platform is in its initial
+stage. This means that important drivers like DDR and storage are not yet
+available. Consequently, the boot process depends on BootROM to load all TF-A
+stages in SRAM. To create a bootable image, the script below should be used.
+This script makes use of the ``mkimage`` tool, which is part of the U-Boot drop
+for S32G274A SoCs.
+
+.. code:: bash
+
+        #!/bin/bash -xe
+        TF_A="${TF_A:-`pwd`}"
+        UBOOT="${UBOOT:-${TF_A}/../u-boot}"
+        DEBUG="${DEBUG:-1}"
+
+        FIP_BASE="0x34100000"
+
+        if [ "${DEBUG}" -eq "1" ]; then
+                BUILD="debug"
+        else
+                BUILD="release"
+        fi
+
+        BOOT_IMAGE="build/s32g274ardb2/${BUILD}/BOOT_IMAGE.bin"
+        BL2_BIN="build/s32g274ardb2/${BUILD}/bl2.bin"
+        FIP_BIN="build/s32g274ardb2/${BUILD}/fip.bin"
+
+        # Generate bl2, bl31 and fip image
+        make -C "${TF_A}" -j9 'PLAT=s32g274ardb2' \
+                BL33="${UBOOT}/u-boot-nodtb.bin" DEBUG="${DEBUG}" clean
+        make -C "${TF_A}" -j9 'PLAT=s32g274ardb2' \
+                BL33="${UBOOT}/u-boot-nodtb.bin" DEBUG="${DEBUG}" bl2
+        make -C "${TF_A}" -j9 'PLAT=s32g274ardb2' \
+                BL33="${UBOOT}/u-boot-nodtb.bin" DEBUG="${DEBUG}" fip
+
+        # Extract BL2 entry
+        BL2_START="0x$(poetry run memory -p s32g274ardb2 -b debug -f | \
+                                grep BL2 | awk -F'|' '{print $3}' | xargs)"
+        # BL2 bin file size in bytes
+        BL2_SIZE="$(stat -c "%s" "${BL2_BIN}")"
+
+        # Pack bl2.bin and fip.bin by ensuring that the FIP image will start at FIP_BASE
+        cp -vf "${BL2_BIN}" "${BOOT_IMAGE}"
+        dd if="${FIP_BIN}" of="${BOOT_IMAGE}" seek="$((FIP_BASE - BL2_START))" bs=1
+
+        # Build a bootable image by appending the IVT
+        "${UBOOT}/tools/mkimage" \
+                -a "${BL2_START}" \
+                -e "${BL2_START}" \
+                -T s32ccimage \
+                -n "${UBOOT}/u-boot-s32.cfgout" \
+                -d "${BOOT_IMAGE}" \
+                fip.s32
+
+.. _s32g2: https://www.nxp.com/products/processors-and-microcontrollers/s32-automotive-platform/s32g-vehicle-network-processors/s32g2-processors-for-vehicle-networking:S32G2
+.. _s32g274ardb2: https://www.nxp.com/design/design-center/designs/s32g2-vehicle-networking-reference-design:S32G-VNP-RDB2

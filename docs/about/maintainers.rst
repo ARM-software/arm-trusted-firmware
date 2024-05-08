@@ -710,6 +710,15 @@ NXP SoC Part LS1088A and its platform port
 :|F|: plat/nxp/soc-ls1088a/ls1088ardb
 :|F|: plat/nxp/soc-ls1088a/ls1088aqds
 
+NXP SoC Part S32G274A and its platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Ghennadi Procopciuc <ghennadi.procopciuc@nxp.com>
+:|G|: `gprocopciucnxp`_
+:|F|: docs/plat/s32g274a.rst
+:|F|: drivers/nxp/console/linflex_console.S
+:|F|: include/drivers/nxp/console/linflex.h
+:|F|: plat/nxp/s32
+
 QEMU platform port
 ^^^^^^^^^^^^^^^^^^
 :|M|: Jens Wiklander <jens.wiklander@linaro.org>
@@ -983,6 +992,7 @@ Conventional Changelog Extensions
 .. _davidvincze: https://github.com/davidvincze
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
+.. _gprocopciucnxp: https://github.com/gprocopciucnxp
 .. _grandpaul: https://github.com/grandpaul
 .. _harrisonmutai-arm: https://github.com/harrisonmutai-arm
 .. _hilamirandakuzi1: https://github.com/hilamirandakuzi1
