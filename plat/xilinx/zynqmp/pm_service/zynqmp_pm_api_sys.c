@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -271,6 +271,11 @@ enum pm_ret_status pm_self_suspend(enum pm_node_id nid,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint32_t cpuid = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpuid);
+
+	if (proc == NULL) {
+		WARN("Failed to get proc %d\n", cpuid);
+		return PM_RET_ERROR_INTERNAL;
+	}
 
 	/*
 	 * Do client specific suspend operations
