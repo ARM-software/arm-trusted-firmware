@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -235,8 +235,6 @@ void brcm_bl31_platform_setup(void)
  ******************************************************************************/
 void brcm_bl31_plat_runtime_setup(void)
 {
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
-
 	/* Initialize the runtime console */
 	bcm_console_runtime_init();
 }

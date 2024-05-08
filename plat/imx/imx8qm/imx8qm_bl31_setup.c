@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -407,9 +407,4 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(unsigned int type)
 unsigned int plat_get_syscnt_freq2(void)
 {
 	return COUNTER_FREQUENCY;
-}
-
-void bl31_plat_runtime_setup(void)
-{
-	return;
 }

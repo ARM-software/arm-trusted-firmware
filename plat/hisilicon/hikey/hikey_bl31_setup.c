@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -148,8 +148,4 @@ void bl31_platform_setup(void)
 
 	hisi_ipc_init();
 	hisi_pwrc_setup();
-}
-
-void bl31_plat_runtime_setup(void)
-{
 }

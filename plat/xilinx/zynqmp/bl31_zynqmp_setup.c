@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -190,8 +190,6 @@ void bl31_plat_runtime_setup(void)
 #endif
 
 	custom_runtime_setup();
-
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*

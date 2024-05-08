@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -116,11 +116,6 @@ void bl31_platform_setup(void)
 
 	/* Init security properties of IP blocks */
 	hisi_tzpc_sec_init();
-}
-
-void bl31_plat_runtime_setup(void)
-{
-	/* do nothing */
 }
 
 void bl31_plat_arch_setup(void)
