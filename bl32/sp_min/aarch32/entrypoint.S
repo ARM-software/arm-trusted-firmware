@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -118,8 +118,7 @@ func sp_min_entrypoint
 	mov	r1, r10
 	mov	r2, r11
 	mov	r3, r12
-	bl	sp_min_early_platform_setup2
-	bl	sp_min_plat_arch_setup
+	bl	sp_min_setup
 
 	/* Jump to the main function */
 	bl	sp_min_main

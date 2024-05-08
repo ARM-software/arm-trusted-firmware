@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,6 +66,9 @@ smc_args_t *set_smc_args(uint64_t arg0,
  ******************************************************************************/
 void tsp_setup(void)
 {
+	/* Enable early console if EARLY_CONSOLE flag is enabled */
+	plat_setup_early_console();
+
 	/* Perform early platform-specific setup. */
 	tsp_early_platform_setup();
 

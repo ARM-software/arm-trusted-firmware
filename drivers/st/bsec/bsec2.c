@@ -166,11 +166,13 @@ static void bsec_late_init(void)
 	struct dt_node_info bsec_info;
 
 	if (fdt_get_address(&fdt) == 0) {
+		EARLY_ERROR("%s: DT not found\n", __func__);
 		panic();
 	}
 
 	node = bsec_get_dt_node(&bsec_info);
 	if (node < 0) {
+		EARLY_ERROR("%s: BSEC node not found\n", __func__);
 		panic();
 	}
 
@@ -226,13 +228,21 @@ static uint32_t bsec_check_error(uint32_t otp, bool check_disturbed)
  */
 uint32_t bsec_probe(void)
 {
+	uint32_t version;
+	uint32_t id;
+
 	if (is_otp_invalid_mode()) {
+		EARLY_ERROR("%s: otp_invalid_mod\n", __func__);
 		return BSEC_ERROR;
 	}
 
-	if (((bsec_get_version() != BSEC_IP_VERSION_1_1) &&
-	     (bsec_get_version() != BSEC_IP_VERSION_2_0)) ||
-	    (bsec_get_id() != BSEC_IP_ID_2)) {
+	version = bsec_get_version();
+	id = bsec_get_id();
+
+	if (((version != BSEC_IP_VERSION_1_1) &&
+	     (version != BSEC_IP_VERSION_2_0)) ||
+	    (id != BSEC_IP_ID_2)) {
+		EARLY_ERROR("%s: version = 0x%x, id = 0x%x\n", __func__, version, id);
 		panic();
 	}
 

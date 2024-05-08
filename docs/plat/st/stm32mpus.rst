@@ -54,8 +54,6 @@ Other configuration flags:
   | Default: stm32mp157c-ev1.dtb
 - | ``DWL_BUFFER_BASE``: the 'serial boot' load address of FIP,
   | default location (end of the first 128MB) is used when absent
-- | ``STM32MP_EARLY_CONSOLE``: to enable early traces before clock driver is setup.
-  | Default: 0 (disabled)
 - | ``STM32MP_RECONFIGURE_CONSOLE``: to re-configure crash console (especially after BL2).
   | Default: 0 (disabled)
 - | ``STM32MP_UART_BAUDRATE``: to select UART baud rate.

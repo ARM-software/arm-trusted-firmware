@@ -44,6 +44,9 @@ uint64_t bl1_apiakey[2];
  ******************************************************************************/
 void bl1_setup(void)
 {
+	/* Enable early console if EARLY_CONSOLE flag is enabled */
+	plat_setup_early_console();
+
 	/* Perform early platform-specific setup */
 	bl1_early_platform_setup();
 
