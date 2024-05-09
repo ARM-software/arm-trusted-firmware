@@ -66,8 +66,8 @@ int debugfs_smc_setup(void);
  */
 #define DEBUGFS_FID_VALUE	(0x10U)
 
-#define is_debugfs_fid(_fid)	\
-	(((_fid) & FUNCID_NUM_MASK) == DEBUGFS_FID_VALUE)
+#define is_debugfs_fid(_fid) \
+	(GET_SMC_NUM(_fid) == DEBUGFS_FID_VALUE)
 
 
 /* Function ID for accessing the debugfs interface from arm sip.
@@ -76,7 +76,7 @@ int debugfs_smc_setup(void);
 #define DEBUGFS_FID_VALUE_DEPRECATED	(0x30U)
 
 #define is_debugfs_fid_deprecated(_fid)	\
-	(((_fid) & FUNCID_NUM_MASK) == DEBUGFS_FID_VALUE_DEPRECATED)
+	(GET_SMC_NUM(_fid) == DEBUGFS_FID_VALUE_DEPRECATED)
 
 
 /* Error code for debugfs SMC interface failures */
