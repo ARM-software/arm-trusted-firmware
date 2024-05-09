@@ -907,10 +907,6 @@ ifeq ($(CTX_INCLUDE_PAUTH_REGS),1)
 	endif
 endif #(CTX_INCLUDE_PAUTH_REGS)
 
-ifeq ($(PSA_FWU_SUPPORT),1)
-        $(info PSA_FWU_SUPPORT is an experimental feature)
-endif #(PSA_FWU_SUPPORT)
-
 ifeq ($(FEATURE_DETECTION),1)
         $(info FEATURE_DETECTION is an experimental feature)
 endif #(FEATURE_DETECTION)
