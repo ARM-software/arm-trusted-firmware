@@ -36,7 +36,7 @@ static int32_t versal_pwr_domain_on(u_register_t mpidr)
 	}
 
 	proc = pm_get_proc((uint32_t)cpu_id);
-	if (!proc) {
+	if (proc == NULL) {
 		return PSCI_E_INTERN_FAIL;
 	}
 
@@ -62,7 +62,7 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	if (!proc) {
+	if (proc == NULL) {
 		return;
 	}
 
@@ -103,7 +103,7 @@ static void versal_pwr_domain_suspend_finish(
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	if (!proc) {
+	if (proc == NULL) {
 		return;
 	}
 
@@ -201,7 +201,7 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	if (!proc) {
+	if (proc == NULL) {
 		return;
 	}
 
