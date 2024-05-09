@@ -1017,6 +1017,10 @@ ifeq ($(PSA_CRYPTO),1)
         $(info PSA_CRYPTO is an experimental feature)
 endif
 
+ifeq ($(DICE_PROTECTION_ENVIRONMENT),1)
+        $(info DICE_PROTECTION_ENVIRONMENT is an experimental feature)
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
