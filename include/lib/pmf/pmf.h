@@ -44,7 +44,7 @@
 
 #define PMF_FID_VALUE_DEPRECATED	U(0x10)
 #define is_pmf_fid_deprecated(_fid) \
-	(((_fid) & FUNCID_NUM_MASK) == PMF_FID_VALUE_DEPRECATED)
+	(GET_SMC_NUM(_fid) == PMF_FID_VALUE_DEPRECATED)
 
 /*
  * Defines for PMF SMC function ids used with Vendor-Specific
@@ -64,7 +64,8 @@
  * PMF calls from the SMC function ID.
  */
 #define PMF_FID_VALUE		U(0x20)
-#define is_pmf_fid(_fid)	(((_fid) & FUNCID_NUM_MASK) == PMF_FID_VALUE)
+#define PMF_ID_MASK		(FUNCID_NUM_MASK & ~(0xf))
+#define is_pmf_fid(_fid)	((GET_SMC_NUM(_fid) & PMF_ID_MASK) == PMF_FID_VALUE)
 
 /* Following are the supported PMF service IDs */
 #define PMF_PSCI_STAT_SVC_ID	0
