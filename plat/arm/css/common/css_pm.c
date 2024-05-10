@@ -12,6 +12,7 @@
 #include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
 #include <drivers/arm/css/css_scp.h>
+#include <drivers/arm/css/dsu.h>
 #include <lib/cassert.h>
 #include <plat/arm/common/plat_arm.h>
 
@@ -82,8 +83,12 @@ static void css_pwr_domain_on_finisher_common(
 	 * Perform the common cluster specific operations i.e enable coherency
 	 * if this cluster was off.
 	 */
-	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
+	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF) {
+#if PRESERVE_DSU_PMU_REGS
+		cluster_on_dsu_pmu_context_restore();
+#endif
 		plat_arm_interconnect_enter_coherency();
+	}
 }
 
 /*******************************************************************************
@@ -131,8 +136,12 @@ static void css_power_down_common(const psci_power_state_t *target_state)
 	plat_arm_gic_cpuif_disable();
 
 	/* Cluster is to be turned off, so disable coherency */
-	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
+	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF) {
+#if PRESERVE_DSU_PMU_REGS
+		cluster_off_dsu_pmu_context_save();
+#endif
 		plat_arm_interconnect_exit_coherency();
+	}
 }
 
 /*******************************************************************************

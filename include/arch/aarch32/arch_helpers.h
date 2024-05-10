@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
  * Portions copyright (c) 2021-2022, ProvenRun S.A.S. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -354,6 +354,14 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
  * DynamIQ Shared Unit power management
  */
 DEFINE_COPROCR_RW_FUNCS(clusterpwrdn, CLUSTERPWRDN)
+DEFINE_COPROCR_RW_FUNCS(clusterpmcr, CLUSTERPMCR)
+DEFINE_COPROCR_RW_FUNCS(clusterpmcntenset, CLUSTERPMCNTENSET)
+DEFINE_COPROCR_RW_FUNCS(clusterpmccntr, CLUSTERPMCCNTR)
+DEFINE_COPROCR_RW_FUNCS(clusterpmovsset, CLUSTERPMOVSSET)
+DEFINE_COPROCR_RW_FUNCS(clusterpmovsclr, CLUSTERPMOVSCLR)
+DEFINE_COPROCR_RW_FUNCS(clusterpmselr, CLUSTERPMSELR)
+DEFINE_COPROCR_RW_FUNCS(clusterpmxevcntr, CLUSTERPMXEVCNTR)
+DEFINE_COPROCR_RW_FUNCS(clusterpmxevtyper, CLUSTERPMXEVTYPER)
 
 /*
  * RNDR is AArch64 only, so just provide a placeholder here to make the

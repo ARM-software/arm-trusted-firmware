@@ -383,6 +383,8 @@ int arm_get_rotpk_info_dev(void **key_ptr, unsigned int *key_len,
 unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr);
 #endif
 
+unsigned int plat_cluster_id_by_mpidr(u_register_t mpidr);
+
 /*
  * This function is called after loading SCP_BL2 image and it is used to perform
  * any platform-specific actions required to handle the SCP firmware.
