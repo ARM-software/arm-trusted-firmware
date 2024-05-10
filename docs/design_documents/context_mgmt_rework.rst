@@ -4,7 +4,7 @@ Enhance Context Management library for EL3 firmware
 :Authors: Soby Mathew & Zelalem Aweke
 :Organization: Arm Limited
 :Contact: Soby Mathew <soby.mathew@arm.com> & Zelalem Aweke <zelalem.aweke@arm.com>
-:Status: RFC
+:Status: Implementation is ongoing. Refer to :ref:`Context Management Library` for more details.
 
 .. contents:: Table of Contents
 
@@ -194,4 +194,4 @@ improvements which are thought to have negligible impact on EL3 performance.
 
 --------------
 
-*Copyright (c) 2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.*
