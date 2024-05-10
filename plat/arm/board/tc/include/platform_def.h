@@ -341,13 +341,13 @@
  * PLAT_CSS_MAX_SCP_BL2_SIZE is calculated using the current
  * SCP_BL2 size plus a little space for growth.
  */
-#define PLAT_CSS_MAX_SCP_BL2_SIZE	0x20000
+#define PLAT_CSS_MAX_SCP_BL2_SIZE	0x30000
 
 /*
  * PLAT_CSS_MAX_SCP_BL2U_SIZE is calculated using the current
  * SCP_BL2U size plus a little space for growth.
  */
-#define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x20000
+#define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x30000
 
 #if TARGET_PLATFORM <= 2
 /* TZC Related Constants */
