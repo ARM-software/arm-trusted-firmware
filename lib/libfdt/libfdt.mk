@@ -1,19 +1,23 @@
 #
-# Copyright (c) 2016, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-LIBFDT_SRCS	:=	$(addprefix lib/libfdt/,	\
-			fdt.c				\
-			fdt_addresses.c			\
-			fdt_empty_tree.c		\
-			fdt_ro.c			\
-			fdt_rw.c			\
-			fdt_strerror.c			\
-			fdt_sw.c			\
-			fdt_wip.c)			\
+ifndef libfdt-mk
+        libfdt-mk := 1
 
-INCLUDES	+=	-Iinclude/lib/libfdt
+        LIBFDT_SRCS := $(addprefix lib/libfdt/, \
+                fdt.c \
+                fdt_addresses.c \
+                fdt_empty_tree.c \
+                fdt_ro.c \
+                fdt_rw.c \
+                fdt_strerror.c \
+                fdt_sw.c \
+                fdt_wip.c)
 
-$(eval $(call MAKE_LIB,fdt))
+        INCLUDES += -Iinclude/lib/libfdt
+
+        $(eval $(call MAKE_LIB,fdt))
+endif
