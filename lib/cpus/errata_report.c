@@ -67,7 +67,7 @@ void print_errata_status(void) {}
  * save space. This functionality is only useful on development and platform
  * bringup builds, when FEATURE_DETECTION should be used anyway
  */
-void __unused generic_errata_report(void)
+void generic_errata_report(void)
 {
 	struct cpu_ops *cpu_ops = get_cpu_ops_ptr();
 	struct erratum_entry *entry = cpu_ops->errata_list_start;
@@ -159,70 +159,16 @@ static __unused int errata_needs_reporting(spinlock_t *lock, uint32_t *reported)
  */
 void print_errata_status(void)
 {
-	struct cpu_ops *cpu_ops;
 #ifdef IMAGE_BL1
-	/*
-	 * BL1 doesn't have per-CPU data. So retrieve the CPU operations
-	 * directly.
-	 */
-	cpu_ops = get_cpu_ops_ptr();
-
-	if (cpu_ops->errata_func != NULL) {
-		cpu_ops->errata_func();
-	}
+	generic_errata_report();
 #else /* IMAGE_BL1 */
-	cpu_ops = (void *) get_cpu_data(cpu_ops_ptr);
+	struct cpu_ops *cpu_ops = (void *) get_cpu_data(cpu_ops_ptr);
 
 	assert(cpu_ops != NULL);
 
-	if (cpu_ops->errata_func == NULL) {
-		return;
-	}
-
 	if (errata_needs_reporting(cpu_ops->errata_lock, cpu_ops->errata_reported)) {
-		cpu_ops->errata_func();
+		generic_errata_report();
 	}
 #endif /* IMAGE_BL1 */
-}
-
-/*
- * Old errata status message printer
- * TODO: remove once all cpus have been converted to the new printing method
- */
-void __unused errata_print_msg(unsigned int status, const char *cpu, const char *id)
-{
-	/* Errata status strings */
-	static const char *const errata_status_str[] = {
-		[ERRATA_NOT_APPLIES] = "not applied",
-		[ERRATA_APPLIES] = "applied",
-		[ERRATA_MISSING] = "missing!"
-	};
-	static const char *const __unused bl_str = BL_STRING;
-	const char *msg __unused;
-
-
-	assert(status < ARRAY_SIZE(errata_status_str));
-	assert(cpu != NULL);
-	assert(id != NULL);
-
-	msg = errata_status_str[status];
-
-	switch (status) {
-	case ERRATA_NOT_APPLIES:
-		VERBOSE(ERRATA_FORMAT, bl_str, cpu, id, msg);
-		break;
-
-	case ERRATA_APPLIES:
-		INFO(ERRATA_FORMAT, bl_str, cpu, id, msg);
-		break;
-
-	case ERRATA_MISSING:
-		WARN(ERRATA_FORMAT, bl_str, cpu, id, msg);
-		break;
-
-	default:
-		WARN(ERRATA_FORMAT, bl_str, cpu, id, "unknown");
-		break;
-	}
 }
 #endif /* !REPORT_ERRATA */
