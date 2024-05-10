@@ -11,10 +11,11 @@
 
 void console_s32g2_register(void)
 {
-	static console_t s32g2_console;
+	static console_t s32g2_console = {
+		.next = NULL,
+		.flags = 0u,
+	};
 	int ret;
-
-	(void)memset(&s32g2_console, 0, sizeof(s32g2_console));
 
 	ret = console_linflex_register(UART_BASE, UART_CLOCK_HZ,
 				       UART_BAUDRATE, &s32g2_console);
