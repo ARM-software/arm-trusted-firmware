@@ -171,49 +171,6 @@
 			\_extra1, \_extra2, \_extra3, 0, \_power_down_ops
 	.endm
 
-/* TODO can be deleted once all CPUs have been converted */
-#if REPORT_ERRATA
-	/*
-	 * Print status of a CPU errata
-	 *
-	 * _chosen:
-	 *	Identifier indicating whether or not a CPU errata has been
-	 *	compiled in.
-	 * _cpu:
-	 *	Name of the CPU
-	 * _id:
-	 *	Errata identifier
-	 * _rev_var:
-	 *	Register containing the combined value CPU revision and variant
-	 *	- typically the return value of cpu_get_rev_var
-	 */
-	.macro report_errata _chosen, _cpu, _id, _rev_var=x8
-	/* Stash a string with errata ID */
-	.pushsection .rodata
-	\_cpu\()_errata_\_id\()_str:
-	.asciz	"\_id"
-	.popsection
-
-	/* Check whether errata applies */
-	mov	x0, \_rev_var
-	/* Shall clobber: x0-x7 */
-	bl	check_errata_\_id
-
-	.ifeq \_chosen
-	/*
-	 * Errata workaround has not been compiled in. If the errata would have
-	 * applied had it been compiled in, print its status as missing.
-	 */
-	cbz	x0, 900f
-	mov	x0, #ERRATA_MISSING
-	.endif
-900:
-	adr	x1, \_cpu\()_cpu_str
-	adr	x2, \_cpu\()_errata_\_id\()_str
-	bl	errata_print_msg
-	.endm
-#endif
-
 	/*
 	 * This macro is used on some CPUs to detect if they are vulnerable
 	 * to CVE-2017-5715.

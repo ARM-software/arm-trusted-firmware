@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,7 +29,6 @@
 #include <lib/cassert.h>
 
 void print_errata_status(void);
-void errata_print_msg(unsigned int status, const char *cpu, const char *id);
 
 /*
  * NOTE that this structure will be different on AArch32 and AArch64. The
