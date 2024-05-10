@@ -28,8 +28,8 @@ int set_gpio_bit(uint32_t *gpio_base_addr,
 		ERROR("GPIO is not initialized.\n");
 		return GPIO_FAILURE;
 	}
-
-	gpdir = gpio_base_addr + GPDIR_REG_OFFSET;
+	/* Divide by 4 since we're operating on 32-bit pointer addresses. */
+	gpdir = gpio_base_addr + (GPDIR_REG_OFFSET >> 2);
 	gpdat = gpio_base_addr + (GPDAT_REG_OFFSET >> 2);
 
 	/*
@@ -67,8 +67,9 @@ int clr_gpio_bit(uint32_t *gpio_base_addr, uint32_t bit_num)
 		return GPIO_FAILURE;
 	}
 
-	gpdir = gpio_base_addr + GPDIR_REG_OFFSET;
-	gpdat = gpio_base_addr + GPDAT_REG_OFFSET;
+	/* Divide by 4 since we're operating on 32-bit pointer addresses. */
+	gpdir = gpio_base_addr + (GPDIR_REG_OFFSET >> 2);
+	gpdat = gpio_base_addr + (GPDAT_REG_OFFSET >> 2);
 
 	/*
 	 * Reset the corresponding bit in direction and data register
