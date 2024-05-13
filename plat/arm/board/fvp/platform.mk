@@ -407,6 +407,10 @@ $(eval $(call add_define,TRANSFER_LIST_DTB_OFFSET))
 endif
 endif
 
+ifeq (${HOB_LIST}, 1)
+include lib/hob/hob.mk
+endif
+
 # Enable dynamic mitigation support by default
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 
