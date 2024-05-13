@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,5 +22,10 @@
  ******************************************************************************/
 #define CORTEX_X4_CPUPWRCTLR_EL1			S3_0_C15_C2_7
 #define CORTEX_X4_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
+
+/*******************************************************************************
+ * CPU Auxiliary control register specific definitions
+ ******************************************************************************/
+#define CORTEX_X4_CPUACTLR3_EL1				S3_0_C15_C1_2
 
 #endif /* CORTEX_X4_H */
