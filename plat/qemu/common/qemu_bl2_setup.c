@@ -357,12 +357,20 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 	case BL31_IMAGE_ID:
 		/*
 		 * arg0 is a bl_params_t reserved for bl31_early_platform_setup2
-		 * we just need arg1 and arg3 for BL31 to update th TL from S
+		 * we just need arg1 and arg3 for BL31 to update the TL from S
 		 * to NS memory before it exits
 		 */
-		bl_mem_params->ep_info.args.arg1 =
-			TRANSFER_LIST_SIGNATURE |
-			REGISTER_CONVENTION_VERSION_MASK;
+#ifdef __aarch64__
+		if (GET_RW(bl_mem_params->ep_info.spsr) == MODE_RW_64) {
+			bl_mem_params->ep_info.args.arg1 =
+				TRANSFER_LIST_HANDOFF_X1_VALUE(REGISTER_CONVENTION_VERSION);
+		} else
+#endif
+		{
+			bl_mem_params->ep_info.args.arg1 =
+				TRANSFER_LIST_HANDOFF_R1_VALUE(REGISTER_CONVENTION_VERSION);
+		}
+
 		bl_mem_params->ep_info.args.arg3 = (uintptr_t)bl2_tl;
 		break;
 #endif

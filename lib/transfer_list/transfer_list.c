@@ -63,19 +63,20 @@ transfer_list_set_handoff_args(struct transfer_list_header *tl,
 	te = transfer_list_find(tl, TL_TAG_FDT);
 	dt = transfer_list_entry_data(te);
 
-	ep_info->args.arg1 = TRANSFER_LIST_SIGNATURE |
-			     REGISTER_CONVENTION_VERSION_MASK;
-	ep_info->args.arg3 = (uintptr_t)tl;
-
-	if (GET_RW(ep_info->spsr) == MODE_RW_32) {
-		/* aarch32 */
-		ep_info->args.arg0 = 0;
-		ep_info->args.arg2 = (uintptr_t)dt;
-	} else {
-		/* aarch64 */
+#ifdef __aarch64__
+	if (GET_RW(ep_info->spsr) == MODE_RW_64) {
 		ep_info->args.arg0 = (uintptr_t)dt;
+		ep_info->args.arg1 = TRANSFER_LIST_HANDOFF_X1_VALUE(REGISTER_CONVENTION_VERSION);
 		ep_info->args.arg2 = 0;
+	} else
+#endif
+	{
+		ep_info->args.arg0 = 0;
+		ep_info->args.arg1 = TRANSFER_LIST_HANDOFF_R1_VALUE(REGISTER_CONVENTION_VERSION);
+		ep_info->args.arg2 = (uintptr_t)dt;
 	}
+
+	ep_info->args.arg3 = (uintptr_t)tl;
 
 	return ep_info;
 }
