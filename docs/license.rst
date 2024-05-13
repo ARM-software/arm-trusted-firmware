@@ -110,6 +110,12 @@ license text is included in those source files.
    -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/source/parser.py``
    -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/__init__.py``
 
+-  Some source files originating from the `edk2`_ project.
+   These files are licensed under the BSD-2-Clause. Any contributions to this
+   code must also be made under the terms of BSD-2-Clause.
+   These files are:
+
+   -  ``lib/hob/hob.c``
 
 .. _FreeBSD: http://www.freebsd.org
 .. _Linux MIT license: https://raw.githubusercontent.com/torvalds/linux/master/LICENSES/preferred/MIT
@@ -117,3 +123,4 @@ license text is included in those source files.
 .. _Open Profile for DICE: https://pigweed.googlesource.com/open-dice/
 .. _Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.txt
 .. _pydevicetree: https://pypi.org/project/pydevicetree/
+.. _edk2: https://github.com/tianocore/edk2
