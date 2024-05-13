@@ -116,6 +116,8 @@ license text is included in those source files.
    These files are:
 
    -  ``lib/hob/hob.c``
+   -  ``include/lib/hob/mmram.h``
+   -  ``include/lib/hob/mpinfo.h``
 
 .. _FreeBSD: http://www.freebsd.org
 .. _Linux MIT license: https://raw.githubusercontent.com/torvalds/linux/master/LICENSES/preferred/MIT

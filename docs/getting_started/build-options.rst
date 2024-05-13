@@ -1411,6 +1411,10 @@ Common build options
    interface through BL31 as a SiP SMC function.
    Default is disabled (0).
 
+-  ``HOB_LIST``: Setting this to ``1`` enables support for passing boot
+   information using HOB defined in `Platform Initialization specification`_.
+   This defaults to ``0``.
+
 Firmware update options
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1454,3 +1458,4 @@ Firmware update options
 .. _Clang: https://clang.llvm.org/docs/DiagnosticsReference.html
 .. _Firmware Handoff specification: https://github.com/FirmwareHandoff/firmware_handoff/releases/tag/v0.9
 .. _PSA Crypto API specification: https://armmbed.github.io/mbed-crypto/html/
+.. _Platform Initialization specification: https://uefi.org/specs/PI/1.8/index.html
