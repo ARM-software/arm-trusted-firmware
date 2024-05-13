@@ -154,8 +154,10 @@ typedef struct {
 	unsigned int idx;
 	unsigned int gpi_shift;
 	unsigned int gpi;
+#if (RME_GPT_BITLOCK_BLOCK != 0)
 	bitlock_t *lock;
 	LOCK_TYPE mask;
+#endif
 } gpi_info_t;
 
 /*

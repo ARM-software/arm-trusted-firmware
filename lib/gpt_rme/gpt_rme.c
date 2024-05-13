@@ -127,9 +127,35 @@ static uint64_t gpt_l1_index_mask;
 static uintptr_t gpt_l1_tbl;
 
 /* These variable is used during runtime */
+#if (RME_GPT_BITLOCK_BLOCK == 0)
+/*
+ * The GPTs are protected by a global spinlock to ensure
+ * that multiple CPUs do not attempt to change the descriptors at once.
+ */
+static spinlock_t gpt_lock;
+#else
 
-/* Bitlock base address for each 512 MB block of PPS */
+/* Bitlocks base address */
 static bitlock_t *gpt_bitlock_base;
+#endif
+
+/* Lock/unlock macros for GPT entries */
+#if (RME_GPT_BITLOCK_BLOCK == 0)
+/*
+ * Access to GPT is controlled by a global lock to ensure
+ * that no more than one CPU is allowed to make changes at any
+ * given time.
+ */
+#define GPT_LOCK	spin_lock(&gpt_lock)
+#define GPT_UNLOCK	spin_unlock(&gpt_lock)
+#else
+/*
+ * Access to a block of memory is controlled by a bitlock.
+ * Size of block = RME_GPT_BITLOCK_BLOCK * 512MB.
+ */
+#define GPT_LOCK	bit_lock(gpi_info.lock, gpi_info.mask)
+#define GPT_UNLOCK	bit_unlock(gpi_info.lock, gpi_info.mask)
+#endif
 
 static void tlbi_page_dsbosh(uintptr_t base)
 {
@@ -477,7 +503,7 @@ static int validate_pas_mappings(pas_region_t *pas_regions,
 static int validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
 				size_t l0_mem_size)
 {
-	size_t l0_alignment, locks_size;
+	size_t l0_alignment, locks_size = 0;
 
 	/*
 	 * Make sure PPS is valid and then store it since macros need this value
@@ -503,28 +529,28 @@ static int validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		return -EFAULT;
 	}
 
-	/* Check size */
-	if (l0_mem_size < GPT_L0_TABLE_SIZE(gpt_config.t)) {
-		ERROR("%sL0%s\n", (const char *)"GPT: Inadequate ",
-			(const char *)" memory\n");
-		ERROR("      Expected 0x%lx bytes, got 0x%lx bytes\n",
-			GPT_L0_TABLE_SIZE(gpt_config.t), l0_mem_size);
-		return -ENOMEM;
-	}
-
+#if (RME_GPT_BITLOCK_BLOCK != 0)
 	/*
 	 * Size of bitlocks in bytes for the protected address space
-	 * with 512MB per bitlock.
+	 * with RME_GPT_BITLOCK_BLOCK * 512MB per bitlock.
 	 */
-	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) / (SZ_512M * 8U);
+	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) /
+			(RME_GPT_BITLOCK_BLOCK * SZ_512M * 8U);
 
-	/* Check space for bitlocks */
-	if (locks_size > (l0_mem_size - GPT_L0_TABLE_SIZE(gpt_config.t))) {
-		ERROR("%sbitlock%s", (const char *)"GPT: Inadequate ",
-			(const char *)" memory\n");
+	/*
+	 * If protected space size is less than the size covered
+	 * by 'bitlock' structure, check for a single bitlock.
+	 */
+	if (locks_size < LOCK_SIZE) {
+		locks_size = LOCK_SIZE;
+	}
+#endif
+	/* Check size for L0 tables and bitlocks */
+	if (l0_mem_size < (GPT_L0_TABLE_SIZE(gpt_config.t) + locks_size)) {
+		ERROR("GPT: Inadequate L0 memory\n");
 		ERROR("      Expected 0x%lx bytes, got 0x%lx bytes\n",
-			locks_size,
-			l0_mem_size - GPT_L0_TABLE_SIZE(gpt_config.t));
+			GPT_L0_TABLE_SIZE(gpt_config.t) + locks_size,
+			l0_mem_size);
 		return -ENOMEM;
 	}
 
@@ -1089,8 +1115,8 @@ int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		       size_t l0_mem_size)
 {
 	uint64_t gpt_desc;
-	size_t locks_size;
-	bitlock_t *bit_locks;
+	size_t locks_size = 0;
+	__unused bitlock_t *bit_locks;
 	int ret;
 
 	/* Ensure that MMU and Data caches are enabled */
@@ -1110,16 +1136,27 @@ int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		((uint64_t *)l0_mem_base)[i] = gpt_desc;
 	}
 
+#if (RME_GPT_BITLOCK_BLOCK != 0)
 	/* Initialise bitlocks at the end of L0 table */
 	bit_locks = (bitlock_t *)(l0_mem_base +
 					GPT_L0_TABLE_SIZE(gpt_config.t));
 
 	/* Size of bitlocks in bytes */
-	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) / (SZ_512M * 8U);
+	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) /
+					(RME_GPT_BITLOCK_BLOCK * SZ_512M * 8U);
+
+	/*
+	 * If protected space size is less than the size covered
+	 * by 'bitlock' structure, initialise a single bitlock.
+	 */
+	if (locks_size < LOCK_SIZE) {
+		locks_size = LOCK_SIZE;
+	}
 
 	for (size_t i = 0UL; i < (locks_size/LOCK_SIZE); i++) {
 		bit_locks[i].lock = 0U;
 	}
+#endif
 
 	/* Flush updated L0 tables and bitlocks to memory */
 	flush_dcache_range((uintptr_t)l0_mem_base,
@@ -1290,17 +1327,19 @@ int gpt_runtime_init(void)
 	/* Mask for the L1 index field */
 	gpt_l1_index_mask = GPT_L1_IDX_MASK(gpt_config.p);
 
+#if (RME_GPT_BITLOCK_BLOCK != 0)
 	/* Bitlocks at the end of L0 table */
 	gpt_bitlock_base = (bitlock_t *)(gpt_config.plat_gpt_l0_base +
 					GPT_L0_TABLE_SIZE(gpt_config.t));
-
+#endif
 	VERBOSE("GPT: Runtime Configuration\n");
 	VERBOSE("  PPS/T:     0x%x/%u\n", gpt_config.pps, gpt_config.t);
 	VERBOSE("  PGS/P:     0x%x/%u\n", gpt_config.pgs, gpt_config.p);
 	VERBOSE("  L0GPTSZ/S: 0x%x/%u\n", GPT_L0GPTSZ, GPT_S_VAL);
 	VERBOSE("  L0 base:   0x%"PRIxPTR"\n", gpt_config.plat_gpt_l0_base);
+#if (RME_GPT_BITLOCK_BLOCK != 0)
 	VERBOSE("  Bitlocks:  0x%"PRIxPTR"\n", (uintptr_t)gpt_bitlock_base);
-
+#endif
 	return 0;
 }
 
@@ -1326,7 +1365,7 @@ static inline void write_gpt(uint64_t *gpt_l1_desc, uint64_t *gpt_l1_addr,
 static int get_gpi_params(uint64_t base, gpi_info_t *gpi_info)
 {
 	uint64_t gpt_l0_desc, *gpt_l0_base;
-	unsigned int idx_512;
+	__unused unsigned int block_idx;
 
 	gpt_l0_base = (uint64_t *)gpt_config.plat_gpt_l0_base;
 	gpt_l0_desc = gpt_l0_base[GPT_L0_IDX(base)];
@@ -1341,19 +1380,20 @@ static int get_gpi_params(uint64_t base, gpi_info_t *gpi_info)
 	gpi_info->idx = (unsigned int)GPT_L1_INDEX(base);
 	gpi_info->gpi_shift = GPT_L1_GPI_IDX(gpt_config.p, base) << 2;
 
-	/* 512MB block index */
-	idx_512 = (unsigned int)(base / SZ_512M);
+#if (RME_GPT_BITLOCK_BLOCK != 0)
+	/* Block index */
+	block_idx = (unsigned int)(base / (RME_GPT_BITLOCK_BLOCK * SZ_512M));
 
 	/* Bitlock address and mask */
-	gpi_info->lock = &gpt_bitlock_base[idx_512 / LOCK_BITS];
-	gpi_info->mask = 1U << (idx_512 & (LOCK_BITS - 1U));
-
+	gpi_info->lock = &gpt_bitlock_base[block_idx / LOCK_BITS];
+	gpi_info->mask = 1U << (block_idx & (LOCK_BITS - 1U));
+#endif
 	return 0;
 }
 
 /*
  * Helper to retrieve the gpt_l1_desc and GPI information from gpi_info.
- * This function is called with bitlock acquired.
+ * This function is called with bitlock or spinlock acquired.
  */
 static void read_gpi(gpi_info_t *gpi_info)
 {
@@ -1716,12 +1756,10 @@ int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 	}
 
 	/*
-	 * Access to each 512MB block in L1 tables is controlled by a bitlock
-	 * to ensure that no more than one CPU is allowed to make changes at
-	 * any given time.
+	 * Access to GPT is controlled by a lock to ensure that no more
+	 * than one CPU is allowed to make changes at any given time.
 	 */
-	bit_lock(gpi_info.lock, gpi_info.mask);
-
+	GPT_LOCK;
 	read_gpi(&gpi_info);
 
 	/* Check that the current address is in NS state */
@@ -1729,7 +1767,7 @@ int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 		VERBOSE("GPT: Only Granule in NS state can be delegated.\n");
 		VERBOSE("      Caller: %u, Current GPI: %u\n", src_sec_state,
 			gpi_info.gpi);
-		bit_unlock(gpi_info.lock, gpi_info.mask);
+		GPT_UNLOCK;
 		return -EPERM;
 	}
 
@@ -1766,8 +1804,8 @@ int gpt_delegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 	}
 #endif
 
-	/* Unlock access to 512MB block */
-	bit_unlock(gpi_info.lock, gpi_info.mask);
+	/* Unlock the lock to GPT */
+	GPT_UNLOCK;
 
 	/*
 	 * The isb() will be done as part of context
@@ -1838,12 +1876,10 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 	}
 
 	/*
-	 * Access to each 512MB block in L1 tables is controlled by a bitlock
-	 * to ensure that no more than one CPU is allowed to make changes at
-	 * any given time.
+	 * Access to GPT is controlled by a lock to ensure that no more
+	 * than one CPU is allowed to make changes at any given time.
 	 */
-	bit_lock(gpi_info.lock, gpi_info.mask);
-
+	GPT_LOCK;
 	read_gpi(&gpi_info);
 
 	/* Check that the current address is in the delegated state */
@@ -1859,7 +1895,7 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 		VERBOSE("GPT: Only Granule in REALM or SECURE state can be undelegated\n");
 		VERBOSE("      Caller: %u Current GPI: %u\n", src_sec_state,
 			gpi_info.gpi);
-		bit_unlock(gpi_info.lock, gpi_info.mask);
+		GPT_UNLOCK;
 		return -EPERM;
 	}
 
@@ -1906,8 +1942,8 @@ int gpt_undelegate_pas(uint64_t base, size_t size, unsigned int src_sec_state)
 		fuse_block(base, &gpi_info, GPT_L1_NS_DESC);
 	}
 #endif
-	/* Unlock access to 512MB block */
-	bit_unlock(gpi_info.lock, gpi_info.mask);
+	/* Unlock the lock to GPT */
+	GPT_UNLOCK;
 
 	/*
 	 * The isb() will be done as part of context

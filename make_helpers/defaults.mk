@@ -139,6 +139,9 @@ FW_ENC_STATUS			:= 0
 # For Chain of Trust
 GENERATE_COT			:= 0
 
+# Default number of 512 blocks per bitlock
+RME_GPT_BITLOCK_BLOCK		:= 1
+
 # Default maximum size of GPT contiguous block
 RME_GPT_MAX_BLOCK		:= 2
 
