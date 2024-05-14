@@ -4,7 +4,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-toolchains := aarch64
+ifeq ($(filter-out clean,$(or $(MAKECMDGOALS),all)),)
+        toolchains :=
+else
+        toolchains := aarch64
+endif
 
 include ../../make_helpers/toolchain.mk
 
