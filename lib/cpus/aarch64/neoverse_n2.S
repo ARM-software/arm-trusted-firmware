@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -281,8 +281,6 @@ func neoverse_n2_core_pwr_dwn
 	isb
 	ret
 endfunc neoverse_n2_core_pwr_dwn
-
-errata_report_shim neoverse_n2
 
 	/* ---------------------------------------------
 	 * This function provides Neoverse N2 specific

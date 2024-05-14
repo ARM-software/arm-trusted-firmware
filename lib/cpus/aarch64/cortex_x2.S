@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -181,8 +181,6 @@ func cortex_x2_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_x2_core_pwr_dwn
-
-errata_report_shim cortex_x2
 
 cpu_reset_func_start cortex_x2
 	/* Disable speculative loads */

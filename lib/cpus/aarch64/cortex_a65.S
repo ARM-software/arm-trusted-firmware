@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,26 +45,6 @@ func cortex_a65_cpu_pwr_dwn
 	ret
 endfunc cortex_a65_cpu_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for Cortex-A65. Must follow AAPCS.
- */
-func cortex_a65_errata_report
-	stp	x8, x30, [sp, #-16]!
-
-	bl	cpu_get_rev_var
-	mov	x8, x0
-
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_DSU_936184, cortex_a65, dsu_936184
-
-	ldp	x8, x30, [sp], #16
-	ret
-endfunc cortex_a65_errata_report
-#endif
 
 .section .rodata.cortex_a65_regs, "aS"
 cortex_a65_regs:  /* The ascii list of register names to be reported */

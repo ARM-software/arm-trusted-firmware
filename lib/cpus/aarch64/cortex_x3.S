@@ -125,8 +125,6 @@ func cortex_x3_core_pwr_dwn
 	ret
 endfunc cortex_x3_core_pwr_dwn
 
-errata_report_shim cortex_x3
-
 	/* ---------------------------------------------
 	 * This function provides Cortex-X3-
 	 * specific register information for crash

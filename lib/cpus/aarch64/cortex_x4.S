@@ -73,8 +73,6 @@ func cortex_x4_core_pwr_dwn
 	ret
 endfunc cortex_x4_core_pwr_dwn
 
-errata_report_shim cortex_x4
-
 	/* ---------------------------------------------
 	 * This function provides Cortex X4-specific
 	 * register information for crash reporting.

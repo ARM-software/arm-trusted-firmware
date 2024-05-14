@@ -80,8 +80,6 @@ func cortex_a720_core_pwr_dwn
 	ret
 endfunc cortex_a720_core_pwr_dwn
 
-errata_report_shim cortex_a720
-
 	/* ---------------------------------------------
 	 * This function provides Cortex A720-specific
 	 * register information for crash reporting.

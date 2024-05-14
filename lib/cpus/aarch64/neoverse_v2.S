@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -116,7 +116,6 @@ cpu_reset_func_start neoverse_v2
 #endif
 cpu_reset_func_end neoverse_v2
 
-errata_report_shim neoverse_v2
 	/* ---------------------------------------------
 	 * This function provides Neoverse V2-
 	 * specific register information for crash

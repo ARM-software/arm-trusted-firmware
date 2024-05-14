@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,14 +40,6 @@ func aem_generic_cluster_pwr_dwn
 	b	dcsw_op_all
 endfunc aem_generic_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for AEM. Must follow AAPCS.
- */
-func aem_generic_errata_report
-	bx	lr
-endfunc aem_generic_errata_report
-#endif
 
 /* cpu_ops for Base AEM FVP */
 declare_cpu_ops aem_generic, BASE_AEM_MIDR, CPU_NO_RESET_FUNC, \

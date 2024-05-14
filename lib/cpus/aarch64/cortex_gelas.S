@@ -58,8 +58,6 @@ func cortex_gelas_core_pwr_dwn
 	ret
 endfunc cortex_gelas_core_pwr_dwn
 
-errata_report_shim cortex_gelas
-
 	/* ---------------------------------------------
 	 * This function provides Gelas specific
 	 * register information for crash reporting.

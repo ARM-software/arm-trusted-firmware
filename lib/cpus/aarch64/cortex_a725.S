@@ -40,8 +40,6 @@ func cortex_a725_core_pwr_dwn
 	ret
 endfunc cortex_a725_core_pwr_dwn
 
-errata_report_shim cortex_a725
-
 	/* ---------------------------------------------
 	 * This function provides Cortex-A725 specific
 	 * register information for crash reporting.

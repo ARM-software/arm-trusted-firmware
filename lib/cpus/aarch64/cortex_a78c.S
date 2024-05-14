@@ -121,8 +121,6 @@ workaround_reset_end cortex_a78c, CVE(2022, 23960)
 cpu_reset_func_start cortex_a78c
 cpu_reset_func_end cortex_a78c
 
-errata_report_shim cortex_a78c
-
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
