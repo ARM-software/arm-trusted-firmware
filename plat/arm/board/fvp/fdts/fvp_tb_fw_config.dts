@@ -106,6 +106,8 @@
 #if COT_DESC_IN_DTB
 	#if defined(ARM_COT_cca)
 		#include "cca_cot_descriptors.dtsi"
+	#elif defined(ARM_COT_dualroot)
+		#include "dualroot_cot_descriptors.dtsi"
 	#elif defined(ARM_COT_tbbr)
 		#include "tbbr_cot_descriptors.dtsi"
 	#endif
