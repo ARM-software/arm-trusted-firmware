@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,10 +68,6 @@ void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 	arm_console_boot_init();
 
 #if RESET_TO_SP_MIN
-	/* There are no parameters from BL2 if SP_MIN is a reset vector */
-	assert(from_bl2 == NULL);
-	assert(plat_params_from_bl2 == NULL);
-
 	/* Populate entry point information for BL33 */
 	SET_PARAM_HEAD(&bl33_image_ep_info,
 				PARAM_EP,
