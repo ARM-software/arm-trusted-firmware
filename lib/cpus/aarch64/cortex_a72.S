@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -270,8 +270,6 @@ func cortex_a72_cluster_pwr_dwn
 	mov	x30, x18
 	b	cortex_a72_disable_ext_debug
 endfunc cortex_a72_cluster_pwr_dwn
-
-errata_report_shim cortex_a72
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a72 specific

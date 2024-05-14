@@ -135,8 +135,6 @@ func cortex_a78_ae_core_pwr_dwn
 	ret
 endfunc cortex_a78_ae_core_pwr_dwn
 
-errata_report_shim cortex_a78_ae
-
 	/* -------------------------------------------------------
 	 * This function provides cortex_a78_ae specific
 	 * register information for crash reporting.

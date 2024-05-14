@@ -242,8 +242,6 @@ func cortex_a710_core_pwr_dwn
 	ret
 endfunc cortex_a710_core_pwr_dwn
 
-errata_report_shim cortex_a710
-
 cpu_reset_func_start cortex_a710
 	/* Disable speculative loads */
 	msr	SSBS, xzr

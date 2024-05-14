@@ -190,8 +190,6 @@ func cortex_x2_core_pwr_dwn
 	ret
 endfunc cortex_x2_core_pwr_dwn
 
-errata_report_shim cortex_x2
-
 cpu_reset_func_start cortex_x2
 	/* Disable speculative loads */
 	msr	SSBS, xzr

@@ -266,8 +266,6 @@ func neoverse_v1_core_pwr_dwn
 	ret
 endfunc neoverse_v1_core_pwr_dwn
 
-errata_report_shim neoverse_v1
-
 cpu_reset_func_start neoverse_v1
 	/* Disable speculative loads */
 	msr	SSBS, xzr

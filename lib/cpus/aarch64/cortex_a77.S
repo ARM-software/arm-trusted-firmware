@@ -173,7 +173,6 @@ func cortex_a77_core_pwr_dwn
 	ret
 endfunc cortex_a77_core_pwr_dwn
 
-errata_report_shim cortex_a77
 	/* ---------------------------------------------
 	 * This function provides Cortex-A77 specific
 	 * register information for crash reporting.

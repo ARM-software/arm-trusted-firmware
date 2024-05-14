@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,8 +79,6 @@ func rainier_core_pwr_dwn
 	isb
 	ret
 endfunc rainier_core_pwr_dwn
-
-errata_report_shim rainier
 
 	/* ---------------------------------------------
 	 * This function provides Rainier specific
