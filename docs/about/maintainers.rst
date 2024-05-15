@@ -114,6 +114,8 @@ Secure Partition Manager Core (EL3 FF-A SPMC)
 :|M|: Marc Bonnici <marc.bonnici@arm.com>
 :|G|: `marcbonnici`_
 :|F|: services/std_svc/spm/el3_spmc/\*
+:|F|: include/services/el3_spmc\_\*
+:|F|: include/services/spmc_svc.h
 
 Secure Partition Manager Dispatcher (SPMD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -121,7 +123,13 @@ Secure Partition Manager Dispatcher (SPMD)
 :|G|: `odeprez`_
 :|M|: Joao Alves <Joao.Alves@arm.com>
 :|G|: `J-Alves`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
 :|F|: services/std_svc/spmd/\*
+:|F|: plat/common/plat_spmd_manifest.c
+:|F|: include/services/ffa_svc.h
+:|F|: include/services/el3_spmd_logical_sp.h
+:|F|: include/services/spmd_svc.h
 
 Exception Handling Framework (EHF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -130,6 +138,16 @@ Exception Handling Framework (EHF)
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
 :|F|: bl31/ehf.c
+
+Runtime Exceptions and Interrupt Management
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: bl31/aarch64/
+:|F|: bl31/interrupt_mgmt.c
+:|F|: include/bl31/interrupt_mgmt.h
 
 Realm Management Monitor Dispatcher (RMMD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -216,12 +234,14 @@ Power State Coordination Interface (PSCI)
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
 :|F|: lib/psci/
+:|F|: include/lib/psci/
 
 DebugFS
 ^^^^^^^
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 :|G|: `odeprez`_
 :|F|: lib/debugfs/
+:|F|: include/lib/debugfs.h
 
 Firmware Configuration Framework (FCONF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -232,6 +252,10 @@ Firmware Configuration Framework (FCONF)
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
 :|F|: lib/fconf/
+:|F|: plat/arm/common/fconf/
+:|F|: include/lib/fconf/
+:|F|: include/plat/arm/common/arm_fconf\_\*
+:|F|: include/plat/arm/common/fconf\_\*
 
 Performance Measurement Framework (PMF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -253,6 +277,7 @@ Arm CPU libraries
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
 :|F|: lib/cpus/
+:|F|: include/lib/cpus/
 
 Reliability Availability Serviceabilty (RAS) framework
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -380,6 +405,8 @@ DRTM
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
 :|F|: services/std_svc/drtm
+:|F|: include/plat/common/plat_drtm.h
+:|F|: include/services/drtm_svc.h
 
 PSA Firmware Update
 ^^^^^^^^^^^^^^^^^^^
@@ -432,6 +459,32 @@ Firmware Handoff Library (Transfer List)
 :|G|: `harrisonmutai-arm`_
 :|F|: lib/transfer_list
 :|F|: include/lib/transfer_list.h
+
+Context Management
+^^^^^^^^^^^^^^^^^^
+:|M|: Jayanth Dodderi Chidanand <jayanthdodderi.chidanand@arm.com>
+:|G|: `jayanthchidanand-arm`_
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: bl1/aarch32/bl1_context_mgmt.c
+:|F|: bl1/aarch64/bl1_context_mgmt.c
+:|F|: bl31/bl31_context_mgmt.c
+:|F|: lib/el3_runtime/
+:|F|: include/lib/el3_runtime/
+
+Runtime Services
+^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: services/std_svc/std_svc_setup.c
+:|F|: common/runtime_svc.c
+:|F|: include/common/runtime_svc.h
+:|F|: include/services/arm_arch_svc.h
+:|F|: include/services/std_svc.h
 
 Platform Ports
 ~~~~~~~~~~~~~~
@@ -604,7 +657,6 @@ Nuvoton npcm845x platform port
 :|M|: Avi Fishman <avi.fishman@nuvoton.com>
 :|G|: `avifishman`_
 :|F|: docs/plat/npcm845x.rst
-:|F|: drivers/nuvoton/
 :|F|: include/drivers/nuvoton/
 :|F|: include/plat/nuvoton/
 :|F|: plat/nuvoton/
@@ -1061,3 +1113,7 @@ Conventional Changelog Extensions
 .. _vwadekar: https://github.com/vwadekar
 .. _xueliang-zhong-arm: https://github.com/xueliang-zhong-arm
 .. _Yann-lms: https://github.com/Yann-lms
+
+--------------
+
+*Copyright (c) 2019-2024, Arm Limited and Contributors. All rights reserved.*
