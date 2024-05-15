@@ -8,355 +8,361 @@
 # TF-A uses three toolchains:
 #
 #   - The host toolchain (`host`) for building native tools
-#   - The AArch32 toolchain (`aarch32`) for building Arm AArch32 images
+#   - The AArch32 toolchain (`aarch32`) for building Arm AArch32 images
 #   - The AArch64 toolchain (`aarch64`) for building Arm AArch64 images
 #
 # In the main Makefile only one of the two Arm toolchains is enabled in any
 # given build, but individual tools and libraries may need access to both.
 #
 
-toolchains ?= host $(ARCH)
+ifndef toolchain-mk
+        toolchain-mk := $(lastword $(MAKEFILE_LIST))
 
-include $(dir $(lastword $(MAKEFILE_LIST)))build_env.mk
-include $(dir $(lastword $(MAKEFILE_LIST)))utilities.mk
+        toolchains ?= host $(ARCH)
 
-include $(addprefix $(dir $(lastword $(MAKEFILE_LIST)))toolchains/, \
-        $(addsuffix .mk,$(toolchains)))
+        include $(dir $(lastword $(MAKEFILE_LIST)))build_env.mk
+        include $(dir $(lastword $(MAKEFILE_LIST)))utilities.mk
 
-#
-# Configure tool classes that we recognize.
-#
-# In the context of this build system, a tool class identifies a specific role
-# or type of tool in the toolchain.
-#
+        include $(addprefix $(dir $(lastword $(MAKEFILE_LIST)))toolchains/, \
+                $(addsuffix .mk,$(toolchains)))
 
-tool-classes := cc
-tool-class-name-cc := C compiler
+        #
+        # Configure tool classes that we recognize.
+        #
+        # In the context of this build system, a tool class identifies a
+        # specific role or type of tool in the toolchain.
+        #
 
-tool-classes += cpp
-tool-class-name-cpp := C preprocessor
+        tool-classes := cc
+        tool-class-name-cc := C compiler
 
-tool-classes += as
-tool-class-name-as := assembler
+        tool-classes += cpp
+        tool-class-name-cpp := C preprocessor
 
-tool-classes += ld
-tool-class-name-ld := linker
+        tool-classes += as
+        tool-class-name-as := assembler
 
-tool-classes += oc
-tool-class-name-oc := object copier
+        tool-classes += ld
+        tool-class-name-ld := linker
 
-tool-classes += od
-tool-class-name-od := object dumper
+        tool-classes += oc
+        tool-class-name-oc := object copier
 
-tool-classes += ar
-tool-class-name-ar := archiver
+        tool-classes += od
+        tool-class-name-od := object dumper
 
-tool-classes += dtc
-tool-class-name-dtc := device tree compiler
+        tool-classes += ar
+        tool-class-name-ar := archiver
 
-#
-# Configure tools that we recognize.
-#
-# Here we declare the list of specific toolchain tools that we know how to
-# interact with. We don't organize these into tool classes yet - that happens
-# further down.
-#
+        tool-classes += dtc
+        tool-class-name-dtc := device tree compiler
 
-# Arm® Compiler for Embedded
-tools := arm-clang
-tool-name-arm-clang := Arm® Compiler for Embedded `armclang`
+        #
+        # Configure tools that we recognize.
+        #
+        # Here we declare the list of specific toolchain tools that we know how
+        # to interact with. We don't organize these into tool classes yet - that
+        # happens further down.
+        #
 
-tools += arm-link
-tool-name-arm-link := Arm® Compiler for Embedded `armlink`
+        # Arm® Compiler for Embedded
+        tools := arm-clang
+        tool-name-arm-clang := Arm® Compiler for Embedded `armclang`
 
-tools += arm-ar
-tool-name-arm-ar := Arm® Compiler for Embedded `armar`
+        tools += arm-link
+        tool-name-arm-link := Arm® Compiler for Embedded `armlink`
 
-tools += arm-fromelf
-tool-name-arm-fromelf := Arm® Compiler for Embedded `fromelf`
+        tools += arm-ar
+        tool-name-arm-ar := Arm® Compiler for Embedded `armar`
 
-# LLVM Project
-tools += llvm-clang
-tool-name-llvm-clang := LLVM Clang (`clang`)
+        tools += arm-fromelf
+        tool-name-arm-fromelf := Arm® Compiler for Embedded `fromelf`
 
-tools += llvm-lld
-tool-name-llvm-lld := LLVM LLD (`lld`)
+        # LLVM Project
+        tools += llvm-clang
+        tool-name-llvm-clang := LLVM Clang (`clang`)
 
-tools += llvm-objcopy
-tool-name-llvm-objcopy := LLVM `llvm-objcopy`
+        tools += llvm-lld
+        tool-name-llvm-lld := LLVM LLD (`lld`)
 
-tools += llvm-objdump
-tool-name-llvm-objdump := LLVM `llvm-objdump`
+        tools += llvm-objcopy
+        tool-name-llvm-objcopy := LLVM `llvm-objcopy`
 
-tools += llvm-ar
-tool-name-llvm-ar := LLVM `llvm-ar`
+        tools += llvm-objdump
+        tool-name-llvm-objdump := LLVM `llvm-objdump`
 
-# GNU Compiler Collection & GNU Binary Utilities
-tools += gnu-gcc
-tool-name-gnu-gcc := GNU GCC (`gcc`)
+        tools += llvm-ar
+        tool-name-llvm-ar := LLVM `llvm-ar`
 
-tools += gnu-ld
-tool-name-gnu-ld := GNU LD (`ld.bfd`)
+        # GNU Compiler Collection & GNU Binary Utilities
+        tools += gnu-gcc
+        tool-name-gnu-gcc := GNU GCC (`gcc`)
 
-tools += gnu-objcopy
-tool-name-gnu-objcopy := GNU `objcopy`
+        tools += gnu-ld
+        tool-name-gnu-ld := GNU LD (`ld.bfd`)
 
-tools += gnu-objdump
-tool-name-gnu-objdump := GNU `objdump`
+        tools += gnu-objcopy
+        tool-name-gnu-objcopy := GNU `objcopy`
 
-tools += gnu-ar
-tool-name-gnu-ar := GNU `ar`
+        tools += gnu-objdump
+        tool-name-gnu-objdump := GNU `objdump`
 
-# Other tools
-tools += generic-dtc
-tool-name-generic-dtc := Device Tree Compiler (`dtc`)
+        tools += gnu-ar
+        tool-name-gnu-ar := GNU `ar`
 
-#
-# Assign tools to tool classes.
-#
-# Multifunctional tools, i.e. tools which can perform multiple roles in a
-# toolchain, may be specified in multiple tool class lists. For example, a C
-# compiler which can also perform the role of a linker may be placed in both
-# `tools-cc` and `tools-ld`.
-#
+        # Other tools
+        tools += generic-dtc
+        tool-name-generic-dtc := Device Tree Compiler (`dtc`)
 
-# C-related tools
-tools-cc := arm-clang llvm-clang gnu-gcc # C compilers
-tools-cpp := arm-clang llvm-clang gnu-gcc # C preprocessors
+        #
+        # Assign tools to tool classes.
+        #
+        # Multifunctional tools, i.e. tools which can perform multiple roles in
+        # a toolchain, may be specified in multiple tool class lists. For
+        # example, a C compiler which can also perform the role of a linker may
+        # be placed in both `tools-cc` and `tools-ld`.
+        #
 
-# Assembly-related tools
-tools-as := arm-clang llvm-clang gnu-gcc # Assemblers
+        # C-related tools
+        tools-cc := arm-clang llvm-clang gnu-gcc # C compilers
+        tools-cpp := arm-clang llvm-clang gnu-gcc # C preprocessors
 
-# Linking and object-handling tools
-tools-ld := arm-clang arm-link llvm-clang llvm-lld gnu-gcc gnu-ld # Linkers
-tools-oc := arm-fromelf llvm-objcopy gnu-objcopy # Object copiers
-tools-od := arm-fromelf llvm-objdump gnu-objdump # Object dumpers
-tools-ar := arm-ar llvm-ar gnu-ar # Archivers
+        # Assembly-related tools
+        tools-as := arm-clang llvm-clang gnu-gcc # Assemblers
 
-# Other tools
-tools-dtc := generic-dtc # Device tree compilers
+        # Linking and object-handling tools
+        tools-ld := arm-clang arm-link llvm-clang llvm-lld gnu-gcc gnu-ld # Linkers
+        tools-oc := arm-fromelf llvm-objcopy gnu-objcopy # Object copiers
+        tools-od := arm-fromelf llvm-objdump gnu-objdump # Object dumpers
+        tools-ar := arm-ar llvm-ar gnu-ar # Archivers
 
-define check-tool-class-tools
-        $(eval tool-class := $(1))
+        # Other tools
+        tools-dtc := generic-dtc # Device tree compilers
 
-        ifndef tools-$(tool-class)
-                $$(error no tools registered to handle tool class `$(tool-class)`)
-        endif
-endef
+        define check-tool-class-tools
+                $(eval tool-class := $(1))
 
-$(foreach tool-class,$(tool-classes), \
-        $(eval $(call check-tool-class-tools,$(tool-class))))
-
-#
-# Default tools for each toolchain.
-#
-# Toolchains can specify a default path to any given tool with a tool class.
-# These values are used in the absence of user-specified values, and are
-# configured by the makefile for each toolchain using variables of the form:
-#
-#   - $(toolchain)-$(tool-class)-default
-#
-# For example, the default C compiler for the AArch32 and AArch64 toolchains
-# could be configured with:
-#
-#   - aarch32-cc-default
-#   - aarch64-cc-default
-#
-
-define check-toolchain-tool-class-default
-        $(eval toolchain := $(1))
-        $(eval tool-class := $(2))
-
-        ifndef $(toolchain)-$(tool-class)-default
-                $$(error no default value specified for tool class `$(tool-class)` of toolchain `$(toolchain)`)
-        endif
-endef
-
-define check-toolchain-tool-class-defaults
-        $(eval toolchain := $(1))
+                ifndef tools-$(tool-class)
+                        $$(error no tools registered to handle tool class `$(tool-class)`)
+                endif
+        endef
 
         $(foreach tool-class,$(tool-classes), \
-                $(eval $(call check-toolchain-tool-class-default,$(toolchain),$(tool-class))))
-endef
+                $(eval $(call check-tool-class-tools,$(tool-class))))
 
-$(foreach toolchain,$(toolchains), \
-        $(eval $(call check-toolchain-tool-class-defaults,$(toolchain))))
+        #
+        # Default tools for each toolchain.
+        #
+        # Toolchains can specify a default path to any given tool with a tool
+        # class. These values are used in the absence of user-specified values,
+        # and are configured by the makefile for each toolchain using variables
+        # of the form:
+        #
+        #   - $(toolchain)-$(tool-class)-default
+        #
+        # For example, the default C compiler for the AArch32 and AArch64
+        # toolchains could be configured with:
+        #
+        #   - aarch32-cc-default
+        #   - aarch64-cc-default
+        #
 
-#
-# Helper functions to identify toolchain tools.
-#
-# The functions defined in this section return a tool identifier when given a
-# path to a binary. We generally check a help or version string to more reliably
-# identify tools than by looking at the path alone (e.g. `gcc` on macOS is
-# actually Apple Clang).
-#
-# Each tool-guessing function (`guess-tool-$(tool)`) takes a single argument
-# giving the path to the tool to guess, and returns a non-empty value if the
-# tool corresponds to the tool identifier `$(tool)`:
-#
-#     $(call guess-tool-llvm-clang,aarch64-none-elf-gcc) # <empty>
-#     $(call guess-tool-gnu-gcc,aarch64-none-elf-gcc) # <non-empty>
-#
-# The `guess-tool` function tries to find the corresponding tool identifier
-# for a tool given its path. It takes two arguments:
-#
-#   - $(1): a list of candidate tool identifiers to check
-#   - $(2): the path to the tool to identify
-#
-# If any of the guess functions corresponding to candidate tool identifiers
-# return a non-empty value then the tool identifier of the first function to do
-# so is returned:
-#
-#     $(call guess-tool,gnu-gcc llvm-clang,armclang) # <empty>
-#     $(call guess-tool,gnu-gcc llvm-clang,clang-14) # llvm-clang
-#     $(call guess-tool,gnu-gcc llvm-clang,aarch64-none-elf-gcc-12) # gnu-gcc
-#
-# Tools are checked in the order that they appear in `tools-$(tool-class)`, and
-# the first match is returned.
-#
+        define check-toolchain-tool-class-default
+                $(eval toolchain := $(1))
+                $(eval tool-class := $(2))
 
-# Arm Compiler for Embedded
-guess-tool-arm-clang = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Tool: armclang")
-guess-tool-arm-link = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "Tool: armlink")
-guess-tool-arm-fromelf = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "Tool: fromelf")
-guess-tool-arm-ar = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Tool: armar")
+                ifndef $(toolchain)-$(tool-class)-default
+                        $$(error no default value specified for tool class `$(tool-class)` of toolchain `$(toolchain)`)
+                endif
+        endef
 
-# LLVM Project
-guess-tool-llvm-clang = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "clang version")
-guess-tool-llvm-lld = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "OVERVIEW: lld")
-guess-tool-llvm-objcopy = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "llvm-objcopy tool")
-guess-tool-llvm-objdump = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "llvm object file dumper")
-guess-tool-llvm-ar = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "LLVM Archiver")
+        define check-toolchain-tool-class-defaults
+                $(eval toolchain := $(1))
 
-# GNU Compiler Collection & GNU Binary Utilities
-guess-tool-gnu-gcc = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "gcc version")
-guess-tool-gnu-ld = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "GNU ld")
-guess-tool-gnu-objcopy = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU objcopy")
-guess-tool-gnu-objdump = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU objdump")
-guess-tool-gnu-ar = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU ar")
+                $(foreach tool-class,$(tool-classes), \
+                        $(eval $(call check-toolchain-tool-class-default,$(toolchain),$(tool-class))))
+        endef
 
-# Other tools
-guess-tool-generic-dtc = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Version: DTC")
+        $(foreach toolchain,$(toolchains), \
+                $(eval $(call check-toolchain-tool-class-defaults,$(toolchain))))
 
-guess-tool = $(firstword $(foreach candidate,$(1), \
-        $(if $(call guess-tool-$(candidate),$(2)),$(candidate))))
+        #
+        # Helper functions to identify toolchain tools.
+        #
+        # The functions defined in this section return a tool identifier when
+        # given a path to a binary. We generally check a help or version string
+        # to more reliably identify tools than by looking at the path alone
+        # (e.g. `gcc` on macOS is actually Apple Clang).
+        #
+        # Each tool-guessing function (`guess-tool-$(tool)`) takes a single
+        # argument giving the path to the tool to guess, and returns a non-empty
+        # value if the tool corresponds to the tool identifier `$(tool)`:
+        #
+        #     $(call guess-tool-llvm-clang,aarch64-none-elf-gcc) # <empty>
+        #     $(call guess-tool-gnu-gcc,aarch64-none-elf-gcc) # <non-empty>
+        #
+        # The `guess-tool` function tries to find the corresponding tool
+        # identifier for a tool given its path. It takes two arguments:
+        #
+        #   - $(1): a list of candidate tool identifiers to check
+        #   - $(2): the path to the tool to identify
+        #
+        # If any of the guess functions corresponding to candidate tool
+        # identifiers return a non-empty value then the tool identifier of the
+        # first function to do so is returned:
+        #
+        #     $(call guess-tool,gnu-gcc llvm-clang,armclang) # <empty>
+        #     $(call guess-tool,gnu-gcc llvm-clang,clang-14) # llvm-clang
+        #     $(call guess-tool,gnu-gcc llvm-clang,aarch64-none-elf-gcc-12) # gnu-gcc
+        #
+        # Tools are checked in the order that they appear in
+        # `tools-$(tool-class)`, and the first match is returned.
+        #
 
-#
-# Locate and identify tools belonging to each toolchain.
-#
-# Each tool class in each toolchain receives a variable of the form
-# `$(toolchain)-$(tool)` giving the associated path to the program. For example:
-#
-#   - `aarch64-ld` gives the linker for the AArch64 toolchain,
-#   - `aarch32-oc` gives the object copier for the AArch32 toolchain, and
-#   - `host-cc` gives the C compiler for the host toolchain.
-#
-# For each of these variables, if no program path is explicitly provided by the
-# parent Makefile then the C compiler is queried (if supported) for its
-# location. This is done via the `guess-$(tool)-$(tool-class)` set of functions.
-# For example:
-#
-#   - `guess-arm-clang-ld` guesses the linker via Arm Clang,
-#   - `guess-llvm-clang-as` guesses the assembler via LLVM Clang, and
-#   - `guess-gnu-gcc-od` guesses the object dumper via GNU GCC.
-#
-# If the C compiler cannot provide the location (or the tool class is the C
-# compiler), then it is assigned the value of the `$(toolchain)-$(tool)-default`
-# variable.
-#
+        # Arm Compiler for Embedded
+        guess-tool-arm-clang = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Tool: armclang")
+        guess-tool-arm-link = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "Tool: armlink")
+        guess-tool-arm-fromelf = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "Tool: fromelf")
+        guess-tool-arm-ar = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Tool: armar")
 
-guess-arm-clang-cpp = $(1)
-guess-arm-clang-as = $(1)
-guess-arm-clang-ld = # Fall back to `$(toolchain)-ld-default`
-guess-arm-clang-oc = # Fall back to `$(toolchain)-oc-default`
-guess-arm-clang-od = # Fall back to `$(toolchain)-od-default`
-guess-arm-clang-ar = # Fall back to `$(toolchain)-ar-default`
+        # LLVM Project
+        guess-tool-llvm-clang = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "clang version")
+        guess-tool-llvm-lld = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "OVERVIEW: lld")
+        guess-tool-llvm-objcopy = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "llvm-objcopy tool")
+        guess-tool-llvm-objdump = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "llvm object file dumper")
+        guess-tool-llvm-ar = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "LLVM Archiver")
 
-guess-llvm-clang-cpp = $(1)
-guess-llvm-clang-as = $(1)
-guess-llvm-clang-ld = $(shell $(call escape-shell,$(1)) --print-prog-name ld.lld 2>$(nul))
-guess-llvm-clang-oc = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-objcopy 2>$(nul))
-guess-llvm-clang-od = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-objdump 2>$(nul))
-guess-llvm-clang-ar = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-ar 2>$(nul))
+        # GNU Compiler Collection & GNU Binary Utilities
+        guess-tool-gnu-gcc = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "gcc version")
+        guess-tool-gnu-ld = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "GNU ld")
+        guess-tool-gnu-objcopy = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU objcopy")
+        guess-tool-gnu-objdump = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU objdump")
+        guess-tool-gnu-ar = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU ar")
 
-guess-gnu-gcc-cpp = $(1)
-guess-gnu-gcc-as = $(1)
-guess-gnu-gcc-ld = $(1)
-guess-gnu-gcc-oc = $(shell $(call escape-shell,$(1)) --print-prog-name objcopy 2>$(nul))
-guess-gnu-gcc-od = $(shell $(call escape-shell,$(1)) --print-prog-name objdump 2>$(nul))
-guess-gnu-gcc-ar = $(call which,$(call decompat-path,$(patsubst %$(call file-name,$(1)),%$(subst gcc,gcc-ar,$(call file-name,$(1))),$(call compat-path,$(1)))))
+        # Other tools
+        guess-tool-generic-dtc = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Version: DTC")
 
-define warn-unrecognized-tool
-        $(eval toolchain := $(1))
-        $(eval tool-class := $(2))
+        guess-tool = $(firstword $(foreach candidate,$(1), \
+                $(if $(call guess-tool-$(candidate),$(2)),$(candidate))))
 
-        $$(warning )
-        $$(warning The configured $$($(toolchain)-name) $$(tool-class-name-$(tool-class)) could not be identified and may not be supported:)
-        $$(warning )
-        $$(warning $$(space)   $$($(toolchain)-$(tool-class)))
-        $$(warning )
-        $$(warning The default $$($(toolchain)-name) $$(tool-class-name-$(tool-class)) is:)
-        $$(warning )
-        $$(warning $$(space)   $$($(toolchain)-$(tool-class)-default))
-        $$(warning )
-        $$(warning The following tools are supported:)
-        $$(warning )
+        #
+        # Locate and identify tools belonging to each toolchain.
+        #
+        # Each tool class in each toolchain receives a variable of the form
+        # `$(toolchain)-$(tool)` giving the associated path to the program. For
+        # example:
+        #
+        #   - `aarch64-ld` gives the linker for the AArch64 toolchain,
+        #   - `aarch32-oc` gives the object copier for the AArch32 toolchain, and
+        #   - `host-cc` gives the C compiler for the host toolchain.
+        #
+        # For each of these variables, if no program path is explicitly provided
+        # by the parent Makefile then the C compiler is queried (if supported)
+        # for its location. This is done via the `guess-$(tool)-$(tool-class)`
+        # set of functions. For example:
+        #
+        #   - `guess-arm-clang-ld` guesses the linker via Arm Clang,
+        #   - `guess-llvm-clang-as` guesses the assembler via LLVM Clang, and
+        #   - `guess-gnu-gcc-od` guesses the object dumper via GNU GCC.
+        #
+        # If the C compiler cannot provide the location (or the tool class is
+        # the C compiler), then it is assigned the value of the
+        # `$(toolchain)-$(tool)-default` variable.
+        #
 
-        $$(foreach tool,$$(tools-$(tool-class)), \
-                $$(warning $$(space) - $$(tool-name-$$(tool))))
+        guess-arm-clang-cpp = $(1)
+        guess-arm-clang-as = $(1)
+        guess-arm-clang-ld = # Fall back to `$(toolchain)-ld-default`
+        guess-arm-clang-oc = # Fall back to `$(toolchain)-oc-default`
+        guess-arm-clang-od = # Fall back to `$(toolchain)-od-default`
+        guess-arm-clang-ar = # Fall back to `$(toolchain)-ar-default`
 
-        $$(warning )
-        $$(warning The build system will treat this $$(tool-class-name-$(tool-class)) as $$(tool-name-$$($(toolchain)-$(tool-class)-id-default)).)
-        $$(warning )
-endef
+        guess-llvm-clang-cpp = $(1)
+        guess-llvm-clang-as = $(1)
+        guess-llvm-clang-ld = $(shell $(call escape-shell,$(1)) --print-prog-name ld.lld 2>$(nul))
+        guess-llvm-clang-oc = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-objcopy 2>$(nul))
+        guess-llvm-clang-od = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-objdump 2>$(nul))
+        guess-llvm-clang-ar = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-ar 2>$(nul))
 
-define locate-toolchain-tool-cc
-        $(eval toolchain := $(1))
+        guess-gnu-gcc-cpp = $(1)
+        guess-gnu-gcc-as = $(1)
+        guess-gnu-gcc-ld = $(1)
+        guess-gnu-gcc-oc = $(shell $(call escape-shell,$(1)) --print-prog-name objcopy 2>$(nul))
+        guess-gnu-gcc-od = $(shell $(call escape-shell,$(1)) --print-prog-name objdump 2>$(nul))
+        guess-gnu-gcc-ar = $(call which,$(call decompat-path,$(patsubst %$(call file-name,$(1)),%$(subst gcc,gcc-ar,$(call file-name,$(1))),$(call compat-path,$(1)))))
 
-        $(toolchain)-cc := $$(or $$($(toolchain)-cc),$$($(toolchain)-cc-default))
-        $(toolchain)-cc-id := $$(call guess-tool,$$(tools-cc),$$($(toolchain)-cc))
+        define warn-unrecognized-tool
+                $(eval toolchain := $(1))
+                $(eval tool-class := $(2))
 
-        ifndef $(toolchain)-cc-id
-                $(toolchain)-cc-id := $$($(toolchain)-cc-id-default)
+                $$(warning )
+                $$(warning The configured $$($(toolchain)-name) $$(tool-class-name-$(tool-class)) could not be identified and may not be supported:)
+                $$(warning )
+                $$(warning $$(space)   $$($(toolchain)-$(tool-class)))
+                $$(warning )
+                $$(warning The default $$($(toolchain)-name) $$(tool-class-name-$(tool-class)) is:)
+                $$(warning )
+                $$(warning $$(space)   $$($(toolchain)-$(tool-class)-default))
+                $$(warning )
+                $$(warning The following tools are supported:)
+                $$(warning )
 
-                $$(eval $$(call warn-unrecognized-tool,$(toolchain),cc))
-        endif
+                $$(foreach tool,$$(tools-$(tool-class)), \
+                        $$(warning $$(space) - $$(tool-name-$$(tool))))
 
-        $(toolchain)-cc-path := $$($(toolchain)-cc)
-        $(toolchain)-cc := $$(call escape-shell,$$($(toolchain)-cc))
-endef
+                $$(warning )
+                $$(warning The build system will treat this $$(tool-class-name-$(tool-class)) as $$(tool-name-$$($(toolchain)-$(tool-class)-id-default)).)
+                $$(warning )
+        endef
 
-define locate-toolchain-tool
-        $(eval toolchain := $(1))
-        $(eval tool-class := $(2))
+        define locate-toolchain-tool-cc
+                $(eval toolchain := $(1))
 
-        ifndef $(toolchain)-$(tool-class)
-                $(toolchain)-$(tool-class) := $$(call guess-$$($(toolchain)-cc-id)-$(tool-class),$$($(toolchain)-cc-path))
+                $(toolchain)-cc := $$(or $$($(toolchain)-cc),$$($(toolchain)-cc-default))
+                $(toolchain)-cc-id := $$(call guess-tool,$$(tools-cc),$$($(toolchain)-cc))
+
+                ifndef $(toolchain)-cc-id
+                        $(toolchain)-cc-id := $$($(toolchain)-cc-id-default)
+
+                        $$(eval $$(call warn-unrecognized-tool,$(toolchain),cc))
+                endif
+
+                $(toolchain)-cc-path := $$($(toolchain)-cc)
+                $(toolchain)-cc := $$(call escape-shell,$$($(toolchain)-cc))
+        endef
+
+        define locate-toolchain-tool
+                $(eval toolchain := $(1))
+                $(eval tool-class := $(2))
 
                 ifndef $(toolchain)-$(tool-class)
-                        $(toolchain)-$(tool-class) := $$($(toolchain)-$(tool-class)-default)
+                        $(toolchain)-$(tool-class) := $$(call guess-$$($(toolchain)-cc-id)-$(tool-class),$$($(toolchain)-cc-path))
+
+                        ifndef $(toolchain)-$(tool-class)
+                                $(toolchain)-$(tool-class) := $$($(toolchain)-$(tool-class)-default)
+                        endif
                 endif
-        endif
 
-        $(toolchain)-$(tool-class)-id := $$(call guess-tool,$$(tools-$(tool-class)),$$($(toolchain)-$(tool-class)))
+                $(toolchain)-$(tool-class)-id := $$(call guess-tool,$$(tools-$(tool-class)),$$($(toolchain)-$(tool-class)))
 
-        ifndef $(toolchain)-$(tool-class)-id
-                $(toolchain)-$(tool-class)-id := $$($(toolchain)-$(tool-class)-id-default)
+                ifndef $(toolchain)-$(tool-class)-id
+                        $(toolchain)-$(tool-class)-id := $$($(toolchain)-$(tool-class)-id-default)
 
-                $$(eval $$(call warn-unrecognized-tool,$(toolchain),$(tool-class)))
-        endif
+                        $$(eval $$(call warn-unrecognized-tool,$(toolchain),$(tool-class)))
+                endif
 
-        $(toolchain)-$(tool-class) := $$(call escape-shell,$$($(toolchain)-$(tool-class)))
-endef
+                $(toolchain)-$(tool-class) := $$(call escape-shell,$$($(toolchain)-$(tool-class)))
+        endef
 
-define locate-toolchain
-        $(eval toolchain := $(1))
+        define locate-toolchain
+                $(eval toolchain := $(1))
 
-        $$(eval $$(call locate-toolchain-tool-cc,$(toolchain)))
+                $$(eval $$(call locate-toolchain-tool-cc,$(toolchain)))
 
-        $$(foreach tool-class,$$(filter-out cc,$$(tool-classes)), \
-                $$(eval $$(call locate-toolchain-tool,$(toolchain),$$(tool-class))))
-endef
+                $$(foreach tool-class,$$(filter-out cc,$$(tool-classes)), \
+                        $$(eval $$(call locate-toolchain-tool,$(toolchain),$$(tool-class))))
+        endef
 
-$(foreach toolchain,$(toolchains), \
-        $(eval $(call locate-toolchain,$(toolchain))))
+        $(foreach toolchain,$(toolchains), \
+                $(eval $(call locate-toolchain,$(toolchain))))
+endif
