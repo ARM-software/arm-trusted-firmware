@@ -4,8 +4,8 @@ Contributor's Guide
 Getting Started
 ===============
 
--  Make sure you have a Github account and you are logged on both
-   `developer.trustedfirmware.org`_ and `review.trustedfirmware.org`_.
+-  Make sure you have a Github account and you are logged on to
+   `review.trustedfirmware.org`_.
 
    Also make sure that you have registered your full name and email address in
    your `review.trustedfirmware.org`_ profile. Otherwise, the Gerrit server
@@ -334,7 +334,6 @@ Binary Components
 
 *Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.*
 
-.. _developer.trustedfirmware.org: https://developer.trustedfirmware.org
 .. _review.trustedfirmware.org: https://review.trustedfirmware.org
 .. _Git guidelines: http://git-scm.com/book/ch5-2.html
 .. _Gerrit Uploading Changes documentation: https://review.trustedfirmware.org/Documentation/user-upload.html
