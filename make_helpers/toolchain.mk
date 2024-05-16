@@ -220,27 +220,27 @@ ifndef toolchain-mk
         #
 
         # Arm Compiler for Embedded
-        guess-tool-arm-clang = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Tool: armclang")
-        guess-tool-arm-link = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "Tool: armlink")
-        guess-tool-arm-fromelf = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "Tool: fromelf")
-        guess-tool-arm-ar = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Tool: armar")
+        guess-tool-arm-clang = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Tool: armclang")
+        guess-tool-arm-link = $(shell $(1) --help 2>&1 <$(nul) | grep -o "Tool: armlink")
+        guess-tool-arm-fromelf = $(shell $(1) --help 2>&1 <$(nul) | grep -o "Tool: fromelf")
+        guess-tool-arm-ar = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Tool: armar")
 
         # LLVM Project
-        guess-tool-llvm-clang = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "clang version")
-        guess-tool-llvm-lld = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "OVERVIEW: lld")
-        guess-tool-llvm-objcopy = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "llvm-objcopy tool")
-        guess-tool-llvm-objdump = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "llvm object file dumper")
-        guess-tool-llvm-ar = $(shell $(call escape-shell,$(1)) --help 2>&1 <$(nul) | grep -o "LLVM Archiver")
+        guess-tool-llvm-clang = $(shell $(1) -v 2>&1 <$(nul) | grep -o "clang version")
+        guess-tool-llvm-lld = $(shell $(1) --help 2>&1 <$(nul) | grep -o "OVERVIEW: lld")
+        guess-tool-llvm-objcopy = $(shell $(1) --help 2>&1 <$(nul) | grep -o "llvm-objcopy tool")
+        guess-tool-llvm-objdump = $(shell $(1) --help 2>&1 <$(nul) | grep -o "llvm object file dumper")
+        guess-tool-llvm-ar = $(shell $(1) --help 2>&1 <$(nul) | grep -o "LLVM Archiver")
 
         # GNU Compiler Collection & GNU Binary Utilities
-        guess-tool-gnu-gcc = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "gcc version")
-        guess-tool-gnu-ld = $(shell $(call escape-shell,$(1)) -v 2>&1 <$(nul) | grep -o "GNU ld")
-        guess-tool-gnu-objcopy = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU objcopy")
-        guess-tool-gnu-objdump = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU objdump")
-        guess-tool-gnu-ar = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "GNU ar")
+        guess-tool-gnu-gcc = $(shell $(1) -v 2>&1 <$(nul) | grep -o "gcc version")
+        guess-tool-gnu-ld = $(shell $(1) -v 2>&1 <$(nul) | grep -o "GNU ld")
+        guess-tool-gnu-objcopy = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU objcopy")
+        guess-tool-gnu-objdump = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU objdump")
+        guess-tool-gnu-ar = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU ar")
 
         # Other tools
-        guess-tool-generic-dtc = $(shell $(call escape-shell,$(1)) --version 2>&1 <$(nul) | grep -o "Version: DTC")
+        guess-tool-generic-dtc = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Version: DTC")
 
         guess-tool = $(firstword $(foreach candidate,$(1), \
                 $(if $(call guess-tool-$(candidate),$(2)),$(candidate))))
@@ -279,90 +279,68 @@ ifndef toolchain-mk
 
         guess-llvm-clang-cpp = $(1)
         guess-llvm-clang-as = $(1)
-        guess-llvm-clang-ld = $(shell $(call escape-shell,$(1)) --print-prog-name ld.lld 2>$(nul))
-        guess-llvm-clang-oc = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-objcopy 2>$(nul))
-        guess-llvm-clang-od = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-objdump 2>$(nul))
-        guess-llvm-clang-ar = $(shell $(call escape-shell,$(1)) --print-prog-name llvm-ar 2>$(nul))
+        guess-llvm-clang-ld = $(shell $(1) --print-prog-name ld.lld 2>$(nul))
+        guess-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>$(nul))
+        guess-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>$(nul))
+        guess-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>$(nul))
 
         guess-gnu-gcc-cpp = $(1)
         guess-gnu-gcc-as = $(1)
         guess-gnu-gcc-ld = $(1)
-        guess-gnu-gcc-oc = $(shell $(call escape-shell,$(1)) --print-prog-name objcopy 2>$(nul))
-        guess-gnu-gcc-od = $(shell $(call escape-shell,$(1)) --print-prog-name objdump 2>$(nul))
+        guess-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>$(nul))
+        guess-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>$(nul))
         guess-gnu-gcc-ar = $(call which,$(call decompat-path,$(patsubst %$(call file-name,$(1)),%$(subst gcc,gcc-ar,$(call file-name,$(1))),$(call compat-path,$(1)))))
 
-        define warn-unrecognized-tool
-                $(eval toolchain := $(1))
-                $(eval tool-class := $(2))
-
+        define toolchain-warn-unrecognized
                 $$(warning )
-                $$(warning The configured $$($(toolchain)-name) $$(tool-class-name-$(tool-class)) could not be identified and may not be supported:)
+                $$(warning The configured $$($(1)-name) $$(tool-class-name-$(2)) could not be identified and may not be supported:)
                 $$(warning )
-                $$(warning $$(space)   $$($(toolchain)-$(tool-class)))
+                $$(warning $$(space)   $$($(1)-$(2)))
                 $$(warning )
-                $$(warning The default $$($(toolchain)-name) $$(tool-class-name-$(tool-class)) is:)
+                $$(warning The default $$($(1)-name) $$(tool-class-name-$(2)) is:)
                 $$(warning )
-                $$(warning $$(space)   $$($(toolchain)-$(tool-class)-default))
+                $$(warning $$(space)   $$($(1)-$(2)-default))
                 $$(warning )
                 $$(warning The following tools are supported:)
                 $$(warning )
 
-                $$(foreach tool,$$(tools-$(tool-class)), \
+                $$(foreach tool,$$(tools-$(2)), \
                         $$(warning $$(space) - $$(tool-name-$$(tool))))
 
                 $$(warning )
-                $$(warning The build system will treat this $$(tool-class-name-$(tool-class)) as $$(tool-name-$$($(toolchain)-$(tool-class)-id-default)).)
+                $$(warning The build system will treat this $$(tool-class-name-$(2)) as $$(tool-name-$$($(1)-$(2)-id-default)).)
                 $$(warning )
         endef
 
-        define locate-toolchain-tool-cc
-                $(eval toolchain := $(1))
+        define toolchain-determine-tool
+                $(1)-$(2)-guess = $$(if $$(filter-out cc,$(2)),$\
+                        $$(call guess-$$($(1)-cc-id)-$(2),$$($(1)-cc)))
 
-                $(toolchain)-cc := $$(or $$($(toolchain)-cc),$$($(toolchain)-cc-default))
-                $(toolchain)-cc-id := $$(call guess-tool,$$(tools-cc),$$($(toolchain)-cc))
+                $(1)-$(2) := $$(or $$($(1)-$(2)),$$($(1)-$(2)-guess))
+                $(1)-$(2) := $$(or $$($(1)-$(2)),$$($(1)-$(2)-default))
 
-                ifndef $(toolchain)-cc-id
-                        $(toolchain)-cc-id := $$($(toolchain)-cc-id-default)
+                ifneq ($$(call which,$$($(1)-$(2))),)
+                        # If we can resolve this tool to a program on the `PATH`
+                        # then escape it for use in a shell, which allows us to
+                        # preserve spaces.
 
-                        $$(eval $$(call warn-unrecognized-tool,$(toolchain),cc))
+                        $(1)-$(2) := $$(call escape-shell,$$($(1)-$(2)))
                 endif
 
-                $(toolchain)-cc-path := $$($(toolchain)-cc)
-                $(toolchain)-cc := $$(call escape-shell,$$($(toolchain)-cc))
+                $(1)-$(2)-id := $$(call guess-tool,$$(tools-$(2)),$$($(1)-$(2)))
+
+                ifndef $(1)-$(2)-id
+                        $(1)-$(2)-id := $$($(1)-$(2)-id-default)
+
+                        $$(eval $$(call toolchain-warn-unrecognized,$(1),$(2)))
+                endif
         endef
 
-        define locate-toolchain-tool
-                $(eval toolchain := $(1))
-                $(eval tool-class := $(2))
-
-                ifndef $(toolchain)-$(tool-class)
-                        $(toolchain)-$(tool-class) := $$(call guess-$$($(toolchain)-cc-id)-$(tool-class),$$($(toolchain)-cc-path))
-
-                        ifndef $(toolchain)-$(tool-class)
-                                $(toolchain)-$(tool-class) := $$($(toolchain)-$(tool-class)-default)
-                        endif
-                endif
-
-                $(toolchain)-$(tool-class)-id := $$(call guess-tool,$$(tools-$(tool-class)),$$($(toolchain)-$(tool-class)))
-
-                ifndef $(toolchain)-$(tool-class)-id
-                        $(toolchain)-$(tool-class)-id := $$($(toolchain)-$(tool-class)-id-default)
-
-                        $$(eval $$(call warn-unrecognized-tool,$(toolchain),$(tool-class)))
-                endif
-
-                $(toolchain)-$(tool-class) := $$(call escape-shell,$$($(toolchain)-$(tool-class)))
-        endef
-
-        define locate-toolchain
-                $(eval toolchain := $(1))
-
-                $$(eval $$(call locate-toolchain-tool-cc,$(toolchain)))
-
-                $$(foreach tool-class,$$(filter-out cc,$$(tool-classes)), \
-                        $$(eval $$(call locate-toolchain-tool,$(toolchain),$$(tool-class))))
+        define toolchain-determine
+                $$(foreach tool-class,$$(tool-classes), \
+                        $$(eval $$(call toolchain-determine-tool,$(1),$$(tool-class))))
         endef
 
         $(foreach toolchain,$(toolchains), \
-                $(eval $(call locate-toolchain,$(toolchain))))
+                $(eval $(call toolchain-determine,$(toolchain))))
 endif
