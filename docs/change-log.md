@@ -3,6 +3,40 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.19](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.18..refs/tags/lts-v2.8.19) (2024-05-16)
+
+### New Features
+
+- **Services**
+
+  - **SPM**
+
+    - **SPMD**
+
+      - initialize SCR_EL3.EEL2 bit at RESET ([1e785ab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1e785ab6a994ed28b8002ceb9377dabf864ae305))
+
+### Resolved Issues
+
+- **Services**
+
+  - **SPM**
+
+    - **SPMD**
+
+      - avoid restoring ctx during first entry into spmc ([9d40eff](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9d40eff24ec7ac8ecb7081a3046ff617be9f3043))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A715 erratum 2728106 ([0263326](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/02633263a6f15c8a761968a872f981bc0fea6111))
+    - workaround for Cortex-X4 erratum 2740089 ([9b5d75b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9b5d75b17f131aa80930128b247c63d4ba177469))
+    - workaround for Cortex-X4 erratum 2763018 ([d0a74e3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d0a74e38c4393c5d3e2572fb9b274c886c100736))
+
+### Documentation
+
+- decrease the minimum supported OpenSSL ([6c9135f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6c9135fb059bc289b26b8ef0450f995f05403d55))
+
 ## [lts-2.8.18](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.17..refs/tags/lts-v2.8.18) (2024-04-26)
 
 ### New Features
