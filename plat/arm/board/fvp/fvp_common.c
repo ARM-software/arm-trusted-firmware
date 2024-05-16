@@ -219,6 +219,11 @@ const mmap_region_t plat_arm_mmap[] = {
 #if defined(IMAGE_BL31) && SPM_MM
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	V2M_MAP_IOFPGA_EL0, /* for the UART */
+	V2M_MAP_SECURE_SYSTEMREG_EL0, /* for initializing flash */
+#if PSA_FWU_SUPPORT
+	V2M_MAP_FLASH0_RW_EL0, /* for firmware update service in standalone mm */
+#endif
+	V2M_MAP_FLASH1_RW_EL0, /* for secure variable service in standalone mm */
 	MAP_REGION_FLAT(DEVICE0_BASE,
 			DEVICE0_SIZE,
 			MT_DEVICE | MT_RO | MT_SECURE | MT_USER),
