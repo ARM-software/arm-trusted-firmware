@@ -176,7 +176,6 @@
 			#size-cells = <1>;
 			compatible = "st,stm32mp257-pinctrl";
 			ranges = <0 0x44240000 0xa0400>;
-			pins-are-numbered;
 
 			gpioa: gpio@44240000 {
 				gpio-controller;
@@ -305,7 +304,6 @@
 			#size-cells = <1>;
 			compatible = "st,stm32mp257-z-pinctrl";
 			ranges = <0 0x46200000 0x400>;
-			pins-are-numbered;
 
 			gpioz: gpio@46200000 {
 				gpio-controller;
