@@ -77,7 +77,7 @@ else
 				lib/cpus/aarch64/neoverse_n1.S			\
 				lib/cpus/aarch64/neoverse_n2.S			\
 				lib/cpus/aarch64/neoverse_v1.S			\
-				lib/cpus/aarch64/cortex_chaberton.S		\
+				lib/cpus/aarch64/cortex_a725.S		\
 				lib/cpus/aarch64/cortex_blackhawk.S
 
 # AArch64/AArch32 cores
