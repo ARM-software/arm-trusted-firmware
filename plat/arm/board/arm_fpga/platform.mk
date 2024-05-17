@@ -78,7 +78,7 @@ else
 				lib/cpus/aarch64/neoverse_n2.S			\
 				lib/cpus/aarch64/neoverse_v1.S			\
 				lib/cpus/aarch64/cortex_a725.S		\
-				lib/cpus/aarch64/cortex_blackhawk.S
+				lib/cpus/aarch64/cortex_x925.S
 
 # AArch64/AArch32 cores
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S	\

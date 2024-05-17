@@ -101,7 +101,7 @@ endif
 ifeq (${TARGET_PLATFORM}, 3)
 TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a520.S \
 			lib/cpus/aarch64/cortex_a725.S \
-			lib/cpus/aarch64/cortex_blackhawk.S
+			lib/cpus/aarch64/cortex_x925.S
 endif
 
 INTERCONNECT_SOURCES	:=	${TC_BASE}/tc_interconnect.c
