@@ -63,8 +63,8 @@ LTS Maintainers
 :|G|: `bipinravi-arm`_
 :|M|: Joanna Farley <joanna.farley@arm.com>
 :|G|: `joannafarley-arm`_
-:|M|: Okash Khawaja <okash@google.com>
-:|G|: `bytefire`_
+:|M|: Jidong Sun <jidong@google.com>
+:|G|: `jidongsun`_
 :|M|: Varun Wadekar <vwadekar@nvidia.com>
 :|G|: `vwadekar`_
 :|M|: Yann Gautier <yann.gautier@st.com>
@@ -1035,7 +1035,7 @@ Conventional Changelog Extensions
 .. _bijucdas: https://github.com/bijucdas
 .. _bipinravi-arm: https://github.com/bipinravi-arm
 .. _bryanodonoghue: https://github.com/bryanodonoghue
-.. _bytefire: https://github.com/bytefire
+.. _jidongsun: https://github.com/jidongsun
 .. _carlocaione: https://github.com/carlocaione
 .. _chandnich: https://github.com/chandnich
 .. _ChiaweiW: https://github.com/chiaweiw
