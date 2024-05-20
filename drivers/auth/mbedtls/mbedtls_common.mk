@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2015-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,65 +19,54 @@ MBEDTLS_MAJOR=$(shell grep -hP "define MBEDTLS_VERSION_MAJOR" ${MBEDTLS_DIR}/inc
 MBEDTLS_MINOR=$(shell grep -hP "define MBEDTLS_VERSION_MINOR" ${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
 $(info MBEDTLS_VERSION_MAJOR is [${MBEDTLS_MAJOR}] MBEDTLS_VERSION_MINOR is [${MBEDTLS_MINOR}])
 
-# Specify mbed TLS configuration file
-ifeq (${MBEDTLS_MAJOR}, 2)
-        $(info Deprecation Notice: Please migrate to Mbedtls version 3.x (refer to TF-A documentation for the exact version number))
-	MBEDTLS_CONFIG_FILE             ?=	"<drivers/auth/mbedtls/mbedtls_config-2.h>"
-else ifeq (${MBEDTLS_MAJOR}, 3)
-	MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/mbedtls_config-3.h>"
+ifneq (${MBEDTLS_MAJOR}, 3)
+  $(error Error: TF-A only supports MbedTLS versions > 3.x)
 endif
+
+# Specify mbed TLS configuration file
+	MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/mbedtls_config-3.h>"
 
 $(eval $(call add_define,MBEDTLS_CONFIG_FILE))
 
 MBEDTLS_SOURCES	+=		drivers/auth/mbedtls/mbedtls_common.c
 
-
-LIBMBEDTLS_SRCS		:= $(addprefix ${MBEDTLS_DIR}/library/,	\
-					aes.c 					\
-					asn1parse.c 				\
-					asn1write.c 				\
-					cipher.c 				\
-					cipher_wrap.c 				\
-					constant_time.c 			\
-					memory_buffer_alloc.c			\
-					oid.c 					\
-					platform.c 				\
-					platform_util.c				\
-					bignum.c				\
-					gcm.c 					\
-					md.c					\
-					pk.c 					\
-					pk_wrap.c 				\
-					pkparse.c 				\
-					pkwrite.c 				\
-					sha256.c            			\
-					sha512.c            			\
-					ecdsa.c					\
-					ecp_curves.c				\
-					ecp.c					\
-					rsa.c					\
-					x509.c 					\
-					x509_crt.c 				\
+LIBMBEDTLS_SRCS		+= $(addprefix ${MBEDTLS_DIR}/library/,		\
+					aes.c 				\
+					asn1parse.c 			\
+					asn1write.c 			\
+					cipher.c 			\
+					cipher_wrap.c 			\
+					constant_time.c			\
+					hash_info.c			\
+					memory_buffer_alloc.c		\
+					oid.c 				\
+					platform.c 			\
+					platform_util.c			\
+					bignum.c			\
+					bignum_core.c			\
+					gcm.c 				\
+					md.c				\
+					pk.c 				\
+					pk_wrap.c 			\
+					pkparse.c 			\
+					pkwrite.c 			\
+					sha256.c            		\
+					sha512.c            		\
+					ecdsa.c				\
+					ecp_curves.c			\
+					ecp.c				\
+					rsa.c				\
+					rsa_alt_helpers.c		\
+					x509.c 				\
+					x509_crt.c 			\
 					)
 
-ifeq (${MBEDTLS_MAJOR}, 2)
-	LIBMBEDTLS_SRCS +=  $(addprefix ${MBEDTLS_DIR}/library/,	\
-						rsa_internal.c		\
-						)
-else ifeq (${MBEDTLS_MAJOR}, 3)
-	LIBMBEDTLS_SRCS +=  $(addprefix ${MBEDTLS_DIR}/library/,	\
-						bignum_core.c		\
-						rsa_alt_helpers.c	\
-						hash_info.c		\
-						)
-
-	# Currently on Mbedtls-3 there is outstanding bug due to usage
-	# of redundant declaration[1], So disable redundant-decls
-	# compilation flag to avoid compilation error when compiling with
-	# Mbedtls-3.
-	# [1]: https://github.com/Mbed-TLS/mbedtls/issues/6910
-	LIBMBEDTLS_CFLAGS += -Wno-error=redundant-decls
-endif
+# Currently on Mbedtls-3 there is outstanding bug due to usage
+# of redundant declaration[1], So disable redundant-decls
+# compilation flag to avoid compilation error when compiling with
+# Mbedtls-3.
+# [1]: https://github.com/Mbed-TLS/mbedtls/issues/6910
+LIBMBEDTLS_CFLAGS += -Wno-error=redundant-decls
 
 # The platform may define the variable 'TF_MBEDTLS_KEY_ALG' to select the key
 # algorithm to use. If the variable is not defined, select it based on
