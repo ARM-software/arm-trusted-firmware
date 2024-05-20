@@ -33,6 +33,12 @@ CPU_FLAG_LIST += DYNAMIC_WORKAROUND_CVE_2018_3639
 WORKAROUND_CVE_2022_23960		?=1
 CPU_FLAG_LIST += WORKAROUND_CVE_2022_23960
 
+# Flag to disable Hardware page aggregation(HPA).
+# This flag is enabled by default.
+WORKAROUND_CVE_2024_5660		?=1
+CPU_FLAG_LIST += WORKAROUND_CVE_2024_5660
+
+
 # Flags to indicate internal or external Last level cache
 # By default internal
 CPU_FLAG_LIST += NEOVERSE_Nx_EXTERNAL_LLC

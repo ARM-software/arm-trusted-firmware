@@ -46,6 +46,13 @@ check_erratum_custom_start cortex_x4, ERRATUM(2726228)
 	ret
 check_erratum_custom_end cortex_x4, ERRATUM(2726228)
 
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x4, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X4_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x4, CVE(2024, 5660)
+
+check_erratum_ls cortex_x4, CVE(2024, 5660), CPU_REV(0, 2)
+
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
 	dsb	sy
