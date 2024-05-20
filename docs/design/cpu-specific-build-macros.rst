@@ -33,6 +33,11 @@ vulnerability workarounds should be applied at runtime.
    This build option should be set to 1 if the target platform contains at
    least 1 CPU that requires this mitigation. Defaults to 1.
 
+-  ``WORKAROUND_CVE_2024_5660``: Enables mitigation for `CVE-2024-5660`.
+   The fix is to disable hardware page aggregation by setting CPUECTLR_EL1[46]
+   in EL3 FW. This build option should be set to 1 if the target platform contains
+   at least 1 CPU that requires this mitigation. Defaults to 1.
+
 .. _arm_cpu_macros_errata_workarounds:
 
 CPU Errata Workarounds
