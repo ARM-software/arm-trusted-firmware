@@ -230,18 +230,17 @@ $(eval TC_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(TC_HW_CONFIG_DTS))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TC_HW_CONFIG},--hw-config,${TC_HW_CONFIG}))
 
+$(info Including rse_comms.mk)
+include drivers/arm/rse/rse_comms.mk
+
+BL1_SOURCES	+=	${RSE_COMMS_SOURCES}
+BL2_SOURCES	+=	${RSE_COMMS_SOURCES}
+BL31_SOURCES	+=	${RSE_COMMS_SOURCES}
+
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
 # flags present in Measured Boot makefile.
-$(info Including rse_comms.mk)
 ifeq (${MEASURED_BOOT},1)
-        $(info Including rse_comms.mk)
-        include drivers/arm/rse/rse_comms.mk
-
-	BL1_SOURCES	+=	${RSE_COMMS_SOURCES}
-	BL2_SOURCES	+=	${RSE_COMMS_SOURCES}
-	PLAT_INCLUDES	+=	-Iinclude/lib/psa
-
     ifeq (${DICE_PROTECTION_ENVIRONMENT},1)
         $(info Including qcbor.mk)
         include drivers/measured_boot/rse/qcbor.mk

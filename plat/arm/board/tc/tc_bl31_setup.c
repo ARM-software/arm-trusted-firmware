@@ -26,6 +26,10 @@
 #include <psa/crypto_values.h>
 #endif /* PLATFORM_TEST_TFM_TESTSUITE */
 
+#include <drivers/arm/rse_comms.h>
+#include <plat/common/platform.h>
+#include "rse_platform_api.h"
+
 #ifdef PLATFORM_TEST_TFM_TESTSUITE
 /*
  * We pretend using an external RNG (through MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
@@ -190,6 +194,12 @@ void tc_bl31_plat_runtime_setup(void)
 	plat_arm_secure_wdt_start();
 
 	arm_bl31_plat_runtime_setup();
+
+	/* Initialise RSE communication channel */
+	status = rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE, PLAT_RSE_AP_RCV_MHU_BASE);
+	if (status != PSA_SUCCESS) {
+		ERROR("Failed to initialize RSE communication channel - psa_status = %d\n", status);
+	}
 }
 
 void bl31_plat_runtime_setup(void)
