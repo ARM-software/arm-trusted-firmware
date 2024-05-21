@@ -4,6 +4,15 @@
  */
 
 / {
+	soc@0 {
+#if !STM32MP_EMMC && !STM32MP_SDMMC
+		rifsc@42080000 {
+			/delete-node/ mmc@48220000;
+			/delete-node/ mmc@48230000;
+		};
+#endif
+	};
+
 	/*
 	 * UUID's here are UUID RFC 4122 compliant meaning fieds are stored in
 	 * network order (big endian)
