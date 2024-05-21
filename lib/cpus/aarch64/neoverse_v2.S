@@ -22,6 +22,13 @@
 #error "Neoverse V2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start neoverse_v2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set NEOVERSE_V2_CPUECTLR_EL1, BIT(46)
+workaround_reset_end neoverse_v2, CVE(2024, 5660)
+
+check_erratum_ls neoverse_v2, CVE(2024, 5660), CPU_REV(0, 2)
+
 workaround_reset_start neoverse_v2, ERRATUM(2331132), ERRATA_V2_2331132
 	sysreg_bitfield_insert NEOVERSE_V2_CPUECTLR2_EL1, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_CNSRV, \
 		NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_LSB, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_WIDTH
