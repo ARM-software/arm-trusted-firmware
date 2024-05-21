@@ -90,5 +90,7 @@ ifeq (${STM32MP_USB_PROGRAMMER},1)
 BL2_SOURCES			+=	plat/st/stm32mp2/stm32mp2_usb_dfu.c
 endif
 
+BL2_SOURCES			+=	drivers/st/ddr/stm32mp2_ddr_helpers.c
+
 # Compilation rules
 include plat/st/common/common_rules.mk
