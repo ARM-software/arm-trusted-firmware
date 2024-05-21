@@ -26,6 +26,13 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X3_BHB_LOOP_COUNT, cortex_x3
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X3_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x3, CVE(2024, 5660)
+
+check_erratum_ls cortex_x3, CVE(2024, 5660), CPU_REV(1, 2)
+
 workaround_reset_start cortex_x3, ERRATUM(2070301), ERRATA_X3_2070301
 	sysreg_bitfield_insert CORTEX_X3_CPUECTLR2_EL1, CORTEX_X3_CPUECTLR2_EL1_PF_MODE_CNSRV, \
 	CORTEX_X3_CPUECTLR2_EL1_PF_MODE_LSB, CORTEX_X3_CPUECTLR2_EL1_PF_MODE_WIDTH
