@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -61,10 +61,31 @@
 #define BL2_LIMIT			(STM32MP_BL2_BASE + \
 					 STM32MP_BL2_SIZE)
 
+#define BL2_RO_BASE			STM32MP_BL2_RO_BASE
+#define BL2_RO_LIMIT			(STM32MP_BL2_RO_BASE + \
+					 STM32MP_BL2_RO_SIZE)
+
+#define BL2_RW_BASE			STM32MP_BL2_RW_BASE
+#define BL2_RW_LIMIT			(STM32MP_BL2_RW_BASE + \
+					 STM32MP_BL2_RW_SIZE)
+
+/*******************************************************************************
+ * BL31 specific defines.
+ ******************************************************************************/
+#define BL31_BASE			0
+#define BL31_LIMIT			STM32MP_BL31_SIZE
+
 /*******************************************************************************
  * BL33 specific defines.
  ******************************************************************************/
 #define BL33_BASE			STM32MP_BL33_BASE
+
+/*******************************************************************************
+ * DTB specific defines.
+ ******************************************************************************/
+#define DTB_BASE			STM32MP_DTB_BASE
+#define DTB_LIMIT			(STM32MP_DTB_BASE + \
+					 STM32MP_DTB_SIZE)
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
