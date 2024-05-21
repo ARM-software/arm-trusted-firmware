@@ -9,6 +9,7 @@
 
 #include <common/debug.h>
 #include <drivers/clk.h>
+#include <drivers/st/regulator_fixed.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/mmio.h>
@@ -207,6 +208,10 @@ void bl2_el3_plat_arch_setup(void)
 	print_reset_reason();
 
 skip_console_init:
+	if (fixed_regulator_register() != 0) {
+		panic();
+	}
+
 	fconf_populate("TB_FW", STM32MP_DTB_BASE);
 
 	stm32mp_io_setup();
