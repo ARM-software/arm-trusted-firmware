@@ -139,8 +139,14 @@ enum ddr_type {
 #define STM32MP_DTB_BASE			STM32MP_BL2_DTB_BASE
 #endif
 
+#define STM32MP_FW_CONFIG_MAX_SIZE		PAGE_SIZE
+#define STM32MP_FW_CONFIG_BASE			STM32MP_SYSRAM_BASE
+
 #define STM32MP_BL33_BASE			(STM32MP_DDR_BASE + U(0x04000000))
 #define STM32MP_BL33_MAX_SIZE			U(0x400000)
+#define STM32MP_HW_CONFIG_BASE			(STM32MP_BL33_BASE + \
+						STM32MP_BL33_MAX_SIZE)
+#define STM32MP_HW_CONFIG_MAX_SIZE		U(0x40000)
 
 /*******************************************************************************
  * STM32MP2 device/io map related constants (used for MMU)
