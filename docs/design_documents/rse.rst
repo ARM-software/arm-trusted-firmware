@@ -482,74 +482,101 @@ Binary format:
     INFO:    Get platform token start
     INFO:    Get platform token succeeds, len: 1086
     INFO:    Platform attestation token:
-    INFO:            d2 84 44 a1 01 38 22 a0 59 03 d1 a9 0a 58 20 00
-    INFO:            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-    INFO:            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 19
-    INFO:            01 00 58 21 01 cb 8c 79 f7 a0 0a 6c ce 12 66 f8
-    INFO:            64 45 48 42 0e c5 10 bf 84 ee 22 18 b9 8f 11 04
-    INFO:            c7 22 31 9d fb 19 09 5c 58 20 aa aa aa aa aa aa
-    INFO:            aa aa bb bb bb bb bb bb bb bb cc cc cc cc cc cc
-    INFO:            cc cc dd dd dd dd dd dd dd dd 19 09 5b 19 30 00
-    INFO:            19 09 5f 89 a4 05 58 20 bf e6 d8 6f 88 26 f4 ff
-    INFO:            97 fb 96 c4 e6 fb c4 99 3e 46 19 fc 56 5d a2 6a
-    INFO:            df 34 c3 29 48 9a dc 38 04 67 31 2e 36 2e 30 2b
-    INFO:            30 01 64 52 54 5f 30 02 58 20 90 27 f2 46 ab 31
-    INFO:            85 36 46 c4 d7 c6 60 ed 31 0d 3c f0 14 de f0 6c
-    INFO:            24 0b de b6 7a 84 fc 3f 5b b7 a4 05 58 20 b3 60
-    INFO:            ca f5 c9 8c 6b 94 2a 48 82 fa 9d 48 23 ef b1 66
-    INFO:            a9 ef 6a 6e 4a a3 7c 19 19 ed 1f cc c0 49 04 67
-    INFO:            30 2e 30 2e 30 2b 30 01 64 52 54 5f 31 02 58 20
-    INFO:            52 13 15 d4 9d b2 cf 54 e4 99 37 44 40 68 f0 70
-    INFO:            7d 73 64 ae f7 08 14 b0 f7 82 ad c6 17 db a3 91
-    INFO:            a4 05 58 20 bf e6 d8 6f 88 26 f4 ff 97 fb 96 c4
-    INFO:            e6 fb c4 99 3e 46 19 fc 56 5d a2 6a df 34 c3 29
-    INFO:            48 9a dc 38 04 67 31 2e 35 2e 30 2b 30 01 64 52
-    INFO:            54 5f 32 02 58 20 8e 5d 64 7e 6f 6c c6 6f d4 4f
-    INFO:            54 b6 06 e5 47 9a cc 1b f3 7f ce 87 38 49 c5 92
-    INFO:            d8 2f 85 2e 85 42 a4 05 58 20 bf e6 d8 6f 88 26
-    INFO:            f4 ff 97 fb 96 c4 e6 fb c4 99 3e 46 19 fc 56 5d
-    INFO:            a2 6a df 34 c3 29 48 9a dc 38 04 67 31 2e 35 2e
-    INFO:            30 2b 30 01 60 02 58 20 b8 01 65 a7 78 8b c6 59
-    INFO:            42 8d 33 10 85 d1 49 0a dc 9e c3 ee df 85 1b d2
-    INFO:            f0 73 73 6a 0c 07 11 b8 a4 05 58 20 b0 f3 82 09
-    INFO:            12 97 d8 3a 37 7a 72 47 1b ec 32 73 e9 92 32 e2
-    INFO:            49 59 f6 5e 8b 4a 4a 46 d8 22 9a da 04 60 01 6a
-    INFO:            46 57 5f 43 4f 4e 46 49 47 00 02 58 20 21 9e a0
-    INFO:            13 82 e6 d7 97 5a 11 13 a3 5f 45 39 68 b1 d9 a3
-    INFO:            ea 6a ab 84 23 3b 8c 06 16 98 20 ba b9 a4 05 58
-    INFO:            20 b0 f3 82 09 12 97 d8 3a 37 7a 72 47 1b ec 32
-    INFO:            73 e9 92 32 e2 49 59 f6 5e 8b 4a 4a 46 d8 22 9a
-    INFO:            da 04 60 01 6d 54 42 5f 46 57 5f 43 4f 4e 46 49
-    INFO:            47 00 02 58 20 41 39 f6 c2 10 84 53 c5 17 ae 9a
-    INFO:            e5 be c1 20 7b cc 24 24 f3 9d 20 a8 fb c7 b3 10
-    INFO:            e3 ee af 1b 05 a4 05 58 20 b0 f3 82 09 12 97 d8
-    INFO:            3a 37 7a 72 47 1b ec 32 73 e9 92 32 e2 49 59 f6
-    INFO:            5e 8b 4a 4a 46 d8 22 9a da 04 60 01 65 42 4c 5f
-    INFO:            32 00 02 58 20 5c 96 20 e1 e3 3b 0f 2c eb c1 8e
-    INFO:            1a 02 a6 65 86 dd 34 97 a7 4c 98 13 bf 74 14 45
-    INFO:            2d 30 28 05 c3 a4 05 58 20 b0 f3 82 09 12 97 d8
-    INFO:            3a 37 7a 72 47 1b ec 32 73 e9 92 32 e2 49 59 f6
-    INFO:            5e 8b 4a 4a 46 d8 22 9a da 04 60 01 6e 53 45 43
-    INFO:            55 52 45 5f 52 54 5f 45 4c 33 00 02 58 20 f6 fb
-    INFO:            62 99 a5 0c df db 02 0b 72 5b 1c 0b 63 6e 94 ee
-    INFO:            66 50 56 3a 29 9c cb 38 f0 ec 59 99 d4 2e a4 05
-    INFO:            58 20 b0 f3 82 09 12 97 d8 3a 37 7a 72 47 1b ec
-    INFO:            32 73 e9 92 32 e2 49 59 f6 5e 8b 4a 4a 46 d8 22
-    INFO:            9a da 04 60 01 6a 48 57 5f 43 4f 4e 46 49 47 00
-    INFO:            02 58 20 98 5d 87 21 84 06 33 9d c3 1f 91 f5 68
-    INFO:            8d a0 5a f0 d7 7e 20 51 ce 3b f2 a5 c3 05 2e 3c
-    INFO:            8b 52 31 19 01 09 78 1c 68 74 74 70 3a 2f 2f 61
-    INFO:            72 6d 2e 63 6f 6d 2f 43 43 41 2d 53 53 44 2f 31
-    INFO:            2e 30 2e 30 19 09 62 71 6e 6f 74 2d 68 61 73 68
-    INFO:            2d 65 78 74 65 6e 64 65 64 19 09 61 44 ef be ad
-    INFO:            de 19 09 60 77 77 77 77 2e 74 72 75 73 74 65 64
-    INFO:            66 69 72 6d 77 61 72 65 2e 6f 72 67 58 60 29 4e
-    INFO:            4a d3 98 1e 3b 70 9f b6 66 ed 47 33 0e 99 f0 b1
-    INFO:            c3 f2 bc b2 1d b0 ae 90 0c c4 82 ff a2 6f ae 45
-    INFO:            f6 87 09 4a 09 21 77 ec 36 1c 53 b8 a7 9b 8e f7
-    INFO:            27 eb 7a 09 da 6f fb bf cb fd b3 e5 e9 36 91 b1
-    INFO:            92 13 c1 30 16 b4 5c 49 5e c0 c1 b9 01 5c 88 2c
-    INFO:            f8 2f 3e a4 a2 6d e4 9d 31 6a 06 f7 a7 73
+    INFO:            d2 84 44 a1 01 38 22 a0 59 05 7a a9 19 01 09 78
+    INFO:            1c 68 74 74 70 3a 2f 2f 61 72 6d 2e 63 6f 6d 2f
+    INFO:            43 43 41 2d 53 53 44 2f 31 2e 30 2e 30 0a 58 20
+    INFO:            b5 97 3c b6 8b aa 9f c5 55 58 78 6b 7e c6 7f 69
+    INFO:            e4 0d f5 ba 5a a9 21 cd 0c 27 f4 05 87 a0 11 ea
+    INFO:            19 09 5c 58 20 7f 45 4c 46 02 01 01 00 00 00 00
+    INFO:            00 00 00 00 00 03 00 3e 00 01 00 00 00 50 58 00
+    INFO:            00 00 00 00 00 19 01 00 58 21 01 07 06 05 04 03
+    INFO:            02 01 00 0f 0e 0d 0c 0b 0a 09 08 17 16 15 14 13
+    INFO:            12 11 10 1f 1e 1d 1c 1b 1a 19 18 19 09 61 44 cf
+    INFO:            cf cf cf 19 09 5b 19 30 03 19 09 62 67 73 68 61
+    INFO:            2d 32 35 36 19 09 60 78 3a 68 74 74 70 73 3a 2f
+    INFO:            2f 76 65 72 61 69 73 6f 6e 2e 65 78 61 6d 70 6c
+    INFO:            65 2f 2e 77 65 6c 6c 2d 6b 6e 6f 77 6e 2f 76 65
+    INFO:            72 61 69 73 6f 6e 2f 76 65 72 69 66 69 63 61 74
+    INFO:            69 6f 6e 19 09 5f 8d a4 01 69 52 53 45 5f 42 4c
+    INFO:            31 5f 32 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
+    INFO:            8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38
+    INFO:            c0 fa 97 3f 7a a3 02 58 20 9a 27 1f 2a 91 6b 0b
+    INFO:            6e e6 ce cb 24 26 f0 b3 20 6e f0 74 57 8b e5 5d
+    INFO:            9b c9 4f 6f 3f e3 ab 86 aa 06 67 73 68 61 2d 32
+    INFO:            35 36 a4 01 67 52 53 45 5f 42 4c 32 05 58 20 53
+    INFO:            78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41
+    INFO:            41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02
+    INFO:            58 20 53 c2 34 e5 e8 47 2b 6a c5 1c 1a e1 ca b3
+    INFO:            fe 06 fa d0 53 be b8 eb fd 89 77 b0 10 65 5b fd
+    INFO:            d3 c3 06 67 73 68 61 2d 32 35 36 a4 01 65 52 53
+    INFO:            45 5f 53 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
+    INFO:            8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38
+    INFO:            c0 fa 97 3f 7a a3 02 58 20 11 21 cf cc d5 91 3f
+    INFO:            0a 63 fe c4 0a 6f fd 44 ea 64 f9 dc 13 5c 66 63
+    INFO:            4b a0 01 d1 0b cf 43 02 a2 06 67 73 68 61 2d 32
+    INFO:            35 36 a4 01 66 41 50 5f 42 4c 31 05 58 20 53 78
+    INFO:            79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41
+    INFO:            9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02 58
+    INFO:            20 15 71 b5 ec 78 bd 68 51 2b f7 83 0b b6 a2 a4
+    INFO:            4b 20 47 c7 df 57 bc e7 9e b8 a1 c0 e5 be a0 a5
+    INFO:            01 06 67 73 68 61 2d 32 35 36 a4 01 66 41 50 5f
+    INFO:            42 4c 32 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
+    INFO:            8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38
+    INFO:            c0 fa 97 3f 7a a3 02 58 20 10 15 9b af 26 2b 43
+    INFO:            a9 2d 95 db 59 da e1 f7 2c 64 51 27 30 16 61 e0
+    INFO:            a3 ce 4e 38 b2 95 a9 7c 58 06 67 73 68 61 2d 32
+    INFO:            35 36 a4 01 67 53 43 50 5f 42 4c 31 05 58 20 53
+    INFO:            78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41
+    INFO:            41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02
+    INFO:            58 20 10 12 2e 85 6b 3f cd 49 f0 63 63 63 17 47
+    INFO:            61 49 cb 73 0a 1a a1 cf aa d8 18 55 2b 72 f5 6d
+    INFO:            6f 68 06 67 73 68 61 2d 32 35 36 a4 01 67 53 43
+    INFO:            50 5f 42 4c 32 05 58 20 f1 4b 49 87 90 4b cb 58
+    INFO:            14 e4 45 9a 05 7e d4 d2 0f 58 a6 33 15 22 88 a7
+    INFO:            61 21 4d cd 28 78 0b 56 02 58 20 aa 67 a1 69 b0
+    INFO:            bb a2 17 aa 0a a8 8a 65 34 69 20 c8 4c 42 44 7c
+    INFO:            36 ba 5f 7e a6 5f 42 2c 1f e5 d8 06 67 73 68 61
+    INFO:            2d 32 35 36 a4 01 67 41 50 5f 42 4c 33 31 05 58
+    INFO:            20 53 78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc
+    INFO:            56 41 41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a
+    INFO:            a3 02 58 20 2e 6d 31 a5 98 3a 91 25 1b fa e5 ae
+    INFO:            fa 1c 0a 19 d8 ba 3c f6 01 d0 e8 a7 06 b4 cf a9
+    INFO:            66 1a 6b 8a 06 67 73 68 61 2d 32 35 36 a4 01 63
+    INFO:            52 4d 4d 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
+    INFO:            8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38
+    INFO:            c0 fa 97 3f 7a a3 02 58 20 a1 fb 50 e6 c8 6f ae
+    INFO:            16 79 ef 33 51 29 6f d6 71 34 11 a0 8c f8 dd 17
+    INFO:            90 a4 fd 05 fa e8 68 81 64 06 67 73 68 61 2d 32
+    INFO:            35 36 a4 01 69 48 57 5f 43 4f 4e 46 49 47 05 58
+    INFO:            20 53 78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc
+    INFO:            56 41 41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a
+    INFO:            a3 02 58 20 1a 25 24 02 97 2f 60 57 fa 53 cc 17
+    INFO:            2b 52 b9 ff ca 69 8e 18 31 1f ac d0 f3 b0 6e ca
+    INFO:            ae f7 9e 17 06 67 73 68 61 2d 32 35 36 a4 01 69
+    INFO:            46 57 5f 43 4f 4e 46 49 47 05 58 20 53 78 79 63
+    INFO:            07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c 3d
+    INFO:            30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02 58 20 9a
+    INFO:            92 ad bc 0c ee 38 ef 65 8c 71 ce 1b 1b f8 c6 56
+    INFO:            68 f1 66 bf b2 13 64 4c 89 5c cb 1a d0 7a 25 06
+    INFO:            67 73 68 61 2d 32 35 36 a4 01 6c 54 42 5f 46 57
+    INFO:            5f 43 4f 4e 46 49 47 05 58 20 53 78 79 63 07 53
+    INFO:            5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c 3d 30 60
+    INFO:            cf e3 22 38 c0 fa 97 3f 7a a3 02 58 20 23 89 03
+    INFO:            18 0c c1 04 ec 2c 5d 8b 3f 20 c5 bc 61 b3 89 ec
+    INFO:            0a 96 7d f8 cc 20 8c dc 7c d4 54 17 4f 06 67 73
+    INFO:            68 61 2d 32 35 36 a4 01 6d 53 4f 43 5f 46 57 5f
+    INFO:            43 4f 4e 46 49 47 05 58 20 53 78 79 63 07 53 5d
+    INFO:            f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf
+    INFO:            e3 22 38 c0 fa 97 3f 7a a3 02 58 20 e6 c2 1e 8d
+    INFO:            26 0f e7 18 82 de bd b3 39 d2 40 2a 2c a7 64 85
+    INFO:            29 bc 23 03 f4 86 49 bc e0 38 00 17 06 67 73 68
+    INFO:            61 2d 32 35 36 58 60 21 51 20 92 d6 d0 2a e6 be
+    INFO:            2f e3 93 0e a5 1f d6 98 96 32 24 56 e9 df c7 32
+    INFO:            5e 0b 78 68 b6 90 73 2a 0c 0f 07 77 c1 15 40 4b
+    INFO:            e1 fc 83 9b 7d 30 4f 4f e6 fa 46 ae 12 a3 08 3a
+    INFO:            cf 24 06 67 91 06 bf ae 50 31 79 dd 50 33 49 12
+    INFO:            bf c6 da 33 6d d6 18 25 43 54 4d b5 88 d6 ae 67
+    INFO:            35 7a fd b0 5f 95 b7
     INFO:    DELEGATED ATTEST TEST END
 
 JSON format:
@@ -557,70 +584,94 @@ JSON format:
 .. code-block:: JSON
 
     {
-        "CCA_PLATFORM_CHALLENGE": "b'0000000000000000000000000000000000000000000000000000000000000000'",
-        "CCA_PLATFORM_INSTANCE_ID": "b'01CB8C79F7A00A6CCE1266F8644548420EC510BF84EE2218B98F1104C722319DFB'",
-        "CCA_PLATFORM_IMPLEMENTATION_ID": "b'AAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCDDDDDDDDDDDDDDDD'",
-        "CCA_PLATFORM_LIFECYCLE": "secured_3000",
+        "CCA_ATTESTATION_PROFILE": "http://arm.com/CCA-SSD/1.0.0",
+        "CCA_PLATFORM_CHALLENGE": "b'B5973CB68BAA9FC55558786B7EC67F69E40DF5BA5AA921CD0C27F40587A011EA'",
+        "CCA_PLATFORM_IMPLEMENTATION_ID": "b'7F454C4602010100000000000000000003003E00010000005058000000000000'",
+        "CCA_PLATFORM_INSTANCE_ID": "b'0107060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
+        "CCA_PLATFORM_CONFIG": "b'CFCFCFCF'",
+        "CCA_PLATFORM_LIFECYCLE": "secured_3003",
+        "CCA_PLATFORM_HASH_ALGO_ID": "sha-256",
+        "CCA_PLATFORM_VERIFICATION_SERVICE": "https://veraison.example/.well-known/veraison/verification",
         "CCA_PLATFORM_SW_COMPONENTS": [
             {
-                "SIGNER_ID": "b'BFE6D86F8826F4FF97FB96C4E6FBC4993E4619FC565DA26ADF34C329489ADC38'",
-                "SW_COMPONENT_VERSION": "1.6.0+0",
-                "SW_COMPONENT_TYPE": "RT_0",
-                "MEASUREMENT_VALUE": "b'9027F246AB31853646C4D7C660ED310D3CF014DEF06C240BDEB67A84FC3F5BB7'"
+                "SW_COMPONENT_TYPE": "RSE_BL1_2",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'9A271F2A916B0B6EE6CECB2426F0B3206EF074578BE55D9BC94F6F3FE3AB86AA'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             },
             {
-                "SIGNER_ID": "b'B360CAF5C98C6B942A4882FA9D4823EFB166A9EF6A6E4AA37C1919ED1FCCC049'",
-                "SW_COMPONENT_VERSION": "0.0.0+0",
-                "SW_COMPONENT_TYPE": "RT_1",
-                "MEASUREMENT_VALUE": "b'521315D49DB2CF54E49937444068F0707D7364AEF70814B0F782ADC617DBA391'"
+                "SW_COMPONENT_TYPE": "RSE_BL2",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'53C234E5E8472B6AC51C1AE1CAB3FE06FAD053BEB8EBFD8977B010655BFDD3C3'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             },
             {
-                "SIGNER_ID": "b'BFE6D86F8826F4FF97FB96C4E6FBC4993E4619FC565DA26ADF34C329489ADC38'",
-                "SW_COMPONENT_VERSION": "1.5.0+0",
-                "SW_COMPONENT_TYPE": "RT_2",
-                "MEASUREMENT_VALUE": "b'8E5D647E6F6CC66FD44F54B606E5479ACC1BF37FCE873849C592D82F852E8542'"
+                "SW_COMPONENT_TYPE": "RSE_S",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'1121CFCCD5913F0A63FEC40A6FFD44EA64F9DC135C66634BA001D10BCF4302A2'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             },
             {
-                "SIGNER_ID": "b'BFE6D86F8826F4FF97FB96C4E6FBC4993E4619FC565DA26ADF34C329489ADC38'",
-                "SW_COMPONENT_VERSION": "1.5.0+0",
-                "SW_COMPONENT_TYPE": "",
-                "MEASUREMENT_VALUE": "b'B80165A7788BC659428D331085D1490ADC9EC3EEDF851BD2F073736A0C0711B8'"
+                "SW_COMPONENT_TYPE": "AP_BL1",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'1571B5EC78BD68512BF7830BB6A2A44B2047C7DF57BCE79EB8A1C0E5BEA0A501'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             },
             {
-                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
-                "SW_COMPONENT_VERSION": "",
-                "SW_COMPONENT_TYPE": "FW_CONFIG\u0000",
-                "MEASUREMENT_VALUE": "b'219EA01382E6D7975A1113A35F453968B1D9A3EA6AAB84233B8C06169820BAB9'"
+                "SW_COMPONENT_TYPE": "AP_BL2",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'10159BAF262B43A92D95DB59DAE1F72C645127301661E0A3CE4E38B295A97C58'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             },
             {
-                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
-                "SW_COMPONENT_VERSION": "",
-                "SW_COMPONENT_TYPE": "TB_FW_CONFIG\u0000",
-                "MEASUREMENT_VALUE": "b'4139F6C2108453C517AE9AE5BEC1207BCC2424F39D20A8FBC7B310E3EEAF1B05'"
+                "SW_COMPONENT_TYPE": "SCP_BL1",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'10122E856B3FCD49F063636317476149CB730A1AA1CFAAD818552B72F56D6F68'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             },
             {
-                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
-                "SW_COMPONENT_VERSION": "",
-                "SW_COMPONENT_TYPE": "BL_2\u0000",
-                "MEASUREMENT_VALUE": "b'5C9620E1E33B0F2CEBC18E1A02A66586DD3497A74C9813BF7414452D302805C3'"
+                "SW_COMPONENT_TYPE": "SCP_BL2",
+                "SIGNER_ID": "b'F14B4987904BCB5814E4459A057ED4D20F58A633152288A761214DCD28780B56'",
+                "MEASUREMENT_VALUE": "b'AA67A169B0BBA217AA0AA88A65346920C84C42447C36BA5F7EA65F422C1FE5D8'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             },
             {
-                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
-                "SW_COMPONENT_VERSION": "",
-                "SW_COMPONENT_TYPE": "SECURE_RT_EL3\u0000",
-                "MEASUREMENT_VALUE": "b'F6FB6299A50CDFDB020B725B1C0B636E94EE6650563A299CCB38F0EC5999D42E'"
+                "SW_COMPONENT_TYPE": "AP_BL31",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'2E6D31A5983A91251BFAE5AEFA1C0A19D8BA3CF601D0E8A706B4CFA9661A6B8A'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             },
             {
-                "SIGNER_ID": "b'b0f382091297d83a377a72471bec3273e99232e24959f65e8b4a4a46d8229ada'",
-                "SW_COMPONENT_VERSION": "",
-                "SW_COMPONENT_TYPE": "HW_CONFIG\u0000",
-                "MEASUREMENT_VALUE": "b'985D87218406339DC31F91F5688DA05AF0D77E2051CE3BF2A5C3052E3C8B5231'"
+                "SW_COMPONENT_TYPE": "RMM",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'A1FB50E6C86FAE1679EF3351296FD6713411A08CF8DD1790A4FD05FAE8688164'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
+            },
+            {
+                "SW_COMPONENT_TYPE": "HW_CONFIG",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'1A252402972F6057FA53CC172B52B9FFCA698E18311FACD0F3B06ECAAEF79E17'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
+            },
+            {
+                "SW_COMPONENT_TYPE": "FW_CONFIG",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'9A92ADBC0CEE38EF658C71CE1B1BF8C65668F166BFB213644C895CCB1AD07A25'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
+            },
+            {
+                "SW_COMPONENT_TYPE": "TB_FW_CONFIG",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'238903180CC104EC2C5D8B3F20C5BC61B389EC0A967DF8CC208CDC7CD454174F'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
+            },
+            {
+                "SW_COMPONENT_TYPE": "SOC_FW_CONFIG",
+                "SIGNER_ID": "b'5378796307535DF3EC8D8B15A2E2DC5641419C3D3060CFE32238C0FA973F7AA3'",
+                "MEASUREMENT_VALUE": "b'E6C21E8D260FE71882DEBDB339D2402A2CA7648529BC2303F48649BCE0380017'",
+                "CCA_SW_COMPONENT_HASH_ID": "sha-256"
             }
-        ],
-        "CCA_ATTESTATION_PROFILE": "http://arm.com/CCA-SSD/1.0.0",
-        "CCA_PLATFORM_HASH_ALGO_ID": "not-hash-extended",
-        "CCA_PLATFORM_CONFIG": "b'EFBEADDE'",
-        "CCA_PLATFORM_VERIFICATION_SERVICE": "www.trustedfirmware.org"
+        ]
     }
 
 RSE OTP Assets Management
@@ -688,3 +739,4 @@ References
 --------------
 
 *Copyright (c) 2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2024, Linaro Limited. All rights reserved.*
