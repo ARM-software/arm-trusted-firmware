@@ -120,6 +120,10 @@ ifneq (${ENABLE_FEAT_MPAM},0)
 BL31_SOURCES		+=	lib/extensions/mpam/mpam.c
 endif
 
+ifneq (${ENABLE_FEAT_DEBUGV8P9},0)
+BL31_SOURCES		+=	lib/extensions/debug/debugv8p9.c
+endif
+
 ifneq (${ENABLE_TRBE_FOR_NS},0)
 BL31_SOURCES		+=	lib/extensions/trbe/trbe.c
 endif

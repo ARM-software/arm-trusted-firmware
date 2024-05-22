@@ -288,6 +288,23 @@ static inline bool is_feat_mpam_present(void)
 
 CREATE_FEATURE_SUPPORTED(feat_mpam, is_feat_mpam_present, ENABLE_FEAT_MPAM)
 
+/*
+ * FEAT_DebugV8P9: Debug extension. This function checks the field 3:0 of
+ * ID_AA64DFR0 Aarch64 Debug Feature Register 0 for the version of
+ * Feat_Debug supported. The value of the field determines feature presence
+ *
+ * 0b0110 - Arm v8.0 debug
+ * 0b0111 - Arm v8.0 debug architecture with Virtualization host extensions
+ * 0x1000 - FEAT_Debugv8p2 is supported
+ * 0x1001 - FEAT_Debugv8p4 is supported
+ * 0x1010 - FEAT_Debugv8p8 is supported
+ * 0x1011 - FEAT_Debugv8p9 is supported
+ *
+ */
+CREATE_FEATURE_FUNCS(feat_debugv8p9, id_aa64dfr0_el1, ID_AA64DFR0_DEBUGVER_SHIFT,
+		ID_AA64DFR0_DEBUGVER_MASK, DEBUGVER_V8P9_IMPLEMENTED,
+		ENABLE_FEAT_DEBUGV8P9)
+
 /* FEAT_HCX: Extended Hypervisor Configuration Register */
 CREATE_FEATURE_FUNCS(feat_hcx, id_aa64mmfr1_el1, ID_AA64MMFR1_EL1_HCX_SHIFT,
 		     ID_AA64MMFR1_EL1_HCX_MASK, 1U, ENABLE_FEAT_HCX)

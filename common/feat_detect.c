@@ -94,6 +94,12 @@ static unsigned int read_feat_csv2_id_field(void)
 			     ID_AA64PFR0_CSV2_MASK);
 }
 
+static unsigned int read_feat_debugv8p9_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_DEBUGVER_SHIFT,
+			     ID_AA64DFR0_DEBUGVER_MASK);
+}
+
 static unsigned int read_feat_pmuv3_id_field(void)
 {
 	return ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_PMUVER_SHIFT,
@@ -356,6 +362,8 @@ void detect_arch_features(void)
 		      "S1POE", 1, 1);
 	check_feature(ENABLE_FEAT_CSV2_3, read_feat_csv2_id_field(),
 		      "CSV2_3", 3, 3);
+	check_feature(ENABLE_FEAT_DEBUGV8P9, read_feat_debugv8p9_id_field(),
+			"DEBUGV8P9", 11, 11);
 
 	/* v9.0 features */
 	check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),

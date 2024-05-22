@@ -107,6 +107,9 @@ subsections:
       - title: CPU feature / ID register handling in general
         scope: cpufeat
 
+      - title: Debug Extension (FEAT_Debugv8p9)
+        scope: debugv8p9
+
       - title: Guarded Control Stack (FEAT_GCS)
         scope: gcs
 

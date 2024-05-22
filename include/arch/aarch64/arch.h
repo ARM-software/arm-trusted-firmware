@@ -224,6 +224,11 @@
 #define EL_IMPL_A64ONLY		ULL(1)
 #define EL_IMPL_A64_A32		ULL(2)
 
+/* ID_AA64DFR0_EL1.DebugVer definitions */
+#define ID_AA64DFR0_DEBUGVER_SHIFT		U(0)
+#define ID_AA64DFR0_DEBUGVER_MASK		ULL(0xf)
+#define DEBUGVER_V8P9_IMPLEMENTED		ULL(0xb)
+
 /* ID_AA64DFR0_EL1.TraceVer definitions */
 #define ID_AA64DFR0_TRACEVER_SHIFT	U(4)
 #define ID_AA64DFR0_TRACEVER_MASK	ULL(0xf)
@@ -607,6 +612,7 @@
 #define SCR_RESET_VAL		SCR_RES1_BITS
 
 /* MDCR_EL3 definitions */
+#define MDCR_EBWE_BIT		(ULL(1) << 43)
 #define MDCR_EnPMSN_BIT		(ULL(1) << 36)
 #define MDCR_MPMX_BIT		(ULL(1) << 35)
 #define MDCR_MCCD_BIT		(ULL(1) << 34)

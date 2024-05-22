@@ -90,7 +90,7 @@ endif
 
 # Enable the features which are mandatory from ARCH version 8.9 and upwards.
 ifeq "8.9" "$(word 1, $(sort 8.9 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-armv8-9-a-feats         := ENABLE_FEAT_TCR2
+armv8-9-a-feats         := ENABLE_FEAT_TCR2 ENABLE_FEAT_DEBUGV8P9
 # 8.8 Compliant
 armv8-9-a-feats         += ${armv8-8-a-feats}
 FEAT_LIST               := ${armv8-9-a-feats}
@@ -352,6 +352,9 @@ ENABLE_FEAT_S2POE			?=	0
 
 # Flag to enable access to Stage 1 Permission Overlay (FEAT_S1POE).
 ENABLE_FEAT_S1POE			?=	0
+
+# Flag to enable access to Arm v8.9 Debug extension
+ENABLE_FEAT_DEBUGV8P9			?=	0
 
 #----
 # 9.0
