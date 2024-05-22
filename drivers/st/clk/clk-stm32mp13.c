@@ -1393,8 +1393,8 @@ static int _clk_stm32_pll_wait_ready_on(struct stm32_clk_priv *priv,
 	/* Wait PLL lock */
 	while ((mmio_read_32(pll_base) & RCC_PLLNCR_PLLRDY) == 0U) {
 		if (timeout_elapsed(timeout)) {
-			ERROR("%d clock start failed @ 0x%x: 0x%x\n",
-			      pll->clk_id, pll->reg_pllxcr, mmio_read_32(pll_base));
+			ERROR("PLL%d start failed @ 0x%x: 0x%x\n",
+			      pll->clk_id - _CK_PLL1 + 1, pll->reg_pllxcr, mmio_read_32(pll_base));
 			return -EINVAL;
 		}
 	}
@@ -1411,8 +1411,8 @@ static int _clk_stm32_pll_wait_ready_off(struct stm32_clk_priv *priv,
 	/* Wait PLL lock */
 	while ((mmio_read_32(pll_base) & RCC_PLLNCR_PLLRDY) != 0U) {
 		if (timeout_elapsed(timeout)) {
-			ERROR("%d clock stop failed @ 0x%x: 0x%x\n",
-			      pll->clk_id, pll->reg_pllxcr, mmio_read_32(pll_base));
+			ERROR("PLL%d stop failed @ 0x%x: 0x%x\n",
+			      pll->clk_id - _CK_PLL1 + 1, pll->reg_pllxcr, mmio_read_32(pll_base));
 			return -EINVAL;
 		}
 	}
