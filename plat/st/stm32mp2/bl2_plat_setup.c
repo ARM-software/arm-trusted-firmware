@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <cdefs.h>
 #include <stdint.h>
 
 #include <common/debug.h>
+#include <common/desc_image_load.h>
 #include <drivers/clk.h>
+#include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32mp2_ddr_helpers.h>
 #include <lib/fconf/fconf.h>
@@ -222,4 +225,47 @@ skip_console_init:
 	fconf_populate("TB_FW", STM32MP_DTB_BASE);
 
 	stm32mp_io_setup();
+}
+
+/*******************************************************************************
+ * This function can be used by the platforms to update/use image
+ * information for given `image_id`.
+ ******************************************************************************/
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	int err = 0;
+	bl_mem_params_node_t *bl_mem_params __maybe_unused = get_bl_mem_params_node(image_id);
+
+	assert(bl_mem_params != NULL);
+
+#if STM32MP_SDMMC || STM32MP_EMMC
+	/*
+	 * Invalidate remaining data read from MMC but not flushed by load_image_flush().
+	 * We take the worst case which is 2 MMC blocks.
+	 */
+	if ((image_id != FW_CONFIG_ID) &&
+	    ((bl_mem_params->image_info.h.attr & IMAGE_ATTRIB_SKIP_LOADING) == 0U)) {
+		inv_dcache_range(bl_mem_params->image_info.image_base +
+				 bl_mem_params->image_info.image_size,
+				 2U * MMC_BLOCK_SIZE);
+	}
+#endif /* STM32MP_SDMMC || STM32MP_EMMC */
+
+	switch (image_id) {
+	case FW_CONFIG_ID:
+		/* Set global DTB info for fixed fw_config information */
+		set_config_info(STM32MP_FW_CONFIG_BASE, ~0UL, STM32MP_FW_CONFIG_MAX_SIZE,
+				FW_CONFIG_ID);
+		fconf_populate("FW_CONFIG", STM32MP_FW_CONFIG_BASE);
+
+		mmap_remove_dynamic_region(DTB_BASE, DTB_LIMIT - DTB_BASE);
+
+		break;
+
+	default:
+		/* Do nothing in default case */
+		break;
+	}
+
+	return err;
 }
