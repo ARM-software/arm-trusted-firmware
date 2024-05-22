@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2024 - All Rights Reserved
+ * Copyright (C) STMicroelectronics 2024-2025 - All Rights Reserved
  */
 
 /*
@@ -12,12 +12,23 @@
 / {
 	dtb-registry {
 		soc_fw-config {
-			load-address = <0x0 0x81ff0000>;
-			max-size = <0x10000>;
+			load-address = <0x0 0x81fc0000>;
+			max-size = <0x40000>;
 		};
 		tos_fw {
 			load-address = <0x0 0x82000000>;
 			max-size = <0x2000000>;
+		};
+	};
+
+	st-mem-firewall {
+		bl31_context: bl31-context@81fc0000 {
+			reg = <0x0 0x81fc0000 0x0 0x40000>;
+			st,protreg = <RISAFPROT(RISAF_REG_ID(7), RIF_CID0_BF|RIF_CID1_BF, RIF_CID0_BF|RIF_CID1_BF, 0, RIF_SEC, RIF_ENC_EN, RIF_BREN_EN)>;
+		};
+		op_tee: op-tee@82000000 {
+			reg = <0x0 0x82000000 0x0 0x2000000>;
+			st,protreg = <RISAFPROT(RISAF_REG_ID(8), RIF_CID0_BF|RIF_CID1_BF, RIF_CID0_BF|RIF_CID1_BF, 0, RIF_SEC, RIF_ENC_EN, RIF_BREN_EN)>;
 		};
 	};
 };
