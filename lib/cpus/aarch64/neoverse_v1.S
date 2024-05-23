@@ -26,6 +26,13 @@
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V1_BHB_LOOP_COUNT, neoverse_v1
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start neoverse_v1, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set NEOVERSE_V1_CPUECTLR_EL1, BIT(46)
+workaround_reset_end neoverse_v1, CVE(2024, 5660)
+
+check_erratum_ls neoverse_v1, CVE(2024, 5660), CPU_REV(1, 2)
+
 workaround_reset_start neoverse_v1, ERRATUM(1618635), ERRATA_V1_1618635
 	/* Inserts a DMB SY before and after MRS PAR_EL1 */
 	ldr	x0, =0x0
