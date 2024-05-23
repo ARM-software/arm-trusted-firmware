@@ -84,14 +84,11 @@ $(BUILD_DIR)/jmptbl.i: ../../$(PLAT_DIR)/jmptbl.i
 	@echo "  PRE     $@"
 	$(Q)$(ROMLIB_GEN) pre --output $@ --deps $(BUILD_DIR)/jmptbl.d $<
 
-$(BUILD_DIR)/wrappers.stamp: $(BUILD_DIR)/jmptbl.i
+$(WRAPPER_SOURCES) &: $(BUILD_DIR)/jmptbl.i
 	@echo "  WRP     $<"
 	$(Q)$(ROMLIB_GEN) genwrappers --bti=$(ENABLE_BTI) -b $(WRAPPER_DIR) $<
-	@touch $@
 
-$(WRAPPER_SOURCES): $(BUILD_DIR)/wrappers.stamp
-
-$(WRAPPER_OBJS): $(WRAPPER_SOURCES) $(BUILD_DIR)/wrappers.stamp
+$(WRAPPER_OBJS): $(WRAPPER_DIR)/%.o: $(WRAPPER_DIR)/%.s
 
 $(BUILD_DIR)/jmptbl.s: $(BUILD_DIR)/jmptbl.i
 	@echo "  TBL     $@"
