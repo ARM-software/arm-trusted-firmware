@@ -152,11 +152,15 @@ subsections:
       - title: Self-hosted Trace Extensions (FEAT_TRF)
         scope: trf
 
+      - title: DynamIQ Shared Unit (DSU)
+        scope: dsu
+
   - title: Platforms
     scope: platforms
 
     deprecated:
       - plat/common
+      - plat
 
     subsections:
       - title: Allwinner
@@ -222,6 +226,9 @@ subsections:
               - title: SGI-575
                 scope: sgi575
 
+              - title: RD-E1-Edge
+                scope: rde1edge
+
               - title: RD-N1-Edge
                 scope: rdn1edge
 
@@ -236,6 +243,9 @@ subsections:
 
                 deprecated:
                   - board/rdn2
+
+            deprecated:
+              - neoverse
 
           - title: TC
             scope: tc
@@ -651,12 +661,11 @@ subsections:
               - plat/xilinx/versal
               - plat/versal
 
-            subsections:
-             - title: Versal NET
-               scope: versal-net
+          - title: Versal NET
+            scope: versal-net
 
-               deprecated:
-                 - versal_net
+            deprecated:
+              - versal_net
 
           - title: ZynqMP
             scope: zynqmp
@@ -752,6 +761,9 @@ subsections:
         deprecated:
           - errata_abi
 
+      - title: ChromeOS
+        scope: cros
+
   - title: Libraries
     scope: lib
 
@@ -833,6 +845,9 @@ subsections:
 
       - title: Firmware Handoff
         scope: handoff
+
+      - title: Exception Handling Framework (EHF)
+        scope: ehf
 
   - title: Drivers
 
