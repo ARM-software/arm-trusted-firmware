@@ -25,6 +25,12 @@
 			id = <BL33_IMAGE_ID>;
 		};
 
+		soc_fw {
+			load-address = <0x0 STM32MP_SYSRAM_BASE>;
+			max-size = <STM32MP_BL31_SIZE>;
+			id = <BL31_IMAGE_ID>;
+		};
+
 		tos_fw {
 			id = <BL32_IMAGE_ID>;
 		};
