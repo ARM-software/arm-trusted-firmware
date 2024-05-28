@@ -1046,13 +1046,11 @@ static void el2_sysregs_context_restore_fgt(el2_sysregs_t *ctx)
 	write_hfgwtr_el2(read_el2_ctx_fgt(ctx, hfgwtr_el2));
 }
 
-#if CTX_INCLUDE_MPAM_REGS
-
-static void el2_sysregs_context_save_mpam(mpam_t *ctx)
+static void el2_sysregs_context_save_mpam(el2_sysregs_t *ctx)
 {
 	u_register_t mpam_idr = read_mpamidr_el1();
 
-	write_ctx_reg(ctx, CTX_MPAM2_EL2, read_mpam2_el2());
+	write_el2_ctx_mpam(ctx, mpam2_el2, read_mpam2_el2());
 
 	/*
 	 * The context registers that we intend to save would be part of the
@@ -1066,9 +1064,9 @@ static void el2_sysregs_context_save_mpam(mpam_t *ctx)
 	 * MPAMHCR_EL2, MPAMVPMV_EL2 and MPAMVPM0_EL2 are always present if
 	 * MPAMIDR_HAS_HCR_BIT == 1.
 	 */
-	write_ctx_reg(ctx, CTX_MPAMHCR_EL2, read_mpamhcr_el2());
-	write_ctx_reg(ctx, CTX_MPAMVPM0_EL2, read_mpamvpm0_el2());
-	write_ctx_reg(ctx, CTX_MPAMVPMV_EL2, read_mpamvpmv_el2());
+	write_el2_ctx_mpam(ctx, mpamhcr_el2, read_mpamhcr_el2());
+	write_el2_ctx_mpam(ctx, mpamvpm0_el2, read_mpamvpm0_el2());
+	write_el2_ctx_mpam(ctx, mpamvpmv_el2, read_mpamvpmv_el2());
 
 	/*
 	 * The number of MPAMVPM registers is implementation defined, their
@@ -1076,71 +1074,67 @@ static void el2_sysregs_context_save_mpam(mpam_t *ctx)
 	 */
 	switch ((mpam_idr >> MPAMIDR_EL1_VPMR_MAX_SHIFT) & MPAMIDR_EL1_VPMR_MAX_MASK) {
 	case 7:
-		write_ctx_reg(ctx, CTX_MPAMVPM7_EL2, read_mpamvpm7_el2());
+		write_el2_ctx_mpam(ctx, mpamvpm7_el2, read_mpamvpm7_el2());
 		__fallthrough;
 	case 6:
-		write_ctx_reg(ctx, CTX_MPAMVPM6_EL2, read_mpamvpm6_el2());
+		write_el2_ctx_mpam(ctx, mpamvpm6_el2, read_mpamvpm6_el2());
 		__fallthrough;
 	case 5:
-		write_ctx_reg(ctx, CTX_MPAMVPM5_EL2, read_mpamvpm5_el2());
+		write_el2_ctx_mpam(ctx, mpamvpm5_el2, read_mpamvpm5_el2());
 		__fallthrough;
 	case 4:
-		write_ctx_reg(ctx, CTX_MPAMVPM4_EL2, read_mpamvpm4_el2());
+		write_el2_ctx_mpam(ctx, mpamvpm4_el2, read_mpamvpm4_el2());
 		__fallthrough;
 	case 3:
-		write_ctx_reg(ctx, CTX_MPAMVPM3_EL2, read_mpamvpm3_el2());
+		write_el2_ctx_mpam(ctx, mpamvpm3_el2, read_mpamvpm3_el2());
 		__fallthrough;
 	case 2:
-		write_ctx_reg(ctx, CTX_MPAMVPM2_EL2, read_mpamvpm2_el2());
+		write_el2_ctx_mpam(ctx, mpamvpm2_el2, read_mpamvpm2_el2());
 		__fallthrough;
 	case 1:
-		write_ctx_reg(ctx, CTX_MPAMVPM1_EL2, read_mpamvpm1_el2());
+		write_el2_ctx_mpam(ctx, mpamvpm1_el2, read_mpamvpm1_el2());
 		break;
 	}
 }
 
-#endif /* CTX_INCLUDE_MPAM_REGS */
-
-#if CTX_INCLUDE_MPAM_REGS
-static void el2_sysregs_context_restore_mpam(mpam_t *ctx)
+static void el2_sysregs_context_restore_mpam(el2_sysregs_t *ctx)
 {
 	u_register_t mpam_idr = read_mpamidr_el1();
 
-	write_mpam2_el2(read_ctx_reg(ctx, CTX_MPAM2_EL2));
+	write_mpam2_el2(read_el2_ctx_mpam(ctx, mpam2_el2));
 
 	if ((mpam_idr & MPAMIDR_HAS_HCR_BIT) == 0U) {
 		return;
 	}
 
-	write_mpamhcr_el2(read_ctx_reg(ctx, CTX_MPAMHCR_EL2));
-	write_mpamvpm0_el2(read_ctx_reg(ctx, CTX_MPAMVPM0_EL2));
-	write_mpamvpmv_el2(read_ctx_reg(ctx, CTX_MPAMVPMV_EL2));
+	write_mpamhcr_el2(read_el2_ctx_mpam(ctx, mpamhcr_el2));
+	write_mpamvpm0_el2(read_el2_ctx_mpam(ctx, mpamvpm0_el2));
+	write_mpamvpmv_el2(read_el2_ctx_mpam(ctx, mpamvpmv_el2));
 
 	switch ((mpam_idr >> MPAMIDR_EL1_VPMR_MAX_SHIFT) & MPAMIDR_EL1_VPMR_MAX_MASK) {
 	case 7:
-		write_mpamvpm7_el2(read_ctx_reg(ctx, CTX_MPAMVPM7_EL2));
+		write_mpamvpm7_el2(read_el2_ctx_mpam(ctx, mpamvpm7_el2));
 		__fallthrough;
 	case 6:
-		write_mpamvpm6_el2(read_ctx_reg(ctx, CTX_MPAMVPM6_EL2));
+		write_mpamvpm6_el2(read_el2_ctx_mpam(ctx, mpamvpm6_el2));
 		__fallthrough;
 	case 5:
-		write_mpamvpm5_el2(read_ctx_reg(ctx, CTX_MPAMVPM5_EL2));
+		write_mpamvpm5_el2(read_el2_ctx_mpam(ctx, mpamvpm5_el2));
 		__fallthrough;
 	case 4:
-		write_mpamvpm4_el2(read_ctx_reg(ctx, CTX_MPAMVPM4_EL2));
+		write_mpamvpm4_el2(read_el2_ctx_mpam(ctx, mpamvpm4_el2));
 		__fallthrough;
 	case 3:
-		write_mpamvpm3_el2(read_ctx_reg(ctx, CTX_MPAMVPM3_EL2));
+		write_mpamvpm3_el2(read_el2_ctx_mpam(ctx, mpamvpm3_el2));
 		__fallthrough;
 	case 2:
-		write_mpamvpm2_el2(read_ctx_reg(ctx, CTX_MPAMVPM2_EL2));
+		write_mpamvpm2_el2(read_el2_ctx_mpam(ctx, mpamvpm2_el2));
 		__fallthrough;
 	case 1:
-		write_mpamvpm1_el2(read_ctx_reg(ctx, CTX_MPAMVPM1_EL2));
+		write_mpamvpm1_el2(read_el2_ctx_mpam(ctx, mpamvpm1_el2));
 		break;
 	}
 }
-#endif /* CTX_INCLUDE_MPAM_REGS */
 
 /* ---------------------------------------------------------------------------
  * The following registers are not added:
@@ -1283,12 +1277,9 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		write_el2_ctx_mte2(el2_sysregs_ctx, tfsr_el2, read_tfsr_el2());
 	}
 
-#if CTX_INCLUDE_MPAM_REGS
 	if (is_feat_mpam_supported()) {
-		mpam_t *mpam_ctx = get_mpam_ctx(ctx);
-		el2_sysregs_context_save_mpam(mpam_ctx);
+		el2_sysregs_context_save_mpam(el2_sysregs_ctx);
 	}
-#endif
 
 	if (is_feat_fgt_supported()) {
 		el2_sysregs_context_save_fgt(el2_sysregs_ctx);
@@ -1369,12 +1360,9 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 		write_tfsr_el2(read_el2_ctx_mte2(el2_sysregs_ctx, tfsr_el2));
 	}
 
-#if CTX_INCLUDE_MPAM_REGS
 	if (is_feat_mpam_supported()) {
-		mpam_t *mpam_ctx = get_mpam_ctx(ctx);
-		el2_sysregs_context_restore_mpam(mpam_ctx);
+		el2_sysregs_context_restore_mpam(el2_sysregs_ctx);
 	}
-#endif
 
 	if (is_feat_fgt_supported()) {
 		el2_sysregs_context_restore_fgt(el2_sysregs_ctx);

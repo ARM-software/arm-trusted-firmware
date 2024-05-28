@@ -114,6 +114,20 @@ typedef struct el2_gcs_regs {
 	uint64_t gcspr_el2;
 } el2_gcs_regs_t;
 
+typedef struct el2_mpam_regs {
+	uint64_t mpam2_el2;
+	uint64_t mpamhcr_el2;
+	uint64_t mpamvpm0_el2;
+	uint64_t mpamvpm1_el2;
+	uint64_t mpamvpm2_el2;
+	uint64_t mpamvpm3_el2;
+	uint64_t mpamvpm4_el2;
+	uint64_t mpamvpm5_el2;
+	uint64_t mpamvpm6_el2;
+	uint64_t mpamvpm7_el2;
+	uint64_t mpamvpmv_el2;
+} el2_mpam_regs_t;
+
 typedef struct el2_sysregs {
 
 	el2_common_regs_t common;
@@ -172,6 +186,10 @@ typedef struct el2_sysregs {
 
 #if ENABLE_FEAT_GCS
 	el2_gcs_regs_t gcs;
+#endif
+
+#if CTX_INCLUDE_MPAM_REGS
+	el2_mpam_regs_t mpam;
 #endif
 
 } el2_sysregs_t;
@@ -310,6 +328,15 @@ typedef struct el2_sysregs {
 #define read_el2_ctx_gcs(ctx, reg)		ULL(0)
 #define write_el2_ctx_gcs(ctx, reg, val)
 #endif /* ENABLE_FEAT_GCS */
+
+#if CTX_INCLUDE_MPAM_REGS
+#define read_el2_ctx_mpam(ctx, reg)		(((ctx)->mpam).reg)
+#define write_el2_ctx_mpam(ctx, reg, val)	((((ctx)->mpam).reg)	\
+							= (uint64_t) (val))
+#else
+#define read_el2_ctx_mpam(ctx, reg)		ULL(0)
+#define write_el2_ctx_mpam(ctx, reg, val)
+#endif /* CTX_INCLUDE_MPAM_REGS */
 
 #endif /* CTX_INCLUDE_EL2_REGS */
 /******************************************************************************/
