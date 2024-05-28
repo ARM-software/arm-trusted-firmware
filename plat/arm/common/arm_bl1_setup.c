@@ -162,7 +162,7 @@ void arm_bl1_platform_setup(void)
 
 	image_desc_t *desc;
 
-	int err = -1;
+	int err __unused = 1;
 
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
@@ -175,27 +175,24 @@ void arm_bl1_platform_setup(void)
 	}
 
 #if TRANSFER_LIST
-	te = transfer_list_add(secure_tl, TL_TAG_TB_FW_CONFIG,
-			       ARM_TB_FW_CONFIG_MAX_SIZE, NULL);
+#if CRYPTO_SUPPORT
+	te = transfer_list_add(secure_tl, TL_TAG_MBEDTLS_HEAP_INFO,
+			       sizeof(struct crypto_heap_info), NULL);
 	assert(te != NULL);
 
+	struct crypto_heap_info *heap_info =
+		(struct crypto_heap_info *)transfer_list_entry_data(te);
+	arm_get_mbedtls_heap(&heap_info->addr, &heap_info->size);
+#endif /* CRYPTO_SUPPORT */
+
+	desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
+
 	/*
-	 * Set the load address of TB_FW_CONFIG in the data section of the TE just
-	 * allocated in the secure transfer list.
+	 * The event log might have been updated prior to this, make sure we have an
+	 * up to date tl before setting the handoff arguments.
 	 */
-	SET_PARAM_HEAD(&config_image_info, PARAM_IMAGE_BINARY, VERSION_2, 0);
-	config_image_info.image_base = (uintptr_t)transfer_list_entry_data(te);
-	config_image_info.image_max_size = te->data_size;
-
-	VERBOSE("FCONF: Loading config with image ID: %u\n", TB_FW_CONFIG_ID);
-	err = load_auth_image(TB_FW_CONFIG_ID, &config_image_info);
-	if (err != 0) {
-		VERBOSE("Failed to load config %u\n", TB_FW_CONFIG_ID);
-		plat_error_handler(err);
-	}
-
 	transfer_list_update_checksum(secure_tl);
-	fconf_populate("TB_FW", (uintptr_t)transfer_list_entry_data(te));
+	transfer_list_set_handoff_args(secure_tl, &desc->ep_info);
 #else
 	/* Set global DTB info for fixed fw_config information */
 	fw_config_max_size = ARM_FW_CONFIG_LIMIT - ARM_FW_CONFIG_BASE;
@@ -230,22 +227,18 @@ void arm_bl1_platform_setup(void)
 		ERROR("Invalid FW_CONFIG address\n");
 		plat_error_handler(err);
 	}
-#endif /* TRANSFER_LIST */
 
 	desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
 
-#if TRANSFER_LIST
-	transfer_list_set_handoff_args(secure_tl, &desc->ep_info);
-#else
 	/* The BL2 ep_info arg0 is modified to point to FW_CONFIG */
 	assert(desc != NULL);
 	desc->ep_info.args.arg0 = config_info->config_addr;
-#endif /* TRANSFER_LIST */
 
 #if CRYPTO_SUPPORT
 	/* Share the Mbed TLS heap info with other images */
 	arm_bl1_set_mbedtls_heap();
 #endif /* CRYPTO_SUPPORT */
+#endif /* TRANSFER_LIST */
 
 	/*
 	 * Allow access to the System counter timer module and program

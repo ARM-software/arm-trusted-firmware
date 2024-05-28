@@ -230,11 +230,10 @@ void bl2_plat_arch_setup(void)
 	arm_bl2_plat_arch_setup();
 
 #if TRANSFER_LIST
-	te = transfer_list_find(secure_tl, TL_TAG_TB_FW_CONFIG);
-	assert(te != NULL);
-
-	fconf_populate("TB_FW", (uintptr_t)transfer_list_entry_data(te));
+#if CRYPTO_SUPPORT
+	te = arm_transfer_list_set_heap_info(secure_tl);
 	transfer_list_rem(secure_tl, te);
+#endif /* CRYPTO_SUPPORT */
 #else
 	/* Fill the properties struct with the info from the config dtb */
 	fconf_populate("FW_CONFIG", config_base);
@@ -244,7 +243,7 @@ void bl2_plat_arch_setup(void)
 	assert(tb_fw_config_info != NULL);
 
 	fconf_populate("TB_FW", tb_fw_config_info->config_addr);
-#endif
+#endif /* TRANSFER_LIST */
 }
 
 int arm_bl2_handle_post_image_load(unsigned int image_id)

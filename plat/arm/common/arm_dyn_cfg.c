@@ -23,7 +23,7 @@
 #include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
 
-#if CRYPTO_SUPPORT
+#if CRYPTO_SUPPORT && !TRANSFER_LIST
 
 static void *mbedtls_heap_addr;
 static size_t mbedtls_heap_size;
@@ -118,7 +118,7 @@ void arm_bl1_set_mbedtls_heap(void)
 #endif /* !MEASURED_BOOT */
 	}
 }
-#endif /* CRYPTO_SUPPORT */
+#endif /* CRYPTO_SUPPORT && !TRANSFER_LIST */
 
 #if IMAGE_BL2
 /*

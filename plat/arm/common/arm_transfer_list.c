@@ -4,8 +4,47 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#if CRYPTO_SUPPORT
+#include <mbedtls/version.h>
+#endif /* CRYPTO_SUPPORT */
+
 #include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
+
+#if CRYPTO_SUPPORT
+#if defined(IMAGE_BL1) || RESET_TO_BL2 || defined(IMAGE_BL31)
+static unsigned char heap[TF_MBEDTLS_HEAP_SIZE];
+
+#define MBEDTLS_HEAP_ADDR heap
+#define MBEDTLS_HEAP_SIZE sizeof(heap)
+#else
+static struct crypto_heap_info heap_info;
+
+#define MBEDTLS_HEAP_ADDR heap_info.addr
+#define MBEDTLS_HEAP_SIZE heap_info.size
+
+struct transfer_list_entry *
+arm_transfer_list_set_heap_info(struct transfer_list_header *tl)
+{
+	struct transfer_list_entry *te =
+		transfer_list_find(tl, TL_TAG_MBEDTLS_HEAP_INFO);
+	assert(te != NULL);
+
+	heap_info = *(struct crypto_heap_info *)transfer_list_entry_data(te);
+	return te;
+}
+#endif /* defined(IMAGE_BL1) || RESET_TO_BL2 || defined(IMAGE_BL31) */
+
+int __init arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	assert(heap_addr != NULL);
+	assert(heap_size != NULL);
+	*heap_addr = MBEDTLS_HEAP_ADDR;
+	*heap_size = MBEDTLS_HEAP_SIZE;
+
+	return 0;
+}
+#endif /* CRYPTO_SUPPORT */
 
 void arm_transfer_list_dyn_cfg_init(struct transfer_list_header *tl)
 {
