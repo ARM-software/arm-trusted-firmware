@@ -17,22 +17,6 @@ define rwildcard
 $(strip $(foreach d,$(wildcard ${1}*),$(call rwildcard,${d}/,${2}) $(filter $(subst *,%,%${2}),${d})))
 endef
 
-# This table is used in converting lower case to upper case.
-uppercase_table:=a,A b,B c,C d,D e,E f,F g,G h,H i,I j,J k,K l,L m,M n,N o,O p,P q,Q r,R s,S t,T u,U v,V w,W x,X y,Y z,Z
-
-# Internal macro used for converting lower case to upper case.
-#   $(1) = upper case table
-#   $(2) = String to convert
-define uppercase_internal
-$(if $(1),$$(subst $(firstword $(1)),$(call uppercase_internal,$(wordlist 2,$(words $(1)),$(1)),$(2))),$(2))
-endef
-
-# A macro for converting a string to upper case
-#   $(1) = String to convert
-define uppercase
-$(eval uppercase_result:=$(call uppercase_internal,$(uppercase_table),$(1)))$(uppercase_result)
-endef
-
 # Convenience function for setting a variable to 0 if not previously set
 # $(eval $(call default_zero,FOO))
 define default_zero
