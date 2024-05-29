@@ -48,3 +48,55 @@ uppercase = $(shell echo $(call escape-shell,$(1)) | tr '[:lower:]' '[:upper:]')
 #
 
 lowercase = $(shell echo $(call escape-shell,$(1)) | tr '[:upper:]' '[:lower:]')
+
+#
+# Determine the "truthiness" of a value.
+#
+# Parameters:
+#
+#   - $(1): The value to determine the truthiness of.
+#
+# A value is considered to be falsy if it is:
+#
+#   - empty, or
+#   - equal to "0", "N", "NO", "F" or "FALSE" after upper-casing.
+#
+# If the value is truthy then the value is returned as-is, otherwise no value
+# is returned.
+#
+# Example usage:
+#
+#     truthy := y
+#     truthy-bool := $(call bool,$(truthy)) # "y"
+#
+#     falsy := n
+#     falsy-bool := $(call bool,$(falsy)) # <empty>
+#
+
+bool = $(filter-out 0 n no f false,$(call lowercase,$(1)))
+
+#
+# Determine the "truthiness" of a value, returning 0 or 1.
+#
+# Parameters:
+#
+#   - $(1): The value to determine the truthiness of.
+#
+# A value is considered to be falsy if it is:
+#
+#   - empty, or
+#   - equal to "0", "N", "NO", "F" or "FALSE" after upper-casing.
+#
+# If the value is truthy then the value is returned as-is, otherwise no value
+# is returned.
+#
+# Example usage:
+#
+#     truthy := y
+#     truthy-bool := $(call bool,$(truthy)) # "1"
+#
+#     falsy := n
+#     falsy-bool := $(call bool,$(falsy)) # "0"
+#
+
+bool-01 = $(if $(call bool,$(1)),1,0)
