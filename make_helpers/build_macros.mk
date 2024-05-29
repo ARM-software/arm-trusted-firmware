@@ -559,8 +559,8 @@ $(ELF): $(OBJS) $(DEFAULT_LINKER_SCRIPT) $(LINKER_SCRIPTS) | $(1)_dirs libraries
 	$$(ECHO) "  LD      $$@"
 ifeq ($($(ARCH)-ld-id),arm-link)
 	$$(Q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=${1}_entrypoint \
-		--predefine="-D__LINKER__=$(__LINKER__)" \
-		--predefine="-DTF_CFLAGS=$(TF_CFLAGS)" \
+		--predefine=$(call escape-shell,-D__LINKER__=$(__LINKER__)) \
+		--predefine=$(call escape-shell,-DTF_CFLAGS=$(TF_CFLAGS)) \
 		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/${1}.scat \
 		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) $(OBJS)
 else ifeq ($($(ARCH)-ld-id),gnu-gcc)
