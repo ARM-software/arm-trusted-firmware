@@ -24,14 +24,12 @@
 
 #define DDRCTL_REG(x, y)					\
 	{							\
-		.name = #x,					\
 		.offset = offsetof(struct stm32mp_ddrctl, x),	\
 		.par_offset = offsetof(struct y, x)		\
 	}
 
 #define DDRPHY_REG(x, y)					\
 	{							\
-		.name = #x,					\
 		.offset = offsetof(struct stm32mp_ddrphy, x),	\
 		.par_offset = offsetof(struct y, x)		\
 	}

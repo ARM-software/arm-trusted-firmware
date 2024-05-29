@@ -26,7 +26,6 @@ enum stm32mp_ddr_reg_type {
 };
 
 struct stm32mp_ddr_reg_desc {
-	const char *name;
 	uint16_t offset;	/* Offset for base address */
 	uint8_t par_offset;	/* Offset for parameter array */
 };

@@ -37,7 +37,8 @@ void stm32mp_ddr_set_reg(const struct stm32mp_ddr_priv *priv, enum stm32mp_ddr_r
 		uintptr_t ptr = base_addr + desc[i].offset;
 
 		if (desc[i].par_offset == INVALID_OFFSET) {
-			ERROR("invalid parameter offset for %s", desc[i].name);
+			ERROR("invalid parameter offset for %s - index %u",
+			      ddr_registers[type].name, i);
 			panic();
 		} else {
 			value = *((uint32_t *)((uintptr_t)param +
