@@ -65,7 +65,7 @@ void stm32mp_ddr_wait_sw_done_ack(struct stm32mp_ddrctl *ctl)
 	VERBOSE("[0x%lx] swctl = 0x%x\n",
 		(uintptr_t)&ctl->swctl, mmio_read_32((uintptr_t)&ctl->swctl));
 
-	timeout = timeout_init_us(TIMEOUT_US_1S);
+	timeout = timeout_init_us(DDR_TIMEOUT_US_1S);
 	do {
 		swstat = mmio_read_32((uintptr_t)&ctl->swstat);
 		VERBOSE("[0x%lx] swstat = 0x%x ",
