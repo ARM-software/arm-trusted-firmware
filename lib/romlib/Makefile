@@ -23,8 +23,10 @@ OBJS        = $(BUILD_DIR)/jmptbl.o $(BUILD_DIR)/init.o
 MAPFILE     = $(BUILD_PLAT)/romlib/romlib.map
 
 ifneq ($(PLAT_DIR),)
-  WRAPPER_SOURCES   = $(shell $(ROMLIB_GEN) genwrappers -b $(WRAPPER_DIR) --list ../../$(PLAT_DIR)/jmptbl.i)
-  WRAPPER_OBJS      = $(WRAPPER_SOURCES:.s=.o)
+        WRAPPER_SOURCES = $(sort $(shell $(ROMLIB_GEN) genwrappers -b $\
+                $(WRAPPER_DIR) --list ../../$(PLAT_DIR)/jmptbl.i))
+
+        WRAPPER_OBJS = $(WRAPPER_SOURCES:.s=.o)
 endif
 
 V ?= 0
