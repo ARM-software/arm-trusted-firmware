@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -53,9 +53,6 @@ enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack,
 				      uint32_t flag);
 enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype,
 				      uint32_t flag);
-enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
-				uint32_t arg1, uint32_t arg2, uint32_t arg3,
-				uint32_t *value, uint32_t flag);
 enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 				 uint32_t arg3, uint32_t *data, uint32_t flag);
 uint32_t pm_get_shutdown_scope(void);
