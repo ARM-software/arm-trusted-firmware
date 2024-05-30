@@ -45,7 +45,7 @@ struct em_cpu{
 };
 
 struct em_cpu_list{
-	unsigned long cpu_partnumber;	/* cpu specific part number defined in midr reg */
+	unsigned long cpu_midr;	/* cpu specific part number is bit[15:4] of midr value */
 	struct   em_cpu cpu_errata_list[MAX_PLAT_CPU_ERRATA_ENTRIES];
 };
 

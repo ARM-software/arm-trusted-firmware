@@ -23,7 +23,7 @@ struct em_cpu_list *cpu_ptr;
 struct em_cpu_list cpu_list[] = {
 #if CORTEX_A78_H_INC
 {
-	.cpu_partnumber = CORTEX_A78_MIDR,
+	.cpu_midr = CORTEX_A78_MIDR,
 	.cpu_errata_list = {
 		[0] = {2712571, 0x00, 0x12},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -33,7 +33,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if CORTEX_A78_AE_H_INC
 {
-	.cpu_partnumber = CORTEX_A78_AE_MIDR,
+	.cpu_midr = CORTEX_A78_AE_MIDR,
 	.cpu_errata_list = {
 		[0] = {2712574, 0x00, 0x02},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -43,7 +43,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if CORTEX_A78C_H_INC
 {
-	.cpu_partnumber = CORTEX_A78C_MIDR,
+	.cpu_midr = CORTEX_A78C_MIDR,
 	.cpu_errata_list = {
 		[0] = {2712575, 0x01, 0x02},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -53,7 +53,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if NEOVERSE_V1_H_INC
 {
-	.cpu_partnumber = NEOVERSE_V1_MIDR,
+	.cpu_midr = NEOVERSE_V1_MIDR,
 	.cpu_errata_list = {
 		[0] = {2701953, 0x00, 0x11},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -63,7 +63,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if CORTEX_A710_H_INC
 {
-	.cpu_partnumber = CORTEX_A710_MIDR,
+	.cpu_midr = CORTEX_A710_MIDR,
 	.cpu_errata_list = {
 		[0] = {2701952, 0x00, 0x21},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -73,7 +73,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if NEOVERSE_N2_H_INC
 {
-	.cpu_partnumber = NEOVERSE_N2_MIDR,
+	.cpu_midr = NEOVERSE_N2_MIDR,
 	.cpu_errata_list = {
 		[0] = {2728475, 0x00, 0x02},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -83,7 +83,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if CORTEX_X2_H_INC
 {
-	.cpu_partnumber = CORTEX_X2_MIDR,
+	.cpu_midr = CORTEX_X2_MIDR,
 	.cpu_errata_list = {
 		[0] = {2701952, 0x00, 0x21},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -93,7 +93,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if NEOVERSE_V2_H_INC
 {
-	.cpu_partnumber = NEOVERSE_V2_MIDR,
+	.cpu_midr = NEOVERSE_V2_MIDR,
 	.cpu_errata_list = {
 		[0] = {2719103, 0x00, 0x01},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -103,7 +103,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if CORTEX_X3_H_INC
 {
-	.cpu_partnumber = CORTEX_X3_MIDR,
+	.cpu_midr = CORTEX_X3_MIDR,
 	.cpu_errata_list = {
 		[0] = {2701951, 0x00, 0x11},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -113,7 +113,7 @@ struct em_cpu_list cpu_list[] = {
 
 #if CORTEX_X4_H_INC
 {
-	.cpu_partnumber = CORTEX_X4_MIDR,
+	.cpu_midr = CORTEX_X4_MIDR,
 	.cpu_errata_list = {
 		[0] = {2701112, 0x00, 0x00},
 		[1 ... ERRATA_LIST_END] = UNDEF_ERRATA,
@@ -142,7 +142,7 @@ static int32_t non_arm_interconnect_errata(uint32_t errata_id, long rev_var)
 		 * If the cpu partnumber in the cpu list, matches the midr
 		 * part number, check to see if the errata ID matches
 		 */
-		if (EXTRACT_PARTNUM(midr_val) == EXTRACT_PARTNUM(cpu_ptr->cpu_partnumber)) {
+		if (EXTRACT_PARTNUM(midr_val) == EXTRACT_PARTNUM(cpu_ptr->cpu_midr)) {
 
 			struct em_cpu *ptr = NULL;
 
