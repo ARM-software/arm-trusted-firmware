@@ -299,27 +299,6 @@
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 
 /*******************************************************************************
- * Registers related to ARMv8.2-MPAM.
- ******************************************************************************/
-#define CTX_MPAM_REGS_OFFSET	(CTX_PAUTH_REGS_OFFSET + CTX_PAUTH_REGS_END)
-#if CTX_INCLUDE_MPAM_REGS
-#define CTX_MPAM2_EL2		U(0x0)
-#define CTX_MPAMHCR_EL2		U(0x8)
-#define CTX_MPAMVPM0_EL2	U(0x10)
-#define CTX_MPAMVPM1_EL2	U(0x18)
-#define CTX_MPAMVPM2_EL2	U(0x20)
-#define CTX_MPAMVPM3_EL2	U(0x28)
-#define CTX_MPAMVPM4_EL2	U(0x30)
-#define CTX_MPAMVPM5_EL2	U(0x38)
-#define CTX_MPAMVPM6_EL2	U(0x40)
-#define CTX_MPAMVPM7_EL2	U(0x48)
-#define CTX_MPAMVPMV_EL2	U(0x50)
-#define CTX_MPAM_REGS_END	U(0x60)
-#else
-#define CTX_MPAM_REGS_END	U(0x0)
-#endif /* CTX_INCLUDE_MPAM_REGS */
-
-/*******************************************************************************
  * Registers initialised in a per-world context.
  ******************************************************************************/
 #define CTX_CPTR_EL3			U(0x0)
@@ -354,9 +333,6 @@
 #define CTX_CVE_2018_3639_ALL	(CTX_CVE_2018_3639_END >> DWORD_SHIFT)
 #if CTX_INCLUDE_PAUTH_REGS
 # define CTX_PAUTH_REGS_ALL	(CTX_PAUTH_REGS_END >> DWORD_SHIFT)
-#endif
-#if CTX_INCLUDE_MPAM_REGS
-# define CTX_MPAM_REGS_ALL	(CTX_MPAM_REGS_END >> DWORD_SHIFT)
 #endif
 
 /*
@@ -397,11 +373,6 @@ DEFINE_REG_STRUCT(cve_2018_3639, CTX_CVE_2018_3639_ALL);
 DEFINE_REG_STRUCT(pauth, CTX_PAUTH_REGS_ALL);
 #endif
 
-/* Registers associated to ARMv8.2 MPAM */
-#if CTX_INCLUDE_MPAM_REGS
-DEFINE_REG_STRUCT(mpam, CTX_MPAM_REGS_ALL);
-#endif
-
 /*
  * Macros to access members of any of the above structures using their
  * offsets
@@ -430,10 +401,6 @@ typedef struct cpu_context {
 
 #if CTX_INCLUDE_PAUTH_REGS
 	pauth_t pauth_ctx;
-#endif
-
-#if CTX_INCLUDE_MPAM_REGS
-	mpam_t	mpam_ctx;
 #endif
 
 #if CTX_INCLUDE_EL2_REGS
@@ -468,9 +435,6 @@ extern per_world_context_t per_world_context[CPU_DATA_CONTEXT_NUM];
 #if CTX_INCLUDE_PAUTH_REGS
 # define get_pauth_ctx(h)	(&((cpu_context_t *) h)->pauth_ctx)
 #endif
-#if CTX_INCLUDE_MPAM_REGS
-# define get_mpam_ctx(h)	(&((cpu_context_t *) h)->mpam_ctx)
-#endif
 
 /*
  * Compile time assertions related to the 'cpu_context' structure to
@@ -498,11 +462,6 @@ CASSERT(CTX_CVE_2018_3639_OFFSET == __builtin_offsetof(cpu_context_t, cve_2018_3
 CASSERT(CTX_PAUTH_REGS_OFFSET == __builtin_offsetof(cpu_context_t, pauth_ctx),
 	assert_core_context_pauth_offset_mismatch);
 #endif /* CTX_INCLUDE_PAUTH_REGS */
-
-#if CTX_INCLUDE_MPAM_REGS
-CASSERT(CTX_MPAM_REGS_OFFSET == __builtin_offsetof(cpu_context_t, mpam_ctx),
-	assert_core_context_mpam_offset_mismatch);
-#endif /* CTX_INCLUDE_MPAM_REGS */
 
 /*
  * Helper macro to set the general purpose registers that correspond to
