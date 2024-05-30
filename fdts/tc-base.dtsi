@@ -278,37 +278,35 @@
 		#size-cells = <1>;
 		ranges = <0 0x0 PLAT_ARM_NSRAM_BASE PLAT_ARM_NSRAM_SIZE>;
 
-		cpu_scp_scmi_mem: scp-shmem@0 {
+		cpu_scp_scmi_a2p: scp-shmem@0 {
 			compatible = "arm,scmi-shmem";
 			reg = <0x0 0x80>;
 		};
 	};
 
 	mbox_db_rx: mhu@MHU_RX_ADDR {
-		compatible = "arm,mhuv2-rx","arm,primecell";
-		reg = <0x0 ADDRESSIFY(MHU_RX_ADDR) 0x0 0x1000>;
+		compatible = MHU_RX_COMPAT;
+		reg = <0x0 ADDRESSIFY(MHU_RX_ADDR) 0x0 MHU_OFFSET>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
-		#mbox-cells = <2>;
-		interrupts = <GIC_SPI INT_MBOX_RX IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-names = "mhu_rx";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupts = <GIC_SPI MHU_RX_INT_NUM IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = MHU_RX_INT_NAME;
 	};
 
 	mbox_db_tx: mhu@MHU_TX_ADDR {
-		compatible = "arm,mhuv2-tx","arm,primecell";
-		reg = <0x0 ADDRESSIFY(MHU_TX_ADDR) 0x0 0x1000>;
+		compatible = MHU_TX_COMPAT;
+		reg = <0x0 ADDRESSIFY(MHU_TX_ADDR) 0x0 MHU_OFFSET>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
-		#mbox-cells = <2>;
-		interrupt-names = "mhu_tx";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupt-names = MHU_TX_INT_NAME;
 	};
 
 	firmware {
 		scmi {
 			compatible = "arm,scmi";
 			mbox-names = "tx", "rx";
-			mboxes = <&mbox_db_tx 0 0 &mbox_db_rx 0 0 >;
-			shmem = <&cpu_scp_scmi_mem &cpu_scp_scmi_mem>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,10 @@
 
 #define SENDER_REG_STAT(_channel)	(0x20 * (_channel))
 #define SENDER_REG_SET(_channel)	((0x20 * (_channel)) + 0xC)
+
+#define MHU_V3_PBX_PDBCW_PAGE_OFFSET		UL(0x1000)
+#define MHU_V3_SENDER_REG_SET(_channel)		(MHU_V3_PBX_PDBCW_PAGE_OFFSET + \
+						 SENDER_REG_SET(_channel))
 
 /* Helper macro to ring doorbell */
 #define MHU_RING_DOORBELL(addr, modify_mask, preserve_mask)	do {	\
