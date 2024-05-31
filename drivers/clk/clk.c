@@ -34,6 +34,20 @@ unsigned long clk_get_rate(unsigned long id)
 	return ops->get_rate(id);
 }
 
+int clk_set_rate(unsigned long id, unsigned long rate, unsigned long *orate)
+{
+	unsigned long lrate;
+
+	assert((ops != NULL) && (ops->set_rate != NULL));
+
+	if (orate != NULL) {
+		return ops->set_rate(id, rate, orate);
+	}
+
+	/* In case the caller is not interested in the output rate */
+	return ops->set_rate(id, rate, &lrate);
+}
+
 int clk_get_parent(unsigned long id)
 {
 	assert((ops != NULL) && (ops->get_parent != NULL));
