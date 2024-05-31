@@ -114,6 +114,8 @@ static void set_mcn_slc_alloc_mode(void)
 
 void bl31_platform_setup(void)
 {
+	psa_status_t status;
+
 	tc_bl31_common_platform_setup();
 #if (TARGET_PLATFORM == 3) || (TARGET_PLATFORM == 4)
 	enable_ns_mcn_pmu();
@@ -122,6 +124,12 @@ void bl31_platform_setup(void)
 	set_mcn_slc_alloc_mode();
 	plat_arm_ni_setup(NCI_BASE_ADDR);
 #endif
+
+	/* Initialise RSE communication channel */
+	status = rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE, PLAT_RSE_AP_RCV_MHU_BASE);
+	if (status != PSA_SUCCESS) {
+		ERROR("Failed to initialize RSE communication channel - psa_status = %d\n", status);
+	}
 }
 
 scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id __unused)
@@ -194,18 +202,10 @@ void __init bl31_plat_arch_setup(void)
 #if defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
 void tc_bl31_plat_runtime_setup(void)
 {
-	psa_status_t status;
-
 	/* Start secure watchdog timer. */
 	plat_arm_secure_wdt_start();
 
 	arm_bl31_plat_runtime_setup();
-
-	/* Initialise RSE communication channel */
-	status = rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE, PLAT_RSE_AP_RCV_MHU_BASE);
-	if (status != PSA_SUCCESS) {
-		ERROR("Failed to initialize RSE communication channel - psa_status = %d\n", status);
-	}
 }
 
 void bl31_plat_runtime_setup(void)
