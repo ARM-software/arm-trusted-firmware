@@ -49,6 +49,15 @@
 #include "tc3-4-base.dtsi"
 
 / {
+	/*
+	 * The kaslr-seed node is a placeholder in DT. In the booting
+	 * sequence, it will be initialized in U-Boot and then later
+	 * used by Linux kernel.
+	 */
+	chosen {
+		kaslr-seed = <0x0 0x0>;
+	};
+
 	cs-pmu@0 {
 		compatible = "arm,coresight-pmu";
 		reg = <0x0 MCN_PMU_ADDR(0) 0x0 0xffc>;
