@@ -87,6 +87,7 @@ BL31_SOURCES	+=	\
 		lib/cpus/aarch64/cortex_a76.S				\
 		plat/common/plat_psci_common.c				\
 		plat/intel/soc/agilex5/bl31_plat_setup.c		\
+		plat/intel/soc/agilex5/soc/agilex5_cache.S		\
 		plat/intel/soc/agilex5/soc/agilex5_clock_manager.c	\
 		plat/intel/soc/agilex5/soc/agilex5_power_manager.c	\
 		plat/intel/soc/common/socfpga_psci.c			\
