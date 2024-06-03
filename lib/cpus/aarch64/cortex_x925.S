@@ -21,6 +21,13 @@
 #error "Cortex-X925 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x925, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X925_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x925, CVE(2024, 5660)
+
+check_erratum_ls cortex_x925, CVE(2024, 5660), CPU_REV(0, 1)
+
 cpu_reset_func_start cortex_x925
 	/* Disable speculative loads */
 	msr	SSBS, xzr
