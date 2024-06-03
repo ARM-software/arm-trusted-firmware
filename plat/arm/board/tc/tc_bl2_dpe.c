@@ -186,9 +186,12 @@ struct dpe_metadata tc_dpe_metadata[] = {
 /* Context handle is meant to be used by BL33. Sharing it via NT_FW_CONFIG */
 static int new_ctx_handle;
 
-void plat_dpe_share_context_handle(int *ctx_handle)
+void plat_dpe_share_context_handle(int *ctx_handle, int *parent_ctx_handle)
 {
 	new_ctx_handle = *ctx_handle;
+
+	/* Irrelevant in BL2 because cold restart resumes CPU in BL1 */
+	(void)parent_ctx_handle;
 }
 
 void plat_dpe_get_context_handle(int *ctx_handle)
