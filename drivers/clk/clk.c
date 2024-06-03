@@ -41,6 +41,13 @@ int clk_get_parent(unsigned long id)
 	return ops->get_parent(id);
 }
 
+int clk_set_parent(unsigned long id, unsigned long parent_id)
+{
+	assert((ops != NULL) && (ops->set_parent != NULL));
+
+	return ops->set_parent(id, parent_id);
+}
+
 bool clk_is_enabled(unsigned long id)
 {
 	assert((ops != NULL) && (ops->is_enabled != NULL));

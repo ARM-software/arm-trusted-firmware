@@ -14,6 +14,7 @@ struct clk_ops {
 	void (*disable)(unsigned long id);
 	unsigned long (*get_rate)(unsigned long id);
 	int (*get_parent)(unsigned long id);
+	int (*set_parent)(unsigned long id, unsigned long parent_id);
 	bool (*is_enabled)(unsigned long id);
 };
 
@@ -22,6 +23,7 @@ void clk_disable(unsigned long id);
 unsigned long clk_get_rate(unsigned long id);
 bool clk_is_enabled(unsigned long id);
 int clk_get_parent(unsigned long id);
+int clk_set_parent(unsigned long id, unsigned long parent_id);
 
 void clk_register(const struct clk_ops *ops);
 
