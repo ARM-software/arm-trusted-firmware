@@ -135,7 +135,7 @@ static void bl31_plat_gpt_setup(void)
 	 * 256TB of RAM (48-bit PA) would require a 2MB L0 region. At the
 	 * moment we use a 8KB table, which covers 1TB of RAM (40-bit PA).
 	 */
-	if (gpt_init_l0_tables(GPCCR_PPS_1TB, PLAT_QEMU_L0_GPT_BASE,
+	if (gpt_init_l0_tables(PLATFORM_GPCCR_PPS, PLAT_QEMU_L0_GPT_BASE,
 			       PLAT_QEMU_L0_GPT_SIZE +
 			       PLAT_QEMU_GPT_BITLOCK_SIZE) < 0) {
 		ERROR("gpt_init_l0_tables() failed!\n");
