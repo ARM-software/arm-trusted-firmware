@@ -18,13 +18,74 @@
 ifndef toolchain-mk
         toolchain-mk := $(lastword $(MAKEFILE_LIST))
 
-        toolchains ?= host $(ARCH)
+        include $(dir $(toolchain-mk))build_env.mk
+        include $(dir $(toolchain-mk))utilities.mk
 
-        include $(dir $(lastword $(MAKEFILE_LIST)))build_env.mk
-        include $(dir $(lastword $(MAKEFILE_LIST)))utilities.mk
+        #
+        # Make assigns generic default values to `CC`, `CPP`, `AS`, etc. if they
+        # are not explicitly assigned values by the user. These are usually okay
+        # for very simple programs when building for the host system, but we
+        # need greater control over the toolchain flow.
+        #
+        # Therefore, we undefine these built-in variables if they have default
+        # values, so that we can provide our own default values later instead.
+        #
 
-        include $(addprefix $(dir $(lastword $(MAKEFILE_LIST)))toolchains/, \
-                $(addsuffix .mk,$(toolchains)))
+        ifeq ($(origin CC),default)
+                undefine CC
+        endif
+
+        ifeq ($(origin CPP),default)
+                undefine CPP
+        endif
+
+        ifeq ($(origin AS),default)
+                undefine AS
+        endif
+
+        ifeq ($(origin AR),default)
+                undefine AR
+        endif
+
+        ifeq ($(origin LD),default)
+                undefine LD
+        endif
+
+        #
+        # The full list of toolchains supported by TF-A.
+        #
+        # Each of these toolchains defines a file of the same name in the
+        # `toolchains` directory, which must configure the following variables:
+        #
+        #   - <toolchain>-name
+        #
+        #     A human-readable name for the toolchain,
+        #
+        # Additionally, for every tool class, it must also define:
+        #
+        #   - <toolchain>-<tool-class>-parameter
+        #
+        #     The command line or environment variable used to set the tool for
+        #     for the given tool class.
+        #
+        #   - <toolchain>-<tool-class>-default
+        #
+        #     The default command to use for the given tool class if the user
+        #     does not explicitly provide one, and if the command could not be
+        #     derived from the C compiler.
+        #
+        #   - <toolchain>-<tool-class>-id-default
+        #
+        #     The default tool identifier used if the tool for the given tool
+        #     class cannot be identified.
+        #
+
+        toolchains := host # Used for host targets
+        toolchains += aarch32 # Used for AArch32 targets
+        toolchains += aarch64 # Used for AArch64 targets
+        toolchains += rk3399-m0 # Used for RK3399 Cortex-M0 targets
+
+        include $(toolchains:%=$(dir $(toolchain-mk))toolchains/%.mk)
 
         #
         # Configure tool classes that we recognize.
@@ -140,37 +201,6 @@ ifndef toolchain-mk
         toolchain-tools-dtc := generic-dtc # Device tree compilers
 
         #
-        # Default tools for each toolchain.
-        #
-        # Toolchains can specify a default path to any given tool with a tool
-        # class. These values are used in the absence of user-specified values,
-        # and are configured by the makefile for each toolchain using variables
-        # of the form:
-        #
-        #   - $(toolchain)-$(tool-class)-default
-        #
-        # For example, the default C compiler for the AArch32 and AArch64
-        # toolchains could be configured with:
-        #
-        #   - aarch32-cc-default
-        #   - aarch64-cc-default
-        #
-
-        define toolchain-check-tool-class-default
-                ifndef $(1)-$(tool-class)-default
-                        $$(error no default value specified for tool class `$(2)` of toolchain `$(1)`)
-                endif
-        endef
-
-        define toolchain-check-tool-class-defaults
-                $(foreach tool-class,$(toolchain-tool-classes), \
-                        $(eval $(call toolchain-check-tool-class-default,$(1),$(tool-class))))
-        endef
-
-        $(foreach toolchain,$(toolchains), \
-                $(eval $(call toolchain-check-tool-class-defaults,$(toolchain))))
-
-        #
         # Helper functions to identify toolchain tools.
         #
         # The functions defined in this section return a tool identifier when
@@ -231,6 +261,36 @@ ifndef toolchain-mk
                 $(if $(call toolchain-guess-tool-$(candidate),$(2)),$(candidate))))
 
         #
+        # Warn the user that a tool could not be identified.
+        #
+        # Parameters:
+        #
+        # - $1: The toolchain that the tool belongs to.
+        # - $2: The tool class that the tool belongs to.
+        #
+
+        define toolchain-warn-unrecognized
+                $(warning )
+                $(warning The configured $($(1)-name) $(toolchain-tool-class-name-$(2)) could not be identified and may not be supported:)
+                $(warning )
+                $(warning $(space)   $($(1)-$(2))$(if $($(1)-$(2)-parameter), (via `$($(1)-$(2)-parameter)`)))
+                $(warning )
+                $(warning The default $($(1)-name) $(toolchain-tool-class-name-$(2)) is:)
+                $(warning )
+                $(warning $(space)   $($(1)-$(2)-default))
+                $(warning )
+                $(warning The following tools are supported:)
+                $(warning )
+
+                $(foreach tool,$(toolchain-tools-$(2)), \
+                        $(warning $(space) - $(toolchain-tool-name-$(tool))))
+
+                $(warning )
+                $(warning The build system will treat this $(toolchain-tool-class-name-$(2)) as $(toolchain-tool-name-$($(1)-$(2)-id-default)).)
+                $(warning )
+        endef
+
+        #
         # Locate and identify tools belonging to each toolchain.
         #
         # Each tool class in each toolchain receives a variable of the form
@@ -271,56 +331,80 @@ ifndef toolchain-mk
         toolchain-guess-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>$(nul))
         toolchain-guess-gnu-gcc-ar = $(shell $(1) --print-prog-name ar 2>$(nul))
 
-        define toolchain-warn-unrecognized
-                $$(warning )
-                $$(warning The configured $$($(1)-name) $$(toolchain-tool-class-name-$(2)) could not be identified and may not be supported:)
-                $$(warning )
-                $$(warning $$(space)   $$($(1)-$(2)))
-                $$(warning )
-                $$(warning The default $$($(1)-name) $$(toolchain-tool-class-name-$(2)) is:)
-                $$(warning )
-                $$(warning $$(space)   $$($(1)-$(2)-default))
-                $$(warning )
-                $$(warning The following tools are supported:)
-                $$(warning )
+        #
+        # Configure a toolchain.
+        #
+        # Parameters:
+        #
+        #   - $1: The toolchain to configure.
+        #
+        # This function iterates over all tool classes and configures them for
+        # the provided toolchain. Toolchain tools are initialized lazily and
+        # on-demand based on the first read of the tool path or identifier
+        # variables.
+        #
 
-                $$(foreach tool,$$(toolchain-tools-$(2)), \
-                        $$(warning $$(space) - $$(toolchain-tool-name-$$(tool))))
-
-                $$(warning )
-                $$(warning The build system will treat this $$(toolchain-tool-class-name-$(2)) as $$(toolchain-tool-name-$$($(1)-$(2)-id-default)).)
-                $$(warning )
+        define toolchain-configure
+                $$(foreach tool-class,$$(toolchain-tool-classes), \
+                        $$(eval $$(call toolchain-configure-tool,$1,$$(tool-class))))
         endef
+
+        #
+        # Configure a specific tool within a toolchain.
+        #
+        # Parameters:
+        #
+        #   - $1: The toolchain to configure.
+        #   - $2: The tool class to configure.
+        #
+
+        define toolchain-configure-tool
+                $1-$2-configure = $\
+                        $$(eval $$(call toolchain-determine-tool,$1,$2))
+
+                #
+                # When either of the following variables are read for the first
+                # time, the appropriate tool is determined and *both* variables
+                # are overwritten with their final values.
+                #
+
+                $1-$2 = $$($1-$2-configure)$$($1-$2)
+                $1-$2-id = $$($1-$2-configure)$$($1-$2-id)
+        endef
+
+        #
+        # Determines and identifies a tool.
+        #
+        # Parameters:
+        #
+        #   - $1: The toolchain identifier.
+        #   - $2: The tool class.
+        #
+        # Tool identification happens by reading the designated tool parameter
+        # to get the user-specified command for the tool (e.g. `CC` or `LD`). If
+        # no tool parameter is defined then try to derive the tool from the C
+        # compiler.
+        #
+        # If all else fails, fall back to the default command defined by the
+        # toolchain makefile.
+        #
 
         define toolchain-determine-tool
-                $(1)-$(2)-guess = $$(if $$(filter-out cc,$(2)),$\
-                        $$(call toolchain-guess-$$($(1)-cc-id)-$(2),$$($(1)-cc)))
+                toolchain-$1-$2-guess = $$(if $$(filter-out cc,$2),$\
+                        $$(call toolchain-guess-$$($1-cc-id)-$2,$$($1-cc)))
 
-                $(1)-$(2) := $$(or $$($(1)-$(2)),$$($(1)-$(2)-guess))
-                $(1)-$(2) := $$(or $$($(1)-$(2)),$$($(1)-$(2)-default))
+                toolchain-$1-$2-shell = $$(or $$($$($1-$2-parameter)),$\
+                        $$(toolchain-$1-$2-guess),$$($1-$2-default))
 
-                ifneq ($$(call which,$$($(1)-$(2))),)
-                        # If we can resolve this tool to a program on the `PATH`
-                        # then escape it for use in a shell, which allows us to
-                        # preserve spaces.
+                $1-$2 := $(if $(call which,$$(toolchain-$1-$2-shell)),$\
+                        $$(call escape-shell,$$(toolchain-$1-$2-shell)),$\
+                        $$(toolchain-$1-$2-shell))
 
-                        $(1)-$(2) := $$(call escape-shell,$$($(1)-$(2)))
-                endif
-
-                $(1)-$(2)-id := $$(call toolchain-guess-tool,$$(toolchain-tools-$(2)),$$($(1)-$(2)))
-
-                ifndef $(1)-$(2)-id
-                        $(1)-$(2)-id := $$($(1)-$(2)-id-default)
-
-                        $$(eval $$(call toolchain-warn-unrecognized,$(1),$(2)))
-                endif
-        endef
-
-        define toolchain-determine
-                $$(foreach tool-class,$$(toolchain-tool-classes), \
-                        $$(eval $$(call toolchain-determine-tool,$(1),$$(tool-class))))
+                $1-$2-id := $$(or \
+                        $$(call toolchain-guess-tool,$$(toolchain-tools-$2),$$($1-$2)),$\
+                        $$(strip $$(call toolchain-warn-unrecognized,$1,$2)$$($1-$2-id-default)))
         endef
 
         $(foreach toolchain,$(toolchains), \
-                $(eval $(call toolchain-determine,$(toolchain))))
+                $(eval $(call toolchain-configure,$(toolchain))))
 endif

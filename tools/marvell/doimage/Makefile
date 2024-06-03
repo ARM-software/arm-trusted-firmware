@@ -4,8 +4,6 @@
 # SPDX-License-Identifier:     BSD-3-Clause
 # https://spdx.org/licenses
 
-toolchains := host
-
 include ../../../make_helpers/common.mk
 include ../../../make_helpers/toolchain.mk
 
