@@ -1,17 +1,17 @@
 Granule Protection Tables Library
 =================================
 
-This document describes the design of the granule protection tables (GPT)
+This document describes the design of the Granule Protection Tables (GPT)
 library used by Trusted Firmware-A (TF-A). This library provides the APIs needed
 to initialize the GPTs based on a data structure containing information about
 the systems memory layout, configure the system registers to enable granule
 protection checks based on these tables, and transition granules between
 different PAS (physical address spaces) at runtime.
 
-Arm CCA adds two new security states for a total of four: root, realm, secure, and
-non-secure. In addition to new security states, corresponding physical address
-spaces have been added to control memory access for each state. The PAS access
-allowed to each security state can be seen in the table below.
+Arm CCA adds two new security states for a total of four: root, realm, secure,
+and non-secure. In addition to new security states, corresponding physical
+address spaces have been added to control memory access for each state. The PAS
+access allowed to each security state can be seen in the table below.
 
 .. list-table:: Security states and PAS access rights
    :widths: 25 25 25 25 25
@@ -45,12 +45,15 @@ allowed to each security state can be seen in the table below.
 
 The GPT can function as either a 1 level or 2 level lookup depending on how a
 PAS region is configured. The first step is the level 0 table, each entry in the
-level 0 table controls access to a relatively large region in memory (block
+level 0 table controls access to a relatively large region in memory (GPT Block
 descriptor), and the entire region can belong to a single PAS when a one step
-mapping is used, or a level 0 entry can link to a level 1 table where relatively
-small regions (granules) of memory can be assigned to different PAS with a 2
-step mapping. The type of mapping used for each PAS is determined by the user
-when setting up the configuration structure.
+mapping is used. Level 0 entry can also link to a level 1 table (GPT Table
+descriptor) with a 2 step mapping. To change PAS of a region dynamically, the
+region must be mapped in Level 1 table.
+
+The Level 1 tables entries with the same PAS can be combined to form a
+contiguous block entry using GPT Contiguous descriptor. More details about this
+is explained in the following section.
 
 Design Concepts and Interfaces
 ------------------------------
@@ -73,7 +76,8 @@ coded in the firmware.
 GPT setup is split into two parts: table creation and runtime initialization. In
 the table creation step, a data structure containing information about the
 desired PAS regions is passed into the library which validates the mappings,
-creates the tables in memory, and enables granule protection checks. In the
+creates the tables in memory, and enables granule protection checks. It also
+allocates memory for fine-grained locks adjacent to the L0 tables. In the
 runtime initialization step, the runtime firmware locates the existing tables in
 memory using the GPT register configuration and saves important data to a
 structure used by the granule transition service which will be covered more
@@ -84,6 +88,10 @@ region definitions in the file ``plat/arm/board/fvp/include/fvp_pas_def.h``.
 Table creation API calls can be found in ``plat/arm/common/arm_common.c`` and
 runtime initialization API calls can be seen in
 ``plat/arm/common/arm_bl31_setup.c``.
+
+During the table creation time, the GPT lib opportunistically fuses contiguous
+GPT L1 entries having the same PAS. The maximum size of
+supported contiguous blocks is defined by ``RME_GPT_MAX_BLOCK`` build option.
 
 Defining PAS regions
 ~~~~~~~~~~~~~~~~~~~~
@@ -115,8 +123,13 @@ Level 0 and Level 1 Tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The GPT initialization APIs require memory to be passed in for the tables to be
-constructed, ``gpt_init_l0_tables`` takes a memory address and size for building
-the level 0 tables and ``gpt_init_pas_l1_tables`` takes an address and size for
+constructed. The ``gpt_init_l0_tables`` API takes a memory address and size for
+building the level 0 tables and also memory for allocating the fine-grained bitlock
+data structure. The amount of memory needed for bitlock structure is controlled via
+``RME_GPT_BITLOCK_BLOCK`` config which defines the block size for each bit of the
+the bitlock.
+
+The ``gpt_init_pas_l1_tables`` API takes an address and size for
 building the level 1 tables which are linked from level 0 descriptors. The
 tables should have PAS type ``GPT_GPI_ROOT`` and a typical system might place
 its level 0 table in SRAM and its level 1 table(s) in DRAM.
@@ -124,12 +137,28 @@ its level 0 table in SRAM and its level 1 table(s) in DRAM.
 Granule Transition Service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Granule Transition Service allows memory mapped with GPT_MAP_REGION_GRANULE
-ownership to be changed using SMC calls. Non-secure granules can be transitioned
-to either realm or secure space, and realm and secure granules can be
-transitioned back to non-secure. This library only allows memory mapped as
-granules to be transitioned, memory mapped as blocks have their GPIs fixed after
-table creation.
+The Granule Transition Service allows memory mapped with
+``GPT_MAP_REGION_GRANULE`` ownership to be changed using SMC calls. Non-secure
+granules can be transitioned to either realm or secure space, and realm and
+secure granules can be transitioned back to non-secure. This library only
+allows Level 1 entries to be transitioned. The lib may either shatter
+contiguous blocks or fuse adjacent GPT entries to form a contiguous block
+opportunistically. Depending on the maximum block size, the fuse operation may
+propogate to higher block sizes as allowed by RME Architecture. Thus a higher
+maximum block size may have a higher runtime cost due to software operations
+that need to be performed for fuse to bigger block sizes. This cost may
+be offset by better TLB performance due to the higher block size and platforms
+need to make the trade-off decision based on their particular workload.
+
+Locking Scheme
+~~~~~~~~~~~~~~
+
+During Granule Transition access to L1 tables is controlled by a lock to ensure
+that no more than one CPU is allowed to make changes at any given time.
+The granularity of the lock is defined by ``RME_GPT_BITLOCK_BLOCK`` build option
+which defines the size of the memory block protected by one bit of ``bitlock``
+structure. Setting this option to 0 chooses a single spinlock for all GPT L1
+table entries.
 
 Library APIs
 ------------
@@ -196,7 +225,9 @@ The L0 table memory has some constraints that must be taken into account.
   is greater. L0 table size is the total protected space (PPS) divided by the
   size of each L0 region (L0GPTSZ) multiplied by the size of each L0 descriptor
   (8 bytes). ((PPS / L0GPTSZ) * 8)
-* The L0 memory size must be greater than or equal to the table size.
+* The L0 memory size must be greater than the table size and have enough space
+  to allocate array of ``bitlock`` structures at the end of L0 table if
+  required (``RME_GPT_BITLOCK_BLOCK`` is not 0).
 * The L0 memory must fall within a PAS of type GPT_GPI_ROOT.
 
 The L1 memory also has some constraints.
@@ -222,6 +253,24 @@ Substitute values to get this: ((0x100000000 / 0x40000000) * 8)
 
 And solve to get 32 bytes. In this case, 4096 is greater than 32, so the L0
 tables must be aligned to 4096 bytes.
+
+Sample calculation for bitlock array size
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let PGS=GPCCR_PPS_256TB and RME_GPT_BITLOCK_BLOCK=1
+
+The size of bit lock array in bits is the total protected space (PPS) divided
+by the size of memory block per bit. The size of memory block
+is ``RME_GPT_BITLOCK_BLOCK`` (number of 512MB blocks per bit) times
+512MB (0x20000000). This is then divided by the number of bits in ``bitlock``
+structure (8) to get the size of bit array in bytes.
+
+In other words, we can find the total size of ``bitlock`` array
+in bytes with PPS / (RME_GPT_BITLOCK_BLOCK * 0x20000000 *  8).
+
+Substitute values to get this: 0x1000000000000 / (1 * 0x20000000 * 8)
+
+And solve to get 0x10000 bytes.
 
 Sample calculation for L1 table size and alignment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
