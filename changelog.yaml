@@ -1428,6 +1428,12 @@ subsections:
       - title: Marvell Tools
         scope: marvell-tools
 
+      - title: Renesas Tools
+        scope: renesas-tools
+
+        subsections:
+          - title: R-Car Layout Tool
+            scope: rcar-layout
   - title: Dependencies
     scope: deps
 
