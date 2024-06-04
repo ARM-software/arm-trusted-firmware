@@ -482,9 +482,6 @@
 		scmi-perf-domain = <3>;
 #endif /* TC_SCMI_PD_CTRL_EN */
 
-#if TC_IOMMU_EN
-		iommus = <&smmu_700 0x200>;
-#endif /* TC_IOMMU_EN */
 		pbha {
 			int-id-override = <0 0x22>, <2 0x23>, <4 0x23>, <7 0x22>,
 					  <8 0x22>, <9 0x22>, <10 0x22>, <11 0x22>,
@@ -507,7 +504,6 @@
 		thermal-zone = "";
 	};
 
-#if TC_IOMMU_EN
 	smmu_700: iommu@3f000000 {
 		#iommu-cells = <1>;
 		compatible = "arm,smmu-v3";
@@ -517,8 +513,8 @@
 			     <GIC_SPI 230 IRQ_TYPE_EDGE_RISING>;
 		interrupt-names = "eventq", "cmdq-sync", "gerror";
 		dma-coherent;
+		status = "disabled";
 	};
-#endif /* TC_IOMMU_EN */
 
 	dp0: display@DPU_ADDR {
 		#address-cells = <1>;
@@ -528,9 +524,6 @@
 		interrupts = <GIC_SPI DPU_IRQ IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "DPU";
 		DPU_CLK_ATTR1;
-#if TC_IOMMU_EN
-		iommus = <&smmu_700 0x100>;
-#endif /* TC_IOMMU_EN */
 
 		pl0: pipeline@0 {
 			reg = <0>;

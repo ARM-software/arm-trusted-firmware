@@ -85,4 +85,16 @@
 			shmem = <&cpu_scp_scmi_a2p &cpu_scp_scmi_p2a>;
 		};
 	};
+
+#if TARGET_FLAVOUR_FVP
+	smmu_700: iommu@3f000000 {
+		status = "okay";
+	};
+#endif
+
+	gpu: gpu@2d000000 {
+#if TARGET_FLAVOUR_FVP
+		iommus = <&smmu_700 0x200>;
+#endif
+	};
 };
