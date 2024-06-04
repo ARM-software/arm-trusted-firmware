@@ -136,6 +136,6 @@ endif
 
 .PHONY: bl2_gzip
 bl2_gzip: $(BUILD_PLAT)/bl2.bin.gz
-%.gz: %
+$(BUILD_PLAT)/bl2.bin.gz: %.gz: %
 	$(s)echo "  GZIP    $@"
 	$(q)gzip -n -f -9 $< --stdout > $@

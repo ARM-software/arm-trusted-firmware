@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -99,7 +99,7 @@ $(ELF) : $(OBJS) $(OBJS_COMMON) $(LINKERFILE)
 	$(s)echo "  LD      $@"
 	$(q)$($(ARCH)-ld) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
 
-%.bin : %.elf
+$(BIN) $(BIN_PMU): %.bin: %.elf
 	$(s)echo "  BIN     $@"
 	$(q)$($(ARCH)-oc) -O binary $< $@
 

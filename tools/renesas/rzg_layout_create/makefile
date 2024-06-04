@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2020, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -114,7 +114,7 @@ $(OUTPUT_FILE_SA6): $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6) | $$(@D)/
 # Compile
 ###################################################
 
-%.o: %.c | $$(@D)/
+$(OBJ_FILE_SA0) $(OBJ_FILE_SA6): %.o: %.c | $$(@D)/
 	$(aarch64-cc) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 .PHONY: clean
