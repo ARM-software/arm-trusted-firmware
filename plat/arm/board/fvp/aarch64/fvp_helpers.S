@@ -6,9 +6,10 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <drivers/arm/fvp/fvp_cpu_pwr.h>
+#include <drivers/arm/fvp/fvp_pwrc.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/arm/gicv3.h>
-#include <drivers/arm/fvp/fvp_pwrc.h>
 #include <platform_def.h>
 
 	.globl	plat_secondary_cold_boot_setup
@@ -29,6 +30,21 @@
 	 */
 func plat_secondary_cold_boot_setup
 #ifndef EL3_PAYLOAD_BASE
+
+	/* --------------------------------------------
+	 * Check if core supports powering down, if it
+	 * supports power down then set core power down
+	 * bit before requesting for the cores to be
+	 * powered off from base power controller.
+	 * ---------------------------------------------
+	 */
+	bl	check_cpupwrctrl_el1_is_available
+	cbz	x0, base_power_off
+
+	mrs	x1, CPUPWRCTLR_EL1
+	orr	x1, x1, #CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	msr	CPUPWRCTLR_EL1, x1
+
 	/* ---------------------------------------------
 	 * Power down this cpu.
 	 * TODO: Do we need to worry about powering the
@@ -37,6 +53,7 @@ func plat_secondary_cold_boot_setup
 	 * loader zeroes out the zi section.
 	 * ---------------------------------------------
 	 */
+base_power_off:
 	mrs	x0, mpidr_el1
 	mov_imm	x1, PWRC_BASE
 	str	w0, [x1, #PPOFFR_OFF]
