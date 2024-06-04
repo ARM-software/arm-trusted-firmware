@@ -104,9 +104,8 @@ export CCACHE_EXTRAFILES
 ${BUILD_PLAT}/bl31/pmu_fw.o: CCACHE_EXTRAFILES=$(RK3399M0FW):$(RK3399M0PMUFW)
 ${RK_PLAT_SOC}/drivers/pmu/pmu_fw.S: $(RK3399M0FW)
 
-$(eval $(call MAKE_PREREQ_DIR,${BUILD_M0},${BUILD_PLAT}))
 .PHONY: $(RK3399M0FW)
-$(RK3399M0FW): | ${BUILD_M0}
+$(RK3399M0FW): | $$(@D)/
 	$(MAKE) -C ${RK_PLAT_SOC}/drivers/m0 BUILD=$(abspath ${BUILD_PLAT}/m0)
 
 # Do not enable SVE

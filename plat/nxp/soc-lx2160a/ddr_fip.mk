@@ -38,8 +38,6 @@ ifeq (${DDR_DMEM_RDIMM_2D},)
     DDR_DMEM_RDIMM_2D	:=	${DDR_PHY_BIN_PATH}/ddr4_rdimm2d_pmu_train_dmem.bin
 endif
 
-$(shell mkdir -p '${BUILD_PLAT}')
-
 ifeq (${DDR_FIP_NAME},)
 ifeq (${TRUSTED_BOARD_BOOT},1)
 	DDR_FIP_NAME	:= ddr_fip_sec.bin

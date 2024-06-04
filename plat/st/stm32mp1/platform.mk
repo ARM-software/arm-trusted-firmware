@@ -255,11 +255,11 @@ BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
 
 ifeq ($(AARCH32_SP),sp_min)
 # Create DTB file for BL32
-${BUILD_PLAT}/fdts/%-bl32.dts: fdts/%.dts fdts/${BL32_DTSI} | ${BUILD_PLAT} fdt_dirs
+${BUILD_PLAT}/fdts/%-bl32.dts: fdts/%.dts fdts/${BL32_DTSI} | $$(@D)/
 	$(q)echo '#include "$(patsubst fdts/%,%,$<)"' > $@
 	$(q)echo '#include "${BL32_DTSI}"' >> $@
 
-${BUILD_PLAT}/fdts/%-bl32.dtb: ${BUILD_PLAT}/fdts/%-bl32.dts
+${BUILD_PLAT}/fdts/%-bl32.dtb: ${BUILD_PLAT}/fdts/%-bl32.dts | $$(@D)/
 endif
 
 include plat/st/common/common_rules.mk

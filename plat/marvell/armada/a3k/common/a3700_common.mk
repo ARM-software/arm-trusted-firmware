@@ -167,10 +167,9 @@ $(TIMDDRTOOL): FORCE
 	$(if $(shell git -C $(value MV_DDR_PATH) rev-parse --show-cdup 2>&1),$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' does not contain valid mv-ddr-marvell git repository"))
 	$(q)$(MAKE) --no-print-directory -C $(WTP) MV_DDR_PATH=$(MV_DDR_PATH) DDR_TOPOLOGY=$(DDR_TOPOLOGY) mv_ddr
 
-$(BUILD_PLAT)/$(UART_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin $(TBB) $(TIMBUILD) $(TIMDDRTOOL)
+$(BUILD_PLAT)/$(UART_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin $(TBB) $(TIMBUILD) $(TIMDDRTOOL) | $(BUILD_PLAT)/$(BUILD_UART)/ $$(@D)/
 	$(s)echo
 	$(s)echo "Building uart images"
-	$(q)mkdir -p $(BUILD_PLAT)/$(BUILD_UART)
 	$(q)cp -a $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/$(BUILD_UART)/wtmi.bin
 	$(q)cp -a $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/$(BUILD_UART)/$(BOOT_IMAGE)
 	$(q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TIMBUILD) $(TIMBLDUARTARGS)

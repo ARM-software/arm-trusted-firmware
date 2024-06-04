@@ -38,18 +38,6 @@ ifndef UNIX_MK
 	-$(q)rm -rf  ${1}
     endef
 
-    # ${1} is the directory to be generated.
-    # ${2} is optional, and allows a prerequisite to be specified.
-    # Do nothing if $1 == $2, to ignore self dependencies.
-    define MAKE_PREREQ_DIR
-        ifneq (${1},${2})
-
-${1} : ${2}
-	$(q)mkdir -p  "${1}"
-
-        endif
-    endef
-
     define SHELL_REMOVE_DIR
 	-$(q)rm -rf  "${1}"
     endef

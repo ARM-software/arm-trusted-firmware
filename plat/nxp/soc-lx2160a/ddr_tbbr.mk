@@ -39,8 +39,6 @@ NTFW_NVCTR_VAL		?=	0
 # Pass the non-volatile counters to the cert_create tool
 $(eval $(call CERT_ADD_CMD_OPT,${TFW_NVCTR_VAL},--tfw-nvctr,DDR_))
 
-$(shell mkdir -p '${BUILD_PLAT}')
-
 ifeq (${DDR_KEY},)
 DDR_KEY=${BUILD_PLAT}/ddr.pem
 endif

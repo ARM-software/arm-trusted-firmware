@@ -289,7 +289,7 @@ $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval LIB := $(call uppercase, $(notdir $(1))))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
+$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CC      $$<"
 	$$(q)$($(ARCH)-cc) $$($(LIB)_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
@@ -305,7 +305,7 @@ define MAKE_S_LIB
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
+$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  AS      $$<"
 	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
@@ -328,7 +328,7 @@ $(eval BL_INCLUDE_DIRS := $($(call uppercase,$(3))_INCLUDE_DIRS) $(PLAT_BL_COMMO
 $(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)) $(PLAT_BL_COMMON_CPPFLAGS))
 $(eval BL_CFLAGS := $($(call uppercase,$(3))_CFLAGS) $(PLAT_BL_COMMON_CFLAGS))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
+$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  CC      $$<"
 	$$(q)$($(ARCH)-cc) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
@@ -351,7 +351,7 @@ $(eval BL_INCLUDE_DIRS := $($(call uppercase,$(3))_INCLUDE_DIRS) $(PLAT_BL_COMMO
 $(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)) $(PLAT_BL_COMMON_CPPFLAGS))
 $(eval BL_ASFLAGS := $($(call uppercase,$(3))_ASFLAGS) $(PLAT_BL_COMMON_ASFLAGS))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
+$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  AS      $$<"
 	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(TF_CFLAGS_$(ARCH)) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
@@ -372,7 +372,7 @@ $(eval BL_DEFINES := IMAGE_$(call uppercase,$(3)) $($(call uppercase,$(3))_DEFIN
 $(eval BL_INCLUDE_DIRS := $($(call uppercase,$(3))_INCLUDE_DIRS) $(PLAT_BL_COMMON_INCLUDE_DIRS))
 $(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) $(addprefix -D,$(BL_DEFINES)) $(addprefix -I,$(BL_INCLUDE_DIRS)) $(PLAT_BL_COMMON_CPPFLAGS))
 
-$(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
+$(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  PP      $$<"
 	$$(q)$($(ARCH)-cpp) -E $$(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
 
@@ -424,17 +424,6 @@ endef
 
 .PHONY: libraries
 
-# MAKE_LIB_DIRS macro defines the target for the directory where
-# libraries are created
-define MAKE_LIB_DIRS
-        $(eval LIB_DIR    := ${BUILD_PLAT}/lib)
-        $(eval ROMLIB_DIR    := ${BUILD_PLAT}/romlib)
-        $(eval LIBWRAPPER_DIR := ${BUILD_PLAT}/libwrapper)
-        $(eval $(call MAKE_PREREQ_DIR,${LIB_DIR},${BUILD_PLAT}))
-        $(eval $(call MAKE_PREREQ_DIR,${ROMLIB_DIR},${BUILD_PLAT}))
-        $(eval $(call MAKE_PREREQ_DIR,${LIBWRAPPER_DIR},${BUILD_PLAT}))
-endef
-
 # MAKE_LIB macro defines the targets and options to build each BL image.
 # Arguments:
 #   $(1) = Library name
@@ -445,11 +434,8 @@ define MAKE_LIB
         $(eval SOURCES    := $(LIB$(call uppercase,$(1))_SRCS))
         $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
 
-$(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},${BUILD_PLAT}))
 $(eval $(call MAKE_LIB_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 
-.PHONY : lib${1}_dirs
-lib${1}_dirs: | ${BUILD_DIR} ${LIB_DIR}  ${ROMLIB_DIR} ${LIBWRAPPER_DIR}
 libraries: ${LIB_DIR}/lib$(1).a
 ifeq ($($(ARCH)-ld-id),arm-link)
 LDPATHS = --userlibpath=${LIB_DIR}
@@ -465,7 +451,7 @@ endif
 
 all: ${LIB_DIR}/lib$(1).a
 
-${LIB_DIR}/lib$(1).a: $(OBJS)
+${LIB_DIR}/lib$(1).a: $(OBJS) | $$$$(@D)/
 	$$(s)echo "  AR      $$@"
 	$$(q)$($(ARCH)-ar) cr $$@ $$?
 endef
@@ -503,26 +489,6 @@ define MAKE_BL
         $(eval LINKER_SCRIPT_SOURCES := $($(call uppercase,$(1))_LINKER_SCRIPT_SOURCES))
         $(eval LINKER_SCRIPTS := $(call linker_script_path,$(LINKER_SCRIPT_SOURCES)))
 
-        # We use sort only to get a list of unique object directory names.
-        # ordering is not relevant but sort removes duplicates.
-        $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS} ${DEFAULT_LINKER_SCRIPT} ${LINKER_SCRIPTS})))
-        # The $(dir ) function leaves a trailing / on the directory names
-        # Rip off the / to match directory names with make rule targets.
-        $(eval OBJ_DIRS   := $(patsubst %/,%,$(TEMP_OBJ_DIRS)))
-
-# Create generators for object directory structure
-
-$(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},${BUILD_PLAT}))
-
-$(eval $(foreach objd,${OBJ_DIRS},
-        $(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
-
-.PHONY : ${1}_dirs
-
-# We use order-only prerequisites to ensure that directories are created,
-# but do not cause re-builds every time a file is written.
-${1}_dirs: | ${OBJ_DIRS}
-
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 
 # Generate targets to preprocess each required linker script
@@ -532,14 +498,14 @@ $(eval $(foreach source,$(DEFAULT_LINKER_SCRIPT_SOURCE) $(LINKER_SCRIPT_SOURCES)
 $(eval BL_LDFLAGS := $($(call uppercase,$(1))_LDFLAGS))
 
 ifeq ($(USE_ROMLIB),1)
-$(ELF): romlib.bin
+$(ELF): romlib.bin | $$$$(@D)/
 endif
 
 # MODULE_OBJS can be assigned by vendors with different compiled
 # object file path, and prebuilt object file path.
 $(eval OBJS += $(MODULE_OBJS))
 
-$(ELF): $(OBJS) $(DEFAULT_LINKER_SCRIPT) $(LINKER_SCRIPTS) | $(1)_dirs libraries $(BL_LIBS)
+$(ELF): $(OBJS) $(DEFAULT_LINKER_SCRIPT) $(LINKER_SCRIPTS) | $$$$(@D)/ libraries $(BL_LIBS)
 	$$(s)echo "  LD      $$@"
 ifeq ($($(ARCH)-ld-id),arm-link)
 	$$(q)$($(ARCH)-ld) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=${1}_entrypoint \
@@ -562,11 +528,11 @@ ifeq ($(DISABLE_BIN_GENERATION),1)
 	$(s)echo
 endif
 
-$(DUMP): $(ELF)
+$(DUMP): $(ELF) | $$$$(@D)/
 	$$(s)echo "  OD      $$@"
 	$$(q)$($(ARCH)-od) -dx $$< > $$@
 
-$(BIN): $(ELF)
+$(BIN): $(ELF) | $$$$(@D)/
 	$$(s)echo "  BIN     $$@"
 	$$(q)$($(ARCH)-oc) -O binary $$< $$@
 	$(s)echo
@@ -598,22 +564,6 @@ define SOURCES_TO_DTBS
         $(notdir $(patsubst %.dts,%.dtb,$(filter %.dts,$(1))))
 endef
 
-# MAKE_FDT_DIRS macro creates the prerequisite directories that host the
-# FDT binaries
-#   $(1) = output directory
-#   $(2) = input dts
-define MAKE_FDT_DIRS
-        $(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
-        $(eval TEMP_DTB_DIRS := $(sort $(dir ${DTBS})))
-        # The $(dir ) function leaves a trailing / on the directory names
-        # Rip off the / to match directory names with make rule targets.
-        $(eval DTB_DIRS   := $(patsubst %/,%,$(TEMP_DTB_DIRS)))
-
-$(eval $(foreach objd,${DTB_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
-
-fdt_dirs: ${DTB_DIRS}
-endef
-
 # MAKE_DTB generate the Flattened device tree binary
 #   $(1) = output directory
 #   $(2) = input dts
@@ -628,12 +578,12 @@ $(eval DTSDEP := $(patsubst %.dtb,%.o.d,$(DOBJ)))
 # Dependencies of the DT compilation on its pre-compiled DTS
 $(eval DTBDEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
-$(DPRE): $(2) | fdt_dirs
+$(DPRE): $(2) | $$$$(@D)/
 	$$(s)echo "  CPP     $$<"
 	$(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
 	$$(q)$($(ARCH)-cpp) -E $$(TF_CFLAGS_$(ARCH)) $$(DTC_CPPFLAGS) -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
 
-$(DOBJ): $(DPRE) $(filter-out %.d,$(MAKEFILE_LIST)) | fdt_dirs
+$(DOBJ): $(DPRE) $(filter-out %.d,$(MAKEFILE_LIST)) | $$$$(@D)/
 	$$(s)echo "  DTC     $$<"
 	$$(q)$($(ARCH)-dtc) $$(DTC_FLAGS) -d $(DTBDEP) -o $$@ $$<
 
@@ -651,8 +601,6 @@ define MAKE_DTBS
         $(and $(REMAIN),$(error FDT_SOURCES contain non-DTS files: $(REMAIN)))
         $(eval $(foreach obj,$(DOBJS),$(call MAKE_DTB,$(1),$(obj))))
 
-        $(eval $(call MAKE_FDT_DIRS,$(1),$(2)))
-
-dtbs: $(DTBS)
+dtbs: $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2)))
 all: dtbs
 endef
