@@ -90,7 +90,18 @@
 	smmu_700: iommu@3f000000 {
 		status = "okay";
 	};
+
+	smmu_700_dpu: iommu@4002a00000 {
+		status = "okay";
+	};
 #endif
+
+	dp0: display@DPU_ADDR {
+#if TARGET_FLAVOUR_FVP
+		iommus = <&smmu_700_dpu 0x000>, <&smmu_700_dpu 0x100>,
+			 <&smmu_700_dpu 0x200>, <&smmu_700_dpu 0x600>;
+#endif
+	};
 
 	gpu: gpu@2d000000 {
 #if TARGET_FLAVOUR_FVP

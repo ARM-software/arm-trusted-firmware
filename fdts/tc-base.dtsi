@@ -516,6 +516,18 @@
 		status = "disabled";
 	};
 
+	smmu_700_dpu: iommu@4002a00000 {
+		#iommu-cells = <1>;
+		compatible = "arm,smmu-v3";
+		reg = <HI(0x4002a00000) LO(0x4002a00000) 0x0 0x5000000>;
+		interrupts = <GIC_SPI 481 IRQ_TYPE_EDGE_RISING>,
+			     <GIC_SPI 482 IRQ_TYPE_EDGE_RISING>,
+			     <GIC_SPI 483 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "cmdq-sync", "gerror";
+		dma-coherent;
+		status = "disabled";
+	};
+
 	dp0: display@DPU_ADDR {
 		#address-cells = <1>;
 		#size-cells = <0>;
