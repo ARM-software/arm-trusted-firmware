@@ -94,12 +94,20 @@
 	smmu_700_dpu: iommu@4002a00000 {
 		status = "okay";
 	};
+#else
+	smmu_600: smmu@2ce00000 {
+		status = "okay";
+	};
 #endif
 
 	dp0: display@DPU_ADDR {
 #if TARGET_FLAVOUR_FVP
 		iommus = <&smmu_700_dpu 0x000>, <&smmu_700_dpu 0x100>,
 			 <&smmu_700_dpu 0x200>, <&smmu_700_dpu 0x600>;
+#else /* TARGET_FLAVOUR_FPGA */
+		iommus = <&smmu_600 0>, <&smmu_600 1>, <&smmu_600 2>, <&smmu_600 3>,
+			 <&smmu_600 4>, <&smmu_600 5>, <&smmu_600 6>, <&smmu_600 7>,
+			 <&smmu_600 8>, <&smmu_600 9>;
 #endif
 	};
 
