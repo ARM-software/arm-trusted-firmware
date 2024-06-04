@@ -159,6 +159,7 @@ BL1_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
 				plat/arm/board/fvp/fvp_bl1_setup.c		\
+				plat/arm/board/fvp/fvp_cpu_pwr.c		\
 				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
 				${FVP_CPU_LIBS}					\
@@ -188,13 +189,16 @@ BL2_SOURCES		+=	plat/arm/common/fconf/fconf_nv_cntr_getter.c
 endif
 
 ifeq (${ENABLE_RME},1)
-BL2_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S
+BL2_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S	\
+				plat/arm/board/fvp/fvp_cpu_pwr.c
+
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
 				plat/arm/board/fvp/fvp_realm_attest_key.c
 endif
 
 ifeq (${BL2_AT_EL3},1)
 BL2_SOURCES		+=	plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
+				plat/arm/board/fvp/fvp_cpu_pwr.c		\
 				plat/arm/board/fvp/fvp_bl2_el3_setup.c		\
 				${FVP_CPU_LIBS}					\
 				${FVP_INTERCONNECT_SOURCES}
@@ -221,6 +225,7 @@ BL31_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
+				plat/arm/board/fvp/fvp_cpu_pwr.c		\
 				plat/arm/common/arm_nor_psci_mem_protect.c	\
 				${FVP_CPU_LIBS}					\
 				${FVP_GIC_SOURCES}				\
