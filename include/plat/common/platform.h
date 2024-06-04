@@ -15,6 +15,7 @@
 #endif
 #if ENABLE_RME
 #include <services/rmm_core_manifest.h>
+#include <services/rmm_el3_token_sign.h>
 #endif
 #include <drivers/fwu/fwu_metadata.h>
 #if TRNG_SUPPORT
@@ -376,6 +377,15 @@ int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
 				   uint64_t *remaining_len);
 int plat_rmmd_get_cca_realm_attest_key(uintptr_t buf, size_t *len,
 				       unsigned int type);
+/* The following 3 functions are to be implement if
+ * RMMD_ENABLE_EL3_TOKEN_SIGN=1.
+ * The following three functions are expected to return E_RMM_* error codes.
+ */
+int plat_rmmd_el3_token_sign_get_rak_pub(uintptr_t buf, size_t *len,
+					   unsigned int type);
+int plat_rmmd_el3_token_sign_push_req(
+				const struct el3_token_sign_request *req);
+int plat_rmmd_el3_token_sign_pull_resp(struct el3_token_sign_response *resp);
 size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared);
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest);
 #endif
