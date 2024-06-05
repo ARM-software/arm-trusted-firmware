@@ -674,6 +674,13 @@ subsections:
               - plat/zynqmp
               - plat/xilinx/zynqmp
 
+      - title: AMD
+        scope: amd
+
+        subsections:
+          - title: Versal Gen 2
+            scope: versal2
+
       - title: Nuvoton
         scope: nuvoton
 
