@@ -27,7 +27,7 @@
 	xlat-granule = <0>; /* 4KiB */
 	boot-order = <0>;
 	messaging-method = <0x3>; /* Direct request/response supported. */
-	managed-exit;
+	ns-interrupts-action = <1>; /* NS_ACTION_ME */
 	run-time-model = <1>; /* SP pre-emptible. */
 
 	/* Boot protocol */
