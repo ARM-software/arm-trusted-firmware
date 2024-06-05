@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,7 +52,7 @@ auth_param_type_desc_t tb_fw_config_hash = AUTH_PARAM_TYPE_DESC(
 	AUTH_PARAM_HASH, TRUSTED_BOOT_FW_CONFIG_HASH_OID);
 auth_param_type_desc_t fw_config_hash = AUTH_PARAM_TYPE_DESC(
 	AUTH_PARAM_HASH, FW_CONFIG_HASH_OID);
-static auth_param_type_desc_t hw_config_hash = AUTH_PARAM_TYPE_DESC(
+auth_param_type_desc_t hw_config_hash = AUTH_PARAM_TYPE_DESC(
 	AUTH_PARAM_HASH, HW_CONFIG_HASH_OID);
 
 /* trusted_boot_fw_cert */
@@ -105,22 +105,6 @@ const auth_img_desc_t trusted_boot_fw_cert = {
 			.data = {
 				.ptr = (void *)fw_config_hash_buf,
 				.len = (unsigned int)HASH_DER_LEN
-			}
-		}
-	}
-};
-
-/* HW Config */
-const auth_img_desc_t hw_config = {
-	.img_id = HW_CONFIG_ID,
-	.img_type = IMG_RAW,
-	.parent = &trusted_boot_fw_cert,
-	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
-		[0] = {
-			.type = AUTH_METHOD_HASH,
-			.param.hash = {
-				.data = &raw_data,
-				.hash = &hw_config_hash
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -173,7 +173,6 @@ static const auth_img_desc_t fw_config = {
 static const auth_img_desc_t * const cot_desc[] = {
 	[TRUSTED_BOOT_FW_CERT_ID]		=	&trusted_boot_fw_cert,
 	[BL2_IMAGE_ID]				=	&bl2_image,
-	[HW_CONFIG_ID]				=	&hw_config,
 	[TB_FW_CONFIG_ID]			=	&tb_fw_config,
 	[FW_CONFIG_ID]				=	&fw_config,
 	[FWU_CERT_ID]				=	&fwu_cert,
