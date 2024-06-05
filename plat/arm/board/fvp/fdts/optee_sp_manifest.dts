@@ -15,7 +15,7 @@
 
 	/* Properties */
 	description = "op-tee";
-	ffa-version = <0x00010000>; /* 31:16 - Major, 15:0 - Minor */
+	ffa-version = <0x00010001>; /* 31:16 - Major, 15:0 - Minor */
 	uuid = <0xe0786148 0xe311f8e7 0x02005ebc 0x1bc5d5a5>;
 	id = <1>;
 	execution-ctx-count = <8>;
