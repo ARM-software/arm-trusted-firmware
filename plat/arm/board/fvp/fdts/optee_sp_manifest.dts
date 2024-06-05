@@ -22,6 +22,7 @@
 	exception-level = <2>; /* S-EL1 */
 	execution-state = <0>; /* AARCH64 */
 	load-address = <0x6280000>;
+	mem-size = <0xd80000>; 	/* OP-TEE specific extension */
 	entrypoint-offset = <0x4000>;
 	xlat-granule = <0>; /* 4KiB */
 	boot-order = <0>;
