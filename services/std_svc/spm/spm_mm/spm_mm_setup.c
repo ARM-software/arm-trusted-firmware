@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -27,7 +27,7 @@
 void spm_sp_setup(sp_context_t *sp_ctx)
 {
 	cpu_context_t *ctx = &(sp_ctx->cpu_ctx);
-
+	u_register_t sctlr_el1;
 	/* Pointer to the MP information from the platform port. */
 	const spm_mm_boot_info_t *sp_boot_info =
 			plat_get_secure_partition_boot_info(NULL);
@@ -125,14 +125,25 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_MAIR_EL1,
 		      mmu_cfg_params[MMU_CFG_MAIR]);
 
+	/* Store the initialised SCTLR_EL1 value in the cpu_context */
+#if (ERRATA_SPECULATIVE_AT)
+	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
+		      CTX_ERRATA_SPEC_AT_TCR_EL1, mmu_cfg_params[MMU_CFG_TCR]);
+#else
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_TCR_EL1,
 		      mmu_cfg_params[MMU_CFG_TCR]);
+#endif /* ERRATA_SPECULATIVE_AT */
 
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_TTBR0_EL1,
 		      mmu_cfg_params[MMU_CFG_TTBR0]);
 
 	/* Setup SCTLR_EL1 */
-	u_register_t sctlr_el1 = read_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1);
+#if (ERRATA_SPECULATIVE_AT)
+	sctlr_el1 = read_ctx_reg(get_errata_speculative_at_ctx(ctx),
+				 CTX_ERRATA_SPEC_AT_SCTLR_EL1);
+#else
+	sctlr_el1 = read_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1);
+#endif /* ERRATA_SPECULATIVE_AT */
 
 	sctlr_el1 |=
 		/*SCTLR_EL1_RES1 |*/
@@ -168,7 +179,13 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 		SCTLR_UMA_BIT
 	);
 
+	/* Store the initialised SCTLR_EL1 value in the cpu_context */
+#if (ERRATA_SPECULATIVE_AT)
+	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
+		      CTX_ERRATA_SPEC_AT_SCTLR_EL1, sctlr_el1);
+#else
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_el1);
+#endif /* ERRATA_SPECULATIVE_AT */
 
 	/*
 	 * Setup other system registers

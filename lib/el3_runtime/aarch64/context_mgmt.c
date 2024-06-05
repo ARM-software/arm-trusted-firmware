@@ -92,8 +92,13 @@ static void setup_el1_context(cpu_context_t *ctx, const struct entry_point_info 
 	 */
 	sctlr_elx |= SCTLR_IESB_BIT;
 #endif
+
 	/* Store the initialised SCTLR_EL1 value in the cpu_context */
+#if (ERRATA_SPECULATIVE_AT)
+	write_ctx_reg(get_errata_speculative_at_ctx(ctx), CTX_ERRATA_SPEC_AT_SCTLR_EL1, sctlr_elx);
+#else
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
+#endif /* ERRATA_SPECULATIVE_AT */
 
 	/*
 	 * Base the context ACTLR_EL1 on the current value, as it is
@@ -1551,7 +1556,7 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 	write_ctx_reg(ctx, CTX_SPSR_EL1, read_spsr_el1());
 	write_ctx_reg(ctx, CTX_ELR_EL1, read_elr_el1());
 
-#if !ERRATA_SPECULATIVE_AT
+#if (!ERRATA_SPECULATIVE_AT)
 	write_ctx_reg(ctx, CTX_SCTLR_EL1, read_sctlr_el1());
 	write_ctx_reg(ctx, CTX_TCR_EL1, read_tcr_el1());
 #endif /* (!ERRATA_SPECULATIVE_AT) */
@@ -1660,7 +1665,7 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 	write_spsr_el1(read_ctx_reg(ctx, CTX_SPSR_EL1));
 	write_elr_el1(read_ctx_reg(ctx, CTX_ELR_EL1));
 
-#if !ERRATA_SPECULATIVE_AT
+#if (!ERRATA_SPECULATIVE_AT)
 	write_sctlr_el1(read_ctx_reg(ctx, CTX_SCTLR_EL1));
 	write_tcr_el1(read_ctx_reg(ctx, CTX_TCR_EL1));
 #endif /* (!ERRATA_SPECULATIVE_AT) */

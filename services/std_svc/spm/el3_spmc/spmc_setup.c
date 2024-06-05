@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -322,8 +322,14 @@ static void spmc_el0_sp_setup_mmu(struct secure_partition_desc *sp,
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_MAIR_EL1,
 		      mmu_cfg_params[MMU_CFG_MAIR]);
 
+	/* Store the initialised SCTLR_EL1 value in the cpu_context */
+#if (ERRATA_SPECULATIVE_AT)
+	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
+		      CTX_ERRATA_SPEC_AT_TCR_EL1, mmu_cfg_params[MMU_CFG_TCR]);
+#else
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_TCR_EL1,
 		      mmu_cfg_params[MMU_CFG_TCR]);
+#endif /* ERRATA_SPECULATIVE_AT */
 
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_TTBR0_EL1,
 		      mmu_cfg_params[MMU_CFG_TTBR0]);
@@ -334,7 +340,12 @@ static void spmc_el0_sp_setup_sctlr_el1(cpu_context_t *ctx)
 	u_register_t sctlr_el1;
 
 	/* Setup SCTLR_EL1 */
+#if (ERRATA_SPECULATIVE_AT)
+	sctlr_el1 = read_ctx_reg(get_errata_speculative_at_ctx(ctx),
+				 CTX_ERRATA_SPEC_AT_SCTLR_EL1);
+#else
 	sctlr_el1 = read_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1);
+#endif /* ERRATA_SPECULATIVE_AT */
 
 	sctlr_el1 |=
 		/*SCTLR_EL1_RES1 |*/
@@ -369,7 +380,13 @@ static void spmc_el0_sp_setup_sctlr_el1(cpu_context_t *ctx)
 		SCTLR_UMA_BIT
 	);
 
+	/* Store the initialised SCTLR_EL1 value in the cpu_context */
+#if (ERRATA_SPECULATIVE_AT)
+	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
+		      CTX_ERRATA_SPEC_AT_SCTLR_EL1, sctlr_el1);
+#else
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_el1);
+#endif /* ERRATA_SPECULATIVE_AT */
 }
 
 static void spmc_el0_sp_setup_system_registers(struct secure_partition_desc *sp,

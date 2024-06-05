@@ -14,9 +14,13 @@
 	.global	fpregs_context_save
 	.global	fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
+
+#if ERRATA_SPECULATIVE_AT
+	.global save_and_update_ptw_el1_sys_regs
+#endif /* ERRATA_SPECULATIVE_AT */
+
 	.global	prepare_el3_entry
 	.global	restore_gp_pmcr_pauth_regs
-	.global save_and_update_ptw_el1_sys_regs
 	.global	el3_exit
 
 /* ------------------------------------------------------------------
@@ -329,10 +333,12 @@ func restore_gp_pmcr_pauth_regs
 	ret
 endfunc restore_gp_pmcr_pauth_regs
 
-/*
+#if ERRATA_SPECULATIVE_AT
+/* --------------------------------------------------------------------
  * In case of ERRATA_SPECULATIVE_AT, save SCTLR_EL1 and TCR_EL1
  * registers and update EL1 registers to disable stage1 and stage2
- * page table walk
+ * page table walk.
+ * --------------------------------------------------------------------
  */
 func save_and_update_ptw_el1_sys_regs
 	/* ----------------------------------------------------------
@@ -340,9 +346,9 @@ func save_and_update_ptw_el1_sys_regs
 	 * ----------------------------------------------------------
 	 */
 	mrs	x29, sctlr_el1
-	str	x29, [sp, #(CTX_EL1_SYSREGS_OFFSET + CTX_SCTLR_EL1)]
+	str	x29, [sp, #(CTX_ERRATA_SPEC_AT_OFFSET + CTX_ERRATA_SPEC_AT_SCTLR_EL1)]
 	mrs	x29, tcr_el1
-	str	x29, [sp, #(CTX_EL1_SYSREGS_OFFSET + CTX_TCR_EL1)]
+	str	x29, [sp, #(CTX_ERRATA_SPEC_AT_OFFSET + CTX_ERRATA_SPEC_AT_TCR_EL1)]
 
 	/* ------------------------------------------------------------
 	 * Must follow below order in order to disable page table
@@ -367,9 +373,10 @@ func save_and_update_ptw_el1_sys_regs
 	orr	x29, x29, #SCTLR_M_BIT
 	msr	sctlr_el1, x29
 	isb
-
 	ret
 endfunc save_and_update_ptw_el1_sys_regs
+
+#endif /* ERRATA_SPECULATIVE_AT */
 
 /* -----------------------------------------------------------------
 * The below macro returns the address of the per_world context for

@@ -437,7 +437,7 @@
 	 * -----------------------------------------------------------
 	 */
 	isb
-	ldp	x28, x29, [sp, #CTX_EL1_SYSREGS_OFFSET + CTX_SCTLR_EL1]
+	ldp	x28, x29, [sp, #CTX_ERRATA_SPEC_AT_OFFSET + CTX_ERRATA_SPEC_AT_SCTLR_EL1]
 	msr	sctlr_el1, x28
 	isb
 	msr	tcr_el1, x29
