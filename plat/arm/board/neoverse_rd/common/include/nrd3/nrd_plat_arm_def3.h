@@ -731,6 +731,12 @@
 #  define BL32_BASE			PLAT_ARM_SPMC_BASE
 #  define BL32_LIMIT			(PLAT_ARM_SPMC_BASE +		\
 					 PLAT_ARM_SPMC_SIZE)
+
+#if RESET_TO_BL31
+#  define PLAT_ARM_SPMC_MANIFEST_BASE	UL(0x1F500)
+#  define ARM_SPMC_MANIFEST_BASE	PLAT_ARM_SPMC_MANIFEST_BASE
+#endif
+
 # endif
 
 /*******************************************************************************
