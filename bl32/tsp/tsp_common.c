@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,7 +104,7 @@ smc_args_t *tsp_system_off_main(uint64_t arg0,
 	tsp_stats[linear_id].eret_count++;
 
 	INFO("TSP: cpu 0x%lx SYSTEM_OFF request\n", read_mpidr());
-	INFO("TSP: cpu 0x%lx: %d smcs, %d erets requests\n", read_mpidr(),
+	INFO("TSP: cpu 0x%lx: %u smcs, %u erets requests\n", read_mpidr(),
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);
 
@@ -132,7 +132,7 @@ smc_args_t *tsp_system_reset_main(uint64_t arg0,
 	tsp_stats[linear_id].eret_count++;
 
 	INFO("TSP: cpu 0x%lx SYSTEM_RESET request\n", read_mpidr());
-	INFO("TSP: cpu 0x%lx: %d smcs, %d erets requests\n", read_mpidr(),
+	INFO("TSP: cpu 0x%lx: %u smcs, %u erets requests\n", read_mpidr(),
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);
 
