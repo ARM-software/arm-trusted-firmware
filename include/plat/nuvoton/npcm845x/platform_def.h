@@ -157,7 +157,8 @@
 
 /* MMU entry for internal (register) space access */
 #define MAP_DEVICE0                                                            \
-	MAP_REGION_FLAT(PLAT_REG_BASE, PLAT_REG_SIZE, MT_DEVICE | MT_RW | MT_NS)
+	MAP_REGION_FLAT(PLAT_REG_BASE, PLAT_REG_SIZE,                         \
+			MT_DEVICE | MT_RW | MT_SECURE)
 
 #define MAP_DEVICE1                                                            \
 	MAP_REGION_FLAT(DEVICE1_BASE, DEVICE1_SIZE,                            \
