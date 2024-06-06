@@ -23,8 +23,10 @@ OBJS        = $(BUILD_DIR)/jmptbl.o $(BUILD_DIR)/init.o
 MAPFILE     = $(BUILD_PLAT)/romlib/romlib.map
 
 ifneq ($(PLAT_DIR),)
-  WRAPPER_SOURCES   = $(shell $(ROMLIB_GEN) genwrappers -b $(WRAPPER_DIR) --list ../../$(PLAT_DIR)/jmptbl.i)
-  WRAPPER_OBJS      = $(WRAPPER_SOURCES:.s=.o)
+        WRAPPER_SOURCES = $(sort $(shell $(ROMLIB_GEN) genwrappers -b $\
+                $(WRAPPER_DIR) --list ../../$(PLAT_DIR)/jmptbl.i))
+
+        WRAPPER_OBJS = $(WRAPPER_SOURCES:.s=.o)
 endif
 
 V ?= 0
@@ -82,14 +84,11 @@ $(BUILD_DIR)/jmptbl.i: ../../$(PLAT_DIR)/jmptbl.i
 	@echo "  PRE     $@"
 	$(Q)$(ROMLIB_GEN) pre --output $@ --deps $(BUILD_DIR)/jmptbl.d $<
 
-$(BUILD_DIR)/wrappers.stamp: $(BUILD_DIR)/jmptbl.i
+$(WRAPPER_SOURCES) &: $(BUILD_DIR)/jmptbl.i
 	@echo "  WRP     $<"
 	$(Q)$(ROMLIB_GEN) genwrappers --bti=$(ENABLE_BTI) -b $(WRAPPER_DIR) $<
-	@touch $@
 
-$(WRAPPER_SOURCES): $(BUILD_DIR)/wrappers.stamp
-
-$(WRAPPER_OBJS): $(WRAPPER_SOURCES) $(BUILD_DIR)/wrappers.stamp
+$(WRAPPER_OBJS): $(WRAPPER_DIR)/%.o: $(WRAPPER_DIR)/%.s
 
 $(BUILD_DIR)/jmptbl.s: $(BUILD_DIR)/jmptbl.i
 	@echo "  TBL     $@"
