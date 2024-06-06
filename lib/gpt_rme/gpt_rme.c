@@ -700,8 +700,8 @@ static uintptr_t get_l1_end_pa(uintptr_t cur_pa, uintptr_t end_pa)
  * Return
  *   Address of next granule in range.
  */
-static uintptr_t fill_l1_cont_desc(uint64_t *l1, uintptr_t first,
-				   size_t length, unsigned int gpi)
+__unused static uintptr_t fill_l1_cont_desc(uint64_t *l1, uintptr_t first,
+					    size_t length, unsigned int gpi)
 {
 	/*
 	 * Look up table for contiguous blocks and descriptors.
@@ -826,8 +826,10 @@ static uintptr_t fill_l1_gran_desc(uint64_t *l1, uintptr_t first,
 
 /*
  * Helper function to fill out GPI entries in a single L1 table.
- * This function fills out an entire L1 table with either Contiguous
- * or Granules descriptors depending on region length and alignment.
+ * This function fills out an entire L1 table with either Granules or Contiguous
+ * (RME_GPT_MAX_BLOCK != 0) descriptors depending on region length and alignment.
+ * Note. If RME_GPT_MAX_BLOCK == 0, then the L1 tables are filled with regular
+ * Granules descriptors.
  *
  * Parameters
  *   l1			Pointer to L1 table to fill out
@@ -844,13 +846,14 @@ static void fill_l1_tbl(uint64_t *l1, uintptr_t first, uintptr_t last,
 	assert((last & (GPT_PGS_ACTUAL_SIZE(gpt_config.p) - 1UL)) == 0UL);
 	assert(GPT_L0_IDX(first) == GPT_L0_IDX(last));
 
+#if (RME_GPT_MAX_BLOCK != 0)
 	while (first < last) {
 		/* Region length */
 		size_t length = last - first + GPT_PGS_ACTUAL_SIZE(gpt_config.p);
 
 		if (length < SZ_2M) {
 			/*
-			 * Fill with Granule descriptor in case of
+			 * Fill with Granule descriptors in case of
 			 * region length < 2MB.
 			 */
 			first = fill_l1_gran_desc(l1, first, last, gpi);
@@ -874,7 +877,10 @@ static void fill_l1_tbl(uint64_t *l1, uintptr_t first, uintptr_t last,
 			first = fill_l1_gran_desc(l1, first, new_last, gpi);
 		}
 	}
-
+#else
+	/* Fill with Granule descriptors */
+	first = fill_l1_gran_desc(l1, first, last, gpi);
+#endif
 	assert(first == (last + GPT_PGS_ACTUAL_SIZE(gpt_config.p)));
 }
 
