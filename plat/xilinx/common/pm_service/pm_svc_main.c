@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -264,30 +264,6 @@ static uintptr_t eemi_for_compatibility(uint32_t api_id, uint32_t *pm_arg,
 	enum pm_ret_status ret;
 
 	switch (api_id) {
-
-	case (uint32_t)PM_IOCTL:
-	{
-		uint32_t value = 0U;
-
-		ret = pm_api_ioctl(pm_arg[0], pm_arg[1], pm_arg[2],
-				   pm_arg[3], pm_arg[4],
-				   &value, security_flag);
-		if (ret == PM_RET_ERROR_NOTSUPPORTED)
-			return (uintptr_t)0;
-
-		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32U);
-	}
-
-	case (uint32_t)PM_QUERY_DATA:
-	{
-		uint32_t data[PAYLOAD_ARG_CNT] = { 0 };
-
-		ret = pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
-				    pm_arg[3], data, security_flag);
-
-		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)data[0] << 32U),
-			 (uint64_t)data[1] | ((uint64_t)data[2] << 32U));
-	}
 
 	case (uint32_t)PM_FEATURE_CHECK:
 	{
