@@ -334,7 +334,8 @@ void detect_arch_features(void)
 	/* v8.6 features */
 	check_feature(ENABLE_FEAT_AMUv1p1, read_feat_amu_id_field(),
 		      "AMUv1p1", 2, 2);
-	check_feature(ENABLE_FEAT_FGT, read_feat_fgt_id_field(), "FGT", 1, 1);
+	check_feature(ENABLE_FEAT_FGT, read_feat_fgt_id_field(), "FGT", 1, 2);
+	check_feature(ENABLE_FEAT_FGT2, read_feat_fgt_id_field(), "FGT2", 2, 2);
 	check_feature(ENABLE_FEAT_ECV, read_feat_ecv_id_field(), "ECV", 1, 2);
 	check_feature(ENABLE_FEAT_TWED, read_feat_twed_id_field(),
 		      "TWED", 1, 1);
