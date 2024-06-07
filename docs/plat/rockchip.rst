@@ -10,6 +10,7 @@ This includes right now:
 -  rk3328: Quad-Core Cortex-A53
 -  rk3368: Octa-Core Cortex-A53
 -  rk3399: Hexa-Core Cortex-A53/A72
+-  rk3566/rk3568: Quad-Core Cortex-A55
 
 
 Boot Sequence

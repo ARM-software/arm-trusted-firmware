@@ -30,6 +30,7 @@
  * DSU Cluster Auxiliary Control registers definitions
  ********************************************************************/
 #define CLUSTERACTLR_EL1	S3_0_C15_C3_3
+#define CLUSTERPWRCTLR_EL1	S3_0_C15_C3_5
 
 #define CLUSTERACTLR_EL1_DISABLE_CLOCK_GATING	(ULL(1) << 15)
 #define CLUSTERACTLR_EL1_DISABLE_SCLK_GATING	(ULL(3) << 15)
@@ -39,4 +40,7 @@
  ********************************************************************/
 #define DSU_ERRATA_936184_MASK	(U(0x3) << 15)
 
+#ifndef __ASSEMBLER__
+void dsu_pwr_dwn(void);
+#endif
 #endif /* DSU_DEF_H */

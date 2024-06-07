@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,8 +13,6 @@
 #include <common/debug.h>
 #include <drivers/arm/cci.h>
 #include <lib/utils.h>
-#include <lib/xlat_tables/xlat_tables.h>
-
 #include <plat_private.h>
 
 #ifdef PLAT_RK_CCI_BASE
@@ -42,9 +40,10 @@ static const int cci_map[] = {
 		mmap_add_region(ro_start, ro_start,			\
 				ro_limit - ro_start,			\
 				MT_MEMORY | MT_RO | MT_SECURE);		\
-		mmap_add_region(coh_start, coh_start,			\
-				coh_limit - coh_start,			\
-				MT_DEVICE | MT_RW | MT_SECURE);		\
+		if ((coh_limit - coh_start) != 0)			\
+			mmap_add_region(coh_start, coh_start,		\
+					coh_limit - coh_start,		\
+					MT_DEVICE | MT_RW | MT_SECURE);	\
 		mmap_add(plat_rk_mmap);					\
 		rockchip_plat_mmu_el##_el();				\
 		init_xlat_tables();					\
