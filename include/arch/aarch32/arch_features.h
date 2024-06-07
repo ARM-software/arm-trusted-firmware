@@ -16,6 +16,7 @@
 	((unsigned int)(((reg) >> (feat)) & mask))
 
 #define CREATE_FEATURE_SUPPORTED(name, read_func, guard)			\
+__attribute__((always_inline))							\
 static inline bool is_ ## name ## _supported(void)				\
 {										\
 	if ((guard) == FEAT_STATE_DISABLED) {					\
@@ -28,6 +29,7 @@ static inline bool is_ ## name ## _supported(void)				\
 }
 
 #define CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)		\
+__attribute__((always_inline))							\
 static inline bool is_ ## name ## _present(void)				\
 {										\
 	return (ISOLATE_FIELD(read_ ## idreg(), idfield, mask) >= idval) 	\
@@ -68,6 +70,7 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  */
 
 /* GENTIMER */
+__attribute__((always_inline))
 static inline bool is_armv7_gentimer_present(void)
 {
 	return ISOLATE_FIELD(read_id_pfr1(), ID_PFR1_GENTIMER_SHIFT,
@@ -111,6 +114,7 @@ CREATE_FEATURE_PRESENT(feat_pmuv3, id_dfr0, ID_DFR0_PERFMON_SHIFT,
 		      ID_DFR0_PERFMON_MASK, 3U)
 
 /* FEAT_MTPMU */
+__attribute__((always_inline))
 static inline bool is_feat_mtpmu_present(void)
 {
 	unsigned int mtpmu = ISOLATE_FIELD(read_id_dfr1(), ID_DFR1_MTPMU_SHIFT,
@@ -124,39 +128,71 @@ CREATE_FEATURE_SUPPORTED(feat_mtpmu, is_feat_mtpmu_present, DISABLE_MTPMU)
  * code. In fact, EL2 context switching is only needed for AArch64 (since
  * there is no secure AArch32 EL2), so just disable these features here.
  */
+__attribute__((always_inline))
 static inline bool is_feat_twed_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_ecv_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_ecv_v2_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_csv2_2_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_csv2_3_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_ras_supported(void) { return false; }
 
 /* The following features are supported in AArch64 only. */
+__attribute__((always_inline))
 static inline bool is_feat_vhe_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_sel2_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_fgt_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_tcr2_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_spe_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_rng_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_gcs_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_mte2_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_mpam_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_hcx_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_sve_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_brbe_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_trbe_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_nv2_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_sme_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_sme2_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_s2poe_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_s1poe_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_sxpoe_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_s2pie_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_s1pie_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_sxpie_supported(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_uao_present(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_nmi_present(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_ebep_present(void) { return false; }
+__attribute__((always_inline))
 static inline bool is_feat_sebep_present(void) { return false; }
 
 #endif /* ARCH_FEATURES_H */

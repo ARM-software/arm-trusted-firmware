@@ -16,6 +16,7 @@
 	((unsigned int)(((reg) >> (feat)) & mask))
 
 #define CREATE_FEATURE_SUPPORTED(name, read_func, guard)			\
+__attribute__((always_inline))							\
 static inline bool is_ ## name ## _supported(void)				\
 {										\
 	if ((guard) == FEAT_STATE_DISABLED) {					\
@@ -28,6 +29,7 @@ static inline bool is_ ## name ## _supported(void)				\
 }
 
 #define CREATE_FEATURE_PRESENT(name, idreg, idfield, mask, idval)		\
+__attribute__((always_inline))							\
 static inline bool is_ ## name ## _present(void)				\
 {										\
 	return (ISOLATE_FIELD(read_ ## idreg(), idfield, mask) >= idval) 	\
@@ -132,6 +134,7 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  */
 
+__attribute__((always_inline))
 static inline bool is_armv7_gentimer_present(void)
 {
 	/* The Generic Timer is always present in an ARMv8-A implementation */
@@ -160,6 +163,7 @@ CREATE_FEATURE_PRESENT(feat_pacqarma3, id_aa64isar2_el1, 0,
 			(ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_SHIFT)), 1U)
 
 /* PAUTH */
+__attribute__((always_inline))
 static inline bool is_armv8_3_pauth_present(void)
 {
 	uint64_t mask_id_aa64isar1 =
@@ -238,6 +242,7 @@ CREATE_FEATURE_FUNCS(feat_s2poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2POE_SHIFT,
 CREATE_FEATURE_FUNCS(feat_s1poe, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1POE_SHIFT,
 		     ID_AA64MMFR3_EL1_S1POE_MASK, 1U, ENABLE_FEAT_S1POE)
 
+__attribute__((always_inline))
 static inline bool is_feat_sxpoe_supported(void)
 {
 	return is_feat_s1poe_supported() || is_feat_s2poe_supported();
@@ -251,6 +256,7 @@ CREATE_FEATURE_FUNCS(feat_s2pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S2PIE_SHIFT,
 CREATE_FEATURE_FUNCS(feat_s1pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1PIE_SHIFT,
 		     ID_AA64MMFR3_EL1_S1PIE_MASK, 1U, ENABLE_FEAT_S1PIE)
 
+__attribute__((always_inline))
 static inline bool is_feat_sxpie_supported(void)
 {
 	return is_feat_s1pie_supported() || is_feat_s2pie_supported();
@@ -277,6 +283,7 @@ CREATE_FEATURE_FUNCS(feat_amuv1p1, id_aa64pfr0_el1, ID_AA64PFR0_AMU_SHIFT,
  * 0x11: v1.1 Armv8.4 or later
  *
  */
+__attribute__((always_inline))
 static inline bool is_feat_mpam_present(void)
 {
 	unsigned int ret = (unsigned int)((((read_id_aa64pfr0_el1() >>
@@ -375,6 +382,7 @@ CREATE_FEATURE_FUNCS(feat_sme2, id_aa64pfr1_el1, ID_AA64PFR1_EL1_SME_SHIFT,
  * Function to get hardware granularity support
  ******************************************************************************/
 
+__attribute__((always_inline))
 static inline bool is_feat_tgran4K_present(void)
 {
 	unsigned int tgranx = ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
@@ -385,6 +393,7 @@ static inline bool is_feat_tgran4K_present(void)
 CREATE_FEATURE_PRESENT(feat_tgran16K, id_aa64mmfr0_el1, ID_AA64MMFR0_EL1_TGRAN16_SHIFT,
 		       ID_AA64MMFR0_EL1_TGRAN16_MASK, TGRAN16_IMPLEMENTED)
 
+__attribute__((always_inline))
 static inline bool is_feat_tgran64K_present(void)
 {
 	unsigned int tgranx = ISOLATE_FIELD(read_id_aa64mmfr0_el1(),
@@ -397,6 +406,7 @@ CREATE_FEATURE_PRESENT(feat_pmuv3, id_aa64dfr0_el1, ID_AA64DFR0_PMUVER_SHIFT,
 		      ID_AA64DFR0_PMUVER_MASK, 1U)
 
 /* FEAT_MTPMU */
+__attribute__((always_inline))
 static inline bool is_feat_mtpmu_present(void)
 {
 	unsigned int mtpmu = ISOLATE_FIELD(read_id_aa64dfr0_el1(), ID_AA64DFR0_MTPMU_SHIFT,
