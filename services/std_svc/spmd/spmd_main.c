@@ -52,26 +52,11 @@ static spmc_manifest_attribute_t spmc_attrs;
 static entry_point_info_t *spmc_ep_info;
 
 /*******************************************************************************
- * SPM Core context on CPU based on mpidr.
- ******************************************************************************/
-spmd_spm_core_context_t *spmd_get_context_by_mpidr(uint64_t mpidr)
-{
-	int core_idx = plat_core_pos_by_mpidr(mpidr);
-
-	if (core_idx < 0) {
-		ERROR("Invalid mpidr: %" PRIx64 ", returned ID: %d\n", mpidr, core_idx);
-		panic();
-	}
-
-	return &spm_core_context[core_idx];
-}
-
-/*******************************************************************************
  * SPM Core context on current CPU get helper.
  ******************************************************************************/
 spmd_spm_core_context_t *spmd_get_context(void)
 {
-	return spmd_get_context_by_mpidr(read_mpidr());
+	return &spm_core_context[plat_my_core_pos()];
 }
 
 /*******************************************************************************
