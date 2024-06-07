@@ -202,7 +202,6 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 {
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
-	unsigned int linear_id = plat_my_core_pos();
 	int64_t rc;
 
 	/* Sanity check the security state when the exception was generated */
@@ -233,7 +232,7 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0ULL) {
-		ERROR("%s failed (%" PRId64 ") on CPU%u\n", __func__, rc, linear_id);
+		ERROR("%s failed (%" PRId64 ") on CPU%u\n", __func__, rc, plat_my_core_pos());
 	}
 
 	ctx->secure_interrupt_ongoing = false;
@@ -839,7 +838,6 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			  void *handle,
 			  uint64_t flags)
 {
-	unsigned int linear_id = plat_my_core_pos();
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	bool secure_origin;
 	int ret;
@@ -850,7 +848,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	VERBOSE("SPM(%u): 0x%x 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64
 		" 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64 "\n",
-		    linear_id, smc_fid, x1, x2, x3, x4,
+		    plat_my_core_pos(), smc_fid, x1, x2, x3, x4,
 		    SMC_GET_GP(handle, CTX_GPREG_X5),
 		    SMC_GET_GP(handle, CTX_GPREG_X6),
 		    SMC_GET_GP(handle, CTX_GPREG_X7));
