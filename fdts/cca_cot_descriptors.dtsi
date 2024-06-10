@@ -136,28 +136,10 @@ cot {
 	images {
 		compatible = "arm, img-descs";
 
-		fw_config {
-			image-id = <FW_CONFIG_ID>;
-			parent = <&cca_content_cert>;
-			hash = <&fw_config_hash>;
-		};
-
 		hw_config {
 			image-id = <HW_CONFIG_ID>;
 			parent = <&cca_content_cert>;
 			hash = <&hw_config_hash>;
-		};
-
-		tb_fw_hash {
-			image-id = <BL2_IMAGE_ID>;
-			parent = <&cca_content_cert>;
-			hash = <&tb_fw_hash>;
-		};
-
-		tb_fw_config {
-			image-id = <TB_FW_CONFIG_ID>;
-			parent = <&cca_content_cert>;
-			hash = <&tb_fw_config_hash>;
 		};
 
 		bl31_image {
