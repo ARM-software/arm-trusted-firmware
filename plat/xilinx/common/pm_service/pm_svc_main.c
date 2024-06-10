@@ -149,6 +149,9 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 				}
 			}
 			notify_os();
+		} else if (payload[2] == EVENT_CPU_PWRDWN) {
+			request_cpu_pwrdwn();
+			(void)psci_cpu_off();
 		}
 		break;
 	case PM_RET_ERROR_INVALID_CRC:
@@ -240,6 +243,14 @@ int32_t pm_setup(void)
 	}
 
 	gicd_write_irouter(gicv3_driver_data->gicd_base, PLAT_VERSAL_IPI_IRQ, MODE);
+
+	/* Register for idle callback during force power down/restart */
+	ret = pm_register_notifier(primary_proc->node_id, EVENT_CPU_PWRDWN,
+				   0x0U, 0x1U, SECURE_FLAG);
+	if (ret != 0) {
+		WARN("BL31: registering idle callback for restart/force power down failed\n");
+	}
+
 	return ret;
 }
 
