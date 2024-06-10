@@ -129,6 +129,7 @@ PLAT_BL_COMMON_SOURCES	+=	${TC_BASE}/tc_plat.c	\
 BL1_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				${TC_CPU_SOURCES}	\
 				${TC_BASE}/tc_trusted_boot.c	\
+				${TC_BASE}/tc_bl1_setup.c \
 				${TC_BASE}/tc_err.c	\
 				drivers/arm/sbsa/sbsa.c
 
@@ -258,5 +259,4 @@ endif
 
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
-include plat/arm/soc/common/soc_css.mk
 include plat/arm/board/common/board_common.mk
