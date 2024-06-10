@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020,2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,10 +21,10 @@ extern auth_param_type_desc_t sig_alg;
 extern auth_param_type_desc_t raw_data;
 
 extern auth_param_type_desc_t tb_fw_hash;
+extern auth_param_type_desc_t hw_config_hash;
 extern auth_param_type_desc_t tb_fw_config_hash;
 extern auth_param_type_desc_t fw_config_hash;
 
 extern const auth_img_desc_t trusted_boot_fw_cert;
-extern const auth_img_desc_t hw_config;
 
 #endif /* TBBR_COT_COMMON_H */
