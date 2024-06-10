@@ -62,8 +62,16 @@ int imx_soc_info_handler(uint32_t smc_fid, u_register_t x1,
 			 u_register_t x2, u_register_t x3);
 int imx_gpc_handler(uint32_t smc_fid, u_register_t x1,
 		    u_register_t x2, u_register_t x3);
+#if IMX_DRAM_RETENTION
 int dram_dvfs_handler(uint32_t smc_fid, void *handle,
 	u_register_t x1, u_register_t x2, u_register_t x3);
+#else
+static inline int dram_dvfs_handler(uint32_t smc_fid, void *handle,
+		u_register_t x1, u_register_t x2, u_register_t x3)
+{
+	SMC_RET1(handle, SMC_UNK);
+}
+#endif
 #endif
 #if defined(PLAT_imx8mm) || defined(PLAT_imx8mn) || defined(PLAT_imx8mp)
 int dram_dvfs_handler(uint32_t smc_fid, void *handle,
