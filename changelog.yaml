@@ -1146,6 +1146,9 @@ subsections:
           - title: TRDC
             scope: imx-trdc
 
+          - title: Clock
+            scope: nxp-clk
+
       - title: Renesas
         scope: renesas-drivers
 
