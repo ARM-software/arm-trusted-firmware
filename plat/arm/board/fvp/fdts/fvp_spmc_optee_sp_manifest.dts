@@ -35,7 +35,7 @@
 			debug_name = "op-tee";
 			load_address = <0x6280000>;
 			vcpu_count = <8>;
-			mem_size = <1048576>;
+			mem_size = <0xd80000>;
 		};
 	};
 
