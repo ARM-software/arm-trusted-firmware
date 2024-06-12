@@ -6,6 +6,7 @@
 #define S32CC_CLK_MODULES_H
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 #define MHZ	UL(1000000)
@@ -149,6 +150,35 @@ static inline struct s32cc_clk *s32cc_obj2clk(const struct s32cc_clk_obj *mod)
 
 	clk_addr = ((uintptr_t)mod) - offsetof(struct s32cc_clk, desc);
 	return (struct s32cc_clk *)clk_addr;
+}
+
+static inline bool is_s32cc_clk_mux(const struct s32cc_clk *clk)
+{
+	const struct s32cc_clk_obj *module;
+
+	module = clk->module;
+	if (module == NULL) {
+		return false;
+	}
+
+	return (module->type == s32cc_clkmux_t);
+}
+
+static inline struct s32cc_clkmux *s32cc_obj2clkmux(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t cmux_addr;
+
+	cmux_addr = ((uintptr_t)mod) - offsetof(struct s32cc_clkmux, desc);
+	return (struct s32cc_clkmux *)cmux_addr;
+}
+
+static inline struct s32cc_clkmux *s32cc_clk2mux(const struct s32cc_clk *clk)
+{
+	if (!is_s32cc_clk_mux(clk)) {
+		return NULL;
+	}
+
+	return s32cc_obj2clkmux(clk->module);
 }
 
 #endif /* S32CC_CLK_MODULES_H */

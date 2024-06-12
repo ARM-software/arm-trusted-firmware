@@ -301,7 +301,49 @@ static int s32cc_clk_get_parent(unsigned long id)
 
 static int s32cc_clk_set_parent(unsigned long id, unsigned long parent_id)
 {
-	return -ENOTSUP;
+	const struct s32cc_clk *parent;
+	const struct s32cc_clk *clk;
+	bool valid_source = false;
+	struct s32cc_clkmux *mux;
+	uint8_t i;
+
+	clk = s32cc_get_arch_clk(id);
+	if (clk == NULL) {
+		return -EINVAL;
+	}
+
+	parent = s32cc_get_arch_clk(parent_id);
+	if (parent == NULL) {
+		return -EINVAL;
+	}
+
+	if (!is_s32cc_clk_mux(clk)) {
+		ERROR("Clock %lu is not a mux\n", id);
+		return -EINVAL;
+	}
+
+	mux = s32cc_clk2mux(clk);
+	if (mux == NULL) {
+		ERROR("Failed to cast clock %lu to clock mux\n", id);
+		return -EINVAL;
+	}
+
+	for (i = 0; i < mux->nclks; i++) {
+		if (mux->clkids[i] == parent_id) {
+			valid_source = true;
+			break;
+		}
+	}
+
+	if (!valid_source) {
+		ERROR("Clock %lu is not a valid clock for mux %lu\n",
+		      parent_id, id);
+		return -EINVAL;
+	}
+
+	mux->source_id = parent_id;
+
+	return 0;
 }
 
 void s32cc_clk_register_drv(void)
