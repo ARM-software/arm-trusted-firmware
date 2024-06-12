@@ -21,5 +21,10 @@ int s32cc_init_early_clks(void)
 		return ret;
 	}
 
+	ret = clk_enable(S32CC_CLK_FXOSC);
+	if (ret != 0) {
+		return ret;
+	}
+
 	return ret;
 }
