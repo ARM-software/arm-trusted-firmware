@@ -22,6 +22,7 @@
 struct s32cc_clk_drv {
 	uintptr_t fxosc_base;
 	uintptr_t armpll_base;
+	uintptr_t cgm1_base;
 };
 
 static int update_stack_depth(unsigned int *depth)
@@ -39,6 +40,7 @@ static struct s32cc_clk_drv *get_drv(void)
 	static struct s32cc_clk_drv driver = {
 		.fxosc_base = FXOSC_BASE_ADDR,
 		.armpll_base = ARMPLL_BASE_ADDR,
+		.cgm1_base = CGM1_BASE_ADDR,
 	};
 
 	return &driver;
@@ -86,7 +88,7 @@ static int get_base_addr(enum s32cc_clk_source id, const struct s32cc_clk_drv *d
 		*base = drv->armpll_base;
 		break;
 	case S32CC_CGM1:
-		ret = -ENOTSUP;
+		*base = drv->cgm1_base;
 		break;
 	case S32CC_FIRC:
 		break;
@@ -420,6 +422,135 @@ static int enable_pll_div(const struct s32cc_clk_obj *module,
 	return 0;
 }
 
+static int cgm_mux_clk_config(uintptr_t cgm_addr, uint32_t mux, uint32_t source,
+			      bool safe_clk)
+{
+	uint32_t css, csc;
+
+	css = mmio_read_32(CGM_MUXn_CSS(cgm_addr, mux));
+
+	/* Already configured */
+	if ((MC_CGM_MUXn_CSS_SELSTAT(css) == source) &&
+	    (MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SUCCESS) &&
+	    ((css & MC_CGM_MUXn_CSS_SWIP) == 0U) && !safe_clk) {
+		return 0;
+	}
+
+	/* Ongoing clock switch? */
+	while ((mmio_read_32(CGM_MUXn_CSS(cgm_addr, mux)) &
+		MC_CGM_MUXn_CSS_SWIP) != 0U) {
+	}
+
+	csc = mmio_read_32(CGM_MUXn_CSC(cgm_addr, mux));
+
+	/* Clear previous source. */
+	csc &= ~(MC_CGM_MUXn_CSC_SELCTL_MASK);
+
+	if (!safe_clk) {
+		/* Select the clock source and trigger the clock switch. */
+		csc |= MC_CGM_MUXn_CSC_SELCTL(source) | MC_CGM_MUXn_CSC_CLK_SW;
+	} else {
+		/* Switch to safe clock */
+		csc |= MC_CGM_MUXn_CSC_SAFE_SW;
+	}
+
+	mmio_write_32(CGM_MUXn_CSC(cgm_addr, mux), csc);
+
+	/* Wait for configuration bit to auto-clear. */
+	while ((mmio_read_32(CGM_MUXn_CSC(cgm_addr, mux)) &
+		MC_CGM_MUXn_CSC_CLK_SW) != 0U) {
+	}
+
+	/* Is the clock switch completed? */
+	while ((mmio_read_32(CGM_MUXn_CSS(cgm_addr, mux)) &
+		MC_CGM_MUXn_CSS_SWIP) != 0U) {
+	}
+
+	/*
+	 * Check if the switch succeeded.
+	 * Check switch trigger cause and the source.
+	 */
+	css = mmio_read_32(CGM_MUXn_CSS(cgm_addr, mux));
+	if (!safe_clk) {
+		if ((MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SUCCESS) &&
+		    (MC_CGM_MUXn_CSS_SELSTAT(css) == source)) {
+			return 0;
+		}
+
+		ERROR("Failed to change the source of mux %" PRIu32 " to %" PRIu32 " (CGM=%lu)\n",
+		      mux, source, cgm_addr);
+	} else {
+		if (((MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SAFE_CLK) ||
+		     (MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SAFE_CLK_INACTIVE)) &&
+		     ((MC_CGM_MUXn_CSS_SAFE_SW & css) != 0U)) {
+			return 0;
+		}
+
+		ERROR("The switch of mux %" PRIu32 " (CGM=%lu) to safe clock failed\n",
+		      mux, cgm_addr);
+	}
+
+	return -EINVAL;
+}
+
+static int enable_cgm_mux(const struct s32cc_clkmux *mux,
+			  const struct s32cc_clk_drv *drv)
+{
+	uintptr_t cgm_addr = UL(0x0);
+	uint32_t mux_hw_clk;
+	int ret;
+
+	ret = get_base_addr(mux->module, drv, &cgm_addr);
+	if (ret != 0) {
+		return ret;
+	}
+
+	mux_hw_clk = (uint32_t)S32CC_CLK_ID(mux->source_id);
+
+	return cgm_mux_clk_config(cgm_addr, mux->index,
+				  mux_hw_clk, false);
+}
+
+static int enable_mux(const struct s32cc_clk_obj *module,
+		      const struct s32cc_clk_drv *drv,
+		      unsigned int *depth)
+{
+	const struct s32cc_clkmux *mux = s32cc_obj2clkmux(module);
+	const struct s32cc_clk *clk;
+	int ret = 0;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (mux == NULL) {
+		return -EINVAL;
+	}
+
+	clk = s32cc_get_arch_clk(mux->source_id);
+	if (clk == NULL) {
+		ERROR("Invalid parent (%lu) for mux %" PRIu8 "\n",
+		      mux->source_id, mux->index);
+		return -EINVAL;
+	}
+
+	switch (mux->module) {
+	/* PLL mux will be enabled by PLL setup */
+	case S32CC_ARM_PLL:
+		break;
+	case S32CC_CGM1:
+		ret = enable_cgm_mux(mux, drv);
+		break;
+	default:
+		ERROR("Unknown mux parent type: %d\n", mux->module);
+		ret = -EINVAL;
+		break;
+	};
+
+	return ret;
+}
+
 static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth)
 {
 	const struct s32cc_clk_drv *drv = get_drv();
@@ -448,10 +579,10 @@ static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth
 		ret = enable_pll_div(module, drv, depth);
 		break;
 	case s32cc_clkmux_t:
-		ret = -ENOTSUP;
+		ret = enable_mux(module, drv, depth);
 		break;
 	case s32cc_shared_clkmux_t:
-		ret = -ENOTSUP;
+		ret = enable_mux(module, drv, depth);
 		break;
 	case s32cc_fixed_div_t:
 		ret = -ENOTSUP;

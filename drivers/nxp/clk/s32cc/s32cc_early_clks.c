@@ -64,5 +64,10 @@ int s32cc_init_early_clks(void)
 		return ret;
 	}
 
+	ret = clk_enable(S32CC_CLK_A53_CORE);
+	if (ret != 0) {
+		return ret;
+	}
+
 	return ret;
 }
