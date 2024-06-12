@@ -142,6 +142,15 @@ static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth
 	case s32cc_clk_t:
 		ret = enable_clk_module(module, drv, depth);
 		break;
+	case s32cc_clkmux_t:
+		ret = -ENOTSUP;
+		break;
+	case s32cc_pll_t:
+		ret = -ENOTSUP;
+		break;
+	case s32cc_pll_out_div_t:
+		ret = -ENOTSUP;
+		break;
 	default:
 		ret = -EINVAL;
 		break;
@@ -250,6 +259,11 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_osc_t:
 		ret = set_osc_freq(module, rate, orate, depth);
+		break;
+	case s32cc_clkmux_t:
+	case s32cc_pll_t:
+	case s32cc_pll_out_div_t:
+		ret = -ENOTSUP;
 		break;
 	default:
 		ret = -EINVAL;

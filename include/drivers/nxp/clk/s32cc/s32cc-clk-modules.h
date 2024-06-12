@@ -14,12 +14,16 @@
 enum s32cc_clkm_type {
 	s32cc_osc_t,
 	s32cc_clk_t,
+	s32cc_pll_t,
+	s32cc_pll_out_div_t,
+	s32cc_clkmux_t,
 };
 
 enum s32cc_clk_source {
 	S32CC_FIRC,
 	S32CC_FXOSC,
 	S32CC_SIRC,
+	S32CC_ARM_PLL,
 };
 
 struct s32cc_clk_obj {
@@ -40,6 +44,65 @@ struct s32cc_osc {
 		.type = s32cc_osc_t, \
 	},                           \
 	.source = (SOURCE),          \
+}
+
+struct s32cc_clkmux {
+	struct s32cc_clk_obj desc;
+	enum s32cc_clk_source module;
+	uint8_t index; /* Mux index in parent module */
+	unsigned long source_id; /* Selected source */
+	uint8_t nclks; /* Number of input clocks */
+	unsigned long clkids[5]; /* IDs of the input clocks */
+};
+
+#define S32CC_CLKMUX_TYPE_INIT(TYPE, MODULE, INDEX, NCLKS, ...) \
+{                                                               \
+	.desc = {                                               \
+		.type = (TYPE),                                 \
+	},                                                      \
+	.module = (MODULE),                                     \
+	.index = (INDEX),                                       \
+	.nclks = (NCLKS),                                       \
+	.clkids = {__VA_ARGS__},                                \
+}
+
+#define S32CC_CLKMUX_INIT(MODULE, INDEX, NCLKS, ...)     \
+	S32CC_CLKMUX_TYPE_INIT(s32cc_clkmux_t, MODULE,   \
+			       INDEX, NCLKS, __VA_ARGS__)
+
+struct s32cc_pll {
+	struct s32cc_clk_obj desc;
+	struct s32cc_clk_obj *source;
+	enum s32cc_clk_source instance;
+	unsigned long vco_freq;
+	uint32_t ndividers;
+	uintptr_t base;
+};
+
+#define S32CC_PLL_INIT(PLL_MUX_CLK, INSTANCE, NDIVIDERS) \
+{                                                        \
+	.desc = {                                        \
+		.type = s32cc_pll_t,                     \
+	},                                               \
+	.source = &(PLL_MUX_CLK).desc,                   \
+	.instance = (INSTANCE),                          \
+	.ndividers = (NDIVIDERS),                        \
+}
+
+struct s32cc_pll_out_div {
+	struct s32cc_clk_obj desc;
+	struct s32cc_clk_obj *parent;
+	uint32_t index;
+	unsigned long freq;
+};
+
+#define S32CC_PLL_OUT_DIV_INIT(PARENT, INDEX)  \
+{                                              \
+	.desc = {                              \
+		.type = s32cc_pll_out_div_t,   \
+	},                                     \
+	.parent = &(PARENT).desc,              \
+	.index = (INDEX),                      \
 }
 
 struct s32cc_clk {
