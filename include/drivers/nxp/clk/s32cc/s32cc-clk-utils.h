@@ -13,4 +13,6 @@ struct s32cc_clk *s32cc_get_clk_from_table(const struct s32cc_clk_array *const *
 
 struct s32cc_clk *s32cc_get_arch_clk(unsigned long id);
 
+void s32cc_clk_register_drv(void);
+
 #endif /* S32CC_CLK_UTILS_H */

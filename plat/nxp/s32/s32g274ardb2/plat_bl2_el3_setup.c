@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
 #include <plat_console.h>
+#include <s32cc-clk-drv.h>
 #include <plat_io_storage.h>
 
 #define SIUL2_PC09_MSCR		UL(0x4009C2E4)
@@ -50,6 +52,13 @@ static void linflex_config_pinctrl(void)
 void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 				  u_register_t arg2, u_register_t arg3)
 {
+	int ret;
+
+	ret = s32cc_init_early_clks();
+	if (ret != 0) {
+		panic();
+	}
+
 	linflex_config_pinctrl();
 	console_s32g2_register();
 
