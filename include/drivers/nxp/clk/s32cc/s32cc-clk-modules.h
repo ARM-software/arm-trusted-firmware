@@ -229,4 +229,12 @@ static inline struct s32cc_pll_out_div *s32cc_obj2plldiv(const struct s32cc_clk_
 	return (struct s32cc_pll_out_div *)plldiv_addr;
 }
 
+static inline struct s32cc_fixed_div *s32cc_obj2fixeddiv(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t fdiv_addr;
+
+	fdiv_addr = ((uintptr_t)mod) - offsetof(struct s32cc_fixed_div, desc);
+	return (struct s32cc_fixed_div *)fdiv_addr;
+}
+
 #endif /* S32CC_CLK_MODULES_H */

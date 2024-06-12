@@ -316,6 +316,30 @@ static int set_pll_div_freq(const struct s32cc_clk_obj *module, unsigned long ra
 	return 0;
 }
 
+static int set_fixed_div_freq(const struct s32cc_clk_obj *module, unsigned long rate,
+			      unsigned long *orate, unsigned int *depth)
+{
+	const struct s32cc_fixed_div *fdiv = s32cc_obj2fixeddiv(module);
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (fdiv->parent == NULL) {
+		ERROR("The divider doesn't have a valid parent\b");
+		return -EINVAL;
+	}
+
+	ret = set_module_rate(fdiv->parent, rate * fdiv->rate_div, orate, depth);
+
+	/* Update the output rate based on the parent's rate */
+	*orate /= fdiv->rate_div;
+
+	return ret;
+}
+
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth)
@@ -340,9 +364,11 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 	case s32cc_pll_out_div_t:
 		ret = set_pll_div_freq(module, rate, orate, depth);
 		break;
+	case s32cc_fixed_div_t:
+		ret = set_fixed_div_freq(module, rate, orate, depth);
+		break;
 	case s32cc_clkmux_t:
 	case s32cc_shared_clkmux_t:
-	case s32cc_fixed_div_t:
 		ret = -ENOTSUP;
 		break;
 	default:
