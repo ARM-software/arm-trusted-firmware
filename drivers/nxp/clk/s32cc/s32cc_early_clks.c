@@ -11,6 +11,7 @@
 #define S32CC_FXOSC_FREQ	(40U * MHZ)
 #define S32CC_ARM_PLL_VCO_FREQ	(2U * GHZ)
 #define S32CC_ARM_PLL_PHI0_FREQ	(1U * GHZ)
+#define S32CC_A53_FREQ		(1U * GHZ)
 
 int s32cc_init_early_clks(void)
 {
@@ -39,6 +40,11 @@ int s32cc_init_early_clks(void)
 	}
 
 	ret = clk_set_rate(S32CC_CLK_ARM_PLL_PHI0, S32CC_ARM_PLL_PHI0_FREQ, NULL);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = clk_set_rate(S32CC_CLK_A53_CORE, S32CC_A53_FREQ, NULL);
 	if (ret != 0) {
 		return ret;
 	}
