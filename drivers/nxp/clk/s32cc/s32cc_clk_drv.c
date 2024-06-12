@@ -245,6 +245,28 @@ static int set_clk_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 	return -EINVAL;
 }
 
+static int set_pll_freq(const struct s32cc_clk_obj *module, unsigned long rate,
+			unsigned long *orate, unsigned int *depth)
+{
+	struct s32cc_pll *pll = s32cc_obj2pll(module);
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if ((pll->vco_freq != 0UL) && (pll->vco_freq != rate)) {
+		ERROR("PLL frequency was already set\n");
+		return -EINVAL;
+	}
+
+	pll->vco_freq = rate;
+	*orate = pll->vco_freq;
+
+	return 0;
+}
+
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth)
@@ -263,9 +285,11 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 	case s32cc_osc_t:
 		ret = set_osc_freq(module, rate, orate, depth);
 		break;
+	case s32cc_pll_t:
+		ret = set_pll_freq(module, rate, orate, depth);
+		break;
 	case s32cc_clkmux_t:
 	case s32cc_shared_clkmux_t:
-	case s32cc_pll_t:
 	case s32cc_pll_out_div_t:
 		ret = -ENOTSUP;
 		break;

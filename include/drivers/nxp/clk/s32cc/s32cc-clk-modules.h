@@ -188,4 +188,12 @@ static inline struct s32cc_clkmux *s32cc_clk2mux(const struct s32cc_clk *clk)
 	return s32cc_obj2clkmux(clk->module);
 }
 
+static inline struct s32cc_pll *s32cc_obj2pll(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t pll_addr;
+
+	pll_addr = ((uintptr_t)mod) - offsetof(struct s32cc_pll, desc);
+	return (struct s32cc_pll *)pll_addr;
+}
+
 #endif /* S32CC_CLK_MODULES_H */

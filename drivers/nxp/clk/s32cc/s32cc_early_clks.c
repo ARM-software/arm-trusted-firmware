@@ -9,6 +9,7 @@
 #include <s32cc-clk-utils.h>
 
 #define S32CC_FXOSC_FREQ	(40U * MHZ)
+#define S32CC_ARM_PLL_VCO_FREQ	(2U * GHZ)
 
 int s32cc_init_early_clks(void)
 {
@@ -27,6 +28,11 @@ int s32cc_init_early_clks(void)
 	}
 
 	ret = clk_set_rate(S32CC_CLK_FXOSC, S32CC_FXOSC_FREQ, NULL);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = clk_set_rate(S32CC_CLK_ARM_PLL_VCO, S32CC_ARM_PLL_VCO_FREQ, NULL);
 	if (ret != 0) {
 		return ret;
 	}
