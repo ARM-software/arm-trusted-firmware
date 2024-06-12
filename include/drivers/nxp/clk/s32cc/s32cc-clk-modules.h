@@ -19,6 +19,7 @@ enum s32cc_clkm_type {
 	s32cc_pll_out_div_t,
 	s32cc_clkmux_t,
 	s32cc_shared_clkmux_t,
+	s32cc_fixed_div_t,
 };
 
 enum s32cc_clk_source {
@@ -110,6 +111,30 @@ struct s32cc_pll_out_div {
 	},                                     \
 	.parent = &(PARENT).desc,              \
 	.index = (INDEX),                      \
+}
+
+#define S32CC_PLL_OUT_DIV_INIT(PARENT, INDEX)  \
+{                                              \
+	.desc = {                              \
+		.type = s32cc_pll_out_div_t,   \
+	},                                     \
+	.parent = &(PARENT).desc,              \
+	.index = (INDEX),                      \
+}
+
+struct s32cc_fixed_div {
+	struct s32cc_clk_obj desc;
+	struct s32cc_clk_obj *parent;
+	uint32_t rate_div;
+};
+
+#define S32CC_FIXED_DIV_INIT(PARENT, RATE_DIV) \
+{                                              \
+	.desc = {                              \
+		.type = s32cc_fixed_div_t,     \
+	},                                     \
+	.parent = &(PARENT).desc,              \
+	.rate_div = (RATE_DIV),                \
 }
 
 struct s32cc_clk {

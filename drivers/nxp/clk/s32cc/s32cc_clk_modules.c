@@ -7,6 +7,9 @@
 #include <s32cc-clk-modules.h>
 #include <s32cc-clk-utils.h>
 
+#define S32CC_A53_MIN_FREQ	(48UL * MHZ)
+#define S32CC_A53_MAX_FREQ	(1000UL * MHZ)
+
 /* Oscillators */
 static struct s32cc_osc fxosc =
 	S32CC_OSC_INIT(S32CC_FXOSC);
@@ -48,6 +51,23 @@ static struct s32cc_clkmux cgm1_mux0 =
 				 S32CC_CLK_ARM_PLL_DFS2, 0, 0);
 static struct s32cc_clk cgm1_mux0_clk = S32CC_MODULE_CLK(cgm1_mux0);
 
+/* A53_CORE */
+static struct s32cc_clk a53_core_clk =
+	S32CC_FREQ_MODULE_CLK(cgm1_mux0_clk, S32CC_A53_MIN_FREQ,
+			      S32CC_A53_MAX_FREQ);
+/* A53_CORE_DIV2 */
+static struct s32cc_fixed_div a53_core_div2 =
+		S32CC_FIXED_DIV_INIT(cgm1_mux0_clk, 2);
+static struct s32cc_clk a53_core_div2_clk =
+	S32CC_FREQ_MODULE_CLK(a53_core_div2, S32CC_A53_MIN_FREQ / 2,
+			      S32CC_A53_MAX_FREQ / 2);
+/* A53_CORE_DIV10 */
+static struct s32cc_fixed_div a53_core_div10 =
+	S32CC_FIXED_DIV_INIT(cgm1_mux0_clk, 10);
+static struct s32cc_clk a53_core_div10_clk =
+	S32CC_FREQ_MODULE_CLK(a53_core_div10, S32CC_A53_MIN_FREQ / 10,
+			      S32CC_A53_MAX_FREQ / 10);
+
 static struct s32cc_clk *s32cc_hw_clk_list[5] = {
 	/* Oscillators */
 	[S32CC_CLK_ID(S32CC_CLK_FIRC)] = &firc_clk,
@@ -63,12 +83,16 @@ static struct s32cc_clk_array s32cc_hw_clocks = {
 	.n_clks = ARRAY_SIZE(s32cc_hw_clk_list),
 };
 
-static struct s32cc_clk *s32cc_arch_clk_list[3] = {
+static struct s32cc_clk *s32cc_arch_clk_list[6] = {
 	/* ARM PLL */
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_MUX)] = &arm_pll_mux_clk,
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_VCO)] = &arm_pll_vco_clk,
 	/* MC_CGM1 */
 	[S32CC_CLK_ID(S32CC_CLK_MC_CGM1_MUX0)] = &cgm1_mux0_clk,
+	/* A53 */
+	[S32CC_CLK_ID(S32CC_CLK_A53_CORE)] = &a53_core_clk,
+	[S32CC_CLK_ID(S32CC_CLK_A53_CORE_DIV2)] = &a53_core_div2_clk,
+	[S32CC_CLK_ID(S32CC_CLK_A53_CORE_DIV10)] = &a53_core_div10_clk,
 };
 
 static struct s32cc_clk_array s32cc_arch_clocks = {

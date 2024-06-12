@@ -152,6 +152,7 @@ static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth
 		ret = -ENOTSUP;
 		break;
 	case s32cc_pll_out_div_t:
+	case s32cc_fixed_div_t:
 		ret = -ENOTSUP;
 		break;
 	default:
@@ -341,6 +342,7 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_clkmux_t:
 	case s32cc_shared_clkmux_t:
+	case s32cc_fixed_div_t:
 		ret = -ENOTSUP;
 		break;
 	default:
