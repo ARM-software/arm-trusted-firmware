@@ -72,4 +72,20 @@ struct s32cc_clk_array {
 #define S32CC_MODULE_CLK(PARENT_MODULE) \
 	S32CC_FREQ_MODULE_CLK(PARENT_MODULE, 0, 0)
 
+static inline struct s32cc_osc *s32cc_obj2osc(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t osc_addr;
+
+	osc_addr = ((uintptr_t)mod) - offsetof(struct s32cc_osc, desc);
+	return (struct s32cc_osc *)osc_addr;
+}
+
+static inline struct s32cc_clk *s32cc_obj2clk(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t clk_addr;
+
+	clk_addr = ((uintptr_t)mod) - offsetof(struct s32cc_clk, desc);
+	return (struct s32cc_clk *)clk_addr;
+}
+
 #endif /* S32CC_CLK_MODULES_H */
