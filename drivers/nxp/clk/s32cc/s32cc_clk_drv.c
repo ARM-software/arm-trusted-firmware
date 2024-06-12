@@ -267,6 +267,54 @@ static int set_pll_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 	return 0;
 }
 
+static int set_pll_div_freq(const struct s32cc_clk_obj *module, unsigned long rate,
+			    unsigned long *orate, unsigned int *depth)
+{
+	struct s32cc_pll_out_div *pdiv = s32cc_obj2plldiv(module);
+	const struct s32cc_pll *pll;
+	unsigned long prate, dc;
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (pdiv->parent == NULL) {
+		ERROR("Failed to identify PLL divider's parent\n");
+		return -EINVAL;
+	}
+
+	pll = s32cc_obj2pll(pdiv->parent);
+	if (pll == NULL) {
+		ERROR("The parent of the PLL DIV is invalid\n");
+		return -EINVAL;
+	}
+
+	prate = pll->vco_freq;
+
+	/**
+	 * The PLL is not initialized yet, so let's take a risk
+	 * and accept the proposed rate.
+	 */
+	if (prate == 0UL) {
+		pdiv->freq = rate;
+		*orate = rate;
+		return 0;
+	}
+
+	/* Decline in case the rate cannot fit PLL's requirements. */
+	dc = prate / rate;
+	if ((prate / dc) != rate) {
+		return -EINVAL;
+	}
+
+	pdiv->freq = rate;
+	*orate = pdiv->freq;
+
+	return 0;
+}
+
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth)
@@ -288,9 +336,11 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 	case s32cc_pll_t:
 		ret = set_pll_freq(module, rate, orate, depth);
 		break;
+	case s32cc_pll_out_div_t:
+		ret = set_pll_div_freq(module, rate, orate, depth);
+		break;
 	case s32cc_clkmux_t:
 	case s32cc_shared_clkmux_t:
-	case s32cc_pll_out_div_t:
 		ret = -ENOTSUP;
 		break;
 	default:
