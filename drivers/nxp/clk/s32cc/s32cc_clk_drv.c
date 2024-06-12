@@ -233,6 +233,11 @@ static void disable_odiv(uintptr_t pll_addr, uint32_t div_index)
 	mmio_clrbits_32(PLLDIG_PLLODIV(pll_addr, div_index), PLLDIG_PLLODIV_DE);
 }
 
+static void enable_odiv(uintptr_t pll_addr, uint32_t div_index)
+{
+	mmio_setbits_32(PLLDIG_PLLODIV(pll_addr, div_index), PLLDIG_PLLODIV_DE);
+}
+
 static void disable_odivs(uintptr_t pll_addr, uint32_t ndivs)
 {
 	uint32_t i;
@@ -341,6 +346,80 @@ static int enable_pll(const struct s32cc_clk_obj *module,
 	return program_pll(pll, pll_addr, drv, sclk_id, sclk_freq);
 }
 
+static inline struct s32cc_pll *get_div_pll(const struct s32cc_pll_out_div *pdiv)
+{
+	const struct s32cc_clk_obj *parent;
+
+	parent = pdiv->parent;
+	if (parent == NULL) {
+		ERROR("Failed to identify PLL divider's parent\n");
+		return NULL;
+	}
+
+	if (parent->type != s32cc_pll_t) {
+		ERROR("The parent of the divider is not a PLL instance\n");
+		return NULL;
+	}
+
+	return s32cc_obj2pll(parent);
+}
+
+static void config_pll_out_div(uintptr_t pll_addr, uint32_t div_index, uint32_t dc)
+{
+	uint32_t pllodiv;
+	uint32_t pdiv;
+
+	pllodiv = mmio_read_32(PLLDIG_PLLODIV(pll_addr, div_index));
+	pdiv = PLLDIG_PLLODIV_DIV(pllodiv);
+
+	if (((pdiv + 1U) == dc) && ((pllodiv & PLLDIG_PLLODIV_DE) != 0U)) {
+		return;
+	}
+
+	if ((pllodiv & PLLDIG_PLLODIV_DE) != 0U) {
+		disable_odiv(pll_addr, div_index);
+	}
+
+	pllodiv = PLLDIG_PLLODIV_DIV_SET(dc - 1U);
+	mmio_write_32(PLLDIG_PLLODIV(pll_addr, div_index), pllodiv);
+
+	enable_odiv(pll_addr, div_index);
+}
+
+static int enable_pll_div(const struct s32cc_clk_obj *module,
+			  const struct s32cc_clk_drv *drv,
+			  unsigned int *depth)
+{
+	const struct s32cc_pll_out_div *pdiv = s32cc_obj2plldiv(module);
+	uintptr_t pll_addr = 0x0ULL;
+	const struct s32cc_pll *pll;
+	uint32_t dc;
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	pll = get_div_pll(pdiv);
+	if (pll == NULL) {
+		ERROR("The parent of the PLL DIV is invalid\n");
+		return 0;
+	}
+
+	ret = get_base_addr(pll->instance, drv, &pll_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect PLL instance\n");
+		return -EINVAL;
+	}
+
+	dc = (uint32_t)(pll->vco_freq / pdiv->freq);
+
+	config_pll_out_div(pll_addr, pdiv->index, dc);
+
+	return 0;
+}
+
 static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth)
 {
 	const struct s32cc_clk_drv *drv = get_drv();
@@ -365,13 +444,13 @@ static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth
 	case s32cc_pll_t:
 		ret = enable_pll(module, drv, depth);
 		break;
+	case s32cc_pll_out_div_t:
+		ret = enable_pll_div(module, drv, depth);
+		break;
 	case s32cc_clkmux_t:
 		ret = -ENOTSUP;
 		break;
 	case s32cc_shared_clkmux_t:
-		ret = -ENOTSUP;
-		break;
-	case s32cc_pll_out_div_t:
 		ret = -ENOTSUP;
 		break;
 	case s32cc_fixed_div_t:

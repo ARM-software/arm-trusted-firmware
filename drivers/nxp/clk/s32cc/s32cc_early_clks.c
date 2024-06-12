@@ -59,5 +59,10 @@ int s32cc_init_early_clks(void)
 		return ret;
 	}
 
+	ret = clk_enable(S32CC_CLK_ARM_PLL_PHI0);
+	if (ret != 0) {
+		return ret;
+	}
+
 	return ret;
 }
