@@ -18,6 +18,7 @@ enum s32cc_clkm_type {
 	s32cc_pll_t,
 	s32cc_pll_out_div_t,
 	s32cc_clkmux_t,
+	s32cc_shared_clkmux_t,
 };
 
 enum s32cc_clk_source {
@@ -25,6 +26,7 @@ enum s32cc_clk_source {
 	S32CC_FXOSC,
 	S32CC_SIRC,
 	S32CC_ARM_PLL,
+	S32CC_CGM1,
 };
 
 struct s32cc_clk_obj {
@@ -69,6 +71,10 @@ struct s32cc_clkmux {
 
 #define S32CC_CLKMUX_INIT(MODULE, INDEX, NCLKS, ...)     \
 	S32CC_CLKMUX_TYPE_INIT(s32cc_clkmux_t, MODULE,   \
+			       INDEX, NCLKS, __VA_ARGS__)
+
+#define S32CC_SHARED_CLKMUX_INIT(MODULE, INDEX, NCLKS, ...)   \
+	S32CC_CLKMUX_TYPE_INIT(s32cc_shared_clkmux_t, MODULE, \
 			       INDEX, NCLKS, __VA_ARGS__)
 
 struct s32cc_pll {
@@ -161,7 +167,8 @@ static inline bool is_s32cc_clk_mux(const struct s32cc_clk *clk)
 		return false;
 	}
 
-	return (module->type == s32cc_clkmux_t);
+	return (module->type == s32cc_clkmux_t) ||
+	    (module->type == s32cc_shared_clkmux_t);
 }
 
 static inline struct s32cc_clkmux *s32cc_obj2clkmux(const struct s32cc_clk_obj *mod)
