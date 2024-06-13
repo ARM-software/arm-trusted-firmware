@@ -788,9 +788,9 @@ void plat_fwu_set_images_source(const struct fwu_metadata *metadata)
 	}
 }
 
-static int plat_set_image_source(unsigned int image_id,
-				 uintptr_t *handle,
-				 uintptr_t *image_spec)
+static int set_metadata_image_source(unsigned int image_id,
+				     uintptr_t *handle,
+				     uintptr_t *image_spec)
 {
 	struct plat_io_policy *policy;
 	io_block_spec_t *spec __maybe_unused;
@@ -864,6 +864,6 @@ int plat_fwu_set_metadata_image_source(unsigned int image_id,
 	assert((image_id == FWU_METADATA_IMAGE_ID) ||
 	       (image_id == BKUP_FWU_METADATA_IMAGE_ID));
 
-	return plat_set_image_source(image_id, handle, image_spec);
+	return set_metadata_image_source(image_id, handle, image_spec);
 }
 #endif /* PSA_FWU_SUPPORT */
