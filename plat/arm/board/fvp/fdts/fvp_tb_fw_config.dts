@@ -117,16 +117,16 @@
 
 #if defined(ARM_COT_cca)
 /* FVP does not support the CCA NV Counter so use the Trusted one. */
-&cca_nv_counter {
+&cca_nv_ctr {
 	reg = <TFW_NVCTR_BASE>;
 };
 #endif
 
-&trusted_nv_counter {
+&trusted_nv_ctr {
 	reg = <TFW_NVCTR_BASE>;
 };
 
-&non_trusted_nv_counter {
+&non_trusted_nv_ctr {
 	reg = <NTFW_CTR_BASE>;
 };
 #endif

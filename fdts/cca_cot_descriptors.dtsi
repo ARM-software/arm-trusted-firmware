@@ -15,7 +15,7 @@ cot {
 		cca_content_cert: cca_content_cert {
 			root-certificate;
 			image-id =<CCA_CONTENT_CERT_ID>;
-			antirollback-counter = <&cca_nv_counter>;
+			antirollback-counter = <&cca_nv_ctr>;
 
 			tb_fw_hash: tb_fw_hash {
 				oid = TRUSTED_BOOT_FW_HASH_OID;
@@ -44,7 +44,7 @@ cot {
 			root-certificate;
 			image-id = <CORE_SWD_KEY_CERT_ID>;
 			signing-key = <&swd_rot_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			core_swd_pk: core_swd_pk {
 				oid = CORE_SWD_PK_OID;
@@ -55,7 +55,7 @@ cot {
 			image-id = <TRUSTED_OS_FW_CONTENT_CERT_ID>;
 			parent = <&core_swd_key_cert>;
 			signing-key = <&core_swd_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			tos_fw_hash: tos_fw_hash {
 				oid = TRUSTED_OS_FW_HASH_OID;
@@ -69,7 +69,7 @@ cot {
 			root-certificate;
 			image-id = <PLAT_KEY_CERT_ID>;
 			signing-key = <&prot_pk>;
-			antirollback-counter = <&non_trusted_nv_counter>;
+			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			plat_pk: plat_pk {
 				oid = PLAT_PK_OID;
@@ -80,7 +80,7 @@ cot {
 			image-id = <NON_TRUSTED_FW_CONTENT_CERT_ID>;
 			parent = <&plat_key_cert>;
 			signing-key = <&plat_pk>;
-			antirollback-counter = <&non_trusted_nv_counter>;
+			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			nt_world_bl_hash: nt_world_bl_hash {
 				oid = NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID;
@@ -95,7 +95,7 @@ cot {
 			image-id = <SIP_SP_CONTENT_CERT_ID>;
 			parent = <&core_swd_key_cert>;
 			signing-key = <&core_swd_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			sp_pkg1_hash: sp_pkg1_hash {
 				oid = SP_PKG1_HASH_OID;
@@ -115,7 +115,7 @@ cot {
 			image-id = <PLAT_SP_CONTENT_CERT_ID>;
 			parent = <&plat_key_cert>;
 			signing-key = <&plat_pk>;
-			antirollback-counter = <&non_trusted_nv_counter>;
+			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			sp_pkg5_hash: sp_pkg5_hash {
 				oid = SP_PKG5_HASH_OID;
@@ -242,17 +242,17 @@ non_volatile_counters: non_volatile_counters {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	cca_nv_counter: cca_nv_counter {
+	cca_nv_ctr: cca_nv_ctr {
 		id  = <TRUSTED_NV_CTR_ID>;
 		oid = CCA_FW_NVCOUNTER_OID;
 	};
 
-	trusted_nv_counter: trusted_nv_counter {
+	trusted_nv_ctr: trusted_nv_ctr {
 		id  = <TRUSTED_NV_CTR_ID>;
 		oid = TRUSTED_FW_NVCOUNTER_OID;
 	};
 
-	non_trusted_nv_counter: non_trusted_nv_counter {
+	non_trusted_nv_ctr: non_trusted_nv_ctr {
 		id  = <NON_TRUSTED_NV_CTR_ID>;
 		oid = NON_TRUSTED_FW_NVCOUNTER_OID;
 	};

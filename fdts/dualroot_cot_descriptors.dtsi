@@ -15,7 +15,7 @@ cot {
 		trusted_boot_fw_cert: trusted_boot_fw_cert {
 			root-certificate;
 			image-id =<TRUSTED_BOOT_FW_CERT_ID>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			tb_fw_hash: tb_fw_hash {
 				oid = TRUSTED_BOOT_FW_HASH_OID;
@@ -34,7 +34,7 @@ cot {
 		trusted_key_cert: trusted_key_cert {
 			root-certificate;
 			image-id = <TRUSTED_KEY_CERT_ID>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			trusted_world_pk: trusted_world_pk {
 				oid = TRUSTED_WORLD_PK_OID;
@@ -45,7 +45,7 @@ cot {
 			image-id = <SCP_FW_KEY_CERT_ID>;
 			parent = <&trusted_key_cert>;
 			signing-key = <&trusted_world_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			scp_fw_content_pk: scp_fw_content_pk {
 				oid = SCP_FW_CONTENT_CERT_PK_OID;
@@ -56,7 +56,7 @@ cot {
 			image-id = <SCP_FW_CONTENT_CERT_ID>;
 			parent = <&scp_fw_key_cert>;
 			signing-key = <&scp_fw_content_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			scp_fw_hash: scp_fw_hash {
 				oid = SCP_FW_HASH_OID;
@@ -67,7 +67,7 @@ cot {
 			image-id = <SOC_FW_KEY_CERT_ID>;
 			parent = <&trusted_key_cert>;
 			signing-key = <&trusted_world_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 			soc_fw_content_pk: soc_fw_content_pk {
 				oid = SOC_FW_CONTENT_CERT_PK_OID;
 			};
@@ -77,7 +77,7 @@ cot {
 			image-id = <SOC_FW_CONTENT_CERT_ID>;
 			parent = <&soc_fw_key_cert>;
 			signing-key = <&soc_fw_content_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			soc_fw_hash: soc_fw_hash {
 				oid = SOC_AP_FW_HASH_OID;
@@ -91,7 +91,7 @@ cot {
 			image-id = <TRUSTED_OS_FW_KEY_CERT_ID>;
 			parent = <&trusted_key_cert>;
 			signing-key = <&trusted_world_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			tos_fw_content_pk: tos_fw_content_pk {
 				oid = TRUSTED_OS_FW_CONTENT_CERT_PK_OID;
@@ -102,7 +102,7 @@ cot {
 			image-id = <TRUSTED_OS_FW_CONTENT_CERT_ID>;
 			parent = <&trusted_os_fw_key_cert>;
 			signing-key = <&tos_fw_content_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			tos_fw_hash: tos_fw_hash {
 				oid = TRUSTED_OS_FW_HASH_OID;
@@ -122,7 +122,7 @@ cot {
 			root-certificate;
 			image-id = <NON_TRUSTED_FW_CONTENT_CERT_ID>;
 			signing-key = <&prot_pk>;
-			antirollback-counter = <&non_trusted_nv_counter>;
+			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			nt_world_bl_hash: nt_world_bl_hash {
 				oid = NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID;
@@ -137,7 +137,7 @@ cot {
 			image-id = <SIP_SP_CONTENT_CERT_ID>;
 			parent = <&trusted_key_cert>;
 			signing-key = <&trusted_world_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			sp_pkg1_hash: sp_pkg1_hash {
 				oid = SP_PKG1_HASH_OID;
@@ -157,7 +157,7 @@ cot {
 			root-certificate;
 			image-id = <PLAT_SP_CONTENT_CERT_ID>;
 			signing-key = <&prot_pk>;
-			antirollback-counter = <&non_trusted_nv_counter>;
+			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			sp_pkg5_hash: sp_pkg5_hash {
 				oid = SP_PKG5_HASH_OID;
@@ -296,12 +296,12 @@ non_volatile_counters: non_volatile_counters {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	trusted_nv_counter: trusted_nv_counter {
+	trusted_nv_ctr: trusted_nv_ctr {
 		id  = <TRUSTED_NV_CTR_ID>;
 		oid = TRUSTED_FW_NVCOUNTER_OID;
 	};
 
-	non_trusted_nv_counter: non_trusted_nv_counter {
+	non_trusted_nv_ctr: non_trusted_nv_ctr {
 		id  = <NON_TRUSTED_NV_CTR_ID>;
 		oid = NON_TRUSTED_FW_NVCOUNTER_OID;
 	};
