@@ -15,7 +15,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_AEMv8A-GIC600AE`` (Version 11.17/21)
 -  ``FVP_Base_AEMvA``
 -  ``FVP_Base_AEMvA-AEMvA``
--  ``FVP_Base_Cortex-A32x4`` (Version 11.12/38)
+-  ``FVP_Base_Cortex-A32x4``
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
 -  ``FVP_Base_Cortex-A55``
