@@ -197,7 +197,7 @@ void marvell_psci_arch_init(int die_index)
 {
 }
 
-static void a3700_pm_ack_irq(void)
+void a3700_pm_ack_irq(void)
 {
 	uint32_t reg;
 
