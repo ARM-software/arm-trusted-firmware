@@ -39,6 +39,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = BL31_IMAGE_KEY_OID },
 	{
 		.id = BL32_IMAGE_ID,
@@ -48,6 +49,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = BL32_IMAGE_KEY_OID },
 	{
 		.id = BL33_IMAGE_ID,
@@ -57,6 +59,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = true,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_AP_NS,
 		.pk_oid = BL33_IMAGE_KEY_OID },
 
 	{
@@ -67,6 +70,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = HW_CONFIG_KEY_OID },
 	{
 		.id = NT_FW_CONFIG_ID,
@@ -76,6 +80,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NT_FW_CONFIG_KEY_OID },
 	{
 		.id = SCP_BL2_IMAGE_ID,
@@ -85,6 +90,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = SCP_BL2_IMAGE_KEY_OID },
 	{
 		.id = SOC_FW_CONFIG_ID,
@@ -94,6 +100,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = SOC_FW_CONFIG_KEY_OID },
 	{
 		.id = TOS_FW_CONFIG_ID,
@@ -103,6 +110,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = TOS_FW_CONFIG_KEY_OID },
 #if defined(SPD_spmd)
 	{
@@ -113,6 +121,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = true, /* With Trusty only one SP is loaded */
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 	{
 		.id = SP_PKG2_ID,
@@ -122,6 +131,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 	{
 		.id = SP_PKG3_ID,
@@ -131,6 +141,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 	{
 		.id = SP_PKG4_ID,
@@ -140,6 +151,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 	{
 		.id = SP_PKG5_ID,
@@ -149,6 +161,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 	{
 		.id = SP_PKG6_ID,
@@ -158,6 +171,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 	{
 		.id = SP_PKG7_ID,
@@ -167,6 +181,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 	{
 		.id = SP_PKG8_ID,
@@ -176,6 +191,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 
 #endif

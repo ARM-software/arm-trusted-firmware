@@ -27,6 +27,7 @@ struct dpe_metadata {
 	bool allow_new_context_to_derive;
 	bool retain_parent_context;
 	bool create_certificate;
+	int target_locality;
 	void *pk_oid;
 };
 

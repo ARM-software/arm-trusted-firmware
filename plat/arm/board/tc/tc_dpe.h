@@ -36,4 +36,18 @@
 /* Common definition */
 #define DPE_CERT_ID_SAME_AS_PARENT	0xFFFFFFFF
 
+/*
+ * Target Locality:
+ *    The goal is to specify that a certain component is expected to run and
+ *    thereby send DPE commands from a given security domain. RSE is capable of
+ *    of distinguishing the client's locality based on the MHU channel used for
+ *    communication.
+ *    Defines here must match with RSE side:
+ */
+#define LOCALITY_NONE		-1
+/* #define LOCALITY_RSE_S	0 */  /* Not applicable on AP side */
+/* #define LOCALITY_RSE_NS	1 */  /* Not applicable on AP side */
+#define LOCALITY_AP_S		 2
+#define LOCALITY_AP_NS		 3
+
 #endif /* TC_DPE_H */
