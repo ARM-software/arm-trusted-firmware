@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
  * Copyright (C) 2023, Protonic Holland - All Rights Reserved
+ * Copyright (C) 2024, STMicroelectronics - All Rights Reserved
  * Author: David Jander <david@protonic.nl>
  */
 /dts-v1/;
@@ -123,7 +124,7 @@
 		CLK_SAI2_PLL3Q
 		CLK_SAI3_PLL3Q
 		CLK_SAI4_PLL3Q
-		CLK_RNG1_LSI
+		CLK_RNG1_CSI
 		CLK_RNG2_LSI
 		CLK_LPTIM1_PCLK1
 		CLK_LPTIM23_PCLK3

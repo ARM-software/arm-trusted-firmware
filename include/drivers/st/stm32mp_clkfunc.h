@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,8 +29,6 @@ int fdt_get_clock_id(int node);
 unsigned long fdt_get_uart_clock_freq(uintptr_t instance);
 
 void stm32mp_stgen_config(unsigned long rate);
-void stm32mp_stgen_restore_counter(unsigned long long value,
-				   unsigned long long offset_in_ms);
-unsigned long long stm32mp_stgen_get_counter(void);
+void stm32mp_stgen_restore_rate(void);
 
 #endif /* STM32MP_CLKFUNC_H */

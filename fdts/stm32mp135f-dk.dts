@@ -190,7 +190,6 @@
 		CLK_AXI_PLL2P
 		CLK_MLAHBS_PLL3
 		CLK_CKPER_HSE
-		CLK_RTC_LSE
 		CLK_SDMMC1_PLL4P
 		CLK_SDMMC2_PLL4P
 		CLK_STGEN_HSE
@@ -212,16 +211,9 @@
 		DIV(DIV_APB4, 1)
 		DIV(DIV_APB5, 2)
 		DIV(DIV_APB6, 1)
-		DIV(DIV_RTC, 0)
 	>;
 
 	st,pll_vco {
-		pll1_vco_1300Mhz: pll1-vco-1300Mhz {
-			src = < CLK_PLL12_HSE >;
-			divmn = < 2 80 >;
-			frac = < 0x800 >;
-		};
-
 		pll2_vco_1066Mhz: pll2-vco-1066Mhz {
 			src = <CLK_PLL12_HSE>;
 			divmn = <2 65>;
@@ -237,19 +229,6 @@
 		pll4_vco_600Mhz: pll4-vco-600Mhz {
 			src = <CLK_PLL4_HSE>;
 			divmn = <1 49>;
-		};
-	};
-
-	/* VCO = 1300.0 MHz => P = 650 (CPU) */
-	pll1:st,pll@0 {
-		compatible = "st,stm32mp1-pll";
-		reg = <0>;
-
-		st,pll = < &pll1_cfg1 >;
-
-		pll1_cfg1: pll1_cfg1 {
-			st,pll_vco = < &pll1_vco_1300Mhz >;
-			st,pll_div_pqr = < 0 1 1 >;
 		};
 	};
 
