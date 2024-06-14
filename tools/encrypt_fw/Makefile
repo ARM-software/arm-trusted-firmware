@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2024, Arm Limited. All rights reserved.
 # Copyright (c) 2019-2022, Linaro Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -64,9 +65,7 @@ all: --openssl ${BINARY}
 
 ${BINARY}: ${OBJECTS} Makefile
 	$(s)echo "  HOSTLD  $@"
-	$(q)echo 'const char build_msg[] = "Built : "__TIME__", "__DATE__;' | \
-                $(host-cc) -c ${HOSTCCFLAGS} -xc - -o src/build_msg.o
-	$(q)$(host-cc) src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
+	$(q)$(host-cc) ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
 
 %.o: %.c
 	$(s)echo "  HOSTCC  $<"
@@ -78,7 +77,7 @@ ifeq ($(DEBUG),1)
 endif
 
 clean:
-	$(call SHELL_DELETE_ALL, src/build_msg.o ${OBJECTS})
+	$(call SHELL_DELETE_ALL,${OBJECTS})
 
 realclean: clean
 	$(call SHELL_DELETE,${BINARY})
