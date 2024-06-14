@@ -15,7 +15,7 @@
 #include <platform_def.h>
 #include <tools_share/tbbr_oid.h>
 
-#include "tc_dpe_cert.h"
+#include "tc_dpe.h"
 
 /*
  * The content and the values of this array depends on:

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef TC_DPE_CERT_H
-#define TC_DPE_CERT_H
+#ifndef TC_DPE_H
+#define TC_DPE_H
 
 /*
  * The certificate structure on the TC platform:
@@ -36,4 +36,4 @@
 /* Common definition */
 #define DPE_CERT_ID_SAME_AS_PARENT	0xFFFFFFFF
 
-#endif /* TC_DPE_CERT_H */
+#endif /* TC_DPE_H */

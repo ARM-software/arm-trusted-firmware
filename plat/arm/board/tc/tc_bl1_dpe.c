@@ -18,7 +18,7 @@
 #include <platform_def.h>
 #include <tools_share/zero_oid.h>
 
-#include "tc_dpe_cert.h"
+#include "tc_dpe.h"
 
 struct dpe_metadata tc_dpe_metadata[] = {
 	{
