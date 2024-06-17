@@ -975,25 +975,52 @@ ifeq (${ENABLE_SME_FOR_SWD},1)
 	endif
 endif #(ENABLE_SME_FOR_SWD)
 
+# Enabling SVE for SWD requires enabling SVE for NWD due to ENABLE_FEAT
+# mechanism.
 ifeq (${ENABLE_SVE_FOR_SWD},1)
-	ifeq (${ENABLE_SVE_FOR_NS},0)
-                $(error "ENABLE_SVE_FOR_SWD requires ENABLE_SVE_FOR_NS")
-	endif
-endif #(ENABLE_SVE_FOR_SWD)
+    ifeq (${ENABLE_SVE_FOR_NS},0)
+        $(error "ENABLE_SVE_FOR_SWD requires ENABLE_SVE_FOR_NS")
+    endif
+endif
 
-# SVE and SME cannot be used with CTX_INCLUDE_FPREGS since secure manager does
-# its own context management including FPU registers.
+# Enabling SVE for both the worlds typically requires the context
+# management of SVE registers. The only exception being SPMC at S-EL2.
+ifeq (${ENABLE_SVE_FOR_SWD}, 1)
+    ifneq (${ENABLE_SVE_FOR_NS}, 0)
+        ifeq (${CTX_INCLUDE_SVE_REGS}-$(SPMD_SPM_AT_SEL2),0-0)
+            $(warning "ENABLE_SVE_FOR_SWD and ENABLE_SVE_FOR_NS together require CTX_INCLUDE_SVE_REGS")
+        endif
+    endif
+endif
+
+# Enabling SVE in either world while enabling CTX_INCLUDE_FPREGS requires
+# CTX_INCLUDE_SVE_REGS to be enabled due to architectural dependency between FP
+# and SVE registers.
+ifeq (${CTX_INCLUDE_FPREGS}, 1)
+    ifneq (${ENABLE_SVE_FOR_NS},0)
+        ifeq (${CTX_INCLUDE_SVE_REGS},0)
+	    # Warning instead of error due to CI dependency on this
+            $(warning "CTX_INCLUDE_FPREGS and ENABLE_SVE_FOR_NS together require CTX_INCLUDE_SVE_REGS")
+            $(warning "Forced ENABLE_SVE_FOR_NS=0")
+	    override ENABLE_SVE_FOR_NS	:= 0
+        endif
+    endif
+endif #(CTX_INCLUDE_FPREGS)
+
+# SVE context management is only required if secure world has access to SVE/FP
+# functionality.
+ifeq (${CTX_INCLUDE_SVE_REGS},1)
+    ifeq (${ENABLE_SVE_FOR_SWD},0)
+        $(error "CTX_INCLUDE_SVE_REGS requires ENABLE_SVE_FOR_SWD to also be enabled")
+    endif
+endif
+
+# SME cannot be used with CTX_INCLUDE_FPREGS since SPM does its own context
+# management including FPU registers.
 ifeq (${CTX_INCLUDE_FPREGS},1)
-	ifneq (${ENABLE_SME_FOR_NS},0)
-                $(error "ENABLE_SME_FOR_NS cannot be used with CTX_INCLUDE_FPREGS")
-	endif
-
-	ifeq (${ENABLE_SVE_FOR_NS},1)
-		# Warning instead of error due to CI dependency on this
-                $(warning "ENABLE_SVE_FOR_NS cannot be used with CTX_INCLUDE_FPREGS")
-                $(warning "Forced ENABLE_SVE_FOR_NS=0")
-		override ENABLE_SVE_FOR_NS	:= 0
-	endif
+    ifneq (${ENABLE_SME_FOR_NS},0)
+        $(error "ENABLE_SME_FOR_NS cannot be used with CTX_INCLUDE_FPREGS")
+    endif
 endif #(CTX_INCLUDE_FPREGS)
 
 ifeq ($(DRTM_SUPPORT),1)

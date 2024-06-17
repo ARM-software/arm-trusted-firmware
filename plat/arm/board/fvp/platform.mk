@@ -47,6 +47,10 @@ ifeq (${SPM_MM}, 0)
 ifeq (${CTX_INCLUDE_FPREGS}, 0)
       ENABLE_SME_FOR_NS		:= 2
       ENABLE_SME2_FOR_NS	:= 2
+else
+      ENABLE_SVE_FOR_NS		:= 0
+      ENABLE_SME_FOR_NS		:= 0
+      ENABLE_SME2_FOR_NS	:= 0
 endif
 endif
 
