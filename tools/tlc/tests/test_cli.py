@@ -11,8 +11,11 @@
 
 from pathlib import Path
 from unittest import mock
+from math import log2, ceil
 
 import pytest
+import pytest
+import yaml
 from click.testing import CliRunner
 
 from tlc.cli import cli
@@ -203,3 +206,180 @@ def test_validate_unsupported_version(version, tmptlstr, tlcrunner, monkeypatch)
         assert result.exit_code == 0
     else:
         assert result.exit_code == 1
+
+
+def test_create_entry_from_yaml_and_blob_file(
+    tlcrunner, tmpyamlconfig_blob_file, tmptlstr, non_empty_tag_id
+):
+    tlcrunner.invoke(
+        cli,
+        [
+            "create",
+            "--from-yaml",
+            tmpyamlconfig_blob_file.strpath,
+            tmptlstr,
+        ],
+    )
+
+    tl = TransferList.fromfile(tmptlstr)
+    assert tl is not None
+    assert len(tl.entries) == 1
+    assert tl.entries[0].id == non_empty_tag_id
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        {"tag_id": 0},
+        {
+            "tag_id": 0x104,
+            "addr": 0x0400100000000010,
+            "size": 0x0003300000000000,
+        },
+        {
+            "tag_id": 0x100,
+            "pp_addr": 100,
+        },
+    ],
+)
+def test_create_from_yaml_check_sum_bytes(tlcrunner, tmpyamlconfig, tmptlstr, entry):
+    """Test creating a TL from a yaml file, but only check that the sum of the
+    data in the yaml file matches the sum of the data in the TL. This means
+    you don't have to type the exact sequence of expected bytes. All the data
+    in the yaml file must be integers.
+    """
+    # create yaml config file
+    config = {
+        "has_checksum": True,
+        "max_size": 0x1000,
+        "entries": [entry],
+    }
+    with open(tmpyamlconfig, "w") as f:
+        yaml.safe_dump(config, f)
+
+    # invoke TLC
+    tlcrunner.invoke(
+        cli,
+        [
+            "create",
+            "--from-yaml",
+            tmpyamlconfig,
+            tmptlstr,
+        ],
+    )
+
+    # open created TL, and check
+    tl = TransferList.fromfile(tmptlstr)
+    assert tl is not None
+    assert len(tl.entries) == 1
+
+    # Check that the sum of all the data in the transfer entry in the yaml file
+    # is the same as the sum of all the data in the transfer list. Don't count
+    # the tag id or the TE headers.
+
+    # every item in the entry dict must be an integer
+    yaml_total = 0
+    for key, data in iter_nested_dict(entry):
+        if key != "tag_id":
+            num_bytes = ceil(log2(data + 1) / 8)
+            yaml_total += sum(data.to_bytes(num_bytes, "little"))
+
+    tl_total = sum(tl.entries[0].data)
+
+    assert tl_total == yaml_total
+
+
+@pytest.mark.parametrize(
+    "entry,expected",
+    [
+        (
+            {
+                "tag_id": 0x102,
+                "ep_info": {
+                    "h": {
+                        "type": 0x01,
+                        "version": 0x02,
+                        "attr": 8,
+                    },
+                    "pc": 67239936,
+                    "spsr": 965,
+                    "args": [67112976, 67112960, 0, 0, 0, 0, 0, 0],
+                },
+            },
+            (
+                "0x00580201 0x00000008 0x04020000 0x00000000 "
+                "0x000003C5 0x00000000 0x04001010 0x00000000 "
+                "0x04001000 0x00000000 0x00000000 0x00000000 "
+                "0x00000000 0x00000000 0x00000000 0x00000000 "
+                "0x00000000 0x00000000 0x00000000 0x00000000 "
+                "0x00000000 0x00000000"
+            ),
+        ),
+    ],
+)
+def test_create_from_yaml_check_exact_data(
+    tlcrunner, tmpyamlconfig, tmptlstr, entry, expected
+):
+    """Test creating a TL from a yaml file, checking the exact sequence of
+    bytes. This is useful for checking that the alignment is correct. You can
+    get the expected sequence of bytes by copying it from the ArmDS debugger.
+    """
+    # create yaml config file
+    config = {
+        "has_checksum": True,
+        "max_size": 0x1000,
+        "entries": [entry],
+    }
+    with open(tmpyamlconfig, "w") as f:
+        yaml.safe_dump(config, f)
+
+    # invoke TLC
+    tlcrunner.invoke(
+        cli,
+        [
+            "create",
+            "--from-yaml",
+            tmpyamlconfig,
+            tmptlstr,
+        ],
+    )
+
+    # open TL and check
+    tl = TransferList.fromfile(tmptlstr)
+    assert tl is not None
+    assert len(tl.entries) == 1
+
+    # check expected and actual data
+    actual = tl.entries[0].data
+    actual = bytes_to_hex(actual)
+
+    assert actual == expected
+
+
+def bytes_to_hex(data: bytes) -> str:
+    """Convert bytes to a hex string in the same format as the debugger in
+    ArmDS
+
+    You can copy data from the debugger in Arm Development Studio and put it
+    into a unit test. You can then run this function on the output from tlc,
+    and compare it to the data you copied.
+
+    The format is groups of 4 bytes with 0x prefixes separated by spaces.
+    Little endian is used.
+    """
+    words_hex = []
+    for i in range(0, len(data), 4):
+        word = data[i : i + 4]
+        word_int = int.from_bytes(word, "little")
+        word_hex = "0x" + f"{word_int:0>8x}".upper()
+        words_hex.append(word_hex)
+
+    return " ".join(words_hex)
+
+
+def iter_nested_dict(dictionary: dict):
+    for key, value in dictionary.items():
+        if isinstance(value, dict):
+            yield from iter_nested_dict(value)
+        else:
+            yield key, value

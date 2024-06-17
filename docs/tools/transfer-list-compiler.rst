@@ -59,6 +59,12 @@ through the ``--entry`` option.
     provided tag ID. It only checks that the tags provided as input are within
     range and that there is sufficient memory to include their TE's.
 
+You can also create a TL from a YAML config file.
+
+.. code ::
+
+    tlc create --from-yaml config.yaml tl.bin
+
 Printing the contents of a TL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -185,6 +191,81 @@ performs the following checks:
 #. Validates the signature.
 #. Ensures that the specified version is greater than or equal to the tool’s current version.
 #. Verifies alignment criteria for all TE’s.
+
+YAML Config File Format
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Example YAML config file:
+
+.. code::
+
+    execution_state: aarch32
+    has_checksum: true
+    max_size: 4096
+    entries:
+            - tag_id: 258  # entry point info
+              ep_info:
+                      args:
+                              - 67112968
+                              - 67112960
+                              - 0
+                              - 0
+                              - 0
+                              - 0
+                              - 0
+                              - 0
+                      h:
+                              attr: 8
+                              type: 1
+                              version: 2
+                      pc: 67239936
+                      spsr: 467
+            - tag_id: 3  # memory layout
+              addr: 8
+              size: 8
+            - tag_id: 1,  # fdt
+              blob_file_path: "fdt.bin",
+
+`max_size` defaults to `0x1000`, `execution_state` defaults to `aarch64`, and `has_checksum`
+defaults to `true`.
+
+The fields of the YAML file should match the fields in the specification for the transfer list. You
+don't need to give the hdr_size or data_size fields. For example, a memory layout entry would have
+an entry like:
+
+.. code::
+
+    tag_id: 3
+    addr: 8
+    size: 8
+
+You can input blob files by giving paths to the current working directory. You can do this for any
+TE type. For example, an FDT layout would have an entry like:
+
+.. code::
+
+    tag_id: 1,
+    blob_file_path: "fdt.bin",
+
+You can input C-types by giving its fields. For example, an entry point
+info entry would have an entry like:
+
+.. code::
+
+    tag_id: 258
+    ep_info:
+            args:
+                    - 67112968
+                    - 67112960
+                    - 0
+                    - 0
+            h:
+                    attr: 8
+                    type: 1
+                    version: 2
+            lr_svc: 0
+            pc: 67239936
+            spsr: 467
 
 --------------
 

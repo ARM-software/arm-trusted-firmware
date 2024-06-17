@@ -19,6 +19,60 @@ from tlc.te import TransferEntry
 
 TRANSFER_LIST_ENABLE_CHECKSUM = 0b1
 
+# Description of each TE type. For each TE, there is a tag ID, a format (to be
+# used in struct.pack to encode the TE), and a list of field names that can
+# appear in the yaml file for that TE. Some fields are missing, if that TE has
+# to be processed differently, or if it can only be added with a blob file.
+transfer_entry_formats = {
+    0: {
+        "tag_name": "empty",
+        "format": "4x",
+        "fields": [],
+    },
+    1: {
+        "tag_name": "fdt",
+    },
+    2: {
+        "tag_name": "hob_block",
+    },
+    3: {
+        "tag_name": "hob_list",
+    },
+    4: {
+        "tag_name": "acpi_table_aggregate",
+    },
+    5: {
+        "tag_name": "tpm_event_log_table",
+        "fields": ["event_log", "flags"],
+    },
+    6: {
+        "tag_name": "tpm_crb_base_address_table",
+        "format": "QI",
+        "fields": ["crb_base_address", "crb_size"],
+    },
+    0x100: {
+        "tag_name": "optee_pageable_part",
+        "format": "Q",
+        "fields": ["pp_addr"],
+    },
+    0x101: {
+        "tag_name": "dt_spmc_manifest",
+    },
+    0x102: {
+        "tag_name": "exec_ep_info",
+        "format": "2BHIQI4x8Q",
+        "fields": ["ep_info"],
+    },
+    0x104: {
+        "tag_name": "sram_layout",
+        "format": "2Q",
+        "fields": ["addr", "size"],
+    },
+}
+tag_name_to_tag_id = {
+    te["tag_name"]: tag_id for tag_id, te in transfer_entry_formats.items()
+}
+
 
 class TransferList:
     """Class representing a Transfer List based on version 1.0 of the Firmware Handoff specification."""
@@ -96,6 +150,28 @@ class TransferList:
 
         return tl
 
+    @classmethod
+    def from_dict(cls, config: dict):
+        """Create a TL from data in a dictionary
+
+        The dictionary should have the same format as the yaml config files.
+        See the readme for more detail.
+
+        :param config: Dictionary containing the data described above.
+        """
+        # get settings from config and set defaults
+        max_size = config.get("max_size", 0x1000)
+        has_checksum = config.get("has_checksum", True)
+
+        flags = TRANSFER_LIST_ENABLE_CHECKSUM if has_checksum else 0
+
+        tl = cls(max_size, flags)
+
+        for entry in config["entries"]:
+            tl.add_transfer_entry_from_dict(entry)
+
+        return tl
+
     def header_to_bytes(self) -> bytes:
         return struct.pack(
             self.encoding,
@@ -140,6 +216,72 @@ class TransferList:
             self.size += te.size
             self.update_checksum()
             return te
+
+    def add_transfer_entry_from_struct_format(
+        self, tag_id: int, struct_format: str, *args
+    ):
+        struct_format = "<" + struct_format
+        data = struct.pack(struct_format, *args)
+        return self.add_transfer_entry(tag_id, data)
+
+    def add_entry_point_info_transfer_entry(self, entry: dict) -> "TransferEntry":
+        """Add entry_point_info transfer entry
+
+        :param entry: Dictionary of the transfer entry, in the same format as
+        the YAML file.
+        """
+        ep_info = entry["ep_info"]
+        header = ep_info["h"]
+
+        # size of the entry_point_info struct
+        entry_point_size = 88
+
+        return self.add_transfer_entry_from_struct_format(
+            0x102,
+            transfer_entry_formats[0x102]["format"],
+            header["type"],
+            header["version"],
+            entry_point_size,
+            header["attr"],
+            ep_info["pc"],
+            ep_info["spsr"],
+            *ep_info["args"],
+        )
+
+    def add_transfer_entry_from_dict(
+        self,
+        entry: dict,
+    ) -> "TransferEntry":
+        """Add a transfer entry from data in a dictionary
+
+        The dictionary should have the same format as the entries in the yaml
+        config files. See the readme for more detail.
+
+        :param entry: Dictionary containing the data described above.
+        """
+        tag_id = entry["tag_id"]
+        te_format = transfer_entry_formats[tag_id]
+        tag_name = te_format["tag_name"]
+
+        if "blob_file_path" in entry:
+            return self.add_transfer_entry_from_file(tag_id, entry["blob_file_path"])
+        elif tag_name == "tpm_event_log_table":
+            with open(entry["event_log"], "rb") as f:
+                event_log_data = f.read()
+
+            flags_bytes = entry["flags"].to_bytes(4, "little")
+            data = flags_bytes + event_log_data
+
+            return self.add_transfer_entry(tag_id, data)
+        elif tag_name == "exec_ep_info":
+            return self.add_entry_point_info_transfer_entry(entry)
+        elif "format" in te_format and "fields" in te_format:
+            fields = [entry[field] for field in te_format["fields"]]
+            return self.add_transfer_entry_from_struct_format(
+                tag_id, te_format["format"], *fields
+            )
+        else:
+            raise ValueError(f"Invalid transfer entry {entry}.")
 
     def add_transfer_entry_from_file(self, tag_id: int, path: Path) -> "TransferEntry":
         with open(path, "rb") as f:
