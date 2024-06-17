@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,6 +32,17 @@
 	 *
 	 */
 func plat_reset_handler
+#ifdef PLAT_RK_CPU_RESET_EARLY
+	mov	x18, x30
+	msr	spsel, #0
+	bl	plat_set_my_stack
+	mov	x0, x20
+	mov	x1, x21
+	mov	x2, x22
+	mov	x3, x23
+	bl	rockchip_cpu_reset_early
+	mov	x30, x18
+#endif
 	mrs x0, midr_el1
 	ubfx x0, x0, MIDR_PN_SHIFT, #12
 	cmp w0, #((CORTEX_A72_MIDR >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
