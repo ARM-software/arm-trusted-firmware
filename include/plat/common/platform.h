@@ -41,6 +41,16 @@ struct rmm_manifest;
 enum fw_enc_status_t;
 
 /*******************************************************************************
+ * Structure populated by platform specific code to export routines which
+ * perform load images functions, and associated pointer to platform ops
+ ******************************************************************************/
+struct plat_try_images_ops {
+	int (*next_instance)(unsigned int image_id);
+};
+
+extern const struct plat_try_images_ops *plat_try_img_ops;
+
+/*******************************************************************************
  * plat_get_rotpk_info() flags
  ******************************************************************************/
 #define ROTPK_IS_HASH			(1 << 0)
@@ -154,7 +164,7 @@ void plat_panic_handler(void) __dead2;
 void plat_system_reset(void) __dead2;
 const char *plat_log_get_prefix(unsigned int log_level);
 void bl2_plat_preload_setup(void);
-int plat_try_next_boot_source(void);
+void plat_setup_try_img_ops(const struct plat_try_images_ops *plat_try_ops);
 
 #if MEASURED_BOOT
 int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data);

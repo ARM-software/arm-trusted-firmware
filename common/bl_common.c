@@ -211,18 +211,18 @@ int load_auth_image(unsigned int image_id, image_info_t *image_data)
 {
 	int err;
 
-/*
- * All firmware banks should be part of the same non-volatile storage as per
- * PSA FWU specification, hence don't check for any alternate boot source
- * when PSA FWU is enabled.
- */
-#if PSA_FWU_SUPPORT
-	err = load_auth_image_internal(image_id, image_data);
-#else
-	do {
+	if ((plat_try_img_ops == NULL) || (plat_try_img_ops->next_instance == NULL)) {
 		err = load_auth_image_internal(image_id, image_data);
-	} while ((err != 0) && (plat_try_next_boot_source() != 0));
-#endif /* PSA_FWU_SUPPORT */
+	} else {
+		do {
+			err = load_auth_image_internal(image_id, image_data);
+			if (err != 0) {
+				if (plat_try_img_ops->next_instance(image_id) != 0) {
+					return err;
+				}
+			}
+		} while (err != 0);
+	}
 
 	if (err == 0) {
 		/*
