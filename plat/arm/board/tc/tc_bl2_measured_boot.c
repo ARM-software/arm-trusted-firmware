@@ -40,6 +40,13 @@ struct rse_mboot_metadata tc_rse_mboot_metadata[] = {
 		.pk_oid = SOC_FW_CONFIG_KEY_OID,
 		.lock_measurement = true },
 	{
+		.id = SCP_BL2_IMAGE_ID,
+		.slot = U(12),
+		.signer_id_size = SIGNER_ID_MIN_SIZE,
+		.sw_type = MBOOT_SCP_BL2_IMAGE_STRING,
+		.pk_oid = SCP_BL2_IMAGE_KEY_OID,
+		.lock_measurement = true },
+	{
 		.id = RSE_MBOOT_INVALID_ID }
 };
 
