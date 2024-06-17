@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * This file is a Partition Manifest (PM) for a minimal Secure Partition (SP)
+ * that will be consumed by EL3 SPMC.
+ *
+ */
+
+/dts-v1/;
+
+/ {
+	compatible = "arm,ffa-manifest-1.0";
+	#address-cells = <2>;
+	#size-cells = <1>;
+
+	/* Properties */
+	ffa-version = <0x00010001>; /* 31:16 - Major, 15:0 - Minor */
+	id = <0x8001>;
+	uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
+	messaging-method = <3>; /* Direct messaging only */
+	exception-level = <2>; /* S-EL1 */
+	execution-state = <0>; /* AARCH64 */
+	execution-ctx-count = <8>;
+	/* Boot protocol */
+	gp-register-num = <0>;
+};
