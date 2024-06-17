@@ -10,6 +10,7 @@
 #include <common/tbbr/tbbr_img_def.h>
 #include <drivers/st/stm32mp1_rcc.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
+#include <dt-bindings/gpio/stm32-gpio.h>
 #include <dt-bindings/reset/stm32mp1-resets.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
@@ -231,21 +232,7 @@ enum ddr_type {
 #endif
 #define GPIO_BANK_OFFSET		U(0x1000)
 
-/* Bank IDs used in GPIO driver API */
-#define GPIO_BANK_A			U(0)
-#define GPIO_BANK_B			U(1)
-#define GPIO_BANK_C			U(2)
-#define GPIO_BANK_D			U(3)
-#define GPIO_BANK_E			U(4)
-#define GPIO_BANK_F			U(5)
-#define GPIO_BANK_G			U(6)
-#define GPIO_BANK_H			U(7)
-#define GPIO_BANK_I			U(8)
 #if STM32MP15
-#define GPIO_BANK_J			U(9)
-#define GPIO_BANK_K			U(10)
-#define GPIO_BANK_Z			U(25)
-
 #define STM32MP_GPIOZ_PIN_MAX_COUNT	8
 #endif
 

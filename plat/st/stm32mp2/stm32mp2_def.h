@@ -14,6 +14,7 @@
 #include <drivers/st/stm32mp25_rcc.h>
 #include <dt-bindings/clock/stm32mp25-clks.h>
 #include <dt-bindings/clock/stm32mp25-clksrc.h>
+#include <dt-bindings/gpio/stm32-gpio.h>
 #include <dt-bindings/reset/stm32mp25-resets.h>
 
 #ifndef __ASSEMBLER__
