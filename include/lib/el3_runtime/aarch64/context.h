@@ -10,6 +10,7 @@
 #include <lib/el3_runtime/context_el1.h>
 #include <lib/el3_runtime/context_el2.h>
 #include <lib/el3_runtime/cpu_data.h>
+#include <lib/el3_runtime/simd_ctx.h>
 #include <lib/utils_def.h>
 
 /*******************************************************************************
@@ -422,8 +423,8 @@ CASSERT(CTX_PAUTH_REGS_OFFSET == __builtin_offsetof(cpu_context_t, pauth_ctx),
  * Function prototypes
  ******************************************************************************/
 #if CTX_INCLUDE_FPREGS
-void fpregs_context_save(fp_regs_t *regs);
-void fpregs_context_restore(fp_regs_t *regs);
+void fpregs_context_save(simd_regs_t *regs);
+void fpregs_context_restore(simd_regs_t *regs);
 #endif
 
 #endif /* __ASSEMBLER__ */

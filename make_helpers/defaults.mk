@@ -240,6 +240,10 @@ SEPARATE_NOBITS_REGION		:= 0
 # region, platform Makefile is free to override this value.
 SEPARATE_BL2_NOLOAD_REGION	:= 0
 
+# Put SIMD context data structures in a separate memory region. Platforms
+# have the choice to put it outside of default BSS region of EL3 firmware.
+SEPARATE_SIMD_SECTION		:= 0
+
 # If the BL31 image initialisation code is recalimed after use for the secondary
 # cores stack
 RECLAIM_INIT_CODE		:= 0
