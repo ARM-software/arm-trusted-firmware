@@ -63,6 +63,9 @@ CTX_INCLUDE_AARCH32_REGS	:= 1
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
 
+# Include SVE registers in cpu context
+CTX_INCLUDE_SVE_REGS		:= 0
+
 # Debug build
 DEBUG				:= 0
 
