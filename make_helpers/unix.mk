@@ -9,9 +9,6 @@
 ifndef UNIX_MK
     UNIX_MK := $(lastword $(MAKEFILE_LIST))
 
-    ECHO_BLANK_LINE := echo
-    ECHO_QUIET := @\#
-
     DIR_DELIM := /
     PATH_SEP := :
 
@@ -21,24 +18,24 @@ ifndef UNIX_MK
     # ${1} is the file to be copied.
     # ${2} is the destination file name.
     define SHELL_COPY
-	${Q}cp -f  "${1}"  "${2}"
+	$(q)cp -f  "${1}"  "${2}"
     endef
 
     # ${1} is the directory to be copied.
     # ${2} is the destination directory path.
     define SHELL_COPY_TREE
-	${Q}cp -rf  "${1}"  "${2}"
+	$(q)cp -rf  "${1}"  "${2}"
     endef
 
     # ${1} is the file to be deleted.
     define SHELL_DELETE
-	-${Q}rm -f  "${1}"
+	-$(q)rm -f  "${1}"
     endef
 
     # ${1} is a space delimited list of files to be deleted.
     # Note that we do not quote ${1}, as multiple parameters may be passed.
     define SHELL_DELETE_ALL
-	-${Q}rm -rf  ${1}
+	-$(q)rm -rf  ${1}
     endef
 
     # ${1} is the directory to be generated.
@@ -48,13 +45,13 @@ ifndef UNIX_MK
         ifneq (${1},${2})
 
 ${1} : ${2}
-	${Q}mkdir -p  "${1}"
+	$(q)mkdir -p  "${1}"
 
         endif
     endef
 
     define SHELL_REMOVE_DIR
-	-${Q}rm -rf  "${1}"
+	-$(q)rm -rf  "${1}"
     endef
 
     nul := /dev/null

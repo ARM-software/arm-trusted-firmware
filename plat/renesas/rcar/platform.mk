@@ -351,13 +351,13 @@ distclean realclean clean: clean_layout_tool clean_srecord
 LAYOUT_TOOLPATH ?= tools/renesas/rcar_layout_create
 
 clean_layout_tool:
-	@echo "clean layout tool"
-	${Q}${MAKE} -C ${LAYOUT_TOOLPATH} clean
+	$(s)echo "clean layout tool"
+	$(q)${MAKE} -C ${LAYOUT_TOOLPATH} clean
 
 .PHONY: rcar_layout_tool
 rcar_layout_tool:
-	@echo "generating layout srecs"
-	${Q}${MAKE} CPPFLAGS="-D=AARCH64" --no-print-directory -C ${LAYOUT_TOOLPATH}
+	$(s)echo "generating layout srecs"
+	$(q)${MAKE} CPPFLAGS="-D=AARCH64" --no-print-directory -C ${LAYOUT_TOOLPATH}
 
 # srecords
 SREC_PATH	= ${BUILD_PLAT}
@@ -365,16 +365,16 @@ BL2_ELF_SRC	= ${SREC_PATH}/bl2/bl2.elf
 BL31_ELF_SRC	= ${SREC_PATH}/bl31/bl31.elf
 
 clean_srecord:
-	@echo "clean bl2 and bl31 srecs"
+	$(s)echo "clean bl2 and bl31 srecs"
 	rm -f ${SREC_PATH}/bl2.srec ${SREC_PATH}/bl31.srec
 
 $(SREC_PATH)/bl2.srec: $(BL2_ELF_SRC)
-	@echo "generating srec: $(SREC_PATH)/bl2.srec"
-	$(Q)$($(ARCH)-oc) -O srec --srec-forceS3 $(BL2_ELF_SRC)  $(SREC_PATH)/bl2.srec
+	$(s)echo "generating srec: $(SREC_PATH)/bl2.srec"
+	$(q)$($(ARCH)-oc) -O srec --srec-forceS3 $(BL2_ELF_SRC)  $(SREC_PATH)/bl2.srec
 
 $(SREC_PATH)/bl31.srec: $(BL31_ELF_SRC)
-	@echo "generating srec: $(SREC_PATH)/bl31.srec"
-	$(Q)$($(ARCH)-oc) -O srec --srec-forceS3 $(BL31_ELF_SRC) $(SREC_PATH)/bl31.srec
+	$(s)echo "generating srec: $(SREC_PATH)/bl31.srec"
+	$(q)$($(ARCH)-oc) -O srec --srec-forceS3 $(BL31_ELF_SRC) $(SREC_PATH)/bl31.srec
 
 .PHONY: rcar_srecord
 rcar_srecord: $(SREC_PATH)/bl2.srec $(SREC_PATH)/bl31.srec

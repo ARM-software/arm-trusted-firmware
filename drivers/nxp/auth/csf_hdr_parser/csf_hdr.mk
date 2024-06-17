@@ -26,8 +26,8 @@ endif
 # CST_BL31
 define CST_BL31_RULE
 $(1): $(2)
-	@echo " Generating CSF Header for $$@ $$<"
-	$(Q)$(CST_DIR)/create_hdr_esbc --in $(2) --out $(1) --app_off ${CSF_HDR_SZ} \
+	$(s)echo " Generating CSF Header for $$@ $$<"
+	$(q)$(CST_DIR)/create_hdr_esbc --in $(2) --out $(1) --app_off ${CSF_HDR_SZ} \
 					--app $(2) ${BL31_INPUT_FILE}
 endef
 
@@ -36,8 +36,8 @@ CST_BL31_SUFFIX := .cst
 # CST_BL32
 define CST_BL32_RULE
 $(1): $(2)
-	@echo " Generating CSF Header for $$@ $$<"
-	$(Q)$(CST_DIR)/create_hdr_esbc --in $(2) --out $(1) --app_off ${CSF_HDR_SZ} \
+	$(s)echo " Generating CSF Header for $$@ $$<"
+	$(q)$(CST_DIR)/create_hdr_esbc --in $(2) --out $(1) --app_off ${CSF_HDR_SZ} \
 					--app $(2) ${BL32_INPUT_FILE}
 endef
 
@@ -46,8 +46,8 @@ CST_BL32_SUFFIX := .cst
 # CST_BL33
 define CST_BL33_RULE
 $(1): $(2)
-	@echo " Generating CSF Header for $$@ $$<"
-	$(Q)$(CST_DIR)/create_hdr_esbc --in $(2) --out $(1) --app_off ${CSF_HDR_SZ} \
+	$(s)echo " Generating CSF Header for $$@ $$<"
+	$(q)$(CST_DIR)/create_hdr_esbc --in $(2) --out $(1) --app_off ${CSF_HDR_SZ} \
 					--app $(2) ${BL33_INPUT_FILE}
 endef
 
@@ -56,8 +56,8 @@ CST_BL33_SUFFIX := .cst
 # CST_SCP_BL2
 define CST_SCP_BL2_RULE
 $(1): $(2)
-	@echo " Generating CSF Header for $$@ $$<"
-	$(Q)$(CST_DIR)/create_hdr_esbc --in $(2) --out $(1) --app_off ${CSF_HDR_SZ} \
+	$(s)echo " Generating CSF Header for $$@ $$<"
+	$(q)$(CST_DIR)/create_hdr_esbc --in $(2) --out $(1) --app_off ${CSF_HDR_SZ} \
 					--app $(2) ${FUSE_INPUT_FILE}
 endef
 

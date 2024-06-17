@@ -12,8 +12,6 @@
 ifndef WINDOWS_MK
     WINDOWS_MK := $(lastword $(MAKEFILE_LIST))
 
-    ECHO_BLANK_LINE := @cmd /c echo.
-    ECHO_QUIET := @rem
     DIR_DELIM := $(strip \)
     BIN_EXT   := .exe
     PATH_SEP  := ;

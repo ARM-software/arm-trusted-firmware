@@ -27,12 +27,10 @@ endef
 # Determine option variable is defined or not then define it
 define add_defined_option
 ifdef $(1)
-ifeq ($(findstring $(value $(1)), $(uppercase_table)),)
-DEFINES += -D$(1)$(if $(value $(1)),=$(value $(1)),)
-else
 ifeq ($(strip $(value $(1))),y)
 DEFINES += -D$(1)$(if $(value $(1)),=1,)
-endif
+else
+DEFINES += -D$(1)$(if $(value $(1)),=$(value $(1)),)
 endif
 endif
 endef

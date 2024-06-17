@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -79,12 +79,12 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     certificates: $(ROT_KEY)
 
     $(ROT_KEY): | $(BUILD_PLAT)
-	@echo "  OPENSSL $@"
-	$(Q)${OPENSSL_BIN_PATH}/openssl genrsa 2048 > $@ 2>/dev/null
+	$(s)echo "  OPENSSL $@"
+	$(q)${OPENSSL_BIN_PATH}/openssl genrsa 2048 > $@ 2>/dev/null
 
     $(ROTPK_HASH): $(ROT_KEY)
-	@echo "  OPENSSL $@"
-	$(Q)${OPENSSL_BIN_PATH}/openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
+	$(s)echo "  OPENSSL $@"
+	$(q)${OPENSSL_BIN_PATH}/openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
 	${OPENSSL_BIN_PATH}/openssl dgst -sha256 -binary > $@ 2>/dev/null
 endif
 
@@ -226,14 +226,14 @@ ARM_PRELOADED_DTB_BASE := PLAT_QEMU_DT_BASE
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
 
 qemu_fw.bios: bl1 fip
-	$(ECHO) "  DD      $@"
-	$(Q)cp ${BUILD_PLAT}/bl1.bin ${BUILD_PLAT}/$@
-	$(Q)dd if=${BUILD_PLAT}/fip.bin of=${BUILD_PLAT}/$@ bs=64k seek=4 status=none
+	$(s)echo "  DD      $@"
+	$(q)cp ${BUILD_PLAT}/bl1.bin ${BUILD_PLAT}/$@
+	$(q)dd if=${BUILD_PLAT}/fip.bin of=${BUILD_PLAT}/$@ bs=64k seek=4 status=none
 
 qemu_fw.rom: qemu_fw.bios
-	$(ECHO) "  DD      $@"
-	$(Q)cp ${BUILD_PLAT}/$^ ${BUILD_PLAT}/$@
-	$(Q)dd if=/dev/zero of=${BUILD_PLAT}/$@ bs=1M seek=64 count=0 status=none
+	$(s)echo "  DD      $@"
+	$(q)cp ${BUILD_PLAT}/$^ ${BUILD_PLAT}/$@
+	$(q)dd if=/dev/zero of=${BUILD_PLAT}/$@ bs=1M seek=64 count=0 status=none
 
 ifneq (${BL33},)
 all: qemu_fw.bios qemu_fw.rom

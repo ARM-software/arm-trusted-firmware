@@ -9,13 +9,13 @@ toolchains := host
 MAKE_HELPERS_DIRECTORY := ../../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
+include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
 PROJECT_1 := create_pbl${BIN_EXT}
 OBJECTS_1 := create_pbl.o
 PROJECT_2 := byte_swap${BIN_EXT}
 OBJECTS_2 := byte_swap.o
-V ?= 0
 
 override CPPFLAGS += -D_GNU_SOURCE -D_XOPEN_SOURCE=700
 CFLAGS := -Wall -Werror -pedantic -std=c99
@@ -26,12 +26,6 @@ else
 endif
 LDLIBS :=
 
-ifeq (${V},0)
-  Q := @
-else
-  Q :=
-endif
-
 INCLUDE_PATHS :=
 
 .PHONY: all clean distclean
@@ -39,22 +33,22 @@ INCLUDE_PATHS :=
 all: create_pbl byte_swap
 
 ${PROJECT_1}: ${OBJECTS_1} Makefile
-	@echo "  LD      $@"
-	${Q}$(host-cc) ${OBJECTS_1} -o $@ ${LDLIBS}
-	@${ECHO_BLANK_LINE}
-	@echo "Built $@ successfully"
-	@${ECHO_BLANK_LINE}
+	$(s)echo "  LD      $@"
+	$(q)$(host-cc) ${OBJECTS_1} -o $@ ${LDLIBS}
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo
 
 ${PROJECT_2}: ${OBJECTS_2} Makefile
-	@echo "  LD      $@"
-	${Q}$(host-cc) ${OBJECTS_2} -o $@ ${LDLIBS}
-	@${ECHO_BLANK_LINE}
-	@echo "Built $@ successfully"
-	@${ECHO_BLANK_LINE}
+	$(s)echo "  LD      $@"
+	$(q)$(host-cc) ${OBJECTS_2} -o $@ ${LDLIBS}
+	$(s)echo
+	$(s)echo "Built $@ successfully"
+	$(s)echo
 
 %.o: %.c %.h Makefile
-	@echo "  CC      $<"
-	${Q}$(host-cc) -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
+	$(s)echo "  CC      $<"
+	$(q)$(host-cc) -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
 	$(call SHELL_DELETE_ALL, ${PROJECT_1} ${OBJECTS_1})
