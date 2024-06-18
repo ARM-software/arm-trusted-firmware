@@ -45,7 +45,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.signer_id_size = SIGNER_ID_MIN_SIZE,
 		.sw_type = MBOOT_BL2_IMAGE_STRING,
 		.allow_new_context_to_derive = true,
-		.retain_parent_context = false,
+		.retain_parent_context = true, /* To handle restart */
 		.create_certificate = false,
 		.pk_oid = ZERO_OID },
 	{
@@ -58,10 +58,15 @@ struct dpe_metadata tc_dpe_metadata[] = {
 
 /* Context handle is meant to be used by BL2. Sharing it via TB_FW_CONFIG */
 static int new_ctx_handle;
+/* Save a valid parent context handle to be able to send commands to DPE service
+ * in case of an AP cold restart.
+ */
+static int new_parent_ctx_handle;
 
-void plat_dpe_share_context_handle(int *ctx_handle)
+void plat_dpe_share_context_handle(int *ctx_handle, int *parent_ctx_handle)
 {
 	new_ctx_handle = *ctx_handle;
+	new_parent_ctx_handle = *parent_ctx_handle;
 }
 
 void plat_dpe_get_context_handle(int *ctx_handle)
@@ -133,6 +138,18 @@ void bl1_plat_mboot_finish(void)
 		 * assumes that a valid DPE context_handle is passed through
 		 * the DTB object by BL1.
 		 */
+		plat_panic_handler();
+	}
+
+	VERBOSE("Save parent context handle: 0x%x\n", new_parent_ctx_handle);
+	rc = sds_struct_write(SDS_RSE_AP_REGION_ID,
+			      TC2_SDS_DPE_CTX_HANDLE_STRUCT_ID,
+			      0,
+			      &new_parent_ctx_handle,
+			      sizeof(new_parent_ctx_handle),
+			      SDS_ACCESS_MODE_NON_CACHED);
+	if (rc != SDS_OK) {
+		ERROR("Unable to save DPE parent context handle to SDS area\n");
 		plat_panic_handler();
 	}
 }
