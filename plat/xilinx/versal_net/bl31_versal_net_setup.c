@@ -59,6 +59,20 @@ static inline void bl31_set_default_config(void)
 					DISABLE_ALL_EXCEPTIONS);
 }
 
+/* Define read and write function for clusterbusqos register */
+DEFINE_RENAME_SYSREG_RW_FUNCS(cluster_bus_qos, S3_0_C15_C4_4)
+
+static void versal_net_setup_qos(void)
+{
+	int ret;
+
+	ret = read_cluster_bus_qos();
+	INFO("BL31: default cluster bus qos: 0x%x\n", ret);
+	write_cluster_bus_qos(0);
+	ret = read_cluster_bus_qos();
+	INFO("BL31: cluster bus qos written: 0x%x\n", ret);
+}
+
 /*
  * Perform any BL31 specific platform actions. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
@@ -102,6 +116,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),
 	       platform_version / 10U, platform_version % 10U);
+
+	versal_net_setup_qos();
 
 	/* Initialize the platform config for future decision making */
 	versal_net_config_setup();
