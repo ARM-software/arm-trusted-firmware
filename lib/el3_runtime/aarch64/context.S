@@ -454,15 +454,17 @@ sve_not_enabled:
 	synchronize_errors
 #endif /* IMAGE_BL31 */
 
-	/* ----------------------------------------------------------
-	 * Restore SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET
-	 * ----------------------------------------------------------
+	/* --------------------------------------------------------------
+	 * Restore MDCR_EL3, SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET
+	 * --------------------------------------------------------------
 	 */
-	ldr	x18, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 	ldp	x16, x17, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	msr	scr_el3, x18
+	ldr	x18, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	ldr	x19, [sp, #CTX_EL3STATE_OFFSET + CTX_MDCR_EL3]
 	msr	spsr_el3, x16
 	msr	elr_el3, x17
+	msr	scr_el3, x18
+	msr	mdcr_el3, x19
 
 	restore_ptw_el1_sys_regs
 

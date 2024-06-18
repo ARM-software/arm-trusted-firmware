@@ -88,21 +88,8 @@
 	 * MDCR_EL3.SDD: Set to one to disable AArch64 Secure self-hosted debug.
 	 *  Debug exceptions, other than Breakpoint Instruction exceptions, are
 	 *  disabled from all ELs in Secure state.
-	 *
-	 * MDCR_EL3.SPD32: Set to 0b10 to disable AArch32 Secure self-hosted
-	 *  privileged debug from S-EL1.
-	 *
-	 * MDCR_EL3.TDOSA: Set to zero so that EL2 and EL2 System register
-	 *  access to the powerdown debug registers do not trap to EL3.
-	 *
-	 * MDCR_EL3.TDA: Set to zero to allow EL0, EL1 and EL2 access to the
-	 *  debug registers, other than those registers that are controlled by
-	 *  MDCR_EL3.TDOSA.
 	 */
-	mov_imm	x0, ((MDCR_EL3_RESET_VAL | MDCR_SDD_BIT | \
-		      MDCR_SPD32(MDCR_SPD32_DISABLE)) & \
-		    ~(MDCR_TDOSA_BIT | MDCR_TDA_BIT))
-
+	mov_imm	x0, (MDCR_EL3_RESET_VAL | MDCR_SDD_BIT)
 	msr	mdcr_el3, x0
 
 	/* ---------------------------------------------------------------------

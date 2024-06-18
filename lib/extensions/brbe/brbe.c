@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,9 +9,10 @@
 #include <arch_helpers.h>
 #include <lib/extensions/brbe.h>
 
-void brbe_init_el3(void)
+void brbe_enable(cpu_context_t *ctx)
 {
-	uint64_t val;
+	el3_state_t *state = get_el3state_ctx(ctx);
+	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);
 
 	/*
 	 * MDCR_EL3.SBRBE = 0b01
@@ -19,8 +20,7 @@ void brbe_init_el3(void)
 	 * Allows BRBE usage in non-secure world and prohibited in
 	 * secure world.
 	 */
-	val = read_mdcr_el3();
-	val &= ~(MDCR_SBRBE_MASK << MDCR_SBRBE_SHIFT);
-	val |= (0x1UL << MDCR_SBRBE_SHIFT);
-	write_mdcr_el3(val);
+	mdcr_el3_val &= ~(MDCR_SBRBE_MASK << MDCR_SBRBE_SHIFT);
+	mdcr_el3_val |= (0x1UL << MDCR_SBRBE_SHIFT);
+	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
