@@ -19,8 +19,13 @@
 
 #define SIZE_FROM_LOG2_WORDS(n)		(U(4) << (n))
 
+#if defined(__LINKER__) || defined(__ASSEMBLER__)
 #define BIT_32(nr)			(U(1) << (nr))
 #define BIT_64(nr)			(ULL(1) << (nr))
+#else
+#define BIT_32(nr)			(((uint32_t)(1U)) << (nr))
+#define BIT_64(nr)			(((uint64_t)(1ULL)) << (nr))
+#endif
 
 #ifdef __aarch64__
 #define BIT				BIT_64
