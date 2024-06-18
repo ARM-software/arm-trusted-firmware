@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2021-2024 Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -34,6 +34,13 @@ override NEED_BL33	:=	yes
 # Add CORSTONE1000_WITH_BL32 as a preprocessor define (-D option)
 ifeq (${NEED_BL32},yes)
 $(eval $(call add_define,CORSTONE1000_WITH_BL32))
+endif
+
+ENABLE_MULTICORE       :=      0
+ifneq ($(filter ${TARGET_PLATFORM}, fvp),)
+ifeq (${ENABLE_MULTICORE},1)
+$(eval $(call add_define,CORSTONE1000_FVP_MULTICORE))
+endif
 endif
 
 # Include GICv2 driver files
