@@ -237,9 +237,18 @@
 		};
 	};
 
+	smmu_700: iommu@3f000000 {
+		status = "okay";
+	};
+
 	dp0: display@DPU_ADDR {
 #if TC_SCMI_PD_CTRL_EN
 		power-domains = <&scmi_devpd (PLAT_MAX_CPUS_PER_CLUSTER + 2)>;
 #endif
+		iommus = <&smmu_700 0x100>;
+	};
+
+	gpu: gpu@2d000000 {
+		iommus = <&smmu_700 0x200>;
 	};
 };

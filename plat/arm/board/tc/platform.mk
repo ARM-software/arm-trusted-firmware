@@ -10,8 +10,6 @@ TARGET_FLAVOUR			:=	fvp
 TC_DPU_USE_SCMI_CLK		:=	1
 # SCMI power domain control enable
 TC_SCMI_PD_CTRL_EN		:=	1
-# IOMMU: Enable the use of system or individual MMUs
-TC_IOMMU_EN			:=	1
 
 # System setup
 CSS_USE_SCMI_SDS_DRIVER		:=	1
@@ -76,7 +74,6 @@ $(eval $(call add_defines, \
 	TC_RESOLUTION_$(call uppercase,${TC_RESOLUTION}) \
 	TC_DPU_USE_SCMI_CLK \
 	TC_SCMI_PD_CTRL_EN \
-	TC_IOMMU_EN \
 ))
 
 CSS_LOAD_SCP_IMAGES	:=	1
