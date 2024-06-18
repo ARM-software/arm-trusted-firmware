@@ -7,6 +7,7 @@ Platform Ports
    :hidden:
 
    allwinner
+   amd-versal2
    arm/index
    ast2700
    meson-axg
