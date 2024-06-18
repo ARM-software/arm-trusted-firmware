@@ -28,6 +28,24 @@ STM32_HEADER_BL2_BINARY_TYPE	:=	0x10
 TF_CFLAGS			+=	-Wsign-compare
 TF_CFLAGS			+=	-Wformat-signedness
 
+# Number of TF-A copies in the device
+STM32_TF_A_COPIES		:=	2
+
+# PLAT_PARTITION_MAX_ENTRIES must take care of STM32_TF-A_COPIES and other partitions
+PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + $(STM32_EXTRA_PARTS))))
+
+ifeq (${PSA_FWU_SUPPORT},1)
+# Number of banks of updatable firmware
+NR_OF_FW_BANKS			:=	2
+NR_OF_IMAGES_IN_FW_BANK		:=	1
+
+FWU_MAX_PART = $(shell echo $$(($(STM32_TF_A_COPIES) + 2 + $(NR_OF_FW_BANKS))))
+ifeq ($(shell test $(FWU_MAX_PART) -gt $(PLAT_PARTITION_MAX_ENTRIES); echo $$?),0)
+$(error "Required partition number is $(FWU_MAX_PART) where PLAT_PARTITION_MAX_ENTRIES is only \
+$(PLAT_PARTITION_MAX_ENTRIES)")
+endif
+endif
+
 # Boot devices
 STM32MP_EMMC			?=	0
 STM32MP_SDMMC			?=	0
@@ -120,6 +138,9 @@ PLAT_INCLUDES			+=	-Iplat/st/common/include/
 include lib/fconf/fconf.mk
 include lib/libfdt/libfdt.mk
 include lib/zlib/zlib.mk
+ifeq (${PSA_FWU_SUPPORT},1)
+include drivers/fwu/fwu.mk
+endif
 
 PLAT_BL_COMMON_SOURCES		+=	common/uuid.c					\
 					plat/st/common/stm32mp_common.c

@@ -131,7 +131,8 @@ uintptr_t stm32_get_bkpr_boot_mode_addr(void);
 void stm32_display_board_info(uint32_t board_id);
 
 #if PSA_FWU_SUPPORT
-void stm32mp1_fwu_set_boot_idx(void);
+uintptr_t stm32_get_bkpr_fwu_info_addr(void);
+void stm32_fwu_set_boot_idx(void);
 uint32_t stm32_get_and_dec_fwu_trial_boot_cnt(void);
 void stm32_set_max_fwu_trial_boot_cnt(void);
 void stm32_clear_fwu_trial_boot_cnt(void);

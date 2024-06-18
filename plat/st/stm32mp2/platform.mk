@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Extra partitions used to find FIP, contains:
+# metadata (2) and fsbl-m (2) and the FIP partitions (default is 2).
+STM32_EXTRA_PARTS		:=	6
+
 include plat/st/common/common.mk
 
 CRASH_REPORTING			:=	1
@@ -18,13 +22,6 @@ STM32MP25			:=	1
 # STM32 image header version v2.2
 STM32_HEADER_VERSION_MAJOR	:=	2
 STM32_HEADER_VERSION_MINOR	:=	2
-
-# Number of TF-A copies in the device
-STM32_TF_A_COPIES		:=	2
-
-# PLAT_PARTITION_MAX_ENTRIES must take care of STM32_TF-A_COPIES and other partitions
-# such as metadata (2) and fsbl-m (2) to find all the FIP partitions (default is 2).
-PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 6)))
 
 # Set load address for serial boot devices
 DWL_BUFFER_BASE 	?=	0x87000000

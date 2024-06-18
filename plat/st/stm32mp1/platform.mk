@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Extra partitions used to find FIP, contains:
+# metadata (2) and the FIP partitions (default is 2).
+STM32_EXTRA_PARTS	:=	4
+
 include plat/st/common/common.mk
 
 ARM_CORTEX_A7		:=	yes
@@ -79,25 +83,6 @@ endif
 # Not needed for Cortex-A7
 WORKAROUND_CVE_2017_5715:=	0
 WORKAROUND_CVE_2022_23960:=	0
-
-# Number of TF-A copies in the device
-STM32_TF_A_COPIES		:=	2
-
-# PLAT_PARTITION_MAX_ENTRIES must take care of STM32_TF-A_COPIES and other partitions
-# such as metadata (2) to find all the FIP partitions (default is 2).
-PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 4)))
-
-ifeq (${PSA_FWU_SUPPORT},1)
-# Number of banks of updatable firmware
-NR_OF_FW_BANKS			:=	2
-NR_OF_IMAGES_IN_FW_BANK		:=	1
-
-FWU_MAX_PART = $(shell echo $$(($(STM32_TF_A_COPIES) + 2 + $(NR_OF_FW_BANKS))))
-ifeq ($(shell test $(FWU_MAX_PART) -gt $(PLAT_PARTITION_MAX_ENTRIES); echo $$?),0)
-$(error "Required partition number is $(FWU_MAX_PART) where PLAT_PARTITION_MAX_ENTRIES is only \
-$(PLAT_PARTITION_MAX_ENTRIES)")
-endif
-endif
 
 ifeq ($(STM32MP13),1)
 STM32_HASH_VER		:=	4
@@ -227,10 +212,6 @@ endif
 
 BL2_SOURCES		+=	plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\
 				plat/st/stm32mp1/stm32mp1_fconf_firewall.c
-
-ifeq (${PSA_FWU_SUPPORT},1)
-include drivers/fwu/fwu.mk
-endif
 
 BL2_SOURCES		+=	drivers/st/crypto/stm32_hash.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c

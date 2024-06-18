@@ -29,10 +29,6 @@
  * (so it should be in Zone 2).
  */
 #define TAMP_BOOT_FWU_INFO_REG_ID	U(10)
-#define TAMP_BOOT_FWU_INFO_IDX_MSK	GENMASK(3, 0)
-#define TAMP_BOOT_FWU_INFO_IDX_OFF	U(0)
-#define TAMP_BOOT_FWU_INFO_CNT_MSK	GENMASK(7, 4)
-#define TAMP_BOOT_FWU_INFO_CNT_OFF	U(4)
 
 #if defined(IMAGE_BL2)
 #define MAP_SEC_SYSRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
@@ -674,53 +670,8 @@ uintptr_t stm32_get_bkpr_boot_mode_addr(void)
 }
 
 #if PSA_FWU_SUPPORT
-void stm32mp1_fwu_set_boot_idx(void)
+uintptr_t stm32_get_bkpr_fwu_info_addr(void)
 {
-	clk_enable(RTCAPB);
-	mmio_clrsetbits_32(tamp_bkpr(TAMP_BOOT_FWU_INFO_REG_ID),
-			   TAMP_BOOT_FWU_INFO_IDX_MSK,
-			   (plat_fwu_get_boot_idx() << TAMP_BOOT_FWU_INFO_IDX_OFF) &
-			   TAMP_BOOT_FWU_INFO_IDX_MSK);
-	clk_disable(RTCAPB);
-}
-
-uint32_t stm32_get_and_dec_fwu_trial_boot_cnt(void)
-{
-	uintptr_t bkpr_fwu_cnt = tamp_bkpr(TAMP_BOOT_FWU_INFO_REG_ID);
-	uint32_t try_cnt;
-
-	clk_enable(RTCAPB);
-	try_cnt = (mmio_read_32(bkpr_fwu_cnt) & TAMP_BOOT_FWU_INFO_CNT_MSK) >>
-		TAMP_BOOT_FWU_INFO_CNT_OFF;
-
-	assert(try_cnt <= FWU_MAX_TRIAL_REBOOT);
-
-	if (try_cnt != 0U) {
-		mmio_clrsetbits_32(bkpr_fwu_cnt, TAMP_BOOT_FWU_INFO_CNT_MSK,
-				   (try_cnt - 1U) << TAMP_BOOT_FWU_INFO_CNT_OFF);
-	}
-	clk_disable(RTCAPB);
-
-	return try_cnt;
-}
-
-void stm32_set_max_fwu_trial_boot_cnt(void)
-{
-	uintptr_t bkpr_fwu_cnt = tamp_bkpr(TAMP_BOOT_FWU_INFO_REG_ID);
-
-	clk_enable(RTCAPB);
-	mmio_clrsetbits_32(bkpr_fwu_cnt, TAMP_BOOT_FWU_INFO_CNT_MSK,
-			   (FWU_MAX_TRIAL_REBOOT << TAMP_BOOT_FWU_INFO_CNT_OFF) &
-			   TAMP_BOOT_FWU_INFO_CNT_MSK);
-	clk_disable(RTCAPB);
-}
-
-void stm32_clear_fwu_trial_boot_cnt(void)
-{
-	uintptr_t bkpr_fwu_cnt = tamp_bkpr(TAMP_BOOT_FWU_INFO_REG_ID);
-
-	clk_enable(RTCAPB);
-	mmio_clrbits_32(bkpr_fwu_cnt, TAMP_BOOT_FWU_INFO_CNT_MSK);
-	clk_disable(RTCAPB);
+	return tamp_bkpr(TAMP_BOOT_FWU_INFO_REG_ID);
 }
 #endif /* PSA_FWU_SUPPORT */
