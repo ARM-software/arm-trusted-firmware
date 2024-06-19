@@ -64,4 +64,8 @@
 		interrupt-names = "IRQAW";
 		iommus = <&smmu_700 0x200>;
 	};
+
+	dsu-pmu {
+		interrupts = <GIC_SPI 258 IRQ_TYPE_LEVEL_HIGH 0>;
+	};
 };
