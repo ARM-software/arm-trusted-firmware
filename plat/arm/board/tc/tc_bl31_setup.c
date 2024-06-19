@@ -72,7 +72,7 @@ static scmi_channel_plat_info_t tc_scmi_plat_info = {
 };
 #endif
 
-#if TARGET_PLATFORM == 3
+#if (TARGET_PLATFORM == 3) || (TARGET_PLATFORM == 4)
 static void enable_ns_mcn_pmu(void)
 {
 	/*
@@ -84,7 +84,9 @@ static void enable_ns_mcn_pmu(void)
 		mmio_setbits_32(mcn_scr, 1 << MCN_SCR_PMU_BIT);
 	}
 }
+#endif	/* (TARGET_PLATFORM == 3) || (TARGET_PLATFORM == 4) */
 
+#if TARGET_PLATFORM == 3
 static void set_mcn_slc_alloc_mode(void)
 {
 	/*
@@ -113,8 +115,10 @@ static void set_mcn_slc_alloc_mode(void)
 void bl31_platform_setup(void)
 {
 	tc_bl31_common_platform_setup();
-#if TARGET_PLATFORM == 3
+#if (TARGET_PLATFORM == 3) || (TARGET_PLATFORM == 4)
 	enable_ns_mcn_pmu();
+#endif	/* (TARGET_PLATFORM == 3) || (TARGET_PLATFORM == 4) */
+#if TARGET_PLATFORM == 3
 	set_mcn_slc_alloc_mode();
 	plat_arm_ni_setup(NCI_BASE_ADDR);
 #endif
