@@ -82,6 +82,9 @@ func TC_HANDLER(3)
 endfunc TC_HANDLER(3)
 
 func TC_HANDLER(4)
+	mov	x9, lr
+	bl	enable_dsu_pmu_el1_access
+	mov	lr, x9
 	ret
 endfunc TC_HANDLER(4)
 
