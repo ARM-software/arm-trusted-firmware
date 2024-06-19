@@ -58,26 +58,6 @@
 		kaslr-seed = <0x0 0x0>;
 	};
 
-	cs-pmu@0 {
-		compatible = "arm,coresight-pmu";
-		reg = <0x0 MCN_PMU_ADDR(0) 0x0 0xffc>;
-	};
-
-	cs-pmu@1 {
-		compatible = "arm,coresight-pmu";
-		reg = <0x0 MCN_PMU_ADDR(1) 0x0 0xffc>;
-	};
-
-	cs-pmu@2 {
-		compatible = "arm,coresight-pmu";
-		reg = <0x0 MCN_PMU_ADDR(2) 0x0 0xffc>;
-	};
-
-	cs-pmu@3 {
-		compatible = "arm,coresight-pmu";
-		reg = <0x0 MCN_PMU_ADDR(3) 0x0 0xffc>;
-	};
-
 	spe-pmu-mid {
 		status = "okay";
 	};
