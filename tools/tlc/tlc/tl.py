@@ -13,6 +13,7 @@ import typing
 import math
 import struct
 from dataclasses import dataclass
+from functools import reduce
 from pathlib import Path
 
 from tlc.te import TransferEntry
@@ -236,13 +237,44 @@ class TransferList:
         # size of the entry_point_info struct
         entry_point_size = 88
 
+        attr = header["attr"]
+        if type(attr) is str:
+            # convert string of flags names to an integer
+
+            # bit number  | 0                     | 1                    |
+            # ------------|-----------------------|----------------------|
+            # 0           | secure                | non-secure           |
+            # 1           | little endian         | big-endian           |
+            # 2           | disable secure timer  | enable secure timer  |
+            # 3           | executable            | non-executable       |
+            # 4           | first exe             | not first exe        |
+            #
+            # Bit 5 and bit 0 are used to determine the security state.
+
+            flag_names = {
+                "EP_SECURE": 0x0,
+                "EP_NON_SECURE": 0x1,
+                "EP_REALM": 0x21,
+                "EP_EE_LITTLE": 0x0,
+                "EP_EE_BIG": 0x2,
+                "EP_ST_DISABLE": 0x0,
+                "EP_ST_ENABLE": 0x4,
+                "EP_NON_EXECUTABLE": 0x0,
+                "EP_EXECUTABLE": 0x8,
+                "EP_FIRST_EXE": 0x10,
+            }
+
+            # create list of integer flags, then bitwise-or them together
+            flags = [flag_names[f.strip()] for f in attr.split("|")]
+            attr = reduce(lambda x, y: x | y, flags)
+
         return self.add_transfer_entry_from_struct_format(
             0x102,
             transfer_entry_formats[0x102]["format"],
             header["type"],
             header["version"],
             entry_point_size,
-            header["attr"],
+            attr,
             ep_info["pc"],
             ep_info["spsr"],
             *ep_info["args"],

@@ -320,6 +320,29 @@ def test_create_from_yaml_check_sum_bytes(tlcrunner, tmpyamlconfig, tmptlstr, en
                 "0x00000000 0x00000000"
             ),
         ),
+        (
+            {
+                "tag_id": 0x102,
+                "ep_info": {
+                    "h": {
+                        "type": 0x01,
+                        "version": 0x02,
+                        "attr": "EP_NON_SECURE | EP_ST_ENABLE",
+                    },
+                    "pc": 67239936,
+                    "spsr": 965,
+                    "args": [67112976, 67112960, 0, 0, 0, 0, 0, 0],
+                },
+            },
+            (
+                "0x00580201 0x00000005 0x04020000 0x00000000 "
+                "0x000003C5 0x00000000 0x04001010 0x00000000 "
+                "0x04001000 0x00000000 0x00000000 0x00000000 "
+                "0x00000000 0x00000000 0x00000000 0x00000000 "
+                "0x00000000 0x00000000 0x00000000 0x00000000 "
+                "0x00000000 0x00000000"
+            ),
+        ),
     ],
 )
 def test_create_from_yaml_check_exact_data(

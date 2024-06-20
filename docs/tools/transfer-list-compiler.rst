@@ -275,6 +275,33 @@ You can give the name of the tag instead of the tag id number. The valid tag nam
 * hob_block
 * hob_list
 
+You can input the attr field of entry_point_info as a string of flag
+names separated by `|`. The names are taken from ep_info_exp.h in TF-A.
+For example:
+
+.. code::
+
+    has_checksum: true
+    max_size: 4096
+    entries:
+    - tag_id: 0x102
+      ep_info:
+        args:
+        - 67112976
+        - 67112960
+        - 0
+        - 0
+        - 0
+        - 0
+        - 0
+        - 0
+        h:
+          attr: EP_NON_SECURE | EP_ST_ENABLE
+          type: 1
+          version: 2
+        pc: 67239936
+        spsr: 965
+
 --------------
 
 *Copyright (c) 2024, Arm Limited. All rights reserved.*
