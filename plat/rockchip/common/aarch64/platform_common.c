@@ -13,6 +13,8 @@
 #include <common/debug.h>
 #include <drivers/arm/cci.h>
 #include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_compat.h>
+
 #include <plat_private.h>
 
 #ifdef PLAT_RK_CCI_BASE

@@ -49,7 +49,7 @@ extern uint32_t __sram_incbin_real_end;
 #endif
 
 #ifndef BITS_SHIFT
-#define BITS_SHIFT(bits, shift)	(bits << (shift))
+#define BITS_SHIFT(bits, shift)	((bits) << (shift))
 #endif
 
 #ifndef BITS_WITH_WMASK
