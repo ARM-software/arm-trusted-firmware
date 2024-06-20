@@ -280,9 +280,6 @@
 #define SDMMC_CDN(_reg)				(SDMMC_CDN_REG_BASE + \
 								(SDMMC_CDN_##_reg))
 
-/* Refer to atf/tools/cert_create/include/debug.h */
-#define BIT_32(nr)					(U(1) << (nr))
-
 /* MMC Peripheral Definition */
 #define SOCFPGA_MMC_BLOCK_SIZE		U(8192)
 #define SOCFPGA_MMC_BLOCK_MASK		(SOCFPGA_MMC_BLOCK_SIZE - U(1))
