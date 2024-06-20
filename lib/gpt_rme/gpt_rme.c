@@ -847,7 +847,7 @@ static void fill_l1_tbl(uint64_t *l1, uintptr_t first, uintptr_t last,
 	assert(GPT_L0_IDX(first) == GPT_L0_IDX(last));
 
 #if (RME_GPT_MAX_BLOCK != 0)
-	while (first < last) {
+	while (first <= last) {
 		/* Region length */
 		size_t length = last - first + GPT_PGS_ACTUAL_SIZE(gpt_config.p);
 
