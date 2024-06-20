@@ -259,7 +259,10 @@ class TransferList:
 
         :param entry: Dictionary containing the data described above.
         """
+        # Tag_id is either a tag name or a tag id. Use it to get the TE format.
         tag_id = entry["tag_id"]
+        if tag_id in tag_name_to_tag_id:
+            tag_id = tag_name_to_tag_id[tag_id]
         te_format = transfer_entry_formats[tag_id]
         tag_name = te_format["tag_name"]
 

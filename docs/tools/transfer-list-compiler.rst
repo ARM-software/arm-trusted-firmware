@@ -267,9 +267,18 @@ info entry would have an entry like:
             pc: 67239936
             spsr: 467
 
+You can give the name of the tag instead of the tag id number. The valid tag names are in the
+`transfer_entry_formats` dict in `tools/tlc/tlc/tl.py`_. Some examples are:
+
+* empty
+* fdt
+* hob_block
+* hob_list
+
 --------------
 
 *Copyright (c) 2024, Arm Limited. All rights reserved.*
 
 .. _Firmware Handoff specification: https://github.com/FirmwareHandoff/firmware_handoff/
 .. _tools/tlc/pyproject.toml: https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/heads/master/tools/tlc/pyproject.toml
+.. _tools/tlc/tlc/tl.py: https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/heads/master/tools/tlc/tlc/tl.py

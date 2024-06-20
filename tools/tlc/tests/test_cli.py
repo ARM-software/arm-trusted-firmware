@@ -240,13 +240,18 @@ def test_create_entry_from_yaml_and_blob_file(
             "tag_id": 0x100,
             "pp_addr": 100,
         },
+        {
+            "tag_id": "optee_pageable_part",
+            "pp_addr": 100,
+        },
     ],
 )
 def test_create_from_yaml_check_sum_bytes(tlcrunner, tmpyamlconfig, tmptlstr, entry):
     """Test creating a TL from a yaml file, but only check that the sum of the
     data in the yaml file matches the sum of the data in the TL. This means
     you don't have to type the exact sequence of expected bytes. All the data
-    in the yaml file must be integers.
+    in the yaml file must be integers (except for the tag IDs, which can be
+    strings).
     """
     # create yaml config file
     config = {
