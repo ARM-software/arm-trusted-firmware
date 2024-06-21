@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,15 +28,17 @@ int psci_cpu_on(u_register_t target_cpu,
 
 {
 	int rc;
-	entry_point_info_t ep;
+	entry_point_info_t *ep;
+	unsigned int target_idx = (unsigned int)plat_core_pos_by_mpidr(target_cpu);
 
 	/* Validate the target CPU */
 	if (!is_valid_mpidr(target_cpu)) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 
-	/* Validate the entry point and get the entry_point_info */
-	rc = psci_validate_entry_point(&ep, entrypoint, context_id);
+	ep = get_cpu_data_by_index(target_idx, warmboot_ep_info);
+	/* Validate the lower EL entry point and put it in the entry_point_info */
+	rc = psci_validate_entry_point(ep, entrypoint, context_id);
 	if (rc != PSCI_E_SUCCESS) {
 		return rc;
 	}
@@ -45,7 +47,7 @@ int psci_cpu_on(u_register_t target_cpu,
 	 * To turn this cpu on, specify which power
 	 * levels need to be turned on
 	 */
-	return psci_cpu_on_start(target_cpu, &ep);
+	return psci_cpu_on_start(target_cpu, ep);
 }
 
 unsigned int psci_version(void)
@@ -59,7 +61,6 @@ int psci_cpu_suspend(unsigned int power_state,
 {
 	int rc;
 	unsigned int target_pwrlvl, is_power_down_state;
-	entry_point_info_t ep;
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 	plat_local_state_t cpu_pd_state;
 	unsigned int cpu_idx = plat_my_core_pos();
@@ -173,7 +174,9 @@ int psci_cpu_suspend(unsigned int power_state,
 	 * point and program entry information.
 	 */
 	if (is_power_down_state != 0U) {
-		rc = psci_validate_entry_point(&ep, entrypoint, context_id);
+		entry_point_info_t *ep = get_cpu_data_by_index(cpu_idx, warmboot_ep_info);
+
+		rc = psci_validate_entry_point(ep, entrypoint, context_id);
 		if (rc != PSCI_E_SUCCESS) {
 			return rc;
 		}
@@ -186,7 +189,6 @@ int psci_cpu_suspend(unsigned int power_state,
 	 * arrival of an interrupt
 	 */
 	rc = psci_cpu_suspend_start(cpu_idx,
-				    &ep,
 				    target_pwrlvl,
 				    &state_info,
 				    is_power_down_state);
@@ -199,8 +201,8 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 {
 	int rc;
 	psci_power_state_t state_info;
-	entry_point_info_t ep;
 	unsigned int cpu_idx = plat_my_core_pos();
+	entry_point_info_t *ep = get_cpu_data_by_index(cpu_idx, warmboot_ep_info);
 
 	/* Check if the current CPU is the last ON CPU in the system */
 	if (!psci_is_last_on_cpu(cpu_idx)) {
@@ -208,7 +210,7 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	}
 
 	/* Validate the entry point and get the entry_point_info */
-	rc = psci_validate_entry_point(&ep, entrypoint, context_id);
+	rc = psci_validate_entry_point(ep, entrypoint, context_id);
 	if (rc != PSCI_E_SUCCESS) {
 		return rc;
 	}
@@ -235,7 +237,6 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	 * arrival of an interrupt
 	 */
 	rc = psci_cpu_suspend_start(cpu_idx,
-				    &ep,
 				    PLAT_MAX_PWR_LVL,
 				    &state_info,
 				    PSTATE_TYPE_POWERDOWN);

@@ -45,7 +45,6 @@ static void psci_cpu_suspend_to_standby_finish(unsigned int end_pwrlvl,
 static void psci_suspend_to_pwrdown_start(unsigned int idx,
 					  unsigned int end_pwrlvl,
 					  unsigned int max_off_lvl,
-					  const entry_point_info_t *ep,
 					  const psci_power_state_t *state_info)
 {
 	PUBLISH_EVENT_ARG(psci_suspend_pwrdown_start, &idx);
@@ -85,12 +84,6 @@ static void psci_suspend_to_pwrdown_start(unsigned int idx,
 	if (psci_plat_pm_ops->pwr_domain_suspend_pwrdown_early != NULL)
 		psci_plat_pm_ops->pwr_domain_suspend_pwrdown_early(state_info);
 #endif
-
-	/*
-	 * Store the re-entry information for the non-secure world.
-	 */
-	cm_init_my_context(ep);
-
 	/*
 	 * Arch. management. Initiate power down sequence.
 	 */
@@ -116,7 +109,6 @@ static void psci_suspend_to_pwrdown_start(unsigned int idx,
  * not possible to undo any of the actions taken beyond that point.
  ******************************************************************************/
 int psci_cpu_suspend_start(unsigned int idx,
-			   const entry_point_info_t *ep,
 			   unsigned int end_pwrlvl,
 			   psci_power_state_t *state_info,
 			   unsigned int is_power_down_state)
@@ -124,10 +116,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 	int rc = PSCI_E_SUCCESS;
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 	unsigned int max_off_lvl = 0;
-#if FEAT_PABANDON
-	cpu_context_t *ctx = cm_get_context(NON_SECURE);
-	cpu_context_t old_ctx;
-#endif
 
 	/*
 	 * This function must only be called on platforms where the
@@ -205,26 +193,9 @@ int psci_cpu_suspend_start(unsigned int idx,
 #if !CTX_INCLUDE_EL2_REGS
 		cm_el1_sysregs_context_save(NON_SECURE);
 #endif
-		/*
-		 * when the core wakes it expects its context to already be in
-		 * place so we must overwrite it before powerdown. But if
-		 * powerdown never happens we want the old context. Save it in
-		 * case we wake up. EL2/El1 will not be touched by PSCI so don't
-		 * copy */
-		memcpy(&ctx->gpregs_ctx, &old_ctx.gpregs_ctx, sizeof(gp_regs_t));
-		memcpy(&ctx->el3state_ctx, &old_ctx.el3state_ctx, sizeof(el3_state_t));
-#if DYNAMIC_WORKAROUND_CVE_2018_3639
-		memcpy(&ctx->cve_2018_3639_ctx, &old_ctx.cve_2018_3639_ctx, sizeof(cve_2018_3639_t));
-#endif
-#if ERRATA_SPECULATIVE_AT
-		memcpy(&ctx->errata_speculative_at_ctx, &old_ctx.errata_speculative_at_ctx, sizeof(errata_speculative_at_t));
-#endif
-#if CTX_INCLUDE_PAUTH_REGS
-		memcpy(&ctx->pauth_ctx, &old_ctx.pauth_ctx, sizeof(pauth_t));
-#endif
 #endif
 		max_off_lvl = psci_find_max_off_lvl(state_info);
-		psci_suspend_to_pwrdown_start(idx, end_pwrlvl, end_pwrlvl, ep, state_info);
+		psci_suspend_to_pwrdown_start(idx, end_pwrlvl, end_pwrlvl, state_info);
 	}
 
 	/*
@@ -301,18 +272,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 #if FEAT_PABANDON
 		psci_cpu_suspend_to_powerdown_finish(idx, max_off_lvl, state_info);
 
-		/* we overwrote context ourselves, put it back */
-		memcpy(&ctx->gpregs_ctx, &old_ctx.gpregs_ctx, sizeof(gp_regs_t));
-		memcpy(&ctx->el3state_ctx, &old_ctx.el3state_ctx, sizeof(el3_state_t));
-#if DYNAMIC_WORKAROUND_CVE_2018_3639
-		memcpy(&ctx->cve_2018_3639_ctx, &old_ctx.cve_2018_3639_ctx, sizeof(cve_2018_3639_t));
-#endif
-#if ERRATA_SPECULATIVE_AT
-		memcpy(&ctx->errata_speculative_at_ctx, &old_ctx.errata_speculative_at_ctx, sizeof(errata_speculative_at_t));
-#endif
-#if CTX_INCLUDE_PAUTH_REGS
-		memcpy(&ctx->pauth_ctx, &old_ctx.pauth_ctx, sizeof(pauth_t));
-#endif
 #if !CTX_INCLUDE_EL2_REGS
 		cm_el1_sysregs_context_restore(NON_SECURE);
 #endif

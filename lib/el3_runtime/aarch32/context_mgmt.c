@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -154,21 +154,6 @@ static void enable_extensions_nonsecure(bool el2_unused)
 	}
 #endif /*  IMAGE_BL32 */
 }
-
-#if !IMAGE_BL1
-/*******************************************************************************
- * The following function initializes the cpu_context for a CPU specified by
- * its `cpu_idx` for first use, and sets the initial entrypoint state as
- * specified by the entry_point_info structure.
- ******************************************************************************/
-void cm_init_context_by_index(unsigned int cpu_idx,
-			      const entry_point_info_t *ep)
-{
-	cpu_context_t *ctx;
-	ctx = cm_get_context_by_index(cpu_idx, GET_SECURITY_STATE(ep->h.attr));
-	cm_setup_context(ctx, ep);
-}
-#endif /* !IMAGE_BL1 */
 
 /*******************************************************************************
  * The following function initializes the cpu_context for the current CPU

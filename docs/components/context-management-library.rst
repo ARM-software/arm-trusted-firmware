@@ -106,7 +106,6 @@ for lower exception levels.
 	#define FEAT_STATE_DISABLED     	0
 	#define FEAT_STATE_ENABLED      	1
 	#define FEAT_STATE_CHECK        	2
-	#define FEAT_STATE_CHECK_ASYMMETRIC	3
 
 A pattern is established for feature enablement behavior.
 Each feature must support the 3 possible values with rigid semantics.
@@ -120,15 +119,15 @@ Each feature must support the 3 possible values with rigid semantics.
 - **FEAT_STATE_CHECK** - same as ``FEAT_STATE_ALWAYS`` except that the feature's
   existence will be checked at runtime. Default on dynamic platforms (example: FVP).
 
-- **FEAT_STATE_CHECK_ASYMMETRIC** - same as ``FEAT_STATE_CHECK`` except that the feature's
-  existence is asymmetric across cores, which requires the feature existence is checked
-  during warmboot path also. Note that only limited number of features can be asymmetric.
-
  .. note::
-   Only limited number of features can be ``FEAT_STATE_CHECK_ASYMMETRIC`` this is due to
-   the fact that Operating systems are designed for SMP systems.
-   There are no clear guidelines what kind of mismatch is allowed but following pointers
-   can help making a decision
+
+   In general, it is assumed that all cores will support the same set of
+   architectural features (features will be symmetrical). However, there are
+   cases where this is impractical to achieve. Only some features can be
+   mismatched among cores and this is the exception rather than the rule. This
+   is due to the fact that Operating systems are designed for SMP systems. There
+   are no clear guidelines what kind of mismatch is allowed but following
+   pointers can help in making a decision:
 
     - All mandatory features must be symmetric.
     - Any feature that impacts the generation of page tables must be symmetric.
@@ -136,8 +135,9 @@ Each feature must support the 3 possible values with rigid semantics.
     - Features related with profiling, debug and trace could be asymmetric
     - Migration of vCPU/tasks between CPUs should not cause an error
 
-    Whenever there is asymmetric feature support is added for a feature TF-A need to add
-    feature specific code in context management code.
+   TF-A caters for mismatched features, however, this is not regularly tested
+   for all features and may not work as expected, even without considering OS
+   support.
 
  .. note::
    ``FEAT_RAS`` is an exception here, as it impacts the execution of EL3 and
@@ -345,9 +345,9 @@ more details on the warm boot.
 
 |Context Init WarmBoot|
 
-The primary CPU initializes the Non-Secure context for the secondary CPU while
-restoring re-entry information for the Non-Secure world.
-It initialises via ``cm_init_context_by_index(target_idx, ep )``.
+The primary CPU writes the entrypoint for the secondary CPU. When the secondary
+wakes up it initialises its own context via ``cm_init_my_context( ep )`` using
+the provided entrypoint.
 
 ``psci_warmboot_entrypoint()`` is the warm boot entrypoint procedure.
 During the warm bootup process, secondary CPUs have their secure context

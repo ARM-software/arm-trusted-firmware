@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -344,7 +344,6 @@ int psci_do_cpu_off(unsigned int end_pwrlvl);
 
 /* Private exported functions from psci_suspend.c */
 int psci_cpu_suspend_start(unsigned int idx,
-			   const entry_point_info_t *ep,
 			   unsigned int end_pwrlvl,
 			   psci_power_state_t *state_info,
 			   unsigned int is_power_down_state);

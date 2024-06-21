@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,6 +30,7 @@ CASSERT(PLATFORM_CORE_COUNT <= (PSCI_MAX_CPUS_INDEX + 1U), assert_psci_cores_ove
  * of relying on platform defined constants.
  ******************************************************************************/
 static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
+static entry_point_info_t warmboot_ep_info[PLATFORM_CORE_COUNT];
 
 /******************************************************************************
  * Define the psci capability variable.
@@ -111,6 +112,13 @@ static void __init psci_update_pwrlvl_limits(void)
 			}
 			psci_non_cpu_pd_nodes[nodes_idx[j]].ncpus++;
 		}
+	}
+}
+
+static void __init populate_cpu_data(void)
+{
+	for (unsigned int idx = 0; idx < psci_plat_core_count; idx++) {
+		set_cpu_data_by_index(idx, warmboot_ep_info, &warmboot_ep_info[idx]);
 	}
 }
 
@@ -217,6 +225,9 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
 
 	/* Update the CPU limits for each node in psci_non_cpu_pd_nodes */
 	psci_update_pwrlvl_limits();
+
+	/* Initialise the warmboot entrypoints */
+	populate_cpu_data();
 
 	/* Populate the mpidr field of cpu node for this CPU */
 	psci_cpu_pd_nodes[cpu_idx].mpidr =

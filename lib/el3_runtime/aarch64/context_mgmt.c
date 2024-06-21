@@ -484,13 +484,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 
 	/*
-	 * SCR_EL3.TCR2EN: Enable access to TCR2_ELx for AArch64 if present.
-	 */
-	if (is_feat_tcr2_supported() && (GET_RW(ep->spsr) == MODE_RW_64)) {
-		scr_el3 |= SCR_TCR2EN_BIT;
-	}
-
-	/*
 	 * SCR_EL3.PIEN: Enable permission indirection and overlay
 	 * registers for AArch64 if present.
 	 */
@@ -589,6 +582,10 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	/* Enable FEAT_TRF for Non-Secure and prohibit for Secure state. */
 	if (is_feat_trf_supported()) {
 		trf_enable(ctx);
+	}
+
+	if (is_feat_tcr2_supported()) {
+		tcr2_enable(ctx);
 	}
 
 	pmuv3_enable(ctx);
@@ -839,8 +836,10 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 		spe_enable(ctx);
 	}
 
-	if (is_feat_trbe_supported()) {
-		trbe_enable(ctx);
+	if (!check_if_trbe_disable_affected_core()) {
+		if (is_feat_trbe_supported()) {
+			trbe_enable(ctx);
+		}
 	}
 
 	if (is_feat_brbe_supported()) {
@@ -954,21 +953,6 @@ static void manage_extensions_secure(cpu_context_t *ctx)
 	}
 #endif /* IMAGE_BL31 */
 }
-
-#if !IMAGE_BL1
-/*******************************************************************************
- * The following function initializes the cpu_context for a CPU specified by
- * its `cpu_idx` for first use, and sets the initial entrypoint state as
- * specified by the entry_point_info structure.
- ******************************************************************************/
-void cm_init_context_by_index(unsigned int cpu_idx,
-			      const entry_point_info_t *ep)
-{
-	cpu_context_t *ctx;
-	ctx = cm_get_context_by_index(cpu_idx, GET_SECURITY_STATE(ep->h.attr));
-	cm_setup_context(ctx, ep);
-}
-#endif /* !IMAGE_BL1 */
 
 /*******************************************************************************
  * The following function initializes the cpu_context for the current CPU
@@ -1647,52 +1631,6 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 }
 #endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
 
-#if IMAGE_BL31
-/*********************************************************************************
-* This function allows Architecture features asymmetry among cores.
-* TF-A assumes that all the cores in the platform has architecture feature parity
-* and hence the context is setup on different core (e.g. primary sets up the
-* context for secondary cores).This assumption may not be true for systems where
-* cores are not conforming to same Arch version or there is CPU Erratum which
-* requires certain feature to be be disabled only on a given core.
-*
-* This function is called on secondary cores to override any disparity in context
-* setup by primary, this would be called during warmboot path.
-*********************************************************************************/
-void cm_handle_asymmetric_features(void)
-{
-	cpu_context_t *ctx __maybe_unused = cm_get_context(NON_SECURE);
-
-	assert(ctx != NULL);
-
-#if ENABLE_SPE_FOR_NS == FEAT_STATE_CHECK_ASYMMETRIC
-	if (is_feat_spe_supported()) {
-		spe_enable(ctx);
-	} else {
-		spe_disable(ctx);
-	}
-#endif
-
-	if (check_if_trbe_disable_affected_core()) {
-		if (is_feat_trbe_supported()) {
-			trbe_disable(ctx);
-		}
-	}
-
-#if ENABLE_FEAT_TCR2 == FEAT_STATE_CHECK_ASYMMETRIC
-	el3_state_t *el3_state = get_el3state_ctx(ctx);
-	u_register_t spsr = read_ctx_reg(el3_state, CTX_SPSR_EL3);
-
-	if (is_feat_tcr2_supported() && (GET_RW(spsr) == MODE_RW_64)) {
-		tcr2_enable(ctx);
-	} else {
-		tcr2_disable(ctx);
-	}
-#endif
-
-}
-#endif
-
 /*******************************************************************************
  * This function is used to exit to Non-secure world. If CTX_INCLUDE_EL2_REGS
  * is enabled, it restores EL1 and EL2 sysreg contexts instead of directly
@@ -1701,18 +1639,6 @@ void cm_handle_asymmetric_features(void)
  ******************************************************************************/
 void cm_prepare_el3_exit_ns(void)
 {
-#if IMAGE_BL31
-	/*
-	 * Check and handle Architecture feature asymmetry among cores.
-	 *
-	 * In warmboot path secondary cores context is initialized on core which
-	 * did CPU_ON SMC call, if there is feature asymmetry in these cores handle
-	 * it in this function call.
-	 * For Symmetric cores this is an empty function.
-	 */
-	cm_handle_asymmetric_features();
-#endif
-
 #if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
 #if ENABLE_ASSERTIONS
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
