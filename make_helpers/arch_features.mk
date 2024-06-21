@@ -310,7 +310,7 @@ ENABLE_FEAT_RNG_TRAP			?=	0
 ifeq ($(CTX_INCLUDE_MTE_REGS),1)
         $(warning CTX_INCLUDE_MTE_REGS option is deprecated, Check ENABLE_FEAT_MTE2 usage)
 endif
-ifeq ($(ENABLE_FEAT_MTE),1)
+ifneq ($(ENABLE_FEAT_MTE),)
         $(warning ENABLE_FEAT_MTE option is deprecated, Check ENABLE_FEAT_MTE2 usage)
 endif
 
