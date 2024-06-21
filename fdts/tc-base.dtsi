@@ -247,10 +247,6 @@
 			reg = <0x0 TC_NS_OPTEE_BASE 0x0 TC_NS_OPTEE_SIZE>;
 		};
 
-		fwu_mm {
-			reg = <0x0 TC_NS_FWU_BASE 0x0 TC_NS_FWU_SIZE>;
-			no-map;
-		};
 	};
 
 	memory {
