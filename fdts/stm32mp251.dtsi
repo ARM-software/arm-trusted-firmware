@@ -146,6 +146,9 @@
 			nand2_otp: otp20@50 {
 				reg = <0x50 0x4>;
 			};
+			rev_otp@198 {
+				reg = <0x198 0x4>;
+			};
 			package_otp: package-otp@1e8 {
 				reg = <0x1e8 0x1>;
 			};

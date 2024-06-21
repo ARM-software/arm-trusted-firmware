@@ -30,6 +30,43 @@
 #endif
 
 /*******************************************************************************
+ * CHIP ID
+ ******************************************************************************/
+#define STM32MP2_CHIP_ID			U(0x505)
+
+#define STM32MP251A_PART_NB			U(0x400B3E6D)
+#define STM32MP251C_PART_NB			U(0x000B306D)
+#define STM32MP251D_PART_NB			U(0xC00B3E6D)
+#define STM32MP251F_PART_NB			U(0x800B306D)
+#define STM32MP253A_PART_NB			U(0x400B3E0C)
+#define STM32MP253C_PART_NB			U(0x000B300C)
+#define STM32MP253D_PART_NB			U(0xC00B3E0C)
+#define STM32MP253F_PART_NB			U(0x800B300C)
+#define STM32MP255A_PART_NB			U(0x40082E00)
+#define STM32MP255C_PART_NB			U(0x00082000)
+#define STM32MP255D_PART_NB			U(0xC0082E00)
+#define STM32MP255F_PART_NB			U(0x80082000)
+#define STM32MP257A_PART_NB			U(0x40002E00)
+#define STM32MP257C_PART_NB			U(0x00002000)
+#define STM32MP257D_PART_NB			U(0xC0002E00)
+#define STM32MP257F_PART_NB			U(0x80002000)
+
+#define STM32MP2_REV_A				U(0x08)
+#define STM32MP2_REV_B				U(0x10)
+#define STM32MP2_REV_X				U(0x12)
+#define STM32MP2_REV_Y				U(0x11)
+#define STM32MP2_REV_Z				U(0x09)
+
+/*******************************************************************************
+ * PACKAGE ID
+ ******************************************************************************/
+#define STM32MP25_PKG_CUSTOM			U(0)
+#define STM32MP25_PKG_AL_VFBGA361		U(1)
+#define STM32MP25_PKG_AK_VFBGA424		U(3)
+#define STM32MP25_PKG_AI_TFBGA436		U(5)
+#define STM32MP25_PKG_UNKNOWN			U(7)
+
+/*******************************************************************************
  * STM32MP2 memory map related constants
  ******************************************************************************/
 #define STM32MP_SYSRAM_BASE			U(0x0E000000)
@@ -194,6 +231,7 @@ enum ddr_type {
 
 /* OTP labels */
 #define PART_NUMBER_OTP				"part-number-otp"
+#define REVISION_OTP				"rev_otp"
 #define PACKAGE_OTP				"package-otp"
 #define HCONF1_OTP				"otp124"
 #define NAND_OTP				"otp16"
