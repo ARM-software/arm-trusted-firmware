@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -171,8 +171,10 @@
 #define SHAREABILITY_SHIFT		8
 /* The Access Flag, AF. */
 #define ACCESS_FLAG_SHIFT		10
-/* The not global bit, nG. */
+/* The not global bit, nG */
 #define NOT_GLOBAL_SHIFT		11
+/* The Non-secure Extension bit, NSE */
+#define NSE_SHIFT			11
 /* Contiguous hint bit. */
 #define CONT_HINT_SHIFT			52
 /* Execute-never bits, XN. */
