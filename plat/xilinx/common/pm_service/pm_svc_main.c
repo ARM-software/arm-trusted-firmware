@@ -36,6 +36,32 @@
 #define EVENT_CPU_PWRDWN	(4U)
 #define MBOX_SGI_SHARED_IPI	(7U)
 
+/**
+ * upper_32_bits - return bits 32-63 of a number
+ * @n: the number we're accessing
+ */
+#define upper_32_bits(n)	((uint32_t)((n) >> 32U))
+
+/**
+ * lower_32_bits - return bits 0-31 of a number
+ * @n: the number we're accessing
+ */
+#define lower_32_bits(n)	((uint32_t)((n) & 0xffffffffU))
+
+/**
+ * EXTRACT_SMC_ARGS - extracts 32-bit payloads from 64-bit SMC arguments
+ * @pm_arg: array of 32-bit payloads
+ * @x: array of 64-bit SMC arguments
+ */
+#define EXTRACT_ARGS(pm_arg, x)						\
+	for (uint32_t i = 0U; i < (PAYLOAD_ARG_CNT - 1U); i++) {	\
+		if ((i % 2U) != 0U) {					\
+			pm_arg[i] = lower_32_bits(x[(i / 2U) + 1U]);	\
+		} else {						\
+			pm_arg[i] = upper_32_bits(x[i / 2U]);		\
+		}							\
+	}
+
 /* 1 sec of wait timeout for secondary core down */
 #define PWRDWN_WAIT_TIMEOUT	(1000U)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_asgi1r_el1, S3_0_C12_C11_6)
@@ -449,6 +475,45 @@ static uintptr_t eemi_handler(uint32_t api_id, uint32_t *pm_arg,
 }
 
 /**
+ * eemi_api_handler() - Prepare EEMI payload and perform IPI transaction.
+ * @api_id: identifier for the API being called.
+ * @pm_arg: pointer to the argument data for the API call.
+ * @handle: Pointer to caller's context structure.
+ * @security_flag: SECURE_FLAG or NON_SECURE_FLAG.
+ *
+ * EEMI - Embedded Energy Management Interface is AMD-Xilinx proprietary
+ * protocol to allow communication between power management controller and
+ * different processing clusters.
+ *
+ * This handler prepares EEMI protocol payload received from kernel and performs
+ * IPI transaction.
+ *
+ * Return: If EEMI API found then, uintptr_t type address, else 0
+ */
+static uintptr_t eemi_api_handler(uint32_t api_id, const uint32_t *pm_arg,
+				  void *handle, uint32_t security_flag)
+{
+	enum pm_ret_status ret;
+	uint32_t buf[PAYLOAD_ARG_CNT] = {0};
+	uint32_t payload[PAYLOAD_ARG_CNT] = {0};
+	uint32_t module_id;
+
+	module_id = (api_id & MODULE_ID_MASK) >> 8U;
+
+	PM_PACK_PAYLOAD7(payload, module_id, security_flag, api_id,
+			 pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3],
+			 pm_arg[4], pm_arg[5]);
+
+	ret = pm_ipi_send_sync(primary_proc, payload, (uint32_t *)buf,
+			       PAYLOAD_ARG_CNT);
+
+	SMC_RET4(handle, (uint64_t)ret | ((uint64_t)buf[0] << 32U),
+		 (uint64_t)buf[1] | ((uint64_t)buf[2] << 32U),
+		 (uint64_t)buf[3] | ((uint64_t)buf[4] << 32U),
+		 (uint64_t)buf[5]);
+}
+
+/**
  * pm_smc_handler() - SMC handler for PM-API calls coming from EL1/EL2.
  * @smc_fid: Function Identifier.
  * @x1: SMC64 Arguments from kernel.
@@ -477,6 +542,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t security_flag = NON_SECURE_FLAG;
 	uint32_t api_id;
 	bool status = false, status_tmp = false;
+	uint64_t x[4] = {x1, x2, x3, x4};
 
 	/* Handle case where PM wasn't initialized properly */
 	if (pm_up == false) {
@@ -492,6 +558,14 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	SECURE_REDUNDANT_CALL(status, status_tmp, is_caller_secure, flags);
 	if ((status != false) && (status_tmp != false)) {
 		security_flag = SECURE_FLAG;
+	}
+
+	if ((smc_fid & FUNCID_NUM_MASK) == PASS_THROUGH_FW_CMD_ID) {
+		api_id = lower_32_bits(x[0]);
+
+		EXTRACT_ARGS(pm_arg, x);
+
+		return eemi_api_handler(api_id, pm_arg, handle, security_flag);
 	}
 
 	pm_arg[0] = (uint32_t)x1;

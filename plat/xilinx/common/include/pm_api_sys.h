@@ -97,4 +97,9 @@ enum pm_ret_status pm_get_chipid(uint32_t *value);
 	PM_PACK_PAYLOAD5(pl, (mid), (flag), (arg0), (arg1), (arg2), (arg3), (arg4));		\
 }
 
+#define PM_PACK_PAYLOAD7(pl, mid, flag, arg0, arg1, arg2, arg3, arg4, arg5, arg6) {	\
+	pl[6] = (uint32_t)(arg6);							\
+	PM_PACK_PAYLOAD6(pl, (mid), (flag), (arg0), (arg1), (arg2), (arg3), (arg4), (arg5));	\
+}
+
 #endif /* PM_API_SYS_H */
