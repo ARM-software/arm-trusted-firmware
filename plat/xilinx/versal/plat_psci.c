@@ -197,7 +197,7 @@ static void __dead2 versal_system_reset(void)
  */
 static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	uint32_t ret, fw_api_version, version[PAYLOAD_ARG_CNT] = {0U};
+	uint32_t ret, fw_api_version, version[RET_PAYLOAD_ARG_CNT] = {0U};
 	uint32_t cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -164,15 +164,10 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
  *
  */
 static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
-					   uint32_t *value, size_t count)
+					   uint32_t value[PAYLOAD_ARG_CNT])
 {
 	size_t i;
 	enum pm_ret_status ret;
-#if IPI_CRC_CHECK
-	uint32_t *payload_ptr = value;
-	size_t j;
-	uint32_t response_payload[PAYLOAD_ARG_CNT];
-#endif
 	uintptr_t buffer_base = proc->ipi->buffer_base +
 				IPI_BUFFER_TARGET_REMOTE_OFFSET +
 				IPI_BUFFER_RESP_OFFSET;
@@ -184,27 +179,21 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 	 * buf-2: unused
 	 * buf-3: unused
 	 */
-	for (i = 1; i <= count; i++) {
-		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
-		value++;
+	for (i = 0; i < PAYLOAD_ARG_CNT; i++) {
+		value[i] = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
 	}
 
-	ret = mmio_read_32(buffer_base);
+	ret = value[0];
 #if IPI_CRC_CHECK
-	for (j = 0; j < PAYLOAD_ARG_CNT; j++) {
-		response_payload[j] = mmio_read_32(buffer_base +
-						(j * PAYLOAD_ARG_SIZE));
-	}
-
-	if (response_payload[PAYLOAD_CRC_POS] !=
-			calculate_crc(response_payload, IPI_W0_TO_W6_SIZE)) {
+	if (value[PAYLOAD_CRC_POS] !=
+			calculate_crc(value, IPI_W0_TO_W6_SIZE)) {
 		NOTICE("ERROR in CRC response payload value:0x%x\n",
-					response_payload[PAYLOAD_CRC_POS]);
+					value[PAYLOAD_CRC_POS]);
 		ret = PM_RET_ERROR_INVALID_CRC;
 		/* Payload data is invalid as CRC validation failed
 		 * Clear the payload to avoid leakage of data to upper layers
 		 */
-		memset(payload_ptr, 0, count);
+		memset(value, 0, PAYLOAD_ARG_CNT);
 	}
 #endif
 
@@ -240,7 +229,7 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 		count = IPI_BUFFER_MAX_WORDS;
 	}
 
-	for (i = 0; i <= count; i++) {
+	for (i = 0; i < count; i++) {
 		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
 		value++;
 	}
@@ -282,6 +271,7 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 				    uint32_t *value, size_t count)
 {
 	enum pm_ret_status ret;
+	uint32_t i, ret_payload[PAYLOAD_ARG_CNT] = {0U};
 
 	pm_ipi_lock_get();
 
@@ -290,7 +280,12 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 		goto unlock;
 	}
 
-	ret = ERROR_CODE_MASK & (pm_ipi_buff_read(proc, value, count));
+	ret = ERROR_CODE_MASK & (pm_ipi_buff_read(proc, ret_payload));
+
+	for (i = 1U; i <= count; i++) {
+		*value = ret_payload[i];
+		value++;
+	}
 
 unlock:
 	pm_ipi_lock_release();

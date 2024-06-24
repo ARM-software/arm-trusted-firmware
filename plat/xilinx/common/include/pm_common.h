@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,13 +18,15 @@
 
 #if IPI_CRC_CHECK
 #define PAYLOAD_ARG_CNT         8U
+#define RET_PAYLOAD_ARG_CNT	7U
 #define IPI_W0_TO_W6_SIZE       28U
 #define PAYLOAD_CRC_POS         7U
 #define CRC_INIT_VALUE          0x4F4EU
 #define CRC_ORDER               16U
 #define CRC_POLYNOM             0x8005U
 #else
-#define PAYLOAD_ARG_CNT         6U
+#define PAYLOAD_ARG_CNT		7U
+#define RET_PAYLOAD_ARG_CNT	6U
 #endif
 #define PAYLOAD_ARG_SIZE	4U	/* size in bytes */
 

@@ -122,7 +122,7 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 	}
 
 	PM_PACK_PAYLOAD6(payload, module_id, flag, x0, x1, x2, x3, x4, x5);
-	return pm_ipi_send_sync(primary_proc, payload, (uint32_t *)result, PAYLOAD_ARG_CNT);
+	return pm_ipi_send_sync(primary_proc, payload, (uint32_t *)result, RET_PAYLOAD_ARG_CNT);
 }
 
 /**
@@ -406,7 +406,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 
 	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, flag,
 			 PM_FEATURE_CHECK, api_id);
-	return pm_ipi_send_sync(primary_proc, payload, ret_payload, PAYLOAD_ARG_CNT);
+	return pm_ipi_send_sync(primary_proc, payload, ret_payload, RET_PAYLOAD_ARG_CNT);
 }
 
 /**
