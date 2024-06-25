@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019, Linaro Limited
  * Copyright (c) 2019, Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
+ * Copyright (c) 2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -120,7 +121,7 @@ static void rpi3_gpio_set_value(int gpio, int value)
 	int regN = gpio / 32;
 	int shift = gpio % 32;
 	uintptr_t reg_set = reg_base + RPI3_GPIO_GPSET(regN);
-	uintptr_t reg_clr = reg_base + RPI3_GPIO_GPSET(regN);
+	uintptr_t reg_clr = reg_base + RPI3_GPIO_GPCLR(regN);
 
 	switch (value) {
 	case GPIO_LEVEL_LOW:
