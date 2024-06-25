@@ -99,11 +99,7 @@
 
 	memory@1 {
 		device_type = "ns-memory";
-		reg =
-#ifdef TS_SP_FW_CONFIG
-		      <0x0 0x08000000 0x0 0x4000000>,
-#endif /* TS_SP_FW_CONFIG */
-		      <0x0 TC_NS_DRAM1_BASE 0x0 TC_NS_DRAM1_SIZE>,
+		reg = <0x0 TC_NS_DRAM1_BASE 0x0 TC_NS_DRAM1_SIZE>,
 		      <HI(PLAT_ARM_DRAM2_BASE) LO(PLAT_ARM_DRAM2_BASE)
 		       HI(TC_NS_DRAM2_SIZE) LO(TC_NS_DRAM2_SIZE)>;
 	};
@@ -117,4 +113,11 @@
 		device_type = "device-memory";
 		reg = <0x0 PLAT_ARM_BOOT_UART_BASE 0x0 0x01000>;
 	};
+
+#ifdef TS_SP_FW_CONFIG
+	ns_flash {
+		device_type = "ns-device-memory";
+		reg = <0x0 V2M_FLASH0_BASE 0x0 V2M_FLASH0_SIZE>;
+	};
+#endif
 };
