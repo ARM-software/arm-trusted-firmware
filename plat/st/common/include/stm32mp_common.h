@@ -20,7 +20,7 @@
 #define STM32MP_CHIP_SEC_OPEN		U(0xA764D182)
 
 /* FWU configuration (max supported value is 15) */
-#define FWU_MAX_TRIAL_REBOOT		U(3)
+#define FWU_MAX_TRIAL_REBOOT		U(4)
 
 /* Define maximum page size for NAND devices */
 #define PLATFORM_MTD_MAX_PAGE_SIZE	U(0x1000)

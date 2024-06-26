@@ -728,10 +728,18 @@ uint32_t plat_fwu_get_boot_idx(void)
 
 		boot_idx = data->active_index;
 
-		if (data->bank_state[boot_idx] == FWU_BANK_STATE_VALID) {
+		switch (data->bank_state[boot_idx]) {
+		case FWU_BANK_STATE_ACCEPTED:
+			err = stm32_set_max_fwu_trial_boot_cnt();
+			break;
+		case FWU_BANK_STATE_VALID:
 			err = stm32_get_and_dec_fwu_trial_boot_cnt(&bootcount);
 			if (err == 0) {
-				if (bootcount == 0U) {
+				if (bootcount == 1U) {
+					WARN("Trial FWU fails %u times\n",
+					     (FWU_MAX_TRIAL_REBOOT - 1U));
+					boot_idx = fwu_get_alternate_boot_bank();
+				} else if (bootcount == 0U) {
 					WARN("Trial backup register empty : set max boot count\n");
 					err = stm32_set_max_fwu_trial_boot_cnt();
 				} else {
@@ -739,14 +747,14 @@ uint32_t plat_fwu_get_boot_idx(void)
 						FWU_MAX_TRIAL_REBOOT - bootcount);
 				}
 			}
-		} else if (data->bank_state[boot_idx] ==
-			   FWU_BANK_STATE_ACCEPTED) {
-			err = stm32_set_max_fwu_trial_boot_cnt();
-		} else {
+			break;
+		case FWU_BANK_STATE_INVALID:
+		default:
 			ERROR("The active bank(%u) of the platform is in Invalid State.\n",
 			      boot_idx);
 			boot_idx = fwu_get_alternate_boot_bank();
 			err = stm32_clear_fwu_trial_boot_cnt();
+			break;
 		}
 
 		if (err != 0) {
