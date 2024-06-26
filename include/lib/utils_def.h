@@ -34,22 +34,22 @@
 #endif
 
 /*
- * Create a contiguous bitmask starting at bit position @l and ending at
- * position @h. For example
+ * Create a contiguous bitmask starting at bit position @low and ending at
+ * position @high. For example
  * GENMASK_64(39, 21) gives us the 64bit vector 0x000000ffffe00000.
  */
 #if defined(__LINKER__) || defined(__ASSEMBLER__)
-#define GENMASK_32(h, l) \
-	(((0xFFFFFFFF) << (l)) & (0xFFFFFFFF >> (32 - 1 - (h))))
+#define GENMASK_32(high, low) \
+	(((0xFFFFFFFF) << (low)) & (0xFFFFFFFF >> (32 - 1 - (high))))
 
-#define GENMASK_64(h, l) \
-	((~0 << (l)) & (~0 >> (64 - 1 - (h))))
+#define GENMASK_64(high, low) \
+	((~0 << (low)) & (~0 >> (64 - 1 - (high))))
 #else
-#define GENMASK_32(h, l) \
-	((~UINT32_C(0) >> (32U - 1U - (h))) ^ ((BIT_32(l) - 1U)))
+#define GENMASK_32(high, low) \
+	((~UINT32_C(0) >> (32U - 1U - (high))) ^ ((BIT_32(low) - 1U)))
 
-#define GENMASK_64(h, l) \
-	((~UINT64_C(0) >> (64U - 1U - (h))) ^ ((BIT_64(l) - 1U)))
+#define GENMASK_64(high, low) \
+	((~UINT64_C(0) >> (64U - 1U - (high))) ^ ((BIT_64(low) - 1U)))
 #endif
 
 #ifdef __aarch64__
