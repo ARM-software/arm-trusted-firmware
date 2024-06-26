@@ -446,7 +446,9 @@ TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
 	 */
 	if (pk_alg == MBEDTLS_PK_RSASSA_PSS) {
 		rc = pk_bytes_from_subpubkey((unsigned char **) &pk_ptr, &pk_len);
-		goto end2;
+		if (rc != 0) {
+			goto end2;
+		}
 	}
 
 	/* Get the key_id using import API */
