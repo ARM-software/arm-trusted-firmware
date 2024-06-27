@@ -261,13 +261,9 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 #if CTX_INCLUDE_EL2_REGS
 
 	/*
-	 * Initialize SCTLR_EL2 context register using Endianness value
-	 * taken from the entrypoint attribute.
+	 * Initialize SCTLR_EL2 context register with reset value.
 	 */
-	u_register_t sctlr_el2_val = (EP_GET_EE(ep->h.attr) != 0U) ? SCTLR_EE_BIT : 0UL;
-	sctlr_el2_val |= SCTLR_EL2_RES1;
-	write_el2_ctx_common(get_el2_sysregs_ctx(ctx), sctlr_el2, sctlr_el2_val);
-
+	write_el2_ctx_common(get_el2_sysregs_ctx(ctx), sctlr_el2, SCTLR_EL2_RES1);
 
 	if (is_feat_hcx_supported()) {
 		/*
@@ -952,7 +948,7 @@ static void init_nonsecure_el2_unused(cpu_context_t *ctx)
  ******************************************************************************/
 void cm_prepare_el3_exit(uint32_t security_state)
 {
-	u_register_t sctlr_elx, scr_el3;
+	u_register_t sctlr_el2, scr_el3;
 	cpu_context_t *ctx = cm_get_context(security_state);
 
 	assert(ctx != NULL);
@@ -993,20 +989,17 @@ void cm_prepare_el3_exit(uint32_t security_state)
 
 			/* Condition to ensure EL2 is being used. */
 			if ((scr_el3 & SCR_HCE_BIT) != 0U) {
-				/* Use SCTLR_EL1.EE value to initialise sctlr_el2 */
-				sctlr_elx = read_ctx_reg(get_el1_sysregs_ctx(ctx),
-								CTX_SCTLR_EL1);
-				sctlr_elx &= SCTLR_EE_BIT;
-				sctlr_elx |= SCTLR_EL2_RES1;
+				/* Initialize SCTLR_EL2 register with reset value. */
+				sctlr_el2 = SCTLR_EL2_RES1;
 #if ERRATA_A75_764081
 				/*
 				 * If workaround of errata 764081 for Cortex-A75
 				 * is used then set SCTLR_EL2.IESB to enable
 				 * Implicit Error Synchronization Barrier.
 				 */
-				sctlr_elx |= SCTLR_IESB_BIT;
-#endif /* ERRATA_A75_764081 */
-				write_sctlr_el2(sctlr_elx);
+				sctlr_el2 |= SCTLR_IESB_BIT;
+#endif
+				write_sctlr_el2(sctlr_el2);
 			} else {
 				/*
 				 * (scr_el3 & SCR_HCE_BIT==0)
