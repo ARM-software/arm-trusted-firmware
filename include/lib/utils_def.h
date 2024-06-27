@@ -19,8 +19,13 @@
 
 #define SIZE_FROM_LOG2_WORDS(n)		(U(4) << (n))
 
+#if defined(__LINKER__) || defined(__ASSEMBLER__)
 #define BIT_32(nr)			(U(1) << (nr))
 #define BIT_64(nr)			(ULL(1) << (nr))
+#else
+#define BIT_32(nr)			(((uint32_t)(1U)) << (nr))
+#define BIT_64(nr)			(((uint64_t)(1ULL)) << (nr))
+#endif
 
 #ifdef __aarch64__
 #define BIT				BIT_64
@@ -29,22 +34,22 @@
 #endif
 
 /*
- * Create a contiguous bitmask starting at bit position @l and ending at
- * position @h. For example
+ * Create a contiguous bitmask starting at bit position @low and ending at
+ * position @high. For example
  * GENMASK_64(39, 21) gives us the 64bit vector 0x000000ffffe00000.
  */
 #if defined(__LINKER__) || defined(__ASSEMBLER__)
-#define GENMASK_32(h, l) \
-	(((0xFFFFFFFF) << (l)) & (0xFFFFFFFF >> (32 - 1 - (h))))
+#define GENMASK_32(high, low) \
+	(((0xFFFFFFFF) << (low)) & (0xFFFFFFFF >> (32 - 1 - (high))))
 
-#define GENMASK_64(h, l) \
-	((~0 << (l)) & (~0 >> (64 - 1 - (h))))
+#define GENMASK_64(high, low) \
+	((~0 << (low)) & (~0 >> (64 - 1 - (high))))
 #else
-#define GENMASK_32(h, l) \
-	(((~UINT32_C(0)) << (l)) & (~UINT32_C(0) >> (32 - 1 - (h))))
+#define GENMASK_32(high, low) \
+	((~UINT32_C(0) >> (32U - 1U - (high))) ^ ((BIT_32(low) - 1U)))
 
-#define GENMASK_64(h, l) \
-	(((~UINT64_C(0)) << (l)) & (~UINT64_C(0) >> (64 - 1 - (h))))
+#define GENMASK_64(high, low) \
+	((~UINT64_C(0) >> (64U - 1U - (high))) ^ ((BIT_64(low) - 1U)))
 #endif
 
 #ifdef __aarch64__
