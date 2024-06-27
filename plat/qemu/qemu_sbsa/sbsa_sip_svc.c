@@ -89,10 +89,6 @@ uintptr_t sbsa_get_gicr(void);
 static void read_cpu_topology_from_dt(void *dtb)
 {
 	int node;
-	uint32_t sockets = 0;
-	uint32_t clusters = 0;
-	uint32_t cores = 0;
-	uint32_t threads = 0;
 
 	/*
 	 * QEMU gives us this DeviceTree node when we config:
@@ -108,27 +104,15 @@ static void read_cpu_topology_from_dt(void *dtb)
 
 	node = fdt_path_offset(dtb, "/cpus/topology");
 	if (node > 0) {
-		if (fdt_getprop(dtb, node, "sockets", NULL))  {
-			fdt_read_uint32(dtb, node, "sockets", &sockets);
-		}
-
-		if (fdt_getprop(dtb, node, "clusters", NULL))  {
-			fdt_read_uint32(dtb, node, "clusters", &clusters);
-		}
-
-		if (fdt_getprop(dtb, node, "cores", NULL))  {
-			fdt_read_uint32(dtb, node, "cores", &cores);
-		}
-
-		if (fdt_getprop(dtb, node, "threads", NULL))  {
-			fdt_read_uint32(dtb, node, "threads", &threads);
-		}
+		dynamic_platform_info.cpu_topo.sockets =
+			fdt_read_uint32_default(dtb, node, "sockets", 0);
+		dynamic_platform_info.cpu_topo.clusters =
+			fdt_read_uint32_default(dtb, node, "clusters", 0);
+		dynamic_platform_info.cpu_topo.cores =
+			fdt_read_uint32_default(dtb, node, "cores", 0);
+		dynamic_platform_info.cpu_topo.threads =
+			fdt_read_uint32_default(dtb, node, "threads", 0);
 	}
-
-	dynamic_platform_info.cpu_topo.sockets = sockets;
-	dynamic_platform_info.cpu_topo.clusters = clusters;
-	dynamic_platform_info.cpu_topo.cores = cores;
-	dynamic_platform_info.cpu_topo.threads = threads;
 
 	INFO("Cpu topology: sockets: %d, clusters: %d, cores: %d, threads: %d\n",
 		dynamic_platform_info.cpu_topo.sockets,
@@ -142,7 +126,6 @@ void read_cpuinfo_from_dt(void *dtb)
 	int node;
 	int prev;
 	int cpu = 0;
-	uint32_t nodeid = 0;
 	uintptr_t mpidr;
 
 	/*
@@ -184,14 +167,12 @@ void read_cpuinfo_from_dt(void *dtb)
 			panic();
 		}
 
-		if (fdt_getprop(dtb, node, "numa-node-id", NULL))  {
-			fdt_read_uint32(dtb, node, "numa-node-id", &nodeid);
-		}
-
-		dynamic_platform_info.cpu[cpu].nodeid = nodeid;
 		dynamic_platform_info.cpu[cpu].mpidr = mpidr;
+		dynamic_platform_info.cpu[cpu].nodeid =
+			fdt_read_uint32_default(dtb, node, "numa-node-id", 0);
 
-		INFO("CPU %d: node-id: %d, mpidr: %ld\n", cpu, nodeid, mpidr);
+		INFO("CPU %d: node-id: %d, mpidr: %ld\n", cpu,
+				dynamic_platform_info.cpu[cpu].nodeid, mpidr);
 
 		cpu++;
 
@@ -211,7 +192,6 @@ void read_meminfo_from_dt(void *dtb)
 	const char *type;
 	int prev, node;
 	int len;
-	uint32_t nodeid = 0;
 	uint32_t memnode = 0;
 	uint32_t higher_value, lower_value;
 	uint64_t cur_base, cur_size;
@@ -240,11 +220,8 @@ void read_meminfo_from_dt(void *dtb)
 
 		type = fdt_getprop(dtb, node, "device_type", &len);
 		if (type && strncmp(type, "memory", len) == 0) {
-			if (fdt_getprop(dtb, node, "numa-node-id", NULL)) {
-				fdt_read_uint32(dtb, node, "numa-node-id", &nodeid);
-			}
-
-			dynamic_platform_info.memory[memnode].nodeid = nodeid;
+			dynamic_platform_info.memory[memnode].nodeid =
+				fdt_read_uint32_default(dtb, node, "numa-node-id", 0);
 
 			/*
 			 * Get the 'reg' property of this node and
@@ -342,10 +319,10 @@ void read_platform_version(void *dtb)
 
 	node = fdt_path_offset(dtb, "/");
 	if (node >= 0) {
-		platform_version_major = fdt32_ld(fdt_getprop(dtb, node,
-							      "machine-version-major", NULL));
-		platform_version_minor = fdt32_ld(fdt_getprop(dtb, node,
-							      "machine-version-minor", NULL));
+		platform_version_major =
+			fdt_read_uint32_default(dtb, node, "machine-version-major", 0);
+		platform_version_minor =
+			fdt_read_uint32_default(dtb, node, "machine-version-minor", 0);
 	}
 }
 
