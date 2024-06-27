@@ -26,7 +26,7 @@ ifeq (${ARCH}, aarch64)
   else ifeq (${ARM_TSP_RAM_LOCATION}, dram)
     ARM_TSP_RAM_LOCATION_ID = ARM_DRAM_ID
   else
-    $(error "Unsupported ARM_TSP_RAM_LOCATION value")
+    $(error Unsupported ARM_TSP_RAM_LOCATION value)
   endif
 
   # Process flags
@@ -83,7 +83,7 @@ $(eval $(call add_define,ARM_BL31_IN_DRAM))
 # memory. This means we must not run BL31 from TZC-protected DRAM.
 ifeq (${ARM_BL31_IN_DRAM},1)
   ifeq (${ENABLE_RME},1)
-    $(error "BL31 must not run from DRAM on RME-systems. Please set ARM_BL31_IN_DRAM to 0")
+    $(error BL31 must not run from DRAM on RME-systems. Please set ARM_BL31_IN_DRAM to 0)
   endif
 endif
 
@@ -105,16 +105,15 @@ $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
   ifneq (${ARCH},aarch64)
     ifneq (${RESET_TO_SP_MIN},1)
-      $(error "ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_SP_MIN=1.")
+      $(error ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_SP_MIN=1.)
     endif
   endif
   ifndef PRELOADED_BL33_BASE
-    $(error "PRELOADED_BL33_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used.")
+    $(error PRELOADED_BL33_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used.)
   endif
   ifeq (${RESET_TO_BL31},1)
     ifndef ARM_PRELOADED_DTB_BASE
-      $(error "ARM_PRELOADED_DTB_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is
-       used with RESET_TO_BL31.")
+      $(error ARM_PRELOADED_DTB_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used with RESET_TO_BL31.)
     endif
     $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
   endif
@@ -456,6 +455,6 @@ endif
 
 ifeq (${RECLAIM_INIT_CODE}, 1)
     ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
-        $(error "To reclaim init code xlat tables v2 must be used")
+        $(error To reclaim init code xlat tables v2 must be used)
     endif
 endif
