@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,9 +9,10 @@
 #include <arch_helpers.h>
 #include <lib/extensions/trf.h>
 
-void trf_init_el3(void)
+void trf_enable(cpu_context_t *ctx)
 {
-	u_register_t val;
+	el3_state_t *state = get_el3state_ctx(ctx);
+	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);
 
 	/*
 	 * MDCR_EL3.STE = b0
@@ -22,9 +23,8 @@ void trf_init_el3(void)
 	 * Allow access of trace filter control registers from NS-EL2
 	 * and NS-EL1 when NS-EL2 is implemented but not used
 	 */
-	val = read_mdcr_el3();
-	val &= ~(MDCR_STE_BIT | MDCR_TTRF_BIT);
-	write_mdcr_el3(val);
+	mdcr_el3_val &= ~(MDCR_STE_BIT | MDCR_TTRF_BIT);
+	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 
 void trf_init_el2_unused(void)

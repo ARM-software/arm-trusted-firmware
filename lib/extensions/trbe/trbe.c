@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,9 +19,10 @@ static void tsb_csync(void)
 	__asm__ volatile("hint #18");
 }
 
-void trbe_init_el3(void)
+void trbe_enable(cpu_context_t *ctx)
 {
-	u_register_t val;
+	el3_state_t *state = get_el3state_ctx(ctx);
+	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);
 
 	/*
 	 * MDCR_EL3.NSTBE = 0b0
@@ -33,10 +34,9 @@ void trbe_init_el3(void)
 	 *  NS-EL2, tracing is prohibited in Secure and Realm state (if
 	 *  implemented).
 	 */
-	val = read_mdcr_el3();
-	val |= MDCR_NSTB(MDCR_NSTB_EL1);
-	val &= ~(MDCR_NSTBE_BIT);
-	write_mdcr_el3(val);
+	mdcr_el3_val |= MDCR_NSTB(MDCR_NSTB_EL1);
+	mdcr_el3_val &= ~(MDCR_NSTBE_BIT);
+	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 
 void trbe_init_el2_unused(void)
