@@ -384,18 +384,18 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
             endif
         endif
     else ifeq (${COT},dualroot)
-        BL1_SOURCES	+=	drivers/auth/dualroot/cot.c
+        BL1_SOURCES	+=	drivers/auth/dualroot/bl1_cot.c
         ifneq (${COT_DESC_IN_DTB},0)
             BL2_SOURCES	+=	lib/fconf/fconf_cot_getter.c
         else
-            BL2_SOURCES	+=	drivers/auth/dualroot/cot.c
+            BL2_SOURCES	+=	drivers/auth/dualroot/bl2_cot.c
         endif
     else ifeq (${COT},cca)
-        BL1_SOURCES	+=	drivers/auth/cca/cot.c
+        BL1_SOURCES	+=	drivers/auth/cca/bl1_cot.c
         ifneq (${COT_DESC_IN_DTB},0)
             BL2_SOURCES	+=	lib/fconf/fconf_cot_getter.c
         else
-            BL2_SOURCES	+=	drivers/auth/cca/cot.c
+            BL2_SOURCES	+=	drivers/auth/cca/bl2_cot.c
         endif
     else
         $(error Unknown chain of trust ${COT})
