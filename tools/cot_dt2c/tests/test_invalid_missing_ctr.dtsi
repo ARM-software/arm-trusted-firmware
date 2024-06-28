@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * This file provide a malformed CoT DT file that there
+ * are image/certificate that missing definition of
+ * nv counters
+ *
+ */
+
+#include <example/example.h>
+#include <example/example/example.h>
+
+cot {
+	manifests {
+		compatible = "arm, cert-descs";
+
+		example_cert: example_cert {
+			root-certificate;
+			image-id =<EXAMPLE_ID>;
+			signing-key = <&swd_rot_pk>;
+			antirollback-counter = <&example_ctr>;
+
+			example_hash: example_hash
+			{
+				oid = EXAMPLE_HASH_ID;
+			};
+
+		};
+	};
+
+	images {
+		compatible = "arm, img-descs";
+
+		example {
+			image-id = <EXAMPLE_ID>;
+			parent = <&example_cert>;
+			hash = <&example_hash>;
+		};
+	};
+};
+
+non_volatile_counters: non_volatile_counters {
+	compatible = "arm, non-volatile-counter";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+};
+
+rot_keys {
+	example_pk: example_pk {
+		oid = EXAMPLE_PK_OID;
+	};
+};
