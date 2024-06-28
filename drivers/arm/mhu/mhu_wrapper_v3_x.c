@@ -445,7 +445,7 @@ enum mhu_error_t mhu_receive_data(uint8_t *receive_buffer, size_t *size)
 
 size_t mhu_get_max_message_size(void)
 {
-	enum mhu_v3_x_error_t err;
+	enum mhu_v3_x_error_t err __maybe_unused;
 	uint8_t num_channels;
 
 	err = mhu_v3_x_get_num_channel_implemented(&mhu_seh_dev,
