@@ -36,7 +36,6 @@
 #define BIG_CPU_PMU_COMPATIBLE		"arm,cortex-x4-pmu"
 
 #define MPAM_ADDR			0x1 0x00010000 /* 0x1_0001_0000 */
-#define UARTCLK_FREQ			5000000
 
 #define DPU_ADDR			2cc00000
 #define DPU_IRQ				69
