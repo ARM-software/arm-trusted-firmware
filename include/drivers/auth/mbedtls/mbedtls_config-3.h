@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -128,7 +128,6 @@
 #ifndef __ASSEMBLER__
 /* System headers required to build mbed TLS with the current configuration */
 #include <stdlib.h>
-#include <mbedtls/check_config.h>
 #endif
 
 /*
