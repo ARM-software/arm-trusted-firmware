@@ -3,6 +3,46 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.4..refs/tags/lts-v2.10.5) (2024-06-28)
+
+### Code Refactoring
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - remove mbedtls 2.x support ([1d3bb2f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1d3bb2fe65342b11603ff1bcd21688f9b58b1f9e))
+
+### New Features
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - update config for 3.6.0 ([05ec367](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/05ec367bad28b506720ba085d9f71ef8b5ff69cd))
+
+### Documentation
+
+- **Documentation**
+
+  - **Prerequisites**
+
+    - update mbedtls version used ([aa84a9d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/aa84a9dadb4ede97e7af190a17d4db222f9d2059))
+
+### Resolved Issues
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - sign verification issue with invalid Key/Signature ([ee945f1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ee945f1d2a00f4d99e8ec10c52ef3c42728ae794))
+
 ## [lts-2.10.4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.3..refs/tags/lts-v2.10.4) (2024-04-26)
 
 ### Documentation
