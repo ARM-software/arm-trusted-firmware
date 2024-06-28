@@ -3,6 +3,80 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.20](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.19..refs/tags/lts-v2.8.20) (2024-06-28)
+
+### Miscellaneous
+
+- add encrypt_fw to gitignore ([4da2210](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4da2210db075f39219f91c649931979811ea73b5))
+
+### Build System
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - add deprecation notice ([07126ff](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/07126ffb4b42699f2729e7e22b95f25a5570b7e1))
+
+### Code Refactoring
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - minor cleanup with TRUSTED_BOARD_BOOT ([ef7aac7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ef7aac7106e1564c88fb97cdde43d00d7829954c))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - avoid including MBEDTLS_CONFIG_FILE ([d7f6181](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d7f618143a3d1b3a392fc4eb54812251dcb7ce8f))
+      - remove mbedtls 2.x support ([87f4a63](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/87f4a63053fc184692df84bb3190dcead2d17f2f))
+
+### New Features
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - increase BL1_RW and BL2 size ([bf740eb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bf740eba75ebf3d5ac977503919b279c7addb5fd))
+
+  - **ST**
+
+    - **STM32MP1**
+
+      - add mbedtls-3.3 support config ([c82afd2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c82afd25bd02a68da10149a2cd71c25aeeb7b445))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - add support for mbedtls-3.3 ([fd566c3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fd566c3cd3eec3810e7d894f3c335802911f20e1))
+      - update config for 3.6.0 ([e8ae4fa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e8ae4fa2b637f6515c0e4e60f20afe0b800c1af9))
+      - update to 3.4.1 ([a353e39](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a353e39e8d247905d24646d74d48617c31cadc7c))
+
+- **Build System**
+
+  - allow additional CFLAGS for library build ([e0124e1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e0124e1bad0ec6e2349adc7e543252fdc7b6e7aa))
+
+### Documentation
+
+- **Documentation**
+
+  - **Prerequisites**
+
+    - update mbedtls version used ([b437905](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b437905e2681b52386fd7dcf9ad68638855d56f1))
+    - update software and libraries prerequisites ([488514a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/488514a6674efb575dc16f0e449a77f8c91997cb))
+
 ## [lts-2.8.19](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.18..refs/tags/lts-v2.8.19) (2024-05-16)
 
 ### New Features
