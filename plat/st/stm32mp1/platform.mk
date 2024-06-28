@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -381,7 +381,17 @@ endif
 
 endif
 TF_MBEDTLS_KEY_ALG 	:=	ecdsa
-MBEDTLS_CONFIG_FILE	?=	"<stm32mp1_mbedtls_config.h>"
+
+ifneq (${MBEDTLS_DIR},)
+MBEDTLS_MAJOR=$(shell grep -hP "define MBEDTLS_VERSION_MAJOR" \
+${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
+
+ifeq (${MBEDTLS_MAJOR}, 3)
+MBEDTLS_CONFIG_FILE	?=	"<stm32mp1_mbedtls_config-3.h>"
+else
+$(error Error: TF-A only supports MbedTLS versions > 3.x)
+endif
+endif
 
 include drivers/auth/mbedtls/mbedtls_x509.mk
 

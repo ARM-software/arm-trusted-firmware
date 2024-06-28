@@ -1,10 +1,8 @@
 /*
- * Copyright (c) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2022-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef MBEDTLS_CONFIG_H
-#define MBEDTLS_CONFIG_H
 
 /*
  * Key algorithms currently supported on mbed TLS libraries
@@ -31,10 +29,6 @@
 
 #define MBEDTLS_PKCS1_V21
 
-#define MBEDTLS_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION
-#define MBEDTLS_X509_CHECK_KEY_USAGE
-#define MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE
-
 #define MBEDTLS_ASN1_PARSE_C
 #define MBEDTLS_ASN1_WRITE_C
 
@@ -57,15 +51,18 @@
 #define MBEDTLS_ECDSA_C
 #define MBEDTLS_ECP_C
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
-#define MBEDTLS_ECP_NO_INTERNAL_RNG
 #endif
 #if TF_MBEDTLS_USE_RSA
 #define MBEDTLS_RSA_C
 #define MBEDTLS_X509_RSASSA_PSS_SUPPORT
 #endif
 
+/* The library does not currently support enabling SHA-256 without SHA-224. */
+#define MBEDTLS_SHA224_C
 #define MBEDTLS_SHA256_C
+
 #if (TF_MBEDTLS_HASH_ALG_ID != TF_MBEDTLS_SHA256)
+#define MBEDTLS_SHA384_C
 #define MBEDTLS_SHA512_C
 #endif
 
@@ -105,7 +102,6 @@
 #ifndef __ASSEMBLER__
 /* System headers required to build mbed TLS with the current configuration */
 #include <stdlib.h>
-#include <mbedtls/check_config.h>
 #endif
 
 /*
@@ -116,4 +112,3 @@
  */
 
 #define TF_MBEDTLS_HEAP_SIZE           U(5120)
-#endif /* MBEDTLS_CONFIG_H */

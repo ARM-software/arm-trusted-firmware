@@ -1,10 +1,14 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef MBEDTLS_CONFIG_H
-#define MBEDTLS_CONFIG_H
+
+/**
+ *  This set of compile-time options may be used to enable
+ *  or disable features selectively, and reduce the global
+ *  memory footprint.
+ */
 
 /*
  * Key algorithms currently supported on mbed TLS libraries
@@ -37,10 +41,6 @@
 
 #define MBEDTLS_PKCS1_V21
 
-#define MBEDTLS_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION
-#define MBEDTLS_X509_CHECK_KEY_USAGE
-#define MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE
-
 #define MBEDTLS_ASN1_PARSE_C
 #define MBEDTLS_ASN1_WRITE_C
 
@@ -63,24 +63,27 @@
 #define MBEDTLS_ECDSA_C
 #define MBEDTLS_ECP_C
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
-#define MBEDTLS_ECP_NO_INTERNAL_RNG
 #endif
 #if TF_MBEDTLS_USE_RSA
 #define MBEDTLS_RSA_C
 #define MBEDTLS_X509_RSASSA_PSS_SUPPORT
 #endif
 
+/* The library does not currently support enabling SHA-256 without SHA-224. */
+#define MBEDTLS_SHA224_C
 #define MBEDTLS_SHA256_C
-
 /*
  * If either Trusted Boot or Measured Boot require a stronger algorithm than
- * SHA-256, pull in SHA-512 support.
+ * SHA-256, pull in SHA-512 support. Library currently needs to have SHA_384
+ * support when enabling SHA-512.
  */
 #if (TF_MBEDTLS_HASH_ALG_ID != TF_MBEDTLS_SHA256) /* TBB hash algo */
+#define MBEDTLS_SHA384_C
 #define	MBEDTLS_SHA512_C
 #else
    /* TBB uses SHA-256, what about measured boot? */
 #if defined(TF_MBEDTLS_MBOOT_USE_SHA512)
+#define MBEDTLS_SHA384_C
 #define MBEDTLS_SHA512_C
 #endif
 #endif
@@ -121,7 +124,6 @@
 #ifndef __ASSEMBLER__
 /* System headers required to build mbed TLS with the current configuration */
 #include <stdlib.h>
-#include <mbedtls/check_config.h>
 #endif
 
 /*
@@ -148,5 +150,3 @@
  * the warnings to more functions.
  */
 #define MBEDTLS_CHECK_RETURN_WARNING
-
-#endif /* MBEDTLS_CONFIG_H */

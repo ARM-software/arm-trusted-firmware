@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2015-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -15,40 +15,50 @@ endif
 
 MBEDTLS_INC		=	-I${MBEDTLS_DIR}/include
 
+MBEDTLS_MAJOR=$(shell grep -hP "define MBEDTLS_VERSION_MAJOR" ${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
+MBEDTLS_MINOR=$(shell grep -hP "define MBEDTLS_VERSION_MINOR" ${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
+$(info MBEDTLS_VERSION_MAJOR is [${MBEDTLS_MAJOR}] MBEDTLS_VERSION_MINOR is [${MBEDTLS_MINOR}])
+
+ifneq (${MBEDTLS_MAJOR}, 3)
+  $(error Error: TF-A only supports MbedTLS versions > 3.x)
+endif
+
 # Specify mbed TLS configuration file
-MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/mbedtls_config.h>"
+	MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/mbedtls_config-3.h>"
+
 $(eval $(call add_define,MBEDTLS_CONFIG_FILE))
 
 MBEDTLS_SOURCES	+=		drivers/auth/mbedtls/mbedtls_common.c
 
-
-LIBMBEDTLS_SRCS		:= $(addprefix ${MBEDTLS_DIR}/library/,	\
-					aes.c 					\
-					asn1parse.c 				\
-					asn1write.c 				\
-					cipher.c 				\
-					cipher_wrap.c 				\
-					memory_buffer_alloc.c			\
-					oid.c 					\
-					platform.c 				\
-					platform_util.c				\
-					bignum.c				\
-					gcm.c 					\
-					md.c					\
-					pk.c 					\
-					pk_wrap.c 				\
-					pkparse.c 				\
-					pkwrite.c 				\
-					sha256.c            			\
-					sha512.c            			\
-					ecdsa.c					\
-					ecp_curves.c				\
-					ecp.c					\
-					rsa.c					\
-					rsa_internal.c				\
-					x509.c 					\
-					x509_crt.c 				\
-					constant_time.c 			\
+LIBMBEDTLS_SRCS		+= $(addprefix ${MBEDTLS_DIR}/library/,		\
+					aes.c 				\
+					asn1parse.c 			\
+					asn1write.c 			\
+					cipher.c 			\
+					cipher_wrap.c 			\
+					constant_time.c			\
+					memory_buffer_alloc.c		\
+					oid.c 				\
+					platform.c 			\
+					platform_util.c			\
+					bignum.c			\
+					bignum_core.c			\
+					gcm.c 				\
+					md.c				\
+					pk.c 				\
+					pk_ecc.c 			\
+					pk_wrap.c 			\
+					pkparse.c 			\
+					pkwrite.c 			\
+					sha256.c            		\
+					sha512.c            		\
+					ecdsa.c				\
+					ecp_curves.c			\
+					ecp.c				\
+					rsa.c				\
+					rsa_alt_helpers.c		\
+					x509.c 				\
+					x509_crt.c 			\
 					)
 
 # The platform may define the variable 'TF_MBEDTLS_KEY_ALG' to select the key

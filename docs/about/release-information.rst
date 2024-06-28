@@ -90,4 +90,4 @@ after which it will be removed.
 
 --------------
 
-*Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.*

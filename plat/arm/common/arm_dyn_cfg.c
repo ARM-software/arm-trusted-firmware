@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,20 +8,20 @@
 #include <string.h>
 #include <libfdt.h>
 
-#include <platform_def.h>
+#if CRYPTO_SUPPORT
+#include <mbedtls/version.h>
+#endif /* CRYPTO_SUPPORT */
 
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <common/tbbr/tbbr_img_def.h>
-#if CRYPTO_SUPPORT
-#include MBEDTLS_CONFIG_FILE
-#endif /* CRYPTO_SUPPORT */
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/fconf/fconf_tbbr_getter.h>
 
 #include <plat/arm/common/arm_dyn_cfg_helpers.h>
 #include <plat/arm/common/plat_arm.h>
+#include <platform_def.h>
 
 #if CRYPTO_SUPPORT
 
