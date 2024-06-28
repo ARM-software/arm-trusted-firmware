@@ -25,9 +25,15 @@
 
 #define SYS_REGS_ADDR			60080000
 
+#if TARGET_FLAVOUR_FVP
 #define MMC_ADDR			600b0000
 #define MMC_INT_0			778
 #define MMC_INT_1			779
+#else /* TARGET_FLAVOUR_FPGA */
+#define MMC_ADDR			1c050000
+#define MMC_INT_0			107
+#define MMC_INT_1			108
+#endif /* TARGET_FLAVOUR_FVP */
 
 #define RTC_ADDR			600a0000
 #define RTC_INT				777
