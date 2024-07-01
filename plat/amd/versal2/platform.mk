@@ -57,13 +57,28 @@ endif
 USE_COHERENT_MEM := 0
 HW_ASSISTED_COHERENCY := 1
 
-CONSOLE	?=	pl011
-ifeq (${CONSOLE}, $(filter ${CONSOLE},pl011 pl011_0 pl011_1 dcc))
-else
-  $(error Please define CONSOLE)
+VERSAL2_CONSOLE  ?=      pl011
+ifeq (${VERSAL2_CONSOLE}, $(filter ${VERSAL2_CONSOLE},pl011 pl011_0 pl011_1 dcc dtb))
+	else
+	  $(error "Please define VERSAL2_CONSOLE")
+  endif
+
+$(eval $(call add_define_val,VERSAL2_CONSOLE,VERSAL2_CONSOLE_ID_${VERSAL2_CONSOLE}))
+
+# Runtime console in default console in DEBUG build
+ifeq ($(DEBUG), 1)
+CONSOLE_RUNTIME ?= pl011
 endif
 
-$(eval $(call add_define_val,CONSOLE,CONSOLE_ID_${CONSOLE}))
+# Runtime console
+ifdef CONSOLE_RUNTIME
+ifeq 	(${CONSOLE_RUNTIME}, $(filter ${CONSOLE_RUNTIME},pl011 pl011_0 pl011_1 dcc dtb))
+$(eval $(call add_define_val,CONSOLE_RUNTIME,RT_CONSOLE_ID_${CONSOLE_RUNTIME}))
+else
+	$(error "Please define CONSOLE_RUNTIME")
+endif
+endif
+
 
 ifdef XILINX_OF_BOARD_DTB_ADDR
 $(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
@@ -109,6 +124,9 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
 
 BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
+				common/fdt_wrappers.c                           \
+				plat/xilinx/common/plat_fdt.c                   \
+				plat/xilinx/common/plat_console.c               \
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c	\
