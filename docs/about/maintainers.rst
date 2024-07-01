@@ -767,6 +767,7 @@ NXP SoC Part S32G274A and its platform port
 :|M|: Ghennadi Procopciuc <ghennadi.procopciuc@nxp.com>
 :|G|: `gprocopciucnxp`_
 :|F|: docs/plat/s32g274a.rst
+:|F|: drivers/nxp/clk/s32cc
 :|F|: drivers/nxp/console/linflex_console.S
 :|F|: include/drivers/nxp/console/linflex.h
 :|F|: plat/nxp/s32

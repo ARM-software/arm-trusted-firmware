@@ -35,6 +35,7 @@ ERRATA_SPECULATIVE_AT := 1
 
 # Selecting Drivers for SoC
 $(eval $(call SET_NXP_MAKE_FLAG,CONSOLE_NEEDED,BL_COMM))
+$(eval $(call SET_NXP_MAKE_FLAG,CLK_NEEDED,BL_COMM))
 
 include ${PLAT_DRIVERS_PATH}/drivers.mk
 

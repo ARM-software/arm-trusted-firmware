@@ -97,3 +97,7 @@ endif
 ifeq (${IFC_NAND_NEEDED},yes)
 include ${PLAT_DRIVERS_PATH}/ifc/nand/ifc_nand.mk
 endif
+
+ifeq (${CLK_NEEDED},yes)
+include ${PLAT_DRIVERS_PATH}/clk/s32cc/s32cc_clk.mk
+endif
