@@ -20,15 +20,16 @@
 #define RSE_MHU_TX_ADDR			49020000 /* hex */
 #define RSE_MHU_RX_ADDR			49030000 /* hex */
 
+#if TARGET_FLAVOUR_FVP
 #define ETHERNET_ADDR			64000000
 #define ETHERNET_INT			799
-
-#if TARGET_FLAVOUR_FVP
 #define SYS_REGS_ADDR			60080000
 #define MMC_ADDR			600b0000
 #define MMC_INT_0			778
 #define MMC_INT_1			779
 #else /* TARGET_FLAVOUR_FPGA */
+#define ETHERNET_ADDR			18000000
+#define ETHERNET_INT			109
 #define SYS_REGS_ADDR			1c010000
 #define MMC_ADDR			1c050000
 #define MMC_INT_0			107
