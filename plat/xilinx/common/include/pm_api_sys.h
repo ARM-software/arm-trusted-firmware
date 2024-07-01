@@ -64,6 +64,7 @@ enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
 					uint32_t wake, uint32_t enable,
 					uint32_t flag);
 enum pm_ret_status pm_get_chipid(uint32_t *value);
+enum pm_ret_status eemi_feature_check(uint32_t api_id, uint32_t *ret_payload);
 
 /*
  * Assigning of argument values into array elements.

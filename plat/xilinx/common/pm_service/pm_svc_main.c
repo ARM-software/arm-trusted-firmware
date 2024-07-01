@@ -393,6 +393,15 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 {
 	switch (api_id) {
 
+	case TF_A_FEATURE_CHECK:
+	{
+		enum pm_ret_status ret;
+		uint32_t result[PAYLOAD_ARG_CNT] = {0U};
+
+		ret = eemi_feature_check(pm_arg[0], result);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)result[0] << 32U));
+	}
+
 	case TF_A_PM_REGISTER_SGI:
 	{
 		int32_t ret;

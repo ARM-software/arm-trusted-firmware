@@ -364,6 +364,37 @@ enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 }
 
 /**
+ * eemi_feature_check() - Returns the supported API version if supported.
+ * @api_id: API ID to check.
+ * @ret_payload: pointer to array of PAYLOAD_ARG_CNT number of
+ *               words Returned supported API version
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status eemi_feature_check(uint32_t api_id, uint32_t *ret_payload)
+{
+	enum pm_ret_status ret;
+
+	/* Return version of API which are implemented in TF-A only */
+	switch (api_id) {
+	case PM_GET_CALLBACK_DATA:
+	case PM_GET_TRUSTZONE_VERSION:
+		ret_payload[0] = PM_API_VERSION_2;
+		ret = PM_RET_SUCCESS;
+		break;
+	case TF_A_PM_REGISTER_SGI:
+	case TF_A_FEATURE_CHECK:
+		ret_payload[0] = PM_API_BASE_VERSION;
+		ret = PM_RET_SUCCESS;
+		break;
+	default:
+		ret = PM_RET_ERROR_NO_FEATURE;
+	}
+
+	return ret;
+}
+
+/**
  * pm_feature_check() - Returns the supported API version if supported.
  * @api_id: API ID to check.
  * @flag: 0 - Call from secure source.
