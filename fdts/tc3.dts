@@ -40,6 +40,11 @@
 #define VIRTIO_BLOCK_ADDR		1c130000
 #define VIRTIO_BLOCK_INT		204
 
+#if TARGET_FLAVOUR_FPGA
+#define DPU_ADDR			2cc00000
+#define DPU_IRQ				69
+#endif
+
 #include "tc-common.dtsi"
 #if TARGET_FLAVOUR_FVP
 #include "tc-fvp.dtsi"
