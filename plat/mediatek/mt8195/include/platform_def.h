@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -95,6 +95,11 @@
 /* Base MTK_platform compatible GIC memory map */
 #define BASE_GICD_BASE			MT_GIC_BASE
 #define MT_GIC_RDIST_BASE		(MT_GIC_BASE + 0x40000)
+#define DEV_IRQ_ID			580
+
+#define PLAT_MTK_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(DEV_IRQ_ID, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL)
 
 #define SYS_CIRQ_BASE			(IO_PHYS + 0x204000)
 #define CIRQ_REG_NUM			23

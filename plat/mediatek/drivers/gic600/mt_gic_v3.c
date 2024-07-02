@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2020-2024, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,10 @@ static uint32_t rdist_has_saved[PLATFORM_CORE_COUNT];
 /* we save and restore the GICv3 context on system suspend */
 gicv3_dist_ctx_t dist_ctx;
 
+static const interrupt_prop_t mtk_interrupt_props[] = {
+	PLAT_MTK_G1S_IRQ_PROPS(INTR_GROUP1S)
+};
+
 static unsigned int mt_mpidr_to_core_pos(u_register_t mpidr)
 {
 	return plat_core_pos_by_mpidr(mpidr);
@@ -35,6 +39,8 @@ static unsigned int mt_mpidr_to_core_pos(u_register_t mpidr)
 gicv3_driver_data_t mt_gicv3_data = {
 	.gicd_base = MT_GIC_BASE,
 	.gicr_base = MT_GIC_RDIST_BASE,
+	.interrupt_props = mtk_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(mtk_interrupt_props),
 	.rdistif_num = PLATFORM_CORE_COUNT,
 	.rdistif_base_addrs = rdistif_base_addrs,
 	.mpidr_to_core_pos = mt_mpidr_to_core_pos,
