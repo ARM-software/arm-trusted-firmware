@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <arch.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
@@ -111,4 +112,91 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	}
 
 	return ep_info;
+}
+
+/*
+ * Clock divider/multiplier configuration struct.
+ * For H-PLL and M-PLL the formula is
+ * (Output Frequency) = CLKIN * ((M + 1) / (N + 1)) / (P + 1)
+ * M - Numerator
+ * N - Denumerator
+ * P - Post Divider
+ * They have the same layout in their control register.
+ *
+ */
+union plat_pll_reg {
+	uint32_t w;
+	struct {
+		uint16_t m : 13;		/* bit[12:0]	*/
+		uint8_t n : 6;			/* bit[18:13]	*/
+		uint8_t p : 4;			/* bit[22:19]	*/
+		uint8_t off : 1;		/* bit[23]	*/
+		uint8_t bypass : 1;		/* bit[24]	*/
+		uint8_t reset : 1;		/* bit[25]	*/
+		uint8_t reserved : 6;		/* bit[31:26]	*/
+	} b;
+};
+
+static uint32_t plat_get_pll_rate(int pll_idx)
+{
+	union plat_pll_reg pll_reg;
+	uint32_t mul = 1, div = 1;
+	uint32_t rate = 0;
+
+	switch (pll_idx) {
+	case PLAT_CLK_HPLL:
+		pll_reg.w = mmio_read_32(SCU_CPU_HPLL);
+		break;
+	case PLAT_CLK_DPLL:
+		pll_reg.w = mmio_read_32(SCU_CPU_DPLL);
+		break;
+	case PLAT_CLK_MPLL:
+		pll_reg.w = mmio_read_32(SCU_CPU_MPLL);
+		break;
+	default:
+		ERROR("%s: invalid PSP clock source (%d)\n", __func__, pll_idx);
+		return -EINVAL;
+	}
+
+	if (pll_idx == PLAT_CLK_HPLL && ((mmio_read_32(SCU_CPU_HW_STRAP1) & GENMASK(3, 2)) != 0U)) {
+		switch ((mmio_read_32(SCU_CPU_HW_STRAP1) & GENMASK(3, 2)) >> 2) {
+		case 1U:
+			rate = 1900000000;
+			break;
+		case 2U:
+			rate = 1800000000;
+			break;
+		case 3U:
+			rate = 1700000000;
+			break;
+		default:
+			rate = 2000000000;
+			break;
+		}
+	} else {
+		if (pll_reg.b.bypass != 0U) {
+			if (pll_idx == PLAT_CLK_MPLL) {
+				/* F = 25Mhz * [M / (n + 1)] / (p + 1) */
+				mul = (pll_reg.b.m) / ((pll_reg.b.n + 1));
+				div = (pll_reg.b.p + 1);
+			} else {
+				/* F = 25Mhz * [(M + 2) / 2 * (n + 1)] / (p + 1) */
+				mul = (pll_reg.b.m + 1) / ((pll_reg.b.n + 1) * 2);
+				div = (pll_reg.b.p + 1);
+			}
+		}
+
+		rate = ((CLKIN_25M * mul) / div);
+	}
+
+	return rate;
+}
+
+unsigned int plat_get_syscnt_freq2(void)
+{
+	if (mmio_read_32(SCU_CPU_HW_STRAP1) & BIT(4)) {
+		return plat_get_pll_rate(PLAT_CLK_HPLL);
+	} else {
+		return plat_get_pll_rate(PLAT_CLK_MPLL);
+	}
 }

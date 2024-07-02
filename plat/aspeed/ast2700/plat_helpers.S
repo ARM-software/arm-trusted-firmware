@@ -59,12 +59,6 @@ poll_smp_mbox_go:
 	br	x0
 endfunc plat_secondary_cold_boot_setup
 
-/* unsigned int plat_get_syscnt_freq2(void); */
-func plat_get_syscnt_freq2
-	mov_imm	w0, PLAT_SYSCNT_CLKIN_HZ
-	ret
-endfunc plat_get_syscnt_freq2
-
 /* int plat_crash_console_init(void); */
 func plat_crash_console_init
 	mov_imm	x0, CONSOLE_UART_BASE
