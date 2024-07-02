@@ -2,7 +2,7 @@
 # Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
 # Portions copyright (c) 2021-2022, ProvenRun S.A.S. All rights reserved.
 # Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
-# Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -16,6 +16,7 @@ ZYNQMP_WDT_RESTART := 0
 IPI_CRC_CHECK := 0
 override RESET_TO_BL31 := 1
 override WARMBOOT_ENABLE_DCACHE_EARLY := 1
+ENABLE_LTO := 1
 
 EL3_EXCEPTION_HANDLING := $(SDEI_SUPPORT)
 
