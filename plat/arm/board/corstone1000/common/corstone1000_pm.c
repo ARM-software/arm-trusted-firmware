@@ -7,6 +7,7 @@
 #include <lib/psci/psci.h>
 #include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
+#include <plat/common/platform.h>
 /*******************************************************************************
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform layer will take care of registering the handlers with PSCI.
