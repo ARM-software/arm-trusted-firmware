@@ -333,6 +333,7 @@
  */
 #define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x20000
 
+#if TARGET_PLATFORM <= 2
 /* TZC Related Constants */
 #define PLAT_ARM_TZC_BASE		UL(0x25000000)
 #define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT(0)
@@ -360,6 +361,7 @@
 		PLAT_ARM_TZC_NS_DEV_ACCESS},	\
 	{PLAT_ARM_DRAM2_BASE, PLAT_ARM_DRAM2_END,	\
 		ARM_TZC_NS_DRAM_S_ACCESS, PLAT_ARM_TZC_NS_DEV_ACCESS}
+#endif
 
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)

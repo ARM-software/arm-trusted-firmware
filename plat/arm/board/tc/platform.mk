@@ -138,8 +138,11 @@ BL2_SOURCES		+=	${TC_BASE}/tc_security.c	\
 				${TC_BASE}/tc_bl2_setup.c		\
 				lib/utils/mem_region.c			\
 				drivers/arm/tzc/tzc400.c		\
-				plat/arm/common/arm_tzc400.c		\
 				plat/arm/common/arm_nor_psci_mem_protect.c
+
+ifeq ($(shell test $(TARGET_PLATFORM) -le 2; echo $$?),0)
+BL2_SOURCES		+=	plat/arm/common/arm_tzc400.c
+endif
 
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				${TC_CPU_SOURCES}	\
