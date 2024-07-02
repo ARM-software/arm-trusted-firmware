@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/arm/gicv2.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <lib/utils.h>
@@ -45,25 +46,29 @@ void stm32mp_gic_init(void)
 	int node;
 	void *fdt;
 	const fdt32_t *cuint;
-	struct dt_node_info dt_gic;
+	uintptr_t addr;
+	int err;
 
 	if (fdt_get_address(&fdt) == 0) {
 		panic();
 	}
 
-	node = dt_get_node(&dt_gic, -1, "arm,cortex-a7-gic");
+	node = fdt_node_offset_by_compatible(fdt, -1, "arm,cortex-a7-gic");
 	if (node < 0) {
 		panic();
 	}
 
-	platform_gic_data.gicd_base = dt_gic.base;
-
-	cuint = fdt_getprop(fdt, node, "reg", NULL);
-	if (cuint == NULL) {
+	err = fdt_get_reg_props_by_index(fdt, node, 0, &addr, NULL);
+	if (err < 0) {
 		panic();
 	}
+	platform_gic_data.gicd_base = addr;
 
-	platform_gic_data.gicc_base = fdt32_to_cpu(*(cuint + 2));
+	err = fdt_get_reg_props_by_index(fdt, node, 1, &addr, NULL);
+	if (err < 0) {
+		panic();
+	}
+	platform_gic_data.gicc_base = addr;
 
 	cuint = fdt_getprop(fdt, node, "#interrupt-cells", NULL);
 	if (cuint == NULL) {
