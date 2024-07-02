@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,10 +66,8 @@ static int new_keys;
 static int save_keys;
 static int print_cert;
 
-/* Info messages created in the Makefile */
-extern const char build_msg[];
-extern const char platform_msg[];
-
+static const char build_msg[] = "Built : " __TIME__ ", " __DATE__;
+static const char platform_msg[] = PLAT_MSG;
 
 static char *strdup(const char *str)
 {

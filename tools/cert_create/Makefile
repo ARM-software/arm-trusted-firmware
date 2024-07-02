@@ -18,6 +18,7 @@ include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
+include ${MAKE_HELPERS_DIRECTORY}utilities.mk
 
 ifneq (${PLAT},none)
 TF_PLATFORM_ROOT	:=	../../plat/
@@ -60,7 +61,7 @@ else
   HOSTCCFLAGS += -O2 -DLOG_LEVEL=20
 endif
 
-HOSTCCFLAGS += ${DEFINES}
+HOSTCCFLAGS += ${DEFINES} -DPLAT_MSG=$(call escape-shell,"$(PLAT_MSG)")
 # USING_OPENSSL3 flag will be added to the HOSTCCFLAGS variable with the proper
 # computed value.
 HOSTCCFLAGS += -DUSING_OPENSSL3=$(USING_OPENSSL3)
@@ -84,10 +85,7 @@ all: --openssl ${BINARY}
 
 ${BINARY}: ${OBJECTS} Makefile
 	$(s)echo "  HOSTLD  $@"
-	$(q)echo 'const char build_msg[] = "Built : "__TIME__", "__DATE__; \
-                const char platform_msg[] = "${PLAT_MSG}";' | \
-                $(host-cc) -c ${HOSTCCFLAGS} -xc - -o src/build_msg.o
-	$(q)$(host-cc) src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
+	$(q)$(host-cc) ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
 
 %.o: %.c
 	$(s)echo "  HOSTCC  $<"
@@ -99,7 +97,7 @@ ifeq ($(DEBUG),1)
 endif
 
 clean:
-	$(call SHELL_DELETE_ALL, src/build_msg.o ${OBJECTS})
+	$(call SHELL_DELETE_ALL,${OBJECTS})
 
 realclean: clean
 	$(call SHELL_DELETE,${BINARY})
