@@ -335,8 +335,10 @@ int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
 
 void arm_bl2_setup_next_ep_info(bl_mem_params_node_t *next_param_node)
 {
-	assert(transfer_list_set_handoff_args(
-		       secure_tl, &next_param_node->ep_info) != NULL);
+	entry_point_info_t *ep __unused;
+	ep = transfer_list_set_handoff_args(secure_tl,
+					    &next_param_node->ep_info);
+	assert(ep != NULL);
 
 	arm_transfer_list_populate_ep_info(next_param_node, secure_tl, ns_tl);
 }
