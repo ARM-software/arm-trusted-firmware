@@ -4,6 +4,8 @@ STM32MP2
 STM32MP2 is a microprocessor designed by STMicroelectronics
 based on Arm Cortex-A35.
 
+More information can be found on `STM32MP2 Series`_ page.
+
 For TF-A common configuration of STM32 MPUs, please check
 :ref:`STM32 MPUs` page.
 
@@ -19,10 +21,12 @@ The STM32MP25 series is available in 4 different lines which are pin-to-pin comp
 
 Each line comes with a security option (cryptography & secure boot) and a Cortex-A frequency option:
 
-- A      Basic + Cortex-A35 @ 1GHz
-- C      Secure Boot + HW Crypto + Cortex-A35 @ 1GHz
+- A      Basic + Cortex-A35 @ 1.2GHz
+- C      Secure Boot + HW Crypto + Cortex-A35 @ 1.2GHz
 - D      Basic + Cortex-A35 @ 1.5GHz
 - F      Secure Boot + HW Crypto + Cortex-A35 @ 1.5GHz
+
+The `STM32MP2 part number codification`_ page gives more information about part numbers.
 
 Memory mapping
 --------------
@@ -130,4 +134,7 @@ ___
         BL32_EXTRA1=<optee_directory>/tee-pager_v2.bin
         fip
 
-*Copyright (c) 2023, STMicroelectronics - All Rights Reserved*
+.. _STM32MP2 Series: https://www.st.com/en/microcontrollers-microprocessors/stm32mp2-series.html
+.. _STM32MP2 part number codification: https://wiki.st.com/stm32mpu/wiki/STM32MP25_microprocessor#Part_number_codification
+
+*Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved*
