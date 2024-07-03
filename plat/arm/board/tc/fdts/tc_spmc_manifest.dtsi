@@ -112,4 +112,9 @@
 		device_type = "device-memory";
 		reg = <0x0 0x25000000 0x0 0x10000>; /* For cactus tertiary dummy device. */
 	};
+
+	s_uart {
+		device_type = "device-memory";
+		reg = <0x0 PLAT_ARM_BOOT_UART_BASE 0x0 0x01000>;
+	};
 };
