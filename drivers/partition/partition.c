@@ -50,7 +50,7 @@ static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
 {
 	size_t bytes_read;
 	int result;
-	mbr_entry_t *tmp;
+	mbr_entry_t tmp;
 
 	assert(mbr_entry != NULL);
 	/* MBR partition table is in LBA0. */
@@ -73,19 +73,19 @@ static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
 		return -ENOENT;
 	}
 
-	tmp = (mbr_entry_t *)(&mbr_sector[MBR_PRIMARY_ENTRY_OFFSET]);
+	memcpy(&tmp, mbr_sector + MBR_PRIMARY_ENTRY_OFFSET, sizeof(tmp));
 
-	if (tmp->first_lba != 1) {
+	if (tmp.first_lba != 1) {
 		VERBOSE("MBR header may have an invalid first LBA\n");
 		return -EINVAL;
 	}
 
-	if ((tmp->sector_nums == 0) || (tmp->sector_nums == UINT32_MAX)) {
+	if ((tmp.sector_nums == 0) || (tmp.sector_nums == UINT32_MAX)) {
 		VERBOSE("MBR header entry has an invalid number of sectors\n");
 		return -EINVAL;
 	}
 
-	memcpy(mbr_entry, tmp, sizeof(mbr_entry_t));
+	memcpy(mbr_entry, &tmp, sizeof(mbr_entry_t));
 	return 0;
 }
 
