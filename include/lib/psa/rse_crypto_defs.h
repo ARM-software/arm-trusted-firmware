@@ -16,7 +16,7 @@
  * to the corresponding API implementation in the Crypto service backend.
  *
  */
-#define RSE_CRYPTO_EXPORT_PUBLIC_KEY_SID	(uint16_t)(0x701)
+#define RSE_CRYPTO_EXPORT_PUBLIC_KEY_SID	(uint16_t)(0x206)
 
 /*
  * The persistent key identifiers for RSE builtin keys.
