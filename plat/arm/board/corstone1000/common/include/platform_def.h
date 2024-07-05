@@ -55,39 +55,42 @@
 
 /* Memory related constants */
 
-/* SRAM (CVM) memory layout
+/* Memory mappings of where the BLs in the FIP are copied to
  *
- * <ARM_TRUSTED_SRAM_BASE>
+ * <ARM_TRUSTED_SRAM_BASE> = 0x02000000
  *	partition size: sizeof(meminfo_t) = 16 bytes
  *	content: memory info area used by the next BL
  *
- * <ARM_FW_CONFIG_BASE>
+ * <ARM_FW_CONFIG_BASE> = 0x02000010
  *	partition size: 4080 bytes
  *
- * <ARM_BL2_MEM_DESC_BASE>
+ * <ARM_BL2_MEM_DESC_BASE> = 0x02001000
  *	partition size: 4 KB
  *	content: Area where BL2 copies the images descriptors
  *
- * <ARM_BL_RAM_BASE> = <BL32_BASE>
- *	partition size: 688 KB
+ * <ARM_BL_RAM_BASE> = <BL32_BASE> = 0x02002000
+ *	partition size: 3752 KB
  *	content: BL32 (optee-os)
  *
- * <CORSTONE1000_TOS_FW_CONFIG_BASE> = 0x20ae000
+ * <CORSTONE1000_TOS_FW_CONFIG_BASE> = 0x023AC000
  *	partition size: 8 KB
  *	content: BL32 config (TOS_FW_CONFIG)
  *
- * <BL31_BASE>
+ * <BL31_BASE> = 0x023AE000
  *	partition size: 140 KB
  *	content: BL31
  *
- * <BL2_SIGNATURE_BASE>
+ * <BL2_SIGNATURE_BASE> = 0x023D1000
  *	partition size: 4 KB
  *	content: MCUBOOT data needed to verify TF-A BL2
  *
- * <BL2_BASE>
+ * <BL2_BASE> = 0x023D2000
  *	partition size: 176 KB
  *	content: BL2
  *
+ * <BL33_BASE> = 0x80000000
+ *	partition size: 12 MB
+ *	content: BL33 (U-Boot)
  */
 
 /* DDR memory */
