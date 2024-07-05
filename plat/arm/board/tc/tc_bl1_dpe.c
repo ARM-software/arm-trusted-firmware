@@ -18,7 +18,7 @@
 #include <platform_def.h>
 #include <tools_share/zero_oid.h>
 
-#include "tc_dpe_cert.h"
+#include "tc_dpe.h"
 
 struct dpe_metadata tc_dpe_metadata[] = {
 	{
@@ -29,6 +29,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = ZERO_OID },
 	{
 		.id = TB_FW_CONFIG_ID,
@@ -38,6 +39,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
 		.create_certificate = false,
+		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = ZERO_OID },
 	{
 		.id = BL2_IMAGE_ID,
@@ -46,6 +48,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.sw_type = MBOOT_BL2_IMAGE_STRING,
 		.allow_new_context_to_derive = true,
 		.retain_parent_context = true, /* To handle restart */
+		.target_locality = LOCALITY_AP_S,
 		.create_certificate = false,
 		.pk_oid = ZERO_OID },
 	{
