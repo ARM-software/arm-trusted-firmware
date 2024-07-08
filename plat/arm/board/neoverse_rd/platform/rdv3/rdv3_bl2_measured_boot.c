@@ -13,13 +13,13 @@
 #include <platform_def.h>
 
 #include <nrd_plat.h>
-#include <rdfremont_rse_comms.h>
+#include <rdv3_rse_comms.h>
 
 /*
  * Platform specific table with image IDs and metadata. Intentionally not a
  * const struct, some members might set by bootloaders during trusted boot.
  */
-struct rse_mboot_metadata rdfremont_rse_mboot_metadata[] = {
+struct rse_mboot_metadata rdv3_rse_mboot_metadata[] = {
 	{
 		.id = BL31_IMAGE_ID,
 		.slot = U(11),
@@ -60,7 +60,7 @@ void bl2_plat_mboot_init(void)
 	/* Initialize the communication channel between AP and RSE */
 	(void)plat_rse_comms_init();
 
-	rse_measured_boot_init(rdfremont_rse_mboot_metadata);
+	rse_measured_boot_init(rdv3_rse_mboot_metadata);
 }
 
 void bl2_plat_mboot_finish(void)

@@ -10,7 +10,7 @@
 /******************************************************************************
  * The power domain tree descriptor.
  ******************************************************************************/
-const unsigned char rd_fremont_pd_tree_desc[] = {
+const unsigned char rd_v3_pd_tree_desc[] = {
 	(PLAT_ARM_CLUSTER_COUNT) * (NRD_CHIP_COUNT),
 	NRD_MAX_CPUS_PER_CLUSTER,
 	NRD_MAX_CPUS_PER_CLUSTER,
@@ -44,7 +44,7 @@ const unsigned char rd_fremont_pd_tree_desc[] = {
  ******************************************************************************/
 const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	return rd_fremont_pd_tree_desc;
+	return rd_v3_pd_tree_desc;
 }
 
 /*******************************************************************************

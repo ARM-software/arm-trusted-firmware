@@ -131,9 +131,9 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 			panic();
 		}
 		return &plat_rd_scmi_info[channel_id];
-	} else if (nrd_plat_info.platform_id == RD_FREMONT_SID_VER_PART_NUM ||
-		nrd_plat_info.platform_id == RD_FREMONT_CFG1_SID_VER_PART_NUM ||
-		nrd_plat_info.platform_id == RD_FREMONT_CFG2_SID_VER_PART_NUM) {
+	} else if (nrd_plat_info.platform_id == RD_V3_SID_VER_PART_NUM ||
+		nrd_plat_info.platform_id == RD_V3_CFG1_SID_VER_PART_NUM ||
+		nrd_plat_info.platform_id == RD_V3_CFG2_SID_VER_PART_NUM) {
 		if (channel_id >= ARRAY_SIZE(plat3_rd_scmi_info)) {
 			panic();
 		}

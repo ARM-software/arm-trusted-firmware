@@ -28,13 +28,13 @@
 #define RD_V2_SID_VER_PART_NUM			0x07F2
 #define RD_V2_CONFIG_ID				0x1
 
-/* SID Version values for RD-Fremont */
-#define RD_FREMONT_SID_VER_PART_NUM		0x07EE
-#define RD_FREMONT_CONFIG_ID			0x0
+/* SID Version values for RD-V3 */
+#define RD_V3_SID_VER_PART_NUM		0x07EE
+#define RD_V3_CONFIG_ID			0x0
 
-/* SID Version values for RD-Fremont variants */
-#define RD_FREMONT_CFG1_SID_VER_PART_NUM	0x07F9
-#define RD_FREMONT_CFG2_SID_VER_PART_NUM	0x07EE
+/* SID Version values for RD-V3 variants */
+#define RD_V3_CFG1_SID_VER_PART_NUM	0x07F9
+#define RD_V3_CFG2_SID_VER_PART_NUM	0x07EE
 
 /* Structure containing Neoverse RD platform variant information */
 typedef struct nrd_platform_info {
