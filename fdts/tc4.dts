@@ -17,6 +17,9 @@
 #define MID_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
 #define BIG_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
 
+#define RSE_MHU_TX_ADDR			49020000 /* hex */
+#define RSE_MHU_RX_ADDR			49030000 /* hex */
+
 #define ETHERNET_ADDR			64000000
 #define ETHERNET_INT			799
 
