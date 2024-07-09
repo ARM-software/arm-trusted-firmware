@@ -174,7 +174,7 @@ static uint32_t plat_get_pll_rate(int pll_idx)
 			break;
 		}
 	} else {
-		if (pll_reg.b.bypass != 0U) {
+		if (pll_reg.b.bypass == 0U) {
 			if (pll_idx == PLAT_CLK_MPLL) {
 				/* F = 25Mhz * [M / (n + 1)] / (p + 1) */
 				mul = (pll_reg.b.m) / ((pll_reg.b.n + 1));
