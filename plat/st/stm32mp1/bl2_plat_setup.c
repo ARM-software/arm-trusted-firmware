@@ -461,7 +461,8 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		break;
 
 	case BL32_IMAGE_ID:
-		if (optee_header_is_valid(bl_mem_params->image_info.image_base)) {
+		if ((bl_mem_params->image_info.image_base != 0UL) &&
+		    (optee_header_is_valid(bl_mem_params->image_info.image_base))) {
 			image_info_t *paged_image_info = NULL;
 
 			/* BL32 is OP-TEE header */
