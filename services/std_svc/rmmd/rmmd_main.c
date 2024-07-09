@@ -508,6 +508,10 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		SMC_RET4(handle, ret, req_resp, req_id, cookie_var);
 	}
 #endif /* RMMD_ENABLE_IDE_KEY_PROG */
+	case RMM_RESERVE_MEMORY:
+		ret = rmmd_reserve_memory(x1, &x2);
+		SMC_RET2(handle, ret, x2);
+
 	case RMM_BOOT_COMPLETE:
 	{
 		rmmd_rmm_context_t *ctx = &rmm_context[plat_my_core_pos()];

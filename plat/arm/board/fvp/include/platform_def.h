@@ -55,6 +55,8 @@
 #define PLAT_ARM_RMM_BASE		(RMM_BASE)
 #define PLAT_ARM_RMM_SIZE		(RMM_LIMIT - RMM_BASE)
 
+#define PLAT_ARM_RMM_PAYLOAD_SIZE	UL(0x800000)	/* 2 * 4MB */
+
 /* Protected physical address size */
 #define PLAT_ARM_PPS			(SZ_1T)
 #endif /* ENABLE_RME */

@@ -52,7 +52,7 @@ are explained below:
   - ``RES0``: Bit 31 of the version number is reserved 0 as to maintain
     consistency with the versioning schemes used in other parts of RMM.
 
-This document specifies the 0.6 version of Boot Interface ABI and RMM-EL3
+This document specifies the 0.7 version of Boot Interface ABI and RMM-EL3
 services specification and the 0.5 version of the Boot Manifest.
 
 .. _rmm_el3_boot_interface:
@@ -100,6 +100,7 @@ During cold boot RMM expects the following register values:
    x1,Version for this Boot Interface as defined in :ref:`rmm_el3_ifc_versioning`.
    x2,Maximum number of CPUs to be supported at runtime. RMM should ensure that it can support this maximum number.
    x3,Base address for the shared buffer used for communication between EL3 firmware and RMM. This buffer must be of 4KB size (1 page). The Boot Manifest must be present at the base of this shared buffer during cold boot.
+   x4,"Activation token. Should be set to 0 on the initial boot of the system. For a subsequent warm boot or when using Live Firmware Activation, the activation token should be set to the value returned by RMM for this CPU during the initial boot (in x2)."
 
 During cold boot, EL3 firmware needs to allocate a 4KB page that will be
 passed to RMM in x3. This memory will be used as shared buffer for communication
@@ -142,15 +143,19 @@ This is summarized in the following table:
    :widths: 1, 5
 
    x0,Linear index of this PE. This index starts from 0 and must be less than the maximum number of CPUs to be supported at runtime (see x2).
-   x1 - x3,RES0
+   x1,"Activation token. Should be set to 0 on the initial boot of the system. For a subsequent warm boot or when using Live Firmware Activation, the activation token should be set to the value returned by RMM for this CPU during the initial boot (in x2)."
+   x2 - x3,RES0
 
 Boot error handling and return values
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After boot up and initialization, RMM returns control back to EL3 through a
-``RMM_BOOT_COMPLETE`` SMC call. The only argument of this SMC call will
-be returned in x1 and it will encode a signed integer with the error reason
-as per the following table:
+``RMM_BOOT_COMPLETE`` SMC call. The first argument of this SMC call will
+be returned in x1 and it will encode a signed integer with the error reason.
+x2 will contain the per-CPU activation token, which is an opaque value that
+should be passed back to RMM when doing Live Firmware Activations or on a
+subsequent warm boot.
+The following table describes possible values for the error code in x1:
 
 .. csv-table::
    :header: "Error code", "Description", "ID"
@@ -261,6 +266,12 @@ implemented by EL3 Firmware.
    0xC40001B3,``RMM_ATTEST_GET_PLAT_TOKEN``
    0xC40001B4,``RMM_EL3_FEATURES``
    0xC40001B5,``RMM_EL3_TOKEN_SIGN``
+   0xC40001B6,``RMM_MECID_KEY_UPDATE``
+   0xC40001B7,``RMM_IDE_KEY_PROG``
+   0xC40001B8,``RMM_IDE_KEY_SET_GO``
+   0xC40001B9,``RMM_IDE_KEY_SET_STOP``
+   0xC40001BA,``RMM_IDE_KM_PULL_RESPONSE``
+   0xC40001BB,``RMM_RESERVE_MEMORY``
 
 RMM_RMI_REQ_COMPLETE command
 ============================
@@ -975,6 +986,61 @@ a failure. The errors are ordered by condition check.
    ``E_RMM_FAULT``,The previous request was not successful.
    ``E_RMM_INVAL``,Arguments to previous request were incorrect.
    ``E_RMM_UNK``,Previous request returned unknown error.
+
+RMM_RESERVE_MEMORY command
+==========================
+
+This command is used to reserve memory for the RMM, during RMM boot time.
+This is not a fully featured dynamic memory allocator, since reservations cannot
+be freed again, and they must happen during the cold/warm boot phase of RMM.
+However it allows to size data structures in RMM based on runtime decisions,
+for instance depending on the number of cores or the amount of memory installed.
+This command is available from v0.7 of the RMM-EL3 interface.
+
+FID
+---
+
+``0xC40001BB``
+
+Input values
+------------
+
+.. csv-table:: Input values for RMM_RESERVE_MEMORY
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   size,x1,[63:0],Size,"required size of the memory region, in bytes"
+   args,x2,[63:56],UInt64,"alignment requirement, in bits. A value of 16 would return a 64 KB aligned base address."
+   args,x2,[55:32],UInt64,reserved
+   args,x2,[31:1],UInt64,"flags (reserved)"
+   args,x2,[0],UInt64,"flags: local CPU: Determines whether the reservation should be taken from a pool close to the calling CPU."
+
+Output values
+-------------
+
+.. csv-table:: Output values for RMM_RESERVE_MEMORY
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   Result,x0,[63:0],Error Code,Command return status.
+   address,x1,[63:0],Address, "Physical address of the reserved memory area."
+
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table:: Failure conditions for RMM_RESERVE_MEMORY
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_INVAL``,"unrecognised flag bit"
+   ``E_RMM_UNK``,"if the SMC is not present, if interface version is <0.5"
+   ``E_RMM_NOMEM``,"size of region is larger than the available memory"
+   ``E_RMM_OK``,No errors detected
 
 RMM-EL3 world switch register save restore convention
 _____________________________________________________

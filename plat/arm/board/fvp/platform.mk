@@ -307,7 +307,8 @@ BL2_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
 				plat/arm/board/fvp/fvp_realm_attest_key.c	\
 				plat/arm/board/fvp/fvp_el3_token_sign.c		\
-				plat/arm/board/fvp/fvp_ide_keymgmt.c
+				plat/arm/board/fvp/fvp_ide_keymgmt.c		\
+				plat/arm/common/plat_rmm_mem_carveout.c
 endif
 
 ifneq (${ENABLE_FEAT_RNG_TRAP},0)
