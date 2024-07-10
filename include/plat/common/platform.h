@@ -370,8 +370,10 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
  * Mandatory BL31 functions when ENABLE_RME=1
  ******************************************************************************/
 #if ENABLE_RME
+
 int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
-				   uintptr_t hash, size_t hash_size);
+				   uintptr_t hash, size_t hash_size,
+				   uint64_t *remaining_len);
 int plat_rmmd_get_cca_realm_attest_key(uintptr_t buf, size_t *len,
 				       unsigned int type);
 size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared);

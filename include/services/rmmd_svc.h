@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -90,6 +90,7 @@
 #define E_RMM_BAD_PAS			-3
 #define E_RMM_NOMEM			-4
 #define E_RMM_INVAL			-5
+#define E_RMM_AGAIN			-6
 
 /* Return error codes from RMI SMCs */
 #define RMI_SUCCESS			0
@@ -156,7 +157,7 @@
  * Increase this when a bug is fixed, or a feature is added without
  * breaking compatibility.
  */
-#define RMM_EL3_IFC_VERSION_MINOR	(U(2))
+#define RMM_EL3_IFC_VERSION_MINOR	(U(3))
 
 #define RMM_EL3_INTERFACE_VERSION				\
 	(((RMM_EL3_IFC_VERSION_MAJOR << 16) & 0x7FFFF) |	\

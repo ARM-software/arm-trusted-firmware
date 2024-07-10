@@ -2248,26 +2248,35 @@ Function : plat_rmmd_get_cca_attest_token() [mandatory when ENABLE_RME == 1]
 
 ::
 
-    Argument : uintptr_t, size_t *, uintptr_t, size_t
+    Argument : uintptr_t, size_t *, uintptr_t, size_t, size_t *
     Return   : int
 
-This function returns the Platform attestation token.
+This function returns the Platform attestation token. If the full token does
+not fit in the buffer, the function will return a hunk of the token and
+indicate how many bytes were copied and how many are pending. Multiple calls
+to this function may be needed to retrieve the entire token.
 
 The parameters of the function are:
 
     arg0 - A pointer to the buffer where the Platform token should be copied by
-           this function. The buffer must be big enough to hold the Platform
-           token.
+           this function. If the platform token does not completely fit in the
+           buffer, the function may return a piece of the token only.
 
-    arg1 - Contains the size (in bytes) of the buffer passed in arg0. The
-           function returns the platform token length in this parameter.
+    arg1 - Contains the size (in bytes) of the buffer passed in arg0. In
+           addition, this parameter is used by the function to return the size
+           of the platform token length hunk copied to the buffer.
 
     arg2 - A pointer to the buffer where the challenge object is stored.
 
     arg3 - The length of the challenge object in bytes. Possible values are 32,
-           48 and 64.
+           48 and 64. This argument must be zero for subsequent calls to
+           retrieve the remaining hunks of the token.
 
-The function returns 0 on success, -EINVAL on failure.
+    arg4 - Returns the remaining length of the token (in bytes) that is yet to
+           be returned in further calls.
+
+The function returns 0 on success, -EINVAL on failure and -EAGAIN if the
+resource associated with the platform token retrieval is busy.
 
 Function : plat_rmmd_get_cca_realm_attest_key() [mandatory when ENABLE_RME == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

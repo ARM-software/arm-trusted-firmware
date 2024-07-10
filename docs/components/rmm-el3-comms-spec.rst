@@ -52,7 +52,7 @@ are explained below:
   - ``RES0``: Bit 31 of the version number is reserved 0 as to maintain
     consistency with the versioning schemes used in other parts of RMM.
 
-This document specifies the 0.2 version of Boot Interface ABI and RMM-EL3
+This document specifies the 0.3 version of Boot Interface ABI and RMM-EL3
 services specification and the 0.3 version of the Boot Manifest.
 
 .. _rmm_el3_boot_interface:
@@ -238,6 +238,7 @@ error condition as described in the following table:
    ``E_RMM_BAD_PAS``,Incorrect PAS,-3
    ``E_RMM_NOMEM``,Not enough memory to perform an operation,-4
    ``E_RMM_INVAL``,The value of an argument was invalid,-5
+   ``E_RMM_AGAIN``,The resource is busy. Try again.,-6
 
 If multiple failure conditions are detected in an RMM to EL3 command, then EL3
 is allowed to return an error code corresponding to any of the failure
@@ -442,7 +443,21 @@ Supported ECC Curves
 RMM_ATTEST_GET_PLAT_TOKEN command
 =================================
 
-Retrieve the Platform Token from EL3.
+Retrieve the Platform Token from EL3. If the entire token does not fit in the
+buffer, EL3 returns a hunk of the token (via ``tokenHunkSize`` parameter) and
+indicates the remaining bytes that are pending retrieval (via ``remainingSize``
+parameter). The challenge object for the platform token must be populated in
+the buffer for the first call of this command and the size of the object is
+indicated by ``c_size`` parameter. Subsequent calls to retrieve remaining hunks of
+the token must be made with ``c_size`` as 0.
+
+If ``c_size`` is not 0, this command could cause regeneration of platform token
+and will return token hunk corresponding to beginning of the token.
+
+It is valid for the calls of this command to return ``E_RMM_AGAIN`` error,
+which is an indication to the caller to retry this command again. Depending on the
+platform, this mechanism can be used to implement queuing to HES, if HES is
+involved in platform token generation.
 
 FID
 ---
@@ -457,9 +472,9 @@ Input values
    :widths: 1 1 1 1 5
 
    fid,x0,[63:0],UInt64,Command FID
-   buf_pa,x1,[63:0],Address,PA of the platform attestation token. The challenge object is passed in this buffer. The PA must belong to the shared buffer
+   buf_pa,x1,[63:0],Address,"PA of the platform attestation token. The challenge object must be passed in this buffer for the first call of this command. Any subsequent calls, if required to retrieve the full token, should not have this object. The PA must belong to the shared buffer."
    buf_size,x2,[63:0],Size,Size in bytes of the platform attestation token buffer. ``bufPa + bufSize`` must lie within the shared buffer
-   c_size,x3,[63:0],Size,Size in bytes of the challenge object. It corresponds to the size of one of the defined SHA algorithms
+   c_size,x3,[63:0],Size,"Size in bytes of the challenge object. It corresponds to the size of one of the defined SHA algorithms. Any subsequent calls, if required to retrieve the full token, should set this size to 0."
 
 Output values
 -------------
@@ -469,7 +484,8 @@ Output values
    :widths: 1 1 1 1 5
 
    Result,x0,[63:0],Error Code,Command return status
-   tokenSize,x1,[63:0],Size,Size of the platform token
+   tokenHunkSize,x1,[63:0],Size,Size of the platform token hunk retrieved
+   remainingSize,x2,[63:0],Size,Remaining bytes of the token that are pending retrieval
 
 Failure conditions
 ------------------
@@ -481,9 +497,11 @@ a failure. The errors are ordered by condition check.
    :header: "ID", "Condition"
    :widths: 1 5
 
+   ``E_RMM_AGAIN``,Resource for Platform token retrieval is busy. Try again.
    ``E_RMM_BAD_ADDR``,``PA`` is outside the shared buffer
    ``E_RMM_INVAL``,``PA + BSize`` is outside the shared buffer
-   ``E_RMM_INVAL``,``CSize`` does not represent the size of a supported SHA algorithm
+   ``E_RMM_INVAL``,``CSize`` does not represent the size of a supported SHA algorithm for the first call to this command
+   ``E_RMM_INVAL``,``CSize`` is not 0 for subsequent calls to retrieve remaining hunks of the token
    ``E_RMM_UNK``,An unknown error occurred whilst processing the command
    ``E_RMM_OK``,No errors detected
 

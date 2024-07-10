@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2024, Linaro Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -205,24 +205,54 @@ static const uint8_t sample_platform_token[] = {
 	0x43, 0x54, 0x4d, 0xb5, 0x88, 0xd6, 0xae, 0x67,
 	0x35, 0x7a, 0xfd, 0xb0, 0x5f, 0x95, 0xb7
 };
+static uint64_t platform_token_offset;
 
 /*
  * Get the hardcoded platform attestation token as FVP does not support
  * RSE.
+ *
+ * Note: This implementation caters for retrieval of the platform token
+ * in hunks to facilitate EL3-RMM interface testing. For most platforms,
+ * since the shared buffer size is known, the implementation can be more
+ * optimized.
  */
 int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
-				   uintptr_t hash, size_t hash_size)
+				   uintptr_t hash, size_t hash_size,
+				   size_t *remaining_len)
 {
 	(void)hash;
 	(void)hash_size;
+	size_t platform_token_size = sizeof(sample_platform_token);
+	size_t local_hunk_len;
+	size_t local_remaining_len;
 
-	if (*len < sizeof(sample_platform_token)) {
+	if (hash_size != 0) {
+		platform_token_offset = 0;
+	} else if (platform_token_offset == 0) {
 		return -EINVAL;
 	}
 
-	(void)memcpy((void *)buf, (const void *)sample_platform_token,
-		     sizeof(sample_platform_token));
-	*len = sizeof(sample_platform_token);
+	local_hunk_len = *len;
+	local_remaining_len = platform_token_size - platform_token_offset;
+
+	/*
+	 * If the buffer is enough to fit the remaining bytes of the token,
+	 * return only the remaining bytes of the token.
+	 */
+	if (local_hunk_len >= local_remaining_len) {
+		local_hunk_len = local_remaining_len;
+	}
+	/* Update remaining bytes according to hunk size */
+	local_remaining_len -= local_hunk_len;
+
+	(void)memcpy((void *)buf,
+			(const void *)sample_platform_token
+				+ platform_token_offset,
+			local_hunk_len);
+
+	platform_token_offset += local_hunk_len;
+	*len = local_hunk_len;
+	*remaining_len = local_remaining_len;
 
 	return 0;
 }
