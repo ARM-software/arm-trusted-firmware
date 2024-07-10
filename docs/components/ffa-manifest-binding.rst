@@ -180,6 +180,15 @@ Partition Properties
       - Bit[1]: CPU_SUSPEND
       - Bit[2]: CPU_SUSPEND_RESUME
 
+- vm-availability-messages
+   - value type: <u32>
+   - Specifies which VM availability messages a partition subscribes to. A set
+     bit means the partition should be informed of the event, clear bit - should
+     not be informed of event:
+
+      - Bit[0]: VM created
+      - Bit[1]: VM destroyed
+
 .. _memory_region_node:
 
 Memory Regions
