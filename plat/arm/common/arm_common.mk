@@ -377,10 +377,9 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
         ifneq (${COT_DESC_IN_DTB},0)
             BL2_SOURCES	+=	lib/fconf/fconf_cot_getter.c
         else
-            BL2_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c
 	    # Juno has its own TBBR CoT file for BL2
-            ifneq (${PLAT},juno)
-                BL2_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_bl2.c
+            ifeq (${PLAT},juno)
+                BL2_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c
             endif
         endif
     else ifeq (${COT},dualroot)
@@ -402,6 +401,10 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
         COTDTPATH := fdts/dualroot_cot_descriptors.dtsi
       else ifeq (${COT},cca)
         COTDTPATH := fdts/cca_cot_descriptors.dtsi
+      else ifeq (${COT},tbbr)
+        ifneq (${PLAT},juno)
+          COTDTPATH := fdts/tbbr_cot_descriptors.dtsi
+        endif
       endif
       bl2: cot-dt2c
     endif

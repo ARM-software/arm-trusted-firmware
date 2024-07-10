@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#if USE_TBBR_DEFS
 #include <tools_share/tbbr_oid.h>
+#else
+#include <platform_oid.h>
+#endif
+
 #include <common/tbbr/tbbr_img_def.h>
 #include <common/nv_cntr_ids.h>
 
