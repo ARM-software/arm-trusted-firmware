@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,8 @@
 #include <cortex_a75.h>
 #include <cpuamu.h>
 #include <cpu_macros.S>
+
+.global check_erratum_cortex_a75_764081
 
 /* Hardware handled coherency */
 #if HW_ASSISTED_COHERENCY == 0

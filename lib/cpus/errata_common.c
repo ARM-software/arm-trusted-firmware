@@ -9,6 +9,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <cortex_a520.h>
+#include <cortex_a75.h>
 #include <cortex_x4.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
@@ -28,3 +29,16 @@ unsigned int check_if_affected_core(void)
 	return ERRATA_NOT_APPLIES;
 }
 #endif
+
+#if ERRATA_A75_764081
+bool errata_a75_764081_applies(void)
+{
+	long rev_var = cpu_get_rev_var();
+
+	if (check_erratum_cortex_a75_764081(rev_var) == ERRATA_APPLIES) {
+		return true;
+	}
+	return false;
+}
+#endif /* ERRATA_A75_764081 */
+

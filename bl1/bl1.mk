@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2024, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,7 +22,8 @@ endif
 
 ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S		\
-				lib/el3_runtime/aarch64/context.S
+				lib/el3_runtime/aarch64/context.S	\
+				lib/cpus/errata_common.c
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT},1)
