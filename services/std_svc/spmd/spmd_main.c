@@ -52,26 +52,11 @@ static spmc_manifest_attribute_t spmc_attrs;
 static entry_point_info_t *spmc_ep_info;
 
 /*******************************************************************************
- * SPM Core context on CPU based on mpidr.
- ******************************************************************************/
-spmd_spm_core_context_t *spmd_get_context_by_mpidr(uint64_t mpidr)
-{
-	int core_idx = plat_core_pos_by_mpidr(mpidr);
-
-	if (core_idx < 0) {
-		ERROR("Invalid mpidr: %" PRIx64 ", returned ID: %d\n", mpidr, core_idx);
-		panic();
-	}
-
-	return &spm_core_context[core_idx];
-}
-
-/*******************************************************************************
  * SPM Core context on current CPU get helper.
  ******************************************************************************/
 spmd_spm_core_context_t *spmd_get_context(void)
 {
-	return spmd_get_context_by_mpidr(read_mpidr());
+	return &spm_core_context[plat_my_core_pos()];
 }
 
 /*******************************************************************************
@@ -217,7 +202,6 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 {
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
-	unsigned int linear_id = plat_my_core_pos();
 	int64_t rc;
 
 	/* Sanity check the security state when the exception was generated */
@@ -248,7 +232,7 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0ULL) {
-		ERROR("%s failed (%" PRId64 ") on CPU%u\n", __func__, rc, linear_id);
+		ERROR("%s failed (%" PRId64 ") on CPU%u\n", __func__, rc, plat_my_core_pos());
 	}
 
 	ctx->secure_interrupt_ongoing = false;
@@ -677,6 +661,7 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 {
 	unsigned int secure_state_in = (secure_origin) ? SECURE : NON_SECURE;
 	unsigned int secure_state_out = (!secure_origin) ? SECURE : NON_SECURE;
+	void *ctx_out;
 
 #if SPMD_SPM_AT_SEL2
 	if ((secure_state_out == SECURE) && (is_sve_hint_set(flags) == true)) {
@@ -703,6 +688,7 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 #endif
 	cm_set_next_eret_context(secure_state_out);
 
+	ctx_out = cm_get_context(secure_state_out);
 #if SPMD_SPM_AT_SEL2
 	/*
 	 * If SPMC is at SEL2, save additional registers x8-x17, which may
@@ -715,7 +701,7 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 	 * preserved, so the SPMD passes through these registers and expects the
 	 * SPMC to save and restore (potentially also modify) them.
 	 */
-	SMC_RET18(cm_get_context(secure_state_out), smc_fid, x1, x2, x3, x4,
+	SMC_RET18(ctx_out, smc_fid, x1, x2, x3, x4,
 			SMC_GET_GP(handle, CTX_GPREG_X5),
 			SMC_GET_GP(handle, CTX_GPREG_X6),
 			SMC_GET_GP(handle, CTX_GPREG_X7),
@@ -732,7 +718,7 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 			);
 
 #else
-	SMC_RET8(cm_get_context(secure_state_out), smc_fid, x1, x2, x3, x4,
+	SMC_RET8(ctx_out, smc_fid, x1, x2, x3, x4,
 			SMC_GET_GP(handle, CTX_GPREG_X5),
 			SMC_GET_GP(handle, CTX_GPREG_X6),
 			SMC_GET_GP(handle, CTX_GPREG_X7));
@@ -852,7 +838,6 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			  void *handle,
 			  uint64_t flags)
 {
-	unsigned int linear_id = plat_my_core_pos();
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	bool secure_origin;
 	int ret;
@@ -863,7 +848,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	VERBOSE("SPM(%u): 0x%x 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64
 		" 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64 "\n",
-		    linear_id, smc_fid, x1, x2, x3, x4,
+		    plat_my_core_pos(), smc_fid, x1, x2, x3, x4,
 		    SMC_GET_GP(handle, CTX_GPREG_X5),
 		    SMC_GET_GP(handle, CTX_GPREG_X6),
 		    SMC_GET_GP(handle, CTX_GPREG_X7));
