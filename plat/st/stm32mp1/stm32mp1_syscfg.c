@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -261,7 +261,7 @@ static void enable_high_speed_mode_low_voltage(void)
 #endif
 }
 
-static void stm32mp1_syscfg_set_hslv(void)
+static void stm32mp_syscfg_set_hslv(void)
 {
 	uint32_t otp_value;
 	uint32_t vdd_voltage;
@@ -310,7 +310,7 @@ static void stm32mp1_syscfg_set_hslv(void)
 	}
 }
 
-void stm32mp1_syscfg_init(void)
+void stm32mp_syscfg_init(void)
 {
 #if STM32MP15
 	uint32_t bootr;
@@ -328,12 +328,12 @@ void stm32mp1_syscfg_init(void)
 			   bootr << SYSCFG_BOOTR_BOOTPD_SHIFT);
 #endif
 
-	stm32mp1_syscfg_set_hslv();
+	stm32mp_syscfg_set_hslv();
 
-	stm32mp1_syscfg_enable_io_compensation_start();
+	stm32mp_syscfg_enable_io_compensation_start();
 }
 
-void stm32mp1_syscfg_enable_io_compensation_start(void)
+void stm32mp_syscfg_enable_io_compensation_start(void)
 {
 	/*
 	 * Activate automatic I/O compensation.
@@ -353,7 +353,7 @@ void stm32mp1_syscfg_enable_io_compensation_start(void)
 #endif
 }
 
-void stm32mp1_syscfg_enable_io_compensation_finish(void)
+void stm32mp_syscfg_enable_io_compensation_finish(void)
 {
 	enable_io_comp_cell_finish(SYSCFG_CMPCR);
 #if STM32MP13
@@ -362,7 +362,7 @@ void stm32mp1_syscfg_enable_io_compensation_finish(void)
 #endif
 }
 
-void stm32mp1_syscfg_disable_io_compensation(void)
+void stm32mp_syscfg_disable_io_compensation(void)
 {
 	clk_enable(SYSCFG);
 
@@ -385,7 +385,7 @@ void stm32mp1_syscfg_disable_io_compensation(void)
  * @brief  Get silicon revision from SYSCFG registers.
  * @retval chip version (REV_ID).
  */
-uint32_t stm32mp1_syscfg_get_chip_version(void)
+uint32_t stm32mp_syscfg_get_chip_version(void)
 {
 	return (mmio_read_32(SYSCFG_BASE + SYSCFG_IDC) &
 		SYSCFG_IDC_REV_ID_MASK) >> SYSCFG_IDC_REV_ID_SHIFT;
@@ -395,18 +395,18 @@ uint32_t stm32mp1_syscfg_get_chip_version(void)
  * @brief  Get device ID from SYSCFG registers.
  * @retval device ID (DEV_ID).
  */
-uint32_t stm32mp1_syscfg_get_chip_dev_id(void)
+uint32_t stm32mp_syscfg_get_chip_dev_id(void)
 {
 	return mmio_read_32(SYSCFG_BASE + SYSCFG_IDC) & SYSCFG_IDC_DEV_ID_MASK;
 }
 
 #if STM32MP13
-void stm32mp1_syscfg_boot_mode_enable(void)
+void stm32mp_syscfg_boot_mode_enable(void)
 {
 	mmio_setbits_32(SYSCFG_BASE + SYSCFG_BOOTCR, SYSCFG_BOOTCR_BMEN);
 }
 
-void stm32mp1_syscfg_boot_mode_disable(void)
+void stm32mp_syscfg_boot_mode_disable(void)
 {
 	mmio_clrbits_32(SYSCFG_BASE + SYSCFG_BOOTCR, SYSCFG_BOOTCR_BMEN);
 }

@@ -331,7 +331,7 @@ skip_console_init:
 		print_pmic_info_and_debug();
 	}
 
-	stm32mp1_syscfg_init();
+	stm32mp_syscfg_init();
 
 	if (stm32_iwdg_init() < 0) {
 		panic();
@@ -365,7 +365,7 @@ skip_console_init:
 	}
 #endif
 
-	stm32mp1_syscfg_enable_io_compensation_finish();
+	stm32mp_syscfg_enable_io_compensation_finish();
 
 	fconf_populate("TB_FW", STM32MP_DTB_BASE);
 
