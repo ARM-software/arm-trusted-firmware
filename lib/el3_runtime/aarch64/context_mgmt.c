@@ -89,13 +89,13 @@ static void setup_el1_context(cpu_context_t *ctx, const struct entry_point_info 
 					| SCTLR_NTWI_BIT | SCTLR_NTWE_BIT;
 	}
 
-#if ERRATA_A75_764081
 	/*
 	 * If workaround of errata 764081 for Cortex-A75 is used then set
 	 * SCTLR_EL1.IESB to enable Implicit Error Synchronization Barrier.
 	 */
-	sctlr_elx |= SCTLR_IESB_BIT;
-#endif
+	if (errata_a75_764081_applies()) {
+		sctlr_elx |= SCTLR_IESB_BIT;
+	}
 
 	/* Store the initialised SCTLR_EL1 value in the cpu_context */
 	write_ctx_sctlr_el1_reg_errata(ctx, sctlr_elx);
@@ -1070,14 +1070,16 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			if ((scr_el3 & SCR_HCE_BIT) != 0U) {
 				/* Initialize SCTLR_EL2 register with reset value. */
 				sctlr_el2 = SCTLR_EL2_RES1;
-#if ERRATA_A75_764081
+
 				/*
 				 * If workaround of errata 764081 for Cortex-A75
 				 * is used then set SCTLR_EL2.IESB to enable
 				 * Implicit Error Synchronization Barrier.
 				 */
-				sctlr_el2 |= SCTLR_IESB_BIT;
-#endif
+				if (errata_a75_764081_applies()) {
+					sctlr_el2 |= SCTLR_IESB_BIT;
+				}
+
 				write_sctlr_el2(sctlr_el2);
 			} else {
 				/*

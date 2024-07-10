@@ -35,6 +35,15 @@
 
 void print_errata_status(void);
 
+#if ERRATA_A75_764081
+bool errata_a75_764081_applies(void);
+#else
+static inline bool errata_a75_764081_applies(void)
+{
+       return false;
+}
+#endif
+
 #if ERRATA_A520_2938996 || ERRATA_X4_2726228
 unsigned int check_if_affected_core(void);
 #endif

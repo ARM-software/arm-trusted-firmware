@@ -19,7 +19,8 @@ BL1_SOURCES		+=	bl1/${ARCH}/bl1_arch_setup.c		\
 
 ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S		\
-				lib/el3_runtime/aarch64/context.S
+				lib/el3_runtime/aarch64/context.S	\
+				lib/cpus/errata_common.c
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT},1)
