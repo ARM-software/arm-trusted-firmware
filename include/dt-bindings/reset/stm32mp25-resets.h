@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later or BSD-3-Clause */
 /*
- * Copyright (C) 2023, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2023-2024, STMicroelectronics - All Rights Reserved
  * Author(s): Gabriel Fernandez <gabriel.fernandez@foss.st.com> for STMicroelectronics.
  */
 
@@ -14,16 +14,16 @@
 #define C2_R		8288
 #define C2_HOLDBOOT_R	8608
 #define C1_HOLDBOOT_R	8609
-#define VSW_R		8703
-#define C1MS_R		8808
-#define IWDG2_KER_R	9074
-#define IWDG4_KER_R	9202
-#define C3_R		9312
-#define DDRCP_R		9856
-#define DDRCAPB_R	9888
-#define DDRPHYCAPB_R	9920
-#define DDRCFG_R	9984
-#define DDR_R		10016
+#define VSW_R		8735
+#define C1MS_R		8840
+#define IWDG2_KER_R	9106
+#define IWDG4_KER_R	9234
+#define C3_R		9344
+#define DDRCP_R		9888
+#define DDRCAPB_R	9920
+#define DDRPHYCAPB_R	9952
+#define DDRCFG_R	10016
+#define DDR_R		10048
 #define OSPI1_R		10400
 #define OSPI1DLL_R	10416
 #define OSPI2_R		10432
@@ -115,7 +115,7 @@
 #define USB2_R		16352
 #define USB2PHY1_R	16384
 #define USB2PHY2_R	16416
-#define USB3DRD_R	16448
+#define USB3DR_R	16448
 #define USB3PCIEPHY_R	16480
 #define PCIE_R		16512
 #define USBTC_R		16544
@@ -143,7 +143,6 @@
 #define CRYP2_R		17440
 #define WWDG1_R		17632
 #define WWDG2_R		17664
-#define BUSPERFM_R	17696
 #define VREF_R		17728
 #define DTS_R		17760
 #define CRC_R		17824
@@ -159,6 +158,9 @@
 #define RST_SCMI_C1_HOLDBOOT_R	2
 #define RST_SCMI_C2_HOLDBOOT_R	3
 #define RST_SCMI_FMC		4
-#define RST_SCMI_PCIE		5
+#define RST_SCMI_OSPI1		5
+#define RST_SCMI_OSPI1DLL	6
+#define RST_SCMI_OSPI2		7
+#define RST_SCMI_OSPI2DLL	8
 
 #endif /* _DT_BINDINGS_STM32MP25_RESET_H_ */

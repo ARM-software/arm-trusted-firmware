@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,5 +46,10 @@ static inline void stm32mp_reset_release(uint32_t reset_id)
 {
 	(void)stm32mp_reset_deassert(reset_id, 0U);
 }
+
+/*
+ * Manage system reset control
+ */
+void __dead2 stm32mp_system_reset(void);
 
 #endif /* STM32MP_RESET_H */
