@@ -118,6 +118,14 @@ else
     TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA256
 endif
 
+ifeq (${MBOOT_EL_HASH_ALG}, sha256)
+    $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA256))
+else ifeq (${MBOOT_EL_HASH_ALG}, sha384)
+    $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA384))
+else ifeq (${MBOOT_EL_HASH_ALG}, sha512)
+    $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA512))
+endif
+
 ifeq (${TF_MBEDTLS_KEY_ALG},ecdsa)
     TF_MBEDTLS_KEY_ALG_ID	:=	TF_MBEDTLS_ECDSA
 else ifeq (${TF_MBEDTLS_KEY_ALG},rsa)
