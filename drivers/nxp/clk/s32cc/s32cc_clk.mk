@@ -6,6 +6,7 @@
 
 PLAT_INCLUDES		+= \
 	-I${PLAT_DRIVERS_INCLUDE_PATH}/clk/s32cc \
+	-I${PLAT_DRIVERS_PATH}/clk/s32cc/include \
 
 CLK_SOURCES		:= \
 	${PLAT_DRIVERS_PATH}/clk/s32cc/s32cc_clk_drv.c \

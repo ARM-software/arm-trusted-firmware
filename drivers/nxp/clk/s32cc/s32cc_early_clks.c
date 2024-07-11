@@ -16,7 +16,22 @@ int s32cc_init_early_clks(void)
 
 	s32cc_clk_register_drv();
 
+	ret = clk_set_parent(S32CC_CLK_ARM_PLL_MUX, S32CC_CLK_FXOSC);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = clk_set_parent(S32CC_CLK_MC_CGM1_MUX0, S32CC_CLK_ARM_PLL_PHI0);
+	if (ret != 0) {
+		return ret;
+	}
+
 	ret = clk_set_rate(S32CC_CLK_FXOSC, S32CC_FXOSC_FREQ, NULL);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = clk_enable(S32CC_CLK_FXOSC);
 	if (ret != 0) {
 		return ret;
 	}
