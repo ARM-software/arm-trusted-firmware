@@ -162,16 +162,6 @@ void arm_bl2_platform_setup(void)
 #if defined(PLAT_ARM_MEM_PROT_ADDR)
 	arm_nor_psci_do_static_mem_protect();
 #endif
-
-#if TRANSFER_LIST
-	ns_tl = transfer_list_init((void *)FW_NS_HANDOFF_BASE,
-				   PLAT_ARM_FW_HANDOFF_SIZE);
-
-	if (ns_tl == NULL) {
-		ERROR("Non-secure transfer list initialisation failed!");
-		panic();
-	}
-#endif
 }
 
 void bl2_platform_setup(void)
@@ -326,7 +316,8 @@ int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
 
 #if TRANSFER_LIST
 	if (image_id == HW_CONFIG_ID) {
-		arm_transfer_list_copy_hw_config(secure_tl, ns_tl);
+		/* Refresh the now stale checksum following loading of HW_CONFIG into the TL. */
+		transfer_list_update_checksum(secure_tl);
 	}
 #endif /* TRANSFER_LIST */
 
@@ -340,5 +331,5 @@ void arm_bl2_setup_next_ep_info(bl_mem_params_node_t *next_param_node)
 					    &next_param_node->ep_info);
 	assert(ep != NULL);
 
-	arm_transfer_list_populate_ep_info(next_param_node, secure_tl, ns_tl);
+	arm_transfer_list_populate_ep_info(next_param_node, secure_tl);
 }
