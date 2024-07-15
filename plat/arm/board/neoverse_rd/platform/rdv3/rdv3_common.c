@@ -11,8 +11,8 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 #include <nrd_plat.h>
-#include <rdfremont_mhuv3.h>
-#include <rdfremont_rse_comms.h>
+#include <rdv3_mhuv3.h>
+#include <rdv3_rse_comms.h>
 
 unsigned int plat_arm_nrd_get_platform_id(void)
 {

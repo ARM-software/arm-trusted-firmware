@@ -3,16 +3,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-RD_FREMONT_VARIANTS := 0 1 2
+RD_V3_VARIANTS := 0 1 2
 ifneq ($(NRD_PLATFORM_VARIANT),						\
-	$(filter $(NRD_PLATFORM_VARIANT),$(RD_FREMONT_VARIANTS)))
-	$(error "NRD_PLATFORM_VARIANT for RD-FREMONT should be 0, 1, or 2,"
+	$(filter $(NRD_PLATFORM_VARIANT),$(RD_V3_VARIANTS)))
+	$(error "NRD_PLATFORM_VARIANT for RD-V3 should be 0, 1, or 2,"
 	"currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
 
 $(eval $(call CREATE_SEQ,SEQ,4))
 ifneq ($(NRD_CHIP_COUNT),$(filter $(NRD_CHIP_COUNT),$(SEQ)))
-	$(error  "Chip count for RD-Fremont-MC should be either $(SEQ) \
+	$(error  "Chip count for RD-V3-MC should be either $(SEQ) \
 	currently it is set to ${NRD_CHIP_COUNT}.")
 endif
 
@@ -30,7 +30,7 @@ override NEED_RMM			:= no
 # Misc options
 override CTX_INCLUDE_AARCH32_REGS	:= 0
 
-# RD-Fremont platform uses GIC-700 which is based on GICv4.1
+# RD-V3 platform uses GIC-700 which is based on GICv4.1
 GIC_ENABLE_V4_EXTN			:= 1
 
 # Enable GIC multichip extension only for multichip platforms
@@ -38,7 +38,7 @@ ifeq (${NRD_PLATFORM_VARIANT}, 2)
 GICV3_IMPL_GIC600_MULTICHIP	:= 1
 endif
 
-# RD-Fremont uses MHUv3
+# RD-V3 uses MHUv3
 PLAT_MHU_VERSION := 3
 
 include plat/arm/board/neoverse_rd/common/nrd-common.mk
@@ -48,58 +48,58 @@ ifeq (${MEASURED_BOOT},1)
 include drivers/measured_boot/rse/rse_measured_boot.mk
 endif
 
-RDFREMONT_BASE	=	plat/arm/board/neoverse_rd/platform/rdfremont
+RDV3_BASE	=	plat/arm/board/neoverse_rd/platform/rdv3
 
 PLAT_INCLUDES	+=	-I${NRD_COMMON_BASE}/include/nrd3/		\
-			-I${RDFREMONT_BASE}/include/			\
+			-I${RDV3_BASE}/include/			\
 			-Iinclude/lib/psa
 
 NRD_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_v3.S
 
-# Source files for RD-Fremont variants
+# Source files for RD-V3 variants
 PLAT_BL_COMMON_SOURCES							\
 		+=	${NRD_COMMON_BASE}/nrd_plat3.c			\
-			${RDFREMONT_BASE}/rdfremont_common.c
+			${RDV3_BASE}/rdv3_common.c
 
 PLAT_MEASURED_BOOT_SOURCES						\
 		:=	${MEASURED_BOOT_SOURCES} 			\
 			${RSE_COMMS_SOURCES}				\
-			${RDFREMONT_BASE}/rdfremont_common_measured_boot.c \
+			${RDV3_BASE}/rdv3_common_measured_boot.c \
 			lib/psa/measured_boot.c
 
 BL1_SOURCES	+=	${NRD_CPU_SOURCES}				\
-			${RDFREMONT_BASE}/rdfremont_err.c		\
-			${RDFREMONT_BASE}/rdfremont_mhuv3.c
+			${RDV3_BASE}/rdv3_err.c		\
+			${RDV3_BASE}/rdv3_mhuv3.c
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
-BL1_SOURCES	+=	${RDFREMONT_BASE}/rdfremont_trusted_boot.c
+BL1_SOURCES	+=	${RDV3_BASE}/rdv3_trusted_boot.c
 endif
 ifeq (${MEASURED_BOOT},1)
 BL1_SOURCES	+=	${PLAT_MEASURED_BOOT_SOURCES}			\
-			${RDFREMONT_BASE}/rdfremont_bl1_measured_boot.c
+			${RDV3_BASE}/rdv3_bl1_measured_boot.c
 endif
 
-BL2_SOURCES	+=	${RDFREMONT_BASE}/rdfremont_bl2_setup.c		\
-			${RDFREMONT_BASE}/rdfremont_err.c		\
-			${RDFREMONT_BASE}/rdfremont_mhuv3.c		\
-			${RDFREMONT_BASE}/rdfremont_security.c		\
+BL2_SOURCES	+=	${RDV3_BASE}/rdv3_bl2_setup.c		\
+			${RDV3_BASE}/rdv3_err.c		\
+			${RDV3_BASE}/rdv3_mhuv3.c		\
+			${RDV3_BASE}/rdv3_security.c		\
 			lib/utils/mem_region.c				\
 			plat/arm/common/arm_nor_psci_mem_protect.c
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
-BL2_SOURCES	+=	${RDFREMONT_BASE}/rdfremont_trusted_boot.c
+BL2_SOURCES	+=	${RDV3_BASE}/rdv3_trusted_boot.c
 endif
 ifeq (${MEASURED_BOOT},1)
 BL2_SOURCES	+=	${PLAT_MEASURED_BOOT_SOURCES}			\
-			${RDFREMONT_BASE}/rdfremont_bl2_measured_boot.c
+			${RDV3_BASE}/rdv3_bl2_measured_boot.c
 endif
 
 BL31_SOURCES	+=	${NRD_CPU_SOURCES}				\
 			${MBEDTLS_SOURCES}				\
 			${RSE_COMMS_SOURCES}				\
-			${RDFREMONT_BASE}/rdfremont_bl31_setup.c	\
-			${RDFREMONT_BASE}/rdfremont_mhuv3.c		\
-			${RDFREMONT_BASE}/rdfremont_topology.c		\
-			${RDFREMONT_BASE}/rdfremont_plat_attest_token.c	\
-			${RDFREMONT_BASE}/rdfremont_realm_attest_key.c	\
+			${RDV3_BASE}/rdv3_bl31_setup.c	\
+			${RDV3_BASE}/rdv3_mhuv3.c		\
+			${RDV3_BASE}/rdv3_topology.c		\
+			${RDV3_BASE}/rdv3_plat_attest_token.c	\
+			${RDV3_BASE}/rdv3_realm_attest_key.c	\
 			drivers/arm/smmu/smmu_v3.c			\
 			drivers/cfi/v2m/v2m_flash.c			\
 			lib/psa/cca_attestation.c			\
@@ -111,14 +111,14 @@ ifeq (${NRD_PLATFORM_VARIANT}, 2)
 BL31_SOURCES	+=	drivers/arm/gic/v3/gic600_multichip.c
 endif
 
-# XLAT options for RD-Fremont variants
+# XLAT options for RD-V3 variants
 BL31_CFLAGS	+=      -DPLAT_XLAT_TABLES_DYNAMIC
 BL2_CFLAGS	+=      -DPLAT_XLAT_TABLES_DYNAMIC
 
 # Add the FDT_SOURCES and options for Dynamic Config
-FDT_SOURCES	+=	${RDFREMONT_BASE}/fdts/${PLAT}_fw_config.dts	\
-			${RDFREMONT_BASE}/fdts/${PLAT}_tb_fw_config.dts \
-			${RDFREMONT_BASE}/fdts/${PLAT}_nt_fw_config.dts
+FDT_SOURCES	+=	${RDV3_BASE}/fdts/${PLAT}_fw_config.dts	\
+			${RDV3_BASE}/fdts/${PLAT}_tb_fw_config.dts \
+			${RDV3_BASE}/fdts/${PLAT}_nt_fw_config.dts
 
 FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
 TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
@@ -131,7 +131,7 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 # Add the NT_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config))
 
-# Features for RD-Fremont variants
+# Features for RD-V3 variants
 override ENABLE_FEAT_MPAM	:= 2
 override ENABLE_FEAT_AMU	:= 2
 override ENABLE_SVE_FOR_SWD	:= 1

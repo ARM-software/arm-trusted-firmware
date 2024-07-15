@@ -7,7 +7,7 @@
 #include <plat/arm/common/plat_arm.h>
 
 /*
- * rdfremont error handler
+ * rdv3 error handler
  */
 void __dead2 plat_arm_error_handler(int err)
 {

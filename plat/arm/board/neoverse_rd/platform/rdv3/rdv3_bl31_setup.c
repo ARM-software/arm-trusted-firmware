@@ -13,10 +13,10 @@
 #include <plat/common/platform.h>
 #include <nrd_plat.h>
 #include <nrd_variant.h>
-#include <rdfremont_rse_comms.h>
+#include <rdv3_rse_comms.h>
 
 #if (NRD_PLATFORM_VARIANT == 2)
-static const mmap_region_t rdfremontmc_dynamic_mmap[] = {
+static const mmap_region_t rdv3mc_dynamic_mmap[] = {
 #if NRD_CHIP_COUNT > 1
 	NRD_CSS_SHARED_RAM_MMAP(1),
 	NRD_CSS_PERIPH_MMAP(1),
@@ -31,7 +31,7 @@ static const mmap_region_t rdfremontmc_dynamic_mmap[] = {
 #endif
 };
 
-static struct gic600_multichip_data rdfremontmc_multichip_data __init = {
+static struct gic600_multichip_data rdv3mc_multichip_data __init = {
 	.rt_owner_base = PLAT_ARM_GICD_BASE,
 	.rt_owner = 0,
 	.chip_count = NRD_CHIP_COUNT,
@@ -61,7 +61,7 @@ static struct gic600_multichip_data rdfremontmc_multichip_data __init = {
 	}
 };
 
-static uintptr_t rdfremontmc_multichip_gicr_frames[] = {
+static uintptr_t rdv3mc_multichip_gicr_frames[] = {
 	/* Chip 0's GICR Base */
 	PLAT_ARM_GICR_BASE,
 #if NRD_CHIP_COUNT > 1
@@ -84,7 +84,7 @@ void bl31_platform_setup(void)
 {
 	/*
 	 * Perform SMMUv3 GPT configuration for the GPC SMMU present in system
-	 * control block on RD-Fremont platforms. This SMMUv3 initialization is
+	 * control block on RD-V3 platforms. This SMMUv3 initialization is
 	 * not fatal.
 	 *
 	 * Don't perform smmuv3_security_init() for this instance of SMMUv3 as
@@ -104,14 +104,14 @@ void bl31_platform_setup(void)
 		       NRD_CHIP_COUNT);
 		panic();
 	} else {
-		INFO("Enabling multi-chip support for RD-Fremont variant\n");
+		INFO("Enabling multi-chip support for RD-V3 variant\n");
 
-		for (i = 0; i < ARRAY_SIZE(rdfremontmc_dynamic_mmap); i++) {
+		for (i = 0; i < ARRAY_SIZE(rdv3mc_dynamic_mmap); i++) {
 			ret = mmap_add_dynamic_region(
-					rdfremontmc_dynamic_mmap[i].base_pa,
-					rdfremontmc_dynamic_mmap[i].base_va,
-					rdfremontmc_dynamic_mmap[i].size,
-					rdfremontmc_dynamic_mmap[i].attr);
+					rdv3mc_dynamic_mmap[i].base_pa,
+					rdv3mc_dynamic_mmap[i].base_va,
+					rdv3mc_dynamic_mmap[i].size,
+					rdv3mc_dynamic_mmap[i].attr);
 			if (ret != 0) {
 				ERROR("Failed to add entry i: %d (ret=%d)\n",
 				       i, ret);
@@ -120,8 +120,8 @@ void bl31_platform_setup(void)
 		}
 
 		plat_arm_override_gicr_frames(
-			rdfremontmc_multichip_gicr_frames);
-		gic600_multichip_init(&rdfremontmc_multichip_data);
+			rdv3mc_multichip_gicr_frames);
+		gic600_multichip_init(&rdv3mc_multichip_data);
 	}
 #endif /* NRD_PLATFORM_VARIANT == 2 */
 	nrd_bl31_common_platform_setup();

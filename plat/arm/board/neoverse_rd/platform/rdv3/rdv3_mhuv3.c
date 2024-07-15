@@ -11,7 +11,7 @@
 
 #include <nrd_css_def3.h>
 #include <nrd_plat.h>
-#include <rdfremont_mhuv3.h>
+#include <rdv3_mhuv3.h>
 
 void mhu_v3_get_secure_device_base(uintptr_t *base, bool sender)
 {
