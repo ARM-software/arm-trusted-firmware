@@ -202,13 +202,18 @@ int rmmd_setup(void)
 	int rc;
 
 	/* Make sure RME is supported. */
-	assert(is_feat_rme_present());
+	if (is_feat_rme_present() == 0U) {
+		/* Mark the RMM boot as failed for all the CPUs */
+		rmm_boot_failed = true;
+		return -ENOTSUP;
+	}
 
 	rmm_ep_info = bl31_plat_get_next_image_ep_info(REALM);
 	if (rmm_ep_info == NULL) {
 		WARN("No RMM image provided by BL2 boot loader, Booting "
 		     "device without RMM initialization. SMCs destined for "
 		     "RMM will return SMC_UNK\n");
+
 		return -ENOENT;
 	}
 
