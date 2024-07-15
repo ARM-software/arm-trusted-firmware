@@ -214,6 +214,8 @@ int rmmd_setup(void)
 		     "device without RMM initialization. SMCs destined for "
 		     "RMM will return SMC_UNK\n");
 
+		/* Mark the boot as failed for all the CPUs */
+		rmm_boot_failed = true;
 		return -ENOENT;
 	}
 
