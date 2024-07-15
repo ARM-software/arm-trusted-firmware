@@ -11,15 +11,34 @@ Further information on RD1-AE is available at `rd1ae`_
 Boot Sequence
 -------------
 
-BL2 –> BL31 –> BL33
+The boot process starts from RSE (Runtime Security Engine) that loads the
+Application Processor (AP) BL2 image and signals the System Control Processor (SCP)
+to power up the AP. The AP then runs AP BL2
 
-The boot process starts from RSE (Runtime Security Engine) that loads the BL2 image
-and signals the System Control Processor (SCP) to power up the Application Processor (AP).
-The AP then runs BL2, which loads the rest of the images, including the runtime firmware
-BL31, and proceeds to execute it. Finally, it passes control to the non-secure world
-BL33 (u-boot).
+The primary compute boot flow follows the following steps:
 
-BL2 performs the actions described in the `Trusted Board Boot (TBB)`_ document.
+1. AP BL2:
+
+   * Performs the actions described in the `Trusted Board Boot (TBB)`_ document.
+   * Copies the AP BL31 image from Secure Flash to Secure SRAM
+   * Copies the AP BL32 (OP-TEE) image from Secure Flash to Secure DRAM
+   * Copies the AP BL33 (U-Boot) image from Secure Flash to Normal DRAM
+   * Transfers the execution to AP BL31
+
+2. AP BL31:
+
+   * Initializes Trusted Firmware-A Services
+   * Transfers the execution to AP BL32 and then transfers the execution to AP BL33
+   * During runtime, acts as the Secure Monitor, handling SMC calls,
+     and context switching between secure and non-secure worlds.
+
+3. AP BL32:
+
+   * Initializes OP-TEE environment
+   * Initializes Secure Partitions
+   * Transfers the execution back to AP BL31
+   * During runtime, it facilitates secure communication between the
+     normal world environment (e.g. Linux) and the Trusted Execution Environment.
 
 Build Procedure (TF-A only)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,6 +60,9 @@ Build Procedure (TF-A only)
       COT=tbbr \
       ARM_ROTPK_LOCATION=devel_rsa \
       ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem \
+      BL32=<path to optee binary> \
+      SPD=spmd \
+      SPMD_SPM_AT_SEL2=0 \
       BL33=<path to u-boot binary> \
 
 *Copyright (c) 2024, Arm Limited. All rights reserved.*
