@@ -29,7 +29,7 @@ define add_defined_option
 ifdef $(1)
 ifeq ($(strip $(value $(1))),y)
 DEFINES += -D$(1)$(if $(value $(1)),=1,)
-else
+else ifneq ($(strip $(value $(1))),n)
 DEFINES += -D$(1)$(if $(value $(1)),=$(value $(1)),)
 endif
 endif
