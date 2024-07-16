@@ -209,7 +209,7 @@ int rmmd_setup(void)
 	}
 
 	rmm_ep_info = bl31_plat_get_next_image_ep_info(REALM);
-	if (rmm_ep_info == NULL) {
+	if ((rmm_ep_info == NULL) || (rmm_ep_info->pc == 0)) {
 		WARN("No RMM image provided by BL2 boot loader, Booting "
 		     "device without RMM initialization. SMCs destined for "
 		     "RMM will return SMC_UNK\n");
@@ -218,9 +218,6 @@ int rmmd_setup(void)
 		rmm_boot_failed = true;
 		return -ENOENT;
 	}
-
-	/* Under no circumstances will this parameter be 0 */
-	assert(rmm_ep_info->pc == RMM_BASE);
 
 	/* Initialise an entrypoint to set up the CPU context */
 	ep_attr = EP_REALM;
