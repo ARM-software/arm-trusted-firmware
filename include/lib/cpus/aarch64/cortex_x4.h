@@ -28,4 +28,10 @@
  ******************************************************************************/
 #define CORTEX_X4_CPUACTLR3_EL1				S3_0_C15_C1_2
 
+/*******************************************************************************
+ * CPU Auxiliary control register 5 specific definitions
+ ******************************************************************************/
+#define CORTEX_X4_CPUACTLR5_EL1				S3_0_C15_C8_0
+#define CORTEX_X4_CPUACTLR5_EL1_BIT_14			(ULL(1) << 14)
+
 #endif /* CORTEX_X4_H */
