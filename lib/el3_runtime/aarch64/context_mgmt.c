@@ -335,6 +335,12 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	u_register_t icc_sre_el2_val = ICC_SRE_DIB_BIT | ICC_SRE_DFB_BIT |
 				   ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT;
 	write_el2_ctx_common(el2_ctx, icc_sre_el2, icc_sre_el2_val);
+
+	/*
+	 * The actlr_el2 register can be initialized in platform's reset handler
+	 * and it may contain access control bits (e.g. CLUSTERPMUEN bit).
+	 */
+	write_el2_ctx_common(el2_ctx, actlr_el2, read_actlr_el2());
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 	/* Start with a clean SCR_EL3 copy as all relevant values are set */
