@@ -736,7 +736,7 @@ static void manage_extensions_common(cpu_context_t *ctx)
 
 	if (is_feat_trbe_supported()) {
 		/*
-		 * Enable FEAT_SPE for Non-Secure and prohibit for Secure and
+		 * Enable FEAT_TRBE for Non-Secure and prohibit for Secure and
 		 * Realm state.
 		 */
 		trbe_enable(ctx);
@@ -744,14 +744,14 @@ static void manage_extensions_common(cpu_context_t *ctx)
 
 	if (is_feat_trf_supported()) {
 		/*
-		 * Enable FEAT_SPE for Non-Secure and prohibit for Secure state.
+		 * Enable FEAT_TRF for Non-Secure and prohibit for Secure state.
 		 */
 		trf_enable(ctx);
 	}
 
 	if (is_feat_brbe_supported()) {
 		/*
-		 * Enable FEAT_SPE for Non-Secure and prohibit for Secure state.
+		 * Enable FEAT_BRBE for Non-Secure and prohibit for Secure state.
 		 */
 		brbe_enable(ctx);
 	}
