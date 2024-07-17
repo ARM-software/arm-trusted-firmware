@@ -2,8 +2,8 @@ MediaTek 8195
 =============
 
 MediaTek 8195 (MT8195) is a 64-bit ARM SoC introduced by MediaTek in 2021.
-The chip incorporates eight cores - four Cortex-A55 little cores and Cortex-A76.
-Cortex-A76 can operate at up to 2.2 GHz.
+The chip incorporates eight cores - four Cortex-A55 little cores and Cortex-A78.
+Cortex-A78 can operate at up to 2.6 GHz.
 Cortex-A55 can operate at up to 2.0 GHz.
 
 Boot Sequence
