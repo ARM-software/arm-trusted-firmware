@@ -9,6 +9,9 @@
 #include <platform_def.h>
 #include <cpu_macros.S>
 
+#define TC_HANDLER(rev)         plat_reset_handler_tc##rev
+#define PLAT_RESET_HANDLER(rev) TC_HANDLER(rev)
+
 	.globl	plat_arm_calc_core_pos
 	.globl	plat_reset_handler
 
@@ -49,10 +52,30 @@ func plat_arm_calc_core_pos
 	ret
 endfunc plat_arm_calc_core_pos
 
+func enable_dsu_pmu_el1_access
+	sysreg_bit_set actlr_el2, CPUACTLR_CLUSTERPMUEN
+	sysreg_bit_set actlr_el3, CPUACTLR_CLUSTERPMUEN
+	ret
+endfunc enable_dsu_pmu_el1_access
+
+func TC_HANDLER(2)
+	ret
+endfunc TC_HANDLER(2)
+
+func TC_HANDLER(3)
+	mov	x9, lr
+	bl	enable_dsu_pmu_el1_access
+	mov	lr, x9
+	ret
+endfunc TC_HANDLER(3)
+
 	/* -----------------------------------------------------
 	 * void plat_reset_handler(void);
 	 * -----------------------------------------------------
 	 */
 func plat_reset_handler
+	mov	x8, lr
+	bl	PLAT_RESET_HANDLER(TARGET_PLATFORM)
+	mov	lr, x8
 	ret
 endfunc plat_reset_handler

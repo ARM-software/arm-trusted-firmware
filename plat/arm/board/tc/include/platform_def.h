@@ -448,4 +448,6 @@
 #define SLC_ALLOC_BUS_SIGNAL_ATTR	2
 #endif /* TARGET_PLATFORM == 3 */
 
+#define CPUACTLR_CLUSTERPMUEN		(ULL(1) << 12)
+
 #endif /* PLATFORM_DEF_H */
