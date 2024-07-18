@@ -11,8 +11,9 @@
 void detect_arch_features(void);
 
 /* Macro Definitions */
-#define FEAT_STATE_DISABLED	0
-#define FEAT_STATE_ALWAYS	1
-#define FEAT_STATE_CHECK	2
+#define FEAT_STATE_DISABLED		0
+#define FEAT_STATE_ALWAYS		1
+#define FEAT_STATE_CHECK		2
+#define FEAT_STATE_CHECK_ASYMMETRIC	3
 
 #endif /* FEAT_DETECT_H */
