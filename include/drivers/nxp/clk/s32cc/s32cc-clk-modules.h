@@ -19,6 +19,7 @@ enum s32cc_clkm_type {
 	s32cc_pll_out_div_t,
 	s32cc_clkmux_t,
 	s32cc_shared_clkmux_t,
+	s32cc_fixed_div_t,
 };
 
 enum s32cc_clk_source {
@@ -112,6 +113,30 @@ struct s32cc_pll_out_div {
 	.index = (INDEX),                      \
 }
 
+#define S32CC_PLL_OUT_DIV_INIT(PARENT, INDEX)  \
+{                                              \
+	.desc = {                              \
+		.type = s32cc_pll_out_div_t,   \
+	},                                     \
+	.parent = &(PARENT).desc,              \
+	.index = (INDEX),                      \
+}
+
+struct s32cc_fixed_div {
+	struct s32cc_clk_obj desc;
+	struct s32cc_clk_obj *parent;
+	uint32_t rate_div;
+};
+
+#define S32CC_FIXED_DIV_INIT(PARENT, RATE_DIV) \
+{                                              \
+	.desc = {                              \
+		.type = s32cc_fixed_div_t,     \
+	},                                     \
+	.parent = &(PARENT).desc,              \
+	.rate_div = (RATE_DIV),                \
+}
+
 struct s32cc_clk {
 	struct s32cc_clk_obj desc;
 	struct s32cc_clk_obj *module;
@@ -186,6 +211,30 @@ static inline struct s32cc_clkmux *s32cc_clk2mux(const struct s32cc_clk *clk)
 	}
 
 	return s32cc_obj2clkmux(clk->module);
+}
+
+static inline struct s32cc_pll *s32cc_obj2pll(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t pll_addr;
+
+	pll_addr = ((uintptr_t)mod) - offsetof(struct s32cc_pll, desc);
+	return (struct s32cc_pll *)pll_addr;
+}
+
+static inline struct s32cc_pll_out_div *s32cc_obj2plldiv(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t plldiv_addr;
+
+	plldiv_addr = ((uintptr_t)mod) - offsetof(struct s32cc_pll_out_div, desc);
+	return (struct s32cc_pll_out_div *)plldiv_addr;
+}
+
+static inline struct s32cc_fixed_div *s32cc_obj2fixeddiv(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t fdiv_addr;
+
+	fdiv_addr = ((uintptr_t)mod) - offsetof(struct s32cc_fixed_div, desc);
+	return (struct s32cc_fixed_div *)fdiv_addr;
 }
 
 #endif /* S32CC_CLK_MODULES_H */
