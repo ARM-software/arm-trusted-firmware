@@ -56,8 +56,8 @@
  * chips are accessed - secure ram, css device and soc device regions.
  */
 #if defined(IMAGE_BL31)
-#  define PLAT_ARM_MMAP_ENTRIES		(9 + ((NRD_CHIP_COUNT - 1) * 3))
-#  define MAX_XLAT_TABLES		(9 + ((NRD_CHIP_COUNT - 1) * 3))
+#  define PLAT_ARM_MMAP_ENTRIES		(10 + ((NRD_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(10 + ((NRD_CHIP_COUNT - 1) * 3))
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		U(8)
 # define MAX_XLAT_TABLES		U(5)

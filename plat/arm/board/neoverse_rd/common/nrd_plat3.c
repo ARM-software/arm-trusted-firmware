@@ -60,6 +60,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	NRD_CSS_GPT_L1_DRAM_MMAP,
 	NRD_CSS_EL3_RMM_SHARED_MEM_MMAP,
 	NRD_CSS_GPC_SMMU_SMMUV3_MMAP,
+#if RESET_TO_BL31
+	NRD_CSS_MAP_BL31_DTB,
+#endif
 	{0}
 };
 #endif /* IMAGE_BL31 */
