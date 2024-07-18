@@ -1303,7 +1303,7 @@ void psci_do_manage_extensions(void)
 	 * before exiting coherency.
 	 */
 	if (is_feat_spe_supported()) {
-		spe_disable();
+		spe_stop();
 	}
 
 }

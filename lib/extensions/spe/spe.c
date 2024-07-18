@@ -70,7 +70,7 @@ void spe_init_el2_unused(void)
 	write_mdcr_el2(v);
 }
 
-void spe_disable(void)
+void spe_stop(void)
 {
 	uint64_t v;
 
