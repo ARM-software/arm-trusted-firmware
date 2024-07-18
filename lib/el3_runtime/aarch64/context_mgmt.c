@@ -1537,6 +1537,17 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 *********************************************************************************/
 void cm_handle_asymmetric_features(void)
 {
+#if ENABLE_SPE_FOR_NS == FEAT_STATE_CHECK_ASYMMETRIC
+	cpu_context_t *spe_ctx = cm_get_context(NON_SECURE);
+
+	assert(spe_ctx != NULL);
+
+	if (is_feat_spe_supported()) {
+		spe_enable(spe_ctx);
+	} else {
+		spe_disable(spe_ctx);
+	}
+#endif
 }
 #endif
 
