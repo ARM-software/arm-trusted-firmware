@@ -1405,6 +1405,7 @@ subsections:
           - git-hooks
 
   - title: Tools
+    scope: tools
 
     subsections:
       - title: STM32 Image

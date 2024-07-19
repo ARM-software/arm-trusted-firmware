@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -536,7 +536,7 @@ REGISTER_EXTENSIONS(cot_ext);
 
 
 /* Keys used to establish the chain of trust. */
-static key_t cot_keys[] = {
+static cert_key_t cot_keys[] = {
 	[ROT_KEY] = {
 		.id = ROT_KEY,
 		.opt = "rot-key",
