@@ -953,6 +953,10 @@ CPU_FLAG_LIST += ERRATA_A715_2561034
 # only to revision r0p0, r1p0 and r1p1. It is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_A715_2728106
 
+# Flag to apply erratum 2844092 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1. It is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_A720_2844092
+
 # Flag to apply erratum 2926083 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1. It is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_A720_2926083
