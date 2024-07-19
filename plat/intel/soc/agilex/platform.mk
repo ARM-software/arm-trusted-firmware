@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
-# Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+# Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+# Copyright (c) 2024, Altera Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -27,6 +28,7 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			plat/intel/soc/common/aarch64/platform_common.c \
 			plat/intel/soc/common/aarch64/plat_helpers.S	\
 			plat/intel/soc/common/drivers/ccu/ncore_ccu.c	\
+			plat/intel/soc/common/lib/sha/sha.c				\
 			plat/intel/soc/common/socfpga_delay_timer.c
 
 BL2_SOURCES     +=	\
@@ -49,6 +51,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/common/socfpga_ros.c			\
 		plat/intel/soc/common/socfpga_storage.c			\
+		plat/intel/soc/common/socfpga_vab.c				\
 		plat/intel/soc/common/soc/socfpga_emac.c		\
 		plat/intel/soc/common/soc/socfpga_firewall.c	\
 		plat/intel/soc/common/soc/socfpga_handoff.c		\
@@ -78,9 +81,20 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/soc/socfpga_reset_manager.c
 
+# Don't have the Linux kernel as a BL33 image by default
+ARM_LINUX_KERNEL_AS_BL33	:=	0
+$(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
+$(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
+
+# Configs for VAB Authentication
+SOCFPGA_SECURE_VAB_AUTH  := 	0
+$(eval $(call assert_boolean,SOCFPGA_SECURE_VAB_AUTH))
+$(eval $(call add_define,SOCFPGA_SECURE_VAB_AUTH))
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 RESET_TO_BL2			:= 1
 BL2_INV_DCACHE			:= 0
 USE_COHERENT_MEM		:= 1
+
+HANDLE_EA_EL3_FIRST_NS			:= 1

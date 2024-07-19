@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,6 +36,7 @@
 #include "socfpga_private.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_ros.h"
+#include "socfpga_vab.h"
 #include "wdt/watchdog.h"
 
 
@@ -164,6 +166,20 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
 
 	assert(bl_mem_params);
+
+#if SOCFPGA_SECURE_VAB_AUTH
+	/*
+	 * VAB Authentication start here.
+	 * If failed to authenticate, shall not proceed to process BL31 and hang.
+	 */
+	int ret = 0;
+
+	ret = socfpga_vab_init(image_id);
+	if (ret < 0) {
+		ERROR("SOCFPGA VAB Authentication failed\n");
+		wfi();
+	}
+#endif
 
 	switch (image_id) {
 	case BL33_IMAGE_ID:

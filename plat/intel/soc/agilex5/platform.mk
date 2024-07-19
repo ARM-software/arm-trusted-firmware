@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
 # Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+# Copyright (c) 2024, Altera Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,6 +9,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 PLAT_INCLUDES		:=	\
 			-Iplat/intel/soc/agilex5/include/		\
 			-Iplat/intel/soc/common/drivers/		\
+			-Iplat/intel/soc/common/lib/sha/		\
 			-Iplat/intel/soc/common/include/
 
 # GIC-600 configuration
@@ -33,6 +35,7 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			plat/intel/soc/common/drivers/sdmmc/sdmmc.c			\
 			plat/intel/soc/common/drivers/ddr/ddr.c			\
 			plat/intel/soc/common/drivers/nand/nand.c			\
+			plat/intel/soc/common/lib/sha/sha.c				\
 			plat/intel/soc/common/socfpga_delay_timer.c
 
 BL2_SOURCES		+=	\
@@ -106,6 +109,11 @@ ARM_LINUX_KERNEL_AS_BL33	:=	0
 $(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
+
+# Configs for VAB Authentication
+SOCFPGA_SECURE_VAB_AUTH  := 	0
+$(eval $(call assert_boolean,SOCFPGA_SECURE_VAB_AUTH))
+$(eval $(call add_define,SOCFPGA_SECURE_VAB_AUTH))
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 RESET_TO_BL2			:= 1
