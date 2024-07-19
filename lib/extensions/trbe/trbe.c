@@ -36,6 +36,23 @@ void trbe_enable(void)
 	}
 }
 
+void trbe_disable(void)
+{
+	uint64_t val;
+
+	if (is_feat_trbe_present()) {
+		/*
+		 * MDCR_EL3.NSTB = 0b11
+		 * Disable access of trace buffer control registers from NS-EL1
+		 * and NS-EL2, tracing is prohibited in Secure and Realm state
+		 * (if implemented).
+		 */
+		val = read_mdcr_el3();
+		val &= ~MDCR_NSTB(MDCR_NSTB_EL1);
+		write_mdcr_el3(val);
+	}
+}
+
 static void *trbe_drain_trace_buffers_hook(const void *arg __unused)
 {
 	if (is_feat_trbe_present()) {
