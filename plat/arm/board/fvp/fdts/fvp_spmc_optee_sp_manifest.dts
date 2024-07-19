@@ -35,7 +35,7 @@
 			debug_name = "op-tee";
 			load_address = <0x6280000>;
 			vcpu_count = <8>;
-			mem_size = <1048576>;
+			mem_size = <0xd80000>;
 		};
 	};
 
@@ -63,10 +63,11 @@
 		reg = <0x0 0x6000000 0x0 0x2000000>; /* Trusted DRAM */
 	};
 
-	memory@1 {
+	memory@80000000 {
 		device_type = "ns-memory";
-		reg = <0x00008800 0x80000000 0x0 0x7f000000>,
-		      <0x0 0x88000000 0x0 0x10000000>;
+		reg = <0x0 0x80000000 0x0 0x7c000000>,
+		      <0x8 0x80000000 0x1 0x80000000>,
+		      <0x00008800 0x80000000 0x0 0x7f000000>;
 	};
 
 	memory@0 {
