@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -507,6 +509,16 @@ static uint32_t intel_rsu_status(uint64_t *respbuf, unsigned int respbuf_sz)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+static uint32_t intel_rsu_get_device_info(uint32_t *respbuf,
+					  unsigned int respbuf_sz)
+{
+	if (mailbox_rsu_get_device_info((uint32_t *)respbuf, respbuf_sz) < 0) {
+		return INTEL_SIP_SMC_RSU_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 uint32_t intel_rsu_update(uint64_t update_address)
 {
 	if (update_address > SIZE_MAX) {
@@ -877,6 +889,16 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 	case INTEL_SIP_SMC_RSU_COPY_DCMF_VERSION:
 		status = intel_rsu_copy_dcmf_version(x1, x2);
 		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_RSU_GET_DEVICE_INFO:
+		status = intel_rsu_get_device_info((uint32_t *)rsu_respbuf,
+					ARRAY_SIZE(rsu_respbuf));
+		if (status) {
+			SMC_RET1(handle, status);
+		} else {
+			SMC_RET5(handle, status, rsu_respbuf[0], rsu_respbuf[1],
+				 rsu_respbuf[2], rsu_respbuf[3]);
+		}
 
 	case INTEL_SIP_SMC_RSU_DCMF_STATUS:
 		SMC_RET2(handle, INTEL_SIP_SMC_STATUS_OK,

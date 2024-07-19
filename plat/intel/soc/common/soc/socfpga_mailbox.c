@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -576,6 +577,13 @@ int mailbox_rsu_status(uint32_t *resp_buf, unsigned int resp_buf_len)
 	}
 
 	return ret;
+}
+
+int mailbox_rsu_get_device_info(uint32_t *resp_buf, unsigned int resp_buf_len)
+{
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_GET_DEVICE_INFO, NULL, 0U,
+				CMD_CASUAL, resp_buf,
+				&resp_buf_len);
 }
 
 int mailbox_rsu_update(uint32_t *flash_offset)
