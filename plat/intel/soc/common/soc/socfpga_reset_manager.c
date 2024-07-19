@@ -777,14 +777,6 @@ int socfpga_bridges_enable(uint32_t mask)
 		VERBOSE("Deassert F2SDRAM ...\n");
 		mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST),
 			RSTMGR_BRGMODRST_F2SSDRAM0);
-
-		/*
-		 * Clear fpga2sdram_manager_main_SidebandManager_FlagOutClr0
-		 * f2s_ready_latency_enable
-		 */
-		VERBOSE("Clear F2SDRAM f2s_ready_latency_enable ...\n");
-		mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTCLR0),
-			FLAGOUTCLR0_F2SDRAM0_ENABLE);
 	}
 #else
 	if (brg_mask != 0U) {
