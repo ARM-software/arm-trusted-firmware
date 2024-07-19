@@ -25,6 +25,7 @@ void set_emi_mpu_regions(void)
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, SEC_RW);
 	emi_mpu_set_protection(&region_info);
 
+#ifndef SPD_NONE
 	/* BL32 address */
 	region_info.start = BL32_REGION_BASE;
 	region_info.end = BL32_REGION_BASE + BL32_REGION_SIZE - 1;
@@ -35,6 +36,7 @@ void set_emi_mpu_regions(void)
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
 			      FORBIDDEN, FORBIDDEN, SEC_RW, SEC_RW);
 	emi_mpu_set_protection(&region_info);
+#endif
 
 	/* SCP core0 DRAM */
 	region_info.start = SCP_CORE0_REGION_BASE;
