@@ -239,6 +239,8 @@ int rmmd_setup(void)
 	rc = plat_rmmd_load_manifest(manifest);
 	if (rc != 0) {
 		ERROR("Error loading RMM Boot Manifest (%i)\n", rc);
+		/* Mark the boot as failed for all the CPUs */
+		rmm_boot_failed = true;
 		return rc;
 	}
 	flush_dcache_range((uintptr_t)shared_buf_base, shared_buf_size);
