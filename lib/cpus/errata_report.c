@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -51,9 +51,9 @@ static __unused void print_status(int status, char *cpu_str, uint16_t cve, uint3
 		}
 	} else {
 		if (cve) {
-			VERBOSE(CVE_FORMAT, BL_STRING, cpu_str, cve, id, "not applied");
+			VERBOSE(CVE_FORMAT, BL_STRING, cpu_str, cve, id, "not applicable");
 		}  else {
-			VERBOSE(ERRATUM_FORMAT, BL_STRING, cpu_str, id, "not applied");
+			VERBOSE(ERRATUM_FORMAT, BL_STRING, cpu_str, id, "not applicable");
 		}
 	}
 }
