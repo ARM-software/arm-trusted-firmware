@@ -24,6 +24,7 @@
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
 #include <lib/extensions/brbe.h>
+#include <lib/extensions/debug_v8p9.h>
 #include <lib/extensions/mpam.h>
 #include <lib/extensions/pmuv3.h>
 #include <lib/extensions/sme.h>
@@ -770,6 +771,10 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 
 	if (is_feat_sme_supported()) {
 		sme_enable(ctx);
+	}
+
+	if (is_feat_debugv8p9_supported()) {
+		debugv8p9_extended_bp_wp_enable(ctx);
 	}
 
 	pmuv3_enable(ctx);
