@@ -46,8 +46,13 @@
 #include "tc3-4-base.dtsi"
 
 / {
+	smmu_700: iommu@3f000000 {
+		status = "okay";
+	};
+
 	gpu: gpu@2d000000 {
 		interrupts = <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH 0>;
 		interrupt-names = "IRQAW";
+		iommus = <&smmu_700 0x200>;
 	};
 };
