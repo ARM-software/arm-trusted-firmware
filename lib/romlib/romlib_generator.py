@@ -182,6 +182,22 @@ class TableGenerator(RomlibApplication):
                 template_name = "jmptbl_entry_" + item["type"] + bti + ".S"
                 output_file.write(self.build_template(template_name, item, True))
 
+class LinkArgs(RomlibApplication):
+    """ Generates the link arguments to wrap functions. """
+
+    def __init__(self, prog):
+        RomlibApplication.__init__(self, prog)
+        self.args.add_argument("file", help="Input file")
+
+    def main(self):
+        index_file_parser = IndexFileParser()
+        index_file_parser.parse(self.config.file)
+
+        fns = [item["function_name"] for item in index_file_parser.items
+               if not item["patch"] and item["type"] != "reserved"]
+
+        print(" ".join("-Wl,--wrap " + f for f in fns))
+
 class WrapperGenerator(RomlibApplication):
     """
     Generates a wrapper function for each entry in the index file except for the ones that contain
@@ -214,21 +230,19 @@ class WrapperGenerator(RomlibApplication):
             if item["type"] == "reserved" or item["patch"]:
                 continue
 
-            asm = self.config.b + "/" + item["function_name"] + ".s"
-            if self.config.list:
-                # Only listing files
-                files.append(asm)
-            else:
-                with open(asm, "w") as asm_file:
-                    # The jump instruction is 4 bytes but BTI requires and extra instruction so
-                    # this makes it 8 bytes per entry.
-                    function_offset = item_index * (8 if self.config.bti else 4)
+            if not self.config.list:
+                # The jump instruction is 4 bytes but BTI requires and extra instruction so
+                # this makes it 8 bytes per entry.
+                function_offset = item_index * (8 if self.config.bti else 4)
 
-                    item["function_offset"] = function_offset
-                    asm_file.write(self.build_template("wrapper" + bti + ".S", item))
+                item["function_offset"] = function_offset
+                files.append(self.build_template("wrapper" + bti + ".S", item))
 
         if self.config.list:
-            print(" ".join(files))
+            print(self.config.b + "/wrappers.s")
+        else:
+            with open(self.config.b + "/wrappers.s", "w") as asm_file:
+                asm_file.write("\n".join(files))
 
 class VariableGenerator(RomlibApplication):
     """ Generates the jump table global variable with the absolute address in ROM. """
@@ -258,7 +272,8 @@ class VariableGenerator(RomlibApplication):
 
 if __name__ == "__main__":
     APPS = {"genvar": VariableGenerator, "pre": IndexPreprocessor,
-            "gentbl": TableGenerator, "genwrappers": WrapperGenerator}
+            "gentbl": TableGenerator, "genwrappers": WrapperGenerator,
+            "link-flags": LinkArgs}
 
     if len(sys.argv) < 2 or sys.argv[1] not in APPS:
         print("usage: romlib_generator.py [%s] [args]" % "|".join(APPS.keys()), file=sys.stderr)

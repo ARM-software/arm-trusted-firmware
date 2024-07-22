@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-	.globl	${function_name}
-${function_name}:
+	.section .text.__wrap_${function_name}
+	.globl	__wrap_${function_name}
+__wrap_${function_name}:
 	ldr	x17, =jmptbl
 	mov	x16, #${function_offset}
 	ldr	x17, [x17]
