@@ -552,13 +552,14 @@ static int32_t opteed_handle_smc_load(uint64_t data_size, uint32_t data_pa)
 
 		if (opteed_rw == OPTEE_AARCH64) {
 			arg0 = (uint64_t)dt;
+			arg1 = TRANSFER_LIST_HANDOFF_X1_VALUE(REGISTER_CONVENTION_VERSION);
 			arg2 = 0;
 		} else {
-			arg2 = (uint64_t)dt;
 			arg0 = 0;
+			arg1 = TRANSFER_LIST_HANDOFF_R1_VALUE(REGISTER_CONVENTION_VERSION);
+			arg2 = (uint64_t)dt;
 		}
-		arg1 = TRANSFER_LIST_SIGNATURE |
-			REGISTER_CONVENTION_VERSION_MASK;
+
 		arg3 = (uint64_t)bl31_tl;
 	} else {
 		/* Default handoff arguments */
