@@ -62,6 +62,14 @@ typedef struct el2_fgt_regs {
 	uint64_t hfgwtr_el2;
 } el2_fgt_regs_t;
 
+typedef struct el2_fgt2_regs {
+	uint64_t hdfgrtr2_el2;
+	uint64_t hdfgwtr2_el2;
+	uint64_t hfgitr2_el2;
+	uint64_t hfgrtr2_el2;
+	uint64_t hfgwtr2_el2;
+} el2_fgt2_regs_t;
+
 typedef struct el2_ecv_regs {
 	uint64_t cntpoff_el2;
 } el2_ecv_regs_t;
@@ -138,6 +146,10 @@ typedef struct el2_sysregs {
 
 #if ENABLE_FEAT_FGT
 	el2_fgt_regs_t fgt;
+#endif
+
+#if ENABLE_FEAT_FGT2
+	el2_fgt2_regs_t fgt2;
 #endif
 
 #if ENABLE_FEAT_ECV
@@ -219,6 +231,15 @@ typedef struct el2_sysregs {
 #else
 #define read_el2_ctx_fgt(ctx, reg)		ULL(0)
 #define write_el2_ctx_fgt(ctx, reg, val)
+#endif /* ENABLE_FEAT_FGT */
+
+#if ENABLE_FEAT_FGT2
+#define read_el2_ctx_fgt2(ctx, reg)		(((ctx)->fgt2).reg)
+#define write_el2_ctx_fgt2(ctx, reg, val)	((((ctx)->fgt2).reg)	\
+							= (uint64_t) (val))
+#else
+#define read_el2_ctx_fgt2(ctx, reg)		ULL(0)
+#define write_el2_ctx_fgt2(ctx, reg, val)
 #endif /* ENABLE_FEAT_FGT */
 
 #if ENABLE_FEAT_ECV

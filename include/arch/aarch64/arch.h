@@ -114,9 +114,14 @@
  * Definitions for EL2 system registers for save/restore routine
  ******************************************************************************/
 #define CNTPOFF_EL2		S3_4_C14_C0_6
-#define HAFGRTR_EL2		S3_4_C3_C1_6
+#define HDFGRTR2_EL2		S3_4_C3_C1_0
+#define HDFGWTR2_EL2		S3_4_C3_C1_1
+#define HFGRTR2_EL2		S3_4_C3_C1_2
+#define HFGWTR2_EL2		S3_4_C3_C1_3
 #define HDFGRTR_EL2		S3_4_C3_C1_4
 #define HDFGWTR_EL2		S3_4_C3_C1_5
+#define HAFGRTR_EL2		S3_4_C3_C1_6
+#define HFGITR2_EL2		S3_4_C3_C1_7
 #define HFGITR_EL2		S3_4_C1_C1_6
 #define HFGRTR_EL2		S3_4_C1_C1_4
 #define HFGWTR_EL2		S3_4_C1_C1_5
@@ -331,6 +336,7 @@
 
 #define ID_AA64MMFR0_EL1_FGT_SHIFT		U(56)
 #define ID_AA64MMFR0_EL1_FGT_MASK		ULL(0xf)
+#define FGT2_IMPLEMENTED			ULL(0x2)
 #define FGT_IMPLEMENTED				ULL(0x1)
 #define FGT_NOT_IMPLEMENTED			ULL(0x0)
 
@@ -574,6 +580,7 @@
 /* SCR definitions */
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
 #define SCR_NSE_SHIFT		U(62)
+#define SCR_FGTEN2_BIT		(UL(1) << 59)
 #define SCR_NSE_BIT		(ULL(1) << SCR_NSE_SHIFT)
 #define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_TWEDEL_SHIFT	U(30)

@@ -104,6 +104,9 @@ subsections:
       - title: Extended Translation Control Register (FEAT_TCR2).
         scope: tcr2
 
+      - title: Fine-grained Traps 2 (FEAT_FGT2).
+        scope: fgt2
+
       - title: CPU feature / ID register handling in general
         scope: cpufeat
 

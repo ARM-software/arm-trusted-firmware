@@ -337,6 +337,9 @@ TWED_DELAY				?=	0
 # Disable MTPMU if FEAT_MTPMU is supported.
 DISABLE_MTPMU				?=	0
 
+# Flag to enable FEAT_FGT2 (Fine Granular Traps 2)
+ENABLE_FEAT_FGT2			?=	0
+
 #----
 # 8.9
 #----

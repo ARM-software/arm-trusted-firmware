@@ -346,6 +346,13 @@ Common build options
    This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_FGT2``: Numeric value to enable support for FGT2
+   (Fine Grain Traps 2) feature allowing for access to Fine-grained trap 2 registers
+   during  EL2 to EL3 context save/restore operations.
+   Its an optional architectural feature and is available from v8.8 and upwards.
+   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
+   mechanism. Default value is ``0``.
+
 -  ``ENABLE_FEAT_HCX``: Numeric value to set the bit SCR_EL3.HXEn in EL3 to
    allow access to HCRX_EL2 (extended hypervisor control register) from EL2 as
    well as adding HCRX_EL2 to the EL2 context save/restore operations. Its a

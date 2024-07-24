@@ -105,6 +105,10 @@ ifneq (${ENABLE_FEAT_AMU},0)
 BL31_SOURCES		+=	${AMU_SOURCES}
 endif
 
+ifneq (${ENABLE_FEAT_FGT2},0)
+BL31_SOURCES		+=	lib/extensions/fgt/fgt2.c
+endif
+
 ifeq (${ENABLE_MPMM},1)
 BL31_SOURCES		+=	${MPMM_SOURCES}
 endif
