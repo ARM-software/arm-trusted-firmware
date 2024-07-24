@@ -124,6 +124,7 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 	const struct plat_io_policy *policy;
 
 	policy = FCONF_GET_PROPERTY(arm, io_policies, image_id);
+	assert(policy->check != NULL);
 	result = policy->check(policy->image_spec);
 	if (result == 0) {
 		*image_spec = policy->image_spec;
