@@ -1,5 +1,5 @@
 # Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
-# Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -44,8 +44,9 @@ ifdef IPI_CRC_CHECK
     $(eval $(call add_define,IPI_CRC_CHECK))
 endif
 
-VERSAL_PLATFORM ?= silicon
-$(eval $(call add_define_val,VERSAL_PLATFORM,VERSAL_PLATFORM_ID_${VERSAL_PLATFORM}))
+ifdef VERSAL_PLATFORM
+    $(warning "VERSAL_PLATFORM has been deprecated")
+endif
 
 ifdef XILINX_OF_BOARD_DTB_ADDR
 $(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))

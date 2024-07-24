@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
@@ -73,22 +74,41 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	enum pm_ret_status ret_status;
 	uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
 
-	set_cnt_freq();
-
-	setup_console();
-
-	/* Initialize the platform config for future decision making */
-	versal_config_setup();
-
-	/* Get platform related information */
-	board_detection();
-
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On
 	 * Base VERSAL only DRAM security is programmable (via TrustZone), but
 	 * other platforms might have more programmable security devices
 	 * present.
 	 */
+	versal_config_setup();
+
+	/* Initialize the platform config for future decision making */
+	board_detection();
+
+	switch (platform_id) {
+	case VERSAL_SPP:
+		cpu_clock = 2720000;
+		break;
+	case VERSAL_EMU:
+		cpu_clock = 212000;
+		break;
+	case VERSAL_QEMU:
+		/* Random values now */
+		cpu_clock = 2720000;
+		break;
+	case VERSAL_SILICON:
+		cpu_clock = 100000000;
+		break;
+	default:
+		panic();
+	}
+	set_cnt_freq();
+
+	generic_delay_timer_init();
+
+	setup_console();
+
+	NOTICE("TF-A running on %s %d\n", board_name_decode(), platform_version);
 
 	/* Populate common information for BL32 and BL33 */
 	SET_PARAM_HEAD(&bl32_image_ep_info, PARAM_EP, VERSION_1, 0);
