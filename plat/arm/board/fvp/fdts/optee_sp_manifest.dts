@@ -46,6 +46,7 @@
 			base-address = <0x00000000 0x1c0a0000>;
 			pages-count = <1>;
 			attributes = <0x3>; /* read-write */
+			interrupts = <38 0x900>;
 		};
 	};
 };
