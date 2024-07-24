@@ -7,6 +7,7 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
+#include <cortex_a520.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/arm/board/common/board_css_def.h>
@@ -446,6 +447,21 @@
 #define SLC_DONT_ALLOC			0
 #define SLC_ALWAYS_ALLOC		1
 #define SLC_ALLOC_BUS_SIGNAL_ATTR	2
+
+#define MCN_CONFIG_OFFSET		0x204
+#define MCN_CONFIG_ADDR			(MCN_BASE_ADDR + MCN_CONFIG_OFFSET)
+#define MCN_CONFIG_SLC_PRESENT_BIT	3
+
+/*
+ * TC3 CPUs have the same definitions for:
+ *   CORTEX_{A520|A725|X925}_CPUECTLR_EL1
+ *   CORTEX_{A520|A725|X925}_CPUECTLR_EL1_EXTLLC_BIT
+ * Define the common macros for easier using.
+ */
+#define CPUECTLR_EL1			CORTEX_A520_CPUECTLR_EL1
+#define CPUECTLR_EL1_EXTLLC_BIT		CORTEX_A520_CPUECTLR_EL1_EXTLLC_BIT
 #endif /* TARGET_PLATFORM == 3 */
+
+#define CPUACTLR_CLUSTERPMUEN		(ULL(1) << 12)
 
 #endif /* PLATFORM_DEF_H */

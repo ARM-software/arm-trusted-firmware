@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -451,6 +451,14 @@
 .macro sysreg_bitfield_insert _reg:req, _src:req, _lsb:req, _width:req
 	/* Source value for BFI */
 	mov	x1, #\_src
+	mrs	x0, \_reg
+	bfi	x0, x1, #\_lsb, #\_width
+	msr	\_reg, x0
+.endm
+
+.macro sysreg_bitfield_insert_from_gpr _reg:req, _gpr:req, _lsb:req, _width:req
+	/* Source value in register for BFI */
+	mov	x1, \_gpr
 	mrs	x0, \_reg
 	bfi	x0, x1, #\_lsb, #\_width
 	msr	\_reg, x0
