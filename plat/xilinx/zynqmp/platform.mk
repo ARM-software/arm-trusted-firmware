@@ -21,7 +21,7 @@ ENABLE_LTO := 1
 EL3_EXCEPTION_HANDLING := $(SDEI_SUPPORT)
 
 # pncd SPD requires secure SGI to be handled at EL1
-ifeq (${SPD}, $(filter ${SPD},pncd tspd))
+ifeq (${SPD}, $(filter ${SPD},pncd tspd opteed))
 ifeq (${ZYNQMP_WDT_RESTART},1)
 $(error "Error: ZYNQMP_WDT_RESTART and SPD=pncd are incompatible")
 endif
