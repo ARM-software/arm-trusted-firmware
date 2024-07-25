@@ -1,5 +1,5 @@
 FF-A manifest binding to device tree
-========================================
+====================================
 
 This document defines the nodes and properties used to define a partition,
 according to the FF-A specification.
@@ -82,7 +82,7 @@ Partition Properties
      the partition. Absence of this field indicates that the entry point is at
      offset 0x0 from the base of the partition's binary.
 
-- xlat-granule [mandatory]
+- xlat-granule
    - value type: <u32>
    - Translation granule used with the partition:
 
@@ -103,19 +103,26 @@ Partition Properties
      The "compatible" must be the string "arm,ffa-manifest-rx_tx-buffer".
 
 - messaging-method [mandatory]
-   - value type: <u8>
+   - value type: <u16>
    - Specifies which messaging methods are supported by the partition, set bit
      means the feature is supported, clear bit - not supported:
 
-      - Bit[0]: partition can receive direct requests if set
-      - Bit[1]: partition can send direct requests if set
+      - Bit[0]: partition can receive direct requests via FFA_MSG_SEND_DIRECT_REQ ABI if set
+      - Bit[1]: partition can send direct requests via FFA_MSG_SEND_DIRECT_REQ ABI if set
       - Bit[2]: partition can send and receive indirect messages
+      - Bit[9]: partition can receive direct requests via FFA_MSG_SEND_DIRECT_REQ2 ABI if set
+      - Bit[10]: partition can send direct requests via FFA_MSG_SEND_DIRECT_REQ2 ABI if set
 
 - managed-exit
    - value type: <empty>
    - Specifies if managed exit is supported.
    - This field is deprecated in favor of ns-interrupts-action field in the FF-A
      v1.1 EAC0 spec.
+
+- managed-exit-virq
+   - value type: <empty>
+   - Indicates if the partition needs managed exit, if supported, to be signaled
+     through vFIQ signal.
 
 - ns-interrupts-action [mandatory]
    - value type: <u32>
@@ -135,6 +142,12 @@ Partition Properties
 
       - 0x0: Other-Secure interrupt is queued
       - 0x1: Other-Secure interrupt is signaled
+
+- runtime-model
+   - value type: <u32>
+   - Indicates whether the SP execution can be preempted.
+   - This field is deprecated in favor of other-s-interrupts-action and
+     ns-interrupts-action fields in the FF-A v1.1 spec.
 
 - has-primary-scheduler
    - value type: <empty>
@@ -157,11 +170,6 @@ Partition Properties
      the FF-A boot information blob to be passed in the specified general purpose
      register.
 
-- stream-endpoint-ids
-   - value type: <prop-encoded-array>
-   - List of <u32> tuples, identifying the IDs this partition is acting as
-     proxy for.
-
 - power-management-messages
    - value type: <u32>
    - Specifies which power management messages a partition subscribes to.
@@ -171,6 +179,8 @@ Partition Properties
       - Bit[0]: CPU_OFF
       - Bit[1]: CPU_SUSPEND
       - Bit[2]: CPU_SUSPEND_RESUME
+
+.. _memory_region_node:
 
 Memory Regions
 --------------
@@ -208,6 +218,25 @@ Memory Regions
      region of the specified size into the partition's translation regime and
      then communicate the region properties (including the base address chosen
      by the partition manager) to the partition.
+
+- stream-ids
+   - value type: <prop-encoded-array>
+   - List of IDs belonging to a DMA capable peripheral device that has access to
+     the memory region represented by current node.
+   - Each ID must have been declared in exactly one device region node.
+
+- smmu-id
+   - value type: <u32>
+   - Identifies the SMMU IP that enforces the access control for the DMA device
+     that owns the above stream-ids.
+
+- stream-ids-access-permissions
+   - value type: <prop-encoded-array>
+   - List of attributes representing the instruction and data access permissions
+     used by the DMA device streams to access the memory region represented by
+     current node.
+
+.. _device_region_node:
 
 Device Regions
 --------------
@@ -251,11 +280,10 @@ Device Regions
 
 - stream-ids
    - value type: <prop-encoded-array>
-   - A list of (id, mem-manage) pair, where:
+   - List of IDs where an ID is a unique <u32> value amongst all devices assigned
+     to the partition.
 
-      - id: A unique <u32> value amongst all devices assigned to the partition.
-
-- interrupts [mandatory]
+- interrupts
    - value type: <prop-encoded-array>
    - A list of (id, attributes) pair describing the device interrupts, where:
 
@@ -306,4 +334,4 @@ Device Regions
 
 --------------
 
-*Copyright (c) 2019-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited and Contributors. All rights reserved.*
