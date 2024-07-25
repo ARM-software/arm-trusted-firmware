@@ -91,10 +91,10 @@ Partition Properties
       - 0x2: 64k
 
 - boot-order
-   - value type: <u16>
+   - value type: <u32>
    - A unique number amongst all partitions that specifies if this partition
      must be booted before others. The partition with the smaller number will be
-     booted first.
+     booted first. Highest vlue allowed for this field is 0xFFFF.
 
 - rx-tx-buffer
    - value type: "memory-regions" node
@@ -103,7 +103,7 @@ Partition Properties
      The "compatible" must be the string "arm,ffa-manifest-rx_tx-buffer".
 
 - messaging-method [mandatory]
-   - value type: <u16>
+   - value type: <u32>
    - Specifies which messaging methods are supported by the partition, set bit
      means the feature is supported, clear bit - not supported:
 
