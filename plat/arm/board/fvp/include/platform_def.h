@@ -297,7 +297,9 @@ defined(IMAGE_BL2) && MEASURED_BOOT
  * calculated using the current SP_MIN PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
-# define PLAT_ARM_MAX_BL32_SIZE		UL(0x3B000)
+# define PLAT_ARM_MAX_BL32_SIZE		(PLAT_ARM_TRUSTED_SRAM_SIZE - \
+					 ARM_SHARED_RAM_SIZE - \
+					 ARM_FW_CONFIGS_SIZE)
 #endif /* RESET_TO_SP_MIN */
 #endif
 
