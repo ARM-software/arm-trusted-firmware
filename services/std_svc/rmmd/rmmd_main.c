@@ -202,18 +202,22 @@ int rmmd_setup(void)
 	int rc;
 
 	/* Make sure RME is supported. */
-	assert(is_feat_rme_present());
+	if (is_feat_rme_present() == 0U) {
+		/* Mark the RMM boot as failed for all the CPUs */
+		rmm_boot_failed = true;
+		return -ENOTSUP;
+	}
 
 	rmm_ep_info = bl31_plat_get_next_image_ep_info(REALM);
-	if (rmm_ep_info == NULL) {
+	if ((rmm_ep_info == NULL) || (rmm_ep_info->pc == 0)) {
 		WARN("No RMM image provided by BL2 boot loader, Booting "
 		     "device without RMM initialization. SMCs destined for "
 		     "RMM will return SMC_UNK\n");
+
+		/* Mark the boot as failed for all the CPUs */
+		rmm_boot_failed = true;
 		return -ENOENT;
 	}
-
-	/* Under no circumstances will this parameter be 0 */
-	assert(rmm_ep_info->pc == RMM_BASE);
 
 	/* Initialise an entrypoint to set up the CPU context */
 	ep_attr = EP_REALM;
@@ -239,6 +243,8 @@ int rmmd_setup(void)
 	rc = plat_rmmd_load_manifest(manifest);
 	if (rc != 0) {
 		ERROR("Error loading RMM Boot Manifest (%i)\n", rc);
+		/* Mark the boot as failed for all the CPUs */
+		rmm_boot_failed = true;
 		return rc;
 	}
 	flush_dcache_range((uintptr_t)shared_buf_base, shared_buf_size);
