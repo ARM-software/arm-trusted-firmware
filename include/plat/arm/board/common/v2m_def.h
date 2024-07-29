@@ -17,6 +17,7 @@
 
 /* V2M motherboard system registers & offsets */
 #define V2M_SYSREGS_BASE		UL(0x1c010000)
+#define V2M_SYSREGS_SIZE		UL(0x00010000)
 #define V2M_SYS_ID			UL(0x0)
 #define V2M_SYS_SWITCH			UL(0x4)
 #define V2M_SYS_LED			UL(0x8)
@@ -78,6 +79,8 @@
 /* NOR Flash */
 #define V2M_FLASH0_BASE			(V2M_OFFSET + UL(0x08000000))
 #define V2M_FLASH0_SIZE			UL(0x04000000)
+#define V2M_FLASH1_BASE			(V2M_OFFSET + UL(0x0c000000))
+#define V2M_FLASH1_SIZE			UL(0x04000000)
 #define V2M_FLASH_BLOCK_SIZE		UL(0x00040000) /* 256 KB */
 
 #define V2M_IOFPGA_BASE			(V2M_OFFSET + UL(0x1c000000))
@@ -126,6 +129,14 @@
 						V2M_FLASH0_SIZE,	\
 						MT_RO_DATA | MT_SECURE)
 
+#define V2M_MAP_FLASH1_RW		MAP_REGION_FLAT(V2M_FLASH1_BASE,\
+						V2M_FLASH1_SIZE,	\
+						MT_DEVICE | MT_RW | MT_SECURE)
+
+#define V2M_MAP_FLASH1_RO		MAP_REGION_FLAT(V2M_FLASH1_BASE,\
+						V2M_FLASH1_SIZE,	\
+						MT_RO_DATA | MT_SECURE)
+
 #define V2M_MAP_IOFPGA			MAP_REGION_FLAT(V2M_IOFPGA_BASE,\
 						V2M_IOFPGA_SIZE,		\
 						MT_DEVICE | MT_RW | MT_SECURE)
@@ -136,5 +147,19 @@
 						V2M_IOFPGA_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
+#define V2M_MAP_SECURE_SYSTEMREG_EL0		MAP_REGION_FLAT(	\
+						V2M_SYSREGS_BASE,															\
+						V2M_SYSREGS_SIZE,															\
+						MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
+
+#define V2M_MAP_FLASH0_RW_EL0		MAP_REGION_FLAT(	\
+						V2M_FLASH0_BASE,											\
+						V2M_FLASH0_SIZE,											\
+						MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
+
+#define V2M_MAP_FLASH1_RW_EL0		MAP_REGION_FLAT(	\
+						V2M_FLASH1_BASE,											\
+						V2M_FLASH1_SIZE,											\
+						MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
 #endif /* V2M_DEF_H */
