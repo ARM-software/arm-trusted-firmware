@@ -356,10 +356,10 @@ int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	 * will re-init this info from non-secure software when the
 	 * core come online.
 	 */
-	actlr_elx = read_ctx_reg((get_el1_sysregs_ctx(ctx)), (CTX_ACTLR_EL1));
+	actlr_elx = read_el1_ctx_common((get_el1_sysregs_ctx(ctx)), actlr_el1);
 	actlr_elx &= ~DENVER_CPU_PMSTATE_MASK;
 	actlr_elx |= DENVER_CPU_PMSTATE_C1;
-	write_ctx_reg((get_el1_sysregs_ctx(ctx)), (CTX_ACTLR_EL1), (actlr_elx));
+	write_el1_ctx_common((get_el1_sysregs_ctx(ctx)), actlr_el1, actlr_elx);
 
 	/*
 	 * Check if we are exiting from deep sleep and restore SE
