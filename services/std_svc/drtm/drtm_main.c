@@ -808,12 +808,12 @@ uint64_t drtm_smc_handler(uint32_t smc_fid,
 
 	case ARM_DRTM_SVC_GET_ERROR:
 		INFO("DRTM service handler: get error\n");
-		drtm_get_error(handle);
+		return drtm_get_error(handle);
 		break;	/* not reached */
 
 	case ARM_DRTM_SVC_SET_ERROR:
 		INFO("DRTM service handler: set error\n");
-		drtm_set_error(x1, handle);
+		return drtm_set_error(x1, handle);
 		break;	/* not reached */
 
 	case ARM_DRTM_SVC_SET_TCB_HASH:
