@@ -10,6 +10,7 @@
 
 #include <drivers/scmi-msg.h>
 #include <drivers/scmi.h>
+#include <lib/mmio.h>
 #include <lib/utils_def.h>
 #include <platform_def.h>
 #include <scmi.h>
@@ -179,6 +180,7 @@ static struct scmi_reset scmi0_reset[] = {
 	RESET_CELL(RESET_I3C6_0, RESET_I3C6_0, "i3c6"),
 	RESET_CELL(RESET_I3C7_0, RESET_I3C7_0, "i3c7"),
 	RESET_CELL(RESET_I3C8_0, RESET_I3C8_0, "i3c8"),
+	RESET_CELL(RESET_UFSPHY_0, RESET_UFSPHY_0, "ufsphy0"),
 };
 
 struct scmi_resources {
@@ -433,9 +435,31 @@ int32_t plat_scmi_rstd_set_state(unsigned int agent_id, unsigned int scmi_id,
 	if (assert_not_deassert) {
 		NOTICE("SCMI reset %lu/%s set\n",
 		       reset->reset_id, plat_scmi_rstd_get_name(agent_id, scmi_id));
+
+		switch (scmi_id) {
+		case RESET_UFS0_0:
+			mmio_write_32(PMXC_CRP_RST_UFS, 1);
+			break;
+		case RESET_UFSPHY_0:
+			mmio_write_32(PMXC_IOU_SLCR_PHY_RESET, 1);
+			break;
+		default:
+			break;
+		}
 	} else {
 		NOTICE("SCMI reset %lu/%s release\n",
 		       reset->reset_id, plat_scmi_rstd_get_name(agent_id, scmi_id));
+
+		switch (scmi_id) {
+		case RESET_UFS0_0:
+			mmio_write_32(PMXC_CRP_RST_UFS, 0);
+			break;
+		case RESET_UFSPHY_0:
+			mmio_write_32(PMXC_IOU_SLCR_PHY_RESET, 0);
+			break;
+		default:
+			break;
+		}
 	}
 
 	return SCMI_SUCCESS;

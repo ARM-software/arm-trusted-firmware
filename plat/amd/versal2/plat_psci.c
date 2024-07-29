@@ -161,12 +161,29 @@ int sip_svc_setup_init(void)
 static int32_t no_pm_ioctl(uint32_t device_id, uint32_t ioctl_id,
 			   uint32_t arg1, uint32_t arg2)
 {
+	int32_t ret = 0;
 	VERBOSE("%s: ioctl_id: %x, arg1: %x\n", __func__, ioctl_id, arg1);
-	if (ioctl_id == IOCTL_OSPI_MUX_SELECT) {
+
+	switch (ioctl_id) {
+	case IOCTL_OSPI_MUX_SELECT:
 		mmio_write_32(SLCR_OSPI_QSPI_IOU_AXI_MUX_SEL, arg1);
-		return 0;
+		break;
+	case IOCTL_UFS_TXRX_CFGRDY_GET:
+		ret = (int32_t) mmio_read_32(PMXC_IOU_SLCR_TX_RX_CONFIG_RDY);
+		break;
+	case IOCTL_UFS_SRAM_CSR_SEL:
+		if (arg1 == 1) {
+			ret = (int32_t) mmio_read_32(PMXC_IOU_SLCR_SRAM_CSR);
+		} else if (arg1 == 0) {
+			mmio_write_32(PMXC_IOU_SLCR_SRAM_CSR, arg2);
+		}
+		break;
+	default:
+		ret = PM_RET_ERROR_NOFEATURE;
+		break;
 	}
-	return PM_RET_ERROR_NOFEATURE;
+
+	return ret;
 }
 
 static uint64_t no_pm_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
@@ -187,7 +204,13 @@ static uint64_t no_pm_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64
 	case PM_IOCTL:
 	{
 		ret = no_pm_ioctl(arg[0], arg[1], arg[2], arg[3]);
-		SMC_RET1(handle, (uint64_t)ret);
+		/* Firmware driver expects return code in upper 32 bits and
+		 * status in lower 32 bits.
+		 * status is always SUCCESS(0) for mmio low level register
+		 * r/w calls and return value is the value returned from
+		 * no_pm_ioctl
+		 */
+		SMC_RET1(handle, ((uint64_t)ret << 32));
 	}
 	case PM_GET_CHIPID:
 	{
