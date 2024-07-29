@@ -62,6 +62,10 @@ BL31_SOURCES	+=	${RD1AE_CPU_SOURCES}	\
 			lib/utils/mem_region.c	\
 			plat/arm/common/arm_nor_psci_mem_protect.c
 
+ifeq (${TRUSTED_BOARD_BOOT},1)
+BL2_SOURCES	+=	${RD1AE_BASE}/rd1ae_tbb.c
+endif
+
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES	+=	${RD1AE_BASE}/fdts/${PLAT}_fw_config.dts	\
 			fdts/${PLAT}.dts
@@ -73,6 +77,11 @@ HW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
 $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
+
+ifeq (${TRUSTED_BOARD_BOOT},1)
+FIP_BL2_ARGS	:=	tb-fw
+$(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
+endif
 
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk

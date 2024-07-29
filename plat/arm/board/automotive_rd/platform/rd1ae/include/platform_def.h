@@ -126,6 +126,22 @@
 						MT_DEVICE | MT_RW | \
 						MT_SECURE)
 
+#define SOC_PLATFORM_PERIPH_BASE	UL(0x0E000000)
+#define SOC_PLATFORM_PERIPH_SIZE	UL(0x02000000)
+#define SOC_PLATFORM_PERIPH_MAP_DEVICE	MAP_REGION_FLAT(SOC_PLATFORM_PERIPH_BASE, \
+							SOC_PLATFORM_PERIPH_SIZE, \
+							MT_DEVICE | MT_RW | MT_SECURE)
+
+/* Non-volatile counters */
+#define TRUSTED_NVCTR_BASE_OFFSET	UL(0x00E70000)
+#define TFW_NVCTR_BASE_OFFSET		0x0000
+#define NTFW_CTR_BASE_OFFSET		0x0004
+#define SOC_TRUSTED_NVCTR_BASE		(SOC_PLATFORM_PERIPH_BASE + TRUSTED_NVCTR_BASE_OFFSET)
+#define TFW_NVCTR_BASE			(SOC_TRUSTED_NVCTR_BASE + TFW_NVCTR_BASE_OFFSET)
+#define TFW_NVCTR_SIZE			U(4)
+#define NTFW_CTR_BASE			(SOC_TRUSTED_NVCTR_BASE + NTFW_CTR_BASE_OFFSET)
+#define NTFW_CTR_SIZE			U(4)
+
 /*******************************************************************************
  * Memprotect definitions
  ******************************************************************************/
