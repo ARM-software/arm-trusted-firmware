@@ -7,6 +7,7 @@ Tools
 
    memory-layout-tool
    transfer-list-compiler
+   cot-dt2c
 
 --------------
 
