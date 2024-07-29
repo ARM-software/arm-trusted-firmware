@@ -120,13 +120,13 @@ int emi_mpu_optee_handler(uint64_t encoded_addr, uint64_t zone_size,
 {
 	uint64_t phys_addr = get_decoded_phys_addr(encoded_addr);
 	struct emi_region_info_t region_info;
-	enum MPU_REQ_ORIGIN_ZONE_ID zone_id = get_decoded_zone_id(zone_info);
+	enum region_ids zone_id = get_decoded_zone_id(zone_info);
 	uint32_t is_set = get_decoded_set_clear_info(zone_info);
 
 	INFO("encoded_addr = 0x%lx, zone_size = 0x%lx, zone_info = 0x%lx\n",
 	     encoded_addr, zone_size, zone_info);
 
-	if (zone_id != MPU_REQ_ORIGIN_TEE_ZONE_SVP) {
+	if (zone_id < SVP_DRAM_REGION_ID_START || zone_id > SVP_DRAM_REGION_ID_END) {
 		ERROR("Invalid param %s, %d\n", __func__, __LINE__);
 		return MTK_SIP_E_INVALID_PARAM;
 	}
@@ -135,7 +135,7 @@ int emi_mpu_optee_handler(uint64_t encoded_addr, uint64_t zone_size,
 		/* SVP DRAM */
 		region_info.start = phys_addr;
 		region_info.end = phys_addr + zone_size - 1;
-		region_info.region = SVP_DRAM_REGION_ID;
+		region_info.region = zone_id;
 		SET_ACCESS_PERMISSION(region_info.apc, UNLOCK,
 					  FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
 					  FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
@@ -144,7 +144,7 @@ int emi_mpu_optee_handler(uint64_t encoded_addr, uint64_t zone_size,
 
 		emi_mpu_set_protection(&region_info);
 	} else { /* clear region protection */
-		emi_mpu_clear_protection(SVP_DRAM_REGION_ID);
+		emi_mpu_clear_protection(zone_id);
 	}
 
 	return 0;
