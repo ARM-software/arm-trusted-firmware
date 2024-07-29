@@ -71,15 +71,6 @@ define MAKE_MODULE
         $(eval SOURCES    := $(2))
         $(eval OBJS_TEMP  := $(addprefix $(BUILD_DIR)/$(MODULE)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
         $(eval MODULE_OBJS += $(OBJS_TEMP))
-        # We use sort only to get a list of unique object directory names.
-        # ordering is not relevant but sort removes duplicates.
-        $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS_TEMP} ${LINKERFILE})))
-        # The $(dir ) function leaves a trailing / on the directory names
-        # Rip off the / to match directory names with make rule targets.
-        $(eval OBJ_DIRS := $(patsubst %/,%,$(TEMP_OBJ_DIRS)))
-
-$(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
-${3}_dirs: | ${OBJ_DIRS}
 
 $(eval $(call MAKE_OBJS,$(BUILD_DIR)/$(MODULE),$(SOURCES),${3}))
 

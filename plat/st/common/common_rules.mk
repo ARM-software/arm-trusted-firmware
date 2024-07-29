@@ -41,7 +41,7 @@ check_dtc_version:
 	fi
 
 # Create DTB file for BL2
-${BUILD_PLAT}/fdts/%-bl2.dts: fdts/%.dts fdts/${BL2_DTSI} | ${BUILD_PLAT} fdt_dirs
+${BUILD_PLAT}/fdts/%-bl2.dts: fdts/%.dts fdts/${BL2_DTSI} | $$(@D)/
 	$(q)echo '#include "$(patsubst fdts/%,%,$<)"' > $@
 	$(q)echo '#include "${BL2_DTSI}"' >> $@
 

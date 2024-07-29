@@ -10,6 +10,7 @@ else
         toolchains := aarch64
 endif
 
+include ../../make_helpers/build-rules.mk
 include ../../make_helpers/common.mk
 include ../../make_helpers/toolchain.mk
 
@@ -46,45 +47,45 @@ endif
 
 all: $(BUILD_DIR)/romlib.bin $(LIB_DIR)/libwrappers.a
 
-%.o: %.s
+%.o: %.s | $$(@D)/
 	$(s)echo "  AS      $@"
 	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
 
-$(BUILD_DIR)/%.o: %.s
+$(BUILD_DIR)/%.o: %.s | $$(@D)/
 	$(s)echo "  AS      $@"
 	$(q)$(aarch64-as) -c $(ASFLAGS) -o $@ $<
 
-$(BUILD_DIR)/romlib.ld: romlib.ld.S
+$(BUILD_DIR)/romlib.ld: romlib.ld.S | $$(@D)/
 	$(s)echo "  PP      $@"
 	$(q)$(aarch64-cpp) -E $(PPFLAGS) -o $@ romlib.ld.S
 
-$(BUILD_DIR)/romlib.elf: $(OBJS) $(BUILD_DIR)/romlib.ld
+$(BUILD_DIR)/romlib.elf: $(OBJS) $(BUILD_DIR)/romlib.ld | $$(@D)/
 	$(s)echo "  LD      $@"
 	$(q)$(aarch64-ld) -T $(BUILD_DIR)/romlib.ld -L$(LIB_DIR) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
-$(BUILD_DIR)/romlib.bin: $(BUILD_DIR)/romlib.elf
+$(BUILD_DIR)/romlib.bin: $(BUILD_DIR)/romlib.elf | $$(@D)/
 	$(s)echo "  BIN     $@"
 	$(q)$(aarch64-oc) -O binary $(BUILD_DIR)/romlib.elf $@
 
-$(WRAPPER_DIR)/jmpvar.s: $(BUILD_DIR)/romlib.elf
+$(WRAPPER_DIR)/jmpvar.s: $(BUILD_DIR)/romlib.elf | $$(@D)/
 	$(s)echo "  VAR     $@"
 	$(q)$(ROMLIB_GEN) genvar --output $@ $<
 
-$(LIB_DIR)/libwrappers.a: $(WRAPPER_DIR)/jmpvar.o $(WRAPPER_OBJS)
+$(LIB_DIR)/libwrappers.a: $(WRAPPER_DIR)/jmpvar.o $(WRAPPER_OBJS) | $$(@D)/
 	$(s)echo "  AR      $@"
 	$(q)$(aarch64-ar) -rc $@ $(WRAPPER_DIR)/jmpvar.o $(WRAPPER_OBJS)
 
-$(BUILD_DIR)/jmptbl.i: ../../$(PLAT_DIR)/jmptbl.i
+$(BUILD_DIR)/jmptbl.i: ../../$(PLAT_DIR)/jmptbl.i | $$(@D)/
 	$(s)echo "  PRE     $@"
 	$(q)$(ROMLIB_GEN) pre --output $@ --deps $(BUILD_DIR)/jmptbl.d $<
 
-$(WRAPPER_SOURCES) &: $(BUILD_DIR)/jmptbl.i
+$(WRAPPER_SOURCES) &: $(BUILD_DIR)/jmptbl.i | $$(@D)/
 	$(s)echo "  WRP     $<"
 	$(q)$(ROMLIB_GEN) genwrappers --bti=$(ENABLE_BTI) -b $(WRAPPER_DIR) $<
 
-$(WRAPPER_OBJS): $(WRAPPER_DIR)/%.o: $(WRAPPER_DIR)/%.s
+$(WRAPPER_OBJS): $(WRAPPER_DIR)/%.o: $(WRAPPER_DIR)/%.s | $$(@D)/
 
-$(BUILD_DIR)/jmptbl.s: $(BUILD_DIR)/jmptbl.i
+$(BUILD_DIR)/jmptbl.s: $(BUILD_DIR)/jmptbl.i | $$(@D)/
 	$(s)echo "  TBL     $@"
 	$(q)$(ROMLIB_GEN) gentbl --output $@ --bti=$(ENABLE_BTI) $<
 
