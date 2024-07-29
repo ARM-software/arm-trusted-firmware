@@ -280,7 +280,7 @@ endif
 ENABLE_FEAT_AMU				?=	0
 ENABLE_AMU_AUXILIARY_COUNTERS		?=	0
 ENABLE_AMU_FCONF			?=	0
-AMU_RESTRICT_COUNTERS			?=	0
+AMU_RESTRICT_COUNTERS			?=	1
 
 # Build option to enable MPAM for lower ELs.
 # Enabling it by default
