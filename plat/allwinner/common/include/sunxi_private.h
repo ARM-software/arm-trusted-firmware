@@ -58,4 +58,12 @@ static inline void sunxi_prepare_dtb(void *fdt)
 }
 #endif
 
+#ifdef PLAT_sun50i_h616
+void sunxi_soc_fdt_fixup(void *dtb);
+#else
+static inline void sunxi_soc_fdt_fixup(void *dtb)
+{
+}
+#endif
+
 #endif /* SUNXI_PRIVATE_H */

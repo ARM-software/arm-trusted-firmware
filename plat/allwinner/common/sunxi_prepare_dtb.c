@@ -34,6 +34,8 @@ void sunxi_prepare_dtb(void *fdt)
 	}
 #endif
 
+	sunxi_soc_fdt_fixup(fdt);
+
 	if (sunxi_psci_is_scpi()) {
 		ret = fdt_add_cpu_idle_states(fdt, sunxi_idle_states);
 		if (ret < 0) {
