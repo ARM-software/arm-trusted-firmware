@@ -108,7 +108,7 @@ Manifests and Certificate node bindings definition
                      Usage:
 
                      This property provides the Object ID of public key
-                     provided in the certificate which the help of which
+                     provided in the certificate with the help of which
                      public key information can be extracted.
 
                      Value type: <string>
@@ -122,7 +122,7 @@ Manifests and Certificate node bindings definition
                      Usage:
 
                      This property provides the Object ID of hash provided in
-                     the certificate which the help of which hash information
+                     the certificate with the help of which hash information
                      can be extracted.
 
                      Value type: <string>
