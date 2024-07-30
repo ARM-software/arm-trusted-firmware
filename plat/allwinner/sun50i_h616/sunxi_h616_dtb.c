@@ -52,7 +52,7 @@ void sunxi_soc_fdt_fixup(void *dtb)
 	}
 
 	node = fdt_node_offset_by_phandle(dtb, phandle);
-	if (ret != 0) {
+	if (node < 0) {
 		return;
 	}
 
