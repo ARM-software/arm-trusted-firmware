@@ -128,6 +128,24 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 					  u_register_t arg2, u_register_t arg3)
 {
+#if RESET_TO_BL31
+	/* Populate entry point information for BL33 */
+	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
+	/*
+	 * Tell BL31 where the non-trusted software image
+	 * is located and the entry state information
+	 */
+	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
+
+	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
+	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
+
+	bl33_image_ep_info.args.arg0 =
+		FW_NS_HANDOFF_BASE + ARM_PRELOADED_DTB_OFFSET;
+	bl33_image_ep_info.args.arg1 = TRANSFER_LIST_SIGNATURE |
+				       REGISTER_CONVENTION_VERSION_MASK;
+	bl33_image_ep_info.args.arg3 = FW_NS_HANDOFF_BASE;
+#else
 	struct transfer_list_entry *te = NULL;
 	struct entry_point_info *ep;
 
@@ -160,6 +178,7 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 			}
 		}
 	}
+#endif /* RESET_TO_BL31 */
 }
 #else
 void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_config,
@@ -501,7 +520,7 @@ void __init bl31_plat_arch_setup(void)
 
 	arm_bl31_plat_arch_setup();
 
-#if TRANSFER_LIST && !RESET_TO_BL2
+#if TRANSFER_LIST && !(RESET_TO_BL2 || RESET_TO_BL31)
 	te = transfer_list_find(secure_tl, TL_TAG_FDT);
 	assert(te != NULL);
 
