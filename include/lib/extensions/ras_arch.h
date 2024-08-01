@@ -146,6 +146,9 @@
 #define ERROR_STATUS_UET_UEO	0x2	/* Restartable */
 #define ERROR_STATUS_UET_UER	0x3	/* Recoverable */
 
+/* Corrected error types for Asynchronous exceptions */
+#define ERROR_STATUS_CET_CE	0x6	/* Corrected (CE) */
+
 /* Error types for Synchronous exceptions */
 #define ERROR_STATUS_SET_UER	0x0	/* Recoverable */
 #define ERROR_STATUS_SET_UC	0x2     /* Uncontainable */
