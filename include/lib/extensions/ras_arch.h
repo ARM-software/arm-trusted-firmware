@@ -178,6 +178,9 @@
 #define EABORT_SET_WIDTH	U(2)
 #define EABORT_SET_MASK		U(0x3)
 
+#define EABORT_GET_FIELD(_esr_el3, _field) \
+	(((_esr_el3) >> EABORT_ ##_field ##_SHIFT) & EABORT_ ##_field ##_MASK)
+
 /* DFSC code for SErrors */
 #define DFSC_SERROR		0x11
 
