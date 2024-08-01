@@ -143,7 +143,7 @@
 /* Uncorrected error types for Asynchronous exceptions */
 #define ERROR_STATUS_UET_UC	0x0	/* Uncontainable */
 #define ERROR_STATUS_UET_UEU	0x1	/* Unrecoverable */
-#define ERROR_STATUS_UET_UEO	0x2	/* Restable */
+#define ERROR_STATUS_UET_UEO	0x2	/* Restartable */
 #define ERROR_STATUS_UET_UER	0x3	/* Recoverable */
 
 /* Error types for Synchronous exceptions */
