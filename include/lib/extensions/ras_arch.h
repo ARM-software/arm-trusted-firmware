@@ -148,9 +148,8 @@
 
 /* Error types for Synchronous exceptions */
 #define ERROR_STATUS_SET_UER	0x0	/* Recoverable */
-#define ERROR_STATUS_SET_UEO	0x1	/* Restable */
 #define ERROR_STATUS_SET_UC	0x2     /* Uncontainable */
-#define ERROR_STATUS_SET_CE	0x3     /* Corrected */
+#define ERROR_STATUS_SET_UEO	0x3     /* Restartable */
 
 /* Number of architecturally-defined primary error codes */
 #define ERROR_STATUS_NUM_SERR	U(22)
