@@ -30,6 +30,8 @@ ENABLE_SVE_FOR_NS		:=	0
 # Default Device tree
 DTB_FILE_NAME			?=	stm32mp257f-ev1.dtb
 
+TF_CFLAGS			+=	-DSTM32MP2X
+
 STM32MP21			?=	0
 STM32MP23			?=	0
 STM32MP25			?=	0

@@ -17,6 +17,8 @@ USE_COHERENT_MEM	:=	0
 # Default Device tree
 DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
 
+TF_CFLAGS 		+=	-DSTM32MP1X
+
 STM32MP13		?=	0
 STM32MP15		?=	0
 

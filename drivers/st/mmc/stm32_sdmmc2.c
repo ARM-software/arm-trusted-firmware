@@ -129,7 +129,7 @@
 #define DT_SDMMC2_COMPAT		"st,stm32-sdmmc2"
 #endif
 
-#if STM32MP13 || STM32MP15
+#ifdef STM32MP1X
 #define SDMMC_FIFO_SIZE			64U
 #else
 #define SDMMC_FIFO_SIZE			1024U

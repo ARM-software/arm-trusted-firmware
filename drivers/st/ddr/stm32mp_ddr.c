@@ -44,7 +44,7 @@ void stm32mp_ddr_set_reg(const struct stm32mp_ddr_priv *priv, enum stm32mp_ddr_r
 			      ddr_registers[type].name, i);
 			panic();
 		} else {
-#if !STM32MP13 && !STM32MP15
+#ifdef STM32MP2X
 			if (desc[i].qd) {
 				stm32mp_ddr_start_sw_done(priv->ctl);
 			}
@@ -52,7 +52,7 @@ void stm32mp_ddr_set_reg(const struct stm32mp_ddr_priv *priv, enum stm32mp_ddr_r
 			value = *((uint32_t *)((uintptr_t)param +
 					       desc[i].par_offset));
 			mmio_write_32(ptr, value);
-#if !STM32MP13 && !STM32MP15
+#ifdef STM32MP2X
 			if (desc[i].qd) {
 				stm32mp_ddr_wait_sw_done_ack(priv->ctl);
 			}
