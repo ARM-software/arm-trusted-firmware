@@ -142,8 +142,8 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 	bl33_image_ep_info.args.arg0 =
 		FW_NS_HANDOFF_BASE + ARM_PRELOADED_DTB_OFFSET;
-	bl33_image_ep_info.args.arg1 = TRANSFER_LIST_SIGNATURE |
-				       REGISTER_CONVENTION_VERSION_MASK;
+	bl33_image_ep_info.args.arg1 =
+		TRANSFER_LIST_HANDOFF_X1_VALUE(REGISTER_CONVENTION_VERSION);
 	bl33_image_ep_info.args.arg3 = FW_NS_HANDOFF_BASE;
 #else
 	struct transfer_list_entry *te = NULL;
