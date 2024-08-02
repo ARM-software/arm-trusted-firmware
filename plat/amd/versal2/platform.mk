@@ -32,7 +32,7 @@ ifdef MEM_BASE
     $(eval $(call add_define,MEM_BASE))
 
     ifndef MEM_SIZE
-        $(error "ATF_BASE defined without ATF_SIZE")
+        $(error "MEM_BASE defined without MEM_SIZE")
     endif
     $(eval $(call add_define,MEM_SIZE))
 
@@ -45,7 +45,7 @@ ifdef BL32_MEM_BASE
     $(eval $(call add_define,BL32_MEM_BASE))
 
     ifndef BL32_MEM_SIZE
-        $(error "BL32_BASE defined without BL32_SIZE")
+        $(error "BL32_MEM_BASE defined without BL32_MEM_SIZE")
     endif
     $(eval $(call add_define,BL32_MEM_SIZE))
 endif

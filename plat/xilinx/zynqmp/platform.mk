@@ -39,7 +39,7 @@ ifdef ZYNQMP_ATF_MEM_BASE
     $(eval $(call add_define,ZYNQMP_ATF_MEM_BASE))
 
     ifndef ZYNQMP_ATF_MEM_SIZE
-        $(error "ZYNQMP_ATF_BASE defined without ZYNQMP_ATF_SIZE")
+        $(error "ZYNQMP_ATF_MEM_BASE defined without ZYNQMP_ATF_MEM_SIZE")
     endif
     $(eval $(call add_define,ZYNQMP_ATF_MEM_SIZE))
 
@@ -56,7 +56,7 @@ ifdef ZYNQMP_BL32_MEM_BASE
     $(eval $(call add_define,ZYNQMP_BL32_MEM_BASE))
 
     ifndef ZYNQMP_BL32_MEM_SIZE
-        $(error "ZYNQMP_BL32_BASE defined without ZYNQMP_BL32_SIZE")
+        $(error "ZYNQMP_BL32_MEM_BASE defined without ZYNQMP_BL32_MEM_SIZE")
     endif
     $(eval $(call add_define,ZYNQMP_BL32_MEM_SIZE))
 endif
