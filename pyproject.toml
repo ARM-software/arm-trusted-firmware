@@ -16,7 +16,10 @@ memory = "memory.memmap:main"
 python = "^3.8"
 tlc = {path = "tools/tlc"}
 
-[tool.poetry.group.doc.dependencies]
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
 sphinx = "^5.3.0"
 myst-parser = "^0.18.1"
 sphinxcontrib-plantuml = "^0.24.1"
