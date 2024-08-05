@@ -10,9 +10,13 @@
 #include <context.h>
 
 #if ENABLE_TRBE_FOR_NS
+void trbe_disable(cpu_context_t *ctx);
 void trbe_enable(cpu_context_t *ctx);
 void trbe_init_el2_unused(void);
 #else
+static inline void trbe_disable(cpu_context_t *ctx)
+{
+}
 static inline void trbe_enable(cpu_context_t *ctx)
 {
 }
