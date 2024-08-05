@@ -19,6 +19,8 @@
 #include <common/debug.h>
 #include <context.h>
 #include <drivers/arm/gicv3.h>
+#include <lib/cpus/cpu_ops.h>
+#include <lib/cpus/errata.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/el3_runtime/pubsub_events.h>
@@ -1546,6 +1548,17 @@ void cm_handle_asymmetric_features(void)
 		spe_enable(spe_ctx);
 	} else {
 		spe_disable(spe_ctx);
+	}
+#endif
+#if ERRATA_A520_2938996 || ERRATA_X4_2726228
+	cpu_context_t *trbe_ctx = cm_get_context(NON_SECURE);
+
+	assert(trbe_ctx != NULL);
+
+	if (check_if_affected_core() == ERRATA_APPLIES) {
+		if (is_feat_trbe_supported()) {
+			trbe_disable(trbe_ctx);
+		}
 	}
 #endif
 }
