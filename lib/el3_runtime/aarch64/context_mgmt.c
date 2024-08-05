@@ -19,6 +19,8 @@
 #include <common/debug.h>
 #include <context.h>
 #include <drivers/arm/gicv3.h>
+#include <lib/cpus/cpu_ops.h>
+#include <lib/cpus/errata.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
@@ -914,6 +916,19 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
  ******************************************************************************/
 void cm_prepare_el3_exit_ns(void)
 {
+#ifdef IMAGE_BL31
+#if ERRATA_A520_2938996 || ERRATA_X4_2726228
+	cpu_context_t *trbe_ctx = cm_get_context(NON_SECURE);
+
+	assert(trbe_ctx != NULL);
+	if (check_if_affected_core() == ERRATA_APPLIES) {
+		if (is_feat_trbe_supported()) {
+			trbe_disable(ctx);
+		}
+	}
+#endif
+#endif /* IMAGE_BL31 */
+
 #if CTX_INCLUDE_EL2_REGS
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	assert(ctx != NULL);
