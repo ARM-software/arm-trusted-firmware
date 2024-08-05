@@ -110,6 +110,7 @@ void bl31_platform_setup(void)
 #if TARGET_PLATFORM == 3
 	enable_ns_mcn_pmu();
 	set_mcn_slc_alloc_mode();
+	plat_arm_ni_setup(NCI_BASE_ADDR);
 #endif
 }
 

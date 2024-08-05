@@ -31,6 +31,10 @@
 #define MHU_RX_INT_NUM			317
 #define MHU_RX_INT_NAME			"mhu_rx"
 
+#define LIT_CPU_PMU_COMPATIBLE		"arm,cortex-a520-pmu"
+#define MID_CPU_PMU_COMPATIBLE		"arm,cortex-a720-pmu"
+#define BIG_CPU_PMU_COMPATIBLE		"arm,cortex-x4-pmu"
+
 #define MPAM_ADDR			0x1 0x00010000 /* 0x1_0001_0000 */
 #define UARTCLK_FREQ			5000000
 
@@ -193,22 +197,10 @@
 	};
 #endif /* TARGET_FLAVOUR_FPGA */
 
-	cpu-pmu {
-#if TARGET_FLAVOUR_FPGA
-		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
-				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>,
-				     <&CPU8>,  <&CPU9>,  <&CPU10>, <&CPU11>,
-				     <&CPU12>, <&CPU13>;
-#else
-		interrupt-affinity = <&CPU0>,  <&CPU1>,  <&CPU2>,  <&CPU3>,
-				     <&CPU4>,  <&CPU5>,  <&CPU6>,  <&CPU7>;
-#endif
-	};
-
 	cmn-pmu {
 		compatible = "arm,ci-700";
 		reg = <0x0 0x50000000 0x0 0x10000000>;
-		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <GIC_SPI 460 IRQ_TYPE_LEVEL_HIGH 0>;
 	};
 
 	mbox_db_rx: mhu@MHU_RX_ADDR {
@@ -235,6 +227,36 @@
 			mboxes = <&mbox_db_tx 0 0 &mbox_db_rx 0 0>;
 			shmem = <&cpu_scp_scmi_a2p &cpu_scp_scmi_a2p>;
 		};
+	};
+
+	gic: interrupt-controller@GIC_CTRL_ADDR {
+		ppi-partitions {
+			ppi_partition_little: interrupt-partition-0 {
+				affinity = <&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>;
+			};
+
+#if TARGET_FLAVOUR_FVP
+			ppi_partition_mid: interrupt-partition-1 {
+				affinity = <&CPU4>, <&CPU5>, <&CPU6>;
+			};
+
+			ppi_partition_big: interrupt-partition-2 {
+				affinity = <&CPU7>;
+			};
+#elif TARGET_FLAVOUR_FPGA
+			ppi_partition_mid: interrupt-partition-1 {
+				affinity = <&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>, <&CPU8>;
+			};
+
+			ppi_partition_big: interrupt-partition-2 {
+				affinity = <&CPU9>, <&CPU10>, <&CPU11>, <&CPU12>, <&CPU13>;
+			};
+#endif
+		};
+	};
+
+	spe-pmu-big {
+		status = "okay";
 	};
 
 	smmu_700: iommu@3f000000 {
