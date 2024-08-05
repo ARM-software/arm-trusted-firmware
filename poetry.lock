@@ -893,6 +893,7 @@ develop = false
 
 [package.dependencies]
 click = "^8.1.7"
+pyyaml = "^6.0.1"
 rich = "^10.14.0"
 typer = {version = "^0.4.0", extras = ["all"]}
 
