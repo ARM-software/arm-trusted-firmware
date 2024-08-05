@@ -8,6 +8,7 @@
 #include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
 #include <plat/common/platform.h>
+#include <drivers/arm/gicv2.h>
 /*******************************************************************************
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform layer will take care of registering the handlers with PSCI.
@@ -18,6 +19,15 @@ static void __dead2 corstone1000_system_reset(void)
 
 	uint32_t volatile * const watchdog_ctrl_reg = (uint32_t *) SECURE_WATCHDOG_ADDR_CTRL_REG;
 	uint32_t volatile * const watchdog_val_reg = (uint32_t *) SECURE_WATCHDOG_ADDR_VAL_REG;
+
+	/*
+	 * Disable GIC CPU interface to prevent pending interrupt
+	 * from waking up the AP from WFI.
+	 */
+	gicv2_cpuif_disable();
+
+	/* Flush and invalidate data cache */
+	dcsw_op_all(DCCISW);
 
 	*(watchdog_val_reg) = SECURE_WATCHDOG_COUNTDOWN_VAL;
 	*watchdog_ctrl_reg = SECURE_WATCHDOG_MASK_ENABLE;

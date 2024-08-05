@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,7 +23,6 @@
 
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	ARM_MAP_NS_SHARED_RAM,
 	ARM_MAP_NS_DRAM1,
 	CORSTONE1000_MAP_DEVICE,
 	CORSTONE1000_EXTERNAL_FLASH,
