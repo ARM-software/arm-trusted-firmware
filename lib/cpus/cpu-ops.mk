@@ -823,6 +823,10 @@ CPU_FLAG_LIST += ERRATA_X3_2779509
 # cpu and is fixed in r0p1.
 CPU_FLAG_LIST += ERRATA_X4_2701112
 
+# Flag to apply erratum 2726228 workaround during warmboot. This erratum
+# applies to all revisions <= r0p1 of the Cortex-X4 cpu, it is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_X4_2726228
+
 # Flag to apply erratum 2740089 workaround during powerdown. This erratum
 # applies to all revisions <= r0p1 of the Cortex-X4 cpu, it is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_X4_2740089
@@ -895,6 +899,10 @@ CPU_FLAG_LIST += ERRATA_A520_2630792
 # Flag to apply erratum 2858100 workaround during reset. This erratum
 # applies to revision r0p0 and r0p1 of the Cortex-A520 cpu and is still open.
 CPU_FLAG_LIST += ERRATA_A520_2858100
+
+# Flag to apply erratum 2938996 workaround during reset. This erratum
+# applies to revision r0p0 and r0p1 of the Cortex-A520 cpu and is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_A520_2938996
 
 # Flag to apply erratum 2331132 workaround during reset. This erratum applies
 # to revisions r0p0, r0p1 and r0p2. It is still open.

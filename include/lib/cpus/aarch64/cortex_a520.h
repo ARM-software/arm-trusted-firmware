@@ -28,4 +28,15 @@
 #define CORTEX_A520_CPUPWRCTLR_EL1				S3_0_C15_C2_7
 #define CORTEX_A520_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		U(1)
 
+#ifndef __ASSEMBLER__
+#if ERRATA_A520_2938996
+long  check_erratum_cortex_a520_2938996(long cpu_rev);
+#else
+static inline long  check_erratum_cortex_a520_2938996(long cpu_rev)
+{
+       return 0;
+}
+#endif /* ERRATA_A520_2938996 */
+#endif /* __ASSEMBLER__ */
+
 #endif /* CORTEX_A520_H */
