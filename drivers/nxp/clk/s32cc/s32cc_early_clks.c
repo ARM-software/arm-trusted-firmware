@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <drivers/clk.h>
+#include <platform_def.h>
 #include <s32cc-clk-drv.h>
 #include <s32cc-clk-ids.h>
 #include <s32cc-clk-utils.h>
@@ -14,7 +15,7 @@
 #define S32CC_A53_FREQ			(1U * GHZ)
 #define S32CC_XBAR_2X_FREQ		(800U * MHZ)
 #define S32CC_PERIPH_PLL_VCO_FREQ	(2U * GHZ)
-#define S32CC_PERIPH_PLL_PHI3_FREQ	(125U * MHZ)
+#define S32CC_PERIPH_PLL_PHI3_FREQ	UART_CLOCK_HZ
 
 static int enable_fxosc_clk(void)
 {
@@ -146,6 +147,23 @@ static int enable_xbar_clk(void)
 	return ret;
 }
 
+static int enable_uart_clk(void)
+{
+	int ret;
+
+	ret = clk_set_parent(S32CC_CLK_MC_CGM0_MUX8, S32CC_CLK_PERIPH_PLL_PHI3);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = clk_enable(S32CC_CLK_LINFLEX_BAUD);
+	if (ret != 0) {
+		return ret;
+	}
+
+	return ret;
+}
+
 int s32cc_init_early_clks(void)
 {
 	int ret;
@@ -173,6 +191,11 @@ int s32cc_init_early_clks(void)
 	}
 
 	ret = enable_xbar_clk();
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = enable_uart_clk();
 	if (ret != 0) {
 		return ret;
 	}
