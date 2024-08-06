@@ -30,6 +30,7 @@ enum s32cc_clk_source {
 	S32CC_SIRC,
 	S32CC_ARM_PLL,
 	S32CC_ARM_DFS,
+	S32CC_PERIPH_PLL,
 	S32CC_CGM0,
 	S32CC_CGM1,
 };

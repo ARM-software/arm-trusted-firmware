@@ -22,6 +22,7 @@
 struct s32cc_clk_drv {
 	uintptr_t fxosc_base;
 	uintptr_t armpll_base;
+	uintptr_t periphpll_base;
 	uintptr_t armdfs_base;
 	uintptr_t cgm0_base;
 	uintptr_t cgm1_base;
@@ -42,6 +43,7 @@ static struct s32cc_clk_drv *get_drv(void)
 	static struct s32cc_clk_drv driver = {
 		.fxosc_base = FXOSC_BASE_ADDR,
 		.armpll_base = ARMPLL_BASE_ADDR,
+		.periphpll_base = PERIPHPLL_BASE_ADDR,
 		.armdfs_base = ARM_DFS_BASE_ADDR,
 		.cgm0_base = CGM0_BASE_ADDR,
 		.cgm1_base = CGM1_BASE_ADDR,
@@ -90,6 +92,9 @@ static int get_base_addr(enum s32cc_clk_source id, const struct s32cc_clk_drv *d
 		break;
 	case S32CC_ARM_PLL:
 		*base = drv->armpll_base;
+		break;
+	case S32CC_PERIPH_PLL:
+		*base = drv->periphpll_base;
 		break;
 	case S32CC_ARM_DFS:
 		*base = drv->armdfs_base;
