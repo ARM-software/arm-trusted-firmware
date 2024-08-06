@@ -10,13 +10,19 @@
 #include <common/debug.h>
 #include <drivers/clk.h>
 #include <lib/mmio.h>
+#include <s32cc-clk-ids.h>
 #include <s32cc-clk-modules.h>
 #include <s32cc-clk-utils.h>
 
 #define MAX_STACK_DEPTH		(15U)
 
+/* This is used for floating-point precision calculations. */
+#define FP_PRECISION		(100000000UL)
+
 struct s32cc_clk_drv {
 	uintptr_t fxosc_base;
+	uintptr_t armpll_base;
+	uintptr_t cgm1_base;
 };
 
 static int update_stack_depth(unsigned int *depth)
@@ -33,6 +39,8 @@ static struct s32cc_clk_drv *get_drv(void)
 {
 	static struct s32cc_clk_drv driver = {
 		.fxosc_base = FXOSC_BASE_ADDR,
+		.armpll_base = ARMPLL_BASE_ADDR,
+		.cgm1_base = CGM1_BASE_ADDR,
 	};
 
 	return &driver;
@@ -65,6 +73,37 @@ static int enable_clk_module(const struct s32cc_clk_obj *module,
 	}
 
 	return -EINVAL;
+}
+
+static int get_base_addr(enum s32cc_clk_source id, const struct s32cc_clk_drv *drv,
+			 uintptr_t *base)
+{
+	int ret = 0;
+
+	switch (id) {
+	case S32CC_FXOSC:
+		*base = drv->fxosc_base;
+		break;
+	case S32CC_ARM_PLL:
+		*base = drv->armpll_base;
+		break;
+	case S32CC_CGM1:
+		*base = drv->cgm1_base;
+		break;
+	case S32CC_FIRC:
+		break;
+	case S32CC_SIRC:
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	if (ret != 0) {
+		ERROR("Unknown clock source id: %u\n", id);
+	}
+
+	return ret;
 }
 
 static void enable_fxosc(const struct s32cc_clk_drv *drv)
@@ -121,6 +160,397 @@ static int enable_osc(const struct s32cc_clk_obj *module,
 	return ret;
 }
 
+static int get_pll_mfi_mfn(unsigned long pll_vco, unsigned long ref_freq,
+			   uint32_t *mfi, uint32_t *mfn)
+
+{
+	unsigned long vco;
+	unsigned long mfn64;
+
+	/* FRAC-N mode */
+	*mfi = (uint32_t)(pll_vco / ref_freq);
+
+	/* MFN formula : (double)(pll_vco % ref_freq) / ref_freq * 18432.0 */
+	mfn64 = pll_vco % ref_freq;
+	mfn64 *= FP_PRECISION;
+	mfn64 /= ref_freq;
+	mfn64 *= 18432UL;
+	mfn64 /= FP_PRECISION;
+
+	if (mfn64 > UINT32_MAX) {
+		return -EINVAL;
+	}
+
+	*mfn = (uint32_t)mfn64;
+
+	vco = ((unsigned long)*mfn * FP_PRECISION) / 18432UL;
+	vco += (unsigned long)*mfi * FP_PRECISION;
+	vco *= ref_freq;
+	vco /= FP_PRECISION;
+
+	if (vco != pll_vco) {
+		ERROR("Failed to find MFI and MFN settings for PLL freq %lu. Nearest freq = %lu\n",
+		      pll_vco, vco);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static struct s32cc_clkmux *get_pll_mux(const struct s32cc_pll *pll)
+{
+	const struct s32cc_clk_obj *source = pll->source;
+	const struct s32cc_clk *clk;
+
+	if (source == NULL) {
+		ERROR("Failed to identify PLL's parent\n");
+		return NULL;
+	}
+
+	if (source->type != s32cc_clk_t) {
+		ERROR("The parent of the PLL isn't a clock\n");
+		return NULL;
+	}
+
+	clk = s32cc_obj2clk(source);
+
+	if (clk->module == NULL) {
+		ERROR("The clock isn't connected to a module\n");
+		return NULL;
+	}
+
+	source = clk->module;
+
+	if ((source->type != s32cc_clkmux_t) &&
+	    (source->type != s32cc_shared_clkmux_t)) {
+		ERROR("The parent of the PLL isn't a MUX\n");
+		return NULL;
+	}
+
+	return s32cc_obj2clkmux(source);
+}
+
+static void disable_odiv(uintptr_t pll_addr, uint32_t div_index)
+{
+	mmio_clrbits_32(PLLDIG_PLLODIV(pll_addr, div_index), PLLDIG_PLLODIV_DE);
+}
+
+static void enable_odiv(uintptr_t pll_addr, uint32_t div_index)
+{
+	mmio_setbits_32(PLLDIG_PLLODIV(pll_addr, div_index), PLLDIG_PLLODIV_DE);
+}
+
+static void disable_odivs(uintptr_t pll_addr, uint32_t ndivs)
+{
+	uint32_t i;
+
+	for (i = 0; i < ndivs; i++) {
+		disable_odiv(pll_addr, i);
+	}
+}
+
+static void enable_pll_hw(uintptr_t pll_addr)
+{
+	/* Enable the PLL. */
+	mmio_write_32(PLLDIG_PLLCR(pll_addr), 0x0);
+
+	/* Poll until PLL acquires lock. */
+	while ((mmio_read_32(PLLDIG_PLLSR(pll_addr)) & PLLDIG_PLLSR_LOCK) == 0U) {
+	}
+}
+
+static void disable_pll_hw(uintptr_t pll_addr)
+{
+	mmio_write_32(PLLDIG_PLLCR(pll_addr), PLLDIG_PLLCR_PLLPD);
+}
+
+static int program_pll(const struct s32cc_pll *pll, uintptr_t pll_addr,
+		       const struct s32cc_clk_drv *drv, uint32_t sclk_id,
+		       unsigned long sclk_freq)
+{
+	uint32_t rdiv = 1, mfi, mfn;
+	int ret;
+
+	ret = get_pll_mfi_mfn(pll->vco_freq, sclk_freq, &mfi, &mfn);
+	if (ret != 0) {
+		return -EINVAL;
+	}
+
+	/* Disable ODIVs*/
+	disable_odivs(pll_addr, pll->ndividers);
+
+	/* Disable PLL */
+	disable_pll_hw(pll_addr);
+
+	/* Program PLLCLKMUX */
+	mmio_write_32(PLLDIG_PLLCLKMUX(pll_addr), sclk_id);
+
+	/* Program VCO */
+	mmio_clrsetbits_32(PLLDIG_PLLDV(pll_addr),
+			   PLLDIG_PLLDV_RDIV_MASK | PLLDIG_PLLDV_MFI_MASK,
+			   PLLDIG_PLLDV_RDIV_SET(rdiv) | PLLDIG_PLLDV_MFI(mfi));
+
+	mmio_write_32(PLLDIG_PLLFD(pll_addr),
+		      PLLDIG_PLLFD_MFN_SET(mfn) | PLLDIG_PLLFD_SMDEN);
+
+	enable_pll_hw(pll_addr);
+
+	return ret;
+}
+
+static int enable_pll(const struct s32cc_clk_obj *module,
+		      const struct s32cc_clk_drv *drv,
+		      unsigned int *depth)
+{
+	const struct s32cc_pll *pll = s32cc_obj2pll(module);
+	const struct s32cc_clkmux *mux;
+	uintptr_t pll_addr = UL(0x0);
+	unsigned long sclk_freq;
+	uint32_t sclk_id;
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	mux = get_pll_mux(pll);
+	if (mux == NULL) {
+		return -EINVAL;
+	}
+
+	if (pll->instance != mux->module) {
+		ERROR("MUX type is not in sync with PLL ID\n");
+		return -EINVAL;
+	}
+
+	ret = get_base_addr(pll->instance, drv, &pll_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect PLL instance\n");
+		return ret;
+	}
+
+	switch (mux->source_id) {
+	case S32CC_CLK_FIRC:
+		sclk_freq = 48U * MHZ;
+		sclk_id = 0;
+		break;
+	case S32CC_CLK_FXOSC:
+		sclk_freq = 40U * MHZ;
+		sclk_id = 1;
+		break;
+	default:
+		ERROR("Invalid source selection for PLL 0x%lx\n",
+		      pll_addr);
+		return -EINVAL;
+	};
+
+	return program_pll(pll, pll_addr, drv, sclk_id, sclk_freq);
+}
+
+static inline struct s32cc_pll *get_div_pll(const struct s32cc_pll_out_div *pdiv)
+{
+	const struct s32cc_clk_obj *parent;
+
+	parent = pdiv->parent;
+	if (parent == NULL) {
+		ERROR("Failed to identify PLL divider's parent\n");
+		return NULL;
+	}
+
+	if (parent->type != s32cc_pll_t) {
+		ERROR("The parent of the divider is not a PLL instance\n");
+		return NULL;
+	}
+
+	return s32cc_obj2pll(parent);
+}
+
+static void config_pll_out_div(uintptr_t pll_addr, uint32_t div_index, uint32_t dc)
+{
+	uint32_t pllodiv;
+	uint32_t pdiv;
+
+	pllodiv = mmio_read_32(PLLDIG_PLLODIV(pll_addr, div_index));
+	pdiv = PLLDIG_PLLODIV_DIV(pllodiv);
+
+	if (((pdiv + 1U) == dc) && ((pllodiv & PLLDIG_PLLODIV_DE) != 0U)) {
+		return;
+	}
+
+	if ((pllodiv & PLLDIG_PLLODIV_DE) != 0U) {
+		disable_odiv(pll_addr, div_index);
+	}
+
+	pllodiv = PLLDIG_PLLODIV_DIV_SET(dc - 1U);
+	mmio_write_32(PLLDIG_PLLODIV(pll_addr, div_index), pllodiv);
+
+	enable_odiv(pll_addr, div_index);
+}
+
+static int enable_pll_div(const struct s32cc_clk_obj *module,
+			  const struct s32cc_clk_drv *drv,
+			  unsigned int *depth)
+{
+	const struct s32cc_pll_out_div *pdiv = s32cc_obj2plldiv(module);
+	uintptr_t pll_addr = 0x0ULL;
+	const struct s32cc_pll *pll;
+	uint32_t dc;
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	pll = get_div_pll(pdiv);
+	if (pll == NULL) {
+		ERROR("The parent of the PLL DIV is invalid\n");
+		return 0;
+	}
+
+	ret = get_base_addr(pll->instance, drv, &pll_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect PLL instance\n");
+		return -EINVAL;
+	}
+
+	dc = (uint32_t)(pll->vco_freq / pdiv->freq);
+
+	config_pll_out_div(pll_addr, pdiv->index, dc);
+
+	return 0;
+}
+
+static int cgm_mux_clk_config(uintptr_t cgm_addr, uint32_t mux, uint32_t source,
+			      bool safe_clk)
+{
+	uint32_t css, csc;
+
+	css = mmio_read_32(CGM_MUXn_CSS(cgm_addr, mux));
+
+	/* Already configured */
+	if ((MC_CGM_MUXn_CSS_SELSTAT(css) == source) &&
+	    (MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SUCCESS) &&
+	    ((css & MC_CGM_MUXn_CSS_SWIP) == 0U) && !safe_clk) {
+		return 0;
+	}
+
+	/* Ongoing clock switch? */
+	while ((mmio_read_32(CGM_MUXn_CSS(cgm_addr, mux)) &
+		MC_CGM_MUXn_CSS_SWIP) != 0U) {
+	}
+
+	csc = mmio_read_32(CGM_MUXn_CSC(cgm_addr, mux));
+
+	/* Clear previous source. */
+	csc &= ~(MC_CGM_MUXn_CSC_SELCTL_MASK);
+
+	if (!safe_clk) {
+		/* Select the clock source and trigger the clock switch. */
+		csc |= MC_CGM_MUXn_CSC_SELCTL(source) | MC_CGM_MUXn_CSC_CLK_SW;
+	} else {
+		/* Switch to safe clock */
+		csc |= MC_CGM_MUXn_CSC_SAFE_SW;
+	}
+
+	mmio_write_32(CGM_MUXn_CSC(cgm_addr, mux), csc);
+
+	/* Wait for configuration bit to auto-clear. */
+	while ((mmio_read_32(CGM_MUXn_CSC(cgm_addr, mux)) &
+		MC_CGM_MUXn_CSC_CLK_SW) != 0U) {
+	}
+
+	/* Is the clock switch completed? */
+	while ((mmio_read_32(CGM_MUXn_CSS(cgm_addr, mux)) &
+		MC_CGM_MUXn_CSS_SWIP) != 0U) {
+	}
+
+	/*
+	 * Check if the switch succeeded.
+	 * Check switch trigger cause and the source.
+	 */
+	css = mmio_read_32(CGM_MUXn_CSS(cgm_addr, mux));
+	if (!safe_clk) {
+		if ((MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SUCCESS) &&
+		    (MC_CGM_MUXn_CSS_SELSTAT(css) == source)) {
+			return 0;
+		}
+
+		ERROR("Failed to change the source of mux %" PRIu32 " to %" PRIu32 " (CGM=%lu)\n",
+		      mux, source, cgm_addr);
+	} else {
+		if (((MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SAFE_CLK) ||
+		     (MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SAFE_CLK_INACTIVE)) &&
+		     ((MC_CGM_MUXn_CSS_SAFE_SW & css) != 0U)) {
+			return 0;
+		}
+
+		ERROR("The switch of mux %" PRIu32 " (CGM=%lu) to safe clock failed\n",
+		      mux, cgm_addr);
+	}
+
+	return -EINVAL;
+}
+
+static int enable_cgm_mux(const struct s32cc_clkmux *mux,
+			  const struct s32cc_clk_drv *drv)
+{
+	uintptr_t cgm_addr = UL(0x0);
+	uint32_t mux_hw_clk;
+	int ret;
+
+	ret = get_base_addr(mux->module, drv, &cgm_addr);
+	if (ret != 0) {
+		return ret;
+	}
+
+	mux_hw_clk = (uint32_t)S32CC_CLK_ID(mux->source_id);
+
+	return cgm_mux_clk_config(cgm_addr, mux->index,
+				  mux_hw_clk, false);
+}
+
+static int enable_mux(const struct s32cc_clk_obj *module,
+		      const struct s32cc_clk_drv *drv,
+		      unsigned int *depth)
+{
+	const struct s32cc_clkmux *mux = s32cc_obj2clkmux(module);
+	const struct s32cc_clk *clk;
+	int ret = 0;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (mux == NULL) {
+		return -EINVAL;
+	}
+
+	clk = s32cc_get_arch_clk(mux->source_id);
+	if (clk == NULL) {
+		ERROR("Invalid parent (%lu) for mux %" PRIu8 "\n",
+		      mux->source_id, mux->index);
+		return -EINVAL;
+	}
+
+	switch (mux->module) {
+	/* PLL mux will be enabled by PLL setup */
+	case S32CC_ARM_PLL:
+		break;
+	case S32CC_CGM1:
+		ret = enable_cgm_mux(mux, drv);
+		break;
+	default:
+		ERROR("Unknown mux parent type: %d\n", mux->module);
+		ret = -EINVAL;
+		break;
+	};
+
+	return ret;
+}
+
 static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth)
 {
 	const struct s32cc_clk_drv *drv = get_drv();
@@ -142,16 +572,18 @@ static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth
 	case s32cc_clk_t:
 		ret = enable_clk_module(module, drv, depth);
 		break;
-	case s32cc_clkmux_t:
-		ret = -ENOTSUP;
-		break;
-	case s32cc_shared_clkmux_t:
-		ret = -ENOTSUP;
-		break;
 	case s32cc_pll_t:
-		ret = -ENOTSUP;
+		ret = enable_pll(module, drv, depth);
 		break;
 	case s32cc_pll_out_div_t:
+		ret = enable_pll_div(module, drv, depth);
+		break;
+	case s32cc_clkmux_t:
+		ret = enable_mux(module, drv, depth);
+		break;
+	case s32cc_shared_clkmux_t:
+		ret = enable_mux(module, drv, depth);
+		break;
 	case s32cc_fixed_div_t:
 		ret = -ENOTSUP;
 		break;
@@ -340,6 +772,27 @@ static int set_fixed_div_freq(const struct s32cc_clk_obj *module, unsigned long 
 	return ret;
 }
 
+static int set_mux_freq(const struct s32cc_clk_obj *module, unsigned long rate,
+			unsigned long *orate, unsigned int *depth)
+{
+	const struct s32cc_clkmux *mux = s32cc_obj2clkmux(module);
+	const struct s32cc_clk *clk = s32cc_get_arch_clk(mux->source_id);
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (clk == NULL) {
+		ERROR("Mux (id:%" PRIu8 ") without a valid source (%lu)\n",
+		      mux->index, mux->source_id);
+		return -EINVAL;
+	}
+
+	return set_module_rate(&clk->desc, rate, orate, depth);
+}
+
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth)
@@ -368,8 +821,10 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 		ret = set_fixed_div_freq(module, rate, orate, depth);
 		break;
 	case s32cc_clkmux_t:
+		ret = set_mux_freq(module, rate, orate, depth);
+		break;
 	case s32cc_shared_clkmux_t:
-		ret = -ENOTSUP;
+		ret = set_mux_freq(module, rate, orate, depth);
 		break;
 	default:
 		ret = -EINVAL;
