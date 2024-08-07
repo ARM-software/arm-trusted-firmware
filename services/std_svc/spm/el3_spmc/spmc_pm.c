@@ -147,6 +147,8 @@ static int32_t spmc_send_pm_msg(uint8_t pm_msg_type,
 	ec->rt_model = RT_MODEL_DIR_REQ;
 	ec->rt_state = RT_STATE_RUNNING;
 	ec->dir_req_origin_id = FFA_SPMC_ID;
+	/* Expect a direct message response from the SP. */
+	ec->dir_req_funcid = FFA_FNUM_MSG_SEND_DIRECT_REQ;
 
 	rc = spmc_sp_synchronous_entry(ec);
 	if (rc != 0ULL) {

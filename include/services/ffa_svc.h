@@ -210,6 +210,8 @@
 #define FFA_PARTITION_DIRECT_REQ_RECV	U(1 << 0)
 #define FFA_PARTITION_DIRECT_REQ_SEND	U(1 << 1)
 #define FFA_PARTITION_INDIRECT_MSG	U(1 << 2)
+#define FFA_PARTITION_DIRECT_REQ2_RECV	U(1 << 9)
+#define FFA_PARTITION_DIRECT_REQ2_SEND	U(1 << 10)
 
 /*
  * Reserve a special value for traffic targeted to the Hypervisor or SPM.

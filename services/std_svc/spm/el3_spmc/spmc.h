@@ -134,6 +134,9 @@ struct sp_exec_ctx {
 
 	/* Track the source partition ID to validate a direct response. */
 	uint16_t dir_req_origin_id;
+
+	/* Track direct message function id to validate a direct response. */
+	uint16_t dir_req_funcid;
 };
 
 /*
