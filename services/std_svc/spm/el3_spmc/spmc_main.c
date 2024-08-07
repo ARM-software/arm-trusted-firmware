@@ -2421,11 +2421,13 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 		return spmc_ffa_console_log(smc_fid, secure_origin, x1, x2, x3,
 						x4, cookie, handle, flags);
 
-	case FFA_MEM_PERM_GET:
+	case FFA_MEM_PERM_GET_SMC32:
+	case FFA_MEM_PERM_GET_SMC64:
 		return ffa_mem_perm_get_handler(smc_fid, secure_origin, x1, x2,
 						x3, x4, cookie, handle, flags);
 
-	case FFA_MEM_PERM_SET:
+	case FFA_MEM_PERM_SET_SMC32:
+	case FFA_MEM_PERM_SET_SMC64:
 		return ffa_mem_perm_set_handler(smc_fid, secure_origin, x1, x2,
 						x3, x4, cookie, handle, flags);
 
