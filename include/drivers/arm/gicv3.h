@@ -150,6 +150,7 @@
 /* GICD_TYPER shifts and masks */
 #define	TYPER_ESPI		U(1 << 8)
 #define	TYPER_DVIS		U(1 << 18)
+#define	TYPER_LPIS		U(1 << 17)
 #define	TYPER_ESPI_RANGE_MASK	U(0x1f)
 #define	TYPER_ESPI_RANGE_SHIFT	U(27)
 #define	TYPER_ESPI_RANGE	U(TYPER_ESPI_MASK << TYPER_ESPI_SHIFT)

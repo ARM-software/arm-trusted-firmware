@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,10 +28,13 @@
 void arm_gicv3_distif_pre_save(unsigned int rdist_proc_num)
 {
 	uintptr_t gicr_base = 0;
+	unsigned int typer_reg;
 
 	assert(gicv3_driver_data);
 	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(gicv3_driver_data->gicd_base != 0U);
 
+	typer_reg = gicd_read_typer(gicv3_driver_data->gicd_base);
 	/*
 	 * The GICR_WAKER.Sleep bit should be set only when both
 	 * GICR_WAKER.ChildrenAsleep and GICR_WAKER.ProcessorSleep are set on
@@ -60,9 +63,14 @@ void arm_gicv3_distif_pre_save(unsigned int rdist_proc_num)
 	 */
 	gicr_write_waker(gicr_base, gicr_read_waker(gicr_base) | WAKER_SL_BIT);
 
-	/* Wait until the GICR_WAKER.Quiescent bit is set */
-	while (!(gicr_read_waker(gicr_base) & WAKER_QSC_BIT))
-		;
+	/*
+	 * If LPIs are supported, wait until the GICR_WAKER.Quiescent bit is
+	 * set.
+	 */
+	if ((typer_reg & TYPER_LPIS) != 0U) {
+		while (!(gicr_read_waker(gicr_base) & WAKER_QSC_BIT))
+			;
+	}
 }
 
 /*
