@@ -384,12 +384,23 @@ enum ddr_type {
 /*******************************************************************************
  * STM32MP2 BSEC / OTP
  ******************************************************************************/
+#if STM32MP21
+/*
+ * BSEC: 364 available OTPs, the other are masked
+ * - OEM FSBL keys 348 to 363 (programmable but not readable)
+ * - ECIES key: 364 to 375 (only readable by bootrom)
+ * - HWKEY: 376 to 383 (never reloadable or readable)
+ */
+#define STM32MP2_OTP_MAX_ID			U(0x16B)
+#else
 /*
  * 367 available OTPs, the other are masked
+ * - OEM FSBL keys 360 to 367 (programmable but not readable)
  * - ECIES key: 368 to 375 (only readable by bootrom)
  * - HWKEY: 376 to 383 (never reloadable or readable)
  */
 #define STM32MP2_OTP_MAX_ID			U(0x16F)
+#endif
 #define STM32MP2_MID_OTP_START			U(0x80)
 #define STM32MP2_UPPER_OTP_START		U(0x100)
 
