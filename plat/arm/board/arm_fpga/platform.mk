@@ -47,6 +47,7 @@ ENABLE_SYS_REG_TRACE_FOR_NS	:= 2
 ENABLE_TRF_FOR_NS		:= 2
 ENABLE_SME_FOR_NS		:= 2
 ENABLE_SME2_FOR_NS		:= 2
+ENABLE_FEAT_LS64_ACCDATA	:= 2
 
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0

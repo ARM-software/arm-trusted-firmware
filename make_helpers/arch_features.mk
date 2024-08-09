@@ -336,6 +336,9 @@ DISABLE_MTPMU				?=	0
 # Flag to enable FEAT_FGT2 (Fine Granular Traps 2)
 ENABLE_FEAT_FGT2			?=	0
 
+# LoadStore64Bytes extension using the ACCDATA_EL1 system register
+ENABLE_FEAT_LS64_ACCDATA		?=	0
+
 #----
 # 8.8
 #----

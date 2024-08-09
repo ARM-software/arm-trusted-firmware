@@ -118,6 +118,10 @@ typedef struct el1_sctlr2_regs {
 	uint64_t sctlr2_el1;
 } el1_sctlr2_regs_t;
 
+typedef struct el1_ls64_regs {
+	uint64_t accdata_el1;
+} el1_ls64_regs_t;
+
 typedef struct el1_sysregs {
 
 	el1_common_regs_t common;
@@ -174,6 +178,9 @@ typedef struct el1_sysregs {
 	el1_sctlr2_regs_t sctlr2;
 #endif
 
+#if ENABLE_FEAT_LS64_ACCDATA
+	el1_ls64_regs_t ls64;
+#endif
 } el1_sysregs_t;
 
 
@@ -304,6 +311,14 @@ typedef struct el1_sysregs {
 #define write_el1_ctx_sctlr2(ctx, reg, val)
 #endif /* ENABLE_FEAT_SCTLR2 */
 
+#if ENABLE_FEAT_LS64_ACCDATA
+#define read_el1_ctx_ls64(ctx, reg)		(((ctx)->ls64).reg)
+#define write_el1_ctx_ls64(ctx, reg, val)	((((ctx)->ls64).reg)	\
+							= (uint64_t) (val))
+#else
+#define read_el1_ctx_ls64(ctx, reg)		ULL(0)
+#define write_el1_ctx_ls64(ctx, reg, val)
+#endif /* ENABLE_FEAT_LS64_ACCDATA */
 /******************************************************************************/
 #endif /* __ASSEMBLER__ */
 
