@@ -17,6 +17,8 @@ enum s32cc_clkm_type {
 	s32cc_clk_t,
 	s32cc_pll_t,
 	s32cc_pll_out_div_t,
+	s32cc_dfs_t,
+	s32cc_dfs_div_t,
 	s32cc_clkmux_t,
 	s32cc_shared_clkmux_t,
 	s32cc_fixed_div_t,
@@ -27,6 +29,8 @@ enum s32cc_clk_source {
 	S32CC_FXOSC,
 	S32CC_SIRC,
 	S32CC_ARM_PLL,
+	S32CC_ARM_DFS,
+	S32CC_CGM0,
 	S32CC_CGM1,
 };
 
@@ -122,6 +126,38 @@ struct s32cc_pll_out_div {
 	.index = (INDEX),                      \
 }
 
+struct s32cc_dfs {
+	struct s32cc_clk_obj desc;
+	struct s32cc_clk_obj *parent;
+	enum s32cc_clk_source instance;
+	uintptr_t base;
+};
+
+#define S32CC_DFS_INIT(PARENT, INSTANCE) \
+{                                        \
+	.desc = {                        \
+		.type = s32cc_dfs_t,     \
+	},                               \
+	.parent = &(PARENT).desc,        \
+	.instance = (INSTANCE),          \
+}
+
+struct s32cc_dfs_div {
+	struct s32cc_clk_obj desc;
+	struct s32cc_clk_obj *parent;
+	uint32_t index;
+	unsigned long freq;
+};
+
+#define S32CC_DFS_DIV_INIT(PARENT, INDEX) \
+{                                         \
+	.desc = {                         \
+		.type = s32cc_dfs_div_t,  \
+	},                                \
+	.parent = &(PARENT).desc,         \
+	.index = (INDEX),                 \
+}
+
 struct s32cc_fixed_div {
 	struct s32cc_clk_obj desc;
 	struct s32cc_clk_obj *parent;
@@ -151,21 +187,25 @@ struct s32cc_clk_array {
 	size_t n_clks;
 };
 
-#define S32CC_FREQ_MODULE(PARENT_MODULE, MIN_F, MAX_F) \
-{                                                      \
-	.desc = {                                      \
-		.type = s32cc_clk_t,                   \
-	},                                             \
-	.module = &(PARENT_MODULE).desc,               \
-	.min_freq = (MIN_F),                           \
-	.max_freq = (MAX_F),                           \
+#define S32CC_FREQ_CLK(PARENT_MODULE, PARENT, MIN_F, MAX_F) \
+{                                                           \
+	.desc = {                                           \
+		.type = s32cc_clk_t,                        \
+	},                                                  \
+	.pclock = (PARENT),                                 \
+	.module = (PARENT_MODULE),                          \
+	.min_freq = (MIN_F),                                \
+	.max_freq = (MAX_F),                                \
 }
 
 #define S32CC_FREQ_MODULE_CLK(PARENT_MODULE, MIN_F, MAX_F) \
-	S32CC_FREQ_MODULE(PARENT_MODULE, MIN_F, MAX_F)
+	S32CC_FREQ_CLK(&(PARENT_MODULE).desc, NULL, MIN_F, MAX_F)
 
 #define S32CC_MODULE_CLK(PARENT_MODULE) \
 	S32CC_FREQ_MODULE_CLK(PARENT_MODULE, 0, 0)
+
+#define S32CC_CHILD_CLK(PARENT, MIN_F, MAX_F) \
+	S32CC_FREQ_CLK(NULL, &(PARENT), MIN_F, MAX_F)
 
 static inline struct s32cc_osc *s32cc_obj2osc(const struct s32cc_clk_obj *mod)
 {
@@ -235,6 +275,22 @@ static inline struct s32cc_fixed_div *s32cc_obj2fixeddiv(const struct s32cc_clk_
 
 	fdiv_addr = ((uintptr_t)mod) - offsetof(struct s32cc_fixed_div, desc);
 	return (struct s32cc_fixed_div *)fdiv_addr;
+}
+
+static inline struct s32cc_dfs *s32cc_obj2dfs(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t dfs_addr;
+
+	dfs_addr = ((uintptr_t)mod) - offsetof(struct s32cc_dfs, desc);
+	return (struct s32cc_dfs *)dfs_addr;
+}
+
+static inline struct s32cc_dfs_div *s32cc_obj2dfsdiv(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t dfs_div_addr;
+
+	dfs_div_addr = ((uintptr_t)mod) - offsetof(struct s32cc_dfs_div, desc);
+	return (struct s32cc_dfs_div *)dfs_div_addr;
 }
 
 #endif /* S32CC_CLK_MODULES_H */

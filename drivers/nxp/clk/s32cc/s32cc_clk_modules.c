@@ -43,6 +43,45 @@ static struct s32cc_pll_out_div arm_pll_phi0_div =
 static struct s32cc_clk arm_pll_phi0_clk =
 	S32CC_FREQ_MODULE_CLK(arm_pll_phi0_div, 0, GHZ);
 
+/* ARM DFS */
+static struct s32cc_dfs armdfs =
+	S32CC_DFS_INIT(armpll, S32CC_ARM_DFS);
+static struct s32cc_dfs_div arm_dfs1_div =
+	S32CC_DFS_DIV_INIT(armdfs, 0);
+static struct s32cc_clk arm_dfs1_clk =
+	S32CC_FREQ_MODULE_CLK(arm_dfs1_div, 0, 800 * MHZ);
+
+/* MC_CGM0 */
+static struct s32cc_clkmux cgm0_mux0 =
+	S32CC_SHARED_CLKMUX_INIT(S32CC_CGM0, 0, 2,
+				 S32CC_CLK_FIRC,
+				 S32CC_CLK_ARM_PLL_DFS1, 0, 0, 0);
+static struct s32cc_clk cgm0_mux0_clk = S32CC_MODULE_CLK(cgm0_mux0);
+
+/* XBAR */
+static struct s32cc_clk xbar_2x_clk =
+	S32CC_CHILD_CLK(cgm0_mux0_clk, 48 * MHZ, 800 * MHZ);
+static struct s32cc_fixed_div xbar_div2 =
+	S32CC_FIXED_DIV_INIT(cgm0_mux0_clk, 2);
+static struct s32cc_clk xbar_clk =
+	S32CC_FREQ_MODULE_CLK(xbar_div2, 24 * MHZ, 400 * MHZ);
+static struct s32cc_fixed_div xbar_div4 =
+	S32CC_FIXED_DIV_INIT(cgm0_mux0_clk, 4);
+static struct s32cc_clk xbar_div2_clk =
+	S32CC_FREQ_MODULE_CLK(xbar_div4, 12 * MHZ, 200 * MHZ);
+static struct s32cc_fixed_div xbar_div6 =
+	S32CC_FIXED_DIV_INIT(cgm0_mux0_clk, 6);
+static struct s32cc_clk xbar_div3_clk =
+	S32CC_FREQ_MODULE_CLK(xbar_div6, 8 * MHZ, 133333333);
+static struct s32cc_fixed_div xbar_div8 =
+	S32CC_FIXED_DIV_INIT(cgm0_mux0_clk, 8);
+static struct s32cc_clk xbar_div4_clk =
+	S32CC_FREQ_MODULE_CLK(xbar_div8, 6 * MHZ, 100 * MHZ);
+static struct s32cc_fixed_div xbar_div12 =
+	S32CC_FIXED_DIV_INIT(cgm0_mux0_clk, 12);
+static struct s32cc_clk xbar_div6_clk =
+	S32CC_FREQ_MODULE_CLK(xbar_div12, 4 * MHZ, 66666666);
+
 /* MC_CGM1 */
 static struct s32cc_clkmux cgm1_mux0 =
 	S32CC_SHARED_CLKMUX_INIT(S32CC_CGM1, 0, 3,
@@ -68,13 +107,15 @@ static struct s32cc_clk a53_core_div10_clk =
 	S32CC_FREQ_MODULE_CLK(a53_core_div10, S32CC_A53_MIN_FREQ / 10,
 			      S32CC_A53_MAX_FREQ / 10);
 
-static struct s32cc_clk *s32cc_hw_clk_list[5] = {
+static struct s32cc_clk *s32cc_hw_clk_list[13] = {
 	/* Oscillators */
 	[S32CC_CLK_ID(S32CC_CLK_FIRC)] = &firc_clk,
 	[S32CC_CLK_ID(S32CC_CLK_SIRC)] = &sirc_clk,
 	[S32CC_CLK_ID(S32CC_CLK_FXOSC)] = &fxosc_clk,
 	/* ARM PLL */
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_PHI0)] = &arm_pll_phi0_clk,
+	/* ARM DFS */
+	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_DFS1)] = &arm_dfs1_clk,
 };
 
 static struct s32cc_clk_array s32cc_hw_clocks = {
@@ -83,10 +124,19 @@ static struct s32cc_clk_array s32cc_hw_clocks = {
 	.n_clks = ARRAY_SIZE(s32cc_hw_clk_list),
 };
 
-static struct s32cc_clk *s32cc_arch_clk_list[6] = {
+static struct s32cc_clk *s32cc_arch_clk_list[13] = {
 	/* ARM PLL */
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_MUX)] = &arm_pll_mux_clk,
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_VCO)] = &arm_pll_vco_clk,
+	/* MC_CGM0 */
+	[S32CC_CLK_ID(S32CC_CLK_MC_CGM0_MUX0)] = &cgm0_mux0_clk,
+	/* XBAR */
+	[S32CC_CLK_ID(S32CC_CLK_XBAR_2X)] = &xbar_2x_clk,
+	[S32CC_CLK_ID(S32CC_CLK_XBAR)] = &xbar_clk,
+	[S32CC_CLK_ID(S32CC_CLK_XBAR_DIV2)] = &xbar_div2_clk,
+	[S32CC_CLK_ID(S32CC_CLK_XBAR_DIV3)] = &xbar_div3_clk,
+	[S32CC_CLK_ID(S32CC_CLK_XBAR_DIV4)] = &xbar_div4_clk,
+	[S32CC_CLK_ID(S32CC_CLK_XBAR_DIV6)] = &xbar_div6_clk,
 	/* MC_CGM1 */
 	[S32CC_CLK_ID(S32CC_CLK_MC_CGM1_MUX0)] = &cgm1_mux0_clk,
 	/* A53 */

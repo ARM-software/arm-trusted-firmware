@@ -22,6 +22,8 @@
 struct s32cc_clk_drv {
 	uintptr_t fxosc_base;
 	uintptr_t armpll_base;
+	uintptr_t armdfs_base;
+	uintptr_t cgm0_base;
 	uintptr_t cgm1_base;
 };
 
@@ -40,6 +42,8 @@ static struct s32cc_clk_drv *get_drv(void)
 	static struct s32cc_clk_drv driver = {
 		.fxosc_base = FXOSC_BASE_ADDR,
 		.armpll_base = ARMPLL_BASE_ADDR,
+		.armdfs_base = ARM_DFS_BASE_ADDR,
+		.cgm0_base = CGM0_BASE_ADDR,
 		.cgm1_base = CGM1_BASE_ADDR,
 	};
 
@@ -86,6 +90,12 @@ static int get_base_addr(enum s32cc_clk_source id, const struct s32cc_clk_drv *d
 		break;
 	case S32CC_ARM_PLL:
 		*base = drv->armpll_base;
+		break;
+	case S32CC_ARM_DFS:
+		*base = drv->armdfs_base;
+		break;
+	case S32CC_CGM0:
+		*base = drv->cgm0_base;
 		break;
 	case S32CC_CGM1:
 		*base = drv->cgm1_base;
@@ -542,6 +552,9 @@ static int enable_mux(const struct s32cc_clk_obj *module,
 	case S32CC_CGM1:
 		ret = enable_cgm_mux(mux, drv);
 		break;
+	case S32CC_CGM0:
+		ret = enable_cgm_mux(mux, drv);
+		break;
 	default:
 		ERROR("Unknown mux parent type: %d\n", mux->module);
 		ret = -EINVAL;
@@ -549,6 +562,199 @@ static int enable_mux(const struct s32cc_clk_obj *module,
 	};
 
 	return ret;
+}
+
+static int enable_dfs(const struct s32cc_clk_obj *module,
+		      const struct s32cc_clk_drv *drv,
+		      unsigned int *depth)
+{
+	int ret = 0;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	return 0;
+}
+
+static struct s32cc_dfs *get_div_dfs(const struct s32cc_dfs_div *dfs_div)
+{
+	const struct s32cc_clk_obj *parent = dfs_div->parent;
+
+	if (parent->type != s32cc_dfs_t) {
+		ERROR("DFS DIV doesn't have a DFS as parent\n");
+		return NULL;
+	}
+
+	return s32cc_obj2dfs(parent);
+}
+
+static struct s32cc_pll *dfsdiv2pll(const struct s32cc_dfs_div *dfs_div)
+{
+	const struct s32cc_clk_obj *parent;
+	const struct s32cc_dfs *dfs;
+
+	dfs = get_div_dfs(dfs_div);
+	if (dfs == NULL) {
+		return NULL;
+	}
+
+	parent = dfs->parent;
+	if (parent->type != s32cc_pll_t) {
+		return NULL;
+	}
+
+	return s32cc_obj2pll(parent);
+}
+
+static int get_dfs_mfi_mfn(unsigned long dfs_freq, const struct s32cc_dfs_div *dfs_div,
+			   uint32_t *mfi, uint32_t *mfn)
+{
+	uint64_t factor64, tmp64, ofreq;
+	uint32_t factor32;
+
+	unsigned long in = dfs_freq;
+	unsigned long out = dfs_div->freq;
+
+	/**
+	 * factor = (IN / OUT) / 2
+	 * MFI = integer(factor)
+	 * MFN = (factor - MFI) * 36
+	 */
+	factor64 = ((((uint64_t)in) * FP_PRECISION) / ((uint64_t)out)) / 2ULL;
+	tmp64 = factor64 / FP_PRECISION;
+	if (tmp64 > UINT32_MAX) {
+		return -EINVAL;
+	}
+
+	factor32 = (uint32_t)tmp64;
+	*mfi = factor32;
+
+	tmp64 = ((factor64 - ((uint64_t)*mfi * FP_PRECISION)) * 36UL) / FP_PRECISION;
+	if (tmp64 > UINT32_MAX) {
+		return -EINVAL;
+	}
+
+	*mfn = (uint32_t)tmp64;
+
+	/* div_freq = in / (2 * (*mfi + *mfn / 36.0)) */
+	factor64 = (((uint64_t)*mfn) * FP_PRECISION) / 36ULL;
+	factor64 += ((uint64_t)*mfi) * FP_PRECISION;
+	factor64 *= 2ULL;
+	ofreq = (((uint64_t)in) * FP_PRECISION) / factor64;
+
+	if (ofreq != dfs_div->freq) {
+		ERROR("Failed to find MFI and MFN settings for DFS DIV freq %lu\n",
+		      dfs_div->freq);
+		ERROR("Nearest freq = %" PRIx64 "\n", ofreq);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int init_dfs_port(uintptr_t dfs_addr, uint32_t port,
+			 uint32_t mfi, uint32_t mfn)
+{
+	uint32_t portsr, portolsr;
+	uint32_t mask, old_mfi, old_mfn;
+	uint32_t dvport;
+	bool init_dfs;
+
+	dvport = mmio_read_32(DFS_DVPORTn(dfs_addr, port));
+
+	old_mfi = DFS_DVPORTn_MFI(dvport);
+	old_mfn = DFS_DVPORTn_MFN(dvport);
+
+	portsr = mmio_read_32(DFS_PORTSR(dfs_addr));
+	portolsr = mmio_read_32(DFS_PORTOLSR(dfs_addr));
+
+	/* Skip configuration if it's not needed */
+	if (((portsr & BIT_32(port)) != 0U) &&
+	    ((portolsr & BIT_32(port)) == 0U) &&
+	    (mfi == old_mfi) && (mfn == old_mfn)) {
+		return 0;
+	}
+
+	init_dfs = (portsr == 0U);
+
+	if (init_dfs) {
+		mask = DFS_PORTRESET_MASK;
+	} else {
+		mask = DFS_PORTRESET_SET(BIT_32(port));
+	}
+
+	mmio_write_32(DFS_PORTOLSR(dfs_addr), mask);
+	mmio_write_32(DFS_PORTRESET(dfs_addr), mask);
+
+	while ((mmio_read_32(DFS_PORTSR(dfs_addr)) & mask) != 0U) {
+	}
+
+	if (init_dfs) {
+		mmio_write_32(DFS_CTL(dfs_addr), DFS_CTL_RESET);
+	}
+
+	mmio_write_32(DFS_DVPORTn(dfs_addr, port),
+		      DFS_DVPORTn_MFI_SET(mfi) | DFS_DVPORTn_MFN_SET(mfn));
+
+	if (init_dfs) {
+		/* DFS clk enable programming */
+		mmio_clrbits_32(DFS_CTL(dfs_addr), DFS_CTL_RESET);
+	}
+
+	mmio_clrbits_32(DFS_PORTRESET(dfs_addr), BIT_32(port));
+
+	while ((mmio_read_32(DFS_PORTSR(dfs_addr)) & BIT_32(port)) != BIT_32(port)) {
+	}
+
+	portolsr = mmio_read_32(DFS_PORTOLSR(dfs_addr));
+	if ((portolsr & DFS_PORTOLSR_LOL(port)) != 0U) {
+		ERROR("Failed to lock DFS divider\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int enable_dfs_div(const struct s32cc_clk_obj *module,
+			  const struct s32cc_clk_drv *drv,
+			  unsigned int *depth)
+{
+	const struct s32cc_dfs_div *dfs_div = s32cc_obj2dfsdiv(module);
+	const struct s32cc_pll *pll;
+	const struct s32cc_dfs *dfs;
+	uintptr_t dfs_addr = 0UL;
+	uint32_t mfi, mfn;
+	int ret = 0;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	dfs = get_div_dfs(dfs_div);
+	if (dfs == NULL) {
+		return -EINVAL;
+	}
+
+	pll = dfsdiv2pll(dfs_div);
+	if (pll == NULL) {
+		ERROR("Failed to identify DFS divider's parent\n");
+		return -EINVAL;
+	}
+
+	ret = get_base_addr(dfs->instance, drv, &dfs_addr);
+	if ((ret != 0) || (dfs_addr == 0UL)) {
+		return -EINVAL;
+	}
+
+	ret = get_dfs_mfi_mfn(pll->vco_freq, dfs_div, &mfi, &mfn);
+	if (ret != 0) {
+		return -EINVAL;
+	}
+
+	return init_dfs_port(dfs_addr, dfs_div->index, mfi, mfn);
 }
 
 static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth)
@@ -586,6 +792,12 @@ static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth
 		break;
 	case s32cc_fixed_div_t:
 		ret = -ENOTSUP;
+		break;
+	case s32cc_dfs_t:
+		ret = enable_dfs(module, drv, depth);
+		break;
+	case s32cc_dfs_div_t:
+		ret = enable_dfs_div(module, drv, depth);
 		break;
 	default:
 		ret = -EINVAL;
@@ -793,6 +1005,42 @@ static int set_mux_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 	return set_module_rate(&clk->desc, rate, orate, depth);
 }
 
+static int set_dfs_div_freq(const struct s32cc_clk_obj *module, unsigned long rate,
+			    unsigned long *orate, unsigned int *depth)
+{
+	struct s32cc_dfs_div *dfs_div = s32cc_obj2dfsdiv(module);
+	const struct s32cc_dfs *dfs;
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (dfs_div->parent == NULL) {
+		ERROR("Failed to identify DFS divider's parent\n");
+		return -EINVAL;
+	}
+
+	/* Sanity check */
+	dfs = s32cc_obj2dfs(dfs_div->parent);
+	if (dfs->parent == NULL) {
+		ERROR("Failed to identify DFS's parent\n");
+		return -EINVAL;
+	}
+
+	if ((dfs_div->freq != 0U) && (dfs_div->freq != rate)) {
+		ERROR("DFS DIV frequency was already set to %lu\n",
+		      dfs_div->freq);
+		return -EINVAL;
+	}
+
+	dfs_div->freq = rate;
+	*orate = rate;
+
+	return ret;
+}
+
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth)
@@ -803,6 +1051,8 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 	if (ret != 0) {
 		return ret;
 	}
+
+	ret = -EINVAL;
 
 	switch (module->type) {
 	case s32cc_clk_t:
@@ -826,8 +1076,13 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 	case s32cc_shared_clkmux_t:
 		ret = set_mux_freq(module, rate, orate, depth);
 		break;
+	case s32cc_dfs_t:
+		ERROR("Setting the frequency of a DFS is not allowed!");
+		break;
+	case s32cc_dfs_div_t:
+		ret = set_dfs_div_freq(module, rate, orate, depth);
+		break;
 	default:
-		ret = -EINVAL;
 		break;
 	}
 
