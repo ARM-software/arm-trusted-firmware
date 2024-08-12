@@ -75,13 +75,26 @@ IPI SMC call ranges
 | 0xc2001000-0xc2001FFF     | Fast SMC64 SiP Service call range used for AMD-Xilinx IPI |
 +---------------------------+-----------------------------------------------------------+
 
-PM SMC call ranges
+PM SMC call ranges for SiP SVC version 0.1
 --------------------------------------------------------
 
 +---------------------------+---------------------------------------------------------------------------+
 |   SMC Function Identifier |  Service type                                                             |
 +---------------------------+---------------------------------------------------------------------------+
 | 0xc2000000-0xc2000FFF     | Fast SMC64 SiP Service call range used for AMD-Xilinx Platform Management |
++---------------------------+---------------------------------------------------------------------------+
+
+PM SMC call ranges for SiP SVC version 0.2
+--------------------------------------------------------
+
++---------------------------+---------------------------------------------------------------------------+
+|   SMC Function Identifier |  Service type                                                             |
++---------------------------+---------------------------------------------------------------------------+
+| 0xc2000FFF                | Fast SMC64 SiP Service call used for pass-through of AMD-Xilinx Platform  |
+|                           | Management APIs to firmware                                               |
++---------------------------+---------------------------------------------------------------------------+
+| 0xc2000A00-0xc2000AFF     | Fast SMC64 SiP Service call range used for AMD-Xilinx Platform Management |
+|                           | specific TF-A APIs                                                        |
 +---------------------------+---------------------------------------------------------------------------+
 
 SMC function IDs for SiP Service queries

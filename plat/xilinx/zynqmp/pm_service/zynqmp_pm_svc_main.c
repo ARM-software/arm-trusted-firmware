@@ -285,7 +285,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	uint32_t pm_arg[5];
-	uint32_t result[PAYLOAD_ARG_CNT] = {0};
+	uint32_t result[RET_PAYLOAD_ARG_CNT] = {0};
 	uint32_t api_id;
 
 	/* Handle case where PM wasn't initialized properly */
@@ -566,7 +566,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		PM_PACK_PAYLOAD6(payload, api_id, pm_arg[0], pm_arg[1],
 				 pm_arg[2], pm_arg[3], pm_arg[4]);
 		ret = pm_ipi_send_sync(primary_proc, payload, result,
-				       PAYLOAD_ARG_CNT);
+				       RET_PAYLOAD_ARG_CNT);
 		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32U),
 			 (uint64_t)result[1] | ((uint64_t)result[2] << 32U));
 	}

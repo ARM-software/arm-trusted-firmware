@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,8 @@
 #include <pm_common.h>
 
 extern bool pwrdwn_req_received;
+
+#define PASS_THROUGH_FW_CMD_ID	U(0xfff)
 
 /******************************************************************************/
 /**

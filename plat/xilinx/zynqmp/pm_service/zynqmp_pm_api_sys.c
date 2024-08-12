@@ -919,7 +919,7 @@ static enum pm_ret_status feature_check_partial(uint32_t api_id,
 enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 				    uint32_t *bit_mask, uint8_t len)
 {
-	uint32_t ret_payload[PAYLOAD_ARG_CNT] = {0U};
+	uint32_t ret_payload[RET_PAYLOAD_ARG_CNT] = {0U};
 	uint32_t status;
 
 	/* Get API version implemented in TF-A */
