@@ -125,6 +125,10 @@
 #define APU_CLUSTER_STEP	U(0x100000)
 
 #define SLCR_OSPI_QSPI_IOU_AXI_MUX_SEL	U(0xF1060504)
+#define PMXC_IOU_SLCR_SRAM_CSR	U(0xF106104C)
+#define PMXC_IOU_SLCR_PHY_RESET	U(0xF1061050)
+#define PMXC_IOU_SLCR_TX_RX_CONFIG_RDY	U(0xF1061054)
+#define PMXC_CRP_RST_UFS	U(0xF1260340)
 
 /*******************************************************************************
  * IRQ constants
