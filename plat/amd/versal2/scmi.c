@@ -183,12 +183,37 @@ static struct scmi_reset scmi0_reset[] = {
 	RESET_CELL(RESET_UFSPHY_0, RESET_UFSPHY_0, "ufsphy0"),
 };
 
+/**
+ * struct scmi_pd - Data for the exposed power domain controller
+ * @pd_id: pd identifier in RCC reset driver
+ * @name: pd string ID exposed to agent
+ * @state: keep state setting
+ */
+struct scmi_pd {
+	unsigned long pd_id;
+	const char *name;
+	unsigned int state;
+};
+
+#define PD_CELL(_scmi_id, _id, _name, _state) \
+	[_scmi_id] = { \
+		.pd_id = _id, \
+		.name = _name, \
+		.state = _state, \
+	}
+
+static struct scmi_pd scmi0_pd[] = {
+	PD_CELL(PD_USB0, PD_USB0, "usb0", 0),
+	PD_CELL(PD_USB1, PD_USB1, "usb1", 0),
+};
+
 struct scmi_resources {
 	struct scmi_clk *clock;
 	size_t clock_count;
 	struct scmi_reset *reset;
 	size_t reset_count;
-
+	struct scmi_pd *pd;
+	size_t pd_count;
 };
 
 static const struct scmi_resources resources[] = {
@@ -197,6 +222,8 @@ static const struct scmi_resources resources[] = {
 		.clock_count = ARRAY_SIZE(scmi0_clock),
 		.reset = scmi0_reset,
 		.reset_count = ARRAY_SIZE(scmi0_reset),
+		.pd = scmi0_pd,
+		.pd_count = ARRAY_SIZE(scmi0_pd),
 	},
 };
 
@@ -465,6 +492,92 @@ int32_t plat_scmi_rstd_set_state(unsigned int agent_id, unsigned int scmi_id,
 	return SCMI_SUCCESS;
 }
 
+/*
+ * Platform SCMI reset domains
+ */
+static struct scmi_pd *find_pd(unsigned int agent_id, unsigned int pd_id)
+{
+	const struct scmi_resources *resource = find_resource(agent_id);
+	size_t n;
+
+	if (resource != NULL) {
+		for (n = 0U; n < resource->pd_count; n++) {
+			if (n == pd_id) {
+				return &resource->pd[n];
+			}
+		}
+	}
+
+	return NULL;
+}
+
+size_t plat_scmi_pd_count(unsigned int agent_id)
+{
+	const struct scmi_resources *resource = find_resource(agent_id);
+	size_t ret;
+
+	if (resource == NULL) {
+		ret = 0U;
+	} else {
+		ret = resource->pd_count;
+
+		NOTICE("SCMI: PD: %d\n", (unsigned int)ret);
+	}
+	return ret;
+}
+
+const char *plat_scmi_pd_get_name(unsigned int agent_id, unsigned int pd_id)
+{
+	const struct scmi_pd *pd = find_pd(agent_id, pd_id);
+
+	if (pd == NULL) {
+		return NULL;
+	}
+
+	return pd->name;
+}
+
+unsigned int plat_scmi_pd_statistics(unsigned int agent_id, unsigned long *pd_id)
+{
+	return 0U;
+}
+
+unsigned int plat_scmi_pd_get_attributes(unsigned int agent_id, unsigned int pd_id)
+{
+	return 0U;
+}
+
+unsigned int plat_scmi_pd_get_state(unsigned int agent_id, unsigned int pd_id)
+{
+	const struct scmi_pd *pd = find_pd(agent_id, pd_id);
+
+	if (pd == NULL) {
+		return SCMI_NOT_SUPPORTED;
+	}
+
+	NOTICE("SCMI: PD: get id: %d, state: %x\n", pd_id, pd->state);
+
+	return pd->state;
+}
+
+int32_t plat_scmi_pd_set_state(unsigned int agent_id, unsigned int flags, unsigned int pd_id,
+			       unsigned int state)
+{
+	struct scmi_pd *pd = find_pd(agent_id, pd_id);
+
+	if (pd == NULL) {
+		return SCMI_NOT_SUPPORTED;
+	}
+
+	NOTICE("SCMI: PD: set id: %d, orig state: %x, new state: %x,  flags: %x\n",
+	       pd_id, pd->state, state, flags);
+
+	pd->state = state;
+
+	return 0U;
+}
+
+
 /* Currently only one channel is supported. Expectation is that channel 0 is used by NS SW */
 static struct scmi_msg_channel scmi_channel[] = {
 	[0] = {
@@ -499,10 +612,8 @@ static const uint8_t plat_protocol_list[] = {
 	SCMI_PROTOCOL_ID_BASE,
 	SCMI_PROTOCOL_ID_CLOCK,
 	SCMI_PROTOCOL_ID_RESET_DOMAIN,
-	/*
-	 *SCMI_PROTOCOL_ID_POWER_DOMAIN,
-	 *SCMI_PROTOCOL_ID_SENSOR,
-	 */
+	SCMI_PROTOCOL_ID_POWER_DOMAIN,
+	/* SCMI_PROTOCOL_ID_SENSOR, */
 	0U /* Null termination */
 };
 
