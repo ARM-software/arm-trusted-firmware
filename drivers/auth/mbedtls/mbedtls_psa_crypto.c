@@ -9,13 +9,11 @@
 #include <string.h>
 
 /* mbed TLS headers */
-#include <mbedtls/gcm.h>
 #include <mbedtls/md.h>
 #include <mbedtls/memory_buffer_alloc.h>
 #include <mbedtls/oid.h>
 #include <mbedtls/platform.h>
 #include <mbedtls/psa_util.h>
-#include <mbedtls/version.h>
 #include <mbedtls/x509.h>
 #include <psa/crypto.h>
 #include <psa/crypto_platform.h>
@@ -433,78 +431,61 @@ static int aes_gcm_decrypt(void *data_ptr, size_t len, const void *key,
 			   unsigned int iv_len, const void *tag,
 			   unsigned int tag_len)
 {
-	mbedtls_gcm_context ctx;
-	mbedtls_cipher_id_t cipher = MBEDTLS_CIPHER_ID_AES;
+	mbedtls_svc_key_id_t key_id = MBEDTLS_SVC_KEY_ID_INIT;
+	psa_aead_operation_t operation = PSA_AEAD_OPERATION_INIT;
+	psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+	psa_status_t psa_status = PSA_ERROR_GENERIC_ERROR;
 	unsigned char buf[DEC_OP_BUF_SIZE];
-	unsigned char tag_buf[CRYPTO_MAX_TAG_SIZE];
 	unsigned char *pt = data_ptr;
 	size_t dec_len;
-	int diff, i, rc;
-	size_t output_length __unused;
+	size_t output_length;
 
-	mbedtls_gcm_init(&ctx);
+	/* Load the key into the PSA key store. */
+	psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_DECRYPT);
+	psa_set_key_algorithm(&attributes, PSA_ALG_GCM);
+	psa_set_key_type(&attributes, PSA_KEY_TYPE_AES);
 
-	rc = mbedtls_gcm_setkey(&ctx, cipher, key, key_len * 8);
-	if (rc != 0) {
-		rc = CRYPTO_ERR_DECRYPTION;
-		goto exit_gcm;
+	psa_status = psa_import_key(&attributes, key, key_len, &key_id);
+	if (psa_status != PSA_SUCCESS) {
+		return CRYPTO_ERR_DECRYPTION;
 	}
 
-#if (MBEDTLS_VERSION_MAJOR < 3)
-	rc = mbedtls_gcm_starts(&ctx, MBEDTLS_GCM_DECRYPT, iv, iv_len, NULL, 0);
-#else
-	rc = mbedtls_gcm_starts(&ctx, MBEDTLS_GCM_DECRYPT, iv, iv_len);
-#endif
-	if (rc != 0) {
-		rc = CRYPTO_ERR_DECRYPTION;
-		goto exit_gcm;
+	/* Perform the decryption. */
+	psa_status = psa_aead_decrypt_setup(&operation, key_id, PSA_ALG_GCM);
+	if (psa_status != PSA_SUCCESS) {
+		goto err;
+	}
+
+	psa_status = psa_aead_set_nonce(&operation, iv, iv_len);
+	if (psa_status != PSA_SUCCESS) {
+		goto err;
 	}
 
 	while (len > 0) {
 		dec_len = MIN(sizeof(buf), len);
 
-#if (MBEDTLS_VERSION_MAJOR < 3)
-		rc = mbedtls_gcm_update(&ctx, dec_len, pt, buf);
-#else
-		rc = mbedtls_gcm_update(&ctx, pt, dec_len, buf, sizeof(buf), &output_length);
-#endif
-
-		if (rc != 0) {
-			rc = CRYPTO_ERR_DECRYPTION;
-			goto exit_gcm;
+		psa_status = psa_aead_update(&operation, pt, dec_len, buf,
+					     sizeof(buf), &output_length);
+		if (psa_status != PSA_SUCCESS) {
+			goto err;
 		}
 
-		memcpy(pt, buf, dec_len);
-		pt += dec_len;
+		memcpy(pt, buf, output_length);
+		pt += output_length;
 		len -= dec_len;
 	}
 
-#if (MBEDTLS_VERSION_MAJOR < 3)
-	rc = mbedtls_gcm_finish(&ctx, tag_buf, sizeof(tag_buf));
-#else
-	rc = mbedtls_gcm_finish(&ctx, NULL, 0, &output_length, tag_buf, sizeof(tag_buf));
-#endif
-
-	if (rc != 0) {
-		rc = CRYPTO_ERR_DECRYPTION;
-		goto exit_gcm;
+	/* Verify the tag. */
+	psa_status = psa_aead_verify(&operation, NULL, 0, &output_length, tag, tag_len);
+	if (psa_status == PSA_SUCCESS) {
+		psa_destroy_key(key_id);
+		return CRYPTO_SUCCESS;
 	}
 
-	/* Check tag in "constant-time" */
-	for (diff = 0, i = 0; i < tag_len; i++)
-		diff |= ((const unsigned char *)tag)[i] ^ tag_buf[i];
-
-	if (diff != 0) {
-		rc = CRYPTO_ERR_DECRYPTION;
-		goto exit_gcm;
-	}
-
-	/* GCM decryption success */
-	rc = CRYPTO_SUCCESS;
-
-exit_gcm:
-	mbedtls_gcm_free(&ctx);
-	return rc;
+err:
+	psa_aead_abort(&operation);
+	psa_destroy_key(key_id);
+	return CRYPTO_ERR_DECRYPTION;
 }
 
 /*
