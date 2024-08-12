@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,13 +25,11 @@
 
 #define CONSOLE_IS(con)	(VERSAL_CONSOLE_ID_ ## con == VERSAL_CONSOLE)
 
-/* List all supported platforms */
-#define VERSAL_PLATFORM_ID_versal_virt	1
-#define VERSAL_PLATFORM_ID_spp_itr6	2
-#define VERSAL_PLATFORM_ID_emu_itr6	3
-#define VERSAL_PLATFORM_ID_silicon	4
-
-#define VERSAL_PLATFORM_IS(con)	(VERSAL_PLATFORM_ID_ ## con == VERSAL_PLATFORM)
+/* List of platforms */
+#define VERSAL_SILICON              U(0)
+#define VERSAL_SPP                  U(1)
+#define VERSAL_EMU                  U(2)
+#define VERSAL_QEMU                 U(3)
 
 /* Firmware Image Package */
 #define VERSAL_PRIMARY_CPU	0
@@ -75,27 +73,7 @@
 /*******************************************************************************
  * Platform related constants
  ******************************************************************************/
-#if VERSAL_PLATFORM_IS(versal_virt)
-# define PLATFORM_NAME		"Versal Virt"
-# define UART_CLOCK	25000000
-# define UART_BAUDRATE	115200
-# define VERSAL_CPU_CLOCK	2720000
-#elif VERSAL_PLATFORM_IS(silicon)
-# define PLATFORM_NAME		"Versal Silicon"
-# define UART_CLOCK	100000000
-# define UART_BAUDRATE	115200
-# define VERSAL_CPU_CLOCK	100000000
-#elif VERSAL_PLATFORM_IS(spp_itr6)
-# define PLATFORM_NAME		"SPP ITR6"
-# define UART_CLOCK	25000000
-# define UART_BAUDRATE	115200
-# define VERSAL_CPU_CLOCK	2720000
-#elif VERSAL_PLATFORM_IS(emu_itr6)
-# define PLATFORM_NAME		"EMU ITR6"
-# define UART_CLOCK	212000
-# define UART_BAUDRATE	9600
-# define VERSAL_CPU_CLOCK	212000
-#endif
+#define UART_BAUDRATE  115200
 
 /* Access control register defines */
 #define ACTLR_EL3_L2ACTLR_BIT	(1 << 6)
