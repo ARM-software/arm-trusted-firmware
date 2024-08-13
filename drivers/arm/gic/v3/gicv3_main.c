@@ -686,6 +686,8 @@ void gicv3_rdistif_init_restore(unsigned int proc_num,
 	gicr_write_ctlr(gicr_base,
 			rdist_ctx->gicr_ctlr & ~(GICR_CTLR_EN_LPIS_BIT));
 
+	gicr_wait_for_pending_write(gicr_base);
+
 	/* Restore registers' content */
 	gicr_write_propbaser(gicr_base, rdist_ctx->gicr_propbaser);
 	gicr_write_pendbaser(gicr_base, rdist_ctx->gicr_pendbaser);
