@@ -66,6 +66,7 @@
 		interrupts = <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH 0>;
 		interrupt-names = "IRQAW";
 		iommus = <&smmu_700 0x0>;
+		system-coherency = <0x0>;
 	};
 
 	dsu-pmu {
