@@ -1,0 +1,60 @@
+# Poetry pyproject.toml: https://python-poetry.org/docs/pyproject/
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "cot_dt2c"
+version = "0.1.0"
+description = "CoT-dt2c Tool is a python script to convert CoT DT file into corresponding C file"
+authors = ["Arm Ltd <tf-a@lists.trustedfirmware.org>"]
+license = "BSD-3"
+repository = "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/"
+homepage = "https://trustedfirmware-a.readthedocs.io/en/latest/index.html"
+
+# Pypi classifiers: https://pypi.org/classifiers/
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^8.1.7"
+pyparsing = "^2.4.7"
+plotly = "^5.23.0"
+pandas = "^2.2.2"
+igraph = "^0.11.6"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.910"
+pytest = "^6.2.5"
+pyparsing = "^2.4.7"
+plotly = "^5.23.0"
+pandas = "^2.2.2"
+igraph = "^0.11.6"
+
+[tool.mypy]
+# https://mypy.readthedocs.io/en/latest/config_file.html#using-a-pyproject-toml-file
+python_version = 3.8
+pretty = true
+show_traceback = true
+color_output = true
+
+[tool.coverage.run]
+source = ["tests"]
+
+[coverage.paths]
+source = "cot_dt2c"
+
+[tool.poetry.scripts]
+# Entry points for the package https://python-poetry.org/docs/pyproject/#scripts
+# "cot-dt2c" = "cot_dt2c.__main__:cli"
+"cot-dt2c" = "cot_dt2c.__main__:cli"

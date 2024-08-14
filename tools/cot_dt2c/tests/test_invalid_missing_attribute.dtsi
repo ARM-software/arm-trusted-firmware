@@ -1,7 +1,11 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * This file provide a malformed CoT DT file that there
+ * are image/certificate that missing mandantory attributes
+ *
  */
 
 #include <tools_share/cca_oid.h>
@@ -14,7 +18,6 @@ cot {
 
 		cca_content_cert: cca_content_cert {
 			root-certificate;
-			image-id =<CCA_CONTENT_CERT_ID>;
 			antirollback-counter = <&cca_nv_ctr>;
 
 			tb_fw_hash: tb_fw_hash {
@@ -24,7 +27,6 @@ cot {
 				oid = TRUSTED_BOOT_FW_CONFIG_HASH_OID;
 			};
 			hw_config_hash: hw_config_hash {
-				oid = HW_CONFIG_HASH_OID;
 			};
 			fw_config_hash: fw_config_hash {
 				oid = FW_CONFIG_HASH_OID;
@@ -112,7 +114,6 @@ cot {
 		};
 
 		plat_sp_content_cert: plat_sp_content_cert {
-			image-id = <PLAT_SP_CONTENT_CERT_ID>;
 			parent = <&plat_key_cert>;
 			signing-key = <&plat_pk>;
 			antirollback-counter = <&non_trusted_nv_ctr>;
@@ -138,7 +139,6 @@ cot {
 
 		hw_config {
 			image-id = <HW_CONFIG_ID>;
-			parent = <&cca_content_cert>;
 			hash = <&hw_config_hash>;
 		};
 
@@ -186,7 +186,6 @@ cot {
 
 #if defined(SPD_spmd)
 		sp_pkg1 {
-			image-id = <SP_PKG1_ID>;
 			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg1_hash>;
 		};
@@ -262,7 +261,6 @@ rot_keys {
 	swd_rot_pk: swd_rot_pk {
 		oid = SWD_ROT_PK_OID;
 	};
-
 	prot_pk: prot_pk {
 		oid = PROT_PK_OID;
 	};

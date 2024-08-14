@@ -93,9 +93,27 @@ license text is included in those source files.
 
    -  ``include/lib/dice/dice.h``
 
+-  Some source files originating from the `pydevicetree`_ project.
+   These files are licensed under the Apache License, Version 2.0, which is a
+   permissive license compatible with BSD-3-Clause. Any contributions to this
+   code must also be made under the terms of `Apache License 2.0`_.
+   These files are:
+
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/ast/__init__.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/ast/directive.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/ast/helpers.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/ast/node.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/ast/property.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/ast/reference.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/source/__init__.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/source/grammar.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/source/parser.py``
+   -  ``tools/cot_dt2c/cot_dt2c/pydevicetree/__init__.py``
+
+
 .. _FreeBSD: http://www.freebsd.org
 .. _Linux MIT license: https://raw.githubusercontent.com/torvalds/linux/master/LICENSES/preferred/MIT
 .. _SCC: http://www.simple-cc.org/
 .. _Open Profile for DICE: https://pigweed.googlesource.com/open-dice/
 .. _Apache License 2.0: https://www.apache.org/licenses/LICENSE-2.0.txt
-
+.. _pydevicetree: https://pypi.org/project/pydevicetree/

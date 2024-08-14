@@ -138,7 +138,7 @@ Example:
          trusted-key-cert: trusted-key-cert {
             root-certificate;
             image-id = <TRUSTED_KEY_CERT_ID>;
-            antirollback-counter = <&trusted_nv_counter>;
+            antirollback-counter = <&trusted_nv_ctr>;
 
             trusted-world-pk: trusted-world-pk {
                oid = TRUSTED_WORLD_PK_OID;
@@ -152,7 +152,7 @@ Example:
             image-id = <SCP_FW_KEY_CERT_ID>;
             parent = <&trusted-key-cert>;
             signing-key = <&trusted_world_pk>;
-            antirollback-counter = <&trusted_nv_counter>;
+            antirollback-counter = <&trusted_nv_ctr>;
 
             scp_fw_content_pk: scp_fw_content_pk {
                oid = SCP_FW_CONTENT_CERT_PK_OID;
@@ -312,13 +312,13 @@ Below is non-volatile counters example for ARM platform
         #address-cells = <1>;
         #size-cells = <0>;
 
-        trusted-nv-counter: trusted_nv_counter {
+        trusted_nv_ctr: trusted_nv_ctr {
            id  = <TRUSTED_NV_CTR_ID>;
            reg = <TFW_NVCTR_BASE>;
            oid = TRUSTED_FW_NVCOUNTER_OID;
         };
 
-        non_trusted_nv_counter: non_trusted_nv_counter {
+        non_trusted_nv_ctr: non_trusted_nv_ctr {
            id  = <NON_TRUSTED_NV_CTR_ID>;
            reg = <NTFW_CTR_BASE>;
            oid = NON_TRUSTED_FW_NVCOUNTER_OID;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, ARM Limited. All rights reserved.
+ * Copyright (c) 2020-2024, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@ cot {
 		stm32mp_cfg_cert: stm32mp_cfg_cert {
 			root-certificate;
 			image-id = <STM32MP_CONFIG_CERT_ID>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			hw_config_hash: hw_config_hash {
 				oid = HW_CONFIG_HASH_OID;
@@ -29,7 +29,7 @@ cot {
 		trusted_key_cert: trusted_key_cert {
 			root-certificate;
 			image-id = <TRUSTED_KEY_CERT_ID>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			trusted_world_pk: trusted_world_pk {
 				oid = TRUSTED_WORLD_PK_OID;
@@ -43,7 +43,7 @@ cot {
 			image-id = <TRUSTED_OS_FW_KEY_CERT_ID>;
 			parent = <&trusted_key_cert>;
 			signing-key = <&trusted_world_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			tos_fw_content_pk: tos_fw_content_pk {
 				oid = TRUSTED_OS_FW_CONTENT_CERT_PK_OID;
@@ -54,7 +54,7 @@ cot {
 			image-id = <TRUSTED_OS_FW_CONTENT_CERT_ID>;
 			parent = <&trusted_os_fw_key_cert>;
 			signing-key = <&tos_fw_content_pk>;
-			antirollback-counter = <&trusted_nv_counter>;
+			antirollback-counter = <&trusted_nv_ctr>;
 
 			tos_fw_hash: tos_fw_hash {
 				oid = TRUSTED_OS_FW_HASH_OID;
@@ -74,7 +74,7 @@ cot {
 			image-id = <NON_TRUSTED_FW_KEY_CERT_ID>;
 			parent = <&trusted_key_cert>;
 			signing-key = <&non_trusted_world_pk>;
-			antirollback-counter = <&non_trusted_nv_counter>;
+			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			nt_fw_content_pk: nt_fw_content_pk {
 				oid = NON_TRUSTED_FW_CONTENT_CERT_PK_OID;
@@ -85,7 +85,7 @@ cot {
 			image-id = <NON_TRUSTED_FW_CONTENT_CERT_ID>;
 			parent = <&non_trusted_fw_key_cert>;
 			signing-key = <&nt_fw_content_pk>;
-			antirollback-counter = <&non_trusted_nv_counter>;
+			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			nt_world_bl_hash: nt_world_bl_hash {
 				oid = NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID;
@@ -144,12 +144,12 @@ non_volatile_counters: non_volatile_counters {
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	trusted_nv_counter: trusted_nv_counter {
+	trusted_nv_ctr: trusted_nv_ctr {
 		id  = <TRUSTED_NV_CTR_ID>;
 		oid = TRUSTED_FW_NVCOUNTER_OID;
 	};
 
-	non_trusted_nv_counter: non_trusted_nv_counter {
+	non_trusted_nv_ctr: non_trusted_nv_ctr {
 		id  = <NON_TRUSTED_NV_CTR_ID>;
 		oid = NON_TRUSTED_FW_NVCOUNTER_OID;
 	};

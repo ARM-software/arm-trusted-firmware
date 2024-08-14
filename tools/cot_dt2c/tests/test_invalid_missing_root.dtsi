@@ -1,7 +1,11 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * This file provide a malformed CoT DT file that there
+ * are image/certificate that missing root certificate
+ *
  */
 
 #include <tools_share/cca_oid.h>
@@ -12,36 +16,7 @@ cot {
 	manifests {
 		compatible = "arm, cert-descs";
 
-		cca_content_cert: cca_content_cert {
-			root-certificate;
-			image-id =<CCA_CONTENT_CERT_ID>;
-			antirollback-counter = <&cca_nv_ctr>;
-
-			tb_fw_hash: tb_fw_hash {
-				oid = TRUSTED_BOOT_FW_HASH_OID;
-			};
-			tb_fw_config_hash: tb_fw_config_hash {
-				oid = TRUSTED_BOOT_FW_CONFIG_HASH_OID;
-			};
-			hw_config_hash: hw_config_hash {
-				oid = HW_CONFIG_HASH_OID;
-			};
-			fw_config_hash: fw_config_hash {
-				oid = FW_CONFIG_HASH_OID;
-			};
-			soc_fw_hash: soc_fw_hash {
-				oid = SOC_AP_FW_HASH_OID;
-			};
-			soc_fw_config_hash: soc_fw_config_hash {
-				oid = SOC_FW_CONFIG_HASH_OID;
-			};
-			rmm_hash: rmm_hash {
-				oid = RMM_HASH_OID;
-			};
-		};
-
 		core_swd_key_cert: core_swd_key_cert {
-			root-certificate;
 			image-id = <CORE_SWD_KEY_CERT_ID>;
 			signing-key = <&swd_rot_pk>;
 			antirollback-counter = <&trusted_nv_ctr>;
@@ -66,7 +41,6 @@ cot {
 		};
 
 		plat_key_cert: plat_key_cert {
-			root-certificate;
 			image-id = <PLAT_KEY_CERT_ID>;
 			signing-key = <&prot_pk>;
 			antirollback-counter = <&non_trusted_nv_ctr>;
@@ -262,7 +236,6 @@ rot_keys {
 	swd_rot_pk: swd_rot_pk {
 		oid = SWD_ROT_PK_OID;
 	};
-
 	prot_pk: prot_pk {
 		oid = PROT_PK_OID;
 	};

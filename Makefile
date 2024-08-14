@@ -121,6 +121,9 @@ SPTOOL			?=	${SPTOOLPATH}/sptool.py
 SP_MK_GEN		?=	${SPTOOLPATH}/sp_mk_generator.py
 SP_DTS_LIST_FRAGMENT	?=	${BUILD_PLAT}/sp_list_fragment.dts
 
+# Variables for use with Certificate Conversion (cot-dt2c) Tool
+CERTCONVPATH	?= tools/cot_dt2c
+
 # Variables for use with ROMLIB
 ROMLIBPATH		?=	lib/romlib
 
@@ -1582,6 +1585,7 @@ endif #(CHECKPATCH)
 clean:
 	$(s)echo "  CLEAN"
 	$(call SHELL_REMOVE_DIR,${BUILD_PLAT})
+	$(q)${MAKE} -C ${CERTCONVPATH} clean
 ifdef UNIX_MK
 	$(q)${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 else
@@ -1597,6 +1601,7 @@ realclean distclean:
 	$(s)echo "  REALCLEAN"
 	$(call SHELL_REMOVE_DIR,${BUILD_BASE})
 	$(call SHELL_DELETE_ALL, ${CURDIR}/cscope.*)
+	$(q)${MAKE} -C ${CERTCONVPATH} clean
 ifdef UNIX_MK
 	$(q)${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 else
