@@ -30,18 +30,6 @@
 #define BSEC_OTP_BANK_SHIFT		U(5)
 #define BSEC_TIMEOUT_VALUE		U(0x800000) /* ~7sec @1.2GHz */
 
-/* Magic use to indicated valid SHADOW = 'B' 'S' 'E' 'C' */
-#define BSEC_MAGIC			U(0x42534543)
-
-#define OTP_MAX_SIZE			(STM32MP2_OTP_MAX_ID + U(1))
-
-struct bsec_shadow {
-	uint32_t magic;
-	uint32_t state;
-	uint32_t value[OTP_MAX_SIZE];
-	uint32_t status[OTP_MAX_SIZE];
-};
-
 static uint32_t otp_bank(uint32_t otp)
 {
 	if (otp > STM32MP2_OTP_MAX_ID) {
