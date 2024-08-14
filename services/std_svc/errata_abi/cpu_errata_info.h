@@ -8,6 +8,7 @@
 #define ERRATA_CPUSPEC_H
 
 #include <stdint.h>
+#include <arch.h>
 #include <arch_helpers.h>
 
 #if __aarch64__
@@ -30,8 +31,6 @@
 
 /* Default values for unused memory in the array */
 #define UNDEF_ERRATA		{UINT_MAX, UCHAR_MAX, UCHAR_MAX}
-
-#define EXTRACT_PARTNUM(x)	((x >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
 
 #define RXPX_RANGE(x, y, z)	(((x >= y) && (x <= z)) ? true : false)
 
