@@ -77,8 +77,8 @@ ifeq ($(filter ${TARGET_FLAVOUR}, fvp fpga),)
         $(error TARGET_FLAVOUR must be fvp or fpga)
 endif
 
-# Support for loading Android Image to DRAM
-TC_FPGA_ANDROID_IMG_IN_RAM := 0
+# Support for loading FS Image to DRAM
+TC_FPGA_FS_IMG_IN_RAM := 0
 
 # Support Loading of FIP image to DRAM
 TC_FPGA_FIP_IMG_IN_RAM := 0
@@ -92,7 +92,7 @@ $(eval $(call add_defines, \
 	TC_RESOLUTION_$(call uppercase,${TC_RESOLUTION}) \
 	TC_DPU_USE_SCMI_CLK \
 	TC_SCMI_PD_CTRL_EN \
-	TC_FPGA_ANDROID_IMG_IN_RAM \
+	TC_FPGA_FS_IMG_IN_RAM \
 	TC_FPGA_FIP_IMG_IN_RAM \
 	TC_DPU_USE_SIMPLE_PANEL \
 ))

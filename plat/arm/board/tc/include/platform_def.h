@@ -259,7 +259,7 @@
 #define PLAT_ARM_DRAM2_SIZE             ULL(0x180000000)
 #elif TARGET_PLATFORM >= 3
 
-#if TC_FPGA_ANDROID_IMG_IN_RAM
+#if TC_FPGA_FS_IMG_IN_RAM
 /* 10GB reserved for system+userdata+vendor images */
 #define SYSTEM_IMAGE_SIZE		0xC0000000	/* 3GB */
 #define USERDATA_IMAGE_SIZE		0x140000000	/* 5GB */
@@ -273,8 +273,8 @@
 #define PLAT_ARM_DRAM2_SIZE		ULL(0x380000000) - ANDROID_FS_SIZE
 #else
 #define PLAT_ARM_DRAM2_BASE             ULL(0x880000000)
-#define PLAT_ARM_DRAM2_SIZE             ULL(0x380000000)
-#endif /* TC_FPGA_ANDROID_IMG_IN_RAM */
+#define PLAT_ARM_DRAM2_SIZE             ULL(0x180000000)
+#endif /* TC_FPGA_FS_IMG_IN_RAM */
 
 #endif /* TARGET_VERSION >= 3 */
 
