@@ -8,7 +8,7 @@
 
 """Module containing definitions pertaining to the 'Transfer List' (TL) type."""
 
-import typing
+from typing import Any, Dict, List
 
 import math
 import struct
@@ -24,7 +24,7 @@ TRANSFER_LIST_ENABLE_CHECKSUM = 0b1
 # used in struct.pack to encode the TE), and a list of field names that can
 # appear in the yaml file for that TE. Some fields are missing, if that TE has
 # to be processed differently, or if it can only be added with a blob file.
-transfer_entry_formats = {
+transfer_entry_formats: Dict[int, Any] = {
     0: {
         "tag_name": "empty",
         "format": "4x",
@@ -93,7 +93,7 @@ class TransferList:
         self.size = self.hdr_size
         self.total_size = max_size
         self.flags = flags
-        self.entries: typing.List["TransferEntry"] = []
+        self.entries: List["TransferEntry"] = []
         self.update_checksum()
 
     def __str__(self) -> str:
@@ -152,7 +152,7 @@ class TransferList:
         return tl
 
     @classmethod
-    def from_dict(cls, config: dict):
+    def from_dict(cls, config: Dict[str, Any]) -> "TransferList":
         """Create a TL from data in a dictionary
 
         The dictionary should have the same format as the yaml config files.
@@ -219,13 +219,15 @@ class TransferList:
             return te
 
     def add_transfer_entry_from_struct_format(
-        self, tag_id: int, struct_format: str, *args
-    ):
+        self, tag_id: int, struct_format: str, *args: Any
+    ) -> "TransferEntry":
         struct_format = "<" + struct_format
         data = struct.pack(struct_format, *args)
         return self.add_transfer_entry(tag_id, data)
 
-    def add_entry_point_info_transfer_entry(self, entry: dict) -> "TransferEntry":
+    def add_entry_point_info_transfer_entry(
+        self, entry: Dict[str, Any]
+    ) -> "TransferEntry":
         """Add entry_point_info transfer entry
 
         :param entry: Dictionary of the transfer entry, in the same format as
@@ -282,7 +284,7 @@ class TransferList:
 
     def add_transfer_entry_from_dict(
         self,
-        entry: dict,
+        entry: Dict[str, Any],
     ) -> "TransferEntry":
         """Add a transfer entry from data in a dictionary
 

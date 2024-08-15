@@ -15,7 +15,7 @@ memory = "memory.memmap:main"
 [tool.poetry.dependencies]
 python = "^3.8"
 cot-dt2c = {path = "tools/cot_dt2c", develop = true}
-tlc = {path = "tools/tlc"}
+tlc = {path = "tools/tlc", develop = true}
 
 [tool.poetry.group.docs]
 optional = true

@@ -9,11 +9,10 @@
 
 """Contains unit tests for the CLI functionality."""
 
+from math import ceil, log2
 from pathlib import Path
 from unittest import mock
-from math import log2, ceil
 
-import pytest
 import pytest
 import yaml
 from click.testing import CliRunner
