@@ -21,12 +21,6 @@ endif
 override ARM_ARCH_MAJOR			:= 8
 override ARM_ARCH_MINOR			:= 7
 
-# Image flags
-override NEED_BL1			:= yes
-override NEED_BL2			:= yes
-override NEED_BL32			:= no
-override NEED_RMM			:= no
-
 # Misc options
 override CTX_INCLUDE_AARCH32_REGS	:= 0
 
