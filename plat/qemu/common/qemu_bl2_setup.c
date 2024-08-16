@@ -22,9 +22,6 @@
 #include <lib/transfer_list.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
-#if ENABLE_RME
-#include <qemu_pas_def.h>
-#endif
 
 #include "qemu_private.h"
 
@@ -150,54 +147,6 @@ void qemu_bl2_sync_transfer_list(void)
 #endif
 }
 
-#if ENABLE_RME
-static void bl2_plat_gpt_setup(void)
-{
-	/*
-	 * The GPT library might modify the gpt regions structure to optimize
-	 * the layout, so the array cannot be constant.
-	 */
-	pas_region_t pas_regions[] = {
-		QEMU_PAS_ROOT,
-		QEMU_PAS_SECURE,
-		QEMU_PAS_GPTS,
-		QEMU_PAS_NS0,
-		QEMU_PAS_REALM,
-		QEMU_PAS_NS1,
-	};
-
-	/*
-	 * Initialize entire protected space to GPT_GPI_ANY. With each L0 entry
-	 * covering 1GB (currently the only supported option), then covering
-	 * 256TB of RAM (48-bit PA) would require a 2MB L0 region. At the
-	 * moment we use a 8KB table, which covers 1TB of RAM (40-bit PA).
-	 */
-	if (gpt_init_l0_tables(GPCCR_PPS_1TB, PLAT_QEMU_L0_GPT_BASE,
-			       PLAT_QEMU_L0_GPT_SIZE +
-			       PLAT_QEMU_GPT_BITLOCK_SIZE) < 0) {
-		ERROR("gpt_init_l0_tables() failed!\n");
-		panic();
-	}
-
-	/* Carve out defined PAS ranges. */
-	if (gpt_init_pas_l1_tables(GPCCR_PGS_4K,
-				   PLAT_QEMU_L1_GPT_BASE,
-				   PLAT_QEMU_L1_GPT_SIZE,
-				   pas_regions,
-				   (unsigned int)(sizeof(pas_regions) /
-						  sizeof(pas_region_t))) < 0) {
-		ERROR("gpt_init_pas_l1_tables() failed!\n");
-		panic();
-	}
-
-	INFO("Enabling Granule Protection Checks\n");
-	if (gpt_enable() < 0) {
-		ERROR("gpt_enable() failed!\n");
-		panic();
-	}
-}
-#endif
-
 void bl2_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
@@ -220,9 +169,6 @@ void bl2_plat_arch_setup(void)
 	/* BL2 runs in EL3 when RME enabled. */
 	assert(is_feat_rme_present());
 	enable_mmu_el3(0);
-
-	/* Initialise and enable granule protection after MMU. */
-	bl2_plat_gpt_setup();
 #else /* ENABLE_RME */
 
 #ifdef __aarch64__
