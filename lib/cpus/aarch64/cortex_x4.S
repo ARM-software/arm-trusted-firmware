@@ -39,6 +39,16 @@ workaround_reset_end cortex_x4, ERRATUM(2763018)
 
 check_erratum_ls cortex_x4, ERRATUM(2763018), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x4, ERRATUM(2816013), ERRATA_X4_2816013
+	mrs x1, id_aa64pfr1_el1
+	ubfx x2, x1, ID_AA64PFR1_EL1_MTE_SHIFT, #4
+	cbz x2, #1f
+	sysreg_bit_set CORTEX_X4_CPUACTLR5_EL1, BIT(14)
+1:
+workaround_reset_end cortex_x4, ERRATUM(2816013)
+
+check_erratum_ls cortex_x4, ERRATUM(2816013), CPU_REV(0, 1)
+
 workaround_reset_start cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
