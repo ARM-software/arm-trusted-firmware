@@ -99,6 +99,10 @@ Common build options
    file that contains the BL32 private key in PEM format or a PKCS11 URI. If
    ``SAVE_KEYS=1``, only a file is accepted and it will be used to save the key.
 
+-  ``RMM``: This is an optional build option used when ``ENABLE_RME`` is set.
+   It specifies the path to RMM binary for the ``fip`` target. If the RMM option
+   is not specified, TF-A builds the TRP to load and run at R-EL2.
+
 -  ``BL33``: Path to BL33 image in the host file system. This is mandatory for
    ``fip`` target in case TF-A BL2 is used.
 
