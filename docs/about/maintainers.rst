@@ -565,8 +565,8 @@ Arm Rich IoT Platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
 :|G|: `abdellatif-elkhlifi`_
-:|M|: Xueliang Zhong <xueliang.zhong@arm.com>
-:|G|: `xueliang-zhong-arm`_
+:|M|: Hugues Kamba Mpiana <hugues.kambampiana@arm.com>
+:|G|: `hugues-kambampiana-arm`_
 :|F|: plat/arm/board/corstone700
 :|F|: plat/arm/board/a5ds
 :|F|: plat/arm/board/corstone1000
@@ -1050,6 +1050,7 @@ Conventional Changelog Extensions
 .. _harrisonmutai-arm: https://github.com/harrisonmutai-arm
 .. _hilamirandakuzi1: https://github.com/hilamirandakuzi1
 .. _hzhuang1: https://github.com/hzhuang1
+.. _hugues-kambampiana-arm: https://github.com/hugueskamba
 .. _JackyBai: https://github.com/JackyBai
 .. _J-Alves: https://github.com/J-Alves
 .. _jason-ch-chen: https://github.com/jason-ch-chen
@@ -1112,7 +1113,6 @@ Conventional Changelog Extensions
 .. _vijayenthiran-arm: https://github.com/vijayenthiran-arm
 .. _vishnu-banavath: https://github.com/vishnu-banavath
 .. _vwadekar: https://github.com/vwadekar
-.. _xueliang-zhong-arm: https://github.com/xueliang-zhong-arm
 .. _Yann-lms: https://github.com/Yann-lms
 
 --------------
