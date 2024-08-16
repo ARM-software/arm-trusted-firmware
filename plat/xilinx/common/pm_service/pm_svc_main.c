@@ -503,8 +503,8 @@ static uintptr_t eemi_api_handler(uint32_t api_id, const uint32_t *pm_arg,
 				  void *handle, uint32_t security_flag)
 {
 	enum pm_ret_status ret;
-	uint32_t buf[PAYLOAD_ARG_CNT] = {0};
-	uint32_t payload[PAYLOAD_ARG_CNT] = {0};
+	uint32_t buf[RET_PAYLOAD_ARG_CNT] = {0U};
+	uint32_t payload[PAYLOAD_ARG_CNT] = {0U};
 	uint32_t module_id;
 
 	module_id = (api_id & MODULE_ID_MASK) >> 8U;
@@ -514,7 +514,7 @@ static uintptr_t eemi_api_handler(uint32_t api_id, const uint32_t *pm_arg,
 			 pm_arg[4], pm_arg[5]);
 
 	ret = pm_ipi_send_sync(primary_proc, payload, (uint32_t *)buf,
-			       PAYLOAD_ARG_CNT);
+			       RET_PAYLOAD_ARG_CNT);
 
 	SMC_RET4(handle, (uint64_t)ret | ((uint64_t)buf[0] << 32U),
 		 (uint64_t)buf[1] | ((uint64_t)buf[2] << 32U),
