@@ -45,7 +45,7 @@ endif
 
 .PHONY: all clean distclean
 
-all: $(BUILD_DIR)/romlib.bin $(LIB_DIR)/libwrappers.a
+all: $(BUILD_DIR)/romlib.bin $(BUILD_DIR)/romlib.ldflags $(LIB_DIR)/libwrappers.a
 
 %.o: %.s | $$(@D)/
 	$(s)echo "  AS      $@"
@@ -88,6 +88,10 @@ $(WRAPPER_OBJS): $(WRAPPER_DIR)/%.o: $(WRAPPER_DIR)/%.s | $$(@D)/
 $(BUILD_DIR)/jmptbl.s: $(BUILD_DIR)/jmptbl.i | $$(@D)/
 	$(s)echo "  TBL     $@"
 	$(q)$(ROMLIB_GEN) gentbl --output $@ --bti=$(ENABLE_BTI) $<
+
+$(BUILD_DIR)/romlib.ldflags: ../../$(PLAT_DIR)/jmptbl.i
+	$(s)echo "  LDFLAGS $@"
+	$(q)$(ROMLIB_GEN) link-flags $< > $@
 
 clean:
 	$(q)rm -f $(BUILD_DIR)/*

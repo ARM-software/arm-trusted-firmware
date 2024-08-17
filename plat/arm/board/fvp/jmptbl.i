@@ -36,7 +36,6 @@ fdt     fdt_get_alias_namelen
 fdt     fdt_get_name
 fdt     fdt_get_alias
 fdt     fdt_node_offset_by_phandle
-fdt     fdt_subnode_offset
 fdt     fdt_add_subnode
 mbedtls mbedtls_asn1_get_alg
 mbedtls mbedtls_asn1_get_alg_null

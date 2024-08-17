@@ -71,6 +71,15 @@ image(s) is replaced with the wrapper function.
 The "library at ROM" contains a necessary init function that initialises the
 global variables defined by the functions inside "library at ROM".
 
+Wrapper functions are specified at the link stage of compilation and cannot
+interpose uppon functions within the same translation unit. For example, if
+function ``fn_a`` calls ``fn_b`` within translation unit ``functions.c`` and
+the romlib jump table includes an entry for ``fn_b``, ``fn_a`` will include
+a reference to ``fn_b``'s original program text instead of the wrapper. Thus
+the jumptable author must take care to include public entry points into
+translation units to avoid paying the program text cost twice, once in the
+original executable and once in romlib.
+
 Script
 ~~~~~~
 
@@ -86,7 +95,7 @@ files for the "library at ROM" to work. It implements multiple functions:
 
 3. ``romlib_generator.py genwrappers [args]`` - Generates a wrapper function for
    each entry in the index file except for the ones that contain the keyword
-   ``patch``. The generated wrapper file is called ``<fn_name>.s``.
+   ``patch``. The generated wrapper file is called ``wrappers.s``.
 
 4. ``romlib_generator.py pre [args]`` - Preprocesses the index file which means
    it resolves all the include commands in the file recursively. It can also
