@@ -19,6 +19,8 @@
 #include <common/debug.h>
 #include <context.h>
 #include <drivers/arm/gicv3.h>
+#include <lib/cpus/cpu_ops.h>
+#include <lib/cpus/errata.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/el3_runtime/pubsub_events.h>
@@ -1523,6 +1525,45 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 }
 #endif /* CTX_INCLUDE_EL2_REGS */
 
+#if IMAGE_BL31
+/*********************************************************************************
+* This function allows Architecture features asymmetry among cores.
+* TF-A assumes that all the cores in the platform has architecture feature parity
+* and hence the context is setup on different core (e.g. primary sets up the
+* context for secondary cores).This assumption may not be true for systems where
+* cores are not conforming to same Arch version or there is CPU Erratum which
+* requires certain feature to be be disabled only on a given core.
+*
+* This function is called on secondary cores to override any disparity in context
+* setup by primary, this would be called during warmboot path.
+*********************************************************************************/
+void cm_handle_asymmetric_features(void)
+{
+#if ENABLE_SPE_FOR_NS == FEAT_STATE_CHECK_ASYMMETRIC
+	cpu_context_t *spe_ctx = cm_get_context(NON_SECURE);
+
+	assert(spe_ctx != NULL);
+
+	if (is_feat_spe_supported()) {
+		spe_enable(spe_ctx);
+	} else {
+		spe_disable(spe_ctx);
+	}
+#endif
+#if ERRATA_A520_2938996 || ERRATA_X4_2726228
+	cpu_context_t *trbe_ctx = cm_get_context(NON_SECURE);
+
+	assert(trbe_ctx != NULL);
+
+	if (check_if_affected_core() == ERRATA_APPLIES) {
+		if (is_feat_trbe_supported()) {
+			trbe_disable(trbe_ctx);
+		}
+	}
+#endif
+}
+#endif
+
 /*******************************************************************************
  * This function is used to exit to Non-secure world. If CTX_INCLUDE_EL2_REGS
  * is enabled, it restores EL1 and EL2 sysreg contexts instead of directly
@@ -1531,6 +1572,18 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
  ******************************************************************************/
 void cm_prepare_el3_exit_ns(void)
 {
+#if IMAGE_BL31
+	/*
+	 * Check and handle Architecture feature asymmetry among cores.
+	 *
+	 * In warmboot path secondary cores context is initialized on core which
+	 * did CPU_ON SMC call, if there is feature asymmetry in these cores handle
+	 * it in this function call.
+	 * For Symmetric cores this is an empty function.
+	 */
+	cm_handle_asymmetric_features();
+#endif
+
 #if CTX_INCLUDE_EL2_REGS
 #if ENABLE_ASSERTIONS
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);

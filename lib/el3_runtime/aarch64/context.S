@@ -142,7 +142,7 @@ endfunc fpregs_context_restore
 	 * always enable DIT in EL3
 	 */
 #if ENABLE_FEAT_DIT
-#if ENABLE_FEAT_DIT == 2
+#if ENABLE_FEAT_DIT >= 2
 	mrs	x8, id_aa64pfr0_el1
 	and	x8, x8, #(ID_AA64PFR0_DIT_MASK << ID_AA64PFR0_DIT_SHIFT)
 	cbz	x8, 1f
@@ -166,8 +166,7 @@ endfunc fpregs_context_restore
 
 	.macro	restore_mpam3_el3
 #if ENABLE_FEAT_MPAM
-#if ENABLE_FEAT_MPAM == 2
-
+#if ENABLE_FEAT_MPAM >= 2
 	mrs x8, id_aa64pfr0_el1
 	lsr x8, x8, #(ID_AA64PFR0_MPAM_SHIFT)
 	and x8, x8, #(ID_AA64PFR0_MPAM_MASK)

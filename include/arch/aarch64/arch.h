@@ -24,6 +24,9 @@
 #define MIDR_PN_MASK		U(0xfff)
 #define MIDR_PN_SHIFT		U(0x4)
 
+/* Extracts the CPU part number from MIDR for checking CPU match */
+#define EXTRACT_PARTNUM(x)     ((x >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
+
 /*******************************************************************************
  * MPIDR macros
  ******************************************************************************/
