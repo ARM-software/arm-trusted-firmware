@@ -18,6 +18,7 @@
 
 #define LINFLEX_LINSR		(0x8)
 #define LINSR_LINS_INITMODE	(0x00001000)
+#define LINSR_LINS_RX_TX_MODE	(0x00008000)
 #define LINSR_LINS_MASK		(0x0000F000)
 
 #define LINFLEX_UARTCR		(0x10)
@@ -48,9 +49,11 @@
  */
 .globl console_linflex_core_init
 .globl console_linflex_core_putc
+.globl console_linflex_core_flush
 
 .globl console_linflex_register
 .globl console_linflex_putc
+.globl console_linflex_flush
 
 /**
  * uint32_t get_ldiv_mult(uintptr_t baseaddr, uint32_t clock,
@@ -175,8 +178,27 @@ func console_linflex_register
 	str	x0, [x3, #CONSOLE_T_BASE]
 
 	mov	x0, x3
-	finish_console_register linflex, putc=1, getc=0, flush=0
+	finish_console_register linflex, putc=1, getc=0, flush=1
 endfunc console_linflex_register
+
+/**
+ * int console_linflex_core_flush(uintptr_t baseaddr);
+ *
+ * Loop while the TX fifo is not empty, depending on the selected UART mode.
+ *
+ * In:  x0 - Linflex base address
+ * Clobber list : x0 - x1
+ */
+func console_linflex_core_flush
+wait_rx_tx:
+	ldr	w1, [x0, LINFLEX_LINSR]
+	and	w1, w1, #LINSR_LINS_MASK
+	cmp	w1, #LINSR_LINS_RX_TX_MODE
+	b.eq	wait_rx_tx
+
+	mov	x0, #0
+	ret
+endfunc console_linflex_core_flush
 
 /**
  * int console_linflex_core_putc(int c, uintptr_t baseaddr);
@@ -257,3 +279,21 @@ puct_error:
 	mov	x0, #-EINVAL
 	ret
 endfunc console_linflex_putc
+
+/**
+ * int console_linflex_flush(console_t *console);
+ *
+ * Function to wait for the TX FIFO to be cleared.
+ * In : x0 - pointer to console_t struct
+ * Out: x0 - return -1 on error else return 0.
+ * Clobber list : x0 - x1
+ */
+func console_linflex_flush
+	cbz	x0, flush_error
+	ldr	x0, [x0, #CONSOLE_T_BASE]
+
+	b	console_linflex_core_flush
+flush_error:
+	mov	x0, #-EINVAL
+	ret
+endfunc console_linflex_flush

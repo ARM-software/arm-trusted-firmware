@@ -38,6 +38,8 @@ endfunc plat_crash_console_putc
 
 /* void plat_crash_console_flush(void); */
 func plat_crash_console_flush
+	mov_imm	x0, UART_BASE
+	b	console_linflex_core_flush
 	ret
 endfunc plat_crash_console_flush
 
