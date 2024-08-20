@@ -63,6 +63,9 @@ CTX_INCLUDE_AARCH32_REGS	:= 1
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
 
+# Include SVE registers in cpu context
+CTX_INCLUDE_SVE_REGS		:= 0
+
 # Debug build
 DEBUG				:= 0
 
@@ -236,6 +239,10 @@ SEPARATE_NOBITS_REGION		:= 0
 # Put BL2 NOLOAD sections (.bss, stacks, page tables) in a separate memory
 # region, platform Makefile is free to override this value.
 SEPARATE_BL2_NOLOAD_REGION	:= 0
+
+# Put SIMD context data structures in a separate memory region. Platforms
+# have the choice to put it outside of default BSS region of EL3 firmware.
+SEPARATE_SIMD_SECTION		:= 0
 
 # If the BL31 image initialisation code is recalimed after use for the secondary
 # cores stack

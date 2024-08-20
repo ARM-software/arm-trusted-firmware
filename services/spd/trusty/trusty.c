@@ -118,8 +118,10 @@ static struct smc_args trusty_context_switch(uint32_t security_state, uint64_t r
 	 * when it's needed the PSCI caller has preserved FP context before
 	 * going here.
 	 */
-	if (r0 != SMC_FC_CPU_SUSPEND && r0 != SMC_FC_CPU_RESUME)
-		fpregs_context_save(get_fpregs_ctx(cm_get_context(security_state)));
+	if (r0 != SMC_FC_CPU_SUSPEND && r0 != SMC_FC_CPU_RESUME) {
+		simd_ctx_save(security_state, false);
+	}
+
 	cm_el1_sysregs_context_save(security_state);
 
 	ctx->saved_security_state = security_state;
@@ -128,8 +130,9 @@ static struct smc_args trusty_context_switch(uint32_t security_state, uint64_t r
 	assert(ctx->saved_security_state == ((security_state == 0U) ? 1U : 0U));
 
 	cm_el1_sysregs_context_restore(security_state);
-	if (r0 != SMC_FC_CPU_SUSPEND && r0 != SMC_FC_CPU_RESUME)
-		fpregs_context_restore(get_fpregs_ctx(cm_get_context(security_state)));
+	if (r0 != SMC_FC_CPU_SUSPEND && r0 != SMC_FC_CPU_RESUME) {
+		simd_ctx_restore(security_state);
+	}
 
 	cm_set_next_eret_context(security_state);
 
@@ -320,7 +323,7 @@ static int32_t trusty_init(void)
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	assert(ep_info != NULL);
 
-	fpregs_context_save(get_fpregs_ctx(cm_get_context(NON_SECURE)));
+	simd_ctx_save(NON_SECURE, false);
 	cm_el1_sysregs_context_save(NON_SECURE);
 
 	cm_set_context(&ctx->cpu_ctx, SECURE);
@@ -337,7 +340,7 @@ static int32_t trusty_init(void)
 	}
 
 	cm_el1_sysregs_context_restore(SECURE);
-	fpregs_context_restore(get_fpregs_ctx(cm_get_context(SECURE)));
+	simd_ctx_restore(SECURE);
 	cm_set_next_eret_context(SECURE);
 
 	ctx->saved_security_state = ~0U; /* initial saved state is invalid */
@@ -346,7 +349,7 @@ static int32_t trusty_init(void)
 	(void)trusty_context_switch_helper(&ctx->saved_sp, &zero_args);
 
 	cm_el1_sysregs_context_restore(NON_SECURE);
-	fpregs_context_restore(get_fpregs_ctx(cm_get_context(NON_SECURE)));
+	simd_ctx_restore(NON_SECURE);
 	cm_set_next_eret_context(NON_SECURE);
 
 	return 1;

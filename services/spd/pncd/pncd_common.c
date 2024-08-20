@@ -67,8 +67,9 @@ uint64_t pncd_synchronous_sp_entry(pnc_context_t *pnc_ctx)
 	/* Apply the Secure EL1 system register context and switch to it */
 	assert(cm_get_context(SECURE) == &pnc_ctx->cpu_ctx);
 	cm_el1_sysregs_context_restore(SECURE);
+
 #if CTX_INCLUDE_FPREGS
-	fpregs_context_restore(get_fpregs_ctx(cm_get_context(SECURE)));
+	simd_ctx_restore(SECURE);
 #endif
 	cm_set_next_eret_context(SECURE);
 
@@ -90,8 +91,9 @@ void pncd_synchronous_sp_exit(pnc_context_t *pnc_ctx, uint64_t ret)
 	/* Save the Secure EL1 system register context */
 	assert(cm_get_context(SECURE) == &pnc_ctx->cpu_ctx);
 	cm_el1_sysregs_context_save(SECURE);
+
 #if CTX_INCLUDE_FPREGS
-	fpregs_context_save(get_fpregs_ctx(cm_get_context(SECURE)));
+	simd_ctx_save(SECURE, false);
 #endif
 
 	assert(pnc_ctx->c_rt_ctx != 0);

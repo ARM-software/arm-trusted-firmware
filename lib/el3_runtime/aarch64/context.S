@@ -9,11 +9,17 @@
 #include <assert_macros.S>
 #include <context.h>
 #include <el3_common_macros.S>
+#include <platform_def.h>
 
 #if CTX_INCLUDE_FPREGS
 	.global	fpregs_context_save
 	.global	fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
+
+#if CTX_INCLUDE_SVE_REGS
+	.global sve_context_save
+	.global sve_context_restore
+#endif /* CTX_INCLUDE_SVE_REGS */
 
 #if ERRATA_SPECULATIVE_AT
 	.global save_and_update_ptw_el1_sys_regs
@@ -22,6 +28,36 @@
 	.global	prepare_el3_entry
 	.global	restore_gp_pmcr_pauth_regs
 	.global	el3_exit
+
+/* Following macros will be used if any of CTX_INCLUDE_FPREGS or CTX_INCLUDE_SVE_REGS is enabled */
+#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+.macro fpregs_state_save base:req hold:req
+	mrs	\hold, fpsr
+	str	\hold, [\base, #CTX_SIMD_FPSR]
+
+	mrs	\hold, fpcr
+	str	\hold, [\base, #CTX_SIMD_FPCR]
+
+#if CTX_INCLUDE_AARCH32_REGS && CTX_INCLUDE_FPREGS
+	mrs	\hold, fpexc32_el2
+	str	\hold, [\base, #CTX_SIMD_FPEXC32]
+#endif
+.endm
+
+.macro fpregs_state_restore base:req hold:req
+	ldr	\hold, [\base, #CTX_SIMD_FPSR]
+	msr	fpsr, \hold
+
+	ldr	\hold, [\base, #CTX_SIMD_FPCR]
+	msr	fpcr, \hold
+
+#if CTX_INCLUDE_AARCH32_REGS && CTX_INCLUDE_FPREGS
+	ldr	\hold, [\base, #CTX_SIMD_FPEXC32]
+	msr	fpexc32_el2, \hold
+#endif
+.endm
+
+#endif /* CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS */
 
 /* ------------------------------------------------------------------
  * The following function follows the aapcs_64 strictly to use
@@ -39,33 +75,25 @@
  */
 #if CTX_INCLUDE_FPREGS
 func fpregs_context_save
-	stp	q0, q1, [x0, #CTX_FP_Q0]
-	stp	q2, q3, [x0, #CTX_FP_Q2]
-	stp	q4, q5, [x0, #CTX_FP_Q4]
-	stp	q6, q7, [x0, #CTX_FP_Q6]
-	stp	q8, q9, [x0, #CTX_FP_Q8]
-	stp	q10, q11, [x0, #CTX_FP_Q10]
-	stp	q12, q13, [x0, #CTX_FP_Q12]
-	stp	q14, q15, [x0, #CTX_FP_Q14]
-	stp	q16, q17, [x0, #CTX_FP_Q16]
-	stp	q18, q19, [x0, #CTX_FP_Q18]
-	stp	q20, q21, [x0, #CTX_FP_Q20]
-	stp	q22, q23, [x0, #CTX_FP_Q22]
-	stp	q24, q25, [x0, #CTX_FP_Q24]
-	stp	q26, q27, [x0, #CTX_FP_Q26]
-	stp	q28, q29, [x0, #CTX_FP_Q28]
-	stp	q30, q31, [x0, #CTX_FP_Q30]
+	stp	q0, q1, [x0], #32
+	stp	q2, q3, [x0], #32
+	stp	q4, q5, [x0], #32
+	stp	q6, q7, [x0], #32
+	stp	q8, q9, [x0], #32
+	stp	q10, q11, [x0], #32
+	stp	q12, q13, [x0], #32
+	stp	q14, q15, [x0], #32
+	stp	q16, q17, [x0], #32
+	stp	q18, q19, [x0], #32
+	stp	q20, q21, [x0], #32
+	stp	q22, q23, [x0], #32
+	stp	q24, q25, [x0], #32
+	stp	q26, q27, [x0], #32
+	stp	q28, q29, [x0], #32
+	stp	q30, q31, [x0], #32
 
-	mrs	x9, fpsr
-	str	x9, [x0, #CTX_FP_FPSR]
+	fpregs_state_save x0, x9
 
-	mrs	x10, fpcr
-	str	x10, [x0, #CTX_FP_FPCR]
-
-#if CTX_INCLUDE_AARCH32_REGS
-	mrs	x11, fpexc32_el2
-	str	x11, [x0, #CTX_FP_FPEXC32_EL2]
-#endif /* CTX_INCLUDE_AARCH32_REGS */
 	ret
 endfunc fpregs_context_save
 
@@ -84,51 +112,196 @@ endfunc fpregs_context_save
  * ------------------------------------------------------------------
  */
 func fpregs_context_restore
-	ldp	q0, q1, [x0, #CTX_FP_Q0]
-	ldp	q2, q3, [x0, #CTX_FP_Q2]
-	ldp	q4, q5, [x0, #CTX_FP_Q4]
-	ldp	q6, q7, [x0, #CTX_FP_Q6]
-	ldp	q8, q9, [x0, #CTX_FP_Q8]
-	ldp	q10, q11, [x0, #CTX_FP_Q10]
-	ldp	q12, q13, [x0, #CTX_FP_Q12]
-	ldp	q14, q15, [x0, #CTX_FP_Q14]
-	ldp	q16, q17, [x0, #CTX_FP_Q16]
-	ldp	q18, q19, [x0, #CTX_FP_Q18]
-	ldp	q20, q21, [x0, #CTX_FP_Q20]
-	ldp	q22, q23, [x0, #CTX_FP_Q22]
-	ldp	q24, q25, [x0, #CTX_FP_Q24]
-	ldp	q26, q27, [x0, #CTX_FP_Q26]
-	ldp	q28, q29, [x0, #CTX_FP_Q28]
-	ldp	q30, q31, [x0, #CTX_FP_Q30]
+	ldp	q0, q1, [x0], #32
+	ldp	q2, q3, [x0], #32
+	ldp	q4, q5, [x0], #32
+	ldp	q6, q7, [x0], #32
+	ldp	q8, q9, [x0], #32
+	ldp	q10, q11, [x0], #32
+	ldp	q12, q13, [x0], #32
+	ldp	q14, q15, [x0], #32
+	ldp	q16, q17, [x0], #32
+	ldp	q18, q19, [x0], #32
+	ldp	q20, q21, [x0], #32
+	ldp	q22, q23, [x0], #32
+	ldp	q24, q25, [x0], #32
+	ldp	q26, q27, [x0], #32
+	ldp	q28, q29, [x0], #32
+	ldp	q30, q31, [x0], #32
 
-	ldr	x9, [x0, #CTX_FP_FPSR]
-	msr	fpsr, x9
-
-	ldr	x10, [x0, #CTX_FP_FPCR]
-	msr	fpcr, x10
-
-#if CTX_INCLUDE_AARCH32_REGS
-	ldr	x11, [x0, #CTX_FP_FPEXC32_EL2]
-	msr	fpexc32_el2, x11
-#endif /* CTX_INCLUDE_AARCH32_REGS */
-
-	/*
-	 * No explict ISB required here as ERET to
-	 * switch to secure EL1 or non-secure world
-	 * covers it
-	 */
+	fpregs_state_restore x0, x9
 
 	ret
 endfunc fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
 
+#if CTX_INCLUDE_SVE_REGS
+/*
+ * Helper macros for SVE predicates save/restore operations.
+ */
+.macro sve_predicate_op op:req reg:req
+	\op p0, [\reg, #0, MUL VL]
+	\op p1, [\reg, #1, MUL VL]
+	\op p2, [\reg, #2, MUL VL]
+	\op p3, [\reg, #3, MUL VL]
+	\op p4, [\reg, #4, MUL VL]
+	\op p5, [\reg, #5, MUL VL]
+	\op p6, [\reg, #6, MUL VL]
+	\op p7, [\reg, #7, MUL VL]
+	\op p8, [\reg, #8, MUL VL]
+	\op p9, [\reg, #9, MUL VL]
+	\op p10, [\reg, #10, MUL VL]
+	\op p11, [\reg, #11, MUL VL]
+	\op p12, [\reg, #12, MUL VL]
+	\op p13, [\reg, #13, MUL VL]
+	\op p14, [\reg, #14, MUL VL]
+	\op p15, [\reg, #15, MUL VL]
+.endm
+
+.macro sve_vectors_op op:req reg:req
+	\op z0, [\reg, #0, MUL VL]
+	\op z1, [\reg, #1, MUL VL]
+	\op z2, [\reg, #2, MUL VL]
+	\op z3, [\reg, #3, MUL VL]
+	\op z4, [\reg, #4, MUL VL]
+	\op z5, [\reg, #5, MUL VL]
+	\op z6, [\reg, #6, MUL VL]
+	\op z7, [\reg, #7, MUL VL]
+	\op z8, [\reg, #8, MUL VL]
+	\op z9, [\reg, #9, MUL VL]
+	\op z10, [\reg, #10, MUL VL]
+	\op z11, [\reg, #11, MUL VL]
+	\op z12, [\reg, #12, MUL VL]
+	\op z13, [\reg, #13, MUL VL]
+	\op z14, [\reg, #14, MUL VL]
+	\op z15, [\reg, #15, MUL VL]
+	\op z16, [\reg, #16, MUL VL]
+	\op z17, [\reg, #17, MUL VL]
+	\op z18, [\reg, #18, MUL VL]
+	\op z19, [\reg, #19, MUL VL]
+	\op z20, [\reg, #20, MUL VL]
+	\op z21, [\reg, #21, MUL VL]
+	\op z22, [\reg, #22, MUL VL]
+	\op z23, [\reg, #23, MUL VL]
+	\op z24, [\reg, #24, MUL VL]
+	\op z25, [\reg, #25, MUL VL]
+	\op z26, [\reg, #26, MUL VL]
+	\op z27, [\reg, #27, MUL VL]
+	\op z28, [\reg, #28, MUL VL]
+	\op z29, [\reg, #29, MUL VL]
+	\op z30, [\reg, #30, MUL VL]
+	\op z31, [\reg, #31, MUL VL]
+.endm
+
+/* ------------------------------------------------------------------
+ * The following function follows the aapcs_64 strictly to use x9-x17
+ * (temporary caller-saved registers according to AArch64 PCS) to
+ * restore SVE register context. It assumes that 'x0' is
+ * pointing to a 'sve_regs_t' structure to which the register context
+ * will be saved.
+ * ------------------------------------------------------------------
+ */
+func sve_context_save
+.arch_extension sve
+	/* Temporarily enable SVE */
+	mrs	x10, cptr_el3
+	orr	x11, x10, #CPTR_EZ_BIT
+	bic	x11, x11, #TFP_BIT
+	msr	cptr_el3, x11
+	isb
+
+	/* zcr_el3 */
+	mrs	x12, S3_6_C1_C2_0
+	mov	x13, #((SVE_VECTOR_LEN >> 7) - 1)
+	msr	S3_6_C1_C2_0, x13
+	isb
+
+	/* Predicate registers */
+	mov x13, #CTX_SIMD_PREDICATES
+	add	x9, x0, x13
+	sve_predicate_op str, x9
+
+	/* Save FFR after predicates */
+	mov x13, #CTX_SIMD_FFR
+	add	x9, x0, x13
+	rdffr   p0.b
+	str	p0, [x9]
+
+	/* Save vector registers */
+	mov x13, #CTX_SIMD_VECTORS
+	add	x9, x0, x13
+	sve_vectors_op  str, x9
+
+	/* Restore SVE enablement */
+	msr	S3_6_C1_C2_0, x12 /* zcr_el3 */
+	msr	cptr_el3, x10
+	isb
+.arch_extension nosve
+
+	/* Save FPSR, FPCR and FPEXC32 */
+	fpregs_state_save x0, x9
+
+	ret
+endfunc sve_context_save
+
+/* ------------------------------------------------------------------
+ * The following function follows the aapcs_64 strictly to use x9-x17
+ * (temporary caller-saved registers according to AArch64 PCS) to
+ * restore SVE register context. It assumes that 'x0' is pointing to
+ * a 'sve_regs_t' structure from where the register context will be
+ * restored.
+ * ------------------------------------------------------------------
+ */
+func sve_context_restore
+.arch_extension sve
+	/* Temporarily enable SVE for EL3 */
+	mrs	x10, cptr_el3
+	orr	x11, x10, #CPTR_EZ_BIT
+	bic	x11, x11, #TFP_BIT
+	msr	cptr_el3, x11
+	isb
+
+	/* zcr_el3 */
+	mrs	x12, S3_6_C1_C2_0
+	mov	x13, #((SVE_VECTOR_LEN >> 7) - 1)
+	msr	S3_6_C1_C2_0, x13
+	isb
+
+	/* Restore FFR register before predicates */
+	mov x13, #CTX_SIMD_FFR
+	add	x9, x0, x13
+	ldr	p0, [x9]
+	wrffr	p0.b
+
+	/* Restore predicate registers */
+	mov x13, #CTX_SIMD_PREDICATES
+	add	x9, x0, x13
+	sve_predicate_op ldr, x9
+
+	/* Restore vector registers */
+	mov x13, #CTX_SIMD_VECTORS
+	add	x9, x0, x13
+	sve_vectors_op	ldr, x9
+
+	/* Restore SVE enablement */
+	msr	S3_6_C1_C2_0, x12 /* zcr_el3 */
+	msr	cptr_el3, x10
+	isb
+.arch_extension nosve
+
+	/* Restore FPSR, FPCR and FPEXC32 */
+	fpregs_state_restore x0, x9
+	ret
+endfunc sve_context_restore
+#endif /* CTX_INCLUDE_SVE_REGS */
+
 	/*
 	 * Set SCR_EL3.EA bit to enable SErrors at EL3
 	 */
 	.macro enable_serror_at_el3
-	mrs     x8, scr_el3
-	orr     x8, x8, #SCR_EA_BIT
-	msr     scr_el3, x8
+	mrs	x8, scr_el3
+	orr	x8, x8, #SCR_EA_BIT
+	msr	scr_el3, x8
 	.endm
 
 	/*
@@ -147,8 +320,8 @@ endfunc fpregs_context_restore
 	and	x8, x8, #(ID_AA64PFR0_DIT_MASK << ID_AA64PFR0_DIT_SHIFT)
 	cbz	x8, 1f
 #endif
-	mov     x8, #DIT_BIT
-	msr     DIT, x8
+	mov	x8, #DIT_BIT
+	msr	DIT, x8
 1:
 #endif /* ENABLE_FEAT_DIT */
 	.endm /* set_unset_pstate_bits */

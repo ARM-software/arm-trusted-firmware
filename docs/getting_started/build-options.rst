@@ -204,6 +204,13 @@ Common build options
    Note that Pointer Authentication is enabled for Non-secure world irrespective
    of the value of this flag if the CPU supports it.
 
+-  ``CTX_INCLUDE_SVE_REGS``: Boolean option that, when set to 1, will cause the
+   SVE registers to be included when saving and restoring the CPU context. Note
+   that this build option requires ``ENABLE_SVE_FOR_SWD`` to be enabled. In
+   general, it is recommended to perform SVE context management in lower ELs
+   and skip in EL3 due to the additional cost of maintaining large data
+   structures to track the SVE state. Hence, the default value is 0.
+
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
 
@@ -505,21 +512,26 @@ Common build options
 
 -  ``ENABLE_SVE_FOR_NS``: Numeric value to enable Scalable Vector Extension
    (SVE) for the Non-secure world only. SVE is an optional architectural feature
-   for AArch64. Note that when SVE is enabled for the Non-secure world, access
-   to SIMD and floating-point functionality from the Secure world is disabled by
-   default and controlled with ENABLE_SVE_FOR_SWD.
-   This is to avoid corruption of the Non-secure world data in the Z-registers
-   which are aliased by the SIMD and FP registers. The build option is not
-   compatible with the ``CTX_INCLUDE_FPREGS`` build option, and will raise an
-   assert on platforms where SVE is implemented and ``ENABLE_SVE_FOR_NS``
-   enabled.  This flag can take the values 0 to 2, to align with the
-   ``ENABLE_FEAT`` mechanism. At this time, this build option cannot be
-   used on systems that have SPM_MM enabled. The default is 1.
+   for AArch64. This flag can take the values 0 to 2, to align with the
+   ``ENABLE_FEAT`` mechanism. At this time, this build option cannot be used on
+   systems that have SPM_MM enabled. The default value is 2.
 
--  ``ENABLE_SVE_FOR_SWD``: Boolean option to enable SVE for the Secure world.
-   SVE is an optional architectural feature for AArch64. Note that this option
-   requires ENABLE_SVE_FOR_NS to be enabled. The default is 0 and it is
-   automatically disabled when the target architecture is AArch32.
+   Note that when SVE is enabled for the Non-secure world, access
+   to SVE, SIMD and floating-point functionality from the Secure world is
+   independently controlled by build option ``ENABLE_SVE_FOR_SWD``. When enabling
+   ``CTX_INCLUDE_FPREGS`` and ``ENABLE_SVE_FOR_NS`` together, it is mandatory to
+   enable ``CTX_INCLUDE_SVE_REGS``. This is to avoid corruption of the Non-secure
+   world data in the Z-registers which are aliased by the SIMD and FP registers.
+
+-  ``ENABLE_SVE_FOR_SWD``: Boolean option to enable SVE and FPU/SIMD functionality
+   for the Secure world. SVE is an optional architectural feature for AArch64.
+   The default is 0 and it is automatically disabled when the target architecture
+   is AArch32.
+
+   .. note::
+      This build flag requires ``ENABLE_SVE_FOR_NS`` to be enabled. When enabling
+      ``ENABLE_SVE_FOR_SWD``, a developer must carefully consider whether
+      ``CTX_INCLUDE_SVE_REGS`` is also needed.
 
 -  ``ENABLE_STACK_PROTECTOR``: String option to enable the stack protection
    checks in GCC. Allowed values are "all", "strong", "default" and "none". The
@@ -884,6 +896,11 @@ Common build options
    provide definitions of ``BL2_NOLOAD_START`` and ``BL2_NOLOAD_LIMIT``. This
    flag is disabled by default and NOLOAD sections are placed in RAM immediately
    following the loaded firmware image.
+
+-  ``SEPARATE_SIMD_SECTION``: Setting this option to ``1`` allows the SIMD context
+    data structures to be put in a dedicated memory region as decided by platform
+    integrator. Default value is ``0`` which means the SIMD context is put in BSS
+    section of EL3 firmware.
 
 -  ``SMC_PCI_SUPPORT``: This option allows platforms to handle PCI configuration
    access requests via a standard SMCCC defined in `DEN0115`_. When combined with
