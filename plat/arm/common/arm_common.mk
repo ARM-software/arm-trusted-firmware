@@ -433,10 +433,6 @@ ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
     $(info Including ${MEASURED_BOOT_MK})
     include ${MEASURED_BOOT_MK}
 
-    ifneq (${MBOOT_EL_HASH_ALG}, sha256)
-        $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA512))
-    endif
-
     ifeq (${MEASURED_BOOT},1)
          BL1_SOURCES		+= 	${EVENT_LOG_SOURCES}
          BL2_SOURCES		+= 	${EVENT_LOG_SOURCES}
