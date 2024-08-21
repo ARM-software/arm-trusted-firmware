@@ -124,26 +124,13 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 
 	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), mair_el1,
 		      mmu_cfg_params[MMU_CFG_MAIR]);
-
-	/* Store the initialised SCTLR_EL1 value in the cpu_context */
-#if (ERRATA_SPECULATIVE_AT)
-	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
-		      CTX_ERRATA_SPEC_AT_TCR_EL1, mmu_cfg_params[MMU_CFG_TCR]);
-#else
-	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), tcr_el1,
-		      mmu_cfg_params[MMU_CFG_TCR]);
-#endif /* ERRATA_SPECULATIVE_AT */
+	write_ctx_tcr_el1_reg_errata(ctx, mmu_cfg_params[MMU_CFG_TCR]);
 
 	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), ttbr0_el1,
 		      mmu_cfg_params[MMU_CFG_TTBR0]);
 
 	/* Setup SCTLR_EL1 */
-#if (ERRATA_SPECULATIVE_AT)
-	sctlr_el1_val = read_ctx_reg(get_errata_speculative_at_ctx(ctx),
-				 CTX_ERRATA_SPEC_AT_SCTLR_EL1);
-#else
-	sctlr_el1_val = read_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1);
-#endif /* ERRATA_SPECULATIVE_AT */
+	sctlr_el1_val = read_ctx_sctlr_el1_reg_errata(ctx);
 
 	sctlr_el1_val |=
 		/*SCTLR_EL1_RES1 |*/
@@ -180,12 +167,7 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	);
 
 	/* Store the initialised SCTLR_EL1 value in the cpu_context */
-#if (ERRATA_SPECULATIVE_AT)
-	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
-		      CTX_ERRATA_SPEC_AT_SCTLR_EL1, sctlr_el1_val);
-#else
-	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1, sctlr_el1_val);
-#endif /* ERRATA_SPECULATIVE_AT */
+	write_ctx_sctlr_el1_reg_errata(ctx, sctlr_el1_val);
 
 	/*
 	 * Setup other system registers

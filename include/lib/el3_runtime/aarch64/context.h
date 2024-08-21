@@ -356,6 +356,46 @@ void fpregs_context_save(simd_regs_t *regs);
 void fpregs_context_restore(simd_regs_t *regs);
 #endif
 
+static inline void write_ctx_sctlr_el1_reg_errata(cpu_context_t *ctx, u_register_t val)
+{
+#if (ERRATA_SPECULATIVE_AT)
+	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
+		      CTX_ERRATA_SPEC_AT_SCTLR_EL1, val);
+#else
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1, val);
+#endif /* ERRATA_SPECULATIVE_AT */
+}
+
+static inline void write_ctx_tcr_el1_reg_errata(cpu_context_t *ctx, u_register_t val)
+{
+#if (ERRATA_SPECULATIVE_AT)
+	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
+		      CTX_ERRATA_SPEC_AT_TCR_EL1, val);
+#else
+	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), tcr_el1, val);
+#endif /* ERRATA_SPECULATIVE_AT */
+}
+
+static inline u_register_t read_ctx_sctlr_el1_reg_errata(cpu_context_t *ctx)
+{
+#if (ERRATA_SPECULATIVE_AT)
+	return read_ctx_reg(get_errata_speculative_at_ctx(ctx),
+		      CTX_ERRATA_SPEC_AT_SCTLR_EL1);
+#else
+	return read_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1);
+#endif /* ERRATA_SPECULATIVE_AT */
+}
+
+static inline u_register_t read_ctx_tcr_el1_reg_errata(cpu_context_t *ctx)
+{
+#if (ERRATA_SPECULATIVE_AT)
+	return read_ctx_reg(get_errata_speculative_at_ctx(ctx),
+		      CTX_ERRATA_SPEC_AT_TCR_EL1);
+#else
+	return read_el1_ctx_common(get_el1_sysregs_ctx(ctx), tcr_el1);
+#endif /* ERRATA_SPECULATIVE_AT */
+}
+
 #endif /* __ASSEMBLER__ */
 
 #endif /* CONTEXT_H */

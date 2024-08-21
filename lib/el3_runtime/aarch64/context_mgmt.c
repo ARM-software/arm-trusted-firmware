@@ -96,11 +96,7 @@ static void setup_el1_context(cpu_context_t *ctx, const struct entry_point_info 
 #endif
 
 	/* Store the initialised SCTLR_EL1 value in the cpu_context */
-#if (ERRATA_SPECULATIVE_AT)
-	write_ctx_reg(get_errata_speculative_at_ctx(ctx), CTX_ERRATA_SPEC_AT_SCTLR_EL1, sctlr_elx);
-#else
-	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1, sctlr_elx);
-#endif /* ERRATA_SPECULATIVE_AT */
+	write_ctx_sctlr_el1_reg_errata(ctx, sctlr_elx);
 
 	/*
 	 * Base the context ACTLR_EL1 on the current value, as it is

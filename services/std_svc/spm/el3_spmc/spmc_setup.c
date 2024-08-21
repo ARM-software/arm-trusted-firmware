@@ -322,14 +322,7 @@ static void spmc_el0_sp_setup_mmu(struct secure_partition_desc *sp,
 	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), mair_el1,
 		      mmu_cfg_params[MMU_CFG_MAIR]);
 
-	/* Store the initialised SCTLR_EL1 value in the cpu_context */
-#if (ERRATA_SPECULATIVE_AT)
-	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
-		      CTX_ERRATA_SPEC_AT_TCR_EL1, mmu_cfg_params[MMU_CFG_TCR]);
-#else
-	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), tcr_el1,
-		      mmu_cfg_params[MMU_CFG_TCR]);
-#endif /* ERRATA_SPECULATIVE_AT */
+	write_ctx_tcr_el1_reg_errata(ctx, mmu_cfg_params[MMU_CFG_TCR]);
 
 	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), ttbr0_el1,
 		      mmu_cfg_params[MMU_CFG_TTBR0]);
@@ -340,12 +333,7 @@ static void spmc_el0_sp_setup_sctlr_el1(cpu_context_t *ctx)
 	u_register_t sctlr_el1_val;
 
 	/* Setup SCTLR_EL1 */
-#if (ERRATA_SPECULATIVE_AT)
-	sctlr_el1_val = read_ctx_reg(get_errata_speculative_at_ctx(ctx),
-				 CTX_ERRATA_SPEC_AT_SCTLR_EL1);
-#else
-	sctlr_el1_val = read_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1);
-#endif /* ERRATA_SPECULATIVE_AT */
+	sctlr_el1_val = read_ctx_sctlr_el1_reg_errata(ctx);
 
 	sctlr_el1_val |=
 		/*SCTLR_EL1_RES1 |*/
@@ -381,12 +369,7 @@ static void spmc_el0_sp_setup_sctlr_el1(cpu_context_t *ctx)
 	);
 
 	/* Store the initialised SCTLR_EL1 value in the cpu_context */
-#if (ERRATA_SPECULATIVE_AT)
-	write_ctx_reg(get_errata_speculative_at_ctx(ctx),
-		      CTX_ERRATA_SPEC_AT_SCTLR_EL1, sctlr_el1_val);
-#else
-	write_el1_ctx_common(get_el1_sysregs_ctx(ctx), sctlr_el1, sctlr_el1_val);
-#endif /* ERRATA_SPECULATIVE_AT */
+	write_ctx_sctlr_el1_reg_errata(ctx, sctlr_el1_val);
 }
 
 static void spmc_el0_sp_setup_system_registers(struct secure_partition_desc *sp,
