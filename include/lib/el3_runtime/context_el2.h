@@ -13,7 +13,6 @@
  * AArch64 EL2 system register context structure for preserving the
  * architectural state during world switches.
  ******************************************************************************/
-#if CTX_INCLUDE_EL2_REGS
 typedef struct el2_common_regs {
 	uint64_t actlr_el2;
 	uint64_t afsr0_el2;
@@ -359,7 +358,6 @@ typedef struct el2_sysregs {
 #define write_el2_ctx_mpam(ctx, reg, val)
 #endif /* CTX_INCLUDE_MPAM_REGS */
 
-#endif /* CTX_INCLUDE_EL2_REGS */
 /******************************************************************************/
 
 #endif /* __ASSEMBLER__ */
