@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -18,7 +18,26 @@
 
 static timer_ops_t ops;
 
-static uint32_t get_timer_value(void)
+static uint64_t timeout_cnt_us2cnt(uint32_t us)
+{
+	return ((uint64_t)us * (uint64_t)read_cntfrq_el0()) / 1000000ULL;
+}
+
+static uint64_t generic_delay_timeout_init_us(uint32_t us)
+{
+	uint64_t cnt = timeout_cnt_us2cnt(us);
+
+	cnt += read_cntpct_el0();
+
+	return cnt;
+}
+
+static bool generic_delay_timeout_elapsed(uint64_t expire_cnt)
+{
+	return read_cntpct_el0() > expire_cnt;
+}
+
+static uint32_t generic_delay_get_timer_value(void)
 {
 	/*
 	 * Generic delay timer implementation expects the timer to be a down
@@ -31,9 +50,11 @@ static uint32_t get_timer_value(void)
 
 void generic_delay_timer_init_args(uint32_t mult, uint32_t div)
 {
-	ops.get_timer_value	= get_timer_value;
+	ops.get_timer_value	= generic_delay_get_timer_value;
 	ops.clk_mult		= mult;
 	ops.clk_div		= div;
+	ops.timeout_init_us	= generic_delay_timeout_init_us;
+	ops.timeout_elapsed	= generic_delay_timeout_elapsed;
 
 	timer_init(&ops);
 
@@ -59,4 +80,3 @@ void generic_delay_timer_init(void)
 
 	generic_delay_timer_init_args(mult, div);
 }
-
