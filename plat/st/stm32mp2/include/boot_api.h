@@ -86,7 +86,7 @@
 /* Image Header related definitions */
 
 /* Definition of header version */
-#define BOOT_API_HEADER_VERSION					0x00020000U
+#define BOOT_API_HEADER_VERSION					0x00020200U
 
 /*
  * Magic number used to detect header in memory

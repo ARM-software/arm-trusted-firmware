@@ -13,6 +13,7 @@ include plat/st/common/common.mk
 CRASH_REPORTING			:=	1
 ENABLE_PIE			:=	1
 PROGRAMMABLE_RESET_ADDRESS	:=	1
+BL2_IN_XIP_MEM			:=	1
 
 # Default Device tree
 DTB_FILE_NAME			?=	stm32mp257f-ev1.dtb
@@ -24,7 +25,7 @@ STM32_HEADER_VERSION_MAJOR	:=	2
 STM32_HEADER_VERSION_MINOR	:=	2
 
 # Set load address for serial boot devices
-DWL_BUFFER_BASE 	?=	0x87000000
+DWL_BUFFER_BASE 		?=	0x87000000
 
 # Device tree
 BL2_DTSI			:=	stm32mp25-bl2.dtsi
@@ -35,9 +36,32 @@ STM32_TF_STM32			:=	$(addprefix ${BUILD_PLAT}/tf-a-, $(patsubst %.dtb,%.stm32,$(
 STM32_LD_FILE			:=	plat/st/stm32mp2/${ARCH}/stm32mp2.ld.S
 STM32_BINARY_MAPPING		:=	plat/st/stm32mp2/${ARCH}/stm32mp2.S
 
+STM32MP_FW_CONFIG_NAME		:=	$(patsubst %.dtb,%-fw-config.dtb,$(DTB_FILE_NAME))
+STM32MP_FW_CONFIG		:=	${BUILD_PLAT}/fdts/$(STM32MP_FW_CONFIG_NAME)
+FDT_SOURCES			+=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(STM32MP_FW_CONFIG_NAME)))
+# Add the FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_FW_CONFIG},--fw-config))
+
+# Enable flags for C files
+$(eval $(call assert_booleans,\
+	$(sort \
+		STM32MP25 \
+)))
+
+$(eval $(call assert_numerics,\
+	$(sort \
+		PLAT_PARTITION_MAX_ENTRIES \
+		STM32_HEADER_VERSION_MAJOR \
+		STM32_TF_A_COPIES \
+)))
+
 $(eval $(call add_defines,\
 	$(sort \
 		DWL_BUFFER_BASE \
+		PLAT_PARTITION_MAX_ENTRIES \
+		PLAT_TBBR_IMG_DEF \
+		STM32_TF_A_COPIES \
+		STM32MP25 \
 )))
 
 # STM32MP2x is based on Cortex-A35, which is Armv8.0, and does not support BTI
@@ -51,17 +75,28 @@ PLAT_BL_COMMON_SOURCES		+=	lib/cpus/${ARCH}/cortex_a35.S
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/uart/${ARCH}/stm32_console.S
 PLAT_BL_COMMON_SOURCES		+=	plat/st/stm32mp2/${ARCH}/stm32mp2_helper.S
 
+PLAT_BL_COMMON_SOURCES		+=	plat/st/stm32mp2/stm32mp2_private.c
+
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/bsec/bsec3.c					\
-					drivers/st/reset/stm32mp2_reset.c
+					drivers/st/reset/stm32mp2_reset.c			\
+					plat/st/stm32mp2/stm32mp2_syscfg.c
 
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/clk/clk-stm32-core.c				\
 					drivers/st/clk/clk-stm32mp2.c
 
 BL2_SOURCES			+=	plat/st/stm32mp2/plat_bl2_mem_params_desc.c
+
 BL2_SOURCES			+=	plat/st/stm32mp2/bl2_plat_setup.c
+
+ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
+BL2_SOURCES			+=	drivers/st/mmc/stm32_sdmmc2.c
+endif
 
 ifeq (${STM32MP_USB_PROGRAMMER},1)
 BL2_SOURCES			+=	plat/st/stm32mp2/stm32mp2_usb_dfu.c
 endif
 
+BL2_SOURCES			+=	drivers/st/ddr/stm32mp2_ddr_helpers.c
+
+# Compilation rules
 include plat/st/common/common_rules.mk

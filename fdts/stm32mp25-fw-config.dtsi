@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/*
+ * Copyright (c) 2024, STMicroelectronics - All Rights Reserved
+ */
+
+#include <common/tbbr/tbbr_img_def.h>
+
+#include <platform_def.h>
+
+/dts-v1/;
+
+/ {
+	dtb-registry {
+		compatible = "fconf,dyn_cfg-dtb_registry";
+
+		hw-config {
+			load-address = <0x0 STM32MP_HW_CONFIG_BASE>;
+			max-size = <STM32MP_HW_CONFIG_MAX_SIZE>;
+			id = <HW_CONFIG_ID>;
+		};
+
+		nt_fw {
+			load-address = <0x0 STM32MP_BL33_BASE>;
+			max-size = <STM32MP_BL33_MAX_SIZE>;
+			id = <BL33_IMAGE_ID>;
+		};
+
+		tos_fw {
+			id = <BL32_IMAGE_ID>;
+		};
+	};
+};

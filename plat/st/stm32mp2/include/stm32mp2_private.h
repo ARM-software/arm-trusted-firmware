@@ -7,6 +7,10 @@
 #ifndef STM32MP2_PRIVATE_H
 #define STM32MP2_PRIVATE_H
 
+void configure_mmu(void);
+
+uint32_t stm32mp_syscfg_get_chip_dev_id(void);
+
 /* Wrappers for OTP / BSEC functions */
 static inline uint32_t stm32_otp_probe(void)
 {

@@ -97,6 +97,32 @@
 				resets = <&rcc USART2_R>;
 				status = "disabled";
 			};
+
+			sdmmc1: mmc@48220000 {
+				compatible = "st,stm32mp25-sdmmc2", "arm,pl18x", "arm,primecell";
+				arm,primecell-periphid = <0x00353180>;
+				reg = <0x48220000 0x400>, <0x44230400 0x8>;
+				clocks = <&rcc CK_KER_SDMMC1>;
+				clock-names = "apb_pclk";
+				resets = <&rcc SDMMC1_R>;
+				cap-sd-highspeed;
+				cap-mmc-highspeed;
+				max-frequency = <120000000>;
+				status = "disabled";
+			};
+
+			sdmmc2: mmc@48230000 {
+				compatible = "st,stm32mp25-sdmmc2", "arm,pl18x", "arm,primecell";
+				arm,primecell-periphid = <0x00353180>;
+				reg = <0x48230000 0x400>, <0x44230800 0x8>;
+				clocks = <&rcc CK_KER_SDMMC2>;
+				clock-names = "apb_pclk";
+				resets = <&rcc SDMMC2_R>;
+				cap-sd-highspeed;
+				cap-mmc-highspeed;
+				max-frequency = <120000000>;
+				status = "disabled";
+			};
 		};
 
 		bsec: efuse@44000000 {
@@ -119,6 +145,9 @@
 			};
 			nand2_otp: otp20@50 {
 				reg = <0x50 0x4>;
+			};
+			rev_otp@198 {
+				reg = <0x198 0x4>;
 			};
 			package_otp: package-otp@1e8 {
 				reg = <0x1e8 0x1>;
@@ -176,7 +205,6 @@
 			#size-cells = <1>;
 			compatible = "st,stm32mp257-pinctrl";
 			ranges = <0 0x44240000 0xa0400>;
-			pins-are-numbered;
 
 			gpioa: gpio@44240000 {
 				gpio-controller;
@@ -305,7 +333,6 @@
 			#size-cells = <1>;
 			compatible = "st,stm32mp257-z-pinctrl";
 			ranges = <0 0x46200000 0x400>;
-			pins-are-numbered;
 
 			gpioz: gpio@46200000 {
 				gpio-controller;
