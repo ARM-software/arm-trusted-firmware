@@ -77,6 +77,9 @@
 #define IMX9_MU1_BASE			0x44220000
 #define MU_GCR_OFF			0x114
 
+/* Used for GIC_WAKER sync between AP and SM. */
+#define SM_AP_SEMA_ADDR			0x442213F8
+
 #define GPIO_NUM			U(4)
 #define PER_NUM				U(15)
 #define WDOG_NUM			U(2)

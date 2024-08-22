@@ -28,6 +28,7 @@ BL31_SOURCES		+=	drivers/arm/css/scmi/scmi_common.c		\
 				plat/imx/common/imx_bl31_common.c		\
 				plat/imx/common/imx_sip_handler.c		\
 				plat/imx/common/imx_sip_svc.c			\
+				plat/imx/common/imx9_sm_sema.c			\
 				plat/imx/common/lpuart_console.S		\
 				plat/imx/imx9/common/scmi/scmi_client.c		\
 				plat/imx/imx9/common/imx9_bl31_setup.c		\

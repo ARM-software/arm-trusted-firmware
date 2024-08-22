@@ -16,6 +16,11 @@
 
 #include <plat_imx8.h>
 
+#ifdef SM_AP_SEMA_ADDR
+extern void request_sm_ap_sema(void);
+extern void release_sm_ap_sema(void);
+#endif
+
 /* the GICv3 driver only needs to be initialized in EL3 */
 static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
@@ -90,6 +95,30 @@ void plat_gic_cpuif_enable(void)
 void plat_gic_cpuif_disable(void)
 {
 	gicv3_cpuif_disable(plat_my_core_pos());
+}
+
+void gic_cpuif_enable(void)
+{
+#ifdef SM_AP_SEMA_ADDR
+	request_sm_ap_sema();
+#endif
+	gicv3_cpuif_enable(plat_my_core_pos());
+
+#ifdef SM_AP_SEMA_ADDR
+	release_sm_ap_sema();
+#endif
+}
+
+void gic_cpuif_disable(void)
+{
+#ifdef SM_AP_SEMA_ADDR
+	request_sm_ap_sema();
+#endif
+	gicv3_cpuif_disable(plat_my_core_pos());
+
+#ifdef SM_AP_SEMA_ADDR
+	release_sm_ap_sema();
+#endif
 }
 
 void plat_gic_pcpu_init(void)
