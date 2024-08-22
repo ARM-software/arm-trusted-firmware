@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -147,6 +148,7 @@
 
 /* QSPI ECC from SDM register */
 #define SOCFPGA_ECC_QSPI_CTRL						0x08
+#define SOCFPGA_ECC_QSPI_INITSTAT					0x0C
 #define SOCFPGA_ECC_QSPI_ERRINTEN					0x10
 #define SOCFPGA_ECC_QSPI_ERRINTENS					0x14
 #define SOCFPGA_ECC_QSPI_ERRINTENR					0x18
