@@ -146,7 +146,7 @@ GENERATE_COT			:= 0
 RME_GPT_BITLOCK_BLOCK		:= 1
 
 # Default maximum size of GPT contiguous block
-RME_GPT_MAX_BLOCK		:= 2
+RME_GPT_MAX_BLOCK		:= 512
 
 # Hint platform interrupt control layer that Group 0 interrupts are for EL3. By
 # default, they are for Secure EL1.
