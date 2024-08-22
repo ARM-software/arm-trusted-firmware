@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,6 +31,7 @@
 #include "socfpga_reset_manager.h"
 #include "socfpga_ros.h"
 #include "socfpga_system_manager.h"
+#include "socfpga_vab.h"
 #include "wdt/watchdog.h"
 
 static struct mmc_device_info mmc_info;
@@ -112,7 +114,10 @@ void bl2_el3_plat_arch_setup(void)
 
 	setup_page_tables(bl_regions, agilex_plat_mmap);
 
-	enable_mmu_el3(0);
+	/*
+	 * TODO: mmu enable in latest phase
+	 */
+	// enable_mmu_el3(0);
 
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(0x100000, get_mmc_clk());
 
@@ -173,6 +178,20 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 	assert(bl_mem_params);
 
+#if SOCFPGA_SECURE_VAB_AUTH
+	/*
+	 * VAB Authentication start here.
+	 * If failed to authenticate, shall not proceed to process BL31 and hang.
+	 */
+	int ret = 0;
+
+	ret = socfpga_vab_init(image_id);
+	if (ret < 0) {
+		ERROR("SOCFPGA VAB Authentication failed\n");
+		wfi();
+	}
+#endif
+
 	switch (image_id) {
 	case BL33_IMAGE_ID:
 		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
@@ -191,4 +210,3 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 void bl2_platform_setup(void)
 {
 }
-
