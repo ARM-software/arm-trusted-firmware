@@ -54,8 +54,7 @@
 /* Console settings */
 #define UART_BASE			UL(0x401C8000)
 #define UART_BAUDRATE			U(115200)
-/* FIRC clock */
-#define UART_CLOCK_HZ			U(48000000)
+#define UART_CLOCK_HZ			U(125000000)
 
 #define S32G_FIP_BASE			UL(0x34100000)
 #define S32G_FIP_SIZE			UL(0x100000)

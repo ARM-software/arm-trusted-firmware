@@ -58,6 +58,13 @@ static struct s32cc_clkmux cgm0_mux0 =
 				 S32CC_CLK_ARM_PLL_DFS1, 0, 0, 0);
 static struct s32cc_clk cgm0_mux0_clk = S32CC_MODULE_CLK(cgm0_mux0);
 
+static struct s32cc_clkmux cgm0_mux8 =
+	S32CC_SHARED_CLKMUX_INIT(S32CC_CGM0, 8, 3,
+				 S32CC_CLK_FIRC,
+				 S32CC_CLK_PERIPH_PLL_PHI3,
+				 S32CC_CLK_FXOSC, 0, 0);
+static struct s32cc_clk cgm0_mux8_clk = S32CC_MODULE_CLK(cgm0_mux8);
+
 /* XBAR */
 static struct s32cc_clk xbar_2x_clk =
 	S32CC_CHILD_CLK(cgm0_mux0_clk, 48 * MHZ, 800 * MHZ);
@@ -81,6 +88,14 @@ static struct s32cc_fixed_div xbar_div12 =
 	S32CC_FIXED_DIV_INIT(cgm0_mux0_clk, 12);
 static struct s32cc_clk xbar_div6_clk =
 	S32CC_FREQ_MODULE_CLK(xbar_div12, 4 * MHZ, 66666666);
+
+/* Linflex */
+static struct s32cc_clk linflex_baud_clk =
+	S32CC_CHILD_CLK(cgm0_mux8_clk, 19200, 133333333);
+static struct s32cc_fixed_div linflex_div =
+	S32CC_FIXED_DIV_INIT(linflex_baud_clk, 2);
+static struct s32cc_clk linflex_clk =
+	S32CC_FREQ_MODULE_CLK(linflex_div, 9600, 66666666);
 
 /* MC_CGM1 */
 static struct s32cc_clkmux cgm1_mux0 =
@@ -107,7 +122,24 @@ static struct s32cc_clk a53_core_div10_clk =
 	S32CC_FREQ_MODULE_CLK(a53_core_div10, S32CC_A53_MIN_FREQ / 10,
 			      S32CC_A53_MAX_FREQ / 10);
 
-static struct s32cc_clk *s32cc_hw_clk_list[13] = {
+/* PERIPH PLL */
+static struct s32cc_clkmux periph_pll_mux =
+	S32CC_CLKMUX_INIT(S32CC_PERIPH_PLL, 0, 2,
+			  S32CC_CLK_FIRC,
+			  S32CC_CLK_FXOSC, 0, 0, 0);
+static struct s32cc_clk periph_pll_mux_clk =
+	S32CC_MODULE_CLK(periph_pll_mux);
+static struct s32cc_pll periphpll =
+	S32CC_PLL_INIT(periph_pll_mux_clk, S32CC_PERIPH_PLL, 2);
+static struct s32cc_clk periph_pll_vco_clk =
+	S32CC_FREQ_MODULE_CLK(periphpll, 1300 * MHZ, 2 * GHZ);
+
+static struct s32cc_pll_out_div periph_pll_phi3_div =
+	S32CC_PLL_OUT_DIV_INIT(periphpll, 3);
+static struct s32cc_clk periph_pll_phi3_clk =
+	S32CC_FREQ_MODULE_CLK(periph_pll_phi3_div, 0, 133333333);
+
+static struct s32cc_clk *s32cc_hw_clk_list[22] = {
 	/* Oscillators */
 	[S32CC_CLK_ID(S32CC_CLK_FIRC)] = &firc_clk,
 	[S32CC_CLK_ID(S32CC_CLK_SIRC)] = &sirc_clk,
@@ -116,6 +148,8 @@ static struct s32cc_clk *s32cc_hw_clk_list[13] = {
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_PHI0)] = &arm_pll_phi0_clk,
 	/* ARM DFS */
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_DFS1)] = &arm_dfs1_clk,
+	/* PERIPH PLL */
+	[S32CC_CLK_ID(S32CC_CLK_PERIPH_PLL_PHI3)] = &periph_pll_phi3_clk,
 };
 
 static struct s32cc_clk_array s32cc_hw_clocks = {
@@ -124,12 +158,16 @@ static struct s32cc_clk_array s32cc_hw_clocks = {
 	.n_clks = ARRAY_SIZE(s32cc_hw_clk_list),
 };
 
-static struct s32cc_clk *s32cc_arch_clk_list[13] = {
+static struct s32cc_clk *s32cc_arch_clk_list[18] = {
 	/* ARM PLL */
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_MUX)] = &arm_pll_mux_clk,
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_VCO)] = &arm_pll_vco_clk,
+	/* PERIPH PLL */
+	[S32CC_CLK_ID(S32CC_CLK_PERIPH_PLL_MUX)] = &periph_pll_mux_clk,
+	[S32CC_CLK_ID(S32CC_CLK_PERIPH_PLL_VCO)] = &periph_pll_vco_clk,
 	/* MC_CGM0 */
 	[S32CC_CLK_ID(S32CC_CLK_MC_CGM0_MUX0)] = &cgm0_mux0_clk,
+	[S32CC_CLK_ID(S32CC_CLK_MC_CGM0_MUX8)] = &cgm0_mux8_clk,
 	/* XBAR */
 	[S32CC_CLK_ID(S32CC_CLK_XBAR_2X)] = &xbar_2x_clk,
 	[S32CC_CLK_ID(S32CC_CLK_XBAR)] = &xbar_clk,
@@ -143,6 +181,9 @@ static struct s32cc_clk *s32cc_arch_clk_list[13] = {
 	[S32CC_CLK_ID(S32CC_CLK_A53_CORE)] = &a53_core_clk,
 	[S32CC_CLK_ID(S32CC_CLK_A53_CORE_DIV2)] = &a53_core_div2_clk,
 	[S32CC_CLK_ID(S32CC_CLK_A53_CORE_DIV10)] = &a53_core_div10_clk,
+	/* Linflex */
+	[S32CC_CLK_ID(S32CC_CLK_LINFLEX)] = &linflex_clk,
+	[S32CC_CLK_ID(S32CC_CLK_LINFLEX_BAUD)] = &linflex_baud_clk,
 };
 
 static struct s32cc_clk_array s32cc_arch_clocks = {
