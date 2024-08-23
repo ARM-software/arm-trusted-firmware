@@ -419,6 +419,7 @@ static int is_out_of_sec_range(uint64_t reg_addr)
 	case(SOCFPGA_MEMCTRL(DIAGINTTEST)):	/* DIAGINTTEST */
 	case(SOCFPGA_MEMCTRL(DERRADDRA)):	/* DERRADDRA */
 
+	case(SOCFPGA_ECC_QSPI(INITSTAT)):	/* ECC_QSPI_INITSTAT */
 	case(SOCFPGA_SYSMGR(EMAC_0)):	/* EMAC0 */
 	case(SOCFPGA_SYSMGR(EMAC_1)):	/* EMAC1 */
 	case(SOCFPGA_SYSMGR(EMAC_2)):	/* EMAC2 */
