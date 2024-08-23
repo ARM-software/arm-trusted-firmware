@@ -96,10 +96,6 @@ ifeq (${MEASURED_BOOT},1)
     $(info Including ${MEASURED_BOOT_MK})
     include ${MEASURED_BOOT_MK}
 
-    ifneq (${MBOOT_EL_HASH_ALG}, sha256)
-        $(eval $(call add_define,TF_MBEDTLS_MBOOT_USE_SHA512))
-    endif
-
     BL2_SOURCES		+=	plat/qemu/qemu/qemu_measured_boot.c	\
 				plat/qemu/qemu/qemu_helpers.c		\
 				${EVENT_LOG_SOURCES}
