@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +20,7 @@
 
 #include "agilex5_pinmux.h"
 #include "sdmmc.h"
+#include "socfpga_mailbox.h"
 
 static const struct mmc_ops *ops;
 static unsigned int mmc_ocr_value;
@@ -518,7 +520,8 @@ static int sdmmc_enumerate(unsigned int clk, unsigned int bus_width)
 		return ret;
 	}
 
-	memcpy(&mmc_csd, &resp_data, sizeof(resp_data));
+	memcpy_s(&mmc_csd, sizeof(mmc_csd) / MBOX_WORD_BYTE,
+		&resp_data, sizeof(resp_data) / MBOX_WORD_BYTE);
 
 	/* CMD7: Select Card */
 	ret = sdmmc_send_cmd(MMC_CMD(7), rca << RCA_SHIFT_OFFSET,
@@ -758,7 +761,8 @@ int sdmmc_init(handoff *hoff_ptr, struct cdns_sdmmc_params *params, struct mmc_d
 		(params->bus_width == MMC_BUS_WIDTH_4) ||
 		(params->bus_width == MMC_BUS_WIDTH_8)));
 
-	memcpy(&cdns_params, params, sizeof(struct cdns_sdmmc_params));
+	memcpy_s(&cdns_params, sizeof(struct cdns_sdmmc_params) / MBOX_WORD_BYTE,
+		params, sizeof(struct cdns_sdmmc_params) / MBOX_WORD_BYTE);
 	cdns_params.cdn_sdmmc_dev_type = info->mmc_dev_type;
 	cdns_params.cdn_sdmmc_dev_mode = SD_DS;
 

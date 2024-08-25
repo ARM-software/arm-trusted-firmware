@@ -252,7 +252,7 @@ int mailbox_read_response_async(unsigned int *job_id, uint32_t *header,
 				return MBOX_RET_ERROR;
 			}
 
-			memcpy((uint8_t *) response,
+			memcpy_s((uint8_t *) response, *resp_len * MBOX_WORD_BYTE,
 				(uint8_t *) mailbox_resp_ctr.payload->data,
 				*resp_len * MBOX_WORD_BYTE);
 		}

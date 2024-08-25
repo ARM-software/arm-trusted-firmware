@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2020-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1164,8 +1165,8 @@ int intel_fcs_mac_verify_update_finalize(uint32_t session_id,
 			return INTEL_SIP_SMC_STATUS_REJECTED;
 		}
 
-		memcpy((uint8_t *) &payload[i], (uint8_t *) mac_offset,
-		src_size - data_size);
+		memcpy_s(&payload[i], (src_size - data_size) / MBOX_WORD_BYTE,
+			(void *) mac_offset, (src_size - data_size) / MBOX_WORD_BYTE);
 
 		i += (src_size - data_size) / MBOX_WORD_BYTE;
 	}
@@ -1298,8 +1299,8 @@ int intel_fcs_mac_verify_smmu_update_finalize(uint32_t session_id,
 			return INTEL_SIP_SMC_STATUS_REJECTED;
 		}
 
-		memcpy((uint8_t *) &payload[i], (uint8_t *) mac_offset,
-		src_size - data_size);
+		memcpy_s(&payload[i], (src_size - data_size) / MBOX_WORD_BYTE,
+			(void *) mac_offset, (src_size - data_size) / MBOX_WORD_BYTE);
 
 		memset((void *) dst_addr, 0, *dst_size);
 
@@ -1401,8 +1402,8 @@ int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	memcpy((uint8_t *) &payload[i], (uint8_t *) hash_data_addr,
-			src_size);
+	memcpy_s(&payload[i], src_size / MBOX_WORD_BYTE,
+		(void *) hash_data_addr, src_size / MBOX_WORD_BYTE);
 
 	i += src_size / MBOX_WORD_BYTE;
 
@@ -1502,8 +1503,8 @@ int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t session_id, uint32_t conte
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	memcpy((uint8_t *) &payload[i],
-			(uint8_t *) hash_sig_pubkey_addr, src_size);
+	memcpy_s(&payload[i], src_size / MBOX_WORD_BYTE,
+		(void *) hash_sig_pubkey_addr, src_size / MBOX_WORD_BYTE);
 
 	i += (src_size / MBOX_WORD_BYTE);
 
@@ -1839,8 +1840,8 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(uint32_t session_id,
 			return INTEL_SIP_SMC_STATUS_REJECTED;
 		}
 
-		memcpy((uint8_t *) &payload[i], (uint8_t *) sig_pubkey_offset,
-			src_size - data_size);
+		memcpy_s(&payload[i], (src_size - data_size) / MBOX_WORD_BYTE,
+			(void *) sig_pubkey_offset, (src_size - data_size) / MBOX_WORD_BYTE);
 
 		i += (src_size - data_size) / MBOX_WORD_BYTE;
 	}
@@ -1971,8 +1972,8 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_i
 			return INTEL_SIP_SMC_STATUS_REJECTED;
 		}
 
-		memcpy((uint8_t *) &payload[i], (uint8_t *) sig_pubkey_offset,
-			src_size - data_size);
+		memcpy_s(&payload[i], (src_size - data_size) / MBOX_WORD_BYTE,
+			(void *) sig_pubkey_offset, (src_size - data_size) / MBOX_WORD_BYTE);
 
 		memset((void *) dst_addr, 0, *dst_size);
 
@@ -2145,7 +2146,8 @@ int intel_fcs_ecdh_request_finalize(uint32_t session_id, uint32_t context_id,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	memcpy((uint8_t *) &payload[i], (uint8_t *) pubkey, src_size);
+	memcpy_s(&payload[i], src_size / MBOX_WORD_BYTE,
+		(void *) pubkey, src_size / MBOX_WORD_BYTE);
 	i += src_size / MBOX_WORD_BYTE;
 
 	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_ECDH_REQUEST,
@@ -2223,8 +2225,8 @@ int intel_fcs_aes_crypt_init(uint32_t session_id, uint32_t context_id,
 	fcs_aes_init_payload.param_size = param_size;
 	fcs_aes_init_payload.key_id	= key_id;
 
-	memcpy((uint8_t *) fcs_aes_init_payload.crypto_param,
-		(uint8_t *) param_addr, param_size);
+	memcpy_s(fcs_aes_init_payload.crypto_param, param_size / MBOX_WORD_BYTE,
+		(void *) param_addr, param_size / MBOX_WORD_BYTE);
 
 	fcs_aes_init_payload.is_updated = 0;
 
@@ -2304,9 +2306,10 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t session_id,
 			return INTEL_SIP_SMC_STATUS_REJECTED;
 		}
 
-		memcpy((uint8_t *) &fcs_aes_crypt_payload[i],
-			(uint8_t *) fcs_aes_init_payload.crypto_param,
-			fcs_aes_init_payload.param_size);
+		memcpy_s(&fcs_aes_crypt_payload[i],
+			fcs_aes_init_payload.param_size / MBOX_WORD_BYTE,
+			(void *) fcs_aes_init_payload.crypto_param,
+			fcs_aes_init_payload.param_size / MBOX_WORD_BYTE);
 
 		i += fcs_aes_init_payload.param_size / MBOX_WORD_BYTE;
 	}
