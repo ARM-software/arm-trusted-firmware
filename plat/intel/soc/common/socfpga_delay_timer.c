@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +11,6 @@
 #include <lib/mmio.h>
 #include "socfpga_plat_def.h"
 
-
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX
 #include "agilex_clock_manager.h"
 #elif PLATFORM_MODEL == PLAT_SOCFPGA_N5X
@@ -19,7 +19,7 @@
 #include "s10_clock_manager.h"
 #endif
 
-#define SOCFPGA_GLOBAL_TIMER		0xffd01000
+#define SOCFPGA_GLOBAL_TIMER		PLAT_TIMER_BASE_ADDR
 #define SOCFPGA_GLOBAL_TIMER_EN		0x3
 
 static timer_ops_t plat_timer_ops;
@@ -44,7 +44,6 @@ void socfpga_delay_timer_init_args(void)
 	plat_timer_ops.clk_div		= PLAT_SYS_COUNTER_FREQ_IN_MHZ;
 
 	timer_init(&plat_timer_ops);
-
 }
 
 void socfpga_delay_timer_init(void)
@@ -54,5 +53,4 @@ void socfpga_delay_timer_init(void)
 
 	asm volatile("msr cntp_ctl_el0, %0" : : "r" (SOCFPGA_GLOBAL_TIMER_EN));
 	asm volatile("msr cntp_tval_el0, %0" : : "r" (~0));
-
 }

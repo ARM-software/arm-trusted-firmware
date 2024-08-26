@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -195,11 +196,15 @@ void config_pinmux(handoff *hoff_ptr)
 {
 	unsigned int i;
 
-	mmio_write_32(PINMUX_HANDOFF_CONFIG_ADDR, PINMUX_HANDOFF_CONFIG_VAL);
-	for (i = 0; i < PINMUX_HANDOFF_ARRAY_SIZE(hoff_ptr->pinmux_sel_array); i += 2) {
-		mmio_write_32(AGX5_PINMUX_PIN0SEL +
-			hoff_ptr->pinmux_sel_array[i],
-			hoff_ptr->pinmux_sel_array[i + 1]);
+	/*
+	 * Configure the FPGA use.
+	 * The actual generic handoff contains extra 4 elements, and these 4 elements
+	 * are not applicable to the Agilex5 platform. Writing these extra 4 elements
+	 * will cause the system to crash, so let's avoid writing them here.
+	 */
+	for (i = 0; i < (ARRAY_SIZE(hoff_ptr->pinmux_fpga_array) - 4); i += 2) {
+		mmio_write_32(AGX5_PINMUX_EMAC0_USEFPGA + hoff_ptr->pinmux_fpga_array[i],
+			      hoff_ptr->pinmux_fpga_array[i+1]);
 	}
 
 	config_fpgaintf_mod();
