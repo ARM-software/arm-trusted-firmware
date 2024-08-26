@@ -69,6 +69,12 @@ workaround_reset_end cortex_x4, ERRATUM(2816013)
 
 check_erratum_ls cortex_x4, ERRATUM(2816013), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x4, ERRATUM(2897503), ERRATA_X4_2897503
+	sysreg_bit_set	CORTEX_X4_CPUACTLR4_EL1, BIT(8)
+workaround_reset_end cortex_x4, ERRATUM(2897503)
+
+check_erratum_ls cortex_x4, ERRATUM(2897503), CPU_REV(0, 1)
+
 workaround_reset_start cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
