@@ -58,14 +58,16 @@ BL2_SOURCES		+=	\
 		lib/cpus/aarch64/cortex_a76.S				\
 		plat/intel/soc/agilex5/soc/agilex5_clock_manager.c	\
 		plat/intel/soc/agilex5/soc/agilex5_memory_controller.c	\
-		plat/intel/soc/agilex5/soc/agilex5_mmc.c			\
+		plat/intel/soc/agilex5/soc/agilex5_mmc.c		\
 		plat/intel/soc/agilex5/soc/agilex5_pinmux.c		\
 		plat/intel/soc/agilex5/soc/agilex5_power_manager.c	\
+		plat/intel/soc/agilex5/soc/agilex5_ddr.c		\
+		plat/intel/soc/agilex5/soc/agilex5_iossm_mailbox.c	\
 		plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/common/socfpga_ros.c			\
 		plat/intel/soc/common/socfpga_storage.c			\
-		plat/intel/soc/common/socfpga_vab.c				\
+		plat/intel/soc/common/socfpga_vab.c			\
 		plat/intel/soc/common/soc/socfpga_emac.c		\
 		plat/intel/soc/common/soc/socfpga_firewall.c		\
 		plat/intel/soc/common/soc/socfpga_handoff.c		\

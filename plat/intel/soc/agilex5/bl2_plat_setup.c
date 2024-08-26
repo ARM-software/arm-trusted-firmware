@@ -20,6 +20,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include "agilex5_clock_manager.h"
+#include "agilex5_ddr.h"
 #include "agilex5_memory_controller.h"
 #include "agilex5_mmc.h"
 #include "agilex5_pinmux.h"
@@ -79,6 +80,10 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	enable_nonsecure_access();
 
 	deassert_peripheral_reset();
+
+	/* DDR and IOSSM driver init */
+	agilex5_ddr_init(&reverse_handoff_ptr);
+
 	if (combo_phy_init(&reverse_handoff_ptr) != 0) {
 		ERROR("Combo Phy initialization failed\n");
 	}
