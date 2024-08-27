@@ -40,8 +40,6 @@ func cortex_x925_core_pwr_dwn
 	ret
 endfunc cortex_x925_core_pwr_dwn
 
-errata_report_shim cortex_x925
-
 	/* ---------------------------------------------
 	 * This function provides Cortex-X925 specific
 	 * register information for crash reporting.

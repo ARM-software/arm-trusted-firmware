@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -203,8 +203,6 @@ func cortex_a510_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_a510_core_pwr_dwn
-
-errata_report_shim cortex_a510
 
 cpu_reset_func_start cortex_a510
 	/* Disable speculative loads */

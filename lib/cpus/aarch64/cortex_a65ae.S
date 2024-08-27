@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,8 +40,6 @@ func cortex_a65ae_cpu_pwr_dwn
 	isb
 	ret
 endfunc cortex_a65ae_cpu_pwr_dwn
-
-errata_report_shim cortex_a65ae
 
 .section .rodata.cortex_a65ae_regs, "aS"
 cortex_a65ae_regs:  /* The ascii list of register names to be reported */

@@ -66,8 +66,6 @@ func cortex_x1_core_pwr_dwn
 	ret
 endfunc cortex_x1_core_pwr_dwn
 
-errata_report_shim cortex_x1
-
        /* ---------------------------------------------
 	* This function provides Cortex X1 specific
 	* register information for crash reporting.

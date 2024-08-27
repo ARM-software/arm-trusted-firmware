@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -115,8 +115,6 @@ add_erratum_entry cortex_a55, ERRATUM(1530923), ERRATA_A55_1530923, NO_APPLY_AT_
 
 cpu_reset_func_start cortex_a55
 cpu_reset_func_end cortex_a55
-
-errata_report_shim cortex_a55
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down

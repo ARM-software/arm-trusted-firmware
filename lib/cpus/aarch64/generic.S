@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,7 +79,6 @@ endfunc generic_cluster_pwr_dwn
  * Unimplemented functions.
  * ---------------------------------------------
  */
-.equ	generic_errata_report,		0
 .equ	generic_cpu_reg_dump,		0
 .equ	generic_reset_func,		0
 

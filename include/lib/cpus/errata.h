@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,6 @@
 #include <lib/cassert.h>
 
 void print_errata_status(void);
-void errata_print_msg(unsigned int status, const char *cpu, const char *id);
 
 #if ERRATA_A520_2938996 || ERRATA_X4_2726228
 unsigned int check_if_affected_core(void);

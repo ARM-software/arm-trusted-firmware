@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -167,7 +167,6 @@ func cortex_a77_core_pwr_dwn
 	ret
 endfunc cortex_a77_core_pwr_dwn
 
-errata_report_shim cortex_a77
 	/* ---------------------------------------------
 	 * This function provides Cortex-A77 specific
 	 * register information for crash reporting.

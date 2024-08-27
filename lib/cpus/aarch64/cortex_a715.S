@@ -148,8 +148,6 @@ func cortex_a715_core_pwr_dwn
 	ret
 endfunc cortex_a715_core_pwr_dwn
 
-errata_report_shim cortex_a715
-
 	/* ---------------------------------------------
 	 * This function provides Cortex-A715 specific
 	 * register information for crash reporting.

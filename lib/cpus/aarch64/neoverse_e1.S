@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,8 +41,6 @@ func neoverse_e1_cpu_pwr_dwn
 	isb
 	ret
 endfunc neoverse_e1_cpu_pwr_dwn
-
-errata_report_shim neoverse_e1
 
 .section .rodata.neoverse_e1_regs, "aS"
 neoverse_e1_regs:  /* The ascii list of register names to be reported */

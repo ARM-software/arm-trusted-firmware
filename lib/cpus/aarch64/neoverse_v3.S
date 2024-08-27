@@ -60,8 +60,6 @@ cpu_reset_func_start neoverse_v3
 	msr	SSBS, xzr
 cpu_reset_func_end neoverse_v3
 
-errata_report_shim neoverse_v3
-
 	/* ---------------------------------------------
 	 * This function provides Neoverse V3 specific
 	 * register information for crash reporting.

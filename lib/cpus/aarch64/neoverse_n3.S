@@ -45,8 +45,6 @@ func neoverse_n3_core_pwr_dwn
 	ret
 endfunc neoverse_n3_core_pwr_dwn
 
-errata_report_shim neoverse_n3
-
 	/* ---------------------------------------------
 	 * This function provides Neoverse-N3 specific
 	 * register information for crash reporting.

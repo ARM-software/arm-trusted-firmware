@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -296,8 +296,6 @@ func cortex_a53_cluster_pwr_dwn
 	pop	{r12, lr}
 	b	cortex_a53_disable_smp
 endfunc cortex_a53_cluster_pwr_dwn
-
-errata_report_shim cortex_a53
 
 declare_cpu_ops cortex_a53, CORTEX_A53_MIDR, \
 	cortex_a53_reset_func, \

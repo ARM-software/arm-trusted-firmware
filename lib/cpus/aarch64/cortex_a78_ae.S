@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  * Copyright (c) 2021-2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -127,8 +127,6 @@ func cortex_a78_ae_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_a78_ae_core_pwr_dwn
-
-errata_report_shim cortex_a78_ae
 
 	/* -------------------------------------------------------
 	 * This function provides cortex_a78_ae specific

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -283,8 +283,6 @@ func cortex_a57_cluster_pwr_dwn
 	mov	x30, x18
 	b	cortex_a57_disable_ext_debug
 endfunc cortex_a57_cluster_pwr_dwn
-
-errata_report_shim cortex_a57
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a57 specific

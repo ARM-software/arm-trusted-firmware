@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -241,8 +241,6 @@ func neoverse_n1_core_pwr_dwn
 	isb
 	ret
 endfunc neoverse_n1_core_pwr_dwn
-
-errata_report_shim neoverse_n1
 
 /*
  * Handle trap of EL0 IC IVAU instructions to EL3 by executing a TLB

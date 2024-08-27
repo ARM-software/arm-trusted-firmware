@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -258,8 +258,6 @@ func neoverse_v1_core_pwr_dwn
 	isb
 	ret
 endfunc neoverse_v1_core_pwr_dwn
-
-errata_report_shim neoverse_v1
 
 cpu_reset_func_start neoverse_v1
 	/* Disable speculative loads */

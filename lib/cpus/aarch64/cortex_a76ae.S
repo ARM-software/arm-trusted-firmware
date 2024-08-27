@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,8 +40,6 @@ workaround_reset_end cortex_a76ae, CVE(2022, 23960)
 
 cpu_reset_func_start cortex_a76ae
 cpu_reset_func_end cortex_a76ae
-
-errata_report_shim cortex_a76ae
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
