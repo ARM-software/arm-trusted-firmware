@@ -6,7 +6,7 @@
 
 # Making sure the corstone1000 platform type is specified
 ifeq ($(filter ${TARGET_PLATFORM}, fpga fvp),)
-	$(error TARGET_PLATFORM must be fpga or fvp)
+        $(error TARGET_PLATFORM must be fpga or fvp)
 endif
 
 CORSTONE1000_CPU_LIBS	+=lib/cpus/aarch64/cortex_a35.S
