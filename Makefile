@@ -1496,7 +1496,7 @@ endif #(SPD)
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp fwu_fip certtool dtbs memmap doc enctool
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp tl fwu_fip certtool dtbs memmap doc enctool
 .SUFFIXES:
 
 all: msg_start
@@ -1741,6 +1741,11 @@ else
 	$(q)set PYTHONPATH=${CURDIR}/tools/memory && \
 		${PYTHON} -m memory.memmap -sr ${BUILD_PLAT}
 endif
+
+tl: ${BUILD_PLAT}/tl.bin
+${BUILD_PLAT}/tl.bin: ${HW_CONFIG}
+	$(q)poetry -q install
+	$(q)poetry run tlc create --fdt $< -s ${FW_HANDOFF_SIZE} $@
 
 doc:
 	$(s)echo "  BUILD DOCUMENTATION"
