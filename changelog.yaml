@@ -962,6 +962,9 @@ subsections:
           - drivers/scmi-msg
           - scmi-msg
 
+      - title: TPM
+        scope: tpm
+
       - title: UFS
         scope: ufs
 
