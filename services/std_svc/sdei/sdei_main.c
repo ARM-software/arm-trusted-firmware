@@ -744,7 +744,9 @@ static int sdei_interrupt_bind(unsigned int intr_num)
 			return SDEI_ENOMEM;
 
 		/* The returned mapping must be dynamic */
-		assert(is_map_dynamic(map));
+		if (!is_map_dynamic(map)) {
+			return SDEI_ENOMEM;
+		}
 
 		/*
 		 * We cannot assert for bound maps here, as we might be racing
