@@ -68,16 +68,16 @@ ifndef toolchain-mk
         #     The command line or environment variable used to set the tool for
         #     for the given tool class.
         #
-        #   - <toolchain>-<tool-class>-default
-        #
-        #     The default command to use for the given tool class if the user
-        #     does not explicitly provide one, and if the command could not be
-        #     derived from the C compiler.
-        #
-        #   - <toolchain>-<tool-class>-id-default
+        #   - <toolchain>-<tool-class>-default-id
         #
         #     The default tool identifier used if the tool for the given tool
         #     class cannot be identified.
+        #
+        #   - <toolchain>-<tool-class>-default
+        #
+        #     The default commands to try, in the order defined, for the given
+        #     tool class if the user does not explicitly provide one, and if the
+        #     command could not be derived from the C compiler.
         #
 
         toolchains := host # Used for host targets
@@ -271,13 +271,16 @@ ifndef toolchain-mk
 
         define toolchain-warn-unrecognized
                 $(warning )
-                $(warning The configured $($(1)-name) $(toolchain-tool-class-name-$(2)) could not be identified and may not be supported:)
+                $(warning The configured $($(1)-name) $(toolchain-tool-class-name-$(2)) could not be identified:)
                 $(warning )
                 $(warning $(space)   $($(1)-$(2))$(if $($(1)-$(2)-parameter), (via `$($(1)-$(2)-parameter)`)))
                 $(warning )
-                $(warning The default $($(1)-name) $(toolchain-tool-class-name-$(2)) is:)
+                $(warning The following tools were tried, but either did not exist or could not be identified:)
                 $(warning )
-                $(warning $(space)   $($(1)-$(2)-default))
+
+                $(foreach default,$($(1)-$(2)-default), \
+                        $(warning $(space) - $(default)))
+
                 $(warning )
                 $(warning The following tools are supported:)
                 $(warning )
@@ -286,7 +289,7 @@ ifndef toolchain-mk
                         $(warning $(space) - $(toolchain-tool-name-$(tool))))
 
                 $(warning )
-                $(warning The build system will treat this $(toolchain-tool-class-name-$(2)) as $(toolchain-tool-name-$($(1)-$(2)-id-default)).)
+                $(warning The build system will treat this $(toolchain-tool-class-name-$(2)) as $(toolchain-tool-name-$($(1)-$(2)-default-id)).)
                 $(warning )
         endef
 
@@ -390,11 +393,17 @@ ifndef toolchain-mk
         #
 
         define toolchain-determine-tool
-                toolchain-$1-$2-guess = $$(if $$(filter-out cc,$2),$\
+                toolchain-$1-$2-guess-from-cc = $$(if $$(filter-out cc,$2),$\
                         $$(call toolchain-guess-$$($1-cc-id)-$2,$$($1-cc)))
 
                 toolchain-$1-$2-shell = $$(or $$($$($1-$2-parameter)),$\
-                        $$(toolchain-$1-$2-guess),$$($1-$2-default))
+                        $$(toolchain-$1-$2-guess-from-cc),$\
+                        $$(toolchain-$1-$2-default))
+
+                toolchain-$1-$2-default = $$(firstword $\
+                        $$(foreach default,$$($1-$2-default),$\
+                                $$(if $$(call which,$$(default)),$$(default))) $\
+                        $$($1-$2-default))
 
                 $1-$2 := $(if $(call which,$$(toolchain-$1-$2-shell)),$\
                         $$(call escape-shell,$$(toolchain-$1-$2-shell)),$\
@@ -402,7 +411,7 @@ ifndef toolchain-mk
 
                 $1-$2-id := $$(or \
                         $$(call toolchain-guess-tool,$$(toolchain-tools-$2),$$($1-$2)),$\
-                        $$(strip $$(call toolchain-warn-unrecognized,$1,$2)$$($1-$2-id-default)))
+                        $$(strip $$(call toolchain-warn-unrecognized,$1,$2)$$($1-$2-default-id)))
         endef
 
         $(foreach toolchain,$(toolchains), \
