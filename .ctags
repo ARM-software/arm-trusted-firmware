@@ -1,0 +1,4 @@
+--regex-Asm=/^func[ \t]+([a-zA-Z_0-9]+)$/\1/l,function/
+--regex-Asm=/^.*\.macro[ \t]+([a-zA-Z_0-9]+)$/\1/m,macro/
+--regex-Asm=/^vector_entry[ \t]+([a-zA-Z_0-9]+)$/\1/l,function/
+--regex-Asm=/^.equ[ \t]+([a-zA-Z_0-9]+),/\1/l,name/
