@@ -12,7 +12,21 @@
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/arm/board/common/board_css_def.h>
 #include <plat/arm/board/common/v2m_def.h>
+
+/*
+ * arm_def.h depends on the platform system counter macros, so must define the
+ * platform macros before including arm_def.h.
+ */
+#if TARGET_PLATFORM == 4
+#ifdef ARM_SYS_CNTCTL_BASE
+#error "error: ARM_SYS_CNTCTL_BASE is defined prior to the PLAT_ARM_SYS_CNTCTL_BASE definition"
+#endif
+#define PLAT_ARM_SYS_CNTCTL_BASE	UL(0x47000000)
+#define PLAT_ARM_SYS_CNTREAD_BASE	UL(0x47010000)
+#endif
+
 #include <plat/arm/common/arm_def.h>
+
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/arm/css/common/css_def.h>
 #include <plat/arm/soc/common/soc_css_def.h>
@@ -230,9 +244,9 @@
 
 #if TARGET_PLATFORM <= 2
 #define PLAT_ARM_DRAM2_BASE		ULL(0x8080000000)
-#elif TARGET_PLATFORM == 3
+#elif TARGET_PLATFORM >= 3
 #define PLAT_ARM_DRAM2_BASE		ULL(0x880000000)
-#endif /* TARGET_PLATFORM == 3 */
+#endif /* TARGET_PLATFORM >= 3 */
 #define PLAT_ARM_DRAM2_SIZE		ULL(0x180000000)
 #define PLAT_ARM_DRAM2_END		(PLAT_ARM_DRAM2_BASE + PLAT_ARM_DRAM2_SIZE - 1ULL)
 
@@ -294,9 +308,9 @@
 /* Message Handling Unit (MHU) base addresses */
 #if TARGET_PLATFORM <= 2
 	#define PLAT_CSS_MHU_BASE		UL(0x45400000)
-#elif TARGET_PLATFORM == 3
+#elif TARGET_PLATFORM >= 3
 	#define PLAT_CSS_MHU_BASE		UL(0x46000000)
-#endif /* TARGET_PLATFORM == 3 */
+#endif /* TARGET_PLATFORM >= 3 */
 #define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
 /* AP<->RSS MHUs */
@@ -306,6 +320,9 @@
 #elif TARGET_PLATFORM == 3
 #define PLAT_RSE_AP_SND_MHU_BASE	UL(0x49000000)
 #define PLAT_RSE_AP_RCV_MHU_BASE	UL(0x49100000)
+#elif TARGET_PLATFORM == 4
+#define PLAT_RSE_AP_SND_MHU_BASE	UL(0x49000000)
+#define PLAT_RSE_AP_RCV_MHU_BASE	UL(0x49010000)
 #endif
 
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2

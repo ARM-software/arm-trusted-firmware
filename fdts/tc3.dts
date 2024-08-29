@@ -10,35 +10,32 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <platform_def.h>
 
-#define LIT_CAPACITY			239
-#define MID_CAPACITY			686
-#define BIG_CAPACITY			1024
-
 #define MHU_TX_ADDR			46040000 /* hex */
-#define MHU_TX_COMPAT			"arm,mhuv3"
-#define MHU_TX_INT_NAME			""
-
 #define MHU_RX_ADDR			46140000 /* hex */
-#define MHU_RX_COMPAT			"arm,mhuv3"
-#define MHU_OFFSET			0x10000
-#define MHU_MBOX_CELLS			3
-#define MHU_RX_INT_NUM			300
-#define MHU_RX_INT_NAME			"combined-mbx"
 
 #define LIT_CPU_PMU_COMPATIBLE		"arm,cortex-a520-pmu"
 #define MID_CPU_PMU_COMPATIBLE		"arm,cortex-a725-pmu"
 #define BIG_CPU_PMU_COMPATIBLE		"arm,cortex-x925-pmu"
 
-#define MPAM_ADDR			0x0 0x5f010000 /* 0x5f01_0000 */
-#define UARTCLK_FREQ			3750000
+#define ETHERNET_ADDR			18000000
+#define ETHERNET_INT			109
 
-#if TARGET_FLAVOUR_FVP
-#define DPU_ADDR			4000000000
-#define DPU_IRQ				579
-#elif TARGET_FLAVOUR_FPGA
-#define DPU_ADDR			2cc00000
-#define DPU_IRQ				69
-#endif
+#define SYS_REGS_ADDR			1c010000
+
+#define MMC_ADDR			1c050000
+#define MMC_INT_0			107
+#define MMC_INT_1			108
+
+#define RTC_ADDR			1c170000
+#define RTC_INT				100
+
+#define KMI_0_ADDR			1c060000
+#define KMI_0_INT			197
+#define KMI_1_ADDR			1c070000
+#define KMI_1_INT			103
+
+#define VIRTIO_BLOCK_ADDR		1c130000
+#define VIRTIO_BLOCK_INT		204
 
 #include "tc-common.dtsi"
 #if TARGET_FLAVOUR_FVP
@@ -46,31 +43,9 @@
 #else
 #include "tc-fpga.dtsi"
 #endif /* TARGET_FLAVOUR_FVP */
-#include "tc-base.dtsi"
+#include "tc3-4-base.dtsi"
 
 / {
-	cpus {
-		CPU2:cpu@200 {
-			clocks = <&scmi_dvfs 1>;
-			capacity-dmips-mhz = <MID_CAPACITY>;
-		};
-
-		CPU3:cpu@300 {
-			clocks = <&scmi_dvfs 1>;
-			capacity-dmips-mhz = <MID_CAPACITY>;
-		};
-
-		CPU6:cpu@600 {
-			clocks = <&scmi_dvfs 2>;
-			capacity-dmips-mhz = <BIG_CAPACITY>;
-		};
-
-		CPU7:cpu@700 {
-			clocks = <&scmi_dvfs 2>;
-			capacity-dmips-mhz = <BIG_CAPACITY>;
-		};
-	};
-
 	cs-pmu@0 {
 		compatible = "arm,coresight-pmu";
 		reg = <0x0 MCN_PMU_ADDR(0) 0x0 0xffc>;
@@ -109,36 +84,6 @@
 		reg = <0x0 0x4f000000 0x0 0x4000000>;
 	};
 
-	sram: sram@6000000 {
-		cpu_scp_scmi_p2a: scp-shmem@80 {
-			compatible = "arm,scmi-shmem";
-			reg = <0x80 0x80>;
-		};
-	};
-
-	firmware {
-		scmi {
-			mboxes = <&mbox_db_tx 0 0 0 &mbox_db_rx 0 0 0 &mbox_db_rx 0 0 1>;
-			shmem = <&cpu_scp_scmi_a2p &cpu_scp_scmi_p2a>;
-		};
-	};
-
-	gic: interrupt-controller@GIC_CTRL_ADDR {
-		ppi-partitions {
-			ppi_partition_little: interrupt-partition-0 {
-				affinity = <&CPU0>, <&CPU1>;
-			};
-
-			ppi_partition_mid: interrupt-partition-1 {
-				affinity = <&CPU2>, <&CPU3>, <&CPU4>, <&CPU5>;
-			};
-
-			ppi_partition_big: interrupt-partition-2 {
-				affinity = <&CPU6>, <&CPU7>;
-			};
-		};
-	};
-
 #if TARGET_FLAVOUR_FVP
 	smmu_700: iommu@3f000000 {
 		status = "okay";
@@ -165,6 +110,10 @@
 	};
 
 	gpu: gpu@2d000000 {
+		interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH 0>,
+			     <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH 0>,
+			     <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "JOB", "MMU", "GPU";
 #if TARGET_FLAVOUR_FVP
 		iommus = <&smmu_700 0x200>;
 #endif

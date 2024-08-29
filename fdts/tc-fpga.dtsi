@@ -25,12 +25,12 @@
 		stdout-path = "serial0:38400n8";
 	};
 
-	ethernet: ethernet@18000000 {
+	ethernet: ethernet@ETHERNET_ADDR {
 		compatible = "smsc,lan9115";
 		phy-mode = "mii";
 	};
 
-	mmci: mmci@1c050000 {
+	mmci: mmci@MMC_ADDR {
 		non-removable;
 	};
 };

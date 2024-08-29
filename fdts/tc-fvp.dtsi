@@ -43,26 +43,26 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	ethernet: ethernet@18000000 {
+	ethernet: ethernet@ETHERNET_ADDR {
 		compatible = "smsc,lan91c111";
 	};
 
-	mmci: mmci@1c050000 {
+	mmci: mmci@MMC_ADDR {
 		cd-gpios = <&sysreg 0 0>;
 	};
 
-	rtc@1c170000 {
+	rtc@RTC_ADDR {
 		compatible = "arm,pl031", "arm,primecell";
-		reg = <0x0 0x1C170000 0x0 0x1000>;
-		interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH 0>;
+		reg = <0x0 ADDRESSIFY(RTC_ADDR) 0x0 0x1000>;
+		interrupts = <GIC_SPI RTC_INT IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&soc_refclk>;
 		clock-names = "apb_pclk";
 	};
 
-	kmi@1c060000 {
+	kmi@KMI_0_ADDR {
 		compatible = "arm,pl050", "arm,primecell";
-		reg = <0x0 0x001c060000 0x0 0x1000>;
-		interrupts = <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH 0>;
+		reg = <0x0 ADDRESSIFY(KMI_0_ADDR) 0x0 0x1000>;
+		interrupts = <GIC_SPI KMI_0_INT IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
 		clock-names = "KMIREFCLK", "apb_pclk";
 	};
@@ -75,10 +75,10 @@
 		clock-names = "KMIREFCLK", "apb_pclk";
 	};
 
-	virtio_block@1c130000 {
+	virtio_block@VIRTIO_BLOCK_ADDR {
 		compatible = "virtio,mmio";
-		reg = <0x0 0x1c130000 0x0 0x200>;
+		reg = <0x0 ADDRESSIFY(VIRTIO_BLOCK_ADDR) 0x0 0x200>;
 		/* spec lists this wrong */
-		interrupts = <GIC_SPI 204 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupts = <GIC_SPI VIRTIO_BLOCK_INT IRQ_TYPE_LEVEL_HIGH 0>;
 	};
 };

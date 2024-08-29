@@ -1,0 +1,67 @@
+/*
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <platform_def.h>
+
+#define MHU_TX_ADDR			46240000 /* hex */
+#define MHU_RX_ADDR			46250000 /* hex */
+
+#define LIT_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
+#define MID_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
+#define BIG_CPU_PMU_COMPATIBLE		"arm,armv8-pmuv3"
+
+#define ETHERNET_ADDR			64000000
+#define ETHERNET_INT			799
+
+#define SYS_REGS_ADDR			60080000
+
+#define MMC_ADDR			600b0000
+#define MMC_INT_0			778
+#define MMC_INT_1			779
+
+#define RTC_ADDR			600a0000
+#define RTC_INT				777
+
+#define KMI_0_ADDR			60100000
+#define KMI_0_INT			784
+#define KMI_1_ADDR			60110000
+#define KMI_1_INT			785
+
+#define VIRTIO_BLOCK_ADDR		60020000
+#define VIRTIO_BLOCK_INT		769
+
+#include "tc-common.dtsi"
+#if TARGET_FLAVOUR_FVP
+#include "tc-fvp.dtsi"
+#else
+#include "tc-fpga.dtsi"
+#endif /* TARGET_FLAVOUR_FVP */
+#include "tc3-4-base.dtsi"
+
+/ {
+	smmu_700: iommu@3f000000 {
+		status = "okay";
+	};
+
+	smmu_700_dpu: iommu@4002a00000 {
+		status = "okay";
+	};
+
+	dp0: display@DPU_ADDR {
+		iommus = <&smmu_700_dpu 0x000>, <&smmu_700_dpu 0x100>,
+			 <&smmu_700_dpu 0x200>, <&smmu_700_dpu 0x600>;
+	};
+
+	gpu: gpu@2d000000 {
+		interrupts = <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "IRQAW";
+		iommus = <&smmu_700 0x200>;
+	};
+};

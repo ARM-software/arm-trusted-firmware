@@ -41,6 +41,26 @@
 #define DPU_ADDR			2cc00000
 #define DPU_IRQ				69
 
+#define ETHERNET_ADDR			18000000
+#define ETHERNET_INT			109
+
+#define SYS_REGS_ADDR			1c010000
+
+#define MMC_ADDR			1c050000
+#define MMC_INT_0			107
+#define MMC_INT_1			108
+
+#define RTC_ADDR			1c170000
+#define RTC_INT				100
+
+#define KMI_0_ADDR			1c060000
+#define KMI_0_INT			197
+#define KMI_1_ADDR			1c070000
+#define KMI_1_INT			103
+
+#define VIRTIO_BLOCK_ADDR		1c130000
+#define VIRTIO_BLOCK_INT		204
+
 #include "tc-common.dtsi"
 #if TARGET_FLAVOUR_FVP
 #include "tc-fvp.dtsi"
@@ -271,6 +291,10 @@
 	};
 
 	gpu: gpu@2d000000 {
+		interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH 0>,
+			     <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH 0>,
+			     <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = "JOB", "MMU", "GPU";
 		iommus = <&smmu_700 0x200>;
 	};
 };
