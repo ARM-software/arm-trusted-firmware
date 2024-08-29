@@ -6,35 +6,15 @@
 
 import sys
 import re
-from cot_dt2c.pydevicetree.source.parser import ifdef_stack
-from cot_dt2c.pydevicetree.ast import CellArray, LabelReference
-from cot_dt2c.pydevicetree import *
+from pydevicetree.ast import CellArray, LabelReference
+from pydevicetree import Devicetree, Property, Node
 from pathlib import Path
-
-def extractNumber(s):
-    for i in s:
-        if i.isdigit():
-            return (int)(i)
-
-    return -1
-
-def removeNumber(s):
-    result = ''.join([i for i in s if not i.isdigit()])
-    return result
+from typing import List, Optional
 
 class COT:
     def __init__(self, inputfile: str, outputfile=None):
-        with open(inputfile, 'r') as f:
-            contents = f.read()
-        pos = contents.find("cot")
-        if pos == -1:
-            print("not a valid CoT DT file")
-            exit(1)
-
-        contents = contents[pos:]
-
         try:
-            self.tree = Devicetree.parseStr(contents)
+            self.tree = Devicetree.parseFile(inputfile)
         except:
             print("not a valid CoT DT file")
             exit(1)
@@ -336,13 +316,10 @@ class COT:
 
     def format_auth_data_val(self, node:Node, cert:Node):
         type_desc = node.name
-        if "sp_pkg" in type_desc:
-            ptr = removeNumber(type_desc) + "_buf"
-        else:
-            ptr = type_desc + "_buf"
-        len = "(unsigned int)HASH_DER_LEN"
-        if "pk" in type_desc:
-            len = "(unsigned int)PK_DER_LEN"
+        ptr = type_desc + "_buf"
+        len = "HASH_DER_LEN"
+        if re.search("_pk$", type_desc):
+            len = "PK_DER_LEN"
 
         # edge case
         if not self.if_root(cert) and "key_cert" in cert.name:
@@ -351,7 +328,7 @@ class COT:
 
         return type_desc, ptr, len
 
-    def get_node(self, nodes: list[Node], name: str) -> Node:
+    def get_node(self, nodes: List[Node], name: str) -> Node:
         for i in nodes:
             if i.name == name:
                 return i
@@ -458,10 +435,6 @@ class COT:
     def validate_nodes(self) -> bool:
         valid = True
 
-        if ifdef_stack:
-            print("invalid ifdef macro")
-            valid = False
-
         certs = self.get_all_certificates()
         images = self.get_all_images()
 
@@ -478,71 +451,16 @@ class COT:
 
         return valid
 
-    def extract_licence(self, f):
-        licence = []
-
-        licencereg = re.compile(r'/\*')
-        licenceendReg = re.compile(r'\*/')
-
-        licencePre = False
-
-        for line in f:
-            match = licencereg.search(line)
-            if match != None:
-                licence.append(line)
-                licencePre = True
-                continue
-
-            match = licenceendReg.search(line)
-            if match != None:
-                licence.append(line)
-                licencePre = False
-                return licence
-
-            if licencePre:
-                licence.append(line)
-            else:
-                return licence
-
-        return licence
-
-    def licence_to_c(self, licence, f):
-        if len(licence) != 0:
-            for i in licence:
-                f.write(i)
-
-        f.write("\n")
-        return
-
-    def extract_include(self, f):
-        include = []
-
-        for line in f:
-            if "cot" in line:
-                return include
-
-            if line != "" and "common" not in line and line != "\n":
-                include.append(line)
-
-        return include
-
-    def include_to_c(self, include, f):
+    def include_to_c(self, f):
         f.write("#include <stddef.h>\n")
         f.write("#include <mbedtls/version.h>\n")
         f.write("#include <common/tbbr/cot_def.h>\n")
         f.write("#include <drivers/auth/auth_mod.h>\n")
-        f.write("\n")
-        for i in include:
-            f.write(i)
-        f.write("\n")
         f.write("#include <platform_def.h>\n\n")
         return
 
-    def generate_header(self, input, output):
-        licence = self.extract_licence(input)
-        include = self.extract_include(input)
-        self.licence_to_c(licence, output)
-        self.include_to_c(include, output)
+    def generate_header(self, output):
+        self.include_to_c(output)
 
     def all_cert_to_c(self, f):
         certs = self.get_all_certificates()
@@ -552,17 +470,16 @@ class COT:
         f.write("\n")
 
     def cert_to_c(self, node: Node, f):
-        ifdef = node.get_fields("ifdef")
-        if ifdef:
-            for i in ifdef:
-                f.write("{}\n".format(i))
+        node_image_id: int = node.get_field("image-id")
 
-        f.write("static const auth_img_desc_t {} = {{\n".format(node.name))
-        f.write("\t.img_id = {},\n".format(node.get_field("image-id").values[0].replace('"', "")))
+        f.write(f"static const auth_img_desc_t {node.name} = {{\n")
+        f.write(f"\t.img_id = {node_image_id},\n")
         f.write("\t.img_type = IMG_CERT,\n")
 
         if not self.if_root(node):
-            f.write("\t.parent = &{},\n".format(node.get_field("parent").label.name))
+            node_parent: Node = node.get_field("parent")
+
+            f.write(f"\t.parent = &{node_parent.label.name},\n")
         else:
             f.write("\t.parent = NULL,\n")
 
@@ -608,13 +525,9 @@ class COT:
                 f.write("\t\t\t.type_desc = &{},\n".format(type_desc))
                 f.write("\t\t\t.data = {\n")
 
-                n = extractNumber(type_desc)
-                if "pkg" not in type_desc or n == -1:
-                    f.write("\t\t\t\t.ptr = (void *){},\n".format(ptr))
-                else:
-                    f.write("\t\t\t\t.ptr = (void *){}[{}],\n".format(ptr, n-1))
+                f.write("\t\t\t\t.ptr = (void *){},\n".format(ptr))
 
-                f.write("\t\t\t\t.len = {}\n".format(data_len))
+                f.write("\t\t\t\t.len = (unsigned int){}\n".format(data_len))
                 f.write("\t\t\t}\n")
 
                 f.write("\t\t}}{}\n".format("," if i != len(auth_data) - 1 else ""))
@@ -623,41 +536,30 @@ class COT:
 
         f.write("};\n\n")
 
-        if ifdef:
-            for i in ifdef:
-                f.write("#endif\n")
-            f.write("\n")
-
         return
 
 
     def img_to_c(self, node:Node, f):
-        ifdef = node.get_fields("ifdef")
-        if ifdef:
-            for i in ifdef:
-                f.write("{}\n".format(i))
+        node_image_id: int = node.get_field("image-id")
+        node_parent: Node = node.get_field("parent")
+        node_hash: Node = node.get_field("hash")
 
-        f.write("static const auth_img_desc_t {} = {{\n".format(node.name))
-        f.write("\t.img_id = {},\n".format(node.get_field("image-id").values[0].replace('"', "")))
+        f.write(f"static const auth_img_desc_t {node.name} = {{\n")
+        f.write(f"\t.img_id = {node_image_id},\n")
         f.write("\t.img_type = IMG_RAW,\n")
-        f.write("\t.parent = &{},\n".format(node.get_field("parent").label.name))
+        f.write(f"\t.parent = &{node_parent.label.name},\n")
         f.write("\t.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {\n")
 
         f.write("\t\t[0] = {\n")
         f.write("\t\t\t.type = AUTH_METHOD_HASH,\n")
         f.write("\t\t\t.param.hash = {\n")
         f.write("\t\t\t\t.data = &raw_data,\n")
-        f.write("\t\t\t\t.hash = &{}\n".format(node.get_field("hash").label.name))
+        f.write(f"\t\t\t\t.hash = &{node_hash.label.name}\n")
         f.write("\t\t\t}\n")
 
         f.write("\t\t}\n")
         f.write("\t}\n")
         f.write("};\n\n")
-
-        if ifdef:
-            for i in ifdef:
-                f.write("#endif\n")
-            f.write("\n")
 
         return
 
@@ -672,7 +574,10 @@ class COT:
         nv_ctr = self.get_all_nv_counters()
 
         for nv in nv_ctr:
-            f.write("static auth_param_type_desc_t {} = AUTH_PARAM_TYPE_DESC(AUTH_PARAM_NV_CTR, {});\n".format(nv.name, nv.get_field("oid")))
+            nv_oid: str = nv.get_field("oid")
+
+            f.write(f"static auth_param_type_desc_t {nv.name} = "\
+                    f"AUTH_PARAM_TYPE_DESC(AUTH_PARAM_NV_CTR, \"{nv_oid}\");\n")
 
         f.write("\n")
 
@@ -682,7 +587,10 @@ class COT:
         pks = self.get_all_pks()
 
         for p in pks:
-            f.write("static auth_param_type_desc_t {} = AUTH_PARAM_TYPE_DESC(AUTH_PARAM_PUB_KEY, {});\n".format(p.name, p.get_field("oid")))
+            pk_oid: str = p.get_field("oid")
+
+            f.write(f"static auth_param_type_desc_t {p.name} = "\
+                    f"AUTH_PARAM_TYPE_DESC(AUTH_PARAM_PUB_KEY, \"{pk_oid}\");\n")
 
         f.write("\n")
         return
@@ -690,30 +598,17 @@ class COT:
     def buf_to_c(self, f):
         certs = self.get_all_certificates()
 
-        buffers = {}
+        buffers = set()
 
         for c in certs:
             auth_data = self.get_auth_data(c)
+
             for a in auth_data:
                 type_desc, ptr, data_len = self.format_auth_data_val(a, c)
-                if ptr not in buffers:
-                    buffers[ptr] = c.get_fields("ifdef")
 
-        for key, values in buffers.items():
-            if values:
-                for i in values:
-                    f.write("{}\n".format(i))
-
-            if "sp_pkg_hash_buf" in key:
-                f.write("static unsigned char {}[MAX_SP_IDS][HASH_DER_LEN];\n".format(key))
-            elif "pk" in key:
-                f.write("static unsigned char {}[PK_DER_LEN];\n".format(key))
-            else:
-                f.write("static unsigned char {}[HASH_DER_LEN];\n".format(key))
-
-            if values:
-                for i in values:
-                    f.write("#endif\n")
+                if not ptr in buffers:
+                    f.write(f"static unsigned char {ptr}[{data_len}];\n")
+                    buffers.add(ptr)
 
         f.write("\n")
 
@@ -726,29 +621,18 @@ class COT:
 
         certs = self.get_all_certificates()
         for c in certs:
-            ifdef = c.get_fields("ifdef")
-            if ifdef:
-                for i in ifdef:
-                    f.write("{}\n".format(i))
-
             hash = c.children
             for h in hash:
                 name = h.name
                 oid = h.get_field("oid")
 
-                if "pk" in name and "pkg" not in name:
-                    f.write("static auth_param_type_desc_t {} = "\
-                        "AUTH_PARAM_TYPE_DESC(AUTH_PARAM_PUB_KEY, {});\n".format(name, oid))
-                elif "hash" in name:
-                    f.write("static auth_param_type_desc_t {} = "\
-                            "AUTH_PARAM_TYPE_DESC(AUTH_PARAM_HASH, {});\n".format(name, oid))
-                elif "ctr" in name:
-                    f.write("static auth_param_type_desc_t {} = "\
-                            "AUTH_PARAM_TYPE_DESC(AUTH_PARAM_NV_CTR, {});\n".format(name, oid))
+                if re.search("_pk$", name):
+                    ty = "AUTH_PARAM_PUB_KEY"
+                elif re.search("_hash$", name):
+                    ty = "AUTH_PARAM_HASH"
 
-            if ifdef:
-                for i in ifdef:
-                    f.write("#endif\n")
+                f.write(f"static auth_param_type_desc_t {name} = "\
+                    f"AUTH_PARAM_TYPE_DESC({ty}, \"{oid}\");\n")
 
         f.write("\n")
 
@@ -759,28 +643,14 @@ class COT:
         f.write("static const auth_img_desc_t * const cot_desc[] = {\n")
 
         for i, c in enumerate(certs):
-            ifdef = c.get_fields("ifdef")
-            if ifdef:
-                for i in ifdef:
-                    f.write("{}\n".format(i))
+            c_image_id: int = c.get_field("image-id")
 
-            f.write("\t[{}]	=	&{}{}\n".format(c.get_field("image-id").values[0], c.name, ","))
-
-            if ifdef:
-                for i in ifdef:
-                    f.write("#endif\n")
+            f.write(f"\t[{c_image_id}]	=	&{c.name},\n")
 
         for i, c in enumerate(images):
-            ifdef = c.get_fields("ifdef")
-            if ifdef:
-                for i in ifdef:
-                    f.write("{}\n".format(i))
+            c_image_id: int = c.get_field("image-id")
 
-            f.write("\t[{}]	=	&{}{}\n".format(c.get_field("image-id").values[0], c.name, "," if i != len(images) - 1 else ""))
-
-            if ifdef:
-                for i in ifdef:
-                    f.write("#endif\n")
+            f.write(f"\t[{c_image_id}]	=	&{c.name},\n")
 
         f.write("};\n\n")
         f.write("REGISTER_COT(cot_desc);\n")
@@ -789,16 +659,15 @@ class COT:
     def generate_c_file(self):
         filename = Path(self.output)
         filename.parent.mkdir(exist_ok=True, parents=True)
-        output = open(self.output, 'w+')
-        input = open(self.input, "r")
 
-        self.generate_header(input, output)
-        self.buf_to_c(output)
-        self.param_to_c(output)
-        self.nv_to_c(output)
-        self.pk_to_c(output)
-        self.all_cert_to_c(output)
-        self.all_img_to_c(output)
-        self.cot_to_c(output)
+        with open(self.output, 'w+') as output:
+            self.generate_header(output)
+            self.buf_to_c(output)
+            self.param_to_c(output)
+            self.nv_to_c(output)
+            self.pk_to_c(output)
+            self.all_cert_to_c(output)
+            self.all_img_to_c(output)
+            self.cot_to_c(output)
 
         return

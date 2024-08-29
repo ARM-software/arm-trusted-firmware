@@ -7,7 +7,7 @@
 import sys
 from os import path, walk, mkdir
 import subprocess
-from cot_dt2c.pydevicetree import *
+from pydevicetree import Devicetree
 
 class bcolors:
     HEADER = '\033[95m'

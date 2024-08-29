@@ -13,23 +13,15 @@ Prerequisites
 #. Python (3.8 or later)
 #. `Poetry`_ Python package manager
 
-
 Getting Started
 ~~~~~~~~~~~~~~~
 
-#. Install the tool
+``cot-dt2c`` is installed by default with TF-A's poetry environment. All of it's
+dependencies are listed in `tools/cot_dt2c/pyproject.toml`_.
 
-    .. code::
-
-        make install
-
-
-#. Verify that the tool runs correctly
-
-    .. code::
-
-        make test
-
+``cot-dt2c`` requires a standard DTS file without #ifdef, macros, or other
+preprocessor directives. Therefore, you need to provide a preprocessed device
+tree source(DTS) as input to the tool.
 
 #. Usage of the tool
 
@@ -53,29 +45,6 @@ Getting Started
         visualize-cot
         validate-dt
 
-#. Uninstall the tool
-    .. code::
-
-        make uninstall
-
-    This command will uninstall the tool
-
-
-#. Uninstall the tool and clean all the build file
-    .. code::
-
-        make clean
-
-    This command will clean all the build file and implicitly uninstall the tool
-
-
-#. Call the make file from TF-A root directory
-    .. code::
-
-        make -C tools/cot-dt2c install
-        make -C tools/cot-dt2c uninstall
-        make -C tools/cot-dt2c clean
-
 Convert CoT descriptors to C file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -88,7 +57,7 @@ the validity of the CoT DT file.
 
 .. code::
 
-    cot-dt2c convert-to-c [INPUT DTB PATH] [OUTPUT C PATH]
+    cot-dt2c convert-to-c [INPUT DTS PATH] [OUTPUT C PATH]
     cot-dt2c convert-to-c fdts/tbbr_cot_descriptors.dtsi test.c
 
 
@@ -111,7 +80,7 @@ Currently the validation is specifically for checking the CoT DT file
 
 .. code::
 
-    cot-dt2c validate-cot [INPUT DTB PATH]
+    cot-dt2c validate-cot [INPUT DTS PATH]
     cot-dt2c validate-cot fdts/tbbr_cot_descriptors.dtsi
 
 
@@ -123,7 +92,7 @@ the certificates and the image of a CoT DT file.
 
 .. code::
 
-    cot-dt2c visualize-cot [INPUT DTB PATH]
+    cot-dt2c visualize-cot [INPUT DTS PATH]
     cot-dt2c visualize-cot fdts/tbbr_cot_descriptors.dtsi
 
 
@@ -146,4 +115,5 @@ is not installed along with the tool.
 
 *Copyright (c) 2024, Arm Limited. All rights reserved.*
 
+.. _tools/cot_dt2c/pyproject.toml: https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/heads/integration/tools/cot_dt2c/pyproject.toml
 .. _Poetry: https://python-poetry.org/docs/

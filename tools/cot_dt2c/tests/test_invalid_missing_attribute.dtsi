@@ -8,10 +8,6 @@
  *
  */
 
-#include <tools_share/cca_oid.h>
-#include <common/tbbr/tbbr_img_def.h>
-#include <common/nv_cntr_ids.h>
-
 cot {
 	manifests {
 		compatible = "arm, cert-descs";
@@ -20,218 +16,63 @@ cot {
 			root-certificate;
 			antirollback-counter = <&cca_nv_ctr>;
 
-			tb_fw_hash: tb_fw_hash {
-				oid = TRUSTED_BOOT_FW_HASH_OID;
-			};
-			tb_fw_config_hash: tb_fw_config_hash {
-				oid = TRUSTED_BOOT_FW_CONFIG_HASH_OID;
-			};
 			hw_config_hash: hw_config_hash {
 			};
-			fw_config_hash: fw_config_hash {
-				oid = FW_CONFIG_HASH_OID;
-			};
-			soc_fw_hash: soc_fw_hash {
-				oid = SOC_AP_FW_HASH_OID;
-			};
+
 			soc_fw_config_hash: soc_fw_config_hash {
-				oid = SOC_FW_CONFIG_HASH_OID;
-			};
-			rmm_hash: rmm_hash {
-				oid = RMM_HASH_OID;
-			};
-		};
-
-		core_swd_key_cert: core_swd_key_cert {
-			root-certificate;
-			image-id = <CORE_SWD_KEY_CERT_ID>;
-			signing-key = <&swd_rot_pk>;
-			antirollback-counter = <&trusted_nv_ctr>;
-
-			core_swd_pk: core_swd_pk {
-				oid = CORE_SWD_PK_OID;
-			};
-		};
-
-		trusted_os_fw_content_cert: trusted_os_fw_content_cert {
-			image-id = <TRUSTED_OS_FW_CONTENT_CERT_ID>;
-			parent = <&core_swd_key_cert>;
-			signing-key = <&core_swd_pk>;
-			antirollback-counter = <&trusted_nv_ctr>;
-
-			tos_fw_hash: tos_fw_hash {
-				oid = TRUSTED_OS_FW_HASH_OID;
-			};
-			tos_fw_config_hash: tos_fw_config_hash {
-				oid = TRUSTED_OS_FW_CONFIG_HASH_OID;
+				oid = "1.3.6.1.4.1.4128.2100.604";
 			};
 		};
 
 		plat_key_cert: plat_key_cert {
 			root-certificate;
-			image-id = <PLAT_KEY_CERT_ID>;
+			image-id = <38>;
 			signing-key = <&prot_pk>;
 			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			plat_pk: plat_pk {
-				oid = PLAT_PK_OID;
+				oid = "1.3.6.1.4.1.4128.2100.1105";
 			};
 		};
 
 		non_trusted_fw_content_cert: non_trusted_fw_content_cert {
-			image-id = <NON_TRUSTED_FW_CONTENT_CERT_ID>;
-			parent = <&plat_key_cert>;
+			image-id = <15>;
 			signing-key = <&plat_pk>;
 			antirollback-counter = <&non_trusted_nv_ctr>;
 
 			nt_world_bl_hash: nt_world_bl_hash {
-				oid = NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID;
+				oid = "1.3.6.1.4.1.4128.2100.1201";
 			};
 			nt_fw_config_hash: nt_fw_config_hash {
-				oid = NON_TRUSTED_FW_CONFIG_HASH_OID;
+				oid =  "1.3.6.1.4.1.4128.2100.1202";
 			};
 		};
-
-#if defined(SPD_spmd)
-		sip_sp_content_cert: sip_sp_content_cert {
-			image-id = <SIP_SP_CONTENT_CERT_ID>;
-			parent = <&core_swd_key_cert>;
-			signing-key = <&core_swd_pk>;
-			antirollback-counter = <&trusted_nv_ctr>;
-
-			sp_pkg1_hash: sp_pkg1_hash {
-				oid = SP_PKG1_HASH_OID;
-			};
-			sp_pkg2_hash: sp_pkg2_hash {
-				oid = SP_PKG2_HASH_OID;
-			};
-			sp_pkg3_hash: sp_pkg3_hash {
-				oid = SP_PKG3_HASH_OID;
-			};
-			sp_pkg4_hash: sp_pkg4_hash {
-				oid = SP_PKG4_HASH_OID;
-			};
-		};
-
-		plat_sp_content_cert: plat_sp_content_cert {
-			parent = <&plat_key_cert>;
-			signing-key = <&plat_pk>;
-			antirollback-counter = <&non_trusted_nv_ctr>;
-
-			sp_pkg5_hash: sp_pkg5_hash {
-				oid = SP_PKG5_HASH_OID;
-			};
-			sp_pkg6_hash: sp_pkg6_hash {
-				oid = SP_PKG6_HASH_OID;
-			};
-			sp_pkg7_hash: sp_pkg7_hash {
-				oid = SP_PKG7_HASH_OID;
-			};
-			sp_pkg8_hash: sp_pkg8_hash {
-				oid = SP_PKG8_HASH_OID;
-			};
-		};
-#endif
-	};
 
 	images {
 		compatible = "arm, img-descs";
 
 		hw_config {
-			image-id = <HW_CONFIG_ID>;
+			image-id = <23>;
 			hash = <&hw_config_hash>;
 		};
 
-		bl31_image {
-			image-id = <BL31_IMAGE_ID>;
-			parent = <&cca_content_cert>;
-			hash = <&soc_fw_hash>;
-		};
-
 		soc_fw_config {
-			image-id = <SOC_FW_CONFIG_ID>;
+			image-id = <25>;
 			parent = <&cca_content_cert>;
 			hash = <&soc_fw_config_hash>;
 		};
 
-		rmm_image {
-			image-id = <RMM_IMAGE_ID>;
-			parent = <&cca_content_cert>;
-			hash = <&rmm_hash>;
-		};
-
-		bl32_image {
-			image-id = <BL32_IMAGE_ID>;
-			parent = <&trusted_os_fw_content_cert>;
-			hash = <&tos_fw_hash>;
-		};
-
-		tos_fw_config {
-			image-id = <TOS_FW_CONFIG_ID>;
-			parent = <&trusted_os_fw_content_cert>;
-			hash = <&tos_fw_config_hash>;
-		};
-
 		bl33_image {
-			image-id = <BL33_IMAGE_ID>;
+			image-id = <5>;
 			parent = <&non_trusted_fw_content_cert>;
 			hash = <&nt_world_bl_hash>;
 		};
 
 		nt_fw_config {
-			image-id = <NT_FW_CONFIG_ID>;
+			image-id = <27>;
 			parent = <&non_trusted_fw_content_cert>;
 			hash = <&nt_fw_config_hash>;
 		};
-
-#if defined(SPD_spmd)
-		sp_pkg1 {
-			parent = <&sip_sp_content_cert>;
-			hash = <&sp_pkg1_hash>;
-		};
-
-		sp_pkg2 {
-			image-id = <SP_PKG2_ID>;
-			parent = <&sip_sp_content_cert>;
-			hash = <&sp_pkg2_hash>;
-		};
-
-		sp_pkg3 {
-			image-id = <SP_PKG3_ID>;
-			parent = <&sip_sp_content_cert>;
-			hash = <&sp_pkg3_hash>;
-		};
-
-		sp_pkg4 {
-			image-id = <SP_PKG4_ID>;
-			parent = <&sip_sp_content_cert>;
-			hash = <&sp_pkg4_hash>;
-		};
-
-		sp_pkg5 {
-			image-id = <SP_PKG5_ID>;
-			parent = <&plat_sp_content_cert>;
-			hash = <&sp_pkg5_hash>;
-		};
-
-		sp_pkg6 {
-			image-id = <SP_PKG6_ID>;
-			parent = <&plat_sp_content_cert>;
-			hash = <&sp_pkg6_hash>;
-		};
-
-		sp_pkg7 {
-			image-id = <SP_PKG7_ID>;
-			parent = <&plat_sp_content_cert>;
-			hash = <&sp_pkg7_hash>;
-		};
-
-		sp_pkg8 {
-			image-id = <SP_PKG8_ID>;
-			parent = <&plat_sp_content_cert>;
-			hash = <&sp_pkg8_hash>;
-		};
-#endif
 	};
 };
 
@@ -242,26 +83,26 @@ non_volatile_counters: non_volatile_counters {
 	#size-cells = <0>;
 
 	cca_nv_ctr: cca_nv_ctr {
-		id  = <TRUSTED_NV_CTR_ID>;
-		oid = CCA_FW_NVCOUNTER_OID;
+		id  = <0>;
+		oid = "1.3.6.1.4.1.4128.2100.3";
 	};
 
 	trusted_nv_ctr: trusted_nv_ctr {
-		id  = <TRUSTED_NV_CTR_ID>;
-		oid = TRUSTED_FW_NVCOUNTER_OID;
+		id  = <0>;
+		oid = "1.3.6.1.4.1.4128.2100.1";
 	};
 
 	non_trusted_nv_ctr: non_trusted_nv_ctr {
-		id  = <NON_TRUSTED_NV_CTR_ID>;
-		oid = NON_TRUSTED_FW_NVCOUNTER_OID;
+		id  = <1>;
+		oid = "1.3.6.1.4.1.4128.2100.2";
 	};
 };
 
 rot_keys {
 	swd_rot_pk: swd_rot_pk {
-		oid = SWD_ROT_PK_OID;
+		oid = "1.3.6.1.4.1.4128.2100.1103";
 	};
 	prot_pk: prot_pk {
-		oid = PROT_PK_OID;
+		oid = "1.3.6.1.4.1.4128.2100.1102";
 	};
 };

@@ -406,7 +406,6 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
           COTDTPATH := fdts/tbbr_cot_descriptors.dtsi
         endif
       endif
-      bl2: cot-dt2c
     endif
 
     BL1_SOURCES		+=	${AUTH_SOURCES}					\
@@ -481,16 +480,23 @@ ifeq (${TRANSFER_LIST}, 1)
   endif
 endif
 
-cot-dt2c:
 ifneq ($(COTDTPATH),)
-  $(info COT CONVERSION FOR ${COTDTPATH})
-  toolpath := $(shell which cot-dt2c)
-  ifeq (${toolpath},)
-    output := $(shell make -C ./${CERTCONVPATH} install)
-    $(info install output ${output})
-    toolpath := $(shell which cot-dt2c)
-  endif
-  output := $(shell ${toolpath} convert-to-c ${COTDTPATH} ${BUILD_PLAT}/bl2_cot.c)
-  $(info ${output})
-  BL2_SOURCES += ${BUILD_PLAT}/bl2_cot.c
+        cot-dt-defines = IMAGE_BL2 $(BL2_DEFINES) $(PLAT_BL_COMMON_DEFINES)
+        cot-dt-include-dirs = $(BL2_INCLUDE_DIRS) $(PLAT_BL_COMMON_INCLUDE_DIRS)
+
+        cot-dt-cpp-flags  = $(cot-dt-defines:%=-D%)
+        cot-dt-cpp-flags += $(cot-dt-include-dirs:%=-I%)
+
+        cot-dt-cpp-flags += $(BL2_CPPFLAGS) $(PLAT_BL_COMMON_CPPFLAGS)
+        cot-dt-cpp-flags += $(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH))
+        cot-dt-cpp-flags += -c -x assembler-with-cpp -E -P -o $@ $<
+
+        $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.dts): $(COTDTPATH) | $$(@D)/
+		$(q)$($(ARCH)-cpp) $(cot-dt-cpp-flags)
+
+        $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.c): $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.dts) | $$(@D)/
+		$(q)poetry -q install
+		$(q)poetry run cot-dt2c convert-to-c $< $@
+
+        BL2_SOURCES += $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.c)
 endif

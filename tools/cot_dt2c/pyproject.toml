@@ -28,30 +28,33 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8"
 click = "^8.1.7"
-pyparsing = "^2.4.7"
 plotly = "^5.23.0"
-pandas = "^2.2.2"
+pydevicetree = "0.0.13"
 igraph = "^0.11.6"
+pyparsing = "^3.1.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
 mypy = "^0.910"
 pytest = "^6.2.5"
-pyparsing = "^2.4.7"
-plotly = "^5.23.0"
-pandas = "^2.2.2"
-igraph = "^0.11.6"
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/latest/config_file.html#using-a-pyproject-toml-file
-python_version = 3.8
+python_version = "3.8"
 pretty = true
 show_traceback = true
 color_output = true
 
+[[tool.mypy.overrides]]
+module = ["igraph", "pydevicetree", "pydevicetree.ast", "plotly", "plotly.graph_objects"]
+ignore_missing_imports = true
+
 [tool.coverage.run]
 source = ["tests"]
 
-[coverage.paths]
+[tool.coverage.paths]
 source = "cot_dt2c"
 
 [tool.poetry.scripts]

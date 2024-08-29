@@ -1,6 +1,0 @@
-mypy
-pylint
-pyparsing
-igraph
-pandas
-plotly
