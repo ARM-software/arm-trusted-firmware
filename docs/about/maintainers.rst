@@ -858,8 +858,6 @@ RockChip platform port
 :|G|: `rockchip-linux`_
 :|M|: Heiko Stuebner <heiko@sntech.de>
 :|G|: `mmind`_
-:|M|: Julius Werner <jwerner@chromium.org>
-:|G|: `jwerner-chromium`_
 :|F|: plat/rockchip/
 
 STMicroelectronics platform ports
