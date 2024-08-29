@@ -848,7 +848,7 @@ Common build options
 -  ``RME_GPT_MAX_BLOCK``: Numeric value in MB to define the maximum size of
    supported contiguous blocks in GPT Library. This parameter can take the
    values 0, 2, 32 and 512. Setting this value to 0 disables use of Contigious
-   descriptors. Default value is 2.
+   descriptors. Default value is 512.
 
 -  ``ROT_KEY``: This option is used when ``GENERATE_COT=1``. It specifies a
    file that contains the ROT private key in PEM format or a PKCS11 URI and
