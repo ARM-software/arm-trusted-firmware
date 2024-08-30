@@ -38,7 +38,7 @@
 #define OP_NBW_FROM_SIZE(s)		OP_NBW_FROM_LEN((s) * UINT8_LEN)
 #define OP_SIZE_FROM_SIZE(s)		(OP_NBW_FROM_SIZE(s) * PKA_WORD_SIZE)
 
-#define DT_PKA_COMPAT			"st,stm32-pka64"
+#define DT_PKA_COMPAT			"st,stm32mp13-pka64"
 
 #define MAX_ECC_SIZE_LEN		640U
 #define MAX_EO_NBW			OP_NBW_FROM_LEN(MAX_ECC_SIZE_LEN)
