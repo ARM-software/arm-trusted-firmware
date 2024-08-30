@@ -414,7 +414,11 @@ enum ddr_type {
 #define BOARD_ID_OTP				"board-id"
 #define UID_OTP					"uid-otp"
 #define LIFECYCLE2_OTP				"otp18"
+#if STM32MP21
+#define PKH_OTP					"otp152"
+#else
 #define PKH_OTP					"otp144"
+#endif
 #define ENCKEY_OTP				"otp260"
 
 /* OTP mask */
