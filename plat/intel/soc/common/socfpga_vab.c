@@ -113,7 +113,8 @@ int socfpga_vab_authentication(void **p_image, size_t *p_size)
 
 	VERBOSE("mbox_data_addr = %lx    mbox_data_sz = %d\n", mbox_data_addr, mbox_data_sz);
 
-	memcpy(mbox_relocate_data_addr, (uint8_t *)mbox_data_addr, mbox_data_sz * sizeof(uint32_t));
+	memcpy_s(mbox_relocate_data_addr, mbox_data_sz * sizeof(uint32_t),
+		(uint8_t *)mbox_data_addr, mbox_data_sz * sizeof(uint32_t));
 
 	*((unsigned int *)mbox_relocate_data_addr) = CCERT_CMD_TEST_PGM_MASK;
 

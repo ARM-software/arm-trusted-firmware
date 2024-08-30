@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -183,8 +184,9 @@ static void __dead2 socfpga_system_reset(void)
 {
 	uint32_t addr_buf[2];
 
-	memcpy(addr_buf, &intel_rsu_update_address,
-			sizeof(intel_rsu_update_address));
+	memcpy_s(addr_buf, sizeof(intel_rsu_update_address),
+		&intel_rsu_update_address, sizeof(intel_rsu_update_address));
+
 	if (intel_rsu_update_address) {
 		mailbox_rsu_update(addr_buf);
 	} else {

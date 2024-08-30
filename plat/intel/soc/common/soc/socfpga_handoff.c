@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,15 +16,21 @@
 int socfpga_get_handoff(handoff *reverse_hoff_ptr)
 {
 	int i;
+	int j;
 	uint32_t *buffer;
-	handoff *handoff_ptr = (handoff *) PLAT_HANDOFF_OFFSET;
+	uint32_t *handoff_ptr = (uint32_t *) PLAT_HANDOFF_OFFSET;
+	uint32_t *reverse_hoff_ptr_dst = (uint32_t *) reverse_hoff_ptr;
 
 	if (sizeof(*handoff_ptr) > sizeof(handoff)) {
 		return -EOVERFLOW;
 	}
 
-	memcpy(reverse_hoff_ptr, handoff_ptr, sizeof(handoff));
-	buffer = (uint32_t *)reverse_hoff_ptr;
+	for (j = 0; j < sizeof(handoff) / 4; j++) {
+		memcpy_s((void *) (reverse_hoff_ptr_dst + j), 1,
+			(void *) (handoff_ptr + j), 1);
+	}
+
+	buffer = (uint32_t *)reverse_hoff_ptr_dst;
 
 	/* convert big endian to little endian */
 	for (i = 0; i < sizeof(handoff) / 4; i++)
