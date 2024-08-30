@@ -463,7 +463,7 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 	 * is required to avoid / defend against racing with cache evictions
 	 */
 	va_mapping_size = ALIGNED_UP((dlme_end - dlme_start), DRTM_PAGE_SIZE);
-	rc = mmap_add_dynamic_region_alloc_va(dlme_img_start, &va_mapping, va_mapping_size,
+	rc = mmap_add_dynamic_region_alloc_va(dlme_start, &va_mapping, va_mapping_size,
 					      MT_MEMORY | MT_NS | MT_RO |
 					      MT_SHAREABILITY_ISH);
 	if (rc != 0) {
@@ -512,9 +512,9 @@ static void drtm_dl_reset_dlme_el_state(enum drtm_dlme_el dlme_el)
 	sctlr &= ~(/* Disable DLME's EL MMU, since the existing page-tables are untrusted. */
 		   SCTLR_M_BIT
 		   | SCTLR_EE_BIT               /* Little-endian data accesses. */
+		   | SCTLR_C_BIT		/* disable data caching */
+		   | SCTLR_I_BIT		/* disable instruction caching */
 		  );
-
-	sctlr |= SCTLR_C_BIT | SCTLR_I_BIT; /* Allow instruction and data caching. */
 
 	switch (dlme_el) {
 	case DLME_AT_EL1:
@@ -655,6 +655,10 @@ static uint64_t drtm_dynamic_launch(uint64_t x1, void *handle)
 	drtm_dl_reset_dlme_el_state(dlme_el);
 	drtm_dl_reset_dlme_context(dlme_el);
 
+	/*
+	 * Setting the Generic Timer frequency is required before launching
+	 * DLME and is already done for running CPU during PSCI setup.
+	 */
 	drtm_dl_prepare_eret_to_dlme(&args, dlme_el);
 
 	/*
