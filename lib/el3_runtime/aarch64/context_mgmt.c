@@ -34,6 +34,7 @@
 #include <lib/extensions/spe.h>
 #include <lib/extensions/sve.h>
 #include <lib/extensions/sys_reg_trace.h>
+#include <lib/extensions/tcr2.h>
 #include <lib/extensions/trbe.h>
 #include <lib/extensions/trf.h>
 #include <lib/utils.h>
@@ -1538,28 +1539,37 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 *********************************************************************************/
 void cm_handle_asymmetric_features(void)
 {
+	cpu_context_t *ctx __maybe_unused = cm_get_context(NON_SECURE);
+
+	assert(ctx != NULL);
+
 #if ENABLE_SPE_FOR_NS == FEAT_STATE_CHECK_ASYMMETRIC
-	cpu_context_t *spe_ctx = cm_get_context(NON_SECURE);
-
-	assert(spe_ctx != NULL);
-
 	if (is_feat_spe_supported()) {
-		spe_enable(spe_ctx);
+		spe_enable(ctx);
 	} else {
-		spe_disable(spe_ctx);
+		spe_disable(ctx);
 	}
 #endif
+
 #if ERRATA_A520_2938996 || ERRATA_X4_2726228
-	cpu_context_t *trbe_ctx = cm_get_context(NON_SECURE);
-
-	assert(trbe_ctx != NULL);
-
 	if (check_if_affected_core() == ERRATA_APPLIES) {
 		if (is_feat_trbe_supported()) {
-			trbe_disable(trbe_ctx);
+			trbe_disable(ctx);
 		}
 	}
 #endif
+
+#if ENABLE_FEAT_TCR2 == FEAT_STATE_CHECK_ASYMMETRIC
+	el3_state_t *el3_state = get_el3state_ctx(ctx);
+	u_register_t spsr = read_ctx_reg(el3_state, CTX_SPSR_EL3);
+
+	if (is_feat_tcr2_supported() && (GET_RW(spsr) == MODE_RW_64)) {
+		tcr2_enable(ctx);
+	} else {
+		tcr2_disable(ctx);
+	}
+#endif
+
 }
 #endif
 
