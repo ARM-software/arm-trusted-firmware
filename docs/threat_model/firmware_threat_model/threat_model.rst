@@ -928,6 +928,15 @@ nonetheless once execution has reached the runtime EL3 firmware.
      Measured Boot implementation in |TF-A| is that it does not extend the
      measurements into a |PCR| of a Discrete |TPM|, where measurements would
      be securely stored and protected against tampering.
+   - `CCA Measured Boot`_: Implemented by |TF-M|. Measurements are stored in
+     |HES| secure on-chip memory. |HES| implements protection against tampering
+     its on-chip memory. |HES| interface is available for BL1 and BL2.
+   - `DICE Protection Environment`_ (DPE): Implemented by |TF-M|. Measurements
+     are stored in |RSE| secure on-chip memory. |RSE| implements protection
+     against tampering its on-chip memory. DPE provides additional protection
+     against unauthorized access by malicious actors through the use of one-time
+     context handles and the identification of the client's target locality
+     (location of the client).
 
  Beyond the measurements (image digest and signer-id) there are no other assets
  to protect or threats to defend against that could compromise |TF-A| execution
@@ -1197,3 +1206,5 @@ Threats to be Mitigated by an External Agent Outside of TF-A
 .. _Trusted Firmware-A Tests: https://git.trustedfirmware.org/TF-A/tf-a-tests.git/about/
 .. _OP-TEE Dispatcher: https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/components/spd/optee-dispatcher.rst
 .. _PSR Specification: https://developer.arm.com/documentation/den0106/0100
+.. _CCA Measured Boot: https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/measured_boot_integration_guide.html
+.. _DICE Protection Environment: https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/dice_protection_environment/dice_protection_environment.html
