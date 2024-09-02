@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,7 @@
  *
  * The order of the keys must follow the enumeration specified in tbb_key.h
  */
-static key_t tbb_keys[] = {
+static cert_key_t tbb_keys[] = {
 	[ROT_KEY] = {
 		.id = ROT_KEY,
 		.opt = "rot-key",

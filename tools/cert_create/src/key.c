@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,14 +26,14 @@
 
 #define MAX_FILENAME_LEN		1024
 
-key_t *keys;
+cert_key_t *keys;
 unsigned int num_keys;
 
 #if !USING_OPENSSL3
 /*
  * Create a new key container
  */
-int key_new(key_t *key)
+int key_new(cert_key_t *key)
 {
 	/* Create key pair container */
 	key->key = EVP_PKEY_new();
@@ -45,7 +45,7 @@ int key_new(key_t *key)
 }
 #endif
 
-static int key_create_rsa(key_t *key, int key_bits)
+static int key_create_rsa(cert_key_t *key, int key_bits)
 {
 #if USING_OPENSSL3
 	EVP_PKEY *rsa = EVP_RSA_gen(key_bits);
@@ -99,7 +99,7 @@ err2:
 
 #ifndef OPENSSL_NO_EC
 #if USING_OPENSSL3
-static int key_create_ecdsa(key_t *key, int key_bits, const char *curve)
+static int key_create_ecdsa(cert_key_t *key, int key_bits, const char *curve)
 {
 	EVP_PKEY *ec = EVP_EC_gen(curve);
 	if (ec == NULL) {
@@ -111,7 +111,7 @@ static int key_create_ecdsa(key_t *key, int key_bits, const char *curve)
 	return 1;
 }
 
-static int key_create_ecdsa_nist(key_t *key, int key_bits)
+static int key_create_ecdsa_nist(cert_key_t *key, int key_bits)
 {
 	if (key_bits == 384) {
 		return key_create_ecdsa(key, key_bits, "secp384r1");
@@ -121,17 +121,17 @@ static int key_create_ecdsa_nist(key_t *key, int key_bits)
 	}
 }
 
-static int key_create_ecdsa_brainpool_r(key_t *key, int key_bits)
+static int key_create_ecdsa_brainpool_r(cert_key_t *key, int key_bits)
 {
 	return key_create_ecdsa(key, key_bits, "brainpoolP256r1");
 }
 
-static int key_create_ecdsa_brainpool_t(key_t *key, int key_bits)
+static int key_create_ecdsa_brainpool_t(cert_key_t *key, int key_bits)
 {
 	return key_create_ecdsa(key, key_bits, "brainpoolP256t1");
 }
 #else
-static int key_create_ecdsa(key_t *key, int key_bits, const int curve_id)
+static int key_create_ecdsa(cert_key_t *key, int key_bits, const int curve_id)
 {
 	EC_KEY *ec;
 
@@ -158,7 +158,7 @@ err:
 	return 0;
 }
 
-static int key_create_ecdsa_nist(key_t *key, int key_bits)
+static int key_create_ecdsa_nist(cert_key_t *key, int key_bits)
 {
 	if (key_bits == 384) {
 		return key_create_ecdsa(key, key_bits, NID_secp384r1);
@@ -169,12 +169,12 @@ static int key_create_ecdsa_nist(key_t *key, int key_bits)
 }
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
-static int key_create_ecdsa_brainpool_r(key_t *key, int key_bits)
+static int key_create_ecdsa_brainpool_r(cert_key_t *key, int key_bits)
 {
 	return key_create_ecdsa(key, key_bits, NID_brainpoolP256r1);
 }
 
-static int key_create_ecdsa_brainpool_t(key_t *key, int key_bits)
+static int key_create_ecdsa_brainpool_t(cert_key_t *key, int key_bits)
 {
 	return key_create_ecdsa(key, key_bits, NID_brainpoolP256t1);
 }
@@ -182,7 +182,7 @@ static int key_create_ecdsa_brainpool_t(key_t *key, int key_bits)
 #endif /* USING_OPENSSL3 */
 #endif /* OPENSSL_NO_EC */
 
-typedef int (*key_create_fn_t)(key_t *key, int key_bits);
+typedef int (*key_create_fn_t)(cert_key_t *key, int key_bits);
 static const key_create_fn_t key_create_fn[KEY_ALG_MAX_NUM] = {
 	[KEY_ALG_RSA] = key_create_rsa,
 #ifndef OPENSSL_NO_EC
@@ -194,7 +194,7 @@ static const key_create_fn_t key_create_fn[KEY_ALG_MAX_NUM] = {
 #endif /* OPENSSL_NO_EC */
 };
 
-int key_create(key_t *key, int type, int key_bits)
+int key_create(cert_key_t *key, int type, int key_bits)
 {
 	if (type >= KEY_ALG_MAX_NUM) {
 		printf("Invalid key type\n");
@@ -243,7 +243,7 @@ err:
 
 }
 
-unsigned int key_load(key_t *key)
+unsigned int key_load(cert_key_t *key)
 {
 	if (key->fn == NULL) {
 		VERBOSE("Key not specified\n");
@@ -273,7 +273,7 @@ unsigned int key_load(key_t *key)
 	return KEY_ERR_NONE;
 }
 
-int key_store(key_t *key)
+int key_store(cert_key_t *key)
 {
 	FILE *fp;
 
@@ -301,7 +301,7 @@ int key_store(key_t *key)
 int key_init(void)
 {
 	cmd_opt_t cmd_opt;
-	key_t *key;
+	cert_key_t *key;
 	unsigned int i;
 
 	keys = malloc((num_def_keys * sizeof(def_keys[0]))
@@ -341,9 +341,9 @@ int key_init(void)
 	return 0;
 }
 
-key_t *key_get_by_opt(const char *opt)
+cert_key_t *key_get_by_opt(const char *opt)
 {
-	key_t *key;
+	cert_key_t *key;
 	unsigned int i;
 
 	/* Sequential search. This is not a performance concern since the number

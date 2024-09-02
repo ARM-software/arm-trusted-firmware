@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _MSC_VER
+#ifdef __linux__
 #include <sys/mount.h>
 #endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 

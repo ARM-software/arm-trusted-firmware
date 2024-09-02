@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,35 +65,35 @@ typedef struct key_s {
 	const char *desc;	/* Key description (debug purposes) */
 	char *fn;		/* Filename to load/store the key */
 	EVP_PKEY *key;		/* Key container */
-} key_t;
+} cert_key_t;
 
 /* Exported API */
 int key_init(void);
-key_t *key_get_by_opt(const char *opt);
+cert_key_t *key_get_by_opt(const char *opt);
 #if !USING_OPENSSL3
-int key_new(key_t *key);
+int key_new(cert_key_t *key);
 #endif
-int key_create(key_t *key, int type, int key_bits);
-unsigned int key_load(key_t *key);
-int key_store(key_t *key);
+int key_create(cert_key_t *key, int type, int key_bits);
+unsigned int key_load(cert_key_t *key);
+int key_store(cert_key_t *key);
 void key_cleanup(void);
 
 /* Macro to register the keys used in the CoT */
 #define REGISTER_KEYS(_keys) \
-	key_t *def_keys = &_keys[0]; \
+	cert_key_t *def_keys = &_keys[0]; \
 	const unsigned int num_def_keys = sizeof(_keys)/sizeof(_keys[0])
 
 /* Macro to register the platform defined keys used in the CoT */
 #define PLAT_REGISTER_KEYS(_pdef_keys) \
-	key_t *pdef_keys = &_pdef_keys[0]; \
+	cert_key_t *pdef_keys = &_pdef_keys[0]; \
 	const unsigned int num_pdef_keys = sizeof(_pdef_keys)/sizeof(_pdef_keys[0])
 
 /* Exported variables */
-extern key_t *def_keys;
+extern cert_key_t *def_keys;
 extern const unsigned int num_def_keys;
-extern key_t *pdef_keys;
+extern cert_key_t *pdef_keys;
 extern const unsigned int num_pdef_keys;
 
-extern key_t *keys;
+extern cert_key_t *keys;
 extern unsigned int num_keys;
 #endif /* KEY_H */

@@ -6,7 +6,7 @@
 
 #include <pdef_tbb_key.h>
 
-static key_t pdef_tbb_keys[] = {
+static cert_key_t pdef_tbb_keys[] = {
 	[DDR_FW_CONTENT_KEY - DDR_FW_CONTENT_KEY] = {
 		.id = DDR_FW_CONTENT_KEY,
 		.opt = "ddr-fw-key",

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <assert.h>
 #include <ctype.h>
 #include <getopt.h>
@@ -68,16 +70,6 @@ static int print_cert;
 
 static const char build_msg[] = "Built : " __TIME__ ", " __DATE__;
 static const char platform_msg[] = PLAT_MSG;
-
-static char *strdup(const char *str)
-{
-	int n = strlen(str) + 1;
-	char *dup = malloc(n);
-	if (dup) {
-		strcpy(dup, str);
-	}
-	return dup;
-}
 
 static const char *key_algs_str[] = {
 	[KEY_ALG_RSA] = "rsa",
@@ -178,7 +170,7 @@ static void check_cmd_params(void)
 {
 	cert_t *cert;
 	ext_t *ext;
-	key_t *key;
+	cert_key_t *key;
 	int i, j;
 	bool valid_size;
 
@@ -303,7 +295,7 @@ int main(int argc, char *argv[])
 	STACK_OF(X509_EXTENSION) * sk;
 	X509_EXTENSION *cert_ext = NULL;
 	ext_t *ext;
-	key_t *key;
+	cert_key_t *key;
 	cert_t *cert;
 	FILE *file;
 	int i, j, ext_nid, nvctr;
