@@ -37,25 +37,8 @@ Ubuntu):
 Building rendered documentation
 -------------------------------
 
-To install Python dependencies using Poetry:
-
-.. code:: shell
-
-    poetry install
-
-Poetry will create a new virtual environment and install all dependencies listed
-in ``pyproject.toml``. You can get information about this environment, such as
-its location and the Python version, with the command:
-
-.. code:: shell
-
-    poetry env info
-
-If you have already sourced a virtual environment, Poetry will respect this and
-install dependencies there.
-
-Once all dependencies are installed, the documentation can be compiled into
-HTML-formatted pages from the project root directory by running:
+The documentation can be compiled into HTML-formatted pages from the project
+root directory by running:
 
 .. code:: shell
 
@@ -129,7 +112,7 @@ from project root directory
         bash -c 'cd /tf-a &&
             apt-get update && apt-get install -y curl plantuml &&
             curl -sSL https://install.python-poetry.org | python3 - &&
-            ~/.local/bin/poetry install && ~/.local/bin/poetry run make doc'
+            ~/.local/bin/poetry run make doc'
 
 The above command fetches the ``sphinxdoc/sphinx`` container from `docker
 hub`_, launches the container, installs documentation requirements and finally
@@ -138,7 +121,7 @@ build process will be placed in: ``docs/build/html``.
 
 --------------
 
-*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
 
 .. _Sphinx: http://www.sphinx-doc.org/en/master/
 .. _Poetry: https://python-poetry.org/docs/
