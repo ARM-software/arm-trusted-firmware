@@ -516,7 +516,7 @@ $(eval $(foreach source,$(DEFAULT_LINKER_SCRIPT_SOURCE) $(LINKER_SCRIPT_SOURCES)
 $(eval BL_LDFLAGS := $($(BL)_LDFLAGS))
 
 ifeq ($(USE_ROMLIB),1)
-$(ELF): romlib.bin | $$$$(@D)/
+$(ELF): $(BUILD_PLAT)/romlib/romlib.bin | $$$$(@D)/
 endif
 
 # MODULE_OBJS can be assigned by vendors with different compiled

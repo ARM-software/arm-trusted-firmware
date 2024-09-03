@@ -12,7 +12,7 @@ ROMLIB_GEN  = ./romlib_generator.py
 BUILD_DIR   = $(BUILD_PLAT)/romlib
 LIB_DIR     = $(BUILD_PLAT)/lib
 WRAPPER_DIR = $(BUILD_PLAT)/libwrapper
-LIBS        = -lmbedtls -lfdt -lc
+LIBS        = $(LIB_DIR)/libmbedtls.a $(LIB_DIR)/libfdt.a $(LIB_DIR)/libc.a
 INC         = $(INCLUDES:-I%=-I../../%)
 PPFLAGS     = $(INC) $(DEFINES) -P -x assembler-with-cpp -D__LINKER__ -MD -MP -MT $(BUILD_DIR)/romlib.ld
 OBJS        = $(BUILD_DIR)/jmptbl.o $(BUILD_DIR)/init.o
