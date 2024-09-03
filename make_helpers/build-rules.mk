@@ -11,6 +11,7 @@ ifndef build-rules-mk
         include $(dir $(build-rules-mk))utilities.mk
 
         .SECONDEXPANSION:
+        .SUFFIXES:
 
         %/:
 		$(s)echo '  MD      '$(call escape-shell,$(abspath $@))

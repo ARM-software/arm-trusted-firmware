@@ -17,8 +17,6 @@ ARCH		:= cortex-m0
 PLAT_M0		?= rk3399m0
 PLAT_M0_PMU	?= rk3399m0pmu
 
-.SUFFIXES:
-
 INCLUDES		+= -Iinclude/ \
 			   -I../../include/shared/
 

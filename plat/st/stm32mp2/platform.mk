@@ -204,8 +204,6 @@ BL31_SOURCES			+=	plat/common/plat_psci_common.c
 
 # Compilation rules
 .PHONY: check_ddr_type
-.SUFFIXES:
-
 bl2: check_ddr_type
 
 check_ddr_type:

@@ -1503,7 +1503,6 @@ endif #(SPD)
 ################################################################################
 
 .PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp tl fwu_fip certtool dtbs memmap doc enctool
-.SUFFIXES:
 
 all: msg_start
 
