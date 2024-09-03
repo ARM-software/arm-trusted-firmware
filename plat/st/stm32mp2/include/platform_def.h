@@ -81,13 +81,6 @@
 #define BL33_BASE			STM32MP_BL33_BASE
 
 /*******************************************************************************
- * DTB specific defines.
- ******************************************************************************/
-#define DTB_BASE			STM32MP_DTB_BASE
-#define DTB_LIMIT			(STM32MP_DTB_BASE + \
-					 STM32MP_DTB_SIZE)
-
-/*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 33)
