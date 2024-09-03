@@ -197,6 +197,7 @@ int fdt_add_reserved_memory(void *dtb, const char *node_name,
 			    uintptr_t base, size_t size)
 {
 	int offs = fdt_path_offset(dtb, "/reserved-memory");
+	int node;
 	uint32_t addresses[4];
 	int ac, sc;
 	unsigned int idx = 0;
@@ -211,6 +212,24 @@ int fdt_add_reserved_memory(void *dtb, const char *node_name,
 		fdt_setprop_u32(dtb, offs, "#address-cells", ac);
 		fdt_setprop_u32(dtb, offs, "#size-cells", sc);
 		fdt_setprop(dtb, offs, "ranges", NULL, 0);
+	}
+
+	/* Check for existing regions */
+	fdt_for_each_subnode(node, dtb, offs) {
+		uintptr_t c_base;
+		size_t c_size;
+		int ret;
+
+		ret = fdt_get_reg_props_by_index(dtb, node, 0, &c_base, &c_size);
+		/* Ignore illegal subnodes */
+		if (ret != 0) {
+			continue;
+		}
+
+		/* existing region entirely contains the new region */
+		if (base >= c_base && (base + size) <= (c_base + c_size)) {
+			return 0;
+		}
 	}
 
 	if (ac > 1) {

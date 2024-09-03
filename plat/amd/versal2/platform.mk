@@ -116,6 +116,7 @@ BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
 				plat/xilinx/common/versal.c			\
 				${PLAT_PATH}/bl31_setup.c			\
 				common/fdt_fixup.c				\
+				common/fdt_wrappers.c				\
 				${LIBFDT_SRCS}					\
 				${PLAT_PATH}/sip_svc_setup.c			\
 				${PLAT_PATH}/gicv3.c
