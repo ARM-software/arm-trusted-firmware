@@ -138,6 +138,11 @@ RSE provides the following runtime services:
   process can be requested from RSE. Furthermore, AP can request RSE to
   increase a non-volatile counter. Please refer to the
   ``RSE key management`` [5]_ document for more details.
+- ``DICE Protection Environment``: Securely store the firmware measurements
+  which were computed during the boot process and the associated metadata. It is
+  also capable of representing the boot measurements in the form of a
+  certificate chain, which is queriable. Please refer to the
+  ``DICE Protection Environment (DPE)`` [8]_ document for more details.
 
 Runtime service API
 ^^^^^^^^^^^^^^^^^^^
@@ -355,9 +360,7 @@ Defined here:
 Build time config options
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``MEASURED_BOOT``: Enable measured boot. It depends on the platform
-  implementation whether RSE or TPM (or both) backend based measured boot is
-  enabled.
+- ``MEASURED_BOOT``: Enable measured boot.
 - ``MBOOT_RSE_HASH_ALG``: Determine the hash algorithm to measure the images.
   The default value is sha-256.
 
@@ -431,10 +434,6 @@ it on behalf of RMM. The access to MHU interface and thereby to RSE is
 restricted to BL31 only. Therefore, RMM does not have direct access, all calls
 need to go through BL31. The RMM dispatcher module of the BL31 is responsible
 for delivering the calls between the two parties.
-
-.. Note::
-     Currently the connection between the RMM dispatcher and the PSA/RSE layer
-     is not yet implemented. RMM dispatcher just returns hard coded data.
 
 Delegated Attestation API
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -674,6 +673,63 @@ JSON format:
         ]
     }
 
+RSE based DICE Protection Environment
+-------------------------------------
+
+The ``DICE Protection Environment (DPE)`` [8]_ service makes it possible to
+execute |DICE| commands within an isolated execution environment. It provides
+clients with an interface to send DICE commands, encoded as CBOR objects,
+that act on opaque context handles. The |DPE| service performs |DICE|
+derivations and certification on its internal contexts, without exposing the
+|DICE| secrets (private keys and CDIs) outside of the isolated execution
+environment.
+
+|DPE| API
+^^^^^^^^^
+
+Defined here:
+
+- ``include/lib/psa/dice_protection_environment.h``
+
+.. code-block:: c
+
+    dpe_error_t
+    dpe_derive_context(int      context_handle,
+                       uint32_t cert_id,
+                       bool     retain_parent_context,
+                       bool     allow_new_context_to_derive,
+                       bool     create_certificate,
+                       const DiceInputValues *dice_inputs,
+                       int32_t  target_locality,
+                       bool     return_certificate,
+                       bool     allow_new_context_to_export,
+                       bool     export_cdi,
+                       int     *new_context_handle,
+                       int     *new_parent_context_handle,
+                       uint8_t *new_certificate_buf,
+                       size_t   new_certificate_buf_size,
+                       size_t  *new_certificate_actual_size,
+                       uint8_t *exported_cdi_buf,
+                       size_t   exported_cdi_buf_size,
+                       size_t  *exported_cdi_actual_size);
+
+Build time config options
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``MEASURED_BOOT``: Enable measured boot.
+- ``DICE_PROTECTION_ENVIRONMENT``: Boolean flag to specify the measured boot
+  backend when |RSE| based ``MEASURED_BOOT`` is enabled. The default value is
+  ``0``. When set to ``1`` then measurements and additional metadata collected
+  during the measured boot process are sent to the |DPE| for storage and
+  processing.
+- ``DPE_ALG_ID``: Determine the hash algorithm to measure the images. The
+  default value is sha-256.
+
+Example certificate chain
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``plat/arm/board/tc/tc_dpe.h``
+
 RSE OTP Assets Management
 -------------------------
 
@@ -728,13 +784,14 @@ Arm CCA platform:
 References
 ----------
 
-.. [1] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rse/readme.html
-.. [2] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rse/rse_comms.html
-.. [3] https://git.trustedfirmware.org/TF-M/tf-m-extras.git/tree/partitions/measured_boot/measured_boot_integration_guide.rst
-.. [4] https://git.trustedfirmware.org/TF-M/tf-m-extras.git/tree/partitions/delegated_attestation/delegated_attest_integration_guide.rst
-.. [5] https://tf-m-user-guide.trustedfirmware.org/platform/arm/rse/rse_key_management.html
+.. [1] https://trustedfirmware-m.readthedocs.io/en/latest/platform/arm/rse/index.html
+.. [2] https://trustedfirmware-m.readthedocs.io/en/latest/platform/arm/rse/rse_comms.html
+.. [3] https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/measured_boot_integration_guide.html
+.. [4] https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/delegated_attestation/delegated_attest_integration_guide.html
+.. [5] https://trustedfirmware-m.readthedocs.io/en/latest/platform/arm/rse/rse_key_management.html
 .. [6] https://developer.arm.com/-/media/Files/pdf/PlatformSecurityArchitecture/Architect/DEN0063-PSA_Firmware_Framework-1.0.0-2.pdf?revision=2d1429fa-4b5b-461a-a60e-4ef3d8f7f4b4&hash=3BFD6F3E687F324672F18E5BE9F08EDC48087C93
 .. [7] https://developer.arm.com/documentation/DEN0096/A_a/?lang=en
+.. [8] https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/dice_protection_environment/dice_protection_environment.html
 
 --------------
 
