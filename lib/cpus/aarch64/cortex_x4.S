@@ -22,9 +22,29 @@
 #error "Cortex X4 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+.global check_erratum_cortex_x4_2726228
+
 #if WORKAROUND_CVE_2022_23960
         wa_cve_2022_23960_bhb_vector_table CORTEX_X4_BHB_LOOP_COUNT, cortex_x4
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+workaround_runtime_start cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228, CORTEX_X4_MIDR
+workaround_runtime_end cortex_x4, ERRATUM(2726228)
+
+check_erratum_custom_start cortex_x4, ERRATUM(2726228)
+
+	/* This erratum needs to be enabled for r0p0 and r0p1.
+	 * Check if revision is less than or equal to r0p1.
+	 */
+
+#if ERRATA_X4_2726228
+	mov	x1, #1
+	b	cpu_rev_var_ls
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+check_erratum_custom_end cortex_x4, ERRATUM(2726228)
 
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
