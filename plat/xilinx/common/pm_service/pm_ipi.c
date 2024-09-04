@@ -164,10 +164,13 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
  *
  */
 static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
-					   uint32_t value[PAYLOAD_ARG_CNT])
+					   uint32_t *value, size_t count)
 {
 	size_t i;
 	enum pm_ret_status ret;
+#if IPI_CRC_CHECK
+	uint32_t crc;
+#endif
 	uintptr_t buffer_base = proc->ipi->buffer_base +
 				IPI_BUFFER_TARGET_REMOTE_OFFSET +
 				IPI_BUFFER_RESP_OFFSET;
@@ -179,21 +182,20 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 	 * buf-2: unused
 	 * buf-3: unused
 	 */
-	for (i = 0; i < PAYLOAD_ARG_CNT; i++) {
-		value[i] = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
+	for (i = 0U; i < count; i++) {
+		value[i] = mmio_read_32(buffer_base + ((i + 1U) * PAYLOAD_ARG_SIZE));
 	}
 
-	ret = value[0];
+	ret = mmio_read_32(buffer_base);
 #if IPI_CRC_CHECK
-	if (value[PAYLOAD_CRC_POS] !=
-			calculate_crc(value, IPI_W0_TO_W6_SIZE)) {
-		NOTICE("ERROR in CRC response payload value:0x%x\n",
-					value[PAYLOAD_CRC_POS]);
+	crc = mmio_read_32(buffer_base + (PAYLOAD_CRC_POS * PAYLOAD_ARG_SIZE));
+	if (crc != calculate_crc((uint32_t *)buffer_base, IPI_W0_TO_W6_SIZE)) {
+		NOTICE("ERROR in CRC response payload value:0x%x\n", crc);
 		ret = PM_RET_ERROR_INVALID_CRC;
 		/* Payload data is invalid as CRC validation failed
 		 * Clear the payload to avoid leakage of data to upper layers
 		 */
-		memset(value, 0, PAYLOAD_ARG_CNT);
+		memset(value, 0, count);
 	}
 #endif
 
@@ -216,9 +218,7 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 {
 	size_t i;
 #if IPI_CRC_CHECK
-	uint32_t *payload_ptr = value;
-	size_t j;
-	unsigned int response_payload[PAYLOAD_ARG_CNT] = {0};
+	uint32_t crc;
 #endif
 	uintptr_t buffer_base = IPI_BUFFER_REMOTE_BASE +
 				IPI_BUFFER_TARGET_LOCAL_OFFSET +
@@ -230,24 +230,17 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 	}
 
 	for (i = 0; i < count; i++) {
-		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
-		value++;
+		value[i] = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
 	}
 #if IPI_CRC_CHECK
-	for (j = 0; j < PAYLOAD_ARG_CNT; j++) {
-		response_payload[j] = mmio_read_32(buffer_base +
-						(j * PAYLOAD_ARG_SIZE));
-	}
-
-	if (response_payload[PAYLOAD_CRC_POS] !=
-			calculate_crc(response_payload, IPI_W0_TO_W6_SIZE)) {
-		NOTICE("ERROR in CRC response payload value:0x%x\n",
-					response_payload[PAYLOAD_CRC_POS]);
+	crc = mmio_read_32(buffer_base + (PAYLOAD_CRC_POS * PAYLOAD_ARG_SIZE));
+	if (crc != calculate_crc((uint32_t *)buffer_base, IPI_W0_TO_W6_SIZE)) {
+		NOTICE("ERROR in CRC response payload value:0x%x\n", crc);
 		ret = PM_RET_ERROR_INVALID_CRC;
 		/* Payload data is invalid as CRC validation failed
 		 * Clear the payload to avoid leakage of data to upper layers
 		 */
-		memset(payload_ptr, 0, count);
+		memset(value, 0, count);
 	}
 #endif
 	return ret;
@@ -271,7 +264,6 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 				    uint32_t *value, size_t count)
 {
 	enum pm_ret_status ret;
-	uint32_t i, ret_payload[PAYLOAD_ARG_CNT] = {0U};
 
 	pm_ipi_lock_get();
 
@@ -280,12 +272,7 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 		goto unlock;
 	}
 
-	ret = ERROR_CODE_MASK & (pm_ipi_buff_read(proc, ret_payload));
-
-	for (i = 1U; i <= count; i++) {
-		*value = ret_payload[i];
-		value++;
-	}
+	ret = ERROR_CODE_MASK & (pm_ipi_buff_read(proc, value, count));
 
 unlock:
 	pm_ipi_lock_release();
