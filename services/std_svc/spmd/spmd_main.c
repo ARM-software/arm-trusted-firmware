@@ -809,19 +809,6 @@ static bool spmd_is_spmc_message(unsigned int ep)
 		&& (ffa_endpoint_source(ep) == spmc_attrs.spmc_id));
 }
 
-/******************************************************************************
- * spmd_handle_spmc_message
- *****************************************************************************/
-static int spmd_handle_spmc_message(unsigned long long msg,
-		unsigned long long parm1, unsigned long long parm2,
-		unsigned long long parm3, unsigned long long parm4)
-{
-	VERBOSE("%s %llx %llx %llx %llx %llx\n", __func__,
-		msg, parm1, parm2, parm3, parm4);
-
-	return -EINVAL;
-}
-
 /*******************************************************************************
  * This function forwards FF-A SMCs to either the main SPMD handler or the
  * SPMC at EL3, depending on the origin security state, if enabled.
@@ -1123,6 +1110,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
+	case FFA_MSG_SEND_DIRECT_REQ2_SMC64:
 		/*
 		 * Regardless of secure_origin, SPMD logical partitions cannot
 		 * handle direct messages. They can only initiate direct
@@ -1156,35 +1144,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			}
 		}
 		if (secure_origin && spmd_is_spmc_message(x1)) {
-			ret = spmd_handle_spmc_message(x3, x4,
-				SMC_GET_GP(handle, CTX_GPREG_X5),
-				SMC_GET_GP(handle, CTX_GPREG_X6),
-				SMC_GET_GP(handle, CTX_GPREG_X7));
-
-			SMC_RET8(handle, FFA_SUCCESS_SMC32,
-				FFA_TARGET_INFO_MBZ, ret,
-				FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-				FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-				FFA_PARAM_MBZ);
-		} else {
-			/* Forward direct message to the other world */
-			return spmd_smc_forward(smc_fid, secure_origin,
-						x1, x2, x3, x4, cookie,
-						handle, flags);
-		}
-		break; /* Not reached */
-
-	case FFA_MSG_SEND_DIRECT_REQ2_SMC64:
-		if (!secure_origin) {
-			/* Validate source endpoint is non-secure for non-secure caller. */
-			if (ffa_is_secure_world_id(ffa_endpoint_source(x1))) {
 				return spmd_ffa_error_return(handle,
-						FFA_ERROR_INVALID_PARAMETER);
-			}
-		}
-		/* FFA_MSG_SEND_DIRECT_REQ2 not used for framework messages. */
-		if (secure_origin && spmd_is_spmc_message(x1)) {
-			return spmd_ffa_error_return(handle, FFA_ERROR_INVALID_PARAMETER);
+						FFA_ERROR_DENIED);
 		} else {
 			/* Forward direct message to the other world */
 			return spmd_smc_forward(smc_fid, secure_origin,
@@ -1195,6 +1156,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
+	case FFA_MSG_SEND_DIRECT_RESP2_SMC64:
 		if (secure_origin && (spmd_is_spmc_message(x1) ||
 		    is_spmd_logical_sp_dir_req_in_progress(ctx))) {
 			spmd_spm_core_sync_exit(0ULL);
@@ -1204,12 +1166,6 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 						x1, x2, x3, x4, cookie,
 						handle, flags);
 		}
-		break; /* Not reached */
-	case FFA_MSG_SEND_DIRECT_RESP2_SMC64:
-		/* Forward direct message to the other world */
-		return spmd_smc_forward(smc_fid, secure_origin,
-					x1, x2, x3, x4, cookie,
-					handle, flags);
 		break; /* Not reached */
 	case FFA_RX_RELEASE:
 	case FFA_RXTX_MAP_SMC32:
