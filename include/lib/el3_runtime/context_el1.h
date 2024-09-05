@@ -107,6 +107,11 @@ typedef struct el1_gcs_regs {
 	uint64_t gcspr_el0;
 } el1_gcs_regs_t;
 
+typedef struct el1_the_regs {
+	uint64_t rcwmask_el1;
+	uint64_t rcwsmask_el1;
+} el1_the_regs_t;
+
 typedef struct el1_sysregs {
 
 	el1_common_regs_t common;
@@ -153,6 +158,10 @@ typedef struct el1_sysregs {
 
 #if ENABLE_FEAT_GCS
 	el1_gcs_regs_t gcs;
+#endif
+
+#if ENABLE_FEAT_THE
+	el1_the_regs_t the;
 #endif
 
 } el1_sysregs_t;
@@ -266,6 +275,16 @@ typedef struct el1_sysregs {
 #define read_el1_ctx_gcs(ctx, reg)		ULL(0)
 #define write_el1_ctx_gcs(ctx, reg, val)
 #endif /* ENABLE_FEAT_GCS */
+
+#if ENABLE_FEAT_THE
+#define read_el1_ctx_the(ctx, reg)		(((ctx)->the).reg)
+#define write_el1_ctx_the(ctx, reg, val)	((((ctx)->the).reg)	\
+							= (uint64_t) (val))
+#else
+#define read_el1_ctx_the(ctx, reg)		ULL(0)
+#define write_el1_ctx_the(ctx, reg, val)
+#endif /* ENABLE_FEAT_THE */
+
 /******************************************************************************/
 #endif /* __ASSEMBLER__ */
 

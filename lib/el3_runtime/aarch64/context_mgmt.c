@@ -260,6 +260,14 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	 */
 	scr_el3 |= get_scr_el3_from_routing_model(NON_SECURE);
 #endif
+
+	if (is_feat_the_supported()) {
+		/* Set the RCWMASKEn bit in SCR_EL3 to enable access to
+		 * RCWMASK_EL1 and RCWSMASK_EL1 registers.
+		 */
+		scr_el3 |= SCR_RCWMASKEn_BIT;
+	}
+
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 
 	/* Initialize EL2 context registers */
@@ -1712,6 +1720,12 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 		write_el1_ctx_gcs(ctx, gcspr_el1, read_gcspr_el1());
 		write_el1_ctx_gcs(ctx, gcspr_el0, read_gcspr_el0());
 	}
+
+	if (is_feat_the_supported()) {
+		write_el1_ctx_the(ctx, rcwmask_el1, read_rcwmask_el1());
+		write_el1_ctx_the(ctx, rcwsmask_el1, read_rcwsmask_el1());
+	}
+
 }
 
 static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
@@ -1806,6 +1820,11 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 		write_gcscre0_el1(read_el1_ctx_gcs(ctx, gcscre0_el1));
 		write_gcspr_el1(read_el1_ctx_gcs(ctx, gcspr_el1));
 		write_gcspr_el0(read_el1_ctx_gcs(ctx, gcspr_el0));
+	}
+
+	if (is_feat_the_supported()) {
+		write_rcwmask_el1(read_el1_ctx_the(ctx, rcwmask_el1));
+		write_rcwsmask_el1(read_el1_ctx_the(ctx, rcwsmask_el1));
 	}
 }
 

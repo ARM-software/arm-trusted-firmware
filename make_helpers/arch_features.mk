@@ -341,6 +341,13 @@ DISABLE_MTPMU				?=	0
 ENABLE_FEAT_FGT2			?=	0
 
 #----
+# 8.8
+#----
+
+# Flag to enable FEAT_THE (Translation Hardening Extension)
+ENABLE_FEAT_THE				?=	0
+
+#----
 # 8.9
 #----
 
