@@ -109,7 +109,7 @@ unsigned long long tcr_physical_addr_size_bits(unsigned long long max_addr)
  */
 static const unsigned int pa_range_bits_arr[] = {
 	PARANGE_0000, PARANGE_0001, PARANGE_0010, PARANGE_0011, PARANGE_0100,
-	PARANGE_0101, PARANGE_0110
+	PARANGE_0101, PARANGE_0110, PARANGE_0111
 };
 
 unsigned long long xlat_arch_get_max_supported_pa(void)

@@ -12,6 +12,8 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/romlib.h>
+#include <common/par.h>
+#include <lib/extensions/sysreg128.h>
 #include <lib/mmio.h>
 #include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
@@ -196,7 +198,8 @@ unsigned int plat_get_syscnt_freq2(void)
  */
 int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 {
-	uint64_t par, pa;
+	uint64_t pa;
+	sysreg_t par;
 	u_register_t scr_el3;
 
 	/* Doing Non-secure address translation requires SCR_EL3.NS set */
@@ -230,7 +233,7 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 		return -1;
 
 	/* Extract Physical Address from PAR */
-	pa = (par & (PAR_ADDR_MASK << PAR_ADDR_SHIFT));
+	pa = get_par_el1_pa(par);
 
 	/* Perform NS entry point validation on the physical address */
 	return arm_validate_ns_entrypoint(pa);

@@ -56,6 +56,7 @@ endif
 
       ENABLE_BRBE_FOR_NS	:= 2
       ENABLE_TRBE_FOR_NS	:= 2
+      ENABLE_FEAT_D128		:= 2
 endif
 
 ENABLE_SYS_REG_TRACE_FOR_NS	:= 2

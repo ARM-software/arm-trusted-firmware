@@ -66,7 +66,7 @@ static unsigned long long calc_physical_addr_size_bits(
  */
 static const unsigned int pa_range_bits_arr[] = {
 	PARANGE_0000, PARANGE_0001, PARANGE_0010, PARANGE_0011, PARANGE_0100,
-	PARANGE_0101, PARANGE_0110
+	PARANGE_0101, PARANGE_0110, PARANGE_0111
 };
 
 static unsigned long long get_max_supported_pa(void)

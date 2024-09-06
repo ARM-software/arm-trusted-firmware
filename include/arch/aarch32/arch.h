@@ -697,8 +697,7 @@
 /* PAR fields */
 #define PAR_F_SHIFT	U(0)
 #define PAR_F_MASK	ULL(0x1)
-#define PAR_ADDR_SHIFT	U(12)
-#define PAR_ADDR_MASK	(BIT_64(40) - ULL(1)) /* 40-bits-wide page address */
+#define PAR_ADDR_MASK	GENMASK_64(39, 12) /* 28-bits-wide page address */
 
 /*******************************************************************************
  * Definitions for system register interface to AMU for FEAT_AMUv1

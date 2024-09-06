@@ -33,6 +33,7 @@
 #include <lib/extensions/sme.h>
 #include <lib/extensions/spe.h>
 #include <lib/extensions/sve.h>
+#include <lib/extensions/sysreg128.h>
 #include <lib/extensions/sys_reg_trace.h>
 #include <lib/extensions/tcr2.h>
 #include <lib/extensions/trbe.h>
@@ -273,6 +274,14 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		 * SCTLR2_ELx registers.
 		 */
 		scr_el3 |= SCR_SCTLR2En_BIT;
+	}
+
+	if (is_feat_d128_supported()) {
+		/* Set the D128En bit in SCR_EL3 to enable access to 128-bit
+		 * versions of TTBR0_EL1, TTBR1_EL1, RCWMASK_EL1, RCWSMASK_EL1,
+		 * PAR_EL1 and TTBR1_EL2, TTBR0_EL2 and VTTBR_EL2 registers.
+		 */
+		scr_el3 |= SCR_D128En_BIT;
 	}
 
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
@@ -1322,12 +1331,13 @@ static void el2_sysregs_context_save_common(el2_sysregs_t *ctx)
 	write_el2_ctx_common(ctx, sp_el2, read_sp_el2());
 	write_el2_ctx_common(ctx, tcr_el2, read_tcr_el2());
 	write_el2_ctx_common(ctx, tpidr_el2, read_tpidr_el2());
-	write_el2_ctx_common(ctx, ttbr0_el2, read_ttbr0_el2());
 	write_el2_ctx_common(ctx, vbar_el2, read_vbar_el2());
 	write_el2_ctx_common(ctx, vmpidr_el2, read_vmpidr_el2());
 	write_el2_ctx_common(ctx, vpidr_el2, read_vpidr_el2());
 	write_el2_ctx_common(ctx, vtcr_el2, read_vtcr_el2());
-	write_el2_ctx_common(ctx, vttbr_el2, read_vttbr_el2());
+
+	write_el2_ctx_sysreg128(ctx, ttbr0_el2, read_ttbr0_el2());
+	write_el2_ctx_sysreg128(ctx, vttbr_el2, read_vttbr_el2());
 }
 
 static void el2_sysregs_context_restore_common(el2_sysregs_t *ctx)
@@ -1403,7 +1413,7 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	if (is_feat_vhe_supported()) {
 		write_el2_ctx_vhe(el2_sysregs_ctx, contextidr_el2,
 					read_contextidr_el2());
-		write_el2_ctx_vhe(el2_sysregs_ctx, ttbr1_el2, read_ttbr1_el2());
+		write_el2_ctx_vhe_sysreg128(el2_sysregs_ctx, ttbr1_el2, read_ttbr1_el2());
 	}
 
 	if (is_feat_ras_supported()) {
