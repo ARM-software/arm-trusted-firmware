@@ -406,6 +406,10 @@
 #define ID_AA64MMFR3_EL1_S1PIE_SHIFT		U(8)
 #define ID_AA64MMFR3_EL1_S1PIE_MASK		ULL(0xf)
 
+#define ID_AA64MMFR3_EL1_SCTLR2_SHIFT		U(4)
+#define ID_AA64MMFR3_EL1_SCTLR2_MASK		ULL(0xf)
+#define SCTLR2_IMPLEMENTED			ULL(1)
+
 #define ID_AA64MMFR3_EL1_TCRX_SHIFT		U(0)
 #define ID_AA64MMFR3_EL1_TCRX_MASK		ULL(0xf)
 
@@ -593,6 +597,7 @@
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
 #define SCR_PIEN_BIT		(UL(1) << 45)
+#define SCR_SCTLR2En_BIT	(UL(1) << 44)
 #define SCR_TCR2EN_BIT		(UL(1) << 43)
 #define SCR_RCWMASKEn_BIT	(UL(1) << 42)
 #define SCR_TRNDR_BIT		(UL(1) << 40)
@@ -1482,6 +1487,12 @@
  ******************************************************************************/
 #define RCWMASK_EL1		S3_0_C13_C0_6
 #define RCWSMASK_EL1		S3_0_C13_C0_3
+
+/*******************************************************************************
+ * FEAT_SCTLR2 - Extension to SCTLR_ELx Registers
+ ******************************************************************************/
+#define SCTLR2_EL2		S3_4_C1_C0_3
+#define SCTLR2_EL1		S3_0_C1_C0_3
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers

@@ -90,7 +90,7 @@ endif
 
 # Enable the features which are mandatory from ARCH version 8.9 and upwards.
 ifeq "8.9" "$(word 1, $(sort 8.9 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
-armv8-9-a-feats         := ENABLE_FEAT_TCR2 ENABLE_FEAT_DEBUGV8P9
+armv8-9-a-feats         := ENABLE_FEAT_TCR2 ENABLE_FEAT_DEBUGV8P9 ENABLE_FEAT_SCTLR2
 # 8.8 Compliant
 armv8-9-a-feats         += ${armv8-8-a-feats}
 FEAT_LIST               := ${armv8-9-a-feats}
@@ -218,6 +218,9 @@ ENABLE_FEAT_HCX			?=	0
 
 # Flag to enable access to TCR2 (FEAT_TCR2).
 ENABLE_FEAT_TCR2		?=	0
+
+# Flag to enable access to SCTLR2 (FEAT_SCTLR2).
+ENABLE_FEAT_SCTLR2		?=	0
 
 #
 ################################################################################

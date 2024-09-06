@@ -463,6 +463,14 @@ Common build options
    This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_SCTLR2``: Numeric value to enable support for FEAT_SCTLR2
+   (Extension to SCTLR_ELx) at EL2 and below, setting the bit
+   SCR_EL3.SCTLR2En in EL3 to allow access to SCTLR2_ELx registers and
+   context switch them. This feature is OPTIONAL from Armv8.0 implementations
+   and mandatory in Armv8.9 implementations.
+   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
+   mechanism. Default value is ``0``.
+
 -  ``ENABLE_LTO``: Boolean option to enable Link Time Optimization (LTO)
    support in GCC for TF-A. This option is currently only supported for
    AArch64. Default is 0.

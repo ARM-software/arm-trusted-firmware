@@ -135,6 +135,10 @@ typedef struct el2_mpam_regs {
 	uint64_t mpamvpmv_el2;
 } el2_mpam_regs_t;
 
+typedef struct el2_sctlr2_regs {
+	uint64_t sctlr2_el2;
+} el2_sctlr2_regs_t;
+
 typedef struct el2_sysregs {
 
 	el2_common_regs_t common;
@@ -201,6 +205,10 @@ typedef struct el2_sysregs {
 
 #if CTX_INCLUDE_MPAM_REGS
 	el2_mpam_regs_t mpam;
+#endif
+
+#if ENABLE_FEAT_SCTLR2
+	el2_sctlr2_regs_t sctlr2;
 #endif
 
 } el2_sysregs_t;
@@ -357,6 +365,15 @@ typedef struct el2_sysregs {
 #define read_el2_ctx_mpam(ctx, reg)		ULL(0)
 #define write_el2_ctx_mpam(ctx, reg, val)
 #endif /* CTX_INCLUDE_MPAM_REGS */
+
+#if ENABLE_FEAT_SCTLR2
+#define read_el2_ctx_sctlr2(ctx, reg)		(((ctx)->sctlr2).reg)
+#define write_el2_ctx_sctlr2(ctx, reg, val)	((((ctx)->sctlr2).reg)	\
+							= (uint64_t) (val))
+#else
+#define read_el2_ctx_sctlr2(ctx, reg)		ULL(0)
+#define write_el2_ctx_sctlr2(ctx, reg, val)
+#endif /* ENABLE_FEAT_SCTLR2 */
 
 /******************************************************************************/
 

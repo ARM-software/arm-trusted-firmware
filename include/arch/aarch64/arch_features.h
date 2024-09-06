@@ -136,6 +136,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_THE		|
  * +----------------------------+
+ * |	FEAT_SCTLR2		|
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -267,6 +269,11 @@ CREATE_FEATURE_FUNCS(feat_s1pie, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_S1PIE_SHIFT,
 /* FEAT_THE: Translation Hardening Extension */
 CREATE_FEATURE_FUNCS(feat_the, id_aa64pfr1_el1, ID_AA64PFR1_EL1_THE_SHIFT,
 		     ID_AA64PFR1_EL1_THE_MASK, THE_IMPLEMENTED, ENABLE_FEAT_THE)
+
+/* FEAT_SCTLR2 */
+CREATE_FEATURE_FUNCS(feat_sctlr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_SCTLR2_SHIFT,
+		     ID_AA64MMFR3_EL1_SCTLR2_MASK, SCTLR2_IMPLEMENTED,
+		     ENABLE_FEAT_SCTLR2)
 
 __attribute__((always_inline))
 static inline bool is_feat_sxpie_supported(void)
