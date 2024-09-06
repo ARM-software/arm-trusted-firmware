@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,6 +45,17 @@ workaround_reset_start neoverse_v3, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end neoverse_v3, CVE(2022,23960)
 
 check_erratum_chosen neoverse_v3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+workaround_reset_start neoverse_v3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+       /* ---------------------------------
+        * Sets BIT41 of CPUACTLR6_EL1 which
+        * disables L1 Data cache prefetcher
+        * ---------------------------------
+        */
+       sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end neoverse_v3, CVE(2024, 7881)
+
+check_erratum_chosen neoverse_v3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
