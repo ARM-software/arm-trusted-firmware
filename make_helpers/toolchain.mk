@@ -289,7 +289,7 @@ ifndef toolchain-mk
         guess-gnu-gcc-ld = $(1)
         guess-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>$(nul))
         guess-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>$(nul))
-        guess-gnu-gcc-ar = $(call which,$(call decompat-path,$(patsubst %$(call file-name,$(1)),%$(subst gcc,gcc-ar,$(call file-name,$(1))),$(call compat-path,$(1)))))
+        guess-gnu-gcc-ar = $(shell $(1) --print-prog-name ar 2>$(nul))
 
         define toolchain-warn-unrecognized
                 $$(warning )
