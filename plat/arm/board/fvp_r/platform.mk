@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -25,7 +25,7 @@ FVP_R_INTERCONNECT_SOURCES	:= 	drivers/arm/cci/cci.c
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
 
-PLAT_INCLUDES		:=	-Iplat/arm/board/fvp_r/include
+PLAT_INCLUDES		+=	-Iplat/arm/board/fvp_r/include
 
 FVP_R_BL_COMMON_SOURCES	:=	plat/arm/board/fvp_r/fvp_r_common.c		\
 				plat/arm/board/fvp_r/fvp_r_context_mgmt.c	\
