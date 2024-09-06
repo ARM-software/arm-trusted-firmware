@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -32,6 +32,8 @@ CPU_FLAG_LIST += WORKAROUND_CVE_2018_3639
 CPU_FLAG_LIST += DYNAMIC_WORKAROUND_CVE_2018_3639
 WORKAROUND_CVE_2022_23960		?=1
 CPU_FLAG_LIST += WORKAROUND_CVE_2022_23960
+WORKAROUND_CVE_2024_7881		?=1
+CPU_FLAG_LIST += WORKAROUND_CVE_2024_7881
 
 # Flag to disable Hardware page aggregation(HPA).
 # This flag is enabled by default.
