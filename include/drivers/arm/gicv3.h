@@ -341,7 +341,7 @@
 
 /* GITS_CTLR bit definitions */
 #define GITS_CTLR_ENABLED_BIT		BIT_32(0)
-#define GITS_CTLR_QUIESCENT_BIT		BIT_32(1)
+#define GITS_CTLR_QUIESCENT_BIT		BIT_32(31)
 
 #define GITS_TYPER_VSGI			BIT_64(39)
 
