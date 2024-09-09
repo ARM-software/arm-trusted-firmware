@@ -153,11 +153,13 @@ static void reset_backup_domain(void)
 	}
 }
 
-#if TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH
-static bool authentication_check(boot_api_context_t *boot_context)
+static void authentication_check(boot_api_context_t *boot_context)
 {
+#if TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH && !STM32MP21
+	bool auth = false;
+
 	if (boot_context->auth_status == BOOT_API_CTX_AUTH_FAILED) {
-		return false;
+		goto end;
 	}
 
 	if (stm32mp_check_closed_device() != STM32MP_CHIP_SEC_CLOSED) {
@@ -166,15 +168,23 @@ static bool authentication_check(boot_api_context_t *boot_context)
 		unsigned int flags = 0U;
 		int rc;
 
-		rc = plat_get_rotpk_info(NULL, &pk_ptr, &len, &flags);
-		if ((rc == -EINVAL) || ((flags & ROTPK_NOT_DEPLOYED) > 0)) {
-			return false;
+		if (stm32_hash_register() != 0) {
+			ERROR("%s: HASH register fail\n", __func__);
+			return;
 		}
-	}
 
-	return true;
+		rc = plat_get_rotpk_info(NULL, &pk_ptr, &len, &flags);
+		if ((rc != -EINVAL) && ((flags & ROTPK_NOT_DEPLOYED) == 0)) {
+			auth = true;
+		}
+	} else {
+		auth = true;
+	}
+end:
+	NOTICE("Bootrom authentication %s\n", auth ? "succeeded" : "failed");
+
+#endif /* TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH && !STM32MP21 */
 }
-#endif /* TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH */
 
 void bl2_plat_arch_setup(void)
 {
@@ -249,17 +259,9 @@ void bl2_plat_arch_setup(void)
 
 	print_reset_reason();
 
-#if TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH
-	if (stm32_hash_register() != 0) {
-		ERROR("HASH register fail\n");
-		panic();
-	}
-
 	if (boot_context->auth_status != BOOT_API_CTX_AUTH_NO) {
-		NOTICE("Bootrom authentication %s\n",
-		       authentication_check(boot_context) ? "succeeded" : "failed");
+		authentication_check(boot_context);
 	}
-#endif /* TRUSTED_BOARD_BOOT && DYN_DISABLE_AUTH */
 
 skip_console_init:
 #if !TRUSTED_BOARD_BOOT
