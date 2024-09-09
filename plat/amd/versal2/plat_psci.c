@@ -178,6 +178,8 @@ static int32_t no_pm_ioctl(uint32_t device_id, uint32_t ioctl_id,
 			mmio_write_32(PMXC_IOU_SLCR_SRAM_CSR, arg2);
 		}
 		break;
+	case IOCTL_USB_SET_STATE:
+		break;
 	default:
 		ret = PM_RET_ERROR_NOFEATURE;
 		break;
