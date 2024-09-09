@@ -26,6 +26,7 @@ struct s32cc_clk_drv {
 	uintptr_t armdfs_base;
 	uintptr_t cgm0_base;
 	uintptr_t cgm1_base;
+	uintptr_t ddrpll_base;
 };
 
 static int update_stack_depth(unsigned int *depth)
@@ -47,6 +48,7 @@ static struct s32cc_clk_drv *get_drv(void)
 		.armdfs_base = ARM_DFS_BASE_ADDR,
 		.cgm0_base = CGM0_BASE_ADDR,
 		.cgm1_base = CGM1_BASE_ADDR,
+		.ddrpll_base = DDRPLL_BASE_ADDR,
 	};
 
 	return &driver;
@@ -85,6 +87,9 @@ static int get_base_addr(enum s32cc_clk_source id, const struct s32cc_clk_drv *d
 		break;
 	case S32CC_PERIPH_PLL:
 		*base = drv->periphpll_base;
+		break;
+	case S32CC_DDR_PLL:
+		*base = drv->ddrpll_base;
 		break;
 	case S32CC_ARM_DFS:
 		*base = drv->armdfs_base;
@@ -585,6 +590,7 @@ static int enable_mux(struct s32cc_clk_obj *module,
 	/* PLL mux will be enabled by PLL setup */
 	case S32CC_ARM_PLL:
 	case S32CC_PERIPH_PLL:
+	case S32CC_DDR_PLL:
 		break;
 	case S32CC_CGM1:
 		ret = enable_cgm_mux(mux, drv);
