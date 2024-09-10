@@ -52,6 +52,11 @@
 #define DPU_IRQ				579
 #endif
 
+/* CPU Capacity Weights */
+#define LIT_CAPACITY			236
+#define MID_CAPACITY			647
+#define BIG_CAPACITY			1024
+
 #include "tc-common.dtsi"
 #if TARGET_FLAVOUR_FVP
 #include "tc-fvp.dtsi"

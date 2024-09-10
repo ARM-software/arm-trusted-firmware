@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define LIT_CAPACITY			239
-#define MID_CAPACITY			686
-#define BIG_CAPACITY			1024
-
 #define MHU_TX_COMPAT			"arm,mhuv3"
 #define MHU_TX_INT_NAME			""
 
