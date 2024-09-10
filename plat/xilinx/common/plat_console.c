@@ -246,63 +246,11 @@ error:
 }
 #endif
 
-#if defined(CONSOLE_RUNTIME)
-/**
- * get_rt_console() - Retrieves console data for runtime console.
- *
- * Return: returns  0 if consoles differ else returns 1 if
- * dt node is disabled or consoles match.
- */
-static uint32_t get_rt_console(void)
-{
-	uint32_t rc = 0;
-
-#if (RT_CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-				   !IS_TFA_IN_OCM(BL31_BASE)))
-	/* DT based runtime console */
-	if ((dt_uart_info.base != 0) && (dt_uart_info.status != 0)) {
-		rt_hd_console.base = dt_uart_info.base;
-		rt_hd_console.baud_rate = dt_uart_info.baud_rate;
-		rt_hd_console.console_state = dt_uart_info.status;
-		if (rt_hd_console.base == boot_console.base) {
-			rc = 1;
-		}
-	} else {
-		rc = 1;
-	}
-#else
-	rt_hd_console.base = (uintptr_t)RT_UART_BASE;
-	rt_hd_console.baud_rate = (uint32_t)UART_BAUDRATE;
-	if (rt_hd_console.base != boot_console.base) {
-		rt_hd_console.console_state = 1;
-	} else {
-		rt_hd_console.console_state = 0;
-		rc = 1;
-	}
-#endif
-	rt_hd_console.clk = get_uart_clk();
-	rt_hd_console.console_type = RT_UART_TYPE;
-	rt_hd_console.console_scope = CONSOLE_FLAG_RUNTIME;
-	return rc;
-}
-
-void console_runtime_init(void)
-{
-	/* skip console registration if runtime and boot console are same */
-	if (rt_hd_console.console_state) {
-		register_console(&rt_hd_console, &runtime_console);
-		INFO("Successfully initialized runtime console\n");
-	}
-}
-#endif
-
 void setup_console(void)
 {
 	/* This is hardcoded console setup just in case that DTB console fails */
 	boot_hd_console.base = (uintptr_t)UART_BASE;
 	boot_hd_console.baud_rate = (uint32_t)UART_BAUDRATE;
-	boot_hd_console.console_state = 1;
 	boot_hd_console.clk = get_uart_clk();
 	boot_hd_console.console_scope = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH;
 	boot_hd_console.console_type = UART_TYPE;
@@ -328,15 +276,35 @@ void setup_console(void)
 	/* Initialize the boot console */
 	register_console(&boot_hd_console, &boot_console);
 
-#ifdef CONSOLE_RUNTIME
-	int32_t rc;
-	uint32_t console_scope;
+	INFO("BL31: Early console setup\n");
 
-	rc = get_rt_console();
-	if (rc) {
-		console_scope = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH | CONSOLE_FLAG_RUNTIME;
-		console_set_scope(&boot_console, console_scope);
+#ifdef CONSOLE_RUNTIME
+#if (RT_CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
+	       (!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
+					!IS_TFA_IN_OCM(BL31_BASE)))
+	/* DT based runtime console */
+	if (dt_uart_info.console_type != CONSOLE_NONE) {
+		rt_hd_console.base = dt_uart_info.base;
+		rt_hd_console.baud_rate = dt_uart_info.baud_rate;
+		rt_hd_console.console_type = dt_uart_info.console_type;
+	}
+#else
+	rt_hd_console.base = (uintptr_t)RT_UART_BASE;
+	rt_hd_console.baud_rate = (uint32_t)UART_BAUDRATE;
+	rt_hd_console.console_type = RT_UART_TYPE;
+#endif
+
+	if ((rt_hd_console.console_type == boot_hd_console.console_type) &&
+			(rt_hd_console.base == boot_hd_console.base)) {
+		console_set_scope(&boot_console,
+				CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH | CONSOLE_FLAG_RUNTIME);
+		INFO("Successfully initialized runtime console\n");
+	} else {
+		rt_hd_console.clk = get_uart_clk();
+		rt_hd_console.console_scope = CONSOLE_FLAG_RUNTIME;
+
+		register_console(&rt_hd_console, &runtime_console);
+		INFO("Successfully initialized new runtime console\n");
 	}
 #endif
-	INFO("BL31: Early console setup\n");
 }

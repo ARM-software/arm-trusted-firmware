@@ -14,12 +14,12 @@
 /* Default console type is either CADENCE0 or CADENCE1 or PL011_0 or PL011_1
  * Debug console type is DCC
  */
-#define CONSOLE_CDNS	0
-#define CONSOLE_PL011   1
-#define CONSOLE_DCC	2
+#define CONSOLE_NONE	0
+#define CONSOLE_CDNS	1
+#define CONSOLE_PL011   2
+#define CONSOLE_DCC	3
 
 typedef struct console_hd {
-	uint8_t console_state;
 	uint32_t clk;
 	uint32_t baud_rate;
 	uintptr_t base;
@@ -31,14 +31,9 @@ typedef struct dt_uart_info_s {
 	char compatible[30];
 	uintptr_t base;
 	uint32_t baud_rate;
-	int32_t status;
 	uint8_t console_type;
 } dt_uart_info_t;
 
 void setup_console(void);
-
-#if defined(CONSOLE_RUNTIME)
-void console_runtime_init(void);
-#endif
 
 #endif /* PLAT_DT_UART_H */
