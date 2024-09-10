@@ -111,7 +111,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/dcc/dcc_console.c			\
 				${XLAT_TABLES_LIB_SRCS}
 
 ZYNQMP_CONSOLE	?=	cadence
-ifeq (${ZYNQMP_CONSOLE}, $(filter ${ZYNQMP_CONSOLE},cadence cadence0 cadence1 dcc dtb))
+ifeq (${ZYNQMP_CONSOLE}, $(filter ${ZYNQMP_CONSOLE},cadence cadence0 cadence1 dcc dtb none))
 else
   $(error "Please define ZYNQMP_CONSOLE")
 endif

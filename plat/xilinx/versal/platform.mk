@@ -85,7 +85,7 @@ PLAT_BL_COMMON_SOURCES	:= 	drivers/arm/dcc/dcc_console.c			\
 				${XLAT_TABLES_LIB_SRCS}
 
 VERSAL_CONSOLE	?=	pl011
-ifeq (${VERSAL_CONSOLE}, $(filter ${VERSAL_CONSOLE},pl011 pl011_0 pl011_1 dcc dtb))
+ifeq (${VERSAL_CONSOLE}, $(filter ${VERSAL_CONSOLE},pl011 pl011_0 pl011_1 dcc dtb none))
 else
   $(error "Please define VERSAL_CONSOLE")
 endif

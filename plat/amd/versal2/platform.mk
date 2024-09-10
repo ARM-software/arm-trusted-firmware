@@ -58,7 +58,7 @@ USE_COHERENT_MEM := 0
 HW_ASSISTED_COHERENCY := 1
 
 VERSAL2_CONSOLE  ?=      pl011
-ifeq (${VERSAL2_CONSOLE}, $(filter ${VERSAL2_CONSOLE},pl011 pl011_0 pl011_1 dcc dtb))
+ifeq (${VERSAL2_CONSOLE}, $(filter ${VERSAL2_CONSOLE},pl011 pl011_0 pl011_1 dcc dtb none))
 	else
 	  $(error "Please define VERSAL2_CONSOLE")
   endif

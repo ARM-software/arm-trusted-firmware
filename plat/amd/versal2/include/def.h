@@ -15,6 +15,7 @@
 #define MAX_INTR_EL3			2
 
 /* List all consoles */
+#define VERSAL2_CONSOLE_ID_none		0
 #define VERSAL2_CONSOLE_ID_pl011	1
 #define VERSAL2_CONSOLE_ID_pl011_0       1
 #define VERSAL2_CONSOLE_ID_pl011_1       2
@@ -162,6 +163,8 @@
 #elif CONSOLE_IS(dcc)
 # define UART_BASE	0x0
 # define UART_TYPE	CONSOLE_DCC
+#elif CONSOLE_IS(none)
+# define UART_TYPE	CONSOLE_NONE
 #else
 # error "invalid VERSAL2_CONSOLE"
 #endif

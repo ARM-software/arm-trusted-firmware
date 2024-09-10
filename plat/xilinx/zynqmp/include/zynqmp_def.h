@@ -10,6 +10,7 @@
 #include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
+#define ZYNQMP_CONSOLE_ID_none		0
 #define ZYNQMP_CONSOLE_ID_cadence	1
 #define ZYNQMP_CONSOLE_ID_cadence0	1
 #define ZYNQMP_CONSOLE_ID_cadence1	2
@@ -164,6 +165,8 @@
 #elif CONSOLE_IS(dcc)
 # define UART_BASE	0x0
 # define UART_TYPE	CONSOLE_DCC
+#elif CONSOLE_IS(none)
+# define UART_TYPE	CONSOLE_NONE
 #else
 # error "invalid ZYNQMP_CONSOLE"
 #endif

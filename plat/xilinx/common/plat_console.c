@@ -23,6 +23,7 @@
 #include <platform_def.h>
 #include <plat_private.h>
 
+#if !(CONSOLE_IS(none))
 static console_t boot_console;
 static console_holder boot_hd_console;
 #if defined(CONSOLE_RUNTIME)
@@ -282,12 +283,9 @@ void setup_console(void)
 #if (RT_CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
 	       (!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
 					!IS_TFA_IN_OCM(BL31_BASE)))
-	/* DT based runtime console */
-	if (dt_uart_info.console_type != CONSOLE_NONE) {
-		rt_hd_console.base = dt_uart_info.base;
-		rt_hd_console.baud_rate = dt_uart_info.baud_rate;
-		rt_hd_console.console_type = dt_uart_info.console_type;
-	}
+	rt_hd_console.base = dt_uart_info.base;
+	rt_hd_console.baud_rate = dt_uart_info.baud_rate;
+	rt_hd_console.console_type = dt_uart_info.console_type;
 #else
 	rt_hd_console.base = (uintptr_t)RT_UART_BASE;
 	rt_hd_console.baud_rate = (uint32_t)UART_BAUDRATE;
@@ -308,3 +306,8 @@ void setup_console(void)
 	}
 #endif
 }
+#else
+void setup_console(void)
+{
+}
+#endif
