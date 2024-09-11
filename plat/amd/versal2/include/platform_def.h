@@ -91,7 +91,7 @@
 #define PLAT_OCM_BASE			U(0xBBF00000)
 #define PLAT_OCM_LIMIT			U(0xBC000000)
 
-#if defined(TRANSFER_LIST)
+#if TRANSFER_LIST
 /*
  * FIXME: This address should come from firmware before TF-A
  * Having this to make sure the transfer list functionality works
