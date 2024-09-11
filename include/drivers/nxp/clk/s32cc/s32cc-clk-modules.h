@@ -22,6 +22,9 @@ enum s32cc_clkm_type {
 	s32cc_clkmux_t,
 	s32cc_shared_clkmux_t,
 	s32cc_fixed_div_t,
+	s32cc_part_t,
+	s32cc_part_block_t,
+	s32cc_part_block_link_t,
 };
 
 enum s32cc_clk_source {
@@ -208,6 +211,76 @@ struct s32cc_clk_array {
 #define S32CC_CHILD_CLK(PARENT, MIN_F, MAX_F) \
 	S32CC_FREQ_CLK(NULL, &(PARENT), MIN_F, MAX_F)
 
+struct s32cc_part {
+	struct s32cc_clk_obj desc;
+	uint32_t partition_id;
+};
+
+#define S32CC_PART(PART_NUM)          \
+{                                     \
+	.desc = {                     \
+		.type = s32cc_part_t, \
+	},                            \
+	.partition_id = (PART_NUM),   \
+}
+
+enum s32cc_part_block_type {
+	s32cc_part_block0,
+	s32cc_part_block1,
+	s32cc_part_block2,
+	s32cc_part_block3,
+	s32cc_part_block4,
+	s32cc_part_block5,
+	s32cc_part_block6,
+	s32cc_part_block7,
+	s32cc_part_block8,
+	s32cc_part_block9,
+	s32cc_part_block10,
+	s32cc_part_block11,
+	s32cc_part_block12,
+	s32cc_part_block13,
+	s32cc_part_block14,
+	s32cc_part_block15,
+};
+
+struct s32cc_part_block {
+	struct s32cc_clk_obj desc;
+	struct s32cc_part *part;
+	enum s32cc_part_block_type block;
+	bool status;
+};
+
+#define S32CC_PART_BLOCK_STATUS(PART_META, BLOCK_TYPE, STATUS) \
+{                                                              \
+	.desc = {                                              \
+		.type = s32cc_part_block_t,                    \
+	},                                                     \
+	.part = (PART_META),                                   \
+	.block = (BLOCK_TYPE),                                 \
+	.status = (STATUS),                                    \
+}
+
+#define S32CC_PART_BLOCK(PARENT, BLOCK_TYPE) \
+	S32CC_PART_BLOCK_STATUS(PARENT, BLOCK_TYPE, true)
+
+#define S32CC_PART_BLOCK_NO_STATUS(PARENT, BLOCK_TYPE) \
+	S32CC_PART_BLOCK_STATUS(PARENT, BLOCK_TYPE, false)
+
+struct s32cc_part_block_link {
+	struct s32cc_clk_obj desc;
+	struct s32cc_clk_obj *parent;
+	struct s32cc_part_block *block;
+};
+
+#define S32CC_PART_BLOCK_LINK(PARENT, BLOCK)     \
+{                                                \
+	.desc = {                                \
+		.type = s32cc_part_block_link_t, \
+	},                                       \
+	.parent = &(PARENT).desc,                \
+	.block = (BLOCK),                        \
+}
+
 static inline struct s32cc_osc *s32cc_obj2osc(const struct s32cc_clk_obj *mod)
 {
 	uintptr_t osc_addr;
@@ -292,6 +365,32 @@ static inline struct s32cc_dfs_div *s32cc_obj2dfsdiv(const struct s32cc_clk_obj 
 
 	dfs_div_addr = ((uintptr_t)mod) - offsetof(struct s32cc_dfs_div, desc);
 	return (struct s32cc_dfs_div *)dfs_div_addr;
+}
+
+static inline struct s32cc_part *s32cc_obj2part(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t part_addr;
+
+	part_addr = ((uintptr_t)mod) - offsetof(struct s32cc_part, desc);
+	return (struct s32cc_part *)part_addr;
+}
+
+static inline struct s32cc_part_block *
+s32cc_obj2partblock(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t part_blk_addr;
+
+	part_blk_addr = ((uintptr_t)mod) - offsetof(struct s32cc_part_block, desc);
+	return (struct s32cc_part_block *)part_blk_addr;
+}
+
+static inline struct s32cc_part_block_link *
+s32cc_obj2partblocklink(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t blk_link;
+
+	blk_link = ((uintptr_t)mod) - offsetof(struct s32cc_part_block_link, desc);
+	return (struct s32cc_part_block_link *)blk_link;
 }
 
 #endif /* S32CC_CLK_MODULES_H */
