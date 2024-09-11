@@ -553,6 +553,7 @@ static int enable_mux(const struct s32cc_clk_obj *module,
 	switch (mux->module) {
 	/* PLL mux will be enabled by PLL setup */
 	case S32CC_ARM_PLL:
+	case S32CC_PERIPH_PLL:
 		break;
 	case S32CC_CGM1:
 		ret = enable_cgm_mux(mux, drv);
