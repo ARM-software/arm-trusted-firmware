@@ -11,6 +11,7 @@
 #include <arch_features.h>
 #include <arch_helpers.h>
 #include <bl32/tsp/tsp.h>
+#include <bl32/tsp/tsp_el1_context.h>
 #include <common/bl_common.h>
 #include <common/build_message.h>
 #include <common/debug.h>
@@ -277,6 +278,17 @@ smc_args_t *tsp_smc_handler(uint64_t func,
 		results[1] = dit;
 		/* Toggle the dit bit */
 		write_dit(service_arg0 != 0U ? 0 : DIT_BIT);
+		break;
+	case TSP_MODIFY_EL1_CTX:
+		/*
+		 * Write dummy values to EL1 context registers, to simulate
+		 * their usage in the secure world.
+		 */
+		if (arg1 == TSP_CORRUPT_EL1_REGS) {
+			modify_el1_ctx_regs(TSP_CORRUPT_EL1_REGS);
+		} else {
+			modify_el1_ctx_regs(TSP_RESTORE_EL1_REGS);
+		}
 		break;
 	default:
 		break;
