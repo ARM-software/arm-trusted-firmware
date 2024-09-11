@@ -28,6 +28,10 @@ GICV3_SUPPORT_GIC600 := 1
 
 override CTX_INCLUDE_AARCH32_REGS    := 0
 
+# Platform to support Dynamic XLAT Table by default
+override PLAT_XLAT_TABLES_DYNAMIC := 1
+$(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+
 ifdef MEM_BASE
     $(eval $(call add_define,MEM_BASE))
 
