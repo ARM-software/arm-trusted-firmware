@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include <errno.h>
 #include <s32cc-clk-ids.h>
 #include <s32cc-clk-utils.h>
 
@@ -41,4 +42,24 @@ struct s32cc_clk *s32cc_get_clk_from_table(const struct s32cc_clk_array *const *
 	}
 
 	return NULL;
+}
+
+int s32cc_get_id_from_table(const struct s32cc_clk_array *const *clk_arr,
+			    size_t size, const struct s32cc_clk *clk,
+			    unsigned long *clk_index)
+{
+	size_t i, j;
+
+	for (i = 0; i < size; i++) {
+		for (j = 0; j < clk_arr[i]->n_clks; j++) {
+			if (clk_arr[i]->clks[j] != clk) {
+				continue;
+			}
+
+			*clk_index = S32CC_CLK(clk_arr[i]->type_mask, j);
+			return 0;
+		}
+	}
+
+	return -EINVAL;
 }

@@ -54,6 +54,21 @@ static struct s32cc_clk_drv *get_drv(void)
 
 static int enable_module(const struct s32cc_clk_obj *module, unsigned int *depth);
 
+static struct s32cc_clk_obj *get_clk_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_clk *clk = s32cc_obj2clk(module);
+
+	if (clk->module != NULL) {
+		return clk->module;
+	}
+
+	if (clk->pclock != NULL) {
+		return &clk->pclock->desc;
+	}
+
+	return NULL;
+}
+
 static int enable_clk_module(const struct s32cc_clk_obj *module,
 			     const struct s32cc_clk_drv *drv,
 			     unsigned int *depth)
@@ -173,6 +188,17 @@ static int enable_osc(const struct s32cc_clk_obj *module,
 	};
 
 	return ret;
+}
+
+static struct s32cc_clk_obj *get_pll_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_pll *pll = s32cc_obj2pll(module);
+
+	if (pll->source == NULL) {
+		ERROR("Failed to identify PLL's parent\n");
+	}
+
+	return pll->source;
 }
 
 static int get_pll_mfi_mfn(unsigned long pll_vco, unsigned long ref_freq,
@@ -403,6 +429,17 @@ static void config_pll_out_div(uintptr_t pll_addr, uint32_t div_index, uint32_t 
 	enable_odiv(pll_addr, div_index);
 }
 
+static struct s32cc_clk_obj *get_pll_div_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_pll_out_div *pdiv = s32cc_obj2plldiv(module);
+
+	if (pdiv->parent == NULL) {
+		ERROR("Failed to identify PLL DIV's parent\n");
+	}
+
+	return pdiv->parent;
+}
+
 static int enable_pll_div(const struct s32cc_clk_obj *module,
 			  const struct s32cc_clk_drv *drv,
 			  unsigned int *depth)
@@ -526,6 +563,25 @@ static int enable_cgm_mux(const struct s32cc_clkmux *mux,
 				  mux_hw_clk, false);
 }
 
+static struct s32cc_clk_obj *get_mux_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_clkmux *mux = s32cc_obj2clkmux(module);
+	struct s32cc_clk *clk;
+
+	if (mux == NULL) {
+		return NULL;
+	}
+
+	clk = s32cc_get_arch_clk(mux->source_id);
+	if (clk == NULL) {
+		ERROR("Invalid parent (%lu) for mux %" PRIu8 "\n",
+		      mux->source_id, mux->index);
+		return NULL;
+	}
+
+	return &clk->desc;
+}
+
 static int enable_mux(const struct s32cc_clk_obj *module,
 		      const struct s32cc_clk_drv *drv,
 		      unsigned int *depth)
@@ -568,6 +624,17 @@ static int enable_mux(const struct s32cc_clk_obj *module,
 	};
 
 	return ret;
+}
+
+static struct s32cc_clk_obj *get_dfs_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_dfs *dfs = s32cc_obj2dfs(module);
+
+	if (dfs->parent == NULL) {
+		ERROR("Failed to identify DFS's parent\n");
+	}
+
+	return dfs->parent;
 }
 
 static int enable_dfs(const struct s32cc_clk_obj *module,
@@ -721,6 +788,18 @@ static int init_dfs_port(uintptr_t dfs_addr, uint32_t port,
 	}
 
 	return 0;
+}
+
+static struct s32cc_clk_obj *
+get_dfs_div_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_dfs_div *dfs_div = s32cc_obj2dfsdiv(module);
+
+	if (dfs_div->parent == NULL) {
+		ERROR("Failed to identify DFS divider's parent\n");
+	}
+
+	return dfs_div->parent;
 }
 
 static int enable_dfs_div(const struct s32cc_clk_obj *module,
@@ -1116,9 +1195,79 @@ static int s32cc_clk_set_rate(unsigned long id, unsigned long rate,
 	return ret;
 }
 
+static struct s32cc_clk_obj *get_no_parent(const struct s32cc_clk_obj *module)
+{
+	return NULL;
+}
+
+typedef struct s32cc_clk_obj *(*get_parent_clb_t)(const struct s32cc_clk_obj *clk_obj);
+
+static struct s32cc_clk_obj *get_module_parent(const struct s32cc_clk_obj *module)
+{
+	static const get_parent_clb_t parents_clbs[8] = {
+		[s32cc_clk_t] = get_clk_parent,
+		[s32cc_osc_t] = get_no_parent,
+		[s32cc_pll_t] = get_pll_parent,
+		[s32cc_pll_out_div_t] = get_pll_div_parent,
+		[s32cc_clkmux_t] = get_mux_parent,
+		[s32cc_shared_clkmux_t] = get_mux_parent,
+		[s32cc_dfs_t] = get_dfs_parent,
+		[s32cc_dfs_div_t] = get_dfs_div_parent,
+	};
+	uint32_t index;
+
+	if (module == NULL) {
+		return NULL;
+	}
+
+	index = (uint32_t)module->type;
+
+	if (index >= ARRAY_SIZE(parents_clbs)) {
+		ERROR("Undefined module type: %d\n", module->type);
+		return NULL;
+	}
+
+	if (parents_clbs[index] == NULL) {
+		ERROR("Undefined parent getter for type: %d\n", module->type);
+		return NULL;
+	}
+
+	return parents_clbs[index](module);
+}
+
 static int s32cc_clk_get_parent(unsigned long id)
 {
-	return -ENOTSUP;
+	struct s32cc_clk *parent_clk;
+	const struct s32cc_clk_obj *parent;
+	const struct s32cc_clk *clk;
+	unsigned long parent_id;
+	int ret;
+
+	clk = s32cc_get_arch_clk(id);
+	if (clk == NULL) {
+		return -EINVAL;
+	}
+
+	parent = get_module_parent(clk->module);
+	if (parent == NULL) {
+		return -EINVAL;
+	}
+
+	parent_clk = s32cc_obj2clk(parent);
+	if (parent_clk == NULL) {
+		return -EINVAL;
+	}
+
+	ret = s32cc_get_clk_id(parent_clk, &parent_id);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (parent_id > (unsigned long)INT_MAX) {
+		return -E2BIG;
+	}
+
+	return (int)parent_id;
 }
 
 static int s32cc_clk_set_parent(unsigned long id, unsigned long parent_id)
