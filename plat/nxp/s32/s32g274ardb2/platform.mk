@@ -15,6 +15,10 @@ CONSOLE           := LINFLEX
 
 include ${PLAT_COMMON_PATH}/plat_make_helper/plat_build_macros.mk
 
+# Flag to apply S32 erratum ERR051700. This erratum applies to all S32
+# revisions.
+S32_ERRATA_LIST += ERRATA_S32_051700
+
 PLAT_INCLUDES = \
 	-I${PLAT_S32G274ARDB2}/include
 
@@ -38,7 +42,6 @@ $(eval $(call SET_NXP_MAKE_FLAG,CONSOLE_NEEDED,BL_COMM))
 $(eval $(call SET_NXP_MAKE_FLAG,CLK_NEEDED,BL_COMM))
 
 include ${PLAT_DRIVERS_PATH}/drivers.mk
-
 
 BL_COMMON_SOURCES += \
 	${PLAT_S32G274ARDB2}/plat_console.c \
@@ -64,3 +67,8 @@ BL31_SOURCES += \
 	lib/cpus/aarch64/cortex_a53.S \
 	plat/common/plat_gicv3.c \
 	plat/common/plat_psci_common.c \
+
+# process all errata flags
+$(eval $(call default_zeros, $(S32_ERRATA_LIST)))
+$(eval $(call add_defines, $(S32_ERRATA_LIST)))
+$(eval $(call assert_booleans, $(S32_ERRATA_LIST)))
