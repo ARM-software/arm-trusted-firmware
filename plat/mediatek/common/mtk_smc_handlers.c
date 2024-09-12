@@ -99,13 +99,13 @@ static void print_smc_descriptor(const struct smc_descriptor pool[])
 {
 	const struct smc_descriptor *p_smc_desc;
 
-	INFO("print smc descriptor pool\n");
+	VERBOSE("print smc descriptor pool\n");
 	for (p_smc_desc = &pool[0];
 	     (char *)p_smc_desc < (char *)MTK_SMC_POOL_END_UNALIGNED;
 	     p_smc_desc++) {
-		INFO("descriptor name:%s\n", p_smc_desc->smc_name);
-		INFO("descriptor index:%d\n", *p_smc_desc->smc_descriptor_index);
-		INFO("smc id 32:0x%x, smc id 64:0x%x\n",
+		VERBOSE("descriptor name:%s\n", p_smc_desc->smc_name);
+		VERBOSE("descriptor index:%d\n", *p_smc_desc->smc_descriptor_index);
+		VERBOSE("smc id 32:0x%x, smc id 64:0x%x\n",
 		     p_smc_desc->smc_id_aarch32, p_smc_desc->smc_id_aarch64);
 	}
 }
