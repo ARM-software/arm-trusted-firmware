@@ -1668,11 +1668,10 @@ checkpatch:		locate-checkpatch
 	for commit in `git rev-list --no-merges $$COMMON_COMMIT..HEAD`;	\
 	do								\
 		printf "\n[*] Checking style of '$$commit'\n\n";	\
-		git log --format=email "$$commit~..$$commit"		\
-			-- ${CHECK_PATHS} |				\
-			${CHECKPATCH} ${CHECKPATCH_OPTS} - || true;	\
-		git diff --format=email "$$commit~..$$commit"		\
-			-- ${CHECK_PATHS} |				\
+		( git log --format=email "$$commit~..$$commit"		\
+			-- ${CHECK_PATHS} ;				\
+		  git diff --format=email "$$commit~..$$commit"		\
+			-- ${CHECK_PATHS}; ) |				\
 			${CHECKPATCH}  ${CHECKPATCH_OPTS} - || true;	\
 	done
 
