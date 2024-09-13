@@ -482,101 +482,101 @@ Binary format:
     INFO:    Get platform token start
     INFO:    Get platform token succeeds, len: 1086
     INFO:    Platform attestation token:
-    INFO:            d2 84 44 a1 01 38 22 a0 59 05 7a a9 19 01 09 78
-    INFO:            1c 68 74 74 70 3a 2f 2f 61 72 6d 2e 63 6f 6d 2f
-    INFO:            43 43 41 2d 53 53 44 2f 31 2e 30 2e 30 0a 58 20
-    INFO:            b5 97 3c b6 8b aa 9f c5 55 58 78 6b 7e c6 7f 69
-    INFO:            e4 0d f5 ba 5a a9 21 cd 0c 27 f4 05 87 a0 11 ea
-    INFO:            19 09 5c 58 20 7f 45 4c 46 02 01 01 00 00 00 00
-    INFO:            00 00 00 00 00 03 00 3e 00 01 00 00 00 50 58 00
-    INFO:            00 00 00 00 00 19 01 00 58 21 01 07 06 05 04 03
-    INFO:            02 01 00 0f 0e 0d 0c 0b 0a 09 08 17 16 15 14 13
-    INFO:            12 11 10 1f 1e 1d 1c 1b 1a 19 18 19 09 61 44 cf
-    INFO:            cf cf cf 19 09 5b 19 30 03 19 09 62 67 73 68 61
-    INFO:            2d 32 35 36 19 09 60 78 3a 68 74 74 70 73 3a 2f
-    INFO:            2f 76 65 72 61 69 73 6f 6e 2e 65 78 61 6d 70 6c
-    INFO:            65 2f 2e 77 65 6c 6c 2d 6b 6e 6f 77 6e 2f 76 65
-    INFO:            72 61 69 73 6f 6e 2f 76 65 72 69 66 69 63 61 74
-    INFO:            69 6f 6e 19 09 5f 8d a4 01 69 52 53 45 5f 42 4c
-    INFO:            31 5f 32 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
-    INFO:            8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38
-    INFO:            c0 fa 97 3f 7a a3 02 58 20 9a 27 1f 2a 91 6b 0b
-    INFO:            6e e6 ce cb 24 26 f0 b3 20 6e f0 74 57 8b e5 5d
-    INFO:            9b c9 4f 6f 3f e3 ab 86 aa 06 67 73 68 61 2d 32
-    INFO:            35 36 a4 01 67 52 53 45 5f 42 4c 32 05 58 20 53
-    INFO:            78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41
-    INFO:            41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02
-    INFO:            58 20 53 c2 34 e5 e8 47 2b 6a c5 1c 1a e1 ca b3
-    INFO:            fe 06 fa d0 53 be b8 eb fd 89 77 b0 10 65 5b fd
-    INFO:            d3 c3 06 67 73 68 61 2d 32 35 36 a4 01 65 52 53
-    INFO:            45 5f 53 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
-    INFO:            8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38
-    INFO:            c0 fa 97 3f 7a a3 02 58 20 11 21 cf cc d5 91 3f
-    INFO:            0a 63 fe c4 0a 6f fd 44 ea 64 f9 dc 13 5c 66 63
-    INFO:            4b a0 01 d1 0b cf 43 02 a2 06 67 73 68 61 2d 32
-    INFO:            35 36 a4 01 66 41 50 5f 42 4c 31 05 58 20 53 78
-    INFO:            79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41
-    INFO:            9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02 58
-    INFO:            20 15 71 b5 ec 78 bd 68 51 2b f7 83 0b b6 a2 a4
-    INFO:            4b 20 47 c7 df 57 bc e7 9e b8 a1 c0 e5 be a0 a5
-    INFO:            01 06 67 73 68 61 2d 32 35 36 a4 01 66 41 50 5f
+    INFO:            d2 84 44 a1 01 38 22 a0 59 05 81 a9 19 01 09 78
+    INFO:            23 74 61 67 3a 61 72 6d 2e 63 6f 6d 2c 32 30 32
+    INFO:            33 3a 63 63 61 5f 70 6c 61 74 66 6f 72 6d 23 31
+    INFO:            2e 30 2e 30 0a 58 20 0d 22 e0 8a 98 46 90 58 48
+    INFO:            63 18 28 34 89 bd b3 6f 09 db ef eb 18 64 df 43
+    INFO:            3f a6 e5 4e a2 d7 11 19 09 5c 58 20 7f 45 4c 46
+    INFO:            02 01 01 00 00 00 00 00 00 00 00 00 03 00 3e 00
+    INFO:            01 00 00 00 50 58 00 00 00 00 00 00 19 01 00 58
+    INFO:            21 01 07 06 05 04 03 02 01 00 0f 0e 0d 0c 0b 0a
+    INFO:            09 08 17 16 15 14 13 12 11 10 1f 1e 1d 1c 1b 1a
+    INFO:            19 18 19 09 61 44 cf cf cf cf 19 09 5b 19 30 03
+    INFO:            19 09 62 67 73 68 61 2d 32 35 36 19 09 60 78 3a
+    INFO:            68 74 74 70 73 3a 2f 2f 76 65 72 61 69 73 6f 6e
+    INFO:            2e 65 78 61 6d 70 6c 65 2f 2e 77 65 6c 6c 2d 6b
+    INFO:            6e 6f 77 6e 2f 76 65 72 61 69 73 6f 6e 2f 76 65
+    INFO:            72 69 66 69 63 61 74 69 6f 6e 19 09 5f 8d a4 01
+    INFO:            69 52 53 45 5f 42 4c 31 5f 32 05 58 20 53 78 79
+    INFO:            63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c
+    INFO:            3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02 58 20
+    INFO:            9a 27 1f 2a 91 6b 0b 6e e6 ce cb 24 26 f0 b3 20
+    INFO:            6e f0 74 57 8b e5 5d 9b c9 4f 6f 3f e3 ab 86 aa
+    INFO:            06 67 73 68 61 2d 32 35 36 a4 01 67 52 53 45 5f
     INFO:            42 4c 32 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
     INFO:            8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38
-    INFO:            c0 fa 97 3f 7a a3 02 58 20 10 15 9b af 26 2b 43
-    INFO:            a9 2d 95 db 59 da e1 f7 2c 64 51 27 30 16 61 e0
-    INFO:            a3 ce 4e 38 b2 95 a9 7c 58 06 67 73 68 61 2d 32
-    INFO:            35 36 a4 01 67 53 43 50 5f 42 4c 31 05 58 20 53
-    INFO:            78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41
-    INFO:            41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02
-    INFO:            58 20 10 12 2e 85 6b 3f cd 49 f0 63 63 63 17 47
-    INFO:            61 49 cb 73 0a 1a a1 cf aa d8 18 55 2b 72 f5 6d
-    INFO:            6f 68 06 67 73 68 61 2d 32 35 36 a4 01 67 53 43
-    INFO:            50 5f 42 4c 32 05 58 20 f1 4b 49 87 90 4b cb 58
-    INFO:            14 e4 45 9a 05 7e d4 d2 0f 58 a6 33 15 22 88 a7
-    INFO:            61 21 4d cd 28 78 0b 56 02 58 20 aa 67 a1 69 b0
-    INFO:            bb a2 17 aa 0a a8 8a 65 34 69 20 c8 4c 42 44 7c
-    INFO:            36 ba 5f 7e a6 5f 42 2c 1f e5 d8 06 67 73 68 61
-    INFO:            2d 32 35 36 a4 01 67 41 50 5f 42 4c 33 31 05 58
-    INFO:            20 53 78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc
-    INFO:            56 41 41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a
-    INFO:            a3 02 58 20 2e 6d 31 a5 98 3a 91 25 1b fa e5 ae
-    INFO:            fa 1c 0a 19 d8 ba 3c f6 01 d0 e8 a7 06 b4 cf a9
-    INFO:            66 1a 6b 8a 06 67 73 68 61 2d 32 35 36 a4 01 63
-    INFO:            52 4d 4d 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
+    INFO:            c0 fa 97 3f 7a a3 02 58 20 53 c2 34 e5 e8 47 2b
+    INFO:            6a c5 1c 1a e1 ca b3 fe 06 fa d0 53 be b8 eb fd
+    INFO:            89 77 b0 10 65 5b fd d3 c3 06 67 73 68 61 2d 32
+    INFO:            35 36 a4 01 65 52 53 45 5f 53 05 58 20 53 78 79
+    INFO:            63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c
+    INFO:            3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02 58 20
+    INFO:            11 21 cf cc d5 91 3f 0a 63 fe c4 0a 6f fd 44 ea
+    INFO:            64 f9 dc 13 5c 66 63 4b a0 01 d1 0b cf 43 02 a2
+    INFO:            06 67 73 68 61 2d 32 35 36 a4 01 66 41 50 5f 42
+    INFO:            4c 31 05 58 20 53 78 79 63 07 53 5d f3 ec 8d 8b
+    INFO:            15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38 c0
+    INFO:            fa 97 3f 7a a3 02 58 20 15 71 b5 ec 78 bd 68 51
+    INFO:            2b f7 83 0b b6 a2 a4 4b 20 47 c7 df 57 bc e7 9e
+    INFO:            b8 a1 c0 e5 be a0 a5 01 06 67 73 68 61 2d 32 35
+    INFO:            36 a4 01 66 41 50 5f 42 4c 32 05 58 20 53 78 79
+    INFO:            63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c
+    INFO:            3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02 58 20
+    INFO:            10 15 9b af 26 2b 43 a9 2d 95 db 59 da e1 f7 2c
+    INFO:            64 51 27 30 16 61 e0 a3 ce 4e 38 b2 95 a9 7c 58
+    INFO:            06 67 73 68 61 2d 32 35 36 a4 01 67 53 43 50 5f
+    INFO:            42 4c 31 05 58 20 53 78 79 63 07 53 5d f3 ec 8d
     INFO:            8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38
-    INFO:            c0 fa 97 3f 7a a3 02 58 20 a1 fb 50 e6 c8 6f ae
-    INFO:            16 79 ef 33 51 29 6f d6 71 34 11 a0 8c f8 dd 17
-    INFO:            90 a4 fd 05 fa e8 68 81 64 06 67 73 68 61 2d 32
-    INFO:            35 36 a4 01 69 48 57 5f 43 4f 4e 46 49 47 05 58
+    INFO:            c0 fa 97 3f 7a a3 02 58 20 10 12 2e 85 6b 3f cd
+    INFO:            49 f0 63 63 63 17 47 61 49 cb 73 0a 1a a1 cf aa
+    INFO:            d8 18 55 2b 72 f5 6d 6f 68 06 67 73 68 61 2d 32
+    INFO:            35 36 a4 01 67 53 43 50 5f 42 4c 32 05 58 20 f1
+    INFO:            4b 49 87 90 4b cb 58 14 e4 45 9a 05 7e d4 d2 0f
+    INFO:            58 a6 33 15 22 88 a7 61 21 4d cd 28 78 0b 56 02
+    INFO:            58 20 aa 67 a1 69 b0 bb a2 17 aa 0a a8 8a 65 34
+    INFO:            69 20 c8 4c 42 44 7c 36 ba 5f 7e a6 5f 42 2c 1f
+    INFO:            e5 d8 06 67 73 68 61 2d 32 35 36 a4 01 67 41 50
+    INFO:            5f 42 4c 33 31 05 58 20 53 78 79 63 07 53 5d f3
+    INFO:            ec 8d 8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3
+    INFO:            22 38 c0 fa 97 3f 7a a3 02 58 20 2e 6d 31 a5 98
+    INFO:            3a 91 25 1b fa e5 ae fa 1c 0a 19 d8 ba 3c f6 01
+    INFO:            d0 e8 a7 06 b4 cf a9 66 1a 6b 8a 06 67 73 68 61
+    INFO:            2d 32 35 36 a4 01 63 52 4d 4d 05 58 20 53 78 79
+    INFO:            63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c
+    INFO:            3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02 58 20
+    INFO:            a1 fb 50 e6 c8 6f ae 16 79 ef 33 51 29 6f d6 71
+    INFO:            34 11 a0 8c f8 dd 17 90 a4 fd 05 fa e8 68 81 64
+    INFO:            06 67 73 68 61 2d 32 35 36 a4 01 69 48 57 5f 43
+    INFO:            4f 4e 46 49 47 05 58 20 53 78 79 63 07 53 5d f3
+    INFO:            ec 8d 8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf e3
+    INFO:            22 38 c0 fa 97 3f 7a a3 02 58 20 1a 25 24 02 97
+    INFO:            2f 60 57 fa 53 cc 17 2b 52 b9 ff ca 69 8e 18 31
+    INFO:            1f ac d0 f3 b0 6e ca ae f7 9e 17 06 67 73 68 61
+    INFO:            2d 32 35 36 a4 01 69 46 57 5f 43 4f 4e 46 49 47
+    INFO:            05 58 20 53 78 79 63 07 53 5d f3 ec 8d 8b 15 a2
+    INFO:            e2 dc 56 41 41 9c 3d 30 60 cf e3 22 38 c0 fa 97
+    INFO:            3f 7a a3 02 58 20 9a 92 ad bc 0c ee 38 ef 65 8c
+    INFO:            71 ce 1b 1b f8 c6 56 68 f1 66 bf b2 13 64 4c 89
+    INFO:            5c cb 1a d0 7a 25 06 67 73 68 61 2d 32 35 36 a4
+    INFO:            01 6c 54 42 5f 46 57 5f 43 4f 4e 46 49 47 05 58
     INFO:            20 53 78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc
     INFO:            56 41 41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a
-    INFO:            a3 02 58 20 1a 25 24 02 97 2f 60 57 fa 53 cc 17
-    INFO:            2b 52 b9 ff ca 69 8e 18 31 1f ac d0 f3 b0 6e ca
-    INFO:            ae f7 9e 17 06 67 73 68 61 2d 32 35 36 a4 01 69
-    INFO:            46 57 5f 43 4f 4e 46 49 47 05 58 20 53 78 79 63
-    INFO:            07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c 3d
-    INFO:            30 60 cf e3 22 38 c0 fa 97 3f 7a a3 02 58 20 9a
-    INFO:            92 ad bc 0c ee 38 ef 65 8c 71 ce 1b 1b f8 c6 56
-    INFO:            68 f1 66 bf b2 13 64 4c 89 5c cb 1a d0 7a 25 06
-    INFO:            67 73 68 61 2d 32 35 36 a4 01 6c 54 42 5f 46 57
-    INFO:            5f 43 4f 4e 46 49 47 05 58 20 53 78 79 63 07 53
-    INFO:            5d f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c 3d 30 60
-    INFO:            cf e3 22 38 c0 fa 97 3f 7a a3 02 58 20 23 89 03
-    INFO:            18 0c c1 04 ec 2c 5d 8b 3f 20 c5 bc 61 b3 89 ec
-    INFO:            0a 96 7d f8 cc 20 8c dc 7c d4 54 17 4f 06 67 73
-    INFO:            68 61 2d 32 35 36 a4 01 6d 53 4f 43 5f 46 57 5f
-    INFO:            43 4f 4e 46 49 47 05 58 20 53 78 79 63 07 53 5d
-    INFO:            f3 ec 8d 8b 15 a2 e2 dc 56 41 41 9c 3d 30 60 cf
-    INFO:            e3 22 38 c0 fa 97 3f 7a a3 02 58 20 e6 c2 1e 8d
-    INFO:            26 0f e7 18 82 de bd b3 39 d2 40 2a 2c a7 64 85
-    INFO:            29 bc 23 03 f4 86 49 bc e0 38 00 17 06 67 73 68
-    INFO:            61 2d 32 35 36 58 60 21 51 20 92 d6 d0 2a e6 be
-    INFO:            2f e3 93 0e a5 1f d6 98 96 32 24 56 e9 df c7 32
-    INFO:            5e 0b 78 68 b6 90 73 2a 0c 0f 07 77 c1 15 40 4b
-    INFO:            e1 fc 83 9b 7d 30 4f 4f e6 fa 46 ae 12 a3 08 3a
-    INFO:            cf 24 06 67 91 06 bf ae 50 31 79 dd 50 33 49 12
-    INFO:            bf c6 da 33 6d d6 18 25 43 54 4d b5 88 d6 ae 67
-    INFO:            35 7a fd b0 5f 95 b7
+    INFO:            a3 02 58 20 23 89 03 18 0c c1 04 ec 2c 5d 8b 3f
+    INFO:            20 c5 bc 61 b3 89 ec 0a 96 7d f8 cc 20 8c dc 7c
+    INFO:            d4 54 17 4f 06 67 73 68 61 2d 32 35 36 a4 01 6d
+    INFO:            53 4f 43 5f 46 57 5f 43 4f 4e 46 49 47 05 58 20
+    INFO:            53 78 79 63 07 53 5d f3 ec 8d 8b 15 a2 e2 dc 56
+    INFO:            41 41 9c 3d 30 60 cf e3 22 38 c0 fa 97 3f 7a a3
+    INFO:            02 58 20 e6 c2 1e 8d 26 0f e7 18 82 de bd b3 39
+    INFO:            d2 40 2a 2c a7 64 85 29 bc 23 03 f4 86 49 bc e0
+    INFO:            38 00 17 06 67 73 68 61 2d 32 35 36 58 60 31 d0
+    INFO:            4d 52 cc de 95 2c 1e 32 cb a1 81 88 5a 40 b8 cc
+    INFO:            38 e0 52 8c 1e 89 58 98 07 64 2a a5 e3 f2 bc 37
+    INFO:            f9 53 74 50 6b ff 4d 2e 4b e7 06 3c 4d 72 41 92
+    INFO:            70 c7 22 e8 d4 d9 3e e8 b6 c9 fa ce 3b 43 c9 76
+    INFO:            1a 49 94 1a b6 f3 8f fd ff 49 6a d4 63 b4 cb fa
+    INFO:            11 d8 3e 23 e3 1f 7f 62 32 9d e3 0c 1c c8
     INFO:    DELEGATED ATTEST TEST END
 
 JSON format:
@@ -584,8 +584,8 @@ JSON format:
 .. code-block:: JSON
 
     {
-        "CCA_ATTESTATION_PROFILE": "http://arm.com/CCA-SSD/1.0.0",
-        "CCA_PLATFORM_CHALLENGE": "b'B5973CB68BAA9FC55558786B7EC67F69E40DF5BA5AA921CD0C27F40587A011EA'",
+        "CCA_ATTESTATION_PROFILE": "tag:arm.com,2023:cca_platform#1.0.0",
+        "CCA_PLATFORM_CHALLENGE": "b'0D22E08A98469058486318283489BDB36F09DBEFEB1864DF433FA6E54EA2D711'",
         "CCA_PLATFORM_IMPLEMENTATION_ID": "b'7F454C4602010100000000000000000003003E00010000005058000000000000'",
         "CCA_PLATFORM_INSTANCE_ID": "b'0107060504030201000F0E0D0C0B0A090817161514131211101F1E1D1C1B1A1918'",
         "CCA_PLATFORM_CONFIG": "b'CFCFCFCF'",
@@ -738,5 +738,5 @@ References
 
 --------------
 
-*Copyright (c) 2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2023-2024, Arm Limited. All rights reserved.*
 *Copyright (c) 2024, Linaro Limited. All rights reserved.*
