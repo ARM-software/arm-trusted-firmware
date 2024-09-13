@@ -96,8 +96,6 @@ uint32_t get_uart_clk(void)
 		uart_clock = 212000;
 		break;
 	case VERSAL_QEMU:
-		uart_clock = 25000000;
-		break;
 	case VERSAL_SILICON:
 		uart_clock = 100000000;
 		break;
