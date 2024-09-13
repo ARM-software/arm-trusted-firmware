@@ -58,6 +58,10 @@ void board_detection(void)
 
 	platform_id = FIELD_GET(PLATFORM_MASK, plat_info[1]);
 	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, plat_info[1]);
+
+	if (platform_id == VERSAL_COSIM) {
+		platform_id = VERSAL_QEMU;
+	}
 }
 
 const char *board_name_decode(void)

@@ -30,6 +30,7 @@
 #define VERSAL_SPP                  U(1)
 #define VERSAL_EMU                  U(2)
 #define VERSAL_QEMU                 U(3)
+#define VERSAL_COSIM                U(7)
 
 /* Firmware Image Package */
 #define VERSAL_PRIMARY_CPU	0
