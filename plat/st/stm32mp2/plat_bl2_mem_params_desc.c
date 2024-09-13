@@ -19,6 +19,24 @@
  * the next executable image id.
  ******************************************************************************/
 static bl_mem_params_node_t bl2_mem_params_descs[] = {
+#if STM32MP_DDR_FIP_IO_STORAGE
+	/* Fill FW_DDR related information if it exists */
+	{
+		.image_id = DDR_FW_ID,
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+				      VERSION_2, entry_point_info_t,
+				      SECURE | NON_EXECUTABLE),
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+				      VERSION_2, image_info_t,
+				      0),
+
+		.image_info.image_base = STM32MP_DDR_FW_BASE,
+		.image_info.image_max_size = STM32MP_DDR_FW_MAX_SIZE,
+
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
+#endif
+
 	/* Fill FW_CONFIG related information if it exists */
 	{
 		.image_id = FW_CONFIG_ID,

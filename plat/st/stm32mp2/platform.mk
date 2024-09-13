@@ -41,6 +41,9 @@ ifeq (${STM32MP_LPDDR4_TYPE},1)
 DDR_TYPE			:=	lpddr4
 endif
 
+# DDR features
+STM32MP_DDR_FIP_IO_STORAGE	:=	1
+
 # Device tree
 BL2_DTSI			:=	stm32mp25-bl2.dtsi
 FDT_SOURCES			:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
@@ -52,13 +55,23 @@ STM32_BINARY_MAPPING		:=	plat/st/stm32mp2/${ARCH}/stm32mp2.S
 
 STM32MP_FW_CONFIG_NAME		:=	$(patsubst %.dtb,%-fw-config.dtb,$(DTB_FILE_NAME))
 STM32MP_FW_CONFIG		:=	${BUILD_PLAT}/fdts/$(STM32MP_FW_CONFIG_NAME)
+ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
+STM32MP_DDR_FW_PATH		?=	drivers/st/ddr/phy/firmware/bin/stm32mp2
+STM32MP_DDR_FW_NAME		:=	${DDR_TYPE}_pmu_train.bin
+STM32MP_DDR_FW			:=	${STM32MP_DDR_FW_PATH}/${STM32MP_DDR_FW_NAME}
+endif
 FDT_SOURCES			+=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(STM32MP_FW_CONFIG_NAME)))
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_FW_CONFIG},--fw-config))
+ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
+# Add the FW_DDR to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW,--ddr-fw))
+endif
 
 # Enable flags for C files
 $(eval $(call assert_booleans,\
 	$(sort \
+		STM32MP_DDR_FIP_IO_STORAGE \
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \
@@ -75,9 +88,11 @@ $(eval $(call assert_numerics,\
 $(eval $(call add_defines,\
 	$(sort \
 		DWL_BUFFER_BASE \
+		PLAT_DEF_FIP_UUID \
 		PLAT_PARTITION_MAX_ENTRIES \
 		PLAT_TBBR_IMG_DEF \
 		STM32_TF_A_COPIES \
+		STM32MP_DDR_FIP_IO_STORAGE \
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
 		STM32MP_LPDDR4_TYPE \

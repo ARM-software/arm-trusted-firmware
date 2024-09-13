@@ -21,6 +21,9 @@
 	st-io_policies {
 		fip-handles {
 			compatible = "st,io-fip-handle";
+#if STM32MP_DDR_FIP_IO_STORAGE
+			ddr_fw_uuid = "b11249be-92dd-4b10-867c-2c6a4b47a7fb";
+#endif
 			fw_cfg_uuid = "5807e16a-8459-47be-8ed5-648e8dddab0e";
 			bl31_uuid = "47d4086d-4cfe-9846-9b95-2950cbbd5a00";
 			bl32_uuid = "05d0e189-53dc-1347-8d2b-500a4b7a3e38";

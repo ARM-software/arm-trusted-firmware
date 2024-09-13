@@ -88,9 +88,16 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 #define TBBR_UUID_NUMBER	U(0)
 #endif
 
+#if STM32MP_DDR_FIP_IO_STORAGE
+#define DDR_FW_UUID_NUMBER	U(1)
+#else
+#define DDR_FW_UUID_NUMBER	U(0)
+#endif
+
 #define FCONF_ST_IO_UUID_NUMBER	(DEFAULT_UUID_NUMBER + \
 				 BL31_UUID_NUMBER + \
-				 TBBR_UUID_NUMBER)
+				 TBBR_UUID_NUMBER + \
+				 DDR_FW_UUID_NUMBER)
 
 static io_uuid_spec_t fconf_stm32mp_uuids[FCONF_ST_IO_UUID_NUMBER];
 static OBJECT_POOL_ARRAY(fconf_stm32mp_uuids_pool, fconf_stm32mp_uuids);
@@ -102,6 +109,9 @@ struct policies_load_info {
 
 /* image id to property name table */
 static const struct policies_load_info load_info[FCONF_ST_IO_UUID_NUMBER] = {
+#if STM32MP_DDR_FIP_IO_STORAGE
+	{DDR_FW_ID, "ddr_fw_uuid"},
+#endif
 	{FW_CONFIG_ID, "fw_cfg_uuid"},
 #ifdef __aarch64__
 	{BL31_IMAGE_ID, "bl31_uuid"},

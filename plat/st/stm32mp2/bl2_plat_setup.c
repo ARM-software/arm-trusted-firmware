@@ -15,6 +15,7 @@
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32mp2_ddr_helpers.h>
+#include <drivers/st/stm32mp_risab_regs.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/mmio.h>
@@ -195,6 +196,17 @@ void bl2_el3_plat_arch_setup(void)
 	if (stm32mp2_clk_init() < 0) {
 		panic();
 	}
+
+#if STM32MP_DDR_FIP_IO_STORAGE
+	/*
+	 * RISAB3 setup (dedicated for SRAM1)
+	 *
+	 * Allow secure read/writes data accesses to non-secure
+	 * blocks or pages, all RISAB registers are writable.
+	 * DDR firmwares are saved there before being loaded in DDRPHY memory.
+	 */
+	mmio_write_32(RISAB3_BASE + RISAB_CR, RISAB_CR_SRWIAD);
+#endif
 
 	stm32_save_boot_info(boot_context);
 
