@@ -448,6 +448,7 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 				uint64_t x3, uint64_t x4, void *cookie,
 				void *handle, uint64_t flags)
 {
+	uint64_t remaining_len = 0;
 	uint32_t src_sec_state;
 	int ret;
 
@@ -473,8 +474,8 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		ret = gpt_undelegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
 		SMC_RET1(handle, gpt_to_gts_error(ret, smc_fid, x1));
 	case RMM_ATTEST_GET_PLAT_TOKEN:
-		ret = rmmd_attest_get_platform_token(x1, &x2, x3);
-		SMC_RET2(handle, ret, x2);
+		ret = rmmd_attest_get_platform_token(x1, &x2, x3, &remaining_len);
+		SMC_RET3(handle, ret, x2, remaining_len);
 	case RMM_ATTEST_GET_REALM_KEY:
 		ret = rmmd_attest_get_signing_key(x1, &x2, x3);
 		SMC_RET2(handle, ret, x2);

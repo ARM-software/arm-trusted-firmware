@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,7 +47,8 @@ __dead2 void rmmd_rmm_sync_exit(uint64_t rc);
 
 /* Functions implementing attestation utilities for RMM */
 int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_size,
-				   uint64_t c_size);
+				   uint64_t c_size,
+				   uint64_t *remaining_len);
 int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_size,
 				uint64_t ecc_curve);
 
