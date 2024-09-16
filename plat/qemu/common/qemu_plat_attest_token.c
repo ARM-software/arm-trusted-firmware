@@ -212,18 +212,21 @@ static const uint8_t sample_platform_token[] = {
  * RSE.
  */
 int plat_rmmd_get_cca_attest_token(uintptr_t buf, size_t *len,
-				   uintptr_t hash, size_t hash_size)
+				   uintptr_t hash, size_t hash_size,
+				   size_t *remaining_len)
 {
+	const size_t token_size = sizeof(sample_platform_token);
 	(void)hash;
 	(void)hash_size;
 
-	if (*len < sizeof(sample_platform_token)) {
+	/* Shouldn't happen because RMM uses the whole 4kB shared buffer */
+	if (*len < token_size) {
 		return -EINVAL;
 	}
 
-	(void)memcpy((void *)buf, (const void *)sample_platform_token,
-		     sizeof(sample_platform_token));
-	*len = sizeof(sample_platform_token);
+	memcpy((void *)buf, sample_platform_token, token_size);
+	*len = token_size;
+	*remaining_len = 0;
 
 	return 0;
 }
