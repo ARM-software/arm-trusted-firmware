@@ -16,6 +16,7 @@ from memory.elfparser import TfaElfParser
 from memory.image import Image
 from memory.mapparser import TfaMapParser
 from memory.printer import TfaPrettyPrinter
+from memory.summary import MapParser
 
 
 @dataclass
@@ -188,6 +189,27 @@ def symbols(obj: Context, no_elf_images: bool):
     }
 
     obj.printer.print_symbol_table(symbols, list(images.keys()))
+
+
+@cli.command()
+@click.option("-o", "--old", type=click.Path(exists=True))
+@click.option("-d", "--depth", type=int, default=2)
+@click.option("-e", "--exclude-fill")
+@click.option(
+    "-t",
+    "--type",
+    type=click.Choice(MapParser.export_formats, case_sensitive=False),
+    default="table",
+)
+@click.argument("file", type=click.Path(exists=True))
+def summary(file: Path, old: Optional[Path], depth: int, exclude_fill: bool, type: str):
+    """Summarize the sizes of translation units within the resulting binary"""
+    memap = MapParser()
+
+    if not memap.parse(file, old, exclude_fill):
+        exit(1)
+
+    memap.generate_output(type, depth)
 
 
 def main():

@@ -229,6 +229,169 @@ you can specify the depth with:
     ├── 00                      4003000    4010000       d000
     └── 01                      4010000    4021000      11000
 
+Memory Summary
+~~~~~~~~~~~~~~
+
+The tool provides a by-translation-unit summary of the sizes (``text``, ``bss``,
+``data``) contributed by each translation unit or group of translation units.
+For example, to print a table of an FVP build, with a path depth of 3:
+
+.. code::
+
+   $ poetry run memory summary build/fvp/debug/bl1/bl1.map  -d 3
+    | Module                                 |         .text |       .data |          .bss |
+    |----------------------------------------|---------------|-------------|---------------|
+    | [fill]                                 |   3204(+3204) |       0(+0) |       97(+97) |
+    | bl1/aem_generic.o                      |         0(+0) |       0(+0) |         0(+0) |
+    | bl1/arm_bl1_fwu.o                      |     224(+224) |     80(+80) |         0(+0) |
+    | bl1/arm_bl1_setup.o                    |     608(+608) |       0(+0) |       17(+17) |
+    | bl1/arm_common.o                       |     116(+116) |       0(+0) |         0(+0) |
+    | bl1/arm_console.o                      |     116(+116) |       0(+0) |       40(+40) |
+    | bl1/arm_dev_rotpk.o                    |         0(+0) |       0(+0) |         0(+0) |
+    | bl1/arm_dyn_cfg.o                      |     276(+276) |       0(+0) |   7184(+7184) |
+    | bl1/arm_dyn_cfg_helpers.o              |     364(+364) |       0(+0) |         0(+0) |
+    | bl1/arm_err.o                          |       12(+12) |       0(+0) |         0(+0) |
+    | bl1/arm_fconf_io.o                     |         0(+0) |   952(+952) |         0(+0) |
+    | bl1/arm_helpers.o                      |       44(+44) |       0(+0) |         0(+0) |
+    | bl1/arm_io_storage.o                   |     480(+480) |       0(+0) |       32(+32) |
+    | bl1/auth_mod.o                         |   1288(+1288) |       0(+0) |         0(+0) |
+    | bl1/backtrace.o                        |     444(+444) |       0(+0) |         0(+0) |
+    | bl1/bl1_arch_setup.o                   |       16(+16) |       0(+0) |         0(+0) |
+    | bl1/bl1_context_mgmt.o                 |     340(+340) |       0(+0) |   1392(+1392) |
+    | bl1/bl1_entrypoint.o                   |     236(+236) |       0(+0) |         0(+0) |
+    | bl1/bl1_exceptions.o                   |   2240(+2240) |       0(+0) |         0(+0) |
+    | bl1/bl1_fwu.o                          |   2188(+2188) |     44(+44) |         0(+0) |
+    | bl1/bl1_main.o                         |     620(+620) |       0(+0) |         0(+0) |
+    | bl1/bl_common.o                        |     772(+772) |       0(+0) |         4(+4) |
+    | bl1/board_arm_helpers.o                |       44(+44) |       0(+0) |         0(+0) |
+    | bl1/board_arm_trusted_boot.o           |       44(+44) |     16(+16) |         0(+0) |
+    | bl1/cache_helpers.o                    |     112(+112) |       0(+0) |         0(+0) |
+    | bl1/cci.o                              |     408(+408) |       0(+0) |       24(+24) |
+    | bl1/context.o                          |     348(+348) |       0(+0) |         0(+0) |
+    | bl1/context_mgmt.o                     |   1692(+1692) |       0(+0) |       48(+48) |
+    | bl1/cortex_a35.o                       |       96(+96) |       0(+0) |         0(+0) |
+    | bl1/cortex_a53.o                       |     248(+248) |       0(+0) |         0(+0) |
+    | bl1/cortex_a57.o                       |     384(+384) |       0(+0) |         0(+0) |
+    | bl1/cortex_a72.o                       |     356(+356) |       0(+0) |         0(+0) |
+    | bl1/cortex_a73.o                       |     304(+304) |       0(+0) |         0(+0) |
+    | bl1/cpu_helpers.o                      |     200(+200) |       0(+0) |         0(+0) |
+    | bl1/crypto_mod.o                       |     380(+380) |       0(+0) |         0(+0) |
+    | bl1/debug.o                            |     224(+224) |       0(+0) |         0(+0) |
+    | bl1/delay_timer.o                      |       64(+64) |       0(+0) |         8(+8) |
+    | bl1/enable_mmu.o                       |     112(+112) |       0(+0) |         0(+0) |
+    | bl1/errata_report.o                    |     564(+564) |       0(+0) |         0(+0) |
+    | bl1/fconf.o                            |     148(+148) |       0(+0) |         0(+0) |
+    | bl1/fconf_dyn_cfg_getter.o             |     656(+656) |     32(+32) |     144(+144) |
+    | bl1/fconf_tbbr_getter.o                |     332(+332) |       0(+0) |       24(+24) |
+    | bl1/fdt_wrappers.o                     |     452(+452) |       0(+0) |         0(+0) |
+    | bl1/fvp_bl1_setup.o                    |     168(+168) |       0(+0) |         0(+0) |
+    | bl1/fvp_common.o                       |     512(+512) |       0(+0) |         8(+8) |
+    | bl1/fvp_cpu_pwr.o                      |     136(+136) |       0(+0) |         0(+0) |
+    | bl1/fvp_err.o                          |       44(+44) |       0(+0) |         0(+0) |
+    | bl1/fvp_helpers.o                      |     148(+148) |       0(+0) |         0(+0) |
+    | bl1/fvp_io_storage.o                   |     228(+228) |       0(+0) |       16(+16) |
+    | bl1/fvp_trusted_boot.o                 |     292(+292) |       0(+0) |         0(+0) |
+    | bl1/generic_delay_timer.o              |     136(+136) |       0(+0) |       16(+16) |
+    | bl1/img_parser_mod.o                   |     588(+588) |       0(+0) |       20(+20) |
+    | bl1/io_fip.o                           |   1332(+1332) |       0(+0) |     100(+100) |
+    | bl1/io_memmap.o                        |     736(+736) |     16(+16) |       32(+32) |
+    | bl1/io_semihosting.o                   |     648(+648) |     16(+16) |         0(+0) |
+    | bl1/io_storage.o                       |   1268(+1268) |       0(+0) |     104(+104) |
+    | bl1/mbedtls_common.o                   |     208(+208) |       0(+0) |         4(+4) |
+    | bl1/mbedtls_crypto.o                   |     636(+636) |       0(+0) |         0(+0) |
+    | bl1/mbedtls_x509_parser.o              |   1588(+1588) |       0(+0) |     120(+120) |
+    | bl1/misc_helpers.o                     |     392(+392) |       0(+0) |         0(+0) |
+    | bl1/multi_console.o                    |     528(+528) |       1(+1) |         8(+8) |
+    | bl1/pl011_console.o                    |     308(+308) |       0(+0) |         0(+0) |
+    | bl1/plat_bl1_common.o                  |     208(+208) |       0(+0) |         0(+0) |
+    | bl1/plat_bl_common.o                   |       40(+40) |       0(+0) |         0(+0) |
+    | bl1/plat_common.o                      |       48(+48) |       0(+0) |         8(+8) |
+    | bl1/plat_log_common.o                  |       48(+48) |       0(+0) |         0(+0) |
+    | bl1/plat_tbbr.o                        |     128(+128) |       0(+0) |         0(+0) |
+    | bl1/platform_helpers.o                 |       12(+12) |       0(+0) |         0(+0) |
+    | bl1/platform_up_stack.o                |       16(+16) |       0(+0) |         0(+0) |
+    | bl1/semihosting.o                      |     352(+352) |       0(+0) |         0(+0) |
+    | bl1/semihosting_call.o                 |         8(+8) |       0(+0) |         0(+0) |
+    | bl1/smmu_v3.o                          |     296(+296) |       0(+0) |         0(+0) |
+    | bl1/sp805.o                            |       64(+64) |       0(+0) |         0(+0) |
+    | bl1/tbbr_cot_bl1.o                     |         0(+0) |     48(+48) |     156(+156) |
+    | bl1/tbbr_cot_common.o                  |         0(+0) |   144(+144) |     306(+306) |
+    | bl1/tbbr_img_desc.o                    |         0(+0) |   768(+768) |         0(+0) |
+    | bl1/tf_log.o                           |     200(+200) |       4(+4) |         0(+0) |
+    | bl1/xlat_tables_arch.o                 |     736(+736) |       0(+0) |         0(+0) |
+    | bl1/xlat_tables_context.o              |     192(+192) |     96(+96) |   1296(+1296) |
+    | bl1/xlat_tables_core.o                 |   2112(+2112) |       0(+0) |         0(+0) |
+    | bl1/xlat_tables_utils.o                |         8(+8) |       0(+0) |         0(+0) |
+    | lib/libc.a/assert.o                    |       48(+48) |       0(+0) |         0(+0) |
+    | lib/libc.a/exit.o                      |       64(+64) |       0(+0) |         8(+8) |
+    | lib/libc.a/memchr.o                    |       44(+44) |       0(+0) |         0(+0) |
+    | lib/libc.a/memcmp.o                    |       52(+52) |       0(+0) |         0(+0) |
+    | lib/libc.a/memcpy.o                    |       32(+32) |       0(+0) |         0(+0) |
+    | lib/libc.a/memmove.o                   |       52(+52) |       0(+0) |         0(+0) |
+    | lib/libc.a/memset.o                    |     140(+140) |       0(+0) |         0(+0) |
+    | lib/libc.a/printf.o                    |   1532(+1532) |       0(+0) |         0(+0) |
+    | lib/libc.a/snprintf.o                  |   1748(+1748) |       0(+0) |         0(+0) |
+    | lib/libc.a/strcmp.o                    |       44(+44) |       0(+0) |         0(+0) |
+    | lib/libc.a/strlen.o                    |       28(+28) |       0(+0) |         0(+0) |
+    | lib/libfdt.a/fdt.o                     |   1460(+1460) |       0(+0) |         0(+0) |
+    | lib/libfdt.a/fdt_ro.o                  |   1392(+1392) |       0(+0) |         0(+0) |
+    | lib/libfdt.a/fdt_wip.o                 |     244(+244) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/asn1parse.o           |     956(+956) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/bignum.o              |   6796(+6796) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/bignum_core.o         |   3252(+3252) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/constant_time.o       |     280(+280) |       0(+0) |         8(+8) |
+    | lib/libmbedtls.a/md.o                  |     504(+504) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/memory_buffer_alloc.o |   1264(+1264) |       0(+0) |       40(+40) |
+    | lib/libmbedtls.a/oid.o                 |     752(+752) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/pk.o                  |     872(+872) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/pk_wrap.o             |     848(+848) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/pkparse.o             |     516(+516) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/platform.o            |       92(+92) |     24(+24) |         0(+0) |
+    | lib/libmbedtls.a/platform_util.o       |       96(+96) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/rsa.o                 |   6588(+6588) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/rsa_alt_helpers.o     |   2340(+2340) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/sha256.o              |   1448(+1448) |       0(+0) |         0(+0) |
+    | lib/libmbedtls.a/x509.o                |   1028(+1028) |       0(+0) |         0(+0) |
+    | Subtotals                              | 69632(+69632) | 2241(+2241) | 11264(+11264) |
+    Total Static RAM memory (data + bss): 13505(+13505) bytes
+    Total Flash memory (text + data): 71873(+71873) bytes
+
+A delta between two images can be generated by passing the ``--old`` option with
+a path to the previous map file.
+
+For example:
+
+.. code::
+
+    $ poetry run memory summary ../maps/fvp-tbb-mbedtls/bl1.map --old ../maps/fvp-tbb-mbedtls/bl1.map.old -d 1
+    | Module    |         .text |    .data |         .bss |
+    |-----------|---------------|----------|--------------|
+    | [fill]    |    780(-2424) |    0(+0) |    321(+224) |
+    | bl1       |   32024(+108) | 2217(+0) |    11111(+0) |
+    | lib       | 45020(+10508) |   24(+0) |  1880(+1824) |
+    | Subtotals |  77824(+8192) | 2241(+0) | 13312(+2048) |
+    Total Static RAM memory (data + bss): 15553(+2048) bytes
+    Total Flash memory (text + data): 80065(+8192) bytes
+
+Note that since the old map file includes the required suffix, specifying the
+``--old`` argument is optional here.
+
+Under some circumstances, some executables are padded to meet certain
+alignments, such as a 4KB page boundary, and excluding that padding can provide
+more helpful diffs. Taking the last example, and adding the ``-e`` argument
+yields such a summary:
+
+.. code::
+
+    $ poetry run memory summary ../maps/fvp-tbb-mbedtls/bl1.map --old ../maps/fvp-tbb-mbedtls/bl1.map.old  -d 1 -e
+    | Module    |         .text |    .data |         .bss |
+    |-----------|---------------|----------|--------------|
+    | bl1       |   32024(+108) | 2217(+0) |    11111(+0) |
+    | lib       | 45020(+10508) |   24(+0) |  1880(+1824) |
+    | Subtotals | 77044(+10616) | 2241(+0) | 12991(+1824) |
+    Total Static RAM memory (data + bss): 15232(+1824) bytes
+    Total Flash memory (text + data): 79285(+10616) bytes
+
 --------------
 
 *Copyright (c) 2023-2025, Arm Limited. All rights reserved.*
