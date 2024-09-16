@@ -40,8 +40,16 @@
 #define STM32MP_CONFIG_CERT_ID		U(24)
 #define GPT_IMAGE_ID			U(25)
 
+#if STM32MP_DDR_FIP_IO_STORAGE
+#define DDR_FW_ID			U(26)
+/* Increase the MAX_NUMBER_IDS to match the authentication pool required */
+#define MAX_NUMBER_IDS			U(27)
+
+#else
 /* Increase the MAX_NUMBER_IDS to match the authentication pool required */
 #define MAX_NUMBER_IDS			U(26)
+
+#endif
 
 #endif /* PLAT_TBBR_IMG_DEF_H */
 

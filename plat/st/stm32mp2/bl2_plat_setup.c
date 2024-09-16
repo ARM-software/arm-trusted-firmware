@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <cdefs.h>
+#include <errno.h>
 #include <stdint.h>
 
 #include <common/debug.h>
@@ -14,6 +15,7 @@
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32mp2_ddr_helpers.h>
+#include <drivers/st/stm32mp_risab_regs.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/mmio.h>
@@ -195,6 +197,17 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
+#if STM32MP_DDR_FIP_IO_STORAGE
+	/*
+	 * RISAB3 setup (dedicated for SRAM1)
+	 *
+	 * Allow secure read/writes data accesses to non-secure
+	 * blocks or pages, all RISAB registers are writable.
+	 * DDR firmwares are saved there before being loaded in DDRPHY memory.
+	 */
+	mmio_write_32(RISAB3_BASE + RISAB_CR, RISAB_CR_SRWIAD);
+#endif
+
 	stm32_save_boot_info(boot_context);
 
 	if (stm32mp_uart_console_setup() != 0) {
@@ -229,7 +242,12 @@ skip_console_init:
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;
-	bl_mem_params_node_t *bl_mem_params __maybe_unused = get_bl_mem_params_node(image_id);
+	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+	const struct dyn_cfg_dtb_info_t *config_info;
+	unsigned int i;
+	const unsigned int image_ids[] = {
+		BL31_IMAGE_ID,
+	};
 
 	assert(bl_mem_params != NULL);
 
@@ -252,6 +270,30 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		set_config_info(STM32MP_FW_CONFIG_BASE, ~0UL, STM32MP_FW_CONFIG_MAX_SIZE,
 				FW_CONFIG_ID);
 		fconf_populate("FW_CONFIG", STM32MP_FW_CONFIG_BASE);
+
+		/* Iterate through all the fw config IDs */
+		for (i = 0U; i < ARRAY_SIZE(image_ids); i++) {
+			bl_mem_params = get_bl_mem_params_node(image_ids[i]);
+			assert(bl_mem_params != NULL);
+
+			config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, image_ids[i]);
+			if (config_info == NULL) {
+				continue;
+			}
+
+			bl_mem_params->image_info.image_base = config_info->config_addr;
+			bl_mem_params->image_info.image_max_size = config_info->config_max_size;
+
+			bl_mem_params->image_info.h.attr &= ~IMAGE_ATTRIB_SKIP_LOADING;
+
+			switch (image_ids[i]) {
+			case BL31_IMAGE_ID:
+				bl_mem_params->ep_info.pc = config_info->config_addr;
+				break;
+			default:
+				return -EINVAL;
+			}
+		}
 
 		/*
 		 * After this step, the BL2 device tree area will be overwritten

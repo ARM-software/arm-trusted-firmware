@@ -71,6 +71,9 @@
  ******************************************************************************/
 #define STM32MP_SYSRAM_BASE			U(0x0E000000)
 #define STM32MP_SYSRAM_SIZE			U(0x00040000)
+#define SRAM1_BASE				U(0x0E040000)
+#define SRAM1_SIZE_FOR_TFA			U(0x00010000)
+#define STM32MP_SEC_SYSRAM_SIZE			STM32MP_SYSRAM_SIZE
 
 /* DDR configuration */
 #define STM32MP_DDR_BASE			U(0x80000000)
@@ -106,6 +109,10 @@ enum ddr_type {
 #define STM32MP_BL2_RO_SIZE			U(0x00020000) /* 128 KB */
 #define STM32MP_BL2_SIZE			U(0x00029000) /* 164 KB for BL2 */
 
+/* Allocate remaining sysram to BL31 */
+#define STM32MP_BL31_SIZE			(STM32MP_SEC_SYSRAM_SIZE - \
+						 STM32MP_BL2_SIZE)
+
 #define STM32MP_BL2_BASE			(STM32MP_SYSRAM_BASE + \
 						 STM32MP_SYSRAM_SIZE - \
 						 STM32MP_BL2_SIZE)
@@ -137,6 +144,11 @@ enum ddr_type {
 #if defined(IMAGE_BL2)
 #define STM32MP_DTB_SIZE			STM32MP_BL2_DTB_SIZE
 #define STM32MP_DTB_BASE			STM32MP_BL2_DTB_BASE
+#endif
+
+#if STM32MP_DDR_FIP_IO_STORAGE
+#define STM32MP_DDR_FW_BASE			SRAM1_BASE
+#define STM32MP_DDR_FW_MAX_SIZE			U(0x8800)
 #endif
 
 #define STM32MP_FW_CONFIG_MAX_SIZE		PAGE_SIZE
@@ -357,6 +369,11 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 #define RTC_BASE				U(0x46000000)
 #define STGEN_BASE				U(0x48080000)
 #define SYSCFG_BASE				U(0x44230000)
+
+/*******************************************************************************
+ * STM32MP RIF
+ ******************************************************************************/
+#define RISAB3_BASE				U(0x42110000)
 
 /*******************************************************************************
  * STM32MP CA35SSC
