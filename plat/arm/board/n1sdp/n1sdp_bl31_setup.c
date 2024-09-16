@@ -17,6 +17,8 @@
 #include "n1sdp_private.h"
 #include <platform_def.h>
 
+#define RT_OWNER 0
+
 /*
  * Platform information structure stored in SDS.
  * This structure holds information about platform's DDR
@@ -44,12 +46,16 @@ static scmi_channel_plat_info_t n1sdp_scmi_plat_info = {
 };
 
 static struct gic600_multichip_data n1sdp_multichip_data __init = {
-	.rt_owner_base = PLAT_ARM_GICD_BASE,
-	.rt_owner = 0,
+	.base_addrs = {
+		PLAT_ARM_GICD_BASE
+	},
+	.rt_owner = RT_OWNER,
 	.chip_count = 1,
 	.chip_addrs = {
-		PLAT_ARM_GICD_BASE >> 16,
-		PLAT_ARM_GICD_BASE >> 16
+		[RT_OWNER] = {
+			PLAT_ARM_GICD_BASE >> 16,
+			PLAT_ARM_GICD_BASE >> 16
+		}
 	},
 	.spi_ids = {
 		{PLAT_ARM_GICD_BASE, 32, 511},

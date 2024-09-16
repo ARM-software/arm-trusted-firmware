@@ -13,6 +13,8 @@
 #include <nrd_plat.h>
 #include <rdn2_ras.h>
 
+#define RT_OWNER 0
+
 #if defined(IMAGE_BL31)
 #if (NRD_PLATFORM_VARIANT == 2)
 static const mmap_region_t rdn2mc_dynamic_mmap[] = {
@@ -33,20 +35,27 @@ static const mmap_region_t rdn2mc_dynamic_mmap[] = {
 
 #if (NRD_PLATFORM_VARIANT == 2)
 static struct gic600_multichip_data rdn2mc_multichip_data __init = {
-	.rt_owner_base = PLAT_ARM_GICD_BASE,
-	.rt_owner = 0,
+	.base_addrs = {
+		PLAT_ARM_GICD_BASE
+	},
+	.rt_owner = RT_OWNER,
 	.chip_count = NRD_CHIP_COUNT,
 	.chip_addrs = {
-		PLAT_ARM_GICD_BASE >> 16,
+		[RT_OWNER] = {
+			PLAT_ARM_GICD_BASE >> 16,
 #if NRD_CHIP_COUNT > 1
-		(PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(1)) >> 16,
+			(PLAT_ARM_GICD_BASE
+				+ NRD_REMOTE_CHIP_MEM_OFFSET(1)) >> 16,
 #endif
 #if NRD_CHIP_COUNT > 2
-		(PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(2)) >> 16,
+			(PLAT_ARM_GICD_BASE
+				+ NRD_REMOTE_CHIP_MEM_OFFSET(2)) >> 16,
 #endif
 #if NRD_CHIP_COUNT > 3
-		(PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(3)) >> 16,
+			(PLAT_ARM_GICD_BASE
+				+ NRD_REMOTE_CHIP_MEM_OFFSET(3)) >> 16,
 #endif
+		}
 	},
 	.spi_ids = {
 		{PLAT_ARM_GICD_BASE,
