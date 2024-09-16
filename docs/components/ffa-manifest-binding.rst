@@ -228,6 +228,14 @@ Memory Regions
      then communicate the region properties (including the base address chosen
      by the partition manager) to the partition.
 
+- load-address-relative-offset
+   - value type: <u64>
+   - Offset relative to the load address of the partition.
+     When this is provided in the partition manifest, it should be added to the
+     load address to get the base address of the region. The secure partition
+     manifest can have either "base-address" or "load-address-relative-offset".
+     It cannot have both.
+
 - stream-ids
    - value type: <prop-encoded-array>
    - List of IDs belonging to a DMA capable peripheral device that has access to
