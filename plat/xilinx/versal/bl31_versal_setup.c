@@ -93,9 +93,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		cpu_clock = 212000;
 		break;
 	case VERSAL_QEMU:
-		/* Random values now */
-		cpu_clock = 2720000;
-		break;
 	case VERSAL_SILICON:
 		cpu_clock = 100000000;
 		break;
