@@ -86,6 +86,18 @@ static int remove_mmap_dynamic_region(uintptr_t base_va, size_t size)
 }
 #endif
 
+#if defined(XILINX_OF_BOARD_DTB_ADDR)
+static int check_fdt_reserved_memory(void *dtb, const char *node_name)
+{
+	int offset = fdt_path_offset(dtb, "/reserved-memory");
+
+	if (offset >= 0) {
+		offset = fdt_subnode_offset(dtb, offset, node_name);
+	}
+	return offset;
+}
+#endif
+
 void prepare_dtb(void)
 {
 #if defined(XILINX_OF_BOARD_DTB_ADDR)
@@ -112,12 +124,19 @@ void prepare_dtb(void)
 					WARN("Failed to add PSCI cpu enable methods in DT\n");
 				}
 
-				/* Reserve memory used by Trusted Firmware. */
-				ret = fdt_add_reserved_memory(dtb, "tf-a",
-							      BL31_BASE,
-							      BL31_LIMIT - BL31_BASE);
+				/* Check reserved memory set in DT*/
+				ret = check_fdt_reserved_memory(dtb, "tf-a");
 				if (ret < 0) {
-					WARN("Failed to add reserved memory nodes for BL31 to DT.\n");
+					/* Reserve memory used by Trusted Firmware. */
+					ret = fdt_add_reserved_memory(dtb, "tf-a",
+							BL31_BASE,
+							BL31_LIMIT - BL31_BASE);
+					if (ret < 0) {
+						WARN("Failed to add reserved memory nodes for BL31 to DT.\n");
+					}
+
+				} else {
+					WARN("Reserved memory pre-exists in DT.\n");
 				}
 
 				ret = fdt_pack(dtb);
