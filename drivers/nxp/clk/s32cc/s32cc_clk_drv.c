@@ -4,15 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <errno.h>
-
-#include <s32cc-clk-regs.h>
-
 #include <common/debug.h>
 #include <drivers/clk.h>
 #include <lib/mmio.h>
 #include <s32cc-clk-ids.h>
 #include <s32cc-clk-modules.h>
+#include <s32cc-clk-regs.h>
 #include <s32cc-clk-utils.h>
+#include <s32cc-mc-me.h>
 
 #define MAX_STACK_DEPTH		(40U)
 
@@ -26,7 +25,11 @@ struct s32cc_clk_drv {
 	uintptr_t armdfs_base;
 	uintptr_t cgm0_base;
 	uintptr_t cgm1_base;
+	uintptr_t cgm5_base;
 	uintptr_t ddrpll_base;
+	uintptr_t mc_me;
+	uintptr_t mc_rgm;
+	uintptr_t rdc;
 };
 
 static int update_stack_depth(unsigned int *depth)
@@ -48,7 +51,11 @@ static struct s32cc_clk_drv *get_drv(void)
 		.armdfs_base = ARM_DFS_BASE_ADDR,
 		.cgm0_base = CGM0_BASE_ADDR,
 		.cgm1_base = CGM1_BASE_ADDR,
+		.cgm5_base = MC_CGM5_BASE_ADDR,
 		.ddrpll_base = DDRPLL_BASE_ADDR,
+		.mc_me = MC_ME_BASE_ADDR,
+		.mc_rgm = MC_RGM_BASE_ADDR,
+		.rdc = RDC_BASE_ADDR,
 	};
 
 	return &driver;
@@ -99,6 +106,9 @@ static int get_base_addr(enum s32cc_clk_source id, const struct s32cc_clk_drv *d
 		break;
 	case S32CC_CGM1:
 		*base = drv->cgm1_base;
+		break;
+	case S32CC_CGM5:
+		*base = drv->cgm5_base;
 		break;
 	case S32CC_FIRC:
 		break;
@@ -598,6 +608,9 @@ static int enable_mux(struct s32cc_clk_obj *module,
 	case S32CC_CGM0:
 		ret = enable_cgm_mux(mux, drv);
 		break;
+	case S32CC_CGM5:
+		ret = enable_cgm_mux(mux, drv);
+		break;
 	default:
 		ERROR("Unknown mux parent type: %d\n", mux->module);
 		ret = -EINVAL;
@@ -827,6 +840,86 @@ typedef int (*enable_clk_t)(struct s32cc_clk_obj *module,
 			    const struct s32cc_clk_drv *drv,
 			    unsigned int depth);
 
+static int enable_part(struct s32cc_clk_obj *module,
+		       const struct s32cc_clk_drv *drv,
+		       unsigned int depth)
+{
+	const struct s32cc_part *part = s32cc_obj2part(module);
+	uint32_t part_no = part->partition_id;
+
+	if ((drv->mc_me == 0UL) || (drv->mc_rgm == 0UL) || (drv->rdc == 0UL)) {
+		return -EINVAL;
+	}
+
+	return mc_me_enable_partition(drv->mc_me, drv->mc_rgm, drv->rdc, part_no);
+}
+
+static int enable_part_block(struct s32cc_clk_obj *module,
+			     const struct s32cc_clk_drv *drv,
+			     unsigned int depth)
+{
+	const struct s32cc_part_block *block = s32cc_obj2partblock(module);
+	const struct s32cc_part *part = block->part;
+	uint32_t part_no = part->partition_id;
+	unsigned int ldepth = depth;
+	uint32_t cofb;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if ((block->block >= s32cc_part_block0) &&
+	    (block->block <= s32cc_part_block15)) {
+		cofb = (uint32_t)block->block - (uint32_t)s32cc_part_block0;
+		mc_me_enable_part_cofb(drv->mc_me, part_no, cofb, block->status);
+	} else {
+		ERROR("Unknown partition block type: %d\n", block->block);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static struct s32cc_clk_obj *
+get_part_block_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_part_block *block = s32cc_obj2partblock(module);
+
+	return &block->part->desc;
+}
+
+static int enable_module_with_refcount(struct s32cc_clk_obj *module,
+				       const struct s32cc_clk_drv *drv,
+				       unsigned int depth);
+
+static int enable_part_block_link(struct s32cc_clk_obj *module,
+				  const struct s32cc_clk_drv *drv,
+				  unsigned int depth)
+{
+	const struct s32cc_part_block_link *link = s32cc_obj2partblocklink(module);
+	struct s32cc_part_block *block = link->block;
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	/* Move the enablement algorithm to partition tree */
+	return enable_module_with_refcount(&block->desc, drv, ldepth);
+}
+
+static struct s32cc_clk_obj *
+get_part_block_link_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_part_block_link *link = s32cc_obj2partblocklink(module);
+
+	return link->parent;
+}
+
 static int no_enable(struct s32cc_clk_obj *module,
 		     const struct s32cc_clk_drv *drv,
 		     unsigned int depth)
@@ -872,7 +965,7 @@ static int enable_module(struct s32cc_clk_obj *module,
 			 unsigned int depth)
 {
 	struct s32cc_clk_obj *parent = get_module_parent(module);
-	static const enable_clk_t enable_clbs[8] = {
+	static const enable_clk_t enable_clbs[12] = {
 		[s32cc_clk_t] = no_enable,
 		[s32cc_osc_t] = enable_osc,
 		[s32cc_pll_t] = enable_pll,
@@ -881,6 +974,9 @@ static int enable_module(struct s32cc_clk_obj *module,
 		[s32cc_shared_clkmux_t] = enable_mux,
 		[s32cc_dfs_t] = enable_dfs,
 		[s32cc_dfs_div_t] = enable_dfs_div,
+		[s32cc_part_t] = enable_part,
+		[s32cc_part_block_t] = enable_part_block,
+		[s32cc_part_block_link_t] = enable_part_block_link,
 	};
 	uint32_t index;
 	int ret = 0;
@@ -1244,7 +1340,7 @@ typedef struct s32cc_clk_obj *(*get_parent_clb_t)(const struct s32cc_clk_obj *cl
 
 static struct s32cc_clk_obj *get_module_parent(const struct s32cc_clk_obj *module)
 {
-	static const get_parent_clb_t parents_clbs[8] = {
+	static const get_parent_clb_t parents_clbs[12] = {
 		[s32cc_clk_t] = get_clk_parent,
 		[s32cc_osc_t] = get_no_parent,
 		[s32cc_pll_t] = get_pll_parent,
@@ -1253,6 +1349,9 @@ static struct s32cc_clk_obj *get_module_parent(const struct s32cc_clk_obj *modul
 		[s32cc_shared_clkmux_t] = get_mux_parent,
 		[s32cc_dfs_t] = get_dfs_parent,
 		[s32cc_dfs_div_t] = get_dfs_div_parent,
+		[s32cc_part_t] = get_no_parent,
+		[s32cc_part_block_t] = get_part_block_parent,
+		[s32cc_part_block_link_t] = get_part_block_link_parent,
 	};
 	uint32_t index;
 
