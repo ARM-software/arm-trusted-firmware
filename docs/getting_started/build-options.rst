@@ -737,9 +737,9 @@ Common build options
    +---------------------------+------------------------------------+
    |          ecdsa            |         256 (default), 384         |
    +---------------------------+------------------------------------+
-   |  ecdsa-brainpool-regular  |            unavailable             |
+   |  ecdsa-brainpool-regular  |            256 (default)           |
    +---------------------------+------------------------------------+
-   |  ecdsa-brainpool-twisted  |            unavailable             |
+   |  ecdsa-brainpool-twisted  |            256 (default)           |
    +---------------------------+------------------------------------+
 
 -  ``HASH_ALG``: This build flag enables the user to select the secure hash
