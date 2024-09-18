@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -154,6 +154,9 @@ enum pm_device_node_idx irq_to_pm_node_idx(uint32_t irq)
 		break;
 	case 74:
 		dev_idx = XPM_NODEIDX_DEV_USB_0;
+		break;
+	case 122:
+		dev_idx = XPM_NODEIDX_DEV_GPIO_PMC;
 		break;
 	case 126:
 	case 127:
