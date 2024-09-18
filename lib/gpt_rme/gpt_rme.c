@@ -495,7 +495,7 @@ static int validate_pas_mappings(pas_region_t *pas_regions,
  *
  * Parameters
  *   l0_mem_base	Base address of memory used for L0 tables.
- *   l1_mem_size	Size of memory available for L0 tables.
+ *   l0_mem_size	Size of memory available for L0 tables.
  *
  * Return
  *   Negative Linux error code in the event of a failure, 0 for success.
