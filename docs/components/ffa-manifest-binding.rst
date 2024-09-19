@@ -122,7 +122,7 @@ Partition Properties
 - managed-exit-virq
    - value type: <empty>
    - Indicates if the partition needs managed exit, if supported, to be signaled
-     through vFIQ signal.
+     through vIRQ signal.
 
 - ns-interrupts-action [mandatory]
    - value type: <u32>
@@ -142,12 +142,6 @@ Partition Properties
 
       - 0x0: Other-Secure interrupt is queued
       - 0x1: Other-Secure interrupt is signaled
-
-- runtime-model
-   - value type: <u32>
-   - Indicates whether the SP execution can be preempted.
-   - This field is deprecated in favor of other-s-interrupts-action and
-     ns-interrupts-action fields in the FF-A v1.1 spec.
 
 - has-primary-scheduler
    - value type: <empty>
