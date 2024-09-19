@@ -249,13 +249,31 @@ static int stm32_ospi_poll(uint8_t *buf, uint32_t nbytes, bool read)
 static int stm32_ospi_mm(uint8_t *buf, uint32_t nbytes, size_t addr)
 {
 	uintptr_t from = stm32_ospi.mm_base + addr;
+	uint8_t *buff = buf;
+	uint64_t length = nbytes;
+	uint64_t tmp;
+	uint64_t i = 0U;
 
-	while (nbytes >= sizeof(uint8_t)) {
-		*buf = mmio_read_8(from);
-		buf += sizeof(uint8_t);
-		from += sizeof(uint8_t);
-		nbytes -= sizeof(uint8_t);
-		dmbsy();
+	while ((length != 0U) && ((from & (sizeof(uint64_t) - UL(1))) != 0U)) {
+		buff[i] = mmio_read_8(from);
+		i++;
+		from++;
+		length--;
+	}
+
+	while (length >= sizeof(uint64_t)) {
+		tmp = mmio_read_64(from);
+		(void)memcpy((void *)&buff[i], (const void *)&tmp, sizeof(uint64_t));
+		i += sizeof(uint64_t);
+		from += sizeof(uint64_t);
+		length -= sizeof(uint64_t);
+	}
+
+	while (length != 0U) {
+		buff[i] = mmio_read_8(from);
+		i++;
+		from++;
+		length--;
 	}
 
 	return 0;
