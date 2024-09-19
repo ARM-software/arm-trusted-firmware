@@ -71,6 +71,19 @@ void configure_mmu(void)
 	enable_mmu_el3(0);
 }
 
+int stm32mp_map_retram(void)
+{
+	return  mmap_add_dynamic_region(RETRAM_BASE, RETRAM_BASE,
+					RETRAM_SIZE,
+					MT_RW | MT_SECURE);
+}
+
+int stm32mp_unmap_retram(void)
+{
+	return  mmap_remove_dynamic_region(RETRAM_BASE,
+					   RETRAM_SIZE);
+}
+
 uintptr_t stm32_get_gpio_bank_base(unsigned int bank)
 {
 	if (bank == GPIO_BANK_Z) {

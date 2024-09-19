@@ -237,6 +237,16 @@ skip_console_init:
 
 	fconf_populate("TB_FW", STM32MP_DTB_BASE);
 
+	/*
+	 * RISAB5 setup (dedicated for RETRAM)
+	 *
+	 * Allow secure read/writes data accesses to non-secure
+	 * blocks or pages, all RISAB registers are writable.
+	 * DDR retention registers are saved there and restored
+	 * when exiting standby low power state.
+	 */
+	mmio_write_32(RISAB5_BASE + RISAB_CR, RISAB_CR_SRWIAD);
+
 	stm32mp_io_setup();
 }
 

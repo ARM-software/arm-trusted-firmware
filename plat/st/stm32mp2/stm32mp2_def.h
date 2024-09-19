@@ -73,6 +73,9 @@
 #define STM32MP_SYSRAM_SIZE			U(0x00040000)
 #define SRAM1_BASE				U(0x0E040000)
 #define SRAM1_SIZE_FOR_TFA			U(0x00010000)
+#define RETRAM_BASE				U(0x0E080000)
+#define RETRAM_SIZE				U(0x00020000)
+
 #define STM32MP_SEC_SYSRAM_SIZE			STM32MP_SYSRAM_SIZE
 
 /* DDR configuration */
@@ -376,6 +379,7 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
  * STM32MP RIF
  ******************************************************************************/
 #define RISAB3_BASE				U(0x42110000)
+#define RISAB5_BASE				U(0x42130000)
 
 /*******************************************************************************
  * STM32MP CA35SSC

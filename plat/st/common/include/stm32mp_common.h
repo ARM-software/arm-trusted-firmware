@@ -120,6 +120,10 @@ void stm32mp_io_setup(void);
 int stm32mp_map_ddr_non_cacheable(void);
 int stm32mp_unmap_ddr(void);
 
+/* Functions to map RETRAM, and unmap it */
+int stm32mp_map_retram(void);
+int stm32mp_unmap_retram(void);
+
 /* Function to save boot info */
 void stm32_save_boot_info(boot_api_context_t *boot_context);
 /* Function to get boot peripheral info */
