@@ -185,7 +185,7 @@ void bl2_plat_arch_setup(void)
 		panic();
 	}
 
-#if STM32MP_DDR_FIP_IO_STORAGE
+#if STM32MP_DDR_FIP_IO_STORAGE || TRUSTED_BOARD_BOOT
 	/*
 	 * RISAB3 setup (dedicated for SRAM1)
 	 *
@@ -194,7 +194,7 @@ void bl2_plat_arch_setup(void)
 	 * DDR firmwares are saved there before being loaded in DDRPHY memory.
 	 */
 	mmio_write_32(RISAB3_BASE + RISAB_CR, RISAB_CR_SRWIAD);
-#endif
+#endif /* STM32MP_DDR_FIP_IO_STORAGE || TRUSTED_BOARD_BOOT */
 
 	if (stm32_tamp_nvram_init() < 0) {
 		panic();
@@ -225,7 +225,21 @@ void bl2_plat_arch_setup(void)
 
 	print_reset_reason();
 
+	if (boot_context->auth_status != BOOT_API_CTX_AUTH_NO) {
+		NOTICE("Bootrom authentication %s\n",
+		       (boot_context->auth_status == BOOT_API_CTX_AUTH_FAILED) ?
+		       "failed" : "succeeded");
+	}
+
 skip_console_init:
+#if !TRUSTED_BOARD_BOOT
+	if (stm32mp_check_closed_device() == STM32MP_CHIP_SEC_CLOSED) {
+		/* Closed chip mandates authentication */
+		ERROR("Secure chip: TRUSTED_BOARD_BOOT must be enabled\n");
+		panic();
+	}
+#endif
+
 	if (stm32_rng_init() != 0) {
 		panic();
 	}
