@@ -74,6 +74,8 @@ LIBMBEDTLS_SRCS         += $(addprefix ${MBEDTLS_DIR}/library/,    	\
 					psa_crypto_rsa.c               	\
 					psa_crypto_ecp.c               	\
 					psa_crypto_slot_management.c   	\
+					psa_crypto_aead.c               \
+					psa_crypto_cipher.c             \
 					psa_util.c			\
 					)
 endif
