@@ -93,6 +93,20 @@
 #define RETRAM_BASE				U(0x0E080000)
 #define RETRAM_SIZE				U(0x00020000)
 
+#if defined(IMAGE_BL2) && STM32MP_USB_PROGRAMMER
+#define STM32MP_USB_DWC3_SIZE			PAGE_SIZE
+#define STM32MP_USB_DWC3_BASE			(STM32MP_SYSRAM_BASE + \
+						 STM32MP_SYSRAM_SIZE - \
+						 STM32MP_SYSRAM_DEVICE_SIZE)
+
+#define STM32MP_SYSRAM_DEVICE_SIZE		STM32MP_USB_DWC3_SIZE
+#define STM32MP_SYSRAM_DEVICE_BASE		STM32MP_USB_DWC3_BASE
+
+#define STM32MP_SYSRAM_MEM_SIZE			(STM32MP_SYSRAM_SIZE - \
+						 STM32MP_SYSRAM_DEVICE_SIZE)
+#define STM32MP_SYSRAM_MEM_BASE			STM32MP_SYSRAM_BASE
+#endif /* IMAGE_BL2 && STM32MP_USB_PROGRAMMER */
+
 /* DDR configuration */
 #define STM32MP_DDR_BASE			U(0x80000000)
 #define STM32MP_DDR_MAX_SIZE			UL(0x100000000)	/* Max 4GB */
@@ -151,7 +165,7 @@ enum ddr_type {
  * MAX_MMAP_REGIONS is usually:
  * BL stm32mp2_mmap size + mmap regions in *_plat_arch_setup
  */
-#if defined(IMAGE_BL31)
+#if STM32MP_USB_PROGRAMMER || defined(IMAGE_BL31)
 #define MAX_MMAP_REGIONS			7
 #else
 #define MAX_MMAP_REGIONS			6
@@ -393,6 +407,11 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 	return TAMP_BKP_REGISTER_BASE + (idx << 2);
 }
 #endif
+
+/*******************************************************************************
+ * STM32MP2 USB
+ ******************************************************************************/
+#define USB_DWC3_BASE				U(0x48300000)
 
 /*******************************************************************************
  * STM32MP2 DDRCTRL

@@ -222,7 +222,11 @@ BL2_SOURCES			+=	drivers/st/mmc/stm32_sdmmc2.c
 endif
 
 ifeq (${STM32MP_USB_PROGRAMMER},1)
-BL2_SOURCES			+=	plat/st/stm32mp2/stm32mp2_usb_dfu.c
+#The DFU stack uses only one end point, reduce the USB stack footprint
+$(eval $(call add_define_val,CONFIG_USBD_EP_NB,1U))
+$(eval $(call add_define,USB_CORE_AVOID_PACKET_SPLIT_MPS))
+BL2_SOURCES			+=	drivers/st/usb_dwc3/usb_dwc3.c				\
+					plat/st/stm32mp2/stm32mp2_usb_dfu.c
 endif
 
 BL2_SOURCES			+=	drivers/st/ddr/stm32mp2_ddr.c				\
