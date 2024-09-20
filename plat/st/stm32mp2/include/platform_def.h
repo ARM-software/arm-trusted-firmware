@@ -74,7 +74,7 @@
  * BL31 specific defines.
  ******************************************************************************/
 #define BL31_BASE			0
-#define BL31_LIMIT			STM32MP_BL31_SIZE
+#define BL31_LIMIT			(STM32MP_SEC_SYSRAM_SIZE / 2)
 
 /*******************************************************************************
  * BL33 specific defines.

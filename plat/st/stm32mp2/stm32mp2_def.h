@@ -109,9 +109,11 @@ enum ddr_type {
 #define STM32MP_BL2_RO_SIZE			U(0x00020000) /* 128 KB */
 #define STM32MP_BL2_SIZE			U(0x00029000) /* 164 KB for BL2 */
 
-/* Allocate remaining sysram to BL31 */
+/* Allocate remaining sysram to BL31 Binary only */
 #define STM32MP_BL31_SIZE			(STM32MP_SEC_SYSRAM_SIZE - \
 						 STM32MP_BL2_SIZE)
+
+#define BL31_PROGBITS_LIMIT			STM32MP_BL31_SIZE
 
 #define STM32MP_BL2_BASE			(STM32MP_SYSRAM_BASE + \
 						 STM32MP_SYSRAM_SIZE - \
