@@ -3,6 +3,54 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.5..refs/tags/lts-v2.10.6) (2024-09-20)
+
+### Resolved Issues
+
+- **arm_fpga:** halve number of PEs per core ([e941b0e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e941b0e0f4647e621d79b3bb81a3b3a2088aefa9))
+
+- **Services**
+
+  - **SPM**
+
+    - **SPM MM**
+
+      - carve out NS buffer TZC400 region ([74fc957](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/74fc9576d47ffe3d550452ced9a068fb8e5529da))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A720 erratum 2792132 ([a93c69b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a93c69bbbe17844b66d36dd01d13e5242b12e0dd))
+    - workaround for Cortex-A720 erratum 2844092 ([9d39343](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9d393432385269961288ffd418209c3d088b92fd))
+    - workaround for Cortex-X4 erratum 2816013 ([582b950](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/582b950ed3980a8c04f1a4caabdd8dfab5f5aa17))
+
+### New Features
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - add cpu power control ([9ca6bf3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9ca6bf389aa072ffc55377df71a9739f31b6dd55))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A520(2938996) and Cortex-X4(2726228) ([47010ae](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/47010ae9dc40375ec0b85ea9e3be3ace0b00d402))
+
+### Documentation
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - update FVP versions used ([c1b9767](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c1b97672700f0f65b95958a102cceef8f8fab912))
+
 ## [lts-2.10.5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.4..refs/tags/lts-v2.10.5) (2024-06-28)
 
 ### Code Refactoring
