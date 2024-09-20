@@ -136,6 +136,22 @@ static __pmusramfunc void dsu_restore_early(void)
 
 static __pmusramfunc void ddr_resume(void)
 {
+	/* check the crypto function had been enabled or not */
+	if ((mmio_read_32(DSUSGRF_BASE + DSU_SGRF_SOC_CON(4)) & BIT(4)) != 0) {
+		/* enable the crypto function */
+		mmio_write_32(DSUSGRF_BASE + DSU_SGRF_SOC_CON(4), BITS_WITH_WMASK(0, 0x1, 4));
+		dsb();
+		isb();
+
+		__asm__ volatile ("mov	x0, #3\n"
+				  "dsb	sy\n"
+				  "msr	rmr_el3, x0\n"
+				  "1:\n"
+				  "isb\n"
+				  "wfi\n"
+				  "b 1b\n");
+	}
+
 	dsu_restore_early();
 }
 
@@ -1436,4 +1452,61 @@ void plat_rockchip_pmu_init(void)
 	mmio_write_32(PMU0SGRF_BASE + PMU0_SGRF_SOC_CON(2), 0x00030001);
 
 	pm_reg_rgns_init();
+}
+
+static uint64_t boot_cpu_save[4];
+/* define in .data section */
+static uint32_t need_en_crypto = 1;
+
+void rockchip_cpu_reset_early(u_register_t arg0, u_register_t arg1,
+			      u_register_t arg2, u_register_t arg3)
+{
+	if (need_en_crypto == 0)
+		return;
+
+	/* check the crypto function had been enabled or not */
+	if ((mmio_read_32(DSUSGRF_BASE + DSU_SGRF_SOC_CON(4)) & BIT(4)) != 0) {
+		/* save x0~x3 */
+		boot_cpu_save[0] = arg0;
+		boot_cpu_save[1] = arg1;
+		boot_cpu_save[2] = arg2;
+		boot_cpu_save[3] = arg3;
+
+		/* enable the crypto function */
+		mmio_write_32(DSUSGRF_BASE + DSU_SGRF_SOC_CON(4),
+			      BITS_WITH_WMASK(0, 0x1, 4));
+
+		/* remap pmusram to 0xffff0000 */
+		mmio_write_32(PMU0SGRF_BASE + PMU0_SGRF_SOC_CON(2), 0x00030001);
+		psram_sleep_cfg->pm_flag = PM_WARM_BOOT_BIT;
+		cpuson_flags[0] = PMU_CPU_HOTPLUG;
+		cpuson_entry_point[0] = (uintptr_t)BL31_BASE;
+		dsb();
+
+		/* Must reset core0 to enable the crypto function.
+		 * Core0 will boot from pmu_sram and jump to BL31_BASE.
+		 */
+		__asm__ volatile ("mov	x0, #3\n"
+				  "dsb	sy\n"
+				  "msr	rmr_el3, x0\n"
+				  "1:\n"
+				  "isb\n"
+				  "wfi\n"
+				  "b	1b\n");
+	} else {
+		need_en_crypto = 0;
+
+		/* remap bootrom to 0xffff0000 */
+		mmio_write_32(PMU0SGRF_BASE + PMU0_SGRF_SOC_CON(2), 0x00030000);
+
+		/*
+		 * the crypto function has been enabled,
+		 * restore the x0~x3.
+		 */
+		__asm__ volatile ("ldr	x20, [%0]\n"
+				  "ldr	x21, [%0, 0x8]\n"
+				  "ldr	x22, [%0, 0x10]\n"
+				  "ldr	x23, [%0, 0x18]\n"
+				  : : "r" (&boot_cpu_save[0]));
+	}
 }
