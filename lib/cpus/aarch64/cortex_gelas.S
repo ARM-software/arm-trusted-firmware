@@ -25,6 +25,10 @@
 #error "Gelas must be compiled with FEAT_PABANDON enabled"
 #endif
 
+#if ERRATA_SME_POWER_DOWN == 0
+#error "Gelas needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
+#endif
+
 cpu_reset_func_start cortex_gelas
 	/* ----------------------------------------------------
 	 * Disable speculative loads
@@ -38,20 +42,6 @@ cpu_reset_func_end cortex_gelas
 	 * ----------------------------------------------------
 	 */
 func cortex_gelas_core_pwr_dwn
-#if ENABLE_SME_FOR_NS
-        /* ---------------------------------------------------
-         * Disable SME if enabled and supported
-         * ---------------------------------------------------
-         */
-	mrs     x0, ID_AA64PFR1_EL1
-	ubfx	x0, x0, #ID_AA64PFR1_EL1_SME_SHIFT, \
-		#ID_AA64PFR1_EL1_SME_WIDTH
-        cmp     x0, #SME_NOT_IMPLEMENTED
-	b.eq	1f
-	msr	CORTEX_GELAS_SVCRSM, xzr
-	msr	CORTEX_GELAS_SVCRZA, xzr
-1:
-#endif
 	/* ---------------------------------------------------
 	 * Flip CPU power down bit in power control register.
 	 * It will be set on powerdown and cleared on wakeup

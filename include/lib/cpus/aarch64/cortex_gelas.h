@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,11 +21,5 @@
  ******************************************************************************/
 #define CORTEX_GELAS_CPUPWRCTLR_EL1			S3_0_C15_C2_7
 #define CORTEX_GELAS_CPUPWRCTLR_EL1_CORE_PWRDN_BIT	U(1)
-
-/*******************************************************************************
- * SME Control registers
- ******************************************************************************/
-#define CORTEX_GELAS_SVCRSM				S0_3_C4_C2_3
-#define CORTEX_GELAS_SVCRZA				S0_3_C4_C4_3
 
 #endif /* CORTEX_GELAS_H */

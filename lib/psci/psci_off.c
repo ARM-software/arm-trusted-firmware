@@ -93,7 +93,7 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 */
 	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_off != NULL)) {
 		rc = psci_spd_pm->svc_off(0);
-		if (rc != 0)
+		if (rc != PSCI_E_SUCCESS)
 			goto exit;
 	}
 

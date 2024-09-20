@@ -221,7 +221,9 @@ endif
 
 #Build AArch64-only CPUs with no FVP model yet.
 ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
+	# travis/gelas need these
 	FEAT_PABANDON	:=	1
+	ERRATA_SME_POWER_DOWN := 1
 	FVP_CPU_LIBS    +=	lib/cpus/aarch64/neoverse_n3.S		\
 				lib/cpus/aarch64/cortex_gelas.S		\
 				lib/cpus/aarch64/nevis.S		\

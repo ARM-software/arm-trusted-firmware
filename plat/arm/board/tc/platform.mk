@@ -150,6 +150,8 @@ endif
 # CPU libraries for TARGET_PLATFORM=4
 ifeq (${TARGET_PLATFORM}, 4)
 FEAT_PABANDON	:=	1
+# prevent CME related wakups
+ERRATA_SME_POWER_DOWN := 1
 TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_gelas.S \
 			lib/cpus/aarch64/nevis.S \
 			lib/cpus/aarch64/travis.S
