@@ -3,6 +3,52 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.21](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.20..refs/tags/lts-v2.8.21) (2024-09-20)
+
+### Resolved Issues
+
+- **Services**
+
+  - **SPM**
+
+    - **SPM MM**
+
+      - carve out NS buffer TZC400 region ([d1f63ab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d1f63aba22b1bfd9765ef4b17f396829b3d40888))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A720 erratum 2792132 ([9db99a3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9db99a3e47f29cec66cc1e2afee5175cf3af320a))
+    - workaround for Cortex-A720 erratum 2844092 ([dedcbb7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/dedcbb78ee7709c7261869717f9152b485c09b89))
+    - workaround for Cortex-X4 erratum 2816013 ([7512450](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/75124503fedeaf0d5ad2f915caa15f345a608bba))
+
+### New Features
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - add cpu power control ([4220b83](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4220b8313841c14459d86864b4bdc7f4b61a096d))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-A520(2938996) and Cortex-X4(2726228) ([a0a574d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a0a574d700abfe066da72d70052c84c89ac66616))
+
+### Documentation
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - update FVP versions used ([d9daf13](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d9daf130c27171d7de3d0b6c788d242721aade37))
+
 ## [lts-2.8.20](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.19..refs/tags/lts-v2.8.20) (2024-06-28)
 
 ### Miscellaneous
