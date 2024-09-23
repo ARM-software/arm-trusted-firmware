@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +23,14 @@ enum mhu_error_t {
 	MHU_ERR_INVALID_ARG		= -5,
 	MHU_ERR_BUFFER_TOO_SMALL	= -6,
 	MHU_ERR_GENERAL			= -7,
+};
+
+/**
+ * Structure used by RSE comms
+ */
+struct mhu_addr {
+	uintptr_t sender_base;
+	uintptr_t receiver_base;
 };
 
 /**

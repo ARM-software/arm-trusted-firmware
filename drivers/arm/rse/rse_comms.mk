@@ -16,6 +16,7 @@ RSE_COMMS_SOURCES	:=	$(addprefix drivers/arm/rse/,			\
 # Default to MHUv2 if PLAT_MHU undefined
 PLAT_MHU ?= MHUv2
 
+ifneq (${PLAT_MHU}, NO_MHU)
 ifeq (${PLAT_MHU}, MHUv3)
 RSE_COMMS_SOURCES	+=	$(addprefix drivers/arm/mhu/,			\
 					mhu_v3_x.c				\
@@ -30,6 +31,12 @@ else
 $(error Unsupported MHU version)
 endif
 
+RSE_COMMS_SOURCES	+=	$(addprefix drivers/arm/rse/,			\
+					rse_comms_mhu.c				\
+				)
+
+PLAT_INCLUDES		+=	-Idrivers/arm/mhu
+endif
+
 PLAT_INCLUDES		+=	-Idrivers/arm/rse		\
-				-Idrivers/arm/mhu		\
 				-Iinclude/lib/psa
