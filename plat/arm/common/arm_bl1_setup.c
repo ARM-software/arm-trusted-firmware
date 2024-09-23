@@ -64,9 +64,7 @@ static meminfo_t bl1_tzram_layout;
 /* Boolean variable to hold condition whether firmware update needed or not */
 static bool is_fwu_needed;
 
-#if TRANSFER_LIST
-static struct transfer_list_header *secure_tl;
-#endif
+struct transfer_list_header *secure_tl;
 
 struct meminfo *bl1_plat_sec_mem_layout(void)
 {
@@ -90,6 +88,12 @@ void arm_bl1_early_platform_setup(void)
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = ARM_BL_RAM_BASE;
 	bl1_tzram_layout.total_size = ARM_BL_RAM_SIZE;
+
+#if TRANSFER_LIST
+	secure_tl = transfer_list_ensure((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
+					 PLAT_ARM_FW_HANDOFF_SIZE);
+	assert(secure_tl != NULL);
+#endif
 }
 
 void bl1_early_platform_setup(void)
@@ -171,14 +175,6 @@ void arm_bl1_platform_setup(void)
 	}
 
 #if TRANSFER_LIST
-	secure_tl = transfer_list_init((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
-				       PLAT_ARM_FW_HANDOFF_SIZE);
-
-	if (secure_tl == NULL) {
-		ERROR("Secure transfer list initialisation failed!\n");
-		panic();
-	}
-
 	te = transfer_list_add(secure_tl, TL_TAG_TB_FW_CONFIG,
 			       ARM_TB_FW_CONFIG_MAX_SIZE, NULL);
 	assert(te != NULL);

@@ -48,8 +48,6 @@ static const arm_gpt_info_t arm_gpt_info = {
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
-	struct transfer_list_entry *te __unused;
-
 #if TRANSFER_LIST
 	arg0 = arg3;
 #endif

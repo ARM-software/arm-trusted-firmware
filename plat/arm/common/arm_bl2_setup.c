@@ -66,8 +66,7 @@ CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 
 #pragma weak arm_bl2_plat_handle_post_image_load
 
-static struct transfer_list_header *secure_tl __unused;
-static struct transfer_list_header *ns_tl __unused;
+struct transfer_list_header *secure_tl __unused;
 
 /*******************************************************************************
  * BL1 has passed the extents of the trusted SRAM that should be visible to BL2
@@ -129,15 +128,14 @@ void bl2_plat_preload_setup(void)
 #if TRANSFER_LIST
 /* Assume the secure TL hasn't been initialised if BL2 is running at EL3. */
 #if RESET_TO_BL2
-	secure_tl = transfer_list_init((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
-				       PLAT_ARM_FW_HANDOFF_SIZE);
+	secure_tl = transfer_list_ensure((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
+					 PLAT_ARM_FW_HANDOFF_SIZE);
 
 	if (secure_tl == NULL) {
 		ERROR("Secure transfer list initialisation failed!\n");
 		panic();
 	}
 #endif
-
 	arm_transfer_list_dyn_cfg_init(secure_tl);
 #else
 #if ARM_FW_CONFIG_LOAD_ENABLE
