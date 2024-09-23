@@ -243,7 +243,8 @@ void mailbox_reset_cold(void);
 void mailbox_reset_warm(uint32_t reset_type);
 void mailbox_clear_response(void);
 
-int intel_mailbox_get_config_status(uint32_t cmd, bool init_done);
+int intel_mailbox_get_config_status(uint32_t cmd, bool init_done,
+				    uint32_t *err_states);
 int intel_mailbox_is_fpga_not_ready(void);
 
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
