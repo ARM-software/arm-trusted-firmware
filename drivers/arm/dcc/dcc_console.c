@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015-2021, Xilinx Inc.
+ * Copyright (c) 2015-2022, Xilinx Inc.
+ * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
  * Written by Michal Simek.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -45,7 +46,7 @@
 #define TIMEOUT_COUNT_US	U(0x10624)
 
 struct dcc_console {
-	struct console console;
+	console_t console;
 };
 
 static inline uint32_t __dcc_getstatus(void)
@@ -147,13 +148,14 @@ static struct dcc_console dcc_console = {
 	},
 };
 
-int console_dcc_register(void)
+int console_dcc_register(console_t *console)
 {
-	return console_register(&dcc_console.console);
+	memcpy(console, &dcc_console.console, sizeof(console_t));
+	return console_register(console);
 }
 
-void console_dcc_unregister(void)
+void console_dcc_unregister(console_t *console)
 {
-	dcc_console_flush(&dcc_console.console);
-	(void)console_unregister(&dcc_console.console);
+	dcc_console_flush(console);
+	(void)console_unregister(console);
 }

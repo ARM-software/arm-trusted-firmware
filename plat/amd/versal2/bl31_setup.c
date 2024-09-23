@@ -76,6 +76,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	uint32_t uart_clock;
 	int32_t rc;
+	static console_t _runtime_console;
 
 	board_detection();
 
@@ -122,7 +123,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uart_clock = get_uart_clk();
 
 	if (CONSOLE_IS(pl011_0) || CONSOLE_IS(pl011_1)) {
-		static console_t _runtime_console;
 
 		/* Initialize the console to provide early debug support */
 		rc = console_pl011_register(UART_BASE, uart_clock,
@@ -138,7 +138,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		/* Initialize the dcc console for debug.
 		 * dcc is over jtag and does not configures uart0 or uart1.
 		 */
-		rc = console_dcc_register();
+		rc = console_dcc_register(&_runtime_console);
 		if (rc == 0) {
 			panic();
 		}

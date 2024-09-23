@@ -212,7 +212,7 @@ error:
 static void console_end(console_t *console)
 {
 	if (CONSOLE_IS(dcc)) {
-		console_dcc_unregister();
+		console_dcc_unregister(console);
 	} else {
 		if (console != NULL) {
 			console_flush();
@@ -293,7 +293,7 @@ static void handle_dt_console(dt_uart_info_t *uart_info, console_t *console,
  */
 static void handle_dcc_console(console_t *console)
 {
-	int32_t rc = console_dcc_register();
+	int32_t rc = console_dcc_register(console);
 
 	if (rc == 0) {
 		panic();
@@ -377,7 +377,7 @@ void setup_console(void)
 #endif
 	if (CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug */
-		rc = console_dcc_register();
+		rc = console_dcc_register(&boot_console);
 		if (rc == 0) {
 			panic();
 		}
