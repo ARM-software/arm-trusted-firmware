@@ -66,7 +66,6 @@ LIBMBEDTLS_SRCS		+= $(addprefix ${MBEDTLS_DIR}/library/,		\
 					)
 
 ifeq (${PSA_CRYPTO},1)
-LIBMBEDTLS_CFLAGS 	+= -Wno-error=unused-but-set-variable
 LIBMBEDTLS_SRCS         += $(addprefix ${MBEDTLS_DIR}/library/,    	\
 					psa_crypto.c                   	\
 					psa_crypto_client.c            	\
