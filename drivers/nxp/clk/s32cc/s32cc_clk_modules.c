@@ -192,12 +192,21 @@ static struct s32cc_clk_array s32cc_arch_clocks = {
 	.n_clks = ARRAY_SIZE(s32cc_arch_clk_list),
 };
 
+static const struct s32cc_clk_array *s32cc_clk_table[2] = {
+	&s32cc_hw_clocks,
+	&s32cc_arch_clocks,
+};
+
 struct s32cc_clk *s32cc_get_arch_clk(unsigned long id)
 {
-	static const struct s32cc_clk_array *clk_table[2] = {
-		&s32cc_hw_clocks,
-		&s32cc_arch_clocks,
-	};
+	return s32cc_get_clk_from_table(s32cc_clk_table,
+					ARRAY_SIZE(s32cc_clk_table),
+					id);
+}
 
-	return s32cc_get_clk_from_table(clk_table, ARRAY_SIZE(clk_table), id);
+int s32cc_get_clk_id(const struct s32cc_clk *clk, unsigned long *id)
+{
+	return s32cc_get_id_from_table(s32cc_clk_table,
+				       ARRAY_SIZE(s32cc_clk_table),
+				       clk, id);
 }

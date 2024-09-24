@@ -17,7 +17,7 @@
 #define S32CC_PERIPH_PLL_VCO_FREQ	(2U * GHZ)
 #define S32CC_PERIPH_PLL_PHI3_FREQ	UART_CLOCK_HZ
 
-static int enable_fxosc_clk(void)
+static int setup_fxosc(void)
 {
 	int ret;
 
@@ -26,15 +26,10 @@ static int enable_fxosc_clk(void)
 		return ret;
 	}
 
-	ret = clk_enable(S32CC_CLK_FXOSC);
-	if (ret != 0) {
-		return ret;
-	}
-
 	return ret;
 }
 
-static int enable_arm_pll(void)
+static int setup_arm_pll(void)
 {
 	int ret;
 
@@ -53,20 +48,10 @@ static int enable_arm_pll(void)
 		return ret;
 	}
 
-	ret = clk_enable(S32CC_CLK_ARM_PLL_VCO);
-	if (ret != 0) {
-		return ret;
-	}
-
-	ret = clk_enable(S32CC_CLK_ARM_PLL_PHI0);
-	if (ret != 0) {
-		return ret;
-	}
-
 	return ret;
 }
 
-static int enable_periph_pll(void)
+static int setup_periph_pll(void)
 {
 	int ret;
 
@@ -81,16 +66,6 @@ static int enable_periph_pll(void)
 	}
 
 	ret = clk_set_rate(S32CC_CLK_PERIPH_PLL_PHI3, S32CC_PERIPH_PLL_PHI3_FREQ, NULL);
-	if (ret != 0) {
-		return ret;
-	}
-
-	ret = clk_enable(S32CC_CLK_PERIPH_PLL_VCO);
-	if (ret != 0) {
-		return ret;
-	}
-
-	ret = clk_enable(S32CC_CLK_PERIPH_PLL_PHI3);
 	if (ret != 0) {
 		return ret;
 	}
@@ -170,17 +145,12 @@ int s32cc_init_early_clks(void)
 
 	s32cc_clk_register_drv();
 
-	ret = enable_fxosc_clk();
+	ret = setup_fxosc();
 	if (ret != 0) {
 		return ret;
 	}
 
-	ret = enable_arm_pll();
-	if (ret != 0) {
-		return ret;
-	}
-
-	ret = enable_periph_pll();
+	ret = setup_arm_pll();
 	if (ret != 0) {
 		return ret;
 	}
@@ -191,6 +161,11 @@ int s32cc_init_early_clks(void)
 	}
 
 	ret = enable_xbar_clk();
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = setup_periph_pll();
 	if (ret != 0) {
 		return ret;
 	}
