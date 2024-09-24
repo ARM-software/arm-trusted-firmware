@@ -112,9 +112,9 @@ PRESERVE_DSU_PMU_REGS		:= 1
 
 # Specify MHU type based on platform
 ifneq ($(filter ${TARGET_PLATFORM}, 2),)
-	PLAT_MHU_VERSION	:= 2
+	PLAT_MHU		:= MHUv2
 else
-	PLAT_MHU_VERSION	:= 3
+	PLAT_MHU		:= MHUv3
 endif
 
 # Include GICv3 driver files

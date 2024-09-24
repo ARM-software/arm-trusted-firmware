@@ -1,4 +1,4 @@
-# Copyright (c) 2024, Arm Limited. All rights reserved.
+# Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -33,7 +33,7 @@ GIC_ENABLE_V4_EXTN			:=	1
 GICV3_SUPPORT_GIC600			:=	1
 HW_ASSISTED_COHERENCY			:=	1
 NEED_BL32				:=	yes
-PLAT_MHU_VERSION			:=	1
+PLAT_MHU				:=	MHUv1
 RESET_TO_BL2				:=	1
 SVE_VECTOR_LEN				:=	128
 USE_COHERENT_MEM			:=	0

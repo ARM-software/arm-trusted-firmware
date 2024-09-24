@@ -51,7 +51,7 @@ GICV3_IMPL_GIC600_MULTICHIP	:= 1
 endif
 
 # RD-V3 uses MHUv3
-PLAT_MHU_VERSION := 3
+PLAT_MHU := MHUv3
 
 include plat/arm/board/neoverse_rd/common/nrd-common.mk
 include drivers/arm/rse/rse_comms.mk
