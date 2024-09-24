@@ -15,6 +15,7 @@
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32mp2_ddr_helpers.h>
+#include <drivers/st/stm32mp_pmic2.h>
 #include <drivers/st/stm32mp_risab_regs.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
@@ -228,6 +229,10 @@ void bl2_el3_plat_arch_setup(void)
 skip_console_init:
 	if (fixed_regulator_register() != 0) {
 		panic();
+	}
+
+	if (dt_pmic_status() > 0) {
+		initialize_pmic();
 	}
 
 	fconf_populate("TB_FW", STM32MP_DTB_BASE);
