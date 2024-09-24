@@ -9,11 +9,11 @@
 
 """Contains unit tests for the CLI functionality."""
 
+from math import ceil, log2
 from pathlib import Path
+from re import findall, search
 from unittest import mock
-from math import log2, ceil
 
-import pytest
 import pytest
 import yaml
 from click.testing import CliRunner
@@ -382,6 +382,69 @@ def test_create_from_yaml_check_exact_data(
     actual = bytes_to_hex(actual)
 
     assert actual == expected
+
+
+@pytest.mark.parametrize("option", ["-O", "--output"])
+def test_gen_tl_header_with_output_name(tlcrunner, tmptlstr, option, filename="test.h"):
+    with tlcrunner.isolated_filesystem():
+        result = tlcrunner.invoke(
+            cli,
+            [
+                "gen-header",
+                option,
+                filename,
+                tmptlstr,
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert Path(filename).exists()
+
+
+def test_gen_tl_with_fdt_header(tmptlstr, tmpfdt):
+    tlcrunner = CliRunner()
+
+    with tlcrunner.isolated_filesystem():
+        tlcrunner.invoke(cli, ["create", "--size", 1000, "--fdt", tmpfdt, tmptlstr])
+
+        result = tlcrunner.invoke(
+            cli,
+            [
+                "gen-header",
+                tmptlstr,
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert Path("header.h").exists()
+
+        with open("header.h", "r") as f:
+            dtb_match = search(r"DTB_OFFSET\s+(\d+)", "".join(f.readlines()))
+            assert dtb_match and dtb_match[1].isnumeric()
+
+
+def test_gen_empty_tl_c_header(tlcrunner, tmptlstr):
+    with tlcrunner.isolated_filesystem():
+        result = tlcrunner.invoke(
+            cli,
+            [
+                "gen-header",
+                tmptlstr,
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert Path("header.h").exists()
+
+        with open("header.h", "r") as f:
+            lines = "".join(f.readlines())
+
+            assert TransferList.hdr_size == int(
+                findall(r"SIZE\s+(0x[0-9a-fA-F]+|\d+)", lines)[0], 16
+            )
+            assert TransferList.version == int(
+                findall(r"VERSION.+(0x[0-9a-fA-F]+|\d+)", lines)[0]
+            )
 
 
 def bytes_to_hex(data: bytes) -> str:

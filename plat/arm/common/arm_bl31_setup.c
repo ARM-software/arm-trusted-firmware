@@ -147,8 +147,7 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
-	bl33_image_ep_info.args.arg0 =
-		FW_NS_HANDOFF_BASE + ARM_PRELOADED_DTB_OFFSET;
+	bl33_image_ep_info.args.arg0 = PLAT_ARM_TRANSFER_LIST_DTB_OFFSET;
 	bl33_image_ep_info.args.arg1 =
 		TRANSFER_LIST_HANDOFF_X1_VALUE(REGISTER_CONVENTION_VERSION);
 	bl33_image_ep_info.args.arg3 = FW_NS_HANDOFF_BASE;

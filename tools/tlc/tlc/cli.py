@@ -12,6 +12,7 @@
 from pathlib import Path
 
 import click
+import jinja2
 import yaml
 
 from tlc.tl import *
@@ -162,6 +163,34 @@ def unpack(filename, c):
     for i, te in enumerate(tl.entries):
         with open(pwd / f"te_{i}_{te.id}.bin", "wb") as f:
             f.write(te.data)
+
+
+@cli.command()
+@click.argument("filename", type=click.Path(exists=True, dir_okay=False))
+@click.option(
+    "--output",
+    "-O",
+    type=click.Path(exists=False),
+    help="Output filename for the header",
+    default=Path("header.h"),
+)
+def gen_header(filename, output):
+    """Generate a header with common definitions."""
+    tl = TransferList.fromfile(filename)
+    tmp_keys = tl.__dict__
+    tmp_keys["header_guard"] = Path(output).name.replace(".", "_").upper()
+
+    dtb_te = tl.get_entry(1)
+
+    if dtb_te:
+        tmp_keys["dtb_offset"] = dtb_te.offset + dtb_te.hdr_size
+
+    env = jinja2.Environment(
+        loader=jinja2.PackageLoader("tlc", "templates"),
+    )
+    template = env.get_template("header.h.j2")
+    with open(output, "w") as f:
+        f.write(template.render(tmp_keys))
 
 
 @cli.command()

@@ -8,7 +8,7 @@
 
 """Module containing definitions pertaining to the 'Transfer List' (TL) type."""
 
-import typing
+from typing import Any, Dict, List, Optional
 
 import math
 import struct
@@ -24,7 +24,7 @@ TRANSFER_LIST_ENABLE_CHECKSUM = 0b1
 # used in struct.pack to encode the TE), and a list of field names that can
 # appear in the yaml file for that TE. Some fields are missing, if that TE has
 # to be processed differently, or if it can only be added with a blob file.
-transfer_entry_formats = {
+transfer_entry_formats: Dict[int, Any] = {
     0: {
         "tag_name": "empty",
         "format": "4x",
@@ -93,7 +93,7 @@ class TransferList:
         self.size = self.hdr_size
         self.total_size = max_size
         self.flags = flags
-        self.entries: typing.List["TransferEntry"] = []
+        self.entries: List[TransferEntry] = []
         self.update_checksum()
 
     def __str__(self) -> str:
@@ -152,7 +152,7 @@ class TransferList:
         return tl
 
     @classmethod
-    def from_dict(cls, config: dict):
+    def from_dict(cls, config: Dict[str, Any]) -> "TransferList":
         """Create a TL from data in a dictionary
 
         The dictionary should have the same format as the yaml config files.
@@ -197,15 +197,23 @@ class TransferList:
             sum(self.header_to_bytes()) + sum(te.sum_of_bytes for te in self.entries)
         ) % 256
 
-    def get_entry_data_offset(self, tag_id: int) -> int:
-        """Returns offset of data of a TE from the base of the TL."""
+    def get_entry(self, tag_id: int) -> Optional[TransferEntry]:
         for te in self.entries:
             if te.id == tag_id:
-                return te.offset + te.hdr_size
+                return te
 
-        raise ValueError(f"Tag {tag_id} not found in TL!")
+        return None
 
-    def add_transfer_entry(self, tag_id: int, data: bytes) -> "TransferEntry":
+    def get_entry_data_offset(self, tag_id: int) -> int:
+        """Returns offset of data of a TE from the base of the TL."""
+        te = self.get_entry(tag_id)
+
+        if not te:
+            raise ValueError(f"Tag {tag_id} not found in TL!")
+
+        return te.offset + te.hdr_size
+
+    def add_transfer_entry(self, tag_id: int, data: bytes) -> TransferEntry:
         """Appends a TransferEntry into the internal list of TE's."""
         if not (self.total_size >= self.size + TransferEntry.hdr_size + len(data)):
             raise MemoryError(
@@ -219,13 +227,15 @@ class TransferList:
             return te
 
     def add_transfer_entry_from_struct_format(
-        self, tag_id: int, struct_format: str, *args
-    ):
+        self, tag_id: int, struct_format: str, *args: Any
+    ) -> TransferEntry:
         struct_format = "<" + struct_format
         data = struct.pack(struct_format, *args)
         return self.add_transfer_entry(tag_id, data)
 
-    def add_entry_point_info_transfer_entry(self, entry: dict) -> "TransferEntry":
+    def add_entry_point_info_transfer_entry(
+        self, entry: Dict[str, Any]
+    ) -> TransferEntry:
         """Add entry_point_info transfer entry
 
         :param entry: Dictionary of the transfer entry, in the same format as
@@ -282,8 +292,8 @@ class TransferList:
 
     def add_transfer_entry_from_dict(
         self,
-        entry: dict,
-    ) -> "TransferEntry":
+        entry: Dict[str, Any],
+    ) -> TransferEntry:
         """Add a transfer entry from data in a dictionary
 
         The dictionary should have the same format as the entries in the yaml
@@ -318,7 +328,7 @@ class TransferList:
         else:
             raise ValueError(f"Invalid transfer entry {entry}.")
 
-    def add_transfer_entry_from_file(self, tag_id: int, path: Path) -> "TransferEntry":
+    def add_transfer_entry_from_file(self, tag_id: int, path: Path) -> TransferEntry:
         with open(path, "rb") as f:
             return self.add_transfer_entry(tag_id, f.read())
 

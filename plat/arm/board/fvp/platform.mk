@@ -392,9 +392,10 @@ include lib/transfer_list/transfer_list.mk
 
 ifeq ($(RESET_TO_BL31), 1)
 HW_CONFIG			:=	${FVP_HW_CONFIG}
-FW_HANDOFF_SIZE		:=	20000
+FW_HANDOFF_SIZE			:=	20000
 
-$(eval $(call add_define,ARM_PRELOADED_DTB_OFFSET))
+TRANSFER_LIST_DTB_OFFSET	:=	0x20
+$(eval $(call add_define,TRANSFER_LIST_DTB_OFFSET))
 endif
 endif
 

@@ -38,9 +38,15 @@ typer = {extras = ["all"], version = "^0.4.0"}
 rich = "^10.14.0"
 click = "^8.1.7"
 pyyaml = "^6.0.1"
+tox = "^4.18.0"
+jinja2 = "^3.1.4"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
 bandit = "^1.7.1"
+tox = "^4.18.0"
 darglint = "^1.8.1"
 black = "^24.4.2"
 isort = {extras = ["colors"], version = "^5.10.1"}
@@ -49,13 +55,13 @@ mypy-extensions = "^0.4.3"
 pre-commit = "^2.15.0"
 pydocstyle = "^6.1.1"
 pylint = "^2.11.1"
-pytest = "^7.0.0"
+pytest = "^8.0.0"
 pyupgrade = "^2.29.1"
 safety = "^2.2.0"
 coverage = "^6.1.2"
 coverage-badge = "^1.1.0"
 pytest-html = "^4.1.1"
-pytest-cov = "^3.0.0"
+pytest-cov = "5.0.0"
 
 [tool.black]
 # https://github.com/psf/black
@@ -135,13 +141,11 @@ addopts = [
 
 [tool.coverage.run]
 source = ["tests"]
-
-[coverage.paths]
-source = "tlc"
-
-[coverage.run]
 branch = true
 
-[coverage.report]
+[tool.coverage.paths]
+source = ["tlc"]
+
+[tool.coverage.report]
 fail_under = 50
 show_missing = true

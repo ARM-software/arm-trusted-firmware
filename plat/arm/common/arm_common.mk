@@ -469,20 +469,6 @@ ifeq (${RECLAIM_INIT_CODE}, 1)
     endif
 endif
 
-TRANSFER_LIST_BIN := ${BUILD_PLAT}/tl.bin
-
-.PHONY: tl
-tl: ${HW_CONFIG}
-	@echo "  TLC     ${TRANSFER_LIST_BIN}"
-	$(Q)${PYTHON} -m tools.tlc.tlc create --fdt ${HW_CONFIG} -s ${FW_HANDOFF_SIZE} ${TRANSFER_LIST_BIN}
-	$(Q)$(eval ARM_PRELOADED_DTB_OFFSET := `tlc info --fdt-offset ${TRANSFER_LIST_BIN}`)
-
-ifeq (${TRANSFER_LIST}, 1)
-  ifeq (${RESET_TO_BL31}, 1)
-    bl31: tl
-  endif
-endif
-
 ifneq ($(COTDTPATH),)
         cot-dt-defines = IMAGE_BL2 $(BL2_DEFINES) $(PLAT_BL_COMMON_DEFINES)
         cot-dt-include-dirs = $(BL2_INCLUDE_DIRS) $(PLAT_BL_COMMON_INCLUDE_DIRS)
