@@ -10,6 +10,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/sha_common_macros.h>
 #include <drivers/clk.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32_hash.h>
@@ -61,15 +62,6 @@
 /* STR Register */
 #define HASH_STR_NBLW_MASK		GENMASK(4, 0)
 #define HASH_STR_DCAL			BIT(8)
-
-#define MD5_DIGEST_SIZE			16U
-#define SHA1_DIGEST_SIZE		20U
-#define SHA224_DIGEST_SIZE		28U
-#define SHA256_DIGEST_SIZE		32U
-#define SHA384_DIGEST_SIZE		48U
-#define SHA512_224_DIGEST_SIZE		28U
-#define SHA512_256_DIGEST_SIZE		32U
-#define SHA512_DIGEST_SIZE		64U
 
 #define RESET_TIMEOUT_US_1MS		1000U
 #define HASH_TIMEOUT_US			10000U

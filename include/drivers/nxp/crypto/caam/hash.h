@@ -9,15 +9,13 @@
 #define __HASH_H__
 
 #include <stdbool.h>
+#include <common/sha_common_macros.h>
 
 /* List of hash algorithms */
 enum hash_algo {
 	SHA1 = 0,
 	SHA256
 };
-
-/* number of bytes in the SHA256-256 digest */
-#define SHA256_DIGEST_SIZE 32
 
 /*
  * number of words in the digest - Digest is kept internally

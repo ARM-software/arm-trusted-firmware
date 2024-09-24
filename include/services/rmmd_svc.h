@@ -7,6 +7,7 @@
 #ifndef RMMD_SVC_H
 #define RMMD_SVC_H
 
+#include <common/sha_common_macros.h>
 #include <lib/smccc.h>
 #include <lib/utils_def.h>
 
@@ -95,11 +96,6 @@
 /* Return error codes from RMI SMCs */
 #define RMI_SUCCESS			0
 #define RMI_ERROR_INPUT			1
-
-/* Acceptable SHA sizes for Challenge object */
-#define SHA256_DIGEST_SIZE	32U
-#define SHA384_DIGEST_SIZE	48U
-#define SHA512_DIGEST_SIZE	64U
 
 /*
  * Retrieve Realm attestation key from EL3. Only P-384 ECC curve key is

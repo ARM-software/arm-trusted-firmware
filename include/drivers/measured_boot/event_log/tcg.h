@@ -8,6 +8,7 @@
 #define TCG_H
 
 #include <stdint.h>
+#include <common/sha_common_macros.h>
 
 #define TCG_ID_EVENT_SIGNATURE_03	"Spec ID Event03"
 #define TCG_STARTUP_LOCALITY_SIGNATURE	"StartupLocality"
@@ -65,12 +66,6 @@
 /* TCG Platform Type */
 #define PLATFORM_CLASS_CLIENT   0
 #define PLATFORM_CLASS_SERVER   1
-
-/* SHA digest sizes in bytes */
-#define SHA1_DIGEST_SIZE	20
-#define SHA256_DIGEST_SIZE	32
-#define SHA384_DIGEST_SIZE	48
-#define SHA512_DIGEST_SIZE	64
 
 enum {
 	/*
