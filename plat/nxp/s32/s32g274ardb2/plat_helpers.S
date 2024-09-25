@@ -6,10 +6,7 @@
 
 #include <asm_macros.S>
 #include <platform_def.h>
-
-#define S32G_NCORE_CAIU0_BASE_ADDR		UL(0x50400000)
-#define S32G_NCORE_CAIUTC_OFF			U(0x0)
-#define S32G_NCORE_CAIUTC_ISOLEN_SHIFT		U(1)
+#include <s32cc-ncore.h>
 
 .globl	plat_crash_console_flush
 .globl	plat_crash_console_init
@@ -104,12 +101,12 @@ endfunc plat_secondary_cold_boot_setup
  * Clobber list: x0, x1, x2
  */
 func plat_reset_handler
-	mov	x0, #S32G_NCORE_CAIU0_BASE_ADDR
-	ldr	w1, [x0, #S32G_NCORE_CAIUTC_OFF]
+	mov	x0, #NCORE_CAIU0_BASE_ADDR
+	ldr	w1, [x0, #NCORE_CAIUTC_OFF]
 	movz	w2, #1
-	lsl	w2, w2, #S32G_NCORE_CAIUTC_ISOLEN_SHIFT
+	lsl	w2, w2, #NCORE_CAIUTC_ISOLEN_SHIFT
 	orr	w1, w1, w2
-	str	w1, [x0, #S32G_NCORE_CAIUTC_OFF]
+	str	w1, [x0, #NCORE_CAIUTC_OFF]
 	ret
 endfunc plat_reset_handler
 
