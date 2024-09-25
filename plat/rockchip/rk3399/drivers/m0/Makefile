@@ -4,8 +4,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-toolchains := rk3399-m0
-
 include ../../../../../make_helpers/common.mk
 include ../../../../../make_helpers/toolchain.mk
 

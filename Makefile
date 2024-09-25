@@ -37,17 +37,6 @@ include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 # Configure the toolchains used to build TF-A and its tools
 ################################################################################
 
-#
-# The clean and check targets do not behave correctly if the user's environment
-# does not appropriately configure a toolchain. While we try to find a permanent
-# solution to this, do not try to detect any toolchains if we are building
-# exclusively with targets which do not use any toolchain tools.
-#
-
-ifeq ($(filter-out check% %clean doc %tool,$(or $(MAKECMDGOALS),all)),)
-        toolchains :=
-endif
-
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
 # Assertions enabled for DEBUG builds by default

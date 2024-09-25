@@ -10,8 +10,6 @@ CRTTOOL		?= cert_create${BIN_EXT}
 BINARY		:= $(notdir ${CRTTOOL})
 COT		:= tbbr
 
-toolchains := host
-
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
