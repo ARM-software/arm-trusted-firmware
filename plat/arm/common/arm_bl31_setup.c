@@ -7,6 +7,7 @@
 #include <assert.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -545,6 +546,13 @@ void __init arm_bl31_plat_arch_setup(void)
 	enable_mmu_el3(0);
 
 #if ENABLE_RME
+#if RESET_TO_BL31
+	/*  initialize GPT only when RME is enabled. */
+	assert(is_feat_rme_present());
+
+	/* Initialise and enable granule protection after MMU. */
+	arm_gpt_setup();
+#endif /* RESET_TO_BL31 */
 	/*
 	 * Initialise Granule Protection library and enable GPC for the primary
 	 * processor. The tables have already been initialized by a previous BL
