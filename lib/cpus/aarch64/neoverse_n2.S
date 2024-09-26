@@ -165,6 +165,7 @@ workaround_reset_end neoverse_n2, ERRATUM(2280757)
 
 check_erratum_ls neoverse_n2, ERRATUM(2280757), CPU_REV(0, 0)
 
+.global erratum_neoverse_n2_2326639_wa
 workaround_runtime_start neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639
 	/* Set/unset bit 36 in ACTLR2_EL1. The first call will set it, applying
 	 * the workaround. Second call clears it to undo it. */
