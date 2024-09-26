@@ -34,7 +34,7 @@ ifdef VERSAL_NET_ATF_MEM_BASE
     $(eval $(call add_define,VERSAL_NET_ATF_MEM_BASE))
 
     ifndef VERSAL_NET_ATF_MEM_SIZE
-        $(error "VERSAL_NET_ATF_BASE defined without VERSAL_NET_ATF_SIZE")
+        $(error "VERSAL_NET_ATF_MEM_BASE defined without VERSAL_NET_ATF_MEM_SIZE")
     endif
     $(eval $(call add_define,VERSAL_NET_ATF_MEM_SIZE))
 
@@ -47,7 +47,7 @@ ifdef VERSAL_NET_BL32_MEM_BASE
     $(eval $(call add_define,VERSAL_NET_BL32_MEM_BASE))
 
     ifndef VERSAL_NET_BL32_MEM_SIZE
-        $(error "VERSAL_NET_BL32_BASE defined without VERSAL_NET_BL32_SIZE")
+        $(error "VERSAL_NET_BL32_MEM_BASE defined without VERSAL_NET_BL32_MEM_SIZE")
     endif
     $(eval $(call add_define,VERSAL_NET_BL32_MEM_SIZE))
 endif
