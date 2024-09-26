@@ -57,7 +57,7 @@ func cortex_a57_disable_ext_debug
 	msr	osdlr_el1, x0
 	isb
 
-	apply_erratum cortex_a57, ERRATUM(817169), ERRATA_A57_817169
+	apply_erratum cortex_a57, ERRATUM(817169), ERRATA_A57_817169, NO_GET_CPU_REV
 
 	dsb	sy
 	ret
