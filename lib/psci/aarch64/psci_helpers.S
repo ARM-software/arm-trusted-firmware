@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -131,4 +131,12 @@ func psci_power_down_wfi
 1:
 	wfi
 	b	1b
+
+	/*
+	 * in case the WFI wasn't terminal, we have to undo errata mitigations.
+	 * These will be smart enough to handle being called the same way
+	 */
+	apply_erratum cortex_a710, ERRATUM(2291219), ERRATA_A710_2291219
+	apply_erratum cortex_x3,   ERRATUM(2313909), ERRATA_X3_2313909, NO_GET_CPU_REV
+	apply_erratum neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639, NO_GET_CPU_REV
 endfunc psci_power_down_wfi

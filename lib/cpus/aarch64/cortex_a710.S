@@ -164,6 +164,7 @@ workaround_reset_end cortex_a710, ERRATUM(2282622)
 
 check_erratum_ls cortex_a710, ERRATUM(2282622), CPU_REV(2, 1)
 
+.global erratum_cortex_a710_2291219_wa
 workaround_runtime_start cortex_a710, ERRATUM(2291219), ERRATA_A710_2291219
 	/* Set/unset bit 36 in ACTLR2_EL1. The first call will set it, applying
 	 * the workaround. Second call clears it to undo it. */
