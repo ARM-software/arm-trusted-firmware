@@ -58,6 +58,7 @@ workaround_reset_end cortex_x3, ERRATUM(2302506)
 
 check_erratum_ls cortex_x3, ERRATUM(2302506), CPU_REV(1, 1)
 
+.global erratum_cortex_x3_2313909_wa
 workaround_runtime_start cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
 	sysreg_bit_set	CORTEX_X3_CPUACTLR2_EL1, CORTEX_X3_CPUACTLR2_EL1_BIT_36
 workaround_runtime_end cortex_x3, ERRATUM(2313909), NO_ISB

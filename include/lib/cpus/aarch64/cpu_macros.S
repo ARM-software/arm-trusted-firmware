@@ -492,7 +492,7 @@
  * clobbers: x0-x10 (PCS compliant)
  */
 .macro apply_erratum _cpu:req, _cve:req, _id:req, _chosen:req, _get_rev=GET_CPU_REV
-	.if (\_chosen & \_get_rev)
+	.if (\_chosen && \_get_rev)
 		mov	x9, x30
 		bl	cpu_get_rev_var
 		mov	x10, x0
