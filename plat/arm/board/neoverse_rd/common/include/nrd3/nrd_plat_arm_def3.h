@@ -56,8 +56,8 @@
  * chips are accessed - secure ram, css device and soc device regions.
  */
 #if defined(IMAGE_BL31)
-#  define PLAT_ARM_MMAP_ENTRIES		(9 + ((NRD_CHIP_COUNT - 1) * 3))
-#  define MAX_XLAT_TABLES		(9 + ((NRD_CHIP_COUNT - 1) * 3))
+#  define PLAT_ARM_MMAP_ENTRIES		(10 + ((NRD_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(10 + ((NRD_CHIP_COUNT - 1) * 3))
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		U(8)
 # define MAX_XLAT_TABLES		U(5)
@@ -442,7 +442,7 @@
  * SRAM layout
  ******************************************************************************/
 
-/*
+/* if !RESET_TO_BL31
  *              Trusted SRAM
  * 0x00100000 +--------------+
  *            |    L0 GPT    |
@@ -460,6 +460,26 @@
  * 0x00019000 +--------------+
  *            |   BL1 (ro)   |
  * 0x00000000 +--------------+
+ *
+ * else
+ *
+ *              Trusted SRAM
+ * 0x00100000 +--------------+
+ *            |    L0 GPT    |
+ * 0x000E0000 +--------------
+ *            |              |  side-loaded    +----------------+
+ *            |              |  <<<<<<<<<<<<<  |                |
+ *            |              |  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+ *            |              |  <<<<<<<<<<<<<  |                |
+ *            |              |  <<<<<<<<<<<<<  |----------------|
+ *            |              |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
+ * 0x00063000 |              |                 +----------------+
+ * 0x0001A000 +--------------+
+ *            |    Shared    |
+ * 0x00019000 +--------------+
+ *            |   BL1 (ro)   |
+ * 0x00000000 +--------------+
+ * endif
  */
 
 /*******************************************************************************
@@ -531,7 +551,11 @@
  * ARM_FW_CONFIG + ARM_BL2_MEM_DESC memory
  */
 #define ARM_FW_CONFIGS_SIZE		(PAGE_SIZE * 2)
+#if RESET_TO_BL31
+#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE)
+#else
 #define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + ARM_FW_CONFIGS_SIZE)
+#endif
 
 /*******************************************************************************
  * BL1 RW specifics
@@ -556,9 +580,13 @@
  ******************************************************************************/
 
 /* Keep BL31 below BL2 in the Trusted SRAM.*/
+#if RESET_TO_BL31
+#define BL31_BASE			(0x63000)
+#else
 #define BL31_BASE			((ARM_BL_RAM_BASE +		\
 					  ARM_BL_RAM_SIZE) -		\
 					  PLAT_ARM_MAX_BL31_SIZE)
+#endif
 #define BL31_PROGBITS_LIMIT		BL2_BASE
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 

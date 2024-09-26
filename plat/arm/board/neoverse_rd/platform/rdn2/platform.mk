@@ -103,6 +103,11 @@ TOS_FW_CONFIG		:=	${BUILD_PLAT}/fdts/$(notdir $(basename ${STMM_CONFIG_DTS})).dt
 $(eval $(call TOOL_ADD_PAYLOAD,${TOS_FW_CONFIG},--tos-fw-config,${TOS_FW_CONFIG}))
 endif
 
+ifneq (${RESET_TO_BL31},0)
+  $(error "Using BL31 as the reset vector is not supported on ${PLAT} platform. \
+  Please set RESET_TO_BL31 to 0.")
+endif
+
 override CTX_INCLUDE_AARCH32_REGS	:= 0
 override ENABLE_FEAT_AMU		:= 2
 override ENABLE_FEAT_MTE2       	:= 2

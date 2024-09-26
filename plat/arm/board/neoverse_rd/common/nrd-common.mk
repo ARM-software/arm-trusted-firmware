@@ -54,11 +54,6 @@ BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${NRD_COMMON_BASE}/nrd_topology.c	\
 				drivers/delay_timer/generic_delay_timer.c
 
-ifneq (${RESET_TO_BL31},0)
-  $(error "Using BL31 as the reset vector is not supported on ${PLAT} platform. \
-  Please set RESET_TO_BL31 to 0.")
-endif
-
 $(eval $(call add_define,NRD_CHIP_COUNT))
 
 $(eval $(call add_define,NRD_PLATFORM_VARIANT))

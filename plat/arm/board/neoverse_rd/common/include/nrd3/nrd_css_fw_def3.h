@@ -111,4 +111,18 @@
 			ARM_REALM_SIZE,					\
 			MT_MEMORY | MT_RW | MT_REALM)
 
+#if RESET_TO_BL31
+/*******************************************************************************
+ * BL31 specific defines.
+ ******************************************************************************/
+
+/* Define the DTB image base and size */
+#define NRD_CSS_BL31_PRELOAD_DTB_BASE	UL(0xF3000000)
+#define NRD_CSS_BL31_PRELOAD_DTB_SIZE	UL(0x1000)
+#define NRD_CSS_MAP_BL31_DTB		MAP_REGION_FLAT(		\
+					NRD_CSS_BL31_PRELOAD_DTB_BASE,	\
+					NRD_CSS_BL31_PRELOAD_DTB_SIZE,	\
+					MT_RW_DATA | MT_NS)
+#endif /* RESET_TO_BL31 */
+
 #endif /* NRD_CSS_FW_DEF3_H */

@@ -155,6 +155,65 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 }
 
+/*******************************************************************************
+ * This function inserts platform information via device tree nodes as,
+ * system-id {
+ *    platform-id = <0>;
+ *    config-id = <0>;
+ * }
+ ******************************************************************************/
+#if RESET_TO_BL31
+static int append_config_node(uintptr_t fdt_base_addr, uintptr_t fdt_base_size)
+{
+	void *fdt;
+	int nodeoffset, err;
+	unsigned int platid = 0, platcfg = 0;
+
+	if (fdt_base_addr == 0) {
+		ERROR("NT_FW CONFIG base address is NULL\n");
+		return -1;
+	}
+
+	fdt = (void *)fdt_base_addr;
+
+	/* Check the validity of the fdt */
+	if (fdt_check_header(fdt) != 0) {
+		ERROR("Invalid NT_FW_CONFIG DTB passed\n");
+		return -1;
+	}
+
+	nodeoffset = fdt_subnode_offset(fdt, 0, "system-id");
+	if (nodeoffset < 0) {
+		ERROR("Failed to get system-id node offset\n");
+		return -1;
+	}
+
+	platid = plat_arm_nrd_get_platform_id();
+	err = fdt_setprop_u32(fdt, nodeoffset, "platform-id", platid);
+	if (err < 0) {
+		ERROR("Failed to set platform-id\n");
+		return -1;
+	}
+
+	platcfg = plat_arm_nrd_get_config_id();
+	err = fdt_setprop_u32(fdt, nodeoffset, "config-id", platcfg);
+	if (err < 0) {
+		ERROR("Failed to set config-id\n");
+		return -1;
+	}
+
+	platcfg = plat_arm_nrd_get_multi_chip_mode();
+	err = fdt_setprop_u32(fdt, nodeoffset, "multi-chip-mode", platcfg);
+	if (err < 0) {
+		ERROR("Failed to set multi-chip-mode\n");
+		return -1;
+	}
+
+	flush_dcache_range((uintptr_t)fdt, fdt_base_size);
+	return 0;
+}
+#endif
+
 void nrd_bl31_common_platform_setup(void)
 {
 	generic_delay_timer_init();
@@ -168,6 +227,15 @@ void nrd_bl31_common_platform_setup(void)
 	/* Register priority level handlers for reboot */
 	ehf_register_priority_handler(PLAT_REBOOT_PRI,
 			css_reboot_interrupt_handler);
+#endif
+
+#if RESET_TO_BL31
+	int ret = append_config_node(NRD_CSS_BL31_PRELOAD_DTB_BASE,
+			NRD_CSS_BL31_PRELOAD_DTB_SIZE);
+
+	if (ret != 0) {
+		panic();
+	}
 #endif
 }
 

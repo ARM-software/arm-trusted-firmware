@@ -77,5 +77,10 @@ ifneq ($(NRD_PLATFORM_VARIANT),0)
      currently set to ${NRD_PLATFORM_VARIANT}.")
 endif
 
+ifneq (${RESET_TO_BL31},0)
+  $(error "Using BL31 as the reset vector is not supported on ${PLAT} platform. \
+  Please set RESET_TO_BL31 to 0.")
+endif
+
 # Enable the flag since RD-V1-MC has a system level cache
 NEOVERSE_Nx_EXTERNAL_LLC		:=	1
