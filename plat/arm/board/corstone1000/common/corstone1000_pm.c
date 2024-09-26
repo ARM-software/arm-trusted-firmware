@@ -14,7 +14,7 @@
  * platform layer will take care of registering the handlers with PSCI.
  ******************************************************************************/
 
-static void __dead2 corstone1000_system_reset(void)
+static void corstone1000_system_reset(void)
 {
 
 	uint32_t volatile * const watchdog_ctrl_reg = (uint32_t *) SECURE_WATCHDOG_ADDR_CTRL_REG;
@@ -31,9 +31,6 @@ static void __dead2 corstone1000_system_reset(void)
 
 	*(watchdog_val_reg) = SECURE_WATCHDOG_COUNTDOWN_VAL;
 	*watchdog_ctrl_reg = SECURE_WATCHDOG_MASK_ENABLE;
-	while (1) {
-		wfi();
-	}
 }
 
 #if defined(CORSTONE1000_FVP_MULTICORE)

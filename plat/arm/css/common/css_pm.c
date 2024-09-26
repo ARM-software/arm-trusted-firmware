@@ -217,12 +217,12 @@ void css_pwr_domain_suspend_finish(
 /*******************************************************************************
  * Handlers to shutdown/reboot the system
  ******************************************************************************/
-void __dead2 css_system_off(void)
+void css_system_off(void)
 {
 	css_scp_sys_shutdown();
 }
 
-void __dead2 css_system_reset(void)
+void css_system_reset(void)
 {
 	css_scp_sys_reboot();
 }
@@ -366,9 +366,7 @@ int css_reboot_interrupt_handler(uint32_t intr_raw, uint32_t flags,
 
 	psci_pwrdown_cpu_start(PLAT_MAX_PWR_LVL);
 
-	dmbsy();
-
-	wfi();
+	psci_pwrdown_cpu_end_terminal();
 	return 0;
 }
 

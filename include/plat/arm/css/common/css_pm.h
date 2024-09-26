@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,8 +35,8 @@ void css_pwr_domain_off(const psci_power_state_t *target_state);
 void css_pwr_domain_suspend(const psci_power_state_t *target_state);
 void css_pwr_domain_suspend_finish(
 				const psci_power_state_t *target_state);
-void __dead2 css_system_off(void);
-void __dead2 css_system_reset(void);
+void css_system_off(void);
+void css_system_reset(void);
 void css_cpu_standby(plat_local_state_t cpu_state);
 void css_get_sys_suspend_power_state(psci_power_state_t *req_state);
 int css_node_hw_state(u_register_t mpidr, unsigned int power_level);

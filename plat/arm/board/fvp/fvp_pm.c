@@ -295,28 +295,22 @@ static void fvp_pwr_domain_suspend_finish(const psci_power_state_t *target_state
 /*******************************************************************************
  * FVP handlers to shutdown/reboot the system
  ******************************************************************************/
-static void __dead2 fvp_system_off(void)
+static void fvp_system_off(void)
 {
 	/* Write the System Configuration Control Register */
 	mmio_write_32(V2M_SYSREGS_BASE + V2M_SYS_CFGCTRL,
 		V2M_CFGCTRL_START |
 		V2M_CFGCTRL_RW |
 		V2M_CFGCTRL_FUNC(V2M_FUNC_SHUTDOWN));
-	wfi();
-	ERROR("FVP System Off: operation not handled.\n");
-	panic();
 }
 
-static void __dead2 fvp_system_reset(void)
+static void fvp_system_reset(void)
 {
 	/* Write the System Configuration Control Register */
 	mmio_write_32(V2M_SYSREGS_BASE + V2M_SYS_CFGCTRL,
 		V2M_CFGCTRL_START |
 		V2M_CFGCTRL_RW |
 		V2M_CFGCTRL_FUNC(V2M_FUNC_REBOOT));
-	wfi();
-	ERROR("FVP System Reset: operation not handled.\n");
-	panic();
 }
 
 static int fvp_node_hw_state(u_register_t target_cpu,
