@@ -118,6 +118,9 @@ ifndef toolchain-mk
         toolchain-tool-classes += dtc
         toolchain-tool-class-name-dtc := device tree compiler
 
+        toolchain-tool-classes += poetry
+        toolchain-tool-class-name-poetry := Python Poetry package manager
+
         #
         # Configure tools that we recognize.
         #
@@ -175,6 +178,9 @@ ifndef toolchain-mk
         toolchain-tools += generic-dtc
         toolchain-tool-name-generic-dtc := Device Tree Compiler (`dtc`)
 
+        toolchain-tools += generic-poetry
+        toolchain-tool-name-generic-poetry := Poetry (`poetry`)
+
         #
         # Assign tools to tool classes.
         #
@@ -199,6 +205,7 @@ ifndef toolchain-mk
 
         # Other tools
         toolchain-tools-dtc := generic-dtc # Device tree compilers
+        toolchain-tools-poetry := generic-poetry # Python Poetry package manager
 
         #
         # Helper functions to identify toolchain tools.
@@ -256,9 +263,10 @@ ifndef toolchain-mk
 
         # Other tools
         toolchain-guess-tool-generic-dtc = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Version: DTC")
+        toolchain-guess-tool-generic-poetry = $(shell $(1) --version 2>&1 <$(nul))
 
-        toolchain-guess-tool = $(firstword $(foreach candidate,$(1), \
-                $(if $(call toolchain-guess-tool-$(candidate),$(2)),$(candidate))))
+        toolchain-guess-tool = $(if $(2),$(firstword $(foreach candidate,$(1),$\
+                $(if $(call toolchain-guess-tool-$(candidate),$(2)),$(candidate)))))
 
         #
         # Warn the user that a tool could not be identified.
@@ -313,26 +321,28 @@ ifndef toolchain-mk
         # toolchain.
         #
 
-        toolchain-guess-arm-clang-cpp = $(1)
-        toolchain-guess-arm-clang-as = $(1)
-        toolchain-guess-arm-clang-ld = # Fall back to `$(toolchain)-ld-default`
-        toolchain-guess-arm-clang-oc = # Fall back to `$(toolchain)-oc-default`
-        toolchain-guess-arm-clang-od = # Fall back to `$(toolchain)-od-default`
-        toolchain-guess-arm-clang-ar = # Fall back to `$(toolchain)-ar-default`
+        toolchain-derive-arm-clang-cpp = $(1)
+        toolchain-derive-arm-clang-as = $(1)
+        toolchain-derive-arm-clang-ld = # Fall back to `$(toolchain)-ld-default`
+        toolchain-derive-arm-clang-oc = # Fall back to `$(toolchain)-oc-default`
+        toolchain-derive-arm-clang-od = # Fall back to `$(toolchain)-od-default`
+        toolchain-derive-arm-clang-ar = # Fall back to `$(toolchain)-ar-default`
 
-        toolchain-guess-llvm-clang-cpp = $(1)
-        toolchain-guess-llvm-clang-as = $(1)
-        toolchain-guess-llvm-clang-ld = $(shell $(1) --print-prog-name ld.lld 2>$(nul))
-        toolchain-guess-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>$(nul))
-        toolchain-guess-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>$(nul))
-        toolchain-guess-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>$(nul))
+        toolchain-derive-llvm-clang-cpp = $(1)
+        toolchain-derive-llvm-clang-as = $(1)
+        toolchain-derive-llvm-clang-ld = $(shell $(1) --print-prog-name ld.lld 2>$(nul))
+        toolchain-derive-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>$(nul))
+        toolchain-derive-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>$(nul))
+        toolchain-derive-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>$(nul))
 
-        toolchain-guess-gnu-gcc-cpp = $(1)
-        toolchain-guess-gnu-gcc-as = $(1)
-        toolchain-guess-gnu-gcc-ld = $(1)
-        toolchain-guess-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>$(nul))
-        toolchain-guess-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>$(nul))
-        toolchain-guess-gnu-gcc-ar = $(shell $(1) --print-prog-name ar 2>$(nul))
+        toolchain-derive-gnu-gcc-cpp = $(1)
+        toolchain-derive-gnu-gcc-as = $(1)
+        toolchain-derive-gnu-gcc-ld = $(1)
+        toolchain-derive-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>$(nul))
+        toolchain-derive-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>$(nul))
+        toolchain-derive-gnu-gcc-ar = $(shell $(1) --print-prog-name ar 2>$(nul))
+
+        toolchain-derive = $(if $3,$(call toolchain-derive-$1-$2,$3))
 
         #
         # Configure a toolchain.
@@ -393,25 +403,32 @@ ifndef toolchain-mk
         #
 
         define toolchain-determine-tool
-                toolchain-$1-$2-guess-from-cc = $$(if $$(filter-out cc,$2),$\
-                        $$(call toolchain-guess-$$($1-cc-id)-$2,$$($1-cc)))
+                toolchain-$1-$2-derive-from-cc = $$(if $$(filter-out cc,$2),$\
+                        $$(call toolchain-derive,$$($1-cc-id),$2,$$($1-cc)))
 
-                toolchain-$1-$2-shell = $$(or $$($$($1-$2-parameter)),$\
-                        $$(toolchain-$1-$2-guess-from-cc),$\
-                        $$(toolchain-$1-$2-default))
+                toolchain-$1-$2-shell = $\
+                        $$(if $$(call defined,$$($1-$2-parameter)),$\
+                                $$($$($1-$2-parameter)),$\
+                                $$(or $$(toolchain-$1-$2-derive-from-cc),$\
+                                        $$(toolchain-$1-$2-default)))
 
                 toolchain-$1-$2-default = $$(firstword $\
                         $$(foreach default,$$($1-$2-default),$\
                                 $$(if $$(call which,$$(default)),$$(default))) $\
                         $$($1-$2-default))
 
-                $1-$2 := $(if $(call which,$$(toolchain-$1-$2-shell)),$\
+                $1-$2 := $$(if $$(call which,$$(toolchain-$1-$2-shell)),$\
                         $$(call escape-shell,$$(toolchain-$1-$2-shell)),$\
                         $$(toolchain-$1-$2-shell))
 
-                $1-$2-id := $$(or \
-                        $$(call toolchain-guess-tool,$$(toolchain-tools-$2),$$($1-$2)),$\
-                        $$(strip $$(call toolchain-warn-unrecognized,$1,$2)$$($1-$2-default-id)))
+                $1-$2-id := $$(if $$($1-$2),$$(or $\
+                        $$(call toolchain-guess-tool,$$\
+                                $$(toolchain-tools-$2),$$($1-$2)),$\
+                        $$($1-$2-default-id)))
+
+                ifeq ($$(or $$($1-$2-id),$$(call bool,$$($1-$2-optional))),)
+                        $$(call toolchain-warn-unrecognized,$1,$2)
+                endif
         endef
 
         $(foreach toolchain,$(toolchains), \

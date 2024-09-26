@@ -37,3 +37,8 @@ host-ar-default := gcc-ar
 host-dtc-parameter := HOSTDTC
 host-dtc-default-id := generic-dtc
 host-dtc-default := dtc
+
+host-poetry-parameter := POETRY
+host-poetry-optional := yes
+host-poetry-default-id := generic-poetry
+host-poetry-default := poetry

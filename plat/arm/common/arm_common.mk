@@ -484,8 +484,8 @@ ifneq ($(COTDTPATH),)
 		$(q)$($(ARCH)-cpp) $(cot-dt-cpp-flags)
 
         $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.c): $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.dts) | $$(@D)/
-		$(q)poetry -q install
-		$(q)poetry run cot-dt2c convert-to-c $< $@
+		$(if $(host-poetry),$(q)poetry -q install)
+		$(q)$(if $(host-poetry),poetry run )cot-dt2c convert-to-c $< $@
 
         BL2_SOURCES += $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.c)
 endif
