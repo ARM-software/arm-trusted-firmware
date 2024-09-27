@@ -95,5 +95,17 @@ for S32G274A SoCs.
                 -d "${BOOT_IMAGE}" \
                 fip.s32
 
+SoC Errata Workarounds
+----------------------
+
+The S32G274A port of the TF-A includes compilation flags that can be used to
+control the workaround for the SoC. These flags are used similarly to how the
+:ref:`arm_cpu_macros_errata_workarounds` are used. The list of workarounds
+includes the following switches:
+
+-  ``ERRATA_S32_051700``: This applies erratum ERR051700 workaround to
+   SoCs part of the S32 Common Chassis family, and therefore it needs to
+   be enabled for the S32G and S32R devices.
+
 .. _s32g2: https://www.nxp.com/products/processors-and-microcontrollers/s32-automotive-platform/s32g-vehicle-network-processors/s32g2-processors-for-vehicle-networking:S32G2
 .. _s32g274ardb2: https://www.nxp.com/design/design-center/designs/s32g2-vehicle-networking-reference-design:S32G-VNP-RDB2
