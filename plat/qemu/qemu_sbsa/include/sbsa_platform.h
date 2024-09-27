@@ -43,4 +43,6 @@ struct qemu_platform_info {
 	struct platform_memory_data memory[PLAT_MAX_MEM_NODES];
 };
 
+void sbsa_platform_init(void);
+
 #endif /* SBSA_PLATFORM_H */

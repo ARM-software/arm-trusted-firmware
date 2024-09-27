@@ -297,7 +297,7 @@ void read_platform_version(void *dtb)
 	}
 }
 
-void sip_svc_init(void)
+void sbsa_platform_init(void)
 {
 	/* Read DeviceTree data before MMU is enabled */
 

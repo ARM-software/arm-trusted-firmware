@@ -14,6 +14,9 @@
 #if ENABLE_RME
 #include <qemu_pas_def.h>
 #endif
+#ifdef PLAT_qemu_sbsa
+#include <sbsa_platform.h>
+#endif
 
 #include "qemu_private.h"
 
@@ -66,7 +69,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 /* Platform names have to be lowercase. */
 #ifdef PLAT_qemu_sbsa
-	sip_svc_init();
+	sbsa_platform_init();
 #endif
 
 	/*
