@@ -324,6 +324,46 @@ void sbsa_platform_init(void)
 	read_meminfo_from_dt(dtb);
 }
 
+int sbsa_platform_version_major(void)
+{
+	return platform_version_major;
+}
+
+int sbsa_platform_version_minor(void)
+{
+	return platform_version_minor;
+}
+
+uint32_t sbsa_platform_num_cpus(void)
+{
+	return dynamic_platform_info.num_cpus;
+}
+
+uint32_t sbsa_platform_num_memnodes(void)
+{
+	return dynamic_platform_info.num_memnodes;
+}
+
+uint64_t sbsa_platform_gic_its_addr(void)
+{
+	return gic_its_addr;
+}
+
+struct platform_cpu_data sbsa_platform_cpu_node(uint64_t index)
+{
+	return dynamic_platform_info.cpu[index];
+}
+
+struct platform_memory_data sbsa_platform_memory_node(uint64_t index)
+{
+	return dynamic_platform_info.memory[index];
+}
+
+struct platform_cpu_topology sbsa_platform_cpu_topology(void)
+{
+	return dynamic_platform_info.cpu_topo;
+}
+
 /*
  * This function is responsible for handling all SiP calls from the NS world
  */
@@ -349,49 +389,56 @@ uintptr_t sbsa_sip_smc_handler(uint32_t smc_fid,
 	switch (smc_fid) {
 	case SIP_SVC_VERSION:
 		INFO("Platform version requested\n");
-		SMC_RET3(handle, NULL, platform_version_major, platform_version_minor);
+		SMC_RET3(handle, NULL, sbsa_platform_version_major(),
+			 sbsa_platform_version_minor());
 
 	case SIP_SVC_GET_GIC:
 		SMC_RET3(handle, NULL, sbsa_get_gicd(), sbsa_get_gicr());
 
 	case SIP_SVC_GET_GIC_ITS:
-		SMC_RET2(handle, NULL, gic_its_addr);
+		SMC_RET2(handle, NULL, sbsa_platform_gic_its_addr());
 
 	case SIP_SVC_GET_CPU_COUNT:
-		SMC_RET2(handle, NULL, dynamic_platform_info.num_cpus);
+		SMC_RET2(handle, NULL, sbsa_platform_num_cpus());
 
 	case SIP_SVC_GET_CPU_NODE:
 		index = x1;
 		if (index < PLATFORM_CORE_COUNT) {
-			SMC_RET3(handle, NULL,
-				dynamic_platform_info.cpu[index].nodeid,
-				dynamic_platform_info.cpu[index].mpidr);
+			struct platform_cpu_data data;
+
+			data = sbsa_platform_cpu_node(index);
+
+			SMC_RET3(handle, NULL, data.nodeid, data.mpidr);
 		} else {
 			SMC_RET1(handle, SMC_ARCH_CALL_INVAL_PARAM);
 		}
 
 	case SIP_SVC_GET_CPU_TOPOLOGY:
-		if (dynamic_platform_info.cpu_topo.cores > 0) {
-			SMC_RET5(handle, NULL,
-			dynamic_platform_info.cpu_topo.sockets,
-			dynamic_platform_info.cpu_topo.clusters,
-			dynamic_platform_info.cpu_topo.cores,
-			dynamic_platform_info.cpu_topo.threads);
+		struct platform_cpu_topology topology;
+
+		topology = sbsa_platform_cpu_topology();
+
+		if (topology.cores > 0) {
+			SMC_RET5(handle, NULL, topology.sockets,
+				 topology.clusters, topology.cores,
+				 topology.threads);
 		} else {
 			/* we do not know topology so we report SMC as unknown */
 			SMC_RET1(handle, SMC_UNK);
 		}
 
 	case SIP_SVC_GET_MEMORY_NODE_COUNT:
-		SMC_RET2(handle, NULL, dynamic_platform_info.num_memnodes);
+		SMC_RET2(handle, NULL, sbsa_platform_num_memnodes());
 
 	case SIP_SVC_GET_MEMORY_NODE:
 		index = x1;
 		if (index < PLAT_MAX_MEM_NODES) {
-			SMC_RET4(handle, NULL,
-				dynamic_platform_info.memory[index].nodeid,
-				dynamic_platform_info.memory[index].addr_base,
-				dynamic_platform_info.memory[index].addr_size);
+			struct platform_memory_data data;
+
+			data = sbsa_platform_memory_node(index);
+
+			SMC_RET4(handle, NULL, data.nodeid,
+				 data.addr_base, data.addr_size);
 		} else {
 			SMC_RET1(handle, SMC_ARCH_CALL_INVAL_PARAM);
 		}
