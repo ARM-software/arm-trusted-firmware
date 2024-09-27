@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -112,7 +112,7 @@ void __init init_xlat_tables(void)
 
 int xlat_get_mem_attributes(uintptr_t base_va, uint32_t *attr)
 {
-	return xlat_get_mem_attributes_ctx(&tf_xlat_ctx, base_va, attr);
+	return xlat_get_mem_attributes_ctx(&tf_xlat_ctx, base_va, attr, NULL);
 }
 
 int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1891,7 +1891,11 @@ static uint64_t ffa_mem_perm_get_handler(uint32_t smc_fid,
 	struct secure_partition_desc *sp;
 	unsigned int idx;
 	uintptr_t base_va = (uintptr_t)x1;
-	uint32_t tf_attr = 0;
+	uint64_t max_page_count = x2 + 1;
+	uint64_t page_count = 0;
+	uint32_t base_page_attr = 0;
+	uint32_t page_attr = 0;
+	unsigned int table_level;
 	int ret;
 
 	/* This request cannot originate from the Normal world. */
@@ -1923,17 +1927,49 @@ static uint64_t ffa_mem_perm_get_handler(uint32_t smc_fid,
 		return spmc_ffa_error_return(handle, FFA_ERROR_DENIED);
 	}
 
+	base_va &= ~(PAGE_SIZE_MASK);
+
 	/* Request the permissions */
-	ret = xlat_get_mem_attributes_ctx(sp->xlat_ctx_handle, base_va, &tf_attr);
+	ret = xlat_get_mem_attributes_ctx(sp->xlat_ctx_handle, base_va,
+			&base_page_attr, &table_level);
 	if (ret != 0) {
 		return spmc_ffa_error_return(handle,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
 
-	/* Convert TF-A permission to FF-A permissions attributes. */
-	x2 = mmap_perm_to_ffa_perm(tf_attr);
+	/*
+	 * Caculate how many pages in this block entry from base_va including
+	 * its page.
+	 */
+	page_count = ((XLAT_BLOCK_SIZE(table_level) -
+			(base_va & XLAT_BLOCK_MASK(table_level))) >> PAGE_SIZE_SHIFT);
+	base_va += XLAT_BLOCK_SIZE(table_level);
 
-	SMC_RET3(handle, FFA_SUCCESS_SMC32, 0, x2);
+	while ((page_count < max_page_count) && (base_va != 0x00)) {
+		ret = xlat_get_mem_attributes_ctx(sp->xlat_ctx_handle, base_va,
+				&page_attr, &table_level);
+		if (ret != 0) {
+			return spmc_ffa_error_return(handle,
+						     FFA_ERROR_INVALID_PARAMETER);
+		}
+
+		if (page_attr != base_page_attr) {
+			break;
+		}
+
+		base_va += XLAT_BLOCK_SIZE(table_level);
+		page_count += (XLAT_BLOCK_SIZE(table_level) >> PAGE_SIZE_SHIFT);
+	}
+
+	if (page_count > max_page_count) {
+		page_count = max_page_count;
+	}
+
+	/* Convert TF-A permission to FF-A permissions attributes. */
+	x2 = mmap_perm_to_ffa_perm(base_page_attr);
+
+	/* x3 should be page count - 1 */
+	SMC_RET4(handle, FFA_SUCCESS_SMC32, 0, x2, --page_count);
 }
 
 /*******************************************************************************

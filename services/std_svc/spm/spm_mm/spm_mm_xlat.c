@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -95,7 +95,7 @@ int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
 	spin_lock(&mem_attr_smc_lock);
 
 	int rc = xlat_get_mem_attributes_ctx(sp_ctx->xlat_ctx_handle,
-				     base_va, &attributes);
+				     base_va, &attributes, NULL);
 
 	spin_unlock(&mem_attr_smc_lock);
 
