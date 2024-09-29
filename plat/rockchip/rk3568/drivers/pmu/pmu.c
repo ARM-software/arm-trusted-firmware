@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2025, ARM Limited and Contributors. All rights reserved.
  *
  * The power management unit (PMU) is designed for controlling power resources.
  * The PMU is dedicated for managing the power of the whole chip.
@@ -20,6 +20,7 @@
 
 #include <cpus_on_fixed_addr.h>
 #include <plat_private.h>
+#include <rk3568_clk.h>
 #include <soc.h>
 
 /*
@@ -386,6 +387,7 @@ int rockchip_soc_cores_pwr_dm_resume(void)
 
 int rockchip_soc_sys_pwr_dm_suspend(void)
 {
+	pvtplls_suspend();
 	psram_sleep_cfg->pm_flag = 0;
 	flush_dcache_range((uintptr_t)&(psram_sleep_cfg->pm_flag),
 			   sizeof(uint32_t));
@@ -396,6 +398,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 
 int rockchip_soc_sys_pwr_dm_resume(void)
 {
+	pvtplls_resume();
 	pmu_reinit();
 	plat_rockchip_gic_cpuif_enable();
 	psram_sleep_cfg->pm_flag = PM_WARM_BOOT_BIT;

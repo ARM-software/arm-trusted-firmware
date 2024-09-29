@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,12 +52,16 @@
 #define PMUSRAM_RSIZE		SIZE_K(8)
 
 #define DDRSGRF_BASE		0xfe200000
+#define OTP_NS_BASE		0xfe38c000
+#define OTP_S_BASE		0xfe3a0000
 #define UART1_BASE		0xfe650000
 #define UART2_BASE		0xfe660000
 #define GPIO1_BASE		0xfe740000
 #define GPIO2_BASE		0xfe750000
 #define GPIO3_BASE		0xfe760000
 #define GPIO4_BASE		0xfe770000
+
+#define OTP_PHY_BASE		0xfe880000
 
 #define REMAP_BASE		0xffff0000
 #define REMAP_SIZE		SIZE_K(64)
@@ -97,8 +101,20 @@
 #define RK_IRQ_SEC_SGI_6	14
 #define RK_IRQ_SEC_SGI_7	15
 
-#define SHARE_MEM_BASE		0x100000/* [1MB, 1MB+60K]*/
+/**************************************************************************
+ * share mem region allocation: 1M~2M
+ **************************************************************************/
+#define DDR_SHARE_MEM		SIZE_K(1024)
+#define DDR_SHARE_SIZE		SIZE_K(64)
+
+#define SHARE_MEM_BASE		0x100000/* [1MB, 1MB+60K] */
 #define SHARE_MEM_PAGE_NUM	15
 #define SHARE_MEM_SIZE		SIZE_K(SHARE_MEM_PAGE_NUM * 4)
+
+#define SCMI_SHARE_MEM_BASE	(SHARE_MEM_BASE + SHARE_MEM_SIZE)
+#define SCMI_SHARE_MEM_SIZE	SIZE_K(4)
+
+#define SMT_BUFFER_BASE		SCMI_SHARE_MEM_BASE
+#define SMT_BUFFER0_BASE	SMT_BUFFER_BASE
 
 #endif /* __PLAT_DEF_H__ */

@@ -583,6 +583,9 @@ subsections:
           - title: RK3288
             scope: rk3288
 
+          - title: RK3328
+            scope: rk3328
+
           - title: RK3399
             scope: rk3399
 
@@ -590,8 +593,8 @@ subsections:
               - rockchip/rk3399
               - rk3399/suspend
 
-          - title: RK3328
-            scope: rk3328
+          - title: RK3568
+            scope: rk3568
 
           - title: RK3576
             scope: rk3576
