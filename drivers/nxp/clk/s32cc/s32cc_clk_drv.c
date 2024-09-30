@@ -155,9 +155,10 @@ static int enable_osc(struct s32cc_clk_obj *module,
 		      unsigned int depth)
 {
 	const struct s32cc_osc *osc = s32cc_obj2osc(module);
+	unsigned int ldepth = depth;
 	int ret = 0;
 
-	ret = update_stack_depth(&depth);
+	ret = update_stack_depth(&ldepth);
 	if (ret != 0) {
 		return ret;
 	}
@@ -336,11 +337,12 @@ static int enable_pll(struct s32cc_clk_obj *module,
 	const struct s32cc_pll *pll = s32cc_obj2pll(module);
 	const struct s32cc_clkmux *mux;
 	uintptr_t pll_addr = UL(0x0);
+	unsigned int ldepth = depth;
 	unsigned long sclk_freq;
 	uint32_t sclk_id;
 	int ret;
 
-	ret = update_stack_depth(&depth);
+	ret = update_stack_depth(&ldepth);
 	if (ret != 0) {
 		return ret;
 	}
@@ -436,11 +438,12 @@ static int enable_pll_div(struct s32cc_clk_obj *module,
 {
 	const struct s32cc_pll_out_div *pdiv = s32cc_obj2plldiv(module);
 	uintptr_t pll_addr = 0x0ULL;
+	unsigned int ldepth = depth;
 	const struct s32cc_pll *pll;
 	uint32_t dc;
 	int ret;
 
-	ret = update_stack_depth(&depth);
+	ret = update_stack_depth(&ldepth);
 	if (ret != 0) {
 		return ret;
 	}
@@ -577,10 +580,11 @@ static int enable_mux(struct s32cc_clk_obj *module,
 		      unsigned int depth)
 {
 	const struct s32cc_clkmux *mux = s32cc_obj2clkmux(module);
+	unsigned int ldepth = depth;
 	const struct s32cc_clk *clk;
 	int ret = 0;
 
-	ret = update_stack_depth(&depth);
+	ret = update_stack_depth(&ldepth);
 	if (ret != 0) {
 		return ret;
 	}
@@ -635,9 +639,10 @@ static int enable_dfs(struct s32cc_clk_obj *module,
 		      const struct s32cc_clk_drv *drv,
 		      unsigned int depth)
 {
+	unsigned int ldepth = depth;
 	int ret = 0;
 
-	ret = update_stack_depth(&depth);
+	ret = update_stack_depth(&ldepth);
 	if (ret != 0) {
 		return ret;
 	}
@@ -801,13 +806,14 @@ static int enable_dfs_div(struct s32cc_clk_obj *module,
 			  unsigned int depth)
 {
 	const struct s32cc_dfs_div *dfs_div = s32cc_obj2dfsdiv(module);
+	unsigned int ldepth = depth;
 	const struct s32cc_pll *pll;
 	const struct s32cc_dfs *dfs;
 	uintptr_t dfs_addr = 0UL;
 	uint32_t mfi, mfn;
 	int ret = 0;
 
-	ret = update_stack_depth(&depth);
+	ret = update_stack_depth(&ldepth);
 	if (ret != 0) {
 		return ret;
 	}
@@ -931,24 +937,25 @@ static int exec_cb_with_refcount(enable_clk_t en_cb, struct s32cc_clk_obj *mod,
 				 const struct s32cc_clk_drv *drv, bool leaf_node,
 				 unsigned int depth)
 {
+	unsigned int ldepth = depth;
 	int ret = 0;
 
 	if (mod == NULL) {
 		return 0;
 	}
 
-	ret = update_stack_depth(&depth);
+	ret = update_stack_depth(&ldepth);
 	if (ret != 0) {
 		return ret;
 	}
 
 	/* Refcount will be updated as part of the recursivity */
 	if (leaf_node) {
-		return en_cb(mod, drv, depth);
+		return en_cb(mod, drv, ldepth);
 	}
 
 	if (mod->refcount == 0U) {
-		ret = en_cb(mod, drv, depth);
+		ret = en_cb(mod, drv, ldepth);
 	}
 
 	if (ret == 0) {
@@ -978,10 +985,11 @@ static int enable_module(struct s32cc_clk_obj *module,
 		[s32cc_part_block_t] = enable_part_block,
 		[s32cc_part_block_link_t] = enable_part_block_link,
 	};
+	unsigned int ldepth = depth;
 	uint32_t index;
 	int ret = 0;
 
-	ret = update_stack_depth(&depth);
+	ret = update_stack_depth(&ldepth);
 	if (ret != 0) {
 		return ret;
 	}
@@ -1006,13 +1014,13 @@ static int enable_module(struct s32cc_clk_obj *module,
 	parent = get_module_parent(module);
 
 	ret = exec_cb_with_refcount(enable_module, parent, drv,
-				    false, depth);
+				    false, ldepth);
 	if (ret != 0) {
 		return ret;
 	}
 
 	ret = exec_cb_with_refcount(enable_clbs[index], module, drv,
-				    true, depth);
+				    true, ldepth);
 	if (ret != 0) {
 		return ret;
 	}
