@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,8 +68,8 @@ static void __init psci_init_pwr_domain_node(uint16_t node_idx,
 		/* Set the Affinity Info for the cores as OFF */
 		svc_cpu_data->aff_info_state = AFF_STATE_OFF;
 
-		/* Invalidate the suspend level for the cpu */
-		svc_cpu_data->target_pwrlvl = PSCI_INVALID_PWR_LVL;
+		/* Default to the highest power level when the cpu is not suspending */
+		svc_cpu_data->target_pwrlvl = PLAT_MAX_PWR_LVL;
 
 		/* Set the power state to OFF state */
 		svc_cpu_data->local_state = PLAT_MAX_OFF_STATE;
