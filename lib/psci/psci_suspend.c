@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,45 +25,18 @@
  * This function does generic and platform specific operations after a wake-up
  * from standby/retention states at multiple power levels.
  ******************************************************************************/
-static void psci_suspend_to_standby_finisher(unsigned int cpu_idx,
-					     unsigned int end_pwrlvl)
+static void psci_cpu_suspend_to_standby_finish(unsigned int cpu_idx,
+					     unsigned int end_pwrlvl,
+					     psci_power_state_t *state_info)
 {
-	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
-	psci_power_state_t state_info;
-
-	/* Get the parent nodes */
-	psci_get_parent_pwr_domain_nodes(cpu_idx, end_pwrlvl, parent_nodes);
-
-	psci_acquire_pwr_domain_locks(end_pwrlvl, parent_nodes);
-
-	/*
-	 * Find out which retention states this CPU has exited from until the
-	 * 'end_pwrlvl'. The exit retention state could be deeper than the entry
-	 * state as a result of state coordination amongst other CPUs post wfi.
-	 */
-	psci_get_target_local_pwr_states(end_pwrlvl, &state_info);
-
-#if ENABLE_PSCI_STAT
-	plat_psci_stat_accounting_stop(&state_info);
-	psci_stats_update_pwr_up(end_pwrlvl, &state_info);
-#endif
-
 	/*
 	 * Plat. management: Allow the platform to do operations
 	 * on waking up from retention.
 	 */
-	psci_plat_pm_ops->pwr_domain_suspend_finish(&state_info);
+	psci_plat_pm_ops->pwr_domain_suspend_finish(state_info);
 
 	/* This loses its meaning when not suspending, reset so it's correct for OFF */
 	psci_set_suspend_pwrlvl(PLAT_MAX_PWR_LVL);
-
-	/*
-	 * Set the requested and target state of this CPU and all the higher
-	 * power domain levels for this CPU to run.
-	 */
-	psci_set_pwr_domains_to_run(end_pwrlvl);
-
-	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 }
 
 /*******************************************************************************
@@ -307,11 +280,32 @@ exit:
 	    PMF_NO_CACHE_MAINT);
 #endif
 
+	psci_acquire_pwr_domain_locks(end_pwrlvl, parent_nodes);
+	/*
+	 * Find out which retention states this CPU has exited from until the
+	 * 'end_pwrlvl'. The exit retention state could be deeper than the entry
+	 * state as a result of state coordination amongst other CPUs post wfi.
+	 */
+	psci_get_target_local_pwr_states(end_pwrlvl, state_info);
+
+#if ENABLE_PSCI_STAT
+	plat_psci_stat_accounting_stop(state_info);
+	psci_stats_update_pwr_up(end_pwrlvl, state_info);
+#endif
+
 	/*
 	 * After we wake up from context retaining suspend, call the
 	 * context retaining suspend finisher.
 	 */
-	psci_suspend_to_standby_finisher(idx, end_pwrlvl);
+	psci_cpu_suspend_to_standby_finish(idx, end_pwrlvl, state_info);
+
+	/*
+	 * Set the requested and target state of this CPU and all the higher
+	 * power domain levels for this CPU to run.
+	 */
+	psci_set_pwr_domains_to_run(end_pwrlvl);
+
+	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
 	return rc;
 }
@@ -321,7 +315,7 @@ exit:
  * are called by the common finisher routine in psci_common.c. The `state_info`
  * is the psci_power_state from which this CPU has woken up from.
  ******************************************************************************/
-void psci_cpu_suspend_finish(unsigned int cpu_idx, const psci_power_state_t *state_info)
+void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, const psci_power_state_t *state_info)
 {
 	unsigned int counter_freq;
 	unsigned int max_off_lvl;

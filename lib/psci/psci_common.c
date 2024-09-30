@@ -1021,7 +1021,7 @@ void psci_warmboot_entrypoint(void)
 	if (psci_get_aff_info_state() == AFF_STATE_ON_PENDING)
 		psci_cpu_on_finish(cpu_idx, &state_info);
 	else
-		psci_cpu_suspend_finish(cpu_idx, &state_info);
+		psci_cpu_suspend_to_powerdown_finish(cpu_idx, &state_info);
 
 	/*
 	 * Generic management: Now we just need to retrieve the
