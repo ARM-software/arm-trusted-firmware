@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,8 +23,8 @@ icc_regs:
 
 /* Registers common to both GICv2 and GICv3 */
 gicd_pend_reg:
-	.asciz "gicd_ispendr regs (Offsets 0x200 - 0x278)\n"	\
-		" Offset:\t\t\tvalue\n"
+	.ascii "gicd_ispendr regs (Offsets 0x200 - 0x278)\n"	\
+		" Offset:\t\t\tvalue\n\0"
 newline:
 	.asciz "\n"
 spacer:
