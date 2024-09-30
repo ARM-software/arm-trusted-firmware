@@ -1733,8 +1733,8 @@ endif
 
 tl: ${BUILD_PLAT}/tl.bin
 ${BUILD_PLAT}/tl.bin: ${HW_CONFIG}
-	$(q)poetry -q install
-	$(q)poetry run tlc create --fdt $< -s ${FW_HANDOFF_SIZE} $@
+	$(if $(host-poetry),$(q)poetry -q install)
+	$(q)$(if $(host-poetry),poetry run )tlc create --fdt $< -s ${FW_HANDOFF_SIZE} $@
 
 doc:
 	$(s)echo "  BUILD DOCUMENTATION"
