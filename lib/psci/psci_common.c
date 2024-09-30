@@ -1041,12 +1041,6 @@ void psci_warmboot_entrypoint(void)
 	psci_set_pwr_domains_to_run(end_pwrlvl);
 
 #if ENABLE_PSCI_STAT
-	/*
-	 * Update PSCI stats.
-	 * Caches are off when writing stats data on the power down path.
-	 * Since caches are now enabled, it's necessary to do cache
-	 * maintenance before reading that same data.
-	 */
 	psci_stats_update_pwr_up(end_pwrlvl, &state_info);
 #endif
 
