@@ -42,7 +42,7 @@ static uintptr_t config_base __unused;
 #if TRANSFER_LIST
 CASSERT(BL2_BASE >= PLAT_ARM_EL3_FW_HANDOFF_BASE + PLAT_ARM_FW_HANDOFF_SIZE,
 	assert_bl2_base_overflows);
-#else
+#elif !RESET_TO_BL2
 CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 #endif /* TRANSFER_LIST */
 
@@ -140,6 +140,9 @@ void bl2_plat_preload_setup(void)
 
 	arm_transfer_list_dyn_cfg_init(secure_tl);
 #else
+#if ARM_FW_CONFIG_LOAD_ENABLE
+	arm_bl2_el3_plat_config_load();
+#endif /* ARM_FW_CONFIG_LOAD_ENABLE */
 	arm_bl2_dyn_cfg_init();
 #endif
 

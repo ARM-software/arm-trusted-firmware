@@ -594,6 +594,16 @@ Arm Total Compute platform port
 :|G|: `rupsin01`_
 :|F|: plat/arm/board/tc
 
+Arm Automotive RD platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Diego Sueiro <diego.sueiro@arm.com>
+:|G|: `diego-sueiro`_
+:|M|: Peter Hoyes <peter.hoyes@arm.com>
+:|G|: `hoyes`_
+:|M|: Divin Raj <divin.raj@arm.com>
+:|G|: `divin-raj`_
+:|F|: plat/arm/board/automotive_rd
+
 Aspeed platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Chia-Wei Wang <chiawei_wang@aspeedtech.com>
@@ -1041,12 +1051,15 @@ Conventional Changelog Extensions
 .. _CJKay: https://github.com/cjkay
 .. _danh-arm: https://github.com/danh-arm
 .. _davidvincze: https://github.com/davidvincze
+.. _diego-sueiro: https://github.com/diego-sueiro
+.. _divin-raj: https://github.com/divin-raj
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
 .. _gprocopciucnxp: https://github.com/gprocopciucnxp
 .. _grandpaul: https://github.com/grandpaul
 .. _harrisonmutai-arm: https://github.com/harrisonmutai-arm
 .. _hilamirandakuzi1: https://github.com/hilamirandakuzi1
+.. _hoyes: https://github.com/hoyes
 .. _hzhuang1: https://github.com/hzhuang1
 .. _hugues-kambampiana-arm: https://github.com/hugueskamba
 .. _JackyBai: https://github.com/JackyBai

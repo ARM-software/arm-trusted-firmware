@@ -272,6 +272,13 @@ subsections:
           - title: Corstone-1000
             scope: corstone-1000
 
+          - title: Automotive RD
+            scope: automotive_rd
+
+            subsections:
+              - title: RD-1 AE
+                scope: rd1ae
+
       - title: Aspeed
         scope: aspeed
 

@@ -195,6 +195,12 @@ cot {
 			hash = <&hw_config_hash>;
 		};
 
+		fw_config {
+			image-id = <FW_CONFIG_ID>;
+			parent = <&trusted_boot_fw_cert>;
+			hash = <&fw_config_hash>;
+		};
+
 		scp_bl2_image {
 			image-id = <SCP_BL2_IMAGE_ID>;
 			parent = <&scp_fw_content_cert>;
