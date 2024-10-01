@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,8 @@ uint32_t fdt_read_uint32_default(const void *dtb, int node,
 				 const char *prop_name, uint32_t dflt_value);
 int fdt_read_uint64(const void *dtb, int node, const char *prop_name,
 		    uint64_t *value);
+uint64_t fdt_read_uint64_default(const void *dtb, int node,
+				 const char *prop_name, uint64_t dflt_value);
 int fdt_read_uint32_array(const void *dtb, int node, const char *prop_name,
 			  unsigned int cells, uint32_t *value);
 int fdtw_read_string(const void *dtb, int node, const char *prop,
