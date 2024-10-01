@@ -74,6 +74,10 @@ static inline void bl31_set_default_config(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
+	(void)arg0;
+	(void)arg1;
+	(void)arg2;
+	(void)arg3;
 	uint32_t uart_clock;
 	int32_t rc;
 
@@ -206,6 +210,7 @@ int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 					  void *handle, void *cookie)
 {
+	(void)id;
 	uint32_t intr_id;
 	uint32_t i;
 	interrupt_type_handler_t handler = NULL;
