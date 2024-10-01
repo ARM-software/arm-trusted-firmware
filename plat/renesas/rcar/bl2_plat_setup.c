@@ -573,6 +573,9 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 			return 1;
 		}
 
+		bl_mem_params->image_info.image_base = dest;
+		bl_mem_params->image_info.image_size = len;
+
 #if RCAR_GEN3_BL33_GZIP == 1
 		image_decompress_prepare(&bl_mem_params->image_info);
 #endif
@@ -625,6 +628,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 				bl_mem_params->image_info.image_size);
 		}
 #endif
+		bl_mem_params->ep_info.pc = bl_mem_params->image_info.image_base;
 		memcpy(&params->bl33_ep_info, &bl_mem_params->ep_info,
 			sizeof(entry_point_info_t));
 		return 0;
