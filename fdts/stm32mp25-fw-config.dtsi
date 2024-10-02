@@ -31,6 +31,10 @@
 			id = <BL31_IMAGE_ID>;
 		};
 
+		soc_fw-config {
+			id = <SOC_FW_CONFIG_ID>;
+		};
+
 		tos_fw {
 			id = <BL32_IMAGE_ID>;
 		};

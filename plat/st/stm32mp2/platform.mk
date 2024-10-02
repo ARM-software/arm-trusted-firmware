@@ -48,6 +48,8 @@ STM32MP_DDR_FIP_IO_STORAGE	:=	1
 # Device tree
 BL2_DTSI			:=	stm32mp25-bl2.dtsi
 FDT_SOURCES			:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
+BL31_DTSI			:=	stm32mp25-bl31.dtsi
+FDT_SOURCES			+=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl31.dts,$(DTB_FILE_NAME)))
 
 # Macros and rules to build TF binary
 STM32_TF_STM32			:=	$(addprefix ${BUILD_PLAT}/tf-a-, $(patsubst %.dtb,%.stm32,$(DTB_FILE_NAME)))
@@ -56,6 +58,7 @@ STM32_BINARY_MAPPING		:=	plat/st/stm32mp2/${ARCH}/stm32mp2.S
 
 STM32MP_FW_CONFIG_NAME		:=	$(patsubst %.dtb,%-fw-config.dtb,$(DTB_FILE_NAME))
 STM32MP_FW_CONFIG		:=	${BUILD_PLAT}/fdts/$(STM32MP_FW_CONFIG_NAME)
+STM32MP_SOC_FW_CONFIG		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl31.dtb,$(DTB_FILE_NAME)))
 ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
 STM32MP_DDR_FW_PATH		?=	drivers/st/ddr/phy/firmware/bin/stm32mp2
 STM32MP_DDR_FW_NAME		:=	${DDR_TYPE}_pmu_train.bin
@@ -64,6 +67,8 @@ endif
 FDT_SOURCES			+=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(STM32MP_FW_CONFIG_NAME)))
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_FW_CONFIG},--fw-config))
+# Add the SOC_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_IMG,STM32MP_SOC_FW_CONFIG,--soc-fw-config))
 ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
 # Add the FW_DDR to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW,--ddr-fw))
@@ -197,5 +202,12 @@ check_ddr_type:
 		echo "One and only one DDR type must be defined"; \
 		false; \
 	fi
+
+# Create DTB file for BL31
+${BUILD_PLAT}/fdts/%-bl31.dts: fdts/%.dts fdts/${BL31_DTSI} | $$(@D)/
+	@echo '#include "$(patsubst fdts/%,%,$<)"' > $@
+	@echo '#include "${BL31_DTSI}"' >> $@
+
+${BUILD_PLAT}/fdts/%-bl31.dtb: ${BUILD_PLAT}/fdts/%-bl31.dts
 
 include plat/st/common/common_rules.mk

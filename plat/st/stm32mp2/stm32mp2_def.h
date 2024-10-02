@@ -138,7 +138,11 @@ enum ddr_type {
  * MAX_MMAP_REGIONS is usually:
  * BL stm32mp2_mmap size + mmap regions in *_plat_arch_setup
  */
+#if defined(IMAGE_BL31)
+#define MAX_MMAP_REGIONS			7
+#else
 #define MAX_MMAP_REGIONS			6
+#endif
 
 /* DTB initialization value */
 #define STM32MP_BL2_DTB_SIZE			U(0x00006000)	/* 24 KB for DTB */
@@ -166,6 +170,7 @@ enum ddr_type {
 #define STM32MP_HW_CONFIG_BASE			(STM32MP_BL33_BASE + \
 						STM32MP_BL33_MAX_SIZE)
 #define STM32MP_HW_CONFIG_MAX_SIZE		U(0x40000)
+#define STM32MP_SOC_FW_CONFIG_MAX_SIZE		U(0x10000) /* 64kB for BL31 DT */
 
 /*******************************************************************************
  * STM32MP2 device/io map related constants (used for MMU)

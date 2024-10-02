@@ -70,6 +70,21 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		.next_handoff_image_id = BL32_IMAGE_ID,
 	},
 
+	/* Fill SoC FW config related information */
+	{
+		.image_id = SOC_FW_CONFIG_ID,
+
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+				      VERSION_2, entry_point_info_t,
+				      SECURE | NON_EXECUTABLE),
+
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+				      VERSION_2, image_info_t,
+				      IMAGE_ATTRIB_SKIP_LOADING),
+
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
+
 	/* Fill BL32 related information */
 	{
 		.image_id = BL32_IMAGE_ID,

@@ -77,7 +77,7 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 #define DEFAULT_UUID_NUMBER	U(7)
 
 #ifdef __aarch64__
-#define BL31_UUID_NUMBER	U(1)
+#define BL31_UUID_NUMBER	U(2)
 #else
 #define BL31_UUID_NUMBER	U(0)
 #endif
@@ -115,6 +115,7 @@ static const struct policies_load_info load_info[FCONF_ST_IO_UUID_NUMBER] = {
 	{FW_CONFIG_ID, "fw_cfg_uuid"},
 #ifdef __aarch64__
 	{BL31_IMAGE_ID, "bl31_uuid"},
+	{SOC_FW_CONFIG_ID, "soc_fw_cfg_uuid"},
 #endif
 	{BL32_IMAGE_ID, "bl32_uuid"},
 	{BL32_EXTRA1_IMAGE_ID, "bl32_extra1_uuid"},
