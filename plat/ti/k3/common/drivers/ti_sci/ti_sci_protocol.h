@@ -31,6 +31,7 @@
 
 /* Low Power Mode Requests */
 #define TI_SCI_MSG_ENTER_SLEEP		0x0301
+#define TI_SCI_MSG_LPM_GET_NEXT_SYS_MODE 0x030d
 
 /* Clock requests */
 #define TI_SCI_MSG_SET_CLOCK_STATE	0x0100
@@ -133,6 +134,7 @@ struct ti_sci_msg_req_reboot {
  *		MSG_FLAG_CAPS_LPM_MCU_ONLY: MCU only LPM
  *		MSG_FLAG_CAPS_LPM_STANDBY: Standby LPM
  *		MSG_FLAG_CAPS_LPM_PARTIAL_IO: Partial IO in LPM
+ *		MSG_FLAG_CAPS_LPM_DM_MANAGED: LPM can be managed by DM
  *
  * Response to a generic message with message type TI_SCI_MSG_QUERY_FW_CAPS
  * providing currently available SOC/firmware capabilities. SoC that don't
@@ -145,6 +147,7 @@ struct ti_sci_msg_resp_query_fw_caps {
 #define MSG_FLAG_CAPS_LPM_MCU_ONLY	TI_SCI_MSG_FLAG(2)
 #define MSG_FLAG_CAPS_LPM_STANDBY	TI_SCI_MSG_FLAG(3)
 #define MSG_FLAG_CAPS_LPM_PARTIAL_IO	TI_SCI_MSG_FLAG(4)
+#define MSG_FLAG_CAPS_LPM_DM_MANAGED	TI_SCI_MSG_FLAG(5)
 	uint64_t fw_caps;
 } __packed;
 
@@ -764,10 +767,35 @@ struct ti_sci_msg_req_wait_proc_boot_status {
  */
 struct ti_sci_msg_req_enter_sleep {
 	struct ti_sci_msg_hdr hdr;
+#define MSG_VALUE_SLEEP_MODE_DEEP_SLEEP 0x0
 	uint8_t mode;
 	uint8_t processor_id;
 	uint32_t core_resume_lo;
 	uint32_t core_resume_hi;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_lpm_get_next_sys_mode - Request for TI_SCI_MSG_LPM_GET_NEXT_SYS_MODE.
+ *
+ * @hdr Generic Header
+ *
+ * This message is used to enquire DM for selected system wide low power mode.
+ */
+struct ti_sci_msg_req_lpm_get_next_sys_mode {
+	struct ti_sci_msg_hdr hdr;
+} __packed;
+
+/**
+ * struct ti_sci_msg_resp_lpm_get_next_sys_mode - Response for TI_SCI_MSG_LPM_GET_NEXT_SYS_MODE.
+ *
+ * @hdr Generic Header
+ * @mode The selected system wide low power mode.
+ *
+ * Note: If the mode selection is not yet locked, this API returns "not selected" mode.
+ */
+struct ti_sci_msg_resp_lpm_get_next_sys_mode {
+	struct ti_sci_msg_hdr hdr;
+	uint8_t mode;
 } __packed;
 
 #endif /* TI_SCI_PROTOCOL_H */

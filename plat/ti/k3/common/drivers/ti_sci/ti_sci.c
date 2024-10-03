@@ -1740,3 +1740,41 @@ int ti_sci_enter_sleep(uint8_t proc_id,
 
 	return 0;
 }
+
+/**
+ * ti_sci_lpm_get_next_sys_mode() - Get next LPM system mode
+ *
+ * @next_mode:	pointer to a variable that will store the next mode
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_lpm_get_next_sys_mode(uint8_t *next_mode)
+{
+	struct ti_sci_msg_req_lpm_get_next_sys_mode req;
+	struct ti_sci_msg_resp_lpm_get_next_sys_mode resp;
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	if (next_mode == NULL) {
+		return -EINVAL;
+	}
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_LPM_GET_NEXT_SYS_MODE, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret != 0) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret != 0) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	*next_mode = resp.mode;
+
+	return 0;
+}
