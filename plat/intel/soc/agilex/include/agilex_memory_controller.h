@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +28,7 @@
 #define AGX_MPFE_HMC_ADP_ECCCTRL1			0xf8011100
 #define AGX_MPFE_HMC_ADP_ECCCTRL2			0xf8011104
 #define AGX_MPFE_HMC_ADP_RSTHANDSHAKESTAT		0xf8011218
-#define AGX_MPFE_HMC_ADP_RSTHANDSHAKESTAT_SEQ2CORE	0x000000ff
+#define AGX_MPFE_HMC_ADP_RSTHANDSHAKESTAT_SEQ2CORE	0x0000000f
 #define AGX_MPFE_HMC_ADP_RSTHANDSHAKECTRL		0xf8011214
 
 
