@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,8 +27,8 @@
 #endif /* PLATFORM_TEST_TFM_TESTSUITE */
 #include <psa/error.h>
 
-#include <drivers/arm/rse_comms.h>
 #include <plat/common/platform.h>
+#include <tc_rse_comms.h>
 
 #ifdef PLATFORM_TEST_TFM_TESTSUITE
 /*
@@ -126,7 +126,7 @@ void bl31_platform_setup(void)
 #endif
 
 	/* Initialise RSE communication channel */
-	status = rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE, PLAT_RSE_AP_RCV_MHU_BASE);
+	status = plat_rse_comms_init();
 	if (status != PSA_SUCCESS) {
 		ERROR("Failed to initialize RSE communication channel - psa_status = %d\n", status);
 	}

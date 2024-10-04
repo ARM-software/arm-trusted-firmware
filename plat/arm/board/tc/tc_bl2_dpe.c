@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,6 @@
 #include <stdint.h>
 
 #include <common/debug.h>
-#include <drivers/arm/rse_comms.h>
 #include <drivers/measured_boot/metadata.h>
 #include <drivers/measured_boot/rse/dice_prot_env.h>
 #include <plat/arm/common/plat_arm.h>
@@ -16,6 +15,7 @@
 #include <tools_share/tbbr_oid.h>
 
 #include "tc_dpe.h"
+#include <tc_rse_comms.h>
 
 /*
  * The content and the values of this array depends on:
@@ -254,8 +254,7 @@ void bl2_plat_mboot_init(void)
 #endif
 
 	/* Initialize the communication channel between AP and RSE */
-	(void)rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE,
-			     PLAT_RSE_AP_RCV_MHU_BASE);
+	(void)plat_rse_comms_init();
 
 	dpe_init(tc_dpe_metadata);
 }

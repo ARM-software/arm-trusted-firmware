@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Ltd. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,9 +10,9 @@
 #include <mbedtls_common.h>
 #include <plat/common/platform.h>
 #include <psa/crypto.h>
-#include <rse_comms.h>
 
 #include "rse_ap_testsuites.h"
+#include <tc_rse_comms.h>
 
 static struct test_suite_t test_suites[] = {
 	{.freg = register_testsuite_delegated_attest},
@@ -32,7 +32,7 @@ static int run_tests(void)
 	size_t i;
 
 	/* Initialize test environment. */
-	rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE, PLAT_RSE_AP_RCV_MHU_BASE);
+	plat_rse_comms_init();
 	mbedtls_init();
 	status = psa_crypto_init();
 	if (status != PSA_SUCCESS) {
