@@ -28,6 +28,9 @@ static int read_block, max_blocks;
 static uint32_t send_id, rcv_id;
 static uint32_t bytes_per_block, blocks_submitted;
 static bool bridge_disable;
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+static uint32_t g_remapper_bypass;
+#endif
 
 /* RSU static variables */
 static uint32_t rsu_dcmf_ver[4] = {0};
@@ -758,7 +761,7 @@ void intel_smmu_hps_remapper_init(uint64_t *mem)
 	/* Read out Bit 1 value */
 	uint32_t remap = (mmio_read_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_POR_1)) & 0x02);
 
-	if (remap == 0x00) {
+	if ((remap == 0x00) && (g_remapper_bypass == 0x00)) {
 		/* Update DRAM Base address for SDM SMMU */
 		mmio_write_32(SOCFPGA_SYSMGR(SDM_BE_ARADDR_REMAP), DRAM_BASE);
 		mmio_write_32(SOCFPGA_SYSMGR(SDM_BE_AWADDR_REMAP), DRAM_BASE);
@@ -766,6 +769,19 @@ void intel_smmu_hps_remapper_init(uint64_t *mem)
 	} else {
 		*mem = *mem - DRAM_BASE;
 	}
+}
+
+int intel_smmu_hps_remapper_config(uint32_t remapper_bypass)
+{
+	/* Read out the JTAG-ID from boot scratch register */
+	if (is_agilex5_A5F0() != 0) {
+		if (remapper_bypass == 0x01) {
+			g_remapper_bypass = remapper_bypass;
+			mmio_write_32(SOCFPGA_SYSMGR(SDM_BE_ARADDR_REMAP), 0);
+			mmio_write_32(SOCFPGA_SYSMGR(SDM_BE_AWADDR_REMAP), 0);
+		}
+	}
+	return INTEL_SIP_SMC_STATUS_OK;
 }
 #endif
 
@@ -1291,6 +1307,12 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 		status = intel_fcs_aes_crypt_update_finalize(x1, x2, x3, x4,
 					x5, x6, true, &send_id);
 		SMC_RET1(handle, status);
+
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	case INTEL_SIP_SMC_FCS_SDM_REMAPPER_CONFIG:
+		status = intel_smmu_hps_remapper_config(x1);
+		SMC_RET1(handle, status);
+#endif
 
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
 		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,

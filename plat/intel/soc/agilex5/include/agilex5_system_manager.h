@@ -185,6 +185,21 @@
 #define SDM								0x000A000A
 #define CORE_SIGHT_DEBUG						0x000B000B
 
+/* JTAG ID value for Agilex5 */
+#define A590_JTAG_ID							0x9000
+#define A594_JTAG_ID							0x40009000
+#define A5C0_JTAG_ID							0xC000
+#define A5C4_JTAG_ID							0x4000C000
+#define A5D0_JTAG_ID							0xD000
+#define A5D4_JTAG_ID							0x4000D000
+#define A5F0_JTAG_ID							0xC000
+#define A5F4_JTAG_ID							0x4000F000
+#define A510_JTAG_ID							0x1000
+#define A514_JTAG_ID							0x40001000
+#define A530_JTAG_ID							0x3000
+#define A534_JTAG_ID							0x40003000
+#define JTAG_ID_MASK							0xC000F000
+
 /* Field Masking */
 #define SYSMGR_SDMMC_DRVSEL(x)						(((x) & 0x7) << 0)
 #define SYSMGR_SDMMC_SMPLSEL(x)						(((x) & 0x7) << 4)
