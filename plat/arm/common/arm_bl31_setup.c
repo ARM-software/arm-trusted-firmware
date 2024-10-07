@@ -367,9 +367,6 @@ void arm_bl31_platform_setup(void)
 	struct transfer_list_entry *te __unused;
 
 #if TRANSFER_LIST && !RESET_TO_BL31
-	/* Initialise the non-secure world tl, BL31 may modify the HW_CONFIG so defer
-	 * copying it until later.
-	 */
 	ns_tl = transfer_list_init((void *)FW_NS_HANDOFF_BASE,
 				   PLAT_ARM_FW_HANDOFF_SIZE);
 
@@ -378,12 +375,23 @@ void arm_bl31_platform_setup(void)
 		panic();
 	}
 
-#if !RESET_TO_BL2
 	te = transfer_list_find(secure_tl, TL_TAG_FDT);
 	assert(te != NULL);
 
+	/*
+	 * A pre-existing assumption is that FCONF is unsupported w/ RESET_TO_BL2 and
+	 * RESET_TO_BL31. In the case of RESET_TO_BL31 this makes sense because there
+	 * isn't a prior stage to load the device tree, but the reasoning for RESET_TO_BL2 is
+	 * less clear. For the moment hardware properties that would normally be
+	 * derived from the DT are statically defined.
+	 */
+#if !RESET_TO_BL2
 	fconf_populate("HW_CONFIG", (uintptr_t)transfer_list_entry_data(te));
-#endif /* !(RESET_TO_BL2 && RESET_TO_BL31) */
+#endif
+
+	te = transfer_list_add(ns_tl, TL_TAG_FDT, te->data_size,
+			       transfer_list_entry_data(te));
+	assert(te != NULL);
 #endif /* TRANSFER_LIST */
 
 	/* Initialize the GIC driver, cpu and distributor interfaces */
@@ -433,13 +441,6 @@ void arm_bl31_plat_runtime_setup(void)
 	arm_console_runtime_init();
 
 #if TRANSFER_LIST && !RESET_TO_BL31
-	te = transfer_list_find(secure_tl, TL_TAG_FDT);
-	assert(te != NULL);
-
-	te = transfer_list_add(ns_tl, TL_TAG_FDT, te->data_size,
-			       transfer_list_entry_data(te));
-	assert(te != NULL);
-
 	/*
 	 * We assume BL31 has added all TE's required by BL33 at this stage, ensure
 	 * that data is visible to all observers by performing a flush operation, so
