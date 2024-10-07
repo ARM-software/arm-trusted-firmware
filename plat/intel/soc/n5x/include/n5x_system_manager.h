@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,7 +122,7 @@
 #define SOCFPGA_SYSMGR_BOOT_SCRATCH_COLD_8		0x220
 #define SOCFPGA_SYSMGR_BOOT_SCRATCH_COLD_9		0x224
 #define SOCFPGA_SYSMGR_MPFE_CONFIG			0x228
-#define SOCFPGA_SYSMGR_MPFE_status			0x22C
+#define SOCFPGA_SYSMGR_MPFE_STATUS			0x22C
 #define SOCFPGA_SYSMGR_BOOT_SCRATCH_WARM_0		0x230
 #define SOCFPGA_SYSMGR_BOOT_SCRATCH_WARM_1		0x234
 #define SOCFPGA_SYSMGR_BOOT_SCRATCH_WARM_2		0x238
