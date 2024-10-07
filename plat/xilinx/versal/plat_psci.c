@@ -126,7 +126,7 @@ static void versal_pwr_domain_suspend_finish(
 	plat_versal_gic_cpuif_enable();
 }
 
-void versal_pwr_domain_on_finish(const psci_power_state_t *target_state)
+static void versal_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	/* Enable the gic cpu interface */
 	plat_versal_gic_pcpu_init();

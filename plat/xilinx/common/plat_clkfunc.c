@@ -8,6 +8,7 @@
 #include <plat/common/platform.h>
 
 #include <platform_def.h>
+#include <plat_clkfunc.h>
 #include <plat_private.h>
 
 uint32_t plat_get_syscnt_freq2(void)
