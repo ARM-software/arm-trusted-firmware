@@ -192,7 +192,7 @@
 # if SPM_MM
 #  define PLATFORM_STACK_SIZE		0x500
 # else
-#  define PLATFORM_STACK_SIZE		0xa00
+#  define PLATFORM_STACK_SIZE		0xb00
 # endif
 #elif defined(IMAGE_BL32)
 # define PLATFORM_STACK_SIZE		0x440
