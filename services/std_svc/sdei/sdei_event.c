@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,14 +19,14 @@
  * Both shared and private maps are stored in single-dimensional array. Private
  * event entries are kept for each PE forming a 2D array.
  */
-sdei_entry_t *get_event_entry(sdei_ev_map_t *map)
+sdei_entry_t *get_event_entry(const sdei_ev_map_t *map)
 {
 	const sdei_mapping_t *mapping;
 	sdei_entry_t *cpu_priv_base;
 	unsigned int base_idx;
 	long int idx;
 
-	if (is_event_private(map)) {
+	if ((map->map_flags & BIT_32(SDEI_MAPF_PRIVATE_SHIFT_)) != 0U) {
 		/*
 		 * For a private map, find the index of the mapping in the
 		 * array.
@@ -49,6 +49,39 @@ sdei_entry_t *get_event_entry(sdei_ev_map_t *map)
 
 		return &sdei_shared_event_table[idx];
 	}
+}
+
+/*
+ * Retrieve the SDEI entry for the given mapping and target PE.
+ *
+ * on success : Returns a pointer to the SDEI entry
+ *
+ * On error, returns NULL
+ *
+ * Both shared and private maps are stored in single-dimensional array. Private
+ * event entries are kept for each PE forming a 2D array.
+ */
+sdei_entry_t *get_event_entry_target_pe(long int mapsub, unsigned int nm, uint64_t target_pe)
+{
+	sdei_entry_t *cpu_priv_base;
+	unsigned int base_idx;
+	long int idx;
+
+	/*
+	 * For a private map, find the index of the mapping in the
+	 * array.
+	 */
+	idx = mapsub;
+
+	/* Base of private mappings for this CPU */
+	base_idx = (unsigned int) plat_core_pos_by_mpidr(target_pe);
+	base_idx *= nm;
+	cpu_priv_base = &sdei_private_event_table[base_idx];
+	/*
+	 * Return the address of the entry at the same index in the
+	 * per-CPU event entry.
+	 */
+	return &cpu_priv_base[idx];
 }
 
 /*
