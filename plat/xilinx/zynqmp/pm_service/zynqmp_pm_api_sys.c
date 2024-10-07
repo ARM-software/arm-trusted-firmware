@@ -268,6 +268,7 @@ enum pm_ret_status pm_self_suspend(enum pm_node_id nid,
 				   uint32_t state,
 				   uintptr_t address)
 {
+	(void)nid;
 	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint32_t cpuid = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpuid);
@@ -1514,6 +1515,7 @@ static enum pm_ret_status pm_pinctrl_get_pin_groups(uint32_t pin_id,
 void pm_query_data(enum pm_query_ids qid, uint32_t arg1, uint32_t arg2,
 		   uint32_t arg3, uint32_t *data)
 {
+	(void)arg3;
 	switch (qid) {
 	case PM_QID_CLOCK_GET_NAME:
 		pm_clock_get_name(arg1, (char *)data);
