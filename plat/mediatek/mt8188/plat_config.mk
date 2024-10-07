@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
+# Copyright (c) 2022-2024, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -45,6 +45,9 @@ CONFIG_MTK_SPM_VERSION := mt8188
 CONFIG_MTK_SUPPORT_SYSTEM_SUSPEND := y
 CPU_PM_TINYSYS_SUPPORT := y
 MTK_PUBEVENT_ENABLE := y
+
+# True Random Number Generator firmware Interface
+TRNG_SUPPORT := 1
 
 MACH_MT8188 := 1
 $(eval $(call add_define,MACH_MT8188))

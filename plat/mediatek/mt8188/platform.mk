@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
+# Copyright (c) 2022-2024, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -39,6 +39,9 @@ MODULES-y += $(MTK_PLAT)/drivers/mcusys
 MODULES-y += $(MTK_PLAT)/drivers/pmic
 MODULES-y += $(MTK_PLAT)/drivers/pmic_wrap
 MODULES-y += $(MTK_PLAT)/drivers/ptp3
+ifeq (${TRNG_SUPPORT},1)
+MODULES-y += $(MTK_PLAT)/drivers/rng
+endif
 MODULES-y += $(MTK_PLAT)/drivers/rtc
 MODULES-y += $(MTK_PLAT)/drivers/spm
 MODULES-y += $(MTK_PLAT)/drivers/timer
