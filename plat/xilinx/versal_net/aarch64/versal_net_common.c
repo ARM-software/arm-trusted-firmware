@@ -60,11 +60,11 @@ char *board_name_decode(void)
 
 void board_detection(void)
 {
-	uint32_t version;
+	uint32_t version_type;
 
-	version = mmio_read_32(PMC_TAP_VERSION);
-	platform_id = FIELD_GET(PLATFORM_MASK, version);
-	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, version);
+	version_type = mmio_read_32(PMC_TAP_VERSION);
+	platform_id = FIELD_GET(PLATFORM_MASK, version_type);
+	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, version_type);
 
 	if (platform_id == VERSAL_NET_QEMU_COSIM) {
 		platform_id = VERSAL_NET_QEMU;
