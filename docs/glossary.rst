@@ -136,6 +136,9 @@ You can find additional definitions in the `Arm Glossary`_.
    OTE
       Open-source Trusted Execution Environment
 
+   PCR
+      Platform Configuration Register
+
    PDD
       Platform Design Document
 
