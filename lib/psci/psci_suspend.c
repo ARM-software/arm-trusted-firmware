@@ -121,7 +121,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 			   unsigned int is_power_down_state)
 {
 	int rc = PSCI_E_SUCCESS;
-	bool skip_wfi = false;
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 	unsigned int max_off_lvl = 0;
 #if FEAT_PABANDON
@@ -152,7 +151,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 	 * detection that a wake-up interrupt has fired.
 	 */
 	if (read_isr_el1() != 0U) {
-		skip_wfi = true;
 		goto exit;
 	}
 
@@ -164,7 +162,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 		 */
 		rc = psci_validate_state_coordination(idx, end_pwrlvl, state_info);
 		if (rc != PSCI_E_SUCCESS) {
-			skip_wfi = true;
 			goto exit;
 		}
 	} else {
@@ -183,7 +180,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 	if (psci_plat_pm_ops->pwr_domain_validate_suspend != NULL) {
 		rc = psci_plat_pm_ops->pwr_domain_validate_suspend(state_info);
 		if (rc != PSCI_E_SUCCESS) {
-			skip_wfi = true;
 			goto exit;
 		}
 	}
@@ -243,16 +239,11 @@ int psci_cpu_suspend_start(unsigned int idx,
 	plat_psci_stat_accounting_start(state_info);
 #endif
 
-exit:
 	/*
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
 	 */
 	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
-
-	if (skip_wfi) {
-		return rc;
-	}
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	/*
@@ -335,6 +326,7 @@ exit:
 	 */
 	psci_set_pwr_domains_to_run(idx, end_pwrlvl);
 
+exit:
 	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
 	return rc;
