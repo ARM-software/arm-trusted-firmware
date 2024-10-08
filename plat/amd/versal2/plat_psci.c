@@ -222,11 +222,11 @@ static uint64_t no_pm_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64
 	}
 	case PM_GET_CHIPID:
 	{
-		uint32_t idcode, version;
+		uint32_t idcode, version_type;
 
 		idcode  = mmio_read_32(PMC_TAP);
-		version = mmio_read_32(PMC_TAP_VERSION);
-		SMC_RET2(handle, ((uint64_t)idcode << 32), version);
+		version_type = mmio_read_32(PMC_TAP_VERSION);
+		SMC_RET2(handle, ((uint64_t)idcode << 32), version_type);
 	}
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
