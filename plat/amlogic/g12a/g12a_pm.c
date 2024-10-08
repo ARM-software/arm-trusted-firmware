@@ -200,7 +200,7 @@ static const plat_psci_ops_t g12a_ops = {
 	.pwr_domain_on			= g12a_pwr_domain_on,
 	.pwr_domain_on_finish		= g12a_pwr_domain_on_finish,
 	.pwr_domain_off			= g12a_pwr_domain_off,
-	.pwr_domain_pwr_down_wfi	= g12a_pwr_domain_pwr_down_wfi,
+	.pwr_domain_pwr_down		= g12a_pwr_domain_pwr_down_wfi,
 	.system_off			= g12a_system_off,
 	.system_reset			= g12a_system_reset
 };

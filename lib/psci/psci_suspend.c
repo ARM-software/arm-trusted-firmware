@@ -258,9 +258,9 @@ int psci_cpu_suspend_start(unsigned int idx,
 #endif
 
 	if (is_power_down_state != 0U) {
-		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi != NULL) {
+		if (psci_plat_pm_ops->pwr_domain_pwr_down != NULL) {
 			/* This function may not return */
-			psci_plat_pm_ops->pwr_domain_pwr_down_wfi(state_info);
+			psci_plat_pm_ops->pwr_domain_pwr_down(state_info);
 		}
 
 		psci_pwrdown_cpu_end_wakeup(max_off_lvl);

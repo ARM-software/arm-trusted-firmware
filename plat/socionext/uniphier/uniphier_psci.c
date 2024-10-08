@@ -113,7 +113,7 @@ static const struct plat_psci_ops uniphier_psci_ops = {
 	.pwr_domain_on = uniphier_psci_pwr_domain_on,
 	.pwr_domain_off = uniphier_psci_pwr_domain_off,
 	.pwr_domain_on_finish = uniphier_psci_pwr_domain_on_finish,
-	.pwr_domain_pwr_down_wfi = uniphier_psci_pwr_domain_pwr_down_wfi,
+	.pwr_domain_pwr_down = uniphier_psci_pwr_domain_pwr_down_wfi,
 	.system_off = uniphier_psci_system_off,
 	.system_reset = uniphier_psci_system_reset,
 };

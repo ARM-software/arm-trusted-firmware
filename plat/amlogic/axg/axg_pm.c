@@ -152,7 +152,7 @@ static const plat_psci_ops_t axg_ops = {
 	.pwr_domain_on			= axg_pwr_domain_on,
 	.pwr_domain_on_finish		= axg_pwr_domain_on_finish,
 	.pwr_domain_off			= axg_pwr_domain_off,
-	.pwr_domain_pwr_down_wfi	= axg_pwr_domain_pwr_down_wfi,
+	.pwr_domain_pwr_down		= axg_pwr_domain_pwr_down_wfi,
 	.system_off			= axg_system_off,
 	.system_reset			= axg_system_reset
 };

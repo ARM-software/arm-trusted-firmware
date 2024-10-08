@@ -2897,7 +2897,7 @@ allocated in a special area if it cannot fit in the platform's global static
 data, for example in DRAM. The Distributor can then be powered down using an
 implementation-defined sequence.
 
-plat_psci_ops.pwr_domain_pwr_down_wfi()
+plat_psci_ops.pwr_domain_pwr_down()
 .......................................
 
 This is an optional function and, if implemented, is expected to perform
@@ -2968,7 +2968,7 @@ plat_psci_ops.system_off()
 This function is called by PSCI implementation in response to a ``SYSTEM_OFF``
 call. It performs the platform-specific system poweroff sequence after
 notifying the Secure Payload Dispatcher. The caller will call ``wfi`` if this
-function returns, similar to `plat_psci_ops.pwr_domain_pwr_down_wfi()`_.
+function returns, similar to `plat_psci_ops.pwr_domain_pwr_down()`_.
 
 plat_psci_ops.system_reset()
 ............................
@@ -2976,7 +2976,7 @@ plat_psci_ops.system_reset()
 This function is called by PSCI implementation in response to a ``SYSTEM_RESET``
 call. It performs the platform-specific system reset sequence after
 notifying the Secure Payload Dispatcher. The caller will call ``wfi`` if this
-function returns, similar to `plat_psci_ops.pwr_domain_pwr_down_wfi()`_.
+function returns, similar to `plat_psci_ops.pwr_domain_pwr_down()`_.
 
 plat_psci_ops.validate_power_state()
 ....................................
@@ -3065,7 +3065,7 @@ function must return ``PSCI_E_NOT_SUPPORTED``. For architectural
 resets, all failures must return ``PSCI_E_INVALID_PARAMETERS``
 and vendor reset can return other PSCI error codes as defined
 in `PSCI`_. If this function returns success, the caller will call
-``wfi`` similar to `plat_psci_ops.pwr_domain_pwr_down_wfi()`_.
+``wfi`` similar to `plat_psci_ops.pwr_domain_pwr_down()`_.
 
 plat_psci_ops.write_mem_protect()
 .................................
