@@ -769,7 +769,7 @@ static enum pm_ret_status fw_api_version(uint32_t id, uint32_t *version,
 enum pm_ret_status check_api_dependency(uint8_t id)
 {
 	uint8_t i;
-	uint32_t version;
+	uint32_t version_type;
 	int ret;
 
 	for (i = 0U; i < ARRAY_SIZE(api_dep_table); i++) {
@@ -779,13 +779,13 @@ enum pm_ret_status check_api_dependency(uint8_t id)
 			}
 
 			ret = fw_api_version(api_dep_table[i].api_id,
-					     &version, 1);
+					     &version_type, 1);
 			if (ret != PM_RET_SUCCESS) {
 				return ret;
 			}
 
 			/* Check if fw version matches TF-A expected version */
-			if (version != tfa_expected_ver_id[api_dep_table[i].api_id]) {
+			if (version_type != tfa_expected_ver_id[api_dep_table[i].api_id]) {
 				return PM_RET_ERROR_NOTSUPPORTED;
 			}
 		}
