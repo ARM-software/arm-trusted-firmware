@@ -7,7 +7,10 @@
 #include <lib/utils_def.h>
 #include <s32cc-mc-rgm.h>
 
-#define MC_RGM_PRST(MC_RGM, PER)	((MC_RGM) + 0x40UL + ((PER) * 0x8UL))
+#define MC_RGM_PRST(RGM, PER)		((RGM) + 0x40UL + ((PER) * 0x8UL))
+#define MC_RGM_PRST_PERIPH_N_RST(PER)	BIT_32(PER)
+#define MC_RGM_PSTAT(RGM, PER)		((RGM) + 0x140UL + ((PER) * 0x8UL))
+#define MC_RGM_PSTAT_PERIPH(PER)	BIT_32(PER)
 
 /*  ERR051700
  *  Releasing more than one Software Resettable Domain (SRD)
@@ -63,3 +66,19 @@ void mc_rgm_periph_reset(uintptr_t rgm, uint32_t part, uint32_t value)
 	mmio_write_32(MC_RGM_PRST(rgm, part), value);
 }
 #endif /* ERRATA_S32_051700 */
+
+void mc_rgm_release_part(uintptr_t rgm, uint32_t part)
+{
+	uint32_t reg;
+
+	reg = mmio_read_32(MC_RGM_PRST(rgm, part));
+	reg &= ~MC_RGM_PRST_PERIPH_N_RST(0);
+	mc_rgm_periph_reset(rgm, part, reg);
+}
+
+void mc_rgm_wait_part_deassert(uintptr_t rgm, uint32_t part)
+{
+	while ((mmio_read_32(MC_RGM_PSTAT(rgm, part)) &
+		MC_RGM_PSTAT_PERIPH(0)) != 0U) {
+	}
+}
