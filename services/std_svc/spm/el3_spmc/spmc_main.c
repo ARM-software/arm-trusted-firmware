@@ -1398,8 +1398,8 @@ static uint64_t ffa_run_handler(uint32_t smc_fid,
 
 	/* Check that the target SP exists. */
 	sp = spmc_get_sp_ctx(target_id);
-		ERROR("Unknown partition ID (0x%x).\n", target_id);
 	if (sp == NULL) {
+		ERROR("Unknown partition ID (0x%x).\n", target_id);
 		return spmc_ffa_error_return(handle,
 					     FFA_ERROR_INVALID_PARAMETER);
 	}
