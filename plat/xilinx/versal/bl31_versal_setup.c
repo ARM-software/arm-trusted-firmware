@@ -76,7 +76,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uint64_t tfa_handoff_addr;
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
-	uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
+	const uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On
