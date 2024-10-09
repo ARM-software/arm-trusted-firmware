@@ -56,14 +56,14 @@
 #define CLK_NOMUX	0x00000010
 
 /* Flexgen define */
-#define FLEX_ID_SHIFT	13
-#define FLEX_SEL_SHIFT	9
+#define FLEX_ID_SHIFT	20
+#define FLEX_SEL_SHIFT	16
 #define FLEX_PDIV_SHIFT	6
 #define FLEX_FDIV_SHIFT	0
 
-#define FLEX_ID_MASK	GENMASK_32(18, 13)
-#define FLEX_SEL_MASK	GENMASK_32(12, 9)
-#define FLEX_PDIV_MASK	GENMASK_32(8, 6)
+#define FLEX_ID_MASK	GENMASK_32(25, 20)
+#define FLEX_SEL_MASK	GENMASK_32(19, 16)
+#define FLEX_PDIV_MASK	GENMASK_32(15, 6)
 #define FLEX_FDIV_MASK	GENMASK_32(5, 0)
 
 #define DIV_CFG(div_id, div)	((CMD_DIV << CMD_SHIFT) |\
