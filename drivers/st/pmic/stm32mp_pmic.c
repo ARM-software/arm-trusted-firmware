@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -215,120 +215,6 @@ void print_pmic_info_and_debug(void)
 	INFO("PMIC version = 0x%02lx\n", pmic_version);
 }
 #endif
-
-int pmic_ddr_power_init(enum ddr_type ddr_type)
-{
-	int status;
-	uint16_t buck3_min_mv;
-	struct rdev *buck2, *buck3, *vref;
-	struct rdev *ldo3 __unused;
-
-	buck2 = regulator_get_by_name("buck2");
-	if (buck2 == NULL) {
-		return -ENOENT;
-	}
-
-#if STM32MP15
-	ldo3 = regulator_get_by_name("ldo3");
-	if (ldo3 == NULL) {
-		return -ENOENT;
-	}
-#endif
-
-	vref = regulator_get_by_name("vref_ddr");
-	if (vref == NULL) {
-		return -ENOENT;
-	}
-
-	switch (ddr_type) {
-	case STM32MP_DDR3:
-#if STM32MP15
-		status = regulator_set_flag(ldo3, REGUL_SINK_SOURCE);
-		if (status != 0) {
-			return status;
-		}
-#endif
-
-		status = regulator_set_min_voltage(buck2);
-		if (status != 0) {
-			return status;
-		}
-
-		status = regulator_enable(buck2);
-		if (status != 0) {
-			return status;
-		}
-
-		status = regulator_enable(vref);
-		if (status != 0) {
-			return status;
-		}
-
-#if STM32MP15
-		status = regulator_enable(ldo3);
-		if (status != 0) {
-			return status;
-		}
-#endif
-		break;
-
-	case STM32MP_LPDDR2:
-	case STM32MP_LPDDR3:
-		/*
-		 * Set LDO3 to 1.8V
-		 * Set LDO3 to bypass mode if BUCK3 = 1.8V
-		 * Set LDO3 to normal mode if BUCK3 != 1.8V
-		 */
-		buck3 = regulator_get_by_name("buck3");
-		if (buck3 == NULL) {
-			return -ENOENT;
-		}
-
-		regulator_get_range(buck3, &buck3_min_mv, NULL);
-
-#if STM32MP15
-		if (buck3_min_mv != 1800) {
-			status = regulator_set_min_voltage(ldo3);
-			if (status != 0) {
-				return status;
-			}
-		} else {
-			status = regulator_set_flag(ldo3, REGUL_ENABLE_BYPASS);
-			if (status != 0) {
-				return status;
-			}
-		}
-#endif
-
-		status = regulator_set_min_voltage(buck2);
-		if (status != 0) {
-			return status;
-		}
-
-#if STM32MP15
-		status = regulator_enable(ldo3);
-		if (status != 0) {
-			return status;
-		}
-#endif
-
-		status = regulator_enable(buck2);
-		if (status != 0) {
-			return status;
-		}
-
-		status = regulator_enable(vref);
-		if (status != 0) {
-			return status;
-		}
-		break;
-
-	default:
-		break;
-	};
-
-	return 0;
-}
 
 int pmic_voltages_init(void)
 {

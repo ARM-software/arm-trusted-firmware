@@ -71,6 +71,19 @@ void configure_mmu(void)
 	enable_mmu_el3(0);
 }
 
+int stm32mp_map_retram(void)
+{
+	return  mmap_add_dynamic_region(RETRAM_BASE, RETRAM_BASE,
+					RETRAM_SIZE,
+					MT_RW | MT_SECURE);
+}
+
+int stm32mp_unmap_retram(void)
+{
+	return  mmap_remove_dynamic_region(RETRAM_BASE,
+					   RETRAM_SIZE);
+}
+
 uintptr_t stm32_get_gpio_bank_base(unsigned int bank)
 {
 	if (bank == GPIO_BANK_Z) {
@@ -277,7 +290,18 @@ void stm32mp_print_boardinfo(void)
 	}
 }
 
+bool stm32mp_is_wakeup_from_standby(void)
+{
+	/* TODO add source code to determine if platform is waking up from standby mode */
+	return false;
+}
+
 uintptr_t stm32_get_bkpr_boot_mode_addr(void)
 {
 	return tamp_bkpr(BKPR_BOOT_MODE);
+}
+
+uintptr_t stm32_ddrdbg_get_base(void)
+{
+	return DDRDBG_BASE;
 }

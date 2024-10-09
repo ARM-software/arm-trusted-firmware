@@ -11,6 +11,9 @@ void configure_mmu(void);
 
 uint32_t stm32mp_syscfg_get_chip_dev_id(void);
 
+/* Get DDRDBG peripheral IO memory base address */
+uintptr_t stm32_ddrdbg_get_base(void);
+
 /* Wrappers for OTP / BSEC functions */
 static inline uint32_t stm32_otp_probe(void)
 {

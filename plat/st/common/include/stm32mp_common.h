@@ -77,6 +77,8 @@ uintptr_t get_uart_address(uint32_t instance_nb);
 /* Setup the UART console */
 int stm32mp_uart_console_setup(void);
 
+bool stm32mp_is_wakeup_from_standby(void);
+
 /*
  * Platform util functions for the GPIO driver
  * @bank: Target GPIO bank ID as per DT bindings
@@ -119,6 +121,10 @@ void stm32mp_io_setup(void);
 /* Functions to map DDR in MMU with non-cacheable attribute, and unmap it */
 int stm32mp_map_ddr_non_cacheable(void);
 int stm32mp_unmap_ddr(void);
+
+/* Functions to map RETRAM, and unmap it */
+int stm32mp_map_retram(void);
+int stm32mp_unmap_retram(void);
 
 /* Function to save boot info */
 void stm32_save_boot_info(boot_api_context_t *boot_context);

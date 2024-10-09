@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2022-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -51,7 +51,8 @@ struct stm32mp_ddrctl {
 	uint32_t init7;		/* 0xec SDRAM Initialization 7 */
 	uint32_t dimmctl;	/* 0xf0 DIMM Control */
 	uint32_t rankctl;	/* 0xf4 Rank Control */
-	uint8_t reserved0f4[0x100 - 0xf8];
+	uint32_t rankctl1;	/* 0xf8 Rank Control 1 */
+	uint8_t reserved0fc[0x100 - 0xfc];
 	uint32_t dramtmg0;	/* 0x100 SDRAM Timing 0 */
 	uint32_t dramtmg1;	/* 0x104 SDRAM Timing 1 */
 	uint32_t dramtmg2;	/* 0x108 SDRAM Timing 2 */
@@ -112,7 +113,9 @@ struct stm32mp_ddrctl {
 	uint32_t perflpr1;	/* 0x264 Low Priority Read CAM 1 */
 	uint32_t reserved268;
 	uint32_t perfwr1;	/* 0x26c Write CAM 1 */
-	uint8_t reserved27c[0x300 - 0x270];
+	uint32_t sched3;	/* 0x270 Scheduler Control 3 */
+	uint32_t sched4;	/* 0x274 Scheduler Control 4 */
+	uint8_t reserved278[0x300 - 0x278];
 	uint32_t dbg0;		/* 0x300 Debug 0 */
 	uint32_t dbg1;		/* 0x304 Debug 1 */
 	uint32_t dbgcam;	/* 0x308 CAM Debug */
@@ -121,7 +124,8 @@ struct stm32mp_ddrctl {
 	uint8_t reserved314[0x320 - 0x314];
 	uint32_t swctl;		/* 0x320 Software Programming Control Enable */
 	uint32_t swstat;	/* 0x324 Software Programming Control Status */
-	uint8_t reserved328[0x36c - 0x328];
+	uint32_t swctlstatic;	/* 0x328 Statics Write Enable */
+	uint8_t reserved32c[0x36c - 0x32c];
 	uint32_t poisoncfg;	/* 0x36c AXI Poison Configuration Register */
 	uint32_t poisonstat;	/* 0x370 AXI Poison Status Register */
 	uint8_t reserved374[0x3f0 - 0x374];
@@ -153,7 +157,7 @@ struct stm32mp_ddrctl {
 	uint32_t pcfgqos1_1;	/* 0x548 Read QoS Configuration 1 */
 	uint32_t pcfgwqos0_1;	/* 0x54c Write QoS Configuration 0 */
 	uint32_t pcfgwqos1_1;	/* 0x550 Write QoS Configuration 1 */
-#endif
+#endif /* STM32MP_DDR_DUAL_AXI_PORT */
 
 	uint8_t reserved554[0xff0 - 0x554];
 	uint32_t umctl2_ver_number;	/* 0xff0 UMCTL2 Version Number */
@@ -170,6 +174,7 @@ struct stm32mp_ddrctl {
 #define DDRCTRL_RFSHCTL3			0x060
 #define DDRCTRL_RFSHTMG				0x064
 #define DDRCTRL_INIT0				0x0D0
+#define DDRCTRL_DFILPCFG0			0x198
 #define DDRCTRL_DFIMISC				0x1B0
 #define DDRCTRL_DBG1				0x304
 #define DDRCTRL_DBGCAM				0x308
@@ -181,7 +186,7 @@ struct stm32mp_ddrctl {
 #define DDRCTRL_PCTRL_0				0x490
 #if STM32MP_DDR_DUAL_AXI_PORT
 #define DDRCTRL_PCTRL_1				0x540
-#endif
+#endif /* STM32MP_DDR_DUAL_AXI_PORT */
 
 /* DDR Controller Register fields */
 #define DDRCTRL_MSTR_DDR3			BIT(0)
@@ -201,6 +206,8 @@ struct stm32mp_ddrctl {
 #define DDRCTRL_STAT_SELFREF_TYPE_MASK		GENMASK(5, 4)
 #define DDRCTRL_STAT_SELFREF_TYPE_ASR		(BIT(4) | BIT(5))
 #define DDRCTRL_STAT_SELFREF_TYPE_SR		BIT(5)
+#define DDRCTRL_STAT_SELFREF_STATE_MASK		GENMASK(9, 8)
+#define DDRCTRL_STAT_SELFREF_STATE_SRPD		BIT(9)
 
 #define DDRCTRL_MRCTRL0_MR_TYPE_WRITE		U(0)
 /* Only one rank supported */
@@ -217,6 +224,7 @@ struct stm32mp_ddrctl {
 #define DDRCTRL_PWRCTL_POWERDOWN_EN		BIT(1)
 #define DDRCTRL_PWRCTL_EN_DFI_DRAM_CLK_DISABLE	BIT(3)
 #define DDRCTRL_PWRCTL_SELFREF_SW		BIT(5)
+#define DDRCTRL_PWRCTL_STAY_IN_SELFREF		BIT(6)
 
 #define DDRCTRL_PWRTMG_SELFREF_TO_X32_MASK	GENMASK(23, 16)
 #define DDRCTRL_PWRTMG_SELFREF_TO_X32_0		BIT(16)
@@ -225,6 +233,9 @@ struct stm32mp_ddrctl {
 #define DDRCTRL_RFSHCTL3_REFRESH_UPDATE_LEVEL	BIT(1)
 
 #define DDRCTRL_HWLPCTL_HW_LP_EN		BIT(0)
+#define DDRCTRL_HWLPCTL_HW_LP_EXIT_IDLE_EN	BIT(1)
+#define DDRCTRL_HWLPCTL_HW_LP_IDLE_X32_MASK	GENMASK(27, 16)
+#define DDRCTRL_HWLPCTL_HW_LP_IDLE_X32_SHIFT	16
 
 #define DDRCTRL_RFSHTMG_T_RFC_NOM_X1_X32_MASK	GENMASK(27, 16)
 #define DDRCTRL_RFSHTMG_T_RFC_NOM_X1_X32_SHIFT	16
@@ -232,21 +243,31 @@ struct stm32mp_ddrctl {
 #define DDRCTRL_INIT0_SKIP_DRAM_INIT_MASK	GENMASK(31, 30)
 #define DDRCTRL_INIT0_SKIP_DRAM_INIT_NORMAL	BIT(30)
 
+#define DDRCTRL_DFILPCFG0_DFI_LP_EN_SR		BIT(8)
+
 #define DDRCTRL_DFIMISC_DFI_INIT_COMPLETE_EN	BIT(0)
 #define DDRCTRL_DFIMISC_DFI_INIT_START		BIT(5)
+#define DDRCTRL_DFIMISC_DFI_FREQUENCY		GENMASK(12, 8)
 
 #define DDRCTRL_DFISTAT_DFI_INIT_COMPLETE	BIT(0)
+#define DDRCTRL_DFISTAT_DFI_LP_ACK		BIT(1)
 
+#define DDRCTRL_DBG1_DIS_DQ			BIT(0)
 #define DDRCTRL_DBG1_DIS_HIF			BIT(1)
 
 #define DDRCTRL_DBGCAM_WR_DATA_PIPELINE_EMPTY	BIT(29)
 #define DDRCTRL_DBGCAM_RD_DATA_PIPELINE_EMPTY	BIT(28)
 #define DDRCTRL_DBGCAM_DBG_WR_Q_EMPTY		BIT(26)
+#define DDRCTRL_DBGCAM_DBG_RD_Q_EMPTY		BIT(25)
 #define DDRCTRL_DBGCAM_DBG_LPR_Q_DEPTH		GENMASK(12, 8)
 #define DDRCTRL_DBGCAM_DBG_HPR_Q_DEPTH		GENMASK(4, 0)
 #define DDRCTRL_DBGCAM_DATA_PIPELINE_EMPTY \
 		(DDRCTRL_DBGCAM_WR_DATA_PIPELINE_EMPTY | \
 		 DDRCTRL_DBGCAM_RD_DATA_PIPELINE_EMPTY)
+#define DDRCTRL_DBG_Q_AND_DATA_PIPELINE_EMPTY \
+		(DDRCTRL_DBGCAM_DBG_WR_Q_EMPTY | \
+		 DDRCTRL_DBGCAM_DBG_RD_Q_EMPTY | \
+		 DDRCTRL_DBGCAM_DATA_PIPELINE_EMPTY)
 #define DDRCTRL_DBGCAM_DBG_Q_DEPTH \
 		(DDRCTRL_DBGCAM_DBG_WR_Q_EMPTY | \
 		 DDRCTRL_DBGCAM_DBG_LPR_Q_DEPTH | \

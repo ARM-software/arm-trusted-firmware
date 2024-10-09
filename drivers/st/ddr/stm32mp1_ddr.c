@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -24,14 +24,12 @@
 
 #define DDRCTL_REG(x, y)					\
 	{							\
-		.name = #x,					\
 		.offset = offsetof(struct stm32mp_ddrctl, x),	\
 		.par_offset = offsetof(struct y, x)		\
 	}
 
 #define DDRPHY_REG(x, y)					\
 	{							\
-		.name = #x,					\
 		.offset = offsetof(struct stm32mp_ddrphy, x),	\
 		.par_offset = offsetof(struct y, x)		\
 	}
@@ -215,7 +213,7 @@ static void stm32mp1_ddrphy_idone_wait(struct stm32mp_ddrphy *phy)
 {
 	uint32_t pgsr;
 	int error = 0;
-	uint64_t timeout = timeout_init_us(TIMEOUT_US_1S);
+	uint64_t timeout = timeout_init_us(DDR_TIMEOUT_US_1S);
 
 	do {
 		pgsr = mmio_read_32((uintptr_t)&phy->pgsr);
@@ -266,7 +264,7 @@ static void stm32mp1_ddrphy_init(struct stm32mp_ddrphy *phy, uint32_t pir)
 		mmio_read_32((uintptr_t)&phy->pir));
 
 	/* Need to wait 10 configuration clock before start polling */
-	udelay(10);
+	udelay(DDR_DELAY_10US);
 
 	/* Wait DRAM initialization and Gate Training Evaluation complete */
 	stm32mp1_ddrphy_idone_wait(phy);
@@ -279,7 +277,7 @@ static void stm32mp1_wait_operating_mode(struct stm32mp_ddr_priv *priv, uint32_t
 	uint32_t stat;
 	int break_loop = 0;
 
-	timeout = timeout_init_us(TIMEOUT_US_1S);
+	timeout = timeout_init_us(DDR_TIMEOUT_US_1S);
 	for ( ; ; ) {
 		uint32_t operating_mode;
 		uint32_t selref_type;
@@ -508,8 +506,7 @@ static void stm32mp1_ddr3_dll_off(struct stm32mp_ddr_priv *priv)
 #endif
 
 	/* 12. Exit the self-refresh state by setting PWRCTL.selfref_sw = 0. */
-	mmio_clrbits_32((uintptr_t)&priv->ctl->pwrctl,
-			DDRCTRL_PWRCTL_SELFREF_SW);
+	stm32mp_ddr_sw_selfref_exit(priv->ctl);
 	stm32mp1_wait_operating_mode(priv, DDRCTRL_STAT_OPERATING_MODE_NORMAL);
 
 	/*
@@ -524,10 +521,7 @@ static void stm32mp1_ddr3_dll_off(struct stm32mp_ddr_priv *priv)
 	 */
 
 	/* 15. Write DBG1.dis_hif = 0 to re-enable reads and writes. */
-	mmio_clrbits_32((uintptr_t)&priv->ctl->dbg1, DDRCTRL_DBG1_DIS_HIF);
-	VERBOSE("[0x%lx] dbg1 = 0x%x\n",
-		(uintptr_t)&priv->ctl->dbg1,
-		mmio_read_32((uintptr_t)&priv->ctl->dbg1));
+	stm32mp_ddr_enable_host_interface(priv->ctl);
 }
 
 static void stm32mp1_refresh_disable(struct stm32mp_ddrctl *ctl)
@@ -614,7 +608,7 @@ void stm32mp1_ddr_init(struct stm32mp_ddr_priv *priv,
 	mmio_clrbits_32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCAPBRST);
 
 	/* 1.4. wait 128 cycles to permit initialization of end logic */
-	udelay(2);
+	udelay(DDR_DELAY_2US);
 	/* For PCLK = 133MHz => 1 us is enough, 2 to allow lower frequency */
 
 	/* 1.5. initialize registers ddr_umctl2 */
