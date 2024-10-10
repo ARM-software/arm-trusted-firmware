@@ -96,6 +96,10 @@ ld_option = $(shell $($(ARCH)-ld) $(1) -Wl,--version >/dev/null 2>&1 || $($(ARCH
 
 # Convenience function to check for a given compiler option. A call to
 # $(call cc_option, --no-XYZ) will return --no-XYZ if supported by the compiler
+# NOTE: consider assigning to an immediately expanded temporary variable before
+# assigning. This is because variables like TF_CFLAGS are recursively expanded
+# and assigning this directly will cause it to be expanded every time the
+# variable is used, potentially thrashing multicore performance.
 define cc_option
 	$(shell if $($(ARCH)-cc) $(1) -c -x c /dev/null -o /dev/null >/dev/null 2>&1; then echo $(1); fi )
 endef
