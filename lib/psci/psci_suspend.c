@@ -92,29 +92,12 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	 */
 	cm_init_my_context(ep);
 
-#if ENABLE_RUNTIME_INSTRUMENTATION
-
-	/*
-	 * Flush cache line so that even if CPU power down happens
-	 * the timestamp update is reflected in memory.
-	 */
-	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
-		RT_INSTR_ENTER_CFLUSH,
-		PMF_CACHE_MAINT);
-#endif
-
 	/*
 	 * Arch. management. Initiate power down sequence.
 	 * TODO : Introduce a mechanism to query the cache level to flush
 	 * and the cpu-ops power down to perform from the platform.
 	 */
 	psci_pwrdown_cpu(max_off_lvl);
-
-#if ENABLE_RUNTIME_INSTRUMENTATION
-	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
-		RT_INSTR_EXIT_CFLUSH,
-		PMF_NO_CACHE_MAINT);
-#endif
 }
 
 /*******************************************************************************

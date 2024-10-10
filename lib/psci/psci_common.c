@@ -16,6 +16,8 @@
 #include <drivers/delay_timer.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/spe.h>
+#include <lib/pmf/pmf.h>
+#include <lib/runtime_instr.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
@@ -1159,6 +1161,17 @@ int psci_secondaries_brought_up(void)
  ******************************************************************************/
 void psci_pwrdown_cpu(unsigned int power_level)
 {
+#if ENABLE_RUNTIME_INSTRUMENTATION
+
+	/*
+	 * Flush cache line so that even if CPU power down happens
+	 * the timestamp update is reflected in memory.
+	 */
+	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		RT_INSTR_ENTER_CFLUSH,
+		PMF_CACHE_MAINT);
+#endif
+
 #if HW_ASSISTED_COHERENCY
 	/*
 	 * With hardware-assisted coherency, the CPU drivers only initiate the
@@ -1177,6 +1190,12 @@ void psci_pwrdown_cpu(unsigned int power_level)
 	 * we start popping from it again.
 	 */
 	psci_do_pwrdown_cache_maintenance(power_level);
+#endif
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		RT_INSTR_EXIT_CFLUSH,
+		PMF_NO_CACHE_MAINT);
 #endif
 }
 
