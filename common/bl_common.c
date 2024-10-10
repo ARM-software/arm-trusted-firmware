@@ -150,8 +150,7 @@ exit:
  * of trust.
  */
 static int load_auth_image_recursive(unsigned int image_id,
-				    image_info_t *image_data,
-				    int is_parent_image)
+				    image_info_t *image_data)
 {
 	int rc;
 	unsigned int parent_id;
@@ -159,7 +158,7 @@ static int load_auth_image_recursive(unsigned int image_id,
 	/* Use recursion to authenticate parent images */
 	rc = auth_mod_get_parent_id(image_id, &parent_id);
 	if (rc == 0) {
-		rc = load_auth_image_recursive(parent_id, image_data, 1);
+		rc = load_auth_image_recursive(parent_id, image_data);
 		if (rc != 0) {
 			return rc;
 		}
@@ -193,7 +192,7 @@ static int load_auth_image_internal(unsigned int image_id,
 {
 #if TRUSTED_BOARD_BOOT
 	if (dyn_is_auth_disabled() == 0) {
-		return load_auth_image_recursive(image_id, image_data, 0);
+		return load_auth_image_recursive(image_id, image_data);
 	}
 #endif
 
