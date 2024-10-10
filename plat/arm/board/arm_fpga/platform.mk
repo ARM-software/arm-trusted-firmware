@@ -128,9 +128,9 @@ BL31_SOURCES		+=	common/fdt_fixup.c				\
 
 BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
-$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/rom_trampoline.S,bl31))
-$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/kernel_trampoline.S,bl31))
-$(eval $(call MAKE_LD,$(BUILD_PLAT)/build_axf.ld,plat/arm/board/arm_fpga/build_axf.ld.S,bl31))
+$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/rom_trampoline.S,bl31,BL31))
+$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/kernel_trampoline.S,bl31,BL31))
+$(eval $(call MAKE_LD,$(BUILD_PLAT)/build_axf.ld,plat/arm/board/arm_fpga/build_axf.ld.S,bl31,BL31))
 
 ifeq ($($(ARCH)-ld-id),gnu-gcc)
         AXF_LDFLAGS	+=	-Wl,--build-id=none -mno-fix-cortex-a53-843419
