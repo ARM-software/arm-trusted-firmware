@@ -8,6 +8,7 @@ include lib/libfdt/libfdt.mk
 include common/fdt_wrappers.mk
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/		\
+				-I${PLAT_QEMU_COMMON_PATH}/		\
 				-I${PLAT_QEMU_COMMON_PATH}/include	\
 				-I${PLAT_QEMU_PATH}/include		\
 				-Iinclude/common/tbbr

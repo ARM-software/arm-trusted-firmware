@@ -332,3 +332,25 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	return 0;
 }
 #endif  /* ENABLE_RME */
+
+/**
+ * plat_qemu_dt_runtime_address() - Get the final DT location in RAM
+ *
+ * When support is enabled on SBSA, the device tree is relocated from its
+ * original place at the beginning of the NS RAM to after the RMM.  This
+ * function returns the address of the final location in RAM of the device
+ * tree.  See function update_dt() in qemu_bl2_setup.c
+ *
+ * Return: The address of the final location in RAM of the device tree
+ */
+#if (ENABLE_RME && PLAT_qemu_sbsa)
+void *plat_qemu_dt_runtime_address(void)
+{
+	return (void *)(uintptr_t)PLAT_QEMU_DT_BASE;
+}
+#else
+void *plat_qemu_dt_runtime_address(void)
+{
+	return (void *)(uintptr_t)ARM_PRELOADED_DTB_BASE;
+}
+#endif /* (ENABLE_RME && PLAT_qemu_sbsa) */

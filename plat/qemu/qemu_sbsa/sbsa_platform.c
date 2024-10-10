@@ -11,6 +11,8 @@
 
 #include <sbsa_platform.h>
 
+#include "qemu_private.h"
+
 /* default platform version is 0.0 */
 static int platform_version_major;
 static int platform_version_minor;
@@ -278,7 +280,7 @@ void sbsa_platform_init(void)
 {
 	/* Read DeviceTree data before MMU is enabled */
 
-	void *dtb = (void *)(uintptr_t)ARM_PRELOADED_DTB_BASE;
+	void *dtb = plat_qemu_dt_runtime_address();
 	int err;
 
 	err = fdt_open_into(dtb, dtb, PLAT_QEMU_DT_MAX_SIZE);

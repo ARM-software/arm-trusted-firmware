@@ -16,6 +16,7 @@ int qemu_io_register_sp_pkg(const char *name, const char *uuid,
 			    uintptr_t load_addr);
 unsigned int plat_qemu_calc_core_pos(u_register_t mpidr);
 const mmap_region_t *plat_qemu_get_mmap(void);
+void *plat_qemu_dt_runtime_address(void);
 
 void qemu_console_init(void);
 
