@@ -66,6 +66,9 @@
  */
 #define PLAT_MAX_MEM_NODES	128
 
+/* Where QEMU starts the NS RAM */
+#define PLAT_QEMU_DRAM0_BASE	0x10000000000ULL
+
 /*
  * Partition memory into secure ROM, non-secure DRAM, secure "SRAM",
  * and secure DRAM.
@@ -73,7 +76,12 @@
 #define SEC_ROM_BASE			0x00000000
 #define SEC_ROM_SIZE			0x00020000
 
-#define NS_DRAM0_BASE			0x10000000000ULL
+/*
+ * When the RME extension is enabled, the base of the NS RAM is shifted after
+ * RMM.
+ */
+#define NS_DRAM0_BASE			(PLAT_QEMU_DRAM0_BASE + \
+					NS_DRAM0_BASE_OFFSET)
 #define NS_DRAM0_SIZE			0x00020000000
 
 #define SEC_SRAM_BASE			0x20000000
@@ -376,5 +384,7 @@
 
 #define QEMU_PRI_BITS		2
 #define PLAT_SP_PRI		0x20
+
+#define NS_DRAM0_BASE_OFFSET	0
 
 #endif /* PLATFORM_DEF_H */
