@@ -71,7 +71,7 @@ static void atxslewrate_program(struct stm32mp_ddr_config *config)
 	uint32_t anib;
 	uint32_t atxpren; /* Default to 0xf (max). Optimal setting is technology specific */
 	uint32_t atxprep; /* Default to 0xf (max). Optimal setting is technology specific */
-	uint32_t ck_anib_inst[2];
+	uint32_t ck_anib_inst[2] = {0};
 
 	atxprep = config->uia.txslewriseac;
 	atxpren = config->uia.txslewfallac;
@@ -1012,7 +1012,6 @@ static void aforcetricont_acx4anibdis_program(struct stm32mp_ddr_config *config)
 		} else if (anib == 7U) {
 			aforcetricont = 0xFU;
 		}
-#endif /* STM32MP_DDR3_TYPE || STM32MP_DDR4_TYPE */
 
 		/*
 		 * If all the lanes can be disabled, and Anib is not the first or last disable
@@ -1022,6 +1021,8 @@ static void aforcetricont_acx4anibdis_program(struct stm32mp_ddr_config *config)
 		    (anib != (config->uib.numanib - 1U))) {
 			acx4anibdis = acx4anibdis | (0x1U << anib);
 		}
+#endif /* STM32MP_DDR3_TYPE || STM32MP_DDR4_TYPE */
+
 		mmio_write_16((uintptr_t)(DDRPHYC_BASE + (4U * (TANIB | c_addr |
 								CSR_AFORCETRICONT_ADDR))),
 			      aforcetricont);
