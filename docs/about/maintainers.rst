@@ -791,14 +791,14 @@ QEMU platform port
 
 QTI platform port
 ^^^^^^^^^^^^^^^^^
-:|M|: Saurabh Gorecha <sgorecha@codeaurora.org>
-:|G|: `sgorecha`_
 :|M|: Lachit Patel <lpatel@codeaurora.org>
 :|G|: `lachitp`_
 :|M|: Sreevyshanavi Kare <skare@codeaurora.org>
 :|G|: `sreekare`_
 :|M|: Muhammad Arsath K F <quic_mkf@quicinc.com>
 :|G|: `quic_mkf`_
+:|M|: Saurabh Gorecha <quic_sgorecha@quicinc.com>
+:|G|: `quic_sgorecha`_
 :|M|: QTI TF Maintainers <qti.trustedfirmware.maintainers@codeaurora.org>
 :|F|: docs/plat/qti.rst
 :|F|: plat/qti/
@@ -1101,6 +1101,7 @@ Conventional Changelog Extensions
 .. _pangupta: https://github.com/pangupta
 .. _prabhakarlad: https://github.com/prabhakarlad
 .. _quic_mkf: https://github.com/quicmkf
+.. _quic_sgorecha: https://github.com/sgorecha
 .. _raghuncstate: https://github.com/raghuncstate
 .. _raymo200915: https://github.com/raymo200915
 .. _remi-triplefault: https://github.com/repk
@@ -1109,7 +1110,6 @@ Conventional Changelog Extensions
 .. _rupsin01: https://github.com/rupsin01
 .. _rutigl: https://github.com/rutigl
 .. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
-.. _sgorecha: https://github.com/sgorecha
 .. _shawnguo2: https://github.com/shawnguo2
 .. _sieumunt: https://github.com/sieumunt
 .. _smaeul: https://github.com/smaeul
