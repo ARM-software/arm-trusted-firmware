@@ -276,6 +276,121 @@ static void read_platform_version(void *dtb)
 	}
 }
 
+#if !ENABLE_RME
+static int set_system_memory_base(void *dtb, uintptr_t new_base)
+{
+	(void)dtb;
+	(void)new_base;
+
+	return 0;
+}
+#else /* !ENABLE_RME */
+static int set_system_memory_base(void *dtb, uintptr_t new_base)
+{
+	uint64_t cur_base, cur_size, new_size, delta;
+	int len, prev, node, ret;
+	const fdt32_t *prop;
+	uint32_t node_id;
+	const char *type;
+	fdt64_t new[2];
+
+	/*
+	 * QEMU gives us this DeviceTree node:
+	 *
+	 *	memory@100c0000000 {
+	 *		numa-node-id = <0x01>;
+	 *		reg = <0x100 0xc0000000 0x00 0x40000000>;
+	 *		device_type = "memory";
+	 *	};
+	 *
+	 *	memory@10000000000 {
+	 *		numa-node-id = <0x00>;
+	 *		reg = <0x100 0x00 0x00 0xc0000000>;
+	 *		device_type = "memory";
+	 *	}
+	 */
+
+	for (prev = 0;; prev = node) {
+		node = fdt_next_node(dtb, prev, NULL);
+		if (node < 0) {
+			return node;
+		}
+
+		type = fdt_getprop(dtb, node, "device_type", &len);
+		if (type && strncmp(type, "memory", len) == 0) {
+
+			/*
+			 * We are looking for numa node 0, i.e the start of the
+			 * system memory.  If a "numa-node-id" doesn't exists we
+			 * take the first one.
+			 */
+			node_id = fdt_read_uint32_default(dtb, node,
+							  "numa-node-id", 0);
+
+			if (node_id == 0) {
+				break;
+			}
+		}
+	}
+
+	/*
+	 * Get the 'reg' property of this node and
+	 * assume two 8 bytes for base and size.
+	 */
+	prop = fdt_getprop(dtb, node, "reg", &len);
+	if (!prop || len < 0) {
+		return len;
+	}
+
+	if (len != (2 * sizeof(uint64_t))) {
+		return -FDT_ERR_BADVALUE;
+	}
+
+	ret = fdt_get_reg_props_by_index(dtb, node, 0, &cur_base, &cur_size);
+	if (ret < 0)
+		return ret;
+
+	/*
+	 * @cur_base is the base of the NS RAM given to us by QEMU, we can't
+	 * go lower than that.
+	 */
+	if (new_base < cur_base) {
+		return -FDT_ERR_BADVALUE;
+	}
+
+	if (new_base == cur_base) {
+		return 0;
+	}
+
+	/*
+	 * The new base is higher than the base set by QEMU, i.e we are moving
+	 * the base memory up and shrinking the size.
+	 */
+	delta = (size_t)(new_base - cur_base);
+
+	/*
+	 * Make sure the new base is still within the base memory node, i.e
+	 * the base memory node is big enough for the RMM.
+	 */
+	if (delta >= cur_size) {
+		ERROR("Not enough space in base memory node for RMM\n");
+		return -FDT_ERR_BADVALUE;
+	}
+
+	new_size = cur_size - delta;
+
+	new[0] = cpu_to_fdt64(new_base);
+	new[1] = cpu_to_fdt64(new_size);
+
+	ret = fdt_setprop(dtb, node, "reg", new, len);
+	if (ret < 0) {
+		return ret;
+	}
+
+	return fdt_pack(dtb);
+}
+#endif /* !ENABLE_RME */
+
 void sbsa_platform_init(void)
 {
 	/* Read DeviceTree data before MMU is enabled */
@@ -297,6 +412,11 @@ void sbsa_platform_init(void)
 
 	read_platform_version(dtb);
 	INFO("Platform version: %d.%d\n", platform_version_major, platform_version_minor);
+
+	if (set_system_memory_base(dtb, NS_DRAM0_BASE)) {
+		ERROR("Failed to set system memory in Device Tree\n");
+		return;
+	}
 
 	read_platform_config_from_dt(dtb);
 	read_cpuinfo_from_dt(dtb);
