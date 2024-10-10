@@ -120,6 +120,48 @@ static void set_mcn_slc_alloc_mode(void)
 }
 #endif
 
+#if defined(TARGET_FLAVOUR_FPGA) && TARGET_PLATFORM == 4
+/*
+ * Configure MTU tag registers to initialize the MTE carveout.
+ * This isn't required for FVP builds, as FVPs do not emulate
+ * MTE in such a way that it requires a physical careveout.
+ */
+static void set_mcn_mtu_tag_addr(void)
+{
+	for (int i = 0; i < MCN_INSTANCES; i++) {
+		uintptr_t mtu_tag_addr_base_lo = MCN_MTU_BASE_ADDR(i) +
+			MTU_TAG_ADDR_BASE_OFFSET;
+		uintptr_t mtu_tag_addr_base_hi = MCN_MTU_BASE_ADDR(i) +
+			MTU_TAG_ADDR_BASE_OFFSET + 4;
+
+		/* Enter MCN config state. */
+		mmio_write_32(MCN_CRP_BASE_ADDR(i) +
+			      MCN_CRP_ARCH_STATE_REQ_OFFSET, MCN_CONFIG_STATE);
+		while (mmio_read_32(MCN_CRP_BASE_ADDR(i) +
+				    MCN_CRP_ARCH_STATE_CUR_OFFSET) != MCN_CONFIG_STATE)
+			;
+
+		dsb();
+		isb();
+
+		mmio_write_32(mtu_tag_addr_base_lo,
+			      (uint32_t)(TC_MTU_TAG_ADDR_BASE & 0xFFFFFFFF));
+		mmio_write_32(mtu_tag_addr_base_hi,
+			      (uint32_t)((TC_MTU_TAG_ADDR_BASE >> 32) & 0xFFFFFFFF));
+
+		dsb();
+		isb();
+
+		/* Return to MCN run state. */
+		mmio_write_32(MCN_CRP_BASE_ADDR(i) +
+			      MCN_CRP_ARCH_STATE_REQ_OFFSET, MCN_RUN_STATE);
+		while (mmio_read_32(MCN_CRP_BASE_ADDR(i) +
+				    MCN_CRP_ARCH_STATE_CUR_OFFSET) != MCN_RUN_STATE)
+			;
+	}
+}
+#endif
+
 void bl31_platform_setup(void)
 {
 	psa_status_t status;
@@ -136,6 +178,9 @@ void bl31_platform_setup(void)
 	if (status != PSA_SUCCESS) {
 		ERROR("Failed to initialize RSE communication channel - psa_status = %d\n", status);
 	}
+#if defined(TARGET_FLAVOUR_FPGA) && TARGET_PLATFORM == 4
+	set_mcn_mtu_tag_addr();
+#endif
 }
 
 scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id __unused)

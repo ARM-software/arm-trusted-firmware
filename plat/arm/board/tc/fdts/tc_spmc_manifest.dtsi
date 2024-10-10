@@ -101,7 +101,7 @@
 		device_type = "ns-memory";
 		reg = <0x0 TC_NS_DRAM1_BASE 0x0 TC_NS_DRAM1_SIZE>,
 		      <HI(PLAT_ARM_DRAM2_BASE) LO(PLAT_ARM_DRAM2_BASE)
-		       HI(TC_NS_DRAM2_SIZE) LO(TC_NS_DRAM2_SIZE)>;
+		       HI(PLAT_ARM_DRAM2_SIZE) LO(PLAT_ARM_DRAM2_SIZE)>;
 	};
 
 	memory@2 {
