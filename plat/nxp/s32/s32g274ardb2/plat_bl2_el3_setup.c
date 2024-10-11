@@ -11,6 +11,7 @@
 #include <plat_console.h>
 #include <s32cc-clk-drv.h>
 #include <plat_io_storage.h>
+#include <s32cc-ncore.h>
 
 #define SIUL2_PC09_MSCR		UL(0x4009C2E4)
 #define SIUL2_PC10_MSCR		UL(0x4009C2E8)
@@ -61,6 +62,14 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 	linflex_config_pinctrl();
 	console_s32g2_register();
+
+	/* Restore (clear) the CAIUTC[IsolEn] bit for the primary cluster, which
+	 * we have manually set during early BL2 boot.
+	 */
+	ncore_disable_caiu_isolation(A53_CLUSTER0_CAIU);
+
+	ncore_init();
+	ncore_caiu_online(A53_CLUSTER0_CAIU);
 
 	plat_s32g2_io_setup();
 }

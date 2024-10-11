@@ -53,6 +53,7 @@ BL2_SOURCES += \
 	${PLAT_S32G274ARDB2}/plat_bl2_el3_setup.c \
 	${PLAT_S32G274ARDB2}/plat_bl2_image_desc.c \
 	${PLAT_S32G274ARDB2}/plat_io_storage.c \
+	${PLAT_S32G274ARDB2}/s32cc_ncore.c \
 	common/desc_image_load.c \
 	drivers/io/io_fip.c \
 	drivers/io/io_memmap.c \
