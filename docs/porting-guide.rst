@@ -2329,6 +2329,98 @@ RMM image and stores it in the area specified by manifest.
 
 When ENABLE_RME is disabled, this function is not used.
 
+Function : plat_rmmd_el3_token_sign_push_req() [mandatory when RMMD_ENABLE_EL3_TOKEN_SIGN == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Arguments : const struct el3_token_sign_request *req
+    Return    : int
+
+Queue realm attestation token signing request from the RMM in EL3. The interface between
+the RMM and EL3 is modeled as a queue but the underlying implementation may be different,
+so long as the semantics of queuing and the error codes are used as defined below.
+
+See :ref:`el3_token_sign_request_struct` for definition of the request structure.
+
+Optional interface from the RMM-EL3 interface v0.4 onwards.
+
+The parameters of the functions are:
+      arg0: Pointer to the token sign request to be pushed to EL3.
+      The structure must be located in the RMM-EL3 shared
+      memory buffer and must be locked before use.
+
+Return codes:
+        - E_RMM_OK	On Success.
+        - E_RMM_INVAL   If the arguments are invalid.
+        - E_RMM_AGAIN   Indicates that the request was not queued since the
+	  queue in EL3 is full. This may also be returned for any reason
+	  or situation in the system, that prevents accepting the request
+	  from the RMM.
+        - E_RMM_UNK     If the SMC is not implemented or if interface
+	  version is < 0.4.
+
+Function : plat_rmmd_el3_token_sign_pull_resp() [mandatory when RMMD_ENABLE_EL3_TOKEN_SIGN == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Arguments : struct el3_token_sign_response *resp
+    Return    : int
+
+Populate the attestation signing response in the ``resp`` parameter. The interface between
+the RMM and EL3 is modeled as a queue for responses but the underlying implementation may
+be different, so long as the semantics of queuing and the error codes are used as defined
+below.
+
+See :ref:`el3_token_sign_response_struct` for definition of the response structure.
+
+Optional interface from the RMM-EL3 interface v0.4 onwards.
+
+The parameters of the functions are:
+          resp: Pointer to the token sign response to get from EL3.
+	  The structure must be located in the RMM-EL3 shared
+	  memory buffer and must be locked before use.
+
+Return:
+        - E_RMM_OK      On Success.
+        - E_RMM_INVAL   If the arguments are invalid.
+        - E_RMM_AGAIN   Indicates that a response is not ready yet.
+        - E_RMM_UNK     If the SMC is not implemented or if interface
+	  version is < 0.4.
+
+Function : plat_rmmd_el3_token_sign_get_rak_pub() [mandatory when RMMD_ENABLE_EL3_TOKEN_SIGN == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uintptr_t, size_t *, unsigned int
+    Return   : int
+
+This function returns the public portion of the realm attestation key which will be used to
+sign Realm attestation token. Typically, with delegated attestation, the private key is
+returned, however, there may be platforms where the private key bits are better protected
+in a platform specific manner such that the private key is not exposed. In such cases,
+the RMM will only cache the public key and forward any requests such as signing, that
+uses the private key to EL3. The API currently only supports P-384 ECC curve key.
+
+This is an optional interface from the RMM-EL3 interface v0.4 onwards.
+
+The parameters of the function are:
+
+    arg0 - A pointer to the buffer where the public key should be copied
+    by this function. The buffer must be big enough to hold the
+    attestation key.
+
+    arg1 - Contains the size (in bytes) of the buffer passed in arg0. The
+    function returns the attestation key length in this parameter.
+
+    arg2 - The type of the elliptic curve to which the requested attestation key
+    belongs.
+
+The function returns E_RMM_OK on success, RMM_E_INVAL if arguments are invalid and
+E_RMM_UNK if the SMC is not implemented or if interface version is < 0.4.
+
 Function : bl31_plat_enable_mmu [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
