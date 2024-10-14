@@ -647,7 +647,7 @@ void init_scmi_server(void)
 		for (i = 0U; i < ARRAY_SIZE(scmi0_clock); i++) {
 
 			/* Keep i2c on 100MHz to calculate rates properly */
-			if (i >= CLK_I2C0_0 && i <= CLK_I2C7_0)
+			if ((i >= CLK_I2C0_0) && (i <= CLK_I2C7_0))
 				continue;
 
 			/* Keep UFS clocks to default values to get the expected rates */
