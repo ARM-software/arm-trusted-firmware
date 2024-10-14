@@ -246,6 +246,9 @@ MEASURED_BOOT
 /* Number of DRAM banks */
 #define ARM_DRAM_NUM_BANKS		2UL
 
+/* Number of PCIe memory regions */
+#define ARM_PCI_NUM_REGIONS		2UL
+
 #define ARM_IRQ_SEC_PHY_TIMER		29
 
 #define ARM_IRQ_SEC_SGI_0		8

@@ -64,7 +64,7 @@ static uint64_t checksum_calc(uint64_t *buffer, size_t size)
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
 	uint64_t checksum, num_banks, num_consoles;
-	struct ns_dram_bank *bank_ptr;
+	struct memory_bank *bank_ptr;
 	struct console_info *console_ptr;
 
 	assert(manifest != NULL);
@@ -129,7 +129,7 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	 * +--------+----------------+--------------+
 	 */
 
-	bank_ptr = (struct ns_dram_bank *)
+	bank_ptr = (struct memory_bank *)
 			(((uintptr_t)manifest) + sizeof(*manifest));
 	console_ptr = (struct console_info *)
 			((uintptr_t)bank_ptr + (num_banks * sizeof(*bank_ptr)));
@@ -141,7 +141,7 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	assert((sizeof(struct rmm_manifest) +
 		(sizeof(struct console_info) *
 		manifest->plat_console.num_consoles) +
-		(sizeof(struct ns_dram_bank) * manifest->plat_dram.num_banks))
+		(sizeof(struct memory_bank) * manifest->plat_dram.num_banks))
 		<= ARM_EL3_RMM_SHARED_SIZE);
 
 	/* Calculate checksum of plat_dram structure */
@@ -156,7 +156,7 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 
 	/* Update checksum */
 	checksum += checksum_calc((uint64_t *)bank_ptr,
-		sizeof(struct ns_dram_bank) * num_banks);
+		sizeof(struct memory_bank) * num_banks);
 
 	/* Checksum must be 0 */
 	manifest->plat_dram.checksum = ~checksum + 1UL;
