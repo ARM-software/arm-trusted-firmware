@@ -130,7 +130,7 @@ static void __dead2 versal_net_system_reset(void)
 
 	(void)psci_cpu_off();
 
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }
@@ -226,7 +226,7 @@ static void __dead2 versal_net_system_off(void)
 	pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
 			  pm_get_shutdown_scope(), SECURE_FLAG);
 
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }
@@ -257,7 +257,7 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 	}
 
 	/* We expect the 'state id' to be zero */
-	if (psci_get_pstate_id(power_state)) {
+	if (psci_get_pstate_id(power_state) != 0U) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 
