@@ -15,11 +15,13 @@
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32mp2_ddr_helpers.h>
+#include <drivers/st/stm32mp2_ram.h>
 #include <drivers/st/stm32mp_pmic2.h>
 #include <drivers/st/stm32mp_risab_regs.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <lib/mmio.h>
+#include <lib/optee_utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
@@ -135,6 +137,21 @@ void bl2_el3_early_platform_setup(u_register_t arg0 __unused,
 
 void bl2_platform_setup(void)
 {
+	int ret;
+
+	ret = stm32mp2_ddr_probe();
+	if (ret != 0) {
+		ERROR("DDR probe: error %d\n", ret);
+		panic();
+	}
+
+	/* Map DDR for binary load, now with cacheable attribute */
+	ret = mmap_add_dynamic_region(STM32MP_DDR_BASE, STM32MP_DDR_BASE,
+				      STM32MP_DDR_MAX_SIZE, MT_MEMORY | MT_RW | MT_SECURE);
+	if (ret < 0) {
+		ERROR("DDR mapping: error %d\n", ret);
+		panic();
+	}
 }
 
 static void reset_backup_domain(void)
@@ -258,10 +275,14 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;
 	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+	bl_mem_params_node_t *pager_mem_params;
 	const struct dyn_cfg_dtb_info_t *config_info;
 	unsigned int i;
 	const unsigned int image_ids[] = {
 		BL31_IMAGE_ID,
+		BL32_IMAGE_ID,
+		BL33_IMAGE_ID,
+		HW_CONFIG_ID,
 	};
 
 	assert(bl_mem_params != NULL);
@@ -305,6 +326,27 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 			case BL31_IMAGE_ID:
 				bl_mem_params->ep_info.pc = config_info->config_addr;
 				break;
+
+			case BL32_IMAGE_ID:
+				bl_mem_params->ep_info.pc = config_info->config_addr;
+
+				/* In case of OPTEE, initialize address space with tos_fw addr */
+				pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+				if (pager_mem_params != NULL) {
+					pager_mem_params->image_info.image_base =
+						config_info->config_addr;
+					pager_mem_params->image_info.image_max_size =
+						config_info->config_max_size;
+				}
+				break;
+
+			case BL33_IMAGE_ID:
+				bl_mem_params->ep_info.pc = config_info->config_addr;
+				break;
+
+			case HW_CONFIG_ID:
+				break;
+
 			default:
 				return -EINVAL;
 			}
@@ -317,6 +359,30 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 		break;
 
+	case BL32_IMAGE_ID:
+		if ((bl_mem_params->image_info.image_base != 0UL) &&
+		    (optee_header_is_valid(bl_mem_params->image_info.image_base))) {
+			/* BL32 is OP-TEE header */
+			bl_mem_params->ep_info.pc = bl_mem_params->image_info.image_base;
+			pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+			assert(pager_mem_params != NULL);
+
+			err = parse_optee_header(&bl_mem_params->ep_info,
+						 &pager_mem_params->image_info,
+						 NULL);
+			if (err != 0) {
+				ERROR("OPTEE header parse error.\n");
+				panic();
+			}
+
+			/* Set optee boot info from parsed header data */
+			bl_mem_params->ep_info.args.arg0 = 0U; /* Unused */
+			bl_mem_params->ep_info.args.arg1 = 0U; /* Unused */
+			bl_mem_params->ep_info.args.arg2 = 0U; /* No DT supported */
+		}
+		break;
+
+	case BL33_IMAGE_ID:
 	default:
 		/* Do nothing in default case */
 		break;

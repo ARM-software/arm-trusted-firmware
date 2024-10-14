@@ -10,6 +10,7 @@
 #include "stm32mp257.dtsi"
 #include "stm32mp25xf.dtsi"
 #include "stm32mp257f-ev1-ca35tdcid-rcc.dtsi"
+#include "stm32mp25-ddr4-2x16Gbits-2x16bits-1200MHz.dtsi"
 #include "stm32mp25-pinctrl.dtsi"
 #include "stm32mp25xxai-pinctrl.dtsi"
 
@@ -35,6 +36,13 @@
 	board_id: board-id@3d8 {
 		reg = <0x3d8 0x4>;
 	};
+};
+
+&ddr {
+	vdd-supply = <&vdd_ddr>;
+	vtt-supply = <&vtt_ddr>;
+	vpp-supply = <&vpp_ddr>;
+	vref-supply = <&vref_ddr>;
 };
 
 &i2c7 {
