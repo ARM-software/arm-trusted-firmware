@@ -51,9 +51,6 @@
  *               |      (4KB)     |
  *  0x8000_9000  ------------------
  *               |       ...      |
- *  0xf8a0_0000  ------------------   TC_NS_FWU_BASE
- *               |    FWU shmem   |
- *               |      (4MB)     |
  *  0xf8e0_0000  ------------------   TC_NS_OPTEE_BASE
  *               |  OP-TEE shmem  |
  *               |      (2MB)     |
@@ -85,8 +82,6 @@
 
 #define TC_NS_OPTEE_SIZE		(2 * SZ_1M)
 #define TC_NS_OPTEE_BASE		(TC_NS_DRAM1_BASE + TC_NS_DRAM1_SIZE - TC_NS_OPTEE_SIZE)
-#define TC_NS_FWU_SIZE			(4 * SZ_1M)
-#define TC_NS_FWU_BASE			(TC_NS_OPTEE_BASE - TC_NS_FWU_SIZE)
 
 /*
  * Mappings for TC DRAM1 (non-secure) and TC TZC DRAM1 (secure)
@@ -228,7 +223,7 @@
 						V2M_FLASH0_SIZE,	\
 						MT_DEVICE | MT_RO | MT_SECURE)
 
-#define PLAT_ARM_NSTIMER_FRAME_ID	0
+#define PLAT_ARM_NSTIMER_FRAME_ID	U(1)
 
 #define PLAT_ARM_TRUSTED_ROM_BASE	0x0
 
