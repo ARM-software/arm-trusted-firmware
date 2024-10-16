@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -179,7 +180,7 @@ typedef struct handoff_t {
 	uint32_t	ddr_magic;
 	uint32_t	ddr_length;
 	uint32_t	_pad_0x1C_0x20[2];
-	uint32_t	ddr_array[4];	/* offset, value */
+	uint32_t	ddr_config;	/* BIT[0]-Dual Port. BIT[1]-Dual EMIF */
 #endif
 } handoff;
 
