@@ -27,6 +27,9 @@ cpu_reset_func_start cortex_gelas
 	 * ----------------------------------------------------
 	 */
 	msr	SSBS, xzr
+	/* model bug: not cleared on reset */
+	sysreg_bit_clear 	CORTEX_GELAS_CPUPWRCTLR_EL1, \
+		CORTEX_GELAS_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 cpu_reset_func_end cortex_gelas
 
 	/* ----------------------------------------------------
