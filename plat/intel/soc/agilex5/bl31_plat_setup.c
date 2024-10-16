@@ -58,9 +58,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	mmio_write_64(PLAT_SEC_ENTRY, PLAT_SEC_WARM_ENTRY);
 
 	console_16550_register(PLAT_INTEL_UART_BASE, PLAT_UART_CLOCK,
-	PLAT_BAUDRATE, &console);
+			       PLAT_BAUDRATE, &console);
 
-	init_ncore_ccu();
 	setup_smmu_stream_id();
 
 	/*
@@ -191,8 +190,8 @@ void bl31_plat_arch_setup(void)
 	uint32_t boot_core = 0x00;
 	uint32_t cpuid = 0x00;
 
-	cpuid = read_mpidr();
-	boot_core = (mmio_read_32(AGX5_PWRMGR(MPU_BOOTCONFIG)) & 0xC00);
+	cpuid = MPIDR_AFFLVL1_VAL(read_mpidr());
+	boot_core = ((mmio_read_32(AGX5_PWRMGR(MPU_BOOTCONFIG)) & 0xC00) >> 10);
 	NOTICE("BL31: Boot Core = %x\n", boot_core);
 	NOTICE("BL31: CPU ID = %x\n", cpuid);
 	INFO("BL31: Invalidate Data cache\n");

@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +19,7 @@
 #define PLAT_PRIMARY_CPU			0
 #define PLAT_CLUSTER_ID_MPIDR_AFF_SHIFT		MPIDR_AFF1_SHIFT
 #define PLAT_CPU_ID_MPIDR_AFF_SHIFT		MPIDR_AFF0_SHIFT
+#define PLAT_TIMER_BASE_ADDR			0xFFD01000
 
 /* FPGA config helpers */
 #define INTEL_SIP_SMC_FPGA_CONFIG_ADDR		0x400000

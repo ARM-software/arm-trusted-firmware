@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,7 +78,5 @@
 #define AGX5_PWRMGR_PSS_STAT_BUSY_E_BUSY			0x0
 #define AGX5_PWRMGR_PSS_STAT_BUSY(x)				(((x) & 0x000000FF) >> 0)
 
-int pss_sram_power_off(handoff *hoff_ptr);
-int wait_verify_fsm(uint16_t timeout, uint32_t peripheral_handoff);
-
+void config_pwrmgr_handoff(handoff *hoff_ptr);
 #endif

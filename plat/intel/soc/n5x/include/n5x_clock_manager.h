@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +10,6 @@
 
 
 /* MACRO DEFINITION */
-#define SOCFPGA_GLOBAL_TIMER				0xffd01000
 #define SOCFPGA_GLOBAL_TIMER_EN				0x3
 
 #define CLKMGR_PLLGLOB_VCO_PSRC_MASK			GENMASK(17, 16)

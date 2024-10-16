@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +13,13 @@
  ******************************************************************************/
 void plat_flush_next_bl_params(void)
 {
+	/*
+	 * We cannot flush these descriptors on the Agilex5 platform,
+	 * since the BL2 runs on the OCRAM and this OCRAM is not cache coherent.
+	 */
+#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX5
 	flush_bl_params_desc();
+#endif
 }
 
 /*******************************************************************************

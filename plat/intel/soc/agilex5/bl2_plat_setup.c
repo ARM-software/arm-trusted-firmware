@@ -24,6 +24,7 @@
 #include "agilex5_memory_controller.h"
 #include "agilex5_mmc.h"
 #include "agilex5_pinmux.h"
+#include "agilex5_power_manager.h"
 #include "agilex5_system_manager.h"
 #include "ccu/ncore_ccu.h"
 #include "combophy/combophy.h"
@@ -71,15 +72,38 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 				u_register_t x2, u_register_t x4)
 {
 	static console_t console;
+	handoff reverse_handoff_ptr;
 
-	handoff reverse_handoff_ptr = { 0 };
-
-	generic_delay_timer_init();
-	config_clkmgr_handoff(&reverse_handoff_ptr);
-	mailbox_init();
+	/* Enable nonsecure access for peripherals and other misc components */
 	enable_nonsecure_access();
 
+	/* Bring all the required peripherals out of reset */
 	deassert_peripheral_reset();
+
+	/*
+	 * Initialize the UART console early in BL2 EL3 boot flow to get
+	 * the error/notice messages wherever required.
+	 */
+	console_16550_register(PLAT_INTEL_UART_BASE, PLAT_UART_CLOCK,
+			       PLAT_BAUDRATE, &console);
+
+	/* Generic delay timer init */
+	generic_delay_timer_init();
+
+	socfpga_delay_timer_init();
+
+	/* Get the handoff data */
+	if ((socfpga_get_handoff(&reverse_handoff_ptr)) != 0) {
+		ERROR("BL2: Failed to get the correct handoff data\n");
+		panic();
+	}
+
+	config_clkmgr_handoff(&reverse_handoff_ptr);
+	/* Configure power manager PSS SRAM power gate */
+	config_pwrmgr_handoff(&reverse_handoff_ptr);
+
+	/* Initialize the mailbox to enable communication between HPS and SDM */
+	mailbox_init();
 
 	/* DDR and IOSSM driver init */
 	agilex5_ddr_init(&reverse_handoff_ptr);
@@ -88,16 +112,10 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 		ERROR("Combo Phy initialization failed\n");
 	}
 
-	console_16550_register(PLAT_INTEL_UART_BASE, PLAT_UART_CLOCK,
-	PLAT_BAUDRATE, &console);
-
-	/* Store magic number */
-	// TODO: Temp workaround to ungate testing
-	// mmio_write_32(L2_RESET_DONE_REG, PLAT_L2_RESET_REQ);
-
+	/* Enable FPGA bridges as required */
 	if (!intel_mailbox_is_fpga_not_ready()) {
 		socfpga_bridges_enable(SOC2FPGA_MASK | LWHPS2FPGA_MASK |
-					FPGA2SOC_MASK | F2SDRAM0_MASK);
+				       FPGA2SOC_MASK | F2SDRAM0_MASK);
 	}
 }
 
