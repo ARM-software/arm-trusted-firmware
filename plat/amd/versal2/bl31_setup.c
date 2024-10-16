@@ -20,6 +20,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <plat_arm.h>
+#include <plat_console.h>
 #include <scmi.h>
 
 #include <def.h>
@@ -79,7 +80,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	(void)arg2;
 	(void)arg3;
 	uint32_t uart_clock;
-	int32_t rc;
 
 	board_detection();
 
@@ -125,30 +125,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	uart_clock = get_uart_clk();
 
-	if (CONSOLE_IS(pl011_0) || CONSOLE_IS(pl011_1)) {
-		static console_t _runtime_console;
-
-		/* Initialize the console to provide early debug support */
-		rc = console_pl011_register(UART_BASE, uart_clock,
-					    UART_BAUDRATE,
-					    &_runtime_console);
-		if (rc == 0) {
-			panic();
-		}
-
-		console_set_scope(&_runtime_console, CONSOLE_FLAG_BOOT |
-				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
-	} else if (CONSOLE_IS(dcc)) {
-		/* Initialize the dcc console for debug.
-		 * dcc is over jtag and does not configures uart0 or uart1.
-		 */
-		rc = console_dcc_register();
-		if (rc == 0) {
-			panic();
-		}
-	} else {
-		/* Making MISRA C 2012 15.7 compliant */
-	}
+	setup_console();
 
 	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),
 	       platform_version / 10U, platform_version % 10U);
@@ -254,6 +231,8 @@ void bl31_plat_runtime_setup(void)
 	if (rc != 0) {
 		panic();
 	}
+
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 /*

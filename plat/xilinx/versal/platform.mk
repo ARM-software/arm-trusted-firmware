@@ -85,12 +85,26 @@ PLAT_BL_COMMON_SOURCES	:= 	drivers/arm/dcc/dcc_console.c			\
 				${XLAT_TABLES_LIB_SRCS}
 
 VERSAL_CONSOLE	?=	pl011
-ifeq (${VERSAL_CONSOLE}, $(filter ${VERSAL_CONSOLE},pl011 pl011_0 pl011_1 dcc))
+ifeq (${VERSAL_CONSOLE}, $(filter ${VERSAL_CONSOLE},pl011 pl011_0 pl011_1 dcc dtb none))
 else
   $(error "Please define VERSAL_CONSOLE")
 endif
 
 $(eval $(call add_define_val,VERSAL_CONSOLE,VERSAL_CONSOLE_ID_${VERSAL_CONSOLE}))
+
+# Runtime console in default console in DEBUG build
+ifeq ($(DEBUG), 1)
+CONSOLE_RUNTIME ?= pl011
+endif
+
+# Runtime console
+ifdef CONSOLE_RUNTIME
+ifeq (${CONSOLE_RUNTIME}, $(filter ${CONSOLE_RUNTIME},pl011 pl011_0 pl011_1 dcc dtb))
+$(eval $(call add_define_val,CONSOLE_RUNTIME,RT_CONSOLE_ID_${CONSOLE_RUNTIME}))
+else
+$(error "Please define CONSOLE_RUNTIME")
+endif
+endif
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a72.S			\

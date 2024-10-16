@@ -111,11 +111,25 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/dcc/dcc_console.c			\
 				${XLAT_TABLES_LIB_SRCS}
 
 ZYNQMP_CONSOLE	?=	cadence
-ifeq (${ZYNQMP_CONSOLE}, $(filter ${ZYNQMP_CONSOLE},cadence cadence0 cadence1 dcc))
+ifeq (${ZYNQMP_CONSOLE}, $(filter ${ZYNQMP_CONSOLE},cadence cadence0 cadence1 dcc dtb none))
 else
   $(error "Please define ZYNQMP_CONSOLE")
 endif
 $(eval $(call add_define_val,ZYNQMP_CONSOLE,ZYNQMP_CONSOLE_ID_${ZYNQMP_CONSOLE}))
+
+# Runtime console in default console in DEBUG build
+ifeq ($(DEBUG), 1)
+CONSOLE_RUNTIME ?= cadence
+endif
+
+# Runtime console
+ifdef CONSOLE_RUNTIME
+ifeq (${CONSOLE_RUNTIME}, $(filter ${CONSOLE_RUNTIME},cadence cadence0 cadence1 dcc dtb))
+$(eval $(call add_define_val,CONSOLE_RUNTIME,RT_CONSOLE_ID_${CONSOLE_RUNTIME}))
+else
+$(error "Please define CONSOLE_RUNTIME")
+endif
+endif
 
 # Build PM code as a Library
 include plat/xilinx/zynqmp/libpm.mk

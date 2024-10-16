@@ -10,12 +10,23 @@
 #include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
+#define ZYNQMP_CONSOLE_ID_none		0
 #define ZYNQMP_CONSOLE_ID_cadence	1
 #define ZYNQMP_CONSOLE_ID_cadence0	1
 #define ZYNQMP_CONSOLE_ID_cadence1	2
 #define ZYNQMP_CONSOLE_ID_dcc		3
+#define ZYNQMP_CONSOLE_ID_dtb		4
 
 #define CONSOLE_IS(con)	(ZYNQMP_CONSOLE_ID_ ## con == ZYNQMP_CONSOLE)
+
+/* Runtime console */
+#define RT_CONSOLE_ID_cadence	1
+#define RT_CONSOLE_ID_cadence0	1
+#define RT_CONSOLE_ID_cadence1	2
+#define RT_CONSOLE_ID_dcc	3
+#define RT_CONSOLE_ID_dtb	4
+
+#define RT_CONSOLE_IS(con)	(RT_CONSOLE_ID_ ## con == CONSOLE_RUNTIME)
 
 /* Default counter frequency */
 #define ZYNQMP_DEFAULT_COUNTER_FREQ	0U
@@ -144,12 +155,36 @@
 #define ZYNQMP_UART0_BASE		U(0xFF000000)
 #define ZYNQMP_UART1_BASE		U(0xFF010000)
 
-#if CONSOLE_IS(cadence) || CONSOLE_IS(dcc)
+/* Boot console */
+#if CONSOLE_IS(cadence) || CONSOLE_IS(dtb)
 # define UART_BASE	ZYNQMP_UART0_BASE
+# define UART_TYPE	CONSOLE_CDNS
 #elif CONSOLE_IS(cadence1)
 # define UART_BASE	ZYNQMP_UART1_BASE
+# define UART_TYPE	CONSOLE_CDNS
+#elif CONSOLE_IS(dcc)
+# define UART_BASE	0x0
+# define UART_TYPE	CONSOLE_DCC
+#elif CONSOLE_IS(none)
+# define UART_TYPE	CONSOLE_NONE
 #else
 # error "invalid ZYNQMP_CONSOLE"
+#endif
+
+/* Runtime console */
+#if defined(CONSOLE_RUNTIME)
+#if RT_CONSOLE_IS(cadence) || RT_CONSOLE_IS(dtb)
+# define RT_UART_BASE	ZYNQMP_UART0_BASE
+# define RT_UART_TYPE	CONSOLE_CDNS
+#elif RT_CONSOLE_IS(cadence1)
+# define RT_UART_BASE	ZYNQMP_UART1_BASE
+# define RT_UART_TYPE	CONSOLE_CDNS
+#elif RT_CONSOLE_IS(dcc)
+# define RT_UART_BASE	0x0
+# define RT_UART_TYPE	CONSOLE_DCC
+#else
+# error "invalid CONSOLE_RUNTIME"
+#endif
 #endif
 
 /* Must be non zero */

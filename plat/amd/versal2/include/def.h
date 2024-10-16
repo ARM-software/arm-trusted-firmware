@@ -15,12 +15,23 @@
 #define MAX_INTR_EL3			2
 
 /* List all consoles */
-#define CONSOLE_ID_pl011	U(1)
-#define CONSOLE_ID_pl011_0	U(1)
-#define CONSOLE_ID_pl011_1	U(2)
-#define CONSOLE_ID_dcc	U(3)
+#define VERSAL2_CONSOLE_ID_none		0
+#define VERSAL2_CONSOLE_ID_pl011	1
+#define VERSAL2_CONSOLE_ID_pl011_0       1
+#define VERSAL2_CONSOLE_ID_pl011_1       2
+#define VERSAL2_CONSOLE_ID_dcc           3
+#define VERSAL2_CONSOLE_ID_dtb           4
 
-#define CONSOLE_IS(con)	(CONSOLE_ID_ ## con == CONSOLE)
+#define CONSOLE_IS(con) (VERSAL2_CONSOLE_ID_ ## con == VERSAL2_CONSOLE)
+
+/* Runtime console */
+#define RT_CONSOLE_ID_pl011   1
+#define RT_CONSOLE_ID_pl011_0   1
+#define RT_CONSOLE_ID_pl011_1   2
+#define RT_CONSOLE_ID_dcc       3
+#define RT_CONSOLE_ID_dtb       4
+
+#define RT_CONSOLE_IS(con)      (RT_CONSOLE_ID_ ## con == CONSOLE_RUNTIME)
 
 /* List all platforms */
 #define SILICON		U(0)
@@ -143,11 +154,35 @@
 
 #define UART_BAUDRATE	115200
 
-#if CONSOLE_IS(pl011_1)
-#define UART_BASE		UART1_BASE
+#if CONSOLE_IS(pl011) || CONSOLE_IS(dtb)
+#define UART_BASE	    UART0_BASE
+# define UART_TYPE	CONSOLE_PL011
+#elif CONSOLE_IS(pl011_1)
+#define UART_BASE           UART1_BASE
+# define UART_TYPE	CONSOLE_PL011
+#elif CONSOLE_IS(dcc)
+# define UART_BASE	0x0
+# define UART_TYPE	CONSOLE_DCC
+#elif CONSOLE_IS(none)
+# define UART_TYPE	CONSOLE_NONE
 #else
-/* Default console is UART0 */
-#define UART_BASE            UART0_BASE
+# error "invalid VERSAL2_CONSOLE"
+#endif
+
+/* Runtime console */
+#if defined(CONSOLE_RUNTIME)
+#if RT_CONSOLE_IS(pl011) || RT_CONSOLE_IS(dtb)
+# define RT_UART_BASE UART0_BASE
+# define RT_UART_TYPE	CONSOLE_PL011
+#elif RT_CONSOLE_IS(pl011_1)
+# define RT_UART_BASE UART1_BASE
+# define RT_UART_TYPE	CONSOLE_PL011
+#elif RT_CONSOLE_IS(dcc)
+# define RT_UART_BASE	0x0
+# define RT_UART_TYPE	CONSOLE_DCC
+#else
+# error "invalid CONSOLE_RUNTIME"
+#endif
 #endif
 
 #endif /* DEF_H */
