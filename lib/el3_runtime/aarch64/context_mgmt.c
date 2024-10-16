@@ -268,6 +268,13 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		scr_el3 |= SCR_RCWMASKEn_BIT;
 	}
 
+	if (is_feat_sctlr2_supported()) {
+		/* Set the SCTLR2En bit in SCR_EL3 to enable access to
+		 * SCTLR2_ELx registers.
+		 */
+		scr_el3 |= SCR_SCTLR2En_BIT;
+	}
+
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 
 	/* Initialize EL2 context registers */
@@ -1445,6 +1452,10 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		write_el2_ctx_gcs(el2_sysregs_ctx, gcscr_el2, read_gcscr_el2());
 		write_el2_ctx_gcs(el2_sysregs_ctx, gcspr_el2, read_gcspr_el2());
 	}
+
+	if (is_feat_sctlr2_supported()) {
+		write_el2_ctx_sctlr2(el2_sysregs_ctx, sctlr2_el2, read_sctlr2_el2());
+	}
 }
 
 /*******************************************************************************
@@ -1531,6 +1542,10 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	if (is_feat_gcs_supported()) {
 		write_gcscr_el2(read_el2_ctx_gcs(el2_sysregs_ctx, gcscr_el2));
 		write_gcspr_el2(read_el2_ctx_gcs(el2_sysregs_ctx, gcspr_el2));
+	}
+
+	if (is_feat_sctlr2_supported()) {
+		write_sctlr2_el2(read_el2_ctx_sctlr2(el2_sysregs_ctx, sctlr2_el2));
 	}
 }
 #endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
@@ -1726,6 +1741,10 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 		write_el1_ctx_the(ctx, rcwsmask_el1, read_rcwsmask_el1());
 	}
 
+	if (is_feat_sctlr2_supported()) {
+		write_el1_ctx_sctlr2(ctx, sctlr2_el1, read_sctlr2_el1());
+	}
+
 }
 
 static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
@@ -1826,6 +1845,11 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 		write_rcwmask_el1(read_el1_ctx_the(ctx, rcwmask_el1));
 		write_rcwsmask_el1(read_el1_ctx_the(ctx, rcwsmask_el1));
 	}
+
+	if (is_feat_sctlr2_supported()) {
+		write_sctlr2_el1(read_el1_ctx_sctlr2(ctx, sctlr2_el1));
+	}
+
 }
 
 /*******************************************************************************

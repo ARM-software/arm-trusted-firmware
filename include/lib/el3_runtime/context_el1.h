@@ -112,6 +112,10 @@ typedef struct el1_the_regs {
 	uint64_t rcwsmask_el1;
 } el1_the_regs_t;
 
+typedef struct el1_sctlr2_regs {
+	uint64_t sctlr2_el1;
+} el1_sctlr2_regs_t;
+
 typedef struct el1_sysregs {
 
 	el1_common_regs_t common;
@@ -162,6 +166,10 @@ typedef struct el1_sysregs {
 
 #if ENABLE_FEAT_THE
 	el1_the_regs_t the;
+#endif
+
+#if ENABLE_FEAT_SCTLR2
+	el1_sctlr2_regs_t sctlr2;
 #endif
 
 } el1_sysregs_t;
@@ -284,6 +292,15 @@ typedef struct el1_sysregs {
 #define read_el1_ctx_the(ctx, reg)		ULL(0)
 #define write_el1_ctx_the(ctx, reg, val)
 #endif /* ENABLE_FEAT_THE */
+
+#if ENABLE_FEAT_SCTLR2
+#define read_el1_ctx_sctlr2(ctx, reg)		(((ctx)->sctlr2).reg)
+#define write_el1_ctx_sctlr2(ctx, reg, val)	((((ctx)->sctlr2).reg)	\
+							= (uint64_t) (val))
+#else
+#define read_el1_ctx_sctlr2(ctx, reg)		ULL(0)
+#define write_el1_ctx_sctlr2(ctx, reg, val)
+#endif /* ENABLE_FEAT_SCTLR2 */
 
 /******************************************************************************/
 #endif /* __ASSEMBLER__ */

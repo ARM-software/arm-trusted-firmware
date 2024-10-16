@@ -263,6 +263,12 @@ static unsigned int read_feat_the_id_field(void)
 			     ID_AA64PFR1_EL1_THE_MASK);
 }
 
+static unsigned int read_feat_sctlr2_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_SCTLR2_SHIFT,
+			     ID_AA64MMFR3_EL1_SCTLR2_MASK);
+}
+
 /***********************************************************************************
  * TF-A supports many Arm architectural features starting from arch version
  * (8.0 till 8.7+). These features are mostly enabled through build flags. This
@@ -373,6 +379,8 @@ void detect_arch_features(void)
 			"DEBUGV8P9", 11, 11);
 	check_feature(ENABLE_FEAT_THE, read_feat_the_id_field(),
 			"THE", 1, 1);
+	check_feature(ENABLE_FEAT_SCTLR2, read_feat_sctlr2_id_field(),
+			"SCTLR2", 1, 1);
 
 	/* v9.0 features */
 	check_feature(ENABLE_BRBE_FOR_NS, read_feat_brbe_id_field(),
