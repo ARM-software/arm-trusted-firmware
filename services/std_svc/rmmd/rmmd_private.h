@@ -51,6 +51,8 @@ int rmmd_attest_get_platform_token(uint64_t buf_pa, uint64_t *buf_size,
 				   uint64_t *remaining_len);
 int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_size,
 				uint64_t ecc_curve);
+uint64_t rmmd_el3_token_sign(void *handle, uint64_t x1, uint64_t x2,
+				    uint64_t x3, uint64_t x4);
 
 /* Assembly helpers */
 uint64_t rmmd_rmm_enter(uint64_t *c_rt_ctx);

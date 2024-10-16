@@ -409,3 +409,6 @@ EARLY_CONSOLE			:= 0
 # Allow platforms to save/restore DSU PMU registers over a power cycle.
 # Disabled by default and must be enabled by individual platforms.
 PRESERVE_DSU_PMU_REGS		:= 0
+
+# Enable RMMD to forward attestation requests from RMM to EL3.
+RMMD_ENABLE_EL3_TOKEN_SIGN	:= 0

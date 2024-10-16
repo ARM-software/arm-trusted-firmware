@@ -441,6 +441,21 @@ static int gpt_to_gts_error(int error, uint32_t smc_fid, uint64_t address)
 	return ret;
 }
 
+static int rmm_el3_ifc_get_feat_register(uint64_t feat_reg_idx,
+					 uint64_t *feat_reg)
+{
+	if (feat_reg_idx != RMM_EL3_FEAT_REG_0_IDX) {
+		ERROR("RMMD: Failed to get feature register %ld\n", feat_reg_idx);
+		return E_RMM_INVAL;
+	}
+
+	*feat_reg = 0UL;
+#if RMMD_ENABLE_EL3_TOKEN_SIGN
+	*feat_reg |= RMM_EL3_FEAT_REG_0_EL3_TOKEN_SIGN_MASK;
+#endif
+	return E_RMM_OK;
+}
+
 /*******************************************************************************
  * This function handles RMM-EL3 interface SMCs
  ******************************************************************************/
@@ -448,7 +463,7 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 				uint64_t x3, uint64_t x4, void *cookie,
 				void *handle, uint64_t flags)
 {
-	uint64_t remaining_len = 0;
+	uint64_t remaining_len = 0UL;
 	uint32_t src_sec_state;
 	int ret;
 
@@ -479,7 +494,13 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	case RMM_ATTEST_GET_REALM_KEY:
 		ret = rmmd_attest_get_signing_key(x1, &x2, x3);
 		SMC_RET2(handle, ret, x2);
-
+	case RMM_EL3_FEATURES:
+		ret = rmm_el3_ifc_get_feat_register(x1, &x2);
+		SMC_RET2(handle, ret, x2);
+#if RMMD_ENABLE_EL3_TOKEN_SIGN
+	case RMM_EL3_TOKEN_SIGN:
+		return rmmd_el3_token_sign(handle, x1, x2, x3, x4);
+#endif
 	case RMM_BOOT_COMPLETE:
 		VERBOSE("RMMD: running rmmd_rmm_sync_exit\n");
 		rmmd_rmm_sync_exit(x1);

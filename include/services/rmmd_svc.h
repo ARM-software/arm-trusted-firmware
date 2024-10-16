@@ -129,8 +129,43 @@
 					/* 0x1B3 */
 #define RMM_ATTEST_GET_PLAT_TOKEN	SMC64_RMMD_EL3_FID(U(3))
 
+/* Starting RMM-EL3 interface version 0.4 */
+#define RMM_EL3_FEATURES				SMC64_RMMD_EL3_FID(U(4))
+#define RMM_EL3_FEAT_REG_0_IDX				U(0)
+/* Bit 0 of FEAT_REG_0 */
+/* 1 - the feature is present in EL3 , 0 - the feature is absent */
+#define RMM_EL3_FEAT_REG_0_EL3_TOKEN_SIGN_MASK		U(0x1)
+
+/*
+ * Function codes to support attestation where EL3 is used to sign
+ * realm attestation tokens. In this model, the private key is not
+ * exposed to the RMM.
+ * The arguments to this SMC are:
+ *     arg0 - Function ID.
+ *     arg1 - Opcode, one of:
+ *               RMM_EL3_TOKEN_SIGN_PUSH_REQ_OP,
+ *               RMM_EL3_TOKEN_SIGN_PULL_RESP_OP,
+ *               RMM_EL3_TOKEN_SIGN_GET_RAK_PUB_OP
+ *     arg2 - Pointer to buffer with request/response structures,
+ *            which is in the RMM<->EL3 shared buffer.
+ *     arg3 - Buffer size of memory pointed by arg2.
+ *     arg4 - ECC Curve, when opcode is RMM_EL3_TOKEN_SIGN_GET_RAK_PUB_OP
+ * The return arguments are:
+ *     ret0 - Status/Error
+ *     ret1 - Size of public key if opcode is RMM_EL3_TOKEN_SIGN_GET_RAK_PUB_OP
+ */
+#define RMM_EL3_TOKEN_SIGN			SMC64_RMMD_EL3_FID(U(5))
+
+/* Opcodes for RMM_EL3_TOKEN_SIGN  */
+#define RMM_EL3_TOKEN_SIGN_PUSH_REQ_OP          U(1)
+#define RMM_EL3_TOKEN_SIGN_PULL_RESP_OP         U(2)
+#define RMM_EL3_TOKEN_SIGN_GET_RAK_PUB_OP       U(3)
+
 /* ECC Curve types for attest key generation */
-#define ATTEST_KEY_CURVE_ECC_SECP384R1		0
+#define ATTEST_KEY_CURVE_ECC_SECP384R1		U(0)
+
+/* Identifier for the hash algorithm used for attestation signing */
+#define EL3_TOKEN_SIGN_HASH_ALG_SHA384		U(1)
 
 /*
  * RMM_BOOT_COMPLETE originates on RMM when the boot finishes (either cold
@@ -153,7 +188,7 @@
  * Increase this when a bug is fixed, or a feature is added without
  * breaking compatibility.
  */
-#define RMM_EL3_IFC_VERSION_MINOR	(U(3))
+#define RMM_EL3_IFC_VERSION_MINOR	(U(4))
 
 #define RMM_EL3_INTERFACE_VERSION				\
 	(((RMM_EL3_IFC_VERSION_MAJOR << 16) & 0x7FFFF) |	\
