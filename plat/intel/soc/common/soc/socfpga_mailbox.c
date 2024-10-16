@@ -652,7 +652,7 @@ int intel_mailbox_get_config_status(uint32_t cmd, bool init_done)
 
 	res = response[RECONFIG_STATUS_SOFTFUNC_STATUS];
 	if ((res & SOFTFUNC_STATUS_SEU_ERROR) != 0U) {
-		ERROR("SoftFunction Status SEU ERROR\n");
+		return MBOX_CFGSTAT_STATE_ERROR_HARDWARE;
 	}
 
 	if ((res & SOFTFUNC_STATUS_CONF_DONE) == 0U) {
