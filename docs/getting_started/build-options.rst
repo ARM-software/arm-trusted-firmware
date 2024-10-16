@@ -455,6 +455,14 @@ Common build options
    the values 0 to 2, to align  with the ``ENABLE_FEAT`` mechanism.
    Default value is ``0``.
 
+-  ``ENABLE_FEAT_THE``: Numeric value to enable support for FEAT_THE
+   (Translation Hardening Extension) at EL2 and below, setting the bit
+   SCR_EL3.RCWMASKEn in EL3 to allow access to RCWMASK_EL1 and RCWSMASK_EL1
+   registers and context switch them.
+   Its an optional architectural feature and is available from v8.8 and upwards.
+   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
+   mechanism. Default value is ``0``.
+
 -  ``ENABLE_LTO``: Boolean option to enable Link Time Optimization (LTO)
    support in GCC for TF-A. This option is currently only supported for
    AArch64. Default is 0.

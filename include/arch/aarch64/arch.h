@@ -433,6 +433,10 @@
 #define ID_AA64PFR1_EL1_GCS_MASK	ULL(0xf)
 #define GCS_IMPLEMENTED			ULL(1)
 
+#define ID_AA64PFR1_EL1_THE_SHIFT	U(48)
+#define ID_AA64PFR1_EL1_THE_MASK	ULL(0xf)
+#define THE_IMPLEMENTED			ULL(1)
+
 #define RNG_TRAP_IMPLEMENTED		ULL(0x1)
 
 /* ID_AA64PFR2_EL1 definitions */
@@ -590,6 +594,7 @@
 #define SCR_TWEDEL_MASK		ULL(0xf)
 #define SCR_PIEN_BIT		(UL(1) << 45)
 #define SCR_TCR2EN_BIT		(UL(1) << 43)
+#define SCR_RCWMASKEn_BIT	(UL(1) << 42)
 #define SCR_TRNDR_BIT		(UL(1) << 40)
 #define SCR_GCSEn_BIT		(UL(1) << 39)
 #define SCR_HXEn_BIT		(UL(1) << 38)
@@ -1471,6 +1476,12 @@
  ******************************************************************************/
 #define TRFCR_EL2		S3_4_C1_C2_1
 #define TRFCR_EL1		S3_0_C1_C2_1
+
+/*******************************************************************************
+ * FEAT_THE - Translation Hardening Extension Registers
+ ******************************************************************************/
+#define RCWMASK_EL1		S3_0_C13_C0_6
+#define RCWSMASK_EL1		S3_0_C13_C0_3
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers
