@@ -36,6 +36,7 @@ QEMU_GIC_SOURCES	:=	${GICV3_SOURCES}				\
 				plat/common/plat_gicv3.c
 
 BL31_SOURCES		+=	${PLAT_QEMU_PATH}/sbsa_gic.c 			\
+				${PLAT_QEMU_PATH}/sbsa_platform.c		\
 				${PLAT_QEMU_PATH}/sbsa_pm.c			\
 				${PLAT_QEMU_PATH}/sbsa_sip_svc.c		\
 				${PLAT_QEMU_PATH}/sbsa_topology.c
