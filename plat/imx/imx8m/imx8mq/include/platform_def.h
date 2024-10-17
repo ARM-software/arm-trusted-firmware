@@ -37,6 +37,12 @@
 #define BL31_SIZE			SZ_64K
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
+#define OCRAM_S_BASE			U(0x180000)
+#define OCRAM_S_SIZE			SZ_32K
+#define OCRAM_S_LIMIT			(OCRAM_S_BASE + OCRAM_S_SIZE)
+#define BL31_NOBITS_BASE		OCRAM_S_BASE
+#define BL31_NOBITS_LIMIT		(BL31_NOBITS_BASE + SZ_32K)
+
 /* non-secure uboot base */
 #ifndef PLAT_NS_IMAGE_OFFSET
 #define PLAT_NS_IMAGE_OFFSET		U(0x40200000)
@@ -54,7 +60,7 @@
 #define MAX_XLAT_TABLES			5
 #define MAX_MMAP_REGIONS		15
 #else
-#define MAX_XLAT_TABLES			4
+#define MAX_XLAT_TABLES			3
 #define MAX_MMAP_REGIONS		14
 #endif
 
@@ -143,10 +149,6 @@
 #define IOMUXC_GPR10			U(0x28)
 #define GPR_TZASC_EN			BIT(0)
 #define GPR_TZASC_EN_LOCK		BIT(16)
-
-#define OCRAM_S_BASE			U(0x00180000)
-#define OCRAM_S_SIZE			U(0x8000)
-#define OCRAM_S_LIMIT			(OCRAM_S_BASE + OCRAM_S_SIZE)
 
 #define COUNTER_FREQUENCY		8333333 /* 25MHz / 3 */
 

@@ -64,6 +64,8 @@ ifeq (${IMX_DRAM_RETENTION},1)
 BL31_SOURCES		+=	${IMX_DRAM_SOURCES}
 endif
 
+SEPARATE_NOBITS_REGION  :=        1
+
 ifneq (${PRELOADED_BL33_BASE},)
 $(eval $(call add_define_val,PLAT_NS_IMAGE_OFFSET,${PRELOADED_BL33_BASE}))
 endif
