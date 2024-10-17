@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,4 +79,26 @@ void timer_init(const timer_ops_t *ops_ptr)
 		(ops_ptr->get_timer_value != NULL));
 
 	timer_ops = ops_ptr;
+}
+
+/***********************************************************
+ * Initialize the timer in us
+ ***********************************************************/
+uint64_t timeout_init_us(uint32_t usec)
+{
+	assert(timer_ops != NULL);
+	assert(timer_ops->timeout_init_us != NULL);
+
+	return timer_ops->timeout_init_us(usec);
+}
+
+/***********************************************************
+ * check the given timeout elapsed or not.
+ ***********************************************************/
+bool timeout_elapsed(uint64_t cnt)
+{
+	assert(timer_ops != NULL);
+	assert(timer_ops->timeout_elapsed != NULL);
+
+	return timer_ops->timeout_elapsed(cnt);
 }

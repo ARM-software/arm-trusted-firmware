@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019, Linaro Limited
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -25,27 +25,12 @@ typedef struct timer_ops {
 	uint32_t (*get_timer_value)(void);
 	uint32_t clk_mult;
 	uint32_t clk_div;
+	uint64_t (*timeout_init_us)(uint32_t usec);
+	bool (*timeout_elapsed)(uint64_t cnt);
 } timer_ops_t;
 
-static inline uint64_t timeout_cnt_us2cnt(uint32_t us)
-{
-	return ((uint64_t)us * (uint64_t)read_cntfrq_el0()) / 1000000ULL;
-}
-
-static inline uint64_t timeout_init_us(uint32_t us)
-{
-	uint64_t cnt = timeout_cnt_us2cnt(us);
-
-	cnt += read_cntpct_el0();
-
-	return cnt;
-}
-
-static inline bool timeout_elapsed(uint64_t expire_cnt)
-{
-	return read_cntpct_el0() > expire_cnt;
-}
-
+uint64_t timeout_init_us(uint32_t usec);
+bool timeout_elapsed(uint64_t cnt);
 void mdelay(uint32_t msec);
 void udelay(uint32_t usec);
 void timer_init(const timer_ops_t *ops_ptr);
