@@ -24,12 +24,17 @@
  * @desc_filled:    Size of @desc already received.
  * @in_use:         Number of clients that have called ffa_mem_retrieve_req
  *                  without a matching ffa_mem_relinquish call.
+ * @hyp_shift:      If the last ffa_mem_retrieve_req came from a hypervisor
+ *                  on its own behalf, shift the fragment offset in the
+ *                  descriptor forward by this amount to get the correct
+ *                  position of the next fragment.
  * @desc:           FF-A memory region descriptor passed in ffa_mem_share.
  */
 struct spmc_shmem_obj {
 	size_t desc_size;
 	size_t desc_filled;
 	size_t in_use;
+	ssize_t hyp_shift;
 	struct ffa_mtd desc;
 };
 
@@ -106,6 +111,7 @@ spmc_shmem_obj_alloc(struct spmc_shmem_obj_state *state, size_t desc_size)
 	obj->desc_size = desc_size;
 	obj->desc_filled = 0;
 	obj->in_use = 0;
+	obj->hyp_shift = 0;
 	state->allocated += obj_size;
 	return obj;
 }
@@ -1352,10 +1358,93 @@ err_unlock:
 }
 
 /**
+ * spmc_populate_ffa_hyp_descriptor - Populate the given buffer with a descriptor
+ *                                    for retrieval by the hypervisor.
+ * @dst:         Buffer to populate hypervisor ffa_memory_region_descriptor.
+ * @orig_obj:    Object containing original ffa_memory_region_descriptor.
+ * @buf_size:    Size of the buffer to populate.
+ * @ffa_version: FF-A version of the caller.
+ * @copy_size:   Will be populated with the number of bytes copied.
+ * @desc_size:   Will be populated with the total size of the descriptor.
+ */
+static uint32_t
+spmc_populate_ffa_hyp_descriptor(void *dst, struct spmc_shmem_obj *orig_obj,
+				 size_t buf_size, uint32_t ffa_version,
+				 size_t *copy_size, size_t *desc_size)
+{
+	size_t mtd_size;
+	size_t emad_size;
+	size_t mrd_size;
+	struct ffa_emad_v1_0 hyp_emad = {0};
+	struct ffa_comp_mrd *orig_mrd;
+	size_t orig_mrd_offset;
+	size_t hyp_mrd_offset;
+	size_t mrd_copy_size;
+
+	if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
+		struct ffa_mtd_v1_0 mtd = {0};
+
+		mtd_size = sizeof(mtd);
+		emad_size = sizeof(struct ffa_emad_v1_0);
+		/* The composite MRD starts immediately after our single EMAD */
+		hyp_mrd_offset = mtd_size + emad_size;
+		if (hyp_mrd_offset > buf_size) {
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+
+		mtd.sender_id = orig_obj->desc.sender_id;
+		mtd.handle = orig_obj->desc.handle;
+		mtd.emad_count = 1;
+		memcpy(dst, &mtd, mtd_size);
+	} else {
+		struct ffa_mtd mtd = {0};
+
+		mtd_size = sizeof(mtd);
+		emad_size = sizeof(struct ffa_emad_v1_0);
+		/* The composite MRD starts immediately after our single EMAD */
+		hyp_mrd_offset = mtd_size + emad_size;
+		if (hyp_mrd_offset > buf_size) {
+			return FFA_ERROR_INVALID_PARAMETER;
+		}
+
+		mtd.sender_id = orig_obj->desc.sender_id;
+		mtd.handle = orig_obj->desc.handle;
+		mtd.emad_size = emad_size;
+		mtd.emad_count = 1;
+		mtd.emad_offset = mtd_size;
+		memcpy(dst, &mtd, mtd_size);
+	}
+
+	orig_mrd = spmc_shmem_obj_get_comp_mrd(orig_obj, FFA_VERSION_COMPILED);
+	orig_mrd_offset = (uint8_t *)orig_mrd - (uint8_t *)(&orig_obj->desc);
+	mrd_size = sizeof(struct ffa_comp_mrd);
+	mrd_size += orig_mrd->address_range_count * sizeof(struct ffa_cons_mrd);
+
+	/*
+	 * Compute the hypervisor fragment shift that we add to the fragment offset
+	 * to get the actual position inside obj->desc. The composite MRD starts
+	 * at obj->desc+orig_mrd_offset but at a possibly smaller offset within
+	 * the buffer that this function returns because there is only one EMAD.
+	 */
+	orig_obj->hyp_shift = orig_mrd_offset - hyp_mrd_offset;
+
+	mrd_copy_size = MIN(mrd_size, buf_size - hyp_mrd_offset);
+	*copy_size = hyp_mrd_offset + mrd_copy_size;
+	*desc_size = hyp_mrd_offset + mrd_size;
+
+	hyp_emad.comp_mrd_offset = hyp_mrd_offset;
+	memcpy((uint8_t *)dst + mtd_size, &hyp_emad, emad_size);
+	memcpy((uint8_t *)dst + hyp_mrd_offset, orig_mrd, mrd_copy_size);
+
+	return 0;
+}
+
+/**
  * spmc_ffa_mem_retrieve_update_ns_bit - Update the NS bit in the response descriptor
  *					 if the caller implements a version smaller
  *					 than FF-A 1.1 and if they have not requested
- *					 the functionality.
+ *					 the functionality, or the caller is the
+ *					 non-secure world.
  * @resp:       Descriptor populated in callers RX buffer.
  * @sp_ctx:     Context of the calling SP.
  */
@@ -1363,10 +1452,31 @@ void spmc_ffa_mem_retrieve_update_ns_bit(struct ffa_mtd *resp,
 			 struct secure_partition_desc *sp_ctx,
 			 bool secure_origin)
 {
+	uint32_t ffa_version = get_partition_ffa_version(secure_origin);
+
 	if (secure_origin &&
 	    sp_ctx->ffa_version < MAKE_FFA_VERSION(1, 1) &&
 	    !sp_ctx->ns_bit_requested) {
 		resp->memory_region_attributes &= ~FFA_MEM_ATTR_NS_BIT;
+	} else if (!secure_origin) {
+		/*
+		 * The NS bit is set by the SPMC in the corresponding invocation
+		 * of the FFA_MEM_RETRIEVE_RESP ABI at the Non-secure physical
+		 * FF-A instance as follows.
+		 */
+		if (ffa_version > MAKE_FFA_VERSION(1, 0)) {
+			/*
+			 * The bit is set to b’1 if the version of the Framework
+			 * implemented by the Hypervisor is greater than v1.0
+			 */
+			resp->memory_region_attributes |= FFA_MEM_ATTR_NS_BIT;
+		} else {
+			/*
+			 * The bit is set to b’0 if the version of the Framework
+			 * implemented by the Hypervisor is v1.0
+			 */
+			resp->memory_region_attributes &= ~FFA_MEM_ATTR_NS_BIT;
+		}
 	}
 }
 
@@ -1384,7 +1494,8 @@ void spmc_ffa_mem_retrieve_update_ns_bit(struct ffa_mtd *resp,
  *                      FFA_MEM_RETRIEVE_RESP.
  *
  * Implements a subset of the FF-A FFA_MEM_RETRIEVE_REQ call.
- * Used by secure os to retrieve memory already shared by non-secure os.
+ * Used by secure os to retrieve memory already shared by non-secure os,
+ * or by the hypervisor to retrieve the memory region for a specific handle.
  * If the data does not fit in a single FFA_MEM_RETRIEVE_RESP message,
  * the client must call FFA_MEM_FRAG_RX until the full response has been
  * received.
@@ -1420,12 +1531,6 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	uint32_t ffa_version = get_partition_ffa_version(secure_origin);
 	struct secure_partition_desc *sp_ctx = spmc_get_current_sp_ctx();
 
-	if (!secure_origin) {
-		WARN("%s: unsupported retrieve req direction.\n", __func__);
-		return spmc_ffa_error_return(handle,
-					     FFA_ERROR_INVALID_PARAMETER);
-	}
-
 	if (address != 0U || page_count != 0U) {
 		WARN("%s: custom memory region not supported.\n", __func__);
 		return spmc_ffa_error_return(handle,
@@ -1457,7 +1562,9 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		goto err_unlock_mailbox;
 	}
 
-	if (req->emad_count == 0U) {
+	/* req->emad_count is not set for retrieve by hypervisor */
+	if ((secure_origin && req->emad_count == 0U) ||
+	    (!secure_origin && req->emad_count != 0U)) {
 		WARN("%s: unsupported attribute desc count %u.\n",
 		     __func__, obj->desc.emad_count);
 		ret = FFA_ERROR_INVALID_PARAMETER;
@@ -1546,7 +1653,8 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	}
 
 	/* Validate the caller is a valid participant. */
-	if (!spmc_shmem_obj_validate_id(obj, sp_ctx->sp_id)) {
+	if (req->emad_count != 0U &&
+	    !spmc_shmem_obj_validate_id(obj, sp_ctx->sp_id)) {
 		WARN("%s: Invalid endpoint ID (0x%x).\n",
 			__func__, sp_ctx->sp_id);
 		ret = FFA_ERROR_INVALID_PARAMETER;
@@ -1615,7 +1723,20 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 	 * If the caller is v1.0 convert the descriptor, otherwise copy
 	 * directly.
 	 */
-	if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
+	if (req->emad_count == 0U) {
+		/*
+		 * We should only get here from the hypervisor per
+		 * the checks above, but verify once again to be sure.
+		 */
+		assert(!secure_origin);
+
+		ret = spmc_populate_ffa_hyp_descriptor(resp, obj, buf_size, ffa_version,
+						       &copy_size, &out_desc_size);
+		if (ret != 0U) {
+			ERROR("%s: Failed to process descriptor.\n", __func__);
+			goto err_unlock_all;
+		}
+	} else if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
 		ret = spmc_populate_ffa_v1_0_descriptor(resp, obj, buf_size, 0,
 							&copy_size,
 							&out_desc_size);
@@ -1683,13 +1804,7 @@ long spmc_ffa_mem_frag_rx(uint32_t smc_fid,
 	uint64_t mem_handle = handle_low | (((uint64_t)handle_high) << 32);
 	struct spmc_shmem_obj *obj;
 	uint32_t ffa_version = get_partition_ffa_version(secure_origin);
-
-	if (!secure_origin) {
-		WARN("%s: can only be called from swld.\n",
-		     __func__);
-		return spmc_ffa_error_return(handle,
-					     FFA_ERROR_INVALID_PARAMETER);
-	}
+	uint32_t actual_fragment_offset;
 
 	spin_lock(&spmc_shmem_obj_state.lock);
 
@@ -1709,9 +1824,15 @@ long spmc_ffa_mem_frag_rx(uint32_t smc_fid,
 		goto err_unlock_shmem;
 	}
 
-	if (fragment_offset >= obj->desc_size) {
-		WARN("%s: invalid fragment_offset 0x%x >= 0x%zx\n",
-		     __func__, fragment_offset, obj->desc_size);
+	actual_fragment_offset = fragment_offset;
+	if (!secure_origin) {
+		/* Apply the hypervisor shift if the request came from NS */
+		actual_fragment_offset += obj->hyp_shift;
+	}
+
+	if (actual_fragment_offset >= obj->desc_size) {
+		WARN("%s: invalid fragment_offset 0x%x actual 0x%x >= 0x%zx\n",
+		     __func__, fragment_offset, actual_fragment_offset, obj->desc_size);
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_unlock_shmem;
 	}
@@ -1744,15 +1865,31 @@ long spmc_ffa_mem_frag_rx(uint32_t smc_fid,
 	mbox->state = MAILBOX_STATE_FULL;
 
 	/*
-	 * If the caller is v1.0 convert the descriptor, otherwise copy
-	 * directly.
+	 * If we are handling the "Support for retrieval by hypervisor" case,
+	 * return the specially constructed single-EMAD descriptor. In all other cases,
+	 * if the caller is v1.0 convert the descriptor, otherwise copy directly.
 	 */
-	if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
+	if (!secure_origin && fragment_offset == 0U) {
+		size_t out_desc_size;
+
+		/*
+		 * The caller requested a retransmit of the initial fragment.
+		 * Rebuild it here from scratch since we do not have
+		 * it stored anywhere.
+		 */
+		ret = spmc_populate_ffa_hyp_descriptor(mbox->rx_buffer, obj,
+						       buf_size, ffa_version,
+						       &copy_size, &out_desc_size);
+		if (ret != 0U) {
+			ERROR("%s: Failed to process descriptor.\n", __func__);
+			goto err_unlock_all;
+		}
+	} else if (ffa_version == MAKE_FFA_VERSION(1, 0)) {
 		size_t out_desc_size;
 
 		ret = spmc_populate_ffa_v1_0_descriptor(mbox->rx_buffer, obj,
 							buf_size,
-							fragment_offset,
+							actual_fragment_offset,
 							&copy_size,
 							&out_desc_size);
 		if (ret != 0U) {
@@ -1760,12 +1897,12 @@ long spmc_ffa_mem_frag_rx(uint32_t smc_fid,
 			goto err_unlock_all;
 		}
 	} else {
-		full_copy_size = obj->desc_size - fragment_offset;
+		full_copy_size = obj->desc_size - actual_fragment_offset;
 		copy_size = MIN(full_copy_size, buf_size);
 
 		src = &obj->desc;
 
-		memcpy(mbox->rx_buffer, src + fragment_offset, copy_size);
+		memcpy(mbox->rx_buffer, src + actual_fragment_offset, copy_size);
 	}
 
 	mbox->last_rx_fragment_offset = fragment_offset;
