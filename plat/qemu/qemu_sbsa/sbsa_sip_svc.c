@@ -60,13 +60,15 @@ typedef struct {
 	uint32_t threads;
 } cpu_topology;
 
-static struct {
+struct qemu_platform_info {
 	uint32_t num_cpus;
 	uint32_t num_memnodes;
 	cpu_data cpu[PLATFORM_CORE_COUNT];
 	cpu_topology cpu_topo;
 	memory_data memory[PLAT_MAX_MEM_NODES];
-} dynamic_platform_info;
+};
+
+static struct qemu_platform_info dynamic_platform_info;
 
 void sbsa_set_gic_bases(const uintptr_t gicd_base, const uintptr_t gicr_base);
 uintptr_t sbsa_get_gicd(void);
