@@ -118,7 +118,7 @@ void emi_mpu_init(void)
 
 	/* SCP DRAM */
 	region_info.start = 0x50000000ULL;
-	region_info.end = 0x51400000ULL;
+	region_info.end = 0x513FFFFFULL;
 	region_info.region = 2;
 	SET_ACCESS_PERMISSION(region_info.apc, 1,
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
