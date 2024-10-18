@@ -760,13 +760,6 @@ static void manage_extensions_common(cpu_context_t *ctx)
 		 */
 		trf_enable(ctx);
 	}
-
-	if (is_feat_brbe_supported()) {
-		/*
-		 * Enable FEAT_BRBE for Non-Secure and prohibit for Secure state.
-		 */
-		brbe_enable(ctx);
-	}
 #endif /* IMAGE_BL31 */
 }
 
@@ -790,6 +783,10 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 
 	if (is_feat_debugv8p9_supported()) {
 		debugv8p9_extended_bp_wp_enable(ctx);
+	}
+
+	if (is_feat_brbe_supported()) {
+		brbe_enable(ctx);
 	}
 
 	pmuv3_enable(ctx);
