@@ -229,7 +229,6 @@ vector_entry sync_exception_aarch64
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	unmask_async_ea
 	handle_sync_exception
 end_vector_entry sync_exception_aarch64
 
@@ -237,7 +236,6 @@ vector_entry irq_aarch64
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	unmask_async_ea
 	b	handle_interrupt_exception
 end_vector_entry irq_aarch64
 
@@ -245,7 +243,6 @@ vector_entry fiq_aarch64
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	unmask_async_ea
 	b 	handle_interrupt_exception
 end_vector_entry fiq_aarch64
 
@@ -258,7 +255,6 @@ vector_entry serror_aarch64
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	unmask_async_ea
 	b	handle_lower_el_async_ea
 #else
 	b	report_unhandled_exception
@@ -279,7 +275,6 @@ vector_entry sync_exception_aarch32
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	unmask_async_ea
 	handle_sync_exception
 end_vector_entry sync_exception_aarch32
 
@@ -287,7 +282,6 @@ vector_entry irq_aarch32
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	unmask_async_ea
 	b	handle_interrupt_exception
 end_vector_entry irq_aarch32
 
@@ -295,7 +289,6 @@ vector_entry fiq_aarch32
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	unmask_async_ea
 	b	handle_interrupt_exception
 end_vector_entry fiq_aarch32
 
@@ -308,7 +301,6 @@ vector_entry serror_aarch32
 	save_x30
 	apply_at_speculative_wa
 	sync_and_handle_pending_serror
-	unmask_async_ea
 	b	handle_lower_el_async_ea
 #else
 	b	report_unhandled_exception
