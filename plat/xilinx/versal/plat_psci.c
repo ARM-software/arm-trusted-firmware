@@ -250,7 +250,7 @@ static int32_t versal_validate_power_state(uint32_t power_state,
 
 	uint32_t pstate = psci_get_pstate_type(power_state);
 
-	assert(req_state);
+	assert(req_state != NULL);
 
 	/* Sanity check the requested state */
 	if (pstate == PSTATE_TYPE_STANDBY) {

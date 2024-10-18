@@ -2791,7 +2791,7 @@ enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 {
 	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
-	if (pll) {
+	if (pll != NULL) {
 		*node_id = pll->nid;
 		return PM_RET_SUCCESS;
 	}
@@ -2883,7 +2883,7 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 	enum pm_ret_status status;
 	enum pm_pll_mode mode;
 
-	if ((pll == NULL) || !state) {
+	if ((pll == NULL) || (state == NULL)) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -3013,7 +3013,7 @@ enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
 {
 	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
-	if ((pll == NULL) || !mode) {
+	if ((pll == NULL) || (mode == NULL)) {
 		return PM_RET_ERROR_ARGS;
 	}
 	*mode = pll->mode;
