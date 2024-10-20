@@ -3,6 +3,34 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.7..refs/tags/lts-v2.10.8) (2024-10-20)
+
+### Documentation
+
+- **Documentation**
+
+  - **Prerequisites**
+
+    - update MbedTLS version to 3.6.1 ([9c723cd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9c723cd1aeab9b164cc4084d95e16a83403788f4))
+
+### Code Refactoring
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - remove hack in LIBMBEDTLS_CFLAGS ([d3726fb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d3726fb42770e2ad3df6f99250241e904f920d11))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-X4 erratum 3076789 ([34a4f24](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/34a4f2446ac3d3b61cc6adfaad733447e4e56b42))
+
 ## [lts-2.10.7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.6..refs/tags/lts-v2.10.7) (2024-10-04)
 
 ### Resolved Issues
