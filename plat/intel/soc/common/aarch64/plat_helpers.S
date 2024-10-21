@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +21,7 @@
 	.globl  plat_crash_console_flush
 	.globl	platform_mem_init
 	.globl	plat_secondary_cpus_bl31_entry
+	.globl	invalidate_cache_low_el
 
 	.globl plat_get_my_entrypoint
 
@@ -213,3 +216,18 @@ func plat_secondary_cpus_bl31_entry
 		_exception_vectors=runtime_exceptions		\
 		_pie_fixup_size=BL31_LIMIT - BL31_BASE
 endfunc plat_secondary_cpus_bl31_entry
+
+/* --------------------------------------------------------
+	 * Invalidate for NS EL2 and EL1
+	 * --------------------------------------------------------
+	 */
+func invalidate_cache_low_el
+	mrs	x0,SCR_EL3
+	orr	x1,x0,#SCR_NS_BIT
+	msr	SCR_EL3, x1
+	isb
+	tlbi	ALLE2
+	dsb	sy
+	tlbi	ALLE1
+	dsb	sy
+endfunc invalidate_cache_low_el

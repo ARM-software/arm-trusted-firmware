@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
-# Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+# Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+# Copyright (c) 2024, Altera Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -26,6 +27,7 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			lib/xlat_tables/xlat_tables_common.c 		\
 			plat/intel/soc/common/aarch64/platform_common.c \
 			plat/intel/soc/common/aarch64/plat_helpers.S	\
+			plat/intel/soc/common/drivers/ccu/ncore_ccu.c	\
 			plat/intel/soc/common/socfpga_delay_timer.c	\
 			plat/intel/soc/common/soc/socfpga_firewall.c
 

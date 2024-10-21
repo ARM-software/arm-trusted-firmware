@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <assert.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
 #include <errno.h>
 #include <lib/mmio.h>
 #include <platform_def.h>
@@ -16,7 +18,24 @@
 
 uint32_t poll_active_bit(uint32_t dir);
 
-#define SMMU_DMI			1
+#define SMMU_DMI					1
+#define CCU_DMI0_DMIUSMCMCR				SOCFPGA_CCU_NOC_REG_BASE + 0x7340
+#define CCU_DMI0_DMIUSMCMAR				SOCFPGA_CCU_NOC_REG_BASE + 0x7344
+#define CCU_DMI0_DMIUSMCMCR_MNTOP			GENMASK(3, 0)
+#define MAX_DISTRIBUTED_MEM_INTERFACE			2
+#define FLUSH_ALL_ENTRIES				0x4
+#define CCU_DMI0_DMIUSMCMCR_ARRAY_ID			GENMASK(21, 16)
+#define ARRAY_ID_TAG					0x0
+#define ARRAY_ID_DATA					0x1
+#define CACHE_OPERATION_DONE				BIT(0)
+#define TIMEOUT_200MS					200
+
+#define __bf_shf(x)					(__builtin_ffsll(x) - 1)
+
+#define FIELD_PREP(_mask, _val)						\
+	({ \
+		((typeof(_mask))(_val) << __bf_shf(_mask)) & (_mask);	\
+	})
 
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
 ncore_ccu_reg_t ncore_ccu_modules[] = {
@@ -632,3 +651,61 @@ void setup_smmu_stream_id(void)
 	mmio_write_32(SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN1), ENABLE_STREAMID);
 	mmio_write_32(SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN2), ENABLE_STREAMID);
 }
+
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+/* TODO: Temp added this here*/
+static int poll_idle_status(uint32_t addr, uint32_t mask, uint32_t match, uint32_t delay_ms)
+{
+	int time_out = delay_ms;
+
+	while (time_out-- > 0) {
+
+		if ((mmio_read_32(addr) & mask) == match) {
+			return 0;
+		}
+		udelay(1000);
+	}
+
+	return -ETIMEDOUT;
+}
+
+int flush_l3_dcache(void)
+{
+	int i;
+	int ret = 0;
+
+	/* Flushing all entries in CCU system memory cache */
+	for (i = 0; i < MAX_DISTRIBUTED_MEM_INTERFACE; i++) {
+		mmio_write_32(FIELD_PREP(CCU_DMI0_DMIUSMCMCR_MNTOP, FLUSH_ALL_ENTRIES) |
+			   FIELD_PREP(CCU_DMI0_DMIUSMCMCR_ARRAY_ID, ARRAY_ID_TAG),
+			   (uintptr_t)(CCU_DMI0_DMIUSMCMCR + (i * 0x1000)));
+
+		/* Wait for cache maintenance operation done */
+		ret = poll_idle_status((CCU_DMI0_DMIUSMCMAR +
+				(i * 0x1000)), CACHE_OPERATION_DONE,
+				CACHE_OPERATION_DONE, TIMEOUT_200MS);
+
+		if (ret != 0) {
+			VERBOSE("%s: Timeout while waiting for flushing tag in DMI%d done\n",
+					__func__, i);
+			return ret;
+		}
+
+		mmio_write_32(FIELD_PREP(CCU_DMI0_DMIUSMCMCR_MNTOP, FLUSH_ALL_ENTRIES) |
+			   FIELD_PREP(CCU_DMI0_DMIUSMCMCR_ARRAY_ID, ARRAY_ID_DATA),
+			   (uintptr_t)(CCU_DMI0_DMIUSMCMCR + (i * 0x1000)));
+
+		/* Wait for cache maintenance operation done */
+		ret = poll_idle_status((CCU_DMI0_DMIUSMCMAR +
+				(i * 0x1000)), CACHE_OPERATION_DONE,
+				CACHE_OPERATION_DONE, TIMEOUT_200MS);
+
+		if (ret != 0) {
+			VERBOSE("%s: Timeout while waiting for flushing data in DMI%d done\n",
+					__func__, i);
+		}
+	}
+
+	return ret;
+}
+#endif

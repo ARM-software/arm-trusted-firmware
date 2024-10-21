@@ -17,8 +17,10 @@
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
+#include "ccu/ncore_ccu.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_plat_def.h"
+#include "socfpga_private.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"
 #include "socfpga_system_manager.h"
@@ -190,6 +192,14 @@ static void __dead2 socfpga_system_reset(void)
 	if (intel_rsu_update_address) {
 		mailbox_rsu_update(addr_buf);
 	} else {
+#if CACHE_FLUSH
+		/* ATF Flush and Invalidate Cache */
+		dcsw_op_all(DCCISW);
+		invalidate_cache_low_el();
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+		flush_l3_dcache();
+#endif
+#endif
 		mailbox_reset_cold();
 	}
 
