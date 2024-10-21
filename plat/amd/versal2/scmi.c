@@ -293,7 +293,7 @@ int32_t plat_scmi_clock_rates_array(unsigned int agent_id, unsigned int scmi_id,
 		return SCMI_NOT_FOUND;
 	}
 
-	if (start_idx > 0) {
+	if (start_idx > 0U) {
 		return SCMI_OUT_OF_RANGE;
 	}
 

@@ -12,7 +12,7 @@
 #include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
-#define MAX_INTR_EL3			2
+#define MAX_INTR_EL3			2U
 
 /* List all consoles */
 #define VERSAL2_CONSOLE_ID_none		0

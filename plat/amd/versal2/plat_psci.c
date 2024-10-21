@@ -35,9 +35,9 @@ static void zynqmp_cpu_standby(plat_local_state_t cpu_state)
 
 static int32_t zynqmp_nopmu_pwr_domain_on(u_register_t mpidr)
 {
-	uint32_t cpu_id = plat_core_pos_by_mpidr(mpidr) & ~BIT(MPIDR_MT_BIT);
-	uint32_t cpu = cpu_id % PLATFORM_CORE_COUNT_PER_CLUSTER;
-	uint32_t cluster = cpu_id / PLATFORM_CORE_COUNT_PER_CLUSTER;
+	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr) & ~BIT(MPIDR_MT_BIT);
+	int32_t cpu = cpu_id % PLATFORM_CORE_COUNT_PER_CLUSTER;
+	int32_t cluster = cpu_id / PLATFORM_CORE_COUNT_PER_CLUSTER;
 	uintptr_t apu_cluster_base = 0, apu_pcli_base, apu_pcli_cluster = 0;
 	uintptr_t rst_apu_cluster = PSX_CRF + RST_APU0_OFFSET + ((uint64_t)cluster * 0x4U);
 
@@ -48,7 +48,7 @@ static int32_t zynqmp_nopmu_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	if (cluster > 3) {
+	if (cluster > 3U) {
 		panic();
 	}
 
@@ -178,9 +178,9 @@ static int32_t no_pm_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		ret = (int32_t) mmio_read_32(PMXC_IOU_SLCR_TX_RX_CONFIG_RDY);
 		break;
 	case IOCTL_UFS_SRAM_CSR_SEL:
-		if (arg1 == 1) {
+		if (arg1 == 1U) {
 			ret = (int32_t) mmio_read_32(PMXC_IOU_SLCR_SRAM_CSR);
-		} else if (arg1 == 0) {
+		} else if (arg1 == 0U) {
 			mmio_write_32(PMXC_IOU_SLCR_SRAM_CSR, arg2);
 		}
 		break;
