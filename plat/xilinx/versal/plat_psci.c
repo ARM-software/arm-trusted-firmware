@@ -222,7 +222,7 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	 * be set.
 	 */
 	ret = pm_feature_check((uint32_t)PM_SELF_SUSPEND, &version_type[0], SECURE_FLAG);
-	if (ret == PM_RET_SUCCESS) {
+	if (ret == (uint32_t)PM_RET_SUCCESS) {
 		fw_api_version = version_type[0] & 0xFFFFU;
 		if (fw_api_version >= 3U) {
 			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,

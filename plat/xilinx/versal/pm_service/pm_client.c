@@ -26,7 +26,7 @@
 #include "pm_defs.h"
 #include <versal_def.h>
 
-#define UNDEFINED_CPUID		(~0)
+#define UNDEFINED_CPUID		(~0U)
 
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
