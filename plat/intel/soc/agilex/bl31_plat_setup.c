@@ -133,8 +133,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * Tell BL31 where the non-trusted software image
 	 * is located and the entry state information
 	 */
+# if ARM_LINUX_KERNEL_AS_BL33
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
+#endif
 
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 }
