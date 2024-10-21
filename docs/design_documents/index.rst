@@ -7,10 +7,12 @@ Design Documents
 
    cmake_framework
    measured_boot_poc
+   measured_boot_dtpm_poc
    drtm_poc
    rse
    psci_osi_mode
    measured_boot
+   dtpm_drivers
 
 --------------
 

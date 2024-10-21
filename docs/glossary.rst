@@ -36,6 +36,9 @@ You can find additional definitions in the `Arm Glossary`_.
    CSS
       Compute Sub-System
 
+   CRB
+      Command Response Buffer
+
    CVE
       Common Vulnerabilities and Exposures. A CVE document is commonly used to
       describe a publicly-known security vulnerability.
@@ -88,6 +91,9 @@ You can find additional definitions in the `Arm Glossary`_.
    FF-A
       Firmware Framework for Arm A-profile
 
+   FIFO
+      First In, First Out
+
    FIP
       Firmware Image Package
 
@@ -102,6 +108,9 @@ You can find additional definitions in the `Arm Glossary`_.
 
    HES
       Arm CCA Hardware Enforced Security
+
+   I2C
+      Inter-Integrated Circuit Protocol
 
    ISA
       Instruction Set Architecture
@@ -210,6 +219,9 @@ You can find additional definitions in the `Arm Glossary`_.
 
    SPM
       Secure Partition Manager
+
+   SPI
+      Serial Peripheral Interface
 
    SRTM
       Static Root of Trust for Measurement
