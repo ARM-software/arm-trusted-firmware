@@ -16,11 +16,13 @@ void brbe_enable(cpu_context_t *ctx)
 
 	/*
 	 * MDCR_EL3.SBRBE = 0b01
-	 *
 	 * Allows BRBE usage in non-secure world and prohibited in
 	 * secure world.
+	 *
+	 * MDCR_EL3.{E3BREW, E3BREC} = 0b00
+	 * Branch recording at EL3 is disabled
 	 */
-	mdcr_el3_val &= ~(MDCR_SBRBE_MASK << MDCR_SBRBE_SHIFT);
+	mdcr_el3_val &= ~((MDCR_SBRBE_MASK << MDCR_SBRBE_SHIFT) | MDCR_E3BREW | MDCR_E3BREC);
 	mdcr_el3_val |= (0x1UL << MDCR_SBRBE_SHIFT);
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
