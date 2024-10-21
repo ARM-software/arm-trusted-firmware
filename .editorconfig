@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -70,3 +70,6 @@ indent_style = space
 # [PEP8] Maximum Line Length
 #	"Limit all lines to a maximum of 79 characters."
 max_line_length = 79
+
+[.git/COMMIT_EDITMSG]
+max_line_length = 72
