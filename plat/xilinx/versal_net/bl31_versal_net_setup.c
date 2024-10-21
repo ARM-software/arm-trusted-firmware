@@ -140,7 +140,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 #if !(TFA_NO_PM)
-	PM_PACK_PAYLOAD4(payload, LOADER_MODULE_ID, 1, PM_LOAD_GET_HANDOFF_PARAMS,
+	PM_PACK_PAYLOAD4(payload, LOADER_MODULE_ID, 1U, PM_LOAD_GET_HANDOFF_PARAMS,
 			 (uintptr_t)buff >> 32U, (uintptr_t)buff, max_size);
 
 	ret_status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);

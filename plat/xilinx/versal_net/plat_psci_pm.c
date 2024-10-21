@@ -27,7 +27,7 @@ static uintptr_t versal_net_sec_entry;
 
 static int32_t versal_net_pwr_domain_on(u_register_t mpidr)
 {
-	uint32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
+	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
 
 	VERBOSE("%s: mpidr: 0x%lx, cpuid: %x\n",
@@ -84,7 +84,7 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 	 * be set.
 	 */
 	ret = pm_feature_check((uint32_t)PM_SELF_SUSPEND, &version_type[0], SECURE_FLAG);
-	if (ret == PM_RET_SUCCESS) {
+	if (ret == (uint32_t)PM_RET_SUCCESS) {
 		fw_api_version = version_type[0] & 0xFFFFU;
 		if (fw_api_version >= 3U) {
 			(void)pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_OFF, 0,

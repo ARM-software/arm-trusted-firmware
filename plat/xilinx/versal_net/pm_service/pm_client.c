@@ -26,7 +26,7 @@
 #include "pm_client.h"
 #include <versal_net_def.h>
 
-#define UNDEFINED_CPUID		(~0)
+#define UNDEFINED_CPUID		(~0U)
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpu_pwrctrl_val, S3_0_C15_C2_7)
 
