@@ -118,11 +118,15 @@ void __dead2 rockchip_soc_cores_pd_pwr_dn_wfi(
 				const psci_power_state_t *target_state)
 {
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 void __dead2 rockchip_soc_sys_pd_pwr_dn_wfi(void)
 {
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 /*******************************************************************************

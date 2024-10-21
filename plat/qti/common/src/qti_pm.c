@@ -217,6 +217,7 @@ __dead2 void qti_domain_power_down_wfi(const psci_power_state_t *target_state)
 	/* For now just do WFI - add any target specific handling if needed */
 	psci_power_down_wfi();
 	/* We should never reach here */
+	panic();
 }
 
 static __dead2 void assert_ps_hold(void)

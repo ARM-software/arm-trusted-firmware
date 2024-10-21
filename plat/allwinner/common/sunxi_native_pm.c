@@ -49,6 +49,8 @@ static void __dead2 sunxi_system_off(void)
 	sunxi_cpu_power_off_others();
 	sunxi_cpu_power_off_self();
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 static void __dead2 sunxi_system_reset(void)

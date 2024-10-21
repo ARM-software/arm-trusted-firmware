@@ -371,7 +371,7 @@ static void get_sys_suspend_power_state(psci_power_state_t *req_state)
 }
 #endif
 
-static void __dead2 pwr_domain_pwr_down_wfi(const psci_power_state_t *req_state)
+static void pwr_domain_pwr_down_wfi(const psci_power_state_t *req_state)
 {
 	unsigned int cpu = plat_my_core_pos();
 	int ret = MTK_CPUPM_E_NOT_SUPPORT;
@@ -382,6 +382,8 @@ static void __dead2 pwr_domain_pwr_down_wfi(const psci_power_state_t *req_state)
 		plat_panic_handler();
 	else
 		psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 static void pm_smp_init(unsigned int cpu_id, uintptr_t entry_point)

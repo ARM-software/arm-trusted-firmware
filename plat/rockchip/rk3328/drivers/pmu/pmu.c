@@ -619,6 +619,8 @@ void __dead2 rockchip_soc_sys_pd_pwr_dn_wfi(void)
 
 	/* should never reach here */
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 int rockchip_soc_sys_pwr_dm_suspend(void)

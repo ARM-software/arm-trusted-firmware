@@ -78,7 +78,7 @@ struct plat_pm_pwr_ctrl {
 				    psci_power_state_t *req_state);
 	void (*get_sys_suspend_power_state)(
 				    psci_power_state_t *req_state);
-	__dead2 void (*pwr_domain_pwr_down_wfi)(
+	void (*pwr_domain_pwr_down_wfi)(
 				const psci_power_state_t *req_state);
 };
 
