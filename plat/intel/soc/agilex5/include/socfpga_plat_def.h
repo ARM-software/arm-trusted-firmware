@@ -41,6 +41,13 @@
 #define CAD_QSPIDATA_OFST					0x10900000
 #define CAD_QSPI_OFFSET						0x108d2000
 
+/* SDMMC Setting */
+# if ARM_LINUX_KERNEL_AS_BL33
+#define SOCFPGA_MMC_BLOCK_SIZE					U(32768)
+# else
+#define SOCFPGA_MMC_BLOCK_SIZE					U(8192)
+# endif
+
 /* Register Mapping */
 #define SOCFPGA_CCU_NOC_REG_BASE				0x1c000000
 #define SOCFPGA_F2SDRAMMGR_REG_BASE				0x18001000
