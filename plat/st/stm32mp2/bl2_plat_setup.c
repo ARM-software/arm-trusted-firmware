@@ -280,6 +280,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	unsigned int i;
 	const unsigned int image_ids[] = {
 		BL31_IMAGE_ID,
+		SOC_FW_CONFIG_ID,
 		BL32_IMAGE_ID,
 		BL33_IMAGE_ID,
 		HW_CONFIG_ID,
@@ -345,6 +346,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 				break;
 
 			case HW_CONFIG_ID:
+			case SOC_FW_CONFIG_ID:
 				break;
 
 			default:

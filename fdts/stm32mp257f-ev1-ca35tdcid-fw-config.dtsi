@@ -11,6 +11,10 @@
 
 / {
 	dtb-registry {
+		soc_fw-config {
+			load-address = <0x0 0x81ff0000>;
+			max-size = <0x10000>;
+		};
 		tos_fw {
 			load-address = <0x0 0x82000000>;
 			max-size = <0x2000000>;

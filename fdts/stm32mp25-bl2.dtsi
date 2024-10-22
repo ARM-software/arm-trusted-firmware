@@ -31,6 +31,7 @@
 			bl32_extra2_uuid = "8ea87bb1-cfa2-3f4d-85fd-e7bba50220d9";
 			bl33_uuid = "d6d0eea7-fcea-d54b-9782-9934f234b6e4";
 			hw_cfg_uuid = "08b8f1d9-c9cf-9349-a962-6fbc6b7265cc";
+			soc_fw_cfg_uuid = "9979814b-0376-fb46-8c8e-8d267f7859e0";
 			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
 			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
 		};
