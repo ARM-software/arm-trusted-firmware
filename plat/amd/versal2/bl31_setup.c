@@ -27,6 +27,7 @@
 #include <plat_fdt.h>
 #include <plat_private.h>
 #include <plat_startup.h>
+#include <plat_xfer_list.h>
 #include <pm_api_sys.h>
 #include <pm_client.h>
 
@@ -80,6 +81,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	(void)arg2;
 	(void)arg3;
 	uint32_t uart_clock;
+	int32_t rc;
 
 	board_detection();
 
@@ -145,7 +147,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
-	bl31_set_default_config();
+
+	rc = transfer_list_populate_ep_info(&bl32_image_ep_info, &bl33_image_ep_info);
+	if (rc == TL_OPS_NON || rc == TL_OPS_CUS) {
+		NOTICE("BL31: TL not found, using default config\n");
+		bl31_set_default_config();
+	}
 
 	long rev_var = cpu_get_rev_var();
 

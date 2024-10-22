@@ -6,6 +6,9 @@
 
 PLAT_PATH := plat/amd/versal2
 
+override NEED_BL1 := no
+override NEED_BL2 := no
+
 # A78 Erratum for SoC
 ERRATA_A78_AE_1941500 := 1
 ERRATA_A78_AE_1951502 := 1
@@ -148,3 +151,9 @@ ifeq (${ERRATA_ABI_SUPPORT}, 1)
 CORTEX_A78_AE_H_INC     := 1
 $(eval $(call add_define, CORTEX_A78_AE_H_INC))
 endif
+
+# Enable Handoff protocol using transfer lists
+TRANSFER_LIST                   := 1
+
+include lib/transfer_list/transfer_list.mk
+BL31_SOURCES           +=      plat/xilinx/common/plat_xfer_list.c
