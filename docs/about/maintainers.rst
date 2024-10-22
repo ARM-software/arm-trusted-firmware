@@ -49,12 +49,14 @@ Maintainers
 :|G|: `laurenw-arm`_
 :|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
 :|G|: `madhukar-Arm`_
-:|M|: Raghu Krishnamurthy <raghu.ncstate@icloud.com>
+:|M|: Raghu Krishnamurthy <raghuoss@raghushome.com>
 :|G|: `raghuncstate`_
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|G|: `Yann-lms`_
+:|M|: Govindraj Raja <govindraj.raja@arm.com>
+:|G|: `govindraj-arm`_
 
 LTS Maintainers
 ---------------
@@ -1016,7 +1018,7 @@ Threat Model
 :|G|: `sandrine-bailleux-arm`_
 :|M|: Joanna Farley <joanna.farley@arm.com>
 :|G|: `joannafarley-arm`_
-:|M|: Raghu Krishnamurthy <raghu.ncstate@icloud.com>
+:|M|: Raghu Krishnamurthy <raghuoss@raghushome.com>
 :|G|: `raghuncstate`_
 :|M|: Varun Wadekar <vwadekar@nvidia.com>
 :|G|: `vwadekar`_
@@ -1055,6 +1057,7 @@ Conventional Changelog Extensions
 .. _divin-raj: https://github.com/divin-raj
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
+.. _govindraj-arm: https://github.com/govindraj-arm
 .. _gprocopciucnxp: https://github.com/gprocopciucnxp
 .. _grandpaul: https://github.com/grandpaul
 .. _harrisonmutai-arm: https://github.com/harrisonmutai-arm
