@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,5 +64,7 @@ uint32_t socfpga_get_spsr_for_bl33_entry(void);
 unsigned long socfpga_get_ns_image_entrypoint(void);
 
 void plat_secondary_cpus_bl31_entry(void);
+
+void invalidate_cache_low_el(void);
 
 #endif /* SOCFPGA_PRIVATE_H */
