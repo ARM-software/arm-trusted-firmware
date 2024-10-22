@@ -8,5 +8,6 @@
 #define AGX5_CACHE_H
 
 void invalidate_dcache_all(void);
+void invalidate_cache_low_el(void);
 
 #endif /* AGX5_CACHE_H */

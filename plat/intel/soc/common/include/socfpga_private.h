@@ -65,6 +65,4 @@ unsigned long socfpga_get_ns_image_entrypoint(void);
 
 void plat_secondary_cpus_bl31_entry(void);
 
-void invalidate_cache_low_el(void);
-
 #endif /* SOCFPGA_PRIVATE_H */
