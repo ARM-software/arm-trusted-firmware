@@ -245,7 +245,7 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 {
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
-	int32_t pstate = psci_get_pstate_type(power_state);
+	uint32_t pstate = psci_get_pstate_type(power_state);
 
 	assert(req_state != NULL);
 

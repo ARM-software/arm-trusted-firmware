@@ -55,7 +55,7 @@ static inline void bl31_set_default_config(void)
 	bl32_image_ep_info.pc = BL32_BASE;
 	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-	bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
+	bl33_image_ep_info.spsr = (uint32_t)SPSR_64(MODE_EL2, MODE_SP_ELX,
 					DISABLE_ALL_EXCEPTIONS);
 }
 
