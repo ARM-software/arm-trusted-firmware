@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -57,6 +57,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 #ifdef JUNO_ETHOSN_TZMP1
 	JUNO_ETHOSN_PROT_FW_RW,
+#endif
+#if SPMC_AT_EL3
+	ARM_SP_IMAGE_MMAP,
 #endif
 	{0}
 };
