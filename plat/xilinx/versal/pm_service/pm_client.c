@@ -233,8 +233,9 @@ void pm_client_abort_suspend(void)
 static uint32_t pm_get_cpuid(uint32_t nid)
 {
 	uint32_t ret = UNDEFINED_CPUID;
+	uint32_t i;
 
-	for (size_t i = 0U; i < ARRAY_SIZE(pm_procs_all); i++) {
+	for (i = 0U; i < ARRAY_SIZE(pm_procs_all); i++) {
 		if (pm_procs_all[i].node_id == nid) {
 			ret = i;
 			break;
