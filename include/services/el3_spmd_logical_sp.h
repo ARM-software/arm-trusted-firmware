@@ -12,8 +12,6 @@
 /*******************************************************************************
  * Structure definition, typedefs & constants for the SPMD Logical Partitions.
  ******************************************************************************/
-typedef struct spmd_spm_core_context spmd_spm_core_context_t;
-
 /* Prototype for SPMD logical partition initializing function. */
 typedef int32_t (*ffa_spmd_lp_init_t)(void);
 
@@ -143,12 +141,6 @@ void spmd_logical_sp_set_spmc_initialized(void);
 void spmc_logical_sp_set_spmc_failure(void);
 
 int32_t spmd_logical_sp_init(void);
-bool is_spmd_logical_sp_dir_req_in_progress(
-		spmd_spm_core_context_t *ctx);
-
-bool is_spmd_logical_sp_info_regs_req_in_progress(
-		spmd_spm_core_context_t *ctx);
-
 bool spmd_el3_ffa_msg_direct_req(uint64_t x1,
 				 uint64_t x2,
 				 uint64_t x3,
