@@ -68,8 +68,10 @@ const mmap_region_t agilex_plat_mmap[] = {
 
 boot_source_type boot_source = BOOT_SOURCE;
 
-void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
-				u_register_t x2, u_register_t x4)
+void bl2_el3_early_platform_setup(u_register_t x0 __unused,
+				  u_register_t x1 __unused,
+				  u_register_t x2 __unused,
+				  u_register_t x3 __unused)
 {
 	static console_t console;
 	handoff reverse_handoff_ptr;
@@ -94,22 +96,41 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 
 	/* Get the handoff data */
 	if ((socfpga_get_handoff(&reverse_handoff_ptr)) != 0) {
-		ERROR("BL2: Failed to get the correct handoff data\n");
+		ERROR("SOCFPGA: Failed to get the correct handoff data\n");
 		panic();
 	}
 
-	config_clkmgr_handoff(&reverse_handoff_ptr);
+	/* Configure the pinmux */
+	config_pinmux(&reverse_handoff_ptr);
+
+	/* Configure the clock manager */
+	if ((config_clkmgr_handoff(&reverse_handoff_ptr)) != 0) {
+		ERROR("SOCFPGA: Failed to initialize the clock manager\n");
+		panic();
+	}
+
 	/* Configure power manager PSS SRAM power gate */
 	config_pwrmgr_handoff(&reverse_handoff_ptr);
 
 	/* Initialize the mailbox to enable communication between HPS and SDM */
 	mailbox_init();
 
+	/* Perform a handshake with certain peripherals before issuing a reset */
+	config_hps_hs_before_warm_reset();
+
+	/* TODO: watchdog init */
+	//watchdog_init(clkmgr_get_rate(CLKMGR_WDT_CLK_ID));
+
+	/* Initialize the CCU module for hardware cache coherency */
+	init_ncore_ccu();
+
+	socfpga_emac_init();
+
 	/* DDR and IOSSM driver init */
 	agilex5_ddr_init(&reverse_handoff_ptr);
 
 	if (combo_phy_init(&reverse_handoff_ptr) != 0) {
-		ERROR("Combo Phy initialization failed\n");
+		ERROR("SOCFPGA: Combo Phy initialization failed\n");
 	}
 
 	/* Enable FPGA bridges as required */

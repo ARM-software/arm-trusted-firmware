@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -142,7 +143,7 @@ typedef struct {
 	uint32_t  clk_freq_of_cb_intosc_ls;
 } CLOCK_SOURCE_CONFIG;
 
-void config_clkmgr_handoff(handoff *hoff_ptr);
+int config_clkmgr_handoff(handoff *hoff_ptr);
 uint32_t get_wdt_clk(void);
 uint32_t get_uart_clk(void);
 uint32_t get_mmc_clk(void);
