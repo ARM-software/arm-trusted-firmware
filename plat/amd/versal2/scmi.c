@@ -638,8 +638,9 @@ void init_scmi_server(void)
 	size_t i;
 	int32_t ret;
 
-	for (i = 0U; i < ARRAY_SIZE(scmi_channel); i++)
+	for (i = 0U; i < ARRAY_SIZE(scmi_channel); i++) {
 		scmi_smt_init_agent_channel(&scmi_channel[i]);
+	}
 
 	INFO("SCMI: Server initialized\n");
 
@@ -649,12 +650,14 @@ void init_scmi_server(void)
 		for (i = 0U; i < ARRAY_SIZE(scmi0_clock); i++) {
 
 			/* Keep i2c on 100MHz to calculate rates properly */
-			if ((i >= CLK_I2C0_0) && (i <= CLK_I2C7_0))
+			if ((i >= CLK_I2C0_0) && (i <= CLK_I2C7_0)) {
 				continue;
+			}
 
 			/* Keep UFS clocks to default values to get the expected rates */
-			if (i >= CLK_UFS0_0 && i <= CLK_UFS0_2)
+			if ((i >= CLK_UFS0_0) && (i <= CLK_UFS0_2)) {
 				continue;
+			}
 
 			/*
 			 * SPP supports multiple versions.
