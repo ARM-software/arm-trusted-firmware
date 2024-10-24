@@ -98,18 +98,6 @@ func plat_my_core_pos
 endfunc plat_my_core_pos
 
 func warm_reset_req
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
-	bl	plat_is_my_cpu_primary
-	cbnz	x0, warm_reset
-warm_reset:
-	mov_imm x1, PLAT_SEC_ENTRY
-	str	xzr, [x1]
-	mrs	x1, rmr_el3
-	orr	x1, x1, #0x02
-	msr	rmr_el3, x1
-	isb
-	dsb	sy
-#else
 	str	xzr, [x4]
 	bl	plat_is_my_cpu_primary
 	cbz	x0, cpu_in_wfi
@@ -123,22 +111,35 @@ warm_reset:
 cpu_in_wfi:
 	wfi
 	b	cpu_in_wfi
-#endif
 endfunc warm_reset_req
 
-/* TODO: Zephyr warm reset test */
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
 func plat_get_my_entrypoint
 	ldr	x4, =L2_RESET_DONE_REG
 	ldr	x5, [x4]
-	ldr	x1, =PLAT_L2_RESET_REQ
+
+	/* Check for warm reset request */
+	ldr	x1, =L2_RESET_DONE_STATUS
 	cmp	x1, x5
-	b.eq	zephyr_reset_req
+	b.eq	warm_reset_req
+
+	/* Check for SMP secondary cores boot request */
+	ldr	x1, =SMP_SEC_CORE_BOOT_REQ
+	cmp	x1, x5
+	b.eq	smp_request
+
+	/* Otherwise it is cold reset */
+	mov	x0, #0
+	ret
+smp_request:
+	/*
+	 * Return the address 'bl31_warm_entrypoint', which is passed to
+	 * 'psci_setup' routine as part of BL31 initialization.
+	 */
 	mov_imm	x1, PLAT_SEC_ENTRY
 	ldr	x0, [x1]
-	ret
-zephyr_reset_req:
-	ldr	x0, =0x00
+	/* Clear the mark up before return */
+	str	xzr, [x4]
 	ret
 endfunc plat_get_my_entrypoint
 #else

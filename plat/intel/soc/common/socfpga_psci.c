@@ -213,6 +213,16 @@ static void __dead2 socfpga_system_reset(void)
 static int socfpga_system_reset2(int is_vendor, int reset_type,
 					u_register_t cookie)
 {
+
+#if CACHE_FLUSH
+	/*
+	 * ATF Flush and Invalidate Cache due to hardware limitation
+	 * of auto Flush and Invalidate Cache.
+	 */
+	dcsw_op_all(DCCISW);
+	invalidate_cache_low_el();
+#endif
+
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
 	mailbox_reset_warm(reset_type);
 #else
