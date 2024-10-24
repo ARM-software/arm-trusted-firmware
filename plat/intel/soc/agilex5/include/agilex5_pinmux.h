@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,19 +8,13 @@
 #ifndef AGX5_PINMUX_H
 #define AGX5_PINMUX_H
 
-/* PINMUX REGISTER ADDRESS */
-#define AGX5_PINMUX_PIN0SEL					0x10d13000
-#define AGX5_PINMUX_IO0CTRL					0x10d13130
-#define AGX5_PINMUX_EMAC0_USEFPGA				0x10d13300
-#define AGX5_PINMUX_IO0_DELAY					0x10d13400
-#define AGX5_PERIPHERAL						0x10d14044
-
 #include "socfpga_handoff.h"
 
-/* PINMUX DEFINE */
-#define PINMUX_HANDOFF_ARRAY_SIZE(x)				(sizeof(x) / sizeof((x)[0]))
-#define PINMUX_HANDOFF_CONFIG_ADDR				0xbeec
-#define PINMUX_HANDOFF_CONFIG_VAL				0x7e000
+/* PINMUX REGISTER ADDRESS */
+#define AGX5_PINMUX_PIN0SEL					0x10D13000
+#define AGX5_PINMUX_IO0CTRL					0x10D13130
+#define AGX5_PINMUX_EMAC0_USEFPGA				0x10D13300
+#define AGX5_PINMUX_IO0_DELAY					0x10D13400
 
 /* Macros */
 #define SOCFPGA_PINMUX_SEL_NAND					(0x03)
@@ -142,6 +137,9 @@
 #define SOCFPGA_PINMUX_JTAG_USEFPGA				(0x50)
 #define SOCFPGA_PINMUX_SDMMC_USEFPGA				(0x54)
 
+#define SOCFPGA_PINUMX_USEFPGA(_reg)				(AGX5_PINMUX_EMAC0_USEFPGA \
+								+ SOCFPGA_PINMUX_##_reg)
+
 #define SOCFPGA_PINMUX_IO0DELAY					(0x00)
 #define SOCFPGA_PINMUX_IO1DELAY					(0x04)
 #define SOCFPGA_PINMUX_IO2DELAY					(0x08)
@@ -198,5 +196,4 @@
 								+ (SOCFPGA_PINMUX_##_reg))
 
 void config_pinmux(handoff *handoff);
-void config_peripheral(handoff *handoff);
 #endif
