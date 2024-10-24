@@ -31,23 +31,15 @@
 
 /* Define next boot image name and offset */
 /* Get non-secure image entrypoint for BL33. Zephyr and Linux */
-#if	PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
-#ifndef PRELOADED_BL33_BASE
+#ifdef PRELOADED_BL33_BASE
+#define PLAT_NS_IMAGE_OFFSET			PRELOADED_BL33_BASE
+#else
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
 #define PLAT_NS_IMAGE_OFFSET			0x80200000
 #else
-#define PLAT_NS_IMAGE_OFFSET			PRELOADED_BL33_BASE
-#endif
-#define PLAT_HANDOFF_OFFSET 0x0003F000
-
-#else
-/* Legacy Products. Please refactor with Agilex5 */
-#ifndef PRELOADED_BL33_BASE
 #define PLAT_NS_IMAGE_OFFSET			0x10000000
-#else
-#define PLAT_NS_IMAGE_OFFSET			PRELOADED_BL33_BASE
 #endif
-#define PLAT_HANDOFF_OFFSET			0xFFE3F000
-#endif
+#endif /* #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5 */
 
 #define PLAT_QSPI_DATA_BASE			(0x3C00000)
 #define PLAT_NAND_DATA_BASE			(0x0200000)
