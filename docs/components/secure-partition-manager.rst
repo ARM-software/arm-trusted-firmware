@@ -110,7 +110,7 @@ Notes:
 - Only Arm's FVP platform is supported to use with the TF-A reference software
   stack.
 - When ``SPMD_SPM_AT_SEL2=1``, the reference software stack assumes enablement
-  of FEAT_PAuth, FEAT_BTI and FEAT_MTE architecture extensions.
+  of FEAT_PAuth, FEAT_BTI and FEAT_MTE2 architecture extensions.
 - ``(*) CTX_INCLUDE_EL2_REGS``, this flag is |TF-A| internal and informational
   in this table. When set, it provides the generic support for saving/restoring
   EL2 registers required when S-EL2 firmware is present.
