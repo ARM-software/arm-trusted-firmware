@@ -328,7 +328,7 @@ int32_t plat_scmi_clock_set_rate(unsigned int agent_id, unsigned int scmi_id,
 				 unsigned long rate)
 {
 	struct scmi_clk *clock = clk_find(agent_id, scmi_id);
-	unsigned long ret = UL(SCMI_SUCCESS);
+	int32_t ret = SCMI_SUCCESS;
 
 	if ((clock == NULL)) {
 		ret = SCMI_NOT_FOUND;
@@ -564,17 +564,19 @@ int32_t plat_scmi_pd_set_state(unsigned int agent_id, unsigned int flags, unsign
 			       unsigned int state)
 {
 	struct scmi_pd *pd = find_pd(agent_id, pd_id);
+	int32_t ret = SCMI_SUCCESS;
 
 	if (pd == NULL) {
-		return SCMI_NOT_SUPPORTED;
+		ret = SCMI_NOT_SUPPORTED;
+	} else {
+
+		NOTICE("SCMI: PD: set id: %d, orig state: %x, new state: %x,  flags: %x\n",
+				pd_id, pd->state, state, flags);
+
+		pd->state = state;
 	}
 
-	NOTICE("SCMI: PD: set id: %d, orig state: %x, new state: %x,  flags: %x\n",
-	       pd_id, pd->state, state, flags);
-
-	pd->state = state;
-
-	return 0U;
+	return ret;
 }
 
 

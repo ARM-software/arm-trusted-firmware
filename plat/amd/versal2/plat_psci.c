@@ -69,7 +69,7 @@ static int32_t zynqmp_nopmu_pwr_domain_on(u_register_t mpidr)
 	mmio_write_32(apu_cluster_base + APU_RVBAR_L_0 + (cpu << 3),
 		      (uint32_t)_sec_entry);
 	mmio_write_32(apu_cluster_base + APU_RVBAR_H_0 + (cpu << 3),
-		      _sec_entry >> 32);
+		      (uint32_t)(_sec_entry >> 32));
 
 	/* de-assert core reset */
 	mmio_clrbits_32(rst_apu_cluster, ((RST_APU_COLD_RESET|RST_APU_WARN_RESET) << cpu));
