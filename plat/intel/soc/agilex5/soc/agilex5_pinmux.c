@@ -187,14 +187,54 @@ const uint32_t sysmgr_pinmux_array_iodelay[] = {
 	0x0000011c, 0x00000000
 };
 
-void config_fpgaintf_mod(void)
+static void config_fpgaintf_mod(void)
 {
-	mmio_write_32(SOCFPGA_SYSMGR(FPGAINTF_EN_2), 1<<8);
+	uint32_t fpgaintf_en_val;
+
+	/*
+	 * System manager FPGA interface enable2 register, disable individual
+	 * interfaces between the FPGA and HPS.
+	 */
+	fpgaintf_en_val = 0U;
+	if ((mmio_read_32(SOCFPGA_PINUMX_USEFPGA(NAND_USEFPGA)) & 0x01) != 0)
+		fpgaintf_en_val |= BIT(4);
+	if ((mmio_read_32(SOCFPGA_PINUMX_USEFPGA(SDMMC_USEFPGA)) & 0x01) != 0)
+		fpgaintf_en_val |= BIT(8);
+	if ((mmio_read_32(SOCFPGA_PINUMX_USEFPGA(SPIM0_USEFPGA)) & 0x01) != 0)
+		fpgaintf_en_val |= BIT(16);
+	if ((mmio_read_32(SOCFPGA_PINUMX_USEFPGA(SPIM1_USEFPGA)) & 0x01) != 0)
+		fpgaintf_en_val |= BIT(24);
+	mmio_write_32(SOCFPGA_SYSMGR(FPGAINTF_EN_2), fpgaintf_en_val);
+
+	/*
+	 * System manager FPGA interface enable3 register, disable individual
+	 * interfaces between the FPGA and HPS.
+	 */
+	fpgaintf_en_val = 0U;
+	if ((mmio_read_32(SOCFPGA_PINUMX_USEFPGA(EMAC0_USEFPGA)) & 0x01) != 0)
+		fpgaintf_en_val |= BIT(0);
+	if ((mmio_read_32(SOCFPGA_PINUMX_USEFPGA(EMAC1_USEFPGA)) & 0x01) != 0)
+		fpgaintf_en_val |= BIT(8);
+	if ((mmio_read_32(SOCFPGA_PINUMX_USEFPGA(EMAC2_USEFPGA)) & 0x01) != 0)
+		fpgaintf_en_val |= BIT(16);
+	mmio_write_32(SOCFPGA_SYSMGR(FPGAINTF_EN_3), fpgaintf_en_val);
 }
 
 void config_pinmux(handoff *hoff_ptr)
 {
-	unsigned int i;
+	uint32_t i;
+
+	/* Configure the pin selection */
+	for (i = 0; i < ARRAY_SIZE(hoff_ptr->pinmux_sel_array); i += 2) {
+		mmio_write_32(AGX5_PINMUX_PIN0SEL + hoff_ptr->pinmux_sel_array[i],
+			      hoff_ptr->pinmux_sel_array[i+1]);
+	}
+
+	/* Configure the pin control */
+	for (i = 0; i < ARRAY_SIZE(hoff_ptr->pinmux_io_array); i += 2) {
+		mmio_write_32(AGX5_PINMUX_IO0CTRL + hoff_ptr->pinmux_io_array[i],
+			      hoff_ptr->pinmux_io_array[i+1]);
+	}
 
 	/*
 	 * Configure the FPGA use.
@@ -207,24 +247,12 @@ void config_pinmux(handoff *hoff_ptr)
 			      hoff_ptr->pinmux_fpga_array[i+1]);
 	}
 
+	/* Configure the IO delay */
+	for (i = 0; i < ARRAY_SIZE(hoff_ptr->pinmux_iodelay_array); i += 2) {
+		mmio_write_32(AGX5_PINMUX_IO0_DELAY + hoff_ptr->pinmux_iodelay_array[i],
+			      hoff_ptr->pinmux_iodelay_array[i+1]);
+	}
+
+	/* Enable/Disable individual interfaces between the FPGA and HPS */
 	config_fpgaintf_mod();
-}
-
-void config_peripheral(handoff *hoff_ptr)
-{
-
-	// TODO: This need to be update due to peripheral_pwr_gate_array handoff change
-	// Pending SDM to pass over handoff data
-	// unsigned int i;
-
-	// for (i = 0; i < 4; i += 2) {
-	//	mmio_write_32(AGX_EDGE_PERIPHERAL +
-	//	hoff_ptr->peripheral_pwr_gate_array[i],
-	//	hoff_ptr->peripheral_pwr_gate_array[i+1]);
-	// }
-
-
-	// TODO: This need to be update due to peripheral_pwr_gate_array handoff change
-	mmio_write_32(AGX5_PERIPHERAL,
-	hoff_ptr->peripheral_pwr_gate_array);
 }
