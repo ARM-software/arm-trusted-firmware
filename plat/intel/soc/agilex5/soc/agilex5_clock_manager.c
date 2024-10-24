@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,7 +94,7 @@ uint32_t pll_source_sync_read(uint32_t pll_mem_offset)
 	return rdata;
 }
 
-void config_clkmgr_handoff(handoff *hoff_ptr)
+int config_clkmgr_handoff(handoff *hoff_ptr)
 {
 	/* Take both PLL out of reset and power up */
 
@@ -129,6 +130,8 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 			CLKMGR_MAINPLL_EN_RESET);
 	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_EN,
 			CLKMGR_PERPLL_EN_RESET);
+
+	return 0;
 }
 
 /* Extract reference clock from platform clock source */
