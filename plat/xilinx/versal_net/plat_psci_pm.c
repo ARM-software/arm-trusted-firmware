@@ -198,9 +198,10 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 		return;
 	}
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+	}
 
 	/* Clear the APU power control register for this cpu */
 	pm_client_wakeup(proc);
@@ -274,8 +275,9 @@ static void versal_net_get_sys_suspend_power_state(psci_power_state_t *req_state
 {
 	uint64_t i;
 
-	for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++) {
 		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
 }
 
 static const struct plat_psci_ops versal_net_nopmc_psci_ops = {
