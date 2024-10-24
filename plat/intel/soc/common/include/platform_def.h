@@ -22,6 +22,18 @@
 #define PLAT_SOCFPGA_AGILEX5			4
 #define SIMICS_RUN				1
 #define MAX_IO_MTD_DEVICES			U(1)
+/* Boot Source configuration
+ * TODO: Shall consider "assert_numeric" in the future
+ */
+#if SOCFPGA_BOOT_SOURCE_NAND
+#define BOOT_SOURCE						BOOT_SOURCE_NAND
+#elif SOCFPGA_BOOT_SOURCE_SDMMC
+#define BOOT_SOURCE						BOOT_SOURCE_SDMMC
+#elif SOCFPGA_BOOT_SOURCE_QSPI
+#define BOOT_SOURCE						BOOT_SOURCE_QSPI
+#else
+#define BOOT_SOURCE						BOOT_SOURCE_SDMMC
+#endif
 
 /* sysmgr.boot_scratch_cold4 & 5 used for CPU release address for SPL */
 #define PLAT_CPU_RELEASE_ADDR			0xffd12210

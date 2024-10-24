@@ -15,7 +15,6 @@
 
 /* Platform Setting */
 #define PLATFORM_MODEL				PLAT_SOCFPGA_AGILEX
-#define BOOT_SOURCE				BOOT_SOURCE_SDMMC
 /* 1 = Flush cache, 0 = No cache flush.
  * Default for Agilex is No cache flush.
  * For Agilex FP8, set to Flush cache.
