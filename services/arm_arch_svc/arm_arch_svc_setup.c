@@ -14,6 +14,9 @@
 #include <services/arm_arch_svc.h>
 #include <smccc_helpers.h>
 #include <plat/common/platform.h>
+#include <arch_features.h>
+#include <arch_helpers.h>
+#include <lib/el3_runtime/context_mgmt.h>
 
 static int32_t smccc_version(void)
 {
@@ -90,6 +93,12 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		}
 		return 0; /* ERRATA_APPLIES || ERRATA_MISSING */
 #endif
+
+#if ARCH_FEATURE_AVAILABILITY
+	case SMCCC_ARCH_FEATURE_AVAILABILITY:
+		return SMC_ARCH_CALL_SUCCESS;
+#endif /* ARCH_FEATURE_AVAILABILITY */
+
 #endif /* __aarch64__ */
 
 	/* Fallthrough */
@@ -111,6 +120,91 @@ static int32_t smccc_arch_id(u_register_t arg1)
 	}
 	return SMC_ARCH_CALL_INVAL_PARAM;
 }
+
+/*
+ * Reads a system register, sanitises its value, and returns a bitmask
+ * representing which feature in that sysreg has been enabled by firmware. The
+ * bitmask is a 1:1 mapping to the register's fields.
+ */
+#if ARCH_FEATURE_AVAILABILITY
+static uintptr_t smccc_arch_feature_availability(u_register_t reg,
+						 void *handle,
+						 u_register_t flags)
+{
+	cpu_context_t *caller_context;
+	per_world_context_t *caller_per_world_context;
+	el3_state_t *state;
+	u_register_t bitmask, check;
+
+	/* check the caller security state */
+	if (is_caller_secure(flags)) {
+		caller_context = cm_get_context(SECURE);
+		caller_per_world_context = &per_world_context[CPU_CONTEXT_SECURE];
+	} else if (is_caller_non_secure(flags)) {
+		caller_context = cm_get_context(NON_SECURE);
+		caller_per_world_context = &per_world_context[CPU_CONTEXT_NS];
+	} else {
+#if ENABLE_RME
+		caller_context = cm_get_context(REALM);
+		caller_per_world_context = &per_world_context[CPU_CONTEXT_REALM];
+#else /* !ENABLE_RME */
+		assert(0); /* shouldn't be possible */
+#endif /* ENABLE_RME */
+	}
+
+	state = get_el3state_ctx(caller_context);
+
+	switch (reg) {
+	case SCR_EL3_OPCODE:
+		bitmask  = read_ctx_reg(state, CTX_SCR_EL3);
+		bitmask &= ~SCR_EL3_IGNORED;
+		check    = bitmask & ~SCR_EL3_FEATS;
+		bitmask &= SCR_EL3_FEATS;
+		bitmask ^= SCR_EL3_FLIPPED;
+		/* will only report 0 if neither is implemented */
+		if (is_feat_rng_trap_supported() || is_feat_rng_present())
+			bitmask |= SCR_TRNDR_BIT;
+		break;
+	case CPTR_EL3_OPCODE:
+		bitmask  = caller_per_world_context->ctx_cptr_el3;
+		check    = bitmask & ~CPTR_EL3_FEATS;
+		bitmask &= CPTR_EL3_FEATS;
+		bitmask ^= CPTR_EL3_FLIPPED;
+		break;
+	case MDCR_EL3_OPCODE:
+		bitmask  = read_ctx_reg(state, CTX_MDCR_EL3);
+		bitmask &= ~MDCR_EL3_IGNORED;
+		check    = bitmask & ~MDCR_EL3_FEATS;
+		bitmask &= MDCR_EL3_FEATS;
+		bitmask ^= MDCR_EL3_FLIPPED;
+		break;
+#if ENABLE_FEAT_MPAM
+	case MPAM3_EL3_OPCODE:
+		bitmask  = caller_per_world_context->ctx_mpam3_el3;
+		bitmask &= ~MPAM3_EL3_IGNORED;
+		check    = bitmask & ~MPAM3_EL3_FEATS;
+		bitmask &= MPAM3_EL3_FEATS;
+		bitmask ^= MPAM3_EL3_FLIPPED;
+		break;
+#endif /* ENABLE_FEAT_MPAM */
+	default:
+		SMC_RET2(handle, SMC_INVALID_PARAM, ULL(0));
+	}
+
+	/*
+	 * failing this means that the requested register has a bit set that
+	 * hasn't been declared as a known feature bit or an ignore bit. This is
+	 * likely to happen when support for a new feature is added but the
+	 * bitmask macros are not updated.
+	 */
+	if (ENABLE_ASSERTIONS && check != 0) {
+		ERROR("Unexpected bits 0x%lx were set in register %lx!\n", check, reg);
+		assert(0);
+	}
+
+	SMC_RET2(handle, SMC_ARCH_CALL_SUCCESS, bitmask);
+}
+#endif /* ARCH_FEATURE_AVAILABILITY */
 
 /*
  * Top-level Arm Architectural Service SMC handler.
@@ -161,6 +255,11 @@ static uintptr_t arm_arch_svc_smc_handler(uint32_t smc_fid,
 		SMC_RET0(handle);
 #endif
 #endif /* __aarch64__ */
+#if ARCH_FEATURE_AVAILABILITY
+	/* return is 64 bit so only reply on SMC64 requests */
+	case SMCCC_ARCH_FEATURE_AVAILABILITY | (SMC_64 << FUNCID_CC_SHIFT):
+		return smccc_arch_feature_availability(x1, handle, flags);
+#endif /* ARCH_FEATURE_AVAILABILITY */
 	default:
 		WARN("Unimplemented Arm Architecture Service Call: 0x%x \n",
 			smc_fid);

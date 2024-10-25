@@ -3553,7 +3553,10 @@ Function : plat_handle_impdef_trap
 This function is invoked by BL31's exception handler when there is a synchronous
 system register trap caused by access to the implementation defined registers.
 It allows platforms enabling ``IMPDEF_SYSREG_TRAP`` to emulate those system
-registers choosing to program bits of their choice.
+registers choosing to program bits of their choice. If using in combination with
+``ARCH_FEATURE_AVAILABILITY``, the macros
+{SCR,MDCR,CPTR}_PLAT_{BITS,IGNORED,FLIPPED} should be defined to report correct
+results.
 
 The first parameter (``uint64_t esr_el3``) contains the content of the ESR_EL3
 syndrome register, which encodes the instruction that was trapped.

@@ -858,6 +858,11 @@ Common build options
 -  ``PSCI_OS_INIT_MODE``: Boolean flag to enable support for optional PSCI
    OS-initiated mode. This option defaults to 0.
 
+-  ``ARCH_FEATURE_AVAILABILITY``: Boolean flag to enable support for the
+   optional SMCCC_ARCH_FEATURE_AVAILABILITY call. This option implicitly
+   interacts with IMPDEF_SYSREG_TRAP and software emulation. This option
+   defaults to 0.
+
 -  ``ENABLE_FEAT_RAS``: Boolean flag to enable Armv8.2 RAS features. RAS features
    are an optional extension for pre-Armv8.2 CPUs, but are mandatory for Armv8.2
    or later CPUs. This flag can take the values 0 or 1. The default value is 0.
