@@ -29,6 +29,9 @@
 /* Magic word to indicate L2 reset is completed */
 #define L2_RESET_DONE_STATUS			0x1228E5E7
 
+/* Magic word to differentiate for SMP secondary core boot request */
+#define SMP_SEC_CORE_BOOT_REQ			0x1228E5E8
+
 /* Define next boot image name and offset */
 /* Get non-secure image entrypoint for BL33. Zephyr and Linux */
 #ifdef PRELOADED_BL33_BASE
