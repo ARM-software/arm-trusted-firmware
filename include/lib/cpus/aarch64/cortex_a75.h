@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,6 +50,11 @@ unsigned int cortex_a75_amu_read_cpuamcntenset_el0(void);
 unsigned int cortex_a75_amu_read_cpuamcntenclr_el0(void);
 void cortex_a75_amu_write_cpuamcntenset_el0(unsigned int mask);
 void cortex_a75_amu_write_cpuamcntenclr_el0(unsigned int mask);
+
+#if ERRATA_A75_764081
+long check_erratum_cortex_a75_764081(long cpu_rev);
+#endif /* ERRATA_A75_764081 */
+
 #endif /* __ASSEMBLER__ */
 
 #endif /* CORTEX_A75_H */
