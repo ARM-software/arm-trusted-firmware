@@ -113,9 +113,9 @@ Populated table provides details about build options that were removed or deprec
 +-----------------------+--------------------------------+
 | Build Option          | Deprecated from TF-A Version   |
 +=======================+================================+
-| CTX_INCLUDE_MTE_REGS  | 2.11                           |
+|                       |                                |
 +-----------------------+--------------------------------+
-| ENABLE_FEAT_MTE       | 2.11                           |
+|                       |                                |
 +-----------------------+--------------------------------+
 
 --------------

@@ -310,13 +310,6 @@ CTX_INCLUDE_NEVE_REGS			?=	0
 # registers, by setting SCR_EL3.TRNDR.
 ENABLE_FEAT_RNG_TRAP			?=	0
 
-ifeq ($(CTX_INCLUDE_MTE_REGS),1)
-        $(warning CTX_INCLUDE_MTE_REGS option is deprecated, Check ENABLE_FEAT_MTE2 usage)
-endif
-ifneq ($(ENABLE_FEAT_MTE),)
-        $(warning ENABLE_FEAT_MTE option is deprecated, Check ENABLE_FEAT_MTE2 usage)
-endif
-
 # Enable FEAT_MTE2. This must be set to 1 if the platform wants
 # to use this feature and is enabled at ELX.
 ENABLE_FEAT_MTE2		        ?=	0
