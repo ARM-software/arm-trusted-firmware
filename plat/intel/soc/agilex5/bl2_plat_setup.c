@@ -145,7 +145,8 @@ void bl2_el3_plat_arch_setup(void)
 	handoff reverse_handoff_ptr;
 	unsigned long offset = 0;
 
-	struct cdns_sdmmc_params params = EMMC_INIT_PARAMS((uintptr_t) &cdns_desc, get_mmc_clk());
+	struct cdns_sdmmc_params params = EMMC_INIT_PARAMS((uintptr_t) &cdns_desc,
+							   clkmgr_get_rate(CLKMGR_SDMMC_CLK_ID));
 
 	mmc_info.mmc_dev_type = MMC_DEVICE_TYPE;
 	mmc_info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
