@@ -3,6 +3,26 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.24](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.23..refs/tags/lts-v2.8.24) (2024-10-25)
+
+### New Features
+
+- **Libraries**
+
+  - **EL3 Runtime**
+
+    - **Context Management**
+
+      - add errata 2938996, 2726228 ([10cd41d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/10cd41d91264b1a716bca50b153b84129bfd11ab))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - modify the fix for Cortex-A75 erratum 764081 ([578d357](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/578d3577f58f508f310b9770a119eec567a78fc7))
+
 ## [lts-2.8.23](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.22..refs/tags/lts-v2.8.23) (2024-10-18)
 
 ### Documentation
