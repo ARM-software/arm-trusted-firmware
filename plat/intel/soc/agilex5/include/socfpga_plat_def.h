@@ -46,12 +46,24 @@
 #define CAD_QSPIDATA_OFST					0x10900000
 #define CAD_QSPI_OFFSET						0x108d2000
 
+/* FIP Setting */
+#define PLAT_FIP_BASE						(0)
+#if ARM_LINUX_KERNEL_AS_BL33
+#define PLAT_FIP_MAX_SIZE					(0x8000000)
+#else
+#define PLAT_FIP_MAX_SIZE					(0x1000000)
+#endif
+
 /* SDMMC Setting */
-# if ARM_LINUX_KERNEL_AS_BL33
+#if ARM_LINUX_KERNEL_AS_BL33
+#define PLAT_MMC_DATA_BASE					(0x90000000)
+#define PLAT_MMC_DATA_SIZE					(0x100000)
 #define SOCFPGA_MMC_BLOCK_SIZE					U(32768)
-# else
+#else
+#define PLAT_MMC_DATA_BASE					(0x0007D000)
+#define PLAT_MMC_DATA_SIZE					(0x2000)
 #define SOCFPGA_MMC_BLOCK_SIZE					U(8192)
-# endif
+#endif
 
 /* Register Mapping */
 #define SOCFPGA_CCU_NOC_REG_BASE				0x1c000000
@@ -69,9 +81,21 @@
 #define SOCFPGA_L4_SYS_SCR_REG_BASE				0x10d21100
 #define SOCFPGA_SOC2FPGA_SCR_REG_BASE				0x10d21200
 #define SOCFPGA_LWSOC2FPGA_SCR_REG_BASE				0x10d21300
+#define SOCFPGA_SDMMC_SECU_BIT					0x40
+#define SOCFPGA_LWSOC2FPGA_ENABLE				0xffe0301
+#define SOCFPGA_SDMMC_SECU_BIT_ENABLE				0x1010001
+
 
 /* Define maximum page size for NAND flash devices */
 #define PLATFORM_MTD_MAX_PAGE_SIZE				U(0x2000)
+
+/* OCRAM Register*/
+
+#define OCRAM_REG_BASE						0x108CC400
+#define OCRAM_REGION_0_OFFSET					0x18
+#define OCRAM_REGION_0_REG_BASE					(OCRAM_REG_BASE + \
+								OCRAM_REGION_0_OFFSET)
+#define OCRAM_NON_SECURE_ENABLE					0x0
 
 /*******************************************************************************
  * Platform memory map related constants

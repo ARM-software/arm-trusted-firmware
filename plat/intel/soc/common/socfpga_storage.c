@@ -22,21 +22,11 @@
 #include <drivers/partition/partition.h>
 #include <lib/mmio.h>
 #include <tools_share/firmware_image_package.h>
+
 #include "drivers/sdmmc/sdmmc.h"
 #include "socfpga_private.h"
 #include "socfpga_ros.h"
 
-
-#define PLAT_FIP_BASE		(0)
-# if ARM_LINUX_KERNEL_AS_BL33
-#define PLAT_FIP_MAX_SIZE	(0x8000000)
-#define PLAT_MMC_DATA_BASE	(0x10000000)
-#define PLAT_MMC_DATA_SIZE	(0x100000)
-# else
-#define PLAT_FIP_MAX_SIZE	(0x1000000)
-#define PLAT_MMC_DATA_BASE	(0xffe3c000)
-#define PLAT_MMC_DATA_SIZE	(0x2000)
-# endif
 
 static const io_dev_connector_t *fip_dev_con;
 static const io_dev_connector_t *boot_dev_con;
