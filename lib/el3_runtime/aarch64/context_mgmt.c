@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -19,6 +19,8 @@
 #include <common/debug.h>
 #include <context.h>
 #include <drivers/arm/gicv3.h>
+#include <lib/cpus/cpu_ops.h>
+#include <lib/cpus/errata.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
@@ -75,13 +77,14 @@ static void setup_el1_context(cpu_context_t *ctx, const struct entry_point_info 
 					| SCTLR_NTWI_BIT | SCTLR_NTWE_BIT;
 	}
 
-#if ERRATA_A75_764081
 	/*
 	 * If workaround of errata 764081 for Cortex-A75 is used then set
 	 * SCTLR_EL1.IESB to enable Implicit Error Synchronization Barrier.
 	 */
-	sctlr_elx |= SCTLR_IESB_BIT;
-#endif
+	if (errata_a75_764081_applies()) {
+		sctlr_elx |= SCTLR_IESB_BIT;
+	}
+
 	/* Store the initialised SCTLR_EL1 value in the cpu_context */
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
 
@@ -590,14 +593,16 @@ void cm_prepare_el3_exit(uint32_t security_state)
 							   CTX_SCTLR_EL1);
 			sctlr_elx &= SCTLR_EE_BIT;
 			sctlr_elx |= SCTLR_EL2_RES1;
-#if ERRATA_A75_764081
+
 			/*
 			 * If workaround of errata 764081 for Cortex-A75 is used
 			 * then set SCTLR_EL2.IESB to enable Implicit Error
 			 * Synchronization Barrier.
 			 */
-			sctlr_elx |= SCTLR_IESB_BIT;
-#endif
+			if (errata_a75_764081_applies()) {
+				sctlr_elx |= SCTLR_IESB_BIT;
+			}
+
 			write_sctlr_el2(sctlr_elx);
 		} else if (el_implemented(2) != EL_IMPL_NONE) {
 			el2_unused = true;
@@ -914,6 +919,19 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
  ******************************************************************************/
 void cm_prepare_el3_exit_ns(void)
 {
+#ifdef IMAGE_BL31
+#if ERRATA_A520_2938996 || ERRATA_X4_2726228
+	cpu_context_t *trbe_ctx = cm_get_context(NON_SECURE);
+
+	assert(trbe_ctx != NULL);
+	if (check_if_affected_core() == ERRATA_APPLIES) {
+		if (is_feat_trbe_supported()) {
+			trbe_disable(ctx);
+		}
+	}
+#endif
+#endif /* IMAGE_BL31 */
+
 #if CTX_INCLUDE_EL2_REGS
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	assert(ctx != NULL);
