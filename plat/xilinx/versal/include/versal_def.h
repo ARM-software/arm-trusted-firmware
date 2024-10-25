@@ -49,10 +49,10 @@
 /*******************************************************************************
  * memory map related constants
  ******************************************************************************/
-#define DEVICE0_BASE		0xFF000000
-#define DEVICE0_SIZE		0x00E00000
-#define DEVICE1_BASE		0xF9000000
-#define DEVICE1_SIZE		0x00800000
+#define DEVICE0_BASE		U(0xFF000000)
+#define DEVICE0_SIZE		U(0x00E00000)
+#define DEVICE1_BASE		U(0xF9000000)
+#define DEVICE1_SIZE		U(0x00800000)
 
 /*******************************************************************************
  * IRQ constants
@@ -63,16 +63,16 @@
 /*******************************************************************************
  * CCI-400 related constants
  ******************************************************************************/
-#define PLAT_ARM_CCI_BASE		0xFD000000
-#define PLAT_ARM_CCI_SIZE		0x00100000
+#define PLAT_ARM_CCI_BASE		U(0xFD000000)
+#define PLAT_ARM_CCI_SIZE		U(0x00100000)
 #define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	4
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	5
 
 /*******************************************************************************
  * UART related constants
  ******************************************************************************/
-#define VERSAL_UART0_BASE		0xFF000000
-#define VERSAL_UART1_BASE		0xFF010000
+#define VERSAL_UART0_BASE		U(0xFF000000)
+#define VERSAL_UART1_BASE		U(0xFF010000)
 
 #if CONSOLE_IS(pl011) || CONSOLE_IS(dtb)
 # define UART_BASE	VERSAL_UART0_BASE
@@ -115,8 +115,8 @@
 #define ACTLR_EL3_CPUACTLR_BIT	(1 << 0)
 
 /* For cpu reset APU space here too 0xFE5F1000 CRF_APB*/
-#define CRF_BASE		0xFD1A0000
-#define CRF_SIZE		0x00600000
+#define CRF_BASE		U(0xFD1A0000)
+#define CRF_SIZE		U(0x00600000)
 
 /* CRF registers and bitfields */
 #define CRF_RST_APU	(CRF_BASE + 0X00000300)
