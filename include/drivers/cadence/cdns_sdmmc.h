@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2022, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,23 +11,26 @@
 
 #include <drivers/cadence/cdns_combo_phy.h>
 #include <drivers/mmc.h>
-#include "socfpga_plat_def.h"
 
 #if MMC_DEVICE_TYPE == 0
-#define CONFIG_DMA_ADDR_T_64BIT		0
+#define CONFIG_DMA_ADDR_T_64BIT			0
 #endif
 
-#define MMC_REG_BASE			SOCFPGA_MMC_REG_BASE
-#define COMBO_PHY_REG		0x0
-#define SDHC_EXTENDED_WR_MODE_MASK	0xFFFFFFF7
-#define SDHC_DLL_RESET_MASK	0x00000001
+#define MMC_REG_BASE				SOCFPGA_MMC_REG_BASE
+#define COMBO_PHY_REG				0x0
+#define SDHC_EXTENDED_WR_MODE_MASK		0xFFFFFFF7
+#define SDHC_DLL_RESET_MASK			0x00000001
+#define MMC_MAX_BLOCK_LEN 512U
+
 /* HRS09 */
 #define SDHC_PHY_SW_RESET			BIT(0)
-#define SDHC_PHY_INIT_COMPLETE		BIT(1)
-#define SDHC_EXTENDED_RD_MODE(x)	((x) << 2)
+#define SDHC_PHY_INIT_COMPLETE			BIT(1)
+#define SDHC_EXTENDED_RD_MODE(x)		((x) << 2)
 #define EXTENDED_WR_MODE			3
-#define SDHC_EXTENDED_WR_MODE(x)	((x) << 3)
-#define RDCMD_EN					15
+#define SDHC_EXTENDED_WR_MODE(x)		((x) << 3)
+#define RDCMD_EN				(3 << 15)
+#define PHY_SW_RESET_EN				(1 << 0)
+#define PHY_INIT_COMPLETE_BIT			(1 << 1)
 #define SDHC_RDCMD_EN(x)			((x) << 15)
 #define SDHC_RDDATA_EN(x)			((x) << 16)
 
@@ -38,9 +42,9 @@
 /* • 1111b - Reserved */
 /* • 1110b - t_sdmclk*2(27+2) */
 /* • 1101b - t_sdmclk*2(26+2) */
-#define READ_CLK					0xa << 16
-#define WRITE_CLK					0xe << 16
-#define DTC_VAL						0xE
+#define READ_CLK				0xa << 16
+#define WRITE_CLK				0xe << 16
+#define DTC_VAL					0xE
 
 /* SRS00 */
 /* System Address / Argument 2 / 32-bit block count
@@ -49,18 +53,18 @@
  * • SDMA system memory address
  * • Auto CMD23 Argument
  */
-#define SAAR						(1)
+#define SAAR					(1)
 
 /* SRS01 */
 /* Transfer Block Size
  * This field defines block size for block data transfers
  */
-#define BLOCK_SIZE					0
+#define BLOCK_SIZE				0
 
 /* SDMA Buffer Boundary
  * System address boundary can be set for SDMA engine.
  */
-#define SDMA_BUF					7 << 12
+#define SDMA_BUF				7 << 12
 
 /* Block Count For Current Transfer
  * To set the number of data blocks can be defined for next transfer
@@ -68,93 +72,108 @@
 #define BLK_COUNT_CT				16
 
 /* SRS03 */
-#define CMD_START					(U(1) << 31)
+#define CMD_START				(U(1) << 31)
 #define CMD_USE_HOLD_REG			(1 << 29)
 #define CMD_UPDATE_CLK_ONLY			(1 << 21)
 #define CMD_SEND_INIT				(1 << 15)
 #define CMD_STOP_ABORT_CMD			(4 << 22)
 #define CMD_RESUME_CMD				(2 << 22)
 #define CMD_SUSPEND_CMD				(1 << 22)
-#define DATA_PRESENT				(1 << 21)
-#define CMD_IDX_CHK_ENABLE			(1 << 20)
-#define CMD_WRITE					(0 << 4)
-#define CMD_READ					(1 << 4)
+#define DATA_PRESENT				(0x20)
+#define CMD_IDX_CHK_ENABLE			(0x10)
+#define CMD_WRITE				(0 << 4)
+#define CMD_READ				(1 << 4)
 #define	MULTI_BLK_READ				(1 << 5)
-#define RESP_ERR					(1 << 7)
-#define CMD_CHECK_RESP_CRC			(1 << 19)
-#define RES_TYPE_SEL_48				(2 << 16)
-#define RES_TYPE_SEL_136			(1 << 16)
-#define RES_TYPE_SEL_48_B			(3 << 16)
-#define RES_TYPE_SEL_NO				(0 << 16)
-#define DMA_ENABLED					(1 << 0)
-#define BLK_CNT_EN					(1 << 1)
-#define AUTO_CMD_EN					(2 << 2)
-#define COM_IDX						24
-#define ERROR_INT					(1 << 15)
-#define INT_SBE						(1 << 13)
-#define INT_HLE						(1 << 12)
-#define INT_FRUN					(1 << 11)
-#define INT_DRT						(1 << 9)
-#define INT_RTO						(1 << 8)
-#define INT_DCRC					(1 << 7)
-#define INT_RCRC					(1 << 6)
-#define INT_RXDR					(1 << 5)
-#define INT_TXDR					(1 << 4)
-#define INT_DTO						(1 << 3)
+#define RESP_ERR				(1 << 7)
+#define CMD_CHECK_RESP_CRC			(0x08)
+#define RES_TYPE_SEL_48				(0x2)
+#define RES_TYPE_SEL_136			(0x1)
+#define RES_TYPE_SEL_48_B			(0x3)
+#define RES_TYPE_SEL_NO				(0x3)
+#define DMA_ENABLED				(1 << 0)
+#define BLK_CNT_EN				(1 << 1)
+#define AUTO_CMD_EN				(2 << 2)
+#define COM_IDX					24
+#define ERROR_INT				(1 << 15)
+#define INT_SBE					(1 << 13)
+#define INT_HLE					(1 << 12)
+#define INT_FRUN				(1 << 11)
+#define INT_DRT					(1 << 9)
+#define INT_RTO					(1 << 8)
+#define INT_DCRC				(1 << 7)
+#define INT_RCRC				(1 << 6)
+#define INT_RXDR				(1 << 5)
+#define INT_TXDR				(1 << 4)
+#define INT_DTO					(1 << 3)
 #define INT_CMD_DONE				(1 << 0)
-#define TRAN_COMP					(1 << 1)
+#define TRAN_COMP				(1 << 1)
 
 /* SRS09 */
 #define STATUS_DATA_BUSY			BIT(2)
+#define CI					16
+#define CHECK_CARD				BIT(CI)
 
 /* SRS10 */
+#define BIT1					(0 << 1)
+#define BIT4					(1 << 1)
+#define BIT8					(1 << 5)
+
 /* LED Control
  * State of this bit directly drives led port of the host
  * in order to control the external LED diode
  * Default value 0 << 1
  */
-#define LEDC						BIT(0)
-#define LEDC_OFF					0 << 1
+#define LEDC					BIT(0)
+#define LEDC_OFF				(0 << 1)
 
 /* Data Transfer Width
  * Bit used to configure DAT bus width to 1 or 4
  * Default value 1 << 1
  */
-#define DT_WIDTH					BIT(1)
-#define DTW_4BIT					1 << 1
+#define DT_WIDTH				BIT(1)
+#define DTW_4BIT				(1 << 1)
 
 /* Extended Data Transfer Width
  * This bit is to enable/disable 8-bit DAT bus width mode
  * Default value 1 << 5
  */
-#define EDTW_8BIT					1 << 5
+#define EDTW_8BIT				BIT(5)
 
 /* High Speed Enable
  * Selects operating mode to Default Speed (HSE=0) or High Speed (HSE=1)
  */
-#define HS_EN						BIT(2)
+#define HS_EN					BIT(2)
 
 /* here 0 defines the 64 Kb size */
 #define MAX_64KB_PAGE				0
-#define EMMC_DESC_SIZE		(1<<20)
-
+#define EMMC_DESC_SIZE				(1<<20)
+#define DTCV_OFFSET				(0x22E)
+#define DTCV_VAL				(0xE)
+#define CICE_OFFSET				(0x20E)
+#define SRS_12_CC_EN				(1 << 0)
 /* SRS11 */
 /* Software Reset For All
  * When set to 1, the entire slot is reset
  * After completing the reset operation, SRFA bit is automatically cleared
  */
-#define SRFA						BIT(24)
+#define SRFA					BIT(24)
 
 /* Software Reset For CMD Line
  * When set to 1, resets the logic related to the command generation and response checking
  */
-#define SRCMD						BIT(25)
+#define SRCMD					BIT(25)
 
 /* Software Reset For DAT Line
  * When set to 1, resets the logic related to the data path,
  * including data buffers and the DMA logic
  */
-#define SRDAT						BIT(26)
+#define SRDAT					BIT(26)
+
+
+/* SRS12 */
+/* Error mask */
+#define SRS12_ERR_MASK				0xFFFF8000U
+#define CDNS_CSD_BYTE_MASK			0x000000FFU
 
 /* SRS15 */
 /* UHS Mode Select
@@ -165,40 +184,43 @@
  * • 011b - SDR104
  * • 100b - DDR50
  */
-#define SDR12_MODE					0 << 16
-#define SDR25_MODE					1 << 16
-#define SDR50_MODE					2 << 16
-#define SDR104_MODE					3 << 16
-#define DDR50_MODE					4 << 16
+#define SDR12_MODE				0 << 16
+#define SDR25_MODE				1 << 16
+#define SDR50_MODE				2 << 16
+#define SDR104_MODE				3 << 16
+#define DDR50_MODE				4 << 16
 /* 1.8V Signaling Enable
  * • 0 - for Default Speed, High Speed mode
  * • 1 - for UHS-I mode
  */
-#define V18SE						BIT(19)
+#define V18SE					BIT(19)
 
 /* CMD23 Enable
  * In result of Card Identification process,
  * Host Driver set this bit to 1 if Card supports CMD23
  */
-#define CMD23_EN					BIT(27)
+#define CMD23_EN				BIT(27)
 
 /* Host Version 4.00 Enable
  * • 0 - Version 3.00
  * • 1 - Version 4.00
  */
-#define HV4E						BIT(28)
+#define HV4E					BIT(28)
 /* Conf depends on SRS15.HV4E */
-#define SDMA						0 << 3
-#define ADMA2_32					2 << 3
-#define ADMA2_64					3 << 3
+#define SDMA					0 << 3
+#define ADMA2_32				2 << 3
+#define ADMA2_64				3 << 3
+#define DMA_SEL_BIT				3 << 3
+#define DMA_SEL_BIT_2				2 << 3
+#define DMA_SEL_BIT_3				3 << 3
 
 /* Preset Value Enable
  * Setting this bit to 1 triggers an automatically update of SRS11
  */
-#define PVE							BIT(31)
+#define PVE					BIT(31)
 
-#define BIT_AD_32					0 << 29
-#define BIT_AD_64					1 << 29
+#define BIT_AD_32				0 << 29
+#define BIT_AD_64				1 << 29
 
 /* SW RESET REG*/
 #define SDHC_CDNS_HRS00				(0x00)
@@ -206,7 +228,7 @@
 
 /* PHY access port */
 #define SDHC_CDNS_HRS04				0x10
-#define SDHC_CDNS_HRS04_ADDR		GENMASK(5, 0)
+#define SDHC_CDNS_HRS04_ADDR			GENMASK(5, 0)
 
 /* PHY data access port */
 #define SDHC_CDNS_HRS05				0x14
@@ -233,14 +255,51 @@
 #define SDHC_CDNS_SRS13				0x234
 #define SDHC_CDNS_SRS14				0x238
 #define SDHC_CDNS_SRS15				0x23c
+#define SDHC_CDNS_SRS16				0x240
 #define SDHC_CDNS_SRS21				0x254
 #define SDHC_CDNS_SRS22				0x258
 #define SDHC_CDNS_SRS23				0x25c
+#define SDHC_CDNS_SRS24				0x260
+#define SDHC_CDNS_SRS25				0x264
+
+/* SRS00 */
+#define SAAR					(1)
+
+/* SRS03 */
+#define CMD_START				(U(1) << 31)
+#define CMD_USE_HOLD_REG			(1 << 29)
+#define CMD_UPDATE_CLK_ONLY			(1 << 21)
+#define CMD_SEND_INIT				(1 << 15)
+#define CMD_STOP_ABORT_CMD			(4 << 22)
+#define CMD_RESUME_CMD				(2 << 22)
+#define CMD_SUSPEND_CMD				(1 << 22)
+#define DMA_ENABLED				(1 << 0)
+#define BLK_CNT_EN				(1 << 1)
+#define AUTO_CMD_EN				(2 << 2)
+#define COM_IDX					24
+#define ERROR_INT				(1 << 15)
+#define INT_SBE					(1 << 13)
+#define INT_HLE					(1 << 12)
+#define INT_FRUN				(1 << 11)
+#define INT_DRT					(1 << 9)
+#define INT_RTO					(1 << 8)
+#define INT_DCRC				(1 << 7)
+#define INT_RCRC				(1 << 6)
+#define INT_RXDR				(1 << 5)
+#define INT_TXDR				(1 << 4)
+#define INT_DTO					(1 << 3)
+#define INT_CMD_DONE				(1 << 0)
+#define TRAN_COMP				(1 << 1)
+#define CDNS_HOST_CMD_INHIBIT			(BIT(0))
+#define CDNS_HOST_DATA_INHIBIT			(BIT(1))
+#define ACE_CMD_12				(BIT(2))
+
+#define PAGE_BUFFER_LEN				(64 * 1024)
 
 /* HRS07 */
 #define SDHC_CDNS_HRS07				0x1c
 #define SDHC_IDELAY_VAL(x)			((x) << 0)
-#define SDHC_RW_COMPENSATE(x)		((x) << 16)
+#define SDHC_RW_COMPENSATE(x)			((x) << 16)
 
 /* PHY reset port */
 #define SDHC_CDNS_HRS09				0x24
@@ -254,49 +313,49 @@
 
 /* Pinmux headers will reomove after ATF driver implementation */
 #define PINMUX_SDMMC_SEL			0x0
-#define PIN0SEL						0x00
-#define PIN1SEL						0x04
-#define PIN2SEL						0x08
-#define PIN3SEL						0x0C
-#define PIN4SEL						0x10
-#define PIN5SEL						0x14
-#define PIN6SEL						0x18
-#define PIN7SEL						0x1C
-#define PIN8SEL						0x20
-#define PIN9SEL						0x24
-#define PIN10SEL					0x28
+#define PIN0SEL					0x00
+#define PIN1SEL					0x04
+#define PIN2SEL					0x08
+#define PIN3SEL					0x0C
+#define PIN4SEL					0x10
+#define PIN5SEL					0x14
+#define PIN6SEL					0x18
+#define PIN7SEL					0x1C
+#define PIN8SEL					0x20
+#define PIN9SEL					0x24
+#define PIN10SEL				0x28
 
 /* HRS16 */
 #define SDHC_WRCMD0_DLY(x)			((x) << 0)
 #define SDHC_WRCMD1_DLY(x)			((x) << 4)
 #define SDHC_WRDATA0_DLY(x)			((x) << 8)
 #define SDHC_WRDATA1_DLY(x)			((x) << 12)
-#define SDHC_WRCMD0_SDCLK_DLY(x)	((x) << 16)
-#define SDHC_WRCMD1_SDCLK_DLY(x)	((x) << 20)
-#define SDHC_WRDATA0_SDCLK_DLY(x)	((x) << 24)
-#define SDHC_WRDATA1_SDCLK_DLY(x)	((x) << 28)
+#define SDHC_WRCMD0_SDCLK_DLY(x)		((x) << 16)
+#define SDHC_WRCMD1_SDCLK_DLY(x)		((x) << 20)
+#define SDHC_WRDATA0_SDCLK_DLY(x)		((x) << 24)
+#define SDHC_WRDATA1_SDCLK_DLY(x)		((x) << 28)
 
 /* Shared Macros */
 #define SDMMC_CDN(_reg)				(SDMMC_CDN_REG_BASE + \
 								(SDMMC_CDN_##_reg))
 
 /* MMC Peripheral Definition */
-#define SOCFPGA_MMC_BLOCK_MASK		(SOCFPGA_MMC_BLOCK_SIZE - U(1))
-#define SOCFPGA_MMC_BOOT_CLK_RATE	(400 * 1000)
+#define SOCFPGA_MMC_BLOCK_MASK			(SOCFPGA_MMC_BLOCK_SIZE - U(1))
+#define SOCFPGA_MMC_BOOT_CLK_RATE		(400 * 1000)
 #define MMC_RESPONSE_NONE			0
-#define SDHC_CDNS_SRS03_VALUE		0x01020013
+#define SDHC_CDNS_SRS03_VALUE			0x01020013
 
 /* Value randomly chosen for eMMC RCA, it should be > 1 */
-#define MMC_FIX_RCA					6
+#define MMC_FIX_RCA				6
 #define RCA_SHIFT_OFFSET			16
 
-#define CMD_EXTCSD_PARTITION_CONFIG	179
-#define CMD_EXTCSD_BUS_WIDTH		183
-#define CMD_EXTCSD_HS_TIMING		185
+#define CMD_EXTCSD_PARTITION_CONFIG		179
+#define CMD_EXTCSD_BUS_WIDTH			183
+#define CMD_EXTCSD_HS_TIMING			185
 #define CMD_EXTCSD_SEC_CNT			212
 
-#define PART_CFG_BOOT_PARTITION1_ENABLE	(U(1) << 3)
-#define PART_CFG_PARTITION1_ACCESS	(U(1) << 0)
+#define PART_CFG_BOOT_PARTITION1_ENABLE		(U(1) << 3)
+#define PART_CFG_PARTITION1_ACCESS		(U(1) << 0)
 
 /* Values in EXT CSD register */
 #define MMC_BUS_WIDTH_1				U(0)
@@ -304,8 +363,8 @@
 #define MMC_BUS_WIDTH_8				U(2)
 #define MMC_BUS_WIDTH_DDR_4			U(5)
 #define MMC_BUS_WIDTH_DDR_8			U(6)
-#define MMC_BOOT_MODE_BACKWARD		(U(0) << 3)
-#define MMC_BOOT_MODE_HS_TIMING		(U(1) << 3)
+#define MMC_BOOT_MODE_BACKWARD			(U(0) << 3)
+#define MMC_BOOT_MODE_HS_TIMING			(U(1) << 3)
 #define MMC_BOOT_MODE_DDR			(U(2) << 3)
 
 #define EXTCSD_SET_CMD				(U(0) << 24)
@@ -314,14 +373,14 @@
 #define EXTCSD_WRITE_BYTES			(U(3) << 24)
 #define EXTCSD_CMD(x)				(((x) & 0xff) << 16)
 #define EXTCSD_VALUE(x)				(((x) & 0xff) << 8)
-#define EXTCSD_CMD_SET_NORMAL		U(1)
+#define EXTCSD_CMD_SET_NORMAL			U(1)
 
-#define CSD_TRAN_SPEED_UNIT_MASK	GENMASK(2, 0)
-#define CSD_TRAN_SPEED_MULT_MASK	GENMASK(6, 3)
-#define CSD_TRAN_SPEED_MULT_SHIFT	3
+#define CSD_TRAN_SPEED_UNIT_MASK		GENMASK(2, 0)
+#define CSD_TRAN_SPEED_MULT_MASK		GENMASK(6, 3)
+#define CSD_TRAN_SPEED_MULT_SHIFT		3
 
-#define STATUS_CURRENT_STATE(x)		(((x) & 0xf) << 9)
-#define STATUS_READY_FOR_DATA		BIT(8)
+#define STATUS_CURRENT_STATE(x)			(((x) & 0xf) << 9)
+#define STATUS_READY_FOR_DATA			BIT(8)
 #define STATUS_SWITCH_ERROR			BIT(7)
 #define MMC_GET_STATE(x)			(((x) >> 9) & 0xf)
 #define MMC_STATE_IDLE				0
@@ -342,12 +401,51 @@
 #define VHS_2_7_3_6_V				BIT(8)
 
 /*ADMA table component*/
-#define ADMA_DESC_ATTR_VALID		BIT(0)
+#define ADMA_DESC_ATTR_VALID			BIT(0)
 #define ADMA_DESC_ATTR_END			BIT(1)
 #define ADMA_DESC_ATTR_INT			BIT(2)
 #define ADMA_DESC_ATTR_ACT1			BIT(4)
 #define ADMA_DESC_ATTR_ACT2			BIT(5)
-#define ADMA_DESC_TRANSFER_DATA		ADMA_DESC_ATTR_ACT2
+#define ADMA_DESC_TRANSFER_DATA			ADMA_DESC_ATTR_ACT2
+
+#define HRS_09_EXTENDED_RD_MODE			(1 << 2)
+#define HRS_09_EXTENDED_WR_MODE			(1 << 3)
+#define HRS_09_RDCMD_EN				(1 << 15)
+#define HRS_09_RDDATA_EN			(1 << 16)
+#define HRS_10_HCSDCLKADJ_VAL			(3)
+
+#define SRS11_SRFA				(1 << 24)
+#define SRS11_SRFA_CHK(x)			(x >> 24)
+#define CDNS_TIMEOUT				(5000)
+
+#define SDHCI_MAKE_CMD(c, f) (((c & 0xff) << 8) | (f & 0xff))
+
+/* Card busy and present */
+#define CARD_BUSY				1
+#define CARD_NOT_BUSY				0
+
+/* 500 ms delay to read the RINST register */
+#define DELAY_MS_SRS_READ			500
+#define DELAY_RES				10
+
+/* Check DV dfi_init val=0 */
+#define IO_MASK_END_DATA			0x0
+
+/* Check DV dfi_init val=2; DDR Mode */
+#define IO_MASK_END_DATA_DDR			0x2
+#define IO_MASK_START_DATA			0x0
+#define DATA_SELECT_OE_END_DATA			0x1
+
+#define TIMEOUT					100000
+
+/* General define */
+#define SDHC_REG_MASK				UINT_MAX
+#define SD_HOST_BLOCK_SIZE			0x200
+#define DTCVVAL_DEFAULT_VAL			0xE
+#define CDMMC_DMA_MAX_BUFFER_SIZE		64*1024
+#define CDNSMMC_ADDRESS_MASK			U(0x0f)
+#define CONFIG_CDNS_DESC_COUNT			8
+#define SD_HOST_CLK				200000000
 
 enum sd_opcode {
 	SD_GO_IDLE_STATE = 0,
@@ -386,6 +484,16 @@ enum sd_app_cmd {
 	SD_APP_SEND_OP_COND = 41,
 	SD_APP_CLEAR_CARD_DETECT = 42,
 	SD_APP_SEND_SCR = 51,
+};
+
+enum sd_opr_modes {
+	SD_HOST_OPR_MODE_HV4E_0_SDMA_32 = 0,
+	SD_HOST_OPR_MODE_HV4E_1_SDMA_32,
+	SD_HOST_OPR_MODE_HV4E_1_SDMA_64,
+	SD_HOST_OPR_MODE_HV4E_0_ADMA_32,
+	SD_HOST_OPR_MODE_HV4E_0_ADMA_64,
+	SD_HOST_OPR_MODE_HV4E_1_ADMA_32,
+	SD_HOST_OPR_MODE_HV4E_1_ADMA_64,
 };
 
 struct cdns_sdmmc_sdhc {
@@ -439,9 +547,6 @@ struct cdns_sdmmc_params {
 	uint32_t	combophy;
 };
 
-/* read and write API */
-size_t sdmmc_read_blocks(int lba, uintptr_t buf, size_t size);
-size_t sdmmc_write_blocks(int lba, const uintptr_t buf, size_t size);
 
 struct cdns_idmac_desc {
 	/*8 bit attribute*/
@@ -467,4 +572,8 @@ int cdns_sd_host_init(struct cdns_sdmmc_combo_phy *mmc_combo_phy_reg,
 struct cdns_sdmmc_sdhc *mmc_sdhc_reg);
 void cdns_set_sdmmc_var(struct cdns_sdmmc_combo_phy *combo_phy_reg,
 struct cdns_sdmmc_sdhc *sdhc_reg);
+int cdns_mmc_init(struct cdns_sdmmc_params *params, struct mmc_device_info *info);
+int cdns_program_phy_reg(struct cdns_sdmmc_combo_phy *combo_phy_reg,
+				struct cdns_sdmmc_sdhc *sdhc_reg);
+void cdns_host_set_clk(uint32_t clk);
 #endif

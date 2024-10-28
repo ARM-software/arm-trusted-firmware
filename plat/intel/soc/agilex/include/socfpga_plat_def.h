@@ -35,12 +35,24 @@
 #define CAD_QSPIDATA_OFST			0xff900000
 #define CAD_QSPI_OFFSET				0xff8d2000
 
+/* FIP Setting */
+#define PLAT_FIP_BASE				(0)
+#if ARM_LINUX_KERNEL_AS_BL33
+#define PLAT_FIP_MAX_SIZE			(0x8000000)
+#else
+#define PLAT_FIP_MAX_SIZE			(0x1000000)
+#endif
+
 /* SDMMC Setting */
-# if ARM_LINUX_KERNEL_AS_BL33
+#if ARM_LINUX_KERNEL_AS_BL33
+#define PLAT_MMC_DATA_BASE			(0x10000000)
+#define PLAT_MMC_DATA_SIZE			(0x100000)
 #define SOCFPGA_MMC_BLOCK_SIZE			U(32768)
-# else
+#else
+#define PLAT_MMC_DATA_BASE			(0xffe3c000)
+#define PLAT_MMC_DATA_SIZE			(0x2000
 #define SOCFPGA_MMC_BLOCK_SIZE			U(8192)
-# endif
+#endif
 
 /* Register Mapping */
 #define SOCFPGA_CCU_NOC_REG_BASE		0xf7000000
@@ -112,7 +124,7 @@
 /*******************************************************************************
  * SDMMC related pointer function
  ******************************************************************************/
-#define SDMMC_READ_BLOCKS			mmc_read_blocks
+#define SDMMC_READ_BLOCKS			sdmmc_read_blocks
 #define SDMMC_WRITE_BLOCKS			mmc_write_blocks
 
 /*******************************************************************************

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,10 +34,12 @@ static const unsigned char sd_tran_speed_base[16] = {
  * @hoff_ptr: Pointer to the hand-off data
  * Return: 0 on success, a negative errno on failure
  */
-int sdmmc_init(handoff *hoff_ptr, struct cdns_sdmmc_params *params,
-	     struct mmc_device_info *info);
-int sd_or_mmc_init(const struct mmc_ops *ops_ptr, unsigned int clk,
-	     unsigned int width, unsigned int flags,
-	     struct mmc_device_info *device_info);
 void sdmmc_pin_config(void);
+size_t sdmmc_read_blocks(int lba, uintptr_t buf, size_t size);
+size_t sdmmc_write_blocks(int lba, const uintptr_t buf, size_t size);
+int sdmmc_device_state(void);
+bool is_cmd23_enabled(void);
+int sdmmc_send_cmd(unsigned int idx, unsigned int arg,
+			unsigned int r_type, unsigned int *r_data);
+
 #endif

@@ -28,6 +28,7 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			plat/intel/soc/common/aarch64/platform_common.c \
 			plat/intel/soc/common/aarch64/plat_helpers.S	\
 			plat/intel/soc/common/drivers/ccu/ncore_ccu.c	\
+			plat/intel/soc/common/drivers/sdmmc/sdmmc.c			\
 			plat/intel/soc/common/lib/sha/sha.c				\
 			plat/intel/soc/common/socfpga_delay_timer.c
 
