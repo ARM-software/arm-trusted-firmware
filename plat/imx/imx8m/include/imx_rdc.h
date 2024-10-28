@@ -67,7 +67,7 @@ struct imx_rdc_cfg {
 	  .setting.rdc_mem_region[2] = (mrc),	\
 	}
 
-void imx_rdc_init(const struct imx_rdc_cfg *cfg);
+void imx_rdc_init(struct imx_rdc_cfg *cfg, unsigned int console_base);
 
 #endif /* IMX_RDC_H */
 
