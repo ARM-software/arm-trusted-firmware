@@ -88,6 +88,24 @@ $(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
 
+# Configs for Boot Source
+SOCFPGA_BOOT_SOURCE_SDMMC		?=	0
+SOCFPGA_BOOT_SOURCE_QSPI		?=	0
+SOCFPGA_BOOT_SOURCE_NAND		?=	0
+
+$(eval $(call assert_booleans,\
+	$(sort \
+		SOCFPGA_BOOT_SOURCE_SDMMC \
+		SOCFPGA_BOOT_SOURCE_QSPI \
+		SOCFPGA_BOOT_SOURCE_NAND \
+)))
+$(eval $(call add_defines,\
+	$(sort \
+		SOCFPGA_BOOT_SOURCE_SDMMC \
+		SOCFPGA_BOOT_SOURCE_QSPI \
+		SOCFPGA_BOOT_SOURCE_NAND \
+)))
+
 # Configs for VAB Authentication
 SOCFPGA_SECURE_VAB_AUTH  := 	0
 $(eval $(call assert_boolean,SOCFPGA_SECURE_VAB_AUTH))

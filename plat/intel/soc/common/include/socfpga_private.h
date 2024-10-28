@@ -24,8 +24,8 @@ typedef enum {
 	BOOT_SOURCE_FPGA = 0,
 	BOOT_SOURCE_SDMMC,
 	BOOT_SOURCE_NAND,
-	BOOT_SOURCE_RSVD,
-	BOOT_SOURCE_QSPI
+	BOOT_SOURCE_QSPI,
+	BOOT_SOURCE_RSVD
 } boot_source_type;
 
 /*******************************************************************************
