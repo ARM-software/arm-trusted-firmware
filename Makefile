@@ -646,6 +646,13 @@ ifeq (${CTX_INCLUDE_EL2_REGS}, 1)
 endif
 
 ################################################################################
+# Make 128-Bit sysreg read/writes availabe when FEAT_D128 is enabled.
+################################################################################
+ifneq (${ENABLE_FEAT_D128}, 0)
+        BL_COMMON_SOURCES       +=      lib/extensions/sysreg128/sysreg128.S
+endif
+
+################################################################################
 # Platform specific Makefile might provide us ARCH_MAJOR/MINOR use that to come
 # up with appropriate march values for compiler.
 ################################################################################
@@ -1263,6 +1270,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_FEAT_S2POE \
 	ENABLE_FEAT_S1POE \
 	ENABLE_FEAT_SCTLR2 \
+	ENABLE_FEAT_D128 \
 	ENABLE_FEAT_GCS \
 	ENABLE_FEAT_VHE \
 	ENABLE_FEAT_MPAM \
@@ -1421,6 +1429,7 @@ $(eval $(call add_defines,\
 	ENABLE_FEAT_S2POE \
 	ENABLE_FEAT_S1POE \
 	ENABLE_FEAT_SCTLR2 \
+	ENABLE_FEAT_D128 \
 	ENABLE_FEAT_GCS \
 	ENABLE_FEAT_MTE2 \
 	FEATURE_DETECTION \

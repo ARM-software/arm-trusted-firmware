@@ -406,6 +406,12 @@ ENABLE_SME_FOR_SWD			?=	0
 ENABLE_BRBE_FOR_NS			?=	0
 
 #----
+# 9.3
+#----
+# Flag to enable access to Arm v9.3 FEAT_D128 extension
+ENABLE_FEAT_D128			?=	0
+
+#----
 #9.4
 #----
 

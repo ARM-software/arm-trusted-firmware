@@ -471,6 +471,15 @@ Common build options
    This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_D128``: Numeric value to enable support for FEAT_D128
+   at EL2 and below, setting the bit SCT_EL3.D128En in EL3 to allow access to
+   128 bit version of system registers like PAR_EL1, TTBR0_EL1, TTBR1_EL1,
+   TTBR0_EL2, TTBR1_EL2, TTBR0_EL12, TTBR1_EL12 , VTTBR_EL2, RCWMASK_EL1, and
+   RCWSMASK_EL1. Its an optional architectural feature and is available from
+   9.3 and upwards.
+   This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
+   mechanism. Default value is ``0``.
+
 -  ``ENABLE_LTO``: Boolean option to enable Link Time Optimization (LTO)
    support in GCC for TF-A. This option is currently only supported for
    AArch64. Default is 0.

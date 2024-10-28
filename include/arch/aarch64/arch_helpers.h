@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include <arch.h>
+#include <lib/extensions/sysreg128.h>
 
 /**********************************************************************
  * Macros which create inline functions to read or write CPU system
@@ -263,7 +264,12 @@ void disable_mpu_icache_el2(void);
 #define write_daifclr(val) SYSREG_WRITE_CONST(daifclr, val)
 #define write_daifset(val) SYSREG_WRITE_CONST(daifset, val)
 
+#if ENABLE_FEAT_D128
+DECLARE_SYSREG128_RW_FUNCS(par_el1)
+#else
 DEFINE_SYSREG_RW_FUNCS(par_el1)
+#endif
+
 DEFINE_IDREG_READ_FUNC(id_pfr1_el1)
 DEFINE_IDREG_READ_FUNC(id_aa64isar0_el1)
 DEFINE_IDREG_READ_FUNC(id_aa64isar1_el1)
@@ -443,13 +449,21 @@ DEFINE_SYSREG_RW_FUNCS(tcr_el1)
 DEFINE_SYSREG_RW_FUNCS(tcr_el2)
 DEFINE_SYSREG_RW_FUNCS(tcr_el3)
 
+#if ENABLE_FEAT_D128
+DECLARE_SYSREG128_RW_FUNCS(ttbr0_el1)
+DECLARE_SYSREG128_RW_FUNCS(ttbr1_el1)
+DECLARE_SYSREG128_RW_FUNCS(ttbr0_el2)
+DECLARE_SYSREG128_RW_FUNCS(ttbr1_el2)
+DECLARE_SYSREG128_RW_FUNCS(vttbr_el2)
+#else
 DEFINE_SYSREG_RW_FUNCS(ttbr0_el1)
-DEFINE_SYSREG_RW_FUNCS(ttbr0_el2)
-DEFINE_SYSREG_RW_FUNCS(ttbr0_el3)
-
 DEFINE_SYSREG_RW_FUNCS(ttbr1_el1)
-
+DEFINE_SYSREG_RW_FUNCS(ttbr0_el2)
+DEFINE_RENAME_SYSREG_RW_FUNCS(ttbr1_el2, TTBR1_EL2)
 DEFINE_SYSREG_RW_FUNCS(vttbr_el2)
+#endif
+
+DEFINE_SYSREG_RW_FUNCS(ttbr0_el3)
 
 DEFINE_SYSREG_RW_FUNCS(cptr_el2)
 DEFINE_SYSREG_RW_FUNCS(cptr_el3)
@@ -574,7 +588,6 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(scxtnum_el0, SCXTNUM_EL0)
 
 /* Armv8.1 VHE Registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(contextidr_el2, CONTEXTIDR_EL2)
-DEFINE_RENAME_SYSREG_RW_FUNCS(ttbr1_el2, TTBR1_EL2)
 
 /* Armv8.2 ID Registers */
 DEFINE_RENAME_IDREG_READ_FUNC(id_aa64mmfr2_el1, ID_AA64MMFR2_EL1)
@@ -671,8 +684,13 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(gcspr_el1, GCSPR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(gcspr_el0, GCSPR_EL0)
 
 /* FEAT_THE Registers */
+#if ENABLE_FEAT_D128
+DECLARE_SYSREG128_RW_FUNCS(rcwmask_el1)
+DECLARE_SYSREG128_RW_FUNCS(rcwsmask_el1)
+#else
 DEFINE_RENAME_SYSREG_RW_FUNCS(rcwmask_el1, RCWMASK_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(rcwsmask_el1, RCWSMASK_EL1)
+#endif
 
 /* FEAT_SCTLR2 Registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(sctlr2_el1, SCTLR2_EL1)

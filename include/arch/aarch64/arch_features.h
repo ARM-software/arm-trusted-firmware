@@ -138,6 +138,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_SCTLR2		|
  * +----------------------------+
+ * |	FEAT_D128		|
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -274,6 +276,11 @@ CREATE_FEATURE_FUNCS(feat_the, id_aa64pfr1_el1, ID_AA64PFR1_EL1_THE_SHIFT,
 CREATE_FEATURE_FUNCS(feat_sctlr2, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_SCTLR2_SHIFT,
 		     ID_AA64MMFR3_EL1_SCTLR2_MASK, SCTLR2_IMPLEMENTED,
 		     ENABLE_FEAT_SCTLR2)
+
+/* FEAT_D128 */
+CREATE_FEATURE_FUNCS(feat_d128, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_D128_SHIFT,
+		     ID_AA64MMFR3_EL1_D128_MASK, D128_IMPLEMENTED,
+		     ENABLE_FEAT_D128)
 
 __attribute__((always_inline))
 static inline bool is_feat_sxpie_supported(void)

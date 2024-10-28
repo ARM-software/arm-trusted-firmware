@@ -331,6 +331,7 @@
 #define PARANGE_0100	U(44)
 #define PARANGE_0101	U(48)
 #define PARANGE_0110	U(52)
+#define PARANGE_0111	U(56)
 
 #define ID_AA64MMFR0_EL1_ECV_SHIFT		U(60)
 #define ID_AA64MMFR0_EL1_ECV_MASK		ULL(0xf)
@@ -393,6 +394,10 @@
 
 /* ID_AA64MMFR3_EL1 definitions */
 #define ID_AA64MMFR3_EL1			S3_0_C0_C7_3
+
+#define ID_AA64MMFR3_EL1_D128_SHIFT		U(32)
+#define ID_AA64MMFR3_EL1_D128_MASK		ULL(0xf)
+#define D128_IMPLEMENTED			ULL(0x1)
 
 #define ID_AA64MMFR3_EL1_S2POE_SHIFT		U(20)
 #define ID_AA64MMFR3_EL1_S2POE_MASK		ULL(0xf)
@@ -594,6 +599,7 @@
 #define SCR_FGTEN2_BIT		(UL(1) << 59)
 #define SCR_NSE_BIT		(ULL(1) << SCR_NSE_SHIFT)
 #define SCR_GPF_BIT		(UL(1) << 48)
+#define SCR_D128En_BIT		(UL(1) << 47)
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
 #define SCR_PIEN_BIT		(UL(1) << 45)
@@ -1179,8 +1185,9 @@
 /* PAR_EL1 fields */
 #define PAR_F_SHIFT	U(0)
 #define PAR_F_MASK	ULL(0x1)
-#define PAR_ADDR_SHIFT	U(12)
-#define PAR_ADDR_MASK	(BIT(40) - ULL(1)) /* 40-bits-wide page address */
+
+#define PAR_D128_ADDR_MASK	GENMASK(55, 12) /* 44-bits-wide page address */
+#define PAR_ADDR_MASK		GENMASK(51, 12) /* 40-bits-wide page address */
 
 /*******************************************************************************
  * Definitions for system register interface to SPE

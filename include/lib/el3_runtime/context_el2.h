@@ -7,7 +7,10 @@
 #ifndef CONTEXT_EL2_H
 #define CONTEXT_EL2_H
 
+#include <lib/extensions/sysreg128.h>
+
 #ifndef __ASSEMBLER__
+
 /*******************************************************************************
  * EL2 Registers:
  * AArch64 EL2 system register context structure for preserving the
@@ -40,12 +43,12 @@ typedef struct el2_common_regs {
 	uint64_t sp_el2;
 	uint64_t tcr_el2;
 	uint64_t tpidr_el2;
-	uint64_t ttbr0_el2;
 	uint64_t vbar_el2;
 	uint64_t vmpidr_el2;
 	uint64_t vpidr_el2;
 	uint64_t vtcr_el2;
-	uint64_t vttbr_el2;
+	sysreg_t vttbr_el2;
+	sysreg_t ttbr0_el2;
 } el2_common_regs_t;
 
 typedef struct el2_mte2_regs {
@@ -75,7 +78,7 @@ typedef struct el2_ecv_regs {
 
 typedef struct el2_vhe_regs {
 	uint64_t contextidr_el2;
-	uint64_t ttbr1_el2;
+	sysreg_t ttbr1_el2;
 } el2_vhe_regs_t;
 
 typedef struct el2_ras_regs {
@@ -222,6 +225,9 @@ typedef struct el2_sysregs {
 #define write_el2_ctx_common(ctx, reg, val)	((((ctx)->common).reg)	\
 							= (uint64_t) (val))
 
+#define write_el2_ctx_sysreg128(ctx, reg, val)	((((ctx)->common).reg)	\
+							= (sysreg_t) (val))
+
 #if ENABLE_FEAT_MTE2
 #define read_el2_ctx_mte2(ctx, reg)		(((ctx)->mte2).reg)
 #define write_el2_ctx_mte2(ctx, reg, val)	((((ctx)->mte2).reg)	\
@@ -262,6 +268,9 @@ typedef struct el2_sysregs {
 #define read_el2_ctx_vhe(ctx, reg)		(((ctx)->vhe).reg)
 #define write_el2_ctx_vhe(ctx, reg, val)	((((ctx)->vhe).reg)	\
 							= (uint64_t) (val))
+
+#define write_el2_ctx_vhe_sysreg128(ctx, reg, val)	((((ctx)->vhe).reg)	\
+								= (sysreg_t) (val))
 #else
 #define read_el2_ctx_vhe(ctx, reg)		ULL(0)
 #define write_el2_ctx_vhe(ctx, reg, val)

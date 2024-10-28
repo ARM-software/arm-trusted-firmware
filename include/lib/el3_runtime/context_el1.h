@@ -7,6 +7,8 @@
 #ifndef CONTEXT_EL1_H
 #define CONTEXT_EL1_H
 
+#include <lib/extensions/sysreg128.h>
+
 #ifndef __ASSEMBLER__
 
 /*******************************************************************************
@@ -28,15 +30,12 @@ typedef struct el1_common_regs {
 	uint64_t csselr_el1;
 	uint64_t sp_el1;
 	uint64_t esr_el1;
-	uint64_t ttbr0_el1;
-	uint64_t ttbr1_el1;
 	uint64_t mair_el1;
 	uint64_t amair_el1;
 	uint64_t actlr_el1;
 	uint64_t tpidr_el1;
 	uint64_t tpidr_el0;
 	uint64_t tpidrro_el0;
-	uint64_t par_el1;
 	uint64_t far_el1;
 	uint64_t afsr0_el1;
 	uint64_t afsr1_el1;
@@ -44,6 +43,9 @@ typedef struct el1_common_regs {
 	uint64_t vbar_el1;
 	uint64_t mdccint_el1;
 	uint64_t mdscr_el1;
+	sysreg_t par_el1;
+	sysreg_t ttbr0_el1;
+	sysreg_t ttbr1_el1;
 } el1_common_regs_t;
 
 typedef struct el1_aarch32_regs {
@@ -108,8 +110,8 @@ typedef struct el1_gcs_regs {
 } el1_gcs_regs_t;
 
 typedef struct el1_the_regs {
-	uint64_t rcwmask_el1;
-	uint64_t rcwsmask_el1;
+	sysreg_t rcwmask_el1;
+	sysreg_t rcwsmask_el1;
 } el1_the_regs_t;
 
 typedef struct el1_sctlr2_regs {
