@@ -247,6 +247,7 @@ int intel_mailbox_is_fpga_not_ready(void);
 
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
 void intel_smmu_hps_remapper_init(uint64_t *mem);
+int intel_smmu_hps_remapper_config(uint32_t remapper_bypass);
 #endif
 
 int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, uint32_t resp_buf_len);

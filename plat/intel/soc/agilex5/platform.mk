@@ -99,6 +99,7 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/common/sip/socfpga_sip_ecc.c		\
 		plat/intel/soc/common/sip/socfpga_sip_fcs.c		\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
+		plat/intel/soc/common/soc/socfpga_system_manager.c	\
 		plat/intel/soc/common/soc/socfpga_reset_manager.c
 
 # Configs for A76 and A55
