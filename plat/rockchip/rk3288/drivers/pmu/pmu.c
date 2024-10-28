@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,90 +35,6 @@ enum {
 	ROCKCHIP_ARM_OFF_LOGIC_NORMAL = 0,
 	ROCKCHIP_ARM_OFF_LOGIC_DEEP = 1,
 };
-
-static inline int rk3288_pmu_bus_idle(uint32_t req, uint32_t idle)
-{
-	uint32_t mask = BIT(req);
-	uint32_t idle_mask = 0;
-	uint32_t idle_target = 0;
-	uint32_t val;
-	uint32_t wait_cnt = 0;
-
-	switch (req) {
-	case bus_ide_req_gpu:
-		idle_mask = BIT(pmu_idle_ack_gpu) | BIT(pmu_idle_gpu);
-		idle_target = (idle << pmu_idle_ack_gpu) |
-			      (idle << pmu_idle_gpu);
-		break;
-	case bus_ide_req_core:
-		idle_mask = BIT(pmu_idle_ack_core) | BIT(pmu_idle_core);
-		idle_target = (idle << pmu_idle_ack_core) |
-			      (idle << pmu_idle_core);
-		break;
-	case bus_ide_req_cpup:
-		idle_mask = BIT(pmu_idle_ack_cpup) | BIT(pmu_idle_cpup);
-		idle_target = (idle << pmu_idle_ack_cpup) |
-			      (idle << pmu_idle_cpup);
-		break;
-	case bus_ide_req_bus:
-		idle_mask = BIT(pmu_idle_ack_bus) | BIT(pmu_idle_bus);
-		idle_target = (idle << pmu_idle_ack_bus) |
-			      (idle << pmu_idle_bus);
-		break;
-	case bus_ide_req_dma:
-		idle_mask = BIT(pmu_idle_ack_dma) | BIT(pmu_idle_dma);
-		idle_target = (idle << pmu_idle_ack_dma) |
-			      (idle << pmu_idle_dma);
-		break;
-	case bus_ide_req_peri:
-		idle_mask = BIT(pmu_idle_ack_peri) | BIT(pmu_idle_peri);
-		idle_target = (idle << pmu_idle_ack_peri) |
-			      (idle << pmu_idle_peri);
-		break;
-	case bus_ide_req_video:
-		idle_mask = BIT(pmu_idle_ack_video) | BIT(pmu_idle_video);
-		idle_target = (idle << pmu_idle_ack_video) |
-			      (idle << pmu_idle_video);
-		break;
-	case bus_ide_req_hevc:
-		idle_mask = BIT(pmu_idle_ack_hevc) | BIT(pmu_idle_hevc);
-		idle_target = (idle << pmu_idle_ack_hevc) |
-			      (idle << pmu_idle_hevc);
-		break;
-	case bus_ide_req_vio:
-		idle_mask = BIT(pmu_idle_ack_vio) | BIT(pmu_idle_vio);
-		idle_target = (pmu_idle_ack_vio) |
-			      (idle << pmu_idle_vio);
-		break;
-	case bus_ide_req_alive:
-		idle_mask = BIT(pmu_idle_ack_alive) | BIT(pmu_idle_alive);
-		idle_target = (idle << pmu_idle_ack_alive) |
-			      (idle << pmu_idle_alive);
-		break;
-	default:
-		ERROR("%s: Unsupported the idle request\n", __func__);
-		break;
-	}
-
-	val = mmio_read_32(PMU_BASE + PMU_BUS_IDE_REQ);
-	if (idle)
-		val |= mask;
-	else
-		val &= ~mask;
-
-	mmio_write_32(PMU_BASE + PMU_BUS_IDE_REQ, val);
-
-	while ((mmio_read_32(PMU_BASE +
-	       PMU_BUS_IDE_ST) & idle_mask) != idle_target) {
-		wait_cnt++;
-		if (!(wait_cnt % MAX_WAIT_CONUT))
-			WARN("%s:st=%x(%x)\n", __func__,
-			     mmio_read_32(PMU_BASE + PMU_BUS_IDE_ST),
-			     idle_mask);
-	}
-
-	return 0;
-}
 
 static bool rk3288_sleep_disable_osc(void)
 {
