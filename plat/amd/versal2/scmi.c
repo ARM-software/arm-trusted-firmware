@@ -288,13 +288,16 @@ int32_t plat_scmi_clock_rates_array(unsigned int agent_id, unsigned int scmi_id,
 				    uint32_t start_idx)
 {
 	const struct scmi_clk *clock = clk_find(agent_id, scmi_id);
+	int32_t ret = SCMI_SUCCESS;
 
 	if (clock == NULL) {
-		return SCMI_NOT_FOUND;
+		ret = SCMI_NOT_FOUND;
+		goto exit_label;
 	}
 
 	if (start_idx > 0U) {
-		return SCMI_OUT_OF_RANGE;
+		ret = SCMI_OUT_OF_RANGE;
+		goto exit_label;
 	}
 
 	if (array == NULL) {
@@ -304,10 +307,11 @@ int32_t plat_scmi_clock_rates_array(unsigned int agent_id, unsigned int scmi_id,
 		VERBOSE("SCMI: CLK: id: %d, clk_name: %s, get_rate %lu\n",
 		     scmi_id, clock->name, *array);
 	} else {
-		return SCMI_GENERIC_ERROR;
+		ret = SCMI_GENERIC_ERROR;
 	}
 
-	return SCMI_SUCCESS;
+exit_label:
+	return ret;
 }
 
 unsigned long plat_scmi_clock_get_rate(unsigned int agent_id, unsigned int scmi_id)
@@ -529,12 +533,13 @@ size_t plat_scmi_pd_count(unsigned int agent_id)
 const char *plat_scmi_pd_get_name(unsigned int agent_id, unsigned int pd_id)
 {
 	const struct scmi_pd *pd = find_pd(agent_id, pd_id);
+	const char *ret = NULL;
 
-	if (pd == NULL) {
-		return NULL;
+	if (pd != NULL) {
+		ret = pd->name;
 	}
 
-	return pd->name;
+	return ret;
 }
 
 unsigned int plat_scmi_pd_statistics(unsigned int agent_id, unsigned long *pd_id)
@@ -550,14 +555,15 @@ unsigned int plat_scmi_pd_get_attributes(unsigned int agent_id, unsigned int pd_
 unsigned int plat_scmi_pd_get_state(unsigned int agent_id, unsigned int pd_id)
 {
 	const struct scmi_pd *pd = find_pd(agent_id, pd_id);
+	uint32_t ret = SCMI_NOT_SUPPORTED;
 
-	if (pd == NULL) {
-		return SCMI_NOT_SUPPORTED;
+	if (pd != NULL) {
+		NOTICE("SCMI: PD: get id: %d, state: %x\n", pd_id, pd->state);
+
+		ret = pd->state;
 	}
 
-	NOTICE("SCMI: PD: get id: %d, state: %x\n", pd_id, pd->state);
-
-	return pd->state;
+	return ret;
 }
 
 int32_t plat_scmi_pd_set_state(unsigned int agent_id, unsigned int flags, unsigned int pd_id,
@@ -568,14 +574,15 @@ int32_t plat_scmi_pd_set_state(unsigned int agent_id, unsigned int flags, unsign
 
 	if (pd == NULL) {
 		ret = SCMI_NOT_SUPPORTED;
-	} else {
-
-		NOTICE("SCMI: PD: set id: %d, orig state: %x, new state: %x,  flags: %x\n",
-				pd_id, pd->state, state, flags);
-
-		pd->state = state;
+		goto exit_label;
 	}
 
+	NOTICE("SCMI: PD: set id: %d, orig state: %x, new state: %x,  flags: %x\n",
+			pd_id, pd->state, state, flags);
+
+	pd->state = state;
+
+exit_label:
 	return ret;
 }
 
