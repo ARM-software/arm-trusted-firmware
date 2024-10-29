@@ -41,6 +41,7 @@ const uint8_t *plat_get_power_domain_tree_desc(void)
 int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 {
 	uint32_t cluster_id, cpu_id;
+	int32_t ret;
 
 	mpidr &= MPIDR_AFFINITY_MASK;
 
@@ -48,7 +49,8 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 	cpu_id = (uint32_t)MPIDR_AFFLVL1_VAL(mpidr);
 
 	if (cluster_id >= PLATFORM_CLUSTER_COUNT) {
-		return -3;
+		ret = E_INVALID_CLUSTER_COUNT;
+		goto exit_label;
 	}
 
 	/*
@@ -56,8 +58,11 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 	 * one of the two clusters present on the platform.
 	 */
 	if (cpu_id >= PLATFORM_CORE_COUNT_PER_CLUSTER) {
-		return -1;
+		ret = E_INVALID_CORE_COUNT;
+	} else {
+		ret = (int32_t)(cpu_id + (cluster_id * PLATFORM_CORE_COUNT_PER_CLUSTER));
 	}
 
-	return (int32_t)(cpu_id + (cluster_id * PLATFORM_CORE_COUNT_PER_CLUSTER));
+exit_label:
+	return ret;
 }

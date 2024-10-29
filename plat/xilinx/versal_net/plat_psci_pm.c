@@ -29,17 +29,18 @@ static int32_t versal_net_pwr_domain_on(u_register_t mpidr)
 {
 	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
+	int32_t ret = PSCI_E_INTERN_FAIL;
 
 	VERBOSE("%s: mpidr: 0x%lx, cpuid: %x\n",
 		__func__, mpidr, cpu_id);
 
 	if (cpu_id == -1) {
-		return PSCI_E_INTERN_FAIL;
+		goto exit_label;
 	}
 
 	proc = pm_get_proc(cpu_id);
 	if (proc == NULL) {
-		return PSCI_E_INTERN_FAIL;
+		goto exit_label;
 	}
 
 	(void)pm_req_wakeup(proc->node_id, (versal_net_sec_entry & 0xFFFFFFFFU) | 0x1U,
@@ -48,7 +49,10 @@ static int32_t versal_net_pwr_domain_on(u_register_t mpidr)
 	/* Clear power down request */
 	pm_client_wakeup(proc);
 
-	return PSCI_E_SUCCESS;
+	ret = PSCI_E_SUCCESS;
+
+exit_label:
+	return ret;
 }
 
 /**
@@ -64,7 +68,7 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	if (proc == NULL) {
-		return;
+		goto exit_label;
 	}
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
@@ -94,6 +98,9 @@ static void versal_net_pwr_domain_off(const psci_power_state_t *target_state)
 					      SECURE_FLAG);
 		}
 	}
+
+exit_label:
+	return;
 }
 
 /**
@@ -148,7 +155,7 @@ static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	if (proc == NULL) {
-		return;
+		goto exit_label;
 	}
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
@@ -170,6 +177,9 @@ static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state
 			SECURE_FLAG);
 
 	/* TODO: disable coherency */
+
+exit_label:
+	return;
 }
 
 static void versal_net_pwr_domain_on_finish(const psci_power_state_t *target_state)
@@ -195,7 +205,7 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
 	if (proc == NULL) {
-		return;
+		goto exit_label;
 	}
 
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
@@ -214,6 +224,9 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 	}
 
 	plat_arm_gic_cpuif_enable();
+
+exit_label:
+	return;
 }
 
 /**
@@ -244,6 +257,8 @@ static void __dead2 versal_net_system_off(void)
 static int32_t versal_net_validate_power_state(unsigned int power_state,
 					       psci_power_state_t *req_state)
 {
+	int32_t ret = PSCI_E_INVALID_PARAMS;
+
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
 	uint32_t pstate = psci_get_pstate_type(power_state);
@@ -258,11 +273,11 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 	}
 
 	/* We expect the 'state id' to be zero */
-	if (psci_get_pstate_id(power_state) != 0U) {
-		return PSCI_E_INVALID_PARAMS;
+	if (psci_get_pstate_id(power_state) == 0U) {
+		ret = PSCI_E_SUCCESS;
 	}
 
-	return PSCI_E_SUCCESS;
+	return ret;
 }
 
 /**
