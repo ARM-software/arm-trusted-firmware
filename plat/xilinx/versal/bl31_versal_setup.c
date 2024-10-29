@@ -76,7 +76,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uint64_t tfa_handoff_addr;
 	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
-	uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
+	const uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On
@@ -131,7 +131,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	enum xbl_handoff ret = xbl_handover(&bl32_image_ep_info,
 						  &bl33_image_ep_info,
 						  tfa_handoff_addr);
-	if (ret == XBL_HANDOFF_NO_STRUCT || ret == XBL_HANDOFF_INVAL_STRUCT) {
+	if ((ret == XBL_HANDOFF_NO_STRUCT) || (ret == XBL_HANDOFF_INVAL_STRUCT)) {
 		bl31_set_default_config();
 	} else if (ret == XBL_HANDOFF_TOO_MANY_PARTS) {
 		ERROR("BL31: Error too many partitions %u\n", ret);
@@ -153,7 +153,7 @@ int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 	uint32_t i;
 
 	/* Validate 'handler' and 'id' parameters */
-	if (handler == NULL || index >= MAX_INTR_EL3) {
+	if ((handler == NULL) || (index >= MAX_INTR_EL3)) {
 		return -EINVAL;
 	}
 

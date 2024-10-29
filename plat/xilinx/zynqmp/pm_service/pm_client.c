@@ -218,7 +218,7 @@ static void pm_client_set_wakeup_sources(void)
 			node = irq_to_pm_node(irq);
 			reg &= ~lowest_set;
 
-			if (node > NODE_UNKNOWN && node < NODE_MAX) {
+			if ((node > NODE_UNKNOWN) && (node < NODE_MAX)) {
 				if (pm_wakeup_nodes_set[node] == 0U) {
 					ret = pm_set_wakeup_source(NODE_APU, node, 1U);
 					pm_wakeup_nodes_set[node] = (ret == PM_RET_SUCCESS) ? 1U : 0U;

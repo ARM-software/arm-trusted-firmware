@@ -1657,7 +1657,7 @@ enum pm_ret_status pm_pll_set_parameter(enum pm_node_id nid,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	/* Check if given node ID is a PLL node */
-	if (nid < NODE_APLL || nid > NODE_IOPLL) {
+	if ((nid < NODE_APLL) || (nid > NODE_IOPLL)) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -1688,7 +1688,7 @@ enum pm_ret_status pm_pll_get_parameter(enum pm_node_id nid,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	/* Check if given node ID is a PLL node */
-	if (nid < NODE_APLL || nid > NODE_IOPLL) {
+	if ((nid < NODE_APLL) || (nid > NODE_IOPLL)) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -1721,7 +1721,7 @@ enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode)
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	/* Check if given node ID is a PLL node */
-	if (nid < NODE_APLL || nid > NODE_IOPLL) {
+	if ((nid < NODE_APLL) || (nid > NODE_IOPLL)) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -1749,7 +1749,7 @@ enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode)
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	/* Check if given node ID is a PLL node */
-	if (nid < NODE_APLL || nid > NODE_IOPLL) {
+	if ((nid < NODE_APLL) || (nid > NODE_IOPLL)) {
 		return PM_RET_ERROR_ARGS;
 	}
 

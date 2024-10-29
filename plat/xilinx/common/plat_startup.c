@@ -237,8 +237,8 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		}
 
 		target_secure = get_xbl_ss(&HandoffParams->partition[i]);
-		if (target_secure == XBL_FLAGS_SECURE &&
-		    target_el == XBL_FLAGS_EL2) {
+		if ((target_secure == XBL_FLAGS_SECURE) &&
+		    (target_el == XBL_FLAGS_EL2)) {
 			WARN("BL31: invalid security state (%i) for exception level (%i)\n",
 			     target_secure, target_el);
 			continue;
@@ -284,7 +284,7 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 		}
 
 		VERBOSE("Setting up %s entry point to:%" PRIx64 ", el:%x\n",
-			target_secure == XBL_FLAGS_SECURE ? "BL32" : "BL33",
+			(target_secure == XBL_FLAGS_SECURE) ? "BL32" : "BL33",
 			HandoffParams->partition[i].entry_point,
 			target_el);
 		image->pc = HandoffParams->partition[i].entry_point;

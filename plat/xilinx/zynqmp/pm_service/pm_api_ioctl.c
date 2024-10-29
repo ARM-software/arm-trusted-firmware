@@ -165,8 +165,8 @@ static enum pm_ret_status pm_ioctl_config_tcm_comb(uint32_t value)
 static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(uint32_t type,
 						       uint32_t value)
 {
-	if ((value != PM_TAPDELAY_BYPASS_ENABLE &&
-	     value != PM_TAPDELAY_BYPASS_DISABLE) || type >= PM_TAPDELAY_MAX) {
+	if ((((value != PM_TAPDELAY_BYPASS_ENABLE) &&
+	     (value != PM_TAPDELAY_BYPASS_DISABLE)) || (type >= PM_TAPDELAY_MAX))) {
 		return PM_RET_ERROR_ARGS;
 	}
 
@@ -481,7 +481,7 @@ static enum pm_ret_status pm_ioctl_afi(uint32_t index,
 					      uint32_t value)
 {
 	uint32_t mask;
-	uint32_t regarr[] = {0xFD360000U,
+	const uint32_t regarr[] = {0xFD360000U,
 				0xFD360014U,
 				0xFD370000U,
 				0xFD370014U,
@@ -682,7 +682,7 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
  */
 enum pm_ret_status tfa_ioctl_bitmask(uint32_t *bit_mask)
 {
-	uint8_t supported_ids[] = {
+	const uint8_t supported_ids[] = {
 		IOCTL_GET_RPU_OPER_MODE,
 		IOCTL_SET_RPU_OPER_MODE,
 		IOCTL_RPU_BOOT_ADDR_CONFIG,
