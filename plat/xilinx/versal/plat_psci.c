@@ -28,16 +28,17 @@ static int32_t versal_pwr_domain_on(u_register_t mpidr)
 {
 	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
+	int32_t ret = PSCI_E_INTERN_FAIL;
 
 	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
 
 	if (cpu_id == -1) {
-		return PSCI_E_INTERN_FAIL;
+		goto exit_label;
 	}
 
 	proc = pm_get_proc((uint32_t)cpu_id);
 	if (proc == NULL) {
-		return PSCI_E_INTERN_FAIL;
+		goto exit_label;
 	}
 
 	/* Send request to PMC to wake up selected ACPU core */
@@ -47,7 +48,10 @@ static int32_t versal_pwr_domain_on(u_register_t mpidr)
 	/* Clear power down request */
 	pm_client_wakeup(proc);
 
-	return PSCI_E_SUCCESS;
+	ret = PSCI_E_SUCCESS;
+
+exit_label:
+	return ret;
 }
 
 /**
@@ -246,6 +250,7 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 static int32_t versal_validate_power_state(uint32_t power_state,
 				       psci_power_state_t *req_state)
 {
+	int32_t ret = PSCI_E_SUCCESS;
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
 	uint32_t pstate = psci_get_pstate_type(power_state);
@@ -261,10 +266,10 @@ static int32_t versal_validate_power_state(uint32_t power_state,
 
 	/* We expect the 'state id' to be zero */
 	if (psci_get_pstate_id(power_state) != 0U) {
-		return PSCI_E_INVALID_PARAMS;
+		ret = PSCI_E_INVALID_PARAMS;
 	}
 
-	return PSCI_E_SUCCESS;
+	return ret;
 }
 
 /**
