@@ -5,6 +5,7 @@
 #
 
 include ../../../../../make_helpers/common.mk
+include ../../../../../make_helpers/build_macros.mk
 include ../../../../../make_helpers/toolchain.mk
 
 # Cross Compile
@@ -31,6 +32,8 @@ C_SOURCES_PMU		:= src/suspend.c
 # Flags definition
 COMMON_FLAGS		:= -g -mcpu=cortex-m0 -mthumb -Wall -O3 -nostdlib -mfloat-abi=soft
 CFLAGS			:= -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-common
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105523
+CFLAGS			+= $(call cc_option, --param=min-pagesize=0)
 ASFLAGS			:= -Wa,--gdwarf-2
 LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none
 
