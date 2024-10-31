@@ -35,7 +35,8 @@ CFLAGS			:= -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-common
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105523
 CFLAGS			+= $(call cc_option, --param=min-pagesize=0)
 ASFLAGS			:= -Wa,--gdwarf-2
-LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none
+LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none -z noexecstack
+LDFLAGS			+= $(call ld_option,-Xlinker --no-warn-rwx-segments)
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
 # end up with a line-feed characer at the end of the last c filename.
