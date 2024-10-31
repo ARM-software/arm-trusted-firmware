@@ -1059,6 +1059,14 @@ static long spmc_ffa_fill_desc(struct mailbox *mbox,
 		ret = FFA_ERROR_INVALID_PARAMETER;
 		goto err_arg;
 	}
+	/*
+	 * Ensure the NS bit is set to 1 since we only allow non-secure senders.
+	 * The specification requires that the NS bit is MBZ for
+	 * FFA_MEM_{DONATE,LEND,SHARE,RETRIEVE_REQ}, but we set the bit here
+	 * for internal bookkeeping to mark that the transaction did come
+	 * from the normal world.
+	 */
+	obj->desc.memory_region_attributes |= FFA_MEM_ATTR_NS_BIT;
 
 	/*
 	 * We don't currently support any optional flags so ensure none are
@@ -1339,29 +1347,21 @@ err_unlock:
 }
 
 /**
- * spmc_ffa_mem_retrieve_set_ns_bit - Set the NS bit in the response descriptor
- *				      if the caller implements a version greater
- *				      than FF-A 1.0 or if they have requested
- *				      the functionality.
- *				      TODO: We are assuming that the caller is
- *				      an SP. To support retrieval from the
- *				      normal world this function will need to be
- *				      expanded accordingly.
+ * spmc_ffa_mem_retrieve_update_ns_bit - Update the NS bit in the response descriptor
+ *					 if the caller implements a version smaller
+ *					 than FF-A 1.1 and if they have not requested
+ *					 the functionality.
  * @resp:       Descriptor populated in callers RX buffer.
  * @sp_ctx:     Context of the calling SP.
  */
-void spmc_ffa_mem_retrieve_set_ns_bit(struct ffa_mtd *resp,
-			 struct secure_partition_desc *sp_ctx)
+void spmc_ffa_mem_retrieve_update_ns_bit(struct ffa_mtd *resp,
+			 struct secure_partition_desc *sp_ctx,
+			 bool secure_origin)
 {
-	if (sp_ctx->ffa_version > MAKE_FFA_VERSION(1, 0) ||
-	    sp_ctx->ns_bit_requested) {
-		/*
-		 * Currently memory senders must reside in the normal
-		 * world, and we do not have the functionlaity to change
-		 * the state of memory dynamically. Therefore we can always set
-		 * the NS bit to 1.
-		 */
-		resp->memory_region_attributes |= FFA_MEM_ATTR_NS_BIT;
+	if (secure_origin &&
+	    sp_ctx->ffa_version < MAKE_FFA_VERSION(1, 1) &&
+	    !sp_ctx->ns_bit_requested) {
+		resp->memory_region_attributes &= ~FFA_MEM_ATTR_NS_BIT;
 	}
 }
 
@@ -1625,8 +1625,8 @@ spmc_ffa_mem_retrieve_req(uint32_t smc_fid,
 		memcpy(resp, &obj->desc, copy_size);
 	}
 
-	/* Set the NS bit in the response if applicable. */
-	spmc_ffa_mem_retrieve_set_ns_bit(resp, sp_ctx);
+	/* Update the NS bit in the response if applicable. */
+	spmc_ffa_mem_retrieve_update_ns_bit(resp, sp_ctx, secure_origin);
 
 	spin_unlock(&spmc_shmem_obj_state.lock);
 	spin_unlock(&mbox->lock);
