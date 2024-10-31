@@ -18,6 +18,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common \
 		 -I${MTK_PLAT}/include \
 		 -I${MTK_PLAT}/include/${ARCH_VERSION} \
 		 -I${MTK_PLAT} \
+		 -I${MTK_PLAT_SOC}/drivers/dcm/ \
 		 -I${MTK_PLAT_SOC}/drivers/gpio/ \
 		 -I${MTK_PLAT_SOC}/include \
 		 -Idrivers/arm/gic \
@@ -57,6 +58,8 @@ BL31_SOURCES += drivers/delay_timer/delay_timer.c \
 		${MTK_PLAT}/common/mtk_plat_common.c \
 		${MTK_PLAT}/common/params_setup.c \
                 ${MTK_PLAT}/drivers/gpio/mtgpio_common.c \
+		$(MTK_PLAT)/$(MTK_SOC)/drivers/dcm/mtk_dcm.c \
+		$(MTK_PLAT)/$(MTK_SOC)/drivers/dcm/mtk_dcm_utils.c \
                 $(MTK_PLAT)/$(MTK_SOC)/drivers/gpio/mtgpio.c \
 		$(MTK_PLAT)/$(MTK_SOC)/plat_mmap.c
 
