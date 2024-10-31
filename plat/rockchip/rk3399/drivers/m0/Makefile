@@ -72,7 +72,7 @@ $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 
 $(OBJ) : $(2)
 	$(s)echo "  AS      $$<"
-	$$(q)$($(ARCH)-cc) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
+	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
 endef
 
 define MAKE_OBJS
@@ -98,7 +98,7 @@ $(LINKERFILE): $(LINKERFILE_SRC)
 
 $(ELF) : $(OBJS) $(OBJS_COMMON) $(LINKERFILE)
 	$(s)echo "  LD      $@"
-	$(q)$($(ARCH)-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
+	$(q)$($(ARCH)-ld) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
 
 %.bin : %.elf
 	$(s)echo "  BIN     $@"
@@ -106,7 +106,7 @@ $(ELF) : $(OBJS) $(OBJS_COMMON) $(LINKERFILE)
 
 $(ELF_PMU) : $(OBJS_COMMON) $(OBJS_PMU) $(LINKERFILE)
 	$(s)echo "  LD      $@"
-	$(q)$($(ARCH)-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
+	$(q)$($(ARCH)-ld) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
 
 $(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES_COMMON),$(1)))
 $(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES),$(1)))
