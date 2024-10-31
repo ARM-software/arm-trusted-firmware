@@ -323,13 +323,13 @@ static int fvp_node_hw_state(u_register_t target_cpu,
 			     unsigned int power_level)
 {
 	unsigned int psysr;
-	int ret;
+	int ret = 0;
 
 	/*
 	 * The format of 'power_level' is implementation-defined, but 0 must
 	 * mean a CPU. We also allow 1 to denote the cluster
 	 */
-	if ((power_level != ARM_PWR_LVL0) && (power_level != ARM_PWR_LVL1))
+	if ((power_level < ARM_PWR_LVL0) || (power_level > ARM_PWR_LVL1))
 		return PSCI_E_INVALID_PARAMS;
 
 	/*
@@ -343,9 +343,14 @@ static int fvp_node_hw_state(u_register_t target_cpu,
 
 	if (power_level == ARM_PWR_LVL0) {
 		ret = ((psysr & PSYSR_AFF_L0) != 0U) ? HW_ON : HW_OFF;
-	} else {
-		/* power_level == ARM_PWR_LVL1 */
-		ret = ((psysr & PSYSR_AFF_L1) != 0U) ? HW_ON : HW_OFF;
+	} else if (power_level == ARM_PWR_LVL1) {
+	/*
+	 * Use L1 affinity if MPIDR_EL1.MT bit is not set else use L2 affinity.
+	 */
+		if ((read_mpidr_el1() & MPIDR_MT_MASK) == 0U)
+			ret = ((psysr & PSYSR_AFF_L1) != 0U) ? HW_ON : HW_OFF;
+		else
+			ret = ((psysr & PSYSR_AFF_L2) != 0U) ? HW_ON : HW_OFF;
 	}
 
 	return ret;
