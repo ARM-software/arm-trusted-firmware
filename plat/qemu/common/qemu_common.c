@@ -198,16 +198,17 @@ int plat_spmc_shmem_reclaim(struct ffa_mtd *desc)
 }
 #endif
 
-#if defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
-/*
- * A dummy implementation of the platform handler for Group0 secure interrupt.
- */
+#if defined(SPD_spmd)
 int plat_spmd_handle_group0_interrupt(uint32_t intid)
 {
+	/*
+	 * Currently, there are no sources of Group0 secure interrupt
+	 * enabled for QEMU.
+	 */
 	(void)intid;
 	return -1;
 }
-#endif /*defined(SPD_spmd) && (SPMC_AT_EL3 == 0)*/
+#endif /*defined(SPD_spmd)*/
 
 #if ENABLE_RME
 /*
