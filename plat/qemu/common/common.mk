@@ -65,7 +65,8 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl2_mem_params_desc.c	\
 				${PLAT_QEMU_COMMON_PATH}/qemu_image_load.c		\
 				common/desc_image_load.c		\
-				common/fdt_fixup.c
+				common/fdt_fixup.c			\
+				${FDT_WRAPPERS_SOURCES}
 
 BL31_SOURCES		+=	${QEMU_CPU_LIBS}				\
 				lib/semihosting/semihosting.c			\

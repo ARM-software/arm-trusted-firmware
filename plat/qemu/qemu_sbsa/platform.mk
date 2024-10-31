@@ -29,8 +29,6 @@ ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
 
-BL2_SOURCES		+=	$(LIBFDT_SRCS)
-
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
