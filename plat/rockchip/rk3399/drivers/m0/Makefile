@@ -94,7 +94,7 @@ all: $(BIN) $(BIN_PMU)
 .DEFAULT_GOAL := all
 
 $(LINKERFILE): $(LINKERFILE_SRC)
-	$($(ARCH)-cc) $(COMMON_FLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
+	$(q)$($(ARCH)-cc) $(COMMON_FLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
 -include $(LINKERFILE).d
 
 $(ELF) : $(OBJS) $(OBJS_COMMON) $(LINKERFILE)
