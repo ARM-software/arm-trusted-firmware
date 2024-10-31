@@ -8,9 +8,6 @@ include ../../../../../make_helpers/common.mk
 include ../../../../../make_helpers/build_macros.mk
 include ../../../../../make_helpers/toolchain.mk
 
-# Cross Compile
-M0_CROSS_COMPILE ?= arm-none-eabi-
-
 # Build architecture
 ARCH		:= rk3399-m0
 
