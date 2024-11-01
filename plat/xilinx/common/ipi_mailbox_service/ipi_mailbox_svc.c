@@ -94,7 +94,7 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 	/* Validate IPI mailbox access */
 	ret = ipi_mb_validate(ipi_local_id, ipi_remote_id, is_secure);
-	if (ret)
+	if (ret != 0)
 		SMC_RET1(handle, ret);
 
 	switch (GET_SMC_NUM(smc_fid)) {
@@ -128,7 +128,7 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 		enable_interrupt = (x3 & IPI_SMC_ACK_EIRQ_MASK) ? 1 : 0;
 		ipi_mb_ack(ipi_local_id, ipi_remote_id);
-		if (enable_interrupt)
+		if (enable_interrupt != 0)
 			ipi_mb_enable_irq(ipi_local_id, ipi_remote_id);
 		SMC_RET1(handle, 0);
 	}

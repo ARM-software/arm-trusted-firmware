@@ -62,7 +62,7 @@ static enum pm_ret_status pm_ioctl_set_rpu_oper_mode(uint32_t mode)
 {
 	uint32_t val;
 
-	if (mmio_read_32(CRL_APB_RST_LPD_TOP) & CRL_APB_RPU_AMBA_RESET) {
+	if ((mmio_read_32(CRL_APB_RST_LPD_TOP) & CRL_APB_RPU_AMBA_RESET) != 0U) {
 		return PM_RET_ERROR_ACCESS;
 	}
 

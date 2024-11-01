@@ -146,7 +146,7 @@ static void __dead2 versal_system_off(void)
 	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
 				 pm_get_shutdown_scope(), SECURE_FLAG);
 
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }
@@ -185,7 +185,7 @@ static void __dead2 versal_system_reset(void)
 
 	(void)psci_cpu_off();
 
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }

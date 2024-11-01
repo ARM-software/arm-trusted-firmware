@@ -42,7 +42,7 @@ static int32_t versal_net_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	pm_req_wakeup(proc->node_id, (versal_net_sec_entry & 0xFFFFFFFFU) | 0x1U,
+	(void)pm_req_wakeup(proc->node_id, (versal_net_sec_entry & 0xFFFFFFFFU) | 0x1U,
 		      versal_net_sec_entry >> 32, 0, 0);
 
 	/* Clear power down request */
@@ -130,7 +130,7 @@ static void __dead2 versal_net_system_reset(void)
 
 	(void)psci_cpu_off();
 
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }
@@ -166,7 +166,7 @@ static void versal_net_pwr_domain_suspend(const psci_power_state_t *target_state
 		PM_STATE_SUSPEND_TO_RAM : PM_STATE_CPU_IDLE;
 
 	/* Send request to PMC to suspend this core */
-	pm_self_suspend(proc->node_id, MAX_LATENCY, state, versal_net_sec_entry,
+	(void)pm_self_suspend(proc->node_id, MAX_LATENCY, state, versal_net_sec_entry,
 			SECURE_FLAG);
 
 	/* TODO: disable coherency */
@@ -223,10 +223,10 @@ static void versal_net_pwr_domain_suspend_finish(const psci_power_state_t *targe
 static void __dead2 versal_net_system_off(void)
 {
 	/* Send the power down request to the PMC */
-	pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
+	(void)pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
 			  pm_get_shutdown_scope(), SECURE_FLAG);
 
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }
@@ -257,7 +257,7 @@ static int32_t versal_net_validate_power_state(unsigned int power_state,
 	}
 
 	/* We expect the 'state id' to be zero */
-	if (psci_get_pstate_id(power_state)) {
+	if (psci_get_pstate_id(power_state) != 0U) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 

@@ -1115,7 +1115,7 @@ static enum pm_ret_status pm_clock_gate(uint32_t clock_id,
 		return status;
 	}
 
-	if (enable) {
+	if (enable != 0U) {
 		api_id = PM_CLOCK_ENABLE;
 	} else {
 		api_id = PM_CLOCK_DISABLE;
@@ -1297,7 +1297,7 @@ enum pm_ret_status pm_clock_getdivider(uint32_t clock_id,
 		return status;
 	}
 
-	if (pm_clock_has_div(clock_id, PM_CLOCK_DIV0_ID)) {
+	if ((pm_clock_has_div(clock_id, PM_CLOCK_DIV0_ID)) != 0U) {
 		/* Send request to the PMU to get div0 */
 		PM_PACK_PAYLOAD3(payload, PM_CLOCK_GETDIVIDER, clock_id,
 				 PM_CLOCK_DIV0_ID);
@@ -1308,7 +1308,7 @@ enum pm_ret_status pm_clock_getdivider(uint32_t clock_id,
 		*divider = val;
 	}
 
-	if (pm_clock_has_div(clock_id, PM_CLOCK_DIV1_ID)) {
+	if ((pm_clock_has_div(clock_id, PM_CLOCK_DIV1_ID)) != 0U) {
 		/* Send request to the PMU to get div1 */
 		PM_PACK_PAYLOAD3(payload, PM_CLOCK_GETDIVIDER, clock_id,
 				 PM_CLOCK_DIV1_ID);

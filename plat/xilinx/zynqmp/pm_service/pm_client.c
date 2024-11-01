@@ -204,7 +204,7 @@ static void pm_client_set_wakeup_sources(void)
 			continue;
 		}
 
-		while (reg) {
+		while (reg != 0U) {
 			enum pm_node_id node;
 			uint32_t idx, ret, irq, lowest_set = reg & (-reg);
 

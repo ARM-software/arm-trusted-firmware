@@ -2012,9 +2012,9 @@ enum pm_ret_status pm_api_pinctrl_get_num_func_groups(uint32_t fid,
 void pm_api_pinctrl_get_function_name(uint32_t fid, char *name)
 {
 	if (fid >= MAX_FUNCTION) {
-		memcpy(name, END_OF_FUNCTION, FUNCTION_NAME_LEN);
+		(void)memcpy(name, END_OF_FUNCTION, FUNCTION_NAME_LEN);
 	} else {
-		memcpy(name, pinctrl_functions[fid].name, FUNCTION_NAME_LEN);
+		(void)memcpy(name, pinctrl_functions[fid].name, FUNCTION_NAME_LEN);
 	}
 }
 
@@ -2049,7 +2049,7 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
 		return PM_RET_ERROR_ARGS;
 	}
 
-	memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
+	(void)memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
 
 	grps = pinctrl_functions[fid].group_base;
 	end_of_grp_offset = grps + pinctrl_functions[fid].group_size;
@@ -2094,7 +2094,7 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(uint32_t pin,
 		return PM_RET_ERROR_ARGS;
 	}
 
-	memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
+	(void)memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
 
 	grps = *zynqmp_pin_groups[pin].groups;
 	if (grps == NULL) {

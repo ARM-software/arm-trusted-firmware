@@ -144,11 +144,11 @@ int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
 	uint32_t status;
 
 	status = mmio_read_32(IPI_REG_BASE(local) + IPI_OBR_OFFSET);
-	if (status & IPI_BIT_MASK(remote)) {
+	if ((status & IPI_BIT_MASK(remote)) != 0U) {
 		ret |= IPI_MB_STATUS_SEND_PENDING;
 	}
 	status = mmio_read_32(IPI_REG_BASE(local) + IPI_ISR_OFFSET);
-	if (status & IPI_BIT_MASK(remote)) {
+	if ((status & IPI_BIT_MASK(remote)) != 0U) {
 		ret |= IPI_MB_STATUS_RECV_PENDING;
 	}
 
@@ -170,11 +170,11 @@ void ipi_mb_notify(uint32_t local, uint32_t remote, uint32_t is_blocking)
 
 	mmio_write_32(IPI_REG_BASE(local) + IPI_TRIG_OFFSET,
 		      IPI_BIT_MASK(remote));
-	if (is_blocking) {
+	if (is_blocking != 0U) {
 		do {
 			status = mmio_read_32(IPI_REG_BASE(local) +
 					      IPI_OBR_OFFSET);
-		} while (status & IPI_BIT_MASK(remote));
+		} while ((status & IPI_BIT_MASK(remote)) != 0U);
 	}
 }
 
