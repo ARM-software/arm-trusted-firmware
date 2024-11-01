@@ -178,7 +178,7 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
  */
 #define PLAT_SPMC_SHMEM_DATASTORE_SIZE 64 * 1024
 
-uint8_t plat_spmc_shmem_datastore[PLAT_SPMC_SHMEM_DATASTORE_SIZE];
+uint8_t plat_spmc_shmem_datastore[PLAT_SPMC_SHMEM_DATASTORE_SIZE] __aligned(2 * sizeof(long));
 
 int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
 {
