@@ -928,6 +928,12 @@ nonetheless once execution has reached the runtime EL3 firmware.
      Measured Boot implementation in |TF-A| is that it does not extend the
      measurements into a |PCR| of a Discrete |TPM|, where measurements would
      be securely stored and protected against tampering.
+   - Discrete |TPM|: Implemented in |TF-A| as a proof of concept, the Discrete
+     |TPM| is used alongside the existing TCG-compliant Event Log. This
+     Measured Boot implementation extends measurement hashes to a |PCR| in the
+     |TPM|, which provides a hardware-backed root of trust. The measurements in
+     the Event Log can now be hashed and compared to the value of the |PCR| to
+     determine if tampering of the Event Log has taken place.
    - `CCA Measured Boot`_: Implemented by |TF-M|. Measurements are stored in
      |HES| secure on-chip memory. |HES| implements protection against tampering
      its on-chip memory. |HES| interface is available for BL1 and BL2.
@@ -941,6 +947,20 @@ nonetheless once execution has reached the runtime EL3 firmware.
  Beyond the measurements (image digest and signer-id) there are no other assets
  to protect or threats to defend against that could compromise |TF-A| execution
  environment's security.
+
+ When considering the implementation of Measured Boot using a TCG-compliant
+ Event Log backed by a discrete TPM, physical vulnerabilities come to mind.
+ Platforms have many different ways of integrating a discrete TPM, and these
+ implementations can be susceptible to man-in-the-middle attacks, where the
+ attacker intercepts the bus traffic between the discrete TPM and the host
+ machine. This can lead to PCR extend operations being modified, compromising
+ Measured Boot. This vulnerability requires physical access to the host machine.
+
+ TF-A does not provide any mitigations against these physical vulnerabilities,
+ it is the responsibility of the platform owners to address this based on their
+ specific threat model. Mitigation of this can be achieved through dedicated
+ hardware solutions, such as an encrypted AP/dTPM bus, or software-based
+ approaches designed to protect sensitive data such as parameter encryption.
 
  There are general security assets and threats associated with remote/delegated
  attestation. However, these are outside the |TF-A| security boundary and
@@ -1192,7 +1212,7 @@ Threats to be Mitigated by an External Agent Outside of TF-A
 
 --------------
 
-*Copyright (c) 2021-2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2025, Arm Limited. All rights reserved.*
 
 
 .. _STRIDE threat analysis technique: https://docs.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats#stride-model
