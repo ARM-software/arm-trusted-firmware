@@ -252,6 +252,11 @@ int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
  *		@mode: Low power mode to enter.
  *		@core_resume_addr: Address that core should be resumed from
  *				   after low power transition.
+ * - ti_sci_lpm_get_next_sys_mode - Get next LPM system mode
+ *
+ * @next_mode:	pointer to a variable that will store the next mode
+ *
+ * Return: 0 if all goes well, else appropriate error message
  *
  * NOTE: for all these functions, the following are generic in nature:
  * Returns 0 for successful request, else returns corresponding error message.
@@ -259,5 +264,6 @@ int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
 int ti_sci_enter_sleep(uint8_t proc_id,
 		       uint8_t mode,
 		       uint64_t core_resume_addr);
+int ti_sci_lpm_get_next_sys_mode(uint8_t *next_mode);
 
 #endif /* TI_SCI_H */

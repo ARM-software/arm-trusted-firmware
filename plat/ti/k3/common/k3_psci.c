@@ -234,7 +234,7 @@ static int k3_validate_power_state(unsigned int power_state,
 	return PSCI_E_SUCCESS;
 }
 
-static void k3_pwr_domain_suspend(const psci_power_state_t *target_state)
+static void k3_pwr_domain_suspend_to_mode(const psci_power_state_t *target_state, uint8_t mode)
 {
 	unsigned int core, proc_id;
 
@@ -247,7 +247,25 @@ static void k3_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	k3_pwr_domain_off(target_state);
 
-	ti_sci_enter_sleep(proc_id, 0, k3_sec_entrypoint);
+	ti_sci_enter_sleep(proc_id, mode, k3_sec_entrypoint);
+}
+
+static void k3_pwr_domain_suspend_dm_managed(const psci_power_state_t *target_state)
+{
+	uint8_t mode = MSG_VALUE_SLEEP_MODE_DEEP_SLEEP;
+	int ret;
+
+	ret = ti_sci_lpm_get_next_sys_mode(&mode);
+	if (ret != 0) {
+		ERROR("Failed to fetch next system mode\n");
+	}
+
+	k3_pwr_domain_suspend_to_mode(target_state, mode);
+}
+
+static void k3_pwr_domain_suspend(const psci_power_state_t *target_state)
+{
+	k3_pwr_domain_suspend_to_mode(target_state, MSG_VALUE_SLEEP_MODE_DEEP_SLEEP);
 }
 
 static void k3_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
@@ -301,6 +319,8 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 		k3_plat_psci_ops.pwr_domain_suspend = NULL;
 		k3_plat_psci_ops.pwr_domain_suspend_finish = NULL;
 		k3_plat_psci_ops.get_sys_suspend_power_state = NULL;
+	} else if (fw_caps & MSG_FLAG_CAPS_LPM_DM_MANAGED) {
+		k3_plat_psci_ops.pwr_domain_suspend = k3_pwr_domain_suspend_dm_managed;
 	}
 
 	*psci_ops = &k3_plat_psci_ops;
