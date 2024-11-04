@@ -892,28 +892,65 @@ nonetheless once execution has reached the runtime EL3 firmware.
 
 .. topic:: Measured Boot Threats (or lack of)
 
- In the current Measured Boot design, BL1, BL2, and BL31, as well as the
- secure world components, form the |SRTM|. Measurement data is currently
- considered an asset to be protected against attack, and this is achieved
- by storing them in the Secure Memory.
- Beyond the measurements stored inside the TCG-compliant Event Log buffer,
- there are no other assets to protect or threats to defend against that
- could compromise |TF-A| execution environment's security.
+ In the current Measured Boot design the following components form the |TCB|:
+
+   - BL1, BL2, BL31
+   - Secure world components
+   - RMM (if RME extension is implemented)
+   - The configuration data of the above components
+
+ Across various Measured Boot backends, the data recorded during the flow as
+ well as the criticality of this data can vary. In most cases, these attributes
+ are considered valuable assets and are protected against potential attacks:
+
+   - Image measurement: the digest value of a component produced by a hash
+     function.
+   - Signer-id: the digest value of the image verification publiy key. The
+     verification public key is part of the image metadata.
+
+ In addition to these, other metadata attributes (image version, hash algorithm
+ identifier, etc) could be recorded during the Measured Boot process. But these
+ are not critical data.
+
+ In this context, an attack means modifying the measurement data (image or
+ public key hash) or recording arbitrary data as valid measurements.
+
+ The current Measured Boot design consists of two main parts. A frontend, which
+ is responsible for taking the measurements, and a backend which is responsible
+ for storing them. |TF-A| makes it possible to integrate various backends. Some
+ of these are implemented by the |TF-A| projects, while others are part of
+ different projects, and |TF-A| provides an integration layer.
+
+   - TCG-compliant Event Log: Implemented by |TF-A|. Measurements are stored in
+     the Event Log which is located on the secure on-chip memory of the AP. The
+     address of the Event Log buffer is handed off between boot stages and new
+     measurements are appended to the Event Log. A limitation of the current
+     Measured Boot implementation in |TF-A| is that it does not extend the
+     measurements into a |PCR| of a Discrete |TPM|, where measurements would
+     be securely stored and protected against tampering.
+   - `CCA Measured Boot`_: Implemented by |TF-M|. Measurements are stored in
+     |HES| secure on-chip memory. |HES| implements protection against tampering
+     its on-chip memory. |HES| interface is available for BL1 and BL2.
+   - `DICE Protection Environment`_ (DPE): Implemented by |TF-M|. Measurements
+     are stored in |RSE| secure on-chip memory. |RSE| implements protection
+     against tampering its on-chip memory. DPE provides additional protection
+     against unauthorized access by malicious actors through the use of one-time
+     context handles and the identification of the client's target locality
+     (location of the client).
+
+ Beyond the measurements (image digest and signer-id) there are no other assets
+ to protect or threats to defend against that could compromise |TF-A| execution
+ environment's security.
 
  There are general security assets and threats associated with remote/delegated
  attestation. However, these are outside the |TF-A| security boundary and
  should be dealt with by the appropriate agent in the platform/system.
  Since current Measured Boot design does not use local attestation, there would
- be no further assets to protect(like unsealed keys).
+ be no further assets to protect (like unsealed keys).
 
- A limitation of the current Measured Boot design is that it is dependent upon
- Secure Boot as implementation of Measured Boot does not extend measurements
- into a discrete |TPM|, where they would be securely stored and protected
- against tampering. This implies that if Secure-Boot is compromised, Measured
- Boot may also be compromised.
-
- Platforms must carefully evaluate the security of the default implementation
- since the |SRTM| includes all secure world components.
+ System integrators must carefully evaluate the security requirement and
+ capabilities of their platform and choose an appropriate Measured Boot
+ solution.
 
 
 .. _Runtime Firmware Threats:
@@ -1169,3 +1206,5 @@ Threats to be Mitigated by an External Agent Outside of TF-A
 .. _Trusted Firmware-A Tests: https://git.trustedfirmware.org/TF-A/tf-a-tests.git/about/
 .. _OP-TEE Dispatcher: https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/components/spd/optee-dispatcher.rst
 .. _PSR Specification: https://developer.arm.com/documentation/den0106/0100
+.. _CCA Measured Boot: https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/measured_boot_integration_guide.html
+.. _DICE Protection Environment: https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/partitions/dice_protection_environment/dice_protection_environment.html

@@ -100,6 +100,9 @@ You can find additional definitions in the `Arm Glossary`_.
    GIC
       Generic Interrupt Controller
 
+   HES
+      Arm CCA Hardware Enforced Security
+
    ISA
       Instruction Set Architecture
 
@@ -136,6 +139,9 @@ You can find additional definitions in the `Arm Glossary`_.
    OTE
       Open-source Trusted Execution Environment
 
+   PCR
+      Platform Configuration Register
+
    PDD
       Platform Design Document
 
@@ -161,6 +167,9 @@ You can find additional definitions in the `Arm Glossary`_.
 
    ROT
       Root of Trust
+
+   RSE
+      Runtime Security Engine
 
    SCMI
       System Control and Management Interface
