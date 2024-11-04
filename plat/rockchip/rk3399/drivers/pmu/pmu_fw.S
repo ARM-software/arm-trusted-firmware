@@ -6,7 +6,7 @@
 
 /* convoluted way to make sure that the define is pasted just the right way */
 .macro INCBIN file sym sec
-	.section \sec
+	.section \sec, "a"
 	.global \sym
 	.type \sym, @object
 	.align 4
