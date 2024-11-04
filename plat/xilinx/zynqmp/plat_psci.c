@@ -36,22 +36,23 @@ static int32_t zynqmp_pwr_domain_on(u_register_t mpidr)
 	const struct pm_proc *proc;
 	uint32_t buff[3];
 	enum pm_ret_status ret;
+	int32_t result = PSCI_E_INTERN_FAIL;
 
 	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
 
 	if (cpu_id == -1) {
-		return PSCI_E_INTERN_FAIL;
+		goto exit_label;
 	}
 
 	proc = pm_get_proc(cpu_id);
 	if (proc == NULL) {
-		return PSCI_E_INTERN_FAIL;
+		goto exit_label;
 	}
 
 	/* Check the APU proc status before wakeup */
 	ret = pm_get_node_status(proc->node_id, buff);
 	if ((ret != PM_RET_SUCCESS) || (buff[0] == PM_PROC_STATE_SUSPENDING)) {
-		return PSCI_E_INTERN_FAIL;
+		goto exit_label;
 	}
 
 	/* Clear power down request */
@@ -60,7 +61,10 @@ static int32_t zynqmp_pwr_domain_on(u_register_t mpidr)
 	/* Send request to PMU to wake up selected APU CPU core */
 	(void)pm_req_wakeup(proc->node_id, 1, zynqmp_sec_entry, REQ_ACK_BLOCKING);
 
-	return PSCI_E_SUCCESS;
+	result = PSCI_E_SUCCESS;
+
+exit_label:
+	return result;
 }
 
 static void zynqmp_pwr_domain_off(const psci_power_state_t *target_state)
@@ -195,6 +199,7 @@ static int32_t zynqmp_validate_power_state(uint32_t power_state,
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
 	uint32_t pstate = psci_get_pstate_type(power_state);
+	int32_t result = PSCI_E_INVALID_PARAMS;
 
 	assert(req_state);
 
@@ -205,11 +210,11 @@ static int32_t zynqmp_validate_power_state(uint32_t power_state,
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
 	}
 	/* We expect the 'state id' to be zero */
-	if (psci_get_pstate_id(power_state) != 0U) {
-		return PSCI_E_INVALID_PARAMS;
+	if (psci_get_pstate_id(power_state) == 0U) {
+		result = PSCI_E_SUCCESS;
 	}
 
-	return PSCI_E_SUCCESS;
+	return result;
 }
 
 static void zynqmp_get_sys_suspend_power_state(psci_power_state_t *req_state)

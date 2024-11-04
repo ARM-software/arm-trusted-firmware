@@ -2405,14 +2405,16 @@ static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB,
 static bool pm_clock_valid(uint32_t clock_id)
 {
 	unsigned int i;
+	bool valid = true;
 
 	for (i = 0U; i < ARRAY_SIZE(pm_clk_invalid_list); i++) {
 		if (pm_clk_invalid_list[i] == clock_id) {
-			return 0;
+			valid = false;
+			break;
 		}
 	}
 
-	return 1;
+	return valid;
 }
 
 /**
@@ -2494,13 +2496,15 @@ enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
 	uint8_t num_nodes;
 	uint32_t i;
 	uint16_t typeflags;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
 	if (!pm_clock_valid(clock_id)) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT) {
-		return PM_RET_ERROR_NOTSUPPORTED;
+		status = PM_RET_ERROR_NOTSUPPORTED;
+		goto exit_label;
 	}
 
 	(void)memset(topology, 0, CLK_TOPOLOGY_PAYLOAD_LEN);
@@ -2509,7 +2513,8 @@ enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
 
 	/* Skip parent till index */
 	if (index >= num_nodes) {
-		return PM_RET_SUCCESS;
+		status = PM_RET_SUCCESS;
+		goto exit_label;
 	}
 
 	for (i = 0; i < 3U; i++) {
@@ -2527,7 +2532,10 @@ enum pm_ret_status pm_api_clock_get_topology(uint32_t clock_id,
 				(CLK_TYPEFLAGS_BITS - CLK_TYPEFLAGS2_SHIFT));
 	}
 
-	return PM_RET_SUCCESS;
+	status = PM_RET_SUCCESS;
+
+exit_label:
+	return status;
 }
 
 /**
@@ -2550,13 +2558,15 @@ enum pm_ret_status pm_api_clock_get_fixedfactor_params(uint32_t clock_id,
 	const struct pm_clock_node *clock_nodes;
 	uint8_t num_nodes;
 	uint32_t type, i;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
 	if (!pm_clock_valid(clock_id)) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT) {
-		return PM_RET_ERROR_NOTSUPPORTED;
+		status = PM_RET_ERROR_NOTSUPPORTED;
+		goto exit_label;
 	}
 
 	clock_nodes = *clocks[clock_id].nodes;
@@ -2572,11 +2582,12 @@ enum pm_ret_status pm_api_clock_get_fixedfactor_params(uint32_t clock_id,
 	}
 
 	/* Clock is not fixed clock */
-	if (i == num_nodes) {
-		return PM_RET_ERROR_ARGS;
+	if (i != num_nodes) {
+		status = PM_RET_SUCCESS;
 	}
 
-	return PM_RET_SUCCESS;
+exit_label:
+	return status;
 }
 
 /**
@@ -2603,18 +2614,20 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 {
 	uint32_t i;
 	const int32_t *clk_parents;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
 	if (!pm_clock_valid(clock_id)) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT) {
-		return PM_RET_ERROR_NOTSUPPORTED;
+		status = PM_RET_ERROR_NOTSUPPORTED;
+		goto exit_label;
 	}
 
 	clk_parents = *clocks[clock_id].parents;
 	if (clk_parents == NULL) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	(void)memset(parents, 0, CLK_PARENTS_PAYLOAD_LEN);
@@ -2622,7 +2635,8 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 	/* Skip parent till index */
 	for (i = 0; i < index; i++) {
 		if (clk_parents[i] == CLK_NA_PARENT) {
-			return PM_RET_SUCCESS;
+			status = PM_RET_SUCCESS;
+			goto exit_label;
 		}
 	}
 
@@ -2633,7 +2647,10 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 		}
 	}
 
-	return PM_RET_SUCCESS;
+	status = PM_RET_SUCCESS;
+
+exit_label:
+	return status;
 }
 
 /**
@@ -2650,8 +2667,10 @@ enum pm_ret_status pm_api_clock_get_parents(uint32_t clock_id,
 enum pm_ret_status pm_api_clock_get_attributes(uint32_t clock_id,
 					       uint32_t *attr)
 {
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
+
 	if (clock_id >= (uint32_t)CLK_MAX) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	/* Clock valid bit */
@@ -2660,7 +2679,10 @@ enum pm_ret_status pm_api_clock_get_attributes(uint32_t clock_id,
 	/* Clock type (Output/External) */
 	*attr |= (pm_clock_type(clock_id) << CLK_TYPE_SHIFT);
 
-	return PM_RET_SUCCESS;
+	status = PM_RET_SUCCESS;
+
+exit_label:
+	return status;
 }
 
 /**
@@ -2680,9 +2702,10 @@ enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 {
 	uint32_t i;
 	const struct pm_clock_node *nodes;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
 	if (clock_id >= CLK_MAX_OUTPUT_CLK) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	nodes = *clocks[clock_id].nodes;
@@ -2695,11 +2718,13 @@ enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
 			} else {
 				*max_div = (uint32_t)BIT(nodes[i].width) - (uint32_t)1U;
 			}
-			return PM_RET_SUCCESS;
+			status = PM_RET_SUCCESS;
+			break;
 		}
 	}
 
-	return PM_RET_ERROR_ARGS;
+exit_label:
+	return status;
 }
 
 /**
@@ -2773,14 +2798,16 @@ static struct pm_pll pm_plls[] = {
 struct pm_pll *pm_clock_get_pll(enum clock_id clock_id)
 {
 	uint32_t i;
+	struct pm_pll *pll = NULL;
 
 	for (i = 0; i < ARRAY_SIZE(pm_plls); i++) {
 		if (pm_plls[i].cid == clock_id) {
-			return &pm_plls[i];
+			pll = &pm_plls[i];
+			break;
 		}
 	}
 
-	return NULL;
+	return pll;
 }
 
 /**
@@ -2795,13 +2822,14 @@ enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 					    enum pm_node_id *node_id)
 {
 	const struct pm_pll *pll = pm_clock_get_pll(clock_id);
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
 	if (pll != NULL) {
 		*node_id = pll->nid;
-		return PM_RET_SUCCESS;
+		status = PM_RET_SUCCESS;
 	}
 
-	return PM_RET_ERROR_ARGS;
+	return status;
 }
 
 /**
@@ -2815,17 +2843,19 @@ enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
 {
 	uint32_t i;
+	struct pm_pll *pll = NULL;
 
 	for (i = 0; i < ARRAY_SIZE(pm_plls); i++) {
 		if ((pm_plls[i].pre_src == clock_id) ||
 		    (pm_plls[i].post_src == clock_id) ||
 		    (pm_plls[i].div2 == clock_id) ||
 		    (pm_plls[i].bypass == clock_id)) {
-			return &pm_plls[i];
+			pll = &pm_plls[i];
+			break;
 		}
 	}
 
-	return NULL;
+	return pll;
 }
 
 /**
@@ -2840,16 +2870,18 @@ struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
  */
 enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
 {
-	if (pll == NULL) {
-		return PM_RET_ERROR_ARGS;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
+
+	if (pll != NULL) {
+		/* Set the PLL mode according to the buffered mode value */
+		if (pll->mode == PLL_FRAC_MODE) {
+			status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_FRACTIONAL);
+		} else {
+			status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_INTEGER);
+		}
 	}
 
-	/* Set the PLL mode according to the buffered mode value */
-	if (pll->mode == PLL_FRAC_MODE) {
-		return pm_pll_set_mode(pll->nid, PM_PLL_MODE_FRACTIONAL);
-	}
-
-	return pm_pll_set_mode(pll->nid, PM_PLL_MODE_INTEGER);
+	return status;
 }
 
 /**
@@ -2864,11 +2896,13 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
  */
 enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
 {
-	if (pll == NULL) {
-		return PM_RET_ERROR_ARGS;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
+
+	if (pll != NULL) {
+		status = pm_pll_set_mode(pll->nid, PM_PLL_MODE_RESET);
 	}
 
-	return pm_pll_set_mode(pll->nid, PM_PLL_MODE_RESET);
+	return status;
 }
 
 /**
@@ -2885,16 +2919,16 @@ enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 					  uint32_t *state)
 {
-	enum pm_ret_status status;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 	enum pm_pll_mode mode;
 
 	if ((pll == NULL) || (state == NULL)) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	status = pm_pll_get_mode(pll->nid, &mode);
 	if (status != PM_RET_SUCCESS) {
-		return status;
+		goto exit_label;
 	}
 
 	if (mode == PM_PLL_MODE_RESET) {
@@ -2903,7 +2937,10 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 		*state = 1;
 	}
 
-	return PM_RET_SUCCESS;
+	status = PM_RET_SUCCESS;
+
+exit_label:
+	return status;
 }
 
 /**
@@ -2923,23 +2960,25 @@ enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
 					   uint32_t parent_index)
 {
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
+
 	if (pll == NULL) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 	if (pll->pre_src == clock_id) {
-		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
-					    parent_index);
+		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC, parent_index);
+		goto exit_label;
 	}
 	if (pll->post_src == clock_id) {
-		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
-					    parent_index);
+		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_POST_SRC, parent_index);
+		goto exit_label;
 	}
 	if (pll->div2 == clock_id) {
-		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_DIV2,
-					    parent_index);
+		status = pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_DIV2, parent_index);
 	}
 
-	return PM_RET_ERROR_ARGS;
+exit_label:
+	return status;
 }
 
 /**
@@ -2957,27 +2996,33 @@ enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
 					   uint32_t *parent_index)
 {
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
+
 	if (pll == NULL) {
-		return PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 	if (pll->pre_src == clock_id) {
-		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
-					    parent_index);
+		status = pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
+				parent_index);
+		goto exit_label;
 	}
 	if (pll->post_src == clock_id) {
-		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
-					    parent_index);
+		status = pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
+				parent_index);
+		goto exit_label;
 	}
 	if (pll->div2 == clock_id) {
-		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_DIV2,
-					    parent_index);
+		status = pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_DIV2,
+				parent_index);
+		goto exit_label;
 	}
 	if (pll->bypass == clock_id) {
 		*parent_index = 0;
-		return PM_RET_SUCCESS;
+		status = PM_RET_SUCCESS;
 	}
 
-	return PM_RET_ERROR_ARGS;
+exit_label:
+	return status;
 }
 
 /**
@@ -2994,13 +3039,14 @@ enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 					 uint32_t mode)
 {
 	struct pm_pll *pll = pm_clock_get_pll(clock_id);
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
-	if ((pll == NULL) || ((mode != PLL_FRAC_MODE) && (mode != PLL_INT_MODE))) {
-		return PM_RET_ERROR_ARGS;
+	if (!((pll == NULL) || ((mode != PLL_FRAC_MODE) && (mode != PLL_INT_MODE)))) {
+		pll->mode = (uint8_t)mode;
+		status = PM_RET_SUCCESS;
 	}
-	pll->mode = (uint8_t)mode;
 
-	return PM_RET_SUCCESS;
+	return status;
 }
 
 /**
@@ -3017,13 +3063,14 @@ enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
 					 uint32_t *mode)
 {
 	const struct pm_pll *pll = pm_clock_get_pll(clock_id);
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 
-	if ((pll == NULL) || (mode == NULL)) {
-		return PM_RET_ERROR_ARGS;
+	if ((pll != NULL) && (mode != NULL)) {
+		*mode = pll->mode;
+		status = PM_RET_SUCCESS;
 	}
-	*mode = pll->mode;
 
-	return PM_RET_SUCCESS;
+	return status;
 }
 
 /**
@@ -3035,15 +3082,17 @@ enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
  */
 enum pm_ret_status pm_clock_id_is_valid(uint32_t clock_id)
 {
-	if (!pm_clock_valid(clock_id)) {
-		return PM_RET_ERROR_ARGS;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
+
+	if (pm_clock_valid(clock_id)) {
+		if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT) {
+			status = PM_RET_ERROR_NOTSUPPORTED;
+		} else {
+			status = PM_RET_SUCCESS;
+		}
 	}
 
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT) {
-		return PM_RET_ERROR_NOTSUPPORTED;
-	}
-
-	return PM_RET_SUCCESS;
+	return status;
 }
 
 /**
@@ -3058,25 +3107,29 @@ uint8_t pm_clock_has_div(uint32_t clock_id, enum pm_clock_div_id div_id)
 {
 	uint32_t i;
 	const struct pm_clock_node *nodes;
+	uint8_t status = 0U;
 
 	if (clock_id >= (uint32_t)CLK_MAX_OUTPUT_CLK) {
-		return 0;
+		goto exit_label;
 	}
 
 	nodes = *clocks[clock_id].nodes;
 	for (i = 0; i < clocks[clock_id].num_nodes; i++) {
 		if (nodes[i].type == TYPE_DIV1) {
 			if (div_id == PM_CLOCK_DIV0_ID) {
-				return 1;
+				status = 1U;
+				break;
 			}
 		} else if (nodes[i].type == TYPE_DIV2) {
 			if (div_id == PM_CLOCK_DIV1_ID) {
-				return 1;
+				status = 1U;
+				break;
 			}
 		} else {
 			/* To fix the misra 15.7 warning */
 		}
 	}
 
-	return 0;
+exit_label:
+	return status;
 }

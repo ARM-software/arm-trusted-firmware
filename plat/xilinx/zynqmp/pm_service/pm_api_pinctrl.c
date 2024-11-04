@@ -1991,13 +1991,16 @@ enum pm_ret_status pm_api_pinctrl_get_num_functions(uint32_t *nfuncs)
 enum pm_ret_status pm_api_pinctrl_get_num_func_groups(uint32_t fid,
 						      uint32_t *ngroups)
 {
+	enum pm_ret_status status = PM_RET_SUCCESS;
+
 	if (fid >= (uint32_t)MAX_FUNCTION) {
-		return PM_RET_ERROR_ARGS;
+		status = PM_RET_ERROR_ARGS;
+	} else {
+
+		*ngroups = pinctrl_functions[fid].group_size;
 	}
 
-	*ngroups = pinctrl_functions[fid].group_size;
-
-	return PM_RET_SUCCESS;
+	return status;
 }
 
 /**
@@ -2044,9 +2047,11 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
 	uint16_t grps;
 	uint16_t end_of_grp_offset;
 	uint16_t i;
+	enum pm_ret_status status = PM_RET_SUCCESS;
 
 	if (fid >= (uint32_t)MAX_FUNCTION) {
-		return PM_RET_ERROR_ARGS;
+		status = PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	(void)memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
@@ -2061,7 +2066,8 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(uint32_t fid,
 		groups[i] = (uint16_t)(grps + index + i);
 	}
 
-	return PM_RET_SUCCESS;
+exit_label:
+	return status;
 }
 
 /**
@@ -2089,22 +2095,26 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(uint32_t pin,
 {
 	uint32_t i;
 	const uint16_t *grps;
+	enum pm_ret_status status = PM_RET_SUCCESS;
 
 	if (pin >= (uint32_t)MAX_PIN) {
-		return PM_RET_ERROR_ARGS;
+		status = PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	(void)memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
 
 	grps = *zynqmp_pin_groups[pin].groups;
 	if (grps == NULL) {
-		return PM_RET_SUCCESS;
+		status = PM_RET_SUCCESS;
+		goto exit_label;
 	}
 
 	/* Skip groups till index */
 	for (i = 0; i < index; i++) {
 		if (grps[i] == (uint16_t)END_OF_GROUPS) {
-			return PM_RET_SUCCESS;
+			status = PM_RET_SUCCESS;
+			goto exit_label;
 		}
 	}
 
@@ -2115,5 +2125,6 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(uint32_t pin,
 		}
 	}
 
-	return PM_RET_SUCCESS;
+exit_label:
+	return status;
 }

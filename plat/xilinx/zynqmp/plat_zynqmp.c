@@ -10,13 +10,12 @@
 
 int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	if ((mpidr & MPIDR_CLUSTER_MASK) != 0U) {
-		return -1;
+	int32_t core_pos = -1;
+
+	if (((mpidr & MPIDR_CLUSTER_MASK) == 0U) &&
+		((mpidr & MPIDR_CPU_MASK) < PLATFORM_CORE_COUNT)) {
+		core_pos = (int32_t)zynqmp_calc_core_pos(mpidr);
 	}
 
-	if ((mpidr & MPIDR_CPU_MASK) >= PLATFORM_CORE_COUNT) {
-		return -1;
-	}
-
-	return (int32_t)zynqmp_calc_core_pos(mpidr);
+	return core_pos;
 }
