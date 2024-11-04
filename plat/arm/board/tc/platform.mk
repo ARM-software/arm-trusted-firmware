@@ -61,6 +61,10 @@ endif
 endif
 
 ifneq ($(shell expr $(TARGET_PLATFORM) \<= 1), 0)
+        $(error Platform ${PLAT}$(TARGET_PLATFORM) is no longer available.)
+endif
+
+ifneq ($(shell expr $(TARGET_PLATFORM) = 2), 0)
         $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
           Some of the features might not work as expected)
 endif
