@@ -27,8 +27,10 @@
 
 #define LIB_NAME		"mbed TLS PSA"
 
-/* Maximum length of R_S pair in the ECDSA signature in bytes */
-#define MAX_ECDSA_R_S_PAIR_LEN	64U
+/* Minimum required size for a buffer containing a raw EC signature when using
+ * a maximum curve size of 384 bits.
+ * This is calculated as 2 * (384 / 8). */
+#define ECDSA_SIG_BUFFER_SIZE	96U
 
 /* Size of ASN.1 length and tag in bytes*/
 #define SIZE_OF_ASN1_LEN	1U
@@ -199,7 +201,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	psa_key_id_t psa_key_id;
 	mbedtls_pk_type_t pk_alg;
 	psa_algorithm_t psa_alg;
-	__unused unsigned char reformatted_sig[MAX_ECDSA_R_S_PAIR_LEN] = {0};
+	__unused unsigned char reformatted_sig[ECDSA_SIG_BUFFER_SIZE] = {0};
 	unsigned char *local_sig_ptr;
 	size_t local_sig_len;
 
@@ -252,7 +254,7 @@ TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
 		size_t key_bits = psa_get_key_bits(&psa_key_attr);
 
 		rc = mbedtls_ecdsa_der_to_raw(key_bits, p, local_sig_len,
-					      reformatted_sig, MAX_ECDSA_R_S_PAIR_LEN,
+					      reformatted_sig, ECDSA_SIG_BUFFER_SIZE,
 					      &local_sig_len);
 		if (rc != 0) {
 			rc = CRYPTO_ERR_SIGNATURE;
