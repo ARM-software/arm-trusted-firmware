@@ -183,6 +183,13 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 		scr_el3 |= SCR_EnSCXT_BIT;
 	}
 
+	if (is_feat_sctlr2_supported()) {
+		/* Set the SCTLR2En bit in SCR_EL3 to enable access to
+		 * SCTLR2_ELx registers.
+		 */
+		scr_el3 |= SCR_SCTLR2En_BIT;
+	}
+
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 }
 #endif /* ENABLE_RME */
