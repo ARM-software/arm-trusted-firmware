@@ -761,16 +761,8 @@ static void dfixlat_program(struct stm32mp_ddr_config *config)
 {
 	uint16_t loopvector;
 	uint16_t pllbypass_dat = 0U;
-	uint16_t skipddc_dat = 0U;	/*
-					 * Set to vector offset based on frequency to disable dram
-					 * drift compensation.
-					 */
 
 	pllbypass_dat |= (uint16_t)config->uib.pllbypass;
-
-	if (config->uib.frequency < 333U) {
-		skipddc_dat |= 0x5U;
-	}
 
 	for (loopvector = 0U; loopvector < 8U; loopvector++) {
 		uint16_t dfifreqxlat_dat;
@@ -799,6 +791,15 @@ static void dfixlat_program(struct stm32mp_ddr_config *config)
 		}
 #else /* STM32MP_LPDDR4_TYPE */
 		if (loopvector == 0U) {
+			uint16_t skipddc_dat = 0U;	/*
+							 * Set to vector offset based on frequency
+							 * to disable dram drift compensation.
+							 */
+
+			if (config->uib.frequency < 333U) {
+				skipddc_dat |= 0x5U;
+			}
+
 			/*
 			 * Retrain & Relock DfiFreq = 00,01,02,03)  Use StartVec 0 (pll_enabled) or
 			 * StartVec 1 (pll_bypassed).
