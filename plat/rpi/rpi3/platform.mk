@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,6 +19,25 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				plat/rpi/common/rpi3_common.c		\
 				plat/rpi/common/rpi3_console_dual.c	\
 				${XLAT_TABLES_LIB_SRCS}
+
+ifeq (${MEASURED_BOOT},1)
+MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
+$(info Including ${MEASURED_BOOT_MK})
+include ${MEASURED_BOOT_MK}
+
+PLAT_BL_COMMON_SOURCES	+=	${EVENT_LOG_SOURCES}
+
+BL1_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl1_mboot.c
+BL2_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl2_mboot.c
+
+CRYPTO_SOURCES		:=	drivers/auth/crypto_mod.c
+
+BL1_SOURCES		+=	${CRYPTO_SOURCES}
+BL2_SOURCES		+=	${CRYPTO_SOURCES}
+
+include drivers/auth/mbedtls/mbedtls_crypto.mk
+
+endif
 
 BL1_SOURCES		+=	drivers/io/io_fip.c			\
 				drivers/io/io_memmap.c			\

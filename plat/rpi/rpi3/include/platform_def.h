@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -260,5 +260,10 @@
  * System counter
  */
 #define SYS_COUNTER_FREQ_IN_TICKS	ULL(19200000)
+
+/*
+ * TCG Event Log
+ */
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE UL(0x400)
 
 #endif /* PLATFORM_DEF_H */
