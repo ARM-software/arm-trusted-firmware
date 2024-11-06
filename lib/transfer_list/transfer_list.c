@@ -521,3 +521,22 @@ void *transfer_list_entry_data(struct transfer_list_entry *entry)
 	}
 	return (uint8_t *)entry + entry->hdr_size;
 }
+
+/*******************************************************************************
+ * Verifies that the transfer list has not already been initialized, then
+ * initializes it at the specified memory location.
+ *
+ * Return pointer to the transfer list or NULL on error
+ * *****************************************************************************/
+struct transfer_list_header *transfer_list_ensure(void *addr, size_t size)
+{
+	struct transfer_list_header *tl = NULL;
+
+	if (transfer_list_check_header(addr) == TL_OPS_ALL) {
+		return (struct transfer_list_header *)addr;
+	}
+
+	tl = transfer_list_init((void *)addr, size);
+
+	return tl;
+}
