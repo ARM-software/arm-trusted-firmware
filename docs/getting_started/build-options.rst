@@ -499,6 +499,11 @@ Common build options
    The flag is automatically disabled when the target
    architecture is AArch32.
 
+-  ``ENABLE_FEAT_LS64_ACCDATA``: Numeric value to enable access and save and
+   restore the ACCDATA_EL1 system register, at EL2 and below. This flag can
+   take the values 0 to 2, to align  with the ``ENABLE_FEAT`` mechanism.
+   Default value is ``0``.
+
 -  ``ENABLE_MPMM``: Boolean option to enable support for the Maximum Power
    Mitigation Mechanism supported by certain Arm cores, which allows the SoC
    firmware to detect and limit high activity events to assist in SoC processor

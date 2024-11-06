@@ -293,6 +293,18 @@
 /* ID_AA64ISAR1_EL1 definitions */
 #define ID_AA64ISAR1_EL1		S3_0_C0_C6_1
 
+#define ID_AA64ISAR1_LS64_SHIFT		U(60)
+#define ID_AA64ISAR1_LS64_MASK		ULL(0xf)
+#define LS64_ACCDATA_IMPLEMENTED	ULL(0x3)
+#define LS64_V_IMPLEMENTED		ULL(0x2)
+#define LS64_IMPLEMENTED		ULL(0x1)
+#define LS64_NOT_IMPLEMENTED		ULL(0x0)
+
+#define ID_AA64ISAR1_SB_SHIFT		U(36)
+#define ID_AA64ISAR1_SB_MASK		ULL(0xf)
+#define SB_IMPLEMENTED			ULL(0x1)
+#define SB_NOT_IMPLEMENTED		ULL(0x0)
+
 #define ID_AA64ISAR1_GPI_SHIFT		U(28)
 #define ID_AA64ISAR1_GPI_MASK		ULL(0xf)
 #define ID_AA64ISAR1_GPA_SHIFT		U(24)
@@ -302,11 +314,6 @@
 #define ID_AA64ISAR1_API_MASK		ULL(0xf)
 #define ID_AA64ISAR1_APA_SHIFT		U(4)
 #define ID_AA64ISAR1_APA_MASK		ULL(0xf)
-
-#define ID_AA64ISAR1_SB_SHIFT		U(36)
-#define ID_AA64ISAR1_SB_MASK		ULL(0xf)
-#define SB_IMPLEMENTED			ULL(0x1)
-#define SB_NOT_IMPLEMENTED		ULL(0x0)
 
 /* ID_AA64ISAR2_EL1 definitions */
 #define ID_AA64ISAR2_EL1		S3_0_C0_C6_2
@@ -606,11 +613,13 @@
 #define SCR_SCTLR2En_BIT	(UL(1) << 44)
 #define SCR_TCR2EN_BIT		(UL(1) << 43)
 #define SCR_RCWMASKEn_BIT	(UL(1) << 42)
+#define SCR_ENTP2_SHIFT		U(41)
+#define SCR_ENTP2_BIT		(UL(1) << SCR_ENTP2_SHIFT)
 #define SCR_TRNDR_BIT		(UL(1) << 40)
 #define SCR_GCSEn_BIT		(UL(1) << 39)
 #define SCR_HXEn_BIT		(UL(1) << 38)
-#define SCR_ENTP2_SHIFT		U(41)
-#define SCR_ENTP2_BIT		(UL(1) << SCR_ENTP2_SHIFT)
+#define SCR_ADEn_BIT		(UL(1) << 37)
+#define SCR_EnAS0_BIT		(UL(1) << 36)
 #define SCR_AMVOFFEN_SHIFT	U(35)
 #define SCR_AMVOFFEN_BIT	(UL(1) << SCR_AMVOFFEN_SHIFT)
 #define SCR_TWEDEn_BIT		(UL(1) << 29)
@@ -1502,6 +1511,11 @@
  ******************************************************************************/
 #define SCTLR2_EL2		S3_4_C1_C0_3
 #define SCTLR2_EL1		S3_0_C1_C0_3
+
+/*******************************************************************************
+ * FEAT_LS64_ACCDATA - LoadStore64B with status data
+ ******************************************************************************/
+#define ACCDATA_EL1		S3_0_C13_C0_5
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers

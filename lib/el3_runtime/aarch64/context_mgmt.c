@@ -427,6 +427,15 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	}
 
 	/*
+	 * If FEAT_LS64_ACCDATA is enabled, enable access to ACCDATA_EL1 by
+	 * setting SCR_EL3.ADEn and allow the ST64BV0 instruction by setting
+	 * SCR_EL3.EnAS0.
+	 */
+	if (is_feat_ls64_accdata_supported()) {
+		scr_el3 |= SCR_ADEn_BIT | SCR_EnAS0_BIT;
+	}
+
+	/*
 	 * If FEAT_RNG_TRAP is enabled, all reads of the RNDR and RNDRRS
 	 * registers are trapped to EL3.
 	 */
@@ -1759,6 +1768,9 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 		write_el1_ctx_sctlr2(ctx, sctlr2_el1, read_sctlr2_el1());
 	}
 
+	if (is_feat_ls64_accdata_supported()) {
+		write_el1_ctx_ls64(ctx, accdata_el1, read_accdata_el1());
+	}
 }
 
 static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
@@ -1864,6 +1876,9 @@ static void el1_sysregs_context_restore(el1_sysregs_t *ctx)
 		write_sctlr2_el1(read_el1_ctx_sctlr2(ctx, sctlr2_el1));
 	}
 
+	if (is_feat_ls64_accdata_supported()) {
+		write_accdata_el1(read_el1_ctx_ls64(ctx, accdata_el1));
+	}
 }
 
 /*******************************************************************************

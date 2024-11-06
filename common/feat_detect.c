@@ -192,6 +192,11 @@ static unsigned int read_feat_hcx_id_field(void)
 	return ISOLATE_FIELD(read_id_aa64mmfr1_el1(), ID_AA64MMFR1_EL1_HCX_SHIFT,
 			     ID_AA64MMFR1_EL1_HCX_MASK);
 }
+static unsigned int read_feat_ls64_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_LS64_SHIFT,
+			     ID_AA64ISAR1_LS64_MASK);
+}
 static unsigned int read_feat_tcr2_id_field(void)
 {
 	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_TCRX_SHIFT,
@@ -367,6 +372,7 @@ void detect_arch_features(void)
 
 	/* v8.7 features */
 	check_feature(ENABLE_FEAT_HCX, read_feat_hcx_id_field(), "HCX", 1, 1);
+	check_feature(ENABLE_FEAT_LS64_ACCDATA, read_feat_ls64_id_field(), "LS64", 1, 3);
 
 	/* v8.9 features */
 	check_feature(ENABLE_FEAT_TCR2, read_feat_tcr2_id_field(),
