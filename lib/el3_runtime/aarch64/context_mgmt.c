@@ -661,13 +661,13 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 /*******************************************************************************
  * Enable architecture extensions for EL3 execution. This function only updates
  * registers in-place which are expected to either never change or be
- * overwritten by el3_exit.
+ * overwritten by el3_exit. Expects the core_pos of the current core as argument.
  ******************************************************************************/
 #if IMAGE_BL31
-void cm_manage_extensions_el3(void)
+void cm_manage_extensions_el3(unsigned int my_idx)
 {
 	if (is_feat_amu_supported()) {
-		amu_init_el3();
+		amu_init_el3(my_idx);
 	}
 
 	if (is_feat_sme_supported()) {
@@ -803,6 +803,7 @@ static void manage_extensions_secure_per_world(void)
 static void manage_extensions_nonsecure(cpu_context_t *ctx)
 {
 #if IMAGE_BL31
+	/* NOTE: registers are not context switched */
 	if (is_feat_amu_supported()) {
 		amu_enable(ctx);
 	}

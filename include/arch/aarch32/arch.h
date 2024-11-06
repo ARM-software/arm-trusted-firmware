@@ -761,7 +761,7 @@
 
 /* AMCNTENSET0 definitions */
 #define AMCNTENSET0_Pn_SHIFT	U(0)
-#define AMCNTENSET0_Pn_MASK	U(0xffff)
+#define AMCNTENSET0_Pn_MASK	U(0xf)
 
 /* AMCNTENSET1 definitions */
 #define AMCNTENSET1_Pn_SHIFT	U(0)
@@ -769,7 +769,7 @@
 
 /* AMCNTENCLR0 definitions */
 #define AMCNTENCLR0_Pn_SHIFT	U(0)
-#define AMCNTENCLR0_Pn_MASK	U(0xffff)
+#define AMCNTENCLR0_Pn_MASK	U(0xf)
 
 /* AMCNTENCLR1 definitions */
 #define AMCNTENCLR1_Pn_SHIFT	U(0)

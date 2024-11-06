@@ -20,15 +20,9 @@ known as group 1 counters), controlled by the ``ENABLE_AMU_AUXILIARY_COUNTERS``
 build option.
 
 As a security precaution, Trusted Firmware-A does not enable these by default.
-Instead, platforms may configure their auxiliary counters through one of two
-possible mechanisms:
-
-- |FCONF|, controlled by the ``ENABLE_AMU_FCONF`` build option.
-- A platform implementation of the ``plat_amu_topology`` function (the default).
-
-See :ref:`Activity Monitor Unit (AMU) Bindings` for documentation on the |FCONF|
-device tree bindings.
+Instead, platforms must configure their auxiliary counters through the
+``plat_amu_aux_enables`` platform hook.
 
 --------------
 
-*Copyright (c) 2021, Arm Limited. All rights reserved.*
+*Copyright (c) 2021-2025, Arm Limited. All rights reserved.*

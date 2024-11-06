@@ -72,6 +72,18 @@ static scmi_channel_plat_info_t tc_scmi_plat_info = {
 };
 #endif
 
+/* the bottom 3 AMU group 1 counters */
+#define MPMM_GEARS ((1 << 0) | (1 << 1) | (1 << 2))
+
+uint16_t plat_amu_aux_enables[PLATFORM_CORE_COUNT] = {
+	MPMM_GEARS, MPMM_GEARS, MPMM_GEARS, MPMM_GEARS,
+	MPMM_GEARS, MPMM_GEARS, MPMM_GEARS, MPMM_GEARS,
+#if PLATFORM_CORE_COUNT == 14
+	MPMM_GEARS, MPMM_GEARS, MPMM_GEARS, MPMM_GEARS,
+	MPMM_GEARS, MPMM_GEARS
+#endif
+};
+
 #if (TARGET_PLATFORM == 3) || (TARGET_PLATFORM == 4)
 static void enable_ns_mcn_pmu(void)
 {

@@ -972,7 +972,7 @@ void psci_warmboot_entrypoint(void)
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 
 	/* Init registers that never change for the lifetime of TF-A */
-	cm_manage_extensions_el3();
+	cm_manage_extensions_el3(cpu_idx);
 
 	/*
 	 * Verify that we have been explicitly turned ON or resumed from
