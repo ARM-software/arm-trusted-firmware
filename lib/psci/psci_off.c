@@ -102,14 +102,14 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 * it returns the negotiated state info for each power level upto
 	 * the end level specified.
 	 */
-	psci_do_state_coordination(end_pwrlvl, &state_info);
+	psci_do_state_coordination(idx, end_pwrlvl, &state_info);
 
 	/* Update the target state in the power domain nodes */
-	psci_set_target_local_pwr_states(end_pwrlvl, &state_info);
+	psci_set_target_local_pwr_states(idx, end_pwrlvl, &state_info);
 
 #if ENABLE_PSCI_STAT
 	/* Update the last cpu for each level till end_pwrlvl */
-	psci_stats_update_pwr_down(end_pwrlvl, &state_info);
+	psci_stats_update_pwr_down(idx, end_pwrlvl, &state_info);
 #endif
 
 	/*

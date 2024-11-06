@@ -295,19 +295,19 @@ void psci_update_req_local_pwr_states(unsigned int end_pwrlvl,
 void psci_restore_req_local_pwr_states(unsigned int cpu_idx,
 				       plat_local_state_t *prev);
 #endif
-void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
+void psci_get_target_local_pwr_states(unsigned int cpu_idx, unsigned int end_pwrlvl,
 				      psci_power_state_t *target_state);
-void psci_set_target_local_pwr_states(unsigned int end_pwrlvl,
+void psci_set_target_local_pwr_states(unsigned int cpu_idx, unsigned int end_pwrlvl,
 				      const psci_power_state_t *target_state);
 int psci_validate_entry_point(entry_point_info_t *ep,
 			uintptr_t entrypoint, u_register_t context_id);
 void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
 				      unsigned int end_lvl,
 				      unsigned int *node_index);
-void psci_do_state_coordination(unsigned int end_pwrlvl,
+void psci_do_state_coordination(unsigned int cpu_idx, unsigned int end_pwrlvl,
 				psci_power_state_t *state_info);
 #if PSCI_OS_INIT_MODE
-int psci_validate_state_coordination(unsigned int end_pwrlvl,
+int psci_validate_state_coordination(unsigned int cpu_idx, unsigned int end_pwrlvl,
 				     psci_power_state_t *state_info);
 #endif
 void psci_acquire_pwr_domain_locks(unsigned int end_pwrlvl,
@@ -318,9 +318,9 @@ int psci_validate_suspend_req(const psci_power_state_t *state_info,
 			      unsigned int is_power_down_state);
 unsigned int psci_find_max_off_lvl(const psci_power_state_t *state_info);
 unsigned int psci_find_target_suspend_lvl(const psci_power_state_t *state_info);
-void psci_set_pwr_domains_to_run(unsigned int end_pwrlvl);
+void psci_set_pwr_domains_to_run(unsigned int cpu_idx, unsigned int end_pwrlvl);
 void psci_print_power_domain_map(void);
-bool psci_is_last_on_cpu(void);
+bool psci_is_last_on_cpu(unsigned int my_idx);
 int psci_spd_migrate_info(u_register_t *mpidr);
 
 /*
@@ -343,7 +343,8 @@ void psci_cpu_on_finish(unsigned int cpu_idx, const psci_power_state_t *state_in
 int psci_do_cpu_off(unsigned int end_pwrlvl);
 
 /* Private exported functions from psci_suspend.c */
-int psci_cpu_suspend_start(const entry_point_info_t *ep,
+int psci_cpu_suspend_start(unsigned int idx,
+			   const entry_point_info_t *ep,
 			   unsigned int end_pwrlvl,
 			   psci_power_state_t *state_info,
 			   unsigned int is_power_down_state);
@@ -360,9 +361,9 @@ void __dead2 psci_system_reset(void);
 u_register_t psci_system_reset2(uint32_t reset_type, u_register_t cookie);
 
 /* Private exported functions from psci_stat.c */
-void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
+void psci_stats_update_pwr_down(unsigned int cpu_idx, unsigned int end_pwrlvl,
 			const psci_power_state_t *state_info);
-void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
+void psci_stats_update_pwr_up(unsigned int cpu_idx, unsigned int end_pwrlvl,
 			const psci_power_state_t *state_info);
 u_register_t psci_stat_residency(u_register_t target_cpu,
 			unsigned int power_state);

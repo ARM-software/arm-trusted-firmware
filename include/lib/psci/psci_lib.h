@@ -89,10 +89,10 @@ void psci_warmboot_entrypoint(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *pm);
 void psci_prepare_next_non_secure_ctx(
 			  entry_point_info_t *next_image_info);
-int psci_stop_other_cores(unsigned int wait_ms,
+int psci_stop_other_cores(unsigned int this_cpu_idx, unsigned int wait_ms,
 			  void (*stop_func)(u_register_t mpidr));
-bool psci_is_last_on_cpu_safe(void);
-bool psci_are_all_cpus_on_safe(void);
+bool psci_is_last_on_cpu_safe(unsigned int this_core);
+bool psci_are_all_cpus_on_safe(unsigned int this_core);
 void psci_pwrdown_cpu(unsigned int power_level);
 void psci_do_manage_extensions(void);
 

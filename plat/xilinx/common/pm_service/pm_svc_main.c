@@ -112,7 +112,8 @@ void request_cpu_pwrdwn(void)
 	VERBOSE("CPU power down request received\n");
 
 	/* Send powerdown request to online secondary core(s) */
-	ret = psci_stop_other_cores(PWRDWN_WAIT_TIMEOUT, raise_pwr_down_interrupt);
+	ret = psci_stop_other_cores(plat_my_core_pos(), PWRDWN_WAIT_TIMEOUT,
+				    raise_pwr_down_interrupt);
 	if (ret != (uint32_t)PSCI_E_SUCCESS) {
 		ERROR("Failed to powerdown secondary core(s)\n");
 	}

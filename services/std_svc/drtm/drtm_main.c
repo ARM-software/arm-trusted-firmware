@@ -208,7 +208,7 @@ static enum drtm_retc drtm_dl_check_cores(void)
 		return DENIED;
 	}
 
-	running_on_single_core = psci_is_last_on_cpu_safe();
+	running_on_single_core = psci_is_last_on_cpu_safe(plat_my_core_pos());
 	if (!running_on_single_core) {
 		ERROR("DRTM: invalid launch due to non-boot PE not being turned off\n");
 		return SECONDARY_PE_NOT_OFF;
