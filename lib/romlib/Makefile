@@ -83,7 +83,7 @@ $(BUILD_DIR)/jmptbl.s: $(BUILD_DIR)/jmptbl.i | $$(@D)/
 	$(s)echo "  TBL     $@"
 	$(q)$(ROMLIB_GEN) gentbl --output $@ --bti=$(ENABLE_BTI) $<
 
-$(BUILD_DIR)/romlib.ldflags: ../../$(PLAT_DIR)/jmptbl.i
+$(BUILD_DIR)/romlib.ldflags: ../../$(PLAT_DIR)/jmptbl.i | $$(@D)/
 	$(s)echo "  LDFLAGS $@"
 	$(q)$(ROMLIB_GEN) link-flags $< > $@
 
