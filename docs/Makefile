@@ -24,4 +24,5 @@ help:
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 .DEFAULT: Makefile
+	$(if $(host-poetry),$(q)poetry -q install --with=docs)
 	$(q)$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
