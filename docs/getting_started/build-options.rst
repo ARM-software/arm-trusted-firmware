@@ -1343,6 +1343,13 @@ Common build options
    Management Extension. This flag can take the values 0 to 2, to align with
    the ``ENABLE_FEAT`` mechanism. Default value is 0.
 
+-  ``RMMD_ENABLE_EL3_TOKEN_SIGN``: Numeric value to enable support for singing
+   realm attestation token signing requests in EL3. This flag can take the
+   values 0 and 1. The default value is ``0``. When set to ``1``, this option
+   enables additional RMMD SMCs to push and pop requests for signing to
+   EL3 along with platform hooks that must be implemented to service those
+   requests and responses.
+
 -  ``ENABLE_SME_FOR_NS``: Numeric value to enable Scalable Matrix Extension
    (SME), SVE, and FPU/SIMD for the non-secure world only. These features share
    registers so are enabled together. Using this option without
