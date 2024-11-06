@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -29,6 +29,12 @@
 #define PSCI_STAT_ID_ENTER_LOW_PWR		0
 #define PSCI_STAT_ID_EXIT_LOW_PWR		1
 #define PSCI_STAT_TOTAL_IDS			2
+
+#if HW_ASSISTED_COHERENCY
+#define CACHE_MAINTENANCE_ATTR	PMF_NO_CACHE_MAINT
+#else
+#define CACHE_MAINTENANCE_ATTR	PMF_CACHE_MAINT
+#endif
 
 PMF_DECLARE_CAPTURE_TIMESTAMP(psci_svc)
 PMF_DECLARE_GET_TIMESTAMP(psci_svc)
@@ -70,7 +76,7 @@ void plat_psci_stat_accounting_start(
 {
 	assert(state_info != NULL);
 	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
-		PMF_CACHE_MAINT);
+		CACHE_MAINTENANCE_ATTR);
 }
 
 /*
@@ -82,7 +88,7 @@ void plat_psci_stat_accounting_stop(
 {
 	assert(state_info != NULL);
 	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_EXIT_LOW_PWR,
-		PMF_CACHE_MAINT);
+		CACHE_MAINTENANCE_ATTR);
 }
 
 /*
@@ -93,22 +99,27 @@ u_register_t plat_psci_stat_get_residency(unsigned int lvl,
 	const psci_power_state_t *state_info,
 	unsigned int last_cpu_idx)
 {
-	plat_local_state_t state;
 	unsigned long long pwrup_ts = 0, pwrdn_ts = 0;
 	unsigned int pmf_flags;
 
 	assert((lvl >= PSCI_CPU_PWR_LVL) && (lvl <= PLAT_MAX_PWR_LVL));
-	assert(state_info != NULL);
 	assert(last_cpu_idx <= PLATFORM_CORE_COUNT);
 
 	if (lvl == PSCI_CPU_PWR_LVL)
 		assert(last_cpu_idx == plat_my_core_pos());
 
+#if HW_ASSISTED_COHERENCY
+	/* HW coherency allows for the capture and access to happen with caches
+	 * ON. So these timestamps don't need cache maintenance */
+	pmf_flags = PMF_NO_CACHE_MAINT;
+#else
 	/*
 	 * If power down is requested, then timestamp capture will
 	 * be with caches OFF.  Hence we have to do cache maintenance
 	 * when reading the timestamp.
 	 */
+	plat_local_state_t state;
+	assert(state_info != NULL);
 	state = state_info->pwr_domain_state[PSCI_CPU_PWR_LVL];
 	if (is_local_state_off(state) != 0) {
 		pmf_flags = PMF_CACHE_MAINT;
@@ -116,6 +127,7 @@ u_register_t plat_psci_stat_get_residency(unsigned int lvl,
 		assert(is_local_state_retn(state) == 1);
 		pmf_flags = PMF_NO_CACHE_MAINT;
 	}
+#endif
 
 	PMF_GET_TIMESTAMP_BY_INDEX(psci_svc,
 		PSCI_STAT_ID_ENTER_LOW_PWR,
