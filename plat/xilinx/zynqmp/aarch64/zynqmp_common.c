@@ -14,6 +14,7 @@
 #include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
+#include <plat_arm.h>
 #include <services/arm_arch_svc.h>
 
 #include <plat_ipi.h>

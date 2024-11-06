@@ -22,6 +22,7 @@
 #include <plat_private.h>
 #include "pm_client.h"
 #include "pm_ipi.h"
+#include "pm_svc_main.h"
 #include "zynqmp_pm_api_sys.h"
 #include "zynqmp_pm_defs.h"
 
@@ -555,12 +556,12 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_FEATURE_CHECK:
 	{
-		uint32_t version = 0;
+		uint32_t version_type = 0;
 		uint32_t bit_mask[2] = {0};
 
-		ret = pm_feature_check(pm_arg[0], &version, bit_mask,
+		ret = pm_feature_check(pm_arg[0], &version_type, bit_mask,
 				       ARRAY_SIZE(bit_mask));
-		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)version << 32U)),
+		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)version_type << 32U)),
 			 ((uint64_t)bit_mask[0] | ((uint64_t)bit_mask[1] << 32U)));
 	}
 

@@ -7,6 +7,7 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 #include <lib/smccc.h>
+#include <plat/common/platform.h>
 #include <services/arm_arch_svc.h>
 
 #include <plat_private.h>
