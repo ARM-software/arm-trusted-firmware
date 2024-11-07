@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, The Linux Foundation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,24 +54,36 @@ static const interrupt_prop_t qti_interrupt_props[] = {
 		       INTR_GROUP0,
 		       GIC_INTR_CFG_EDGE),
 #endif
+#ifdef QTISECLIB_INT_ID_A2_NOC_ERROR
 	INTR_PROP_DESC(QTISECLIB_INT_ID_A2_NOC_ERROR, GIC_HIGHEST_SEC_PRIORITY,
 		       INTR_GROUP0,
 		       GIC_INTR_CFG_EDGE),
+#endif
+#ifdef QTISECLIB_INT_ID_CONFIG_NOC_ERROR
 	INTR_PROP_DESC(QTISECLIB_INT_ID_CONFIG_NOC_ERROR,
 		       GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP0,
 		       GIC_INTR_CFG_EDGE),
+#endif
+#ifdef QTISECLIB_INT_ID_DC_NOC_ERROR
 	INTR_PROP_DESC(QTISECLIB_INT_ID_DC_NOC_ERROR, GIC_HIGHEST_SEC_PRIORITY,
 		       INTR_GROUP0,
 		       GIC_INTR_CFG_EDGE),
+#endif
+#ifdef QTISECLIB_INT_ID_MEM_NOC_ERROR
 	INTR_PROP_DESC(QTISECLIB_INT_ID_MEM_NOC_ERROR, GIC_HIGHEST_SEC_PRIORITY,
 		       INTR_GROUP0,
 		       GIC_INTR_CFG_EDGE),
+#endif
+#ifdef QTISECLIB_INT_ID_SYSTEM_NOC_ERROR
 	INTR_PROP_DESC(QTISECLIB_INT_ID_SYSTEM_NOC_ERROR,
 		       GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP0,
 		       GIC_INTR_CFG_EDGE),
+#endif
+#ifdef QTISECLIB_INT_ID_MMSS_NOC_ERROR
 	INTR_PROP_DESC(QTISECLIB_INT_ID_MMSS_NOC_ERROR,
 		       GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP0,
 		       GIC_INTR_CFG_EDGE),
+#endif
 #ifdef QTISECLIB_INT_ID_LPASS_AGNOC_ERROR
 	INTR_PROP_DESC(QTISECLIB_INT_ID_LPASS_AGNOC_ERROR, GIC_HIGHEST_SEC_PRIORITY,
 		       INTR_GROUP0,
