@@ -43,10 +43,35 @@ void bl2_plat_mboot_init(void)
 
 void bl2_plat_mboot_finish(void)
 {
+	int rc;
+
+	/* Event Log address in Non-Secure memory */
+	uintptr_t ns_log_addr;
+
 	/* Event Log filled size */
 	size_t event_log_cur_size;
 
 	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_start);
+
+	/* write the eventlog addr and size to NT_FW_CONFIG TPM entry */
+	rc = rpi3_set_nt_fw_info(event_log_cur_size, &ns_log_addr);
+	if (rc != 0) {
+		ERROR("%s(): Unable to update %s_FW_CONFIG\n",
+			__func__, "NT");
+		/*
+		 * fatal error due to Bl33 maintaining the assumption
+		 * that the eventlog is successfully passed via
+		 * NT_FW_CONFIG.
+		 */
+		panic();
+	}
+
+	/* Copy Event Log to Non-secure memory */
+	(void)memcpy((void *)ns_log_addr, (const void *)event_log_start,
+		     event_log_cur_size);
+
+	/* Ensure that the Event Log is visible in Non-secure memory */
+	flush_dcache_range(ns_log_addr, event_log_cur_size);
 
 	/* Dump Event Log for user view */
 	dump_event_log((uint8_t *)event_log_start, event_log_cur_size);

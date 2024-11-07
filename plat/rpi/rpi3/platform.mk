@@ -8,7 +8,8 @@ include lib/libfdt/libfdt.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES		:=	-Iplat/rpi/common/include		\
-				-Iplat/rpi/rpi3/include
+				-Iplat/rpi/rpi3/include			\
+				-Iinclude/lib/libfdt
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				drivers/arm/pl011/aarch64/pl011_console.S \
@@ -28,7 +29,10 @@ include ${MEASURED_BOOT_MK}
 PLAT_BL_COMMON_SOURCES	+=	${EVENT_LOG_SOURCES}
 
 BL1_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl1_mboot.c
-BL2_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl2_mboot.c
+BL2_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl2_mboot.c		\
+				plat/rpi/rpi3/rpi3_dyn_cfg_helpers.c	\
+				common/fdt_wrappers.c			\
+				common/fdt_fixup.c
 
 CRYPTO_SOURCES		:=	drivers/auth/crypto_mod.c
 

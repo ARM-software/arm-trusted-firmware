@@ -266,4 +266,10 @@
  */
 #define PLAT_ARM_EVENT_LOG_MAX_SIZE UL(0x400)
 
+/*
+ * NT_FW_CONFIG magic dram addr and max size
+ */
+#define PLAT_RPI3_DTO_BASE          ULL(0x11530000)
+#define PLAT_RPI3_DTO_MAX_SIZE      ULL(0x001000)
+
 #endif /* PLATFORM_DEF_H */
