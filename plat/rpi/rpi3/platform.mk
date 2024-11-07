@@ -21,12 +21,24 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				plat/rpi/common/rpi3_console_dual.c	\
 				${XLAT_TABLES_LIB_SRCS}
 
+ifeq (${DISCRETE_TPM},1)
+TPM2_MK := drivers/tpm/tpm2.mk
+$(info Including ${TPM2_MK})
+include ${TPM2_MK}
+endif
+
+ifeq (${TPM_INTERFACE},FIFO_SPI)
+PLAT_BL_COMMON_SOURCES	+=	drivers/gpio/gpio_spi.c		\
+				drivers/tpm/tpm2_slb9670/slb9670_gpio.c
+endif
+
 ifeq (${MEASURED_BOOT},1)
 MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
 $(info Including ${MEASURED_BOOT_MK})
 include ${MEASURED_BOOT_MK}
 
-PLAT_BL_COMMON_SOURCES	+=	${EVENT_LOG_SOURCES}
+PLAT_BL_COMMON_SOURCES	+=	$(TPM2_SOURCES)				\
+				${EVENT_LOG_SOURCES}
 
 BL1_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl1_mboot.c
 BL2_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl2_mboot.c		\
