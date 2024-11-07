@@ -75,6 +75,9 @@ static const mmap_region_t plat_rpi3_mmap[] = {
 #endif
 	MAP_DEVICE0,
 	MAP_FIP,
+#if MEASURED_BOOT
+	RPI3_MAP_BL1_RW,
+#endif
 	MAP_NS_DRAM0,
 #ifdef BL32_BASE
 	MAP_BL32_MEM,

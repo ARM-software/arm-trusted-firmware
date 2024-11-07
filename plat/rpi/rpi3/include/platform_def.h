@@ -172,6 +172,14 @@
 #define BL1_RW_LIMIT			(BL_RAM_BASE + BL_RAM_SIZE)
 
 /*
+ * In order to access the TCG Event Log in BL2, we need to expose the BL1_RW region
+ * where the log resides.
+ */
+#define RPI3_MAP_BL1_RW		MAP_REGION_FLAT(BL1_RW_BASE,		\
+					BL1_RW_LIMIT - BL1_RW_BASE,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
+/*
  * BL2 specific defines.
  *
  * Put BL2 just below BL31. BL2_BASE is calculated using the current BL2 debug
