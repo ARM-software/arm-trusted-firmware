@@ -84,7 +84,7 @@ endif
 # Enable the features which are mandatory from ARCH version 8.8 and upwards.
 ifeq "8.8" "$(word 1, $(sort 8.8 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
 # 8.7 Compliant
-armv8-7-a-feats         += ${armv8-7-a-feats}
+armv8-8-a-feats         += ${armv8-7-a-feats}
 FEAT_LIST               := ${armv8-8-a-feats}
 endif
 
