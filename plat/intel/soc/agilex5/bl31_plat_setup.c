@@ -196,6 +196,9 @@ void bl31_plat_arch_setup(void)
 	NOTICE("BL31: CPU ID = %x\n", cpuid);
 	INFO("BL31: Invalidate Data cache\n");
 	invalidate_dcache_all();
+
+	/* Invalidate for NS EL2 and EL1 */
+	invalidate_cache_low_el();
 }
 
 /* Get non-secure image entrypoint for BL33. Zephyr and Linux */
