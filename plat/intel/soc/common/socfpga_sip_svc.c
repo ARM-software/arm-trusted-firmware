@@ -222,6 +222,19 @@ static int intel_fpga_config_start(uint32_t flag)
 	unsigned int size = 0;
 	unsigned int resp_len = ARRAY_SIZE(response);
 
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	/*
+	 * To trigger isolation
+	 * FPGA configuration complete signal should be de-asserted
+	 */
+	INFO("SOCFPGA: Request SDM to trigger isolation\n");
+	status = mailbox_send_fpga_config_comp();
+
+	if (status < 0) {
+		INFO("SOCFPGA: Isolation for FPGA configuration complete is not executed\n");
+	}
+#endif
+
 	request_type = RECONFIGURATION;
 
 	if (!CONFIG_TEST_FLAG(flag, PARTIAL_CONFIG)) {

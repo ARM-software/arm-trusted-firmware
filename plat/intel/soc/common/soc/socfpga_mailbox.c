@@ -622,6 +622,22 @@ int mailbox_init(void)
 	return MBOX_RET_OK;
 }
 
+int mailbox_send_fpga_config_comp(void)
+{
+	int ret;
+
+	ret = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_FPGA_CONFIG_COMP, NULL, 0U,
+				 CMD_CASUAL, NULL, NULL);
+
+	if (ret != 0) {
+		INFO("SOCFPGA: FPGA configuration complete response, Return Code: 0x%x\n",
+			MBOX_RESP_ERR(-ret));
+		return MBOX_RET_ERROR;
+	}
+
+	return MBOX_RET_OK;
+}
+
 int intel_mailbox_get_config_status(uint32_t cmd, bool init_done)
 {
 	int status;
