@@ -9,9 +9,9 @@ ifndef common-mk
 
         include $(dir $(common-mk))utilities.mk
 
-        silent = $(call bool,$(findstring s,$(firstword ~$(MAKEFLAGS))))
-        verbose = $(if $(silent),,$(call bool,$(V)))
+        silent := $(call bool,$(findstring s,$(firstword ~$(MAKEFLAGS))))
+        verbose := $(if $(silent),,$(call bool,$(V)))
 
-        s = @$(if $(or $(verbose),$(silent)),: )
-        q = $(if $(verbose),,@)
+        s := @$(if $(or $(verbose),$(silent)),: )
+        q := $(if $(verbose),,@)
 endif

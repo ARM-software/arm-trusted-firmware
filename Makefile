@@ -256,10 +256,12 @@ WARNINGS	+=		-Wunused-but-set-variable -Wmaybe-uninitialized	\
 				-Wlogical-op
 
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105523
-TF_CFLAGS		+= 	$(call cc_option, --param=min-pagesize=0)
+TF_CFLAGS_MIN_PAGE_SIZE	:=	$(call cc_option, --param=min-pagesize=0)
+TF_CFLAGS		+=	$(TF_CFLAGS_MIN_PAGE_SIZE)
 
 ifeq ($(HARDEN_SLS), 1)
-        TF_CFLAGS_aarch64       +=      $(call cc_option, -mharden-sls=all)
+        TF_CFLAGS_MHARDEN_SLS	:=      $(call cc_option, -mharden-sls=all)
+        TF_CFLAGS_aarch64	+=      $(TF_CFLAGS_MHARDEN_SLS)
 endif
 
 else
