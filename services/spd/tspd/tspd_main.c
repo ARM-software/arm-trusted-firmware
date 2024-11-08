@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -575,6 +575,11 @@ static uintptr_t tspd_smc_handler(uint32_t smc_fid,
 		 * of the DIT PSTATE bit.
 		 */
 	case TSP_YIELD_FID(TSP_CHECK_DIT):
+		/*
+		 * Request from non-secure client to modify the EL1
+		 * context registers.
+		 */
+	case TSP_YIELD_FID(TSP_MODIFY_EL1_CTX):
 		if (ns) {
 			/*
 			 * This is a fresh request from the non-secure client.
