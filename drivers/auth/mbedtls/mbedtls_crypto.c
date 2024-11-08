@@ -275,6 +275,7 @@ static int calc_hash(enum crypto_md_algo md_algo, void *data_ptr,
 		     unsigned char output[CRYPTO_MD_MAX_SIZE])
 {
 	const mbedtls_md_info_t *md_info;
+	int rc;
 
 	md_info = mbedtls_md_info_from_type(md_type(md_algo));
 	if (md_info == NULL) {
@@ -286,7 +287,12 @@ static int calc_hash(enum crypto_md_algo md_algo, void *data_ptr,
 	 * 'output' hash buffer pointer considering its size is always
 	 * bigger than or equal to MBEDTLS_MD_MAX_SIZE.
 	 */
-	return mbedtls_md(md_info, data_ptr, data_len, output);
+	rc = mbedtls_md(md_info, data_ptr, data_len, output);
+	if (rc != 0) {
+		return CRYPTO_ERR_HASH;
+	}
+
+	return CRYPTO_SUCCESS;
 }
 #endif /* CRYPTO_SUPPORT == CRYPTO_HASH_CALC_ONLY || \
 	  CRYPTO_SUPPORT == CRYPTO_AUTH_VERIFY_AND_HASH_CALC */
