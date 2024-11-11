@@ -132,18 +132,15 @@
 #endif
 
 /*
- * Determine Mbed TLS heap size
- * 13312 = 13*1024
- * 11264 = 11*1024
- * 7168  = 7*1024
+ * Determine Mbed TLS heap size.
  */
 #if TF_MBEDTLS_USE_ECDSA
-#define TF_MBEDTLS_HEAP_SIZE		U(13312)
+#define TF_MBEDTLS_HEAP_SIZE		U(13 * 1024)
 #elif TF_MBEDTLS_USE_RSA
 #if TF_MBEDTLS_KEY_SIZE <= 2048
-#define TF_MBEDTLS_HEAP_SIZE		U(7168)
+#define TF_MBEDTLS_HEAP_SIZE		U(7 * 1024)
 #else
-#define TF_MBEDTLS_HEAP_SIZE		U(11264)
+#define TF_MBEDTLS_HEAP_SIZE		U(11 * 1024)
 #endif
 #endif
 
