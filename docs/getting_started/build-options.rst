@@ -351,6 +351,12 @@ Common build options
    This flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_FPMR``: Numerical value to enable support for Floating Point
+   Mode Register feature, allowing access to the FPMR register. FPMR register
+   controls the behaviors of FP8 instructions. It is an optional architectural
+   feature from v9.2 and upwards. This flag can take value of 0 to 2, to align
+   with the ``FEATURE_DETECTION`` mechanism. Default value is ``0``.
+
 -  ``ENABLE_FEAT_FGT``: Numeric value to enable support for FGT (Fine Grain Traps)
    feature allowing for access to the HDFGRTR_EL2 (Hypervisor Debug Fine-Grained
    Read Trap Register) during EL2 to EL3 context save/restore operations.

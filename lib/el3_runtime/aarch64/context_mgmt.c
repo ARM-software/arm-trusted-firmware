@@ -28,6 +28,7 @@
 #include <lib/extensions/brbe.h>
 #include <lib/extensions/debug_v8p9.h>
 #include <lib/extensions/fgt2.h>
+#include <lib/extensions/fpmr.h>
 #include <lib/extensions/mpam.h>
 #include <lib/extensions/pmuv3.h>
 #include <lib/extensions/sme.h>
@@ -289,6 +290,13 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		 * PAR_EL1 and TTBR1_EL2, TTBR0_EL2 and VTTBR_EL2 registers.
 		 */
 		scr_el3 |= SCR_D128En_BIT;
+	}
+
+	if (is_feat_fpmr_supported()) {
+		/* Set the EnFPM bit in SCR_EL3 to enable access to FPMR
+		 * register.
+		 */
+		scr_el3 |= SCR_EnFPM_BIT;
 	}
 
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
@@ -713,6 +721,10 @@ void manage_extensions_nonsecure_per_world(void)
 
 	if (is_feat_mpam_supported()) {
 		mpam_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
+	}
+
+	if (is_feat_fpmr_supported()) {
+		fpmr_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
 	}
 }
 #endif /* IMAGE_BL31 */

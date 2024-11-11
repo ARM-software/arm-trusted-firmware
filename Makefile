@@ -951,7 +951,20 @@ ifeq (${ARCH},aarch32)
 	ifeq (${ENABLE_FEAT_RNG_TRAP},1)
                 $(error "ENABLE_FEAT_RNG_TRAP cannot be used with ARCH=aarch32")
 	endif
+
+	ifneq (${ENABLE_FEAT_FPMR},0)
+                $(error "ENABLE_FEAT_FPMR cannot be used with ARCH=aarch32")
+	endif
 endif #(ARCH=aarch32)
+
+ifneq (${ENABLE_FEAT_FPMR},0)
+	ifeq (${ENABLE_FEAT_FGT},0)
+                $(error "ENABLE_FEAT_FPMR requires ENABLE_FEAT_FGT")
+	endif
+	ifeq (${ENABLE_FEAT_HCX},0)
+                $(error "ENABLE_FEAT_FPMR requires ENABLE_FEAT_HCX")
+	endif
+endif #(ENABLE_FEAT_FPMR)
 
 ifneq (${ENABLE_SME_FOR_NS},0)
 	ifeq (${ENABLE_SVE_FOR_NS},0)
@@ -1264,6 +1277,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_FEAT_ECV \
 	ENABLE_FEAT_FGT \
 	ENABLE_FEAT_FGT2 \
+	ENABLE_FEAT_FPMR \
 	ENABLE_FEAT_HCX \
 	ENABLE_FEAT_LS64_ACCDATA \
 	ENABLE_FEAT_MTE2 \
@@ -1425,6 +1439,7 @@ $(eval $(call add_defines,\
 	ENABLE_MPMM_FCONF \
 	ENABLE_FEAT_FGT \
 	ENABLE_FEAT_FGT2 \
+	ENABLE_FEAT_FPMR \
 	ENABLE_FEAT_ECV \
 	ENABLE_FEAT_AMUv1p1 \
 	ENABLE_FEAT_SEL2 \
