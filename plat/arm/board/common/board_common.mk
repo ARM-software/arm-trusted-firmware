@@ -92,50 +92,73 @@ BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \
 BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \
 				${ARM_ROTPK_S}
 
+ifeq ($(CRYPTO_ALG), ec)
+ifeq ($(KEY_SIZE), 384)
+ARM_PROT_KEY		:=	plat/arm/board/common/protpk/arm_protprivk_ecdsa_secp384r1.pem
+ARM_SWD_ROT_KEY		:=	plat/arm/board/common/swd_rotpk/arm_swd_rotprivk_ecdsa_secp384r1.pem
+else
+ARM_PROT_KEY		:=	plat/arm/board/common/protpk/arm_protprivk_ecdsa.pem
+ARM_SWD_ROT_KEY		:=	plat/arm/board/common/swd_rotpk/arm_swd_rotprivk_ecdsa.pem
+endif
+else
+ARM_PROT_KEY		:=	plat/arm/board/common/protpk/arm_protprivk_rsa.pem
+ARM_SWD_ROT_KEY		:=	plat/arm/board/common/swd_rotpk/arm_swd_rotprivk_rsa.pem
+endif
+
 # Allows platform code to provide implementation variants depending on the
 # selected chain of trust.
 $(eval $(call add_define,ARM_COT_${COT}))
 
 ifeq (${COT},dualroot)
 # Platform Root of Trust key files.
-ARM_PROT_KEY		:=	plat/arm/board/common/protpk/arm_protprivk_rsa.pem
-ARM_PROTPK_HASH		:=	plat/arm/board/common/protpk/arm_protpk_rsa_sha256.bin
+ARM_PROTPK			:=	$(BUILD_PLAT)/arm_protpk.bin
 
 # Provide the private key to cert_create tool. It needs it to sign the images.
 PROT_KEY		:=	${ARM_PROT_KEY}
 
-$(eval $(call add_define_val,ARM_PROTPK_HASH,'"$(ARM_PROTPK_HASH)"'))
+$(eval $(call add_define_val,ARM_PROTPK,'"$(ARM_PROTPK)"'))
 
 BL1_SOURCES		+=	plat/arm/board/common/protpk/arm_dev_protpk.S
 BL2_SOURCES		+=	plat/arm/board/common/protpk/arm_dev_protpk.S
 
-$(BUILD_PLAT)/bl1/arm_dev_protpk.o: $(ARM_PROTPK_HASH)
-$(BUILD_PLAT)/bl2/arm_dev_protpk.o: $(ARM_PROTPK_HASH)
+$(BUILD_PLAT)/bl1/arm_dev_protpk.o: $(ARM_PROTPK)
+$(BUILD_PLAT)/bl2/arm_dev_protpk.o: $(ARM_PROTPK)
 endif
 
 ifeq (${COT},cca)
 # Platform and Secure World Root of Trust key files.
-ARM_PROT_KEY		:=	plat/arm/board/common/protpk/arm_protprivk_rsa.pem
-ARM_PROTPK_HASH		:=	plat/arm/board/common/protpk/arm_protpk_rsa_sha256.bin
-ARM_SWD_ROT_KEY		:=	plat/arm/board/common/swd_rotpk/arm_swd_rotprivk_rsa.pem
-ARM_SWD_ROTPK_HASH	:=	plat/arm/board/common/swd_rotpk/arm_swd_rotpk_rsa_sha256.bin
+ARM_PROTPK			:=	$(BUILD_PLAT)/arm_protpk.bin
+ARM_SWD_ROTPK		:=	$(BUILD_PLAT)/arm_swd_rotpk.bin
 
 # Provide the private keys to cert_create tool. It needs them to sign the images.
 PROT_KEY		:=	${ARM_PROT_KEY}
 SWD_ROT_KEY		:=	${ARM_SWD_ROT_KEY}
 
-$(eval $(call add_define_val,ARM_PROTPK_HASH,'"$(ARM_PROTPK_HASH)"'))
-$(eval $(call add_define_val,ARM_SWD_ROTPK_HASH,'"$(ARM_SWD_ROTPK_HASH)"'))
+$(eval $(call add_define_val,ARM_PROTPK,'"$(ARM_PROTPK)"'))
+$(eval $(call add_define_val,ARM_SWD_ROTPK,'"$(ARM_SWD_ROTPK)"'))
 
 BL1_SOURCES		+=	plat/arm/board/common/protpk/arm_dev_protpk.S \
 				plat/arm/board/common/swd_rotpk/arm_dev_swd_rotpk.S
 BL2_SOURCES		+=	plat/arm/board/common/protpk/arm_dev_protpk.S \
 				plat/arm/board/common/swd_rotpk/arm_dev_swd_rotpk.S
 
-$(BUILD_PLAT)/bl1/arm_dev_protpk.o: $(ARM_PROTPK_HASH)
-$(BUILD_PLAT)/bl1/arm_dev_swd_rotpk.o: $(ARM_SWD_ROTPK_HASH)
-$(BUILD_PLAT)/bl2/arm_dev_protpk.o: $(ARM_PROTPK_HASH)
-$(BUILD_PLAT)/bl2/arm_dev_swd_rotpk.o: $(ARM_SWD_ROTPK_HASH)
+$(BUILD_PLAT)/bl1/arm_dev_protpk.o: $(ARM_PROTPK)
+$(BUILD_PLAT)/bl1/arm_dev_swd_rotpk.o: $(ARM_SWD_ROTPK)
+$(BUILD_PLAT)/bl2/arm_dev_protpk.o: $(ARM_PROTPK)
+$(BUILD_PLAT)/bl2/arm_dev_swd_rotpk.o: $(ARM_SWD_ROTPK)
 endif
 
+$(ARM_PROTPK): $(ARM_PROT_KEY)
+ifndef ARM_PROT_KEY
+	$(error Cannot generate hash: no PROT_KEY defined)
+endif
+	${OPENSSL_BIN_PATH}/openssl ${CRYPTO_ALG} -in ${ARM_PROT_KEY} -pubout -outform DER | \
+	${OPENSSL_BIN_PATH}/openssl dgst -${HASH_ALG} -binary -out $@
+
+$(ARM_SWD_ROTPK): $(ARM_SWD_ROT_KEY)
+ifndef ARM_SWD_ROT_KEY
+	$(error Cannot generate hash: no SWD_KEY defined)
+endif
+	${OPENSSL_BIN_PATH}/openssl ${CRYPTO_ALG} -in ${ARM_SWD_ROT_KEY} -pubout -outform DER | \
+	${OPENSSL_BIN_PATH}/openssl dgst -${HASH_ALG} -binary -out $@
 endif
