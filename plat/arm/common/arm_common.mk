@@ -382,12 +382,14 @@ endif
 ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
     PLAT_INCLUDES		+=	-Iplat/arm/common	\
 					-Iinclude/drivers/auth/mbedtls
-    # Specify mbed TLS configuration file
-    ifeq (${PSA_CRYPTO},1)
-      MBEDTLS_CONFIG_FILE	?=	"<plat_arm_psa_mbedtls_config.h>"
+    ifeq (${HASH_ALG}, sha512)
+      ARM_ROTPK_HASH_LEN	:=	64
+    else ifeq (${HASH_ALG}, sha384)
+      ARM_ROTPK_HASH_LEN	:=	48
     else
-      MBEDTLS_CONFIG_FILE	?=	"<plat_arm_mbedtls_config.h>"
+      ARM_ROTPK_HASH_LEN	:=	32
     endif
+    $(eval $(call add_define,ARM_ROTPK_HASH_LEN))
 endif
 
 ifneq (${TRUSTED_BOARD_BOOT},0)

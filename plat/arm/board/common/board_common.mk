@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,63 +13,70 @@ BL2_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_dev_rotpk.S
+ARM_ROTPK = $(BUILD_PLAT)/arm_rotpk.bin
+ARM_ROTPK_IS_HASH := 1
+$(eval $(call add_define_val,ARM_ROTPK,'"$(ARM_ROTPK)"'))
 
 # ROTPK hash location
 ifeq (${ARM_ROTPK_LOCATION}, regs)
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_REGS_ID
-else ifeq (${ARM_ROTPK_LOCATION}, devel_rsa)
+else
+# The ROTPK is a development key
+ifeq (${ARM_ROTPK_LOCATION}, devel_rsa)
 	CRYPTO_ALG=rsa
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_RSA_ID
-	ARM_ROTPK_HASH = plat/arm/board/common/rotpk/arm_rotpk_rsa_sha256.bin
-$(eval $(call add_define_val,ARM_ROTPK_HASH,'"$(ARM_ROTPK_HASH)"'))
-$(BUILD_PLAT)/bl2/arm_dev_rotpk.o : $(ARM_ROTPK_HASH)
+	ROT_KEY ?= plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem
 $(warning Development keys support for FVP is deprecated. Use `regs` \
 option instead)
 else ifeq (${ARM_ROTPK_LOCATION}, devel_ecdsa)
 	CRYPTO_ALG=ec
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_ECDSA_ID
-	ARM_ROTPK_HASH = plat/arm/board/common/rotpk/arm_rotpk_ecdsa_sha256.bin
-$(eval $(call add_define_val,ARM_ROTPK_HASH,'"$(ARM_ROTPK_HASH)"'))
-$(BUILD_PLAT)/bl2/arm_dev_rotpk.o : $(ARM_ROTPK_HASH)
+	ROT_KEY ?= plat/arm/board/common/rotpk/arm_rotprivk_ecdsa.pem
 $(warning Development keys support for FVP is deprecated. Use `regs` \
 option instead)
 else ifeq (${ARM_ROTPK_LOCATION}, devel_full_dev_rsa_key)
 	CRYPTO_ALG=rsa
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_FULL_DEV_RSA_KEY_ID
-	ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_full_dev_rsa_rotpk.S
+	ROT_KEY ?= plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem
+	ARM_ROTPK_IS_HASH = 0
 $(warning Development keys support for FVP is deprecated. Use `regs` \
 option instead)
 else ifeq (${ARM_ROTPK_LOCATION}, devel_full_dev_ecdsa_key)
 	CRYPTO_ALG=ec
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_FULL_DEV_ECDSA_KEY_ID
-ifeq (${KEY_SIZE},384)
-	ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_full_dev_ecdsa_p384_rotpk.S
-else
-	ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_full_dev_ecdsa_p256_rotpk.S
-endif
+	ROT_KEY ?= plat/arm/board/common/rotpk/arm_rotprivk_ecdsa.pem
+	ARM_ROTPK_IS_HASH = 0
 $(warning Development keys support for FVP is deprecated. Use `regs` \
 option instead)
 else
 $(error "Unsupported ARM_ROTPK_LOCATION value")
 endif
+$(BUILD_PLAT)/bl1/arm_dev_rotpk.o : $(ARM_ROTPK)
+$(BUILD_PLAT)/bl2/arm_dev_rotpk.o : $(ARM_ROTPK)
+endif
 
 $(eval $(call add_define,ARM_ROTPK_LOCATION_ID))
+$(eval $(call add_define,ARM_ROTPK_IS_HASH))
 
 ifeq (${ENABLE_RME}, 1)
 COT	:=	cca
 endif
 
-# Force generation of the new hash if ROT_KEY is specified
+# Force generation of the ROT public key if ROT_KEY is specified
 ifdef ROT_KEY
-	HASH_PREREQUISITES = $(ROT_KEY) FORCE
+	PK_PREREQUISITES = $(ROT_KEY) FORCE
 endif
 
-$(ARM_ROTPK_HASH) : $(HASH_PREREQUISITES)
+$(ARM_ROTPK) : $(PK_PREREQUISITES)
 ifndef ROT_KEY
-	$(error Cannot generate hash: no ROT_KEY defined)
+	$(error Cannot generate public key: no ROT_KEY defined)
 endif
+ifeq ($(ARM_ROTPK_IS_HASH), 1)
 	${OPENSSL_BIN_PATH}/openssl ${CRYPTO_ALG} -in $< -pubout -outform DER | \
-	${OPENSSL_BIN_PATH}/openssl dgst -sha256 -binary > $@
+	${OPENSSL_BIN_PATH}/openssl dgst -${HASH_ALG} -binary -out $@
+else
+	${OPENSSL_BIN_PATH}/openssl ${CRYPTO_ALG} -in $< -pubout -outform DER -out $@
+endif
 
 # Certificate NV-Counters. Use values corresponding to tied off values in
 # ARM development platforms

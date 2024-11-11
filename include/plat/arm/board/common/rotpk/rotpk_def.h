@@ -18,7 +18,4 @@
 #ifndef ARM_ROTPK_HEADER_LEN
 #define ARM_ROTPK_HEADER_LEN		19
 #endif
-#ifndef ARM_ROTPK_HASH_LEN
-#define ARM_ROTPK_HASH_LEN		32
-#endif
 #endif /* ROTPK_DEF_H */
