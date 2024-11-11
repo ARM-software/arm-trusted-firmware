@@ -392,7 +392,7 @@ void arm_bl31_platform_setup(void)
 	te = transfer_list_add(ns_tl, TL_TAG_FDT, te->data_size,
 			       transfer_list_entry_data(te));
 	assert(te != NULL);
-#endif /* TRANSFER_LIST */
+#endif /* TRANSFER_LIST && !RESET_TO_BL31 */
 
 	/* Initialize the GIC driver, cpu and distributor interfaces */
 	plat_arm_gic_driver_init();
@@ -447,7 +447,7 @@ void arm_bl31_plat_runtime_setup(void)
 	 * they can access the updated data even if caching is not enabled.
 	 */
 	flush_dcache_range((uintptr_t)ns_tl, ns_tl->size);
-#endif /* TRANSFER_LIST && !(RESET_TO_BL2 || RESET_TO_BL31) */
+#endif /* TRANSFER_LIST && !RESET_TO_BL31 */
 
 #if RECLAIM_INIT_CODE
 	arm_free_init_memory();
