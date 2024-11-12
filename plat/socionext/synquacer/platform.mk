@@ -71,11 +71,11 @@ $(eval $(call add_define_val,ROTPK_HASH,'"$(ROTPK_HASH)"'))
 $(BUILD_PLAT)/bl2/sq_rotpk.o: $(ROTPK_HASH)
 
 certificates: $(ROT_KEY)
-$(ROT_KEY): | $(BUILD_PLAT)
+$(ROT_KEY): | $$(@D)/
 	$(s)echo "  OPENSSL $@"
 	$(q)${OPENSSL_BIN_PATH}/openssl genrsa 2048 > $@ 2>/dev/null
 
-$(ROTPK_HASH): $(ROT_KEY)
+$(ROTPK_HASH): $(ROT_KEY) | $$(@D)/
 	$(s)echo "  OPENSSL $@"
 	$(q)${OPENSSL_BIN_PATH}/openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
 	${OPENSSL_BIN_PATH}/openssl dgst -sha256 -binary > $@ 2>/dev/null
