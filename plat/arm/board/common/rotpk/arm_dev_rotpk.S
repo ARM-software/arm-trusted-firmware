@@ -7,7 +7,7 @@
 #include <plat/arm/board/common/rotpk/rotpk_def.h>
 
 #if ARM_ROTPK_IS_HASH == 1
-	.global arm_rotpk_header
+	.global arm_rotpk_hash_der_header
 	.global arm_rotpk_hash_end
 	.section .rodata.arm_rotpk_hash, "a"
 
@@ -36,17 +36,17 @@
 		.error "Invalid ROTPK hash length."
 	#endif
 
-arm_rotpk_header:
+arm_rotpk_hash_der_header:
 	.byte 0x30, TOTAL_ASN1_LEN, 0x30, 0x0D, 0x06, 0x09, 0x60, 0x86, 0x48
 	.byte 0x01, 0x65, 0x03, 0x04, 0x02, ASN1_HASH_ALG, 0x05, 0x00, 0x04, HASH_ASN1_LEN
-arm_rotpk_header_len:
+arm_rotpk_hash_der_header_len:
 
 #ifdef ARM_ROTPK
 	.incbin ARM_ROTPK
 arm_rotpk_hash_end:
 #endif
 
-	.if ARM_ROTPK_HEADER_LEN != arm_rotpk_header_len - arm_rotpk_header
+	.if ARM_ROTPK_HASH_DER_HEADER_LEN != arm_rotpk_hash_der_header_len - arm_rotpk_hash_der_header
 		.error "Invalid ROTPK header length."
 	.endif
 
