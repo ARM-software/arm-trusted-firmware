@@ -39,7 +39,8 @@ The implicitly trusted components forming the trust anchor are:
 
 -  A Root of Trust Public Key (ROTPK), or a hash of it.
 
-   On Arm development platforms, a SHA-256 hash of the ROTPK is stored in the
+   On Arm development platforms, a hash of the ROTPK (hash algorithm selected by
+   the ``HASH_ALG`` build option, with sha256 as default) is stored in the
    trusted root-key storage registers. Alternatively, a development ROTPK might
    be used and its hash embedded into the BL1 and BL2 images (only for
    development purposes).
@@ -330,7 +331,7 @@ Instructions for building and using the tool can be found in the
 
 --------------
 
-*Copyright (c) 2015-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.*
 
 .. _X.509 v3: https://tools.ietf.org/rfc/rfc5280.txt
 .. _Trusted Board Boot Requirements (TBBR): https://developer.arm.com/docs/den0006/latest

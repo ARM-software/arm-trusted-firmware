@@ -54,16 +54,34 @@ images with support for these features:
       On Juno board, the default value corresponds to an ECDSA-SECP256R1 public
       key hash, whose private part is not currently available.
 
-   -  ``ARM_ROTPK_LOCATION=devel_rsa``: use the default hash located in
-      ``plat/arm/board/common/rotpk/arm_rotpk_rsa_sha256.bin``. Enforce
-      generation of the new hash if ``ROT_KEY`` is specified.
+   -  ``ARM_ROTPK_LOCATION=devel_rsa``: the ROTPK is a hash of the
+      RSA public key corresponding to the private key specified by
+      ``ROT_KEY``. If ``ROT_KEY`` is not specified, the private key is
+      the development key ``plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem``.
+      There are also 3k and 4k RSA development keys in ``plat/arm/board/common/rotpk/``.
+      The hashing algorithm is selected by ``HASH_ALG``; sha256 is used if
+      ``HASH_ALG`` is not specified.
 
-   -  ``ARM_ROTPK_LOCATION=devel_ecdsa``: use the default hash located in
-      ``plat/arm/board/common/rotpk/arm_rotpk_ecdsa_sha256.bin``. Enforce
-      generation of the new hash if ``ROT_KEY`` is specified.
+   -  ``ARM_ROTPK_LOCATION=devel_ecdsa``: the ROTPK is a hash of the
+      ECDSA public key corresponding to the private key specified by
+      ``ROT_KEY``. If ``ROT_KEY`` is not specified, the private key is
+      the development key ``plat/arm/board/common/rotpk/arm_rotprivk_ecdsa.pem`` by default,
+      a 384 bit key ``plat/arm/board/common/rotpk/arm_rotprivk_ecdsa_secp384r1.pem`` also exists,
+      and can be specified by ``ROT_KEY``. The hashing algorithm is selected by ``HASH_ALG``;
+      sha256 is used if ``HASH_ALG`` is not specified.
 
-   -  ``ARM_ROTPK_LOCATION=devel_full_dev_rsa_key``: use the key located in
-      ``plat/arm/board/common/rotpk/arm_full_dev_rsa_rotpk.S``.
+   -  ``ARM_ROTPK_LOCATION=devel_full_dev_rsa_key``: the ROTPK is an unhashed
+      RSA public key corresponding to the private key specified by ``ROT_KEY``.
+      If ``ROT_KEY`` is not specified, the private key is the development key
+      ``plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem``. There are also
+      3k and 4k RSA development keys in ``plat/arm/board/common/rotpk/``.
+
+   -  ``ARM_ROTPK_LOCATION=devel_full_dev_ecdsa_key``: the ROTPK is an unhashed
+      RSA public key corresponding to the private key specified by ``ROT_KEY``.
+      If ``ROT_KEY`` is not specified, the private key is the development key
+      ``plat/arm/board/common/rotpk/arm_rotprivk_ecdsa.pem``, a 384 bit key
+      ``plat/arm/board/common/rotpk/arm_rotprivk_ecdsa_secp384r1.pem`` also exists,
+      and can be specified by ``ROT_KEY``.
 
    Example of command line using RSA development keys:
 
@@ -119,7 +137,7 @@ images with support for these features:
 
 --------------
 
-*Copyright (c) 2019-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
 
 .. _mbed TLS Repository: https://github.com/ARMmbed/mbedtls.git
 .. _mbed TLS Security Center: https://tls.mbed.org/security
