@@ -161,6 +161,18 @@ subsections:
       - title: DynamIQ Shared Unit (DSU)
         scope: dsu
 
+      - title: Extension to SCTLR_ELx (FEAT_SCTLR2)
+        scope: sctlr2
+
+        deprecated:
+          - feat_sctlr2
+
+      - title: 128-bit Translation Tables (FEAT_D128)
+        scope: d128
+
+      - title: Translation Hardening Extension (FEAT_THE)
+        scope: the
+
   - title: Platforms
     scope: platforms
 
