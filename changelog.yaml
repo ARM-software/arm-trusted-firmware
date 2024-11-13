@@ -804,6 +804,28 @@ subsections:
       - title: ChromeOS
         scope: cros
 
+      - title: Secure Payload Dispatcher
+        scope: spd
+
+        subsections:
+          - title: OP-TEE
+            scope: optee
+
+            deprecated:
+              - lib/optee
+
+          - title: ProvenCore
+            scope: pncd
+
+          - title: Trusted Little Kernel
+            scope: tlkd
+
+          - title: Trusty
+            scope: trusty
+
+          - title: TSP
+            scope: tspd
+
   - title: Libraries
     scope: lib
 
@@ -837,12 +859,6 @@ subsections:
 
       - title: MPMM
         scope: mpmm
-
-      - title: OP-TEE
-        scope: optee
-
-        deprecated:
-          - lib/optee
 
       - title: PSCI
         scope: psci
