@@ -252,6 +252,7 @@ subsections:
 
                 deprecated:
                   - board/rdn2
+                  - rdfremont
 
             deprecated:
               - neoverse
@@ -271,6 +272,9 @@ subsections:
 
           - title: Corstone-1000
             scope: corstone-1000
+
+            deprecated:
+              - corstone1000
 
           - title: Automotive RD
             scope: automotive_rd
@@ -301,6 +305,9 @@ subsections:
 
           - title: HiKey960
             scope: hikey960
+
+          - title: Poplar
+            scope: poplar
 
       - title: Intel
         scope: intel
@@ -616,6 +623,9 @@ subsections:
           - title: RK3328
             scope: rk3328
 
+          - title: RK3588
+            scope: rk3588
+
       - title: Socionext
         scope: socionext
 
@@ -733,6 +743,9 @@ subsections:
 
   - title: Services
     scope: services
+
+    deprecated:
+      - std_svc
 
     subsections:
       - title: FF-A
