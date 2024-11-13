@@ -696,6 +696,8 @@ static uint64_t ffa_error_handler(uint32_t smc_fid,
 {
 	struct secure_partition_desc *sp;
 	unsigned int idx;
+	uint16_t dst_id = ffa_endpoint_destination(x1);
+	bool cancel_dir_req = false;
 
 	/* Check that the response did not originate from the Normal world. */
 	if (!secure_origin) {
@@ -721,6 +723,32 @@ static uint64_t ffa_error_handler(uint32_t smc_fid,
 		spmc_sp_synchronous_exit(&sp->ec[idx], x2);
 		/* Should not get here. */
 		panic();
+	}
+
+	if (sp->runtime_el == S_EL0) {
+		spin_lock(&sp->rt_state_lock);
+	}
+
+	if (sp->ec[idx].rt_state == RT_STATE_RUNNING &&
+			sp->ec[idx].rt_model == RT_MODEL_DIR_REQ) {
+		sp->ec[idx].rt_state = RT_STATE_WAITING;
+		sp->ec[idx].dir_req_origin_id = INV_SP_ID;
+		sp->ec[idx].dir_req_funcid = 0x00;
+		cancel_dir_req = true;
+	}
+
+	if (sp->runtime_el == S_EL0) {
+		spin_unlock(&sp->rt_state_lock);
+	}
+
+	if (cancel_dir_req) {
+		if (dst_id == FFA_SPMC_ID) {
+			spmc_sp_synchronous_exit(&sp->ec[idx], x4);
+			/* Should not get here. */
+			panic();
+		} else
+			return spmc_smc_return(smc_fid, secure_origin, x1, x2, x3, x4,
+					       handle, cookie, flags, dst_id);
 	}
 
 	return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
