@@ -22,6 +22,7 @@
 #include "apusys_security_ctrl_perm.h"
 #endif
 #include "apusys_security_ctrl_plat.h"
+#include <drivers/apusys_rv_public.h>
 #include <mtk_mmap_pool.h>
 #include <mtk_sip_svc.h>
 
@@ -417,6 +418,18 @@ int apusys_rv_cold_boot_clr_mbox_dummy(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_MTK_APUSYS_RV_IOMMU_HW_SEM_SUPPORT
+int apusys_rv_iommu_hw_sem_trylock(void)
+{
+	return rv_iommu_hw_sem_trylock();
+}
+
+int apusys_rv_iommu_hw_sem_unlock(void)
+{
+	return rv_iommu_hw_sem_unlock();
+}
+#endif /* CONFIG_MTK_APUSYS_RV_IOMMU_HW_SEM_SUPPORT */
 
 int apusys_rv_setup_ce_bin(void)
 {

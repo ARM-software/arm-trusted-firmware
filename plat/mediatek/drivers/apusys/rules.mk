@@ -17,6 +17,7 @@ $(eval $(call add_defined_option,CONFIG_MTK_APUSYS_EMI_SUPPORT))
 $(eval $(call add_defined_option,CONFIG_MTK_APUSYS_LOGTOP_SUPPORT))
 $(eval $(call add_defined_option,CONFIG_MTK_APUSYS_RV_APUMMU_SUPPORT))
 $(eval $(call add_defined_option,CONFIG_MTK_APUSYS_RV_COREDUMP_WA_SUPPORT))
+$(eval $(call add_defined_option,CONFIG_MTK_APUSYS_RV_IOMMU_HW_SEM_SUPPORT))
 $(eval $(call add_defined_option,CONFIG_MTK_APUSYS_SEC_CTRL))
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
