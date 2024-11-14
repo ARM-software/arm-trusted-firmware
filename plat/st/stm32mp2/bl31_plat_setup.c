@@ -62,6 +62,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 	}
 
+	generic_delay_timer_init();
+
 	(void)stm32mp_uart_console_setup();
 
 	/*
@@ -122,8 +124,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
-	generic_delay_timer_init();
-
 	stm32mp_gic_init();
 }
 
