@@ -93,6 +93,28 @@ enum APU_PWR_OP {
 	APU_PWR_ON  = 1,
 };
 
+/* APU_LOGTOP */
+#define APU_LOGTOP_CON			(APU_LOGTOP + 0x0)
+#define APU_LOG_BUF_T_SIZE		(APU_LOGTOP + 0x78)
+#define APU_LOG_BUF_W_PTR		(APU_LOGTOP + 0x80)
+#define APU_LOG_BUF_R_PTR		(APU_LOGTOP + 0x84)
+#define HW_SEMA2			(APU_ARE_REG_BASE + 0x0E08)
+#define HW_SEMA_USER			(0x2)
+#define HW_SEMA_LOGGER_USER		(0x3)
+#define MAX_SMC_OP_NUM			(0x3)
+#define LOGTOP_OP_MASK			(0xFF)
+#define LOGTOP_OP_SHIFT			(8)
+enum {
+	SMC_OP_APU_LOG_BUF_NULL = 0,
+	SMC_OP_APU_LOG_BUF_T_SIZE,
+	SMC_OP_APU_LOG_BUF_W_PTR,
+	SMC_OP_APU_LOG_BUF_R_PTR,
+	SMC_OP_APU_LOG_BUF_CON,
+	SMC_OP_APU_LOG_BUF_NUM
+};
+
+struct smccc_res;
+
 void apusys_rv_mbox_mpu_init(void);
 int apusys_infra_dcm_setup(void);
 int apusys_kernel_apusys_rv_setup_reviser(void);
@@ -107,5 +129,11 @@ int apusys_kernel_apusys_rv_cg_gating(void);
 int apusys_kernel_apusys_rv_cg_ungating(void);
 int apusys_kernel_apusys_rv_setup_apummu(void);
 int apusys_kernel_apusys_rv_pwr_ctrl(enum APU_PWR_OP op);
+int apusys_kernel_apusys_logtop_reg_dump(uint32_t op, struct smccc_res *smccc_ret);
+int apusys_kernel_apusys_logtop_reg_write(uint32_t op, uint32_t write_val,
+					  struct smccc_res *smccc_ret);
+int apusys_kernel_apusys_logtop_reg_w1c(uint32_t op, struct smccc_res *smccc_ret);
+int apusys_rv_cold_boot_clr_mbox_dummy(void);
+int apusys_rv_setup_ce_bin(void);
 
 #endif /* APUSYS_RV_H */

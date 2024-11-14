@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
+
 /* TF-A system header */
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
@@ -15,7 +17,14 @@
 #include "apusys_rv.h"
 #include "apusys_rv_mbox_mpu.h"
 #include "apusys_rv_pwr_ctrl.h"
+#include "apusys_rv_sec_info.h"
+#ifdef CONFIG_MTK_APUSYS_SEC_CTRL
+#include "apusys_security_ctrl_perm.h"
+#endif
+#include "apusys_security_ctrl_plat.h"
 #include "emi_mpu.h"
+#include <mtk_mmap_pool.h>
+#include <mtk_sip_svc.h>
 
 #ifdef CONFIG_MTK_APUSYS_RV_APUMMU_SUPPORT
 #include "apusys_ammu.h"
@@ -114,13 +123,53 @@ int apusys_kernel_apusys_rv_start_mp(void)
 	return 0;
 }
 
+static int hw_sema2_release(uint32_t timeout)
+{
+#ifdef CONFIG_MTK_APUSYS_RV_COREDUMP_WA_SUPPORT
+	int ret;
+
+	ret = apu_hw_sema_ctl(HW_SEMA2, HW_SEMA_USER, 0, timeout, 0);
+	if (ret) {
+		ERROR("%s: HW semaphore release timeout\n", __func__);
+	}
+
+	return ret;
+#else
+	return 0;
+#endif
+}
+
+static int hw_sema2_acquire(uint32_t timeout)
+{
+#ifdef CONFIG_MTK_APUSYS_RV_COREDUMP_WA_SUPPORT
+	int ret;
+
+	ret = apu_hw_sema_ctl(HW_SEMA2, HW_SEMA_USER, 1, timeout, 0);
+	if (ret) {
+		ERROR("%s: HW semaphore acquire timeout\n", __func__);
+	}
+
+	return ret;
+#else
+	return 0;
+#endif
+}
+
 int apusys_kernel_apusys_rv_stop_mp(void)
 {
+	int ret;
+
+	ret = hw_sema2_acquire(HW_SEM_TIMEOUT);
+	if (ret)
+		return ret;
+
 	spin_lock(&apusys_rv_lock);
 	mmio_write_32(MD32_RUNSTALL, MD32_STALL);
 	spin_unlock(&apusys_rv_lock);
 
-	return 0;
+	ret = hw_sema2_release(HW_SEM_TIMEOUT);
+
+	return ret;
 }
 
 int apusys_kernel_apusys_rv_setup_sec_mem(void)
@@ -140,39 +189,71 @@ int apusys_kernel_apusys_rv_setup_sec_mem(void)
 
 int apusys_kernel_apusys_rv_disable_wdt_isr(void)
 {
+	int ret;
+
+	ret = hw_sema2_acquire(0);
+	if (ret)
+		return ret;
+
 	spin_lock(&apusys_rv_lock);
 	mmio_clrbits_32(WDT_CTRL0, WDT_EN);
 	spin_unlock(&apusys_rv_lock);
 
-	return 0;
+	ret = hw_sema2_release(0);
+
+	return ret;
 }
 
 int apusys_kernel_apusys_rv_clear_wdt_isr(void)
 {
+	int ret;
+
+	ret = hw_sema2_acquire(HW_SEM_TIMEOUT);
+	if (ret)
+		return ret;
+
 	spin_lock(&apusys_rv_lock);
 	mmio_clrbits_32(UP_INT_EN2, DBG_APB_EN);
 	mmio_write_32(WDT_INT, WDT_INT_W1C);
 	spin_unlock(&apusys_rv_lock);
 
-	return 0;
+	ret = hw_sema2_release(HW_SEM_TIMEOUT);
+
+	return ret;
 }
 
 int apusys_kernel_apusys_rv_cg_gating(void)
 {
+	int ret;
+
+	ret = hw_sema2_acquire(HW_SEM_TIMEOUT);
+	if (ret)
+		return ret;
+
 	spin_lock(&apusys_rv_lock);
 	mmio_write_32(MD32_CLK_CTRL, MD32_CLK_DIS);
 	spin_unlock(&apusys_rv_lock);
 
-	return 0;
+	ret = hw_sema2_release(HW_SEM_TIMEOUT);
+
+	return ret;
 }
 
 int apusys_kernel_apusys_rv_cg_ungating(void)
 {
+	int ret;
+
+	ret = hw_sema2_acquire(HW_SEM_TIMEOUT);
+	if (ret)
+		return ret;
+
 	spin_lock(&apusys_rv_lock);
 	mmio_write_32(MD32_CLK_CTRL, MD32_CLK_EN);
 	spin_unlock(&apusys_rv_lock);
 
-	return 0;
+	ret = hw_sema2_release(HW_SEM_TIMEOUT);
+
+	return ret;
 }
 
 int apusys_kernel_apusys_rv_setup_apummu(void)
@@ -212,4 +293,196 @@ int apusys_kernel_apusys_rv_setup_apummu(void)
 int apusys_kernel_apusys_rv_pwr_ctrl(enum APU_PWR_OP op)
 {
 	return apusys_rv_pwr_ctrl(op);
+}
+
+#ifdef CONFIG_MTK_APUSYS_LOGTOP_SUPPORT
+int apusys_kernel_apusys_logtop_reg_dump(uint32_t op, struct smccc_res *smccc_ret)
+{
+	int ret = 0;
+	uint8_t smc_op;
+	uint32_t reg_addr[MAX_SMC_OP_NUM];
+	uint32_t i;
+
+	if (op == 0) {
+		ERROR("%s empty op = 0x%08x\n", MODULE_TAG, op);
+		return -EINVAL;
+	}
+
+	for (i = 0; i < MAX_SMC_OP_NUM; i++) {
+		smc_op = (op >> (LOGTOP_OP_SHIFT * i)) & LOGTOP_OP_MASK;
+		switch (smc_op) {
+		case SMC_OP_APU_LOG_BUF_NULL:
+			reg_addr[i] = 0x0;
+			break;
+		case SMC_OP_APU_LOG_BUF_T_SIZE:
+			reg_addr[i] = APU_LOG_BUF_T_SIZE;
+			break;
+		case SMC_OP_APU_LOG_BUF_W_PTR:
+			reg_addr[i] = APU_LOG_BUF_W_PTR;
+			break;
+		case SMC_OP_APU_LOG_BUF_R_PTR:
+			reg_addr[i] = APU_LOG_BUF_R_PTR;
+			break;
+		case SMC_OP_APU_LOG_BUF_CON:
+			reg_addr[i] = APU_LOGTOP_CON;
+			break;
+		default:
+			ERROR("%s unknown op = 0x%08x\n", MODULE_TAG, smc_op);
+			return -EINVAL;
+		}
+	}
+
+	ret = apu_hw_sema_ctl(HW_SEMA2, HW_SEMA_LOGGER_USER, 1, 0, 0);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < MAX_SMC_OP_NUM; i++) {
+		if (reg_addr[i] == 0)
+			continue;
+
+		switch (i) {
+		case 0:
+			smccc_ret->a1 = mmio_read_32(reg_addr[i]);
+			break;
+		case 1:
+			smccc_ret->a2 = mmio_read_32(reg_addr[i]);
+			break;
+		case 2:
+			smccc_ret->a3 = mmio_read_32(reg_addr[i]);
+			break;
+		}
+	}
+
+	ret = apu_hw_sema_ctl(HW_SEMA2, HW_SEMA_LOGGER_USER, 0, 0, 0);
+	if (ret)
+		ERROR("%s(%d): sem release timeout\n", __func__, op);
+
+	return ret;
+}
+
+static int apusys_kernel_apusys_logtop_reg_rw(uint32_t op, uint32_t write_val,
+					      bool w1c, struct smccc_res *smccc_ret)
+{
+	int ret = 0;
+	uint32_t reg_addr = 0, reg_val = 0;
+
+	switch (op) {
+	case SMC_OP_APU_LOG_BUF_R_PTR:
+		reg_addr = APU_LOG_BUF_R_PTR;
+		break;
+	case SMC_OP_APU_LOG_BUF_CON:
+		reg_addr = APU_LOGTOP_CON;
+		break;
+	default:
+		ERROR("%s unknown or not support op = %x\n", MODULE_TAG, op);
+		return -EINVAL;
+	}
+
+	ret = apu_hw_sema_ctl(HW_SEMA2, HW_SEMA_LOGGER_USER, 1, 0, 0);
+	if (ret)
+		return ret;
+
+	if (w1c) {
+		reg_val = mmio_read_32(reg_addr);
+		mmio_write_32(reg_addr, reg_val);
+		smccc_ret->a1 = reg_val;
+	} else {
+		mmio_write_32(reg_addr, write_val);
+	}
+
+	ret = apu_hw_sema_ctl(HW_SEMA2, HW_SEMA_LOGGER_USER, 0, 0, 0);
+	if (ret)
+		ERROR("%s(%d): sem release timeout\n", __func__, op);
+
+	return ret;
+}
+
+int apusys_kernel_apusys_logtop_reg_write(uint32_t op, uint32_t write_val,
+					  struct smccc_res *smccc_ret)
+{
+	return apusys_kernel_apusys_logtop_reg_rw(op, write_val, false, smccc_ret);
+}
+
+int apusys_kernel_apusys_logtop_reg_w1c(uint32_t op, struct smccc_res *smccc_ret)
+{
+	return apusys_kernel_apusys_logtop_reg_rw(op, 0, true, smccc_ret);
+}
+
+#endif /* CONFIG_MTK_APUSYS_LOGTOP_SUPPORT */
+
+int apusys_rv_cold_boot_clr_mbox_dummy(void)
+{
+#ifdef SUPPORT_APU_CLEAR_MBOX_DUMMY
+	mmio_write_32(APU_MBOX(APU_HW_SEM_SYS_APMCU) + APU_MBOX_DUMMY, 0);
+#else
+	WARN("Not support clear mbox dummy on this platform\n");
+#endif
+	return 0;
+}
+
+int apusys_rv_setup_ce_bin(void)
+{
+#ifdef CONFIG_MTK_APUSYS_CE_SUPPORT
+	uintptr_t apusys_rv_sec_buf_pa;
+	struct apusys_secure_info_t *apusys_secure_info;
+	struct ce_main_hdr_t *ce_main_hdr;
+	struct ce_sub_hdr_t *ce_sub_hdr;
+	unsigned int cnt, i, reg_val;
+	uint64_t ce_sub_hdr_bin;
+	int ret;
+
+	apusys_rv_sec_buf_pa = APU_RESERVE_MEMORY;
+	/* create mapping */
+	ret = mmap_add_dynamic_region(apusys_rv_sec_buf_pa, apusys_rv_sec_buf_pa,
+				      round_up(APU_RESERVE_SIZE, PAGE_SIZE),
+				      MT_MEMORY | MT_RW | MT_NS);
+	if (ret) {
+		ERROR("%s: mmap_add_dynamic_region() fail, ret=0x%x\n", __func__, ret);
+		return ret;
+	}
+
+	apusys_secure_info = (struct apusys_secure_info_t *)
+				(apusys_rv_sec_buf_pa + APU_SEC_INFO_OFFSET);
+
+	ce_main_hdr = (struct ce_main_hdr_t *)(apusys_rv_sec_buf_pa +
+		apusys_secure_info->ce_bin_ofs);
+	ce_sub_hdr = (struct ce_sub_hdr_t *)((uintptr_t)ce_main_hdr + ce_main_hdr->hdr_size);
+
+	if (ce_main_hdr->magic != CE_MAIN_MAGIC) {
+		ERROR("%s: invalid header\n", __func__);
+		return -EINVAL;
+	}
+
+	cnt = 0;
+
+	while (ce_sub_hdr->magic == CE_SUB_MAGIC && cnt < ce_main_hdr->bin_count) {
+		VERBOSE("%s: job (%d), magic (0x%x)\n", __func__,
+			ce_sub_hdr->ce_enum, ce_sub_hdr->magic);
+
+		ce_sub_hdr_bin = (uint64_t)ce_sub_hdr + ce_sub_hdr->bin_offset;
+
+		for (i = 0; i < ce_sub_hdr->bin_size; i += sizeof(uint32_t)) {
+			reg_val = *(uint32_t *)(ce_sub_hdr_bin + i);
+			mmio_write_32(ce_sub_hdr->mem_st + i, reg_val);
+		}
+
+		if (ce_sub_hdr->hw_entry) {
+			mmio_clrsetbits_32(ce_sub_hdr->hw_entry,
+					   ce_sub_hdr->hw_entry_mask << ce_sub_hdr->hw_entry_bit,
+					   (ce_sub_hdr->hw_entry_val & ce_sub_hdr->hw_entry_mask)
+					   << ce_sub_hdr->hw_entry_bit);
+		}
+
+		ce_sub_hdr = (struct ce_sub_hdr_t *)(ce_sub_hdr_bin + ce_sub_hdr->bin_size);
+		cnt++;
+	}
+
+	mmap_remove_dynamic_region(apusys_rv_sec_buf_pa,
+				   round_up(APU_RESERVE_SIZE, PAGE_SIZE));
+
+	INFO("%s: setup CE binary done\n", __func__);
+#else
+	WARN("Not support CE on this platform\n");
+#endif
+	return 0;
 }
