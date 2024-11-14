@@ -88,7 +88,13 @@
 #define WDT_INT_W1C			(1)
 #define WDT_EN				BIT(31)
 
+enum APU_PWR_OP {
+	APU_PWR_OFF = 0,
+	APU_PWR_ON  = 1,
+};
+
 void apusys_rv_mbox_mpu_init(void);
+int apusys_infra_dcm_setup(void);
 int apusys_kernel_apusys_rv_setup_reviser(void);
 int apusys_kernel_apusys_rv_reset_mp(void);
 int apusys_kernel_apusys_rv_setup_boot(void);
@@ -100,5 +106,6 @@ int apusys_kernel_apusys_rv_clear_wdt_isr(void);
 int apusys_kernel_apusys_rv_cg_gating(void);
 int apusys_kernel_apusys_rv_cg_ungating(void);
 int apusys_kernel_apusys_rv_setup_apummu(void);
+int apusys_kernel_apusys_rv_pwr_ctrl(enum APU_PWR_OP op);
 
 #endif /* APUSYS_RV_H */

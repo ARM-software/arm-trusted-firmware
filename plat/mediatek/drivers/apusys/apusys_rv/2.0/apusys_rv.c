@@ -99,6 +99,8 @@ int apusys_kernel_apusys_rv_setup_boot(void)
 		      (PREDEFINE_CACHE << PREDEF_2G_OFS) | (PREDEFINE_CACHE << PREDEF_3G_OFS) |
 		      (PREDEFINE_CACHE << PREDEF_4G_OFS));
 
+	apusys_infra_dcm_setup();
+
 	spin_unlock(&apusys_rv_lock);
 	return 0;
 }
@@ -205,4 +207,9 @@ int apusys_kernel_apusys_rv_setup_apummu(void)
 
 	spin_unlock(&apusys_rv_lock);
 	return 0;
+}
+
+int apusys_kernel_apusys_rv_pwr_ctrl(enum APU_PWR_OP op)
+{
+	return apusys_rv_pwr_ctrl(op);
 }

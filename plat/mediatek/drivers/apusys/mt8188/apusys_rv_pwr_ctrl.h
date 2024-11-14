@@ -7,6 +7,8 @@
 #ifndef APUSYS_RV_PWR_CTL_H
 #define APUSYS_RV_PWR_CTL_H
 
+#include "apusys_rv.h"
+
 /* APU MBOX */
 #define MBOX_FUNC_CFG			(0xb0)
 #define MBOX_DOMAIN_CFG			(0xe0)
@@ -26,6 +28,6 @@
 
 #define HW_SEM_TIMEOUT		(0)
 
-int apusys_rv_pwr_ctrl(uint32_t op);
+int apusys_rv_pwr_ctrl(enum APU_PWR_OP op);
 
 #endif /* APUSYS_RV_PWR_CTL_H */

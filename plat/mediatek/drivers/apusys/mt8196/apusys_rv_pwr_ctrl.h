@@ -9,6 +9,8 @@
 
 #include <platform_def.h>
 
+#include "apusys_rv.h"
+
 #define SUPPORT_APU_CLEAR_MBOX_DUMMY	(1)
 
 enum apu_hw_sem_sys_id {
@@ -18,7 +20,7 @@ enum apu_hw_sem_sys_id {
 	APU_HW_SEM_SYS_APMCU = 11UL,	/* mbox11 */
 };
 
-int apusys_rv_pwr_ctrl(uint32_t op);
+int apusys_rv_pwr_ctrl(enum APU_PWR_OP op);
 int rv_iommu_hw_sem_unlock(void);
 int rv_iommu_hw_sem_trylock(void);
 int apu_hw_sema_ctl(uint32_t sem_addr, uint8_t usr_bit, uint8_t ctl, uint32_t timeout,
@@ -57,6 +59,12 @@ enum apu_infra_bit_id {
 #define APU_MBOX_DOMAIN_CFG(i)	(APU_MBOX(i) + MBOX_DOMAIN_CFG)
 #define APU_MBOX_WKUP_CFG(i)	(APU_MBOX(i) + MBOX_WKUP_CFG)
 
+enum apu_hw_sem_op {
+	HW_SEM_PUT = 0,
+	HW_SEM_GET = 1,
+};
+
+#define HW_SEM_PUT_BIT_SHIFT	(16)
 
 /* bypass mbox register Dump for secure master */
 #define APU_MBOX_DBG_EN		(0x190f2380)
@@ -75,7 +83,11 @@ enum apu_infra_bit_id {
 #define APU_INFRA_DISABLE	(APU_INFRA_BASE + 0xC18)
 #define APU_INFRA_ENABLE	(APU_INFRA_BASE + 0xC14)
 #define APU_INFRA_STATUS	(APU_INFRA_BASE + 0xC10)
+#define APU_INFRA_STATUS_MASK	(0x1fffe)
 #define APU_INFRA_HW_SEM	(APUSYS_CE_BASE + 0xE00)
 #define APU_RPC_STATUS		(0x190f0044)
+
+#define APU_INFRA_BIT_OFF	(16)
+#define APU_RPC_STATUS_BIT	BIT(0)
 
 #endif /* APUSYS_RV_PWR_CTL_H */

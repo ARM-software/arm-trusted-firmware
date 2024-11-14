@@ -30,10 +30,10 @@ static u_register_t apusys_kernel_handler(u_register_t x1,
 
 	switch (request_ops) {
 	case MTK_APUSYS_KERNEL_OP_APUSYS_PWR_TOP_ON:
-		ret = apusys_kernel_apusys_pwr_top_on();
+		ret = apusys_kernel_apusys_rv_pwr_ctrl(APU_PWR_ON);
 		break;
 	case MTK_APUSYS_KERNEL_OP_APUSYS_PWR_TOP_OFF:
-		ret = apusys_kernel_apusys_pwr_top_off();
+		ret = apusys_kernel_apusys_rv_pwr_ctrl(APU_PWR_OFF);
 		break;
 	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_SETUP_REVISER:
 		ret = apusys_kernel_apusys_rv_setup_reviser();
