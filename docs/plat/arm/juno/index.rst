@@ -56,7 +56,7 @@ installed.
 
 #. Obtain SCP binaries (Juno)
 
-   This version of TF-A is tested with SCP version 2.12.0 on Juno. You can
+   This version of TF-A is tested with SCP version 2.15.0 on Juno. You can
    download pre-built SCP binaries (``scp_bl1.bin`` and ``scp_bl2.bin``)
    from `TF-A downloads page`_. Alternatively, you can `build
    the binaries from source`_.
@@ -241,11 +241,11 @@ configure it.
 
 --------------
 
-*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
 
 .. _Linaro release software stack: http://releases.linaro.org/members/arm/platforms/
 .. _Juno platform software user guide: https://git.linaro.org/landing-teams/working/arm/arm-reference-platforms.git/about/docs/juno/user-guide.rst
-.. _TF-A downloads page: https://downloads.trustedfirmware.org/tf-a/css_scp_2.12.0/juno/
+.. _TF-A downloads page: https://downloads.trustedfirmware.org/tf-a/css_scp_2.15.0/juno/
 .. _build the binaries from source: https://github.com/ARM-software/SCP-firmware/blob/master/user_guide.md#scp-firmware-user-guide
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Juno Getting Started Guide: https://developer.arm.com/documentation/den0928/f/?lang=en
