@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023, MediaTek Inc. All rights reserved.
+# Copyright (c) 2023-2024, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,6 +11,8 @@ MODULE := apusys
 LOCAL_SRCS-y:= ${LOCAL_DIR}/apusys.c
 
 PLAT_INCLUDES += -I${LOCAL_DIR} -I${LOCAL_DIR}/${MTK_SOC} -I${LOCAL_DIR}/apusys_rv/2.0
+
+$(eval $(call add_defined_option,CONFIG_MTK_APUSYS_EMI_SUPPORT))
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
 

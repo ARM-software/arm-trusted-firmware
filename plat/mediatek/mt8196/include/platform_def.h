@@ -35,6 +35,7 @@
  ******************************************************************************/
 #define APUSYS_BASE			(IO_PHYS + 0x09000000)
 #define APUSYS_CE_BASE			(IO_PHYS + 0x090B0000)
+#define APU_SEC_CON			(IO_PHYS + 0x090F5000)
 #define APUSYS_CTRL_DAPC_AO_BASE	(IO_PHYS + 0x090FC000)
 
 #define APU_MBOX0			(0x4C200000)

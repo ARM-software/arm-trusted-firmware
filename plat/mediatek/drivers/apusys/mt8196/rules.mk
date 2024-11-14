@@ -8,7 +8,13 @@ LOCAL_DIR := $(call GET_LOCAL_DIR)
 
 MODULE := apusys_${MTK_SOC}
 
+ifeq (${CONFIG_MTK_APUSYS_EMI_SUPPORT}, y)
+PLAT_INCLUDES += -I${MTK_PLAT}/drivers/emi/common
+PLAT_INCLUDES += -I${MTK_PLAT}/drivers/emi/${MTK_SOC}
+endif
+
 LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_devapc.c
 LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_power.c
+LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_security_ctrl_plat.c
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
