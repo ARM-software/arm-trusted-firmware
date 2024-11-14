@@ -18,3 +18,6 @@ $(eval $(call add_define,K3_EXCLUSIVE_SNOOP_DELAY))
 
 # System coherency is managed in hardware
 USE_COHERENT_MEM	:=	1
+
+# In generic K3 we use the sec_proxy for TI SCI transport
+K3_TI_SCI_TRANSPORT    =       ${PLAT_PATH}/common/drivers/sec_proxy/sec_proxy.c

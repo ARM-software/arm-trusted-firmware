@@ -19,6 +19,7 @@
 #include <k3_console.h>
 #include <k3_gicv3.h>
 #include <ti_sci.h>
+#include <ti_sci_transport.h>
 
 #define ADDR_DOWN(_adr) (_adr & XLAT_ADDR_MASK(2U))
 #define SIZE_UP(_adr, _sz) (round_up((_adr + _sz), XLAT_BLOCK_SIZE(2U)) - ADDR_DOWN(_adr))
