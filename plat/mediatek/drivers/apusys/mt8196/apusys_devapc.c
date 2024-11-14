@@ -96,6 +96,125 @@ static const struct apc_dom_16 APUSYS_CTRL_DAPC_AO[] = {
 	SLAVE_NCX_AO("apu_sae2ncx_o-1"),
 };
 
+
+/* RCX CONTROL DEVAPC - apu_rcx_infra_dapc_con */
+static const struct apc_dom_16 APUSYS_CTRL_DAPC_RCX[] = {
+	/* ctrl index = 0 */
+	SLAVE_ACX0_BULK("acx0_apbs-0"),
+	SLAVE_ACX0_RPC("acx0_apbs-1"),
+	SLAVE_ACX0_AO_CTRL("acx0_apbs-2"),
+	SLAVE_UNDEFINE8("acx0_apbs-3"),
+	SLAVE_ACX1_BULK("acx1_apbs-0"),
+	SLAVE_ACX1_RPC("acx1_apbs-1"),
+	SLAVE_ACX1_AO_CTRL("acx1_apbs-2"),
+	SLAVE_UNDEFINE9("acx1_apbs-3"),
+	SLAVE_NCX_BULK("ncx_apbs-0"),
+	SLAVE_NCX_RPC("ncx_apbs-1"),
+
+	/* ctrl index = 10 */
+	SLAVE_NCX_AO_CTRL("ncx_apbs-2"),
+	SLAVE_UNDEFINE10("ncx_apbs-3"),
+	SLAVE_MD32_SYSCTRL("md32_apb_s-0"),
+	SLAVE_MD32_PMU("md32_apb_s-1"),
+	SLAVE_MD32_WDT("md32_apb_s-2"),
+	SLAVE_MD32_CACHE("md32_apb_s-3"),
+	SLAVE_ARE0("apusys_ao-0"),
+	SLAVE_ARE1("apusys_ao-1"),
+	SLAVE_SONC("apusys_ao-2"),
+	SLAVE_RPC("apusys_ao-3"),
+
+	/* ctrl index = 20 */
+	SLAVE_PCU("apusys_ao-4"),
+	SLAVE_AO_CTRL("apusys_ao-5"),
+	SLAVE_AO_CTRL("apusys_ao-6"),
+	SLAVE_SEC("apusys_ao-7"),
+	SLAVE_PLL("apusys_ao-8"),
+	SLAVE_RPC_MDLA("apusys_ao-9"),
+	SLAVE_TOP_PMU("apusys_ao-10"),
+	SLAVE_AO_BCRM("apusys_ao-11"),
+	SLAVE_AO_DAPC_WRAP("apusys_ao-12"),
+	SLAVE_AO_DAPC_CON("apusys_ao-13"),
+
+	/* ctrl index = 30 */
+	SLAVE_VCORE("apusys_ao-14"),
+	SLAVE_IOMMU0_BANK0("apusys_ao-15"),
+	SLAVE_IOMMU0_BANK1("apusys_ao-16"),
+	SLAVE_IOMMU0_BANK2("apusys_ao-17"),
+	SLAVE_IOMMU0_BANK3("apusys_ao-18"),
+	SLAVE_IOMMU0_BANK4("apusys_ao-19"),
+	SLAVE_IOMMU1_BANK0("apu_ao_ctl_o-20"),
+	SLAVE_IOMMU1_BANK1("apu_ao_ctl_o-21"),
+	SLAVE_IOMMU1_BANK2("apu_ao_ctl_o-22"),
+	SLAVE_IOMMU1_BANK3("apu_ao_ctl_o-23"),
+
+	/* ctrl index = 40 */
+	SLAVE_IOMMU1_BANK4("apu_ao_ctl_o-24"),
+	SLAVE_S0_SSC("apu_ao_ctl_o-25"),
+	SLAVE_N0_SSC("apu_ao_ctl_o-26"),
+	SLAVE_S1_SSC("apu_ao_ctl_o-27"),
+	SLAVE_N1_SSC("apu_ao_ctl_o-28"),
+	SLAVE_ACP_SSC("apu_ao_ctl_o-29"),
+	SLAVE_ACP_TCU_SSC("apu_ao_ctl_o-30"),
+	SLAVE_PTP_THM("apu_ao_ctl_o-31"),
+	SLAVE_WDEC("apu_ao_ctl_o-32"),
+	SLAVE_SMMU_IP_REG("apu_ao_ctl_o-33"),
+
+	/* ctrl index = 50 */
+	SLAVE_SMMU_NSEC("apu_ao_ctl_o-34"),
+	SLAVE_SMMU_SEC("apu_ao_ctl_o-35"),
+	SLAVE_DATA_BULK("noc_axi"),
+	SLAVE_MD32_DBG("md32_dbg"),
+	SLAVE_MDLA_DBG("mdla_dbg"),
+	SLAVE_INFRA_DBG("apb_infra_dbg"),
+	SLAVE_LOG_TOP0("apu_logtop-0"),
+	SLAVE_LOG_TOP1("apu_logtop-1"),
+	SLAVE_RCX_CFG("apu_rcx_cfg"),
+	SLAVE_ACX_IPS("apu_acx_ips"),
+
+	/* ctrl index = 60 */
+	SLAVE_SEMA_STIMER("apu_sema_stimer"),
+	SLAVE_EMI_CFG("apu_emi_cfg"),
+	SLAVE_CPE_SENSOR("apu_cpe_sensor"),
+	SLAVE_CPE_COEF("apu_cpe_coef"),
+	SLAVE_CPE_CTRL("apu_cpe_ctrl"),
+	SLAVE_TPPA("apu_dfd"),
+	SLAVE_SENSOR_ACX0_DLA0("apu_sen_acx0_dla0"),
+	SLAVE_SENSOR_ACX0_VPU("apu_sen_acx0_vpu"),
+	SLAVE_SENSOR_ACX1_DLA0("apu_sen_acx1_dla0"),
+	SLAVE_SENSOR_ACX1_VPU("apu_sen_acx1_vpu"),
+
+	/* ctrl index = 70 */
+	SLAVE_SENSOR_NCX_DLA0("apu_sen_ncx_dla0"),
+	SLAVE_SENSOR_NCX_NVE("apu_sen_ncx_nve"),
+	SLAVE_RCX_TCU0("noc_cfg-0"),
+	SLAVE_RCX_TCU1("noc_cfg-1"),
+	SLAVE_RCX_TCU2("noc_cfg-2"),
+	SLAVE_RCX_TCU3("noc_cfg-3"),
+	SLAVE_RCX_TCU4("noc_cfg-4"),
+	SLAVE_RCX_TCU5("noc_cfg-5"),
+	SLAVE_RCX_TCU6("noc_cfg-6"),
+	SLAVE_RCX_NOC_CFG("noc_cfg-7"),
+
+	/* ctrl index = 80 */
+	SLAVE_SCMDQ("apu_hse-0"),
+	SLAVE_HSE("apu_hse-1"),
+	SLAVE_MDLA_CORE_CTRL("mdla_cfg-0"),
+	SLAVE_MDLA_BIU("mdla_cfg-1"),
+	SLAVE_MDLA_PMU("mdla_cfg-2"),
+	SLAVE_MDLA_CMDE("mdla_cfg-3"),
+	SLAVE_EDPA0("apu_edpa-0"),
+	SLAVE_EDPA1("apu_edpa-1"),
+	SLAVE_RCX_BCRM("infra_bcrm"),
+	SLAVE_RCX_DAPC_WRAP("infra_dpac_wrap"),
+
+	/* ctrl index = 90 */
+	SLAVE_RCX_DAPC_CON("infra_dapc_con"),
+	SLAVE_RCX_CMU("rcx_cmu"),
+	SLAVE_RCX_ACS("apu_rcx_acs"),
+	SLAVE_RCX_CBFC("rcx_cbfc"),
+	SLAVE_ACC("acc"),
+};
+
 static enum apusys_apc_err_status set_slave_ctrl_apc(uint32_t slave,
 						     enum apusys_apc_type type,
 						     enum apusys_apc_domain_id domain_id,
@@ -121,6 +240,12 @@ static enum apusys_apc_err_status set_slave_ctrl_apc(uint32_t slave,
 		slave_num = APUSYS_CTRL_DAPC_AO_SLAVE_NUM;
 		dom_num = APUSYS_CTRL_DAPC_AO_DOM_NUM;
 		dapc_base = APUSYS_CTRL_DAPC_AO_BASE;
+		break;
+	case DAPC_RCX:
+		slave_num_in_1_dom = APUSYS_CTRL_DAPC_RCX_SLAVE_NUM_IN_1_DOM;
+		slave_num = APUSYS_CTRL_DAPC_RCX_SLAVE_NUM;
+		dom_num = APUSYS_CTRL_DAPC_RCX_DOM_NUM;
+		dapc_base = APUSYS_CTRL_DAPC_RCX_BASE;
 		break;
 	default:
 		ERROR("%s: unsupported devapc type: %u\n", __func__, type);
@@ -156,6 +281,13 @@ static enum apusys_apc_err_status set_slave_ao_ctrl_apc(uint32_t slave,
 	return set_slave_ctrl_apc(slave, DAPC_AO, domain_id, perm);
 }
 
+static enum apusys_apc_err_status set_slave_rcx_ctrl_apc(uint32_t slave,
+							 enum apusys_apc_domain_id domain_id,
+							 enum apusys_apc_perm_type perm)
+{
+	return set_slave_ctrl_apc(slave, DAPC_RCX, domain_id, perm);
+}
+
 static void apusys_devapc_init(uint32_t base)
 {
 	mmio_write_32(APUSYS_DAPC_CON(base), APUSYS_DAPC_CON_VIO_MASK);
@@ -179,6 +311,27 @@ int apusys_devapc_ao_init(void)
 #endif
 
 	INFO("[APUAPC_AO] %s done\n", __func__);
+
+	return ret;
+}
+
+int apusys_devapc_rcx_init(void)
+{
+	int32_t ret = APUSYS_APC_OK;
+
+	apusys_devapc_init(APUSYS_CTRL_DAPC_RCX_BASE);
+
+	ret = SET_APUSYS_DAPC_V1(APUSYS_CTRL_DAPC_RCX, set_slave_rcx_ctrl_apc);
+	if (ret) {
+		ERROR("[APUAPC_RCX] %s: set_slave_rcx_ctrl_apc failed\n", __func__);
+		return ret;
+	}
+
+#ifdef DUMP_CFG
+	DUMP_APUSYS_DAPC_V1(APUSYS_CTRL_DAPC_RCX);
+#endif
+
+	INFO("[APUAPC_RCX] %s done\n", __func__);
 
 	return ret;
 }

@@ -9,8 +9,10 @@
 
 enum apusys_apc_type {
 	DAPC_AO = 0,
+	DAPC_RCX
 };
 
 int apusys_devapc_ao_init(void);
+int apusys_devapc_rcx_init(void);
 
 #endif /* APUSYS_DEVAPC_H */
