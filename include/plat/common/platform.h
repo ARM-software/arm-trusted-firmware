@@ -299,6 +299,16 @@ int bl2_plat_handle_post_image_load(unsigned int image_id);
 #if (MEASURED_BOOT || DICE_PROTECTION_ENVIRONMENT)
 void bl2_plat_mboot_init(void);
 void bl2_plat_mboot_finish(void);
+#if TRANSFER_LIST
+int plat_handoff_mboot(const void *data, uint32_t data_size, void *tl_base);
+#else
+static inline int
+plat_handoff_mboot(__unused const void *data, __unused uint32_t data_size,
+	      __unused void *tl_base)
+{
+	return -1;
+}
+#endif
 #else
 static inline void bl2_plat_mboot_init(void)
 {
