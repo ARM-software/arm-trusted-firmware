@@ -53,6 +53,7 @@ PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/include			\
 				-I${PLAT_PATH}/common/drivers/sec_proxy	\
 				-I${PLAT_PATH}/common/drivers/ti_sci	\
+				-I${PLAT_PATH}/common/drivers/mailbox	\
 
 K3_CONSOLE_SOURCES	+=	\
 				drivers/ti/uart/aarch64/16550_console.S	\
@@ -70,9 +71,6 @@ K3_PSCI_SOURCES		+=	\
 				plat/common/plat_psci_common.c		\
 				${PLAT_PATH}/common/k3_psci.c		\
 
-K3_SEC_PROXY_SOURCES	+=	\
-				${PLAT_PATH}/common/drivers/sec_proxy/sec_proxy.c \
-
 K3_TI_SCI_SOURCES	+=	\
 				${PLAT_PATH}/common/drivers/ti_sci/ti_sci.c \
 
@@ -88,5 +86,5 @@ BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_topology.c	\
 				${K3_GIC_SOURCES}			\
 				${K3_PSCI_SOURCES}			\
-				${K3_SEC_PROXY_SOURCES}			\
 				${K3_TI_SCI_SOURCES}			\
+				${K3_TI_SCI_TRANSPORT}			\
