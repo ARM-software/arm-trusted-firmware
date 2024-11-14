@@ -4,9 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define ENABLE_SMPU_PROTECT	(0)
+
+#if ENABLE_SMPU_PROTECT
+#include "emi.h"
+#include "mt_emi.h"
+#endif
+
+#include <common/debug.h>
 #include <lib/mmio.h>
 
 #include <apusys_security_ctrl_plat.h>
+
+#define APUSYS_SEC_FW_EMI_REGION	(23)
 
 #define bits_clr(x, m, o)	(x & (~(m << o)))
 #define bits_set(x, v, m, o)	((bits_clr(x, m, o)) | ((v & m) << o))
@@ -57,4 +67,16 @@ void apusys_security_ctrl_init(void)
 {
 	domain_remap_init();
 	sec_sideband_init();
+}
+
+int apusys_plat_setup_sec_mem(void)
+{
+#if ENABLE_SMPU_PROTECT
+	return sip_emi_mpu_set_protection(APU_RESERVE_MEMORY >> EMI_MPU_ALIGN_BITS,
+		(APU_RESERVE_MEMORY + APU_RESERVE_SIZE) >> EMI_MPU_ALIGN_BITS,
+		APUSYS_SEC_FW_EMI_REGION);
+#else
+	INFO("%s: Bypass SMPU protection setup.\n", __func__);
+	return 0;
+#endif
 }

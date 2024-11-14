@@ -22,7 +22,6 @@
 #include "apusys_security_ctrl_perm.h"
 #endif
 #include "apusys_security_ctrl_plat.h"
-#include "emi_mpu.h"
 #include <mtk_mmap_pool.h>
 #include <mtk_sip_svc.h>
 
@@ -174,14 +173,13 @@ int apusys_kernel_apusys_rv_stop_mp(void)
 
 int apusys_kernel_apusys_rv_setup_sec_mem(void)
 {
-	int ret;
+	int ret = 0;
 
 	spin_lock(&apusys_rv_lock);
 
-	ret = set_apu_emi_mpu_region();
-	if (ret != 0) {
+	ret = apusys_plat_setup_sec_mem();
+	if (ret != 0)
 		ERROR(MODULE_TAG "%s: set emimpu protection failed\n", __func__);
-	}
 
 	spin_unlock(&apusys_rv_lock);
 	return ret;
