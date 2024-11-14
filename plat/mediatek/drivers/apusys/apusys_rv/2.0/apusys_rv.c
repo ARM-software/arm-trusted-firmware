@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2023-2024, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include "apusys.h"
 #include "apusys_rv.h"
 #include "apusys_rv_mbox_mpu.h"
+#include "apusys_rv_pwr_ctrl.h"
 #include "emi_mpu.h"
 
 static spinlock_t apusys_rv_lock;

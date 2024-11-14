@@ -35,10 +35,15 @@
  ******************************************************************************/
 #define APUSYS_BASE			(IO_PHYS + 0x09000000)
 #define APUSYS_CE_BASE			(IO_PHYS + 0x090B0000)
+#define APU_AO_CTRL			(IO_PHYS + 0x090F2000)
 #define APU_SEC_CON			(IO_PHYS + 0x090F5000)
 #define APUSYS_CTRL_DAPC_AO_BASE	(IO_PHYS + 0x090FC000)
 
 #define APU_MBOX0			(0x4C200000)
+
+#define APU_MBOX0_SZ			(0x100000)
+#define APU_INFRA_BASE			(0x1002C000)
+#define APU_INFRA_SZ			(0x1000)
 
 /*******************************************************************************
  * SPM related constants

@@ -21,6 +21,8 @@ static const mmap_region_t plat_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(EDP_SEC_BASE, EDP_SEC_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(APU_MBOX0, APU_MBOX0_SZ,
+			MT_DEVICE | MT_RW | MT_SECURE),
 	{ 0 }
 };
 DECLARE_MTK_MMAP_REGIONS(plat_mmap);
