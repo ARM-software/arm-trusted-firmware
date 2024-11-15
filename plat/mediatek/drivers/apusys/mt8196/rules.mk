@@ -13,8 +13,10 @@ PLAT_INCLUDES += -I${MTK_PLAT}/drivers/emi/common
 PLAT_INCLUDES += -I${MTK_PLAT}/drivers/emi/${MTK_SOC}
 endif
 
+LOCAL_SRCS-y := ${LOCAL_DIR}/apusys_ammu.c
 LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_devapc.c
 LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_power.c
 LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_security_ctrl_plat.c
+LOCAL_SRCS-y += ${LOCAL_DIR}/apusys_security_ctrl_perm_plat.c
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))

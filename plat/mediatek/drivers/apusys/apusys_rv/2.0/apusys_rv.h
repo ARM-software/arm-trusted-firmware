@@ -99,5 +99,6 @@ int apusys_kernel_apusys_rv_disable_wdt_isr(void);
 int apusys_kernel_apusys_rv_clear_wdt_isr(void);
 int apusys_kernel_apusys_rv_cg_gating(void);
 int apusys_kernel_apusys_rv_cg_ungating(void);
+int apusys_kernel_apusys_rv_setup_apummu(void);
 
 #endif /* APUSYS_RV_H */

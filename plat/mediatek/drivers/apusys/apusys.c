@@ -68,6 +68,9 @@ static u_register_t apusys_kernel_handler(u_register_t x1,
 	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_CG_UNGATING:
 		ret = apusys_kernel_apusys_rv_cg_ungating();
 		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_SETUP_APUMMU:
+		ret = apusys_kernel_apusys_rv_setup_apummu();
+		break;
 	default:
 		ERROR(MODULE_TAG "%s unknown request_ops = %x\n", MODULE_TAG, request_ops);
 		break;

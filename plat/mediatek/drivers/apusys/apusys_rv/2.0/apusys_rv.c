@@ -17,6 +17,10 @@
 #include "apusys_rv_pwr_ctrl.h"
 #include "emi_mpu.h"
 
+#ifdef CONFIG_MTK_APUSYS_RV_APUMMU_SUPPORT
+#include "apusys_ammu.h"
+#endif
+
 static spinlock_t apusys_rv_lock;
 
 void apusys_rv_mbox_mpu_init(void)
@@ -166,5 +170,39 @@ int apusys_kernel_apusys_rv_cg_ungating(void)
 	mmio_write_32(MD32_CLK_CTRL, MD32_CLK_EN);
 	spin_unlock(&apusys_rv_lock);
 
+	return 0;
+}
+
+int apusys_kernel_apusys_rv_setup_apummu(void)
+{
+	spin_lock(&apusys_rv_lock);
+
+#ifdef CONFIG_MTK_APUSYS_SEC_CTRL
+	sec_set_rv_dns();
+#endif
+
+#ifdef CONFIG_MTK_APUSYS_RV_APUMMU_SUPPORT
+	uint32_t apummu_tcm_sz_select = 0;
+
+	if (APU_MD32_TCM_SZ <= 0x20000)
+		apummu_tcm_sz_select = APUMMU_PAGE_LEN_128KB;
+	else if (APU_MD32_TCM_SZ <= 0x40000)
+		apummu_tcm_sz_select = APUMMU_PAGE_LEN_256KB;
+	else if (APU_MD32_TCM_SZ <= 0x80000)
+		apummu_tcm_sz_select = APUMMU_PAGE_LEN_512KB;
+	else if (APU_MD32_TCM_SZ <= 0x100000)
+		apummu_tcm_sz_select = APUMMU_PAGE_LEN_1MB;
+	else {
+		ERROR("%s: APU_MD32_TCM_SZ = 0x%x > 1MB", __func__, APU_MD32_TCM_SZ);
+		spin_unlock(&apusys_rv_lock);
+		return -EINVAL;
+	}
+
+	INFO("%s: apummu_tcm_sz_select = %u\n", __func__, apummu_tcm_sz_select);
+	rv_boot(APU_SEC_FW_IOVA, 0, APUMMU_PAGE_LEN_1MB,
+		APU_MD32_TCM, apummu_tcm_sz_select);
+#endif
+
+	spin_unlock(&apusys_rv_lock);
 	return 0;
 }

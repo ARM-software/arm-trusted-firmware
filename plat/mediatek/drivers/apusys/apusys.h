@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2023-2024, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,7 @@ enum MTK_APUSYS_KERNEL_OP {
 	MTK_APUSYS_KERNEL_OP_APUSYS_RV_CLEAR_WDT_ISR,	/* 10 */
 	MTK_APUSYS_KERNEL_OP_APUSYS_RV_CG_GATING,	/* 11 */
 	MTK_APUSYS_KERNEL_OP_APUSYS_RV_CG_UNGATING,	/* 12 */
+	MTK_APUSYS_KERNEL_OP_APUSYS_RV_SETUP_APUMMU,	/* 13 */
 	MTK_APUSYS_KERNEL_OP_NUM,
 };
 

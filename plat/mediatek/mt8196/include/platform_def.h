@@ -34,7 +34,11 @@
  * APUSYS related constants
  ******************************************************************************/
 #define APUSYS_BASE			(IO_PHYS + 0x09000000)
+#define APU_RCX_UPRV_TCU		(IO_PHYS + 0x09060000)
+#define APU_RCX_EXTM_TCU		(IO_PHYS + 0x09061000)
+#define APU_CMU_TOP			(IO_PHYS + 0x09067000)
 #define APUSYS_CE_BASE			(IO_PHYS + 0x090B0000)
+#define APU_RCX_VCORE_CONFIG		(IO_PHYS + 0x090E0000)
 #define APU_AO_CTRL			(IO_PHYS + 0x090F2000)
 #define APU_SEC_CON			(IO_PHYS + 0x090F5000)
 #define APUSYS_CTRL_DAPC_AO_BASE	(IO_PHYS + 0x090FC000)
