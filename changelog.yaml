@@ -161,6 +161,18 @@ subsections:
       - title: DynamIQ Shared Unit (DSU)
         scope: dsu
 
+      - title: Extension to SCTLR_ELx (FEAT_SCTLR2)
+        scope: sctlr2
+
+        deprecated:
+          - feat_sctlr2
+
+      - title: 128-bit Translation Tables (FEAT_D128)
+        scope: d128
+
+      - title: Translation Hardening Extension (FEAT_THE)
+        scope: the
+
   - title: Platforms
     scope: platforms
 
@@ -252,6 +264,7 @@ subsections:
 
                 deprecated:
                   - board/rdn2
+                  - rdfremont
 
             deprecated:
               - neoverse
@@ -271,6 +284,9 @@ subsections:
 
           - title: Corstone-1000
             scope: corstone-1000
+
+            deprecated:
+              - corstone1000
 
           - title: Automotive RD
             scope: automotive_rd
@@ -301,6 +317,9 @@ subsections:
 
           - title: HiKey960
             scope: hikey960
+
+          - title: Poplar
+            scope: poplar
 
       - title: Intel
         scope: intel
@@ -616,6 +635,9 @@ subsections:
           - title: RK3328
             scope: rk3328
 
+          - title: RK3588
+            scope: rk3588
+
       - title: Socionext
         scope: socionext
 
@@ -648,6 +670,10 @@ subsections:
 
           - title: STM32MP2
             scope: stm32mp2
+
+            subsections:
+              - title: STM32MP25
+                scope: stm32mp25
 
       - title: Texas Instruments
         scope: ti
@@ -730,6 +756,9 @@ subsections:
   - title: Services
     scope: services
 
+    deprecated:
+      - std_svc
+
     subsections:
       - title: FF-A
         scope: ff-a
@@ -787,6 +816,28 @@ subsections:
       - title: ChromeOS
         scope: cros
 
+      - title: Secure Payload Dispatcher
+        scope: spd
+
+        subsections:
+          - title: OP-TEE
+            scope: optee
+
+            deprecated:
+              - lib/optee
+
+          - title: ProvenCore
+            scope: pncd
+
+          - title: Trusted Little Kernel
+            scope: tlkd
+
+          - title: Trusty
+            scope: trusty
+
+          - title: TSP
+            scope: tspd
+
   - title: Libraries
     scope: lib
 
@@ -820,12 +871,6 @@ subsections:
 
       - title: MPMM
         scope: mpmm
-
-      - title: OP-TEE
-        scope: optee
-
-        deprecated:
-          - lib/optee
 
       - title: PSCI
         scope: psci
@@ -1334,6 +1379,10 @@ subsections:
 
           - title: STM32MP2
             scope: stm32mp2-fdts
+
+            subsections:
+              - title: STM32MP25
+                scope: stm32mp25-fdts
 
       - title: PIE
         scope: pie
