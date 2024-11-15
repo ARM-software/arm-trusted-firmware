@@ -575,6 +575,23 @@ size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared)
 	return (size_t)RMM_SHARED_SIZE;
 }
 
+/*
+ * Calculate checksum of 64-bit words @buffer with @size length
+ */
+static uint64_t checksum_calc(uint64_t *buffer, size_t size)
+{
+	uint64_t sum = 0UL;
+
+	assert(((uintptr_t)buffer & (sizeof(uint64_t) - 1UL)) == 0UL);
+	assert((size & (sizeof(uint64_t) - 1UL)) == 0UL);
+
+	for (unsigned long i = 0UL; i < (size / sizeof(uint64_t)); i++) {
+		sum += buffer[i];
+	}
+
+	return sum;
+}
+
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
 	uint64_t checksum, num_banks, num_consoles;
@@ -661,15 +678,12 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 
 	/* Store FVP DRAM banks data in Boot Manifest */
 	for (unsigned long i = 0UL; i < num_banks; i++) {
-		uintptr_t base = FCONF_GET_PROPERTY(hw_config, dram_layout, dram_bank[i].base);
-		uint64_t size = FCONF_GET_PROPERTY(hw_config, dram_layout, dram_bank[i].size);
-
-		bank_ptr[i].base = base;
-		bank_ptr[i].size = size;
-
-		/* Update checksum */
-		checksum += base + size;
+		bank_ptr[i].base = FCONF_GET_PROPERTY(hw_config, dram_layout, dram_bank[i].base);
+		bank_ptr[i].size = FCONF_GET_PROPERTY(hw_config, dram_layout, dram_bank[i].size);
 	}
+
+	/* Update checksum */
+	checksum += checksum_calc((uint64_t *)bank_ptr, sizeof(struct ns_dram_bank) * num_banks);
 
 	/* Checksum must be 0 */
 	manifest->plat_dram.checksum = ~checksum + 1UL;
@@ -678,18 +692,18 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	checksum = num_consoles + (uint64_t)console_ptr;
 
 	/* Zero out the console info struct */
-	memset((void *)console_ptr, '\0', sizeof(struct console_info) * num_consoles);
+	(void)memset((void *)console_ptr, '\0', sizeof(struct console_info) * num_consoles);
 
-	console_ptr[0].map_pages = 1;
 	console_ptr[0].base = FVP_RMM_CONSOLE_BASE;
+	console_ptr[0].map_pages = 1UL;
 	console_ptr[0].clk_in_hz = FVP_RMM_CONSOLE_CLK_IN_HZ;
 	console_ptr[0].baud_rate = FVP_RMM_CONSOLE_BAUD;
 
-	strlcpy(console_ptr[0].name, FVP_RMM_CONSOLE_NAME, RMM_CONSOLE_MAX_NAME_LEN-1UL);
+	(void)strlcpy(console_ptr[0].name, FVP_RMM_CONSOLE_NAME, RMM_CONSOLE_MAX_NAME_LEN - 1UL);
 
 	/* Update checksum */
-	checksum += console_ptr[0].base + console_ptr[0].map_pages +
-		console_ptr[0].clk_in_hz + console_ptr[0].baud_rate;
+	checksum += checksum_calc((uint64_t *)console_ptr,
+					sizeof(struct console_info) * num_consoles);
 
 	/* Checksum must be 0 */
 	manifest->plat_console.checksum = ~checksum + 1UL;
