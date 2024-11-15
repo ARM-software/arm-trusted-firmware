@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -322,14 +322,14 @@
 
 #define MOPS_IMPLEMENTED		ULL(0x1)
 
-/* ID_AA64PFR2_EL1 definitions */
-#define ID_AA64PFR2_EL1			S3_0_C0_C4_2
-
 #define ID_AA64ISAR2_GPA3_SHIFT		U(8)
 #define ID_AA64ISAR2_GPA3_MASK		ULL(0xf)
 
 #define ID_AA64ISAR2_APA3_SHIFT		U(12)
 #define ID_AA64ISAR2_APA3_MASK		ULL(0xf)
+
+#define ID_AA64ISAR2_SYSREG128_SHIFT	U(32)
+#define ID_AA64ISAR2_SYSREG128_MASK	ULL(0xf)
 
 /* ID_AA64MMFR0_EL1 definitions */
 #define ID_AA64MMFR0_EL1_PARANGE_SHIFT	U(0)
@@ -460,6 +460,8 @@
 #define RNG_TRAP_IMPLEMENTED		ULL(0x1)
 
 /* ID_AA64PFR2_EL1 definitions */
+#define ID_AA64PFR2_EL1				S3_0_C0_C4_2
+
 #define ID_AA64PFR2_EL1_MTEPERM_SHIFT		U(0)
 #define ID_AA64PFR2_EL1_MTEPERM_MASK		ULL(0xf)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -325,5 +325,19 @@
 	.macro adr_l, dst, sym
 	adrp	\dst, \sym
 	add	\dst, \dst, :lo12:\sym
+	.endm
+
+	/*
+	* is_feat_sysreg128_present_asm - Set flags and reg if FEAT_SYSREG128
+	* is enabled at runtime.
+	*
+	* Arguments:
+	* reg: Register for temporary use.
+	*
+	* Clobbers: reg
+	*/
+	.macro is_feat_sysreg128_present_asm reg:req
+	mrs	\reg, ID_AA64ISAR2_EL1
+	ands	\reg, \reg, #(ID_AA64ISAR2_SYSREG128_MASK << ID_AA64ISAR2_SYSREG128_SHIFT)
 	.endm
 #endif /* ASM_MACROS_S */

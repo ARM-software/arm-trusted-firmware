@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,15 +37,14 @@
  */
 .macro _mrrs regins:req
 #if ENABLE_FEAT_D128 == 2
-        mrs     x0, ID_AA64MMFR3_EL1
-        tst     x0, #(ID_AA64MMFR3_EL1_D128_MASK << ID_AA64MMFR3_EL1_D128_SHIFT)
+        is_feat_sysreg128_present_asm x0
         bne     1f
-        /* If FEAT_D128 is not implemented then use mrs */
-        .inst   0xD5300000 | (\regins)
+        /* If FEAT_SYSREG128 is not implemented then use mrs */
+        .inst   0xD5300000 | (\regins)  /* mrs  x0, \regins */
         ret
 #endif
 1:
-        .inst   0xD5700000 | (\regins)
+        .inst   0xD5700000 | (\regins)  /* mrrs x0, x1, \regins */
         ret
 .endm
 
@@ -59,18 +58,16 @@
  * Clobbers: x0,x1,x2
  */
 .macro _msrr regins:req
-        /* If FEAT_D128 is not implemented use msr, dont tamper
-         * x0, x1 as they maybe used for mrrs */
 #if ENABLE_FEAT_D128 == 2
-        mrs     x2, ID_AA64MMFR3_EL1
-        tst     x2, #(ID_AA64MMFR3_EL1_D128_MASK << ID_AA64MMFR3_EL1_D128_SHIFT)
+        /* Don't tamper x0 and x1 as they may be used for msrr */
+        is_feat_sysreg128_present_asm x2
         bne     1f
-        /* If FEAT_D128 is not implemented then use msr */
-        .inst   0xD5100000 | (\regins)
+        /* If FEAT_SYSREG128 is not implemented then use msr */
+        .inst   0xD5100000 | (\regins)  /* msr  \regins, x0 */
         ret
 #endif
 1:
-        .inst   0xD5500000 | (\regins)
+        .inst   0xD5500000 | (\regins)  /* msrr \regins, x0, x1 */
         ret
 .endm
 
