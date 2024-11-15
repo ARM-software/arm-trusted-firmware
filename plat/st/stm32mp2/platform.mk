@@ -74,10 +74,13 @@ STM32MP_DDR_FW_NAME		:=	${DDR_TYPE}_pmu_train.bin
 STM32MP_DDR_FW			:=	${STM32MP_DDR_FW_PATH}/${STM32MP_DDR_FW_NAME}
 endif
 FDT_SOURCES			+=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(STM32MP_FW_CONFIG_NAME)))
+
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_FW_CONFIG},--fw-config))
+
 # Add the SOC_FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_IMG,STM32MP_SOC_FW_CONFIG,--soc-fw-config))
+$(eval $(call TOOL_ADD_IMG_PAYLOAD,STM32MP_SOC_FW_CONFIG,$(STM32MP_SOC_FW_CONFIG),--soc-fw-config,$(patsubst %.dtb,%.dts,$(STM32MP_SOC_FW_CONFIG))))
+
 ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
 # Add the FW_DDR to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW,--ddr-fw))
@@ -218,7 +221,5 @@ check_ddr_type:
 ${BUILD_PLAT}/fdts/%-bl31.dts: fdts/%.dts fdts/${BL31_DTSI} | $$(@D)/
 	@echo '#include "$(patsubst fdts/%,%,$<)"' > $@
 	@echo '#include "${BL31_DTSI}"' >> $@
-
-${BUILD_PLAT}/fdts/%-bl31.dtb: ${BUILD_PLAT}/fdts/%-bl31.dts
 
 include plat/st/common/common_rules.mk
