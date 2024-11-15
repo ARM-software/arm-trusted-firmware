@@ -498,7 +498,6 @@ structure and is intended to manage specific EL3 registers.
 
 	typedef struct per_world_context {
 		uint64_t ctx_cptr_el3;
-		uint64_t ctx_zcr_el3;
 		uint64_t ctx_mpam3_el3;
 	} per_world_context_t;
 
@@ -555,7 +554,7 @@ EL3.
 EL3 execution context needs to setup at both boot time (cold and warm boot)
 entrypaths and at all the possible exception handlers routing to EL3 at runtime.
 
-*Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.*
 
 .. |Context Memory Allocation| image:: ../resources/diagrams/context_memory_allocation.png
 .. |CPU Context Memory Configuration| image:: ../resources/diagrams/cpu_data_config_context_memory.png

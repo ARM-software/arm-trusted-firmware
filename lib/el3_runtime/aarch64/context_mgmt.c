@@ -666,6 +666,10 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 #if IMAGE_BL31
 void cm_manage_extensions_el3(unsigned int my_idx)
 {
+	if (is_feat_sve_supported()) {
+		sve_init_el3();
+	}
+
 	if (is_feat_amu_supported()) {
 		amu_init_el3(my_idx);
 	}
