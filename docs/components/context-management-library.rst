@@ -244,25 +244,22 @@ state of CPU across exception levels for a given security state are listed below
 	typedef struct cpu_context {
 	gp_regs_t gpregs_ctx;
 	el3_state_t el3state_ctx;
-	el1_sysregs_t el1_sysregs_ctx;
-
-	#if CTX_INCLUDE_EL2_REGS
-	el2_sysregs_t el2_sysregs_ctx;
-	#endif
-
-	#if CTX_INCLUDE_FPREGS
-	fp_regs_t fpregs_ctx;
-	#endif
 
 	cve_2018_3639_t cve_2018_3639_ctx;
+
+	#if ERRATA_SPECULATIVE_AT
+	errata_speculative_at_t errata_speculative_at_ctx;
+	#endif
+
 	#if CTX_INCLUDE_PAUTH_REGS
 	pauth_t pauth_ctx;
 	#endif
 
-	#if CTX_INCLUDE_MPAM_REGS
-	mpam_t	mpam_ctx;
+	#if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
+	el2_sysregs_t el2_sysregs_ctx;
+	#else
+	el1_sysregs_t el1_sysregs_ctx;
 	#endif
-
 	} cpu_context_t;
 
 Context Memory Allocation
@@ -509,6 +506,55 @@ These functions facilitate the activation of architectural extensions that posse
 identical values across all cores for the individual Non-secure, Secure, and
 Realm worlds.
 
+Root-Context (EL3-Execution-Context)
+====================================
+
+EL3/Root Context is the execution environment while the CPU is running at EL3.
+
+Previously, while the CPU is in execution at EL3, the system registers persist
+with the values of the incoming world. This implies that if the CPU is entering
+EL3 from NS world, the EL1 and EL2 system registers which might be modified in
+lower exception levels NS(EL2/EL1) will carry forward those values to EL3.
+Further the EL3 registers also hold on to the values configured for Non-secure
+world, written during the previous ERET from EL3 to NS(EL2/EL1).
+Same policy is followed with respect to other worlds (Secure/Realm) depending on
+the system configuration.
+
+The firmware at EL3 has traditionally operated within the context of the incoming
+world (Secure/Non-Secure/Realm). This becomes problematic in scenarios where the
+EL3/Root world must explicitly use architectural features that depend on system
+registers configured for lower exception levels.
+A good example of this is the PAuth regs. The Root world would need to program
+its own PAuth Keys while executing in EL3 and this needs to be restored in entry
+to EL3 from any world.
+Therefore, Root world should maintain its own distinct settings to access
+features for its own execution at EL3.
+
+Register values which are currently known to be of importance during EL3 execution,
+is referred to as the EL3/Root context.
+This includes ( MDCR_EL3.SDD, SCR_EL3.{EA, SIF}, PMCR_EL0.DP, PSTATE.DIT)
+EL3 Context ensures, CPU executes under fixed EL3 system register settings
+which is not affected by settings of other worlds.
+
+Root Context needs to be setup as early as possible before we try and access/modify
+architectural features at EL3. Its a simple restore operation ``setup_el3_execution_context``
+that overwrites the selected bits listed above. EL3 never changes its mind about
+what those values should be, sets it as required for EL3. Henceforth, a Root
+context save operation is not required.
+
+The figure below illustrates the same with NS-world as a reference while entering
+EL3.
+
+|Root Context Sequence|
+
+.. code:: c
+
+	# EL3/Root_Context routine
+	.macro setup_el3_execution_context
+
+EL3 execution context needs to setup at both boot time (cold and warm boot)
+entrypaths and at all the possible exception handlers routing to EL3 at runtime.
+
 *Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.*
 
 .. |Context Memory Allocation| image:: ../resources/diagrams/context_memory_allocation.png
@@ -516,6 +562,7 @@ Realm worlds.
 .. |CPU Data Structure| image:: ../resources/diagrams/percpu-data-struct.png
 .. |Context Init ColdBoot| image:: ../resources/diagrams/context_init_coldboot.png
 .. |Context Init WarmBoot| image:: ../resources/diagrams/context_init_warmboot.png
+.. |Root Context Sequence| image:: ../resources/diagrams/root_context_sequence.png
 .. _Trustzone for AArch64: https://developer.arm.com/documentation/102418/0101/TrustZone-in-the-processor/Switching-between-Security-states
 .. _Security States with RME: https://developer.arm.com/documentation/den0126/0100/Security-states
 .. _lib/el3_runtime/(aarch32/aarch64): https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/lib/el3_runtime
