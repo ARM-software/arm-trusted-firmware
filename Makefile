@@ -114,6 +114,9 @@ SPTOOL			?=	${SPTOOLPATH}/sptool.py
 SP_MK_GEN		?=	${SPTOOLPATH}/sp_mk_generator.py
 SP_DTS_LIST_FRAGMENT	?=	${BUILD_PLAT}/sp_list_fragment.dts
 
+# Variables for use with sptool
+TLCTOOL 		?=	poetry run tlc
+
 # Variables for use with ROMLIB
 ROMLIBPATH		?=	lib/romlib
 

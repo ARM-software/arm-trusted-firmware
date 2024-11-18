@@ -84,6 +84,19 @@ def get_sp_img_full_path(sp_node, args :dict):
     check_sp_layout_dir(args)
     return os.path.join(args["sp_layout_dir"], get_file_from_layout(sp_node["image"]))
 
+def get_size(sp_node):
+    if not "size" in sp_node:
+        print("WARNING: default image size 0x100000")
+        return 0x100000
+
+    # Try if it was a decimal value.
+    try:
+        return int(sp_node["size"])
+    except ValueError:
+        print("WARNING: trying to parse base 16 size")
+        # Try if it is of base 16
+        return int(sp_node["size"], 16)
+
 def get_sp_pkg(sp, args :dict):
     check_out_dir(args)
     return os.path.join(args["out_dir"], f"{sp}.pkg")
@@ -143,7 +156,6 @@ def get_load_address(sp_layout, sp, args :dict):
     load_address_parsed = re.search("(0x[0-9a-f]+)", load_address_lines[0])
     return load_address_parsed.group(0)
 
-
 @SpSetupActions.sp_action(global_action=True)
 def check_max_sps(sp_layout, _, args :dict):
     ''' Check validate the maximum number of SPs is respected. '''
@@ -158,31 +170,60 @@ def gen_fdt_sources(sp_layout, sp, args :dict):
     write_to_sp_mk_gen(f"FDT_SOURCES += {manifest_path}", args)
     return args
 
+def generate_sp_pkg(sp_node, pkg, sp_img, sp_dtb):
+    ''' Generates the rule in case SP is to be generated in an SP Pkg. '''
+    pm_offset = get_pm_offset(sp_node)
+    sptool_args = f" --pm-offset {pm_offset}" if pm_offset is not None else ""
+    image_offset = get_image_offset(sp_node)
+    sptool_args += f" --img-offset {image_offset}" if image_offset is not None else ""
+    sptool_args += f" -o {pkg}"
+    return f'''
+{pkg}: {sp_dtb} {sp_img}
+\t$(Q)echo Generating {pkg}
+\t$(Q)$(PYTHON) $(SPTOOL)  -i {sp_img}:{sp_dtb} {sptool_args}
+'''
+
+def generate_tl_pkg(sp_node, pkg, sp_img, sp_dtb, hob_path = None):
+    ''' Generate make rules for a Transfer List type package. '''
+    # TE Type for the FF-A manifest.
+    TE_FFA_MANIFEST = 0x106
+    # TE Type for the SP binary.
+    TE_SP_BINARY = 0x103
+    # TE Type for the HOB List.
+    TE_HOB_LIST = 0x3
+    tlc_add_hob = f"\t$(Q)poetry run tlc add --entry {TE_HOB_LIST} {hob_path} {pkg}" if hob_path is not None else ""
+    return f'''
+{pkg}: {sp_dtb} {sp_img}
+\t$(Q)echo Generating {pkg}
+\t$(Q)$(TLCTOOL) create --size {get_size(sp_node)} --entry {TE_FFA_MANIFEST} {sp_dtb} {pkg} --align 12
+\t$(Q)$(TLCTOOL) add --entry {TE_SP_BINARY} {sp_img} {pkg}
+'''
+
 @SpSetupActions.sp_action
-def gen_sptool_args(sp_layout, sp, args :dict):
+def gen_partition_pkg(sp_layout, sp, args :dict):
     ''' Generate Sp Pkgs rules. '''
-    sp_pkg = get_sp_pkg(sp, args)
+    pkg = get_sp_pkg(sp, args)
+
     sp_dtb_name = os.path.basename(get_file_from_layout(sp_layout[sp]["pm"]))[:-1] + "b"
     sp_dtb = os.path.join(args["out_dir"], f"fdts/{sp_dtb_name}")
     sp_img = get_sp_img_full_path(sp_layout[sp], args)
 
     # Do not generate rule if already there.
-    if is_line_in_sp_gen(f'{sp_pkg}:', args):
+    if is_line_in_sp_gen(f'{pkg}:', args):
         return args
-    write_to_sp_mk_gen(f"SP_PKGS += {sp_pkg}\n", args)
 
-    sptool_args = f" -i {sp_img}:{sp_dtb}"
-    pm_offset = get_pm_offset(sp_layout[sp])
-    sptool_args += f" --pm-offset {pm_offset}" if pm_offset is not None else ""
-    image_offset = get_image_offset(sp_layout[sp])
-    sptool_args += f" --img-offset {image_offset}" if image_offset is not None else ""
-    sptool_args += f" -o {sp_pkg}"
-    sppkg_rule = f'''
-{sp_pkg}: {sp_dtb} {sp_img}
-\t$(Q)echo Generating {sp_pkg}
-\t$(Q)$(PYTHON) $(SPTOOL) {sptool_args}
-'''
-    write_to_sp_mk_gen(sppkg_rule, args)
+    # This should include all packages of all kinds.
+    write_to_sp_mk_gen(f"SP_PKGS += {pkg}\n", args)
+    package_type = sp_layout[sp]["package"] if "package" in sp_layout[sp] else "sp_pkg"
+
+    if package_type == "sp_pkg":
+        partition_pkg_rule = generate_sp_pkg(sp_layout[sp], pkg, sp_img, sp_dtb)
+    elif package_type == "tl_pkg":
+        partition_pkg_rule = generate_tl_pkg(sp_layout[sp], pkg, sp_img, sp_dtb)
+    else:
+        raise ValueError(f"Specified invalid pkg type {package_type}")
+
+    write_to_sp_mk_gen(partition_pkg_rule, args)
     return args
 
 @SpSetupActions.sp_action(global_action=True, exec_order=1)
@@ -193,6 +234,7 @@ def check_dualroot(sp_layout, _, args :dict):
     args["split"] =  int(MAX_SP / 2)
     owners = [sp_layout[sp].get("owner") for sp in sp_layout]
     args["plat_max_count"] = owners.count("Plat")
+
     # If it is owned by the platform owner, it is assigned to the SiP.
     args["sip_max_count"] = len(sp_layout.keys()) - args["plat_max_count"]
     if  args["sip_max_count"] > args["split"] or args["sip_max_count"] > args["split"]:
