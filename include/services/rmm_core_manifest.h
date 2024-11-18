@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,7 +67,7 @@ struct console_info {
 	uintptr_t base;			/* Console base address */
 	uint64_t map_pages;		/* Num of pages to be mapped in RMM for the console MMIO */
 	char name[RMM_CONSOLE_MAX_NAME_LEN];	/* Name of console */
-	uint64_t clk_in_hz;		/* UART clock (in HZ) for the console */
+	uint64_t clk_in_hz;		/* UART clock (in Hz) for the console */
 	uint64_t baud_rate;		/* Baud rate */
 	uint64_t flags;			/* Additional flags RES0 */
 };
@@ -87,8 +87,8 @@ CASSERT(offsetof(struct console_info, flags) == 40UL,
 
 struct console_list {
 	uint64_t num_consoles;		/* Number of consoles */
-	struct console_info *consoles;	/* Pointer to ns_dram_bank[] */
-	uint64_t checksum;		/* Checksum of ns_dram_info data */
+	struct console_info *consoles;	/* Pointer to console_info[] */
+	uint64_t checksum;		/* Checksum of console_list data */
 };
 
 CASSERT(offsetof(struct console_list, num_consoles) == 0UL,
