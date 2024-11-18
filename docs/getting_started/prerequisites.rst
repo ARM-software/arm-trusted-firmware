@@ -34,7 +34,7 @@ GNU make                 3.81
 mbed TLS\ [#f1]_         3.6.1
 Node.js [#f2]_           16
 OpenSSL                  1.0.0
-Poetry [#f2]_            1.3.2
+Poetry                   1.3.2
 QCBOR\ [#f3]_            1.2
 Sphinx\ [#f2]_           2.4.4
 ======================== =====================
@@ -103,9 +103,11 @@ Poetry
 ^^^^^^
 
 Required for managing Python dependencies, this will allow you to reliably
-reproduce a Python environment to build documentation and run analysis tools.
-Most importantly, it ensures your system environment will not be affected by
-dependencies in the Python scripts.
+reproduce a Python environment to build documentation and run some of the
+integrated Python tools. Most importantly, it ensures your system environment
+will not be affected by dependencies in the Python scripts.
+
+For installation instructions, see the `official Poetry documentation`_.
 
 .. _prerequisites_software_and_libraries:
 
@@ -191,3 +193,4 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 .. _Arm-DS: https://developer.arm.com/Tools%20and%20Software/Arm%20Development%20Studio
 .. _Linaro Release 20.01: http://releases.linaro.org/members/arm/platforms/20.01
 .. _TrustedFirmware.org: https://www.trustedfirmware.org/
+.. _official Poetry documentation: https://python-poetry.org/docs/#installation
