@@ -28,15 +28,15 @@ Requirements
 ======================== =====================
 Arm Compiler             6.18
 Arm GNU Compiler         13.3
-Clang/LLVM               11.0.0
-Device Tree Compiler     1.4.7
+Clang/LLVM               18.1.8
+Device Tree Compiler     1.6.1
 GNU make                 3.81
 mbed TLS\ [#f1]_         3.6.1
 Node.js [#f2]_           16
 OpenSSL                  1.0.0
 Poetry                   1.3.2
 QCBOR\ [#f3]_            1.2
-Sphinx\ [#f2]_           2.4.4
+Sphinx\ [#f2]_           5.3.0
 ======================== =====================
 
 .. [#f1] Required for Trusted Board Boot and Measured Boot.
