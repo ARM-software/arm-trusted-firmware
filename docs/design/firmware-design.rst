@@ -247,7 +247,7 @@ BL1 performs minimal architectural initialization as follows.
 
 -  CPU initialization
 
-   BL1 calls the ``reset_handler()`` function which in turn calls the CPU
+   BL1 calls the ``reset_handler`` macro/function which in turn calls the CPU
    specific reset handler function (see the section: "CPU specific operations
    framework").
 
@@ -1337,7 +1337,7 @@ Guidelines for Reset Handlers
 
 TF-A implements a framework that allows CPU and platform ports to perform
 actions very early after a CPU is released from reset in both the cold and warm
-boot paths. This is done by calling the ``reset_handler()`` function in both
+boot paths. This is done by calling the ``reset_handler`` macro/function in both
 the BL1 and BL31 images. It in turn calls the platform and CPU specific reset
 handling functions.
 
@@ -2904,7 +2904,7 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 
 --------------
 
-*Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMCCC: https://developer.arm.com/docs/den0028/latest
 .. _PSCI: https://developer.arm.com/documentation/den0022/latest/

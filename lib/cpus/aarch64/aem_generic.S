@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,6 +74,9 @@ func aem_generic_cluster_pwr_dwn
 	b	dcsw_op_all
 endfunc aem_generic_cluster_pwr_dwn
 
+cpu_reset_func_start aem_generic
+cpu_reset_func_end aem_generic
+
 	/* ---------------------------------------------
 	 * This function provides cpu specific
 	 * register information for crash reporting.
@@ -94,11 +97,11 @@ endfunc aem_generic_cpu_reg_dump
 
 
 /* cpu_ops for Base AEM FVP */
-declare_cpu_ops aem_generic, BASE_AEM_MIDR, CPU_NO_RESET_FUNC, \
+declare_cpu_ops aem_generic, BASE_AEM_MIDR, aem_generic_reset_func, \
 	aem_generic_core_pwr_dwn, \
 	aem_generic_cluster_pwr_dwn
 
 /* cpu_ops for Foundation FVP */
-declare_cpu_ops aem_generic, FOUNDATION_AEM_MIDR, CPU_NO_RESET_FUNC, \
+declare_cpu_ops aem_generic, FOUNDATION_AEM_MIDR, aem_generic_reset_func, \
 	aem_generic_core_pwr_dwn, \
 	aem_generic_cluster_pwr_dwn
