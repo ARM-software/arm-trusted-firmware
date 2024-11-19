@@ -49,7 +49,9 @@
 	 * due to a NULL TPIDR_EL3.
 	 * ---------------------------------------------------------------------
 	 */
-	bl	init_cpu_data_ptr
+	bl	plat_my_core_pos
+	bl	_cpu_data_by_index
+	msr	tpidr_el3, x0
 #endif /* IMAGE_BL31 */
 
 	/* ---------------------------------------------------------------------
