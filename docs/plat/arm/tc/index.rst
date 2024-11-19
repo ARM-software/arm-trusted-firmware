@@ -13,13 +13,15 @@ Some of the features of TC platform referenced in TF-A include:
 - SCMI
 - MHUv2
 
-Currently, the main difference between TC0 (TARGET_PLATFORM=0), TC1
-(TARGET_PLATFORM=1), TC2 (TARGET_PLATFORM=2) platforms w.r.t to TF-A
-is the CPUs supported as below:
+The TF-A build is specified by the option `TARGET_PLATFORM` which represents
+the Total Compute platform number. The platforms support the CPU variants
+listed as below:
 
 -  TC0 has support for Cortex A510, Cortex A710 and Cortex X2. (Note TC0 is now deprecated)
 -  TC1 has support for Cortex A510, Cortex A715 and Cortex X3. (Note TC1 is now deprecated)
--  TC2 has support for Cortex A520, Cortex A720 and Cortex x4.
+-  TC2 has support for Cortex A520, Cortex A720 and Cortex x4. (Note TC2 is now deprecated)
+-  TC3 has support for Cortex A520, Cortex A725 and Cortex x925.
+
 
 Boot Sequence
 -------------
@@ -43,7 +45,7 @@ Build Procedure (TF-A only)
    .. code:: shell
 
       make PLAT=tc BL33=<path_to_uboot.bin> \
-      SCP_BL2=<path_to_scp_ramfw.bin> TARGET_PLATFORM={0,1,2} all fip
+      SCP_BL2=<path_to_scp_ramfw.bin> TARGET_PLATFORM={3} all fip
 
    Enable TBBR by adding the following options to the make command:
 
