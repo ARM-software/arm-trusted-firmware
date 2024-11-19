@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -230,7 +230,6 @@ static inline context_pas_t get_cpu_context_index(uint32_t security_state)
  * APIs for initialising and accessing per-cpu data
  *************************************************************************/
 
-void init_cpu_data_ptr(void);
 void init_cpu_ops(void);
 
 #define get_cpu_data(_m)		   _cpu_data()->_m
