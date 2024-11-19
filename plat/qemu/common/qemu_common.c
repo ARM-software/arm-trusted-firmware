@@ -178,7 +178,7 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
  */
 #define PLAT_SPMC_SHMEM_DATASTORE_SIZE 64 * 1024
 
-uint8_t plat_spmc_shmem_datastore[PLAT_SPMC_SHMEM_DATASTORE_SIZE];
+uint8_t plat_spmc_shmem_datastore[PLAT_SPMC_SHMEM_DATASTORE_SIZE] __aligned(2 * sizeof(long));
 
 int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)
 {
@@ -198,16 +198,17 @@ int plat_spmc_shmem_reclaim(struct ffa_mtd *desc)
 }
 #endif
 
-#if defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
-/*
- * A dummy implementation of the platform handler for Group0 secure interrupt.
- */
+#if defined(SPD_spmd)
 int plat_spmd_handle_group0_interrupt(uint32_t intid)
 {
+	/*
+	 * Currently, there are no sources of Group0 secure interrupt
+	 * enabled for QEMU.
+	 */
 	(void)intid;
 	return -1;
 }
-#endif /*defined(SPD_spmd) && (SPMC_AT_EL3 == 0)*/
+#endif /*defined(SPD_spmd)*/
 
 #if ENABLE_RME
 /*
