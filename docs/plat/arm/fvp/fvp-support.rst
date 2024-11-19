@@ -11,8 +11,8 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 .. note::
    The FVP models used are Version 11.26 Build 11, unless otherwise stated.
 
--  ``FVP_Base_AEMvA``
 -  ``FVP_Base_AEMvA-AEMvA``
+-  ``FVP_Base_RevC-2xAEMvA``
 -  ``FVP_Base_Cortex-A32x4``
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
@@ -40,11 +40,12 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Neoverse-N1``
 -  ``FVP_Base_Neoverse-N2``
 -  ``FVP_Base_Neoverse-V1``
--  ``FVP_Base_RevC-2xAEMv8A``
 -  ``FVP_BaseR_AEMv8R``
 -  ``FVP_Morello`` (Version 0.11/33)
 -  ``FVP_RD_V1``
--  ``FVP_TC2`` (Version 11.23/17)
+-  ``FVP_RD_1_AE`` (Version 11.27/20)
+-  ``FVP_TC3`` (Version 11.26/16)
+-  ``FVP_TC4`` (Version 0.0/8404)
 
 The latest version of the AArch32 build of TF-A has been tested on the
 following Arm FVPs without shifted affinities, and that do not support threaded
