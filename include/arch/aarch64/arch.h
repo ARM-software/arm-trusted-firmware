@@ -625,7 +625,11 @@
 #define CPACR_EL1_SMEN_MASK	ULL(0x3)
 
 /* SCR definitions */
+#if ENABLE_FEAT_GCIE
+#define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5) | SCR_FIQ_BIT)
+#else
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
+#endif
 #define SCR_NSE_SHIFT		U(62)
 #define SCR_FGTEN2_BIT		(UL(1) << 59)
 #define SCR_NSE_BIT		(ULL(1) << SCR_NSE_SHIFT)
