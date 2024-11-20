@@ -40,7 +40,9 @@ static void xspi_save(void)
 {
 	/* Save the XSPI MTO register */
 	xspi_mto[0]  = mmio_read_32(XSPI1_BASE + XSPI_MTO);
+#if XSPI2_BASE
 	xspi_mto[1]  = mmio_read_32(XSPI2_BASE + XSPI_MTO);
+#endif
 }
 
 static void xspi_restore(void)
@@ -48,7 +50,9 @@ static void xspi_restore(void)
 	/* request the GMID first */
 	ele_release_gmid();
 	mmio_write_32(XSPI1_BASE + XSPI_MTO, xspi_mto[0]);
+#if XSPI2_BASE
 	mmio_write_32(XSPI2_BASE + XSPI_MTO, xspi_mto[1]);
+#endif
 }
 #endif
 
