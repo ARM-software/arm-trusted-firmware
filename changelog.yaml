@@ -194,6 +194,9 @@ subsections:
           - plat/arm
 
         subsections:
+          - title: Common
+            scope: common
+
           - title: A5DS
             scope: a5ds
 
