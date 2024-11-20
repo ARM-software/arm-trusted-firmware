@@ -91,6 +91,17 @@
 #ifndef __ASSEMBLER__
 
 #include <stdint.h>
+#include <tools_share/uuid.h>
+
+/*
+ * MM Communicate information structure. Required to generate MM Communicate
+ * payload to be shared with Standalone MM.
+ */
+typedef struct mm_communicate_header {
+	struct efi_guid	header_guid;
+	size_t message_len;
+	uint8_t data[1];
+} mm_communicate_header_t;
 
 int32_t spm_mm_setup(void);
 
