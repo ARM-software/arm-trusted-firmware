@@ -17,6 +17,7 @@ from unittest import mock
 import pytest
 import yaml
 from click.testing import CliRunner
+from conftest import generate_random_bytes
 
 from tlc.cli import cli
 from tlc.te import TransferEntry
@@ -30,6 +31,22 @@ def test_create_empty_tl(tmpdir):
     result = runner.invoke(cli, ["create", test_file.strpath])
     assert result.exit_code == 0
     assert TransferList.fromfile(test_file) is not None
+
+
+@pytest.mark.parametrize("align", [4, 6, 12, 13])
+def test_create_with_align(align, tlcrunner, tmpdir):
+    tl_file = tmpdir.join("tl.bin").strpath
+    tlcrunner.invoke(cli, ["create", "-s", "10000", "-a", align, tl_file])
+
+    blob = tmpdir.join("blob.bin")
+
+    blob.write_binary(generate_random_bytes(0x200))
+    tlcrunner.invoke(cli, ["add", "--entry", 1, blob.strpath, tl_file])
+
+    tl = TransferList.fromfile(tl_file)
+    te = tl.entries[-1]
+    assert tl.alignment == align
+    assert (te.offset + te.hdr_size) % (1 << align) == 0
 
 
 def test_create_with_fdt(tmpdir):
@@ -67,6 +84,20 @@ def test_add_multiple_entries(tlcrunner, tlc_entries, tmptlstr):
     tl = TransferList.fromfile(tmptlstr)
     assert tl is not None
     assert len(tl.entries) == len(tlc_entries)
+
+
+@pytest.mark.parametrize("align", [4, 6, 12, 13])
+def test_cli_add_entry_with_align(align, tlcrunner, tmpdir, tmptlstr):
+    blob = tmpdir.join("blob.bin")
+    blob.write_binary(bytes(0x100))
+
+    tlcrunner.invoke(cli, ["add", "--align", align, "--entry", 1, blob, tmptlstr])
+    tl = TransferList.fromfile(tmptlstr)
+    te = tl.entries[-1]
+
+    print(tl, *(te for te in tl.entries), sep="\n---------------\n")
+    assert (te.offset + te.hdr_size) % (1 << align) == 0
+    assert tl.alignment == align
 
 
 def test_info(tlcrunner, tmptlstr, tmpfdt):

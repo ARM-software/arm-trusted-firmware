@@ -86,11 +86,14 @@ class TransferList:
     granule = 8
 
     def __init__(
-        self, max_size: int = hdr_size, flags: int = TRANSFER_LIST_ENABLE_CHECKSUM
+        self,
+        max_size: int = hdr_size,
+        flags: int = TRANSFER_LIST_ENABLE_CHECKSUM,
+        alignment: int = 3,
     ) -> None:
         assert max_size >= self.hdr_size
         self.checksum: int = 0
-        self.alignment: int = 3
+        self.alignment: int = alignment
         self.size = self.hdr_size
         self.total_size = max_size
         self.flags = flags
@@ -163,10 +166,14 @@ class TransferList:
         # get settings from config and set defaults
         max_size = config.get("max_size", 0x1000)
         has_checksum = config.get("has_checksum", True)
+        align = config.get("alignment", None)
 
         flags = TRANSFER_LIST_ENABLE_CHECKSUM if has_checksum else 0
 
-        tl = cls(max_size, flags)
+        if align:
+            tl = cls(max_size, flags, alignment=align)
+        else:
+            tl = cls(max_size, flags)
 
         for entry in config["entries"]:
             tl.add_transfer_entry_from_dict(entry)
@@ -327,8 +334,12 @@ class TransferList:
         te_format = transfer_entry_formats[tag_id]
         tag_name = te_format["tag_name"]
 
+        align = entry.get("alignment", None)
+
         if "blob_file_path" in entry:
-            return self.add_transfer_entry_from_file(tag_id, entry["blob_file_path"])
+            return self.add_transfer_entry_from_file(
+                tag_id, entry["blob_file_path"], data_align=align
+            )
         elif tag_name == "tpm_event_log_table":
             with open(entry["event_log"], "rb") as f:
                 event_log_data = f.read()
@@ -336,7 +347,7 @@ class TransferList:
             flags_bytes = entry["flags"].to_bytes(4, "little")
             data = flags_bytes + event_log_data
 
-            return self.add_transfer_entry(tag_id, data)
+            return self.add_transfer_entry(tag_id, data, data_align=align)
         elif tag_name == "exec_ep_info":
             return self.add_entry_point_info_transfer_entry(entry)
         elif "format" in te_format and "fields" in te_format:
@@ -347,9 +358,11 @@ class TransferList:
         else:
             raise ValueError(f"Invalid transfer entry {entry}.")
 
-    def add_transfer_entry_from_file(self, tag_id: int, path: Path) -> TransferEntry:
+    def add_transfer_entry_from_file(
+        self, tag_id: int, path: Path, data_align: int = 0
+    ) -> TransferEntry:
         with open(path, "rb") as f:
-            return self.add_transfer_entry(tag_id, f.read())
+            return self.add_transfer_entry(tag_id, f.read(), data_align=data_align)
 
     def write_to_file(self, file: Path) -> None:
         """Write the contents of the TL to a file."""

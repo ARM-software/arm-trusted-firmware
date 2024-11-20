@@ -157,7 +157,7 @@ def test_single_te_transfer_list(tag_id, data, tmpdir):
         assert f.read(te.data_size) == te.data
 
 
-def test_write_multiple_tes_to_file(tmpdir, random_entries):
+def test_write_multiple_tes_to_file(tmpdir, random_entries, random_entry):
     """Check that we can create a TL with multiple TE's."""
     test_file = tmpdir.join("test_tl_blob.bin")
     tl = TransferList(0x4000)
@@ -165,6 +165,10 @@ def test_write_multiple_tes_to_file(tmpdir, random_entries):
 
     for tag_id, data in _test_entries:
         tl.add_transfer_entry(tag_id, data)
+
+    # Add a few entries with special alignment requirements
+    blob_id, blob = random_entry(0x200)
+    tl.add_transfer_entry(blob_id, blob, data_align=12)
 
     tl.write_to_file(test_file)
 
@@ -179,6 +183,13 @@ def test_write_multiple_tes_to_file(tmpdir, random_entries):
             # Make sure the data in the TE matches the data in the original case
             data_size = int.from_bytes(f.read(4), "little")
             assert f.read(data_size) == data
+
+        f.seek(int(math.ceil(f.tell() / (1 << 12)) * (1 << 12)) - 8)
+        assert int.from_bytes(f.read(3), "little") == blob_id
+        assert int.from_bytes(f.read(1), "little") == TransferEntry.hdr_size
+        # Make sure the data in the TE matches the data in the original case
+        data_size = int.from_bytes(f.read(4), "little")
+        assert f.read(data_size) == blob
 
         # padding is added to align TE's, make sure padding is added to the size of
         # the TL by checking we don't overflow.
