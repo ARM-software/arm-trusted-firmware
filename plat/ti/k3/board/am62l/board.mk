@@ -10,6 +10,8 @@ K3_TI_SCI_MAILBOX	:=	1
 $(eval $(call add_define,K3_TI_SCI_MAILBOX))
 
 K3_TI_SCI_TRANSPORT    =      ${PLAT_PATH}/common/drivers/mailbox/mailbox.c
+K3_PSCI_SOURCES		+=	\
+				${PLAT_PATH}/common/am62l_psci.c	\
 
 BL32_BASE ?= 0x80200000
 $(eval $(call add_define,BL32_BASE))
