@@ -63,6 +63,11 @@ endif
 
 STM32_HASH_VER			:=	4
 STM32_RNG_VER			:=	4
+ifeq ($(STM32MP21),1)
+STM32_RNG_VER_MINOR		:=	4
+else
+STM32_RNG_VER_MINOR		:=	3
+endif
 
 # Set load address for serial boot devices
 DWL_BUFFER_BASE 		?=	0x87000000
@@ -150,6 +155,7 @@ $(eval $(call assert_numerics,\
 		STM32_HASH_VER \
 		STM32_HEADER_VERSION_MAJOR \
 		STM32_RNG_VER \
+		STM32_RNG_VER_MINOR \
 		STM32_TF_A_COPIES \
 )))
 
@@ -161,6 +167,7 @@ $(eval $(call add_defines,\
 		PLAT_TBBR_IMG_DEF \
 		STM32_HASH_VER \
 		STM32_RNG_VER \
+		STM32_RNG_VER_MINOR \
 		STM32_TF_A_COPIES \
 		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_DDR_FIP_IO_STORAGE \
