@@ -28,6 +28,9 @@
 #define RNG_CR			0x00U
 #define RNG_SR			0x04U
 #define RNG_DR			0x08U
+#if STM32_RNG_VER == 4
+#define RNG_HTCR		0x10U
+#endif
 
 #define RNG_CR_RNGEN		BIT(2)
 #define RNG_CR_IE		BIT(3)
@@ -51,6 +54,14 @@
 #define RNG_NIST_CONFIG_B	0x01801000U
 #define RNG_NIST_CONFIG_C	0x00F00D00U
 #define RNG_NIST_CONFIG_MASK	GENMASK(25, 8)
+
+#if STM32_RNG_VER == 4
+#if STM32_RNG_VER_MINOR == 2
+#define RNG_HTCFG_CONFIG	0x000072ACU /* Reset value */
+#else
+#define RNG_HTCFG_CONFIG	0x0000AAC7U
+#endif
+#endif
 
 #define RNG_MAX_NOISE_CLK_FREQ	48000000U
 
@@ -124,6 +135,8 @@ static int stm32_rng_enable(void)
 
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_CR_CLKDIV,
 			   (clock_div << RNG_CR_CLKDIV_SHIFT));
+
+	mmio_write_32(stm32_rng.base + RNG_HTCR, RNG_HTCFG_CONFIG);
 
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_CR_CONDRST, RNG_CR_RNGEN);
 #endif
