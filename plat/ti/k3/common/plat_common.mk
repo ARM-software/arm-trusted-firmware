@@ -69,7 +69,6 @@ K3_GIC_SOURCES		+=	\
 
 K3_PSCI_SOURCES		+=	\
 				plat/common/plat_psci_common.c		\
-				${PLAT_PATH}/common/k3_psci.c		\
 
 K3_TI_SCI_SOURCES	+=	\
 				${PLAT_PATH}/common/drivers/ti_sci/ti_sci.c \
