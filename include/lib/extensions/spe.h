@@ -14,7 +14,6 @@
 void spe_enable(cpu_context_t *ctx);
 void spe_disable(cpu_context_t *ctx);
 void spe_init_el2_unused(void);
-void spe_stop(void);
 #else
 static inline void spe_enable(cpu_context_t *ctx)
 {
@@ -23,9 +22,6 @@ static inline void spe_disable(cpu_context_t *ctx)
 {
 }
 static inline void spe_init_el2_unused(void)
-{
-}
-static inline void spe_stop(void)
 {
 }
 #endif /* ENABLE_SPE_FOR_NS */

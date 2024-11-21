@@ -440,6 +440,14 @@ no_mpam:
  * -----------------------------------------------------------------
  */
 func prepare_el3_entry
+	/*
+	 * context is about to mutate, so make sure we don't affect any still
+	 * in-flight profiling operations. We don't care that they actually
+	 * finish, that can still be later. NOP if not present
+	 */
+#if ENABLE_SPE_FOR_NS
+	psb_csync
+#endif
 	save_gp_pmcr_pauth_regs
 	setup_el3_execution_context
 	ret
