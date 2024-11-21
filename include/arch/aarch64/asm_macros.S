@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -187,12 +187,6 @@
 	.space	SPINLOCK_ASM_SIZE
 	.endm
 
-#if RAS_EXTENSION
-	.macro esb
-	.inst	0xd503221f
-	.endm
-#endif
-
 	/*
 	 * Helper macro to read system register value into x0
 	 */
@@ -213,6 +207,10 @@
 #endif
 	msr	\reg, x1
 	ret
+	.endm
+
+	.macro psb_csync
+	hint #17 /* use the hint synonym for compatibility */
 	.endm
 
 	/*

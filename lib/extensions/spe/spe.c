@@ -11,19 +11,9 @@
 #include <lib/el3_runtime/pubsub.h>
 #include <lib/extensions/spe.h>
 
-static inline void psb_csync(void)
-{
-	/*
-	 * The assembler does not yet understand the psb csync mnemonic
-	 * so use the equivalent hint instruction.
-	 */
-	__asm__ volatile("hint #17");
-}
-
 bool spe_supported(void)
 {
 	uint64_t features;
-
 	features = read_id_aa64dfr0_el1() >> ID_AA64DFR0_PMS_SHIFT;
 	return (features & ID_AA64DFR0_PMS_MASK) > 0ULL;
 }
@@ -73,7 +63,8 @@ void spe_disable(void)
 		return;
 
 	/* Drain buffered data */
-	psb_csync();
+	__asm__ volatile("hint #17");
+
 	dsbnsh();
 
 	/* Disable profiling buffer */
@@ -82,17 +73,3 @@ void spe_disable(void)
 	write_pmblimitr_el1(v);
 	isb();
 }
-
-static void *spe_drain_buffers_hook(const void *arg)
-{
-	if (!spe_supported())
-		return (void *)-1;
-
-	/* Drain buffered data */
-	psb_csync();
-	dsbnsh();
-
-	return (void *)0;
-}
-
-SUBSCRIBE_TO_EVENT(cm_entering_secure_world, spe_drain_buffers_hook);
