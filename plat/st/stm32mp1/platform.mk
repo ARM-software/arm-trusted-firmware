@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -105,6 +105,11 @@ FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DT
 ifeq ($(AARCH32_SP),sp_min)
 BL32_DTSI		:=	stm32mp15-bl32.dtsi
 FDT_SOURCES		+=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dts,$(DTB_FILE_NAME)))
+ifneq (,$(wildcard $(patsubst %.dtb,fdts/%-sp_min.dts,$(DTB_FILE_NAME))))
+ifeq (,$(findstring -sp_min,$(DTB_FILE_NAME)))
+SP_EXT			:=	-sp_min
+endif
+endif
 endif
 endif
 
@@ -258,7 +263,7 @@ BL2_SOURCES		+=	plat/st/stm32mp1/plat_ddr.c
 ifeq ($(AARCH32_SP),sp_min)
 # Create DTB file for BL32
 ${BUILD_PLAT}/fdts/%-bl32.dts: fdts/%.dts fdts/${BL32_DTSI} | $$(@D)/
-	$(q)echo '#include "$(patsubst fdts/%,%,$<)"' > $@
+	$(q)echo '#include "$(patsubst %.dts,%$(SP_EXT).dts,$(patsubst fdts/%,%,$<))"' > $@
 	$(q)echo '#include "${BL32_DTSI}"' >> $@
 
 ${BUILD_PLAT}/fdts/%-bl32.dtb: ${BUILD_PLAT}/fdts/%-bl32.dts | $$(@D)/
