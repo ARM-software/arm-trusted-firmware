@@ -3,6 +3,17 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.25](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.24..refs/tags/lts-v2.8.25) (2024-11-23)
+
+### Build System
+
+- **Dependencies**
+
+  - bump idna from 3.4 to 3.7 ([720d7ea](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/720d7ea22c5ec2e8f09821eb54f0ff91118da8eb))
+  - bump jinja2 from 3.1.2 to 3.1.4 ([b607e54](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b607e54814bef8230b42edf4b1e810c3393788e4))
+  - bump pip from 23.1.2 to 23.3 ([3e1ecab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3e1ecab9a943ff146162e18676623e41922139c1))
+  - bump urllib3 from 2.0.2 to 2.2.2 ([73421e1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/73421e1df5fe9c38bc4dca54e85c5c2e815057d1))
+
 ## [lts-2.8.24](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.23..refs/tags/lts-v2.8.24) (2024-10-25)
 
 ### New Features
