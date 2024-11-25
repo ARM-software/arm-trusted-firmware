@@ -48,6 +48,7 @@
 #define MBOX_CMD_GET_IDCODE				0x10
 #define MBOX_CMD_GET_USERCODE				0x13
 #define MBOX_CMD_GET_CHIPID				0x12
+#define MBOX_CMD_FPGA_CONFIG_COMP			0x45
 #define MBOX_CMD_REBOOT_HPS				0x47
 
 /* Reconfiguration Commands */
@@ -259,5 +260,7 @@ int mailbox_hwmon_readtemp(uint32_t chan, uint32_t *resp_buf);
 int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf);
 int mailbox_seu_err_status(uint32_t *resp_buf, uint32_t resp_buf_len);
 int mailbox_safe_inject_seu_err(uint32_t *arg, unsigned int len);
+
+int mailbox_send_fpga_config_comp(void);
 
 #endif /* SOCFPGA_MBOX_H */
