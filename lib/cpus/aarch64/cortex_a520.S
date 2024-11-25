@@ -58,6 +58,7 @@ endfunc cortex_a520_core_pwr_dwn
 cpu_reset_func_start cortex_a520
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end cortex_a520
 
 	/* ---------------------------------------------

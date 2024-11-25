@@ -135,7 +135,6 @@
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <LIT_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU1:cpu@100 {
@@ -147,7 +146,6 @@
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <LIT_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU2:cpu@200 {
@@ -157,7 +155,6 @@
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU3:cpu@300 {
@@ -167,7 +164,6 @@
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU4:cpu@400 {
@@ -179,7 +175,6 @@
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <MID_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU5:cpu@500 {
@@ -191,7 +186,6 @@
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			capacity-dmips-mhz = <MID_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU6:cpu@600 {
@@ -201,7 +195,6 @@
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU7:cpu@700 {
@@ -211,7 +204,6 @@
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 	};
 

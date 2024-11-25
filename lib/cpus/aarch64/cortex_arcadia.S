@@ -26,6 +26,7 @@ cpu_reset_prologue cortex_arcadia
 cpu_reset_func_start cortex_arcadia
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end cortex_arcadia
 
 	/* ----------------------------------------------------

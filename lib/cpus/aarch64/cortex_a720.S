@@ -83,6 +83,7 @@ check_erratum_ls cortex_a720, ERRATUM(3699561), CPU_REV(0, 2)
 cpu_reset_func_start cortex_a720
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end cortex_a720
 
 	/* ----------------------------------------------------

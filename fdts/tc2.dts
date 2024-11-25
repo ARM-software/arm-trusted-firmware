@@ -124,7 +124,6 @@
 			clocks = <&scmi_dvfs 1>;
 			capacity-dmips-mhz = <MID_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU9:cpu@900 {
@@ -135,7 +134,6 @@
 			clocks = <&scmi_dvfs 2>;
 			capacity-dmips-mhz = <BIG2_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU10:cpu@A00 {
@@ -146,7 +144,6 @@
 			clocks = <&scmi_dvfs 2>;
 			capacity-dmips-mhz = <BIG2_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU11:cpu@B00 {
@@ -157,7 +154,6 @@
 			clocks = <&scmi_dvfs 2>;
 			capacity-dmips-mhz = <BIG2_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU12:cpu@C00 {
@@ -168,7 +164,6 @@
 			clocks = <&scmi_dvfs 3>;
 			capacity-dmips-mhz = <BIG_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 
 		CPU13:cpu@D00 {
@@ -179,7 +174,6 @@
 			clocks = <&scmi_dvfs 3>;
 			capacity-dmips-mhz = <BIG_CAPACITY>;
 			amu = <&amu>;
-			supports-mpmm;
 		};
 #endif
 	};

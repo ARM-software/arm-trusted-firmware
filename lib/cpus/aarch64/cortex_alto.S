@@ -30,6 +30,7 @@ cpu_reset_prologue cortex_alto
 cpu_reset_func_start cortex_alto
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end cortex_alto
 
 func cortex_alto_core_pwr_dwn

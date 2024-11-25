@@ -447,8 +447,7 @@ Max Power Mitigation Mechanism (MPMM)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Chris Kay <chris.kay@arm.com>
 :|G|: `CJKay`_
-:|F|: include/lib/mpmm/
-:|F|: lib/mpmm/
+:|F|: include/lib/cpus/aarch64/cpu_macros.S
 
 Granule Protection Tables Library (GPT-RME)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

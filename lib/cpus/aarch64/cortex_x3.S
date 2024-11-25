@@ -136,6 +136,7 @@ check_erratum_chosen cortex_x3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 cpu_reset_func_start cortex_x3
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end cortex_x3
 
 	/* ----------------------------------------------------

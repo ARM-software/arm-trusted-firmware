@@ -138,6 +138,7 @@ check_erratum_ls cortex_a715, ERRATUM(3699560), CPU_REV(1, 3)
 cpu_reset_func_start cortex_a715
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end cortex_a715
 
 	/* ----------------------------------------------------

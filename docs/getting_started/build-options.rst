@@ -532,10 +532,6 @@ Common build options
    introduces a performance penalty. Once this is removed, this option will be
    removed and the feature will be enabled by default. Defaults to ``0``.
 
--  ``ENABLE_MPMM_FCONF``: Enables configuration of MPMM through FCONF, which
-   allows platforms with cores supporting MPMM to describe them via the
-   ``HW_CONFIG`` device tree blob. Default is 0.
-
 -  ``ENABLE_PIE``: Boolean option to enable Position Independent Executable(PIE)
    support within generic code in TF-A. This option is currently only supported
    in BL2, BL31, and BL32 (TSP) for AARCH64 binaries, and

@@ -111,25 +111,11 @@ workaround_reset_end cortex_a510, ERRATUM(2218950)
 
 check_erratum_ls cortex_a510, ERRATUM(2218950), CPU_REV(1, 0)
 
-	/* --------------------------------------------------
-	 * This workaround is not a typical errata fix. MPMM
-	 * is disabled here, but this conflicts with the BL31
-	 * MPMM support. So in addition to simply disabling
-	 * the feature, a flag is set in the MPMM library
-	 * indicating that it should not be enabled even if
-	 * ENABLE_MPMM=1.
-	 * --------------------------------------------------
-	 */
 workaround_reset_start cortex_a510, ERRATUM(2250311), ERRATA_A510_2250311
 	/* Disable MPMM */
 	mrs	x0, CPUMPMMCR_EL3
 	bfm	x0, xzr, #0, #0 /* bfc instruction does not work in GCC */
 	msr	CPUMPMMCR_EL3, x0
-
-#if ENABLE_MPMM && IMAGE_BL31
-	/* If ENABLE_MPMM is set, tell the runtime lib to skip enabling it. */
-	bl mpmm_errata_disable
-#endif
 workaround_reset_end cortex_a510, ERRATUM(2250311)
 
 check_erratum_ls cortex_a510, ERRATUM(2250311), CPU_REV(1, 0)
@@ -209,6 +195,15 @@ endfunc cortex_a510_core_pwr_dwn
 cpu_reset_func_start cortex_a510
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	/* skip enabling MPMM if this erratum is present */
+#if ERRATA_A510_2250311
+	/* the cpu_rev_var is kept in x14 */
+	mov	x14, x0
+	bl	check_erratum_cortex_a510_2250311
+	cbz	x0, skip_mpmm
+#endif
+	enable_mpmm
+skip_mpmm:
 cpu_reset_func_end cortex_a510
 
 	/* ---------------------------------------------
