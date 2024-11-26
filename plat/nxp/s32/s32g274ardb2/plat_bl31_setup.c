@@ -10,6 +10,8 @@
 #include <plat/common/platform.h>
 #include <plat_console.h>
 
+#include <s32cc-bl-common.h>
+
 static entry_point_info_t bl33_image_ep_info;
 
 static unsigned int s32g2_mpidr_to_core_pos(unsigned long mpidr);
@@ -27,8 +29,6 @@ static uint32_t get_spsr_for_bl33_entry(void)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	console_s32g2_register();
-
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
 	bl33_image_ep_info.pc = BL33_BASE;
 	bl33_image_ep_info.spsr = get_spsr_for_bl33_entry();
@@ -37,6 +37,14 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
+	int ret;
+
+	ret = s32cc_bl_mmu_setup();
+	if (ret != 0) {
+		panic();
+	}
+
+	console_s32g2_register();
 }
 
 struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
