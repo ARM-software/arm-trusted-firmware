@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <plat_console.h>
 #include <s32cc-clk-drv.h>
@@ -78,3 +80,26 @@ void bl2_el3_plat_arch_setup(void)
 {
 }
 
+int bl2_plat_handle_pre_image_load(unsigned int image_id)
+{
+	const struct bl_mem_params_node *desc = get_bl_mem_params_node(image_id);
+	const struct image_info *img_info;
+	size_t size;
+
+	if (desc == NULL) {
+		return -EINVAL;
+	}
+
+	img_info = &desc->image_info;
+
+	if ((img_info == NULL) || (img_info->image_max_size == 0U)) {
+		return -EINVAL;
+	}
+
+	size = page_align(img_info->image_max_size, UP);
+
+	return mmap_add_dynamic_region(img_info->image_base,
+				       img_info->image_base,
+				       size,
+				       MT_MEMORY | MT_RW | MT_SECURE);
+}
