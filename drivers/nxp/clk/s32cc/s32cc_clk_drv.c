@@ -7,6 +7,7 @@
 #include <common/debug.h>
 #include <drivers/clk.h>
 #include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <s32cc-clk-ids.h>
 #include <s32cc-clk-modules.h>
 #include <s32cc-clk-regs.h>
@@ -1464,7 +1465,39 @@ static int s32cc_clk_set_parent(unsigned long id, unsigned long parent_id)
 	return 0;
 }
 
-void s32cc_clk_register_drv(void)
+static int s32cc_clk_mmap_regs(const struct s32cc_clk_drv *drv)
+{
+	const uintptr_t base_addrs[11] = {
+		drv->fxosc_base,
+		drv->armpll_base,
+		drv->periphpll_base,
+		drv->armdfs_base,
+		drv->cgm0_base,
+		drv->cgm1_base,
+		drv->cgm5_base,
+		drv->ddrpll_base,
+		drv->mc_me,
+		drv->mc_rgm,
+		drv->rdc,
+	};
+	size_t i;
+	int ret;
+
+	for (i = 0U; i < ARRAY_SIZE(base_addrs); i++) {
+		ret = mmap_add_dynamic_region(base_addrs[i], base_addrs[i],
+					      PAGE_SIZE,
+					      MT_DEVICE | MT_RW | MT_SECURE);
+		if (ret != 0) {
+			ERROR("Failed to map clock module 0x%" PRIuPTR "\n",
+			      base_addrs[i]);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+int s32cc_clk_register_drv(void)
 {
 	static const struct clk_ops s32cc_clk_ops = {
 		.enable		= s32cc_clk_enable,
@@ -1475,7 +1508,15 @@ void s32cc_clk_register_drv(void)
 		.get_parent	= s32cc_clk_get_parent,
 		.set_parent	= s32cc_clk_set_parent,
 	};
+	const struct s32cc_clk_drv *drv;
 
 	clk_register(&s32cc_clk_ops);
+
+	drv = get_drv();
+	if (drv == NULL) {
+		return -EINVAL;
+	}
+
+	return s32cc_clk_mmap_regs(drv);
 }
 

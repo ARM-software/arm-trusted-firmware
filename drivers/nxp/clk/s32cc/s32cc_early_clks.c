@@ -184,7 +184,10 @@ int s32cc_init_early_clks(void)
 {
 	int ret;
 
-	s32cc_clk_register_drv();
+	ret = s32cc_clk_register_drv();
+	if (ret != 0) {
+		return ret;
+	}
 
 	ret = setup_fxosc();
 	if (ret != 0) {
