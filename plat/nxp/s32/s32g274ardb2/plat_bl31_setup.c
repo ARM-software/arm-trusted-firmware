@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
 #include <drivers/arm/gicv3.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <plat_console.h>
 
@@ -42,6 +44,31 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 	return &bl33_image_ep_info;
 }
 
+static int mmap_gic(const gicv3_driver_data_t *gic_data)
+{
+	size_t gicr_size;
+	int ret;
+
+	ret = mmap_add_dynamic_region(gic_data->gicd_base,
+				      gic_data->gicd_base,
+				      PAGE_SIZE_64KB,
+				      MT_DEVICE | MT_RW | MT_SECURE);
+	if (ret != 0) {
+		return ret;
+	}
+
+	gicr_size = gicv3_redist_size(0x0U);
+	ret = mmap_add_dynamic_region(gic_data->gicr_base,
+				      gic_data->gicr_base,
+				      gicr_size * gic_data->rdistif_num,
+				      MT_DEVICE | MT_RW | MT_SECURE);
+	if (ret != 0) {
+		return ret;
+	}
+
+	return 0;
+}
+
 void bl31_platform_setup(void)
 {
 	static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
@@ -52,8 +79,13 @@ void bl31_platform_setup(void)
 		.rdistif_base_addrs = rdistif_base_addrs,
 		.mpidr_to_core_pos = s32g2_mpidr_to_core_pos,
 	};
-
 	unsigned int pos = plat_my_core_pos();
+	int ret;
+
+	ret = mmap_gic(&plat_gic_data);
+	if (ret != 0) {
+		panic();
+	}
 
 	gicv3_driver_init(&plat_gic_data);
 	gicv3_distif_init();
