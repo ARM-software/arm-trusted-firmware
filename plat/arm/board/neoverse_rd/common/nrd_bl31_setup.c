@@ -152,6 +152,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	nrd_plat_info.config_id = plat_arm_nrd_get_config_id();
 	nrd_plat_info.multi_chip_mode = plat_arm_nrd_get_multi_chip_mode();
 
+	/* Initialize generic timer */
+	generic_delay_timer_init();
+
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 }
 
@@ -216,7 +219,6 @@ static int append_config_node(uintptr_t fdt_base_addr, uintptr_t fdt_base_size)
 
 void nrd_bl31_common_platform_setup(void)
 {
-	generic_delay_timer_init();
 
 	arm_bl31_platform_setup();
 
