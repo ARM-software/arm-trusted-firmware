@@ -50,6 +50,7 @@ include ${PLAT_DRIVERS_PATH}/drivers.mk
 BL_COMMON_SOURCES += \
 	${PLAT_S32G274ARDB2}/plat_console.c \
 	${PLAT_S32G274ARDB2}/plat_helpers.S \
+	${PLAT_S32G274ARDB2}/s32cc_bl_common.c \
 	${XLAT_TABLES_LIB_SRCS} \
 
 BL2_SOURCES += \

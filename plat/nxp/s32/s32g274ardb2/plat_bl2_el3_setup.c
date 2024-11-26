@@ -5,6 +5,7 @@
  */
 
 #include <errno.h>
+
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <lib/mmio.h>
@@ -12,7 +13,9 @@
 #include <plat/common/platform.h>
 #include <plat_console.h>
 #include <s32cc-clk-drv.h>
+
 #include <plat_io_storage.h>
+#include <s32cc-bl-common.h>
 #include <s32cc-ncore.h>
 
 #define SIUL20_BASE		UL(0x4009C000)
@@ -79,6 +82,11 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 	ncore_init();
 	ncore_caiu_online(A53_CLUSTER0_CAIU);
+
+	ret = s32cc_bl_mmu_setup();
+	if (ret != 0) {
+		panic();
+	}
 
 	ret = s32cc_init_early_clks();
 	if (ret != 0) {
