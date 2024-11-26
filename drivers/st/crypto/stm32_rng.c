@@ -20,50 +20,55 @@
 #include <platform_def.h>
 
 #if STM32_RNG_VER == 2
-#define DT_RNG_COMPAT		"st,stm32-rng"
+#define DT_RNG_COMPAT			"st,stm32-rng"
 #endif
 #if STM32_RNG_VER == 4
-#define DT_RNG_COMPAT		"st,stm32mp13-rng"
+#define DT_RNG_COMPAT			"st,stm32mp13-rng"
 #endif
-#define RNG_CR			0x00U
-#define RNG_SR			0x04U
-#define RNG_DR			0x08U
+#define RNG_CR				0x00U
+#define RNG_SR				0x04U
+#define RNG_DR				0x08U
 #if STM32_RNG_VER == 4
-#define RNG_HTCR		0x10U
+#define RNG_HTCR			0x10U
 #endif
 
-#define RNG_CR_RNGEN		BIT(2)
-#define RNG_CR_IE		BIT(3)
-#define RNG_CR_CED		BIT(5)
-#define RNG_CR_CLKDIV		GENMASK(19, 16)
-#define RNG_CR_CLKDIV_SHIFT	16U
-#define RNG_CR_CONDRST		BIT(30)
+#define RNG_CR_RNGEN			BIT_32(2)
+#define RNG_CR_CED			BIT_32(5)
+#if STM32_RNG_VER == 4
+#define RNG_CR_RNG_CONFIG3_SHIFT	8U
+#define RNG_CR_RNG_CONFIG2_SHIFT	13U
+#define RNG_CR_CLKDIV			GENMASK_32(19, 16)
+#define RNG_CR_CLKDIV_SHIFT		16U
+#define RNG_CR_RNG_CONFIG1_SHIFT	20U
+#define RNG_CR_CONDRST			BIT_32(30)
+#endif
 
-#define RNG_SR_DRDY		BIT(0)
-#define RNG_SR_CECS		BIT(1)
-#define RNG_SR_SECS		BIT(2)
-#define RNG_SR_CEIS		BIT(5)
-#define RNG_SR_SEIS		BIT(6)
+#define RNG_SR_DRDY			BIT_32(0)
+#define RNG_SR_SECS			BIT_32(2)
+#define RNG_SR_SEIS			BIT_32(6)
 
-#define RNG_TIMEOUT_US		100000U
-#define RNG_TIMEOUT_STEP_US	10U
+#define RNG_TIMEOUT_US			100000U
+#define RNG_TIMEOUT_STEP_US		10U
 
-#define TIMEOUT_US_1MS		1000U
-
-#define RNG_NIST_CONFIG_A	0x00F40F00U
-#define RNG_NIST_CONFIG_B	0x01801000U
-#define RNG_NIST_CONFIG_C	0x00F00D00U
-#define RNG_NIST_CONFIG_MASK	GENMASK(25, 8)
+#define TIMEOUT_US_1MS			1000U
 
 #if STM32_RNG_VER == 4
+#define RNG_NIST_CONFIG1		0xFU
+#define RNG_NIST_CONFIG2		0x0U
+#define RNG_NIST_CONFIG3		0xFU
+#define RNG_NIST_CONFIG(x, y, z)	(((x) << RNG_CR_RNG_CONFIG1_SHIFT) | \
+					 ((y) << RNG_CR_RNG_CONFIG2_SHIFT) | \
+					 ((z) << RNG_CR_RNG_CONFIG3_SHIFT))
+#define RNG_NIST_CONFIG_MASK		GENMASK_32(25, 8)
+
 #if STM32_RNG_VER_MINOR == 2
-#define RNG_HTCFG_CONFIG	0x000072ACU /* Reset value */
+#define RNG_HTCFG_CONFIG		0x000072ACU /* Reset value */
 #else
-#define RNG_HTCFG_CONFIG	0x0000AAC7U
+#define RNG_HTCFG_CONFIG		0x0000AAC7U
 #endif
 #endif
 
-#define RNG_MAX_NOISE_CLK_FREQ	48000000U
+#define RNG_MAX_NOISE_CLK_FREQ		48000000U
 
 struct stm32_rng_instance {
 	uintptr_t base;
@@ -131,7 +136,8 @@ static int stm32_rng_enable(void)
 
 	/* Update configuration fields */
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_NIST_CONFIG_MASK,
-			   RNG_NIST_CONFIG_A | RNG_CR_CONDRST | RNG_CR_CED);
+			   RNG_NIST_CONFIG(RNG_NIST_CONFIG1, RNG_NIST_CONFIG2, RNG_NIST_CONFIG3) |
+			   RNG_CR_CONDRST | RNG_CR_CED);
 
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_CR_CLKDIV,
 			   (clock_div << RNG_CR_CLKDIV_SHIFT));
