@@ -15,6 +15,7 @@
 #include <plat_io_storage.h>
 #include <s32cc-ncore.h>
 
+#define SIUL20_BASE		UL(0x4009C000)
 #define SIUL2_PC09_MSCR		UL(0x4009C2E4)
 #define SIUL2_PC10_MSCR		UL(0x4009C2E8)
 #define SIUL2_PC10_LIN0_IMCR	UL(0x4009CA40)
@@ -40,6 +41,20 @@ void plat_flush_next_bl_params(void)
 
 void bl2_platform_setup(void)
 {
+	int ret;
+
+	ret = mmap_add_dynamic_region(S32G_FIP_BASE, S32G_FIP_BASE,
+				      S32G_FIP_SIZE,
+				      MT_MEMORY | MT_RW | MT_SECURE);
+	if (ret != 0) {
+		panic();
+	}
+}
+
+static int s32g_mmap_siul2(void)
+{
+	return mmap_add_dynamic_region(SIUL20_BASE, SIUL20_BASE, PAGE_SIZE,
+				       MT_DEVICE | MT_RW | MT_SECURE);
 }
 
 static void linflex_config_pinctrl(void)
@@ -57,14 +72,6 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 {
 	int ret;
 
-	ret = s32cc_init_early_clks();
-	if (ret != 0) {
-		panic();
-	}
-
-	linflex_config_pinctrl();
-	console_s32g2_register();
-
 	/* Restore (clear) the CAIUTC[IsolEn] bit for the primary cluster, which
 	 * we have manually set during early BL2 boot.
 	 */
@@ -72,6 +79,19 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 	ncore_init();
 	ncore_caiu_online(A53_CLUSTER0_CAIU);
+
+	ret = s32cc_init_early_clks();
+	if (ret != 0) {
+		panic();
+	}
+
+	ret = s32g_mmap_siul2();
+	if (ret != 0) {
+		panic();
+	}
+
+	linflex_config_pinctrl();
+	console_s32g2_register();
 
 	plat_s32g2_io_setup();
 }
