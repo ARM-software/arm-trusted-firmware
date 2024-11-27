@@ -24,6 +24,7 @@
 #endif
 #if STM32_RNG_VER == 4
 #define DT_RNG_COMPAT			"st,stm32mp13-rng"
+#define DT_RNG_MAX_NIST_CONFIG		3U
 #endif
 #define RNG_CR				0x00U
 #define RNG_SR				0x04U
@@ -36,6 +37,7 @@
 #define RNG_CR_CED			BIT_32(5)
 #if STM32_RNG_VER == 4
 #define RNG_CR_RNG_CONFIG3_SHIFT	8U
+#define RNG_CR_NISTC			BIT_32(12)
 #define RNG_CR_RNG_CONFIG2_SHIFT	13U
 #define RNG_CR_CLKDIV			GENMASK_32(19, 16)
 #define RNG_CR_CLKDIV_SHIFT		16U
@@ -73,6 +75,10 @@
 struct stm32_rng_instance {
 	uintptr_t base;
 	unsigned long clock;
+#if STM32_RNG_VER == 4
+	uint32_t ht_cfg;
+	uint32_t nist_cfg;
+#endif
 };
 
 static struct stm32_rng_instance stm32_rng;
@@ -136,13 +142,12 @@ static int stm32_rng_enable(void)
 
 	/* Update configuration fields */
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_NIST_CONFIG_MASK,
-			   RNG_NIST_CONFIG(RNG_NIST_CONFIG1, RNG_NIST_CONFIG2, RNG_NIST_CONFIG3) |
-			   RNG_CR_CONDRST | RNG_CR_CED);
+			   stm32_rng.nist_cfg | RNG_CR_CONDRST | RNG_CR_CED);
 
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_CR_CLKDIV,
 			   (clock_div << RNG_CR_CLKDIV_SHIFT));
 
-	mmio_write_32(stm32_rng.base + RNG_HTCR, RNG_HTCFG_CONFIG);
+	mmio_write_32(stm32_rng.base + RNG_HTCR, stm32_rng.ht_cfg);
 
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_CR_CONDRST, RNG_CR_RNGEN);
 #endif
@@ -192,6 +197,39 @@ static int check_data_validity(void)
 	}
 
 	return 0;
+}
+
+static void parse_dt_optional_config(const void *fdt, int node)
+{
+#if STM32_RNG_VER == 4
+	const fdt32_t *cuint;
+	int len;
+	uint32_t nist_dt_config[DT_RNG_MAX_NIST_CONFIG] = {
+		RNG_NIST_CONFIG1,
+		RNG_NIST_CONFIG2,
+		RNG_NIST_CONFIG3
+	};
+
+	cuint = fdt_getprop(fdt, node, "st,rng-cfg", &len);
+	if ((cuint != NULL) && (len > 0) &&
+	    ((uint32_t)len <= (DT_RNG_MAX_NIST_CONFIG * sizeof(uint32_t)))) {
+		uint32_t i;
+
+		for (i = 0U; i < ((uint32_t)len / sizeof(uint32_t)); i++) {
+			nist_dt_config[i] = fdt32_to_cpu(*cuint);
+			cuint++;
+		}
+	}
+
+	stm32_rng.nist_cfg = RNG_NIST_CONFIG(nist_dt_config[0], nist_dt_config[1],
+					     nist_dt_config[2]);
+
+	if (fdt_getprop(fdt, node, "st,rng-cfg-nist-custom", NULL) != NULL) {
+		stm32_rng.nist_cfg |= RNG_CR_NISTC;
+	}
+
+	stm32_rng.ht_cfg = fdt_read_uint32_default(fdt, node, "st,rng-htcfg", RNG_HTCFG_CONFIG);
+#endif
 }
 
 /*
@@ -273,7 +311,7 @@ void stm32_rng_select(uintptr_t rng_base)
  */
 int stm32_rng_init(void)
 {
-	struct stm32_rng_instance rng = {0, 0};
+	struct stm32_rng_instance rng = {0U};
 	void *fdt;
 	int node;
 	int success = 0;
@@ -315,6 +353,8 @@ int stm32_rng_init(void)
 		if (dt_rng.clock < 0) {
 			panic();
 		}
+
+		parse_dt_optional_config(fdt, node);
 
 		stm32_rng.clock = (unsigned long)dt_rng.clock;
 		clk_enable(stm32_rng.clock);
