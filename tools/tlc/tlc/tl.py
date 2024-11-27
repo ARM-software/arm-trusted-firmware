@@ -83,6 +83,7 @@ class TransferList:
     hdr_size = 0x18
     signature = 0x4A0FB10B
     version = 1
+    granule = 8
 
     def __init__(
         self, max_size: int = hdr_size, flags: int = TRANSFER_LIST_ENABLE_CHECKSUM
@@ -138,16 +139,15 @@ class TransferList:
                     # the 3-byte wide ID as a 4-byte uint, shift out this padding
                     # once we have the id.
                     te_base = f.tell()
-                    (id, hdr_size, data_size) = struct.unpack(
+                    (id, _, data_size) = struct.unpack(
                         TransferEntry.encoding[0] + "I" + TransferEntry.encoding[1:],
                         b"\x00" + f.read(TransferEntry.hdr_size),
                     )
 
                     id >>= 8
-
                     te = tl.add_transfer_entry(id, f.read(data_size))
                     te.offset = te_base
-                    f.seek(align(te_base + hdr_size + data_size, 2**tl.alignment))
+                    f.seek(align(f.tell(), tl.granule))
 
         return tl
 
@@ -215,18 +215,35 @@ class TransferList:
 
         return te.offset + te.hdr_size
 
-    def add_transfer_entry(self, tag_id: int, data: bytes) -> TransferEntry:
+    def add_transfer_entry(
+        self, tag_id: int, data: bytes, data_align: int = 0
+    ) -> TransferEntry:
         """Appends a TransferEntry into the internal list of TE's."""
+        data_offset = TransferEntry.hdr_size + self.size
+        data_align = self.alignment if not data_align else data_align
+
+        aligned_data_offset = align(data_offset, 1 << data_align)
+
+        if tag_id != 0 and data_offset != aligned_data_offset:
+            void_len = aligned_data_offset - data_offset - TransferEntry.hdr_size
+            self.add_transfer_entry(0, bytes(void_len))
+
+        assert align(self.size, self.granule)
+
         if not (self.total_size >= self.size + TransferEntry.hdr_size + len(data)):
             raise MemoryError(
                 f"TL size has exceeded the maximum allocation {self.total_size}."
             )
-        else:
-            te = TransferEntry(tag_id, len(data), data)
-            self.entries.append(te)
-            self.size += te.size
-            self.update_checksum()
-            return te
+
+        te = TransferEntry(tag_id, len(data), data, offset=self.size)
+        self.entries.append(te)
+
+        self.size += align(te.size, self.granule)
+        if data_align > self.alignment:
+            self.alignment = data_align
+
+        self.update_checksum()
+        return te
 
     def add_transfer_entry_from_struct_format(
         self, tag_id: int, struct_format: str, *args: Any
@@ -340,20 +357,11 @@ class TransferList:
             f.write(self.header_to_bytes())
             for te in self.entries:
                 assert f.tell() + te.hdr_size + te.data_size < self.total_size
-                te_base = f.tell()
+
                 f.write(te.header_to_bytes())
                 f.write(te.data)
-                # Ensure the next TE has the correct alignment
-                f.write(
-                    bytes(
-                        (
-                            align(
-                                te_base + te.hdr_size + te.data_size, 2**self.alignment
-                            )
-                            - f.tell()
-                        )
-                    )
-                )
+                # Ensure the next TE is at an 8-byte aligned address
+                f.write(bytes((align(f.tell(), self.granule) - f.tell())))
 
     def remove_tag(self, tag: int) -> None:
         self.entries = list(filter(lambda te: te.id != tag, self.entries))

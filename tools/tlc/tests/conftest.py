@@ -69,7 +69,7 @@ def tmpyamlconfig_blob_file(tmpdir, tmpfdt, non_empty_tag_id):
 def tlcrunner(tmptlstr):
     runner = CliRunner()
     with runner.isolated_filesystem():
-        runner.invoke(cli, ["create", tmptlstr])
+        runner.invoke(cli, ["create", "--size", 0x1F000, tmptlstr])
     return runner
 
 
