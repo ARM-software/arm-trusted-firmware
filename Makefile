@@ -1503,7 +1503,6 @@ endif #(SPD)
 ################################################################################
 
 .PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp tl fwu_fip certtool dtbs memmap doc enctool
-.SUFFIXES:
 
 all: msg_start
 
@@ -1736,7 +1735,7 @@ else
 	$(q)set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL))
 endif #(UNIX_MK)
 
-romlib.bin: libraries FORCE
+$(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libmbedtls.a $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a
 	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
 
 memmap: all
