@@ -180,11 +180,11 @@ static int enable_ddr_clk(void)
 	return ret;
 }
 
-int s32cc_init_early_clks(void)
+int s32cc_init_core_clocks(void)
 {
 	int ret;
 
-	ret = s32cc_clk_register_drv();
+	ret = s32cc_clk_register_drv(false);
 	if (ret != 0) {
 		return ret;
 	}
@@ -205,6 +205,18 @@ int s32cc_init_early_clks(void)
 	}
 
 	ret = enable_xbar_clk();
+	if (ret != 0) {
+		return ret;
+	}
+
+	return ret;
+}
+
+int s32cc_init_early_clks(void)
+{
+	int ret;
+
+	ret = s32cc_clk_register_drv(true);
 	if (ret != 0) {
 		return ret;
 	}

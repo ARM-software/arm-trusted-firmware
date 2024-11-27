@@ -83,6 +83,11 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	ncore_init();
 	ncore_caiu_online(A53_CLUSTER0_CAIU);
 
+	ret = s32cc_init_core_clocks();
+	if (ret != 0) {
+		panic();
+	}
+
 	ret = s32cc_bl_mmu_setup();
 	if (ret != 0) {
 		panic();

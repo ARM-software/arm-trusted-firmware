@@ -1497,7 +1497,7 @@ static int s32cc_clk_mmap_regs(const struct s32cc_clk_drv *drv)
 	return 0;
 }
 
-int s32cc_clk_register_drv(void)
+int s32cc_clk_register_drv(bool mmap_regs)
 {
 	static const struct clk_ops s32cc_clk_ops = {
 		.enable		= s32cc_clk_enable,
@@ -1517,6 +1517,10 @@ int s32cc_clk_register_drv(void)
 		return -EINVAL;
 	}
 
-	return s32cc_clk_mmap_regs(drv);
+	if (mmap_regs) {
+		return s32cc_clk_mmap_regs(drv);
+	}
+
+	return 0;
 }
 
