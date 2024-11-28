@@ -14,6 +14,7 @@
 #include <bl31/interrupt_mgmt.h>
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
 
 #include <rpi_hw.h>
 #include <rpi_shared.h>
@@ -225,3 +226,10 @@ uint32_t plat_interrupt_type_to_line(uint32_t type, uint32_t security_state)
 	/* Secure interrupts are signalled on the FIQ line always. */
 	return  __builtin_ctz(SCR_FIQ_BIT);
 }
+
+#if MEASURED_BOOT || TRUSTED_BOARD_BOOT
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	return get_mbedtls_heap_helper(heap_addr, heap_size);
+}
+#endif

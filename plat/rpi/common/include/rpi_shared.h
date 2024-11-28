@@ -52,4 +52,4 @@ int plat_rpi_get_model(void);
 
 void plat_rpi_bl31_custom_setup(void);
 
-#endif /* RPI3_PRIVATE_H */
+#endif /* RPI3_SHARED_H */
