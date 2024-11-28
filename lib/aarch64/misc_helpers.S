@@ -21,10 +21,6 @@
 	.globl	disable_mmu_icache_el1
 	.globl	disable_mmu_icache_el3
 	.globl	fixup_gdt_reloc
-#if SUPPORT_VFP
-	.globl	enable_vfp
-#endif
-
 func smc
 	smc	#0
 endfunc smc
@@ -454,24 +450,6 @@ func disable_mmu_icache_el1
 	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
 	b	do_disable_mmu_el1
 endfunc disable_mmu_icache_el1
-
-/* ---------------------------------------------------------------------------
- * Enable the use of VFP at EL3
- * ---------------------------------------------------------------------------
- */
-#if SUPPORT_VFP
-func enable_vfp
-	mrs	x0, cpacr_el1
-	orr	x0, x0, #CPACR_VFP_BITS
-	msr	cpacr_el1, x0
-	mrs	x0, cptr_el3
-	mov	x1, #AARCH64_CPTR_TFP
-	bic	x0, x0, x1
-	msr	cptr_el3, x0
-	isb
-	ret
-endfunc enable_vfp
-#endif
 
 /* ---------------------------------------------------------------------------
  * Helper to fixup Global Descriptor table (GDT) and dynamic relocations
