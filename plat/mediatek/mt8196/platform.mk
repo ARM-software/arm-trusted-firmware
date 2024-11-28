@@ -24,7 +24,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common \
 		 -Idrivers/arm/gic \
 
 MODULES-y += $(MTK_PLAT)/common
-MODULES-y += $(MTK_PLAT)/common/lpm
+MODULES-y += $(MTK_PLAT)/common/lpm_v2
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
 MODULES-y += $(MTK_PLAT)/drivers/apusys
