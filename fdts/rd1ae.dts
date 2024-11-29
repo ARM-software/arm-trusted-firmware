@@ -255,6 +255,21 @@
 		#size-cells = <2>;
 		ranges;
 
+		timer@2a810000 {
+			compatible = "arm,armv7-timer-mem";
+			reg = <0x0 0x2a810000 0 0x10000>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			clock-frequency = <250000000>;
+			ranges;
+
+			frame@2a830000 {
+				frame-number = <0>;
+				interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>;
+				reg = <0x0 0x2a830000 0x0 0x10000>;
+			};
+		};
+
 		gic: interrupt-controller@30000000 {
 			compatible = "arm,gic-v3";
 			reg = <0x0 0x30000000 0 0x10000>,	// GICD

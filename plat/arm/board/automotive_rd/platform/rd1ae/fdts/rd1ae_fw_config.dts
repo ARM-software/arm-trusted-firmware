@@ -12,6 +12,12 @@
 	dtb-registry {
 		compatible = "fconf,dyn_cfg-dtb_registry";
 
+		tos_fw-config {
+			load-address = <0x0 0x70000>;
+			max-size = <0x1000>;
+			id = <TOS_FW_CONFIG_ID>;
+		};
+
 		hw-config {
 			load-address = <0x0 0x83000000>;
 			max-size = <0x8000>;
