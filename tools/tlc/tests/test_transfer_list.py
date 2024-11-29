@@ -88,12 +88,19 @@ def test_calculate_te_sum_of_bytes(tag_id, data):
     assert te.sum_of_bytes == csum
 
 
-@pytest.mark.parametrize(("tag_id", "data"), test_entries)
-def test_calculate_tl_checksum(tag_id, data):
+def test_calc_tl_checksum(tmpdir, random_entries):
+    tl_file = tmpdir.join("tl.bin")
+
     tl = TransferList(0x1000)
 
-    tl.add_transfer_entry(tag_id, data)
-    assert tl.sum_of_bytes() == 0
+    for id, data in random_entries(10):
+        tl.add_transfer_entry(id, data)
+
+    assert sum(tl.to_bytes()) % 256 == 0
+
+    # Write the transfer list to a file and check that the sum of bytes is 0
+    tl.write_to_file(tl_file)
+    assert sum(tl_file.read_binary()) % 256 == 0
 
 
 def test_empty_transfer_list_blob(tmpdir):
@@ -129,7 +136,7 @@ def test_write_multiple_tes_to_file(tmpdir, random_entries):
     """Check that we can create a TL with multiple TE's."""
     test_file = tmpdir.join("test_tl_blob.bin")
     tl = TransferList(0x4000)
-    _test_entries = random_entries()
+    _test_entries = list(random_entries())
 
     for tag_id, data in _test_entries:
         tl.add_transfer_entry(tag_id, data)

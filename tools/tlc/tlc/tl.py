@@ -189,13 +189,15 @@ class TransferList:
 
     def update_checksum(self) -> None:
         """Calculates the checksum based on the sum of bytes."""
-        self.checksum = 256 - ((self.sum_of_bytes() - self.checksum) % 256)
+        self.checksum = (256 - (self.sum_of_bytes() - self.checksum)) % 256
+        assert self.checksum <= 0xFF
+
+    def to_bytes(self) -> bytes:
+        return self.header_to_bytes() + b"".join([te.to_bytes() for te in self.entries])
 
     def sum_of_bytes(self) -> int:
         """Sum of all bytes between the base address and the end of that last TE (modulo 0xff)."""
-        return (
-            sum(self.header_to_bytes()) + sum(te.sum_of_bytes for te in self.entries)
-        ) % 256
+        return (sum(self.to_bytes())) % 256
 
     def get_entry(self, tag_id: int) -> Optional[TransferEntry]:
         for te in self.entries:
