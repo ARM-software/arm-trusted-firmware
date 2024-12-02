@@ -29,6 +29,7 @@ MODULES-y += $(MTK_PLAT)/common/lpm_v2
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
 MODULES-y += $(MTK_PLAT)/drivers/apusys
+MODULES-y += $(MTK_PLAT)/drivers/cirq
 MODULES-y += $(MTK_PLAT)/drivers/dp
 MODULES-y += $(MTK_PLAT)/drivers/emi
 MODULES-y += $(MTK_PLAT)/drivers/gicv3

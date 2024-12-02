@@ -148,6 +148,15 @@
 			GIC_INTR_CFG_LEVEL)
 
 /*******************************************************************************
+ * CIRQ related constants
+ ******************************************************************************/
+#define SYS_CIRQ_BASE		(IO_PHYS + 0x1CB000)
+#define MD_WDT_IRQ_BIT_ID	(397)
+#define CIRQ_REG_NUM		(26)
+#define CIRQ_SPI_START		(128)
+#define CIRQ_IRQ_NUM		(831)
+
+/*******************************************************************************
  * MM IOMMU & SMI related constants
  ******************************************************************************/
 #define SMI_LARB_0_BASE		(IO_PHYS + 0x0c022000)
