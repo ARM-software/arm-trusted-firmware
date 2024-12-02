@@ -125,12 +125,13 @@ def test_single_te_transfer_list(tag_id, data, tmpdir):
         assert f.read(te.data_size) == te.data
 
 
-def test_multiple_te_transfer_list(tmpdir):
+def test_write_multiple_tes_to_file(tmpdir, random_entries):
     """Check that we can create a TL with multiple TE's."""
     test_file = tmpdir.join("test_tl_blob.bin")
-    tl = TransferList(0x1000)
+    tl = TransferList(0x4000)
+    _test_entries = random_entries()
 
-    for tag_id, data in test_entries:
+    for tag_id, data in _test_entries:
         tl.add_transfer_entry(tag_id, data)
 
     tl.write_to_file(test_file)
@@ -138,9 +139,9 @@ def test_multiple_te_transfer_list(tmpdir):
     with open(test_file, "rb") as f:
         assert f.read(tl.hdr_size) == tl.header_to_bytes()
         # Ensure that TE's have the correct alignment
-        for tag_id, data in test_entries:
-            f.seek(int(math.ceil(f.tell() / 2**tl.alignment) * 2**tl.alignment))
-            print(f.tell())
+        for tag_id, data in _test_entries:
+            f.seek(int(math.ceil(f.tell() / 8) * 8))
+
             assert int.from_bytes(f.read(3), "little") == tag_id
             assert int.from_bytes(f.read(1), "little") == TransferEntry.hdr_size
             # Make sure the data in the TE matches the data in the original case

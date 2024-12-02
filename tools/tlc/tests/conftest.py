@@ -9,11 +9,17 @@
 
 """ Common configurations and fixtures for test environment."""
 
+from random import randint
+
 import pytest
 import yaml
 from click.testing import CliRunner
 
 from tlc.cli import cli
+
+
+def generate_random_bytes(n):
+    return bytes([randint(0, 255) for _ in range(n)])
 
 
 @pytest.fixture
@@ -70,3 +76,20 @@ def tlcrunner(tmptlstr):
 @pytest.fixture
 def tlc_entries(tmpfdt):
     return [(0, "/dev/null"), (1, tmpfdt.strpath), (0x102, tmpfdt.strpath)]
+
+
+@pytest.fixture
+def random_entry():
+    def _random_entry(max_size):
+        return randint(0, 0xFFFFFF), generate_random_bytes(randint(0, max_size))
+
+    return _random_entry
+
+
+@pytest.fixture
+def random_entries(random_entry):
+    def _random_entries(n=5, max_size=0x100):
+        for _ in range(n):
+            yield random_entry(max_size)
+
+    return _random_entries
