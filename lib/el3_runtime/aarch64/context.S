@@ -400,7 +400,6 @@ no_mpam:
 	/* PMUv3 is presumed to be always present */
 	mrs	x9, pmcr_el0
 	str	x9, [sp, #CTX_EL3STATE_OFFSET + CTX_PMCR_EL0]
-	isb
 #if CTX_INCLUDE_PAUTH_REGS
 	/* ----------------------------------------------------------
  	 * Save the ARMv8.3-PAuth keys as they are not banked
@@ -448,6 +447,10 @@ func prepare_el3_entry
 #if ENABLE_SPE_FOR_NS
 	psb_csync
 #endif
+#if ENABLE_TRBE_FOR_NS
+	tsb_csync
+#endif
+	isb
 	save_gp_pmcr_pauth_regs
 	setup_el3_execution_context
 	ret

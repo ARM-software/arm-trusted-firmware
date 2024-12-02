@@ -9,7 +9,6 @@
 #include <arch.h>
 #include <arch_features.h>
 #include <arch_helpers.h>
-#include <lib/el3_runtime/pubsub.h>
 #include <lib/extensions/spe.h>
 
 #include <plat/common/platform.h>
