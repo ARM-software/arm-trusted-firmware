@@ -8,7 +8,6 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <lib/el3_runtime/pubsub.h>
 #include <lib/extensions/spe.h>
 
 bool spe_supported(void)

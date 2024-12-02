@@ -713,7 +713,6 @@ endfunc fpregs_context_restore
 	/* Disable cycle counter when event counting is prohibited */
 2:	orr	x9, x9, #PMCR_EL0_DP_BIT
 	msr	pmcr_el0, x9
-	isb
 1:
 #if CTX_INCLUDE_PAUTH_REGS
 	/* ----------------------------------------------------------
@@ -762,6 +761,10 @@ func prepare_el3_entry
 #if ENABLE_SPE_FOR_NS
 	psb_csync
 #endif
+#if ENABLE_TRBE_FOR_NS
+	tsb_csync
+#endif
+	isb
 	save_gp_pmcr_pauth_regs
 	/*
 	 * Set the PSTATE bits not described in the Aarch64.TakeException
