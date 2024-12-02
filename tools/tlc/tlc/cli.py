@@ -68,7 +68,7 @@ def create(filename, align, size, fdt, entry, flags, from_yaml):
 
             tl = TransferList.from_dict(config)
         else:
-            tl = TransferList(size, alignment=align)
+            tl = TransferList(size, flags=flags, alignment=align)
 
             entry = (*entry, (1, fdt)) if fdt else entry
 
