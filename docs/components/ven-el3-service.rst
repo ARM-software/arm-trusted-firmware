@@ -36,9 +36,13 @@ Vendor-specific EL3 monitor services are as follows:
 +-----------------------------------+ Compliance Suite) SMC | | 1 - 15 are reserved for future expansion. |
 | 0xC7000030 - 0xC700003F (SMC64)   | handler               |                                             |
 +-----------------------------------+-----------------------+---------------------------------------------+
-| 0x87000040 - 0x8700FFFF (SMC32)   | Reserved              | | reserved for future expansion             |
+| 0x87000040 - 0x8700004F (SMC32)   | TPM Start method      | | 0 is in use.                              |
++-----------------------------------+                       | | 1 - 15 are reserved for future expansion. |
+| 0xC7000040 - 0xC700004F (SMC64)   |                       |                                             |
++-----------------------------------+-----------------------+---------------------------------------------+
+| 0x87000050 - 0x8700FFFF (SMC32)   | Reserved              | | reserved for future expansion             |
 +-----------------------------------+                       |                                             |
-| 0xC7000040 - 0xC700FFFF (SMC64)   |                       |                                             |
+| 0xC7000050 - 0xC700FFFF (SMC64)   |                       |                                             |
 +-----------------------------------+-----------------------+---------------------------------------------+
 
 Source definitions for vendor-specific EL3 Monitor Service Calls used by TF-A are located in
@@ -50,6 +54,8 @@ the ``ven_el3_svc.h`` header file.
 |                          1 |                          0 | Added Debugfs and PMF services.|
 +----------------------------+----------------------------+--------------------------------+
 |                          1 |                          1 | Added ACS SMC handler services.|
++------------------------------------------------------------------------------------------+
+|                          1 |                          2 | Added TPM Start method.        |
 +----------------------------+----------------------------+--------------------------------+
 
 *Table 1: Showing different versions of Vendor-specific service and changes done with each version*
@@ -84,9 +90,15 @@ The Architecture Compliance Suite (ACS) SMC handler allows callers to branch
 to their ACS EL3 code based on their respective use-cases.
 For more details on System ACS, `System ACS`_.
 
+TPM Start method
+----------------
+
+TPM start method as mentioned in `TCG ACPI specification`_ section 3.3.1.
+
 --------------
 
 *Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.*
 
 .. _System ACS: https://developer.arm.com/Architectures/Architectural%20Compliance%20Suite
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
+.. _TCG ACPI specification: https://trustedcomputinggroup.org/wp-content/uploads/TCG-ACPI-Specification-Version-1.4-Revision-15_pub.pdf
