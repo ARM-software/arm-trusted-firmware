@@ -331,8 +331,6 @@ class TransferList:
         tag_id = entry["tag_id"]
         if tag_id in tag_name_to_tag_id:
             tag_id = tag_name_to_tag_id[tag_id]
-        te_format = transfer_entry_formats[tag_id]
-        tag_name = te_format["tag_name"]
 
         align = entry.get("alignment", None)
 
@@ -340,23 +338,27 @@ class TransferList:
             return self.add_transfer_entry_from_file(
                 tag_id, entry["blob_file_path"], data_align=align
             )
-        elif tag_name == "tpm_event_log_table":
-            with open(entry["event_log"], "rb") as f:
-                event_log_data = f.read()
-
-            flags_bytes = entry["flags"].to_bytes(4, "little")
-            data = flags_bytes + event_log_data
-
-            return self.add_transfer_entry(tag_id, data, data_align=align)
-        elif tag_name == "exec_ep_info":
-            return self.add_entry_point_info_transfer_entry(entry)
-        elif "format" in te_format and "fields" in te_format:
-            fields = [entry[field] for field in te_format["fields"]]
-            return self.add_transfer_entry_from_struct_format(
-                tag_id, te_format["format"], *fields
-            )
         else:
-            raise ValueError(f"Invalid transfer entry {entry}.")
+            te_format = transfer_entry_formats[tag_id]
+            tag_name = te_format["tag_name"]
+
+            if tag_name == "tpm_event_log_table":
+                with open(entry["event_log"], "rb") as f:
+                    event_log_data = f.read()
+
+                flags_bytes = entry["flags"].to_bytes(4, "little")
+                data = flags_bytes + event_log_data
+
+                return self.add_transfer_entry(tag_id, data, data_align=align)
+            elif tag_name == "exec_ep_info":
+                return self.add_entry_point_info_transfer_entry(entry)
+            elif "format" in te_format and "fields" in te_format:
+                fields = [entry[field] for field in te_format["fields"]]
+                return self.add_transfer_entry_from_struct_format(
+                    tag_id, te_format["format"], *fields
+                )
+            else:
+                raise ValueError(f"Invalid transfer entry {entry}.")
 
     def add_transfer_entry_from_file(
         self, tag_id: int, path: Path, data_align: int = 0
