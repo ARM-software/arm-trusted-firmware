@@ -1,0 +1,23 @@
+MediaTek 8196
+=============
+
+MediaTek 8196 (MT8196) is a 64-bit ARM SoC introduced by MediaTek in 2024.
+The chip incorporates eight cores - four Cortex-A720 cores, three Cortex-X4
+cores and one Cortex-X925 core.
+Cortex-A720 can operate at up to 2.1 GHz.
+Cortex-X4 can operate at up to 2.8 GHz.
+Cortex-X925 can operate at up to 3.6 GHz.
+
+Boot Sequence
+-------------
+
+::
+
+    Boot Rom --> Coreboot --> TF-A BL31 --> Depthcharge --> Linux Kernel
+
+How to Build
+------------
+
+.. code:: shell
+
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=mt8196 DEBUG=1 COREBOOT=1

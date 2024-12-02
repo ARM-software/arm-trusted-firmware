@@ -7,7 +7,12 @@
 #ifndef MT_TIMER_H
 #define MT_TIMER_H
 
+#include "platform_def.h"
+
+#ifndef SYSTIMER_BASE
 #define SYSTIMER_BASE       (0x10017000)
+#endif
+
 #define CNTCR_REG           (SYSTIMER_BASE + 0x0)
 #define CNTSR_REG           (SYSTIMER_BASE + 0x4)
 #define CNTSYS_L_REG        (SYSTIMER_BASE + 0x8)
