@@ -87,7 +87,7 @@ static inline uint32_t stm32_otp_read_sw_lock(uint32_t otp, bool *value)
 
 static inline bool stm32_otp_is_closed_device(void)
 {
-	return bsec_mode_is_closed_device();
+	return (bsec_get_state() & BSEC_STATE_MASK) == BSEC_STATE_CLOSED;
 }
 
 void stm32mp_ca35_set_vbar(uintptr_t vbar);

@@ -451,10 +451,10 @@ uint32_t bsec_read_sp_lock(uint32_t otp, bool *value)
 }
 
 /*
- * bsec_get_secure_state: read state in BSEC status register.
- * return: secure state
+ * bsec_get_state: read state in BSEC status register.
+ * return: bsec state
  */
-uint32_t bsec_get_secure_state(void)
+uint32_t bsec_get_state(void)
 {
 	uint32_t state = BSEC_STATE_INVALID;
 	uint32_t status = bsec_get_status();
@@ -462,14 +462,13 @@ uint32_t bsec_get_secure_state(void)
 
 	if ((status & BSEC_OTPSR_INIT_DONE) == BSEC_OTPSR_INIT_DONE) {
 		/* NVSTATE is only valid if INIT_DONE */
-		uint32_t nvstates = (bsec_sr & BSEC_SR_NVSTATE_MASK) >> BSEC_SR_NVSTATE_SHIFT;
+		uint32_t nvstate = (bsec_sr & BSEC_SR_NVSTATE_MASK) >>
+				   BSEC_SR_NVSTATE_SHIFT;
 
-		if (nvstates == BSEC_SR_NVSTATE_OPEN) {
-			state = BSEC_STATE_SEC_OPEN;
-		} else if (nvstates == BSEC_SR_NVSTATE_CLOSED) {
-			state = BSEC_STATE_SEC_CLOSED;
+		if (nvstate != BSEC_SR_NVSTATE_CLOSED) {
+			ERROR("BSEC invalid nvstate %#x\n", nvstate);
 		} else {
-			VERBOSE("%s nvstates = %u\n", __func__, nvstates);
+			state = BSEC_STATE_CLOSED;
 		}
 	}
 
