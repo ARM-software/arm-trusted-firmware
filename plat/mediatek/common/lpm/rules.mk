@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023, MediaTek Inc. All rights reserved.
+# Copyright (c) 2023-2025, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,6 +11,7 @@ MODULE := lpm
 LOCAL_SRCS-y := $(LOCAL_DIR)/mt_lp_api.c
 LOCAL_SRCS-y += $(LOCAL_DIR)/mt_lp_rm.c
 LOCAL_SRCS-y += $(LOCAL_DIR)/mt_lp_rq.c
+LOCAL_SRCS-y += ${LOCAL_DIR}/mt_lpm_dispatch.c
 
 PLAT_INCLUDES += -I${LOCAL_DIR}
 

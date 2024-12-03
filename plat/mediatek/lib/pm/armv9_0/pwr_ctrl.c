@@ -371,6 +371,19 @@ static void get_sys_suspend_power_state(psci_power_state_t *req_state)
 }
 #endif
 
+static void __dead2 pwr_domain_pwr_down_wfi(const psci_power_state_t *req_state)
+{
+	unsigned int cpu = plat_my_core_pos();
+	int ret = MTK_CPUPM_E_NOT_SUPPORT;
+
+	if (IS_CPUIDLE_FN_ENABLE(MTK_CPUPM_FN_PWR_DOMAIN_POWER_DOWN_WFI))
+		ret = imtk_cpu_pwr.ops->pwr_domain_pwr_down_wfi(cpu);
+	if (ret == MTK_CPUPM_E_OK)
+		plat_panic_handler();
+	else
+		psci_power_down_wfi();
+}
+
 static void pm_smp_init(unsigned int cpu_id, uintptr_t entry_point)
 {
 	if (entry_point == 0) {
@@ -381,6 +394,16 @@ static void pm_smp_init(unsigned int cpu_id, uintptr_t entry_point)
 		imtk_cpu_pwr.smp->init(cpu_id, entry_point);
 	INFO("[%s:%d] - Initialize finished\n", __func__, __LINE__);
 }
+
+static struct plat_pm_pwr_ctrl armv9_0_pwr_ops = {
+	.pwr_domain_suspend = power_domain_suspend,
+	.pwr_domain_suspend_finish = power_domain_suspend_finish,
+	.validate_power_state = validate_power_state,
+#if CONFIG_MTK_SUPPORT_SYSTEM_SUSPEND
+	.get_sys_suspend_power_state = get_sys_suspend_power_state,
+#endif
+	.pwr_domain_pwr_down_wfi = pwr_domain_pwr_down_wfi,
+};
 
 struct plat_pm_smp_ctrl armv9_0_smp_ops = {
 	.init = pm_smp_init,
@@ -414,6 +437,50 @@ int plat_pm_invoke_func(enum mtk_cpu_pm_mode mode, unsigned int id, void *priv)
 		ret = imtk_cpu_pwr.smp->invoke(id, priv);
 
 	return ret;
+}
+
+int register_cpu_pm_ops(unsigned int fn_flags, struct mtk_cpu_pm_ops *ops)
+{
+	int success = 1;
+	unsigned int fns = 0;
+
+	if (!ops || imtk_cpu_pwr.ops) {
+		ERROR("[%s:%d] register cpu_pm fail !!\n", __FILE__, __LINE__);
+		return MTK_CPUPM_E_ERR;
+	}
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_RESUME_CORE,
+			cpu_resume, 1, success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_SUSPEND_CORE,
+			cpu_suspend, 1, success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_RESUME_CLUSTER,
+			cluster_resume, 1, success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_SUSPEND_CLUSTER,
+			cluster_suspend, 1, success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_RESUME_MCUSYS,
+			mcusys_resume, 1,
+			success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_SUSPEND_MCUSYS,
+			mcusys_suspend, 1, success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_CPUPM_GET_PWR_STATE,
+			get_pstate, 1, success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_PWR_STATE_VALID,
+			pwr_state_valid, 1, success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_INIT,
+			init, 1, success, fns);
+	CPM_PM_FN_CHECK(fn_flags, ops, MTK_CPUPM_FN_PWR_DOMAIN_POWER_DOWN_WFI,
+			pwr_domain_pwr_down_wfi, 1, success, fns);
+	if (success) {
+		imtk_cpu_pwr.ops = ops;
+		imtk_cpu_pwr.fn_mask |= fns;
+		plat_pm_ops_setup_pwr(&armv9_0_pwr_ops);
+		INFO("[%s:%d] CPU pwr ops register success, support:0x%x\n",
+					__func__, __LINE__, fns);
+	} else {
+		ERROR("[%s:%d] register cpu_pm ops fail !, fn:0x%x\n",
+		      __func__, __LINE__, fn_flags);
+		assert(0);
+	}
+	return MTK_CPUPM_E_OK;
 }
 
 int register_cpu_smp_ops(unsigned int fn_flags, struct mtk_cpu_smp_ops *ops)

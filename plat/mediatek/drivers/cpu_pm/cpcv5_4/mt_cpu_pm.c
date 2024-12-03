@@ -394,6 +394,17 @@ mt_pwr_mcusysoff_reflect:
 mt_pwr_mcusysoff_break:
 	plat_mt_lp_cpu_rc = -1;
 
+	if (IS_PLAT_ALL_ONLINE_CORES_S2IDLE(state)) {
+		/* set SPM pending if s2idle fail to turn mcusys off */
+		if (suspend_abort_reason == MTK_PM_SUSPEND_ABORT_PWR_REQ)
+			NOTICE("[LPM] PWR_REQ is held\n");
+		else if (suspend_abort_reason == MTK_PM_SUSPEND_ABORT_LAST_CORE)
+			NOTICE("[LPM] suspend last core prot fail\n");
+		else if (suspend_abort_reason ==
+			 MTK_PM_SUSPEND_ABORT_RC_INVALID)
+			NOTICE("[LPM] no available RC\n");
+	}
+
 	return MTK_CPUPM_E_FAIL;
 }
 
