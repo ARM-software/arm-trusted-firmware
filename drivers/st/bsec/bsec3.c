@@ -473,6 +473,10 @@ uint32_t bsec_get_secure_state(void)
 		}
 	}
 
+	if ((bsec_sr & BSEC_SR_HVALID) != 0U) {
+		state |= BSEC_HARDWARE_KEY;
+	}
+
 	return state;
 }
 

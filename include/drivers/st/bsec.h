@@ -40,6 +40,8 @@
 #define BSEC_STATE_INVALID		U(0x3)
 #define BSEC_STATE_MASK			GENMASK_32(1, 0)
 
+#define BSEC_HARDWARE_KEY		BIT_32(8)
+
 uint32_t bsec_probe(void);
 
 uint32_t bsec_read_otp(uint32_t *val, uint32_t otp);
