@@ -93,6 +93,7 @@ endif
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
+				-Iplat/amd/common/include/			\
 				-Iplat/xilinx/common/ipi_mailbox_service/	\
 				-I${PLAT_PATH}/include/				\
 				-Iplat/xilinx/versal/pm_service/
@@ -156,4 +157,4 @@ endif
 TRANSFER_LIST                   ?= 0
 
 include lib/transfer_list/transfer_list.mk
-BL31_SOURCES           +=      plat/xilinx/common/plat_xfer_list.c
+BL31_SOURCES           +=      plat/amd/common/plat_xfer_list.c
