@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -81,7 +81,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	(void)arg2;
 	(void)arg3;
 	uint32_t uart_clock;
+#if (TRANSFER_LIST == 1)
 	int32_t rc;
+	bool tl_status = false;
+#endif
 
 	board_detection();
 
@@ -124,6 +127,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	default:
 		panic();
 	}
+#if (TRANSFER_LIST == 1)
+	tl_status = populate_data_from_xfer_list();
+	if (tl_status != true) {
+		WARN("Invalid transfer list\n");
+	}
+#endif
 
 	uart_clock = get_uart_clk();
 
@@ -152,11 +161,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
+#if (TRANSFER_LIST == 1)
 	rc = transfer_list_populate_ep_info(&bl32_image_ep_info, &bl33_image_ep_info);
 	if (rc == TL_OPS_NON || rc == TL_OPS_CUS) {
 		NOTICE("BL31: TL not found, using default config\n");
 		bl31_set_default_config();
 	}
+#else
+	bl31_set_default_config();
+#endif
 
 	long rev_var = cpu_get_rev_var();
 

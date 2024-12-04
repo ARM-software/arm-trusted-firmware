@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2023-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -105,7 +105,7 @@ void prepare_dtb(void)
 	int map_ret = 0;
 	int ret = 0;
 
-	dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+	dtb = (void *)plat_retrieve_dt_addr();
 
 	if (!IS_TFA_IN_OCM(BL31_BASE)) {
 
@@ -156,4 +156,14 @@ void prepare_dtb(void)
 		}
 	}
 #endif
+}
+
+uintptr_t plat_retrieve_dt_addr(void)
+{
+	void *dtb = NULL;
+
+#if defined(XILINX_OF_BOARD_DTB_ADDR)
+	dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+#endif
+	return (uintptr_t)dtb;
 }

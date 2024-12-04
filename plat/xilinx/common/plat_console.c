@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2023-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -222,7 +222,7 @@ error:
 static int fdt_get_uart_info(dt_uart_info_t *info)
 {
 	int node = 0, ret = 0;
-	void *dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+	void *dtb = (void *)plat_retrieve_dt_addr();
 
 	ret = is_valid_dtb(dtb);
 	if (ret < 0) {

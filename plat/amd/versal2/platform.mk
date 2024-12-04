@@ -129,11 +129,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/scmi-msg/reset_domain.c			\
 				${PLAT_PATH}/scmi.c
 
-BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
-
-BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
+BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c			\
 				common/fdt_wrappers.c                           \
-				plat/xilinx/common/plat_fdt.c                   \
 				plat/xilinx/common/plat_console.c               \
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi.c			\
@@ -156,5 +153,10 @@ endif
 # Enable Handoff protocol using transfer lists
 TRANSFER_LIST                   ?= 0
 
+ifeq (${TRANSFER_LIST},1)
 include lib/transfer_list/transfer_list.mk
-BL31_SOURCES           +=      plat/amd/common/plat_xfer_list.c
+BL31_SOURCES           +=	plat/amd/common/plat_fdt.c
+BL31_SOURCES           +=	plat/amd/common/plat_xfer_list.c
+else
+BL31_SOURCES           +=	plat/xilinx/common/plat_fdt.c
+endif
