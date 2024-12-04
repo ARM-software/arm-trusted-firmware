@@ -216,23 +216,9 @@ error_exit:
 	ret
 endfunc get_cpu_ops_ptr
 
-/*
- * Extract CPU revision and variant, and combine them into a single numeric for
- * easier comparison.
- */
 	.globl	cpu_get_rev_var
 func cpu_get_rev_var
-	mrs	x1, midr_el1
-
-	/*
-	 * Extract the variant[23:20] and revision[3:0] from MIDR, and pack them
-	 * as variant[7:4] and revision[3:0] of x0.
-	 *
-	 * First extract x1[23:16] to x0[7:0] and zero fill the rest. Then
-	 * extract x1[3:0] into x0[3:0] retaining other bits.
-	 */
-	ubfx	x0, x1, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
-	bfxil	x0, x1, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+	get_rev_var x0, x1
 	ret
 endfunc cpu_get_rev_var
 

@@ -421,6 +421,29 @@
 .endm
 
 /*
+ * Extract CPU revision and variant, and combine them into a single numeric for
+ * easier comparison.
+ *
+ * _res:
+ *	register where the result will be placed
+ * _tmp:
+ *	register to clobber for temporaries
+ */
+.macro get_rev_var _res:req, _tmp:req
+	mrs	\_tmp, midr_el1
+
+	/*
+	 * Extract the variant[23:20] and revision[3:0] from MIDR, and pack them
+	 * as variant[7:4] and revision[3:0] of x0.
+	 *
+	 * First extract x1[23:16] to x0[7:0] and zero fill the rest. Then
+	 * extract x1[3:0] into x0[3:0] retaining other bits.
+	 */
+	ubfx	\_res, \_tmp, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
+	bfxil	\_res, \_tmp, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+.endm
+
+/*
  * Apply erratum
  *
  * _cpu:
@@ -540,7 +563,7 @@
 
 /*
  * provide a shorthand for the name format for annoying errata
- * body: clobber x0 to x3
+ * body: clobber x0 to x4
  */
 .macro check_erratum_custom_start _cpu:req, _cve:req, _id:req
 	func check_erratum_\_cpu\()_\_id
@@ -568,8 +591,7 @@
 .macro cpu_reset_func_start _cpu:req
 	func \_cpu\()_reset_func
 		mov	x15, x30
-		bl	cpu_get_rev_var
-		mov	x14, x0
+		get_rev_var x14, x0
 
 		/* short circuit the location to avoid searching the list */
 		adrp	x12, \_cpu\()_errata_list_start
