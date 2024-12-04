@@ -160,3 +160,11 @@ BL31_SOURCES           +=	plat/amd/common/plat_xfer_list.c
 else
 BL31_SOURCES           +=	plat/xilinx/common/plat_fdt.c
 endif
+
+XLNX_DT_CFG	?= 1
+ifeq (${TRANSFER_LIST},0)
+ifndef XILINX_OF_BOARD_DTB_ADDR
+XLNX_DT_CFG	:= 0
+endif
+endif
+$(eval $(call add_define,XLNX_DT_CFG))

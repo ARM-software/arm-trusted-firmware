@@ -31,9 +31,7 @@ static console_t runtime_console;
 static console_holder rt_hd_console;
 #endif
 
-#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-				   !IS_TFA_IN_OCM(BL31_BASE)))
+#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && (XLNX_DT_CFG == 1))
 static dt_uart_info_t dt_uart_info;
 #endif
 
@@ -78,9 +76,7 @@ static void register_console(const console_holder *consoleh, console_t *console)
 	console_set_scope(console, consoleh->console_scope);
 }
 
-#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-				   !IS_TFA_IN_OCM(BL31_BASE)))
+#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && (XLNX_DT_CFG == 1))
 /**
  * get_baudrate() - Get the baudrate form DTB.
  * @dtb: Address of the Device Tree Blob (DTB).
@@ -259,9 +255,7 @@ void setup_console(void)
 	/* For DT code decoding uncomment console registration below */
 	/* register_console(&boot_hd_console, &boot_console); */
 
-#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-				   !IS_TFA_IN_OCM(BL31_BASE)))
+#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && (XLNX_DT_CFG == 1))
 	/* Parse DTB console for UART information  */
 	if (fdt_get_uart_info(&dt_uart_info) == 0) {
 		if (CONSOLE_IS(dtb)) {
@@ -280,9 +274,7 @@ void setup_console(void)
 	INFO("BL31: Early console setup\n");
 
 #ifdef CONSOLE_RUNTIME
-#if (RT_CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	       (!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-					!IS_TFA_IN_OCM(BL31_BASE)))
+#if (RT_CONSOLE_IS(dtb) && (XLNX_DT_CFG == 1))
 	rt_hd_console.base = dt_uart_info.base;
 	rt_hd_console.baud_rate = dt_uart_info.baud_rate;
 	rt_hd_console.console_type = dt_uart_info.console_type;
