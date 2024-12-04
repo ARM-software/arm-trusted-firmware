@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2020-2024, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -97,7 +97,7 @@ typedef enum {
 	}
 
 struct mt_pin_info {
-	uint8_t id;
+	uint16_t id;
 	uint8_t flag;
 	uint8_t bit;
 	uint16_t base;
