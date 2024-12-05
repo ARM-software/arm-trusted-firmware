@@ -148,6 +148,13 @@ RCAR_RPC_HYPERFLASH_LOCKED := 1
 endif
 $(eval $(call add_define,RCAR_RPC_HYPERFLASH_LOCKED))
 
+# Support A/B switching with RPC HYPERFLASH access by default
+# Use together with https://github.com/marex/abloader .
+ifndef RCAR_RPC_HYPERFLASH_ABLOADER
+RCAR_RPC_HYPERFLASH_ABLOADER := 0
+endif
+$(eval $(call add_define,RCAR_RPC_HYPERFLASH_ABLOADER))
+
 # Process RCAR_SECURE_BOOT flag
 ifndef RCAR_SECURE_BOOT
 RCAR_SECURE_BOOT := 1

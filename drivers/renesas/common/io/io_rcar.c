@@ -149,6 +149,9 @@ static uint64_t rcar_image_header[RCAR_MAX_BL3X_IMAGE + 2U] = { 0U };
 static uint64_t rcar_image_header_prttn[RCAR_MAX_BL3X_IMAGE + 2U] = { 0U };
 static uint64_t rcar_image_number = { 0U };
 static uint32_t rcar_cert_load = { 0U };
+#if (RCAR_RPC_HYPERFLASH_ABLOADER == 1)
+static uint32_t rcar_image_offset = 0U;
+#endif
 
 static io_type_t device_type_rcar(void)
 {
@@ -196,8 +199,10 @@ static int32_t file_to_offset(const int32_t name, uintptr_t *offset,
 
 		*offset = rcar_image_header[addr];
 
-		if (mmio_read_32(MFISBTSTSR) & MFISBTSTSR_BOOT_PARTITION)
-			*offset += 0x800000;
+#if (RCAR_RPC_HYPERFLASH_ABLOADER == 1)
+		*offset += rcar_image_offset;
+#endif
+
 		*cert = RCAR_CERT_SIZE;
 		*cert *= RCAR_ATTR_GET_CERTOFF(name_offset[i].attr);
 		*cert += RCAR_SDRAM_certESS;
@@ -499,6 +504,15 @@ static int32_t rcar_dev_init(io_dev_info_t *dev_info, const uintptr_t name)
 	 */
 	offset = name == EMMC_DEV_ID ? RCAR_EMMC_CERT_HEADER :
 	    RCAR_FLASH_CERT_HEADER;
+
+#if (RCAR_RPC_HYPERFLASH_ABLOADER == 1)
+	rcar_image_offset = 0;
+	if ((name == FLASH_DEV_ID) &&
+	    (mmio_read_32(MFISBTSTSR) & MFISBTSTSR_BOOT_PARTITION)) {
+		rcar_image_offset = 0x800000;
+	}
+#endif
+
 	rc = io_seek(handle, IO_SEEK_SET, offset);
 	if (rc != IO_SUCCESS) {
 		WARN("Firmware Image Package header failed to seek\n");
