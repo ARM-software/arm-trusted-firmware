@@ -25,6 +25,19 @@
 		stdout-path = "serial0:38400n8";
 	};
 
+#if TC_FPGA_ANDROID_IMG_IN_RAM
+	reserved-memory {
+		phram@0x880000000 {
+			/*
+			 * starting from 0x8_8000_0000 reserve some memory
+			 * android image will be side loaded to this location
+			 */
+			reg = <0x8 0x80000000  HI(ANDROID_FS_SIZE) LO(ANDROID_FS_SIZE)>
+			no-map;
+		};
+	};
+#endif /* TC_FPGA_ANDROID_IMG_IN_RAM */
+
 	ethernet: ethernet@ETHERNET_ADDR {
 		compatible = "smsc,lan9115";
 		phy-mode = "mii";

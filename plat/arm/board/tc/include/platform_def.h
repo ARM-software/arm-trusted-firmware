@@ -207,7 +207,21 @@
 #if defined(TARGET_FLAVOUR_FPGA)
 #undef V2M_FLASH0_BASE
 #undef V2M_FLASH0_SIZE
+#if TC_FPGA_FIP_IMG_IN_RAM
+/*
+ * Note that this is just used for the FIP, which is not required
+ * anymore once Linux has commenced booting. So we are safe allowing
+ * Linux to also make use of this memory and it doesn't need to be
+ * carved out of the devicetree.
+ *
+ * This only needs to match the RAM load address that we give the FIP
+ * on either the FPGA or FVP command line so there is no need to link
+ * it to say halfway through the RAM or anything like that.
+ */
+#define V2M_FLASH0_BASE			UL(0xB0000000)
+#else
 #define V2M_FLASH0_BASE			UL(0x0C000000)
+#endif
 #define V2M_FLASH0_SIZE			UL(0x02000000)
 #endif
 
@@ -242,10 +256,28 @@
 
 #if TARGET_PLATFORM <= 2
 #define PLAT_ARM_DRAM2_BASE		ULL(0x8080000000)
+#define PLAT_ARM_DRAM2_SIZE             ULL(0x180000000)
 #elif TARGET_PLATFORM >= 3
-#define PLAT_ARM_DRAM2_BASE		ULL(0x880000000)
-#endif /* TARGET_PLATFORM >= 3 */
-#define PLAT_ARM_DRAM2_SIZE		ULL(0x380000000)
+
+#if TC_FPGA_ANDROID_IMG_IN_RAM
+/* 10GB reserved for system+userdata+vendor images */
+#define SYSTEM_IMAGE_SIZE		0xC0000000	/* 3GB */
+#define USERDATA_IMAGE_SIZE		0x140000000	/* 5GB */
+#define VENDOR_IMAGE_SIZE		0x20000000 	/* 512MB */
+#define RESERVE_IMAGE_SIZE		0x60000000      /* 1.5GB */
+#define ANDROID_FS_SIZE			(SYSTEM_IMAGE_SIZE + \
+					 USERDATA_IMAGE_SIZE + \
+					 VENDOR_IMAGE_SIZE + RESERVE_IMAGE_SIZE)
+
+#define PLAT_ARM_DRAM2_BASE		ULL(0x880000000) + ANDROID_FS_SIZE
+#define PLAT_ARM_DRAM2_SIZE		ULL(0x380000000) - ANDROID_FS_SIZE
+#else
+#define PLAT_ARM_DRAM2_BASE             ULL(0x880000000)
+#define PLAT_ARM_DRAM2_SIZE             ULL(0x380000000)
+#endif /* TC_FPGA_ANDROID_IMG_IN_RAM */
+
+#endif /* TARGET_VERSION >= 3 */
+
 #define PLAT_ARM_DRAM2_END		(PLAT_ARM_DRAM2_BASE + PLAT_ARM_DRAM2_SIZE - 1ULL)
 
 #define TC_NS_MTE_SIZE			(256 * SZ_1M)
