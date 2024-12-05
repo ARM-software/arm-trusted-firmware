@@ -83,6 +83,9 @@ TC_FPGA_ANDROID_IMG_IN_RAM := 0
 # Support Loading of FIP image to DRAM
 TC_FPGA_FIP_IMG_IN_RAM := 0
 
+# Use simple panel instead of vencoder with DPU
+TC_DPU_USE_SIMPLE_PANEL := 0
+
 $(eval $(call add_defines, \
 	TARGET_PLATFORM \
 	TARGET_FLAVOUR_$(call uppercase,${TARGET_FLAVOUR}) \
@@ -91,6 +94,7 @@ $(eval $(call add_defines, \
 	TC_SCMI_PD_CTRL_EN \
 	TC_FPGA_ANDROID_IMG_IN_RAM \
 	TC_FPGA_FIP_IMG_IN_RAM \
+	TC_DPU_USE_SIMPLE_PANEL \
 ))
 
 CSS_LOAD_SCP_IMAGES	:=	1
