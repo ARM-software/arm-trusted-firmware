@@ -3,6 +3,25 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.26](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.25..refs/tags/lts-v2.8.26) (2024-12-06)
+
+### Build System
+
+- **Dependencies**
+
+  - bump braces ([0abe5d5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0abe5d5716c52aeac97e3cf81d4f088fd550495b))
+
+  - **Node Package Manager (NPM)**
+
+    - bump word-wrap from 1.2.3 to 1.2.4 ([a449c13](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a449c13602f7b616343db468278ae46e41238f02))
+    - update Node.js and all packages ([ceb4008](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ceb400895b2ade5e4d8ebdfb92e8a0c6a47660f0))
+
+### Miscellaneous
+
+- **Dependencies**
+
+  - bump micromatch ([3de9d3a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3de9d3abddf61b96b3e9887ba4e881b2228df0bb))
+
 ## [lts-2.8.25](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.24..refs/tags/lts-v2.8.25) (2024-11-23)
 
 ### Build System
