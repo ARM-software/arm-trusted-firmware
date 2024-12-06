@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,7 +73,7 @@
  */
 #define SUBSCRIBE_TO_EVENT(event, func) \
 	extern pubsub_cb_t __cb_func_##func##event __pubsub_section(event); \
-	pubsub_cb_t __cb_func_##func##event __pubsub_section(event) = (func)
+	pubsub_cb_t __cb_func_##func##event __used __pubsub_section(event) = (func)
 
 /*
  * Iterate over subscribed handlers for a defined event. 'event' is the name of
