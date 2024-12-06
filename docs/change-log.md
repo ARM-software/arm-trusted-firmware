@@ -3,6 +3,29 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.10](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.9..refs/tags/lts-v2.10.10) (2024-12-06)
+
+### Miscellaneous
+
+- **Dependencies**
+
+  - bump micromatch ([395ef35](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/395ef3534cf17c5525e77963cad63c04bd379cbd))
+
+### Build System
+
+- **Dependencies**
+
+  - bump braces ([c5d2a03](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c5d2a030a35fed2b7c814c372e4e5665273fe551))
+  - bump idna from 3.4 to 3.7 ([ebf6430](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ebf6430a01c5a63738df9b5f383bcf362b459027))
+  - bump jinja2 from 3.1.2 to 3.1.4 ([93ad43e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/93ad43e79ef726d2e7ecf60399c9a2aafe7c5c58))
+  - bump pip from 23.1.2 to 23.3 ([3ea256c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3ea256c36a4b66816e8116208a28c94f50f7bded))
+  - bump setuptools in the pip group across 1 directory ([c9f3fb5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c9f3fb5822dc522857a13e69320740e2d786b9cc))
+  - bump urllib3 from 2.0.2 to 2.2.2 ([f8a06a0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f8a06a0f82ce664a08caf444bf8ef566ca5be15f))
+
+  - **Node Package Manager (NPM)**
+
+    - update Node.js and all packages ([6c6e986](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6c6e986bffb36e973b394506d9b85cfcf146571d))
+
 ## [lts-2.10.9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.8..refs/tags/lts-v2.10.9) (2024-10-25)
 
 ### New Features
