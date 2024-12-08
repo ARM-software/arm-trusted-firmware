@@ -1,12 +1,12 @@
 #
-# Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 # Making sure the Morello platform type is specified
 ifeq ($(filter ${TARGET_PLATFORM}, fvp soc),)
-	$(error TARGET_PLATFORM must be fvp or soc)
+       $(error TARGET_PLATFORM must be fvp or soc)
 endif
 
 MORELLO_BASE		:=	plat/arm/board/morello
