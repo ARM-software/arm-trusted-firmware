@@ -15,6 +15,63 @@
 #include <common/debug.h>
 #include <drivers/arm/gicv5.h>
 
+static inline bool iwb_domain_supported(uint32_t idr0, uint8_t domain)
+{
+	return (EXTRACT(IWB_IDR0_DOMAINS, idr0) & (1U << domain)) != 0U;
+}
+
+static void iwb_configure_domainr(uintptr_t base_addr, struct gicv5_wire_props wire)
+{
+	uint32_t reg_offset = (wire.id % 16U) * 2U;
+	uint32_t reg_index = wire.id / 16U;
+	uint32_t val = read_iwb_wdomainr(base_addr, reg_index) &
+		       ~(IWB_WDOMAINR_DOMAINX_MASK << reg_offset);
+
+	write_iwb_wdomainr(base_addr, reg_index, val | wire.domain << reg_offset);
+}
+
+static void iwb_configure_wtmr(uintptr_t base_addr, struct gicv5_wire_props wire)
+{
+	uint32_t reg_offset = wire.id % 32U;
+	uint32_t reg_index = wire.id / 32U;
+	uint32_t val = read_iwb_wtmr(base_addr, reg_index) & ~(1U << reg_offset);
+
+	write_iwb_wtmr(base_addr, reg_index, val | wire.tm << reg_offset);
+}
+
+static void iwb_enable(const struct gicv5_iwb *config)
+{
+	uintptr_t base_addr = config->config_frame;
+	uint32_t idr0;
+	uint16_t num_regs;
+
+	idr0 = read_iwb_idr0(base_addr);
+	num_regs = EXTRACT(IWB_IDR0_IWRANGE, idr0) + 1U;
+
+	/* initialise all wires as disabled */
+	for (int i = 0U; i < num_regs; i++) {
+		write_iwb_wenabler(base_addr, i, 0U);
+	}
+
+	/* default all wires to the NS domain */
+	for (int i = 0U; i < num_regs * 2; i++) {
+		write_iwb_wdomainr(base_addr, i, 0x55555555);
+	}
+
+	for (uint32_t i = 0U; i < config->num_wires; i++) {
+		assert(iwb_domain_supported(idr0, config->wires[i].domain));
+		assert(config->wires[i].id <= num_regs * 32);
+
+		iwb_configure_domainr(base_addr, config->wires[i]);
+		iwb_configure_wtmr(base_addr, config->wires[i]);
+	}
+
+	write_iwb_cr0(base_addr, IWB_CR0_IWBEN_BIT);
+	WAIT_FOR_IDLE_IWB_WENABLE_STATUSR(base_addr);
+	WAIT_FOR_IDLE_IWB_WDOMAIN_STATUSR(base_addr);
+	WAIT_FOR_IDLE_IWB_CR0(base_addr);
+}
+
 static void irs_configure_wire(uintptr_t base_addr, uint32_t wire, uint8_t domain)
 {
 	write_irs_spi_selr(base_addr, wire);
@@ -57,6 +114,10 @@ static void irs_enable(const struct gicv5_irs *config)
 
 void __init gicv5_driver_init(void)
 {
+	for (size_t i = 0U; i < plat_gicv5_driver_data.num_iwbs; i++) {
+		iwb_enable(&plat_gicv5_driver_data.iwbs[i]);
+	}
+
 	for (size_t i = 0U; i < plat_gicv5_driver_data.num_irss; i++) {
 		irs_enable(&plat_gicv5_driver_data.irss[i]);
 	}
