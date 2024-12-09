@@ -232,22 +232,42 @@ functions must be provided by the CL:
 .. code:: c
 
     void (*init)(void);
-    int (*verify_signature)(void *data_ptr, unsigned int data_len,
+    int (*verify_signature)(
+                            /* Data to verify. */
+                            void *data_ptr, unsigned int data_len,
+                            /* Bit string of the signature in DER format. */
                             void *sig_ptr, unsigned int sig_len,
+                            /* ASN1 SignatureAlgorithm struct. */
                             void *sig_alg, unsigned int sig_alg_len,
+                            /* ASN1 SubjectPublicKeyInfo struct. */
                             void *pk_ptr, unsigned int pk_len);
-    int (*calc_hash)(enum crypto_md_algo alg, void *data_ptr,
-                     unsigned int data_len,
-                     unsigned char output[CRYPTO_MD_MAX_SIZE])
-    int (*verify_hash)(void *data_ptr, unsigned int data_len,
-                       void *digest_info_ptr, unsigned int digest_info_len);
-    int (*auth_decrypt)(enum crypto_dec_algo dec_algo, void *data_ptr,
-                        size_t len, const void *key, unsigned int key_len,
-                        unsigned int key_flags, const void *iv,
-                        unsigned int iv_len, const void *tag,
-                        unsigned int tag_len);
+    int (*calc_hash)(
+                            /* SHA256, SHA384 and SHA512 can be used. */
+                            enum crypto_md_algo alg
+                            /* Data to hash. */
+                            void *data_ptr, unsigned int data_len,
+                            /* Buffer to store the output. */
+                            unsigned char output[CRYPTO_MD_MAX_SIZE]);
+    int (*verify_hash)(
+                            /* Data to verify. */
+                            void *data_ptr, unsigned int data_len,
+                            /* ASN1 DigestInfo struct. */
+                            void *digest_info_ptr, unsigned int digest_info_len);
+    int (*auth_decrypt)(
+                            /* Currently AES-GCM is the only supported alg. */
+                            enum crypto_dec_algo dec_algo,
+                            /* Data to decrypt. */
+                            void *data_ptr, size_t len,
+                            /* Decryption key. */
+                            const void *key, unsigned int key_len,
+                            unsigned int key_flags,
+                            /* Initialization vector. */
+                            const void *iv, unsigned int iv_len,
+                            /* Authentication tag. */
+                            const void *tag, unsigned int tag_len);
 
-These functions are registered in the CM using the macro:
+The above functions return values from the enum ``crypto_ret_value``.
+The functions are registered in the CM using the macro:
 
 .. code:: c
 
@@ -262,10 +282,21 @@ These functions are registered in the CM using the macro:
 ``_name`` must be a string containing the name of the CL. This name is used for
 debugging purposes.
 
-Crypto module provides a function ``_calc_hash`` to calculate and
-return the hash of the given data using the provided hash algorithm.
-This function is mainly used in the ``MEASURED_BOOT`` and ``DRTM_SUPPORT``
-features to calculate the hashes of various images/data.
+The ``_init`` function is used to perform any initialization required for
+the specific CM and CL.
+
+The ``_verify_signature`` function is used to verify certificates,
+and ``_verify_hash`` is used to verify raw images.
+
+The ``_calc_hash`` function is mainly used in the ``MEASURED_BOOT``
+and ``DRTM_SUPPORT`` features to calculate the hashes of various images/data.
+
+The ``_auth_decrypt`` function uses an authentication tag to perform
+authenticated decryption, providing guarantees on the authenticity
+of encrypted data. This function is used when the optional encrypted
+firmware feature is enabled, that is when ``ENCRYPT_BL31`` or
+``ENCRYPT_BL32`` are set to ``1`` and ``DECRYPTION_SUPPORT`` is
+set to ``aes_gcm``.
 
 Optionally, a platform function can be provided to convert public key
 (_convert_pk). It is only used if the platform saves a hash of the ROTPK.
@@ -970,30 +1001,44 @@ sources.
 The cryptographic library
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The cryptographic module relies on a library to perform the required operations,
-i.e. verify a hash or a digital signature. Arm platforms will use a library
-based on mbed TLS, which can be found in
-``drivers/auth/mbedtls/mbedtls_crypto.c``. This library is registered in the
-authentication framework using the macro ``REGISTER_CRYPTO_LIB()`` and exports
-below functions:
+The cryptographic module relies on a library to perform essential operations
+such as verifying a hash or a digital signature.
+Arm platforms use a library based on mbedTLS located at
+``drivers/auth/mbedtls/mbedtls_crypto.c``.
+Additionally, an experimental alternative library based on PSA Crypto
+is available at ``drivers/auth/mbedtls/mbedtls_psa_crypto.c``. In future,
+``mbedtls_psa_crypto.c`` will replace ``mbedtls_crypto.c`` as the default Arm
+CM. Both libraries are registered in the authentication framework using
+the macro ``REGISTER_CRYPTO_LIB()``. These libraries implement the following
+exported functions, their implementations are compared side-by-side below:
 
-.. code:: c
+.. list-table:: Comparison of exported CM function implementations
+   :widths: 20 40 40
+   :header-rows: 1
 
-    void init(void);
-    int verify_signature(void *data_ptr, unsigned int data_len,
-                         void *sig_ptr, unsigned int sig_len,
-                         void *sig_alg, unsigned int sig_alg_len,
-                         void *pk_ptr, unsigned int pk_len);
-    int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
-                             unsigned int data_len,
-                             unsigned char output[CRYPTO_MD_MAX_SIZE])
-    int verify_hash(void *data_ptr, unsigned int data_len,
-                    void *digest_info_ptr, unsigned int digest_info_len);
-    int auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
-                     size_t len, const void *key, unsigned int key_len,
-                     unsigned int key_flags, const void *iv,
-                     unsigned int iv_len, const void *tag,
-                     unsigned int tag_len)
+   * - CM function
+     - ``mbedtls_crypto.c``
+     - ``mbedtls_psa_crypto.c``
+   * - ``init``
+     - Initialize the heap for mbedTLS.
+     - Initialize the heap for mbedTLS and call ``psa_crypto_init``.
+   * - ``verify_signature``
+     - Use mbedTLS to parse the ASN1 inputs, and then use the mbedTLS pk module to verify the signature.
+     - Use mbedTLS to parse the ASN1 inputs, use the mbedTLS pk module to parse the key,
+       import it into the PSA key system and then use ``psa_verify_message`` to verify the signature.
+   * - ``calc_hash``
+     - Use the ``mbedtls_md`` API to calculate the hash of the given data.
+     - Use ``psa_hash_compute`` to calculate the hash of the given data.
+   * - ``verify_hash``
+     - Use the ``mbedtls_md`` API to calculate the hash of the given data,
+       and then compare it against the data which is to be verified.
+     - Call ``psa_hash_compare``, which both calculates the hash of the given data and
+       compares this hash against the data to be verified.
+   * - ``auth_decrypt``
+     - Use the ``mbedtls_gcm`` API to decrypt the data, and then verify the returned
+       tag by comparing it to the inputted tag.
+     - Load the key into the PSA key store, and then use ``psa_aead_verify`` to
+       decrypt and verify the tag.
 
 The mbedTLS library algorithm support is configured by both the
 ``TF_MBEDTLS_KEY_ALG`` and ``TF_MBEDTLS_KEY_SIZE`` variables.
@@ -1017,6 +1062,6 @@ The mbedTLS library algorithm support is configured by both the
 
 --------------
 
-*Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.*
 
 .. _TBBR-Client specification: https://developer.arm.com/docs/den0006/latest
