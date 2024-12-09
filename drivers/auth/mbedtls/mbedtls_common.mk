@@ -24,7 +24,7 @@ ifneq (${MBEDTLS_MAJOR}, 3)
 endif
 
 # Specify mbed TLS configuration file
-	MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/mbedtls_config-3.h>"
+	MBEDTLS_CONFIG_FILE	?=	"<drivers/auth/mbedtls/default_mbedtls_config.h>"
 
 $(eval $(call add_define,MBEDTLS_CONFIG_FILE))
 
