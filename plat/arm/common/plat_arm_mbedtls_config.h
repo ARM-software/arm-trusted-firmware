@@ -7,7 +7,7 @@
 #ifndef PLAT_ARM_MBEDTLS_CONFIG_H
 #define PLAT_ARM_MBEDTLS_CONFIG_H
 
-#include <mbedtls_config-3.h>
+#include <default_mbedtls_config.h>
 
 /**
  * On Arm platforms, the ROTPK is always hashed using the SHA-256
