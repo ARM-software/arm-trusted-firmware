@@ -283,7 +283,7 @@ ASFLAGS			+=	$(CPPFLAGS)                 			\
 				-ffreestanding -Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 				-ffunction-sections -fdata-sections		\
-				-ffreestanding -fno-builtin -fno-common		\
+				-ffreestanding -fno-common			\
 				-Os -std=gnu99
 
 ifeq (${SANITIZE_UB},on)
