@@ -1,0 +1,47 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "authors": [
+      {
+        "name": "@VCS_SBOM_AUTHORS@"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:github/TrustedFirmware-A/trusted-firmware-a@@VCS_TAG@",
+      "cpe": "cpe:2.3:a:trustedfirmware.org:trusted-firmware-a:@VCS_TAG@:*:*:*:*:*:*:*",
+      "name": "trusted-firmware-a",
+      "version": "@VCS_VERSION@",
+      "description": "Reference implementation of secure software for Arm A-Profile architectures",
+      "authors": [
+        {
+          "name": "@VCS_AUTHORS@"
+        }
+      ],
+      "supplier": {
+        "name": "trustedfirmware.org"
+      },
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://review.trustedfirmware.org/TF-A/trusted-firmware-a"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/TrustedFirmware-A/trusted-firmware-a"
+        }
+      ]
+    }
+  ]
+}
