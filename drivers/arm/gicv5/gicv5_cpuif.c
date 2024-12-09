@@ -17,6 +17,7 @@ void gic_cpuif_disable(unsigned int cpu_idx)
 
 void gic_pcpu_init(unsigned int cpu_idx)
 {
+	gicv5_enable_ppis();
 }
 
 void gic_pcpu_off(unsigned int cpu_idx)

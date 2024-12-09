@@ -91,6 +91,17 @@
 #define SERROR_EXCEPTION	0x180
 
 /*******************************************************************************
+ * Encodings for GICv5 EL3 system registers
+ ******************************************************************************/
+#define ICC_PPI_DOMAINR0_EL3	S3_6_C12_C8_4
+#define ICC_PPI_DOMAINR1_EL3	S3_6_C12_C8_5
+#define ICC_PPI_DOMAINR2_EL3	S3_6_C12_C8_6
+#define ICC_PPI_DOMAINR3_EL3	S3_6_C12_C8_7
+
+#define ICC_PPI_DOMAINR_FIELD_MASK		ULL(0x3)
+#define ICC_PPI_DOMAINR_COUNT			(32)
+
+/*******************************************************************************
  * Definitions for CPU system register interface to GICv3
  ******************************************************************************/
 #define ICC_IGRPEN1_EL1		S3_0_C12_C12_7

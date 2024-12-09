@@ -6,7 +6,10 @@
 
 #include <cdefs.h>
 
+#include <arch.h>
 #include <arch_features.h>
+#include <arch_helpers.h>
+
 #include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv5.h>
@@ -40,4 +43,20 @@ uint8_t gicv5_get_pending_interrupt_type(void)
 {
 	/* there is no pending interrupt expected */
 	return INTR_TYPE_INVAL;
+}
+
+/* TODO: these will probably end up contexted. Make Linux work for now */
+void gicv5_enable_ppis(void)
+{
+	uint64_t domainr = 0U;
+
+	/* the only ones described in the device tree at the moment */
+	write_icc_ppi_domainr(domainr, PPI_PMUIRQ,	INTDMN_NS);
+	write_icc_ppi_domainr(domainr, PPI_GICMNT,	INTDMN_NS);
+	write_icc_ppi_domainr(domainr, PPI_CNTHP,	INTDMN_NS);
+	write_icc_ppi_domainr(domainr, PPI_CNTV,	INTDMN_NS);
+	write_icc_ppi_domainr(domainr, PPI_CNTPS,	INTDMN_NS);
+	write_icc_ppi_domainr(domainr, PPI_CNTP,	INTDMN_NS);
+
+	write_icc_ppi_domainr0_el3(domainr);
 }
