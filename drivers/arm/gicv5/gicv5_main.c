@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <cdefs.h>
 
 #include <arch.h>
@@ -14,8 +15,51 @@
 #include <common/debug.h>
 #include <drivers/arm/gicv5.h>
 
+static void irs_configure_wire(uintptr_t base_addr, uint32_t wire, uint8_t domain)
+{
+	write_irs_spi_selr(base_addr, wire);
+	WAIT_FOR_VIDLE_IRS_SPI_STATUSR(base_addr);
+
+	write_irs_spi_domainr(base_addr, domain);
+	WAIT_FOR_VIDLE_IRS_SPI_STATUSR(base_addr);
+}
+
+static void irs_enable(const struct gicv5_irs *config)
+{
+	uint32_t spi_base, spi_range;
+	uintptr_t base_addr = config->el3_config_frame;
+
+	spi_base  = EXTRACT(IRS_IDR7_SPI_BASE, read_irs_idr7(base_addr));
+	spi_range = EXTRACT(IRS_IDR6_SPI_IRS_RANGE, read_irs_idr6(base_addr));
+
+	if (spi_range == 0U) {
+		assert(config->num_spis == 0U);
+	}
+
+	/* default all wires to the NS domain */
+	for (uint32_t i = spi_base; i < spi_base + spi_range; i++) {
+		irs_configure_wire(base_addr, i, INTDMN_NS);
+	}
+
+	for (uint32_t i = 0U; i < config->num_spis; i++) {
+		assert((config->spis[i].id >= spi_base) &&
+		       (config->spis[i].id < spi_base + spi_range));
+
+		irs_configure_wire(base_addr, config->spis[i].id, config->spis[i].domain);
+
+		/* don't (can't) configure TM of wires for other domains */
+		if (config->spis[i].domain == INTDMN_EL3) {
+			write_irs_spi_cfgr(base_addr, config->spis[i].tm);
+			WAIT_FOR_VIDLE_IRS_SPI_STATUSR(base_addr);
+		}
+	}
+}
+
 void __init gicv5_driver_init(void)
 {
+	for (size_t i = 0U; i < plat_gicv5_driver_data.num_irss; i++) {
+		irs_enable(&plat_gicv5_driver_data.irss[i]);
+	}
 }
 
 /*
