@@ -30,22 +30,6 @@
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpu_pwrctrl_val, S3_0_C15_C2_7)
 
-/*
- * ARM v8.2, the cache will turn off automatically when cpu
- * power down. Therefore, there is no doubt to use the spin_lock here.
- */
-#if !HW_ASSISTED_COHERENCY
-DEFINE_BAKERY_LOCK(pm_client_secure_lock);
-static inline void pm_client_lock_get(void)
-{
-	bakery_lock_get(&pm_client_secure_lock);
-}
-
-static inline void pm_client_lock_release(void)
-{
-	bakery_lock_release(&pm_client_secure_lock);
-}
-#else
 spinlock_t pm_client_secure_lock;
 static inline void pm_client_lock_get(void)
 {
@@ -56,7 +40,6 @@ static inline void pm_client_lock_release(void)
 {
 	spin_unlock(&pm_client_secure_lock);
 }
-#endif
 
 static const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_LOCAL_ID,
