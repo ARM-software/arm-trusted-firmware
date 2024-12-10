@@ -73,8 +73,15 @@
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
+#if ENABLE_PIE
 #define BL31_BASE			0
-#define BL31_LIMIT			(STM32MP_SYSRAM_SIZE / 2)
+#else
+#define BL31_BASE			STM32MP_SYSRAM_BASE
+#endif
+
+#define BL31_LIMIT			(BL31_BASE + (STM32MP_SYSRAM_SIZE / 2))
+
+#define BL31_PROGBITS_LIMIT		(BL31_BASE + STM32MP_BL31_SIZE)
 
 /*******************************************************************************
  * BL33 specific defines.
