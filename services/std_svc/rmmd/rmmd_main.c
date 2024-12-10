@@ -33,6 +33,8 @@
 #include <smccc_helpers.h>
 #include <lib/extensions/sme.h>
 #include <lib/extensions/sve.h>
+#include <lib/extensions/spe.h>
+#include <lib/extensions/trbe.h>
 #include "rmmd_initial_context.h"
 #include "rmmd_private.h"
 
@@ -126,6 +128,20 @@ static void manage_extensions_realm(cpu_context_t *ctx)
 	 */
 	if (is_feat_sme_supported()) {
 		sme_enable(ctx);
+	}
+
+	/*
+	 * SPE and TRBE cannot be fully disabled from EL3 registers alone, only
+	 * sysreg access can. In case the EL1 controls leave them active on
+	 * context switch, we want the owning security state to be NS so Realm
+	 * can't be DOSed.
+	 */
+	if (is_feat_spe_supported()) {
+		spe_disable(ctx);
+	}
+
+	if (is_feat_trbe_supported()) {
+		trbe_disable(ctx);
 	}
 }
 

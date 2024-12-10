@@ -49,7 +49,6 @@ CASSERT(((TWED_DELAY & ~SCR_TWEDEL_MASK) == 0U), assert_twed_delay_value_check);
 per_world_context_t per_world_context[CPU_DATA_CONTEXT_NUM];
 static bool has_secure_perworld_init;
 
-static void manage_extensions_common(cpu_context_t *ctx);
 static void manage_extensions_nonsecure(cpu_context_t *ctx);
 static void manage_extensions_secure(cpu_context_t *ctx);
 static void manage_extensions_secure_per_world(void);
@@ -236,8 +235,9 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	 * SCR_EL3.APK: Set to one to not trap any PAuth key values at ELs other
 	 *  than EL3
 	 */
-	scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
-
+	if (is_armv8_3_pauth_present()) {
+		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
+	}
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 
 #if HANDLE_EA_EL3_FIRST_NS
@@ -251,7 +251,6 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	 * and RAS ERX registers from EL1 and EL2(from any security state)
 	 * are trapped to EL3.
 	 * Set here to trap only for NS EL1/EL2
-	 *
 	 */
 	scr_el3 |= SCR_TERR_BIT;
 #endif
@@ -447,9 +446,9 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 * If FEAT_RNG_TRAP is enabled, all reads of the RNDR and RNDRRS
 	 * registers are trapped to EL3.
 	 */
-#if ENABLE_FEAT_RNG_TRAP
-	scr_el3 |= SCR_TRNDR_BIT;
-#endif
+	if (is_feat_rng_trap_supported()) {
+		scr_el3 |= SCR_TRNDR_BIT;
+	}
 
 #if FAULT_INJECTION_SUPPORT
 	/* Enable fault injection from lower ELs */
@@ -466,7 +465,9 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 * SCR_EL3.APK: Set to one to not trap any PAuth key values at ELs other
 	 *  than EL3
 	 */
-	scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
+	if (is_armv8_3_pauth_present()) {
+		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
+	}
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 
 	/*
@@ -567,11 +568,12 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 			& ~(MDCR_TDA_BIT | MDCR_TDOSA_BIT)) ;
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3);
 
-	/*
-	 * Configure MDCR_EL3 register as applicable for each world
-	 * (NS/Secure/Realm) context.
-	 */
-	manage_extensions_common(ctx);
+#if IMAGE_BL31
+	/* Enable FEAT_TRF for Non-Secure and prohibit for Secure state. */
+	if (is_feat_trf_supported()) {
+		trf_enable(ctx);
+	}
+#endif /* IMAGE_BL31 */
 
 	/*
 	 * Store the X0-X7 value from the entrypoint into the context
@@ -781,41 +783,6 @@ static void manage_extensions_secure_per_world(void)
 }
 
 /*******************************************************************************
- * Enable architecture extensions on first entry to Non-secure world only
- * and disable for secure world.
- *
- * NOTE: Arch features which have been provided with the capability of getting
- * enabled only for non-secure world and being disabled for secure world are
- * grouped here, as the MDCR_EL3 context value remains same across the worlds.
- ******************************************************************************/
-static void manage_extensions_common(cpu_context_t *ctx)
-{
-#if IMAGE_BL31
-	if (is_feat_spe_supported()) {
-		/*
-		 * Enable FEAT_SPE for Non-Secure and prohibit for Secure state.
-		 */
-		spe_enable(ctx);
-	}
-
-	if (is_feat_trbe_supported()) {
-		/*
-		 * Enable FEAT_TRBE for Non-Secure and prohibit for Secure and
-		 * Realm state.
-		 */
-		trbe_enable(ctx);
-	}
-
-	if (is_feat_trf_supported()) {
-		/*
-		 * Enable FEAT_TRF for Non-Secure and prohibit for Secure state.
-		 */
-		trf_enable(ctx);
-	}
-#endif /* IMAGE_BL31 */
-}
-
-/*******************************************************************************
  * Enable architecture extensions on first entry to Non-secure world.
  ******************************************************************************/
 static void manage_extensions_nonsecure(cpu_context_t *ctx)
@@ -835,6 +802,21 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 
 	if (is_feat_debugv8p9_supported()) {
 		debugv8p9_extended_bp_wp_enable(ctx);
+	}
+
+	/*
+	 * SPE, TRBE, and BRBE have multi-field enables that affect which world
+	 * they apply to. Despite this, it is useful to ignore these for
+	 * simplicity in determining the feature's per world enablement status.
+	 * This is only possible when context is written per-world. Relied on
+	 * by SMCCC_ARCH_FEATURE_AVAILABILITY
+	 */
+	if (is_feat_spe_supported()) {
+		spe_enable(ctx);
+	}
+
+	if (is_feat_trbe_supported()) {
+		trbe_enable(ctx);
 	}
 
 	if (is_feat_brbe_supported()) {
@@ -929,6 +911,20 @@ static void manage_extensions_secure(cpu_context_t *ctx)
 		 */
 			sme_disable(ctx);
 		}
+	}
+
+	/*
+	 * SPE and TRBE cannot be fully disabled from EL3 registers alone, only
+	 * sysreg access can. In case the EL1 controls leave them active on
+	 * context switch, we want the owning security state to be NS so Secure
+	 * can't be DOSed.
+	 */
+	if (is_feat_spe_supported()) {
+		spe_disable(ctx);
+	}
+
+	if (is_feat_trbe_supported()) {
+		trbe_disable(ctx);
 	}
 #endif /* IMAGE_BL31 */
 }
