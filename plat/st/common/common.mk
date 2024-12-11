@@ -201,16 +201,9 @@ endif
 TF_MBEDTLS_KEY_ALG		:=	ecdsa
 KEY_SIZE			:=	256
 
-ifneq (${MBEDTLS_DIR},)
-MBEDTLS_MAJOR=$(shell grep -hP "define MBEDTLS_VERSION_MAJOR" \
-${MBEDTLS_DIR}/include/mbedtls/*.h | grep -oe '\([0-9.]*\)')
+PLAT_INCLUDES			+=	-Iinclude/drivers/auth/mbedtls
 
-ifeq (${MBEDTLS_MAJOR}, 3)
-MBEDTLS_CONFIG_FILE		?=	"<stm32mp_mbedtls_config-3.h>"
-else
-$(error Error: TF-A only supports MbedTLS versions > 3.x)
-endif
-endif
+MBEDTLS_CONFIG_FILE		?=	"<stm32mp_mbedtls_config.h>"
 
 include drivers/auth/mbedtls/mbedtls_x509.mk
 
