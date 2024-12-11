@@ -638,7 +638,8 @@ int mailbox_send_fpga_config_comp(void)
 	return MBOX_RET_OK;
 }
 
-int intel_mailbox_get_config_status(uint32_t cmd, bool init_done)
+int intel_mailbox_get_config_status(uint32_t cmd, bool init_done,
+				    uint32_t *err_states)
 {
 	int status;
 	uint32_t res, response[6];
@@ -652,6 +653,9 @@ int intel_mailbox_get_config_status(uint32_t cmd, bool init_done)
 	}
 
 	res = response[RECONFIG_STATUS_STATE];
+
+	if (err_states != NULL)
+		*err_states = res;
 
 	if (res == MBOX_CFGSTAT_VAB_BS_PREAUTH) {
 		return MBOX_CFGSTAT_STATE_CONFIG;
@@ -684,11 +688,11 @@ int intel_mailbox_get_config_status(uint32_t cmd, bool init_done)
 
 int intel_mailbox_is_fpga_not_ready(void)
 {
-	int ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS, true);
+	int ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS, true, NULL);
 
 	if ((ret != MBOX_RET_OK) && (ret != MBOX_CFGSTAT_STATE_CONFIG)) {
 		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS,
-							false);
+							false, NULL);
 	}
 
 	return ret;

@@ -94,22 +94,25 @@ static int intel_fpga_sdm_write_all(void)
 	return 0;
 }
 
-static uint32_t intel_mailbox_fpga_config_isdone(void)
+static uint32_t intel_mailbox_fpga_config_isdone(uint32_t *err_states)
 {
 	uint32_t ret;
+
+	if (err_states == NULL)
+		return INTEL_SIP_SMC_STATUS_REJECTED;
 
 	switch (request_type) {
 	case RECONFIGURATION:
 		ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS,
-							true);
+							true, err_states);
 		break;
 	case BITSTREAM_AUTH:
 		ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS,
-							false);
+							false, err_states);
 		break;
 	default:
 		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS,
-							false);
+							false, err_states);
 		break;
 	}
 
@@ -814,6 +817,7 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 	uint32_t retval = 0, completed_addr[3];
 	uint32_t retval2 = 0;
 	uint32_t mbox_error = 0;
+	uint32_t err_states = 0;
 	uint64_t retval64, rsu_respbuf[9];
 	uint32_t seu_respbuf[3];
 	int status = INTEL_SIP_SMC_STATUS_OK;
@@ -827,8 +831,8 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 		SMC_UUID_RET(handle, intl_svc_uid);
 
 	case INTEL_SIP_SMC_FPGA_CONFIG_ISDONE:
-		status = intel_mailbox_fpga_config_isdone();
-		SMC_RET4(handle, status, 0, 0, 0);
+		status = intel_mailbox_fpga_config_isdone(&err_states);
+		SMC_RET4(handle, status, err_states, 0, 0);
 
 	case INTEL_SIP_SMC_FPGA_CONFIG_GET_MEM:
 		SMC_RET3(handle, INTEL_SIP_SMC_STATUS_OK,
