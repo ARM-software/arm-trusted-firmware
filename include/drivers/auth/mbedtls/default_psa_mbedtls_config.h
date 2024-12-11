@@ -7,7 +7,7 @@
 #ifndef PSA_MBEDTLS_CONFIG_H
 #define PSA_MBEDTLS_CONFIG_H
 
-#include "mbedtls_config-3.h"
+#include "default_mbedtls_config.h"
 
 #define MBEDTLS_PSA_CRYPTO_C
 #define MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS
