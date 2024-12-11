@@ -18,7 +18,7 @@
 #include <lib/utils.h>
 #include <lib/utils_def.h>
 
-#include "sec_proxy.h"
+#include <ti_sci_transport.h>
 
 /* SEC PROXY RT THREAD STATUS */
 #define RT_THREAD_STATUS			(0x0)
@@ -170,13 +170,13 @@ static int k3_sec_proxy_verify_thread(struct k3_sec_proxy_thread *spt,
 }
 
 /**
- * k3_sec_proxy_clear_rx_thread() - Clear Secure Proxy thread
+ * ti_sci_transport_clear_rx_thread() - Clear Secure Proxy thread
  *
  * @id: Channel Identifier
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_clear_rx_thread(enum k3_sec_proxy_chan_id id)
+int ti_sci_transport_clear_rx_thread(enum k3_sec_proxy_chan_id id)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
 
@@ -208,13 +208,13 @@ int k3_sec_proxy_clear_rx_thread(enum k3_sec_proxy_chan_id id)
 }
 
 /**
- * k3_sec_proxy_send() - Send data over a Secure Proxy thread
+ * ti_sci_transport_send() - Send data over a Secure Proxy thread
  * @id: Channel Identifier
- * @msg: Pointer to k3_sec_proxy_msg
+ * @msg: Pointer to ti_sci_msg
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_msg *msg)
+int ti_sci_transport_send(enum k3_sec_proxy_chan_id id, const struct ti_sci_msg *msg)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
 	union sec_msg_hdr secure_header;
@@ -281,13 +281,13 @@ int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_ms
 }
 
 /**
- * k3_sec_proxy_recv() - Receive data from a Secure Proxy thread
+ * ti_sci_transport_recv() - Receive data from a Secure Proxy thread
  * @id: Channel Identifier
- * @msg: Pointer to k3_sec_proxy_msg
+ * @msg: Pointer to ti_sci_msg
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg)
+int ti_sci_transport_recv(enum k3_sec_proxy_chan_id id, struct ti_sci_msg *msg)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
 	union sec_msg_hdr secure_header;
@@ -338,4 +338,12 @@ int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg
 	VERBOSE("Message successfully received from thread %s\n", spt->name);
 
 	return 0;
+}
+
+/*
+ * Boot notification is consumed by k3_system_controller.c in U-boot
+ * on platforms that use sec proxy
+ */
+void ti_boot_notification(void)
+{
 }

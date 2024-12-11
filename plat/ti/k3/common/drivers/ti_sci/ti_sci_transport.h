@@ -1,16 +1,14 @@
 /*
- * Texas Instruments K3 Secure Proxy Driver
- *   Based on Linux and U-Boot implementation
+ * Texas Instruments SCI Transport Protocol Header
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2024 Texas Instruments Incorporated - http://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SEC_PROXY_H
-#define SEC_PROXY_H
-
 #include <stdint.h>
+
+extern void ti_boot_notification(void);
 
 /**
  * enum k3_sec_proxy_chan_id - Secure Proxy thread IDs
@@ -41,42 +39,40 @@ enum k3_sec_proxy_chan_id {
 };
 
 /**
- * struct k3_sec_proxy_msg - Secure proxy message structure
+ * struct ti_sci_msg - Secure proxy message structure
  * @len: Length of data in the Buffer
  * @buf: Buffer pointer
  *
- * This is the structure for data used in k3_sec_proxy_{send,recv}()
+ * This is the structure for data used in ti_sci_transport_{send,recv}()
  */
-struct k3_sec_proxy_msg {
+struct ti_sci_msg {
 	size_t len;
 	uint8_t *buf;
 };
 
 /**
- * k3_sec_proxy_clear_rx_thread() - Clear a receive Secure Proxy thread
+ * ti_sci_transport_clear_rx_thread() - Clear a receive Secure Proxy thread
  * @id: Channel Identifier
- * @msg: Pointer to k3_sec_proxy_msg
+ * @msg: Pointer to ti_sci_msg
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_clear_rx_thread(enum k3_sec_proxy_chan_id id);
+int ti_sci_transport_clear_rx_thread(enum k3_sec_proxy_chan_id id);
 
 /**
- * k3_sec_proxy_send() - Send data over a Secure Proxy thread
+ * ti_sci_transport_send() - Send data over mailbox/ Secure Proxy thread
  * @id: Channel Identifier
- * @msg: Pointer to k3_sec_proxy_msg
+ * @msg: Pointer to ti_sci_msg
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_msg *msg);
+int ti_sci_transport_send(enum k3_sec_proxy_chan_id id, const struct ti_sci_msg *msg);
 
 /**
- * k3_sec_proxy_recv() - Receive data from a Secure Proxy thread
+ * ti_sci_transport_recv() - Receive data from a Secure Proxy thread/ mailbox
  * @id: Channel Identifier
- * @msg: Pointer to k3_sec_proxy_msg
+ * @msg: Pointer to ti_sci_msg
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg);
-
-#endif /* SEC_PROXY_H */
+int ti_sci_transport_recv(enum k3_sec_proxy_chan_id id, struct ti_sci_msg *msg);
