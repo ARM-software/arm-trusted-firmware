@@ -125,6 +125,8 @@ void bl31_platform_setup(void)
 	k3_gic_driver_init(K3_GIC_BASE);
 	k3_gic_init();
 
+	ti_sci_boot_notification();
+
 	ret = ti_sci_get_revision(&version);
 	if (ret) {
 		ERROR("Unable to communicate with the control firmware (%d)\n", ret);

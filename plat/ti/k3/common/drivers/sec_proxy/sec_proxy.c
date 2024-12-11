@@ -18,7 +18,7 @@
 #include <lib/utils.h>
 #include <lib/utils_def.h>
 
-#include "sec_proxy.h"
+#include <ti_sci_transport.h>
 
 /* SEC PROXY RT THREAD STATUS */
 #define RT_THREAD_STATUS			(0x0)
@@ -111,18 +111,6 @@ static struct k3_sec_proxy_mbox spm = {
 };
 
 /**
- * struct sec_msg_hdr - Message header for secure messages and responses
- * @checksum:	CRC of message for integrity checking
- */
-union sec_msg_hdr {
-	struct {
-		uint16_t checksum;
-		uint16_t reserved;
-	} __packed;
-	uint32_t data;
-};
-
-/**
  * k3_sec_proxy_verify_thread() - Verify thread status before
  *				  sending/receiving data
  * @spt: Pointer to Secure Proxy thread description
@@ -170,13 +158,13 @@ static int k3_sec_proxy_verify_thread(struct k3_sec_proxy_thread *spt,
 }
 
 /**
- * k3_sec_proxy_clear_rx_thread() - Clear Secure Proxy thread
+ * ti_sci_transport_clear_rx_thread() - Clear Secure Proxy thread
  *
  * @id: Channel Identifier
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_clear_rx_thread(enum k3_sec_proxy_chan_id id)
+int ti_sci_transport_clear_rx_thread(enum k3_sec_proxy_chan_id id)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
 
@@ -208,16 +196,15 @@ int k3_sec_proxy_clear_rx_thread(enum k3_sec_proxy_chan_id id)
 }
 
 /**
- * k3_sec_proxy_send() - Send data over a Secure Proxy thread
+ * ti_sci_transport_send() - Send data over a Secure Proxy thread
  * @id: Channel Identifier
- * @msg: Pointer to k3_sec_proxy_msg
+ * @msg: Pointer to ti_sci_msg
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_msg *msg)
+int ti_sci_transport_send(enum k3_sec_proxy_chan_id id, const struct ti_sci_msg *msg)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
-	union sec_msg_hdr secure_header;
 	int num_words, trail_bytes, i, ret;
 	uintptr_t data_reg;
 
@@ -228,19 +215,13 @@ int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_ms
 	}
 
 	/* Check the message size */
-	if (msg->len + sizeof(secure_header) > spm.desc.max_msg_size) {
+	if (msg->len > spm.desc.max_msg_size) {
 		ERROR("Thread %s message length %lu > max msg size\n",
 		      spt->name, msg->len);
 		return -EINVAL;
 	}
 
-	/* TODO: Calculate checksum */
-	secure_header.checksum = 0;
-
-	/* Send the secure header */
 	data_reg = spm.desc.data_start_offset;
-	mmio_write_32(spt->data + data_reg, secure_header.data);
-	data_reg += sizeof(uint32_t);
 
 	/* Send whole words */
 	num_words = msg->len / sizeof(uint32_t);
@@ -281,16 +262,15 @@ int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_ms
 }
 
 /**
- * k3_sec_proxy_recv() - Receive data from a Secure Proxy thread
+ * ti_sci_transport_recv() - Receive data from a Secure Proxy thread
  * @id: Channel Identifier
- * @msg: Pointer to k3_sec_proxy_msg
+ * @msg: Pointer to ti_sci_msg
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg)
+int ti_sci_transport_recv(enum k3_sec_proxy_chan_id id, struct ti_sci_msg *msg)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
-	union sec_msg_hdr secure_header;
 	uintptr_t data_reg;
 	int num_words, trail_bytes, i, ret;
 
@@ -300,9 +280,7 @@ int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg
 		return ret;
 	}
 
-	/* Read secure header */
 	data_reg = spm.desc.data_start_offset;
-	secure_header.data = mmio_read_32(spt->data + data_reg);
 	data_reg += sizeof(uint32_t);
 
 	/* Read whole words */
@@ -332,10 +310,15 @@ int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg
 	if (data_reg <= spm.desc.data_end_offset)
 		mmio_read_32(spt->data + spm.desc.data_end_offset);
 
-	/* TODO: Verify checksum */
-	(void)secure_header.checksum;
-
 	VERBOSE("Message successfully received from thread %s\n", spt->name);
 
 	return 0;
+}
+
+/*
+ * Boot notification is consumed by k3_system_controller.c in U-boot
+ * on platforms that use sec proxy
+ */
+void ti_sci_boot_notification(void)
+{
 }

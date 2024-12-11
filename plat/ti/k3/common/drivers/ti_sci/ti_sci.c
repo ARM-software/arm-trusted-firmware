@@ -16,7 +16,7 @@
 #include <lib/bakery_lock.h>
 
 #include <common/debug.h>
-#include <sec_proxy.h>
+#include <ti_sci_transport.h>
 
 #include "ti_sci_protocol.h"
 #include "ti_sci.h"
@@ -34,8 +34,8 @@ DEFINE_BAKERY_LOCK(ti_sci_xfer_lock);
  * @rx_message:	Receive message
  */
 struct ti_sci_xfer {
-	struct k3_sec_proxy_msg tx_message;
-	struct k3_sec_proxy_msg rx_message;
+	struct ti_sci_msg tx_message;
+	struct ti_sci_msg rx_message;
 };
 
 /**
@@ -95,7 +95,7 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-static int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
+static int ti_sci_get_response(struct ti_sci_msg *msg,
 			       enum k3_sec_proxy_chan_id chan)
 {
 	struct ti_sci_msg_hdr *hdr;
@@ -104,7 +104,7 @@ static int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
 
 	for (; retry > 0; retry--) {
 		/* Receive the response */
-		ret = k3_sec_proxy_recv(chan, msg);
+		ret = ti_sci_transport_recv(chan, msg);
 		if (ret) {
 			ERROR("Message receive failed (%d)\n", ret);
 			return ret;
@@ -145,21 +145,32 @@ static int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
  */
 static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 {
-	struct k3_sec_proxy_msg *tx_msg = &xfer->tx_message;
-	struct k3_sec_proxy_msg *rx_msg = &xfer->rx_message;
+	struct ti_sci_msg *tx_msg = &xfer->tx_message;
+	struct ti_sci_msg *rx_msg = &xfer->rx_message;
 	int ret;
+	uint8_t secure_buf[TI_SCI_MAX_MESSAGE_SIZE];
+	struct ti_sci_secure_msg_hdr *secure_hdr = (struct ti_sci_secure_msg_hdr *)secure_buf;
+
+	/* ToDo: get checksum of the entire message */
+	secure_hdr->checksum = 0;
+	secure_hdr->reserved = 0;
+
+	memcpy(&secure_buf[sizeof(struct ti_sci_secure_msg_hdr)], xfer->tx_message.buf,
+		xfer->tx_message.len);
+	xfer->tx_message.buf = secure_buf;
+	xfer->tx_message.len += sizeof(struct ti_sci_secure_msg_hdr);
 
 	bakery_lock_get(&ti_sci_xfer_lock);
 
 	/* Clear any spurious messages in receive queue */
-	ret = k3_sec_proxy_clear_rx_thread(SP_RESPONSE);
+	ret = ti_sci_transport_clear_rx_thread(SP_RESPONSE);
 	if (ret) {
 		ERROR("Could not clear response queue (%d)\n", ret);
 		goto unlock;
 	}
 
 	/* Send the message */
-	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, tx_msg);
+	ret = ti_sci_transport_send(SP_HIGH_PRIORITY, tx_msg);
 	if (ret) {
 		ERROR("Message sending failed (%d)\n", ret);
 		goto unlock;
