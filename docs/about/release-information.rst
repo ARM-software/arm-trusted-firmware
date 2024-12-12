@@ -35,7 +35,7 @@ TF-A version is given in Makefile, through several macros:
 
 For example, TF-A v2.10 has VERSION_MAJOR=2, VERSION_MINOR=10 and VERSION_PATCH=0.
 
-This VERSION_PATCH macro is only increased for LTS releases.
+This VERSION_PATCH macro is only increased for :ref:`LTS - Long-Term Support` releases.
 
 Upcoming Releases
 ~~~~~~~~~~~~~~~~~
@@ -101,4 +101,4 @@ after which it will be removed.
 
 --------------
 
-*Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.*

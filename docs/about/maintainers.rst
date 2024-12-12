@@ -56,6 +56,8 @@ Maintainers
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|G|: `Yann-lms`_
 
+.. _lts maintainers:
+
 LTS Maintainers
 ---------------
 
