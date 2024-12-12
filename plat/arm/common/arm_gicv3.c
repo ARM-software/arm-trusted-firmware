@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,7 +79,7 @@ static unsigned int arm_gicv3_mpidr_hash(u_register_t mpidr)
 	return plat_arm_calc_core_pos(mpidr);
 }
 
-static const gicv3_driver_data_t arm_gic_data __unused = {
+gicv3_driver_data_t arm_gic_data __unused = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	.gicr_base = 0U,
 	.interrupt_props = arm_interrupt_props,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -263,6 +263,7 @@ static void fvp_pwr_domain_on_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 static void fvp_pwr_domain_on_finish_late(const psci_power_state_t *target_state)
 {
+	fvp_pcpu_init();
 	/* Program GIC per-cpu distributor or re-distributor interface */
 	plat_arm_gic_pcpu_init();
 
