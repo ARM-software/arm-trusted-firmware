@@ -58,6 +58,8 @@ Maintainers
 :|M|: Govindraj Raja <govindraj.raja@arm.com>
 :|G|: `govindraj-arm`_
 
+.. _lts maintainers:
+
 LTS Maintainers
 ---------------
 
