@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2022 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <plat/common/platform.h>
 #include <services/drtm_svc.h>
@@ -22,6 +23,20 @@
 static uint8_t drtm_address_map[DRTM_ADDRESS_MAP_SIZE];
 
 static uint64_t drtm_address_map_size;
+
+static int compare_regions(const void *a, const void *b)
+{
+	const drtm_mem_region_t *region_a = (const drtm_mem_region_t *)a;
+	const drtm_mem_region_t *region_b = (const drtm_mem_region_t *)b;
+
+	if (region_a->region_address < region_b->region_address) {
+		return -1;
+	} else if (region_a->region_address > region_b->region_address) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
 
 drtm_memory_region_descriptor_table_t *drtm_build_address_map(void)
 {
@@ -74,6 +89,9 @@ drtm_memory_region_descriptor_table_t *drtm_build_address_map(void)
 	}
 
 	map->num_regions = i;
+
+	qsort(map->region, map->num_regions, sizeof(drtm_mem_region_t),
+	     compare_regions);
 
 	/* Store total size of address map. */
 	drtm_address_map_size = sizeof(drtm_memory_region_descriptor_table_t);
