@@ -1273,6 +1273,9 @@ subsections:
       - title: AArch64
         scope: aarch64
 
+      - title: AArch32
+        scope: aarch32
+
       - title: Debug
         scope: debug
 
