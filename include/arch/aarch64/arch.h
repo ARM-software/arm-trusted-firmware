@@ -465,6 +465,11 @@
 #define ID_AA64PFR2_EL1_MTEFAR_SHIFT		U(8)
 #define ID_AA64PFR2_EL1_MTEFAR_MASK		ULL(0xf)
 
+#define ID_AA64PFR2_EL1_FPMR_SHIFT		U(32)
+#define ID_AA64PFR2_EL1_FPMR_MASK		ULL(0xf)
+
+#define FPMR_IMPLEMENTED			ULL(0x1)
+
 #define VDISR_EL2				S3_4_C12_C1_1
 #define VSESR_EL2				S3_4_C5_C2_3
 
@@ -605,6 +610,7 @@
 #define SCR_NSE_SHIFT		U(62)
 #define SCR_FGTEN2_BIT		(UL(1) << 59)
 #define SCR_NSE_BIT		(ULL(1) << SCR_NSE_SHIFT)
+#define SCR_EnFPM_BIT		(ULL(1) << 50)
 #define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_D128En_BIT		(UL(1) << 47)
 #define SCR_TWEDEL_SHIFT	U(30)
@@ -1521,6 +1527,11 @@
  * Definitions for DynamicIQ Shared Unit registers
  ******************************************************************************/
 #define CLUSTERPWRDN_EL1	S3_0_c15_c3_6
+
+/*******************************************************************************
+ * FEAT_FPMR - Floating point Mode Register
+ ******************************************************************************/
+#define FPMR			S3_3_C4_C4_2
 
 /* CLUSTERPWRDN_EL1 register definitions */
 #define DSU_CLUSTER_PWR_OFF	0
