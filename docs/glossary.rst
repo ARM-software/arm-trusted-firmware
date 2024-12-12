@@ -121,6 +121,9 @@ You can find additional definitions in the `Arm Glossary`_.
       Memory Tagging Extension. An optional Armv8.5 extension that enables
       hardware-assisted memory tagging.
 
+   LTS
+      Long-Term Support
+
    OEN
       Owning Entity Number
 
