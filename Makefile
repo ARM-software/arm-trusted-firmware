@@ -1638,6 +1638,21 @@ endif #(NEED_BL2U)
 # Expand build macros for the different images
 ifeq (${NEED_FDT},yes)
     $(eval $(call MAKE_DTBS,$(BUILD_PLAT)/fdts,$(FDT_SOURCES)))
+
+    ifneq (${INITRD_SIZE}${INITRD_PATH},)
+        ifndef INITRD_BASE
+            $(error INITRD_BASE must be set when inserting initrd properties to the DTB.)
+        endif
+
+        INITRD_SIZE ?= $(shell printf "0x%x\n" $$(stat -Lc %s $(INITRD_PATH)))
+        initrd_end = $(shell printf "0x%x\n" $$(expr $$(($(INITRD_BASE) + $(INITRD_SIZE)))))
+
+        define $(HW_CONFIG)-after +=
+            $(s)echo "  INITRD  $(HW_CONFIG)"
+            $(q)fdtput -t x $@ /chosen linux,initrd-start $(INITRD_BASE)
+            $(q)fdtput -t x $@ /chosen linux,initrd-end $(initrd_end)
+        endef
+    endif
 endif #(NEED_FDT)
 
 # Add Secure Partition packages
