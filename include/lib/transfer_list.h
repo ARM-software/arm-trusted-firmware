@@ -110,6 +110,7 @@ struct __attribute__((packed)) transfer_list_entry {
 
 CASSERT(sizeof(struct transfer_list_entry) == U(0x8), assert_transfer_list_entry_size);
 
+void transfer_entry_dump(struct transfer_list_entry *te);
 void transfer_list_dump(struct transfer_list_header *tl);
 struct transfer_list_header *transfer_list_ensure(void *addr, size_t size);
 entry_point_info_t *
