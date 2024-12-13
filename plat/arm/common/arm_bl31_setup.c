@@ -394,6 +394,16 @@ void arm_bl31_platform_setup(void)
 	te = transfer_list_add(ns_tl, TL_TAG_FDT, te->data_size,
 			       transfer_list_entry_data(te));
 	assert(te != NULL);
+
+	te = transfer_list_find(secure_tl, TL_TAG_TPM_EVLOG);
+	if (te != NULL) {
+		te = transfer_list_add(ns_tl, TL_TAG_TPM_EVLOG, te->data_size,
+				  transfer_list_entry_data(te));
+		if (te == NULL) {
+			ERROR("Failed to load event log in Non-Secure transfer list\n");
+			panic();
+		}
+	}
 #endif /* TRANSFER_LIST && !RESET_TO_BL31 */
 
 #if RESET_TO_BL31
