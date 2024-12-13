@@ -13,6 +13,9 @@
 #define MHU_TX_ADDR			46040000 /* hex */
 #define MHU_RX_ADDR			46140000 /* hex */
 
+#define RSE_MHU_TX_ADDR			49010000 /* hex */
+#define RSE_MHU_RX_ADDR			49110000 /* hex */
+
 #define LIT_CPU_PMU_COMPATIBLE		"arm,cortex-a520-pmu"
 #define MID_CPU_PMU_COMPATIBLE		"arm,cortex-a725-pmu"
 #define BIG_CPU_PMU_COMPATIBLE		"arm,cortex-x925-pmu"

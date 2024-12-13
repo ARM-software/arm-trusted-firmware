@@ -52,6 +52,31 @@
 		};
 	};
 
+	rse_mbox_db_rx: mhu@RSE_MHU_RX_ADDR {
+		compatible = MHU_RX_COMPAT;
+		reg = <0x0 ADDRESSIFY(RSE_MHU_RX_ADDR) 0x0 MHU_OFFSET>;
+		clocks = <&soc_refclk>;
+		clock-names = "apb_pclk";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupts = <GIC_SPI 313 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupt-names = MHU_RX_INT_NAME;
+#if TARGET_FLAVOUR_FPGA
+		status = "disabled";
+#endif
+	};
+
+	rse_mbox_db_tx: mhu@RSE_MHU_TX_ADDR {
+		compatible = MHU_TX_COMPAT;
+		reg = <0x0 ADDRESSIFY(RSE_MHU_TX_ADDR) 0x0 MHU_OFFSET>;
+		clocks = <&soc_refclk>;
+		clock-names = "apb_pclk";
+		#mbox-cells = <MHU_MBOX_CELLS>;
+		interrupt-names = MHU_TX_INT_NAME;
+#if TARGET_FLAVOUR_FPGA
+		status = "disabled";
+#endif
+	};
+
 	gic: interrupt-controller@GIC_CTRL_ADDR {
 		ppi-partitions {
 			ppi_partition_little: interrupt-partition-0 {
@@ -79,6 +104,15 @@
 		scmi {
 			mboxes = <&mbox_db_tx 0 0 0 &mbox_db_rx 0 0 0 &mbox_db_rx 0 0 1>;
 			shmem = <&cpu_scp_scmi_a2p &cpu_scp_scmi_p2a>;
+		};
+
+		rse {
+			compatible = "arm,rse";
+			mbox-names = "tx", "rx";
+			mboxes = <&rse_mbox_db_tx 0 0 0>, <&rse_mbox_db_rx 0 0 0>;
+#if TARGET_FLAVOUR_FPGA
+			status = "disabled";
+#endif
 		};
 	};
 
