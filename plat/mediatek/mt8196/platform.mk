@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, MediaTek Inc. All rights reserved.
+# Copyright (c) 2025, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -33,6 +33,7 @@ MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-y += $(MTK_PLAT)/drivers/vcp
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/topology
+MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
 
 ifneq ($(MTKLIB_PATH),)
 LDFLAGS += -L $(dir $(MTKLIB_PATH))

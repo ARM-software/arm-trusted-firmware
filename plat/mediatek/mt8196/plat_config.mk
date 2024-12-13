@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, MediaTek Inc. All rights reserved.
+# Copyright (c) 2025, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -47,6 +47,12 @@ CONFIG_MTK_SUPPORT_SYSTEM_SUSPEND := y
 CONFIG_MTK_TINYSYS_VCP := y
 CPU_PM_TINYSYS_SUPPORT := y
 MTK_PUBEVENT_ENABLE := y
+CONFIG_MTK_PMIC := y
+CONFIG_MTK_PMIC_LOWPOWER := y
+CONFIG_MTK_PMIC_SHUTDOWN_CFG := y
+CONFIG_MTK_PMIC_SPT_SUPPORT := n
+
+PMIC_CHIP := mt6363
 
 ENABLE_FEAT_AMU := 1
 ENABLE_FEAT_ECV := 1
