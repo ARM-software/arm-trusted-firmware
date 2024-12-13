@@ -715,6 +715,10 @@ uint64_t spmd_smc_switch_state(uint32_t smc_fid,
 	cm_set_next_eret_context(secure_state_out);
 
 	ctx_out = cm_get_context(secure_state_out);
+	if (smc_fid == FFA_NORMAL_WORLD_RESUME) {
+		SMC_RET0(ctx_out);
+	}
+
 #if SPMD_SPM_AT_SEL2
 	/*
 	 * If SPMC is at SEL2, save additional registers x8-x17, which may
