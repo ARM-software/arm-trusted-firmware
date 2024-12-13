@@ -48,7 +48,10 @@ class TransferEntry:
 
     @property
     def sum_of_bytes(self) -> int:
-        return (sum(self.header_to_bytes()) + sum(self.data)) % 256
+        return sum(self.to_bytes()) % 256
+
+    def to_bytes(self) -> bytes:
+        return self.header_to_bytes() + self.data
 
     def header_to_bytes(self) -> bytes:
         return self.id.to_bytes(3, "little") + struct.pack(

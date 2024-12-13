@@ -9,6 +9,7 @@
 """Contains unit tests for the types TransferEntry and TransferList."""
 
 import math
+from random import randint
 
 import pytest
 
@@ -49,15 +50,39 @@ def test_make_transfer_list(size, csum):
         assert tl.checksum == csum
 
 
-@pytest.mark.parametrize(("tag_id", "data"), test_entries)
-def test_add_transfer_entry(tag_id, data):
+def test_add_transfer_entry(random_entries):
     tl = TransferList(0x1000)
-    te = TransferEntry(tag_id, len(data), data)
 
-    tl.add_transfer_entry(tag_id, data)
-
+    # Add a single entry and check it's in the list of entries
+    te = tl.add_transfer_entry(1, bytes(100))
     assert te in tl.entries
-    assert tl.size == TransferList.hdr_size + te.size
+    assert tl.size % 8 == 0
+
+    # Add a range of tag id's
+    for id, data in random_entries(50, 1):
+        te = tl.add_transfer_entry(id, data)
+        assert te in tl.entries
+        assert tl.size % 8 == 0
+
+
+@pytest.mark.parametrize("align", [4, 6, 12, 13])
+def test_add_transfer_entry_with_align(align, random_entries, random_entry):
+    tl = TransferList(0xF00000)
+    id, data = random_entry(4)
+
+    tl.add_transfer_entry(id, data)
+
+    # Add an entry with a larger alignment requirement
+    _, data = random_entry(4)
+    te = tl.add_transfer_entry(1, data, data_align=align)
+    assert (te.offset + te.hdr_size) % (1 << align) == 0
+    assert tl.alignment == align
+
+    # Add some more entries and ensure the alignment is preserved
+    for id, data in random_entries(5, 0x200):
+        te = tl.add_transfer_entry(id, data, data_align=align)
+        assert (te.offset + te.hdr_size) % (1 << align) == 0
+        assert tl.alignment == align
 
 
 @pytest.mark.parametrize(
@@ -88,12 +113,19 @@ def test_calculate_te_sum_of_bytes(tag_id, data):
     assert te.sum_of_bytes == csum
 
 
-@pytest.mark.parametrize(("tag_id", "data"), test_entries)
-def test_calculate_tl_checksum(tag_id, data):
+def test_calc_tl_checksum(tmpdir, random_entries):
+    tl_file = tmpdir.join("tl.bin")
+
     tl = TransferList(0x1000)
 
-    tl.add_transfer_entry(tag_id, data)
-    assert tl.sum_of_bytes() == 0
+    for id, data in random_entries(10):
+        tl.add_transfer_entry(id, data)
+
+    assert sum(tl.to_bytes()) % 256 == 0
+
+    # Write the transfer list to a file and check that the sum of bytes is 0
+    tl.write_to_file(tl_file)
+    assert sum(tl_file.read_binary()) % 256 == 0
 
 
 def test_empty_transfer_list_blob(tmpdir):
@@ -125,27 +157,43 @@ def test_single_te_transfer_list(tag_id, data, tmpdir):
         assert f.read(te.data_size) == te.data
 
 
-def test_multiple_te_transfer_list(tmpdir):
+def test_write_multiple_tes_to_file(tmpdir, random_entries, random_entry):
     """Check that we can create a TL with multiple TE's."""
     test_file = tmpdir.join("test_tl_blob.bin")
-    tl = TransferList(0x1000)
+    tl = TransferList(0x4000)
+    _test_entries = list(random_entries())
 
-    for tag_id, data in test_entries:
+    for tag_id, data in _test_entries:
         tl.add_transfer_entry(tag_id, data)
+
+    # Add a few entries with special alignment requirements
+    blob_id, blob = random_entry(0x200)
+    tl.add_transfer_entry(blob_id, blob, data_align=12)
 
     tl.write_to_file(test_file)
 
     with open(test_file, "rb") as f:
         assert f.read(tl.hdr_size) == tl.header_to_bytes()
         # Ensure that TE's have the correct alignment
-        for tag_id, data in test_entries:
-            f.seek(int(math.ceil(f.tell() / 2**tl.alignment) * 2**tl.alignment))
-            print(f.tell())
+        for tag_id, data in _test_entries:
+            f.seek(int(math.ceil(f.tell() / 8) * 8))
+
             assert int.from_bytes(f.read(3), "little") == tag_id
             assert int.from_bytes(f.read(1), "little") == TransferEntry.hdr_size
             # Make sure the data in the TE matches the data in the original case
             data_size = int.from_bytes(f.read(4), "little")
             assert f.read(data_size) == data
+
+        f.seek(int(math.ceil(f.tell() / (1 << 12)) * (1 << 12)) - 8)
+        assert int.from_bytes(f.read(3), "little") == blob_id
+        assert int.from_bytes(f.read(1), "little") == TransferEntry.hdr_size
+        # Make sure the data in the TE matches the data in the original case
+        data_size = int.from_bytes(f.read(4), "little")
+        assert f.read(data_size) == blob
+
+        # padding is added to align TE's, make sure padding is added to the size of
+        # the TL by checking we don't overflow.
+        assert f.tell() <= tl.size
 
 
 def test_read_empty_transfer_list_from_file(tmpdir):
@@ -196,19 +244,17 @@ def test_read_multiple_transfer_list_from_file(tmpdir):
     assert tl.sum_of_bytes() == 0
 
 
-@pytest.mark.parametrize("tag", [tag for tag, _ in test_entries])
-def test_remove_tag_from_file(tag):
-    tl = TransferList(0x1000)
+def test_remove_tag(random_entry):
+    """Adds a transfer entry and remove it, size == transfer list header."""
+    tl = TransferList(0x100)
+    id, data = random_entry(tl.total_size // 2)
 
-    for tag_id, data in test_entries:
-        tl.add_transfer_entry(tag_id, data)
+    te = tl.add_transfer_entry(id, data)
+    assert te in tl.entries
 
-    removed_entries = list(filter(lambda te: te.id == tag, tl.entries))
-    original_size = tl.size
-    tl.remove_tag(tag)
-
-    assert not any(tag == te.id for te in tl.entries)
-    assert tl.size == original_size - sum(map(lambda te: te.size, removed_entries))
+    tl.remove_tag(id)
+    assert not tl.get_entry(id) and te not in tl.entries
+    assert tl.size == tl.hdr_size
 
 
 def test_get_fdt_offset(tmpdir):

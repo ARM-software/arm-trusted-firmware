@@ -27,6 +27,14 @@ def cli():
 @cli.command()
 @click.argument("filename", type=click.Path(dir_okay=False))
 @click.option(
+    "-a",
+    "--align",
+    type=int,
+    default=3,
+    show_default=True,
+    help="Set alignment in powers of 2 (e.g., -a 3 for 8 byte alignment).",
+)
+@click.option(
     "-s", "--size", default=0x1000, type=int, help="Maximum size of the Transfer List"
 )
 @click.option(
@@ -51,7 +59,7 @@ def cli():
     type=click.Path(exists=True),
     help="Create the transfer list from a YAML config file.",
 )
-def create(filename, size, fdt, entry, flags, from_yaml):
+def create(filename, align, size, fdt, entry, flags, from_yaml):
     """Create a new Transfer List."""
     try:
         if from_yaml:
@@ -60,12 +68,12 @@ def create(filename, size, fdt, entry, flags, from_yaml):
 
             tl = TransferList.from_dict(config)
         else:
-            tl = TransferList(size)
+            tl = TransferList(size, flags=flags, alignment=align)
 
             entry = (*entry, (1, fdt)) if fdt else entry
 
             for id, path in entry:
-                tl.add_transfer_entry_from_file(id, path)
+                tl.add_transfer_entry_from_file(id, path, data_align=align)
     except MemoryError as mem_excp:
         raise MemoryError(
             "TL max size exceeded, consider increasing with the option -s"
@@ -133,19 +141,24 @@ def remove(filename, tags):
 
 
 @cli.command()
-@click.argument("filename", type=click.Path(exists=True, dir_okay=False))
+@click.option(
+    "-a",
+    "--align",
+    type=int,
+    help="Set alignment in powers of 2 (e.g., -a 3 for 8 byte alignment).",
+)
 @click.option(
     "--entry",
     type=(int, click.Path(exists=True)),
     multiple=True,
     help="A tag ID and the corresponding path to a binary blob in the form <id> <path-to-blob>.",
 )
-def add(filename, entry):
+@click.argument("filename", type=click.Path(exists=True, dir_okay=False))
+def add(align, entry, filename):
     """Update an existing Transfer List with given images."""
     tl = TransferList.fromfile(filename)
-
     for id, path in entry:
-        tl.add_transfer_entry_from_file(id, path)
+        tl.add_transfer_entry_from_file(id, path, data_align=align)
 
     tl.write_to_file(filename)
 

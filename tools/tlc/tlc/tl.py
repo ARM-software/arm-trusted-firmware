@@ -83,13 +83,17 @@ class TransferList:
     hdr_size = 0x18
     signature = 0x4A0FB10B
     version = 1
+    granule = 8
 
     def __init__(
-        self, max_size: int = hdr_size, flags: int = TRANSFER_LIST_ENABLE_CHECKSUM
+        self,
+        max_size: int = hdr_size,
+        flags: int = TRANSFER_LIST_ENABLE_CHECKSUM,
+        alignment: int = 3,
     ) -> None:
         assert max_size >= self.hdr_size
         self.checksum: int = 0
-        self.alignment: int = 3
+        self.alignment: int = alignment
         self.size = self.hdr_size
         self.total_size = max_size
         self.flags = flags
@@ -138,16 +142,15 @@ class TransferList:
                     # the 3-byte wide ID as a 4-byte uint, shift out this padding
                     # once we have the id.
                     te_base = f.tell()
-                    (id, hdr_size, data_size) = struct.unpack(
+                    (id, _, data_size) = struct.unpack(
                         TransferEntry.encoding[0] + "I" + TransferEntry.encoding[1:],
                         b"\x00" + f.read(TransferEntry.hdr_size),
                     )
 
                     id >>= 8
-
                     te = tl.add_transfer_entry(id, f.read(data_size))
                     te.offset = te_base
-                    f.seek(align(te_base + hdr_size + data_size, 2**tl.alignment))
+                    f.seek(align(f.tell(), tl.granule))
 
         return tl
 
@@ -163,10 +166,14 @@ class TransferList:
         # get settings from config and set defaults
         max_size = config.get("max_size", 0x1000)
         has_checksum = config.get("has_checksum", True)
+        align = config.get("alignment", None)
 
         flags = TRANSFER_LIST_ENABLE_CHECKSUM if has_checksum else 0
 
-        tl = cls(max_size, flags)
+        if align:
+            tl = cls(max_size, flags, alignment=align)
+        else:
+            tl = cls(max_size, flags)
 
         for entry in config["entries"]:
             tl.add_transfer_entry_from_dict(entry)
@@ -189,13 +196,15 @@ class TransferList:
 
     def update_checksum(self) -> None:
         """Calculates the checksum based on the sum of bytes."""
-        self.checksum = 256 - ((self.sum_of_bytes() - self.checksum) % 256)
+        self.checksum = (256 - (self.sum_of_bytes() - self.checksum)) % 256
+        assert self.checksum <= 0xFF
+
+    def to_bytes(self) -> bytes:
+        return self.header_to_bytes() + b"".join([te.to_bytes() for te in self.entries])
 
     def sum_of_bytes(self) -> int:
         """Sum of all bytes between the base address and the end of that last TE (modulo 0xff)."""
-        return (
-            sum(self.header_to_bytes()) + sum(te.sum_of_bytes for te in self.entries)
-        ) % 256
+        return (sum(self.to_bytes())) % 256
 
     def get_entry(self, tag_id: int) -> Optional[TransferEntry]:
         for te in self.entries:
@@ -213,18 +222,35 @@ class TransferList:
 
         return te.offset + te.hdr_size
 
-    def add_transfer_entry(self, tag_id: int, data: bytes) -> TransferEntry:
+    def add_transfer_entry(
+        self, tag_id: int, data: bytes, data_align: int = 0
+    ) -> TransferEntry:
         """Appends a TransferEntry into the internal list of TE's."""
+        data_offset = TransferEntry.hdr_size + self.size
+        data_align = self.alignment if not data_align else data_align
+
+        aligned_data_offset = align(data_offset, 1 << data_align)
+
+        if tag_id != 0 and data_offset != aligned_data_offset:
+            void_len = aligned_data_offset - data_offset - TransferEntry.hdr_size
+            self.add_transfer_entry(0, bytes(void_len))
+
+        assert align(self.size, self.granule)
+
         if not (self.total_size >= self.size + TransferEntry.hdr_size + len(data)):
             raise MemoryError(
                 f"TL size has exceeded the maximum allocation {self.total_size}."
             )
-        else:
-            te = TransferEntry(tag_id, len(data), data)
-            self.entries.append(te)
-            self.size += te.size
-            self.update_checksum()
-            return te
+
+        te = TransferEntry(tag_id, len(data), data, offset=self.size)
+        self.entries.append(te)
+
+        self.size += align(te.size, self.granule)
+        if data_align > self.alignment:
+            self.alignment = data_align
+
+        self.update_checksum()
+        return te
 
     def add_transfer_entry_from_struct_format(
         self, tag_id: int, struct_format: str, *args: Any
@@ -305,32 +331,40 @@ class TransferList:
         tag_id = entry["tag_id"]
         if tag_id in tag_name_to_tag_id:
             tag_id = tag_name_to_tag_id[tag_id]
-        te_format = transfer_entry_formats[tag_id]
-        tag_name = te_format["tag_name"]
+
+        align = entry.get("alignment", None)
 
         if "blob_file_path" in entry:
-            return self.add_transfer_entry_from_file(tag_id, entry["blob_file_path"])
-        elif tag_name == "tpm_event_log_table":
-            with open(entry["event_log"], "rb") as f:
-                event_log_data = f.read()
-
-            flags_bytes = entry["flags"].to_bytes(4, "little")
-            data = flags_bytes + event_log_data
-
-            return self.add_transfer_entry(tag_id, data)
-        elif tag_name == "exec_ep_info":
-            return self.add_entry_point_info_transfer_entry(entry)
-        elif "format" in te_format and "fields" in te_format:
-            fields = [entry[field] for field in te_format["fields"]]
-            return self.add_transfer_entry_from_struct_format(
-                tag_id, te_format["format"], *fields
+            return self.add_transfer_entry_from_file(
+                tag_id, entry["blob_file_path"], data_align=align
             )
         else:
-            raise ValueError(f"Invalid transfer entry {entry}.")
+            te_format = transfer_entry_formats[tag_id]
+            tag_name = te_format["tag_name"]
 
-    def add_transfer_entry_from_file(self, tag_id: int, path: Path) -> TransferEntry:
+            if tag_name == "tpm_event_log_table":
+                with open(entry["event_log"], "rb") as f:
+                    event_log_data = f.read()
+
+                flags_bytes = entry["flags"].to_bytes(4, "little")
+                data = flags_bytes + event_log_data
+
+                return self.add_transfer_entry(tag_id, data, data_align=align)
+            elif tag_name == "exec_ep_info":
+                return self.add_entry_point_info_transfer_entry(entry)
+            elif "format" in te_format and "fields" in te_format:
+                fields = [entry[field] for field in te_format["fields"]]
+                return self.add_transfer_entry_from_struct_format(
+                    tag_id, te_format["format"], *fields
+                )
+            else:
+                raise ValueError(f"Invalid transfer entry {entry}.")
+
+    def add_transfer_entry_from_file(
+        self, tag_id: int, path: Path, data_align: int = 0
+    ) -> TransferEntry:
         with open(path, "rb") as f:
-            return self.add_transfer_entry(tag_id, f.read())
+            return self.add_transfer_entry(tag_id, f.read(), data_align=data_align)
 
     def write_to_file(self, file: Path) -> None:
         """Write the contents of the TL to a file."""
@@ -338,20 +372,11 @@ class TransferList:
             f.write(self.header_to_bytes())
             for te in self.entries:
                 assert f.tell() + te.hdr_size + te.data_size < self.total_size
-                te_base = f.tell()
+
                 f.write(te.header_to_bytes())
                 f.write(te.data)
-                # Ensure the next TE has the correct alignment
-                f.write(
-                    bytes(
-                        (
-                            align(
-                                te_base + te.hdr_size + te.data_size, 2**self.alignment
-                            )
-                            - f.tell()
-                        )
-                    )
-                )
+                # Ensure the next TE is at an 8-byte aligned address
+                f.write(bytes((align(f.tell(), self.granule) - f.tell())))
 
     def remove_tag(self, tag: int) -> None:
         self.entries = list(filter(lambda te: te.id != tag, self.entries))
