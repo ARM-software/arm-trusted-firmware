@@ -760,10 +760,10 @@ static inline void cpus_pd_req_enter_wfi(void)
 			  "mrs	x0, S3_0_C15_C2_7\n"
 			  "orr	x0, x0, #0x1\n"
 			  "msr	S3_0_C15_C2_7, x0\n"
-			  "wfi_loop:\n"
+			  "1:\n"
 			  "isb\n"
 			  "wfi\n"
-			  "b wfi_loop\n");
+			  "b 1b\n");
 }
 
 static void nonboot_cpus_off(void)

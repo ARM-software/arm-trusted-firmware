@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -865,18 +865,6 @@ static inline void pm_pll_wait_lock(uint32_t pll_base, uint32_t pll_id)
 
 	if (delay == 0)
 		ERROR("Can't wait pll:%d lock\n", pll_id);
-}
-
-static inline void pll_pwr_ctr(uint32_t pll_base, uint32_t pll_id, uint32_t pd)
-{
-	mmio_write_32(pll_base + PLL_CON(1),
-		      BITS_WITH_WMASK(1, 1U, 15));
-	if (pd)
-		mmio_write_32(pll_base + PLL_CON(1),
-			      BITS_WITH_WMASK(1, 1, 14));
-	else
-		mmio_write_32(pll_base + PLL_CON(1),
-			      BITS_WITH_WMASK(0, 1, 14));
 }
 
 static inline void pll_set_mode(uint32_t pll_id, uint32_t mode)

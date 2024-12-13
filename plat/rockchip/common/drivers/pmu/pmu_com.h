@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,8 +32,6 @@ enum pmu_pd_state {
 };
 
 #pragma weak plat_ic_get_pending_interrupt_id
-#pragma weak pmu_power_domain_ctr
-#pragma weak check_cpu_wfie
 
 static inline uint32_t pmu_power_domain_st(uint32_t pd)
 {

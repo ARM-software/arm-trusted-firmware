@@ -5,13 +5,11 @@
 #
 
 include ../../../../../make_helpers/common.mk
+include ../../../../../make_helpers/build_macros.mk
 include ../../../../../make_helpers/toolchain.mk
 
-# Cross Compile
-M0_CROSS_COMPILE ?= arm-none-eabi-
-
 # Build architecture
-ARCH		:= cortex-m0
+ARCH		:= rk3399-m0
 
 # Build platform
 PLAT_M0		?= rk3399m0
@@ -27,10 +25,13 @@ C_SOURCES		:= src/dram.c	\
 C_SOURCES_PMU		:= src/suspend.c
 
 # Flags definition
-COMMON_FLAGS		:= -g -mcpu=$(ARCH) -mthumb -Wall -O3 -nostdlib -mfloat-abi=soft
+COMMON_FLAGS		:= -g -mcpu=cortex-m0 -mthumb -Wall -O3 -nostdlib -mfloat-abi=soft
 CFLAGS			:= -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-common
-ASFLAGS			:= -Wa,--gdwarf-2
-LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105523
+CFLAGS			+= $(call cc_option, --param=min-pagesize=0)
+ASFLAGS			:= -Wa,--gdwarf-2 -Wa,--fatal-warnings
+LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none -Wl,--fatal-warnings -z noexecstack
+LDFLAGS			+= $(call ld_option,-Xlinker --no-warn-rwx-segments)
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
 # end up with a line-feed characer at the end of the last c filename.
@@ -62,7 +63,7 @@ $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 
 $(OBJ) : $(2)
 	$(s)echo "  CC      $$<"
-	$$(q)$(rk3399-m0-cc) $$(COMMON_FLAGS) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
+	$$(q)$($(ARCH)-cc) $$(COMMON_FLAGS) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
 endef
 
 define MAKE_S
@@ -70,7 +71,7 @@ $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 
 $(OBJ) : $(2)
 	$(s)echo "  AS      $$<"
-	$$(q)$(rk3399-m0-cc) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
+	$$(q)$($(ARCH)-as) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
 endef
 
 define MAKE_OBJS
@@ -91,20 +92,20 @@ all: $(BIN) $(BIN_PMU)
 .DEFAULT_GOAL := all
 
 $(LINKERFILE): $(LINKERFILE_SRC)
-	$(rk3399-m0-cc) $(COMMON_FLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
+	$(q)$($(ARCH)-cc) $(COMMON_FLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
 -include $(LINKERFILE).d
 
 $(ELF) : $(OBJS) $(OBJS_COMMON) $(LINKERFILE)
 	$(s)echo "  LD      $@"
-	$(q)$(rk3399-m0-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
+	$(q)$($(ARCH)-ld) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS) $(OBJS_COMMON)
 
 %.bin : %.elf
 	$(s)echo "  BIN     $@"
-	$(q)$(rk3399-m0-oc) -O binary $< $@
+	$(q)$($(ARCH)-oc) -O binary $< $@
 
 $(ELF_PMU) : $(OBJS_COMMON) $(OBJS_PMU) $(LINKERFILE)
 	$(s)echo "  LD      $@"
-	$(q)$(rk3399-m0-cc) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
+	$(q)$($(ARCH)-ld) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE_PMU) -Wl,-T$(LINKERFILE) $(OBJS_PMU) $(OBJS_COMMON)
 
 $(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES_COMMON),$(1)))
 $(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES),$(1)))
