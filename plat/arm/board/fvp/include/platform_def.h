@@ -206,7 +206,7 @@
 #  define PLAT_ARM_MMAP_ENTRIES		12
 #  define MAX_XLAT_TABLES		6
 # else
-#  define PLAT_ARM_MMAP_ENTRIES		11
+#  define PLAT_ARM_MMAP_ENTRIES		12
 #  define MAX_XLAT_TABLES		5
 # endif /* (IMAGE_BL2 && ENABLE_RME) */
 #else
