@@ -1364,8 +1364,8 @@ static void el2_sysregs_context_save_common(el2_sysregs_t *ctx)
 	write_el2_ctx_common(ctx, vpidr_el2, read_vpidr_el2());
 	write_el2_ctx_common(ctx, vtcr_el2, read_vtcr_el2());
 
-	write_el2_ctx_sysreg128(ctx, ttbr0_el2, read_ttbr0_el2());
-	write_el2_ctx_sysreg128(ctx, vttbr_el2, read_vttbr_el2());
+	write_el2_ctx_common_sysreg128(ctx, ttbr0_el2, read_ttbr0_el2());
+	write_el2_ctx_common_sysreg128(ctx, vttbr_el2, read_vttbr_el2());
 }
 
 static void el2_sysregs_context_restore_common(el2_sysregs_t *ctx)
@@ -1691,15 +1691,12 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 	write_el1_ctx_common(ctx, csselr_el1, read_csselr_el1());
 	write_el1_ctx_common(ctx, sp_el1, read_sp_el1());
 	write_el1_ctx_common(ctx, esr_el1, read_esr_el1());
-	write_el1_ctx_common(ctx, ttbr0_el1, read_ttbr0_el1());
-	write_el1_ctx_common(ctx, ttbr1_el1, read_ttbr1_el1());
 	write_el1_ctx_common(ctx, mair_el1, read_mair_el1());
 	write_el1_ctx_common(ctx, amair_el1, read_amair_el1());
 	write_el1_ctx_common(ctx, actlr_el1, read_actlr_el1());
 	write_el1_ctx_common(ctx, tpidr_el1, read_tpidr_el1());
 	write_el1_ctx_common(ctx, tpidr_el0, read_tpidr_el0());
 	write_el1_ctx_common(ctx, tpidrro_el0, read_tpidrro_el0());
-	write_el1_ctx_common(ctx, par_el1, read_par_el1());
 	write_el1_ctx_common(ctx, far_el1, read_far_el1());
 	write_el1_ctx_common(ctx, afsr0_el1, read_afsr0_el1());
 	write_el1_ctx_common(ctx, afsr1_el1, read_afsr1_el1());
@@ -1707,6 +1704,10 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 	write_el1_ctx_common(ctx, vbar_el1, read_vbar_el1());
 	write_el1_ctx_common(ctx, mdccint_el1, read_mdccint_el1());
 	write_el1_ctx_common(ctx, mdscr_el1, read_mdscr_el1());
+
+	write_el1_ctx_common_sysreg128(ctx, par_el1, read_par_el1());
+	write_el1_ctx_common_sysreg128(ctx, ttbr0_el1, read_ttbr0_el1());
+	write_el1_ctx_common_sysreg128(ctx, ttbr1_el1, read_ttbr1_el1());
 
 	if (CTX_INCLUDE_AARCH32_REGS) {
 		/* Save Aarch32 registers */
@@ -1772,8 +1773,8 @@ static void el1_sysregs_context_save(el1_sysregs_t *ctx)
 	}
 
 	if (is_feat_the_supported()) {
-		write_el1_ctx_the(ctx, rcwmask_el1, read_rcwmask_el1());
-		write_el1_ctx_the(ctx, rcwsmask_el1, read_rcwsmask_el1());
+		write_el1_ctx_the_sysreg128(ctx, rcwmask_el1, read_rcwmask_el1());
+		write_el1_ctx_the_sysreg128(ctx, rcwsmask_el1, read_rcwsmask_el1());
 	}
 
 	if (is_feat_sctlr2_supported()) {

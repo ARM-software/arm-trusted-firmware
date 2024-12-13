@@ -194,6 +194,9 @@ typedef struct el1_sysregs {
 #define write_el1_ctx_common(ctx, reg, val)	((((ctx)->common).reg)	\
 							= (uint64_t) (val))
 
+#define write_el1_ctx_common_sysreg128(ctx, reg, val)	((((ctx)->common).reg)	\
+							= (sysreg_t) (val))
+
 #if NS_TIMER_SWITCH
 #define read_el1_ctx_arch_timer(ctx, reg)		(((ctx)->arch_timer).reg)
 #define write_el1_ctx_arch_timer(ctx, reg, val)	((((ctx)->arch_timer).reg)	\
@@ -295,11 +298,11 @@ typedef struct el1_sysregs {
 
 #if ENABLE_FEAT_THE
 #define read_el1_ctx_the(ctx, reg)		(((ctx)->the).reg)
-#define write_el1_ctx_the(ctx, reg, val)	((((ctx)->the).reg)	\
-							= (uint64_t) (val))
+#define write_el1_ctx_the_sysreg128(ctx, reg, val)	((((ctx)->the).reg)	\
+							= (sysreg_t) (val))
 #else
 #define read_el1_ctx_the(ctx, reg)		ULL(0)
-#define write_el1_ctx_the(ctx, reg, val)
+#define write_el1_ctx_the_sysreg128(ctx, reg, val)
 #endif /* ENABLE_FEAT_THE */
 
 #if ENABLE_FEAT_SCTLR2

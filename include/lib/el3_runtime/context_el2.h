@@ -225,7 +225,7 @@ typedef struct el2_sysregs {
 #define write_el2_ctx_common(ctx, reg, val)	((((ctx)->common).reg)	\
 							= (uint64_t) (val))
 
-#define write_el2_ctx_sysreg128(ctx, reg, val)	((((ctx)->common).reg)	\
+#define write_el2_ctx_common_sysreg128(ctx, reg, val)	((((ctx)->common).reg)	\
 							= (sysreg_t) (val))
 
 #if ENABLE_FEAT_MTE2
@@ -268,12 +268,12 @@ typedef struct el2_sysregs {
 #define read_el2_ctx_vhe(ctx, reg)		(((ctx)->vhe).reg)
 #define write_el2_ctx_vhe(ctx, reg, val)	((((ctx)->vhe).reg)	\
 							= (uint64_t) (val))
-
 #define write_el2_ctx_vhe_sysreg128(ctx, reg, val)	((((ctx)->vhe).reg)	\
-								= (sysreg_t) (val))
+							= (sysreg_t) (val))
 #else
 #define read_el2_ctx_vhe(ctx, reg)		ULL(0)
 #define write_el2_ctx_vhe(ctx, reg, val)
+#define write_el2_ctx_vhe_sysreg128(ctx, reg, val)
 #endif /* ENABLE_FEAT_VHE */
 
 #if ENABLE_FEAT_RAS
