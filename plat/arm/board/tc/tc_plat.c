@@ -40,6 +40,7 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	TC_FLASH0_RO,
+	ARM_V2M_MAP_MEM_PROTECT,
 	TC_MAP_DEVICE,
 	TC_MAP_NS_DRAM1,
 #if defined(SPD_spmd)
@@ -65,6 +66,7 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
+	ARM_V2M_MAP_MEM_PROTECT,
 	TC_MAP_DEVICE,
 	PLAT_DTB_DRAM_NS,
 #if SPM_MM
