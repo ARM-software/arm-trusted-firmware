@@ -882,6 +882,10 @@ else
 	CRYPTO_SUPPORT := 0
 endif #($(MEASURED_BOOT)-$(TRUSTED_BOARD_BOOT))
 
+ifneq ($(filter 1 2 3,$(CRYPTO_SUPPORT)),)
+CRYPTO_LIB := $(BUILD_PLAT)/lib/libmbedtls.a
+endif
+
 # SDEI_IN_FCONF is only supported when SDEI_SUPPORT is enabled.
 ifeq ($(SDEI_SUPPORT)-$(SDEI_IN_FCONF),0-1)
         $(error "SDEI_IN_FCONF is only supported when SDEI_SUPPORT is enabled")
@@ -1756,8 +1760,8 @@ else
 	$(q)set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL))
 endif #(UNIX_MK)
 
-$(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libmbedtls.a $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a
-	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
+$(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB)
+	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_SUPPORT=${CRYPTO_SUPPORT} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
 
 memmap: all
 ifdef UNIX_MK
