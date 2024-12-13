@@ -74,11 +74,6 @@
 		status = "okay";
 	};
 
-	dsu-pmu {
-		compatible = "arm,dsu-pmu";
-		cpus = <&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>, <&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>;
-	};
-
 	ni-pmu {
 		compatible = "arm,ni-tower";
 		reg = <0x0 0x4f000000 0x0 0x4000000>;

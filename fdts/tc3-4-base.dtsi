@@ -81,4 +81,9 @@
 			shmem = <&cpu_scp_scmi_a2p &cpu_scp_scmi_p2a>;
 		};
 	};
+
+	dsu-pmu {
+		compatible = "arm,dsu-pmu";
+		cpus = <&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>, <&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>;
+	};
 };
