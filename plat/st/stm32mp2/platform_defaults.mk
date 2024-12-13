@@ -5,3 +5,6 @@
 #
 
 include plat/st/common/platform_defaults.mk
+
+# LTO is enabled on this platform due to memory constraints
+ENABLE_LTO			:= 1
