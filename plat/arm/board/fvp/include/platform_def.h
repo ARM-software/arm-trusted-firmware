@@ -514,7 +514,11 @@ FVP_TRUSTED_SRAM_SIZE == 512
 /* Account for additional measurements of secure partitions and SPM. */
 #define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x800)
 #else
+#if defined(IMAGE_BL1) && TRANSFER_LIST
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x200)
+#else
 #define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
+#endif
 #endif
 
 /*

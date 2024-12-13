@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,7 +19,7 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/common_def.h>
 
-#if defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)
+#if !TRANSFER_LIST && (defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd))
 CASSERT(ARM_EVENT_LOG_DRAM1_SIZE >= PLAT_ARM_EVENT_LOG_MAX_SIZE, \
 	assert_res_eventlog_mem_insufficient);
 #endif /* defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd) */
@@ -61,10 +61,17 @@ void bl2_plat_mboot_init(void)
 {
 	uint8_t *event_log_start;
 	uint8_t *event_log_finish;
-	size_t bl1_event_log_size;
-	size_t event_log_max_size;
-	int rc;
+	size_t bl1_event_log_size __unused;
+	size_t event_log_max_size __unused;
+	int rc __unused;
 
+#if TRANSFER_LIST
+	event_log_start = transfer_list_event_log_extend(
+		secure_tl, PLAT_ARM_EVENT_LOG_MAX_SIZE, &event_log_max_size);
+	event_log_finish = event_log_start + event_log_max_size;
+
+	event_log_base = (uintptr_t)event_log_start;
+#else
 	rc = arm_get_tb_fw_info(&event_log_base, &bl1_event_log_size,
 				&event_log_max_size);
 	if (rc != 0) {
@@ -82,10 +89,11 @@ void bl2_plat_mboot_init(void)
 	 * BL1 and BL2 share the same Event Log buffer and that BL2 will
 	 * append its measurements after BL1's
 	 */
-	event_log_start = (uint8_t *)((uintptr_t)event_log_base +
-				      bl1_event_log_size);
-	event_log_finish = (uint8_t *)((uintptr_t)event_log_base +
-				       event_log_max_size);
+	event_log_start =
+		(uint8_t *)((uintptr_t)event_log_base + bl1_event_log_size);
+	event_log_finish =
+		(uint8_t *)((uintptr_t)event_log_base + event_log_max_size);
+#endif
 
 	event_log_init((uint8_t *)event_log_start, event_log_finish);
 }
@@ -160,7 +168,7 @@ void bl2_plat_mboot_finish(void)
 	int rc;
 
 	/* Event Log address in Non-Secure memory */
-	uintptr_t ns_log_addr;
+	uintptr_t ns_log_addr __unused;
 
 	/* Event Log filled size */
 	size_t event_log_cur_size;
@@ -172,6 +180,15 @@ void bl2_plat_mboot_finish(void)
 
 	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_base);
 
+#if TRANSFER_LIST
+	/*
+	 * Re-size the event log for the next stage and update the size to include
+	 * the entire event log (i.e., not just what this stage has added.)
+	 */
+	event_log_base = (uintptr_t)transfer_list_event_log_finish(
+		secure_tl, (uintptr_t)event_log_base + event_log_cur_size);
+	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_base);
+#else
 #if defined(SPD_tspd) || defined(SPD_opteed) || defined(SPD_spmd)
 	/* Copy Event Log to TZC secured DRAM memory */
 	(void)memcpy((void *)ARM_EVENT_LOG_DRAM1_BASE,
@@ -217,6 +234,7 @@ void bl2_plat_mboot_finish(void)
 		panic();
 	}
 #endif /* defined(SPD_tspd) || defined(SPD_spmd) */
+#endif /* TRANSFER_LIST */
 
 	event_log_dump((uint8_t *)event_log_base, event_log_cur_size);
 }
