@@ -25,10 +25,10 @@
 #include <psa/crypto_types.h>
 #include <psa/crypto_values.h>
 #endif /* PLATFORM_TEST_TFM_TESTSUITE */
+#include <psa/error.h>
 
 #include <drivers/arm/rse_comms.h>
 #include <plat/common/platform.h>
-#include "rse_platform_api.h"
 
 #ifdef PLATFORM_TEST_TFM_TESTSUITE
 /*
