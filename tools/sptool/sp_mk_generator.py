@@ -227,11 +227,12 @@ def generate_tl_pkg(sp_node, pkg, sp_img, sp_dtb, hob_path = None):
     TE_SP_BINARY = 0x103
     # TE Type for the HOB List.
     TE_HOB_LIST = 0x3
-    tlc_add_hob = f"\t$(Q)poetry run tlc add --entry {TE_HOB_LIST} {hob_path} {pkg}" if hob_path is not None else ""
+    tlc_add_hob = f"\t$(Q)$(TLCTOOL) add --entry {TE_HOB_LIST} {hob_path} {pkg}" if hob_path is not None else ""
     return f'''
 {pkg}: {sp_dtb} {sp_img}
 \t$(Q)echo Generating {pkg}
 \t$(Q)$(TLCTOOL) create --size {get_size(sp_node)} --entry {TE_FFA_MANIFEST} {sp_dtb} {pkg} --align 12
+{tlc_add_hob}
 \t$(Q)$(TLCTOOL) add --entry {TE_SP_BINARY} {sp_img} {pkg}
 '''
 
@@ -255,7 +256,10 @@ def gen_partition_pkg(sp_layout, sp, args :dict):
     if package_type == "sp_pkg":
         partition_pkg_rule = generate_sp_pkg(sp_layout[sp], pkg, sp_img, sp_dtb)
     elif package_type == "tl_pkg":
-        partition_pkg_rule = generate_tl_pkg(sp_layout[sp], pkg, sp_img, sp_dtb)
+        # Conditionally provide the Hob.
+        hob_path = sp_layout[sp]["hob_path"] if "hob_path" in sp_layout[sp] else None
+        partition_pkg_rule = generate_tl_pkg(
+                sp_layout[sp], pkg, sp_img, sp_dtb, hob_path)
     else:
         raise ValueError(f"Specified invalid pkg type {package_type}")
 
