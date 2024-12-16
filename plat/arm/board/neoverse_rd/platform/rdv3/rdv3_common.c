@@ -44,6 +44,23 @@ size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared)
 	return (size_t)RMM_SHARED_SIZE;
 }
 
+/*
+ * Calculate checksum of 64-bit words @buffer with @size length
+ */
+static uint64_t checksum_calc(uint64_t *buffer, size_t size)
+{
+	uint64_t sum = 0UL;
+
+	assert(((uintptr_t)buffer & (sizeof(uint64_t) - 1UL)) == 0UL);
+	assert((size & (sizeof(uint64_t) - 1UL)) == 0UL);
+
+	for (unsigned long i = 0UL; i < (size / sizeof(uint64_t)); i++) {
+		sum += buffer[i];
+	}
+
+	return sum;
+}
+
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
 	uint64_t checksum, num_banks, num_consoles;
@@ -138,8 +155,8 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	bank_ptr[1].size = ARM_DRAM2_SIZE;
 
 	/* Update checksum */
-	checksum += bank_ptr[0].base + bank_ptr[0].size + bank_ptr[1].base +
-		bank_ptr[1].size;
+	checksum += checksum_calc((uint64_t *)bank_ptr,
+		sizeof(struct ns_dram_bank) * num_banks);
 
 	/* Checksum must be 0 */
 	manifest->plat_dram.checksum = ~checksum + 1UL;
@@ -148,20 +165,20 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	checksum = num_consoles + (uint64_t)console_ptr;
 
 	/* Zero out the console info struct */
-	memset((void *)console_ptr, '\0',
+	(void)memset((void *)console_ptr, '\0',
 		sizeof(struct console_info) * num_consoles);
 
-	console_ptr[0].map_pages = 1;
+	console_ptr[0].map_pages = 1UL;
 	console_ptr[0].base = NRD_CSS_RMM_CONSOLE_BASE;
 	console_ptr[0].clk_in_hz = NRD_CSS_RMM_CONSOLE_CLK_IN_HZ;
 	console_ptr[0].baud_rate = NRD_CSS_RMM_CONSOLE_BAUD;
 
-	strlcpy(console_ptr[0].name, NRD_CSS_RMM_CONSOLE_NAME,
+	(void)strlcpy(console_ptr[0].name, NRD_CSS_RMM_CONSOLE_NAME,
 		sizeof(console_ptr[0].name));
 
 	/* Update checksum */
-	checksum += console_ptr[0].base + console_ptr[0].map_pages +
-		console_ptr[0].clk_in_hz + console_ptr[0].baud_rate;
+	checksum += checksum_calc((uint64_t *)console_ptr,
+		sizeof(struct console_info) * num_consoles);
 
 	/* Checksum must be 0 */
 	manifest->plat_console.checksum = ~checksum + 1UL;
