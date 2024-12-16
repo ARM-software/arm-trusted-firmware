@@ -26,7 +26,9 @@
 
 /* Global options */
 
+#if LOG_LEVEL >= LOG_LEVEL_NOTICE
 static const char build_msg[] = "Built : " __TIME__ ", " __DATE__;
+#endif
 
 static char *key_algs_str[] = {
 	[KEY_ALG_GCM] = "gcm",
