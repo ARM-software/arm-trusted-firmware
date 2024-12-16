@@ -63,6 +63,7 @@ enum transfer_list_tag_id {
 	TL_TAG_SRAM_LAYOUT64 = 0x104,
 	TL_TAG_MBEDTLS_HEAP_INFO = 0x105,
 	TL_TAG_EXEC_EP_INFO32 = 0x106,
+	TL_TAG_SRAM_LAYOUT32 = 0x107,
 };
 
 enum transfer_list_ops {
