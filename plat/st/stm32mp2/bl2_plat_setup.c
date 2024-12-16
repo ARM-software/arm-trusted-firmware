@@ -385,6 +385,11 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		break;
 
 	case BL33_IMAGE_ID:
+#if PSA_FWU_SUPPORT
+		stm32_fwu_set_boot_idx();
+#endif /* PSA_FWU_SUPPORT */
+		break;
+
 	default:
 		/* Do nothing in default case */
 		break;
