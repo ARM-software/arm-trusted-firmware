@@ -78,7 +78,7 @@ void arm_bl2_early_platform_setup(u_register_t arg0, u_register_t arg1,
 #if TRANSFER_LIST
 	secure_tl = (struct transfer_list_header *)arg3;
 
-	te = transfer_list_find(secure_tl, TL_TAG_SRAM_LAYOUT64);
+	te = transfer_list_find(secure_tl, TL_TAG_SRAM_LAYOUT);
 	assert(te != NULL);
 
 	bl2_tzram_layout = *(meminfo_t *)transfer_list_entry_data(te);
