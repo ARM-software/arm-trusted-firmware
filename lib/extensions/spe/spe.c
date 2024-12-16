@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,10 +42,10 @@ void spe_disable(cpu_context_t *ctx)
 	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);
 
 	/*
-	 * MDCR_EL3.NSPB: Clear these bits to disable SPE feature, as it was enabled
-	 * for Non-secure state only. After clearing these bits Secure state owns
+	 * MDCR_EL3.NSPB: set to 0x2. After, Non-Secure state owns
 	 * the Profiling Buffer and accesses to Statistical Profiling and Profiling
-	 * Buffer control registers at EL2 and EL1 generate Trap exceptions to EL3
+	 * Buffer control registers at EL2 and EL1 generate Trap exceptions to EL3.
+	 * Profiling is disabled in Secure and Realm states.
 	 *
 	 * MDCR_EL3.NSPBE: Don't care as it was cleared during spe_enable and setting
 	 * this to 1 does not make sense as NSPBE{1} and NSPB{0b0x} is RESERVED.
@@ -54,6 +54,7 @@ void spe_disable(cpu_context_t *ctx)
 	 * from EL2/EL1 to EL3.
 	 */
 	mdcr_el3_val &= ~(MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_EnPMSN_BIT);
+	mdcr_el3_val |= MDCR_NSPB(MDCR_NSPB_EL3);
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 
