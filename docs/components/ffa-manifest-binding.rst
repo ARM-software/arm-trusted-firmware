@@ -1,11 +1,14 @@
-FF-A manifest binding to device tree
-====================================
+FF-A manifests binding to device tree
+=====================================
 
 This document defines the nodes and properties used to define a partition,
-according to the FF-A specification.
+according to the FF-A specification, and the SPMC manifest.
 
-Partition Properties
---------------------
+FF-A Partition Manifest Properties
+----------------------------------
+
+The FF-A partition manifest is consumed by the SPMC to configure the state
+associated with the related Secure Partition.
 
 - compatible [mandatory]
    - value type: <string>
@@ -191,7 +194,7 @@ Partition Properties
 .. _memory_region_node:
 
 Memory Regions
---------------
+~~~~~~~~~~~~~~
 
 - compatible [mandatory]
    - value type: <string>
@@ -255,7 +258,7 @@ Memory Regions
 .. _device_region_node:
 
 Device Regions
---------------
+~~~~~~~~~~~~~~
 
 - compatible [mandatory]
    - value type: <string>
@@ -348,6 +351,41 @@ Device Regions
    - Presence of this field implies that this endpoint must be granted exclusive
      access and ownership of this device's MMIO region.
 
+SPMC Manifest Properties
+------------------------
+
+This manifest contains the SPMC *attribute* node consumed by the SPMD at
+boot time.
+
+attribute
+~~~~~~~~~
+
+- spmc_id
+   - value type: <u32>
+   - Defines the endpoint ID value that SPMC can query through ``FFA_ID_GET``.
+- maj_ver
+   - value type: <u32>
+   - Major of the FF-A version implemented by the SPMC. SPMD checks against its own
+     version.
+- min_ver
+   - value type>: <u32>
+   - Minor of the FF-A version implemented by the SPMC. SPMD checks against its own
+     version.
+- exec_state
+   - value type: <u32>
+   - Defines the SPMC execution state (AArch64 or AArch32).
+- load_address
+   - value type: <u64>
+   - Base physical address in which the SPMC binary is placed. Should be page aligned.
+- entrypoint:
+   - value type: <u64>
+   - Defines the physical address for the cold boot primary core entrypoint used by the SPMD
+     (currently matches ``BL32_BASE``) to enter the SPMC.
+- binary_size
+   - value type: <u32>
+   - Defines the maximum size of the SPMC binary. It is used with load_address to sanitize the
+     specified entrypoint.
+
 --------------
 
-*Copyright (c) 2019-2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.*
