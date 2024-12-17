@@ -25,6 +25,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common \
 MODULES-y += $(MTK_PLAT)/common
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
+MODULES-y += $(MTK_PLAT)/drivers/dp
 MODULES-y += $(MTK_PLAT)/drivers/mcusys
 MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-y += $(MTK_PLAT)/helpers
