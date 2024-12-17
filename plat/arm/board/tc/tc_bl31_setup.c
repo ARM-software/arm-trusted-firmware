@@ -190,6 +190,8 @@ void __init bl31_plat_arch_setup(void)
 #if defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
 void tc_bl31_plat_runtime_setup(void)
 {
+	psa_status_t status;
+
 	/* Start secure watchdog timer. */
 	plat_arm_secure_wdt_start();
 
