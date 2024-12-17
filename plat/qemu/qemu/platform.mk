@@ -115,8 +115,7 @@ ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
     include drivers/auth/mbedtls/mbedtls_crypto.mk
 endif
 
-BL2_SOURCES		+=	${FDT_WRAPPERS_SOURCES}					\
-				common/uuid.c
+BL2_SOURCES		+=	common/uuid.c
 
 ifeq ($(add-lib-optee),yes)
 BL2_SOURCES		+=	lib/optee/optee_utils.c

@@ -11,6 +11,16 @@
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/transfer_list.h>
 #include <plat/common/platform.h>
+#if ENABLE_RME
+#ifdef PLAT_qemu
+#include <qemu_pas_def.h>
+#elif PLAT_qemu_sbsa
+#include <qemu_sbsa_pas_def.h>
+#endif /* PLAT_qemu */
+#endif /* ENABLE_RME */
+#ifdef PLAT_qemu_sbsa
+#include <sbsa_platform.h>
+#endif
 
 #include "qemu_private.h"
 
@@ -63,7 +73,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 /* Platform names have to be lowercase. */
 #ifdef PLAT_qemu_sbsa
-	sip_svc_init();
+	sbsa_platform_init();
 #endif
 
 	/*
@@ -110,6 +120,100 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	}
 }
 
+#if ENABLE_RME
+#if PLAT_qemu
+/*
+ * The GPT library might modify the gpt regions structure to optimize
+ * the layout, so the array cannot be constant.
+ */
+static pas_region_t pas_regions[] = {
+	QEMU_PAS_ROOT,
+	QEMU_PAS_SECURE,
+	QEMU_PAS_GPTS,
+	QEMU_PAS_NS0,
+	QEMU_PAS_REALM,
+	QEMU_PAS_NS1,
+};
+
+static inline void bl31_adjust_pas_regions(void) {}
+#elif PLAT_qemu_sbsa
+/*
+ * The GPT library might modify the gpt regions structure to optimize
+ * the layout, so the array cannot be constant.
+ */
+static pas_region_t pas_regions[] = {
+	QEMU_PAS_ROOT,
+	QEMU_PAS_SECURE,
+	QEMU_PAS_GPTS,
+	QEMU_PAS_REALM,
+	QEMU_PAS_NS0,
+};
+
+static void bl31_adjust_pas_regions(void)
+{
+	uint64_t base_addr = 0, total_size = 0;
+	struct platform_memory_data data;
+	uint32_t node;
+
+	/*
+	 * The amount of memory supported by the SBSA platform is dynamic
+	 * and dependent on user input.  Since the configuration of the GPT
+	 * needs to reflect the system memory, QEMU_PAS_NS0 needs to be set
+	 * based on the information found in the device tree.
+	 */
+
+	for (node = 0; node < sbsa_platform_num_memnodes(); node++) {
+		data = sbsa_platform_memory_node(node);
+
+		if (data.nodeid == 0) {
+			base_addr = data.addr_base;
+		}
+
+		total_size += data.addr_size;
+	}
+
+	 /* Index '4' correspond to QEMU_PAS_NS0, see pas_regions[] above */
+	pas_regions[4].base_pa = base_addr;
+	pas_regions[4].size = total_size;
+}
+#endif /* PLAT_qemu */
+
+static void bl31_plat_gpt_setup(void)
+{
+	/*
+	 * Initialize entire protected space to GPT_GPI_ANY. With each L0 entry
+	 * covering 1GB (currently the only supported option), then covering
+	 * 256TB of RAM (48-bit PA) would require a 2MB L0 region. At the
+	 * moment we use a 8KB table, which covers 1TB of RAM (40-bit PA).
+	 */
+	if (gpt_init_l0_tables(PLATFORM_GPCCR_PPS, PLAT_QEMU_L0_GPT_BASE,
+			       PLAT_QEMU_L0_GPT_SIZE +
+			       PLAT_QEMU_GPT_BITLOCK_SIZE) < 0) {
+		ERROR("gpt_init_l0_tables() failed!\n");
+		panic();
+	}
+
+	bl31_adjust_pas_regions();
+
+	/* Carve out defined PAS ranges. */
+	if (gpt_init_pas_l1_tables(GPCCR_PGS_4K,
+				   PLAT_QEMU_L1_GPT_BASE,
+				   PLAT_QEMU_L1_GPT_SIZE,
+				   pas_regions,
+				   (unsigned int)(sizeof(pas_regions) /
+						  sizeof(pas_region_t))) < 0) {
+		ERROR("gpt_init_pas_l1_tables() failed!\n");
+		panic();
+	}
+
+	INFO("Enabling Granule Protection Checks\n");
+	if (gpt_enable() < 0) {
+		ERROR("gpt_enable() failed!\n");
+		panic();
+	}
+}
+#endif
+
 void bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
@@ -131,6 +235,9 @@ void bl31_plat_arch_setup(void)
 	enable_mmu_el3(0);
 
 #if ENABLE_RME
+	/* Initialise and enable granule protection after MMU. */
+	bl31_plat_gpt_setup();
+
 	/*
 	 * Initialise Granule Protection library and enable GPC for the primary
 	 * processor. The tables have already been initialized by a previous BL

@@ -29,8 +29,6 @@ ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
 
-BL2_SOURCES		+=	$(LIBFDT_SRCS)
-
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
@@ -38,6 +36,7 @@ QEMU_GIC_SOURCES	:=	${GICV3_SOURCES}				\
 				plat/common/plat_gicv3.c
 
 BL31_SOURCES		+=	${PLAT_QEMU_PATH}/sbsa_gic.c 			\
+				${PLAT_QEMU_PATH}/sbsa_platform.c		\
 				${PLAT_QEMU_PATH}/sbsa_pm.c			\
 				${PLAT_QEMU_PATH}/sbsa_sip_svc.c		\
 				${PLAT_QEMU_PATH}/sbsa_topology.c
@@ -61,5 +60,5 @@ ARM_LINUX_KERNEL_AS_BL33	:=	0
 $(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 
-ARM_PRELOADED_DTB_BASE := PLAT_QEMU_DT_BASE
+ARM_PRELOADED_DTB_BASE := PLAT_QEMU_DRAM0_BASE
 $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))

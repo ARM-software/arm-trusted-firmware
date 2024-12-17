@@ -66,6 +66,9 @@
  */
 #define PLAT_MAX_MEM_NODES	128
 
+/* Where QEMU starts the NS RAM */
+#define PLAT_QEMU_DRAM0_BASE	0x10000000000ULL
+
 /*
  * Partition memory into secure ROM, non-secure DRAM, secure "SRAM",
  * and secure DRAM.
@@ -73,7 +76,12 @@
 #define SEC_ROM_BASE			0x00000000
 #define SEC_ROM_SIZE			0x00020000
 
-#define NS_DRAM0_BASE			0x10000000000ULL
+/*
+ * When the RME extension is enabled, the base of the NS RAM is shifted after
+ * RMM.
+ */
+#define NS_DRAM0_BASE			(PLAT_QEMU_DRAM0_BASE + \
+					NS_DRAM0_BASE_OFFSET)
 #define NS_DRAM0_SIZE			0x00020000000
 
 #define SEC_SRAM_BASE			0x20000000
@@ -121,7 +129,8 @@
 #define BL1_RO_BASE			SEC_ROM_BASE
 #define BL1_RO_LIMIT			(SEC_ROM_BASE + SEC_ROM_SIZE)
 #define BL1_RW_BASE			(BL1_RW_LIMIT - BL1_SIZE)
-#define BL1_RW_LIMIT			(BL_RAM_BASE + BL_RAM_SIZE)
+#define BL1_RW_LIMIT			(BL_RAM_BASE + BL_RAM_SIZE - \
+					 RME_GPT_DRAM_SIZE)
 
 /*
  * BL2 specific defines.
@@ -139,7 +148,7 @@
  * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
  * current BL3-1 debug size plus a little space for growth.
  */
-#define BL31_SIZE			0x300000
+#define BL31_SIZE			0x400000
 #define BL31_BASE			(BL31_LIMIT - BL31_SIZE)
 #define BL31_LIMIT			(BL1_RW_BASE)
 #define BL31_PROGBITS_LIMIT		BL1_RW_BASE
@@ -154,8 +163,8 @@
 #define BL32_SRAM_LIMIT			BL2_BASE
 
 #define BL32_MEM_BASE			BL_RAM_BASE
-#define BL32_MEM_SIZE			(BL_RAM_SIZE - BL1_SIZE - \
-					BL2_SIZE - BL31_SIZE)
+#define BL32_MEM_SIZE			(BL_RAM_SIZE - RME_GPT_DRAM_SIZE - \
+					BL1_SIZE - BL2_SIZE - BL31_SIZE)
 #define BL32_BASE			BL32_SRAM_BASE
 #define BL32_LIMIT			BL32_SRAM_LIMIT
 
@@ -167,6 +176,9 @@
 #if SPM_MM
 #define MAX_MMAP_REGIONS		12
 #define MAX_XLAT_TABLES			12
+#elif ENABLE_RME
+#define MAX_MMAP_REGIONS		14
+#define MAX_XLAT_TABLES			14
 #else
 #define MAX_MMAP_REGIONS		11
 #define MAX_XLAT_TABLES			11
@@ -205,7 +217,7 @@
 #define QEMU_FLASH1_SIZE		0x10000000
 
 #define PLAT_QEMU_FIP_BASE		BL1_SIZE
-#define PLAT_QEMU_FIP_MAX_SIZE		0x00400000
+#define PLAT_QEMU_FIP_MAX_SIZE		(QEMU_FLASH0_SIZE - BL1_SIZE)
 
 /* This is map from GIC_DIST up to last CPU (255) GIC_REDISTR */
 #define DEVICE0_BASE			0x40000000
@@ -376,5 +388,106 @@
 
 #define QEMU_PRI_BITS		2
 #define PLAT_SP_PRI		0x20
+
+#if !ENABLE_RME
+#define RME_GPT_DRAM_SIZE	0
+#define NS_DRAM0_BASE_OFFSET	0
+#else /* !ENABLE_RME */
+/*
+ * SBSA RAM starts at 1TB and we support up to 1TB of RAM.  As such we
+ * have 2TB of physical address space to cover.  Since the GPT size can be
+ * 4GB, 64GB, 1TB, 4TB and so on, we need to select 4GB.  Note that it is
+ * possible to support more than 1TB of RAM but that will take more room in
+ * secure memory due to the L1 GPTES.  See PLAT_QEMU_L1_GPT_SIZE for details.
+ *
+ * 4TB / 1GB == 4096 GPTEs
+ * 4096 * 8 (bytes per GPTE) == 32768 i.e 8 pages
+ */
+#define PLAT_QEMU_L0_GPT_SIZE	(8 * PAGE_SIZE)
+#define PLAT_QEMU_L0_GPT_BASE	(PLAT_QEMU_L1_GPT_BASE - \
+				 (PLAT_QEMU_L0_GPT_SIZE + \
+				  PLAT_QEMU_GPT_BITLOCK_SIZE + \
+				  PLAT_QEMU_GPT_ALIGNMENT))
+
+#if RME_GPT_BITLOCK_BLOCK
+/*
+ * 4TB / (RME_GPT_BITLOCK_BLOCK * 512M * 8) == 1024
+ */
+#define PLAT_QEMU_GPT_BITLOCK_SIZE	(1 * PAGE_SIZE)
+/*
+ * PLAT_QEMU_L0_GPT_SIZE is 8 pages and PLAT_QEMU_GPT_BITLOCK_SIZE
+ * is 1 page.  As such we need 7 pages to have an 8 page alignment.
+ */
+#define PLAT_QEMU_GPT_ALIGNMENT		(7 * PAGE_SIZE)
+#else /* RME_GPT_BITLOCK_BLOCK */
+#define PLAT_QEMU_GPT_BITLOCK_SIZE	0
+#define PLAT_QEMU_GPT_ALIGNMENT		0
+#endif /* RME_GPT_BITLOCK_BLOCK */
+
+/*
+ * If we have 1TB of RAM and each L1GPT covers 1GB, we need 1024 L1GPTs. With
+ * one more L1GPT to cover the other physical address spaces (see pas_regions[]
+ * in qemu_bl31_setup.c), we need a total of 1025 L1GPTs.  Each L1GPT is 131072
+ * bytes, so we need 1025 * 131072 bytes = 0x8020000 of RAM to hold the L1GPTS.
+ */
+#define PLAT_QEMU_L1_GPT_SIZE	UL(0x08020000)
+#define PLAT_QEMU_L1_GPT_BASE	(BL_RAM_BASE + BL_RAM_SIZE - \
+				 PLAT_QEMU_L1_GPT_SIZE)
+#define PLAT_QEMU_L1_GPT_END	(PLAT_QEMU_L1_GPT_BASE + \
+				 PLAT_QEMU_L1_GPT_SIZE - 1U)
+
+#define RME_GPT_DRAM_BASE	PLAT_QEMU_L0_GPT_BASE
+#define RME_GPT_DRAM_SIZE	(PLAT_QEMU_L1_GPT_SIZE + \
+				 PLAT_QEMU_L0_GPT_SIZE + \
+				 PLAT_QEMU_GPT_BITLOCK_SIZE + \
+				 PLAT_QEMU_GPT_ALIGNMENT)
+
+#ifndef __ASSEMBLER__
+/* L0 table greater than 4KB must be naturally aligned */
+CASSERT((PLAT_QEMU_L0_GPT_BASE & (PLAT_QEMU_L0_GPT_SIZE - 1)) == 0,
+	assert_l0_gpt_naturally_aligned);
+#endif
+
+/* Reserved some DRAM space for RMM (1072MB) */
+#define REALM_DRAM_BASE			PLAT_QEMU_DRAM0_BASE
+#define REALM_DRAM_SIZE			0x43000000
+
+#define PLAT_QEMU_RMM_SIZE		(REALM_DRAM_SIZE - RMM_SHARED_SIZE)
+#define PLAT_QEMU_RMM_SHARED_SIZE	(PAGE_SIZE)	/* 4KB */
+
+#define RMM_BASE			(REALM_DRAM_BASE)
+#define RMM_LIMIT			(RMM_BASE + PLAT_QEMU_RMM_SIZE)
+#define RMM_SHARED_BASE			(RMM_LIMIT)
+#define RMM_SHARED_SIZE			PLAT_QEMU_RMM_SHARED_SIZE
+
+#define MAP_GPT_L0_REGION		MAP_REGION_FLAT(		\
+					PLAT_QEMU_L0_GPT_BASE,		\
+					(PLAT_QEMU_L0_GPT_SIZE +	\
+					 PLAT_QEMU_GPT_BITLOCK_SIZE +	\
+					 PLAT_QEMU_GPT_ALIGNMENT),	\
+					MT_MEMORY | MT_RW | EL3_PAS)
+
+#define MAP_GPT_L1_REGION		MAP_REGION_FLAT(		\
+					PLAT_QEMU_L1_GPT_BASE,		\
+					PLAT_QEMU_L1_GPT_SIZE,		\
+					MT_MEMORY | MT_RW | EL3_PAS)
+/*
+ * We add the RMM_SHARED size to RMM mapping to map the region as a block.
+ * Else we end up requiring more pagetables in BL2 for ROMLIB build.
+ */
+#define MAP_RMM_DRAM			MAP_REGION_FLAT(		\
+					RMM_BASE,			\
+					(PLAT_QEMU_RMM_SIZE +		\
+					 RMM_SHARED_SIZE),		\
+					MT_MEMORY | MT_RW | MT_REALM)
+
+#define MAP_RMM_SHARED_MEM		MAP_REGION_FLAT(		\
+					RMM_SHARED_BASE,		\
+					RMM_SHARED_SIZE,		\
+					MT_MEMORY | MT_RW | MT_REALM)
+
+/* When RME is enabled, the base of NS DRAM is moved forward after the RMM */
+#define NS_DRAM0_BASE_OFFSET	REALM_DRAM_SIZE
+#endif /* !ENABLE_RME */
 
 #endif /* PLATFORM_DEF_H */

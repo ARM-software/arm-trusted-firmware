@@ -16,6 +16,9 @@
 #if ENABLE_RME
 #include <services/rmm_core_manifest.h>
 #endif
+#ifdef PLAT_qemu_sbsa
+#include <sbsa_platform.h>
+#endif
 
 #include <plat/common/platform.h>
 #include "qemu_private.h"
@@ -224,12 +227,42 @@ size_t plat_rmmd_get_el3_rmm_shared_mem(uintptr_t *shared)
 	return (size_t)RMM_SHARED_SIZE;
 }
 
+#ifdef PLAT_qemu
+static uint32_t plat_get_num_memnodes(void)
+{
+	return 1;
+}
+
+static void plat_get_memory_node(int index, struct ns_dram_bank *bank_ptr)
+{
+	(void) index;
+	bank_ptr->base = NS_DRAM0_BASE;
+	bank_ptr->size = NS_DRAM0_SIZE;
+}
+#elif PLAT_qemu_sbsa
+static uint32_t plat_get_num_memnodes(void)
+{
+	return sbsa_platform_num_memnodes();
+}
+
+static void plat_get_memory_node(int index, struct ns_dram_bank *bank_ptr)
+{
+	struct platform_memory_data data = {0, 0, 0};
+
+	if (index < sbsa_platform_num_memnodes()) {
+		data = sbsa_platform_memory_node(index);
+	}
+
+	bank_ptr->base = data.addr_base;
+	bank_ptr->size = data.addr_size;
+}
+#endif /* PLAT_qemu */
+
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
+	int i, last;
 	uint64_t checksum;
-	uintptr_t base;
-	uint64_t size;
-	size_t num_banks = 1;
+	size_t num_banks = plat_get_num_memnodes();
 	size_t num_consoles = 1;
 	struct ns_dram_bank *bank_ptr;
 	struct console_info *console_ptr;
@@ -300,11 +333,28 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	/* Calculate checksum of plat_dram structure */
 	checksum = num_banks + (uint64_t)bank_ptr;
 
-	base = NS_DRAM0_BASE;
-	size = NS_DRAM0_SIZE;
-	bank_ptr[0].base = base;
-	bank_ptr[0].size = size;
-	checksum += base + size;
+	/*
+	 * In the TF-A, NUMA nodes (if present) are stored in descending
+	 * order, i.e:
+	 *
+	 * INFO:    RAM 0: node-id: 1, address: 0x10080000000 - 0x101ffffffff
+	 * INFO:    RAM 1: node-id: 0, address: 0x10043000000 - 0x1007fffffff
+	 *
+	 * The RMM expects the memory banks to be presented in ascending order:
+	 *
+	 * INFO:    RAM 1: node-id: 0, address: 0x10043000000 - 0x1007fffffff
+	 * INFO:    RAM 0: node-id: 1, address: 0x10080000000 - 0x101ffffffff
+	 *
+	 * As such, go through the NUMA nodes one by one and fill out
+	 * @bank_ptr[] starting from the end.  When NUMA nodes are not present
+	 * there is only one memory bank and none of the above matters.
+	 */
+	last = num_banks - 1;
+	for (i = 0; i < num_banks; i++) {
+		plat_get_memory_node(i, &bank_ptr[last]);
+		checksum += bank_ptr[last].base + bank_ptr[last].size;
+		last--;
+	}
 
 	/* Checksum must be 0 */
 	manifest->plat_dram.checksum = ~checksum + 1UL;
@@ -332,3 +382,25 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	return 0;
 }
 #endif  /* ENABLE_RME */
+
+/**
+ * plat_qemu_dt_runtime_address() - Get the final DT location in RAM
+ *
+ * When support is enabled on SBSA, the device tree is relocated from its
+ * original place at the beginning of the NS RAM to after the RMM.  This
+ * function returns the address of the final location in RAM of the device
+ * tree.  See function update_dt() in qemu_bl2_setup.c
+ *
+ * Return: The address of the final location in RAM of the device tree
+ */
+#if (ENABLE_RME && PLAT_qemu_sbsa)
+void *plat_qemu_dt_runtime_address(void)
+{
+	return (void *)(uintptr_t)PLAT_QEMU_DT_BASE;
+}
+#else
+void *plat_qemu_dt_runtime_address(void)
+{
+	return (void *)(uintptr_t)ARM_PRELOADED_DTB_BASE;
+}
+#endif /* (ENABLE_RME && PLAT_qemu_sbsa) */
