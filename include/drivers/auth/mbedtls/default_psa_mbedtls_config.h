@@ -26,4 +26,12 @@
  */
 #define MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
 
+/*
+ * Override heap size for PSA Crypto when RSA key size > 2048.
+ */
+#if TF_MBEDTLS_USE_RSA && TF_MBEDTLS_KEY_SIZE > 2048
+#undef TF_MBEDTLS_HEAP_SIZE
+#define TF_MBEDTLS_HEAP_SIZE        U(12 * 1024)
+#endif
+
 #endif /* PSA_MBEDTLS_CONFIG_H */
