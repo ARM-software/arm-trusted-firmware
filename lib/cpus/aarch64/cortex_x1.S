@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Google LLC. All rights reserved.
+ * Copyright (c) 2022-2024, Google LLC. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +22,13 @@
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X1_BHB_LOOP_COUNT, cortex_x1
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x1, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X1_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x1, CVE(2024, 5660)
+
+check_erratum_ls cortex_x1, CVE(2024, 5660), CPU_REV(1, 2)
 
 workaround_reset_start cortex_x1, ERRATUM(1688305), ERRATA_X1_1688305
 	sysreg_bit_set CORTEX_X1_ACTLR2_EL1, BIT(1)

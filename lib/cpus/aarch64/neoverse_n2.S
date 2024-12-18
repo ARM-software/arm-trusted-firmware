@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,6 +33,13 @@
 .equ check_erratum_neoverse_n2_2313941, check_errata_dsu_2313941
 .equ erratum_neoverse_n2_2313941_wa, errata_dsu_2313941_wa
 add_erratum_entry neoverse_n2, ERRATUM(2313941), ERRATA_DSU_2313941, APPLY_AT_RESET
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start neoverse_n2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set NEOVERSE_N2_CPUECTLR_EL1, BIT(46)
+workaround_reset_end neoverse_n2, CVE(2024, 5660)
+
+check_erratum_ls neoverse_n2, CVE(2024, 5660), CPU_REV(0, 3)
 
 workaround_reset_start neoverse_n2, ERRATUM(2002655), ERRATA_N2_2002655
 	/* Apply instruction patching sequence */
