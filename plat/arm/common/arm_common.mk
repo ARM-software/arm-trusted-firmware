@@ -108,9 +108,6 @@ ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
       $(error ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_SP_MIN=1.)
     endif
   endif
-  ifndef PRELOADED_BL33_BASE
-    $(error PRELOADED_BL33_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used.)
-  endif
   ifeq (${RESET_TO_BL31},1)
     ifndef ARM_PRELOADED_DTB_BASE
       $(error ARM_PRELOADED_DTB_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used with RESET_TO_BL31.)
