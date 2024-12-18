@@ -20,4 +20,15 @@
 			max-size = <0x2000000>;
 		};
 	};
+
+	st-mem-firewall {
+		bl31_context: bl31-context@81fc0000 {
+			reg = <0x0 0x81fc0000 0x0 0x40000>;
+			st,protreg = <RISAFPROT(RISAF_REG_ID(7), RIF_CID0_BF|RIF_CID1_BF, RIF_CID0_BF|RIF_CID1_BF, RIF_CID1_BF, RIF_SEC, RIF_ENC_EN, RIF_BREN_EN)>;
+		};
+		op_tee: op-tee@82000000 {
+			reg = <0x0 0x82000000 0x0 0x2000000>;
+			st,protreg = <RISAFPROT(RISAF_REG_ID(8), RIF_CID0_BF|RIF_CID1_BF, RIF_CID0_BF|RIF_CID1_BF, 0, RIF_SEC, RIF_ENC_EN, RIF_BREN_EN)>;
+		};
+	};
 };
