@@ -35,6 +35,8 @@ MODULES-y += $(MTK_PLAT)/drivers/vcp
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/topology
 
+MODULES-$(CONFIG_MTK_MTCMOS) += $(MTK_PLAT)/drivers/mtcmos
+
 ifneq ($(MTKLIB_PATH),)
 LDFLAGS += -L $(dir $(MTKLIB_PATH))
 LDLIBS += -l$(patsubst lib%.a,%,$(notdir $(MTKLIB_PATH)))
