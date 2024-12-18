@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,13 @@
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A78_BHB_LOOP_COUNT, cortex_a78
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+/* Disable hardware page aggregation.Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a78, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a78, CVE(2024, 5660)
+
+check_erratum_ls cortex_a78, CVE(2024, 5660), CPU_REV(1, 2)
 
 workaround_reset_start cortex_a78, ERRATUM(1688305), ERRATA_A78_1688305
 	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_1

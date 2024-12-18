@@ -7,6 +7,11 @@
 
 include ${MAKE_HELPERS_DIRECTORY}$/build_macros.mk
 
+# Flag to disable Hardware page aggregation(HPA).
+# This flag is enabled by default.
+WORKAROUND_CVE_2024_5660		?=1
+CPU_FLAG_LIST += WORKAROUND_CVE_2024_5660
+
 # Cortex A57 specific optimisation to skip L1 cache flush when
 # cluster is powered down.
 CPU_FLAG_LIST += SKIP_A57_L1_FLUSH_PWR_DWN
