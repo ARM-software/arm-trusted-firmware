@@ -78,6 +78,20 @@ STMM_BOOT_MODE = EFI_BOOT_WITH_FULL_CONFIGURATION
 STMM_MMRAM_REGION_STATE_DEFAULT = EFI_CACHEABLE | EFI_ALLOCATED
 STMM_MMRAM_REGION_STATE_HEAP = EFI_CACHEABLE
 
+"""`struct` python module allows user to specify endianness.
+We are expecting FVP or STMM platform as target and that they will be
+little-endian. See `struct` python module documentation if other endianness is
+needed."""
+ENDIANNESS = "<"
+
+
+def struct_pack_with_endianness(format_str, *args):
+    return struct.pack((ENDIANNESS + format_str), *args)
+
+
+def struct_calcsize_with_endianness(format_str):
+    return struct.calcsize(ENDIANNESS + format_str)
+
 
 # Helper for fdt node property parsing
 def get_integer_property_value(fdt_node, name):
@@ -107,7 +121,7 @@ class EfiGuid:
         self.format_str = "IHH8B"
 
     def pack(self):
-        return struct.pack(
+        return struct_pack_with_endianness(
             self.format_str,
             self.time_low,
             self.time_mid,
@@ -131,11 +145,11 @@ class HobGenericHeader:
     def __init__(self, hob_type, hob_length):
         self.format_str = "HHI"
         self.hob_type = hob_type
-        self.hob_length = struct.calcsize(self.format_str) + hob_length
+        self.hob_length = struct_calcsize_with_endianness(self.format_str) + hob_length
         self.reserved = 0
 
     def pack(self):
-        return struct.pack(
+        return struct_pack_with_endianness(
             self.format_str, self.hob_type, self.hob_length, self.reserved
         )
 
@@ -151,7 +165,9 @@ class HobGuid:
     specification by generating a GUID for the HOB entry."""
 
     def __init__(self, name: EfiGuid, data_format_str, data):
-        hob_length = struct.calcsize(name.format_str) + struct.calcsize(data_format_str)
+        hob_length = struct_calcsize_with_endianness(
+            name.format_str
+        ) + struct_calcsize_with_endianness(data_format_str)
         self.header = HobGenericHeader(EFI_HOB_TYPE_GUID_EXTENSION, hob_length)
         self.name = name
         self.data = data
@@ -164,7 +180,7 @@ class HobGuid:
         return (
             self.header.pack()
             + self.name.pack()
-            + struct.pack(self.data_format_str, *self.data)
+            + struct_pack_with_endianness(self.data_format_str, *self.data)
         )
 
     def __str__(self):
@@ -186,7 +202,7 @@ class HandoffInfoTable:
     def __init__(self, memory_base, memory_size, free_memory_base, free_memory_size):
         # header,uint32t,uint32t, uint64_t * 5
         self.format_str = "II5Q"
-        hob_length = struct.calcsize(self.format_str)
+        hob_length = struct_calcsize_with_endianness(self.format_str)
         self.header = HobGenericHeader(EFI_HOB_TYPE_HANDOFF, hob_length)
         self.version = EFI_HOB_HANDOFF_TABLE_VERSION
         self.boot_mode = STMM_BOOT_MODE
@@ -203,7 +219,7 @@ class HandoffInfoTable:
         self.free_memory_bottom = addr
 
     def pack(self):
-        return self.header.pack() + struct.pack(
+        return self.header.pack() + struct_pack_with_endianness(
             self.format_str,
             self.version,
             self.boot_mode,
@@ -225,14 +241,14 @@ class FirmwareVolumeHob:
     def __init__(self, base_address, img_offset, img_size):
         # header, uint64_t, uint64_t
         self.data_format_str = "2Q"
-        hob_length = struct.calcsize(self.data_format_str)
+        hob_length = struct_calcsize_with_endianness(self.data_format_str)
         self.header = HobGenericHeader(EFI_HOB_TYPE_FV, hob_length)
         self.format_str = self.header.format_str + self.data_format_str
         self.base_address = base_address + img_offset
         self.length = img_size - img_offset
 
     def pack(self):
-        return self.header.pack() + struct.pack(
+        return self.header.pack() + struct_pack_with_endianness(
             self.data_format_str, self.base_address, self.length
         )
 
@@ -301,8 +317,9 @@ def generate_ns_buffer_guid(mmram_desc):
 
 
 def generate_pei_mmram_memory_reserve_guid(regions):
-    # uint32t n_reserved regions, array of mmram descriptors
-    format_str = "I"
+    # uint32t n_reserved regions, 4 bytes for padding so that array is aligned,
+    # array of mmram descriptors
+    format_str = "I4x"
     data = [len(regions)]
     for desc_format_str, mmram_desc in regions:
         format_str += desc_format_str
