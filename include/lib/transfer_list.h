@@ -59,8 +59,8 @@ enum transfer_list_tag_id {
 	TL_TAG_OPTEE_PAGABLE_PART = 0x100,
 	TL_TAG_DT_SPMC_MANIFEST = 0x101,
 	TL_TAG_EXEC_EP_INFO64 = 0x102,
-	TL_TAG_TB_FW_CONFIG = 0x103,
 	TL_TAG_SRAM_LAYOUT64 = 0x104,
+	TL_TAG_MBEDTLS_HEAP_INFO = 0x105,
 };
 
 enum transfer_list_ops {
@@ -110,6 +110,7 @@ struct __attribute__((packed)) transfer_list_entry {
 CASSERT(sizeof(struct transfer_list_entry) == U(0x8), assert_transfer_list_entry_size);
 
 void transfer_list_dump(struct transfer_list_header *tl);
+struct transfer_list_header *transfer_list_ensure(void *addr, size_t size);
 entry_point_info_t *
 transfer_list_set_handoff_args(struct transfer_list_header *tl,
 			       entry_point_info_t *ep_info);

@@ -25,8 +25,8 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-static struct transfer_list_header *secure_tl __unused;
-static struct transfer_list_header *ns_tl __unused;
+struct transfer_list_header *secure_tl;
+struct transfer_list_header *ns_tl __unused;
 
 /*
  * Placeholder variables for copying the arguments that have been passed to
@@ -367,14 +367,13 @@ void arm_bl31_platform_setup(void)
 	struct transfer_list_entry *te __unused;
 
 #if TRANSFER_LIST && !RESET_TO_BL31
-	ns_tl = transfer_list_init((void *)FW_NS_HANDOFF_BASE,
-				   PLAT_ARM_FW_HANDOFF_SIZE);
-
+	ns_tl = transfer_list_ensure((void *)FW_NS_HANDOFF_BASE,
+				       PLAT_ARM_FW_HANDOFF_SIZE);
 	if (ns_tl == NULL) {
-		ERROR("Non-secure transfer list initialisation failed!");
+		ERROR("Non-secure transfer list initialisation failed!\n");
 		panic();
 	}
-
+	/* BL31 may modify the HW_CONFIG so defer copying it until later. */
 	te = transfer_list_find(secure_tl, TL_TAG_FDT);
 	assert(te != NULL);
 
@@ -392,7 +391,7 @@ void arm_bl31_platform_setup(void)
 	te = transfer_list_add(ns_tl, TL_TAG_FDT, te->data_size,
 			       transfer_list_entry_data(te));
 	assert(te != NULL);
-#endif /* TRANSFER_LIST */
+#endif /* TRANSFER_LIST && !RESET_TO_BL31 */
 
 	/* Initialize the GIC driver, cpu and distributor interfaces */
 	plat_arm_gic_driver_init();
@@ -447,7 +446,7 @@ void arm_bl31_plat_runtime_setup(void)
 	 * they can access the updated data even if caching is not enabled.
 	 */
 	flush_dcache_range((uintptr_t)ns_tl, ns_tl->size);
-#endif /* TRANSFER_LIST && !(RESET_TO_BL2 || RESET_TO_BL31) */
+#endif /* TRANSFER_LIST && !RESET_TO_BL31 */
 
 #if RECLAIM_INIT_CODE
 	arm_free_init_memory();

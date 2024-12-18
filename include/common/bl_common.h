@@ -168,6 +168,15 @@ typedef struct meminfo {
 } meminfo_t;
 
 /*******************************************************************************
+ * Structure used for conveying the location and size of the heap allocated for
+ * use by the cryptography library.
+ * *****************************************************************************/
+struct crypto_heap_info {
+	void *addr;
+	size_t size;
+};
+
+/*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
 int load_auth_image(unsigned int image_id, image_info_t *image_data);
