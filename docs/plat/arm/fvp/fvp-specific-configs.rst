@@ -73,12 +73,59 @@ used:
    The address provided to the FVP must match the ``EL3_PAYLOAD_BASE`` address
    used when building TF-A.
 
-Booting a preloaded kernel image
---------------------------------
+Booting a kernel image in BL33
+------------------------------
 
 TF-A can boot a Linux kernel, which uses a ramdisk as a filesystem. The
 required initrd properties are injected in to the device tree blob (DTB) at
 build time.
+
+Kernel image packaged in fip as a BL33 image
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A Linux kernel image can be packaged in the fip as a BL33 image and then
+booted in TF-A.
+
+For example, the firmware can be built as:
+
+.. code:: shell
+
+    make PLAT=fvp DEBUG=1             \
+    ARM_LINUX_KERNEL_AS_BL33          \
+    BL33=<path-to-kernel-binary>      \
+    INITRD_SIZE=0x8000000             \
+    all fip
+
+The options ``INITRD_SIZE`` or ``INITRD_PATH`` triggers the insertion of initrd
+properties in to the DTB. ``INITRD_BASE`` is also required but a default value
+is set by the FVP platform.
+
+The options available here are:
+
+::
+
+    INITRD_BASE: Set the initrd base address in memory. Defaults to 0x90000000 in FVP.
+    INITRD_SIZE: Set the initrd size in dec or hex format. Hex format must precede with '0x'.
+    INITRD_PATH: Provide an initrd path for the build time to determine its exact size.
+
+Users can provide either ``INITRD_SIZE`` or ``INITRD_PATH`` to set the initrd
+size value. ``INITRD_SIZE`` takes prioty over ``INITRD_PATH``.
+
+Now the fvp binary can be run as:
+
+.. code:: shell
+
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
+    -C bp.secureflashloader.fname=<path-to>/bl1.bin             \
+    -C bp.flashloader0.fname=<path-to>/fip.bin                  \
+    --data cluster0.cpu0="<path-to>/<initrd.bin>"@0x90000000
+
+.. note::
+    Providing a higher value for an initrd size than the actual size of the file
+    is supported but it will trigger a non-breaking "Initramfs unpacking failed"
+    error by the kernel at runtime. This error can be ignored because initrd's
+    can be stacked one after another, when the kernel unpacks the first initrd it
+    looks for another in the extra space which it won't find, hence the error.
 
 Preloaded kernel image - Normal flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -98,20 +145,6 @@ built like this:
     INITRD_SIZE=0x8000000             \
     all fip
 
-The options ``INITRD_SIZE`` or ``INITRD_PATH`` triggers the insertion of initrd
-properties in to the DTB. ``INITRD_BASE`` is also required but a default value
-is set by the FVP platform.
-
-The options available here are:
-
-    ::
-        INITRD_BASE: Set the initrd base address in memory. Defaults to 0x90000000 in FVP.
-        INITRD_SIZE: Set the initrd size in dec or hex format. Hex format must precede with '0x'.
-        INITRD_PATH: Provide an initrd path for the build time to determine its exact size.
-
-Users can provide either ``INITRD_SIZE`` or ``INITRD_PATH`` to set the initrd
-size value. ``INITRD_SIZE`` takes prioty over ``INITRD_PATH``.
-
 Now the FVP binary can be run with the following command:
 
 .. code:: shell
@@ -122,15 +155,8 @@ Now the FVP binary can be run with the following command:
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     --data cluster0.cpu0="<path-to>/<initrd.bin>"@0x90000000
 
-.. note::
-    Providing a higher value for an initrd size than the actual size of the file
-    is supported but it will trigger a non-breaking "Initramfs unpacking failed"
-    error by the kernel at runtime. This error can be ignored because initrd's
-    can be stacked one after another, when the kernel unpacks the first initrd it
-    looks for another in the extra space which it won't find, hence the error.
-
-Booting a preloaded kernel image - Reset to BL31 (Base FVP)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Preloaded kernel image - Reset to BL31
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 We can also boot a Linux kernel by jumping directly to BL31 ``RESET_TO_BL31=1``.
 This requires preloading a DTB into memory. We can inject the initrd start and
