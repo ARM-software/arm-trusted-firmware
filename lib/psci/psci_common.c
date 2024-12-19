@@ -1019,8 +1019,12 @@ void psci_warmboot_entrypoint(void)
 	 */
 	if (psci_get_aff_info_state() == AFF_STATE_ON_PENDING)
 		psci_cpu_on_finish(cpu_idx, &state_info);
-	else
-		psci_cpu_suspend_to_powerdown_finish(cpu_idx, &state_info);
+	else {
+		unsigned int max_off_lvl = psci_find_max_off_lvl(&state_info);
+
+		assert(max_off_lvl != PSCI_INVALID_PWR_LVL);
+		psci_cpu_suspend_to_powerdown_finish(cpu_idx, max_off_lvl, &state_info);
+	}
 
 	/*
 	 * Generic management: Now we just need to retrieve the
@@ -1156,7 +1160,7 @@ int psci_secondaries_brought_up(void)
  * Initiate power down sequence, by calling power down operations registered for
  * this CPU.
  ******************************************************************************/
-void psci_pwrdown_cpu(unsigned int power_level)
+void psci_pwrdown_cpu_start(unsigned int power_level)
 {
 #if ENABLE_RUNTIME_INSTRUMENTATION
 
@@ -1194,6 +1198,60 @@ void psci_pwrdown_cpu(unsigned int power_level)
 		RT_INSTR_EXIT_CFLUSH,
 		PMF_NO_CACHE_MAINT);
 #endif
+}
+
+/*******************************************************************************
+ * Finish a terminal power down sequence, ending with a wfi. In case of wakeup
+ * will retry the sleep and panic if it persists.
+ ******************************************************************************/
+void __dead2 psci_pwrdown_cpu_end_terminal(void)
+{
+	/*
+	 * Execute a wfi which, in most cases, will allow the power controller
+	 * to physically power down this cpu. Under some circumstances that may
+	 * be denied. Hopefully this is transient, retrying a few times should
+	 * power down.
+	 */
+	for (int i = 0; i < 32; i++)
+		psci_power_down_wfi();
+
+	/* Wake up wasn't transient. System is probably in a bad state. */
+	ERROR("Could not power off CPU.\n");
+	panic();
+}
+
+/*******************************************************************************
+ * Finish a non-terminal power down sequence, ending with a wfi. In case of
+ * wakeup will unwind any CPU specific actions and return.
+ ******************************************************************************/
+
+void psci_pwrdown_cpu_end_wakeup(unsigned int power_level)
+{
+	/*
+	 * Usually, will be terminal. In some circumstances the powerdown will
+	 * be denied and we'll need to unwind
+	 */
+	psci_power_down_wfi();
+
+	/*
+	 * Waking up does not require hardware-assisted coherency, but that is
+	 * the case for every core that can wake up. Untangling the cache
+	 * coherency code from powerdown is a non-trivial effort which isn't
+	 * needed for our purposes.
+	 */
+#if !FEAT_PABANDON
+	ERROR("Systems without FEAT_PABANDON shouldn't wake up.\n");
+	panic();
+#else /* FEAT_PABANDON */
+
+	/*
+	 * Begin unwinding. Everything can be shared with CPU_ON and co later,
+	 * except the CPU specific bit. Cores that have hardware-assisted
+	 * coherency don't have much to do so just calling the hook again is
+	 * the simplest way to achieve this
+	 */
+	prepare_cpu_pwr_dwn(power_level);
+#endif /* FEAT_PABANDON */
 }
 
 /*******************************************************************************

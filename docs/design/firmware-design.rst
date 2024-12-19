@@ -1504,6 +1504,19 @@ At runtime the platform hooks for power down are invoked by the PSCI service to
 perform platform specific operations during a power down sequence, for example
 turning off CCI coherency during a cluster power down.
 
+Newer CPUs include a feature called "powerdown abandon". The feature is based on
+the observation that events like GIC wakeups have a high likelihood of happening
+while the core is in the middle of its powerdown sequence (at ``wfi``). Older
+cores will powerdown and immediately power back up when this happens. To save on
+the work and latency involved, the newer cores will "give up" mid way through if
+no context has been lost yet. This is possible as the powerdown operation is
+lengthy and a large part of it does not lose context.
+
+To cater for this possibility, the powerdown hook will be called a second time
+after a wakeup. The expectation is that the first call will operate as before,
+while the second call will undo anything the first call did. This should be done
+statelessly, for example by toggling the relevant bits.
+
 CPU specific register reporting during crash
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -115,7 +115,7 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	/*
 	 * Arch. management. Initiate power down sequence.
 	 */
-	psci_pwrdown_cpu(psci_find_max_off_lvl(&state_info));
+	psci_pwrdown_cpu_start(psci_find_max_off_lvl(&state_info));
 
 	/*
 	 * Plat. management: Perform platform specific actions to turn this
@@ -153,7 +153,6 @@ exit:
 		psci_inv_cpu_data(psci_svc_cpu_data.aff_info_state);
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
-
 		/*
 		 * Update the timestamp with cache off.  We assume this
 		 * timestamp can only be read from the current CPU and the
@@ -164,17 +163,12 @@ exit:
 		    RT_INSTR_ENTER_HW_LOW_PWR,
 		    PMF_NO_CACHE_MAINT);
 #endif
-
 		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi != NULL) {
-			/* This function must not return */
+			/* This function may not return */
 			psci_plat_pm_ops->pwr_domain_pwr_down_wfi(&state_info);
-		} else {
-			/*
-			 * Enter a wfi loop which will allow the power
-			 * controller to physically power down this cpu.
-			 */
-			psci_power_down_wfi();
 		}
+
+		psci_pwrdown_cpu_end_terminal();
 	}
 
 	return rc;

@@ -526,6 +526,12 @@ Common build options
    power domain dynamic power budgeting and limit the triggering of whole-rail
    (i.e. clock chopping) responses to overcurrent conditions. Defaults to ``0``.
 
+ - ``FEAT_PABANDON``: Boolean option to enable support for powerdown abandon on
+   Arm cores that support it (currently Gelas and Travis). Extends the PSCI
+   implementation to expect waking up after the terminal ``wfi``. Currently,
+   introduces a performance penalty. Once this is removed, this option will be
+   removed and the feature will be enabled by default. Defaults to ``0``.
+
 -  ``ENABLE_MPMM_FCONF``: Enables configuration of MPMM through FCONF, which
    allows platforms with cores supporting MPMM to describe them via the
    ``HW_CONFIG`` device tree blob. Default is 0.
@@ -1474,7 +1480,7 @@ Firmware update options
 
 --------------
 
-*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
 .. _PSA FW update specification: https://developer.arm.com/documentation/den0118/latest/

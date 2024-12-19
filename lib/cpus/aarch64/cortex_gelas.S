@@ -21,6 +21,10 @@
 #error "Gelas supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+#if FEAT_PABANDON == 0
+#error "Gelas must be compiled with FEAT_PABANDON enabled"
+#endif
+
 cpu_reset_func_start cortex_gelas
 	/* ----------------------------------------------------
 	 * Disable speculative loads

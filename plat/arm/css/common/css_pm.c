@@ -364,7 +364,7 @@ int css_reboot_interrupt_handler(uint32_t intr_raw, uint32_t flags,
 	plat_arm_gic_cpuif_disable();
 	plat_arm_gic_redistif_off();
 
-	psci_pwrdown_cpu(PLAT_MAX_PWR_LVL);
+	psci_pwrdown_cpu_start(PLAT_MAX_PWR_LVL);
 
 	dmbsy();
 

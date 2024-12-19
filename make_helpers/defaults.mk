@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -84,6 +84,9 @@ DYN_DISABLE_AUTH		:= 0
 
 # Enable the Maximum Power Mitigation Mechanism on supporting cores.
 ENABLE_MPMM			:= 0
+
+# Enable support for powerdown abandons
+FEAT_PABANDON			:= 0
 
 # Enable MPMM configuration via FCONF.
 ENABLE_MPMM_FCONF		:= 0

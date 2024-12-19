@@ -2901,19 +2901,21 @@ plat_psci_ops.pwr_domain_pwr_down_wfi()
 .......................................
 
 This is an optional function and, if implemented, is expected to perform
-platform specific actions including the ``wfi`` invocation which allows the
-CPU to powerdown. Since this function is invoked outside the PSCI locks,
-the actions performed in this hook must be local to the CPU or the platform
-must ensure that races between multiple CPUs cannot occur.
+platform specific actions before the CPU is powered down. Since this function is
+invoked outside the PSCI locks, the actions performed in this hook must be local
+to the CPU or the platform must ensure that races between multiple CPUs cannot
+occur.
 
 The ``target_state`` has a similar meaning as described in the ``pwr_domain_off()``
 operation and it encodes the platform coordinated target local power states for
-the CPU power domain and its parent power domain levels. This function must
-not return back to the caller (by calling wfi in an infinite loop to ensure
-some CPUs power down mitigations work properly).
+the CPU power domain and its parent power domain levels.
 
-If this function is not implemented by the platform, PSCI generic
-implementation invokes ``psci_power_down_wfi()`` for power down.
+It is preferred that this function returns. The caller will invoke
+``psci_power_down_wfi()`` to powerdown the CPU, mitigate any powerdown errata,
+and handle any wakeups that may arise. Previously, this function did not return
+and instead called ``wfi`` (in an infinite loop) directly. This is still
+possible on platforms where this is guaranteed to be terminal, however, it is
+strongly discouraged going forward.
 
 plat_psci_ops.pwr_domain_on_finish()
 ....................................
@@ -2965,14 +2967,16 @@ plat_psci_ops.system_off()
 
 This function is called by PSCI implementation in response to a ``SYSTEM_OFF``
 call. It performs the platform-specific system poweroff sequence after
-notifying the Secure Payload Dispatcher.
+notifying the Secure Payload Dispatcher. The caller will call ``wfi`` if this
+function returns, similar to `plat_psci_ops.pwr_domain_pwr_down_wfi()`_.
 
 plat_psci_ops.system_reset()
 ............................
 
 This function is called by PSCI implementation in response to a ``SYSTEM_RESET``
 call. It performs the platform-specific system reset sequence after
-notifying the Secure Payload Dispatcher.
+notifying the Secure Payload Dispatcher. The caller will call ``wfi`` if this
+function returns, similar to `plat_psci_ops.pwr_domain_pwr_down_wfi()`_.
 
 plat_psci_ops.validate_power_state()
 ....................................
@@ -3060,7 +3064,8 @@ reset information. If the ``reset_type`` is not supported, the
 function must return ``PSCI_E_NOT_SUPPORTED``. For architectural
 resets, all failures must return ``PSCI_E_INVALID_PARAMETERS``
 and vendor reset can return other PSCI error codes as defined
-in `PSCI`_. On success this function will not return.
+in `PSCI`_. If this function returns success, the caller will call
+``wfi`` similar to `plat_psci_ops.pwr_domain_pwr_down_wfi()`_.
 
 plat_psci_ops.write_mem_protect()
 .................................

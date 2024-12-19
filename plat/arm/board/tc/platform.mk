@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -149,6 +149,7 @@ endif
 
 # CPU libraries for TARGET_PLATFORM=4
 ifeq (${TARGET_PLATFORM}, 4)
+FEAT_PABANDON	:=	1
 TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_gelas.S \
 			lib/cpus/aarch64/nevis.S \
 			lib/cpus/aarch64/travis.S
