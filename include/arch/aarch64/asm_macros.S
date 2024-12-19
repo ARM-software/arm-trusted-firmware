@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -225,13 +225,6 @@
 	.endm
 
 	/*
-	 * With RAS extension executes esb instruction, else NOP
-	 */
-	.macro esb
-	.inst	0xd503221f
-	.endm
-
-	/*
 	 * Helper macro to read system register value into x0
 	 */
 	.macro	read reg:req
@@ -263,6 +256,14 @@
 
 	.macro sb_barrier_insn
 	msr	SYSREG_SB, xzr
+	.endm
+
+	.macro psb_csync
+	hint #17 /* use the hint synonym for compatibility */
+	.endm
+
+	.macro tsb_csync
+	hint #18 /* use the hint synonym for compatibility */
 	.endm
 
 	/*
