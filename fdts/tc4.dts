@@ -71,4 +71,24 @@
 	dsu-pmu {
 		interrupts = <GIC_SPI 258 IRQ_TYPE_LEVEL_HIGH 0>;
 	};
+
+	cs-pmu@4 {
+		compatible = "arm,coresight-pmu";
+		reg = <0x0 MCN_PMU_ADDR(4) 0x0 0xffc>;
+	};
+
+	cs-pmu@5 {
+		compatible = "arm,coresight-pmu";
+		reg = <0x0 MCN_PMU_ADDR(5) 0x0 0xffc>;
+	};
+
+	cs-pmu@6 {
+		compatible = "arm,coresight-pmu";
+		reg = <0x0 MCN_PMU_ADDR(6) 0x0 0xffc>;
+	};
+
+	cs-pmu@7 {
+		compatible = "arm,coresight-pmu";
+		reg = <0x0 MCN_PMU_ADDR(7) 0x0 0xffc>;
+	};
 };

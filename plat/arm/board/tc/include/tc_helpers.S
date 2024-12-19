@@ -54,7 +54,7 @@ endfunc plat_arm_calc_core_pos
 
 func mark_extllc_presence
 #ifdef MCN_CONFIG_ADDR
-	mov_imm x0, (MCN_CONFIG_ADDR)
+	mov_imm	x0, (MCN_CONFIG_ADDR(0))
 	ldr	w1, [x0]
 	ubfx	x1, x1, #MCN_CONFIG_SLC_PRESENT_BIT, #1
 	sysreg_bitfield_insert_from_gpr CPUECTLR_EL1, x1, \
