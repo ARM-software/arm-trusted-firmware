@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -152,6 +152,8 @@ void css_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
 	css_power_down_common(target_state);
+	/* ask the GIC not to wake us up */
+	plat_arm_gic_redistif_off();
 	css_scp_off(target_state);
 }
 
