@@ -109,6 +109,12 @@
 #define BASE_GICD_BASE		(MT_GIC_BASE)
 #define MT_GIC_RDIST_BASE	(MT_GIC_BASE + 0x40000)
 #define MTK_GIC_REG_SIZE	0x400000
+#define SGI_MASK		0xffff
+#define DEV_IRQ_ID		982
+
+#define PLATFORM_G1S_PROPS(grp) \
+	INTR_PROP_DESC(DEV_IRQ_ID, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL)
 
 /*******************************************************************************
  * MM IOMMU & SMI related constants
