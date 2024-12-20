@@ -28,6 +28,7 @@ MODULES-y += $(MTK_PLAT)/lib/pm
 MODULES-y += $(MTK_PLAT)/drivers/dp
 MODULES-y += $(MTK_PLAT)/drivers/mcusys
 MODULES-y += $(MTK_PLAT)/drivers/timer
+MODULES-y += $(MTK_PLAT)/drivers/vcp
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/topology
 
