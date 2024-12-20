@@ -273,4 +273,59 @@
  ******************************************************************************/
 #define SYSTIMER_BASE		(0x1C400000)
 
+/*******************************************************************************
+ * CKSYS related constants
+ ******************************************************************************/
+#define CKSYS_BASE		(IO_PHYS)
+
+/*******************************************************************************
+ * VLP AO related constants
+ ******************************************************************************/
+#define VLPCFG_BUS_BASE		(IO_PHYS + 0x0C001000)
+#define VLPCFG_BUS_SIZE		(0x1000)
+#define VLP_AO_DEVAPC_APB_BASE	(IO_PHYS + 0x0C550000)
+#define VLP_AO_DEVAPC_APB_SIZE	(0x1000)
+
+/*******************************************************************************
+ * SCP registers
+ ******************************************************************************/
+#define SCP_CLK_CTRL_BASE	(IO_PHYS + 0x0CF21000)
+#define SCP_CLK_CTRL_SIZE	(0x1000)
+
+#define SCP_CFGREG_BASE		(IO_PHYS + 0x0CF24000)
+#define SCP_CFGREG_SIZE		(0x1000)
+
+/*******************************************************************************
+ * VLP CKSYS related constants
+ ******************************************************************************/
+#define VLP_CKSYS_BASE		(IO_PHYS + 0x0C016000)
+#define VLP_CKSYS_SIZE		0x1000
+
+/*******************************************************************************
+ * PERI related constants use PERI secure address to garuantee access
+ ******************************************************************************/
+#define PERICFG_AO_SIZE		0x1000
+#define PERI_CG0_STA		(PERICFG_AO_BASE + 0x10)
+#define PERI_CLK_CON		(PERICFG_AO_BASE + 0x20)
+#define PERI_CG1_CLR		(PERICFG_AO_BASE + 0x30)
+
+/******************************************************************************
+ * LPM syssram related constants
+ *****************************************************************************/
+#define MTK_LPM_SRAM_BASE	0x11B000
+#define MTK_LPM_SRAM_MAP_SIZE	0x1000
+
+/*******************************************************************************
+ * SSPM_MBOX_3 related constants
+ ******************************************************************************/
+#define SSPM_MBOX_3_BASE	(IO_PHYS + 0x0C380000)
+#define SSPM_MBOX_3_SIZE	0x1000
+
+/*******************************************************************************
+ * SSPM related constants
+ ******************************************************************************/
+#define SSPM_REG_OFFSET		(0x40000)
+#define SSPM_CFGREG_BASE	(IO_PHYS + 0x0C300000 + SSPM_REG_OFFSET)
+#define SSPM_CFGREG_SIZE	(0x1000)
+
 #endif /* PLATFORM_DEF_H */
