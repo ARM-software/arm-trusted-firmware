@@ -45,6 +45,15 @@
 #define UART_BAUDRATE	(115200)
 
 /*******************************************************************************
+ * CIRQ related constants
+ ******************************************************************************/
+#define SYS_CIRQ_BASE		(IO_PHYS + 204000)
+#define MD_WDT_IRQ_BIT_ID	(519)
+#define CIRQ_REG_NUM		(19)
+#define CIRQ_SPI_START		(128)
+#define CIRQ_IRQ_NUM		(598)
+
+/*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/
 #define SYS_COUNTER_FREQ_IN_HZ	(13000000)
