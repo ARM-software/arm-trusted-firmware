@@ -13,7 +13,9 @@ include ${PLAT_PATH}/board/${TARGET_BOARD}/board.mk
 PLAT_INCLUDES +=	\
 			-I${PLAT_PATH}/board/${TARGET_BOARD}/include	\
 			-I${PLAT_PATH}					\
+			-Idrivers/scmi-msg				\
 			-Iplat/ti/common/include			\
+			-Iplat/ti/common/scmi				\
 
 K3_PSCI_SOURCES		+=	\
 				${PLAT_PATH}/common/am62l_psci.c	\

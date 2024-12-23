@@ -42,4 +42,7 @@
 #error "MAILBOX_MAX_MESSAGE_SIZE > MAILBOX_RX_SLOT_SZ"
 #endif
 
+#define SCMI_SHMEM_ADDR		(0x70800000UL)
+#define SCMI_SHMEM_SIZE		(0x1000UL)	/* 4096 bytes */
+
 #endif /* BOARD_DEF_H */
