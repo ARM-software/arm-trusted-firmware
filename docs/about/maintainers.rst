@@ -653,8 +653,8 @@ MediaTek platform ports
 
 Marvell platform ports and SoC drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Konstantin Porotchkin <kostap@marvell.com>
-:|G|: `kostapr`_
+:|M|: Jaiprakash Singh <jaiprakashs@marvell.com>
+:|G|: `sjaypee208`_
 :|F|: docs/plat/marvell/
 :|F|: plat/marvell/
 :|F|: drivers/marvell/
@@ -1128,6 +1128,7 @@ Conventional Changelog Extensions
 .. _vishnu-banavath: https://github.com/vishnu-banavath
 .. _vwadekar: https://github.com/vwadekar
 .. _Yann-lms: https://github.com/Yann-lms
+.. _sjaypee208: https://github.com/sjaypee208
 
 --------------
 
