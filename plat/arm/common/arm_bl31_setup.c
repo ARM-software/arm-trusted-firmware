@@ -382,8 +382,8 @@ void arm_bl31_platform_setup(void)
 	struct transfer_list_entry *te __unused;
 
 #if TRANSFER_LIST && !RESET_TO_BL31
-	ns_tl = transfer_list_ensure((void *)FW_NS_HANDOFF_BASE,
-				       PLAT_ARM_FW_HANDOFF_SIZE);
+	ns_tl = transfer_list_init((void *)FW_NS_HANDOFF_BASE,
+				   PLAT_ARM_FW_HANDOFF_SIZE);
 	if (ns_tl == NULL) {
 		ERROR("Non-secure transfer list initialisation failed!\n");
 		panic();
