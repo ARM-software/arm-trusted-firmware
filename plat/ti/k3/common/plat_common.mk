@@ -54,6 +54,7 @@ PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/common/drivers/sec_proxy	\
 				-I${PLAT_PATH}/common/drivers/ti_sci	\
 				-I${PLAT_PATH}/common/drivers/mailbox	\
+				-Idrivers/scmi-msg			\
 
 K3_CONSOLE_SOURCES	+=	\
 				drivers/ti/uart/aarch64/16550_console.S	\
