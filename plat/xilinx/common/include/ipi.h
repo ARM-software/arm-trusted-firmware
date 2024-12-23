@@ -29,7 +29,7 @@
  ********************************************************************/
 #define IPI_SECURE_MASK  (0x1U)
 #define IPI_IS_SECURE(I) ((ipi_table[(I)].secure_only & \
-			   IPI_SECURE_MASK) ? 1 : 0)
+			   IPI_SECURE_MASK) ? true : false)
 
 /*********************************************************************
  * Struct definitions

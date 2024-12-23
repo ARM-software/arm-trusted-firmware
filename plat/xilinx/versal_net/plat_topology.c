@@ -44,8 +44,8 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 
 	mpidr &= MPIDR_AFFINITY_MASK;
 
-	cluster_id = MPIDR_AFFLVL2_VAL(mpidr);
-	cpu_id = MPIDR_AFFLVL1_VAL(mpidr);
+	cluster_id = (uint32_t)MPIDR_AFFLVL2_VAL(mpidr);
+	cpu_id = (uint32_t)MPIDR_AFFLVL1_VAL(mpidr);
 
 	if (cluster_id >= PLATFORM_CLUSTER_COUNT) {
 		return -3;
@@ -59,5 +59,5 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 		return -1;
 	}
 
-	return (cpu_id + (cluster_id * PLATFORM_CORE_COUNT_PER_CLUSTER));
+	return (int32_t)(cpu_id + (cluster_id * PLATFORM_CORE_COUNT_PER_CLUSTER));
 }

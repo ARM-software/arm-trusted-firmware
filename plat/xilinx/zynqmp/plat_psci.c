@@ -32,7 +32,7 @@ static void zynqmp_cpu_standby(plat_local_state_t cpu_state)
 
 static int32_t zynqmp_pwr_domain_on(u_register_t mpidr)
 {
-	uint32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
+	int32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
 	uint32_t buff[3];
 	enum pm_ret_status ret;

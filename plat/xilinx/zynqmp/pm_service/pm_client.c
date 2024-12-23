@@ -46,22 +46,22 @@ static uint32_t suspend_mode = PM_SUSPEND_MODE_STD;
 /* Order in pm_procs_all array must match cpu ids */
 static const struct pm_proc pm_procs_all[] = {
 	{
-		.node_id = NODE_APU_0,
+		.node_id = (uint32_t)NODE_APU_0,
 		.pwrdn_mask = APU_0_PWRCTL_CPUPWRDWNREQ_MASK,
 		.ipi = &apu_ipi,
 	},
 	{
-		.node_id = NODE_APU_1,
+		.node_id = (uint32_t)NODE_APU_1,
 		.pwrdn_mask = APU_1_PWRCTL_CPUPWRDWNREQ_MASK,
 		.ipi = &apu_ipi,
 	},
 	{
-		.node_id = NODE_APU_2,
+		.node_id = (uint32_t)NODE_APU_2,
 		.pwrdn_mask = APU_2_PWRCTL_CPUPWRDWNREQ_MASK,
 		.ipi = &apu_ipi,
 	},
 	{
-		.node_id = NODE_APU_3,
+		.node_id = (uint32_t)NODE_APU_3,
 		.pwrdn_mask = APU_3_PWRCTL_CPUPWRDWNREQ_MASK,
 		.ipi = &apu_ipi,
 	},
@@ -198,7 +198,7 @@ static void pm_client_set_wakeup_sources(void)
 
 	for (reg_num = 0U; reg_num < NUM_GICD_ISENABLER; reg_num++) {
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
-		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2U));
+		uint32_t reg = mmio_read_32(isenabler1 + (uint64_t)(reg_num << 2U));
 
 		if (reg == 0) {
 			continue;
@@ -206,9 +206,10 @@ static void pm_client_set_wakeup_sources(void)
 
 		while (reg != 0U) {
 			enum pm_node_id node;
-			uint32_t idx, ret, irq, lowest_set = reg & (-reg);
+			uint32_t idx, irq, lowest_set = reg & (-reg);
+			enum pm_ret_status ret;
 
-			idx = __builtin_ctz(lowest_set);
+			idx = (uint32_t)__builtin_ctz(lowest_set);
 			irq = base_irq + idx;
 
 			if (irq > IRQ_MAX) {

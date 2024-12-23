@@ -16,7 +16,7 @@
 #define PLATFORM_VERSION_MASK          GENMASK(31U, 28U)
 
 /* number of interrupt handlers. increase as required */
-#define MAX_INTR_EL3			2
+#define MAX_INTR_EL3			2U
 /* List all consoles */
 #define VERSAL_CONSOLE_ID_none		0
 #define VERSAL_CONSOLE_ID_pl011	1

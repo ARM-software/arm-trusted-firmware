@@ -113,7 +113,7 @@ void request_cpu_pwrdwn(void)
 
 	/* Send powerdown request to online secondary core(s) */
 	ret = psci_stop_other_cores(PWRDWN_WAIT_TIMEOUT, raise_pwr_down_interrupt);
-	if (ret != PSCI_E_SUCCESS) {
+	if (ret != (uint32_t)PSCI_E_SUCCESS) {
 		ERROR("Failed to powerdown secondary core(s)\n");
 	}
 
@@ -140,11 +140,11 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 	(void)plat_ic_acknowledge_interrupt();
 
 	/* Check status register for each IPI except PMC */
-	for (i = IPI_ID_APU; i <= IPI_ID_5; i++) {
+	for (i = (int32_t)IPI_ID_APU; i <= IPI_ID_5; i++) {
 		ipi_status = ipi_mb_enquire_status(IPI_ID_APU, i);
 
 		/* If any agent other than PMC has generated IPI FIQ then send SGI to mbox driver */
-		if (ipi_status & IPI_MB_STATUS_RECV_PENDING) {
+		if ((uint32_t)ipi_status & IPI_MB_STATUS_RECV_PENDING) {
 			plat_ic_raise_ns_sgi(MBOX_SGI_SHARED_IPI, read_mpidr_el1());
 			break;
 		}
@@ -152,7 +152,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 
 	/* If PMC has not generated interrupt then end ISR */
 	ipi_status = ipi_mb_enquire_status(IPI_ID_APU, IPI_ID_PMC);
-	if ((ipi_status & IPI_MB_STATUS_RECV_PENDING) == 0) {
+	if (((uint32_t)ipi_status & IPI_MB_STATUS_RECV_PENDING) == 0U) {
 		plat_ic_end_of_interrupt(id);
 		return 0;
 	}
@@ -160,7 +160,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 	/* Handle PMC case */
 	ret = pm_get_callbackdata(payload, ARRAY_SIZE(payload), 0, 0);
 	if (ret != PM_RET_SUCCESS) {
-		payload[0] = ret;
+		payload[0] = (uint32_t)ret;
 	}
 
 	switch (payload[0]) {
@@ -278,7 +278,7 @@ int32_t pm_setup(void)
 	gicd_write_irouter(gicv3_driver_data->gicd_base, PLAT_VERSAL_IPI_IRQ, MODE);
 
 	/* Register for idle callback during force power down/restart */
-	ret = pm_register_notifier(primary_proc->node_id, EVENT_CPU_PWRDWN,
+	ret = (int32_t)pm_register_notifier(primary_proc->node_id, EVENT_CPU_PWRDWN,
 				   0x0U, 0x1U, SECURE_FLAG);
 	if (ret != 0) {
 		WARN("BL31: registering idle callback for restart/force power down failed\n");
@@ -428,7 +428,7 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 
 		ret = pm_get_callbackdata(result, ARRAY_SIZE(result), security_flag, 1U);
 		if (ret != 0) {
-			result[0] = ret;
+			result[0] = (uint32_t)ret;
 		}
 
 		SMC_RET2(handle,
@@ -478,8 +478,8 @@ static uintptr_t eemi_handler(uint32_t api_id, uint32_t *pm_arg,
 	 * than other eemi calls.
 	 */
 	if (api_id == (uint32_t)PM_QUERY_DATA) {
-		if (((pm_arg[0] == XPM_QID_CLOCK_GET_NAME) ||
-		    (pm_arg[0] == XPM_QID_PINCTRL_GET_FUNCTION_NAME)) &&
+		if (((pm_arg[0] == (uint32_t)XPM_QID_CLOCK_GET_NAME) ||
+		    (pm_arg[0] == (uint32_t)XPM_QID_PINCTRL_GET_FUNCTION_NAME)) &&
 		    (ret == PM_RET_SUCCESS)) {
 			SMC_RET2(handle, (uint64_t)buf[0] | ((uint64_t)buf[1] << 32U),
 				(uint64_t)buf[2] | ((uint64_t)buf[3] << 32U));

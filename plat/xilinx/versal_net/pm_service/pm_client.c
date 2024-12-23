@@ -26,7 +26,7 @@
 #include "pm_client.h"
 #include <versal_net_def.h>
 
-#define UNDEFINED_CPUID		(~0)
+#define UNDEFINED_CPUID		(~0U)
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpu_pwrctrl_val, S3_0_C15_C2_7)
 
@@ -340,12 +340,16 @@ void pm_client_suspend(const struct pm_proc *proc, uint32_t state)
  */
 static uint32_t pm_get_cpuid(uint32_t nid)
 {
-	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
+	uint32_t ret = UNDEFINED_CPUID;
+	uint32_t i;
+
+	for (i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
 		if (pm_procs_all[i].node_id == nid) {
-			return i;
+			ret = i;
+			break;
 		}
 	}
-	return UNDEFINED_CPUID;
+	return ret;
 }
 
 /**

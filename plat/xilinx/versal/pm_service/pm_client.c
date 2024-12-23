@@ -26,7 +26,7 @@
 #include "pm_defs.h"
 #include <versal_def.h>
 
-#define UNDEFINED_CPUID		(~0)
+#define UNDEFINED_CPUID		(~0U)
 
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
@@ -232,12 +232,16 @@ void pm_client_abort_suspend(void)
  */
 static uint32_t pm_get_cpuid(uint32_t nid)
 {
-	for (size_t i = 0U; i < ARRAY_SIZE(pm_procs_all); i++) {
+	uint32_t ret = UNDEFINED_CPUID;
+	uint32_t i;
+
+	for (i = 0U; i < ARRAY_SIZE(pm_procs_all); i++) {
 		if (pm_procs_all[i].node_id == nid) {
-			return i;
+			ret = i;
+			break;
 		}
 	}
-	return UNDEFINED_CPUID;
+	return ret;
 }
 
 /**

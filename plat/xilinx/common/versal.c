@@ -60,5 +60,5 @@ int32_t plat_get_soc_version(void)
  */
 int32_t plat_get_soc_revision(void)
 {
-	return (platform_id & SOC_ID_REV_MASK);
+	return (int32_t)(platform_id & SOC_ID_REV_MASK);
 }

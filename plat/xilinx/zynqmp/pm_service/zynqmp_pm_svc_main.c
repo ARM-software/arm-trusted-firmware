@@ -253,7 +253,7 @@ int32_t pm_setup(void)
 		ret = status;
 	}
 
-	pm_up = !status;
+	pm_up = (status == 0);
 
 	return ret;
 }
@@ -322,7 +322,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t set_addr = pm_arg[1] & 0x1U;
 		uint64_t address = (uint64_t)pm_arg[2] << 32U;
 
-		address |= pm_arg[1] & (~0x1U);
+		address |= (uint64_t)(pm_arg[1] & (~0x1U));
 		ret = pm_req_wakeup(pm_arg[0], set_addr, address,
 				    pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
@@ -354,7 +354,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_API_VERSION:
-		if (ipi_irq_flag == 0U) {
+		if ((uint32_t)ipi_irq_flag == 0U) {
 			/*
 			 * Enable IPI IRQ
 			 * assume the rich OS is OK to handle callback IRQs now.
@@ -560,7 +560,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t bit_mask[2] = {0};
 
 		ret = pm_feature_check(pm_arg[0], &version_type, bit_mask,
-				       ARRAY_SIZE(bit_mask));
+				       (uint8_t)ARRAY_SIZE(bit_mask));
 		SMC_RET2(handle, ((uint64_t)ret | ((uint64_t)version_type << 32U)),
 			 ((uint64_t)bit_mask[0] | ((uint64_t)bit_mask[1] << 32U)));
 	}

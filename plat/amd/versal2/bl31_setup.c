@@ -63,7 +63,7 @@ static inline void bl31_set_default_config(void)
 	bl32_image_ep_info.args.arg3 = XILINX_OF_BOARD_DTB_ADDR;
 #endif
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-	bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
+	bl33_image_ep_info.spsr = (uint32_t)SPSR_64(MODE_EL2, MODE_SP_ELX,
 					  DISABLE_ALL_EXCEPTIONS);
 }
 
@@ -229,7 +229,7 @@ void bl31_platform_setup(void)
 
 void bl31_plat_runtime_setup(void)
 {
-	uint64_t flags = 0;
+	uint32_t flags = 0;
 	int32_t rc;
 
 	set_interrupt_rm_flag(flags, NON_SECURE);

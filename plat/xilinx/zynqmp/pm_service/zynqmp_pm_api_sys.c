@@ -51,164 +51,164 @@ typedef struct __attribute__((packed)) {
 /* Dependent APIs for TF-A to check their version from firmware */
 static const eemi_api_dependency api_dep_table[] = {
 	{
-		.id = PM_SELF_SUSPEND,
-		.api_id = PM_SELF_SUSPEND,
+		.id = (uint8_t)PM_SELF_SUSPEND,
+		.api_id = (uint8_t)PM_SELF_SUSPEND,
 	},
 	{
-		.id = PM_REQ_WAKEUP,
-		.api_id = PM_REQ_WAKEUP,
+		.id = (uint8_t)PM_REQ_WAKEUP,
+		.api_id = (uint8_t)PM_REQ_WAKEUP,
 	},
 	{
-		.id = PM_ABORT_SUSPEND,
-		.api_id = PM_ABORT_SUSPEND,
+		.id = (uint8_t)PM_ABORT_SUSPEND,
+		.api_id = (uint8_t)PM_ABORT_SUSPEND,
 	},
 	{
-		.id = PM_SET_WAKEUP_SOURCE,
-		.api_id = PM_SET_WAKEUP_SOURCE,
+		.id = (uint8_t)PM_SET_WAKEUP_SOURCE,
+		.api_id = (uint8_t)PM_SET_WAKEUP_SOURCE,
 	},
 	{
-		.id = PM_SYSTEM_SHUTDOWN,
-		.api_id = PM_SYSTEM_SHUTDOWN,
+		.id = (uint8_t)PM_SYSTEM_SHUTDOWN,
+		.api_id = (uint8_t)PM_SYSTEM_SHUTDOWN,
 	},
 	{
-		.id = PM_GET_API_VERSION,
-		.api_id = PM_GET_API_VERSION,
+		.id = (uint8_t)PM_GET_API_VERSION,
+		.api_id = (uint8_t)PM_GET_API_VERSION,
 	},
 	{
-		.id = PM_CLOCK_ENABLE,
-		.api_id = PM_PLL_SET_MODE,
+		.id = (uint8_t)PM_CLOCK_ENABLE,
+		.api_id = (uint8_t)PM_PLL_SET_MODE,
 	},
 	{
-		.id = PM_CLOCK_ENABLE,
-		.api_id = PM_CLOCK_ENABLE,
+		.id = (uint8_t)PM_CLOCK_ENABLE,
+		.api_id = (uint8_t)PM_CLOCK_ENABLE,
 	},
 	{
-		.id = PM_CLOCK_DISABLE,
-		.api_id = PM_PLL_SET_MODE,
+		.id = (uint8_t)PM_CLOCK_DISABLE,
+		.api_id = (uint8_t)PM_PLL_SET_MODE,
 	},
 	{
-		.id = PM_CLOCK_DISABLE,
-		.api_id = PM_CLOCK_DISABLE,
+		.id = (uint8_t)PM_CLOCK_DISABLE,
+		.api_id = (uint8_t)PM_CLOCK_DISABLE,
 	},
 	{
-		.id = PM_CLOCK_GETSTATE,
-		.api_id = PM_PLL_GET_MODE,
+		.id = (uint8_t)PM_CLOCK_GETSTATE,
+		.api_id = (uint8_t)PM_PLL_GET_MODE,
 	},
 	{
-		.id = PM_CLOCK_GETSTATE,
-		.api_id = PM_CLOCK_GETSTATE,
+		.id = (uint8_t)PM_CLOCK_GETSTATE,
+		.api_id = (uint8_t)PM_CLOCK_GETSTATE,
 	},
 	{
-		.id = PM_CLOCK_SETDIVIDER,
-		.api_id = PM_PLL_SET_PARAMETER,
+		.id = (uint8_t)PM_CLOCK_SETDIVIDER,
+		.api_id = (uint8_t)PM_PLL_SET_PARAMETER,
 	},
 	{
-		.id = PM_CLOCK_SETDIVIDER,
-		.api_id = PM_CLOCK_SETDIVIDER,
+		.id = (uint8_t)PM_CLOCK_SETDIVIDER,
+		.api_id = (uint8_t)PM_CLOCK_SETDIVIDER,
 	},
 	{
-		.id = PM_CLOCK_GETDIVIDER,
-		.api_id = PM_PLL_GET_PARAMETER,
+		.id = (uint8_t)PM_CLOCK_GETDIVIDER,
+		.api_id = (uint8_t)PM_PLL_GET_PARAMETER,
 	},
 	{
-		.id = PM_CLOCK_GETDIVIDER,
-		.api_id = PM_CLOCK_GETDIVIDER,
+		.id = (uint8_t)PM_CLOCK_GETDIVIDER,
+		.api_id = (uint8_t)PM_CLOCK_GETDIVIDER,
 	},
 	{
-		.id = PM_CLOCK_SETPARENT,
-		.api_id = PM_PLL_SET_PARAMETER,
+		.id = (uint8_t)PM_CLOCK_SETPARENT,
+		.api_id = (uint8_t)PM_PLL_SET_PARAMETER,
 	},
 	{
-		.id = PM_CLOCK_SETPARENT,
-		.api_id = PM_CLOCK_SETPARENT,
+		.id = (uint8_t)PM_CLOCK_SETPARENT,
+		.api_id = (uint8_t)PM_CLOCK_SETPARENT,
 	},
 	{
-		.id = PM_CLOCK_GETPARENT,
-		.api_id = PM_PLL_GET_PARAMETER,
+		.id = (uint8_t)PM_CLOCK_GETPARENT,
+		.api_id = (uint8_t)PM_PLL_GET_PARAMETER,
 	},
 	{
-		.id = PM_CLOCK_GETPARENT,
-		.api_id = PM_CLOCK_GETPARENT,
+		.id = (uint8_t)PM_CLOCK_GETPARENT,
+		.api_id = (uint8_t)PM_CLOCK_GETPARENT,
 	},
 	{
-		.id = PM_PLL_SET_PARAMETER,
-		.api_id = PM_PLL_SET_PARAMETER,
+		.id = (uint8_t)PM_PLL_SET_PARAMETER,
+		.api_id = (uint8_t)PM_PLL_SET_PARAMETER,
 	},
 	{
-		.id = PM_PLL_GET_PARAMETER,
-		.api_id = PM_PLL_GET_PARAMETER,
+		.id = (uint8_t)PM_PLL_GET_PARAMETER,
+		.api_id = (uint8_t)PM_PLL_GET_PARAMETER,
 	},
 	{
-		.id = PM_PLL_SET_MODE,
-		.api_id = PM_PLL_SET_MODE,
+		.id = (uint8_t)PM_PLL_SET_MODE,
+		.api_id = (uint8_t)PM_PLL_SET_MODE,
 	},
 	{
-		.id = PM_PLL_GET_MODE,
-		.api_id = PM_PLL_GET_MODE,
+		.id = (uint8_t)PM_PLL_GET_MODE,
+		.api_id = (uint8_t)PM_PLL_GET_MODE,
 	},
 	{
-		.id = PM_REGISTER_ACCESS,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)PM_REGISTER_ACCESS,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 	{
-		.id = PM_REGISTER_ACCESS,
-		.api_id = PM_MMIO_READ,
+		.id = (uint8_t)PM_REGISTER_ACCESS,
+		.api_id = (uint8_t)PM_MMIO_READ,
 	},
 	{
-		.id = PM_FEATURE_CHECK,
-		.api_id = PM_FEATURE_CHECK,
+		.id = (uint8_t)PM_FEATURE_CHECK,
+		.api_id = (uint8_t)PM_FEATURE_CHECK,
 	},
 	{
-		.id = IOCTL_SET_TAPDELAY_BYPASS,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)IOCTL_SET_TAPDELAY_BYPASS,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 	{
-		.id = IOCTL_SD_DLL_RESET,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)IOCTL_SD_DLL_RESET,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 	{
-		.id = IOCTL_SET_SD_TAPDELAY,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)IOCTL_SET_SD_TAPDELAY,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 	{
-		.id = IOCTL_SET_SD_TAPDELAY,
-		.api_id = PM_MMIO_READ,
+		.id = (uint8_t)IOCTL_SET_SD_TAPDELAY,
+		.api_id = (uint8_t)PM_MMIO_READ,
 	},
 	{
-		.id = IOCTL_SET_PLL_FRAC_DATA,
-		.api_id = PM_PLL_SET_PARAMETER,
+		.id = (uint8_t)IOCTL_SET_PLL_FRAC_DATA,
+		.api_id = (uint8_t)PM_PLL_SET_PARAMETER,
 	},
 	{
-		.id = IOCTL_GET_PLL_FRAC_DATA,
-		.api_id = PM_PLL_GET_PARAMETER,
+		.id = (uint8_t)IOCTL_GET_PLL_FRAC_DATA,
+		.api_id = (uint8_t)PM_PLL_GET_PARAMETER,
 	},
 	{
-		.id = IOCTL_WRITE_GGS,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)IOCTL_WRITE_GGS,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 	{
-		.id = IOCTL_READ_GGS,
-		.api_id = PM_MMIO_READ,
+		.id = (uint8_t)IOCTL_READ_GGS,
+		.api_id = (uint8_t)PM_MMIO_READ,
 	},
 	{
-		.id = IOCTL_WRITE_PGGS,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)IOCTL_WRITE_PGGS,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 	{
-		.id = IOCTL_READ_PGGS,
-		.api_id = PM_MMIO_READ,
+		.id = (uint8_t)IOCTL_READ_PGGS,
+		.api_id = (uint8_t)PM_MMIO_READ,
 	},
 	{
-		.id = IOCTL_ULPI_RESET,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)IOCTL_ULPI_RESET,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 	{
-		.id = IOCTL_SET_BOOT_HEALTH_STATUS,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)IOCTL_SET_BOOT_HEALTH_STATUS,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 	{
-		.id = IOCTL_AFI,
-		.api_id = PM_MMIO_WRITE,
+		.id = (uint8_t)IOCTL_AFI,
+		.api_id = (uint8_t)PM_MMIO_WRITE,
 	},
 };
 
@@ -343,7 +343,7 @@ enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 
 	/* encode set Address into 1st bit of address */
 	encoded_address = address;
-	encoded_address |= !!set_address;
+	encoded_address |= (uint32_t)!!set_address;
 
 	/* Send request to the PMU to perform the wake of the PU */
 	PM_PACK_PAYLOAD5(payload, PM_REQ_WAKEUP, target, encoded_address,
@@ -440,7 +440,7 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
-	if (type == PMF_SHUTDOWN_TYPE_SETSCOPE_ONLY) {
+	if (type == (uint32_t)PMF_SHUTDOWN_TYPE_SETSCOPE_ONLY) {
 		/* Setting scope for subsequent PSCI reboot or shutdown */
 		pm_shutdown_scope = subtype;
 		return PM_RET_SUCCESS;
@@ -710,7 +710,7 @@ enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count)
 {
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 	/* Return if interrupt is not from PMU */
-	if (!pm_ipi_irq_status(primary_proc)) {
+	if ((pm_ipi_irq_status(primary_proc) == 0U)) {
 		return ret;
 	}
 
@@ -770,7 +770,7 @@ enum pm_ret_status check_api_dependency(uint8_t id)
 {
 	uint8_t i;
 	uint32_t version_type;
-	int ret;
+	enum pm_ret_status ret;
 
 	for (i = 0U; i < ARRAY_SIZE(api_dep_table); i++) {
 		if (api_dep_table[i].id == id) {
@@ -780,7 +780,7 @@ enum pm_ret_status check_api_dependency(uint8_t id)
 
 			ret = fw_api_version(api_dep_table[i].api_id,
 					     &version_type, 1);
-			if (ret != PM_RET_SUCCESS) {
+			if (ret != (uint32_t)PM_RET_SUCCESS) {
 				return ret;
 			}
 
@@ -898,7 +898,7 @@ static enum pm_ret_status feature_check_partial(uint32_t api_id,
 	case PM_REGISTER_ACCESS:
 	case PM_FEATURE_CHECK:
 		status = check_api_dependency(api_id);
-		if (status != PM_RET_SUCCESS) {
+		if (status != (uint32_t)PM_RET_SUCCESS) {
 			return status;
 		}
 		return get_tfa_version_for_partial_apis(api_id, version);
@@ -925,13 +925,13 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 
 	/* Get API version implemented in TF-A */
 	status = feature_check_tfa(api_id, version, bit_mask);
-	if (status != PM_RET_ERROR_NO_FEATURE) {
+	if (status != (uint32_t)PM_RET_ERROR_NO_FEATURE) {
 		return status;
 	}
 
 	/* Get API version implemented by firmware and TF-A both */
 	status = feature_check_partial(api_id, version);
-	if (status != PM_RET_ERROR_NO_FEATURE) {
+	if (status != (uint32_t)PM_RET_ERROR_NO_FEATURE) {
 		return status;
 	}
 
@@ -940,20 +940,20 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *version,
 	/* IOCTL call may return failure whose ID is not implemented in
 	 * firmware but implemented in TF-A
 	 */
-	if ((api_id != PM_IOCTL) && (status != PM_RET_SUCCESS)) {
+	if ((api_id != (uint32_t)PM_IOCTL) && (status != PM_RET_SUCCESS)) {
 		return status;
 	}
 
 	*version = ret_payload[0];
 
 	/* Update IOCTL bit mask which are implemented in TF-A */
-	if ((api_id == PM_IOCTL) || (api_id == PM_GET_OP_CHARACTERISTIC)) {
-		if (len < 2) {
+	if ((api_id == (uint32_t)PM_IOCTL) || (api_id == (uint32_t)PM_GET_OP_CHARACTERISTIC)) {
+		if (len < 2U) {
 			return PM_RET_ERROR_ARGS;
 		}
 		bit_mask[0] = ret_payload[1];
 		bit_mask[1] = ret_payload[2];
-		if (api_id == PM_IOCTL) {
+		if (api_id == (uint32_t)PM_IOCTL) {
 			/* Get IOCTL's implemented by TF-A */
 			status = tfa_ioctl_bitmask(bit_mask);
 		}
@@ -1521,47 +1521,47 @@ void pm_query_data(enum pm_query_ids qid, uint32_t arg1, uint32_t arg2,
 		pm_clock_get_name(arg1, (char *)data);
 		break;
 	case PM_QID_CLOCK_GET_TOPOLOGY:
-		data[0] = pm_clock_get_topology(arg1, arg2, &data[1]);
+		data[0] = (uint32_t)pm_clock_get_topology(arg1, arg2, &data[1]);
 		break;
 	case PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS:
-		data[0] = pm_clock_get_fixedfactor_params(arg1, &data[1],
+		data[0] = (uint32_t)pm_clock_get_fixedfactor_params(arg1, &data[1],
 							  &data[2]);
 		break;
 	case PM_QID_CLOCK_GET_PARENTS:
-		data[0] = pm_clock_get_parents(arg1, arg2, &data[1]);
+		data[0] = (uint32_t)pm_clock_get_parents(arg1, arg2, &data[1]);
 		break;
 	case PM_QID_CLOCK_GET_ATTRIBUTES:
-		data[0] = pm_clock_get_attributes(arg1, &data[1]);
+		data[0] = (uint32_t)pm_clock_get_attributes(arg1, &data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_NUM_PINS:
-		data[0] = pm_pinctrl_get_num_pins(&data[1]);
+		data[0] = (uint32_t)pm_pinctrl_get_num_pins(&data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_NUM_FUNCTIONS:
-		data[0] = pm_pinctrl_get_num_functions(&data[1]);
+		data[0] = (uint32_t)pm_pinctrl_get_num_functions(&data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS:
-		data[0] = pm_pinctrl_get_num_function_groups(arg1, &data[1]);
+		data[0] = (uint32_t)pm_pinctrl_get_num_function_groups(arg1, &data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_FUNCTION_NAME:
 		pm_pinctrl_get_function_name(arg1, (char *)data);
 		break;
 	case PM_QID_PINCTRL_GET_FUNCTION_GROUPS:
-		data[0] = pm_pinctrl_get_function_groups(arg1, arg2,
+		data[0] = (uint32_t)pm_pinctrl_get_function_groups(arg1, arg2,
 							 (uint16_t *)&data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_PIN_GROUPS:
-		data[0] = pm_pinctrl_get_pin_groups(arg1, arg2,
+		data[0] = (uint32_t)pm_pinctrl_get_pin_groups(arg1, arg2,
 						    (uint16_t *)&data[1]);
 		break;
 	case PM_QID_CLOCK_GET_NUM_CLOCKS:
-		data[0] = pm_clock_get_num_clocks(&data[1]);
+		data[0] = (uint32_t)pm_clock_get_num_clocks(&data[1]);
 		break;
 
 	case PM_QID_CLOCK_GET_MAX_DIVISOR:
-		data[0] = pm_clock_get_max_divisor(arg1, arg2, &data[1]);
+		data[0] = (uint32_t)pm_clock_get_max_divisor(arg1, (uint8_t)arg2, &data[1]);
 		break;
 	default:
-		data[0] = PM_RET_ERROR_ARGS;
+		data[0] = (uint32_t)PM_RET_ERROR_ARGS;
 		WARN("Unimplemented query service call: 0x%x\n", qid);
 		break;
 	}
