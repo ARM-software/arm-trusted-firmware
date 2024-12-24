@@ -30,10 +30,10 @@ static u_register_t apusys_kernel_handler(u_register_t x1,
 
 	switch (request_ops) {
 	case MTK_APUSYS_KERNEL_OP_APUSYS_PWR_TOP_ON:
-		ret = apusys_kernel_apusys_pwr_top_on();
+		ret = apusys_kernel_apusys_rv_pwr_ctrl(APU_PWR_ON);
 		break;
 	case MTK_APUSYS_KERNEL_OP_APUSYS_PWR_TOP_OFF:
-		ret = apusys_kernel_apusys_pwr_top_off();
+		ret = apusys_kernel_apusys_rv_pwr_ctrl(APU_PWR_OFF);
 		break;
 	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_SETUP_REVISER:
 		ret = apusys_kernel_apusys_rv_setup_reviser();
@@ -67,6 +67,27 @@ static u_register_t apusys_kernel_handler(u_register_t x1,
 		break;
 	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_CG_UNGATING:
 		ret = apusys_kernel_apusys_rv_cg_ungating();
+		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_RV_SETUP_APUMMU:
+		ret = apusys_kernel_apusys_rv_setup_apummu();
+		break;
+#ifdef CONFIG_MTK_APUSYS_LOGTOP_SUPPORT
+	case MTK_APUSYS_KERNEL_OP_APUSYS_LOGTOP_REG_DUMP:
+		ret = apusys_kernel_apusys_logtop_reg_dump((uint32_t)x2, smccc_ret);
+		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_LOGTOP_REG_WRITE:
+		ret = apusys_kernel_apusys_logtop_reg_write((uint32_t)x2, (uint32_t)x3,
+							    smccc_ret);
+		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_LOGTOP_REG_W1C:
+		ret = apusys_kernel_apusys_logtop_reg_w1c((uint32_t)x2, smccc_ret);
+		break;
+#endif
+	case MTK_APUSYS_KERNEL_OP_APUSYS_COLD_BOOT_CLR_MBOX_DUMMY:
+		ret = apusys_rv_cold_boot_clr_mbox_dummy();
+		break;
+	case MTK_APUSYS_KERNEL_OP_APUSYS_SETUP_CE_BIN:
+		ret = apusys_rv_setup_ce_bin();
 		break;
 	default:
 		ERROR(MODULE_TAG "%s unknown request_ops = %x\n", MODULE_TAG, request_ops);

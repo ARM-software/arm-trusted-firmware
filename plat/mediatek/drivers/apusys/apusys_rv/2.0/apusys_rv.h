@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2023-2024, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -88,24 +88,35 @@
 #define WDT_INT_W1C			(1)
 #define WDT_EN				BIT(31)
 
-/* APU MBOX */
-#define MBOX_FUNC_CFG			(0xb0)
-#define MBOX_DOMAIN_CFG			(0xe0)
-#define MBOX_CTRL_LOCK			BIT(0)
-#define MBOX_NO_MPU_SHIFT		(16)
-#define MBOX_RX_NS_SHIFT		(16)
-#define MBOX_RX_DOMAIN_SHIFT		(17)
-#define MBOX_TX_NS_SHIFT		(24)
-#define MBOX_TX_DOMAIN_SHIFT		(25)
-#define MBOX_SIZE			(0x100)
-#define MBOX_NUM			(8)
+enum APU_PWR_OP {
+	APU_PWR_OFF = 0,
+	APU_PWR_ON  = 1,
+};
 
-#define APU_MBOX(i)		(((i) < MBOX_NUM) ? (APU_MBOX0 + MBOX_SIZE * (i)) : \
-						  (APU_MBOX1 + MBOX_SIZE * ((i) - MBOX_NUM)))
-#define APU_MBOX_FUNC_CFG(i)	(APU_MBOX(i) + MBOX_FUNC_CFG)
-#define APU_MBOX_DOMAIN_CFG(i)	(APU_MBOX(i) + MBOX_DOMAIN_CFG)
+/* APU_LOGTOP */
+#define APU_LOGTOP_CON			(APU_LOGTOP + 0x0)
+#define APU_LOG_BUF_T_SIZE		(APU_LOGTOP + 0x78)
+#define APU_LOG_BUF_W_PTR		(APU_LOGTOP + 0x80)
+#define APU_LOG_BUF_R_PTR		(APU_LOGTOP + 0x84)
+#define HW_SEMA2			(APU_ARE_REG_BASE + 0x0E08)
+#define HW_SEMA_USER			(0x2)
+#define HW_SEMA_LOGGER_USER		(0x3)
+#define MAX_SMC_OP_NUM			(0x3)
+#define LOGTOP_OP_MASK			(0xFF)
+#define LOGTOP_OP_SHIFT			(8)
+enum {
+	SMC_OP_APU_LOG_BUF_NULL = 0,
+	SMC_OP_APU_LOG_BUF_T_SIZE,
+	SMC_OP_APU_LOG_BUF_W_PTR,
+	SMC_OP_APU_LOG_BUF_R_PTR,
+	SMC_OP_APU_LOG_BUF_CON,
+	SMC_OP_APU_LOG_BUF_NUM
+};
+
+struct smccc_res;
 
 void apusys_rv_mbox_mpu_init(void);
+int apusys_infra_dcm_setup(void);
 int apusys_kernel_apusys_rv_setup_reviser(void);
 int apusys_kernel_apusys_rv_reset_mp(void);
 int apusys_kernel_apusys_rv_setup_boot(void);
@@ -116,5 +127,13 @@ int apusys_kernel_apusys_rv_disable_wdt_isr(void);
 int apusys_kernel_apusys_rv_clear_wdt_isr(void);
 int apusys_kernel_apusys_rv_cg_gating(void);
 int apusys_kernel_apusys_rv_cg_ungating(void);
+int apusys_kernel_apusys_rv_setup_apummu(void);
+int apusys_kernel_apusys_rv_pwr_ctrl(enum APU_PWR_OP op);
+int apusys_kernel_apusys_logtop_reg_dump(uint32_t op, struct smccc_res *smccc_ret);
+int apusys_kernel_apusys_logtop_reg_write(uint32_t op, uint32_t write_val,
+					  struct smccc_res *smccc_ret);
+int apusys_kernel_apusys_logtop_reg_w1c(uint32_t op, struct smccc_res *smccc_ret);
+int apusys_rv_cold_boot_clr_mbox_dummy(void);
+int apusys_rv_setup_ce_bin(void);
 
 #endif /* APUSYS_RV_H */

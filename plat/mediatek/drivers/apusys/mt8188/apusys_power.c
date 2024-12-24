@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2023, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2023-2024, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <inttypes.h>
 
 /* TF-A system header */
@@ -18,6 +19,7 @@
 #include "apusys.h"
 #include "apusys_power.h"
 #include "apusys_rv.h"
+#include "apusys_rv_pwr_ctrl.h"
 #include <mtk_mmap_pool.h>
 
 static spinlock_t apu_lock;
@@ -118,7 +120,7 @@ static void apu_pwr_flow_remote_sync(uint32_t cfg)
 	mmio_write_32(APU_MBOX0_BASE + PWR_FLOW_SYNC_REG, (cfg & 0x1));
 }
 
-int apusys_kernel_apusys_pwr_top_on(void)
+static int apusys_kernel_apusys_pwr_top_on(void)
 {
 	int ret;
 
@@ -184,7 +186,7 @@ static void apu_sleep_rpc_rcx(void)
 	udelay(100);
 }
 
-int apusys_kernel_apusys_pwr_top_off(void)
+static int apusys_kernel_apusys_pwr_top_off(void)
 {
 	int ret;
 
@@ -219,6 +221,19 @@ int apusys_kernel_apusys_pwr_top_off(void)
 
 	spin_unlock(&apu_lock);
 	return ret;
+}
+
+int apusys_rv_pwr_ctrl(enum APU_PWR_OP op)
+{
+	if (op != APU_PWR_OFF && op != APU_PWR_ON) {
+		ERROR(MODULE_TAG "%s unknown request_ops = %d\n", __func__, op);
+		return -EINVAL;
+	}
+
+	if (op == APU_PWR_ON)
+		return apusys_kernel_apusys_pwr_top_on();
+
+	return apusys_kernel_apusys_pwr_top_off();
 }
 
 static void get_pll_pcw(const uint32_t clk_rate, uint32_t *r1, uint32_t *r2)
@@ -480,4 +495,11 @@ int apusys_power_init(void)
 	}
 
 	return ret;
+}
+
+int apusys_infra_dcm_setup(void)
+{
+	WARN(MODULE_TAG "%s not support\n", __func__);
+
+	return -EOPNOTSUPP;
 }

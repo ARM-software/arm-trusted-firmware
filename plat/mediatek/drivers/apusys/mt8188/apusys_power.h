@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2023-2024, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -242,7 +242,5 @@ struct apu_restore_data {
 #define CG_CLR					(0xffffffff)
 
 int apusys_power_init(void);
-int apusys_kernel_apusys_pwr_top_on(void);
-int apusys_kernel_apusys_pwr_top_off(void);
 
 #endif /* APUSYS_POWER_H */
