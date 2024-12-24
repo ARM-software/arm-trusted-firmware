@@ -35,6 +35,8 @@ ifneq ($(CONFIG_MTK_SPM_COMMON_SUPPORT), y)
 LOCAL_SRCS-${CONFIG_MTK_SPM_SUPPORT} += ${LOCAL_DIR}/mt_spm_early_init.c
 endif
 
+LOCAL_SRCS-${CONFIG_MTK_VCOREDVFS_SUPPORT} += ${LOCAL_DIR}/mt_spm_vcorefs_smc.c
+
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
 
 SUB_RULES-${MTK_SPM_COMMON_DRV} += ${LOCAL_DIR}/common
