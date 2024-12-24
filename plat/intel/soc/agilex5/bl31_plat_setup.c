@@ -234,9 +234,9 @@ void bl31_plat_set_secondary_cpu_entrypoint(unsigned int cpu_id)
 	unsigned int pchctlr_new = 0x00;
 	uint32_t boot_core = 0x00;
 
-	/* Store magic number for SMP secondary cores boot */
-	mmio_write_32(L2_RESET_DONE_REG, SMP_SEC_CORE_BOOT_REQ);
-
+	/* Set bit for SMP secondary cores boot */
+	mmio_clrsetbits_32(L2_RESET_DONE_REG, BS_REG_MAGIC_KEYS_MASK,
+			   SMP_SEC_CORE_BOOT_REQ);
 	boot_core = (mmio_read_32(AGX5_PWRMGR(MPU_BOOTCONFIG)) & 0xC00);
 	/* Update the p-channel based on cpu id */
 	pch_cpu = 1 << cpu_id;

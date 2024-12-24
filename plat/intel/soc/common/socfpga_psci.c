@@ -223,6 +223,10 @@ static int socfpga_system_reset2(int is_vendor, int reset_type,
 	invalidate_cache_low_el();
 #endif
 
+	/* Set warm reset request bit before issuing the command to SDM. */
+	mmio_clrsetbits_32(L2_RESET_DONE_REG, BS_REG_MAGIC_KEYS_MASK,
+			   L2_RESET_DONE_STATUS);
+
 #if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
 	mailbox_reset_warm(reset_type);
 #else
@@ -237,9 +241,6 @@ static int socfpga_system_reset2(int is_vendor, int reset_type,
 #else
 	gicv2_cpuif_disable();
 #endif
-
-	/* Store magic number */
-	mmio_write_32(L2_RESET_DONE_REG, L2_RESET_DONE_STATUS);
 
 	/* Increase timeout */
 	mmio_write_32(SOCFPGA_RSTMGR(HDSKTIMEOUT), 0xffffff);

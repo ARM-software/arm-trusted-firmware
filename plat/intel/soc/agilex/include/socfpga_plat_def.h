@@ -127,10 +127,21 @@
 #define SDMMC_WRITE_BLOCKS			mmc_write_blocks
 
 /*******************************************************************************
- * sysmgr.boot_scratch_cold6 & 7 (64bit) are used to indicate L2 reset
+ * sysmgr.boot_scratch_cold6 Bits[3:0] is used to indicate L2 reset
  * is done and HPS should trigger warm reset via RMR_EL3.
  ******************************************************************************/
-#define L2_RESET_DONE_REG			0xFFD12218
+/*
+ * Magic key bits: 4 bits[3:0] from boot scratch register COLD6 are used to
+ * indicate the below requests/status
+ *     0x0       : Default value on reset, not used
+ *     0x1       : L2/warm reset is completed
+ *     0x2 - 0xF : Reserved for future use
+ */
+#define BS_REG_MAGIC_KEYS_MASK			0x0F
+#define BS_REG_MAGIC_KEYS_POS			0x00
+#define L2_RESET_DONE_STATUS			(0x01 << BS_REG_MAGIC_KEYS_POS)
+
+#define L2_RESET_DONE_REG			SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_6)
 
 /* Platform specific system counter */
 #define PLAT_SYS_COUNTER_FREQ_IN_MHZ		U(400)
