@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
 
 uint32_t intel_hps_get_jtag_id(void)
 {
-	uint32_t jtag_id = 0x00;
+	uint32_t jtag_id;
 
 	jtag_id = (mmio_read_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_4)));
 
@@ -28,4 +28,10 @@ uint32_t intel_hps_get_jtag_id(void)
 bool is_agilex5_A5F0(void)
 {
 	return ((intel_hps_get_jtag_id() & JTAG_ID_MASK) == A5F0_JTAG_ID);
+}
+
+/* Check for Agilex5 SM4 B0 */
+bool is_agilex5_A5F4(void)
+{
+	return ((intel_hps_get_jtag_id() & JTAG_ID_MASK) == A5F4_JTAG_ID);
 }
