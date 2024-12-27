@@ -325,10 +325,12 @@ void bl31_plat_runtime_setup(void)
 #if TRANSFER_LIST
 	if (bl31_tl) {
 		/*
-		 * update the TL from S to NS memory before jump to BL33
+		 * Relocate the TL from S to NS memory before EL3 exit
 		 * to reflect all changes in TL done by BL32
 		 */
-		memcpy((void *)FW_NS_HANDOFF_BASE, bl31_tl, bl31_tl->max_size);
+		if (!transfer_list_relocate(bl31_tl, (void *)FW_NS_HANDOFF_BASE,
+					    bl31_tl->max_size))
+			ERROR("Relocate TL to NS memory failed\n");
 	}
 #endif
 
