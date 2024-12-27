@@ -16,6 +16,9 @@
 #pragma weak plat_scmi_clock_get_name
 #pragma weak plat_scmi_clock_rates_array
 #pragma weak plat_scmi_clock_rates_by_step
+#pragma weak plat_scmi_clock_get_possible_parents
+#pragma weak plat_scmi_clock_get_parent
+#pragma weak plat_scmi_clock_set_parent
 #pragma weak plat_scmi_clock_get_rate
 #pragma weak plat_scmi_clock_set_rate
 #pragma weak plat_scmi_clock_get_state
@@ -46,6 +49,28 @@ int32_t plat_scmi_clock_rates_array(unsigned int agent_id __unused,
 int32_t plat_scmi_clock_rates_by_step(unsigned int agent_id __unused,
 				      unsigned int scmi_id __unused,
 				      unsigned long *steps __unused)
+{
+	return SCMI_NOT_SUPPORTED;
+}
+
+int32_t plat_scmi_clock_get_possible_parents(unsigned int agent_id,
+					     unsigned int scmi_id,
+					     unsigned int *plat_possible_parents,
+					     size_t *nb_elts,
+					     uint32_t skip_parents)
+{
+	return SCMI_NOT_SUPPORTED;
+}
+
+int32_t plat_scmi_clock_get_parent(unsigned int agent_id,
+				   unsigned int scmi_id)
+{
+	return SCMI_NOT_SUPPORTED;
+}
+
+int32_t plat_scmi_clock_set_parent(unsigned int agent_id,
+				   unsigned int scmi_id,
+				   unsigned int parent_id)
 {
 	return SCMI_NOT_SUPPORTED;
 }
@@ -162,7 +187,149 @@ static void scmi_clock_attributes(struct scmi_msg *msg)
 	return_values.attributes = plat_scmi_clock_get_state(msg->agent_id,
 							     clock_id);
 
+	return_values.attributes |= BIT(SCMI_CLOCK_PARENT_GET_ENABLE_POS);
+
 	scmi_write_response(msg, &return_values, sizeof(return_values));
+}
+
+#define PARENTS_ARRAY_SIZE_MAX (SCMI_PLAYLOAD_MAX - \
+				sizeof(struct scmi_clock_possible_parents_get_p2a))
+
+static void write_possible_parents_array_in_buffer(char *dest, unsigned int *possible_parents,
+						   size_t nb_elt)
+{
+	uint32_t *out = (uint32_t *)(uintptr_t)dest;
+	size_t n;
+
+	ASSERT_SYM_PTR_ALIGN(out);
+
+	for (n = 0U; n < nb_elt; n++) {
+		out[n] = (uint32_t)possible_parents[n];
+	}
+}
+
+static void scmi_clock_possible_parents_get(struct scmi_msg *msg)
+{
+	const struct scmi_clock_possible_parents_get_a2p *in_args = (void *)msg->in;
+	struct scmi_clock_possible_parents_get_p2a p2a = {
+		.status = SCMI_SUCCESS,
+		.num_parents_flags = 0,
+	};
+
+	unsigned int clock_id = 0U;
+	size_t nb_possible_parents;
+	int32_t status;
+
+	if (msg->in_size != sizeof(*in_args)) {
+		scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
+		return;
+	}
+
+	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
+
+	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
+		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		return;
+	}
+	/* Platform may support array rate description */
+	status = plat_scmi_clock_get_possible_parents(msg->agent_id, clock_id, NULL,
+						      &nb_possible_parents, 0);
+	if (status == SCMI_SUCCESS) {
+		/* Currently 12 cells max, so it's affordable for the stack */
+		unsigned int plat_possible_parents[PARENTS_ARRAY_SIZE_MAX / sizeof(unsigned int)];
+		size_t max_nb = PARENTS_ARRAY_SIZE_MAX / sizeof(unsigned int);
+		size_t ret_nb = MIN(nb_possible_parents - in_args->skip_parents, max_nb);
+		size_t rem_nb = nb_possible_parents - in_args->skip_parents - ret_nb;
+
+		status =  plat_scmi_clock_get_possible_parents(msg->agent_id, clock_id,
+							       plat_possible_parents, &ret_nb,
+							       in_args->skip_parents);
+		if (status == SCMI_SUCCESS) {
+			write_possible_parents_array_in_buffer(msg->out + sizeof(p2a),
+							       plat_possible_parents, ret_nb);
+
+			p2a.num_parents_flags = ((uint8_t)rem_nb) << 24;
+			p2a.num_parents_flags |= (uint8_t)ret_nb;
+			p2a.status = SCMI_SUCCESS;
+
+			memcpy(msg->out, &p2a, sizeof(p2a));
+			msg->out_size_out = sizeof(p2a) +
+					    ret_nb * sizeof(unsigned int);
+		}
+
+	} else {
+		/* Fallthrough generic exit sequence below with error status */
+	}
+
+	if (status != SCMI_SUCCESS) {
+		scmi_status_response(msg, status);
+	} else {
+		/*
+		 * Message payload is already written to msg->out, and
+		 * msg->out_size_out updated.
+		 */
+	}
+
+}
+
+static void scmi_clock_parent_get(struct scmi_msg *msg)
+{
+	const struct scmi_clock_parent_get_a2p *in_args = (void *)msg->in;
+
+	struct scmi_clock_parent_get_p2a return_values = {
+		.status = SCMI_SUCCESS,
+	};
+	unsigned int clock_id = 0U;
+	unsigned int parent_id = 0U;
+
+	if (msg->in_size != sizeof(*in_args)) {
+		scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
+		return;
+	}
+
+	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
+
+	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
+		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		return;
+	}
+
+	parent_id = plat_scmi_clock_get_parent(msg->agent_id, clock_id);
+
+	if (!parent_id)
+		return_values.status = SCMI_NOT_FOUND;
+	else if (parent_id < 0)
+		return_values.status = SCMI_NOT_SUPPORTED;
+
+	return_values.parent_id = (uint32_t)parent_id;
+
+	scmi_write_response(msg, &return_values, sizeof(return_values));
+}
+
+static void scmi_clock_parent_set(struct scmi_msg *msg)
+{
+	const struct scmi_clock_parent_set_a2p *in_args = (void *)msg->in;
+
+	int32_t status = 0;
+	unsigned int clock_id = 0U;
+	unsigned int parent_id = 0U;
+
+	if (msg->in_size != sizeof(*in_args)) {
+		scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
+		return;
+	}
+
+	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
+	parent_id = in_args->parent_id;
+
+	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
+		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		return;
+	}
+
+	status = plat_scmi_clock_set_parent(msg->agent_id, clock_id, parent_id);
+
+	scmi_status_response(msg, status);
 }
 
 static void scmi_clock_rate_get(struct scmi_msg *msg)
@@ -228,10 +395,13 @@ static void scmi_clock_config_set(struct scmi_msg *msg)
 	bool enable = false;
 	unsigned int clock_id = 0U;
 
-	if (msg->in_size != sizeof(*in_args)) {
-		scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
-		return;
-	}
+	/* This breaks compatibility between version */
+	/*
+	 * if (msg->in_size != sizeof(*in_args)) {
+	 * 	scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
+	 * 	return;
+	 * }
+	 */
 
 	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
 
@@ -245,6 +415,32 @@ static void scmi_clock_config_set(struct scmi_msg *msg)
 	status = plat_scmi_clock_set_state(msg->agent_id, clock_id, enable);
 
 	scmi_status_response(msg, status);
+}
+
+static void scmi_clock_config_get(struct scmi_msg *msg)
+{
+	const struct scmi_clock_config_get_a2p *in_args = (void *)msg->in;
+	struct scmi_clock_config_get_p2a p2a = {
+		.status = SCMI_SUCCESS,
+	};
+
+	unsigned int clock_id = 0U;
+
+	if (msg->in_size != sizeof(*in_args)) {
+		scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
+		return;
+	}
+
+	clock_id = SPECULATION_SAFE_VALUE(in_args->clock_id);
+
+	if (clock_id >= plat_scmi_clock_count(msg->agent_id)) {
+		scmi_status_response(msg, SCMI_INVALID_PARAMETERS);
+		return;
+	}
+
+	p2a.config = plat_scmi_clock_get_state(msg->agent_id, clock_id);
+
+	scmi_write_response(msg, &p2a, sizeof(p2a));
 }
 
 #define RATES_ARRAY_SIZE_MAX	(SCMI_PLAYLOAD_MAX - \
@@ -361,6 +557,10 @@ static const scmi_msg_handler_t scmi_clock_handler_table[] = {
 	[SCMI_CLOCK_RATE_SET] = scmi_clock_rate_set,
 	[SCMI_CLOCK_RATE_GET] = scmi_clock_rate_get,
 	[SCMI_CLOCK_CONFIG_SET] = scmi_clock_config_set,
+	[SCMI_CLOCK_CONFIG_GET] = scmi_clock_config_get,
+	[SCMI_CLOCK_POSSIBLE_PARENTS_GET] = scmi_clock_possible_parents_get,
+	[SCMI_CLOCK_PARENT_SET] = scmi_clock_parent_set,
+	[SCMI_CLOCK_PARENT_GET] = scmi_clock_parent_get,
 };
 
 static bool message_id_is_supported(unsigned int message_id)
