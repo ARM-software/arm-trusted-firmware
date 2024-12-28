@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Mediatek Inc. All rights reserved.
+ * Copyright (c) 2025, Mediatek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,9 @@
 #define MCUCFG_BASE		(0x0C000000)
 #define MCUCFG_REG_SIZE		(0x50000)
 #define IO_PHYS			(0x10000000)
+
+#define MT_UTILITYBUS_BASE	(0x0C800000)
+#define MT_UTILITYBUS_SIZE	(0x800000)
 
 /* Aggregate of all devices for MMU mapping */
 #define MTK_DEV_RNG1_BASE	(IO_PHYS)
@@ -65,6 +68,20 @@
  * SPM related constants
  ******************************************************************************/
 #define SPM_BASE		(IO_PHYS + 0x0C004000)
+#define SPM_REG_SIZE		(0x1000)
+#define SPM_SRAM_BASE		(IO_PHYS + 0x0C00C000)
+#define SPM_SRAM_REG_SIZE	(0x1000)
+#define SPM_PBUS_BASE		(IO_PHYS + 0x0C00D000)
+#define SPM_PBUS_REG_SIZE	(0x1000)
+
+#ifdef SPM_BASE
+#define SPM_EXT_INT_WAKEUP_REQ		(SPM_BASE + 0x210)
+#define SPM_EXT_INT_WAKEUP_REQ_SET	(SPM_BASE + 0x214)
+#define SPM_EXT_INT_WAKEUP_REQ_CLR	(SPM_BASE + 0x218)
+#define SPM_CPU_BUCK_ISO_CON		(SPM_BASE + 0xEF8)
+#define SPM_CPU_BUCK_ISO_DEFAUT		(0x0)
+#define SPM_AUDIO_PWR_CON		(SPM_BASE + 0xE4C)
+#endif
 
 /*******************************************************************************
  * GPIO related constants
@@ -237,8 +254,16 @@
 #define MAX_MMAP_REGIONS		(512)
 
 /*******************************************************************************
+ * CPU_EB TCM handling related constants
+ ******************************************************************************/
+#define CPU_EB_TCM_BASE		0x0C2CF000
+#define CPU_EB_TCM_SIZE		0x1000
+#define CPU_EB_MBOX3_OFFSET	0xFCE0
+#define CPU_EB_TCM_CNT_BASE	0x0C2CC000
+
+/*******************************************************************************
  * CPU PM definitions
- *******************************************************************************/
+ ******************************************************************************/
 #define PLAT_CPU_PM_B_BUCK_ISO_ID	(6)
 #define PLAT_CPU_PM_ILDO_ID		(6)
 #define CPU_IDLE_SRAM_BASE		(0x11B000)
