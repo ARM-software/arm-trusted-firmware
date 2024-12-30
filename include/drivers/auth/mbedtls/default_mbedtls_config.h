@@ -152,3 +152,9 @@
  * the warnings to more functions.
  */
 #define MBEDTLS_CHECK_RETURN_WARNING
+
+/*
+ * Use an implementation of SHA-256 with a smaller memory footprint but reduced
+ * speed.
+ */
+#define MBEDTLS_SHA256_SMALLER
