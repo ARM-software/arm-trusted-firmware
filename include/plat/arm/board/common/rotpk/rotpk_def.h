@@ -13,12 +13,9 @@
  */
 
 /*
- * Root of trust key lengths
+ * Length of the header for a hashed DER ROTPK.
  */
-#ifndef ARM_ROTPK_HEADER_LEN
-#define ARM_ROTPK_HEADER_LEN		19
-#endif
-#ifndef ARM_ROTPK_HASH_LEN
-#define ARM_ROTPK_HASH_LEN		32
+#ifndef ARM_ROTPK_HASH_DER_HEADER_LEN
+#define ARM_ROTPK_HASH_DER_HEADER_LEN		19
 #endif
 #endif /* ROTPK_DEF_H */

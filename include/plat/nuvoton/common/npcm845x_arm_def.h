@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, ARM Limited and Contributors. All rights reserved.
  *
  * Copyright (C) 2017-2023 Nuvoton Ltd.
  *
@@ -30,10 +30,9 @@
  *****************************************************************************/
 
 /*
- * Root of trust key hash lengths
+ * Length of the header for a hashed DER ROTPK.
  */
-#define ARM_ROTPK_HEADER_LEN		19
-#define ARM_ROTPK_HASH_LEN		32
+#define ARM_ROTPK_HASH_DER_HEADER_LEN		19
 
 /* Special value used to verify platform parameters from BL2 to BL31 */
 #define ARM_BL31_PLAT_PARAM_VAL		ULL(0x0f1e2d3c4b5a6978)

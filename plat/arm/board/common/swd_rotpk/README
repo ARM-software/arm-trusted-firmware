@@ -6,9 +6,12 @@ root-of-trust key used in the CCA chain of trust.
 
   openssl genrsa 2048 > arm_swd_rotprivk_rsa.pem
 
-* swd_rotpk_rsa_sha256.bin is the SHA-256 hash of the DER-encoded public key
-  associated with the above private key. It has been generated using the openssl
-  command line tool:
+* arm_swd_rotprivk_ecdsa.pem is a P-256 ECSA private key in PEM format. It has been
+  generated using the openssl command line tool:
 
-  openssl rsa -in arm_swd_rotprivk_rsa.pem -pubout -outform DER | \
-    openssl dgst -sha256 -binary > arm_swd_rotpk_rsa_sha256.bin
+  openssl ecparam -name prime256v1 -genkey -outform PEM -noout -out arm_swd_rotprivk_ecdsa.pem
+
+* arm_swd_rotprivk_ecdsa_secp384r1.pem is a P-384 ECSA private key in PEM format. It has been
+  generated using the openssl command line tool:
+
+  openssl ecparam -name secp384r1 -genkey -outform PEM -noout -out arm_swd_rotprivk_ecdsa_secp384r1.pem
