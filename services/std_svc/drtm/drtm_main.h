@@ -37,6 +37,11 @@
 		(((a)->dlme_paddr + (a)->dlme_img_off + (a)->dlme_img_ep_off))
 
 /*
+ * Minimum size of Event Log in DLME data (64 KiB)
+ */
+#define ARM_DRTM_MIN_EVENT_LOG_SIZE	U(0x10000)
+
+/*
  * Range(Min/Max) of DRTM parameter structure versions supported
  */
 #define ARM_DRTM_PARAMS_MIN_VERSION	U(1)
