@@ -169,8 +169,21 @@
 /*******************************************************************************
  * EMI MPU related constants
  *******************************************************************************/
-#define EMI_MPU_BASE		(IO_PHYS + 0x00428000)
-#define SUB_EMI_MPU_BASE	(IO_PHYS + 0x00528000)
+#define EMI_MPU_BASE			(IO_PHYS + 0x00428000)
+#define SUB_EMI_MPU_BASE		(IO_PHYS + 0x00528000)
+#define EMI_SLB_BASE			(IO_PHYS + 0x0042e000)
+#define SUB_EMI_SLB_BASE		(IO_PHYS + 0x0052e000)
+#define CHN0_EMI_APB_BASE		(IO_PHYS + 0x00201000)
+#define CHN1_EMI_APB_BASE		(IO_PHYS + 0x00205000)
+#define CHN2_EMI_APB_BASE		(IO_PHYS + 0x00209000)
+#define CHN3_EMI_APB_BASE		(IO_PHYS + 0x0020D000)
+#define EMI_APB_BASE			(IO_PHYS + 0x00429000)
+#define INFRA_EMI_DEBUG_CFG_BASE	(IO_PHYS + 0x00425000)
+#define NEMI_SMPU_BASE			(IO_PHYS + 0x0042f000)
+#define SEMI_SMPU_BASE			(IO_PHYS + 0x0052f000)
+#define SUB_EMI_APB_BASE		(IO_PHYS + 0x00529000)
+#define SUB_INFRA_EMI_DEBUG_CFG_BASE	(IO_PHYS + 0x00525000)
+#define SUB_INFRACFG_AO_MEM_BASE	(IO_PHYS + 0x00504000)
 
 /*******************************************************************************
  * System counter frequency related constants
