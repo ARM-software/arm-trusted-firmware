@@ -18,8 +18,6 @@
 #include <plat_mtk_lpm.h>
 #include <plat_pm.h>
 
-DEFINE_SYSREG_RW_FUNCS(dbgprcr_el1);
-
 static int plat_mt_lp_cpu_rc;
 
 static int pwr_state_prompt(unsigned int cpu, const psci_power_state_t *state)
