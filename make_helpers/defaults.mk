@@ -301,6 +301,9 @@ SPMD_SPM_AT_SEL2		:= 1
 # image. This is meant to help debugging the post-BL2 phase.
 SPIN_ON_BL1_EXIT		:= 0
 
+# Enable Platform Fault Detection Interface (PFDI) support.
+PFDI_SUPPORT			:= 0
+
 # Flags to build TF with Trusted Boot support
 TRUSTED_BOARD_BOOT		:= 0
 
