@@ -121,13 +121,13 @@ cpu_reset_func_end cortex_x3
 	 * ----------------------------------------------------
 	 */
 func cortex_x3_core_pwr_dwn
-	apply_erratum cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909
+	apply_erratum cortex_x3, ERRATUM(2313909), ERRATA_X3_2313909, NO_GET_CPU_REV
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
 	sysreg_bit_set CORTEX_X3_CPUPWRCTLR_EL1, CORTEX_X3_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	apply_erratum cortex_x3, ERRATUM(2743088), ERRATA_X3_2743088
+	apply_erratum cortex_x3, ERRATUM(2743088), ERRATA_X3_2743088, NO_GET_CPU_REV
 	isb
 	ret
 endfunc cortex_x3_core_pwr_dwn

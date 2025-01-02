@@ -848,6 +848,10 @@ CPU_FLAG_LIST += ERRATA_X4_2816013
 # to revisions r0p0 and r0p1 of the Cortex-X4 cpu. It is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_X4_2897503
 
+# Flag to apply erratum 2923985 workaround on reset. This erratum applies
+# to revisions r0p0 and r0p1 of the Cortex-X4 cpu. It is fixed in r0p2.
+CPU_FLAG_LIST += ERRATA_X4_2923985
+
 # Flag to apply erratum 3076789 workaround on reset. This erratum applies
 # to revisions r0p0 and r0p1 of the Cortex-X4 cpu. It is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_X4_3076789

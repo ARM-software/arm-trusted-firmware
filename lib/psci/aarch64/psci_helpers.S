@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <cpu_macros.S>
 #include <lib/psci/psci.h>
 #include <platform_def.h>
 
@@ -124,9 +125,8 @@ endfunc psci_do_pwrup_cache_maintenance
  * -----------------------------------------------------------------------
  */
 func psci_power_down_wfi
-#if ERRATA_A510_2684597
-	bl apply_cpu_pwr_dwn_errata
-#endif
+	apply_erratum cortex_a510, ERRATUM(2684597), ERRATA_A510_2684597
+
 	dsb	sy		// ensure write buffer empty
 1:
 	wfi

@@ -474,7 +474,7 @@
  *
  * _get_rev:
  *	Optional parameter that determines whether to insert a call to the CPU revision fetching
- *	procedure. Stores the result of this in the temporary register x10.
+ *	procedure. Stores the result of this in the temporary register x10 to allow for chaining
  *
  * clobbers: x0-x10 (PCS compliant)
  */

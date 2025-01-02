@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -21,8 +21,7 @@ PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
 				lib/psci/${ARCH}/psci_helpers.S
 
 ifeq (${ARCH}, aarch64)
-PSCI_LIB_SOURCES	+=	lib/el3_runtime/aarch64/context.S	\
-				lib/psci/aarch64/runtime_errata.S
+PSCI_LIB_SOURCES	+=	lib/el3_runtime/aarch64/context.S
 endif
 
 ifeq (${USE_COHERENT_MEM}, 1)
