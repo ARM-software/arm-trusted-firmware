@@ -82,6 +82,12 @@ workaround_reset_end cortex_x4, ERRATUM(2897503)
 
 check_erratum_ls cortex_x4, ERRATUM(2897503), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x4, ERRATUM(2923985), ERRATA_X4_2923985
+	sysreg_bit_set CORTEX_X4_CPUACTLR4_EL1, (BIT(11) | BIT(10))
+workaround_reset_end cortex_x4, ERRATUM(2923985)
+
+check_erratum_ls cortex_x4, ERRATUM(2923985), CPU_REV(0, 1)
+
 workaround_reset_start cortex_x4, ERRATUM(3076789), ERRATA_X4_3076789
 	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(14)
 	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(13)
@@ -118,7 +124,7 @@ func cortex_x4_core_pwr_dwn
 	 */
 	sysreg_bit_set CORTEX_X4_CPUPWRCTLR_EL1, CORTEX_X4_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 
-	apply_erratum cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
+	apply_erratum cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089, NO_GET_CPU_REV
 
 	isb
 	ret
