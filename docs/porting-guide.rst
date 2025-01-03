@@ -2454,7 +2454,7 @@ pointer authentication keys.
 The value should be obtained from a reliable source of randomness.
 
 This function is only needed if ARMv8.3 pointer authentication is used in the
-Trusted Firmware by building with ``BRANCH_PROTECTION`` option set to non-zero.
+Trusted Firmware by building with ``BRANCH_PROTECTION`` option set to 1, 2 or 3.
 
 Function : plat_get_syscnt_freq2() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

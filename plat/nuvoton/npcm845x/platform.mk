@@ -318,9 +318,8 @@ BL31_SOURCES	+=	lib/extensions/ras/std_err_record.c \
 endif
 
 # Pointer Authentication sources
-ifeq (${ENABLE_PAUTH}, 1)
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c \
-		lib/extensions/pauth/pauth_helpers.S
+ifeq ($(BRANCH_PROTECTION),$(filter $(BRANCH_PROTECTION),1 2 3))
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c
 endif
 
 ifeq (${SPD},spmd)

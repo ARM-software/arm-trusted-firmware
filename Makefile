@@ -514,6 +514,12 @@ endif
 endif
 
 ################################################################################
+# Include the platform specific Makefile after the SPD Makefile (the platform
+# makefile may use all previous definitions in this file)
+################################################################################
+include ${PLAT_MAKEFILE_FULL}
+
+################################################################################
 # Process BRANCH_PROTECTION value and set
 # Pointer Authentication and Branch Target Identification flags
 ################################################################################
@@ -556,12 +562,6 @@ ifeq (${ENABLE_PAUTH}, 1)
 # Pauth support. As it's not secure, it must be reimplemented for real platforms
 	BL_COMMON_SOURCES	+=	lib/extensions/pauth/pauth_helpers.S
 endif
-
-################################################################################
-# Include the platform specific Makefile after the SPD Makefile (the platform
-# makefile may use all previous definitions in this file)
-################################################################################
-include ${PLAT_MAKEFILE_FULL}
 
 ################################################################################
 # Setup arch_features based on ARM_ARCH_MAJOR, ARM_ARCH_MINOR provided from
