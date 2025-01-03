@@ -13,6 +13,8 @@ include ${PLAT_PATH}/board/${TARGET_BOARD}/board.mk
 PLAT_INCLUDES +=	\
 			-I${PLAT_PATH}/board/${TARGET_BOARD}/include	\
 			-I${PLAT_PATH}					\
+			-I${PLAT_PATH}/board/${TARGET_BOARD}/pm		\
+			-I${PLAT_PATH}/board/${TARGET_BOARD}/scmi	\
 			-Idrivers/scmi-msg				\
 			-Iplat/ti/common/include			\
 			-Iplat/ti/common/scmi				\
@@ -24,6 +26,7 @@ K3_TI_SCI_TRANSPORT	:=	\
 				drivers/ti/ipc/mailbox.c		\
 
 BL31_SOURCES		+=	\
+				drivers/clk/clk.c				\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				${K3_PSCI_SOURCES}				\

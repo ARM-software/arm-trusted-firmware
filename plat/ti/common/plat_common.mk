@@ -50,6 +50,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/include			\
 				-Idrivers/ti/ti_sci			\
+				-Iplat/ti/common			\
 
 K3_CONSOLE_SOURCES	+=	\
 				drivers/ti/uart/aarch64/16550_console.S	\

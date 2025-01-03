@@ -6,3 +6,5 @@
 
 BL31_SOURCES		+=	\
 				plat/ti/common/scmi/scmi.c		\
+				plat/ti/common/scmi/scmi_clock.c	\
+				plat/ti/common/scmi/scmi_pd.c		\
