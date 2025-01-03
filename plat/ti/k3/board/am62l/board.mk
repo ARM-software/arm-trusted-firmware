@@ -26,8 +26,13 @@ include ${PLAT_PATH}/common/drivers/scmi/ti_scmi.mk
 include ${PLAT_PATH}/common/drivers/pm/pm.mk
 include ${PLAT_PATH}/board/am62l/pm/soc_pm.mk
 
+PLAT_INCLUDES += -Iplat/ti/k3/board/${TARGET_BOARD}/pm			\
+		 -I${PLAT_PATH}/board/am62l/scmi			\
+
 BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_svc.c		\
 				drivers/scmi-msg/base.c			\
 				drivers/scmi-msg/entry.c			\
 				drivers/scmi-msg/smt.c			\
+				drivers/scmi-msg/clock.c			\
+				drivers/scmi-msg/power_domain.c		\
