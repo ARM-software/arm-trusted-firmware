@@ -52,17 +52,10 @@ CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 #pragma weak bl2_plat_arch_setup
 #pragma weak bl2_plat_sec_mem_layout
 
-#if ENABLE_RME
 #define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
 					bl2_tzram_layout.total_base,	\
 					bl2_tzram_layout.total_size,	\
-					MT_MEMORY | MT_RW | MT_ROOT)
-#else
-#define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
-					bl2_tzram_layout.total_base,	\
-					bl2_tzram_layout.total_size,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
-#endif /* ENABLE_RME */
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #pragma weak arm_bl2_plat_handle_post_image_load
 
