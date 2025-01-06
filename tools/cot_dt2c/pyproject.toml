@@ -38,7 +38,7 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^0.910"
-pytest = "^6.2.5"
+pytest = "^8.3.4"
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/latest/config_file.html#using-a-pyproject-toml-file
