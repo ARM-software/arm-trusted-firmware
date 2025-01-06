@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include <common/debug.h>
-#include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -389,20 +388,10 @@ uint32_t zynqmp_get_bootmode(void)
 
 void zynqmp_config_setup(void)
 {
-	uint64_t counter_freq;
-
 	/* Configure IPI data for ZynqMP */
 	zynqmp_ipi_config_table_init();
 
 	zynqmp_print_platform_name();
-
-	/* Configure counter frequency */
-	counter_freq = read_cntfrq_el0();
-	if (counter_freq == ZYNQMP_DEFAULT_COUNTER_FREQ) {
-		write_cntfrq_el0(plat_get_syscnt_freq2());
-	}
-
-	generic_delay_timer_init();
 }
 
 uint32_t plat_get_syscnt_freq2(void)
