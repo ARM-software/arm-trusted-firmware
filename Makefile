@@ -1002,6 +1002,9 @@ ifeq (${ARCH},aarch32)
 	ifneq (${ENABLE_FEAT_MOPS},0)
 		$(error "ENABLE_FEAT_MOPS cannot be used with ARCH=aarch32")
 	endif
+	ifneq (${ENABLE_FEAT_GCIE},0)
+                $(error "ENABLE_FEAT_GCIE cannot be used with ARCH=aarch32")
+	endif
 endif #(ARCH=aarch32)
 
 ifneq (${ENABLE_FEAT_FPMR},0)
@@ -1238,6 +1241,7 @@ $(eval $(call assert_booleans,\
 	ENABLE_RUNTIME_INSTRUMENTATION \
 	ENABLE_SME_FOR_SWD \
 	ENABLE_SVE_FOR_SWD \
+	ENABLE_FEAT_GCIE \
 	ENABLE_FEAT_RAS	\
 	FFH_SUPPORT	\
 	ERROR_DEPRECATED \
@@ -1525,6 +1529,7 @@ $(eval $(call add_defines,\
 	ENABLE_FEAT_D128 \
 	ENABLE_FEAT_GCS \
 	ENABLE_FEAT_MOPS \
+	ENABLE_FEAT_GCIE \
 	ENABLE_FEAT_MTE2 \
 	FEATURE_DETECTION \
 	TWED_DELAY \

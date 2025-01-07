@@ -128,6 +128,7 @@ Additionally the following libraries are marked experimental when included
 in a platform:
 
 -  RSE comms driver ``drivers/arm/rse``
+-  GICv5 driver ``drivers/arm/gicv5`` via ``USE_GIC_DRIVER=5``
 
 Still to come
 -------------

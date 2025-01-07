@@ -428,6 +428,9 @@ ENABLE_FEAT_MEC				?=	0
 # Flag to enable access to Arm v9.3 FEAT_D128 extension
 ENABLE_FEAT_D128			?=	0
 
+# Flag to enable access to GICv5 CPU interface extension (FEAT_GCIE)
+ENABLE_FEAT_GCIE			?=	0
+
 #----
 #9.4
 #----

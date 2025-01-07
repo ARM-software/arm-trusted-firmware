@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-GIC_REVISIONS_ := 1 2 3
+GIC_REVISIONS_ := 1 2 3 5
 ifeq ($(filter $(USE_GIC_DRIVER),$(GIC_REVISIONS_)),)
 $(error USE_GIC_DRIVER can only be one of $(GIC_REVISIONS_))
 endif
@@ -19,6 +19,18 @@ include drivers/arm/gic/v3/gicv3.mk
 GIC_SOURCES	:=	${GICV3_SOURCES}			\
 			drivers/arm/gic/v3/gicv3_base.c	\
 			plat/common/plat_gicv3.c
+else ifeq (${USE_GIC_DRIVER},5)
+ifneq (${ENABLE_FEAT_GCIE},1)
+$(error USE_GIC_DRIVER=5 requires ENABLE_FEAT_GCIE=1)
+endif
+$(warning GICv5 support is experimental!)
+GIC_SOURCES	:=	drivers/arm/gicv5/gicv5_iri.c		\
+			plat/common/plat_gicv5.c
+endif
+
+ifneq (${ENABLE_FEAT_GCIE},0)
+GIC_SOURCES	+=	drivers/arm/gicv5/gicv5_cpuif.c		\
+			drivers/arm/gicv5/gicv5_main.c
 endif
 
 ifeq ($(ARCH),aarch64)

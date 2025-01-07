@@ -504,6 +504,11 @@
 #define SME2_IMPLEMENTED			ULL(0x2)
 #define SME_NOT_IMPLEMENTED			ULL(0x0)
 
+/* ID_AA64PFR2_EL1 definitions */
+#define ID_AA64PFR2_EL1				S3_0_C0_C4_2
+#define ID_AA64PFR2_EL1_GCIE_SHIFT		12
+#define ID_AA64PFR2_EL1_GCIE_MASK		ULL(0xf)
+
 /* ID_PFR1_EL1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
 #define ID_PFR1_VIRTEXT_MASK	U(0xf)

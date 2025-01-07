@@ -520,4 +520,11 @@ static inline bool is_feat_mtpmu_present(void)
 
 CREATE_FEATURE_SUPPORTED(feat_mtpmu, is_feat_mtpmu_present, DISABLE_MTPMU)
 
+/*************************************************************************
+ * Function to identify the presence of FEAT_GCIE (GICv5 CPU interface
+ * extension).
+ ************************************************************************/
+CREATE_FEATURE_FUNCS(feat_gcie, id_aa64pfr2_el1, ID_AA64PFR2_EL1_GCIE_SHIFT,
+		     ID_AA64PFR2_EL1_GCIE_MASK, 1U, ENABLE_FEAT_GCIE)
+
 #endif /* ARCH_FEATURES_H */

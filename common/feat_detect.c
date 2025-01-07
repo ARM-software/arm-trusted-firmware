@@ -279,6 +279,11 @@ static unsigned int read_feat_d128_id_field(void)
 	return ISOLATE_FIELD(read_id_aa64mmfr3_el1(), ID_AA64MMFR3_EL1_D128_SHIFT,
 			     ID_AA64MMFR3_EL1_D128_MASK);
 }
+static unsigned int read_feat_gcie_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64pfr2_el1(), ID_AA64PFR2_EL1_GCIE_SHIFT,
+			     ID_AA64PFR2_EL1_GCIE_MASK);
+}
 
 static unsigned int read_feat_fpmr_id_field(void)
 {
@@ -425,6 +430,8 @@ void detect_arch_features(void)
 	/* v9.3 features */
 	check_feature(ENABLE_FEAT_D128, read_feat_d128_id_field(),
 		      "D128", 1, 1);
+	check_feature(ENABLE_FEAT_GCIE, read_feat_gcie_id_field(),
+		      "GCIE", 1, 1);
 
 	/* v9.4 features */
 	check_feature(ENABLE_FEAT_GCS, read_feat_gcs_id_field(), "GCS", 1, 1);

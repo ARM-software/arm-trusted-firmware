@@ -481,6 +481,11 @@ Common build options
    the values 0 to 2, to align  with the ``ENABLE_FEAT`` mechanism.
    Default value is ``0``.
 
+ - ``ENABLE_FEAT_GCIE``: Boolean value to enable support for the GICv5 CPU
+   interface (see ``USE_GIC_DRIVER`` for the IRI). GICv5 and GICv3 are mutually
+   exclusive, so the ``ENABLE_FEAT`` mechanism is currently not supported.
+   Default value is ``0``.
+
 -  ``ENABLE_FEAT_THE``: Numeric value to enable support for FEAT_THE
    (Translation Hardening Extension) at EL2 and below, setting the bit
    SCR_EL3.RCWMASKEn in EL3 to allow access to RCWMASK_EL1 and RCWSMASK_EL1
@@ -1308,6 +1313,7 @@ a numeric option that can take the following values:
 
  - ``3``: use the GICv3 driver. See the next section on how to further configure
    it. Use this option for GICv4 implementations.
+ - ``5``: use the EXPERIMENTAL GICv5 driver. Requires ``ENABLE_FEAT_GCIE=1``.
 
  For GIC driver versions other than ``1``, deciding when to save and restore GIC
  context on a power domain state transition, as well as any GIC actions outside
