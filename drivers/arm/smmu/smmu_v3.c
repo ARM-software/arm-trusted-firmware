@@ -124,22 +124,35 @@ int __init smmuv3_init(uintptr_t smmu_base)
 				      gptbr_el3 << 12);
 
 			/*
-			 * ACCESSEN=1: SMMU- and client-originated accesses are
-			 *             not terminated by this mechanism.
 			 * GPCEN=1: All clients and SMMU-originated accesses,
 			 *          except GPT-walks, are subject to GPC.
+			 *
+			 * It is recommended to set GPCEN and wait for completion
+			 * prior to setting ACCESSEN.
+			 */
+			mmio_setbits_32(smmu_base + SMMU_ROOT_CR0,
+					SMMU_ROOT_CR0_GPCEN);
+
+			/* Poll for GPCEN ack bit. */
+			if (smmuv3_poll(smmu_base + SMMU_ROOT_CR0ACK,
+					SMMU_ROOT_CR0_GPCEN,
+					SMMU_ROOT_CR0_GPCEN) != 0) {
+				WARN("Failed enabling SMMU GPC.\n");
+			}
+
+			/*
+			 * ACCESSEN=1: SMMU- and client-originated accesses are
+			 *             not terminated by this mechanism.
 			 */
 			mmio_setbits_32(smmu_base + SMMU_ROOT_CR0,
 					SMMU_ROOT_CR0_GPCEN |
 					SMMU_ROOT_CR0_ACCESSEN);
 
-			/* Poll for ACCESSEN and GPCEN ack bits. */
+			/* Poll for ACCESSEN ack bit. */
 			if (smmuv3_poll(smmu_base + SMMU_ROOT_CR0ACK,
-					SMMU_ROOT_CR0_GPCEN |
 					SMMU_ROOT_CR0_ACCESSEN,
-					SMMU_ROOT_CR0_GPCEN |
 					SMMU_ROOT_CR0_ACCESSEN) != 0) {
-				WARN("Failed enabling SMMU GPC.\n");
+				WARN("Failed enabling SMMU ACCESS.\n");
 
 				/*
 				 * Do not return in error, but fall back to
