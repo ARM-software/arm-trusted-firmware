@@ -599,11 +599,6 @@ endif #(SUPPORT_STACK_MEMTAG)
 ################################################################################
 # FEAT_RME
 ifeq (${ENABLE_RME},1)
-	# RME doesn't support PIE
-	ifneq (${ENABLE_PIE},0)
-                $(error ENABLE_RME does not support PIE)
-	endif
-
 	# RME requires AARCH64
 	ifneq (${ARCH},aarch64)
                 $(error ENABLE_RME requires AArch64)
