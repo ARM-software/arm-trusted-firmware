@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/arm/gic.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/pubsub_events.h>
 #include <plat/common/platform.h>
@@ -183,6 +184,13 @@ void psci_cpu_on_finish(unsigned int cpu_idx, const psci_power_state_t *state_in
 	if (psci_plat_pm_ops->pwr_domain_on_finish_late != NULL) {
 		psci_plat_pm_ops->pwr_domain_on_finish_late(state_info);
 	}
+
+#if USE_GIC_DRIVER
+	/* GIC init after platform has had a say with MMU on */
+	gic_pcpu_init(cpu_idx);
+	gic_cpuif_enable(cpu_idx);
+#endif /* USE_GIC_DRIVER */
+
 	/*
 	 * All the platform specific actions for turning this cpu
 	 * on have completed. Perform enough arch.initialization

@@ -1,24 +1,19 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <platform_def.h>
 
+#include <drivers/arm/gic.h>
 #include <drivers/arm/gicv2.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-/******************************************************************************
- * The following functions are defined as weak to allow a platform to override
- * the way the GICv2 driver is initialised and used.
- *****************************************************************************/
-#pragma weak plat_arm_gic_driver_init
-#pragma weak plat_arm_gic_init
-#pragma weak plat_arm_gic_cpuif_enable
-#pragma weak plat_arm_gic_cpuif_disable
-#pragma weak plat_arm_gic_pcpu_init
+#if USE_GIC_DRIVER != 2
+#error "This file should only be used with GENERIC_GIC_DRIVER=2"
+#endif
 
 /******************************************************************************
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
@@ -43,23 +38,16 @@ static const gicv2_driver_data_t arm_gic_data = {
 /******************************************************************************
  * ARM common helper to initialize the GICv2 only driver.
  *****************************************************************************/
-void plat_arm_gic_driver_init(void)
+void __init gic_init(unsigned int cpu_idx)
 {
 	gicv2_driver_init(&arm_gic_data);
-}
-
-void plat_arm_gic_init(void)
-{
 	gicv2_distif_init();
-	gicv2_pcpu_distif_init();
-	gicv2_set_pe_target_mask(plat_my_core_pos());
-	gicv2_cpuif_enable();
 }
 
 /******************************************************************************
  * ARM common helper to enable the GICv2 CPU interface
  *****************************************************************************/
-void plat_arm_gic_cpuif_enable(void)
+void gic_cpuif_enable(unsigned int cpu_idx)
 {
 	gicv2_cpuif_enable();
 }
@@ -67,7 +55,7 @@ void plat_arm_gic_cpuif_enable(void)
 /******************************************************************************
  * ARM common helper to disable the GICv2 CPU interface
  *****************************************************************************/
-void plat_arm_gic_cpuif_disable(void)
+void gic_cpuif_disable(unsigned int cpu_idx)
 {
 	gicv2_cpuif_disable();
 }
@@ -75,7 +63,7 @@ void plat_arm_gic_cpuif_disable(void)
 /******************************************************************************
  * ARM common helper to initialize the per cpu distributor interface in GICv2
  *****************************************************************************/
-void plat_arm_gic_pcpu_init(void)
+void gic_pcpu_init(unsigned int cpu_idx)
 {
 	gicv2_pcpu_distif_init();
 	gicv2_set_pe_target_mask(plat_my_core_pos());
@@ -85,16 +73,10 @@ void plat_arm_gic_pcpu_init(void)
  * Stubs for Redistributor power management. Although GICv2 doesn't have
  * Redistributor interface, these are provided for the sake of uniform GIC API
  *****************************************************************************/
-void plat_arm_gic_redistif_on(void)
+void gic_pcpu_off(unsigned int cpu_idx)
 {
 	return;
 }
-
-void plat_arm_gic_redistif_off(void)
-{
-	return;
-}
-
 
 /******************************************************************************
  * ARM common helper to save & restore the GICv3 on resume from system suspend.
@@ -102,12 +84,12 @@ void plat_arm_gic_redistif_off(void)
  * registers due to legacy reasons. Hence we just initialize the Distributor
  * on resume from system suspend.
  *****************************************************************************/
-void plat_arm_gic_save(void)
+void gic_save(void)
 {
 	return;
 }
 
-void plat_arm_gic_resume(void)
+void gic_resume(void)
 {
 	gicv2_distif_init();
 	gicv2_pcpu_distif_init();

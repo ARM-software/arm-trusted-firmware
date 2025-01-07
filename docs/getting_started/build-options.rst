@@ -1288,11 +1288,37 @@ Common build options
   This option should only be enabled on a need basis if there is a use case for
   reading characters from the console.
 
-GICv3 driver options
+GIC driver options
 --------------------
 
-GICv3 driver files are included using directive:
+The generic GIC driver can be included with the ``USE_GIC_DRIVER`` option. It is
+a numeric option that can take the following values:
 
+ - ``0``: generic GIC driver not enabled. Any support is entirely in platform
+   code. Strongly discouraged for GIC based interrupt controllers.
+
+ - ``1``: enable the use of the generic GIC driver but do not include any files
+   or function definitions. It is then the platform's responsibility to provide
+   these. This is useful if the platform either has a custom GIC implementation
+   or an alternative interrupt controller design. Use of this option is strongly
+   discouraged for standard GIC implementations.
+
+ - ``2``: use the GICv2 driver
+
+ - ``3``: use the GICv3 driver. See the next section on how to further configure
+   it. Use this option for GICv4 implementations.
+
+ For GIC driver versions other than ``1``, deciding when to save and restore GIC
+ context on a power domain state transition, as well as any GIC actions outside
+ of the PSCI library's visibility are the platform's responsibility. The driver
+ provides implementations of all necessary subroutines, they only need to be
+ called as appropriate.
+
+GICv3 driver options
+~~~~~~~~~~~~~~~~~~~~
+
+``USE_GIC_DRIVER=3`` is the preferred way of including GICv3 driver files. The
+old (deprecated) way of included them is using the directive:
 ``include drivers/arm/gic/v3/gicv3.mk``
 
 The driver can be configured with the following options set in the platform

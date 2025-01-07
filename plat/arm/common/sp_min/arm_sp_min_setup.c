@@ -207,8 +207,11 @@ void sp_min_platform_setup(void)
 	struct transfer_list_entry *te __unused;
 
 	/* Initialize the GIC driver, cpu and distributor interfaces */
-	plat_arm_gic_driver_init();
-	plat_arm_gic_init();
+	unsigned int core_pos = plat_my_core_pos();
+
+	gic_init(core_pos);
+	gic_pcpu_init(core_pos);
+	gic_cpuif_enable(core_pos);
 
 #if TRANSFER_LIST
 	ns_tl = transfer_list_ensure((void *)FW_NS_HANDOFF_BASE,

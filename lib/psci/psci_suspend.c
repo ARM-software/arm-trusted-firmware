@@ -12,6 +12,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <context.h>
+#include <drivers/arm/gic.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/el3_runtime/pubsub_events.h>
@@ -198,13 +199,17 @@ int psci_cpu_suspend_start(unsigned int idx,
 		psci_suspend_to_pwrdown_start(idx, end_pwrlvl, end_pwrlvl, state_info);
 	}
 
+#if USE_GIC_DRIVER
+	/* turn the GIC off before we hand off to the platform */
+	gic_cpuif_disable(idx);
+#endif /* USE_GIC_DRIVER */
+
 	/*
 	 * Plat. management: Allow the platform to perform the
 	 * necessary actions to turn off this cpu e.g. set the
 	 * platform defined mailbox with the psci entrypoint,
 	 * program the power controller etc.
 	 */
-
 	psci_plat_pm_ops->pwr_domain_suspend(state_info);
 
 #if ENABLE_PSCI_STAT
@@ -280,6 +285,11 @@ int psci_cpu_suspend_start(unsigned int idx,
 		psci_cpu_suspend_to_standby_finish(end_pwrlvl, state_info);
 	}
 
+#if USE_GIC_DRIVER
+	/* Turn GIC on after platform has had a chance to do state management */
+	gic_cpuif_enable(idx);
+#endif /* USE_GIC_DRIVER */
+
 	/*
 	 * Set the requested and target state of this CPU and all the higher
 	 * power domain levels for this CPU to run.
@@ -319,6 +329,11 @@ void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max
 	/* Arch. management: Enable the data cache, stack memory maintenance. */
 	psci_do_pwrup_cache_maintenance();
 #endif
+
+#if USE_GIC_DRIVER
+	/* GIC on after platform has had its say and MMU is on */
+	gic_cpuif_enable(cpu_idx);
+#endif /* USE_GIC_DRIVER */
 
 	/* Re-init the cntfrq_el0 register */
 	counter_freq = plat_get_syscnt_freq2();

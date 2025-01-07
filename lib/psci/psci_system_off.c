@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/arm/gic.h>
 #include <drivers/console.h>
 #include <plat/common/platform.h>
 
@@ -26,6 +27,11 @@ void __dead2 psci_system_off(void)
 	}
 
 	console_flush();
+
+#if USE_GIC_DRIVER
+	/* turn the GIC off before we hand off to the platform */
+	gic_cpuif_disable(plat_my_core_pos());
+#endif /* USE_GIC_DRIVER */
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_off();
@@ -45,6 +51,11 @@ void __dead2 psci_system_reset(void)
 	}
 
 	console_flush();
+
+#if USE_GIC_DRIVER
+	/* turn the GIC off before we hand off to the platform */
+	gic_cpuif_disable(plat_my_core_pos());
+#endif /* USE_GIC_DRIVER */
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_reset();
@@ -79,6 +90,11 @@ u_register_t psci_system_reset2(uint32_t reset_type, u_register_t cookie)
 		psci_spd_pm->svc_system_reset();
 	}
 	console_flush();
+
+#if USE_GIC_DRIVER
+	/* turn the GIC off before we hand off to the platform */
+	gic_cpuif_disable(plat_my_core_pos());
+#endif /* USE_GIC_DRIVER */
 
 	u_register_t ret =
 		(u_register_t) psci_plat_pm_ops->system_reset2((int) is_vendor, reset_type, cookie);

@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include <common/desc_image_load.h>
+#include <drivers/arm/gic.h>
 #include <drivers/arm/tzc_common.h>
 #include <lib/bakery_lock.h>
 #include <lib/cassert.h>
@@ -358,6 +359,9 @@ void arm_xlat_make_tables_readonly(void);
  * Mandatory functions required in ARM standard platforms
  */
 unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr);
+
+/* should not be used, but keep for compatibility */
+#if USE_GIC_DRIVER == 0
 void plat_arm_gic_driver_init(void);
 void plat_arm_gic_init(void);
 void plat_arm_gic_cpuif_enable(void);
@@ -367,6 +371,7 @@ void plat_arm_gic_redistif_off(void);
 void plat_arm_gic_pcpu_init(void);
 void plat_arm_gic_save(void);
 void plat_arm_gic_resume(void);
+#endif
 void plat_arm_security_setup(void);
 void plat_arm_pwrc_setup(void);
 void plat_arm_interconnect_init(void);
