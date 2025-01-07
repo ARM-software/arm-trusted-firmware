@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,12 +121,6 @@ void css_scp_sys_shutdown(void)
 {
 	uint32_t response;
 
-	/*
-	 * Disable GIC CPU interface to prevent pending interrupt
-	 * from waking up the AP from WFI.
-	 */
-	plat_arm_gic_cpuif_disable();
-
 	/* Send the power down request to the SCP */
 	response = scpi_sys_power_state(scpi_system_shutdown);
 
@@ -142,12 +136,6 @@ void css_scp_sys_shutdown(void)
 void css_scp_sys_reboot(void)
 {
 	uint32_t response;
-
-	/*
-	 * Disable GIC CPU interface to prevent pending interrupt
-	 * from waking up the AP from WFI.
-	 */
-	plat_arm_gic_cpuif_disable();
 
 	/* Send the system reset request to the SCP */
 	response = scpi_sys_power_state(scpi_system_reboot);

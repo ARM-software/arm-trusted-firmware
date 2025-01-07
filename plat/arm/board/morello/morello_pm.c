@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,5 +19,4 @@
 void morello_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	css_pwr_domain_off(target_state);
-	plat_arm_gic_redistif_off();
 }

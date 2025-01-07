@@ -29,7 +29,7 @@ static const interrupt_prop_t __unused fvp_interrupt_props[] = {
 	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0)
 };
 
-extern gicv3_driver_data_t arm_gic_data;
+extern gicv3_driver_data_t gic_data;
 
 /******************************************************************************
  * This function gets called per core to make its redistributor frame rw
@@ -76,25 +76,25 @@ void fvp_gic_driver_pre_init(void)
 	 */
 #if (!defined(__aarch64__) && defined(IMAGE_BL32)) || \
 	(defined(__aarch64__) && defined(IMAGE_BL31))
-	arm_gic_data.gicd_base = (uintptr_t)FCONF_GET_PROPERTY(hw_config,
+	gic_data.gicd_base = (uintptr_t)FCONF_GET_PROPERTY(hw_config,
 							       gicv3_config,
 							       gicd_base);
 	fvp_gicr_base_addrs[0] = FCONF_GET_PROPERTY(hw_config, gicv3_config,
 						    gicr_base);
 #if SEC_INT_DESC_IN_FCONF
-	arm_gic_data.interrupt_props = FCONF_GET_PROPERTY(hw_config,
+	gic_data.interrupt_props = FCONF_GET_PROPERTY(hw_config,
 					sec_intr_prop, descriptor);
-	arm_gic_data.interrupt_props_num = FCONF_GET_PROPERTY(hw_config,
+	gic_data.interrupt_props_num = FCONF_GET_PROPERTY(hw_config,
 					sec_intr_prop, count);
 #else
-	arm_gic_data.interrupt_props = fvp_interrupt_props;
-	arm_gic_data.interrupt_props_num = ARRAY_SIZE(fvp_interrupt_props);
+	gic_data.interrupt_props = fvp_interrupt_props;
+	gic_data.interrupt_props_num = ARRAY_SIZE(fvp_interrupt_props);
 #endif
 #else
-	arm_gic_data.gicd_base = PLAT_ARM_GICD_BASE;
+	gic_data.gicd_base = PLAT_ARM_GICD_BASE;
 	fvp_gicr_base_addrs[0] = PLAT_ARM_GICR_BASE;
-	arm_gic_data.interrupt_props = fvp_interrupt_props;
-	arm_gic_data.interrupt_props_num = ARRAY_SIZE(fvp_interrupt_props);
+	gic_data.interrupt_props = fvp_interrupt_props;
+	gic_data.interrupt_props_num = ARRAY_SIZE(fvp_interrupt_props);
 #endif
 	plat_arm_override_gicr_frames(fvp_gicr_base_addrs);
 #endif /* !(BL2_AT_EL3 || RESET_TO_BL31 || RESET_TO_SP_MIN || RESET_TO_BL2) */

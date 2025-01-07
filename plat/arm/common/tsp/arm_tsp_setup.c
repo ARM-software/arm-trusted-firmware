@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #include <plat/arm/common/plat_arm.h>
+#include <plat/common/platform.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak tsp_early_platform_setup
@@ -57,7 +58,13 @@ void tsp_early_platform_setup(void)
  ******************************************************************************/
 void tsp_platform_setup(void)
 {
-	plat_arm_gic_driver_init();
+	/*
+	 * On GICv2 the driver must be initialised before calling the plat_ic_*
+	 * functions as they need the data structures. Higher versions don't.
+	 */
+#if USE_GIC_DRIVER == 2
+	gic_init(plat_my_core_pos());
+#endif
 }
 
 /*******************************************************************************

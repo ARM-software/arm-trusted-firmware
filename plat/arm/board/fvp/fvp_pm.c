@@ -180,12 +180,6 @@ static void fvp_pwr_domain_off(const psci_power_state_t *target_state)
 	 * by the cluster specific operations if applicable.
 	 */
 
-	/* Prevent interrupts from spuriously waking up this cpu */
-	plat_arm_gic_cpuif_disable();
-
-	/* Turn redistributor off */
-	plat_arm_gic_redistif_off();
-
 	/* Program the power controller to power off this cpu. */
 	fvp_pwrc_write_ppoffr(read_mpidr_el1());
 
@@ -220,9 +214,6 @@ static void fvp_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* Program the power controller to enable wakeup interrupts. */
 	fvp_pwrc_set_wen(mpidr);
 
-	/* Prevent interrupts from spuriously waking up this cpu */
-	plat_arm_gic_cpuif_disable();
-
 	/*
 	 * The Redistributor is not powered off as it can potentially prevent
 	 * wake up events reaching the CPUIF and/or might lead to losing
@@ -253,7 +244,6 @@ static void fvp_pwr_domain_suspend(const psci_power_state_t *target_state)
 static void fvp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	fvp_power_domain_on_finish_common(target_state);
-
 }
 
 /*******************************************************************************
@@ -263,12 +253,9 @@ static void fvp_pwr_domain_on_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 static void fvp_pwr_domain_on_finish_late(const psci_power_state_t *target_state)
 {
+#if USE_GIC_DRIVER == 3
 	fvp_pcpu_init();
-	/* Program GIC per-cpu distributor or re-distributor interface */
-	plat_arm_gic_pcpu_init();
-
-	/* Enable GIC CPU interface */
-	plat_arm_gic_cpuif_enable();
+#endif
 }
 
 /*******************************************************************************
@@ -288,9 +275,6 @@ static void fvp_pwr_domain_suspend_finish(const psci_power_state_t *target_state
 		return;
 
 	fvp_power_domain_on_finish_common(target_state);
-
-	/* Enable GIC CPU interface */
-	plat_arm_gic_cpuif_enable();
 }
 
 /*******************************************************************************

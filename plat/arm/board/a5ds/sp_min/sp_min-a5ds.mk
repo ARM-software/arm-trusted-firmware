@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, ARM Limited. All rights reserved.
+# Copyright (c) 2019-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -18,5 +18,4 @@ BL32_SOURCES	+=	drivers/arm/scu/scu.c                           \
 			plat/common/aarch32/platform_mp_stack.S		\
 			plat/common/plat_psci_common.c			\
 			${A5DS_CPU_LIBS}				\
-			${A5DS_GIC_SOURCES}				\
 			${A5DS_SECURITY_SOURCES}

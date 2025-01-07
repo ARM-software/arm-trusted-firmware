@@ -95,8 +95,10 @@ void __init bl31_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 
+#if USE_GIC_DRIVER == 3
 	fvp_pcpu_init();
 	fvp_gic_driver_pre_init();
+#endif
 }
 
 #if !TRANSFER_LIST

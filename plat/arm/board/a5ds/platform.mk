@@ -19,12 +19,7 @@ DYN_CFG_SOURCES		+=	plat/arm/common/arm_dyn_cfg.c		\
 
 DYN_CFG_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
-# Include GICv2 driver files
-include drivers/arm/gic/v2/gicv2.mk
-
-A5DS_GIC_SOURCES	:=	${GICV2_SOURCES}			\
-				plat/common/plat_gicv2.c		\
-				plat/common/plat_gicv2_base.c
+USE_GIC_DRIVER		:=	2
 
 A5DS_SECURITY_SOURCES	:=	plat/arm/board/a5ds/a5ds_security.c
 

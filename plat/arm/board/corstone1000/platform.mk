@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2024 Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2021-2025 Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -43,13 +43,7 @@ $(eval $(call add_define,CORSTONE1000_FVP_MULTICORE))
 endif
 endif
 
-# Include GICv2 driver files
-include drivers/arm/gic/v2/gicv2.mk
-
-CORSTONE1000_GIC_SOURCES	:=	${GICV2_SOURCES}			\
-				plat/common/plat_gicv2.c		\
-				plat/common/plat_gicv2_base.c
-
+USE_GIC_DRIVER			:=	2
 
 BL2_SOURCES		+=	plat/arm/board/corstone1000/common/corstone1000_security.c		\
 				plat/arm/board/corstone1000/common/corstone1000_err.c		\
@@ -70,8 +64,7 @@ BL31_SOURCES	+=	drivers/cfi/v2m/v2m_flash.c				\
 			plat/arm/board/corstone1000/common/corstone1000_plat.c		\
 			plat/arm/board/corstone1000/common/corstone1000_pm.c		\
 			plat/arm/board/corstone1000/common/corstone1000_bl31_setup.c	\
-			${CORSTONE1000_CPU_LIBS}					\
-			${CORSTONE1000_GIC_SOURCES}
+			${CORSTONE1000_CPU_LIBS}
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
 	ifneq (${ENABLE_STACK_PROTECTOR},none)

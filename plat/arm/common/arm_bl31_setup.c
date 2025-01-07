@@ -394,10 +394,6 @@ void arm_bl31_platform_setup(void)
 	assert(te != NULL);
 #endif /* TRANSFER_LIST && !RESET_TO_BL31 */
 
-	/* Initialize the GIC driver, cpu and distributor interfaces */
-	plat_arm_gic_driver_init();
-	plat_arm_gic_init();
-
 #if RESET_TO_BL31
 	/*
 	 * Do initial security configuration to allow DRAM/device access

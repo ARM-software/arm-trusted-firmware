@@ -15,6 +15,7 @@ TC_SCMI_PD_CTRL_EN		:=	1
 CSS_USE_SCMI_SDS_DRIVER		:=	1
 HW_ASSISTED_COHERENCY		:=	1
 USE_COHERENT_MEM		:=	0
+USE_GIC_DRIVER			:=	3
 GIC_ENABLE_V4_EXTN		:=      1
 GICV3_SUPPORT_GIC600		:=	1
 override NEED_BL2U		:=	no
@@ -115,13 +116,6 @@ else
 	PLAT_MHU		:= MHUv3
 endif
 
-# Include GICv3 driver files
-include drivers/arm/gic/v3/gicv3.mk
-
-ENT_GIC_SOURCES		:=	${GICV3_SOURCES}		\
-				plat/common/plat_gicv3.c	\
-				plat/common/plat_gicv3_base.c
-
 TC_BASE	=	plat/arm/board/tc
 
 PLAT_INCLUDES		+=	-I${TC_BASE}/include/ \
@@ -195,7 +189,6 @@ endif
 
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				${TC_CPU_SOURCES}	\
-				${ENT_GIC_SOURCES}			\
 				${TC_BASE}/tc_bl31_setup.c	\
 				${TC_BASE}/tc_topology.c	\
 				lib/fconf/fconf.c			\
