@@ -27,7 +27,7 @@ include drivers/arm/gic/v3/gicv3.mk
 
 N1SDP_GIC_SOURCES	:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
-				plat/arm/common/arm_gicv3.c		\
+				plat/common/plat_gicv3_base.c		\
 
 PLAT_BL_COMMON_SOURCES	:=	${N1SDP_BASE}/n1sdp_plat.c	        \
 				${N1SDP_BASE}/aarch64/n1sdp_helper.S

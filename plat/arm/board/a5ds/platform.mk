@@ -24,7 +24,7 @@ include drivers/arm/gic/v2/gicv2.mk
 
 A5DS_GIC_SOURCES	:=	${GICV2_SOURCES}			\
 				plat/common/plat_gicv2.c		\
-				plat/arm/common/arm_gicv2.c
+				plat/common/plat_gicv2_base.c
 
 A5DS_SECURITY_SOURCES	:=	plat/arm/board/a5ds/a5ds_security.c
 

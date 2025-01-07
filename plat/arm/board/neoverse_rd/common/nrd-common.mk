@@ -37,7 +37,7 @@ include drivers/arm/gic/v3/gicv3.mk
 
 ENT_GIC_SOURCES		:=	${GICV3_SOURCES}		\
 				plat/common/plat_gicv3.c	\
-				plat/arm/common/arm_gicv3.c
+				plat/common/plat_gicv3_base.c
 
 PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/arch/aarch64/nrd_helper.S
 

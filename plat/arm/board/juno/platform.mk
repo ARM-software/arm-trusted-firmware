@@ -11,7 +11,7 @@ include drivers/arm/gic/v2/gicv2.mk
 
 JUNO_GIC_SOURCES	:=	${GICV2_SOURCES}			\
 				plat/common/plat_gicv2.c		\
-				plat/arm/common/arm_gicv2.c
+				plat/common/plat_gicv2_base.c
 
 JUNO_INTERCONNECT_SOURCES	:=	drivers/arm/cci/cci.c		\
 					plat/arm/common/arm_cci.c

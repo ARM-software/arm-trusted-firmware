@@ -140,7 +140,7 @@ include drivers/arm/gic/v3/gicv3.mk
 
 FVP_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
-				plat/arm/common/arm_gicv3.c		\
+				plat/common/plat_gicv3_base.c		\
 				plat/arm/board/fvp/fvp_gicv3.c
 
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV2)
@@ -154,7 +154,7 @@ include drivers/arm/gic/v2/gicv2.mk
 
 FVP_GIC_SOURCES		:=	${GICV2_SOURCES}			\
 				plat/common/plat_gicv2.c		\
-				plat/arm/common/arm_gicv2.c
+				plat/common/plat_gicv2_base.c
 
 FVP_DT_PREFIX		:=	fvp-base-gicv2-psci
 else

@@ -17,7 +17,7 @@ include drivers/arm/gic/v2/gicv2.mk
 
 FVP_VE_GIC_SOURCES	:=	${GICV2_SOURCES}		\
 				plat/common/plat_gicv2.c	\
-				plat/arm/common/arm_gicv2.c
+				plat/common/plat_gicv2_base.c
 
 FVP_VE_SECURITY_SOURCES	:=	plat/arm/board/fvp_ve/fvp_ve_security.c
 

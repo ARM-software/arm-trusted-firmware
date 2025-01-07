@@ -25,7 +25,7 @@ include drivers/arm/gic/v3/gicv3.mk
 
 MORELLO_GIC_SOURCES	:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
-				plat/arm/common/arm_gicv3.c		\
+				plat/common/plat_gicv3_base.c		\
 
 PLAT_BL_COMMON_SOURCES	:=	${MORELLO_BASE}/morello_plat.c		\
 				${MORELLO_BASE}/aarch64/morello_helper.S

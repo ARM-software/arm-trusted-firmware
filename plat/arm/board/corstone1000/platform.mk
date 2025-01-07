@@ -48,7 +48,7 @@ include drivers/arm/gic/v2/gicv2.mk
 
 CORSTONE1000_GIC_SOURCES	:=	${GICV2_SOURCES}			\
 				plat/common/plat_gicv2.c		\
-				plat/arm/common/arm_gicv2.c
+				plat/common/plat_gicv2_base.c
 
 
 BL2_SOURCES		+=	plat/arm/board/corstone1000/common/corstone1000_security.c		\

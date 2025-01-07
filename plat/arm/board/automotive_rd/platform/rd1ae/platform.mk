@@ -43,7 +43,7 @@ RD1AE_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_v3.S
 include drivers/arm/gic/v3/gicv3.mk
 RD1AE_GIC_SOURCES	:=	${GICV3_SOURCES}	\
 				plat/common/plat_gicv3.c	\
-				plat/arm/common/arm_gicv3.c
+				plat/common/plat_gicv3_base.c
 
 PLAT_BL_COMMON_SOURCES	+=	${RD1AE_BASE}/rd1ae_plat.c	\
 				${RD1AE_BASE}/include/rd1ae_helpers.S
