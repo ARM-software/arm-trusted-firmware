@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-
 #include <assert.h>
 #include <common/bl_common.h>
+#ifdef AML_STDPARAMS
+#include <common/desc_image_load.h>
+#endif
 #include <common/interrupt_props.h>
 #include <drivers/arm/gicv2.h>
 #include <lib/mmio.h>
@@ -60,17 +62,26 @@ struct gxl_bl31_param {
 	image_info_t *bl32_image_info;
 	entry_point_info_t *bl33_ep_info;
 	image_info_t *bl33_image_info;
+#ifndef AML_STDPARAMS
 	image_info_t *scp_image_info[];
+#endif
 };
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
+#ifndef AML_STDPARAMS
 	struct gxl_bl31_param *from_bl2;
+#endif
 
 	/* Initialize the console to provide early debug support */
 	aml_console_init();
 
+#ifdef AML_STDPARAMS
+	/* Parse arguments passed to BL31 from U-Boot SPL */
+	bl31_params_parse_helper(arg0, &bl33_image_ep_info,
+		&bl33_image_ep_info);
+#else
 	/* Check that params passed from BL2 are not NULL. */
 	from_bl2 = (struct gxl_bl31_param *) arg0;
 
@@ -84,14 +95,23 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * BL2's address space.
 	 */
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
+#endif
 
 	if (bl33_image_ep_info.pc == 0U) {
 		ERROR("BL31: BL33 entrypoint not obtained from BL2\n");
 		panic();
 	}
 
+#ifdef AML_STDPARAMS
+	/* Hardcode SCP_BL2 image info */
+	bl30_image_info.image_base  = 0x13c0000;
+	bl30_image_info.image_size  = 0xa000;
+	bl301_image_info.image_base = 0x13ca000;
+	bl301_image_info.image_size = 0x3400;
+#else
 	bl30_image_info = *from_bl2->scp_image_info[0];
 	bl301_image_info = *from_bl2->scp_image_info[1];
+#endif
 }
 
 void bl31_plat_arch_setup(void)
