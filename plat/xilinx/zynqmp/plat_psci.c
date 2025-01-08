@@ -193,6 +193,18 @@ static void __dead2 zynqmp_system_reset(void)
 	}
 }
 
+static int32_t zynqmp_validate_ns_entrypoint(uint64_t ns_entrypoint)
+{
+	int32_t ret = PSCI_E_SUCCESS;
+
+	if (((ns_entrypoint >= PLAT_DDR_LOWMEM_MAX) && (ns_entrypoint <= PLAT_DDR_HIGHMEM_MAX)) ||
+		((ns_entrypoint >= BL31_BASE) && (ns_entrypoint <= BL31_LIMIT))) {
+		ret = PSCI_E_INVALID_ADDRESS;
+	}
+
+	return ret;
+}
+
 static int32_t zynqmp_validate_power_state(uint32_t power_state,
 				psci_power_state_t *req_state)
 {
@@ -235,6 +247,7 @@ static const struct plat_psci_ops zynqmp_psci_ops = {
 	.pwr_domain_suspend_finish	= zynqmp_pwr_domain_suspend_finish,
 	.system_off			= zynqmp_system_off,
 	.system_reset			= zynqmp_system_reset,
+	.validate_ns_entrypoint		= zynqmp_validate_ns_entrypoint,
 	.validate_power_state		= zynqmp_validate_power_state,
 	.get_sys_suspend_power_state	= zynqmp_get_sys_suspend_power_state,
 };

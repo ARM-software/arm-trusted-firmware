@@ -75,6 +75,12 @@
 #endif
 
 /*******************************************************************************
+ * HIGH and LOW DDR MAX definitions.
+ ******************************************************************************/
+#define PLAT_DDR_LOWMEM_MAX		U(0x80000000)
+#define PLAT_DDR_HIGHMEM_MAX		U(0x100000000)
+
+/*******************************************************************************
  * TSP  specific defines.
  ******************************************************************************/
 #define TSP_SEC_MEM_BASE		BL32_BASE
@@ -87,7 +93,6 @@
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define XILINX_OF_BOARD_DTB_MAX_SIZE	U(0x200000)
-#define PLAT_DDR_LOWMEM_MAX		U(0x80000000)
 #define PLAT_OCM_BASE			U(0xFFFC0000)
 #define PLAT_OCM_LIMIT			U(0xFFFFFFFF)
 
