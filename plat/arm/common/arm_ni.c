@@ -144,19 +144,33 @@ int plat_arm_ni_setup(uintptr_t global_cfg)
 
 	for (uint32_t i = 0U; i < vd_count; i++) {
 		vd_addr = global_cfg + mmio_read_32(global_cfg + NI_CHILD_POINTER(i));
+
+		VERBOSE("Voltage domain %u at 0x%lx node info: 0x%x\n",
+			i, vd_addr, mmio_read_32(vd_addr));
+
 		pd_count = mmio_read_32(vd_addr + NI_CHILD_NODE_COUNT);
 
 		for (uint32_t j = 0U; j < pd_count; j++) {
 			pd_addr = global_cfg + mmio_read_32(vd_addr + NI_CHILD_POINTER(j));
 			cd_count = mmio_read_32(pd_addr + NI_CHILD_NODE_COUNT);
 
+			VERBOSE("Power domain %u at 0x%lx node info: 0x%x\n",
+				j, pd_addr, mmio_read_32(pd_addr));
+
 			for (uint32_t k = 0U; k < cd_count; k++) {
 				cd_addr = global_cfg + mmio_read_32(pd_addr + NI_CHILD_POINTER(k));
 				comp_count = mmio_read_32(cd_addr + NI_CHILD_NODE_COUNT);
 
+				VERBOSE("Clock domain %u at 0x%lx node info: 0x%x\n",
+					k, cd_addr, mmio_read_32(cd_addr));
+
 				for (uint32_t l = 0U; l < comp_count; l++) {
 					comp_addr = global_cfg +
 						mmio_read_32(cd_addr + NI_CHILD_POINTER(l));
+
+					VERBOSE("Component %u at 0x%lx node info: 0x%x\n",
+						l, comp_addr, mmio_read_32(comp_addr));
+
 					ni_setup_component(comp_addr);
 				}
 			}
