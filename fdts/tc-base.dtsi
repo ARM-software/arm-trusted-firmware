@@ -387,7 +387,7 @@
 	soc_uartclk: uartclk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <UARTCLK_FREQ>;
+		clock-frequency = <TC_UARTCLK>;
 		clock-output-names = "uartclk";
 	};
 
