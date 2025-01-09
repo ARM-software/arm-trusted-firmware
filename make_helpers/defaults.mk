@@ -210,6 +210,9 @@ PSCI_EXTENDED_STATE_ID		:= 0
 # Enable PSCI OS-initiated mode support
 PSCI_OS_INIT_MODE		:= 0
 
+# SMCCC_ARCH_FEATURE_AVAILABILITY support
+ARCH_FEATURE_AVAILABILITY	:= 0
+
 # By default, BL1 acts as the reset handler, not BL31
 RESET_TO_BL31			:= 0
 

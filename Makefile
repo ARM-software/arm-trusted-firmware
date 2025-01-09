@@ -954,6 +954,10 @@ ifeq (${ARCH},aarch32)
 	ifneq (${ENABLE_FEAT_FPMR},0)
                 $(error "ENABLE_FEAT_FPMR cannot be used with ARCH=aarch32")
 	endif
+
+	ifeq (${ARCH_FEATURE_AVAILABILITY},1)
+                $(error "ARCH_FEATURE_AVAILABILITY cannot be used with ARCH=aarch32")
+	endif
 endif #(ARCH=aarch32)
 
 ifneq (${ENABLE_FEAT_FPMR},0)
@@ -1202,6 +1206,7 @@ $(eval $(call assert_booleans,\
 	PROGRAMMABLE_RESET_ADDRESS \
 	PSCI_EXTENDED_STATE_ID \
 	PSCI_OS_INIT_MODE \
+	ARCH_FEATURE_AVAILABILITY \
 	RESET_TO_BL31 \
 	SAVE_KEYS \
 	SEPARATE_CODE_AND_RODATA \
@@ -1383,6 +1388,7 @@ $(eval $(call add_defines,\
 	PROGRAMMABLE_RESET_ADDRESS \
 	PSCI_EXTENDED_STATE_ID \
 	PSCI_OS_INIT_MODE \
+	ARCH_FEATURE_AVAILABILITY \
 	RESET_TO_BL31 \
 	RME_GPT_BITLOCK_BLOCK \
 	RME_GPT_MAX_BLOCK \
