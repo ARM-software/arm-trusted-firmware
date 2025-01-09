@@ -23,7 +23,9 @@ LTS - Long-Term Support
   |             |                    | answered some of the questions with feedback from     |
   |             |                    | the community.                                        |
   +-------------+--------------------+-------------------------------------------------------+
-  |2025-01-07   | Govindraj Raja     | Convert from pdf to rst.                              |
+  | 2025-01-07  | Govindraj Raja     | Convert from pdf to rst.                              |
+  +-------------+--------------------+-------------------------------------------------------+
+  | 2025-01-07  | Govindraj Raja     | Updates based on learnings and suggestions.           |
   +-------------+--------------------+-------------------------------------------------------+
 
 This document proposes a plan for long-term support (LTS) of the |TF-A| project.
@@ -38,7 +40,14 @@ critical patches such as those for security advisories. Similarly on the server 
 companies want to minimize the churn when deploying fixes during incident
 response, e.g. due to critical security bugs.
 
-This means that those companies have to maintain and backport critical updates to
+Also, the European Cyber Resilience Act (CRA) is a new EU legislation that mandates
+cybersecurity standards for products containing digital elements, aiming to
+protect consumers and businesses by ensuring manufacturers build security into
+their hardware and software throughout their lifecycle, including automatic
+updates and incident reporting; essentially requiring all digital products
+sold in the EU to meet specific cybersecurity requirements.
+
+This means that companies have to maintain and backport critical updates to
 old branches internally. As this effort is duplicated across different companies
 using TF-A, it makes sense to factor out this effort into a community-wide LTS.
 
@@ -79,10 +88,12 @@ the year should the releases be made.
 
 1. For how long should an LTS release be supported?
 
-Linux kernel supports an LTS branch for 5 years. Since firmware tends to
-have less churn and longer lifetime than HLOS, TF-A should support at least
-5 years for its LTS. We should leave the room open for discussions about
-extending it to 7 years.
+The Linux kernel maintainers supports an LTS branch for 2 years. Since firmware
+tends to have less churn and longer lifetime than a HLOS, TF-A is trying to
+support at-least 7 years for its LTS. Initially it was intended to support
+5 years but there has been no objections to extend LTS support to 7 years.
+There are many challenges that may influence the 7 year support from CI
+infrastructure to availability of maintainers.
 
 2. How frequently should LTS releases be made?
 
@@ -128,7 +139,7 @@ members, see the project charter for more details). This automated test coverage
 will be extended to cover testing for LTS as well for boards that are part of
 the CI system.
 
-**TFTF branching**
+**TFTF Branching**
 
 A note about testing here. After a patch is backported to an LTS branch, that
 branch will need to be regression tested. Since TFTF moves forward with latest
@@ -141,6 +152,25 @@ branch.
 As we work with the LTS branch of TFTF, we might also need fixes for TFTF
 itself to be ported to LTS. However, decision-making about those patches need
 not be as stringent as for TF-A.
+
+**CI Scripts**
+
+CI Scripts moves forward with TF-A changes, since we need to checkout the
+corresponding release version of CI scripts for LTS.
+
+Though we are unlikely to update CI scripts, but time to time migrating a newer
+FVP version or deprecating certain tests due to unavailability of platforms may
+influence updates to CI Scripts.
+
+**Hafnium / OP-TEE**
+
+Both Hafnium and OP-TEE move forward with TF-A changes so we need to freeze their
+corresponding version from TF-A release for a LTS.
+
+**MbedTLS**
+
+Updates to the version of MbedTLS used with LTS will happen time to time based on
+maintainers call to update them or not.
 
 Release details
 ---------------
@@ -206,6 +236,10 @@ Maintainership
 #. Reviewers should not focus too much on "what" and instead focus on "how"
 #. Constantly refine the merge criteria to include more partner use cases
 #. Ensure that all candidate patches flow from the main branch to all LTS branches
+#. Maintainers collaborate in the following discord channel -
+   https://discord.com/channels/1106321706588577904/1162029539761852436
+#. Maintainers discuss and provide updates about upcoming LTS releases in the above
+   mentioned discord channel.
 
 **Options**
 
@@ -222,10 +256,10 @@ down steps and does not have to make policy level decisions for merge, testing,
 or candidate patch selection.
 
 #. Monitor the main branch to identify candidate patches for the LTS branches
-#. Inform the LTS maintainers mailing list of a new candidate patch for LTS and solicit feedback
-#. Start the review process and CI/CD cycle for the patch
-#. Review the CI/CD output to ensure that the quality bar is met
-#. After reviews are complete, merge the patch and bump the minor version, if required
+#. Monitor emails from LTS triage report to choose patches that should be
+   cherry-picked for LTS branches.
+#. Cherry-pick agreed patches to LTS branches co-ordinate review process and Monitor
+   CI results.
 #. Monitor the mailing list for any LTS related issues
 #. Propose or solicit patches to the main branch and tag them as candidates for LTS
 
@@ -269,7 +303,7 @@ is given below.
    an LTS branch
 #. The maintainers shall publish a versioning mechanism for the LTS branch
 
-   a. Bump minor version for every “logical” `[2]`_ fix that gets merged
+   a. Bump minor version for any “logical” `[2]`_ fix(es) that gets merged
 
 #. The CI/CD infrastructure shall provide test support for all “live” LTS
    branches at any given point in time
@@ -278,7 +312,8 @@ is given below.
    a. notify all maintainers that a patch is ready for review
    b. automatically cherry-pick a patch to a given LTS branch
    c. get it through the CI/CD testing flow
-   d. send nag emails to maintainers at regular intervals to ensure reviews keep moving
+   d. gentle ping in LTS discord channel asking for reviews to ensure
+      cherry-picks are merged.
 
 FAQ
 ***
