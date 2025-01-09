@@ -10,6 +10,13 @@
 #include <stdio.h>
 
 #include <plat_scmi_def.h>
+#include <clk.h>
+#include <clk_wrapper.h>
+#include <device.h>
+#include <devices.h>
+#include <clocks.h>
+#include <device_clk.h>
+#include <device_pm.h>
 
 #include <drivers/scmi-msg.h>
 #include <drivers/scmi.h>
@@ -67,6 +74,18 @@ struct scmi_msg_channel *plat_scmi_get_channel(unsigned int agent_id)
 	return &scmi_channel[agent_id];
 }
 
+void ti_clk_and_dev_init () {
+		WARN("Clock iiinit started!\n");
+	if (clk_init()) {
+		WARN("Clock init failed!\n");
+	}
+
+		WARN("dev init started!\n");
+	if(devices_init()){
+		WARN("Devices init failed!\n");
+	}
+}
+
 void ti_init_scmi_server(void)
 {
 	size_t i;
@@ -74,5 +93,6 @@ void ti_init_scmi_server(void)
 	for (i = 0U; i < ARRAY_SIZE(scmi_channel); i++)
 		scmi_smt_init_agent_channel(&scmi_channel[i]);
 
+	ti_clk_and_dev_init();
 }
 
