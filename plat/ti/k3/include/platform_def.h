@@ -61,7 +61,7 @@
  * defined as default for our platform.
  */
 #define BL31_BASE	UL(0x00000000) /* PIE remapped on fly */
-#define BL31_SIZE	UL(0x00020000) /* 128k */
+#define BL31_SIZE	UL(0x00037000) /* For AM62L: Allow upto 225280 bytes */
 #define BL31_LIMIT	(BL31_BASE + BL31_SIZE)
 
 /*

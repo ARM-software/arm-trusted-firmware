@@ -34,3 +34,5 @@ BL31_SOURCES		+=	\
 				drivers/scmi-msg/base.c			\
 				drivers/scmi-msg/entry.c			\
 				drivers/scmi-msg/smt.c			\
+				drivers/scmi-msg/clock.c			\
+				drivers/scmi-msg/power_domain.c		\
