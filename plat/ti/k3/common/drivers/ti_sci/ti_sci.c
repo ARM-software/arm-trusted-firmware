@@ -111,6 +111,7 @@ static int ti_sci_get_response(struct ti_sci_msg *msg,
 		}
 
 		/* msg is updated by Secure Proxy driver */
+		memmove(msg->buf, &msg->buf[sizeof(struct ti_sci_secure_msg_hdr)], msg->len);
 		hdr = (struct ti_sci_msg_hdr *)msg->buf;
 
 		/* Sanity check for message response */
@@ -148,6 +149,17 @@ static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 	struct ti_sci_msg *tx_msg = &xfer->tx_message;
 	struct ti_sci_msg *rx_msg = &xfer->rx_message;
 	int ret;
+	uint8_t secure_buf[TI_SCI_MAX_MESSAGE_SIZE];
+	struct ti_sci_secure_msg_hdr *secure_hdr = (struct ti_sci_secure_msg_hdr *)secure_buf;
+
+	/* ToDo: get checksum of the entire message */
+	secure_hdr->checksum = 0;
+	secure_hdr->reserved = 0;
+
+	memcpy(&secure_buf[sizeof(struct ti_sci_secure_msg_hdr)], xfer->tx_message.buf,
+		xfer->tx_message.len);
+	xfer->tx_message.buf = secure_buf;
+	xfer->tx_message.len += sizeof(struct ti_sci_secure_msg_hdr);
 
 	bakery_lock_get(&ti_sci_xfer_lock);
 
@@ -167,6 +179,7 @@ static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 
 	/* Get the response if requested */
 	if (rx_msg->len != 0U) {
+		rx_msg->len += sizeof(struct ti_sci_secure_msg_hdr);
 		ret = ti_sci_get_response(rx_msg, SP_RESPONSE);
 		if (ret != 0U) {
 			ERROR("Failed to get response (%d)\n", ret);

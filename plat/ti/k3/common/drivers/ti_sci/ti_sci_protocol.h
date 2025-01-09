@@ -85,6 +85,17 @@ struct ti_sci_msg_req_version {
 } __packed;
 
 /**
+ * struct ti_sci_secure_msg_hdr - Header that prefixes all TISCI messages sent
+ *				  via secure transport.
+ * @checksum:	crc16 checksum for the entire message
+ * @reserved:	Reserved for future use.
+ */
+struct ti_sci_secure_msg_hdr {
+	uint16_t checksum;
+	uint16_t reserved;
+} __packed;
+
+/**
  * struct ti_sci_msg_resp_version - Response for firmware version information
  * @hdr:		Generic header
  * @firmware_description: String describing the firmware
