@@ -15,11 +15,13 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <drivers/generic_delay_timer.h>
 
 #include <k3_console.h>
 #include <k3_gicv3.h>
 #include <ti_sci.h>
 #include <ti_sci_transport.h>
+#include <plat_scmi_def.h>
 
 #define ADDR_DOWN(_adr) (_adr & XLAT_ADDR_MASK(2U))
 #define SIZE_UP(_adr, _sz) (round_up((_adr + _sz), XLAT_BLOCK_SIZE(2U)) - ADDR_DOWN(_adr))
@@ -27,6 +29,7 @@
 #define K3_MAP_REGION_FLAT(_adr, _sz, _attr) \
 	MAP_REGION_FLAT(ADDR_DOWN(_adr), SIZE_UP(_adr, _sz), _attr)
 
+#include <device_wrapper.h>
 /* Table of regions to map using the MMU */
 const mmap_region_t plat_k3_mmap[] = {
 	K3_MAP_REGION_FLAT(K3_USART_BASE,       K3_USART_SIZE,       MT_DEVICE | MT_RW | MT_SECURE),
@@ -125,8 +128,10 @@ void bl31_platform_setup(void)
 
 	k3_gic_driver_init(K3_GIC_BASE);
 	k3_gic_init();
+        generic_delay_timer_init();
 
 	ti_boot_notification();
+	ti_init_scmi_server();
 
 	ret = ti_sci_get_revision(&version);
 	if (ret) {

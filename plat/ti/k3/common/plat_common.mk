@@ -84,6 +84,7 @@ BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_bl31_setup.c	\
 				${PLAT_PATH}/common/k3_helpers.S	\
 				${PLAT_PATH}/common/k3_topology.c	\
+				drivers/delay_timer/generic_delay_timer.c  	\
 				${K3_GIC_SOURCES}			\
 				${K3_PSCI_SOURCES}			\
 				${K3_TI_SCI_SOURCES}			\
