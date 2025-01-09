@@ -16,6 +16,9 @@
 #include <stdbool.h>
 #include <ti_sci.h>
 #include <ti_sci_protocol.h>
+#include <plat_scmi_def.h>
+#include <device_wrapper.h>
+#include <devices.h>
 
 #define CORE_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL0])
 #define CLUSTER_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL1])
@@ -101,11 +104,31 @@ static void __dead2 k3_system_reset(void)
 		wfi();
 }
 
+static int k3_validate_power_state(unsigned int power_state,
+				   psci_power_state_t *req_state)
+{
+	/* TODO: perform the proper validation */
+
+	return PSCI_E_SUCCESS;
+}
+
+static void k3_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	unsigned int i;
+
+	/* CPU & cluster off, system in retention */
+	for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++) {
+		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	}
+}
+
 static plat_psci_ops_t k3_plat_psci_ops = {
 	.pwr_domain_on = k3_pwr_domain_on,
 	.pwr_domain_pwr_down_wfi = k3_pwr_domain_off_wfi,
 	.pwr_domain_on_finish = k3_pwr_domain_on_finish,
+	.get_sys_suspend_power_state = k3_get_sys_suspend_power_state,
 	.system_reset = k3_system_reset,
+	.validate_power_state = k3_validate_power_state,
 };
 
 void  __aligned(16) jump_to_atf_func(void)
