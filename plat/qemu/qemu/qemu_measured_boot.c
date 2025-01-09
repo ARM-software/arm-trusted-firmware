@@ -65,6 +65,14 @@ void bl2_plat_mboot_finish(void)
 
 	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_base);
 
+	dump_event_log((uint8_t *)event_log_base, event_log_cur_size);
+
+#if TRANSFER_LIST
+	if (!plat_handoff_mboot((void *)event_log_base, event_log_cur_size,
+				(void *)(uintptr_t)FW_HANDOFF_BASE))
+		return;
+#endif
+
 	rc = qemu_set_nt_fw_info(
 #ifdef SPD_opteed
 			    (uintptr_t)event_log_base,
@@ -101,7 +109,6 @@ void bl2_plat_mboot_finish(void)
 	}
 #endif /* defined(SPD_tspd) || defined(SPD_spmd) */
 
-	dump_event_log((uint8_t *)event_log_base, event_log_cur_size);
 }
 
 int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)

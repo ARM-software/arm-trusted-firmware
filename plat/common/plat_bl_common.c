@@ -9,6 +9,7 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <lib/transfer_list.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/common/platform.h>
 #include <services/arm_arch_svc.h>
@@ -129,3 +130,13 @@ void __init setup_page_tables(const mmap_region_t *bl_regions,
 	/* Create the page tables to reflect the above mappings */
 	init_xlat_tables();
 }
+
+#if ((MEASURED_BOOT || DICE_PROTECTION_ENVIRONMENT) && TRANSFER_LIST)
+int plat_handoff_mboot(const void *data, uint32_t data_size, void *tl_base)
+{
+	if (!transfer_list_add(tl_base, TL_TAG_TPM_EVLOG, data_size, data))
+		return -1;
+
+	return 0;
+}
+#endif

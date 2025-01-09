@@ -190,24 +190,28 @@ static int32_t opteed_setup(void)
 	if (!optee_ep_info->pc)
 		return 1;
 
-	if (TRANSFER_LIST &&
-		optee_ep_info->args.arg1 == (TRANSFER_LIST_SIGNATURE |
-					REGISTER_CONVENTION_VERSION_MASK)) {
-		tl = (void *)optee_ep_info->args.arg3;
-		if (transfer_list_check_header(tl) == TL_OPS_NON) {
-			return 1;
-		}
-
-		opteed_rw = GET_RW(optee_ep_info->spsr);
+	tl = (void *)optee_ep_info->args.arg3;
+	if (TRANSFER_LIST && transfer_list_check_header(tl)) {
 		te = transfer_list_find(tl, TL_TAG_FDT);
 		dt = transfer_list_entry_data(te);
 
+		opteed_rw = GET_RW(optee_ep_info->spsr);
 		if (opteed_rw == OPTEE_AARCH64) {
+			if (optee_ep_info->args.arg1 !=
+			    TRANSFER_LIST_HANDOFF_X1_VALUE(
+				REGISTER_CONVENTION_VERSION))
+				return 1;
+
 			arg0 = (uint64_t)dt;
 			arg2 = 0;
 		} else {
-			arg2 = (uint64_t)dt;
+			if (optee_ep_info->args.arg1 !=
+			    TRANSFER_LIST_HANDOFF_R1_VALUE(
+				REGISTER_CONVENTION_VERSION))
+				return 1;
+
 			arg0 = 0;
+			arg2 = (uint64_t)dt;
 		}
 
 		arg1 = optee_ep_info->args.arg1;

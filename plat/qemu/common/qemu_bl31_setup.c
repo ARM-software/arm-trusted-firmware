@@ -68,6 +68,9 @@ static struct transfer_list_header *bl31_tl;
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
+	bool is64 = false;
+	uint64_t hval;
+
 	/* Initialize the console to provide early debug support */
 	qemu_console_init();
 
@@ -92,6 +95,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
 	while (bl_params) {
+#ifdef __aarch64__
+		if (bl_params->image_id == BL31_IMAGE_ID &&
+		    GET_RW(bl_params->ep_info->spsr) == MODE_RW_64)
+			is64 = true;
+#endif
 		if (bl_params->image_id == BL32_IMAGE_ID)
 			bl32_image_ep_info = *bl_params->ep_info;
 
@@ -113,11 +121,19 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 #endif
 
-	if (TRANSFER_LIST && arg1 == (TRANSFER_LIST_SIGNATURE |
-				      REGISTER_CONVENTION_VERSION_MASK) &&
-	    transfer_list_check_header((void *)arg3) != TL_OPS_NON) {
-		bl31_tl = (void *)arg3; /* saved TL address from BL2 */
-	}
+	if (!TRANSFER_LIST ||
+	    !transfer_list_check_header((void *)arg3))
+		return;
+
+	if (is64)
+		hval = TRANSFER_LIST_HANDOFF_X1_VALUE(REGISTER_CONVENTION_VERSION);
+	else
+		hval = TRANSFER_LIST_HANDOFF_R1_VALUE(REGISTER_CONVENTION_VERSION);
+
+	if (arg1 != hval)
+		return;
+
+	bl31_tl = (void *)arg3; /* saved TL address from BL2 */
 }
 
 #if ENABLE_RME
@@ -309,10 +325,12 @@ void bl31_plat_runtime_setup(void)
 #if TRANSFER_LIST
 	if (bl31_tl) {
 		/*
-		 * update the TL from S to NS memory before jump to BL33
+		 * Relocate the TL from S to NS memory before EL3 exit
 		 * to reflect all changes in TL done by BL32
 		 */
-		memcpy((void *)FW_NS_HANDOFF_BASE, bl31_tl, bl31_tl->max_size);
+		if (!transfer_list_relocate(bl31_tl, (void *)FW_NS_HANDOFF_BASE,
+					    bl31_tl->max_size))
+			ERROR("Relocate TL to NS memory failed\n");
 	}
 #endif
 
