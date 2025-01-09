@@ -883,6 +883,10 @@ static void manage_extensions_nonsecure_el2_unused(void)
 		sme_init_el2_unused();
 	}
 
+	if (is_feat_mops_supported()) {
+		write_hcrx_el2(read_hcrx_el2() | HCRX_EL2_MSCEn_BIT);
+	}
+
 #if ENABLE_PAUTH
 	enable_pauth_el2();
 #endif /* ENABLE_PAUTH */

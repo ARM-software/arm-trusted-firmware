@@ -317,6 +317,10 @@
 
 /* ID_AA64ISAR2_EL1 definitions */
 #define ID_AA64ISAR2_EL1		S3_0_C0_C6_2
+#define ID_AA64ISAR2_EL1_MOPS_SHIFT	U(16)
+#define ID_AA64ISAR2_EL1_MOPS_MASK	ULL(0xf)
+
+#define MOPS_IMPLEMENTED		ULL(0x1)
 
 /* ID_AA64PFR2_EL1 definitions */
 #define ID_AA64PFR2_EL1			S3_0_C0_C4_2

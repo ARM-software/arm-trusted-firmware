@@ -286,6 +286,12 @@ static unsigned int read_feat_fpmr_id_field(void)
 			     ID_AA64PFR2_EL1_FPMR_MASK);
 }
 
+static unsigned int read_feat_mops_id_field(void)
+{
+	return ISOLATE_FIELD(read_id_aa64isar2_el1(), ID_AA64ISAR2_EL1_MOPS_SHIFT,
+			     ID_AA64ISAR2_EL1_MOPS_MASK);
+}
+
 /***********************************************************************************
  * TF-A supports many Arm architectural features starting from arch version
  * (8.0 till 8.7+). These features are mostly enabled through build flags. This
@@ -343,6 +349,8 @@ void detect_arch_features(void)
 	check_feature(ENABLE_FEAT_DIT, read_feat_dit_id_field(), "DIT", 1, 1);
 	check_feature(ENABLE_FEAT_AMU, read_feat_amu_id_field(),
 		      "AMUv1", 1, 2);
+	check_feature(ENABLE_FEAT_MOPS, read_feat_mops_id_field(),
+		      "MOPS", 1, 1);
 	check_feature(ENABLE_FEAT_MPAM, read_feat_mpam_version(),
 		      "MPAM", 1, 17);
 	check_feature(CTX_INCLUDE_NEVE_REGS, read_feat_nv_id_field(),
