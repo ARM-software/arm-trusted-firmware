@@ -1062,6 +1062,10 @@ static bool s32cc_clk_is_enabled(unsigned long id)
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth);
+static int get_module_rate(const struct s32cc_clk_obj *module,
+			   const struct s32cc_clk_drv *drv,
+			   unsigned long *rate,
+			   unsigned int depth);
 
 static int set_osc_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			unsigned long *orate, unsigned int *depth)
@@ -1136,6 +1140,36 @@ static int set_clk_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 	}
 
 	return -EINVAL;
+}
+
+static int get_clk_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv, unsigned long *rate,
+			unsigned int depth)
+{
+	const struct s32cc_clk *clk = s32cc_obj2clk(module);
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (clk == NULL) {
+		ERROR("Invalid clock\n");
+		return -EINVAL;
+	}
+
+	if (clk->module != NULL) {
+		return get_module_rate(clk->module, drv, rate, ldepth);
+	}
+
+	if (clk->pclock == NULL) {
+		ERROR("Invalid clock parent\n");
+		return -EINVAL;
+	}
+
+	return get_clk_freq(&clk->pclock->desc, drv, rate, ldepth);
 }
 
 static int set_pll_freq(const struct s32cc_clk_obj *module, unsigned long rate,
@@ -1353,6 +1387,9 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 	switch (module->type) {
 	case s32cc_osc_t:
 		ret = get_osc_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_clk_t:
+		ret = get_clk_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
