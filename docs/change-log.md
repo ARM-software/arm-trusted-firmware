@@ -3,6 +3,41 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.10..refs/tags/lts-v2.10.11) (2025-01-10)
+
+### Miscellaneous
+
+- rename Blackhawk to Cortex-X925 ([b229b47](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b229b47bd86c45266677eb601fded82a61a47517))
+- rename Chaberton to Cortex-A725 ([9649899](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/96498991d1ce86054dd0cfc4018db8e20b971fc2))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - optimise runtime errata applications ([0eed05e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0eed05ee70aa5ecd6a7918ebe6518130a601e0ae))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for Cortex-X4 erratum 2923985 ([196984e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/196984e65da0024e39cc73ab1dd46fd054a1a39d))
+    - workaround for CVE-2024-5660 for Cortex-A710 ([f7ae819](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f7ae819f03aebea5a95d2583df554138577b0c30))
+    - workaround for CVE-2024-5660 for Cortex-A77 ([5673d34](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5673d345aaa317e959f54bd7f422d018a7064f2a))
+    - workaround for CVE-2024-5660 for Cortex-A78 ([30c57c5](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/30c57c58abe386608130a80971c52dfe1f29f5c0))
+    - workaround for CVE-2024-5660 for Cortex-A78_AE ([a02a863](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a02a863d31563dbd9b4809f3e4e389f6e7c303bd))
+    - workaround for CVE-2024-5660 for Cortex-A78C ([87250d2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/87250d2bb1eafa8f9d8897f191a9a23134af957a))
+    - workaround for CVE-2024-5660 for Cortex-X1 ([c7d3c9e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c7d3c9eb2d81aeebc99c55935f19959dbafe48d4))
+    - workaround for CVE-2024-5660 for Cortex-X2 ([ad9dfdc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ad9dfdc5800cf9d5ebb363d50d4fd77c6d9b0dff))
+    - workaround for CVE-2024-5660 for Cortex-X3 ([17e17ed](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/17e17ed3f1e659ff6c42faee1570a12fd3d9fd9d))
+    - workaround for CVE-2024-5660 for Cortex-X4 ([e42abf2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e42abf298321043e09ac756adf8d1c9470a53bb0))
+    - workaround for CVE-2024-5660 for Cortex-X925 ([698e68f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/698e68fe1fe935492588fd7ab9d6d7c3148a7c3b))
+    - workaround for CVE-2024-5660 for Neoverse-N2 ([282e635](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/282e63544d26d6d734e9c7409950227375893153))
+    - workaround for CVE-2024-5660 for Neoverse-V1 ([4fd2a67](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4fd2a6702dd10763c2e1d236576e2be7ec6ab246))
+    - workaround for CVE-2024-5660 for Neoverse-V2 ([3efc9e1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3efc9e13011d4ea5e77d29d7d7668a9e2779f014))
+    - workaround for CVE-2024-5660 for Neoverse-V3 ([a6375e1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a6375e1feb42b6b1a896d949efdcd5b50356330e))
+
 ## [lts-2.10.10](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.9..refs/tags/lts-v2.10.10) (2024-12-06)
 
 ### Miscellaneous
