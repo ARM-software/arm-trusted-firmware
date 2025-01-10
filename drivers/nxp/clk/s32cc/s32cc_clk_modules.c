@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 NXP
+ * Copyright 2020-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,7 @@ static struct s32cc_clk fxosc_clk =
 	S32CC_MODULE_CLK(fxosc);
 
 static struct s32cc_osc firc =
-	S32CC_OSC_INIT(S32CC_FIRC);
+	S32CC_OSC_INIT_FREQ(S32CC_FIRC, 48 * MHZ);
 static struct s32cc_clk firc_clk =
 	S32CC_MODULE_CLK(firc);
 

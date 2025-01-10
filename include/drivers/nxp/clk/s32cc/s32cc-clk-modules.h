@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright 2020-2024 NXP
+ * Copyright 2020-2025 NXP
  */
 #ifndef S32CC_CLK_MODULES_H
 #define S32CC_CLK_MODULES_H
@@ -52,13 +52,17 @@ struct s32cc_osc {
 	void *base;
 };
 
-#define S32CC_OSC_INIT(SOURCE)       \
-{                                    \
-	.desc = {                    \
-		.type = s32cc_osc_t, \
-	},                           \
-	.source = (SOURCE),          \
+#define S32CC_OSC_INIT_FREQ(SOURCE, FREQ) \
+{                                         \
+	.desc = {                         \
+		.type = s32cc_osc_t,      \
+	},                                \
+	.source = (SOURCE),               \
+	.freq = (FREQ),                   \
 }
+
+#define S32CC_OSC_INIT(SOURCE) \
+	S32CC_OSC_INIT_FREQ(SOURCE, 0)
 
 struct s32cc_clkmux {
 	struct s32cc_clk_obj desc;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1059,11 +1059,6 @@ static bool s32cc_clk_is_enabled(unsigned long id)
 	return false;
 }
 
-static unsigned long s32cc_clk_get_rate(unsigned long id)
-{
-	return 0;
-}
-
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth);
@@ -1087,6 +1082,29 @@ static int set_osc_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 
 	osc->freq = rate;
 	*orate = osc->freq;
+
+	return 0;
+}
+
+static int get_osc_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv,
+			unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_osc *osc = s32cc_obj2osc(module);
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (osc->freq == 0UL) {
+		ERROR("Uninitialized oscillator\n");
+		return -EINVAL;
+	}
+
+	*rate = osc->freq;
 
 	return 0;
 }
@@ -1319,6 +1337,31 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 	return ret;
 }
 
+static int get_module_rate(const struct s32cc_clk_obj *module,
+			   const struct s32cc_clk_drv *drv,
+			   unsigned long *rate,
+			   unsigned int depth)
+{
+	unsigned int ldepth = depth;
+	int ret = 0;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	switch (module->type) {
+	case s32cc_osc_t:
+		ret = get_osc_freq(module, drv, rate, ldepth);
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	return ret;
+}
+
 static int s32cc_clk_set_rate(unsigned long id, unsigned long rate,
 			      unsigned long *orate)
 {
@@ -1338,6 +1381,29 @@ static int s32cc_clk_set_rate(unsigned long id, unsigned long rate,
 	}
 
 	return ret;
+}
+
+static unsigned long s32cc_clk_get_rate(unsigned long id)
+{
+	const struct s32cc_clk_drv *drv = get_drv();
+	unsigned int depth = MAX_STACK_DEPTH;
+	const struct s32cc_clk *clk;
+	unsigned long rate = 0UL;
+	int ret;
+
+	clk = s32cc_get_arch_clk(id);
+	if (clk == NULL) {
+		return 0;
+	}
+
+	ret = get_module_rate(&clk->desc, drv, &rate, depth);
+	if (ret != 0) {
+		ERROR("Failed to get frequency (%lu MHz) for clock %lu\n",
+		      rate, id);
+		return 0;
+	}
+
+	return rate;
 }
 
 static struct s32cc_clk_obj *get_no_parent(const struct s32cc_clk_obj *module)
