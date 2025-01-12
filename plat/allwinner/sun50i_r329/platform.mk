@@ -10,6 +10,7 @@ SUNXI_PSCI_USE_NATIVE	:=	1
 
 # The differences between the platforms are covered by the include files.
 include plat/allwinner/common/allwinner-common.mk
+include plat/allwinner/common/allwinner-common-a53.mk
 
 # the above could be overwritten on the command line
 ifeq (${SUNXI_PSCI_USE_SCPI}, 1)

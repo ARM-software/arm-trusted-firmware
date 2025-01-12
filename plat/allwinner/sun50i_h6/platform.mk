@@ -6,6 +6,7 @@
 
 # The differences between the platform are covered by the include files.
 include plat/allwinner/common/allwinner-common.mk
+include plat/allwinner/common/allwinner-common-a53.mk
 
 BL31_SOURCES		+=	drivers/allwinner/axp/axp805.c		\
 				drivers/allwinner/sunxi_rsb.c
