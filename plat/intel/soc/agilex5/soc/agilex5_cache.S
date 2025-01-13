@@ -15,14 +15,16 @@
 	 * --------------------------------------------------------
 	 */
 func invalidate_cache_low_el
-	mrs	x0,SCR_EL3
-	orr	x1,x0,#SCR_NS_BIT
+	mrs	x0, SCR_EL3
+	orr	x1, x0, #SCR_NS_BIT
 	msr	SCR_EL3, x1
 	isb
 	tlbi	ALLE2
 	dsb	sy
 	tlbi	ALLE1
 	dsb	sy
+	msr	SCR_EL3, x0
+	isb
 endfunc invalidate_cache_low_el
 
 .pushsection .text.asm_dcache_level, "ax"
