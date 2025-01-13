@@ -1341,6 +1341,57 @@ static int set_pll_div_freq(const struct s32cc_clk_obj *module, unsigned long ra
 	return 0;
 }
 
+static int get_pll_div_freq(const struct s32cc_clk_obj *module,
+			    const struct s32cc_clk_drv *drv,
+			    unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_pll_out_div *pdiv = s32cc_obj2plldiv(module);
+	const struct s32cc_pll *pll;
+	unsigned int ldepth = depth;
+	uintptr_t pll_addr = 0UL;
+	unsigned long pfreq;
+	uint32_t pllodiv;
+	uint32_t dc;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	pll = get_div_pll(pdiv);
+	if (pll == NULL) {
+		ERROR("The parent of the PLL DIV is invalid\n");
+		return -EINVAL;
+	}
+
+	ret = get_base_addr(pll->instance, drv, &pll_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect PLL instance\n");
+		return -EINVAL;
+	}
+
+	ret = get_module_rate(pdiv->parent, drv, &pfreq, ldepth);
+	if (ret != 0) {
+		ERROR("Failed to get the frequency of PLL %" PRIxPTR "\n",
+		      pll_addr);
+		return ret;
+	}
+
+	pllodiv = mmio_read_32(PLLDIG_PLLODIV(pll_addr, pdiv->index));
+
+	/* Disabled module */
+	if ((pllodiv & PLLDIG_PLLODIV_DE) == 0U) {
+		*rate = pdiv->freq;
+		return 0;
+	}
+
+	dc = PLLDIG_PLLODIV_DIV(pllodiv);
+	*rate = (pfreq * FP_PRECISION) / (dc + 1U) / FP_PRECISION;
+
+	return 0;
+}
+
 static int set_fixed_div_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			      unsigned long *orate, unsigned int *depth)
 {
@@ -1583,6 +1634,9 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_fixed_div_t:
 		ret = get_fixed_div_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_pll_out_div_t:
+		ret = get_pll_div_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
