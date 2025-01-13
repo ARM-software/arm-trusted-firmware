@@ -1365,6 +1365,23 @@ static int set_fixed_div_freq(const struct s32cc_clk_obj *module, unsigned long 
 	return ret;
 }
 
+static int get_fixed_div_freq(const struct s32cc_clk_obj *module,
+			      const struct s32cc_clk_drv *drv,
+			      unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_fixed_div *fdiv = s32cc_obj2fixeddiv(module);
+	unsigned long pfreq;
+	int ret;
+
+	ret = get_module_rate(fdiv->parent, drv, &pfreq, depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	*rate = (pfreq * FP_PRECISION / fdiv->rate_div) / FP_PRECISION;
+	return 0;
+}
+
 static int set_mux_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			unsigned long *orate, unsigned int *depth)
 {
@@ -1563,6 +1580,9 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_dfs_div_t:
 		ret = get_dfs_div_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_fixed_div_t:
+		ret = get_fixed_div_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
