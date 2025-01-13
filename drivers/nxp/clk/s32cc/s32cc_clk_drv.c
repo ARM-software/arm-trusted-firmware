@@ -1454,6 +1454,29 @@ static int set_mux_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 	return set_module_rate(&clk->desc, rate, orate, depth);
 }
 
+static int get_mux_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv,
+			unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_clkmux *mux = s32cc_obj2clkmux(module);
+	const struct s32cc_clk *clk = s32cc_get_arch_clk(mux->source_id);
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (clk == NULL) {
+		ERROR("Mux (id:%" PRIu8 ") without a valid source (%lu)\n",
+		      mux->index, mux->source_id);
+		return -EINVAL;
+	}
+
+	return get_clk_freq(&clk->desc, drv, rate, ldepth);
+}
+
 static int set_dfs_div_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			    unsigned long *orate, unsigned int *depth)
 {
@@ -1637,6 +1660,12 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_pll_out_div_t:
 		ret = get_pll_div_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_clkmux_t:
+		ret = get_mux_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_shared_clkmux_t:
+		ret = get_mux_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
