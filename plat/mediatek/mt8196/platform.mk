@@ -34,6 +34,11 @@ MODULES-y += $(MTK_PLAT)/drivers/vcp
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/topology
 
+ifneq ($(MTKLIB_PATH),)
+LDFLAGS += -L $(dir $(MTKLIB_PATH))
+LDLIBS += -l$(patsubst lib%.a,%,$(notdir $(MTKLIB_PATH)))
+endif
+
 PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \
 			  drivers/ti/uart/aarch64/16550_console.S \
 			  lib/bl_aux_params/bl_aux_params.c
