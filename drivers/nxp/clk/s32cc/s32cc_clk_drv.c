@@ -1422,6 +1422,71 @@ static int set_dfs_div_freq(const struct s32cc_clk_obj *module, unsigned long ra
 	return ret;
 }
 
+static unsigned long compute_dfs_div_freq(unsigned long pfreq, uint32_t mfi, uint32_t mfn)
+{
+	unsigned long freq;
+
+	/**
+	 * Formula for input and output clocks of each port divider.
+	 * See 'Digital Frequency Synthesizer' chapter from Reference Manual.
+	 *
+	 * freq = pfreq / (2 * (mfi + mfn / 36.0));
+	 */
+	freq = (mfi * FP_PRECISION) + (mfn * FP_PRECISION / 36UL);
+	freq *= 2UL;
+	freq = pfreq * FP_PRECISION / freq;
+
+	return freq;
+}
+
+static int get_dfs_div_freq(const struct s32cc_clk_obj *module,
+			    const struct s32cc_clk_drv *drv,
+			    unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_dfs_div *dfs_div = s32cc_obj2dfsdiv(module);
+	unsigned int ldepth = depth;
+	const struct s32cc_dfs *dfs;
+	uint32_t dvport, mfi, mfn;
+	uintptr_t dfs_addr = 0UL;
+	unsigned long pfreq;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	dfs = get_div_dfs(dfs_div);
+	if (dfs == NULL) {
+		return -EINVAL;
+	}
+
+	ret = get_module_rate(dfs_div->parent, drv, &pfreq, ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = get_base_addr(dfs->instance, drv, &dfs_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect the DFS instance\n");
+		return ret;
+	}
+
+	dvport = mmio_read_32(DFS_DVPORTn(dfs_addr, dfs_div->index));
+
+	mfi = DFS_DVPORTn_MFI(dvport);
+	mfn = DFS_DVPORTn_MFN(dvport);
+
+	/* Disabled port */
+	if ((mfi == 0U) && (mfn == 0U)) {
+		*rate = dfs_div->freq;
+		return 0;
+	}
+
+	*rate = compute_dfs_div_freq(pfreq, mfi, mfn);
+	return 0;
+}
+
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth)
@@ -1495,6 +1560,9 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_dfs_t:
 		ret = get_dfs_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_dfs_div_t:
+		ret = get_dfs_div_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
