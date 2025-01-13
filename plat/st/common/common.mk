@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
+# Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -76,7 +77,7 @@ ASFLAGS				+=	-DBL2_BIN_PATH=\"${BUILD_PLAT}/bl2.bin\"
 
 # Variables for use with stm32image
 STM32IMAGEPATH			?=	tools/stm32image
-STM32IMAGE			?=	${STM32IMAGEPATH}/stm32image${BIN_EXT}
+STM32IMAGE			?=	${STM32IMAGEPATH}/stm32image$(.exe)
 STM32IMAGE_SRC			:=	${STM32IMAGEPATH}/stm32image.c
 STM32_DEPS			+=	${STM32IMAGE}
 

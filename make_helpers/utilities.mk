@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -127,3 +127,17 @@ bool-01 = $(if $(call bool,$(1)),1,0)
 #
 
 defined = $(call bool,$(filter-out undefined,$(origin $(1))))
+
+#
+# Determine the path to a program.
+#
+# Parameters:
+#
+#   - $(1): The program to search for.
+#
+# Example usage:
+#
+#     path-to-gcc := $(call which,gcc) # "/usr/bin/gcc"
+#
+
+which = $(shell command -v $(call escape-shell,$(1)) 2>/dev/null)

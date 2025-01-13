@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -75,9 +75,7 @@ BL2_SOURCES		+=	lib/aarch32/arm32_aeabi_divmod.c		\
 				${DYN_CFG_SOURCES}				\
 				${A5DS_SECURITY_SOURCES}
 
-# Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
-ifdef UNIX_MK
-
+# Add the FDT_SOURCES and options for Dynamic Config
 FW_CONFIG	:=      ${BUILD_PLAT}/fdts/a5ds_fw_config.dtb
 TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/a5ds_tb_fw_config.dtb
 
@@ -94,7 +92,6 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config,${FVP_HW_CONFIG}))
 FDT_SOURCES		+=	plat/arm/board/a5ds/fdts/a5ds_fw_config.dts \
 				plat/arm/board/a5ds/fdts/a5ds_tb_fw_config.dts \
 					${FVP_HW_CONFIG_DTS}
-endif
 
 NEED_BL32 := yes
 

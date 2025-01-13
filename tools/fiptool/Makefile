@@ -1,17 +1,16 @@
 #
-# Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
-FIPTOOL ?= fiptool${BIN_EXT}
+FIPTOOL ?= fiptool$(.exe)
 PROJECT := $(notdir ${FIPTOOL})
 OBJECTS := fiptool.o tbbr_config.o
 STATIC ?= 0
@@ -93,4 +92,4 @@ endif
 endif # STATIC
 
 clean:
-	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS} $(DEPS))
+	$(q)rm -rf $(PROJECT) $(OBJECTS) $(DEPS)

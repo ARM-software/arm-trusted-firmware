@@ -1,18 +1,18 @@
 #
 # Copyright 2018-2020 NXP
+# Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 MAKE_HELPERS_DIRECTORY := ../../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
-PROJECT_1 := create_pbl${BIN_EXT}
+PROJECT_1 := create_pbl$(.exe)
 OBJECTS_1 := create_pbl.o
-PROJECT_2 := byte_swap${BIN_EXT}
+PROJECT_2 := byte_swap$(.exe)
 OBJECTS_2 := byte_swap.o
 
 override CPPFLAGS += -D_GNU_SOURCE -D_XOPEN_SOURCE=700
@@ -49,5 +49,5 @@ ${PROJECT_2}: ${OBJECTS_2} Makefile
 	$(q)$(host-cc) -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
-	$(call SHELL_DELETE_ALL, ${PROJECT_1} ${OBJECTS_1})
-	$(call SHELL_DELETE_ALL, ${PROJECT_2} ${OBJECTS_2})
+	$(q)rm -rf $(PROJECT_1) $(OBJECTS_1)
+	$(q)rm -rf $(PROJECT_2) $(OBJECTS_2)

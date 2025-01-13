@@ -1,16 +1,15 @@
 #
-# Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
-PROJECT := stm32image${BIN_EXT}
+PROJECT := stm32image$(.exe)
 OBJECTS := stm32image.o
 
 HOSTCCFLAGS := -Wall -Werror -pedantic -std=c99 -D_GNU_SOURCE
@@ -37,6 +36,6 @@ ${PROJECT}: ${OBJECTS} Makefile
 	$(q)$(host-cc) -c ${HOSTCCFLAGS} $< -o $@
 
 clean:
-	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})
+	$(q)rm -rf $(PROJECT) $(OBJECTS)
 
 distclean: clean

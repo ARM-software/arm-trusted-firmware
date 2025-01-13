@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -18,7 +18,6 @@
 ifndef toolchain-mk
         toolchain-mk := $(lastword $(MAKEFILE_LIST))
 
-        include $(dir $(toolchain-mk))build_env.mk
         include $(dir $(toolchain-mk))utilities.mk
 
         #
@@ -242,28 +241,28 @@ ifndef toolchain-mk
         #
 
         # Arm Compiler for Embedded
-        toolchain-guess-tool-arm-clang = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Tool: armclang")
-        toolchain-guess-tool-arm-link = $(shell $(1) --help 2>&1 <$(nul) | grep -o "Tool: armlink")
-        toolchain-guess-tool-arm-fromelf = $(shell $(1) --help 2>&1 <$(nul) | grep -o "Tool: fromelf")
-        toolchain-guess-tool-arm-ar = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Tool: armar")
+        toolchain-guess-tool-arm-clang = $(shell $(1) --version 2>&1 </dev/null | grep -o "Tool: armclang")
+        toolchain-guess-tool-arm-link = $(shell $(1) --help 2>&1 </dev/null | grep -o "Tool: armlink")
+        toolchain-guess-tool-arm-fromelf = $(shell $(1) --help 2>&1 </dev/null | grep -o "Tool: fromelf")
+        toolchain-guess-tool-arm-ar = $(shell $(1) --version 2>&1 </dev/null | grep -o "Tool: armar")
 
         # LLVM Project
-        toolchain-guess-tool-llvm-clang = $(shell $(1) -v 2>&1 <$(nul) | grep -o "clang version")
-        toolchain-guess-tool-llvm-lld = $(shell $(1) --help 2>&1 <$(nul) | grep -o "OVERVIEW: lld")
-        toolchain-guess-tool-llvm-objcopy = $(shell $(1) --help 2>&1 <$(nul) | grep -o "llvm-objcopy tool")
-        toolchain-guess-tool-llvm-objdump = $(shell $(1) --help 2>&1 <$(nul) | grep -o "llvm object file dumper")
-        toolchain-guess-tool-llvm-ar = $(shell $(1) --help 2>&1 <$(nul) | grep -o "LLVM Archiver")
+        toolchain-guess-tool-llvm-clang = $(shell $(1) -v 2>&1 </dev/null | grep -o "clang version")
+        toolchain-guess-tool-llvm-lld = $(shell $(1) --help 2>&1 </dev/null | grep -o "OVERVIEW: lld")
+        toolchain-guess-tool-llvm-objcopy = $(shell $(1) --help 2>&1 </dev/null | grep -o "llvm-objcopy tool")
+        toolchain-guess-tool-llvm-objdump = $(shell $(1) --help 2>&1 </dev/null | grep -o "llvm object file dumper")
+        toolchain-guess-tool-llvm-ar = $(shell $(1) --help 2>&1 </dev/null | grep -o "LLVM Archiver")
 
         # GNU Compiler Collection & GNU Binary Utilities
-        toolchain-guess-tool-gnu-gcc = $(shell $(1) -v 2>&1 <$(nul) | grep -o "gcc version")
-        toolchain-guess-tool-gnu-ld = $(shell $(1) -v 2>&1 <$(nul) | grep -o "GNU ld")
-        toolchain-guess-tool-gnu-objcopy = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU objcopy")
-        toolchain-guess-tool-gnu-objdump = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU objdump")
-        toolchain-guess-tool-gnu-ar = $(shell $(1) --version 2>&1 <$(nul) | grep -o "GNU ar")
+        toolchain-guess-tool-gnu-gcc = $(shell $(1) -v 2>&1 </dev/null | grep -o "gcc version")
+        toolchain-guess-tool-gnu-ld = $(shell $(1) -v 2>&1 </dev/null | grep -o "GNU ld")
+        toolchain-guess-tool-gnu-objcopy = $(shell $(1) --version 2>&1 </dev/null | grep -o "GNU objcopy")
+        toolchain-guess-tool-gnu-objdump = $(shell $(1) --version 2>&1 </dev/null | grep -o "GNU objdump")
+        toolchain-guess-tool-gnu-ar = $(shell $(1) --version 2>&1 </dev/null | grep -o "GNU ar")
 
         # Other tools
-        toolchain-guess-tool-generic-dtc = $(shell $(1) --version 2>&1 <$(nul) | grep -o "Version: DTC")
-        toolchain-guess-tool-generic-poetry = $(shell $(1) --version 2>&1 <$(nul))
+        toolchain-guess-tool-generic-dtc = $(shell $(1) --version 2>&1 </dev/null | grep -o "Version: DTC")
+        toolchain-guess-tool-generic-poetry = $(shell $(1) --version 2>&1 </dev/null)
 
         toolchain-guess-tool = $(if $(2),$(firstword $(foreach candidate,$(1),$\
                 $(if $(call toolchain-guess-tool-$(candidate),$(2)),$(candidate)))))
@@ -330,17 +329,17 @@ ifndef toolchain-mk
 
         toolchain-derive-llvm-clang-cpp = $(1)
         toolchain-derive-llvm-clang-as = $(1)
-        toolchain-derive-llvm-clang-ld = $(shell $(1) --print-prog-name ld.lld 2>$(nul))
-        toolchain-derive-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>$(nul))
-        toolchain-derive-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>$(nul))
-        toolchain-derive-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>$(nul))
+        toolchain-derive-llvm-clang-ld = $(shell $(1) --print-prog-name ld.lld 2>/dev/null)
+        toolchain-derive-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>/dev/null)
+        toolchain-derive-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>/dev/null)
+        toolchain-derive-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>/dev/null)
 
         toolchain-derive-gnu-gcc-cpp = $(1)
         toolchain-derive-gnu-gcc-as = $(1)
         toolchain-derive-gnu-gcc-ld = $(1)
-        toolchain-derive-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>$(nul))
-        toolchain-derive-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>$(nul))
-        toolchain-derive-gnu-gcc-ar = $(shell $(1) --print-prog-name ar 2>$(nul))
+        toolchain-derive-gnu-gcc-oc = $(shell $(1) --print-prog-name objcopy 2>/dev/null)
+        toolchain-derive-gnu-gcc-od = $(shell $(1) --print-prog-name objdump 2>/dev/null)
+        toolchain-derive-gnu-gcc-ar = $(shell $(1) --print-prog-name ar 2>/dev/null)
 
         toolchain-derive = $(if $3,$(call toolchain-derive-$1-$2,$3))
 
