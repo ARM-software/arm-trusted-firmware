@@ -25,6 +25,14 @@ endif
 # Libraries
 include lib/xlat_tables_v2/xlat_tables.mk
 
+ifeq (${TRANSFER_LIST}, 1)
+include lib/transfer_list/transfer_list.mk
+endif
+
+ifeq (${HOB_LIST}, 1)
+include lib/hob/hob.mk
+endif
+
 PLAT_PATH		:=	plat/socionext/synquacer
 PLAT_INCLUDES		:=	-I$(PLAT_PATH)/include		\
 				-I$(PLAT_PATH)/drivers/scpi	\
