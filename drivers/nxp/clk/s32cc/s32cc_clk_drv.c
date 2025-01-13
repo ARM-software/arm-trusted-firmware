@@ -1194,6 +1194,82 @@ static int set_pll_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 	return 0;
 }
 
+static int get_pll_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv,
+			unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_pll *pll = s32cc_obj2pll(module);
+	const struct s32cc_clk *source;
+	uint32_t mfi, mfn, rdiv, plldv;
+	unsigned long prate, clk_src;
+	unsigned int ldepth = depth;
+	uintptr_t pll_addr = 0UL;
+	uint64_t t1, t2;
+	uint32_t pllpd;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = get_base_addr(pll->instance, drv, &pll_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect PLL instance\n");
+		return ret;
+	}
+
+	/* Disabled PLL */
+	pllpd = mmio_read_32(PLLDIG_PLLCR(pll_addr)) & PLLDIG_PLLCR_PLLPD;
+	if (pllpd != 0U) {
+		*rate = pll->vco_freq;
+		return 0;
+	}
+
+	clk_src = mmio_read_32(PLLDIG_PLLCLKMUX(pll_addr));
+	switch (clk_src) {
+	case 0:
+		clk_src = S32CC_CLK_FIRC;
+		break;
+	case 1:
+		clk_src = S32CC_CLK_FXOSC;
+		break;
+	default:
+		ERROR("Failed to identify PLL source id %" PRIu64 "\n", clk_src);
+		return -EINVAL;
+	};
+
+	source = s32cc_get_arch_clk(clk_src);
+	if (source == NULL) {
+		ERROR("Failed to get PLL source clock\n");
+		return -EINVAL;
+	}
+
+	ret = get_module_rate(&source->desc, drv, &prate, ldepth);
+	if (ret != 0) {
+		ERROR("Failed to get PLL's parent frequency\n");
+		return ret;
+	}
+
+	plldv = mmio_read_32(PLLDIG_PLLDV(pll_addr));
+	mfi = PLLDIG_PLLDV_MFI(plldv);
+	rdiv = PLLDIG_PLLDV_RDIV(plldv);
+	if (rdiv == 0U) {
+		rdiv = 1;
+	}
+
+	/* Frac-N mode */
+	mfn = PLLDIG_PLLFD_MFN_SET(mmio_read_32(PLLDIG_PLLFD(pll_addr)));
+
+	/* PLL VCO frequency in Fractional mode when PLLDV[RDIV] is not 0 */
+	t1 = prate / rdiv;
+	t2 = (mfi * FP_PRECISION) + (mfn * FP_PRECISION / 18432U);
+
+	*rate = t1 * t2 / FP_PRECISION;
+
+	return 0;
+}
+
 static int set_pll_div_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			    unsigned long *orate, unsigned int *depth)
 {
@@ -1390,6 +1466,9 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_clk_t:
 		ret = get_clk_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_pll_t:
+		ret = get_pll_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
