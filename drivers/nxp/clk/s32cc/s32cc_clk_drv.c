@@ -33,6 +33,14 @@ struct s32cc_clk_drv {
 	uintptr_t rdc;
 };
 
+static int set_module_rate(const struct s32cc_clk_obj *module,
+			   unsigned long rate, unsigned long *orate,
+			   unsigned int *depth);
+static int get_module_rate(const struct s32cc_clk_obj *module,
+			   const struct s32cc_clk_drv *drv,
+			   unsigned long *rate,
+			   unsigned int depth);
+
 static int update_stack_depth(unsigned int *depth)
 {
 	if (*depth == 0U) {
@@ -651,6 +659,29 @@ static int enable_dfs(struct s32cc_clk_obj *module,
 	return 0;
 }
 
+static int get_dfs_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv,
+			unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_dfs *dfs = s32cc_obj2dfs(module);
+	unsigned int ldepth = depth;
+	uintptr_t dfs_addr;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = get_base_addr(dfs->instance, drv, &dfs_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect the DFS instance\n");
+		return ret;
+	}
+
+	return get_module_rate(dfs->parent, drv, rate, ldepth);
+}
+
 static struct s32cc_dfs *get_div_dfs(const struct s32cc_dfs_div *dfs_div)
 {
 	const struct s32cc_clk_obj *parent = dfs_div->parent;
@@ -1059,14 +1090,6 @@ static bool s32cc_clk_is_enabled(unsigned long id)
 	return false;
 }
 
-static int set_module_rate(const struct s32cc_clk_obj *module,
-			   unsigned long rate, unsigned long *orate,
-			   unsigned int *depth);
-static int get_module_rate(const struct s32cc_clk_obj *module,
-			   const struct s32cc_clk_drv *drv,
-			   unsigned long *rate,
-			   unsigned int depth);
-
 static int set_osc_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			unsigned long *orate, unsigned int *depth)
 {
@@ -1469,6 +1492,9 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_pll_t:
 		ret = get_pll_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_dfs_t:
+		ret = get_dfs_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
