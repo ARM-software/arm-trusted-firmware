@@ -958,6 +958,22 @@ get_part_block_link_parent(const struct s32cc_clk_obj *module)
 	return link->parent;
 }
 
+static int get_part_block_link_freq(const struct s32cc_clk_obj *module,
+				    const struct s32cc_clk_drv *drv,
+				    unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_part_block_link *block = s32cc_obj2partblocklink(module);
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	return get_module_rate(block->parent, drv, rate, ldepth);
+}
+
 static int no_enable(struct s32cc_clk_obj *module,
 		     const struct s32cc_clk_drv *drv,
 		     unsigned int depth)
@@ -1666,6 +1682,15 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_shared_clkmux_t:
 		ret = get_mux_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_part_t:
+		ERROR("s32cc_part_t cannot be used to get rate\n");
+		break;
+	case s32cc_part_block_t:
+		ERROR("s32cc_part_block_t cannot be used to get rate\n");
+		break;
+	case s32cc_part_block_link_t:
+		ret = get_part_block_link_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
