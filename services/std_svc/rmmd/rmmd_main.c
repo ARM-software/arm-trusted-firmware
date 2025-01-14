@@ -121,8 +121,6 @@ static void rmm_el2_context_init(el2_sysregs_t *regs)
 
 static void manage_extensions_realm(cpu_context_t *ctx)
 {
-	pmuv3_enable(ctx);
-
 	/*
 	 * Enable access to TPIDR2_EL0 if SME/SME2 is enabled for Non Secure world.
 	 */

@@ -573,6 +573,8 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	if (is_feat_trf_supported()) {
 		trf_enable(ctx);
 	}
+
+	pmuv3_enable(ctx);
 #endif /* IMAGE_BL31 */
 
 	/*
@@ -822,8 +824,6 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 	if (is_feat_brbe_supported()) {
 		brbe_enable(ctx);
 	}
-
-	pmuv3_enable(ctx);
 #endif /* IMAGE_BL31 */
 }
 
