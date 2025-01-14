@@ -42,19 +42,14 @@ void spe_disable(cpu_context_t *ctx)
 	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);
 
 	/*
-	 * MDCR_EL3.NSPB: set to 0x2. After, Non-Secure state owns
-	 * the Profiling Buffer and accesses to Statistical Profiling and Profiling
-	 * Buffer control registers at EL2 and EL1 generate Trap exceptions to EL3.
-	 * Profiling is disabled in Secure and Realm states.
-	 *
-	 * MDCR_EL3.NSPBE: Don't care as it was cleared during spe_enable and setting
-	 * this to 1 does not make sense as NSPBE{1} and NSPB{0b0x} is RESERVED.
+	 * MDCR_EL3.{NSPB,NSPBE} = 0b00, 0b0
+	 *  Disable access of profiling buffer control registers from lower ELs
+	 *  in any security state. Secure state owns the buffer.
 	 *
 	 * MDCR_EL3.EnPMSN (ARM v8.7): Clear the bit to trap access of PMSNEVFR_EL1
 	 * from EL2/EL1 to EL3.
 	 */
-	mdcr_el3_val &= ~(MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_EnPMSN_BIT);
-	mdcr_el3_val |= MDCR_NSPB(MDCR_NSPB_EL3);
+	mdcr_el3_val &= ~(MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_NSPBE_BIT | MDCR_EnPMSN_BIT);
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 

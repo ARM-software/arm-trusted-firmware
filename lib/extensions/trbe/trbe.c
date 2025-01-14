@@ -35,13 +35,12 @@ void trbe_disable(cpu_context_t *ctx)
 	u_register_t mdcr_el3_val = read_ctx_reg(state, CTX_MDCR_EL3);
 
 	/*
-	 * MDCR_EL3.{NSTBE,NSTB} = 0b0, 0b10
+	 * MDCR_EL3.{NSTBE,NSTB} = 0b0, 0b00
 	 *  Disable access of trace buffer control registers from lower ELs in
-	 *  any security state. Non-secure owns the buffer.
+	 *  any security state. Secure state owns the buffer.
 	 */
 	mdcr_el3_val &= ~(MDCR_NSTB(MDCR_NSTB_EL1));
 	mdcr_el3_val &= ~(MDCR_NSTBE_BIT);
-	mdcr_el3_val |= MDCR_NSTB(MDCR_NSTB_EL3);
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 
