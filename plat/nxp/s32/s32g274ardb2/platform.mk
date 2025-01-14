@@ -38,6 +38,9 @@ ERRATA_A53_1530924 := 1
 ERRATA_SPECULATIVE_AT := 1
 ERRATA_S32_051700 := 1
 
+PLAT_XLAT_TABLES_DYNAMIC := 1
+$(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+
 # Selecting Drivers for SoC
 $(eval $(call SET_NXP_MAKE_FLAG,CONSOLE_NEEDED,BL_COMM))
 $(eval $(call SET_NXP_MAKE_FLAG,CLK_NEEDED,BL_COMM))
@@ -47,6 +50,8 @@ include ${PLAT_DRIVERS_PATH}/drivers.mk
 BL_COMMON_SOURCES += \
 	${PLAT_S32G274ARDB2}/plat_console.c \
 	${PLAT_S32G274ARDB2}/plat_helpers.S \
+	${PLAT_S32G274ARDB2}/s32cc_bl_common.c \
+	${XLAT_TABLES_LIB_SRCS} \
 
 BL2_SOURCES += \
 	${BL_COMMON_SOURCES} \

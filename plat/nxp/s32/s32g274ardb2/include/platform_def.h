@@ -48,7 +48,7 @@
 /* We'll be doing a 1:1 mapping anyway */
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 36)
 
-#define MAX_MMAP_REGIONS		U(8)
+#define MAX_MMAP_REGIONS		U(18)
 #define MAX_XLAT_TABLES			U(32)
 
 /* Console settings */

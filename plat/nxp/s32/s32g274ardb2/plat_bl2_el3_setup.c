@@ -4,15 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
+
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <plat_console.h>
 #include <s32cc-clk-drv.h>
+
 #include <plat_io_storage.h>
+#include <s32cc-bl-common.h>
 #include <s32cc-ncore.h>
 
+#define SIUL20_BASE		UL(0x4009C000)
 #define SIUL2_PC09_MSCR		UL(0x4009C2E4)
 #define SIUL2_PC10_MSCR		UL(0x4009C2E8)
 #define SIUL2_PC10_LIN0_IMCR	UL(0x4009CA40)
@@ -38,6 +44,20 @@ void plat_flush_next_bl_params(void)
 
 void bl2_platform_setup(void)
 {
+	int ret;
+
+	ret = mmap_add_dynamic_region(S32G_FIP_BASE, S32G_FIP_BASE,
+				      S32G_FIP_SIZE,
+				      MT_MEMORY | MT_RW | MT_SECURE);
+	if (ret != 0) {
+		panic();
+	}
+}
+
+static int s32g_mmap_siul2(void)
+{
+	return mmap_add_dynamic_region(SIUL20_BASE, SIUL20_BASE, PAGE_SIZE,
+				       MT_DEVICE | MT_RW | MT_SECURE);
 }
 
 static void linflex_config_pinctrl(void)
@@ -55,14 +75,6 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 {
 	int ret;
 
-	ret = s32cc_init_early_clks();
-	if (ret != 0) {
-		panic();
-	}
-
-	linflex_config_pinctrl();
-	console_s32g2_register();
-
 	/* Restore (clear) the CAIUTC[IsolEn] bit for the primary cluster, which
 	 * we have manually set during early BL2 boot.
 	 */
@@ -71,6 +83,29 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	ncore_init();
 	ncore_caiu_online(A53_CLUSTER0_CAIU);
 
+	ret = s32cc_init_core_clocks();
+	if (ret != 0) {
+		panic();
+	}
+
+	ret = s32cc_bl_mmu_setup();
+	if (ret != 0) {
+		panic();
+	}
+
+	ret = s32cc_init_early_clks();
+	if (ret != 0) {
+		panic();
+	}
+
+	ret = s32g_mmap_siul2();
+	if (ret != 0) {
+		panic();
+	}
+
+	linflex_config_pinctrl();
+	console_s32g2_register();
+
 	plat_s32g2_io_setup();
 }
 
@@ -78,3 +113,26 @@ void bl2_el3_plat_arch_setup(void)
 {
 }
 
+int bl2_plat_handle_pre_image_load(unsigned int image_id)
+{
+	const struct bl_mem_params_node *desc = get_bl_mem_params_node(image_id);
+	const struct image_info *img_info;
+	size_t size;
+
+	if (desc == NULL) {
+		return -EINVAL;
+	}
+
+	img_info = &desc->image_info;
+
+	if ((img_info == NULL) || (img_info->image_max_size == 0U)) {
+		return -EINVAL;
+	}
+
+	size = page_align(img_info->image_max_size, UP);
+
+	return mmap_add_dynamic_region(img_info->image_base,
+				       img_info->image_base,
+				       size,
+				       MT_MEMORY | MT_RW | MT_SECURE);
+}
