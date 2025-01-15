@@ -281,6 +281,70 @@ static void enable_odiv(uintptr_t pll_addr, uint32_t div_index)
 	mmio_setbits_32(PLLDIG_PLLODIV(pll_addr, div_index), PLLDIG_PLLODIV_DE);
 }
 
+static void enable_odivs(uintptr_t pll_addr, uint32_t ndivs, uint32_t mask)
+{
+	uint32_t i;
+
+	for (i = 0; i < ndivs; i++) {
+		if ((mask & BIT_32(i)) != 0U) {
+			enable_odiv(pll_addr, i);
+		}
+	}
+}
+
+static int adjust_odiv_settings(const struct s32cc_pll *pll, uintptr_t pll_addr,
+				uint32_t odivs_mask, unsigned long old_vco)
+{
+	uint64_t old_odiv_freq, odiv_freq;
+	uint32_t i, pllodiv, pdiv;
+	int ret = 0;
+
+	if (old_vco == 0UL) {
+		return 0;
+	}
+
+	for (i = 0; i < pll->ndividers; i++) {
+		if ((odivs_mask & BIT_32(i)) == 0U) {
+			continue;
+		}
+
+		pllodiv = mmio_read_32(PLLDIG_PLLODIV(pll_addr, i));
+
+		pdiv = PLLDIG_PLLODIV_DIV(pllodiv);
+
+		old_odiv_freq = ((old_vco * FP_PRECISION) / (pdiv + 1U)) / FP_PRECISION;
+		pdiv = (uint32_t)(pll->vco_freq * FP_PRECISION / old_odiv_freq / FP_PRECISION);
+
+		odiv_freq = pll->vco_freq * FP_PRECISION / pdiv / FP_PRECISION;
+
+		if (old_odiv_freq != odiv_freq) {
+			ERROR("Failed to adjust ODIV %" PRIu32 " to match previous frequency\n",
+			      i);
+		}
+
+		pllodiv = PLLDIG_PLLODIV_DIV_SET(pdiv - 1U);
+		mmio_write_32(PLLDIG_PLLODIV(pll_addr, i), pllodiv);
+	}
+
+	return ret;
+}
+
+static uint32_t get_enabled_odivs(uintptr_t pll_addr, uint32_t ndivs)
+{
+	uint32_t mask = 0;
+	uint32_t pllodiv;
+	uint32_t i;
+
+	for (i = 0; i < ndivs; i++) {
+		pllodiv = mmio_read_32(PLLDIG_PLLODIV(pll_addr, i));
+		if ((pllodiv & PLLDIG_PLLODIV_DE) != 0U) {
+			mask |= BIT_32(i);
+		}
+	}
+
+	return mask;
+}
+
 static void disable_odivs(uintptr_t pll_addr, uint32_t ndivs)
 {
 	uint32_t i;
@@ -305,16 +369,52 @@ static void disable_pll_hw(uintptr_t pll_addr)
 	mmio_write_32(PLLDIG_PLLCR(pll_addr), PLLDIG_PLLCR_PLLPD);
 }
 
+static bool is_pll_enabled(uintptr_t pll_base)
+{
+	uint32_t pllcr, pllsr;
+
+	pllcr = mmio_read_32(PLLDIG_PLLCR(pll_base));
+	pllsr = mmio_read_32(PLLDIG_PLLSR(pll_base));
+
+	/* Enabled and locked PLL */
+	if ((pllcr & PLLDIG_PLLCR_PLLPD) != 0U) {
+		return false;
+	}
+
+	if ((pllsr & PLLDIG_PLLSR_LOCK) == 0U) {
+		return false;
+	}
+
+	return true;
+}
+
 static int program_pll(const struct s32cc_pll *pll, uintptr_t pll_addr,
 		       const struct s32cc_clk_drv *drv, uint32_t sclk_id,
-		       unsigned long sclk_freq)
+		       unsigned long sclk_freq, unsigned int depth)
 {
 	uint32_t rdiv = 1, mfi, mfn;
+	unsigned long old_vco = 0UL;
+	unsigned int ldepth = depth;
+	uint32_t odivs_mask;
 	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
 
 	ret = get_pll_mfi_mfn(pll->vco_freq, sclk_freq, &mfi, &mfn);
 	if (ret != 0) {
 		return -EINVAL;
+	}
+
+	odivs_mask = get_enabled_odivs(pll_addr, pll->ndividers);
+
+	if (is_pll_enabled(pll_addr)) {
+		ret = get_module_rate(&pll->desc, drv, &old_vco, ldepth);
+		if (ret != 0) {
+			return ret;
+		}
 	}
 
 	/* Disable ODIVs*/
@@ -334,7 +434,15 @@ static int program_pll(const struct s32cc_pll *pll, uintptr_t pll_addr,
 	mmio_write_32(PLLDIG_PLLFD(pll_addr),
 		      PLLDIG_PLLFD_MFN_SET(mfn) | PLLDIG_PLLFD_SMDEN);
 
+	ret = adjust_odiv_settings(pll, pll_addr, odivs_mask, old_vco);
+	if (ret != 0) {
+		return ret;
+	}
+
 	enable_pll_hw(pll_addr);
+
+	/* Enable out dividers */
+	enable_odivs(pll_addr, pll->ndividers, odivs_mask);
 
 	return ret;
 }
@@ -344,10 +452,11 @@ static int enable_pll(struct s32cc_clk_obj *module,
 		      unsigned int depth)
 {
 	const struct s32cc_pll *pll = s32cc_obj2pll(module);
+	unsigned int clk_src, ldepth = depth;
+	unsigned long sclk_freq, pll_vco;
 	const struct s32cc_clkmux *mux;
 	uintptr_t pll_addr = UL(0x0);
-	unsigned int ldepth = depth;
-	unsigned long sclk_freq;
+	bool pll_enabled;
 	uint32_t sclk_id;
 	int ret;
 
@@ -387,7 +496,20 @@ static int enable_pll(struct s32cc_clk_obj *module,
 		return -EINVAL;
 	};
 
-	return program_pll(pll, pll_addr, drv, sclk_id, sclk_freq);
+	ret = get_module_rate(&pll->desc, drv, &pll_vco, depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	pll_enabled = is_pll_enabled(pll_addr);
+	clk_src = mmio_read_32(PLLDIG_PLLCLKMUX(pll_addr));
+
+	if ((clk_src == sclk_id) && pll_enabled &&
+	    (pll_vco == pll->vco_freq)) {
+		return 0;
+	}
+
+	return program_pll(pll, pll_addr, drv, sclk_id, sclk_freq, ldepth);
 }
 
 static inline struct s32cc_pll *get_div_pll(const struct s32cc_pll_out_div *pdiv)
@@ -449,6 +571,7 @@ static int enable_pll_div(struct s32cc_clk_obj *module,
 	uintptr_t pll_addr = 0x0ULL;
 	unsigned int ldepth = depth;
 	const struct s32cc_pll *pll;
+	unsigned long pll_vco;
 	uint32_t dc;
 	int ret;
 
@@ -469,7 +592,14 @@ static int enable_pll_div(struct s32cc_clk_obj *module,
 		return -EINVAL;
 	}
 
-	dc = (uint32_t)(pll->vco_freq / pdiv->freq);
+	ret = get_module_rate(&pll->desc, drv, &pll_vco, ldepth);
+	if (ret != 0) {
+		ERROR("Failed to enable the PLL due to unknown rate for 0x%" PRIxPTR "\n",
+		      pll_addr);
+		return ret;
+	}
+
+	dc = (uint32_t)(pll_vco / pdiv->freq);
 
 	config_pll_out_div(pll_addr, pdiv->index, dc);
 
@@ -1225,7 +1355,6 @@ static int get_pll_freq(const struct s32cc_clk_obj *module,
 	unsigned int ldepth = depth;
 	uintptr_t pll_addr = 0UL;
 	uint64_t t1, t2;
-	uint32_t pllpd;
 	int ret;
 
 	ret = update_stack_depth(&ldepth);
@@ -1240,8 +1369,7 @@ static int get_pll_freq(const struct s32cc_clk_obj *module,
 	}
 
 	/* Disabled PLL */
-	pllpd = mmio_read_32(PLLDIG_PLLCR(pll_addr)) & PLLDIG_PLLCR_PLLPD;
-	if (pllpd != 0U) {
+	if (!is_pll_enabled(pll_addr)) {
 		*rate = pll->vco_freq;
 		return 0;
 	}
