@@ -694,24 +694,6 @@ static struct s32cc_dfs *get_div_dfs(const struct s32cc_dfs_div *dfs_div)
 	return s32cc_obj2dfs(parent);
 }
 
-static struct s32cc_pll *dfsdiv2pll(const struct s32cc_dfs_div *dfs_div)
-{
-	const struct s32cc_clk_obj *parent;
-	const struct s32cc_dfs *dfs;
-
-	dfs = get_div_dfs(dfs_div);
-	if (dfs == NULL) {
-		return NULL;
-	}
-
-	parent = dfs->parent;
-	if (parent->type != s32cc_pll_t) {
-		return NULL;
-	}
-
-	return s32cc_obj2pll(parent);
-}
-
 static int get_dfs_mfi_mfn(unsigned long dfs_freq, const struct s32cc_dfs_div *dfs_div,
 			   uint32_t *mfi, uint32_t *mfn)
 {
@@ -839,9 +821,9 @@ static int enable_dfs_div(struct s32cc_clk_obj *module,
 {
 	const struct s32cc_dfs_div *dfs_div = s32cc_obj2dfsdiv(module);
 	unsigned int ldepth = depth;
-	const struct s32cc_pll *pll;
 	const struct s32cc_dfs *dfs;
 	uintptr_t dfs_addr = 0UL;
+	unsigned long dfs_freq;
 	uint32_t mfi, mfn;
 	int ret = 0;
 
@@ -855,18 +837,17 @@ static int enable_dfs_div(struct s32cc_clk_obj *module,
 		return -EINVAL;
 	}
 
-	pll = dfsdiv2pll(dfs_div);
-	if (pll == NULL) {
-		ERROR("Failed to identify DFS divider's parent\n");
-		return -EINVAL;
-	}
-
 	ret = get_base_addr(dfs->instance, drv, &dfs_addr);
 	if ((ret != 0) || (dfs_addr == 0UL)) {
 		return -EINVAL;
 	}
 
-	ret = get_dfs_mfi_mfn(pll->vco_freq, dfs_div, &mfi, &mfn);
+	ret = get_module_rate(&dfs->desc, drv, &dfs_freq, depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = get_dfs_mfi_mfn(dfs_freq, dfs_div, &mfi, &mfn);
 	if (ret != 0) {
 		return -EINVAL;
 	}
