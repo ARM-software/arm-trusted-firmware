@@ -83,6 +83,7 @@ endif
 
 # Enable the features which are mandatory from ARCH version 8.8 and upwards.
 ifeq "8.8" "$(word 1, $(sort 8.8 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+armv8-8-a-feats		:= ENABLE_FEAT_MOPS
 # 8.7 Compliant
 armv8-8-a-feats         += ${armv8-7-a-feats}
 FEAT_LIST               := ${armv8-8-a-feats}
@@ -211,6 +212,14 @@ ENABLE_FEAT_FGT			?=	0
 
 # Flag to enable access to the HCRX_EL2 register by setting SCR_EL3.HXEn.
 ENABLE_FEAT_HCX			?=	0
+
+#----
+# 8.8
+#----
+
+# Flag to enable FEAT_MOPS (Standardization of Memory operations)
+# when INIT_UNUSED_NS_EL2 = 1
+ENABLE_FEAT_MOPS		?=	0
 
 #----
 # 8.9

@@ -958,6 +958,10 @@ ifeq (${ARCH},aarch32)
 	ifeq (${ARCH_FEATURE_AVAILABILITY},1)
                 $(error "ARCH_FEATURE_AVAILABILITY cannot be used with ARCH=aarch32")
 	endif
+	# FEAT_MOPS is only supported on AArch64
+	ifneq (${ENABLE_FEAT_MOPS},0)
+		$(error "ENABLE_FEAT_MOPS cannot be used with ARCH=aarch32")
+	endif
 endif #(ARCH=aarch32)
 
 ifneq (${ENABLE_FEAT_FPMR},0)
@@ -1284,6 +1288,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_FEAT_FPMR \
 	ENABLE_FEAT_HCX \
 	ENABLE_FEAT_LS64_ACCDATA \
+	ENABLE_FEAT_MOPS \
 	ENABLE_FEAT_MTE2 \
 	ENABLE_FEAT_PAN \
 	ENABLE_FEAT_RNG \
@@ -1462,6 +1467,7 @@ $(eval $(call add_defines,\
 	ENABLE_FEAT_SCTLR2 \
 	ENABLE_FEAT_D128 \
 	ENABLE_FEAT_GCS \
+	ENABLE_FEAT_MOPS \
 	ENABLE_FEAT_MTE2 \
 	FEATURE_DETECTION \
 	TWED_DELAY \

@@ -378,6 +378,16 @@ Common build options
    flag can take the values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+- ``ENABLE_FEAT_MOPS``: Numeric value to enable FEAT_MOPS (Standardization
+   of memory operations) when INIT_UNUSED_NS_EL2=1.
+   This feature is mandatory from v8.8 and enabling of FEAT_MOPS does not
+   require any settings from EL3 as the controls are present in EL2 registers
+   (HCRX_EL2.{MSCEn,MCE2} and SCTLR_EL2.MSCEn) and in most configurations
+   we expect EL2 to be present. But in case of INIT_UNUSED_NS_EL2=1 ,
+   EL3 should configure the EL2 registers. This flag
+   can take values 0 to 2, to align with the ``ENABLE_FEAT`` mechanism.
+   Default value is ``0``.
+
 -  ``ENABLE_FEAT_MTE2``: Numeric value to enable Memory Tagging Extension2
    if the platform wants to use this feature and MTE2 is enabled at ELX.
    This flag can take values 0 to 2, to align with the ``ENABLE_FEAT``

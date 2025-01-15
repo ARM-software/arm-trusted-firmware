@@ -58,6 +58,7 @@ endif
       ENABLE_TRBE_FOR_NS	:= 2
       ENABLE_FEAT_D128		:= 2
       ENABLE_FEAT_FPMR		:= 2
+      ENABLE_FEAT_MOPS		:= 2
 endif
 
 ENABLE_SYS_REG_TRACE_FOR_NS	:= 2

@@ -144,6 +144,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_FPMR		|
  * +----------------------------+
+ * |	FEAT_MOPS		|
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -290,7 +292,10 @@ CREATE_FEATURE_FUNCS(feat_d128, id_aa64mmfr3_el1, ID_AA64MMFR3_EL1_D128_SHIFT,
 CREATE_FEATURE_FUNCS(feat_fpmr, id_aa64pfr2_el1, ID_AA64PFR2_EL1_FPMR_SHIFT,
 		     ID_AA64PFR2_EL1_FPMR_MASK, FPMR_IMPLEMENTED,
 		     ENABLE_FEAT_FPMR)
-
+/* FEAT_MOPS */
+CREATE_FEATURE_FUNCS(feat_mops, id_aa64isar2_el1, ID_AA64ISAR2_EL1_MOPS_SHIFT,
+		     ID_AA64ISAR2_EL1_MOPS_MASK, MOPS_IMPLEMENTED,
+		     ENABLE_FEAT_MOPS)
 
 __attribute__((always_inline))
 static inline bool is_feat_sxpie_supported(void)
