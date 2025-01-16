@@ -75,6 +75,9 @@
  */
 #if CTX_INCLUDE_FPREGS
 func fpregs_context_save
+.arch_extension fp
+	/* Temporarily enable floating point */
+
 	/* Save x0 and pass its original value to fpregs_state_save */
 	mov	x1, x0
 
@@ -97,6 +100,7 @@ func fpregs_context_save
 
 	fpregs_state_save x1, x9
 
+.arch_extension nofp
 	ret
 endfunc fpregs_context_save
 
@@ -115,6 +119,9 @@ endfunc fpregs_context_save
  * ------------------------------------------------------------------
  */
 func fpregs_context_restore
+.arch_extension fp
+	/* Temporarily enable floating point */
+
 	/* Save x0 and pass its original value to fpregs_state_restore */
 	mov	x1, x0
 
@@ -137,6 +144,7 @@ func fpregs_context_restore
 
 	fpregs_state_restore x1, x9
 
+.arch_extension nofp
 	ret
 endfunc fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
