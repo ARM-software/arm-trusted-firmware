@@ -132,8 +132,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	setup_console();
 
-	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),
-	       platform_version / 10U, platform_version % 10U);
+	NOTICE("TF-A running on %s v%d.%d, RTL v%d.%d, PS v%d.%d, PMC v%d.%d\n",
+		board_name_decode(),
+		(platform_version >> 1), platform_version % 10U,
+		(rtlversion >> 1), rtlversion % 10U,
+		(psversion >> 1), psversion % 10U,
+		(pmcversion >> 1), pmcversion % 10U);
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On
