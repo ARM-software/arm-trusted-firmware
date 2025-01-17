@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2025, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,7 +11,6 @@
 ifndef PLAT_HELPERS_MK
     PLAT_HELPERS_MK := $(lastword $(MAKEFILE_LIST))
 
-    PLAT:= ${DEFAULT_PLAT}
     ifeq (${PLAT},)
         $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform")
     endif
@@ -33,7 +32,7 @@ ifndef PLAT_HELPERS_MK
     PLAT_DEFAULTS_MAKEFILE_FULL := $(filter %/${PLAT}/${PLAT_DEFAULTS_MAKEFILE},${ALL_PLATFORM_MK_DEF_FILES})
     PLATFORM_LIST               := $(subst ${space},|,${ALL_PLATFORMS})
     ifeq ($(PLAT_MAKEFILE_FULL),)
-        $(error "Error: Invalid platform. The following platforms are available: ${PLATFORM_LIST}")
+        $(error "Error: Invalid platform (${PLAT}). The following platforms are available: ${PLATFORM_LIST}")
     endif
 
     # Record the directory where the platform make file was found.
