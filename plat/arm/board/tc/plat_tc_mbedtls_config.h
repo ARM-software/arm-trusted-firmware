@@ -8,7 +8,7 @@
 #define PLAT_TC_MBEDTLS_CONFIG_H
 
 #include <export/lib/utils_def_exp.h>
-#include <mbedtls_config-3.h>
+#include <default_mbedtls_config.h>
 
 #ifndef TF_MBEDTLS_HEAP_SIZE
 #error TF_MBEDTLS_HEAP_SIZE is not defined
@@ -20,6 +20,20 @@
 #define TF_MBEDTLS_HEAP_SIZE	PLATFORM_TEST_MIN_MBEDTLS_HEAP_SIZE
 #endif
 #endif
+
+/**
+ * On Arm TC platforms, the ROTPK is always hashed using the SHA-256
+ * algorithm.
+ * TODO: Update to hash the ROTPK with the selected HASH_ALG to avoid
+ * the need for explicitly enabling the SHA-256 configuration in mbedTLS.
+ */
+#define MBEDTLS_SHA256_C
+
+/*
+ * Use an implementation of SHA-256 with a smaller memory footprint
+ * but reduced speed.
+ */
+#define MBEDTLS_SHA256_SMALLER
 
 #define MBEDTLS_PSA_CRYPTO_C
 #define MBEDTLS_HMAC_DRBG_C

@@ -120,10 +120,6 @@ ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
   endif
 endif
 
-# Use an implementation of SHA-256 with a smaller memory footprint but reduced
-# speed.
-$(eval $(call add_define,MBEDTLS_SHA256_SMALLER))
-
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
 ifneq ($(BL32_EXTRA1),)
@@ -359,6 +355,17 @@ endif
 
 ifeq (${DRTM_SUPPORT},1)
 BL31_SOURCES            +=	plat/arm/common/arm_err.c
+endif
+
+ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
+    PLAT_INCLUDES		+=	-Iplat/arm/common	\
+					-Iinclude/drivers/auth/mbedtls
+    # Specify mbed TLS configuration file
+    ifeq (${PSA_CRYPTO},1)
+      MBEDTLS_CONFIG_FILE	?=	"<plat_arm_psa_mbedtls_config.h>"
+    else
+      MBEDTLS_CONFIG_FILE	?=	"<plat_arm_mbedtls_config.h>"
+    endif
 endif
 
 ifneq (${TRUSTED_BOARD_BOOT},0)

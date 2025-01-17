@@ -25,9 +25,9 @@ endif
 
 # Specify mbed TLS configuration file
 ifeq (${PSA_CRYPTO},1)
-  MBEDTLS_CONFIG_FILE    ?=    "<drivers/auth/mbedtls/psa_mbedtls_config.h>"
+  MBEDTLS_CONFIG_FILE    ?=    "<drivers/auth/mbedtls/default_psa_mbedtls_config.h>"
 else
-  MBEDTLS_CONFIG_FILE    ?=    "<drivers/auth/mbedtls/mbedtls_config-3.h>"
+  MBEDTLS_CONFIG_FILE    ?=    "<drivers/auth/mbedtls/default_mbedtls_config.h>"
 endif
 
 $(eval $(call add_define,MBEDTLS_CONFIG_FILE))
