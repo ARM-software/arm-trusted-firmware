@@ -22,7 +22,12 @@ FVP_MAX_PE_PER_CPU		:= 1
 # only; enable redistributor frames of all CPU cores by default.
 FVP_GICR_REGION_PROTECTION	:= 0
 
+ifeq (${HW_ASSISTED_COHERENCY}, 0)
 FVP_DT_PREFIX			:= fvp-base-gicv3-psci
+else
+FVP_DT_PREFIX			:= fvp-base-gicv3-psci-dynamiq
+endif
+# fdts is wrong otherwise
 
 # Size (in kilobytes) of the Trusted SRAM region to  utilize when building for
 # the FVP platform. This option defaults to 256.
