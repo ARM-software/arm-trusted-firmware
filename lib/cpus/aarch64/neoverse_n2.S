@@ -178,20 +178,20 @@ workaround_runtime_end neoverse_n2, ERRATUM(2326639)
 
 check_erratum_ls neoverse_n2, ERRATUM(2326639), CPU_REV(0, 0)
 
-workaround_runtime_start neoverse_n2, ERRATUM(2340933), ERRATA_N2_2340933
+workaround_reset_start neoverse_n2, ERRATUM(2340933), ERRATA_N2_2340933
 	/* Set bit 61 in CPUACTLR5_EL1 */
 	sysreg_bit_set NEOVERSE_N2_CPUACTLR5_EL1, BIT(61)
-workaround_runtime_end neoverse_n2, ERRATUM(2340933)
+workaround_reset_end neoverse_n2, ERRATUM(2340933)
 
 check_erratum_ls neoverse_n2, ERRATUM(2340933), CPU_REV(0, 0)
 
-workaround_runtime_start neoverse_n2, ERRATUM(2346952), ERRATA_N2_2346952
+workaround_reset_start neoverse_n2, ERRATUM(2346952), ERRATA_N2_2346952
 	/* Set TXREQ to STATIC and full L2 TQ size */
 	mrs	x1, NEOVERSE_N2_CPUECTLR2_EL1
 	mov	x0, #CPUECTLR2_EL1_TXREQ_STATIC_FULL
 	bfi	x1, x0, #CPUECTLR2_EL1_TXREQ_LSB, #CPUECTLR2_EL1_TXREQ_WIDTH
 	msr	NEOVERSE_N2_CPUECTLR2_EL1, x1
-workaround_runtime_end neoverse_n2, ERRATUM(2346952)
+workaround_reset_end neoverse_n2, ERRATUM(2346952)
 
 check_erratum_ls neoverse_n2, ERRATUM(2346952), CPU_REV(0, 2)
 
