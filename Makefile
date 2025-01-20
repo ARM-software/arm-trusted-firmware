@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -23,7 +23,6 @@ MAKEOVERRIDES =
 
 MAKE_HELPERS_DIRECTORY := make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}build-rules.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 
@@ -99,15 +98,15 @@ endif
 
 # Variables for use with Certificate Generation Tool
 CRTTOOLPATH		?=	tools/cert_create
-CRTTOOL			?=	${CRTTOOLPATH}/cert_create${BIN_EXT}
+CRTTOOL			?=	${CRTTOOLPATH}/cert_create$(.exe)
 
 # Variables for use with Firmware Encryption Tool
 ENCTOOLPATH		?=	tools/encrypt_fw
-ENCTOOL			?=	${ENCTOOLPATH}/encrypt_fw${BIN_EXT}
+ENCTOOL			?=	${ENCTOOLPATH}/encrypt_fw$(.exe)
 
 # Variables for use with Firmware Image Package
 FIPTOOLPATH		?=	tools/fiptool
-FIPTOOL			?=	${FIPTOOLPATH}/fiptool${BIN_EXT}
+FIPTOOL			?=	${FIPTOOLPATH}/fiptool$(.exe)
 
 # Variables for use with sptool
 SPTOOLPATH		?=	tools/sptool
@@ -1652,29 +1651,17 @@ endif #(CHECKPATCH)
 
 clean:
 	$(s)echo "  CLEAN"
-	$(call SHELL_REMOVE_DIR,${BUILD_PLAT})
-ifdef UNIX_MK
+	$(q)rm -rf $(BUILD_PLAT)
 	$(q)${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
-else
-# Clear the MAKEFLAGS as we do not want
-# to pass the gnumake flags to nmake.
-	$(q)set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL)) clean
-endif #(UNIX_MK)
 	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	$(q)${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 realclean distclean:
 	$(s)echo "  REALCLEAN"
-	$(call SHELL_REMOVE_DIR,${BUILD_BASE})
-	$(call SHELL_DELETE_ALL, ${CURDIR}/cscope.*)
-ifdef UNIX_MK
+	$(q)rm -rf $(BUILD_BASE)
+	$(q)rm -rf $(CURDIR)/cscope.*
 	$(q)${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
-else
-# Clear the MAKEFLAGS as we do not want
-# to pass the gnumake flags to nmake.
-	$(q)set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL)) realclean
-endif #(UNIX_MK)
 	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} realclean
 	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} realclean
 	$(q)${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
@@ -1759,25 +1746,14 @@ fip: ${BUILD_PLAT}/${FIP_NAME}
 fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
 ${FIPTOOL}: FORCE
-ifdef UNIX_MK
 	$(q)${MAKE} PLAT=${PLAT} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" FIPTOOL=${FIPTOOL} OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${FIPTOOLPATH} all
-else
-# Clear the MAKEFLAGS as we do not want
-# to pass the gnumake flags to nmake.
-	$(q)set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL))
-endif #(UNIX_MK)
 
 $(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT)/lib/libfdt.a $(BUILD_PLAT)/lib/libc.a $(CRYPTO_LIB)
 	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_SUPPORT=${CRYPTO_SUPPORT} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
 
 memmap: all
-ifdef UNIX_MK
 	$(q)PYTHONPATH=${CURDIR}/tools/memory \
 		${PYTHON} -m memory.memmap -sr ${BUILD_PLAT}
-else
-	$(q)set PYTHONPATH=${CURDIR}/tools/memory && \
-		${PYTHON} -m memory.memmap -sr ${BUILD_PLAT}
-endif
 
 tl: ${BUILD_PLAT}/tl.bin
 ${BUILD_PLAT}/tl.bin: ${HW_CONFIG}

@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2019 Remi Pommarel <repk@triplefau.lt>
+# Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier:     BSD-3-Clause
 # https://spdx.org/licenses
@@ -7,11 +8,10 @@
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
-PROJECT := doimage${BIN_EXT}
+PROJECT := doimage$(.exe)
 OBJECTS := doimage.o
 
 HOSTCCFLAGS := -Wall -Werror -pedantic -std=c99 -D_GNU_SOURCE
@@ -38,6 +38,6 @@ ${PROJECT}: ${OBJECTS} Makefile
 	$(q)$(host-cc) -c ${HOSTCCFLAGS} $< -o $@
 
 clean:
-	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})
+	$(q)rm -rf $(PROJECT) $(OBJECTS)
 
 distclean: clean

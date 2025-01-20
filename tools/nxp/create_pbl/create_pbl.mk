@@ -1,12 +1,13 @@
 #
 # Copyright 2018-2020 NXP
+# Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #
 
-CREATE_PBL	?=	${CREATE_PBL_TOOL_PATH}/create_pbl${BIN_EXT}
-BYTE_SWAP	?=	${CREATE_PBL_TOOL_PATH}/byte_swap${BIN_EXT}
+CREATE_PBL	?=	${CREATE_PBL_TOOL_PATH}/create_pbl$(.exe)
+BYTE_SWAP	?=	${CREATE_PBL_TOOL_PATH}/byte_swap$(.exe)
 
 HOST_GCC	:= gcc
 

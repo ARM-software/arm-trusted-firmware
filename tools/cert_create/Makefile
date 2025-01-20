@@ -1,18 +1,17 @@
 #
-# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 PLAT		:= none
 DEBUG		:= 0
-CRTTOOL		?= cert_create${BIN_EXT}
+CRTTOOL		?= cert_create$(.exe)
 BINARY		:= $(notdir ${CRTTOOL})
 COT		:= tbbr
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
@@ -95,7 +94,7 @@ ifeq ($(DEBUG),1)
 endif
 
 clean:
-	$(call SHELL_DELETE_ALL,${OBJECTS})
+	$(q)rm -rf $(OBJECTS)
 
 realclean: clean
-	$(call SHELL_DELETE,${BINARY})
+	$(q)rm -f $(BINARY)

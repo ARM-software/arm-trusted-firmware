@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -14,4 +14,6 @@ ifndef common-mk
 
         s := @$(if $(or $(verbose),$(silent)),: )
         q := $(if $(verbose),,@)
+
+        .exe := $(if $(filter Windows_NT,$(OS)),.exe)
 endif

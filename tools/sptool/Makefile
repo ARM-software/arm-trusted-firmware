@@ -1,16 +1,15 @@
 #
-# Copyright (c) 2018-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2018-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
-SPTOOL  ?= sptool${BIN_EXT}
+SPTOOL  ?= sptool$(.exe)
 PROJECT := $(notdir ${SPTOOL})
 OBJECTS := sptool.o
 
@@ -40,4 +39,4 @@ ${PROJECT}: ${OBJECTS} Makefile
 	$(q)$(host-cc) -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
-	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})
+	$(q)rm -rf $(PROJECT) $(OBJECTS)

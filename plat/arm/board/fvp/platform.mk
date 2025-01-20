@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -339,7 +339,6 @@ BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
 endif
 
 # Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
-ifdef UNIX_MK
 FVP_HW_CONFIG_DTS	:=	fdts/${FVP_DT_PREFIX}.dts
 
 FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
@@ -391,7 +390,6 @@ endif
 
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config,${FVP_HW_CONFIG}))
-endif
 
 ifeq (${TRANSFER_LIST}, 1)
 include lib/transfer_list/transfer_list.mk
