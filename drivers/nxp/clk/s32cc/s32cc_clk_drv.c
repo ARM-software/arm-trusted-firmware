@@ -24,6 +24,7 @@ struct s32cc_clk_drv {
 	uintptr_t armpll_base;
 	uintptr_t periphpll_base;
 	uintptr_t armdfs_base;
+	uintptr_t periphdfs_base;
 	uintptr_t cgm0_base;
 	uintptr_t cgm1_base;
 	uintptr_t cgm5_base;
@@ -58,6 +59,7 @@ static struct s32cc_clk_drv *get_drv(void)
 		.armpll_base = ARMPLL_BASE_ADDR,
 		.periphpll_base = PERIPHPLL_BASE_ADDR,
 		.armdfs_base = ARM_DFS_BASE_ADDR,
+		.periphdfs_base = PERIPH_DFS_BASE_ADDR,
 		.cgm0_base = CGM0_BASE_ADDR,
 		.cgm1_base = CGM1_BASE_ADDR,
 		.cgm5_base = MC_CGM5_BASE_ADDR,
@@ -109,6 +111,9 @@ static int get_base_addr(enum s32cc_clk_source id, const struct s32cc_clk_drv *d
 		break;
 	case S32CC_ARM_DFS:
 		*base = drv->armdfs_base;
+		break;
+	case S32CC_PERIPH_DFS:
+		*base = drv->periphdfs_base;
 		break;
 	case S32CC_CGM0:
 		*base = drv->cgm0_base;
@@ -1980,11 +1985,12 @@ static int s32cc_clk_set_parent(unsigned long id, unsigned long parent_id)
 
 static int s32cc_clk_mmap_regs(const struct s32cc_clk_drv *drv)
 {
-	const uintptr_t base_addrs[11] = {
+	const uintptr_t base_addrs[12] = {
 		drv->fxosc_base,
 		drv->armpll_base,
 		drv->periphpll_base,
 		drv->armdfs_base,
+		drv->periphdfs_base,
 		drv->cgm0_base,
 		drv->cgm1_base,
 		drv->cgm5_base,

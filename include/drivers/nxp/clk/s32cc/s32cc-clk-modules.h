@@ -37,6 +37,7 @@ enum s32cc_clk_source {
 	S32CC_CGM0,
 	S32CC_CGM1,
 	S32CC_DDR_PLL,
+	S32CC_PERIPH_DFS,
 	S32CC_CGM5,
 };
 
