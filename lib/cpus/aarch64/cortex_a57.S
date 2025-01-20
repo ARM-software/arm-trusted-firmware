@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -95,7 +95,7 @@ workaround_reset_end cortex_a57, ERRATUM(814670)
 
 check_erratum_ls cortex_a57, ERRATUM(814670), CPU_REV(0, 0)
 
-workaround_runtime_start cortex_a57, ERRATUM(817169), ERRATA_A57_817169, CORTEX_A57_MIDR
+workaround_runtime_start cortex_a57, ERRATUM(817169), ERRATA_A57_817169
 	/* Invalidate any TLB address */
 	mov	x0, #0
 	tlbi	vae3, x0
