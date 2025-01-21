@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -368,6 +368,18 @@
 .macro sysreg_bit_clear _reg:req, _bit:req
 	mrs	x1, \_reg
 	bic	x1, x1, #\_bit
+	msr	\_reg, x1
+.endm
+
+/*
+ * Toggle a bit in a system register. Can toggle multiple bits but is limited by
+ *  the way the EOR instrucion encodes them.
+ *
+ * see sysreg_bit_set for usage
+ */
+.macro sysreg_bit_toggle _reg:req, _bit:req, _assert=1
+	mrs	x1, \_reg
+	eor	x1, x1, #\_bit
 	msr	\_reg, x1
 .endm
 

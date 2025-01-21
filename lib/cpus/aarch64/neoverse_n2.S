@@ -156,8 +156,9 @@ check_erratum_custom_end neoverse_n2, ERRATUM(2313941)
 
 .global erratum_neoverse_n2_2326639_wa
 workaround_runtime_start neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639
-	/* Set bit 36 in ACTLR2_EL1 */
-	sysreg_bit_set NEOVERSE_N2_CPUACTLR2_EL1, NEOVERSE_N2_CPUACTLR2_EL1_BIT_36
+	/* Set/unset bit 36 in ACTLR2_EL1. The first call will set it, applying
+	 * the workaround. Second call clears it to undo it. */
+	sysreg_bit_toggle NEOVERSE_N2_CPUACTLR2_EL1, NEOVERSE_N2_CPUACTLR2_EL1_BIT_36
 workaround_runtime_end neoverse_n2, ERRATUM(2326639)
 
 check_erratum_ls neoverse_n2, ERRATUM(2326639), CPU_REV(0, 0)
