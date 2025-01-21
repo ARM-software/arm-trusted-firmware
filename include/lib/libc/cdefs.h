@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,5 +35,8 @@
 
 #define __STRING(x)	#x
 #define __XSTRING(x)	__STRING(x)
+
+#define __predict_true(exp)     (exp)
+#define __predict_false(exp)    (exp)
 
 #endif /* CDEFS_H */
