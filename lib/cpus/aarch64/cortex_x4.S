@@ -32,20 +32,7 @@
 workaround_runtime_start cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228, CORTEX_X4_MIDR
 workaround_runtime_end cortex_x4, ERRATUM(2726228)
 
-check_erratum_custom_start cortex_x4, ERRATUM(2726228)
-
-	/* This erratum needs to be enabled for r0p0 and r0p1.
-	 * Check if revision is less than or equal to r0p1.
-	 */
-
-#if ERRATA_X4_2726228
-	mov	x1, #1
-	b	cpu_rev_var_ls
-#else
-	mov	x0, #ERRATA_MISSING
-#endif
-	ret
-check_erratum_custom_end cortex_x4, ERRATUM(2726228)
+check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x4, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
