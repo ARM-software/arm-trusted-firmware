@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,20 +39,7 @@ check_erratum_ls cortex_a520, ERRATUM(2858100), CPU_REV(0, 1)
 workaround_runtime_start cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996, CORTEX_A520_MIDR
 workaround_runtime_end cortex_a520, ERRATUM(2938996)
 
-check_erratum_custom_start cortex_a520, ERRATUM(2938996)
-
-       /* This erratum needs to be enabled for r0p0 and r0p1.
-        * Check if revision is less than or equal to r0p1.
-        */
-
-#if ERRATA_A520_2938996
-       mov     x1, #1
-       b       cpu_rev_var_ls
-#else
-       mov     x0, #ERRATA_MISSING
-#endif
-       ret
-check_erratum_custom_end cortex_a520, ERRATUM(2938996)
+check_erratum_ls cortex_a520, ERRATUM(2938996), CPU_REV(0, 1)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
