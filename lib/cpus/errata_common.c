@@ -10,6 +10,7 @@
 #include <arch_helpers.h>
 #include <cortex_a75.h>
 #include <cortex_a520.h>
+#include <cortex_a710.h>
 #include <cortex_x4.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
@@ -44,6 +45,13 @@ bool errata_a75_764081_applies(void)
 bool errata_ich_vmcr_el2_applies(void)
 {
 	switch (EXTRACT_PARTNUM(read_midr())) {
+#if ERRATA_A710_3701772
+	case EXTRACT_PARTNUM(CORTEX_A710_MIDR):
+		if (check_erratum_cortex_a710_3701772(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+		break;
+#endif /* ERRATA_A710_3701772 */
+
 	default:
 		break;
 	}
