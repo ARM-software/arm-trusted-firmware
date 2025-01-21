@@ -344,11 +344,10 @@ check_erratum_ls cortex_a76, ERRATUM(1275112), CPU_REV(3, 0)
 check_erratum_custom_start cortex_a76, ERRATUM(1286807)
 #if ERRATA_A76_1286807
 	mov x0, #ERRATA_APPLIES
-	ret
 #else
-	mov	x1, #0x30
-	b	cpu_rev_var_ls
+	cpu_rev_var_ls	CPU_REV(3, 0)
 #endif
+	ret
 check_erratum_custom_end cortex_a76, ERRATUM(1286807)
 
 workaround_reset_start cortex_a76, ERRATUM(1791580), ERRATA_A76_1791580
@@ -419,11 +418,10 @@ endfunc cortex_a76_disable_wa_cve_2018_3639
 check_erratum_custom_start cortex_a76, ERRATUM(1165522)
 #if ERRATA_A76_1165522
 	mov	x0, #ERRATA_APPLIES
-	ret
 #else
-	mov	x1, #0x30
-	b	cpu_rev_var_ls
+	cpu_rev_var_ls	CPU_REV(3, 0)
 #endif
+	ret
 check_erratum_custom_end cortex_a76, ERRATUM(1165522)
 
 check_erratum_chosen cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960

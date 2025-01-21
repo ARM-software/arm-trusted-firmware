@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,8 +36,7 @@ check_erratum_ls cortex_a77, CVE(2024, 5660), CPU_REV(1, 1)
 workaround_reset_start cortex_a77, ERRATUM(1508412), ERRATA_A77_1508412
 	/* move cpu revision in again and compare against r0p0 */
 	mov	x0, x7
-	mov	x1, #CPU_REV(0, 0)
-	bl	cpu_rev_var_ls
+	cpu_rev_var_ls	CPU_REV(0, 0)
 	cbz	x0, 1f
 
 	ldr	x0, =0x0
