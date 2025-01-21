@@ -479,8 +479,35 @@
 .endm
 
 /*
- * Helpers to select which revisions errata apply to. Don't leave a link
- * register as the cpu_rev_var_*** will call the ret and we can save on one.
+ * Helpers to report if an erratum applies. Compares the given revision variant
+ * to the given value. Return ERRATA_APPLIES or ERRATA_NOT_APPLIES accordingly.
+ *
+ * _rev_num: the given revision variant. Or
+ * _rev_num_lo,_rev_num_hi: the lower and upper bounds of the revision variant
+ *
+ * in body:
+ *	clobber: x0
+ *	argument: x0 - cpu_rev_var
+ */
+.macro cpu_rev_var_ls _rev_num:req
+	cmp	x0, #\_rev_num
+	cset	x0, ls
+.endm
+
+.macro cpu_rev_var_hs _rev_num:req
+	cmp	x0, #\_rev_num
+	cset	x0, hs
+.endm
+
+.macro cpu_rev_var_range _rev_num_lo:req, _rev_num_hi:req
+	cmp	x0, #\_rev_num_lo
+	mov	x1, #\_rev_num_hi
+	ccmp	x0, x1, #2, hs
+	cset	x0, ls
+.endm
+
+/*
+ * Helpers to select which revisions errata apply to.
  *
  * _cpu:
  *	Name of cpu as given to declare_cpu_ops
@@ -496,28 +523,27 @@
  *	Revision to apply to
  *
  * in body:
- *	clobber: x0 to x4
+ *	clobber: x0 to x1
  *	argument: x0 - cpu_rev_var
  */
 .macro check_erratum_ls _cpu:req, _cve:req, _id:req, _rev_num:req
 	func check_erratum_\_cpu\()_\_id
-		mov	x1, #\_rev_num
-		b	cpu_rev_var_ls
+		cpu_rev_var_ls \_rev_num
+		ret
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_hs _cpu:req, _cve:req, _id:req, _rev_num:req
 	func check_erratum_\_cpu\()_\_id
-		mov	x1, #\_rev_num
-		b	cpu_rev_var_hs
+		cpu_rev_var_hs \_rev_num
+		ret
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_range _cpu:req, _cve:req, _id:req, _rev_num_lo:req, _rev_num_hi:req
 	func check_erratum_\_cpu\()_\_id
-		mov	x1, #\_rev_num_lo
-		mov	x2, #\_rev_num_hi
-		b	cpu_rev_var_range
+		cpu_rev_var_range \_rev_num_lo, \_rev_num_hi
+		ret
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
@@ -532,7 +558,10 @@
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
-/* provide a shorthand for the name format for annoying errata */
+/*
+ * provide a shorthand for the name format for annoying errata
+ * body: clobber x0 to x3
+ */
 .macro check_erratum_custom_start _cpu:req, _cve:req, _id:req
 	func check_erratum_\_cpu\()_\_id
 .endm
