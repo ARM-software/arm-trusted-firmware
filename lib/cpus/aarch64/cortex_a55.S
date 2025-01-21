@@ -51,8 +51,7 @@ workaround_reset_end cortex_a55, ERRATUM(778703)
 
 check_erratum_custom_start cortex_a55, ERRATUM(778703)
 	mov	x16, x30
-	mov	x1, #0x00
-	bl	cpu_rev_var_ls
+	cpu_rev_var_ls	CPU_REV(0, 0)
 	/*
 	 * Check that no private L2 cache is configured
 	 */
