@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,12 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Neoverse-N3 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+.global check_erratum_neoverse_n3_3699563
+
+add_erratum_entry neoverse_n3, ERRATUM(3699563), ERRATA_N3_3699563, NO_APPLY_AT_RESET
+
+check_erratum_ls neoverse_n3, ERRATUM(3699563), CPU_REV(0, 0)
 
 cpu_reset_func_start neoverse_n3
 	/* Disable speculative loads */
