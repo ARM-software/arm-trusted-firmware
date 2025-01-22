@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,10 +33,10 @@ SECTIONS
     } >HEADER
 
     . = STM32MP_BINARY_BASE;
-    .data . : {
+    .data : {
         . = ALIGN(PAGE_SIZE);
         __DATA_START__ = .;
-        *(.data*)
+        FILL(0);
 
         /*
          * dtb.

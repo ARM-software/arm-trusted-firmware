@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,10 +33,10 @@ SECTIONS
     } >HEADER
 
     . = STM32MP_BINARY_BASE;
-    .data . : {
+    .data : {
         . = ALIGN(PAGE_SIZE);
         __DATA_START__ = .;
-        *(.data*)
+        FILL(0);
 
         /*
          * dtb.
