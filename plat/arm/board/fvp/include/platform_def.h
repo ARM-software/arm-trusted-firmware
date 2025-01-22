@@ -54,6 +54,9 @@
 #if ENABLE_RME
 #define PLAT_ARM_RMM_BASE		(RMM_BASE)
 #define PLAT_ARM_RMM_SIZE		(RMM_LIMIT - RMM_BASE)
+
+/* Protected physical address size */
+#define PLAT_ARM_PPS			(64 * SZ_1G)
 #endif
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,5 +47,8 @@
  * needs of this request.
  */
 #define PLAT_RSE_COMMS_PAYLOAD_MAX_SIZE	UL(0x1000)
+
+/* Protected physical address size */
+#define PLAT_ARM_PPS			(256 * SZ_1T)
 
 #endif /* PLATFORM_DEF_H */
