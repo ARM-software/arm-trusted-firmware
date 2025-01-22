@@ -732,6 +732,11 @@ For Neoverse N2, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2, r0p3 and is
    still open.
 
+For Neoverse N3, the following errata build flags are defined :
+
+-  ``ERRATA_N3_3699563``: This applies errata 3699563 workaround to Neoverse-N3
+   CPU. This needs to be enabled for revisions r0p0 and is still open.
+
 For Cortex-X2, the following errata build flags are defined :
 
 -  ``ERRATA_X2_2002765``: This applies errata 2002765 workaround to Cortex-X2
