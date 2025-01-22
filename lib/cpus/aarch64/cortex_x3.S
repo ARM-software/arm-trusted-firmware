@@ -22,6 +22,12 @@
 #error "Cortex-X3 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+.global check_erratum_cortex_x3_3701769
+
+add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_x3, ERRATUM(3701769), CPU_REV(1, 2)
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X3_BHB_LOOP_COUNT, cortex_x3
 #endif /* WORKAROUND_CVE_2022_23960 */
