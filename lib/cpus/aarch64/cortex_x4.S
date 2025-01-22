@@ -23,6 +23,7 @@
 #endif
 
 .global check_erratum_cortex_x4_2726228
+.global check_erratum_cortex_x4_3701758
 
 #if WORKAROUND_CVE_2022_23960
         wa_cve_2022_23960_bhb_vector_table CORTEX_X4_BHB_LOOP_COUNT, cortex_x4
@@ -118,6 +119,10 @@ workaround_reset_start cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 workaround_reset_end cortex_x4, CVE(2024, 7881)
 
 check_erratum_chosen cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+
+add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
 
 cpu_reset_func_start cortex_x4
 	/* Disable speculative loads */
