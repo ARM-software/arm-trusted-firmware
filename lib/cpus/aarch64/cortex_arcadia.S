@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,8 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex-ARCADIA supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+cpu_reset_prologue cortex_arcadia
 
 cpu_reset_func_start cortex_arcadia
 	/* Disable speculative loads */

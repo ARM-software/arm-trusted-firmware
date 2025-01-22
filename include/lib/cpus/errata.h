@@ -9,20 +9,18 @@
 
 #include <lib/cpus/cpu_ops.h>
 
-#define ERRATUM_WA_FUNC_SIZE	CPU_WORD_SIZE
 #define ERRATUM_CHECK_FUNC_SIZE	CPU_WORD_SIZE
 #define ERRATUM_ID_SIZE		4
 #define ERRATUM_CVE_SIZE	2
 #define ERRATUM_CHOSEN_SIZE	1
-#define ERRATUM_MITIGATED_SIZE	1
+#define ERRATUM_ALIGNMENT_SIZE	1
 
-#define ERRATUM_WA_FUNC		0
-#define ERRATUM_CHECK_FUNC	ERRATUM_WA_FUNC + ERRATUM_WA_FUNC_SIZE
+#define ERRATUM_CHECK_FUNC	0
 #define ERRATUM_ID		ERRATUM_CHECK_FUNC + ERRATUM_CHECK_FUNC_SIZE
 #define ERRATUM_CVE		ERRATUM_ID + ERRATUM_ID_SIZE
 #define ERRATUM_CHOSEN		ERRATUM_CVE + ERRATUM_CVE_SIZE
-#define ERRATUM_MITIGATED	ERRATUM_CHOSEN + ERRATUM_CHOSEN_SIZE
-#define ERRATUM_ENTRY_SIZE	ERRATUM_MITIGATED + ERRATUM_MITIGATED_SIZE
+#define ERRATUM_ALIGNMENT	ERRATUM_CHOSEN + ERRATUM_CHOSEN_SIZE
+#define ERRATUM_ENTRY_SIZE	ERRATUM_ALIGNMENT + ERRATUM_ALIGNMENT_SIZE
 
 /* Errata status */
 #define ERRATA_NOT_APPLIES	0
@@ -39,15 +37,13 @@ void print_errata_status(void);
  * uintptr_t will reflect the change and the alignment will be correct in both.
  */
 struct erratum_entry {
-	uintptr_t (*wa_func)(uint64_t cpu_rev);
 	uintptr_t (*check_func)(uint64_t cpu_rev);
 	/* Will fit CVEs with up to 10 character in the ID field */
 	uint32_t id;
 	/* Denote CVEs with their year or errata with 0 */
 	uint16_t cve;
 	uint8_t chosen;
-	/* TODO(errata ABI): placeholder for the mitigated field */
-	uint8_t _mitigated;
+	uint8_t _alignment;
 } __packed;
 
 CASSERT(sizeof(struct erratum_entry) == ERRATUM_ENTRY_SIZE,

@@ -29,6 +29,8 @@
 #error "Travis needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
 #endif
 
+cpu_reset_prologue travis
+
 cpu_reset_func_start travis
 	/* ----------------------------------------------------
 	 * Disable speculative loads

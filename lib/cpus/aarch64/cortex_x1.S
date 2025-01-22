@@ -23,6 +23,8 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X1_BHB_LOOP_COUNT, cortex_x1
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+cpu_reset_prologue cortex_x1
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x1, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X1_CPUECTLR_EL1, BIT(46)

@@ -29,6 +29,8 @@
 #error "Gelas needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
 #endif
 
+cpu_reset_prologue cortex_gelas
+
 cpu_reset_func_start cortex_gelas
 	/* ----------------------------------------------------
 	 * Disable speculative loads
