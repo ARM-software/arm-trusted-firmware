@@ -22,6 +22,12 @@
 #error "Neoverse V3 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+.global check_erratum_neoverse_v3_3701767
+
+add_erratum_entry neoverse_v3, ERRATUM(3701767), ERRATA_V3_3701767, NO_APPLY_AT_RESET
+
+check_erratum_ls neoverse_v3, ERRATUM(3701767), CPU_REV(0, 2)
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V3_BHB_LOOP_COUNT, neoverse_v3
 #endif /* WORKAROUND_CVE_2022_23960 */
