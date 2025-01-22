@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,5 +68,9 @@
 #define CPUECTLR2_EL1_TXREQ_STATIC_FULL 		ULL(0)
 #define CPUECTLR2_EL1_TXREQ_LSB				U(0)
 #define CPUECTLR2_EL1_TXREQ_WIDTH			U(3)
+
+#ifndef __ASSEMBLER__
+long check_erratum_neoverse_n2_3701773(long cpu_rev);
+#endif /* __ASSEMBLER__ */
 
 #endif /* NEOVERSE_N2_H */

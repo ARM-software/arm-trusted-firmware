@@ -18,6 +18,7 @@
 #include <cortex_x4.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
+#include <neoverse_n2.h>
 
 #if ERRATA_A520_2938996 || ERRATA_X4_2726228
 unsigned int check_if_affected_core(void)
@@ -91,6 +92,13 @@ bool errata_ich_vmcr_el2_applies(void)
 			return true;
 		break;
 #endif /* ERRATA_X4_3701758 */
+
+#if ERRATA_N2_3701773
+	case EXTRACT_PARTNUM(NEOVERSE_N2_MIDR):
+		if (check_erratum_neoverse_n2_3701773(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+		break;
+#endif /* ERRATA_N2_3701773 */
 
 	default:
 		break;
