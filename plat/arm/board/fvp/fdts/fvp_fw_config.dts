@@ -1,11 +1,15 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/tbbr/tbbr_img_def.h>
 #include <platform_def.h>
+
+/* DTB load addresses */
+#define TB_SOC_FW_ADDR	(ARM_BL_RAM_BASE + 0x300)
+#define TOS_FW_ADDR	(ARM_BL_RAM_BASE + 0x500)
 
 /dts-v1/;
 
@@ -14,7 +18,7 @@
 		compatible = "fconf,dyn_cfg-dtb_registry";
 
 		tb_fw-config {
-			load-address = <0x0 0x4001300>;
+			load-address = <0x0 TB_SOC_FW_ADDR>;
 			max-size = <0x1800>;
 			id = <TB_FW_CONFIG_ID>;
 		};
@@ -33,7 +37,7 @@
 		 * is loaded at base of DRAM.
 		 */
 		soc_fw-config {
-			load-address = <0x0 0x04001300>;
+			load-address = <0x0 TB_SOC_FW_ADDR>;
 			max-size = <0x200>;
 			id = <SOC_FW_CONFIG_ID>;
 		};
@@ -41,8 +45,7 @@
 /* If required, SPD should enable loading of trusted OS fw config */
 #if defined(SPD_tspd) || defined(SPD_spmd)
 		tos_fw-config {
-
-			load-address = <0x0 0x04001500>;
+			load-address = <0x0 TOS_FW_ADDR>;
 #if ENABLE_RME
 			secondary-load-address = <0x0 0x7e00000>;
 #endif /* ENABLE_RME */
@@ -50,7 +53,6 @@
 			id = <TOS_FW_CONFIG_ID>;
 		};
 #endif
-
 		nt_fw-config {
 			load-address = <0x0 0x80000000>;
 			max-size = <0x200>;

@@ -62,11 +62,22 @@
 #define ARM_SHARED_RAM_BASE		ARM_TRUSTED_SRAM_BASE
 #define ARM_SHARED_RAM_SIZE		UL(0x00001000)	/* 4 KB */
 
+#if ENABLE_RME
+/* Store level 0 GPT at the top of the Trusted SRAM */
+#define ARM_L0_GPT_BASE			(ARM_TRUSTED_SRAM_BASE + \
+					 PLAT_ARM_TRUSTED_SRAM_SIZE - \
+					 ARM_L0_GPT_SIZE)
+#define ARM_L0_GPT_SIZE			UL(0x00001000)	/* 4 KB */
+#else
+#define ARM_L0_GPT_SIZE			UL(0)
+#endif
+
 /* The remaining Trusted SRAM is used to load the BL images */
-#define ARM_BL_RAM_BASE			(ARM_SHARED_RAM_BASE +	\
+#define ARM_BL_RAM_BASE			(ARM_SHARED_RAM_BASE + \
 					 ARM_SHARED_RAM_SIZE)
-#define ARM_BL_RAM_SIZE			(PLAT_ARM_TRUSTED_SRAM_SIZE -	\
-					 ARM_SHARED_RAM_SIZE)
+#define ARM_BL_RAM_SIZE			(PLAT_ARM_TRUSTED_SRAM_SIZE - \
+					 ARM_SHARED_RAM_SIZE - \
+					 ARM_L0_GPT_SIZE)
 
 /*
  * The top 16MB (or 64MB if RME is enabled) of DRAM1 is configured as
@@ -355,7 +366,6 @@ MEASURED_BOOT
 					ARM_EL3_RMM_SHARED_BASE,	\
 					ARM_EL3_RMM_SHARED_SIZE,	\
 					MT_MEMORY | MT_RW | MT_REALM)
-
 #endif /* ENABLE_RME */
 
 /*
@@ -543,18 +553,6 @@ MEASURED_BOOT
 #define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + ARM_FW_CONFIGS_SIZE)
 #endif
 
-#if ENABLE_RME
-/*
- * Store the L0 GPT on Trusted SRAM next to firmware
- * configuration memory, 4KB aligned.
- */
-#define ARM_L0_GPT_SIZE			(PAGE_SIZE)
-#define ARM_L0_GPT_BASE			(ARM_FW_CONFIGS_LIMIT)
-#define ARM_L0_GPT_LIMIT		(ARM_L0_GPT_BASE + ARM_L0_GPT_SIZE)
-#else
-#define ARM_L0_GPT_SIZE			U(0)
-#endif
-
 /*******************************************************************************
  * BL1 specific defines.
  * BL1 RW data is relocated from ROM to RAM at runtime so we need 2 sets of
@@ -570,7 +568,8 @@ MEASURED_BOOT
 #endif
 
 /*
- * Put BL1 RW at the top of the Trusted SRAM.
+ * With ENABLE_RME=1 put BL1 RW below L0 GPT,
+ * or at the top of Trusted SRAM otherwise.
  */
 #define BL1_RW_BASE			(ARM_BL_RAM_BASE +		\
 						ARM_BL_RAM_SIZE -	\
