@@ -18,6 +18,7 @@
 #include <cortex_x2.h>
 #include <cortex_x3.h>
 #include <cortex_x4.h>
+#include <cortex_x925.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
 
@@ -107,6 +108,12 @@ bool errata_ich_vmcr_el2_applies(void)
 		break;
 #endif /* ERRATA_X4_3701758 */
 
+#if ERRATA_X925_3701747
+	case EXTRACT_PARTNUM(CORTEX_X925_MIDR):
+		if (check_erratum_cortex_x925_3701747(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+		break;
+#endif /* ERRATA_X925_3701747 */
 	default:
 		break;
 	}
