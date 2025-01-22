@@ -7,6 +7,7 @@ About
 
    features
    release-information
+   lts
    maintainers
    contact
    acknowledgements
