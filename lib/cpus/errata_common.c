@@ -14,6 +14,7 @@
 #include <cortex_a715.h>
 #include <cortex_a720.h>
 #include <cortex_x2.h>
+#include <cortex_x3.h>
 #include <cortex_x4.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
@@ -76,6 +77,13 @@ bool errata_ich_vmcr_el2_applies(void)
 			return true;
 		break;
 #endif /* ERRATA_X2_3701772 */
+
+#if ERRATA_X3_3701769
+	case EXTRACT_PARTNUM(CORTEX_X3_MIDR):
+		if (check_erratum_cortex_x3_3701769(cpu_get_rev_var()) == ERRATA_APPLIES)
+			return true;
+		break;
+#endif /* ERRATA_X3_3701769 */
 
 	default:
 		break;

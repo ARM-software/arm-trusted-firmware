@@ -832,6 +832,11 @@ CPU_FLAG_LIST += ERRATA_X3_2742421
 # to revisions r0p0, r1p0 and r1p1 of the Cortex-X3 cpu, it is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_X3_2743088
 
+# Flag to apply erratum 3701769 workaround during context save/restore of
+# ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r1p0, r1p1 and r1p2
+# of the Cortex-X3 cpu and is still open.
+CPU_FLAG_LIST += ERRATA_X3_3701769
+
 # Flag to apply erratum 2779509 workaround on reset. This erratum applies
 # to revisions r0p0, r1p0, r1p1 of the Cortex-X3 cpu, it is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_X3_2779509
