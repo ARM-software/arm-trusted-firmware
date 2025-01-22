@@ -9,6 +9,7 @@
 #include <ti_sci.h>
 #include <ti_sci_protocol.h>
 #include <ti_sci_transport.h>
+#include <ti_clk_handler.h>
 
 #include <board_def.h>
 #include <plat_private.h>
