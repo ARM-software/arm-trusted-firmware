@@ -1442,7 +1442,9 @@ the returned ``cpu_ops`` is then invoked which executes the required reset
 handling for that CPU and also any errata workarounds enabled by the platform.
 
 It should be defined using the ``cpu_reset_func_{start,end}`` macros and its
-body may only clobber x0 to x14 with x14 being the cpu_rev parameter.
+body may only clobber x0 to x14 with x14 being the cpu_rev parameter. The cpu
+file should also include a call to ``cpu_reset_prologue`` at the start of the
+file for errata to work correctly.
 
 CPU specific power down sequence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

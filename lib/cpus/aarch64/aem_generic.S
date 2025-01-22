@@ -8,6 +8,8 @@
 #include <asm_macros.S>
 #include <cpu_macros.S>
 
+cpu_reset_prologue aem_generic
+
 func aem_generic_core_pwr_dwn
 	/* ---------------------------------------------
 	 * Disable the Data Cache.

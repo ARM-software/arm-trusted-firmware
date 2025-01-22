@@ -23,13 +23,15 @@
 
 .global check_erratum_neoverse_n2_3701773
 
-add_erratum_entry neoverse_n2, ERRATUM(3701773), ERRATA_N2_3701773, NO_APPLY_AT_RESET
+add_erratum_entry neoverse_n2, ERRATUM(3701773), ERRATA_N2_3701773
 
 check_erratum_ls neoverse_n2, ERRATUM(3701773), CPU_REV(0, 3)
 
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_N2_BHB_LOOP_COUNT, neoverse_n2
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+cpu_reset_prologue neoverse_n2
 
 workaround_reset_start neoverse_n2, ERRATUM(2313941), ERRATA_DSU_2313941
 	errata_dsu_2313941_wa_impl

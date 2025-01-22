@@ -17,6 +17,8 @@
 #error "Cortex-A77 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+cpu_reset_prologue cortex_a77
+
 /* 64-bit only core */
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex-A77 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"

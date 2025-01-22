@@ -172,11 +172,6 @@
 		\_cpu\()_errata_list_start:
 		.endif
 
-		/* unused on AArch32, maintain for portability */
-		.word	0
-		/* TODO(errata ABI): this prevents all checker functions from
-		 * being optimised away. Can be done away with unless the ABI
-		 * needs them */
 		.ifnb \_special
 			.word	check_errata_\_special
 		.elseif \_cve
@@ -188,9 +183,7 @@
 		.word	\_id
 		.hword	\_cve
 		.byte	\_chosen
-		/* TODO(errata ABI): mitigated field for known but unmitigated
-		 * errata*/
-		.byte	0x1
+		.byte	0x0 /* alignment */
 	.popsection
 .endm
 

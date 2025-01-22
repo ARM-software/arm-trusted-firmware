@@ -28,6 +28,8 @@
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_N1_BHB_LOOP_COUNT, neoverse_n1
 #endif /* WORKAROUND_CVE_2022_23960 */
 
+cpu_reset_prologue neoverse_n1
+
 workaround_reset_start neoverse_n1, ERRATUM(936184), ERRATA_DSU_936184
 	errata_dsu_936184_wa_impl
 workaround_reset_end neoverse_n1, ERRATUM(936184)

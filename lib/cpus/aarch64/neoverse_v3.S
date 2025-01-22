@@ -22,9 +22,11 @@
 #error "Neoverse V3 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue neoverse_v3
+
 .global check_erratum_neoverse_v3_3701767
 
-add_erratum_entry neoverse_v3, ERRATUM(3701767), ERRATA_V3_3701767, NO_APPLY_AT_RESET
+add_erratum_entry neoverse_v3, ERRATUM(3701767), ERRATA_V3_3701767
 
 check_erratum_ls neoverse_v3, ERRATUM(3701767), CPU_REV(0, 2)
 

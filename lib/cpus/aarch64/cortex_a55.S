@@ -20,6 +20,8 @@
 	.globl cortex_a55_reset_func
 	.globl cortex_a55_core_pwr_dwn
 
+cpu_reset_prologue cortex_a55
+
 workaround_reset_start cortex_a55, ERRATUM(798953), ERRATA_DSU_798953
 	errata_dsu_798953_wa_impl
 workaround_reset_end cortex_a55, ERRATUM(798953)
@@ -111,7 +113,7 @@ check_erratum_ls cortex_a55, ERRATUM(1221012), CPU_REV(1, 0)
 check_erratum_chosen cortex_a55, ERRATUM(1530923), ERRATA_A55_1530923
 
 /* erratum has no workaround in the cpu. Generic code must take care */
-add_erratum_entry cortex_a55, ERRATUM(1530923), ERRATA_A55_1530923, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a55, ERRATUM(1530923), ERRATA_A55_1530923
 
 cpu_reset_func_start cortex_a55
 cpu_reset_func_end cortex_a55

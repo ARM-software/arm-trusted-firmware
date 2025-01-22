@@ -23,6 +23,8 @@
 #error "Cortex-A65 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue cortex_a65
+
 workaround_reset_start cortex_a65, ERRATUM(936184), ERRATA_DSU_936184
 	errata_dsu_936184_wa_impl
 workaround_reset_end cortex_a65, ERRATUM(936184)
