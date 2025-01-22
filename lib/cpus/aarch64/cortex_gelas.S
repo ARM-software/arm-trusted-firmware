@@ -21,6 +21,8 @@
 #error "Gelas supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue cortex_gelas
+
 cpu_reset_func_start cortex_gelas
 	/* ----------------------------------------------------
 	 * Disable speculative loads

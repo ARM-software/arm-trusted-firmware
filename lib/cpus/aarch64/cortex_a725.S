@@ -21,9 +21,11 @@
 #error "Cortex-A725 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue cortex_a725
+
 .global check_erratum_cortex_a725_3699564
 
-add_erratum_entry cortex_a725, ERRATUM(3699564), ERRATA_A725_3699564, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a725, ERRATUM(3699564), ERRATA_A725_3699564
 
 check_erratum_ls cortex_a725, ERRATUM(3699564), CPU_REV(0, 1)
 

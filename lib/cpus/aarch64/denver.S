@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -12,6 +12,8 @@
 #include <denver.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+
+cpu_reset_prologue denver
 
 	/* -------------------------------------------------
 	 * CVE-2017-5715 mitigation

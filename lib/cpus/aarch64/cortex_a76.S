@@ -30,6 +30,8 @@
 #define ESR_EL3_A64_SMC0	0x5e000000
 #define ESR_EL3_A32_SMC0	0x4e000000
 
+cpu_reset_prologue cortex_a76
+
 #if DYNAMIC_WORKAROUND_CVE_2018_3639
 	/*
 	 * This macro applies the mitigation for CVE-2018-3639.
@@ -428,7 +430,7 @@ check_erratum_custom_end cortex_a76, ERRATUM(1165522)
 check_erratum_chosen cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 /* erratum has no workaround in the cpu. Generic code must take care */
-add_erratum_entry cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_a76, ERRATUM(798953), ERRATA_DSU_798953
 	errata_dsu_798953_wa_impl

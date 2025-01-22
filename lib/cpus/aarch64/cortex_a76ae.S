@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,8 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex-A76AE supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+cpu_reset_prologue cortex_a76ae
 
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A76AE_BHB_LOOP_COUNT, cortex_a76ae

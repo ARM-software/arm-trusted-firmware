@@ -8,6 +8,8 @@
 #include <cpu_macros.S>
 #include <qemu_max.h>
 
+cpu_reset_prologue qemu_max
+
 func qemu_max_core_pwr_dwn
 	/* ---------------------------------------------
 	 * Disable the Data Cache.

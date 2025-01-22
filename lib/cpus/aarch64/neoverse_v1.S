@@ -22,6 +22,8 @@
 #error "Neoverse-V1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue neoverse_v1
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V1_BHB_LOOP_COUNT, neoverse_v1
 #endif /* WORKAROUND_CVE_2022_23960 */

@@ -22,6 +22,8 @@
 #error "Cortex-A510 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue cortex_a510
+
 workaround_reset_start cortex_a510, ERRATUM(1922240), ERRATA_A510_1922240
 	/* Apply the workaround by setting IMP_CMPXACTLR_EL1[11:10] = 0b11. */
 	sysreg_bitfield_insert CORTEX_A510_CMPXACTLR_EL1, CORTEX_A510_CMPXACTLR_EL1_SNPPREFERUNIQUE_DISABLE, \
