@@ -874,6 +874,11 @@ For Cortex-X4, the following errata build flags are defined :
   CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2 and r0p3.
   It is still open.
 
+For Cortex-X925, the following errata build flags are defined :
+
+- ``ERRATA_X925_3701747``: This applies errata 3701747 workaround to Cortex-X925
+  CPU. This needs to be enabled for revisions r0p0 and r0p1. It is still open.
+
 For Cortex-A510, the following errata build flags are defined :
 
 -  ``ERRATA_A510_1922240``: This applies errata 1922240 workaround to
