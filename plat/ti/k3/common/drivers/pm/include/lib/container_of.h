@@ -2,8 +2,7 @@
 #define CCAN_CONTAINER_OF_H
 #include <stddef.h>
 
-#include "config.h"
-#include <ccan/check_type/check_type.h>
+#include <check_type.h>
 
 /**
  * container_of - get pointer to enclosing structure
@@ -34,7 +33,6 @@
 	  ((char *)(member_ptr) - offsetof(containing_type, member))	\
 	  - check_types_match(*(member_ptr), ((containing_type *)0)->member))
 
-
 /**
  * container_of_var - get pointer to enclosing structure using a variable
  * @member_ptr: pointer to the structure member
@@ -51,13 +49,7 @@
  *		return i;
  *	}
  */
-#if HAVE_TYPEOF
 #define container_of_var(member_ptr, var, member) \
 	container_of(member_ptr, typeof(*var), member)
-#else
-#define container_of_var(member_ptr, var, member)		\
-	((void *)((char *)(member_ptr)				\
-		  - ((char *)&(var)->member - (char *)(var))))
-#endif
 
 #endif /* CCAN_CONTAINER_OF_H */

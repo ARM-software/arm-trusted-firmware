@@ -1,7 +1,6 @@
 /* Licensed under LGPLv2.1+ - see LICENSE file for details */
 #ifndef CCAN_CHECK_TYPE_H
 #define CCAN_CHECK_TYPE_H
-#include "config.h"
 
 /**
  * check_type - issue a warning or build failure if type is not correct.
@@ -52,7 +51,7 @@
 #define check_types_match(expr1, expr2)		\
 	((typeof(expr1) *)0 != (typeof(expr2) *)0)
 #else
-#include <ccan/build_assert/build_assert.h>
+#include <build_assert.h>
 /* Without typeof, we can only test the sizes. */
 #define check_type(expr, type)					\
 	BUILD_ASSERT_OR_ZERO(sizeof(expr) == sizeof(type))

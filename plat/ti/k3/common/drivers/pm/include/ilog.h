@@ -1,10 +1,15 @@
 /* Licensed under LGPLv2.1+ - see LICENSE file for details */
 #if !defined(_ilog_H)
 # define _ilog_H (1)
-# include "config.h"
+
 # include <stdint.h>
 # include <limits.h>
-# include <ccan/compiler/compiler.h>
+#include <cdefs.h>
+
+
+#ifndef CONST_FUNCTION
+#define CONST_FUNCTION __attribute__((const))
+#endif
 
 /**
  * ilog32 - Integer binary logarithm of a 32-bit value.
@@ -25,7 +30,7 @@
  *		return 1U << ilog32(i-1);
  *	}
  */
-int ilog32(uint32_t _v) IDEMPOTENT;
+int ilog32(uint32_t _v) CONST_FUNCTION;
 
 /**
  * ilog32_nz - Integer binary logarithm of a non-zero 32-bit value.
@@ -44,7 +49,7 @@ int ilog32(uint32_t _v) IDEMPOTENT;
  *		return ilog32_nz(i) - 1;
  *	}
  */
-int ilog32_nz(uint32_t _v) IDEMPOTENT;
+int ilog32_nz(uint32_t _v) CONST_FUNCTION;
 
 /**
  * ilog64 - Integer binary logarithm of a 64-bit value.
@@ -56,7 +61,7 @@ int ilog32_nz(uint32_t _v) IDEMPOTENT;
  * See Also:
  *	ilog64_nz(), ilog32()
  */
-int ilog64(uint64_t _v) IDEMPOTENT;
+int ilog64(uint64_t _v) CONST_FUNCTION;
 
 /**
  * ilog64_nz - Integer binary logarithm of a non-zero 64-bit value.
@@ -68,7 +73,7 @@ int ilog64(uint64_t _v) IDEMPOTENT;
  * See Also:
  *	ilog64(), ilog32_nz()
  */
-int ilog64_nz(uint64_t _v) IDEMPOTENT;
+int ilog64_nz(uint64_t _v) CONST_FUNCTION;
 
 /**
  * STATIC_ILOG_32 - The integer logarithm of an (unsigned, 32-bit) constant.
@@ -124,7 +129,7 @@ int ilog64_nz(uint64_t _v) IDEMPOTENT;
 #define ilog32_nz(_v) builtin_ilog32_nz(_v)
 #else
 #define ilog32_nz(_v) ilog32(_v)
-#define ilog32(_v) (IS_COMPILE_CONSTANT(_v) ? STATIC_ILOG_32(_v) : ilog32(_v))
+#define ilog32(_v) (__builtin_constant_p(_v) ? STATIC_ILOG_32(_v) : ilog32(_v))
 #endif /* builtin_ilog32_nz */
 
 #ifdef builtin_ilog64_nz
@@ -132,7 +137,7 @@ int ilog64_nz(uint64_t _v) IDEMPOTENT;
 #define ilog64_nz(_v) builtin_ilog64_nz(_v)
 #else
 #define ilog64_nz(_v) ilog64(_v)
-#define ilog64(_v) (IS_COMPILE_CONSTANT(_v) ? STATIC_ILOG_64(_v) : ilog64(_v))
+#define ilog64(_v) (__builtin_constant_p(_v) ? STATIC_ILOG_64(_v) : ilog64(_v))
 #endif /* builtin_ilog64_nz */
 
 /* Macros for evaluating compile-time constant ilog. */

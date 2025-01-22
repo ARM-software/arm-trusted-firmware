@@ -37,4 +37,21 @@
 #define BUILD_ASSERT_OR_ZERO(cond) \
 	(sizeof(char [1 - 2*!(cond)]) - 1)
 
+/**
+ * BUILD_ASSERT_GLOBAL - assert a build-time dependency, as a global.
+ * @cond: the compile-time condition which must be true.
+ * @name: A compile unit unique name for this condition.
+ *
+ * Your compile will fail if the condition isn't true, or can't be evaluated
+ * by the compiler.  This can be used anywhere a global variable can be
+ * declared. The global variable gets placed in a section to be discarded by
+ * the linker.
+ *
+ * Example:
+ *	BUILD_ASSERT_GLOBAL(offsetof(struct foo, string) == 0, foo_str_assert);
+ */
+#define BUILD_ASSERT_GLOBAL(cond, name)					\
+	static const char name __section(".discard.asserts") __attribute__((unused, )) \
+		= sizeof(char [1 - (2 * !(cond))]);
+
 #endif /* CCAN_BUILD_ASSERT_H */
