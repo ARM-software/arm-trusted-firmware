@@ -30,4 +30,8 @@
  ******************************************************************************/
 #define NEOVERSE_V3_CPUACTLR6_EL1                                S3_0_C15_C8_1
 
+#ifndef __ASSEMBLER__
+long check_erratum_neoverse_v3_3701767(long cpu_rev);
+#endif /* __ASSEMBLER__ */
+
 #endif /* NEOVERSE_V3_H */
