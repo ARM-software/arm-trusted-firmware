@@ -16,7 +16,6 @@
 	({								\
 		(typeof(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask));	\
 	})
-
 #define FIELD_PREP(_mask, _val)						\
 	({ \
 		((typeof(_mask))(_val) << __bf_shf(_mask)) & (_mask);	\

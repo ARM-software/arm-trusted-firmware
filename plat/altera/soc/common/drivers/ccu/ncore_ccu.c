@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2019-2026, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024-2026, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,9 +10,11 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
-#include <platform_def.h>
 
 #include "ncore_ccu.h"
+
+#include <platform_def.h>
+
 #include "socfpga_mailbox.h"
 #include "socfpga_plat_def.h"
 #include "socfpga_system_manager.h"
@@ -31,13 +33,14 @@ uint32_t poll_active_bit(uint32_t dir);
 #define CACHE_OPERATION_DONE				BIT(0)
 #define TIMEOUT_200MS					200
 
-#define INTEL_BF_SHF(x)				(__builtin_ffsll(x) - 1U)
-#define INTEL_FIELD_PREP(_mask, _val)					\
+#define ALT_BF_SHF(x)				(__builtin_ffsll(x) - 1U)
+#define ALT_FIELD_PREP(_mask, _val)					\
 	({							\
-		((typeof(_mask))(_val) << INTEL_BF_SHF(_mask)) & (_mask);	\
+		((typeof(_mask))(_val) << ALT_BF_SHF(_mask)) & (_mask);	\
 	})
 
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
 ncore_ccu_reg_t ncore_ccu_modules[] = {
 				{"caiu0@1c000000",             0x1C000000, 0x00001000},
 				{"ncaiu0@1c001000",            0x1C001000, 0x00001000},
@@ -464,7 +467,8 @@ uint32_t init_ncore_ccu(void)
 
 		case 11:
 			ccu_module_table = ccu_noc_fw_lwsoc2fpga;
-			size = (sizeof(ccu_noc_fw_lwsoc2fpga) / CCU_WORD_BYTE) / CCU_OFFSET_VAL_MASK;
+			size = (sizeof(ccu_noc_fw_lwsoc2fpga) / CCU_WORD_BYTE) /
+			CCU_OFFSET_VAL_MASK;
 			break;
 
 		case 12:
@@ -522,6 +526,7 @@ static coh_ss_id_t subsystem_id;
 void get_subsystem_id(void)
 {
 	uint32_t snoop_filter, directory, coh_agent;
+
 	snoop_filter = CSIDR_NUM_SF(mmio_read_32(NCORE_CCU_CSR(NCORE_CSIDR)));
 	directory = CSUIDR_NUM_DIR(mmio_read_32(NCORE_CCU_CSR(NCORE_CSUIDR)));
 	coh_agent = CSUIDR_NUM_CAI(mmio_read_32(NCORE_CCU_CSR(NCORE_CSUIDR)));
@@ -534,6 +539,7 @@ uint32_t directory_init(void)
 {
 	uint32_t dir_sf_mtn, dir_sf_en;
 	uint32_t dir, sf, ret;
+
 	for (dir = 0; dir < subsystem_id.num_directory; dir++) {
 		for (sf = 0; sf < subsystem_id.num_snoop_filter; sf++) {
 			dir_sf_mtn = DIRECTORY_UNIT(dir, NCORE_DIRUSFMCR);
@@ -556,6 +562,7 @@ uint32_t directory_init(void)
 uint32_t coherent_agent_intfc_init(void)
 {
 	uint32_t dir, ca, ca_id, ca_type, ca_snoop_en;
+
 	for (dir = 0; dir < subsystem_id.num_directory; dir++) {
 		for (ca = 0; ca < subsystem_id.num_coh_agent; ca++) {
 			ca_snoop_en = DIRECTORY_UNIT(ca, NCORE_DIRUCASER0);
@@ -577,6 +584,7 @@ uint32_t poll_active_bit(uint32_t dir)
 {
 	uint32_t timeout = 80000;
 	uint32_t poll_dir =  DIRECTORY_UNIT(dir, NCORE_DIRUSFMAR);
+
 	while (timeout > 0) {
 		if (mmio_read_32(poll_dir) == 0)
 			return 0;
@@ -609,10 +617,11 @@ void ncore_enable_ocram_firewall(void)
 			OCRAM_PRIVILEGED_MASK | OCRAM_SECURE_MASK);
 }
 
-#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX5
+#if PLATFORM_MODEL != PLAT_SOCFPGA_AGILEX3
 uint32_t init_ncore_ccu(void)
 {
 	uint32_t status;
+
 	get_subsystem_id();
 	status = directory_init();
 	status = coherent_agent_intfc_init();
@@ -623,7 +632,7 @@ uint32_t init_ncore_ccu(void)
 
 void setup_smmu_stream_id(void)
 {
-	/* Configure Stream ID for Agilex5 */
+	/* Configure Stream ID for Agilex3 */
 	mmio_write_32(SOCFPGA_SYSMGR(DMA_TBU_STREAM_ID_AX_REG_0_DMA0), DMA0);
 	mmio_write_32(SOCFPGA_SYSMGR(DMA_TBU_STREAM_ID_AX_REG_0_DMA1), DMA1);
 	mmio_write_32(SOCFPGA_SYSMGR(SDM_TBU_STREAM_ID_AX_REG_1_SDM), SDM);
@@ -638,7 +647,7 @@ void setup_smmu_stream_id(void)
 	mmio_write_32(SOCFPGA_SYSMGR(IO_TBU_STREAM_ID_AX_REG_2_TSN0), TSN0);
 	mmio_write_32(SOCFPGA_SYSMGR(IO_TBU_STREAM_ID_AX_REG_2_TSN1), TSN1);
 	mmio_write_32(SOCFPGA_SYSMGR(IO_TBU_STREAM_ID_AX_REG_2_TSN2), TSN2);
-	/* Enabled Stream ctrl register for Agilex5 */
+	/* Enabled Stream ctrl register for Agilex3 */
 	mmio_write_32(SOCFPGA_SYSMGR(DMA_TBU_STREAM_CTRL_REG_0_DMA0), ENABLE_STREAMID);
 	mmio_write_32(SOCFPGA_SYSMGR(DMA_TBU_STREAM_CTRL_REG_0_DMA1), ENABLE_STREAMID);
 	mmio_write_32(SOCFPGA_SYSMGR(SDM_TBU_STREAM_CTRL_REG_1_SDM), ENABLE_STREAMID);
@@ -652,7 +661,7 @@ void setup_smmu_stream_id(void)
 	mmio_write_32(SOCFPGA_SYSMGR(TSN_TBU_STREAM_CTRL_REG_3_TSN2), ENABLE_STREAMID);
 }
 
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX3
 /* TODO: Temp added this here*/
 static int poll_idle_status(uint32_t addr, uint32_t mask, uint32_t match, uint32_t delay_ms)
 {
@@ -676,8 +685,8 @@ int flush_l3_dcache(void)
 
 	/* Flushing all entries in CCU system memory cache */
 	for (i = 0; i < MAX_DISTRIBUTED_MEM_INTERFACE; i++) {
-		mmio_write_32(INTEL_FIELD_PREP(CCU_DMI0_DMIUSMCMCR_MNTOP, FLUSH_ALL_ENTRIES) |
-			   INTEL_FIELD_PREP(CCU_DMI0_DMIUSMCMCR_ARRAY_ID, ARRAY_ID_TAG),
+		mmio_write_32(ALT_FIELD_PREP(CCU_DMI0_DMIUSMCMCR_MNTOP, FLUSH_ALL_ENTRIES) |
+			   ALT_FIELD_PREP(CCU_DMI0_DMIUSMCMCR_ARRAY_ID, ARRAY_ID_TAG),
 			   (uintptr_t)(CCU_DMI0_DMIUSMCMCR + (i * 0x1000)));
 
 		/* Wait for cache maintenance operation done */
@@ -691,8 +700,8 @@ int flush_l3_dcache(void)
 			return ret;
 		}
 
-		mmio_write_32(INTEL_FIELD_PREP(CCU_DMI0_DMIUSMCMCR_MNTOP, FLUSH_ALL_ENTRIES) |
-			   INTEL_FIELD_PREP(CCU_DMI0_DMIUSMCMCR_ARRAY_ID, ARRAY_ID_DATA),
+		mmio_write_32(ALT_FIELD_PREP(CCU_DMI0_DMIUSMCMCR_MNTOP, FLUSH_ALL_ENTRIES) |
+			   ALT_FIELD_PREP(CCU_DMI0_DMIUSMCMCR_ARRAY_ID, ARRAY_ID_DATA),
 			   (uintptr_t)(CCU_DMI0_DMIUSMCMCR + (i * 0x1000)));
 
 		/* Wait for cache maintenance operation done */
