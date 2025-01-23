@@ -10,6 +10,7 @@
 #include <common/debug.h>
 #include <cortex_a65.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 
 /* Hardware handled coherency */
@@ -22,15 +23,14 @@
 #error "Cortex-A65 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-/*
- * ERRATA_DSU_936184:
- * The errata is defined in dsu_helpers.S and applies to neoverse_e1.
- * Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_neoverse_e1_936184, check_errata_dsu_936184
-.equ erratum_neoverse_e1_936184_wa, errata_dsu_936184_wa
-add_erratum_entry neoverse_e1, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
+workaround_reset_start cortex_a65, ERRATUM(936184), ERRATA_DSU_936184
+	errata_dsu_936184_wa_impl
+workaround_reset_end cortex_a65, ERRATUM(936184)
+
+check_erratum_custom_start cortex_a65, ERRATUM(936184)
+	check_errata_dsu_936184_impl
+	ret
+check_erratum_custom_end cortex_a65, ERRATUM(936184)
 
 cpu_reset_func_start cortex_a65
 cpu_reset_func_end cortex_a65
