@@ -1136,7 +1136,7 @@ static int enable_module(struct s32cc_clk_obj *module,
 			 unsigned int depth)
 {
 	struct s32cc_clk_obj *parent = get_module_parent(module);
-	static const enable_clk_t enable_clbs[12] = {
+	static const enable_clk_t enable_clbs[13] = {
 		[s32cc_clk_t] = no_enable,
 		[s32cc_osc_t] = enable_osc,
 		[s32cc_pll_t] = enable_pll,
@@ -1867,7 +1867,7 @@ typedef struct s32cc_clk_obj *(*get_parent_clb_t)(const struct s32cc_clk_obj *cl
 
 static struct s32cc_clk_obj *get_module_parent(const struct s32cc_clk_obj *module)
 {
-	static const get_parent_clb_t parents_clbs[12] = {
+	static const get_parent_clb_t parents_clbs[13] = {
 		[s32cc_clk_t] = get_clk_parent,
 		[s32cc_osc_t] = get_no_parent,
 		[s32cc_pll_t] = get_pll_parent,
