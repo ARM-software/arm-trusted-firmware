@@ -56,12 +56,15 @@ static uint32_t zynqmp_get_silicon_ver(void)
 uint32_t get_uart_clk(void)
 {
 	unsigned int ver = zynqmp_get_silicon_ver();
+	uint32_t uart_clk = 0U;
 
 	if (ver == ZYNQMP_CSU_VERSION_QEMU) {
-		return 133000000;
+		uart_clk = 133000000U;
 	} else {
-		return 100000000;
+		uart_clk = 100000000U;
 	}
+
+	return uart_clk;
 }
 
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
@@ -311,14 +314,17 @@ static char *zynqmp_print_silicon_idcode(void)
 
 int32_t plat_is_smccc_feature_available(u_register_t fid)
 {
+	int32_t ret = SMC_ARCH_CALL_NOT_SUPPORTED;
+
 	switch (fid) {
 	case SMCCC_ARCH_SOC_ID:
-		return SMC_ARCH_CALL_SUCCESS;
+		ret = SMC_ARCH_CALL_SUCCESS;
+		break;
 	default:
-		return SMC_ARCH_CALL_NOT_SUPPORTED;
+		break;
 	}
 
-	return SMC_ARCH_CALL_NOT_SUPPORTED;
+	return ret;
 }
 
 int32_t plat_get_soc_version(void)
@@ -397,10 +403,13 @@ void zynqmp_config_setup(void)
 uint32_t plat_get_syscnt_freq2(void)
 {
 	uint32_t ver = zynqmp_get_silicon_ver();
+	uint32_t ret = 0U;
 
 	if (ver == ZYNQMP_CSU_VERSION_QEMU) {
-		return 65000000;
+		ret = 65000000U;
 	} else {
-		return mmio_read_32((uint64_t)IOU_SCNTRS_BASEFREQ);
+		ret = mmio_read_32((uint64_t)IOU_SCNTRS_BASEFREQ);
 	}
+
+	return ret;
 }

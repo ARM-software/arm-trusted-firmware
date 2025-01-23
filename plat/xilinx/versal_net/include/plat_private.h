@@ -35,7 +35,7 @@ void plat_versal_net_gic_redistif_off(void);
 
 extern uint32_t cpu_clock, platform_id, platform_version;
 void board_detection(void);
-char *board_name_decode(void);
+const char *board_name_decode(void);
 uint64_t smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		       uint64_t x4, void *cookie, void *handle, uint64_t flags);
 int32_t sip_svc_setup_init(void);

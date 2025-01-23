@@ -170,16 +170,19 @@ int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 {
 	static uint32_t index;
 	uint32_t i;
+	int32_t ret = 0;
 
 	/* Validate 'handler' and 'id' parameters */
 	if ((handler == NULL) || (index >= MAX_INTR_EL3)) {
-		return -EINVAL;
+		ret = -EINVAL;
+		goto exit_label;
 	}
 
 	/* Check if a handler has already been registered */
 	for (i = 0; i < index; i++) {
 		if (id == type_el3_interrupt_table[i].id) {
-			return -EALREADY;
+			ret = -EALREADY;
+			goto exit_label;
 		}
 	}
 
@@ -188,7 +191,8 @@ int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 
 	index++;
 
-	return 0;
+exit_label:
+	return ret;
 }
 
 static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,

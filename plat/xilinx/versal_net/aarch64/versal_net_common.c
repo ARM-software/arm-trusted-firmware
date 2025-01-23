@@ -42,20 +42,28 @@ const mmap_region_t *plat_get_mmap(void)
 /* For saving cpu clock for certain platform */
 uint32_t cpu_clock;
 
-char *board_name_decode(void)
+const char *board_name_decode(void)
 {
+	const char *platform;
+
 	switch (platform_id) {
 	case VERSAL_NET_SPP:
-		return "IPP";
+		platform = "IPP";
+		break;
 	case VERSAL_NET_EMU:
-		return "EMU";
+		platform = "EMU";
+		break;
 	case VERSAL_NET_SILICON:
-		return "Silicon";
+		platform = "Silicon";
+		break;
 	case VERSAL_NET_QEMU:
-		return "QEMU";
+		platform = "QEMU";
+		break;
 	default:
-		return "Unknown";
+		platform = "Unknown";
 	}
+
+	return platform;
 }
 
 void board_detection(void)

@@ -149,10 +149,11 @@ enum pm_ret_status pm_self_suspend(uint32_t nid,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint32_t cpuid = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpuid);
+	enum pm_ret_status ret = PM_RET_ERROR_INTERNAL;
 
 	if (proc == NULL) {
 		WARN("Failed to get proc %d\n", cpuid);
-		return PM_RET_ERROR_INTERNAL;
+		goto exit_label;
 	}
 
 	/*
@@ -165,7 +166,10 @@ enum pm_ret_status pm_self_suspend(uint32_t nid,
 	PM_PACK_PAYLOAD6(payload, LIBPM_MODULE_ID, flag, PM_SELF_SUSPEND,
 			 proc->node_id, latency, state, address,
 			 (address >> 32));
-	return pm_ipi_send_sync(proc, payload, NULL, 0);
+	ret = pm_ipi_send_sync(proc, payload, NULL, 0);
+
+exit_label:
+	return ret;
 }
 
 /**
@@ -215,15 +219,18 @@ enum pm_ret_status pm_req_suspend(uint32_t target, uint8_t ack,
 				  uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, LIBPM_MODULE_ID, flag, PM_REQ_SUSPEND, target,
 			 latency, state);
 	if (ack == (uint32_t)IPI_BLOCKING) {
-		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+		ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	} else {
-		return pm_ipi_send(primary_proc, payload);
+		ret = pm_ipi_send(primary_proc, payload);
 	}
+
+	return ret;
 }
 
 /**
@@ -273,15 +280,15 @@ enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
 enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag, uint32_t ack)
 {
 	enum pm_ret_status ret = PM_RET_SUCCESS;
+
 	/* Return if interrupt is not from PMU */
-	if (pm_ipi_irq_status(primary_proc) == 0U) {
-		return ret;
-	}
+	if (pm_ipi_irq_status(primary_proc) != 0U) {
 
-	ret = pm_ipi_buff_read_callb(data, count);
+		ret = pm_ipi_buff_read_callb(data, count);
 
-	if (ack != 0U) {
-		pm_ipi_irq_clear(primary_proc);
+		if (ack != 0U) {
+			pm_ipi_irq_clear(primary_proc);
+		}
 	}
 
 	return ret;
@@ -302,16 +309,19 @@ enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack,
 				      uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	/* Send request to the PMC */
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, flag, PM_FORCE_POWERDOWN,
 			 target, ack);
 
 	if (ack == (uint32_t)IPI_BLOCKING) {
-		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+		ret = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	} else {
-		return pm_ipi_send(primary_proc, payload);
+		ret = pm_ipi_send(primary_proc, payload);
 	}
+
+	return ret;
 }
 
 /**
@@ -328,18 +338,22 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype,
 				      uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	if (type == XPM_SHUTDOWN_TYPE_SETSCOPE_ONLY) {
 		/* Setting scope for subsequent PSCI reboot or shutdown */
 		pm_shutdown_scope = subtype;
-		return PM_RET_SUCCESS;
+		goto exit_label;
 	}
 
 	/* Send request to the PMC */
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, flag, PM_SYSTEM_SHUTDOWN,
 			 type, subtype);
 
-	return pm_ipi_send_non_blocking(primary_proc, payload);
+	ret = pm_ipi_send_non_blocking(primary_proc, payload);
+
+exit_label:
+	return ret;
 }
 
 /**
@@ -412,16 +426,19 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint32_t module_id;
+	enum pm_ret_status ret;
 
 	/* Return version of API which are implemented in TF-A only */
 	switch (api_id) {
 	case PM_GET_CALLBACK_DATA:
 	case PM_GET_TRUSTZONE_VERSION:
 		ret_payload[0] = PM_API_VERSION_2;
-		return PM_RET_SUCCESS;
+		ret = PM_RET_SUCCESS;
+		goto exit_label;
 	case TF_A_PM_REGISTER_SGI:
 		ret_payload[0] = PM_API_BASE_VERSION;
-		return PM_RET_SUCCESS;
+		ret = PM_RET_SUCCESS;
+		goto exit_label;
 	default:
 		break;
 	}
@@ -433,12 +450,17 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, uint32_t *ret_payload,
 	 * If module_id is 0, then we consider it LIBPM module as default id
 	 */
 	if ((module_id > 0U) && (module_id != LIBPM_MODULE_ID)) {
-		return PM_RET_SUCCESS;
+		ret = PM_RET_SUCCESS;
+		goto exit_label;
 	}
 
 	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, flag,
-			 PM_FEATURE_CHECK, api_id);
-	return pm_ipi_send_sync(primary_proc, payload, ret_payload, RET_PAYLOAD_ARG_CNT);
+			PM_FEATURE_CHECK, api_id);
+	ret = pm_ipi_send_sync(primary_proc, payload, ret_payload, RET_PAYLOAD_ARG_CNT);
+
+exit_label:
+	return ret;
+
 }
 
 /**

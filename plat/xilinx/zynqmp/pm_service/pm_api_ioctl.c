@@ -61,9 +61,11 @@ static enum pm_ret_status pm_ioctl_get_rpu_oper_mode(uint32_t *mode)
 static enum pm_ret_status pm_ioctl_set_rpu_oper_mode(uint32_t mode)
 {
 	uint32_t val;
+	enum pm_ret_status status = PM_RET_SUCCESS;
 
 	if ((mmio_read_32(CRL_APB_RST_LPD_TOP) & CRL_APB_RPU_AMBA_RESET) != 0U) {
-		return PM_RET_ERROR_ACCESS;
+		status = PM_RET_ERROR_ACCESS;
+		goto exit_label;
 	}
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
@@ -77,12 +79,14 @@ static enum pm_ret_status pm_ioctl_set_rpu_oper_mode(uint32_t mode)
 		val |= ZYNQMP_TCM_COMB_MASK;
 		val |= ZYNQMP_SLCLAMP_MASK;
 	} else {
-		return PM_RET_ERROR_ARGS;
+		status = PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	mmio_write_32(ZYNQMP_RPU_GLBL_CNTL, val);
 
-	return PM_RET_SUCCESS;
+exit_label:
+	return status;
 }
 
 /**
@@ -136,6 +140,7 @@ static enum pm_ret_status pm_ioctl_config_boot_addr(enum pm_node_id nid,
 static enum pm_ret_status pm_ioctl_config_tcm_comb(uint32_t value)
 {
 	uint32_t val;
+	enum pm_ret_status status = PM_RET_SUCCESS;
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
 
@@ -144,12 +149,14 @@ static enum pm_ret_status pm_ioctl_config_tcm_comb(uint32_t value)
 	} else if (value == PM_RPU_TCM_COMB) {
 		val |= ZYNQMP_TCM_COMB_MASK;
 	} else {
-		return PM_RET_ERROR_ARGS;
+		status = PM_RET_ERROR_ARGS;
+		goto exit_label;
 	}
 
 	mmio_write_32(ZYNQMP_RPU_GLBL_CNTL, val);
 
-	return PM_RET_SUCCESS;
+exit_label:
+	return status;
 }
 
 /**
@@ -165,12 +172,16 @@ static enum pm_ret_status pm_ioctl_config_tcm_comb(uint32_t value)
 static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(uint32_t type,
 						       uint32_t value)
 {
+	enum pm_ret_status status = PM_RET_SUCCESS;
+
 	if ((((value != PM_TAPDELAY_BYPASS_ENABLE) &&
 	     (value != PM_TAPDELAY_BYPASS_DISABLE)) || (type >= PM_TAPDELAY_MAX))) {
-		return PM_RET_ERROR_ARGS;
+		status = PM_RET_ERROR_ARGS;
+	} else {
+		status = pm_mmio_write(IOU_TAPDLY_BYPASS, TAP_DELAY_MASK, value << type);
 	}
 
-	return pm_mmio_write(IOU_TAPDLY_BYPASS, TAP_DELAY_MASK, value << type);
+	return status;
 }
 
 /**
@@ -372,11 +383,11 @@ static enum pm_ret_status pm_ioctl_set_pll_frac_data
 
 	/* Get PLL node ID using PLL clock ID */
 	status = pm_clock_get_pll_node_id(pll, &pll_nid);
-	if (status != PM_RET_SUCCESS) {
-		return status;
+	if (status == PM_RET_SUCCESS) {
+		status = pm_pll_set_parameter(pll_nid, PM_PLL_PARAM_DATA, data);
 	}
 
-	return pm_pll_set_parameter(pll_nid, PM_PLL_PARAM_DATA, data);
+	return status;
 }
 
 /**
@@ -397,11 +408,11 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_data
 
 	/* Get PLL node ID using PLL clock ID */
 	status = pm_clock_get_pll_node_id(pll, &pll_nid);
-	if (status != PM_RET_SUCCESS) {
-		return status;
+	if (status == PM_RET_SUCCESS) {
+		status = pm_pll_get_parameter(pll_nid, PM_PLL_PARAM_DATA, data);
 	}
 
-	return pm_pll_get_parameter(pll_nid, PM_PLL_PARAM_DATA, data);
+	return status;
 }
 
 /**
@@ -418,12 +429,16 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_data
 static enum pm_ret_status pm_ioctl_write_ggs(uint32_t index,
 					     uint32_t value)
 {
+	enum pm_ret_status ret_status = PM_RET_SUCCESS;
+
 	if (index >= GGS_NUM_REGS) {
-		return PM_RET_ERROR_ARGS;
+		ret_status = PM_RET_ERROR_ARGS;
+	} else {
+		ret_status = pm_mmio_write((uint64_t)GGS_BASEADDR + (index << 2),
+			     0xFFFFFFFFU, value);
 	}
 
-	return pm_mmio_write((uint64_t)(GGS_BASEADDR + (index << 2)),
-			     0xFFFFFFFFU, value);
+	return ret_status;
 }
 
 /**
@@ -440,11 +455,15 @@ static enum pm_ret_status pm_ioctl_write_ggs(uint32_t index,
 static enum pm_ret_status pm_ioctl_read_ggs(uint32_t index,
 					    uint32_t *value)
 {
+	enum pm_ret_status ret_status = PM_RET_SUCCESS;
+
 	if (index >= GGS_NUM_REGS) {
-		return PM_RET_ERROR_ARGS;
+		ret_status = PM_RET_ERROR_ARGS;
+	} else {
+		ret_status = pm_mmio_read((uint64_t)GGS_BASEADDR + (index << 2), value);
 	}
 
-	return pm_mmio_read((uint64_t)(GGS_BASEADDR + (index << 2)), value);
+	return ret_status;
 }
 
 /**
@@ -461,12 +480,16 @@ static enum pm_ret_status pm_ioctl_read_ggs(uint32_t index,
 static enum pm_ret_status pm_ioctl_write_pggs(uint32_t index,
 					      uint32_t value)
 {
+	enum pm_ret_status ret_status = PM_RET_SUCCESS;
+
 	if (index >= PGGS_NUM_REGS) {
-		return PM_RET_ERROR_ARGS;
+		ret_status = PM_RET_ERROR_ARGS;
+	} else {
+		ret_status = pm_mmio_write((uint64_t)PGGS_BASEADDR + (index << 2),
+			     0xFFFFFFFFU, value);
 	}
 
-	return pm_mmio_write((uint64_t)(PGGS_BASEADDR + (index << 2)),
-			     0xFFFFFFFFU, value);
+	return ret_status;
 }
 
 /**
@@ -481,6 +504,7 @@ static enum pm_ret_status pm_ioctl_afi(uint32_t index,
 					      uint32_t value)
 {
 	uint32_t mask;
+	enum pm_ret_status status = PM_RET_ERROR_ARGS;
 	const uint32_t regarr[] = {0xFD360000U,
 				0xFD360014U,
 				0xFD370000U,
@@ -499,17 +523,16 @@ static enum pm_ret_status pm_ioctl_afi(uint32_t index,
 				0xFF419000U,
 				};
 
-	if (index >= ARRAY_SIZE(regarr)) {
-		return PM_RET_ERROR_ARGS;
+	if (index < ARRAY_SIZE(regarr)) {
+		if (index <= AFIFM6_WRCTRL) {
+			mask = FABRIC_WIDTH;
+		} else {
+			mask = 0xf00;
+		}
+		status = pm_mmio_write(regarr[index], mask, value);
 	}
 
-	if (index <= AFIFM6_WRCTRL) {
-		mask = FABRIC_WIDTH;
-	} else {
-		mask = 0xf00;
-	}
-
-	return pm_mmio_write(regarr[index], mask, value);
+	return status;
 }
 
 /**
@@ -526,11 +549,15 @@ static enum pm_ret_status pm_ioctl_afi(uint32_t index,
 static enum pm_ret_status pm_ioctl_read_pggs(uint32_t index,
 					     uint32_t *value)
 {
+	enum pm_ret_status status = 0;
+
 	if (index >= PGGS_NUM_REGS) {
-		return PM_RET_ERROR_ARGS;
+		status = PM_RET_ERROR_ARGS;
+	} else {
+		status = pm_mmio_read((uint64_t)PGGS_BASEADDR + (index << 2), value);
 	}
 
-	return pm_mmio_read((uint64_t)(PGGS_BASEADDR + (index << 2)), value);
+	return status;
 }
 
 /**
@@ -548,7 +575,7 @@ static enum pm_ret_status pm_ioctl_ulpi_reset(void)
 	ret = pm_mmio_write(CRL_APB_BOOT_PIN_CTRL, CRL_APB_BOOT_PIN_MASK,
 			    ZYNQMP_ULPI_RESET_VAL_HIGH);
 	if (ret != PM_RET_SUCCESS) {
-		return ret;
+		goto exit_label;
 	}
 
 	/* Drive ULPI assert for atleast 1ms */
@@ -557,7 +584,7 @@ static enum pm_ret_status pm_ioctl_ulpi_reset(void)
 	ret = pm_mmio_write(CRL_APB_BOOT_PIN_CTRL, CRL_APB_BOOT_PIN_MASK,
 			    ZYNQMP_ULPI_RESET_VAL_LOW);
 	if (ret != PM_RET_SUCCESS) {
-		return ret;
+		goto exit_label;
 	}
 
 	/* Drive ULPI de-assert for atleast 1ms */
@@ -566,6 +593,7 @@ static enum pm_ret_status pm_ioctl_ulpi_reset(void)
 	ret = pm_mmio_write(CRL_APB_BOOT_PIN_CTRL, CRL_APB_BOOT_PIN_MASK,
 			    ZYNQMP_ULPI_RESET_VAL_HIGH);
 
+exit_label:
 	return ret;
 }
 
@@ -703,12 +731,13 @@ enum pm_ret_status tfa_ioctl_bitmask(uint32_t *bit_mask)
 		IOCTL_AFI,
 	};
 	uint8_t i, ioctl_id;
-	enum pm_ret_status ret;
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	for (i = 0U; i < ARRAY_SIZE(supported_ids); i++) {
 		ioctl_id = supported_ids[i];
 		if (ioctl_id >= 64U) {
-			return PM_RET_ERROR_NOTSUPPORTED;
+			ret = PM_RET_ERROR_NOTSUPPORTED;
+			break;
 		}
 		ret = check_api_dependency(ioctl_id);
 		if (ret == PM_RET_SUCCESS) {
@@ -716,5 +745,5 @@ enum pm_ret_status tfa_ioctl_bitmask(uint32_t *bit_mask)
 		}
 	}
 
-	return PM_RET_SUCCESS;
+	return ret;
 }

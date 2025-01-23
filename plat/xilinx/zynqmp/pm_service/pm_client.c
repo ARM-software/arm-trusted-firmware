@@ -238,11 +238,13 @@ static void pm_client_set_wakeup_sources(void)
  */
 const struct pm_proc *pm_get_proc(uint32_t cpuid)
 {
+	const struct pm_proc *ret = NULL;
+
 	if (cpuid < ARRAY_SIZE(pm_procs_all)) {
-		return &pm_procs_all[cpuid];
+		ret = &pm_procs_all[cpuid];
 	}
 
-	return NULL;
+	return ret;
 }
 
 /**
@@ -254,12 +256,16 @@ const struct pm_proc *pm_get_proc(uint32_t cpuid)
  */
 static uint32_t pm_get_cpuid(enum pm_node_id nid)
 {
+	uint32_t ret = UNDEFINED_CPUID;
+
 	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
 		if (pm_procs_all[i].node_id == nid) {
-			return i;
+			ret = i;
+			break;
 		}
 	}
-	return UNDEFINED_CPUID;
+
+	return ret;
 }
 
 const struct pm_proc *primary_proc = &pm_procs_all[0];
@@ -321,28 +327,30 @@ void pm_client_abort_suspend(void)
 void pm_client_wakeup(const struct pm_proc *proc)
 {
 	uint32_t cpuid = pm_get_cpuid(proc->node_id);
+	uint32_t val;
 
-	if (cpuid == UNDEFINED_CPUID) {
-		return;
+	if (cpuid != UNDEFINED_CPUID) {
+		bakery_lock_get(&pm_client_secure_lock);
+
+		/* clear powerdown bit for affected cpu */
+		val = mmio_read_32(APU_PWRCTL);
+
+		val &= ~(proc->pwrdn_mask);
+		mmio_write_32(APU_PWRCTL, val);
+
+		bakery_lock_release(&pm_client_secure_lock);
 	}
-
-	bakery_lock_get(&pm_client_secure_lock);
-
-	/* clear powerdown bit for affected cpu */
-	uint32_t val = mmio_read_32(APU_PWRCTL);
-	val &= ~(proc->pwrdn_mask);
-	mmio_write_32(APU_PWRCTL, val);
-
-	bakery_lock_release(&pm_client_secure_lock);
 }
 
 enum pm_ret_status pm_set_suspend_mode(uint32_t mode)
 {
-	if ((mode != PM_SUSPEND_MODE_STD) &&
-	    (mode != PM_SUSPEND_MODE_POWER_OFF)) {
-		return PM_RET_ERROR_ARGS;
+	enum pm_ret_status suspend_mode_status = PM_RET_ERROR_ARGS;
+
+	if ((mode == PM_SUSPEND_MODE_STD) ||
+	    (mode == PM_SUSPEND_MODE_POWER_OFF)) {
+		suspend_mode = mode;
+		suspend_mode_status = PM_RET_SUCCESS;
 	}
 
-	suspend_mode = mode;
-	return PM_RET_SUCCESS;
+	return suspend_mode_status;
 }

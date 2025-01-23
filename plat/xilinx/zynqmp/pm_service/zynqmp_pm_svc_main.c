@@ -220,6 +220,7 @@ err:
 int32_t pm_setup(void)
 {
 	enum pm_ret_status err;
+	int32_t ret = -EINVAL;
 
 	pm_ipi_init(primary_proc);
 
@@ -227,17 +228,17 @@ int32_t pm_setup(void)
 	if (err != PM_RET_SUCCESS) {
 		ERROR("BL31: Failed to read Platform Management API version. "
 		      "Return: %d\n", err);
-		return -EINVAL;
+		goto exit_label;
 	}
 	if (pm_ctx.api_version < PM_VERSION) {
 		ERROR("BL31: Platform Management API version error. Expected: "
 		      "v%d.%d - Found: v%d.%d\n", PM_VERSION_MAJOR,
 		      PM_VERSION_MINOR, pm_ctx.api_version >> 16,
 		      pm_ctx.api_version & 0xFFFFU);
-		return -EINVAL;
+		goto exit_label;
 	}
 
-	int32_t status = 0, ret = 0;
+	int32_t status = 0;
 #if ZYNQMP_WDT_RESTART
 	status = pm_wdt_restart_setup();
 	if (status)
@@ -255,6 +256,7 @@ int32_t pm_setup(void)
 
 	pm_up = (status == 0);
 
+exit_label:
 	return ret;
 }
 

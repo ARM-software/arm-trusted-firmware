@@ -40,12 +40,14 @@ static int32_t zynqmp_nopmu_pwr_domain_on(u_register_t mpidr)
 	int32_t cluster = cpu_id / PLATFORM_CORE_COUNT_PER_CLUSTER;
 	uintptr_t apu_cluster_base = 0, apu_pcli_base, apu_pcli_cluster = 0;
 	uintptr_t rst_apu_cluster = PSX_CRF + RST_APU0_OFFSET + ((uint64_t)cluster * 0x4U);
+	int32_t ret = PSCI_E_SUCCESS;
 
 	VERBOSE("%s: mpidr: 0x%lx, cpuid: %x, cpu: %x, cluster: %x\n",
 		__func__, mpidr, cpu_id, cpu, cluster);
 
 	if (cpu_id == -1) {
-		return PSCI_E_INTERN_FAIL;
+		ret = PSCI_E_INTERN_FAIL;
+		goto exit_label;
 	}
 
 	if (cluster > 3U) {
@@ -84,7 +86,8 @@ static int32_t zynqmp_nopmu_pwr_domain_on(u_register_t mpidr)
 	mmio_write_32(apu_pcli_base + PCLI_PSTATE_OFFSET, PCLI_PSTATE_VAL_CLEAR);
 	mmio_write_32(apu_pcli_base + PCLI_PREQ_OFFSET, PREQ_CHANGE_REQUEST);
 
-	return PSCI_E_SUCCESS;
+exit_label:
+	return ret;
 }
 
 static void zynqmp_nopmu_pwr_domain_off(const psci_power_state_t *target_state)
@@ -101,13 +104,15 @@ static void __dead2 zynqmp_nopmu_system_reset(void)
 
 static int32_t zynqmp_validate_ns_entrypoint(uint64_t ns_entrypoint)
 {
+	int32_t ret = PSCI_E_INVALID_ADDRESS;
+
 	VERBOSE("Validate ns_entry point %lx\n", ns_entrypoint);
 
 	if ((ns_entrypoint) != 0U) {
-		return PSCI_E_SUCCESS;
-	} else {
-		return PSCI_E_INVALID_ADDRESS;
+		ret = PSCI_E_SUCCESS;
 	}
+
+	return ret;
 }
 
 static void zynqmp_pwr_domain_on_finish(const psci_power_state_t *target_state)
