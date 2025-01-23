@@ -22,10 +22,8 @@
 #if TARGET_FLAVOUR_FVP
 #define DPU_ADDR			4000000000
 #define DPU_IRQ				579
-#elif TARGET_FLAVOUR_FPGA
-#define DPU_ADDR			2cc00000
-#define DPU_IRQ				69
 #endif
+
 #include "tc-base.dtsi"
 
 / {

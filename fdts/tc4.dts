@@ -20,14 +20,21 @@
 #define RSE_MHU_TX_ADDR			49020000 /* hex */
 #define RSE_MHU_RX_ADDR			49030000 /* hex */
 
+#if TARGET_FLAVOUR_FVP
 #define ETHERNET_ADDR			64000000
 #define ETHERNET_INT			799
-
 #define SYS_REGS_ADDR			60080000
-
 #define MMC_ADDR			600b0000
 #define MMC_INT_0			778
 #define MMC_INT_1			779
+#else /* TARGET_FLAVOUR_FPGA */
+#define ETHERNET_ADDR			18000000
+#define ETHERNET_INT			109
+#define SYS_REGS_ADDR			1c010000
+#define MMC_ADDR			1c050000
+#define MMC_INT_0			107
+#define MMC_INT_1			108
+#endif /* TARGET_FLAVOUR_FVP */
 
 #define RTC_ADDR			600a0000
 #define RTC_INT				777
@@ -39,6 +46,11 @@
 
 #define VIRTIO_BLOCK_ADDR		60020000
 #define VIRTIO_BLOCK_INT		769
+
+#if TARGET_FLAVOUR_FPGA
+#define DPU_ADDR			4000000000
+#define DPU_IRQ				579
+#endif
 
 #include "tc-common.dtsi"
 #if TARGET_FLAVOUR_FVP
