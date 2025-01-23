@@ -117,6 +117,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	set_cnt_freq();
 
+	/* Initialize the platform config for future decision making */
+	versal_net_config_setup();
+
 	setup_console();
 
 	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),
@@ -124,8 +127,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	versal_net_setup_qos();
 
-	/* Initialize the platform config for future decision making */
-	versal_net_config_setup();
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On

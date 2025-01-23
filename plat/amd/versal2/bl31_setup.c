@@ -127,13 +127,13 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	uart_clock = get_uart_clk();
 
+	/* Initialize the platform config for future decision making */
+	config_setup();
+
 	setup_console();
 
 	NOTICE("TF-A running on %s %d.%d\n", board_name_decode(),
 	       platform_version / 10U, platform_version % 10U);
-
-	/* Initialize the platform config for future decision making */
-	config_setup();
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On

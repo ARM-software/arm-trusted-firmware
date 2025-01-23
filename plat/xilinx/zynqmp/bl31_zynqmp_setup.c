@@ -13,6 +13,7 @@
 #include <common/debug.h>
 #include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
+#include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <libfdt.h>
@@ -77,6 +78,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	(void)arg2;
 	(void)arg3;
 	uint64_t tfa_handoff_addr;
+	uint64_t counter_freq;
+
+	/* Configure counter frequency */
+	counter_freq = read_cntfrq_el0();
+	if (counter_freq == ZYNQMP_DEFAULT_COUNTER_FREQ) {
+		write_cntfrq_el0(plat_get_syscnt_freq2());
+	}
+
+	generic_delay_timer_init();
 
 	setup_console();
 
