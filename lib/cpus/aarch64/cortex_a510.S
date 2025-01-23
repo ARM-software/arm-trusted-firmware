@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <cortex_a510.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 
 /* Hardware handled coherency */
@@ -180,15 +181,14 @@ workaround_runtime_end cortex_a510, ERRATUM(2684597)
 
 check_erratum_ls cortex_a510, ERRATUM(2684597), CPU_REV(1, 2)
 
-/*
- * ERRATA_DSU_2313941 :
- * The errata is defined in dsu_helpers.S but applies to cortex_a510
- * as well. Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a510_2313941, check_errata_dsu_2313941
-.equ erratum_cortex_a510_2313941_wa, errata_dsu_2313941_wa
-add_erratum_entry cortex_a510, ERRATUM(2313941), ERRATA_DSU_2313941, APPLY_AT_RESET
+workaround_reset_start cortex_a510, ERRATUM(2313941), ERRATA_DSU_2313941
+	errata_dsu_2313941_wa_impl
+workaround_reset_end cortex_a510, ERRATUM(2313941)
+
+check_erratum_custom_start cortex_a510, ERRATUM(2313941)
+	check_errata_dsu_2313941_impl
+	ret
+check_erratum_custom_end cortex_a510, ERRATUM(2313941)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
