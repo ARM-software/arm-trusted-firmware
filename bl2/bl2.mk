@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -39,10 +39,6 @@ BL2_SOURCES		+=	bl2/${ARCH}/bl2_el3_entrypoint.S	\
 
 ifeq (${DISABLE_MTPMU},1)
 BL2_SOURCES		+=	lib/extensions/mtpmu/${ARCH}/mtpmu.S
-endif
-
-ifeq (${ARCH},aarch64)
-BL2_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S
 endif
 
 BL2_LINKERFILE		:=	bl2/bl2_el3.ld.S

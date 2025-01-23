@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <cortex_a75.h>
 #include <cpuamu.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 
 .global check_erratum_cortex_a75_764081
 
@@ -29,23 +30,23 @@ workaround_reset_end cortex_a75, ERRATUM(790748)
 
 check_erratum_ls cortex_a75, ERRATUM(790748), CPU_REV(0, 0)
 
-/* ERRATA_DSU_798953 :
- * The errata is defined in dsu_helpers.S but applies to cortex_a75
- * as well. Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a75_798953, check_errata_dsu_798953
-.equ erratum_cortex_a75_798953_wa, errata_dsu_798953_wa
-add_erratum_entry cortex_a75, ERRATUM(798953), ERRATA_DSU_798953, APPLY_AT_RESET
+workaround_reset_start cortex_a75, ERRATUM(798953), ERRATA_DSU_798953
+	errata_dsu_798953_wa_impl
+workaround_reset_end cortex_a75, ERRATUM(798953)
 
-/* ERRATA_DSU_936184 :
- * The errata is defined in dsu_helpers.S but applies to cortex_a75
- * as well. Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a75_936184, check_errata_dsu_936184
-.equ erratum_cortex_a75_936184_wa, errata_dsu_936184_wa
-add_erratum_entry cortex_a75, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
+check_erratum_custom_start cortex_a75, ERRATUM(798953)
+	check_errata_dsu_798953_impl
+	ret
+check_erratum_custom_end cortex_a75, ERRATUM(798953)
+
+workaround_reset_start cortex_a75, ERRATUM(936184), ERRATA_DSU_936184
+	errata_dsu_936184_wa_impl
+workaround_reset_end cortex_a75, ERRATUM(936184)
+
+check_erratum_custom_start cortex_a75, ERRATUM(936184)
+	check_errata_dsu_936184_impl
+	ret
+check_erratum_custom_end cortex_a75, ERRATUM(936184)
 
 workaround_reset_start cortex_a75, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #if IMAGE_BL31

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -64,7 +64,6 @@ else
 				lib/cpus/aarch64/cortex_a720.S			\
 				lib/cpus/aarch64/cortex_x3.S 			\
 				lib/cpus/aarch64/cortex_x4.S			\
-				lib/cpus/aarch64/neoverse_n_common.S		\
 				lib/cpus/aarch64/neoverse_n1.S			\
 				lib/cpus/aarch64/neoverse_n2.S			\
 				lib/cpus/aarch64/neoverse_v1.S

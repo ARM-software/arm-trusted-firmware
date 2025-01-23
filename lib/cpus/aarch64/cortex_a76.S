@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <cortex_a76.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 #include <services/arm_arch_svc.h>
 #include "wa_cve_2022_23960_bhb.S"
@@ -429,23 +430,23 @@ check_erratum_chosen cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 /* erratum has no workaround in the cpu. Generic code must take care */
 add_erratum_entry cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960, NO_APPLY_AT_RESET
 
-/* ERRATA_DSU_798953 :
- * The errata is defined in dsu_helpers.S but applies to cortex_a76
- * as well. Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a76_798953, check_errata_dsu_798953
-.equ erratum_cortex_a76_798953_wa, errata_dsu_798953_wa
-add_erratum_entry cortex_a76, ERRATUM(798953), ERRATA_DSU_798953, APPLY_AT_RESET
+workaround_reset_start cortex_a76, ERRATUM(798953), ERRATA_DSU_798953
+	errata_dsu_798953_wa_impl
+workaround_reset_end cortex_a76, ERRATUM(798953)
 
-/* ERRATA_DSU_936184 :
- * The errata is defined in dsu_helpers.S but applies to cortex_a76
- * as well. Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a76_936184, check_errata_dsu_936184
-.equ erratum_cortex_a76_936184_wa, errata_dsu_936184_wa
-add_erratum_entry cortex_a76, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
+check_erratum_custom_start cortex_a76, ERRATUM(798953)
+	check_errata_dsu_798953_impl
+	ret
+check_erratum_custom_end cortex_a76, ERRATUM(798953)
+
+workaround_reset_start cortex_a76, ERRATUM(936184), ERRATA_DSU_936184
+	errata_dsu_936184_wa_impl
+workaround_reset_end cortex_a76, ERRATUM(936184)
+
+check_erratum_custom_start cortex_a76, ERRATUM(936184)
+	check_errata_dsu_936184_impl
+	ret
+check_erratum_custom_end cortex_a76, ERRATUM(936184)
 
 cpu_reset_func_start cortex_a76
 
