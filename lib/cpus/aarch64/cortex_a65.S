@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,20 +22,18 @@
 #error "Cortex-A65 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-/* -------------------------------------------------
- * The CPU Ops reset function for Cortex-A65.
- * Shall clobber: x0-x19
- * -------------------------------------------------
+/*
+ * ERRATA_DSU_936184:
+ * The errata is defined in dsu_helpers.S and applies to neoverse_e1.
+ * Henceforth creating symbolic names to the already existing errata
+ * workaround functions to get them registered under the Errata Framework.
  */
-func cortex_a65_reset_func
-	mov	x19, x30
+.equ check_erratum_neoverse_e1_936184, check_errata_dsu_936184
+.equ erratum_neoverse_e1_936184_wa, errata_dsu_936184_wa
+add_erratum_entry neoverse_e1, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
 
-#if ERRATA_DSU_936184
-	bl	errata_dsu_936184_wa
-#endif
-
-	ret	x19
-endfunc cortex_a65_reset_func
+cpu_reset_func_start cortex_a65
+cpu_reset_func_end cortex_a65
 
 func cortex_a65_cpu_pwr_dwn
 	mrs	x0, CORTEX_A65_CPUPWRCTLR_EL1
