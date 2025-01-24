@@ -51,6 +51,8 @@ Maintainers
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
 
+.. _lts maintainers:
+
 LTS Maintainers
 ---------------
 
