@@ -71,6 +71,10 @@ LTS Maintainers
 :|G|: `vwadekar`_
 :|M|: Yann Gautier <yann.gautier@st.com>
 :|G|: `Yann-lms`_
+:|M|: Chris Palmer <palmer@google.com>
+:|G|: `noncombatant`_
+:|M|: Govindraj Raja <govindraj.raja@arm.com>
+:|G|: `govindraj-arm`_
 
 .. _code owners:
 
@@ -980,6 +984,8 @@ Conventional Changelog Extensions
 .. _jason-ch-chen: https://github.com/jason-ch-chen
 .. _linyidi: https://github.com/linyidi
 .. _niej: https://github.com/niej
+.. _noncombatant: https://github.com/noncombatant
+.. _govindraj-arm: https://github.com/govindraj-arm
 .. _npoushin: https://github.com/npoushin
 .. _prabhakarlad: https://github.com/prabhakarlad
 .. _quic_mkf: https://github.com/quicmkf
