@@ -29,8 +29,7 @@
         wa_cve_2022_23960_bhb_vector_table CORTEX_X4_BHB_LOOP_COUNT, cortex_x4
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-workaround_runtime_start cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228, CORTEX_X4_MIDR
-workaround_runtime_end cortex_x4, ERRATUM(2726228)
+add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228, NO_APPLY_AT_RESET
 
 check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
 

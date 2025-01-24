@@ -11,7 +11,6 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
-/* .global erratum_cortex_a520_2938996_wa */
 .global check_erratum_cortex_a520_2938996
 
 /* Hardware handled coherency */
@@ -36,8 +35,7 @@ workaround_reset_end cortex_a520, ERRATUM(2858100)
 
 check_erratum_ls cortex_a520, ERRATUM(2858100), CPU_REV(0, 1)
 
-workaround_runtime_start cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996, CORTEX_A520_MIDR
-workaround_runtime_end cortex_a520, ERRATUM(2938996)
+add_erratum_entry cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996, NO_APPLY_AT_RESET
 
 check_erratum_ls cortex_a520, ERRATUM(2938996), CPU_REV(0, 1)
 
