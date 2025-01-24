@@ -1,19 +1,24 @@
 #
-# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# RME_GPT_BITLOCK_BLOCK is the number of 512MB blocks
+# per bit and the value must be power of 2.
+BITLOCK_BLOCK_POWER_2=$(shell echo $$(( ${RME_GPT_BITLOCK_BLOCK} & (${RME_GPT_BITLOCK_BLOCK} - 1) )))
+
 # Process RME_GPT_BITLOCK_BLOCK value
-ifeq ($(filter 0 1 2 4 8 16 32 64 128 256 512, ${RME_GPT_BITLOCK_BLOCK}),)
-    $(error "Invalid value for RME_GPT_BITLOCK_BLOCK: ${RME_GPT_BITLOCK_BLOCK}")
+ifneq (${BITLOCK_BLOCK_POWER_2}, 0)
+    $(error "RME_GPT_BITLOCK_BLOCK must be power of 2. Invalid value ${RME_GPT_BITLOCK_BLOCK}.")
 endif
 
 ifeq (${RME_GPT_BITLOCK_BLOCK},0)
-    $(warning "GPT library uses global spinlock")
+    $(info "GPT library uses global spinlock")
 endif
 
-# Process RME_GPT_MAX_BLOCK value
+# Process the maximum size of supported contiguous blocks
+# RME_GPT_MAX_BLOCK
 ifeq ($(filter 0 2 32 512, ${RME_GPT_MAX_BLOCK}),)
     $(error "Invalid value for RME_GPT_MAX_BLOCK: ${RME_GPT_MAX_BLOCK}")
 endif

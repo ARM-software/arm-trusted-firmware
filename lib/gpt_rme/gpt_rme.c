@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,13 +12,12 @@
 
 #include <arch.h>
 #include <arch_features.h>
-#include <arch_helpers.h>
 #include <common/debug.h>
-#include "gpt_rme_private.h"
 #include <lib/gpt_rme/gpt_rme.h>
 #include <lib/smccc.h>
-#include <lib/spinlock.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+
+#include "gpt_rme_private.h"
 
 #if !ENABLE_RME
 #error "ENABLE_RME must be enabled to use the GPT library"
@@ -123,25 +122,19 @@ static uint64_t gpt_l1_index_mask;
 #define GPT_L1_INDEX(_pa)	\
 	(((_pa) >> (unsigned int)GPT_L1_IDX_SHIFT(gpt_config.p)) & gpt_l1_index_mask)
 
-/* These variables are used during initialization of the L1 tables */
+/* This variable is used during initialization of the L1 tables */
 static uintptr_t gpt_l1_tbl;
 
-/* These variable is used during runtime */
+/* These variables are used during runtime */
 #if (RME_GPT_BITLOCK_BLOCK == 0)
 /*
  * The GPTs are protected by a global spinlock to ensure
  * that multiple CPUs do not attempt to change the descriptors at once.
  */
 static spinlock_t gpt_lock;
-#else
 
-/* Bitlocks base address */
-static bitlock_t *gpt_bitlock_base;
-#endif
-
-/* Lock/unlock macros for GPT entries */
-#if (RME_GPT_BITLOCK_BLOCK == 0)
-/*
+/* Lock/unlock macros for GPT entries
+ *
  * Access to GPT is controlled by a global lock to ensure
  * that no more than one CPU is allowed to make changes at any
  * given time.
@@ -149,13 +142,17 @@ static bitlock_t *gpt_bitlock_base;
 #define GPT_LOCK	spin_lock(&gpt_lock)
 #define GPT_UNLOCK	spin_unlock(&gpt_lock)
 #else
+
+/* Base address of bitlocks array */
+static bitlock_t *gpt_bitlock;
+
 /*
  * Access to a block of memory is controlled by a bitlock.
  * Size of block = RME_GPT_BITLOCK_BLOCK * 512MB.
  */
 #define GPT_LOCK	bit_lock(gpi_info.lock, gpi_info.mask)
 #define GPT_UNLOCK	bit_unlock(gpi_info.lock, gpi_info.mask)
-#endif
+#endif /* RME_GPT_BITLOCK_BLOCK */
 
 static void tlbi_page_dsbosh(uintptr_t base)
 {
@@ -494,8 +491,8 @@ static int validate_pas_mappings(pas_region_t *pas_regions,
  * This function validates L0 initialization parameters.
  *
  * Parameters
- *   l0_mem_base	Base address of memory used for L0 tables.
- *   l0_mem_size	Size of memory available for L0 tables.
+ *   l0_mem_base	Base address of memory used for L0 table.
+ *   l0_mem_size	Size of memory available for L0 table.
  *
  * Return
  *   Negative Linux error code in the event of a failure, 0 for success.
@@ -503,7 +500,7 @@ static int validate_pas_mappings(pas_region_t *pas_regions,
 static int validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
 				size_t l0_mem_size)
 {
-	size_t l0_alignment, locks_size = 0;
+	size_t l0_alignment;
 
 	/*
 	 * Make sure PPS is valid and then store it since macros need this value
@@ -516,8 +513,8 @@ static int validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
 	gpt_config.pps = pps;
 	gpt_config.t = gpt_t_lookup[pps];
 
-	/* Alignment must be the greater of 4KB or l0 table size */
-	l0_alignment = PAGE_SIZE_4KB;
+	/* Alignment must be the greater of 4KB or L0 table size */
+	l0_alignment = SZ_4K;
 	if (l0_alignment < GPT_L0_TABLE_SIZE(gpt_config.t)) {
 		l0_alignment = GPT_L0_TABLE_SIZE(gpt_config.t);
 	}
@@ -529,28 +526,11 @@ static int validate_l0_params(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		return -EFAULT;
 	}
 
-#if (RME_GPT_BITLOCK_BLOCK != 0)
-	/*
-	 * Size of bitlocks in bytes for the protected address space
-	 * with RME_GPT_BITLOCK_BLOCK * 512MB per bitlock.
-	 */
-	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) /
-			(RME_GPT_BITLOCK_BLOCK * SZ_512M * 8U);
-
-	/*
-	 * If protected space size is less than the size covered
-	 * by 'bitlock' structure, check for a single bitlock.
-	 */
-	if (locks_size < LOCK_SIZE) {
-		locks_size = LOCK_SIZE;
-	}
-#endif
-	/* Check size for L0 tables and bitlocks */
-	if (l0_mem_size < (GPT_L0_TABLE_SIZE(gpt_config.t) + locks_size)) {
+	/* Check memory size for L0 table */
+	if (l0_mem_size < GPT_L0_TABLE_SIZE(gpt_config.t)) {
 		ERROR("GPT: Inadequate L0 memory\n");
-		ERROR("      Expected 0x%lx bytes, got 0x%lx bytes\n",
-			GPT_L0_TABLE_SIZE(gpt_config.t) + locks_size,
-			l0_mem_size);
+		ERROR("      Expected 0x%lx bytes, got 0x%lx\n",
+				GPT_L0_TABLE_SIZE(gpt_config.t), l0_mem_size);
 		return -ENOMEM;
 	}
 
@@ -600,7 +580,7 @@ static int validate_l1_params(uintptr_t l1_mem_base, size_t l1_mem_size,
 	if (l1_mem_size < l1_gpt_mem_sz) {
 		ERROR("%sL1 GPTs%s", (const char *)"GPT: Inadequate ",
 			(const char *)" memory\n");
-		ERROR("      Expected 0x%lx bytes, got 0x%lx bytes\n",
+		ERROR("      Expected 0x%lx bytes, got 0x%lx\n",
 			l1_gpt_mem_sz, l1_mem_size);
 		return -ENOMEM;
 	}
@@ -623,7 +603,7 @@ static void generate_l0_blk_desc(pas_region_t *pas)
 	unsigned long idx, end_idx;
 	uint64_t *l0_gpt_arr;
 
-	assert(gpt_config.plat_gpt_l0_base != 0U);
+	assert(gpt_config.plat_gpt_l0_base != 0UL);
 	assert(pas != NULL);
 
 	/*
@@ -928,7 +908,7 @@ static void generate_l0_tbl_desc(pas_region_t *pas)
 	uint64_t *l1_gpt_arr;
 	unsigned int l0_idx, gpi;
 
-	assert(gpt_config.plat_gpt_l0_base != 0U);
+	assert(gpt_config.plat_gpt_l0_base != 0UL);
 	assert(pas != NULL);
 
 	/*
@@ -1121,12 +1101,10 @@ int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		       size_t l0_mem_size)
 {
 	uint64_t gpt_desc;
-	size_t locks_size = 0;
-	__unused bitlock_t *bit_locks;
 	int ret;
 
 	/* Ensure that MMU and Data caches are enabled */
-	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
 
 	/* Validate other parameters */
 	ret = validate_l0_params(pps, l0_mem_base, l0_mem_size);
@@ -1142,31 +1120,8 @@ int gpt_init_l0_tables(gpccr_pps_e pps, uintptr_t l0_mem_base,
 		((uint64_t *)l0_mem_base)[i] = gpt_desc;
 	}
 
-#if (RME_GPT_BITLOCK_BLOCK != 0)
-	/* Initialise bitlocks at the end of L0 table */
-	bit_locks = (bitlock_t *)(l0_mem_base +
-					GPT_L0_TABLE_SIZE(gpt_config.t));
-
-	/* Size of bitlocks in bytes */
-	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) /
-					(RME_GPT_BITLOCK_BLOCK * SZ_512M * 8U);
-
-	/*
-	 * If protected space size is less than the size covered
-	 * by 'bitlock' structure, initialise a single bitlock.
-	 */
-	if (locks_size < LOCK_SIZE) {
-		locks_size = LOCK_SIZE;
-	}
-
-	for (size_t i = 0UL; i < (locks_size/LOCK_SIZE); i++) {
-		bit_locks[i].lock = 0U;
-	}
-#endif
-
-	/* Flush updated L0 tables and bitlocks to memory */
-	flush_dcache_range((uintptr_t)l0_mem_base,
-				GPT_L0_TABLE_SIZE(gpt_config.t) + locks_size);
+	/* Flush updated L0 table to memory */
+	flush_dcache_range((uintptr_t)l0_mem_base, GPT_L0_TABLE_SIZE(gpt_config.t));
 
 	/* Stash the L0 base address once initial setup is complete */
 	gpt_config.plat_gpt_l0_base = l0_mem_base;
@@ -1202,7 +1157,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 	int l1_gpt_cnt, ret;
 
 	/* Ensure that MMU and Data caches are enabled */
-	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
 
 	/* PGS is needed for validate_pas_mappings so check it now */
 	if (pgs > GPT_PGS_MAX) {
@@ -1213,7 +1168,7 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
 	gpt_config.p = gpt_p_lookup[pgs];
 
 	/* Make sure L0 tables have been initialized */
-	if (gpt_config.plat_gpt_l0_base == 0U) {
+	if (gpt_config.plat_gpt_l0_base == 0UL) {
 		ERROR("GPT: L0 tables must be initialized first!\n");
 		return -EPERM;
 	}
@@ -1295,18 +1250,23 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs, uintptr_t l1_mem_base,
  * initialization from a previous stage. Granule protection checks must be
  * enabled already or this function will return an error.
  *
+ * Parameters
+ *   l1_bitlocks_base	Base address of memory for L1 tables bitlocks.
+ *   l1_bitlocks_size	Total size of memory available for L1 tables bitlocks.
+ *
  * Return
  *   Negative Linux error code in the event of a failure, 0 for success.
  */
-int gpt_runtime_init(void)
+int gpt_runtime_init(uintptr_t l1_bitlocks_base, size_t l1_bitlocks_size)
 {
 	u_register_t reg;
+	__unused size_t locks_size;
 
 	/* Ensure that MMU and Data caches are enabled */
-	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0UL);
 
 	/* Ensure GPC are already enabled */
-	if ((read_gpccr_el3() & GPCCR_GPC_BIT) == 0U) {
+	if ((read_gpccr_el3() & GPCCR_GPC_BIT) == 0UL) {
 		ERROR("GPT: Granule protection checks are not enabled!\n");
 		return -EPERM;
 	}
@@ -1334,17 +1294,43 @@ int gpt_runtime_init(void)
 	gpt_l1_index_mask = GPT_L1_IDX_MASK(gpt_config.p);
 
 #if (RME_GPT_BITLOCK_BLOCK != 0)
-	/* Bitlocks at the end of L0 table */
-	gpt_bitlock_base = (bitlock_t *)(gpt_config.plat_gpt_l0_base +
-					GPT_L0_TABLE_SIZE(gpt_config.t));
-#endif
+	/*
+	 * Size of GPT bitlocks in bytes for the protected address space
+	 * with RME_GPT_BITLOCK_BLOCK * 512MB per bitlock.
+	 */
+	locks_size = GPT_PPS_ACTUAL_SIZE(gpt_config.t) /
+			(RME_GPT_BITLOCK_BLOCK * SZ_512M * 8U);
+	/*
+	 * If protected space size is less than the size covered
+	 * by 'bitlock' structure, check for a single bitlock.
+	 */
+	if (locks_size < LOCK_SIZE) {
+		locks_size = LOCK_SIZE;
+	/* Check bitlocks array size */
+	} else if (locks_size > l1_bitlocks_size) {
+		ERROR("GPT: Inadequate GPT bitlocks memory\n");
+		ERROR("      Expected 0x%lx bytes, got 0x%lx\n",
+			locks_size, l1_bitlocks_size);
+		return -ENOMEM;
+	}
+
+	gpt_bitlock = (bitlock_t *)l1_bitlocks_base;
+
+	/* Initialise GPT bitlocks */
+	(void)memset((void *)gpt_bitlock, 0, locks_size);
+
+	/* Flush GPT bitlocks to memory */
+	flush_dcache_range((uintptr_t)gpt_bitlock, locks_size);
+#endif /* RME_GPT_BITLOCK_BLOCK */
+
 	VERBOSE("GPT: Runtime Configuration\n");
 	VERBOSE("  PPS/T:     0x%x/%u\n", gpt_config.pps, gpt_config.t);
 	VERBOSE("  PGS/P:     0x%x/%u\n", gpt_config.pgs, gpt_config.p);
 	VERBOSE("  L0GPTSZ/S: 0x%x/%u\n", GPT_L0GPTSZ, GPT_S_VAL);
 	VERBOSE("  L0 base:   0x%"PRIxPTR"\n", gpt_config.plat_gpt_l0_base);
 #if (RME_GPT_BITLOCK_BLOCK != 0)
-	VERBOSE("  Bitlocks:  0x%"PRIxPTR"\n", (uintptr_t)gpt_bitlock_base);
+	VERBOSE("  Bitlocks:  0x%"PRIxPTR"/0x%lx\n", (uintptr_t)gpt_bitlock,
+					locks_size);
 #endif
 	return 0;
 }
@@ -1391,7 +1377,7 @@ static int get_gpi_params(uint64_t base, gpi_info_t *gpi_info)
 	block_idx = (unsigned int)(base / (RME_GPT_BITLOCK_BLOCK * SZ_512M));
 
 	/* Bitlock address and mask */
-	gpi_info->lock = &gpt_bitlock_base[block_idx / LOCK_BITS];
+	gpi_info->lock = &gpt_bitlock[block_idx / LOCK_BITS];
 	gpi_info->mask = 1U << (block_idx & (LOCK_BITS - 1U));
 #endif
 	return 0;

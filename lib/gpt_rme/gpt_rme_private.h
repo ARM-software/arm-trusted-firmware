@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,9 +7,7 @@
 #ifndef GPT_RME_PRIVATE_H
 #define GPT_RME_PRIVATE_H
 
-#include <arch.h>
 #include <lib/gpt_rme/gpt_rme.h>
-#include <lib/spinlock.h>
 #include <lib/utils_def.h>
 
 /******************************************************************************/
@@ -140,10 +138,6 @@ typedef enum {
 	PGS_16KB_P =	14U,
 	PGS_64KB_P =	16U
 } gpt_p_val_e;
-
-#define LOCK_SIZE	sizeof(((bitlock_t *)NULL)->lock)
-#define LOCK_TYPE	typeof(((bitlock_t *)NULL)->lock)
-#define LOCK_BITS	(LOCK_SIZE * 8U)
 
 /*
  * Internal structure to retrieve the values from get_gpi_params();

@@ -124,10 +124,7 @@ Level 0 and Level 1 Tables
 
 The GPT initialization APIs require memory to be passed in for the tables to be
 constructed. The ``gpt_init_l0_tables`` API takes a memory address and size for
-building the level 0 tables and also memory for allocating the fine-grained bitlock
-data structure. The amount of memory needed for bitlock structure is controlled via
-``RME_GPT_BITLOCK_BLOCK`` config which defines the block size for each bit of the
-the bitlock.
+building the level 0 tables.
 
 The ``gpt_init_pas_l1_tables`` API takes an address and size for
 building the level 1 tables which are linked from level 0 descriptors. The
@@ -156,7 +153,7 @@ Locking Scheme
 During Granule Transition access to L1 tables is controlled by a lock to ensure
 that no more than one CPU is allowed to make changes at any given time.
 The granularity of the lock is defined by ``RME_GPT_BITLOCK_BLOCK`` build option
-which defines the size of the memory block protected by one bit of ``bitlock``
+which defines the size of the memory block protected by one bit of ``bitlock_t``
 structure. Setting this option to 0 chooses a single spinlock for all GPT L1
 table entries.
 
@@ -185,6 +182,10 @@ process.
 #. In systems that make use of the granule transition service, runtime
    firmware must call ``gpt_runtime_init`` to set up the data structures needed
    by the GTSI to find the tables and transition granules between PAS types.
+   The base address of bitlocks array and its size are provided to this function
+   as arguments. These parameters are not used in case of a single spinlock for
+   all GPT L1 table entries(``RME_GPT_BITLOCK_BLOCK`` is 0) and are passed as zero
+   values.
 
 API Constraints
 ~~~~~~~~~~~~~~~
@@ -225,9 +226,6 @@ The L0 table memory has some constraints that must be taken into account.
   is greater. L0 table size is the total protected space (PPS) divided by the
   size of each L0 region (L0GPTSZ) multiplied by the size of each L0 descriptor
   (8 bytes). ((PPS / L0GPTSZ) * 8)
-* The L0 memory size must be greater than the table size and have enough space
-  to allocate array of ``bitlock`` structures at the end of L0 table if
-  required (``RME_GPT_BITLOCK_BLOCK`` is not 0).
 * The L0 memory must fall within a PAS of type GPT_GPI_ROOT.
 
 The L1 memory also has some constraints.
@@ -237,6 +235,10 @@ The L1 memory also has some constraints.
   the granules controlled in each byte (2). ((L0GPTSZ / PGS) / 2)
 * There must be enough L1 memory supplied to build all requested L1 tables.
 * The L1 memory must fall within a PAS of type GPT_GPI_ROOT.
+* The platform allocates the bitlock array which contains fine-grained
+  ``bitlock_t`` data structures. The RME GPT library will check that the array
+  has at least the amount of memory defined by PPS and ``RME_GPT_BITLOCK_BLOCK``
+  value.
 
 If an invalid combination of parameters is supplied, the APIs will print an
 error message and return a negative value. The return values of APIs should be
@@ -245,7 +247,7 @@ checked to ensure successful configuration.
 Sample Calculation for L0 memory size and alignment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let PPS=GPCCR_PPS_4GB and L0GPTSZ=GPCCR_L0GPTSZ_30BITS
+Let PPS=4GB and L0GPTSZ=GPCCR_L0GPTSZ_30BITS
 
 We can find the total L0 table size with ((PPS / L0GPTSZ) * 8)
 
@@ -254,19 +256,19 @@ Substitute values to get this: ((0x100000000 / 0x40000000) * 8)
 And solve to get 32 bytes. In this case, 4096 is greater than 32, so the L0
 tables must be aligned to 4096 bytes.
 
-Sample calculation for bitlock array size
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sample calculation for bitlocks array size
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let PGS=GPCCR_PPS_256TB and RME_GPT_BITLOCK_BLOCK=1
+Let PPS=256TB and RME_GPT_BITLOCK_BLOCK=1
 
-The size of bit lock array in bits is the total protected space (PPS) divided
+The size of bitlocks array in bits is the total protected space (PPS) divided
 by the size of memory block per bit. The size of memory block
 is ``RME_GPT_BITLOCK_BLOCK`` (number of 512MB blocks per bit) times
-512MB (0x20000000). This is then divided by the number of bits in ``bitlock``
-structure (8) to get the size of bit array in bytes.
+512MB (0x20000000). This is then divided by the number of bits in ``bitlock_t``
+structure (8) to get the size of array in bytes.
 
-In other words, we can find the total size of ``bitlock`` array
-in bytes with PPS / (RME_GPT_BITLOCK_BLOCK * 0x20000000 *  8).
+In other words, we can find the total size of ``bitlock_t`` array
+in bytes with PPS / (RME_GPT_BITLOCK_BLOCK * 0x20000000 * 8).
 
 Substitute values to get this: 0x1000000000000 / (1 * 0x20000000 * 8)
 
