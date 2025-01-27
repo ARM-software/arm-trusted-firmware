@@ -193,6 +193,7 @@ define TOOL_ADD_PAYLOAD
 ifneq ($(5),)
     $(4)FIP_ARGS += $(2) $(5)
     $(if $(3),$(4)CRT_DEPS += $(1))
+    $(if $(3),$(4)FIP_DEPS += $(5))
 else
     $(4)FIP_ARGS += $(2) $(1)
     $(if $(3),$(4)CRT_DEPS += $(3))
