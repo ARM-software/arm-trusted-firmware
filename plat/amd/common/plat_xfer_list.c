@@ -45,6 +45,9 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 					continue;
 				case SECURE:
 					*bl32 = *ep;
+					if (!transfer_list_set_handoff_args(tl_hdr, ep)) {
+						ERROR("Invalid transfer list\n");
+					}
 					continue;
 				default:
 					ERROR("Unrecognized Image Security State %lu\n",
