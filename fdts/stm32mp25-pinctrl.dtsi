@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause)
 /*
- * Copyright (C) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2023-2025, STMicroelectronics - All Rights Reserved
  * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for STMicroelectronics.
  */
 #include <dt-bindings/pinctrl/stm32-pinfunc.h>
@@ -38,6 +38,26 @@
 	};
 
 	/omit-if-no-ref/
+	sdmmc1_b4_pins_b: sdmmc1-b4-1 {
+		pins1 {
+			pinmux = <STM32_PINMUX('E', 4, AF10)>, /* SDMMC1_D0 */
+				 <STM32_PINMUX('E', 5, AF10)>, /* SDMMC1_D1 */
+				 <STM32_PINMUX('E', 0, AF10)>, /* SDMMC1_D2 */
+				 <STM32_PINMUX('E', 1, AF10)>, /* SDMMC1_D3 */
+				 <STM32_PINMUX('E', 2, AF10)>; /* SDMMC1_CMD */
+			slew-rate = <1>;
+			drive-push-pull;
+			bias-disable;
+		};
+		pins2 {
+			pinmux = <STM32_PINMUX('E', 3, AF10)>; /* SDMMC1_CK */
+			slew-rate = <2>;
+			drive-push-pull;
+			bias-disable;
+		};
+	};
+
+	/omit-if-no-ref/
 	sdmmc2_b4_pins_a: sdmmc2-b4-0 {
 		pins1 {
 			pinmux = <STM32_PINMUX('E', 13, AF12)>, /* SDMMC2_D0 */
@@ -45,13 +65,13 @@
 				 <STM32_PINMUX('E', 8, AF12)>, /* SDMMC2_D2 */
 				 <STM32_PINMUX('E', 12, AF12)>, /* SDMMC2_D3 */
 				 <STM32_PINMUX('E', 15, AF12)>; /* SDMMC2_CMD */
-			slew-rate = <2>;
+			slew-rate = <1>;
 			drive-push-pull;
 			bias-pull-up;
 		};
 		pins2 {
 			pinmux = <STM32_PINMUX('E', 14, AF12)>; /* SDMMC2_CK */
-			slew-rate = <3>;
+			slew-rate = <2>;
 			drive-push-pull;
 			bias-pull-up;
 		};
@@ -64,7 +84,7 @@
 				 <STM32_PINMUX('E', 9, AF12)>, /* SDMMC2_D5 */
 				 <STM32_PINMUX('E', 6, AF12)>, /* SDMMC2_D6 */
 				 <STM32_PINMUX('E', 7, AF12)>; /* SDMMC2_D7 */
-			slew-rate = <2>;
+			slew-rate = <1>;
 			drive-push-pull;
 			bias-pull-up;
 		};

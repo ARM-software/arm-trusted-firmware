@@ -1,0 +1,206 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (C) STMicroelectronics 2025 - All Rights Reserved
+ * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for STMicroelectronics.
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/clock/stm32mp25-clksrc.h>
+#include "stm32mp257.dtsi"
+#include "stm32mp25xf.dtsi"
+#include "stm32mp257f-dk-ca35tdcid-rcc.dtsi"
+#include "stm32mp25-lpddr4-1x32Gbits-1x32bits-1200MHz.dtsi"
+#include "stm32mp25-pinctrl.dtsi"
+#include "stm32mp25xxal-pinctrl.dtsi"
+
+/ {
+	model = "STMicroelectronics STM32MP257F-DK Discovery Board";
+	compatible = "st,stm32mp257f-dk", "st,stm32mp257";
+
+	aliases {
+		serial0 = &usart2;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x0 0x80000000 0x1 0x00000000>;
+	};
+
+	shadow-prov {
+		compatible = "st,provisioning";
+
+		hconf1_prov {
+			nvmem-cells = <&hconf1_otp>;
+			st,shadow-value = <0x00018000>;
+		};
+	};
+};
+
+&bsec {
+	board_id: board-id@3d8 {
+		reg = <0x3d8 0x4>;
+	};
+};
+
+&ddr {
+	vdd1-supply = <&vdd1_ddr>;
+	vdd2-supply = <&vdd2_ddr>;
+	vddq-supply = <&vdd2_ddr>;
+};
+
+&i2c7 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c7_pins_a>;
+	i2c-scl-rising-time-ns = <185>;
+	i2c-scl-falling-time-ns = <20>;
+	clock-frequency = <400000>;
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	pmic2: stpmic@33 {
+		compatible = "st,stpmic2";
+		reg = <0x33>;
+		status = "okay";
+
+		regulators {
+			compatible = "st,stpmic2-regulators";
+
+			vddcpu: buck1 {
+				regulator-name = "vddcpu";
+				regulator-min-microvolt = <800000>;
+				regulator-max-microvolt = <910000>;
+				regulator-always-on;
+			};
+			vddcore: buck2 {
+				regulator-name = "vddcore";
+				regulator-min-microvolt = <820000>;
+				regulator-max-microvolt = <820000>;
+				regulator-always-on;
+			};
+			vddgpu: buck3 {
+				regulator-name = "vddgpu";
+				regulator-min-microvolt = <800000>;
+				regulator-max-microvolt = <900000>;
+				regulator-always-on;
+			};
+			vddio_pmic: buck4 {
+				regulator-name = "vddio_pmic";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+			v1v8: buck5 {
+				regulator-name = "v1v8";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+			};
+			vdd2_ddr: buck6 {
+				regulator-name = "vdd2_ddr";
+				regulator-min-microvolt = <1100000>;
+				regulator-max-microvolt = <1100000>;
+			};
+			v3v3: buck7 {
+				regulator-name = "v3v3";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+			vdda1v8_aon: ldo1 {
+				regulator-name = "vdda1v8_aon";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+			};
+			vdd_emmc: ldo2 {
+				regulator-name = "vdd_emmc";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+			vdd1_ddr: ldo3 {
+				regulator-name = "vdd1_ddr";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-enable-ramp-delay = <1000>;
+			};
+			vdd3v3_usb: ldo4 {
+				regulator-name = "vdd3v3_usb";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+			v5v_hdmi: ldo5 {
+				regulator-name = "v5v_hdmi";
+				regulator-min-microvolt = <2000000>;
+				regulator-max-microvolt = <2000000>;
+			};
+			vdd_sdcard: ldo7 {
+				regulator-name = "vdd_sdcard";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+			vddio_sdcard: ldo8 {
+				regulator-name = "vddio_sdcard";
+				st,regulator-bypass-microvolt = <3300000>;
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+		};
+	};
+};
+
+&pwr {
+	vddio1: vddio1 {
+		vddio1-supply = <&vddio_sdcard>;
+	};
+	vddio2: vddio2 {
+		vddio2-supply = <&v1v8>;
+	};
+	vddio3: vddio3 {
+		vddio3-supply = <&vddio_pmic>;
+	};
+	vddio4: vddio4 {
+		vddio4-supply = <&vddio_pmic>;
+	};
+	vddio: vddio {
+		vdd-supply = <&vddio_pmic>;
+	};
+};
+
+&sdmmc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc1_b4_pins_b>;
+	st,neg-edge;
+	bus-width = <4>;
+	vmmc-supply = <&vdd_sdcard>;
+	vqmmc-supply = <&vddio1>;
+	status = "okay";
+};
+
+&sdmmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_a>;
+	non-removable;
+	no-sd;
+	no-sdio;
+	st,neg-edge;
+	bus-width = <8>;
+	vmmc-supply = <&vdd_emmc>;
+	vqmmc-supply = <&vddio2>;
+	status = "okay";
+};
+
+&usart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usart2_pins_a>;
+	status = "okay";
+};
