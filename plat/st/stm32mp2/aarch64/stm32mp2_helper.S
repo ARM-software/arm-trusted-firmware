@@ -90,19 +90,19 @@ endfunc plat_my_core_pos
 func plat_crash_console_init
 	/* Reset UART peripheral */
 	mov_imm	x1, (RCC_BASE + DEBUG_UART_RST_REG)
-	ldr	x2, =DEBUG_UART_RST_BIT
-	ldr	x0, [x1]
-	orr	x0, x0, x2
-	str	x0, [x1]
+	ldr	w2, =DEBUG_UART_RST_BIT
+	ldr	w0, [x1]
+	orr	w0, w0, w2
+	str	w0, [x1]
 1:
-	ldr	x0, [x1]
-	tst	x0, #DEBUG_UART_RST_BIT
+	ldr	w0, [x1]
+	tst	w0, #DEBUG_UART_RST_BIT
 	beq	1b
-	bic	x0, x0, #DEBUG_UART_RST_BIT
-	str	x0, [x1]
+	bic	w0, w0, #DEBUG_UART_RST_BIT
+	str	w0, [x1]
 2:
-	ldr	x0, [x1]
-	tst	x0, #DEBUG_UART_RST_BIT
+	ldr	w0, [x1]
+	tst	w0, #DEBUG_UART_RST_BIT
 	bne	2b
 	/* Enable GPIOs for UART TX */
 	mov_imm	x1, (RCC_BASE + DEBUG_UART_TX_GPIO_BANK_CLK_REG)
