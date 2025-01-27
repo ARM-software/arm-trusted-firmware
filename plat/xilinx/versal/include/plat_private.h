@@ -42,6 +42,6 @@ uint32_t versal_calc_core_pos(u_register_t mpidr);
  * Register handler to specific GIC entrance
  * for INTR_TYPE_EL3 type of interrupt
  */
-int32_t request_intr_type_el3(uint32_t irq, interrupt_type_handler_t fiq_handler);
+int request_intr_type_el3(uint32_t irq, interrupt_type_handler_t fiq_handler);
 
 #endif /* PLAT_PRIVATE_H */

@@ -154,7 +154,7 @@ int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 {
 	static uint32_t index;
 	uint32_t i;
-	int32_t ret = 0;
+	int ret = 0;
 
 	/* Validate 'handler' and 'id' parameters */
 	if ((handler == NULL) || (index >= MAX_INTR_EL3)) {
