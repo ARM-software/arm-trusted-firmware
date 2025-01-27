@@ -1,4 +1,4 @@
-# Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -153,4 +153,7 @@ override ENABLE_FEAT_AMU	:= 2
 override ENABLE_SVE_FOR_SWD	:= 1
 override ENABLE_SVE_FOR_NS	:= 2
 override ENABLE_FEAT_MTE2	:= 2
+
+# FEAT_SVE related flags
+override SVE_VECTOR_LEN		:= 128
 override CTX_INCLUDE_SVE_REGS	:= 1

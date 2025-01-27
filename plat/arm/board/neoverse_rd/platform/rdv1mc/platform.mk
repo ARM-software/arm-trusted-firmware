@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -71,6 +71,9 @@ $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 override CTX_INCLUDE_AARCH32_REGS	:= 0
 override ENABLE_FEAT_AMU		:= 2
 override SPMD_SPM_AT_SEL2		:= 0
+
+# FEAT_SVE related flags
+override SVE_VECTOR_LEN			:= 256
 
 ifneq ($(NRD_PLATFORM_VARIANT),0)
  $(error "NRD_PLATFORM_VARIANT for RD-V1-MC should always be 0, \
