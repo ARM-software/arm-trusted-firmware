@@ -19,6 +19,7 @@
 #include <services/std_svc.h>
 
 #include <gpc.h>
+#include <imx_sip_svc.h>
 #include <platform_def.h>
 
 #define FSL_SIP_CONFIG_GPC_MASK		U(0x00)

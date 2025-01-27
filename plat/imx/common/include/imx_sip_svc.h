@@ -7,6 +7,8 @@
 #ifndef __IMX_SIP_SVC_H__
 #define __IMX_SIP_SVC_H__
 
+#include <smccc_helpers.h>
+
 /* SMC function IDs for SiP Service queries */
 #define IMX_SIP_GPC			0xC2000000
 
@@ -88,7 +90,8 @@ int imx_src_handler(uint32_t smc_fid, u_register_t x1,
 		    u_register_t x2, u_register_t x3, void *handle);
 #endif
 
-#if defined(PLAT_imx8mm) || defined(PLAT_imx8mn) || defined(PLAT_imx8mp)
+#if defined(PLAT_imx8mm) || defined(PLAT_imx8mn) || defined(PLAT_imx8mp) || \
+	defined(PLAT_imx8mq)
 int imx_hab_handler(uint32_t smc_fid, u_register_t x1,
 		    u_register_t x2, u_register_t x3, u_register_t x4);
 #endif
