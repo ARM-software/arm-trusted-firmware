@@ -3,6 +3,58 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.12](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.11..refs/tags/lts-v2.10.12) (2025-01-27)
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - add extra hash config to validate ROTPK ([8b2c885](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8b2c885739ddcb96efef2e1df14e39df6b39eb12))
+
+### Code Refactoring
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - rename default mbedtls confs ([0ac65e7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0ac65e7aa5ecfc1f6ad37c0b27f8ddc662e8c6c6))
+
+### New Features
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - mbedtls config update for v3.6.2 ([5649226](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/564922601397355eb13b21bafc8e4b9c85db5785))
+
+### Miscellaneous
+
+- **Dependencies**
+
+  - bump cross-spawn ([924c7f4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/924c7f42ce4a32eb4c725fccf6b2fc0a0c9c71a4))
+  - bump jinja2 in the pip group across 1 directory ([7c8c034](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7c8c034e5fed2b42674f7fba0575e69dd5542571))
+
+### Documentation
+
+- add inital lts doc ([13657a3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/13657a3f3f2af1659a1a52cbeb595dc356d7306e))
+- updates to LTS ([3d85a19](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3d85a19f2f540ed9e368bbd07d9bf227647cc08e))
+
+- **Documentation**
+
+  - **Maintainers**
+
+    - update LTS maintainers ([8355ef7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8355ef7728ec432683006e1720dcd661a09649ce))
+
+  - **Prerequisites**
+
+    - update mbedtls to version 3.6.2 ([44161dc](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/44161dcb10ab9d293370ed1b17f34793e0d4e182))
+
 ## [lts-2.10.11](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.10..refs/tags/lts-v2.10.11) (2025-01-10)
 
 ### Miscellaneous
