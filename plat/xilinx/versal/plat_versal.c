@@ -14,7 +14,7 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 
 	if (((mpidr & MPIDR_CLUSTER_MASK) == 0U) &&
 	       ((mpidr & MPIDR_CPU_MASK) < PLATFORM_CORE_COUNT)) {
-		ret = versal_calc_core_pos(mpidr);
+		ret = (int32_t)versal_calc_core_pos(mpidr);
 	}
 
 	return ret;

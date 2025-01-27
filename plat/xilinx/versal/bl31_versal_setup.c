@@ -75,7 +75,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	(void)arg2;
 	(void)arg3;
 	uint64_t tfa_handoff_addr;
-	uint32_t payload[PAYLOAD_ARG_CNT], max_size = HANDOFF_PARAMS_MAX_SIZE;
+	uint32_t payload[PAYLOAD_ARG_CNT], max_size = (uint32_t)HANDOFF_PARAMS_MAX_SIZE;
 	enum pm_ret_status ret_status;
 	const uint64_t addr[HANDOFF_PARAMS_MAX_SIZE];
 
@@ -219,7 +219,7 @@ void bl31_plat_runtime_setup(void)
 
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
-					     rdo_el3_interrupt_handler, flags);
+					     rdo_el3_interrupt_handler, (uint32_t)flags);
 	if (rc != 0) {
 		panic();
 	}
