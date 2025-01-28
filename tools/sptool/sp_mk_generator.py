@@ -30,6 +30,9 @@ Secure Partition entry
     FIP_ARGS += --blob uuid=XXXXX-XXX...,file=sp1.pkg
     CRT_ARGS += --sp-pkg1 sp1.pkg
 
+It populates the number of SP in the defined macro 'NUM_SP'
+    $(eval $(call add_define_val,NUM_SP,{len(sp_layout.keys())}))
+
 A typical SP_LAYOUT_FILE file will look like
 {
         "SP1" : {
@@ -149,6 +152,12 @@ def check_max_sps(sp_layout, _, args :dict):
     ''' Check validate the maximum number of SPs is respected. '''
     if len(sp_layout.keys()) > MAX_SP:
         raise Exception(f"Too many SPs in SP layout file. Max: {MAX_SP}")
+    return args
+
+@SpSetupActions.sp_action(global_action=True)
+def count_sps(sp_layout, _, args :dict):
+    ''' Count number of SP and put in NUM_SP '''
+    write_to_sp_mk_gen(f"$(eval $(call add_define_val,NUM_SP,{len(sp_layout.keys())}))", args)
     return args
 
 @SpSetupActions.sp_action

@@ -120,7 +120,7 @@ struct dpe_metadata tc_dpe_metadata[] = {
 		.sw_type = MBOOT_SP1_STRING,
 		.allow_new_context_to_derive = false,
 		.retain_parent_context = true,
-		.create_certificate = true, /* With Trusty only one SP is loaded */
+		.create_certificate = false,
 		.target_locality = LOCALITY_NONE, /* won't derive don't care */
 		.pk_oid = NULL },
 	{
@@ -230,9 +230,32 @@ void plat_dpe_get_context_handle(int *ctx_handle)
 
 void bl2_plat_mboot_init(void)
 {
+	size_t i;
+	const size_t array_size = ARRAY_SIZE(tc_dpe_metadata);
+
 	/* Initialize the communication channel between AP and RSE */
 	(void)rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE,
 			     PLAT_RSE_AP_RCV_MHU_BASE);
+
+#if defined(SPD_spmd)
+	for (i = 0U; i < array_size; i++) {
+		if (tc_dpe_metadata[i].id != SP_PKG1_ID) {
+			continue;
+		}
+
+		if ((i + NUM_SP > array_size) || (i - 1 + NUM_SP < 0)) {
+			ERROR("Secure partition number is out-of-range\n");
+			ERROR("  Non-Secure partition number: %ld\n", i);
+			ERROR("  Secure partition number: %d\n", NUM_SP);
+			ERROR("  Metadata array size: %ld\n", array_size);
+			panic();
+		}
+
+		/* Finalize the certificate on the last secure partition */
+		tc_dpe_metadata[i - 1 + NUM_SP].create_certificate = true;
+		break;
+	}
+#endif
 
 	dpe_init(tc_dpe_metadata);
 }
