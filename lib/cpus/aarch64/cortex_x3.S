@@ -162,6 +162,10 @@ func cortex_x3_cpu_reg_dump
 	ret
 endfunc cortex_x3_cpu_reg_dump
 
-declare_cpu_ops cortex_x3, CORTEX_X3_MIDR, \
+declare_cpu_ops_wa_4 cortex_x3, CORTEX_X3_MIDR, \
 	cortex_x3_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_cortex_x3_7881, \
 	cortex_x3_core_pwr_dwn

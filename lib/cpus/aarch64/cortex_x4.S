@@ -160,6 +160,10 @@ func cortex_x4_cpu_reg_dump
 	ret
 endfunc cortex_x4_cpu_reg_dump
 
-declare_cpu_ops cortex_x4, CORTEX_X4_MIDR, \
+declare_cpu_ops_wa_4 cortex_x4, CORTEX_X4_MIDR, \
 	cortex_x4_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_cortex_x4_7881, \
 	cortex_x4_core_pwr_dwn
