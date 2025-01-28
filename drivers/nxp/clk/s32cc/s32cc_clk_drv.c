@@ -1563,6 +1563,13 @@ static int get_fixed_div_freq(const struct s32cc_clk_obj *module,
 	return 0;
 }
 
+static inline struct s32cc_clk_obj *get_fixed_div_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_fixed_div *fdiv = s32cc_obj2fixeddiv(module);
+
+	return fdiv->parent;
+}
+
 static int set_mux_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			unsigned long *orate, unsigned int *depth)
 {
@@ -1908,6 +1915,7 @@ static struct s32cc_clk_obj *get_module_parent(const struct s32cc_clk_obj *modul
 		[s32cc_dfs_t] = get_dfs_parent,
 		[s32cc_dfs_div_t] = get_dfs_div_parent,
 		[s32cc_part_t] = get_no_parent,
+		[s32cc_fixed_div_t] = get_fixed_div_parent,
 		[s32cc_part_block_t] = get_part_block_parent,
 		[s32cc_part_block_link_t] = get_part_block_link_parent,
 	};
