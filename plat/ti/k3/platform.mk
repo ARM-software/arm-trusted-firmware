@@ -7,6 +7,9 @@
 PLAT_PATH	:=	plat/ti/k3
 TARGET_BOARD	?=	generic
 
+# modify BUILD_PLAT to point to board specific build directory
+BUILD_PLAT := $(abspath ${BUILD_BASE})/${PLAT}/${TARGET_BOARD}/${BUILD_TYPE}
+
 include ${PLAT_PATH}/common/plat_common.mk
 include ${PLAT_PATH}/board/${TARGET_BOARD}/board.mk
 
@@ -21,5 +24,3 @@ $(eval $(call add_define,K3_HW_CONFIG_BASE))
 
 PLAT_INCLUDES += -Iplat/ti/k3/board/${TARGET_BOARD}/include
 
-# modify BUILD_PLAT to point to board specific build directory
-BUILD_PLAT := $(abspath ${BUILD_BASE})/${PLAT}/${TARGET_BOARD}/${BUILD_TYPE}
