@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, MediaTek Inc. All rights reserved.
+# Copyright (c) 2025, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -14,6 +14,7 @@ include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common \
+		 -I${MTK_PLAT}/drivers/cpu_pm/topology/inc \
                  -I${MTK_PLAT}/drivers/gpio/ \
 		 -I${MTK_PLAT}/include \
 		 -I${MTK_PLAT}/include/${ARCH_VERSION} \
@@ -23,16 +24,21 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common \
 		 -Idrivers/arm/gic \
 
 MODULES-y += $(MTK_PLAT)/common
+MODULES-y += $(MTK_PLAT)/common/lpm_v2
 MODULES-y += $(MTK_PLAT)/lib/mtk_init
 MODULES-y += $(MTK_PLAT)/lib/pm
 MODULES-y += $(MTK_PLAT)/drivers/apusys
 MODULES-y += $(MTK_PLAT)/drivers/dp
 MODULES-y += $(MTK_PLAT)/drivers/emi
 MODULES-y += $(MTK_PLAT)/drivers/mcusys
+MODULES-y += $(MTK_PLAT)/drivers/spm
 MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-y += $(MTK_PLAT)/drivers/vcp
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/topology
+MODULES-$(CONFIG_MTK_CPU_PM_SUPPORT) += $(MTK_PLAT)/drivers/cpu_pm
+MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
+MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi
 
 ifneq ($(MTKLIB_PATH),)
 LDFLAGS += -L $(dir $(MTKLIB_PATH))

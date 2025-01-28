@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Mediatek Inc. All rights reserved.
+ * Copyright (c) 2025, Mediatek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,6 @@
 #define MTK_CPUPM_E_ERR			(-2)
 #define MTK_CPUPM_E_FAIL		(-3)
 #define MTK_CPUPM_E_NOT_SUPPORT		(-4)
-
 
 #define MTK_CPUPM_FN_PWR_LOCK_AQUIRE		BIT(0)
 #define MTK_CPUPM_FN_INIT			BIT(1)
@@ -170,6 +169,10 @@ struct mt_cpupm_event_data {
 #define MT_CPUPM_SUBCRIBE_MCUSYS_PWR_OFF(_fn) \
 	SUBSCRIBE_TO_EVENT(mt_cpupm_publish_afflv_pwr_off, _fn)
 
+/* [PUB_EVENT] el3 time sync */
+#define MT_CPUPM_SUBCRIBE_EL3_UPTIME_SYNC_WITH_KERNEL(_fn) \
+	SUBSCRIBE_TO_EVENT(el3_uptime_sync_with_kernel, _fn)
+
 #else
 #define MT_CPUPM_SUBCRIBE_EVENT_PWR_ON(_fn)
 #define MT_CPUPM_SUBCRIBE_EVENT_PWR_OFF(_fn)
@@ -177,6 +180,7 @@ struct mt_cpupm_event_data {
 #define MT_CPUPM_SUBCRIBE_CLUSTER_PWR_OFF(_fn)
 #define MT_CPUPM_SUBCRIBE_MCUSYS_PWR_ON(_fn)
 #define MT_CPUPM_SUBCRIBE_MCUSYS_PWR_OFF(_fn)
+#define MT_CPUPM_SUBCRIBE_EL3_UPTIME_SYNC_WITH_KERNEL(_fn)
 #endif
 
 /*
@@ -201,8 +205,10 @@ struct mt_cpupm_event_data {
 #define MT_PLAT_PWR_STATE_SYSTEM_BUS	(0x0050)
 #define MT_PLAT_PWR_STATE_SUSPEND	(0x00f0)
 
-#define IS_MT_PLAT_PWR_STATE(state, target_state)	((state & target_state) == target_state)
-#define IS_MT_PLAT_PWR_STATE_MCUSYS(state)  IS_MT_PLAT_PWR_STATE(state, MT_PLAT_PWR_STATE_MCUSYS)
+#define IS_MT_PLAT_PWR_STATE(state, target_state) \
+	((state & target_state) == target_state)
+#define IS_MT_PLAT_PWR_STATE_MCUSYS(state) \
+	IS_MT_PLAT_PWR_STATE(state, MT_PLAT_PWR_STATE_MCUSYS)
 
 #define PLAT_MT_SYSTEM_SUSPEND		PLAT_MAX_OFF_STATE
 #define PLAT_MT_CPU_SUSPEND_CLUSTER	PLAT_MAX_RET_STATE

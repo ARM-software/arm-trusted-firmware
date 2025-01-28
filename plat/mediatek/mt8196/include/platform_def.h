@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Mediatek Inc. All rights reserved.
+ * Copyright (c) 2025, Mediatek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,9 @@
 #define MCUCFG_BASE		(0x0C000000)
 #define MCUCFG_REG_SIZE		(0x50000)
 #define IO_PHYS			(0x10000000)
+
+#define MT_UTILITYBUS_BASE	(0x0C800000)
+#define MT_UTILITYBUS_SIZE	(0x800000)
 
 /* Aggregate of all devices for MMU mapping */
 #define MTK_DEV_RNG1_BASE	(IO_PHYS)
@@ -65,6 +68,20 @@
  * SPM related constants
  ******************************************************************************/
 #define SPM_BASE		(IO_PHYS + 0x0C004000)
+#define SPM_REG_SIZE		(0x1000)
+#define SPM_SRAM_BASE		(IO_PHYS + 0x0C00C000)
+#define SPM_SRAM_REG_SIZE	(0x1000)
+#define SPM_PBUS_BASE		(IO_PHYS + 0x0C00D000)
+#define SPM_PBUS_REG_SIZE	(0x1000)
+
+#ifdef SPM_BASE
+#define SPM_EXT_INT_WAKEUP_REQ		(SPM_BASE + 0x210)
+#define SPM_EXT_INT_WAKEUP_REQ_SET	(SPM_BASE + 0x214)
+#define SPM_EXT_INT_WAKEUP_REQ_CLR	(SPM_BASE + 0x218)
+#define SPM_CPU_BUCK_ISO_CON		(SPM_BASE + 0xEF8)
+#define SPM_CPU_BUCK_ISO_DEFAUT		(0x0)
+#define SPM_AUDIO_PWR_CON		(SPM_BASE + 0xE4C)
+#endif
 
 /*******************************************************************************
  * GPIO related constants
@@ -93,6 +110,20 @@
  ******************************************************************************/
 #define UART0_BASE	(IO_PHYS + 0x06000000)
 #define UART_BAUDRATE	(115200)
+
+/*******************************************************************************
+ * PMIF address
+ ******************************************************************************/
+#define PMIF_SPMI_M_BASE	(IO_PHYS + 0x0C01A000)
+#define PMIF_SPMI_P_BASE	(IO_PHYS + 0x0C018000)
+#define PMIF_SPMI_SIZE		0x1000
+
+/*******************************************************************************
+ * SPMI address
+ ******************************************************************************/
+#define SPMI_MST_M_BASE		(IO_PHYS + 0x0C01C000)
+#define SPMI_MST_P_BASE		(IO_PHYS + 0x0C01C800)
+#define SPMI_MST_SIZE		0x1000
 
 /*******************************************************************************
  * Infra IOMMU related constants
@@ -223,8 +254,15 @@
 #define MAX_MMAP_REGIONS		(512)
 
 /*******************************************************************************
+ * CPU_EB TCM handling related constants
+ ******************************************************************************/
+#define CPU_EB_TCM_BASE		0x0C2CF000
+#define CPU_EB_TCM_SIZE		0x1000
+#define CPU_EB_TCM_CNT_BASE	0x0C2CC000
+
+/*******************************************************************************
  * CPU PM definitions
- *******************************************************************************/
+ ******************************************************************************/
 #define PLAT_CPU_PM_B_BUCK_ISO_ID	(6)
 #define PLAT_CPU_PM_ILDO_ID		(6)
 #define CPU_IDLE_SRAM_BASE		(0x11B000)
@@ -234,5 +272,60 @@
  * SYSTIMER related definitions
  ******************************************************************************/
 #define SYSTIMER_BASE		(0x1C400000)
+
+/*******************************************************************************
+ * CKSYS related constants
+ ******************************************************************************/
+#define CKSYS_BASE		(IO_PHYS)
+
+/*******************************************************************************
+ * VLP AO related constants
+ ******************************************************************************/
+#define VLPCFG_BUS_BASE		(IO_PHYS + 0x0C001000)
+#define VLPCFG_BUS_SIZE		(0x1000)
+#define VLP_AO_DEVAPC_APB_BASE	(IO_PHYS + 0x0C550000)
+#define VLP_AO_DEVAPC_APB_SIZE	(0x1000)
+
+/*******************************************************************************
+ * SCP registers
+ ******************************************************************************/
+#define SCP_CLK_CTRL_BASE	(IO_PHYS + 0x0CF21000)
+#define SCP_CLK_CTRL_SIZE	(0x1000)
+
+#define SCP_CFGREG_BASE		(IO_PHYS + 0x0CF24000)
+#define SCP_CFGREG_SIZE		(0x1000)
+
+/*******************************************************************************
+ * VLP CKSYS related constants
+ ******************************************************************************/
+#define VLP_CKSYS_BASE		(IO_PHYS + 0x0C016000)
+#define VLP_CKSYS_SIZE		0x1000
+
+/*******************************************************************************
+ * PERI related constants use PERI secure address to garuantee access
+ ******************************************************************************/
+#define PERICFG_AO_SIZE		0x1000
+#define PERI_CG0_STA		(PERICFG_AO_BASE + 0x10)
+#define PERI_CLK_CON		(PERICFG_AO_BASE + 0x20)
+#define PERI_CG1_CLR		(PERICFG_AO_BASE + 0x30)
+
+/******************************************************************************
+ * LPM syssram related constants
+ *****************************************************************************/
+#define MTK_LPM_SRAM_BASE	0x11B000
+#define MTK_LPM_SRAM_MAP_SIZE	0x1000
+
+/*******************************************************************************
+ * SSPM_MBOX_3 related constants
+ ******************************************************************************/
+#define SSPM_MBOX_3_BASE	(IO_PHYS + 0x0C380000)
+#define SSPM_MBOX_3_SIZE	0x1000
+
+/*******************************************************************************
+ * SSPM related constants
+ ******************************************************************************/
+#define SSPM_REG_OFFSET		(0x40000)
+#define SSPM_CFGREG_BASE	(IO_PHYS + 0x0C300000 + SSPM_REG_OFFSET)
+#define SSPM_CFGREG_SIZE	(0x1000)
 
 #endif /* PLATFORM_DEF_H */
