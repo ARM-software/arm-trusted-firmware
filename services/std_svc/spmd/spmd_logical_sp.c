@@ -723,8 +723,8 @@ bool spmd_el3_ffa_msg_direct_req(uint64_t x1,
 #endif
 }
 
-bool is_spmd_logical_sp_info_regs_req_in_progress(
-		spmd_spm_core_context_t *ctx)
+bool
+is_spmd_logical_sp_info_regs_req_in_progress(const spmd_spm_core_context_t *ctx)
 {
 #if ENABLE_SPMD_LP
 	return ((ctx->spmd_lp_sync_req_ongoing & SPMD_LP_FFA_INFO_GET_REG_ONGOING)
@@ -734,8 +734,7 @@ bool is_spmd_logical_sp_info_regs_req_in_progress(
 #endif
 }
 
-bool is_spmd_logical_sp_dir_req_in_progress(
-		spmd_spm_core_context_t *ctx)
+bool is_spmd_logical_sp_dir_req_in_progress(const spmd_spm_core_context_t *ctx)
 {
 #if ENABLE_SPMD_LP
 	return ((ctx->spmd_lp_sync_req_ongoing & SPMD_LP_FFA_DIR_REQ_ONGOING)
