@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 #ifndef S32CC_CLK_IDS_H
 #define S32CC_CLK_IDS_H
@@ -102,5 +102,9 @@
 /* DDR clock */
 #define S32CC_CLK_MC_CGM5_MUX0			S32CC_ARCH_CLK(20)
 #define S32CC_CLK_DDR				S32CC_ARCH_CLK(21)
+
+/* USDHC clock */
+#define S32CC_CLK_MC_CGM0_MUX14			S32CC_ARCH_CLK(22)
+#define S32CC_CLK_USDHC				S32CC_ARCH_CLK(23)
 
 #endif /* S32CC_CLK_IDS_H */
