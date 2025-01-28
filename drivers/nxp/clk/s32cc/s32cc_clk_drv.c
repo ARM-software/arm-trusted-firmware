@@ -1231,6 +1231,78 @@ static int set_cgm_div_freq(const struct s32cc_clk_obj *module,
 	return 0;
 }
 
+static inline bool is_cgm_div_enabled(uintptr_t cgm_addr, uint32_t mux,
+				      uint32_t div_index)
+{
+	uint32_t dc_val;
+
+	dc_val = mmio_read_32(MC_CGM_MUXn_DCm(cgm_addr, mux, div_index));
+
+	return ((dc_val & MC_CGM_MUXn_DCm_DE) != 0U);
+}
+
+static unsigned long calc_cgm_div_freq(uintptr_t cgm_addr, uint32_t mux,
+				       uint32_t div_index, unsigned long pfreq)
+{
+	uint32_t dc_val;
+	uint32_t dc_div;
+
+	dc_val = mmio_read_32(MC_CGM_MUXn_DCm(cgm_addr, mux, div_index));
+	dc_div = MC_CGM_MUXn_DCm_DIV(dc_val) + 1U;
+
+	return pfreq * FP_PRECISION / dc_div / FP_PRECISION;
+}
+
+static int get_cgm_div_freq(const struct s32cc_clk_obj *module,
+			    const struct s32cc_clk_drv *drv,
+			    unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_cgm_div *cgm_div = s32cc_obj2cgmdiv(module);
+	const struct s32cc_clkmux *mux;
+	unsigned int ldepth = depth;
+	uintptr_t cgm_addr = 0ULL;
+	unsigned long pfreq;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (cgm_div->parent == NULL) {
+		ERROR("Failed to identify CGM divider's parent\n");
+		return -EINVAL;
+	}
+
+	mux = get_cgm_div_mux(cgm_div);
+	if (mux == NULL) {
+		return -EINVAL;
+	}
+
+	ret = get_base_addr(mux->module, drv, &cgm_addr);
+	if (ret != 0) {
+		ERROR("Failed to get CGM base address of the MUX module %d\n",
+		      mux->module);
+		return ret;
+	}
+
+	if (!is_cgm_div_enabled(cgm_addr, mux->index, cgm_div->index)) {
+		*rate = cgm_div->freq;
+		return 0;
+	}
+
+	ret = get_module_rate(cgm_div->parent, drv, &pfreq, ldepth);
+	if (ret != 0) {
+		ERROR("Failed to get the frequency of CGM MUX %" PRIu8 "(CGM=0x%" PRIxPTR ")\n",
+		      mux->index, cgm_addr);
+		return ret;
+	}
+
+	*rate = calc_cgm_div_freq(cgm_addr, mux->index, cgm_div->index, pfreq);
+
+	return 0;
+}
+
 static int no_enable(struct s32cc_clk_obj *module,
 		     const struct s32cc_clk_drv *drv,
 		     unsigned int depth)
@@ -1988,6 +2060,9 @@ static int get_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_part_block_link_t:
 		ret = get_part_block_link_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_cgm_div_t:
+		ret = get_cgm_div_freq(module, drv, rate, ldepth);
 		break;
 	default:
 		ret = -EINVAL;
