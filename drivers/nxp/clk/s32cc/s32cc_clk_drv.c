@@ -1708,6 +1708,28 @@ static int get_dfs_div_freq(const struct s32cc_clk_obj *module,
 	return 0;
 }
 
+static int set_part_block_link_freq(const struct s32cc_clk_obj *module,
+				    unsigned long rate, unsigned long *orate,
+				    const unsigned int *depth)
+{
+	const struct s32cc_part_block_link *link = s32cc_obj2partblocklink(module);
+	const struct s32cc_clk_obj *parent = link->parent;
+	unsigned int ldepth = *depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (parent == NULL) {
+		ERROR("Partition block link with no parent\n");
+		return -EINVAL;
+	}
+
+	return set_module_rate(parent, rate, orate, &ldepth);
+}
+
 static int set_module_rate(const struct s32cc_clk_obj *module,
 			   unsigned long rate, unsigned long *orate,
 			   unsigned int *depth)
@@ -1748,6 +1770,15 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_dfs_div_t:
 		ret = set_dfs_div_freq(module, rate, orate, depth);
+		break;
+	case s32cc_part_block_link_t:
+		ret = set_part_block_link_freq(module, rate, orate, depth);
+		break;
+	case s32cc_part_t:
+		ERROR("It's not allowed to set the frequency of a partition !");
+		break;
+	case s32cc_part_block_t:
+		ERROR("It's not allowed to set the frequency of a partition block !");
 		break;
 	default:
 		break;
