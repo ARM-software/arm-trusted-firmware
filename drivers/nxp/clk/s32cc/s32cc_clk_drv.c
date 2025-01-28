@@ -1208,6 +1208,29 @@ static int enable_cgm_div(struct s32cc_clk_obj *module,
 	return 0;
 }
 
+static int set_cgm_div_freq(const struct s32cc_clk_obj *module,
+			    unsigned long rate, unsigned long *orate,
+			    unsigned int *depth)
+{
+	struct s32cc_cgm_div *cgm_div = s32cc_obj2cgmdiv(module);
+	int ret;
+
+	ret = update_stack_depth(depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (cgm_div->parent == NULL) {
+		ERROR("Failed to identify the CGM divider's parent\n");
+		return -EINVAL;
+	}
+
+	cgm_div->freq = rate;
+	*orate = rate;
+
+	return 0;
+}
+
 static int no_enable(struct s32cc_clk_obj *module,
 		     const struct s32cc_clk_drv *drv,
 		     unsigned int depth)
@@ -1890,6 +1913,9 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 		break;
 	case s32cc_shared_clkmux_t:
 		ret = set_mux_freq(module, rate, orate, depth);
+		break;
+	case s32cc_cgm_div_t:
+		ret = set_cgm_div_freq(module, rate, orate, depth);
 		break;
 	case s32cc_dfs_t:
 		ERROR("Setting the frequency of a DFS is not allowed!");
