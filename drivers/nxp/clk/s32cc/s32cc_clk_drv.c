@@ -1303,6 +1303,19 @@ static int get_cgm_div_freq(const struct s32cc_clk_obj *module,
 	return 0;
 }
 
+static struct s32cc_clk_obj *
+get_cgm_div_parent(const struct s32cc_clk_obj *module)
+{
+	const struct s32cc_cgm_div *cgm_div = s32cc_obj2cgmdiv(module);
+
+	if (cgm_div->parent == NULL) {
+		ERROR("Failed to identify the CGM divider's parent\n");
+		return NULL;
+	}
+
+	return cgm_div->parent;
+}
+
 static int no_enable(struct s32cc_clk_obj *module,
 		     const struct s32cc_clk_drv *drv,
 		     unsigned int depth)
@@ -2138,6 +2151,7 @@ static struct s32cc_clk_obj *get_module_parent(const struct s32cc_clk_obj *modul
 		[s32cc_fixed_div_t] = get_fixed_div_parent,
 		[s32cc_part_block_t] = get_part_block_parent,
 		[s32cc_part_block_link_t] = get_part_block_link_parent,
+		[s32cc_cgm_div_t] = get_cgm_div_parent,
 	};
 	uint32_t index;
 
