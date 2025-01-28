@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 /* Size of cacheable stack */
-#if IMAGE_BL31
+#if IMAGE_BL31 || IMAGE_BL1
 #define PLATFORM_STACK_SIZE		0x800
 #else
 #define PLATFORM_STACK_SIZE		0x1000
@@ -70,7 +70,11 @@
  * used, choose the smallest value needed to map the required virtual addresses
  * for each BL stage.
  */
+#if IMAGE_BL1
+#define MAX_XLAT_TABLES		2
+#else
 #define MAX_XLAT_TABLES		4
+#endif
 
 /*
  * Defines the maximum number of regions that are allocated by the translation
@@ -198,4 +202,15 @@
 #define TI_SCI_HOST_ID			10
 #define TI_SCI_MAX_MESSAGE_SIZE		52
 
+#define BL1_RO_BASE	0x70800000 /* SRAM base address used as readonly segment */
+#define BL1_RO_LIMIT	0x7080AFFF /* end of readonly segment */
+
+#define	BL1_RW_BASE	0x7080B000 /* RW segment for data, stack and others */
+#define	BL1_RW_LIMIT	0x7080FFFF /* end of RW segment */
+
+#define BL2_BASE	0x80000000 /* BL2 base at start of DDR memory */
+#define BL2_LIMIT	0x100000000 /* BL2 limit */
+
+#define MAX_IO_HANDLES 1
+#define MAX_IO_DEVICES 1
 #endif /* PLATFORM_DEF_H */
