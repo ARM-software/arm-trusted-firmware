@@ -8,35 +8,17 @@
 #include <string.h>
 
 #include <platform_def.h>
+#include <plat_private.h>
 
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <lib/mmio.h>
-#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <k3_console.h>
 #include <k3_gicv3.h>
 #include <ti_sci.h>
 #include <ti_sci_transport.h>
-
-#define ADDR_DOWN(_adr) (_adr & XLAT_ADDR_MASK(2U))
-#define SIZE_UP(_adr, _sz) (round_up((_adr + _sz), XLAT_BLOCK_SIZE(2U)) - ADDR_DOWN(_adr))
-
-#define K3_MAP_REGION_FLAT(_adr, _sz, _attr) \
-	MAP_REGION_FLAT(ADDR_DOWN(_adr), SIZE_UP(_adr, _sz), _attr)
-
-/* Table of regions to map using the MMU */
-const mmap_region_t plat_k3_mmap[] = {
-	K3_MAP_REGION_FLAT(K3_USART_BASE,       K3_USART_SIZE,       MT_DEVICE | MT_RW | MT_SECURE),
-	K3_MAP_REGION_FLAT(K3_GIC_BASE,         K3_GIC_SIZE,         MT_DEVICE | MT_RW | MT_SECURE),
-	K3_MAP_REGION_FLAT(K3_GTC_BASE,         K3_GTC_SIZE,         MT_DEVICE | MT_RW | MT_SECURE),
-	K3_MAP_REGION_FLAT(SEC_PROXY_RT_BASE,   SEC_PROXY_RT_SIZE,   MT_DEVICE | MT_RW | MT_SECURE),
-	K3_MAP_REGION_FLAT(SEC_PROXY_SCFG_BASE, SEC_PROXY_SCFG_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
-	K3_MAP_REGION_FLAT(SEC_PROXY_DATA_BASE, SEC_PROXY_DATA_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
-	{ /* sentinel */ }
-};
 
 /*
  * Placeholder variables for maintaining information about the next image(s)
@@ -126,6 +108,7 @@ void bl31_platform_setup(void)
 	k3_gic_driver_init(K3_GIC_BASE);
 	k3_gic_init();
 
+	ti_soc_init();
 	ti_sci_boot_notification();
 
 	ret = ti_sci_get_revision(&version);

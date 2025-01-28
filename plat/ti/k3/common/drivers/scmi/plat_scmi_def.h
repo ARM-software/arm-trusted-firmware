@@ -1,3 +1,4 @@
-void ti_init_scmi_server(void);
+#include <plat_private.h>
+
 void ti_init_scmi_channel(void);
 
