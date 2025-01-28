@@ -659,19 +659,14 @@ static uint64_t msg_wait_handler(uint32_t smc_fid,
 
 	/* Resume normal world if a secure interrupt was handled. */
 	if (sp->ec[idx].rt_model == RT_MODEL_INTR) {
-		/* FFA_MSG_WAIT can only be called from the secure world. */
-		unsigned int secure_state_in = SECURE;
-		unsigned int secure_state_out = NON_SECURE;
-
-		cm_el1_sysregs_context_save(secure_state_in);
-		cm_el1_sysregs_context_restore(secure_state_out);
-		cm_set_next_eret_context(secure_state_out);
-
 		if (sp->runtime_el == S_EL0) {
 			spin_unlock(&sp->rt_state_lock);
 		}
 
-		SMC_RET0(cm_get_context(secure_state_out));
+		return spmd_smc_switch_state(FFA_NORMAL_WORLD_RESUME, secure_origin,
+					     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+					     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+					     handle, flags);
 	}
 
 	/* Protect the runtime state of a S-EL0 SP with a lock. */
