@@ -1090,6 +1090,124 @@ static int get_part_block_link_freq(const struct s32cc_clk_obj *module,
 	return get_module_rate(block->parent, drv, rate, ldepth);
 }
 
+static void cgm_mux_div_config(uintptr_t cgm_addr, uint32_t mux,
+			       uint32_t dc, uint32_t div_index)
+{
+	uint32_t updstat;
+	uint32_t dc_val = mmio_read_32(MC_CGM_MUXn_DCm(cgm_addr, mux, div_index));
+
+	dc_val &= (MC_CGM_MUXn_DCm_DIV_MASK | MC_CGM_MUXn_DCm_DE);
+
+	if (dc_val == (MC_CGM_MUXn_DCm_DE | MC_CGM_MUXn_DCm_DIV_SET(dc))) {
+		return;
+	}
+
+	/* Set the divider */
+	mmio_write_32(MC_CGM_MUXn_DCm(cgm_addr, mux, div_index),
+		      MC_CGM_MUXn_DCm_DE | MC_CGM_MUXn_DCm_DIV_SET(dc));
+
+	/* Wait for divider to get updated */
+	do {
+		updstat = mmio_read_32(MC_CGM_MUXn_DIV_UPD_STAT(cgm_addr, mux));
+	} while (MC_CGM_MUXn_DIV_UPD_STAT_DIVSTAT(updstat) != 0U);
+}
+
+static inline struct s32cc_clkmux *get_cgm_div_mux(const struct s32cc_cgm_div *cgm_div)
+{
+	const struct s32cc_clk_obj *parent = cgm_div->parent;
+	const struct s32cc_clk_obj *mux_obj;
+	const struct s32cc_clk *clk;
+
+	if (parent == NULL) {
+		ERROR("Failed to identify CGM DIV's parent\n");
+		return NULL;
+	}
+
+	if (parent->type != s32cc_clk_t) {
+		ERROR("The parent of the CGM DIV isn't a clock\n");
+		return NULL;
+	}
+
+	clk = s32cc_obj2clk(parent);
+
+	if (clk->module == NULL) {
+		ERROR("The clock isn't connected to a module\n");
+		return NULL;
+	}
+
+	mux_obj = clk->module;
+
+	if ((mux_obj->type != s32cc_clkmux_t) &&
+	    (mux_obj->type != s32cc_shared_clkmux_t)) {
+		ERROR("The parent of the CGM DIV isn't a MUX\n");
+		return NULL;
+	}
+
+	return s32cc_obj2clkmux(mux_obj);
+}
+
+static int enable_cgm_div(struct s32cc_clk_obj *module,
+			  const struct s32cc_clk_drv *drv, unsigned int depth)
+{
+	const struct s32cc_cgm_div *cgm_div = s32cc_obj2cgmdiv(module);
+	const struct s32cc_clkmux *mux;
+	unsigned int ldepth = depth;
+	uintptr_t cgm_addr = 0ULL;
+	uint64_t pfreq, dc64;
+	uint32_t dc;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (cgm_div->parent == NULL) {
+		ERROR("Failed to identify CGM divider's parent\n");
+		return -EINVAL;
+	}
+
+	if (cgm_div->freq == 0U) {
+		ERROR("The frequency of the divider %" PRIu32 " is not set\n",
+		      cgm_div->index);
+		return -EINVAL;
+	}
+
+	mux = get_cgm_div_mux(cgm_div);
+	if (mux == NULL) {
+		return -EINVAL;
+	}
+
+	ret = get_base_addr(mux->module, drv, &cgm_addr);
+	if (ret != 0) {
+		ERROR("Failed to get CGM base address of the MUX module %d\n",
+		      mux->module);
+		return ret;
+	}
+
+	ret = get_module_rate(cgm_div->parent, drv, &pfreq, ldepth);
+	if (ret != 0) {
+		ERROR("Failed to enable the div due to unknown frequency of "
+		      "the CGM MUX %" PRIu8 "(CGM=%" PRIxPTR ")\n",
+		      mux->index, cgm_addr);
+		return -EINVAL;
+	}
+
+	dc64 = ((pfreq * FP_PRECISION) / cgm_div->freq) / FP_PRECISION;
+	dc = (uint32_t)dc64;
+
+	if ((pfreq / dc64) != cgm_div->freq) {
+		ERROR("Cannot set CGM divider (mux:%" PRIu8 ", div:%" PRIu32
+		      ") for input = %lu & output = %lu, Nearest freq = %lu\n",
+		mux->index, cgm_div->index, (unsigned long)pfreq,
+		cgm_div->freq, (unsigned long)(pfreq / dc));
+		return -EINVAL;
+	}
+
+	cgm_mux_div_config(cgm_addr, mux->index, dc - 1U, cgm_div->index);
+	return 0;
+}
+
 static int no_enable(struct s32cc_clk_obj *module,
 		     const struct s32cc_clk_drv *drv,
 		     unsigned int depth)
@@ -1148,6 +1266,7 @@ static int enable_module(struct s32cc_clk_obj *module,
 		[s32cc_part_t] = enable_part,
 		[s32cc_part_block_t] = enable_part_block,
 		[s32cc_part_block_link_t] = enable_part_block_link,
+		[s32cc_cgm_div_t] = enable_cgm_div,
 	};
 	unsigned int ldepth = depth;
 	uint32_t index;
