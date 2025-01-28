@@ -33,7 +33,7 @@
  */
 #define NRD_CSS_BL31_SIZE		UL(116 * 1024)	/* 116 KB */
 
-#define NRD_CSS_DRAM1_CARVEOUT_SIZE	UL(0x0C000000)	/* 117MB */
+#define NRD_CSS_DRAM1_CARVEOUT_SIZE	UL(0x0C000000)	/* 192MB */
 
 /*******************************************************************************
  * Console config
