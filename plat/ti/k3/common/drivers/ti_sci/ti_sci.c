@@ -1789,3 +1789,44 @@ int ti_sci_lpm_get_next_sys_mode(uint8_t *next_mode)
 
 	return 0;
 }
+
+/**
+ * ti_sci_prepare_sleep - Command to initiate system transition into suspend.
+ *
+ * @proc_id: Processor ID.
+ * @mode: Low power mode to enter.
+ * @context_save_addr: Address that TIFS can save its context.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_prepare_sleep(uint8_t mode, uint64_t context_save_addr,
+			 uint32_t debug_flags)
+{
+	struct ti_sci_msg_req_prepare_sleep req;
+	struct ti_sci_msg_hdr resp;
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_PREPARE_SLEEP, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret != 0U) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.mode = mode;
+	req.ctx_lo = context_save_addr & TISCI_ADDR_LOW_MASK;
+	req.ctx_hi = (context_save_addr & TISCI_ADDR_HIGH_MASK) >>
+			     TISCI_ADDR_HIGH_SHIFT;
+	req.debug_flags = debug_flags;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret != 0U) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
