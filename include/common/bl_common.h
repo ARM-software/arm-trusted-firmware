@@ -146,6 +146,12 @@ IMPORT_SYM(uintptr_t, __BL2_RAM_START__,	BL2_RAM_BASE);
 IMPORT_SYM(uintptr_t, __BL2_RAM_END__,		BL2_RAM_END);
 #endif /* BL2_IN_XIP_MEM */
 
+#if defined (IMAGE_BL31) || defined(IMAGE_BL32)
+IMPORT_SYM(uintptr_t, __PER_CPU_START__,	PER_CPU_START);
+IMPORT_SYM(uintptr_t, __PER_CPU_END__,		PER_CPU_END);
+IMPORT_SYM(uintptr_t, __PER_CPU_UNIT_END__,	PER_CPU_UNIT_END)
+#endif /* IMAGE_BL31 && IMAGE_BL2*/
+
 /*
  * The next 2 constants identify the extents of the coherent memory region.
  * These addresses are used by the MMU setup code and therefore they must be
