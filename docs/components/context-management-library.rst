@@ -288,7 +288,7 @@ world context of all CPUs.
 
 .. code:: c
 
-	static spmd_spm_core_context_t spm_core_context[PLATFORM_CORE_COUNT];
+	static PER_CPU_DEFINE(spmd_spm_core_context_t, spm_core_context);
 
 Realm-Context Memory
 ~~~~~~~~~~~~~~~~~~~~

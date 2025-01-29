@@ -20,6 +20,7 @@
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
+#include <lib/per_cpu/per_cpu.h>
 #include <lib/smccc.h>
 #include <lib/spinlock.h>
 #include <lib/utils.h>
@@ -40,7 +41,7 @@
 /*******************************************************************************
  * SPM Core context information.
  ******************************************************************************/
-static spmd_spm_core_context_t spm_core_context[PLATFORM_CORE_COUNT];
+static PER_CPU_DEFINE(spmd_spm_core_context_t, spm_core_context);
 
 /*******************************************************************************
  * SPM Core attribute information is read from its manifest if the SPMC is not
@@ -74,7 +75,7 @@ static entry_point_info_t *spmc_ep_info;
  ******************************************************************************/
 spmd_spm_core_context_t *spmd_get_context(void)
 {
-	return &spm_core_context[plat_my_core_pos()];
+	return PER_CPU_CUR(spm_core_context);
 }
 
 /*******************************************************************************
@@ -181,10 +182,10 @@ void spmd_setup_context(unsigned int core_id)
 {
 	cpu_context_t *cpu_ctx;
 
-	spm_core_context[core_id].state = SPMC_STATE_OFF;
+	PER_CPU_CUR(spm_core_context)->state = SPMC_STATE_OFF;
 
 	/* Setup an initial cpu context for the SPMC. */
-	cpu_ctx = &spm_core_context[core_id].cpu_ctx;
+	cpu_ctx = &(PER_CPU_CUR(spm_core_context)->cpu_ctx);
 	cm_setup_context(cpu_ctx, spmc_ep_info);
 
 	/*
