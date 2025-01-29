@@ -2,7 +2,7 @@
  * Texas Instruments System Control Interface Driver
  *   Based on Linux and U-Boot implementation
  *
- * Copyright (C) 2018-2025 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2018-2026 Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1810,6 +1810,38 @@ int ti_sci_boot_notification(void)
 		return -EINVAL;
 	}
 	VERBOSE("%s: boot notification received from TIFS\n", __func__);
+
+	return 0;
+}
+
+int ti_sci_prepare_sleep(uint8_t mode, uint64_t context_save_addr,
+			 uint32_t debug_flags)
+{
+	struct ti_sci_msg_req_prepare_sleep req;
+	struct ti_sci_msg_hdr resp;
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_PREPARE_SLEEP, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret != 0U) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.mode = mode;
+	req.ctx_lo = context_save_addr & TISCI_ADDR_LOW_MASK;
+	req.ctx_hi = (context_save_addr & TISCI_ADDR_HIGH_MASK) >>
+			     TISCI_ADDR_HIGH_SHIFT;
+	req.debug_flags = debug_flags;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret != 0U) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
 
 	return 0;
 }

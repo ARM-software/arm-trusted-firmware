@@ -2,7 +2,7 @@
  * Texas Instruments System Control Interface API
  *   Based on Linux and U-Boot implementation
  *
- * Copyright (C) 2018-2025 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2018-2026 Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -277,6 +277,17 @@ int ti_sci_lpm_get_next_sys_mode(uint8_t *next_mode);
  * Returns 0 for successful request, else returns corresponding error message.
  */
 int ti_sci_boot_notification(void);
+
+/**
+ * ti_sci_prepare_sleep() - Command to initiate system transition into suspend
+ * @mode:		Low power mode to enter
+ * @context_save_addr:	Address that TIFS can save its context
+ * @debug_flags:	Debug flags that can be passed to TIFS
+ *
+ * Return: 0 if all goes well, else appropriate error value.
+ */
+int ti_sci_prepare_sleep(uint8_t mode, uint64_t context_save_addr,
+			 uint32_t debug_flags);
 
 /**
  * Firewall operations
