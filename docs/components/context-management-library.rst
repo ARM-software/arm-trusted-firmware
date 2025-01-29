@@ -297,7 +297,7 @@ context of all CPUs.
 
 .. code:: c
 
-	rmmd_rmm_context_t rmm_context[PLATFORM_CORE_COUNT];
+	PER_CPU_DEFINE(rmmd_rmm_context_t, rmm_context);
 
 To summarize, the world-specific context structures are synchronized with
 per-CPU data structures, which means that each CPU will have an array of pointers
