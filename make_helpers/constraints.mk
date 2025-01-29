@@ -286,6 +286,9 @@ ifeq (${ARCH},aarch32)
 	ifneq (${ENABLE_FEAT_CPA2},0)
                 $(error "ENABLE_FEAT_CPA2 cannot be used with ARCH=aarch32")
 	endif
+	ifneq (${PLATFORM_NODE_COUNT},1)
+                $(error "NUMA AWARE PER CPU is not supported with ARCH=aarch32")
+	endif
 endif #(ARCH=aarch32)
 
 ifneq (${ENABLE_FEAT_FPMR},0)

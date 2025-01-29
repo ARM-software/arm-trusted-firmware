@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -223,6 +223,22 @@
 		PMF_TIMESTAMP				\
 		BASE_XLAT_TABLE_BSS			\
 		__BSS_END__ = .;			\
+	}
+
+#define PER_CPU								\
+	/* The .per_cpu section gets initialised to 0 at runtime. */	\
+	.per_cpu (NOLOAD) : ALIGN(CACHE_WRITEBACK_GRANULE) {		\
+		__PER_CPU_START__ = .;					\
+		__PER_CPU_UNIT_START__ = .;				\
+		*(SORT_BY_ALIGNMENT(.per_cpu*))				\
+		__PER_CPU_UNIT_UNALIGNED_END_UNIT__ = .;		\
+		. = ALIGN(CACHE_WRITEBACK_GRANULE);			\
+		__PER_CPU_UNIT_END__ = .;				\
+		__PER_CPU_UNIT_SECTION_SIZE__ =				\
+		ABSOLUTE(__PER_CPU_UNIT_END__ - __PER_CPU_UNIT_START__);\
+		. = . + (PER_CPU_NODE_CORE_COUNT - 1) *			\
+		__PER_CPU_UNIT_SECTION_SIZE__;				\
+		__PER_CPU_END__ = .;					\
 	}
 
 /*
