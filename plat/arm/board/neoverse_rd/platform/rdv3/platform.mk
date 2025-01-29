@@ -53,6 +53,10 @@ endif
 # RD-V3 uses MHUv3
 PLAT_MHU := MHUv3
 
+ifeq (${NRD_PLATFORM_VARIANT}, 2)
+override PLATFORM_NODE_COUNT	:= NRD_CHIP_COUNT
+endif
+
 include plat/arm/board/neoverse_rd/common/nrd-common.mk
 include drivers/arm/rse/rse_comms.mk
 include drivers/auth/mbedtls/mbedtls_common.mk
@@ -125,6 +129,10 @@ BL31_SOURCES	+=	${NRD_CPU_SOURCES}				\
 			plat/arm/common/arm_nor_psci_mem_protect.c
 ifeq (${NRD_PLATFORM_VARIANT}, 2)
 BL31_SOURCES	+=	drivers/arm/gic/v3/gic600_multichip.c
+endif
+
+ifneq ($(filter-out 0 1,$(strip $(PLATFORM_NODE_COUNT))),)
+BL31_SOURCES	+=	${RDV3_BASE}/rdv3_per_cpu.S
 endif
 
 ifneq (${PLAT_RESET_TO_BL31}, 1)

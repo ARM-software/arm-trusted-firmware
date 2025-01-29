@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,9 +8,11 @@
 #include <drivers/arm/gic600_multichip.h>
 #include <drivers/arm/rse_comms.h>
 #include <drivers/arm/smmu_v3.h>
-
+#include <lib/per_cpu/per_cpu.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+
+#include <nrd_css_fw_def3.h>
 #include <nrd_plat.h>
 #include <nrd_variant.h>
 #include <rdv3_rse_comms.h>
@@ -23,6 +25,21 @@
  * message communication
  */
 #define NRD_RGIC2LGIC_MESSREG_HNI_BASE		UL(0x5FFF0000)
+
+#if (PLATFORM_NODE_COUNT > 1)
+/*
+ * NUMA node related information for a platform could be populated in by any
+ * means. This could come in via device tree, transfer list or could even be
+ * hardcoded. For rdv3cfg2, this is statically defined at the moment.
+ */
+const uintptr_t per_cpu_nodes_base[] = {
+	(uintptr_t)PER_CPU_START,
+	(uintptr_t)NRD_REMOTE_CHIP_MEM_OFFSET(1),
+	(uintptr_t)NRD_REMOTE_CHIP_MEM_OFFSET(2),
+	(uintptr_t)NRD_REMOTE_CHIP_MEM_OFFSET(3)
+
+};
+#endif
 
 #if (NRD_PLATFORM_VARIANT == 2)
 static const mmap_region_t rdv3mc_dynamic_mmap[] = {
@@ -133,6 +150,30 @@ static uintptr_t rdv3mc_multichip_gicr_frames[] = {
 #endif /* NRD_PLATFORM_VARIANT == 2 */
 	UL(0)	/* Zero Termination */
 };
+
+#if (NRD_PLATFORM_VARIANT == 2)
+void __init bl31_plat_arch_setup(void)
+{
+#if (PLATFORM_NODE_COUNT > 1)
+	int ret;
+#endif
+	arm_bl31_plat_arch_setup();
+#if (PLATFORM_NODE_COUNT > 1)
+	/* Add mmap for all remote chips */
+	for (int i = 1; i < ARRAY_SIZE(per_cpu_nodes_base); i++) {
+		ret = mmap_add_dynamic_region(
+		NRD_REMOTE_CHIP_MEM_OFFSET(i),
+		NRD_REMOTE_CHIP_MEM_OFFSET(i),
+		NRD_CSS_PAGE_ALIGN_CEIL((PER_CPU_END - PER_CPU_START)),
+		MT_MEMORY | MT_RW | EL3_PAS);
+		if (ret != 0) {
+			ERROR("Failed to add per-cpu mmap (ret=%d)", ret);
+			panic();
+		}
+	}
+#endif
+}
+#endif
 
 void bl31_platform_setup(void)
 {
