@@ -70,6 +70,7 @@ unsigned int check_if_affected_core(void);
 #endif
 
 int check_wa_cve_2024_7881(void);
+bool errata_ich_vmcr_el2_applies(void);
 
 #else
 
