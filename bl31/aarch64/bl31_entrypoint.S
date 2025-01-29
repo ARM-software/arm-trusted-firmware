@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,6 +104,23 @@ func bl31_entrypoint
 	sub	x1, x1, x0
 	bl	clean_dcache_range
 
+	adrp	x0, __PER_CPU_START__
+	add	x0, x0, :lo12:__PER_CPU_START__
+	adrp	x1, __PER_CPU_END__
+	add	x1, x1, :lo12:__PER_CPU_END__
+	sub	x1, x1, x0
+	bl	clean_dcache_range
+
+#if (PLATFORM_NODE_COUNT > 1)
+	/*
+	 * dcache clean per-cpu sections defined by the platform.
+	 * Care must be taken to preserve and retain the clobbered
+	 * registers. A standard around the container for per-cpu nodes
+	 * is not yet defined.
+	 */
+
+	bl	plat_per_cpu_dcache_clean
+#endif /* (PLATFORM_NODE_COUNT > 1) */
 	b	el3_exit
 endfunc bl31_entrypoint
 

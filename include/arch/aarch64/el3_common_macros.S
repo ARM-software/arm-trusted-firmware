@@ -12,6 +12,7 @@
 #include <assert_macros.S>
 #include <context.h>
 #include <lib/el3_runtime/cpu_data.h>
+#include <lib/per_cpu/per_cpu_macros.S>
 
 	/*
 	 * Helper macro to initialise EL3 registers we care about.
@@ -57,20 +58,15 @@ feat_sctlr2_not_supported\@:
 
 #ifdef IMAGE_BL31
 	/* ---------------------------------------------------------------------
-	 * Initialise the per-cpu cache pointer to the CPU.
+	 * Initialise the per-cpu framework to utilize tpidr_el3.
+	 *
 	 * This is done early to enable crash reporting to have access to crash
 	 * stack. Since crash reporting depends on cpu_data to report the
 	 * unhandled exception, not doing so can lead to recursive exceptions
 	 * due to a NULL TPIDR_EL3.
 	 * ---------------------------------------------------------------------
 	 */
-	bl	plat_my_core_pos
-	/* index into the cpu_data */
-	mov_imm	x1, CPU_DATA_SIZE
-	mul	x0, x0, x1
-	adr_l	x1, percpu_data
-	add	x0, x0, x1
-	msr	tpidr_el3, x0
+	per_cpu_init
 #endif /* IMAGE_BL31 */
 
 	/* ---------------------------------------------------------------------
@@ -335,6 +331,47 @@ feat_sctlr2_not_supported\@:
 		bl	inv_dcache_range
 #endif
 #endif
+#if defined(IMAGE_BL31)
+		adrp	x0, __PER_CPU_START__
+		add	x0, x0, :lo12:__PER_CPU_START__
+		adrp	x1, __PER_CPU_END__
+		add	x1, x1, :lo12:__PER_CPU_END__
+		sub	x1, x1, x0
+#if (PLATFORM_NODE_COUNT > 1)
+		mov	x9, x1
+#endif /* (PLATFORM_NODE_COUNT > 1) */
+		bl	zeromem
+#if (PLATFORM_NODE_COUNT > 1)
+		/*
+		 * Zero-initialize per-cpu sections defined by the platform.
+		 * Care must be taken to preserve and retain the clobbered
+		 * registers. A standard around the container for per-cpu nodes
+		 * is not yet defined.
+		 */
+		mov	x10, #1
+		mov	x11, #PLATFORM_NODE_COUNT
+
+		1:
+			cmp	x10, x11
+			b.hs	2f
+
+			mov	x0, x10
+			bl	plat_per_cpu_node_base
+			cmn	x0, #1
+			b.eq	3f
+
+			/* x1 contains size param */
+			mov	x1, x9
+			bl	zeromem
+
+		3:
+			add	x10, x10, #1
+			b	1b
+
+		2:
+#endif /* (PLATFORM_NODE_COUNT > 1) */
+#endif /* defined(IMAGE_BL31) */
+
 		adrp	x0, __BSS_START__
 		add	x0, x0, :lo12:__BSS_START__
 

@@ -42,6 +42,8 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				bl31/bl31_traps.c				\
 				common/runtime_svc.c				\
 				lib/cpus/errata_common.c			\
+				lib/per_cpu/aarch64/per_cpu_asm.S		\
+				lib/per_cpu/per_cpu.c				\
 				plat/common/aarch64/platform_mp_stack.S		\
 				services/arm_arch_svc/arm_arch_svc_setup.c	\
 				services/std_svc/std_svc_setup.c		\

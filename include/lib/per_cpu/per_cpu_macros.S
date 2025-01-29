@@ -40,4 +40,17 @@
 	add	\dst, \clobber, \dst
 .endm
 
+/* -----------------------------------------------------------------
+ *	Populates tpidr_el3  with cpu specific per cpu section's
+ *	offset address.
+ *	Clobbers: x0 - x3
+ * -----------------------------------------------------------------
+ */
+.macro per_cpu_init
+	bl	plat_my_core_pos
+	bl	per_cpu_base
+	/* Update tpidr_el3 with offset */
+	msr	tpidr_el3, x0
+.endm
+
 #endif /* PER_CPU_MACROS_S */
