@@ -81,12 +81,12 @@ struct smccc_res {
 	uint64_t a3;
 };
 
-typedef uintptr_t (*smc_handler_t)(u_register_t,
-				   u_register_t,
-				   u_register_t,
-				   u_register_t,
-				   void *,
-				   struct smccc_res *);
+typedef u_register_t (*smc_handler_t)(u_register_t,
+				      u_register_t,
+				      u_register_t,
+				      u_register_t,
+				      void *,
+				      struct smccc_res *);
 
 struct smc_descriptor {
 	smc_handler_t smc_handler;
