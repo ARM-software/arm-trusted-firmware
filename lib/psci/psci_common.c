@@ -17,6 +17,7 @@
 #include <lib/cpus/cpu_ops.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/spe.h>
+#include <lib/per_cpu/per_cpu.h>
 #include <lib/pmf/pmf.h>
 #include <lib/runtime_instr.h>
 #include <lib/utils.h>
@@ -67,7 +68,7 @@ __section(".tzfw_coherent_mem")
 /* Lock for PSCI state coordination */
 DEFINE_PSCI_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
 
-cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
+PER_CPU_DEFINE(cpu_pd_node_t, psci_cpu_pd_nodes);
 
 /*******************************************************************************
  * Pointer to functions exported by the platform to complete power mgmt. ops
@@ -184,7 +185,7 @@ static bool psci_is_last_cpu_to_idle_at_pwrlvl(unsigned int my_idx, unsigned int
 		return true;
 	}
 
-	parent_idx = psci_cpu_pd_nodes[my_idx].parent_node;
+	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, my_idx)->parent_node;
 	for (lvl = PSCI_CPU_PWR_LVL + U(1); lvl < end_pwrlvl; lvl++) {
 		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
@@ -459,7 +460,7 @@ void psci_get_target_local_pwr_states(unsigned int cpu_idx, unsigned int end_pwr
 	plat_local_state_t *pd_state = target_state->pwr_domain_state;
 
 	pd_state[PSCI_CPU_PWR_LVL] = psci_get_cpu_local_state();
-	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 
 	/* Copy the local power state from node to state_info */
 	for (lvl = PSCI_CPU_PWR_LVL + 1U; lvl <= end_pwrlvl; lvl++) {
@@ -493,7 +494,7 @@ void psci_set_target_local_pwr_states(unsigned int cpu_idx, unsigned int end_pwr
 	 */
 	psci_flush_cpu_data(psci_svc_cpu_data.local_state);
 
-	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 
 	/* Copy the local_state from state_info */
 	for (lvl = 1U; lvl <= end_pwrlvl; lvl++) {
@@ -509,7 +510,8 @@ void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
 				      unsigned int end_lvl,
 				      unsigned int *node_index)
 {
-	unsigned int parent_node = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	unsigned int parent_node =
+		PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 	unsigned int i;
 	unsigned int *node = node_index;
 
@@ -528,7 +530,7 @@ void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
 void psci_set_pwr_domains_to_run(unsigned int cpu_idx, unsigned int end_pwrlvl)
 {
 	unsigned int parent_idx, lvl;
-	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 
 	/* Reset the local_state to RUN for the non cpu power domains. */
 	for (lvl = PSCI_CPU_PWR_LVL + 1U; lvl <= end_pwrlvl; lvl++) {
@@ -578,7 +580,7 @@ void psci_do_state_coordination(unsigned int cpu_idx, unsigned int end_pwrlvl,
 	plat_local_state_t target_state;
 
 	assert(end_pwrlvl <= PLAT_MAX_PWR_LVL);
-	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 
 	/* For level 0, the requested state will be equivalent
 	   to target state */
@@ -658,7 +660,7 @@ int psci_validate_state_coordination(unsigned int cpu_idx, unsigned int end_pwrl
 	plat_local_state_t prev[PLAT_MAX_PWR_LVL];
 
 	assert(end_pwrlvl <= PLAT_MAX_PWR_LVL);
-	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 
 	/*
 	 * Save a copy of the previous requested local power states and update
@@ -1173,8 +1175,8 @@ void psci_print_power_domain_map(void)
 		state_type = find_local_state_type(state);
 		INFO("  CPU Node : MPID 0x%llx, parent_node %u,"
 				" State %s (0x%x)\n",
-				(unsigned long long)psci_cpu_pd_nodes[idx].mpidr,
-				psci_cpu_pd_nodes[idx].parent_node,
+				(unsigned long long)PER_CPU_BY_INDEX(psci_cpu_pd_nodes, idx)->mpidr,
+				PER_CPU_BY_INDEX(psci_cpu_pd_nodes, idx)->parent_node,
 				psci_state_type_str[state_type],
 				psci_get_cpu_local_state_by_idx(idx));
 	}
@@ -1192,8 +1194,8 @@ int psci_secondaries_brought_up(void)
 {
 	unsigned int idx, n_valid = 0U;
 
-	for (idx = 0U; idx < ARRAY_SIZE(psci_cpu_pd_nodes); idx++) {
-		if (psci_cpu_pd_nodes[idx].mpidr != PSCI_INVALID_MPIDR) {
+	for (idx = 0U; idx < PLATFORM_CORE_COUNT; idx++) {
+		if (PER_CPU_BY_INDEX(psci_cpu_pd_nodes, idx)->mpidr != PSCI_INVALID_MPIDR) {
 			n_valid++;
 		}
 	}
@@ -1373,7 +1375,7 @@ int psci_stop_other_cores(unsigned int this_cpu_idx, unsigned int wait_ms,
 
 		/* Check if the CPU is ON */
 		if (psci_get_aff_info_state_by_idx(idx) == AFF_STATE_ON) {
-			(*stop_func)(psci_cpu_pd_nodes[idx].mpidr);
+			(*stop_func)(PER_CPU_BY_INDEX(psci_cpu_pd_nodes, idx)->mpidr);
 		}
 	}
 

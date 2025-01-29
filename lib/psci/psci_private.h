@@ -14,6 +14,7 @@
 #include <common/bl_common.h>
 #include <lib/bakery_lock.h>
 #include <lib/el3_runtime/cpu_data.h>
+#include <lib/per_cpu/per_cpu.h>
 #include <lib/psci/psci.h>
 #include <lib/spinlock.h>
 
@@ -267,7 +268,7 @@ static inline void psci_lock_init(non_cpu_pd_node_t *non_cpu_pd_node,
  ******************************************************************************/
 extern const plat_psci_ops_t *psci_plat_pm_ops;
 extern non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
-extern cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
+PER_CPU_DECLARE(cpu_pd_node_t, psci_cpu_pd_nodes);
 extern unsigned int psci_caps;
 extern unsigned int psci_plat_core_count;
 #if PSCI_OS_INIT_MODE

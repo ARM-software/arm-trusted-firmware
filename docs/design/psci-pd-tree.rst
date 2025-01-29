@@ -222,7 +222,7 @@ structures.
 .. code:: c
 
     non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
-    cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
+    PER_CPU_DEFINE(cpu_pd_node_t, psci_cpu_pd_nodes);
 
 Populating the power domain tree
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -13,6 +13,7 @@
 #include <context.h>
 #include <lib/cpus/errata.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/per_cpu/per_cpu.h>
 #include <plat/common/platform.h>
 
 #include "psci_private.h"
@@ -58,10 +59,10 @@ static void __init psci_init_pwr_domain_node(uint16_t node_idx,
 
 		assert(node_idx < PLATFORM_CORE_COUNT);
 
-		psci_cpu_pd_nodes[node_idx].parent_node = parent_idx;
+		PER_CPU_BY_INDEX(psci_cpu_pd_nodes, node_idx)->parent_node = parent_idx;
 
 		/* Initialize with an invalid mpidr */
-		psci_cpu_pd_nodes[node_idx].mpidr = PSCI_INVALID_MPIDR;
+		PER_CPU_BY_INDEX(psci_cpu_pd_nodes, node_idx)->mpidr = PSCI_INVALID_MPIDR;
 
 		svc_cpu_data = &get_cpu_data_by_index(node_idx, psci_svc_cpu_data);
 
@@ -230,7 +231,7 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
 	populate_cpu_data();
 
 	/* Populate the mpidr field of cpu node for this CPU */
-	psci_cpu_pd_nodes[cpu_idx].mpidr =
+	PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->mpidr =
 		read_mpidr() & MPIDR_AFFINITY_MASK;
 
 	psci_init_req_local_pwr_states();

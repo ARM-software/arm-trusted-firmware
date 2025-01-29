@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -81,7 +81,7 @@ void psci_stats_update_pwr_down(unsigned int cpu_idx, unsigned int end_pwrlvl,
 	assert(end_pwrlvl <= PLAT_MAX_PWR_LVL);
 	assert(state_info != NULL);
 
-	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 
 	for (lvl = PSCI_CPU_PWR_LVL + 1U; lvl <= end_pwrlvl; lvl++) {
 
@@ -132,7 +132,7 @@ void psci_stats_update_pwr_up(unsigned int cpu_idx, unsigned int end_pwrlvl,
 	 * Check what power domains above CPU were off
 	 * prior to this CPU powering on.
 	 */
-	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	parent_idx = PER_CPU_BY_INDEX(psci_cpu_pd_nodes, cpu_idx)->parent_node;
 	/* Return early if this is the first power up. */
 	if (last_cpu_in_non_cpu_pd[parent_idx] == -1)
 		return;
@@ -205,7 +205,8 @@ static int psci_get_stat(u_register_t target_cpu, unsigned int power_state,
 
 	if (pwrlvl > PSCI_CPU_PWR_LVL) {
 		/* Get the power domain index */
-		parent_idx = SPECULATION_SAFE_VALUE(psci_cpu_pd_nodes[target_idx].parent_node);
+		parent_idx = SPECULATION_SAFE_VALUE(PER_CPU_BY_INDEX(psci_cpu_pd_nodes,
+				target_idx)->parent_node);
 		for (lvl = PSCI_CPU_PWR_LVL + 1U; lvl < pwrlvl; lvl++)
 			parent_idx = SPECULATION_SAFE_VALUE(psci_non_cpu_pd_nodes[parent_idx].parent_node);
 
