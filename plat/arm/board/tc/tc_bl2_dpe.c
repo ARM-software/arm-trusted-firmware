@@ -230,14 +230,10 @@ void plat_dpe_get_context_handle(int *ctx_handle)
 
 void bl2_plat_mboot_init(void)
 {
+#if defined(SPD_spmd)
 	size_t i;
 	const size_t array_size = ARRAY_SIZE(tc_dpe_metadata);
 
-	/* Initialize the communication channel between AP and RSE */
-	(void)rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE,
-			     PLAT_RSE_AP_RCV_MHU_BASE);
-
-#if defined(SPD_spmd)
 	for (i = 0U; i < array_size; i++) {
 		if (tc_dpe_metadata[i].id != SP_PKG1_ID) {
 			continue;
@@ -256,6 +252,10 @@ void bl2_plat_mboot_init(void)
 		break;
 	}
 #endif
+
+	/* Initialize the communication channel between AP and RSE */
+	(void)rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE,
+			     PLAT_RSE_AP_RCV_MHU_BASE);
 
 	dpe_init(tc_dpe_metadata);
 }
