@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,7 +37,7 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
 static uint32_t rk_uart_baudrate = PLAT_RK_UART_BAUDRATE;
 static uint32_t rk_uart_clock = PLAT_RK_UART_CLOCK;
-#define FDT_BUFFER_SIZE 0x20000
+#define FDT_BUFFER_SIZE 0x60000
 static uint64_t fdt_buffer[FDT_BUFFER_SIZE / 8];
 
 void *plat_get_fdt(void)
