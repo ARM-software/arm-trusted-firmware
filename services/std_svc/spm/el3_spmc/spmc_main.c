@@ -46,7 +46,7 @@
 #define FFA_MEM_PERM_INST_NON_EXEC      (U(1) << 2)
 
 /* Declare the maximum number of SPs and El3 LPs. */
-#define MAX_SP_LP_PARTITIONS SECURE_PARTITION_COUNT + MAX_EL3_LP_DESCS_COUNT
+#define MAX_SP_LP_PARTITIONS (SECURE_PARTITION_COUNT + MAX_EL3_LP_DESCS_COUNT)
 
 #define FFA_VERSION_SPMC_MAJOR U(1)
 #define FFA_VERSION_SPMC_MINOR U(2)
@@ -1037,28 +1037,40 @@ static int partition_info_get_handler_v1_1(uint32_t *uuid,
 
 	/* Deal with physical SP's. */
 	for (index = 0U; index < SECURE_PARTITION_COUNT; index++) {
-		if (null_uuid || uuid_match(uuid, sp_desc[index].uuid)) {
-			/* Found a matching UUID, populate appropriately. */
-			if (*partition_count >= max_partitions) {
-				return FFA_ERROR_NO_MEMORY;
-			}
+		uint32_t uuid_index;
+		uint32_t *sp_uuid;
 
-			desc = &partitions[*partition_count];
-			desc->ep_id = sp_desc[index].sp_id;
-			/*
-			 * Execution context count must match No. cores for
-			 * S-EL1 SPs.
-			 */
-			desc->execution_ctx_count = PLATFORM_CORE_COUNT;
-			desc->properties =
-				partition_info_get_populate_properties(
-					sp_desc[index].properties,
-					sp_desc[index].execution_state);
+		for (uuid_index = 0; uuid_index < sp_desc[index].num_uuids;
+		     uuid_index++) {
+			sp_uuid = sp_desc[index].uuid_array[uuid_index].uuid;
 
-			if (null_uuid) {
-				copy_uuid(desc->uuid, sp_desc[index].uuid);
+			if (null_uuid || uuid_match(uuid, sp_uuid)) {
+				/* Found a matching UUID, populate appropriately. */
+
+				if (*partition_count >= max_partitions) {
+					return FFA_ERROR_NO_MEMORY;
+				}
+
+				desc = &partitions[*partition_count];
+				desc->ep_id = sp_desc[index].sp_id;
+				/*
+				 * Execution context count must match No. cores for
+				 * S-EL1 SPs.
+				 */
+				desc->execution_ctx_count = PLATFORM_CORE_COUNT;
+				desc->properties =
+					partition_info_get_populate_properties(
+						sp_desc[index].properties,
+						sp_desc[index].execution_state);
+
+				(*partition_count)++;
+				if (null_uuid) {
+					copy_uuid(desc->uuid, sp_uuid);
+				} else {
+					/* Found UUID in this SP, go to next SP */
+					break;
+				}
 			}
-			(*partition_count)++;
 		}
 	}
 	return 0;
@@ -1086,8 +1098,20 @@ static uint32_t partition_info_get_handler_count_only(uint32_t *uuid)
 
 	/* Deal with physical SP's. */
 	for (index = 0U; index < SECURE_PARTITION_COUNT; index++) {
-		if (null_uuid || uuid_match(uuid, sp_desc[index].uuid)) {
-			(partition_count)++;
+		uint32_t uuid_index;
+
+		for (uuid_index = 0; uuid_index < sp_desc[index].num_uuids;
+		     uuid_index++) {
+			uint32_t *sp_uuid =
+				sp_desc[index].uuid_array[uuid_index].uuid;
+
+			if (null_uuid) {
+				(partition_count)++;
+			} else if (uuid_match(uuid, sp_uuid)) {
+				(partition_count)++;
+				/* Found a match, go to next SP */
+				break;
+			}
 		}
 	}
 	return partition_count;
@@ -1168,8 +1192,9 @@ static uint64_t partition_info_get_handler(uint32_t smc_fid,
 						FFA_ERROR_INVALID_PARAMETER);
 		}
 	} else {
-		struct ffa_partition_info_v1_1 partitions[MAX_SP_LP_PARTITIONS];
-
+		struct ffa_partition_info_v1_1
+			partitions[MAX_SP_LP_PARTITIONS *
+				   SPMC_AT_EL3_PARTITION_MAX_UUIDS];
 		/*
 		 * Handle the case where the partition descriptors are required,
 		 * check we have the buffers available and populate the
@@ -1177,9 +1202,11 @@ static uint64_t partition_info_get_handler(uint32_t smc_fid,
 		 */
 
 		/* Obtain the v1.1 format of the descriptors. */
-		ret = partition_info_get_handler_v1_1(uuid, partitions,
-						      MAX_SP_LP_PARTITIONS,
-						      &partition_count);
+		ret = partition_info_get_handler_v1_1(
+			uuid, partitions,
+			(MAX_SP_LP_PARTITIONS *
+			 SPMC_AT_EL3_PARTITION_MAX_UUIDS),
+			&partition_count);
 
 		/* Check if an error occurred during discovery. */
 		if (ret != 0) {
@@ -1990,6 +2017,8 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 {
 	int32_t ret, node;
 	uint32_t config_32;
+	int uuid_size;
+	const fdt32_t *prop;
 
 	/*
 	 * Look for the mandatory fields that are expected to be present in
@@ -2001,11 +2030,39 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 		return node;
 	}
 
+	prop = fdt_getprop(sp_manifest, node, "uuid", &uuid_size);
+	if (prop == NULL) {
+		ERROR("Couldn't find property uuid in manifest\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	sp->num_uuids = (uint32_t)uuid_size / sizeof(struct ffa_uuid);
+	if (sp->num_uuids > ARRAY_SIZE(sp->uuid_array)) {
+		ERROR("Too many UUIDs (%d) in manifest, maximum is %zd\n",
+		      sp->num_uuids, ARRAY_SIZE(sp->uuid_array));
+		return -FDT_ERR_BADVALUE;
+	}
+
 	ret = fdt_read_uint32_array(sp_manifest, node, "uuid",
-				    ARRAY_SIZE(sp->uuid), sp->uuid);
+				    (uuid_size / sizeof(uint32_t)),
+				    sp->uuid_array[0].uuid);
 	if (ret != 0) {
 		ERROR("Missing Secure Partition UUID.\n");
 		return ret;
+	}
+
+	for (uint32_t i = 0; i < sp->num_uuids; i++) {
+		for (uint32_t j = 0; j < i; j++) {
+			if (memcmp(&sp->uuid_array[i], &sp->uuid_array[j],
+				   sizeof(struct ffa_uuid)) == 0) {
+				ERROR("Duplicate UUIDs in manifest: 0x%x 0x%x 0x%x 0x%x\n",
+				      sp->uuid_array[i].uuid[0],
+				      sp->uuid_array[i].uuid[1],
+				      sp->uuid_array[i].uuid[2],
+				      sp->uuid_array[i].uuid[3]);
+				return -FDT_ERR_BADVALUE;
+			}
+		}
 	}
 
 	ret = fdt_read_uint32(sp_manifest, node, "exception-level", &config_32);
