@@ -86,92 +86,40 @@ subsections:
   - title: Architecture
 
     subsections:
-      - title: Activity Monitors Extension (FEAT_AMU)
-        scope: amu
-
-      - title: Branch Record Buffer Extension (FEAT_BRBE)
-        scope: brbe
-
-      - title: Branch Target Identification Extension
-        scope: bti
-
-      - title: Confidential Compute Architecture (CCA)
-        scope: cca
-
-      - title: Extended Cache Index (FEAT_CCIDX)
-        scope: ccidx
-
-      - title: Extended Translation Control Register (FEAT_TCR2).
-        scope: tcr2
-
-      - title: Fine-grained Traps 2 (FEAT_FGT2).
-        scope: fgt2
-
-      - title: CPU feature / ID register handling in general
+      - title: CPU feature like FEAT_XXXX / ID register handling in general
         scope: cpufeat
 
-      - title: Debug Extension (FEAT_Debugv8p9)
-        scope: debugv8p9
-
-      - title: Guarded Control Stack (FEAT_GCS)
-        scope: gcs
-
-      - title: Support for the `HCRX_EL2` register (FEAT_HCX)
-        scope: hcx
-
-      - title: Memory Partitioning and Monitoring (MPAM) Extension (FEAT_MPAM)
-        scope: mpam
-
-      - title: Memory Tagging Extension2
-        scope: mte2
-
         deprecated:
+          - amu
+          - brbe
+          - bti
+          - cca
+          - ccidx
+          - d128
+          - debugv8p9
+          - fgt2
+          - gcs
+          - hcx
+          - mpam
           - mte
-
-      - title: Pointer Authentication Extension
-        scope: pauth
-
-      - title: Performance Monitors Extension (FEAT_PMUv3)
-        scope: pmu
-
-      - title: Trapping support for RNDR/RNDRRS (FEAT_RNG_TRAP)
-        scope: rng-trap
-
-      - title: Scalable Matrix Extension (FEAT_SME, FEAT_SME2)
-        scope: sme
-
-      - title: Statistical profiling Extension (FEAT_SPE)
-        scope: spe
-
-      - title: Scalable Vector Extension (FEAT_SVE)
-        scope: sve
-
-      - title: System Register Trace Extensions (FEAT_ETMv4, FEAT_ETE and FEAT_ETEv1.1)
-        scope: sys-reg-trace
-
-        deprecated:
+          - mte2
+          - pauth
+          - pmu
+          - rng-trap
+          - sctlr2
+          - feat_sctlr2
+          - sme
+          - spe
+          - sve
+          - sys-reg-trace
           - sys_reg_trace
-
-      - title: Trace Buffer Extension (FEAT_TRBE)
-        scope: trbe
-
-      - title: Self-hosted Trace Extensions (FEAT_TRF)
-        scope: trf
+          - tcr2
+          - trbe
+          - trf
+          - the
 
       - title: DynamIQ Shared Unit (DSU)
         scope: dsu
-
-      - title: Extension to SCTLR_ELx (FEAT_SCTLR2)
-        scope: sctlr2
-
-        deprecated:
-          - feat_sctlr2
-
-      - title: 128-bit Translation Tables (FEAT_D128)
-        scope: d128
-
-      - title: Translation Hardening Extension (FEAT_THE)
-        scope: the
 
   - title: Platforms
     scope: platforms
