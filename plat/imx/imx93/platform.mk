@@ -36,6 +36,7 @@ BL31_SOURCES		+=	common/desc_image_load.c			\
 				${IMX_GIC_SOURCES}				\
 				${XLAT_TABLES_LIB_SRCS}
 
+ENABLE_PIE		:=	1
 RESET_TO_BL31		:=	1
 HW_ASSISTED_COHERENCY	:= 	1
 USE_COHERENT_MEM	:=	0
