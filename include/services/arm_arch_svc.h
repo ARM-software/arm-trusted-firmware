@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #define SMCCC_ARCH_WORKAROUND_2		U(0x80007FFF)
 #define SMCCC_ARCH_WORKAROUND_3		U(0x80003FFF)
 #define SMCCC_ARCH_FEATURE_AVAILABILITY		U(0x80000003)
+#define SMCCC_ARCH_WORKAROUND_4		U(0x80000004)
 
 #define SMCCC_GET_SOC_VERSION		U(0)
 #define SMCCC_GET_SOC_REVISION		U(1)
