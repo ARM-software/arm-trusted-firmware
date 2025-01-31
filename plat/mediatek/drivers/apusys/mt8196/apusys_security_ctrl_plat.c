@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2024, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2024-2025, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define ENABLE_SMPU_PROTECT	(0)
+#define ENABLE_SMPU_PROTECT	(1)
 
 #if ENABLE_SMPU_PROTECT
 #include "emi.h"
-#include "mt_emi.h"
 #endif
 
 #include <common/debug.h>

@@ -1,16 +1,12 @@
 /*
- * Copyright (c) 2024, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2024-2025, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <inttypes.h>
 
-#define SPMI_ENABLE	(0)
-
-#if SPMI_ENABLE
 #include <include/drivers/spmi_api.h>
-#endif
 
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
@@ -259,16 +255,13 @@ static int apu_pcu_init(void)
 	uint32_t en_set_offset = BUCK_VAPU_PMIC_REG_EN_SET_ADDR;
 	uint32_t en_clr_offset = BUCK_VAPU_PMIC_REG_EN_CLR_ADDR;
 	uint32_t en_shift = BUCK_VAPU_PMIC_REG_EN_SHIFT;
-#if SPMI_ENABLE
 	struct spmi_device *vsram_sdev;
-#endif
 	unsigned char vsram = 0;
 
 	mmio_write_32(APUSYS_PCU + APU_PCUTOP_CTRL_SET, AUTO_BUCK_EN);
 
 	mmio_write_32((APUSYS_PCU + APU_PCU_BUCK_STEP_SEL), BUCK_STEP_SEL_VAL);
 
-#if SPMI_ENABLE
 	vsram_sdev = get_spmi_device(SPMI_MASTER_1, SPMI_SLAVE_4);
 	if (!vsram_sdev) {
 		ERROR("[APUPW] VSRAM BUCK4 get device fail\n");
@@ -279,7 +272,6 @@ static int apu_pcu_init(void)
 		ERROR("[APUPW] VSRAM BUCK4 read fail\n");
 		return -1;
 	}
-#endif
 
 	mmio_write_32(APUSYS_PCU + APU_PCU_BUCK_ON_DAT0_L,
 		      (BUCK_VAPU_PMIC_REG_VOSEL_ADDR << PMIC_OFF_ADDR_OFF) | vsram);

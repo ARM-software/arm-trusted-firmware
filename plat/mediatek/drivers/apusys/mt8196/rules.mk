@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024, MediaTek Inc. All rights reserved.
+# Copyright (c) 2024-2025, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -10,7 +10,6 @@ MODULE := apusys_${MTK_SOC}
 
 ifeq (${CONFIG_MTK_APUSYS_EMI_SUPPORT}, y)
 PLAT_INCLUDES += -I${MTK_PLAT}/drivers/emi/common
-PLAT_INCLUDES += -I${MTK_PLAT}/drivers/emi/${MTK_SOC}
 endif
 
 LOCAL_SRCS-y := ${LOCAL_DIR}/apusys_ammu.c
