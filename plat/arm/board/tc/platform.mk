@@ -248,7 +248,8 @@ include drivers/arm/rse/rse_comms.mk
 
 BL1_SOURCES	+=	${RSE_COMMS_SOURCES}
 BL2_SOURCES	+=	${RSE_COMMS_SOURCES}
-BL31_SOURCES	+=	${RSE_COMMS_SOURCES}
+BL31_SOURCES	+=	${RSE_COMMS_SOURCES} \
+			lib/psa/rse_platform.c
 
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
