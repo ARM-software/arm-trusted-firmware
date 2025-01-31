@@ -30,6 +30,7 @@
 #define RNG_SR				0x04U
 #define RNG_DR				0x08U
 #if STM32_RNG_VER == 4
+#define RNG_NSCR			0x0CU
 #define RNG_HTCR			0x10U
 #endif
 
@@ -55,18 +56,34 @@
 #define TIMEOUT_US_1MS			1000U
 
 #if STM32_RNG_VER == 4
-#define RNG_NIST_CONFIG1		0xFU
-#define RNG_NIST_CONFIG2		0x0U
-#define RNG_NIST_CONFIG3		0xFU
 #define RNG_NIST_CONFIG(x, y, z)	(((x) << RNG_CR_RNG_CONFIG1_SHIFT) | \
 					 ((y) << RNG_CR_RNG_CONFIG2_SHIFT) | \
 					 ((z) << RNG_CR_RNG_CONFIG3_SHIFT))
 #define RNG_NIST_CONFIG_MASK		GENMASK_32(25, 8)
 
 #if STM32_RNG_VER_MINOR == 2
-#define RNG_HTCFG_CONFIG		0x000072ACU /* Reset value */
-#else
+/* MP13 default values */
+#define RNG_NIST_CONFIG1		0xFU
+#define RNG_NIST_CONFIG2		0x0U
+#define RNG_NIST_CONFIG3		0xDU
+#define RNG_HTCFG_CONFIG		0x0000969DU
+#define RNG_NSCFG_CONFIG		0x0002B5BBU
+#elif STM32_RNG_VER_MINOR == 3
+/* MP25 and MP23 default values */
+#define RNG_NIST_CONFIG1		0x8FU
+#define RNG_NIST_CONFIG2		0x0U
+#define RNG_NIST_CONFIG3		0xEU
+#define RNG_HTCFG_CONFIG		0x00006688U
+#define RNG_NSCFG_CONFIG		0x0002E649U
+#elif STM32_RNG_VER_MINOR == 4
+/* MP21 default values */
+#define RNG_NIST_CONFIG1		0xFU
+#define RNG_NIST_CONFIG2		0x0U
+#define RNG_NIST_CONFIG3		0xFU
 #define RNG_HTCFG_CONFIG		0x0000AAC7U
+#define RNG_NSCFG_CONFIG		0x000001FFU
+#else
+#error "Please define STM32_RNG_VER_MINOR"
 #endif
 #endif
 
@@ -148,6 +165,8 @@ static int stm32_rng_enable(void)
 			   (clock_div << RNG_CR_CLKDIV_SHIFT));
 
 	mmio_write_32(stm32_rng.base + RNG_HTCR, stm32_rng.ht_cfg);
+
+	mmio_write_32(stm32_rng.base + RNG_NSCR, RNG_NSCFG_CONFIG);
 
 	mmio_clrsetbits_32(stm32_rng.base + RNG_CR, RNG_CR_CONDRST, RNG_CR_RNGEN);
 #endif
