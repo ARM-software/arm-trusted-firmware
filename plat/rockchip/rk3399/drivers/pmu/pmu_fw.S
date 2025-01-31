@@ -6,16 +6,16 @@
 
 /* convoluted way to make sure that the define is pasted just the right way */
 .macro INCBIN file sym sec
-	.section \sec
+	.section \sec, "a"
 	.global \sym
 	.type \sym, @object
 	.align 4
 \sym :
-	.incbin \file
+	.incbin "\file"
 	.size \sym , .-\sym
 	.global \sym\()_end
 \sym\()_end :
 .endm
 
-INCBIN ""RK3399M0FW"", "rk3399m0_bin", ".sram.incbin"
-INCBIN ""RK3399M0PMUFW"", "rk3399m0pmu_bin", ".pmusram.incbin"
+INCBIN RK3399M0FW, "rk3399m0_bin", ".sram.incbin"
+INCBIN RK3399M0PMUFW, "rk3399m0pmu_bin", ".pmusram.incbin"
