@@ -39,10 +39,6 @@ $(eval $(call add_define,SPMC_OPTEE))
 add-lib-optee 		:= 	yes
 endif
 
-ifeq (${TRANSFER_LIST},1)
-include lib/transfer_list/transfer_list.mk
-endif
-
 ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
