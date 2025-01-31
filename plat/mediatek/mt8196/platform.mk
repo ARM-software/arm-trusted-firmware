@@ -9,6 +9,19 @@ MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 MTK_SOC := ${PLAT}
 ARM_ARCH_MAJOR := 9
 
+ERRATA_A720_2792132	:=	1
+ERRATA_A720_2844092	:=	1
+ERRATA_A720_2926083	:=	1
+ERRATA_A720_2940794	:=	1
+
+ERRATA_X4_2726228	:=	1
+ERRATA_X4_2740089	:=	1
+ERRATA_X4_2763018	:=	1
+ERRATA_X4_2816013	:=	1
+ERRATA_X4_2897503	:=	1
+ERRATA_X4_2923985	:=	1
+ERRATA_X4_3076789	:=	1
+
 include plat/mediatek/build_helpers/mtk_build_helpers.mk
 include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
