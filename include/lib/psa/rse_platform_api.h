@@ -59,6 +59,18 @@ rse_platform_nv_counter_read(uint32_t counter_id,
 psa_status_t
 rse_platform_key_read(enum rse_key_id_builtin_t key, uint8_t *data,
 		size_t data_size, size_t *data_length);
+
+/*
+ * Gets the entropy.
+ *
+ * data		Buffer where the entropy data is to be written.
+ * data_size	Size of the data buffer in bytes.
+ *
+ * PSA_SUCCESS if the entropy is generated successfully. Otherwise,
+ *	it returns a PSA_ERROR.
+ */
+psa_status_t
+rse_platform_get_entropy(uint8_t *data, size_t data_size);
 #endif
 
 #endif /* RSE_PLATFORM_API_H */
