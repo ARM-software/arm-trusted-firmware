@@ -7,7 +7,9 @@
 
 #include <psa/client.h>
 #include <psa_manifest/sid.h>
+#if CRYPTO_SUPPORT
 #include <rse_crypto_defs.h>
+#endif
 #include <rse_platform_api.h>
 
 psa_status_t
@@ -41,6 +43,7 @@ rse_platform_nv_counter_read(uint32_t counter_id,
 			in_vec, 1, out_vec, 1);
 }
 
+#if CRYPTO_SUPPORT
 psa_status_t
 rse_platform_key_read(enum rse_key_id_builtin_t key, uint8_t *data,
 		size_t data_size, size_t *data_length)
@@ -67,3 +70,4 @@ rse_platform_key_read(enum rse_key_id_builtin_t key, uint8_t *data,
 
 	return status;
 }
+#endif
