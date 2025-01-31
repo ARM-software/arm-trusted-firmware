@@ -44,7 +44,7 @@
 #define SOCFPGA_MMC_REG_BASE			U(0xff808000)
 #define SOCFPGA_RSTMGR_REG_BASE			U(0xffd11000)
 #define SOCFPGA_SYSMGR_REG_BASE			U(0xffd12000)
-#define SOCFPGA_ECC_QSPI_REG_BASE				U(0xffa22000)
+#define SOCFPGA_ECC_QSPI_REG_BASE		U(0xffa22000)
 
 #define SOCFPGA_L4_PER_SCR_REG_BASE		U(0xffd21000)
 #define SOCFPGA_L4_SYS_SCR_REG_BASE		U(0xffd21100)
@@ -91,7 +91,7 @@
 /*******************************************************************************
  * WDT related constants
  ******************************************************************************/
-#define WDT_BASE			(0xFFD00200)
+#define WDT_BASE				(0xFFD00200)
 
 /*******************************************************************************
  * GIC related constants
@@ -102,7 +102,7 @@
 #define PLAT_GICR_BASE				0
 
 #define PLAT_SYS_COUNTER_FREQ_IN_TICKS		(400000000)
-#define PLAT_HZ_CONVERT_TO_MHZ		(1000000)
+#define PLAT_HZ_CONVERT_TO_MHZ			(1000000)
 
 /*******************************************************************************
  * SDMMC related pointer function
@@ -111,10 +111,21 @@
 #define SDMMC_WRITE_BLOCKS			mmc_write_blocks
 
 /*******************************************************************************
- * sysmgr.boot_scratch_cold6 & 7 (64bit) are used to indicate L2 reset
+ * sysmgr.boot_scratch_cold6 Bits[3:0] is used to indicate L2 reset
  * is done and HPS should trigger warm reset via RMR_EL3.
  ******************************************************************************/
-#define L2_RESET_DONE_REG			0xFFD12218
+/*
+ * Magic key bits: 4 bits[3:0] from boot scratch register COLD6 are used to
+ * indicate the below requests/status
+ *     0x0       : Default value on reset, not used
+ *     0x1       : L2/warm reset is completed
+ *     0x2 - 0xF : Reserved for future use
+ */
+#define BS_REG_MAGIC_KEYS_MASK			0x0F
+#define BS_REG_MAGIC_KEYS_POS			0x00
+#define L2_RESET_DONE_STATUS			(0x01 << BS_REG_MAGIC_KEYS_POS)
+
+#define L2_RESET_DONE_REG			SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_6)
 
 /* Platform specific system counter */
 #define PLAT_SYS_COUNTER_FREQ_IN_MHZ		U(400)
