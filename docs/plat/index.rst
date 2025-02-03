@@ -49,6 +49,7 @@ Platform Ports
    synquacer
    st/index
    ti-k3
+   ti-am62l
    xilinx-versal-net
    xilinx-versal
    xilinx-zynqmp
