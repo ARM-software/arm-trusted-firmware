@@ -18,7 +18,7 @@
 
 #define PLAT_SPMC_SHMEM_DATASTORE_SIZE 512 * 1024
 
-__section("arm_el3_tzc_dram") static uint8_t
+__section(".arm_el3_tzc_dram") static uint8_t
 plat_spmc_shmem_datastore[PLAT_SPMC_SHMEM_DATASTORE_SIZE];
 
 int plat_spmc_shmem_datastore_get(uint8_t **datastore, size_t *size)

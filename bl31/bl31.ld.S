@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,7 +66,7 @@ SECTIONS {
         __RODATA_END__ = .;
     } >RAM
 #else /* SEPARATE_CODE_AND_RODATA */
-    ro . : {
+    .ro . : {
         __RO_START__ = .;
 
         *bl31_entrypoint.o(.text*)
@@ -111,7 +111,7 @@ SECTIONS {
      * There's no need to include this into the RO section of BL31 because it
      * doesn't need to be accessed by BL31.
      */
-    spm_shim_exceptions : ALIGN(PAGE_SIZE) {
+    .spm_shim_exceptions : ALIGN(PAGE_SIZE) {
         __SPM_SHIM_EXCEPTIONS_START__ = .;
 
         *(.spm_shim_exceptions)
@@ -121,9 +121,9 @@ SECTIONS {
         __SPM_SHIM_EXCEPTIONS_END__ = .;
     } >SPM_SHIM_EXCEPTIONS_VMA AT>RAM
 
-    PROVIDE(__SPM_SHIM_EXCEPTIONS_LMA__ = LOADADDR(spm_shim_exceptions));
+    PROVIDE(__SPM_SHIM_EXCEPTIONS_LMA__ = LOADADDR(.spm_shim_exceptions));
 
-    . = LOADADDR(spm_shim_exceptions) + SIZEOF(spm_shim_exceptions);
+    . = LOADADDR(.spm_shim_exceptions) + SIZEOF(.spm_shim_exceptions);
 #endif /* SPM_MM */
 
     __RW_START__ = .;
@@ -162,15 +162,15 @@ SECTIONS {
      * not mixed with normal data.  This is required to set up the correct
      * memory attributes for the coherent data page tables.
      */
-    coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
+    .coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
         __COHERENT_RAM_START__ = .;
 
         /*
          * Bakery locks are stored in coherent memory. Each lock's data is
          * contiguous and fully allocated by the compiler.
          */
-        *(bakery_lock)
-        *(tzfw_coherent_mem)
+        *(.bakery_lock)
+        *(.tzfw_coherent_mem)
 
         __COHERENT_RAM_END_UNALIGNED__ = .;
 

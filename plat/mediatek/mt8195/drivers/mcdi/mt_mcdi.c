@@ -63,7 +63,7 @@
 #define MCDI_INIT_2			2
 #define MCDI_INIT_DONE			3
 
-static int mcdi_init_status __section("tzfw_coherent_mem");
+static int mcdi_init_status __section(".tzfw_coherent_mem");
 
 static inline uint32_t mcdi_mbox_read(uint32_t id)
 {

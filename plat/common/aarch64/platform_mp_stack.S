@@ -56,6 +56,6 @@ endfunc plat_set_my_stack
 	 * stack of PLATFORM_STACK_SIZE bytes.
 	 * -----------------------------------------------------
 	 */
-declare_stack platform_normal_stacks, tzfw_normal_stacks, \
+declare_stack platform_normal_stacks, .tzfw_normal_stacks, \
 		PLATFORM_STACK_SIZE, PLATFORM_CORE_COUNT, \
 		CACHE_WRITEBACK_GRANULE

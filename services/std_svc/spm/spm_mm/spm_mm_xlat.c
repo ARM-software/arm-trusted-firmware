@@ -19,7 +19,7 @@
 
 /* Place translation tables by default along with the ones used by BL31. */
 #ifndef PLAT_SP_IMAGE_XLAT_SECTION_NAME
-#define PLAT_SP_IMAGE_XLAT_SECTION_NAME	"xlat_table"
+#define PLAT_SP_IMAGE_XLAT_SECTION_NAME	".xlat_table"
 #endif
 #ifndef PLAT_SP_IMAGE_BASE_XLAT_SECTION_NAME
 #define PLAT_SP_IMAGE_BASE_XLAT_SECTION_NAME	".bss"

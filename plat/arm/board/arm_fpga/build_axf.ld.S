@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -46,7 +46,7 @@ SECTIONS
 		KEEP(*(.kern_tramp))
 	}
 
-	/DISCARD/ : { *(stacks) }
+	/DISCARD/ : { *(.stacks) }
 	/DISCARD/ : { *(.debug_*) }
 	/DISCARD/ : { *(.note*) }
 	/DISCARD/ : { *(.comment*) }

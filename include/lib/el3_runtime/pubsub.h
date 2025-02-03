@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,7 @@
 /* For the linker ... */
 #define __pubsub_start_sym(event)	__pubsub_##event##_start
 #define __pubsub_end_sym(event)		__pubsub_##event##_end
-#define __pubsub_section(event)		__pubsub_##event
+#define __pubsub_section(event)		.__pubsub_##event
 
 /*
  * REGISTER_PUBSUB_EVENT has a different definition between linker and compiler
@@ -54,7 +54,7 @@
 #define __pubsub_end_sym(event)		__pubsub_##event##_end
 #endif
 
-#define __pubsub_section(event)		__section("__pubsub_" #event)
+#define __pubsub_section(event)		__section(".__pubsub_" #event)
 
 /*
  * In compiler context, REGISTER_PUBSUB_EVENT declares the per-event symbols

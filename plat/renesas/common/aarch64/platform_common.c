@@ -28,7 +28,7 @@ extern int32_t rcar_get_certificate(const int32_t name, uint32_t *cert);
 #endif
 
 const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
-		__attribute__ ((__section__("ro"))) = VERSION_OF_RENESAS;
+		__attribute__ ((__section__(".ro"))) = VERSION_OF_RENESAS;
 
 #define MAP_SHARED_RAM		MAP_REGION_FLAT(RCAR_SHARED_MEM_BASE,	\
 					RCAR_SHARED_MEM_SIZE,		\

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,7 +62,7 @@ SECTIONS {
         __RODATA_END__ = .;
     } >RAM
 #else /* SEPARATE_CODE_AND_RODATA */
-    ro . : {
+    .ro . : {
         __RO_START__ = .;
 
         *entrypoint.o(.text*)
@@ -115,15 +115,15 @@ SECTIONS {
      * not mixed with normal data.  This is required to set up the correct
      * memory attributes for the coherent data page tables.
      */
-    coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
+    .coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
         __COHERENT_RAM_START__ = .;
 
         /*
          * Bakery locks are stored in coherent memory. Each lock's data is
          * contiguous and fully allocated by the compiler.
          */
-        *(bakery_lock)
-        *(tzfw_coherent_mem)
+        *(.bakery_lock)
+        *(.tzfw_coherent_mem)
 
         __COHERENT_RAM_END_UNALIGNED__ = .;
 
