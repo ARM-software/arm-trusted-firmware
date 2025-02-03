@@ -68,6 +68,7 @@
 #define RNG_NIST_CONFIG3		0xDU
 #define RNG_HTCFG_CONFIG		0x0000969DU
 #define RNG_NSCFG_CONFIG		0x0002B5BBU
+#define RNG_MAX_NOISE_CLK_FREQ		48000000U
 #elif STM32_RNG_VER_MINOR == 3
 /* MP25 and MP23 default values */
 #define RNG_NIST_CONFIG1		0x8FU
@@ -75,6 +76,7 @@
 #define RNG_NIST_CONFIG3		0xEU
 #define RNG_HTCFG_CONFIG		0x00006688U
 #define RNG_NSCFG_CONFIG		0x0002E649U
+#define RNG_MAX_NOISE_CLK_FREQ		48000000U
 #elif STM32_RNG_VER_MINOR == 4
 /* MP21 default values */
 #define RNG_NIST_CONFIG1		0xFU
@@ -82,12 +84,11 @@
 #define RNG_NIST_CONFIG3		0xFU
 #define RNG_HTCFG_CONFIG		0x0000AAC7U
 #define RNG_NSCFG_CONFIG		0x000001FFU
+#define RNG_MAX_NOISE_CLK_FREQ		4000000U
 #else
 #error "Please define STM32_RNG_VER_MINOR"
 #endif
 #endif
-
-#define RNG_MAX_NOISE_CLK_FREQ		48000000U
 
 struct stm32_rng_instance {
 	uintptr_t base;
