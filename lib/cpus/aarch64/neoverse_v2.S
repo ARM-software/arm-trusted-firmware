@@ -149,6 +149,10 @@ func neoverse_v2_cpu_reg_dump
 	ret
 endfunc neoverse_v2_cpu_reg_dump
 
-declare_cpu_ops neoverse_v2, NEOVERSE_V2_MIDR, \
+declare_cpu_ops_wa_4 neoverse_v2, NEOVERSE_V2_MIDR, \
 	neoverse_v2_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_neoverse_v2_7881, \
 	neoverse_v2_core_pwr_dwn
