@@ -79,6 +79,10 @@ func cortex_x925_cpu_reg_dump
 	ret
 endfunc cortex_x925_cpu_reg_dump
 
-declare_cpu_ops cortex_x925, CORTEX_X925_MIDR, \
+declare_cpu_ops_wa_4 cortex_x925, CORTEX_X925_MIDR, \
 	cortex_x925_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_cortex_x925_7881, \
 	cortex_x925_core_pwr_dwn
