@@ -245,26 +245,30 @@ endfunc delegate_async_ea
  */
 func ea_proceed
 	/*
-	 * If the ESR loaded earlier is not zero, we were processing an EA
-	 * already, and this is a double fault.
+	 * If it is a double fault invoke platform handler.
+	 * Double fault scenario would arise when platform is handling a fault in
+	 * lower EL using plat_ea_handler() and another fault happens which would
+	 * trap into EL3 as FFH_SUPPORT is enabled for the platform.
 	 */
-	ldr	x5, [sp, #CTX_EL3STATE_OFFSET + CTX_ESR_EL3]
+	ldr	x5, [sp, #CTX_EL3STATE_OFFSET + CTX_DOUBLE_FAULT_ESR]
 	cbz	x5, 1f
 	no_ret	plat_handle_double_fault
 
 1:
-	/* Save EL3 state */
+	/* Save EL3 state as handling might involve lower ELs */
 	mrs	x2, spsr_el3
 	mrs	x3, elr_el3
 	stp	x2, x3, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+	mrs	x4, scr_el3
+	str	x4, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 
 	/*
-	 * Save ESR as handling might involve lower ELs, and returning back to
-	 * EL3 from there would trample the original ESR.
+	 * Save CTX_DOUBLE_FAULT_ESR, so that if another fault happens in lower EL, we
+	 * catch it as DoubleFault in next invocation of ea_proceed() along with
+	 * preserving original ESR_EL3.
 	 */
-	mrs	x4, scr_el3
 	mrs	x5, esr_el3
-	stp	x4, x5, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	str	x5, [sp, #CTX_EL3STATE_OFFSET + CTX_DOUBLE_FAULT_ESR]
 
 	/*
 	 * Setup rest of arguments, and call platform External Abort handler.
@@ -305,23 +309,15 @@ func ea_proceed
 	/* Make SP point to context */
 	msr	spsel, #MODE_SP_ELX
 
-	/* Restore EL3 state and ESR */
+	/* Clear Double Fault storage */
+	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_DOUBLE_FAULT_ESR]
+
+	/* Restore EL3 state */
 	ldp	x1, x2, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
 	msr	spsr_el3, x1
 	msr	elr_el3, x2
-
-	/* Restore ESR_EL3 and SCR_EL3 */
-	ldp	x3, x4, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	ldr	x3, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 	msr	scr_el3, x3
-	msr	esr_el3, x4
-
-#if ENABLE_ASSERTIONS
-	cmp	x4, xzr
-	ASM_ASSERT(ne)
-#endif
-
-	/* Clear ESR storage */
-	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_ESR_EL3]
 
 	ret	x29
 endfunc ea_proceed

@@ -67,25 +67,25 @@
  ******************************************************************************/
 #define CTX_EL3STATE_OFFSET	(CTX_GPREGS_OFFSET + CTX_GPREGS_END)
 #define CTX_SCR_EL3		U(0x0)
-#define CTX_ESR_EL3		U(0x8)
-#define CTX_RUNTIME_SP		U(0x10)
-#define CTX_SPSR_EL3		U(0x18)
-#define CTX_ELR_EL3		U(0x20)
-#define CTX_PMCR_EL0		U(0x28)
-#define CTX_IS_IN_EL3		U(0x30)
-#define CTX_MDCR_EL3		U(0x38)
+#define CTX_RUNTIME_SP		U(0x8)
+#define CTX_SPSR_EL3		U(0x10)
+#define CTX_ELR_EL3		U(0x18)
+#define CTX_PMCR_EL0		U(0x20)
+#define CTX_IS_IN_EL3		U(0x28)
+#define CTX_MDCR_EL3		U(0x30)
 /* Constants required in supporting nested exception in EL3 */
-#define CTX_SAVED_ELR_EL3	U(0x40)
+#define CTX_SAVED_ELR_EL3	U(0x38)
 /*
  * General purpose flag, to save various EL3 states
  * FFH mode : Used to identify if handling nested exception
  * KFH mode : Used as counter value
  */
-#define CTX_NESTED_EA_FLAG	U(0x48)
+#define CTX_NESTED_EA_FLAG	U(0x40)
 #if FFH_SUPPORT
- #define CTX_SAVED_ESR_EL3	U(0x50)
- #define CTX_SAVED_SPSR_EL3	U(0x58)
- #define CTX_SAVED_GPREG_LR	U(0x60)
+ #define CTX_SAVED_ESR_EL3	U(0x48)
+ #define CTX_SAVED_SPSR_EL3	U(0x50)
+ #define CTX_SAVED_GPREG_LR	U(0x58)
+ #define CTX_DOUBLE_FAULT_ESR	U(0x60)
  #define CTX_EL3STATE_END	U(0x70) /* Align to the next 16 byte boundary */
 #else
  #define CTX_EL3STATE_END	U(0x50) /* Align to the next 16 byte boundary */
