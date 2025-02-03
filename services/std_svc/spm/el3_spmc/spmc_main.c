@@ -2181,6 +2181,13 @@ static int find_and_prepare_sp_context(void)
 		return -EINVAL;
 	}
 
+	ret = mmap_remove_dynamic_region(manifest_base_align, PAGE_SIZE * 2);
+	if (ret != 0) {
+		ERROR("Error while unmapping manifest_base, ret is (%d).\n",
+				ret);
+		return ret;
+	}
+
 	return 0;
 }
 
