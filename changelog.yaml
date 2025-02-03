@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -1418,6 +1418,9 @@ subsections:
     scope: tools
 
     subsections:
+      - title: Dependabot
+        scope: dependabot
+
       - title: STM32 Image
         scope: stm32image
 
@@ -1476,6 +1479,9 @@ subsections:
 
       - title: Compiler runtime libraries
         scope: compiler-rt
+
+      - title: Development dependencies
+        scope: dev-deps
 
       - title: libfdt
         scope: libfdt
