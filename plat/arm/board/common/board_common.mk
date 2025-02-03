@@ -67,7 +67,7 @@ ifdef ROT_KEY
 	PK_PREREQUISITES = $(ROT_KEY) FORCE
 endif
 
-$(ARM_ROTPK) : $(PK_PREREQUISITES)
+$(ARM_ROTPK) : $(PK_PREREQUISITES) | $$(@D)/
 ifndef ROT_KEY
 	$(error Cannot generate public key: no ROT_KEY defined)
 endif
