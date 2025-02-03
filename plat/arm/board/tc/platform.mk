@@ -160,6 +160,11 @@ INTERCONNECT_SOURCES	:=	${TC_BASE}/tc_interconnect.c \
 PLAT_BL_COMMON_SOURCES	+=	${TC_BASE}/tc_plat.c	\
 				${TC_BASE}/include/tc_helpers.S
 
+
+ifneq (${ENABLE_STACK_PROTECTOR},0)
+PLAT_BL_COMMON_SOURCES	+=	${TC_BASE}/tc_stack_protector.c
+endif
+
 BL1_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				${TC_CPU_SOURCES}	\
 				${TC_BASE}/tc_trusted_boot.c	\
