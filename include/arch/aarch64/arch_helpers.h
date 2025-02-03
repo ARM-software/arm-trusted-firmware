@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -715,6 +715,9 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpmxevtyper_el1, CLUSTERPMXEVTYPER_EL1)
 /* CPU Power/Performance Management registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpuppmcr_el3, CPUPPMCR_EL3)
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpumpmmcr_el3, CPUMPMMCR_EL3)
+
+/* Armv9.1 FEAT_BRBE Registers */
+DEFINE_RENAME_SYSREG_RW_FUNCS(brbcr_el2, BRBCR_EL2)
 
 /* Armv9.2 RME Registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(gptbr_el3, GPTBR_EL3)
