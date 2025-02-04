@@ -31,6 +31,9 @@ FVP_TRUSTED_SRAM_SIZE	:= 256
 # Macro to enable helpers for running SPM tests. Disabled by default.
 PLAT_TEST_SPM	:= 0
 
+# By default dont build CPUs with no FVP model.
+BUILD_CPUS_WITH_NO_FVP_MODEL	?= 0
+
 # This is a very trickly TEMPORARY fix. Enabling ALL features exceeds BL31's
 # progbits limit. We need a way to build all useful configurations while waiting
 # on the fvp to increase its SRAM size. The problem is twofild:
@@ -213,14 +216,19 @@ else
 					lib/cpus/aarch64/neoverse_v1.S		\
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/cortex_x2.S		\
-					lib/cpus/aarch64/cortex_x4.S		\
-					lib/cpus/aarch64/cortex_gelas.S		\
-					lib/cpus/aarch64/nevis.S		\
-					lib/cpus/aarch64/travis.S
+					lib/cpus/aarch64/cortex_x4.S
 	endif
 	# AArch64/AArch32 cores
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
 				lib/cpus/aarch64/cortex_a75.S
+endif
+
+#Build AArch64-only CPUs with no FVP model yet.
+ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
+	FVP_CPU_LIBS    +=	lib/cpus/aarch64/neoverse_hermes.S	\
+				lib/cpus/aarch64/cortex_gelas.S		\
+				lib/cpus/aarch64/nevis.S		\
+				lib/cpus/aarch64/travis.S
 endif
 
 else
