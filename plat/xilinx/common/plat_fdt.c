@@ -37,16 +37,15 @@ int32_t is_valid_dtb(void *fdt)
 {
 	int32_t ret = 0;
 
-	if (fdt_check_header(fdt) != 0) {
+	ret = fdt_check_header(fdt);
+	if (ret != 0) {
 		ERROR("Can't read DT at %p\n", fdt);
-		ret = -FDT_ERR_NOTFOUND;
 		goto error;
 	}
 
 	ret = fdt_open_into(fdt, fdt, XILINX_OF_BOARD_DTB_MAX_SIZE);
 	if (ret < 0) {
 		ERROR("Invalid Device Tree at %p: error %d\n", fdt, ret);
-		ret = -FDT_ERR_NOTFOUND;
 		goto error;
 	}
 
