@@ -48,6 +48,7 @@ MODULES-y += $(MTK_PLAT)/drivers/emi
 MODULES-y += $(MTK_PLAT)/drivers/gicv3
 MODULES-y += $(MTK_PLAT)/drivers/mcusys
 MODULES-y += $(MTK_PLAT)/drivers/mminfra
+MODULES-y += $(MTK_PLAT)/drivers/smmu
 MODULES-y += $(MTK_PLAT)/drivers/spm
 MODULES-y += $(MTK_PLAT)/drivers/timer
 MODULES-y += $(MTK_PLAT)/drivers/vcp
