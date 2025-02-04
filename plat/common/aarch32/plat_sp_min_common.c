@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,9 +17,4 @@
 
 void sp_min_plat_runtime_setup(void)
 {
-	/*
-	 * Finish the use of console driver in SP_MIN so that any runtime logs
-	 * from SP_MIN will be suppressed.
-	 */
-	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
