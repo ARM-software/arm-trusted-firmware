@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1122,12 +1122,13 @@ static void el2_sysregs_context_restore_mpam(el2_sysregs_t *ctx)
  * SCR_EL3.NS = 1 before accessing this register.
  * ---------------------------------------------------------------------------
  */
-static void el2_sysregs_context_save_gic(el2_sysregs_t *ctx)
+static void el2_sysregs_context_save_gic(el2_sysregs_t *ctx, uint32_t security_state)
 {
+	u_register_t scr_el3 = read_scr_el3();
+
 #if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
 	write_ctx_reg(ctx, CTX_ICC_SRE_EL2, read_icc_sre_el2());
 #else
-	u_register_t scr_el3 = read_scr_el3();
 	write_scr_el3(scr_el3 | SCR_NS_BIT);
 	isb();
 
@@ -1138,15 +1139,31 @@ static void el2_sysregs_context_save_gic(el2_sysregs_t *ctx)
 
 #endif
 	write_ctx_reg(ctx, CTX_ICH_HCR_EL2, read_ich_hcr_el2());
+
+	if (errata_ich_vmcr_el2_applies()) {
+		if (security_state == SECURE) {
+			write_scr_el3(scr_el3 & ~SCR_NS_BIT);
+		} else {
+			write_scr_el3(scr_el3 | SCR_NS_BIT);
+		}
+		isb();
+	}
+
 	write_ctx_reg(ctx, CTX_ICH_VMCR_EL2, read_ich_vmcr_el2());
+
+	if (errata_ich_vmcr_el2_applies()) {
+		write_scr_el3(scr_el3);
+		isb();
+	}
 }
 
-static void el2_sysregs_context_restore_gic(el2_sysregs_t *ctx)
+static void el2_sysregs_context_restore_gic(el2_sysregs_t *ctx, uint32_t security_state)
 {
+	u_register_t scr_el3 = read_scr_el3();
+
 #if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
 	write_icc_sre_el2(read_ctx_reg(ctx, CTX_ICC_SRE_EL2));
 #else
-	u_register_t scr_el3 = read_scr_el3();
 	write_scr_el3(scr_el3 | SCR_NS_BIT);
 	isb();
 
@@ -1156,7 +1173,22 @@ static void el2_sysregs_context_restore_gic(el2_sysregs_t *ctx)
 	isb();
 #endif
 	write_ich_hcr_el2(read_ctx_reg(ctx, CTX_ICH_HCR_EL2));
+
+	if (errata_ich_vmcr_el2_applies()) {
+		if (security_state == SECURE) {
+			write_scr_el3(scr_el3 & ~SCR_NS_BIT);
+		} else {
+			write_scr_el3(scr_el3 | SCR_NS_BIT);
+		}
+		isb();
+	}
+
 	write_ich_vmcr_el2(read_ctx_reg(ctx, CTX_ICH_VMCR_EL2));
+
+	if (errata_ich_vmcr_el2_applies()) {
+		write_scr_el3(scr_el3);
+		isb();
+	}
 }
 
 /* -----------------------------------------------------
@@ -1247,7 +1279,7 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
 
 	el2_sysregs_context_save_common(el2_sysregs_ctx);
-	el2_sysregs_context_save_gic(el2_sysregs_ctx);
+	el2_sysregs_context_save_gic(el2_sysregs_ctx, security_state);
 
 #if CTX_INCLUDE_MTE_REGS
 	write_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2, read_tfsr_el2());
@@ -1322,7 +1354,7 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
 
 	el2_sysregs_context_restore_common(el2_sysregs_ctx);
-	el2_sysregs_context_restore_gic(el2_sysregs_ctx);
+	el2_sysregs_context_restore_gic(el2_sysregs_ctx, security_state);
 
 #if CTX_INCLUDE_MTE_REGS
 	write_tfsr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2));

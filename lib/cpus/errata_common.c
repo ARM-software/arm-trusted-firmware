@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,8 +8,8 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <cortex_a520.h>
 #include <cortex_a75.h>
+#include <cortex_a520.h>
 #include <cortex_x4.h>
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
@@ -41,3 +41,13 @@ bool errata_a75_764081_applies(void)
 	return false;
 }
 #endif /* ERRATA_A75_764081 */
+
+bool errata_ich_vmcr_el2_applies(void)
+{
+	switch (EXTRACT_PARTNUM(read_midr())) {
+	default:
+		break;
+	}
+
+	return false;
+}
