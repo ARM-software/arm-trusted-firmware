@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include <lib/mmio.h>
+#include <lib/psa/rse_platform_api.h>
 #include <lib/smccc.h>
 #include <lib/utils_def.h>
 #include <plat/common/platform.h>
@@ -24,20 +25,33 @@ DEFINE_SVC_UUID2(_plat_trng_uuid,
 );
 uuid_t plat_trng_uuid;
 
-/* Dummy implementation */
 bool plat_get_entropy(uint64_t *out)
 {
+#if CRYPTO_SUPPORT
+	psa_status_t status;
+
+	status = rse_platform_get_entropy((uint8_t *)out, sizeof(*out));
+	if (status != PSA_SUCCESS) {
+		printf("Failed for entropy read, psa_status=%d\n", status);
+		return false;
+	}
+#else
+	/* Dummy value */
 	*out = 0xABBAEDDAACDCDEAD;
+#endif
 
 	return true;
 }
 
 void plat_entropy_setup(void)
 {
-	uint64_t dummy;
+	uint64_t entropy;
 
 	plat_trng_uuid = _plat_trng_uuid;
 
 	/* Initialise the entropy source and trigger RNG generation */
-	plat_get_entropy(&dummy);
+	if (!plat_get_entropy(&entropy)) {
+		ERROR("Failed to setup entropy\n");
+		panic();
+	}
 }

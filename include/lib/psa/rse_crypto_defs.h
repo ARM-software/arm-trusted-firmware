@@ -11,6 +11,9 @@
 /* Declares types that encode errors, algorithms, key types, policies, etc. */
 #include "psa/crypto_types.h"
 
+/* Value identifying random number generating API */
+#define RSE_CRYPTO_GENERATE_RANDOM_SID		(uint16_t)(0x100)
+
 /*
  * Value identifying export public key function API, used to dispatch the request
  * to the corresponding API implementation in the Crypto service backend.

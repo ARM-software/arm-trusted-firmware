@@ -781,6 +781,21 @@ Arm CCA platform:
 - ``ROTPK for secure firmware.``
 - ``ROTPK for non-secure firmware.``
 
+Get entropy API
+^^^^^^^^^^^^^^^
+
+AP/RSE interface for reading the entropy is as follows.
+
+Defined here:
+
+- ``include/lib/psa/rse_platform_api.h``
+
+.. code-block:: c
+
+    psa_status_t rse_platform_get_entropy(uint8_t *data, size_t data_size)
+
+Through this service, we can read an entropy generated from RSE.
+
 References
 ----------
 

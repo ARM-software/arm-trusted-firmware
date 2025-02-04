@@ -40,12 +40,20 @@ ENABLE_FEAT_MTE2		:=	2
 ENABLE_SPE_FOR_NS		:=	3
 ENABLE_FEAT_TCR2		:=	3
 
+ifneq ($(filter ${TARGET_PLATFORM}, 3),)
+ENABLE_FEAT_RNG_TRAP		:=	0
+else
+ENABLE_FEAT_RNG_TRAP		:=	1
+endif
+
 CTX_INCLUDE_AARCH32_REGS	:=	0
 
 ifeq (${SPD},spmd)
 	SPMD_SPM_AT_SEL2	:=	1
 	CTX_INCLUDE_PAUTH_REGS	:=	1
 endif
+
+TRNG_SUPPORT			:=	1
 
 # TC RESOLUTION - LIST OF VALID OPTIONS (this impacts only FVP)
 TC_RESOLUTION_OPTIONS		:= 	640x480p60 \
@@ -240,7 +248,8 @@ include drivers/arm/rse/rse_comms.mk
 
 BL1_SOURCES	+=	${RSE_COMMS_SOURCES}
 BL2_SOURCES	+=	${RSE_COMMS_SOURCES}
-BL31_SOURCES	+=	${RSE_COMMS_SOURCES}
+BL31_SOURCES	+=	${RSE_COMMS_SOURCES} \
+			lib/psa/rse_platform.c
 
 # Include Measured Boot makefile before any Crypto library makefile.
 # Crypto library makefile may need default definitions of Measured Boot build
@@ -285,8 +294,10 @@ ifeq (${MEASURED_BOOT},1)
     endif
 endif
 
-ifeq (${TRNG_SUPPORT},1)
-	BL31_SOURCES	+=	plat/arm/board/tc/tc_trng.c
+BL31_SOURCES	+=	plat/arm/board/tc/tc_trng.c
+
+ifneq (${ENABLE_FEAT_RNG_TRAP},0)
+	BL31_SOURCES	+=	plat/arm/board/tc/tc_rng_trap.c
 endif
 
 ifneq (${PLATFORM_TEST},)
