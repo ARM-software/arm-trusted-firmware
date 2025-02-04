@@ -15,6 +15,7 @@
  * CPU Extended Control register specific definitions
  ******************************************************************************/
 #define CORTEX_GELAS_IMP_CPUECTLR_EL1			S3_0_C15_C1_5
+#define CPUECTLR2_EL1_EXTLLC_BIT	10
 
 /*******************************************************************************
  * CPU Power Control register specific definitions

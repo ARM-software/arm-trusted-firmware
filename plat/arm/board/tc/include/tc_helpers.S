@@ -9,6 +9,8 @@
 #include <platform_def.h>
 #include <cpu_macros.S>
 
+#include <cortex_gelas.h>
+
 #define TC_HANDLER(rev)         plat_reset_handler_tc##rev
 #define PLAT_RESET_HANDLER(rev) TC_HANDLER(rev)
 
@@ -57,8 +59,11 @@ func mark_extllc_presence
 	mov_imm	x0, (MCN_CONFIG_ADDR(0))
 	ldr	w1, [x0]
 	ubfx	x1, x1, #MCN_CONFIG_SLC_PRESENT_BIT, #1
-	sysreg_bitfield_insert_from_gpr CPUECTLR_EL1, x1, \
-					CPUECTLR_EL1_EXTLLC_BIT, 1
+	jump_if_cpu_midr CORTEX_GELAS_MIDR, GELAS
+	sysreg_bitfield_insert_from_gpr CPUECTLR_EL1, x1, CPUECTLR_EL1_EXTLLC_BIT, 1
+	ret
+GELAS:
+	sysreg_bitfield_insert_from_gpr CORTEX_GELAS_IMP_CPUECTLR_EL1, x1, CPUECTLR2_EL1_EXTLLC_BIT, 1
 #endif
 	ret
 endfunc mark_extllc_presence
@@ -83,6 +88,7 @@ endfunc TC_HANDLER(3)
 
 func TC_HANDLER(4)
 	mov	x9, lr
+	bl	mark_extllc_presence
 	bl	enable_dsu_pmu_el1_access
 	mov	lr, x9
 	ret
