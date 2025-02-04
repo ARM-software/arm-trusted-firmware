@@ -104,4 +104,46 @@
 		compatible = "arm,coresight-pmu";
 		reg = <0x0 MCN_PMU_ADDR(7) 0x0 0xffc>;
 	};
+
+#if defined(TARGET_FLAVOUR_FPGA)
+	slc-msc@0 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(0) 0x0 0x4000>;
+	};
+
+	slc-msc@1 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(1) 0x0 0x4000>;
+	};
+
+	slc-msc@2 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(2) 0x0 0x4000>;
+	};
+
+	slc-msc@3 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(3) 0x0 0x4000>;
+	};
+
+	slc-msc@4 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(4) 0x0 0x4000>;
+	};
+
+	slc-msc@5 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(5) 0x0 0x4000>;
+	};
+
+	slc-msc@6 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(6) 0x0 0x4000>;
+	};
+
+	slc-msc@7 {
+		compatible = "arm,mpam-msc";
+		reg = <0x0 MCN_MPAM_NS_BASE_ADDR(7) 0x0 0x4000>;
+	};
+#endif	/* TARGET_FLAVOUR_FPGA */
 };
