@@ -986,6 +986,12 @@ For Cortex-A720, the following errata build flags are defined :
    Cortex-A720 CPU. This needs to be enabled for revisions r0p0, r0p1
    and r0p2. It is still open.
 
+For Cortex-A725, the following errata build flags are defined :
+
+-  ``ERRATA_A725_3699564``: This applies errata 3699564 workaround to
+   Cortex-A725 CPU. This needs to be enabled for revisions r0p0 and r0p1.
+   It is fixed in r0p2.
+
 DSU Errata Workarounds
 ----------------------
 
