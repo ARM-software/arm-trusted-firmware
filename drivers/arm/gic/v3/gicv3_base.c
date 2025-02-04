@@ -99,16 +99,7 @@ void plat_arm_override_gicr_frames(const uintptr_t *plat_gicr_frames)
  *****************************************************************************/
 void __init gic_init(unsigned int cpu_idx)
 {
-	/*
-	 * The GICv3 driver is initialized in EL3 and does not need
-	 * to be initialized again in SEL1. This is because the S-EL1
-	 * can use GIC system registers to manage interrupts and does
-	 * not need GIC interface base addresses to be configured.
-	 */
-#if (!defined(__aarch64__) && defined(IMAGE_BL32)) || \
-	(defined(__aarch64__) && defined(IMAGE_BL31))
 	gicv3_driver_init(&gic_data);
-#endif
 	gicv3_distif_init();
 }
 

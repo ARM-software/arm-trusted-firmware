@@ -257,7 +257,9 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	 * to verify platform parameters from BL2 to BL31.
 	 * In release builds, it's not used.
 	 */
+#if DEBUG
 	assert(((uintptr_t)arg3) == ARM_BL31_PLAT_PARAM_VAL);
+#endif
 
 	/*
 	 * Check params passed from BL2 should not be NULL,
