@@ -28,7 +28,7 @@
 
 	description = "RDN2 StMM";
 	ffa-version = <0x00010001>; /* 31:16 - Major, 15:0 - Minor */
-	uuid = <0x378daedc 0xf06b4446 0x831440ab 0x933c87a3>;
+	uuid = <0xdcae8d37 0x46446bf0 0xab401483 0xa3873c93>;
 	id = <0x8001>;
 	execution-ctx-count = <1>;
 	exception-level = <MODE_SEL0>; /* S-EL0 */
