@@ -67,7 +67,7 @@
 #define ARM_L0_GPT_BASE			(ARM_TRUSTED_SRAM_BASE + \
 					 PLAT_ARM_TRUSTED_SRAM_SIZE - \
 					 ARM_L0_GPT_SIZE)
-#define ARM_L0_GPT_SIZE			UL(0x00001000)	/* 4 KB */
+#define ARM_L0_GPT_SIZE			UL(0x00002000)	/* 8 KB */
 #else
 #define ARM_L0_GPT_SIZE			UL(0)
 #endif
@@ -120,7 +120,7 @@
  * placed here. 3MB region is reserved if RME is enabled, 2MB otherwise.
  */
 #define ARM_EL3_TZC_DRAM1_SIZE		UL(0x00300000) /* 3MB */
-/* 8 x 128KB L1 pages (GPCCR_PPS_64GB, GPCCR_PGS_4K) */
+/* 8 x 128KB L1 pages (L0GPTSZ = 1GB, PGS = 4KB) */
 #define ARM_L1_GPT_SIZE			UL(0x00100000) /* 1MB */
 /* 32MB - ARM_EL3_RMM_SHARED_SIZE */
 #define ARM_REALM_SIZE			(UL(0x02000000) -		\

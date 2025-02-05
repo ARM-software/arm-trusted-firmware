@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,20 +33,22 @@ static pas_region_t pas_regions[] = {
 #ifdef ARM_PAS_GPTS
 	ARM_PAS_GPTS,
 #endif
-	ARM_PAS_KERNEL_1
+	ARM_PAS_KERNEL_1,
+	ARM_PAS_PCI_MEM_1,
+	ARM_PAS_PCI_MEM_2
 };
 
 static const arm_gpt_info_t arm_gpt_info = {
 	.pas_region_base  = pas_regions,
 	.pas_region_count = (unsigned int)ARRAY_SIZE(pas_regions),
-	.l0_base = (uintptr_t)ARM_L0_GPT_BASE,
-	.l1_base = (uintptr_t)ARM_L1_GPT_BASE,
-	.l0_size = (size_t)ARM_L0_GPT_SIZE,
-	.l1_size = (size_t)ARM_L1_GPT_SIZE,
-	.pps = GPCCR_PPS_64GB,
+	.l0_base = ARM_L0_GPT_BASE,
+	.l1_base = ARM_L1_GPT_BASE,
+	.l0_size = ARM_L0_GPT_SIZE,
+	.l1_size = ARM_L1_GPT_SIZE,
+	.pps = GPCCR_PPS_1TB,
 	.pgs = GPCCR_PGS_4K
 };
-#endif
+#endif /* ENABLE_RME */
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
