@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,6 +32,14 @@ struct s32cc_clk_drv {
 	uintptr_t mc_rgm;
 	uintptr_t rdc;
 };
+
+static int set_module_rate(const struct s32cc_clk_obj *module,
+			   unsigned long rate, unsigned long *orate,
+			   unsigned int *depth);
+static int get_module_rate(const struct s32cc_clk_obj *module,
+			   const struct s32cc_clk_drv *drv,
+			   unsigned long *rate,
+			   unsigned int depth);
 
 static int update_stack_depth(unsigned int *depth)
 {
@@ -273,6 +281,70 @@ static void enable_odiv(uintptr_t pll_addr, uint32_t div_index)
 	mmio_setbits_32(PLLDIG_PLLODIV(pll_addr, div_index), PLLDIG_PLLODIV_DE);
 }
 
+static void enable_odivs(uintptr_t pll_addr, uint32_t ndivs, uint32_t mask)
+{
+	uint32_t i;
+
+	for (i = 0; i < ndivs; i++) {
+		if ((mask & BIT_32(i)) != 0U) {
+			enable_odiv(pll_addr, i);
+		}
+	}
+}
+
+static int adjust_odiv_settings(const struct s32cc_pll *pll, uintptr_t pll_addr,
+				uint32_t odivs_mask, unsigned long old_vco)
+{
+	uint64_t old_odiv_freq, odiv_freq;
+	uint32_t i, pllodiv, pdiv;
+	int ret = 0;
+
+	if (old_vco == 0UL) {
+		return 0;
+	}
+
+	for (i = 0; i < pll->ndividers; i++) {
+		if ((odivs_mask & BIT_32(i)) == 0U) {
+			continue;
+		}
+
+		pllodiv = mmio_read_32(PLLDIG_PLLODIV(pll_addr, i));
+
+		pdiv = PLLDIG_PLLODIV_DIV(pllodiv);
+
+		old_odiv_freq = ((old_vco * FP_PRECISION) / (pdiv + 1U)) / FP_PRECISION;
+		pdiv = (uint32_t)(pll->vco_freq * FP_PRECISION / old_odiv_freq / FP_PRECISION);
+
+		odiv_freq = pll->vco_freq * FP_PRECISION / pdiv / FP_PRECISION;
+
+		if (old_odiv_freq != odiv_freq) {
+			ERROR("Failed to adjust ODIV %" PRIu32 " to match previous frequency\n",
+			      i);
+		}
+
+		pllodiv = PLLDIG_PLLODIV_DIV_SET(pdiv - 1U);
+		mmio_write_32(PLLDIG_PLLODIV(pll_addr, i), pllodiv);
+	}
+
+	return ret;
+}
+
+static uint32_t get_enabled_odivs(uintptr_t pll_addr, uint32_t ndivs)
+{
+	uint32_t mask = 0;
+	uint32_t pllodiv;
+	uint32_t i;
+
+	for (i = 0; i < ndivs; i++) {
+		pllodiv = mmio_read_32(PLLDIG_PLLODIV(pll_addr, i));
+		if ((pllodiv & PLLDIG_PLLODIV_DE) != 0U) {
+			mask |= BIT_32(i);
+		}
+	}
+
+	return mask;
+}
+
 static void disable_odivs(uintptr_t pll_addr, uint32_t ndivs)
 {
 	uint32_t i;
@@ -297,16 +369,52 @@ static void disable_pll_hw(uintptr_t pll_addr)
 	mmio_write_32(PLLDIG_PLLCR(pll_addr), PLLDIG_PLLCR_PLLPD);
 }
 
+static bool is_pll_enabled(uintptr_t pll_base)
+{
+	uint32_t pllcr, pllsr;
+
+	pllcr = mmio_read_32(PLLDIG_PLLCR(pll_base));
+	pllsr = mmio_read_32(PLLDIG_PLLSR(pll_base));
+
+	/* Enabled and locked PLL */
+	if ((pllcr & PLLDIG_PLLCR_PLLPD) != 0U) {
+		return false;
+	}
+
+	if ((pllsr & PLLDIG_PLLSR_LOCK) == 0U) {
+		return false;
+	}
+
+	return true;
+}
+
 static int program_pll(const struct s32cc_pll *pll, uintptr_t pll_addr,
 		       const struct s32cc_clk_drv *drv, uint32_t sclk_id,
-		       unsigned long sclk_freq)
+		       unsigned long sclk_freq, unsigned int depth)
 {
 	uint32_t rdiv = 1, mfi, mfn;
+	unsigned long old_vco = 0UL;
+	unsigned int ldepth = depth;
+	uint32_t odivs_mask;
 	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
 
 	ret = get_pll_mfi_mfn(pll->vco_freq, sclk_freq, &mfi, &mfn);
 	if (ret != 0) {
 		return -EINVAL;
+	}
+
+	odivs_mask = get_enabled_odivs(pll_addr, pll->ndividers);
+
+	if (is_pll_enabled(pll_addr)) {
+		ret = get_module_rate(&pll->desc, drv, &old_vco, ldepth);
+		if (ret != 0) {
+			return ret;
+		}
 	}
 
 	/* Disable ODIVs*/
@@ -326,7 +434,15 @@ static int program_pll(const struct s32cc_pll *pll, uintptr_t pll_addr,
 	mmio_write_32(PLLDIG_PLLFD(pll_addr),
 		      PLLDIG_PLLFD_MFN_SET(mfn) | PLLDIG_PLLFD_SMDEN);
 
+	ret = adjust_odiv_settings(pll, pll_addr, odivs_mask, old_vco);
+	if (ret != 0) {
+		return ret;
+	}
+
 	enable_pll_hw(pll_addr);
+
+	/* Enable out dividers */
+	enable_odivs(pll_addr, pll->ndividers, odivs_mask);
 
 	return ret;
 }
@@ -336,10 +452,11 @@ static int enable_pll(struct s32cc_clk_obj *module,
 		      unsigned int depth)
 {
 	const struct s32cc_pll *pll = s32cc_obj2pll(module);
+	unsigned int clk_src, ldepth = depth;
+	unsigned long sclk_freq, pll_vco;
 	const struct s32cc_clkmux *mux;
 	uintptr_t pll_addr = UL(0x0);
-	unsigned int ldepth = depth;
-	unsigned long sclk_freq;
+	bool pll_enabled;
 	uint32_t sclk_id;
 	int ret;
 
@@ -379,7 +496,20 @@ static int enable_pll(struct s32cc_clk_obj *module,
 		return -EINVAL;
 	};
 
-	return program_pll(pll, pll_addr, drv, sclk_id, sclk_freq);
+	ret = get_module_rate(&pll->desc, drv, &pll_vco, depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	pll_enabled = is_pll_enabled(pll_addr);
+	clk_src = mmio_read_32(PLLDIG_PLLCLKMUX(pll_addr));
+
+	if ((clk_src == sclk_id) && pll_enabled &&
+	    (pll_vco == pll->vco_freq)) {
+		return 0;
+	}
+
+	return program_pll(pll, pll_addr, drv, sclk_id, sclk_freq, ldepth);
 }
 
 static inline struct s32cc_pll *get_div_pll(const struct s32cc_pll_out_div *pdiv)
@@ -441,6 +571,7 @@ static int enable_pll_div(struct s32cc_clk_obj *module,
 	uintptr_t pll_addr = 0x0ULL;
 	unsigned int ldepth = depth;
 	const struct s32cc_pll *pll;
+	unsigned long pll_vco;
 	uint32_t dc;
 	int ret;
 
@@ -461,7 +592,14 @@ static int enable_pll_div(struct s32cc_clk_obj *module,
 		return -EINVAL;
 	}
 
-	dc = (uint32_t)(pll->vco_freq / pdiv->freq);
+	ret = get_module_rate(&pll->desc, drv, &pll_vco, ldepth);
+	if (ret != 0) {
+		ERROR("Failed to enable the PLL due to unknown rate for 0x%" PRIxPTR "\n",
+		      pll_addr);
+		return ret;
+	}
+
+	dc = (uint32_t)(pll_vco / pdiv->freq);
 
 	config_pll_out_div(pll_addr, pdiv->index, dc);
 
@@ -651,6 +789,29 @@ static int enable_dfs(struct s32cc_clk_obj *module,
 	return 0;
 }
 
+static int get_dfs_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv,
+			unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_dfs *dfs = s32cc_obj2dfs(module);
+	unsigned int ldepth = depth;
+	uintptr_t dfs_addr;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = get_base_addr(dfs->instance, drv, &dfs_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect the DFS instance\n");
+		return ret;
+	}
+
+	return get_module_rate(dfs->parent, drv, rate, ldepth);
+}
+
 static struct s32cc_dfs *get_div_dfs(const struct s32cc_dfs_div *dfs_div)
 {
 	const struct s32cc_clk_obj *parent = dfs_div->parent;
@@ -661,24 +822,6 @@ static struct s32cc_dfs *get_div_dfs(const struct s32cc_dfs_div *dfs_div)
 	}
 
 	return s32cc_obj2dfs(parent);
-}
-
-static struct s32cc_pll *dfsdiv2pll(const struct s32cc_dfs_div *dfs_div)
-{
-	const struct s32cc_clk_obj *parent;
-	const struct s32cc_dfs *dfs;
-
-	dfs = get_div_dfs(dfs_div);
-	if (dfs == NULL) {
-		return NULL;
-	}
-
-	parent = dfs->parent;
-	if (parent->type != s32cc_pll_t) {
-		return NULL;
-	}
-
-	return s32cc_obj2pll(parent);
 }
 
 static int get_dfs_mfi_mfn(unsigned long dfs_freq, const struct s32cc_dfs_div *dfs_div,
@@ -808,9 +951,9 @@ static int enable_dfs_div(struct s32cc_clk_obj *module,
 {
 	const struct s32cc_dfs_div *dfs_div = s32cc_obj2dfsdiv(module);
 	unsigned int ldepth = depth;
-	const struct s32cc_pll *pll;
 	const struct s32cc_dfs *dfs;
 	uintptr_t dfs_addr = 0UL;
+	unsigned long dfs_freq;
 	uint32_t mfi, mfn;
 	int ret = 0;
 
@@ -824,18 +967,17 @@ static int enable_dfs_div(struct s32cc_clk_obj *module,
 		return -EINVAL;
 	}
 
-	pll = dfsdiv2pll(dfs_div);
-	if (pll == NULL) {
-		ERROR("Failed to identify DFS divider's parent\n");
-		return -EINVAL;
-	}
-
 	ret = get_base_addr(dfs->instance, drv, &dfs_addr);
 	if ((ret != 0) || (dfs_addr == 0UL)) {
 		return -EINVAL;
 	}
 
-	ret = get_dfs_mfi_mfn(pll->vco_freq, dfs_div, &mfi, &mfn);
+	ret = get_module_rate(&dfs->desc, drv, &dfs_freq, depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = get_dfs_mfi_mfn(dfs_freq, dfs_div, &mfi, &mfn);
 	if (ret != 0) {
 		return -EINVAL;
 	}
@@ -925,6 +1067,22 @@ get_part_block_link_parent(const struct s32cc_clk_obj *module)
 	const struct s32cc_part_block_link *link = s32cc_obj2partblocklink(module);
 
 	return link->parent;
+}
+
+static int get_part_block_link_freq(const struct s32cc_clk_obj *module,
+				    const struct s32cc_clk_drv *drv,
+				    unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_part_block_link *block = s32cc_obj2partblocklink(module);
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	return get_module_rate(block->parent, drv, rate, ldepth);
 }
 
 static int no_enable(struct s32cc_clk_obj *module,
@@ -1059,15 +1217,6 @@ static bool s32cc_clk_is_enabled(unsigned long id)
 	return false;
 }
 
-static unsigned long s32cc_clk_get_rate(unsigned long id)
-{
-	return 0;
-}
-
-static int set_module_rate(const struct s32cc_clk_obj *module,
-			   unsigned long rate, unsigned long *orate,
-			   unsigned int *depth);
-
 static int set_osc_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			unsigned long *orate, unsigned int *depth)
 {
@@ -1087,6 +1236,29 @@ static int set_osc_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 
 	osc->freq = rate;
 	*orate = osc->freq;
+
+	return 0;
+}
+
+static int get_osc_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv,
+			unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_osc *osc = s32cc_obj2osc(module);
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (osc->freq == 0UL) {
+		ERROR("Uninitialized oscillator\n");
+		return -EINVAL;
+	}
+
+	*rate = osc->freq;
 
 	return 0;
 }
@@ -1120,6 +1292,36 @@ static int set_clk_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 	return -EINVAL;
 }
 
+static int get_clk_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv, unsigned long *rate,
+			unsigned int depth)
+{
+	const struct s32cc_clk *clk = s32cc_obj2clk(module);
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (clk == NULL) {
+		ERROR("Invalid clock\n");
+		return -EINVAL;
+	}
+
+	if (clk->module != NULL) {
+		return get_module_rate(clk->module, drv, rate, ldepth);
+	}
+
+	if (clk->pclock == NULL) {
+		ERROR("Invalid clock parent\n");
+		return -EINVAL;
+	}
+
+	return get_clk_freq(&clk->pclock->desc, drv, rate, ldepth);
+}
+
 static int set_pll_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			unsigned long *orate, unsigned int *depth)
 {
@@ -1138,6 +1340,80 @@ static int set_pll_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 
 	pll->vco_freq = rate;
 	*orate = pll->vco_freq;
+
+	return 0;
+}
+
+static int get_pll_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv,
+			unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_pll *pll = s32cc_obj2pll(module);
+	const struct s32cc_clk *source;
+	uint32_t mfi, mfn, rdiv, plldv;
+	unsigned long prate, clk_src;
+	unsigned int ldepth = depth;
+	uintptr_t pll_addr = 0UL;
+	uint64_t t1, t2;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = get_base_addr(pll->instance, drv, &pll_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect PLL instance\n");
+		return ret;
+	}
+
+	/* Disabled PLL */
+	if (!is_pll_enabled(pll_addr)) {
+		*rate = pll->vco_freq;
+		return 0;
+	}
+
+	clk_src = mmio_read_32(PLLDIG_PLLCLKMUX(pll_addr));
+	switch (clk_src) {
+	case 0:
+		clk_src = S32CC_CLK_FIRC;
+		break;
+	case 1:
+		clk_src = S32CC_CLK_FXOSC;
+		break;
+	default:
+		ERROR("Failed to identify PLL source id %" PRIu64 "\n", clk_src);
+		return -EINVAL;
+	};
+
+	source = s32cc_get_arch_clk(clk_src);
+	if (source == NULL) {
+		ERROR("Failed to get PLL source clock\n");
+		return -EINVAL;
+	}
+
+	ret = get_module_rate(&source->desc, drv, &prate, ldepth);
+	if (ret != 0) {
+		ERROR("Failed to get PLL's parent frequency\n");
+		return ret;
+	}
+
+	plldv = mmio_read_32(PLLDIG_PLLDV(pll_addr));
+	mfi = PLLDIG_PLLDV_MFI(plldv);
+	rdiv = PLLDIG_PLLDV_RDIV(plldv);
+	if (rdiv == 0U) {
+		rdiv = 1;
+	}
+
+	/* Frac-N mode */
+	mfn = PLLDIG_PLLFD_MFN_SET(mmio_read_32(PLLDIG_PLLFD(pll_addr)));
+
+	/* PLL VCO frequency in Fractional mode when PLLDV[RDIV] is not 0 */
+	t1 = prate / rdiv;
+	t2 = (mfi * FP_PRECISION) + (mfn * FP_PRECISION / 18432U);
+
+	*rate = t1 * t2 / FP_PRECISION;
 
 	return 0;
 }
@@ -1190,6 +1466,57 @@ static int set_pll_div_freq(const struct s32cc_clk_obj *module, unsigned long ra
 	return 0;
 }
 
+static int get_pll_div_freq(const struct s32cc_clk_obj *module,
+			    const struct s32cc_clk_drv *drv,
+			    unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_pll_out_div *pdiv = s32cc_obj2plldiv(module);
+	const struct s32cc_pll *pll;
+	unsigned int ldepth = depth;
+	uintptr_t pll_addr = 0UL;
+	unsigned long pfreq;
+	uint32_t pllodiv;
+	uint32_t dc;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	pll = get_div_pll(pdiv);
+	if (pll == NULL) {
+		ERROR("The parent of the PLL DIV is invalid\n");
+		return -EINVAL;
+	}
+
+	ret = get_base_addr(pll->instance, drv, &pll_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect PLL instance\n");
+		return -EINVAL;
+	}
+
+	ret = get_module_rate(pdiv->parent, drv, &pfreq, ldepth);
+	if (ret != 0) {
+		ERROR("Failed to get the frequency of PLL %" PRIxPTR "\n",
+		      pll_addr);
+		return ret;
+	}
+
+	pllodiv = mmio_read_32(PLLDIG_PLLODIV(pll_addr, pdiv->index));
+
+	/* Disabled module */
+	if ((pllodiv & PLLDIG_PLLODIV_DE) == 0U) {
+		*rate = pdiv->freq;
+		return 0;
+	}
+
+	dc = PLLDIG_PLLODIV_DIV(pllodiv);
+	*rate = (pfreq * FP_PRECISION) / (dc + 1U) / FP_PRECISION;
+
+	return 0;
+}
+
 static int set_fixed_div_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			      unsigned long *orate, unsigned int *depth)
 {
@@ -1214,6 +1541,23 @@ static int set_fixed_div_freq(const struct s32cc_clk_obj *module, unsigned long 
 	return ret;
 }
 
+static int get_fixed_div_freq(const struct s32cc_clk_obj *module,
+			      const struct s32cc_clk_drv *drv,
+			      unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_fixed_div *fdiv = s32cc_obj2fixeddiv(module);
+	unsigned long pfreq;
+	int ret;
+
+	ret = get_module_rate(fdiv->parent, drv, &pfreq, depth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	*rate = (pfreq * FP_PRECISION / fdiv->rate_div) / FP_PRECISION;
+	return 0;
+}
+
 static int set_mux_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 			unsigned long *orate, unsigned int *depth)
 {
@@ -1233,6 +1577,29 @@ static int set_mux_freq(const struct s32cc_clk_obj *module, unsigned long rate,
 	}
 
 	return set_module_rate(&clk->desc, rate, orate, depth);
+}
+
+static int get_mux_freq(const struct s32cc_clk_obj *module,
+			const struct s32cc_clk_drv *drv,
+			unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_clkmux *mux = s32cc_obj2clkmux(module);
+	const struct s32cc_clk *clk = s32cc_get_arch_clk(mux->source_id);
+	unsigned int ldepth = depth;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	if (clk == NULL) {
+		ERROR("Mux (id:%" PRIu8 ") without a valid source (%lu)\n",
+		      mux->index, mux->source_id);
+		return -EINVAL;
+	}
+
+	return get_clk_freq(&clk->desc, drv, rate, ldepth);
 }
 
 static int set_dfs_div_freq(const struct s32cc_clk_obj *module, unsigned long rate,
@@ -1269,6 +1636,71 @@ static int set_dfs_div_freq(const struct s32cc_clk_obj *module, unsigned long ra
 	*orate = rate;
 
 	return ret;
+}
+
+static unsigned long compute_dfs_div_freq(unsigned long pfreq, uint32_t mfi, uint32_t mfn)
+{
+	unsigned long freq;
+
+	/**
+	 * Formula for input and output clocks of each port divider.
+	 * See 'Digital Frequency Synthesizer' chapter from Reference Manual.
+	 *
+	 * freq = pfreq / (2 * (mfi + mfn / 36.0));
+	 */
+	freq = (mfi * FP_PRECISION) + (mfn * FP_PRECISION / 36UL);
+	freq *= 2UL;
+	freq = pfreq * FP_PRECISION / freq;
+
+	return freq;
+}
+
+static int get_dfs_div_freq(const struct s32cc_clk_obj *module,
+			    const struct s32cc_clk_drv *drv,
+			    unsigned long *rate, unsigned int depth)
+{
+	const struct s32cc_dfs_div *dfs_div = s32cc_obj2dfsdiv(module);
+	unsigned int ldepth = depth;
+	const struct s32cc_dfs *dfs;
+	uint32_t dvport, mfi, mfn;
+	uintptr_t dfs_addr = 0UL;
+	unsigned long pfreq;
+	int ret;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	dfs = get_div_dfs(dfs_div);
+	if (dfs == NULL) {
+		return -EINVAL;
+	}
+
+	ret = get_module_rate(dfs_div->parent, drv, &pfreq, ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	ret = get_base_addr(dfs->instance, drv, &dfs_addr);
+	if (ret != 0) {
+		ERROR("Failed to detect the DFS instance\n");
+		return ret;
+	}
+
+	dvport = mmio_read_32(DFS_DVPORTn(dfs_addr, dfs_div->index));
+
+	mfi = DFS_DVPORTn_MFI(dvport);
+	mfn = DFS_DVPORTn_MFN(dvport);
+
+	/* Disabled port */
+	if ((mfi == 0U) && (mfn == 0U)) {
+		*rate = dfs_div->freq;
+		return 0;
+	}
+
+	*rate = compute_dfs_div_freq(pfreq, mfi, mfn);
+	return 0;
 }
 
 static int set_module_rate(const struct s32cc_clk_obj *module,
@@ -1319,6 +1751,64 @@ static int set_module_rate(const struct s32cc_clk_obj *module,
 	return ret;
 }
 
+static int get_module_rate(const struct s32cc_clk_obj *module,
+			   const struct s32cc_clk_drv *drv,
+			   unsigned long *rate,
+			   unsigned int depth)
+{
+	unsigned int ldepth = depth;
+	int ret = 0;
+
+	ret = update_stack_depth(&ldepth);
+	if (ret != 0) {
+		return ret;
+	}
+
+	switch (module->type) {
+	case s32cc_osc_t:
+		ret = get_osc_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_clk_t:
+		ret = get_clk_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_pll_t:
+		ret = get_pll_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_dfs_t:
+		ret = get_dfs_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_dfs_div_t:
+		ret = get_dfs_div_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_fixed_div_t:
+		ret = get_fixed_div_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_pll_out_div_t:
+		ret = get_pll_div_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_clkmux_t:
+		ret = get_mux_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_shared_clkmux_t:
+		ret = get_mux_freq(module, drv, rate, ldepth);
+		break;
+	case s32cc_part_t:
+		ERROR("s32cc_part_t cannot be used to get rate\n");
+		break;
+	case s32cc_part_block_t:
+		ERROR("s32cc_part_block_t cannot be used to get rate\n");
+		break;
+	case s32cc_part_block_link_t:
+		ret = get_part_block_link_freq(module, drv, rate, ldepth);
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	return ret;
+}
+
 static int s32cc_clk_set_rate(unsigned long id, unsigned long rate,
 			      unsigned long *orate)
 {
@@ -1338,6 +1828,29 @@ static int s32cc_clk_set_rate(unsigned long id, unsigned long rate,
 	}
 
 	return ret;
+}
+
+static unsigned long s32cc_clk_get_rate(unsigned long id)
+{
+	const struct s32cc_clk_drv *drv = get_drv();
+	unsigned int depth = MAX_STACK_DEPTH;
+	const struct s32cc_clk *clk;
+	unsigned long rate = 0UL;
+	int ret;
+
+	clk = s32cc_get_arch_clk(id);
+	if (clk == NULL) {
+		return 0;
+	}
+
+	ret = get_module_rate(&clk->desc, drv, &rate, depth);
+	if (ret != 0) {
+		ERROR("Failed to get frequency (%lu MHz) for clock %lu\n",
+		      rate, id);
+		return 0;
+	}
+
+	return rate;
 }
 
 static struct s32cc_clk_obj *get_no_parent(const struct s32cc_clk_obj *module)
