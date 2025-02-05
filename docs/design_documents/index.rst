@@ -6,7 +6,6 @@ Design Documents
    :caption: Contents
 
    cmake_framework
-   context_mgmt_rework
    measured_boot_poc
    drtm_poc
    rse
@@ -15,4 +14,4 @@ Design Documents
 
 --------------
 
-*Copyright (c) 2020-2022, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.*
