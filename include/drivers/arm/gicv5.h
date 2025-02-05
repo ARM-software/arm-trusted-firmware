@@ -44,6 +44,20 @@
 #define PPI_DB_RL				1
 #define PPI_DB_S				0
 
+/* Register fields common to all IRI components.
+ * They have the same name and offset in every config frame */
+#define IRI_AIDR_COMPONENT_SHIFT		8
+#define IRI_AIDR_COMPONENT_WIDTH		4
+#define IRI_AIDR_COMPONENT_IRS			0
+#define IRI_AIDR_COMPONENT_ITS			1
+#define IRI_AIDR_COMPONENT_IWB			2
+#define IRI_AIDR_ARCH_MAJOR_SHIFT		4
+#define IRI_AIDR_ARCH_MAJOR_WIDTH		4
+#define IRI_AIDR_ARCH_MAJOR_V5			0
+#define IRI_AIDR_ARCH_MINOR_SHIFT		0
+#define IRI_AIDR_ARCH_MINOR_WIDTH		4
+#define IRI_AIDR_ARCH_MINOR_P0			0
+
 /* IRS register fields */
 #define IRS_IDR6_SPI_IRS_RANGE_SHIFT		0
 #define IRS_IDR6_SPI_IRS_RANGE_WIDTH		24
@@ -109,6 +123,8 @@ static inline uint32_t read_##_name(uintptr_t base, uint16_t index)		\
 #define DEFINE_GICV5_MMIO_RW_INDEXED_FUNCS(_name, _offset)			\
 	DEFINE_GICV5_MMIO_READ_INDEXED_FUNC(_name, _offset)			\
 	DEFINE_GICV5_MMIO_WRITE_INDEXED_FUNC(_name, _offset)
+
+DEFINE_GICV5_MMIO_READ_FUNC(iri_aidr,			0x44)
 
 DEFINE_GICV5_MMIO_READ_FUNC(iwb_idr0,			0x00)
 DEFINE_GICV5_MMIO_RW_FUNCS( iwb_cr0,			0x80)

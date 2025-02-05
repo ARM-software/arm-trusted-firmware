@@ -15,6 +15,30 @@
 #include <common/debug.h>
 #include <drivers/arm/gicv5.h>
 
+/*
+ * Check for a bad platform configuration.
+ * Not expected to be called on release builds.
+ */
+static inline bool probe_component(uintptr_t base_addr, uint8_t component)
+{
+	uint32_t aidr = read_iri_aidr(base_addr);
+
+	if (EXTRACT(IRI_AIDR_COMPONENT, aidr) != component) {
+		ERROR("GICv5 frame belongs to wrong component\n");
+		return false;
+	}
+
+	if (EXTRACT(IRI_AIDR_ARCH_MAJOR, aidr) != IRI_AIDR_ARCH_MAJOR_V5) {
+		ERROR("Bad GICv5 major version\n");
+		return false;
+	}
+
+	/* there was a bump in architecture and we've not updated the driver */
+	assert(EXTRACT(IRI_AIDR_ARCH_MINOR, aidr) == IRI_AIDR_ARCH_MINOR_P0);
+
+	return true;
+}
+
 static inline bool iwb_domain_supported(uint32_t idr0, uint8_t domain)
 {
 	return (EXTRACT(IWB_IDR0_DOMAINS, idr0) & (1U << domain)) != 0U;
@@ -44,6 +68,8 @@ static void iwb_enable(const struct gicv5_iwb *config)
 	uintptr_t base_addr = config->config_frame;
 	uint32_t idr0;
 	uint16_t num_regs;
+
+	assert(probe_component(base_addr, IRI_AIDR_COMPONENT_IWB));
 
 	idr0 = read_iwb_idr0(base_addr);
 	num_regs = EXTRACT(IWB_IDR0_IWRANGE, idr0) + 1U;
@@ -88,6 +114,8 @@ static void irs_enable(const struct gicv5_irs *config)
 
 	spi_base  = EXTRACT(IRS_IDR7_SPI_BASE, read_irs_idr7(base_addr));
 	spi_range = EXTRACT(IRS_IDR6_SPI_IRS_RANGE, read_irs_idr6(base_addr));
+
+	assert(probe_component(base_addr, IRI_AIDR_COMPONENT_IRS));
 
 	if (spi_range == 0U) {
 		assert(config->num_spis == 0U);
