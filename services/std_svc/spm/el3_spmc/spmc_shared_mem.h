@@ -51,6 +51,9 @@ extern struct spmc_shmem_obj_state spmc_shmem_obj_state;
 extern int plat_spmc_shmem_begin(struct ffa_mtd *desc);
 extern int plat_spmc_shmem_reclaim(struct ffa_mtd *desc);
 
+bool spmc_compatible_version(uint32_t ffa_version, uint16_t major,
+			     uint16_t minor);
+
 long spmc_ffa_mem_send(uint32_t smc_fid,
 		       bool secure_origin,
 		       uint64_t total_length,
