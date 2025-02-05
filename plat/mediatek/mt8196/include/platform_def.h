@@ -87,7 +87,7 @@
  * GPIO related constants
  ******************************************************************************/
 #define GPIO_BASE		(IO_PHYS + 0x0002D000)
-#define RGU_BASE		(IO_PHYS + 0x0C00B000)
+#define RGU_BASE		(IO_PHYS + 0x0C010000)
 #define DRM_BASE		(IO_PHYS + 0x0000D000)
 #define IOCFG_RT_BASE		(IO_PHYS + 0x02000000)
 #define IOCFG_RM1_BASE		(IO_PHYS + 0x02020000)

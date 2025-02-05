@@ -16,6 +16,7 @@
 #include <drivers/console.h>
 #include <lib/psci/psci.h>
 #include <lib/utils.h>
+#include <mt_gic_v3.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -108,6 +109,9 @@ static inline unsigned int get_pwr_afflv(const psci_power_state_t *state)
 
 static void mcusys_pwr_on_common(const struct mtk_cpupm_pwrstate *state)
 {
+	mt_gic_distif_restore();
+	mt_gic_rdistif_restore();
+
 	if (IS_CPUIDLE_FN_ENABLE(MTK_CPUPM_FN_RESUME_MCUSYS))
 		imtk_cpu_pwr.ops->mcusys_resume(state);
 }
@@ -121,6 +125,9 @@ static void mcusys_pwr_dwn_common(const struct mtk_cpupm_pwrstate *state)
 	if (IS_CPUIDLE_FN_ENABLE(MTK_CPUPM_FN_SUSPEND_MCUSYS))
 		imtk_cpu_pwr.ops->mcusys_suspend(state);
 
+	mt_gic_rdistif_save();
+	/* save gic context after cirq enable */
+	mt_gic_distif_save();
 }
 
 static void cluster_pwr_on_common(const struct mtk_cpupm_pwrstate *state)
@@ -140,8 +147,7 @@ static void cpu_pwr_on_common(const struct mtk_cpupm_pwrstate *state,
 {
 	coordinate_cluster_pwron();
 
-	gicv3_rdistif_init(plat_my_core_pos());
-	gicv3_cpuif_enable(plat_my_core_pos());
+	mt_gic_cpuif_enable();
 }
 
 static void cpu_pwr_dwn_common(const struct mtk_cpupm_pwrstate *state,
@@ -149,6 +155,8 @@ static void cpu_pwr_dwn_common(const struct mtk_cpupm_pwrstate *state,
 {
 	if (pstate & MT_CPUPM_PWR_DOMAIN_PERCORE_DSU)
 		coordinate_cluster_pwroff();
+
+	mt_gic_cpuif_disable();
 }
 
 static void cpu_pwr_resume(const struct mtk_cpupm_pwrstate *state,
@@ -217,6 +225,8 @@ static void power_domain_on_finish(const psci_power_state_t *state)
 		},
 	};
 
+	mt_gic_pcpu_init();
+
 	cpu_pwr_on(&pm_state, pstate);
 
 	nb.cpuid = pm_state.info.cpuid;
@@ -243,7 +253,7 @@ static void power_domain_off(const psci_power_state_t *state)
 
 	cpu_pwr_off(&pm_state, pstate);
 
-	gicv3_rdistif_off(plat_my_core_pos());
+	mt_gic_redistif_off();
 
 	nb.cpuid = pm_state.info.cpuid;
 	nb.pwr_domain = pstate;
@@ -277,8 +287,6 @@ static void power_domain_suspend(const psci_power_state_t *state)
 
 	if (pstate & MT_CPUPM_PWR_DOMAIN_MCUSYS)
 		mcusys_pwr_dwn_common(&pm_state);
-
-	gicv3_rdistif_off(plat_my_core_pos());
 
 	nb.cpuid = pm_state.info.cpuid;
 	nb.pwr_domain = pstate;

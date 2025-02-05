@@ -14,7 +14,7 @@
 
 #include <lib/mtk_init/mtk_init.h>
 #include <lib/pm/mtk_pm.h>
-#include <lpm/mt_lp_rm.h>
+#include <lpm_v2/mt_lp_rm.h>
 #include "mt_cpu_pm.h"
 #include "mt_cpu_pm_cpc.h"
 #include "mt_cpu_pm_mbox.h"
@@ -773,11 +773,13 @@ static int cpupm_pwr_state_valid(unsigned int afflv, unsigned int state)
 static int cpupm_invoke(unsigned int func_id, void *priv)
 {
 	int ret = MTK_CPUPM_E_OK;
+#ifdef CPU_PM_SUSPEND_NOTIFY
 	int i, reverse = 0;
 	struct cpupm_invoke_data *save_status = (struct cpupm_invoke_data *) priv;
+	unsigned int cpu_status;
+#endif
 	struct cpupm_pwr_req *req = (struct cpupm_pwr_req *)priv;
 	unsigned int pwr_req = req->req;
-	unsigned int cpu_status;
 
 	switch (func_id) {
 #ifdef CPU_PM_SUSPEND_NOTIFY

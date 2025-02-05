@@ -7,9 +7,9 @@
 #ifndef MT_CPU_PM_SMC_H
 #define MT_CPU_PM_SMC_H
 
-#include <lpm/mt_lp_rm.h>
-#include <lpm/mt_lpm_dispatch.h>
-#include <lpm/mt_lpm_smc.h>
+#include <lpm_v2/mt_lp_rm.h>
+#include <lpm_v2/mt_lpm_dispatch.h>
+#include <lpm_v2/mt_lpm_smc.h>
 
 void cpupm_smc_init(void);
 

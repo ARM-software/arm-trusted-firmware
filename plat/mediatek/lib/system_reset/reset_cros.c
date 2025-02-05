@@ -1,18 +1,25 @@
 /*
- * Copyright (c) 2022, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2022-2025, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
 #include <drivers/gpio.h>
+#if CONFIG_MTK_PMIC_SHUTDOWN_CFG
+#include <drivers/pmic/pmic_psc.h>
+#endif
 #include <lib/mtk_init/mtk_init.h>
 #include <lib/pm/mtk_pm.h>
 #include <plat_params.h>
+#if !CONFIG_MTK_PMIC_SHUTDOWN_CFG
 #include <pmic.h>
 #include <rtc.h>
+#endif
 
 static void __dead2 mtk_system_reset_cros(void)
 {
@@ -31,8 +38,13 @@ static void __dead2 mtk_system_off_cros(void)
 {
 	INFO("MTK System Off\n");
 
+#if CONFIG_MTK_PMIC_SHUTDOWN_CFG
+	platform_power_hold(false);
+	mdelay(1000);
+#else
 	rtc_power_off_sequence();
 	pmic_power_off();
+#endif
 
 	wfi();
 	ERROR("MTK System Off: operation not handled.\n");

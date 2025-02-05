@@ -29,8 +29,6 @@ $(eval $(call add_defined_option,CPU_PM_DOMAIN_CORE_ONLY))
 $(eval $(call add_defined_option,CPU_PM_CORE_ARCH64_ONLY))
 $(eval $(call add_defined_option,CPU_PM_TINYSYS_SUPPORT))
 
-$(eval $(call add_defined_option,CPU_PM_SUSPEND_NOTIFY))
-
 $(eval $(call add_defined_option,CPU_PM_PWR_REQ))
 $(eval $(call add_defined_option,CPU_PM_PWR_REQ_DEBUG))
 
