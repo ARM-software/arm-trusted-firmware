@@ -12,7 +12,7 @@
 #include <platform_def.h>
 
 #include <lib/pm/mtk_pm.h>
-#include <lpm/mt_lp_rm.h>
+#include <lpm_v2/mt_lp_rm.h>
 #include "mt_cpu_pm.h"
 #include "mt_lp_irqremain.h"
 
