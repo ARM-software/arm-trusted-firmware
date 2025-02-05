@@ -58,11 +58,33 @@
 #define GENMASK				GENMASK_32
 #endif
 
+/*
+ * Similar to GENMASK_64 but uses a named register field to compute the mask.
+ * For a register field REG_FIELD, the macros REG_FIELD_WIDTH and
+ * REG_FIELD_SHIFT must be defined.
+ */
+#define MASK(regfield)							\
+	((~0ULL >> (64ULL - (regfield##_WIDTH))) << (regfield##_SHIFT))
+
 #define HI(addr)			(addr >> 32)
 #define LO(addr)			(addr & 0xffffffff)
 
 #define HI_64(addr)			(addr >> 64)
 #define LO_64(addr)			(addr & 0xffffffffffffffff)
+
+/**
+ * EXTRACT_FIELD - Extracts a specific bit field from a value.
+ *
+ * @reg:      The input value containing the field.
+
+ * @regfield: A bitmask representing the field. For a register field REG_FIELD,
+ *            the macros REG_FIELD_WIDTH and REG_FIELD_SHIFT must be defined.
+
+ * The result of this macro is the contents of the field right shifted to the
+ * least significant bit positions, with the rest being zero.
+ */
+#define EXTRACT(regfield, reg) \
+	(((reg) & MASK(regfield)) >> (regfield##_SHIFT))
 
 /*
  * This variant of div_round_up can be used in macro definition but should not
@@ -220,18 +242,5 @@
  * Ticks elapsed in one second with a signal of 1 KHz
  */
 #define KHZ_TICKS_PER_SEC U(1000)
-
-/**
- * EXTRACT_FIELD - Extracts a specific bit field from a value.
- *
- * @val:   The input value containing the field.
- * @mask:  A bitmask representing the maximum value of the field
- * @shift: The starting bit position of the field.
- *
- * This macro shifts the input value (@val) to the right by @shift bits,
- * aligning the target field to the least significant bits (LSB).
- * It then applies @mask to extract only the relevant bits.
- */
-#define EXTRACT_FIELD(val, mask, shift)   (((val) >> (shift)) & (mask))
 
 #endif /* UTILS_DEF_H */

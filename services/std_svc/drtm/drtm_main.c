@@ -329,10 +329,8 @@ static int drtm_dl_check_features_sanity(uint32_t val)
 	 * Ensure that if DLME Authorities Schema (Bits [2:1]) is set, then
 	 * DLME image authentication (Bit[6]) must also be set
 	 */
-	if ((EXTRACT_FIELD(val, DRTM_LAUNCH_FEAT_PCR_USAGE_SCHEMA_MASK,
-			   DRTM_LAUNCH_FEAT_PCR_USAGE_SCHEMA_SHIFT) == DLME_AUTH_SCHEMA) &&
-	    (EXTRACT_FIELD(val, DRTM_LAUNCH_FEAT_DLME_IMG_AUTH_MASK,
-			    DRTM_LAUNCH_FEAT_DLME_IMG_AUTH_SHIFT) != DLME_IMG_AUTH)) {
+	if ((EXTRACT(DRTM_LAUNCH_FEAT_PCR_USAGE_SCHEMA, val) == DLME_AUTH_SCHEMA) &&
+	    (EXTRACT(DRTM_LAUNCH_FEAT_DLME_IMG_AUTH, val) != DLME_IMG_AUTH)) {
 		return INVALID_PARAMETERS;
 	}
 
@@ -340,8 +338,7 @@ static int drtm_dl_check_features_sanity(uint32_t val)
 	 * Check if Bits [5:3] (Memory protection type) matches with platform's
 	 * memory protection type
 	 */
-	if (EXTRACT_FIELD(val, DRTM_LAUNCH_FEAT_MEM_PROTECTION_TYPE_MASK,
-			  DRTM_LAUNCH_FEAT_MEM_PROTECTION_TYPE_SHIFT) !=
+	if (EXTRACT(DRTM_LAUNCH_FEAT_MEM_PROTECTION_TYPE, val) !=
 	    __builtin_ctz(plat_dma_prot_feat->dma_protection_support)) {
 		return INVALID_PARAMETERS;
 	}
@@ -350,8 +347,7 @@ static int drtm_dl_check_features_sanity(uint32_t val)
 	 * Check if Bits [0] (Type of hashing) matches with platform's
 	 * supported hash type.
 	 */
-	if (EXTRACT_FIELD(val, DRTM_LAUNCH_FEAT_HASHING_TYPE_MASK,
-			  DRTM_LAUNCH_FEAT_HASHING_TYPE_SHIFT) !=
+	if (EXTRACT(DRTM_LAUNCH_FEAT_HASHING_TYPE, val) !=
 	    plat_tpm_feat->tpm_based_hash_support) {
 		return INVALID_PARAMETERS;
 	}
