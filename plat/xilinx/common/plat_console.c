@@ -274,14 +274,16 @@ void setup_console(void)
 	INFO("BL31: Early console setup\n");
 
 #ifdef CONSOLE_RUNTIME
-#if (RT_CONSOLE_IS(dtb) && (XLNX_DT_CFG == 1))
-	rt_hd_console.base = dt_uart_info.base;
-	rt_hd_console.baud_rate = dt_uart_info.baud_rate;
-	rt_hd_console.console_type = dt_uart_info.console_type;
-#else
 	rt_hd_console.base = (uintptr_t)RT_UART_BASE;
 	rt_hd_console.baud_rate = (uint32_t)UART_BAUDRATE;
 	rt_hd_console.console_type = RT_UART_TYPE;
+
+#if (RT_CONSOLE_IS(dtb) && (XLNX_DT_CFG == 1))
+	if (dt_uart_info.base != 0U) {
+		rt_hd_console.base = dt_uart_info.base;
+		rt_hd_console.baud_rate = dt_uart_info.baud_rate;
+		rt_hd_console.console_type = dt_uart_info.console_type;
+	}
 #endif
 
 	if ((rt_hd_console.console_type == boot_hd_console.console_type) &&
