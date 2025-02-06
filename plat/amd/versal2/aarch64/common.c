@@ -18,7 +18,7 @@
 #include <plat_ipi.h>
 #include <plat_private.h>
 
-uint32_t platform_id, platform_version;
+uint32_t platform_id, platform_version, rtlversion, psversion, pmcversion;
 
 /*
  * Table of regions to map using the MMU.
@@ -77,6 +77,9 @@ void board_detection(void)
 	version_type = mmio_read_32(PMC_TAP_VERSION);
 	platform_id = FIELD_GET((uint32_t)PLATFORM_MASK, version_type);
 	platform_version = FIELD_GET((uint32_t)PLATFORM_VERSION_MASK, version_type);
+	rtlversion = FIELD_GET((uint32_t)RTL_VERSION, version_type);
+	psversion = FIELD_GET((uint32_t)PS_VERSION, version_type);
+	pmcversion = FIELD_GET((uint32_t)PMC_VERSION, version_type);
 
 	if (platform_id == QEMU_COSIM) {
 		platform_id = QEMU;

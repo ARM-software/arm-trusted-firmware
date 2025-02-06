@@ -45,6 +45,9 @@
 /* For platform detection */
 #define PMC_TAP				U(0xF11A0000)
 #define PMC_TAP_VERSION			(PMC_TAP + 0x4U)
+# define PMC_VERSION			GENMASK(7U, 0U)
+# define PS_VERSION			GENMASK(15U, 8U)
+# define RTL_VERSION			GENMASK(23U, 16U)
 # define PLATFORM_MASK			GENMASK(27U, 24U)
 # define PLATFORM_VERSION_MASK		GENMASK(31U, 28U)
 
