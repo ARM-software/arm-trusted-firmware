@@ -1372,6 +1372,18 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		} else {
 			return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
 		}
+	case FFA_ABORT_SMC32:
+	case FFA_ABORT_SMC64:
+		/* This interface must be invoked only by the Secure world */
+		if (!secure_origin) {
+			return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+		}
+
+		ERROR("SPMC encountered a fatal error. Aborting now\n");
+		panic();
+
+		/* Not reached. */
+		SMC_RET0(handle);
 	default:
 		WARN("SPM: Unsupported call 0x%08x\n", smc_fid);
 		return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
