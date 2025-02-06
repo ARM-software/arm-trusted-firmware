@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -177,6 +177,9 @@
  * ---------------------------------------------------------------------
  * 0x80000000       |2GB -   |L1 GPT |NS     |NS DRAM                  |
  * 0xF3FFFFFF       |192MB   |       |       |                         |
+ * --------------------------------------------------------------------|
+ * 0xF4000000       |9692KB  |L1 GPT |SECURE |BL32                     |
+ * 0xFB200000       |        |       |       |                         |
  * ---------------------------------------------------------------------
  * 0x80000000       |26MB    |L1 GPT |REALM  |RMM                      |
  * 0x37FFFFFF       |        |       |       |TF-A SHARED              |
@@ -513,6 +516,14 @@
 			NRD_MC_BASE(NRD_CSS_DRAM1_BASE, 3),		\
 			ARM_DRAM1_SIZE,					\
 			GPT_GPI_NS)
+
+#if SPD_spmd && SPMD_SPM_AT_SEL2
+#define NRD_PAS_BL32							\
+		GPT_MAP_REGION_GRANULE(					\
+			PLAT_ARM_SPMC_BASE,				\
+			PLAT_ARM_SPMC_SIZE,				\
+			GPT_GPI_SECURE)
+#endif
 
 #define NRD_PAS_RMM							\
 		GPT_MAP_REGION_GRANULE(					\

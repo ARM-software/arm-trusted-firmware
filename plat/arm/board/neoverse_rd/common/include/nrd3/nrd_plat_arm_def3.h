@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -118,7 +118,7 @@
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE		UL(0x400)
 #elif defined(IMAGE_BL31)
-# if SPM_MM
+# if SPM_MM || SPMD_SPM_AT_SEL2
 #  define PLATFORM_STACK_SIZE		UL(0x500)
 # else
 #  define PLATFORM_STACK_SIZE		UL(0x400)
@@ -608,8 +608,12 @@
  *   - L1 GPT DRAM: Reserved for L1 GPT if RME is enabled
  *   - TF-A <-> RMM SHARED: Area shared for communication between TF-A and RMM
  *   - REALM DRAM: Reserved for Realm world if RME is enabled
+ *   - BL32: Carveout for BL32 image if BL32 is present
  *
  *                    DRAM layout
+ *               +------------------+
+ *               |                  |
+ *               |        BL32      |
  *               +------------------+
  *               |   REALM (RMM)    |
  *               |   (32MB - 4KB)   |
@@ -696,6 +700,14 @@
 #define RMM_SHARED_SIZE			(ARM_EL3_RMM_SHARED_SIZE)
 
 /*******************************************************************************
+ * S-EL2 SPMC region defines.
+ ******************************************************************************/
+/* BL32 (1500KB) +  PLAT_ARM_SP_MAX_SIZE (3MB) + SP HEAP (5MB) */
+/* 9692KB */
+#define PLAT_ARM_SPMC_SIZE	(UL(1500 * 1024) + UL(0x300000) + UL(0x500000))
+#define PLAT_ARM_SPMC_BASE	(RMM_BASE - PLAT_ARM_SPMC_SIZE)
+
+/*******************************************************************************
  * NRD_CSS_CARVEOUT_RESERVED region specific defines.
  ******************************************************************************/
 
@@ -705,10 +717,27 @@
 #define NRD_CSS_CARVEOUT_RESERVED_SIZE	(NRD_CSS_DRAM1_CARVEOUT_SIZE -	\
 					(ARM_EL3_RMM_SHARED_SIZE +	\
 					 ARM_REALM_SIZE +		\
-					 ARM_L1_GPT_SIZE))
+					 ARM_L1_GPT_SIZE +		\
+					 PLAT_ARM_SPMC_SIZE))
 
 #define NRD_CSS_CARVEOUT_RESERVED_END	(NRD_CSS_CARVEOUT_RESERVED_BASE +\
 					 NRD_CSS_CARVEOUT_RESERVED_SIZE - 1U)
+
+/*******************************************************************************
+ * BL32 specific defines for EL3 runtime in AArch64 mode
+ ******************************************************************************/
+
+#if SPD_spmd && SPMD_SPM_AT_SEL2
+#  define BL32_BASE			PLAT_ARM_SPMC_BASE
+#  define BL32_LIMIT			(PLAT_ARM_SPMC_BASE +		\
+					 PLAT_ARM_SPMC_SIZE)
+
+#if RESET_TO_BL31
+#  define PLAT_ARM_SPMC_MANIFEST_BASE	UL(0x1F500)
+#  define ARM_SPMC_MANIFEST_BASE	PLAT_ARM_SPMC_MANIFEST_BASE
+#endif
+
+# endif
 
 /*******************************************************************************
  * NS RAM specific defines specific defines.
@@ -720,6 +749,12 @@
 
 #define ARM_NS_DRAM1_END		(ARM_NS_DRAM1_BASE +		\
 					 ARM_NS_DRAM1_SIZE - 1U)
+
+/*******************************************************************************
+ * Secure Partition specific defines.
+ ******************************************************************************/
+
+#define PLAT_ARM_SP_MAX_SIZE		U(0x300000) /* 3MB */
 
 /*******************************************************************************
  * MMU mapping

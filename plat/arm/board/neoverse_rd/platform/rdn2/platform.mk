@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -113,6 +113,8 @@ override ENABLE_FEAT_AMU		:= 2
 override ENABLE_FEAT_MTE2       	:= 2
 override SPMD_SPM_AT_SEL2		:= 0
 
+# FEAT_SVE related flags
+override SVE_VECTOR_LEN			:= 128
 # Enable the flag since RD-N2 has a system level cache
 NEOVERSE_Nx_EXTERNAL_LLC		:=	1
 

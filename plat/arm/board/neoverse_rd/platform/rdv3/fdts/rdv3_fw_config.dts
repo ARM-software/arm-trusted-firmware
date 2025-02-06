@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +16,13 @@
 			load-address = <0x0 0x01f300>;
 			max-size = <0x200>;
 			id = <TB_FW_CONFIG_ID>;
+		};
+
+		tos_fw-config {
+			load-address = <0x0 0x01f500>;
+			secondary-load-address = <0x0 0xF9200000>;
+			max-size = <0x1000>;
+			id = <TOS_FW_CONFIG_ID>;
 		};
 
 		nt_fw-config {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,6 +39,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	NRD_ROS_PLATFORM_PERIPH_MMAP,
 	NRD_ROS_SYSTEM_PERIPH_MMAP,
 	NRD_CSS_NS_DRAM1_MMAP,
+#if SPD_spmd && SPMD_SPM_AT_SEL2
+	NRD_CSS_SPM_CORE_REGION_MMAP,
+#endif
 #if TRUSTED_BOARD_BOOT && !RESET_TO_BL2
 	NRD_CSS_BL1_RW_MMAP,
 #endif
