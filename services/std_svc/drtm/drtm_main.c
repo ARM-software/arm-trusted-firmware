@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -112,8 +112,6 @@ int drtm_setup(void)
 			      dlme_data_hdr_init.dlme_tcb_hashes_table_size +
 			      dlme_data_hdr_init.dlme_impdef_region_size;
 
-	dlme_data_min_size = page_align(dlme_data_min_size, UP)/PAGE_SIZE;
-
 	/* Fill out platform DRTM features structure */
 	/* Only support default PCR schema (0x1) in this implementation. */
 	ARM_DRTM_TPM_FEATURES_SET_PCR_SCHEMA(plat_drtm_features.tpm_features,
@@ -123,7 +121,7 @@ int drtm_setup(void)
 	ARM_DRTM_TPM_FEATURES_SET_FW_HASH(plat_drtm_features.tpm_features,
 		plat_tpm_feat->firmware_hash_algorithm);
 	ARM_DRTM_MIN_MEM_REQ_SET_MIN_DLME_DATA_SIZE(plat_drtm_features.minimum_memory_requirement,
-		dlme_data_min_size);
+		page_align(dlme_data_min_size, UP)/PAGE_SIZE);
 	ARM_DRTM_MIN_MEM_REQ_SET_DCE_SIZE(plat_drtm_features.minimum_memory_requirement,
 		plat_drtm_get_min_size_normal_world_dce());
 	ARM_DRTM_DMA_PROT_FEATURES_SET_MAX_REGIONS(plat_drtm_features.dma_prot_features,
@@ -237,7 +235,7 @@ static enum drtm_retc drtm_dl_prepare_dlme_data(const struct_drtm_dl_args *args)
 	 */
 	if (dlme_data_max_size < dlme_data_min_size) {
 		ERROR("%s: assertion failed:"
-		      " dlme_data_max_size (%ld) < dlme_data_total_bytes_req (%ld)\n",
+		      " dlme_data_max_size (%ld) < dlme_data_min_size (%ld)\n",
 		      __func__, dlme_data_max_size, dlme_data_min_size);
 		panic();
 	}
