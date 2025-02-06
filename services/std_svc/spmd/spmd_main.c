@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -222,6 +222,7 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	 * in this scenario where execution was trapped to EL3 due to FIQ.
 	 */
 	simd_ctx_save(NON_SECURE, false);
+	simd_ctx_restore(SECURE);
 #endif
 #endif
 
@@ -238,14 +239,8 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	/* Mark current core as handling a secure interrupt. */
 	ctx->secure_interrupt_ongoing = true;
 
-#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
-	simd_ctx_restore(SECURE);
-#endif
 	rc = spmd_spm_core_sync_entry(ctx);
 
-#if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
-	simd_ctx_save(SECURE, false);
-#endif
 	if (rc != 0ULL) {
 		ERROR("%s failed (%" PRId64 ") on CPU%u\n", __func__, rc, plat_my_core_pos());
 	}
@@ -258,6 +253,7 @@ static uint64_t spmd_secure_interrupt_handler(uint32_t id,
 	cm_el1_sysregs_context_restore(NON_SECURE);
 
 #if CTX_INCLUDE_FPREGS || CTX_INCLUDE_SVE_REGS
+	simd_ctx_save(SECURE, false);
 	simd_ctx_restore(NON_SECURE);
 #endif
 #endif
