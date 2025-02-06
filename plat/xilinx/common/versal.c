@@ -27,11 +27,9 @@ int32_t plat_is_smccc_feature_available(u_register_t fid)
 {
 	int32_t ret = 0;
 
-	switch (fid) {
-	case SMCCC_ARCH_SOC_ID:
+	if (fid == SMCCC_ARCH_SOC_ID) {
 		ret = SMC_ARCH_CALL_SUCCESS;
-		break;
-	default:
+	} else {
 		ret = SMC_ARCH_CALL_NOT_SUPPORTED;
 	}
 
