@@ -158,6 +158,8 @@ func handle_pending_async_ea
 	b.eq	1f
 	ret
 1:
+	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	str	xzr, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	exception_return
 endfunc handle_pending_async_ea
 
