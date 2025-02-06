@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,8 +55,8 @@
  * BL32 specific defines.
  ******************************************************************************/
 #ifndef BL32_MEM_BASE
-# define BL32_BASE			U(0x60000000)
-# define BL32_LIMIT			U(0x80000000)
+# define BL32_BASE			U(0x01800000)
+# define BL32_LIMIT			U(0x09800000)
 #else
 # define BL32_BASE			U(BL32_MEM_BASE)
 # define BL32_LIMIT			U(BL32_MEM_BASE + BL32_MEM_SIZE)
@@ -66,7 +66,7 @@
  * BL33 specific defines.
  ******************************************************************************/
 #ifndef PRELOADED_BL33_BASE
-# define PLAT_ARM_NS_IMAGE_BASE		U(0x8000000)
+# define PLAT_ARM_NS_IMAGE_BASE		U(0x40000000)
 #else
 # define PLAT_ARM_NS_IMAGE_BASE		U(PRELOADED_BL33_BASE)
 #endif
@@ -99,8 +99,8 @@
  * FIXME: This address should come from firmware before TF-A
  * Having this to make sure the transfer list functionality works
  */
-#define FW_HANDOFF_BASE         U(0x70000000)
-#define FW_HANDOFF_SIZE         U(0x10000)
+#define FW_HANDOFF_BASE         U(0x1000000)
+#define FW_HANDOFF_SIZE         U(0x600000)
 #endif
 
 #define IS_TFA_IN_OCM(x)	((x >= PLAT_OCM_BASE) && (x < PLAT_OCM_LIMIT))
