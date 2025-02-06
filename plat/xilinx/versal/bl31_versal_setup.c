@@ -214,12 +214,12 @@ void bl31_platform_setup(void)
 
 void bl31_plat_runtime_setup(void)
 {
-	uint64_t flags = 0;
+	uint32_t flags = 0;
 	int32_t rc;
 
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
-					     rdo_el3_interrupt_handler, (uint32_t)flags);
+					     rdo_el3_interrupt_handler, flags);
 	if (rc != 0) {
 		panic();
 	}

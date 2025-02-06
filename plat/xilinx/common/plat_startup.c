@@ -149,7 +149,7 @@ static uint32_t get_xbl_estate(const struct xbl_partition *partition)
 
 	flags >>= XBL_FLAGS_ESTATE_SHIFT;
 
-	return flags;
+	return (uint32_t)flags;
 }
 
 #if defined(PLAT_versal_net)
@@ -270,8 +270,8 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 							 (uint64_t)target_endianness,
 							 DISABLE_ALL_EXCEPTIONS);
 			} else {
-				bl32->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
-						     DISABLE_ALL_EXCEPTIONS);
+				bl32->spsr = (uint32_t)SPSR_64(MODE_EL1, MODE_SP_ELX,
+							DISABLE_ALL_EXCEPTIONS);
 			}
 		} else {
 			image = bl33;
@@ -294,7 +294,7 @@ enum xbl_handoff xbl_handover(entry_point_info_t *bl32,
 				}
 
 				bl33->spsr = (uint32_t)SPSR_64((uint64_t)target_el, MODE_SP_ELX,
-						     DISABLE_ALL_EXCEPTIONS);
+							DISABLE_ALL_EXCEPTIONS);
 			}
 		}
 
