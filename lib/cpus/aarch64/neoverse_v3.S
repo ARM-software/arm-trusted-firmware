@@ -101,6 +101,10 @@ declare_cpu_ops neoverse_v3, NEOVERSE_V3_VNAE_MIDR, \
 	neoverse_v3_reset_func, \
 	neoverse_v3_core_pwr_dwn
 
-declare_cpu_ops neoverse_v3, NEOVERSE_V3_MIDR, \
+declare_cpu_ops_wa_4 neoverse_v3, NEOVERSE_V3_MIDR, \
 	neoverse_v3_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_neoverse_v3_7881, \
 	neoverse_v3_core_pwr_dwn

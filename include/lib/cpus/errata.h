@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,6 +47,8 @@ static inline bool errata_a75_764081_applies(void)
 #if ERRATA_A520_2938996 || ERRATA_X4_2726228
 unsigned int check_if_affected_core(void);
 #endif
+
+int check_wa_cve_2024_7881(void);
 
 /*
  * NOTE that this structure will be different on AArch32 and AArch64. The
