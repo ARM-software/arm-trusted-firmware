@@ -89,6 +89,21 @@ workaround_reset_end cortex_x4, ERRATUM(2923985)
 
 check_erratum_ls cortex_x4, ERRATUM(2923985), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x4, ERRATUM(2957258), ERRATA_X4_2957258
+	/* Add ISB before MRS reads of MPIDR_EL1/MIDR_EL1 */
+	ldr x0, =0x1
+	msr S3_6_c15_c8_0, x0 	/* msr CPUPSELR_EL3, X0 */
+	ldr x0, =0xd5380000
+	msr S3_6_c15_c8_2, x0 	/* msr CPUPOR_EL3, X0 */
+	ldr x0, =0xFFFFFF40
+	msr S3_6_c15_c8_3,x0 	/* msr CPUPMR_EL3, X0 */
+	ldr x0, =0x000080010033f
+	msr S3_6_c15_c8_1, x0	/* msr CPUPCR_EL3, X0 */
+	isb
+workaround_reset_end cortex_x4, ERRATUM(2957258)
+
+check_erratum_ls cortex_x4, ERRATUM(2957258), CPU_REV(0, 1)
+
 workaround_reset_start cortex_x4, ERRATUM(3076789), ERRATA_X4_3076789
 	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(14)
 	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(13)
