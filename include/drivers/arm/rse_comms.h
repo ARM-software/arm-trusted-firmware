@@ -15,6 +15,5 @@ size_t rse_mbx_get_max_message_size(void);
 int rse_mbx_send_data(const uint8_t *send_buffer, size_t size);
 int rse_mbx_receive_data(uint8_t *receive_buffer, size_t *size);
 int rse_mbx_init(const void *init_data);
-int rse_comms_init(uintptr_t mhu_sender_base, uintptr_t mhu_receiver_base);
 
 #endif /* RSE_COMMS_H */

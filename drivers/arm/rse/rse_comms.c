@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include <common/debug.h>
-#include <drivers/arm/mhu.h>
 #include <drivers/arm/rse_comms.h>
 #include <psa/client.h>
 #include <rse_comms_protocol.h>
@@ -150,31 +149,4 @@ psa_status_t psa_call(psa_handle_t handle, int32_t type, const psa_invec *in_vec
 	seq_num++;
 
 	return return_val;
-}
-
-int rse_comms_init(uintptr_t mhu_sender_base, uintptr_t mhu_receiver_base)
-{
-	enum mhu_error_t err;
-
-	err = mhu_init_sender(mhu_sender_base);
-	if (err != MHU_ERR_NONE) {
-		if (err == MHU_ERR_ALREADY_INIT) {
-			INFO("[RSE-COMMS] Host to RSE MHU driver already initialized\n");
-		} else {
-			ERROR("[RSE-COMMS] Host to RSE MHU driver initialization failed: %d\n", err);
-			return -1;
-		}
-	}
-
-	err = mhu_init_receiver(mhu_receiver_base);
-	if (err != MHU_ERR_NONE) {
-		if (err == MHU_ERR_ALREADY_INIT) {
-			INFO("[RSE-COMMS] RSE to Host MHU driver already initialized\n");
-		} else {
-			ERROR("[RSE-COMMS] RSE to Host MHU driver initialization failed: %d\n", err);
-			return -1;
-		}
-	}
-
-	return 0;
 }
