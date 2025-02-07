@@ -233,7 +233,7 @@ static uint32_t plat_get_num_memnodes(void)
 	return 1;
 }
 
-static void plat_get_memory_node(int index, struct ns_dram_bank *bank_ptr)
+static void plat_get_memory_node(int index, struct memory_bank *bank_ptr)
 {
 	(void) index;
 	bank_ptr->base = NS_DRAM0_BASE;
@@ -245,7 +245,7 @@ static uint32_t plat_get_num_memnodes(void)
 	return sbsa_platform_num_memnodes();
 }
 
-static void plat_get_memory_node(int index, struct ns_dram_bank *bank_ptr)
+static void plat_get_memory_node(int index, struct memory_bank *bank_ptr)
 {
 	struct platform_memory_data data = {0, 0, 0};
 
@@ -281,7 +281,7 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	uint64_t checksum;
 	size_t num_banks = plat_get_num_memnodes();
 	size_t num_consoles = 1;
-	struct ns_dram_bank *bank_ptr;
+	struct memory_bank *bank_ptr;
 	struct console_info *console_ptr;
 
 	assert(manifest != NULL);
@@ -333,7 +333,7 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	 * |   120    |  flags       |              |
 	 * +----------+--------------+--------------+
 	 */
-	bank_ptr = (struct ns_dram_bank *)
+	bank_ptr = (struct memory_bank *)
 		(((uintptr_t)manifest) + sizeof(*manifest));
 
 	console_ptr = (struct console_info *)
@@ -345,7 +345,7 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	/* Ensure the manifest is not larger than the shared buffer */
 	assert((sizeof(struct rmm_manifest) +
 		(sizeof(struct console_info) * num_consoles) +
-		(sizeof(struct ns_dram_bank) * num_banks)) <= RMM_SHARED_SIZE);
+		(sizeof(struct memory_bank) * num_banks)) <= RMM_SHARED_SIZE);
 
 	/* Calculate checksum of plat_dram structure */
 	checksum = num_banks + (uint64_t)bank_ptr;
