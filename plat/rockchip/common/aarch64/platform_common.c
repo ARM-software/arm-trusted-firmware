@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2013-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <string.h>
 
 #include <platform_def.h>
@@ -58,7 +59,18 @@ DEFINE_CONFIGURE_MMU_EL(3)
 
 unsigned int plat_get_syscnt_freq2(void)
 {
+#ifdef SYS_COUNTER_FREQ_IN_TICKS
 	return SYS_COUNTER_FREQ_IN_TICKS;
+#else
+	static int sys_counter_freq_in_hz;
+
+	if (sys_counter_freq_in_hz == 0)
+		sys_counter_freq_in_hz = read_cntfrq_el0();
+
+	assert(sys_counter_freq_in_hz != 0);
+
+	return sys_counter_freq_in_hz;
+#endif
 }
 
 void plat_cci_init(void)

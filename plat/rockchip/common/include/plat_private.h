@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,6 +28,9 @@ extern uint32_t __bl31_sram_text_start, __bl31_sram_text_end;
 extern uint32_t __bl31_sram_data_start, __bl31_sram_data_end;
 extern uint32_t __bl31_sram_stack_start, __bl31_sram_stack_end;
 extern uint32_t __bl31_sram_text_real_end, __bl31_sram_data_real_end;
+extern uint32_t __bl31_pmusram_text_start, __bl31_pmusram_text_end;
+extern uint32_t __bl31_pmusram_data_start, __bl31_pmusram_data_end;
+extern uint32_t __bl31_pmusram_text_real_end, __bl31_pmusram_data_real_end;
 extern uint32_t __sram_incbin_start, __sram_incbin_end;
 extern uint32_t __sram_incbin_real_end;
 
