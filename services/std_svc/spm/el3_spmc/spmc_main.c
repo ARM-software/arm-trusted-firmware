@@ -2121,6 +2121,31 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 		}
 	}
 
+	ret = fdt_read_uint32(sp_manifest, node,
+			      "vm-availability-messages", &config_32);
+	if (ret != 0) {
+		WARN("Missing VM availability messaging.\n");
+	} else if ((sp->properties & FFA_PARTITION_DIRECT_REQ_RECV) == 0) {
+		ERROR("VM availability messaging requested without "
+		      "direct message receive support.\n");
+		return -EINVAL;
+	} else {
+		/* Validate this entry. */
+		if ((config_32 & ~(FFA_VM_AVAILABILITY_CREATED |
+				  FFA_VM_AVAILABILITY_DESTROYED)) != 0U) {
+			WARN("Invalid VM availability messaging (0x%x)\n",
+			     config_32);
+			return -EINVAL;
+		}
+
+		if ((config_32 & FFA_VM_AVAILABILITY_CREATED) != 0U) {
+			sp->properties |= FFA_PARTITION_VM_CREATED;
+		}
+		if ((config_32 & FFA_VM_AVAILABILITY_DESTROYED) != 0U) {
+			sp->properties |= FFA_PARTITION_VM_DESTROYED;
+		}
+	}
+
 	return 0;
 }
 
