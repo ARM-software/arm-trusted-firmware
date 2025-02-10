@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,14 +41,25 @@ el3_sys_regs:
 		"daif", "mair_el3", "spsr_el3", "elr_el3", "ttbr0_el3",\
 		"esr_el3", "far_el3", ""
 
-non_el3_sys_regs:
+non_el3_sys_regs_1:
 	.asciz	"spsr_el1", "elr_el1", "spsr_abt", "spsr_und",\
 		"spsr_irq", "spsr_fiq", "sctlr_el1", "actlr_el1", "cpacr_el1",\
-		"csselr_el1", "sp_el1", "esr_el1", "ttbr0_el1", "ttbr1_el1",\
-		"mair_el1", "amair_el1", "tcr_el1", "tpidr_el1", "tpidr_el0",\
-		"tpidrro_el0",  "par_el1", "mpidr_el1", "afsr0_el1", "afsr1_el1",\
-		"contextidr_el1", "vbar_el1", "cntp_ctl_el0", "cntp_cval_el0",\
-		"cntv_ctl_el0", "cntv_cval_el0", "cntkctl_el1", "sp_el0", "isr_el1", ""
+		"csselr_el1", "sp_el1", "esr_el1", ""
+
+ttbr_regs:
+	.asciz	"ttbr0_el1", "ttbr0_el2", "ttbr1_el1", "vttbr_el2", ""
+
+non_el3_sys_regs_2:
+	.asciz	"mair_el1", "amair_el1", "tcr_el1", "tpidr_el1",\
+		"tpidr_el0", "tpidrro_el0", ""
+
+par_reg:
+	.asciz	"par_el1", ""
+
+non_el3_sys_regs_3:
+	.asciz	"mpidr_el1", "afsr0_el1", "afsr1_el1", "contextidr_el1",\
+		"vbar_el1", "cntp_ctl_el0", "cntp_cval_el0", "cntv_ctl_el0",\
+		"cntv_cval_el0", "cntkctl_el1", "sp_el0", "isr_el1", ""
 
 #if CTX_INCLUDE_AARCH32_REGS
 aarch32_regs:
@@ -71,9 +82,22 @@ excpt_msg_el:
 	 * The print loop is controlled by the buf size and
 	 * ascii reg name list which is passed in x6. The
 	 * function returns the crash buf address in x0.
-	 * Clobbers : x0 - x7, sp
+	 * Clobbers : x0 - x7, x20, sp
 	 */
-func size_controlled_print
+func size_controlled_print_helper
+#if ENABLE_FEAT_D128
+size_controlled_print_128:
+	/* Set flag to print 128-bit registers */
+	mov	x20, #1
+	b	1f
+
+size_controlled_print:
+	/* Set flag to print 64-bit registers */
+	mov	x20, #0
+1:
+#else
+size_controlled_print:
+#endif
 	/* Save the lr */
 	mov	sp, x30
 	/* load the crash buf address */
@@ -96,14 +120,22 @@ test_size_list:
 	/* update x6 with the updated list pointer */
 	mov	x6, x4
 	bl	print_alignment
+	/* Print the high 64 bits (or whole 64-bit register) */
 	ldr	x4, [x7], #REGSZ
 	bl	asm_print_hex
+#if ENABLE_FEAT_D128
+	cbz	x20, 2f
+	/* Print the low 64 bits in case of a 128-bit register */
+	ldr	x4, [x7], #REGSZ
+	bl	asm_print_hex
+2:
+#endif
 	bl	asm_print_newline
 	b	test_size_list
 exit_size_print:
 	mov	x30, sp
 	ret
-endfunc size_controlled_print
+endfunc size_controlled_print_helper
 
 	/* -----------------------------------------------------
 	 * This function calculates and prints required number
@@ -126,7 +158,7 @@ endfunc print_alignment
 	 * copied to the crash buf by this function.
 	 * x0 points to the crash buf. It then calls
 	 * size_controlled_print to print to console.
-	 * Clobbers : x0 - x7, sp
+	 * Clobbers : x0 - x7, x20, sp
 	 */
 func str_in_crash_buf_print
 	/* restore the crash buf address in x0 */
@@ -137,6 +169,23 @@ func str_in_crash_buf_print
 	stp	x14, x15, [x0, #REGSZ * 6]
 	b	size_controlled_print
 endfunc str_in_crash_buf_print
+
+	/*
+	 * An equivalent helper function for storing x8 - x15
+	 * registers in a different order inside the crash buf.
+	 * In the end the function size_controlled_print_128 is
+	 * called to print the registers to the console.
+	 * Clobbers : x0 - x7, x20, sp
+	 */
+func str_in_crash_buf_print_128
+	/* restore the crash buf address in x0 */
+	mrs	x0, tpidr_el3
+	stp	x8, x9, [x0]
+	stp	x10, x11, [x0, #REGSZ * 2]
+	stp	x12, x13, [x0, #REGSZ * 4]
+	stp	x14, x15, [x0, #REGSZ * 6]
+	b	size_controlled_print_128
+endfunc str_in_crash_buf_print_128
 
 	/* ------------------------------------------------------
 	 * This macro calculates the offset to crash buf from
@@ -320,7 +369,9 @@ func report_el3_panic
 	 *   - Print el3 sys regs (in groups of 8 registers) using the
 	 *     crash buf to the crash console.
 	 *   - Print non el3 sys regs (in groups of 8 registers) using
-	 *     the crash buf to the crash console.
+	 *     the crash buf to the crash console. A group may be
+	 *     interrupted in case a potential group of 128-bit
+	 *     sys regs needs to be printed.
 	 * ------------------------------------------------------------
 	 */
 do_crash_reporting:
@@ -396,7 +447,7 @@ print_el3_sys_regs:
 	bl	str_in_crash_buf_print
 
 	/* Print the non el3 sys registers */
-	adr	x6, non_el3_sys_regs
+	adr	x6, non_el3_sys_regs_1
 	mrs	x8, spsr_el1
 	mrs	x9, elr_el1
 	mrs	x10, spsr_abt
@@ -410,30 +461,74 @@ print_el3_sys_regs:
 	mrs	x9, csselr_el1
 	mrs	x10, sp_el1
 	mrs	x11, esr_el1
-	mrs	x12, ttbr0_el1
-	mrs	x13, ttbr1_el1
-	mrs	x14, mair_el1
-	mrs	x15, amair_el1
 	bl	str_in_crash_buf_print
-	mrs	x8, tcr_el1
-	mrs	x9, tpidr_el1
-	mrs	x10, tpidr_el0
-	mrs	x11, tpidrro_el0
-	mrs	x12, par_el1
-	mrs	x13, mpidr_el1
-	mrs	x14, afsr0_el1
-	mrs	x15, afsr1_el1
+
+	adr	x6, ttbr_regs
+#if ENABLE_FEAT_D128
+	is_feat_sysreg128_present_asm	x19
+	/* Fallback to 64-bit if FEAT_SYSREG128 is disabled */
+	cbz	x19, ttbr_regs_64_bit
+	bl	read_ttbr0_el1
+	mov	x8, x1
+	mov	x9, x0
+	bl	read_ttbr0_el2
+	mov	x10, x1
+	mov	x11, x0
+	bl	read_ttbr1_el1
+	mov	x12, x1
+	mov	x13, x0
+	bl	read_vttbr_el2
+	mov	x14, x1
+	mov	x15, x0
+	bl	str_in_crash_buf_print_128
+	b	1f
+
+ttbr_regs_64_bit:
+#endif
+	mrs	x8, ttbr0_el1
+	mrs	x9, ttbr0_el2
+	mrs	x10, ttbr1_el1
+	mrs	x11, vttbr_el2
 	bl	str_in_crash_buf_print
-	mrs	x8, contextidr_el1
-	mrs	x9, vbar_el1
-	mrs	x10, cntp_ctl_el0
-	mrs	x11, cntp_cval_el0
-	mrs	x12, cntv_ctl_el0
-	mrs	x13, cntv_cval_el0
-	mrs	x14, cntkctl_el1
-	mrs	x15, sp_el0
+1:
+	adr	x6, non_el3_sys_regs_2
+	mrs	x8, mair_el1
+	mrs	x9, amair_el1
+	mrs	x10, tcr_el1
+	mrs	x11, tpidr_el1
+	mrs	x12, tpidr_el0
+	mrs	x13, tpidrro_el0
 	bl	str_in_crash_buf_print
-	mrs	x8, isr_el1
+
+	adr	x6, par_reg
+#if ENABLE_FEAT_D128
+	/* Fallback to 64-bit if FEAT_SYSREG128 is disabled */
+	cbz	x19, par_reg_64_bit
+	bl	read_par_el1
+	mov	x8, x1
+	mov	x9, x0
+	bl	str_in_crash_buf_print_128
+	b	2f
+
+par_reg_64_bit:
+#endif
+	mrs	x8, par_el1
+	bl	str_in_crash_buf_print
+2:
+	adr	x6, non_el3_sys_regs_3
+	mrs	x8, mpidr_el1
+	mrs	x9, afsr0_el1
+	mrs	x10, afsr1_el1
+	mrs	x11, contextidr_el1
+	mrs	x12, vbar_el1
+	mrs	x13, cntp_ctl_el0
+	mrs	x14, cntp_cval_el0
+	mrs	x15, cntv_ctl_el0
+	bl	str_in_crash_buf_print
+	mrs	x8, cntv_cval_el0
+	mrs	x9, cntkctl_el1
+	mrs	x10, sp_el0
+	mrs	x11, isr_el1
 	bl	str_in_crash_buf_print
 
 #if CTX_INCLUDE_AARCH32_REGS
