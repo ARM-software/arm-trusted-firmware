@@ -1,11 +1,12 @@
 #
 # Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
 # Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
-# Copyright (c) 2024, Altera Corporation. All rights reserved.
+# Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 include lib/xlat_tables_v2/xlat_tables.mk
+include lib/libfdt/libfdt.mk
 PLAT_INCLUDES		:=	\
 			-Iplat/intel/soc/agilex5/include/		\
 			-Iplat/intel/soc/common/drivers/		\
@@ -22,6 +23,7 @@ AGX5_GICv3_SOURCES	:=	\
 
 PLAT_BL_COMMON_SOURCES	:=	\
 			${AGX5_GICv3_SOURCES}				\
+			common/fdt_wrappers.c				\
 			drivers/cadence/combo_phy/cdns_combo_phy.c	\
 			drivers/cadence/emmc/cdns_sdmmc.c	\
 			drivers/cadence/nand/cdns_nand.c	\
@@ -36,7 +38,8 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			plat/intel/soc/common/drivers/ddr/ddr.c			\
 			plat/intel/soc/common/drivers/nand/nand.c			\
 			plat/intel/soc/common/lib/sha/sha.c				\
-			plat/intel/soc/common/socfpga_delay_timer.c
+			plat/intel/soc/common/socfpga_delay_timer.c	\
+			plat/intel/soc/common/socfpga_dt.c
 
 BL2_SOURCES		+=	\
 		common/desc_image_load.c				\

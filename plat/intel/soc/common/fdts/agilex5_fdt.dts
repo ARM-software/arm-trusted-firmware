@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2019-2024, Intel Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+/ {
+	model = "ALTERA SOCFPGA AGILEX5";
+	compatible = "arm,altera socfpga-agilex5";
+	owner = "jit.loon.lim@intel.com";
+	interrupt-parent = <&gic>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	psci {
+		compatible = "arm,psci-1.0", "arm,psci-0.2", "arm,psci";
+		method = "smc";
+
+		cpu_on = <0xdeadc0de>;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		enable-method = "psci";
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a5";
+			reg = <0>;
+		};
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a5";
+			reg = <1>;
+		};
+		cpu@2 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a5";
+			reg = <2>;
+		};
+		cpu@3 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a5";
+			reg = <3>;
+		};
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x90000000>;
+	};
+
+	gic: interrupt-controller@2c010000 {
+		compatible = "arm,gic-600", "arm,gic-v3";
+		#address-cells = <2>;
+		#interrupt-cells = <3>;
+		#size-cells = <1>;
+		#ranges;
+		interrupt-controller;
+		reg = <0x1D000000 0>, /* GICD */
+		      <0x1D060000 0>; /* GICR */
+		interrupts = <0x1 0x9 0x4>;
+	};
+
+	serial0: uart@1a200000 {
+		compatible = "arm,console-16550";
+		reg = <0x10C02000 0x1000>;
+		interrupt-parent = <&gic>;
+		interrupts = <0 8 0xf04>;
+		clock-frequency = <100000000>;
+		uart-baudrate = <115200>;
+	};
+
+	timer0: timer@1a040000 {
+		compatible = "arm,armv7-timer-mem";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		reg = <0x1a040000 0x1000>;
+		clock-frequency = <7500000>;
+
+		frame@1a050000 {
+			frame-number = <0>;
+			interrupts = <0 2 0xf04>;
+			reg = <0x1a050000 0x1000>;
+		};
+	};
+
+};
