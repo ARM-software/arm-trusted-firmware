@@ -2,17 +2,19 @@ version: 2
 updates:
   - target-branch: "main"
     package-ecosystem: "npm"
-    directories: ["/"]
+    versioning-strategy: "lockfile-only"
+    directories: ["/", "/tools/conventional-changelog-tf-a"]
     schedule:
       interval: "daily"
     groups:
       dev-deps:
         patterns: ["*"]
-        update-types: ["major", "minor", "patch"]
+        update-types: ["minor", "patch"]
 
   - target-branch: "lts-v2.10"
     package-ecosystem: "npm"
-    directories: ["/"]
+    versioning-strategy: "lockfile-only"
+    directories: ["/", "/tools/conventional-changelog-tf-a"]
     schedule:
       interval: "daily"
     groups:
@@ -22,7 +24,8 @@ updates:
 
   - target-branch: "lts-v2.8"
     package-ecosystem: "npm"
-    directories: ["/"]
+    versioning-strategy: "lockfile-only"
+    directories: ["/", "/tools/conventional-changelog-tf-a"]
     schedule:
       interval: "daily"
     groups:
@@ -32,6 +35,7 @@ updates:
 
   - target-branch: "main"
     package-ecosystem: "pip"
+    versioning-strategy: "lockfile-only"
     directories: ["/", "/tools/cot_dt2c", "/tools/tlc"]
     schedule:
       interval: "daily"
@@ -42,6 +46,7 @@ updates:
 
   - target-branch: "lts-v2.10"
     package-ecosystem: "pip"
+    versioning-strategy: "lockfile-only"
     directories: ["/"]
     schedule:
       interval: "daily"
@@ -52,6 +57,7 @@ updates:
 
   - target-branch: "lts-v2.8"
     package-ecosystem: "pip"
+    versioning-strategy: "lockfile-only"
     directories: ["/"]
     schedule:
       interval: "daily"
