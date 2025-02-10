@@ -207,8 +207,8 @@
 /*******************************************************************************
  * DP related constants
  ******************************************************************************/
-#define EDP_SEC_BASE		(IO_PHYS + 0x2EC50000)
-#define DP_SEC_BASE		(IO_PHYS + 0x2EC10000)
+#define EDP_SEC_BASE		(IO_PHYS + 0x2EC54000)
+#define DP_SEC_BASE		(IO_PHYS + 0x2EC14000)
 #define EDP_SEC_SIZE		(0x1000)
 #define DP_SEC_SIZE		(0x1000)
 
