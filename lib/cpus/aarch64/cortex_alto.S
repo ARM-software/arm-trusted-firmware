@@ -21,26 +21,16 @@
 #error "Alto supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+#if ERRATA_SME_POWER_DOWN == 0
+#error "Travis needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
+#endif
+
 cpu_reset_func_start cortex_alto
 	/* Disable speculative loads */
 	msr	SSBS, xzr
 cpu_reset_func_end cortex_alto
 
 func cortex_alto_core_pwr_dwn
-#if ENABLE_SME_FOR_NS
-        /* ---------------------------------------------------
-         * Disable SME if enabled and supported
-         * ---------------------------------------------------
-         */
-	mrs     x0, ID_AA64PFR1_EL1
-	ubfx	x0, x0, #ID_AA64PFR1_EL1_SME_SHIFT, \
-		#ID_AA64PFR1_EL1_SME_WIDTH
-        cmp     x0, #SME_NOT_IMPLEMENTED
-	b.eq	1f
-	msr	CORTEX_ALTO_SVCRSM, xzr
-	msr	CORTEX_ALTO_SVCRZA, xzr
-1:
-#endif
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------

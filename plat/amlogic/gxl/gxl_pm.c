@@ -199,7 +199,7 @@ static const plat_psci_ops_t gxl_ops = {
 	.pwr_domain_on			= gxl_pwr_domain_on,
 	.pwr_domain_on_finish		= gxl_pwr_domain_on_finish,
 	.pwr_domain_off			= gxl_pwr_domain_off,
-	.pwr_domain_pwr_down_wfi	= gxl_pwr_domain_pwr_down_wfi,
+	.pwr_domain_pwr_down		= gxl_pwr_domain_pwr_down_wfi,
 	.system_off			= gxl_system_off,
 	.system_reset			= gxl_system_reset,
 };

@@ -538,7 +538,7 @@ static const plat_psci_ops_t imx_plat_psci_ops = {
 	.pwr_domain_suspend_finish = imx_domain_suspend_finish,
 	.get_sys_suspend_power_state = imx_get_sys_suspend_power_state,
 	.validate_power_state = imx_validate_power_state,
-	.pwr_domain_pwr_down_wfi = imx8ulp_pwr_domain_pwr_down_wfi,
+	.pwr_domain_pwr_down = imx8ulp_pwr_domain_pwr_down_wfi,
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,

@@ -118,11 +118,15 @@ void __dead2 rockchip_soc_cores_pd_pwr_dn_wfi(
 				const psci_power_state_t *target_state)
 {
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 void __dead2 rockchip_soc_sys_pd_pwr_dn_wfi(void)
 {
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 /*******************************************************************************
@@ -391,7 +395,7 @@ const plat_psci_ops_t plat_rockchip_psci_pm_ops = {
 	.pwr_domain_suspend = rockchip_pwr_domain_suspend,
 	.pwr_domain_on_finish = rockchip_pwr_domain_on_finish,
 	.pwr_domain_suspend_finish = rockchip_pwr_domain_suspend_finish,
-	.pwr_domain_pwr_down_wfi = rockchip_pd_pwr_down_wfi,
+	.pwr_domain_pwr_down = rockchip_pd_pwr_down_wfi,
 	.system_reset = rockchip_system_reset,
 	.system_off = rockchip_system_poweroff,
 	.validate_power_state = rockchip_validate_power_state,

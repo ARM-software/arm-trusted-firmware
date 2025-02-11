@@ -176,7 +176,7 @@ static const plat_psci_ops_t gxbb_ops = {
 	.pwr_domain_on			= gxbb_pwr_domain_on,
 	.pwr_domain_on_finish		= gxbb_pwr_domain_on_finish,
 	.pwr_domain_off			= gxbb_pwr_domain_off,
-	.pwr_domain_pwr_down_wfi	= gxbb_pwr_domain_pwr_down_wfi,
+	.pwr_domain_pwr_down		= gxbb_pwr_domain_pwr_down_wfi,
 	.system_off			= gxbb_system_off,
 	.system_reset			= gxbb_system_reset,
 };

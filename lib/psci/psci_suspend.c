@@ -25,8 +25,7 @@
  * This function does generic and platform specific operations after a wake-up
  * from standby/retention states at multiple power levels.
  ******************************************************************************/
-static void psci_cpu_suspend_to_standby_finish(unsigned int cpu_idx,
-					     unsigned int end_pwrlvl,
+static void psci_cpu_suspend_to_standby_finish(unsigned int end_pwrlvl,
 					     psci_power_state_t *state_info)
 {
 	/*
@@ -44,11 +43,10 @@ static void psci_cpu_suspend_to_standby_finish(unsigned int cpu_idx,
  * operations.
  ******************************************************************************/
 static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
+					  unsigned int max_off_lvl,
 					  const entry_point_info_t *ep,
 					  const psci_power_state_t *state_info)
 {
-	unsigned int max_off_lvl = psci_find_max_off_lvl(state_info);
-
 	PUBLISH_EVENT(psci_suspend_pwrdown_start);
 
 #if PSCI_OS_INIT_MODE
@@ -94,10 +92,8 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 
 	/*
 	 * Arch. management. Initiate power down sequence.
-	 * TODO : Introduce a mechanism to query the cache level to flush
-	 * and the cpu-ops power down to perform from the platform.
 	 */
-	psci_pwrdown_cpu(max_off_lvl);
+	psci_pwrdown_cpu_start(max_off_lvl);
 }
 
 /*******************************************************************************
@@ -125,8 +121,12 @@ int psci_cpu_suspend_start(unsigned int idx,
 			   unsigned int is_power_down_state)
 {
 	int rc = PSCI_E_SUCCESS;
-	bool skip_wfi = false;
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
+	unsigned int max_off_lvl = 0;
+#if FEAT_PABANDON
+	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	cpu_context_t old_ctx;
+#endif
 
 	/*
 	 * This function must only be called on platforms where the
@@ -151,7 +151,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 	 * detection that a wake-up interrupt has fired.
 	 */
 	if (read_isr_el1() != 0U) {
-		skip_wfi = true;
 		goto exit;
 	}
 
@@ -163,7 +162,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 		 */
 		rc = psci_validate_state_coordination(idx, end_pwrlvl, state_info);
 		if (rc != PSCI_E_SUCCESS) {
-			skip_wfi = true;
 			goto exit;
 		}
 	} else {
@@ -182,7 +180,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 	if (psci_plat_pm_ops->pwr_domain_validate_suspend != NULL) {
 		rc = psci_plat_pm_ops->pwr_domain_validate_suspend(state_info);
 		if (rc != PSCI_E_SUCCESS) {
-			skip_wfi = true;
 			goto exit;
 		}
 	}
@@ -196,8 +193,38 @@ int psci_cpu_suspend_start(unsigned int idx,
 	psci_stats_update_pwr_down(idx, end_pwrlvl, state_info);
 #endif
 
-	if (is_power_down_state != 0U)
-		psci_suspend_to_pwrdown_start(end_pwrlvl, ep, state_info);
+	if (is_power_down_state != 0U) {
+		/*
+		 * WHen CTX_INCLUDE_EL2_REGS is usnet, we're probably runnig
+		 * with some SPD that assumes the core is going off so it
+		 * doesn't bother saving NS's context. Do that here until we
+		 * figure out a way to make this coherent.
+		 */
+#if FEAT_PABANDON
+#if !CTX_INCLUDE_EL2_REGS
+		cm_el1_sysregs_context_save(NON_SECURE);
+#endif
+		/*
+		 * when the core wakes it expects its context to already be in
+		 * place so we must overwrite it before powerdown. But if
+		 * powerdown never happens we want the old context. Save it in
+		 * case we wake up. EL2/El1 will not be touched by PSCI so don't
+		 * copy */
+		memcpy(&ctx->gpregs_ctx, &old_ctx.gpregs_ctx, sizeof(gp_regs_t));
+		memcpy(&ctx->el3state_ctx, &old_ctx.el3state_ctx, sizeof(el3_state_t));
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
+		memcpy(&ctx->cve_2018_3639_ctx, &old_ctx.cve_2018_3639_ctx, sizeof(cve_2018_3639_t));
+#endif
+#if ERRATA_SPECULATIVE_AT
+		memcpy(&ctx->errata_speculative_at_ctx, &old_ctx.errata_speculative_at_ctx, sizeof(errata_speculative_at_t));
+#endif
+#if CTX_INCLUDE_PAUTH_REGS
+		memcpy(&ctx->pauth_ctx, &old_ctx.pauth_ctx, sizeof(pauth_t));
+#endif
+#endif
+		max_off_lvl = psci_find_max_off_lvl(state_info);
+		psci_suspend_to_pwrdown_start(end_pwrlvl, max_off_lvl, ep, state_info);
+	}
 
 	/*
 	 * Plat. management: Allow the platform to perform the
@@ -212,50 +239,39 @@ int psci_cpu_suspend_start(unsigned int idx,
 	plat_psci_stat_accounting_start(state_info);
 #endif
 
-exit:
 	/*
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
 	 */
 	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
-	if (skip_wfi) {
-		return rc;
-	}
-
-	if (is_power_down_state != 0U) {
 #if ENABLE_RUNTIME_INSTRUMENTATION
-
-		/*
-		 * Update the timestamp with cache off.  We assume this
-		 * timestamp can only be read from the current CPU and the
-		 * timestamp cache line will be flushed before return to
-		 * normal world on wakeup.
-		 */
-		PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
-		    RT_INSTR_ENTER_HW_LOW_PWR,
-		    PMF_NO_CACHE_MAINT);
-#endif
-
-		/* The function calls below must not return */
-		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi != NULL)
-			psci_plat_pm_ops->pwr_domain_pwr_down_wfi(state_info);
-		else
-			psci_power_down_wfi();
-	}
-
-#if ENABLE_RUNTIME_INSTRUMENTATION
+	/*
+	 * Update the timestamp with cache off. We assume this
+	 * timestamp can only be read from the current CPU and the
+	 * timestamp cache line will be flushed before return to
+	 * normal world on wakeup.
+	 */
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
 	    RT_INSTR_ENTER_HW_LOW_PWR,
 	    PMF_NO_CACHE_MAINT);
 #endif
 
-	/*
-	 * We will reach here if only retention/standby states have been
-	 * requested at multiple power levels. This means that the cpu
-	 * context will be preserved.
-	 */
-	wfi();
+	if (is_power_down_state != 0U) {
+		if (psci_plat_pm_ops->pwr_domain_pwr_down != NULL) {
+			/* This function may not return */
+			psci_plat_pm_ops->pwr_domain_pwr_down(state_info);
+		}
+
+		psci_pwrdown_cpu_end_wakeup(max_off_lvl);
+	} else {
+		/*
+		 * We will reach here if only retention/standby states have been
+		 * requested at multiple power levels. This means that the cpu
+		 * context will be preserved.
+		 */
+		wfi();
+	}
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
@@ -277,10 +293,32 @@ exit:
 #endif
 
 	/*
-	 * After we wake up from context retaining suspend, call the
-	 * context retaining suspend finisher.
+	 * Waking up means we've retained all context. Call the finishers to put
+	 * the system back to a usable state.
 	 */
-	psci_cpu_suspend_to_standby_finish(idx, end_pwrlvl, state_info);
+	if (is_power_down_state != 0U) {
+#if FEAT_PABANDON
+		psci_cpu_suspend_to_powerdown_finish(idx, max_off_lvl, state_info);
+
+		/* we overwrote context ourselves, put it back */
+		memcpy(&ctx->gpregs_ctx, &old_ctx.gpregs_ctx, sizeof(gp_regs_t));
+		memcpy(&ctx->el3state_ctx, &old_ctx.el3state_ctx, sizeof(el3_state_t));
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
+		memcpy(&ctx->cve_2018_3639_ctx, &old_ctx.cve_2018_3639_ctx, sizeof(cve_2018_3639_t));
+#endif
+#if ERRATA_SPECULATIVE_AT
+		memcpy(&ctx->errata_speculative_at_ctx, &old_ctx.errata_speculative_at_ctx, sizeof(errata_speculative_at_t));
+#endif
+#if CTX_INCLUDE_PAUTH_REGS
+		memcpy(&ctx->pauth_ctx, &old_ctx.pauth_ctx, sizeof(pauth_t));
+#endif
+#if !CTX_INCLUDE_EL2_REGS
+		cm_el1_sysregs_context_restore(NON_SECURE);
+#endif
+#endif
+	} else {
+		psci_cpu_suspend_to_standby_finish(end_pwrlvl, state_info);
+	}
 
 	/*
 	 * Set the requested and target state of this CPU and all the higher
@@ -288,6 +326,7 @@ exit:
 	 */
 	psci_set_pwr_domains_to_run(idx, end_pwrlvl);
 
+exit:
 	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
 	return rc;
@@ -298,10 +337,9 @@ exit:
  * are called by the common finisher routine in psci_common.c. The `state_info`
  * is the psci_power_state from which this CPU has woken up from.
  ******************************************************************************/
-void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, const psci_power_state_t *state_info)
+void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max_off_lvl, const psci_power_state_t *state_info)
 {
 	unsigned int counter_freq;
-	unsigned int max_off_lvl;
 
 	/* Ensure we have been woken up from a suspended state */
 	assert((psci_get_aff_info_state() == AFF_STATE_ON) &&
@@ -338,8 +376,6 @@ void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, const psci_power
 	 * error, it's expected to assert within
 	 */
 	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_suspend_finish != NULL)) {
-		max_off_lvl = psci_find_max_off_lvl(state_info);
-		assert(max_off_lvl != PSCI_INVALID_PWR_LVL);
 		psci_spd_pm->svc_suspend_finish(max_off_lvl);
 	}
 

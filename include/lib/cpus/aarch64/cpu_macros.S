@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -402,6 +402,18 @@
 	msr	\_reg, x1
 .endm
 
+/*
+ * Toggle a bit in a system register. Can toggle multiple bits but is limited by
+ *  the way the EOR instrucion encodes them.
+ *
+ * see sysreg_bit_set for usage
+ */
+.macro sysreg_bit_toggle _reg:req, _bit:req, _assert=1
+	mrs	x1, \_reg
+	eor	x1, x1, #\_bit
+	msr	\_reg, x1
+.endm
+
 .macro override_vector_table _table:req
 	adr	x1, \_table
 	msr	vbar_el3, x1
@@ -451,7 +463,7 @@
  * clobbers: x0-x10 (PCS compliant)
  */
 .macro apply_erratum _cpu:req, _cve:req, _id:req, _chosen:req, _get_rev=GET_CPU_REV
-	.if (\_chosen & \_get_rev)
+	.if (\_chosen && \_get_rev)
 		mov	x9, x30
 		bl	cpu_get_rev_var
 		mov	x10, x0

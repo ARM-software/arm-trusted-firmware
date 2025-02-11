@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,11 +19,5 @@
  ******************************************************************************/
 #define TRAVIS_IMP_CPUPWRCTLR_EL1			S3_0_C15_C2_7
 #define TRAVIS_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT	U(1)
-
-/*******************************************************************************
- * SME Control registers
- ******************************************************************************/
-#define TRAVIS_SVCRSM					S0_3_C4_C2_3
-#define TRAVIS_SVCRZA					S0_3_C4_C4_3
 
 #endif /* TRAVIS_H */

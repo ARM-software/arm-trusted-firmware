@@ -302,7 +302,7 @@ static const plat_psci_ops_t rcar_plat_psci_ops = {
 	.system_off			= rcar_system_off,
 	.system_reset			= rcar_system_reset,
 	.validate_power_state		= rcar_validate_power_state,
-	.pwr_domain_pwr_down_wfi	= rcar_pwr_domain_pwr_down_wfi,
+	.pwr_domain_pwr_down		= rcar_pwr_domain_pwr_down_wfi,
 #if RCAR_SYSTEM_SUSPEND
 	.get_sys_suspend_power_state	= rcar_get_sys_suspend_power_state,
 #endif

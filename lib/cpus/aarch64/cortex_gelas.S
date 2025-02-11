@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,12 +21,23 @@
 #error "Gelas supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+#if FEAT_PABANDON == 0
+#error "Gelas must be compiled with FEAT_PABANDON enabled"
+#endif
+
+#if ERRATA_SME_POWER_DOWN == 0
+#error "Gelas needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
+#endif
+
 cpu_reset_func_start cortex_gelas
 	/* ----------------------------------------------------
 	 * Disable speculative loads
 	 * ----------------------------------------------------
 	 */
 	msr	SSBS, xzr
+	/* model bug: not cleared on reset */
+	sysreg_bit_clear 	CORTEX_GELAS_CPUPWRCTLR_EL1, \
+		CORTEX_GELAS_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 cpu_reset_func_end cortex_gelas
 
 	/* ----------------------------------------------------
@@ -34,25 +45,12 @@ cpu_reset_func_end cortex_gelas
 	 * ----------------------------------------------------
 	 */
 func cortex_gelas_core_pwr_dwn
-#if ENABLE_SME_FOR_NS
-        /* ---------------------------------------------------
-         * Disable SME if enabled and supported
-         * ---------------------------------------------------
-         */
-	mrs     x0, ID_AA64PFR1_EL1
-	ubfx	x0, x0, #ID_AA64PFR1_EL1_SME_SHIFT, \
-		#ID_AA64PFR1_EL1_SME_WIDTH
-        cmp     x0, #SME_NOT_IMPLEMENTED
-	b.eq	1f
-	msr	CORTEX_GELAS_SVCRSM, xzr
-	msr	CORTEX_GELAS_SVCRZA, xzr
-1:
-#endif
 	/* ---------------------------------------------------
-	 * Enable CPU power down bit in power control register
+	 * Flip CPU power down bit in power control register.
+	 * It will be set on powerdown and cleared on wakeup
 	 * ---------------------------------------------------
 	 */
-	sysreg_bit_set 	CORTEX_GELAS_CPUPWRCTLR_EL1, \
+	sysreg_bit_toggle CORTEX_GELAS_CPUPWRCTLR_EL1, \
 		CORTEX_GELAS_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
 	ret

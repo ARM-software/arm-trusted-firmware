@@ -45,8 +45,8 @@ int plat_pm_ops_setup_pwr(struct plat_pm_pwr_ctrl *ops)
 		mtk_pm_ops.get_sys_suspend_power_state = ops->get_sys_suspend_power_state;
 	}
 
-	if (!mtk_pm_ops.pwr_domain_pwr_down_wfi)
-		mtk_pm_ops.pwr_domain_pwr_down_wfi = ops->pwr_domain_pwr_down_wfi;
+	if (!mtk_pm_ops.pwr_domain_pwr_down)
+		mtk_pm_ops.pwr_domain_pwr_down = ops->pwr_domain_pwr_down_wfi;
 
 	mtk_pm_status |= MTK_PM_ST_PWR_READY;
 #endif

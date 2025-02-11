@@ -217,6 +217,7 @@ __dead2 void qti_domain_power_down_wfi(const psci_power_state_t *target_state)
 	/* For now just do WFI - add any target specific handling if needed */
 	psci_power_down_wfi();
 	/* We should never reach here */
+	panic();
 }
 
 static __dead2 void assert_ps_hold(void)
@@ -277,7 +278,7 @@ const plat_psci_ops_t plat_qti_psci_pm_ops = {
 	.pwr_domain_off = qti_node_power_off,
 	.pwr_domain_suspend = qti_node_suspend,
 	.pwr_domain_suspend_finish = qti_node_suspend_finish,
-	.pwr_domain_pwr_down_wfi = qti_domain_power_down_wfi,
+	.pwr_domain_pwr_down = qti_domain_power_down_wfi,
 	.system_off = qti_system_off,
 	.system_reset = qti_system_reset,
 	.get_node_hw_state = NULL,

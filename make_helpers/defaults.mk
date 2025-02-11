@@ -85,6 +85,9 @@ DYN_DISABLE_AUTH		:= 0
 # Enable the Maximum Power Mitigation Mechanism on supporting cores.
 ENABLE_MPMM			:= 0
 
+# Enable support for powerdown abandons
+FEAT_PABANDON			:= 0
+
 # Enable MPMM configuration via FCONF.
 ENABLE_MPMM_FCONF		:= 0
 
@@ -347,6 +350,9 @@ SUPPORT_STACK_MEMTAG		:= no
 
 # Select workaround for AT speculative behaviour.
 ERRATA_SPECULATIVE_AT		:= 0
+
+# select workaround for SME aborting powerdown
+ERRATA_SME_POWER_DOWN		:= 0
 
 # Trap RAS error record access from Non secure
 RAS_TRAP_NS_ERR_REC_ACCESS	:= 0

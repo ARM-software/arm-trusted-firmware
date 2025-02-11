@@ -108,6 +108,8 @@ static void __dead2 sunxi_system_off(void)
 	}
 
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 static void __dead2 sunxi_system_reset(void)
@@ -123,6 +125,8 @@ static void __dead2 sunxi_system_reset(void)
 	}
 
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 }
 
 static int sunxi_system_reset2(int is_vendor, int reset_type, u_register_t cookie)
@@ -142,6 +146,8 @@ static int sunxi_system_reset2(int is_vendor, int reset_type, u_register_t cooki
 	}
 
 	psci_power_down_wfi();
+	/* should never reach here */
+	panic();
 
 	/*
 	 * Should not reach here.

@@ -1141,6 +1141,7 @@
  ******************************************************************************/
 #define ID_AA64SMFR0_EL1		S3_0_C0_C4_5
 #define SMCR_EL3			S3_6_C1_C2_6
+#define SVCR				S3_3_C4_C2_2
 
 /* ID_AA64SMFR0_EL1 definitions */
 #define ID_AA64SMFR0_EL1_SME_FA64_SHIFT		U(63)

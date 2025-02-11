@@ -384,7 +384,7 @@ static const plat_psci_ops_t npcm845x_plat_psci_ops = {
 
 	/* For testing purposes only This PSCI states are not supported */
 	.pwr_domain_off = npcm845x_pwr_domain_off,
-	.pwr_domain_pwr_down_wfi = npcm845x_pwr_down_wfi,
+	.pwr_domain_pwr_down = npcm845x_pwr_down_wfi,
 };
 
 /* For reference only
@@ -400,7 +400,7 @@ static const plat_psci_ops_t npcm845x_plat_psci_ops = {
  *				const psci_power_state_t *target_state);
  *	void (*pwr_domain_suspend_finish)(
  *				const psci_power_state_t *target_state);
- *	void __dead2 (*pwr_domain_pwr_down_wfi)(
+ *	void __dead2 (*pwr_domain_pwr_down    )(
  *				const psci_power_state_t *target_state);
  *	void __dead2 (*system_off)(void);
  *	void __dead2 (*system_reset)(void);

@@ -433,7 +433,7 @@ static plat_psci_ops_t _psci_pm_ops = {
 	.pwr_domain_off	= _pwr_domain_off,
 #endif
 #if (SOC_CORE_OFF || SOC_CORE_PWR_DWN)
-	.pwr_domain_pwr_down_wfi = _pwr_down_wfi,
+	.pwr_domain_pwr_down = _pwr_down_wfi,
 #endif
 #if (SOC_CORE_STANDBY || SOC_CORE_PWR_DWN)
 	 /* cpu_suspend */

@@ -526,6 +526,12 @@ Common build options
    power domain dynamic power budgeting and limit the triggering of whole-rail
    (i.e. clock chopping) responses to overcurrent conditions. Defaults to ``0``.
 
+ - ``FEAT_PABANDON``: Boolean option to enable support for powerdown abandon on
+   Arm cores that support it (currently Gelas and Travis). Extends the PSCI
+   implementation to expect waking up after the terminal ``wfi``. Currently,
+   introduces a performance penalty. Once this is removed, this option will be
+   removed and the feature will be enabled by default. Defaults to ``0``.
+
 -  ``ENABLE_MPMM_FCONF``: Enables configuration of MPMM through FCONF, which
    allows platforms with cores supporting MPMM to describe them via the
    ``HW_CONFIG`` device tree blob. Default is 0.
@@ -1205,6 +1211,12 @@ Common build options
       If this option is enabled for the EL3 software then EL2 software also must
       implement this workaround due to the behaviour of the errata mentioned
       in new SDEN document which will get published soon.
+
+- ``ERRATA_SME_POWER_DOWN``: Boolean option to disable SME (PSTATE.{ZA,SM}=0)
+  before power down and downgrade a suspend to power down request to a normal
+  suspend request. This is necessary when software running at lower ELs requests
+  power down without first clearing these bits. On affected cores, the CME
+  connected to it will reject its power down request. The default value is 0.
 
 - ``RAS_TRAP_NS_ERR_REC_ACCESS``: This flag enables/disables the SCR_EL3.TERR
   bit, to trap access to the RAS ERR and RAS ERX registers from lower ELs.
