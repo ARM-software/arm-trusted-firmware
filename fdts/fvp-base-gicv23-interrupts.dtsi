@@ -1,0 +1,150 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <services/sdei_flags.h>
+
+#define SDEI_NORMAL	0x70
+#define HIGHEST_SEC	0
+
+/ {
+#if SDEI_IN_FCONF || SEC_INT_DESC_IN_FCONF
+	firmware {
+#if SDEI_IN_FCONF
+		sdei {
+			compatible = "arm,sdei-1.0";
+			method = "smc";
+			private_event_count = <3>;
+			shared_event_count = <3>;
+			/*
+			 * Each event descriptor has typically 3 fields:
+			 * 1. Event number
+			 * 2. Interrupt number the event is bound to or
+			 *    if event is dynamic, specified as SDEI_DYN_IRQ
+			 * 3. Bit map of event flags
+			 */
+			private_events =	<1000 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
+						<1001 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
+						<1002 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>;
+			shared_events =		<2000 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
+						<2001 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
+						<2002 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>;
+		};
+#endif /* SDEI_IN_FCONF */
+
+#if SEC_INT_DESC_IN_FCONF
+		sec_interrupts {
+			compatible = "arm,secure_interrupt_desc";
+			/* Number of G0 and G1 secure interrupts defined by the platform */
+			g0_intr_cnt = <2>;
+			g1s_intr_cnt = <9>;
+			/*
+			 * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
+			 * terminology. Each interrupt property descriptor has 3 fields:
+			 * 1. Interrupt number
+			 * 2. Interrupt priority
+			 * 3. Type of interrupt (Edge or Level configured)
+			 */
+			g0_intr_desc =	< 8 SDEI_NORMAL EDGE>,
+					<14 HIGHEST_SEC EDGE>;
+
+			g1s_intr_desc =	< 9 HIGHEST_SEC EDGE>,
+					<10 HIGHEST_SEC EDGE>,
+					<11 HIGHEST_SEC EDGE>,
+					<12 HIGHEST_SEC EDGE>,
+					<13 HIGHEST_SEC EDGE>,
+					<15 HIGHEST_SEC EDGE>,
+					<29 HIGHEST_SEC LEVEL>,
+					<56 HIGHEST_SEC LEVEL>,
+					<57 HIGHEST_SEC LEVEL>;
+		};
+#endif /* SEC_INT_DESC_IN_FCONF */
+	};
+#endif /* SDEI_IN_FCONF || SEC_INT_DESC_IN_FCONF */
+	timer {
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_LOW)>;
+	};
+
+	timer@2a810000 {
+			frame@2a830000 {
+				interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+			};
+	};
+
+	pmu {
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	bus@8000000 {
+		interrupt-map = <0 0  0 &gic 0 GIC_SPI  0 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  1 &gic 0 GIC_SPI  1 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  2 &gic 0 GIC_SPI  2 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  3 &gic 0 GIC_SPI  3 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  4 &gic 0 GIC_SPI  4 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  5 &gic 0 GIC_SPI  5 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  6 &gic 0 GIC_SPI  6 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  7 &gic 0 GIC_SPI  7 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  8 &gic 0 GIC_SPI  8 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0  9 &gic 0 GIC_SPI  9 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 10 &gic 0 GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 11 &gic 0 GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 12 &gic 0 GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 13 &gic 0 GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 14 &gic 0 GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 15 &gic 0 GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 16 &gic 0 GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 17 &gic 0 GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 18 &gic 0 GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 19 &gic 0 GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 20 &gic 0 GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 21 &gic 0 GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 22 &gic 0 GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 23 &gic 0 GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 24 &gic 0 GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 25 &gic 0 GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 26 &gic 0 GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 27 &gic 0 GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 28 &gic 0 GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 29 &gic 0 GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 30 &gic 0 GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 31 &gic 0 GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 32 &gic 0 GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 33 &gic 0 GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 34 &gic 0 GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 35 &gic 0 GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 36 &gic 0 GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 37 &gic 0 GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 38 &gic 0 GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 39 &gic 0 GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 40 &gic 0 GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 41 &gic 0 GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 42 &gic 0 GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 43 &gic 0 GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 44 &gic 0 GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 46 &gic 0 GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+#if (ENABLE_RME == 1)
+	pci: pci@40000000 {
+		interrupt-map = <0 0 0 1 &gic 0 GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 0 2 &gic 0 GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 0 3 &gic 0 GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 0 4 &gic 0 GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
+		msi-map = <0x0 &its 0x0 0x10000>;
+	};
+
+	smmu: iommu@2b400000 {
+		interrupts = <GIC_SPI 74 IRQ_TYPE_EDGE_RISING>,
+			     <GIC_SPI 79 IRQ_TYPE_EDGE_RISING>,
+			     <GIC_SPI 75 IRQ_TYPE_EDGE_RISING>,
+			     <GIC_SPI 77 IRQ_TYPE_EDGE_RISING>;
+		msi-parent = <&its 0x10000>;
+	};
+#endif /* ENABLE_RME */
+};
