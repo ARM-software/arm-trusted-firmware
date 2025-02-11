@@ -45,6 +45,7 @@
 #define SZ_2G				UL(0x80000000)
 
 #define SZ_1T				UL(0x10000000000)
+#define SZ_4T				UL(0x40000000000)
 
 #define SZ_1P				UL(0x4000000000000)
 #else /* !__aarch64__ */
