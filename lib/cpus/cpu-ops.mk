@@ -1037,6 +1037,10 @@ CPU_FLAG_LIST += ERRATA_A715_2561034
 # only to revision r0p0, r1p0 and r1p1. It is fixed in r1p2.
 CPU_FLAG_LIST += ERRATA_A715_2728106
 
+# Flag to apply erratum 2804830 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r1p1 and r1p2. It is fixed in r1p3.
+CPU_FLAG_LIST += ERRATA_A715_2804830
+
 # Flag to apply erratum 3699560 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r1p0, r1p2, r1p3
 # of the Cortex-A715 cpu and is still open.
