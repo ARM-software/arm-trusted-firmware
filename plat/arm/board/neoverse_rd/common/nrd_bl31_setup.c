@@ -154,6 +154,13 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	nrd_plat_info.config_id = plat_arm_nrd_get_config_id();
 	nrd_plat_info.multi_chip_mode = plat_arm_nrd_get_multi_chip_mode();
 
+#if RESET_TO_BL31
+#if (ARM_ARCH_MAJOR > 7) || defined(ARMV7_SUPPORTS_GENERIC_TIMER)
+	/* Set the counter frequency for the generic timer */
+	write_cntfrq_el0(plat_get_syscnt_freq2());
+#endif
+#endif /* RESET_TO_BL31 */
+
 	/* Initialize generic timer */
 	generic_delay_timer_init();
 
