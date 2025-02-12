@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -102,6 +102,10 @@ ENABLE_STACK_PROTECTOR		:= 0
 
 # Flag to enable exception handling in EL3
 EL3_EXCEPTION_HANDLING		:= 0
+
+# Flag to include all errata for all CPUs TF-A implements workarounds for
+# Its supposed to be used only for testing.
+ENABLE_ERRATA_ALL		:= 0
 
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
