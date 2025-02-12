@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,5 +63,9 @@
 #define CORTEX_X2_IMP_CPUPCR_EL3				S3_6_C15_C8_1
 #define CORTEX_X2_IMP_CPUPOR_EL3				S3_6_C15_C8_2
 #define CORTEX_X2_IMP_CPUPMR_EL3				S3_6_C15_C8_3
+
+#ifndef __ASSEMBLER__
+long check_erratum_cortex_x2_3701772(long cpu_rev);
+#endif /* __ASSEMBLER__ */
 
 #endif /* CORTEX_X2_H */

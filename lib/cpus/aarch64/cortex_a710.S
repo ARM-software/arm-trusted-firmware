@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,8 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex A710 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+.global check_erratum_cortex_a710_3701772
 
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A710_BHB_LOOP_COUNT, cortex_a710
@@ -217,6 +219,10 @@ workaround_reset_start cortex_a710, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end cortex_a710, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a710, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_a710, ERRATUM(3701772), CPU_REV(2, 1)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,12 +21,29 @@
 #error "Cortex-X925 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+.global check_erratum_cortex_x925_3701747
+
+add_erratum_entry cortex_x925, ERRATUM(3701747), ERRATA_X925_3701747, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_x925, ERRATUM(3701747), CPU_REV(0, 1)
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x925, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X925_CPUECTLR_EL1, BIT(46)
 workaround_reset_end cortex_x925, CVE(2024, 5660)
 
 check_erratum_ls cortex_x925, CVE(2024, 5660), CPU_REV(0, 1)
+
+workaround_reset_start cortex_x925, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+	/* ---------------------------------
+         * Sets BIT41 of CPUACTLR6_EL1 which
+         * disables L1 Data cache prefetcher
+         * ---------------------------------
+         */
+	sysreg_bit_set CORTEX_X925_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x925, CVE(2024, 7881)
+
+check_erratum_chosen cortex_x925, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 
 cpu_reset_func_start cortex_x925
 	/* Disable speculative loads */
@@ -68,6 +85,10 @@ func cortex_x925_cpu_reg_dump
 	ret
 endfunc cortex_x925_cpu_reg_dump
 
-declare_cpu_ops cortex_x925, CORTEX_X925_MIDR, \
+declare_cpu_ops_wa_4 cortex_x925, CORTEX_X925_MIDR, \
 	cortex_x925_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_cortex_x925_7881, \
 	cortex_x925_core_pwr_dwn

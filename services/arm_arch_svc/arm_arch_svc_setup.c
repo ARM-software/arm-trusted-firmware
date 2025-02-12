@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -90,6 +90,15 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		}
 		return 0; /* ERRATA_APPLIES || ERRATA_MISSING */
 #endif
+
+#if WORKAROUND_CVE_2024_7881
+	case SMCCC_ARCH_WORKAROUND_4:
+		if (check_wa_cve_2024_7881() != ERRATA_APPLIES) {
+			return SMC_ARCH_CALL_NOT_SUPPORTED;
+		}
+		return 0;
+#endif /* WORKAROUND_CVE_2024_7881 */
+
 #endif /* __aarch64__ */
 
 	/* Fallthrough */
@@ -160,6 +169,15 @@ static uintptr_t arm_arch_svc_smc_handler(uint32_t smc_fid,
 		 */
 		SMC_RET0(handle);
 #endif
+#if WORKAROUND_CVE_2024_7881
+	case SMCCC_ARCH_WORKAROUND_4:
+		/*
+		 * The workaround has already been applied on affected PEs
+		 * during cold boot. This function has no effect whether PE is
+		 * affected or not.
+		 */
+		SMC_RET0(handle);
+#endif /* WORKAROUND_CVE_2024_7881 */
 #endif /* __aarch64__ */
 	default:
 		WARN("Unimplemented Arm Architecture Service Call: 0x%x \n",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,8 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex-A715 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+.global check_erratum_cortex_a715_3699560
 
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A715_BHB_LOOP_COUNT, cortex_a715
@@ -126,6 +128,10 @@ workaround_reset_start cortex_a715, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end cortex_a715, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a715, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+add_erratum_entry cortex_a715, ERRATUM(3699560), ERRATA_A715_3699560, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_a715, ERRATUM(3699560), CPU_REV(1, 3)
 
 cpu_reset_func_start cortex_a715
 	/* Disable speculative loads */

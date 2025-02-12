@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1111,13 +1111,90 @@ static void el2_sysregs_context_restore_mpam(el2_sysregs_t *ctx)
 	}
 }
 
+/* ---------------------------------------------------------------------------
+ * The following registers are not added:
+ * ICH_AP0R<n>_EL2
+ * ICH_AP1R<n>_EL2
+ * ICH_LR<n>_EL2
+ *
+ * NOTE: For a system with S-EL2 present but not enabled, accessing
+ * ICC_SRE_EL2 is undefined from EL3. To workaround this change the
+ * SCR_EL3.NS = 1 before accessing this register.
+ * ---------------------------------------------------------------------------
+ */
+static void el2_sysregs_context_save_gic(el2_sysregs_t *ctx, uint32_t security_state)
+{
+	u_register_t scr_el3 = read_scr_el3();
+
+#if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
+	write_ctx_reg(ctx, CTX_ICC_SRE_EL2, read_icc_sre_el2());
+#else
+	write_scr_el3(scr_el3 | SCR_NS_BIT);
+	isb();
+
+	write_ctx_reg(ctx, CTX_ICC_SRE_EL2, read_icc_sre_el2());
+
+	write_scr_el3(scr_el3);
+	isb();
+
+#endif
+	write_ctx_reg(ctx, CTX_ICH_HCR_EL2, read_ich_hcr_el2());
+
+	if (errata_ich_vmcr_el2_applies()) {
+		if (security_state == SECURE) {
+			write_scr_el3(scr_el3 & ~SCR_NS_BIT);
+		} else {
+			write_scr_el3(scr_el3 | SCR_NS_BIT);
+		}
+		isb();
+	}
+
+	write_ctx_reg(ctx, CTX_ICH_VMCR_EL2, read_ich_vmcr_el2());
+
+	if (errata_ich_vmcr_el2_applies()) {
+		write_scr_el3(scr_el3);
+		isb();
+	}
+}
+
+static void el2_sysregs_context_restore_gic(el2_sysregs_t *ctx, uint32_t security_state)
+{
+	u_register_t scr_el3 = read_scr_el3();
+
+#if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
+	write_icc_sre_el2(read_ctx_reg(ctx, CTX_ICC_SRE_EL2));
+#else
+	write_scr_el3(scr_el3 | SCR_NS_BIT);
+	isb();
+
+	write_icc_sre_el2(read_ctx_reg(ctx, CTX_ICC_SRE_EL2));
+
+	write_scr_el3(scr_el3);
+	isb();
+#endif
+	write_ich_hcr_el2(read_ctx_reg(ctx, CTX_ICH_HCR_EL2));
+
+	if (errata_ich_vmcr_el2_applies()) {
+		if (security_state == SECURE) {
+			write_scr_el3(scr_el3 & ~SCR_NS_BIT);
+		} else {
+			write_scr_el3(scr_el3 | SCR_NS_BIT);
+		}
+		isb();
+	}
+
+	write_ich_vmcr_el2(read_ctx_reg(ctx, CTX_ICH_VMCR_EL2));
+
+	if (errata_ich_vmcr_el2_applies()) {
+		write_scr_el3(scr_el3);
+		isb();
+	}
+}
+
 /* -----------------------------------------------------
  * The following registers are not added:
  * AMEVCNTVOFF0<n>_EL2
  * AMEVCNTVOFF1<n>_EL2
- * ICH_AP0R<n>_EL2
- * ICH_AP1R<n>_EL2
- * ICH_LR<n>_EL2
  * -----------------------------------------------------
  */
 static void el2_sysregs_context_save_common(el2_sysregs_t *ctx)
@@ -1139,22 +1216,6 @@ static void el2_sysregs_context_save_common(el2_sysregs_t *ctx)
 	write_ctx_reg(ctx, CTX_HCR_EL2, read_hcr_el2());
 	write_ctx_reg(ctx, CTX_HPFAR_EL2, read_hpfar_el2());
 	write_ctx_reg(ctx, CTX_HSTR_EL2, read_hstr_el2());
-
-	/*
-	 * Set the NS bit to be able to access the ICC_SRE_EL2 register
-	 * TODO: remove with root context
-	 */
-	u_register_t scr_el3 = read_scr_el3();
-
-	write_scr_el3(scr_el3 | SCR_NS_BIT);
-	isb();
-	write_ctx_reg(ctx, CTX_ICC_SRE_EL2, read_icc_sre_el2());
-
-	write_scr_el3(scr_el3);
-	isb();
-
-	write_ctx_reg(ctx, CTX_ICH_HCR_EL2, read_ich_hcr_el2());
-	write_ctx_reg(ctx, CTX_ICH_VMCR_EL2, read_ich_vmcr_el2());
 	write_ctx_reg(ctx, CTX_MAIR_EL2, read_mair_el2());
 	write_ctx_reg(ctx, CTX_MDCR_EL2, read_mdcr_el2());
 	write_ctx_reg(ctx, CTX_SCTLR_EL2, read_sctlr_el2());
@@ -1189,22 +1250,6 @@ static void el2_sysregs_context_restore_common(el2_sysregs_t *ctx)
 	write_hcr_el2(read_ctx_reg(ctx, CTX_HCR_EL2));
 	write_hpfar_el2(read_ctx_reg(ctx, CTX_HPFAR_EL2));
 	write_hstr_el2(read_ctx_reg(ctx, CTX_HSTR_EL2));
-
-	/*
-	 * Set the NS bit to be able to access the ICC_SRE_EL2 register
-	 * TODO: remove with root context
-	 */
-	u_register_t scr_el3 = read_scr_el3();
-
-	write_scr_el3(scr_el3 | SCR_NS_BIT);
-	isb();
-	write_icc_sre_el2(read_ctx_reg(ctx, CTX_ICC_SRE_EL2));
-
-	write_scr_el3(scr_el3);
-	isb();
-
-	write_ich_hcr_el2(read_ctx_reg(ctx, CTX_ICH_HCR_EL2));
-	write_ich_vmcr_el2(read_ctx_reg(ctx, CTX_ICH_VMCR_EL2));
 	write_mair_el2(read_ctx_reg(ctx, CTX_MAIR_EL2));
 	write_mdcr_el2(read_ctx_reg(ctx, CTX_MDCR_EL2));
 	write_sctlr_el2(read_ctx_reg(ctx, CTX_SCTLR_EL2));
@@ -1234,6 +1279,8 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
 
 	el2_sysregs_context_save_common(el2_sysregs_ctx);
+	el2_sysregs_context_save_gic(el2_sysregs_ctx, security_state);
+
 #if CTX_INCLUDE_MTE_REGS
 	write_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2, read_tfsr_el2());
 #endif
@@ -1307,6 +1354,8 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	el2_sysregs_ctx = get_el2_sysregs_ctx(ctx);
 
 	el2_sysregs_context_restore_common(el2_sysregs_ctx);
+	el2_sysregs_context_restore_gic(el2_sysregs_ctx, security_state);
+
 #if CTX_INCLUDE_MTE_REGS
 	write_tfsr_el2(read_ctx_reg(el2_sysregs_ctx, CTX_TFSR_EL2));
 #endif
