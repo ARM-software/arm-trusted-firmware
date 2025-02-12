@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,6 +43,11 @@
 
 #define SZ_1G				UL(0x40000000)
 #define SZ_2G				UL(0x80000000)
+
+#define SZ_1T				UL(0x10000000000)
+#define SZ_4T				UL(0x40000000000)
+
+#define SZ_1P				UL(0x4000000000000)
 #else /* !__aarch64__ */
 #define SZ_32				U(0x00000020)
 #define SZ_64				U(0x00000040)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,8 @@ struct gicv3_config_t gicv3_config;
 struct hw_topology_t soc_topology;
 struct uart_serial_config_t uart_serial_config;
 struct cpu_timer_t cpu_timer;
-struct ns_dram_layout dram_layout;
+struct dram_layout_t dram_layout;
+struct pci_props_t pci_props;
 
 /*
  * Each NS DRAM bank entry is 'reg' node property which is
@@ -27,6 +28,7 @@ struct ns_dram_layout dram_layout;
 #define DRAM_ENTRY_SIZE		(4UL * sizeof(uint32_t))
 
 CASSERT(ARM_DRAM_NUM_BANKS == 2UL, ARM_DRAM_NUM_BANKS_mismatch);
+CASSERT(ARM_PCI_NUM_REGIONS == 2UL, ARM_PCI_NUM_REGIONS_mismatch);
 
 #define ILLEGAL_ADDR	ULL(~0)
 
@@ -352,8 +354,98 @@ int fconf_populate_dram_layout(uintptr_t config)
 	return 0;
 }
 
+/*
+ * Each PCIe memory region entry is 'ranges' node property which is
+ * an arbitrary number of (child-bus-address, parent-bus-address, length)
+ * triplets. E.g. with
+ * #address-cells = <3>
+ * #size-cells = <2>
+ * parent's #address-cells = <2>
+ * each entry occupies 7 32-bit words.
+ */
+int fconf_populate_pci_props(uintptr_t config)
+{
+	int node, parent, len, err;
+	int parent_ac, ac, sc, entry_len;
+	const uint32_t *reg, *ranges;
+
+	/* Necessary to work with libfdt APIs */
+	const void *hw_config_dtb = (const void *)config;
+
+	/* Find 'pci' node */
+	node = fdt_node_offset_by_prop_value(hw_config_dtb, -1, "device_type",
+					     "pci", sizeof("pci"));
+	if (node < 0) {
+		WARN("FCONF: Unable to locate 'pci' node\n");
+		pci_props.ecam_base = 0UL;
+		pci_props.size = 0UL;
+		pci_props.num_ncoh_regions = 0UL;
+		/* Don't return error code if 'pci' node not found */
+		return 0;
+	}
+
+	reg = fdt_getprop(hw_config_dtb, node, "reg", &len);
+	if (reg == NULL) {
+		ERROR("FCONF failed to read 'reg' property\n");
+		return len;
+	}
+
+	err = fdt_get_reg_props_by_index(hw_config_dtb, node, 0,
+					 (uintptr_t *)&pci_props.ecam_base,
+					 (size_t *)&pci_props.size);
+	if (err < 0) {
+		ERROR("FCONF: Failed to read 'reg' property of 'pci' node\n");
+		return err;
+	}
+
+	parent = fdt_parent_offset(hw_config_dtb, node);
+	if (parent < 0) {
+		return -FDT_ERR_BADOFFSET;
+	}
+
+	parent_ac = fdt_address_cells(hw_config_dtb, parent);
+	ac = fdt_address_cells(hw_config_dtb, node);
+	sc = fdt_size_cells(hw_config_dtb, node);
+
+	entry_len = parent_ac + ac + sc;
+
+	ranges = fdt_getprop(hw_config_dtb, node, "ranges", &len);
+	if (ranges == NULL) {
+		ERROR("FCONF failed to read 'ranges' property\n");
+		return len;
+	}
+
+	/* 'ranges' length in 32-bit words */
+	len /= sizeof(uint32_t);
+	if ((len % entry_len) != 0) {
+		return -FDT_ERR_BADVALUE;
+	}
+
+	pci_props.num_ncoh_regions = (uint64_t)(len / entry_len);
+
+	if (pci_props.num_ncoh_regions > ARM_PCI_NUM_REGIONS) {
+		WARN("FCONF: 'ranges' reports more memory regions than supported\n");
+		pci_props.num_ncoh_regions = ARM_PCI_NUM_REGIONS;
+	}
+
+	for (unsigned int i = 0U; i < (unsigned int)pci_props.num_ncoh_regions; i++) {
+		unsigned int cell = i * entry_len + ac;
+
+		/* Read CPU address (parent-bus-address) space */
+		pci_props.ncoh_regions[i].base =
+			fdt_read_prop_cells(&ranges[cell], ac);
+
+		/* Read CPU address size */
+		pci_props.ncoh_regions[i].size =
+			fdt_read_prop_cells(&ranges[cell + parent_ac], sc);
+	}
+
+	return 0;
+}
+
 FCONF_REGISTER_POPULATOR(HW_CONFIG, gicv3_config, fconf_populate_gicv3_config);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, topology, fconf_populate_topology);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, uart_config, fconf_populate_uart_config);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, cpu_timer, fconf_populate_cpu_timer);
 FCONF_REGISTER_POPULATOR(HW_CONFIG, dram_layout, fconf_populate_dram_layout);
+FCONF_REGISTER_POPULATOR(HW_CONFIG, pci_props, fconf_populate_pci_props);

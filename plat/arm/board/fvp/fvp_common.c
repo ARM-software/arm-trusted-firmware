@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,12 +34,11 @@
 #define FVP_GICV2		1
 #define FVP_GICV3		2
 
-/* Defines for RMM Console*/
+/* Defines for RMM Console */
 #define FVP_RMM_CONSOLE_BASE		UL(0x1c0c0000)
 #define FVP_RMM_CONSOLE_BAUD		UL(115200)
 #define FVP_RMM_CONSOLE_CLK_IN_HZ	UL(14745600)
 #define FVP_RMM_CONSOLE_NAME		"pl011"
-
 #define FVP_RMM_CONSOLE_COUNT		UL(1)
 
 /*******************************************************************************
@@ -591,11 +590,78 @@ static uint64_t checksum_calc(uint64_t *buffer, size_t size)
 
 	return sum;
 }
-
+/*
+ * Boot Manifest structure illustration, with two DRAM banks,
+ * a single console and one device memory with two PCIe device
+ * non-coherent address ranges.
+ *
+ * +--------------------------------------------------+
+ * | offset |        field       |      comment       |
+ * +--------+--------------------+--------------------+
+ * |   0    |       version      |     0x00000004     |
+ * +--------+--------------------+--------------------+
+ * |   4    |       padding      |     0x00000000     |
+ * +--------+--------------------+--------------------+
+ * |   8    |      plat_data     |       NULL         |
+ * +--------+--------------------+--------------------+
+ * |   16   |      num_banks     |                    |
+ * +--------+--------------------+                    |
+ * |   24   |       banks        |     plat_dram      +--+
+ * +--------+--------------------+                    |  |
+ * |   32   |      checksum      |                    |  |
+ * +--------+--------------------+--------------------+  |
+ * |   40   |    num_consoles    |                    |  |
+ * +--------+--------------------+                    |  |
+ * |   48   |      consoles      |    plat_console    +--|--+
+ * +--------+--------------------+                    |  |  |
+ * |   56   |      checksum      |                    |  |  |
+ * +--------+--------------------+--------------------+  |  |
+ * |   64   |      num_banks     |                    |  |  |
+ * +--------+--------------------+                    |  |  |
+ * |   72   |        banks       |  plat_ncoh_region  +--|--|--+
+ * +--------+--------------------+                    |  |  |  |
+ * |   80   |      checksum      |                    |  |  |  |
+ * +--------+--------------------+--------------------+  |  |  |
+ * |   88   |      num_banks     |                    |  |  |  |
+ * +--------+--------------------+                    |  |  |  |
+ * |   96   |       banks        |   plat_coh_region  |  |  |  |
+ * +--------+--------------------+                    |  |  |  |
+ * |   104  |      checksum      |                    |  |  |  |
+ * +--------+--------------------+--------------------+<-+  |  |
+ * |   112  |       base 0       |                    |     |  |
+ * +--------+--------------------+     mem_bank[0]    |     |  |
+ * |   120  |       size 0       |                    |     |  |
+ * +--------+--------------------+--------------------+     |  |
+ * |   128  |       base 1       |                    |     |  |
+ * +--------+--------------------+     mem_bank[1]    |     |  |
+ * |   136  |       size 1       |                    |     |  |
+ * +--------+--------------------+--------------------+<----+  |
+ * |   144  |       base         |                    |        |
+ * +--------+--------------------+                    |        |
+ * |   152  |      map_pages     |                    |        |
+ * +--------+--------------------+                    |        |
+ * |   160  |       name         |                    |        |
+ * +--------+--------------------+     consoles[0]    |        |
+ * |   168  |     clk_in_hz      |                    |        |
+ * +--------+--------------------+                    |        |
+ * |   176  |     baud_rate      |                    |        |
+ * +--------+--------------------+                    |        |
+ * |   184  |       flags        |                    |        |
+ * +--------+--------------------+--------------------+<-------+
+ * |   192  |       base 0       |                    |
+ * +--------+--------------------+   ncoh_region[0]   |
+ * |   200  |       size 0       |                    |
+ * +--------+--------------------+--------------------+
+ * |   208  |       base 1       |                    |
+ * +--------+--------------------+   ncoh_region[1]   |
+ * |   216  |       size 1       |                    |
+ * +--------+--------------------+--------------------+
+ */
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
 	uint64_t checksum, num_banks, num_consoles;
-	struct ns_dram_bank *bank_ptr;
+	uint64_t num_ncoh_regions, num_coh_regions;
+	struct memory_bank *bank_ptr, *ncoh_region_ptr;
 	struct console_info *console_ptr;
 
 	assert(manifest != NULL);
@@ -607,71 +673,45 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	/* Set number of consoles */
 	num_consoles = FVP_RMM_CONSOLE_COUNT;
 
+	/* Set number of device non-coherent address ranges based on DT */
+	num_ncoh_regions = FCONF_GET_PROPERTY(hw_config, pci_props, num_ncoh_regions);
+
 	manifest->version = RMMD_MANIFEST_VERSION;
 	manifest->padding = 0U; /* RES0 */
-	manifest->plat_data = (uintptr_t)NULL;
+	manifest->plat_data = 0UL;
 	manifest->plat_dram.num_banks = num_banks;
 	manifest->plat_console.num_consoles = num_consoles;
+	manifest->plat_ncoh_region.num_banks = num_ncoh_regions;
 
-	/*
-	 * Boot Manifest structure illustration, with two dram banks and
-	 * a single console.
-	 *
-	 * +----------------------------------------+
-	 * | offset |     field      |    comment   |
-	 * +--------+----------------+--------------+
-	 * |   0    |    version     |  0x00000003  |
-	 * +--------+----------------+--------------+
-	 * |   4    |    padding     |  0x00000000  |
-	 * +--------+----------------+--------------+
-	 * |   8    |   plat_data    |     NULL     |
-	 * +--------+----------------+--------------+
-	 * |   16   |   num_banks    |              |
-	 * +--------+----------------+              |
-	 * |   24   |     banks      |   plat_dram  |
-	 * +--------+----------------+              |
-	 * |   32   |    checksum    |              |
-	 * +--------+----------------+--------------+
-	 * |   40   |  num_consoles  |              |
-	 * +--------+----------------+              |
-	 * |   48   |    consoles    | plat_console |
-	 * +--------+----------------+              |
-	 * |   56   |    checksum    |              |
-	 * +--------+----------------+--------------+
-	 * |   64   |     base 0     |              |
-	 * +--------+----------------+    bank[0]   |
-	 * |   72   |     size 0     |              |
-	 * +--------+----------------+--------------+
-	 * |   80   |     base 1     |              |
-	 * +--------+----------------+    bank[1]   |
-	 * |   88   |     size 1     |              |
-	 * +--------+----------------+--------------+
-	 * |   96   |     base       |              |
-	 * +--------+----------------+              |
-	 * |   104  |   map_pages    |              |
-	 * +--------+----------------+              |
-	 * |   112  |     name       |              |
-	 * +--------+----------------+  consoles[0] |
-	 * |   120  |   clk_in_hz    |              |
-	 * +--------+----------------+              |
-	 * |   128  |   baud_rate    |              |
-	 * +--------+----------------+              |
-	 * |   136  |     flags      |              |
-	 * +--------+----------------+--------------+
-	 */
+	/* FVP does not support device coherent address ranges */
+	num_coh_regions = 0UL;
+	manifest->plat_coh_region.num_banks = num_coh_regions;
+	manifest->plat_coh_region.banks = NULL;
+	manifest->plat_coh_region.checksum = 0UL;
 
-	bank_ptr = (struct ns_dram_bank *)
-			(((uintptr_t)manifest) + sizeof(*manifest));
+	bank_ptr = (struct memory_bank *)
+			(((uintptr_t)manifest) + sizeof(struct rmm_manifest));
 	console_ptr = (struct console_info *)
-			((uintptr_t)bank_ptr + (num_banks * sizeof(*bank_ptr)));
-
+			((uintptr_t)bank_ptr + (num_banks *
+						sizeof(struct memory_bank)));
+	ncoh_region_ptr = (struct memory_bank *)
+			((uintptr_t)console_ptr + (num_consoles *
+						sizeof(struct console_info)));
 	manifest->plat_dram.banks = bank_ptr;
 	manifest->plat_console.consoles = console_ptr;
+	manifest->plat_ncoh_region.banks = ncoh_region_ptr;
 
 	/* Ensure the manifest is not larger than the shared buffer */
 	assert((sizeof(struct rmm_manifest) +
-		(sizeof(struct console_info) * manifest->plat_console.num_consoles) +
-		(sizeof(struct ns_dram_bank) * manifest->plat_dram.num_banks)) <= ARM_EL3_RMM_SHARED_SIZE);
+		(sizeof(struct memory_bank) *
+			manifest->plat_dram.num_banks) +
+		(sizeof(struct console_info) *
+			manifest->plat_console.num_consoles) +
+		(sizeof(struct memory_bank) *
+			manifest->plat_ncoh_region.num_banks) +
+		(sizeof(struct memory_bank) *
+			manifest->plat_coh_region.num_banks))
+		<= ARM_EL3_RMM_SHARED_SIZE);
 
 	/* Calculate checksum of plat_dram structure */
 	checksum = num_banks + (uint64_t)bank_ptr;
@@ -683,30 +723,55 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	}
 
 	/* Update checksum */
-	checksum += checksum_calc((uint64_t *)bank_ptr, sizeof(struct ns_dram_bank) * num_banks);
+	checksum += checksum_calc((uint64_t *)bank_ptr, sizeof(struct memory_bank) * num_banks);
 
 	/* Checksum must be 0 */
 	manifest->plat_dram.checksum = ~checksum + 1UL;
 
-	/* Calculate the checksum of the plat_consoles structure */
+	/* Calculate the checksum of plat_consoles structure */
 	checksum = num_consoles + (uint64_t)console_ptr;
 
 	/* Zero out the console info struct */
-	(void)memset((void *)console_ptr, '\0', sizeof(struct console_info) * num_consoles);
+	(void)memset((void *)console_ptr, '\0',
+			sizeof(struct console_info) * num_consoles);
 
 	console_ptr[0].base = FVP_RMM_CONSOLE_BASE;
 	console_ptr[0].map_pages = 1UL;
 	console_ptr[0].clk_in_hz = FVP_RMM_CONSOLE_CLK_IN_HZ;
 	console_ptr[0].baud_rate = FVP_RMM_CONSOLE_BAUD;
 
-	(void)strlcpy(console_ptr[0].name, FVP_RMM_CONSOLE_NAME, RMM_CONSOLE_MAX_NAME_LEN - 1UL);
+	(void)strlcpy(console_ptr[0].name, FVP_RMM_CONSOLE_NAME,
+						RMM_CONSOLE_MAX_NAME_LEN - 1UL);
 
 	/* Update checksum */
 	checksum += checksum_calc((uint64_t *)console_ptr,
 					sizeof(struct console_info) * num_consoles);
-
 	/* Checksum must be 0 */
 	manifest->plat_console.checksum = ~checksum + 1UL;
+
+	/*
+	 * Calculate the checksum of device non-coherent address ranges
+	 * info structure
+	 */
+	checksum = num_ncoh_regions + (uint64_t)ncoh_region_ptr;
+
+	/* Zero out the PCIe region info struct */
+	(void)memset((void *)ncoh_region_ptr, 0,
+			sizeof(struct memory_bank) * num_ncoh_regions);
+
+	for (unsigned long i = 0UL; i < num_ncoh_regions; i++) {
+		ncoh_region_ptr[i].base =
+			FCONF_GET_PROPERTY(hw_config, pci_props, ncoh_regions[i].base);
+		ncoh_region_ptr[i].size =
+			FCONF_GET_PROPERTY(hw_config, pci_props, ncoh_regions[i].size);
+	}
+
+	/* Update checksum */
+	checksum += checksum_calc((uint64_t *)ncoh_region_ptr,
+			sizeof(struct memory_bank) * num_ncoh_regions);
+
+	/* Checksum must be 0 */
+	manifest->plat_ncoh_region.checksum = ~checksum + 1UL;
 
 	return 0;
 }

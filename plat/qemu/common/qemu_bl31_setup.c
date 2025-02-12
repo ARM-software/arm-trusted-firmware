@@ -46,6 +46,30 @@
 					MT_DEVICE | MT_RW | EL3_PAS)
 #endif
 
+#if ENABLE_RME
+#if (RME_GPT_BITLOCK_BLOCK == 0)
+#define BITLOCK_BASE	UL(0)
+#define BITLOCK_SIZE	UL(0)
+#else
+
+/*
+ * Number of bitlock_t entries in the gpt_bitlock array for this platform's
+ * Protected Physical Size. One 8-bit bitlock_t entry covers
+ * 8 * RME_GPT_BITLOCK_BLOCK * 512MB.
+ */
+#if (PLAT_QEMU_PPS > (RME_GPT_BITLOCK_BLOCK * SZ_512M * UL(8)))
+#define BITLOCKS_NUM	(PLAT_QEMU_PPS /	\
+			(RME_GPT_BITLOCK_BLOCK * SZ_512M * UL(8)))
+#else
+#define BITLOCKS_NUM	1
+#endif
+
+static bitlock_t gpt_bitlock[BITLOCKS_NUM];
+#define BITLOCK_BASE	(uintptr_t)gpt_bitlock
+#define BITLOCK_SIZE	sizeof(gpt_bitlock)
+#endif /* RME_GPT_BITLOCK_BLOCK */
+#endif /* ENABLE_RME */
+
 /*
  * Placeholder variables for copying the arguments that have been passed to
  * BL3-1 from BL2.
@@ -202,9 +226,8 @@ static void bl31_plat_gpt_setup(void)
 	 * 256TB of RAM (48-bit PA) would require a 2MB L0 region. At the
 	 * moment we use a 8KB table, which covers 1TB of RAM (40-bit PA).
 	 */
-	if (gpt_init_l0_tables(PLATFORM_GPCCR_PPS, PLAT_QEMU_L0_GPT_BASE,
-			       PLAT_QEMU_L0_GPT_SIZE +
-			       PLAT_QEMU_GPT_BITLOCK_SIZE) < 0) {
+	if (gpt_init_l0_tables(PLAT_QEMU_GPCCR_PPS, PLAT_QEMU_L0_GPT_BASE,
+			       PLAT_QEMU_L0_GPT_SIZE) < 0) {
 		ERROR("gpt_init_l0_tables() failed!\n");
 		panic();
 	}
@@ -260,7 +283,7 @@ void bl31_plat_arch_setup(void)
 	 * stage, so there is no need to provide any PAS here. This function
 	 * sets up pointers to those tables.
 	 */
-	if (gpt_runtime_init() < 0) {
+	if (gpt_runtime_init(BITLOCK_BASE, BITLOCK_SIZE) < 0) {
 		ERROR("gpt_runtime_init() failed!\n");
 		panic();
 	}

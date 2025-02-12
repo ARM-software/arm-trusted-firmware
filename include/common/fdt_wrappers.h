@@ -49,6 +49,8 @@ int fdtw_for_each_cpu(const void *fdt,
 
 int fdtw_find_or_add_subnode(void *fdt, int parentoffset, const char *name);
 
+uint64_t fdt_read_prop_cells(const fdt32_t *prop, int nr_cells);
+
 static inline uint32_t fdt_blob_size(const void *dtb)
 {
 	const uint32_t *dtb_header = (const uint32_t *)dtb;

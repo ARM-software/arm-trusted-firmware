@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,12 +8,19 @@
 #define GPT_RME_H
 
 #include <stdint.h>
-
-#include <arch.h>
+#include <lib/spinlock.h>
 
 /******************************************************************************/
 /* GPT helper macros and definitions                                          */
 /******************************************************************************/
+
+#if (RME_GPT_BITLOCK_BLOCK != 0)
+#define LOCK_SIZE	sizeof(((bitlock_t *)NULL)->lock)
+#define LOCK_TYPE	typeof(((bitlock_t *)NULL)->lock)
+#define LOCK_BITS	(LOCK_SIZE * UL(8))
+
+CASSERT((UL(1) == LOCK_SIZE), assert_bitlock_type_not_uint8_t);
+#endif /* RME_GPT_BITLOCK_BLOCK */
 
 /*
  * Structure for specifying a mapping range and it's properties. This should not
@@ -238,10 +245,14 @@ int gpt_init_pas_l1_tables(gpccr_pgs_e pgs,
  * initialization from a previous stage. Granule protection checks must be
  * enabled already or this function will return an error.
  *
+ * Parameters
+ *   l1_bitlocks_base	Base address of memory for L1 tables bitlocks.
+ *   l1_bitlocks_size	Total size of memory available for L1 tables bitlocks.
+ *
  * Return
  *   Negative Linux error code in the event of a failure, 0 for success.
  */
-int gpt_runtime_init(void);
+int gpt_runtime_init(uintptr_t l1_bitlocks_base, size_t l1_bitlocks_size);
 
 /*
  * Public API to enable granule protection checks once the tables have all been

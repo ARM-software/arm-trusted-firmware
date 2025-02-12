@@ -34,9 +34,31 @@ struct transfer_list_header *ns_tl __unused;
  */
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
+
 #if ENABLE_RME
 static entry_point_info_t rmm_image_ep_info;
+#if (RME_GPT_BITLOCK_BLOCK == 0)
+#define BITLOCK_BASE	UL(0)
+#define BITLOCK_SIZE	UL(0)
+#else
+/*
+ * Number of bitlock_t entries in bitlocks array for PLAT_ARM_PPS
+ * with RME_GPT_BITLOCK_BLOCK * 512MB per bitlock.
+ */
+#if (PLAT_ARM_PPS > (RME_GPT_BITLOCK_BLOCK * SZ_512M * UL(8)))
+#define BITLOCKS_NUM	(PLAT_ARM_PPS) /	\
+			(RME_GPT_BITLOCK_BLOCK * SZ_512M * UL(8))
+#else
+#define BITLOCKS_NUM	U(1)
 #endif
+/*
+ * Bitlocks array
+ */
+static bitlock_t gpt_bitlock[BITLOCKS_NUM];
+#define BITLOCK_BASE	(uintptr_t)gpt_bitlock
+#define BITLOCK_SIZE	sizeof(gpt_bitlock)
+#endif /* RME_GPT_BITLOCK_BLOCK */
+#endif /* ENABLE_RME */
 
 #if !RESET_TO_BL31
 /*
@@ -551,7 +573,7 @@ void __init arm_bl31_plat_arch_setup(void)
 	 * stage, so there is no need to provide any PAS here. This function
 	 * sets up pointers to those tables.
 	 */
-	if (gpt_runtime_init() < 0) {
+	if (gpt_runtime_init(BITLOCK_BASE, BITLOCK_SIZE) < 0) {
 		ERROR("gpt_runtime_init() failed!\n");
 		panic();
 	}

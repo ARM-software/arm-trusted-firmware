@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,7 +54,10 @@
 #if ENABLE_RME
 #define PLAT_ARM_RMM_BASE		(RMM_BASE)
 #define PLAT_ARM_RMM_SIZE		(RMM_LIMIT - RMM_BASE)
-#endif
+
+/* Protected physical address size */
+#define PLAT_ARM_PPS			(SZ_1T)
+#endif /* ENABLE_RME */
 
 /*
  * Max size of SPMC is 2MB for fvp. With SPMD enabled this value corresponds to
@@ -65,7 +68,7 @@
 #define PLAT_ARM_SPMC_SIZE		UL(0x200000)  /* 2 MB */
 #endif
 
-/* virtual address used by dynamic mem_protect for chunk_base */
+/* Virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
 
 /* No SCP in FVP */
@@ -399,11 +402,22 @@ FVP_TRUSTED_SRAM_SIZE == 512
 #define PLAT_ARM_CLUSTER_TO_CCN_ID_MAP	1, 5, 7, 11
 
 /* System timer related constants */
-#define PLAT_ARM_NSTIMER_FRAME_ID		U(1)
+#define PLAT_ARM_NSTIMER_FRAME_ID	U(1)
 
 /* Mailbox base address */
 #define PLAT_ARM_TRUSTED_MAILBOX_BASE	ARM_TRUSTED_SRAM_BASE
 
+/* PCIe memory region 1 (Base Platform RevC only) */
+#define PLAT_ARM_PCI_MEM_1_BASE		(ULL(0x50000000))
+#define PLAT_ARM_PCI_MEM_1_SIZE		(SZ_256M) /* 256MB */
+
+/*
+ * PCIe memory region 2 (Base Platform RevC only)
+ * The full size of the second PCI memory region is 256GB
+ * but for now we only allocate the L1 GPTs for the first 3GB.
+ */
+#define PLAT_ARM_PCI_MEM_2_BASE		(ULL(0x4000000000))
+#define	PLAT_ARM_PCI_MEM_2_SIZE		(3 * SZ_1G) /* 3GB */
 
 /* TrustZone controller related constants
  *

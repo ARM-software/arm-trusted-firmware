@@ -277,7 +277,7 @@ int fdtw_write_inplace_bytes(void *dtb, int node, const char *prop,
 	return err;
 }
 
-static uint64_t fdt_read_prop_cells(const fdt32_t *prop, int nr_cells)
+uint64_t fdt_read_prop_cells(const fdt32_t *prop, int nr_cells)
 {
 	uint64_t reg = fdt32_to_cpu(prop[0]);
 

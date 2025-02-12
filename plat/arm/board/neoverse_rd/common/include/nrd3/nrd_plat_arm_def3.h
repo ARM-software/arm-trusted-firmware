@@ -507,8 +507,6 @@
 #define ARM_L0_GPT_BASE			NRD_CSS_SHARED_SRAM_SIZE -	\
 					ARM_L0_GPT_SIZE
 
-#define ARM_L0_GPT_LIMIT		(ARM_L0_GPT_BASE + ARM_L0_GPT_SIZE)
-
 /*******************************************************************************
  * Arm shared RAM specifics
  ******************************************************************************/
