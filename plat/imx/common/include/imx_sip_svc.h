@@ -72,6 +72,8 @@ static inline int dram_dvfs_handler(uint32_t smc_fid, void *handle,
 	SMC_RET1(handle, SMC_UNK);
 }
 #endif
+int imx_hab_handler(uint32_t smc_fid, u_register_t x1,
+	u_register_t x2, u_register_t x3, u_register_t x4);
 #endif
 #if defined(PLAT_imx8mm) || defined(PLAT_imx8mn) || defined(PLAT_imx8mp)
 int dram_dvfs_handler(uint32_t smc_fid, void *handle,
