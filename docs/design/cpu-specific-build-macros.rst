@@ -580,6 +580,9 @@ For Neoverse V2, the following errata build flags are defined :
 
 For Neoverse V3, the following errata build flags are defined :
 
+- ``ERRATA_V3_2970647``: This applies errata 2970647 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
+
 - ``ERRATA_V3_3701767``: This applies errata 3701767 workaround to Neoverse-V3
   CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2 of the CPU and
   is still open.
@@ -882,6 +885,9 @@ For Cortex-X4, the following errata build flags are defined :
 - ``ERRATA_X4_2923985``: This applies errata 2923985 workaround to Cortex-X4
   CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
 
+- ``ERRATA_X4_2957258``: This applies errata 2957258 workaround to Cortex-X4
+  CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
+
 - ``ERRATA_X4_3076789``: This applies errata 3076789 workaround to Cortex-X4
   CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
 
@@ -890,6 +896,9 @@ For Cortex-X4, the following errata build flags are defined :
   It is still open.
 
 For Cortex-X925, the following errata build flags are defined :
+
+- ``ERRATA_X925_2963999``: This applies errata 2963999 workaround to Cortex-X925
+  CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
 
 - ``ERRATA_X925_3701747``: This applies errata 3701747 workaround to Cortex-X925
   CPU. This needs to be enabled for revisions r0p0 and r0p1. It is still open.
