@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -148,14 +148,14 @@ $(BUILD_PLAT)/bl2/arm_dev_protpk.o: $(ARM_PROTPK)
 $(BUILD_PLAT)/bl2/arm_dev_swd_rotpk.o: $(ARM_SWD_ROTPK)
 endif
 
-$(ARM_PROTPK): $(ARM_PROT_KEY)
+$(ARM_PROTPK): $(ARM_PROT_KEY) | $$(@D)/
 ifndef ARM_PROT_KEY
 	$(error Cannot generate hash: no PROT_KEY defined)
 endif
 	${OPENSSL_BIN_PATH}/openssl ${CRYPTO_ALG} -in ${ARM_PROT_KEY} -pubout -outform DER | \
 	${OPENSSL_BIN_PATH}/openssl dgst -${HASH_ALG} -binary -out $@
 
-$(ARM_SWD_ROTPK): $(ARM_SWD_ROT_KEY)
+$(ARM_SWD_ROTPK): $(ARM_SWD_ROT_KEY) | $$(@D)/
 ifndef ARM_SWD_ROT_KEY
 	$(error Cannot generate hash: no SWD_KEY defined)
 endif

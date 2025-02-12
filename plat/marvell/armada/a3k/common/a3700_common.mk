@@ -74,6 +74,9 @@ ifeq ($(A3720_DB_PM_WAKEUP_SRC),1)
 BL31_SOURCES		+=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/pm_src.c
 endif
 
+BUILD_UART	:= uart-images
+UART_IMAGE	:= $(BUILD_UART).tgz.bin
+
 ifdef WTP
 
 # Do not remove! Following checks are required to ensure correct TF-A builds, removing these checks leads to broken TF-A builds
@@ -81,9 +84,6 @@ $(if $(wildcard $(value WTP)/*),,$(error "'WTP=$(value WTP)' was specified, but 
 $(if $(shell git -C $(value WTP) rev-parse --show-cdup 2>&1),$(error "'WTP=$(value WTP)' was specified, but '$(value WTP)' does not contain valid A3700-utils-marvell git repository"))
 
 TBB		:= $(WTP)/wtptp/src/TBB_Linux/release/TBB_linux
-
-BUILD_UART	:= uart-images
-UART_IMAGE	:= $(BUILD_UART).tgz.bin
 
 ifeq ($(MARVELL_SECURE_BOOT),1)
 TIM_CFG		:= $(BUILD_PLAT)/atf-tim.txt
