@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,9 +26,9 @@ SECTIONS
 #define	ABS		ABSOLUTE
 
 #define STACK_SECTION							\
-	stacks (NOLOAD) : {						\
+	.stacks (NOLOAD) : {						\
 		__STACKS_START__ = .;					\
-		*(tzfw_normal_stacks)					\
+		*(.tzfw_normal_stacks)					\
 		__STACKS_END__ = .;					\
 		/* Allow room for the init section where necessary. */	\
 		OFFSET = ABS(SIZEOF(.init) - (. - __STACKS_START__));	\

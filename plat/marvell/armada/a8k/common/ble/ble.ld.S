@@ -19,7 +19,7 @@ SECTIONS
 {
     . = BLE_BASE;
 
-    ro . : {
+    .ro . : {
         __RO_START__ = .;
         *ble_main.o(.entry*)
         *(.text*)
@@ -40,9 +40,9 @@ SECTIONS
         __DATA_END__ = .;
     } >RAM
 
-    stacks . (NOLOAD) : {
+    .stacks . (NOLOAD) : {
         __STACKS_START__ = .;
-        *(tzfw_normal_stacks)
+        *(.tzfw_normal_stacks)
         __STACKS_END__ = .;
     } >RAM
 

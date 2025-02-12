@@ -25,6 +25,6 @@
 	__MTK_SMC_POOL_END_UNALIGNED__ = .;
 	. = ALIGN(8);
 #include <vendor_pubsub_events.h>
-	*(mtk_plat_ro)
+	*(.mtk_plat_ro)
 
 #endif /* PLAT_LD_RODATA_INC */

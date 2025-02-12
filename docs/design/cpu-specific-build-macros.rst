@@ -38,6 +38,10 @@ vulnerability workarounds should be applied at runtime.
    in EL3 FW. This build option should be set to 1 if the target platform contains
    at least 1 CPU that requires this mitigation. Defaults to 1.
 
+-  ``WORKAROUND_CVE_2024_7881``: Enables mitigation for `CVE-2024-7881`.
+   This build option should be set to 1 if the target platform contains at
+   least 1 CPU that requires this mitigation. Defaults to 1.
+
 .. _arm_cpu_macros_errata_workarounds:
 
 CPU Errata Workarounds
@@ -1051,7 +1055,7 @@ GIC Errata Workarounds
 
 --------------
 
-*Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639

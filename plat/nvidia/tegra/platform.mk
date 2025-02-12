@@ -90,8 +90,8 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 # o resolve undefined symbols to el3_panic
 # o include only required sections
 TF_LDFLAGS	+= --diag_suppress=L6314,L6332 --no_scanlib --callgraph
-TF_LDFLAGS	+= --keep="*(__pubsub*)" --keep="*(rt_svc_descs*)" --keep="*(*cpu_ops)"
+TF_LDFLAGS	+= --keep="*(.__pubsub*)" --keep="*(.rt_svc_descs*)" --keep="*(.cpu_ops)"
 ifeq (${ENABLE_PMF},1)
-TF_LDFLAGS	+= --keep="*(*pmf_svc_descs*)"
+TF_LDFLAGS	+= --keep="*(.pmf_svc_descs*)"
 endif
 endif

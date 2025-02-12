@@ -35,7 +35,7 @@ struct el3_lp_desc {
 #define DECLARE_LOGICAL_PARTITION(_name, _init, _sp_id, _uuid, _properties, \
 				  _direct_req)				    \
 	static const struct el3_lp_desc __partition_desc_ ## _name	    \
-		__section("el3_lp_descs") __used = {			    \
+		__section(".el3_lp_descs") __used = {			    \
 			.debug_name = #_name,				    \
 			.init = (_init),				    \
 			.sp_id = (_sp_id),				    \

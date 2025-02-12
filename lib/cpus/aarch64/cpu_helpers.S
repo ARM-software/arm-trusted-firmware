@@ -317,6 +317,43 @@ func check_wa_cve_2017_5715
 endfunc check_wa_cve_2017_5715
 
 /*
+ * int check_wa_cve_2024_7881(void);
+ *
+ * This function returns:
+ *  - ERRATA_APPLIES when firmware mitigation is required.
+ *  - ERRATA_NOT_APPLIES when firmware mitigation is _not_ required.
+ *  - ERRATA_MISSING when firmware mitigation would be required but
+ *    is not compiled in.
+ *
+ * NOTE: Must be called only after cpu_ops have been initialized
+ *       in per-CPU data.
+ */
+.globl	check_wa_cve_2024_7881
+func check_wa_cve_2024_7881
+	mrs	x0, tpidr_el3
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+	ldr	x0, [x0, #CPU_EXTRA4_FUNC]
+	/*
+	 * If the reserved function pointer is NULL, this CPU
+	 * is unaffected by CVE-2024-7881 so bail out.
+	 */
+	cmp	x0, #CPU_NO_EXTRA4_FUNC
+	beq	1f
+	br	x0
+1:
+	mov	x0, #ERRATA_NOT_APPLIES
+	ret
+endfunc check_wa_cve_2024_7881
+
+/*
  * void *wa_cve_2018_3639_get_disable_ptr(void);
  *
  * Returns a function pointer which is used to disable mitigation

@@ -24,6 +24,10 @@ FVP_GICR_REGION_PROTECTION		:= 0
 
 FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 
+# Size (in kilobytes) of the Trusted SRAM region to  utilize when building for
+# the FVP platform. This option defaults to 256.
+FVP_TRUSTED_SRAM_SIZE	:= 256
+
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
@@ -38,6 +42,9 @@ $(eval $(call add_define,FVP_MAX_PE_PER_CPU))
 
 # Pass FVP_GICR_REGION_PROTECTION to the build system.
 $(eval $(call add_define,FVP_GICR_REGION_PROTECTION))
+
+# Pass FVP_TRUSTED_SRAM_SIZE to the build system.
+$(eval $(call add_define,FVP_TRUSTED_SRAM_SIZE))
 
 # Sanity check the cluster count and if FVP_CLUSTER_COUNT <= 2,
 # choose the CCI driver , else the CCN driver

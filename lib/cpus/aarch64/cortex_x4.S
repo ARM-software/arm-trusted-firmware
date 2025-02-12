@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -108,6 +108,17 @@ workaround_reset_end cortex_x4, CVE(2022, 23960)
 
 check_erratum_chosen cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
+workaround_reset_start cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+	/* ---------------------------------
+	 * Sets BIT41 of CPUACTLR6_EL1 which
+	 * disables L1 Data cache prefetcher
+	 * ---------------------------------
+	 */
+	sysreg_bit_set CORTEX_X4_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x4, CVE(2024, 7881)
+
+check_erratum_chosen cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+
 cpu_reset_func_start cortex_x4
 	/* Disable speculative loads */
 	msr	SSBS, xzr
@@ -151,6 +162,10 @@ func cortex_x4_cpu_reg_dump
 	ret
 endfunc cortex_x4_cpu_reg_dump
 
-declare_cpu_ops cortex_x4, CORTEX_X4_MIDR, \
+declare_cpu_ops_wa_4 cortex_x4, CORTEX_X4_MIDR, \
 	cortex_x4_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_cortex_x4_7881, \
 	cortex_x4_core_pwr_dwn

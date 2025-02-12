@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,28 +15,31 @@ MEMORY {
     RAM (rwx): ORIGIN = BL2_BASE, LENGTH = BL2_LIMIT - BL2_BASE
 }
 
-
-SECTIONS
-{
+SECTIONS {
     . = BL2_BASE;
+
     ASSERT(. == ALIGN(PAGE_SIZE),
-           "BL2_BASE address is not aligned on a page boundary.")
+        "BL2_BASE address is not aligned on a page boundary.")
 
 #if SEPARATE_CODE_AND_RODATA
     .text . : {
         __TEXT_START__ = .;
+
 #if ENABLE_RME
         *bl2_rme_entrypoint.o(.text*)
 #else /* ENABLE_RME */
         *bl2_entrypoint.o(.text*)
 #endif /* ENABLE_RME */
+
         *(SORT_BY_ALIGNMENT(.text*))
         *(.vectors)
+
         . = ALIGN(PAGE_SIZE);
+
         __TEXT_END__ = .;
     } >RAM
 
-    /* .ARM.extab and .ARM.exidx are only added because Clang need them */
+    /* .ARM.extab and .ARM.exidx are only added because Clang needs them */
     .ARM.extab . : {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } >RAM
@@ -47,39 +50,41 @@ SECTIONS
 
     .rodata . : {
         __RODATA_START__ = .;
+
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-	RODATA_COMMON
+        RODATA_COMMON
 
         . = ALIGN(PAGE_SIZE);
+
         __RODATA_END__ = .;
     } >RAM
-#else
-    ro . : {
+#else /* SEPARATE_CODE_AND_RODATA */
+    .ro . : {
         __RO_START__ = .;
+
         *bl2_entrypoint.o(.text*)
         *(SORT_BY_ALIGNMENT(.text*))
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-	RODATA_COMMON
+        RODATA_COMMON
 
         *(.vectors)
+
         __RO_END_UNALIGNED__ = .;
+
         /*
-         * Memory page(s) mapped to this section will be marked as
-         * read-only, executable.  No RW data from the next section must
-         * creep in.  Ensure the rest of the current memory page is unused.
+         * Memory page(s) mapped to this section will be marked as read-only,
+         * executable. No RW data from the next section must creep in. Ensure
+         * that the rest of the current memory page is unused.
          */
         . = ALIGN(PAGE_SIZE);
+
         __RO_END__ = .;
     } >RAM
-#endif
+#endif /* SEPARATE_CODE_AND_RODATA */
 
-    /*
-     * Define a linker symbol to mark start of the RW memory area for this
-     * image.
-     */
-    __RW_START__ = . ;
+    __RW_START__ = .;
 
     DATA_SECTION >RAM
     STACK_SECTION >RAM
@@ -88,29 +93,27 @@ SECTIONS
 
 #if USE_COHERENT_MEM
     /*
-     * The base address of the coherent memory section must be page-aligned (4K)
-     * to guarantee that the coherent data are stored on their own pages and
-     * are not mixed with normal data.  This is required to set up the correct
+     * The base address of the coherent memory section must be page-aligned to
+     * guarantee that the coherent data are stored on their own pages and are
+     * not mixed with normal data.  This is required to set up the correct
      * memory attributes for the coherent data page tables.
      */
-    coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
+    .coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
         __COHERENT_RAM_START__ = .;
-        *(tzfw_coherent_mem)
+        *(.tzfw_coherent_mem)
         __COHERENT_RAM_END_UNALIGNED__ = .;
+
         /*
-         * Memory page(s) mapped to this section will be marked
-         * as device memory.  No other unexpected data must creep in.
-         * Ensure the rest of the current memory page is unused.
+         * Memory page(s) mapped to this section will be marked as device
+         * memory. No other unexpected data must creep in. Ensure the rest of
+         * the current memory page is unused.
          */
         . = ALIGN(PAGE_SIZE);
+
         __COHERENT_RAM_END__ = .;
     } >RAM
-#endif
+#endif /* USE_COHERENT_MEM */
 
-    /*
-     * Define a linker symbol to mark end of the RW memory area for this
-     * image.
-     */
     __RW_END__ = .;
     __BL2_END__ = .;
 
@@ -119,7 +122,7 @@ SECTIONS
 #if USE_COHERENT_MEM
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
-#endif
+#endif /* USE_COHERENT_MEM */
 
     ASSERT(. <= BL2_LIMIT, "BL2 image has exceeded its limit.")
 }
