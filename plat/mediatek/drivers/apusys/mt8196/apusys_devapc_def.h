@@ -139,6 +139,6 @@
 #define APUSYS_CTRL_DAPC_RCX_SLAVE_NUM		(95)	/* 0~94 */
 
 /* Dump Config */
-#define DUMP_CFG
+#undef DUMP_CFG
 
 #endif
