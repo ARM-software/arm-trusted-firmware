@@ -68,6 +68,10 @@ arm_config_t arm_config;
 
 #define MAP_DEVICE1	MAP_REGION_FLAT(DEVICE1_BASE,			\
 					DEVICE1_SIZE,			\
+					MT_DEVICE | MT_RW | EL3_PAS)
+
+#define MAP_CCN		MAP_REGION_FLAT(CCN_BASE,			\
+					CCN_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
 #if FVP_GICR_REGION_PROTECTION
@@ -115,7 +119,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 #if FVP_INTERCONNECT_DRIVER == FVP_CCN
-	MAP_DEVICE1,
+	MAP_CCN,
 #endif
 #if TRUSTED_BOARD_BOOT
 	/* To access the Root of Trust Public Key registers. */
@@ -133,7 +137,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 #if FVP_INTERCONNECT_DRIVER == FVP_CCN
-	MAP_DEVICE1,
+	MAP_CCN,
 #endif
 	ARM_MAP_NS_DRAM1,
 #ifdef __aarch64__
@@ -208,6 +212,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_GICD_MEM,
 	MAP_GICR_MEM,
 #else
+#if FVP_INTERCONNECT_DRIVER == FVP_CCN
+	MAP_CCN,
+#endif
 	MAP_DEVICE1,
 #endif /* FVP_GICR_REGION_PROTECTION */
 	ARM_V2M_MAP_MEM_PROTECT,
@@ -254,6 +261,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
+#if FVP_INTERCONNECT_DRIVER == FVP_CCN
+	MAP_CCN,
+#endif
 	MAP_DEVICE1,
 	{0}
 };

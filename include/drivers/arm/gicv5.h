@@ -164,6 +164,13 @@ DEFINE_GICV5_MMIO_READ_FUNC(irs_spi_statusr,		0x0118)
 #define WAIT_FOR_IDLE_IWB_CR0(base)						\
 	WAIT_FOR_IDLE(base, iwb_cr0, IWB_CR0)
 
+#define WIRE_PROP_DESC(_id, _domain, _tm) \
+	{ \
+		.id = (_id), \
+		.domain = (_domain), \
+		.tm = (_tm), \
+	}
+
 struct gicv5_wire_props {
 	/* continuous wire ID as seen by the attached component */
 	uint32_t id;

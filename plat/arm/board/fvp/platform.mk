@@ -22,13 +22,6 @@ FVP_MAX_PE_PER_CPU		:= 1
 # only; enable redistributor frames of all CPU cores by default.
 FVP_GICR_REGION_PROTECTION	:= 0
 
-ifeq (${HW_ASSISTED_COHERENCY}, 0)
-FVP_DT_PREFIX			:= fvp-base-gicv3-psci
-else
-FVP_DT_PREFIX			:= fvp-base-gicv3-psci-dynamiq
-endif
-# fdts is wrong otherwise
-
 # Size (in kilobytes) of the Trusted SRAM region to utilize when building for
 # the FVP platform.
 ifeq (${ENABLE_RME},1)
@@ -137,7 +130,20 @@ GICV3_SUPPORT_GIC600		:=	1
 GICV3_OVERRIDE_DISTIF_PWR_OPS	:=	1
 
 FVP_SECURITY_SOURCES += plat/arm/board/fvp/fvp_gicv3.c
+ifeq ($(filter 1,${RESET_TO_BL2} ${RESET_TO_BL31}),)
+BL31_SOURCES		+=	plat/arm/board/fvp/fconf/fconf_gicv3_config_getter.c
+endif
 
+ifeq (${HW_ASSISTED_COHERENCY}, 0)
+FVP_DT_PREFIX			:= fvp-base-gicv3-psci
+else
+FVP_DT_PREFIX			:= fvp-base-gicv3-psci-dynamiq
+endif
+else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV5)
+USE_GIC_DRIVER		:=	5
+ENABLE_FEAT_GCIE	:=	1
+BL31_SOURCES		+=	plat/arm/board/fvp/fvp_gicv5.c
+FVP_DT_PREFIX		:=	"FVP does not provide a GICv5 dts yet"
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV2)
 USE_GIC_DRIVER		:=	2
 

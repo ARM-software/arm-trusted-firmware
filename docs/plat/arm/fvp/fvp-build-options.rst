@@ -27,6 +27,7 @@ Arm FVP Platform Specific Build Options
 
    -  ``FVP_GICV2`` : The GICv2 only driver is selected
    -  ``FVP_GICV3`` : The GICv3 only driver is selected (default option)
+   -  ``FVP_GICV5`` : The GICv5 only driver is selected
 
 -  ``FVP_HW_CONFIG_DTS`` : Specify the path to the DTS file to be compiled
    to DTB and packaged in FIP as the HW_CONFIG. See :ref:`Firmware Design` for
