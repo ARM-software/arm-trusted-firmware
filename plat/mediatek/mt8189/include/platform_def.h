@@ -25,6 +25,20 @@
 #define TOPCKGEN_BASE		(IO_PHYS)
 
 /*******************************************************************************
+ * GPIO related constants
+ ******************************************************************************/
+#define GPIO_BASE		(IO_PHYS + 0x00005000)
+#define IOCFG_LM_BASE		(IO_PHYS + 0x01B50000)
+#define IOCFG_RB0_BASE		(IO_PHYS + 0x01C50000)
+#define IOCFG_RB1_BASE		(IO_PHYS + 0x01C60000)
+#define IOCFG_BM0_BASE		(IO_PHYS + 0x01D20000)
+#define IOCFG_BM1_BASE		(IO_PHYS + 0x01D30000)
+#define IOCFG_BM2_BASE		(IO_PHYS + 0x01D40000)
+#define IOCFG_LT0_BASE		(IO_PHYS + 0x01E20000)
+#define IOCFG_LT1_BASE		(IO_PHYS + 0x01E30000)
+#define IOCFG_RT_BASE		(IO_PHYS + 0x01F20000)
+
+/*******************************************************************************
  * UART related constants
  ******************************************************************************/
 #define UART0_BASE	(IO_PHYS + 0x01002000)
