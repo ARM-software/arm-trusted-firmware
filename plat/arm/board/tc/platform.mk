@@ -112,9 +112,9 @@ PRESERVE_DSU_PMU_REGS		:= 1
 
 # Specify MHU type based on platform
 ifneq ($(filter ${TARGET_PLATFORM}, 2),)
-	PLAT_MHU_VERSION	:= 2
+	PLAT_MHU		:= MHUv2
 else
-	PLAT_MHU_VERSION	:= 3
+	PLAT_MHU		:= MHUv3
 endif
 
 # Include GICv3 driver files
@@ -249,9 +249,12 @@ $(eval $(call TOOL_ADD_PAYLOAD,${TC_HW_CONFIG},--hw-config,${TC_HW_CONFIG}))
 $(info Including rse_comms.mk)
 include drivers/arm/rse/rse_comms.mk
 
-BL1_SOURCES	+=	${RSE_COMMS_SOURCES}
-BL2_SOURCES	+=	${RSE_COMMS_SOURCES}
+BL1_SOURCES	+=	${RSE_COMMS_SOURCES} \
+			plat/arm/board/tc/tc_rse_comms.c
+BL2_SOURCES	+=	${RSE_COMMS_SOURCES} \
+			plat/arm/board/tc/tc_rse_comms.c
 BL31_SOURCES	+=	${RSE_COMMS_SOURCES} \
+			plat/arm/board/tc/tc_rse_comms.c \
 			lib/psa/rse_platform.c
 
 # Include Measured Boot makefile before any Crypto library makefile.

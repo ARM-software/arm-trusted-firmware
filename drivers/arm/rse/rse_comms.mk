@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,15 +13,16 @@ RSE_COMMS_SOURCES	:=	$(addprefix drivers/arm/rse/,			\
 					rse_comms_protocol_pointer_access.c	\
 				)
 
-# Default to MHUv2 if PLAT_MHU_VERSION undefined
-PLAT_MHU_VERSION ?= 2
+# Default to MHUv2 if PLAT_MHU undefined
+PLAT_MHU ?= MHUv2
 
-ifeq (${PLAT_MHU_VERSION}, 3)
+ifneq (${PLAT_MHU}, NO_MHU)
+ifeq (${PLAT_MHU}, MHUv3)
 RSE_COMMS_SOURCES	+=	$(addprefix drivers/arm/mhu/,			\
 					mhu_v3_x.c				\
 					mhu_wrapper_v3_x.c			\
 				)
-else ifeq (${PLAT_MHU_VERSION}, 2)
+else ifeq (${PLAT_MHU}, MHUv2)
 RSE_COMMS_SOURCES	+=	$(addprefix drivers/arm/mhu/,			\
 					mhu_v2_x.c				\
 					mhu_wrapper_v2_x.c			\
@@ -30,6 +31,12 @@ else
 $(error Unsupported MHU version)
 endif
 
+RSE_COMMS_SOURCES	+=	$(addprefix drivers/arm/rse/,			\
+					rse_comms_mhu.c				\
+				)
+
+PLAT_INCLUDES		+=	-Idrivers/arm/mhu
+endif
+
 PLAT_INCLUDES		+=	-Idrivers/arm/rse		\
-				-Idrivers/arm/mhu		\
 				-Iinclude/lib/psa

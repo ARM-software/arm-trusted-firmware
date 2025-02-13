@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,7 +9,8 @@ ifeq (${PLATFORM_TEST},rse-nv-counters)
     include drivers/arm/rse/rse_comms.mk
 
     # Test code.
-    BL31_SOURCES	+=	plat/arm/board/tc/nv_counter_test.c
+    BL31_SOURCES	+=	plat/arm/board/tc/nv_counter_test.c \
+				plat/arm/board/tc/tc_rse_comms.c
 
     # Code under testing.
     BL31_SOURCES	+=	lib/psa/rse_platform.c \
@@ -22,7 +23,8 @@ else ifeq (${PLATFORM_TEST},rse-rotpk)
     include drivers/arm/rse/rse_comms.mk
 
     # Test code.
-    BL31_SOURCES	+=	plat/arm/board/tc/rotpk_test.c
+    BL31_SOURCES	+=	plat/arm/board/tc/rotpk_test.c \
+				plat/arm/board/tc/tc_rse_comms.c
 
     # Code under testing.
     BL31_SOURCES	+=	lib/psa/rse_platform.c \
@@ -75,6 +77,7 @@ else ifeq (${PLATFORM_TEST},tfm-testsuite)
 				${TC_BASE}/rse_ap_tests.c			\
 				${TC_BASE}/rse_ap_testsuites.c			\
 				${TC_BASE}/rse_ap_test_stubs.c			\
+				${TC_BASE}/tc_rse_comms.c			\
 				$(TF_M_TESTS_PATH)/tests_reg/test/framework/test_framework.c \
 				$(MEASURED_BOOT_TESTS_PATH)/measured_boot_common.c \
 				$(MEASURED_BOOT_TESTS_PATH)/measured_boot_tests_common.c \

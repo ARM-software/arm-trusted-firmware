@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,7 +8,6 @@
 
 #include <common/debug.h>
 #include <drivers/arm/css/sds.h>
-#include <drivers/arm/rse_comms.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/measured_boot/metadata.h>
@@ -19,6 +18,7 @@
 #include <tools_share/zero_oid.h>
 
 #include "tc_dpe.h"
+#include <tc_rse_comms.h>
 
 struct dpe_metadata tc_dpe_metadata[] = {
 	{
@@ -122,8 +122,7 @@ void plat_dpe_get_context_handle(int *ctx_handle)
 void bl1_plat_mboot_init(void)
 {
 	/* Initialize the communication channel between AP and RSE */
-	(void)rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE,
-			     PLAT_RSE_AP_RCV_MHU_BASE);
+	(void)plat_rse_comms_init();
 
 	dpe_init(tc_dpe_metadata);
 }

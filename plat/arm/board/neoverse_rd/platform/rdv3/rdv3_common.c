@@ -6,6 +6,7 @@
 
 #include <common/debug.h>
 #include <drivers/arm/gic600_multichip.h>
+#include <drivers/arm/mhu.h>
 #include <drivers/arm/rse_comms.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
@@ -188,15 +189,15 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 
 int plat_rse_comms_init(void)
 {
-	uintptr_t snd_base, rcv_base;
+	struct mhu_addr mhu_addresses;
 
 	/* Get sender and receiver frames for AP-RSE communication */
-	mhu_v3_get_secure_device_base(&snd_base, true);
-	mhu_v3_get_secure_device_base(&rcv_base, false);
+	mhu_v3_get_secure_device_base(&mhu_addresses.sender_base, true);
+	mhu_v3_get_secure_device_base(&mhu_addresses.receiver_base, false);
 
 	VERBOSE("Initializing the rse_comms now\n");
 	/* Initialize the communication channel between AP and RSE */
-	return rse_comms_init(snd_base, rcv_base);
+	return rse_mbx_init(&mhu_addresses);
 }
 
 int plat_spmd_handle_group0_interrupt(uint32_t intid)

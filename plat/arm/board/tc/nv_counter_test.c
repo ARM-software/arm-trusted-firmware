@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,11 +7,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <drivers/arm/rse_comms.h>
 #include <plat/common/platform.h>
 #include "rse_platform_api.h"
 
 #include <platform_def.h>
+#include <tc_rse_comms.h>
 
 int nv_counter_test(void)
 {
@@ -20,7 +20,7 @@ int nv_counter_test(void)
 	uint32_t new_val;
 	uint32_t id;
 
-	status = rse_comms_init(PLAT_RSE_AP_SND_MHU_BASE, PLAT_RSE_AP_RCV_MHU_BASE);
+	status = plat_rse_comms_init();
 	if (status != PSA_SUCCESS) {
 		printf("Failed to initialize RSE communication channel - psa_status = %d\n", status);
 		return -1;

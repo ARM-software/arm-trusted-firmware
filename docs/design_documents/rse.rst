@@ -25,9 +25,15 @@ RSE communication layer
 -----------------------
 
 The communication between RSE and other subsystems are primarily relying on the
-Message Handling Unit (MHU) module. The number of MHU interfaces between RSE
-and other cores is IMPDEF. Besides MHU other modules also could take part in
-the communication. RSE is capable of mapping the AP memory to its address space.
+Message Handling Unit (MHU) module.
+
+However, this is possible to use this communication protocol with a different
+mailbox than MHU, by setting the flag ``PLAT_MHU=NO_MHU`` and implementing the
+APIs given in the file: ``include/drivers/arm/rse_comms.h``.
+
+The number of MHU interfaces between RSE and other cores is IMPDEF. Besides MHU
+other modules also could take part in the communication. RSE is capable of
+mapping the AP memory to its address space.
 Thereby either RSE core itself or a DMA engine if it is present, can move the
 data between memory belonging to RSE or AP. In this way, a bigger amount of data
 can be transferred in a short time.
@@ -812,3 +818,4 @@ References
 
 *Copyright (c) 2023-2024, Arm Limited. All rights reserved.*
 *Copyright (c) 2024, Linaro Limited. All rights reserved.*
+*Copyright (c) 2025, STMicroelectronics - All Rights Reserved*
