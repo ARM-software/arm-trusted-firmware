@@ -58,14 +58,10 @@ static int go_to_spm_before_wfi(int state_id, uint32_t ext_opand,
 #if defined(CONFIG_MTK_VCOREDVFS_SUPPORT)
 	__spm_sync_vcore_dvfs_power_control(pwrctrl, __spm_vcorefs.pwrctrl);
 #endif
-	if (mt_spm_version == MT_SPM_VERSION_ES)
-		pwrctrl->pcm_flags |= (SPM_FLAG_ENABLE_MT8196_E1_WA |
-				       SPM_FLAG_ENABLE_MT8196_EMI_E1_WA);
 
 #ifdef MTK_SPM_IVI_SUPPORT
 	pwrctrl->pcm_flags |= SPM_FLAG_ENABLE_MT8196_IVI;
 #endif
-
 	__spm_set_pcm_flags(pwrctrl);
 
 #ifdef HW_S1_DETECT

@@ -28,9 +28,6 @@
 
 #define MT_SPM_TIME_GET(tm)	({ (tm) = el3_uptime(); })
 
-#define MT_SPM_VERSION_ES	0x0
-#define MT_SPM_VERSION_CS	0x1
-
 #define SPM_FW_NO_RESUME	1
 #define MCUSYS_MTCMOS_ON	0
 #define WAKEUP_LOG_ON		0
@@ -138,7 +135,6 @@ void mt_spm_set_common_sodi_pwrctr(void);
 void mt_spm_set_common_sodi_pcm_flags(void);
 int spm_boot_init(void);
 void spm_dvfsfw_init(uint64_t boot_up_opp, uint64_t dram_issue);
-extern uint32_t mt_spm_version;
 extern struct pwr_ctrl spm_init_ctrl;
 /* Support by bl31_plat_setup.c */
 uint32_t is_abnormal_boot(void);

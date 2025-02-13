@@ -50,8 +50,6 @@ spinlock_t spm_lock;
 #define plat_spm_lock_init()
 #endif
 
-uint32_t mt_spm_version;
-
 static uint32_t spm_irq_num;
 
 void spm_set_sysclk_settle(void)
@@ -456,9 +454,7 @@ int spm_boot_init(void)
 
 	spm_irq_num = 0xFFFFFFFF;
 
-	INFO("[%s:%d] - spm finished, version = %u, PC = 0x%x\n",
-		__func__, __LINE__,
-		mt_spm_version, mmio_read_32(MD32PCM_PC));
+	INFO("[%s], PC = 0x%x\n", __func__, mmio_read_32(MD32PCM_PC));
 	return 0;
 }
 MTK_PLAT_SETUP_1_INIT(spm_boot_init);
