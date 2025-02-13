@@ -28,10 +28,7 @@
 	#size-cells = <2>;
 
 	chosen {
-/* SPM_MM doesn't like this */
-#if SPM_MM == 0
 		bootargs = "console=ttyAMA0 earlycon=pl011,0x1c090000 root=/dev/vda ip=on";
-#endif
 	};
 
 	aliases {
