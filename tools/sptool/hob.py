@@ -312,6 +312,13 @@ def generate_mmram_desc(base_addr, page_count, granule, region_state):
     return ("4Q", (physical_start, cpu_start, physical_size, region_state))
 
 
+def generate_stmm_region_descriptor(base_addr, physical_size):
+    region_state = STMM_MMRAM_REGION_STATE_DEFAULT
+    physical_start = base_addr
+    cpu_start = base_addr
+    return ("4Q", (physical_start, cpu_start, physical_size, region_state))
+
+
 def generate_ns_buffer_guid(mmram_desc):
     return HobGuid(EfiGuid(*MM_NS_BUFFER_GUID), *mmram_desc)
 
@@ -346,6 +353,12 @@ def generate_hob_from_fdt_node(sp_fdt, hob_offset, hob_size=None):
     if img_size is None:
         img_size = 0x0
 
+    regions = []
+
+    # StMM requires the first memory region described in the
+    # MM_PEI_MMRAM_MEMORY_RESERVE_GUID describe the full partition layout.
+    regions.append(generate_stmm_region_descriptor(load_address, img_size))
+
     if sp_fdt.exist_node("memory-regions"):
         if sp_fdt.exist_property("xlat-granule"):
             granule = int(sp_fdt.get_property("xlat-granule").value)
@@ -353,7 +366,6 @@ def generate_hob_from_fdt_node(sp_fdt, hob_offset, hob_size=None):
             # Default granule to 4K
             granule = 0
         memory_regions = sp_fdt.get_node("memory-regions")
-        regions = []
         for node in memory_regions.nodes:
             base_addr = get_integer_property_value(node, "base-address")
             page_count = get_integer_property_value(node, "pages-count")
