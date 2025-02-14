@@ -3,6 +3,54 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.29](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.28..refs/tags/lts-v2.8.29) (2025-02-14)
+
+### ⚠ BREAKING CHANGES
+
+- All input and output linker section names have been
+   prefixed with the period character, e.g. `cpu_ops` -> `.cpu_ops`.
+
+
+  (cherry picked from commit da04341ed52d214139fe2d16667ef5b58c38e502)
+
+  **See:** always prefix section names with `.` ([cf5e7d8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cf5e7d8d4b0099c9470f7b18f5009388d1b7b516))
+
+### Style
+
+- normalize linker script code style ([772bdd3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/772bdd3bc12e023182435e12f253f7660c516da7))
+
+### Build System
+
+- always prefix section names with `.` ([cf5e7d8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cf5e7d8d4b0099c9470f7b18f5009388d1b7b516))
+
+### Resolved Issues
+
+- **Services**
+
+  - disable workaround discovery on aarch32 for now ([e2084ab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e2084abfc215f192f59d681a08a97ecbf6d6c7ca))
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - add CVE-2024-7881 mitigation to Cortex-X3 ([a7f53d3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a7f53d34fdaa028ed3a4980df2dfdb7389d231ed))
+    - add CVE-2024-7881 mitigation to Cortex-X4 ([2ef768d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2ef768d4a68478de3643166cfd283966500b37e7))
+    - add CVE-2024-7881 mitigation to Neoverse-V2 ([172ccad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/172ccad6a9f5f55a310fe409a80a8d7d3aaa0baf))
+    - add CVE-2024-7881 mitigation to Neoverse-V3 ([cbf4a4e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cbf4a4e3c71696978cba5e8fab933362b44c2031))
+    - add support in cpu_ops for CVE-2024-7881 ([8fc0fa7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8fc0fa7c0f4218655fc30039ad7a236d4ec5ccb3))
+    - apply SMCCC_ARCH_WORKAROUND_4 to affected cpus ([337aa3b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/337aa3bf1703aaa45516329ba49d12ed07042485))
+    - enable WORKAROUND_CVE_2024_7881 build option ([cc04eac](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/cc04eac23148ba7deef92b796fab6a86e8c6f863))
+
+### New Features
+
+- **Platforms**
+
+  - **Arm**
+
+    - **FVP**
+
+      - allow configurable FVP Trusted SRAM size ([1e4b436](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1e4b43644c926dbe8c831de79eb0120128f1a2ea))
+
 ## [lts-2.8.28](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.27..refs/tags/lts-v2.8.28) (2025-01-27)
 
 ### Resolved Issues
