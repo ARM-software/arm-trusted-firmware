@@ -19,6 +19,9 @@
 #include "plat_common.h"
 #include "platform_def.h"
 
+#ifdef SEMIHOSTING_BOOT
+#include <lib/semihosting.h>
+#endif
 
 /* TBD - Move these defined to the platform_def.h file.
  * Keeping them for reference here
@@ -29,10 +32,17 @@ static uint32_t ddr_fip;
 
 static uintptr_t ddr_fip_dev_handle;
 
+#ifndef SEMIHOSTING_BOOT
 static io_block_spec_t ddr_fip_block_spec = {
 	.offset = PLAT_DDR_FIP_OFFSET,
 	.length = PLAT_DDR_FIP_MAX_SIZE
 };
+#else
+static io_file_spec_t ddr_fip_file_spec = {
+	.path = "ddr_fip.bin",
+	.mode = FOPEN_MODE_RB
+};
+#endif
 
 static const io_uuid_spec_t ddr_imem_udimm_1d_uuid_spec = {
 	.uuid = UUID_DDR_IMEM_UDIMM_1D,
@@ -88,11 +98,19 @@ struct plat_io_policy {
 
 /* By default, ARM platforms load images from the FIP */
 static const struct plat_io_policy ddr_policies[] = {
+#ifndef SEMIHOSTING_BOOT
 	[DDR_FIP_IMAGE_ID - DDR_FIP_IMAGE_ID] = {
 		&backend_dev_handle,
 		(uintptr_t)&ddr_fip_block_spec,
 		NULL
 	},
+#else
+	[DDR_FIP_IMAGE_ID - DDR_FIP_IMAGE_ID] = {
+		&backend_dev_handle,
+		(uintptr_t)&ddr_fip_file_spec,
+		NULL
+	},
+#endif
 	[DDR_IMEM_UDIMM_1D_IMAGE_ID - DDR_FIP_IMAGE_ID] = {
 		&ddr_fip_dev_handle,
 		(uintptr_t)&ddr_imem_udimm_1d_uuid_spec,
@@ -199,12 +217,14 @@ int plat_get_ddr_fip_image_source(unsigned int image_id, uintptr_t *dev_handle,
 int ddr_fip_setup(const io_dev_connector_t *fip_dev_con, unsigned int boot_dev)
 {
 	int io_result;
-	size_t ddr_fip_offset = PLAT_DDR_FIP_OFFSET;
 
 	/* Open connections to ddr fip and cache the handles */
 	io_result = io_dev_open(fip_dev_con, (uintptr_t)&ddr_fip,
 				&ddr_fip_dev_handle);
 	assert(io_result == 0);
+
+#ifndef SEMIHOSTING_BOOT
+	size_t ddr_fip_offset = PLAT_DDR_FIP_OFFSET;
 
 	switch (boot_dev) {
 #if QSPI_BOOT
@@ -227,6 +247,7 @@ int ddr_fip_setup(const io_dev_connector_t *fip_dev_con, unsigned int boot_dev)
 	}
 
 	ddr_fip_block_spec.offset = ddr_fip_offset;
+#endif
 
 	return io_result;
 }
