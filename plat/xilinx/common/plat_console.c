@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2023-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,9 +31,7 @@ static console_t runtime_console;
 static console_holder rt_hd_console;
 #endif
 
-#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-				   !IS_TFA_IN_OCM(BL31_BASE)))
+#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && (XLNX_DT_CFG == 1))
 static dt_uart_info_t dt_uart_info;
 #endif
 
@@ -78,9 +76,7 @@ static void register_console(const console_holder *consoleh, console_t *console)
 	console_set_scope(console, consoleh->console_scope);
 }
 
-#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-				   !IS_TFA_IN_OCM(BL31_BASE)))
+#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && (XLNX_DT_CFG == 1))
 /**
  * get_baudrate() - Get the baudrate form DTB.
  * @dtb: Address of the Device Tree Blob (DTB).
@@ -222,7 +218,7 @@ error:
 static int fdt_get_uart_info(dt_uart_info_t *info)
 {
 	int node = 0, ret = 0;
-	void *dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+	void *dtb = (void *)plat_retrieve_dt_addr();
 
 	ret = is_valid_dtb(dtb);
 	if (ret < 0) {
@@ -259,9 +255,7 @@ void setup_console(void)
 	/* For DT code decoding uncomment console registration below */
 	/* register_console(&boot_hd_console, &boot_console); */
 
-#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	(!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-				   !IS_TFA_IN_OCM(BL31_BASE)))
+#if ((CONSOLE_IS(dtb) || RT_CONSOLE_IS(dtb)) && (XLNX_DT_CFG == 1))
 	/* Parse DTB console for UART information  */
 	if (fdt_get_uart_info(&dt_uart_info) == 0) {
 		if (CONSOLE_IS(dtb)) {
@@ -280,16 +274,16 @@ void setup_console(void)
 	INFO("BL31: Early console setup\n");
 
 #ifdef CONSOLE_RUNTIME
-#if (RT_CONSOLE_IS(dtb) && defined(XILINX_OF_BOARD_DTB_ADDR)) && \
-	       (!defined(PLAT_zynqmp) || (defined(PLAT_zynqmp) && \
-					!IS_TFA_IN_OCM(BL31_BASE)))
-	rt_hd_console.base = dt_uart_info.base;
-	rt_hd_console.baud_rate = dt_uart_info.baud_rate;
-	rt_hd_console.console_type = dt_uart_info.console_type;
-#else
 	rt_hd_console.base = (uintptr_t)RT_UART_BASE;
 	rt_hd_console.baud_rate = (uint32_t)UART_BAUDRATE;
 	rt_hd_console.console_type = RT_UART_TYPE;
+
+#if (RT_CONSOLE_IS(dtb) && (XLNX_DT_CFG == 1))
+	if (dt_uart_info.base != 0U) {
+		rt_hd_console.base = dt_uart_info.base;
+		rt_hd_console.baud_rate = dt_uart_info.baud_rate;
+		rt_hd_console.console_type = dt_uart_info.console_type;
+	}
 #endif
 
 	if ((rt_hd_console.console_type == boot_hd_console.console_type) &&

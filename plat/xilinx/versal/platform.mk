@@ -1,5 +1,5 @@
 # Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
-# Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -49,8 +49,12 @@ ifdef VERSAL_PLATFORM
 endif
 
 ifdef XILINX_OF_BOARD_DTB_ADDR
+XLNX_DT_CFG     := 1
 $(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
+else
+XLNX_DT_CFG     := 0
 endif
+$(eval $(call add_define,XLNX_DT_CFG))
 
 PLAT_XLAT_TABLES_DYNAMIC := 0
 ifeq (${PLAT_XLAT_TABLES_DYNAMIC},1)

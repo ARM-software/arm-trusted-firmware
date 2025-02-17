@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2023-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -37,16 +37,15 @@ int32_t is_valid_dtb(void *fdt)
 {
 	int32_t ret = 0;
 
-	if (fdt_check_header(fdt) != 0) {
+	ret = fdt_check_header(fdt);
+	if (ret != 0) {
 		ERROR("Can't read DT at %p\n", fdt);
-		ret = -FDT_ERR_NOTFOUND;
 		goto error;
 	}
 
 	ret = fdt_open_into(fdt, fdt, XILINX_OF_BOARD_DTB_MAX_SIZE);
 	if (ret < 0) {
 		ERROR("Invalid Device Tree at %p: error %d\n", fdt, ret);
-		ret = -FDT_ERR_NOTFOUND;
 		goto error;
 	}
 
@@ -105,7 +104,7 @@ void prepare_dtb(void)
 	int map_ret = 0;
 	int ret = 0;
 
-	dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+	dtb = (void *)plat_retrieve_dt_addr();
 
 	if (!IS_TFA_IN_OCM(BL31_BASE)) {
 
@@ -156,4 +155,14 @@ void prepare_dtb(void)
 		}
 	}
 #endif
+}
+
+uintptr_t plat_retrieve_dt_addr(void)
+{
+	void *dtb = NULL;
+
+#if defined(XILINX_OF_BOARD_DTB_ADDR)
+	dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+#endif
+	return (uintptr_t)dtb;
 }

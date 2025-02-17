@@ -1,6 +1,6 @@
 # Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
-# Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -86,13 +86,14 @@ else
 endif
 endif
 
-
-ifdef XILINX_OF_BOARD_DTB_ADDR
+ifeq (${TRANSFER_LIST},0)
+XILINX_OF_BOARD_DTB_ADDR ?= 0x1000000
 $(eval $(call add_define,XILINX_OF_BOARD_DTB_ADDR))
 endif
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
+				-Iplat/amd/common/include/			\
 				-Iplat/xilinx/common/ipi_mailbox_service/	\
 				-I${PLAT_PATH}/include/				\
 				-Iplat/xilinx/versal/pm_service/
@@ -128,11 +129,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/scmi-msg/reset_domain.c			\
 				${PLAT_PATH}/scmi.c
 
-BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
-
-BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
+BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c			\
 				common/fdt_wrappers.c                           \
-				plat/xilinx/common/plat_fdt.c                   \
 				plat/xilinx/common/plat_console.c               \
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi.c			\
@@ -153,7 +151,20 @@ $(eval $(call add_define, CORTEX_A78_AE_H_INC))
 endif
 
 # Enable Handoff protocol using transfer lists
-TRANSFER_LIST                   := 1
+TRANSFER_LIST                   ?= 0
 
+ifeq (${TRANSFER_LIST},1)
 include lib/transfer_list/transfer_list.mk
-BL31_SOURCES           +=      plat/xilinx/common/plat_xfer_list.c
+BL31_SOURCES           +=	plat/amd/common/plat_fdt.c
+BL31_SOURCES           +=	plat/amd/common/plat_xfer_list.c
+else
+BL31_SOURCES           +=	plat/xilinx/common/plat_fdt.c
+endif
+
+XLNX_DT_CFG	?= 1
+ifeq (${TRANSFER_LIST},0)
+ifndef XILINX_OF_BOARD_DTB_ADDR
+XLNX_DT_CFG	:= 0
+endif
+endif
+$(eval $(call add_define,XLNX_DT_CFG))
