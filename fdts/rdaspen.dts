@@ -1,0 +1,383 @@
+/*
+ * Copyright (c) 2025, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
+/ {
+	model = "RD-Aspen";
+	compatible = "arm,rdaspen";
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	chosen {
+		stdout-path = &soc_serial0;
+	};
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		/* 4 clusters and 4 CPU cores in each cluster */
+		CPU0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x0>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU1: cpu@100 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x100>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU2: cpu@200 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x200>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU3: cpu@300 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x300>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU4: cpu@10000 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x10000>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU5: cpu@10100 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x10100>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU6: cpu@10200 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x10200>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU7: cpu@10300 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x10300>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU8: cpu@20000 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x20000>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU9: cpu@20100 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x20100>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU10: cpu@20200 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x20200>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU11: cpu@20300 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x20300>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU12: cpu@30000 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x30000>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU13: cpu@30100 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x30100>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU14: cpu@30200 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x30200>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+
+		CPU15: cpu@30300 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a720ae";
+			reg = <0x0 0x30300>;
+			enable-method = "psci";
+			i-cache-size = <0x10000>;
+			i-cache-line-size = <0x40>;
+			i-cache-sets = <0x100>;
+			d-cache-size = <0x10000>;
+			d-cache-line-size = <0x40>;
+			d-cache-sets = <0x100>;
+		};
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+
+		/* Bank 0: start = 0x0000_0000_8000_0000, size = ~2 GiB (0x7F00_0000) */
+		/* Bank 1: start = 0x0000_0200_0000_0000, size = 2 GiB  (0x8000_0000) */
+		reg = <
+			0x00000000  0x80000000  0x00000000  0x7F000000
+			0x00000200  0x00000000  0x00000000  0x80000000
+		>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 IRQ_TYPE_LEVEL_LOW>,
+			<GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
+			<GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
+			<GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>,
+			<GIC_PPI 12 IRQ_TYPE_LEVEL_LOW>;
+	};
+
+	soc_clk24mhz: clk24mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+		clock-output-names = "refclk24mhz";
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		timer@1a810000 {
+			compatible = "arm,armv7-timer-mem";
+			reg = <0x0 0x1a810000 0 0x10000>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			clock-frequency = <125000000>;
+			ranges;
+
+			frame@1a830000 {
+				frame-number = <1>;
+				interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
+				reg = <0x0 0x1a830000 0x0 0x10000>;
+			};
+		};
+
+		gic: interrupt-controller@20000000 {
+			compatible = "arm,gic-v3";
+			reg = <0x0 0x20000000 0x0 0x10000>,    /* GICD */
+			      <0x0 0x200c0000 0x0 0x400000>;   /* 16 * GICR */
+			#interrupt-cells = <3>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+			interrupt-controller;
+			interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+
+			its1: msi-controller@20040000 {
+				compatible = "arm,gic-v3-its";
+				reg = <0x0 0x20040000 0x0 0x40000>;
+				msi-controller;
+				#msi-cells = <1>;
+			};
+			its2: msi-controller@20080000 {
+				compatible = "arm,gic-v3-its";
+				reg = <0x0 0x20080000 0x0 0x40000>;
+				msi-controller;
+				#msi-cells = <1>;
+			};
+		};
+
+		/* UART is fixed as 24MHz, both UARTCLK and PCLK */
+		soc_serial0: serial@1a400000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0x0 0x1a400000 0x0 0x10000>;
+			interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&soc_clk24mhz>, <&soc_clk24mhz>;
+			clock-names = "uartclk", "apb_pclk";
+		};
+
+		watchdog@1a420000 {
+			compatible = "arm,sbsa-gwdt";
+			reg = <0x0 0x1a420000 0x0 0x10000>,
+			      <0x0 0x1a430000 0x0 0x10000>;
+			interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		rtc@300d0000 {
+			compatible = "arm,pl031", "arm,primecell";
+			reg = <0x0 0x300d0000 0x0 0x10000>;
+			interrupts = <GIC_SPI 268 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&soc_clk24mhz>;
+			clock-names = "apb_pclk";
+		};
+
+		virtio-net@30060000 {
+			compatible = "virtio,mmio";
+			reg = <0x0 0x30060000 0x0 0x10000>;
+			interrupts = <GIC_SPI 261 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		/* OS storage */
+		virtio-block@30020000 {
+			compatible = "virtio,mmio";
+			reg = <0x0 0x30020000 0x0 0x10000>;
+			interrupts = <GIC_SPI 257 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		/* Distro installation media */
+		virtio-block@30030000 {
+			compatible = "virtio,mmio";
+			reg = <0x0 0x30030000 0x0 0x10000>;
+			interrupts = <GIC_SPI 258 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		/* SystemReady ACS validation media */
+		virtio-block@30040000 {
+			compatible = "virtio,mmio";
+			reg = <0x0 0x30040000 0x0 0x10000>;
+			interrupts = <GIC_SPI 259 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		/* User data media */
+		virtio-block@30050000 {
+			compatible = "virtio,mmio";
+			reg = <0x0 0x30050000 0x0 0x10000>;
+			interrupts = <GIC_SPI 260 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		virtio-rng@30080000 {
+			compatible = "virtio,mmio";
+			reg = <0x0 0x30080000 0x0 0x10000>;
+			interrupts = <GIC_SPI 263 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+	};
+
+	psci {
+		compatible = "arm,psci-1.0", "arm,psci-0.2", "arm,psci";
+		method = "smc";
+		cpu_suspend = <0xc4000001>;
+		cpu_off = <0x84000002>;
+		cpu_on = <0xc4000003>;
+	};
+
+};
