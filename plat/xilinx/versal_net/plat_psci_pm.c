@@ -103,6 +103,18 @@ exit_label:
 	return;
 }
 
+static int32_t versal_net_validate_ns_entrypoint(uint64_t ns_entrypoint)
+{
+	int32_t ret = PSCI_E_SUCCESS;
+
+	if (((ns_entrypoint >= PLAT_DDR_LOWMEM_MAX) && (ns_entrypoint <= PLAT_DDR_HIGHMEM_MAX)) ||
+		((ns_entrypoint >= BL31_BASE) && (ns_entrypoint <= BL31_LIMIT))) {
+		ret = PSCI_E_INVALID_ADDRESS;
+	}
+
+	return ret;
+}
+
 /**
  * versal_net_system_reset() - This function sends the reset request to firmware
  *                             for the system to reset. This function does not
@@ -303,6 +315,7 @@ static const struct plat_psci_ops versal_net_nopmc_psci_ops = {
 	.pwr_domain_suspend_finish      = versal_net_pwr_domain_suspend_finish,
 	.system_off                     = versal_net_system_off,
 	.system_reset                   = versal_net_system_reset,
+	.validate_ns_entrypoint		= versal_net_validate_ns_entrypoint,
 	.validate_power_state           = versal_net_validate_power_state,
 	.get_sys_suspend_power_state    = versal_net_get_sys_suspend_power_state,
 };
