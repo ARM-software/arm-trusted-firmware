@@ -194,6 +194,18 @@ static void __dead2 versal_system_reset(void)
 	}
 }
 
+static int32_t versal_validate_ns_entrypoint(uint64_t ns_entrypoint)
+{
+	int32_t ret = PSCI_E_SUCCESS;
+
+	if (((ns_entrypoint >= PLAT_DDR_LOWMEM_MAX) && (ns_entrypoint <= PLAT_DDR_HIGHMEM_MAX)) ||
+		((ns_entrypoint >= BL31_BASE) && (ns_entrypoint <= BL31_LIMIT))) {
+		ret = PSCI_E_INVALID_ADDRESS;
+	}
+
+	return ret;
+}
+
 /**
  * versal_pwr_domain_off() - This function performs actions to turn off core.
  * @target_state: Targated state.
@@ -291,6 +303,7 @@ static const struct plat_psci_ops versal_nopmc_psci_ops = {
 	.pwr_domain_suspend_finish	= versal_pwr_domain_suspend_finish,
 	.system_off			= versal_system_off,
 	.system_reset			= versal_system_reset,
+	.validate_ns_entrypoint		= versal_validate_ns_entrypoint,
 	.validate_power_state		= versal_validate_power_state,
 	.get_sys_suspend_power_state	= versal_get_sys_suspend_power_state,
 };
