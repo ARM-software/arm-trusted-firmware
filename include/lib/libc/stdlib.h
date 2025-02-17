@@ -30,5 +30,5 @@ unsigned long strtoul(const char *nptr, char **endptr, int base);
 long long strtoll(const char *nptr, char **endptr, int base);
 unsigned long long strtoull(const char *nptr, char **endptr, int base);
 void qsort(void *, size_t, size_t,
-           int (* _Nonnull)(const void *, const void *));
+           int (*)(const void *, const void *));
 #endif /* STDLIB_H */
