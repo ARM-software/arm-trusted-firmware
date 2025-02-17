@@ -17,7 +17,6 @@ override CSS_LOAD_SCP_IMAGES		:=	0
 override CTX_INCLUDE_AARCH32_REGS	:=	0
 override NEED_BL1			:=	0
 override NEED_BL2U			:=	0
-override NEED_BL31			:=	0
 override PSCI_EXTENDED_STATE_ID		:=	1
 
 # SVE related flags
@@ -34,9 +33,13 @@ ENABLE_FEAT_ECV				:=	1
 ENABLE_FEAT_FGT				:=	1
 ENABLE_FEAT_MTE2			:=	1
 ENABLE_MPAM_FOR_LOWER_ELS		:=	1
+GIC_ENABLE_V4_EXTN			:=	1
+GICV3_SUPPORT_GIC600			:=	1
 HW_ASSISTED_COHERENCY			:=	1
+PLAT_MHU_VERSION			:=	3
 RESET_TO_BL2				:=	1
 SVE_VECTOR_LEN				:=	128
+USE_GIC_DRIVER				:=	3
 USE_COHERENT_MEM			:=	0
 
 # ERRATA
@@ -50,6 +53,13 @@ BL2_SOURCES	+=	${RDASPEN_CPU_SOURCES}	\
 			${RDASPEN_BASE}/rdaspen_bl2_mem_params_desc.c	\
 			lib/utils/mem_region.c	\
 			drivers/arm/sbsa/sbsa.c	\
+			plat/arm/common/arm_nor_psci_mem_protect.c
+
+BL31_SOURCES	+=	${RDASPEN_CPU_SOURCES}	\
+			${RDASPEN_BASE}/rdaspen_bl31_setup.c	\
+			${RDASPEN_BASE}/rdaspen_topology.c	\
+			drivers/cfi/v2m/v2m_flash.c		\
+			lib/utils/mem_region.c	\
 			plat/arm/common/arm_nor_psci_mem_protect.c
 
 # Add the FDT_SOURCES and options for Dynamic Config

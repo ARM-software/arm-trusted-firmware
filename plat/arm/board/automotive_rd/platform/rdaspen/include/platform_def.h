@@ -103,7 +103,11 @@
 #define MAX_IO_DEVICES				U(3)
 #define MAX_IO_HANDLES				U(4)
 
+#if IMAGE_BL2
 #define PLAT_ARM_MMAP_ENTRIES			U(8)
+#elif IMAGE_BL31
+#define PLAT_ARM_MMAP_ENTRIES			U(7)
+#endif
 #define MAX_XLAT_TABLES				U(8)
 
 #define PLAT_FW_CONFIG_MAX_SIZE			(ARM_FW_CONFIG_LIMIT - \
