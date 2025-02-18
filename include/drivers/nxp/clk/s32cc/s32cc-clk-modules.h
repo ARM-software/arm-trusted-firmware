@@ -19,6 +19,7 @@ enum s32cc_clkm_type {
 	s32cc_pll_out_div_t,
 	s32cc_dfs_t,
 	s32cc_dfs_div_t,
+	s32cc_cgm_div_t,
 	s32cc_clkmux_t,
 	s32cc_shared_clkmux_t,
 	s32cc_fixed_div_t,
@@ -37,6 +38,7 @@ enum s32cc_clk_source {
 	S32CC_CGM0,
 	S32CC_CGM1,
 	S32CC_DDR_PLL,
+	S32CC_PERIPH_DFS,
 	S32CC_CGM5,
 };
 
@@ -287,6 +289,22 @@ struct s32cc_part_block_link {
 	.block = (BLOCK),                        \
 }
 
+struct s32cc_cgm_div {
+	struct s32cc_clk_obj desc;
+	struct s32cc_clk_obj *parent;
+	unsigned long freq;
+	uint32_t index;
+};
+
+#define S32CC_CGM_DIV_INIT(PARENT, INDEX) \
+{                                         \
+	.desc = {                         \
+		.type = s32cc_cgm_div_t,  \
+	},                                \
+	.parent = &(PARENT).desc,         \
+	.index = (INDEX),                 \
+}
+
 static inline struct s32cc_osc *s32cc_obj2osc(const struct s32cc_clk_obj *mod)
 {
 	uintptr_t osc_addr;
@@ -397,6 +415,14 @@ s32cc_obj2partblocklink(const struct s32cc_clk_obj *mod)
 
 	blk_link = ((uintptr_t)mod) - offsetof(struct s32cc_part_block_link, desc);
 	return (struct s32cc_part_block_link *)blk_link;
+}
+
+static inline struct s32cc_cgm_div *s32cc_obj2cgmdiv(const struct s32cc_clk_obj *mod)
+{
+	uintptr_t cgm_div_addr;
+
+	cgm_div_addr = ((uintptr_t)mod) - offsetof(struct s32cc_cgm_div, desc);
+	return (struct s32cc_cgm_div *)cgm_div_addr;
 }
 
 #endif /* S32CC_CLK_MODULES_H */

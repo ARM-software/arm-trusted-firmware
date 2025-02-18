@@ -68,6 +68,12 @@ static struct s32cc_clkmux cgm0_mux8 =
 				 S32CC_CLK_FXOSC, 0, 0);
 static struct s32cc_clk cgm0_mux8_clk = S32CC_MODULE_CLK(cgm0_mux8);
 
+static struct s32cc_clkmux cgm0_mux14 =
+	S32CC_CLKMUX_INIT(S32CC_CGM0, 14, 2,
+			  S32CC_CLK_FIRC,
+			  S32CC_CLK_PERIPH_PLL_DFS3, 0, 0, 0);
+static struct s32cc_clk cgm0_mux14_clk = S32CC_MODULE_CLK(cgm0_mux14);
+
 /* XBAR */
 static struct s32cc_clk xbar_2x_clk =
 	S32CC_CHILD_CLK(cgm0_mux0_clk, 48 * MHZ, 800 * MHZ);
@@ -142,6 +148,14 @@ static struct s32cc_pll_out_div periph_pll_phi3_div =
 static struct s32cc_clk periph_pll_phi3_clk =
 	S32CC_FREQ_MODULE_CLK(periph_pll_phi3_div, 0, 133333333);
 
+/* PERIPH DFS */
+static struct s32cc_dfs periphdfs =
+	S32CC_DFS_INIT(periphpll, S32CC_PERIPH_DFS);
+static struct s32cc_dfs_div periph_dfs3_div =
+	S32CC_DFS_DIV_INIT(periphdfs, 0);
+static struct s32cc_clk periph_dfs3_clk =
+	S32CC_FREQ_MODULE_CLK(periph_dfs3_div, 416 * MHZ, 800 * MHZ);
+
 /* DDR PLL */
 static struct s32cc_clkmux ddr_pll_mux =
 	S32CC_CLKMUX_INIT(S32CC_DDR_PLL, 0, 2,
@@ -175,6 +189,15 @@ static struct s32cc_part_block_link ddr_block_link =
 static struct s32cc_clk ddr_clk =
 	S32CC_FREQ_MODULE_CLK(ddr_block_link, 0, 800 * MHZ);
 
+/* SDHC_CLK */
+static struct s32cc_part_block part0_block0 =
+	S32CC_PART_BLOCK(&part0, s32cc_part_block0);
+static struct s32cc_cgm_div sdhc_div = S32CC_CGM_DIV_INIT(cgm0_mux14_clk, 0);
+static struct s32cc_part_block_link usdhc_block_link =
+	S32CC_PART_BLOCK_LINK(sdhc_div, &part0_block0);
+static struct s32cc_clk usdhc_clk =
+	S32CC_FREQ_MODULE_CLK(usdhc_block_link, 0, 400 * MHZ);
+
 static struct s32cc_clk *s32cc_hw_clk_list[37] = {
 	/* Oscillators */
 	[S32CC_CLK_ID(S32CC_CLK_FIRC)] = &firc_clk,
@@ -186,6 +209,8 @@ static struct s32cc_clk *s32cc_hw_clk_list[37] = {
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_DFS1)] = &arm_dfs1_clk,
 	/* PERIPH PLL */
 	[S32CC_CLK_ID(S32CC_CLK_PERIPH_PLL_PHI3)] = &periph_pll_phi3_clk,
+	/* PERIPH DFS */
+	[S32CC_CLK_ID(S32CC_CLK_PERIPH_PLL_DFS3)] = &periph_dfs3_clk,
 	/* DDR PLL */
 	[S32CC_CLK_ID(S32CC_CLK_DDR_PLL_PHI0)] = &ddr_pll_phi0_clk,
 };
@@ -196,7 +221,7 @@ static struct s32cc_clk_array s32cc_hw_clocks = {
 	.n_clks = ARRAY_SIZE(s32cc_hw_clk_list),
 };
 
-static struct s32cc_clk *s32cc_arch_clk_list[22] = {
+static struct s32cc_clk *s32cc_arch_clk_list[24] = {
 	/* ARM PLL */
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_MUX)] = &arm_pll_mux_clk,
 	[S32CC_CLK_ID(S32CC_CLK_ARM_PLL_VCO)] = &arm_pll_vco_clk,
@@ -206,6 +231,7 @@ static struct s32cc_clk *s32cc_arch_clk_list[22] = {
 	/* MC_CGM0 */
 	[S32CC_CLK_ID(S32CC_CLK_MC_CGM0_MUX0)] = &cgm0_mux0_clk,
 	[S32CC_CLK_ID(S32CC_CLK_MC_CGM0_MUX8)] = &cgm0_mux8_clk,
+	[S32CC_CLK_ID(S32CC_CLK_MC_CGM0_MUX14)] = &cgm0_mux14_clk,
 	/* XBAR */
 	[S32CC_CLK_ID(S32CC_CLK_XBAR_2X)] = &xbar_2x_clk,
 	[S32CC_CLK_ID(S32CC_CLK_XBAR)] = &xbar_clk,
@@ -229,6 +255,8 @@ static struct s32cc_clk *s32cc_arch_clk_list[22] = {
 	[S32CC_CLK_ID(S32CC_CLK_MC_CGM5_MUX0)] = &cgm5_mux0_clk,
 	/* DDR */
 	[S32CC_CLK_ID(S32CC_CLK_DDR)] = &ddr_clk,
+	/* USDHC */
+	[S32CC_CLK_ID(S32CC_CLK_USDHC)] = &usdhc_clk,
 };
 
 static struct s32cc_clk_array s32cc_arch_clocks = {
