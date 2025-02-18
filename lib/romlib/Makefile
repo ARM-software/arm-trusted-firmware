@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -23,7 +23,14 @@ PROCESSED_JMPTBL = ../../$(PLAT_DIR)/jmptbl.i
 # Determine if mbedtls is needed
 ifneq ($(filter $(CRYPTO_SUPPORT),1 2 3),)
     PROCESSED_JMPTBL = $(BUILD_DIR)/jmptbl_processed.i
-    $(shell mkdir -p $(BUILD_DIR) && cat ../../$(PLAT_DIR)/jmptbl.i ../../$(PLAT_DIR)/jmptbl_mbedtls.i > $(BUILD_DIR)/jmptbl_processed.i)
+    CRYPTO_JMPTBL = ../../$(PLAT_DIR)/jmptbl.i ../../$(PLAT_DIR)/jmptbl_mbedtls.i
+
+    ifeq (${PSA_CRYPTO},1)
+        CRYPTO_JMPTBL += ../../$(PLAT_DIR)/jmptbl_mbedtls_psa.i
+    endif # ifeq (${PSA_CRYPTO},1)
+
+    $(shell mkdir -p $(BUILD_DIR) && cat $(CRYPTO_JMPTBL) > $(PROCESSED_JMPTBL))
+
     LIBS += $(LIB_DIR)/libmbedtls.a
 endif
 
