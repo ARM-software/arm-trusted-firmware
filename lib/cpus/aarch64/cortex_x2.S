@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,12 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex X2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+.global check_erratum_cortex_x2_3701772
+
+add_erratum_entry cortex_x2, ERRATUM(3701772), ERRATA_X2_3701772, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_x2, ERRATUM(3701772), CPU_REV(2, 1)
 
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X2_BHB_LOOP_COUNT, cortex_x2

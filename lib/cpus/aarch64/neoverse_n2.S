@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,12 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Neoverse-N2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+.global check_erratum_neoverse_n2_3701773
+
+add_erratum_entry neoverse_n2, ERRATUM(3701773), ERRATA_N2_3701773, NO_APPLY_AT_RESET
+
+check_erratum_ls neoverse_n2, ERRATUM(3701773), CPU_REV(0, 3)
 
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_N2_BHB_LOOP_COUNT, neoverse_n2

@@ -578,6 +578,12 @@ For Neoverse V2, the following errata build flags are defined :
    CPU, this affects all configurations. This needs to be enabled for revisions
    r0p0 and r0p1. It has been fixed in r0p2.
 
+For Neoverse V3, the following errata build flags are defined :
+
+- ``ERRATA_V3_3701767``: This applies errata 3701767 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2 of the CPU and
+  is still open.
+
 For Cortex-A710, the following errata build flags are defined :
 
 -  ``ERRATA_A710_1987031``: This applies errata 1987031 workaround to
@@ -653,6 +659,10 @@ For Cortex-A710, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and r2p1 of the
    CPU and is still open.
 
+- ``ERRATA_A710_3701772``: This applies errata 3701772 workaround to Cortex-A710
+  CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0, r2p1 of the
+  CPU and is still open.
+
 For Neoverse N2, the following errata build flags are defined :
 
 -  ``ERRATA_N2_2002655``: This applies errata 2002655 workaround to Neoverse-N2
@@ -724,6 +734,10 @@ For Neoverse N2, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r0p1 and r0p2. It is fixed
    in r0p3.
 
+-  ``ERRATA_N2_3701773``: This applies errata 3701773 workaround to Neoverse-N2
+   CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2, r0p3 and is
+   still open.
+
 For Cortex-X2, the following errata build flags are defined :
 
 -  ``ERRATA_X2_2002765``: This applies errata 2002765 workaround to Cortex-X2
@@ -778,6 +792,10 @@ For Cortex-X2, the following errata build flags are defined :
    CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and r2p1 of the
    CPU and it is still open.
 
+-  ``ERRATA_X2_3701772``: This applies errata 3701772 workaround to Cortex-X2
+   CPU. This needs to be enabled for revisions r0p0, r1p0, r2p0 and r2p1 of the
+   CPU and it is still open.
+
 For Cortex-X3, the following errata build flags are defined :
 
 - ``ERRATA_X3_2070301``: This applies errata 2070301 workaround to the Cortex-X3
@@ -821,6 +839,10 @@ For Cortex-X3, the following errata build flags are defined :
   CPU. This needs to be enabled only for revisions r0p0, r1p0 and r1p1 of the
   CPU. It is fixed in r1p2.
 
+- ``ERRATA_X3_3701769``: This applies errata 3701769 workaround to Cortex-X3
+  CPU. This needs to be enabled only for revisions r0p0, r1p0, r1p1 and r1p2
+  of the CPU and it is still open.
+
 For Cortex-X4, the following errata build flags are defined :
 
 - ``ERRATA_X4_2701112``: This applies erratum 2701112 workaround to Cortex-X4
@@ -853,6 +875,10 @@ For Cortex-X4, the following errata build flags are defined :
 
 - ``ERRATA_X4_3076789``: This applies errata 3076789 workaround to Cortex-X4
   CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
+
+- ``ERRATA_X4_3701758``: This applies errata 3701758 workaround to Cortex-X4
+  CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2 and r0p3.
+  It is still open.
 
 For Cortex-A510, the following errata build flags are defined :
 
@@ -952,6 +978,10 @@ For Cortex-A715, the following errata build flags are defined :
    Cortex-A715 CPU. This needs to be enabled for revisions r0p0, r1p0
    and r1p1. It is fixed in r1p2.
 
+-  ``ERRATA_A715_3699560``: This applies errata 3699560 workaround to
+   Cortex-A715 CPU. This needs to be enabled for revisions r0p0, r1p0,
+   r1p2, r1p3. It is still open.
+
 For Cortex-A720, the following errata build flags are defined :
 
 -  ``ERRATA_A720_2792132``: This applies errata 2792132 workaround to
@@ -969,6 +999,10 @@ For Cortex-A720, the following errata build flags are defined :
 -  ``ERRATA_A720_2940794``: This applies errata 2940794 workaround to
    Cortex-A720 CPU. This needs to be enabled for revisions r0p0 and r0p1.
    It is fixed in r0p2.
+
+-  ``ERRATA_A720_3699561``: This applies errata 3699561 workaround to
+   Cortex-A720 CPU. This needs to be enabled for revisions r0p0, r0p1
+   and r0p2. It is still open.
 
 DSU Errata Workarounds
 ----------------------
