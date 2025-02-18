@@ -367,6 +367,58 @@ static void fdt32_to_cpu_array(uint32_t *prop, int prop_length)
 	}
 }
 
+static void lpm_restore_ddr(lpddr4_privatedata *pd, lpddr4_obj *driverdt)
+{
+	uint32_t regval;
+
+	/* disable auto-entry / -exit */
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, (0x0000029C / 4), &regval);
+	regval = (regval & (0xF0F0FFFF));
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, (0x0000029C / 4), regval);
+
+	/* Set the phy_set_dfi_input_Z parameter bit corresponding to the reset signal to 1'b1. Program the controller to a state */
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, (0x00005468 / 4), &regval);
+	regval = (regval | (0x1));
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, (0x00005468 / 4), regval);
+
+	/* Configure the DDR controller (and not the PI) to issue a PWRUP SREFRESH EXIT */
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, (0x000001A8 / 4), &regval);
+	regval = (regval | (0x1));
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, (0x000001A8 / 4), regval);
+
+	/* PI_PWRUP_SREFRESH_EXIT = 0 */
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, (0x00002218 / 4), &regval);
+	regval = (regval & 0x0);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, (0x00002218 / 4), regval);
+
+	/*  PI_DRAM_INIT_EN = 0 */
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, (0x00002228 / 4), &regval);
+	regval = (regval & (0xFFFFFEFF));
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, (0x00002228 / 4), regval);
+
+	/* PI_DFI_PHYMSTR_STATE_SEL_R = 1 */
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, (0x00002018 / 4), &regval);
+	regval = (regval | (0x1 << 8));
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, (0x00002018 / 4), regval);
+
+	/* PHY_INDEP_INIT_MODE = 0 */
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, (0x00000054 / 4), &regval);
+	regval = (regval & (0xFFFFFEFF));
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, (0x00000054 / 4), regval);
+
+	/* PHY_INDEP_TRAIN_MODE = 1 */
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, (0x00000050 / 4), &regval);
+	regval = (regval | (0x1 << 24));
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, (0x00000050 / 4), regval);
+
+	/* De-assert the data_retention signal */
+	mmio_write_32((WKUP_CTRL_MMR_SEC_4_BASE + DDR32SS_PMCTRL), 0x0);
+	mmio_write_32((WKUP_CTRL_MMR_SEC_4_BASE + DDR32SS_PMCTRL), (0x1U << 31));
+	while ((mmio_read_32((WKUP_CTRL_MMR_SEC_4_BASE + DDR32SS_PMCTRL)) & 0x80000000) ==  0x0) {
+	}
+	mmio_write_32((WKUP_CTRL_MMR_SEC_4_BASE + DDR32SS_PMCTRL), 0x0);
+}
+
 /*************************************************************************
  * Function to change DDRSS PLL clock. It is called by the lpddr4 driver
  * during training
@@ -390,6 +442,7 @@ int k3_lpddr4_init(void)
 	uint32_t sdram_idx;
 	uint32_t v2a_ctl_reg;
 	int ret;
+	bool restore;
 
 	NOTICE("lpdd4_init <-- \n");
 	node = fdt_node_offset_by_compatible(dtb, -1, "ti,am62l-ddrss");
@@ -520,6 +573,14 @@ set_ddr_pll:
 	INFO("start-status reg: before =0x%x \n", regval);
 	if ((regval & TH_FLD_MASK(LPDDR4__START__FLD)) != 0)
 		INFO("LPDDR4 prestart failed \n");
+
+	restore = (mmio_read_32((WKUP_CTRL_MMR_SEC_5_BASE + CANUART_WAKE_OFF_MODE_STAT)) == RTC_ONLY_PLUS_DDR_MAGIC_WORD);
+	if (restore) {
+		INFO("Exiting RTC only + DDR");
+		lpm_restore_ddr(pd, driverdt);
+	} else {
+		INFO("Doing normal DDR init");
+	}
 
 	INFO("lpddr4: Start DDR controller \n");
 	status = driverdt->start(pd);

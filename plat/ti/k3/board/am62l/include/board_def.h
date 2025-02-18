@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Texas Instruments Incorporated - https://www.ti.com
+ * Copyright (C) 2024-2025 Texas Instruments Incorporated - https://www.ti.com
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,5 +25,8 @@
 
 #define TIFS_MESSAGE_RESP_START_REGION		(0x70814000)
 #define TIFS_MESSAGE_RESP_END_REGION		(0x7081513F)
+
+#define WKUP_CTRL_MMR_SEC_4_BASE	        (0x43040000UL)
+#define WKUP_CTRL_MMR_SEC_5_BASE	        (0x43050000UL)
 
 #endif /* BOARD_DEF_H */
