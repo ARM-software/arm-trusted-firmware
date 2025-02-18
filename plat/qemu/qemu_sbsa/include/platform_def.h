@@ -150,9 +150,19 @@
  */
 #define BL31_SIZE			0x400000
 #define BL31_BASE			(BL31_LIMIT - BL31_SIZE)
-#define BL31_LIMIT			(BL1_RW_BASE)
+#define BL31_LIMIT			(BL1_RW_BASE - FW_HANDOFF_SIZE)
 #define BL31_PROGBITS_LIMIT		BL1_RW_BASE
 
+#if TRANSFER_LIST
+#define FW_HANDOFF_BASE			BL31_LIMIT
+#define FW_HANDOFF_LIMIT		(FW_HANDOFF_BASE + FW_HANDOFF_SIZE)
+#define FW_HANDOFF_SIZE			0x4000
+#else
+#define FW_HANDOFF_SIZE			0
+#endif
+#if TRANSFER_LIST
+#define FW_NS_HANDOFF_BASE		(NS_IMAGE_OFFSET - FW_HANDOFF_SIZE)
+#endif
 
 /*
  * BL3-2 specific defines.
@@ -174,14 +184,14 @@
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 42)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 42)
 #if SPM_MM
+#define MAX_MMAP_REGIONS		13
+#define MAX_XLAT_TABLES			13
+#elif ENABLE_RME
+#define MAX_MMAP_REGIONS		15
+#define MAX_XLAT_TABLES			15
+#else
 #define MAX_MMAP_REGIONS		12
 #define MAX_XLAT_TABLES			12
-#elif ENABLE_RME
-#define MAX_MMAP_REGIONS		14
-#define MAX_XLAT_TABLES			14
-#else
-#define MAX_MMAP_REGIONS		11
-#define MAX_XLAT_TABLES			11
 #endif
 #define MAX_IO_DEVICES			3
 #define MAX_IO_HANDLES			4

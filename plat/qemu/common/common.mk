@@ -153,4 +153,12 @@ ifeq ($(BRANCH_PROTECTION),$(filter $(BRANCH_PROTECTION),1 2 3))
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c
 endif
 
+ifeq (${TRANSFER_LIST}, 1)
+include lib/transfer_list/transfer_list.mk
+endif
+
+ifeq (${HOB_LIST}, 1)
+include lib/hob/hob.mk
+endif
+
 endif
