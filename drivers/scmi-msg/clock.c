@@ -280,7 +280,7 @@ static void scmi_clock_parent_get(struct scmi_msg *msg)
 		.status = SCMI_SUCCESS,
 	};
 	unsigned int clock_id = 0U;
-	unsigned int parent_id = 0U;
+	int32_t ret = 0U;
 
 	if (msg->in_size != sizeof(*in_args)) {
 		scmi_status_response(msg, SCMI_PROTOCOL_ERROR);
@@ -294,14 +294,12 @@ static void scmi_clock_parent_get(struct scmi_msg *msg)
 		return;
 	}
 
-	parent_id = plat_scmi_clock_get_parent(msg->agent_id, clock_id);
+	ret = plat_scmi_clock_get_parent(msg->agent_id, clock_id);
 
-	if (!parent_id)
-		return_values.status = SCMI_NOT_FOUND;
-	else if (parent_id < 0)
-		return_values.status = SCMI_NOT_SUPPORTED;
-
-	return_values.parent_id = (uint32_t)parent_id;
+	if (ret < 0)
+		return_values.status = ret;
+	else
+		return_values.parent_id = (uint32_t)ret;
 
 	scmi_write_response(msg, &return_values, sizeof(return_values));
 }

@@ -11,7 +11,7 @@
 
 #include <lib/utils_def.h>
 
-#define SCMI_PROTOCOL_VERSION_CLOCK	0x20001U
+#define SCMI_PROTOCOL_VERSION_CLOCK	0x30000U
 
 /*
  * Identifiers of the SCMI Clock Management Protocol commands
@@ -106,7 +106,7 @@ struct scmi_clock_config_set_a2p {
 	uint32_t clock_id;
 	uint32_t attributes;
 /*
- * #if SCMI_PROTOCOL_VERSION_CLOCK >= 0x20001U
+ * #if SCMI_PROTOCOL_VERSION_CLOCK >= 0x30000U
  * 	uint32_t oem_config_val;
  * #endif
  */
