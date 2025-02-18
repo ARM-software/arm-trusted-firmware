@@ -79,6 +79,7 @@ BL1_SOURCES		+=	\
 				${PLAT_PATH}/common/am62l_topology.c	\
 				drivers/io/io_storage.c \
 				${K3_LPDDR4_SOURCES}			\
+				${K3_TI_SCI_SOURCES}		\
 
 
 BL32_BASE ?= 0x80200000

@@ -853,6 +853,25 @@ struct tisci_msg_boot_notification_msg {
 	uint32_t extboot_status;
 } __packed;
 
+/**
+ * @brief Request for minimal context restore message (type 0x0308)
+ *
+ * This message is sent from bootloader to TIFS during RTC + DDR resume to
+ * indicate that DDR is active and ready. TIFS will restore its minimal
+ * context from the address provided in ctx_lo/ctx_hi. This assumes DDR
+ * has been fully restored from self-refresh by the bootloader before
+ * this message is sent.
+ *
+ * @hdr: TISCI header to provide ACK/NAK flags to the host
+ * @ctx_lo: Low 32-bits of physical address for TIFS context restore
+ * @ctx_hi: High 32-bits of physical address for TIFS context restore
+ */
+struct tisci_msg_min_context_restore_req {
+	struct ti_sci_msg_hdr	hdr;
+	uint32_t			ctx_lo;
+	uint32_t			ctx_hi;
+} __packed;
+
 /* FWL_MAX_PRIVID_SLOTS must be defined with same value in ti_sci.h */
 #define FWL_MAX_PRIVID_SLOTS			3U
 

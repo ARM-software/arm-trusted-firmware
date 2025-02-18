@@ -19,6 +19,8 @@
 #include <k3_console.h>
 #include <plat_private.h>
 #include <ti_sci_transport.h>
+#include <ti_sci_protocol.h>
+#include <ti_sci.h>
 #include <cps_drv_lpddr4.h>
 #include <board_config.h>
 
@@ -29,6 +31,8 @@
 #define BL1_DONE_MSG_ID (0x810A)
 #define BL1_HANDOFF_MAGIC_NUM (0x11112222)
 #define BL1_MSG_SIZE_FLAG (0x0c000000)
+#define WKUP_CANUART_WAKE_OFF_MODE_STAT (0x43051318U)
+#define RTC_ONLY_PLUS_DDR_MAGIC_WORD (0x6D555555U)
 
 #define DEVSTAT_PRIMARY_BOOTMODE_MASK GENMASK(6, 3)
 #define DEVSTAT_PRIMARY_BOOTMODE_SHIFT (3)
@@ -72,6 +76,20 @@ struct {
 		char  filename[32];
 	} imagelocator;
 } __packed a53_rom_msg_obj;
+
+/**
+ * @brief Message structure for TIFS minimal context restore
+ *
+ * Used during RTC + DDR resume to notify TIFS that DDR is active and
+ * ready for minimal context restoration. Sent from BL1 to TIFS after
+ * DDR has been restored from self-refresh mode.
+ *
+ * @secure_hdr: TI-SCI secure message header for authentication
+ * @req: Context restore request containing DDR address for context data
+ */
+struct {
+	struct tisci_msg_min_context_restore_req req;
+} __packed a53_tifs_msg_obj;
 
 meminfo_t *bl1_plat_sec_mem_layout(void)
 {
@@ -129,6 +147,7 @@ static void __dead2 k3_bl1_handoff(void)
 	struct ti_sci_msg msg;
 	volatile uint32_t devstat;
 	uint32_t boot_mode;
+	bool is_rtc_only_ddr_exit;
 
 	/* Workaround for errata i2462, soft reset the flash */
 	if (mmio_read_32(WKUP_BOOT_MODE) == WKUP_BOOT_MODE_XSPI_MODE) {
@@ -141,38 +160,59 @@ static void __dead2 k3_bl1_handoff(void)
 		udelay(200);
 	}
 
-	a53_rom_msg_obj.cmdid = BL1_DONE_MSG_ID;
-	a53_rom_msg_obj.hostid = 0;
-	a53_rom_msg_obj.seqnum = 0;
-	a53_rom_msg_obj.sizeandflags = BL1_MSG_SIZE_FLAG;
-	a53_rom_msg_obj.magicnum = BL1_HANDOFF_MAGIC_NUM;
-	a53_rom_msg_obj.rsvd = 0x0;
-	a53_rom_msg_obj.imagelocator.imageoffset[0] = 0x0;
-	a53_rom_msg_obj.imagelocator.imageoffset[1] = 0x0;
-	a53_rom_msg_obj.imagelocator.imageoffset[2] = 0x0;
-	a53_rom_msg_obj.imagelocator.imageoffset[3] = 0x0;
+	is_rtc_only_ddr_exit =
+		((mmio_read_32(WKUP_CANUART_WAKE_OFF_MODE_STAT)) ==
+		 RTC_ONLY_PLUS_DDR_MAGIC_WORD);
+	if (is_rtc_only_ddr_exit) {
 
-	devstat = mmio_read_32(WKUP_BOOT_MODE);
-	boot_mode = (devstat & DEVSTAT_PRIMARY_BOOTMODE_MASK) >>
-			DEVSTAT_PRIMARY_BOOTMODE_SHIFT;
+		a53_tifs_msg_obj.req.hdr.host = 0xA;
+		a53_tifs_msg_obj.req.hdr.seq = 0x12;
+		a53_tifs_msg_obj.req.hdr.type = 0x0308;
+		a53_tifs_msg_obj.req.ctx_lo = 0x80A00000U;
+		a53_tifs_msg_obj.req.ctx_hi = 0x00000000U;
 
-	switch (boot_mode) {
-	case BOOT_DEVICE_MMC:
-		memset(a53_rom_msg_obj.imagelocator.filename, 0, sizeof(a53_rom_msg_obj.imagelocator.filename));
-		snprintf(a53_rom_msg_obj.imagelocator.filename, sizeof(a53_rom_msg_obj.imagelocator.filename), "%s%s", "\\", "tispl.bin");
-		break;
-	default:
-		a53_rom_msg_obj.imagelocator.imageoffset[0] = K3_SPL_IMG_OFFSET;
-		break;
+		ti_sci_boot_notification();
+
+		msg.buf = (uint8_t *)&a53_tifs_msg_obj;
+		msg.len = sizeof(a53_tifs_msg_obj);
+		ti_sci_transport_send(TX_SECURE_TRANSPORT_CHANNEL_ID, &msg);
+		NOTICE("%s sent message to tifs\n", __func__);
+		while (true)
+			asm ("wfi");
+	} else {
+		a53_rom_msg_obj.cmdid = BL1_DONE_MSG_ID;
+		a53_rom_msg_obj.hostid = 0;
+		a53_rom_msg_obj.seqnum = 0;
+		a53_rom_msg_obj.sizeandflags = BL1_MSG_SIZE_FLAG;
+		a53_rom_msg_obj.magicnum = BL1_HANDOFF_MAGIC_NUM;
+		a53_rom_msg_obj.rsvd = 0x0;
+		a53_rom_msg_obj.imagelocator.imageoffset[0] = 0x0;
+		a53_rom_msg_obj.imagelocator.imageoffset[1] = 0x0;
+		a53_rom_msg_obj.imagelocator.imageoffset[2] = 0x0;
+		a53_rom_msg_obj.imagelocator.imageoffset[3] = 0x0;
+
+		devstat = mmio_read_32(WKUP_BOOT_MODE);
+		boot_mode = (devstat & DEVSTAT_PRIMARY_BOOTMODE_MASK) >>
+				DEVSTAT_PRIMARY_BOOTMODE_SHIFT;
+
+		switch (boot_mode) {
+		case BOOT_DEVICE_MMC:
+			memset(a53_rom_msg_obj.imagelocator.filename, 0, sizeof(a53_rom_msg_obj.imagelocator.filename));
+			snprintf(a53_rom_msg_obj.imagelocator.filename, sizeof(a53_rom_msg_obj.imagelocator.filename), "%s%s", "\\", "tispl.bin");
+			break;
+		default:
+			a53_rom_msg_obj.imagelocator.imageoffset[0] = K3_SPL_IMG_OFFSET;
+			break;
+		}
+
+		msg.buf = (uint8_t *)&a53_rom_msg_obj;
+		msg.len = sizeof(a53_rom_msg_obj);
+		ti_sci_transport_send(TX_SECURE_TRANSPORT_CHANNEL_ID, &msg);
+		NOTICE("ENTERING WFI - end of bl1\n");
+		console_flush();
+		while (true)
+			asm ("wfi");
 	}
-
-	msg.buf = (uint8_t *)&a53_rom_msg_obj;
-	msg.len = sizeof(a53_rom_msg_obj);
-	ti_sci_transport_send(TX_SECURE_TRANSPORT_CHANNEL_ID, &msg);
-	NOTICE("ENTERING WFI - end of bl1\n");
-	console_flush();
-	while (true)
-		asm ("wfi");
 }
 
 void bl1_platform_setup(void)
