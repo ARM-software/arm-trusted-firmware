@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,9 +22,22 @@
 #error "Neoverse V3 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+.global check_erratum_neoverse_v3_3701767
+
+add_erratum_entry neoverse_v3, ERRATUM(3701767), ERRATA_V3_3701767, NO_APPLY_AT_RESET
+
+check_erratum_ls neoverse_v3, ERRATUM(3701767), CPU_REV(0, 2)
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V3_BHB_LOOP_COUNT, neoverse_v3
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start neoverse_v3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set NEOVERSE_V3_CPUECTLR_EL1, BIT(46)
+workaround_reset_end neoverse_v3, CVE(2024, 5660)
+
+check_erratum_ls neoverse_v3, CVE(2024, 5660), CPU_REV(0, 1)
 
 workaround_reset_start neoverse_v3, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
@@ -38,6 +51,17 @@ workaround_reset_start neoverse_v3, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end neoverse_v3, CVE(2022,23960)
 
 check_erratum_chosen neoverse_v3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+workaround_reset_start neoverse_v3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+       /* ---------------------------------
+        * Sets BIT41 of CPUACTLR6_EL1 which
+        * disables L1 Data cache prefetcher
+        * ---------------------------------
+        */
+       sysreg_bit_set NEOVERSE_V3_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end neoverse_v3, CVE(2024, 7881)
+
+check_erratum_chosen neoverse_v3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -83,6 +107,10 @@ declare_cpu_ops neoverse_v3, NEOVERSE_V3_VNAE_MIDR, \
 	neoverse_v3_reset_func, \
 	neoverse_v3_core_pwr_dwn
 
-declare_cpu_ops neoverse_v3, NEOVERSE_V3_MIDR, \
+declare_cpu_ops_wa_4 neoverse_v3, NEOVERSE_V3_MIDR, \
 	neoverse_v3_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_neoverse_v3_7881, \
 	neoverse_v3_core_pwr_dwn

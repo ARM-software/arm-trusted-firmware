@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,6 +28,7 @@
 #define CPU_NO_EXTRA1_FUNC		0
 #define CPU_NO_EXTRA2_FUNC		0
 #define CPU_NO_EXTRA3_FUNC		0
+#define CPU_NO_EXTRA4_FUNC		0
 #endif /* __aarch64__ */
 
 
@@ -45,6 +46,7 @@
 #define CPU_EXTRA1_FUNC_SIZE	CPU_WORD_SIZE
 #define CPU_EXTRA2_FUNC_SIZE	CPU_WORD_SIZE
 #define CPU_EXTRA3_FUNC_SIZE	CPU_WORD_SIZE
+#define CPU_EXTRA4_FUNC_SIZE	CPU_WORD_SIZE
 #define CPU_E_HANDLER_FUNC_SIZE CPU_WORD_SIZE
 /* The power down core and cluster is needed only in BL31 and BL32 */
 #if defined(IMAGE_BL31) || defined(IMAGE_BL32)
@@ -89,7 +91,8 @@
 #define CPU_EXTRA1_FUNC		CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
 #define CPU_EXTRA2_FUNC		CPU_EXTRA1_FUNC + CPU_EXTRA1_FUNC_SIZE
 #define CPU_EXTRA3_FUNC		CPU_EXTRA2_FUNC + CPU_EXTRA2_FUNC_SIZE
-#define CPU_E_HANDLER_FUNC	CPU_EXTRA3_FUNC + CPU_EXTRA3_FUNC_SIZE
+#define CPU_EXTRA4_FUNC		CPU_EXTRA3_FUNC + CPU_EXTRA3_FUNC_SIZE
+#define CPU_E_HANDLER_FUNC	CPU_EXTRA4_FUNC + CPU_EXTRA4_FUNC_SIZE
 #define CPU_PWR_DWN_OPS		CPU_E_HANDLER_FUNC + CPU_E_HANDLER_FUNC_SIZE
 #else
 #define CPU_PWR_DWN_OPS		CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
@@ -119,6 +122,7 @@ struct cpu_ops {
 	void (*extra1_func)(void);
 	void (*extra2_func)(void);
 	void (*extra3_func)(void);
+	void (*extra4_func)(void);
 	void (*e_handler_func)(long es);
 #endif /* __aarch64__ */
 #if (defined(IMAGE_BL31) || defined(IMAGE_BL32)) && CPU_MAX_PWR_DWN_OPS

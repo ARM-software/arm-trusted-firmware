@@ -36,7 +36,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		.image_info.image_base = BL31_BASE,
 		.image_info.image_max_size = BL31_LIMIT - BL31_BASE,
 
-		.next_handoff_image_id = BL33_IMAGE_ID,
+		.next_handoff_image_id = BL32_IMAGE_ID,
 	},
 	/* Fill HW_CONFIG related information */
 	{
@@ -44,6 +44,30 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
 			VERSION_2, entry_point_info_t,
 			NON_SECURE | NON_EXECUTABLE),
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+			VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
+	/* Fill BL32 related information */
+	{
+		.image_id = BL32_IMAGE_ID,
+
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+			VERSION_2, entry_point_info_t, SECURE | EXECUTABLE),
+		.ep_info.pc = BL32_BASE,
+
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+			VERSION_2, image_info_t, 0),
+		.image_info.image_base = BL32_BASE,
+		.image_info.image_max_size = BL32_LIMIT - BL32_BASE,
+
+		.next_handoff_image_id = BL33_IMAGE_ID,
+	},
+	/* Fill TOS_FW_CONFIG related information */
+	{
+		.image_id = TOS_FW_CONFIG_ID,
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+			VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
 			VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
 		.next_handoff_image_id = INVALID_IMAGE_ID,

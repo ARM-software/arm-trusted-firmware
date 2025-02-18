@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,9 +22,22 @@
 #error "Cortex-X3 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+.global check_erratum_cortex_x3_3701769
+
+add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_x3, ERRATUM(3701769), CPU_REV(1, 2)
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X3_BHB_LOOP_COUNT, cortex_x3
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X3_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x3, CVE(2024, 5660)
+
+check_erratum_ls cortex_x3, CVE(2024, 5660), CPU_REV(1, 2)
 
 workaround_reset_start cortex_x3, ERRATUM(2070301), ERRATA_X3_2070301
 	sysreg_bitfield_insert CORTEX_X3_CPUECTLR2_EL1, CORTEX_X3_CPUECTLR2_EL1_PF_MODE_CNSRV, \
@@ -104,6 +117,17 @@ workaround_reset_end cortex_x3, CVE(2022, 23960)
 
 check_erratum_chosen cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
+workaround_reset_start cortex_x3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+	/* ---------------------------------
+	 * Sets BIT41 of CPUACTLR6_EL1 which
+	 * disables L1 Data cache prefetcher
+	 * ---------------------------------
+	 */
+	sysreg_bit_set CORTEX_X3_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x3, CVE(2024, 7881)
+
+check_erratum_chosen cortex_x3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+
 cpu_reset_func_start cortex_x3
 	/* Disable speculative loads */
 	msr	SSBS, xzr
@@ -144,6 +168,10 @@ func cortex_x3_cpu_reg_dump
 	ret
 endfunc cortex_x3_cpu_reg_dump
 
-declare_cpu_ops cortex_x3, CORTEX_X3_MIDR, \
+declare_cpu_ops_wa_4 cortex_x3, CORTEX_X3_MIDR, \
 	cortex_x3_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_cortex_x3_7881, \
 	cortex_x3_core_pwr_dwn

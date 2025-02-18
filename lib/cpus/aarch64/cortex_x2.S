@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,9 +22,22 @@
 #error "Cortex X2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+.global check_erratum_cortex_x2_3701772
+
+add_erratum_entry cortex_x2, ERRATUM(3701772), ERRATA_X2_3701772, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_x2, ERRATUM(3701772), CPU_REV(2, 1)
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X2_BHB_LOOP_COUNT, cortex_x2
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x2, CVE(2024, 5660)
+
+check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
 
 workaround_reset_start cortex_x2, ERRATUM(2002765), ERRATA_X2_2002765
 	ldr	x0, =0x6

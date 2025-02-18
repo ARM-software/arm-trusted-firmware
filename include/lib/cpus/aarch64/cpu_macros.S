@@ -63,6 +63,10 @@
 	 *	This is a placeholder for future per CPU operations. Currently,
 	 *	some CPUs use this entry to set a test function to determine if
 	 *	the workaround for CVE-2022-23960 needs to be applied or not.
+	 * _extra4:
+	 *	This is a placeholder for future per CPU operations. Currently,
+	 *	some CPUs use this entry to set a test function to determine if
+	 *	the workaround for CVE-2024-7881 needs to be applied or not.
 	 * _e_handler:
 	 *	This is a placeholder for future per CPU exception handlers.
 	 * _power_down_ops:
@@ -75,7 +79,8 @@
 	 *	used to handle power down at subsequent levels
 	 */
 	.macro declare_cpu_ops_base _name:req, _midr:req, _resetfunc:req, \
-		_extra1:req, _extra2:req, _extra3:req, _e_handler:req, _power_down_ops:vararg
+		_extra1:req, _extra2:req, _extra3:req, _extra4:req, \
+		_e_handler:req, _power_down_ops:vararg
 	.section .cpu_ops, "a"
 	.align 3
 	.type cpu_ops_\_name, %object
@@ -86,6 +91,7 @@
 	.quad \_extra1
 	.quad \_extra2
 	.quad \_extra3
+	.quad \_extra4
 	.quad \_e_handler
 #ifdef IMAGE_BL31
 	/* Insert list of functions */
@@ -148,21 +154,28 @@
 
 	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
 		_power_down_ops:vararg
-		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, 0, 0, 0, \
+		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, 0, 0, 0, 0, \
 			\_power_down_ops
 	.endm
 
 	.macro declare_cpu_ops_eh _name:req, _midr:req, _resetfunc:req, \
 		_e_handler:req, _power_down_ops:vararg
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			0, 0, 0, \_e_handler, \_power_down_ops
+			0, 0, 0, 0, \_e_handler, \_power_down_ops
 	.endm
 
 	.macro declare_cpu_ops_wa _name:req, _midr:req, \
 		_resetfunc:req, _extra1:req, _extra2:req, \
 		_extra3:req, _power_down_ops:vararg
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			\_extra1, \_extra2, \_extra3, 0, \_power_down_ops
+			\_extra1, \_extra2, \_extra3, 0, 0, \_power_down_ops
+	.endm
+
+	.macro declare_cpu_ops_wa_4 _name:req, _midr:req, \
+		_resetfunc:req, _extra1:req, _extra2:req, \
+		_extra3:req, _extra4:req, _power_down_ops:vararg
+		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
+			\_extra1, \_extra2, \_extra3, \_extra4, 0, \_power_down_ops
 	.endm
 
 	/*

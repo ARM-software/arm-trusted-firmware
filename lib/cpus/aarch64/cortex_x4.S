@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,7 @@
 #endif
 
 .global check_erratum_cortex_x4_2726228
+.global check_erratum_cortex_x4_3701758
 
 #if WORKAROUND_CVE_2022_23960
         wa_cve_2022_23960_bhb_vector_table CORTEX_X4_BHB_LOOP_COUNT, cortex_x4
@@ -45,6 +46,13 @@ check_erratum_custom_start cortex_x4, ERRATUM(2726228)
 #endif
 	ret
 check_erratum_custom_end cortex_x4, ERRATUM(2726228)
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x4, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X4_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x4, CVE(2024, 5660)
+
+check_erratum_ls cortex_x4, CVE(2024, 5660), CPU_REV(0, 2)
 
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
@@ -75,6 +83,12 @@ workaround_reset_end cortex_x4, ERRATUM(2897503)
 
 check_erratum_ls cortex_x4, ERRATUM(2897503), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x4, ERRATUM(2923985), ERRATA_X4_2923985
+	sysreg_bit_set CORTEX_X4_CPUACTLR4_EL1, (BIT(11) | BIT(10))
+workaround_reset_end cortex_x4, ERRATUM(2923985)
+
+check_erratum_ls cortex_x4, ERRATUM(2923985), CPU_REV(0, 1)
+
 workaround_reset_start cortex_x4, ERRATUM(3076789), ERRATA_X4_3076789
 	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(14)
 	sysreg_bit_set CORTEX_X4_CPUACTLR3_EL1, BIT(13)
@@ -94,6 +108,21 @@ workaround_reset_start cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end cortex_x4, CVE(2022, 23960)
 
 check_erratum_chosen cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+workaround_reset_start cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+	/* ---------------------------------
+	 * Sets BIT41 of CPUACTLR6_EL1 which
+	 * disables L1 Data cache prefetcher
+	 * ---------------------------------
+	 */
+	sysreg_bit_set CORTEX_X4_CPUACTLR6_EL1, BIT(41)
+workaround_reset_end cortex_x4, CVE(2024, 7881)
+
+check_erratum_chosen cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
+
+add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758, NO_APPLY_AT_RESET
+
+check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
 
 cpu_reset_func_start cortex_x4
 	/* Disable speculative loads */
@@ -136,6 +165,10 @@ func cortex_x4_cpu_reg_dump
 	ret
 endfunc cortex_x4_cpu_reg_dump
 
-declare_cpu_ops cortex_x4, CORTEX_X4_MIDR, \
+declare_cpu_ops_wa_4 cortex_x4, CORTEX_X4_MIDR, \
 	cortex_x4_reset_func, \
+	CPU_NO_EXTRA1_FUNC, \
+	CPU_NO_EXTRA2_FUNC, \
+	CPU_NO_EXTRA3_FUNC, \
+	check_erratum_cortex_x4_7881, \
 	cortex_x4_core_pwr_dwn
