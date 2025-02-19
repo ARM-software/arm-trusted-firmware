@@ -1631,13 +1631,11 @@ void cm_handle_asymmetric_features(void)
 	}
 #endif
 
-#if ERRATA_A520_2938996 || ERRATA_X4_2726228
-	if (check_if_affected_core() == ERRATA_APPLIES) {
+	if (check_if_trbe_disable_affected_core()) {
 		if (is_feat_trbe_supported()) {
 			trbe_disable(ctx);
 		}
 	}
-#endif
 
 #if ENABLE_FEAT_TCR2 == FEAT_STATE_CHECK_ASYMMETRIC
 	el3_state_t *el3_state = get_el3state_ctx(ctx);

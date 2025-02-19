@@ -192,6 +192,10 @@ check_erratum_custom_start cortex_a510, ERRATUM(2313941)
 	ret
 check_erratum_custom_end cortex_a510, ERRATUM(2313941)
 
+.global check_erratum_cortex_a510_2971420
+add_erratum_entry cortex_a510, ERRATUM(2971420), ERRATA_A510_2971420
+check_erratum_range cortex_a510, ERRATUM(2971420), CPU_REV(0, 1), CPU_REV(1, 3)
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
