@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,6 +55,10 @@ int arm_validate_power_state(unsigned int power_state,
 	 */
 	if (psci_get_pstate_id(power_state) != 0U)
 		return PSCI_E_INVALID_PARAMS;
+
+#if PSCI_OS_INIT_MODE
+	req_state->last_at_pwrlvl = psci_get_pstate_pwrlvl(power_state);
+#endif /* __PSCI_OS_INIT_MODE__ */
 
 	return PSCI_E_SUCCESS;
 }
