@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,7 @@
 #define IIDR_MODEL_ARM_GIC_600		U(0x0200043b)
 #define IIDR_MODEL_ARM_GIC_600AE	U(0x0300043b)
 #define IIDR_MODEL_ARM_GIC_700		U(0x0400043b)
+#define IIDR_MODEL_ARM_GIC_720AE	U(0x0700043b)
 
 #define PIDR_COMPONENT_ARM_DIST		U(0x492)
 #define PIDR_COMPONENT_ARM_REDIST	U(0x493)
