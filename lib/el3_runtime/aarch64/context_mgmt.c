@@ -191,6 +191,16 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 	}
 
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
+
+	if (is_feat_fgt2_supported()) {
+		fgt2_enable(ctx);
+	}
+
+	if (is_feat_debugv8p9_supported()) {
+		debugv8p9_extended_bp_wp_enable(ctx);
+	}
+
+
 }
 #endif /* ENABLE_RME */
 
