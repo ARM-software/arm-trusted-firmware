@@ -28,12 +28,19 @@ PL011_GENERIC_UART := 1
 IPI_CRC_CHECK := 0
 GIC_ENABLE_V4_EXTN :=  0
 GICV3_SUPPORT_GIC600 := 1
+TFA_NO_PM := 1
+CPU_PWRDWN_SGI ?= 6
+$(eval $(call add_define_val,CPU_PWR_DOWN_REQ_INTR,ARM_IRQ_SEC_SGI_${CPU_PWRDWN_SGI}))
 
 override CTX_INCLUDE_AARCH32_REGS    := 0
 
 # Platform to support Dynamic XLAT Table by default
 override PLAT_XLAT_TABLES_DYNAMIC := 1
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+
+ifdef TFA_NO_PM
+   $(eval $(call add_define,TFA_NO_PM))
+endif
 
 ifdef MEM_BASE
     $(eval $(call add_define,MEM_BASE))
@@ -129,8 +136,17 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/scmi-msg/reset_domain.c			\
 				${PLAT_PATH}/scmi.c
 
-BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c			\
-				common/fdt_wrappers.c                           \
+ifeq ($(TFA_NO_PM), 0)
+BL31_SOURCES		+=	plat/xilinx/common/pm_service/pm_api_sys.c	\
+				plat/xilinx/common/pm_service/pm_ipi.c		\
+				${PLAT_PATH}/plat_psci_pm.c			\
+				plat/xilinx/common/pm_service/pm_svc_main.c	\
+				${PLAT_PATH}/pm_service/pm_client.c
+else
+BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
+endif
+
+BL31_SOURCES		+=	common/fdt_wrappers.c                           \
 				plat/xilinx/common/plat_console.c               \
 				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/common/ipi.c			\

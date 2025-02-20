@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -132,6 +132,18 @@ enum pm_device_node_idx {
 	XPM_NODEIDX_DEV_TTC_2 = 0x26,
 	XPM_NODEIDX_DEV_TTC_3 = 0x27,
 	XPM_NODEIDX_DEV_SWDT_LPD = 0x28,
+	XPM_NODEIDX_DEV_I2C_2 = 0x117,
+	XPM_NODEIDX_DEV_I2C_3 = 0x118,
+	XPM_NODEIDX_DEV_I2C_4 = 0x119,
+	XPM_NODEIDX_DEV_I2C_5 = 0x11A,
+	XPM_NODEIDX_DEV_I2C_6 = 0x11B,
+	XPM_NODEIDX_DEV_I2C_7 = 0x11C,
+	XPM_NODEIDX_DEV_CAN_FD_2 = 0x11D,
+	XPM_NODEIDX_DEV_CAN_FD_3 = 0x11E,
+	XPM_NODEIDX_DEV_TTC_4 = 0x11F,
+	XPM_NODEIDX_DEV_TTC_5 = 0x120,
+	XPM_NODEIDX_DEV_TTC_6 = 0x121,
+	XPM_NODEIDX_DEV_TTC_7 = 0x122,
 
 	/* FPD Peripheral devices */
 	XPM_NODEIDX_DEV_SWDT_FPD = 0x29,
@@ -237,6 +249,11 @@ enum pm_device_node_idx {
 	XPM_NODEIDX_DEV_FPD_SWDT_2 = 0xDD,
 	XPM_NODEIDX_DEV_FPD_SWDT_3 = 0xDE,
 #endif
+
+#if defined(PLAT_versal2)
+	XPM_NODEIDX_DEV_USB_1 = 0xD7,
+#endif
+
 	XPM_NODEIDX_DEV_MAX,
 };
 

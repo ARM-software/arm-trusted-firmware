@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,7 +45,7 @@ extern uint32_t rtlversion, psversion, pmcversion;
 void board_detection(void);
 const char *board_name_decode(void);
 uint64_t smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
-		       uint64_t x4, void *cookie, void *handle, uint64_t flags);
+		       uint64_t x4, const void *cookie, void *handle, uint64_t flags);
 int32_t sip_svc_setup_init(void);
 /*
  * Register handler to specific GIC entrance

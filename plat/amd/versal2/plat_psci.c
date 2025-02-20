@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -200,7 +200,7 @@ static int32_t no_pm_ioctl(uint32_t device_id, uint32_t ioctl_id,
 }
 
 static uint64_t no_pm_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
-			      uint64_t x4, void *cookie, void *handle, uint64_t flags)
+			      uint64_t x4, const void *cookie, void *handle, uint64_t flags)
 {
 	int32_t ret;
 	uint32_t arg[4], api_id;
@@ -240,7 +240,7 @@ static uint64_t no_pm_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64
 }
 
 uint64_t smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3, uint64_t x4,
-		     void *cookie, void *handle, uint64_t flags)
+		     const void *cookie, void *handle, uint64_t flags)
 {
 	return no_pm_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
 }
