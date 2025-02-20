@@ -28,7 +28,7 @@ PL011_GENERIC_UART := 1
 IPI_CRC_CHECK := 0
 GIC_ENABLE_V4_EXTN :=  0
 GICV3_SUPPORT_GIC600 := 1
-TFA_NO_PM := 1
+TFA_NO_PM := 0
 CPU_PWRDWN_SGI ?= 6
 $(eval $(call add_define_val,CPU_PWR_DOWN_REQ_INTR,ARM_IRQ_SEC_SGI_${CPU_PWRDWN_SGI}))
 
@@ -140,7 +140,7 @@ ifeq ($(TFA_NO_PM), 0)
 BL31_SOURCES		+=	plat/xilinx/common/pm_service/pm_api_sys.c	\
 				plat/xilinx/common/pm_service/pm_ipi.c		\
 				${PLAT_PATH}/plat_psci_pm.c			\
-				plat/xilinx/common/pm_service/pm_svc_main.c	\
+				${PLAT_PATH}/pm_service/pm_svc_main.c	\
 				${PLAT_PATH}/pm_service/pm_client.c
 else
 BL31_SOURCES		+=	${PLAT_PATH}/plat_psci.c
