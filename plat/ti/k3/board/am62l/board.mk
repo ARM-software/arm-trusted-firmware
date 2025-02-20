@@ -10,6 +10,11 @@ K3_TI_SCI_MAILBOX	:=	1
 $(eval $(call add_define,K3_TI_SCI_MAILBOX))
 DDR_16BIT	:=	1
 $(eval $(call add_define,DDR_16BIT))
+TI_AM62L_LPM_TRACE	:=	1
+$(eval $(call add_define,TI_AM62L_LPM_TRACE))
+
+# Add support for platform supplied linker script for BL31 build
+$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
 K3_SPL_IMG_OFFSET	:=	0x80000
 $(eval $(call add_define,K3_SPL_IMG_OFFSET))
@@ -86,6 +91,7 @@ $(eval $(call add_define,K3_HW_CONFIG_BASE))
 include ${PLAT_PATH}/common/drivers/scmi/ti_scmi.mk
 include ${PLAT_PATH}/common/drivers/pm/pm.mk
 include ${PLAT_PATH}/board/am62l/pm/soc_pm.mk
+include ${PLAT_PATH}/board/am62l/lpm/lpm.mk
 
 PLAT_INCLUDES += -Iplat/ti/k3/board/${TARGET_BOARD}/pm			\
 		 -I${PLAT_PATH}/board/am62l/scmi			\

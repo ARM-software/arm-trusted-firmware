@@ -36,9 +36,32 @@
 #define K3_GTC_CFG1_BASE		        (0xA90000UL)
 #define K3_RTC_BASE			        (0x2b1f0000UL)
 
+/*******************************************************************************
+ * Memory layout constants
+ ******************************************************************************/
+
+/*
+ * This RAM will be used for the bootloader including code, bss, and stacks.
+ * It may need to be increased if BL31 grows in size.
+ *
+ * The link addresses are determined by BL31_BASE + offset.
+ * When ENABLE_PIE is set, the TF images can be loaded anywhere, so
+ * BL31_BASE is really arbitrary.
+ *
+ * When ENABLE_PIE is unset, BL31_BASE should be chosen so that
+ * it matches to the physical address where BL31 is loaded, that is,
+ * BL31_BASE should be the base address of the RAM region.
+ *
+ * Lets make things explicit by mapping BL31_BASE to 0x0 since ENABLE_PIE is
+ * defined as default for our platform.
+ */
+#define BL31_BASE	UL(0x00000000) /* PIE remapped on fly */
+#define BL31_SIZE	UL(0x00050000) /* For AM62L: Allow up to 327680 bytes */
+#define BL31_LIMIT	(BL31_BASE + BL31_SIZE)
+
 #define DEVICE_WKUP_SRAM_BASE			UL(0x707f0000)
 #define DEVICE_WKUP_SRAM_STACK_SIZE		UL(0x1000)
-#define DEVICE_WKUP_SRAM_SIZE			UL(0x00010000)
+#define DEVICE_WKUP_SRAM_SIZE			UL(0x0010000)
 #define DEVICE_WKUP_SRAM_CODE_SIZE		(DEVICE_WKUP_SRAM_SIZE - DEVICE_WKUP_SRAM_STACK_SIZE)
 #define DEVICE_WKUP_SRAM_STACK_BASE		(DEVICE_WKUP_SRAM_BASE + DEVICE_WKUP_SRAM_CODE_SIZE)
 #define DEVICE_WKUP_SRAM_STACK_BASE_L	        (DEVICE_WKUP_SRAM_STACK_BASE & 0xFFFFU)
