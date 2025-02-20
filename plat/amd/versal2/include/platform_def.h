@@ -122,6 +122,8 @@
 
 #define PLAT_GICD_BASE_VALUE	U(0xE2000000)
 #define PLAT_GICR_BASE_VALUE	U(0xE2060000)
+#define PLAT_ARM_GICR_BASE	PLAT_GICR_BASE_VALUE
+#define PLAT_ARM_GICD_BASE	PLAT_GICD_BASE_VALUE
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
