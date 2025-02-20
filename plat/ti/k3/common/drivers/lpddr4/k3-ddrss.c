@@ -287,7 +287,7 @@ static int set_ddr_pll_div(int div)
  ******************************/
 static int ddrss_set_pll(unsigned long freq)
 {
-	int ret;
+	int ret = 0;
 
 	if (freq == ddrss.ddr_freq1)
 		ret = set_ddr_pll_div(4);
