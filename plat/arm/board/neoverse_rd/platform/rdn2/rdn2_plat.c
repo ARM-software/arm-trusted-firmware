@@ -13,6 +13,12 @@
 #include <nrd_plat.h>
 #include <rdn2_ras.h>
 
+#define RT_OWNER 0
+#define A4SID_CHIP_0	0x0
+#define A4SID_CHIP_1	0x1
+#define A4SID_CHIP_2	0x2
+#define A4SID_CHIP_3	0x3
+
 #if defined(IMAGE_BL31)
 #if (NRD_PLATFORM_VARIANT == 2)
 static const mmap_region_t rdn2mc_dynamic_mmap[] = {
@@ -33,19 +39,50 @@ static const mmap_region_t rdn2mc_dynamic_mmap[] = {
 
 #if (NRD_PLATFORM_VARIANT == 2)
 static struct gic600_multichip_data rdn2mc_multichip_data __init = {
-	.rt_owner_base = PLAT_ARM_GICD_BASE,
-	.rt_owner = 0,
-	.chip_count = NRD_CHIP_COUNT,
-	.chip_addrs = {
-		PLAT_ARM_GICD_BASE >> 16,
+	.base_addrs = {
+		PLAT_ARM_GICD_BASE,
 #if NRD_CHIP_COUNT > 1
-		(PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(1)) >> 16,
+		PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(1),
 #endif
 #if NRD_CHIP_COUNT > 2
-		(PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(2)) >> 16,
+		PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(2),
 #endif
 #if NRD_CHIP_COUNT > 3
-		(PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(3)) >> 16,
+		PLAT_ARM_GICD_BASE + NRD_REMOTE_CHIP_MEM_OFFSET(3),
+#endif
+	},
+	.rt_owner = RT_OWNER,
+	.chip_count = NRD_CHIP_COUNT,
+	.chip_addrs = {
+		{
+			A4SID_CHIP_0,
+			A4SID_CHIP_1,
+			A4SID_CHIP_2,
+			A4SID_CHIP_3
+		},
+#if NRD_CHIP_COUNT > 1
+		{
+			A4SID_CHIP_0,
+			A4SID_CHIP_1,
+			A4SID_CHIP_2,
+			A4SID_CHIP_3
+		},
+#endif
+#if NRD_CHIP_COUNT > 2
+		{
+			A4SID_CHIP_0,
+			A4SID_CHIP_1,
+			A4SID_CHIP_2,
+			A4SID_CHIP_3
+		},
+#endif
+#if NRD_CHIP_COUNT > 3
+		{
+			A4SID_CHIP_0,
+			A4SID_CHIP_1,
+			A4SID_CHIP_2,
+			A4SID_CHIP_3
+		}
 #endif
 	},
 	.spi_ids = {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2024, ARM Limited. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -49,10 +49,10 @@ typedef struct multichip_spi_ids_desc {
  * value of {0, 0, 0} should be passed.
  ******************************************************************************/
 struct gic600_multichip_data {
-	uintptr_t rt_owner_base;
+	uintptr_t base_addrs[GIC600_MAX_MULTICHIP];
 	unsigned int rt_owner;
 	unsigned int chip_count;
-	uint64_t chip_addrs[GIC600_MAX_MULTICHIP];
+	uint64_t chip_addrs[GIC600_MAX_MULTICHIP][GIC600_MAX_MULTICHIP];
 	multichip_spi_ids_desc_t spi_ids[GIC600_MAX_MULTICHIP];
 };
 
