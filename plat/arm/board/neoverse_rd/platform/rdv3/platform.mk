@@ -144,7 +144,7 @@ FDT_SOURCES	+=	${RDV3_BASE}/fdts/${PLAT}_fw_config.dts	\
 			${RDV3_BASE}/fdts/${PLAT}_nt_fw_config.dts
 
 ifeq (${SPMD_SPM_AT_SEL2}, 1)
-BL32_CONFIG_DTS                :=      ${RDV3_BASE}/fdts/${PLAT}_spmc_sp_manifest.dts
+BL32_CONFIG_DTS        :=      ${RDV3_BASE}/fdts/${PLAT}_spmc_sp_manifest.dts
 FDT_SOURCES            +=      ${BL32_CONFIG_DTS}
 TOS_FW_CONFIG          :=      ${BUILD_PLAT}/fdts/$(notdir $(basename ${BL32_CONFIG_DTS})).dtb
 endif
@@ -169,4 +169,14 @@ override ENABLE_FEAT_MTE2	:= 2
 
 # FEAT_SVE related flags
 override SVE_VECTOR_LEN		:= 128
-override CTX_INCLUDE_SVE_REGS	:= 1
+
+override CTX_INCLUDE_SVE_REGS   := 1
+
+# Enabling CTX_INCLUDE_SVE_REGS along with SPMD_SPM_AT_SEL2=1 is a invalid
+# combination and will lead to build failure, use them only when SPMD_SPM_AT_SEL2=0
+# In this combination its SPMC responsbility to save SVE regs.
+ifeq (${SPD},spmd)
+ifeq (${SPMD_SPM_AT_SEL2},1)
+override CTX_INCLUDE_SVE_REGS	:= 0
+endif
+endif
