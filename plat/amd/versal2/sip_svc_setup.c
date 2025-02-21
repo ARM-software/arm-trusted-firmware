@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,7 @@
 
 /* SiP Service Calls version numbers */
 #define SIP_SVC_VERSION_MAJOR		(0U)
-#define SIP_SVC_VERSION_MINOR		(1U)
+#define SIP_SVC_VERSION_MINOR		(2U)
 
 /* These macros are used to identify PM calls from the SMC function ID */
 #define SIP_FID_MASK	GENMASK(23, 16)

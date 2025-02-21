@@ -11,6 +11,7 @@
 
 #include <arch.h>
 #include "def.h"
+#include <plat_common.h>
 
 /*******************************************************************************
  * Generic platform constants
@@ -122,6 +123,8 @@
 
 #define PLAT_GICD_BASE_VALUE	U(0xE2000000)
 #define PLAT_GICR_BASE_VALUE	U(0xE2060000)
+#define PLAT_ARM_GICR_BASE	PLAT_GICR_BASE_VALUE
+#define PLAT_ARM_GICD_BASE	PLAT_GICD_BASE_VALUE
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
@@ -138,6 +141,8 @@
 #define PLAT_G0_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(PLAT_VERSAL_IPI_IRQ, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(CPU_PWR_DOWN_REQ_INTR, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE)
 
 #define IRQ_MAX		200U
 
