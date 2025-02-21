@@ -133,7 +133,12 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 	}
 #endif
 	else {
+#if TRANSFER_LIST && !RESET_TO_BL31
+		next_image_info = transfer_list_set_handoff_args(
+			secure_tl, &bl32_image_ep_info);
+#else
 		next_image_info = &bl32_image_ep_info;
+#endif
 	}
 
 	/*
