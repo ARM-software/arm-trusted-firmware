@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -51,6 +51,15 @@
 	.endm
 
 func tsp_entrypoint _align=3
+	/*---------------------------------------------
+	 * Save arguments x0 - x3 from BL1 for future
+	 * use.
+	 * ---------------------------------------------
+	 */
+	mov	x20, x0
+	mov	x21, x1
+	mov	x22, x2
+	mov	x23, x3
 
 #if ENABLE_PIE
 		/*
@@ -172,6 +181,16 @@ func tsp_entrypoint _align=3
 #if STACK_PROTECTOR_ENABLED
 	bl	update_stack_protector_canary
 #endif
+
+	/*---------------------------------------------
+	 * Save arguments x0 - x3 from prio stage for
+	 * future use.
+	 * ---------------------------------------------
+	 */
+	mov	x0, x20
+	mov	x1, x21
+	mov	x2, x22
+	mov	x3, x23
 
 	/* ---------------------------------------------
 	 * Perform TSP setup

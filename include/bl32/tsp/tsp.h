@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -106,7 +106,8 @@ typedef struct tsp_vectors {
 	tsp_vector_isn_t abort_yield_smc_entry;
 } tsp_vectors_t;
 
-void tsp_setup(void);
+void tsp_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+	       u_register_t arg3);
 
 #endif /* __ASSEMBLER__ */
 

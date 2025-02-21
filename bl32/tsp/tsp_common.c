@@ -64,13 +64,14 @@ smc_args_t *set_smc_args(uint64_t arg0,
 /*******************************************************************************
  * Setup function for TSP.
  ******************************************************************************/
-void tsp_setup(void)
+void tsp_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+	       u_register_t arg3)
 {
 	/* Enable early console if EARLY_CONSOLE flag is enabled */
 	plat_setup_early_console();
 
 	/* Perform early platform-specific setup. */
-	tsp_early_platform_setup();
+	tsp_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	/* Perform late platform-specific setup. */
 	tsp_plat_arch_setup();
