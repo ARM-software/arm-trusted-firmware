@@ -3,6 +3,58 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.30](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.29..refs/tags/lts-v2.8.30) (2025-02-21)
+
+### Code Refactoring
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - move EXTRACT_PARTNUM to arch.h ([1a2a268](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1a2a26897d84300174689f2c8f924bf8bd616d4e))
+
+- **Libraries**
+
+  - **EL3 Runtime**
+
+    - **Context Management**
+
+      - move remaining EL2 save/restore into C ([37db9ab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/37db9abefe1d29b07d8fc392cf28e39ef6816388))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for accessing ICH_VMCR_EL2 ([8c6068f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8c6068fab4886de9fc929eb31deb27c540612393))
+    - workaround for Cortex-A710 erratum 3701772 ([c32e3a3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c32e3a38dde1f6b2205af1f8387b033dcd85c65b))
+    - workaround for Cortex-A715 erratum 3699560 ([3b8a3ad](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3b8a3ad1508fdcfef7f3487da5a32636b0bc4ada))
+    - workaround for Cortex-A720 erratum 3699561 ([c7d5de9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c7d5de9fe3031e315ec91bc1b4d1a62361ce89e0))
+    - workaround for Cortex-X2 erratum 3701772 ([2296df6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2296df6febef9bbac508182cf4aefa5882984e39))
+    - workaround for Cortex-X3 erratum 3701769 ([ed4bd3c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ed4bd3c61b3bb57fddb93dd4d49d205f59636d38))
+    - workaround for Cortex-X4 erratum 3701758 ([395f67e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/395f67e871ad0d73f71a7858bc05fd7d6161abc7))
+    - workaround for Neoverse-N2 erratum 3701773 ([2414a85](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2414a852a0c862e51f0fff4f20afa69eff424d99))
+    - workaround for Neoverse-V3 erratum 3701767 ([35caff9](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/35caff9793f1a484db908f8df4e54141d90dd61e))
+
+  - **EL3 Runtime**
+
+    - **Context Management**
+
+      - update gic el2 sysregs save/restore mechanism ([f2a263e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f2a263ed806f8364a107ec67746ba9e231c3114b))
+
+### Miscellaneous
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - fix incorrect header macro ([983f4c8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/983f4c8edf46a8c05662787b9a6e5f87ff6247b6))
+
+  - **SMCCC**
+
+    - bump up SMCCC version to 1.4 ([55589ce](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/55589ce2921099d9250c8e6a0184c9a19f77e803))
+
 ## [lts-2.8.29](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.28..refs/tags/lts-v2.8.29) (2025-02-14)
 
 ### ⚠ BREAKING CHANGES
