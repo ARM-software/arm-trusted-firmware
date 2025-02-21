@@ -52,7 +52,7 @@ arm_config_t arm_config;
 
 #define MAP_DEVICE0	MAP_REGION_FLAT(DEVICE0_BASE,			\
 					DEVICE0_SIZE,			\
-					MT_DEVICE | MT_RW | MT_SECURE)
+					MT_DEVICE | MT_RW | EL3_PAS)
 
 #define MAP_DEVICE1	MAP_REGION_FLAT(DEVICE1_BASE,			\
 					DEVICE1_SIZE,			\
