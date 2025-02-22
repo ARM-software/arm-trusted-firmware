@@ -104,12 +104,16 @@ int drtm_setup(void)
 	dlme_data_hdr_init.dlme_addr_map_size = drtm_get_address_map_size();
 	dlme_data_hdr_init.dlme_tcb_hashes_table_size =
 				plat_drtm_get_tcb_hash_table_size();
+	dlme_data_hdr_init.dlme_acpi_tables_region_size =
+				plat_drtm_get_acpi_tables_region_size();
 	dlme_data_hdr_init.dlme_impdef_region_size =
 				plat_drtm_get_imp_def_dlme_region_size();
 
-	dlme_data_min_size += dlme_data_hdr_init.dlme_addr_map_size +
+	dlme_data_min_size += sizeof(struct_dlme_data_header) +
+			      dlme_data_hdr_init.dlme_addr_map_size +
 			      ARM_DRTM_MIN_EVENT_LOG_SIZE +
 			      dlme_data_hdr_init.dlme_tcb_hashes_table_size +
+			      dlme_data_hdr_init.dlme_acpi_tables_region_size +
 			      dlme_data_hdr_init.dlme_impdef_region_size;
 
 	/* Fill out platform DRTM features structure */
