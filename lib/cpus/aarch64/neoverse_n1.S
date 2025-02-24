@@ -116,7 +116,7 @@ workaround_reset_end neoverse_n1, ERRATUM(1315703)
 
 check_erratum_ls neoverse_n1, ERRATUM(1315703), CPU_REV(3, 0)
 
-workaround_reset_start neoverse_n1, ERRATUM(1542419), ERRATA_N1_1542419
+workaround_reset_start neoverse_n1, ERRATUM(1542419), ERRATA_N1_1542419, SPLIT_WA
 	/* Apply instruction patching sequence */
 	ldr	x0, =0x0
 	msr	CPUPSELR_EL3, x0

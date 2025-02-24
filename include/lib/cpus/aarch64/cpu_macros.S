@@ -235,10 +235,11 @@
  * _chosen:
  *	Compile time flag on whether the erratum is included
  *
- * _apply_at_reset:
- *	Whether the erratum should be automatically applied at reset
+ * _split_wa:
+ *	Flag that indicates whether an erratum has split workaround or not.
+ *	Default value is 0.
  */
-.macro add_erratum_entry _cpu:req, _cve:req, _id:req, _chosen:req
+.macro add_erratum_entry _cpu:req, _cve:req, _id:req, _chosen:req, _split_wa=0
 #if REPORT_ERRATA || ERRATA_ABI_SUPPORT
 	.pushsection .rodata.errata_entries
 		.align	3
@@ -250,7 +251,8 @@
 		/* Will fit CVEs with up to 10 character in the ID field */
 		.word	\_id
 		.hword	\_cve
-		.byte	\_chosen
+		/* bit magic that appends chosen field based on _split_wa */
+		.byte	((\_chosen * 0b11) & ((\_split_wa << 1) | \_chosen))
 		.byte	0x0 /* alignment */
 	.popsection
 #endif
@@ -276,14 +278,20 @@
  * _chosen:
  *	Compile time flag on whether the erratum is included
  *
+ * _split_wa:
+ *	Flag that indicates whether an erratum has split workaround or not.
+ *	Default value is 0.
+ *
  * in body:
  *	clobber x0 to x7 (please only use those)
  *	argument x7 - cpu_rev_var
  *
  * _wa clobbers: x0-x8 (PCS compliant)
  */
-.macro workaround_reset_start _cpu:req, _cve:req, _id:req, _chosen:req
-	add_erratum_entry \_cpu, \_cve, \_id, \_chosen
+.macro workaround_reset_start _cpu:req, _cve:req, _id:req, \
+	_chosen:req, _split_wa=0
+
+	add_erratum_entry \_cpu, \_cve, \_id, \_chosen, \_split_wa
 
 	.if \_chosen
 		/* put errata directly into the reset function */
