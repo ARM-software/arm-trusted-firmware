@@ -56,7 +56,11 @@
  * defined as default for our platform.
  */
 #define BL31_BASE	UL(0x00000000) /* PIE remapped on fly */
+#ifdef K3_AM62L_LPM
 #define BL31_SIZE	UL(0x00050000) /* For AM62L: Allow up to 327680 bytes */
+#else
+#define BL31_SIZE	UL(0x00037000) /* For AM62L: Allow up to 225280 bytes */
+#endif
 #define BL31_LIMIT	(BL31_BASE + BL31_SIZE)
 
 #define DEVICE_WKUP_SRAM_BASE			UL(0x707f0000)

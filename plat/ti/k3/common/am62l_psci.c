@@ -125,6 +125,7 @@ static int k3_validate_power_state(unsigned int power_state,
 	return PSCI_E_SUCCESS;
 }
 
+#ifdef K3_AM62L_LPM
 static void am62l_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	unsigned int core, proc_id;
@@ -184,15 +185,18 @@ static void am62l_get_sys_suspend_power_state(psci_power_state_t *req_state)
 		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 	}
 }
+#endif
 
 static plat_psci_ops_t am62l_plat_psci_ops = {
 	.pwr_domain_on = am62l_pwr_domain_on,
 	.pwr_domain_off = am62l_pwr_domain_off,
 	.pwr_domain_pwr_down_wfi = am62l_pwr_domain_off_wfi,
 	.pwr_domain_on_finish = am62l_pwr_domain_on_finish,
+#ifdef K3_AM62L_LPM
 	.pwr_domain_suspend = am62l_pwr_domain_suspend,
 	.pwr_domain_suspend_finish = am62l_pwr_domain_suspend_finish,
 	.get_sys_suspend_power_state = am62l_get_sys_suspend_power_state,
+#endif
 	.system_reset = am62l_system_reset,
 	.validate_power_state = k3_validate_power_state,
 };
