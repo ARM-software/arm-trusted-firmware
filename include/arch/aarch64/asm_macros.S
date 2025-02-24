@@ -8,6 +8,7 @@
 
 #include <arch.h>
 #include <common/asm_macros_common.S>
+#include <lib/cpus/cpu_ops.h>
 #include <lib/spinlock.h>
 
 /*
@@ -340,4 +341,26 @@
 	mrs	\reg, ID_AA64ISAR2_EL1
 	ands	\reg, \reg, #(ID_AA64ISAR2_SYSREG128_MASK << ID_AA64ISAR2_SYSREG128_SHIFT)
 	.endm
+
+.macro call_reset_handler
+#if !(defined(IMAGE_BL2) && ENABLE_RME)
+	/* ---------------------------------------------------------------------
+	 * It is a cold boot.
+	 * Perform any processor specific actions upon reset e.g. cache, TLB
+	 * invalidations etc.
+	 * ---------------------------------------------------------------------
+	 */
+	/* The plat_reset_handler can clobber x0 - x18, x30 */
+	bl	plat_reset_handler
+
+	/* Get the matching cpu_ops pointer */
+	bl	get_cpu_ops_ptr
+
+	/* Get the cpu_ops reset handler */
+	ldr	x2, [x0, #CPU_RESET_FUNC]
+
+	/* The cpu_ops reset handler can clobber x0 - x19, x30 */
+	blr	x2
+#endif
+.endm
 #endif /* ASM_MACROS_S */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,8 @@
 #if ERRATA_SME_POWER_DOWN == 0
 #error "Travis needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
 #endif
+
+cpu_reset_prologue cortex_alto
 
 cpu_reset_func_start cortex_alto
 	/* Disable speculative loads */

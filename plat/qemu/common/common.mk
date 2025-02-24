@@ -23,7 +23,6 @@ QEMU_CPU_LIBS		:=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				lib/cpus/aarch64/cortex_a76.S		\
 				lib/cpus/aarch64/cortex_a710.S		\
-				lib/cpus/aarch64/neoverse_n_common.S	\
 				lib/cpus/aarch64/neoverse_n1.S		\
 				lib/cpus/aarch64/neoverse_v1.S		\
 				lib/cpus/aarch64/neoverse_n2.S		\
