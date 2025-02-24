@@ -42,6 +42,12 @@ struct erratum_entry {
 	uint32_t id;
 	/* Denote CVEs with their year or errata with 0 */
 	uint16_t cve;
+	/*
+	 * a bitfield:
+	 * bit 0 - denotes if the erratum is enabled in build.
+	 * bit 1 - denotes if the erratum workaround is split and
+	 * 	   also needs to be implemented at a lower EL.
+	 */
 	uint8_t chosen;
 	uint8_t _alignment;
 } __packed;
@@ -95,5 +101,12 @@ bool errata_ich_vmcr_el2_applies(void);
 
 /* Macro to get CPU revision code for checking errata version compatibility. */
 #define CPU_REV(r, p)		((r << 4) | p)
+
+/* Used for errata that have split workaround */
+#define SPLIT_WA			1
+
+/* chosen bitfield entries */
+#define WA_ENABLED_MASK			BIT(0)
+#define SPLIT_WA_MASK			BIT(1)
 
 #endif /* ERRATA_H */
