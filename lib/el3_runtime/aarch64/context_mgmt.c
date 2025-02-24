@@ -200,6 +200,9 @@ static void setup_realm_context(cpu_context_t *ctx, const struct entry_point_inf
 		debugv8p9_extended_bp_wp_enable(ctx);
 	}
 
+	if (is_feat_brbe_supported()) {
+		brbe_enable(ctx);
+	}
 
 }
 #endif /* ENABLE_RME */
@@ -1521,6 +1524,10 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		write_el2_ctx_sxpoe(el2_sysregs_ctx, por_el2, read_por_el2());
 	}
 
+	if (is_feat_brbe_supported()) {
+		write_el2_ctx_brbe(el2_sysregs_ctx, brbcr_el2, read_brbcr_el2());
+	}
+
 	if (is_feat_s2pie_supported()) {
 		write_el2_ctx_s2pie(el2_sysregs_ctx, s2pir_el2, read_s2pir_el2());
 	}
@@ -1623,6 +1630,10 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 
 	if (is_feat_sctlr2_supported()) {
 		write_sctlr2_el2(read_el2_ctx_sctlr2(el2_sysregs_ctx, sctlr2_el2));
+	}
+
+	if (is_feat_brbe_supported()) {
+		write_brbcr_el2(read_el2_ctx_brbe(el2_sysregs_ctx, brbcr_el2));
 	}
 }
 #endif /* (CTX_INCLUDE_EL2_REGS && IMAGE_BL31) */
