@@ -1001,7 +1001,7 @@ Function : plat_drtm_get_min_size_normal_world_dce()
 This function returns the size normal-world DCE of the platform.
 
 Function : plat_drtm_get_imp_def_dlme_region_size()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -1012,7 +1012,7 @@ This function returns the size of implementation defined DLME region
 of the platform.
 
 Function : plat_drtm_get_tcb_hash_table_size()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -1021,8 +1021,18 @@ Function : plat_drtm_get_tcb_hash_table_size()
 
 This function returns the size of TCB hash table of the platform.
 
+Function : plat_drtm_get_acpi_tables_region_size()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint64_t
+
+This function returns the size of ACPI tables region of the platform.
+
 Function : plat_drtm_get_tcb_hash_features()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
