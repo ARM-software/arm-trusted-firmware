@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,8 @@
 #define PLAT_L2_RESET_REQ					0xB007C0DE
 #define PLAT_HANDOFF_OFFSET					0x0007F000
 #define PLAT_TIMER_BASE_ADDR					0x10D01000
+#define SOCFPGA_DTB_BASE			0x80020000
+#define DT_COMPATIBLE_STR			"arm,altera socfpga-agilex5"
 
 /* System Counter */
 /* TODO: Update back to 400MHz.
