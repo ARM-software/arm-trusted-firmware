@@ -23,13 +23,13 @@ void __dead2 __assert(const char *file, unsigned int line)
 	printf("ASSERT: %s:%u\n", file, line);
 	backtrace("assert");
 	console_flush();
-	plat_panic_handler();
+	el3_panic();
 }
 #else
 void __dead2 __assert(void)
 {
 	backtrace("assert");
 	console_flush();
-	plat_panic_handler();
+	el3_panic();
 }
 #endif
