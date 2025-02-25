@@ -6,6 +6,7 @@
 
 #include <common/debug.h>
 #include <device_wrapper.h>
+#include <drivers/scmi-msg.h>
 #include <lpm_stub.h>
 #include <plat_private.h>
 #include <plat_scmi_def.h>
@@ -22,6 +23,23 @@ const mmap_region_t plat_k3_mmap[] = {
 #endif
 	{ /* sentinel */ }
 };
+
+/*
+ * HACK: ADC clock can not be controlled by linux due to known bug,
+ * where 0_ADC0 is being registered as it's own parent, which makes it
+ * unable to reparent. Force the clock parent from here till proper
+ * fix is implemented in linux
+ */
+static void ti_force_adc_parent(void)
+{
+	NOTICE("0_ADC0's parent is %d\n", plat_scmi_clock_get_parent(0, 0));
+	if (!plat_scmi_clock_set_parent(0, 0, 2)) {
+		NOTICE("0_ADC0's parent (after set_parent) is %d\n",
+		       plat_scmi_clock_get_parent(0, 0));
+	} else {
+		WARN("ADC set_parent failed!\n");
+	}
+}
 
 int ti_soc_init(void)
 {
@@ -48,6 +66,8 @@ int ti_soc_init(void)
 	     version.abi_major, version.abi_minor,
 	     version.firmware_revision,
 	     version.firmware_description);
+
+	ti_force_adc_parent();
 
 	return 0;
 }
