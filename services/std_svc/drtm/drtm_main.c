@@ -134,6 +134,8 @@ int drtm_setup(void)
 		plat_dma_prot_feat->dma_protection_support);
 	ARM_DRTM_TCB_HASH_FEATURES_SET_MAX_NUM_HASHES(plat_drtm_features.tcb_hash_features,
 		plat_drtm_get_tcb_hash_features());
+	ARM_DRTM_DLME_IMG_AUTH_SUPPORT(plat_drtm_features.dlme_image_auth_features,
+		plat_drtm_get_dlme_img_auth_features());
 
 	return 0;
 }
@@ -173,6 +175,12 @@ static inline uint64_t drtm_features_tcb_hashes(void *ctx)
 {
 	SMC_RET2(ctx, 1ULL, /* TCB hash feature is supported */
 		 plat_drtm_features.tcb_hash_features);
+}
+
+static inline uint64_t drtm_features_dlme_img_auth_features(void *ctx)
+{
+	SMC_RET2(ctx, 1ULL, /* DLME Image auth is supported */
+		 plat_drtm_features.dlme_image_auth_features);
 }
 
 static enum drtm_retc drtm_dl_check_caller_el(void *ctx)
@@ -787,6 +795,12 @@ uint64_t drtm_smc_handler(uint32_t smc_fid,
 				INFO("++ DRTM service handler: "
 				     "TCB-hashes features\n");
 				return drtm_features_tcb_hashes(handle);
+				break;	/* not reached */
+
+			case ARM_DRTM_FEATURES_DLME_IMG_AUTH:
+				INFO("++ DRTM service handler: "
+				     "DLME Image authentication features\n");
+				return drtm_features_dlme_img_auth_features(handle);
 				break;	/* not reached */
 
 			default:
