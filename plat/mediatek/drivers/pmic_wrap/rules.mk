@@ -10,6 +10,8 @@ MODULE := pmic_wrap
 
 ifeq (${USE_PMIC_WRAP_INIT_V2}, 1)
 LOCAL_SRCS-y += ${LOCAL_DIR}/pmic_wrap_init_v2.c
+else ifeq (${USE_PMIC_WRAP_INIT_V3}, 1)
+LOCAL_SRCS-y += ${LOCAL_DIR}/pmic_wrap_init_v3.c
 else
 LOCAL_SRCS-y += ${LOCAL_DIR}/pmic_wrap_init.c
 endif

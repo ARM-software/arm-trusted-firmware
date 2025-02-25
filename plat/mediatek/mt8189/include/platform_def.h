@@ -151,6 +151,24 @@
 #define SPMI_MST_P_SIZE			(0x1000)
 
 /*******************************************************************************
+ * PWRAP related definitions
+ ******************************************************************************/
+#define PMICSPI_MST_BASE		(IO_PHYS + 0x0c013000)
+#define PMICSPI_MST_SIZE		(0x1000)
+#define PMIC_WRAP_BASE			(IO_PHYS + 0x0CC04000)
+#define PMIF_SPI_BASE			(0x1CC04000)
+#define PWRAP_REG_BASE			(0x1C013000)
+#define PWRAP_WRAP_EN			(PWRAP_REG_BASE + 0x14)
+
+/*******************************************************************************
+ * PMIC regsister related definitions
+ ******************************************************************************/
+#define PMIC_REG_BASE			(0x0000)
+#define PWRAP_SIZE			(0x1000)
+#define DEW_READ_TEST			(PMIC_REG_BASE + 0x040e)
+#define DEW_WRITE_TEST			(PMIC_REG_BASE + 0x0410)
+
+/*******************************************************************************
  * Differentiate between 3G and 2.6G-related definitions
  ******************************************************************************/
 #define EFUSEC_BASE			(IO_PHYS + 0x01F10000)
