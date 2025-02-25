@@ -8,16 +8,7 @@ assist in |SoC| processor power domain dynamic power budgeting and limit the
 triggering of whole-rail (i.e. clock chopping) responses to overcurrent
 conditions.
 
-|MPMM| is enabled on a per-core basis by the EL3 runtime firmware. The presence
-of |MPMM| cannot be determined at runtime by the firmware, and therefore the
-platform must expose this information through one of two possible mechanisms:
-
-- |FCONF|, controlled by the ``ENABLE_MPMM_FCONF`` build option.
-- A platform implementation of the ``plat_mpmm_topology`` function (the
-  default).
-
-See :ref:`Maximum Power Mitigation Mechanism (MPMM) Bindings` for documentation
-on the |FCONF| device tree bindings.
+|MPMM| is enabled on a per-core basis by the EL3 runtime firmware.
 
 .. warning::
 

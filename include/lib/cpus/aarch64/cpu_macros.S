@@ -631,4 +631,21 @@
 	endfunc \_cpu\()_reset_func
 .endm
 
+/*
+ * Helper macro that enables Maximum Power Mitigation Mechanism (MPMM) on
+ * compatible Arm cores.
+ *
+ * Clobbers x0.
+ */
+.macro enable_mpmm
+#if ENABLE_MPMM
+	mrs	x0, CPUPPMCR_EL3
+	/* if CPUPPMCR_EL3.MPMMPINCTL != 0, skip enabling MPMM */
+	ands	x0, x0, CPUPPMCR_EL3_MPMMPINCTL_BIT
+	b.ne	1f
+	sysreg_bit_set CPUPPMCR_EL3, CPUMPMMCR_EL3_MPMM_EN_BIT
+	1:
+#endif
+.endm
+
 #endif /* CPU_MACROS_S */

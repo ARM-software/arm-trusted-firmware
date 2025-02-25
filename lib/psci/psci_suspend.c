@@ -42,12 +42,13 @@ static void psci_cpu_suspend_to_standby_finish(unsigned int end_pwrlvl,
  * This function does generic and platform specific suspend to power down
  * operations.
  ******************************************************************************/
-static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
+static void psci_suspend_to_pwrdown_start(unsigned int idx,
+					  unsigned int end_pwrlvl,
 					  unsigned int max_off_lvl,
 					  const entry_point_info_t *ep,
 					  const psci_power_state_t *state_info)
 {
-	PUBLISH_EVENT(psci_suspend_pwrdown_start);
+	PUBLISH_EVENT_ARG(psci_suspend_pwrdown_start, &idx);
 
 #if PSCI_OS_INIT_MODE
 #ifdef PLAT_MAX_CPU_SUSPEND_PWR_LVL
@@ -223,7 +224,7 @@ int psci_cpu_suspend_start(unsigned int idx,
 #endif
 #endif
 		max_off_lvl = psci_find_max_off_lvl(state_info);
-		psci_suspend_to_pwrdown_start(end_pwrlvl, max_off_lvl, ep, state_info);
+		psci_suspend_to_pwrdown_start(idx, end_pwrlvl, end_pwrlvl, ep, state_info);
 	}
 
 	/*
@@ -382,5 +383,5 @@ void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max
 	/* This loses its meaning when not suspending, reset so it's correct for OFF */
 	psci_set_suspend_pwrlvl(PLAT_MAX_PWR_LVL);
 
-	PUBLISH_EVENT(psci_suspend_pwrdown_finish);
+	PUBLISH_EVENT_ARG(psci_suspend_pwrdown_finish, &cpu_idx);
 }

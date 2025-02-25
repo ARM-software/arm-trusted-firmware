@@ -250,6 +250,7 @@ endfunc cortex_a710_core_pwr_dwn
 cpu_reset_func_start cortex_a710
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end cortex_a710
 
 	/* ---------------------------------------------

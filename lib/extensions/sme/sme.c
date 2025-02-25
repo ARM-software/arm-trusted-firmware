@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,12 +40,7 @@ void sme_enable_per_world(per_world_context_t *per_world_ctx)
 
 void sme_init_el3(void)
 {
-	u_register_t cptr_el3 = read_cptr_el3();
 	u_register_t smcr_el3;
-
-	/* Set CPTR_EL3.ESM bit so we can access SMCR_EL3 without trapping. */
-	write_cptr_el3(cptr_el3 | ESM_BIT);
-	isb();
 
 	/*
 	 * Set the max LEN value and FA64 bit. This register is set up per_world
@@ -69,10 +64,6 @@ void sme_init_el3(void)
 		smcr_el3 |= SMCR_ELX_EZT0_BIT;
 	}
 	write_smcr_el3(smcr_el3);
-
-	/* Reset CPTR_EL3 value. */
-	write_cptr_el3(cptr_el3);
-	isb();
 }
 
 void sme_init_el2_unused(void)

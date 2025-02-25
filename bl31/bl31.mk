@@ -24,7 +24,6 @@ ifeq (${SPM_MM},1)
 endif
 
 include lib/extensions/amu/amu.mk
-include lib/mpmm/mpmm.mk
 
 ifeq (${SPMC_AT_EL3},1)
   $(info Including EL3 SPMC makefile)
@@ -112,10 +111,6 @@ endif
 
 ifneq (${ENABLE_FEAT_TCR2},0)
 BL31_SOURCES		+=	lib/extensions/tcr/tcr2.c
-endif
-
-ifeq (${ENABLE_MPMM},1)
-BL31_SOURCES		+=	${MPMM_SOURCES}
 endif
 
 ifneq (${ENABLE_SME_FOR_NS},0)

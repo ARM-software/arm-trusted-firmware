@@ -40,6 +40,7 @@ cpu_reset_func_start travis
 	/* model bug: not cleared on reset */
 	sysreg_bit_clear TRAVIS_IMP_CPUPWRCTLR_EL1, \
 		TRAVIS_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
+	enable_mpmm
 cpu_reset_func_end travis
 
 func travis_core_pwr_dwn

@@ -195,6 +195,7 @@ endfunc cortex_x2_core_pwr_dwn
 cpu_reset_func_start cortex_x2
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end cortex_x2
 
 	/* ---------------------------------------------

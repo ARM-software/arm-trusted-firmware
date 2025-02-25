@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,7 @@
 #if ENABLE_FEAT_AMU
 #if __aarch64__
 void amu_enable(cpu_context_t *ctx);
-void amu_init_el3(void);
+void amu_init_el3(unsigned int core_pos);
 void amu_init_el2_unused(void);
 void amu_enable_per_world(per_world_context_t *per_world_ctx);
 #else
@@ -29,7 +29,7 @@ void amu_enable(bool el2_unused);
 void amu_enable(cpu_context_t *ctx)
 {
 }
-void amu_init_el3(void)
+void amu_init_el3(unsigned int core_pos)
 {
 }
 void amu_init_el2_unused(void)
@@ -45,28 +45,57 @@ static inline void amu_enable(bool el2_unused)
 #endif /*__aarch64__ */
 #endif /* ENABLE_FEAT_AMU */
 
+/*
+ * Per-core list of the counters to be enabled. Value will be written into
+ * AMCNTENSET1_EL0 verbatim.
+ */
 #if ENABLE_AMU_AUXILIARY_COUNTERS
-/*
- * AMU data for a single core.
- */
-struct amu_core {
-	uint16_t enable; /* Mask of auxiliary counters to enable */
-};
+extern uint16_t plat_amu_aux_enables[PLATFORM_CORE_COUNT];
+#endif
 
-/*
- * Topological platform data specific to the AMU.
- */
-struct amu_topology {
-	struct amu_core cores[PLATFORM_CORE_COUNT]; /* Per-core data */
-};
+#define CTX_AMU_GRP0_ALL		U(4)
+#define CTX_AMU_GRP1_ALL		U(16)
 
-#if !ENABLE_AMU_FCONF
-/*
- * Retrieve the platform's AMU topology. A `NULL` return value is treated as a
- * non-fatal error, in which case no auxiliary counters will be enabled.
- */
-const struct amu_topology *plat_amu_topology(void);
-#endif /* ENABLE_AMU_FCONF */
-#endif /* ENABLE_AMU_AUXILIARY_COUNTERS */
+typedef struct amu_regs {
+	u_register_t grp0[CTX_AMU_GRP0_ALL];
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	u_register_t grp1[CTX_AMU_GRP1_ALL];
+#endif
+} amu_regs_t;
+
+static inline u_register_t read_amu_grp0_ctx_reg(amu_regs_t *ctx, size_t index)
+{
+	return ctx->grp0[index];
+}
+
+static inline void write_amu_grp0_ctx_reg(amu_regs_t *ctx, size_t index, u_register_t val)
+{
+	ctx->grp0[index] = val;
+}
+
+static inline uint16_t get_amu_aux_enables(size_t index)
+{
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	return plat_amu_aux_enables[index];
+#else
+	return 0;
+#endif
+}
+
+static inline u_register_t read_amu_grp1_ctx_reg(amu_regs_t *ctx, size_t index)
+{
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	return ctx->grp1[index];
+#else
+	return 0;
+#endif
+}
+
+static inline void write_amu_grp1_ctx_reg(amu_regs_t *ctx, size_t index, u_register_t val)
+{
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	ctx->grp1[index] = val;
+#endif
+}
 
 #endif /* AMU_H */

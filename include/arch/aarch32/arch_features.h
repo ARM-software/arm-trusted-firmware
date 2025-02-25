@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -84,6 +84,10 @@ CREATE_FEATURE_PRESENT(feat_ttcnp, id_mmfr4, ID_MMFR4_CNP_SHIFT,
 /* FEAT_AMU: Activity Monitors Extension */
 CREATE_FEATURE_FUNCS(feat_amu, id_pfr0, ID_PFR0_AMU_SHIFT,
 		    ID_PFR0_AMU_MASK, ID_PFR0_AMU_V1, ENABLE_FEAT_AMU)
+
+/* Auxiliary counters for FEAT_AMU */
+CREATE_FEATURE_FUNCS(feat_amu_aux, amcfgr, AMCFGR_NCG_SHIFT,
+		    AMCFGR_NCG_MASK, 1U, ENABLE_AMU_AUXILIARY_COUNTERS)
 
 /* FEAT_AMUV1P1: AMU Extension v1.1 */
 CREATE_FEATURE_FUNCS(feat_amuv1p1, id_pfr0, ID_PFR0_AMU_SHIFT,

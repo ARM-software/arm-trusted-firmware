@@ -1560,12 +1560,10 @@
  ******************************************************************************/
 
 #define CPUPPMCR_EL3			S3_6_C15_C2_0
-#define CPUPPMCR_EL3_MPMMPINCTL_SHIFT	UINT64_C(0)
-#define CPUPPMCR_EL3_MPMMPINCTL_MASK	UINT64_C(0x1)
+#define CPUPPMCR_EL3_MPMMPINCTL_BIT	BIT(0)
 
 #define CPUMPMMCR_EL3			S3_6_C15_C2_1
-#define CPUMPMMCR_EL3_MPMM_EN_SHIFT	UINT64_C(0)
-#define CPUMPMMCR_EL3_MPMM_EN_MASK	UINT64_C(0x1)
+#define CPUMPMMCR_EL3_MPMM_EN_BIT	BIT(0)
 
 /* alternative system register encoding for the "sb" speculation barrier */
 #define SYSREG_SB			S0_3_C3_C0_7

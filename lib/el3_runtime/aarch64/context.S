@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -209,19 +209,6 @@ endfunc fpregs_context_restore
  */
 func sve_context_save
 .arch_extension sve
-	/* Temporarily enable SVE */
-	mrs	x10, cptr_el3
-	orr	x11, x10, #CPTR_EZ_BIT
-	bic	x11, x11, #TFP_BIT
-	msr	cptr_el3, x11
-	isb
-
-	/* zcr_el3 */
-	mrs	x12, S3_6_C1_C2_0
-	mov	x13, #((SVE_VECTOR_LEN >> 7) - 1)
-	msr	S3_6_C1_C2_0, x13
-	isb
-
 	/* Predicate registers */
 	mov x13, #CTX_SIMD_PREDICATES
 	add	x9, x0, x13
@@ -237,11 +224,6 @@ func sve_context_save
 	mov x13, #CTX_SIMD_VECTORS
 	add	x9, x0, x13
 	sve_vectors_op  str, x9
-
-	/* Restore SVE enablement */
-	msr	S3_6_C1_C2_0, x12 /* zcr_el3 */
-	msr	cptr_el3, x10
-	isb
 .arch_extension nosve
 
 	/* Save FPSR, FPCR and FPEXC32 */
@@ -260,19 +242,6 @@ endfunc sve_context_save
  */
 func sve_context_restore
 .arch_extension sve
-	/* Temporarily enable SVE for EL3 */
-	mrs	x10, cptr_el3
-	orr	x11, x10, #CPTR_EZ_BIT
-	bic	x11, x11, #TFP_BIT
-	msr	cptr_el3, x11
-	isb
-
-	/* zcr_el3 */
-	mrs	x12, S3_6_C1_C2_0
-	mov	x13, #((SVE_VECTOR_LEN >> 7) - 1)
-	msr	S3_6_C1_C2_0, x13
-	isb
-
 	/* Restore FFR register before predicates */
 	mov x13, #CTX_SIMD_FFR
 	add	x9, x0, x13
@@ -288,11 +257,6 @@ func sve_context_restore
 	mov x13, #CTX_SIMD_VECTORS
 	add	x9, x0, x13
 	sve_vectors_op	ldr, x9
-
-	/* Restore SVE enablement */
-	msr	S3_6_C1_C2_0, x12 /* zcr_el3 */
-	msr	cptr_el3, x10
-	isb
 .arch_extension nosve
 
 	/* Restore FPSR, FPCR and FPEXC32 */
@@ -604,10 +568,7 @@ func el3_exit
 
 	/* ----------------------------------------------------------
 	 * Restore CPTR_EL3.
-	 * ZCR is only restored if SVE is supported and enabled.
-	 * Synchronization is required before zcr_el3 is addressed.
-	 * ----------------------------------------------------------
-	 */
+	 * ---------------------------------------------------------- */
 
 	/* The address of the per_world context is stored in x9 */
 	get_per_world_context x9
@@ -616,13 +577,6 @@ func el3_exit
 	msr	cptr_el3, x19
 
 #if IMAGE_BL31
-	ands	x19, x19, #CPTR_EZ_BIT
-	beq	sve_not_enabled
-
-	isb
-	msr	S3_6_C1_C2_0, x20 /* zcr_el3 */
-sve_not_enabled:
-
 	restore_mpam3_el3
 
 #endif /* IMAGE_BL31 */

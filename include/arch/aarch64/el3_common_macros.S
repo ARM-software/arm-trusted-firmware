@@ -454,6 +454,10 @@
 	 *  Necessary on PMUv3 <= p7 where MDCR_EL3.{SCCD,MCCD} are not
 	 *  available.
 	 *
+	 * CPTR_EL3.EZ: Set to one so that accesses to ZCR_EL3 do not trap
+	 * CPTR_EL3.TFP: Set to zero so that advanced SIMD operations don't trap
+	 * CPTR_EL3.ESM: Set to one so that SME related registers don't trap
+	 *
 	 * PSTATE.DIT: Set to one to enable the Data Independent Timing (DIT)
 	 *  functionality, if implemented in EL3.
 	 * ---------------------------------------------------------------------
@@ -472,6 +476,12 @@
 		mrs 	x15, pmcr_el0
 		orr	x15, x15, #PMCR_EL0_DP_BIT
 		msr	pmcr_el0, x15
+
+		mrs	x15, cptr_el3
+		orr	x15, x15, #CPTR_EZ_BIT
+		orr	x15, x15, #ESM_BIT
+		bic	x15, x15, #TFP_BIT
+		msr	cptr_el3, x15
 
 #if ENABLE_FEAT_DIT
 #if ENABLE_FEAT_DIT > 1

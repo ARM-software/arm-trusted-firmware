@@ -29,6 +29,7 @@ cpu_reset_func_start nevis
 	 * ----------------------------------------------------
 	 */
 	msr	SSBS, xzr
+	enable_mpmm
 cpu_reset_func_end nevis
 
 func nevis_core_pwr_dwn
