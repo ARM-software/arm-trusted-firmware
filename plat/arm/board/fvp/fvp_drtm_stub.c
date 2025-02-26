@@ -38,3 +38,8 @@ uint64_t plat_drtm_get_acpi_tables_region_size(void)
 {
 	return 0ULL;
 }
+
+uint64_t plat_drtm_get_dlme_img_auth_features(void)
+{
+	return 0ULL;
+}
