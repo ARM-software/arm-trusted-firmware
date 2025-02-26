@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2024-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -246,10 +246,6 @@ int stpmic2_regulator_levels_mv(struct pmic_handle_s *pmic,
 				size_t *levels_count)
 {
 	const struct regul_struct *regul = &regul_table[id];
-
-	if (regul == NULL) {
-		return RET_ERROR_BAD_PARAMETERS;
-	}
 
 	if (levels_count != NULL) {
 		*levels_count = regul->volt_table_size;
