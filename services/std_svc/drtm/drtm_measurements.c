@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -198,6 +198,10 @@ enum drtm_retc drtm_take_measurements(const struct_drtm_dl_args *a)
 					       PCR_18);
 	CHECK_RC(rc,
 		 drtm_event_log_measure_and_record(DRTM_EVENT_ARM_SEPARATOR));
+
+	/* Measure no Action event but not extend it in PCR */
+	CHECK_RC(rc,
+		 drtm_event_log_measure_and_record(DRTM_EVENT_ARM_NO_ACTION));
 	/*
 	 * If the DCE is unable to log a measurement because there is no available
 	 * space in the event log region, the DCE must extend a hash of the value
