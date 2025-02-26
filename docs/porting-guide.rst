@@ -1043,6 +1043,17 @@ This function returns the Maximum number of TCB hashes recorded by the
 platform.
 For more details see section 3.3 Table 6 of `DRTM`_ specification.
 
+Function : plat_drtm_get_dlme_img_auth_features()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint64_t
+
+This function returns the DLME image authentication features.
+For more details see section 3.3 Table 6 of `DRTM`_ specification.
+
 Function : plat_drtm_validate_ns_region()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
