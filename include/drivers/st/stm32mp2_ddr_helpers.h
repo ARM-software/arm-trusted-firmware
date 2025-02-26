@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2024-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,7 +22,6 @@ enum stm32mp2_ddr_sr_mode {
 void ddr_activate_controller(struct stm32mp_ddrctl *ctl, bool sr_entry);
 void ddr_wait_lp3_mode(bool state);
 int ddr_sr_exit_loop(void);
-uint32_t ddr_get_io_calibration_val(void);
 int ddr_sr_entry(bool standby);
 int ddr_sr_exit(void);
 enum stm32mp2_ddr_sr_mode ddr_read_sr_mode(void);
