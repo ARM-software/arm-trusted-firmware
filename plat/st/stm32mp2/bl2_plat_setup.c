@@ -14,6 +14,7 @@
 #include <drivers/clk.h>
 #include <drivers/mmc.h>
 #include <drivers/st/regulator_fixed.h>
+#include <drivers/st/stm32_rifsc.h>
 #include <drivers/st/stm32_rng.h>
 #include <drivers/st/stm32mp2_ddr_helpers.h>
 #include <drivers/st/stm32mp2_ram.h>
@@ -220,6 +221,11 @@ skip_console_init:
 	}
 
 	fconf_populate("TB_FW", STM32MP_DTB_BASE);
+
+#if STM32MP_USB_PROGRAMMER
+	stm32_rifsc_ip_configure(STM32MP2_RIMU_USB3DR, STM32MP25_RIFSC_USB3DR_ID,
+				 RIFSC_USB_BOOT_USB3DR_RIMC_CONF);
+#endif /* STM32MP_USB_PROGRAMMER */
 
 	/*
 	 * RISAB5 setup (dedicated for RETRAM)

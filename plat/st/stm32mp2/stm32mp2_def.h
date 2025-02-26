@@ -491,6 +491,18 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 #define RISAF_SEED_SIZE_IN_BYTES		U(4)
 
 /*******************************************************************************
+ * RIFSC
+ ******************************************************************************/
+#define STM32MP2_RIMU_USB3DR			U(4)
+
+/*
+ * USB3DR Secure/Priv Master (DMA) access
+ */
+#define RIFSC_USB_BOOT_USB3DR_RIMC_CONF		(RIFSC_RIMC_ATTRx_MPRIV | RIFSC_RIMC_ATTRx_MSEC | \
+						 RIF_CID1 << RIFSC_RIMC_ATTRx_MCID_SHIFT | \
+						 RIFSC_RIMC_ATTRx_CIDSEL)
+
+/*******************************************************************************
  * STM32MP CA35SSC
  ******************************************************************************/
 #define A35SSC_BASE				U(0x48800000)
