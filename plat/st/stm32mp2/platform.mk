@@ -215,7 +215,8 @@ BL2_SOURCES			+=	plat/st/stm32mp2/bl2_plat_setup.c			\
 
 BL2_SOURCES			+=	drivers/st/crypto/stm32_hash.c
 
-BL2_SOURCES			+=	drivers/st/rif/stm32mp2_risaf.c
+BL2_SOURCES			+=	drivers/st/rif/stm32_rifsc.c 				\
+					drivers/st/rif/stm32mp2_risaf.c
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES			+=	drivers/st/mmc/stm32_sdmmc2.c

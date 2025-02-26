@@ -12,6 +12,7 @@
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32mp2_clk.h>
 #include <drivers/st/stm32mp2_risaf.h>
+#include <drivers/st/stm32mp_rifsc_regs.h>
 #endif
 #if STM32MP21
 #include <drivers/st/stm32mp21_pwr.h>
@@ -37,6 +38,7 @@
 #endif /* STM32MP25 */
 #include <dt-bindings/gpio/stm32-gpio.h>
 #include <dt-bindings/soc/rif.h>
+#include <dt-bindings/soc/stm32mp25-rif.h>
 
 #ifndef __ASSEMBLER__
 #include <boot_api.h>
@@ -441,6 +443,7 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 /*******************************************************************************
  * STM32MP RIF
  ******************************************************************************/
+#define RIFSC_BASE				U(0x42080000)
 #define RISAB1_BASE				U(0x420F0000)
 #define RISAB2_BASE				U(0x42100000)
 #define RISAB3_BASE				U(0x42110000)
