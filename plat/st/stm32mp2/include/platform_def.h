@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,7 +74,7 @@
  * BL31 specific defines.
  ******************************************************************************/
 #define BL31_BASE			0
-#define BL31_LIMIT			(STM32MP_SEC_SYSRAM_SIZE / 2)
+#define BL31_LIMIT			(STM32MP_SYSRAM_SIZE / 2)
 
 /*******************************************************************************
  * BL33 specific defines.

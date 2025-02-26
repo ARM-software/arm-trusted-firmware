@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,8 +76,6 @@
 #define RETRAM_BASE				U(0x0E080000)
 #define RETRAM_SIZE				U(0x00020000)
 
-#define STM32MP_SEC_SYSRAM_SIZE			STM32MP_SYSRAM_SIZE
-
 /* DDR configuration */
 #define STM32MP_DDR_BASE			U(0x80000000)
 #define STM32MP_DDR_MAX_SIZE			UL(0x100000000)	/* Max 4GB */
@@ -113,7 +111,7 @@ enum ddr_type {
 #define STM32MP_BL2_SIZE			U(0x00029000) /* 164 KB for BL2 */
 
 /* Allocate remaining sysram to BL31 Binary only */
-#define STM32MP_BL31_SIZE			(STM32MP_SEC_SYSRAM_SIZE - \
+#define STM32MP_BL31_SIZE			(STM32MP_SYSRAM_SIZE - \
 						 STM32MP_BL2_SIZE)
 
 #define BL31_PROGBITS_LIMIT			STM32MP_BL31_SIZE
