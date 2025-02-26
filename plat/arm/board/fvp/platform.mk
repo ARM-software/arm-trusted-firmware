@@ -225,7 +225,8 @@ endif
 #Include all CPUs to build to support all-errata build.
 ifeq (${ENABLE_ERRATA_ALL},1)
 	BUILD_CPUS_WITH_NO_FVP_MODEL = 1
-	FVP_CPU_LIBS    +=	lib/cpus/aarch64/cortex_a510.S		\
+	FVP_CPU_LIBS    +=    	lib/cpus/aarch64/cortex_a320.S          \
+				lib/cpus/aarch64/cortex_a510.S		\
 				lib/cpus/aarch64/cortex_a520.S		\
 				lib/cpus/aarch64/cortex_a725.S          \
 				lib/cpus/aarch64/cortex_x1.S            \
@@ -241,11 +242,9 @@ ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
 	# travis/gelas need these
 	FEAT_PABANDON	:=	1
 	ERRATA_SME_POWER_DOWN := 1
-	FVP_CPU_LIBS    +=	lib/cpus/aarch64/neoverse_n3.S		\
-				lib/cpus/aarch64/cortex_gelas.S		\
+	FVP_CPU_LIBS    +=	lib/cpus/aarch64/cortex_gelas.S		\
 				lib/cpus/aarch64/nevis.S		\
 				lib/cpus/aarch64/travis.S		\
-				lib/cpus/aarch64/cortex_arcadia.S	\
 				lib/cpus/aarch64/cortex_alto.S
 endif
 
