@@ -433,28 +433,12 @@ INCLUDE_TBBR_MK		:=	1
 ################################################################################
 
 ifneq (${SPD},none)
-	ifeq (${ARCH},aarch32)
-                $(error "Error: SPD is incompatible with AArch32.")
-	endif
-
-	ifdef EL3_PAYLOAD_BASE
-                $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
-                $(warning "The SPD and its BL32 companion will be present but \
-                ignored.")
-	endif
-
 	ifeq (${SPD},spmd)
 	# SPMD is located in std_svc directory
 		SPD_DIR := std_svc
 
 		ifeq ($(SPMD_SPM_AT_SEL2),1)
 			CTX_INCLUDE_EL2_REGS := 1
-			ifeq ($(SPMC_AT_EL3),1)
-                                $(error SPM cannot be enabled in both S-EL2 and EL3.)
-			endif
-			ifeq ($(CTX_INCLUDE_SVE_REGS),1)
-                                $(error SVE context management not needed with Hafnium SPMC.)
-			endif
 		endif
 
 		ifeq ($(findstring optee_sp,$(ARM_SPMC_MANIFEST_DTS)),optee_sp)
@@ -475,12 +459,6 @@ ifneq (${SPD},none)
 
 		ifneq ($(SP_LAYOUT_FILE),)
 		BL2_ENABLE_SP_LOAD := 1
-		endif
-
-		ifeq ($(SPMC_AT_EL3_SEL0_SP),1)
-			ifneq ($(SPMC_AT_EL3),1)
-			$(error SEL0 SP cannot be enabled without SPMC at EL3)
-			endif
 		endif
 	else
 		# All other SPDs in spd directory
@@ -506,15 +484,6 @@ ifneq (${SPD},none)
 	# If both BL32_SOURCES and BL32 are defined, the binary takes precedence
 	# over the sources.
 endif #(SPD=none)
-
-ifeq (${ENABLE_SPMD_LP}, 1)
-ifneq (${SPD},spmd)
-        $(error Error: ENABLE_SPMD_LP requires SPD=spmd.)
-endif
-ifeq ($(SPMC_AT_EL3),1)
-        $(error SPMC at EL3 not supported when enabling SPMD Logical partitions.)
-endif
-endif
 
 ################################################################################
 # Include the platform specific Makefile after the SPD Makefile (the platform
@@ -773,6 +742,42 @@ endif
 ################################################################################
 # Check incompatible options and dependencies
 ################################################################################
+
+# Handle all invalid build configurations with SPMD usage.
+ifeq (${ENABLE_SPMD_LP}, 1)
+ifneq (${SPD},spmd)
+	$(error Error: ENABLE_SPMD_LP requires SPD=spmd.)
+endif
+ifeq ($(SPMC_AT_EL3),1)
+	$(error SPMC at EL3 not supported when enabling SPMD Logical partitions.)
+endif
+endif
+
+ifneq (${SPD},none)
+ifeq (${ARCH},aarch32)
+	$(error "Error: SPD is incompatible with AArch32.")
+endif
+ifdef EL3_PAYLOAD_BASE
+	$(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
+	$(warning "The SPD and its BL32 companion will be present but ignored.")
+endif
+ifeq (${SPD},spmd)
+ifeq ($(SPMD_SPM_AT_SEL2),1)
+	ifeq ($(SPMC_AT_EL3),1)
+		$(error SPM cannot be enabled in both S-EL2 and EL3.)
+	endif
+	ifeq ($(CTX_INCLUDE_SVE_REGS),1)
+		$(error SVE context management not needed with Hafnium SPMC.)
+	endif
+endif
+
+ifeq ($(SPMC_AT_EL3_SEL0_SP),1)
+	ifneq ($(SPMC_AT_EL3),1)
+		$(error SEL0 SP cannot be enabled without SPMC at EL3)
+	endif
+endif
+endif #(SPD=spmd)
+endif #(SPD!=none)
 
 # USE_DEBUGFS experimental feature recommended only in debug builds
 ifeq (${USE_DEBUGFS},1)
