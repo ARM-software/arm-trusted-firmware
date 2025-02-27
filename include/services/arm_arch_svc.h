@@ -298,6 +298,8 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 	MDCR_MTPME_BIT		|						\
 	MDCR_NSTBE_BIT		|						\
 	MDCR_NSTB(2UL)		|						\
+	MDCR_MCCD_BIT		|						\
+	MDCR_SCCD_BIT		|						\
 	MDCR_SDD_BIT		|						\
 	MDCR_SPD32(3UL)		|						\
 	MDCR_NSPB(2UL)		|						\
