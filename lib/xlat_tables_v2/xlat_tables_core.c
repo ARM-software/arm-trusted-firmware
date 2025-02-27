@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 #include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <lib/utils.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -1204,16 +1205,13 @@ void __init init_xlat_tables_ctx(xlat_ctx_t *ctx)
 	xlat_mmap_print(mm);
 
 	/* All tables must be zeroed before mapping any region. */
+	zeromem(ctx->base_table, ctx->base_table_entries * sizeof(uint64_t));
 
-	for (unsigned int i = 0U; i < ctx->base_table_entries; i++)
-		ctx->base_table[i] = INVALID_DESC;
-
-	for (int j = 0; j < ctx->tables_num; j++) {
 #if PLAT_XLAT_TABLES_DYNAMIC
-		ctx->tables_mapped_regions[j] = 0;
+	zeromem(ctx->tables_mapped_regions, ctx->tables_num * sizeof(uint32_t));
 #endif
-		for (unsigned int i = 0U; i < XLAT_TABLE_ENTRIES; i++)
-			ctx->tables[j][i] = INVALID_DESC;
+	for (int i = 0; i < ctx->tables_num; i++) {
+		zeromem(ctx->tables[i], XLAT_TABLE_ENTRIES * sizeof(uint64_t));
 	}
 
 	while (mm->size != 0U) {
