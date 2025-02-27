@@ -8,15 +8,15 @@ LOCAL_DIR := $(call GET_LOCAL_DIR)
 
 MODULE := pmic
 
-ifneq (${PMIC_CHIP}, mt6363)
-LOCAL_SRCS-y += ${LOCAL_DIR}/pmic.c
-PLAT_INCLUDES += -I${LOCAL_DIR}/
-else
-LOCAL_SRCS-y := ${LOCAL_DIR}/pmic_psc.c
+ifeq (${CONFIG_MTK_PMIC_SHUTDOWN_V2}, y)
 LOCAL_SRCS-y += ${LOCAL_DIR}/pmic_common_swap_api.c
+LOCAL_SRCS-y := ${LOCAL_DIR}/pmic_psc.c
 LOCAL_SRCS-${CONFIG_MTK_PMIC_LOWPOWER} += ${LOCAL_DIR}/${MTK_SOC}/pmic_lowpower_init.c
 LOCAL_SRCS-${CONFIG_MTK_PMIC_LOWPOWER} += ${LOCAL_DIR}/${MTK_SOC}/pmic_swap_api.c
 LOCAL_SRCS-${CONFIG_MTK_PMIC_SHUTDOWN_CFG} += ${LOCAL_DIR}/${MTK_SOC}/pmic_shutdown_cfg.c
+else
+LOCAL_SRCS-y += ${LOCAL_DIR}/pmic.c
+PLAT_INCLUDES += -I${LOCAL_DIR}/
 endif
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))
