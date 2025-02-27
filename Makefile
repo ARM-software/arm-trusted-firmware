@@ -163,15 +163,6 @@ endif #(ARM_ARCH_MAJOR)
 ################################################################################
 arch-features		=	${ARM_ARCH_FEATURE}
 
-# Set the compiler's architecture feature modifiers
-ifneq ($(arch-features), none)
-	# Strip "none+" from arch-features
-	arch-features	:=	$(subst none+,,$(arch-features))
-	march-directive	:=	$(march-directive)+$(arch-features)
-# Print features
-        $(info Arm Architecture Features specified: $(subst +, ,$(arch-features)))
-endif #(arch-features)
-
 ifneq ($(findstring clang,$(notdir $(CC))),)
 	ifneq ($(findstring armclang,$(notdir $(CC))),)
 		TF_CFLAGS_aarch32	:=	-target arm-arm-none-eabi
@@ -235,8 +226,6 @@ endif #(AARCH32_INSTRUCTION_SET)
 
 TF_CFLAGS_aarch32	+=	-mno-unaligned-access
 TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
-
-ASFLAGS		+=	$(march-directive)
 
 ##############################################################################
 # WARNINGS Configuration
@@ -692,6 +681,7 @@ endif
 include ${MAKE_HELPERS_DIRECTORY}march.mk
 
 TF_CFLAGS   +=	$(march-directive)
+ASFLAGS		+=	$(march-directive)
 
 # This internal flag is common option which is set to 1 for scenarios
 # when the BL2 is running in EL3 level. This occurs in two scenarios -
@@ -1046,12 +1036,6 @@ ifeq (${ENABLE_RME},1)
 	endif
 endif
 
-# Determine if FEAT_RNG is supported
-ENABLE_FEAT_RNG		=	$(if $(findstring rng,${arch-features}),1,0)
-
-# Determine if FEAT_SB is supported
-ENABLE_FEAT_SB		=	$(if $(findstring sb,${arch-features}),1,0)
-
 ifeq ($(PSA_CRYPTO),1)
         $(info PSA_CRYPTO is an experimental feature)
 endif
@@ -1176,7 +1160,6 @@ $(eval $(call assert_booleans,\
 	ENABLE_AMU_FCONF \
 	AMU_RESTRICT_COUNTERS \
 	ENABLE_ASSERTIONS \
-	ENABLE_FEAT_SB \
 	ENABLE_PIE \
 	ENABLE_PMF \
 	ENABLE_PSCI_STAT \
@@ -1237,6 +1220,7 @@ $(eval $(call assert_booleans,\
 	ENABLE_MPMM_FCONF \
 	FEATURE_DETECTION \
 	TRNG_SUPPORT \
+	ENABLE_ERRATA_ALL \
 	ERRATA_ABI_SUPPORT \
 	ERRATA_NON_ARM_INTERCONNECT \
 	CONDITIONAL_CMO \
@@ -1272,6 +1256,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_FEAT_RNG_TRAP \
 	ENABLE_FEAT_SEL2 \
 	ENABLE_FEAT_TCR2 \
+	ENABLE_FEAT_SB \
 	ENABLE_FEAT_S2PIE \
 	ENABLE_FEAT_S1PIE \
 	ENABLE_FEAT_S2POE \

@@ -1425,12 +1425,9 @@ void cm_prepare_el3_exit_ns(void)
 {
 #ifdef IMAGE_BL31
 #if ERRATA_A520_2938996 || ERRATA_X4_2726228
-	cpu_context_t *trbe_ctx = cm_get_context(NON_SECURE);
-
-	assert(trbe_ctx != NULL);
 	if (check_if_affected_core() == ERRATA_APPLIES) {
 		if (is_feat_trbe_supported()) {
-			trbe_disable(ctx);
+			trbe_disable();
 		}
 	}
 #endif

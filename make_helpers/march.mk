@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -81,5 +81,14 @@ endif # provided-march supported
 endif # not clang
 
 march-directive := -march=${provided-march}
+
+# Set the compiler's architecture feature modifiers
+ifneq ($(arch-features), none)
+	# Strip "none+" from arch-features
+	arch-features	:=	$(subst none+,,$(arch-features))
+	march-directive	:=	$(march-directive)+$(arch-features)
+# Print features
+        $(info Arm Architecture Features specified: $(subst +, ,$(arch-features)))
+endif #(arch-features)
 
 endif # MARCH_DIRECTIVE
