@@ -3,6 +3,93 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.0..refs/tags/lts-v2.12.1) (2025-02-27)
+
+### New Features
+
+- **Platforms**
+
+  - **Arm**
+
+    - **Automotive RD**
+
+      - **RD-1 AE**
+
+        - add Generic Timer in device tree ([34f10e7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/34f10e7d9fc74881dd048f5302ae6d5f4fe21f9d))
+        - add support for OP-TEE SPMC ([8e42407](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8e42407798677a9b02cf5f055989fcf3f164e571))
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - mbedtls config update for v3.6.2 ([8e4bb69](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8e4bb69c747ec7c17b79ebf6a7cb55ddb56d5aec))
+
+### Resolved Issues
+
+- **readme:** dummy commit for sandbox release ([704d39a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/704d39a42cf20c92583d8dd257a1e5bb2c79c2bf))
+
+- **Platforms**
+
+  - **Arm**
+
+    - **Automotive RD**
+
+      - **RD-1 AE**
+
+        - fix rd1-ae device tree ([b19ce90](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b19ce90a908cd04ad47f4a588777f42010983445))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - workaround for accessing ICH_VMCR_EL2 ([9d6143e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9d6143ec8ffb673a28b497ef8e235f978f4a7a77))
+    - workaround for Cortex-A710 erratum 3701772 ([d482688](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d4826882210b88241c4976d0d043c1556a0af53e))
+    - workaround for Cortex-A715 erratum 3699560 ([a7b3227](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a7b322706435f0f5886a3a28bfedd12687537bce))
+    - workaround for Cortex-A720 erratum 3699561 ([2452627](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/24526273fc504500c36029fa8c188f4e394f4f07))
+    - workaround for Cortex-A720-AE erratum 3699562 ([ae6edfd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ae6edfd5b5434e2e647ce2d6fc6f5b5f3f0ba880))
+    - workaround for Cortex-A725 erratum 3699564 ([4e78288](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4e78288fd2bce291ec2b1e8c2f2fb7ad4d5cb6d3))
+    - workaround for Cortex-X2 erratum 3701772 ([fa6c987](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fa6c9874485bb92cab324bc1fa07eefafc7fa4db))
+    - workaround for Cortex-X3 erratum 3701769 ([8299c12](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8299c127461782cfc2d0f606abf8ae67544f50db))
+    - workaround for Cortex-X4 erratum 2923985 ([a6f6396](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a6f6396313eacf66e0ef13ff3bc63d0252c2a160))
+    - workaround for Cortex-X4 erratum 3701758 ([6e0efc7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6e0efc7fe739a2101e013e23fa3697276bf9b9b3))
+    - workaround for Cortex-X925 erratum 3701747 ([15300ac](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/15300ac30c552814dfe9339a13ce170e8f388b23))
+    - workaround for CVE-2024-5660 for Cortex-A710 ([6041f07](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6041f0723994a6dcf783a20b341b4ee0a8d76751))
+    - workaround for CVE-2024-5660 for Cortex-A77 ([0b2d220](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0b2d22097c967b73b3b1044a6a9186d7899ae91c))
+    - workaround for CVE-2024-5660 for Cortex-A78 ([eda09ac](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/eda09acd1b22fa993686799743ea2e10ac70d5fb))
+    - workaround for CVE-2024-5660 for Cortex-A78_AE ([d52c52a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d52c52a5fa8c811dc050032f93621308aef6e513))
+    - workaround for CVE-2024-5660 for Cortex-A78C ([3bd6531](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3bd6531a55a477148328dd325b2c101000ff1ca8))
+    - workaround for CVE-2024-5660 for Cortex-X1 ([b9766da](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b9766da963651df9a25ea4a04b565c52bc654147))
+    - workaround for CVE-2024-5660 for Cortex-X2 ([41b64fe](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/41b64fe36f42f29e10592c28259408187f1ac3fd))
+    - workaround for CVE-2024-5660 for Cortex-X3 ([ef37871](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ef378713fa4bac6e815426ec831fb367416d86cf))
+    - workaround for CVE-2024-5660 for Cortex-X4 ([b8e111c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b8e111c726197e3a84891c62528e10e618aa7023))
+    - workaround for CVE-2024-5660 for Cortex-X925 ([70a7d3f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/70a7d3f2d0303a411a0ac5ffc5b8b395e201f26f))
+    - workaround for CVE-2024-5660 for Neoverse-N2 ([6324220](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6324220805b105f10eab59fca3dee5caabfe3cb3))
+    - workaround for CVE-2024-5660 for Neoverse-V1 ([193370e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/193370e1c6a28382992d500b59f2bd05392ea897))
+    - workaround for CVE-2024-5660 for Neoverse-V2 ([b23f5da](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b23f5da614e63370dbc37a88294544e03410641e))
+    - workaround for CVE-2024-5660 for Neoverse-V3 ([2898088](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2898088f8ba6537a7ae2adb46d61e7f1a8ef82fa))
+    - workaround for Neoverse-N2 erratum 3701773 ([7e41b70](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7e41b706e97c0e36e19d51b6a1785280e9ff4108))
+    - workaround for Neoverse-N3 erratum 3699563 ([4a9ff09](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4a9ff092c9b41ddc844c17f6508afd5cc9c20d1d))
+    - workaround for Neoverse-V3 erratum 3701767 ([3809359](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3809359e212473ae46e770f94c6a7f11a5ae71b5))
+
+- **Miscellaneous**
+
+  - **Security**
+
+    - add CVE-2024-7881 mitigation to Cortex-X3 ([16b8724](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/16b87247ed03fbe98c5c4a96c4dd00844ae53284))
+    - add CVE-2024-7881 mitigation to Cortex-X4 ([41a52ef](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/41a52efd6f38920e90e19f42d7193d261e6ab209))
+    - add CVE-2024-7881 mitigation to Cortex-X925 ([3e4d94c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3e4d94c43b64c66b2aa5f8108f5b9fe13c2ceb82))
+    - add CVE-2024-7881 mitigation to Neoverse-V2 ([192a152](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/192a152448aef856ca98dfbb405f9d75bb7da911))
+    - add CVE-2024-7881 mitigation to Neoverse-V3 ([427c33b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/427c33bc0c0bba043ac8e30de01b4ad1cfb2e760))
+    - add support in cpu_ops for CVE-2024-7881 ([bea64fd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/bea64fd5272deaf53111135baf36abb47b73b93e))
+    - apply SMCCC_ARCH_WORKAROUND_4 to affected cpus ([9427c06](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9427c061eb8dee00c32d72c20d6bc231002a575c))
+    - enable WORKAROUND_CVE_2024_7881 build option ([2f09b9f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2f09b9f3c2af685d86eaad1f847e55a22fd53c60))
+
+- **Build System**
+
+  - do not force PLAT in plat_helpers.mk ([d1c3a5d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d1c3a5d8b9d8ace9914495cace668dd93008a9a3))
+
 ## [2.12.0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/v2.11.0..refs/tags/v2.12.0) (2024-11-19)
 
 The threat model for context management and the asymmetric CPU extension support
