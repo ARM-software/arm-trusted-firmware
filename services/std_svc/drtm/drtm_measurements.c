@@ -56,7 +56,10 @@ static int drtm_event_log_measure_and_record(uintptr_t data_base,
 	}
 
 	/* Record the mesasurement in the EventLog buffer */
-	event_log_record(hash_data, event_type, &metadata);
+	rc = event_log_record(hash_data, event_type, &metadata);
+	if (rc != 0) {
+		return rc;
+	}
 
 	return 0;
 }

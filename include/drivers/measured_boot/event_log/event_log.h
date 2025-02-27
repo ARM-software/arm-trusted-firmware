@@ -7,12 +7,11 @@
 #ifndef EVENT_LOG_H
 #define EVENT_LOG_H
 
+#include <stddef.h>
 #include <stdint.h>
 
-#include <common/debug.h>
-#include <common/tbbr/tbbr_img_def.h>
 #include <drivers/auth/crypto_mod.h>
-#include <drivers/measured_boot/event_log/tcg.h>
+#include "tcg.h"
 
 /*
  * Set Event Log debug level to one of:
@@ -33,7 +32,7 @@
 #elif EVENT_LOG_LEVEL == LOG_LEVEL_VERBOSE
 #define	LOG_EVENT	VERBOSE
 #else
-#error "Not supported EVENT_LOG_LEVEL"
+#define LOG_EVENT printf
 #endif
 
 /* Number of hashing algorithms supported */
@@ -65,18 +64,18 @@ typedef struct {
 			sizeof(event2_data_t))
 
 /* Functions' declarations */
-void event_log_buf_init(uint8_t *event_log_start, uint8_t *event_log_finish);
-void event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish);
-void event_log_write_specid_event(void);
-void event_log_write_header(void);
-void event_log_dump(uint8_t *log_addr, size_t log_size);
-int event_log_measure(uintptr_t data_base, uint32_t data_size,
-		      unsigned char hash_data[CRYPTO_MD_MAX_SIZE]);
-void event_log_record(const uint8_t *hash, uint32_t event_type,
-		      const event_log_metadata_t *metadata_ptr);
+int event_log_buf_init(uint8_t *event_log_start, uint8_t *event_log_finish);
+int event_log_dump(uint8_t *log_addr, size_t log_size);
+int event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish);
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id,
 				 const event_log_metadata_t *metadata_ptr);
+int event_log_measure(uintptr_t data_base, uint32_t data_size,
+		      unsigned char hash_data[CRYPTO_MD_MAX_SIZE]);
+int event_log_record(const uint8_t *hash, uint32_t event_type,
+		     const event_log_metadata_t *metadata_ptr);
+int event_log_write_header(void);
+int event_log_write_specid_event(void);
 size_t event_log_get_cur_size(uint8_t *event_log_start);
 
 #endif /* EVENT_LOG_H */
