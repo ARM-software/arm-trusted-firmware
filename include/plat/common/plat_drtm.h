@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -59,6 +59,8 @@ uint64_t plat_drtm_get_min_size_normal_world_dce(void);
 uint64_t plat_drtm_get_tcb_hash_table_size(void);
 uint64_t plat_drtm_get_imp_def_dlme_region_size(void);
 uint64_t plat_drtm_get_tcb_hash_features(void);
+uint64_t plat_drtm_get_acpi_tables_region_size(void);
+uint64_t plat_drtm_get_dlme_img_auth_features(void);
 
 /* DRTM error handling functions */
 int plat_set_drtm_error(uint64_t error_code);

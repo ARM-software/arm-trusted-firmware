@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -45,7 +45,7 @@
  * Range(Min/Max) of DRTM parameter structure versions supported
  */
 #define ARM_DRTM_PARAMS_MIN_VERSION	U(1)
-#define ARM_DRTM_PARAMS_MAX_VERSION	U(1)
+#define ARM_DRTM_PARAMS_MAX_VERSION	U(2)
 
 enum drtm_dlme_el {
 	DLME_AT_EL1 = MODE_EL1,
@@ -74,6 +74,7 @@ typedef struct {
 	uint64_t dma_prot_features;
 	uint64_t boot_pe_id;
 	uint64_t tcb_hash_features;
+	uint64_t dlme_image_auth_features;
 } drtm_features_t;
 
 struct __packed drtm_dl_args_v1 {

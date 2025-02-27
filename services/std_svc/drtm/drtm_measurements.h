@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -25,6 +25,9 @@
 #define DRTM_EVENT_ARM_DCE_SECONDARY	DRTM_EVENT_TYPE(8)
 #define DRTM_EVENT_ARM_TZFW		DRTM_EVENT_TYPE(9)
 #define DRTM_EVENT_ARM_SEPARATOR	DRTM_EVENT_TYPE(10)
+#define DRTM_EVENT_ARM_DLME_PUBKEY	DRTM_EVENT_TYPE(11)
+#define DRTM_EVENT_ARM_DLME_SVN		DRTM_EVENT_TYPE(12)
+#define DRTM_EVENT_ARM_NO_ACTION	DRTM_EVENT_TYPE(13)
 
 #define CHECK_RC(rc, func_call) { \
 	if (rc != 0) { \

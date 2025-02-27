@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier:    BSD-3-Clause
  *
@@ -49,6 +49,7 @@
 #define ARM_DRTM_FEATURES_DMA_PROT	U(0x3)
 #define ARM_DRTM_FEATURES_BOOT_PE_ID	U(0x4)
 #define ARM_DRTM_FEATURES_TCB_HASHES	U(0x5)
+#define ARM_DRTM_FEATURES_DLME_IMG_AUTH	U(0x6)
 
 #define is_drtm_fid(_fid) \
 	(((_fid) >= ARM_DRTM_SVC_VERSION) && ((_fid) <= ARM_DRTM_SVC_LOCK_TCB_HASH))
@@ -108,6 +109,9 @@
 
 #define ARM_DRTM_TCB_HASH_FEATURES_MAX_NUM_HASHES_SHIFT	U(0)
 #define ARM_DRTM_TCB_HASH_FEATURES_MAX_NUM_HASHES_MASK	ULL(0xFF)
+
+#define ARM_DRTM_DLME_IMAGE_AUTH_SUPPORT_SHIFT	U(0)
+#define ARM_DRTM_DLME_IMAGE_AUTH_SUPPORT_MASK	ULL(0x1)
 
 #define ARM_DRTM_TPM_FEATURES_SET_PCR_SCHEMA(reg, val)			\
 	do {								\
@@ -176,6 +180,16 @@
 		(((val) &						\
 		ARM_DRTM_TCB_HASH_FEATURES_MAX_NUM_HASHES_MASK) <<	\
 		ARM_DRTM_TCB_HASH_FEATURES_MAX_NUM_HASHES_SHIFT));	\
+	} while (false)
+
+#define ARM_DRTM_DLME_IMG_AUTH_SUPPORT(reg, val)		\
+	do {								\
+		reg = (((reg) &						\
+		~(ARM_DRTM_DLME_IMAGE_AUTH_SUPPORT_MASK <<	\
+		ARM_DRTM_DLME_IMAGE_AUTH_SUPPORT_SHIFT)) |	\
+		(((val) &						\
+		ARM_DRTM_DLME_IMAGE_AUTH_SUPPORT_MASK) <<	\
+		ARM_DRTM_DLME_IMAGE_AUTH_SUPPORT_SHIFT));	\
 	} while (false)
 
 /* Definitions for DRTM address map */
