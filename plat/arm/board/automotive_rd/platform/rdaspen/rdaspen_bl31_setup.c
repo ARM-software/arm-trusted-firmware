@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
+#include <drivers/arm/dsu.h>
 
 static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 	{
@@ -28,3 +29,10 @@ const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
 {
 	return css_scmi_override_pm_ops(ops);
 }
+
+const dsu_driver_data_t plat_dsu_data = {
+	.clusterpwrdwn_pwrdn = false,
+	.clusterpwrdwn_memret = false,
+	.clusterpwrctlr_cachepwr = CLUSTERPWRCTLR_CACHEPWR_RESET,
+	.clusterpwrctlr_funcret = CLUSTERPWRCTLR_FUNCRET_RESET
+};

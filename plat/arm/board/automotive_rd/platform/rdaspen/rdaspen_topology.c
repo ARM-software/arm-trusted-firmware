@@ -50,3 +50,11 @@ unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
 {
 	return PLAT_MAX_CPUS_PER_CLUSTER;
 }
+
+/******************************************************************************
+ * Return the cluster ID of current CPU
+ *****************************************************************************/
+unsigned int plat_cluster_id_by_mpidr(u_register_t mpidr)
+{
+	return MPIDR_AFFLVL2_VAL(mpidr);
+}

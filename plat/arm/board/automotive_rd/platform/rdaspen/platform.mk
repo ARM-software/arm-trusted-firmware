@@ -42,6 +42,11 @@ SVE_VECTOR_LEN				:=	128
 USE_GIC_DRIVER				:=	3
 USE_COHERENT_MEM			:=	0
 
+# Enable the DSU driver and save DSU PMU registers on cluster off
+# and restore them on cluster on
+USE_DSU_DRIVER				:=	1
+PRESERVE_DSU_PMU_REGS			:=	1
+
 # ERRATA
 ERRATA_A720_AE_3699562			:=	1
 
@@ -60,7 +65,8 @@ BL31_SOURCES	+=	${RDASPEN_CPU_SOURCES}	\
 			${RDASPEN_BASE}/rdaspen_topology.c	\
 			drivers/cfi/v2m/v2m_flash.c		\
 			lib/utils/mem_region.c	\
-			plat/arm/common/arm_nor_psci_mem_protect.c
+			plat/arm/common/arm_nor_psci_mem_protect.c \
+			drivers/arm/dsu/dsu.c
 
 ifeq (${TRUSTED_BOARD_BOOT}, 1)
 BL2_SOURCES	+=	${RDASPEN_BASE}/rdaspen_trusted_board_boot.c
