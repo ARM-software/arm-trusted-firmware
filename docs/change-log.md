@@ -3,6 +3,37 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.14](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.13..refs/tags/lts-v2.10.14) (2025-02-28)
+
+### Resolved Issues
+
+- **Build System**
+
+  - march handling with arch-features ([eb26e78](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/eb26e7855b3f907d42485b7f9ee3656753d01977))
+
+### Code Refactoring
+
+- **Build System**
+
+  - allow mandatory feats disabling ([926f86b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/926f86bacc2fb452232bb9c95dab246740416f1f))
+  - minor updates ([f0d1976](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f0d1976186d322fb221c8c8c776d54042e490b76))
+  - refactor mandatory options ([48b41b4](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/48b41b441d2f0e3b836c30d1a4cb8bc33ab83e80))
+  - remove enabling feat ([9e469a8](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9e469a880ef0d0f342ccddcd5ca754b3a20613ad))
+
+### New Features
+
+- **Architecture**
+
+  - **Trace Buffer Extension (FEAT_TRBE)**
+
+    - introduce trbe_disable() function ([c7d9465](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c7d9465b9bbeb96aa68b39e0cb5327b23b716ecb))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add ENABLE_ERRATA_ALL flag ([b9e252a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b9e252aeefb160a2d2a2a2dfd413a440c6a824a9))
+
 ## [lts-2.10.13](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.12..refs/tags/lts-v2.10.13) (2025-02-14)
 
 ### Miscellaneous
