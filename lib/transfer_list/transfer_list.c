@@ -35,7 +35,15 @@ void transfer_list_dump(struct transfer_list_header *tl)
 		if (!te) {
 			break;
 		}
+
 		INFO("Entry %d:\n", i++);
+		transfer_entry_dump(te);
+	}
+}
+
+void transfer_entry_dump(struct transfer_list_entry *te)
+{
+	if (te) {
 		INFO("tag_id     0x%x\n", te->tag_id);
 		INFO("hdr_size   0x%x\n", te->hdr_size);
 		INFO("data_size  0x%x\n", te->data_size);
