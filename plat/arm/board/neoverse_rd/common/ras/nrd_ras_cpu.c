@@ -129,8 +129,7 @@ static void populate_cpu_err_data(cpu_err_info *cpu_info,
 
 	cpu_info->ErrCtxEl3Reg[0]   = read_ctx_reg(get_el3state_ctx(ctx),
 						   CTX_ELR_EL3);
-	cpu_info->ErrCtxEl3Reg[1]   = read_ctx_reg(get_el3state_ctx(ctx),
-						   CTX_ESR_EL3);
+	cpu_info->ErrCtxEl3Reg[1]   = read_esr_el3();
 	cpu_info->ErrCtxEl3Reg[2]   = read_far_el3();
 	cpu_info->ErrCtxEl3Reg[4]   = read_mair_el3();
 	cpu_info->ErrCtxEl3Reg[5]   = read_sctlr_el3();
