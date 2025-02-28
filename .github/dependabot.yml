@@ -42,7 +42,7 @@ updates:
     groups:
       dev-deps:
         patterns: ["*"]
-        update-types: ["major", "minor", "patch"]
+        update-types: ["minor", "patch"]
 
   - target-branch: "lts-v2.10"
     package-ecosystem: "pip"
