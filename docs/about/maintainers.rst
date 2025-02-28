@@ -387,7 +387,7 @@ Libfdt wrappers
 
 Firmware Encryption Framework
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Sumit Garg <sumit.garg@linaro.org>
+:|M|: Sumit Garg <sumit.garg@kernel.org>
 :|G|: `b49020`_
 :|F|: drivers/io/io_encrypted.c
 :|F|: include/drivers/io/io_encrypted.h
@@ -895,7 +895,7 @@ STMicroelectronics platform ports
 
 Synquacer platform port
 ^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Sumit Garg <sumit.garg@linaro.org>
+:|M|: Sumit Garg <sumit.garg@kernel.org>
 :|G|: `b49020`_
 :|M|: Masahisa Kojima <kojima.masahisa@socionext.com>
 :|G|: `masahisak`_
@@ -996,7 +996,7 @@ Cert_create tool
 
 Encrypt_fw tool
 ^^^^^^^^^^^^^^^
-:|M|: Sumit Garg <sumit.garg@linaro.org>
+:|M|: Sumit Garg <sumit.garg@kernel.org>
 :|G|: `b49020`_
 :|F|: tools/encrypt_fw/
 
