@@ -78,6 +78,10 @@ const mmap_region_t plat_arm_mmap[] = {
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
+#if TRANSFER_LIST
+	TC_MAP_FW_NS_HANDOFF,
+	TC_MAP_EL3_FW_HANDOFF,
+#endif
 	{0}
 };
 

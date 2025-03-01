@@ -159,8 +159,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
 
+#if !TRANSFER_LIST
 	/* Fill the properties struct with the info from the config dtb */
 	fconf_populate("FW_CONFIG", arg1);
+#endif
 }
 
 #ifdef PLATFORM_TESTS
@@ -205,6 +207,13 @@ void __init bl31_plat_arch_setup(void)
 {
 	arm_bl31_plat_arch_setup();
 
+	/*
+	 * When TRANSFER_LIST is enabled, HW_CONFIG is included in Transfer List
+	 * as an entry with the tag TL_TAG_FDT. In this case, the configuration
+	 * is already available, so the fconf_populate mechanism is not needed.
+	 * The code block below is only required when TRANSFER_LIST is not used.
+	 */
+#if !TRANSFER_LIST
 	/* HW_CONFIG was also loaded by BL2 */
 	const struct dyn_cfg_dtb_info_t *hw_config_info;
 
@@ -212,6 +221,7 @@ void __init bl31_plat_arch_setup(void)
 	assert(hw_config_info != NULL);
 
 	fconf_populate("HW_CONFIG", hw_config_info->config_addr);
+#endif
 }
 
 #if defined(SPD_spmd) && (SPMC_AT_EL3 == 0)
