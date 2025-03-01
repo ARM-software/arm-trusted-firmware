@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,6 +33,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	TC_MAP_NS_DRAM1,
 	TC_FLASH0_RO,
 	TC_MAP_DEVICE,
+#if TRANSFER_LIST
+	TC_MAP_EL3_FW_HANDOFF,
+#endif
 	{0}
 };
 #endif
@@ -58,6 +61,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef SPD_opteed
 	ARM_MAP_OPTEE_CORE_MEM,
 	ARM_OPTEE_PAGEABLE_LOAD_MEM,
+#endif
+#if TRANSFER_LIST
+	TC_MAP_EL3_FW_HANDOFF,
 #endif
 	{0}
 };
