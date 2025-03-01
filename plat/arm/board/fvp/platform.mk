@@ -433,7 +433,6 @@ endif
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config,${FVP_HW_CONFIG}))
 
 ifeq (${TRANSFER_LIST}, 1)
-include lib/transfer_list/transfer_list.mk
 
 ifeq ($(RESET_TO_BL31), 1)
 FW_HANDOFF_SIZE			:=	20000

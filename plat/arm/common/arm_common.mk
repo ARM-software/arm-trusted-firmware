@@ -311,6 +311,7 @@ BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/common/plat_psci_common.c
 
 ifeq (${TRANSFER_LIST}, 1)
+	include lib/transfer_list/transfer_list.mk
 	TRANSFER_LIST_SOURCES += plat/arm/common/arm_transfer_list.c
 endif
 
