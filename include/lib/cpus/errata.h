@@ -33,7 +33,6 @@
 #include <lib/cassert.h>
 
 void print_errata_status(void);
-void errata_print_msg(unsigned int status, const char *cpu, const char *id);
 
 /*
  * NOTE that this structure will be different on AArch32 and AArch64. The

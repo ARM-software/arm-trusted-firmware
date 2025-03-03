@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -40,16 +40,6 @@ endfunc qti_kryo6_gold_reset_func
 func qti_kryo6_gold_cluster_pwr_dwn
 	ret
 endfunc qti_kryo6_gold_cluster_pwr_dwn
-
-#if REPORT_ERRATA
-/*
- * Errata printing function for Kryo4 Gold. Must follow AAPCS.
- */
-func qti_kryo6_gold_errata_report
-	/* TODO : Need to add support. Required only for debug bl31 image.*/
-	ret
-endfunc qti_kryo6_gold_errata_report
-#endif
 
 /* ---------------------------------------------
  * This function provides kryo4_gold specific

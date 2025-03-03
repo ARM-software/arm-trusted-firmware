@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -44,7 +44,6 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				bl31/bl31_context_mgmt.c			\
 				common/runtime_svc.c				\
 				lib/cpus/errata_common.c			\
-				lib/cpus/aarch64/dsu_helpers.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
 				services/arm_arch_svc/arm_arch_svc_setup.c	\
 				services/std_svc/std_svc_setup.c		\

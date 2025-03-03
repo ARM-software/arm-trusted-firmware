@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <cortex_a710.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 #include "wa_cve_2022_23960_bhb_vector.S"
 
@@ -171,14 +172,14 @@ workaround_runtime_end cortex_a710, ERRATUM(2291219), NO_ISB
 
 check_erratum_ls cortex_a710, ERRATUM(2291219), CPU_REV(2, 0)
 
-/*
- * ERRATA_DSU_2313941 is defined in dsu_helpers.S but applies to Cortex-A710 as
- * well. Create a symbollic link to existing errata workaround to get them
- * registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a710_2313941, check_errata_dsu_2313941
-.equ erratum_cortex_a710_2313941_wa, errata_dsu_2313941_wa
-add_erratum_entry cortex_a710, ERRATUM(2313941), ERRATA_DSU_2313941, APPLY_AT_RESET
+workaround_reset_start cortex_a710, ERRATUM(2313941), ERRATA_DSU_2313941
+	errata_dsu_2313941_wa_impl
+workaround_reset_end cortex_a710, ERRATUM(2313941)
+
+check_erratum_custom_start cortex_a710, ERRATUM(2313941)
+	check_errata_dsu_2313941_impl
+	ret
+check_erratum_custom_end cortex_a710, ERRATUM(2313941)
 
 workaround_reset_start cortex_a710, ERRATUM(2371105), ERRATA_A710_2371105
 	/* Set bit 40 in CPUACTLR2_EL1 */
@@ -241,8 +242,6 @@ func cortex_a710_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_a710_core_pwr_dwn
-
-errata_report_shim cortex_a710
 
 cpu_reset_func_start cortex_a710
 	/* Disable speculative loads */

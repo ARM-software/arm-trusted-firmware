@@ -138,12 +138,6 @@
 	  .popsection
 	.endif
 
-
-	/*
-	 * Mandatory errata status printing function for CPUs of
-	 * this class.
-	 */
-	.quad \_name\()_errata_report
 	.quad \_name\()_cpu_str
 
 #ifdef IMAGE_BL31
@@ -183,49 +177,6 @@
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
 			\_extra1, \_extra2, \_extra3, \_extra4, 0, \_power_down_ops
 	.endm
-
-/* TODO can be deleted once all CPUs have been converted */
-#if REPORT_ERRATA
-	/*
-	 * Print status of a CPU errata
-	 *
-	 * _chosen:
-	 *	Identifier indicating whether or not a CPU errata has been
-	 *	compiled in.
-	 * _cpu:
-	 *	Name of the CPU
-	 * _id:
-	 *	Errata identifier
-	 * _rev_var:
-	 *	Register containing the combined value CPU revision and variant
-	 *	- typically the return value of cpu_get_rev_var
-	 */
-	.macro report_errata _chosen, _cpu, _id, _rev_var=x8
-	/* Stash a string with errata ID */
-	.pushsection .rodata
-	\_cpu\()_errata_\_id\()_str:
-	.asciz	"\_id"
-	.popsection
-
-	/* Check whether errata applies */
-	mov	x0, \_rev_var
-	/* Shall clobber: x0-x7 */
-	bl	check_errata_\_id
-
-	.ifeq \_chosen
-	/*
-	 * Errata workaround has not been compiled in. If the errata would have
-	 * applied had it been compiled in, print its status as missing.
-	 */
-	cbz	x0, 900f
-	mov	x0, #ERRATA_MISSING
-	.endif
-900:
-	adr	x1, \_cpu\()_cpu_str
-	adr	x2, \_cpu\()_errata_\_id\()_str
-	bl	errata_print_msg
-	.endm
-#endif
 
 	/*
 	 * This macro is used on some CPUs to detect if they are vulnerable
@@ -508,8 +459,35 @@
 .endm
 
 /*
- * Helpers to select which revisions errata apply to. Don't leave a link
- * register as the cpu_rev_var_*** will call the ret and we can save on one.
+ * Helpers to report if an erratum applies. Compares the given revision variant
+ * to the given value. Return ERRATA_APPLIES or ERRATA_NOT_APPLIES accordingly.
+ *
+ * _rev_num: the given revision variant. Or
+ * _rev_num_lo,_rev_num_hi: the lower and upper bounds of the revision variant
+ *
+ * in body:
+ *	clobber: x0
+ *	argument: x0 - cpu_rev_var
+ */
+.macro cpu_rev_var_ls _rev_num:req
+	cmp	x0, #\_rev_num
+	cset	x0, ls
+.endm
+
+.macro cpu_rev_var_hs _rev_num:req
+	cmp	x0, #\_rev_num
+	cset	x0, hs
+.endm
+
+.macro cpu_rev_var_range _rev_num_lo:req, _rev_num_hi:req
+	cmp	x0, #\_rev_num_lo
+	mov	x1, #\_rev_num_hi
+	ccmp	x0, x1, #2, hs
+	cset	x0, ls
+.endm
+
+/*
+ * Helpers to select which revisions errata apply to.
  *
  * _cpu:
  *	Name of cpu as given to declare_cpu_ops
@@ -525,28 +503,27 @@
  *	Revision to apply to
  *
  * in body:
- *	clobber: x0 to x4
+ *	clobber: x0 to x1
  *	argument: x0 - cpu_rev_var
  */
 .macro check_erratum_ls _cpu:req, _cve:req, _id:req, _rev_num:req
 	func check_erratum_\_cpu\()_\_id
-		mov	x1, #\_rev_num
-		b	cpu_rev_var_ls
+		cpu_rev_var_ls \_rev_num
+		ret
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_hs _cpu:req, _cve:req, _id:req, _rev_num:req
 	func check_erratum_\_cpu\()_\_id
-		mov	x1, #\_rev_num
-		b	cpu_rev_var_hs
+		cpu_rev_var_hs \_rev_num
+		ret
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_range _cpu:req, _cve:req, _id:req, _rev_num_lo:req, _rev_num_hi:req
 	func check_erratum_\_cpu\()_\_id
-		mov	x1, #\_rev_num_lo
-		mov	x2, #\_rev_num_hi
-		b	cpu_rev_var_range
+		cpu_rev_var_range \_rev_num_lo, \_rev_num_hi
+		ret
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
@@ -561,7 +538,10 @@
 	endfunc check_erratum_\_cpu\()_\_id
 .endm
 
-/* provide a shorthand for the name format for annoying errata */
+/*
+ * provide a shorthand for the name format for annoying errata
+ * body: clobber x0 to x3
+ */
 .macro check_erratum_custom_start _cpu:req, _cve:req, _id:req
 	func check_erratum_\_cpu\()_\_id
 .endm
@@ -627,23 +607,4 @@
 	endfunc \_cpu\()_reset_func
 .endm
 
-/*
- * Maintain compatibility with the old scheme of each cpu has its own reporting.
- * TODO remove entirely once all cpus have been converted. This includes the
- * cpu_ops entry, as print_errata_status can call this directly for all cpus
- */
-.macro errata_report_shim _cpu:req
-	#if REPORT_ERRATA
-	func \_cpu\()_errata_report
-		/* normal stack frame for pretty debugging */
-		stp	x29, x30, [sp, #-16]!
-		mov	x29, sp
-
-		bl	generic_errata_report
-
-		ldp	x29, x30, [sp], #16
-		ret
-	endfunc \_cpu\()_errata_report
-	#endif
-.endm
 #endif /* CPU_MACROS_S */

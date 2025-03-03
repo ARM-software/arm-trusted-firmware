@@ -580,6 +580,9 @@ For Neoverse V2, the following errata build flags are defined :
 
 For Neoverse V3, the following errata build flags are defined :
 
+- ``ERRATA_V3_2970647``: This applies errata 2970647 workaround to Neoverse-V3
+  CPU. This needs to be enabled for revision r0p0. It is fixed in r0p1.
+
 - ``ERRATA_V3_3701767``: This applies errata 3701767 workaround to Neoverse-V3
   CPU. This needs to be enabled for revisions r0p0, r0p1, r0p2 of the CPU and
   is still open.
@@ -873,6 +876,9 @@ For Cortex-X4, the following errata build flags are defined :
 - ``ERRATA_X4_2923985``: This applies errata 2923985 workaround to Cortex-X4
   CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
 
+- ``ERRATA_X4_2957258``: This applies errata 2957258 workaround to Cortex-X4
+  CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
+
 - ``ERRATA_X4_3076789``: This applies errata 3076789 workaround to Cortex-X4
   CPU. This needs to be enabled for revisions r0p0 and r0p1. It is fixed in r0p2.
 
@@ -1003,6 +1009,12 @@ For Cortex-A720, the following errata build flags are defined :
 -  ``ERRATA_A720_3699561``: This applies errata 3699561 workaround to
    Cortex-A720 CPU. This needs to be enabled for revisions r0p0, r0p1
    and r0p2. It is still open.
+
+For Cortex-A720_AE, the following errata build flags are defined :
+
+-  ``ERRATA_A720_AE_3699562``: This applies errata 3699562 workaround
+   to Cortex-A720_AE CPU. This needs to be enabled for revisions r0p0.
+   It is still open.
 
 DSU Errata Workarounds
 ----------------------

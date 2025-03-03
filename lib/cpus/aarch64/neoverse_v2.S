@@ -129,7 +129,6 @@ cpu_reset_func_start neoverse_v2
 	msr	SSBS, xzr
 cpu_reset_func_end neoverse_v2
 
-errata_report_shim neoverse_v2
 	/* ---------------------------------------------
 	 * This function provides Neoverse V2-
 	 * specific register information for crash

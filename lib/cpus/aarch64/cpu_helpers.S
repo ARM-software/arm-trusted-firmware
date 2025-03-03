@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -225,59 +225,6 @@ func cpu_get_rev_var
 	bfxil	x0, x1, #MIDR_REV_SHIFT, #MIDR_REV_BITS
 	ret
 endfunc cpu_get_rev_var
-
-/*
- * Compare the CPU's revision-variant (x0) with a given value (x1), for errata
- * application purposes. If the revision-variant is less than or same as a given
- * value, indicates that errata applies; otherwise not.
- *
- * Shall clobber: x0-x3
- */
-	.globl	cpu_rev_var_ls
-func cpu_rev_var_ls
-	mov	x2, #ERRATA_APPLIES
-	mov	x3, #ERRATA_NOT_APPLIES
-	cmp	x0, x1
-	csel	x0, x2, x3, ls
-	ret
-endfunc cpu_rev_var_ls
-
-/*
- * Compare the CPU's revision-variant (x0) with a given value (x1), for errata
- * application purposes. If the revision-variant is higher than or same as a
- * given value, indicates that errata applies; otherwise not.
- *
- * Shall clobber: x0-x3
- */
-	.globl	cpu_rev_var_hs
-func cpu_rev_var_hs
-	mov	x2, #ERRATA_APPLIES
-	mov	x3, #ERRATA_NOT_APPLIES
-	cmp	x0, x1
-	csel	x0, x2, x3, hs
-	ret
-endfunc cpu_rev_var_hs
-
-/*
- * Compare the CPU's revision-variant (x0) with a given range (x1 - x2), for errata
- * application purposes. If the revision-variant is between or includes the given
- * values, this indicates that errata applies; otherwise not.
- *
- * Shall clobber: x0-x4
- */
-	.globl	cpu_rev_var_range
-func cpu_rev_var_range
-	mov	x3, #ERRATA_APPLIES
-	mov	x4, #ERRATA_NOT_APPLIES
-	cmp	x0, x1
-	csel	x1, x3, x4, hs
-	cbz	x1, 1f
-	cmp	x0, x2
-	csel	x1, x3, x4, ls
-1:
-	mov	x0, x1
-	ret
-endfunc cpu_rev_var_range
 
 /*
  * int check_wa_cve_2017_5715(void);

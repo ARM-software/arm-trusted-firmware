@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <neoverse_n2.h>
 #include "wa_cve_2022_23960_bhb_vector.S"
 
@@ -30,15 +31,16 @@ check_erratum_ls neoverse_n2, ERRATUM(3701773), CPU_REV(0, 3)
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_N2_BHB_LOOP_COUNT, neoverse_n2
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/*
- * ERRATA_DSU_2313941:
- * The errata is defined in dsu_helpers.S and applies to Neoverse N2.
- * Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_neoverse_n2_2313941, check_errata_dsu_2313941
-.equ erratum_neoverse_n2_2313941_wa, errata_dsu_2313941_wa
-add_erratum_entry neoverse_n2, ERRATUM(2313941), ERRATA_DSU_2313941, APPLY_AT_RESET
+workaround_reset_start neoverse_n2, ERRATUM(2313941), ERRATA_DSU_2313941
+	errata_dsu_2313941_wa_impl
+workaround_reset_end neoverse_n2, ERRATUM(2313941)
+
+check_erratum_custom_start neoverse_n2, ERRATUM(2313941)
+	branch_if_scu_not_present 2f /* label 1 is used in the macro */
+	check_errata_dsu_2313941_impl
+	2:
+	ret
+check_erratum_custom_end neoverse_n2, ERRATUM(2313941)
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start neoverse_n2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
@@ -178,20 +180,20 @@ workaround_runtime_end neoverse_n2, ERRATUM(2326639)
 
 check_erratum_ls neoverse_n2, ERRATUM(2326639), CPU_REV(0, 0)
 
-workaround_runtime_start neoverse_n2, ERRATUM(2340933), ERRATA_N2_2340933
+workaround_reset_start neoverse_n2, ERRATUM(2340933), ERRATA_N2_2340933
 	/* Set bit 61 in CPUACTLR5_EL1 */
 	sysreg_bit_set NEOVERSE_N2_CPUACTLR5_EL1, BIT(61)
-workaround_runtime_end neoverse_n2, ERRATUM(2340933)
+workaround_reset_end neoverse_n2, ERRATUM(2340933)
 
 check_erratum_ls neoverse_n2, ERRATUM(2340933), CPU_REV(0, 0)
 
-workaround_runtime_start neoverse_n2, ERRATUM(2346952), ERRATA_N2_2346952
+workaround_reset_start neoverse_n2, ERRATUM(2346952), ERRATA_N2_2346952
 	/* Set TXREQ to STATIC and full L2 TQ size */
 	mrs	x1, NEOVERSE_N2_CPUECTLR2_EL1
 	mov	x0, #CPUECTLR2_EL1_TXREQ_STATIC_FULL
 	bfi	x1, x0, #CPUECTLR2_EL1_TXREQ_LSB, #CPUECTLR2_EL1_TXREQ_WIDTH
 	msr	NEOVERSE_N2_CPUECTLR2_EL1, x1
-workaround_runtime_end neoverse_n2, ERRATUM(2346952)
+workaround_reset_end neoverse_n2, ERRATUM(2346952)
 
 check_erratum_ls neoverse_n2, ERRATUM(2346952), CPU_REV(0, 2)
 
@@ -293,8 +295,6 @@ func neoverse_n2_core_pwr_dwn
 	isb
 	ret
 endfunc neoverse_n2_core_pwr_dwn
-
-errata_report_shim neoverse_n2
 
 	/* ---------------------------------------------
 	 * This function provides Neoverse N2 specific

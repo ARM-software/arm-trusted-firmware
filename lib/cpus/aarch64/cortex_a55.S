@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <cortex_a55.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 
 /* Hardware handled coherency */
@@ -19,23 +20,23 @@
 	.globl cortex_a55_reset_func
 	.globl cortex_a55_core_pwr_dwn
 
-/* ERRATA_DSU_798953:
- * The errata is defined in dsu_helpers.S but applies to cortex_a55
- * as well. Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a55_798953, check_errata_dsu_798953
-.equ erratum_cortex_a55_798953_wa, errata_dsu_798953_wa
-add_erratum_entry cortex_a55, ERRATUM(798953), ERRATA_DSU_798953, APPLY_AT_RESET
+workaround_reset_start cortex_a55, ERRATUM(798953), ERRATA_DSU_798953
+	errata_dsu_798953_wa_impl
+workaround_reset_end cortex_a55, ERRATUM(798953)
 
-/* ERRATA_DSU_936184:
- * The errata is defined in dsu_helpers.S but applies to cortex_a55
- * as well. Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a55_936184, check_errata_dsu_936184
-.equ erratum_cortex_a55_936184_wa, errata_dsu_936184_wa
-add_erratum_entry cortex_a55, ERRATUM(936184), ERRATA_DSU_936184, APPLY_AT_RESET
+check_erratum_custom_start cortex_a55, ERRATUM(798953)
+	check_errata_dsu_798953_impl
+	ret
+check_erratum_custom_end cortex_a55, ERRATUM(798953)
+
+workaround_reset_start cortex_a55, ERRATUM(936184), ERRATA_DSU_936184
+	errata_dsu_936184_wa_impl
+workaround_reset_end cortex_a55, ERRATUM(936184)
+
+check_erratum_custom_start cortex_a55, ERRATUM(936184)
+	check_errata_dsu_936184_impl
+	ret
+check_erratum_custom_end cortex_a55, ERRATUM(936184)
 
 workaround_reset_start cortex_a55, ERRATUM(768277), ERRATA_A55_768277
 	sysreg_bit_set CORTEX_A55_CPUACTLR_EL1, CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
@@ -50,8 +51,7 @@ workaround_reset_end cortex_a55, ERRATUM(778703)
 
 check_erratum_custom_start cortex_a55, ERRATUM(778703)
 	mov	x16, x30
-	mov	x1, #0x00
-	bl	cpu_rev_var_ls
+	cpu_rev_var_ls	CPU_REV(0, 0)
 	/*
 	 * Check that no private L2 cache is configured
 	 */
@@ -115,8 +115,6 @@ add_erratum_entry cortex_a55, ERRATUM(1530923), ERRATA_A55_1530923, NO_APPLY_AT_
 
 cpu_reset_func_start cortex_a55
 cpu_reset_func_end cortex_a55
-
-errata_report_shim cortex_a55
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down

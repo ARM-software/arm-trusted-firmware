@@ -568,6 +568,10 @@ CPU_FLAG_LIST += ERRATA_V1_2743233
 # still open.
 CPU_FLAG_LIST += ERRATA_V1_2779461
 
+# Flag to apply erratum 2970647 workaround during reset. This erratum applies
+# to revisions r0p0 of the Neoverse V3 cpu and is fixed in r0p1.
+CPU_FLAG_LIST += ERRATA_V3_2970647
+
 # Flag to apply erratum 3701767 workaround during context save/restore of
 # ICH_VMCR_EL2 reg. This erratum applies to revisions r0p0, r0p1 and r0p2 of
 # the Neoverse V3 cpu and is still open.
@@ -879,6 +883,12 @@ CPU_FLAG_LIST += ERRATA_X4_2897503
 # Flag to apply erratum 2923985 workaround on reset. This erratum applies
 # to revisions r0p0 and r0p1 of the Cortex-X4 cpu. It is fixed in r0p2.
 CPU_FLAG_LIST += ERRATA_X4_2923985
+
+# Flag to apply erratum 2957258 workaround to avoid incorrect virtualization of
+# MPIDR_EL1/VMPIDR_EL2 and MIDR_EL1/VPIDR_EL2 when reading in EL2/EL3. This
+# erratum applies to revisions r0p0, r0p1 of the Cortex-X4 cpu. It is fixed
+# in r0p2.
+CPU_FLAG_LIST += ERRATA_X4_2957258
 
 # Flag to apply erratum 3076789 workaround on reset. This erratum applies
 # to revisions r0p0 and r0p1 of the Cortex-X4 cpu. It is fixed in r0p2.

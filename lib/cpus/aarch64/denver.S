@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -295,8 +295,6 @@ endfunc denver_core_pwr_dwn
 func denver_cluster_pwr_dwn
 	ret
 endfunc denver_cluster_pwr_dwn
-
-errata_report_shim denver
 
 	/* ---------------------------------------------
 	 * This function provides Denver specific
