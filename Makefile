@@ -1762,8 +1762,7 @@ $(BUILD_PLAT)/romlib/romlib.bin $(BUILD_PLAT)/lib/libwrappers.a $&: $(BUILD_PLAT
 	$(q)${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} CRYPTO_SUPPORT=${CRYPTO_SUPPORT} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES=$(call escape-shell,$(INCLUDES)) DEFINES=$(call escape-shell,$(DEFINES)) --no-print-directory -C ${ROMLIBPATH} all
 
 memmap: all
-	$(q)PYTHONPATH=${CURDIR}/tools/memory \
-		${PYTHON} -m memory.memmap -sr ${BUILD_PLAT}
+	$(q)$(if $(host-poetry),poetry run )memory -sr ${BUILD_PLAT}
 
 tl: ${BUILD_PLAT}/tl.bin
 ${BUILD_PLAT}/tl.bin: ${HW_CONFIG}

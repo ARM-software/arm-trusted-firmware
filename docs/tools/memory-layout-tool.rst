@@ -23,7 +23,7 @@ Getting Started
 
     .. code:: shell
 
-        poetry install --with memory
+        poetry install --no-root
 
 #. Verify that the tool runs in the installed virtual environment
 
@@ -231,6 +231,6 @@ you can specify the depth with:
 
 --------------
 
-*Copyright (c) 2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2023-2025, Arm Limited. All rights reserved.*
 
 .. _Poetry: https://python-poetry.org/docs/

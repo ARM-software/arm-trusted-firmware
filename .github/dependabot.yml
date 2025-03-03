@@ -36,7 +36,7 @@ updates:
   - target-branch: "main"
     package-ecosystem: "pip"
     versioning-strategy: "lockfile-only"
-    directories: ["/", "/tools/cot_dt2c", "/tools/tlc"]
+    directories: ["/", "/tools/cot_dt2c", "/tools/memory", "/tools/tlc"]
     schedule:
       interval: "daily"
     groups:
