@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -203,10 +203,10 @@ workaround_reset_end neoverse_v1, ERRATUM(2294912)
 
 check_erratum_ls neoverse_v1, ERRATUM(2294912), CPU_REV(1, 2)
 
-workaround_runtime_start neoverse_v1, ERRATUM(2348377), ERRATA_V1_2348377
+workaround_reset_start neoverse_v1, ERRATUM(2348377), ERRATA_V1_2348377
 	/* Set bit 61 in CPUACTLR5_EL1 */
 	sysreg_bit_set NEOVERSE_V1_ACTLR5_EL1, NEOVERSE_V1_ACTLR5_EL1_BIT_61
-workaround_runtime_end neoverse_v1, ERRATUM(2348377)
+workaround_reset_end neoverse_v1, ERRATUM(2348377)
 
 check_erratum_ls neoverse_v1, ERRATUM(2348377), CPU_REV(1, 1)
 

@@ -27,6 +27,21 @@ add_erratum_entry cortex_x925, ERRATUM(3701747), ERRATA_X925_3701747, NO_APPLY_A
 
 check_erratum_ls cortex_x925, ERRATUM(3701747), CPU_REV(0, 1)
 
+workaround_reset_start cortex_x925, ERRATUM(2963999), ERRATA_X925_2963999
+	/* Add ISB before MRS reads of MPIDR_EL1/MIDR_EL1 */
+	ldr x0, =0x0
+	msr S3_6_c15_c8_0, x0 	/* msr CPUPSELR_EL3, X0 */
+	ldr x0, =0xd5380000
+	msr S3_6_c15_c8_2, x0 	/* msr CPUPOR_EL3, X0 */
+	ldr x0, =0xFFFFFF40
+	msr S3_6_c15_c8_3,x0 	/* msr CPUPMR_EL3, X0 */
+	ldr x0, =0x000080010033f
+	msr S3_6_c15_c8_1, x0	/* msr CPUPCR_EL3, X0 */
+	isb
+workaround_reset_end cortex_x925, ERRATUM(2963999)
+
+check_erratum_ls cortex_x925, ERRATUM(2963999), CPU_REV(0, 0)
+
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x925, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
 	sysreg_bit_set CORTEX_X925_CPUECTLR_EL1, BIT(46)
