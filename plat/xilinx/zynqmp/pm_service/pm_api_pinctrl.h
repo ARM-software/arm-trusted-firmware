@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -184,7 +185,9 @@ enum  {
 	PINCTRL_GRP_MDIO2_0,
 	PINCTRL_GRP_MDIO3_0,
 	PINCTRL_GRP_QSPI0_0,
+	PINCTRL_GRP_QSPI0_1,
 	PINCTRL_GRP_QSPI_SS,
+	PINCTRL_GRP_QSPI_SS_1,
 	PINCTRL_GRP_QSPI_FBCLK,
 	PINCTRL_GRP_SPI0_0,
 	PINCTRL_GRP_SPI0_1,
