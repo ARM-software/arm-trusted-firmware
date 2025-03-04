@@ -46,6 +46,16 @@ Arm FVP Platform Specific Build Options
    is ``0``, which means the redistributor pages of all CPU cores are marked
    as read and write.
 
+-  ``INITRD_SIZE`` : Enable the insertion of initrd properties to the device
+   tree blob at build time. Takes an initrd size value in hex format
+
+-  ``INITRD_PATH`` : Enable the insertion of initrd properties to the device tree
+   blob at build time. Takes a path to an initrd file. Can be used as an
+   alternative to ``INITRD_SIZE``. ``INITRD_SIZE`` takes precedence over
+   ``INITRD_PATH`` if both values are provided.
+
+-  ``INITRD_BASE`` : Provide the preloaded initrd base address in memory (hex format).
+
 --------------
 
-*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*

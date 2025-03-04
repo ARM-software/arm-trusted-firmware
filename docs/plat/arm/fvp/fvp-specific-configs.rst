@@ -73,85 +73,122 @@ used:
    The address provided to the FVP must match the ``EL3_PAYLOAD_BASE`` address
    used when building TF-A.
 
-Booting a preloaded kernel image (Base FVP)
--------------------------------------------
+Booting a kernel image in BL33
+------------------------------
 
-The following example uses a simplified boot flow by directly jumping from the
-TF-A to the Linux kernel, which will use a ramdisk as filesystem. This can be
-useful if both the kernel and the device tree blob (DTB) are already present in
-memory (like in FVP).
+TF-A can boot a Linux kernel, which uses a ramdisk as a filesystem. The
+required initrd properties are injected in to the device tree blob (DTB) at
+build time.
 
-For example, if the kernel is loaded at ``0x80080000`` and the DTB is loaded at
-address ``0x82000000``, the firmware can be built like this:
+Kernel image packaged in fip as a BL33 image
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A Linux kernel image can be packaged in the fip as a BL33 image and then
+booted in TF-A.
+
+For example, the firmware can be built as:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-none-elf-  \
     make PLAT=fvp DEBUG=1             \
-    RESET_TO_BL31=1                   \
-    ARM_LINUX_KERNEL_AS_BL33=1        \
-    PRELOADED_BL33_BASE=0x80080000    \
-    ARM_PRELOADED_DTB_BASE=0x82000000 \
+    ARM_LINUX_KERNEL_AS_BL33          \
+    BL33=<path-to-kernel-binary>      \
+    INITRD_SIZE=0x8000000             \
     all fip
 
-Now, it is needed to modify the DTB so that the kernel knows the address of the
-ramdisk. The following script generates a patched DTB from the provided one,
-assuming that the ramdisk is loaded at address ``0x84000000``. Note that this
-script assumes that the user is using a ramdisk image prepared for U-Boot, like
-the ones provided by Linaro. If using a ramdisk without this header,the ``0x40``
-offset in ``INITRD_START`` has to be removed.
+The options ``INITRD_SIZE`` or ``INITRD_PATH`` triggers the insertion of initrd
+properties in to the DTB. ``INITRD_BASE`` is also required but a default value
+is set by the FVP platform.
 
-.. code:: bash
+The options available here are:
 
-    #!/bin/bash
+::
 
-    # Path to the input DTB
-    KERNEL_DTB=<path-to>/<fdt>
-    # Path to the output DTB
-    PATCHED_KERNEL_DTB=<path-to>/<patched-fdt>
-    # Base address of the ramdisk
-    INITRD_BASE=0x84000000
-    # Path to the ramdisk
-    INITRD=<path-to>/<ramdisk.img>
+    INITRD_BASE: Set the initrd base address in memory. Defaults to 0x90000000 in FVP.
+    INITRD_SIZE: Set the initrd size in dec or hex format. Hex format must precede with '0x'.
+    INITRD_PATH: Provide an initrd path for the build time to determine its exact size.
 
-    # Skip uboot header (64 bytes)
-    INITRD_START=$(printf "0x%x" $((${INITRD_BASE} + 0x40)) )
-    INITRD_SIZE=$(stat -Lc %s ${INITRD})
-    INITRD_END=$(printf "0x%x" $((${INITRD_BASE} + ${INITRD_SIZE})) )
+Users can provide either ``INITRD_SIZE`` or ``INITRD_PATH`` to set the initrd
+size value. ``INITRD_SIZE`` takes prioty over ``INITRD_PATH``.
 
-    CHOSEN_NODE=$(echo                                        \
-    "/ {                                                      \
-            chosen {                                          \
-                    linux,initrd-start = <${INITRD_START}>;   \
-                    linux,initrd-end = <${INITRD_END}>;       \
-            };                                                \
-    };")
-
-    echo $(dtc -O dts -I dtb ${KERNEL_DTB}) ${CHOSEN_NODE} |  \
-            dtc -O dtb -o ${PATCHED_KERNEL_DTB} -
-
-And the FVP binary can be run with the following command:
+Now the fvp binary can be run as:
 
 .. code:: shell
 
     <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
-    -C pctl.startup=0.0.0.0                                     \
-    -C bp.secure_memory=1                                       \
-    -C cluster0.NUM_CORES=4                                     \
-    -C cluster1.NUM_CORES=4                                     \
-    -C cache_state_modelled=1                                   \
-    -C cluster0.cpu0.RVBAR=0x04001000                           \
-    -C cluster0.cpu1.RVBAR=0x04001000                           \
-    -C cluster0.cpu2.RVBAR=0x04001000                           \
-    -C cluster0.cpu3.RVBAR=0x04001000                           \
-    -C cluster1.cpu0.RVBAR=0x04001000                           \
-    -C cluster1.cpu1.RVBAR=0x04001000                           \
-    -C cluster1.cpu2.RVBAR=0x04001000                           \
-    -C cluster1.cpu3.RVBAR=0x04001000                           \
-    --data cluster0.cpu0="<path-to>/bl31.bin"@0x04001000        \
-    --data cluster0.cpu0="<path-to>/<patched-fdt>"@0x82000000   \
+    -C bp.secureflashloader.fname=<path-to>/bl1.bin             \
+    -C bp.flashloader0.fname=<path-to>/fip.bin                  \
+    --data cluster0.cpu0="<path-to>/<initrd.bin>"@0x90000000
+
+.. note::
+    Providing a higher value for an initrd size than the actual size of the file
+    is supported but it will trigger a non-breaking "Initramfs unpacking failed"
+    error by the kernel at runtime. This error can be ignored because initrd's
+    can be stacked one after another, when the kernel unpacks the first initrd it
+    looks for another in the extra space which it won't find, hence the error.
+
+Preloaded kernel image - Normal flow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following example uses a simplified boot flow to boot a Linux kernel
+using TF-A. This can be useful if the kernel is already present in memory
+(like in FVP).
+
+For example, if the kernel is loaded at ``0x80080000`` the firmware can be
+built like this:
+
+.. code:: shell
+
+    make PLAT=fvp DEBUG=1             \
+    ARM_LINUX_KERNEL_AS_BL33=1        \
+    PRELOADED_BL33_BASE=0x80080000    \
+    INITRD_SIZE=0x8000000             \
+    all fip
+
+Now the FVP binary can be run with the following command:
+
+.. code:: shell
+
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
+    -C bp.secureflashloader.fname=<path-to>/bl1.bin             \
+    -C bp.flashloader0.fname=<path-to>/fip.bin                  \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
-    --data cluster0.cpu0="<path-to>/<ramdisk.img>"@0x84000000
+    --data cluster0.cpu0="<path-to>/<initrd.bin>"@0x90000000
+
+Preloaded kernel image - Reset to BL31
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We can also boot a Linux kernel by jumping directly to BL31 ``RESET_TO_BL31=1``.
+This requires preloading a DTB into memory. We can inject the initrd start and
+end properties into the DTB (HW_CONFIG) at build time which is then stored by
+TF-A in ``build/fvp/<build-type>/fdts/`` directory.
+
+For example, we can build the firmware as:
+
+.. code:: shell
+
+    make PLAT=fvp DEBUG=1                   \
+    RESET_TO_BL31=1                         \
+    ARM_LINUX_KERNEL_AS_BL33=1              \
+    PRELOADED_BL33_BASE=0x80080000          \
+    ARM_PRELOADED_DTB_BASE=0x87F00000       \
+    INITRD_BASE=0x88000000                  \
+    INITRD_PATH=<path-to>/initrd.bin
+
+Now we can run the binary as:
+
+.. code:: shell
+
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                               \
+    -C cluster0.NUM_CORES=4                                        \
+    -C cluster0.cpu0.RVBAR=0x04001000                              \
+    -C cluster0.cpu1.RVBAR=0x04001000                              \
+    -C cluster0.cpu2.RVBAR=0x04001000                              \
+    -C cluster0.cpu3.RVBAR=0x04001000                              \
+    --data cluster0.cpu0="<path-to>/bl31.bin"@0x04001000           \
+    --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000    \
+    --data cluster0.cpu0="<path-to>/<initrd.bin>"@0x88000000       \
+    --data cluster0.cpu0="<path-to>/fdts/fvp-base-gicv3-psci.dtb"@87F00000
 
 Obtaining the Flattened Device Trees
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
