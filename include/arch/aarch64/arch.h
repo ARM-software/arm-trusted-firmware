@@ -891,6 +891,24 @@
 #define SPSR_NZCV		(SPSR_V_BIT | SPSR_C_BIT | SPSR_Z_BIT | SPSR_N_BIT)
 #define SPSR_PACM_BIT_AARCH64	BIT_64(35)
 
+/*
+ * SPSR_EL2
+ *   M=0x9 (0b1001 EL2h)
+ *   M[4]=0
+ *   DAIF=0xF Exceptions masked on entry.
+ *   BTYPE=0  BTI not yet supported.
+ *   SSBS=0   Not yet supported.
+ *   IL=0     Not an illegal exception return.
+ *   SS=0     Not single stepping.
+ *   PAN=1    RMM shouldn't access Unprivileged memory when running in VHE mode.
+ *   UAO=0
+ *   DIT=0
+ *   TCO=0
+ *   NZCV=0
+ */
+#define SPSR_EL2_REALM		(SPSR_M_EL2H | (0xF << SPSR_DAIF_SHIFT) |  \
+				 SPSR_PAN_BIT)
+
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
 #define DISABLE_INTERRUPTS	(DAIF_FIQ_BIT | DAIF_IRQ_BIT)
