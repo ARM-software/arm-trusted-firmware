@@ -48,11 +48,9 @@ CASSERT(((TWED_DELAY & ~SCR_TWEDEL_MASK) == 0U), assert_twed_delay_value_check);
 #endif /* ENABLE_FEAT_TWED */
 
 per_world_context_t per_world_context[CPU_DATA_CONTEXT_NUM];
-static bool has_secure_perworld_init;
 
 static void manage_extensions_nonsecure(cpu_context_t *ctx);
 static void manage_extensions_secure(cpu_context_t *ctx);
-static void manage_extensions_secure_per_world(void);
 
 #if ((IMAGE_BL1) || (IMAGE_BL31 && (!CTX_INCLUDE_EL2_REGS)))
 static void setup_el1_context(cpu_context_t *ctx, const struct entry_point_info *ep)
@@ -150,17 +148,6 @@ static void setup_secure_context(cpu_context_t *ctx, const struct entry_point_in
 #endif
 
 	manage_extensions_secure(ctx);
-
-	/**
-	 * manage_extensions_secure_per_world api has to be executed once,
-	 * as the registers getting initialised, maintain constant value across
-	 * all the cpus for the secure world.
-	 * Henceforth, this check ensures that the registers are initialised once
-	 * and avoids re-initialization from multiple cores.
-	 */
-	if (!has_secure_perworld_init) {
-		manage_extensions_secure_per_world();
-	}
 }
 
 #if ENABLE_RME
@@ -686,14 +673,12 @@ void cm_manage_extensions_el3(unsigned int my_idx)
 
 	pmuv3_init_el3();
 }
-#endif /* IMAGE_BL31 */
 
 /******************************************************************************
  * Function to initialise the registers with the RESET values in the context
  * memory, which are maintained per world.
  ******************************************************************************/
-#if IMAGE_BL31
-void cm_el3_arch_init_per_world(per_world_context_t *per_world_ctx)
+static void cm_el3_arch_init_per_world(per_world_context_t *per_world_ctx)
 {
 	/*
 	 * Initialise CPTR_EL3, setting all fields rather than relying on hw.
@@ -718,15 +703,13 @@ void cm_el3_arch_init_per_world(per_world_context_t *per_world_ctx)
 
 	per_world_ctx->ctx_mpam3_el3 = MPAM3_EL3_RESET_VAL;
 }
-#endif /* IMAGE_BL31 */
 
 /*******************************************************************************
  * Initialise per_world_context for Non-Secure world.
  * This function enables the architecture extensions, which have same value
  * across the cores for the non-secure world.
  ******************************************************************************/
-#if IMAGE_BL31
-void manage_extensions_nonsecure_per_world(void)
+static void manage_extensions_nonsecure_per_world(void)
 {
 	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_NS]);
 
@@ -754,7 +737,6 @@ void manage_extensions_nonsecure_per_world(void)
 		fpmr_enable_per_world(&per_world_context[CPU_CONTEXT_NS]);
 	}
 }
-#endif /* IMAGE_BL31 */
 
 /*******************************************************************************
  * Initialise per_world_context for Secure world.
@@ -763,7 +745,6 @@ void manage_extensions_nonsecure_per_world(void)
  ******************************************************************************/
 static void manage_extensions_secure_per_world(void)
 {
-#if IMAGE_BL31
 	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
 
 	if (is_feat_sme_supported()) {
@@ -802,10 +783,55 @@ static void manage_extensions_secure_per_world(void)
 	if (is_feat_sys_reg_trace_supported()) {
 		sys_reg_trace_disable_per_world(&per_world_context[CPU_CONTEXT_SECURE]);
 	}
-
-	has_secure_perworld_init = true;
-#endif /* IMAGE_BL31 */
 }
+
+static void manage_extensions_realm_per_world(void)
+{
+#if ENABLE_RME
+	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_REALM]);
+
+	if (is_feat_sve_supported()) {
+	/*
+	 * Enable SVE and FPU in realm context when it is enabled for NS.
+	 * Realm manager must ensure that the SVE and FPU register
+	 * contexts are properly managed.
+	 */
+		sve_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
+	}
+
+	/* NS can access this but Realm shouldn't */
+	if (is_feat_sys_reg_trace_supported()) {
+		sys_reg_trace_disable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
+	}
+
+	/*
+	 * If SME/SME2 is supported and enabled for NS world, then disable trapping
+	 * of SME instructions for Realm world. RMM will save/restore required
+	 * registers that are shared with SVE/FPU so that Realm can use FPU or SVE.
+	 */
+	if (is_feat_sme_supported()) {
+		sme_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
+	}
+
+	/*
+	 * If FEAT_MPAM is supported and enabled, then disable trapping access
+	 * to the MPAM registers for Realm world. Instead, RMM will configure
+	 * the access to be trapped by itself so it can inject undefined aborts
+	 * back to the Realm.
+	 */
+	if (is_feat_mpam_supported()) {
+		mpam_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
+	}
+#endif /* ENABLE_RME */
+}
+
+void cm_manage_extensions_per_world(void)
+{
+	manage_extensions_nonsecure_per_world();
+	manage_extensions_secure_per_world();
+	manage_extensions_realm_per_world();
+}
+#endif /* IMAGE_BL31 */
 
 /*******************************************************************************
  * Enable architecture extensions on first entry to Non-secure world.

@@ -144,44 +144,6 @@ static void manage_extensions_realm(cpu_context_t *ctx)
 	}
 }
 
-static void manage_extensions_realm_per_world(void)
-{
-	cm_el3_arch_init_per_world(&per_world_context[CPU_CONTEXT_REALM]);
-
-	if (is_feat_sve_supported()) {
-	/*
-	 * Enable SVE and FPU in realm context when it is enabled for NS.
-	 * Realm manager must ensure that the SVE and FPU register
-	 * contexts are properly managed.
-	 */
-		sve_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
-	}
-
-	/* NS can access this but Realm shouldn't */
-	if (is_feat_sys_reg_trace_supported()) {
-		sys_reg_trace_disable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
-	}
-
-	/*
-	 * If SME/SME2 is supported and enabled for NS world, then disable trapping
-	 * of SME instructions for Realm world. RMM will save/restore required
-	 * registers that are shared with SVE/FPU so that Realm can use FPU or SVE.
-	 */
-	if (is_feat_sme_supported()) {
-		sme_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
-	}
-
-	/*
-	 * If FEAT_MPAM is supported and enabled, then disable trapping access
-	 * to the MPAM registers for Realm world. Instead, RMM will configure
-	 * the access to be trapped by itself so it can inject undefined aborts
-	 * back to the Realm.
-	 */
-	if (is_feat_mpam_supported()) {
-		mpam_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
-	}
-}
-
 /*******************************************************************************
  * Jump to the RMM for the first time.
  ******************************************************************************/
@@ -194,8 +156,6 @@ static int32_t rmm_init(void)
 
 	/* Enable architecture extensions */
 	manage_extensions_realm(&ctx->cpu_ctx);
-
-	manage_extensions_realm_per_world();
 
 	/* Initialize RMM EL2 context. */
 	rmm_el2_context_init(&ctx->cpu_ctx.el2_sysregs_ctx);
