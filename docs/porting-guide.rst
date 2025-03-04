@@ -3459,6 +3459,18 @@ This API is used to setup the early console, it is required only if the flag
 External Abort handling and RAS Support
 ---------------------------------------
 
+If any cores on the platform support powerdown abandon (i.e. ``FEAT_PABANDON``
+is set, check the "Core powerup and powerdown sequence" in their TRMs), then
+these functions should be able to handle being called with power domains off and
+after the powerdown ``wfi``. In other words it may run after a call to
+``pwr_domain_suspend()`` and before a call to ``pwr_domain_suspend_finish()``
+(and their power off counterparts).
+
+Should this not be desirable, or if there is no powerdown abandon support, then
+RAS errors should be masked by writing any relevant error records in any
+powerdown hooks to prevent deadlocks due to a RAS error after the point of no
+return. See the core's TRM for further information.
+
 Function : plat_ea_handler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
