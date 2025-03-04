@@ -56,8 +56,7 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
 
 	for (reg_num = 0U; reg_num < NUM_GICD_ISENABLER; reg_num++) {
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
-		isenabler1 += (reg_num << 2);
-		uint32_t reg = mmio_read_32((uint64_t)isenabler1);
+		uint32_t reg = mmio_read_32((uint64_t)(isenabler1 + (reg_num << 2)));
 
 		if (reg == 0U) {
 			continue;
