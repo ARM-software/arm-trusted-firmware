@@ -2938,6 +2938,8 @@ and instead called ``wfi`` (in an infinite loop) directly. This is still
 possible on platforms where this is guaranteed to be terminal, however, it is
 strongly discouraged going forward.
 
+Previously this function was called ``pwr_domain_pwr_down_wfi()``.
+
 plat_psci_ops.pwr_domain_on_finish()
 ....................................
 
