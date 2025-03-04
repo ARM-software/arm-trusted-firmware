@@ -257,7 +257,8 @@ ifeq (${BUILD_CPUS_WITH_NO_FVP_MODEL},1)
 				lib/cpus/aarch64/caddo.S		\
 				lib/cpus/aarch64/veymont.S		\
 				lib/cpus/aarch64/dionysus.S		\
-				lib/cpus/aarch64/venom.S
+				lib/cpus/aarch64/venom.S		\
+				lib/cpus/aarch64/lsc25_p_core.S
 endif
 
 else
