@@ -801,6 +801,128 @@ int intel_smmu_hps_remapper_config(uint32_t remapper_bypass)
 }
 #endif
 
+#if SIP_SVC_V3
+uint8_t sip_smc_cmd_cb_ret3(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+{
+	uint8_t ret_args_len = 0U;
+	sdm_response_t *resp = (sdm_response_t *)resp_desc;
+	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
+
+	(void)cmd;
+	/* Returns 3 SMC arguments for SMC_RET3 */
+	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
+	ret_args[ret_args_len++] = resp->err_code;
+	ret_args[ret_args_len++] = resp->resp_data[0];
+
+	return ret_args_len;
+}
+
+static uintptr_t smc_ret(void *handle, uint32_t *ret_args, uint32_t ret_args_len)
+{
+	switch (ret_args_len) {
+	case SMC_RET_ARGS_ONE:
+		SMC_RET1(handle, ret_args[0]);
+		break;
+
+	case SMC_RET_ARGS_TWO:
+		SMC_RET2(handle, ret_args[0], ret_args[1]);
+		break;
+
+	case SMC_RET_ARGS_THREE:
+		SMC_RET3(handle, ret_args[0], ret_args[1], ret_args[2]);
+		break;
+
+	case SMC_RET_ARGS_FOUR:
+		SMC_RET4(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3]);
+		break;
+
+	case SMC_RET_ARGS_FIVE:
+		SMC_RET5(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4]);
+		break;
+
+	default:
+		SMC_RET1(handle, INTEL_SIP_SMC_STATUS_ERROR);
+		break;
+	}
+}
+
+/*
+ * This function is responsible for handling all SiP SVC V3 calls from the
+ * non-secure world.
+ */
+static uintptr_t sip_smc_handler_v3(uint32_t smc_fid,
+				    u_register_t x1,
+				    u_register_t x2,
+				    u_register_t x3,
+				    u_register_t x4,
+				    void *cookie,
+				    void *handle,
+				    u_register_t flags)
+{
+	int status = 0;
+
+	VERBOSE("MBOX: SVC-V3: x0 0x%x, x1 0x%lx, x2 0x%lx, x3 0x%lx, x4 0x%lx\n",
+		smc_fid, x1, x2, x3, x4);
+
+	switch (smc_fid) {
+	case ALTERA_SIP_SMC_ASYNC_RESP_POLL:
+	{
+		uint32_t ret_args[8] = {0};		/* X0 to X7 return arguments */
+		uint32_t ret_args_len;
+
+		status = mailbox_response_poll_v3(GET_CLIENT_ID(x1),
+						  GET_JOB_ID(x1),
+						  ret_args,
+						  &ret_args_len);
+		/* Always reserve [0] index for command status. */
+		ret_args[0] = status;
+
+		/* Return SMC call based on the number of return arguments */
+		return smc_ret(handle, ret_args, ret_args_len);
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_RESP_POLL_ON_INTR:
+	{
+		uint8_t client_id = 0U;
+		uint8_t job_id = 0U;
+		uint64_t trans_id_bitmap[4] = {0U};
+
+		status = mailbox_response_poll_on_intr_v3(&client_id,
+							  &job_id,
+							  trans_id_bitmap);
+
+		SMC_RET5(handle, status, trans_id_bitmap[0], trans_id_bitmap[1],
+			 trans_id_bitmap[2], trans_id_bitmap[3]);
+		break;
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_HWMON_READVOLT:
+	case ALTERA_SIP_SMC_ASYNC_HWMON_READTEMP:
+	{
+		uint32_t channel = (uint32_t)x2;
+		uint32_t mbox_cmd = ((smc_fid == ALTERA_SIP_SMC_ASYNC_HWMON_READVOLT) ?
+					MBOX_HWMON_READVOLT : MBOX_HWMON_READTEMP);
+
+		status = mailbox_send_cmd_async_v3(GET_CLIENT_ID(x1),
+						   GET_JOB_ID(x1),
+						   mbox_cmd,
+						   &channel,
+						   1U,
+						   MBOX_CMD_FLAG_CASUAL,
+						   sip_smc_cmd_cb_ret3,
+						   NULL,
+						   0);
+
+		SMC_RET1(handle, status);
+	}
+
+	default:
+		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
+					   cookie, handle, flags);
+	} /* switch (smc_fid) */
+}
+#endif
+
 /*
  * This function is responsible for handling all SiP calls from the NS world
  */
@@ -1375,7 +1497,16 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	    cmd <= INTEL_SIP_SMC_CMD_V2_RANGE_END) {
 		return sip_smc_handler_v2(smc_fid, x1, x2, x3, x4,
 			cookie, handle, flags);
-	} else {
+	}
+#if SIP_SVC_V3
+	else if ((cmd >= INTEL_SIP_SMC_CMD_V3_RANGE_BEGIN) &&
+		(cmd <= INTEL_SIP_SMC_CMD_V3_RANGE_END)) {
+		uintptr_t ret = sip_smc_handler_v3(smc_fid, x1, x2, x3, x4,
+						   cookie, handle, flags);
+		return ret;
+	}
+#endif
+	else {
 		return sip_smc_handler_v1(smc_fid, x1, x2, x3, x4,
 			cookie, handle, flags);
 	}
