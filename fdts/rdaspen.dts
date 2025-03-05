@@ -24,6 +24,105 @@
 		#size-cells = <0>;
 
 		/* 4 clusters and 4 CPU cores in each cluster */
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&CPU0>;
+				};
+				core1 {
+					cpu = <&CPU1>;
+				};
+				core2 {
+					cpu = <&CPU2>;
+				};
+				core3 {
+					cpu = <&CPU3>;
+				};
+				CL0_L3: l3-cache0 {
+					compatible = "arm,dsu-l3-cache", "cache";
+					cache-level = <0x03>;
+					/* 4MB */
+					cache-size = <0x400000>;
+					/* 64B */
+					cache-line-size = <0x40>;
+					/* 16-way set */
+					cache-sets = <0x1000>;
+				};
+			};
+			cluster1 {
+				core0 {
+					cpu = <&CPU4>;
+				};
+				core1 {
+					cpu = <&CPU5>;
+				};
+				core2 {
+					cpu = <&CPU6>;
+				};
+				core3 {
+					cpu = <&CPU7>;
+				};
+				CL1_L3: l3-cache1 {
+					compatible = "arm,dsu-l3-cache", "cache";
+					cache-level = <0x03>;
+					/* 4MB */
+					cache-size = <0x400000>;
+					/* 64B */
+					cache-line-size = <0x40>;
+					/* 16-way set */
+					cache-sets = <0x1000>;
+				};
+			};
+			cluster2 {
+				core0 {
+					cpu = <&CPU8>;
+				};
+				core1 {
+					cpu = <&CPU9>;
+				};
+				core2 {
+					cpu = <&CPU10>;
+				};
+				core3 {
+					cpu = <&CPU11>;
+				};
+				CL2_L3: l3-cache2 {
+					compatible = "arm,dsu-l3-cache", "cache";
+					cache-level = <0x03>;
+					/* 4MB */
+					cache-size = <0x400000>;
+					/* 64B */
+					cache-line-size = <0x40>;
+					/* 16-way set */
+					cache-sets = <0x1000>;
+				};
+			};
+			cluster3 {
+				core0 {
+					cpu = <&CPU12>;
+				};
+				core1 {
+					cpu = <&CPU13>;
+				};
+				core2 {
+					cpu = <&CPU14>;
+				};
+				core3 {
+					cpu = <&CPU15>;
+				};
+				CL3_L3: l3-cache3 {
+					compatible = "arm,dsu-l3-cache", "cache";
+					cache-level = <0x03>;
+					/* 4MB */
+					cache-size = <0x400000>;
+					/* 64B */
+					cache-line-size = <0x40>;
+					/* 16-way set */
+					cache-sets = <0x1000>;
+				};
+			};
+		};
+
 		CPU0: cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a720ae";
@@ -35,6 +134,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL0_L2_0>;
+			CL0_L2_0: l2-cache0 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL0_L3>;
+			};
 		};
 
 		CPU1: cpu@100 {
@@ -48,6 +159,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL0_L2_1>;
+			CL0_L2_1: l2-cache1 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL0_L3>;
+			};
 		};
 
 		CPU2: cpu@200 {
@@ -61,6 +184,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL0_L2_2>;
+			CL0_L2_2: l2-cache2 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL0_L3>;
+			};
 		};
 
 		CPU3: cpu@300 {
@@ -74,6 +209,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL0_L2_3>;
+			CL0_L2_3: l2-cache3 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL0_L3>;
+			};
 		};
 
 		CPU4: cpu@10000 {
@@ -87,6 +234,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL1_L2_0>;
+			CL1_L2_0: l2-cache4 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL1_L3>;
+			};
 		};
 
 		CPU5: cpu@10100 {
@@ -100,6 +259,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL1_L2_1>;
+			CL1_L2_1: l2-cache5 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL1_L3>;
+			};
 		};
 
 		CPU6: cpu@10200 {
@@ -113,6 +284,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL1_L2_2>;
+			CL1_L2_2: l2-cache6 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL1_L3>;
+			};
 		};
 
 		CPU7: cpu@10300 {
@@ -126,6 +309,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL1_L2_3>;
+			CL1_L2_3: l2-cache7 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL1_L3>;
+			};
 		};
 
 		CPU8: cpu@20000 {
@@ -139,6 +334,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL2_L2_0>;
+			CL2_L2_0: l2-cache8 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL2_L3>;
+			};
 		};
 
 		CPU9: cpu@20100 {
@@ -152,6 +359,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL2_L2_1>;
+			CL2_L2_1: l2-cache9 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL2_L3>;
+			};
 		};
 
 		CPU10: cpu@20200 {
@@ -165,6 +384,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL2_L2_2>;
+			CL2_L2_2: l2-cache10 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL2_L3>;
+			};
 		};
 
 		CPU11: cpu@20300 {
@@ -178,6 +409,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL2_L2_3>;
+			CL2_L2_3: l2-cache11 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL2_L3>;
+			};
 		};
 
 		CPU12: cpu@30000 {
@@ -191,6 +434,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL3_L2_0>;
+			CL3_L2_0: l2-cache12 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL3_L3>;
+			};
 		};
 
 		CPU13: cpu@30100 {
@@ -204,6 +459,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL3_L2_1>;
+			CL3_L2_1: l2-cache13 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL3_L3>;
+			};
 		};
 
 		CPU14: cpu@30200 {
@@ -217,6 +484,18 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL3_L2_2>;
+			CL3_L2_2: l2-cache14 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL3_L3>;
+			};
 		};
 
 		CPU15: cpu@30300 {
@@ -230,7 +509,43 @@
 			d-cache-size = <0x10000>;
 			d-cache-line-size = <0x40>;
 			d-cache-sets = <0x100>;
+			next-level-cache = <&CL3_L2_3>;
+			CL3_L2_3: l2-cache15 {
+				compatible = "cache";
+				cache-level = <0x02>;
+				/* 512KB */
+				cache-size = <0x80000>;
+				/* 64B */
+				cache-line-size = <0x40>;
+				/* 8-way set */
+				cache-sets = <0x400>;
+				next-level-cache = <&CL3_L3>;
+			};
 		};
+	};
+
+	dsu-pmu-0 {
+		compatible = "arm,dsu-pmu";
+		cpus = <&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>;
+		interrupts = <GIC_SPI 216 IRQ_TYPE_EDGE_RISING>;
+	};
+
+	dsu-pmu-1 {
+		compatible = "arm,dsu-pmu";
+		cpus = <&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>;
+		interrupts = <GIC_SPI 217 IRQ_TYPE_EDGE_RISING>;
+	};
+
+	dsu-pmu-2 {
+		compatible = "arm,dsu-pmu";
+		cpus = <&CPU8>, <&CPU9>, <&CPU10>, <&CPU11>;
+		interrupts = <GIC_SPI 218 IRQ_TYPE_EDGE_RISING>;
+	};
+
+	dsu-pmu-3 {
+		compatible = "arm,dsu-pmu";
+		cpus = <&CPU12>, <&CPU13>, <&CPU14>, <&CPU15>;
+		interrupts = <GIC_SPI 219 IRQ_TYPE_EDGE_RISING>;
 	};
 
 	memory@80000000 {
