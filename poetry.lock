@@ -281,6 +281,17 @@ files = [
 ]
 
 [[package]]
+name = "fdt"
+version = "0.3.3"
+description = "Flattened Device Tree Python Module"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "fdt-0.3.3-py3-none-any.whl", hash = "sha256:6b2fae2e8dfa38e9b0f9666aa001dd25be74e893d293a8d60001438f732e9e47"},
+    {file = "fdt-0.3.3.tar.gz", hash = "sha256:81a215930fef2ab8894913c4f474105bb53e14f07129fe07cb6eff2d5fdf26d2"},
+]
+
+[[package]]
 name = "filelock"
 version = "3.16.0"
 description = "A platform independent file lock."
@@ -540,7 +551,7 @@ files = [
 [[package]]
 name = "memory"
 version = "0.1.0"
-description = "A tool for analysis of "
+description = "A tool for analysis of static memory consumption by TF-A images"
 optional = false
 python-versions = "^3.8.0"
 files = []
@@ -1331,4 +1342,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "7574eee0a05db1d9631bb29288abfc806810906a66e087a5a32e6e3920eb4bba"
+content-hash = "c78729d7072714d77b4a69d6aabccab35dcf0548f08aa440ff178bc7bf2824be"

@@ -55,10 +55,15 @@ import os
 import re
 import sys
 import uuid
+import fdt
 from spactions import SpSetupActions
+import hob
+import struct
+from hob import HobList
 
 MAX_SP = 8
 UUID_LEN = 4
+HOB_OFFSET_DEFAULT=0x2000
 
 # Some helper functions to access args propagated to the action functions in
 # SpSetupActions framework.
@@ -179,6 +184,28 @@ def gen_fdt_sources(sp_layout, sp, args :dict):
     write_to_sp_mk_gen(f"FDT_SOURCES += {manifest_path}", args)
     return args
 
+@SpSetupActions.sp_action(exec_order=1)
+def generate_hob_list(sp_layout, sp, args: dict):
+    '''
+        Generates a HOB file for the partition, if it requested it in its FF-A
+        manifest.
+    '''
+    with open(get_sp_manifest_full_path(sp_layout[sp], args), "r") as f:
+        sp_fdt = fdt.parse_dts(f.read())
+
+    if sp_fdt.exist_property('hob_list', '/boot-info'):
+        sp_hob_name = os.path.basename(sp + ".hob.bin")
+        sp_hob_name = os.path.join(args["out_dir"], f"{sp_hob_name}")
+
+        # Add to the args so it can be consumed by the TL pkg function.
+        sp_layout[sp]["hob_path"] = sp_hob_name
+        hob_list = hob.generate_hob_from_fdt_node(sp_fdt, HOB_OFFSET_DEFAULT)
+        with open(sp_hob_name, "wb") as h:
+            for block in hob_list.get_list():
+                h.write(block.pack())
+
+    return args
+
 def generate_sp_pkg(sp_node, pkg, sp_img, sp_dtb):
     ''' Generates the rule in case SP is to be generated in an SP Pkg. '''
     pm_offset = get_pm_offset(sp_node)
@@ -200,11 +227,12 @@ def generate_tl_pkg(sp_node, pkg, sp_img, sp_dtb, hob_path = None):
     TE_SP_BINARY = 0x103
     # TE Type for the HOB List.
     TE_HOB_LIST = 0x3
-    tlc_add_hob = f"\t$(Q)poetry run tlc add --entry {TE_HOB_LIST} {hob_path} {pkg}" if hob_path is not None else ""
+    tlc_add_hob = f"\t$(Q)$(TLCTOOL) add --entry {TE_HOB_LIST} {hob_path} {pkg}" if hob_path is not None else ""
     return f'''
 {pkg}: {sp_dtb} {sp_img}
 \t$(Q)echo Generating {pkg}
 \t$(Q)$(TLCTOOL) create --size {get_size(sp_node)} --entry {TE_FFA_MANIFEST} {sp_dtb} {pkg} --align 12
+{tlc_add_hob}
 \t$(Q)$(TLCTOOL) add --entry {TE_SP_BINARY} {sp_img} {pkg}
 '''
 
@@ -228,7 +256,10 @@ def gen_partition_pkg(sp_layout, sp, args :dict):
     if package_type == "sp_pkg":
         partition_pkg_rule = generate_sp_pkg(sp_layout[sp], pkg, sp_img, sp_dtb)
     elif package_type == "tl_pkg":
-        partition_pkg_rule = generate_tl_pkg(sp_layout[sp], pkg, sp_img, sp_dtb)
+        # Conditionally provide the Hob.
+        hob_path = sp_layout[sp]["hob_path"] if "hob_path" in sp_layout[sp] else None
+        partition_pkg_rule = generate_tl_pkg(
+                sp_layout[sp], pkg, sp_img, sp_dtb, hob_path)
     else:
         raise ValueError(f"Specified invalid pkg type {package_type}")
 

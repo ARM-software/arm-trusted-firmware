@@ -34,7 +34,7 @@
 			debug_name = "cactus-primary";
 			load_address = <0x7000000>;
 			vcpu_count = <8>;
-			mem_size = <1048576>;
+			mem_size = <0x100000>;
 			/*
 			 * Platform specific SiP SMC call handled at EL3. Used
 			 * to pend an interrupt for testing purpose.
@@ -46,21 +46,21 @@
 			debug_name = "cactus-secondary";
 			load_address = <0x7100000>;
 			vcpu_count = <8>;
-			mem_size = <1048576>;
+			mem_size = <0x100000>;
 		};
 		vm3 {
 			is_ffa_partition;
 			debug_name = "cactus-tertiary";
 			load_address = <0x7200000>;
 			vcpu_count = <1>;
-			mem_size = <1048576>;
+			mem_size = <0x300000>;
 		};
 		vm4 {
 			is_ffa_partition;
 			debug_name = "ivy";
 			load_address = <0x7600000>;
 			vcpu_count = <1>;
-			mem_size = <1048576>;
+			mem_size = <0x100000>;
 		};
 	};
 
