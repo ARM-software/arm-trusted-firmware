@@ -34,6 +34,8 @@ static drtm_features_t plat_drtm_features;
 
 /* DRTM-formatted memory map. */
 static drtm_memory_region_descriptor_table_t *plat_drtm_mem_map;
+static const plat_drtm_dma_prot_features_t *plat_dma_prot_feat;
+static const plat_drtm_tpm_features_t *plat_tpm_feat;
 
 /* DLME header */
 struct_dlme_data_header dlme_data_hdr_init;
@@ -44,8 +46,6 @@ uint64_t dlme_data_min_size;
 int drtm_setup(void)
 {
 	bool rc;
-	const plat_drtm_tpm_features_t *plat_tpm_feat;
-	const plat_drtm_dma_prot_features_t *plat_dma_prot_feat;
 
 	INFO("DRTM service setup\n");
 
@@ -322,6 +322,43 @@ static enum drtm_retc drtm_dl_prepare_dlme_data(const struct_drtm_dl_args *args)
 	return SUCCESS;
 }
 
+/* Function to check if the value is valid for each bit field */
+static int drtm_dl_check_features_sanity(uint32_t val)
+{
+	/**
+	 * Ensure that if DLME Authorities Schema (Bits [2:1]) is set, then
+	 * DLME image authentication (Bit[6]) must also be set
+	 */
+	if ((EXTRACT_FIELD(val, DRTM_LAUNCH_FEAT_PCR_USAGE_SCHEMA_MASK,
+			   DRTM_LAUNCH_FEAT_PCR_USAGE_SCHEMA_SHIFT) == DLME_AUTH_SCHEMA) &&
+	    (EXTRACT_FIELD(val, DRTM_LAUNCH_FEAT_DLME_IMG_AUTH_MASK,
+			    DRTM_LAUNCH_FEAT_DLME_IMG_AUTH_SHIFT) != DLME_IMG_AUTH)) {
+		return INVALID_PARAMETERS;
+	}
+
+	/**
+	 * Check if Bits [5:3] (Memory protection type) matches with platform's
+	 * memory protection type
+	 */
+	if (EXTRACT_FIELD(val, DRTM_LAUNCH_FEAT_MEM_PROTECTION_TYPE_MASK,
+			  DRTM_LAUNCH_FEAT_MEM_PROTECTION_TYPE_SHIFT) !=
+	    __builtin_ctz(plat_dma_prot_feat->dma_protection_support)) {
+		return INVALID_PARAMETERS;
+	}
+
+	/**
+	 * Check if Bits [0] (Type of hashing) matches with platform's
+	 * supported hash type.
+	 */
+	if (EXTRACT_FIELD(val, DRTM_LAUNCH_FEAT_HASHING_TYPE_MASK,
+			  DRTM_LAUNCH_FEAT_HASHING_TYPE_SHIFT) !=
+	    plat_tpm_feat->tpm_based_hash_support) {
+		return INVALID_PARAMETERS;
+	}
+
+	return 0;
+}
+
 /*
  * Note: accesses to the dynamic launch args, and to the DLME data are
  * little-endian as required, thanks to TF-A BL31 init requirements.
@@ -369,7 +406,7 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 	args_buf = *a;
 
 	rc = mmap_remove_dynamic_region(va_mapping, va_mapping_size);
-	if (rc) {
+	if (rc != 0) {
 		ERROR("%s(): mmap_remove_dynamic_region() failed unexpectedly"
 		      " rc=%d\n", __func__, rc);
 		panic();
@@ -381,6 +418,13 @@ static enum drtm_retc drtm_dl_check_args(uint64_t x1,
 		ERROR("DRTM: parameters structure version %u is unsupported\n",
 		      a->version);
 		return NOT_SUPPORTED;
+	}
+
+	rc = drtm_dl_check_features_sanity(a->features);
+	if (rc != 0) {
+		ERROR("%s(): drtm_dl_check_features_sanity() failed.\n"
+				" rc=%d\n", __func__, rc);
+		return rc;
 	}
 
 	if (!(a->dlme_img_off < a->dlme_size &&
