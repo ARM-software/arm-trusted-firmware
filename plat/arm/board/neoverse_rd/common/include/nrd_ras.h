@@ -18,16 +18,6 @@
 #define NRD_RAS_INTR_TYPE_SPI 0
 #define NRD_RAS_INTR_TYPE_PPI 1
 
-/*
- * MM Communicate information structure. Required to generate MM Communicate
- * payload to be shared with Standalone MM.
- */
-typedef struct mm_communicate_header {
-	struct efi_guid	header_guid;
-	size_t		message_len;
-	uint8_t		data[1];
-} mm_communicate_header_t;
-
 /* RAS error info data structure. */
 struct nrd_ras_ev_map {
 	int sdei_ev_num;	/* SDEI Event number */
