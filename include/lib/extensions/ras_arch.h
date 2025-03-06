@@ -143,14 +143,16 @@
 /* Uncorrected error types for Asynchronous exceptions */
 #define ERROR_STATUS_UET_UC	0x0	/* Uncontainable */
 #define ERROR_STATUS_UET_UEU	0x1	/* Unrecoverable */
-#define ERROR_STATUS_UET_UEO	0x2	/* Restable */
+#define ERROR_STATUS_UET_UEO	0x2	/* Restartable */
 #define ERROR_STATUS_UET_UER	0x3	/* Recoverable */
+
+/* Corrected error types for Asynchronous exceptions */
+#define ERROR_STATUS_CET_CE	0x6	/* Corrected (CE) */
 
 /* Error types for Synchronous exceptions */
 #define ERROR_STATUS_SET_UER	0x0	/* Recoverable */
-#define ERROR_STATUS_SET_UEO	0x1	/* Restable */
 #define ERROR_STATUS_SET_UC	0x2     /* Uncontainable */
-#define ERROR_STATUS_SET_CE	0x3     /* Corrected */
+#define ERROR_STATUS_SET_UEO	0x3     /* Restartable */
 
 /* Number of architecturally-defined primary error codes */
 #define ERROR_STATUS_NUM_SERR	U(22)
@@ -175,6 +177,9 @@
 #define EABORT_SET_SHIFT	U(11)
 #define EABORT_SET_WIDTH	U(2)
 #define EABORT_SET_MASK		U(0x3)
+
+#define EABORT_GET_FIELD(_esr_el3, _field) \
+	(((_esr_el3) >> EABORT_ ##_field ##_SHIFT) & EABORT_ ##_field ##_MASK)
 
 /* DFSC code for SErrors */
 #define DFSC_SERROR		0x11
