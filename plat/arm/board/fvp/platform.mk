@@ -305,7 +305,7 @@ BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
 				plat/arm/board/fvp/fvp_el3_token_sign.c
 endif
 
-ifeq (${ENABLE_FEAT_RNG_TRAP},1)
+ifneq (${ENABLE_FEAT_RNG_TRAP},0)
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_sync_traps.c
 endif
 
