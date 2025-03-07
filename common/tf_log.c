@@ -34,9 +34,9 @@ void tf_log(const char *fmt, ...)
 	assert((log_level > 0U) && (log_level <= LOG_LEVEL_VERBOSE));
 	assert((log_level % 10U) == 0U);
 
-	if (log_level > max_log_level)
+	if (log_level > max_log_level) {
 		return;
-
+	}
 	prefix_str = plat_log_get_prefix(log_level);
 
 	while (*prefix_str != '\0') {
@@ -57,8 +57,9 @@ void tf_log_newline(const char log_fmt[2])
 	assert((log_level > 0U) && (log_level <= LOG_LEVEL_VERBOSE));
 	assert((log_level % 10U) == 0U);
 
-	if (log_level > max_log_level)
+	if (log_level > max_log_level) {
 		return;
+	}
 
 	putchar('\n');
 }

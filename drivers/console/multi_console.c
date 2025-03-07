@@ -22,8 +22,9 @@ int console_register(console_t *console)
 	assert((console < stacks_start) || (console >= stacks_end));
 
 	/* Check that we won't make a circle in the list. */
-	if (console_is_registered(console) == 1)
+	if (console_is_registered(console) == 1) {
 		return 1;
+	}
 
 	console->next = console_list;
 	console_list = console;
@@ -53,9 +54,11 @@ int console_is_registered(console_t *to_find)
 
 	assert(to_find != NULL);
 
-	for (console = console_list; console != NULL; console = console->next)
-		if (console == to_find)
+	for (console = console_list; console != NULL; console = console->next) {
+		if (console == to_find) {
 			return 1;
+		}
+	}
 
 	return 0;
 }
@@ -91,21 +94,24 @@ int console_putc(int c)
 	int err = ERROR_NO_VALID_CONSOLE;
 	console_t *console;
 
-	for (console = console_list; console != NULL; console = console->next)
+	for (console = console_list; console != NULL; console = console->next) {
 		if ((console->flags & console_state) && (console->putc != NULL)) {
 			int ret = do_putc(c, console);
-			if ((err == ERROR_NO_VALID_CONSOLE) || (ret < err))
+			if ((err == ERROR_NO_VALID_CONSOLE) || (ret < err)) {
 				err = ret;
+			}
 		}
+	}
 	return err;
 }
 
 int putchar(int c)
 {
-	if (console_putc(c) == 0)
+	if (console_putc(c) == 0) {
 		return c;
-	else
+	} else {
 		return EOF;
+	}
 }
 
 #if ENABLE_CONSOLE_GETC
@@ -119,10 +125,12 @@ int console_getc(void)
 		     console = console->next)
 			if ((console->flags & console_state) && (console->getc != NULL)) {
 				int ret = console->getc(console);
-				if (ret >= 0)
+				if (ret >= 0) {
 					return ret;
-				if (err != ERROR_NO_PENDING_CHAR)
+				}
+				if (err != ERROR_NO_PENDING_CHAR) {
 					err = ret;
+				}
 			}
 	} while (err == ERROR_NO_PENDING_CHAR);
 

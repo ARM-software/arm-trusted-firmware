@@ -48,8 +48,9 @@ uint32_t plat_ic_get_pending_interrupt_id(void)
 	unsigned int id;
 
 	id = gicv2_get_pending_interrupt_id();
-	if (id == GIC_SPURIOUS_INTERRUPT)
-		return INTR_ID_UNAVAILABLE;
+	if (id == GIC_SPURIOUS_INTERRUPT) {
+		id = INTR_ID_UNAVAILABLE;
+	}
 
 	return id;
 }
@@ -68,22 +69,27 @@ uint32_t plat_ic_get_pending_interrupt_id(void)
 uint32_t plat_ic_get_pending_interrupt_type(void)
 {
 	unsigned int id;
+	uint32_t interrupt_type;
 
 	id = gicv2_get_pending_interrupt_type();
 
 	/* Assume that all secure interrupts are S-EL1 interrupts */
 	if (id < PENDING_G1_INTID) {
 #if GICV2_G0_FOR_EL3
-		return INTR_TYPE_EL3;
+		interrupt_type = INTR_TYPE_EL3;
 #else
-		return INTR_TYPE_S_EL1;
+		interrupt_type = INTR_TYPE_S_EL1;
 #endif
+	} else {
+
+		if (id == GIC_SPURIOUS_INTERRUPT) {
+			interrupt_type = INTR_TYPE_INVAL;
+		} else {
+			interrupt_type = INTR_TYPE_NS;
+		}
 	}
 
-	if (id == GIC_SPURIOUS_INTERRUPT)
-		return INTR_TYPE_INVAL;
-
-	return INTR_TYPE_NS;
+	return interrupt_type;
 }
 
 /*
@@ -142,8 +148,9 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 	assert(sec_state_is_valid(security_state));
 
 	/* Non-secure interrupts are signaled on the IRQ line always */
-	if (type == INTR_TYPE_NS)
+	if (type == INTR_TYPE_NS) {
 		return __builtin_ctz(SCR_IRQ_BIT);
+	}
 
 	/*
 	 * Secure interrupts are signaled using the IRQ line if the FIQ is
@@ -329,8 +336,9 @@ unsigned int plat_ic_get_interrupt_id(unsigned int raw)
 {
 	unsigned int id = (raw & INT_ID_MASK);
 
-	if (id == GIC_SPURIOUS_INTERRUPT)
+	if (id == GIC_SPURIOUS_INTERRUPT) {
 		id = INTR_ID_UNAVAILABLE;
+	}
 
 	return id;
 }

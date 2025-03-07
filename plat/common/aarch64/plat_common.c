@@ -78,19 +78,27 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 
 const char *get_el_str(unsigned int el)
 {
+	const char *mode = NULL;
+
 	switch (el) {
 	case MODE_EL3:
-		return "EL3";
+		mode = "EL3";
+		break;
 	case MODE_EL2:
-		return "EL2";
+		mode = "EL2";
+		break;
 	case MODE_EL1:
-		return "EL1";
+		mode = "EL1";
+		break;
 	case MODE_EL0:
-		return "EL0";
+		mode = "EL0";
+		break;
 	default:
 		assert(false);
-		return NULL;
+		break;
 	}
+
+	return mode;
 }
 
 #if FFH_SUPPORT

@@ -153,8 +153,9 @@ void cci_enable_snoop_dvm_reqs(unsigned int master_id)
 	dsbish();
 
 	/* Wait for the dust to settle down */
-	while ((mmio_read_32(cci_base + STATUS_REG) & CHANGE_PENDING_BIT) != 0U)
+	while ((mmio_read_32(cci_base + STATUS_REG) & CHANGE_PENDING_BIT) != 0U) {
 		;
+	}
 }
 
 void cci_disable_snoop_dvm_reqs(unsigned int master_id)
@@ -180,7 +181,8 @@ void cci_disable_snoop_dvm_reqs(unsigned int master_id)
 	dsbish();
 
 	/* Wait for the dust to settle down */
-	while ((mmio_read_32(cci_base + STATUS_REG) & CHANGE_PENDING_BIT) != 0U)
+	while ((mmio_read_32(cci_base + STATUS_REG) & CHANGE_PENDING_BIT) != 0U) {
 		;
+	}
 }
 

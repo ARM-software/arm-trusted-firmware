@@ -101,18 +101,19 @@ void gicv2_spis_configure_defaults(uintptr_t gicd_base)
 	 * Treat all SPIs as G1NS by default. The number of interrupts is
 	 * calculated as 32 * (IT_LINES + 1). We do 32 at a time.
 	 */
-	for (index = MIN_SPI_ID; index < num_ints; index += 32U)
+	for (index = MIN_SPI_ID; index < num_ints; index += 32U) {
 		gicd_write_igroupr(gicd_base, index, ~0U);
-
+	}
 	/* Setup the default SPI priorities doing four at a time */
-	for (index = MIN_SPI_ID; index < num_ints; index += 4U)
+	for (index = MIN_SPI_ID; index < num_ints; index += 4U) {
 		gicd_write_ipriorityr(gicd_base,
 				      index,
 				      GICD_IPRIORITYR_DEF_VAL);
-
+	}
 	/* Treat all SPIs as level triggered by default, 16 at a time */
-	for (index = MIN_SPI_ID; index < num_ints; index += 16U)
+	for (index = MIN_SPI_ID; index < num_ints; index += 16U) {
 		gicd_write_icfgr(gicd_base, index, 0U);
+	}
 }
 
 /*******************************************************************************
@@ -126,15 +127,15 @@ void gicv2_secure_spis_configure_props(uintptr_t gicd_base,
 	const interrupt_prop_t *prop_desc;
 
 	/* Make sure there's a valid property array */
-	if (interrupt_props_num != 0U)
+	if (interrupt_props_num != 0U) {
 		assert(interrupt_props != NULL);
-
+	}
 	for (i = 0; i < interrupt_props_num; i++) {
 		prop_desc = &interrupt_props[i];
 
-		if (prop_desc->intr_num < MIN_SPI_ID)
+		if (prop_desc->intr_num < MIN_SPI_ID) {
 			continue;
-
+		}
 		/* Configure this interrupt as a secure interrupt */
 		assert(prop_desc->intr_grp == GICV2_INTR_GROUP0);
 		gicd_clr_igroupr(gicd_base, prop_desc->intr_num);
@@ -168,9 +169,9 @@ void gicv2_secure_ppi_sgi_setup_props(uintptr_t gicd_base,
 	const interrupt_prop_t *prop_desc;
 
 	/* Make sure there's a valid property array */
-	if (interrupt_props_num != 0U)
+	if (interrupt_props_num != 0U) {
 		assert(interrupt_props != NULL);
-
+	}
 	/*
 	 * Disable all SGIs (imp. def.)/PPIs before configuring them. This is a
 	 * more scalable approach as it avoids clearing the enable bits in the
@@ -179,15 +180,15 @@ void gicv2_secure_ppi_sgi_setup_props(uintptr_t gicd_base,
 	gicd_write_icenabler(gicd_base, 0U, ~0U);
 
 	/* Setup the default PPI/SGI priorities doing four at a time */
-	for (i = 0U; i < MIN_SPI_ID; i += 4U)
+	for (i = 0U; i < MIN_SPI_ID; i += 4U) {
 		gicd_write_ipriorityr(gicd_base, i, GICD_IPRIORITYR_DEF_VAL);
-
+	}
 	for (i = 0U; i < interrupt_props_num; i++) {
 		prop_desc = &interrupt_props[i];
 
-		if (prop_desc->intr_num >= MIN_SPI_ID)
+		if (prop_desc->intr_num >= MIN_SPI_ID) {
 			continue;
-
+		}
 		/* Configure this interrupt as a secure interrupt */
 		assert(prop_desc->intr_grp == GICV2_INTR_GROUP0);
 

@@ -1966,10 +1966,11 @@ void cm_el1_sysregs_context_save(uint32_t security_state)
 	el1_sysregs_context_save(get_el1_sysregs_ctx(ctx));
 
 #if IMAGE_BL31
-	if (security_state == SECURE)
+	if (security_state == SECURE) {
 		PUBLISH_EVENT(cm_exited_secure_world);
-	else
+	} else {
 		PUBLISH_EVENT(cm_exited_normal_world);
+	}
 #endif
 }
 
@@ -1983,10 +1984,11 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
 	el1_sysregs_context_restore(get_el1_sysregs_ctx(ctx));
 
 #if IMAGE_BL31
-	if (security_state == SECURE)
+	if (security_state == SECURE) {
 		PUBLISH_EVENT(cm_entering_secure_world);
-	else
+	} else {
 		PUBLISH_EVENT(cm_entering_normal_world);
+	}
 #endif
 }
 

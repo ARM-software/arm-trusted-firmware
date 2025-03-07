@@ -244,35 +244,44 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
 	/* Initialize the psci capability */
 	psci_caps = PSCI_GENERIC_CAP;
 
-	if (psci_plat_pm_ops->pwr_domain_off != NULL)
+	if (psci_plat_pm_ops->pwr_domain_off != NULL) {
 		psci_caps |=  define_psci_cap(PSCI_CPU_OFF);
+	}
 	if ((psci_plat_pm_ops->pwr_domain_on != NULL) &&
-	    (psci_plat_pm_ops->pwr_domain_on_finish != NULL))
+	    (psci_plat_pm_ops->pwr_domain_on_finish != NULL)) {
 		psci_caps |=  define_psci_cap(PSCI_CPU_ON_AARCH64);
+	}
 	if ((psci_plat_pm_ops->pwr_domain_suspend != NULL) &&
 	    (psci_plat_pm_ops->pwr_domain_suspend_finish != NULL)) {
-		if (psci_plat_pm_ops->validate_power_state != NULL)
+		if (psci_plat_pm_ops->validate_power_state != NULL) {
 			psci_caps |=  define_psci_cap(PSCI_CPU_SUSPEND_AARCH64);
-		if (psci_plat_pm_ops->get_sys_suspend_power_state != NULL)
+		}
+		if (psci_plat_pm_ops->get_sys_suspend_power_state != NULL) {
 			psci_caps |=  define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64);
+		}
 #if PSCI_OS_INIT_MODE
 		psci_caps |= define_psci_cap(PSCI_SET_SUSPEND_MODE);
 #endif
 	}
-	if (psci_plat_pm_ops->system_off != NULL)
+	if (psci_plat_pm_ops->system_off != NULL) {
 		psci_caps |=  define_psci_cap(PSCI_SYSTEM_OFF);
-	if (psci_plat_pm_ops->system_reset != NULL)
+	}
+	if (psci_plat_pm_ops->system_reset != NULL) {
 		psci_caps |=  define_psci_cap(PSCI_SYSTEM_RESET);
-	if (psci_plat_pm_ops->get_node_hw_state != NULL)
+	}
+	if (psci_plat_pm_ops->get_node_hw_state != NULL) {
 		psci_caps |= define_psci_cap(PSCI_NODE_HW_STATE_AARCH64);
+	}
 	if ((psci_plat_pm_ops->read_mem_protect != NULL) &&
-			(psci_plat_pm_ops->write_mem_protect != NULL))
+			(psci_plat_pm_ops->write_mem_protect != NULL)) {
 		psci_caps |= define_psci_cap(PSCI_MEM_PROTECT);
-	if (psci_plat_pm_ops->mem_protect_chk != NULL)
+	}
+	if (psci_plat_pm_ops->mem_protect_chk != NULL) {
 		psci_caps |= define_psci_cap(PSCI_MEM_CHK_RANGE_AARCH64);
-	if (psci_plat_pm_ops->system_reset2 != NULL)
+	}
+	if (psci_plat_pm_ops->system_reset2 != NULL) {
 		psci_caps |= define_psci_cap(PSCI_SYSTEM_RESET2_AARCH64);
-
+	}
 #if ENABLE_PSCI_STAT
 	psci_caps |=  define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64);
 	psci_caps |=  define_psci_cap(PSCI_STAT_COUNT_AARCH64);

@@ -60,23 +60,23 @@ uintptr_t handle_runtime_svc(uint32_t smc_fid,
  ******************************************************************************/
 static int32_t validate_rt_svc_desc(const rt_svc_desc_t *desc)
 {
-	if (desc == NULL)
+	if (desc == NULL) {
 		return -EINVAL;
-
-	if (desc->start_oen > desc->end_oen)
+	}
+	if (desc->start_oen > desc->end_oen) {
 		return -EINVAL;
-
-	if (desc->end_oen >= OEN_LIMIT)
+	}
+	if (desc->end_oen >= OEN_LIMIT) {
 		return -EINVAL;
-
+	}
 	if ((desc->call_type != SMC_TYPE_FAST) &&
-	    (desc->call_type != SMC_TYPE_YIELD))
+	    (desc->call_type != SMC_TYPE_YIELD)) {
 		return -EINVAL;
-
+	}
 	/* A runtime service having no init or handle function doesn't make sense */
-	if ((desc->init == NULL) && (desc->handle == NULL))
+	if ((desc->init == NULL) && (desc->handle == NULL)) {
 		return -EINVAL;
-
+	}
 	return 0;
 }
 
@@ -98,9 +98,9 @@ void __init runtime_svc_init(void)
 			(RT_SVC_DECS_NUM < MAX_RT_SVCS));
 
 	/* If no runtime services are implemented then simply bail out */
-	if (RT_SVC_DECS_NUM == 0U)
+	if (RT_SVC_DECS_NUM == 0U) {
 		return;
-
+	}
 	/* Initialise internal variables to invalid state */
 	(void)memset(rt_svc_descs_indices, -1, sizeof(rt_svc_descs_indices));
 
@@ -148,7 +148,8 @@ void __init runtime_svc_init(void)
 						  service->call_type);
 		assert(start_idx <= end_idx);
 		assert(end_idx < MAX_RT_SVCS);
-		for (; start_idx <= end_idx; start_idx++)
+		for (; start_idx <= end_idx; start_idx++) {
 			rt_svc_descs_indices[start_idx] = index;
+		}
 	}
 }

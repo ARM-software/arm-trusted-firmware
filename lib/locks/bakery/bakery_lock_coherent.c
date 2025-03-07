@@ -63,8 +63,9 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 	bakery->lock_data[me] = make_bakery_data(CHOOSING_TICKET, my_ticket);
 	for (they = 0U; they < BAKERY_LOCK_MAX_CPUS; they++) {
 		their_ticket = bakery_ticket_number(bakery->lock_data[they]);
-		if (their_ticket > my_ticket)
+		if (their_ticket > my_ticket) {
 			my_ticket = their_ticket;
+		}
 	}
 
 	/*
@@ -108,8 +109,9 @@ void bakery_lock_get(bakery_lock_t *bakery)
 	 */
 	my_prio = bakery_get_priority(my_ticket, me);
 	for (they = 0U; they < BAKERY_LOCK_MAX_CPUS; they++) {
-		if (me == they)
+		if (me == they) {
 			continue;
+		}
 
 		/* Wait for the contender to get their ticket */
 		do {
