@@ -264,11 +264,41 @@ void disable_mpu_icache_el2(void);
 #define write_daifclr(val) SYSREG_WRITE_CONST(daifclr, val)
 #define write_daifset(val) SYSREG_WRITE_CONST(daifset, val)
 
-#if ENABLE_FEAT_D128
+
+#if ENABLE_FEAT_D128 && !defined(SPD_tspd)
+/* Don't use mrrs/msrr read/write implementation with tspd,
+ * While using SPD=tspd, tspd compiles with current arch_helpers
+ * thus trying to use mrrs/msrr read/write from Secure-world.
+ * SCR_EL3.D128en is set only for Non-Secure world, which may cause
+ * panic while using mrrs/msrr from tspd secure world.
+ */
 DECLARE_SYSREG128_RW_FUNCS(par_el1)
+
+DECLARE_SYSREG128_RW_FUNCS(ttbr0_el1)
+DECLARE_SYSREG128_RW_FUNCS(ttbr1_el1)
+
+DECLARE_SYSREG128_RW_FUNCS(ttbr0_el2)
+DECLARE_SYSREG128_RW_FUNCS(ttbr1_el2)
+DECLARE_SYSREG128_RW_FUNCS(vttbr_el2)
+
+/* FEAT_THE Registers */
+DECLARE_SYSREG128_RW_FUNCS(rcwmask_el1)
+DECLARE_SYSREG128_RW_FUNCS(rcwsmask_el1)
 #else
 DEFINE_SYSREG_RW_FUNCS(par_el1)
-#endif
+
+DEFINE_SYSREG_RW_FUNCS(ttbr0_el1)
+DEFINE_SYSREG_RW_FUNCS(ttbr1_el1)
+
+DEFINE_SYSREG_RW_FUNCS(ttbr0_el2)
+DEFINE_RENAME_SYSREG_RW_FUNCS(ttbr1_el2, TTBR1_EL2)
+DEFINE_SYSREG_RW_FUNCS(vttbr_el2)
+
+/* FEAT_THE Registers */
+DEFINE_RENAME_SYSREG_RW_FUNCS(rcwmask_el1, RCWMASK_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(rcwsmask_el1, RCWSMASK_EL1)
+
+#endif /* ENABLE_FEAT_D128 && !defined(SPD_tspd) */
 
 DEFINE_IDREG_READ_FUNC(id_pfr1_el1)
 DEFINE_IDREG_READ_FUNC(id_aa64isar0_el1)
@@ -449,20 +479,6 @@ DEFINE_SYSREG_RW_FUNCS(rmr_el3)
 DEFINE_SYSREG_RW_FUNCS(tcr_el1)
 DEFINE_SYSREG_RW_FUNCS(tcr_el2)
 DEFINE_SYSREG_RW_FUNCS(tcr_el3)
-
-#if ENABLE_FEAT_D128
-DECLARE_SYSREG128_RW_FUNCS(ttbr0_el1)
-DECLARE_SYSREG128_RW_FUNCS(ttbr1_el1)
-DECLARE_SYSREG128_RW_FUNCS(ttbr0_el2)
-DECLARE_SYSREG128_RW_FUNCS(ttbr1_el2)
-DECLARE_SYSREG128_RW_FUNCS(vttbr_el2)
-#else
-DEFINE_SYSREG_RW_FUNCS(ttbr0_el1)
-DEFINE_SYSREG_RW_FUNCS(ttbr1_el1)
-DEFINE_SYSREG_RW_FUNCS(ttbr0_el2)
-DEFINE_RENAME_SYSREG_RW_FUNCS(ttbr1_el2, TTBR1_EL2)
-DEFINE_SYSREG_RW_FUNCS(vttbr_el2)
-#endif
 
 DEFINE_SYSREG_RW_FUNCS(ttbr0_el3)
 
@@ -705,15 +721,6 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(gcscr_el1, GCSCR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(gcscre0_el1, GCSCRE0_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(gcspr_el1, GCSPR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(gcspr_el0, GCSPR_EL0)
-
-/* FEAT_THE Registers */
-#if ENABLE_FEAT_D128
-DECLARE_SYSREG128_RW_FUNCS(rcwmask_el1)
-DECLARE_SYSREG128_RW_FUNCS(rcwsmask_el1)
-#else
-DEFINE_RENAME_SYSREG_RW_FUNCS(rcwmask_el1, RCWMASK_EL1)
-DEFINE_RENAME_SYSREG_RW_FUNCS(rcwsmask_el1, RCWSMASK_EL1)
-#endif
 
 /* FEAT_SCTLR2 Registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(sctlr2_el1, SCTLR2_EL1)
