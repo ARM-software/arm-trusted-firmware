@@ -65,4 +65,6 @@ unsigned long socfpga_get_ns_image_entrypoint(void);
 
 void plat_secondary_cpus_bl31_entry(void);
 
+void setup_clusterectlr_el1(void);
+
 #endif /* SOCFPGA_PRIVATE_H */
