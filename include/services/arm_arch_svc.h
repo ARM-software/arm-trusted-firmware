@@ -95,6 +95,12 @@
 #define SCR_FEAT_AMUv1p1 (0)
 #endif
 
+#if ENABLE_FEAT_TWED
+#define SCR_FEAT_TWED SCR_TWEDEn_BIT
+#else
+#define SCR_FEAT_TWED (0)
+#endif
+
 #if ENABLE_FEAT_ECV
 #define SCR_FEAT_ECV SCR_ECVEN_BIT
 #else
@@ -182,6 +188,7 @@
 	SCR_FEAT_HCX		|						\
 	SCR_FEAT_LS64_ACCDATA	|						\
 	SCR_FEAT_AMUv1p1	|						\
+	SCR_FEAT_TWED		|						\
 	SCR_FEAT_ECV		|						\
 	SCR_FEAT_FGT		|						\
 	SCR_FEAT_MTE2		|						\
