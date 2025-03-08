@@ -72,16 +72,6 @@ static const event2_header_t locality_event_header = {
 	}
 };
 
-/*
- * Record a measurement as a TCG_PCR_EVENT2 event
- *
- * @param[in] hash		Pointer to hash data of TCG_DIGEST_SIZE bytes
- * @param[in] event_type	Type of Event, Various Event Types are
- * 				mentioned in tcg.h header
- * @param[in] metadata_ptr	Pointer to event_log_metadata_t structure
- *
- * There must be room for storing this new event into the event log buffer.
- */
 int event_log_record(const uint8_t *hash, uint32_t event_type,
 		      const event_log_metadata_t *metadata_ptr)
 {
@@ -147,14 +137,6 @@ int event_log_record(const uint8_t *hash, uint32_t event_type,
 	return 0;
 }
 
-/*
- * Initialise the Event Log buffer by setting global pointers
- * to manage log entries.
- *
- * @param[in] event_log_start   Base address of the Event Log buffer
- * @param[in] event_log_finish  End address of the Event Log buffer,
- *                              pointing to the first byte past the buffer
- */
 int event_log_buf_init(uint8_t *event_log_start, uint8_t *event_log_finish)
 {
 	if (event_log_start == NULL || event_log_finish == NULL ||
@@ -168,15 +150,6 @@ int event_log_buf_init(uint8_t *event_log_start, uint8_t *event_log_finish)
 	return 0;
 }
 
-/**
- * Initialise Event Log global variables, used during the recording
- * of various payload measurements into the Event Log buffer
- *
- * @param[in] event_log_start		Base address of Event Log buffer
- * @param[in] event_log_finish		End address of Event Log buffer,
- * 					it is a first byte past end of the
- * 					buffer
- */
 int event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish)
 {
 	return event_log_buf_init(event_log_start, event_log_finish);
@@ -222,10 +195,6 @@ int event_log_write_specid_event(void)
 	return 0;
 }
 
-/*
- * Initialises Event Log by writing Specification ID and
- * Startup Locality events
- */
 int event_log_write_header(void)
 {
 	const char locality_signature[] = TCG_STARTUP_LOCALITY_SIGNATURE;
@@ -290,18 +259,6 @@ int event_log_measure(uintptr_t data_base, uint32_t data_size,
 				    (void *)data_base, data_size, hash_data);
 }
 
-/*
- * Calculate and write hash of image, configuration data, etc.
- * to Event Log.
- *
- * @param[in] data_base		Address of data
- * @param[in] data_size		Size of data
- * @param[in] data_id		Data ID
- * @param[in] metadata_ptr	Event Log metadata
- * @return:
- *	0 = success
- *    < 0 = error
- */
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id,
 				 const event_log_metadata_t *metadata_ptr)
@@ -336,13 +293,6 @@ int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 	return 0;
 }
 
-/*
- * Get current Event Log buffer size i.e. used space of Event Log buffer
- *
- * @param[in]  event_log_start		Base Pointer to Event Log buffer
- *
- * @return: current Size of Event Log buffer
- */
 size_t event_log_get_cur_size(uint8_t *event_log_start)
 {
 	assert(event_log_start != NULL);

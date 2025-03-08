@@ -12,12 +12,18 @@
 #include <common/debug.h>
 #include "event_log.h"
 
-
-/*
- * Print TCG_EfiSpecIDEventStruct
+/**
+ * Print a TCG_EfiSpecIDEventStruct entry from the event log.
  *
- * @param[in/out] log_addr	Pointer to Event Log
- * @param[in/out] log_size	Pointer to Event Log size
+ * This function extracts and prints a TCG_EfiSpecIDEventStruct
+ * entry from the event log for debugging or auditing purposes.
+ *
+ * @param[in,out] log_addr  Pointer to the current position in the Event Log.
+ *                          Updated to the next entry after processing.
+ * @param[in,out] log_size  Pointer to the remaining Event Log size.
+ *                          Updated to reflect the remaining bytes.
+ *
+ * @return 0 on success, or a negative error code on failure.
  */
 static int event_log_print_id_event(uint8_t **log_addr, size_t *log_size)
 {
@@ -151,11 +157,18 @@ static int event_log_print_id_event(uint8_t **log_addr, size_t *log_size)
 	return 0;
 }
 
-/*
- * Print TCG_PCR_EVENT2
+/**
+ * Print a TCG_PCR_EVENT2 entry from the event log.
  *
- * @param[in/out] log_addr	Pointer to Event Log
- * @param[in/out] log_size	Pointer to Event Log size
+ * This function extracts and prints a TCG_PCR_EVENT2 structure
+ * from the event log for debugging or auditing purposes.
+ *
+ * @param[in,out] log_addr  Pointer to the current position in the Event Log.
+ *                          Updated to the next entry after processing.
+ * @param[in,out] log_size  Pointer to the remaining Event Log size.
+ *                          Updated to reflect the remaining bytes.
+ *
+ * @return 0 on success, or a negative error code on failure.
  */
 static int event_log_print_pcr_event2(uint8_t **log_addr, size_t *log_size)
 {
@@ -270,12 +283,6 @@ static int event_log_print_pcr_event2(uint8_t **log_addr, size_t *log_size)
 	return 0;
 }
 
-/*
- * Print Event Log
- *
- * @param[in]	log_addr	Pointer to Event Log
- * @param[in]	log_size	Event Log size
- */
 int event_log_dump(uint8_t *log_addr, size_t log_size)
 {
 	int rc;
