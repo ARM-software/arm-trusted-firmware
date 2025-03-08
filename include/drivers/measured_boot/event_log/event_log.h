@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,7 +69,7 @@ void event_log_buf_init(uint8_t *event_log_start, uint8_t *event_log_finish);
 void event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish);
 void event_log_write_specid_event(void);
 void event_log_write_header(void);
-void dump_event_log(uint8_t *log_addr, size_t log_size);
+void event_log_dump(uint8_t *log_addr, size_t log_size);
 int event_log_measure(uintptr_t data_base, uint32_t data_size,
 		      unsigned char hash_data[CRYPTO_MD_MAX_SIZE]);
 void event_log_record(const uint8_t *hash, uint32_t event_type,
