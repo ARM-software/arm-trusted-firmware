@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -502,7 +502,7 @@ ifneq ($(COTDTPATH),)
 		$(q)$($(ARCH)-cpp) $(cot-dt-cpp-flags)
 
         $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.c): $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.dts) | $$(@D)/
-		$(if $(host-poetry),$(q)poetry -q install)
+		$(if $(host-poetry),$(q)poetry -q install --no-root)
 		$(q)$(if $(host-poetry),poetry run )cot-dt2c convert-to-c $< $@
 
         BL2_SOURCES += $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.c)
