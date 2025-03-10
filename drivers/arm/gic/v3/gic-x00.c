@@ -194,7 +194,7 @@ void gicv3_apply_errata_wa_2384374(uintptr_t gicr_base)
 }
 #endif /* GIC600_ERRATA_WA_2384374 */
 
-void gicv3_check_erratas_applies(uintptr_t gicd_base)
+void gicv3_check_erratas_applies(const uintptr_t gicd_base)
 {
 	unsigned int gic_prod_id;
 	uint8_t gic_rev;
