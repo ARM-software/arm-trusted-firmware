@@ -125,7 +125,7 @@
 #define SCR_FEAT_CSV2_2 (0)
 #endif
 
-#if ENABLE_FEAT_RAS
+#if !RAS_TRAP_NS_ERR_REC_ACCESS
 #define SCR_FEAT_RAS SCR_TERR_BIT
 #else
 #define SCR_FEAT_RAS (0)
