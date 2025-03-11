@@ -37,15 +37,6 @@ lpddr4_obj *lpddr4_getinstance(void)
 		.setlpiwakeuptime		= lpddr4_setlpiwakeuptime,
 		.geteccenable			= lpddr4_geteccenable,
 		.seteccenable			= lpddr4_seteccenable,
-		.getreducmode			= lpddr4_getreducmode,
-		.setreducmode			= lpddr4_setreducmode,
-		.getdbireadmode			= lpddr4_getdbireadmode,
-		.getdbiwritemode		= lpddr4_getdbiwritemode,
-		.setdbimode			= lpddr4_setdbimode,
-		.getrefreshrate			= lpddr4_getrefreshrate,
-		.setrefreshrate			= lpddr4_setrefreshrate,
-		.refreshperchipselect		= lpddr4_refreshperchipselect,
-		.deferredregverify		= lpddr4_deferredregverify,
 	};
 
 	return &driver;

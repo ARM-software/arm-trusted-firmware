@@ -64,6 +64,9 @@ uint64_t ddr_ram_size = 0x80000000;
 #define DDRSS_CTL_350__SFR_OFFS 0x578
 #define DDRSS_CTL_342__SFR_OFFS 0x558
 
+#define DENALI_CTL_0_DRAM_CLASS_DDR4	0xA
+#define DENALI_CTL_0_DRAM_CLASS_LPDDR4	0xB
+
 #define DDRSS_V2A_CTL_REG                       0x0020
 #define DDRSS_ECC_CTRL_REG                      0x0120
 
@@ -346,7 +349,8 @@ static void k3_lpddr4_freq_update(struct k3_ddrss_desc *ddr)
  ************************************************************************/
 static void k3_lpddr4_ack_freq_upd_req(const lpddr4_privatedata *pd)
 {
-	k3_lpddr4_freq_update(&ddrss);
+	if (ddrss.dram_class == DENALI_CTL_0_DRAM_CLASS_LPDDR4)
+		 k3_lpddr4_freq_update(&ddrss);
 }
 
 static void k3_lpddr4_info_handler(const lpddr4_privatedata *pd,
@@ -444,7 +448,7 @@ int k3_lpddr4_init(void)
 	int ret;
 	bool restore;
 
-	NOTICE("lpdd4_init <-- \n");
+	INFO("lpddr4_init <-- \n");
 	node = fdt_node_offset_by_compatible(dtb, -1, "ti,am62l-ddrss");
 
 	if (node >=0 ) {	
@@ -500,13 +504,17 @@ int k3_lpddr4_init(void)
 	else
 		return -ENODEV;
 
+	regval = *((uint32_t*)lpddr4_ctl_data);
+	ddrss.dram_class = ((regval & TH_FLD_MASK(LPDDR4__DRAM_CLASS__FLD)) >> TH_FLD_SHIFT(LPDDR4__DRAM_CLASS__FLD));
+	NOTICE("BL1: dram_class: %d\n",ddrss.dram_class);
+
 	/* Find 'memory' node */
 	node = fdt_node_offset_by_prop_value(dtb, -1, "device_type", "memory", sizeof("memory"));
 
 	INFO("memory node =0x%x \n",node);
 	if (node < 0) {
 		WARN("FCONF: Unable to locate 'memory' node\n");
-		goto set_ddr_pll;	
+		goto set_psc_def_pll;
 	}
 
 	prop = (void*) fdt_getprop(dtb, node, "reg", &prop_length);
@@ -522,10 +530,12 @@ int k3_lpddr4_init(void)
 		reg_val = (reg_val << 32) | fdt32_to_cpu(prop[i*4+3]);
 		ddr_ram_size += reg_val; 
 	}
-	NOTICE("DDR ram size =%lx \n",ddr_ram_size);
 
-set_ddr_pll:
-	ddrss_set_pll(ddrss.ddr_freq0);
+set_psc_def_pll:
+	if (ddrss.dram_class == DENALI_CTL_0_DRAM_CLASS_LPDDR4)
+		ddrss_set_pll(ddrss.ddr_freq0);
+	else
+		ddrss_set_pll(ddrss.ddr_freq1);
 
 	ret = set_main_psc_state(PD_DDR, LPSC_MAIN_DDR_LOCAL, PSC_PD_ON, PSC_ENABLE);
 	if (ret != 0U)
@@ -559,7 +569,7 @@ set_ddr_pll:
 	config->ctlbase = ddrss.ddrss_ctl_cfg;
 	config->infohandler = k3_lpddr4_info_handler;
 	driverdt->init(pd, config);
-	INFO("lpddr4: init done \n");
+	INFO("lpddr4/ddr4: init done \n");
 
 	/* Configure DDR with config and control structures */
 	driverdt->writectlconfigex(pd, lpddr4_ctl_data, LPDDR4_INTR_CTL_REG_COUNT);
@@ -602,10 +612,10 @@ set_ddr_pll:
 		INFO("LPDDR4 start completed !! \n");
 
 	val = (uint32_t)*((uint32_t *)(DDRSS_CTL_CFG + DDRSS_PI_REGISTER_BLOCK__OFFS + DDRSS_PI_83__SFR_OFFS));
-	INFO("lpddr4: post start - PI DONE=0x%x \n", val);
+	NOTICE("lpddr4: post start - PI training status=0x%x \n", val);
 
 	val = (uint32_t)*((uint32_t *)(DDRSS_CTL_CFG + DDRSS_CTL_342__SFR_OFFS));
-	INFO("lpddr4: post start - CTL DONE=0x%x \n", val);
+	INFO("lpddr4: post start - CTL Interrupt status=0x%x \n", val);
 
 	return 0;
 }
