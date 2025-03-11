@@ -146,6 +146,8 @@ CREATE_FEATURE_SUPPORTED(name, is_ ## name ## _present, guard)
  * +----------------------------+
  * |	FEAT_MOPS		|
  * +----------------------------+
+ * |	FEAT_PAUTH_LR		|
+ * +----------------------------+
  */
 
 __attribute__((always_inline))
@@ -195,6 +197,35 @@ static inline bool is_feat_pauth_present(void)
 }
 CREATE_FEATURE_SUPPORTED(feat_pauth, is_feat_pauth_present, ENABLE_PAUTH)
 CREATE_FEATURE_SUPPORTED(ctx_pauth, is_feat_pauth_present, CTX_INCLUDE_PAUTH_REGS)
+
+/*
+ * FEAT_PAUTH_LR
+ * This feature has a non-standard discovery method so define this function
+ * manually then call use the CREATE_FEATURE_SUPPORTED macro with it. This
+ * feature is enabled with ENABLE_PAUTH when present.
+ */
+__attribute__((always_inline))
+static inline bool is_feat_pauth_lr_present(void)
+{
+	/*
+	 * FEAT_PAUTH_LR support is indicated by up to 3 fields, if one or more
+	 * of these is 0b0110 then the feature is present.
+	 *   1) id_aa64isr1_el1.api
+	 *   2) id_aa64isr1_el1.apa
+	 *   3) id_aa64isr2_el1.apa3
+	 */
+	if (ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_API_SHIFT, ID_AA64ISAR1_API_MASK) == 0b0110) {
+		return true;
+	}
+	if (ISOLATE_FIELD(read_id_aa64isar1_el1(), ID_AA64ISAR1_APA_SHIFT, ID_AA64ISAR1_APA_MASK) == 0b0110) {
+		return true;
+	}
+	if (ISOLATE_FIELD(read_id_aa64isar2_el1(), ID_AA64ISAR2_APA3_SHIFT, ID_AA64ISAR2_APA3_MASK) == 0b0110) {
+		return true;
+	}
+	return false;
+}
+CREATE_FEATURE_SUPPORTED(feat_pauth_lr, is_feat_pauth_lr_present, ENABLE_FEAT_PAUTH_LR)
 
 /* FEAT_TTST: Small translation tables */
 CREATE_FEATURE_PRESENT(feat_ttst, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_ST_SHIFT,

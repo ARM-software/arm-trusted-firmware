@@ -45,6 +45,16 @@
 	msr	sctlr_el3, x0
 	isb
 
+#if ENABLE_FEAT_SCTLR2
+#if ENABLE_FEAT_SCTLR2 > 1
+	is_feat_sctlr2_present_asm x1
+	beq	feat_sctlr2_not_supported\@
+#endif
+	mov	x1, #SCTLR2_RESET_VAL
+	msr	SCTLR2_EL3, x1
+feat_sctlr2_not_supported\@:
+#endif
+
 #ifdef IMAGE_BL31
 	/* ---------------------------------------------------------------------
 	 * Initialise the per-cpu cache pointer to the CPU.

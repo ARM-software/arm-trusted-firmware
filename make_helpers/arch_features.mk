@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2022-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -159,6 +159,11 @@ ENABLE_FEAT_RAS			?=	0
 # Flag to enable Pointer Authentication. Internal flag not meant for
 # direct setting. Use BRANCH_PROTECTION to enable PAUTH.
 ENABLE_PAUTH			?=	0
+
+# FEAT_PAUTH_LR is an optional architectural feature, so this flag must be set
+# manually in addition to the BRANCH_PROTECTION flag which is used for other
+# branch protection and pointer authentication features.
+ENABLE_FEAT_PAUTH_LR		?=	0
 
 # Include pointer authentication (ARMv8.3-PAuth) registers in cpu context. This
 # must be set to 1 if the platform wants to use this feature in the Secure

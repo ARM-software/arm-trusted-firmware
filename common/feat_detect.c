@@ -429,6 +429,7 @@ void detect_arch_features(void)
 	/* v9.4 features */
 	check_feature(ENABLE_FEAT_GCS, read_feat_gcs_id_field(), "GCS", 1, 1);
 	check_feature(ENABLE_RME, read_feat_rme_id_field(), "RME", 1, 1);
+	check_feature(ENABLE_FEAT_PAUTH_LR, is_feat_pauth_lr_present(), "PAUTH_LR", 1, 1);
 
 	if (tainted) {
 		panic();
