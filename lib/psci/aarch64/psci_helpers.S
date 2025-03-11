@@ -12,7 +12,6 @@
 
 	.globl	psci_do_pwrdown_cache_maintenance
 	.globl	psci_do_pwrup_cache_maintenance
-	.globl	psci_power_down_wfi
 
 /* -----------------------------------------------------------------------
  * void psci_do_pwrdown_cache_maintenance(unsigned int power level);
@@ -116,26 +115,3 @@ func psci_do_pwrup_cache_maintenance
 	ldp	x29, x30, [sp], #16
 	ret
 endfunc psci_do_pwrup_cache_maintenance
-
-/* -----------------------------------------------------------------------
- * void psci_power_down_wfi(void); This function is called to indicate to the
- * power controller that it is safe to power down this cpu. It may exit if the
- * request was denied and reset did not occur
- * -----------------------------------------------------------------------
- */
-func psci_power_down_wfi
-	apply_erratum cortex_a510, ERRATUM(2684597), ERRATA_A510_2684597
-
-	dsb	sy		// ensure write buffer empty
-	wfi
-
-	/*
-	 * in case the WFI wasn't terminal, we have to undo errata mitigations.
-	 * These will be smart enough to handle being called the same way
-	 */
-	apply_erratum cortex_a710, ERRATUM(2291219), ERRATA_A710_2291219
-	apply_erratum cortex_x3,   ERRATUM(2313909), ERRATA_X3_2313909, NO_GET_CPU_REV
-	apply_erratum neoverse_n2, ERRATUM(2326639), ERRATA_N2_2326639, NO_GET_CPU_REV
-
-	ret
-endfunc psci_power_down_wfi

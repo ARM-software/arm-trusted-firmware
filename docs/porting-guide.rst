@@ -3107,13 +3107,14 @@ operation and it encodes the platform coordinated target local power states for
 the CPU power domain and its parent power domain levels.
 
 It is preferred that this function returns. The caller will invoke
-``psci_power_down_wfi()`` to powerdown the CPU, mitigate any powerdown errata,
+``wfi()`` to powerdown the CPU, mitigate any powerdown errata,
 and handle any wakeups that may arise. Previously, this function did not return
 and instead called ``wfi`` (in an infinite loop) directly. This is still
 possible on platforms where this is guaranteed to be terminal, however, it is
 strongly discouraged going forward.
 
-Previously this function was called ``pwr_domain_pwr_down_wfi()``.
+Previously this function was called ``pwr_domain_pwr_down_wfi()`` and invoked
+``psci_power_down_wfi()`` (now removed).
 
 plat_psci_ops.pwr_domain_on_finish()
 ....................................

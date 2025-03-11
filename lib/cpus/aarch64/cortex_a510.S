@@ -187,6 +187,7 @@ check_erratum_range cortex_a510, ERRATUM(2971420), CPU_REV(0, 1), CPU_REV(1, 3)
 	 * ----------------------------------------------------
 	 */
 func cortex_a510_core_pwr_dwn
+	apply_erratum cortex_a510, ERRATUM(2684597), ERRATA_A510_2684597
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------

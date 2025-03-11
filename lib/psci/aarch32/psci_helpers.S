@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,6 @@
 
 	.globl	psci_do_pwrdown_cache_maintenance
 	.globl	psci_do_pwrup_cache_maintenance
-	.globl	psci_power_down_wfi
 
 /* -----------------------------------------------------------------------
  * void psci_do_pwrdown_cache_maintenance(unsigned int power level);
@@ -134,16 +133,3 @@ func do_stack_maintenance
 
 	pop	{r4, pc}
 endfunc do_stack_maintenance
-
-/* -----------------------------------------------------------------------
- * This function is called to indicate to the power controller that it
- * is safe to power down this cpu. It should not exit the wfi and will
- * be released from reset upon power up.
- * -----------------------------------------------------------------------
- */
-func psci_power_down_wfi
-	dsb	sy		// ensure write buffer empty
-1:
-	wfi
-	b	1b
-endfunc psci_power_down_wfi

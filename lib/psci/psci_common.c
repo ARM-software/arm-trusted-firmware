@@ -14,6 +14,7 @@
 #include <common/debug.h>
 #include <context.h>
 #include <drivers/delay_timer.h>
+#include <lib/cpus/cpu_ops.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/spe.h>
 #include <lib/pmf/pmf.h>
@@ -1257,6 +1258,9 @@ void __dead2 psci_pwrdown_cpu_end_terminal(void)
 	}
 #endif /* ERRATA_SME_POWER_DOWN */
 
+	/* ensure write buffer empty */
+	dsbsy();
+
 	/*
 	 * Execute a wfi which, in most cases, will allow the power controller
 	 * to physically power down this cpu. Under some circumstances that may
@@ -1264,7 +1268,7 @@ void __dead2 psci_pwrdown_cpu_end_terminal(void)
 	 * power down.
 	 */
 	for (int i = 0; i < 32; i++)
-		psci_power_down_wfi();
+		wfi();
 
 	/* Wake up wasn't transient. System is probably in a bad state. */
 	ERROR("Could not power off CPU.\n");
@@ -1278,11 +1282,14 @@ void __dead2 psci_pwrdown_cpu_end_terminal(void)
 
 void psci_pwrdown_cpu_end_wakeup(unsigned int power_level)
 {
+	/* ensure write buffer empty */
+	dsbsy();
+
 	/*
-	 * Usually, will be terminal. In some circumstances the powerdown will
-	 * be denied and we'll need to unwind
+	 * Turn the core off. Usually, will be terminal. In some circumstances
+	 * the powerdown will be denied and we'll need to unwind.
 	 */
-	psci_power_down_wfi();
+	wfi();
 
 	/*
 	 * Waking up does not require hardware-assisted coherency, but that is
@@ -1290,7 +1297,7 @@ void psci_pwrdown_cpu_end_wakeup(unsigned int power_level)
 	 * coherency code from powerdown is a non-trivial effort which isn't
 	 * needed for our purposes.
 	 */
-#if !FEAT_PABANDON
+#if !FEAT_PABANDON || !defined(__aarch64__)
 	ERROR("Systems without FEAT_PABANDON shouldn't wake up.\n");
 	panic();
 #else /* FEAT_PABANDON */
