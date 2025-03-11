@@ -150,3 +150,19 @@ __wkupsramfunc void k3low_psc_raw_lpsc_set_state(uint64_t psc_base, uint8_t lpsc
 
 	mmio_write_32(psc_base + PSC_MDCTL(lpsc), mdctl);
 }
+
+/**
+ * @brief Get current state of an LPSC module
+ *
+ * Reads the MDSTAT register to determine the current state of the
+ * specified LPSC (Local Power Sleep Controller) module.
+ *
+ * @param psc_base Base address of the PSC
+ * @param lpsc LPSC index to query
+ *
+ * @return Current LPSC state (e.g., 0x3 if enabled, 0x2 if disabled)
+ */
+__wkupsramfunc uint8_t psc_raw_lpsc_get_state(uint64_t psc_base, uint8_t lpsc)
+{
+	return (uint8_t)(MDSTAT_STATE_MASK & mmio_read_32(psc_base + PSC_MDSTAT(lpsc)));
+}

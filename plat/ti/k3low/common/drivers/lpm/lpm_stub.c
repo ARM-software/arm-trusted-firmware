@@ -36,10 +36,16 @@
 #define CANUART_WAKE_OFF_MODE_STAT1_ENABLED		(0x1U)
 #define PSC_CORE_1_MDSTAT				(0x8A4U)
 #define MDSTAT_STATE_MASK				(0x1FU)
+#define GP_CORE_CTL					0
 #define PD_DDR						2U
 #define LPSC_MAIN_DDR_LOCAL				21U
 #define LPSC_MAIN_DDR_CFG_ISO_N				22U
 #define LPSC_MAIN_DDR_DATA_ISO_N			23U
+#define LPSC_MAIN_GP_USB0				7
+#define LPSC_MAIN_GP_USB0_ISO_N				8
+#define LPSC_MAIN_GP_USB1				9
+#define LPSC_MAIN_GP_USB1_ISO_N				10
+
 #define TI_MAILBOX_MSG					UL(0x40)
 #define MAILBOX_MSG_BUFFER_OFFSET			(0x100U)
 #define TISCI_MSG_CORE_RESUME				(0x000A0304U)
@@ -88,6 +94,8 @@ __wkupsramdata struct pll_raw_data *main_plls_save_rstr[3] = {
 &main_pll0, &main_pll8, &main_pll17};
 
 __wkupsramdata int num_main_plls_save_rstr = 3;
+__wkupsramdata uint8_t usb0_state;
+__wkupsramdata uint8_t usb1_state;
 
 extern uint32_t k3low_lpm_switch_stack(uintptr_t jump, uintptr_t stack, uint32_t arg);
 static void k3_lpm_jump_to_stub(uint32_t mode);
@@ -149,6 +157,90 @@ __wkupsramfunc static void disable_main_pll(void)
 	for (i = 0; i < num_main_plls_save_rstr; i++) {
 		k3low_pll_disable(main_plls_save_rstr[i]);
 	}
+}
+
+/**
+ * @brief Save and disable USB LPSCs during suspend
+ *
+ * Saves the current state of both USB0 and USB1 LPSCs and their isolation
+ * modules (ISO_N), then disables them to allow USB to act as a wake-up
+ * source during deep sleep. The saved states are used during resume to
+ * restore the USB modules to their pre-suspend configuration.
+ *
+ * @return 0 on success, error code otherwise
+ */
+__wkupsramfunc static int32_t save_and_disable_usb_lpsc(void)
+{
+	int32_t ret = 0;
+
+	usb0_state = psc_raw_lpsc_get_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0);
+	k3low_psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0, MDCTL_STATE_DISABLE, 0);
+	k3low_psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	ret = k3low_psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+
+	if (ret == 0) {
+		k3low_psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0_ISO_N,
+					     MDCTL_STATE_DISABLE, 0);
+		k3low_psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+		ret = k3low_psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	}
+
+	if (ret == 0) {
+		usb1_state = psc_raw_lpsc_get_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1);
+		k3low_psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1,
+					     MDCTL_STATE_DISABLE, 0);
+		k3low_psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+		ret = k3low_psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	}
+
+	if (ret == 0) {
+		k3low_psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1_ISO_N,
+					     MDCTL_STATE_DISABLE, 0);
+		k3low_psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+		ret = k3low_psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	}
+
+	return ret;
+}
+
+/**
+ * @brief Restore USB LPSCs during resume
+ *
+ * Restores both USB0 and USB1 LPSCs and their isolation modules (ISO_N)
+ * to the states saved during suspend. This ensures USB modules are only
+ * re-enabled if they were enabled before entering low power mode.
+ *
+ * @return 0 on success, error code otherwise
+ */
+__wkupsramfunc static int32_t restore_usb_lpsc(void)
+{
+	int32_t ret;
+
+	k3low_psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0, usb0_state, 0);
+	k3low_psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	ret = k3low_psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+
+	if (ret == 0) {
+		k3low_psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0_ISO_N,
+					     usb0_state, 0);
+		k3low_psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+		ret = k3low_psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	}
+
+	if (ret == 0) {
+		k3low_psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1, usb1_state, 0);
+		k3low_psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+		ret = k3low_psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	}
+
+	if (ret == 0) {
+		k3low_psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1_ISO_N,
+					     usb1_state, 0);
+		k3low_psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+		ret = k3low_psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	}
+
+	return ret;
 }
 
 /**
@@ -342,6 +434,12 @@ __wkupsramsuspendentry void k3low_lpm_stub_entry(uint32_t mode)
 		} else {
 			lpm_seq_trace(LPM_SEQ_SECONDARY_CORE_DOWN);
 		}
+		if (save_and_disable_usb_lpsc() != 0) {
+			lpm_seq_trace_fail(LPM_SEQ_USB_LPSC_DISABLE);
+			k3low_lpm_abort();
+		} else {
+			lpm_seq_trace(LPM_SEQ_USB_LPSC_DISABLE);
+		}
 
 		save_main_pll();
 		lpm_seq_trace(LPM_SEQ_SAVE_MAIN_PLL);
@@ -504,6 +602,13 @@ __wkupsramfunc void k3low_lpm_resume_c(void)
 		k3low_lpm_abort();
 	} else {
 		lpm_seq_trace(LPM_SEQ_RESTORE_DDR_REGS);
+	}
+
+	if (restore_usb_lpsc() != 0) {
+		lpm_seq_trace_fail(LPM_SEQ_ENABLE_USB_LPSC);
+		k3low_lpm_abort();
+	} else {
+		lpm_seq_trace(LPM_SEQ_ENABLE_USB_LPSC);
 	}
 
 	mailbox_send_message();

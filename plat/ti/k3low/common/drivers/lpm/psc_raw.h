@@ -58,4 +58,14 @@ void k3low_psc_raw_pd_set_state(uint64_t psc_base, uint8_t pd,
 void k3low_psc_raw_lpsc_set_state(uint64_t psc_base, uint8_t lpsc,
 				  uint32_t state, bool force);
 
+/**
+ * @brief Get current state of an LPSC module
+ *
+ * @param psc_base Base address of the PSC
+ * @param lpsc LPSC index to query
+ *
+ * @return Current LPSC state (e.g., 0x3 if enabled, 0x2 if disabled)
+ */
+uint8_t psc_raw_lpsc_get_state(uint64_t psc_base, uint8_t lpsc);
+
 #endif /* __PSC_RAW_H__ */
