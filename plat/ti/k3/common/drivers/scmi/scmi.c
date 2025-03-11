@@ -37,7 +37,7 @@ static const char sub_vendor[] = "Instruments";
 static struct scmi_msg_channel scmi_channel[] = {
 	[0] = {
 		.shm_addr = 0x70800000,
-		.shm_size = 0x100,
+		.shm_size = 0x1000, /* 4096 bytes */
 	},
 };
 
