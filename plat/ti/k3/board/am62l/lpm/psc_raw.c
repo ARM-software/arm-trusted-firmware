@@ -151,3 +151,8 @@ __wkupsramfunc void psc_raw_lpsc_set_state(uint64_t psc_base, uint8_t lpsc, uint
 
 	mmio_write_32(psc_base + PSC_MDCTL(lpsc), mdctl);
 }
+
+__wkupsramfunc uint8_t psc_raw_lpsc_get_state(uint64_t psc_base, uint8_t lpsc)
+{
+	return (uint8_t)(MDSTAT_STATE_MASK & mmio_read_32(psc_base + PSC_MDSTAT(lpsc)));
+}

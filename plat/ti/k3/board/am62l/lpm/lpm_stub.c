@@ -33,10 +33,15 @@
 #define CANUART_WAKE_OFF_MODE				(0x1310U)
 #define CANUART_WAKE_OFF_MODE_STAT1			(0x130CU)
 #define CANUART_WAKE_OFF_MODE_STAT1_ENABLED		(0x1U)
+#define GP_CORE_CTL					0
 #define PD_DDR						2U
 #define LPSC_MAIN_DDR_LOCAL				21U
 #define LPSC_MAIN_DDR_CFG_ISO_N				22U
 #define LPSC_MAIN_DDR_DATA_ISO_N			23U
+#define LPSC_MAIN_GP_USB0				7
+#define LPSC_MAIN_GP_USB0_ISO_N				8
+#define LPSC_MAIN_GP_USB1				9
+#define LPSC_MAIN_GP_USB1_ISO_N				10
 
 #define PLLOFFSET(idx)					(0x1000 * (idx))
 #define SCTLR_EL3_M_BIT					((uint32_t)1U << 0)
@@ -79,6 +84,8 @@ __wkupsramdata struct pll_raw_data *main_plls_save_rstr[3] = {
 &main_pll0, &main_pll8, &main_pll17};
 
 __wkupsramdata int num_main_plls_save_rstr = 3;
+__wkupsramdata uint8_t usb0_state;
+__wkupsramdata uint8_t usb1_state;
 
 extern uint32_t k3_lpm_switch_stack(uintptr_t jump, uintptr_t stack, uint32_t arg);
 extern void plat_invalidate_icache(void);
@@ -139,6 +146,54 @@ __wkupsramfunc void disable_main_pll(void)
 		pll_disable(main_plls_save_rstr[i]);
 		lpm_seq_trace_fail(0xD1);
 	}
+}
+
+/**
+ * @brief Save and disable USB LPSC
+ *
+ */
+__wkupsramfunc static void save_and_disable_usb_lpsc(void)
+{
+	usb0_state = psc_raw_lpsc_get_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0);
+	psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0, MDCTL_STATE_DISABLE, 0);
+	psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+
+	psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0_ISO_N, MDCTL_STATE_DISABLE, 0);
+	psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+
+	usb1_state = psc_raw_lpsc_get_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1);
+	psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1, MDCTL_STATE_DISABLE, 0);
+	psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+
+	psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1_ISO_N, MDCTL_STATE_DISABLE, 0);
+	psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+}
+
+/**
+ * @brief Save and disable USB LPSC
+ *
+ */
+__wkupsramfunc static void restore_usb_lpsc(void)
+{
+	psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0, usb0_state, 0);
+	psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+
+	psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB0_ISO_N, usb0_state, 0);
+	psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+
+	psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1, usb1_state, 0);
+	psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+
+	psc_raw_lpsc_set_state(K3_MAIN_PSC_BASE, LPSC_MAIN_GP_USB1_ISO_N, usb1_state, 0);
+	psc_raw_pd_initiate(K3_MAIN_PSC_BASE, GP_CORE_CTL);
+	psc_raw_pd_wait(K3_MAIN_PSC_BASE, GP_CORE_CTL);
 }
 
 /**
@@ -288,6 +343,10 @@ __wkupsramsuspendentry void k3_lpm_stub_entry(uint32_t mode)
 		lpm_wait_for_secondary_core_down();
 		lpm_seq_trace(0x10);
 
+		/* Keep the USB LPSCs off*/
+		save_and_disable_usb_lpsc();
+		lpm_seq_trace(0x11);
+
 		save_main_pll();
 		lpm_seq_trace(0x20);
 
@@ -419,6 +478,9 @@ __wkupsramfunc void k3_lpm_resume_c(void)
 
 	lpm_seq_trace(0x90);
 	restore_ddr_reg_configs();
+
+	lpm_seq_trace(0x91);
+	restore_usb_lpsc();
 
 	lpm_seq_trace(0xA0);
 	mailbox_send_message();

@@ -53,4 +53,13 @@ void psc_raw_pd_set_state(uint64_t psc_base, uint8_t pd, uint32_t state, bool fo
  */
 void psc_raw_lpsc_set_state(uint64_t psc_base, uint8_t lpsc, uint32_t state, bool force);
 
+/**
+ * \brief Get current state of a module
+ * \param psc_base Base address of the psc
+ * \param lpsc LPSC index to get next state
+ *
+ * \return Current state of LPSC. 0x3 if LPSC is enabled
+ */
+uint8_t psc_raw_lpsc_get_state(uint64_t psc_base, uint8_t lpsc);
+
 #endif /* __PSC_RAW_H__ */
