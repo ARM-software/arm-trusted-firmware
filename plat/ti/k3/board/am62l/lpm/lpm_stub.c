@@ -134,33 +134,10 @@ __wkupsramfunc void disable_main_pll(void)
 	int i;
 
 	for (i = 0; i < num_main_plls_save_rstr; i++) {
+
+		lpm_seq_trace(0xD1);
 		pll_disable(main_plls_save_rstr[i]);
-	}
-}
-
-/**
- * @brief Disable main domain plls
- *
- */
-__wkupsramfunc void bypass_main_pll(void)
-{
-	int i;
-
-	for (i = 0; i < num_main_plls_save_rstr; i++) {
-		pll_bypass(main_plls_save_rstr[i]);
-	}
-}
-
-/**
- * @brief Disable main domain plls
- *
- */
-__wkupsramfunc void unbypass_main_pll(void)
-{
-	int i;
-
-	for (i = 0; i < num_main_plls_save_rstr; i++) {
-		pll_unbypass(main_plls_save_rstr[i]);
+		lpm_seq_trace_fail(0xD1);
 	}
 }
 

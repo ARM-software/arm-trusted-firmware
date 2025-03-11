@@ -45,13 +45,6 @@ void pll_disable(struct pll_raw_data *pll);
 void pll_unbypass(struct pll_raw_data *pll);
 
 /**
- * \brief Bypass a PLL
- * \param pll Pointer to PLL context, with base set to address for pll to
- *            manipulate
- */
-void pll_bypass(struct pll_raw_data *pll);
-
-/**
  * \brief Bypass a PLL's HSDIVs
  * \param pll Pointer to PLL context, with base set to address for pll to
  *            manipulate
