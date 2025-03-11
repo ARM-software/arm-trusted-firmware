@@ -38,7 +38,7 @@ static void sunxi_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	gicv2_cpuif_enable();
 }
 
-static void __dead2 sunxi_system_off(void)
+static void sunxi_system_off(void)
 {
 	gicv2_cpuif_disable();
 
@@ -48,9 +48,6 @@ static void __dead2 sunxi_system_off(void)
 	/* Turn off all CPUs */
 	sunxi_cpu_power_off_others();
 	sunxi_cpu_power_off_self();
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
 }
 
 static void __dead2 sunxi_system_reset(void)

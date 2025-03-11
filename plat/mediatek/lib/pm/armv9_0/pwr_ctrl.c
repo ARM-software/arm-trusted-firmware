@@ -388,10 +388,6 @@ static void pwr_domain_pwr_down_wfi(const psci_power_state_t *req_state)
 		ret = imtk_cpu_pwr.ops->pwr_domain_pwr_down_wfi(cpu);
 	if (ret == MTK_CPUPM_E_OK)
 		plat_panic_handler();
-	else
-		psci_power_down_wfi();
-	/* should never reach here */
-	panic();
 }
 
 static void pm_smp_init(unsigned int cpu_id, uintptr_t entry_point)

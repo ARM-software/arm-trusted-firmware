@@ -1315,20 +1315,9 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	return 0;
 }
 
-void __dead2 rockchip_soc_cores_pd_pwr_dn_wfi(const
-					psci_power_state_t *target_state)
-{
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
-}
-
-void __dead2 rockchip_soc_sys_pd_pwr_dn_wfi(void)
+void rockchip_soc_sys_pd_pwr_dn_wfi(void)
 {
 	cpus_pd_req_enter_wfi();
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
 }
 
 void __dead2 rockchip_soc_soft_reset(void)
@@ -1355,9 +1344,9 @@ void __dead2 rockchip_soc_soft_reset(void)
 	 * Maybe the HW needs some times to reset the system,
 	 * so we do not hope the core to execute valid codes.
 	 */
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
+	while (1) {
+		wfi();
+	}
 }
 
 void __dead2 rockchip_soc_system_off(void)
@@ -1378,9 +1367,9 @@ void __dead2 rockchip_soc_system_off(void)
 	 * Maybe the HW needs some times to reset the system,
 	 * so we do not hope the core to execute valid codes.
 	 */
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
+	while (1) {
+		wfi();
+	}
 }
 
 static void rockchip_pmu_pd_init(void)

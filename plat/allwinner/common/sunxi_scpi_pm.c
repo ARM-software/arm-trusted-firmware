@@ -95,7 +95,7 @@ static void sunxi_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	}
 }
 
-static void __dead2 sunxi_system_off(void)
+static void sunxi_system_off(void)
 {
 	uint32_t ret;
 
@@ -106,13 +106,9 @@ static void __dead2 sunxi_system_off(void)
 	if (ret != SCP_OK) {
 		ERROR("PSCI: SCPI %s failed: %d\n", "shutdown", ret);
 	}
-
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
 }
 
-static void __dead2 sunxi_system_reset(void)
+static void sunxi_system_reset(void)
 {
 	uint32_t ret;
 
@@ -123,10 +119,6 @@ static void __dead2 sunxi_system_reset(void)
 	if (ret != SCP_OK) {
 		ERROR("PSCI: SCPI %s failed: %d\n", "reboot", ret);
 	}
-
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
 }
 
 static int sunxi_system_reset2(int is_vendor, int reset_type, u_register_t cookie)
@@ -145,14 +137,8 @@ static int sunxi_system_reset2(int is_vendor, int reset_type, u_register_t cooki
 		return PSCI_E_INVALID_PARAMS;
 	}
 
-	psci_power_down_wfi();
-	/* should never reach here */
-	panic();
-
 	/*
-	 * Should not reach here.
-	 * However sunxi_system_reset2 has to return some value
-	 * according to PSCI v1.1 spec.
+	 * Continue to core powerdown
 	 */
 	return PSCI_E_SUCCESS;
 }
