@@ -3,7 +3,10 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include <common/debug.h>
 #include <plat_private.h>
+#include <ti_sci.h>
+#include <ti_sci_transport.h>
 
 /* Table of regions to map using the MMU */
 const mmap_region_t plat_k3_mmap[] = {
@@ -16,5 +19,42 @@ const mmap_region_t plat_k3_mmap[] = {
 	{ /* sentinel */ }
 };
 
-void ti_soc_init(void) {}
+int ti_soc_init(void) {
+	struct ti_sci_msg_version version;
+	int ret;
+
+	ret = ti_sci_get_revision(&version);
+	if (ret) {
+		ERROR("Unable to communicate with the control firmware (%d)\n", ret);
+		return ret;
+	}
+
+	INFO("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
+	     version.abi_major, version.abi_minor,
+	     version.firmware_revision,
+	     version.firmware_description);
+
+	/*
+	 * Older firmware have a timing issue with DM that crashes few TF-A
+	 * lite devices while trying to make calls to DM. Since there is no way
+	 * to detect what current DM version we are running - we rely on the
+	 * corresponding TIFS versioning to handle this check and ensure that
+	 * the platform boots up
+	 *
+	 * Upgrading to TIFS version 9.1.7 along with the corresponding DM from
+	 * ti-linux-firmware will enable this functionality.
+	 */
+	if (version.firmware_revision > 9 ||
+	    (version.firmware_revision == 9 && version.sub_version > 1) ||
+	    (version.firmware_revision == 9 && version.sub_version == 1 &&
+		 version.patch_version >= 7)
+	) {
+		if (ti_sci_device_get(PLAT_BOARD_DEVICE_ID)) {
+			WARN("Unable to take system power reference\n");
+		}
+	} else {
+		NOTICE("Upgrade Firmwares for Power off functionality\n");
+	}
+	return 0;
+}
 

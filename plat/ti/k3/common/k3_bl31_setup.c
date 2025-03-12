@@ -102,46 +102,16 @@ void bl31_plat_arch_setup(void)
 
 void bl31_platform_setup(void)
 {
-	struct ti_sci_msg_version version;
 	int ret;
 
 	k3_gic_driver_init(K3_GIC_BASE);
 	k3_gic_init();
 
-	ti_soc_init();
 	ti_sci_boot_notification();
 
-	ret = ti_sci_get_revision(&version);
+	ret = ti_soc_init();
 	if (ret) {
-		ERROR("Unable to communicate with the control firmware (%d)\n", ret);
-		return;
-	}
-
-	INFO("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
-	     version.abi_major, version.abi_minor,
-	     version.firmware_revision,
-	     version.firmware_description);
-
-	/*
-	 * Older firmware have a timing issue with DM that crashes few TF-A
-	 * lite devices while trying to make calls to DM. Since there is no way
-	 * to detect what current DM version we are running - we rely on the
-	 * corresponding TIFS versioning to handle this check and ensure that
-	 * the platform boots up
-	 *
-	 * Upgrading to TIFS version 9.1.7 along with the corresponding DM from
-	 * ti-linux-firmware will enable this functionality.
-	 */
-	if (version.firmware_revision > 9 ||
-	    (version.firmware_revision == 9 && version.sub_version > 1) ||
-	    (version.firmware_revision == 9 && version.sub_version == 1 &&
-		 version.patch_version >= 7)
-	) {
-		if (ti_sci_device_get(PLAT_BOARD_DEVICE_ID)) {
-			WARN("Unable to take system power reference\n");
-		}
-	} else {
-		NOTICE("Upgrade Firmwares for Power off functionality\n");
+		ERROR("Failed to initialize SOC (%d)\n", ret);
 	}
 }
 

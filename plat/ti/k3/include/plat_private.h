@@ -22,7 +22,7 @@ extern const mmap_region_t plat_k3_mmap[];
 void ti_init_scmi_server(void);
 
 /* Any kind of SOC specific init can be done here */
-void ti_soc_init(void);
+int ti_soc_init(void);
 
 #endif /* PLATFORM_PRIVATE_H */
 

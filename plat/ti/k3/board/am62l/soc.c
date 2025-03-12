@@ -10,6 +10,8 @@
 #include <plat_private.h>
 #include <plat_scmi_def.h>
 #include <rtc.h>
+#include <ti_sci.h>
+#include <ti_sci_transport.h>
 
 /* Table of regions to map using the MMU */
 /* TODO: Add AM62L specific mapping such that K3 devices don't break */
@@ -21,8 +23,11 @@ const mmap_region_t plat_k3_mmap[] = {
 	{ /* sentinel */ }
 };
 
-void ti_soc_init(void)
+int ti_soc_init(void)
 {
+	struct ti_sci_msg_version version;
+	int ret;
+
 	generic_delay_timer_init();
 	ti_init_scmi_server();
 #ifdef K3_AM62L_LPM
@@ -33,5 +38,16 @@ void ti_soc_init(void)
 	}
 	rtc_init();
 #endif
+	ret = ti_sci_get_revision(&version);
+	if (ret) {
+		ERROR("Unable to communicate with the control firmware (%d)\n", ret);
+		return ret;
+	}
 
+	INFO("SYSFW ABI: %d.%d (firmware rev 0x%04x '%s')\n",
+	     version.abi_major, version.abi_minor,
+	     version.firmware_revision,
+	     version.firmware_description);
+
+	return 0;
 }
