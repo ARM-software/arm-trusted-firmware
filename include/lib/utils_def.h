@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -217,5 +217,18 @@
  * Ticks elapsed in one second with a signal of 1 KHz
  */
 #define KHZ_TICKS_PER_SEC U(1000)
+
+/**
+ * EXTRACT_FIELD - Extracts a specific bit field from a value.
+ *
+ * @val:   The input value containing the field.
+ * @mask:  A bitmask representing the maximum value of the field
+ * @shift: The starting bit position of the field.
+ *
+ * This macro shifts the input value (@val) to the right by @shift bits,
+ * aligning the target field to the least significant bits (LSB).
+ * It then applies @mask to extract only the relevant bits.
+ */
+#define EXTRACT_FIELD(val, mask, shift)   (((val) >> (shift)) & (mask))
 
 #endif /* UTILS_DEF_H */

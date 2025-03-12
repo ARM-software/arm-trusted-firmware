@@ -14,6 +14,8 @@
 #ifndef ARM_DRTM_SVC_H
 #define ARM_DRTM_SVC_H
 
+#include <lib/utils_def.h>
+
 /*
  * SMC function IDs for DRTM Service
  * Upper word bits set: Fast call, SMC64, Standard Secure Svc. Call (OEN = 4)
@@ -238,6 +240,21 @@
 		(((val) & ARM_DRTM_REGION_SIZE_TYPE_4K_PAGE_NUM_MASK)	\
 		<< ARM_DRTM_REGION_SIZE_TYPE_4K_PAGE_NUM_SHIFT));	\
 	} while (false)
+
+#define DRTM_LAUNCH_FEAT_DLME_IMG_AUTH_SHIFT		U(6)
+#define DRTM_LAUNCH_FEAT_MEM_PROTECTION_TYPE_SHIFT	U(3)
+#define DRTM_LAUNCH_FEAT_PCR_USAGE_SCHEMA_SHIFT		U(1)
+#define DRTM_LAUNCH_FEAT_HASHING_TYPE_SHIFT		U(0)
+
+#define DRTM_LAUNCH_FEAT_DLME_IMG_AUTH_MASK      	U(0x1)
+#define DRTM_LAUNCH_FEAT_MEM_PROTECTION_TYPE_MASK 	U(0x7)
+#define DRTM_LAUNCH_FEAT_PCR_USAGE_SCHEMA_MASK   	U(0x3)
+#define DRTM_LAUNCH_FEAT_HASHING_TYPE_MASK       	U(0x1)
+
+#define DLME_IMG_AUTH					U(0x1)
+#define REG_MEM_PROTECTION_TYPE				U(0x1)
+#define DLME_AUTH_SCHEMA				U(0x1)
+#define TPM_BASED_HASHING				U(0x1)
 
 /* Initialization routine for the DRTM service */
 int drtm_setup(void);
