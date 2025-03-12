@@ -125,6 +125,12 @@
 #define SCR_FEAT_RAS (0)
 #endif
 
+#if ENABLE_FEAT_MEC
+#define SCR_FEAT_MEC SCR_MECEn_BIT
+#else
+#define SCR_FEAT_MEC (0)
+#endif
+
 #ifndef SCR_PLAT_FEATS
 #define SCR_PLAT_FEATS (0)
 #endif
@@ -195,6 +201,7 @@
 	SCR_IRQ_BIT		|						\
 	SCR_NS_BIT		|						\
 	SCR_RES1_BITS		|						\
+	SCR_FEAT_MEC		|						\
 	SCR_PLAT_IGNORED)
 CASSERT((SCR_EL3_FEATS & SCR_EL3_IGNORED) == 0, scr_feat_is_ignored);
 CASSERT((SCR_EL3_FLIPPED & SCR_EL3_FEATS) == SCR_EL3_FLIPPED, scr_flipped_not_a_feat);

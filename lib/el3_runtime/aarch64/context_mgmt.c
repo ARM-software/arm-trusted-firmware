@@ -548,6 +548,10 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	}
 #endif /* (IMAGE_BL31 && defined(SPD_spmd) && SPMD_SPM_AT_SEL2) */
 
+	if (is_feat_mec_supported()) {
+		scr_el3 |= SCR_MECEn_BIT;
+	}
+
 	/*
 	 * Populate EL3 state so that we've the right context
 	 * before doing ERET

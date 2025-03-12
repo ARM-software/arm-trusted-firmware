@@ -615,6 +615,22 @@ ifeq (${CTX_INCLUDE_EL2_REGS}, 1)
 endif
 
 ################################################################################
+# Verify FEAT_RME, FEAT_SCTLR2 and FEAT_TCR2 are enabled if FEAT_MEC is enabled.
+################################################################################
+
+ifneq (${ENABLE_FEAT_MEC},0)
+    ifeq (${ENABLE_RME},0)
+        $(error FEAT_RME must be enabled when FEAT_MEC is enabled.)
+    endif
+    ifeq (${ENABLE_FEAT_TCR2},0)
+        $(error FEAT_TCR2 must be enabled when FEAT_MEC is enabled.)
+    endif
+    ifeq (${ENABLE_FEAT_SCTLR2},0)
+        $(error FEAT_SCTLR2 must be enabled when FEAT_MEC is enabled.)
+    endif
+endif
+
+################################################################################
 # Make 128-Bit sysreg read/writes availabe when FEAT_D128 is enabled.
 ################################################################################
 ifneq (${ENABLE_FEAT_D128}, 0)
@@ -1297,6 +1313,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_FEAT_FPMR \
 	ENABLE_FEAT_HCX \
 	ENABLE_FEAT_LS64_ACCDATA \
+	ENABLE_FEAT_MEC \
 	ENABLE_FEAT_MOPS \
 	ENABLE_FEAT_MTE2 \
 	ENABLE_FEAT_PAN \
@@ -1466,6 +1483,7 @@ $(eval $(call add_defines,\
 	ENABLE_FEAT_CSV2_2 \
 	ENABLE_FEAT_CSV2_3 \
 	ENABLE_FEAT_LS64_ACCDATA \
+	ENABLE_FEAT_MEC \
 	ENABLE_FEAT_PAN \
 	ENABLE_FEAT_TCR2 \
 	ENABLE_FEAT_THE \

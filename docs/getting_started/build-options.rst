@@ -1382,6 +1382,12 @@ Common build options
    Management Extension. This flag can take the values 0 to 2, to align with
    the ``ENABLE_FEAT`` mechanism. Default value is 0.
 
+-  ``ENABLE_FEAT_MEC``: Numeric value to enable support for the ARMv9.2 Memory
+   Encryption Contexts (MEC). This flag can take the values 0 to 2, to align
+   with the ``ENABLE_FEAT`` mechanism. MEC supports multiple encryption
+   contexts for Realm security state and only one encryption context for the
+   rest of the security states. Default value is 0.
+
 -  ``RMMD_ENABLE_EL3_TOKEN_SIGN``: Numeric value to enable support for singing
    realm attestation token signing requests in EL3. This flag can take the
    values 0 and 1. The default value is ``0``. When set to ``1``, this option
