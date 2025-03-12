@@ -16,16 +16,6 @@
 cpu_reset_prologue cortex_a57
 
 	/* ---------------------------------------------
-	 * Disable L1 data cache and unified L2 cache
-	 * ---------------------------------------------
-	 */
-func cortex_a57_disable_dcache
-	sysreg_bit_clear sctlr_el3, SCTLR_C_BIT
-	isb
-	ret
-endfunc cortex_a57_disable_dcache
-
-	/* ---------------------------------------------
 	 * Disable all types of L2 prefetches.
 	 * ---------------------------------------------
 	 */
@@ -200,12 +190,6 @@ func cortex_a57_core_pwr_dwn
 	mov	x18, x30
 
 	/* ---------------------------------------------
-	 * Turn off caches.
-	 * ---------------------------------------------
-	 */
-	bl	cortex_a57_disable_dcache
-
-	/* ---------------------------------------------
 	 * Disable the L2 prefetches.
 	 * ---------------------------------------------
 	 */
@@ -238,12 +222,6 @@ endfunc cortex_a57_core_pwr_dwn
 	 */
 func cortex_a57_cluster_pwr_dwn
 	mov	x18, x30
-
-	/* ---------------------------------------------
-	 * Turn off caches.
-	 * ---------------------------------------------
-	 */
-	bl	cortex_a57_disable_dcache
 
 	/* ---------------------------------------------
 	 * Disable the L2 prefetches.

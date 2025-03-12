@@ -12,15 +12,6 @@ cpu_reset_prologue qemu_max
 
 func qemu_max_core_pwr_dwn
 	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
-	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
-
-	/* ---------------------------------------------
 	 * Flush L1 cache to L2.
 	 * ---------------------------------------------
 	 */
@@ -32,15 +23,6 @@ func qemu_max_core_pwr_dwn
 endfunc qemu_max_core_pwr_dwn
 
 func qemu_max_cluster_pwr_dwn
-	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
-	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
-
 	/* ---------------------------------------------
 	 * Flush all caches to PoC.
 	 * ---------------------------------------------

@@ -13,26 +13,8 @@
 
 cpu_reset_prologue generic
 
-	/* ---------------------------------------------
-	 * Disable L1 data cache and unified L2 cache
-	 * ---------------------------------------------
-	 */
-func generic_disable_dcache
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
-	ret
-endfunc generic_disable_dcache
-
 func generic_core_pwr_dwn
 	mov	x18, x30
-
-	/* ---------------------------------------------
-	 * Turn off caches.
-	 * ---------------------------------------------
-	 */
-	bl	generic_disable_dcache
 
 	/* ---------------------------------------------
 	 * Flush L1 caches.
@@ -46,12 +28,6 @@ endfunc generic_core_pwr_dwn
 
 func generic_cluster_pwr_dwn
 	mov	x18, x30
-
-	/* ---------------------------------------------
-	 * Turn off caches.
-	 * ---------------------------------------------
-	 */
-	bl	generic_disable_dcache
 
 	/* ---------------------------------------------
 	 * Flush L1 caches.

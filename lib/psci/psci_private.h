@@ -323,13 +323,6 @@ void psci_print_power_domain_map(void);
 bool psci_is_last_on_cpu(unsigned int my_idx);
 int psci_spd_migrate_info(u_register_t *mpidr);
 
-/*
- * CPU power down is directly called only when HW_ASSISTED_COHERENCY is
- * available. Otherwise, this needs post-call stack maintenance, which is
- * handled in assembly.
- */
-void prepare_cpu_pwr_dwn(unsigned int power_level);
-
 /* This function applies various CPU errata during power down. */
 void apply_cpu_pwr_dwn_errata(void);
 
@@ -351,7 +344,7 @@ int psci_cpu_suspend_start(unsigned int idx,
 void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max_off_lvl, const psci_power_state_t *state_info);
 
 /* Private exported functions from psci_helpers.S */
-void psci_do_pwrdown_cache_maintenance(unsigned int pwr_level);
+void psci_do_pwrdown_cache_maintenance(void);
 void psci_do_pwrup_cache_maintenance(void);
 
 /* Private exported functions from psci_system_off.c */

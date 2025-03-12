@@ -1196,6 +1196,26 @@ int psci_secondaries_brought_up(void)
 	return (n_valid > 1U) ? 1 : 0;
 }
 
+static void call_cpu_pwr_dwn(unsigned int power_level)
+{
+	struct cpu_ops *ops = get_cpu_data(cpu_ops_ptr);
+
+	/* Call the last available power down handler */
+	if (power_level > CPU_MAX_PWR_DWN_OPS - 1) {
+		power_level = CPU_MAX_PWR_DWN_OPS - 1;
+	}
+
+	assert(ops != NULL);
+	assert(ops->pwr_dwn_ops[power_level] != NULL);
+
+	return ops->pwr_dwn_ops[power_level]();
+}
+
+static void prepare_cpu_pwr_dwn(unsigned int power_level)
+{
+	call_cpu_pwr_dwn(power_level);
+}
+
 /*******************************************************************************
  * Initiate power down sequence, by calling power down operations registered for
  * this CPU.
@@ -1213,25 +1233,23 @@ void psci_pwrdown_cpu_start(unsigned int power_level)
 		PMF_CACHE_MAINT);
 #endif
 
-#if HW_ASSISTED_COHERENCY
+#if !HW_ASSISTED_COHERENCY
 	/*
-	 * With hardware-assisted coherency, the CPU drivers only initiate the
-	 * power down sequence, without performing cache-maintenance operations
-	 * in software. Data caches enabled both before and after this call.
-	 */
-	prepare_cpu_pwr_dwn(power_level);
-#else
-	/*
-	 * Without hardware-assisted coherency, the CPU drivers disable data
-	 * caches, then perform cache-maintenance operations in software.
+	 * Disable data caching and handle the stack's cache maintenance.
 	 *
-	 * This also calls prepare_cpu_pwr_dwn() to initiate power down
-	 * sequence, but that function will return with data caches disabled.
-	 * We must ensure that the stack memory is flushed out to memory before
-	 * we start popping from it again.
+	 * If the core can't automatically exit coherency, the cpu driver needs
+	 * to flush caches and exit coherency. We can't do this with data caches
+	 * enabled. The cpu driver will decide which caches to flush based on
+	 * the power level.
+	 *
+	 * If automatic coherency management is possible, we can keep data
+	 * caches on until the very end and let hardware do cache maintenance.
 	 */
-	psci_do_pwrdown_cache_maintenance(power_level);
+	psci_do_pwrdown_cache_maintenance();
 #endif
+
+	/* Initiate the power down sequence by calling into the cpu driver. */
+	prepare_cpu_pwr_dwn(power_level);
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
