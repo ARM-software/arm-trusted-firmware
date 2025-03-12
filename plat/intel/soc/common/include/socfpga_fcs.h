@@ -362,7 +362,7 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 				uint32_t session_id, uint32_t context_id,
 				uint64_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t dst_size,
-				uint32_t aad_size, uint8_t is_finalised,
+				uint32_t padding_size, uint8_t is_finalised,
 				uint32_t *send_id, uint64_t smmu_src_addr,
 				uint64_t smmu_dst_addr);
 

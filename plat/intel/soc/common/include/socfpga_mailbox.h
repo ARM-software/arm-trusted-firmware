@@ -309,7 +309,7 @@ int mailbox_send_fpga_config_comp(void);
 				((client_id << MBOX_CLIENT_ID_SHIFT) |	 \
 				(job_id << MBOX_JOB_ID_SHIFT) |		 \
 				(args_len << MBOX_CMD_LEN_SHIFT) |	 \
-				(indirect << MBOX_CMD_LEN_SHIFT) |	 \
+				(indirect << MBOX_INDIRECT_SHIFT) |	 \
 				cmd)
 
 #define FLAG_SDM_RESPONSE_IS_VALID			BIT(0)
