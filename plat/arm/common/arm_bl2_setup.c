@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,8 +66,8 @@ struct transfer_list_header *secure_tl __unused;
  * in x0. This memory layout is sitting at the base of the free trusted SRAM.
  * Copy it to a safe location before its reclaimed by later BL2 functionality.
  ******************************************************************************/
-void arm_bl2_early_platform_setup(uintptr_t fw_config,
-				  struct meminfo *mem_layout)
+void arm_bl2_early_platform_setup(u_register_t arg0, u_register_t arg1,
+				  u_register_t arg2, u_register_t arg3)
 {
 	struct transfer_list_entry *te __unused;
 	int __maybe_unused ret;
@@ -76,8 +76,7 @@ void arm_bl2_early_platform_setup(uintptr_t fw_config,
 	arm_console_boot_init();
 
 #if TRANSFER_LIST
-	// TODO: modify the prototype of this function fw_config != bl2_tl
-	secure_tl = (struct transfer_list_header *)fw_config;
+	secure_tl = (struct transfer_list_header *)arg3;
 
 	te = transfer_list_find(secure_tl, TL_TAG_SRAM_LAYOUT64);
 	assert(te != NULL);
@@ -85,11 +84,11 @@ void arm_bl2_early_platform_setup(uintptr_t fw_config,
 	bl2_tzram_layout = *(meminfo_t *)transfer_list_entry_data(te);
 	transfer_list_rem(secure_tl, te);
 #else
-	config_base = fw_config;
+	config_base = (uintptr_t)arg0;
 
 	/* Setup the BL2 memory layout */
-	bl2_tzram_layout = *mem_layout;
-#endif
+	bl2_tzram_layout = *(meminfo_t *)arg1;
+#endif /* TRANSFER_LIST */
 
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
@@ -105,9 +104,10 @@ void arm_bl2_early_platform_setup(uintptr_t fw_config,
 #endif /* ARM_GPT_SUPPORT */
 }
 
-void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			       u_register_t arg2, u_register_t arg3)
 {
-	arm_bl2_early_platform_setup((uintptr_t)arg0, (meminfo_t *)arg1);
+	arm_bl2_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	generic_delay_timer_init();
 }
