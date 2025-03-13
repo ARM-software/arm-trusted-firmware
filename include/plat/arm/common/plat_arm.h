@@ -298,8 +298,8 @@ void arm_transfer_list_get_heap_info(void **heap_addr, size_t *heap_size);
 void arm_tsp_early_platform_setup(void);
 
 /* SP_MIN utility functions */
-void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
-				uintptr_t hw_config, void *plat_params_from_bl2);
+void arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
+			u_register_t arg2, u_register_t arg3);
 void arm_sp_min_plat_runtime_setup(void);
 void arm_sp_min_plat_arch_setup(void);
 

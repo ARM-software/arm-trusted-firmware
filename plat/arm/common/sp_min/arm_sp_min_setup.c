@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -61,8 +61,8 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 /*******************************************************************************
  * Utility function to perform early platform setup.
  ******************************************************************************/
-void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
-			uintptr_t hw_config, void *plat_params_from_bl2)
+void arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
+			u_register_t arg2, u_register_t arg3)
 {
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
@@ -99,7 +99,7 @@ void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 	/*
 	 * Check params passed from BL2 should not be NULL,
 	 */
-	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
+	bl_params_t *params_from_bl2 = (bl_params_t *)arg0;
 	assert(params_from_bl2 != NULL);
 	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
 	assert(params_from_bl2->h.version >= VERSION_2);
@@ -132,7 +132,7 @@ void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 			u_register_t arg2, u_register_t arg3)
 {
-	arm_sp_min_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
+	arm_sp_min_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	/*
 	 * Initialize Interconnect for this cluster during cold boot.
