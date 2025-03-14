@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,8 +25,20 @@ const event_log_metadata_t fvp_event_log_metadata[] = {
 
 void bl1_plat_mboot_init(void)
 {
-	event_log_init(event_log, event_log + sizeof(event_log));
-	event_log_write_header();
+	size_t event_log_max_size = PLAT_ARM_EVENT_LOG_MAX_SIZE;
+	int rc;
+
+	rc = event_log_init(event_log, event_log + event_log_max_size);
+	if (rc < 0) {
+		ERROR("Failed to initialize event log (%d).\n", rc);
+		panic();
+	}
+
+	rc = event_log_write_header();
+	if (rc < 0) {
+		ERROR("Failed to write event log header (%d).\n", rc);
+		panic();
+	}
 }
 
 void bl1_plat_mboot_finish(void)
