@@ -131,7 +131,7 @@ int plat_mboot_measure_image(unsigned int image_id, image_info_t *image_data)
 	event_log_record(hash_data, EV_POST_CODE, metadata_ptr);
 
 	/* Dump Event Log for user view */
-	dump_event_log((uint8_t *)event_log, event_log_get_cur_size(event_log));
+	event_log_dump((uint8_t *)event_log, event_log_get_cur_size(event_log));
 
 	return rc;
 }

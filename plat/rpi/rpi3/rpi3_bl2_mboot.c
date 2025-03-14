@@ -106,7 +106,7 @@ void bl2_plat_mboot_finish(void)
 	flush_dcache_range(ns_log_addr, event_log_cur_size);
 
 	/* Dump Event Log for user view */
-	dump_event_log((uint8_t *)event_log_start, event_log_cur_size);
+	event_log_dump((uint8_t *)event_log_start, event_log_cur_size);
 
 #if DISCRETE_TPM
 	/* relinquish control of TPM locality 0 and close interface */
