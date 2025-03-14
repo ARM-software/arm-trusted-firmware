@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -190,7 +190,8 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	ret = socfpga_vab_init(image_id);
 	if (ret < 0) {
 		ERROR("SOCFPGA VAB Authentication failed\n");
-		wfi();
+		while (1)
+			wfi();
 	}
 #endif
 

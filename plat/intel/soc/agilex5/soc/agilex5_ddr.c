@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -370,10 +370,10 @@ int agilex5_ddr_init(handoff *hoff_ptr)
 	/* DDR size queried from the IOSSM controller */
 	hw_ddr_size = (phys_size_t)io96b_ctrl.overall_size * SZ_1G / SZ_8;
 
-	/* TODO: Hard code 1GB as of now, and DDR start and end address */
-	config_ddr_size = 0x40000000;
-	ddr_info_set[0].start = 0x80000000;
-	ddr_info_set[0].size = 0x40000000;
+	/* TODO: To update config_ddr_size by using FDT in the future. */
+	config_ddr_size = 0x80000000;
+	ddr_info_set[0].start = DRAM_BASE;
+	ddr_info_set[0].size = hw_ddr_size;
 
 	if (config_ddr_size != hw_ddr_size) {
 		WARN("DDR: DDR size configured is (%lld MiB)\n", config_ddr_size >> 20);

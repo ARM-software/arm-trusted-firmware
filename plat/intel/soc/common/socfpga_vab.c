@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,10 +113,10 @@ int socfpga_vab_authentication(void **p_image, size_t *p_size)
 
 	VERBOSE("mbox_data_addr = %lx    mbox_data_sz = %d\n", mbox_data_addr, mbox_data_sz);
 
-	memcpy_s(mbox_relocate_data_addr, mbox_data_sz * sizeof(uint32_t),
-		(uint8_t *)mbox_data_addr, mbox_data_sz * sizeof(uint32_t));
+	memcpy_s(mbox_relocate_data_addr, (mbox_data_sz * sizeof(uint32_t)) / MBOX_WORD_BYTE,
+		(uint8_t *)mbox_data_addr, (mbox_data_sz * sizeof(uint32_t)) / MBOX_WORD_BYTE);
 
-	*((unsigned int *)mbox_relocate_data_addr) = CCERT_CMD_TEST_PGM_MASK;
+	*((unsigned int *)mbox_relocate_data_addr) = 0;
 
 	do {
 		/* Invoke SMC call to ATF to send the VAB certificate to SDM */
