@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
 # Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
-# Copyright (c) 2024, Altera Corporation. All rights reserved.
+# Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -105,3 +105,8 @@ $(eval $(call add_defines,\
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 RESET_TO_BL2			:= 1
 USE_COHERENT_MEM		:= 1
+
+#To get the TF-A version via SMC calls
+DEFINES += -DVERSION_MAJOR=${VERSION_MAJOR}
+DEFINES += -DVERSION_MINOR=${VERSION_MINOR}
+DEFINES += -DVERSION_PATCH=${VERSION_PATCH}

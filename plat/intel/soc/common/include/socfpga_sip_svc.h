@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -145,6 +145,9 @@
 /* SEU ERR */
 #define INTEL_SIP_SMC_SEU_ERR_STATUS					0xC2000099
 #define INTEL_SIP_SMC_SAFE_INJECT_SEU_ERR				0xC200009A
+
+/* ATF build version */
+#define INTEL_SIP_SMC_ATF_BUILD_VER					0xC200009B
 
 #define INTEL_SIP_SMC_FCS_SHA_MODE_MASK					0xF
 #define INTEL_SIP_SMC_FCS_DIGEST_SIZE_MASK				0xF

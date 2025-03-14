@@ -1354,6 +1354,10 @@ uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 		status = intel_sdm_safe_inject_seu_err((uint32_t *)&x1, (uint32_t)x2);
 		SMC_RET1(handle, status);
 
+	case INTEL_SIP_SMC_ATF_BUILD_VER:
+		SMC_RET4(handle, INTEL_SIP_SMC_STATUS_OK, VERSION_MAJOR,
+			 VERSION_MINOR, VERSION_PATCH);
+
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
 			cookie, handle, flags);
