@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -502,12 +502,12 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	case RMM_GTSI_UNDELEGATE:
 		ret = gpt_undelegate_pas(x1, PAGE_SIZE_4KB, SMC_FROM_REALM);
 		SMC_RET1(handle, gpt_to_gts_error(ret, smc_fid, x1));
-	case RMM_ATTEST_GET_PLAT_TOKEN:
-		ret = rmmd_attest_get_platform_token(x1, &x2, x3, &remaining_len);
-		SMC_RET3(handle, ret, x2, remaining_len);
 	case RMM_ATTEST_GET_REALM_KEY:
 		ret = rmmd_attest_get_signing_key(x1, &x2, x3);
 		SMC_RET2(handle, ret, x2);
+	case RMM_ATTEST_GET_PLAT_TOKEN:
+		ret = rmmd_attest_get_platform_token(x1, &x2, x3, &remaining_len);
+		SMC_RET3(handle, ret, x2, remaining_len);
 	case RMM_EL3_FEATURES:
 		ret = rmm_el3_ifc_get_feat_register(x1, &x2);
 		SMC_RET2(handle, ret, x2);
