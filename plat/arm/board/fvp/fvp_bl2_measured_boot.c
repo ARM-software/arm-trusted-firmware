@@ -218,5 +218,5 @@ void bl2_plat_mboot_finish(void)
 	}
 #endif /* defined(SPD_tspd) || defined(SPD_spmd) */
 
-	dump_event_log((uint8_t *)event_log_base, event_log_cur_size);
+	event_log_dump((uint8_t *)event_log_base, event_log_cur_size);
 }
