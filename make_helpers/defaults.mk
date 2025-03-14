@@ -432,3 +432,8 @@ PRESERVE_DSU_PMU_REGS		:= 0
 
 # Enable RMMD to forward attestation requests from RMM to EL3.
 RMMD_ENABLE_EL3_TOKEN_SIGN	:= 0
+
+# Enable RMMD to program and manage IDE Keys at the PCIe Root Port(RP).
+# This flag is temporary and it is expected once the interface is
+# finalized, this flag will be removed.
+RMMD_ENABLE_IDE_KEY_PROG	:= 0

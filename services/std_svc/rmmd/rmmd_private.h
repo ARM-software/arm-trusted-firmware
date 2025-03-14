@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #define RMMD_PRIVATE_H
 
 #include <context.h>
+#include <services/rmmd_svc.h>
 
 /*******************************************************************************
  * Constants that allow assembler code to preserve callee-saved registers of the
@@ -53,6 +54,17 @@ int rmmd_attest_get_signing_key(uint64_t buf_pa, uint64_t *buf_size,
 				uint64_t ecc_curve);
 uint64_t rmmd_el3_token_sign(void *handle, uint64_t x1, uint64_t x2,
 				    uint64_t x3, uint64_t x4);
+
+/* Functions implementing IDE KM programming */
+int rmmd_el3_ide_key_program(uint64_t ecam_address, uint64_t rp_id,
+			     uint64_t ide_stream_info, rp_ide_key_info_t *ide_key_info_ptr,
+			     uint64_t request_id, uint64_t cookie);
+int rmmd_el3_ide_key_set_go(uint64_t ecam_address, uint64_t rp_id, uint64_t ide_stream_info,
+			    uint64_t request_id, uint64_t cookie);
+int rmmd_el3_ide_key_set_stop(uint64_t ecam_address, uint64_t rp_id, uint64_t ide_stream_info,
+			      uint64_t request_id, uint64_t cookie);
+int rmmd_el3_ide_km_pull_response(uint64_t ecam_address, uint64_t rp_id, uint64_t *req_resp,
+				  uint64_t *request_id, uint64_t *cookie_ptr);
 
 /* Assembly helpers */
 uint64_t rmmd_rmm_enter(uint64_t *c_rt_ctx);

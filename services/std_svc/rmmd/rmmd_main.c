@@ -561,6 +561,37 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	case RMM_EL3_TOKEN_SIGN:
 		return rmmd_el3_token_sign(handle, x1, x2, x3, x4);
 #endif
+
+#if RMMD_ENABLE_IDE_KEY_PROG
+	case RMM_IDE_KEY_PROG:
+	{
+		rp_ide_key_info_t ide_key_info;
+
+		ide_key_info.keyqw0 = x4;
+		ide_key_info.keyqw1 = SMC_GET_GP(handle, CTX_GPREG_X5);
+		ide_key_info.keyqw2 = SMC_GET_GP(handle, CTX_GPREG_X6);
+		ide_key_info.keyqw3 = SMC_GET_GP(handle, CTX_GPREG_X7);
+		ide_key_info.ifvqw0 = SMC_GET_GP(handle, CTX_GPREG_X8);
+		ide_key_info.ifvqw1 = SMC_GET_GP(handle, CTX_GPREG_X9);
+		uint64_t x10 = SMC_GET_GP(handle, CTX_GPREG_X10);
+		uint64_t x11 = SMC_GET_GP(handle, CTX_GPREG_X11);
+
+		ret = rmmd_el3_ide_key_program(x1, x2, x3, &ide_key_info, x10, x11);
+		SMC_RET1(handle, ret);
+	}
+	case RMM_IDE_KEY_SET_GO:
+		ret = rmmd_el3_ide_key_set_go(x1, x2, x3, x4, SMC_GET_GP(handle, CTX_GPREG_X5));
+		SMC_RET1(handle, ret);
+	case RMM_IDE_KEY_SET_STOP:
+		ret = rmmd_el3_ide_key_set_stop(x1, x2, x3, x4, SMC_GET_GP(handle, CTX_GPREG_X5));
+		SMC_RET1(handle, ret);
+	case RMM_IDE_KM_PULL_RESPONSE: {
+		uint64_t req_resp = 0, req_id = 0, cookie_var = 0;
+
+		ret = rmmd_el3_ide_km_pull_response(x1, x2, &req_resp, &req_id, &cookie_var);
+		SMC_RET4(handle, ret, req_resp, req_id, cookie_var);
+	}
+#endif /* RMMD_ENABLE_IDE_KEY_PROG */
 	case RMM_BOOT_COMPLETE:
 		VERBOSE("RMMD: running rmmd_rmm_sync_exit\n");
 		rmmd_rmm_sync_exit(x1);
