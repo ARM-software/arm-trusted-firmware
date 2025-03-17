@@ -375,11 +375,13 @@ static int imx_usdhc_set_ios(unsigned int clk, unsigned int width)
 
 static int imx_usdhc_prepare(int lba, uintptr_t buf, size_t size)
 {
+	flush_dcache_range(buf, size);
 	return imx_usdhc_save_buf_data(buf, size);
 }
 
 static int imx_usdhc_read(int lba, uintptr_t buf, size_t size)
 {
+	inv_dcache_range(buf, size);
 	return 0;
 }
 
