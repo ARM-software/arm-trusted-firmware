@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -51,5 +51,13 @@
 #define CORTEX_A510_CPUACTLR_EL1_DATA_CORRUPT_DISABLE		U(1)
 #define CORTEX_A510_CPUACTLR_EL1_DATA_CORRUPT_SHIFT		U(18)
 #define CORTEX_A510_CPUACTLR_EL1_DATA_CORRUPT_WIDTH		U(1)
+
+#ifndef __ASSEMBLER__
+
+#if ERRATA_A510_2971420
+long check_erratum_cortex_a510_2971420(long cpu_rev);
+#endif
+
+#endif /* __ASSEMBLER__ */
 
 #endif /* CORTEX_A510_H */

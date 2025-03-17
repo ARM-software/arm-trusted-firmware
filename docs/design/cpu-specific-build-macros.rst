@@ -956,6 +956,10 @@ For Cortex-A510, the following errata build flags are defined :
    Cortex-A510 CPU. This needs to be applied to revision r0p0, r0p1, r0p2,
    r0p3, r1p0, r1p1 and r1p2. It is fixed in r1p3.
 
+-  ``ERRATA_A510_2971420``: This applies erratum 2971420 workaround to
+   Cortex-A510 CPU. This needs to be applied to revisions r0p1, r0p2, r0p3,
+   r1p0, r1p1, r1p2 and r1p3 and is still open.
+
 For Cortex-A520, the following errata build flags are defined :
 
 -  ``ERRATA_A520_2630792``: This applies errata 2630792 workaround to
