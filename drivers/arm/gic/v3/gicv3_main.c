@@ -1148,10 +1148,10 @@ void gicv3_raise_sgi(unsigned int sgi_num, gicv3_irq_group_t group,
 	assert((sgi_num >= MIN_SGI_ID) && (sgi_num < MIN_PPI_ID));
 
 	/* Extract affinity fields from target */
-	aff0 = MPIDR_AFFLVL0_VAL(target);
-	aff1 = MPIDR_AFFLVL1_VAL(target);
-	aff2 = MPIDR_AFFLVL2_VAL(target);
-	aff3 = MPIDR_AFFLVL3_VAL(target);
+	aff0 = (unsigned int)MPIDR_AFFLVL0_VAL(target);
+	aff1 = (unsigned int)MPIDR_AFFLVL1_VAL(target);
+	aff2 = (unsigned int)MPIDR_AFFLVL2_VAL(target);
+	aff3 = (unsigned int)MPIDR_AFFLVL3_VAL(target);
 
 	/*
 	 * Make target list from affinity 0, and ensure GICv3 SGI can target
