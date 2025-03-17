@@ -23,6 +23,8 @@ void imx_usdhc_init(imx_usdhc_params_t *params,
 /* iMX MMC registers definition */
 #define DSADDR			0x000U
 #define BLKATT			0x004U
+#define BLKATT_BLKCNT(x)	(((x) << 16U) & GENMASK_32(31U, 16U))
+#define BLKATT_BLKSIZE(x)	((x) & GENMASK_32(12U, 0U))
 #define CMDARG			0x008U
 #define CMDRSP0			0x010U
 #define CMDRSP1			0x014U

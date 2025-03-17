@@ -23,6 +23,13 @@
 					 BIT_32(24U) | BIT_32(25U))
 #define ADTC_MASK_ACMD			(BIT_64(51U))
 
+struct imx_usdhc_device_data {
+	uint32_t addr;
+	uint32_t blk_size;
+	uint32_t blks;
+	bool valid;
+};
+
 static void imx_usdhc_initialize(void);
 static int imx_usdhc_send_cmd(struct mmc_cmd *cmd);
 static int imx_usdhc_set_ios(unsigned int clk, unsigned int width);
@@ -40,6 +47,61 @@ static const struct mmc_ops imx_usdhc_ops = {
 };
 
 static imx_usdhc_params_t imx_usdhc_params;
+static struct imx_usdhc_device_data imx_usdhc_data;
+
+static bool imx_usdhc_is_buf_valid(void)
+{
+	return imx_usdhc_data.valid;
+}
+
+static bool imx_usdhc_is_buf_multiblk(void)
+{
+	return imx_usdhc_data.blks > 1U;
+}
+
+static void imx_usdhc_inval_buf_data(void)
+{
+	imx_usdhc_data.valid = false;
+}
+
+static int imx_usdhc_save_buf_data(uintptr_t buf, size_t size)
+{
+	uint32_t block_size;
+	uint64_t blks;
+
+	if (size <= MMC_BLOCK_SIZE) {
+		block_size = (uint32_t)size;
+	} else {
+		block_size = MMC_BLOCK_SIZE;
+	}
+
+	if (buf > UINT32_MAX) {
+		return -EOVERFLOW;
+	}
+
+	imx_usdhc_data.addr = (uint32_t)buf;
+	imx_usdhc_data.blk_size = block_size;
+	blks = size / block_size;
+	imx_usdhc_data.blks = (uint32_t)blks;
+
+	imx_usdhc_data.valid = true;
+
+	return 0;
+}
+
+static void imx_usdhc_write_buf_data(void)
+{
+	uintptr_t reg_base = imx_usdhc_params.reg_base;
+	uint32_t addr, blks, blk_size;
+
+	addr = imx_usdhc_data.addr;
+	blks = imx_usdhc_data.blks;
+	blk_size = imx_usdhc_data.blk_size;
+
+	mmio_write_32(reg_base + DSADDR, addr);
+	mmio_write_32(reg_base + BLKATT, BLKATT_BLKCNT(blks) |
+		      BLKATT_BLKSIZE(blk_size));
+}
 
 #define IMX7_MMC_SRC_CLK_RATE (200 * 1000 * 1000)
 static void imx_usdhc_set_clk(int clk)
@@ -118,13 +180,6 @@ static bool is_data_transfer_to_card(const struct mmc_cmd *cmd)
 	unsigned int cmd_idx = cmd->cmd_idx;
 
 	return (cmd_idx == MMC_CMD(24)) || (cmd_idx == MMC_CMD(25));
-}
-
-static bool is_multiple_block_transfer(const struct mmc_cmd *cmd)
-{
-	unsigned int cmd_idx = cmd->cmd_idx;
-
-	return cmd_idx == MMC_CMD(18) || cmd_idx == MMC_CMD(25);
 }
 
 static bool is_data_transfer_cmd(const struct mmc_cmd *cmd)
@@ -213,17 +268,21 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	mmio_write_32(reg_base + INTSIGEN, 0);
 	udelay(1000);
 
-	if (is_multiple_block_transfer(cmd)) {
-		mixctl |= MIXCTRL_MSBSEL;
-		mixctl |= MIXCTRL_BCEN;
-	}
-
 	if (data) {
 		mixctl |= MIXCTRL_DMAEN;
 	}
 
 	if (!is_data_transfer_to_card(cmd)) {
 		mixctl |= MIXCTRL_DTDSEL;
+	}
+
+	if ((cmd->cmd_idx != MMC_CMD(55)) && imx_usdhc_is_buf_valid()) {
+		if (imx_usdhc_is_buf_multiblk()) {
+			mixctl |= MIXCTRL_MSBSEL | MIXCTRL_BCEN;
+		}
+
+		imx_usdhc_write_buf_data();
+		imx_usdhc_inval_buf_data();
 	}
 
 	/* Send the command */
@@ -316,13 +375,7 @@ static int imx_usdhc_set_ios(unsigned int clk, unsigned int width)
 
 static int imx_usdhc_prepare(int lba, uintptr_t buf, size_t size)
 {
-	uintptr_t reg_base = imx_usdhc_params.reg_base;
-
-	mmio_write_32(reg_base + DSADDR, buf);
-	mmio_write_32(reg_base + BLKATT,
-		      (size / MMC_BLOCK_SIZE) << 16 | MMC_BLOCK_SIZE);
-
-	return 0;
+	return imx_usdhc_save_buf_data(buf, size);
 }
 
 static int imx_usdhc_read(int lba, uintptr_t buf, size_t size)
