@@ -113,6 +113,13 @@ static void imx_usdhc_initialize(void)
 
 #define FSL_CMD_RETRIES	1000
 
+static bool is_data_transfer_to_card(const struct mmc_cmd *cmd)
+{
+	unsigned int cmd_idx = cmd->cmd_idx;
+
+	return (cmd_idx == MMC_CMD(24)) || (cmd_idx == MMC_CMD(25));
+}
+
 static bool is_data_transfer_cmd(const struct mmc_cmd *cmd)
 {
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
@@ -202,11 +209,6 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	switch (cmd->cmd_idx) {
 	case MMC_CMD(18):
 		multiple = 1;
-		/* for read op */
-		/* fallthrough */
-	case MMC_CMD(17):
-	case MMC_CMD(8):
-		mixctl |= MIXCTRL_DTDSEL;
 		break;
 	case MMC_CMD(25):
 		multiple = 1;
@@ -224,6 +226,10 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 
 	if (data) {
 		mixctl |= MIXCTRL_DMAEN;
+	}
+
+	if (!is_data_transfer_to_card(cmd)) {
+		mixctl |= MIXCTRL_DTDSEL;
 	}
 
 	/* Send the command */
