@@ -31,6 +31,7 @@ void imx_usdhc_init(imx_usdhc_params_t *params,
 
 #define XFERTYPE		0x00cU
 #define XFERTYPE_CMD(x)		(((x) & 0x3fU) << 24U)
+#define XFERTYPE_GET_CMD(x)	(((x) & GENMASK_32(29U, 24U)) >> 24U)
 #define XFERTYPE_CMDTYP_ABORT	(3U << 22U)
 #define XFERTYPE_DPSEL		BIT_32(21U)
 #define XFERTYPE_CICEN		BIT_32(20U)

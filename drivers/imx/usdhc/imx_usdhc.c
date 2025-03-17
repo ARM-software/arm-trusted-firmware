@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright 2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +17,11 @@
 #include <lib/mmio.h>
 
 #include <imx_usdhc.h>
+
+/* These masks represent the commands which involve a data transfer. */
+#define ADTC_MASK_SD			(BIT_32(6U) | BIT_32(17U) | BIT_32(18U) |\
+					 BIT_32(24U) | BIT_32(25U))
+#define ADTC_MASK_ACMD			(BIT_64(51U))
 
 static void imx_usdhc_initialize(void);
 static int imx_usdhc_send_cmd(struct mmc_cmd *cmd);
@@ -107,14 +113,77 @@ static void imx_usdhc_initialize(void)
 
 #define FSL_CMD_RETRIES	1000
 
+static bool is_data_transfer_cmd(const struct mmc_cmd *cmd)
+{
+	uintptr_t reg_base = imx_usdhc_params.reg_base;
+	unsigned int cmd_idx = cmd->cmd_idx;
+	uint32_t xfer_type;
+
+	xfer_type = mmio_read_32(reg_base + XFERTYPE);
+
+	if (XFERTYPE_GET_CMD(xfer_type) == MMC_CMD(55)) {
+		return (ADTC_MASK_ACMD & BIT_64(cmd_idx)) != 0ULL;
+	}
+
+	if ((ADTC_MASK_SD & BIT_32(cmd->cmd_idx)) != 0U) {
+		return true;
+	}
+
+	return false;
+}
+
+static int get_xfr_type(const struct mmc_cmd *cmd, bool data, uint32_t *xfertype)
+{
+	*xfertype = XFERTYPE_CMD(cmd->cmd_idx);
+
+	switch (cmd->resp_type) {
+	case MMC_RESPONSE_R2:
+		*xfertype |= XFERTYPE_RSPTYP_136;
+		*xfertype |= XFERTYPE_CCCEN;
+		break;
+	case MMC_RESPONSE_R4:
+		*xfertype |= XFERTYPE_RSPTYP_48;
+		break;
+	case MMC_RESPONSE_R6:
+		*xfertype |= XFERTYPE_RSPTYP_48;
+		*xfertype |= XFERTYPE_CICEN;
+		*xfertype |= XFERTYPE_CCCEN;
+		break;
+	case MMC_RESPONSE_R1B:
+		*xfertype |= XFERTYPE_RSPTYP_48_BUSY;
+		*xfertype |= XFERTYPE_CICEN;
+		*xfertype |= XFERTYPE_CCCEN;
+		break;
+	default:
+		ERROR("Invalid CMD response: %u\n", cmd->resp_type);
+		return -EINVAL;
+	}
+
+	if (data) {
+		*xfertype |= XFERTYPE_DPSEL;
+	}
+
+	return 0;
+}
+
 static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 {
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
-	unsigned int xfertype = 0, mixctl = 0, multiple = 0, data = 0, err = 0;
 	unsigned int state, flags = INTSTATEN_CC | INTSTATEN_CTOE;
+	unsigned int mixctl = 0, multiple = 0;
 	unsigned int cmd_retries = 0;
+	uint32_t xfertype;
+	bool data;
+	int err = 0;
 
 	assert(cmd);
+
+	data = is_data_transfer_cmd(cmd);
+
+	err = get_xfr_type(cmd, data, &xfertype);
+	if (err != 0) {
+		return err;
+	}
 
 	/* clear all irq status */
 	mmio_write_32(reg_base + INTSTAT, 0xffffffff);
@@ -131,9 +200,6 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	udelay(1000);
 
 	switch (cmd->cmd_idx) {
-	case MMC_CMD(12):
-		xfertype |= XFERTYPE_CMDTYP_ABORT;
-		break;
 	case MMC_CMD(18):
 		multiple = 1;
 		/* for read op */
@@ -141,14 +207,11 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	case MMC_CMD(17):
 	case MMC_CMD(8):
 		mixctl |= MIXCTRL_DTDSEL;
-		data = 1;
 		break;
 	case MMC_CMD(25):
 		multiple = 1;
 		/* for data op flag */
 		/* fallthrough */
-	case MMC_CMD(24):
-		data = 1;
 		break;
 	default:
 		break;
@@ -160,24 +223,8 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	}
 
 	if (data) {
-		xfertype |= XFERTYPE_DPSEL;
 		mixctl |= MIXCTRL_DMAEN;
 	}
-
-	if (cmd->resp_type & MMC_RSP_48 && cmd->resp_type != MMC_RESPONSE_R2)
-		xfertype |= XFERTYPE_RSPTYP_48;
-	else if (cmd->resp_type & MMC_RSP_136)
-		xfertype |= XFERTYPE_RSPTYP_136;
-	else if (cmd->resp_type & MMC_RSP_BUSY)
-		xfertype |= XFERTYPE_RSPTYP_48_BUSY;
-
-	if (cmd->resp_type & MMC_RSP_CMD_IDX)
-		xfertype |= XFERTYPE_CICEN;
-
-	if (cmd->resp_type & MMC_RSP_CRC)
-		xfertype |= XFERTYPE_CCCEN;
-
-	xfertype |= XFERTYPE_CMD(cmd->cmd_idx);
 
 	/* Send the command */
 	mmio_write_32(reg_base + CMDARG, cmd->cmd_arg);
