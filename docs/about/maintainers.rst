@@ -639,6 +639,9 @@ Arm Automotive RD platform port
 :|M|: Divin Raj <divin.raj@arm.com>
 :|G|: `divin-raj`_
 :|F|: plat/arm/board/automotive_rd
+:|M|: Ahmed Azeem <ahmed.azeem@arm.com>
+:|G|: `Ahmed-Azeem`_
+:|F|: plat/arm/board/automotive_rd/rdaspen
 
 Aspeed platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1071,6 +1074,7 @@ Conventional Changelog Extensions
 .. _AlexeiFedorov: https://github.com/AlexeiFedorov
 .. _andersdellien-arm: https://github.com/andersdellien-arm
 .. _Andre-ARM: https://github.com/Andre-ARM
+.. _Ahmed-Azeem: https://github.com/ahmed-azeem
 .. _Anson-Huang: https://github.com/Anson-Huang
 .. _anukou: https://github.com/anukou
 .. _arugan02: https://github.com/arugan02

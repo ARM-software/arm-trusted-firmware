@@ -229,6 +229,9 @@ subsections:
               - title: RD-1 AE
                 scope: rd1ae
 
+              - title: RD-Aspen
+                scope: rdaspen
+
       - title: Aspeed
         scope: aspeed
 
