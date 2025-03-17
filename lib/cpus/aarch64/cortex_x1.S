@@ -25,13 +25,6 @@
 
 cpu_reset_prologue cortex_x1
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_x1, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_X1_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_x1, CVE(2024, 5660)
-
-check_erratum_ls cortex_x1, CVE(2024, 5660), CPU_REV(1, 2)
-
 workaround_reset_start cortex_x1, ERRATUM(1688305), ERRATA_X1_1688305
 	sysreg_bit_set CORTEX_X1_ACTLR2_EL1, BIT(1)
 workaround_reset_end cortex_x1, ERRATUM(1688305)
@@ -61,6 +54,13 @@ workaround_reset_start cortex_x1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 	override_vector_table wa_cve_vbar_cortex_x1
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_x1, CVE(2022, 23960)
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x1, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X1_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x1, CVE(2024, 5660)
+
+check_erratum_ls cortex_x1, CVE(2024, 5660), CPU_REV(1, 2)
 
 cpu_reset_func_start cortex_x1
 cpu_reset_func_end cortex_x1
