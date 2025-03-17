@@ -30,11 +30,11 @@
  */
 
 /*
- * Portions copyright (c) 2018, Arm Limited and Contributors.
+ * Portions copyright (c) 2018-2025, Arm Limited and Contributors.
  * All rights reserved.
  */
 
-#include <string.h>
+#include <string_private.h>
 
 int
 strncmp(const char *s1, const char *s2, size_t n)

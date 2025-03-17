@@ -33,11 +33,11 @@
  */
 
 /*
- * Portions copyright (c) 2018, Arm Limited and Contributors.
+ * Portions copyright (c) 2018-2025, Arm Limited and Contributors.
  * All rights reserved.
  */
 
-#include <string.h>
+#include <string_private.h>
 
 /*
  * Compare strings.
