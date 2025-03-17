@@ -120,6 +120,13 @@ static bool is_data_transfer_to_card(const struct mmc_cmd *cmd)
 	return (cmd_idx == MMC_CMD(24)) || (cmd_idx == MMC_CMD(25));
 }
 
+static bool is_multiple_block_transfer(const struct mmc_cmd *cmd)
+{
+	unsigned int cmd_idx = cmd->cmd_idx;
+
+	return cmd_idx == MMC_CMD(18) || cmd_idx == MMC_CMD(25);
+}
+
 static bool is_data_transfer_cmd(const struct mmc_cmd *cmd)
 {
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
@@ -177,7 +184,7 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 {
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
 	unsigned int state, flags = INTSTATEN_CC | INTSTATEN_CTOE;
-	unsigned int mixctl = 0, multiple = 0;
+	unsigned int mixctl = 0;
 	unsigned int cmd_retries = 0;
 	uint32_t xfertype;
 	bool data;
@@ -206,20 +213,7 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 	mmio_write_32(reg_base + INTSIGEN, 0);
 	udelay(1000);
 
-	switch (cmd->cmd_idx) {
-	case MMC_CMD(18):
-		multiple = 1;
-		break;
-	case MMC_CMD(25):
-		multiple = 1;
-		/* for data op flag */
-		/* fallthrough */
-		break;
-	default:
-		break;
-	}
-
-	if (multiple) {
+	if (is_multiple_block_transfer(cmd)) {
 		mixctl |= MIXCTRL_MSBSEL;
 		mixctl |= MIXCTRL_BCEN;
 	}
