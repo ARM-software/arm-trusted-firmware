@@ -1021,6 +1021,14 @@ ifeq (${ENABLE_SVE_FOR_SWD},1)
     endif
 endif
 
+# Enabling FEAT_MOPS requires access to hcrx_el2 registers which is
+# available only when FEAT_HCX is enabled.
+ifneq (${ENABLE_FEAT_MOPS},0)
+	ifeq (${ENABLE_FEAT_HCX},0)
+		$(error "ENABLE_FEAT_MOPS requires ENABLE_FEAT_HCX")
+	endif
+endif
+
 # Enabling SVE for both the worlds typically requires the context
 # management of SVE registers. The only exception being SPMC at S-EL2.
 ifeq (${ENABLE_SVE_FOR_SWD}, 1)
