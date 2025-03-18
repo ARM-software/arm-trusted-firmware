@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,7 +28,7 @@
 
 #define UNDEFINED_CPUID		(~0U)
 
-DEFINE_BAKERY_LOCK(pm_client_secure_lock);
+static DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
 static const struct pm_ipi apu_ipi = {
 	.local_ipi_id = IPI_LOCAL_ID,

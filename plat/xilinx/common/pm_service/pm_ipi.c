@@ -27,7 +27,7 @@
  * power down. Therefore, there is no doubt to use the spin_lock here.
  */
 #if !HW_ASSISTED_COHERENCY
-DEFINE_BAKERY_LOCK(pm_secure_lock);
+static DEFINE_BAKERY_LOCK(pm_secure_lock);
 static inline void pm_ipi_lock_get(void)
 {
 	bakery_lock_get(&pm_secure_lock);
