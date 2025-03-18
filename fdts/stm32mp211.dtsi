@@ -337,18 +337,22 @@
 
 			vddio1: vddio1 {
 				regulator-name = "vddio1";
+				st,iocomp = <8 7>;
 			};
 
 			vddio2: vddio2 {
 				regulator-name = "vddio2";
+				st,iocomp = <8 7>;
 			};
 
 			vddio3: vddio3 {
 				regulator-name = "vddio3";
+				st,iocomp = <8 7>;
 			};
 
 			vddio: vddio {
 				regulator-name = "vddio";
+				st,iocomp = <8 7>;
 			};
 		};
 
