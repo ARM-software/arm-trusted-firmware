@@ -466,6 +466,6 @@ void gicv3_get_component_prodid_rev(const uintptr_t gicd_base,
 	 * pack gic variant and gic_rev in 1 byte
 	 * gic_rev = gic_variant[7:4] and gic_rev[0:3]
 	 */
-	*gic_rev = *gic_rev | gic_variant << 0x4;
+	*gic_rev |= gic_variant << 0x4;
 
 }
