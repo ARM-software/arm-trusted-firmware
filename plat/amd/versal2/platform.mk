@@ -71,13 +71,13 @@ endif
 USE_COHERENT_MEM := 0
 HW_ASSISTED_COHERENCY := 1
 
-VERSAL2_CONSOLE  ?=      pl011
-ifeq (${VERSAL2_CONSOLE}, $(filter ${VERSAL2_CONSOLE},pl011 pl011_0 pl011_1 dcc dtb none))
+CONSOLE  ?=      pl011
+ifeq (${CONSOLE}, $(filter ${CONSOLE},pl011 pl011_0 pl011_1 dcc dtb none))
 	else
-	  $(error "Please define VERSAL2_CONSOLE")
+	  $(error "Please define CONSOLE")
   endif
 
-$(eval $(call add_define_val,VERSAL2_CONSOLE,VERSAL2_CONSOLE_ID_${VERSAL2_CONSOLE}))
+$(eval $(call add_define_val,CONSOLE,CONSOLE_ID_${CONSOLE}))
 
 # Runtime console in default console in DEBUG build
 ifeq ($(DEBUG), 1)
