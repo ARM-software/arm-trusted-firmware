@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,7 +36,7 @@ enum pm_ret_status pm_req_suspend(uint32_t target,
 				  uint32_t state, uint32_t flag);
 enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
 				 uintptr_t address, uint8_t ack, uint32_t flag);
-enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t device_id,
+enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 					uint8_t enable, uint32_t flag);
 enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag,
 			 uint32_t ack);
