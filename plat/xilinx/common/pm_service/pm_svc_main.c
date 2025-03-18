@@ -144,7 +144,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 		ipi_status = ipi_mb_enquire_status(IPI_ID_APU, i);
 
 		/* If any agent other than PMC has generated IPI FIQ then send SGI to mbox driver */
-		if (ipi_status & IPI_MB_STATUS_RECV_PENDING) {
+		if ((ipi_status & IPI_MB_STATUS_RECV_PENDING) != 0U) {
 			plat_ic_raise_ns_sgi((int)MBOX_SGI_SHARED_IPI, read_mpidr_el1());
 			break;
 		}
