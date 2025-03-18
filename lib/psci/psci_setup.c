@@ -63,8 +63,7 @@ static void __init psci_init_pwr_domain_node(uint16_t node_idx,
 		/* Initialize with an invalid mpidr */
 		psci_cpu_pd_nodes[node_idx].mpidr = PSCI_INVALID_MPIDR;
 
-		svc_cpu_data =
-			&(_cpu_data_by_index(node_idx)->psci_svc_cpu_data);
+		svc_cpu_data = &get_cpu_data_by_index(node_idx, psci_svc_cpu_data);
 
 		/* Set the Affinity Info for the cores as OFF */
 		svc_cpu_data->aff_info_state = AFF_STATE_OFF;

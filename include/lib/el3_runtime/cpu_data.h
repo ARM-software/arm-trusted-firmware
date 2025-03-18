@@ -138,7 +138,7 @@ typedef struct cpu_data {
 	void *cpu_context[CPU_DATA_CONTEXT_NUM];
 #endif /* __aarch64__ */
 	entry_point_info_t *warmboot_ep_info;
-	uintptr_t cpu_ops_ptr;
+	struct cpu_ops *cpu_ops_ptr;
 	struct psci_cpu_data psci_svc_cpu_data;
 #if ENABLE_PAUTH
 	uint64_t apiakey[2];
@@ -196,16 +196,19 @@ CASSERT(CPU_DATA_PMF_TS0_OFFSET == __builtin_offsetof
 		assert_cpu_data_pmf_ts0_offset_mismatch);
 #endif
 
-struct cpu_data *_cpu_data_by_index(uint32_t cpu_index);
+static inline cpu_data_t *_cpu_data_by_index(unsigned int cpu_index)
+{
+	return &percpu_data[cpu_index];
+}
 
 #ifdef __aarch64__
 /* Return the cpu_data structure for the current CPU. */
-static inline struct cpu_data *_cpu_data(void)
+static inline cpu_data_t *_cpu_data(void)
 {
 	return (cpu_data_t *)read_tpidr_el3();
 }
 #else
-struct cpu_data *_cpu_data(void);
+cpu_data_t *_cpu_data(void);
 #endif
 
 /*

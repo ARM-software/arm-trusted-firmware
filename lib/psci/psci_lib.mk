@@ -1,11 +1,10 @@
 #
-# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
-				lib/el3_runtime/${ARCH}/cpu_data.S	\
 				lib/el3_runtime/${ARCH}/context_mgmt.c	\
 				lib/cpus/${ARCH}/cpu_helpers.S		\
 				lib/cpus/errata_report.c		\
