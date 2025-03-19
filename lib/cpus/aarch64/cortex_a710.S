@@ -31,13 +31,6 @@
 
 cpu_reset_prologue cortex_a710
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_a710, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A710_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_a710,  CVE(2024, 5660)
-
-check_erratum_ls cortex_a710, CVE(2024, 5660), CPU_REV(2, 1)
-
 workaround_reset_start cortex_a710, ERRATUM(1987031), ERRATA_A710_1987031
 	ldr x0,=0x6
 	msr S3_6_c15_c8_0,x0
@@ -211,6 +204,10 @@ workaround_reset_end cortex_a710, ERRATUM(2778471)
 
 check_erratum_ls cortex_a710, ERRATUM(2778471), CPU_REV(2, 1)
 
+add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772
+
+check_erratum_ls cortex_a710, ERRATUM(3701772), CPU_REV(2, 1)
+
 workaround_reset_start cortex_a710, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -223,9 +220,12 @@ workaround_reset_end cortex_a710, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a710, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
-add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a710, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A710_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a710,  CVE(2024, 5660)
 
-check_erratum_ls cortex_a710, ERRATUM(3701772), CPU_REV(2, 1)
+check_erratum_ls cortex_a710, CVE(2024, 5660), CPU_REV(2, 1)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
