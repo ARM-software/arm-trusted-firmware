@@ -25,22 +25,11 @@
 
 .global check_erratum_cortex_x2_3701772
 
-add_erratum_entry cortex_x2, ERRATUM(3701772), ERRATA_X2_3701772
-
-check_erratum_ls cortex_x2, ERRATUM(3701772), CPU_REV(2, 1)
-
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X2_BHB_LOOP_COUNT, cortex_x2
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 cpu_reset_prologue cortex_x2
-
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_x2, CVE(2024, 5660)
-
-check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
 
 workaround_reset_start cortex_x2, ERRATUM(2002765), ERRATA_X2_2002765
 	ldr	x0, =0x6
@@ -127,6 +116,15 @@ workaround_reset_end cortex_x2, ERRATUM(2282622)
 
 check_erratum_ls cortex_x2, ERRATUM(2282622), CPU_REV(2, 1)
 
+workaround_reset_start cortex_x2, ERRATUM(2313941), ERRATA_DSU_2313941
+	errata_dsu_2313941_wa_impl
+workaround_reset_end cortex_x2, ERRATUM(2313941)
+
+check_erratum_custom_start cortex_x2, ERRATUM(2313941)
+	check_errata_dsu_2313941_impl
+	ret
+check_erratum_custom_end cortex_x2, ERRATUM(2313941)
+
 workaround_reset_start cortex_x2, ERRATUM(2371105), ERRATA_X2_2371105
 	/* Set bit 40 in CPUACTLR2_EL1 */
 	sysreg_bit_set CORTEX_X2_CPUACTLR2_EL1, CORTEX_X2_CPUACTLR2_EL1_BIT_40
@@ -155,6 +153,10 @@ workaround_reset_end cortex_x2, ERRATUM(2778471)
 
 check_erratum_ls cortex_x2, ERRATUM(2778471), CPU_REV(2, 1)
 
+add_erratum_entry cortex_x2, ERRATUM(3701772), ERRATA_X2_3701772
+
+check_erratum_ls cortex_x2, ERRATUM(3701772), CPU_REV(2, 1)
+
 workaround_reset_start cortex_x2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -167,14 +169,12 @@ workaround_reset_end cortex_x2, CVE(2022, 23960)
 
 check_erratum_chosen cortex_x2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
-workaround_reset_start cortex_x2, ERRATUM(2313941), ERRATA_DSU_2313941
-	errata_dsu_2313941_wa_impl
-workaround_reset_end cortex_x2, ERRATUM(2313941)
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x2, CVE(2024, 5660)
 
-check_erratum_custom_start cortex_x2, ERRATUM(2313941)
-	check_errata_dsu_2313941_impl
-	ret
-check_erratum_custom_end cortex_x2, ERRATUM(2313941)
+check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
