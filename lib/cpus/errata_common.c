@@ -8,9 +8,9 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <cortex_a75.h>
 #include <cortex_a510.h>
 #include <cortex_a520.h>
+#include <cortex_a75.h>
 #include <cortex_a710.h>
 #include <cortex_a715.h>
 #include <cortex_a720.h>

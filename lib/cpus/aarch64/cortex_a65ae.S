@@ -10,8 +10,8 @@
 #include <common/debug.h>
 #include <cortex_a65ae.h>
 #include <cpu_macros.S>
-#include <plat_macros.S>
 #include <dsu_macros.S>
+#include <plat_macros.S>
 
 /* Hardware handled coherency */
 #if !HW_ASSISTED_COHERENCY
