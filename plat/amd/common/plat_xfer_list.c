@@ -45,9 +45,18 @@ int32_t transfer_list_populate_ep_info(entry_point_info_t *bl32,
 					continue;
 				case SECURE:
 					*bl32 = *ep;
-					if (!transfer_list_set_handoff_args(tl_hdr, ep)) {
+#if defined(SPD_opteed)
+					/*
+					 * Populate the args expected by opteed,
+					 * arg0 - dt address,
+					 * arg1 - Xfer List Convention Version,
+					 * arg3 - Xfer List address
+					 * remaining args are set to 0.
+					 */
+					if (transfer_list_set_handoff_args(tl_hdr, bl32) == NULL) {
 						ERROR("Invalid transfer list\n");
 					}
+#endif /* SPD_opteed */
 					continue;
 				default:
 					ERROR("Unrecognized Image Security State %lu\n",
