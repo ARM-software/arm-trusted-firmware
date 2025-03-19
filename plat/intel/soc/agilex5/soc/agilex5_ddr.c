@@ -12,6 +12,7 @@
 
 #include "agilex5_ddr.h"
 #include "agilex5_iossm_mailbox.h"
+#include "socfpga_mailbox.h"
 
 /*
  * TODO: We need to leverage the legacy products DDR drivers and consider
@@ -41,8 +42,6 @@
 							+F2SDRAM_SIDEBAND_FLAGOUTSTATUS0)
 #define SIDEBANDMGR_FLAGOUTCLR0_REG			(SOCFPGA_F2SDRAM_MGR_ADDRESS \
 							+ F2SDRAM_SIDEBAND_FLAGOUTCLR0)
-#define SZ_8						0x00000008
-
 
 /* Firewall MPU DDR SCR registers */
 #define FW_MPU_DDR_SCR_EN				0x00
@@ -323,7 +322,6 @@ int agilex5_ddr_init(handoff *hoff_ptr)
 	/* Dual EMIF setting */
 	if (is_dualemif) {
 		/* Set mpfe_lite_active in the system manager */
-		/* TODO: recheck on the bit value?? */
 		mmio_setbits_32(SOCFPGA_SYSMGR(MPFE_CONFIG), BIT(8));
 
 		mmio_setbits_32(SIDEBANDMGR_FLAGOUTSET0_REG, BIT(5));
@@ -354,7 +352,7 @@ int agilex5_ddr_init(handoff *hoff_ptr)
 	}
 	NOTICE("DDR: Calibration success\n");
 
-	/* DDR type, DDR size and ECC status) */
+	/* DDR type, DDR size and ECC status */
 	ret = get_mem_technology(&io96b_ctrl);
 	if (ret != 0) {
 		ERROR("DDR: Failed to get DDR type\n");
@@ -367,8 +365,18 @@ int agilex5_ddr_init(handoff *hoff_ptr)
 		return ret;
 	}
 
+	ret = ecc_enable_status(&io96b_ctrl);
+	if (ret != 0) {
+		ERROR("DDR: Failed to get DDR ECC status\n");
+		return ret;
+	}
+
 	/* DDR size queried from the IOSSM controller */
-	hw_ddr_size = (phys_size_t)io96b_ctrl.overall_size * SZ_1G / SZ_8;
+	hw_ddr_size = io96b_ctrl.overall_size;
+
+	/* Update the DDR size if it is In-line ECC. */
+	if (io96b_ctrl.is_inline_ecc)
+		hw_ddr_size = GET_INLINE_ECC_HW_DDR_SIZE(hw_ddr_size);
 
 	/* TODO: To update config_ddr_size by using FDT in the future. */
 	config_ddr_size = 0x80000000;
@@ -386,21 +394,22 @@ int agilex5_ddr_init(handoff *hoff_ptr)
 			;
 	}
 
-	ret = ecc_enable_status(&io96b_ctrl);
-	if (ret != 0) {
-		ERROR("DDR: Failed to get DDR ECC status\n");
-		return ret;
-	}
-
 	/*
 	 * HPS cold or warm reset? If yes, skip full memory initialization if
 	 * ECC is enabled to preserve memory content.
 	 */
-	if (io96b_ctrl.ecc_status != 0) {
-		full_mem_init = hps_ocram_dbe_status() | ddr_ecc_dbe_status() |
+	if (io96b_ctrl.ecc_status) {
+		/* Let's check the ECC interrupt status on the DBE (Double Bit Error). */
+		if (get_ecc_dbe_status(&io96b_ctrl)) {
+			NOTICE("DDR: ECC-Double Bit Error occurred!!\n");
+			NOTICE("DDR: Resetting the system to recover!!\n");
+			mailbox_reset_cold();
+		}
+
+		full_mem_init = hps_ocram_dbe_status() || ddr_ecc_dbe_status() ||
 				is_ddr_hang_bfr_rst;
-		if ((full_mem_init == true) || (reset_t == WARM_RESET ||
-			reset_t == COLD_RESET) == 0) {
+
+		if (full_mem_init || !((reset_t == WARM_RESET) || (reset_t == COLD_RESET))) {
 			ret = bist_mem_init_start(&io96b_ctrl);
 			if (ret != 0) {
 				ERROR("DDR: Failed to fully initialize DDR memory\n");
