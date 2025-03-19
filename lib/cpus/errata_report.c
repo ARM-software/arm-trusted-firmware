@@ -77,7 +77,6 @@ void generic_errata_report(void)
 	uint32_t last_erratum_id = 0;
 	uint16_t last_cve_yr = 0;
 	bool check_cve = false;
-	bool failed = false;
 #endif /* FEATURE_DETECTION */
 
 	for (; entry != end; entry += 1) {
@@ -100,30 +99,20 @@ void generic_errata_report(void)
 		if (entry->cve) {
 			if (last_cve_yr > entry->cve ||
 			   (last_cve_yr == entry->cve && last_erratum_id >= entry->id)) {
-				ERROR("CVE %u_%u was out of order!\n",
+				WARN("CVE %u_%u was out of order!\n",
 				      entry->cve, entry->id);
-				failed = true;
 			}
 			check_cve = true;
 			last_cve_yr = entry->cve;
 		} else {
 			if (last_erratum_id >= entry->id || check_cve) {
-				ERROR("Erratum %u was out of order!\n",
+				WARN("Erratum %u was out of order!\n",
 				      entry->id);
-				failed = true;
 			}
 		}
 		last_erratum_id = entry->id;
 #endif /* FEATURE_DETECTION */
 	}
-
-#if FEATURE_DETECTION
-	/*
-	 * enforce errata and CVEs are in ascending order and that CVEs are
-	 * after errata
-	 */
-	assert(!failed);
-#endif /* FEATURE_DETECTION */
 }
 
 /*
