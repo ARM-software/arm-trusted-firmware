@@ -87,6 +87,10 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
 
+# Using graceful flag to send SCMI system power set command
+# the css_scp_system_off() use forceful flag by default
+$(eval $(call add_define_val,CSS_SCP_SYSTEM_OFF_GRACEFUL,1))
+
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
 include plat/arm/board/common/board_common.mk
