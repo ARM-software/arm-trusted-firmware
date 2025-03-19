@@ -54,6 +54,18 @@
 		(((_power_state) >> (SCMI_PWR_STATE_LVL_WIDTH * (_level))) &	\
 				SCMI_PWR_STATE_LVL_MASK)
 
+#if CSS_SCP_SUSPEND_GRACEFUL
+#define	CSS_SCP_SUSPEND_REQ_FLAG	SCMI_SYS_PWR_GRACEFUL_REQ
+#else
+#define	CSS_SCP_SUSPEND_REQ_FLAG	SCMI_SYS_PWR_FORCEFUL_REQ
+#endif
+
+#if CSS_SCP_SYSTEM_OFF_GRACEFUL
+#define	CSS_SCP_SYSTEM_OFF_REQ_FLAG	SCMI_SYS_PWR_GRACEFUL_REQ
+#else
+#define	CSS_SCP_SYSTEM_OFF_REQ_FLAG	SCMI_SYS_PWR_FORCEFUL_REQ
+#endif
+
 /*
  * The SCMI power state enumeration for a power domain level
  */
@@ -119,7 +131,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 		/* Issue SCMI command for SYSTEM_SUSPEND on all SCMI channels */
 		ret = scmi_sys_pwr_state_set(
 				scmi_handles[default_scmi_channel_id],
-				SCMI_SYS_PWR_FORCEFUL_REQ, SCMI_SYS_PWR_SUSPEND);
+				CSS_SCP_SUSPEND_REQ_FLAG, SCMI_SYS_PWR_SUSPEND);
 		if (ret != SCMI_E_SUCCESS) {
 			ERROR("SCMI system power domain suspend return 0x%x unexpected\n",
 					ret);
@@ -326,13 +338,11 @@ void css_scp_system_off(int state)
 	gic_pcpu_off(core_pos);
 
 	/*
-	 * Issue SCMI command. First issue a graceful
-	 * request and if that fails force the request.
+	 * Issue SCMI command.
 	 */
 	ret = scmi_sys_pwr_state_set(scmi_handles[default_scmi_channel_id],
-			SCMI_SYS_PWR_FORCEFUL_REQ,
+			CSS_SCP_SYSTEM_OFF_REQ_FLAG,
 			state);
-
 	if (ret != SCMI_E_SUCCESS) {
 		ERROR("SCMI system power state set 0x%x returns unexpected 0x%x\n",
 			state, ret);
