@@ -26,13 +26,6 @@
 
 cpu_reset_prologue cortex_a78
 
-/* Disable hardware page aggregation.Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_a78, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_a78, CVE(2024, 5660)
-
-check_erratum_ls cortex_a78, CVE(2024, 5660), CPU_REV(1, 2)
-
 workaround_reset_start cortex_a78, ERRATUM(1688305), ERRATA_A78_1688305
 	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_1
 workaround_reset_end cortex_a78, ERRATUM(1688305)
@@ -175,6 +168,13 @@ workaround_reset_start cortex_a78, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end cortex_a78, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a78, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+/* Disable hardware page aggregation.Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a78, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a78, CVE(2024, 5660)
+
+check_erratum_ls cortex_a78, CVE(2024, 5660), CPU_REV(1, 2)
 
 cpu_reset_func_start cortex_a78
 #if ENABLE_FEAT_AMU
