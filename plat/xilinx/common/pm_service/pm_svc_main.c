@@ -182,9 +182,11 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 				}
 			}
 			notify_os();
-		} else if (payload[2] == EVENT_CPU_PWRDWN) {
-			request_cpu_pwrdwn();
-			(void)psci_cpu_off();
+		} else {
+			if (payload[2] == EVENT_CPU_PWRDWN) {
+				request_cpu_pwrdwn();
+				(void)psci_cpu_off();
+			}
 		}
 		break;
 	case (uint32_t)PM_RET_ERROR_INVALID_CRC:
