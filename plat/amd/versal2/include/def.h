@@ -15,14 +15,14 @@
 #define MAX_INTR_EL3			2U
 
 /* List all consoles */
-#define VERSAL2_CONSOLE_ID_none		0
-#define VERSAL2_CONSOLE_ID_pl011	1
-#define VERSAL2_CONSOLE_ID_pl011_0       1
-#define VERSAL2_CONSOLE_ID_pl011_1       2
-#define VERSAL2_CONSOLE_ID_dcc           3
-#define VERSAL2_CONSOLE_ID_dtb           4
+#define CONSOLE_ID_none		0
+#define CONSOLE_ID_pl011	1
+#define CONSOLE_ID_pl011_0       1
+#define CONSOLE_ID_pl011_1       2
+#define CONSOLE_ID_dcc           3
+#define CONSOLE_ID_dtb           4
 
-#define CONSOLE_IS(con) (VERSAL2_CONSOLE_ID_ ## con == VERSAL2_CONSOLE)
+#define CONSOLE_IS(con) (CONSOLE_ID_ ## con == CONSOLE)
 
 /* Runtime console */
 #define RT_CONSOLE_ID_pl011   1
