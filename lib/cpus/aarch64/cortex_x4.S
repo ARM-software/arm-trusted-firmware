@@ -35,13 +35,6 @@ add_erratum_entry cortex_x4, ERRATUM(2726228), ERRATA_X4_2726228, NO_APPLY_AT_RE
 
 check_erratum_ls cortex_x4, ERRATUM(2726228), CPU_REV(0, 1)
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_x4, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_X4_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_x4, CVE(2024, 5660)
-
-check_erratum_ls cortex_x4, CVE(2024, 5660), CPU_REV(0, 2)
-
 workaround_runtime_start cortex_x4, ERRATUM(2740089), ERRATA_X4_2740089
 	/* dsb before isb of power down sequence */
 	dsb	sy
@@ -100,6 +93,10 @@ workaround_reset_end cortex_x4, ERRATUM(3076789)
 
 check_erratum_ls cortex_x4, ERRATUM(3076789), CPU_REV(0, 1)
 
+add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758
+
+check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
+
 workaround_reset_start cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -112,6 +109,13 @@ workaround_reset_end cortex_x4, CVE(2022, 23960)
 
 check_erratum_chosen cortex_x4, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x4, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X4_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x4, CVE(2024, 5660)
+
+check_erratum_ls cortex_x4, CVE(2024, 5660), CPU_REV(0, 2)
+
 workaround_reset_start cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 	/* ---------------------------------
 	 * Sets BIT41 of CPUACTLR6_EL1 which
@@ -122,10 +126,6 @@ workaround_reset_start cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 workaround_reset_end cortex_x4, CVE(2024, 7881)
 
 check_erratum_chosen cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
-
-add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758
-
-check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
 
 cpu_reset_func_start cortex_x4
 	/* Disable speculative loads */
