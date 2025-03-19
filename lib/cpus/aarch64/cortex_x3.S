@@ -24,22 +24,11 @@
 
 .global check_erratum_cortex_x3_3701769
 
-add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769
-
-check_erratum_ls cortex_x3, ERRATUM(3701769), CPU_REV(1, 2)
-
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X3_BHB_LOOP_COUNT, cortex_x3
 #endif /* WORKAROUND_CVE_2022_23960 */
 
 cpu_reset_prologue cortex_x3
-
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_X3_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_x3, CVE(2024, 5660)
-
-check_erratum_ls cortex_x3, CVE(2024, 5660), CPU_REV(1, 2)
 
 workaround_reset_start cortex_x3, ERRATUM(2070301), ERRATA_X3_2070301
 	sysreg_bitfield_insert CORTEX_X3_CPUECTLR2_EL1, CORTEX_X3_CPUECTLR2_EL1_PF_MODE_CNSRV, \
@@ -104,6 +93,10 @@ workaround_reset_end cortex_x3, ERRATUM(2779509)
 
 check_erratum_ls cortex_x3, ERRATUM(2779509), CPU_REV(1, 1)
 
+add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769
+
+check_erratum_ls cortex_x3, ERRATUM(3701769), CPU_REV(1, 2)
+
 workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	override_vector_table wa_cve_vbar_cortex_x3
@@ -111,6 +104,13 @@ workaround_reset_start cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end cortex_x3, CVE(2022, 23960)
 
 check_erratum_chosen cortex_x3, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X3_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x3, CVE(2024, 5660)
+
+check_erratum_ls cortex_x3, CVE(2024, 5660), CPU_REV(1, 2)
 
 workaround_reset_start cortex_x3, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 	/* ---------------------------------
