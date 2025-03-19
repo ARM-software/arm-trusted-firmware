@@ -23,13 +23,6 @@
 
 cpu_reset_prologue cortex_a78c
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_a78c, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_a78c, CVE(2024, 5660)
-
-check_erratum_ls cortex_a78c, CVE(2024, 5660), CPU_REV(0, 2)
-
 workaround_reset_start cortex_a78c, ERRATUM(1827430), ERRATA_A78C_1827430
 	/* Disable allocation of splintered pages in the L2 TLB */
 	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, CORTEX_A78C_CPUECTLR_EL1_MM_ASP_EN
@@ -126,6 +119,13 @@ workaround_reset_start cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 	override_vector_table wa_cve_vbar_cortex_a78c
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a78c, CVE(2022, 23960)
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a78c, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a78c, CVE(2024, 5660)
+
+check_erratum_ls cortex_a78c, CVE(2024, 5660), CPU_REV(0, 2)
 
 cpu_reset_func_start cortex_a78c
 cpu_reset_func_end cortex_a78c
