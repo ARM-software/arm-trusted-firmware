@@ -178,7 +178,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	INFO("CPU Revision = 0x%lx\n", rev_var);
 	INFO("cpu_clock = %dHz, uart_clock = %dHz\n", cpu_clock, uart_clock);
 	NOTICE("BL31: Executing from 0x%x\n", BL31_BASE);
+#if (defined(SPD_tspd) || defined(SPD_opteed))
 	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
+#endif /* SPD_tspd || SPD_opteed */
 	NOTICE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
 
 }
