@@ -144,10 +144,8 @@
 #define PLAT_ARM_MMAP_ENTRIES			U(9)
 #elif IMAGE_BL31
 #define PLAT_ARM_MMAP_ENTRIES			U(8)
-#elif IMAGE_BL31
-#define PLAT_ARM_MMAP_ENTRIES			U(7)
 #endif
-#define MAX_XLAT_TABLES				U(8)
+#define MAX_XLAT_TABLES				U(9)
 
 #define PLAT_FW_CONFIG_MAX_SIZE			(ARM_FW_CONFIG_LIMIT - \
 						 ARM_FW_CONFIG_BASE)
@@ -184,12 +182,22 @@
 							MT_DEVICE | MT_RW | \
 							MT_SECURE)
 
+/* Trusted OS Config region */
+#define PLAT_TOS_FW_CONFIG_BASE		UL(0x1800)
+#define PLAT_TOS_FW_CONFIG_SIZE		UL(0x1000)
+
+/* SPMC region */
+#define PLAT_ARM_SPMC_BASE		UL(0xFFC00000)
+#define PLAT_ARM_SPMC_SIZE		UL(0x00400000)
+
 /*
  * NS DRAM
- * So far the whole DRAM1 is assigned to NS.
+ * DRAM1 consists of Non-secure partition and SPMC Secure partition.
  */
+#define NS_DRAM_SIZE			(ARM_DRAM1_SIZE - PLAT_ARM_SPMC_SIZE)
+
 #define RDASPEN_MAP_NS_DRAM1		MAP_REGION_FLAT(ARM_DRAM1_BASE, \
-							ARM_DRAM1_SIZE, \
+							NS_DRAM_SIZE, \
 							MT_MEMORY | MT_RW | \
 							MT_NS)
 

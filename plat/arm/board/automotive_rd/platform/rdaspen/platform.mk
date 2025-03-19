@@ -37,6 +37,7 @@ ENABLE_MPAM_FOR_LOWER_ELS		:=	1
 GIC_ENABLE_V4_EXTN			:=	1
 GICV3_SUPPORT_GIC600			:=	1
 HW_ASSISTED_COHERENCY			:=	1
+NEED_BL32				?=	yes
 PLAT_MHU_VERSION			:=	3
 RESET_TO_BL2				:=	1
 SVE_VECTOR_LEN				:=	128
@@ -77,15 +78,22 @@ endif
 
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES	+=	${RDASPEN_BASE}/fdts/${PLAT}_fw_config.dts	\
-			fdts/${PLAT}.dts
+			fdts/${PLAT}.dts \
+			${RDASPEN_BASE}/fdts/${PLAT}_optee_spmc_manifest.dts
 
 FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
 HW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
+TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_optee_spmc_manifest.dtb
 
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
+
+# Add the TOS_FW_CONFIG to FIP and specify the same to certtool
+ifeq (${NEED_BL32},yes)
+$(eval $(call TOOL_ADD_PAYLOAD,${TOS_FW_CONFIG},--tos-fw-config,${TOS_FW_CONFIG}))
+endif
 
 # Using graceful flag to send SCMI system power set command
 # the css_scp_system_off() use forceful flag by default
