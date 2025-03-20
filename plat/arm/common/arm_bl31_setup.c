@@ -154,10 +154,10 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
  * while creating page tables. BL2 has flushed this information to memory, so
  * we are guaranteed to pick up good data.
  ******************************************************************************/
-#if TRANSFER_LIST
 void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 					  u_register_t arg2, u_register_t arg3)
 {
+#if TRANSFER_LIST
 #if RESET_TO_BL31
 	/* Populate entry point information for BL33 */
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
@@ -208,18 +208,11 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 		}
 	}
 #endif /* RESET_TO_BL31 */
-}
-#else
-void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_config,
-				uintptr_t hw_config, void *plat_params_from_bl2)
-{
-	/* Initialize the console to provide early debug support */
-	arm_console_boot_init();
-
+#else /* (!TRANSFER_LIST) */
 #if RESET_TO_BL31
 	/* There are no parameters from BL2 if BL31 is a reset vector */
-	assert(from_bl2 == NULL);
-	assert(plat_params_from_bl2 == NULL);
+	assert((void *)arg0 == NULL);
+	assert((void *)arg3 == NULL);
 
 # ifdef BL32_BASE
 	/* Populate entry point information for BL32 */
@@ -258,21 +251,18 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	 */
 	rmm_image_ep_info.pc = RMM_BASE;
 #endif /* ENABLE_RME */
-
 #else /* RESET_TO_BL31 */
-
 	/*
-	 * In debug builds, we pass a special value in 'plat_params_from_bl2'
+	 * In debug builds, we pass a special value in 'arg3'
 	 * to verify platform parameters from BL2 to BL31.
 	 * In release builds, it's not used.
 	 */
-	assert(((unsigned long long)plat_params_from_bl2) ==
-		ARM_BL31_PLAT_PARAM_VAL);
+	assert(((unsigned long long)arg3) == ARM_BL31_PLAT_PARAM_VAL);
 
 	/*
 	 * Check params passed from BL2 should not be NULL,
 	 */
-	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
+	bl_params_t *params_from_bl2 = (bl_params_t *)arg0;
 	assert(params_from_bl2 != NULL);
 	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
 	assert(params_from_bl2->h.version >= VERSION_2);
@@ -325,7 +315,7 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 #endif
 #endif /* RESET_TO_BL31 */
 
-# if ARM_LINUX_KERNEL_AS_BL33
+#if ARM_LINUX_KERNEL_AS_BL33
 	/*
 	 * According to the file ``Documentation/arm64/booting.txt`` of the
 	 * Linux kernel tree, Linux expects the physical address of the device
@@ -339,23 +329,19 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 #if RESET_TO_BL31
 	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_PRELOADED_DTB_BASE;
 #else
-	bl33_image_ep_info.args.arg0 = (u_register_t)hw_config;
-#endif
+	bl33_image_ep_info.args.arg0 = arg2;
+#endif /* RESET_TO_BL31 */
 	bl33_image_ep_info.args.arg1 = 0U;
 	bl33_image_ep_info.args.arg2 = 0U;
 	bl33_image_ep_info.args.arg3 = 0U;
-# endif
+#endif /* ARM_LINUX_KERNEL_AS_BL33 */
+#endif /* TRANSFER_LIST */
 }
-#endif
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3)
 {
-#if TRANSFER_LIST
 	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
-#else
-	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
-#endif
 
 	/*
 	 * Initialize Interconnect for this cluster during cold boot.

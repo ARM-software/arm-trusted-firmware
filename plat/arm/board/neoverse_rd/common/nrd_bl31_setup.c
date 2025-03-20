@@ -179,7 +179,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		arg1 = soc_fw_config_info->config_addr;
 	}
 #endif /* SPMD_SPM_AT_SEL2 && !RESET_TO_BL31 */
-	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
+	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
 }
 
 /*******************************************************************************

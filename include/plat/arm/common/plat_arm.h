@@ -274,13 +274,8 @@ void arm_bl2u_platform_setup(void);
 void arm_bl2u_plat_arch_setup(void);
 
 /* BL31 utility functions */
-#if TRANSFER_LIST
 void arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 				   u_register_t arg2, u_register_t arg3);
-#else
-void arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_config,
-				uintptr_t hw_config, void *plat_params_from_bl2);
-#endif
 void arm_bl31_platform_setup(void);
 void arm_bl31_plat_runtime_setup(void);
 void arm_bl31_plat_arch_setup(void);

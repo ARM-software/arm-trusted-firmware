@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,7 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 		arg1 = soc_fw_config_info->config_addr;
 	}
 
-	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
+	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	/*
 	 * Initialize Interconnect for this cluster during cold boot.
