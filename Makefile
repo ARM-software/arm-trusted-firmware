@@ -1686,7 +1686,7 @@ endif #(NEED_FDT)
 # Add Secure Partition packages
 ifeq (${NEED_SP_PKG},yes)
 $(BUILD_PLAT)/sp_gen.mk: ${SP_MK_GEN} ${SP_LAYOUT_FILE} | $$(@D)/
-	$(if $(host-poetry),$(q)poetry -q install)
+	$(if $(host-poetry),$(q)poetry -q install --no-root)
 	$(q)$(if $(host-poetry),poetry run )${PYTHON} "$<" "$@" $(filter-out $<,$^) $(BUILD_PLAT) ${COT} ${SP_DTS_LIST_FRAGMENT}
 sp: $(DTBS) $(BUILD_PLAT)/sp_gen.mk $(SP_PKGS)
 	$(s)echo
