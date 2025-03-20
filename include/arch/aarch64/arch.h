@@ -1585,4 +1585,11 @@
 #define CLUSTERPMCR_N_SHIFT		U(11)
 #define CLUSTERPMCR_N_MASK		U(0x1f)
 
+/*******************************************************************************
+ * FEAT_MEC - Memory Encryption Contexts
+ ******************************************************************************/
+#define MECIDR_EL2			S3_4_C10_C8_7
+#define MECIDR_EL2_MECIDWidthm1_MASK	U(0xf)
+#define MECIDR_EL2_MECIDWidthm1_SHIFT	U(0)
+
 #endif /* ARCH_H */

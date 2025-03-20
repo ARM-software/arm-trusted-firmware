@@ -52,8 +52,8 @@ are explained below:
   - ``RES0``: Bit 31 of the version number is reserved 0 as to maintain
     consistency with the versioning schemes used in other parts of RMM.
 
-This document specifies the 0.4 version of Boot Interface ABI and RMM-EL3
-services specification and the 0.4 version of the Boot Manifest.
+This document specifies the 0.5 version of Boot Interface ABI and RMM-EL3
+services specification and the 0.5 version of the Boot Manifest.
 
 .. _rmm_el3_boot_interface:
 
@@ -668,6 +668,54 @@ a failure. The errors are ordered by condition check.
    ``E_RMM_UNK``,"if the SMC is not present, if interface version is <0.4"
    ``E_RMM_AGAIN``,"For opcode RMM_EL3_TOKEN_SIGN_PUSH_REQ_OP, if the request is not queued since
    the EL3 queue is full, or if the response is not ready yet, for other opcodes"
+   ``E_RMM_OK``,No errors detected
+
+
+RMM_MECID_KEY_UPDATE command
+============================
+
+This command updates the tweak for the encryption key/programs a new encryption key
+associated with a given MECID. After the execution of this command, all memory
+accesses associated with the MECID are encrypted/decrypted using the new key.
+This command is available from v0.5 of the RMM-EL3 interface.
+
+FID
+---
+
+``0xC40001B6``
+
+Input values
+------------
+
+.. csv-table:: Input values for RMM_MECID_KEY_UPDATE
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   mecid,x1,[15:0],UInt64,"mecid is a 16-bit value between 0 and 65,535 that identifies the MECID for which the encryption key is to be updated. Value has to be a valid MECID as per field MECIDWidthm1 read from MECIDR_EL2. Bits [63:16] must be 0."
+
+Output values
+-------------
+
+.. csv-table:: Output values for RMM_MECID_KEY_UPDATE
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   Result,x0,[63:0],Error Code,Command return status. Valid for all opcodes listed in input values
+
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table:: Failure conditions for RMM_MECID_KEY_UPDATE
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_INVAL``,"if mecid is invalid (larger than 65,535 or than the maximum MECID width, determined by MECIDR_EL2.MECIDWidthm1)"
+   ``E_RMM_UNK``,"An unknown error occurred whilst processing the command or the SMC is not present if interface version is <0.5"
    ``E_RMM_OK``,No errors detected
 
 

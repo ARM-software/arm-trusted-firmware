@@ -7,6 +7,8 @@
 #include <assert.h>
 #include <string.h>
 
+#include <arch.h>
+#include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/cci.h>
 #include <drivers/arm/ccn.h>
@@ -773,6 +775,18 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	/* Checksum must be 0 */
 	manifest->plat_ncoh_region.checksum = ~checksum + 1UL;
 
+	return 0;
+}
+
+/*
+ * Update encryption key associated with @mecid.
+ */
+int plat_rmmd_mecid_key_update(uint16_t mecid)
+{
+	/*
+	 * FVP does not provide an interface to change the encryption key associated
+	 * with MECID. Hence always return success.
+	 */
 	return 0;
 }
 #endif	/* ENABLE_RME */

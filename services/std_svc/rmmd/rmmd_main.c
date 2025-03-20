@@ -470,6 +470,33 @@ static int rmm_el3_ifc_get_feat_register(uint64_t feat_reg_idx,
 	return E_RMM_OK;
 }
 
+/*
+ * Update encryption key associated with @mecid.
+ */
+static int rmmd_mecid_key_update(uint64_t mecid)
+{
+	uint64_t mecid_width, mecid_width_mask;
+	int ret;
+
+	/*
+	 * Check whether the mecid parameter is at most MECIDR_EL2.MECIDWidthm1 + 1
+	 * in length.
+	 */
+	mecid_width = ((read_mecidr_el2() >> MECIDR_EL2_MECIDWidthm1_SHIFT) &
+		MECIDR_EL2_MECIDWidthm1_MASK) + 1;
+	mecid_width_mask = ((1 << mecid_width) - 1);
+	if ((mecid & ~mecid_width_mask) != 0U) {
+		return E_RMM_INVAL;
+	}
+
+	ret = plat_rmmd_mecid_key_update(mecid);
+
+	if (ret != 0) {
+		return E_RMM_UNK;
+	}
+	return E_RMM_OK;
+}
+
 /*******************************************************************************
  * This function handles RMM-EL3 interface SMCs
  ******************************************************************************/
@@ -519,6 +546,9 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		VERBOSE("RMMD: running rmmd_rmm_sync_exit\n");
 		rmmd_rmm_sync_exit(x1);
 
+	case RMM_MECID_KEY_UPDATE:
+		ret = rmmd_mecid_key_update(x1);
+		SMC_RET1(handle, ret);
 	default:
 		WARN("RMMD: Unsupported RMM-EL3 call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
