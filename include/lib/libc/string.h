@@ -30,5 +30,7 @@ char *strrchr(const char *p, int ch);
 size_t strlcpy(char * dst, const char * src, size_t dsize);
 size_t strlcat(char * dst, const char * src, size_t dsize);
 char *strtok_r(char *s, const char *delim, char **last);
+size_t strnlen_secure(const char *str, size_t maxlen);
+int strcpy_secure(char *restrict dest, size_t dest_size, const char *restrict src);
 
 #endif /* STRING_H */
