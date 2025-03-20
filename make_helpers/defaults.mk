@@ -192,6 +192,9 @@ endif
 # Option to build TF with Measured Boot support
 MEASURED_BOOT			:= 0
 
+# Option to build TF with Discrete TPM support
+DISCRETE_TPM			:= 0
+
 # Option to enable the DICE Protection Environmnet as a Measured Boot backend
 DICE_PROTECTION_ENVIRONMENT	:=0
 

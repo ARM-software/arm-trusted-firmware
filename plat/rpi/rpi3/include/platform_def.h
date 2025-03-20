@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -172,6 +172,14 @@
 #define BL1_RW_LIMIT			(BL_RAM_BASE + BL_RAM_SIZE)
 
 /*
+ * In order to access the TCG Event Log in BL2, we need to expose the BL1_RW region
+ * where the log resides.
+ */
+#define RPI3_MAP_BL1_RW		MAP_REGION_FLAT(BL1_RW_BASE,		\
+					BL1_RW_LIMIT - BL1_RW_BASE,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
+/*
  * BL2 specific defines.
  *
  * Put BL2 just below BL31. BL2_BASE is calculated using the current BL2 debug
@@ -260,5 +268,16 @@
  * System counter
  */
 #define SYS_COUNTER_FREQ_IN_TICKS	ULL(19200000)
+
+/*
+ * TCG Event Log
+ */
+#define PLAT_ARM_EVENT_LOG_MAX_SIZE UL(0x400)
+
+/*
+ * NT_FW_CONFIG magic dram addr and max size
+ */
+#define PLAT_RPI3_DTO_BASE          ULL(0x11530000)
+#define PLAT_RPI3_DTO_MAX_SIZE      ULL(0x001000)
 
 #endif /* PLATFORM_DEF_H */

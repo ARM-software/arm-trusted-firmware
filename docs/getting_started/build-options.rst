@@ -784,6 +784,20 @@ Common build options
 
    This option defaults to 0.
 
+-  ``DISCRETE_TPM``: Boolean flag to include support for a Discrete TPM.
+
+   This option defaults to 0.
+
+-  ``TPM_INTERFACE``: When ``DISCRETE_TPM=1``, this is a required flag to
+   select the TPM interface. Currently only one interface is supported:
+
+   ::
+
+      FIFO_SPI
+
+-  ``MBOOT_TPM_HASH_ALG``: Build flag to select the TPM hash algorithm used during
+   Measured Boot. Currently only accepts ``sha256`` as a valid algorithm.
+
 -  ``MARCH_DIRECTIVE``: used to pass a -march option from the platform build
    options to the compiler. An example usage:
 

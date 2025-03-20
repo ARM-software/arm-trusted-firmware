@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,7 +8,8 @@ include lib/libfdt/libfdt.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES		:=	-Iplat/rpi/common/include		\
-				-Iplat/rpi/rpi3/include
+				-Iplat/rpi/rpi3/include			\
+				-Iinclude/lib/libfdt
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				drivers/arm/pl011/aarch64/pl011_console.S \
@@ -19,6 +20,40 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				plat/rpi/common/rpi3_common.c		\
 				plat/rpi/common/rpi3_console_dual.c	\
 				${XLAT_TABLES_LIB_SRCS}
+
+ifeq (${DISCRETE_TPM},1)
+TPM2_MK := drivers/tpm/tpm2.mk
+$(info Including ${TPM2_MK})
+include ${TPM2_MK}
+endif
+
+ifeq (${TPM_INTERFACE},FIFO_SPI)
+PLAT_BL_COMMON_SOURCES	+=	drivers/gpio/gpio_spi.c		\
+				drivers/tpm/tpm2_slb9670/slb9670_gpio.c
+endif
+
+ifeq (${MEASURED_BOOT},1)
+MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
+$(info Including ${MEASURED_BOOT_MK})
+include ${MEASURED_BOOT_MK}
+
+PLAT_BL_COMMON_SOURCES	+=	$(TPM2_SOURCES)				\
+				${EVENT_LOG_SOURCES}
+
+BL1_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl1_mboot.c
+BL2_SOURCES		+= 	plat/rpi/rpi3/rpi3_bl2_mboot.c		\
+				plat/rpi/rpi3/rpi3_dyn_cfg_helpers.c	\
+				common/fdt_wrappers.c			\
+				common/fdt_fixup.c
+
+CRYPTO_SOURCES		:=	drivers/auth/crypto_mod.c
+
+BL1_SOURCES		+=	${CRYPTO_SOURCES}
+BL2_SOURCES		+=	${CRYPTO_SOURCES}
+
+include drivers/auth/mbedtls/mbedtls_crypto.mk
+
+endif
 
 BL1_SOURCES		+=	drivers/io/io_fip.c			\
 				drivers/io/io_memmap.c			\
