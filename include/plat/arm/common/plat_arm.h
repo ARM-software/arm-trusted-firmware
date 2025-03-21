@@ -300,7 +300,8 @@ arm_transfer_list_set_heap_info(struct transfer_list_header *tl);
 void arm_transfer_list_get_heap_info(void **heap_addr, size_t *heap_size);
 
 /* TSP utility functions */
-void arm_tsp_early_platform_setup(void);
+void arm_tsp_early_platform_setup(u_register_t arg0, u_register_t arg1,
+				  u_register_t arg2, u_register_t arg3);
 
 /* SP_MIN utility functions */
 void arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,

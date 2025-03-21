@@ -31,7 +31,8 @@
  ******************************************************************************/
 static console_t arm_tsp_runtime_console;
 
-void arm_tsp_early_platform_setup(void)
+void arm_tsp_early_platform_setup(u_register_t arg0, u_register_t arg1,
+			      u_register_t arg2, u_register_t arg3)
 {
 	/*
 	 * Initialize a different console than already in use to display
@@ -41,16 +42,18 @@ void arm_tsp_early_platform_setup(void)
 					PLAT_ARM_TSP_UART_CLK_IN_HZ,
 					ARM_CONSOLE_BAUDRATE,
 					&arm_tsp_runtime_console);
-	if (rc == 0)
+	if (rc == 0) {
 		panic();
+	}
 
 	console_set_scope(&arm_tsp_runtime_console,
 			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
 }
 
-void tsp_early_platform_setup(void)
+void tsp_early_platform_setup(u_register_t arg0, u_register_t arg1,
+			      u_register_t arg2, u_register_t arg3)
 {
-	arm_tsp_early_platform_setup();
+	arm_tsp_early_platform_setup(arg0, arg1, arg2, arg3);
 }
 
 /*******************************************************************************
