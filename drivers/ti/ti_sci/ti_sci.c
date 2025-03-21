@@ -69,6 +69,9 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)tx_buf;
+
+	/* TODO: Calculate checksum */
+	hdr->sec_hdr.checksum = 0;
 	hdr->seq = ++message_sequence;
 	hdr->type = msg_type;
 	hdr->host = TI_SCI_HOST_ID;
@@ -132,6 +135,9 @@ static int ti_sci_get_response(struct ti_sci_msg *msg,
 
 	if (!(hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK))
 		return -ENODEV;
+
+	/* TODO: Verify checksum */
+	(void)hdr->sec_hdr.checksum;
 
 	return 0;
 }

@@ -103,18 +103,6 @@ static struct k3_sec_proxy_mbox spm = {
 };
 
 /**
- * struct sec_msg_hdr - Message header for secure messages and responses
- * @checksum:	CRC of message for integrity checking
- */
-union sec_msg_hdr {
-	struct {
-		uint16_t checksum;
-		uint16_t reserved;
-	} __packed;
-	uint32_t data;
-};
-
-/**
  * k3_sec_proxy_verify_thread() - Verify thread status before
  *				  sending/receiving data
  * @spt: Pointer to Secure Proxy thread description
@@ -209,7 +197,6 @@ int ti_sci_transport_clear_rx_thread(enum ti_sci_transport_chan_id id)
 int ti_sci_transport_send(enum ti_sci_transport_chan_id id, const struct ti_sci_msg *msg)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
-	union sec_msg_hdr secure_header;
 	int num_words, trail_bytes, i, ret;
 	uintptr_t data_reg;
 
@@ -220,19 +207,13 @@ int ti_sci_transport_send(enum ti_sci_transport_chan_id id, const struct ti_sci_
 	}
 
 	/* Check the message size */
-	if (msg->len + sizeof(secure_header) > spm.desc.max_msg_size) {
+	if (msg->len > spm.desc.max_msg_size) {
 		ERROR("Thread %s message length %lu > max msg size\n",
 		      spt->name, msg->len);
 		return -EINVAL;
 	}
 
-	/* TODO: Calculate checksum */
-	secure_header.checksum = 0;
-
-	/* Send the secure header */
 	data_reg = spm.desc.data_start_offset;
-	mmio_write_32(spt->data + data_reg, secure_header.data);
-	data_reg += sizeof(uint32_t);
 
 	/* Send whole words */
 	num_words = msg->len / sizeof(uint32_t);
@@ -282,7 +263,6 @@ int ti_sci_transport_send(enum ti_sci_transport_chan_id id, const struct ti_sci_
 int ti_sci_transport_recv(enum ti_sci_transport_chan_id id, struct ti_sci_msg *msg)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
-	union sec_msg_hdr secure_header;
 	uintptr_t data_reg;
 	int num_words, trail_bytes, i, ret;
 
@@ -292,10 +272,7 @@ int ti_sci_transport_recv(enum ti_sci_transport_chan_id id, struct ti_sci_msg *m
 		return ret;
 	}
 
-	/* Read secure header */
 	data_reg = spm.desc.data_start_offset;
-	secure_header.data = mmio_read_32(spt->data + data_reg);
-	data_reg += sizeof(uint32_t);
 
 	/* Read whole words */
 	num_words = msg->len / sizeof(uint32_t);
@@ -323,9 +300,6 @@ int ti_sci_transport_recv(enum ti_sci_transport_chan_id id, struct ti_sci_msg *m
 	 */
 	if (data_reg <= spm.desc.data_end_offset)
 		mmio_read_32(spt->data + spm.desc.data_end_offset);
-
-	/* TODO: Verify checksum */
-	(void)secure_header.checksum;
 
 	VERBOSE("Message successfully received from thread %s\n", spt->name);
 
