@@ -581,6 +581,10 @@ ifeq (${ENABLE_RME},1)
 	CTX_INCLUDE_AARCH32_REGS := 0
 	CTX_INCLUDE_PAUTH_REGS := 1
 
+	ifneq ($(ENABLE_FEAT_MPAM), 0)
+		CTX_INCLUDE_MPAM_REGS := 1
+	endif
+
 	# RME enables CSV2_2 extension by default.
 	ENABLE_FEAT_CSV2_2 = 1
 endif #(FEAT_RME)

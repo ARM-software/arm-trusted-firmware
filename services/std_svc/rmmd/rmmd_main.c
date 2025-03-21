@@ -19,6 +19,7 @@
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/el3_runtime/pubsub.h>
+#include <lib/extensions/mpam.h>
 #include <lib/extensions/pmuv3.h>
 #include <lib/extensions/sys_reg_trace.h>
 #include <lib/gpt_rme/gpt_rme.h>
@@ -168,6 +169,16 @@ static void manage_extensions_realm_per_world(void)
 	 */
 	if (is_feat_sme_supported()) {
 		sme_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
+	}
+
+	/*
+	 * If FEAT_MPAM is supported and enabled, then disable trapping access
+	 * to the MPAM registers for Realm world. Instead, RMM will configure
+	 * the access to be trapped by itself so it can inject undefined aborts
+	 * back to the Realm.
+	 */
+	if (is_feat_mpam_supported()) {
+		mpam_enable_per_world(&per_world_context[CPU_CONTEXT_REALM]);
 	}
 }
 
