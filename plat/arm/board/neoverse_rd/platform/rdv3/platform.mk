@@ -178,5 +178,6 @@ override CTX_INCLUDE_SVE_REGS   := 1
 ifeq (${SPD},spmd)
 ifeq (${SPMD_SPM_AT_SEL2},1)
 override CTX_INCLUDE_SVE_REGS	:= 0
+override CTX_INCLUDE_FPREGS	:= 0
 endif
 endif
