@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, Advanced Micro Devices. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -17,7 +17,8 @@
 /*******************************************************************************
  * Initialize the UART
  ******************************************************************************/
-void tsp_early_platform_setup(void)
+void tsp_early_platform_setup(u_register_t arg0, u_register_t arg1,
+			      u_register_t arg2, u_register_t arg3)
 {
 	/*
 	 * Register a different console than already in use to display
