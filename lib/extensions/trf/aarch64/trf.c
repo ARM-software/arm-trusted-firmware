@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,8 +22,12 @@ void trf_enable(cpu_context_t *ctx)
 	 * MDCR_EL3.TTRF = b0
 	 * Allow access of trace filter control registers from NS-EL2
 	 * and NS-EL1 when NS-EL2 is implemented but not used
+	 *
+	 * MDCR_EL3.RLTE = b0
+	 * Trace prohibited in Realm state, unless overridden by the
+	 * IMPLEMENTATION DEFINED authentication interface.
 	 */
-	mdcr_el3_val &= ~(MDCR_STE_BIT | MDCR_TTRF_BIT);
+	mdcr_el3_val &= ~(MDCR_STE_BIT | MDCR_TTRF_BIT | MDCR_RLTE_BIT);
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 
