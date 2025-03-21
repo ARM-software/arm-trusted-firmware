@@ -1,14 +1,13 @@
 /*
- * Texas Instruments K3 Secure Proxy Driver
- *   Based on Linux and U-Boot implementation
+ * Texas Instruments SCI Transport Protocol Header
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2025 Texas Instruments Incorporated - http://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SEC_PROXY_H
-#define SEC_PROXY_H
+#ifndef TI_SCI_TRANSPORT_H
+#define TI_SCI_TRANSPORT_H
 
 #include <stdint.h>
 
@@ -79,4 +78,4 @@ int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_ms
  */
 int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg);
 
-#endif /* SEC_PROXY_H */
+#endif /* TI_SCI_TRANSPORT_H */

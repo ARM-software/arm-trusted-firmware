@@ -2,7 +2,7 @@
  * Texas Instruments K3 Secure Proxy Driver
  *   Based on Linux and U-Boot implementation
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2025 Texas Instruments Incorporated - http://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
 #include <lib/utils.h>
 #include <lib/utils_def.h>
 
-#include "sec_proxy.h"
+#include <ti_sci_transport.h>
 
 /* SEC PROXY RT THREAD STATUS */
 #define RT_THREAD_STATUS			(0x0)

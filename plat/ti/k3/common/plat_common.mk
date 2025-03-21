@@ -51,7 +51,6 @@ include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/include			\
-				-Idrivers/ti/ipc			\
 				-Idrivers/ti/ti_sci			\
 
 K3_CONSOLE_SOURCES	+=	\
@@ -70,7 +69,7 @@ K3_PSCI_SOURCES		+=	\
 				plat/common/plat_psci_common.c		\
 				${PLAT_PATH}/common/k3_psci.c		\
 
-K3_SEC_PROXY_SOURCES	+=	\
+K3_TI_SCI_TRANSPORT	+=	\
 				drivers/ti/ipc/sec_proxy.c		\
 
 K3_TI_SCI_SOURCES	+=	\
@@ -88,5 +87,5 @@ BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_topology.c	\
 				${K3_GIC_SOURCES}			\
 				${K3_PSCI_SOURCES}			\
-				${K3_SEC_PROXY_SOURCES}			\
 				${K3_TI_SCI_SOURCES}			\
+				${K3_TI_SCI_TRANSPORT}			\

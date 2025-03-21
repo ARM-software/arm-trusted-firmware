@@ -16,7 +16,7 @@
 #include <lib/bakery_lock.h>
 
 #include <common/debug.h>
-#include <sec_proxy.h>
+#include <ti_sci_transport.h>
 
 #include "ti_sci_protocol.h"
 #include "ti_sci.h"
