@@ -222,8 +222,8 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 {
 	size_t i;
-	size_t local_count = count;
 #if IPI_CRC_CHECK
+	size_t local_count = count;
 	uint32_t crc;
 #endif
 	uintptr_t buffer_base = IPI_BUFFER_REMOTE_BASE +
@@ -231,14 +231,14 @@ enum pm_ret_status pm_ipi_buff_read_callb(uint32_t *value, size_t count)
 				IPI_BUFFER_REQ_OFFSET;
 	enum pm_ret_status ret = PM_RET_SUCCESS;
 
-	if (local_count > (uint32_t)IPI_BUFFER_MAX_WORDS) {
-		local_count = IPI_BUFFER_MAX_WORDS;
-	}
-
 	for (i = 0; i < count; i++) {
 		value[i] = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
 	}
 #if IPI_CRC_CHECK
+	if (local_count > (uint32_t)IPI_BUFFER_MAX_WORDS) {
+		local_count = IPI_BUFFER_MAX_WORDS;
+	}
+
 	crc = mmio_read_32(buffer_base + (PAYLOAD_CRC_POS * PAYLOAD_ARG_SIZE));
 	if (crc != calculate_crc((uint32_t *)buffer_base, IPI_W0_TO_W6_SIZE)) {
 		NOTICE("ERROR in CRC response payload value:0x%x\n", crc);
