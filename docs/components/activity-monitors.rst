@@ -21,7 +21,9 @@ build option.
 
 As a security precaution, Trusted Firmware-A does not enable these by default.
 Instead, platforms must configure their auxiliary counters through the
-``plat_amu_aux_enables`` platform hook.
+``plat_amu_aux_enables`` platform hook. This is a per-core array indexed with
+``plat_my_core_pos()``. A core's value will be written verbatim into
+``AMCNTENSET1_EL0``.
 
 --------------
 
