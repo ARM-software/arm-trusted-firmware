@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,8 @@
 
 static unsigned int uniphier_soc = UNIPHIER_SOC_UNKNOWN;
 
-void tsp_early_platform_setup(void)
+void tsp_early_platform_setup(u_register_t arg0, u_register_t arg1,
+			      u_register_t arg2, u_register_t arg3)
 {
 	uniphier_soc = uniphier_get_soc_id();
 	if (uniphier_soc == UNIPHIER_SOC_UNKNOWN)
