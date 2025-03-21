@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -123,7 +123,7 @@ static struct pinctrl_function pinctrl_functions[MAX_FUNCTION] =  {
 		.name = "qspi0",
 		.regval = 0x02,
 		.group_base = PINCTRL_GRP_QSPI0_0,
-		.group_size = PINCTRL_GRP_QSPI0_0 - PINCTRL_GRP_QSPI0_0 + 1U,
+		.group_size = PINCTRL_GRP_QSPI0_1 - PINCTRL_GRP_QSPI0_0 + 1U,
 	},
 	[PINCTRL_FUNC_QSPI_FBCLK] = {
 		.name = "qspi_fbclk",
@@ -135,7 +135,7 @@ static struct pinctrl_function pinctrl_functions[MAX_FUNCTION] =  {
 		.name = "qspi_ss",
 		.regval = 0x02,
 		.group_base = PINCTRL_GRP_QSPI_SS,
-		.group_size = PINCTRL_GRP_QSPI_SS - PINCTRL_GRP_QSPI_SS + 1U,
+		.group_size = PINCTRL_GRP_QSPI_SS_1 - PINCTRL_GRP_QSPI_SS + 1U,
 	},
 	[PINCTRL_FUNC_SPI0] = {
 		.name = "spi0",
@@ -383,6 +383,7 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 	[PINCTRL_PIN_0] = {
 		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
+			PINCTRL_GRP_QSPI0_1,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_TESTSCAN0_0,
@@ -401,6 +402,7 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 	[PINCTRL_PIN_1] = {
 		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
+			PINCTRL_GRP_QSPI0_1,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_TESTSCAN0_0,
@@ -419,6 +421,7 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 	[PINCTRL_PIN_2] = {
 		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
+			PINCTRL_GRP_QSPI0_1,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_TESTSCAN0_0,
@@ -437,6 +440,7 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 	[PINCTRL_PIN_3] = {
 		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
+			PINCTRL_GRP_QSPI0_1,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_TESTSCAN0_0,
@@ -455,6 +459,7 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 	[PINCTRL_PIN_4] = {
 		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
+			PINCTRL_GRP_QSPI0_1,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_TESTSCAN0_0,
@@ -473,6 +478,7 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 	[PINCTRL_PIN_5] = {
 		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI_SS,
+			PINCTRL_GRP_QSPI_SS_1,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_TESTSCAN0_0,
