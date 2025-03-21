@@ -2732,6 +2732,8 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 	uint32_t dst_addr_sdm = (uint32_t)dst_addr;
 	bool is_src_size_aligned;
 	bool is_dst_size_aligned;
+	bool is_src_size_valid;
+	bool is_dst_size_valid;
 
 	if (fcs_aes_init_payload.session_id != session_id ||
 		fcs_aes_init_payload.context_id != context_id) {
@@ -2741,6 +2743,8 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 	/* Default source and destination size align check, 32 bytes alignment. */
 	is_src_size_aligned = is_32_bytes_aligned(src_size);
 	is_dst_size_aligned = is_32_bytes_aligned(dst_size);
+	is_src_size_valid = FCS_AES_DATA_SIZE_CHECK(src_size);
+	is_dst_size_valid = FCS_AES_DATA_SIZE_CHECK(dst_size);
 
 	/*
 	 * Get the requested block mode.
@@ -2755,6 +2759,9 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 	    (block_mode == FCS_CRYPTO_GCM_GHASH_MODE)) {
 		is_src_size_aligned = is_16_bytes_aligned(src_size);
 		is_dst_size_aligned = is_16_bytes_aligned(dst_size);
+		/* The size validity here is, should be 0 or multiples of 16 bytes. */
+		is_src_size_valid = is_16_bytes_aligned(src_size);
+		is_dst_size_valid = is_16_bytes_aligned(dst_size);
 	}
 #endif
 
@@ -2770,12 +2777,8 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	if ((dst_size > FCS_AES_MAX_DATA_SIZE ||
-		dst_size < FCS_AES_MIN_DATA_SIZE) ||
-		(src_size > FCS_AES_MAX_DATA_SIZE ||
-		src_size < FCS_AES_MIN_DATA_SIZE)) {
+	if (!is_src_size_valid || !is_dst_size_valid)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
-	}
 
 	/* Prepare crypto header*/
 	flag = 0;
