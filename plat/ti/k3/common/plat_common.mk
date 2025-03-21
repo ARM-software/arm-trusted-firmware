@@ -51,8 +51,8 @@ include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/include			\
-				-I${PLAT_PATH}/common/drivers/sec_proxy	\
-				-I${PLAT_PATH}/common/drivers/ti_sci	\
+				-Idrivers/ti/ipc			\
+				-Idrivers/ti/ti_sci			\
 
 K3_CONSOLE_SOURCES	+=	\
 				drivers/ti/uart/aarch64/16550_console.S	\
@@ -71,10 +71,10 @@ K3_PSCI_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_psci.c		\
 
 K3_SEC_PROXY_SOURCES	+=	\
-				${PLAT_PATH}/common/drivers/sec_proxy/sec_proxy.c \
+				drivers/ti/ipc/sec_proxy.c		\
 
 K3_TI_SCI_SOURCES	+=	\
-				${PLAT_PATH}/common/drivers/ti_sci/ti_sci.c \
+				drivers/ti/ti_sci/ti_sci.c		\
 
 PLAT_BL_COMMON_SOURCES	+=	\
 				lib/cpus/aarch64/cortex_a53.S		\
