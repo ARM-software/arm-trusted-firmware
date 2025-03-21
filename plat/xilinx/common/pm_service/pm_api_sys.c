@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -109,7 +109,7 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
  */
 enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 				       uint32_t x2, uint32_t x3, uint32_t x4,
-				       uint32_t x5, uint64_t *result)
+				       uint32_t x5, uint32_t *result)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT] = {0};
 	uint32_t module_id;
@@ -122,7 +122,7 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 	}
 
 	PM_PACK_PAYLOAD6(payload, module_id, flag, x0, x1, x2, x3, x4, x5);
-	return pm_ipi_send_sync(primary_proc, payload, (uint32_t *)result, RET_PAYLOAD_ARG_CNT);
+	return pm_ipi_send_sync(primary_proc, payload, result, RET_PAYLOAD_ARG_CNT);
 }
 
 /**

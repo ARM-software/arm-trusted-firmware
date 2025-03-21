@@ -24,7 +24,7 @@
 
 enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 				       uint32_t x2, uint32_t x3, uint32_t x4,
-				       uint32_t x5, uint64_t *result);
+				       uint32_t x5, uint32_t *result);
 enum pm_ret_status pm_self_suspend(uint32_t nid,
 				   uint32_t latency,
 				   uint32_t state,

@@ -470,8 +470,7 @@ static uintptr_t eemi_handler(uint32_t api_id, uint32_t *pm_arg,
 	uint32_t buf[RET_PAYLOAD_ARG_CNT] = {0};
 
 	ret = pm_handle_eemi_call(security_flag, api_id, pm_arg[0], pm_arg[1],
-				  pm_arg[2], pm_arg[3], pm_arg[4],
-				  (uint64_t *)buf);
+				  pm_arg[2], pm_arg[3], pm_arg[4], buf);
 	/*
 	 * Two IOCTLs, to get clock name and pinctrl name of pm_query_data API
 	 * receives 5 words of respoonse from firmware. Currently linux driver can
