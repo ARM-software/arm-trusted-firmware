@@ -37,11 +37,20 @@
 
 #define CPC_PWR_MASK_MCUSYS_MP0		(0xC001)
 
+#ifdef CPU_PM_SPM_CORE_POWERON
+#define SPM_VLP_MCUSYS_PWR_CON		(SPM_BASE + 0x260)
+#define SPM_VLP_MP0_CPUTOP_PWR_CON	(SPM_BASE + 0x264)
+#define SPM_VLP_CPU_PWR_CON(core)	(SPM_BASE + 0x268 + ((core) * 4))
+#else
+#define SPM_VLP_CPU_PWR_CON(core)	0
+#endif
+
 #define PER_CPU_PWR_DATA(ctrl, cluster, core) \
 	do { \
 		ctrl.rvbaraddr_l = CORE_RVBRADDR_##cluster##_##core##_L; \
 		ctrl.arch_addr = MCUCFG_MP0_CLUSTER_CFG5; \
 		ctrl.pwpr = SPM_MP##cluster##_CPU##core##_PWR_CON; \
+		ctrl.pwpr_intermediate = SPM_VLP_CPU_PWR_CON(core); \
 	} while (0)
 
 #define PER_CPU_PWR_CTRL(ctrl, cpu) ({ \
@@ -95,6 +104,7 @@ struct cpu_pwr_ctrl {
 	unsigned int rvbaraddr_l;
 	unsigned int arch_addr;
 	unsigned int pwpr;
+	unsigned int pwpr_intermediate;
 };
 
 #define MCUSYS_STATUS_PDN		BIT(0)

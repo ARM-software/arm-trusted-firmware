@@ -10,7 +10,12 @@
 #include <lib/mmio.h>
 #include <platform_def.h>
 
+/* === SPM related registers */
+#define SPM_POWERON_CONFIG_EN		(SPM_BASE + 0x000)
 #define CPU_PWR_STATUS			(MCUCFG_BASE + 0xA840)
+/* bit-fields of SPM_POWERON_CONFIG_EN */
+#define PROJECT_CODE			(0xB16U << 16)
+#define BCLK_CG_EN			BIT(0)
 
 #define SMP_CORE_TIMEOUT_MAX		(50000)
 #define DO_SMP_CORE_ON_WAIT_TIMEOUT(k_cnt) ({ \

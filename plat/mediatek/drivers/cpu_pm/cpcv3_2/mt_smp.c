@@ -45,11 +45,19 @@ void mt_smp_core_bootup_address_set(struct cpu_pwr_ctrl *pwr_ctrl, uintptr_t ent
 
 int mt_smp_power_core_on(unsigned int cpu_id, struct cpu_pwr_ctrl *pwr_ctrl)
 {
+	uint32_t pwpr_reg;
 	unsigned int val = is_core_power_status_on(cpu_id);
 
 	CPU_PM_ASSERT(pwr_ctrl);
 
-	mmio_clrbits_32(pwr_ctrl->pwpr, RESETPWRON_CONFIG);
+#ifdef CPU_PM_SPM_CORE_POWERON
+	pwpr_reg = pwr_ctrl->pwpr_intermediate;
+#else
+	pwpr_reg = pwr_ctrl->pwpr;
+#endif
+
+	mmio_clrbits_32(pwpr_reg, RESETPWRON_CONFIG);
+
 	if (val == 0) {
 		/*
 		 * Set to 0 after BIG VPROC bulk powered on (configure in MCUPM) and
@@ -59,17 +67,22 @@ int mt_smp_power_core_on(unsigned int cpu_id, struct cpu_pwr_ctrl *pwr_ctrl)
 			mmio_write_32(DREQ20_BIG_VPROC_ISO, 0);
 		}
 
+#ifdef CPU_PM_SPM_CORE_POWERON
+		mmio_setbits_32(CPC_MCUSYS_CPC_FLOW_CTRL_CFG,
+				SSPM_ALL_PWR_CTRL_EN);
+#endif
+
 		mmio_setbits_32(pwr_ctrl->pwpr, PWR_RST_B);
 		dsbsy();
 
-		/* set mp0_spmc_pwr_on_cpuX = 1 */
-		mmio_setbits_32(pwr_ctrl->pwpr, PWR_ON);
+		/* Set mp0_spmc_pwr_on_cpuX = 1 */
+		mmio_setbits_32(pwpr_reg, PWR_ON);
 
 		val = 0;
 		while (is_core_power_status_on(cpu_id) == 0) {
 			DO_SMP_CORE_ON_WAIT_TIMEOUT(val);
-			mmio_clrbits_32(pwr_ctrl->pwpr, PWR_ON);
-			mmio_setbits_32(pwr_ctrl->pwpr, PWR_ON);
+			mmio_clrbits_32(pwpr_reg, PWR_ON);
+			mmio_setbits_32(pwpr_reg, PWR_ON);
 		}
 	} else {
 		INFO("[%s:%d] - core_%u haven been power on\n", __func__, __LINE__, cpu_id);
@@ -80,14 +93,24 @@ int mt_smp_power_core_on(unsigned int cpu_id, struct cpu_pwr_ctrl *pwr_ctrl)
 
 int mt_smp_power_core_off(struct cpu_pwr_ctrl *pwr_ctrl)
 {
-	/* set mp0_spmc_pwr_on_cpuX = 1 */
+	/* Set mp0_spmc_pwr_on_cpuX = 1 */
+#ifdef CPU_PM_SPM_CORE_POWERON
+	mmio_clrbits_32(pwr_ctrl->pwpr_intermediate, PWR_ON);
+#else
 	mmio_clrbits_32(pwr_ctrl->pwpr, PWR_ON);
+#endif
 	return MTK_CPUPM_E_OK;
 }
 
 void mt_smp_init(void)
 {
-	/* clear RESETPWRON_CONFIG of mcusys/cluster/core0 */
+	/* INFO=SPMC_INIT: clear resetpwron of mcusys/cluster/core0 */
+#ifdef CPU_PM_SPM_CORE_POWERON
+	mmio_write_32(SPM_POWERON_CONFIG_EN, PROJECT_CODE | BCLK_CG_EN);
+	mmio_clrbits_32(SPM_VLP_MCUSYS_PWR_CON, RESETPWRON_CONFIG);
+	mmio_clrbits_32(SPM_VLP_MP0_CPUTOP_PWR_CON, RESETPWRON_CONFIG);
+#else
 	mmio_clrbits_32(SPM_MCUSYS_PWR_CON, RESETPWRON_CONFIG);
 	mmio_clrbits_32(SPM_MP0_CPUTOP_PWR_CON, RESETPWRON_CONFIG);
+#endif
 }
