@@ -649,7 +649,7 @@ responsible for:
 
    .. code:: c
 
-       uint32_t plat_ic_get_interrupt_type(void);
+       uint32_t plat_ic_get_pending_interrupt_type(void);
 
    It should return either ``INTR_TYPE_S_EL1`` or ``INTR_TYPE_NS``.
 
