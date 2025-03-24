@@ -163,8 +163,7 @@ enum pm_ret_status pm_self_suspend(uint32_t nid,
 
 	/* Send request to the PLM */
 	PM_PACK_PAYLOAD6(payload, LIBPM_MODULE_ID, flag, PM_SELF_SUSPEND,
-			 proc->node_id, latency, state, address,
-			 (address >> 32));
+			 nid, latency, state, address, (address >> 32));
 	ret = pm_ipi_send_sync(proc, payload, NULL, 0);
 
 exit_label:
@@ -279,6 +278,13 @@ enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
 enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag, uint32_t ack)
 {
 	enum pm_ret_status ret = PM_RET_SUCCESS;
+
+	/*
+	 * Typecasting to void to intentionally retain the variable and avoid
+	 * MISRA violation for unused parameters. This may be used in the
+	 * future if callbacks to a secure target are required.
+	 */
+	(void)flag;
 
 	/* Return if interrupt is not from PMU */
 	if (pm_ipi_irq_status(primary_proc) != 0U) {
