@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -83,6 +83,10 @@ static void tspd_cpu_suspend_handler(u_register_t max_off_pwrlvl)
 
 	/* Program the entry point and enter the TSP */
 	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->cpu_suspend_entry);
+
+	/* Save NS context in case we need to return to it */
+	cm_el1_sysregs_context_save(NON_SECURE);
+
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
 	/*
@@ -147,7 +151,7 @@ static void tspd_cpu_on_finish_handler(u_register_t unused)
  * completed the preceding suspend call. Use that context to program an entry
  * into the TSP to allow it to do any remaining book keeping
  ******************************************************************************/
-static void tspd_cpu_suspend_finish_handler(u_register_t max_off_pwrlvl)
+static void tspd_cpu_suspend_finish_handler(u_register_t max_off_pwrlvl, bool abandon)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
@@ -169,6 +173,11 @@ static void tspd_cpu_suspend_finish_handler(u_register_t max_off_pwrlvl)
 	 */
 	if (rc != 0)
 		panic();
+
+	/* We're returning back to NS so we need to put back its context */
+	if (abandon) {
+		cm_el1_sysregs_context_restore(NON_SECURE);
+	}
 
 	/* Update its context to reflect the state the SP is in */
 	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_ON);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -137,11 +137,14 @@ void opteed_cpu_on_finish_handler(u_register_t unused)
  * completed the preceding suspend call. Use that context to program an entry
  * into OPTEE to allow it to do any remaining book keeping
  ******************************************************************************/
-static void opteed_cpu_suspend_finish_handler(u_register_t max_off_pwrlvl)
+static void opteed_cpu_suspend_finish_handler(u_register_t max_off_pwrlvl, bool abandon)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
+
+	/* opteed is not expected to be used on platforms with pabandon */
+	assert(!abandon);
 
 	if (get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_UNKNOWN) {
 		return;

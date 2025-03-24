@@ -184,17 +184,6 @@ int psci_cpu_suspend_start(unsigned int idx,
 #endif
 
 	if (is_power_down_state != 0U) {
-		/*
-		 * WHen CTX_INCLUDE_EL2_REGS is usnet, we're probably runnig
-		 * with some SPD that assumes the core is going off so it
-		 * doesn't bother saving NS's context. Do that here until we
-		 * figure out a way to make this coherent.
-		 */
-#if FEAT_PABANDON
-#if !CTX_INCLUDE_EL2_REGS
-		cm_el1_sysregs_context_save(NON_SECURE);
-#endif
-#endif
 		max_off_lvl = psci_find_max_off_lvl(state_info);
 		psci_suspend_to_pwrdown_start(idx, end_pwrlvl, end_pwrlvl, state_info);
 	}
@@ -274,13 +263,7 @@ int psci_cpu_suspend_start(unsigned int idx,
 	 * the system back to a usable state.
 	 */
 	if (is_power_down_state != 0U) {
-#if FEAT_PABANDON
-		psci_cpu_suspend_to_powerdown_finish(idx, max_off_lvl, state_info);
-
-#if !CTX_INCLUDE_EL2_REGS
-		cm_el1_sysregs_context_restore(NON_SECURE);
-#endif
-#endif
+		psci_cpu_suspend_to_powerdown_finish(idx, max_off_lvl, state_info, true);
 	} else {
 		psci_cpu_suspend_to_standby_finish(end_pwrlvl, state_info);
 	}
@@ -307,7 +290,7 @@ suspend_exit:
  * are called by the common finisher routine in psci_common.c. The `state_info`
  * is the psci_power_state from which this CPU has woken up from.
  ******************************************************************************/
-void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max_off_lvl, const psci_power_state_t *state_info)
+void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max_off_lvl, const psci_power_state_t *state_info, bool abandon)
 {
 	unsigned int counter_freq;
 
@@ -345,7 +328,7 @@ void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max
 	 * error, it's expected to assert within
 	 */
 	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_suspend_finish != NULL)) {
-		psci_spd_pm->svc_suspend_finish(max_off_lvl);
+		psci_spd_pm->svc_suspend_finish(max_off_lvl, abandon);
 	}
 
 	/* This loses its meaning when not suspending, reset so it's correct for OFF */

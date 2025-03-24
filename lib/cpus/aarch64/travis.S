@@ -21,10 +21,6 @@
 #error "Travis supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-#if FEAT_PABANDON == 0
-#error "Travis must be compiled with FEAT_PABANDON enabled"
-#endif
-
 #if ERRATA_SME_POWER_DOWN == 0
 #error "Travis needs ERRATA_SME_POWER_DOWN=1 to powerdown correctly"
 #endif

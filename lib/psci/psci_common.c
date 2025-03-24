@@ -1056,7 +1056,7 @@ void psci_warmboot_entrypoint(void)
 		unsigned int max_off_lvl = psci_find_max_off_lvl(&state_info);
 
 		assert(max_off_lvl != PSCI_INVALID_PWR_LVL);
-		psci_cpu_suspend_to_powerdown_finish(cpu_idx, max_off_lvl, &state_info);
+		psci_cpu_suspend_to_powerdown_finish(cpu_idx, max_off_lvl, &state_info, false);
 	}
 
 	/*
@@ -1311,15 +1311,13 @@ void psci_pwrdown_cpu_end_wakeup(unsigned int power_level)
 
 	/*
 	 * Waking up does not require hardware-assisted coherency, but that is
-	 * the case for every core that can wake up. Untangling the cache
-	 * coherency code from powerdown is a non-trivial effort which isn't
-	 * needed for our purposes.
+	 * the case for every core that can wake up. Can either happen because
+	 * of errata or pabandon.
 	 */
-#if !FEAT_PABANDON || !defined(__aarch64__)
-	ERROR("Systems without FEAT_PABANDON shouldn't wake up.\n");
+#if !defined(__aarch64__) || !HW_ASSISTED_COHERENCY
+	ERROR("AArch32 systems shouldn't wake up.\n");
 	panic();
-#else /* FEAT_PABANDON */
-
+#endif
 	/*
 	 * Begin unwinding. Everything can be shared with CPU_ON and co later,
 	 * except the CPU specific bit. Cores that have hardware-assisted
@@ -1327,7 +1325,6 @@ void psci_pwrdown_cpu_end_wakeup(unsigned int power_level)
 	 * the simplest way to achieve this
 	 */
 	prepare_cpu_pwr_dwn(power_level);
-#endif /* FEAT_PABANDON */
 }
 
 /*******************************************************************************

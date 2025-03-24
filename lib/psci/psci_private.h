@@ -341,7 +341,10 @@ int psci_cpu_suspend_start(unsigned int idx,
 			   psci_power_state_t *state_info,
 			   unsigned int is_power_down_state);
 
-void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max_off_lvl, const psci_power_state_t *state_info);
+void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx,
+					  unsigned int max_off_lvl,
+					  const psci_power_state_t *state_info,
+					  bool abandon);
 
 /* Private exported functions from psci_helpers.S */
 void psci_do_pwrdown_cache_maintenance(void);

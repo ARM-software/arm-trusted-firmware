@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -201,7 +201,7 @@ static int32_t spmc_send_pm_msg(uint8_t pm_msg_type,
 /*******************************************************************************
  * spmc_cpu_suspend_finish_handler
  ******************************************************************************/
-static void spmc_cpu_suspend_finish_handler(u_register_t unused)
+static void spmc_cpu_suspend_finish_handler(u_register_t unused, bool abandon)
 {
 	struct secure_partition_desc *sp = spmc_get_current_sp_ctx();
 	unsigned int linear_id = plat_my_core_pos();
@@ -209,6 +209,9 @@ static void spmc_cpu_suspend_finish_handler(u_register_t unused)
 
 	/* Sanity check for a NULL pointer dereference. */
 	assert(sp != NULL);
+
+	/* EL3 SPMC is not expected to be used on platforms with pabandon */
+	assert(!abandon);
 
 	/*
 	 * Check if the SP has subscribed for this power management message.

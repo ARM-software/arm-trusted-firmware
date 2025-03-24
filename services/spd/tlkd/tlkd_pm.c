@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -69,11 +69,14 @@ static void cpu_suspend_handler(u_register_t suspend_level)
  * This cpu is being resumed. Inform TLK of the SYSTEM_SUSPEND exit, so
  * that it can pass this information to its Trusted Apps.
  ******************************************************************************/
-static void cpu_resume_handler(u_register_t suspend_level)
+static void cpu_resume_handler(u_register_t suspend_level, bool abandon)
 {
 	gp_regs_t *gp_regs;
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;
 	int32_t rc = 0;
+
+	/* tlkd is not expected to be used on platforms with pabandon */
+	assert(!abandon);
 
 	/*
 	 * TLK runs only on CPU0 and resumes its Trusted Apps during
