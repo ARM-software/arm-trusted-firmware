@@ -55,7 +55,7 @@ PLAT_INCLUDES		+=	\
 
 K3_CONSOLE_SOURCES	+=	\
 				drivers/ti/uart/aarch64/16550_console.S	\
-				${PLAT_PATH}/common/k3_console.c	\
+				plat/ti/common/k3_console.c		\
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
@@ -63,14 +63,11 @@ include drivers/arm/gic/v3/gicv3.mk
 K3_GIC_SOURCES		+=	\
 				${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
-				${PLAT_PATH}/common/k3_gicv3.c		\
+				plat/ti/common/k3_gicv3.c		\
 
 K3_PSCI_SOURCES		+=	\
 				plat/common/plat_psci_common.c		\
-				${PLAT_PATH}/common/k3_psci.c		\
 
-K3_TI_SCI_TRANSPORT	+=	\
-				drivers/ti/ipc/sec_proxy.c		\
 
 K3_TI_SCI_SOURCES	+=	\
 				drivers/ti/ti_sci/ti_sci.c		\
@@ -82,11 +79,7 @@ PLAT_BL_COMMON_SOURCES	+=	\
 				${K3_CONSOLE_SOURCES}			\
 
 BL31_SOURCES		+=	\
-				${PLAT_PATH}/common/k3_bl31_setup.c	\
-				${PLAT_PATH}/common/ti_bl31_setup.c	\
-				${PLAT_PATH}/common/k3_helpers.S	\
-				${PLAT_PATH}/common/k3_topology.c	\
+				plat/ti/common/ti_bl31_setup.c		\
+				plat/ti/common/k3_helpers.S		\
 				${K3_GIC_SOURCES}			\
-				${K3_PSCI_SOURCES}			\
 				${K3_TI_SCI_SOURCES}			\
-				${K3_TI_SCI_TRANSPORT}			\
