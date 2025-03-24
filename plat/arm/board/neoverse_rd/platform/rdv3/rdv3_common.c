@@ -193,7 +193,8 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 int plat_rmmd_mecid_key_update(uint16_t mecid)
 {
 	/*
-	 * TODO
+	 * RDV3 does not support FEAT_MEC.
+	 * This empty hook is for compilation to succeed.
 	 */
 	return 0;
 }
