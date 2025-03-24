@@ -90,7 +90,7 @@ void arm_bl1_early_platform_setup(void)
 	bl1_tzram_layout.total_size = ARM_BL_RAM_SIZE;
 
 #if TRANSFER_LIST
-	secure_tl = transfer_list_ensure((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
+	secure_tl = transfer_list_init((void *)PLAT_ARM_EL3_FW_HANDOFF_BASE,
 					 PLAT_ARM_FW_HANDOFF_SIZE);
 	assert(secure_tl != NULL);
 #endif

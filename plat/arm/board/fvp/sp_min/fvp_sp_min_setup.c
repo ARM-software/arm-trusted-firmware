@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,7 @@ void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	}
 #endif /* !RESET_TO_SP_MIN && !RESET_TO_BL2 */
 
-	arm_sp_min_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
+	arm_sp_min_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();

@@ -176,35 +176,32 @@ transfer_list_check_header(const struct transfer_list_header *tl)
 	}
 
 	if (tl->signature != TRANSFER_LIST_SIGNATURE) {
-		ERROR("Bad transfer list signature 0x%x\n", tl->signature);
+		VERBOSE("Bad transfer list signature 0x%x\n", tl->signature);
 		return TL_OPS_NON;
 	}
 
 	if (!tl->max_size) {
-		ERROR("Bad transfer list max size 0x%x\n",
-		      tl->max_size);
+		VERBOSE("Bad transfer list max size 0x%x\n", tl->max_size);
 		return TL_OPS_NON;
 	}
 
 	if (tl->size > tl->max_size) {
-		ERROR("Bad transfer list size 0x%x\n", tl->size);
+		VERBOSE("Bad transfer list size 0x%x\n", tl->size);
 		return TL_OPS_NON;
 	}
 
 	if (tl->hdr_size != sizeof(struct transfer_list_header)) {
-		ERROR("Bad transfer list header size 0x%x\n",
-		      tl->hdr_size);
+		VERBOSE("Bad transfer list header size 0x%x\n", tl->hdr_size);
 		return TL_OPS_NON;
 	}
 
 	if (!transfer_list_verify_checksum(tl)) {
-		ERROR("Bad transfer list checksum 0x%x\n",
-		      tl->checksum);
+		VERBOSE("Bad transfer list checksum 0x%x\n", tl->checksum);
 		return TL_OPS_NON;
 	}
 
 	if (tl->version == 0) {
-		ERROR("Transfer list version is invalid\n");
+		VERBOSE("Transfer list version is invalid\n");
 		return TL_OPS_NON;
 	} else if (tl->version == TRANSFER_LIST_VERSION) {
 		INFO("Transfer list version is valid for all operations\n");

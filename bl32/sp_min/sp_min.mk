@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -83,3 +83,7 @@ $(eval $(call assert_boolean,RESET_TO_SP_MIN))
 SP_MIN_WITH_SECURE_FIQ 	?= 0
 $(eval $(call add_define,SP_MIN_WITH_SECURE_FIQ))
 $(eval $(call assert_boolean,SP_MIN_WITH_SECURE_FIQ))
+
+ifeq (${TRANSFER_LIST},1)
+BL32_SOURCES	+=	$(TRANSFER_LIST_SOURCES)
+endif
