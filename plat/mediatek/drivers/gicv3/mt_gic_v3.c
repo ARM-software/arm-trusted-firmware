@@ -23,7 +23,7 @@
 
 uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
-static gicv3_redist_ctx_t rdist_ctx;
+static gicv3_redist_ctx_t rdist_ctx[PLATFORM_CORE_COUNT];
 static gicv3_dist_ctx_t dist_ctx;
 
 /* Configure Secure IRQs */
@@ -112,7 +112,7 @@ void mt_gic_rdistif_save(void)
 	 * before the Distributor context.
 	 */
 	for (cpu = 0; cpu < PLATFORM_CORE_COUNT; cpu++)
-		gicv3_rdistif_save(cpu, &rdist_ctx);
+		gicv3_rdistif_save(cpu, &rdist_ctx[cpu]);
 }
 
 void mt_gic_rdistif_restore(void)
@@ -126,7 +126,7 @@ void mt_gic_rdistif_restore(void)
 	 * the SYSTEM SUSPEND call.
 	 */
 	for (cpu = 0; cpu < PLATFORM_CORE_COUNT; cpu++)
-		gicv3_rdistif_init_restore(cpu, &rdist_ctx);
+		gicv3_rdistif_init_restore(cpu, &rdist_ctx[cpu]);
 }
 
 void mt_gic_redistif_on(void)
