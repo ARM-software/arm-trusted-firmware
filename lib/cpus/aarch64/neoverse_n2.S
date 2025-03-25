@@ -79,16 +79,6 @@ workaround_reset_end neoverse_n2, ERRATUM(2067956)
 
 check_erratum_ls neoverse_n2, ERRATUM(2067956), CPU_REV(0, 0)
 
-workaround_reset_start neoverse_n2, ERRATUM(2138953), ERRATA_N2_2138953
-	/* Apply instruction patching sequence */
-	mrs	x1, NEOVERSE_N2_CPUECTLR2_EL1
-	mov	x0, #NEOVERSE_N2_CPUECTLR2_EL1_PF_MODE_CNSRV
-	bfi	x1, x0, #CPUECTLR2_EL1_PF_MODE_LSB, #CPUECTLR2_EL1_PF_MODE_WIDTH
-	msr	NEOVERSE_N2_CPUECTLR2_EL1, x1
-workaround_reset_end neoverse_n2, ERRATUM(2138953)
-
-check_erratum_ls neoverse_n2, ERRATUM(2138953), CPU_REV(0, 3)
-
 workaround_reset_start neoverse_n2, ERRATUM(2138956), ERRATA_N2_2138956
 	/* Apply instruction patching sequence */
 	ldr	x0,=0x3

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,9 +22,6 @@
 #define NEOVERSE_V1_CPUPCR_EL3					S3_6_C15_C8_1
 #define NEOVERSE_V1_CPUECTLR_EL1_BIT_8				(ULL(1) << 8)
 #define NEOVERSE_V1_CPUECTLR_EL1_BIT_53				(ULL(1) << 53)
-#define NEOVERSE_V1_CPUECTLR_EL1_PF_MODE_CNSRV			ULL(3)
-#define CPUECTLR_EL1_PF_MODE_LSB				U(6)
-#define CPUECTLR_EL1_PF_MODE_WIDTH				U(2)
 
 /*******************************************************************************
  * CPU Power Control register specific definitions
