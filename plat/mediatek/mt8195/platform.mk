@@ -99,7 +99,6 @@ ERRATA_A78_1688305 := 1
 ERRATA_A78_1941498 := 1
 ERRATA_A78_1951500 := 1
 ERRATA_A78_1821534 := 1
-ERRATA_A78_2132060 := 1
 ERRATA_A78_2242635 := 1
 
 # indicate the reset vector address can be programmed
