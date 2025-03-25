@@ -48,6 +48,7 @@ func travis_core_pwr_dwn
 	sysreg_bit_toggle TRAVIS_IMP_CPUPWRCTLR_EL1, \
 		TRAVIS_IMP_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
 	isb
+	signal_pabandon_handled
 	ret
 endfunc travis_core_pwr_dwn
 

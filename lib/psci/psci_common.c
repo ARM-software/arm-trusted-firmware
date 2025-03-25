@@ -1196,7 +1196,7 @@ int psci_secondaries_brought_up(void)
 	return (n_valid > 1U) ? 1 : 0;
 }
 
-static void call_cpu_pwr_dwn(unsigned int power_level)
+static u_register_t call_cpu_pwr_dwn(unsigned int power_level)
 {
 	struct cpu_ops *ops = get_cpu_data(cpu_ops_ptr);
 
@@ -1213,7 +1213,25 @@ static void call_cpu_pwr_dwn(unsigned int power_level)
 
 static void prepare_cpu_pwr_dwn(unsigned int power_level)
 {
-	call_cpu_pwr_dwn(power_level);
+	/* ignore the return, all cpus should behave the same */
+	(void)call_cpu_pwr_dwn(power_level);
+}
+
+static void prepare_cpu_pwr_up(unsigned int power_level)
+{
+	/*
+	 * Call the pwr_dwn cpu hook again, indicating that an abandon happened.
+	 * The cpu driver is expected to clean up. We ask it to return
+	 * PABANDON_ACK to indicate that it has handled this. This is a
+	 * heuristic: the value has been chosen such that an unported CPU is
+	 * extremely unlikely to return this value.
+	 */
+	u_register_t ret = call_cpu_pwr_dwn(power_level);
+
+	/* unreachable on AArch32 so cast down to calm the compiler */
+	if (ret != (u_register_t) PABANDON_ACK) {
+		panic();
+	}
 }
 
 /*******************************************************************************
@@ -1321,10 +1339,9 @@ void psci_pwrdown_cpu_end_wakeup(unsigned int power_level)
 	/*
 	 * Begin unwinding. Everything can be shared with CPU_ON and co later,
 	 * except the CPU specific bit. Cores that have hardware-assisted
-	 * coherency don't have much to do so just calling the hook again is
-	 * the simplest way to achieve this
+	 * coherency should be able to handle this.
 	 */
-	prepare_cpu_pwr_dwn(power_level);
+	prepare_cpu_pwr_up(power_level);
 }
 
 /*******************************************************************************

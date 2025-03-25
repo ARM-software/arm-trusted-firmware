@@ -52,6 +52,7 @@ func cortex_gelas_core_pwr_dwn
 	sysreg_bit_toggle CORTEX_GELAS_CPUPWRCTLR_EL1, \
 		CORTEX_GELAS_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
 	isb
+	signal_pabandon_handled
 	ret
 endfunc cortex_gelas_core_pwr_dwn
 
