@@ -156,15 +156,6 @@ workaround_reset_end neoverse_v1, ERRATUM(1966096)
 
 check_erratum_range neoverse_v1, ERRATUM(1966096), CPU_REV(1, 0), CPU_REV(1, 1)
 
-workaround_reset_start neoverse_v1, ERRATUM(2108267), ERRATA_V1_2108267
-	mrs	x1, NEOVERSE_V1_CPUECTLR_EL1
-	mov	x0, #NEOVERSE_V1_CPUECTLR_EL1_PF_MODE_CNSRV
-	bfi	x1, x0, #CPUECTLR_EL1_PF_MODE_LSB, #CPUECTLR_EL1_PF_MODE_WIDTH
-	msr	NEOVERSE_V1_CPUECTLR_EL1, x1
-workaround_reset_end neoverse_v1, ERRATUM(2108267)
-
-check_erratum_ls neoverse_v1, ERRATUM(2108267), CPU_REV(1, 2)
-
 workaround_reset_start neoverse_v1, ERRATUM(2139242), ERRATA_V1_2139242
 	mov	x0, #0x3
 	msr	S3_6_C15_C8_0, x0

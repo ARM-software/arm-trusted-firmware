@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
 # Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -20,7 +20,6 @@ HW_ASSISTED_COHERENCY		:=	1
 ERRATA_A55_1530923 		:=	1
 ERRATA_A78_1941498 		:=	1
 ERRATA_A78_1951500 		:=	1
-ERRATA_A78_2132060 		:=	1
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT		:=	0
