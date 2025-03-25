@@ -30,13 +30,6 @@
 
 cpu_reset_prologue cortex_x3
 
-workaround_reset_start cortex_x3, ERRATUM(2070301), ERRATA_X3_2070301
-	sysreg_bitfield_insert CORTEX_X3_CPUECTLR2_EL1, CORTEX_X3_CPUECTLR2_EL1_PF_MODE_CNSRV, \
-	CORTEX_X3_CPUECTLR2_EL1_PF_MODE_LSB, CORTEX_X3_CPUECTLR2_EL1_PF_MODE_WIDTH
-workaround_reset_end cortex_x3, ERRATUM(2070301)
-
-check_erratum_ls cortex_x3, ERRATUM(2070301), CPU_REV(1, 2)
-
 workaround_reset_start cortex_x3, ERRATUM(2266875), ERRATA_X3_2266875
         sysreg_bit_set CORTEX_X3_CPUACTLR_EL1, BIT(22)
 workaround_reset_end cortex_x3, ERRATUM(2266875)

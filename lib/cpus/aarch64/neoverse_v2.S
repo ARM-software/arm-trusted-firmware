@@ -24,13 +24,6 @@
 
 cpu_reset_prologue neoverse_v2
 
-workaround_reset_start neoverse_v2, ERRATUM(2331132), ERRATA_V2_2331132
-	sysreg_bitfield_insert NEOVERSE_V2_CPUECTLR2_EL1, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_CNSRV, \
-		NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_LSB, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_WIDTH
-workaround_reset_end neoverse_v2, ERRATUM(2331132)
-
-check_erratum_ls neoverse_v2, ERRATUM(2331132), CPU_REV(0, 2)
-
 workaround_reset_start neoverse_v2, ERRATUM(2618597), ERRATA_V2_2618597
         /* Disable retention control for WFI and WFE. */
         mrs     x0, NEOVERSE_V2_CPUPWRCTLR_EL1

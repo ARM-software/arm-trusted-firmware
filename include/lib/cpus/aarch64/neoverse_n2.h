@@ -62,9 +62,6 @@
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
 #define NEOVERSE_N2_CPUECTLR2_EL1			S3_0_C15_C1_5
-#define NEOVERSE_N2_CPUECTLR2_EL1_PF_MODE_CNSRV		ULL(9)
-#define CPUECTLR2_EL1_PF_MODE_LSB			U(11)
-#define CPUECTLR2_EL1_PF_MODE_WIDTH			U(4)
 #define CPUECTLR2_EL1_TXREQ_STATIC_FULL 		ULL(0)
 #define CPUECTLR2_EL1_TXREQ_LSB				U(0)
 #define CPUECTLR2_EL1_TXREQ_WIDTH			U(3)
