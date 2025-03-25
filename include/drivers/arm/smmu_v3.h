@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -58,6 +58,8 @@
 
 /* SMMU_ROOT_IDR0 register fields */
 #define SMMU_ROOT_IDR0_ROOT_IMPL	(1UL << 0)
+#define SMMU_ROOT_IDR0_BA_REALM_SHIFT	22U
+#define SMMU_ROOT_IDR0_BA_REALM_MASK	GENMASK_32(31U, SMMU_ROOT_IDR0_BA_REALM_SHIFT)
 
 /* SMMU_ROOT_CR0 register fields */
 #define SMMU_ROOT_CR0_GPCEN		(1UL << 1)

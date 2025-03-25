@@ -14,6 +14,7 @@
 #include <drivers/arm/ccn.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/arm/sp804_delay_timer.h>
+#include <drivers/arm/smmu_v3.h>
 #include <drivers/generic_delay_timer.h>
 #include <fconf_hw_config_getter.h>
 #include <lib/mmio.h>
@@ -42,6 +43,15 @@
 #define FVP_RMM_CONSOLE_CLK_IN_HZ	UL(14745600)
 #define FVP_RMM_CONSOLE_NAME		"pl011"
 #define FVP_RMM_CONSOLE_COUNT		UL(1)
+
+/* Defines for RMM PCIe ECAM */
+#define FVP_RMM_ECAM_BASE		PCIE_EXP_BASE
+#define FVP_RMM_ECAM_SEGMENT		UL(0x0)
+#define FVP_RMM_ECAM_BDF		UL(0x0)
+
+/* Defines for RMM SMMUv3 */
+#define FVP_RMM_SMMU_BASE		PLAT_FVP_SMMUV3_BASE
+#define FVP_RMM_SMMU_COUNT		UL(1)
 
 /*******************************************************************************
  * arm_config holds the characteristics of the differences between the three FVP
@@ -563,6 +573,41 @@ int32_t plat_get_soc_revision(void)
 }
 
 #if ENABLE_RME
+
+/* BDF mappings for RP0 RC0 */
+const struct bdf_mapping_info rc0rp0_bdf_data[] = {
+	/* BDF0 */
+	{0U,		/* mapping_base */
+	 0x8000U,	/* mapping_top */
+	 0U,		/* mapping_off */
+	 0U		/* smmu_idx */
+	}
+};
+
+/* Root ports for RC0 */
+const struct root_port_info rc0rp_data[] = {
+	/* RP0 */
+	{0U,						/* root_port_id */
+	 0U,						/* padding */
+	 ARRAY_SIZE(rc0rp0_bdf_data),			/* num_bdf_mappings */
+	 (struct bdf_mapping_info *)rc0rp0_bdf_data	/* bdf_mappings */
+	}
+};
+
+/* Root complexes */
+const struct root_complex_info rc_data[] = {
+	/* RC0 */
+	{PCIE_EXP_BASE,				/* ecam_base */
+	 0U,					/* segment */
+	 {0U, 0U, 0U},				/* padding */
+	 ARRAY_SIZE(rc0rp_data),		/* num_root_ports */
+	 (struct root_port_info *)rc0rp_data	/* root_ports */
+	}
+};
+
+/* Number of PCIe Root Complexes */
+#define FVP_RMM_RC_COUNT	ARRAY_SIZE(rc_data)
+
 /*
  * Get a pointer to the RMM-EL3 Shared buffer and return it
  * through the pointer passed as parameter.
@@ -593,14 +638,14 @@ static uint64_t checksum_calc(uint64_t *buffer, size_t size)
 	return sum;
 }
 /*
- * Boot Manifest structure illustration, with two DRAM banks,
+ * Boot Manifest v0.5 structure illustration, with two DRAM banks,
  * a single console and one device memory with two PCIe device
  * non-coherent address ranges.
  *
  * +--------------------------------------------------+
  * | offset |        field       |      comment       |
  * +--------+--------------------+--------------------+
- * |   0    |       version      |     0x00000004     |
+ * |   0    |       version      |     0x00000005     |
  * +--------+--------------------+--------------------+
  * |   4    |       padding      |     0x00000000     |
  * +--------+--------------------+--------------------+
@@ -629,42 +674,95 @@ static uint64_t checksum_calc(uint64_t *buffer, size_t size)
  * |   96   |       banks        |   plat_coh_region  |  |  |  |
  * +--------+--------------------+                    |  |  |  |
  * |   104  |      checksum      |                    |  |  |  |
- * +--------+--------------------+--------------------+<-+  |  |
- * |   112  |       base 0       |                    |     |  |
- * +--------+--------------------+     mem_bank[0]    |     |  |
- * |   120  |       size 0       |                    |     |  |
- * +--------+--------------------+--------------------+     |  |
- * |   128  |       base 1       |                    |     |  |
- * +--------+--------------------+     mem_bank[1]    |     |  |
- * |   136  |       size 1       |                    |     |  |
- * +--------+--------------------+--------------------+<----+  |
- * |   144  |       base         |                    |        |
- * +--------+--------------------+                    |        |
- * |   152  |      map_pages     |                    |        |
- * +--------+--------------------+                    |        |
- * |   160  |       name         |                    |        |
- * +--------+--------------------+     consoles[0]    |        |
- * |   168  |     clk_in_hz      |                    |        |
- * +--------+--------------------+                    |        |
- * |   176  |     baud_rate      |                    |        |
- * +--------+--------------------+                    |        |
- * |   184  |       flags        |                    |        |
- * +--------+--------------------+--------------------+<-------+
- * |   192  |       base 0       |                    |
- * +--------+--------------------+   ncoh_region[0]   |
- * |   200  |       size 0       |                    |
- * +--------+--------------------+--------------------+
- * |   208  |       base 1       |                    |
- * +--------+--------------------+   ncoh_region[1]   |
- * |   216  |       size 1       |                    |
+ * +--------+--------------------+--------------------+  |  |  |
+ * |   112  |     num_smmus      |                    |  |  |  |
+ * +--------+--------------------+                    |  |  |  |
+ * |   120  |       smmus        |     plat_smmu      +--|--|--|--+
+ * +--------+--------------------+                    |  |  |  |  |
+ * |   128  |      checksum      |                    |  |  |  |  |
+ * +--------+--------------------+--------------------+  |  |  |  |
+ * |   136  |  num_root_complex  |                    |  |  |  |  |
+ * +--------+--------------------+                    |  |  |  |  |
+ * |   144  |   rc_info_version  |                    |  |  |  |  |
+ * +--------+--------------------+                    |  |  |  |  |
+ * |   148  |      padding       | plat_root_complex  +--|--|--|--|--+
+ * +--------+--------------------+                    |  |  |  |  |  |
+ * |   152  |    root_complex    |                    |  |  |  |  |  |
+ * +--------+--------------------+                    |  |  |  |  |  |
+ * |   160  |      checksum      |                    |  |  |  |  |  |
+ * +--------+--------------------+--------------------+<-+  |  |  |  |
+ * |   168  |       base 0       |                    |     |  |  |  |
+ * +--------+--------------------+     mem_bank[0]    |     |  |  |  |
+ * |   176  |       size 0       |                    |     |  |  |  |
+ * +--------+--------------------+--------------------+     |  |  |  |
+ * |   184  |       base 1       |                    |     |  |  |  |
+ * +--------+--------------------+     mem_bank[1]    |     |  |  |  |
+ * |   192  |       size 1       |                    |     |  |  |  |
+ * +--------+--------------------+--------------------+<----+  |  |  |
+ * |   200  |       base         |                    |        |  |  |
+ * +--------+--------------------+                    |        |  |  |
+ * |   208  |      map_pages     |                    |        |  |  |
+ * +--------+--------------------+                    |        |  |  |
+ * |   216  |       name         |                    |        |  |  |
+ * +--------+--------------------+     consoles[0]    |        |  |  |
+ * |   224  |     clk_in_hz      |                    |        |  |  |
+ * +--------+--------------------+                    |        |  |  |
+ * |   232  |     baud_rate      |                    |        |  |  |
+ * +--------+--------------------+                    |        |  |  |
+ * |   240  |       flags        |                    |        |  |  |
+ * +--------+--------------------+--------------------+<-------+  |  |
+ * |   248  |       base 0       |                    |           |  |
+ * +--------+--------------------+    ncoh_region[0]  |           |  |
+ * |   256  |       size 0       |                    |           |  |
+ * +--------+--------------------+--------------------+           |  |
+ * |   264  |       base 1       |                    |           |  |
+ * +--------+--------------------+    ncoh_region[1]  |           |  |
+ * |   272  |       size 1       |                    |           |  |
+ * +--------+--------------------+--------------------+<----------+  |
+ * |   280  |     smmu_base      |                    |              |
+ * +--------+--------------------+      smmus[0]      |              |
+ * |   288  |     smmu_r_base    |                    |              |
+ * +--------+--------------------+--------------------+<-------------+
+ * |   296  |     ecam_base      |                    |
+ * +--------+--------------------+                    |
+ * |   304  |      segment       |                    |
+ * +--------+--------------------+                    |
+ * |   305  |      padding       |   root_complex[0]  +--+
+ * +--------+--------------------+                    |  |
+ * |   308  |   num_root_ports   |                    |  |
+ * +--------+--------------------+                    |  |
+ * |   312  |     root_ports     |                    |  |
+ * +--------+--------------------+--------------------+<-+
+ * |   320  |    root_port_id    |                    |
+ * +--------+--------------------+                    |
+ * |   322  |      padding       |                    |
+ * +--------+--------------------+   root_ports[0]    +--+
+ * |   324  |  num_bdf_mappings  |                    |  |
+ * +--------+--------------------+                    |  |
+ * |   328  |    bdf_mappings    |                    |  |
+ * +--------+--------------------+--------------------+<-+
+ * |   336  |    mapping_base    |                    |
+ * +--------+--------------------+                    |
+ * |   338  |    mapping_top     |                    |
+ * +--------+--------------------+   bdf_mappings[0]  |
+ * |   340  |    mapping_off     |                    |
+ * +--------+--------------------+                    |
+ * |   342  |     smmu_idx       |                    |
  * +--------+--------------------+--------------------+
  */
 int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 {
 	uint64_t checksum, num_banks, num_consoles;
 	uint64_t num_ncoh_regions, num_coh_regions;
-	struct memory_bank *bank_ptr, *ncoh_region_ptr;
+	uint64_t num_smmus, num_root_complex;
+	unsigned int num_root_ports, num_bdf_mappings;
+	uint32_t o_realm;
+	struct memory_bank *bank_ptr, *ncoh_region_ptr, *coh_region_ptr;
 	struct console_info *console_ptr;
+	struct smmu_info *smmu_ptr;
+	struct root_complex_info *root_complex_ptr, *rc_ptr;
+	struct root_port_info *root_port_ptr, *rp_ptr;
+	struct bdf_mapping_info *bdf_mapping_ptr, *bdf_ptr;
 
 	assert(manifest != NULL);
 
@@ -678,12 +776,36 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	/* Set number of device non-coherent address ranges based on DT */
 	num_ncoh_regions = FCONF_GET_PROPERTY(hw_config, pci_props, num_ncoh_regions);
 
+	/* Set number of SMMUs */
+	num_smmus = FVP_RMM_SMMU_COUNT;
+
+	/* Set number of PCIe root complexes */
+	num_root_complex = FVP_RMM_RC_COUNT;
+
+	/* Calculate and set number of all PCIe root ports and BDF mappings */
+	num_root_ports = 0U;
+	num_bdf_mappings = 0U;
+
+	/* Scan all root complex entries */
+	for (unsigned long i = 0UL; i < num_root_complex; i++) {
+		num_root_ports += rc_data[i].num_root_ports;
+
+		/* Scan all root ports entries in root complex */
+		for (unsigned int j = 0U; j < rc_data[i].num_root_ports; j++) {
+			num_bdf_mappings += rc_data[i].root_ports[j].num_bdf_mappings;
+		}
+	}
+
 	manifest->version = RMMD_MANIFEST_VERSION;
 	manifest->padding = 0U; /* RES0 */
 	manifest->plat_data = 0UL;
 	manifest->plat_dram.num_banks = num_banks;
 	manifest->plat_console.num_consoles = num_consoles;
 	manifest->plat_ncoh_region.num_banks = num_ncoh_regions;
+	manifest->plat_smmu.num_smmus = num_smmus;
+	manifest->plat_root_complex.num_root_complex = num_root_complex;
+	manifest->plat_root_complex.rc_info_version = PCIE_RC_INFO_VERSION;
+	manifest->plat_root_complex.padding = 0U; /* RES0 */
 
 	/* FVP does not support device coherent address ranges */
 	num_coh_regions = 0UL;
@@ -699,9 +821,27 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	ncoh_region_ptr = (struct memory_bank *)
 			((uintptr_t)console_ptr + (num_consoles *
 						sizeof(struct console_info)));
+	coh_region_ptr = (struct memory_bank *)
+			((uintptr_t)ncoh_region_ptr + (num_ncoh_regions *
+						sizeof(struct memory_bank)));
+	smmu_ptr = (struct smmu_info *)
+			((uintptr_t)coh_region_ptr + (num_coh_regions *
+						sizeof(struct memory_bank)));
+	root_complex_ptr = (struct root_complex_info *)
+			((uintptr_t)smmu_ptr + (num_smmus *
+						sizeof(struct smmu_info)));
+	root_port_ptr = (struct	root_port_info *)
+			((uintptr_t)root_complex_ptr + (num_root_complex *
+						sizeof(struct root_complex_info)));
+	bdf_mapping_ptr = (struct bdf_mapping_info *)
+			((uintptr_t)root_port_ptr + (num_root_ports *
+						sizeof(struct root_port_info)));
+
 	manifest->plat_dram.banks = bank_ptr;
 	manifest->plat_console.consoles = console_ptr;
 	manifest->plat_ncoh_region.banks = ncoh_region_ptr;
+	manifest->plat_smmu.smmus = smmu_ptr;
+	manifest->plat_root_complex.root_complex = root_complex_ptr;
 
 	/* Ensure the manifest is not larger than the shared buffer */
 	assert((sizeof(struct rmm_manifest) +
@@ -712,7 +852,13 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 		(sizeof(struct memory_bank) *
 			manifest->plat_ncoh_region.num_banks) +
 		(sizeof(struct memory_bank) *
-			manifest->plat_coh_region.num_banks))
+			manifest->plat_coh_region.num_banks) +
+		(sizeof(struct smmu_info) *
+			manifest->plat_smmu.num_smmus) +
+		(sizeof(struct root_complex_info) *
+			manifest->plat_root_complex.num_root_complex) +
+		(sizeof(struct root_port_info) * num_root_ports) +
+		(sizeof(struct bdf_mapping_info) * num_bdf_mappings))
 		<= ARM_EL3_RMM_SHARED_SIZE);
 
 	/* Calculate checksum of plat_dram structure */
@@ -775,6 +921,87 @@ int plat_rmmd_load_manifest(struct rmm_manifest *manifest)
 	/* Checksum must be 0 */
 	manifest->plat_ncoh_region.checksum = ~checksum + 1UL;
 
+	/* Calculate the checksum of the plat_smmu structure */
+	checksum = num_smmus + (uint64_t)smmu_ptr;
+
+	smmu_ptr[0].smmu_base = FVP_RMM_SMMU_BASE;
+
+	/* Read SMMU_ROOT_IDR0.BA_REALM[31:22] register field */
+	o_realm = mmio_read_32(FVP_RMM_SMMU_BASE + SMMU_ROOT_IDR0) &
+				SMMU_ROOT_IDR0_BA_REALM_MASK;
+	/*
+	 * Calculate the base address offset of Realm Register Page 0.
+	 * O_REALM = 0x20000 + (BA_REALM * 0x10000)
+	 * SMMU_REALM_BASE = SMMU_PAGE_0_BASE + O_REALM
+	 */
+	o_realm = 0x20000 + (o_realm >> (SMMU_ROOT_IDR0_BA_REALM_SHIFT - 16U));
+
+	smmu_ptr[0].smmu_r_base = FVP_RMM_SMMU_BASE + o_realm;
+
+	/* Update checksum */
+	checksum += checksum_calc((uint64_t *)smmu_ptr,
+					sizeof(struct smmu_info) * num_smmus);
+	/* Checksum must be 0 */
+	manifest->plat_smmu.checksum = ~checksum + 1UL;
+
+	/* Calculate the checksum of the plat_root_complex structure */
+	checksum = num_root_complex + (uint64_t)root_complex_ptr;
+
+	/* Zero out PCIe root complex info structures */
+	(void)memset((void *)root_complex_ptr, 0,
+			sizeof(struct root_complex_info) * num_root_complex);
+
+	/* Set pointers for data in manifest */
+	rc_ptr = root_complex_ptr;
+	rp_ptr = root_port_ptr;
+	bdf_ptr = bdf_mapping_ptr;
+
+	/* Fill PCIe root complex info structures */
+	for (unsigned long i = 0U; i < num_root_complex; i++) {
+		const struct root_complex_info *rc_info = &rc_data[i];
+		const struct root_port_info *rp_info = rc_info->root_ports;
+
+		/* Copy root complex data, except root_ports pointer */
+		(void)memcpy((void *)rc_ptr, (void *)rc_info,
+			sizeof(struct root_complex_info) - sizeof(struct root_port_info *));
+
+		/* Set root_ports for root complex */
+		rc_ptr->root_ports = rp_ptr;
+
+		/* Scan root ports */
+		for (unsigned int j = 0U; j < rc_ptr->num_root_ports; j++) {
+			const struct bdf_mapping_info *bdf_info = rp_info->bdf_mappings;
+
+			/* Copy root port data, except bdf_mappings pointer */
+			(void)memcpy((void *)rp_ptr, (void *)rp_info,
+				sizeof(struct root_port_info) - sizeof(struct bdf_mapping_info *));
+
+			/* Set bdf_mappings for root port */
+			rp_ptr->bdf_mappings = bdf_ptr;
+
+			/* Copy all BDF mappings for root port */
+			(void)memcpy((void *)bdf_ptr, (void *)bdf_info,
+				sizeof(struct bdf_mapping_info) * rp_ptr->num_bdf_mappings);
+
+			bdf_ptr += rp_ptr->num_bdf_mappings;
+			rp_ptr++;
+			rp_info++;
+		}
+		rc_ptr++;
+	}
+
+	/* Check that all data are written in manifest */
+	assert(rc_ptr == (root_complex_ptr + num_root_complex));
+	assert(rp_ptr == (root_port_ptr + num_root_ports));
+	assert(bdf_ptr == (bdf_mapping_ptr + num_bdf_mappings));
+
+	/* Update checksum for all PCIe data */
+	checksum += checksum_calc((uint64_t *)root_complex_ptr,
+				(uintptr_t)bdf_ptr - (uintptr_t)root_complex_ptr);
+
+	/* Checksum must be 0 */
+	manifest->plat_root_complex.checksum = ~checksum + 1UL;
+
 	return 0;
 }
 
@@ -789,4 +1016,4 @@ int plat_rmmd_mecid_key_update(uint16_t mecid)
 	 */
 	return 0;
 }
-#endif	/* ENABLE_RME */
+#endif /* ENABLE_RME */

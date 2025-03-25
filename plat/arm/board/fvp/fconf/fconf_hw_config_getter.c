@@ -343,7 +343,7 @@ int fconf_populate_dram_layout(uintptr_t config)
 	for (unsigned long i = 0UL; i < dram_layout.num_banks; i++) {
 		int err = fdt_get_reg_props_by_index(
 				hw_config_dtb, node, (int)i,
-				&dram_layout.dram_bank[i].base,
+				(uintptr_t *)&dram_layout.dram_bank[i].base,
 				(size_t *)&dram_layout.dram_bank[i].size);
 		if (err < 0) {
 			ERROR("FCONF: Failed to read 'reg' property #%lu of 'memory' node\n", i);

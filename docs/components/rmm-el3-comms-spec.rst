@@ -768,47 +768,53 @@ _____
 RMM-EL3 Boot Manifest structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The RMM-EL3 Boot Manifest v0.4 structure contains platform boot information passed
-from EL3 to RMM. The size of the Boot Manifest is 112 bytes.
+The RMM-EL3 Boot Manifest v0.5 structure contains platform boot information passed
+from EL3 to RMM. The size of the Boot Manifest is 160 bytes.
 
 The members of the RMM-EL3 Boot Manifest structure are shown in the following
 table:
 
-+--------------------+--------+-------------------+----------------------------------------------+
-|   Name             | Offset |       Type        |            Description                       |
-+====================+========+===================+==============================================+
-| version            |   0    |      uint32_t     | Boot Manifest version                        |
-+--------------------+--------+-------------------+----------------------------------------------+
-| padding            |   4    |      uint32_t     | Reserved, set to 0                           |
-+--------------------+--------+-------------------+----------------------------------------------+
-| plat_data          |   8    |     uintptr_t     | Pointer to Platform Data section             |
-+--------------------+--------+-------------------+----------------------------------------------+
-| plat_dram          |   16   |    memory_info    | NS DRAM Layout Info structure                |
-+--------------------+--------+-------------------+----------------------------------------------+
-| plat_console       |   40   |   console_list    | List of consoles available to RMM            |
-+--------------------+--------+-------------------+----------------------------------------------+
-| plat_ncoh_region   |   64   |    memory_info    | Device non-coherent ranges Info structure    |
-+--------------------+--------+-------------------+----------------------------------------------+
-| plat_coh_region    |   88   |    memory_info    | Device coherent ranges Info structure        |
-+--------------------+--------+-------------------+----------------------------------------------+
++-------------------+--------+-------------------+----------------------------------------------+
+|        Name       | Offset |       Type        |                 Description                  |
++===================+========+===================+==============================================+
+| version           |   0    |      uint32_t     | Boot Manifest version                        |
++-------------------+--------+-------------------+----------------------------------------------+
+| padding           |   4    |      uint32_t     | Reserved, set to 0                           |
++-------------------+--------+-------------------+----------------------------------------------+
+| plat_data         |   8    |      uint64_t     | Pointer to Platform Data section             |
++-------------------+--------+-------------------+----------------------------------------------+
+| plat_dram         |   16   |    memory_info    | NS DRAM Layout Info structure                |
++-------------------+--------+-------------------+----------------------------------------------+
+| plat_console      |   40   |   console_list    | List of consoles available to RMM            |
++-------------------+--------+-------------------+----------------------------------------------+
+| plat_ncoh_region  |   64   |    memory_info    | Device non-coherent ranges Info structure    |
++-------------------+--------+-------------------+----------------------------------------------+
+| plat_coh_region   |   88   |    memory_info    | Device coherent ranges Info structure        |
++-------------------+--------+-------------------+----------------------------------------------+
+| plat_smmu         |   112  |     smmu_list     | List of SMMUs available to RMM               |
+|                   |        |                   | (from Boot Manifest v0.5)                    |
++-------------------+--------+-------------------+----------------------------------------------+
+| plat_root_complex |   136  | root_complex_list | List of PCIe root complexes available to RMM |
+|                   |        |                   | (from Boot Manifest v0.5)                    |
++-------------------+--------+-------------------+----------------------------------------------+
 
 .. _memory_info_struct:
 
 Memory Info structure
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 Memory Info structure contains information about platform memory layout.
 The members of this structure are shown in the table below:
 
-+-----------+--------+----------------+----------------------------------------+
-|   Name    | Offset |     Type       |               Description              |
-+===========+========+================+========================================+
-| num_banks |   0    |   uint64_t     | Number of memory banks/device regions  |
-+-----------+--------+----------------+----------------------------------------+
-| banks     |   8    |  memory_bank * | Pointer to 'memory_bank'[] array       |
-+-----------+--------+----------------+----------------------------------------+
-| checksum  |   16   |   uint64_t     | Checksum                               |
-+-----------+--------+----------------+----------------------------------------+
++-----------+--------+---------------+----------------------------------------+
+|   Name    | Offset |     Type      |              Description               |
++===========+========+===============+========================================+
+| num_banks |   0    |    uint64_t   | Number of memory banks/device regions  |
++-----------+--------+---------------+----------------------------------------+
+| banks     |   8    | memory_bank * | Pointer to 'memory_bank'[] array       |
++-----------+--------+---------------+----------------------------------------+
+| checksum  |   16   |    uint64_t   | Checksum                               |
++-----------+--------+---------------+----------------------------------------+
 
 Checksum is calculated as two's complement sum of 'num_banks', 'banks' pointer
 and memory banks data array pointed by it.
@@ -820,13 +826,13 @@ Memory Bank/Device region structure
 
 Memory Bank structure contains information about each memory bank/device region:
 
-+-----------+--------+----------------+--------------------------------------------+
-|   Name    | Offset |     Type       |                Description                 |
-+===========+========+================+============================================+
-|   base    |   0    |   uintptr_t    | Base address                               |
-+-----------+--------+----------------+--------------------------------------------+
-|   size    |   8    |   uint64_t     | Size of memory bank/device region in bytes |
-+-----------+--------+----------------+--------------------------------------------+
++------+--------+----------+--------------------------------------------+
+| Name | Offset |   Type   |                Description                 |
++======+========+==========+============================================+
+| base |   0    | uint64_t | Base address                               |
++------+--------+----------+--------------------------------------------+
+| size |   8    | uint64_t | Size of memory bank/device region in bytes |
++------+--------+----------+--------------------------------------------+
 
 .. _console_list_struct:
 
@@ -836,15 +842,15 @@ Console List structure
 Console List structure contains information about the available consoles for RMM.
 The members of this structure are shown in the table below:
 
-+--------------+--------+----------------+-------------------------------------+
-|   Name       | Offset |     Type       |               Description           |
-+==============+========+================+=====================================+
-| num_consoles |   0    |   uint64_t     | Number of consoles                  |
-+--------------+--------+----------------+-------------------------------------+
-| consoles     |   8    | console_info * | Pointer to 'console_info'[] array   |
-+--------------+--------+----------------+-------------------------------------+
-| checksum     |   16   |   uint64_t     | Checksum                            |
-+--------------+--------+----------------+-------------------------------------+
++--------------+--------+----------------+-----------------------------------+
+|   Name       | Offset |     Type       |           Description             |
++==============+========+================+===================================+
+| num_consoles |   0    |   uint64_t     | Number of consoles                |
++--------------+--------+----------------+-----------------------------------+
+| consoles     |   8    | console_info * | Pointer to 'console_info'[] array |
++--------------+--------+----------------+-----------------------------------+
+| checksum     |   16   |   uint64_t     | Checksum                          |
++--------------+--------+----------------+-----------------------------------+
 
 Checksum is calculated as two's complement sum of 'num_consoles', 'consoles'
 pointer and the consoles array pointed by it.
@@ -856,21 +862,144 @@ Console Info structure
 
 Console Info structure contains information about each Console available to RMM.
 
-+-----------+--------+---------------+-----------------------------------------+
-|   Name    | Offset |     Type      |               Description               |
-+===========+========+===============+=========================================+
-| base      |   0    |   uintptr_t   | Console Base address                    |
-+-----------+--------+---------------+-----------------------------------------+
-| map_pages |   8    |   uint64_t    | Num of pages to map for console MMIO    |
-+-----------+--------+---------------+-----------------------------------------+
-| name      |   16   |   char[8]     | Name of console                         |
-+-----------+--------+---------------+-----------------------------------------+
-| clk_in_hz |   24   |   uint64_t    | UART clock (in Hz) for console          |
-+-----------+--------+---------------+-----------------------------------------+
-| baud_rate |   32   |   uint64_t    | Baud rate                               |
-+-----------+--------+---------------+-----------------------------------------+
-| flags     |   40   |   uint64_t    | Additional flags (RES0)                 |
-+-----------+--------+---------------+-----------------------------------------+
++-----------+--------+----------+--------------------------------------+
+|   Name    | Offset |   Type   |             Description              |
++===========+========+==========+======================================+
+| base      |   0    | uint64_t | Console Base address                 |
++-----------+--------+----------+--------------------------------------+
+| map_pages |   8    | uint64_t | Num of pages to map for console MMIO |
++-----------+--------+----------+--------------------------------------+
+| name      |   16   | char[8]  | Name of console                      |
++-----------+--------+----------+--------------------------------------+
+| clk_in_hz |   24   | uint64_t | UART clock (in Hz) for console       |
++-----------+--------+----------+--------------------------------------+
+| baud_rate |   32   | uint64_t | Baud rate                            |
++-----------+--------+----------+--------------------------------------+
+| flags     |   40   | uint64_t | Additional flags (RES0)              |
++-----------+--------+----------+--------------------------------------+
+
+.. _smmu_list_struct:
+
+SMMU List structure
+~~~~~~~~~~~~~~~~~~~
+
+SMMU List structure contains information about SMMUs available for RMM.
+The members of this structure are shown in the table below:
+
++-----------+--------+-------------+--------------------------------+
+|    Name   | Offset |     Type    |          Description           |
++===========+========+=============+================================+
+| num_smmus |   0    |   uint64_t  | Number of SMMUs                |
++-----------+--------+-------------+--------------------------------+
+| smmus     |   8    | smmu_info * | Pointer to 'smmu_info'[] array |
++-----------+--------+-------------+--------------------------------+
+| checksum  |   16   |   uint64_t  | Checksum                       |
++-----------+--------+-------------+--------------------------------+
+
+.. _smmu_info_struct:
+
+SMMU Info structure
+~~~~~~~~~~~~~~~~~~~
+
+SMMU Info structure contains information about each SMMU available to RMM.
+
++-------------+--------+----------+-------------------------------+
+|    Name     | Offset |   Type   |          Description          |
++=============+========+==========+===============================+
+| smmu_base   |   0    | uint64_t | SMMU Base address             |
++-------------+--------+----------+-------------------------------+
+| smmu_r_base |   8    | uint64_t | SMMU Realm Pages base address |
++-------------+--------+----------+-------------------------------+
+
+.. _root_complex_list_struct:
+
+Root Complex List structure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Root Complex List structure contains information about PCIe root complexes available for RMM.
+The members of this structure are shown in the table below.
+
++------------------+--------+---------------------+-------------------------------------+
+|       Name       | Offset |        Type         |           Description               |
++==================+========+=====================+=====================================+
+| num_root_complex |   0    |      uint64_t       | Number of root complexes            |
++------------------+--------+---------------------+-------------------------------------+
+| rc_info_version  |   8    |      uint32_t       | Root Complex Info structure version |
++------------------+--------+---------------------+-------------------------------------+
+| padding          |   12   |      uint32_t       | Reserved, set to 0                  |
++------------------+--------+---------------------+-------------------------------------+
+| root_complex     |   16   | root_complex_info * | Pointer to 'root_complex'[] array   |
++------------------+--------+---------------------+-------------------------------------+
+| checksum         |   24   |      uint64_t       | Checksum                            |
++------------------+--------+---------------------+-------------------------------------+
+
+The checksum calculation of Root Complex List structure includes all data structures
+referenced by 'root_complex_info' pointer.
+
+.. _root_complex_info_struct:
+
+Root Complex Info structure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Root Complex Info structure contains information about each PCIe root complex available to RMM.
+The table below describes the members of this structure as per v0.1.
+
++-----------------+--------+------------------+-------------------------------------+
+|    Name         | Offset |       Type       |               Description           |
++=================+========+==================+=====================================+
+| ecam_base       |   0    |     uint64_t     | PCIe ECAM Base address              |
++-----------------+--------+------------------+-------------------------------------+
+| segment         |   8    |     uint8_t      | PCIe segment identifier             |
++-----------------+--------+------------------+-------------------------------------+
+| padding[3]      |   9    |     uint8_t      | Reserved, set to 0                  |
++-----------------+--------+------------------+-------------------------------------+
+| num_root_ports  |   12   |     uint32_t     | Number of root ports                |
++-----------------+--------+------------------+-------------------------------------+
+| root_ports      |   16   | root_port_info * | Pointer to 'root_port_info'[] array |
++-----------------+--------+------------------+-------------------------------------+
+
+The Root Complex Info structure version uses the same numbering scheme as described in
+:ref:`rmm_el3_ifc_versioning`.
+
+.. _root_port_info_struct:
+
+Root Port Info structure
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Root Complex Info structure contains information about each root port in PCIe root complex.
+
++------------------+--------+--------------------+---------------------------------------+
+|      Name        | Offset |       Type         |              Description              |
++==================+========+====================+=======================================+
+| root_port_id     |   0    |     uint16_t       | Root Port identifier                  |
++------------------+--------+--------------------+---------------------------------------+
+| padding          |   2    |     uint16_t       | Reserved, set to 0                    |
++------------------+--------+--------------------+---------------------------------------+
+| num_bdf_mappings |   4    |     uint32_t       | Number of BDF mappings                |
++------------------+--------+--------------------+---------------------------------------+
+| bdf_mappings     |   8    | bdf_mapping_info * | Pointer to 'bdf_mapping_info'[] array |
++------------------+--------+--------------------+---------------------------------------+
+
+.. _bdf_mapping_info_struct:
+
+BDF Mapping Info structure
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+BDF Mapping Info structure contains information about each Device-Bus-Function (BDF) mapping
+for PCIe root port.
+
++--------------+--------+----------+------------------------------------------------------+
+|     Name     | Offset |   Type   |                     Description                      |
++==============+========+==========+======================================================+
+| mapping_base |   0    | uint16_t | Base of BDF mapping (inclusive)                      |
++--------------+--------+----------+------------------------------------------------------+
+| mapping_top  |   2    | uint16_t | Top of BDF mapping (exclusive)                       |
++--------------+--------+----------+------------------------------------------------------+
+| mapping_off  |   4    | uint16_t | Mapping offset, as per Arm Base System Architecture: |
+|              |        |          | StreamID = RequesterID[N-1:0] + (1<<N)*Constant_B    |
++--------------+--------+----------+------------------------------------------------------+
+| smmu_idx     |   6    | uint16_t | SMMU index in 'smmu_info'[] array                    |
++--------------+--------+----------+------------------------------------------------------+
 
 .. _el3_token_sign_request_struct:
 
