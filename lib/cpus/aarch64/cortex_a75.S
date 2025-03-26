@@ -18,6 +18,8 @@
 #error "Cortex-A75 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+cpu_reset_prologue cortex_a75
+
 workaround_reset_start cortex_a75, ERRATUM(764081), ERRATA_A75_764081
 	sysreg_bit_set sctlr_el3, SCTLR_IESB_BIT
 workaround_reset_end cortex_a75, ERRATUM(764081)

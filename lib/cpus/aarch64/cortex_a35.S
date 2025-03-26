@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
+cpu_reset_prologue cortex_a35
 	/* ---------------------------------------------
 	 * Disable L1 data cache and unified L2 cache
 	 * ---------------------------------------------

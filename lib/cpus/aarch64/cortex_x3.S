@@ -24,13 +24,15 @@
 
 .global check_erratum_cortex_x3_3701769
 
-add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769, NO_APPLY_AT_RESET
+add_erratum_entry cortex_x3, ERRATUM(3701769), ERRATA_X3_3701769
 
 check_erratum_ls cortex_x3, ERRATUM(3701769), CPU_REV(1, 2)
 
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X3_BHB_LOOP_COUNT, cortex_x3
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+cpu_reset_prologue cortex_x3
 
 /* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
 workaround_reset_start cortex_x3, CVE(2024, 5660), WORKAROUND_CVE_2024_5660

@@ -22,6 +22,8 @@
 #error "Cortex X4 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue cortex_x4
+
 .global check_erratum_cortex_x4_2726228
 .global check_erratum_cortex_x4_3701758
 
@@ -122,7 +124,7 @@ workaround_reset_end cortex_x4, CVE(2024, 7881)
 
 check_erratum_chosen cortex_x4, CVE(2024, 7881), WORKAROUND_CVE_2024_7881
 
-add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758, NO_APPLY_AT_RESET
+add_erratum_entry cortex_x4, ERRATUM(3701758), ERRATA_X4_3701758
 
 check_erratum_ls cortex_x4, ERRATUM(3701758), CPU_REV(0, 3)
 

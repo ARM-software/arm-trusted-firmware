@@ -21,9 +21,9 @@
 #error "Cortex-X925 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-.global check_erratum_cortex_x925_3701747
+cpu_reset_prologue cortex_x925
 
-add_erratum_entry cortex_x925, ERRATUM(3701747), ERRATA_X925_3701747, NO_APPLY_AT_RESET
+add_erratum_entry cortex_x925, ERRATUM(3701747), ERRATA_X925_3701747
 
 check_erratum_ls cortex_x925, ERRATUM(3701747), CPU_REV(0, 1)
 

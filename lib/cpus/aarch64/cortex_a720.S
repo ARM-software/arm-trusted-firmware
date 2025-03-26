@@ -22,6 +22,8 @@
 #error "Cortex A720 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue cortex_a720
+
 .global check_erratum_cortex_a720_3699561
 
 #if WORKAROUND_CVE_2022_23960
@@ -74,7 +76,7 @@ workaround_reset_end cortex_a720, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a720, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
-add_erratum_entry cortex_a720, ERRATUM(3699561), ERRATA_A720_3699561, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a720, ERRATUM(3699561), ERRATA_A720_3699561
 
 check_erratum_ls cortex_a720, ERRATUM(3699561), CPU_REV(0, 2)
 

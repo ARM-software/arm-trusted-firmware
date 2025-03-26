@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,8 @@
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A72_BHB_LOOP_COUNT, cortex_a72
 #endif /* WORKAROUND_CVE_2022_23960 */
+
+cpu_reset_prologue cortex_a72
 
 	/* ---------------------------------------------
 	 * Disable L1 data cache and unified L2 cache
@@ -92,7 +94,7 @@ check_erratum_ls cortex_a72, ERRATUM(859971), CPU_REV(0, 3)
 /* Due to the nature of the errata it is applied unconditionally when chosen */
 check_erratum_chosen cortex_a72, ERRATUM(1319367), ERRATA_A72_1319367
 /* erratum workaround is interleaved with generic code */
-add_erratum_entry cortex_a72, ERRATUM(1319367), ERRATA_A72_1319367, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a72, ERRATUM(1319367), ERRATA_A72_1319367
 
 workaround_reset_start cortex_a72, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #if IMAGE_BL31
