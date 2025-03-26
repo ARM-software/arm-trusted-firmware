@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,11 +32,6 @@ func pauth_init_enable_el1
 	/* Enable pointer authentication */
 	mrs	x0, sctlr_el1
 	orr	x0, x0, #SCTLR_EnIA_BIT
-
-#if ENABLE_BTI
-	 /* Enable PAC branch type compatibility */
-	bic	x0, x0, #(SCTLR_BT0_BIT | SCTLR_BT1_BIT)
-#endif
 	msr	sctlr_el1, x0
 	isb
 
@@ -73,11 +68,6 @@ func pauth_init_enable_el3
 	/* Enable pointer authentication */
 	mrs	x0, sctlr_el3
 	orr	x0, x0, #SCTLR_EnIA_BIT
-
-#if ENABLE_BTI
-	 /* Enable PAC branch type compatibility */
-	bic	x0, x0, #SCTLR_BT_BIT
-#endif
 	msr	sctlr_el3, x0
 	isb
 
@@ -130,11 +120,6 @@ func pauth_load_bl1_apiakey_enable
 	/* Enable pointer authentication */
 	mrs	x9, sctlr_el3
 	orr	x9, x9, #SCTLR_EnIA_BIT
-
-#if ENABLE_BTI
-	 /* Enable PAC branch type compatibility */
-	bic	x9, x9, #SCTLR_BT_BIT
-#endif
 	msr	sctlr_el3, x9
 	isb
 	ret

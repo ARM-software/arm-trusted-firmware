@@ -32,10 +32,15 @@
 	 *  load or store one or more registers have an alignment check that the
 	 *  address being accessed is aligned to the size of the data element(s)
 	 *  being accessed.
+	 *
+	 * SCTLR_EL3.BT: PAuth instructions are compatible with bti jc
 	 * ---------------------------------------------------------------------
 	 */
-	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
+	mov_imm	x1, (SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
 	mrs	x0, sctlr_el3
+#if ENABLE_BTI
+	bic	x0, x0, #SCTLR_BT_BIT
+#endif
 	orr	x0, x0, x1
 	msr	sctlr_el3, x0
 	isb
