@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -271,15 +271,7 @@
 	msr	vbar_el3, x0
 	isb
 
-#if !(defined(IMAGE_BL2) && ENABLE_RME)
-	/* ---------------------------------------------------------------------
-	 * It is a cold boot.
-	 * Perform any processor specific actions upon reset e.g. cache, TLB
-	 * invalidations etc.
-	 * ---------------------------------------------------------------------
-	 */
-	bl	reset_handler
-#endif
+	call_reset_handler
 
 	el3_arch_init_common
 

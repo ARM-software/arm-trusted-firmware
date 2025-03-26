@@ -49,8 +49,7 @@
 	 * _midr:
 	 *	Numeric value expected to read from CPU's MIDR
 	 * _resetfunc:
-	 *	Reset function for the CPU. If there's no CPU reset function,
-	 *	specify CPU_NO_RESET_FUNC
+	 *	Reset function for the CPU.
 	 * _extra1:
 	 *	This is a placeholder for future per CPU operations.  Currently,
 	 *	some CPUs use this entry to set a test function to determine if

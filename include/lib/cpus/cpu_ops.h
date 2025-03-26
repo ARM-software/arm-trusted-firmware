@@ -21,8 +21,6 @@
 
 /* The number of CPU operations allowed */
 #define CPU_MAX_PWR_DWN_OPS		2
-/* Special constant to specify that CPU has no reset function */
-#define CPU_NO_RESET_FUNC		0
 
 #if __aarch64__
 #define CPU_NO_EXTRA1_FUNC		0
