@@ -14,37 +14,6 @@
 #include <lib/cpus/errata.h>
 #include <lib/el3_runtime/cpu_data.h>
 
- /* Reset fn is needed in BL at reset vector */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
-	/*
-	 * The reset handler common to all platforms.  After a matching
-	 * cpu_ops structure entry is found, the correponding reset_handler
-	 * in the cpu_ops is invoked.
-	 * Clobbers: x0 - x19, x30
-	 */
-	.globl	reset_handler
-func reset_handler
-	mov	x19, x30
-
-	/* The plat_reset_handler can clobber x0 - x18, x30 */
-	bl	plat_reset_handler
-
-	/* Get the matching cpu_ops pointer */
-	bl	get_cpu_ops_ptr
-
-	/* Get the cpu_ops reset handler */
-	ldr	x2, [x0, #CPU_RESET_FUNC]
-	mov	x30, x19
-	cbz	x2, 1f
-
-	/* The cpu_ops reset handler can clobber x0 - x19, x30 */
-	br	x2
-1:
-	ret
-endfunc reset_handler
-
-#endif
-
 #ifdef IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
 	/*
 	 * void prepare_cpu_pwr_dwn(unsigned int power_level)
@@ -202,6 +171,14 @@ search_def_ptr:
 	mov	x2, #0
 	b	1b
 error_exit:
+#endif
+#if ENABLE_ASSERTIONS
+	/*
+	 * Assert if invalid cpu_ops obtained. If this is not valid, it may
+	 * suggest that the proper CPU file hasn't been included.
+	 */
+	cmp	x0, #0
+	ASM_ASSERT(ne)
 #endif
 	ret
 endfunc get_cpu_ops_ptr
