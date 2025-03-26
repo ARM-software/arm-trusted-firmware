@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,14 +74,6 @@ void tsp_setup(void)
 
 	/* Perform late platform-specific setup. */
 	tsp_plat_arch_setup();
-
-#if ENABLE_PAUTH
-	/*
-	 * Assert that the ARMv8.3-PAuth registers are present or an access
-	 * fault will be triggered when they are being saved or restored.
-	 */
-	assert(is_armv8_3_pauth_present());
-#endif /* ENABLE_PAUTH */
 }
 
 /*******************************************************************************
