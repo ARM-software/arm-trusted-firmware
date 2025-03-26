@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,6 +86,18 @@
 			pages-count = <0x4000>;
 			attributes = <SECURE_RW>;
 		};
+
+		tpm_s_crb {
+			base-address = <0x0 PLAT_SP_PSEUDO_S_CRB_BASE>;
+			pages-count = <0x1>;
+			attributes = <SECURE_RW>;
+		};
+
+		tpm_ns_crb {
+			base-address = <0x0 PLAT_SP_PSEUDO_NS_CRB_BASE>;
+			pages-count = <0x4>;
+			attributes = <NON_SECURE_RW>;
+		};
 	};
 
 	memory-regions {
@@ -139,7 +151,7 @@
 			 */
 			description = "heap";
 			base-address = <0x0 0xFF610000>;
-			pages-count = <0x7F0>;
+			pages-count = <0x7EF>;
 			attributes = <SECURE_RW>;
 		};
 	};
