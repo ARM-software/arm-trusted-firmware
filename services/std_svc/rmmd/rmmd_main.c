@@ -479,6 +479,14 @@ static int rmmd_mecid_key_update(uint64_t mecid)
 	int ret;
 
 	/*
+	 * Check whether FEAT_MEC is supported by the hardware. If not, return
+	 * unknown SMC.
+	 */
+	if (is_feat_mec_supported() == false) {
+		return E_RMM_UNK;
+	}
+
+	/*
 	 * Check whether the mecid parameter is at most MECIDR_EL2.MECIDWidthm1 + 1
 	 * in length.
 	 */
