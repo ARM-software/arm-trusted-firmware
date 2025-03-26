@@ -133,7 +133,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 
 	/* Check status register for each IPI except PMC */
 	for (i = IPI_ID_APU; i <= IPI_ID_5; i++) {
-		ipi_status = (uint32_t)ipi_mb_enquire_status(IPI_ID_APU, i);
+		ipi_status = ipi_mb_enquire_status(IPI_ID_APU, i);
 
 		/* If any agent other than PMC has generated IPI FIQ then send SGI to mbox driver */
 		if ((ipi_status & (uint32_t)IPI_MB_STATUS_RECV_PENDING) > (uint32_t) 0) {
@@ -143,8 +143,8 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 	}
 
 	/* If PMC has not generated interrupt then end ISR */
-	ipi_status = (uint32_t)ipi_mb_enquire_status(IPI_ID_APU, IPI_ID_PMC);
-	if ((ipi_status & (uint32_t) IPI_MB_STATUS_RECV_PENDING) == (uint32_t) 0) {
+	ipi_status = ipi_mb_enquire_status(IPI_ID_APU, IPI_ID_PMC);
+	if ((ipi_status & IPI_MB_STATUS_RECV_PENDING) == (uint32_t)0) {
 		plat_ic_end_of_interrupt(id);
 		goto end;
 	}

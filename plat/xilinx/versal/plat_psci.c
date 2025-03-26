@@ -184,8 +184,8 @@ static void __dead2 versal_system_reset(void)
 		 * not received.
 		 */
 		do {
-			ret = (uint32_t)ipi_mb_enquire_status(primary_proc->ipi->local_ipi_id,
-							      primary_proc->ipi->remote_ipi_id);
+			ret = ipi_mb_enquire_status(primary_proc->ipi->local_ipi_id,
+						    primary_proc->ipi->remote_ipi_id);
 			udelay(100);
 			timeout--;
 		} while ((ret != IPI_MB_STATUS_RECV_PENDING) && (timeout > 0U));

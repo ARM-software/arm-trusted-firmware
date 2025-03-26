@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,7 +61,7 @@ void ipi_mb_open(uint32_t local, uint32_t remote);
 void ipi_mb_release(uint32_t local, uint32_t remote);
 
 /* Enquire IPI mailbox status */
-int ipi_mb_enquire_status(uint32_t local, uint32_t remote);
+uint32_t ipi_mb_enquire_status(uint32_t local, uint32_t remote);
 
 /* Trigger notification on the IPI mailbox */
 void ipi_mb_notify(uint32_t local, uint32_t remote, uint32_t is_blocking);

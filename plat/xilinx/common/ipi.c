@@ -140,13 +140,12 @@ void ipi_mb_release(uint32_t local, uint32_t remote)
  * @local: local IPI ID.
  * @remote: remote IPI ID.
  *
- * Return: 0 idle, positive value for pending sending or receiving,
- *         negative value for errors.
+ * Return: 0 idle and positive value for pending sending or receiving.
  *
  */
-int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
+uint32_t ipi_mb_enquire_status(uint32_t local, uint32_t remote)
 {
-	int ret = (int)PM_RET_SUCCESS;
+	uint32_t ret = (uint32_t)PM_RET_SUCCESS;
 	uint32_t status;
 	uint64_t obr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_OBR_OFFSET);
 	uint64_t isr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_ISR_OFFSET);

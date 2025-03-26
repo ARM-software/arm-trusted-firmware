@@ -132,7 +132,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 	(void)cookie;
 	uint32_t payload[4] = {0};
 	enum pm_ret_status ret;
-	int ipi_status, i;
+	uint32_t ipi_status, i;
 
 	VERBOSE("Received IPI FIQ from firmware\n");
 
@@ -140,11 +140,11 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 	(void)plat_ic_acknowledge_interrupt();
 
 	/* Check status register for each IPI except PMC */
-	for (i = (int32_t)IPI_ID_APU; i <= IPI_ID_5; i++) {
-		ipi_status = ipi_mb_enquire_status(IPI_ID_APU, (uint32_t)i);
+	for (i = IPI_ID_APU; i <= IPI_ID_5; i++) {
+		ipi_status = ipi_mb_enquire_status(IPI_ID_APU, i);
 
 		/* If any agent other than PMC has generated IPI FIQ then send SGI to mbox driver */
-		if ((uint32_t)ipi_status & IPI_MB_STATUS_RECV_PENDING) {
+		if (ipi_status & IPI_MB_STATUS_RECV_PENDING) {
 			plat_ic_raise_ns_sgi((int)MBOX_SGI_SHARED_IPI, read_mpidr_el1());
 			break;
 		}
@@ -152,7 +152,7 @@ static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
 
 	/* If PMC has not generated interrupt then end ISR */
 	ipi_status = ipi_mb_enquire_status(IPI_ID_APU, IPI_ID_PMC);
-	if (((uint32_t)ipi_status & IPI_MB_STATUS_RECV_PENDING) == 0U) {
+	if ((ipi_status & IPI_MB_STATUS_RECV_PENDING) == 0U) {
 		plat_ic_end_of_interrupt(id);
 		goto exit_label;
 	}
@@ -426,7 +426,7 @@ static uintptr_t TF_A_specific_handler(uint32_t api_id, uint32_t *pm_arg,
 		enum pm_ret_status ret;
 
 		ret = pm_get_callbackdata(result, ARRAY_SIZE(result), security_flag, 1U);
-		if (ret != 0) {
+		if (ret != PM_RET_SUCCESS) {
 			result[0] = (uint32_t)ret;
 		}
 
