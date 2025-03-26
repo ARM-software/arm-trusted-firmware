@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,5 +73,6 @@ static const struct ipi_config versal_ipi_table[] = {
  */
 void versal_ipi_config_table_init(void)
 {
-	ipi_config_table_init(versal_ipi_table, ARRAY_SIZE(versal_ipi_table));
+	ipi_config_table_init(versal_ipi_table,
+			      (uint32_t)ARRAY_SIZE(versal_ipi_table));
 }

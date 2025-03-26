@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +22,9 @@
 #include "pm_ipi.h"
 #include "pm_svc_main.h"
 
+#define SEC_ENTRY_ADDRESS_MASK		0xFFFFFFFFUL
+#define RESUME_ADDR_SET			0x1UL
+
 static uintptr_t versal_sec_entry;
 
 static int32_t versal_pwr_domain_on(u_register_t mpidr)
@@ -42,8 +45,9 @@ static int32_t versal_pwr_domain_on(u_register_t mpidr)
 	}
 
 	/* Send request to PMC to wake up selected ACPU core */
-	(void)pm_req_wakeup(proc->node_id, (versal_sec_entry & 0xFFFFFFFFU) | 0x1U,
-			    versal_sec_entry >> 32, 0, SECURE_FLAG);
+	(void)pm_req_wakeup(proc->node_id,
+			    (uint32_t)((versal_sec_entry & SEC_ENTRY_ADDRESS_MASK) |
+			    RESUME_ADDR_SET), versal_sec_entry >> 32, 0, SECURE_FLAG);
 
 	/* Clear power down request */
 	pm_client_wakeup(proc);
@@ -180,8 +184,8 @@ static void __dead2 versal_system_reset(void)
 		 * not received.
 		 */
 		do {
-			ret = ipi_mb_enquire_status(primary_proc->ipi->local_ipi_id,
-						    primary_proc->ipi->remote_ipi_id);
+			ret = (uint32_t)ipi_mb_enquire_status(primary_proc->ipi->local_ipi_id,
+							      primary_proc->ipi->remote_ipi_id);
 			udelay(100);
 			timeout--;
 		} while ((ret != IPI_MB_STATUS_RECV_PENDING) && (timeout > 0U));
@@ -237,7 +241,8 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	ret = pm_feature_check((uint32_t)PM_SELF_SUSPEND, &version_type[0], SECURE_FLAG);
+	ret = (uint32_t)pm_feature_check((uint32_t)PM_SELF_SUSPEND,
+					 &version_type[0], SECURE_FLAG);
 	if (ret == (uint32_t)PM_RET_SUCCESS) {
 		fw_api_version = version_type[0] & 0xFFFFU;
 		if (fw_api_version >= 3U) {
