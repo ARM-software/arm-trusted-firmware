@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -510,8 +510,6 @@ func cortex_a76_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_a76_core_pwr_dwn
-
-errata_report_shim cortex_a76
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a76 specific

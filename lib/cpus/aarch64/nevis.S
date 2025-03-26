@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,8 +39,6 @@ func nevis_core_pwr_dwn
 	isb
 	ret
 endfunc nevis_core_pwr_dwn
-
-errata_report_shim nevis
 
 .section .rodata.nevis_regs, "aS"
 nevis_regs: /* The ASCII list of register names to be reported */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,15 +73,6 @@ func aem_generic_cluster_pwr_dwn
 	mov	x0, #DCCISW
 	b	dcsw_op_all
 endfunc aem_generic_cluster_pwr_dwn
-
-#if REPORT_ERRATA
-/*
- * Errata printing function for AEM. Must follow AAPCS.
- */
-func aem_generic_errata_report
-	ret
-endfunc aem_generic_errata_report
-#endif
 
 	/* ---------------------------------------------
 	 * This function provides cpu specific

@@ -284,8 +284,6 @@ func cortex_a57_cluster_pwr_dwn
 	b	cortex_a57_disable_ext_debug
 endfunc cortex_a57_cluster_pwr_dwn
 
-errata_report_shim cortex_a57
-
 	/* ---------------------------------------------
 	 * This function provides cortex_a57 specific
 	 * register information for crash reporting.
