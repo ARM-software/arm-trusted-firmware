@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -399,7 +399,7 @@ static int load_primary_gpt(uintptr_t image_handle, unsigned int first_lba)
 int load_partition_table(unsigned int image_id)
 {
 	uintptr_t dev_handle, image_handle, image_spec = 0;
-	mbr_entry_t mbr_entry;
+	mbr_entry_t mbr_entry = {0};
 	int result;
 
 	result = plat_get_image_source(image_id, &dev_handle, &image_spec);
