@@ -266,7 +266,6 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 		;
 
 	mmio_write_32(reg_base + INTSIGEN, 0);
-	udelay(1000);
 
 	if (data) {
 		mixctl |= MIXCTRL_DMAEN;
