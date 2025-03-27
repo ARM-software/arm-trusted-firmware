@@ -100,9 +100,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			 *  share it to BL33
 			 */
 			if (arg2 != 0U) {
-				bl33_image_ep_info.args.arg0 = 0U;
+				bl33_image_ep_info.args.arg0 = arg2;
 				bl33_image_ep_info.args.arg1 = 0U;
-				bl33_image_ep_info.args.arg2 = arg2;
+				bl33_image_ep_info.args.arg2 = 0U;
 			}
 		}
 
