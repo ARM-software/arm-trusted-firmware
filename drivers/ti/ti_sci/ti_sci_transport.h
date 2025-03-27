@@ -12,30 +12,23 @@
 #include <stdint.h>
 
 /**
- * enum k3_sec_proxy_chan_id - Secure Proxy thread IDs
+ * enum ti_sci_transport_chan_id - Secure Proxy thread IDs
  *
- * These the available IDs used in k3_sec_proxy_{send,recv}()
- * There are two schemes we use:
- * * if K3_SEC_PROXY_LITE = 1, we just have two threads to talk
- * * if K3_SEC_PROXY_LITE = 0, we have the full fledged
- *   communication scheme available.
+ * These are the available IDs used in ti_sci_transport_{send,recv}()
  */
-enum k3_sec_proxy_chan_id {
+enum ti_sci_transport_chan_id {
 #if !K3_SEC_PROXY_LITE
-	SP_NOTIFY = 0,
-	SP_RESPONSE,
-	SP_HIGH_PRIORITY,
-	SP_LOW_PRIORITY,
-	SP_NOTIFY_RESP,
+	RX_SECURE_TRANSPORT_CHANNEL_ID = 1,
+	TX_SECURE_TRANSPORT_CHANNEL_ID,
 #else
-	SP_RESPONSE = 8,
+	RX_SECURE_TRANSPORT_CHANNEL_ID = 8,
 	/*
 	 * Note: TISCI documentation indicates "low priority", but in reality
 	 * with a single thread, there is no low or high priority.. This usage
 	 * is more appropriate for TF-A since we can reduce the churn as a
 	 * result.
 	 */
-	SP_HIGH_PRIORITY,
+	TX_SECURE_TRANSPORT_CHANNEL_ID,
 #endif /* K3_SEC_PROXY_LITE */
 };
 
@@ -58,7 +51,7 @@ struct ti_sci_msg {
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_transport_clear_rx_thread(enum k3_sec_proxy_chan_id id);
+int ti_sci_transport_clear_rx_thread(enum ti_sci_transport_chan_id id);
 
 /**
  * ti_sci_transport_send() - Send data over mailbox/ Secure Proxy thread
@@ -67,7 +60,7 @@ int ti_sci_transport_clear_rx_thread(enum k3_sec_proxy_chan_id id);
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_transport_send(enum k3_sec_proxy_chan_id id, const struct ti_sci_msg *msg);
+int ti_sci_transport_send(enum ti_sci_transport_chan_id id, const struct ti_sci_msg *msg);
 
 /**
  * ti_sci_transport_recv() - Receive data from a Secure Proxy thread/ mailbox
@@ -76,6 +69,6 @@ int ti_sci_transport_send(enum k3_sec_proxy_chan_id id, const struct ti_sci_msg 
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_transport_recv(enum k3_sec_proxy_chan_id id, struct ti_sci_msg *msg);
+int ti_sci_transport_recv(enum ti_sci_transport_chan_id id, struct ti_sci_msg *msg);
 
 #endif /* TI_SCI_TRANSPORT_H */

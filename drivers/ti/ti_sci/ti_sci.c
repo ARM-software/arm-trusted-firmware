@@ -96,7 +96,7 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
  * Return: 0 if all goes well, else appropriate error message
  */
 static int ti_sci_get_response(struct ti_sci_msg *msg,
-			       enum k3_sec_proxy_chan_id chan)
+			       enum ti_sci_transport_chan_id chan)
 {
 	struct ti_sci_msg_hdr *hdr;
 	unsigned int retry = 5;
@@ -152,14 +152,14 @@ static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 	bakery_lock_get(&ti_sci_xfer_lock);
 
 	/* Clear any spurious messages in receive queue */
-	ret = ti_sci_transport_clear_rx_thread(SP_RESPONSE);
+	ret = ti_sci_transport_clear_rx_thread(RX_SECURE_TRANSPORT_CHANNEL_ID);
 	if (ret) {
 		ERROR("Could not clear response queue (%d)\n", ret);
 		goto unlock;
 	}
 
 	/* Send the message */
-	ret = ti_sci_transport_send(SP_HIGH_PRIORITY, tx_msg);
+	ret = ti_sci_transport_send(TX_SECURE_TRANSPORT_CHANNEL_ID, tx_msg);
 	if (ret) {
 		ERROR("Message sending failed (%d)\n", ret);
 		goto unlock;
@@ -167,7 +167,7 @@ static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 
 	/* Get the response if requested */
 	if (rx_msg->len != 0U) {
-		ret = ti_sci_get_response(rx_msg, SP_RESPONSE);
+		ret = ti_sci_get_response(rx_msg, RX_SECURE_TRANSPORT_CHANNEL_ID);
 		if (ret != 0U) {
 			ERROR("Failed to get response (%d)\n", ret);
 			goto unlock;

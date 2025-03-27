@@ -97,16 +97,8 @@ static struct k3_sec_proxy_mbox spm = {
 		.data_end_offset = 0x3C,
 	},
 	.threads = {
-#if !K3_SEC_PROXY_LITE
-		SP_THREAD(SP_NOTIFY),
-		SP_THREAD(SP_RESPONSE),
-		SP_THREAD(SP_HIGH_PRIORITY),
-		SP_THREAD(SP_LOW_PRIORITY),
-		SP_THREAD(SP_NOTIFY_RESP),
-#else
-		SP_THREAD(SP_RESPONSE),
-		SP_THREAD(SP_HIGH_PRIORITY),
-#endif /* K3_SEC_PROXY_LITE */
+		SP_THREAD(RX_SECURE_TRANSPORT_CHANNEL_ID),
+		SP_THREAD(TX_SECURE_TRANSPORT_CHANNEL_ID),
 	},
 };
 
@@ -176,7 +168,7 @@ static int k3_sec_proxy_verify_thread(struct k3_sec_proxy_thread *spt,
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_transport_clear_rx_thread(enum k3_sec_proxy_chan_id id)
+int ti_sci_transport_clear_rx_thread(enum ti_sci_transport_chan_id id)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
 
@@ -214,7 +206,7 @@ int ti_sci_transport_clear_rx_thread(enum k3_sec_proxy_chan_id id)
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_transport_send(enum k3_sec_proxy_chan_id id, const struct ti_sci_msg *msg)
+int ti_sci_transport_send(enum ti_sci_transport_chan_id id, const struct ti_sci_msg *msg)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
 	union sec_msg_hdr secure_header;
@@ -287,7 +279,7 @@ int ti_sci_transport_send(enum k3_sec_proxy_chan_id id, const struct ti_sci_msg 
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_transport_recv(enum k3_sec_proxy_chan_id id, struct ti_sci_msg *msg)
+int ti_sci_transport_recv(enum ti_sci_transport_chan_id id, struct ti_sci_msg *msg)
 {
 	struct k3_sec_proxy_thread *spt = &spm.threads[id];
 	union sec_msg_hdr secure_header;
