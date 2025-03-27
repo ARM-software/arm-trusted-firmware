@@ -27,6 +27,7 @@ include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common \
+		 -I${MTK_PLAT}/common/include \
 		 -I${MTK_PLAT}/drivers/cpu_pm/topology/inc \
                  -I${MTK_PLAT}/drivers/gpio/ \
 		 -I${MTK_PLAT}/include \
