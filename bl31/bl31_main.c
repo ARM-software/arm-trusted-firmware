@@ -255,7 +255,7 @@ uint32_t bl31_get_next_image_type(void)
  ******************************************************************************/
 void __init bl31_prepare_next_image_entry(void)
 {
-	entry_point_info_t *next_image_info;
+	const entry_point_info_t *next_image_info;
 	uint32_t image_type;
 
 #if CTX_INCLUDE_AARCH32_REGS

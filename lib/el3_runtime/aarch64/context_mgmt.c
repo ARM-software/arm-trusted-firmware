@@ -2071,8 +2071,8 @@ void cm_write_scr_el3_bit(uint32_t security_state,
  ******************************************************************************/
 u_register_t cm_get_scr_el3(uint32_t security_state)
 {
-	cpu_context_t *ctx;
-	el3_state_t *state;
+	const cpu_context_t *ctx;
+	const el3_state_t *state;
 
 	ctx = cm_get_context(security_state);
 	assert(ctx != NULL);

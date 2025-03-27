@@ -8,6 +8,7 @@
 
 #include <drivers/arm/gic_common.h>
 #include <lib/mmio.h>
+#include <lib/utils_def.h>
 
 #include "../common/gic_common_private.h"
 
@@ -256,7 +257,7 @@ void gicd_set_igroupr(uintptr_t base, unsigned int id)
 	unsigned int bit_num = id & ((1U << IGROUPR_SHIFT) - 1U);
 	unsigned int reg_val = gicd_read_igroupr(base, id);
 
-	gicd_write_igroupr(base, id, reg_val | (1U << bit_num));
+	gicd_write_igroupr(base, id, reg_val | BIT_32(bit_num));
 }
 
 void gicd_clr_igroupr(uintptr_t base, unsigned int id)
@@ -264,35 +265,35 @@ void gicd_clr_igroupr(uintptr_t base, unsigned int id)
 	unsigned int bit_num = id & ((1U << IGROUPR_SHIFT) - 1U);
 	unsigned int reg_val = gicd_read_igroupr(base, id);
 
-	gicd_write_igroupr(base, id, reg_val & ~(1U << bit_num));
+	gicd_write_igroupr(base, id, reg_val & ~BIT_32(bit_num));
 }
 
 void gicd_set_isenabler(uintptr_t base, unsigned int id)
 {
 	unsigned int bit_num = id & ((1U << ISENABLER_SHIFT) - 1U);
 
-	gicd_write_isenabler(base, id, (1U << bit_num));
+	gicd_write_isenabler(base, id, BIT_32(bit_num));
 }
 
 void gicd_set_icenabler(uintptr_t base, unsigned int id)
 {
 	unsigned int bit_num = id & ((1U << ICENABLER_SHIFT) - 1U);
 
-	gicd_write_icenabler(base, id, (1U << bit_num));
+	gicd_write_icenabler(base, id, BIT_32(bit_num));
 }
 
 void gicd_set_ispendr(uintptr_t base, unsigned int id)
 {
 	unsigned int bit_num = id & ((1U << ISPENDR_SHIFT) - 1U);
 
-	gicd_write_ispendr(base, id, (1U << bit_num));
+	gicd_write_ispendr(base, id, BIT_32(bit_num));
 }
 
 void gicd_set_icpendr(uintptr_t base, unsigned int id)
 {
 	unsigned int bit_num = id & ((1U << ICPENDR_SHIFT) - 1U);
 
-	gicd_write_icpendr(base, id, (1U << bit_num));
+	gicd_write_icpendr(base, id, BIT_32(bit_num));
 }
 
 unsigned int gicd_get_isactiver(uintptr_t base, unsigned int id)
@@ -307,14 +308,14 @@ void gicd_set_isactiver(uintptr_t base, unsigned int id)
 {
 	unsigned int bit_num = id & ((1U << ISACTIVER_SHIFT) - 1U);
 
-	gicd_write_isactiver(base, id, (1U << bit_num));
+	gicd_write_isactiver(base, id, BIT_32(bit_num));
 }
 
 void gicd_set_icactiver(uintptr_t base, unsigned int id)
 {
 	unsigned int bit_num = id & ((1U << ICACTIVER_SHIFT) - 1U);
 
-	gicd_write_icactiver(base, id, (1U << bit_num));
+	gicd_write_icactiver(base, id, BIT_32(bit_num));
 }
 
 void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)

@@ -79,8 +79,8 @@ static int do_putc(int c, console_t *console)
 {
 	int ret;
 
-	if ((c == '\n') &&
-	    ((console->flags & CONSOLE_FLAG_TRANSLATE_CRLF) != 0)) {
+	if ((c == (int)'\n') &&
+	    ((console->flags & CONSOLE_FLAG_TRANSLATE_CRLF) != 0U)) {
 		ret = console->putc('\r', console);
 		if (ret < 0)
 			return ret;

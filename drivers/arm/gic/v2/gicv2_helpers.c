@@ -11,6 +11,7 @@
 #include <common/interrupt_props.h>
 #include <drivers/arm/gic_common.h>
 #include <drivers/arm/gicv2.h>
+#include <lib/utils_def.h>
 
 #include "../common/gic_common_private.h"
 #include "gicv2_private.h"
@@ -203,7 +204,7 @@ void gicv2_secure_ppi_sgi_setup_props(uintptr_t gicd_base,
 		}
 
 		/* We have an SGI or a PPI. They are Group0 at reset */
-		sec_ppi_sgi_mask |= (1u << prop_desc->intr_num);
+		sec_ppi_sgi_mask |= BIT_32((uint32_t)prop_desc->intr_num);
 
 		/* Set the priority of this interrupt */
 		gicd_set_ipriorityr(gicd_base, prop_desc->intr_num,
