@@ -123,6 +123,9 @@ static void imx_usdhc_set_clk(unsigned int clk)
 	div -= 1;
 	clk = (pre_div << 8) | (div << 4);
 
+	while ((mmio_read_32(reg_base + PSTATE) & PSTATE_SDSTB) == 0U) {
+	}
+
 	mmio_clrbits32(reg_base + VENDSPEC, VENDSPEC_CARD_CLKEN);
 	mmio_clrsetbits32(reg_base + SYSCTRL, SYSCTRL_CLOCK_MASK, clk);
 	udelay(10000);

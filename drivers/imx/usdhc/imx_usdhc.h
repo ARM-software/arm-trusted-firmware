@@ -44,6 +44,7 @@ void imx_usdhc_init(imx_usdhc_params_t *params,
 
 #define PSTATE			0x024U
 #define PSTATE_DAT0		BIT_32(24U)
+#define PSTATE_SDSTB		BIT_32(3U)
 #define PSTATE_DLA		BIT_32(2U)
 #define PSTATE_CDIHB		BIT_32(1U)
 #define PSTATE_CIHB		BIT_32(0U)
