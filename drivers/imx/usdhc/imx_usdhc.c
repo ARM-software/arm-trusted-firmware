@@ -15,6 +15,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/mmc.h>
 #include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <imx_usdhc.h>
 
@@ -395,11 +396,23 @@ static int imx_usdhc_write(int lba, uintptr_t buf, size_t size)
 void imx_usdhc_init(imx_usdhc_params_t *params,
 		    struct mmc_device_info *mmc_dev_info)
 {
+	int ret __maybe_unused;
+
 	assert((params != 0) &&
 	       ((params->reg_base & MMC_BLOCK_MASK) == 0) &&
 	       ((params->bus_width == MMC_BUS_WIDTH_1) ||
 		(params->bus_width == MMC_BUS_WIDTH_4) ||
 		(params->bus_width == MMC_BUS_WIDTH_8)));
+
+#if PLAT_XLAT_TABLES_DYNAMIC
+	ret = mmap_add_dynamic_region(params->reg_base, params->reg_base,
+				      PAGE_SIZE,
+				      MT_DEVICE | MT_RW | MT_SECURE);
+	if (ret != 0) {
+		ERROR("Failed to map the uSDHC registers\n");
+		panic();
+	}
+#endif
 
 	memcpy(&imx_usdhc_params, params, sizeof(imx_usdhc_params_t));
 	mmc_init(&imx_usdhc_ops, params->clk_rate, params->bus_width,
