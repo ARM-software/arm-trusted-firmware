@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,6 +55,9 @@
 #define UART_BASE			UL(0x401C8000)
 #define UART_BAUDRATE			U(115200)
 #define UART_CLOCK_HZ			U(125000000)
+
+/* uSDHC */
+#define S32G_USDHC_BASE			UL(0x402F0000)
 
 #define S32G_FIP_BASE			UL(0x34100000)
 #define S32G_FIP_SIZE			UL(0x100000)

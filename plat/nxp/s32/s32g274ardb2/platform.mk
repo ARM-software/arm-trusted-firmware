@@ -20,7 +20,8 @@ include ${PLAT_COMMON_PATH}/plat_make_helper/plat_build_macros.mk
 S32_ERRATA_LIST += ERRATA_S32_051700
 
 PLAT_INCLUDES = \
-	-I${PLAT_S32G274ARDB2}/include
+	-I${PLAT_S32G274ARDB2}/include \
+	-Idrivers/imx/usdhc \
 
 PROGRAMMABLE_RESET_ADDRESS := 1
 
@@ -40,6 +41,9 @@ ERRATA_S32_051700 := 1
 
 PLAT_XLAT_TABLES_DYNAMIC := 1
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+
+NXP_ESDHC_LE := 1
+$(eval $(call add_define,NXP_ESDHC_LE))
 
 # Selecting Drivers for SoC
 $(eval $(call SET_NXP_MAKE_FLAG,CONSOLE_NEEDED,BL_COMM))
@@ -62,9 +66,11 @@ BL2_SOURCES += \
 	common/desc_image_load.c \
 	drivers/delay_timer/delay_timer.c \
 	drivers/delay_timer/generic_delay_timer.c \
+	drivers/imx/usdhc/imx_usdhc.c \
 	drivers/io/io_fip.c \
 	drivers/io/io_memmap.c \
 	drivers/io/io_storage.c \
+	drivers/mmc/mmc.c \
 	lib/cpus/aarch64/cortex_a53.S \
 
 BL31_SOURCES += \
