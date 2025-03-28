@@ -51,6 +51,10 @@ $(eval $(call SET_NXP_MAKE_FLAG,CLK_NEEDED,BL_COMM))
 
 include ${PLAT_DRIVERS_PATH}/drivers.mk
 
+# Selecting the raw partition where the FIP image is stored
+FIP_PART ?= 0
+$(eval $(call add_define,FIP_PART))
+
 BL_COMMON_SOURCES += \
 	${PLAT_S32G274ARDB2}/plat_console.c \
 	${PLAT_S32G274ARDB2}/plat_helpers.S \
@@ -64,14 +68,20 @@ BL2_SOURCES += \
 	${PLAT_S32G274ARDB2}/plat_io_storage.c \
 	${PLAT_S32G274ARDB2}/s32cc_ncore.c \
 	common/desc_image_load.c \
+	common/tf_crc32.c \
 	drivers/delay_timer/delay_timer.c \
 	drivers/delay_timer/generic_delay_timer.c \
 	drivers/imx/usdhc/imx_usdhc.c \
+	drivers/io/io_block.c \
 	drivers/io/io_fip.c \
 	drivers/io/io_memmap.c \
 	drivers/io/io_storage.c \
 	drivers/mmc/mmc.c \
+	drivers/partition/gpt.c \
+	drivers/partition/partition.c \
 	lib/cpus/aarch64/cortex_a53.S \
+
+BL2_CPPFLAGS += -march=armv8-a+crc
 
 BL31_SOURCES += \
 	${GICV3_SOURCES} \

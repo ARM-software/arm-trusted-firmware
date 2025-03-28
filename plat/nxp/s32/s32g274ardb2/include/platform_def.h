@@ -52,8 +52,8 @@
 /* We'll be doing a 1:1 mapping anyway */
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 36)
 
-#define MAX_MMAP_REGIONS		U(18)
-#define MAX_XLAT_TABLES			U(32)
+#define MAX_MMAP_REGIONS		U(21)
+#define MAX_XLAT_TABLES			U(33)
 
 /* Console settings */
 #define UART_BASE			UL(0x401C8000)
@@ -68,6 +68,9 @@
 
 #define MAX_IO_HANDLES			U(2)
 #define MAX_IO_DEVICES			U(2)
+
+/* uSDHC as block device */
+#define MAX_IO_BLOCK_DEVICES		U(1)
 
 /* GIC settings */
 #define S32G_GIC_BASE			UL(0x50800000)
