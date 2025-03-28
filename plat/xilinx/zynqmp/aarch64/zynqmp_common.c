@@ -406,7 +406,7 @@ uint32_t plat_get_syscnt_freq2(void)
 	uint32_t ret = 0U;
 
 	if (ver == ZYNQMP_CSU_VERSION_QEMU) {
-		ret = 65000000U;
+		ret = 62500000U;
 	} else {
 		ret = mmio_read_32((uint64_t)IOU_SCNTRS_BASEFREQ);
 	}
