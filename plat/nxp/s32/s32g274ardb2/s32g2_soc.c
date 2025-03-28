@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,9 +44,4 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	}
 
 	return (int)core_id;
-}
-
-unsigned int plat_get_syscnt_freq2(void)
-{
-	return COUNTER_FREQUENCY;
 }

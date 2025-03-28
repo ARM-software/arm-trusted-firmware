@@ -8,6 +8,7 @@
 
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
@@ -102,6 +103,8 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	if (ret != 0) {
 		panic();
 	}
+
+	generic_delay_timer_init();
 
 	linflex_config_pinctrl();
 	console_s32g2_register();

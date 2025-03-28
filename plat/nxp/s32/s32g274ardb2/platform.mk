@@ -1,5 +1,5 @@
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -60,6 +60,8 @@ BL2_SOURCES += \
 	${PLAT_S32G274ARDB2}/plat_io_storage.c \
 	${PLAT_S32G274ARDB2}/s32cc_ncore.c \
 	common/desc_image_load.c \
+	drivers/delay_timer/delay_timer.c \
+	drivers/delay_timer/generic_delay_timer.c \
 	drivers/io/io_fip.c \
 	drivers/io/io_memmap.c \
 	drivers/io/io_storage.c \
