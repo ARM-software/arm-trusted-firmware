@@ -44,6 +44,10 @@
 #define BL33_BASE			UL(0x34500000)
 #define BL33_LIMIT			UL(0x345FF000)
 
+/* IO buffer used to copy images from storage */
+#define IO_BUFFER_BASE			BL33_LIMIT
+#define IO_BUFFER_SIZE			U(0x13000)
+
 #define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 36)
 /* We'll be doing a 1:1 mapping anyway */
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 36)
