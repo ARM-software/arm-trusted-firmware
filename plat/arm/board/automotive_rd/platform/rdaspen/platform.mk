@@ -91,6 +91,11 @@ $(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
 # the css_scp_system_off() use forceful flag by default
 $(eval $(call add_define_val,CSS_SCP_SYSTEM_OFF_GRACEFUL,1))
 
+ifdef PLATFORM_CORE_COUNT
+# Pass PLATFORM_CORE_COUNT to the build system.
+$(eval $(call add_define,PLATFORM_CORE_COUNT))
+endif
+
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
 include plat/arm/board/common/board_common.mk
