@@ -104,20 +104,20 @@ static void imx_usdhc_write_buf_data(void)
 }
 
 #define IMX7_MMC_SRC_CLK_RATE (200 * 1000 * 1000)
-static void imx_usdhc_set_clk(int clk)
+static void imx_usdhc_set_clk(unsigned int clk)
 {
-	int div = 1;
-	int pre_div = 1;
 	unsigned int sdhc_clk = IMX7_MMC_SRC_CLK_RATE;
 	uintptr_t reg_base = imx_usdhc_params.reg_base;
+	unsigned int pre_div = 1U, div = 1U;
 
 	assert(clk > 0);
 
 	while (sdhc_clk / (16 * pre_div) > clk && pre_div < 256)
 		pre_div *= 2;
 
-	while (sdhc_clk / div > clk && div < 16)
+	while (((sdhc_clk / (div * pre_div)) > clk) && (div < 16U)) {
 		div++;
+	}
 
 	pre_div >>= 1;
 	div -= 1;
