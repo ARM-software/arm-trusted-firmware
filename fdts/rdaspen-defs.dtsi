@@ -1,0 +1,353 @@
+/*
+ * Copyright (c) 2025, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef	RDASPEN_DEFS_DTSI
+#define	RDASPEN_DEFS_DTSI
+
+#include <platform_def.h>
+
+#define	CPU(cluster_num, cluster_core_num, cpu_num, mpid)			\
+	CPU##cpu_num:cpu@mpid## {						\
+		device_type = "cpu";						\
+		compatible = "arm,cortex-a720ae";				\
+		reg = <0x0 0x##mpid>;						\
+		enable-method = "psci";						\
+		i-cache-size = <0x10000>;					\
+		i-cache-line-size = <0x40>;					\
+		i-cache-sets = <0x100>;						\
+		d-cache-size = <0x10000>;					\
+		d-cache-line-size = <0x40>;					\
+		d-cache-sets = <0x100>;						\
+		next-level-cache = <&CL##cluster_num##_L2_##cluster_core_num>;	\
+		CL##cluster_num##_L2_##cluster_core_num: l2-cache##cpu_num {	\
+			compatible = "cache";					\
+			cache-unified;						\
+			cache-level = <0x02>;					\
+			/* 512KB */						\
+			cache-size = <0x80000>;					\
+			/* 64B */						\
+			cache-line-size = <0x40>;				\
+			/* 8-way set */						\
+			cache-sets = <0x400>;					\
+			next-level-cache = <&CL##cluster_num##_L3>;		\
+		};								\
+	};
+
+#define	CORE(cluster_core_num, cpu_num)		\
+	core##cluster_core_num {		\
+		cpu = <&CPU##cpu_num>;		\
+	};
+
+#define	CLUSTER_L3_CACHE(cluster_num)				\
+	CL##cluster_num##_L3: l3-cache##cluster_num## {		\
+		compatible = "arm,dsu-l3-cache", "cache";	\
+		cache-level = <0x03>;				\
+		/* 4MB */					\
+		cache-size = <0x400000>;			\
+		/* 64B */					\
+		cache-line-size = <0x40>;			\
+		/* 16-way set */				\
+		cache-sets = <0x1000>;				\
+	};
+
+#define	CLUSTER_DSU_PMU(cluster_num, cpu_list, interrupt_map)	\
+	dsu-pmu-##cluster_num {					\
+	compatible = "arm,dsu-pmu";				\
+	cpus = ##cpu_list;					\
+	interrupts = ##interrupt_map;				\
+	};
+
+#define	CLUSTER_0_DSU_PMU_INTERRUPT_MAP		<GIC_SPI 216 IRQ_TYPE_EDGE_RISING>
+#define	CLUSTER_1_DSU_PMU_INTERRUPT_MAP		<GIC_SPI 217 IRQ_TYPE_EDGE_RISING>
+#define	CLUSTER_2_DSU_PMU_INTERRUPT_MAP		<GIC_SPI 218 IRQ_TYPE_EDGE_RISING>
+#define	CLUSTER_3_DSU_PMU_INTERRUPT_MAP		<GIC_SPI 219 IRQ_TYPE_EDGE_RISING>
+
+#if (PLATFORM_CLUSTER_0_CORE_COUNT == 1)
+#define	CLUSTER_0_CPU_LIST	\
+	CORE(0, 0)
+#define	CLUSTER_0_CPUS		\
+	CPU(0, 0, 0, 0)
+#define	CLUSTER_0_DSU_PMU_CPU_LIST	<&CPU0>
+#elif (PLATFORM_CLUSTER_0_CORE_COUNT == 2)
+#define	CLUSTER_0_CPU_LIST	\
+	CORE(0, 0)		\
+	CORE(1, 1)
+#define	CLUSTER_0_CPUS		\
+	CPU(0, 0, 0, 0)		\
+	CPU(0, 1, 1, 100)
+#define	CLUSTER_0_DSU_PMU_CPU_LIST	<&CPU0>, <&CPU1>
+#elif (PLATFORM_CLUSTER_0_CORE_COUNT == 3)
+#define	CLUSTER_0_CPU_LIST	\
+	CORE(0, 0)		\
+	CORE(1, 1)		\
+	CORE(2, 2)
+#define	CLUSTER_0_CPUS		\
+	CPU(0, 0, 0, 0)		\
+	CPU(0, 1, 1, 100)	\
+	CPU(0, 2, 2, 200)
+#define	CLUSTER_0_DSU_PMU_CPU_LIST	<&CPU0>, <&CPU1>, <&CPU2>
+#elif (PLATFORM_CLUSTER_0_CORE_COUNT == 4)
+#define	CLUSTER_0_CPU_LIST	\
+	CORE(0, 0)		\
+	CORE(1, 1)		\
+	CORE(2, 2)		\
+	CORE(3, 3)
+#define	CLUSTER_0_CPUS		\
+	CPU(0, 0, 0, 0)		\
+	CPU(0, 1, 1, 100)	\
+	CPU(0, 2, 2, 200)	\
+	CPU(0, 3, 3, 300)
+#define	CLUSTER_0_DSU_PMU_CPU_LIST	<&CPU0>, <&CPU1>, <&CPU2>, <&CPU3>
+#endif
+
+#if	(PLATFORM_CLUSTER_1_CORE_COUNT == 1)
+#define	CLUSTER_1_CPU_LIST	\
+	CORE(0, 4)
+#define	CLUSTER_1_CPUS		\
+	CPU(1, 0, 4, 10000)
+#define	CLUSTER_1_DSU_PMU_CPU_LIST	<&CPU4>
+#elif	(PLATFORM_CLUSTER_1_CORE_COUNT == 2)
+#define	CLUSTER_1_CPU_LIST	\
+	CORE(0, 4)		\
+	CORE(1, 5)
+#define	CLUSTER_1_CPUS		\
+	CPU(1, 0, 4, 10000)	\
+	CPU(1, 1, 5, 10100)
+#define	CLUSTER_1_DSU_PMU_CPU_LIST	<&CPU4>, <&CPU5>
+#elif	(PLATFORM_CLUSTER_1_CORE_COUNT == 3)
+#define	CLUSTER_1_CPU_LIST	\
+	CORE(0, 4)		\
+	CORE(1, 5)		\
+	CORE(2, 6)
+#define	CLUSTER_1_CPUS		\
+	CPU(1, 0, 4, 10000)	\
+	CPU(1, 1, 5, 10100)	\
+	CPU(1, 2, 6, 10200)
+#define	CLUSTER_1_DSU_PMU_CPU_LIST	<&CPU4>, <&CPU5>, <&CPU6>
+#elif	(PLATFORM_CLUSTER_1_CORE_COUNT == 4)
+#define	CLUSTER_1_CPU_LIST	\
+	CORE(0, 4)		\
+	CORE(1, 5)		\
+	CORE(2, 6)		\
+	CORE(3, 7)
+#define	CLUSTER_1_CPUS		\
+	CPU(1, 0, 4, 10000)	\
+	CPU(1, 1, 5, 10100)	\
+	CPU(1, 2, 6, 10200)	\
+	CPU(1, 3, 7, 10300)
+#define	CLUSTER_1_DSU_PMU_CPU_LIST	<&CPU4>, <&CPU5>, <&CPU6>, <&CPU7>
+#endif
+
+#if	(PLATFORM_CLUSTER_2_CORE_COUNT == 1)
+#define	CLUSTER_2_CPU_LIST	\
+	CORE(0, 8)
+#define	CLUSTER_2_CPUS		\
+	CPU(2, 0, 8, 20000)
+#define	CLUSTER_2_DSU_PMU_CPU_LIST	<&CPU8>
+#elif	(PLATFORM_CLUSTER_2_CORE_COUNT == 2)
+#define	CLUSTER_2_CPU_LIST	\
+	CORE(0, 8)		\
+	CORE(1, 9)
+#define	CLUSTER_2_CPUS		\
+	CPU(2, 0, 8, 20000)	\
+	CPU(2, 1, 9, 20100)
+#define	CLUSTER_2_DSU_PMU_CPU_LIST	<&CPU8>, <&CPU9>
+#elif	(PLATFORM_CLUSTER_2_CORE_COUNT == 3)
+#define	CLUSTER_2_CPU_LIST	\
+	CORE(0, 8)		\
+	CORE(1, 9)		\
+	CORE(2, 10)
+#define	CLUSTER_2_CPUS		\
+	CPU(2, 0, 8, 20000)	\
+	CPU(2, 1, 9, 20100)	\
+	CPU(2, 2, 10, 20200)
+#define	CLUSTER_2_DSU_PMU_CPU_LIST	<&CPU8>, <&CPU9>, <&CPU10>
+#elif	(PLATFORM_CLUSTER_2_CORE_COUNT == 4)
+#define	CLUSTER_2_CPU_LIST	\
+	CORE(0, 8)		\
+	CORE(1, 9)		\
+	CORE(2, 10)		\
+	CORE(3, 11)
+#define	CLUSTER_2_CPUS		\
+	CPU(2, 0, 8, 20000)	\
+	CPU(2, 1, 9, 20100)	\
+	CPU(2, 2, 10, 20200)	\
+	CPU(2, 3, 11, 20300)
+#define	CLUSTER_2_DSU_PMU_CPU_LIST	<&CPU8>, <&CPU9>, <&CPU10>, <&CPU11>
+#endif
+
+#if	(PLATFORM_CLUSTER_3_CORE_COUNT == 1)
+#define	CLUSTER_3_CPU_LIST	\
+	CORE(0, 12)
+#define	CLUSTER_3_CPUS		\
+	CPU(3, 0, 12, 30000)
+#define	CLUSTER_3_DSU_PMU_CPU_LIST	<&CPU12>
+#elif	(PLATFORM_CLUSTER_3_CORE_COUNT == 2)
+#define	CLUSTER_3_CPU_LIST	\
+	CORE(0, 12)		\
+	CORE(1, 13)
+#define	CLUSTER_3_CPUS		\
+	CPU(3, 0, 12, 30000)	\
+	CPU(3, 1, 13, 30100)
+#define	CLUSTER_3_DSU_PMU_CPU_LIST	<&CPU12>, <&CPU13>
+#elif	(PLATFORM_CLUSTER_3_CORE_COUNT == 3)
+#define	CLUSTER_3_CPU_LIST	\
+	CORE(0, 12)		\
+	CORE(1, 13)		\
+	CORE(2, 14)
+#define	CLUSTER_3_CPUS		\
+	CPU(3, 0, 12, 30000)	\
+	CPU(3, 1, 13, 30100)	\
+	CPU(3, 2, 14, 30200)
+#define	CLUSTER_3_DSU_PMU_CPU_LIST	<&CPU12>, <&CPU13>, <&CPU14>
+#elif	(PLATFORM_CLUSTER_3_CORE_COUNT == 4)
+#define	CLUSTER_3_CPU_LIST	\
+	CORE(0, 12)		\
+	CORE(1, 13)		\
+	CORE(2, 14)		\
+	CORE(3, 15)
+#define	CLUSTER_3_CPUS		\
+	CPU(3, 0, 12, 30000)	\
+	CPU(3, 1, 13, 30100)	\
+	CPU(3, 2, 14, 30200)	\
+	CPU(3, 3, 15, 30300)
+#define	CLUSTER_3_DSU_PMU_CPU_LIST	<&CPU12>, <&CPU13>, <&CPU14>, <&CPU15>
+#endif
+
+#define	CLUSTER_0_CPU_MAP				\
+	cluster0 {					\
+		CLUSTER_0_CPU_LIST			\
+	};
+
+#define	CLUSTER_0_DSU_PMU				\
+	CLUSTER_DSU_PMU(0,				\
+			CLUSTER_0_DSU_PMU_CPU_LIST,	\
+			CLUSTER_0_DSU_PMU_INTERRUPT_MAP)
+
+#if	(PLATFORM_CLUSTER_1_CORE_COUNT >= 1)
+#define	CLUSTER_1_CPU_MAP				\
+	cluster1 {					\
+		CLUSTER_1_CPU_LIST			\
+	};
+
+#define	CLUSTER_1_DSU_PMU				\
+	CLUSTER_DSU_PMU(1,				\
+			CLUSTER_1_DSU_PMU_CPU_LIST,	\
+			CLUSTER_1_DSU_PMU_INTERRUPT_MAP)
+#endif
+
+#if	(PLATFORM_CLUSTER_2_CORE_COUNT >= 1)
+#define	CLUSTER_2_CPU_MAP				\
+	cluster2 {					\
+		CLUSTER_2_CPU_LIST			\
+	};
+
+#define	CLUSTER_2_DSU_PMU				\
+	CLUSTER_DSU_PMU(2,				\
+			CLUSTER_2_DSU_PMU_CPU_LIST,	\
+			CLUSTER_2_DSU_PMU_INTERRUPT_MAP)
+#endif
+
+#if	(PLATFORM_CLUSTER_3_CORE_COUNT >= 1)
+#define	CLUSTER_3_CPU_MAP				\
+	cluster3 {					\
+		CLUSTER_3_CPU_LIST			\
+	};
+
+#define	CLUSTER_3_DSU_PMU				\
+	CLUSTER_DSU_PMU(3,				\
+			CLUSTER_3_DSU_PMU_CPU_LIST,	\
+			CLUSTER_3_DSU_PMU_INTERRUPT_MAP)
+#endif
+
+/* Max 4 clusters */
+#if	(PLAT_ARM_CLUSTER_COUNT == 1)
+#define	CPU_MAP				\
+	cpu-map {			\
+		CLUSTER_0_CPU_MAP	\
+	};
+
+#define	CPUS				\
+	CLUSTER_0_CPUS
+
+#define	DSU_PMU				\
+	CLUSTER_0_DSU_PMU
+
+#define	L3_CACHE			\
+	CLUSTER_L3_CACHE(0)
+
+#elif	(PLAT_ARM_CLUSTER_COUNT == 2)
+#define	CPU_MAP				\
+	cpu-map {			\
+		CLUSTER_0_CPU_MAP	\
+		CLUSTER_1_CPU_MAP	\
+	};
+
+#define	CPUS				\
+	CLUSTER_0_CPUS			\
+	CLUSTER_1_CPUS
+
+#define	DSU_PMU				\
+	CLUSTER_0_DSU_PMU		\
+	CLUSTER_1_DSU_PMU
+
+#define	L3_CACHE			\
+	CLUSTER_L3_CACHE(0)		\
+	CLUSTER_L3_CACHE(1)
+
+#elif	(PLAT_ARM_CLUSTER_COUNT == 3)
+#define	CPU_MAP				\
+	cpu-map {			\
+		CLUSTER_0_CPU_MAP	\
+		CLUSTER_1_CPU_MAP	\
+		CLUSTER_2_CPU_MAP	\
+	};
+
+#define	CPUS				\
+	CLUSTER_0_CPUS			\
+	CLUSTER_1_CPUS			\
+	CLUSTER_2_CPUS
+
+#define	DSU_PMU				\
+	CLUSTER_0_DSU_PMU		\
+	CLUSTER_1_DSU_PMU		\
+	CLUSTER_2_DSU_PMU
+
+#define	L3_CACHE			\
+	CLUSTER_L3_CACHE(0)		\
+	CLUSTER_L3_CACHE(1)		\
+	CLUSTER_L3_CACHE(2)
+
+#elif	(PLAT_ARM_CLUSTER_COUNT == 4)
+#define	CPU_MAP				\
+	cpu-map {			\
+		CLUSTER_0_CPU_MAP	\
+		CLUSTER_1_CPU_MAP	\
+		CLUSTER_2_CPU_MAP	\
+		CLUSTER_3_CPU_MAP	\
+	};
+
+#define	CPUS				\
+	CLUSTER_0_CPUS			\
+	CLUSTER_1_CPUS			\
+	CLUSTER_2_CPUS			\
+	CLUSTER_3_CPUS
+
+#define	DSU_PMU				\
+	CLUSTER_0_DSU_PMU		\
+	CLUSTER_1_DSU_PMU		\
+	CLUSTER_2_DSU_PMU		\
+	CLUSTER_3_DSU_PMU
+
+#define	L3_CACHE			\
+	CLUSTER_L3_CACHE(0)		\
+	CLUSTER_L3_CACHE(1)		\
+	CLUSTER_L3_CACHE(2)		\
+	CLUSTER_L3_CACHE(3)
+
+#endif	/* PLAT_ARM_CLUSTER_COUNT */
+
+#endif	/* RDASPEN_DEFS_DTSI */
