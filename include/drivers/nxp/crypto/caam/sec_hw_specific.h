@@ -123,6 +123,7 @@ struct jobring_regs {
 
  /* RNG RDSTA bitmask */
 #define RNG_STATE0_HANDLE_INSTANTIATED	0x00000001
+#define RNG_STATE1_HANDLE_INSTANTIATED	0x00000002
 #define RTMCTL_PRGM 0x00010000	/* 1 -> program mode, 0 -> run mode */
  /* use von Neumann data in both entropy shifter and statistical checker */
 #define RTMCTL_SAMP_MODE_VON_NEUMANN_ES_SC	 0

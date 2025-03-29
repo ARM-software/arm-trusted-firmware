@@ -41,7 +41,7 @@ static int is_hw_rng_instantiated(uint32_t *state_handle)
 	if (rdsta & RNG_STATE0_HANDLE_INSTANTIATED) {
 		*state_handle = 0;
 		ret_code = 1;
-	} else if (rdsta & RNG_STATE0_HANDLE_INSTANTIATED) {
+	} else if (rdsta & RNG_STATE1_HANDLE_INSTANTIATED) {
 		*state_handle = 1;
 		ret_code = 1;
 	}
