@@ -71,12 +71,12 @@ uintptr_t page_align(uintptr_t value, unsigned dir)
  ******************************************************************************/
 static int load_image(unsigned int image_id, image_info_t *image_data)
 {
-	uintptr_t dev_handle;
-	uintptr_t image_handle;
-	uintptr_t image_spec;
+	uintptr_t dev_handle = 0ULL;
+	uintptr_t image_handle = 0ULL;
+	uintptr_t image_spec = 0ULL;
 	uintptr_t image_base;
-	size_t image_size;
-	size_t bytes_read;
+	size_t image_size = 0ULL;
+	size_t bytes_read = 0ULL;
 	int io_result;
 
 	assert(image_data != NULL);
