@@ -37,18 +37,6 @@ workaround_reset_end cortex_a78c, ERRATUM(1827440)
 
 check_erratum_ls cortex_a78c, ERRATUM(1827440), CPU_REV(0, 0)
 
-workaround_reset_start cortex_a78c, ERRATUM(2132064), ERRATA_A78C_2132064
-	/* --------------------------------------------------------
-	 * Place the data prefetcher in the most conservative mode
-	 * to reduce prefetches by writing the following bits to
-	 * the value indicated: ecltr[7:6], PF_MODE = 2'b11
-	 * --------------------------------------------------------
-	 */
-	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, (CORTEX_A78C_CPUECTLR_EL1_BIT_6 | CORTEX_A78C_CPUECTLR_EL1_BIT_7)
-workaround_reset_end cortex_a78c, ERRATUM(2132064)
-
-check_erratum_range cortex_a78c, ERRATUM(2132064), CPU_REV(0, 1), CPU_REV(0, 2)
-
 workaround_reset_start cortex_a78c, ERRATUM(2242638), ERRATA_A78C_2242638
 	ldr	x0, =0x5
 	msr	CORTEX_A78C_IMP_CPUPSELR_EL3, x0

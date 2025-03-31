@@ -99,16 +99,6 @@ workaround_reset_end cortex_a78, ERRATUM(1952683)
 
 check_erratum_ls cortex_a78, ERRATUM(1952683), CPU_REV(0, 0)
 
-workaround_reset_start cortex_a78, ERRATUM(2132060), ERRATA_A78_2132060
-	/* Apply the workaround. */
-	mrs	x1, CORTEX_A78_CPUECTLR_EL1
-	mov	x0, #CORTEX_A78_CPUECTLR_EL1_PF_MODE_CNSRV
-	bfi	x1, x0, #CPUECTLR_EL1_PF_MODE_LSB, #CPUECTLR_EL1_PF_MODE_WIDTH
-	msr	CORTEX_A78_CPUECTLR_EL1, x1
-workaround_reset_end cortex_a78, ERRATUM(2132060)
-
-check_erratum_ls cortex_a78, ERRATUM(2132060), CPU_REV(1, 2)
-
 workaround_reset_start cortex_a78, ERRATUM(2242635), ERRATA_A78_2242635
 	ldr	x0, =0x5
 	msr	S3_6_c15_c8_0, x0 /* CPUPSELR_EL3 */
