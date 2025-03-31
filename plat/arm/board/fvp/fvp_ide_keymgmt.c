@@ -44,6 +44,5 @@ int plat_rmmd_el3_ide_km_pull_response(uint64_t ecam_address, uint64_t root_port
 				   uint64_t *cookie)
 {
 	/* placeholder to add further implementation */
-
 	return E_RMM_UNK;
 }

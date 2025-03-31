@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,7 +25,11 @@ trp_args_t *set_smc_args(uint64_t arg0,
 			uint64_t arg4,
 			uint64_t arg5,
 			uint64_t arg6,
-			uint64_t arg7)
+			uint64_t arg7,
+			uint64_t arg8,
+			uint64_t arg9,
+			uint64_t arg10,
+			uint64_t arg11)
 {
 	uint32_t linear_id;
 	trp_args_t *pcpu_smc_args;
@@ -44,6 +48,10 @@ trp_args_t *set_smc_args(uint64_t arg0,
 	write_trp_arg(pcpu_smc_args, TRP_ARG5, arg5);
 	write_trp_arg(pcpu_smc_args, TRP_ARG6, arg6);
 	write_trp_arg(pcpu_smc_args, TRP_ARG7, arg7);
+	write_trp_arg(pcpu_smc_args, TRP_ARG8, arg8);
+	write_trp_arg(pcpu_smc_args, TRP_ARG9, arg9);
+	write_trp_arg(pcpu_smc_args, TRP_ARG10, arg10);
+	write_trp_arg(pcpu_smc_args, TRP_ARG11, arg11);
 
 	return pcpu_smc_args;
 }
@@ -53,6 +61,6 @@ trp_args_t *set_smc_args(uint64_t arg0,
  */
 __dead2 void trp_boot_abort(uint64_t err)
 {
-	(void)trp_smc(set_smc_args(RMM_BOOT_COMPLETE, err, 0, 0, 0, 0, 0, 0));
+	(void)trp_smc(set_smc_args(RMM_BOOT_COMPLETE, err, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
 	panic();
 }

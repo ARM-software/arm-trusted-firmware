@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,11 @@
 #define TRP_ARG5		0x28
 #define TRP_ARG6		0x30
 #define TRP_ARG7		0x38
-#define TRP_ARGS_END		0x40
+#define TRP_ARG8		0x40
+#define TRP_ARG9		0x48
+#define TRP_ARG10		0x50
+#define TRP_ARG11		0x58
+#define TRP_ARGS_END		0x60
 
 #ifndef __ASSEMBLER__
 
@@ -35,7 +39,11 @@ trp_args_t *set_smc_args(uint64_t arg0,
 			 uint64_t arg4,
 			 uint64_t arg5,
 			 uint64_t arg6,
-			 uint64_t arg7);
+			 uint64_t arg7,
+			 uint64_t arg8,
+			 uint64_t arg9,
+			 uint64_t arg10,
+			 uint64_t arg11);
 
 __dead2 void trp_boot_abort(uint64_t err);
 
