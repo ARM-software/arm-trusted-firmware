@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,6 +122,16 @@ void bl31_platform_setup(void)
 	/* Signal secondary CPUs to jump to BL31 (BL2 = U-boot SPL) */
 	mmio_write_64(PLAT_CPU_RELEASE_ADDR,
 		(uint64_t)plat_secondary_cpus_bl31_entry);
+
+#if SIP_SVC_V3
+	/*
+	 * Re-initialize the mailbox to include V3 specific routines.
+	 * In V3, this re-initialize is required because prior to BL31, U-Boot
+	 * SPL has its own mailbox settings and this initialization will
+	 * override to those settings as required by the V3 framework.
+	 */
+	mailbox_init();
+#endif
 
 	mailbox_hps_stage_notify(HPS_EXECUTION_STATE_SSBL);
 }

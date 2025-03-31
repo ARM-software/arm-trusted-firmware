@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
- * Copyright (c) 2024, Altera Corporation. All rights reserved.
+ * Copyright (c) 2024-2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -206,6 +206,9 @@
 #define MAX_IO_HANDLES				4
 #define MAX_IO_DEVICES				4
 #define MAX_IO_BLOCK_DEVICES			2
+
+/* Define this, to support the SiPSVC V3 implementation. */
+#define SIP_SVC_V3				1
 
 #ifndef __ASSEMBLER__
 struct socfpga_bl31_params {

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -88,12 +89,22 @@
 #define FCS_ECDSA_HASH_SIG_VERIFY_CMD_MAX_WORD_SIZE		52U
 #define FCS_ECDH_REQUEST_CMD_MAX_WORD_SIZE			29U
 
-#define FCS_CRYPTO_ECB_BUFFER_SIZE			12U
-#define FCS_CRYPTO_CBC_CTR_BUFFER_SIZE			28U
-#define FCS_CRYPTO_BLOCK_MODE_MASK			0x07
-#define FCS_CRYPTO_ECB_MODE			0x00
-#define FCS_CRYPTO_CBC_MODE			0x01
-#define FCS_CRYPTO_CTR_MODE			0x02
+#define FCS_CRYPTO_ECB_BUFFER_SIZE				12U
+#define FCS_CRYPTO_CBC_CTR_BUFFER_SIZE				28U
+#define FCS_CRYPTO_BLOCK_MODE_MASK				0x07
+#define FCS_CRYPTO_ECB_MODE					0x00
+#define FCS_CRYPTO_CBC_MODE					0x01
+#define FCS_CRYPTO_CTR_MODE					0x02
+#define FCS_CRYPTO_GCM_MODE					0x03
+#define FCS_CRYPTO_GCM_GHASH_MODE				0x04
+
+#define FCS_HKDF_REQUEST_DATA_SIZE				512U
+#define FCS_HKDF_KEY_OBJ_MAX_SIZE				352U
+#define FCS_HKDF_KEY_DATA_SIZE					168U
+#define FCS_HKDF_STEP0_1_KEY_OBJ_SIZE_BITS			384U
+#define FCS_HKDF_STEP2_KEY_OBJ_SIZE_BITS			256U
+#define FCS_HKDF_INPUT_BLOCK_SIZE				80U
+#define FCS_HKDF_SHA2_384_KEY_DATA_SIZE				48U
 
 /* FCS Payload Structure */
 typedef struct fcs_rng_payload_t {
@@ -183,10 +194,12 @@ uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
 				uint32_t *mbox_error);
 int intel_fcs_random_number_gen_ext(uint32_t session_id, uint32_t context_id,
 				uint32_t size, uint32_t *send_id);
-uint32_t intel_fcs_send_cert(uint64_t addr, uint64_t size,
+uint32_t intel_fcs_send_cert(uint32_t smc_fid, uint32_t trans_id,
+				uint64_t addr, uint64_t size,
 				uint32_t *send_id);
 uint32_t intel_fcs_get_provision_data(uint32_t *send_id);
-uint32_t intel_fcs_cntr_set_preauth(uint8_t counter_type,
+uint32_t intel_fcs_cntr_set_preauth(uint32_t smc_fid, uint32_t trans_id,
+				uint8_t counter_type,
 				int32_t counter_value,
 				uint32_t test_bit,
 				uint32_t *mbox_error);
@@ -198,14 +211,18 @@ uint32_t intel_fcs_decryption(uint32_t src_addr, uint32_t src_size,
 				uint32_t dst_addr, uint32_t dst_size,
 				uint32_t *send_id);
 
-int intel_fcs_encryption_ext(uint32_t session_id, uint32_t context_id,
+int intel_fcs_encryption_ext(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint32_t dst_addr, uint32_t *dst_size,
-				uint32_t *mbox_error);
-int intel_fcs_decryption_ext(uint32_t sesion_id, uint32_t context_id,
+				uint32_t *mbox_error, uint32_t smmu_src_addr,
+				uint32_t smmu_dst_addr);
+int intel_fcs_decryption_ext(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t sesion_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint32_t dst_addr, uint32_t *dst_size,
-				uint32_t *mbox_error);
+				uint32_t *mbox_error, uint64_t owner_id,
+				uint32_t smmu_src_addr, uint32_t smmu_dst_addr);
 
 int intel_fcs_sigma_teardown(uint32_t session_id, uint32_t *mbox_error);
 int intel_fcs_chip_id(uint32_t *id_low, uint32_t *id_high, uint32_t *mbox_error);
@@ -218,9 +235,10 @@ int intel_fcs_get_measurement(uint64_t src_addr, uint32_t src_size,
 uint32_t intel_fcs_get_rom_patch_sha384(uint64_t addr, uint64_t *ret_size,
 				uint32_t *mbox_error);
 
-int intel_fcs_create_cert_on_reload(uint32_t cert_request,
-				uint32_t *mbox_error);
-int intel_fcs_get_attestation_cert(uint32_t cert_request, uint64_t dst_addr,
+int intel_fcs_create_cert_on_reload(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t cert_request, uint32_t *mbox_error);
+int intel_fcs_get_attestation_cert(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t cert_request, uint64_t dst_addr,
 				uint32_t *dst_size, uint32_t *mbox_error);
 
 int intel_fcs_open_crypto_service_session(uint32_t *session_id,
@@ -242,10 +260,12 @@ int intel_fcs_get_crypto_service_key_info(uint32_t session_id, uint32_t key_id,
 int intel_fcs_get_digest_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
 				uint64_t param_data, uint32_t *mbox_error);
-int intel_fcs_get_digest_update_finalize(uint32_t session_id, uint32_t context_id,
+int intel_fcs_get_digest_update_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
-				uint8_t is_finalised, uint32_t *mbox_error);
+				uint8_t is_finalised, uint32_t *mbox_error,
+				uint32_t smmu_src_addr);
 int intel_fcs_get_digest_smmu_update_finalize(uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
@@ -255,11 +275,12 @@ int intel_fcs_get_digest_smmu_update_finalize(uint32_t session_id, uint32_t cont
 int intel_fcs_mac_verify_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
 				uint64_t param_data, uint32_t *mbox_error);
-int intel_fcs_mac_verify_update_finalize(uint32_t session_id, uint32_t context_id,
+int intel_fcs_mac_verify_update_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
 				uint32_t data_size, uint8_t is_finalised,
-				uint32_t *mbox_error);
+				uint32_t *mbox_error, uint64_t smmu_src_addr);
 int intel_fcs_mac_verify_smmu_update_finalize(uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
@@ -269,7 +290,8 @@ int intel_fcs_mac_verify_smmu_update_finalize(uint32_t session_id, uint32_t cont
 int intel_fcs_ecdsa_hash_sign_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
 				uint64_t param_data, uint32_t *mbox_error);
-int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
+int intel_fcs_ecdsa_hash_sign_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
 				uint32_t *mbox_error);
@@ -277,7 +299,8 @@ int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
 int intel_fcs_ecdsa_hash_sig_verify_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
 				uint64_t param_data, uint32_t *mbox_error);
-int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t session_id, uint32_t context_id,
+int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
 				uint32_t *mbox_error);
@@ -286,11 +309,12 @@ int intel_fcs_ecdsa_sha2_data_sign_init(uint32_t session_id,
 				uint32_t context_id, uint32_t key_id,
 				uint32_t param_size, uint64_t param_data,
 				uint32_t *mbox_error);
-int intel_fcs_ecdsa_sha2_data_sign_update_finalize(uint32_t session_id,
-				uint32_t context_id, uint32_t src_addr,
-				uint32_t src_size, uint64_t dst_addr,
-				uint32_t *dst_size, uint8_t is_finalised,
-				uint32_t *mbox_error);
+int intel_fcs_ecdsa_sha2_data_sign_update_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
+				uint64_t dst_addr, uint32_t *dst_size,
+				uint8_t is_finalised, uint32_t *mbox_error,
+				uint64_t smmu_src_addr);
 int intel_fcs_ecdsa_sha2_data_sign_smmu_update_finalize(uint32_t session_id,
 				uint32_t context_id, uint32_t src_addr,
 				uint32_t src_size, uint64_t dst_addr,
@@ -301,11 +325,12 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_init(uint32_t session_id,
 				uint32_t context_id, uint32_t key_id,
 				uint32_t param_size, uint64_t param_data,
 				uint32_t *mbox_error);
-int intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(uint32_t session_id,
-				uint32_t context_id, uint32_t src_addr,
-				uint32_t src_size, uint64_t dst_addr,
-				uint32_t *dst_size, uint32_t data_size,
-				uint8_t is_finalised, uint32_t *mbox_error);
+int intel_fcs_ecdsa_sha2_data_sig_verify_update_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
+				uint64_t dst_addr, uint32_t *dst_size,
+				uint32_t data_size, uint8_t is_finalised,
+				uint32_t *mbox_error, uint64_t smmu_src_addr);
 int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_id,
 				uint32_t context_id, uint32_t src_addr,
 				uint32_t src_size, uint64_t dst_addr,
@@ -316,14 +341,16 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_smmu_update_finalize(uint32_t session_i
 int intel_fcs_ecdsa_get_pubkey_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
 				uint64_t param_data, uint32_t *mbox_error);
-int intel_fcs_ecdsa_get_pubkey_finalize(uint32_t session_id, uint32_t context_id,
+int intel_fcs_ecdsa_get_pubkey_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
 				uint64_t dst_addr, uint32_t *dst_size,
 				uint32_t *mbox_error);
 
 int intel_fcs_ecdh_request_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint32_t param_size,
 				uint64_t param_data, uint32_t *mbox_error);
-int intel_fcs_ecdh_request_finalize(uint32_t session_id, uint32_t context_id,
+int intel_fcs_ecdh_request_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
 				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
 				uint32_t *mbox_error);
@@ -331,10 +358,16 @@ int intel_fcs_ecdh_request_finalize(uint32_t session_id, uint32_t context_id,
 int intel_fcs_aes_crypt_init(uint32_t session_id, uint32_t context_id,
 				uint32_t key_id, uint64_t param_addr,
 				uint32_t param_size, uint32_t *mbox_error);
-int intel_fcs_aes_crypt_update_finalize(uint32_t session_id,
-				uint32_t context_id, uint64_t src_addr,
-				uint32_t src_size, uint64_t dst_addr,
-				uint32_t dst_size, uint8_t is_finalised,
-				uint32_t *send_id);
+int intel_fcs_aes_crypt_update_finalize(uint32_t smc_fid, uint32_t trans_id,
+				uint32_t session_id, uint32_t context_id,
+				uint64_t src_addr, uint32_t src_size,
+				uint64_t dst_addr, uint32_t dst_size,
+				uint32_t aad_size, uint8_t is_finalised,
+				uint32_t *send_id, uint64_t smmu_src_addr,
+				uint64_t smmu_dst_addr);
 
+int intel_fcs_hkdf_request(uint32_t smc_fid, uint32_t trans_id,
+			uint32_t session_id, uint32_t step_type,
+			uint32_t mac_mode, uint32_t src_addr,
+			uint32_t key_uid, uint32_t op_key_size);
 #endif /* SOCFPGA_FCS_H */
