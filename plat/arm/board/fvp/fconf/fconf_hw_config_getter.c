@@ -84,8 +84,12 @@ int fconf_populate_topology(uintptr_t config)
 	/* Find the offset of the node containing "arm,psci-1.0" compatible property */
 	node = fdt_node_offset_by_compatible(hw_config_dtb, -1, "arm,psci-1.0");
 	if (node < 0) {
-		ERROR("FCONF: Unable to locate node with arm,psci-1.0 compatible property\n");
-		return node;
+		/* Fall back to 0.2 */
+		node = fdt_node_offset_by_compatible(hw_config_dtb, -1, "arm,psci-0.2");
+		if (node < 0) {
+			ERROR("FCONF: Unable to locate node with arm,psci compatible property\n");
+			return node;
+		}
 	}
 
 	err = fdt_read_uint32(hw_config_dtb, node, "max-pwr-lvl", &max_pwr_lvl);
