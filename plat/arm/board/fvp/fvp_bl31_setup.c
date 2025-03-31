@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,10 +28,7 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
-#if TRANSFER_LIST
-	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
-#else
-#if !RESET_TO_BL31 && !RESET_TO_BL2
+#if !(TRANSFER_LIST || RESET_TO_BL31 || RESET_TO_BL2)
 	const struct dyn_cfg_dtb_info_t *soc_fw_config_info;
 
 	INFO("BL31 FCONF: FW_CONFIG address = %lx\n", (uintptr_t)arg1);
@@ -53,9 +50,9 @@ void __init bl31_early_platform_setup2(u_register_t arg0,
 	assert(hw_config_info != NULL);
 	assert(hw_config_info->secondary_config_addr != 0UL);
 	arg2 = hw_config_info->secondary_config_addr;
-#endif /* !RESET_TO_BL31 && !RESET_TO_BL2 */
-	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
-#endif /* TRANSFER_LIST */
+#endif /* !(TRANSFER_LIST || RESET_TO_BL31 || RESET_TO_BL2)*/
+
+	arm_bl31_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();

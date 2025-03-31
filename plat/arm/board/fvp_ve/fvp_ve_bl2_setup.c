@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
-	arm_bl2_early_platform_setup((uintptr_t)arg0, (meminfo_t *)arg1);
+	arm_bl2_early_platform_setup(arg0, arg1, arg2, arg3);
 
 	/* Initialize the platform config for future decision making */
 	fvp_ve_config_setup();
