@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -166,7 +166,7 @@ static int32_t non_arm_interconnect_errata(uint32_t errata_id, long rev_var)
 #endif
 
 /* Function to check if the errata exists for the specific CPU and rxpx */
-int32_t verify_errata_implemented(uint32_t errata_id, uint32_t forward_flag)
+int32_t verify_errata_implemented(uint32_t errata_id)
 {
 	int32_t ret_val;
 	struct cpu_ops *cpu_ops;
@@ -271,7 +271,7 @@ uintptr_t errata_abi_smc_handler(uint32_t smc_fid, u_register_t x1,
 		if (((uint32_t)x2 != 0) && (validate_spsr_mode())) {
 			SMC_RET1(handle, EM_INVALID_PARAMETERS);
 		}
-		ret_id = verify_errata_implemented((uint32_t)x1, (uint32_t)x2);
+		ret_id = verify_errata_implemented((uint32_t)x1);
 		SMC_RET1(handle, ret_id);
 		break; /* unreachable */
 	default:
