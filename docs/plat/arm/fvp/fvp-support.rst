@@ -1,8 +1,16 @@
 Fixed Virtual Platform (FVP) Support
 ------------------------------------
 
-This section lists the supported Arm |FVP| platforms. Please refer to the FVP
-documentation for a detailed description of the model parameter options.
+An |FVP| provides a complete simulation of an Arm system. This is a generic term
+used for all kinds of vastly different and incompatible systems. One category of
+these systems are the ``FVP_Base`` family of FVPs. These are entirely virtual
+platforms, largely used for early feature development. They offer a large
+degrees of customisation but share a lot of similarities. The ``fvp`` platform
+in TF-A supports these platforms only. Despite the generic name, other FVPs (eg
+FVP_TC4) have their own dedicated TF-A platforms and will not work with this one.
+
+Please refer to each FVP's documentation for a detailed description of the model
+parameter options.
 
 The latest version of the AArch64 build of TF-A has been tested on the following
 Arm FVPs without shifted affinities, and that do not support threaded CPU cores
@@ -41,9 +49,6 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Neoverse-N1``
 -  ``FVP_Base_Neoverse-N2``
 -  ``FVP_Base_Neoverse-V1``
--  ``FVP_BaseR_AEMv8R``
--  ``FVP_RD_1_AE``
--  ``FVP_TC4``
 
 The latest version of the AArch32 build of TF-A has been tested on the
 following Arm FVPs without shifted affinities, and that do not support threaded
@@ -58,9 +63,8 @@ CPU cores (64-bit host machine only).
    is not compatible with legacy GIC configurations. Therefore this FVP does not
    support these legacy GIC configurations.
 
-The *Foundation* and *Base* FVPs can be downloaded free of charge. See the `Arm
-FVP website`_. The Cortex-A models listed above are also available to download
-from `Arm's website`_.
+The *Foundation* and *Base* FVPs can be downloaded free of charge. See the
+`Arm's website`_ for download options of all FVPs.
 
 .. note::
    The build numbers quoted above are those reported by launching the FVP
@@ -94,7 +98,5 @@ All the above platforms have been tested with `Linaro Release 20.01`_.
 
 *Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
 
-.. _Arm's website: `FVP models`_
-.. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
+.. _Arm's website: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Linaro Release 20.01: http://releases.linaro.org/members/arm/platforms/20.01
-.. _Arm FVP website: https://developer.arm.com/products/system-design/fixed-virtual-platforms
