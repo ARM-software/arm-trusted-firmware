@@ -1359,6 +1359,16 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 		/* Execution stops here. */
 
 	/* Supported ABIs only from the secure world. */
+	case FFA_MEM_PERM_GET_SMC32:
+	case FFA_MEM_PERM_GET_SMC64:
+	case FFA_MEM_PERM_SET_SMC32:
+	case FFA_MEM_PERM_SET_SMC64:
+	/* these ABIs are only supported from S-EL0 SPs */
+	#if !(SPMC_AT_EL3_SEL0_SP)
+		return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+	#endif
+	/* fall through */
+
 	case FFA_SECONDARY_EP_REGISTER_SMC64:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
@@ -1367,7 +1377,6 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	case FFA_MSG_WAIT:
 	case FFA_CONSOLE_LOG_SMC32:
 	case FFA_CONSOLE_LOG_SMC64:
-
 		if (!secure_origin) {
 			return spmc_ffa_error_return(handle,
 				FFA_ERROR_NOT_SUPPORTED);
