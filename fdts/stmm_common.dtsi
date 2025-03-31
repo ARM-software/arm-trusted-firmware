@@ -1,0 +1,51 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef _STMM_COMMON_DTSI
+#define _STMM_COMMON_DTSI
+
+#define ES_AARCH32		(1)
+#define ES_AARCH64		(0)
+
+#define TG_4KB			(0x0)
+#define TG_16KB			(0x1)
+#define TG_64KB			(0x2)
+
+#define MODE_SEL0		(0x1)
+#define MODE_SEL1		(0x2)
+
+#define SECURE_RO		(0x1)
+#define SECURE_RW		(0x3)
+#define SECURE_EXECUTE_RO	(0x5)
+#define SECURE_EXECUTE_RW	(0x7)
+#define NON_SECURE_RO		(0x9)
+#define NON_SECURE_RW		(0xB)
+#define NON_SECURE_EXECUTE_RO	(0xD)
+#define NON_SECURE_EXECUTE_RW	(0xF)
+
+#define PAGE_SHIFT		(12)
+#define PAGE_ALIGN(x)		((x) & ~(PAGE_SHIFT -1))
+#define PAGE_ALIGN_UP(x)	((x + (PAGE_SHIFT - 1)) & ~(PAGE_SHIFT - 1))
+#define PAGE_COUNT(size)	(PAGE_ALIGN_UP(size) >> PAGE_SHIFT)
+
+#define ADDR_INIT(addr) \
+	(PAGE_ALIGN(addr) >> 32) (PAGE_ALIGN(addr) & 0xffffffff)
+
+#define SIZE_INIT(size) \
+	((size) >> 32) ((size) & 0xffffffff)
+
+#define UUID_INIT(a, b, c, d0, d1, d2, d3, d4, d5, d6, d7)	\
+	((((a) >> 24) & 0xff) | ((((a) >> 16) & 0xff) << 8) |	\
+	 ((((a) >> 8) & 0xff) << 16) | (((a) & 0xff) << 24))	\
+	((((b) >> 8) & 0xff) | (((b) & 0xff) << 8) |		\
+	 ((((c) >> 8) & 0xff) << 16) | (((c) & 0xff) << 24))	\
+	(((d0) & 0xff) | (((d1) & 0xff) << 8) |			\
+	 (((d2) & 0xff) << 16) | (((d3) & 0xff) << 24))		\
+	(((d4) & 0xff) | (((d5) & 0xff) << 8) |			\
+	 (((d6) & 0xff) << 16) | (((d7) & 0xff) << 24))
+
+#endif /* _STMM_COMMON_DTSI */
+
