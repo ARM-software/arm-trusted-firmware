@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
- * Copyright (C) 2022-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2022-2025, STMicroelectronics - All Rights Reserved
  */
 
 /*
  * STM32MP25 DDR4 board configuration
  * DDR4 2x8Gbits 2x16bits 1200MHz
  *
- * version     1
- * package     1        Package selection (14x14 and 18x18)
- * memclk      1200MHz  (2x DFI clock) + range check
- * Speed_Bin   Worse    from JEDEC
- * width       32       32: full width / 16: half width
- * ranks       1        Single or Dual rank
- * density     8Gbits   (per 16bit device)
- * Addressing  RBC      row/bank interleaving
- * RDBI        No       Read DBI
+ * version      2
+ * package      1        Package selection (14x14 and 18x18)
+ * memclk       1200MHz  (2x DFI clock) + range check
+ * Speed_Bin    Worse    from JEDEC
+ * device_width 16       x16 by default
+ * width        32       32: full width / 16: half width
+ * density      8Gbits   (per device)
+ * Addressing   RBC      row/bank interleaving
+ * RDBI         No       Read DBI
  */
 
 #define DDR_MEM_NAME	"DDR4 2x8Gbits 2x16bits 1200MHz"
@@ -49,6 +49,7 @@
 #define DDR_INIT7 0x00000C16
 #define DDR_DIMMCTL 0x00000000
 #define DDR_RANKCTL 0x0000066F
+#define DDR_RANKCTL1 0x0000000D
 #define DDR_DRAMTMG0 0x11152815
 #define DDR_DRAMTMG1 0x0004051E
 #define DDR_DRAMTMG2 0x0609060D
@@ -94,31 +95,34 @@
 #define DDR_ADDRMAP11 0x00000007
 #define DDR_ODTCFG 0x06000618
 #define DDR_ODTMAP 0x00000001
-#define DDR_SCHED 0x00000F00
+#define DDR_SCHED 0x80001B00
 #define DDR_SCHED1 0x00000000
-#define DDR_PERFHPR1 0x0F000001
-#define DDR_PERFLPR1 0x0F000080
-#define DDR_PERFWR1 0x01000200
+#define DDR_PERFHPR1 0x04000200
+#define DDR_PERFLPR1 0x08000080
+#define DDR_PERFWR1 0x08000400
+#define DDR_SCHED3 0x04040208
+#define DDR_SCHED4 0x08400810
 #define DDR_DBG0 0x00000000
 #define DDR_DBG1 0x00000000
 #define DDR_DBGCMD 0x00000000
 #define DDR_SWCTL 0x00000000
+#define DDR_SWCTLSTATIC 0x00000000
 #define DDR_POISONCFG 0x00000000
 #define DDR_PCCFG 0x00000000
-#define DDR_PCFGR_0 0x00004100
+#define DDR_PCFGR_0 0x00704100
 #define DDR_PCFGW_0 0x00004100
 #define DDR_PCTRL_0 0x00000000
-#define DDR_PCFGQOS0_0 0x00200007
-#define DDR_PCFGQOS1_0 0x01000100
-#define DDR_PCFGWQOS0_0 0x00000C07
-#define DDR_PCFGWQOS1_0 0x02000200
-#define DDR_PCFGR_1 0x00004100
+#define DDR_PCFGQOS0_0 0x0021000C
+#define DDR_PCFGQOS1_0 0x01000080
+#define DDR_PCFGWQOS0_0 0x01100C07
+#define DDR_PCFGWQOS1_0 0x04000200
+#define DDR_PCFGR_1 0x00704100
 #define DDR_PCFGW_1 0x00004100
 #define DDR_PCTRL_1 0x00000000
-#define DDR_PCFGQOS0_1 0x00200007
-#define DDR_PCFGQOS1_1 0x01000180
-#define DDR_PCFGWQOS0_1 0x00000C07
-#define DDR_PCFGWQOS1_1 0x04000400
+#define DDR_PCFGQOS0_1 0x00100007
+#define DDR_PCFGQOS1_1 0x01000080
+#define DDR_PCFGWQOS0_1 0x01100C07
+#define DDR_PCFGWQOS1_1 0x04000200
 
 #define DDR_UIB_DRAMTYPE 0x00000000
 #define DDR_UIB_DIMMTYPE 0x00000004
