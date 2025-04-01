@@ -869,6 +869,9 @@ subsections:
       - title: MPMM
         scope: mpmm
 
+      - title: Per-cpu
+        scope: per-cpu
+
       - title: PSCI
         scope: psci
 
