@@ -160,6 +160,11 @@ BL31_SOURCES		+=	common/fdt_wrappers.c                           \
 				${PLAT_PATH}/sip_svc_setup.c			\
 				${PLAT_PATH}/gicv3.c
 
+
+ifeq ($(DEBUG),1)
+BL31_SOURCES            +=      ${PLAT_PATH}/plat_ocm_coherency.c
+endif
+
 ifeq (${ERRATA_ABI_SUPPORT}, 1)
 # enable the cpu macros for errata abi interface
 CORTEX_A78_AE_H_INC     := 1

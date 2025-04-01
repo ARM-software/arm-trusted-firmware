@@ -31,6 +31,8 @@
 #include <pm_api_sys.h>
 #include <pm_client.h>
 
+#include <plat_ocm_coherency.h>
+
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
@@ -139,6 +141,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	config_setup();
 
 	setup_console();
+
+	if (IS_TFA_IN_OCM(BL31_BASE) && (check_ocm_coherency() < 0)) {
+		NOTICE("OCM coherency check not supported\n");
+	}
 
 	NOTICE("TF-A running on %s v%d.%d, RTL v%d.%d, PS v%d.%d, PMC v%d.%d\n",
 		board_name_decode(),
