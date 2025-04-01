@@ -89,6 +89,19 @@ ifeq (${STM32MP_DDR_FIP_IO_STORAGE},1)
 $(eval $(call TOOL_ADD_IMG,STM32MP_DDR_FW,--ddr-fw))
 endif
 
+# Ultratronik Specific Boards
+ifeq ($(findstring ultra-fly,$(DTB_FILE_NAME)),ultra-fly)
+ULTRA_FLY := 1
+$(eval $(call assert_booleans,\
+	$(sort \
+		ULTRA_FLY \
+	)))
+$(eval $(call add_defines,\
+	$(sort \
+		ULTRA_FLY \
+	)))
+endif
+
 # Enable flags for C files
 $(eval $(call assert_booleans,\
 	$(sort \
