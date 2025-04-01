@@ -47,9 +47,7 @@ class TfaBuildParser:
 
     @property
     def symbols(self) -> list:
-        return [
-            (*sym, k) for k, v in self._modules.items() for sym in v.symbols
-        ]
+        return [(*sym, k) for k, v in self._modules.items() for sym in v.symbols]
 
     @staticmethod
     def filter_symbols(symbols: list, regex: str = None) -> list:

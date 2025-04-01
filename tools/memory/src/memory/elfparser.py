@@ -54,9 +54,9 @@ class TfaElfParser:
         """Converts a pyelfparser Segment or Section to a TfaMemObject."""
         # Ensure each segment is provided a name since they aren't in the
         # program header.
-        assert not (
-            segment and name is None
-        ), "Attempting to make segment without a name"
+        assert not (segment and name is None), (
+            "Attempting to make segment without a name"
+        )
 
         if children is None:
             children = list()
@@ -91,9 +91,7 @@ class TfaElfParser:
 
     def set_segment_section_map(self, segments, sections):
         """Set segment to section mappings."""
-        segments = list(
-            filter(lambda seg: seg["p_type"] == "PT_LOAD", segments)
-        )
+        segments = list(filter(lambda seg: seg["p_type"] == "PT_LOAD", segments))
 
         for sec in sections:
             for n, seg in enumerate(segments):
@@ -103,9 +101,7 @@ class TfaElfParser:
                             seg, name=f"{n:#02}", segment=True
                         )
 
-                    self._segments[n].children.append(
-                        self.tfa_mem_obj_factory(sec)
-                    )
+                    self._segments[n].children.append(self.tfa_mem_obj_factory(sec))
 
     def get_memory_layout_from_symbols(self, expr=None) -> dict:
         """Retrieve information about the memory configuration from the symbol

@@ -16,6 +16,12 @@ python = "^3.8.0"
 [tool.poetry.scripts]
 memory = "memory.memmap:main"
 
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

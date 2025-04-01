@@ -57,19 +57,14 @@ class TfaMapParser:
 
             if "start" and "length" and "end" in memory_layout[region]:
                 memory_layout[region]["limit"] = (
-                    memory_layout[region]["start"]
-                    + memory_layout[region]["length"]
+                    memory_layout[region]["start"] + memory_layout[region]["length"]
                 )
                 memory_layout[region]["free"] = (
-                    memory_layout[region]["limit"]
-                    - memory_layout[region]["end"]
+                    memory_layout[region]["limit"] - memory_layout[region]["end"]
                 )
-                memory_layout[region]["total"] = memory_layout[region][
-                    "length"
-                ]
+                memory_layout[region]["total"] = memory_layout[region]["length"]
                 memory_layout[region]["size"] = (
-                    memory_layout[region]["end"]
-                    - memory_layout[region]["start"]
+                    memory_layout[region]["end"] - memory_layout[region]["start"]
                 )
 
         return memory_layout

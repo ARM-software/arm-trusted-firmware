@@ -50,13 +50,11 @@ class TfaPrettyPrinter:
         if len_over > 0:
             section_name = section_name[len_over:-len_over]
 
-        sec_row = f"+{section_name:-^{width-1}}+"
+        sec_row = f"+{section_name:-^{width - 1}}+"
         sep, fill = ("+", "-") if is_edge else ("|", "")
 
         sec_row_l = empty_col.format(sep, fill + "<", width) * rel_pos
-        sec_row_r = empty_col.format(sep, fill + ">", width) * (
-            columns - rel_pos - 1
-        )
+        sec_row_r = empty_col.format(sep, fill + ">", width) * (columns - rel_pos - 1)
 
         return leading + sec_row_l + sec_row + sec_row_r
 
@@ -84,9 +82,7 @@ class TfaPrettyPrinter:
                     table.add_row(
                         [
                             mod.upper(),
-                            *self.format_args(
-                                *[val[k.lower()] for k in fields[1:]]
-                            ),
+                            *self.format_args(*[val[k.lower()] for k in fields[1:]]),
                         ]
                     )
             print(table, "\n")
@@ -102,22 +98,17 @@ class TfaPrettyPrinter:
         col_width = int((self.term_size - start) / len(modules))
         address_fixed_width = 11
 
-        num_fmt = (
-            f"0=#0{address_fixed_width}x" if not self.as_decimal else ">10"
-        )
+        num_fmt = f"0=#0{address_fixed_width}x" if not self.as_decimal else ">10"
 
         _symbol_map = [
-            " " * start
-            + "".join(self.format_args(*modules, fmt=f"^{col_width}"))
+            " " * start + "".join(self.format_args(*modules, fmt=f"^{col_width}"))
         ]
         last_addr = None
 
         for i, (name, addr, mod) in enumerate(symbols):
             # Do not print out an address twice if two symbols overlap,
             # for example, at the end of one region and start of another.
-            leading = (
-                f"{addr:{num_fmt}}" + " " if addr != last_addr else " " * start
-            )
+            leading = f"{addr:{num_fmt}}" + " " if addr != last_addr else " " * start
 
             _symbol_map.append(
                 self.map_elf_symbol(

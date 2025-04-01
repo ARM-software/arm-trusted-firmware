@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 #
 # Copyright (c) 2023-2025, Arm Limited. All rights reserved.
 #
@@ -9,6 +7,7 @@
 from pathlib import Path
 
 import click
+
 from memory.buildparser import TfaBuildParser
 from memory.printer import TfaPrettyPrinter
 
