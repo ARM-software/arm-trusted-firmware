@@ -493,7 +493,5 @@ void initialize_pmic(void)
 		panic();
 	}
 
-#if EVENT_LOG_LEVEL == LOG_LEVEL_VERBOSE
 	stpmic2_dump_regulators(pmic2);
-#endif
 }
