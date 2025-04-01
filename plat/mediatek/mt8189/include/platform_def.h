@@ -253,4 +253,11 @@
 #define SPM_BASE		(IO_PHYS + 0x0C001000)
 #define SPM_REG_SIZE		(0x1000)
 
+/*******************************************************************************
+ * CPU_EB related constants
+ ******************************************************************************/
+#define CPU_EB_TCM_BASE		(0x0C56F000)
+#define CPU_EB_TCM_SIZE		(0x1000)
+#define CPU_EB_MBOX3_OFFSET	(0xCE0)
+
 #endif /* PLATFORM_DEF_H */

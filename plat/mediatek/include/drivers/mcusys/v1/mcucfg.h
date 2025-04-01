@@ -109,7 +109,11 @@
 
 /* CPC_MCUSYS_CPC_FLOW_CTRL_CFG bit control */
 #define CPC_CTRL_ENABLE				BIT(16)
+#ifdef CPU_PM_SPM_CORE_POWERON
+#define SSPM_ALL_PWR_CTRL_EN			BIT(13)
+#else
 #define SSPM_ALL_PWR_CTRL_EN			BIT(17)
+#endif
 #define GIC_WAKEUP_IGNORE(cpu)			BIT(21 + (cpu))
 
 #define CPC_MCUSYS_CPC_RESET_ON_KEEP_ON		BIT(17)
@@ -126,6 +130,9 @@
 #define SPM_MP0_CPU5_PWR_CON			(MCUCFG_BASE + 0xd21c)
 #define SPM_MP0_CPU6_PWR_CON			(MCUCFG_BASE + 0xd220)
 #define SPM_MP0_CPU7_PWR_CON			(MCUCFG_BASE + 0xd224)
+
+#define MCSIC_DCM0				(MCUCFG_BASE + 0xa440)
+#define MCSIC_DCM1				(MCUCFG_BASE + 0xa444)
 
 /* bit fields of SPM_*_PWR_CON */
 #define PWR_ON_ACK				BIT(31)

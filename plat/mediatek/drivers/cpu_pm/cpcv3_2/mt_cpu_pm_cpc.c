@@ -241,13 +241,21 @@ void mtk_cpc_init(void)
 #endif
 	mmio_setbits_32(CPC_MCUSYS_CPC_DBG_SETTING, (CPC_DBG_EN | CPC_CALC_EN));
 
+#if CPU_PM_CACHE_AUTO_DORMANT_DIS
+	cpc.auto_off = 0;
+#else
 	cpc.auto_off = 1;
+#endif
 	mmio_setbits_32(CPC_MCUSYS_CPC_FLOW_CTRL_CFG, (CPC_OFF_PRE_EN |
 						      ((cpc.auto_off > 0) ? CPC_AUTO_OFF_EN : 0)));
 
 	mtk_cpc_config(CPC_SMC_CONFIG_AUTO_OFF_THRES, 8000);
 
-	/* enable CPC */
+#if CPU_PM_CACHE_AUTO_DORMANT_DIS
+	mmio_setbits_32(MCSIC_DCM0, 0xFFFF);
+	mmio_setbits_32(CPC_MCUSYS_CPC_FLOW_CTRL_CFG, CPC_CTRL_ENABLE);
+#else
 	mmio_setbits_32(CPC_MCUSYS_CPC_FLOW_CTRL_CFG, CPC_CTRL_ENABLE);
 	mmio_setbits_32(CPC_MCUSYS_CPC_FLOW_CTRL_CFG, SSPM_CORE_PWR_ON_EN);
+#endif
 }

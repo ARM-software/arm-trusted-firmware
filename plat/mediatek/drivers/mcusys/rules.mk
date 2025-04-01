@@ -8,7 +8,7 @@ LOCAL_DIR := $(call GET_LOCAL_DIR)
 
 MODULE := mcusys
 
-ifeq ($(MTK_SOC), mt8196)
+ifneq ($(filter $(MTK_SOC), mt8196 mt8189),)
 PLAT_INCLUDES += -I${MTK_PLAT}/include/drivers/mcusys/$(MCUSYS_VERSION)
 ifneq ($(MCUPM_VERSION),)
 PLAT_INCLUDES += -I${MTK_PLAT}/include/drivers/mcusys/mcupm
