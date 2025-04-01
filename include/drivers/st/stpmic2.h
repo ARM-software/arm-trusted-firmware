@@ -146,6 +146,51 @@ enum {
 #define INT_DBG_LATCH_R3	0x82
 #define INT_DBG_LATCH_R4	0x83
 
+/* NVM user control registers */
+#define NVM_SR			0x8E
+#define NVM_CR			0x8F
+
+/* NVM user shadow registers */
+#define NVM_MAIN_CTRL_SHR1	0x90
+#define NVM_MAIN_CTRL_SHR2	0x91
+#define NVM_RANK_SHR1		0x92
+#define NVM_RANK_SHR2		0x93
+#define NVM_RANK_SHR3		0x94
+#define NVM_RANK_SHR4		0x95
+#define NVM_RANK_SHR5		0x96
+#define NVM_RANK_SHR6		0x97
+#define NVM_RANK_SHR7		0x98
+#define NVM_RANK_SHR8		0x99
+#define NVM_BUCK_MODE_SHR1	0x9A
+#define NVM_BUCK_MODE_SHR2	0x9B
+#define NVM_BUCK1_VOUT_SHR	0x9C
+#define NVM_BUCK2_VOUT_SHR	0x9D
+#define NVM_BUCK3_VOUT_SHR	0x9E
+#define NVM_BUCK4_VOUT_SHR	0x9F
+#define NVM_BUCK5_VOUT_SHR	0xA0
+#define NVM_BUCK6_VOUT_SHR	0xA1
+#define NVM_BUCK7_VOUT_SHR	0xA2
+#define NVM_LDO2_SHR		0xA3
+#define NVM_LDO3_SHR		0xA4
+#define NVM_LDO5_SHR		0xA5
+#define NVM_LDO6_SHR		0xA6
+#define NVM_LDO7_SHR		0xA7
+#define NVM_LDO8_SHR		0xA8
+#define NVM_PD_SHR1		0xA9
+#define NVM_PD_SHR2		0xAA
+#define NVM_PD_SHR3		0xAB
+#define NVM_BUCKS_IOUT_SHR1	0xAC
+#define NVM_BUCKS_IOUT_SHR2	0xAD
+#define NVM_LDOS_IOUT_SHR	0xAE
+#define NVM_FS_OCP_SHR1	0xAF
+#define NVM_FS_OCP_SHR2	0xB0
+#define NVM_FS_SHR1		0xB1
+#define NVM_FS_SHR2		0xB2
+#define NVM_FS_SHR3		0xB3
+#define NVM_I2C_ADDR_SHR	0xB5
+#define NVM_USER_SHR1		0xB6
+#define NVM_USER_SHR2		0xB7
+
 /* BUCKS_MRST_CR bits definition */
 #define BUCK1_MRST		BIT(0)
 #define BUCK2_MRST		BIT(1)
@@ -236,6 +281,16 @@ enum {
 #define FS_OCP_LDO6		BIT(5)
 #define FS_OCP_LDO7		BIT(6)
 #define FS_OCP_LDO8		BIT(7)
+
+/* NVM_CR */
+#define NVM_CMD_MASK		GENMASK_32(1, 0)
+
+#define NVM_CMD_PROGRAM		1
+#define NVM_CMD_READ		2
+
+/* NVM_SR */
+#define NVM_BUSY		BIT(0)
+#define NVM_WRITE_FAIL		BIT(1)
 
 /* IRQ definitions */
 #define IT_PONKEY_F	0
