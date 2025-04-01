@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -176,9 +176,9 @@ CREATE_FEATURE_PRESENT(feat_pacqarma3, id_aa64isar2_el1, 0,
 			((ID_AA64ISAR2_GPA3_MASK << ID_AA64ISAR2_GPA3_SHIFT) |
 			(ID_AA64ISAR2_APA3_MASK << ID_AA64ISAR2_APA3_SHIFT)), 1U)
 
-/* PAUTH */
+/* FEAT_PAUTH: Pointer Authentication */
 __attribute__((always_inline))
-static inline bool is_armv8_3_pauth_present(void)
+static inline bool is_feat_pauth_present(void)
 {
 	uint64_t mask_id_aa64isar1 =
 		(ID_AA64ISAR1_GPI_MASK << ID_AA64ISAR1_GPI_SHIFT) |
@@ -193,6 +193,8 @@ static inline bool is_armv8_3_pauth_present(void)
 	return ((read_id_aa64isar1_el1() & mask_id_aa64isar1) != 0U ||
 		is_feat_pacqarma3_present());
 }
+CREATE_FEATURE_SUPPORTED(feat_pauth, is_feat_pauth_present, ENABLE_PAUTH)
+CREATE_FEATURE_SUPPORTED(ctx_pauth, is_feat_pauth_present, CTX_INCLUDE_PAUTH_REGS)
 
 /* FEAT_TTST: Small translation tables */
 CREATE_FEATURE_PRESENT(feat_ttst, id_aa64mmfr2_el1, ID_AA64MMFR2_EL1_ST_SHIFT,
