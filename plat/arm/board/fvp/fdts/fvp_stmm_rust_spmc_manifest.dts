@@ -1,0 +1,82 @@
+/*
+ * Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+/**
+ * dtc compiler doesn't define architecture.
+ * To get proper define value for StandaloneMm, we need to define manually
+ * before including platform_def.h
+ */
+#define __aarch64__	1
+
+#include <platform_def.h>
+
+#define STMM_CORE_COUNT	1
+
+/**
+ * device region values.
+ */
+#define STMM_IOFPGA_BASE	V2M_IOFPGA_BASE
+#define STMM_IOFPGA_SIZE	V2M_IOFPGA_SIZE
+
+#define STMM_SYSREG_BASE	V2M_SYSREGS_BASE
+#define STMM_SYSREG_SIZE	V2M_SYSREGS_SIZE
+
+#define STMM_SOCCMP_BASE	DEVICE0_BASE
+#define STMM_SOCCMP_SIZE	DEVICE0_SIZE
+
+#define STMM_FLASH0_BASE	V2M_FLASH0_BASE
+#define STMM_FLASH0_SIZE	V2M_FLASH0_SIZE
+#define STMM_FLASH0_ATTR	NON_SECURE_RW
+
+#define STMM_FLASH1_BASE	V2M_FLASH1_BASE
+#define STMM_FLASH1_SIZE	V2M_FLASH1_SIZE
+#define STMM_FLASH1_ATTR	SECURE_RW
+
+#define STMM_TPM_S_CRB_BASE	PLAT_SP_PSEUDO_S_CRB_BASE
+#define STMM_TPM_S_CRB_SIZE	PLAT_SP_PSEUDO_S_CRB_SIZE
+
+#define STMM_TPM_NS_CRB_BASE	PLAT_SP_PSEUDO_NS_CRB_BASE
+#define STMM_TPM_NS_CRB_SIZE	PLAT_SP_PSEUDO_NS_CRB_SIZE
+
+/**
+ * memory region values.
+ */
+#define STMM_IMAGE_BASE	(0x07000000)
+#define STMM_IMAGE_SIZE	(3 * SZ_1M)
+
+#define STMM_SSBUF_BASE	PLAT_SPM_BUF_BASE
+#define STMM_SSBUF_SIZE	PLAT_SPM_BUF_SIZE
+
+#define STMM_NSBUF_BASE	PLAT_SP_IMAGE_NS_BUF_BASE
+#define STMM_NSBUF_SIZE	PLAT_SP_IMAGE_NS_BUF_SIZE
+
+#define STMM_HEAP_BASE		(STMM_IMAGE_BASE + STMM_IMAGE_SIZE)
+#define STMM_HEAP_SIZE		(9 * SZ_1M)
+
+/**
+ * Other properties
+ */
+#define STMM_LOAD_ADDR		(STMM_IMAGE_BASE + STMM_ENTRY_OFFSET)
+#define STMM_ENTRY_OFFSET	(SZ_16K)
+
+#include "stmm_common.dtsi"
+
+/ {
+	description = "FVP Base StandaloneMm for rust-spmc";
+	ffa-version = <0x00010002>; /* 31:16 - Major, 15:0 - Minor */
+	uuid = <UUID_INIT(0x378daedc, 0xf06b, 0x4446,
+			  0x83, 0x14, 0x40, 0xab, 0x93, 0x3c, 0x87, 0xa3)>,
+	       <UUID_INIT(0x17b862a4, 0x1806, 0x4faf,
+			  0x86, 0xb3, 0x08, 0x9a, 0x58, 0x35, 0x38, 0x61)>;
+	id = <0x8001>;
+	messaging-method = <0x603>; /* Direct req/resp/req2/resp2 supported. */
+	load-address = <ADDR_INIT(STMM_LOAD_ADDR)>;
+	entrypoint-offset = <STMM_ENTRY_OFFSET>;
+};
+
+#include "stmm_template.dts"
