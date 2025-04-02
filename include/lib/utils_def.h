@@ -61,6 +61,9 @@
 #define HI(addr)			(addr >> 32)
 #define LO(addr)			(addr & 0xffffffff)
 
+#define HI_64(addr)			(addr >> 64)
+#define LO_64(addr)			(addr & 0xffffffffffffffff)
+
 /*
  * This variant of div_round_up can be used in macro definition but should not
  * be used in C code as the `div` parameter is evaluated twice.

@@ -30,6 +30,7 @@
 #include <lib/extensions/fgt2.h>
 #include <lib/extensions/fpmr.h>
 #include <lib/extensions/mpam.h>
+#include <lib/extensions/pauth.h>
 #include <lib/extensions/pmuv3.h>
 #include <lib/extensions/sme.h>
 #include <lib/extensions/spe.h>
@@ -844,20 +845,6 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 #endif /* IMAGE_BL31 */
 }
 
-/* TODO: move to lib/extensions/pauth when it has been ported to FEAT_STATE */
-static __unused void enable_pauth_el2(void)
-{
-	u_register_t hcr_el2 = read_hcr_el2();
-	/*
-	 * For Armv8.3 pointer authentication feature, disable traps to EL2 when
-	 *  accessing key registers or using pointer authentication instructions
-	 *  from lower ELs.
-	 */
-	hcr_el2 |= (HCR_API_BIT | HCR_APK_BIT);
-
-	write_hcr_el2(hcr_el2);
-}
-
 #if INIT_UNUSED_NS_EL2
 /*******************************************************************************
  * Enable architecture extensions in-place at EL2 on first entry to Non-secure
@@ -904,9 +891,9 @@ static void manage_extensions_nonsecure_el2_unused(void)
 		write_hcrx_el2(read_hcrx_el2() | HCRX_EL2_MSCEn_BIT);
 	}
 
-#if ENABLE_PAUTH
-	enable_pauth_el2();
-#endif /* ENABLE_PAUTH */
+	if (is_feat_pauth_supported()) {
+		pauth_enable_el2();
+	}
 #endif /* IMAGE_BL31 */
 }
 #endif /* INIT_UNUSED_NS_EL2 */
