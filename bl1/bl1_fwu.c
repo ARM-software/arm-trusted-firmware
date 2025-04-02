@@ -170,6 +170,9 @@ static int bl1_fwu_image_check_overlaps(unsigned int image_id)
 	uintptr_t checked_image_base, checked_image_end;
 
 	checked_desc = bl1_plat_get_image_desc(image_id);
+
+	assert(checked_desc != NULL);
+
 	checked_info = &checked_desc->image_info;
 
 	/* Image being checked mustn't be empty. */
