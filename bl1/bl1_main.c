@@ -119,12 +119,6 @@ void bl1_main(void)
 	/* Perform platform setup in BL1. */
 	bl1_platform_setup();
 
-#if ENABLE_PAUTH
-	/* Store APIAKey_EL1 key */
-	bl1_apiakey[0] = read_apiakeylo_el1();
-	bl1_apiakey[1] = read_apiakeyhi_el1();
-#endif /* ENABLE_PAUTH */
-
 	/* Get the image id of next image to load and run. */
 	image_id = bl1_plat_get_next_image_id();
 

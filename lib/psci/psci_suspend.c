@@ -365,12 +365,6 @@ void psci_cpu_suspend_to_powerdown_finish(unsigned int cpu_idx, unsigned int max
 	counter_freq = plat_get_syscnt_freq2();
 	write_cntfrq_el0(counter_freq);
 
-#if ENABLE_PAUTH
-	/* Store APIAKey_EL1 key */
-	set_cpu_data(apiakey[0], read_apiakeylo_el1());
-	set_cpu_data(apiakey[1], read_apiakeyhi_el1());
-#endif /* ENABLE_PAUTH */
-
 	/*
 	 * Call the cpu suspend finish handler registered by the Secure Payload
 	 * Dispatcher to let it do any bookeeping. If the handler encounters an

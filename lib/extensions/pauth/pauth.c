@@ -6,7 +6,10 @@
 #include <arch.h>
 #include <arch_features.h>
 #include <arch_helpers.h>
+#include <lib/el3_runtime/cpu_data.h>
 #include <lib/extensions/pauth.h>
+
+extern uint64_t bl1_apiakey[2];
 
 void __no_pauth pauth_init_enable_el3(void)
 {
@@ -33,6 +36,22 @@ void pauth_init(void)
 	/* Program instruction key A used by the Trusted Firmware */
 	write_apiakeylo_el1(key_lo);
 	write_apiakeyhi_el1(key_hi);
+
+#if IMAGE_BL31
+	set_cpu_data(apiakey[0], key_lo);
+	set_cpu_data(apiakey[1], key_hi);
+
+	/*
+	 * In the warmboot entrypoint, cpu_data may have been written before
+	 * data caching was enabled. Flush the caches so nothing stale is read.
+	 */
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+	flush_cpu_data(apiakey);
+#endif
+#elif IMAGE_BL1
+	bl1_apiakey[0] = key_lo;
+	bl1_apiakey[1] = key_hi;
+#endif
 }
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2022, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -46,11 +46,6 @@ func handle_lower_el_sync_ea
 	 */
 	bl	prepare_el3_entry
 
-#if ENABLE_PAUTH
-	/* Load and program APIAKey firmware key */
-	bl	pauth_load_bl31_apiakey
-#endif
-
 	/* Setup exception class and syndrome arguments for platform handler */
 	mov	x0, #ERROR_EA_SYNC
 	mrs	x1, esr_el3
@@ -77,11 +72,6 @@ func handle_lower_el_async_ea
 	 * Also save PMCR_EL0 and set the PSTATE to a known state.
 	 */
 	bl	prepare_el3_entry
-
-#if ENABLE_PAUTH
-	/* Load and program APIAKey firmware key */
-	bl	pauth_load_bl31_apiakey
-#endif
 
 	/* Setup exception class and syndrome arguments for platform handler */
 	mov	x0, #ERROR_EA_ASYNC

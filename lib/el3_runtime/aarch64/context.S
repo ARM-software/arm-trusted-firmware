@@ -343,11 +343,11 @@ no_mpam:
 	.endm /* restore_mpam3_el3 */
 
 /* ------------------------------------------------------------------
- * The following macro is used to save and restore all the general
- * purpose and ARMv8.3-PAuth (if enabled) registers.
- * It also checks if the Secure Cycle Counter (PMCCNTR_EL0)
- * is disabled in EL3/Secure (ARMv8.5-PMU), wherein PMCCNTR_EL0
- * needs not to be saved/restored during world switch.
+ * The following macro is used to save all the general purpose
+ * registers and swap the FEAT_PAUTH keys with BL31's keys in
+ * cpu_data. It also checks if the Secure Cycle Counter (PMCCNTR_EL0)
+ * is disabled in EL3/Secure (ARMv8.5-PMU), wherein PMCCNTR_EL0 needs
+ * not to be saved/restored during world switch.
  *
  * Ideally we would only save and restore the callee saved registers
  * when a world switch occurs but that type of implementation is more
@@ -402,6 +402,24 @@ no_mpam:
 	stp	x24, x25, [x19, #CTX_PACDAKEY_LO]
 	stp	x26, x27, [x19, #CTX_PACDBKEY_LO]
 	stp	x28, x29, [x19, #CTX_PACGAKEY_LO]
+#if ENABLE_PAUTH
+#if IMAGE_BL31
+	/* tpidr_el3 contains the address of the cpu_data structure */
+	mrs	x9, tpidr_el3
+	/* Load APIAKey from cpu_data */
+	ldp	x10, x11, [x9, #CPU_DATA_APIAKEY_OFFSET]
+#endif /* IMAGE_BL31 */
+
+#if IMAGE_BL1
+	/* BL1 does not use cpu_data and has dedicated storage */
+	adr_l	x9, bl1_apiakey
+	ldp	x10, x11, [x9]
+#endif /* IMAGE_BL1 */
+
+	/* Program instruction key A */
+	msr	APIAKeyLo_EL1, x10
+	msr	APIAKeyHi_EL1, x11
+#endif /* ENABLE_PAUTH */
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 	.endm /* save_gp_pmcr_pauth_regs */
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -198,8 +198,6 @@ struct mmap_region;
 
 void setup_page_tables(const struct mmap_region *bl_regions,
 			   const struct mmap_region *plat_regions);
-
-void bl_handle_pauth(void);
 
 #endif /*__ASSEMBLER__*/
 
