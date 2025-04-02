@@ -52,7 +52,7 @@ are explained below:
   - ``RES0``: Bit 31 of the version number is reserved 0 as to maintain
     consistency with the versioning schemes used in other parts of RMM.
 
-This document specifies the 0.5 version of Boot Interface ABI and RMM-EL3
+This document specifies the 0.6 version of Boot Interface ABI and RMM-EL3
 services specification and the 0.5 version of the Boot Manifest.
 
 .. _rmm_el3_boot_interface:
@@ -717,6 +717,247 @@ a failure. The errors are ordered by condition check.
    ``E_RMM_INVAL``,"if mecid is invalid (larger than 65,535 or than the maximum MECID width, determined by MECIDR_EL2.MECIDWidthm1)"
    ``E_RMM_UNK``,"An unknown error occurred whilst processing the command or the SMC is not present if interface version is <0.5"
    ``E_RMM_OK``,No errors detected
+
+
+RMM_IDE_KEY_PROG command
+=========================
+
+Set the key/IV info at Root port for an IDE stream as part of Device Assignment flow. This
+command is available from v0.6 of the RMM-EL3 interface.
+
+Please refer to `IDE-KM RFC <https://github.com/TF-RMM/tf-rmm/wiki/RFC:-EL3-RMM-IDE-KM-Interface>`_
+for description of the IDE setup sequence and how this will be invoked by RMM.
+
+The key is 256 bits and IV is 96 bits. The caller needs
+to call this SMC to program this key to the Rx, Tx ports and for each sub-stream
+corresponding to a single keyset.
+
+FID
+---
+
+``0xC40001B7``
+
+Input values
+------------
+
+.. csv-table:: Input values for RMM_IDE_KEY_PROG
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   ecam_address,x1,[63:0],UInt64,Used to identify the root complex(RC)
+   rp_id,x2,[63:0],UInt64,Used to identify the root port within the root complex(RC)
+   Keyset[12]:Dir[11]:Substream[10:8]:StreamID[7:0],x3,[63:0],UInt64,IDE selective stream informationKey set: can be 0 or 1unused bits MBZ.
+   KeqQW0,x4,[63:0],UInt64,Quad word of key [63:0]
+   KeqQW1,x5,[63:0],UInt64,Quad word of key [127:64]
+   KeqQW2,x6,[63:0],UInt64,Quad word of key [191:128]
+   KeqQW3,x7,[63:0],UInt64,Quad word of key [255:192]
+   IFVQW0,x8,[63:0],UInt64,Quad word of IV [63:0]
+   IFVQW1,x9,[63:0],UInt64,Quad word of IV [95:64]
+   request_id,x10,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
+   cookie,x11,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
+
+
+Output values
+-------------
+
+.. csv-table:: Output values for RMM_IDE_KEY_PROG
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 2 4
+
+   Result,x0,[63:0],Error Code,Command return status
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table:: Failure conditions for RMM_IDE_KEY_PROG
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_OK``,Key programming is successful.
+   ``E_RMM_FAULT``,Key programming is not successful.
+   ``E_RMM_INVAL``,Key programming arguments are incorrect.
+   ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6
+   ``E_RMM_AGAIN``,Returned only for non-blocking mode. IDE-KM interface is busy or request is full. Retry required.
+   ``E_RMM_INPROGRESS``,Returned only for non-blocking mode. The caller must issue RMM_IDE_KM_PULL_RESPONSE SMC to pull the response.
+
+
+RMM_IDE_KEY_SET_GO command
+==========================
+
+Activate the IDE stream at Root Port once the keys have been programmed as part of
+Device Assignment flow. This command is available from v0.6 of the RMM-EL3 interface.
+
+Please refer to `IDE-KM RFC <https://github.com/TF-RMM/tf-rmm/wiki/RFC:-EL3-RMM-IDE-KM-Interface>`_
+for description of the IDE setup sequence and info on how this will be invoked by RMM.
+
+The caller(RMM) needs to ensure the EL3_IDE_KEY_PROG() call had succeeded prior to this call.
+
+FID
+---
+
+``0xC40001B8``
+
+Input values
+------------
+
+.. csv-table:: Input values for RMM_IDE_KEY_SET_GO
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   ecam_address,x1,[63:0],UInt64,Used to identify the root complex(RC)
+   rp_id,x2,[63:0],UInt64,Used to identify the root port within the root complex(RC)
+   Keyset[12]:Dir[11]:Substream[10:8]:StreamID[7:0],x3,[63:0],UInt64,IDE selective stream information. Key set can be 0 or 1. Unused bits MBZ.
+   request_id,x4,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
+   cookie,x5,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
+
+
+Output values
+-------------
+
+.. csv-table:: Output values for RMM_IDE_KEY_SET_GO
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 2 4
+
+   Result,x0,[63:0],Error Code,Command return status
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table:: Failure conditions for RMM_IDE_KEY_SET_GO
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_OK``,Key set go is successful.
+   ``E_RMM_FAULT``,Key set go is not successful.
+   ``E_RMM_INVAL``,incorrect arguments.
+   ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6.
+   ``E_RMM_AGAIN``,Returned only for non-blocking mode. IDE-KM interface is busy or request is full. Retry required.
+   ``E_RMM_INPROGRESS``,Returned only for non-blocking mode. The caller must issue RMM_IDE_KM_PULL_RESPONSE SMC to pull the response.
+
+
+RMM_IDE_KEY_SET_STOP command
+============================
+
+Deactivate the IDE stream at Root Port as part of Device Assignment flow. This command is
+available from v0.6 of the RMM-EL3 interface.
+
+Please refer to `IDE-KM RFC <https://github.com/TF-RMM/tf-rmm/wiki/RFC:-EL3-RMM-IDE-KM-Interface>`_
+for description of the IDE setup sequence and info on how this will be invoked by RMM.
+
+This SMC is used to tear down an IDE Stream.
+
+FID
+---
+
+``0xC40001B9``
+
+Input values
+------------
+
+.. csv-table:: Input values for RMM_IDE_KEY_SET_STOP
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   ecam_address,x1,[63:0],UInt64,Used to identify the root complex(RC)
+   rp_id,x2,[63:0],UInt64,Used to identify the root port within the root complex(RC)
+   Keyset[12]:Dir[11]:Substream[10:8]:StreamID[7:0],x3,[63:0],UInt64,IDE selective stream information. Key set can be 0 or 1. Unused bits MBZ.
+   request_id,x4,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
+   cookie,x5,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
+
+
+Output values
+-------------
+
+.. csv-table:: Output values for RMM_IDE_KEY_SET_STOP
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 2 4
+
+   Result,x0,[63:0],Error Code,Command return status
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table:: Failure conditions for RMM_IDE_KEY_SET_STOP
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_OK``,Key set go is successful.
+   ``E_RMM_FAULT``,Key set go is not successful.
+   ``E_RMM_INVAL``,incorrect arguments.
+   ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6.
+   ``E_RMM_AGAIN``,Returned only for non-blocking mode. IDE-KM interface is busy or request is full. Retry required.
+   ``E_RMM_INPROGRESS``,Returned only for non-blocking mode. The caller must issue RMM_IDE_KM_PULL_RESPONSE SMC to pull the response.
+
+
+RMM_IDE_KM_PULL_RESPONSE command
+================================
+
+Retrieve the response from Root Port to a previous non-blocking IDE-KM SMC request as part of
+Device Assignment flow. This command is available from v0.6 of the RMM-EL3 interface.
+
+Please refer to `IDE-KM RFC <https://github.com/TF-RMM/tf-rmm/wiki/RFC:-EL3-RMM-IDE-KM-Interface>`_
+for description of the IDE setup sequence and info on how this will be invoked by RMM.
+
+The response from this call could correspond to any of the last pending requests and the
+RMM needs to identify the request and populate the response. For blocking calls, this SMC
+always returns E_RMM_UNK.
+
+FID
+---
+
+``0xC40001BA``
+
+Input values
+------------
+
+.. csv-table:: Input values for RMM_IDE_KM_PULL_RESPONSE
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 1 5
+
+   fid,x0,[63:0],UInt64,Command FID
+   ecam_address,x1,[63:0],UInt64,Used to identify the root complex(RC)
+   rp_id,x2,[63:0],UInt64,Used to identify the root port within the root complex(RC)
+
+
+Output values
+-------------
+
+.. csv-table:: Output values for RMM_IDE_KM_PULL_RESPONSE
+   :header: "Name", "Register", "Field", "Type", "Description"
+   :widths: 1 1 1 2 4
+
+   Result,x0,[63:0],Error Code,Command return status
+   Result,x1,[63:0],Error Code,Retrieved response corresponding to previous IDE_KM requests.
+   Result,x2,[63:0],value,passthrough from requested SMC
+   Result,x3,[63:0],value,passthrough from requested SMC
+
+Failure conditions
+------------------
+
+The table below shows all the possible error codes returned in ``Result`` upon
+a failure. The errors are ordered by condition check.
+
+.. csv-table:: Failure conditions for RMM_IDE_KM_PULL_RESPONSE
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_OK``,Key set go is successful.
+   ``E_RMM_FAULT``,Key set go is not successful.
+   ``E_RMM_INVAL``,incorrect arguments.
+   ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6.
+   ``E_RMM_AGAIN``,KM request is empty and no response if available.
 
 
 RMM-EL3 world switch register save restore convention
