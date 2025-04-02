@@ -120,12 +120,12 @@ void bl2_main(void)
 	disable_mmu_icache_secure();
 #endif /* !__aarch64__ */
 
-#if ENABLE_PAUTH
 	/*
 	 * Disable pointer authentication before running next boot image
 	 */
-	pauth_disable_el1();
-#endif /* ENABLE_PAUTH */
+	if (is_feat_pauth_supported()) {
+		pauth_disable_el1();
+	}
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(bl_svc, BL2_EXIT, PMF_CACHE_MAINT);
@@ -148,12 +148,12 @@ void bl2_main(void)
 #endif
 	console_flush();
 
-#if ENABLE_PAUTH
 	/*
 	 * Disable pointer authentication before running next boot image
 	 */
-	pauth_disable_el3();
-#endif /* ENABLE_PAUTH */
+	if (is_feat_pauth_supported()) {
+		pauth_disable_el3();
+	}
 
 	bl2_run_next_image(next_bl_ep_info);
 #endif /* BL2_RUNS_AT_EL3 */

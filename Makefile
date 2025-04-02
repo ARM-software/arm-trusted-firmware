@@ -492,6 +492,12 @@ endif #(SPD=none)
 include ${PLAT_MAKEFILE_FULL}
 
 ################################################################################
+# Setup arch_features based on ARM_ARCH_MAJOR, ARM_ARCH_MINOR provided from
+# platform.
+################################################################################
+
+include ${MAKE_HELPERS_DIRECTORY}arch_features.mk
+################################################################################
 # Process BRANCH_PROTECTION value and set
 # Pointer Authentication and Branch Target Identification flags
 ################################################################################
@@ -517,29 +523,28 @@ else ifeq (${BRANCH_PROTECTION},4)
 	# Turn on branch target identification mechanism
 	BP_OPTION := bti
 	ENABLE_BTI := 1
+else ifeq (${BRANCH_PROTECTION},5)
+	# Turn on branch target identification mechanism
+	BP_OPTION := standard
+	ENABLE_BTI := 2
+	ENABLE_PAUTH := 2
 else
         $(error Unknown BRANCH_PROTECTION value ${BRANCH_PROTECTION})
 endif #(BRANCH_PROTECTION)
 
-ifeq ($(ENABLE_PAUTH),1)
-	CTX_INCLUDE_PAUTH_REGS := 1
+ifneq ($(ENABLE_PAUTH),0)
+	CTX_INCLUDE_PAUTH_REGS	:= ${ENABLE_PAUTH}
 endif
 ifneq (${BP_OPTION},none)
 	TF_CFLAGS_aarch64	+=	-mbranch-protection=${BP_OPTION}
 endif #(BP_OPTION)
 
 # Pointer Authentication sources
-ifeq (${ENABLE_PAUTH}, 1)
+ifneq (${ENABLE_PAUTH},0)
 # arm/common/aarch64/arm_pauth.c contains a sample platform hook to complete the
 # Pauth support. As it's not secure, it must be reimplemented for real platforms
-	BL_COMMON_SOURCES	+=	lib/extensions/pauth/pauth_helpers.S
+	BL_COMMON_SOURCES	+=	lib/extensions/pauth/pauth.c
 endif
-
-################################################################################
-# Setup arch_features based on ARM_ARCH_MAJOR, ARM_ARCH_MINOR provided from
-# platform.
-################################################################################
-include ${MAKE_HELPERS_DIRECTORY}arch_features.mk
 
 ####################################################
 # Enable required options for Memory Stack Tagging.
@@ -917,13 +922,13 @@ endif
 # If pointer authentication is used in the firmware, make sure that all the
 # registers associated to it are also saved and restored.
 # Not doing it would leak the value of the keys used by EL3 to EL1 and S-EL1.
-ifeq ($(ENABLE_PAUTH),1)
+ifneq ($(ENABLE_PAUTH),0)
 	ifeq ($(CTX_INCLUDE_PAUTH_REGS),0)
-                $(error Pointer Authentication requires CTX_INCLUDE_PAUTH_REGS=1)
+                $(error Pointer Authentication requires CTX_INCLUDE_PAUTH_REGS to be enabled)
 	endif
 endif #(ENABLE_PAUTH)
 
-ifeq ($(CTX_INCLUDE_PAUTH_REGS),1)
+ifneq ($(CTX_INCLUDE_PAUTH_REGS),0)
 	ifneq (${ARCH},aarch64)
                 $(error CTX_INCLUDE_PAUTH_REGS requires AArch64)
 	endif

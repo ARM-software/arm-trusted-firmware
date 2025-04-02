@@ -148,7 +148,7 @@ $(error "This is an AArch64-only port; CTX_INCLUDE_AARCH32_REGS must be disabled
 endif
 
 # Pointer Authentication sources
-ifeq ($(BRANCH_PROTECTION),$(filter $(BRANCH_PROTECTION),1 2 3))
+ifeq ($(BRANCH_PROTECTION),$(filter $(BRANCH_PROTECTION),1 2 3 5))
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c
 endif
 

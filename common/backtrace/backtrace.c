@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/console.h>
@@ -41,15 +42,14 @@ static inline uintptr_t extract_address(uintptr_t address)
 {
 	uintptr_t ret = address;
 
-#if ENABLE_PAUTH
 	/*
 	 * When pointer authentication is enabled, the LR value saved on the
 	 * stack contains a PAC. It must be stripped to retrieve the return
 	 * address.
 	 */
-
-	xpaci(ret);
-#endif
+	if (is_feat_pauth_supported()) {
+		ret = xpaci(address);
+	}
 
 	return ret;
 }

@@ -379,6 +379,11 @@ no_mpam:
 	mrs	x9, pmcr_el0
 	str	x9, [sp, #CTX_EL3STATE_OFFSET + CTX_PMCR_EL0]
 #if CTX_INCLUDE_PAUTH_REGS
+#if CTX_INCLUDE_PAUTH_REGS == 2
+	/* Skip if not present in hardware */
+	is_feat_pauth_present_asm x9, x10
+	beq	no_pauth_\@
+#endif
 	/* ----------------------------------------------------------
  	 * Save the ARMv8.3-PAuth keys as they are not banked
  	 * by exception level
@@ -419,6 +424,7 @@ no_mpam:
 	/* Program instruction key A */
 	msr	APIAKeyLo_EL1, x10
 	msr	APIAKeyHi_EL1, x11
+no_pauth_\@:
 #endif /* ENABLE_PAUTH */
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 	.endm /* save_gp_pmcr_pauth_regs */
@@ -460,6 +466,11 @@ endfunc prepare_el3_entry
  */
 func restore_gp_pmcr_pauth_regs
 #if CTX_INCLUDE_PAUTH_REGS
+#if CTX_INCLUDE_PAUTH_REGS == 2
+	/* Skip if not present in hardware */
+	is_feat_pauth_present_asm x0, x1
+	beq	no_pauth
+#endif
  	/* Restore the ARMv8.3 PAuth keys */
 	add	x10, sp, #CTX_PAUTH_REGS_OFFSET
 
@@ -479,6 +490,7 @@ func restore_gp_pmcr_pauth_regs
 	msr	APDBKeyHi_EL1, x7
 	msr	APGAKeyLo_EL1, x8
 	msr	APGAKeyHi_EL1, x9
+no_pauth:
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 
 	/* PMUv3 is presumed to be always present */

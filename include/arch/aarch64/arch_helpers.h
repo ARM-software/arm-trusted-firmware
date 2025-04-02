@@ -238,7 +238,15 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e3r)
 /*******************************************************************************
  * Strip Pointer Authentication Code
  ******************************************************************************/
-DEFINE_SYSOP_PARAM_FUNC(xpaci)
+static inline u_register_t xpaci(u_register_t arg)
+{
+	register u_register_t x0 asm("x0") = arg;
+
+	/* `xpaci x0` for compatibility with older compiler and/or older -march */
+	__asm__ (".arch armv8.3-a; xpaci %0\n" : "+r" (x0));
+
+	return x0;
+}
 
 void flush_dcache_range(uintptr_t addr, size_t size);
 void flush_dcache_to_popa_range(uintptr_t addr, size_t size);
