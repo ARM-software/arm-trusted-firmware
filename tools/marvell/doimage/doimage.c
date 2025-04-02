@@ -421,7 +421,7 @@ int image_encrypt(uint8_t *buf, uint32_t blen)
 	char			*ptmp = (char *)&tv;
 	unsigned char		digest[32];
 	unsigned char		IV[AES_BLOCK_SZ];
-	int			i, k;
+	size_t			i, k;
 	mbedtls_aes_context	aes_ctx;
 	int			rval = -1;
 	uint8_t			*test_img = 0;
@@ -516,7 +516,8 @@ int image_encrypt(uint8_t *buf, uint32_t blen)
 	for (i = 0; i < blen; i++) {
 		if (buf[i] != test_img[i]) {
 			fprintf(stderr, "Failed to compare the image after");
-			fprintf(stderr, " decryption! Byte count is %d\n", i);
+			fprintf(stderr, " decryption! Byte count is %lu\n",
+				(unsigned long)i);
 			rval = -1;
 			goto encrypt_exit;
 		}
@@ -614,11 +615,11 @@ ver_error:
 int verify_and_copy_file_name_entry(const char *element_name,
 				    const char *element, char *copy_to)
 {
-	int element_length = strlen(element);
+	size_t element_length = strlen(element);
 
 	if (element_length >= MAX_FILENAME) {
-		fprintf(stderr, "The file name %s for %s is too long (%d). ",
-			element, element_name, element_length);
+		fprintf(stderr, "The file name %s for %s is too long (%lu). ",
+			element, element_name, (unsigned long)element_length);
 		fprintf(stderr, "Maximum allowed %d characters!\n",
 			MAX_FILENAME);
 		return -1;
