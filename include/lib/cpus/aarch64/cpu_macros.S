@@ -514,6 +514,40 @@
 	cset	x0, ls
 .endm
 
+
+#if __clang_major__ < 17
+/*
+ * A problem with clang version < 17 can cause resolving nested
+ * 'cfi_startproc' to fail compilation.
+ * So add a compatibility variant for start and endfunc expansions
+ * to ignore `cfi_startproc` and `cfi_endproc`, this to be used only with
+ * check_errata/reset macros if we build TF-A with clang version < 17
+ */
+
+.macro func_compat _name, _align=2
+	.section .text.asm.\_name, "ax"
+	.type \_name, %function
+	.align \_align
+	\_name:
+#if ENABLE_BTI
+	bti	jc
+#endif
+.endm
+
+/*
+ * This macro is used to mark the end of a function.
+ */
+.macro endfunc_compat _name
+	.size \_name, . - \_name
+.endm
+
+#else
+
+#define func_compat func
+#define endfunc_compat endfunc
+
+#endif /* __clang_version__ < 17 */
+
 /*
  * Helpers to select which revisions errata apply to.
  *
@@ -535,35 +569,35 @@
  *	argument: x0 - cpu_rev_var
  */
 .macro check_erratum_ls _cpu:req, _cve:req, _id:req, _rev_num:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_ls \_rev_num
 		ret
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_hs _cpu:req, _cve:req, _id:req, _rev_num:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_hs \_rev_num
 		ret
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_range _cpu:req, _cve:req, _id:req, _rev_num_lo:req, _rev_num_hi:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 		cpu_rev_var_range \_rev_num_lo, \_rev_num_hi
 		ret
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_chosen _cpu:req, _cve:req, _id:req, _chosen:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 		.if \_chosen
 			mov	x0, #ERRATA_APPLIES
 		.else
 			mov	x0, #ERRATA_MISSING
 		.endif
 		ret
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
 
 /*
@@ -571,13 +605,12 @@
  * body: clobber x0 to x4
  */
 .macro check_erratum_custom_start _cpu:req, _cve:req, _id:req
-	func check_erratum_\_cpu\()_\_id
+	func_compat check_erratum_\_cpu\()_\_id
 .endm
 
 .macro check_erratum_custom_end _cpu:req, _cve:req, _id:req
-	endfunc check_erratum_\_cpu\()_\_id
+	endfunc_compat check_erratum_\_cpu\()_\_id
 .endm
-
 
 /*******************************************************************************
  * CPU reset function wrapper
@@ -591,7 +624,7 @@
  *	Name of cpu as given to declare_cpu_ops
  */
 .macro cpu_reset_prologue _cpu:req
-	func \_cpu\()_reset_func
+	func_compat \_cpu\()_reset_func
 		mov	x15, x30
 		get_rev_var x14, x0
 .endm
@@ -616,7 +649,7 @@
 .macro cpu_reset_func_end _cpu:req
 		isb
 		ret	x15
-	endfunc \_cpu\()_reset_func
+	endfunc_compat \_cpu\()_reset_func
 .endm
 
 #endif /* CPU_MACROS_S */
