@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,6 +33,28 @@
 #include <plat/common/common_def.h>
 
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00080000	/* 512 KB */
+
+#if TRANSFER_LIST
+/*
+ * Summation of data size of all Transfer Entries included in the Transfer list.
+ * Note: Update this field whenever new Transfer Entries are added in future.
+ */
+#define PLAT_ARM_FW_HANDOFF_SIZE	U(0x9000)
+#define PLAT_ARM_EL3_FW_HANDOFF_BASE	ARM_BL_RAM_BASE
+#define PLAT_ARM_EL3_FW_HANDOFF_LIMIT	PLAT_ARM_EL3_FW_HANDOFF_BASE + PLAT_ARM_FW_HANDOFF_SIZE
+#define FW_NS_HANDOFF_BASE		(PLAT_ARM_NS_IMAGE_BASE - PLAT_ARM_FW_HANDOFF_SIZE)
+
+/* Mappings for Secure and Non-secure Transfer_list */
+#define TC_MAP_EL3_FW_HANDOFF		MAP_REGION_FLAT(		\
+					PLAT_ARM_EL3_FW_HANDOFF_BASE,	\
+					PLAT_ARM_FW_HANDOFF_SIZE,	\
+					MT_MEMORY | MT_RW | EL3_PAS)
+
+#define TC_MAP_FW_NS_HANDOFF		MAP_REGION_FLAT(		\
+					FW_NS_HANDOFF_BASE,		\
+					PLAT_ARM_FW_HANDOFF_SIZE,	\
+					MT_MEMORY | MT_RW | MT_NS)
+#endif /* TRANSFER_LIST */
 
 /*
  * The top 16MB of ARM_DRAM1 is configured as secure access only using the TZC,
