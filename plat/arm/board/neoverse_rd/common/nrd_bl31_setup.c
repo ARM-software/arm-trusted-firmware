@@ -24,14 +24,6 @@
 
 nrd_platform_info_t nrd_plat_info;
 
-static scmi_channel_plat_info_t sgi575_scmi_plat_info = {
-		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
-		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
-		.db_preserve_mask = 0xfffffffe,
-		.db_modify_mask = 0x1,
-		.ring_doorbell = &mhu_ring_doorbell,
-};
-
 static scmi_channel_plat_info_t plat_rd_scmi_info[] = {
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
@@ -140,8 +132,6 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 			panic();
 		}
 		return &plat3_rd_scmi_info[channel_id];
-	} else if (nrd_plat_info.platform_id == SGI575_SSC_VER_PART_NUM) {
-		return &sgi575_scmi_plat_info;
 	} else {
 		panic();
 	}

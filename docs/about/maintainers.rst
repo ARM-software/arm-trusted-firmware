@@ -591,7 +591,6 @@ Arm Reference Design platform ports
 :|F|: plat/arm/board/neoverse_rd/platform/rdn2/
 :|F|: plat/arm/board/neoverse_rd/platform/rdv1/
 :|F|: plat/arm/board/neoverse_rd/platform/rdv1mc/
-:|F|: plat/arm/board/neoverse_rd/platform/sgi575/
 
 Arm Total Compute platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

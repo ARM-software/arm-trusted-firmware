@@ -186,9 +186,6 @@ subsections:
             scope: neoverse-rd
 
             subsections:
-              - title: SGI-575
-                scope: sgi575
-
               - title: RD-E1-Edge
                 scope: rde1edge
 
