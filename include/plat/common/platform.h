@@ -465,13 +465,6 @@ struct bl_params *plat_get_next_bl_params(void);
 void plat_flush_next_bl_params(void);
 
 /*
- * The below function enable Trusted Firmware components like SPDs which
- * haven't migrated to the new platform API to compile on platforms which
- * have the compatibility layer disabled.
- */
-unsigned int platform_core_pos_helper(unsigned long mpidr);
-
-/*
  * Optional function to get SOC version
  */
 int32_t plat_get_soc_version(void);
