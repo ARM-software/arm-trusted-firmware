@@ -587,7 +587,6 @@ Arm Reference Design platform ports
 :|M|: Rohit Mathew <Rohit.Mathew@arm.com>
 :|G|: `rohit-arm`_
 :|F|: plat/arm/board/neoverse_rd/common
-:|F|: plat/arm/board/neoverse_rd/platform/rdn1edge/
 :|F|: plat/arm/board/neoverse_rd/platform/rdn2/
 :|F|: plat/arm/board/neoverse_rd/platform/rdv1/
 :|F|: plat/arm/board/neoverse_rd/platform/rdv1mc/

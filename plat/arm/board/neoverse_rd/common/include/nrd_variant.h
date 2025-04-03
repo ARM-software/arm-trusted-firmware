@@ -7,10 +7,6 @@
 #ifndef NRD_VARIANT_H
 #define NRD_VARIANT_H
 
-/* SID Version values for RD-N1E1-Edge */
-#define RD_N1E1_EDGE_SID_VER_PART_NUM		0x0786
-#define RD_E1_EDGE_CONFIG_ID			0x2
-
 /* SID Version values for RD-V1 */
 #define RD_V1_SID_VER_PART_NUM			0x078a
 

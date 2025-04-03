@@ -64,7 +64,6 @@ documentation associated with them.
    currently have associated documentation:
 
    - Arm Neoverse N1 System Development Platform (N1SDP)
-   - Arm Neoverse Reference Design N1 Edge (RD-N1-Edge) FVP
    - MediaTek MT8173 SoCs
 
 Deprecated platforms
@@ -80,6 +79,9 @@ Deprecated platforms
 |                |                |                    |                    |
 +----------------+----------------+--------------------+--------------------+
 |    SGI-575     |      Arm       |        2.13        |         2.13       |
+|                |                |                    |                    |
++----------------+----------------+--------------------+--------------------+
+|   RD-N1-Edge   |      Arm       |        2.13        |         2.13       |
 |                |                |                    |                    |
 +----------------+----------------+--------------------+--------------------+
 

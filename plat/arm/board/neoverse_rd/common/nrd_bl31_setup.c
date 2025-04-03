@@ -115,8 +115,7 @@ static scmi_channel_plat_info_t plat3_rd_scmi_info[] = {
 
 scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 {
-	if (nrd_plat_info.platform_id == RD_N1E1_EDGE_SID_VER_PART_NUM ||
-		nrd_plat_info.platform_id == RD_V1_SID_VER_PART_NUM ||
+	if (nrd_plat_info.platform_id == RD_V1_SID_VER_PART_NUM ||
 		nrd_plat_info.platform_id == RD_N2_SID_VER_PART_NUM ||
 		nrd_plat_info.platform_id == RD_V2_SID_VER_PART_NUM ||
 		nrd_plat_info.platform_id == RD_N2_CFG1_SID_VER_PART_NUM ||
@@ -257,19 +256,5 @@ void nrd_bl31_common_platform_setup(void)
 
 const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
 {
-	/*
-	 * For RD-E1-Edge, only CPU power ON/OFF, PSCI platform callbacks are
-	 * supported.
-	 */
-	if (((nrd_plat_info.platform_id == RD_N1E1_EDGE_SID_VER_PART_NUM) &&
-	    (nrd_plat_info.config_id == RD_E1_EDGE_CONFIG_ID))) {
-		ops->cpu_standby = NULL;
-		ops->system_off = NULL;
-		ops->system_reset = NULL;
-		ops->get_sys_suspend_power_state = NULL;
-		ops->pwr_domain_suspend = NULL;
-		ops->pwr_domain_suspend_finish = NULL;
-	}
-
 	return css_scmi_override_pm_ops(ops);
 }
