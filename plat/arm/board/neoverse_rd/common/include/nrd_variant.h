@@ -7,9 +7,6 @@
 #ifndef NRD_VARIANT_H
 #define NRD_VARIANT_H
 
-/* SID Version values for RD-V1 */
-#define RD_V1_SID_VER_PART_NUM			0x078a
-
 /* SID Version values for RD-N2 */
 #define RD_N2_SID_VER_PART_NUM			0x07B7
 

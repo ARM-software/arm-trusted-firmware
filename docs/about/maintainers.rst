@@ -588,8 +588,6 @@ Arm Reference Design platform ports
 :|G|: `rohit-arm`_
 :|F|: plat/arm/board/neoverse_rd/common
 :|F|: plat/arm/board/neoverse_rd/platform/rdn2/
-:|F|: plat/arm/board/neoverse_rd/platform/rdv1/
-:|F|: plat/arm/board/neoverse_rd/platform/rdv1mc/
 
 Arm Total Compute platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

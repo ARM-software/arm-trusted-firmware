@@ -115,8 +115,7 @@ static scmi_channel_plat_info_t plat3_rd_scmi_info[] = {
 
 scmi_channel_plat_info_t *plat_css_get_scmi_info(unsigned int channel_id)
 {
-	if (nrd_plat_info.platform_id == RD_V1_SID_VER_PART_NUM ||
-		nrd_plat_info.platform_id == RD_N2_SID_VER_PART_NUM ||
+	if (nrd_plat_info.platform_id == RD_N2_SID_VER_PART_NUM ||
 		nrd_plat_info.platform_id == RD_V2_SID_VER_PART_NUM ||
 		nrd_plat_info.platform_id == RD_N2_CFG1_SID_VER_PART_NUM ||
 		nrd_plat_info.platform_id == RD_N2_CFG3_SID_VER_PART_NUM) {
