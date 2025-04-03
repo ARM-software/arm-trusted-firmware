@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,53 +33,19 @@ static sp_context_t sp_ctx;
 /*******************************************************************************
  * Set state of a Secure Partition context.
  ******************************************************************************/
-void sp_state_set(sp_context_t *sp_ptr, sp_state_t state)
+static void sp_state_set(sp_context_t *sp_ptr, sp_state_t state)
 {
-	spin_lock(&(sp_ptr->state_lock));
 	sp_ptr->state = state;
 	spin_unlock(&(sp_ptr->state_lock));
 }
 
 /*******************************************************************************
- * Wait until the state of a Secure Partition is the specified one and change it
- * to the desired state.
+ * Change the state of a Secure Partition to the one specified.
  ******************************************************************************/
-void sp_state_wait_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
+static void sp_state_wait_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
 {
-	int success = 0;
-
-	while (success == 0) {
-		spin_lock(&(sp_ptr->state_lock));
-
-		if (sp_ptr->state == from) {
-			sp_ptr->state = to;
-
-			success = 1;
-		}
-
-		spin_unlock(&(sp_ptr->state_lock));
-	}
-}
-
-/*******************************************************************************
- * Check if the state of a Secure Partition is the specified one and, if so,
- * change it to the desired state. Returns 0 on success, -1 on error.
- ******************************************************************************/
-int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
-{
-	int ret = -1;
-
 	spin_lock(&(sp_ptr->state_lock));
-
-	if (sp_ptr->state == from) {
-		sp_ptr->state = to;
-
-		ret = 0;
-	}
-
-	spin_unlock(&(sp_ptr->state_lock));
-
-	return ret;
+	sp_ptr->state = to;
 }
 
 /*******************************************************************************
