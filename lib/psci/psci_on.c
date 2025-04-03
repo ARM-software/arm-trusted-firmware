@@ -93,7 +93,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 				psci_svc_cpu_data.aff_info_state);
 	rc = cpu_on_validate_state(psci_get_aff_info_state_by_idx(target_idx));
 	if (rc != PSCI_E_SUCCESS)
-		goto exit;
+		goto on_exit;
 
 	/*
 	 * Call the cpu on handler registered by the Secure Payload Dispatcher
@@ -151,7 +151,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 					psci_svc_cpu_data.aff_info_state);
 	}
 
-exit:
+on_exit:
 	psci_spin_unlock_cpu(target_idx);
 	return rc;
 }

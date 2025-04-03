@@ -152,7 +152,7 @@ int psci_cpu_suspend_start(unsigned int idx,
 	 * detection that a wake-up interrupt has fired.
 	 */
 	if (read_isr_el1() != 0U) {
-		goto exit;
+		goto suspend_exit;
 	}
 
 #if PSCI_OS_INIT_MODE
@@ -163,7 +163,7 @@ int psci_cpu_suspend_start(unsigned int idx,
 		 */
 		rc = psci_validate_state_coordination(idx, end_pwrlvl, state_info);
 		if (rc != PSCI_E_SUCCESS) {
-			goto exit;
+			goto suspend_exit;
 		}
 	} else {
 #endif
@@ -181,7 +181,7 @@ int psci_cpu_suspend_start(unsigned int idx,
 	if (psci_plat_pm_ops->pwr_domain_validate_suspend != NULL) {
 		rc = psci_plat_pm_ops->pwr_domain_validate_suspend(state_info);
 		if (rc != PSCI_E_SUCCESS) {
-			goto exit;
+			goto suspend_exit;
 		}
 	}
 #endif
@@ -327,7 +327,7 @@ int psci_cpu_suspend_start(unsigned int idx,
 	 */
 	psci_set_pwr_domains_to_run(idx, end_pwrlvl);
 
-exit:
+suspend_exit:
 	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
 	return rc;

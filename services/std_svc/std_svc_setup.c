@@ -94,14 +94,19 @@ static int32_t std_svc_setup(void)
  * calls to PSCI SMC handler
  */
 static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
-			     u_register_t x1,
-			     u_register_t x2,
-			     u_register_t x3,
-			     u_register_t x4,
+			     u_register_t x1_arg,
+			     u_register_t x2_arg,
+			     u_register_t x3_arg,
+			     u_register_t x4_arg,
 			     void *cookie,
 			     void *handle,
 			     u_register_t flags)
 {
+	u_register_t x1 = x1_arg;
+	u_register_t x2 = x2_arg;
+	u_register_t x3 = x3_arg;
+	u_register_t x4 = x4_arg;
+
 	if (((smc_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_32) {
 		/* 32-bit SMC function, clear top parameter bits */
 
