@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,9 +11,9 @@
  */
 
 /*
- * This file is compatible with versions >= 3.6.2
+ * This file is compatible with versions >= 3.6.3
  */
-#define MBEDTLS_CONFIG_VERSION         0x03060200
+#define MBEDTLS_CONFIG_VERSION         0x03060300
 
 /*
  * Key algorithms currently supported on mbed TLS libraries
