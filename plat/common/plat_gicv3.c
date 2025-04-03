@@ -320,7 +320,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		irm = GICV3_IRM_ANY;
 		break;
 	default:
-		assert(0); /* Unreachable */
+		assert(false); /* Unreachable */
 		break;
 	}
 
