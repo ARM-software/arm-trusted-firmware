@@ -186,9 +186,6 @@ subsections:
             scope: neoverse-rd
 
             subsections:
-              - title: RD-E1-Edge
-                scope: rde1edge
-
               - title: RD-N2
                 scope: rdn2
 
