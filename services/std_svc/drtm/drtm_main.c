@@ -293,8 +293,8 @@ static enum drtm_retc drtm_dl_prepare_dlme_data(const struct_drtm_dl_args *args)
 	/* Prepare DRTM event log for DLME. */
 	drtm_serialise_event_log(dlme_data_cursor, &serialised_bytes_actual);
 	assert(serialised_bytes_actual <= ARM_DRTM_MIN_EVENT_LOG_SIZE);
-	dlme_data_hdr->dlme_tpm_log_size = ARM_DRTM_MIN_EVENT_LOG_SIZE;
-	dlme_data_cursor +=  dlme_data_hdr->dlme_tpm_log_size;
+	dlme_data_hdr->dlme_tpm_log_size = serialised_bytes_actual;
+	dlme_data_cursor +=  serialised_bytes_actual;
 
 	/*
 	 * TODO: Prepare the TCB hashes for DLME, currently its size
