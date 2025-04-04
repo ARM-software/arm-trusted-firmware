@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -57,8 +57,8 @@
 	<< FFA_MSG_SEND_ATTRS_BLK_SHIFT)
 
 /* Defines for FF-A framework messages exchanged using direct messages. */
-#define FFA_FWK_MSG_BIT		BIT(31)
-#define FFA_FWK_MSG_MASK	0xFF
+#define FFA_FWK_MSG_BIT		BIT_32(31)
+#define FFA_FWK_MSG_MASK	U(0xFF)
 #define FFA_FWK_MSG_PSCI	U(0x0)
 
 /* Defines for FF-A power management messages framework messages. */

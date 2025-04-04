@@ -888,11 +888,15 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		}
 
 		/*
-		 * If there was an SPMD logical partition direct request on-going,
+		 * Perform a synchronous exit:
+		 * 1. If there was an SPMD logical partition direct request on-going,
 		 * return back to the SPMD logical partition so the error can be
 		 * consumed.
+		 * 2. SPMC sent FFA_ERROR in response to a power management
+		 * operation sent through direct request.
 		 */
-		if (is_spmd_logical_sp_dir_req_in_progress(ctx)) {
+		if (is_spmd_logical_sp_dir_req_in_progress(ctx) ||
+		    ctx->psci_operation_ongoing) {
 			assert(secure_origin);
 			spmd_spm_core_sync_exit(0ULL);
 		}

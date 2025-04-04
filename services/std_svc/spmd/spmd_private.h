@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,6 +52,7 @@ typedef struct spmd_spm_core_context {
 	cpu_context_t cpu_ctx;
 	spmc_state_t state;
 	bool secure_interrupt_ongoing;
+	bool psci_operation_ongoing;
 #if ENABLE_SPMD_LP
 	uint8_t spmd_lp_sync_req_ongoing;
 #endif
