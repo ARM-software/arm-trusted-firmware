@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause)
+/*
+ * Copyright (C) 2025, Ultratronik GmbH
+ */
+
+#include "stm32mp25-fw-config.dtsi"
+#include "stm32mp257f-dk-ca35tdcid-fw-config.dtsi"
