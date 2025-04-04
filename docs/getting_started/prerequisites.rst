@@ -27,7 +27,7 @@ Requirements
         Program          Min supported version
 ======================== =====================
 Arm Compiler             6.23
-Arm GNU Compiler         13.3
+Arm GNU Compiler         14.2
 Clang/LLVM               18.1.8
 Device Tree Compiler     1.6.1
 GNU make                 3.81
@@ -51,7 +51,7 @@ preceding table that target Armv7-A or Armv8-A. For AArch32 and
 AArch64 builds, the respective targets required are ``arm-none-eabi`` and
 ``aarch64-none-elf``.
 
-Testing has been performed with version 13.3.Rel1 (gcc 13.3) of the Arm
+Testing has been performed with version 14.2.Rel1 (GCC 14.2) of the Arm
 GNU compiler, which can be installed from the `Arm Developer website`_.
 
 In addition, a native compiler is required to build supporting tools.
