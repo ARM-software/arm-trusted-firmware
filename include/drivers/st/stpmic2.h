@@ -346,9 +346,7 @@ int stpmic2_regulator_get_voltage(struct pmic_handle_s *pmic,
 int stpmic2_regulator_set_voltage(struct pmic_handle_s *pmic,
 				  uint8_t id, uint16_t millivolts);
 
-#if EVENT_LOG_LEVEL == LOG_LEVEL_VERBOSE
 void stpmic2_dump_regulators(struct pmic_handle_s *pmic);
-#endif
 
 int stpmic2_get_version(struct pmic_handle_s *pmic, uint8_t *val);
 int stpmic2_get_product_id(struct pmic_handle_s *pmic, uint8_t *val);
