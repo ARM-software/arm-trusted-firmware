@@ -301,6 +301,11 @@ func apply_cve_2018_3639_sync_wa
 endfunc apply_cve_2018_3639_sync_wa
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
+/* Erratum entry and check function for SMCCC_ARCH_WORKAROUND_2*/
+add_erratum_entry cortex_a76, ERRATUM(ARCH_WORKAROUND_2), WORKAROUND_CVE_2018_3639
+
+check_erratum_chosen cortex_a76, ERRATUM(ARCH_WORKAROUND_2), WORKAROUND_CVE_2018_3639
+
 workaround_reset_start cortex_a76, ERRATUM(798953), ERRATA_DSU_798953
 	errata_dsu_798953_wa_impl
 workaround_reset_end cortex_a76, ERRATUM(798953)
@@ -531,9 +536,6 @@ func cortex_a76_cpu_reg_dump
 	ret
 endfunc cortex_a76_cpu_reg_dump
 
-declare_cpu_ops_wa cortex_a76, CORTEX_A76_MIDR, \
+declare_cpu_ops cortex_a76, CORTEX_A76_MIDR, \
 	cortex_a76_reset_func, \
-	CPU_NO_EXTRA1_FUNC, \
-	cortex_a76_disable_wa_cve_2018_3639, \
-	CPU_NO_EXTRA3_FUNC, \
 	cortex_a76_core_pwr_dwn

@@ -7,9 +7,6 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <lib/cpus/errata.h>
-#include <lib/cpus/wa_cve_2017_5715.h>
-#include <lib/cpus/wa_cve_2018_3639.h>
-#include <lib/cpus/wa_cve_2022_23960.h>
 #include <lib/smccc.h>
 #include <services/arm_arch_svc.h>
 #include <smccc_helpers.h>
@@ -32,8 +29,11 @@ static int32_t smccc_arch_features(u_register_t arg1)
 	/* Workaround checks are currently only implemented for aarch64 */
 #if WORKAROUND_CVE_2017_5715
 	case SMCCC_ARCH_WORKAROUND_1:
-		if (check_wa_cve_2017_5715() == ERRATA_NOT_APPLIES)
+		if (check_erratum_applies(CVE(2017, 5715))
+			== ERRATA_NOT_APPLIES) {
 			return 1;
+		}
+
 		return 0; /* ERRATA_APPLIES || ERRATA_MISSING */
 #endif
 
@@ -63,8 +63,10 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		 * or permanently mitigated, report the latter as not
 		 * needing dynamic mitigation.
 		 */
-		if (wa_cve_2018_3639_get_disable_ptr() == NULL)
+		if (check_erratum_applies(ERRATUM(ARCH_WORKAROUND_2))
+			== ERRATA_NOT_APPLIES)
 			return 1;
+
 		/*
 		 * If we get here, this CPU requires dynamic mitigation
 		 * so report it as such.
@@ -84,16 +86,19 @@ static int32_t smccc_arch_features(u_register_t arg1)
 		 * CVE-2017-5715 since this SMC can be used instead of
 		 * SMCCC_ARCH_WORKAROUND_1.
 		 */
-		if ((check_smccc_arch_wa3_applies() == ERRATA_NOT_APPLIES) &&
-		    (check_wa_cve_2017_5715() == ERRATA_NOT_APPLIES)) {
+		if ((check_erratum_applies(ERRATUM(ARCH_WORKAROUND_3))
+			== ERRATA_NOT_APPLIES) &&
+		    (check_erratum_applies(CVE(2017, 5715))
+			== ERRATA_NOT_APPLIES)) {
 			return 1;
 		}
+
 		return 0; /* ERRATA_APPLIES || ERRATA_MISSING */
 #endif
 
 #if WORKAROUND_CVE_2024_7881
 	case SMCCC_ARCH_WORKAROUND_4:
-		if (check_wa_cve_2024_7881() != ERRATA_APPLIES) {
+		if (check_erratum_applies(CVE(2024, 7881)) != ERRATA_APPLIES) {
 			return SMC_ARCH_CALL_NOT_SUPPORTED;
 		}
 		return 0;
