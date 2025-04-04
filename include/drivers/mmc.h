@@ -37,11 +37,11 @@
 #define OCR_VDD_MIN_2V0			GENMASK_32(14U, 8U)
 #define OCR_VDD_MIN_1V7			BIT_32(7U)
 
-#define MMC_RSP_48			BIT(0)
-#define MMC_RSP_136			BIT(1)		/* 136 bit response */
-#define MMC_RSP_CRC			BIT(2)		/* expect valid crc */
-#define MMC_RSP_CMD_IDX			BIT(3)		/* response contains cmd idx */
-#define MMC_RSP_BUSY			BIT(4)		/* device may be busy */
+#define MMC_RSP_48			BIT_32(0U)
+#define MMC_RSP_136			BIT_32(1U)		/* 136 bit response */
+#define MMC_RSP_CRC			BIT_32(2U)		/* expect valid crc */
+#define MMC_RSP_CMD_IDX			BIT_32(3U)		/* response contains cmd idx */
+#define MMC_RSP_BUSY			BIT_32(4U)		/* device may be busy */
 
 /* JEDEC 4.51 chapter 6.12 */
 #define MMC_RESPONSE_R1			(MMC_RSP_48 | MMC_RSP_CMD_IDX | MMC_RSP_CRC)
