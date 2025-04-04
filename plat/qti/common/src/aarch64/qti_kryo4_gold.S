@@ -59,9 +59,7 @@ func qti_kryo4_gold_cpu_reg_dump
 	ret
 endfunc qti_kryo4_gold_cpu_reg_dump
 
-declare_cpu_ops_wa	qti_kryo4_gold, QTI_KRYO4_GOLD_MIDR,	\
+declare_cpu_ops	qti_kryo4_gold, QTI_KRYO4_GOLD_MIDR,	\
 		qti_kryo4_gold_reset_func,		\
-		CPU_NO_EXTRA1_FUNC,		\
-		cortex_a76_disable_wa_cve_2018_3639,	\
 		cortex_a76_core_pwr_dwn,	\
 		qti_kryo4_gold_cluster_pwr_dwn

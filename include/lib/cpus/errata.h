@@ -27,6 +27,18 @@
 #define ERRATA_APPLIES		1
 #define ERRATA_MISSING		2
 
+/* Errata ID for smc workarounds */
+#define ARCH_WORKAROUND_2		2
+#define ARCH_WORKAROUND_3		3
+
+#define INCLUDE_ERRATA_LIST	(		\
+	REPORT_ERRATA			|	\
+	ERRATA_ABI_SUPPORT		|	\
+	WORKAROUND_CVE_2017_5715	|	\
+	WORKAROUND_CVE_2018_3639	|	\
+	WORKAROUND_CVE_2022_23960	|	\
+	WORKAROUND_CVE_2024_7881)
+
 #ifndef __ASSEMBLER__
 #include <lib/cassert.h>
 
@@ -72,6 +84,7 @@ bool check_if_trbe_disable_affected_core(void);
 int check_wa_cve_2024_7881(void);
 bool errata_ich_vmcr_el2_applies(void);
 struct erratum_entry *find_erratum_entry(uint32_t errata_id);
+int check_erratum_applies(uint32_t cve, int errata_id);
 
 #else
 
@@ -84,8 +97,6 @@ struct erratum_entry *find_erratum_entry(uint32_t errata_id);
  * unlikely event that this does happen, prepending the CVE id with a 0 should
  * resolve the conflict
  */
-#define ERRATUM(id)		0, id
-#define CVE(year, id)		year, id
 #define NO_ISB			1
 #define NO_ASSERT		0
 #define NO_APPLY_AT_RESET	0
@@ -97,6 +108,9 @@ struct erratum_entry *find_erratum_entry(uint32_t errata_id);
 #define ERRATUM_ALWAYS_CHOSEN	1
 
 #endif /* __ASSEMBLER__ */
+
+#define ERRATUM(id)		0, id
+#define CVE(year, id)		year, id
 
 /* Macro to get CPU revision code for checking errata version compatibility. */
 #define CPU_REV(r, p)		((r << 4) | p)
