@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2024, Intel Corporation. All rights reserved.
+ * Copyright (c) 2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,8 +41,8 @@
 #define SPT_MIN_PARTITIONS		(9U)
 
 #define FACTORY_IMAGE			"FACTORY_IMAGE"
-#define FACTORY_SSBL			"FACTORY_IM.SSBL"
-#define SSBL_SUFFIX			".SSBL"
+#define FACTORY_SSBL			"SSBL.FACTORY_IM"
+#define SSBL_PREFIX			"SSBL."
 
 typedef struct {
 	const uint32_t magic_number;
@@ -55,7 +56,7 @@ typedef struct {
 		const uint32_t length;
 		const uint32_t flags;
 	} partition[SPT_MAX_PARTITIONS];
-} __packed spt_table_t;
+} __packed __aligned(4) spt_table_t;
 
 uint32_t ros_qspi_get_ssbl_offset(unsigned long *offset);
 

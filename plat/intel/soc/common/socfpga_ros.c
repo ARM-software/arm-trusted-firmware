@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2024, Intel Corporation. All rights reserved.
+ * Copyright (c) 2025, Altera Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +20,8 @@
 #include <socfpga_mailbox.h>
 
 #include <socfpga_ros.h>
+
+#define WORD_SIZE	(sizeof(uint32_t))
 
 static void swap_bits(char *const data, uint32_t len)
 {
@@ -99,7 +102,8 @@ static uint32_t load_and_check_spt(spt_table_t *spt_ptr, size_t offset)
 		return ROS_IMAGE_PARTNUM_OVFL;
 	}
 
-	memcpy_s(&spt_data, SPT_SIZE, spt_ptr, SPT_SIZE);
+	memcpy_s(&spt_data, (sizeof(spt_table_t) / WORD_SIZE),
+		 spt_ptr, (SPT_SIZE / WORD_SIZE));
 	spt_data.checksum = 0U;
 	swap_bits((char *)&spt_data, SPT_SIZE);
 
@@ -153,6 +157,7 @@ uint32_t ros_qspi_get_ssbl_offset(unsigned long *offset)
 	}
 
 	uint32_t ret, img_index;
+	size_t len;
 	char ssbl_name[SPT_PARTITION_NAME_LENGTH];
 	static spt_table_t spt;
 
@@ -168,11 +173,12 @@ uint32_t ros_qspi_get_ssbl_offset(unsigned long *offset)
 
 	if (strncmp(spt.partition[img_index].name, FACTORY_IMAGE,
 		SPT_PARTITION_NAME_LENGTH) == 0U) {
-		strlcpy(ssbl_name, FACTORY_SSBL, SPT_PARTITION_NAME_LENGTH);
+		strcpy_secure(ssbl_name, SPT_PARTITION_NAME_LENGTH, FACTORY_SSBL);
 	} else {
-		strlcpy(ssbl_name, spt.partition[img_index].name,
-			SPT_PARTITION_NAME_LENGTH);
-		strlcat(ssbl_name, SSBL_SUFFIX, SPT_PARTITION_NAME_LENGTH);
+		strcpy_secure(ssbl_name, SPT_PARTITION_NAME_LENGTH, SSBL_PREFIX);
+		len = strnlen_secure(ssbl_name, SPT_PARTITION_NAME_LENGTH);
+		strcpy_secure(ssbl_name + len, SPT_PARTITION_NAME_LENGTH - len,
+			 spt.partition[img_index].name);
 	}
 
 	for (uint32_t index = 0U; index < spt.partitions; index++) {
