@@ -13,14 +13,14 @@ BL2_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 ARM_ROTPK_S = plat/arm/board/common/rotpk/arm_dev_rotpk.S
-ARM_ROTPK = $(BUILD_PLAT)/arm_rotpk.bin
 ARM_ROTPK_IS_HASH := 1
-$(eval $(call add_define_val,ARM_ROTPK,'"$(ARM_ROTPK)"'))
 
 # ROTPK hash location
 ifeq (${ARM_ROTPK_LOCATION}, regs)
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_REGS_ID
 else
+ARM_ROTPK = $(BUILD_PLAT)/arm_rotpk.bin
+$(eval $(call add_define_val,ARM_ROTPK,'"$(ARM_ROTPK)"'))
 # The ROTPK is a development key
 ifeq (${ARM_ROTPK_LOCATION}, devel_rsa)
 	CRYPTO_ALG=rsa
