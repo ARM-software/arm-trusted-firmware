@@ -12,8 +12,8 @@
 
 typedef struct imx_usdhc_params {
 	uintptr_t	reg_base;
-	int		clk_rate;
-	int		bus_width;
+	unsigned int	clk_rate;
+	unsigned int	bus_width;
 	unsigned int	flags;
 } imx_usdhc_params_t;
 

@@ -293,7 +293,6 @@ void imx_usdhc_init(imx_usdhc_params_t *params,
 {
 	assert((params != 0) &&
 	       ((params->reg_base & MMC_BLOCK_MASK) == 0) &&
-	       (params->clk_rate > 0) &&
 	       ((params->bus_width == MMC_BUS_WIDTH_1) ||
 		(params->bus_width == MMC_BUS_WIDTH_4) ||
 		(params->bus_width == MMC_BUS_WIDTH_8)));
