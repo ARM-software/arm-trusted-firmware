@@ -178,3 +178,21 @@ bool errata_ich_vmcr_el2_applies(void)
 
 	return false;
 }
+
+int check_erratum_applies(uint32_t cve, int errata_id)
+{
+	struct erratum_entry *entry;
+	long rev_var;
+
+	rev_var = cpu_get_rev_var();
+
+	entry = find_erratum_entry(errata_id);
+
+	if (entry == NULL) {
+		return ERRATA_NOT_APPLIES;
+	}
+
+	assert(entry->cve == cve);
+
+	return entry->check_func(rev_var);
+}

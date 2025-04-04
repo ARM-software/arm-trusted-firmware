@@ -76,14 +76,17 @@ func cortex_a72_disable_ext_debug
 	ret
 endfunc cortex_a72_disable_ext_debug
 
-func check_smccc_arch_workaround_3
+check_erratum_custom_start cortex_a72, ERRATUM(ARCH_WORKAROUND_3)
 	cpu_check_csv2	x0, 1f
 	mov	x0, #ERRATA_APPLIES
 	ret
 1:
 	mov	x0, #ERRATA_NOT_APPLIES
 	ret
-endfunc check_smccc_arch_workaround_3
+check_erratum_custom_end cortex_a72, ERRATUM(ARCH_WORKAROUND_3)
+
+/* Erratum entry and check function for SMCCC_ARCH_WORKAROUND_3 */
+add_erratum_entry cortex_a72, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
 
 workaround_reset_start cortex_a72, ERRATUM(859971), ERRATA_A72_859971
 	sysreg_bit_set CORTEX_A72_CPUACTLR_EL1, CORTEX_A72_CPUACTLR_EL1_DIS_INSTR_PREFETCH
@@ -294,10 +297,7 @@ func cortex_a72_cpu_reg_dump
 	ret
 endfunc cortex_a72_cpu_reg_dump
 
-declare_cpu_ops_wa cortex_a72, CORTEX_A72_MIDR, \
+declare_cpu_ops cortex_a72, CORTEX_A72_MIDR, \
 	cortex_a72_reset_func, \
-	check_erratum_cortex_a72_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	check_smccc_arch_workaround_3, \
 	cortex_a72_core_pwr_dwn, \
 	cortex_a72_cluster_pwr_dwn
