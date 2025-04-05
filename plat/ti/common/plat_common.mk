@@ -74,6 +74,8 @@ K3_TI_SCI_SOURCES	+=	\
 PLAT_BL_COMMON_SOURCES	+=	\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
+				drivers/delay_timer/generic_delay_timer.c	\
+				drivers/delay_timer/delay_timer.c	\
 				${XLAT_TABLES_LIB_SRCS}			\
 				${K3_CONSOLE_SOURCES}			\
 

@@ -10,6 +10,8 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
@@ -21,6 +23,7 @@
 #include <board_config.h>
 
 #define WKUP_BOOT_MODE (0x43010030)
+#define WKUP_BOOT_MODE_XSPI_MODE (0x273)
 #define MAIN_PLL_MMR_BASE (0x04060000UL)
 #define MAIN_PLL_MMR_CFG_PLL8_HSDIV_CTRL0 (0x00008080UL)
 #define BL1_DONE_MSG_ID (0x810A)
@@ -33,6 +36,10 @@
 #define WKUP_JTAG_DEVICE_ID (WKUP_CTRL_MMR0_BASE + 0x18)
 #define JTAG_DEV_SPEED_MASK GENMASK(10, 6)
 #define JTAG_DEV_SPEED_SHIFT (6)
+/* OSPI related registers */
+#define FSS_OSPI_CTRL_BASE (0xFC40000)
+#define FSS_OSPI_FLASH_CMD_CTRL_REG (0x90)
+#define FSS_OSPI_OPCODE_EXT_LOWER_REG (0xE0)
 
 #define AM62L3_EFUSE_E_MPU_OPP 5
 #define AM62L3_EFUSE_O_MPU_OPP 15
@@ -113,11 +120,26 @@ void bl1_plat_arch_setup(void)
 	enable_mmu_el3(0);
 }
 
+unsigned int plat_get_syscnt_freq2(void)
+{
+	return 200 * MHZ_TICKS_PER_SEC;
+}
 static void __dead2 k3_bl1_handoff(void)
 {
 	struct ti_sci_msg msg;
 	volatile uint32_t devstat;
 	uint32_t boot_mode;
+
+	/* Workaround for errata i2462, soft reset the flash */
+	if (mmio_read_32(WKUP_BOOT_MODE) == WKUP_BOOT_MODE_XSPI_MODE) {
+		/* Send flash reset sequence, 0x66, 0x99 */
+		mmio_write_32(FSS_OSPI_CTRL_BASE + FSS_OSPI_OPCODE_EXT_LOWER_REG, 0x66);
+		mmio_write_32(FSS_OSPI_CTRL_BASE + FSS_OSPI_FLASH_CMD_CTRL_REG, 0x66000001);
+		udelay(200);
+		mmio_write_32(FSS_OSPI_CTRL_BASE + FSS_OSPI_OPCODE_EXT_LOWER_REG, 0x99);
+		mmio_write_32(FSS_OSPI_CTRL_BASE + FSS_OSPI_FLASH_CMD_CTRL_REG, 0x99000001);
+		udelay(200);
+	}
 
 	a53_rom_msg_obj.cmdid = BL1_DONE_MSG_ID;
 	a53_rom_msg_obj.hostid = 0;
@@ -155,6 +177,9 @@ static void __dead2 k3_bl1_handoff(void)
 
 void bl1_platform_setup(void)
 {
+	/* Initialize tick timer required for udelays */
+	generic_delay_timer_init();
+
 	if (am62l_lpddr4_init() != 0U) {
 		ERROR("DDR init failed\n");
 		panic();
