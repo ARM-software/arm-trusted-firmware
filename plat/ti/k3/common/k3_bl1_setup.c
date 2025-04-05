@@ -10,6 +10,8 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
@@ -31,12 +33,18 @@ const mmap_region_t plat_k3_mmap[] = {
 
 #define PADCONF_ADDR				(0x4084000)
 #define WKUP_BOOT_MODE				(0x43010030)
+#define WKUP_BOOT_MODE_XSPI_MODE		(0x273)
 #define MAIN_PLL_MMR_BASE			(0x04060000UL)
 #define MAIN_PLL_MMR_CFG_PLL8_HSDIV_CTRL0	(0x00008080UL)
 #define CTL_MMR_BASE_CFG5			(0x43050000U)
 #define CANUART_WAKE_OFF_MODE_STAT		(0x1318U)
 #define RTC_ONLY_PLUS_DDR_MAGIC_WORD		(0x6D555555U)
 #define BL1_DONE_MSG_ID				(0x810A)
+
+/* OSPI related registers */
+#define FSS_OSPI_CTRL_BASE (0xFC40000)
+#define FSS_OSPI_FLASH_CMD_CTRL_REG (0x90)
+#define FSS_OSPI_OPCODE_EXT_LOWER_REG (0xE0)
 
 meminfo_t *bl1_plat_sec_mem_layout(void)
 {
@@ -113,9 +121,25 @@ struct{
 	struct tisci_msg_min_context_restore_req req;
 }__packed a53_tifs_msg_obj;
 
+unsigned int plat_get_syscnt_freq2(void)
+{
+	return 200 * MHZ_TICKS_PER_SEC;
+}
+
 void k3_bl1_handoff(void)
 {
 	bool is_rtc_only_ddr_exit;
+
+	/* Workaround for errata i2462, soft reset the flash */
+	if (mmio_read_32(WKUP_BOOT_MODE) == WKUP_BOOT_MODE_XSPI_MODE) {
+		/* Send flash reset sequence, 0x66, 0x99 */
+		mmio_write_32(FSS_OSPI_CTRL_BASE + FSS_OSPI_OPCODE_EXT_LOWER_REG, 0x66);
+		mmio_write_32(FSS_OSPI_CTRL_BASE + FSS_OSPI_FLASH_CMD_CTRL_REG, 0x66000001);
+		udelay(200);
+		mmio_write_32(FSS_OSPI_CTRL_BASE + FSS_OSPI_OPCODE_EXT_LOWER_REG, 0x99);
+		mmio_write_32(FSS_OSPI_CTRL_BASE + FSS_OSPI_FLASH_CMD_CTRL_REG, 0x99000001);
+		udelay(200);
+	}
 
 	is_rtc_only_ddr_exit = (mmio_read_32((CTL_MMR_BASE_CFG5 + CANUART_WAKE_OFF_MODE_STAT)) == RTC_ONLY_PLUS_DDR_MAGIC_WORD);
 
@@ -170,6 +194,9 @@ void k3_bl1_handoff(void)
 
 void bl1_platform_setup(void)
 {
+	/* Initialize tick timer required for udelays */
+	generic_delay_timer_init();
+
 	if (k3_lpddr4_init() != 0U)
 		NOTICE("%s DDR init failed \n", __func__);
 	else {

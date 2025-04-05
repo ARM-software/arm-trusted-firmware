@@ -12,4 +12,3 @@ BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/drivers/pm/clock/clk_pll_deskew.c    \
 				${PLAT_PATH}/common/drivers/pm/clock/pll.c    \
 				${PLAT_PATH}/common/drivers/pm/clock/clk_wrapper.c    \
-				drivers/delay_timer/delay_timer.c	\
