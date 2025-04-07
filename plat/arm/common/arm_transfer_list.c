@@ -65,6 +65,20 @@ void arm_transfer_list_dyn_cfg_init(struct transfer_list_header *tl)
 	next_param_node->image_info.image_max_size = PLAT_ARM_HW_CONFIG_SIZE;
 	next_param_node->image_info.image_base =
 		(uintptr_t)transfer_list_entry_data(te);
+
+#if SPMC_AT_EL3 && defined(PLAT_ARM_SPMC_SP_MANIFEST_SIZE)
+	next_param_node = get_bl_mem_params_node(TOS_FW_CONFIG_ID);
+	assert(next_param_node != NULL);
+
+	te = transfer_list_add(tl, TL_TAG_DT_FFA_MANIFEST,
+			PLAT_ARM_SPMC_SP_MANIFEST_SIZE, NULL);
+	assert(te != NULL);
+
+	next_param_node->image_info.h.attr &= ~IMAGE_ATTRIB_SKIP_LOADING;
+	next_param_node->image_info.image_max_size = PLAT_ARM_SPMC_SP_MANIFEST_SIZE;
+	next_param_node->image_info.image_base =
+		(uintptr_t)transfer_list_entry_data(te);
+#endif /* SPMC_AT_EL3 */
 }
 
 void arm_transfer_list_populate_ep_info(bl_mem_params_node_t *next_param_node,
