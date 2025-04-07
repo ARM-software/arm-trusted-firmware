@@ -25,7 +25,15 @@
 #define IPI_ID_3	5U
 #define IPI_ID_4	6U
 #define IPI_ID_5	7U
-#define IPI_ID_MAX	8U
+#define IPI_ID_PMC_NOBUF	8U
+#define IPI_ID_6_NOBUF_95	9U
+#define IPI_ID_1_NOBUF	10U
+#define IPI_ID_2_NOBUF	11U
+#define IPI_ID_3_NOBUF	12U
+#define IPI_ID_4_NOBUF	13U
+#define IPI_ID_5_NOBUF	14U
+#define IPI_ID_6_NOBUF_101	15U
+#define IPI_ID_MAX	16U
 
 /*********************************************************************
  * IPI message buffers
@@ -69,5 +77,22 @@ extern void soc_ipi_config_table_init(void);
 #define IPI4_TRIG_BIT		BIT_32(6)
 #define IPI5_REG_BASE		(0xEB380000U)
 #define IPI5_TRIG_BIT		BIT_32(7)
+
+#define PMC_NOBUF_REG_BASE	(0xEB390000U)
+#define PMC_NOBUF_TRIG_BIT	BIT_32(8)
+#define IPI6_NOBUF_95_REG_BASE	(0xEB3A0000U)
+#define IPI6_NOBUF_95_TRIG_BIT	BIT_32(9)
+#define IPI1_NOBUF_REG_BASE	(0xEB3B0000U)
+#define IPI1_NOBUF_TRIG_BIT	BIT_32(10)
+#define IPI2_NOBUF_REG_BASE	(0xEB3B1000U)
+#define IPI2_NOBUF_TRIG_BIT	BIT_32(11)
+#define IPI3_NOBUF_REG_BASE	(0xEB3B2000U)
+#define IPI3_NOBUF_TRIG_BIT	BIT_32(12)
+#define IPI4_NOBUF_REG_BASE	(0xEB3B3000U)
+#define IPI4_NOBUF_TRIG_BIT	BIT_32(13)
+#define IPI5_NOBUF_REG_BASE	(0xEB3B4000U)
+#define IPI5_NOBUF_TRIG_BIT	BIT_32(14)
+#define IPI6_NOBUF_101_REG_BASE	(0xEB3B5000U)
+#define IPI6_NOBUF_101_TRIG_BIT	BIT_32(15)
 
 #endif /* PLAT_IPI_H */
