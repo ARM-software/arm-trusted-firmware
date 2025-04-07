@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -305,7 +305,7 @@ int psci_affinity_info(u_register_t target_affinity,
 int psci_migrate(u_register_t target_cpu)
 {
 	int rc;
-	u_register_t resident_cpu_mpidr;
+	u_register_t resident_cpu_mpidr = 0;
 
 	/* Validate the target cpu */
 	if (!is_valid_mpidr(target_cpu))
@@ -347,7 +347,7 @@ int psci_migrate_info_type(void)
 
 u_register_t psci_migrate_info_up_cpu(void)
 {
-	u_register_t resident_cpu_mpidr;
+	u_register_t resident_cpu_mpidr = 0;
 	int rc;
 
 	/*
