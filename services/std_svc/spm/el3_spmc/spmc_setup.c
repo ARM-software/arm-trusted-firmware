@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,6 +30,9 @@
 #include "spm_common.h"
 #include "spm_shim_private.h"
 #include "spmc.h"
+#if TRANSFER_LIST
+#include <transfer_list.h>
+#endif
 #include <tools_share/firmware_image_package.h>
 
 #include <platform_def.h>
@@ -264,6 +267,20 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 	struct ffa_boot_info_header *boot_header;
 	struct ffa_boot_info_desc *boot_descriptor;
 	uintptr_t content_addr;
+	void *sp_manifest;
+	void *tl __maybe_unused;
+#if TRANSFER_LIST && !RESET_TO_BL31
+	struct transfer_list_entry *te;
+
+	tl = (void *)((uintptr_t)ep_info->args.arg3);
+	te = transfer_list_find((struct transfer_list_header *)tl,
+				TL_TAG_DT_FFA_MANIFEST);
+	assert(te != NULL);
+
+	sp_manifest = (void *)transfer_list_entry_data(te);
+#else
+	sp_manifest = (void *)ep_info->args.arg0;
+#endif
 
 	/*
 	 * Calculate the maximum size of the manifest that can be accommodated
@@ -329,7 +346,7 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 		FFA_BOOT_INFO_TYPE_ID(FFA_BOOT_INFO_TYPE_ID_HOB);
 
 	content_addr = (uintptr_t) build_sp_boot_hob_list(
-			(void *) ep_info->args.arg0, content_addr, &max_sz);
+			sp_manifest, content_addr, &max_sz);
 	if (content_addr == (uintptr_t) NULL) {
 		WARN("Unable to create phit hob properly.");
 		return;
@@ -360,9 +377,7 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 	 */
 	boot_descriptor->size_boot_info = (uint32_t) ep_info->args.arg1;
 
-
-	memcpy((void *) content_addr, (void *) ep_info->args.arg0,
-	       boot_descriptor->size_boot_info);
+	memcpy((void *) content_addr, sp_manifest, boot_descriptor->size_boot_info);
 
 	boot_descriptor->content = content_addr;
 #endif
