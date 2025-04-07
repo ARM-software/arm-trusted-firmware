@@ -1830,3 +1830,42 @@ int ti_sci_prepare_sleep(uint8_t mode, uint64_t context_save_addr,
 
 	return 0;
 }
+
+/**
+ * ti_sci_keywriter_lite() - Program OTP Efuses using a structured
+ *                           buffer in memory
+ *
+ * @addr:		     The starting memory address of the buffer
+ *			     containing the structured fuse programming data.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_keywriter_lite(unsigned long addr)
+{
+	struct ti_sci_msg_req_keywriter_lite req;
+	struct ti_sci_msg_resp_keywriter_lite resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_KEY_WRITER_LITE, 0,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.buff_addr_low = addr & TISCI_ADDR_LOW_MASK;
+	req.buff_addr_high = (addr & TISCI_ADDR_HIGH_MASK) >>
+			     TISCI_ADDR_HIGH_SHIFT;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	return 0;
+}

@@ -54,6 +54,9 @@
 #define TISCI_MSG_GET_PROC_BOOT_STATUS	0xc400
 #define TISCI_MSG_WAIT_PROC_BOOT_STATUS	0xc401
 
+/* Keywriter lite TISCI message to write keys from a buffer */
+#define TISCI_MSG_KEY_WRITER_LITE	0x9045
+
 /**
  * struct ti_sci_msg_hdr - Generic Message Header for All messages and responses
  * @type:	Type of messages: One of TI_SCI_MSG* values
@@ -846,6 +849,35 @@ struct tisci_msg_min_context_restore_req {
 	struct ti_sci_msg_hdr	hdr;
 	uint32_t			ctx_lo;
 	uint32_t			ctx_hi;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_keywriter_lite - Request for program OTP efuses.
+ *
+ * @hdr             Generic Header
+ * @buff_addr_low   Lower 32bit (Little Endian) of buffer
+ * @buff_addr_high  Higher 32bit (Little Endian) of buffer
+ *
+ * Request type is TISCI_MSG_KEY_WRITER_LITE, response is appropriate
+ * message, or NACK in case of inability to satisfy request.
+ */
+struct ti_sci_msg_req_keywriter_lite {
+	struct ti_sci_msg_hdr hdr;
+	uint32_t buff_addr_low;
+	uint32_t buff_addr_high;
+} __packed;
+
+/**
+ * struct ti_sci_msg_resp_keywriter_lite - Response for keywriter.
+ *
+ * @hdr             Generic Header
+ * @debug_response  Debug Response
+ *
+ * Response to TISCI_MSG_KEY_WRITER_LITE.
+ */
+struct ti_sci_msg_resp_keywriter_lite {
+	struct ti_sci_msg_hdr hdr;
+	uint32_t debug_response;
 } __packed;
 
 #endif /* TI_SCI_PROTOCOL_H */
