@@ -103,6 +103,7 @@ PLAT_INCLUDES += -Iplat/ti/k3/board/${TARGET_BOARD}/pm			\
 
 BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_svc.c		\
+				${PLAT_PATH}/common/k3_sip_handler.c		\
 				drivers/scmi-msg/base.c			\
 				drivers/scmi-msg/entry.c			\
 				drivers/scmi-msg/smt.c			\

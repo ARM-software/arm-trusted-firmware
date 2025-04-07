@@ -53,6 +53,9 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		    scmi_smt_fastcall_smc_entry(0);
 		    SMC_RET1(handle, 0);
 
+	    case K3_SIP_OTP_WRITEBUFF:
+		    SMC_RET1(handle, ti_fuse_writebuff_handler(x1));
+
 	    default:
 		    ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 		    SMC_RET1(handle, SMC_UNK);
