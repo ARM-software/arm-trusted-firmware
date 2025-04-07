@@ -31,7 +31,7 @@
 /* Errata format: BL stage, CPU, errata ID, message */
 #define ERRATA_FORMAT	"%s: %s: CPU workaround for %s was %s\n"
 
-#define CVE_FORMAT	"%s: %s: CPU workaround for CVE %u_%u was %s\n"
+#define CVE_FORMAT	"%s: %s: CPU workaround for CVE %u_%04u was %s\n"
 #define ERRATUM_FORMAT	"%s: %s: CPU workaround for erratum %u was %s\n"
 
 
