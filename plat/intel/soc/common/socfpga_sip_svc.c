@@ -13,6 +13,7 @@
 #include <lib/mmio.h>
 #include <tools_share/uuid.h>
 
+#include "lib/utils/alignment_utils.h"
 #include "socfpga_fcs.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_plat_def.h"

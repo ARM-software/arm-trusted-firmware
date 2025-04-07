@@ -9,6 +9,7 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 
+#include "../lib/utils/alignment_utils.h"
 #include "socfpga_plat_def.h"
 #include "socfpga_fcs.h"
 #include "socfpga_mailbox.h"
@@ -284,44 +285,6 @@ uint8_t fcs_cs_ecdh_request_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_ar
 	ret_args[ret_args_len++] = resp->rcvd_resp_len * MBOX_WORD_BYTE;
 
 	return ret_args_len;
-}
-
-bool is_size_4_bytes_aligned(uint32_t size)
-{
-	if ((size % MBOX_WORD_BYTE) != 0U) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-static bool is_8_bytes_aligned(uint32_t data)
-{
-	if ((data % (MBOX_WORD_BYTE * 2U)) != 0U) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-/* As of now used on only Agilex5 platform. */
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
-static bool is_16_bytes_aligned(uint32_t data)
-{
-	if ((data % (MBOX_WORD_BYTE * 4U)) != 0U)
-		return false;
-	else
-		return true;
-}
-#endif
-
-static bool is_32_bytes_aligned(uint32_t data)
-{
-	if ((data % (8U * MBOX_WORD_BYTE)) != 0U) {
-		return false;
-	} else {
-		return true;
-	}
 }
 
 static int intel_fcs_crypto_service_init(uint32_t session_id,
