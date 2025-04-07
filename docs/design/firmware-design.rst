@@ -2599,6 +2599,9 @@ are changed within the ``bl31_plat_runtime_setup`` platform hook. The init
 section section can be reclaimed for any data which is accessed after cold
 boot initialization and it is upto the platform to make the decision.
 
+Please note that this will disable inlining for any functions with the __init
+attribute.
+
 .. _firmware_design_pmf:
 
 Performance Measurement Framework
