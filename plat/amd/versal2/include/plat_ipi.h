@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #define PLAT_IPI_H
 
 #include <stdint.h>
+#include <lib/utils_def.h>
 
 #include <ipi.h>
 
@@ -56,17 +57,17 @@ extern void soc_ipi_config_table_init(void);
  * IPI registers and bitfields
  ******************************************************************************/
 #define IPI0_REG_BASE		(0xEB330000U)
-#define IPI0_TRIG_BIT		(1 << 2)
-#define PMC_IPI_TRIG_BIT	(1 << 1)
+#define IPI0_TRIG_BIT		BIT_32(2)
+#define PMC_IPI_TRIG_BIT	BIT_32(1)
 #define IPI1_REG_BASE		(0xEB340000U)
-#define IPI1_TRIG_BIT		(1 << 3)
+#define IPI1_TRIG_BIT		BIT_32(3)
 #define IPI2_REG_BASE		(0xEB350000U)
-#define IPI2_TRIG_BIT		(1 << 4)
+#define IPI2_TRIG_BIT		BIT_32(4)
 #define IPI3_REG_BASE		(0xEB360000U)
-#define IPI3_TRIG_BIT		(1 << 5)
+#define IPI3_TRIG_BIT		BIT_32(5)
 #define IPI4_REG_BASE		(0xEB370000U)
-#define IPI4_TRIG_BIT		(1 << 6)
+#define IPI4_TRIG_BIT		BIT_32(6)
 #define IPI5_REG_BASE		(0xEB380000U)
-#define IPI5_TRIG_BIT		(1 << 7)
+#define IPI5_TRIG_BIT		BIT_32(7)
 
 #endif /* PLAT_IPI_H */
