@@ -22,6 +22,7 @@ Platform Ports
    mt8183
    mt8186
    mt8188
+   mt8189
    mt8192
    mt8195
    mt8196

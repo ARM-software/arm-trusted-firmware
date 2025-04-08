@@ -1,8 +1,9 @@
 /*
- * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2025, Mediatek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #ifndef PLAT_MACROS_S
 #define PLAT_MACROS_S
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Mediatek Inc. All rights reserved.
+ * Copyright (c) 2025, Mediatek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */

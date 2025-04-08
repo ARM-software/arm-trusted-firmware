@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2024, MediaTek Inc. All rights reserved.
+# Copyright (c) 2021-2025, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,6 +11,7 @@ MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 TRNG_SUPPORT := 1
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
+                 -I${MTK_PLAT}/common/include                     \
                  -I${MTK_PLAT}/drivers/cirq/                      \
                  -I${MTK_PLAT}/drivers/gic600/                    \
                  -I${MTK_PLAT}/drivers/gpio/                      \
