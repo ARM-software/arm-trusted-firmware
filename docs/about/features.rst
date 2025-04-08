@@ -127,7 +127,6 @@ message.
 Additionally the following libraries are marked experimental when included
 in a platform:
 
--  MPU translation library ``lib/xlat_mpu``
 -  RSE comms driver ``drivers/arm/rse``
 
 Still to come
@@ -151,4 +150,4 @@ Still to come
 
 --------------
 
-*Copyright (c) 2019-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
