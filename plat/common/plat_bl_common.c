@@ -60,6 +60,8 @@ void bl2_el3_plat_prepare_exit(void)
 
 void __dead2 plat_error_handler(int err)
 {
+	(void)err;
+
 	while (true) {
 		wfi();
 	}
@@ -71,11 +73,15 @@ void bl2_plat_preload_setup(void)
 
 int bl2_plat_handle_pre_image_load(unsigned int image_id)
 {
+	(void)image_id;
+
 	return 0;
 }
 
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
+	(void)image_id;
+
 	return 0;
 }
 
@@ -88,6 +94,10 @@ int plat_get_enc_key_info(enum fw_enc_status_t fw_enc_status, uint8_t *key,
 			  size_t *key_len, unsigned int *flags,
 			  const uint8_t *img_id, size_t img_id_len)
 {
+	(void)fw_enc_status;
+	(void)img_id;
+	(void)img_id_len;
+
 #define DUMMY_FIP_ENC_KEY { 0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, \
 			    0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, \
 			    0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef, \
