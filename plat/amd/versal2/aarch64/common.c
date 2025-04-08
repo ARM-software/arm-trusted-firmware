@@ -148,8 +148,3 @@ void config_setup(void)
 	/* Configure IPI data */
 	soc_ipi_config_table_init();
 }
-
-uint32_t plat_get_syscnt_freq2(void)
-{
-	return cpu_clock;
-}
