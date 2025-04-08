@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -156,7 +156,7 @@
  */
 #if TRUSTED_BOARD_BOOT
 #if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
-# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1F000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
+# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x20000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
 #elif TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1D000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
 #else
