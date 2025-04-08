@@ -211,8 +211,8 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 #else /* (!TRANSFER_LIST) */
 #if RESET_TO_BL31
 	/* There are no parameters from BL2 if BL31 is a reset vector */
-	assert((void *)arg0 == NULL);
-	assert((void *)arg3 == NULL);
+	assert((uintptr_t)arg0 == 0U);
+	assert((uintptr_t)arg3 == 0U);
 
 # ifdef BL32_BASE
 	/* Populate entry point information for BL32 */
@@ -257,12 +257,12 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	 * to verify platform parameters from BL2 to BL31.
 	 * In release builds, it's not used.
 	 */
-	assert(((unsigned long long)arg3) == ARM_BL31_PLAT_PARAM_VAL);
+	assert(((uintptr_t)arg3) == ARM_BL31_PLAT_PARAM_VAL);
 
 	/*
 	 * Check params passed from BL2 should not be NULL,
 	 */
-	bl_params_t *params_from_bl2 = (bl_params_t *)arg0;
+	bl_params_t *params_from_bl2 = (bl_params_t *)(uintptr_t)arg0;
 	assert(params_from_bl2 != NULL);
 	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
 	assert(params_from_bl2->h.version >= VERSION_2);
