@@ -193,7 +193,7 @@
 #  define MAX_XLAT_TABLES		6
 # endif
 #elif !USE_ROMLIB
-# if ENABLE_RME && defined(IMAGE_BL2)
+# if defined(IMAGE_BL2) && (ENABLE_RME || SPMC_AT_EL3)
 #  define PLAT_ARM_MMAP_ENTRIES		12
 #  define MAX_XLAT_TABLES		6
 # else
