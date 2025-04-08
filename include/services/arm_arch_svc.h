@@ -289,6 +289,7 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 	MDCR_FEAT_SPE		|						\
 	MDCR_TDOSA_BIT		|						\
 	MDCR_TDA_BIT		|						\
+	MDCR_EnPM2_BIT		|						\
 	MDCR_TPM_BIT		| /* FEAT_PMUv3 */				\
 	MDCR_PLAT_FEATS)
 #define MDCR_EL3_FLIPPED (							\
