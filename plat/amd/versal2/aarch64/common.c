@@ -123,7 +123,7 @@ void config_setup(void)
 	uintptr_t crl_base, iou_scntrs_base, psx_base;
 
 	crl_base = CRL;
-	iou_scntrs_base = IOU_SCNTRS;
+	iou_scntrs_base = IOU_SCNTRS_BASE;
 	psx_base = PSX_CRF;
 
 	/* Reset for system timestamp generator in FPX */
