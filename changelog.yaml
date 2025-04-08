@@ -170,12 +170,6 @@ subsections:
               - plat/fvp
               - fvp/tsp_manifest
 
-          - title: FVP-R
-            scope: fvp-r
-
-            deprecated:
-              - fvp_r
-
           - title: FVP Versatile Express
             scope: fvp_ve
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -58,6 +58,19 @@ uint32_t region_attr(uint64_t prbar_attr, uint64_t prlar_attr);
 #define MT_SEC_MASK		UL(0x1)
 #define MT_EXECUTE_MASK		UL(0x3)
 #define MT_TYPE_SHIFT		UL(0)
+
+#define MPUIR_EL2		S3_4_C0_C0_4
+#define PRBAR_EL2		S3_4_C6_C8_0
+#define PRLAR_EL2		S3_4_C6_C8_1
+#define PRSELR_EL2		S3_4_C6_C2_1
+#define PRENR_EL2		S3_4_C6_C1_1
+
+/* v8-R64 MPU registers */
+DEFINE_RENAME_SYSREG_RW_FUNCS(mpuir_el2, MPUIR_EL2)
+DEFINE_RENAME_SYSREG_RW_FUNCS(prenr_el2, PRENR_EL2)
+DEFINE_RENAME_SYSREG_RW_FUNCS(prselr_el2, PRSELR_EL2)
+DEFINE_RENAME_SYSREG_RW_FUNCS(prbar_el2, PRBAR_EL2)
+DEFINE_RENAME_SYSREG_RW_FUNCS(prlar_el2, PRLAR_EL2)
 
 extern uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 

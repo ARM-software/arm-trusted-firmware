@@ -7,7 +7,6 @@ Arm Development Platforms
 
    juno/index
    fvp/index
-   fvp_r/index
    fvp-ve/index
    tc/index
    arm_fpga/index
@@ -22,4 +21,4 @@ such as Juno.
 
 --------------
 
-*Copyright (c) 2019-2024, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited. All rights reserved.*
