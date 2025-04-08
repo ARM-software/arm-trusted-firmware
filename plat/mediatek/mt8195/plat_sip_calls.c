@@ -31,7 +31,7 @@ uintptr_t mediatek_plat_sip_handler(uint32_t smc_fid,
 	case MTK_SIP_TEE_MPU_PERM_SET_AARCH64:
 	case MTK_SIP_TEE_MPU_PERM_SET_AARCH32:
 		ret = emi_mpu_sip_handler(x1, x2, x3);
-		SMC_RET2(handle, ret, ret_val);
+		SMC_RET1(handle, ret);
 		break;
 	case MTK_SIP_DP_CONTROL_AARCH32:
 	case MTK_SIP_DP_CONTROL_AARCH64:
