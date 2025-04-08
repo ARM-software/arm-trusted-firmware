@@ -75,4 +75,12 @@
 #define __wkupsramresumeentry			__section(".wkupsram.resume_entry")
 #define __wkupsramsuspendentry			__section(".wkupsram.suspend_entry")
 
+/*
+ * Fuse writebuff
+ * K3_FUSE_WRITEBUFF_BASE - buffer content base addr in memory
+ * K3_FUSE_WRITEBUFF_SIZE - Maximum allocated size for the buffer
+ */
+#define K3_FUSE_WRITEBUFF_BASE			UL(0x82000000)
+#define K3_FUSE_WRITEBUFF_SIZE			UL(0x1000)
+
 #endif /* BOARD_DEF_H */
