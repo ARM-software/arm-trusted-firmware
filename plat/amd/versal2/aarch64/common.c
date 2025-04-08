@@ -8,12 +8,12 @@
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <def.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
-
-#include <def.h>
+#include <plat_clkfunc.h>
 #include <plat_common.h>
 #include <plat_ipi.h>
 #include <plat_private.h>
@@ -142,6 +142,9 @@ void config_setup(void)
 		      cpu_clock);
 	mmio_write_32(iou_scntrs_base + IOU_SCNTRS_COUNTER_CONTROL_REG_OFFSET,
 		      IOU_SCNTRS_CONTROL_EN);
+
+	/* set cntfrq_el0 value so that software can discover the frequency of the system counter */
+	set_cnt_freq();
 
 	generic_delay_timer_init();
 
