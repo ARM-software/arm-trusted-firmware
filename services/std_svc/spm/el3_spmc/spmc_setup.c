@@ -32,15 +32,23 @@
 #include "spmc.h"
 #if TRANSFER_LIST
 #include <transfer_list.h>
+#include <drivers/measured_boot/event_log/event_handoff.h>
 #endif
 #include <tools_share/firmware_image_package.h>
 
 #include <platform_def.h>
 
+#define FFA_BOOT_INFO_SIZE	(PAGE_SIZE * 2)
+
 /*
  * Statically allocate a page of memory for passing boot information to an SP.
  */
-static uint8_t ffa_boot_info_mem[PAGE_SIZE] __aligned(PAGE_SIZE);
+static uint8_t ffa_boot_info_mem[FFA_BOOT_INFO_SIZE] __aligned(PAGE_SIZE);
+
+#if HOB_LIST
+static void *tpm_evtlog_addr;
+static size_t tpm_evtlog_size;
+#endif
 
 /*
  * We need to choose one execution context from all those available for a S-EL0
@@ -62,8 +70,41 @@ enum sp_memory_region_type {
 	SP_MEM_REGION_NOT_SPECIFIED
 };
 
-
 #if HOB_LIST
+#if TRANSFER_LIST
+static void get_tpm_event_log(void *secure_tl)
+{
+	struct transfer_list_entry *te;
+	void *evlog;
+
+	if (secure_tl == NULL) {
+		tpm_evtlog_addr = NULL;
+		tpm_evtlog_size = 0;
+		return;
+	}
+
+	te = transfer_list_find((struct transfer_list_header *)secure_tl,
+				TL_TAG_TPM_EVLOG);
+	if (te == NULL) {
+		tpm_evtlog_addr = NULL;
+		tpm_evtlog_size = 0;
+		return;
+	}
+
+	evlog = transfer_list_entry_data(te);
+	assert(evlog != NULL);
+
+	tpm_evtlog_addr = evlog + EVENT_LOG_RESERVED_BYTES;
+	tpm_evtlog_size = te->data_size - EVENT_LOG_RESERVED_BYTES;
+}
+#else
+static void get_tpm_event_log(void *secure_tl)
+{
+	tpm_evtlog_addr = NULL;
+	tpm_evtlog_size = 0;
+}
+#endif
+
 static int get_memory_region_info(void *sp_manifest, int mem_region_node,
 		const char *name, uint32_t granularity,
 		uint64_t *base_address, uint32_t *size)
@@ -105,7 +146,8 @@ static int get_memory_region_info(void *sp_manifest, int mem_region_node,
 }
 
 static struct efi_hob_handoff_info_table *build_sp_boot_hob_list(
-		void *sp_manifest, uintptr_t hob_table_start, size_t *hob_table_size)
+		void *secure_tl, void *sp_manifest,
+		uintptr_t hob_table_start, size_t *hob_table_size)
 {
 	struct efi_hob_handoff_info_table *hob_table;
 	uintptr_t base_address;
@@ -116,6 +158,7 @@ static struct efi_hob_handoff_info_table *build_sp_boot_hob_list(
 	uint32_t mem_region_num;
 	struct efi_guid ns_buf_guid = MM_NS_BUFFER_GUID;
 	struct efi_guid mmram_resv_guid = MM_PEI_MMRAM_MEMORY_RESERVE_GUID;
+	struct efi_guid tpm_evtlog_guid = MM_TPM_EVENT_LOG_GUID;
 	struct efi_mmram_descriptor *mmram_desc_data;
 	struct efi_mmram_hob_descriptor_block *mmram_hob_desc_data;
 
@@ -218,7 +261,7 @@ static struct efi_hob_handoff_info_table *build_sp_boot_hob_list(
 
 	ret = create_guid_hob(hob_table, &mmram_resv_guid,
 			(sizeof(struct efi_mmram_hob_descriptor_block) +
-			 (sizeof(struct efi_mmram_descriptor) * mem_region_num)),
+			 (sizeof(struct efi_mmram_descriptor) * (mem_region_num))),
 			(void **) &mmram_hob_desc_data);
 	if (ret < 0) {
 		ERROR("Failed to create mmram_resv hob. ret: %d\n", ret);
@@ -246,14 +289,31 @@ static struct efi_hob_handoff_info_table *build_sp_boot_hob_list(
 		}
 	}
 
+	/*
+	 * Add tpm mmram descriptor.
+	 */
+	get_tpm_event_log(secure_tl);
+
+	if (tpm_evtlog_addr != NULL && tpm_evtlog_size != 0) {
+		ret = create_guid_hob(hob_table, &tpm_evtlog_guid,
+				sizeof(struct efi_mmram_descriptor), (void **) &mmram_desc_data);
+		if (ret < 0) {
+			ERROR("Failed to create tpm_event_log hob\n");
+			return NULL;
+		}
+
+		mmram_desc_data->physical_start = (uintptr_t)tpm_evtlog_addr;
+		mmram_desc_data->physical_size = tpm_evtlog_size;
+		mmram_desc_data->cpu_start = (uintptr_t)tpm_evtlog_addr;
+		mmram_desc_data->region_state = EFI_CACHEABLE | EFI_ALLOCATED;
+	}
+
 	*hob_table_size = hob_table->efi_free_memory_bottom -
 		(efi_physical_address_t) hob_table;
 
   return hob_table;
 }
 #endif
-
-
 
 /*
  * This function creates a initialization descriptor in the memory reserved
@@ -279,6 +339,7 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 
 	sp_manifest = (void *)transfer_list_entry_data(te);
 #else
+	tl = NULL;
 	sp_manifest = (void *)ep_info->args.arg0;
 #endif
 
@@ -301,7 +362,7 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 	}
 
 	/* Zero the memory region before populating. */
-	memset(ffa_boot_info_mem, 0, PAGE_SIZE);
+	memset(ffa_boot_info_mem, 0, FFA_BOOT_INFO_SIZE);
 
 	/*
 	 * Populate the ffa_boot_info_header at the start of the boot info
@@ -346,7 +407,7 @@ static void spmc_create_boot_info(entry_point_info_t *ep_info,
 		FFA_BOOT_INFO_TYPE_ID(FFA_BOOT_INFO_TYPE_ID_HOB);
 
 	content_addr = (uintptr_t) build_sp_boot_hob_list(
-			sp_manifest, content_addr, &max_sz);
+			tl, sp_manifest, content_addr, &max_sz);
 	if (content_addr == (uintptr_t) NULL) {
 		WARN("Unable to create phit hob properly.");
 		return;
@@ -648,6 +709,7 @@ void spmc_el0_sp_setup(struct secure_partition_desc *sp,
 	cpu_context_t *ctx;
 	int node;
 	int offset = 0;
+	struct mmap_region sp_mem_regions __unused = {0};
 
 	ctx = &sp->ec[SEL0_SP_EC_INDEX].cpu_ctx;
 
@@ -665,7 +727,7 @@ void spmc_el0_sp_setup(struct secure_partition_desc *sp,
 	if (boot_info_reg >= 0) {
 		mmap_region_t ffa_boot_info_region = MAP_REGION_FLAT(
 			(uintptr_t) ffa_boot_info_mem,
-			PAGE_SIZE,
+			FFA_BOOT_INFO_SIZE,
 			MT_RO_DATA | MT_SECURE | MT_USER);
 		mmap_add_region_ctx(sp->xlat_ctx_handle, &ffa_boot_info_region);
 	}
@@ -697,6 +759,31 @@ void spmc_el0_sp_setup(struct secure_partition_desc *sp,
 		populate_sp_regions(sp, sp_manifest, node,
 				    SP_MEM_REGION_MEMORY);
 	}
+
+#if HOB_LIST
+	/*
+	 * Add tpm event log region with RO permission.
+	 */
+	if (tpm_evtlog_addr != NULL && tpm_evtlog_size != 0) {
+		INFO("Mapping SP's TPM event log\n");
+		INFO("TPM event log addr(0x%lx), size(0x%lx)\n",
+				(uintptr_t)tpm_evtlog_addr, tpm_evtlog_size);
+		sp_mem_regions.base_pa = (uintptr_t)
+			((unsigned long)tpm_evtlog_addr & ~(PAGE_SIZE_MASK));
+		sp_mem_regions.base_va = sp_mem_regions.base_pa;
+		sp_mem_regions.size = (tpm_evtlog_size & ~(PAGE_SIZE_MASK)) + PAGE_SIZE;
+		sp_mem_regions.attr = MT_USER | MT_SECURE | MT_RO_DATA;
+		sp_mem_regions.granularity = XLAT_BLOCK_SIZE(3);
+
+		INFO("Adding PA: 0x%llx VA: 0x%lx Size: 0x%lx attr:0x%x\n",
+		     sp_mem_regions.base_pa,
+		     sp_mem_regions.base_va,
+		     sp_mem_regions.size,
+		     sp_mem_regions.attr);
+
+		mmap_add_region_ctx(sp->xlat_ctx_handle, &sp_mem_regions);
+	}
+#endif
 
 	spmc_el0_sp_setup_system_registers(sp, ctx);
 }

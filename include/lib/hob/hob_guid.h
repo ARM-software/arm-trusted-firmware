@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +26,11 @@
 #define MM_MP_INFORMATION_GUID                                                  \
 {                                                                               \
 	0xba33f15d, 0x4000, 0x45c1, {0x8e, 0x88, 0xf9, 0x16, 0x92, 0xd4, 0x57, 0xe3}  \
+}
+
+#define MM_TPM_EVENT_LOG_GUID                                                   \
+{                                                                               \
+	0x360c4a06, 0x146c, 0x11f0, {0xb1, 0x73, 0x6b, 0xd5, 0x98, 0xff, 0x54, 0xd6}  \
 }
 
 #endif /* HOB_GUID_H */
