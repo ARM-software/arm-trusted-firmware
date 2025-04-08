@@ -71,6 +71,7 @@
 		PER_CPU_PWR_DATA(ctrl, 0, 7); \
 		break; \
 	default: \
+		PER_CPU_PWR_DATA(ctrl, 0, 0); \
 		assert(0); \
 		break; \
 	} })
