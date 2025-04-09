@@ -2,7 +2,7 @@
  * Texas Instruments System Control Interface Driver
  *   Based on Linux and U-Boot implementation
  *
- * Copyright (C) 2018-2024 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2018-2025 Texas Instruments Incorporated - https://www.ti.com/
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,7 @@
 #include <lib/bakery_lock.h>
 
 #include <common/debug.h>
-#include <sec_proxy.h>
+#include <ti_sci_transport.h>
 
 #include "ti_sci_protocol.h"
 #include "ti_sci.h"
@@ -34,8 +34,8 @@ DEFINE_BAKERY_LOCK(ti_sci_xfer_lock);
  * @rx_message:	Receive message
  */
 struct ti_sci_xfer {
-	struct k3_sec_proxy_msg tx_message;
-	struct k3_sec_proxy_msg rx_message;
+	struct ti_sci_msg tx_message;
+	struct ti_sci_msg rx_message;
 };
 
 /**
@@ -69,6 +69,9 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)tx_buf;
+
+	/* TODO: Calculate checksum */
+	hdr->sec_hdr.checksum = 0;
 	hdr->seq = ++message_sequence;
 	hdr->type = msg_type;
 	hdr->host = TI_SCI_HOST_ID;
@@ -95,8 +98,8 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-static int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
-			       enum k3_sec_proxy_chan_id chan)
+static int ti_sci_get_response(struct ti_sci_msg *msg,
+			       enum ti_sci_transport_chan_id chan)
 {
 	struct ti_sci_msg_hdr *hdr;
 	unsigned int retry = 5;
@@ -104,7 +107,7 @@ static int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
 
 	for (; retry > 0; retry--) {
 		/* Receive the response */
-		ret = k3_sec_proxy_recv(chan, msg);
+		ret = ti_sci_transport_recv(chan, msg);
 		if (ret) {
 			ERROR("Message receive failed (%d)\n", ret);
 			return ret;
@@ -133,6 +136,9 @@ static int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
 	if (!(hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK))
 		return -ENODEV;
 
+	/* TODO: Verify checksum */
+	(void)hdr->sec_hdr.checksum;
+
 	return 0;
 }
 
@@ -145,21 +151,21 @@ static int ti_sci_get_response(struct k3_sec_proxy_msg *msg,
  */
 static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 {
-	struct k3_sec_proxy_msg *tx_msg = &xfer->tx_message;
-	struct k3_sec_proxy_msg *rx_msg = &xfer->rx_message;
+	struct ti_sci_msg *tx_msg = &xfer->tx_message;
+	struct ti_sci_msg *rx_msg = &xfer->rx_message;
 	int ret;
 
 	bakery_lock_get(&ti_sci_xfer_lock);
 
 	/* Clear any spurious messages in receive queue */
-	ret = k3_sec_proxy_clear_rx_thread(SP_RESPONSE);
+	ret = ti_sci_transport_clear_rx_thread(RX_SECURE_TRANSPORT_CHANNEL_ID);
 	if (ret) {
 		ERROR("Could not clear response queue (%d)\n", ret);
 		goto unlock;
 	}
 
 	/* Send the message */
-	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, tx_msg);
+	ret = ti_sci_transport_send(TX_SECURE_TRANSPORT_CHANNEL_ID, tx_msg);
 	if (ret) {
 		ERROR("Message sending failed (%d)\n", ret);
 		goto unlock;
@@ -167,7 +173,7 @@ static int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 
 	/* Get the response if requested */
 	if (rx_msg->len != 0U) {
-		ret = ti_sci_get_response(rx_msg, SP_RESPONSE);
+		ret = ti_sci_get_response(rx_msg, RX_SECURE_TRANSPORT_CHANNEL_ID);
 		if (ret != 0U) {
 			ERROR("Failed to get response (%d)\n", ret);
 			goto unlock;
