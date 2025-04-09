@@ -66,13 +66,8 @@ ifeq ($(filter ${TC_RESOLUTION}, ${TC_RESOLUTION_OPTIONS}),)
 endif
 endif
 
-ifneq ($(shell expr $(TARGET_PLATFORM) \<= 1), 0)
+ifneq ($(shell expr $(TARGET_PLATFORM) \<= 2), 0)
         $(error Platform ${PLAT}$(TARGET_PLATFORM) is no longer available.)
-endif
-
-ifneq ($(shell expr $(TARGET_PLATFORM) = 2), 0)
-        $(warning Platform ${PLAT}$(TARGET_PLATFORM) is deprecated. \
-          Some of the features might not work as expected)
 endif
 
 ifeq ($(shell expr $(TARGET_PLATFORM) \<= 4), 0)
@@ -108,12 +103,7 @@ CSS_LOAD_SCP_IMAGES	:=	1
 # Save DSU PMU registers on cluster off and restore them on cluster on
 PRESERVE_DSU_PMU_REGS		:= 1
 
-# Specify MHU type based on platform
-ifneq ($(filter ${TARGET_PLATFORM}, 2),)
-	PLAT_MHU		:= MHUv2
-else
-	PLAT_MHU		:= MHUv3
-endif
+PLAT_MHU		:= MHUv3
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
@@ -126,23 +116,6 @@ TC_BASE	=	plat/arm/board/tc
 
 PLAT_INCLUDES		+=	-I${TC_BASE}/include/ \
 				-I${TC_BASE}/fdts/
-
-# CPU libraries for TARGET_PLATFORM=1
-ifeq (${TARGET_PLATFORM}, 1)
-TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a510.S \
-			lib/cpus/aarch64/cortex_a715.S \
-			lib/cpus/aarch64/cortex_x3.S
-endif
-
-# CPU libraries for TARGET_PLATFORM=2
-ifeq (${TARGET_PLATFORM}, 2)
-ERRATA_A520_2938996	:=	1
-ERRATA_X4_2726228	:=	1
-
-TC_CPU_SOURCES	+=	lib/cpus/aarch64/cortex_a520.S \
-			lib/cpus/aarch64/cortex_a720.S \
-			lib/cpus/aarch64/cortex_x4.S
-endif
 
 # CPU libraries for TARGET_PLATFORM=3
 ifeq (${TARGET_PLATFORM}, 3)
@@ -188,10 +161,6 @@ BL2_SOURCES		+=	${TC_BASE}/tc_security.c	\
 				lib/utils/mem_region.c			\
 				drivers/arm/tzc/tzc400.c		\
 				plat/arm/common/arm_nor_psci_mem_protect.c
-
-ifeq ($(shell test $(TARGET_PLATFORM) -le 2; echo $$?),0)
-BL2_SOURCES		+=	plat/arm/common/arm_tzc400.c
-endif
 
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				${TC_CPU_SOURCES}	\

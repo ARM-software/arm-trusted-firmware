@@ -54,15 +54,6 @@ psa_status_t mbedtls_psa_external_get_random(
 }
 #endif /* PLATFORM_TEST_TFM_TESTSUITE */
 
-#if TARGET_PLATFORM <= 2
-static scmi_channel_plat_info_t tc_scmi_plat_info = {
-	.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
-	.db_reg_addr = PLAT_CSS_MHU_BASE + SENDER_REG_SET(0),
-	.db_preserve_mask = 0xfffffffe,
-	.db_modify_mask = 0x1,
-	.ring_doorbell = &mhuv2_ring_doorbell,
-};
-#elif TARGET_PLATFORM >= 3
 static scmi_channel_plat_info_t tc_scmi_plat_info = {
 	.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
 	.db_reg_addr = PLAT_CSS_MHU_BASE + MHU_V3_SENDER_REG_SET(0),
@@ -70,7 +61,6 @@ static scmi_channel_plat_info_t tc_scmi_plat_info = {
 	.db_modify_mask = 0x1,
 	.ring_doorbell = &mhu_ring_doorbell,
 };
-#endif
 
 /* the bottom 3 AMU group 1 counters */
 #define MPMM_GEARS ((1 << 0) | (1 << 1) | (1 << 2))

@@ -17,11 +17,7 @@ The TF-A build is specified by the option `TARGET_PLATFORM` which represents
 the Total Compute platform number. The platforms support the CPU variants
 listed as below:
 
--  TC0 has support for Cortex A510, Cortex A710 and Cortex X2. (Note TC0 is now deprecated)
--  TC1 has support for Cortex A510, Cortex A715 and Cortex X3. (Note TC1 is now deprecated)
--  TC2 has support for Cortex A520, Cortex A720 and Cortex x4. (Note TC2 is now deprecated)
 -  TC3 has support for Cortex A520, Cortex A725 and Cortex x925.
-
 
 Boot Sequence
 -------------
@@ -59,6 +55,6 @@ Build Procedure (TF-A only)
 
 --------------
 
-*Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2025, Arm Limited. All rights reserved.*
 
 .. _Arm Toolchain: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads
