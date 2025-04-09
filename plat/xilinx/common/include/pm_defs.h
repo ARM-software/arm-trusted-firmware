@@ -209,7 +209,7 @@ enum pm_abort_reason {
  * @PM_RET_SUCCESS: success.
  * @PM_RET_ERROR_ARGS: illegal arguments provided (deprecated).
  * @PM_RET_ERROR_NOTSUPPORTED: feature not supported  (deprecated).
- * @PM_RET_ERROR_NOFEATURE: feature is not available.
+ * @PM_RET_ERROR_IOCTL_NOT_SUPPORTED: IOCTL is not supported.
  * @PM_RET_ERROR_INVALID_CRC: invalid crc in IPI communication.
  * @PM_RET_ERROR_NOT_ENABLED: feature is not enabled.
  * @PM_RET_ERROR_INTERNAL: internal error.
@@ -227,7 +227,7 @@ enum pm_ret_status {
 	PM_RET_SUCCESS,
 	PM_RET_ERROR_ARGS = 1,
 	PM_RET_ERROR_NOTSUPPORTED = 4,
-	PM_RET_ERROR_NOFEATURE = 19,
+	PM_RET_ERROR_IOCTL_NOT_SUPPORTED = 19,
 	PM_RET_ERROR_INVALID_CRC = 301,
 	PM_RET_ERROR_NOT_ENABLED = 29,
 	PM_RET_ERROR_INTERNAL = 2000,
