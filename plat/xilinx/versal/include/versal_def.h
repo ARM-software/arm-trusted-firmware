@@ -63,7 +63,7 @@
 /*******************************************************************************
  * CCI-400 related constants
  ******************************************************************************/
-#define PLAT_ARM_CCI_BASE		U(0xFD000000)
+#define PLAT_ARM_CCI_BASE		UL(0xFD000000)
 #define PLAT_ARM_CCI_SIZE		U(0x00100000)
 #define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	4
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	5
