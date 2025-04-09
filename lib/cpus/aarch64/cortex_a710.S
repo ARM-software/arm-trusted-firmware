@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <cortex_a710.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 #include "wa_cve_2022_23960_bhb_vector.S"
 
@@ -28,12 +29,7 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A710_BHB_LOOP_COUNT, cortex_a710
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_a710, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A710_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_a710,  CVE(2024, 5660)
-
-check_erratum_ls cortex_a710, CVE(2024, 5660), CPU_REV(2, 1)
+cpu_reset_prologue cortex_a710
 
 workaround_reset_start cortex_a710, ERRATUM(1987031), ERRATA_A710_1987031
 	ldr x0,=0x6
@@ -90,13 +86,6 @@ workaround_reset_start cortex_a710, ERRATUM(2055002), ERRATA_A710_2055002
 workaround_reset_end cortex_a710, ERRATUM(2055002)
 
 check_erratum_range cortex_a710, ERRATUM(2055002), CPU_REV(1, 0), CPU_REV(2, 0)
-
-workaround_reset_start cortex_a710, ERRATUM(2058056), ERRATA_A710_2058056
-	sysreg_bitfield_insert CORTEX_A710_CPUECTLR2_EL1, CORTEX_A710_CPUECTLR2_EL1_PF_MODE_CNSRV, \
-		CPUECTLR2_EL1_PF_MODE_LSB, CPUECTLR2_EL1_PF_MODE_WIDTH
-workaround_reset_end cortex_a710, ERRATUM(2058056)
-
-check_erratum_ls cortex_a710, ERRATUM(2058056), CPU_REV(2, 1)
 
 workaround_reset_start cortex_a710, ERRATUM(2081180), ERRATA_A710_2081180
 	ldr	x0,=0x3
@@ -164,6 +153,7 @@ workaround_reset_end cortex_a710, ERRATUM(2282622)
 
 check_erratum_ls cortex_a710, ERRATUM(2282622), CPU_REV(2, 1)
 
+.global erratum_cortex_a710_2291219_wa
 workaround_runtime_start cortex_a710, ERRATUM(2291219), ERRATA_A710_2291219
 	/* Set bit 36 in ACTLR2_EL1 */
 	sysreg_bit_set CORTEX_A710_CPUACTLR2_EL1, CORTEX_A710_CPUACTLR2_EL1_BIT_36
@@ -171,14 +161,14 @@ workaround_runtime_end cortex_a710, ERRATUM(2291219), NO_ISB
 
 check_erratum_ls cortex_a710, ERRATUM(2291219), CPU_REV(2, 0)
 
-/*
- * ERRATA_DSU_2313941 is defined in dsu_helpers.S but applies to Cortex-A710 as
- * well. Create a symbollic link to existing errata workaround to get them
- * registered under the Errata Framework.
- */
-.equ check_erratum_cortex_a710_2313941, check_errata_dsu_2313941
-.equ erratum_cortex_a710_2313941_wa, errata_dsu_2313941_wa
-add_erratum_entry cortex_a710, ERRATUM(2313941), ERRATA_DSU_2313941, APPLY_AT_RESET
+workaround_reset_start cortex_a710, ERRATUM(2313941), ERRATA_DSU_2313941
+	errata_dsu_2313941_wa_impl
+workaround_reset_end cortex_a710, ERRATUM(2313941)
+
+check_erratum_custom_start cortex_a710, ERRATUM(2313941)
+	check_errata_dsu_2313941_impl
+	ret
+check_erratum_custom_end cortex_a710, ERRATUM(2313941)
 
 workaround_reset_start cortex_a710, ERRATUM(2371105), ERRATA_A710_2371105
 	/* Set bit 40 in CPUACTLR2_EL1 */
@@ -208,6 +198,10 @@ workaround_reset_end cortex_a710, ERRATUM(2778471)
 
 check_erratum_ls cortex_a710, ERRATUM(2778471), CPU_REV(2, 1)
 
+add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772
+
+check_erratum_ls cortex_a710, ERRATUM(3701772), CPU_REV(2, 1)
+
 workaround_reset_start cortex_a710, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -220,9 +214,12 @@ workaround_reset_end cortex_a710, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a710, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
-add_erratum_entry cortex_a710, ERRATUM(3701772), ERRATA_A710_3701772, NO_APPLY_AT_RESET
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a710, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A710_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a710,  CVE(2024, 5660)
 
-check_erratum_ls cortex_a710, ERRATUM(3701772), CPU_REV(2, 1)
+check_erratum_ls cortex_a710, CVE(2024, 5660), CPU_REV(2, 1)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -241,8 +238,6 @@ func cortex_a710_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_a710_core_pwr_dwn
-
-errata_report_shim cortex_a710
 
 cpu_reset_func_start cortex_a710
 	/* Disable speculative loads */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,12 +24,7 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A78_BHB_LOOP_COUNT, cortex_a78
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* Disable hardware page aggregation.Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_a78, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_a78, CVE(2024, 5660)
-
-check_erratum_ls cortex_a78, CVE(2024, 5660), CPU_REV(1, 2)
+cpu_reset_prologue cortex_a78
 
 workaround_reset_start cortex_a78, ERRATUM(1688305), ERRATA_A78_1688305
 	sysreg_bit_set CORTEX_A78_ACTLR2_EL1, CORTEX_A78_ACTLR2_EL1_BIT_1
@@ -104,16 +99,6 @@ workaround_reset_end cortex_a78, ERRATUM(1952683)
 
 check_erratum_ls cortex_a78, ERRATUM(1952683), CPU_REV(0, 0)
 
-workaround_reset_start cortex_a78, ERRATUM(2132060), ERRATA_A78_2132060
-	/* Apply the workaround. */
-	mrs	x1, CORTEX_A78_CPUECTLR_EL1
-	mov	x0, #CORTEX_A78_CPUECTLR_EL1_PF_MODE_CNSRV
-	bfi	x1, x0, #CPUECTLR_EL1_PF_MODE_LSB, #CPUECTLR_EL1_PF_MODE_WIDTH
-	msr	CORTEX_A78_CPUECTLR_EL1, x1
-workaround_reset_end cortex_a78, ERRATUM(2132060)
-
-check_erratum_ls cortex_a78, ERRATUM(2132060), CPU_REV(1, 2)
-
 workaround_reset_start cortex_a78, ERRATUM(2242635), ERRATA_A78_2242635
 	ldr	x0, =0x5
 	msr	S3_6_c15_c8_0, x0 /* CPUPSELR_EL3 */
@@ -174,6 +159,13 @@ workaround_reset_end cortex_a78, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a78, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
+/* Disable hardware page aggregation.Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a78, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A78_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a78, CVE(2024, 5660)
+
+check_erratum_ls cortex_a78, CVE(2024, 5660), CPU_REV(1, 2)
+
 cpu_reset_func_start cortex_a78
 #if ENABLE_FEAT_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
@@ -204,8 +196,6 @@ func cortex_a78_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_a78_core_pwr_dwn
-
-errata_report_shim cortex_a78
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a78 specific

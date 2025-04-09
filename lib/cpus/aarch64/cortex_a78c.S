@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,12 +21,7 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A78C_BHB_LOOP_COUNT, cortex_a78c
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_a78c, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_a78c, CVE(2024, 5660)
-
-check_erratum_ls cortex_a78c, CVE(2024, 5660), CPU_REV(0, 2)
+cpu_reset_prologue cortex_a78c
 
 workaround_reset_start cortex_a78c, ERRATUM(1827430), ERRATA_A78C_1827430
 	/* Disable allocation of splintered pages in the L2 TLB */
@@ -41,18 +36,6 @@ workaround_reset_start cortex_a78c, ERRATUM(1827440), ERRATA_A78C_1827440
 workaround_reset_end cortex_a78c, ERRATUM(1827440)
 
 check_erratum_ls cortex_a78c, ERRATUM(1827440), CPU_REV(0, 0)
-
-workaround_reset_start cortex_a78c, ERRATUM(2132064), ERRATA_A78C_2132064
-	/* --------------------------------------------------------
-	 * Place the data prefetcher in the most conservative mode
-	 * to reduce prefetches by writing the following bits to
-	 * the value indicated: ecltr[7:6], PF_MODE = 2'b11
-	 * --------------------------------------------------------
-	 */
-	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, (CORTEX_A78C_CPUECTLR_EL1_BIT_6 | CORTEX_A78C_CPUECTLR_EL1_BIT_7)
-workaround_reset_end cortex_a78c, ERRATUM(2132064)
-
-check_erratum_range cortex_a78c, ERRATUM(2132064), CPU_REV(0, 1), CPU_REV(0, 2)
 
 workaround_reset_start cortex_a78c, ERRATUM(2242638), ERRATA_A78C_2242638
 	ldr	x0, =0x5
@@ -125,10 +108,15 @@ workaround_reset_start cortex_a78c, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #endif /* IMAGE_BL31 */
 workaround_reset_end cortex_a78c, CVE(2022, 23960)
 
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a78c, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A78C_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a78c, CVE(2024, 5660)
+
+check_erratum_ls cortex_a78c, CVE(2024, 5660), CPU_REV(0, 2)
+
 cpu_reset_func_start cortex_a78c
 cpu_reset_func_end cortex_a78c
-
-errata_report_shim cortex_a78c
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down

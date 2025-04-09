@@ -13,6 +13,8 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
+cpu_reset_prologue cortex_a57
+
 	/* ---------------------------------------------
 	 * Disable L1 data cache and unified L2 cache
 	 * ---------------------------------------------
@@ -81,7 +83,7 @@ check_erratum_ls cortex_a57, ERRATUM(806969), CPU_REV(0, 0)
 
 /* erratum always worked around, but report it correctly */
 check_erratum_ls cortex_a57, ERRATUM(813419), CPU_REV(0, 0)
-add_erratum_entry cortex_a57, ERRATUM(813419), ERRATUM_ALWAYS_CHOSEN, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a57, ERRATUM(813419), ERRATUM_ALWAYS_CHOSEN
 
 workaround_reset_start cortex_a57, ERRATUM(813420), ERRATA_A57_813420
 	sysreg_bit_set CORTEX_A57_CPUACTLR_EL1, CORTEX_A57_CPUACTLR_EL1_DCC_AS_DCCI
@@ -150,7 +152,7 @@ check_erratum_ls cortex_a57, ERRATUM(859972), CPU_REV(1, 3)
 
 check_erratum_chosen cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537
 /* erratum has no workaround in the cpu. Generic code must take care */
-add_erratum_entry cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537, NO_APPLY_AT_RESET
+add_erratum_entry cortex_a57, ERRATUM(1319537), ERRATA_A57_1319537
 
 workaround_reset_start cortex_a57, CVE(2017, 5715), WORKAROUND_CVE_2017_5715
 #if IMAGE_BL31
@@ -283,8 +285,6 @@ func cortex_a57_cluster_pwr_dwn
 	mov	x30, x18
 	b	cortex_a57_disable_ext_debug
 endfunc cortex_a57_cluster_pwr_dwn
-
-errata_report_shim cortex_a57
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a57 specific

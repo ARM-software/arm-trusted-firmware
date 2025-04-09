@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,8 @@
 #include <generic.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+
+cpu_reset_prologue generic
 
 	/* ---------------------------------------------
 	 * Disable L1 data cache and unified L2 cache
@@ -79,9 +81,10 @@ endfunc generic_cluster_pwr_dwn
  * Unimplemented functions.
  * ---------------------------------------------
  */
-.equ	generic_errata_report,		0
 .equ	generic_cpu_reg_dump,		0
-.equ	generic_reset_func,		0
+
+cpu_reset_func_start generic
+cpu_reset_func_end generic
 
 declare_cpu_ops generic, AARCH64_GENERIC_MIDR, \
 	generic_reset_func, \

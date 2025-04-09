@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -293,7 +293,7 @@
 	 * invalidations etc.
 	 * ---------------------------------------------------------------------
 	 */
-	bl	reset_handler
+	call_reset_handler
 
 	el2_arch_init_common
 

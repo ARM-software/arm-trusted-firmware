@@ -21,6 +21,8 @@
 #error "Travis supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue travis
+
 cpu_reset_func_start travis
 	/* ----------------------------------------------------
 	 * Disable speculative loads
@@ -53,8 +55,6 @@ func travis_core_pwr_dwn
 	isb
 	ret
 endfunc travis_core_pwr_dwn
-
-errata_report_shim travis
 
 .section .rodata.travis_regs, "aS"
 travis_regs: /* The ASCII list of register names to be reported */

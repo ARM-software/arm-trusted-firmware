@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# shellcheck source=./_/husky.sh
-. "$(dirname "$0")/_/husky.sh"
-
 if ! git config --get tf-a.disableCommitizen > /dev/null; then
     "$(dirname "$0")/prepare-commit-msg.cz" "$@"
 fi

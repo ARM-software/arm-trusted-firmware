@@ -9,6 +9,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <cortex_a75.h>
+#include <cortex_a510.h>
 #include <cortex_a520.h>
 #include <cortex_a710.h>
 #include <cortex_a715.h>
@@ -24,21 +25,26 @@
 #include <neoverse_n3.h>
 #include <neoverse_v3.h>
 
-#if ERRATA_A520_2938996 || ERRATA_X4_2726228
-unsigned int check_if_affected_core(void)
+bool check_if_trbe_disable_affected_core(void)
 {
-	uint32_t midr_val = read_midr();
-	long rev_var  = cpu_get_rev_var();
-
-	if (EXTRACT_PARTNUM(midr_val) == EXTRACT_PARTNUM(CORTEX_A520_MIDR)) {
-		return check_erratum_cortex_a520_2938996(rev_var);
-	} else if (EXTRACT_PARTNUM(midr_val) == EXTRACT_PARTNUM(CORTEX_X4_MIDR)) {
-		return check_erratum_cortex_x4_2726228(rev_var);
-	}
-
-	return ERRATA_NOT_APPLIES;
-}
+	switch (EXTRACT_PARTNUM(read_midr())) {
+#if ERRATA_A520_2938996
+	case EXTRACT_PARTNUM(CORTEX_A520_MIDR):
+		return check_erratum_cortex_a520_2938996(cpu_get_rev_var()) == ERRATA_APPLIES;
 #endif
+#if ERRATA_X4_2726228
+	case EXTRACT_PARTNUM(CORTEX_X4_MIDR):
+		return check_erratum_cortex_x4_2726228(cpu_get_rev_var()) == ERRATA_APPLIES;
+#endif
+#if ERRATA_A510_2971420
+	case EXTRACT_PARTNUM(CORTEX_A510_MIDR):
+		return check_erratum_cortex_a510_2971420(cpu_get_rev_var()) == ERRATA_APPLIES;
+#endif
+	default:
+		break;
+	}
+	return false;
+}
 
 #if ERRATA_A75_764081
 bool errata_a75_764081_applies(void)

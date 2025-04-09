@@ -1425,7 +1425,7 @@ void cm_prepare_el3_exit_ns(void)
 {
 #ifdef IMAGE_BL31
 #if ERRATA_A520_2938996 || ERRATA_X4_2726228
-	if (check_if_affected_core() == ERRATA_APPLIES) {
+	if (check_if_trbe_disable_affected_core()) {
 		if (is_feat_trbe_supported()) {
 			trbe_disable();
 		}

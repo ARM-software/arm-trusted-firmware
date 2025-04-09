@@ -16,15 +16,6 @@ endfunc a64fx_core_pwr_dwn
 func a64fx_cluster_pwr_dwn
 endfunc a64fx_cluster_pwr_dwn
 
-#if REPORT_ERRATA
-/*
- * Errata printing function for A64FX. Must follow AAPCS.
- */
-func a64fx_errata_report
-        ret
-endfunc a64fx_errata_report
-#endif
-
         /* ---------------------------------------------
          * This function provides cpu specific
          * register information for crash reporting.
@@ -38,12 +29,15 @@ endfunc a64fx_errata_report
 a64fx_regs:  /* The ascii list of register names to be reported */
         .asciz  ""
 
+cpu_reset_func_start a64fx
+cpu_reset_func_end a64fx
+
 func a64fx_cpu_reg_dump
         adr     x6, a64fx_regs
         ret
 endfunc a64fx_cpu_reg_dump
 
-declare_cpu_ops a64fx, A64FX_MIDR, CPU_NO_RESET_FUNC \
+declare_cpu_ops a64fx, A64FX_MIDR, a64fx_reset_func \
                 a64fx_core_pwr_dwn, \
                 a64fx_cluster_pwr_dwn
 

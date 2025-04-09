@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,8 @@
 #include <asm_macros.S>
 #include <cpu_macros.S>
 #include <qemu_max.h>
+
+cpu_reset_prologue qemu_max
 
 func qemu_max_core_pwr_dwn
 	/* ---------------------------------------------
@@ -47,7 +49,8 @@ func qemu_max_cluster_pwr_dwn
 	b	dcsw_op_all
 endfunc qemu_max_cluster_pwr_dwn
 
-errata_report_shim qemu_max
+cpu_reset_func_start qemu_max
+cpu_reset_func_end qemu_max
 
 	/* ---------------------------------------------
 	 * This function provides cpu specific
@@ -69,6 +72,6 @@ endfunc qemu_max_cpu_reg_dump
 
 
 /* cpu_ops for QEMU MAX */
-declare_cpu_ops qemu_max, QEMU_MAX_MIDR, CPU_NO_RESET_FUNC, \
+declare_cpu_ops qemu_max, QEMU_MAX_MIDR, qemu_max_reset_func, \
 	qemu_max_core_pwr_dwn, \
 	qemu_max_cluster_pwr_dwn

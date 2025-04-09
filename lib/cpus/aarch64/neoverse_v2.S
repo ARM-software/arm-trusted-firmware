@@ -22,19 +22,7 @@
 #error "Neoverse V2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start neoverse_v2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set NEOVERSE_V2_CPUECTLR_EL1, BIT(46)
-workaround_reset_end neoverse_v2, CVE(2024, 5660)
-
-check_erratum_ls neoverse_v2, CVE(2024, 5660), CPU_REV(0, 2)
-
-workaround_reset_start neoverse_v2, ERRATUM(2331132), ERRATA_V2_2331132
-	sysreg_bitfield_insert NEOVERSE_V2_CPUECTLR2_EL1, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_CNSRV, \
-		NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_LSB, NEOVERSE_V2_CPUECTLR2_EL1_PF_MODE_WIDTH
-workaround_reset_end neoverse_v2, ERRATUM(2331132)
-
-check_erratum_ls neoverse_v2, ERRATUM(2331132), CPU_REV(0, 2)
+cpu_reset_prologue neoverse_v2
 
 workaround_reset_start neoverse_v2, ERRATUM(2618597), ERRATA_V2_2618597
         /* Disable retention control for WFI and WFE. */
@@ -93,6 +81,13 @@ workaround_reset_end neoverse_v2, CVE(2022,23960)
 
 check_erratum_chosen neoverse_v2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start neoverse_v2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set NEOVERSE_V2_CPUECTLR_EL1, BIT(46)
+workaround_reset_end neoverse_v2, CVE(2024, 5660)
+
+check_erratum_ls neoverse_v2, CVE(2024, 5660), CPU_REV(0, 2)
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V2_BHB_LOOP_COUNT, neoverse_v2
 #endif /* WORKAROUND_CVE_2022_23960 */
@@ -129,7 +124,6 @@ cpu_reset_func_start neoverse_v2
 	msr	SSBS, xzr
 cpu_reset_func_end neoverse_v2
 
-errata_report_shim neoverse_v2
 	/* ---------------------------------------------
 	 * This function provides Neoverse V2-
 	 * specific register information for crash

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,6 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
-/* .global erratum_cortex_a520_2938996_wa */
 .global check_erratum_cortex_a520_2938996
 
 /* Hardware handled coherency */
@@ -23,6 +22,8 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex A520 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+cpu_reset_prologue cortex_a520
 
 workaround_reset_start cortex_a520, ERRATUM(2630792), ERRATA_A520_2630792
 	sysreg_bit_set CORTEX_A520_CPUACTLR_EL1, BIT(38)
@@ -36,23 +37,9 @@ workaround_reset_end cortex_a520, ERRATUM(2858100)
 
 check_erratum_ls cortex_a520, ERRATUM(2858100), CPU_REV(0, 1)
 
-workaround_runtime_start cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996, CORTEX_A520_MIDR
-workaround_runtime_end cortex_a520, ERRATUM(2938996)
+add_erratum_entry cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996
 
-check_erratum_custom_start cortex_a520, ERRATUM(2938996)
-
-       /* This erratum needs to be enabled for r0p0 and r0p1.
-        * Check if revision is less than or equal to r0p1.
-        */
-
-#if ERRATA_A520_2938996
-       mov     x1, #1
-       b       cpu_rev_var_ls
-#else
-       mov     x0, #ERRATA_MISSING
-#endif
-       ret
-check_erratum_custom_end cortex_a520, ERRATUM(2938996)
+check_erratum_ls cortex_a520, ERRATUM(2938996), CPU_REV(0, 1)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -67,8 +54,6 @@ func cortex_a520_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_a520_core_pwr_dwn
-
-errata_report_shim cortex_a520
 
 cpu_reset_func_start cortex_a520
 	/* Disable speculative loads */

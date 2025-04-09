@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,8 +48,7 @@
 	 * _midr:
 	 *	Numeric value expected to read from CPU's MIDR
 	 * _resetfunc:
-	 *	Reset function for the CPU. If there's no CPU reset function,
-	 *	specify CPU_NO_RESET_FUNC
+	 *	Reset function for the CPU
 	 * _power_down_ops:
 	 *	Comma-separated list of functions to perform power-down
 	 *	operatios on the CPU. At least one, and up to
@@ -115,11 +114,6 @@
 	  .popsection
 	.endif
 
-	/*
-	 * Mandatory errata status printing function for CPUs of
-	 * this class.
-	 */
-	.word \_name\()_errata_report
 	.word \_name\()_cpu_str
 
 #ifdef IMAGE_BL32
@@ -130,45 +124,6 @@
 #endif
 	.endm
 
-#if REPORT_ERRATA
-	/*
-	 * Print status of a CPU errata
-	 *
-	 * _chosen:
-	 *	Identifier indicating whether or not a CPU errata has been
-	 *	compiled in.
-	 * _cpu:
-	 *	Name of the CPU
-	 * _id:
-	 *	Errata identifier
-	 * _rev_var:
-	 *	Register containing the combined value CPU revision and variant
-	 *	- typically the return value of cpu_get_rev_var
-	 */
-	.macro report_errata _chosen, _cpu, _id, _rev_var=r4
-	/* Stash a string with errata ID */
-	.pushsection .rodata
-	\_cpu\()_errata_\_id\()_str:
-	.asciz	"\_id"
-	.popsection
-
-	/* Check whether errata applies */
-	mov	r0, \_rev_var
-	bl	check_errata_\_id
-
-	.ifeq \_chosen
-	/*
-	 * Errata workaround has not been compiled in. If the errata would have
-	 * applied had it been compiled in, print its status as missing.
-	 */
-	cmp	r0, #0
-	movne	r0, #ERRATA_MISSING
-	.endif
-	ldr	r1, =\_cpu\()_cpu_str
-	ldr	r2, =\_cpu\()_errata_\_id\()_str
-	bl	errata_print_msg
-	.endm
-#endif
 	/*
 	 * Helper macro that reads the part number of the current CPU and jumps
 	 * to the given label if it matches the CPU MIDR provided.
@@ -217,11 +172,6 @@
 		\_cpu\()_errata_list_start:
 		.endif
 
-		/* unused on AArch32, maintain for portability */
-		.word	0
-		/* TODO(errata ABI): this prevents all checker functions from
-		 * being optimised away. Can be done away with unless the ABI
-		 * needs them */
 		.ifnb \_special
 			.word	check_errata_\_special
 		.elseif \_cve
@@ -233,27 +183,8 @@
 		.word	\_id
 		.hword	\_cve
 		.byte	\_chosen
-		/* TODO(errata ABI): mitigated field for known but unmitigated
-		 * errata*/
-		.byte	0x1
+		.byte	0x0 /* alignment */
 	.popsection
 .endm
 
-/*
- * Maintain compatibility with the old scheme of "each cpu has its own reporter".
- * TODO remove entirely once all cpus have been converted. This includes the
- * cpu_ops entry, as print_errata_status can call this directly for all cpus
- */
-.macro errata_report_shim _cpu:req
-	#if REPORT_ERRATA
-	func \_cpu\()_errata_report
-		push	{r12, lr}
-
-		bl generic_errata_report
-
-		pop	{r12, lr}
-		bx	lr
-	endfunc \_cpu\()_errata_report
-	#endif
-.endm
 #endif /* CPU_MACROS_S */

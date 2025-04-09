@@ -21,8 +21,6 @@
 
 /* The number of CPU operations allowed */
 #define CPU_MAX_PWR_DWN_OPS		2
-/* Special constant to specify that CPU has no reset function */
-#define CPU_NO_RESET_FUNC		0
 
 #if __aarch64__
 #define CPU_NO_EXTRA1_FUNC		0
@@ -59,7 +57,6 @@
 #define CPU_ERRATA_LIST_END_SIZE	CPU_WORD_SIZE
 /* Fields required to print errata status  */
 #if REPORT_ERRATA
-#define CPU_ERRATA_FUNC_SIZE	CPU_WORD_SIZE
 #define CPU_CPU_STR_SIZE	CPU_WORD_SIZE
 /* BL1 doesn't require mutual exclusion and printed flag. */
 #if defined(IMAGE_BL31) || defined(IMAGE_BL32)
@@ -70,7 +67,6 @@
 #define CPU_ERRATA_PRINTED_SIZE	0
 #endif /* defined(IMAGE_BL31) || defined(IMAGE_BL32) */
 #else
-#define CPU_ERRATA_FUNC_SIZE	0
 #define CPU_CPU_STR_SIZE	0
 #define CPU_ERRATA_LOCK_SIZE	0
 #define CPU_ERRATA_PRINTED_SIZE	0
@@ -101,8 +97,7 @@
 #endif /* __aarch64__ */
 #define CPU_ERRATA_LIST_START	CPU_PWR_DWN_OPS + CPU_PWR_DWN_OPS_SIZE
 #define CPU_ERRATA_LIST_END	CPU_ERRATA_LIST_START + CPU_ERRATA_LIST_START_SIZE
-#define CPU_ERRATA_FUNC		CPU_ERRATA_LIST_END + CPU_ERRATA_LIST_END_SIZE
-#define CPU_CPU_STR		CPU_ERRATA_FUNC + CPU_ERRATA_FUNC_SIZE
+#define CPU_CPU_STR		CPU_ERRATA_LIST_END + CPU_ERRATA_LIST_END_SIZE
 #define CPU_ERRATA_LOCK		CPU_CPU_STR + CPU_CPU_STR_SIZE
 #define CPU_ERRATA_PRINTED	CPU_ERRATA_LOCK + CPU_ERRATA_LOCK_SIZE
 #if __aarch64__
@@ -134,7 +129,6 @@ struct cpu_ops {
 	void *errata_list_start;
 	void *errata_list_end;
 #if REPORT_ERRATA
-	void (*errata_func)(void);
 	char *cpu_str;
 #if defined(IMAGE_BL31) || defined(IMAGE_BL32)
 	spinlock_t *errata_lock;
