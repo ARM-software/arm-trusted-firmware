@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
  * @param[in/out] log_addr	Pointer to Event Log
  * @param[in/out] log_size	Pointer to Event Log size
  */
-static void id_event_print(uint8_t **log_addr, size_t *log_size)
+static void event_log_print_id_event(uint8_t **log_addr, size_t *log_size)
 {
 	unsigned int i;
 	uint8_t info_size, *info_size_ptr;
@@ -148,7 +148,7 @@ static void id_event_print(uint8_t **log_addr, size_t *log_size)
  * @param[in/out] log_addr	Pointer to Event Log
  * @param[in/out] log_size	Pointer to Event Log size
  */
-static void event2_print(uint8_t **log_addr, size_t *log_size)
+static void event_log_print_pcr_event2(uint8_t **log_addr, size_t *log_size)
 {
 	uint32_t event_size, count;
 	size_t sha_size, digests_size = 0U;
@@ -250,16 +250,16 @@ static void event2_print(uint8_t **log_addr, size_t *log_size)
  * @param[in]	log_addr	Pointer to Event Log
  * @param[in]	log_size	Event Log size
  */
-void dump_event_log(uint8_t *log_addr, size_t log_size)
+void event_log_dump(uint8_t *log_addr, size_t log_size)
 {
 #if LOG_LEVEL >= EVENT_LOG_LEVEL
 	assert(log_addr != NULL);
 
 	/* Print TCG_EfiSpecIDEvent */
-	id_event_print(&log_addr, &log_size);
+	event_log_print_id_event(&log_addr, &log_size);
 
 	while (log_size != 0U) {
-		event2_print(&log_addr, &log_size);
+		event_log_print_pcr_event2(&log_addr, &log_size);
 	}
 #endif
 }

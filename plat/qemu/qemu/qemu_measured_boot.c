@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited. All rights reserved.
  * Copyright (c) 2022-2023, Linaro.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+#include <common/debug.h>
 #include <drivers/measured_boot/event_log/event_log.h>
 #include <drivers/measured_boot/metadata.h>
 #include <plat/common/common_def.h>
@@ -65,7 +66,7 @@ void bl2_plat_mboot_finish(void)
 
 	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_base);
 
-	dump_event_log((uint8_t *)event_log_base, event_log_cur_size);
+	event_log_dump((uint8_t *)event_log_base, event_log_cur_size);
 
 #if TRANSFER_LIST
 	if (!plat_handoff_mboot((void *)event_log_base, event_log_cur_size,
