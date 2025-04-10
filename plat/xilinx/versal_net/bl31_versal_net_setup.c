@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2018-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -203,14 +203,28 @@ exit_label:
 	return ret;
 }
 
+#if SDEI_SUPPORT
+static int rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
+				     void *handle, void *cookie)
+#else
 static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 					  void *handle, void *cookie)
+#endif
 {
 	uint32_t intr_id;
 	uint32_t i;
 	interrupt_type_handler_t handler = NULL;
 
+#if SDEI_SUPPORT
+	/* when SDEI_SUPPORT is enabled, ehf_el3_interrupt_handler
+	 * reads the interrupt id prior to calling the
+	 * rdo_el3_interrupt_handler and passes that id to the
+	 * handler.
+	 */
+	intr_id = id;
+#else
 	intr_id = plat_ic_get_pending_interrupt_id();
+#endif
 
 	for (i = 0; i < MAX_INTR_EL3; i++) {
 		if (intr_id == type_el3_interrupt_table[i].id) {
@@ -236,6 +250,7 @@ void bl31_platform_setup(void)
 
 void bl31_plat_runtime_setup(void)
 {
+#if !SDEI_SUPPORT
 	uint64_t flags = 0;
 	int32_t rc;
 
@@ -245,6 +260,9 @@ void bl31_plat_runtime_setup(void)
 	if (rc != 0) {
 		panic();
 	}
+#else
+	ehf_register_priority_handler(PLAT_IPI_PRI, rdo_el3_interrupt_handler);
+#endif
 }
 
 /*

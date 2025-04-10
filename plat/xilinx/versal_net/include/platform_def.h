@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2021-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
+#include <drivers/arm/gic_common.h>
 #include <plat_common.h>
 #include "versal_net_def.h"
 
@@ -119,6 +120,24 @@
 #define PLAT_ARM_GICD_BASE	U(0xE2000000)
 #define PLAT_ARM_GICR_BASE	U(0xE2060000)
 
+/* interrupt priorities when SDEI is enabled:
+ * RAS in future is planned to have highest priority (lower value 0x10)
+ * followed by IPI and SDEI exceptions in a step of 0x10.
+ */
+
+#if SDEI_SUPPORT
+#define VERSAL_NET_SDEI_SGI_PRIVATE     U(8)
+#define PLAT_SDEI_CRITICAL_PRI		0x30
+#define PLAT_SDEI_NORMAL_PRI		0x40
+#define PLAT_PRI_BITS			U(3)
+#define PLAT_IPI_PRI			0x20
+
+#define PLAT_EHF_DESC	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_IPI_PRI)
+
+#define VERSAL_NET_SDEI_SH_EVENT_0	U(200)
+#define VERSAL_NET_SDEI_PRV_EV		U(201)
+#endif
+
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
@@ -127,6 +146,19 @@
 #define PLAT_VERSAL_NET_IPI_IRQ	89
 #define PLAT_VERSAL_IPI_IRQ	PLAT_VERSAL_NET_IPI_IRQ
 
+#if SDEI_SUPPORT
+#define PLAT_ARM_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(VERSAL_NET_IRQ_SEC_PHY_TIMER, PLAT_IPI_PRI, grp, \
+			GIC_INTR_CFG_LEVEL)
+
+#define PLAT_ARM_G0_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(PLAT_VERSAL_IPI_IRQ, PLAT_IPI_PRI, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(CPU_PWR_DOWN_REQ_INTR, PLAT_IPI_PRI, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(VERSAL_NET_SDEI_SGI_PRIVATE, PLAT_SDEI_NORMAL_PRI, grp, \
+			GIC_INTR_CFG_EDGE)
+#else
 #define PLAT_ARM_G1S_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(VERSAL_NET_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_LEVEL)
@@ -136,6 +168,7 @@
 			GIC_INTR_CFG_EDGE), \
 	INTR_PROP_DESC(CPU_PWR_DOWN_REQ_INTR, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_EDGE)
+#endif
 
 #define IRQ_MAX		200U
 
