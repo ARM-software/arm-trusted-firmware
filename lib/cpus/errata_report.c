@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,9 +63,6 @@ void print_errata_status(void) {}
 #else /* !REPORT_ERRATA */
 /*
  * New errata status message printer
- * The order checking function is hidden behind the FEATURE_DETECTION flag to
- * save space. This functionality is only useful on development and platform
- * bringup builds, when FEATURE_DETECTION should be used anyway
  */
 void generic_errata_report(void)
 {
@@ -73,11 +70,6 @@ void generic_errata_report(void)
 	struct erratum_entry *entry = cpu_ops->errata_list_start;
 	struct erratum_entry *end = cpu_ops->errata_list_end;
 	long rev_var = cpu_get_rev_var();
-#if FEATURE_DETECTION
-	uint32_t last_erratum_id = 0;
-	uint16_t last_cve_yr = 0;
-	bool check_cve = false;
-#endif /* FEATURE_DETECTION */
 
 	for (; entry != end; entry += 1) {
 		uint64_t status = entry->check_func(rev_var);
@@ -94,24 +86,6 @@ void generic_errata_report(void)
 		}
 
 		print_status(status, cpu_ops->cpu_str, entry->cve, entry->id);
-
-#if FEATURE_DETECTION
-		if (entry->cve) {
-			if (last_cve_yr > entry->cve ||
-			   (last_cve_yr == entry->cve && last_erratum_id >= entry->id)) {
-				WARN("CVE %u_%u was out of order!\n",
-				      entry->cve, entry->id);
-			}
-			check_cve = true;
-			last_cve_yr = entry->cve;
-		} else {
-			if (last_erratum_id >= entry->id || check_cve) {
-				WARN("Erratum %u was out of order!\n",
-				      entry->id);
-			}
-		}
-		last_erratum_id = entry->id;
-#endif /* FEATURE_DETECTION */
 	}
 }
 
