@@ -6,6 +6,8 @@
 
 /* Runtime C routines for errata workarounds and common routines */
 
+#include <assert.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
 #include <cortex_a75.h>
@@ -25,6 +27,31 @@
 #include <neoverse_n2.h>
 #include <neoverse_n3.h>
 #include <neoverse_v3.h>
+
+struct erratum_entry *find_erratum_entry(uint32_t errata_id)
+{
+	struct cpu_ops *cpu_ops;
+	struct erratum_entry *entry, *end;
+
+	cpu_ops = get_cpu_ops_ptr();
+	assert(cpu_ops != NULL);
+
+	entry = cpu_ops->errata_list_start;
+	assert(entry != NULL);
+
+	end = cpu_ops->errata_list_end;
+	assert(end != NULL);
+
+	end--; /* point to the last erratum entry of the queried cpu */
+
+	while ((entry <= end)) {
+		if (entry->id == errata_id) {
+			return entry;
+		}
+		entry += 1;
+	}
+	return NULL;
+}
 
 bool check_if_trbe_disable_affected_core(void)
 {
