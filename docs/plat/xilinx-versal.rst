@@ -59,6 +59,57 @@ Xilinx Versal platform specific build options
     -   `6`   : SGI 6 (Default)
     -   `7`   : SGI 7
 
+Configurable Stack Size
+-----------------------
+
+The stack size in TF-A for the Versal platform is configurable.
+The custom package can define the desired stack size as per the requirement in
+the makefile as follows:
+
+.. code-block:: shell
+
+    PLATFORM_STACK_SIZE := <value>
+
+    $(eval $(call add_define,PLATFORM_STACK_SIZE))
+
+CUSTOM SIP Service Support
+--------------------------
+
+- Dedicated SMC FID ``VERSAL_SIP_SVC_CUSTOM(0x82002000)`` (32-bit) /
+  ``(0xC2002000)`` (64-bit) is used by a custom package for providing
+  CUSTOM SIP service.
+
+- By default, the platform provides a bare minimum definition for
+  ``custom_smc_handler`` in this service.
+
+- To use this service, the custom package should implement its own SMC handler
+  named ``custom_smc_handler``. Once the custom package is included in the
+  TF-A build, its definition of ``custom_smc_handler`` is enabled.
+
+Custom Package Makefile Fragment Inclusion in TF-A Build
+--------------------------------------------------------
+
+- Custom package is not directly part of the TF-A source.
+
+- ``<CUSTOM_PKG_PATH>`` is the location where the user clones a
+  custom package locally.
+
+- The custom package must implement a makefile fragment named
+  ``custom_pkg.mk`` so it can be included in the TF-A build.
+
+- ``custom_pkg.mk`` should specify all the rules to include custom package
+  specific header files, dependent libraries, and source files that are
+  required to be part of the TF-A build.
+
+- When ``<CUSTOM_PKG_PATH>`` is specified in the TF-A build command,
+  ``custom_pkg.mk`` is included from ``<CUSTOM_PKG_PATH>``.
+
+- Example TF-A build command:
+
+.. code-block:: shell
+
+    make CROSS_COMPILE=aarch64-none-elf- PLAT=versal RESET_TO_BL31=1 bl31 CUSTOM_PKG_PATH=<...>
+
 # PLM->TF-A Parameter Passing
 ------------------------------
 The PLM populates a data structure with image information for the TF-A. The TF-A

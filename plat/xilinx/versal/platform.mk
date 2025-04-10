@@ -144,3 +144,9 @@ ifeq (${ERRATA_ABI_SUPPORT}, 1)
 CORTEX_A72_H_INC	:= 1
 $(eval $(call add_define, CORTEX_A72_H_INC))
 endif
+
+ifdef CUSTOM_PKG_PATH
+include $(CUSTOM_PKG_PATH)/custom_pkg.mk
+else
+BL31_SOURCES		+=	plat/xilinx/common/custom_sip_svc.c
+endif

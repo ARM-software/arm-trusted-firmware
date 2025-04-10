@@ -13,6 +13,7 @@
 #include <common/runtime_svc.h>
 #include <tools_share/uuid.h>
 
+#include <custom_svc.h>
 #include "ipi_mailbox_svc.h"
 #include "pm_svc_main.h"
 
@@ -104,6 +105,11 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 
 	case VERSAL_SIP_SVC_VERSION:
 		SMC_RET2(handle, SIP_SVC_VERSION_MAJOR, SIP_SVC_VERSION_MINOR);
+
+	case SOC_SIP_SVC_CUSTOM:
+	case SOC_SIP_SVC64_CUSTOM:
+		return custom_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
+					  handle, flags);
 
 	default:
 		WARN("Unimplemented SiP Service Call: 0x%x\n", smc_fid);
