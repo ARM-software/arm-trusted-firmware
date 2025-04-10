@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,18 +43,6 @@ void plat_setup_try_img_ops(const struct plat_try_images_ops *plat_try_ops)
 
 void bl31_plat_runtime_setup(void)
 {
-}
-
-/*
- * Helper function for platform_get_pos() when platform compatibility is
- * disabled. This is to enable SPDs using the older platform API to continue
- * to work.
- */
-unsigned int platform_core_pos_helper(unsigned long mpidr)
-{
-	int idx = plat_core_pos_by_mpidr(mpidr);
-	assert(idx >= 0);
-	return idx;
 }
 
 #if SDEI_SUPPORT
