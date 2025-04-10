@@ -168,48 +168,31 @@ static int32_t non_arm_interconnect_errata(uint32_t errata_id, long rev_var)
 /* Function to check if the errata exists for the specific CPU and rxpx */
 int32_t verify_errata_implemented(uint32_t errata_id)
 {
-	int32_t ret_val;
-	struct cpu_ops *cpu_ops;
-	struct erratum_entry *entry, *end;
+	struct erratum_entry *entry;
 	long rev_var;
 
-	ret_val = EM_UNKNOWN_ERRATUM;
 	rev_var = cpu_get_rev_var();
 
 #if ERRATA_NON_ARM_INTERCONNECT
-	ret_val = non_arm_interconnect_errata(errata_id, rev_var);
+	int32_t ret_val = non_arm_interconnect_errata(errata_id, rev_var);
 	if (ret_val != EM_UNKNOWN_ERRATUM) {
 		return ret_val;
 	}
 #endif
+	entry = find_erratum_entry(errata_id);
+	if (entry == NULL)
+		return EM_UNKNOWN_ERRATUM;
 
-	cpu_ops = get_cpu_ops_ptr();
-	assert(cpu_ops != NULL);
-
-	entry = cpu_ops->errata_list_start;
-	assert(entry != NULL);
-
-	end = cpu_ops->errata_list_end;
-	assert(end != NULL);
-
-	end--; /* point to the last erratum entry of the queried cpu */
-
-	while ((entry <= end) && (ret_val == EM_UNKNOWN_ERRATUM)) {
-		if (entry->id == errata_id) {
-			if (entry->check_func(rev_var)) {
-				if (entry->chosen & WA_ENABLED_MASK)
-					if (entry->chosen & SPLIT_WA_MASK)
-						return EM_AFFECTED;
-					else
-						return EM_HIGHER_EL_MITIGATION;
-				else
-					return EM_AFFECTED;
-			}
-			return EM_NOT_AFFECTED;
-		}
-		entry += 1;
+	if (entry->check_func(rev_var)) {
+		if (entry->chosen & WA_ENABLED_MASK)
+			if (entry->chosen & SPLIT_WA_MASK)
+				return EM_AFFECTED;
+			else
+				return EM_HIGHER_EL_MITIGATION;
+		else
+			return EM_AFFECTED;
 	}
-	return ret_val;
+	return EM_NOT_AFFECTED;
 }
 
 /* Predicate indicating that a function id is part of EM_ABI */
