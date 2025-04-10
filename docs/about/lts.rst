@@ -27,6 +27,8 @@ LTS - Long-Term Support
   +-------------+--------------------+-------------------------------------------------------+
   | 2025-01-07  | Govindraj Raja     | Updates based on learnings and suggestions.           |
   +-------------+--------------------+-------------------------------------------------------+
+  | 2025-03-27  | Chris Palmer       | Playbook for making a new release.                    |
+  +-------------+--------------------+-------------------------------------------------------+
 
 This document proposes a plan for long-term support (LTS) of the |TF-A| project.
 
@@ -262,6 +264,40 @@ or candidate patch selection.
    CI results.
 #. Monitor the mailing list for any LTS related issues
 #. Propose or solicit patches to the main branch and tag them as candidates for LTS
+
+Playbook for new releases
+-------------------------
+To make a new minor release (e.g. 2.x.y → 2.x.y+1), follow these steps.
+
+#. Every Friday, LTS maintainers receive a triage report email (subject: “TF-A
+   LTS Triage report”) that contains attached CSV files, 1 per
+   currently-supported LTS major release branch (e.g. lts-2.8, lts-2.10,
+   lts-2.12, etc.). It contains a list of patches to be cherry-picked into a new
+   minor release of each supported LTS branch.
+#. Run ``git fetch origin``.
+#. Run ``git checkout -b lts-v2.x.y+1 --track origin/lts-v2.x``.
+#. Run ``git log`` and verify that the most recent commit is the changelog for
+   the v2.x.y release, and that it has the origin/lts-v2.x tag.
+#. For the version 2.x for which you want to create a new release, open its CSV
+   file. For each patch listed, **from the bottom to the top**, run ``git
+   cherry-pick -x sha1-hash``.
+#. Some of the patches of this list may not be taken, mainly due to false
+   positive. If in doubt, that can be discussed either in the “tf-a-lts” channel
+   on Discord or during the LTS weekly meeting. There could also be patches to
+   be taken in tf-a-ci-scripts or tf-a-tests.
+#. Push the stack of changes: ``git push origin
+   HEAD:refs/for/lts-v2.x%topic=for-lts-v2.x.y+1``. You might need the
+   ``--no-verify`` option: ``git push origin --no-verify
+   HEAD:refs/for/lts-v2.x%topic=for-lts-v2.x.y+1``.
+#. The AllowCI+2 job runs automatically on each LTS branch once a new
+   cherry-picked patch/patch-stack is pushed to the corresponding branch. If
+   this CI run passes, it automatically applies the Verified+1 (V+1) label to
+   the patch/all patches in the stack. The other LTS maintainers will provide
+   MR+1 and COR+1 votes. If the CI is OK and votes V+1, and if the
+   Maintainer-Review+1 (MR+1), Code-Owner-Review+1 (COR+1), and V+1 votes are
+   present, Gerrit will automatically merge the patch. LTS maintainers will then
+   trigger a Jenkins job that will take care of the release (tag, mail, and
+   readthedocs update).
 
 Execution Plan
 **************
