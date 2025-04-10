@@ -32,7 +32,7 @@ static int am62l_pwr_domain_on(u_register_t mpidr)
 	core = plat_core_pos_by_mpidr(mpidr);
 	if (core < 0) {
 		ERROR("Could not get target core id: %d\n", core);
-		ret = PSCI_E_INTERN_FAIL;
+		return PSCI_E_INTERN_FAIL;
 	}
 
 	proc_id = (uint8_t)(PLAT_PROC_START_ID + (uint32_t)core);
@@ -41,38 +41,30 @@ static int am62l_pwr_domain_on(u_register_t mpidr)
 	if (ret != 0) {
 		ERROR("Request for processor ID 0x%x failed: %d\n",
 				proc_id, ret);
-		ret = PSCI_E_INTERN_FAIL;
+		return PSCI_E_INTERN_FAIL;
 	}
 
-	if (ret != PSCI_E_INTERN_FAIL) {
-		ret = ti_sci_proc_set_boot_cfg(proc_id, am62l_sec_entrypoint, 0, 0);
-		if (ret != 0) {
-			ERROR("Request to set core boot address failed: %d\n", ret);
-			ret = PSCI_E_INTERN_FAIL;
-		}
+	ret = ti_sci_proc_set_boot_cfg(proc_id, am62l_sec_entrypoint, 0, 0);
+	if (ret != 0) {
+		ERROR("Request to set core boot address failed: %d\n", ret);
+		return PSCI_E_INTERN_FAIL;
 	}
 
-	if (ret != PSCI_E_INTERN_FAIL) {
-		/* sanity check these are off before starting a core */
-		ret = ti_sci_proc_set_boot_ctrl(proc_id,
-				0, PROC_BOOT_CTRL_FLAG_ARMV8_L2FLUSHREQ |
-				PROC_BOOT_CTRL_FLAG_ARMV8_AINACTS |
-				PROC_BOOT_CTRL_FLAG_ARMV8_ACINACTM);
-		if (ret != 0) {
-			ERROR("Request to clear boot config failed: %d\n", ret);
-			ret = PSCI_E_INTERN_FAIL;
-		}
+	/* sanity check these are off before starting a core */
+	ret = ti_sci_proc_set_boot_ctrl(proc_id,
+			0, PROC_BOOT_CTRL_FLAG_ARMV8_L2FLUSHREQ |
+			PROC_BOOT_CTRL_FLAG_ARMV8_AINACTS |
+			PROC_BOOT_CTRL_FLAG_ARMV8_ACINACTM);
+	if (ret != 0) {
+		ERROR("Request to clear boot config failed: %d\n", ret);
+		return PSCI_E_INTERN_FAIL;
 	}
 
-	if (ret != PSCI_E_INTERN_FAIL) {
-		/*
-		 * TODO: Add the actual PM operation call
-		 * to turn on the core here
-		 */
-		ret = PSCI_E_SUCCESS;
-	}
-
-	return ret;
+	/*
+	 * TODO: Add the actual PM operation call
+	 * to turn on the core here
+	 */
+	return PSCI_E_SUCCESS;
 }
 
 static void am62l_pwr_domain_off(const psci_power_state_t *target_state)
