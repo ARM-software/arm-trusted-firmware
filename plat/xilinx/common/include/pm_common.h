@@ -31,7 +31,7 @@
 
 #define TZ_VERSION_MAJOR	1U
 #define TZ_VERSION_MINOR	0U
-#define TZ_VERSION		((TZ_VERSION_MAJOR << 16U) | \
+#define TZ_VERSION		(((uint32_t)TZ_VERSION_MAJOR << 16U) | \
 				 TZ_VERSION_MINOR)
 
 /**
