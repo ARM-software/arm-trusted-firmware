@@ -30,7 +30,6 @@ endif #(clang)
 # Process Debug flag
 ifneq (${DEBUG}, 0)
 	TF_CFLAGS	+=	-g -gdwarf-4
-	ASFLAGS		+=	-g -Wa,-gdwarf-4
 endif #(Debug)
 
 ifeq (${AARCH32_INSTRUCTION_SET},A32)
@@ -165,7 +164,6 @@ include make_helpers/armv7-a-cpus.mk
 endif
 
 TF_CFLAGS	+=	$(march-directive)
-ASFLAGS		+=	$(march-directive)
 
 ifneq ($(PIE_FOUND),)
 	TF_CFLAGS	+=	-fno-PIE
@@ -173,8 +171,7 @@ endif
 
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))
 TF_CFLAGS		+=	$(CFLAGS)
-ASFLAGS			+=	$(CPPFLAGS)                 			\
-				-ffreestanding -Wa,--fatal-warnings
+ASFLAGS			+=	-Wa,--fatal-warnings
 TF_LDFLAGS		+=	-z noexecstack
 
 # LD = armlink
