@@ -609,7 +609,7 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 * Use memcpy as we are in control of the layout of the structures
 	 */
 	gp_regs = get_gpregs_ctx(ctx);
-	memcpy(gp_regs, (void *)&ep->args, sizeof(aapcs64_params_t));
+	memcpy((void *)gp_regs, (void *)&ep->args, sizeof(aapcs64_params_t));
 }
 
 /*******************************************************************************
