@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -53,12 +53,7 @@ int memcpy_s(void *dst, size_t dsize, void *src, size_t ssize)
 		}
 	}
 
-	/*
-	 * Start copy process when there is no error
-	 */
-	while (ssize--) {
-		d[ssize] = s[ssize];
-	}
+	(void)memcpy(dst, src, ssize);
 
 	return 0;
 }

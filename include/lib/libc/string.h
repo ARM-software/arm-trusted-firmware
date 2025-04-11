@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * Portions copyright (c) 2018-2020, Arm Limited and Contributors.
+ * Portions copyright (c) 2018-2025, Arm Limited and Contributors.
  * Portions copyright (c) 2023, Intel Corporation. All rights reserved.
  * All rights reserved.
  */
@@ -14,19 +14,26 @@
 
 #include <stddef.h>
 
-void *memcpy(void *dst, const void *src, size_t len);
+/*
+ * When conditions are right, the compiler may have a baked-in call that can be
+ * inlined and that will be much more optimal than our generic implementation.
+ * When it doesn't, it will emit a call to the original function for which we
+ * provide an implementation.
+ */
+#define memcpy  __builtin_memcpy
+#define memset  __builtin_memset
+#define memcmp  __builtin_memcmp
+#define memchr  __builtin_memchr
+#define strcmp  __builtin_strcmp
+#define strncmp __builtin_strncmp
+#define strchr  __builtin_strchr
+#define strlen  __builtin_strlen
+#define strrchr __builtin_strrchr
+
 int memcpy_s(void *dst, size_t dsize, void *src, size_t ssize);
 void *memmove(void *dst, const void *src, size_t len);
-int memcmp(const void *s1, const void *s2, size_t len);
-int strcmp(const char *s1, const char *s2);
-int strncmp(const char *s1, const char *s2, size_t n);
-void *memchr(const void *src, int c, size_t len);
 void *memrchr(const void *src, int c, size_t len);
-char *strchr(const char *s, int c);
-void *memset(void *dst, int val, size_t count);
-size_t strlen(const char *s);
 size_t strnlen(const char *s, size_t maxlen);
-char *strrchr(const char *p, int ch);
 size_t strlcpy(char * dst, const char * src, size_t dsize);
 size_t strlcat(char * dst, const char * src, size_t dsize);
 char *strtok_r(char *s, const char *delim, char **last);
