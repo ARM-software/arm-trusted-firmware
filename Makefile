@@ -159,7 +159,6 @@ else ifeq ($($(ARCH)-cc-id),gnu-gcc)
 endif #(clang)
 
 # Process Debug flag
-$(eval $(call add_define,DEBUG))
 ifneq (${DEBUG}, 0)
 	BUILD_TYPE	:=	debug
 	TF_CFLAGS	+=	-g -gdwarf-4
@@ -1013,6 +1012,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_FEAT_TWED \
 	SVE_VECTOR_LEN \
 	IMPDEF_SYSREG_TRAP \
+	W \
 )))
 
 ifdef KEY_SIZE
@@ -1044,6 +1044,7 @@ $(eval $(call add_defines,\
 	EL3_EXCEPTION_HANDLING \
 	CTX_INCLUDE_EL2_REGS \
 	CTX_INCLUDE_NEVE_REGS \
+	DEBUG \
 	DECRYPTION_SUPPORT_${DECRYPTION_SUPPORT} \
 	DISABLE_MTPMU \
 	ENABLE_FEAT_AMU \
