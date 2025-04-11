@@ -808,7 +808,7 @@ subsections:
       - title: ROMlib
         scope: romlib
 
-      - title: GPT
+      - title: Granule Protection Tables
         scope: gpt
 
         deprecated:
