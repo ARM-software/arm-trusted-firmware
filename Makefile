@@ -137,11 +137,6 @@ else
 	target32-directive	= 	-target armv8a-none-eabi
 endif #(ARM_ARCH_MAJOR)
 
-################################################################################
-# Get Architecture Feature Modifiers
-################################################################################
-arch-features		=	${ARM_ARCH_FEATURE}
-
 ifneq ($(filter %-clang,$($(ARCH)-cc-id)),)
 	ifeq ($($(ARCH)-cc-id),arm-clang)
 		TF_CFLAGS_aarch32	:=	-target arm-arm-none-eabi
