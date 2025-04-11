@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2023, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,7 @@
 
 #include <ipi.h>
 #include <plat_private.h>
+#include "pm_defs.h"
 
 /*********************************************************************
  * Macros definitions
@@ -139,13 +140,12 @@ void ipi_mb_release(uint32_t local, uint32_t remote)
  * @local: local IPI ID.
  * @remote: remote IPI ID.
  *
- * Return: 0 idle, positive value for pending sending or receiving,
- *         negative value for errors.
+ * Return: 0 idle and positive value for pending sending or receiving.
  *
  */
-int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
+uint32_t ipi_mb_enquire_status(uint32_t local, uint32_t remote)
 {
-	int ret = 0U;
+	uint32_t ret = (uint32_t)PM_RET_SUCCESS;
 	uint32_t status;
 	uint64_t obr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_OBR_OFFSET);
 	uint64_t isr_offset = (uint64_t)(IPI_REG_BASE(local) + IPI_ISR_OFFSET);

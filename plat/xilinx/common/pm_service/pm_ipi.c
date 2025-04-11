@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -186,7 +186,12 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 		value[i] = mmio_read_32(buffer_base + ((i + 1U) * PAYLOAD_ARG_SIZE));
 	}
 
-	ret = mmio_read_32(buffer_base);
+	/*
+	 * Here mmio_read_32() reads return status stored in IPI payload that
+	 * is received from firmware and it's value will be one the values
+	 * listed in enum pm_ret_status.
+	 */
+	ret = (enum pm_ret_status)mmio_read_32(buffer_base);
 #if IPI_CRC_CHECK
 	crc = mmio_read_32(buffer_base + (PAYLOAD_CRC_POS * PAYLOAD_ARG_SIZE));
 	if (crc != calculate_crc((uint32_t *)buffer_base, IPI_W0_TO_W6_SIZE)) {
@@ -273,7 +278,8 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 		goto unlock;
 	}
 
-	ret = ERROR_CODE_MASK & (uint32_t)(pm_ipi_buff_read(proc, value, count));
+	ret = (enum pm_ret_status)(ERROR_CODE_MASK &
+				   (uint32_t)(pm_ipi_buff_read(proc, value, count)));
 
 unlock:
 	pm_ipi_lock_release();
@@ -293,15 +299,13 @@ void pm_ipi_irq_clear(const struct pm_proc *proc)
 
 uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
 {
-	int32_t ret;
-	int32_t result = 0;
+	uint32_t ret;
+	uint32_t result = (uint32_t)PM_RET_SUCCESS;
 
 	ret = ipi_mb_enquire_status(proc->ipi->local_ipi_id,
 				    proc->ipi->remote_ipi_id);
-	if (((uint32_t)ret & IPI_MB_STATUS_RECV_PENDING) != 0U) {
-		result = 1;
-	} else {
-		result = 0;
+	if ((ret & IPI_MB_STATUS_RECV_PENDING) != 0U) {
+		result = IPI_MB_STATUS_RECV_PENDING;
 	}
 
 	return result;
