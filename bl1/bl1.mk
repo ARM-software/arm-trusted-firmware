@@ -30,10 +30,6 @@ ifeq (${ENABLE_PMF},1)
 BL1_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
-ifeq ($($(ARCH)-ld-id),gnu-gcc)
-        BL1_LDFLAGS	+=	-Wl,--sort-section=alignment
-else ifneq ($(filter llvm-lld gnu-ld,$($(ARCH)-ld-id)),)
-        BL1_LDFLAGS	+=	--sort-section=alignment
-endif
+BL1_LDFLAGS += $(call ld_option,--sort-section=alignment)
 
 BL1_DEFAULT_LINKER_SCRIPT_SOURCE := bl1/bl1.ld.S

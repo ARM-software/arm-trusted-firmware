@@ -1201,16 +1201,16 @@ $(eval $(call assert_booleans, $(CPU_FLAG_LIST)))
 
 # Errata build flags
 ifneq (${ERRATA_A53_843419},0)
-TF_LDFLAGS_aarch64	+= --fix-cortex-a53-843419
+ldflags-aarch64		+= $(call ld_option,--fix-cortex-a53-843419)
 else
-ifeq ($($(ARCH)-ld-id),gnu-gcc)
-TF_LDFLAGS_aarch64	+= -mno-fix-cortex-a53-843419
-endif
+# GCC automatically adds fix-cortex-a53-843419 flag when used to link
+# which breaks some builds, so disable if errata fix is not explicitly enabled
+ldflags-aarch64		+= $(call ld_option,--no-fix-cortex-a53-843419)
 endif
 
 ifneq (${ERRATA_A53_835769},0)
 cflags-aarch64		+= -mfix-cortex-a53-835769
-TF_LDFLAGS_aarch64	+= --fix-cortex-a53-835769
+ldflags-aarch64		+= $(call ld_option,--fix-cortex-a53-835769)
 endif
 
 ifneq ($(filter 1,${ERRATA_A53_1530924} ${ERRATA_A55_1530923}	\

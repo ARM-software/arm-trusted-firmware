@@ -142,6 +142,12 @@ ifneq ($(PIE_FOUND),)
         cflags-common	+=	-fno-PIE
 endif
 
+ifeq ($(ENABLE_LTO),1)
+ifeq ($($(ARCH)-ld-id),gnu-gcc)
+        cflags-common	+=	-flto-partition=one
+endif
+endif
+
 cflags-common		+=	$(TF_CFLAGS_$(ARCH))
 cflags-common		+=	$(CPPFLAGS) $(CFLAGS) # some platforms set these
 TF_CFLAGS		+=	$(cflags-common)
@@ -165,60 +171,41 @@ TF_LDFLAGS		+=	-z noexecstack
 ifeq ($($(ARCH)-ld-id),arm-link)
 	TF_LDFLAGS		+=	--diag_error=warning --lto_level=O1
 	TF_LDFLAGS		+=	--remove --info=unused,unusedsymbols
-	TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
 
-# LD = gcc (used when GCC LTO is enabled)
-else ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	# Pass ld options with Wl or Xlinker switches
-	TF_LDFLAGS		+=	$(call ld_option,--no-warn-rwx-segments)
-	TF_LDFLAGS		+=	-Wl,--fatal-warnings
-	TF_LDFLAGS		+=	-Wl,--gc-sections
-
-	TF_LDFLAGS		+=	-Wl,-z,common-page-size=4096 #Configure page size constants
-	TF_LDFLAGS		+=	-Wl,-z,max-page-size=4096
-	TF_LDFLAGS		+=	-Wl,--build-id=none
-
-	ifeq ($(ENABLE_LTO),1)
-		TF_LDFLAGS	+=	-fuse-linker-plugin
-		TF_LDFLAGS      +=	-flto-partition=one
-	endif #(ENABLE_LTO)
-
-	TF_LDFLAGS		+= 	-nostdlib
-	TF_LDFLAGS		+=	$(subst --,-Xlinker --,$(TF_LDFLAGS_$(ARCH)))
-
-# LD = gcc-ld (ld) or llvm-ld (ld.lld) or other
+# LD = gcc or clang
 else
-# With ld.bfd version 2.39 and newer new warnings are added. Skip those since we
-# are not loaded by a elf loader.
-	TF_LDFLAGS		+=	$(call ld_option, --no-warn-rwx-segments)
-	TF_LDFLAGS		+=	-O1
-	TF_LDFLAGS		+=	--gc-sections
+        ldflags-common		:=	$(call ld_option,--no-warn-rwx-segments)
+        # ld.lld reports section type mismatch warnings,
+        # so don't add --fatal-warnings to it.
+        ifneq ($($(ARCH)-ld-id),$(filter $($(ARCH)-ld-id),llvm-clang llvm-lld))
+                ldflags-common	+=	$(call ld_prefix,--fatal-warnings)
+        endif
+        ldflags-common		+=	$(call ld_prefix,--gc-sections)
+        ldflags-common		+=	-z common-page-size=4096 # Configure page size constants
+        ldflags-common		+=	-z max-page-size=4096
+        ldflags-common		+=	$(call ld_prefix,--build-id=none)
 
-	TF_LDFLAGS		+=	-z common-page-size=4096 # Configure page size constants
-	TF_LDFLAGS		+=	-z max-page-size=4096
-	TF_LDFLAGS		+=	--build-id=none
+        ifeq ($(ENABLE_LTO),1)
+                ldflags-common	+=	-fuse-linker-plugin
+        endif #(ENABLE_LTO)
 
-# ld.lld doesn't recognize the errata flags,
-# therefore don't add those in that case.
-# ld.lld reports section type mismatch warnings,
-# therefore don't add --fatal-warnings to it.
-	ifneq ($($(ARCH)-ld-id),llvm-lld)
-		TF_LDFLAGS	+=	$(TF_LDFLAGS_$(ARCH)) --fatal-warnings
-	endif
+        ldflags-common		+= 	-nostdlib
 
-endif #(LD = armlink)
+        ifeq ($($(ARCH)-ld-id),llvm-clang)
+                ldflags-common		+=	-fuse-ld=lld
+        endif
+endif
 
 ifneq ($(PIE_FOUND),)
 ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	TF_LDFLAGS	+=	-no-pie
+        ldflags-common	+=	-no-pie
 endif
 endif #(PIE_FOUND)
+TF_LDFLAGS	+=	$(ldflags-common)
+TF_LDFLAGS	+=	$(ldflags-$(ARCH))
 
-ifeq ($($(ARCH)-ld-id),gnu-gcc)
-	PIE_LDFLAGS	+=	-Wl,-pie -Wl,--no-dynamic-linker
-else
-	PIE_LDFLAGS	+=	-pie --no-dynamic-linker
-endif
+PIE_LDFLAGS	+=	$(call ld_prefix,-pie)
+PIE_LDFLAGS	+=	$(call ld_prefix,--no-dynamic-linker)
 
 ifeq ($(ENABLE_PIE),1)
 	ifeq ($(RESET_TO_BL2),1)

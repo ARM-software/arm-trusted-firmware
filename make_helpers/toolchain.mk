@@ -329,7 +329,7 @@ ifndef toolchain-mk
 
         toolchain-derive-llvm-clang-cpp = $(1)
         toolchain-derive-llvm-clang-as = $(1)
-        toolchain-derive-llvm-clang-ld = $(shell $(1) --print-prog-name ld.lld 2>/dev/null)
+        toolchain-derive-llvm-clang-ld = $(1)
         toolchain-derive-llvm-clang-oc = $(shell $(1) --print-prog-name llvm-objcopy 2>/dev/null)
         toolchain-derive-llvm-clang-od = $(shell $(1) --print-prog-name llvm-objdump 2>/dev/null)
         toolchain-derive-llvm-clang-ar = $(shell $(1) --print-prog-name llvm-ar 2>/dev/null)
