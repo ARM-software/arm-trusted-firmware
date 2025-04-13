@@ -75,11 +75,6 @@ static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
 
 	memcpy(&tmp, mbr_sector + MBR_PRIMARY_ENTRY_OFFSET, sizeof(tmp));
 
-	if (tmp.first_lba != 1) {
-		VERBOSE("MBR header may have an invalid first LBA\n");
-		return -EINVAL;
-	}
-
 	if ((tmp.sector_nums == 0) || (tmp.sector_nums == UINT32_MAX)) {
 		VERBOSE("MBR header entry has an invalid number of sectors\n");
 		return -EINVAL;
@@ -421,6 +416,11 @@ int load_partition_table(unsigned int image_id)
 		goto out;
 	}
 	if (mbr_entry.type == PARTITION_TYPE_GPT) {
+		if (mbr_entry.first_lba != 1U) {
+			VERBOSE("MBR header may have an invalid first LBA\n");
+			return -EINVAL;
+		}
+
 		result = load_primary_gpt(image_handle, mbr_entry.first_lba);
 		if (result != 0) {
 			io_close(image_handle);
