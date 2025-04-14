@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,8 +37,8 @@ void tsp_update_sync_sel1_intr_stats(uint32_t type, uint64_t elr_el3)
 
 	VERBOSE("TSP: cpu 0x%lx sync s-el1 interrupt request from 0x%" PRIx64 "\n",
 		read_mpidr(), elr_el3);
-	VERBOSE("TSP: cpu 0x%lx: %d sync s-el1 interrupt requests,"
-		" %d sync s-el1 interrupt returns\n",
+	VERBOSE("TSP: cpu 0x%lx: %u sync s-el1 interrupt requests,"
+		" %u sync s-el1 interrupt returns\n",
 		read_mpidr(),
 		tsp_stats[linear_id].sync_sel1_intr_count,
 		tsp_stats[linear_id].sync_sel1_intr_ret_count);
@@ -54,7 +54,7 @@ int32_t tsp_handle_preemption(void)
 	uint32_t linear_id = plat_my_core_pos();
 
 	tsp_stats[linear_id].preempt_intr_count++;
-	VERBOSE("TSP: cpu 0x%lx: %d preempt interrupt requests\n",
+	VERBOSE("TSP: cpu 0x%lx: %u preempt interrupt requests\n",
 		read_mpidr(), tsp_stats[linear_id].preempt_intr_count);
 	return TSP_PREEMPTED;
 }
@@ -107,9 +107,9 @@ int32_t tsp_common_int_handler(void)
 
 	/* Update the statistics and print some messages */
 	tsp_stats[linear_id].sel1_intr_count++;
-	VERBOSE("TSP: cpu 0x%lx handled S-EL1 interrupt %d\n",
+	VERBOSE("TSP: cpu 0x%lx handled S-EL1 interrupt %u\n",
 	       read_mpidr(), id);
-	VERBOSE("TSP: cpu 0x%lx: %d S-EL1 requests\n",
+	VERBOSE("TSP: cpu 0x%lx: %u S-EL1 requests\n",
 	     read_mpidr(), tsp_stats[linear_id].sel1_intr_count);
 	return 0;
 }
