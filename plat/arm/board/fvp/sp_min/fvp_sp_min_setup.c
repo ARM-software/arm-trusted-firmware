@@ -14,16 +14,34 @@
 
 #include "../fvp_private.h"
 
+static uintptr_t hw_config __unused;
+
 void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 			u_register_t arg2, u_register_t arg3)
 {
 	const struct dyn_cfg_dtb_info_t *tos_fw_config_info __unused;
+	struct transfer_list_header *tl __unused;
 
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
-#if !RESET_TO_SP_MIN && !RESET_TO_BL2
+#if TRANSFER_LIST
+	/*
+	 * Register usage at function entry:
+	 *   r0 - Reserved (must be zero)
+	 *   r1 - Register convention and TL signature
+	 *   r2 - Pointer to the FDT located within the TL
+	 *   r3 - Base address of the TL
+	 *
+	 * Initialize TL pointer from r3 and validate that the FDT pointer (arg2)
+	 * lies within the bounds of the Transfer List memory region.
+	 */
+	tl = (struct transfer_list_header *)arg3;
 
+	assert(arg2 > (uintptr_t)tl && arg2 < (uintptr_t)tl + tl->size);
+	hw_config = (uintptr_t)arg2;
+#else
+#if !RESET_TO_SP_MIN && !RESET_TO_BL2
 	INFO("SP_MIN FCONF: FW_CONFIG address = %lx\n", (uintptr_t)arg1);
 	/* Fill the properties struct with the info from the config dtb */
 	fconf_populate("FW_CONFIG", arg1);
@@ -33,6 +51,7 @@ void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 		arg1 = tos_fw_config_info->config_addr;
 	}
 #endif /* !RESET_TO_SP_MIN && !RESET_TO_BL2 */
+#endif /* TRANSFER_LIST */
 
 	arm_sp_min_early_platform_setup(arg0, arg1, arg2, arg3);
 
@@ -75,7 +94,10 @@ void sp_min_plat_arch_setup(void)
 	 * TODO: remove the ARM_XLAT_TABLES_LIB_V1 check when its support
 	 * gets deprecated.
 	 */
-#if !RESET_TO_SP_MIN && !RESET_TO_BL2 && !ARM_XLAT_TABLES_LIB_V1
+#if TRANSFER_LIST
+	INFO("SP_MIN FCONF: HW_CONFIG address = %p\n", (void *)hw_config);
+	fconf_populate("HW_CONFIG", hw_config);
+#elif !RESET_TO_SP_MIN && !RESET_TO_BL2 && !ARM_XLAT_TABLES_LIB_V1
 	hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
 	assert(hw_config_info != NULL);
 	assert(hw_config_info->config_addr != 0UL);
@@ -118,5 +140,6 @@ void sp_min_plat_arch_setup(void)
 		      rc);
 		panic();
 	}
-#endif /*!RESET_TO_SP_MIN && !RESET_TO_BL2 && !ARM_XLAT_TABLES_LIB_V1*/
+
+#endif /* TRANSFER_LIST */
 }

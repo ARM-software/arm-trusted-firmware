@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -289,18 +289,17 @@ unsigned int bl1_plat_get_next_image_id(void)
 	return  is_fwu_needed ? NS_BL1U_IMAGE_ID : BL2_IMAGE_ID;
 }
 
-// Use the default implementation of this function when Firmware Handoff is
-// disabled to avoid duplicating its logic.
 #if TRANSFER_LIST
 int bl1_plat_handle_post_image_load(unsigned int image_id)
 {
-	image_desc_t *image_desc __unused;
-
-	assert(image_id == BL2_IMAGE_ID);
 	struct transfer_list_entry *te;
 
+	if (image_id != BL2_IMAGE_ID) {
+		return 0;
+	}
+
 	/* Convey this information to BL2 via its TL. */
-	te = transfer_list_add(secure_tl, TL_TAG_SRAM_LAYOUT64,
+	te = transfer_list_add(secure_tl, TL_TAG_SRAM_LAYOUT,
 			       sizeof(meminfo_t), NULL);
 	assert(te != NULL);
 

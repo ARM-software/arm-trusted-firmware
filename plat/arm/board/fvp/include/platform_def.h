@@ -307,9 +307,15 @@ FVP_TRUSTED_SRAM_SIZE == 512
  * calculated using the current SP_MIN PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
+#if TRANSFER_LIST
+# define PLAT_ARM_MAX_BL32_SIZE		(PLAT_ARM_TRUSTED_SRAM_SIZE - \
+					 ARM_SHARED_RAM_SIZE - \
+					 PLAT_ARM_FW_HANDOFF_SIZE)
+#else
 # define PLAT_ARM_MAX_BL32_SIZE		(PLAT_ARM_TRUSTED_SRAM_SIZE - \
 					 ARM_SHARED_RAM_SIZE - \
 					 ARM_FW_CONFIGS_SIZE)
+#endif /* TRANSFER_LIST */
 #endif /* RESET_TO_SP_MIN */
 #endif
 

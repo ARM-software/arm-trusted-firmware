@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -71,9 +71,8 @@ void arm_transfer_list_populate_ep_info(bl_mem_params_node_t *next_param_node,
 					struct transfer_list_header *tl)
 {
 	uint32_t next_exe_img_id;
-	entry_point_info_t *ep;
+	entry_point_info_t *ep __unused;
 	struct transfer_list_entry *te;
-
 	assert(next_param_node != NULL);
 
 	while ((next_exe_img_id = next_param_node->next_handoff_image_id) !=
@@ -83,14 +82,16 @@ void arm_transfer_list_populate_ep_info(bl_mem_params_node_t *next_param_node,
 				next_exe_img_id)];
 		assert(next_param_node != NULL);
 
-		te = transfer_list_add(tl, TL_TAG_EXEC_EP_INFO64,
+		te = transfer_list_add(tl, TL_TAG_EXEC_EP_INFO,
 				       sizeof(entry_point_info_t),
 				       &next_param_node->ep_info);
 		assert(te != NULL);
 
 		ep = transfer_list_entry_data(te);
+		assert(ep != NULL);
 
-		if ((next_exe_img_id == BL32_IMAGE_ID) && SPMC_AT_EL3) {
+#if SPMC_AT_EL3
+		if (next_exe_img_id == BL32_IMAGE_ID) {
 			/*
 			 * Populate the BL32 image base, size and max limit in
 			 * the entry point information, since there is no
@@ -106,6 +107,7 @@ void arm_transfer_list_populate_ep_info(bl_mem_params_node_t *next_param_node,
 				next_param_node->image_info.image_base +
 				next_param_node->image_info.image_max_size;
 		}
+#endif /* SPMC_AT_EL3 */
 
 		next_exe_img_id = next_param_node->next_handoff_image_id;
 	}

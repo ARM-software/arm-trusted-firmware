@@ -147,6 +147,14 @@ void arm_setup_romlib(void);
 
 #endif /* defined(IMAGE_BL31) || (!defined(__aarch64__) && defined(IMAGE_BL32)) */
 
+#ifdef __aarch64__
+#define TL_TAG_EXEC_EP_INFO	TL_TAG_EXEC_EP_INFO64
+#define TL_TAG_SRAM_LAYOUT	TL_TAG_SRAM_LAYOUT64
+#else
+#define TL_TAG_EXEC_EP_INFO	TL_TAG_EXEC_EP_INFO32
+#define TL_TAG_SRAM_LAYOUT	TL_TAG_SRAM_LAYOUT32
+#endif
+
 #if ARM_RECOM_STATE_ID_ENC
 /*
  * Macros used to parse state information from State-ID if it is using the
