@@ -3,9 +3,11 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-
+from collections import defaultdict
 from re import match, search
 from typing import Dict, ItemsView, TextIO
+
+from memory.image import Region
 
 
 class TfaMapParser:
@@ -37,34 +39,25 @@ class TfaMapParser:
 
         return symbols
 
-    def get_memory_layout(self) -> Dict[str, Dict[str, int]]:
+    def get_memory_layout(self) -> Dict[str, Region]:
         """Get the total memory consumed by this module from the memory
         configuration.
             {"rom": {"start": 0x0, "end": 0xFF, "length": ... }
         """
         assert len(self._symbols), "Symbol table is empty!"
         expr = r".*(.?R.M)_REGION.*(START|END|LENGTH)"
-        memory_layout: Dict[str, Dict[str, int]] = {}
+        memory_layout: Dict[str, Region] = defaultdict(Region)
 
         region_symbols = filter(lambda s: match(expr, s), self._symbols)
 
         for symbol in region_symbols:
             region, _, attr = tuple(symbol.lower().strip("__").split("_"))
-            if region not in memory_layout:
-                memory_layout[region] = {}
 
-            memory_layout[region][attr] = self._symbols[symbol]
-
-            if "start" and "length" and "end" in memory_layout[region]:
-                memory_layout[region]["limit"] = (
-                    memory_layout[region]["start"] + memory_layout[region]["length"]
-                )
-                memory_layout[region]["free"] = (
-                    memory_layout[region]["limit"] - memory_layout[region]["end"]
-                )
-                memory_layout[region]["total"] = memory_layout[region]["length"]
-                memory_layout[region]["size"] = (
-                    memory_layout[region]["end"] - memory_layout[region]["start"]
-                )
+            if attr == "start":
+                memory_layout[region].start = self._symbols[symbol]
+            elif attr == "end":
+                memory_layout[region].end = self._symbols[symbol]
+            if attr == "length":
+                memory_layout[region].length = self._symbols[symbol]
 
         return memory_layout

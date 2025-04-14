@@ -10,6 +10,8 @@ from anytree import RenderTree
 from anytree.importer import DictImporter
 from prettytable import PrettyTable
 
+from memory.image import Region
+
 
 class TfaPrettyPrinter:
     """A class for printing the memory layout of ELF files.
@@ -71,8 +73,9 @@ class TfaPrettyPrinter:
         return leading + sec_row_l + sec_row + sec_row_r
 
     def print_footprint(
-        self, app_mem_usage: Dict[str, Dict[str, Dict[str, int]]]
-    ) -> None:
+        self,
+        app_mem_usage: Dict[str, Dict[str, Region]],
+    ):
         assert len(app_mem_usage), "Empty memory layout dictionary!"
 
         fields = ["Component", "Start", "Limit", "Size", "Free", "Total"]
@@ -93,7 +96,15 @@ class TfaPrettyPrinter:
                     table.add_row(
                         [
                             mod.upper(),
-                            *self.format_args(*[val[k.lower()] for k in fields[1:]]),
+                            *self.format_args(
+                                *[
+                                    val.start if val.start is not None else "?",
+                                    val.limit if val.limit is not None else "?",
+                                    val.size if val.size is not None else "?",
+                                    val.free if val.free is not None else "?",
+                                    val.length if val.length is not None else "?",
+                                ]
+                            ),
                         ]
                     )
             print(table, "\n")

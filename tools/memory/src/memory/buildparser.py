@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
 
 from memory.elfparser import TfaElfParser
+from memory.image import Region
 from memory.mapparser import TfaMapParser
 
 
@@ -62,9 +63,9 @@ class TfaBuildParser:
             reverse=True,
         )
 
-    def get_mem_usage_dict(self) -> Dict[str, Dict[str, Dict[str, int]]]:
+    def get_mem_usage_dict(self) -> Dict[str, Dict[str, Region]]:
         """Returns map of memory usage per memory type for each module."""
-        mem_map: Dict[str, Dict[str, Dict[str, int]]] = {}
+        mem_map: Dict[str, Dict[str, Region]] = {}
         for k, v in self._modules.items():
             mod_mem_map = v.get_memory_layout()
             if len(mod_mem_map):

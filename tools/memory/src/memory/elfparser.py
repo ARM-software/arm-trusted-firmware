@@ -12,6 +12,8 @@ from elftools.elf.elffile import ELFFile
 from elftools.elf.sections import Section
 from elftools.elf.segments import Segment
 
+from memory.image import Region
+
 
 @dataclass(frozen=True)
 class TfaMemObject:
@@ -139,22 +141,19 @@ class TfaElfParser:
         """Get a dictionary of segments and their section mappings."""
         return [asdict(v) for k, v in self._segments.items()]
 
-    def get_memory_layout(self) -> Dict[str, Dict[str, int]]:
+    def get_memory_layout(self) -> Dict[str, Region]:
         """Get the total memory consumed by this module from the memory
         configuration.
-            {"rom": {"start": 0x0, "end": 0xFF, "length": ... }
         """
-        mem_dict: Dict[str, Dict[str, int]] = {}
+        mem_dict: Dict[str, Region] = {}
 
         for mem, attrs in self._memory_layout.items():
-            limit = attrs["start"] + attrs["length"]
-            mem_dict[mem] = {
-                "start": attrs["start"],
-                "limit": limit,
-                "size": attrs["end"] - attrs["start"],
-                "free": limit - attrs["end"],
-                "total": attrs["length"],
-            }
+            mem_dict[mem] = Region(
+                attrs["start"],
+                attrs["end"],
+                attrs["length"],
+            )
+
         return mem_dict
 
     def get_mod_mem_usage_dict(self) -> Dict[str, int]:
