@@ -110,7 +110,7 @@ static void __dead2 versal2_system_reset(void)
 	 * Send the system reset request to the firmware if power down request
 	 * is not received from firmware.
 	 */
-	if (pwrdwn_req_received == true) {
+	if (pwrdwn_req_received == false) {
 		/*
 		 * TODO: shutdown scope for this reset needs be revised once
 		 * we have a clearer understanding of the overall reset scoping
