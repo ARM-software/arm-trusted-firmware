@@ -1202,10 +1202,14 @@ $(eval $(call assert_booleans, $(CPU_FLAG_LIST)))
 # Errata build flags
 ifneq (${ERRATA_A53_843419},0)
 TF_LDFLAGS_aarch64	+= --fix-cortex-a53-843419
+else
+ifeq ($($(ARCH)-ld-id),gnu-gcc)
+TF_LDFLAGS_aarch64	+= -mno-fix-cortex-a53-843419
+endif
 endif
 
 ifneq (${ERRATA_A53_835769},0)
-TF_CFLAGS_aarch64	+= -mfix-cortex-a53-835769
+cflags-aarch64		+= -mfix-cortex-a53-835769
 TF_LDFLAGS_aarch64	+= --fix-cortex-a53-835769
 endif
 
