@@ -1032,6 +1032,13 @@ void psci_warmboot_entrypoint(void)
 	}
 
 	/*
+	 * Caches and (importantly) coherency are on so we can rely on seeing
+	 * whatever the primary gave us without explicit cache maintenance
+	 */
+	entry_point_info_t *ep = get_cpu_data(warmboot_ep_info);
+	cm_init_my_context(ep);
+
+	/*
 	 * Generic management: Now we just need to retrieve the
 	 * information that we had stashed away during the cpu_on
 	 * call to set this cpu on its way.

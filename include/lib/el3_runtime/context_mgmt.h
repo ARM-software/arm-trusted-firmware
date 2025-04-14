@@ -34,17 +34,11 @@ void cm_setup_context(cpu_context_t *ctx, const struct entry_point_info *ep);
 void cm_prepare_el3_exit(uint32_t security_state);
 void cm_prepare_el3_exit_ns(void);
 
-#if !IMAGE_BL1
-void cm_init_context_by_index(unsigned int cpu_idx,
-			      const struct entry_point_info *ep);
-#endif /* !IMAGE_BL1 */
-
 #ifdef __aarch64__
 #if IMAGE_BL31
 void cm_manage_extensions_el3(unsigned int my_idx);
 void manage_extensions_nonsecure_per_world(void);
 void cm_el3_arch_init_per_world(per_world_context_t *per_world_ctx);
-void cm_handle_asymmetric_features(void);
 #endif
 
 #if (CTX_INCLUDE_EL2_REGS && IMAGE_BL31)
@@ -97,7 +91,6 @@ void *cm_get_next_context(void);
 void cm_set_next_context(void *context);
 static inline void cm_manage_extensions_el3(unsigned int cpu_idx) {}
 static inline void manage_extensions_nonsecure_per_world(void) {}
-static inline void cm_handle_asymmetric_features(void) {}
 #endif /* __aarch64__ */
 
 #endif /* CONTEXT_MGMT_H */

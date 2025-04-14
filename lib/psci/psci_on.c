@@ -141,10 +141,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	rc = psci_plat_pm_ops->pwr_domain_on(target_cpu);
 	assert((rc == PSCI_E_SUCCESS) || (rc == PSCI_E_INTERN_FAIL));
 
-	if (rc == PSCI_E_SUCCESS) {
-		/* Store the re-entry information for the non-secure world. */
-		cm_init_context_by_index(target_idx, ep);
-	} else {
+	if (rc != PSCI_E_SUCCESS) {
 		/* Restore the state on error. */
 		psci_set_aff_info_state_by_idx(target_idx, AFF_STATE_OFF);
 		flush_cpu_data_by_index(target_idx,
