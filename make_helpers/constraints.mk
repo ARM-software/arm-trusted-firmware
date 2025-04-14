@@ -236,6 +236,9 @@ endif #(DECRYPTION_SUPPORT)
 
 # Ensure that no Aarch64-only features are enabled in Aarch32 build
 ifeq (${ARCH},aarch32)
+        ifneq (${ENABLE_LTO},0)
+                $(error "ENABLE_LTO is not supported with ARCH=aarch32")
+        endif
 
 	# SME/SVE only supported on AArch64
 	ifneq (${ENABLE_SME_FOR_NS},0)

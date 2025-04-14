@@ -148,9 +148,7 @@ ifneq ($(filter %-clang,$($(ARCH)-cc-id)),)
 
 else ifeq ($($(ARCH)-cc-id),gnu-gcc)
 	# Enable LTO only for aarch64
-	ifeq (${ARCH},aarch64)
-		LTO_CFLAGS	=	$(if $(filter-out 0,$(ENABLE_LTO)),-flto)
-	endif
+	LTO_CFLAGS	=	$(if $(filter-out 0,$(ENABLE_LTO)),-flto)
 endif #(clang)
 
 # Process Debug flag
@@ -312,10 +310,8 @@ else ifeq ($($(ARCH)-ld-id),gnu-gcc)
 	TF_LDFLAGS		+=	-Wl,--build-id=none
 
 	ifeq ($(ENABLE_LTO),1)
-		ifeq (${ARCH},aarch64)
-			TF_LDFLAGS	+=	-flto -fuse-linker-plugin
-			TF_LDFLAGS      +=	-flto-partition=one
-		endif
+		TF_LDFLAGS	+=	-flto -fuse-linker-plugin
+		TF_LDFLAGS      +=	-flto-partition=one
 	endif #(ENABLE_LTO)
 
 # GCC automatically adds fix-cortex-a53-843419 flag when used to link
