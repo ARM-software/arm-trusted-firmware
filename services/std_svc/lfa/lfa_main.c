@@ -55,6 +55,31 @@ static uint64_t get_fw_activation_flags(uint32_t fw_seq_id)
 	return flags;
 }
 
+static int lfa_cancel(uint32_t component_id)
+{
+	int ret = LFA_SUCCESS;
+
+	if (lfa_component_count == 0U) {
+		return LFA_WRONG_STATE;
+	}
+
+	/* Check if component ID is in range. */
+	if ((component_id >= lfa_component_count) ||
+	    (component_id != current_activation.component_id)) {
+		return LFA_INVALID_PARAMETERS;
+	}
+
+	ret = plat_lfa_cancel(component_id);
+	if (ret != LFA_SUCCESS) {
+		return LFA_BUSY;
+	}
+
+	/* TODO: add proper termination prime and activate phases */
+	lfa_reset_activation();
+
+	return ret;
+}
+
 int lfa_setup(void)
 {
 	is_lfa_initialized = lfa_initialize_components();
@@ -74,6 +99,7 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 	uint64_t retx1, retx2;
 	uint8_t *uuid_p;
 	uint32_t fw_seq_id = (uint32_t)x1;
+	int ret;
 
 	/**
 	 * TODO: Acquire serialization lock.
@@ -154,6 +180,8 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 		break;
 
 	case LFA_CANCEL:
+		ret = lfa_cancel(x1);
+		SMC_RET1(handle, ret);
 		break;
 
 	default:
