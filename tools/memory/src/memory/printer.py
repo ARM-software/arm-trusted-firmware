@@ -95,7 +95,7 @@ class TfaPrettyPrinter:
                     val = vals[mem]
                     table.add_row(
                         [
-                            mod.upper(),
+                            mod,
                             *self.format_args(
                                 *[
                                     val.start if val.start is not None else "?",
