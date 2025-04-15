@@ -358,7 +358,7 @@
 	os_uart: serial@2a400000 {
 		compatible = "arm,pl011", "arm,primecell";
 		reg = <0x0 0x2A400000 0x0 UART_OFFSET>;
-		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH 0>;
+		interrupts = <GIC_SPI UART_AP_NS_IRQ IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&soc_uartclk>, <&soc_refclk>;
 		clock-names = "uartclk", "apb_pclk";
 		status = "okay";

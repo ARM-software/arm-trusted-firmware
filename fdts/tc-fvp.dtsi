@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2023-2025, Arm Limited. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #define GIC_CTRL_ADDR		2c010000
 #define GIC_GICR_OFFSET		0x200000
-#define UART_OFFSET		0x1000
 
 #ifdef TC_RESOLUTION_1920X1080P60
 
