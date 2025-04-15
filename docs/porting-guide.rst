@@ -3928,6 +3928,58 @@ Measured Boot Platform Interface
 Enabling the MEASURED_BOOT flag adds extra platform requirements. Please refer
 to :ref:`Measured Boot Design` for more details.
 
+Live Firmware Activation Interface
+----------------------------------
+
+Function : plat_lfa_get_components()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : plat_lfa_component_info_t **
+    Return   : int
+
+This platform API provides the list of LFA components available for activation.
+It populates a pointer to an array of ``plat_lfa_component_info_t`` structures,
+which contain information about each component (like UUID, ID, etc.). It returns
+0 on success, or a standard error code on failure.
+
+Function : is_plat_lfa_activation_pending()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint32_t
+    Return   : bool
+
+This platform API checks if the specified LFA component, identified
+by its ``lfa_component_id``, is available for activation. It returns
+true if available, otherwise false.
+
+Function : plat_lfa_cancel()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint32_t
+    Return   : int
+
+This platform API allows the platform to cancel an ongoing update or activation
+process for the specified ``lfa_component_id``. It returns 0 on success or
+a standard error code on failure.
+
+Function : plat_lfa_load_auth_image()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint32_t
+    Return   : int
+
+The platform uses this API to load, authenticate and measure the component
+specified by ``lfa_component_id``. It should return 0 on success or appropriate
+error codes for load/authentication failures.
+
 --------------
 
 *Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.*
