@@ -356,7 +356,11 @@ static void *rmmd_cpu_on_finish_handler(const void *arg)
 
 	if (rc != E_RMM_BOOT_SUCCESS) {
 		ERROR("RMM init failed on CPU%d: %ld\n", linear_id, rc);
-		/* Mark the boot as failed for any other booting CPU */
+		/*
+		 * TODO: Investigate handling of rmm_boot_failed under
+		 * concurrent access, or explore alternative approaches
+		 * to fixup the logic.
+		 */
 		rmm_boot_failed = true;
 	}
 
@@ -538,4 +542,40 @@ uint64_t rmmd_rmm_el3_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		WARN("RMMD: Unsupported RMM-EL3 call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
+}
+
+/**
+ * Helper to activate Primary CPU with the updated RMM, mainly used during
+ * LFA of RMM.
+ */
+int rmmd_primary_activate(void)
+{
+	int rc;
+
+	rc = rmmd_setup();
+	if (rc != 0) {
+		ERROR("rmmd_setup failed during LFA: %d\n", rc);
+		return rc;
+	}
+
+	rc = rmm_init();
+	if (rc != 0) {
+		ERROR("rmm_init failed during LFA: %d\n", rc);
+		return rc;
+	}
+
+	INFO("RMM warm reset done on primary during LFA. \n");
+
+	return 0;
+}
+
+/**
+ * Helper to activate Primary CPU with the updated RMM, mainly used during
+ * LFA of RMM.
+ */
+int rmmd_secondary_activate(void)
+{
+	rmmd_cpu_on_finish_handler(NULL);
+
+	return 0;
 }
