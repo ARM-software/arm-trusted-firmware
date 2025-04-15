@@ -592,10 +592,10 @@ Arm Reference Design platform ports
 
 Arm Total Compute platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Vishnu Banavath <vishnu.banavath@arm.com>
-:|G|: `vishnu-banavath`_
-:|M|: Rupinderjit Singh <rupinderjit.singh@arm.com>
-:|G|: `rupsin01`_
+:|M|: Artem Kopotev <artem.kopotev@arm.com>
+:|G|: `artkopotev`_
+:|M|: Oleksandr Tarhunakov <Oleksandr.Tarhunakov@arm.com>
+:|G|: `o-tarhunakov`_
 :|F|: plat/arm/board/tc
 
 Arm Automotive RD platform port
@@ -1113,7 +1113,7 @@ Conventional Changelog Extensions
 .. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _rohit-arm: https://github.com/rohit-arm
-.. _rupsin01: https://github.com/rupsin01
+.. _o-tarhunakov: https://github.com/o-tarhunakov
 .. _rutigl: https://github.com/rutigl
 .. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
 .. _shawnguo2: https://github.com/shawnguo2
@@ -1128,11 +1128,11 @@ Conventional Changelog Extensions
 .. _TravMurav: https://github.com/TravMurav
 .. _uarif1: https://github.com/uarif1
 .. _vijayenthiran-arm: https://github.com/vijayenthiran-arm
-.. _vishnu-banavath: https://github.com/vishnu-banavath
+.. _artkopotev: https://github.com/artkopotev
 .. _vwadekar: https://github.com/vwadekar
 .. _Yann-lms: https://github.com/Yann-lms
 .. _sjaypee208: https://github.com/sjaypee208
 
 --------------
 
-*Copyright (c) 2019-2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.*
