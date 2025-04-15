@@ -20,7 +20,7 @@ from elftools.elf.elffile import ELFFile
 from elftools.elf.sections import Section
 from elftools.elf.segments import Segment
 
-from memory.image import Region
+from memory.image import Image, Region
 
 
 @dataclass(frozen=True)
@@ -32,7 +32,7 @@ class TfaMemObject:
     children: List["TfaMemObject"]
 
 
-class TfaElfParser:
+class TfaElfParser(Image):
     """A class representing an ELF file built for TF-A.
 
     Provides a basic interface for reading the symbol table and other
@@ -58,6 +58,15 @@ class TfaElfParser:
         self._free: int
         self._size, self._free = self._get_mem_usage()
         self._end: int = self._start + self._size
+
+        self._footprint: Dict[str, Region] = {}
+
+        for mem, attrs in self._memory_layout.items():
+            self._footprint[mem] = Region(
+                attrs["start"],
+                attrs["end"],
+                attrs["length"],
+            )
 
     @property
     def symbols(self) -> Dict[str, int]:
@@ -163,6 +172,10 @@ class TfaElfParser:
             )
 
         return mem_dict
+
+    @property
+    def footprint(self) -> Dict[str, Region]:
+        return self._footprint
 
     def get_mod_mem_usage_dict(self) -> Dict[str, int]:
         """Get the total memory consumed by the module, this combines the

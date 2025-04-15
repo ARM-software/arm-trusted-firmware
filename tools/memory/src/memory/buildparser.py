@@ -58,7 +58,7 @@ class TfaBuildParser:
 
     @staticmethod
     def filter_symbols(
-        symbols: Dict[str, Dict[str, int]], regex: str
+        images: Dict[str, Dict[str, int]], regex: str
     ) -> Dict[str, Dict[str, int]]:
         """Returns a map of symbols to modules."""
 
@@ -68,17 +68,12 @@ class TfaBuildParser:
                 for symbol, symbol_value in symbols.items()
                 if re.match(regex, symbol)
             }
-            for image, symbols in symbols.items()
+            for image, symbols in images.items()
         }
 
     def get_mem_usage_dict(self) -> Dict[str, Dict[str, Region]]:
         """Returns map of memory usage per memory type for each module."""
-        mem_map: Dict[str, Dict[str, Region]] = {}
-        for k, v in self._modules.items():
-            mod_mem_map = v.get_memory_layout()
-            if len(mod_mem_map):
-                mem_map[k] = mod_mem_map
-        return mem_map
+        return {k: v.footprint for k, v in self._modules.items()}
 
     def get_mem_tree_as_dict(self) -> Dict[str, Dict[str, Any]]:
         """Returns _tree of modules, segments and segments and their total
