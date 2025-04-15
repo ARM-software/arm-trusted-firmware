@@ -230,7 +230,7 @@
 	 */
 	.macro	read reg:req
 #if ENABLE_BTI
-	bti	j
+	BTI	j
 #endif
 	mrs	x0, \reg
 	ret
@@ -241,7 +241,7 @@
 	 */
 	.macro	write reg:req
 #if ENABLE_BTI
-	bti	j
+	BTI	j
 #endif
 	msr	\reg, x1
 	ret
