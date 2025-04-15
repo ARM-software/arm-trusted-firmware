@@ -59,6 +59,8 @@
 #define DPU_IRQ				579
 #endif
 
+#define DSU_MPAM_ADDR			0x5 0x00010000 /* 0x05_0001_0000 */
+
 /**
  * CPU Capacity Weights
  * NB: Stub value is set for LIT_CAPACITY as there are no little cores in TC5
