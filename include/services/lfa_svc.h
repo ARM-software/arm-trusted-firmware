@@ -52,6 +52,11 @@
 
 #define LFA_INVALID_COMPONENT		U(0xFFFFFFFF)
 
+#define LFA_ACTIVATION_CAPABLE_SHIFT		0
+#define LFA_ACTIVATION_PENDING_SHIFT		1
+#define LFA_MAY_RESET_CPU_SHIFT			2
+#define LFA_CPU_RENDEZVOUS_OPTIONAL_SHIFT	3
+
 /* List of errors as per the specification */
 enum lfa_retc {
 	LFA_SUCCESS			=  0,

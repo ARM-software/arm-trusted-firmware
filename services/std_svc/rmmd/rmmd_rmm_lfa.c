@@ -21,6 +21,8 @@ static int32_t lfa_rmm_activate(struct lfa_component_status *activation,
 static struct lfa_component_ops rmm_activator = {
 	.prime = lfa_rmm_prime,
 	.activate = lfa_rmm_activate,
+	.may_reset_cpu = false,
+	.cpu_rendezvous_required = true,
 };
 
 struct lfa_component_ops *get_rmm_activator(void)

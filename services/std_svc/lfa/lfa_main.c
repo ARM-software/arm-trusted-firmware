@@ -34,6 +34,27 @@ static bool lfa_initialize_components(void)
 	return true;
 }
 
+static uint64_t get_fw_activation_flags(uint32_t fw_seq_id)
+{
+	const plat_lfa_component_info_t *comp =
+				&lfa_components[fw_seq_id];
+	uint64_t flags = 0ULL;
+
+	flags |= ((comp->activator == NULL ? 0ULL : 1ULL)
+		 << LFA_ACTIVATION_CAPABLE_SHIFT);
+	flags |= (uint64_t)(comp->activation_pending)
+		 << LFA_ACTIVATION_PENDING_SHIFT;
+
+	if (comp->activator != NULL) {
+		flags |= ((comp->activator->may_reset_cpu ? 1ULL : 0ULL)
+			 << LFA_MAY_RESET_CPU_SHIFT);
+		flags |= ((comp->activator->cpu_rendezvous_required ? 0ULL : 1ULL)
+			 << LFA_CPU_RENDEZVOUS_OPTIONAL_SHIFT);
+	}
+
+	return flags;
+}
+
 int lfa_setup(void)
 {
 	is_lfa_initialized = lfa_initialize_components();
@@ -50,6 +71,10 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 			 u_register_t x3, u_register_t x4, void *cookie,
 			 void *handle, u_register_t flags)
 {
+	uint64_t retx1, retx2;
+	uint8_t *uuid_p;
+	uint32_t fw_seq_id = (uint32_t)x1;
+
 	/**
 	 * TODO: Acquire serialization lock.
 	 */
@@ -80,6 +105,46 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 		break;
 
 	case LFA_GET_INVENTORY:
+		if (lfa_component_count == 0U) {
+			SMC_RET1(handle, LFA_WRONG_STATE);
+		}
+
+		/*
+		 * Check if fw_seq_id is in range. LFA_GET_INFO must be called first to scan
+		 * platform firmware and create a valid number of firmware components.
+		 */
+		if (fw_seq_id >= lfa_component_count) {
+			SMC_RET1(handle, LFA_INVALID_PARAMETERS);
+		}
+
+		/*
+		 * grab the UUID of asked fw_seq_id and set the return UUID
+		 * variables
+		 */
+		uuid_p = (uint8_t *)&lfa_components[fw_seq_id].uuid;
+		memcpy(&retx1, uuid_p, sizeof(uint64_t));
+		memcpy(&retx2, uuid_p + sizeof(uint64_t), sizeof(uint64_t));
+
+		/*
+		 * check the given fw_seq_id's update available
+		 * and accordingly set the active_pending flag
+		 */
+		lfa_components[fw_seq_id].activation_pending =
+				is_plat_lfa_activation_pending(fw_seq_id);
+
+		INFO("Component %lu %s live activation:\n", x1,
+		      lfa_components[fw_seq_id].activator ? "supports" :
+		      "does not support");
+
+		if (lfa_components[fw_seq_id].activator != NULL) {
+			INFO("Activation pending: %s\n",
+			      lfa_components[fw_seq_id].activation_pending ? "true" : "false");
+		}
+
+		INFO("x1 = 0x%016lx, x2 = 0x%016lx\n", retx1, retx2);
+
+		SMC_RET4(handle, LFA_SUCCESS, retx1, retx2, get_fw_activation_flags(fw_seq_id));
+
 		break;
 
 	case LFA_PRIME:
