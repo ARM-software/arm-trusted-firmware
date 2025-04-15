@@ -177,6 +177,11 @@ BL31_SOURCES		+=	services/std_svc/drtm/drtm_main.c		\
 				${MBEDTLS_SOURCES}
 endif
 
+ifeq (${LFA_SUPPORT},1)
+include services/std_svc/lfa/lfa.mk
+BL31_SOURCES		+=	${LFA_SOURCES}
+endif
+
 ifeq ($(CROS_WIDEVINE_SMC),1)
 BL31_SOURCES		+=	services/oem/chromeos/widevine_smc_handlers.c
 endif

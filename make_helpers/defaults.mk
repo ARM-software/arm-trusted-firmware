@@ -435,3 +435,6 @@ RMMD_ENABLE_EL3_TOKEN_SIGN	:= 0
 # This flag is temporary and it is expected once the interface is
 # finalized, this flag will be removed.
 RMMD_ENABLE_IDE_KEY_PROG	:= 0
+
+# Live firmware activation support
+LFA_SUPPORT			:= 0
