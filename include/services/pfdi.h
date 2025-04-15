@@ -333,6 +333,13 @@ pfdi_status_t pfdi_pe_force_error_validate(uint32_t fid, int64_t error_id);
 u_register_t plat_pfdi_mpidr_by_core_pos(unsigned int core_pos);
 
 /**
+ * Run OoR PFDI operations for a specific CPU.
+ *
+ * @return	0 on success or an error code on failure.
+ */
+pfdi_status_t pfdi_pe_oor_test_run(void);
+
+/**
  * Macro to register a callback with pfdi library.
  *
  * This macro defines and registers a PFDI function descriptor.
@@ -400,6 +407,19 @@ struct plat_pfdi_func_desc {
 	void (*post_run)(pfdi_status_t status, uint64_t start, uint64_t end,
 			 uint64_t mode, uint64_t *ft_id);
 };
+
+/* Optional PFDI hook.
+ * Platforms may provide their own implementation of pfdi_enable()
+ * when PFDI_SUPPORT is enabled. If not enabled, a default no-op
+ * implementation is used.
+ */
+#if PFDI_SUPPORT
+void pfdi_enable(void);
+#else
+static inline void pfdi_enable(void)
+{
+}
+#endif /* PFDI_SUPPORT */
 
 /**
  * Register the optional platform PFDI callback descriptor.

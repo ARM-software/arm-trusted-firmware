@@ -7,13 +7,32 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/psci/psci.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/common/platform.h>
 #include <services/pfdi.h>
 #include <services/pfdi_svc.h>
 
 static struct plat_pfdi_func_desc plat_pfdi_func_desc;
 static const struct plat_pfdi_func_desc *plat_pfdi_func_desc_ptr =
 	&plat_pfdi_func_desc;
+
+#ifndef PFDI_CPU_OFF_RETRY
+/* 0 = wait forever; >0 = retry count (retries * PFDI_OFF_RETRY_US µs) */
+#define PFDI_CPU_OFF_RETRY	U(10)
+#endif
+#ifndef PFDI_OFF_RETRY_US
+#define PFDI_OFF_RETRY_US	U(10)
+#endif
+#ifndef PFDI_RESULT_TIMEOUT
+#define PFDI_RESULT_TIMEOUT	U(1000000)
+#endif
+
+static volatile bool pfdi_oor_complete[PLATFORM_CORE_COUNT];
+static bool pfdi_oor_done[PLATFORM_CORE_COUNT];
 
 /**
  * PFDI Force error records
@@ -83,14 +102,126 @@ static force_err_inject_t *pfdi_find_or_alloc_force_slot(uint32_t core, uint32_t
 	return free_slot;
 }
 
+/*
+ * Wait until the CPU is OFF.
+ * Policy: return only on OFF; panic on PSCI error or bounded-timeout.
+ */
+static void wait_cpu_off(u_register_t mpidr, int cpu_num)
+{
+	unsigned int retries = PFDI_CPU_OFF_RETRY;
+	int state = AFF_STATE_ON;
+
+	for (;;) {
+		state = psci_affinity_info(mpidr, MPIDR_AFFLVL0);
+
+		if (state == AFF_STATE_OFF) {
+			return;
+		}
+		if (state < 0) {
+			ERROR("PFDI: CPU %d (mpidr=0x%lx) PSCI error %d)\n",
+					cpu_num, mpidr, state);
+			panic();
+		}
+
+		/* Optional timeout: only counts down if nonzero, Platform can
+		 * set PFDI_CPU_OFF_RETRY == 0 for infinite wait
+		 */
+		if (retries && --retries == 0) {
+			ERROR("PFDI: timeout waiting for Core %d to go OFF (state=%d)\n",
+				cpu_num, state);
+			panic();
+		}
+
+		udelay(PFDI_OFF_RETRY_US);
+	}
+}
+
 void pfdi_init(void)
 {
+	pfdi_status_t pfdi_status;
+	bool secondary_failure = false;
+
 	assert(pfdi_func_desc.name != NULL);
 	assert(pfdi_func_desc.run != NULL);
 	assert(pfdi_func_desc.count != NULL);
 	assert(pfdi_func_desc.result != NULL);
 
 	NOTICE("PFDI: Initializing Platform Fault Detection Interface.\n");
+	NOTICE("PFDI: Running OoR tests on primary core.\n");
+
+	pfdi_status = pfdi_pe_oor_test_run();
+	if (pfdi_status != 0) {
+		ERROR("PFDI: OoR tests on primary core failed.\n");
+		panic();
+	} else {
+		NOTICE("PFDI: OoR tests on primary core succeeded.\n");
+	}
+
+	NOTICE("PFDI: Running OoR tests on secondary cores.\n");
+
+	for (unsigned int cpu_id = 0U; cpu_id < PLATFORM_CORE_COUNT; cpu_id++) {
+		uint64_t ft_id = UINT64_MAX;
+		unsigned int retry = 0U;
+		int psci_ret;
+		u_register_t mpidr;
+
+		if (cpu_id == plat_my_core_pos()) {
+			continue;
+		}
+
+		mpidr = plat_pfdi_mpidr_by_core_pos(cpu_id);
+		if (mpidr == INVALID_MPID) {
+			ERROR("PFDI: Invalid MPIDR for core position %u.\n", cpu_id);
+			secondary_failure = true;
+			continue;
+		}
+
+		/*
+		 * PSCI CPU_ON requires a valid NS entrypoint, even though the
+		 * secondary is expected to run OoR PFDI from EL3 and power
+		 * itself back off from pfdi_enable() before any NS handoff.
+		 */
+		psci_ret = psci_cpu_on_by_core_pos(cpu_id, mpidr,
+						   plat_get_ns_image_entrypoint(),
+						   0U);
+		if (psci_ret != PSCI_E_SUCCESS) {
+			ERROR("PFDI: Failed to turn on core %u.\n", cpu_id);
+			secondary_failure = true;
+			continue;
+		}
+
+		do {
+			retry++;
+			udelay(PFDI_OFF_RETRY_US);
+		} while (!pfdi_oor_complete[cpu_id] &&
+			(retry < PFDI_RESULT_TIMEOUT));
+
+		if (!pfdi_oor_complete[cpu_id]) {
+			ERROR("PFDI: OoR tests on core %u timed out.\n", cpu_id);
+			secondary_failure = true;
+		} else {
+			dmbish();
+			pfdi_status = pfdi_func_desc.result(cpu_id, &ft_id);
+
+			if (pfdi_status == PFDI_RET_NOT_RUN)
+				INFO("PFDI: OoR tests on core %u skipped; no test parts.\n",
+					cpu_id);
+			else if (pfdi_status != 0) {
+				ERROR("PFDI: OoR tests on core %u failed at test %" PRIu64 ".\n",
+					cpu_id, ft_id);
+				secondary_failure = true;
+			} else {
+				INFO("PFDI: OoR tests on core %u succeeded.\n", cpu_id);
+			}
+		}
+		wait_cpu_off(mpidr, cpu_id);
+	}
+
+	if (secondary_failure) {
+		ERROR("PFDI: One or more secondary-core OoR tests failed.\n");
+	} else {
+		NOTICE("PFDI: All OoR tests completed successfully.\n");
+	}
 }
 
 int64_t pfdi_consume_force_error(uint32_t fid)
@@ -122,6 +253,50 @@ int64_t pfdi_consume_force_error(uint32_t fid)
 	}
 
 	return PFDI_SMCC_RESERVED_ERROR_ID;
+}
+
+pfdi_status_t pfdi_pe_oor_test_run(void)
+{
+	pfdi_status_t rc = 0;
+	uint64_t ft_id, tc_size;
+	unsigned int core;
+
+	core = plat_my_core_pos();
+	/* Already executed on this core */
+	if (pfdi_oor_done[core]) {
+		return 0;
+	}
+
+	pfdi_oor_done[core] = true;
+
+	/*
+	 * Check whether OoR PFDI has run before, regardless of whether it
+	 * succeeded or failed the last time.
+	 */
+	rc = pfdi_pe_test_result(&ft_id);
+	if (rc != PFDI_RET_NOT_RUN) {
+		goto exit;
+	}
+	rc = pfdi_pe_test_part_count(&tc_size);
+	if (rc != 0) {
+		goto exit;
+	}
+
+	if (tc_size == 0U) {
+		rc = PFDI_SMCC_RET_SUCCESS;
+		goto exit;
+	}
+
+	rc = pfdi_pe_test_run(0UL, tc_size - 1UL, PFDI_OOR_MODE, &ft_id);
+
+exit:
+	/*
+	 * Publish the stored OoR result before exposing completion to another PE.
+	 */
+	dsbishst();
+	pfdi_oor_complete[core] = true;
+
+	return rc;
 }
 
 pfdi_status_t pfdi_pe_test_part_count(uint64_t *tc_size)
