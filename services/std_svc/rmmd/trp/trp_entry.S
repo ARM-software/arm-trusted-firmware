@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,8 @@
 	 * ---------------------------------------------
 	 */
 	.macro restore_args_call_smc
+	ldp	x10, x11, [x0, #TRP_ARG10]
+	ldp	x8, x9, [x0, #TRP_ARG8]
 	ldp	x6, x7, [x0, #TRP_ARG6]
 	ldp	x4, x5, [x0, #TRP_ARG4]
 	ldp	x2, x3, [x0, #TRP_ARG2]

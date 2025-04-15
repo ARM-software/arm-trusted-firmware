@@ -2460,6 +2460,163 @@ The parameters of the function are:
 The function returns E_RMM_OK on success, RMM_E_INVAL if arguments are invalid and
 E_RMM_UNK if the SMC is not implemented or if interface version is < 0.4.
 
+Function : plat_rmmd_el3_ide_key_program() [mandatory when RMMD_ENABLE_IDE_KEY_PROG == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t, uint64_t, struct rp_ide_key_info_t *, uint64_t, uint64_t
+    Return   : int
+
+This function sets the key/IV info for an IDE stream at the Root port. The key is 256 bits
+and IV is 96 bits. The caller calls this SMC to program this key to the Rx and Tx ports
+and for each substream corresponding to a single keyset. The platform should validate
+the arguments `Ecam address` and `Rootport ID` before acting on it. The arguments `request ID`
+and `cookie` are to be ignored for blocking mode and are pass-through to the response for
+non-blocking mode.
+
+The platform needs to ensure proper exclusives are in place when accessed from multiple CPUs.
+Depending on the expected latency for IDE-KM interface, the platform should choose blocking
+or non-blocking semantics. More details about IDE Setup flow can be found
+in this `RFC <https://github.com/TF-RMM/tf-rmm/wiki/RFC:-EL3-RMM-IDE-KM-Interface>`_.
+
+The parameters of the function are:
+
+    arg0 - The ecam address, to access and configure PCI devices in a system.
+
+    arg1 - The rootport ID used to identify the PCIe rootport of a connected device.
+
+    arg2 - The IDE stream info associated with a physical device, this parameter packs the
+    the keyset, direction, substream and stream ID info.
+
+    arg3 - Structure with key and IV info.
+
+    arg4 - The request ID, is used in non-blocking mode only and can be ignored in blocking mode.
+
+    arg5 - The cookie variable, is used in non-blocking mode only and can be ignored in blocking
+    mode.
+
+The function returns E_RMM_OK on success, E_RMM_INVAL if arguments are invalid, E_RMM_FAULT
+if the key programming is unsuccesful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
+only for non-blocking mode if the IDE-KM interface is busy or the request queue is full.
+E_RMM_INPROGRESS returned if the request is queued successfully and used only in non-blocking
+mode.
+
+Function : plat_rmmd_el3_ide_key_set_go() [mandatory when RMMD_ENABLE_IDE_KEY_PROG == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t, uint64_t, uint64_t, uint64_t
+    Return   : int
+
+This function activates the IDE stream at the Root Port once all the keys have been
+programmed. The platform should validate the arguments `Ecam address` and `Rootport ID`
+before acting on it. The arguments `request ID` and `cookie` are to be ignored for blocking
+mode and are pass-through to the response for non-blocking mode.
+
+The platform needs to ensure proper exclusives are in place when accessed from multiple CPUs.
+Depending on the expected latency for IDE-KM interface, the platform should choose blocking
+or non-blocking semantics. More details about IDE Setup flow can be found
+in this `RFC <https://github.com/TF-RMM/tf-rmm/wiki/RFC:-EL3-RMM-IDE-KM-Interface>`_.
+
+The parameters of the function are:
+
+    arg0 - The ecam address, to access and configure PCI devices in a system.
+
+    arg1 - The rootport ID used to identify the PCIe rootport of a connected device.
+
+    arg2 - The IDE stream info associated with a physical device, this parameter packs the
+    the keyset, direction, substream and stream ID info.
+
+    arg3 - The request ID, is used in non-blocking mode only and can be ignored in blocking mode.
+
+    arg4 - The cookie variable, is used in non-blocking mode only and can be ignored in blocking
+    mode.
+
+The function returns E_RMM_OK on success, E_RMM_INVAL if arguments are invalid, E_RMM_FAULT
+if the key programming is unsuccesful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
+only for non-blocking mode if the IDE-KM interface is busy or the request queue is full.
+E_RMM_INPROGRESS returned if the request is queued successfully and used only in non-blocking
+mode.
+
+Function : plat_rmmd_el3_ide_key_set_stop() [mandatory when RMMD_ENABLE_IDE_KEY_PROG == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t, uint64_t, uint64_t, uint64_t
+    Return   : int
+
+This function stops the IDE stream and is used to tear down the IDE stream at Root Port.
+The platform should validate the arguments `Ecam address` and `Rootport ID` before acting
+on it. The arguments `request ID` and `cookie` are to be ignored for blocking
+mode and are pass-through to the response for non-blocking mode.
+
+The platform needs to ensure proper exclusives are in place when accessed from multiple CPUs.
+Depending on the expected latency for IDE-KM interface, the platform should choose blocking
+or non-blocking semantics. More details about IDE Setup flow can be found
+in this `RFC <https://github.com/TF-RMM/tf-rmm/wiki/RFC:-EL3-RMM-IDE-KM-Interface>`_.
+
+The parameters of the function are:
+
+    arg0 - The ecam address, to access and configure PCI devices in a system.
+
+    arg1 - The rootport ID used to identify the PCIe rootport of a connected device.
+
+    arg2 - The IDE stream info associated with a physical device, this parameter packs the
+    the keyset, direction, substream and stream ID info.
+
+    arg3 - The request ID, is used in non-blocking mode only and can be ignored in blocking mode.
+
+    arg4 - The cookie variable, is used in non-blocking mode only and can be ignored in blocking
+    mode.
+
+The function returns E_RMM_OK on success, E_RMM_INVAL if arguments are invalid, E_RMM_FAULT
+if the key programming is unsuccesful, E_RMM_UNK for an unknown error, E_RMM_AGAIN returned
+only for non-blocking mode if the IDE-KM interface is busy or the request queue is full.
+E_RMM_INPROGRESS returned if the request is queued successfully and used only in non-blocking
+mode.
+
+Function : plat_rmmd_el3_ide_km_pull_response() [mandatory when RMMD_ENABLE_IDE_KEY_PROG == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint64_t, uint64_t, uint64_t *, uint64_t *, uint64_t *
+    Return   : int
+
+This function retrieves a reponse for any of the prior non-blocking IDE-KM requests. The
+caller has to identify the request and populate the accurate response. For blocking calls,
+this function always returns E_RMM_UNK.
+
+The platform needs to ensure proper exclusives are in place when accessed from multiple CPUs.
+Depending on the expected latency for IDE-KM interface, the platform should choose blocking
+or non-blocking semantics. More details about IDE Setup flow can be found
+in this `RFC <https://github.com/TF-RMM/tf-rmm/wiki/RFC:-EL3-RMM-IDE-KM-Interface>`_.
+
+The parameters of the function are:
+
+    arg0 - The ecam address, to access and configure PCI devices in a system.
+
+    arg1 - The rootport ID used to identify the PCIe rootport of a connected device.
+
+    arg2 - Retrieved response corresponding to the previous IDE_KM request.
+
+    arg3 - returns the passthrough request ID of the retrieved response.
+
+    arg4 - returns the passthrough cookie of the retrieved response.
+
+The function returns E_RMM_OK if response is retrieved successfully, E_RMM_INVAL if arguments
+to this function are invalid, E_RMM_UNK if response retrieval failed for an unknown error or
+IDE-KM interface is having blocking semantics, E_RMM_AGAIN if the response queue is empty.
+
+The `arg2` return parameter can return the following values:
+E_RMM_OK - The previous request was successful.
+E_RMM_FAULT - The previous request was not successful.
+E_RMM_INVAL - Arguments to previous request were incorrect.
+E_RMM_UNK - Previous request returned Unknown error.
+
 Function : bl31_plat_enable_mmu [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

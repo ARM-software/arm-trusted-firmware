@@ -95,6 +95,7 @@ ENABLE_FEAT_LS64_ACCDATA	:= 2
 
 ifeq (${ENABLE_RME},1)
     ENABLE_FEAT_MEC		:= 2
+    RMMD_ENABLE_IDE_KEY_PROG	:= 1
 endif
 
 # The FVP platform depends on this macro to build with correct GIC driver.
@@ -302,7 +303,8 @@ BL2_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 
 BL31_SOURCES		+=	plat/arm/board/fvp/fvp_plat_attest_token.c	\
 				plat/arm/board/fvp/fvp_realm_attest_key.c	\
-				plat/arm/board/fvp/fvp_el3_token_sign.c
+				plat/arm/board/fvp/fvp_el3_token_sign.c		\
+				plat/arm/board/fvp/fvp_ide_keymgmt.c
 endif
 
 ifeq (${ENABLE_FEAT_RNG_TRAP},1)
