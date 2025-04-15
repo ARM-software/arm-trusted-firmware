@@ -21,6 +21,20 @@ void lfa_reset_activation(void)
 	current_activation.prime_status = PRIME_NONE;
 }
 
+static int convert_to_lfa_error(int ret)
+{
+	switch (ret) {
+	case 0:
+		return LFA_SUCCESS;
+	case -EAUTH:
+		return LFA_AUTH_ERROR;
+	case -ENOMEM:
+		return LFA_NO_MEMORY;
+	default:
+		return LFA_DEVICE_ERROR;
+	}
+}
+
 static bool lfa_initialize_components(void)
 {
 	lfa_component_count = plat_lfa_get_components(&lfa_components);
@@ -80,6 +94,66 @@ static int lfa_cancel(uint32_t component_id)
 	return ret;
 }
 
+static int lfa_prime(uint32_t component_id, uint64_t *flags)
+{
+	int ret = LFA_SUCCESS;
+	struct lfa_component_ops *activator;
+
+	if (lfa_component_count == 0U ||
+	    !lfa_components[component_id].activation_pending) {
+		return LFA_WRONG_STATE;
+	}
+
+	/* Check if fw_seq_id is in range. */
+	if (component_id >= lfa_component_count) {
+		return LFA_INVALID_PARAMETERS;
+	}
+
+	if (lfa_components[component_id].activator == NULL) {
+		return LFA_NOT_SUPPORTED;
+	}
+
+	switch (current_activation.prime_status) {
+	case PRIME_NONE:
+		current_activation.component_id = component_id;
+		current_activation.prime_status = PRIME_STARTED;
+		break;
+
+	case PRIME_STARTED:
+		if (current_activation.component_id != component_id) {
+			/* Mismatched component trying to continue PRIME - error */
+			return LFA_WRONG_STATE;
+		}
+		break;
+
+	case PRIME_COMPLETE:
+	default:
+		break;
+	}
+
+	ret = plat_lfa_load_auth_image(component_id);
+	ret = convert_to_lfa_error(ret);
+
+	activator = lfa_components[component_id].activator;
+	if (activator->prime != NULL) {
+		ret = activator->prime(&current_activation);
+		if (ret != LFA_SUCCESS) {
+			/*
+			 * TODO: it should be LFA_PRIME_FAILED but specification
+			 * has not define this error yet
+			 */
+			return ret;
+		}
+	}
+
+	current_activation.prime_status = PRIME_COMPLETE;
+
+	/* TODO: split this into multiple PRIME calls */
+	*flags = 0ULL;
+
+	return ret;
+}
+
 int lfa_setup(void)
 {
 	is_lfa_initialized = lfa_initialize_components();
@@ -97,6 +171,7 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 			 void *handle, u_register_t flags)
 {
 	uint64_t retx1, retx2;
+	uint64_t lfa_flags;
 	uint8_t *uuid_p;
 	uint32_t fw_seq_id = (uint32_t)x1;
 	int ret;
@@ -174,6 +249,12 @@ uint64_t lfa_smc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
 		break;
 
 	case LFA_PRIME:
+		ret = lfa_prime(x1, &lfa_flags);
+		if (ret != LFA_SUCCESS) {
+			SMC_RET1(handle, ret);
+		} else {
+			SMC_RET2(handle, ret, lfa_flags);
+		}
 		break;
 
 	case LFA_ACTIVATE:

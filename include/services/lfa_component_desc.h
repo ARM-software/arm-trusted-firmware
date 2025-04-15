@@ -12,6 +12,8 @@
 
 typedef enum {
 	PRIME_NONE = 0,
+	PRIME_STARTED,
+	PRIME_COMPLETE,
 } lfa_prime_status_t;
 
 struct lfa_component_status {
