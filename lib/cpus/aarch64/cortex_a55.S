@@ -22,24 +22,6 @@
 
 cpu_reset_prologue cortex_a55
 
-workaround_reset_start cortex_a55, ERRATUM(798953), ERRATA_DSU_798953
-	errata_dsu_798953_wa_impl
-workaround_reset_end cortex_a55, ERRATUM(798953)
-
-check_erratum_custom_start cortex_a55, ERRATUM(798953)
-	check_errata_dsu_798953_impl
-	ret
-check_erratum_custom_end cortex_a55, ERRATUM(798953)
-
-workaround_reset_start cortex_a55, ERRATUM(936184), ERRATA_DSU_936184
-	errata_dsu_936184_wa_impl
-workaround_reset_end cortex_a55, ERRATUM(936184)
-
-check_erratum_custom_start cortex_a55, ERRATUM(936184)
-	check_errata_dsu_936184_impl
-	ret
-check_erratum_custom_end cortex_a55, ERRATUM(936184)
-
 workaround_reset_start cortex_a55, ERRATUM(768277), ERRATA_A55_768277
 	sysreg_bit_set CORTEX_A55_CPUACTLR_EL1, CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
 workaround_reset_end cortex_a55, ERRATUM(768277)
@@ -71,6 +53,15 @@ workaround_reset_end cortex_a55, ERRATUM(798797)
 
 check_erratum_ls cortex_a55, ERRATUM(798797), CPU_REV(0, 0)
 
+workaround_reset_start cortex_a55, ERRATUM(798953), ERRATA_DSU_798953
+	errata_dsu_798953_wa_impl
+workaround_reset_end cortex_a55, ERRATUM(798953)
+
+check_erratum_custom_start cortex_a55, ERRATUM(798953)
+	check_errata_dsu_798953_impl
+	ret
+check_erratum_custom_end cortex_a55, ERRATUM(798953)
+
 workaround_reset_start cortex_a55, ERRATUM(846532), ERRATA_A55_846532
 	sysreg_bit_set CORTEX_A55_CPUACTLR_EL1, CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
 workaround_reset_end cortex_a55, ERRATUM(846532)
@@ -82,6 +73,15 @@ workaround_reset_start cortex_a55, ERRATUM(903758), ERRATA_A55_903758
 workaround_reset_end cortex_a55, ERRATUM(903758)
 
 check_erratum_ls cortex_a55, ERRATUM(903758), CPU_REV(0, 1)
+
+workaround_reset_start cortex_a55, ERRATUM(936184), ERRATA_DSU_936184
+	errata_dsu_936184_wa_impl
+workaround_reset_end cortex_a55, ERRATUM(936184)
+
+check_erratum_custom_start cortex_a55, ERRATUM(936184)
+	check_errata_dsu_936184_impl
+	ret
+check_erratum_custom_end cortex_a55, ERRATUM(936184)
 
 workaround_reset_start cortex_a55, ERRATUM(1221012), ERRATA_A55_1221012
 	mov	x0, #0x0020
