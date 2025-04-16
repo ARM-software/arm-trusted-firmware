@@ -105,8 +105,8 @@ static uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 	case ZYNQMP_SIP_SVC_VERSION:
 		SMC_RET2(handle, SIP_SVC_VERSION_MAJOR, SIP_SVC_VERSION_MINOR);
 
-	case ZYNQMP_SIP_SVC_CUSTOM:
-	case ZYNQMP_SIP_SVC64_CUSTOM:
+	case SOC_SIP_SVC_CUSTOM:
+	case SOC_SIP_SVC64_CUSTOM:
 		return custom_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
 					  handle, flags);
 
