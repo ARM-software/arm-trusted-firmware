@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,14 +50,6 @@ void bl2_el3_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 
 	/* Perform late platform-specific setup */
 	bl2_el3_plat_arch_setup();
-
-#if CTX_INCLUDE_PAUTH_REGS
-	/*
-	 * Assert that the ARMv8.3-PAuth registers are present or an access
-	 * fault will be triggered when they are being saved or restored.
-	 */
-	assert(is_armv8_3_pauth_present());
-#endif /* CTX_INCLUDE_PAUTH_REGS */
 }
 #else /* RESET_TO_BL2 */
 
@@ -75,14 +67,6 @@ void bl2_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 
 	/* Perform late platform-specific setup */
 	bl2_plat_arch_setup();
-
-#if CTX_INCLUDE_PAUTH_REGS
-	/*
-	 * Assert that the ARMv8.3-PAuth registers are present or an access
-	 * fault will be triggered when they are being saved or restored.
-	 */
-	assert(is_armv8_3_pauth_present());
-#endif /* CTX_INCLUDE_PAUTH_REGS */
 }
 #endif /* RESET_TO_BL2 */
 
@@ -136,12 +120,12 @@ void bl2_main(void)
 	disable_mmu_icache_secure();
 #endif /* !__aarch64__ */
 
-#if ENABLE_PAUTH
 	/*
 	 * Disable pointer authentication before running next boot image
 	 */
-	pauth_disable_el1();
-#endif /* ENABLE_PAUTH */
+	if (is_feat_pauth_supported()) {
+		pauth_disable_el1();
+	}
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(bl_svc, BL2_EXIT, PMF_CACHE_MAINT);
@@ -164,12 +148,12 @@ void bl2_main(void)
 #endif
 	console_flush();
 
-#if ENABLE_PAUTH
 	/*
 	 * Disable pointer authentication before running next boot image
 	 */
-	pauth_disable_el3();
-#endif /* ENABLE_PAUTH */
+	if (is_feat_pauth_supported()) {
+		pauth_disable_el3();
+	}
 
 	bl2_run_next_image(next_bl_ep_info);
 #endif /* BL2_RUNS_AT_EL3 */

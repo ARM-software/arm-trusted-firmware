@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <string.h>
 
+#include <arch_features.h>
 #include <common/debug.h>
 #include <context.h>
 #include <lib/el3_runtime/context_mgmt.h>
@@ -65,11 +66,11 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 #else
 	size_t el1_total = 0U;
 #endif /* CTX_INCLUDE_EL2_REGS */
-
-#if CTX_INCLUDE_PAUTH_REGS
 	size_t pauth_total = 0U;
-	PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
-#endif
+
+	if (is_ctx_pauth_supported()) {
+		PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
+	}
 
 	PRINT_MEM_USAGE_SEPARATOR();
 
@@ -80,9 +81,9 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 	printf("|    EL1    ");
 #endif /* CTX_INCLUDE_EL2_REGS */
 
-#if CTX_INCLUDE_PAUTH_REGS
-	printf("|   PAUTH   ");
-#endif
+	if (is_ctx_pauth_supported()) {
+		printf("|   PAUTH   ");
+	}
 
 	printf("|   Other   |   Total   |\n");
 
@@ -96,11 +97,11 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 #else
 		size_t el1_size = 0U;
 #endif /* CTX_INCLUDE_EL2_REGS */
-
-#if CTX_INCLUDE_PAUTH_REGS
 		size_t pauth_size = 0U;
-		PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
-#endif
+
+		if (is_ctx_pauth_supported()) {
+			PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
+		}
 
 		PRINT_MEM_USAGE_SEPARATOR();
 
@@ -124,12 +125,12 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 		printf("| %8luB ", el1_size);
 #endif /* CTX_INCLUDE_EL2_REGS */
 
-#if CTX_INCLUDE_PAUTH_REGS
-		pauth_size = sizeof(ctx->pauth_ctx);
-		size_other -= pauth_size;
-		pauth_total += pauth_size;
-		printf("| %8luB ", pauth_size);
-#endif
+		if (is_ctx_pauth_supported()) {
+			pauth_size = sizeof(ctx->pauth_ctx);
+			size_other -= pauth_size;
+			pauth_total += pauth_size;
+			printf("| %8luB ", pauth_size);
+		}
 		printf("| %8luB | %8luB |\n", size_other, core_total);
 
 		gp_total += gp_size;
@@ -138,15 +139,15 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 		total += core_total;
 	}
 
-#if CTX_INCLUDE_PAUTH_REGS
-	PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
-#endif
+	if (is_ctx_pauth_supported()) {
+		PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
+	}
 
 	PRINT_MEM_USAGE_SEPARATOR();
 
-#if CTX_INCLUDE_PAUTH_REGS
-	PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
-#endif
+	if (is_ctx_pauth_supported()) {
+		PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
+	}
 
 	PRINT_MEM_USAGE_SEPARATOR();
 
@@ -158,15 +159,15 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 	printf("| %8luB ", el1_total);
 #endif /* CTX_INCLUDE_EL2_REGS */
 
-#if CTX_INCLUDE_PAUTH_REGS
-	printf("| %8luB ", pauth_total);
-#endif
+	if (is_ctx_pauth_supported()) {
+		printf("| %8luB ", pauth_total);
+	}
 
 	printf("| %8luB | %8luB |\n", other_total, total);
 
-#if CTX_INCLUDE_PAUTH_REGS
-	PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
-#endif
+	if (is_ctx_pauth_supported()) {
+		PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
+	}
 	PRINT_MEM_USAGE_SEPARATOR();
 	printf("\n");
 

@@ -30,6 +30,7 @@
 #include <lib/extensions/fgt2.h>
 #include <lib/extensions/fpmr.h>
 #include <lib/extensions/mpam.h>
+#include <lib/extensions/pauth.h>
 #include <lib/extensions/pmuv3.h>
 #include <lib/extensions/sme.h>
 #include <lib/extensions/spe.h>
@@ -227,16 +228,14 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 		scr_el3 |= SCR_ATA_BIT;
 	}
 
-#if !CTX_INCLUDE_PAUTH_REGS
 	/*
-	 * Pointer Authentication feature, if present, is always enabled by default
-	 * for Non secure lower exception levels. We do not have an explicit
-	 * flag to set it.
+	 * Pointer Authentication feature, if present, is always enabled by
+	 * default for Non secure lower exception levels. We do not have an
+	 * explicit flag to set it. To prevent the leakage between the worlds
+	 * during world switch, we enable it only for the non-secure world.
+	 *
 	 * CTX_INCLUDE_PAUTH_REGS flag, is explicitly used to enable for lower
 	 * exception levels of secure and realm worlds.
-	 *
-	 * To prevent the leakage between the worlds during world switch,
-	 * we enable it only for the non-secure world.
 	 *
 	 * If the Secure/realm world wants to use pointer authentication,
 	 * CTX_INCLUDE_PAUTH_REGS must be explicitly set to 1, in which case
@@ -248,10 +247,9 @@ static void setup_ns_context(cpu_context_t *ctx, const struct entry_point_info *
 	 * SCR_EL3.APK: Set to one to not trap any PAuth key values at ELs other
 	 *  than EL3
 	 */
-	if (is_armv8_3_pauth_present()) {
+	if (!is_ctx_pauth_supported()) {
 		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
 	}
-#endif /* CTX_INCLUDE_PAUTH_REGS */
 
 #if HANDLE_EA_EL3_FIRST_NS
 	/* SCR_EL3.EA: Route External Abort and SError Interrupt to EL3. */
@@ -468,7 +466,6 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	scr_el3 |= SCR_FIEN_BIT;
 #endif
 
-#if CTX_INCLUDE_PAUTH_REGS
 	/*
 	 * Enable Pointer Authentication globally for all the worlds.
 	 *
@@ -478,10 +475,9 @@ static void setup_context_common(cpu_context_t *ctx, const entry_point_info_t *e
 	 * SCR_EL3.APK: Set to one to not trap any PAuth key values at ELs other
 	 *  than EL3
 	 */
-	if (is_armv8_3_pauth_present()) {
+	if (is_ctx_pauth_supported()) {
 		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
 	}
-#endif /* CTX_INCLUDE_PAUTH_REGS */
 
 	/*
 	 * SCR_EL3.PIEN: Enable permission indirection and overlay
@@ -848,20 +844,6 @@ static void manage_extensions_nonsecure(cpu_context_t *ctx)
 #endif /* IMAGE_BL31 */
 }
 
-/* TODO: move to lib/extensions/pauth when it has been ported to FEAT_STATE */
-static __unused void enable_pauth_el2(void)
-{
-	u_register_t hcr_el2 = read_hcr_el2();
-	/*
-	 * For Armv8.3 pointer authentication feature, disable traps to EL2 when
-	 *  accessing key registers or using pointer authentication instructions
-	 *  from lower ELs.
-	 */
-	hcr_el2 |= (HCR_API_BIT | HCR_APK_BIT);
-
-	write_hcr_el2(hcr_el2);
-}
-
 #if INIT_UNUSED_NS_EL2
 /*******************************************************************************
  * Enable architecture extensions in-place at EL2 on first entry to Non-secure
@@ -908,9 +890,9 @@ static void manage_extensions_nonsecure_el2_unused(void)
 		write_hcrx_el2(read_hcrx_el2() | HCRX_EL2_MSCEn_BIT);
 	}
 
-#if ENABLE_PAUTH
-	enable_pauth_el2();
-#endif /* ENABLE_PAUTH */
+	if (is_feat_pauth_supported()) {
+		pauth_enable_el2();
+	}
 #endif /* IMAGE_BL31 */
 }
 #endif /* INIT_UNUSED_NS_EL2 */

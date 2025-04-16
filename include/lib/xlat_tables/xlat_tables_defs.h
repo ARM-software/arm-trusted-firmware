@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,10 +62,8 @@
 #define OSH			(U(0x2) << 6)
 #define ISH			(U(0x3) << 6)
 
-#ifdef __aarch64__
 /* Guarded Page bit */
 #define GP			(ULL(1) << 50)
-#endif
 
 #define TABLE_ADDR_MASK		ULL(0x0000FFFFFFFFF000)
 

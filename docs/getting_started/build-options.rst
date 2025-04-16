@@ -113,12 +113,16 @@ Common build options
 -  ``BRANCH_PROTECTION``: Numeric value to enable ARMv8.3 Pointer Authentication
    and ARMv8.5 Branch Target Identification support for TF-A BL images themselves.
    If enabled, it is needed to use a compiler that supports the option
-   ``-mbranch-protection``. Selects the branch protection features to use:
--  0: Default value turns off all types of branch protection
+   ``-mbranch-protection``. The value of the ``-march`` (via ``ARM_ARCH_MINOR``
+   and ``ARM_ARCH_MAJOR``) option will control which instructions will be
+   emitted (HINT space or not). Selects the branch protection features to use:
+-  0: Default value turns off all types of branch protection (FEAT_STATE_DISABLED)
 -  1: Enables all types of branch protection features
 -  2: Return address signing to its standard level
 -  3: Extend the signing to include leaf functions
 -  4: Turn on branch target identification mechanism
+-  5: Enables all types of branch protection features, only if present in
+   hardware (FEAT_STATE_CHECK).
 
    The table below summarizes ``BRANCH_PROTECTION`` values, GCC compilation options
    and resulting PAuth/BTI features.
@@ -135,6 +139,8 @@ Common build options
    |   3   | pac-ret+leaf |   Y   |  N  |
    +-------+--------------+-------+-----+
    |   4   |     bti      |   N   |  Y  |
+   +-------+--------------+-------+-----+
+   |   5   |   dynamic    |   Y   |  Y  |
    +-------+--------------+-------+-----+
 
    This option defaults to 0.
@@ -198,11 +204,13 @@ Common build options
 -  ``CTX_INCLUDE_PAUTH_REGS``: Numeric value to enable the Pointer
    Authentication for Secure world. This will cause the ARMv8.3-PAuth registers
    to be included when saving and restoring the CPU context as part of world
-   switch. This flag can take values 0 to 2, to align with ``ENABLE_FEAT``
-   mechanism. Default value is 0.
+   switch. Automatically enabled when ``BRANCH_PROTECTION`` is enabled. This flag
+   can take values 0 to 2, to align with ``ENABLE_FEAT`` mechanism. Default value
+   is 0.
 
    Note that Pointer Authentication is enabled for Non-secure world irrespective
-   of the value of this flag if the CPU supports it.
+   of the value of this flag if the CPU supports it. Alternatively, when
+   ``BRANCH_PROTECTION`` is enabled, this flag is superseded.
 
 -  ``CTX_INCLUDE_SVE_REGS``: Boolean option that, when set to 1, will cause the
    SVE registers to be included when saving and restoring the CPU context. Note

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,14 +52,6 @@ void bl1_setup(void)
 
 	/* Perform late platform-specific setup */
 	bl1_plat_arch_setup();
-
-#if CTX_INCLUDE_PAUTH_REGS
-	/*
-	 * Assert that the ARMv8.3-PAuth registers are present or an access
-	 * fault will be triggered when they are being saved or restored.
-	 */
-	assert(is_armv8_3_pauth_present());
-#endif /* CTX_INCLUDE_PAUTH_REGS */
 }
 
 /*******************************************************************************
@@ -126,12 +118,6 @@ void bl1_main(void)
 
 	/* Perform platform setup in BL1. */
 	bl1_platform_setup();
-
-#if ENABLE_PAUTH
-	/* Store APIAKey_EL1 key */
-	bl1_apiakey[0] = read_apiakeylo_el1();
-	bl1_apiakey[1] = read_apiakeyhi_el1();
-#endif /* ENABLE_PAUTH */
 
 	/* Get the image id of next image to load and run. */
 	image_id = bl1_plat_get_next_image_id();

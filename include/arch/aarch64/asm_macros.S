@@ -329,7 +329,7 @@
 	.endm
 
 	/*
-	* is_feat_sysreg128_present_asm - Set flags and reg if FEAT_SYSREG128
+	* is_feat_XYZ_present_asm - Set flags and reg if FEAT_XYZ
 	* is enabled at runtime.
 	*
 	* Arguments:
@@ -340,6 +340,15 @@
 	.macro is_feat_sysreg128_present_asm reg:req
 	mrs	\reg, ID_AA64ISAR2_EL1
 	ands	\reg, \reg, #(ID_AA64ISAR2_SYSREG128_MASK << ID_AA64ISAR2_SYSREG128_SHIFT)
+	.endm
+
+	.macro is_feat_pauth_present_asm reg:req, clobber:req
+	mrs	\reg, ID_AA64ISAR1_EL1
+	mov_imm	\clobber, ((ID_AA64ISAR1_GPI_MASK << ID_AA64ISAR1_GPI_SHIFT) \
+			 | (ID_AA64ISAR1_GPA_MASK << ID_AA64ISAR1_GPA_SHIFT) \
+			 | (ID_AA64ISAR1_API_MASK << ID_AA64ISAR1_API_SHIFT) \
+			 | (ID_AA64ISAR1_APA_MASK << ID_AA64ISAR1_APA_SHIFT))
+	tst	\reg, \clobber
 	.endm
 
 .macro call_reset_handler

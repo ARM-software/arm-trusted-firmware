@@ -397,8 +397,26 @@ do_crash_reporting:
 	ldr	x4, [x0, #REGSZ * 7]
 
 #if ENABLE_PAUTH
+#if ENABLE_PAUTH == 2
+	/* Skip if not present in hardware */
+	is_feat_pauth_present_asm x0, x1
+	beq	1f
+#endif
+	/*
+	 * The assembler must see support for xpaci. So turn the compiler
+	 * extension on. GCC prior to 10 doesn't understand the PAuth extension
+	 * but it does understand armv8.3-a in general. Avoid using 8.3 if
+	 * the compiler understands "pauth" so we don't downgrade a higher
+	 * -march that was specified on the commandline.
+	 */
+#if __GNUC__ < 10
+	.arch armv8.3-a
+#else
+	.arch_extension pauth
+#endif
 	/* Demangle address */
 	xpaci	x4
+1:
 #endif
 	bl	asm_print_hex
 	bl	asm_print_newline

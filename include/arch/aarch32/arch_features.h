@@ -204,5 +204,9 @@ __attribute__((always_inline))
 static inline bool is_feat_ls64_accdata_present(void) { return false; }
 __attribute__((always_inline))
 static inline bool is_feat_mops_supported(void) { return false; }
+__attribute__((always_inline))
+static inline bool is_feat_bti_supported(void) { return false; }
+__attribute__((always_inline))
+static inline bool is_feat_pauth_supported(void) { return false; }
 
 #endif /* ARCH_FEATURES_H */

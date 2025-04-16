@@ -210,17 +210,14 @@ uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 				desc |= LOWER_ATTRS(ISH);
 			}
 
-			/* Check if Branch Target Identification is enabled */
-#if ENABLE_BTI
 			/* Set GP bit for block and page code entries
 			 * if BTI mechanism is implemented.
 			 */
-			if (is_feat_bti_present() &&
+			if (is_feat_bti_supported() &&
 			   ((attr & (MT_TYPE_MASK | MT_RW |
 				MT_EXECUTE_NEVER)) == MT_CODE)) {
 				desc |= GP;
 			}
-#endif
 		} else {
 			assert(mem_type == MT_NON_CACHEABLE);
 			desc |= LOWER_ATTRS(ATTR_NON_CACHEABLE_INDEX | OSH);

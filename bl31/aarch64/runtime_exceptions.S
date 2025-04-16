@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -340,11 +340,6 @@ sync_handler64:
 	 */
 	bl	prepare_el3_entry
 
-#if ENABLE_PAUTH
-	/* Load and program APIAKey firmware key */
-	bl	pauth_load_bl31_apiakey
-#endif
-
 	/*
 	 * Populate the parameters for the SMC handler.
 	 * We already have x0-x4 in place. x5 will point to a cookie (not used
@@ -535,11 +530,6 @@ func handle_interrupt_exception
 	 * Also save PMCR_EL0 and  set the PSTATE to a known state.
 	 */
 	bl	prepare_el3_entry
-
-#if ENABLE_PAUTH
-	/* Load and program APIAKey firmware key */
-	bl	pauth_load_bl31_apiakey
-#endif
 
 	/* Save the EL3 system registers needed to return from this exception */
 	mrs	x0, spsr_el3

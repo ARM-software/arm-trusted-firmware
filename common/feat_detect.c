@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,7 +66,7 @@ check_feature(int state, unsigned long field, const char *feat_name,
 static void read_feat_pauth(void)
 {
 #if (ENABLE_PAUTH == FEAT_STATE_ALWAYS) || (CTX_INCLUDE_PAUTH_REGS == FEAT_STATE_ALWAYS)
-	feat_detect_panic(is_armv8_3_pauth_present(), "PAUTH");
+	feat_detect_panic(is_feat_pauth_present(), "PAUTH");
 #endif
 }
 
