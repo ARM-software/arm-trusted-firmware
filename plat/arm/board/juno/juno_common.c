@@ -52,7 +52,11 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_OPTEE_CORE_MEM,
 	ARM_OPTEE_PAGEABLE_LOAD_MEM,
 #endif
-#if TRUSTED_BOARD_BOOT && !RESET_TO_BL2
+#if CRYPTO_SUPPORT && !RESET_TO_BL2
+	/*
+	 * To access shared the Mbed TLS heap while booting the
+	 * system with Crypto support
+	 */
 	ARM_MAP_BL1_RW,
 #endif
 #ifdef JUNO_ETHOSN_TZMP1

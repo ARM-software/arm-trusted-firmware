@@ -144,8 +144,8 @@
 
 #ifdef IMAGE_BL31
 # if SPMC_AT_EL3
-#   define PLAT_ARM_MMAP_ENTRIES		10
-#   define MAX_XLAT_TABLES		8
+#   define PLAT_ARM_MMAP_ENTRIES		11
+#   define MAX_XLAT_TABLES		9
 #   define PLAT_SP_IMAGE_MMAP_REGIONS 30
 #   define PLAT_SP_IMAGE_MAX_XLAT_TABLES 13
 # else
@@ -207,7 +207,7 @@
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
  * plus a little space for growth.
  */
-#if TRUSTED_BOARD_BOOT
+#if TRUSTED_BOARD_BOOT || MEASURED_BOOT
 # define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0xB000)
 #else
 # define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0x6000)

@@ -124,6 +124,16 @@ ifeq (${TRUSTED_BOARD_BOOT}, 1)
    endif
 endif
 
+ifeq (${MEASURED_BOOT},1)
+PLAT_INCLUDES		+=	-Iinclude/lib/psa
+
+BL1_SOURCES		+=	plat/arm/board/juno/juno_common_measured_boot.c	\
+				plat/arm/board/juno/juno_bl1_measured_boot.c
+
+BL2_SOURCES		+=	plat/arm/board/juno/juno_common_measured_boot.c	\
+				plat/arm/board/juno/juno_bl2_measured_boot.c
+endif
+
 endif
 
 ifneq (${RESET_TO_BL31},0)
