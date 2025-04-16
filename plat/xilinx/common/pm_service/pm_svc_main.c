@@ -29,7 +29,6 @@
 
 #define MODE				0x80000000U
 
-#define XSCUGIC_SGIR_EL1_INITID_SHIFT    24U
 #define INVALID_SGI    0xFFU
 #define PM_INIT_SUSPEND_CB	(30U)
 #define PM_NOTIFY_CB		(32U)

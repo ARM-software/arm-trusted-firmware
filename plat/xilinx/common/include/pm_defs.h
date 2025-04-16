@@ -22,7 +22,6 @@
 #define PM_STATE_SUSPEND_TO_RAM	0xFU
 
 #define MAX_LATENCY		(~0U)
-#define MAX_QOS			100U
 
 /* Processor core device IDs */
 #define APU_DEVID(IDX)	NODEID(XPM_NODECLASS_DEVICE, XPM_NODESUBCL_DEV_CORE, \
