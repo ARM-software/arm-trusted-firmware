@@ -148,7 +148,7 @@ ifneq ($(filter %-clang,$($(ARCH)-cc-id)),)
 		TF_CFLAGS_aarch64	:=	-target aarch64-arm-none-eabi
 	else
 		TF_CFLAGS_aarch32	=	$(target32-directive)
-		TF_CFLAGS_aarch64	:=	-target aarch64-elf
+		TF_CFLAGS_aarch64	:=	-target aarch64-unknown-none-elf
 	endif
 
 else ifeq ($($(ARCH)-cc-id),gnu-gcc)
