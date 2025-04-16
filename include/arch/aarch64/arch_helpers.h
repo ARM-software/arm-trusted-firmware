@@ -240,12 +240,11 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e3r)
  ******************************************************************************/
 static inline u_register_t xpaci(u_register_t arg)
 {
-	register u_register_t x0 asm("x0") = arg;
+	__asm__ (".arch armv8.3-a\n"
+		 "xpaci %0\n"
+		 : "+r" (arg));
 
-	/* `xpaci x0` for compatibility with older compiler and/or older -march */
-	__asm__ (".arch armv8.3-a; xpaci %0\n" : "+r" (x0));
-
-	return x0;
+	return arg;
 }
 
 void flush_dcache_range(uintptr_t addr, size_t size);
