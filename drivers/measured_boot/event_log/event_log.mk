@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+EVENT_LOG_SRC_DIR	:= drivers/measured_boot/event_log/
+
 # Default log level to dump the event log (LOG_LEVEL_INFO)
 EVENT_LOG_LEVEL         ?= 40
 
@@ -40,7 +42,8 @@ $(eval $(call add_defines,\
         EVENT_LOG_LEVEL \
 )))
 
-EVENT_LOG_SRC_DIR	:= drivers/measured_boot/event_log/
+INCLUDES		+= -Iinclude/drivers/measured_boot/event_log \
+				-Iinclude/drivers/auth
 
 EVENT_LOG_SOURCES	:= ${EVENT_LOG_SRC_DIR}event_log.c		\
 			   ${EVENT_LOG_SRC_DIR}event_print.c

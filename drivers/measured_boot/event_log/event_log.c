@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,12 +7,9 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <arch_helpers.h>
 
-#include <common/bl_common.h>
-#include <common/debug.h>
-#include <drivers/auth/crypto_mod.h>
-#include <drivers/measured_boot/event_log/event_log.h>
+#include "crypto_mod.h"
+#include "event_log.h"
 
 #if TPM_ALG_ID == TPM_ALG_SHA512
 #define	CRYPTO_MD_ID	CRYPTO_MD_SHA512
@@ -75,34 +72,25 @@ static const event2_header_t locality_event_header = {
 	}
 };
 
-/*
- * Record a measurement as a TCG_PCR_EVENT2 event
- *
- * @param[in] hash		Pointer to hash data of TCG_DIGEST_SIZE bytes
- * @param[in] event_type	Type of Event, Various Event Types are
- * 				mentioned in tcg.h header
- * @param[in] metadata_ptr	Pointer to event_log_metadata_t structure
- *
- * There must be room for storing this new event into the event log buffer.
- */
-void event_log_record(const uint8_t *hash, uint32_t event_type,
+int event_log_record(const uint8_t *hash, uint32_t event_type,
 		      const event_log_metadata_t *metadata_ptr)
 {
 	void *ptr = log_ptr;
 	uint32_t name_len = 0U;
 
-	assert(hash != NULL);
-	assert(metadata_ptr != NULL);
 	/* event_log_buf_init() must have been called prior to this. */
-	assert(log_ptr != NULL);
+	if (hash == NULL || metadata_ptr == NULL || log_ptr == NULL) {
+		return -EINVAL;
+	}
 
 	if (metadata_ptr->name != NULL) {
 		name_len = (uint32_t)strlen(metadata_ptr->name) + 1U;
 	}
 
 	/* Check for space in Event Log buffer */
-	assert(((uintptr_t)ptr + (uint32_t)EVENT2_HDR_SIZE + name_len) <
-	       log_end);
+	if (((uintptr_t)ptr + (uint32_t)EVENT2_HDR_SIZE + name_len) > log_end) {
+		return -ENOMEM;
+	}
 
 	/*
 	 * As per TCG specifications, firmware components that are measured
@@ -145,38 +133,42 @@ void event_log_record(const uint8_t *hash, uint32_t event_type,
 	/* End of event data */
 	log_ptr = (uint8_t *)((uintptr_t)ptr +
 			offsetof(event2_data_t, event) + name_len);
+
+	return 0;
 }
 
-void event_log_buf_init(uint8_t *event_log_start, uint8_t *event_log_finish)
+int event_log_buf_init(uint8_t *event_log_start, uint8_t *event_log_finish)
 {
-	assert(event_log_start != NULL);
-	assert(event_log_finish > event_log_start);
+	if (event_log_start == NULL || event_log_finish == NULL ||
+	    event_log_start > event_log_finish) {
+		return -EINVAL;
+	}
 
 	log_ptr = event_log_start;
 	log_end = (uintptr_t)event_log_finish;
+
+	return 0;
 }
 
-/*
- * Initialise Event Log global variables, used during the recording
- * of various payload measurements into the Event Log buffer
- *
- * @param[in] event_log_start		Base address of Event Log buffer
- * @param[in] event_log_finish		End address of Event Log buffer,
- * 					it is a first byte past end of the
- * 					buffer
- */
-void event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish)
+int event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish)
 {
-	event_log_buf_init(event_log_start, event_log_finish);
+	return event_log_buf_init(event_log_start, event_log_finish);
 }
 
-void event_log_write_specid_event(void)
+int event_log_write_specid_event(void)
 {
-	void *ptr = log_ptr;
+	void *ptr;
 
 	/* event_log_buf_init() must have been called prior to this. */
-	assert(log_ptr != NULL);
-	assert(((uintptr_t)log_ptr + ID_EVENT_SIZE) < log_end);
+	if (log_ptr == NULL) {
+		return -EFAULT;
+	}
+
+	if (((uintptr_t)log_ptr + ID_EVENT_SIZE) > log_end) {
+		return -ENOMEM;
+	}
+
+	ptr = log_ptr;
 
 	/*
 	 * Add Specification ID Event first
@@ -199,21 +191,26 @@ void event_log_write_specid_event(void)
 	((id_event_struct_data_t *)ptr)->vendor_info_size = 0;
 	log_ptr = (uint8_t *)((uintptr_t)ptr +
 			offsetof(id_event_struct_data_t, vendor_info));
+
+	return 0;
 }
 
-/*
- * Initialises Event Log by writing Specification ID and
- * Startup Locality events
- */
-void event_log_write_header(void)
+int event_log_write_header(void)
 {
 	const char locality_signature[] = TCG_STARTUP_LOCALITY_SIGNATURE;
 	void *ptr;
+	int rc;
 
-	event_log_write_specid_event();
+	rc = event_log_write_specid_event();
+	if (rc < 0) {
+		return rc;
+	}
+
+	if (((uintptr_t)log_ptr + LOC_EVENT_SIZE) > log_end) {
+		return -ENOMEM;
+	}
 
 	ptr = log_ptr;
-	assert(((uintptr_t)log_ptr + LOC_EVENT_SIZE) < log_end);
 
 	/*
 	 * The Startup Locality event should be placed in the log before
@@ -250,6 +247,8 @@ void event_log_write_header(void)
 	 */
 	((startup_locality_event_t *)ptr)->startup_locality = 0U;
 	log_ptr = (uint8_t *)((uintptr_t)ptr + sizeof(startup_locality_event_t));
+
+	return 0;
 }
 
 int event_log_measure(uintptr_t data_base, uint32_t data_size,
@@ -260,18 +259,6 @@ int event_log_measure(uintptr_t data_base, uint32_t data_size,
 				    (void *)data_base, data_size, hash_data);
 }
 
-/*
- * Calculate and write hash of image, configuration data, etc.
- * to Event Log.
- *
- * @param[in] data_base		Address of data
- * @param[in] data_size		Size of data
- * @param[in] data_id		Data ID
- * @param[in] metadata_ptr	Event Log metadata
- * @return:
- *	0 = success
- *    < 0 = error
- */
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id,
 				 const event_log_metadata_t *metadata_ptr)
@@ -279,14 +266,18 @@ int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 	unsigned char hash_data[CRYPTO_MD_MAX_SIZE];
 	int rc;
 
-	assert(metadata_ptr != NULL);
+	if (metadata_ptr == NULL) {
+		return -EINVAL;
+	}
 
 	/* Get the metadata associated with this image. */
-	while ((metadata_ptr->id != EVLOG_INVALID_ID) &&
-		(metadata_ptr->id != data_id)) {
+	while (metadata_ptr->id != data_id) {
+		if (metadata_ptr->id == EVLOG_INVALID_ID) {
+			return -EINVAL;
+		}
+
 		metadata_ptr++;
 	}
-	assert(metadata_ptr->id != EVLOG_INVALID_ID);
 
 	/* Measure the payload with algorithm selected by EventLog driver */
 	rc = event_log_measure(data_base, data_size, hash_data);
@@ -294,18 +285,14 @@ int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 		return rc;
 	}
 
-	event_log_record(hash_data, EV_POST_CODE, metadata_ptr);
+	rc = event_log_record(hash_data, EV_POST_CODE, metadata_ptr);
+	if (rc != 0) {
+		return rc;
+	}
 
 	return 0;
 }
 
-/*
- * Get current Event Log buffer size i.e. used space of Event Log buffer
- *
- * @param[in]  event_log_start		Base Pointer to Event Log buffer
- *
- * @return: current Size of Event Log buffer
- */
 size_t event_log_get_cur_size(uint8_t *event_log_start)
 {
 	assert(event_log_start != NULL);
