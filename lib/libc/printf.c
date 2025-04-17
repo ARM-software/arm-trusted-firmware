@@ -50,7 +50,7 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix,
 	}
 
 	do {
-		rem = unum % radix;
+		rem = (uint32_t)(unum % radix);
 		if (rem < 0xa) {
 			num_buf[i] = '0' + rem;
 		} else if (uppercase) {
@@ -64,14 +64,14 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix,
 
 	if (padn > 0) {
 		while (i < padn) {
-			(void)putchar(padc);
+			(void)putchar((int32_t)padc);
 			count++;
 			padn--;
 		}
 	}
 
 	while (--i >= 0) {
-		(void)putchar(num_buf[i]);
+		(void)putchar((int32_t)num_buf[i]);
 		count++;
 	}
 
@@ -122,13 +122,13 @@ int vprintf(const char *fmt, va_list args)
 loop:
 			switch (*fmt) {
 			case '%':
-				(void)putchar('%');
+				(void)putchar((int32_t)'%');
 				break;
 			case 'i': /* Fall through to next one */
 			case 'd':
 				num = get_num_va_args(args, l_count);
 				if (num < 0) {
-					(void)putchar('-');
+					(void)putchar((int32_t)'-');
 					unum = (unsigned long long int)-num;
 					padn--;
 				} else
