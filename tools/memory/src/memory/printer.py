@@ -58,14 +58,11 @@ class TfaPrettyPrinter:
 
         return leading + sec_row_l + sec_row + sec_row_r
 
-    def print_footprint(
-        self, app_mem_usage: dict, sort_key: str = None, fields: list = None
-    ):
+    def print_footprint(self, app_mem_usage: dict):
         assert len(app_mem_usage), "Empty memory layout dictionary!"
-        if not fields:
-            fields = ["Component", "Start", "Limit", "Size", "Free", "Total"]
 
-        sort_key = fields[0] if not sort_key else sort_key
+        fields = ["Component", "Start", "Limit", "Size", "Free", "Total"]
+        sort_key = fields[0]
 
         # Iterate through all the memory types, create a table for each
         # type, rows represent a single module.

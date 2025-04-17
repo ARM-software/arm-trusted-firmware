@@ -103,13 +103,13 @@ class TfaElfParser:
 
                     self._segments[n].children.append(self.tfa_mem_obj_factory(sec))
 
-    def get_memory_layout_from_symbols(self, expr=None) -> dict:
+    def get_memory_layout_from_symbols(self) -> dict:
         """Retrieve information about the memory configuration from the symbol
         table.
         """
         assert len(self._symbols), "Symbol table is empty!"
 
-        expr = r".*(.?R.M)_REGION.*(START|END|LENGTH)" if not expr else expr
+        expr = r".*(.?R.M)_REGION.*(START|END|LENGTH)"
         region_symbols = filter(lambda s: re.match(expr, s), self._symbols)
         memory_layout = {}
 

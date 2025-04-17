@@ -24,8 +24,8 @@ class TfaMapParser:
         return self._symbols.items()
 
     @staticmethod
-    def read_symbols(file: TextIO, pattern: str = None) -> dict:
-        pattern = r"\b(0x\w*)\s*(\w*)\s=" if not pattern else pattern
+    def read_symbols(file: TextIO) -> dict:
+        pattern = r"\b(0x\w*)\s*(\w*)\s="
         symbols = {}
 
         for line in file.readlines():

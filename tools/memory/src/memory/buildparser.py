@@ -50,9 +50,9 @@ class TfaBuildParser:
         return [(*sym, k) for k, v in self._modules.items() for sym in v.symbols]
 
     @staticmethod
-    def filter_symbols(symbols: list, regex: str = None) -> list:
+    def filter_symbols(symbols: list, regex: str) -> list:
         """Returns a map of symbols to modules."""
-        regex = r".*" if not regex else regex
+
         return sorted(
             filter(lambda s: re.match(regex, s[0]), symbols),
             key=lambda s: (-s[1], s[0]),
