@@ -17,8 +17,8 @@ class TfaPrettyPrinter:
     structured and consumed.
     """
 
-    def __init__(self, columns: int = None, as_decimal: bool = False):
-        self.term_size = columns if columns and columns > 120 else 120
+    def __init__(self, columns: int, as_decimal: bool = False):
+        self.term_size = columns
         self._tree = None
         self._footprint = None
         self._symbol_map = None
@@ -39,7 +39,7 @@ class TfaPrettyPrinter:
         section_name: str,
         rel_pos: int,
         columns: int,
-        width: int = None,
+        width: int,
         is_edge: bool = False,
     ):
         empty_col = "{:{}{}}"
@@ -116,7 +116,7 @@ class TfaPrettyPrinter:
                     name,
                     modules.index(mod),
                     len(modules),
-                    width=col_width,
+                    col_width,
                     is_edge=(not i or i == len(symbols) - 1),
                 )
             )

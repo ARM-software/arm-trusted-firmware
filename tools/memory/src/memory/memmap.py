@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+import shutil
 from pathlib import Path
 
 import click
@@ -58,7 +59,13 @@ from memory.printer import TfaPrettyPrinter
     is_flag=True,
     help="Generate a map of important TF symbols.",
 )
-@click.option("-w", "--width", type=int, envvar="COLUMNS")
+@click.option(
+    "-w",
+    "--width",
+    type=int,
+    default=shutil.get_terminal_size().columns,
+    help="Column width for printing.",
+)
 @click.option(
     "-d",
     is_flag=True,
