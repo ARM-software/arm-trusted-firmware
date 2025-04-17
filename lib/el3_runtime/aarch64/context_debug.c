@@ -97,7 +97,6 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 #else
 		size_t el1_size = 0U;
 #endif /* CTX_INCLUDE_EL2_REGS */
-		size_t pauth_size = 0U;
 
 		if (is_ctx_pauth_supported()) {
 			PRINT_SINGLE_MEM_USAGE_SEP_BLOCK();
@@ -125,12 +124,14 @@ static size_t report_allocated_memory(unsigned int security_state_idx)
 		printf("| %8luB ", el1_size);
 #endif /* CTX_INCLUDE_EL2_REGS */
 
+#if CTX_INCLUDE_PAUTH_REGS
 		if (is_ctx_pauth_supported()) {
-			pauth_size = sizeof(ctx->pauth_ctx);
+			size_t pauth_size = sizeof(ctx->pauth_ctx);
 			size_other -= pauth_size;
 			pauth_total += pauth_size;
 			printf("| %8luB ", pauth_size);
 		}
+#endif
 		printf("| %8luB | %8luB |\n", size_other, core_total);
 
 		gp_total += gp_size;
