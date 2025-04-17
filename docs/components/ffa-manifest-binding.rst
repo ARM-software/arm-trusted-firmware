@@ -29,8 +29,13 @@ Partition Properties
 
 - uuid [mandatory]
    - value type: <prop-encoded-array>
-   - An array consisting of 4 <u32> values, identifying the UUID of the service
-     implemented by this partition. The UUID format is described in RFC 4122.
+   - An array of comma separated tuples each consisting of 4 <u32> values,
+     identifying the UUID of the services implemented by this partition.
+     The UUID format is described in RFC 4122.
+   - These 4 <u32> values are packed similar to the UUID register mapping
+     specified in section '5.3 Unique Identification format', SMC Calling
+     Convention, DEN0028, v1.6 G BET0
+     (https://developer.arm.com/documentation/den0028/latest/).
 
 - id
    - value type: <u32>
