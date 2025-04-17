@@ -27,6 +27,7 @@ int apu_hw_sema_ctl(uint32_t sem_addr, uint8_t usr_bit, uint8_t ctl, uint32_t ti
 		    uint8_t bypass);
 
 #define HW_SEM_TIMEOUT	(300) /* 300 us */
+#define HW_SEM_NO_WAIT	(0)   /* no wait */
 
 /* APU MBOX */
 #define MBOX_WKUP_CFG		(0x80)

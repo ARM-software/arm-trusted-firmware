@@ -22,7 +22,15 @@ static int wait_for_state_ready(uint32_t reg, uint32_t mask, uint32_t expect,
 	uint32_t count = 0;
 
 	while ((mmio_read_32(reg) & mask) != expect) {
-		if (count > retry_times) {
+		/*
+		 * If retry_times == HW_SEM_NO_WAIT, it is just for checking if the hardware
+		 * semaphore can be locked or not. The purpose is for SMMU to check NPU power
+		 * status. Hence, just returning -EBUSY is okay. There is no need to show any
+		 * ERROR message here.
+		 */
+		if (retry_times == HW_SEM_NO_WAIT) {
+			return -EBUSY;
+		} else if (count > retry_times) {
 			ERROR("%s: timed out, reg = %x, mask = %x, expect = %x\n",
 			       __func__, reg, mask, expect);
 			return -EBUSY;
@@ -116,14 +124,14 @@ int rv_iommu_hw_sem_trylock(void)
 {
 	return apu_hw_sema_ctl_per_mbox(APU_MBOX(APU_HW_SEM_SYS_APMCU) + APU_MBOX_SEMA1_CTRL,
 					APU_MBOX(APU_HW_SEM_SYS_APMCU) + APU_MBOX_SEMA1_STA,
-					APU_HW_SEM_SYS_APMCU, HW_SEM_GET, 0, 0);
+					APU_HW_SEM_SYS_APMCU, HW_SEM_GET, HW_SEM_NO_WAIT, 0);
 }
 
 int rv_iommu_hw_sem_unlock(void)
 {
 	return apu_hw_sema_ctl_per_mbox(APU_MBOX(APU_HW_SEM_SYS_APMCU) + APU_MBOX_SEMA1_CTRL,
 					APU_MBOX(APU_HW_SEM_SYS_APMCU) + APU_MBOX_SEMA1_STA,
-					APU_HW_SEM_SYS_APMCU, HW_SEM_PUT, 0, 0);
+					APU_HW_SEM_SYS_APMCU, HW_SEM_PUT, HW_SEM_NO_WAIT, 0);
 }
 
 int apu_hw_sema_ctl(uint32_t sem_addr, uint8_t usr_bit, uint8_t ctl, uint32_t timeout,

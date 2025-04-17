@@ -255,9 +255,6 @@ static u_register_t mtk_smmu_handler(u_register_t x1, u_register_t x2,
 		break;
 	}
 
-	if (ret)
-		ERROR(TAG "%s, smmu_%u cmd:%u fail:%u\n", __func__, smmu_id, cmd_id, ret);
-
 	return ret;
 }
 /* Register MTK SMMU service */
