@@ -37,7 +37,7 @@ class TfaBuildParser:
         files = list(self._path.glob("**/*.elf"))
         io_perms = "rb"
 
-        if self.map_backend or len(files) == 0:
+        if self.map_backend or not files:
             backend = TfaMapParser
             files = self._path.glob("**/*.map")
             io_perms = "r"
@@ -47,7 +47,7 @@ class TfaBuildParser:
             with open(file, io_perms) as f:
                 self._modules[module_name] = backend(f)
 
-        if not len(self._modules):
+        if not self._modules:
             raise FileNotFoundError(
                 f"failed to find files to analyse in path {self._path}!"
             )
@@ -82,7 +82,7 @@ class TfaBuildParser:
             k: {
                 "name": k,
                 **v.get_mod_mem_usage_dict(),
-                **{"children": v.get_seg_map_as_dict()},
+                "children": v.get_seg_map_as_dict(),
             }
             for k, v in self._modules.items()
         }

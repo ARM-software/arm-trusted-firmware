@@ -7,6 +7,7 @@
 import re
 from dataclasses import asdict, dataclass
 from typing import (
+    Any,
     BinaryIO,
     Dict,
     Iterable,
@@ -17,7 +18,7 @@ from typing import (
 )
 
 from elftools.elf.elffile import ELFFile
-from elftools.elf.sections import Section
+from elftools.elf.sections import Section, SymbolTableSection
 from elftools.elf.segments import Segment
 
 from memory.image import Image, Region
@@ -46,9 +47,11 @@ class TfaElfParser(Image):
 
         elf = ELFFile(elf_file)
 
+        symtab = elf.get_section_by_name(".symtab")
+        assert isinstance(symtab, SymbolTableSection)
+
         self._symbols: Dict[str, int] = {
-            sym.name: sym.entry["st_value"]
-            for sym in elf.get_section_by_name(".symtab").iter_symbols()
+            sym.name: sym.entry["st_value"] for sym in symtab.iter_symbols()
         }
 
         self.set_segment_section_map(elf.iter_segments(), elf.iter_sections())
@@ -85,20 +88,20 @@ class TfaElfParser(Image):
             "Attempting to make segment without a name"
         )
 
-        if children is None:
-            children = list()
-
         # Segment and sections header keys have different prefixes.
         vaddr = "p_vaddr" if isinstance(elf_obj, Segment) else "sh_addr"
         size = "p_memsz" if isinstance(elf_obj, Segment) else "sh_size"
 
+        name = name if isinstance(elf_obj, Segment) else elf_obj.name
+        assert name is not None
+
         # TODO figure out how to handle free space for sections and segments
         return TfaMemObject(
-            name if isinstance(elf_obj, Segment) else elf_obj.name,
+            name,
             elf_obj[vaddr],
             elf_obj[vaddr] + elf_obj[size],
             elf_obj[size],
-            [] if not children else children,
+            children or [],
         )
 
     def _get_mem_usage(self) -> Tuple[int, int]:
@@ -122,12 +125,13 @@ class TfaElfParser(Image):
         sections: Iterable[Section],
     ) -> None:
         """Set segment to section mappings."""
-        segments = list(filter(lambda seg: seg["p_type"] == "PT_LOAD", segments))
+        segments = filter(lambda seg: seg["p_type"] == "PT_LOAD", segments)
+        segments_list = list(segments)
 
         for sec in sections:
-            for n, seg in enumerate(segments):
+            for n, seg in enumerate(segments_list):
                 if seg.section_in_segment(sec):
-                    if n not in self._segments.keys():
+                    if n not in self._segments:
                         self._segments[n] = self.tfa_mem_obj_factory(
                             seg, name=f"{n:#02}"
                         )
@@ -138,14 +142,14 @@ class TfaElfParser(Image):
         """Retrieve information about the memory configuration from the symbol
         table.
         """
-        assert len(self._symbols), "Symbol table is empty!"
+        assert self._symbols, "Symbol table is empty!"
 
         expr = r".*(.?R.M)_REGION.*(START|END|LENGTH)"
         region_symbols = filter(lambda s: re.match(expr, s), self._symbols)
         memory_layout: Dict[str, Dict[str, int]] = {}
 
         for symbol in region_symbols:
-            region, _, attr = tuple(symbol.lower().strip("__").split("_"))
+            region, _, attr = symbol.lower().strip("__").split("_")
             if region not in memory_layout:
                 memory_layout[region] = {}
 
@@ -154,9 +158,9 @@ class TfaElfParser(Image):
 
         return memory_layout
 
-    def get_seg_map_as_dict(self) -> List[Dict[str, int]]:
+    def get_seg_map_as_dict(self) -> List[Dict[str, Any]]:
         """Get a dictionary of segments and their section mappings."""
-        return [asdict(v) for k, v in self._segments.items()]
+        return [asdict(segment) for segment in self._segments.values()]
 
     def get_memory_layout(self) -> Dict[str, Region]:
         """Get the total memory consumed by this module from the memory

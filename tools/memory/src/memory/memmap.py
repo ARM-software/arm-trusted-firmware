@@ -6,6 +6,7 @@
 
 import shutil
 from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -51,6 +52,7 @@ from memory.printer import TfaPrettyPrinter
 @click.option(
     "--depth",
     default=3,
+    show_default=True,
     help="Generate a virtual address map of important TF symbols.",
 )
 @click.option(
@@ -78,7 +80,7 @@ from memory.printer import TfaPrettyPrinter
     help="Analyse the build's map files instead of ELF images.",
 )
 def main(
-    root: Path,
+    root: Optional[Path],
     platform: str,
     build_type: str,
     footprint: bool,
@@ -88,28 +90,31 @@ def main(
     width: int,
     d: bool,
     no_elf_images: bool,
-) -> None:
-    build_path = root if root else Path("build/", platform, build_type)
+):
+    build_path: Path = root if root is not None else Path("build", platform, build_type)
     click.echo(f"build-path: {build_path.resolve()}")
 
-    parser = TfaBuildParser(build_path, map_backend=no_elf_images)
-    printer = TfaPrettyPrinter(columns=width, as_decimal=d)
+    parser: TfaBuildParser = TfaBuildParser(build_path, map_backend=no_elf_images)
+    printer: TfaPrettyPrinter = TfaPrettyPrinter(columns=width, as_decimal=d)
 
     if footprint or not (tree or symbols):
         printer.print_footprint(parser.get_mem_usage_dict())
 
     if tree:
         printer.print_mem_tree(
-            parser.get_mem_tree_as_dict(), parser.module_names, depth=depth
+            parser.get_mem_tree_as_dict(),
+            parser.module_names,
+            depth=depth,
         )
 
     if symbols:
-        expr = (
+        expr: str = (
             r"(.*)(TEXT|BSS|RO|RODATA|STACKS|_OPS|PMF|XLAT|GOT|FCONF|RELA"
             r"|R.M)(.*)(START|UNALIGNED|END)__$"
         )
         printer.print_symbol_table(
-            parser.filter_symbols(parser.symbols, expr), parser.module_names
+            parser.filter_symbols(parser.symbols, expr),
+            parser.module_names,
         )
 
 

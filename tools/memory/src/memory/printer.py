@@ -32,10 +32,10 @@ class TfaPrettyPrinter:
         *args: Any,
         width: int = 10,
         fmt: Optional[str] = None,
-    ) -> List[Any]:
-        if not fmt and type(args[0]) is int:
+    ) -> List[str]:
+        if not fmt and isinstance(args[0], int):
             fmt = f">{width}x" if not self.as_decimal else f">{width}"
-        return [f"{arg:{fmt}}" if fmt else arg for arg in args]
+        return [f"{arg:{fmt}}" if fmt else str(arg) for arg in args]
 
     def format_row(
         self,
@@ -76,14 +76,14 @@ class TfaPrettyPrinter:
         self,
         app_mem_usage: Dict[str, Dict[str, Region]],
     ):
-        assert len(app_mem_usage), "Empty memory layout dictionary!"
+        assert app_mem_usage, "Empty memory layout dictionary!"
 
         fields = ["Component", "Start", "Limit", "Size", "Free", "Total"]
         sort_key = fields[0]
 
         # Iterate through all the memory types, create a table for each
         # type, rows represent a single module.
-        for mem in sorted(set(k for _, v in app_mem_usage.items() for k in v)):
+        for mem in sorted({k for v in app_mem_usage.values() for k in v}):
             table = PrettyTable(
                 sortby=sort_key,
                 title=f"Memory Usage (bytes) [{mem.upper()}]",
@@ -91,7 +91,7 @@ class TfaPrettyPrinter:
             )
 
             for mod, vals in app_mem_usage.items():
-                if mem in vals.keys():
+                if mem in vals:
                     val = vals[mem]
                     table.add_row(
                         [
@@ -117,7 +117,7 @@ class TfaPrettyPrinter:
     ) -> None:
         assert len(symbol_table), "Empty symbol list!"
         modules = sorted(modules)
-        col_width = int((self.term_size - start) / len(modules))
+        col_width = (self.term_size - start) // len(modules)
         address_fixed_width = 11
 
         num_fmt = f"0=#0{address_fixed_width}x" if not self.as_decimal else ">10"
@@ -147,14 +147,13 @@ class TfaPrettyPrinter:
                     modules.index(mod),
                     len(modules),
                     col_width,
-                    is_edge=(not i or i == len(symbols_list) - 1),
+                    is_edge=(i == 0 or i == len(symbols_list) - 1),
                 )
             )
 
             last_addr = addr
 
-        self._symbol_map = ["Memory Layout:"]
-        self._symbol_map += list(reversed(_symbol_map))
+        self._symbol_map = ["Memory Layout:"] + list(reversed(_symbol_map))
         print("\n".join(self._symbol_map))
 
     def print_mem_tree(
@@ -170,9 +169,7 @@ class TfaPrettyPrinter:
         anchor = min_pad + node_right_pad * (depth - 1)
         headers = ["start", "end", "size"]
 
-        self._tree = [
-            (f"{'name':<{anchor}}" + " ".join(f"{arg:>10}" for arg in headers))
-        ]
+        self._tree = [f"{'name':<{anchor}}" + " ".join(f"{arg:>10}" for arg in headers)]
 
         for mod in sorted(modules):
             root = DictImporter().import_(mem_map_dict[mod])
