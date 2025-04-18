@@ -297,7 +297,7 @@ int agilex5_ddr_init(handoff *hoff_ptr)
 	bool full_mem_init = false;
 	phys_size_t hw_ddr_size;
 	phys_size_t config_ddr_size;
-	struct io96b_info io96b_ctrl;
+	struct io96b_info io96b_ctrl = {0};
 	enum reset_type reset_t = get_reset_type(mmio_read_32(SOCFPGA_SYSMGR(
 						BOOT_SCRATCH_COLD_3)));
 	bool is_dualport = hoff_ptr->ddr_config & BIT(0);
