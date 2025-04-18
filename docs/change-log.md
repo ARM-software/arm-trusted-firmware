@@ -3,6 +3,100 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.15](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.14..refs/tags/lts-v2.10.15) (2025-04-18)
+
+### Performance Improvements
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - inline cpu_rev_var checks ([effb974](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/effb974f7500de06c31cf21f9f95d517982745a9))
+    - inline the cpu_get_rev_var call ([adc2f6d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/adc2f6d30153dcf2c69d2663ddf8dc5c2741110d))
+    - inline the init_cpu_data_ptr function ([9bd793d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9bd793ddae275fe6bef21dcd23c2a5deb7415ad1))
+    - inline the reset function ([529f156](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/529f156df92b7f5fc3c68de959b33c6655b54c67))
+    - make reset errata do fewer branches ([59beeab](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/59beeab016d08f68defcd5d12a82f81143022e33))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - convert checker functions to standard helpers ([9c7fbd7](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9c7fbd78d12ec95da1d0adefb52d6dd85629d9df))
+    - convert the Cortex-A65 to use the errata framework ([e50d031](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e50d031484c65196bb1387fcceb14f8e2c4b7a0c))
+    - declare runtime errata correctly ([9595d1c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9595d1ca105842916c2f545936ef5dd8386fae2d))
+    - directly invoke errata reporter ([0f9c514](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0f9c51473b01fa76e6aadda11cb3283c7f68cbdd))
+    - don't panic if errata out of order ([acb9a81](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/acb9a81975319734921a536662110e1a04f7437c))
+    - register DSU errata with the errata framework's wrappers ([0d708c3](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/0d708c335e6baa6f6f6316d305690cf42f1d6772))
+    - remove cpu specific errata funcs ([13263fa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/13263fa17a5ea8b0f8244cb4f306a24f8fef6ade))
+    - undo errata mitigations ([c99a213](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/c99a213b19bbfd533f29351b1ad19f610feba1a5))
+
+### Miscellaneous
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - fix cve order in Cortex-A77 ([3b8c35a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3b8c35a94722b8697b47e25faf0505307fd52130))
+    - fix cve order in Cortex-A78 ([000077a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/000077a3e6ecfa189bda2496411d8feed93636df))
+    - fix cve order in Cortex-A78_AE ([d83197e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d83197e39c8ba09de7c995f77e3e467e53f73b7e))
+    - fix cve order in Cortex-A78C ([e77d574](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e77d574ac7aeb856af0b4f0681e19a97888117ff))
+    - fix cve order in Cortex-X2 ([7ef97f2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7ef97f20e683a35880f95910baef28337191acd6))
+    - fix cve order in Neoverse-V1 ([2384124](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2384124f94712fb12e7624446a641cb112cc82b3))
+    - fix cve order in Neoverse-V2 ([3453be1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3453be1e12ac6bc353227a18aff0f6690dedfc8a))
+    - rearrange cve and errata order in Cortex-X3 ([8bf7772](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8bf777299fb5060e52b9fde85e3050a777b63816))
+    - rearrange cve in order in Cortex-X1 ([65e79ac](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/65e79ac60a7d6e6db4f84b81511e47b0aa1e6394))
+    - rearrange the errata and cve in order in Cortex-A710 ([b6d9fbb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b6d9fbb9788055ae7f9717aa84093aef5ce2d4fb))
+    - rearrange the errata and cve in order in Cortex-X4 ([f1f9077](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f1f9077afb11299362ab4de6f19fbb6184a6479c))
+    - rearrange the errata and cve in order in Neoverse-V3 ([acd429d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/acd429d686dd820ebf77267a27a141ca13b4eaad))
+    - rearrange the errata and cve order in Neoverse-N2 ([a43010c](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a43010cdc760689ed03986706254738a6554a972))
+
+### Resolved Issues
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - add support for handling split workarounds ([d3d4154](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d3d41542dd22d75293cb4da0b617e69d15dd356e))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - declare reset errata correctly ([2f28a55](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2f28a55f4869c2034429b8bdf71791255e3a79c2))
+    - fix clang compilation issue ([be6cb94](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/be6cb94960f7eb5a120334c7628ce7a82afde9ed))
+    - remove errata setting PF_MODE to conservative ([8b413da](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8b413da85e5fbbe1288164c9d3958e0900b1cbd1))
+    - workaround for Cortex-A715 erratum 2804830 ([e270eea](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/e270eea45dad1c6f24780cb39adbb289e2a7ab0c))
+    - workaround for Cortex-X4 erratum 2957258 ([4c93936](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4c939360b79ce4695dab45fcf687a768d41e0023))
+    - workaround for Cortex-X925 erratum 2963999 ([1e0fca1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1e0fca13d9a4d2a0791a572c9e42207ae53bc0ad))
+    - workaround for Neoverse-V3 erratum 2970647 ([f9429c2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f9429c20f223e73c71296c4ad90285fbb1cd639e))
+    - workaround for Cortex-A510 erratum 2971420 ([7a3ec52](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7a3ec52acbdcc15616e60fbd9ffbd365215363ed))
+
+- **Dependencies**
+
+  - remove deprecated husky commands ([8069c19](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8069c192c4a9ea3f557985e2974164418dd0747a))
+
+### Documentation
+
+- add playbook for new releases ([5c9103e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5c9103e53edf679608f33d1944bad34428f1aa1d))
+
+- **Documentation**
+
+  - **Prerequisites**
+
+    - update mbedtls to v3.6.3 ([2f67407](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2f6740790b1caf319a1225b63f3b6a8e409e0dec))
+
+### New Features
+
+- **Drivers**
+
+  - **Authentication**
+
+    - **mbedTLS**
+
+      - update mbedtls to version 3.6.3 ([a8bec87](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a8bec87aaa2e6b64a257667de3c2b723356862aa))
+
 ## [lts-2.10.14](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.13..refs/tags/lts-v2.10.14) (2025-02-28)
 
 ### Resolved Issues
