@@ -17,6 +17,7 @@
 #include <common/debug.h>
 #include <common/feat_detect.h>
 #include <common/runtime_svc.h>
+#include <drivers/arm/gic.h>
 #include <drivers/console.h>
 #include <lib/bootmarker_capture.h>
 #include <lib/el3_runtime/context_debug.h>
@@ -144,6 +145,18 @@ void bl31_main(void)
 
 	/* Perform platform setup in BL31 */
 	bl31_platform_setup();
+
+#if USE_GIC_DRIVER
+	/*
+	 * Initialize the GIC driver as well as per-cpu and global interfaces.
+	 * Platform has had an opportunity to initialise specifics.
+	 */
+	unsigned int core_pos = plat_my_core_pos();
+
+	gic_init(core_pos);
+	gic_pcpu_init(core_pos);
+	gic_cpuif_enable(core_pos);
+#endif /* USE_GIC_DRIVER */
 
 	/* Initialise helper libraries */
 	bl31_lib_init();

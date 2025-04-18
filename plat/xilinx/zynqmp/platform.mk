@@ -101,7 +101,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/dcc/dcc_console.c			\
 				drivers/cadence/uart/aarch64/cdns_console.S	\
 				plat/arm/common/arm_cci.c			\
 				plat/arm/common/arm_common.c			\
-				plat/arm/common/arm_gicv2.c			\
+				plat/common/plat_gicv2_base.c			\
 				plat/common/plat_gicv2.c			\
 				plat/xilinx/common/ipi.c			\
 				plat/xilinx/zynqmp/zynqmp_ipi.c			\

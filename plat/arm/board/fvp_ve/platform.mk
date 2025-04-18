@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,12 +12,7 @@ USE_SP804_TIMER	:= 1
 BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 endif
 
-# Include GICv2 driver files
-include drivers/arm/gic/v2/gicv2.mk
-
-FVP_VE_GIC_SOURCES	:=	${GICV2_SOURCES}		\
-				plat/common/plat_gicv2.c	\
-				plat/arm/common/arm_gicv2.c
+USE_GIC_DRIVER		:=	2
 
 FVP_VE_SECURITY_SOURCES	:=	plat/arm/board/fvp_ve/fvp_ve_security.c
 

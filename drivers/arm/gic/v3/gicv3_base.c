@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,25 +9,18 @@
 
 #include <common/debug.h>
 #include <common/interrupt_props.h>
+#include <drivers/arm/gic.h>
 #include <drivers/arm/gicv3.h>
 #include <lib/utils.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-/******************************************************************************
- * The following functions are defined as weak to allow a platform to override
- * the way the GICv3 driver is initialised and used.
- *****************************************************************************/
-#pragma weak plat_arm_gic_driver_init
-#pragma weak plat_arm_gic_init
-#pragma weak plat_arm_gic_cpuif_enable
-#pragma weak plat_arm_gic_cpuif_disable
-#pragma weak plat_arm_gic_pcpu_init
-#pragma weak plat_arm_gic_redistif_on
-#pragma weak plat_arm_gic_redistif_off
+#if USE_GIC_DRIVER != 3
+#error "This file should only be used with GENERIC_GIC_DRIVER=3"
+#endif
 
 /* The GICv3 driver only needs to be initialized in EL3 */
-static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
+uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
 /* Default GICR base address to be used for GICR probe. */
 static const uintptr_t gicr_base_addrs[2] = {
@@ -79,7 +72,7 @@ static unsigned int arm_gicv3_mpidr_hash(u_register_t mpidr)
 	return plat_arm_calc_core_pos(mpidr);
 }
 
-static const gicv3_driver_data_t arm_gic_data __unused = {
+gicv3_driver_data_t gic_data __unused = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	.gicr_base = 0U,
 	.interrupt_props = arm_interrupt_props,
@@ -101,49 +94,29 @@ void plat_arm_override_gicr_frames(const uintptr_t *plat_gicr_frames)
 	gicr_frames = plat_gicr_frames;
 }
 
-void __init plat_arm_gic_driver_init(void)
-{
-	/*
-	 * The GICv3 driver is initialized in EL3 and does not need
-	 * to be initialized again in SEL1. This is because the S-EL1
-	 * can use GIC system registers to manage interrupts and does
-	 * not need GIC interface base addresses to be configured.
-	 */
-#if (!defined(__aarch64__) && defined(IMAGE_BL32)) || \
-	(defined(__aarch64__) && defined(IMAGE_BL31))
-	gicv3_driver_init(&arm_gic_data);
-
-	if (gicv3_rdistif_probe(gicr_base_addrs[0]) == -1) {
-		ERROR("No GICR base frame found for Primary CPU\n");
-		panic();
-	}
-#endif
-}
-
 /******************************************************************************
  * ARM common helper to initialize the GIC. Only invoked by BL31
  *****************************************************************************/
-void __init plat_arm_gic_init(void)
+void __init gic_init(unsigned int cpu_idx)
 {
+	gicv3_driver_init(&gic_data);
 	gicv3_distif_init();
-	gicv3_rdistif_init(plat_my_core_pos());
-	gicv3_cpuif_enable(plat_my_core_pos());
 }
 
 /******************************************************************************
  * ARM common helper to enable the GIC CPU interface
  *****************************************************************************/
-void plat_arm_gic_cpuif_enable(void)
+void gic_cpuif_enable(unsigned int cpu_idx)
 {
-	gicv3_cpuif_enable(plat_my_core_pos());
+	gicv3_cpuif_enable(cpu_idx);
 }
 
 /******************************************************************************
  * ARM common helper to disable the GIC CPU interface
  *****************************************************************************/
-void plat_arm_gic_cpuif_disable(void)
+void gic_cpuif_disable(unsigned int cpu_idx)
 {
-	gicv3_cpuif_disable(plat_my_core_pos());
+	gicv3_cpuif_disable(cpu_idx);
 }
 
 /******************************************************************************
@@ -151,7 +124,7 @@ void plat_arm_gic_cpuif_disable(void)
  * corresponding per-cpu redistributor frame as well as initialize the
  * corresponding interface in GICv3.
  *****************************************************************************/
-void plat_arm_gic_pcpu_init(void)
+void gic_pcpu_init(unsigned int cpu_idx)
 {
 	int result;
 	const uintptr_t *plat_gicr_frames = gicr_frames;
@@ -170,26 +143,22 @@ void plat_arm_gic_pcpu_init(void)
 		ERROR("No GICR base frame found for CPU 0x%lx\n", read_mpidr());
 		panic();
 	}
-	gicv3_rdistif_init(plat_my_core_pos());
+	gicv3_rdistif_init(cpu_idx);
 }
 
 /******************************************************************************
  * ARM common helpers to power GIC redistributor interface
  *****************************************************************************/
-void plat_arm_gic_redistif_on(void)
+void gic_pcpu_off(unsigned int cpu_idx)
 {
-	gicv3_rdistif_on(plat_my_core_pos());
-}
-
-void plat_arm_gic_redistif_off(void)
-{
-	gicv3_rdistif_off(plat_my_core_pos());
+	gicv3_rdistif_off(cpu_idx);
 }
 
 /******************************************************************************
- * ARM common helper to save & restore the GICv3 on resume from system suspend
+ * Common helper to save & restore the GICv3 on resume from system suspend. It
+ * is the platform's responsibility to call these.
  *****************************************************************************/
-void plat_arm_gic_save(void)
+void gic_save(void)
 {
 	gicv3_redist_ctx_t * const rdist_context =
 			(gicv3_redist_ctx_t *)LOAD_ADDR_OF(rdist_ctx);
@@ -222,7 +191,7 @@ void plat_arm_gic_save(void)
 	 */
 }
 
-void plat_arm_gic_resume(void)
+void gic_resume(void)
 {
 	const gicv3_redist_ctx_t *rdist_context =
 			(gicv3_redist_ctx_t *)LOAD_ADDR_OF(rdist_ctx);

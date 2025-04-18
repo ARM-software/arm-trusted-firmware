@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -29,12 +29,7 @@ ifeq (${AARCH32_SP},none)
     $(error Variable AARCH32_SP has to be set for AArch32)
 endif
 
-# Include GICv2 driver files
-include drivers/arm/gic/v2/gicv2.mk
-
-CORSTONE700_GIC_SOURCES	:=	${GICV2_SOURCES}			\
-				plat/common/plat_gicv2.c		\
-				plat/arm/common/arm_gicv2.c
+USE_GIC_DRIVER		:=	2
 
 # BL1/BL2 Image not a part of the capsule Image for Corstone700
 override NEED_BL1	:=	no

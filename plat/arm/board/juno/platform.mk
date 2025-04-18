@@ -1,17 +1,12 @@
 #
-# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 include common/fdt_wrappers.mk
 
-# Include GICv2 driver files
-include drivers/arm/gic/v2/gicv2.mk
-
-JUNO_GIC_SOURCES	:=	${GICV2_SOURCES}			\
-				plat/common/plat_gicv2.c		\
-				plat/arm/common/arm_gicv2.c
+USE_GIC_DRIVER		:=	2
 
 JUNO_INTERCONNECT_SOURCES	:=	drivers/arm/cci/cci.c		\
 					plat/arm/common/arm_cci.c
@@ -99,7 +94,6 @@ BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
 				plat/arm/board/juno/juno_pm.c		\
 				plat/arm/board/juno/juno_topology.c	\
 				plat/arm/common/arm_nor_psci_mem_protect.c \
-				${JUNO_GIC_SOURCES}			\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
 

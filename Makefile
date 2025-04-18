@@ -764,6 +764,10 @@ ifeq (${OVERRIDE_LIBC},0)
 include lib/libc/libc.mk
 endif
 
+ifneq (${USE_GIC_DRIVER},0)
+include drivers/arm/gic/gic.mk
+endif
+
 ################################################################################
 # Check incompatible options and dependencies
 ################################################################################

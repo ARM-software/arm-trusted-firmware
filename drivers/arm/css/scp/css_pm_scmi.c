@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -309,10 +309,11 @@ void css_scp_system_off(int state)
 	 */
 	mmio_write_64(PLAT_ARM_TRUSTED_MAILBOX_BASE, 0U);
 
+	unsigned int core_pos = plat_my_core_pos();
 	/*
 	 * Send powerdown request to online secondary core(s)
 	 */
-	ret = psci_stop_other_cores(plat_my_core_pos(), 0, css_raise_pwr_down_interrupt);
+	ret = psci_stop_other_cores(core_pos, 0, css_raise_pwr_down_interrupt);
 	if (ret != PSCI_E_SUCCESS) {
 		ERROR("Failed to powerdown secondary core(s)\n");
 	}
@@ -321,8 +322,8 @@ void css_scp_system_off(int state)
 	 * Disable GIC CPU interface to prevent pending interrupt from waking
 	 * up the AP from WFI.
 	 */
-	plat_arm_gic_cpuif_disable();
-	plat_arm_gic_redistif_off();
+	gic_cpuif_disable(core_pos);
+	gic_pcpu_off(core_pos);
 
 	/*
 	 * Issue SCMI command. First issue a graceful

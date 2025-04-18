@@ -201,7 +201,7 @@ BL31_SOURCES	+=lib/cpus/aarch64/cortex_a35.S \
 PLAT_BL_COMMON_SOURCES	:=	drivers/delay_timer/delay_timer.c \
 		drivers/delay_timer/generic_delay_timer.c \
 		plat/common/plat_gicv2.c \
-		plat/arm/common/arm_gicv2.c \
+		plat/common/plat_gicv2_base.c \
 		plat/nuvoton/common/plat_nuvoton_gic.c \
 		${NPCM850_GIC_SOURCES} \
 		plat/nuvoton/npcm845x/npcm845x_common.c \

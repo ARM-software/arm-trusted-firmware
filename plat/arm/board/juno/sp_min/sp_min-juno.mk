@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -14,7 +14,7 @@ BL32_SOURCES	+=	drivers/cfi/v2m/v2m_flash.c		\
 			plat/arm/board/juno/juno_topology.c	\
 			plat/arm/common/arm_nor_psci_mem_protect.c	\
 			plat/arm/soc/common/soc_css_security.c	\
-			${JUNO_GIC_SOURCES}			\
+			${GIC_SOURCES}				\
 			${JUNO_INTERCONNECT_SOURCES}		\
 			${JUNO_SECURITY_SOURCES}
 

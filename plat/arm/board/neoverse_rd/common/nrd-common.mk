@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -30,14 +30,8 @@ INTERCONNECT_SOURCES	:=	${NRD_COMMON_BASE}/nrd_interconnect.c
 PLAT_INCLUDES		+=	-I${NRD_COMMON_BASE}/include
 
 # GIC-600 configuration
+USE_GIC_DRIVER		:=	3
 GICV3_SUPPORT_GIC600	:=	1
-
-# Include GICv3 driver files
-include drivers/arm/gic/v3/gicv3.mk
-
-ENT_GIC_SOURCES		:=	${GICV3_SOURCES}		\
-				plat/common/plat_gicv3.c	\
-				plat/arm/common/arm_gicv3.c
 
 PLAT_BL_COMMON_SOURCES	+=	${NRD_COMMON_BASE}/arch/aarch64/nrd_helper.S
 
@@ -49,7 +43,6 @@ BL2_SOURCES		+=	${NRD_COMMON_BASE}/nrd_image_load.c	\
 				drivers/arm/css/sds/sds.c
 
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
-				${ENT_GIC_SOURCES}			\
 				${NRD_COMMON_BASE}/nrd_bl31_setup.c	\
 				${NRD_COMMON_BASE}/nrd_topology.c	\
 				drivers/delay_timer/generic_delay_timer.c

@@ -18,14 +18,8 @@ PLAT_INCLUDES		:=	-I${MORELLO_BASE}/include
 MORELLO_CPU_SOURCES	:=	lib/cpus/aarch64/rainier.S
 
 # GIC-600 configuration
+USE_GIC_DRIVER		:=	3
 GICV3_SUPPORT_GIC600	:=	1
-
-# Include GICv3 driver files
-include drivers/arm/gic/v3/gicv3.mk
-
-MORELLO_GIC_SOURCES	:=	${GICV3_SOURCES}			\
-				plat/common/plat_gicv3.c		\
-				plat/arm/common/arm_gicv3.c		\
 
 PLAT_BL_COMMON_SOURCES	:=	${MORELLO_BASE}/morello_plat.c		\
 				${MORELLO_BASE}/aarch64/morello_helper.S
@@ -47,7 +41,6 @@ BL2_SOURCES		:=	${MORELLO_BASE}/morello_security.c	\
 
 BL31_SOURCES		:=	${MORELLO_CPU_SOURCES}			\
 				${INTERCONNECT_SOURCES}			\
-				${MORELLO_GIC_SOURCES}			\
 				${MORELLO_BASE}/morello_bl31_setup.c	\
 				${MORELLO_BASE}/morello_pm.c		\
 				${MORELLO_BASE}/morello_topology.c	\

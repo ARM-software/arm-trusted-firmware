@@ -156,6 +156,9 @@ RME_GPT_MAX_BLOCK		:= 512
 # default, they are for Secure EL1.
 GICV2_G0_FOR_EL3		:= 0
 
+# Generic implementation of a GICvX driver
+USE_GIC_DRIVER			:= 0
+
 # Route NS External Aborts to EL3. Disabled by default; External Aborts are handled
 # by lower ELs.
 HANDLE_EA_EL3_FIRST_NS		:= 0

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2023, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -11,6 +11,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/arm/gic.h>
 #include <lib/pmf/pmf.h>
 #include <lib/runtime_instr.h>
 #include <plat/common/platform.h>
@@ -116,6 +117,13 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 * Arch. management. Initiate power down sequence.
 	 */
 	psci_pwrdown_cpu_start(psci_find_max_off_lvl(&state_info));
+
+#if USE_GIC_DRIVER
+	/* turn the GIC off before we hand off to the platform */
+	gic_cpuif_disable(idx);
+	/* we don't want any wakeups until explicitly turned on */
+	gic_pcpu_off(idx);
+#endif /* USE_GIC_DRIVER */
 
 	/*
 	 * Plat. management: Perform platform specific actions to turn this

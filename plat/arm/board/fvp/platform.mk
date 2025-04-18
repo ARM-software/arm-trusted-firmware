@@ -130,35 +130,20 @@ $(eval $(call add_define,FVP_INTERCONNECT_DRIVER))
 
 # Choose the GIC sources depending upon the how the FVP will be invoked
 ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3)
+USE_GIC_DRIVER			:=	3
 
 # The GIC model (GIC-600 or GIC-500) will be detected at runtime
 GICV3_SUPPORT_GIC600		:=	1
 GICV3_OVERRIDE_DISTIF_PWR_OPS	:=	1
 
-# Include GICv3 driver files
-include drivers/arm/gic/v3/gicv3.mk
-
-FVP_GIC_SOURCES		:=	${GICV3_SOURCES}			\
-				plat/common/plat_gicv3.c		\
-				plat/arm/common/arm_gicv3.c
-
-	ifeq ($(filter 1,${RESET_TO_BL2} \
-		${RESET_TO_BL31} ${RESET_TO_SP_MIN}),)
-		FVP_GIC_SOURCES += plat/arm/board/fvp/fvp_gicv3.c
-	endif
+FVP_SECURITY_SOURCES += plat/arm/board/fvp/fvp_gicv3.c
 
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV2)
+USE_GIC_DRIVER		:=	2
 
 # No GICv4 extension
 GIC_ENABLE_V4_EXTN	:=	0
 $(eval $(call add_define,GIC_ENABLE_V4_EXTN))
-
-# Include GICv2 driver files
-include drivers/arm/gic/v2/gicv2.mk
-
-FVP_GIC_SOURCES		:=	${GICV2_SOURCES}			\
-				plat/common/plat_gicv2.c		\
-				plat/arm/common/arm_gicv2.c
 
 FVP_DT_PREFIX		:=	fvp-base-gicv2-psci
 else
@@ -174,7 +159,7 @@ else
 $(error "Incorrect CCN driver chosen on FVP port")
 endif
 
-FVP_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
+FVP_SECURITY_SOURCES	+=	drivers/arm/tzc/tzc400.c		\
 				plat/arm/board/fvp/fvp_security.c	\
 				plat/arm/common/arm_tzc400.c
 
@@ -343,7 +328,6 @@ BL31_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
 				plat/arm/board/fvp/fvp_cpu_pwr.c		\
 				plat/arm/common/arm_nor_psci_mem_protect.c	\
 				${FVP_CPU_LIBS}					\
-				${FVP_GIC_SOURCES}				\
 				${FVP_INTERCONNECT_SOURCES}			\
 				${FVP_SECURITY_SOURCES}
 

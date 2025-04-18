@@ -29,6 +29,7 @@ ENABLE_FEAT_ECV				:=	1
 ENABLE_FEAT_FGT				:=	1
 ENABLE_FEAT_MTE2			:=	1
 ENABLE_FEAT_MPAM			:=	1
+USE_GIC_DRIVER				:=	3
 GIC_ENABLE_V4_EXTN			:=	1
 GICV3_SUPPORT_GIC600			:=	1
 HW_ASSISTED_COHERENCY			:=	1
@@ -39,11 +40,6 @@ SVE_VECTOR_LEN				:=	128
 USE_COHERENT_MEM			:=	0
 
 RD1AE_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_v3.S
-
-include drivers/arm/gic/v3/gicv3.mk
-RD1AE_GIC_SOURCES	:=	${GICV3_SOURCES}	\
-				plat/common/plat_gicv3.c	\
-				plat/arm/common/arm_gicv3.c
 
 PLAT_BL_COMMON_SOURCES	+=	${RD1AE_BASE}/rd1ae_plat.c	\
 				${RD1AE_BASE}/include/rd1ae_helpers.S
@@ -56,7 +52,6 @@ BL2_SOURCES	+=	${RD1AE_CPU_SOURCES}	\
 			drivers/arm/sbsa/sbsa.c
 
 BL31_SOURCES	+=	${RD1AE_CPU_SOURCES}	\
-			${RD1AE_GIC_SOURCES}	\
 			${RD1AE_BASE}/rd1ae_bl31_setup.c	\
 			${RD1AE_BASE}/rd1ae_topology.c	\
 			drivers/cfi/v2m/v2m_flash.c	\

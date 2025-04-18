@@ -257,7 +257,9 @@ void __init arm_bl31_early_platform_setup(u_register_t arg0, u_register_t arg1,
 	 * to verify platform parameters from BL2 to BL31.
 	 * In release builds, it's not used.
 	 */
+#if DEBUG
 	assert(((uintptr_t)arg3) == ARM_BL31_PLAT_PARAM_VAL);
+#endif
 
 	/*
 	 * Check params passed from BL2 should not be NULL,
@@ -393,10 +395,6 @@ void arm_bl31_platform_setup(void)
 			       transfer_list_entry_data(te));
 	assert(te != NULL);
 #endif /* TRANSFER_LIST && !RESET_TO_BL31 */
-
-	/* Initialize the GIC driver, cpu and distributor interfaces */
-	plat_arm_gic_driver_init();
-	plat_arm_gic_init();
 
 #if RESET_TO_BL31
 	/*

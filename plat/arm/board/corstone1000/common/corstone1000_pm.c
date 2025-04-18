@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,7 +65,6 @@ int corstone1000_pwr_domain_on(u_register_t mpidr)
 void corstone1000_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	(void)target_state;
-	plat_arm_gic_init();
 }
 #endif
 

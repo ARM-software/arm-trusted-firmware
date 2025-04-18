@@ -148,7 +148,7 @@ void arm_system_pwr_domain_save(void)
 	/* Assert system power domain is available on the platform */
 	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
 
-	plat_arm_gic_save();
+	gic_save();
 
 	/*
 	 * Unregister console now so that it is not registered for a second
@@ -177,7 +177,7 @@ void arm_system_pwr_domain_resume(void)
 	/* Assert system power domain is available on the platform */
 	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
 
-	plat_arm_gic_resume();
+	gic_resume();
 
 	plat_arm_security_setup();
 	arm_configure_sys_timer();

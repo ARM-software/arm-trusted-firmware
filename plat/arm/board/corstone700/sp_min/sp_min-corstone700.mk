@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,8 +12,7 @@ BL32_SOURCES	+=	drivers/cfi/v2m/v2m_flash.c				\
 			plat/arm/board/corstone700/common/corstone700_security.c	\
 			plat/arm/board/corstone700/common/corstone700_plat.c		\
 			plat/arm/board/corstone700/common/corstone700_pm.c		\
-			plat/arm/board/corstone700/sp_min/corstone700_sp_min_setup.c	\
-			${CORSTONE700_GIC_SOURCES}
+			plat/arm/board/corstone700/sp_min/corstone700_sp_min_setup.c
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
 	ifneq (${ENABLE_STACK_PROTECTOR},none)
