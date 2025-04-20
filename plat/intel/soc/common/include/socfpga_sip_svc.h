@@ -260,6 +260,8 @@ uintptr_t sip_smc_handler_v2(uint32_t smc_fid,
 #define SMC_RET_ARGS_NINE							(9)
 #define SMC_RET_ARGS_TEN							(10)
 
+#define MBOX_GEN_CMD_MAX_WORDS							(0x1000)
+
 /*
  * SiP SVC Version3 SMC Functions IDs
  */
@@ -281,6 +283,9 @@ uintptr_t sip_smc_handler_v2(uint32_t smc_fid,
 
 #define ALTERA_SIP_SMC_ASYNC_HWMON_READTEMP					(0x420000E8)
 #define ALTERA_SIP_SMC_ASYNC_HWMON_READVOLT					(0x420000E9)
+
+/* V3 Generic mailbox command. */
+#define ALTERA_SIP_SMC_ASYNC_GEN_MBOX_CMD					(0x420000EE)
 
 /* FCS crypto service VAB/SDOS commands */
 #define ALTERA_SIP_SMC_ASYNC_FCS_RANDOM_NUMBER					(0x4200012C)
