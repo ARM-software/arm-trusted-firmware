@@ -802,7 +802,7 @@ int intel_smmu_hps_remapper_config(uint32_t remapper_bypass)
 #endif
 
 #if SIP_SVC_V3
-uint8_t sip_smc_cmd_cb_ret2(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t sip_smc_cmd_cb_ret2(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -816,7 +816,7 @@ uint8_t sip_smc_cmd_cb_ret2(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
 	return ret_args_len;
 }
 
-uint8_t sip_smc_cmd_cb_ret3(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t sip_smc_cmd_cb_ret3(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -831,7 +831,7 @@ uint8_t sip_smc_cmd_cb_ret3(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
 	return ret_args_len;
 }
 
-uint8_t sip_smc_ret_nbytes_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t sip_smc_ret_nbytes_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -848,7 +848,7 @@ uint8_t sip_smc_ret_nbytes_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_arg
 	return ret_args_len;
 }
 
-uint8_t sip_smc_get_chipid_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_args)
+uint8_t sip_smc_get_chipid_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
 {
 	uint8_t ret_args_len = 0U;
 	sdm_response_t *resp = (sdm_response_t *)resp_desc;
@@ -866,30 +866,88 @@ uint8_t sip_smc_get_chipid_cb(void *resp_desc, void *cmd_desc, uint32_t *ret_arg
 	return ret_args_len;
 }
 
-static uintptr_t smc_ret(void *handle, uint32_t *ret_args, uint32_t ret_args_len)
+static uintptr_t smc_ret(void *handle, uint64_t *ret_args, uint32_t ret_args_len)
 {
+
 	switch (ret_args_len) {
 	case SMC_RET_ARGS_ONE:
+		VERBOSE("SVC V3: %s: x0 0x%lx\n", __func__, ret_args[0]);
 		SMC_RET1(handle, ret_args[0]);
 		break;
 
 	case SMC_RET_ARGS_TWO:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx\n", __func__, ret_args[0], ret_args[1]);
 		SMC_RET2(handle, ret_args[0], ret_args[1]);
 		break;
 
 	case SMC_RET_ARGS_THREE:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx, x2 0x%lx\n",
+			__func__, ret_args[0],	ret_args[1], ret_args[2]);
 		SMC_RET3(handle, ret_args[0], ret_args[1], ret_args[2]);
 		break;
 
 	case SMC_RET_ARGS_FOUR:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx, x2 0x%lx, x3 0x%lx\n",
+			__func__, ret_args[0], ret_args[1], ret_args[2], ret_args[3]);
 		SMC_RET4(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3]);
 		break;
 
 	case SMC_RET_ARGS_FIVE:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx, x2 0x%lx, x3 0x%lx, x4 0x%lx\n",
+			__func__, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4]);
 		SMC_RET5(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4]);
 		break;
 
+	case SMC_RET_ARGS_SIX:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx x2 0x%lx x3 0x%lx, x4 0x%lx x5 0x%lx\n",
+			__func__, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			ret_args[5]);
+		SMC_RET6(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			 ret_args[5]);
+		break;
+
+	case SMC_RET_ARGS_SEVEN:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx x2 0x%lx, x3 0x%lx, x4 0x%lx, x5 0x%lx\t"
+			"x6 0x%lx\n",
+			__func__, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			ret_args[5], ret_args[6]);
+		SMC_RET7(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			 ret_args[5], ret_args[6]);
+		break;
+
+	case SMC_RET_ARGS_EIGHT:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx x2 0x%lx, x3 0x%lx, x4 0x%lx x5 0x%lx\t"
+			"x6 0x%lx, x7 0x%lx\n",
+			__func__, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			ret_args[5], ret_args[6], ret_args[7]);
+		SMC_RET8(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			 ret_args[5], ret_args[6], ret_args[7]);
+		break;
+
+	case SMC_RET_ARGS_NINE:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx x2 0x%lx, x3 0x%lx, x4 0x%lx, x5 0x%lx\t"
+			"x6 0x%lx, x7 0x%lx, x8 0x%lx\n",
+			__func__, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			ret_args[5], ret_args[6], ret_args[7], ret_args[8]);
+		SMC_RET18(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			 ret_args[5], ret_args[6], ret_args[7], ret_args[8],
+			 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		break;
+
+	case SMC_RET_ARGS_TEN:
+		VERBOSE("SVC V3: %s: x0 0x%lx, x1 0x%lx, x2 0x%lx, x3 0x%lx, x4 0x%lx x5 0x%lx\t"
+			"x6 0x%lx, x7 0x%lx x8 0x%lx, x9 0x%lx, x10 0x%lx\n",
+			__func__, ret_args[0], ret_args[1], ret_args[2], ret_args[3],
+			ret_args[4], ret_args[5], ret_args[6], ret_args[7], ret_args[8],
+			ret_args[9], ret_args[10]);
+		SMC_RET18(handle, ret_args[0], ret_args[1], ret_args[2], ret_args[3], ret_args[4],
+			  ret_args[5], ret_args[6], ret_args[7], ret_args[8], ret_args[9],
+			  0, 0, 0, 0, 0, 0, 0, 0);
+		break;
+
 	default:
+		VERBOSE("SVC V3: %s ret_args_len is wrong, please check %d\n ",
+			__func__, ret_args_len);
 		SMC_RET1(handle, INTEL_SIP_SMC_STATUS_ERROR);
 		break;
 	}
@@ -929,7 +987,7 @@ static uintptr_t sip_smc_handler_v3(uint32_t smc_fid,
 	switch (smc_fid) {
 	case ALTERA_SIP_SMC_ASYNC_RESP_POLL:
 	{
-		uint32_t ret_args[8] = {0};
+		uint64_t ret_args[16] = {0};
 		uint32_t ret_args_len = 0;
 
 		status = mailbox_response_poll_v3(GET_CLIENT_ID(x1),
