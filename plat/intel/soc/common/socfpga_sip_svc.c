@@ -866,6 +866,62 @@ uint8_t sip_smc_get_chipid_cb(void *resp_desc, void *cmd_desc, uint64_t *ret_arg
 	return ret_args_len;
 }
 
+uint8_t sip_smc_cmd_cb_rsu_status(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
+{
+	uint8_t ret_args_len = 0U;
+	uint32_t retry_counter = ~0U;
+	uint32_t failure_source = 0U;
+	sdm_response_t *resp = (sdm_response_t *)resp_desc;
+	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
+
+	(void)cmd;
+	/* Get the failure source and current image retry counter value from the response. */
+	failure_source = resp->resp_data[5] & RSU_VERSION_ACMF_MASK;
+	retry_counter = resp->resp_data[8];
+
+	if ((retry_counter != ~0U) && (failure_source == 0U))
+		resp->resp_data[5] |= RSU_VERSION_ACMF;
+
+	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
+	ret_args[ret_args_len++] = resp->err_code;
+	/* Current CMF */
+	ret_args[ret_args_len++] = GET_ADDR64(resp->resp_data[1], resp->resp_data[0]);
+	/* Last Failing CMF Address */
+	ret_args[ret_args_len++] = GET_ADDR64(resp->resp_data[3], resp->resp_data[2]);
+	/* Config State */
+	ret_args[ret_args_len++] = resp->resp_data[4];
+	/* Version */
+	ret_args[ret_args_len++] = (GENMASK(16, 0) & resp->resp_data[5]);
+	/* Failure Source */
+	ret_args[ret_args_len++] = ((GENMASK(32, 17) & resp->resp_data[5]) >> 16);
+	/* Error location */
+	ret_args[ret_args_len++] = resp->resp_data[6];
+	/* Error details */
+	ret_args[ret_args_len++] = resp->resp_data[7];
+	/* Current image retry counter */
+	ret_args[ret_args_len++] = resp->resp_data[8];
+
+	return ret_args_len;
+}
+
+uint8_t sip_smc_cmd_cb_rsu_spt(void *resp_desc, void *cmd_desc, uint64_t *ret_args)
+{
+	uint8_t ret_args_len = 0U;
+	sdm_response_t *resp = (sdm_response_t *)resp_desc;
+	sdm_command_t *cmd = (sdm_command_t *)cmd_desc;
+
+	(void)cmd;
+
+	ret_args[ret_args_len++] = INTEL_SIP_SMC_STATUS_OK;
+	ret_args[ret_args_len++] = resp->err_code;
+	/* Sub Partition Table (SPT) 0 address */
+	ret_args[ret_args_len++] = GET_ADDR64(resp->resp_data[0], resp->resp_data[1]);
+	/* Sub Partition Table (SPT) 1 address */
+	ret_args[ret_args_len++] = GET_ADDR64(resp->resp_data[2], resp->resp_data[3]);
+
+	return ret_args_len;
+}
+
 static uintptr_t smc_ret(void *handle, uint64_t *ret_args, uint32_t ret_args_len)
 {
 
@@ -1281,6 +1337,53 @@ static uintptr_t sip_smc_handler_v3(uint32_t smc_fid,
 						   1U,
 						   MBOX_CMD_FLAG_CASUAL,
 						   sip_smc_cmd_cb_ret3,
+						   NULL,
+						   0);
+
+		SMC_RET1(handle, status);
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_RSU_GET_SPT:
+	{
+		status = mailbox_send_cmd_async_v3(GET_CLIENT_ID(x1),
+						   GET_JOB_ID(x1),
+						   MBOX_GET_SUBPARTITION_TABLE,
+						   NULL,
+						   0,
+						   MBOX_CMD_FLAG_CASUAL,
+						   sip_smc_cmd_cb_rsu_spt,
+						   NULL,
+						   0);
+
+		SMC_RET1(handle, status);
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_RSU_GET_STATUS:
+	{
+		status = mailbox_send_cmd_async_v3(GET_CLIENT_ID(x1),
+						   GET_JOB_ID(x1),
+						   MBOX_RSU_STATUS,
+						   NULL,
+						   0,
+						   MBOX_CMD_FLAG_CASUAL,
+						   sip_smc_cmd_cb_rsu_status,
+						   NULL,
+						   0);
+
+		SMC_RET1(handle, status);
+	}
+
+	case ALTERA_SIP_SMC_ASYNC_RSU_NOTIFY:
+	{
+		uint32_t notify_code = (uint32_t)x2;
+
+		status = mailbox_send_cmd_async_v3(GET_CLIENT_ID(x1),
+						   GET_JOB_ID(x1),
+						   MBOX_HPS_STAGE_NOTIFY,
+						   &notify_code,
+						   1U,
+						   MBOX_CMD_FLAG_CASUAL,
+						   sip_smc_cmd_cb_ret2,
 						   NULL,
 						   0);
 
