@@ -19,7 +19,7 @@
 #define S32CC_DDR_PLL_VCO_FREQ		(1600U * MHZ)
 #define S32CC_DDR_PLL_PHI0_FREQ		(800U * MHZ)
 #define S32CC_PERIPH_DFS_PHI3_FREQ	(800U * MHZ)
-#define S32CC_USDHC_FREQ		(400U * MHZ)
+#define S32CC_USDHC_FREQ		(200U * MHZ)
 
 static int setup_fxosc(void)
 {
