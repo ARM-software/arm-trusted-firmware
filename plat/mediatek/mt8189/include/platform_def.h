@@ -45,6 +45,15 @@
 #define UART_BAUDRATE	(115200)
 
 /*******************************************************************************
+ * CIRQ related constants
+ ******************************************************************************/
+#define SYS_CIRQ_BASE		(IO_PHYS + 204000)
+#define MD_WDT_IRQ_BIT_ID	(519)
+#define CIRQ_REG_NUM		(19)
+#define CIRQ_SPI_START		(128)
+#define CIRQ_IRQ_NUM		(598)
+
+/*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/
 #define SYS_COUNTER_FREQ_IN_HZ	(13000000)
@@ -79,6 +88,18 @@
  */
 #define BL31_BASE			(TZRAM_BASE + 0x1000)
 #define BL31_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
+
+/*******************************************************************************
+ * GIC-600 & interrupt handling related constants
+ ******************************************************************************/
+/* Base MTK_platform compatible GIC memory map */
+#define BASE_GICD_BASE		(MT_GIC_BASE)
+#define MT_GIC_RDIST_BASE	(MT_GIC_BASE + 0x40000)
+#define DEV_IRQ_ID		300
+
+#define PLAT_MTK_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(DEV_IRQ_ID, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL)
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
