@@ -111,11 +111,11 @@ class TfaPrettyPrinter:
 
     def print_symbol_table(
         self,
-        symbols: List[Tuple[str, int, str]],
+        symbol_table: Dict[str, Dict[str, int]],
         modules: List[str],
         start: int = 12,
     ) -> None:
-        assert len(symbols), "Empty symbol list!"
+        assert len(symbol_table), "Empty symbol list!"
         modules = sorted(modules)
         col_width = int((self.term_size - start) / len(modules))
         address_fixed_width = 11
@@ -127,7 +127,15 @@ class TfaPrettyPrinter:
         ]
         last_addr = None
 
-        for i, (name, addr, mod) in enumerate(symbols):
+        symbols_list: List[Tuple[str, int, str]] = [
+            (name, addr, mod)
+            for mod, syms in symbol_table.items()
+            for name, addr in syms.items()
+        ]
+
+        symbols_list.sort(key=lambda x: (-x[1], x[0]), reverse=True)
+
+        for i, (name, addr, mod) in enumerate(symbols_list):
             # Do not print out an address twice if two symbols overlap,
             # for example, at the end of one region and start of another.
             leading = f"{addr:{num_fmt}}" + " " if addr != last_addr else " " * start
@@ -139,7 +147,7 @@ class TfaPrettyPrinter:
                     modules.index(mod),
                     len(modules),
                     col_width,
-                    is_edge=(not i or i == len(symbols) - 1),
+                    is_edge=(not i or i == len(symbols_list) - 1),
                 )
             )
 

@@ -6,7 +6,15 @@
 
 import re
 from dataclasses import asdict, dataclass
-from typing import BinaryIO, Dict, ItemsView, Iterable, List, Optional, Tuple, Union
+from typing import (
+    BinaryIO,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from elftools.elf.elffile import ELFFile
 from elftools.elf.sections import Section
@@ -52,8 +60,8 @@ class TfaElfParser:
         self._end: int = self._start + self._size
 
     @property
-    def symbols(self) -> ItemsView[str, int]:
-        return self._symbols.items()
+    def symbols(self) -> Dict[str, int]:
+        return self._symbols
 
     @staticmethod
     def tfa_mem_obj_factory(

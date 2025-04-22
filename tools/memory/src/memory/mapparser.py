@@ -5,7 +5,7 @@
 #
 from collections import defaultdict
 from re import match, search
-from typing import Dict, ItemsView, TextIO
+from typing import Dict, TextIO
 
 from memory.image import Region
 
@@ -22,8 +22,8 @@ class TfaMapParser:
         self._symbols: Dict[str, int] = self.read_symbols(map_file)
 
     @property
-    def symbols(self) -> ItemsView[str, int]:
-        return self._symbols.items()
+    def symbols(self) -> Dict[str, int]:
+        return self._symbols
 
     @staticmethod
     def read_symbols(file: TextIO) -> Dict[str, int]:

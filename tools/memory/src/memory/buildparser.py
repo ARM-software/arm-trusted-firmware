@@ -6,7 +6,12 @@
 
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import (
+    Any,
+    Dict,
+    List,
+    Union,
+)
 
 from memory.elfparser import TfaElfParser
 from memory.image import Region
@@ -48,20 +53,23 @@ class TfaBuildParser:
             )
 
     @property
-    def symbols(self) -> List[Tuple[str, int, str]]:
-        return [(*sym, k) for k, v in self._modules.items() for sym in v.symbols]
+    def symbols(self) -> Dict[str, Dict[str, int]]:
+        return {k: v.symbols for k, v in self._modules.items()}
 
     @staticmethod
     def filter_symbols(
-        symbols: List[Tuple[str, int, str]], regex: str
-    ) -> List[Tuple[str, int, str]]:
+        symbols: Dict[str, Dict[str, int]], regex: str
+    ) -> Dict[str, Dict[str, int]]:
         """Returns a map of symbols to modules."""
 
-        return sorted(
-            filter(lambda s: re.match(regex, s[0]), symbols),
-            key=lambda s: (-s[1], s[0]),
-            reverse=True,
-        )
+        return {
+            image: {
+                symbol: symbol_value
+                for symbol, symbol_value in symbols.items()
+                if re.match(regex, symbol)
+            }
+            for image, symbols in symbols.items()
+        }
 
     def get_mem_usage_dict(self) -> Dict[str, Dict[str, Region]]:
         """Returns map of memory usage per memory type for each module."""
