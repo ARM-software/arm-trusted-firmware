@@ -7,12 +7,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <drivers/cirq.h>
-
 #include <platform_def.h>
 
 #include <lib/pm/mtk_pm.h>
 #include <lpm_v2/mt_lp_rm.h>
+#include <mt_cirq.h>
 #include "mt_cpu_pm.h"
 #include "mt_lp_irqremain.h"
 
