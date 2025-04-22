@@ -331,8 +331,9 @@ u_register_t psci_migrate_info_up_cpu(void)
 	 * psci_spd_migrate_info() returns.
 	 */
 	rc = psci_spd_migrate_info(&resident_cpu_mpidr);
-	if ((rc != PSCI_TOS_NOT_UP_MIG_CAP) && (rc != PSCI_TOS_UP_MIG_CAP))
+	if ((rc != PSCI_TOS_NOT_UP_MIG_CAP) && (rc != PSCI_TOS_UP_MIG_CAP)) {
 		return (u_register_t)(register_t) PSCI_E_INVALID_PARAMS;
+	}
 
 	return resident_cpu_mpidr;
 }
@@ -343,12 +344,14 @@ int psci_node_hw_state(u_register_t target_cpu,
 	int rc;
 
 	/* Validate target_cpu */
-	if (!is_valid_mpidr(target_cpu))
+	if (!is_valid_mpidr(target_cpu)) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	/* Validate power_level against PLAT_MAX_PWR_LVL */
-	if (power_level > PLAT_MAX_PWR_LVL)
+	if (power_level > PLAT_MAX_PWR_LVL) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	/*
 	 * Dispatch this call to platform to query power controller, and pass on
