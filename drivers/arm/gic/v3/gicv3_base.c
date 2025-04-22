@@ -16,7 +16,7 @@
 #include <plat/common/platform.h>
 
 #if USE_GIC_DRIVER != 3
-#error "This file should only be used with GENERIC_GIC_DRIVER=3"
+#error "This file should only be used with USE_GIC_DRIVER=3"
 #endif
 
 /* The GICv3 driver only needs to be initialized in EL3 */
