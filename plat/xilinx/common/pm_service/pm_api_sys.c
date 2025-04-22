@@ -409,6 +409,7 @@ enum pm_ret_status eemi_feature_check(uint32_t api_id, uint32_t *ret_payload)
 		break;
 	default:
 		ret = PM_RET_ERROR_NO_FEATURE;
+		break;
 	}
 
 	return ret;
