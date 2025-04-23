@@ -226,10 +226,10 @@ JTAG DCC console driver
 ^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Michal Simek <michal.simek@amd.com>
 :|G|: `michalsimek`_
-:|M|: Amit Nagal <amit.nagal@amd.com>
-:|G|: `amit-nagal`_
 :|M|: Akshay Belsare <akshay.belsare@amd.com>
 :|G|: `Akshay-Belsare`_
+:|M|: Maheedhar Sai Bollapalli <maheedharsai.bollapalli@amd.com>
+:|G|: `maheedhar-bollapalli`_
 :|F|: drivers/arm/dcc/
 :|F|: include/drivers/arm/dcc.h
 
@@ -912,15 +912,17 @@ UniPhier platform port
 :|F|: docs/plat/socionext-uniphier.rst
 :|F|: plat/socionext/uniphier/
 
-Xilinx platform port
-^^^^^^^^^^^^^^^^^^^^
+AMD-Xilinx platform port
+^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Michal Simek <michal.simek@amd.com>
 :|G|: `michalsimek`_
-:|M|: Amit Nagal <amit.nagal@amd.com>
-:|G|: `amit-nagal`_
 :|M|: Akshay Belsare <akshay.belsare@amd.com>
 :|G|: `Akshay-Belsare`_
+:|M|: Maheedhar Sai Bollapalli <maheedharsai.bollapalli@amd.com>
+:|G|: `maheedhar-bollapalli`_
+:|F|: docs/plat/amd\*
 :|F|: docs/plat/xilinx\*
+:|F|: plat/amd/
 :|F|: plat/xilinx/
 
 
@@ -1035,7 +1037,6 @@ Conventional Changelog Extensions
 .. _abdellatif-elkhlifi: https://github.com/abdellatif-elkhlifi
 .. _Akshay-Belsare: https://github.com/Akshay-Belsare
 .. _AlexeiFedorov: https://github.com/AlexeiFedorov
-.. _amit-nagal: https://github.com/amit-nagal
 .. _andersdellien-arm: https://github.com/andersdellien-arm
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
@@ -1085,6 +1086,7 @@ Conventional Changelog Extensions
 .. _leon-chen-mtk: https://github.com/leon-chen-mtk
 .. _linyidi: https://github.com/linyidi
 .. _madhukar-Arm: https://github.com/madhukar-Arm
+.. _maheedhar-bollapalli: https://github.com/maheedhar-bollapalli
 .. _manish-pandey-arm: https://github.com/manish-pandey-arm
 .. _ManishVB-Arm: https://github.com/ManishVB-Arm
 .. _marcbonnici: https://github.com/marcbonnici
