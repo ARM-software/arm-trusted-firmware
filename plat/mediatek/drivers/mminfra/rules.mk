@@ -8,10 +8,9 @@ LOCAL_DIR := $(call GET_LOCAL_DIR)
 
 MODULE := mminfra
 
-PLAT_INCLUDES += -I${MTK_PLAT}/include/drivers/
+PLAT_INCLUDES += -I$(MTK_PLAT)/include/drivers/
+PLAT_INCLUDES += -I$(MTK_PLAT)/drivers/mminfra/$(MTK_SOC)
 
-ifeq ($(MTKLIB_PATH),)
-LOCAL_SRCS-y := ${LOCAL_DIR}/mminfra_stub.c
-endif
+LOCAL_SRCS-y := $(LOCAL_DIR)/$(MTK_SOC)/mminfra.c
 
 $(eval $(call MAKE_MODULE,$(MODULE),$(LOCAL_SRCS-y),$(MTK_BL)))

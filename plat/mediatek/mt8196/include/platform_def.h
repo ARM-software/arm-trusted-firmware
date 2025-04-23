@@ -341,4 +341,10 @@
 #define SSPM_CFGREG_BASE	(IO_PHYS + 0x0C300000 + SSPM_REG_OFFSET)
 #define SSPM_CFGREG_SIZE	(0x1000)
 
+/*******************************************************************************
+ * MMinfra related constants
+ ******************************************************************************/
+#define MTK_VLP_TRACER_MON_BASE		(IO_PHYS + 0x0c000000)
+#define MTK_VLP_TRACER_MON_REG_SIZE	(0x1000)
+
 #endif /* PLATFORM_DEF_H */
