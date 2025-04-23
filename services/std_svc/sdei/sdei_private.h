@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2025, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -232,13 +232,15 @@ void init_sdei_state(void);
 
 sdei_ev_map_t *find_event_map_by_intr(unsigned int intr_num, bool shared);
 sdei_ev_map_t *find_event_map(int ev_num);
-sdei_entry_t *get_event_entry(sdei_ev_map_t *map);
+sdei_entry_t *get_event_entry(const sdei_ev_map_t *map);
+sdei_entry_t *get_event_entry_target_pe(long int mapsub, unsigned int nm, uint64_t target_pe);
 
 int64_t sdei_event_context(void *handle, unsigned int param);
 int sdei_event_complete(bool resume, uint64_t pc);
 
-void sdei_pe_unmask(void);
+bool sdei_is_target_pe_masked(uint64_t target_pe);
 int64_t sdei_pe_mask(void);
+void sdei_pe_unmask(void);
 
 int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 		void *cookie);
