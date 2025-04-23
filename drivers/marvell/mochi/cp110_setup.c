@@ -12,7 +12,6 @@
 #include <drivers/marvell/amb_adec.h>
 #include <drivers/marvell/iob.h>
 #include <drivers/marvell/mochi/cp110_setup.h>
-#include <drivers/rambus/trng_ip_76.h>
 
 #include <efuse_def.h>
 #include <plat_marvell.h>
@@ -106,13 +105,6 @@
 #define MVEBU_RTC_BRIDGE_TIMING_CTRL1_REG		(MVEBU_RTC_BASE + 0x84)
 #define MVEBU_RTC_READ_OUTPUT_DELAY_MASK		0xFFFF
 #define MVEBU_RTC_READ_OUTPUT_DELAY_DEFAULT		0x1F
-
-/*******************************************************************************
- * TRNG Configuration
- ******************************************************************************/
-#define MVEBU_TRNG_BASE					(0x760000)
-#define MVEBU_EFUSE_TRNG_ENABLE_EFUSE_WORD		MVEBU_AP_LDX_220_189_EFUSE_OFFS
-#define MVEBU_EFUSE_TRNG_ENABLE_BIT_OFFSET		13	/* LD0[202] */
 
 enum axi_attr {
 	AXI_ADUNIT_ATTR = 0,
@@ -388,36 +380,6 @@ static void cp110_amb_adec_init(uintptr_t base)
 	init_amb_adec(base);
 }
 
-static void cp110_trng_init(uintptr_t base)
-{
-	static bool done;
-	int ret;
-	uint32_t reg_val, efuse;
-
-	/* Set access to LD0 */
-	reg_val = mmio_read_32(MVEBU_AP_EFUSE_SRV_CTRL_REG);
-	reg_val &= ~EFUSE_SRV_CTRL_LD_SELECT_MASK;
-	mmio_write_32(MVEBU_AP_EFUSE_SRV_CTRL_REG, reg_val);
-
-	/* Obtain the AP LD0 bit defining TRNG presence */
-	efuse = mmio_read_32(MVEBU_EFUSE_TRNG_ENABLE_EFUSE_WORD);
-	efuse >>= MVEBU_EFUSE_TRNG_ENABLE_BIT_OFFSET;
-	efuse &= 1;
-
-	if (efuse == 0) {
-		VERBOSE("TRNG is not present, skipping");
-		return;
-	}
-
-	if (!done) {
-		ret = eip76_rng_probe(base + MVEBU_TRNG_BASE);
-		if (ret != 0) {
-			ERROR("Failed to init TRNG @ 0x%lx\n", base);
-			return;
-		}
-		done = true;
-	}
-}
 void cp110_init(uintptr_t cp110_base, uint32_t stream_id)
 {
 	INFO("%s: Initialize CPx - base = %lx\n", __func__, cp110_base);
@@ -445,9 +407,6 @@ void cp110_init(uintptr_t cp110_base, uint32_t stream_id)
 
 	/* Reset RTC if needed */
 	cp110_rtc_init(cp110_base);
-
-	/* TRNG init - for CP0 only */
-	cp110_trng_init(cp110_base);
 }
 
 /* Do the minimal setup required to configure the CP in BLE */
