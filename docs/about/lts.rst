@@ -283,8 +283,9 @@ To make a new minor release (e.g. 2.x.y → 2.x.y+1), follow these steps.
    cherry-pick -x sha1-hash``.
 #. Some of the patches of this list may not be taken, mainly due to false
    positive. If in doubt, that can be discussed either in the “tf-a-lts” channel
-   on Discord or during the LTS weekly meeting. There could also be patches to
-   be taken in tf-a-ci-scripts or tf-a-tests.
+   on Discord or during the LTS weekly meeting.
+#. Some dependency patches, not listed in the CSV file, may have to be taken, to ease the
+   application of the LTS patches. This can also be discussed with the other LTS maintainers.
 #. Push the stack of changes: ``git push origin
    HEAD:refs/for/lts-v2.x%topic=for-lts-v2.x.y+1``. You might need the
    ``--no-verify`` option: ``git push origin --no-verify
@@ -298,6 +299,13 @@ To make a new minor release (e.g. 2.x.y → 2.x.y+1), follow these steps.
    present, Gerrit will automatically merge the patch. LTS maintainers will then
    trigger a Jenkins job that will take care of the release (tag, mail, and
    readthedocs update).
+#. Some features may also require updates in other repositories (tf-a-ci-scripts,
+   tf-a-job-configs or tf-a-tests...). For tf-a-job-configs, there are no LTS branches, but
+   dedicated scripts for each LTS version which have to be updated manually. This is the case
+   for e.g. MbedTLS updates. For tf-a-ci-scripts and tf-a-tests, there are LTS branches and patches
+   will be cherry-picked from master branch to the LTS branch the same way it is done for TF-A.
+   There is no automation for those repositories. So the patches will have to be merged manually,
+   and for tf-a-ci-scripts and tf-a-tests, tags will also have to be set manually.
 
 Execution Plan
 **************
