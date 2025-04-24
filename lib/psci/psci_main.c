@@ -284,8 +284,9 @@ int psci_migrate(u_register_t target_cpu)
 	u_register_t resident_cpu_mpidr = 0;
 
 	/* Validate the target cpu */
-	if (!is_valid_mpidr(target_cpu))
+	if (!is_valid_mpidr(target_cpu)) {
 		return PSCI_E_INVALID_PARAMS;
+	}
 
 	rc = psci_spd_migrate_info(&resident_cpu_mpidr);
 	if (rc != PSCI_TOS_UP_MIG_CAP) {

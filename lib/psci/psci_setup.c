@@ -160,11 +160,11 @@ static unsigned int __init populate_power_domain_tree(const unsigned char
 			num_children = topology[parent_node_index];
 
 			for (j = node_index;
-				j < (node_index + num_children); j++)
+				j < (node_index + num_children); j++) {
 				psci_init_pwr_domain_node((uint16_t)j,
 						  parent_node_index - 1U,
 						  (unsigned char)level);
-
+			}
 			node_index = j;
 			num_nodes_at_next_lvl += num_children;
 			parent_node_index++;
@@ -174,8 +174,9 @@ static unsigned int __init populate_power_domain_tree(const unsigned char
 		level--;
 
 		/* Reset the index for the cpu power domain array */
-		if (level == (int) PSCI_CPU_PWR_LVL)
+		if (level == (int) PSCI_CPU_PWR_LVL) {
 			node_index = 0;
+		}
 	}
 
 	/* Validate the sanity of array exported by the platform */
