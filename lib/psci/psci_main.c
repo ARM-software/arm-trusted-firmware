@@ -316,7 +316,7 @@ int psci_migrate(u_register_t target_cpu)
 
 int psci_migrate_info_type(void)
 {
-	u_register_t resident_cpu_mpidr;
+	u_register_t resident_cpu_mpidr = 0;
 
 	return psci_spd_migrate_info(&resident_cpu_mpidr);
 }
