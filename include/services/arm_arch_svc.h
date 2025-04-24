@@ -300,6 +300,7 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 	MDCR_PLAT_FLIPPED)
 #define MDCR_EL3_IGNORED (							\
 	MDCR_EBWE_BIT		|						\
+	MDCR_EnPMS3_BIT		|						\
 	MDCR_EnPMSN_BIT		|						\
 	MDCR_SBRBE(2UL)		|						\
 	MDCR_MTPME_BIT		|						\
