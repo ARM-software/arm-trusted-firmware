@@ -215,7 +215,7 @@ loop1:
 
 	.macro	dcsw_loop _op
 #if ENABLE_BTI
-	bti	j
+	BTI	j
 #endif
 loop2_\_op:
 	lsl	w7, w6, w2		// w7 = aligned max set number

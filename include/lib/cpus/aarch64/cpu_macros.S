@@ -514,7 +514,7 @@
 	.align \_align
 	\_name:
 #if ENABLE_BTI
-	bti	jc
+	BTI	jc
 #endif
 .endm
 

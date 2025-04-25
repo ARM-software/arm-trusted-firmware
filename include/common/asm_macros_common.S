@@ -7,6 +7,20 @@
 #define ASM_MACROS_COMMON_S
 
 	/*
+	 * Provide a wrapper for the "bti" instructions using the more
+	 * compatible "hint" encoding, otherwise older toolchains would reject
+	 * this when not compiled for a BTI capable machine (-march=armv8.5-a).
+	 */
+	.macro	BTI _targets
+	.ifc	\_targets, j
+	hint	#36
+	.endif
+	.ifc	\_targets, jc
+	hint	#38
+	.endif
+	.endm
+
+	/*
 	 * This macro is used to create a function label and place the
 	 * code into a separate text section based on the function name
 	 * to enable elimination of unused code during linking. It also adds
@@ -42,7 +56,7 @@
 	/* When Branch Target Identification is enabled, insert "bti jc"
 	 * instruction to enable indirect calls and branches
 	 */
-	 bti	jc
+	BTI	jc
 #endif
 	.endm
 
