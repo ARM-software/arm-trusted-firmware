@@ -3,6 +3,52 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.12.2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.1..refs/tags/lts-v2.12.2) (2025-04-25)
+
+### New Features
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add ENABLE_ERRATA_ALL flag ([04aca84](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/04aca8439e3920bd5db9158ac6704f219e8c16e2))
+    - add sysreg_bit_toggle ([2bef6ba](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/2bef6baa618d30d01d1cb9ee3761fc03c4d36449))
+
+### Resolved Issues
+
+- **Platforms**
+
+  - **Arm**
+
+    - create build directory before key generation ([107c117](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/107c117c4eb0072388ca7abc1ddc4c3d3633165f))
+
+  - **Xilinx**
+
+    - **ZynqMP**
+
+      - fix length of clock name ([1d6d6d2](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/1d6d6d2d759a4c583e338f707f6c0029de424fa1))
+
+- **Services**
+
+  - **ERRATA ABI**
+
+    - add support for handling split workarounds ([fd2df32](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fd2df326c59f7819cea5afcb42cb885ee33d190e))
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - clear CPUPWRCTLR_EL1.CORE_PWRDN_EN_BIT on reset ([d2ab213](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d2ab213f09d4d074cd911d194f5737c85eceb330))
+    - declare reset errata correctly ([ad237ca](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ad237caed875a043046e195ff816ad9e869b80b3))
+    - fix a typo in errata doc ([ca1f6fd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ca1f6fd07a59dd3f68d4c8690165286aa80341a1))
+    - fix clang compilation issue ([527b06e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/527b06eb64438bdd2f56f5d622f0b3050a5ac334))
+    - remove errata setting PF_MODE to conservative ([4f7f634](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4f7f634d6c248779a1fc2cbb2fbb28808cc8a897))
+    - workaround for Cortex-A715 erratum 2804830 ([a33ee00](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a33ee00b4dac6b5c0696ed0609f6af42faac1c91))
+    - workaround for Cortex-X4 erratum 2957258 ([8414a20](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/8414a2076b155aa259484d28bd4c5b180a75e22b))
+    - workaround for Cortex-X925 erratum 2963999 ([29db96d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/29db96dabc016c0d5af08f760b44a31bf7ff429c))
+    - workaround for Neoverse-V3 erratum 2970647 ([708f4fd](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/708f4fde5951ffab2cfaba3c9ed5da68924ed1b1))
+    - workaround for Cortex-A510 erratum 2971420 ([4fa822e](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/4fa822ebe884ab4f3872bda54b636f9b727aa73f))
+
 ## [lts-2.12.1](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.12.0..refs/tags/lts-v2.12.1) (2025-02-28)
 
 ### New Features
