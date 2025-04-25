@@ -205,13 +205,6 @@ subsections:
             deprecated:
               - plat/tc
 
-            subsections:
-              - title: TC0
-                scope: tc0
-
-                deprecated:
-                  - plat/tc0
-
           - title: Corstone-1000
             scope: corstone-1000
 

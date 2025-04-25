@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,10 +73,6 @@ func enable_dsu_pmu_el1_access
 	sysreg_bit_set actlr_el3, CPUACTLR_CLUSTERPMUEN
 	ret
 endfunc enable_dsu_pmu_el1_access
-
-func TC_HANDLER(2)
-	ret
-endfunc TC_HANDLER(2)
 
 func TC_HANDLER(3)
 	mov	x9, lr
