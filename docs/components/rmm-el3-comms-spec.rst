@@ -747,7 +747,10 @@ Input values
    fid,x0,[63:0],UInt64,Command FID
    ecam_address,x1,[63:0],UInt64,Used to identify the root complex(RC)
    rp_id,x2,[63:0],UInt64,Used to identify the root port within the root complex(RC)
-   Keyset[12]:Dir[11]:Substream[10:8]:StreamID[7:0],x3,[63:0],UInt64,IDE selective stream informationKey set: can be 0 or 1unused bits MBZ.
+   "Keyset[12]:
+   Dir[11]:
+   Substream[10:8]:
+   StreamID[7:0]",x3,[63:0],UInt64,IDE selective stream informationKey set: can be 0 or 1unused bits MBZ.
    KeqQW0,x4,[63:0],UInt64,Quad word of key [63:0]
    KeqQW1,x5,[63:0],UInt64,Quad word of key [127:64]
    KeqQW2,x6,[63:0],UInt64,Quad word of key [191:128]
@@ -763,7 +766,7 @@ Output values
 
 .. csv-table:: Output values for RMM_IDE_KEY_PROG
    :header: "Name", "Register", "Field", "Type", "Description"
-   :widths: 1 1 1 2 4
+   :widths: 1 1 1 1 5
 
    Result,x0,[63:0],Error Code,Command return status
 
@@ -777,10 +780,10 @@ a failure. The errors are ordered by condition check.
    :header: "ID", "Condition"
    :widths: 1 5
 
-   ``E_RMM_OK``,Key programming is successful.
-   ``E_RMM_FAULT``,Key programming is not successful.
-   ``E_RMM_INVAL``,Key programming arguments are incorrect.
-   ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6
+   ``E_RMM_OK``,The Key programming is successful.
+   ``E_RMM_FAULT``,The Key programming is not successful.
+   ``E_RMM_INVAL``,The Key programming arguments are incorrect.
+   ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6.
    ``E_RMM_AGAIN``,Returned only for non-blocking mode. IDE-KM interface is busy or request is full. Retry required.
    ``E_RMM_INPROGRESS``,Returned only for non-blocking mode. The caller must issue RMM_IDE_KM_PULL_RESPONSE SMC to pull the response.
 
@@ -811,7 +814,10 @@ Input values
    fid,x0,[63:0],UInt64,Command FID
    ecam_address,x1,[63:0],UInt64,Used to identify the root complex(RC)
    rp_id,x2,[63:0],UInt64,Used to identify the root port within the root complex(RC)
-   Keyset[12]:Dir[11]:Substream[10:8]:StreamID[7:0],x3,[63:0],UInt64,IDE selective stream information. Key set can be 0 or 1. Unused bits MBZ.
+   "Keyset[12]:
+   Dir[11]:
+   Substream[10:8]:
+   StreamID[7:0]",x3,[63:0],UInt64,IDE selective stream information. Key set can be 0 or 1. Unused bits MBZ.
    request_id,x4,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
    cookie,x5,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
 
@@ -821,7 +827,7 @@ Output values
 
 .. csv-table:: Output values for RMM_IDE_KEY_SET_GO
    :header: "Name", "Register", "Field", "Type", "Description"
-   :widths: 1 1 1 2 4
+   :widths: 1 1 1 1 5
 
    Result,x0,[63:0],Error Code,Command return status
 
@@ -835,9 +841,9 @@ a failure. The errors are ordered by condition check.
    :header: "ID", "Condition"
    :widths: 1 5
 
-   ``E_RMM_OK``,Key set go is successful.
-   ``E_RMM_FAULT``,Key set go is not successful.
-   ``E_RMM_INVAL``,incorrect arguments.
+   ``E_RMM_OK``,The Key set go is successful.
+   ``E_RMM_FAULT``,The Key set go is not successful.
+   ``E_RMM_INVAL``,Incorrect arguments.
    ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6.
    ``E_RMM_AGAIN``,Returned only for non-blocking mode. IDE-KM interface is busy or request is full. Retry required.
    ``E_RMM_INPROGRESS``,Returned only for non-blocking mode. The caller must issue RMM_IDE_KM_PULL_RESPONSE SMC to pull the response.
@@ -869,7 +875,10 @@ Input values
    fid,x0,[63:0],UInt64,Command FID
    ecam_address,x1,[63:0],UInt64,Used to identify the root complex(RC)
    rp_id,x2,[63:0],UInt64,Used to identify the root port within the root complex(RC)
-   Keyset[12]:Dir[11]:Substream[10:8]:StreamID[7:0],x3,[63:0],UInt64,IDE selective stream information. Key set can be 0 or 1. Unused bits MBZ.
+   "Keyset[12]:
+   Dir[11]:
+   Substream[10:8]:
+   StreamID[7:0]",x3,[63:0],UInt64,IDE selective stream information. Key set can be 0 or 1. Unused bits MBZ.
    request_id,x4,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
    cookie,x5,[63:0],UInt64,Used only in non-blocking mode. Ignored in blocking mode.
 
@@ -879,7 +888,7 @@ Output values
 
 .. csv-table:: Output values for RMM_IDE_KEY_SET_STOP
    :header: "Name", "Register", "Field", "Type", "Description"
-   :widths: 1 1 1 2 4
+   :widths: 1 1 1 1 5
 
    Result,x0,[63:0],Error Code,Command return status
 
@@ -893,9 +902,9 @@ a failure. The errors are ordered by condition check.
    :header: "ID", "Condition"
    :widths: 1 5
 
-   ``E_RMM_OK``,Key set go is successful.
-   ``E_RMM_FAULT``,Key set go is not successful.
-   ``E_RMM_INVAL``,incorrect arguments.
+   ``E_RMM_OK``,The Key set stop is successful.
+   ``E_RMM_FAULT``,The Key set stop is not successful.
+   ``E_RMM_INVAL``,Incorrect arguments.
    ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6.
    ``E_RMM_AGAIN``,Returned only for non-blocking mode. IDE-KM interface is busy or request is full. Retry required.
    ``E_RMM_INPROGRESS``,Returned only for non-blocking mode. The caller must issue RMM_IDE_KM_PULL_RESPONSE SMC to pull the response.
@@ -936,7 +945,7 @@ Output values
 
 .. csv-table:: Output values for RMM_IDE_KM_PULL_RESPONSE
    :header: "Name", "Register", "Field", "Type", "Description"
-   :widths: 1 1 1 2 4
+   :widths: 1 1 1 1 5
 
    Result,x0,[63:0],Error Code,Command return status
    Result,x1,[63:0],Error Code,Retrieved response corresponding to previous IDE_KM requests.
@@ -949,16 +958,23 @@ Failure conditions
 The table below shows all the possible error codes returned in ``Result`` upon
 a failure. The errors are ordered by condition check.
 
-.. csv-table:: Failure conditions for RMM_IDE_KM_PULL_RESPONSE
+.. csv-table:: Failure conditions for RMM_IDE_KM_PULL_RESPONSE(x0)
    :header: "ID", "Condition"
    :widths: 1 5
 
-   ``E_RMM_OK``,Key set go is successful.
-   ``E_RMM_FAULT``,Key set go is not successful.
-   ``E_RMM_INVAL``,incorrect arguments.
+   ``E_RMM_OK``,Response is retrieved successfully.
+   ``E_RMM_INVAL``,Arguments to pull response SMC is not correct.
    ``E_RMM_UNK``,Unknown error or the SMC is not present if the version is < 0.6.
-   ``E_RMM_AGAIN``,KM request is empty and no response if available.
+   ``E_RMM_AGAIN``,IDE-KM response queue is empty and no response is available.
 
+.. csv-table:: Failure conditions for RMM_IDE_KM_PULL_RESPONSE(x1)
+   :header: "ID", "Condition"
+   :widths: 1 5
+
+   ``E_RMM_OK``,The previous request was successful.
+   ``E_RMM_FAULT``,The previous request was not successful.
+   ``E_RMM_INVAL``,Arguments to previous request were incorrect.
+   ``E_RMM_UNK``,Previous request returned unknown error.
 
 RMM-EL3 world switch register save restore convention
 _____________________________________________________
