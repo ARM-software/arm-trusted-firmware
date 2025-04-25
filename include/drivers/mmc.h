@@ -19,29 +19,29 @@
 
 #define MMC_ACMD(_x)			U(_x)
 
-#define OCR_POWERUP			BIT(31)
-#define OCR_HCS				BIT(30)
-#define OCR_BYTE_MODE			(U(0) << 29)
-#define OCR_SECTOR_MODE			(U(2) << 29)
-#define OCR_ACCESS_MODE_MASK		(U(3) << 29)
-#define OCR_3_5_3_6			BIT(23)
-#define OCR_3_4_3_5			BIT(22)
-#define OCR_3_3_3_4			BIT(21)
-#define OCR_3_2_3_3			BIT(20)
-#define OCR_3_1_3_2			BIT(19)
-#define OCR_3_0_3_1			BIT(18)
-#define OCR_2_9_3_0			BIT(17)
-#define OCR_2_8_2_9			BIT(16)
-#define OCR_2_7_2_8			BIT(15)
-#define OCR_VDD_MIN_2V7			GENMASK(23, 15)
-#define OCR_VDD_MIN_2V0			GENMASK(14, 8)
-#define OCR_VDD_MIN_1V7			BIT(7)
+#define OCR_POWERUP			BIT_32(31U)
+#define OCR_HCS				BIT_32(30U)
+#define OCR_BYTE_MODE			(U(0) << 29U)
+#define OCR_SECTOR_MODE			(U(2) << 29U)
+#define OCR_ACCESS_MODE_MASK		(U(3) << 29U)
+#define OCR_3_5_3_6			BIT_32(23U)
+#define OCR_3_4_3_5			BIT_32(22U)
+#define OCR_3_3_3_4			BIT_32(21U)
+#define OCR_3_2_3_3			BIT_32(20U)
+#define OCR_3_1_3_2			BIT_32(19U)
+#define OCR_3_0_3_1			BIT_32(18U)
+#define OCR_2_9_3_0			BIT_32(17U)
+#define OCR_2_8_2_9			BIT_32(16U)
+#define OCR_2_7_2_8			BIT_32(15U)
+#define OCR_VDD_MIN_2V7			GENMASK_32(23U, 15U)
+#define OCR_VDD_MIN_2V0			GENMASK_32(14U, 8U)
+#define OCR_VDD_MIN_1V7			BIT_32(7U)
 
-#define MMC_RSP_48			BIT(0)
-#define MMC_RSP_136			BIT(1)		/* 136 bit response */
-#define MMC_RSP_CRC			BIT(2)		/* expect valid crc */
-#define MMC_RSP_CMD_IDX			BIT(3)		/* response contains cmd idx */
-#define MMC_RSP_BUSY			BIT(4)		/* device may be busy */
+#define MMC_RSP_48			BIT_32(0U)
+#define MMC_RSP_136			BIT_32(1U)		/* 136 bit response */
+#define MMC_RSP_CRC			BIT_32(2U)		/* expect valid crc */
+#define MMC_RSP_CMD_IDX			BIT_32(3U)		/* response contains cmd idx */
+#define MMC_RSP_BUSY			BIT_32(4U)		/* device may be busy */
 
 /* JEDEC 4.51 chapter 6.12 */
 #define MMC_RESPONSE_R1			(MMC_RSP_48 | MMC_RSP_CMD_IDX | MMC_RSP_CRC)
