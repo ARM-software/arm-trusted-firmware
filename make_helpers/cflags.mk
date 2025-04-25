@@ -172,6 +172,7 @@ ifneq ($(PIE_FOUND),)
 endif
 
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))
+TF_CFLAGS		+=	$(CFLAGS)
 ASFLAGS			+=	$(CPPFLAGS)                 			\
 				-ffreestanding -Wa,--fatal-warnings
 TF_LDFLAGS		+=	-z noexecstack
