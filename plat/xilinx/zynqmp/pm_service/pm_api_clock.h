@@ -15,7 +15,7 @@
 
 #include "pm_common.h"
 
-#define CLK_NAME_LEN		(15U)
+#define CLK_NAME_LEN		(16U)
 #define MAX_PARENTS		(100U)
 #define CLK_NA_PARENT		-1
 #define CLK_DUMMY_PARENT	-2

@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <cortex_x2.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 #include "wa_cve_2022_23960_bhb_vector.S"
 
@@ -24,20 +25,11 @@
 
 .global check_erratum_cortex_x2_3701772
 
-add_erratum_entry cortex_x2, ERRATUM(3701772), ERRATA_X2_3701772, NO_APPLY_AT_RESET
-
-check_erratum_ls cortex_x2, ERRATUM(3701772), CPU_REV(2, 1)
-
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table CORTEX_X2_BHB_LOOP_COUNT, cortex_x2
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_x2, CVE(2024, 5660)
-
-check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
+cpu_reset_prologue cortex_x2
 
 workaround_reset_start cortex_x2, ERRATUM(2002765), ERRATA_X2_2002765
 	ldr	x0, =0x6
@@ -57,13 +49,6 @@ workaround_reset_start cortex_x2, ERRATUM(2017096), ERRATA_X2_2017096
 workaround_reset_end cortex_x2, ERRATUM(2017096)
 
 check_erratum_ls cortex_x2, ERRATUM(2017096), CPU_REV(2, 0)
-
-workaround_reset_start cortex_x2, ERRATUM(2058056), ERRATA_X2_2058056
-	sysreg_bitfield_insert CORTEX_X2_CPUECTLR2_EL1, CORTEX_X2_CPUECTLR2_EL1_PF_MODE_CNSRV, \
-	CORTEX_X2_CPUECTLR2_EL1_PF_MODE_SHIFT, CORTEX_X2_CPUECTLR2_EL1_PF_MODE_WIDTH
-workaround_reset_end cortex_x2, ERRATUM(2058056)
-
-check_erratum_ls cortex_x2, ERRATUM(2058056), CPU_REV(2, 1)
 
 workaround_reset_start cortex_x2, ERRATUM(2081180), ERRATA_X2_2081180
 	/* Apply instruction patching sequence */
@@ -124,6 +109,15 @@ workaround_reset_end cortex_x2, ERRATUM(2282622)
 
 check_erratum_ls cortex_x2, ERRATUM(2282622), CPU_REV(2, 1)
 
+workaround_reset_start cortex_x2, ERRATUM(2313941), ERRATA_DSU_2313941
+	errata_dsu_2313941_wa_impl
+workaround_reset_end cortex_x2, ERRATUM(2313941)
+
+check_erratum_custom_start cortex_x2, ERRATUM(2313941)
+	check_errata_dsu_2313941_impl
+	ret
+check_erratum_custom_end cortex_x2, ERRATUM(2313941)
+
 workaround_reset_start cortex_x2, ERRATUM(2371105), ERRATA_X2_2371105
 	/* Set bit 40 in CPUACTLR2_EL1 */
 	sysreg_bit_set CORTEX_X2_CPUACTLR2_EL1, CORTEX_X2_CPUACTLR2_EL1_BIT_40
@@ -152,6 +146,10 @@ workaround_reset_end cortex_x2, ERRATUM(2778471)
 
 check_erratum_ls cortex_x2, ERRATUM(2778471), CPU_REV(2, 1)
 
+add_erratum_entry cortex_x2, ERRATUM(3701772), ERRATA_X2_3701772
+
+check_erratum_ls cortex_x2, ERRATUM(3701772), CPU_REV(2, 1)
+
 workaround_reset_start cortex_x2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 #if IMAGE_BL31
 	/*
@@ -164,15 +162,12 @@ workaround_reset_end cortex_x2, CVE(2022, 23960)
 
 check_erratum_chosen cortex_x2, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
-/*
- * ERRATA_DSU_2313941 :
- * The errata is defined in dsu_helpers.S but applies to cortex_x2
- * as well. Henceforth creating symbolic names to the already existing errata
- * workaround functions to get them registered under the Errata Framework.
- */
-.equ check_erratum_cortex_x2_2313941, check_errata_dsu_2313941
-.equ erratum_cortex_x2_2313941_wa, errata_dsu_2313941_wa
-add_erratum_entry cortex_x2, ERRATUM(2313941), ERRATA_DSU_2313941, APPLY_AT_RESET
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_x2, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_X2_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_x2, CVE(2024, 5660)
+
+check_erratum_ls cortex_x2, CVE(2024, 5660), CPU_REV(2, 1)
 
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down

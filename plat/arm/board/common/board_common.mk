@@ -64,7 +64,8 @@ ifdef ROT_KEY
 	HASH_PREREQUISITES = $(ROT_KEY) FORCE
 endif
 
-$(ARM_ROTPK_HASH) : $(HASH_PREREQUISITES)
+$(ARM_ROTPK) : $(PK_PREREQUISITES) | $$(@D)/
+
 ifndef ROT_KEY
 	$(error Cannot generate hash: no ROT_KEY defined)
 endif

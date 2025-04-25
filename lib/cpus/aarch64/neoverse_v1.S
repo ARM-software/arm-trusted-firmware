@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,16 +22,11 @@
 #error "Neoverse-V1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+cpu_reset_prologue neoverse_v1
+
 #if WORKAROUND_CVE_2022_23960
 	wa_cve_2022_23960_bhb_vector_table NEOVERSE_V1_BHB_LOOP_COUNT, neoverse_v1
 #endif /* WORKAROUND_CVE_2022_23960 */
-
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start neoverse_v1, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set NEOVERSE_V1_CPUECTLR_EL1, BIT(46)
-workaround_reset_end neoverse_v1, CVE(2024, 5660)
-
-check_erratum_ls neoverse_v1, CVE(2024, 5660), CPU_REV(1, 2)
 
 workaround_reset_start neoverse_v1, ERRATUM(1618635), ERRATA_V1_1618635
 	/* Inserts a DMB SY before and after MRS PAR_EL1 */
@@ -161,15 +156,6 @@ workaround_reset_end neoverse_v1, ERRATUM(1966096)
 
 check_erratum_range neoverse_v1, ERRATUM(1966096), CPU_REV(1, 0), CPU_REV(1, 1)
 
-workaround_reset_start neoverse_v1, ERRATUM(2108267), ERRATA_V1_2108267
-	mrs	x1, NEOVERSE_V1_CPUECTLR_EL1
-	mov	x0, #NEOVERSE_V1_CPUECTLR_EL1_PF_MODE_CNSRV
-	bfi	x1, x0, #CPUECTLR_EL1_PF_MODE_LSB, #CPUECTLR_EL1_PF_MODE_WIDTH
-	msr	NEOVERSE_V1_CPUECTLR_EL1, x1
-workaround_reset_end neoverse_v1, ERRATUM(2108267)
-
-check_erratum_ls neoverse_v1, ERRATUM(2108267), CPU_REV(1, 2)
-
 workaround_reset_start neoverse_v1, ERRATUM(2139242), ERRATA_V1_2139242
 	mov	x0, #0x3
 	msr	S3_6_C15_C8_0, x0
@@ -203,10 +189,10 @@ workaround_reset_end neoverse_v1, ERRATUM(2294912)
 
 check_erratum_ls neoverse_v1, ERRATUM(2294912), CPU_REV(1, 2)
 
-workaround_runtime_start neoverse_v1, ERRATUM(2348377), ERRATA_V1_2348377
+workaround_reset_start neoverse_v1, ERRATUM(2348377), ERRATA_V1_2348377
 	/* Set bit 61 in CPUACTLR5_EL1 */
 	sysreg_bit_set NEOVERSE_V1_ACTLR5_EL1, NEOVERSE_V1_ACTLR5_EL1_BIT_61
-workaround_runtime_end neoverse_v1, ERRATUM(2348377)
+workaround_reset_end neoverse_v1, ERRATUM(2348377)
 
 check_erratum_ls neoverse_v1, ERRATUM(2348377), CPU_REV(1, 1)
 
@@ -249,6 +235,13 @@ workaround_reset_start neoverse_v1, CVE(2022,23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end neoverse_v1, CVE(2022,23960)
 
 check_erratum_chosen neoverse_v1, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start neoverse_v1, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set NEOVERSE_V1_CPUECTLR_EL1, BIT(46)
+workaround_reset_end neoverse_v1, CVE(2024, 5660)
+
+check_erratum_ls neoverse_v1, CVE(2024, 5660), CPU_REV(1, 2)
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,7 +40,23 @@
  ********************************************************************/
 #define DSU_ERRATA_936184_MASK	(U(0x3) << 15)
 
+#define CPUCFR_EL1		S3_0_C15_C0_0
+/* SCU bit of CPU Configuration Register, EL1 */
+#define SCU_SHIFT		U(2)
+
 #ifndef __ASSEMBLER__
-void dsu_pwr_dwn(void);
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpwrctlr_el1, CLUSTERPWRCTLR_EL1);
+
+/* ---------------------------------------------
+ * controls power features of the cluster
+ * 1. Cache portion power not request
+ * 2. Disable the retention circuit
+ * ---------------------------------------------
+ */
+static inline void dsu_pwr_dwn(void)
+{
+	write_clusterpwrctlr_el1(0);
+	isb();
+}
 #endif
 #endif /* DSU_DEF_H */

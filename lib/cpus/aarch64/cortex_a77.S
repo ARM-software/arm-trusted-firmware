@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,8 @@
 #error "Cortex-A77 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+cpu_reset_prologue cortex_a77
+
 /* 64-bit only core */
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex-A77 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
@@ -26,18 +28,10 @@
 	wa_cve_2022_23960_bhb_vector_table CORTEX_A77_BHB_LOOP_COUNT, cortex_a77
 #endif /* WORKAROUND_CVE_2022_23960 */
 
-/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
-workaround_reset_start cortex_a77, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
-	sysreg_bit_set CORTEX_A77_CPUECTLR_EL1, BIT(46)
-workaround_reset_end cortex_a77, CVE(2024, 5660)
-
-check_erratum_ls cortex_a77, CVE(2024, 5660), CPU_REV(1, 1)
-
 workaround_reset_start cortex_a77, ERRATUM(1508412), ERRATA_A77_1508412
 	/* move cpu revision in again and compare against r0p0 */
 	mov	x0, x7
-	mov	x1, #CPU_REV(0, 0)
-	bl	cpu_rev_var_ls
+	cpu_rev_var_ls	CPU_REV(0, 0)
 	cbz	x0, 1f
 
 	ldr	x0, =0x0
@@ -148,6 +142,13 @@ workaround_reset_start cortex_a77, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 workaround_reset_end cortex_a77, CVE(2022, 23960)
 
 check_erratum_chosen cortex_a77, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
+
+/* Disable hardware page aggregation. Enables mitigation for `CVE-2024-5660` */
+workaround_reset_start cortex_a77, CVE(2024, 5660), WORKAROUND_CVE_2024_5660
+	sysreg_bit_set CORTEX_A77_CPUECTLR_EL1, BIT(46)
+workaround_reset_end cortex_a77, CVE(2024, 5660)
+
+check_erratum_ls cortex_a77, CVE(2024, 5660), CPU_REV(1, 1)
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A77. Must follow AAPCS.

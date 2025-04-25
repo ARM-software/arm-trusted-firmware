@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,7 +49,9 @@
 	 * due to a NULL TPIDR_EL3.
 	 * ---------------------------------------------------------------------
 	 */
-	bl	init_cpu_data_ptr
+	bl	plat_my_core_pos
+	bl	_cpu_data_by_index
+	msr	tpidr_el3, x0
 #endif /* IMAGE_BL31 */
 
 	/* ---------------------------------------------------------------------
@@ -219,15 +221,7 @@
 	msr	vbar_el3, x0
 	isb
 
-#if !(defined(IMAGE_BL2) && ENABLE_RME)
-	/* ---------------------------------------------------------------------
-	 * It is a cold boot.
-	 * Perform any processor specific actions upon reset e.g. cache, TLB
-	 * invalidations etc.
-	 * ---------------------------------------------------------------------
-	 */
-	bl	reset_handler
-#endif
+	call_reset_handler
 
 	el3_arch_init_common
 

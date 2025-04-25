@@ -197,8 +197,11 @@ int32_t verify_errata_implemented(uint32_t errata_id, uint32_t forward_flag)
 	while ((entry <= end) && (ret_val == EM_UNKNOWN_ERRATUM)) {
 		if (entry->id == errata_id) {
 			if (entry->check_func(rev_var)) {
-				if (entry->chosen)
-					return EM_HIGHER_EL_MITIGATION;
+				if (entry->chosen & WA_ENABLED_MASK)
+					if (entry->chosen & SPLIT_WA_MASK)
+						return EM_AFFECTED;
+					else
+						return EM_HIGHER_EL_MITIGATION;
 				else
 					return EM_AFFECTED;
 			}

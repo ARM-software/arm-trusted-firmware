@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,47 +13,6 @@
 #include <lib/cpus/cpu_ops.h>
 #include <lib/cpus/errata.h>
 #include <lib/el3_runtime/cpu_data.h>
-
- /* Reset fn is needed in BL at reset vector */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) ||	\
-	(defined(IMAGE_BL2) && RESET_TO_BL2)
-	/*
-	 * The reset handler common to all platforms.  After a matching
-	 * cpu_ops structure entry is found, the correponding reset_handler
-	 * in the cpu_ops is invoked.
-	 * Clobbers: x0 - x19, x30
-	 */
-	.globl	reset_handler
-func reset_handler
-	mov	x19, x30
-
-	/* The plat_reset_handler can clobber x0 - x18, x30 */
-	bl	plat_reset_handler
-
-	/* Get the matching cpu_ops pointer */
-	bl	get_cpu_ops_ptr
-
-#if ENABLE_ASSERTIONS
-	/*
-	 * Assert if invalid cpu_ops obtained. If this is not valid, it may
-	 * suggest that the proper CPU file hasn't been included.
-	 */
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-
-	/* Get the cpu_ops reset handler */
-	ldr	x2, [x0, #CPU_RESET_FUNC]
-	mov	x30, x19
-	cbz	x2, 1f
-
-	/* The cpu_ops reset handler can clobber x0 - x19, x30 */
-	br	x2
-1:
-	ret
-endfunc reset_handler
-
-#endif
 
 #ifdef IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
 	/*
@@ -213,81 +172,22 @@ search_def_ptr:
 	b	1b
 error_exit:
 #endif
+#if ENABLE_ASSERTIONS
+	/*
+	 * Assert if invalid cpu_ops obtained. If this is not valid, it may
+	 * suggest that the proper CPU file hasn't been included.
+	 */
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
 	ret
 endfunc get_cpu_ops_ptr
 
-/*
- * Extract CPU revision and variant, and combine them into a single numeric for
- * easier comparison.
- */
 	.globl	cpu_get_rev_var
 func cpu_get_rev_var
-	mrs	x1, midr_el1
-
-	/*
-	 * Extract the variant[23:20] and revision[3:0] from MIDR, and pack them
-	 * as variant[7:4] and revision[3:0] of x0.
-	 *
-	 * First extract x1[23:16] to x0[7:0] and zero fill the rest. Then
-	 * extract x1[3:0] into x0[3:0] retaining other bits.
-	 */
-	ubfx	x0, x1, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
-	bfxil	x0, x1, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+	get_rev_var x0, x1
 	ret
 endfunc cpu_get_rev_var
-
-/*
- * Compare the CPU's revision-variant (x0) with a given value (x1), for errata
- * application purposes. If the revision-variant is less than or same as a given
- * value, indicates that errata applies; otherwise not.
- *
- * Shall clobber: x0-x3
- */
-	.globl	cpu_rev_var_ls
-func cpu_rev_var_ls
-	mov	x2, #ERRATA_APPLIES
-	mov	x3, #ERRATA_NOT_APPLIES
-	cmp	x0, x1
-	csel	x0, x2, x3, ls
-	ret
-endfunc cpu_rev_var_ls
-
-/*
- * Compare the CPU's revision-variant (x0) with a given value (x1), for errata
- * application purposes. If the revision-variant is higher than or same as a
- * given value, indicates that errata applies; otherwise not.
- *
- * Shall clobber: x0-x3
- */
-	.globl	cpu_rev_var_hs
-func cpu_rev_var_hs
-	mov	x2, #ERRATA_APPLIES
-	mov	x3, #ERRATA_NOT_APPLIES
-	cmp	x0, x1
-	csel	x0, x2, x3, hs
-	ret
-endfunc cpu_rev_var_hs
-
-/*
- * Compare the CPU's revision-variant (x0) with a given range (x1 - x2), for errata
- * application purposes. If the revision-variant is between or includes the given
- * values, this indicates that errata applies; otherwise not.
- *
- * Shall clobber: x0-x4
- */
-	.globl	cpu_rev_var_range
-func cpu_rev_var_range
-	mov	x3, #ERRATA_APPLIES
-	mov	x4, #ERRATA_NOT_APPLIES
-	cmp	x0, x1
-	csel	x1, x3, x4, hs
-	cbz	x1, 1f
-	cmp	x0, x2
-	csel	x1, x3, x4, ls
-1:
-	mov	x0, x1
-	ret
-endfunc cpu_rev_var_range
 
 /*
  * int check_wa_cve_2017_5715(void);
