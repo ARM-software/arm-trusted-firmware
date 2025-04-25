@@ -44,19 +44,19 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix,
 	unsigned int rem;
 
 	/* num_buf is only large enough for radix >= 10 */
-	if (radix < 10) {
+	if (radix < 10U) {
 		assert(0);
 		return 0;
 	}
 
 	do {
 		rem = (uint32_t)(unum % radix);
-		if (rem < 0xa) {
+		if (rem < 0xaU) {
 			num_buf[i] = '0' + rem;
 		} else if (uppercase) {
-			num_buf[i] = 'A' + (rem - 0xa);
+			num_buf[i] = 'A' + (rem - 0xaU);
 		} else {
-			num_buf[i] = 'a' + (rem - 0xa);
+			num_buf[i] = 'a' + (rem - 0xaU);
 		}
 		i++;
 		unum /= radix;
