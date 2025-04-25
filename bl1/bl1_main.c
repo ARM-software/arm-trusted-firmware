@@ -134,6 +134,8 @@ void bl1_main(void)
 	/* Teardown the measured boot driver */
 	bl1_plat_mboot_finish();
 
+	crypto_mod_finish();
+
 	bl1_prepare_next_image(image_id);
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
