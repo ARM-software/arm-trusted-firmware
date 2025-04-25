@@ -39,6 +39,10 @@ MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
 MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi
 MODULES-$(CONFIG_MTK_CPU_PM_SUPPORT) += $(MTK_PLAT)/drivers/cpu_pm
 
+ifneq ($(MTKLIB_PATH),)
+LDLIBS += -Wl,--whole-archive $(MTKLIB_PATH) -Wl,--no-whole-archive
+endif
+
 PLAT_BL_COMMON_SOURCES := common/desc_image_load.c \
 			  drivers/ti/uart/aarch64/16550_console.S \
 			  lib/bl_aux_params/bl_aux_params.c
