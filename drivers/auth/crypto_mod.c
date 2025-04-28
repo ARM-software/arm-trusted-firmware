@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -186,4 +186,13 @@ int crypto_mod_auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
 	return crypto_lib_desc.auth_decrypt(dec_algo, data_ptr, len, key,
 					    key_len, key_flags, iv, iv_len, tag,
 					    tag_len);
+}
+
+/* Perform end of psa crypto usage calls to finish */
+void crypto_mod_finish(void)
+{
+	if (crypto_lib_desc.finish != NULL) {
+		crypto_lib_desc.finish();
+		INFO("Finished using crypto library '%s'\n", crypto_lib_desc.name);
+	}
 }
