@@ -606,6 +606,11 @@
 #define SCTLR_EPAN_BIT		(ULL(1) << 57)
 #define SCTLR_RESET_VAL		SCTLR_EL3_RES1
 
+#define SCTLR2_EnPACM_BIT	(ULL(1) << 7)
+
+/* SCTLR2 currently has no RES1 fields so reset to 0 */
+#define SCTLR2_RESET_VAL	ULL(0)
+
 /* CPACR_EL1 definitions */
 #define CPACR_EL1_FPEN(x)	((x) << 20)
 #define CPACR_EL1_FP_TRAP_EL0	UL(0x1)
@@ -855,6 +860,7 @@
 #define SPSR_PPEND_BIT		BIT(33)
 #define SPSR_EXLOCK_BIT_AARCH64	BIT_64(34)
 #define SPSR_NZCV		(SPSR_V_BIT | SPSR_C_BIT | SPSR_Z_BIT | SPSR_N_BIT)
+#define SPSR_PACM_BIT_AARCH64	BIT_64(35)
 
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
@@ -1531,6 +1537,7 @@
 /*******************************************************************************
  * FEAT_SCTLR2 - Extension to SCTLR_ELx Registers
  ******************************************************************************/
+#define SCTLR2_EL3		S3_6_C1_C0_3
 #define SCTLR2_EL2		S3_4_C1_C0_3
 #define SCTLR2_EL1		S3_0_C1_C0_3
 

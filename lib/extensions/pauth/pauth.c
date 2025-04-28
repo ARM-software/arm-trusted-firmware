@@ -62,16 +62,25 @@ void pauth_init(void)
 void __no_pauth pauth_enable_el3(void)
 {
 	write_sctlr_el3(read_sctlr_el3() | SCTLR_EnIA_BIT);
+
+	if (is_feat_pauth_lr_supported()) {
+		write_sctlr2_el3(read_sctlr2_el3() | SCTLR2_EnPACM_BIT);
+	}
+
 	isb();
 }
 
 void __no_pauth pauth_enable_el1(void)
 {
 	write_sctlr_el1(read_sctlr_el1() | SCTLR_EnIA_BIT);
+
+	if (is_feat_pauth_lr_supported()) {
+		write_sctlr2_el1(read_sctlr2_el1() | SCTLR2_EnPACM_BIT);
+	}
+
 	isb();
 }
 
-/* Enable PAuth for EL2 */
 void pauth_enable_el2(void)
 {
 	u_register_t hcr_el2 = read_hcr_el2();

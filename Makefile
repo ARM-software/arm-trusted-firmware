@@ -652,7 +652,7 @@ endif
 ################################################################################
 include ${MAKE_HELPERS_DIRECTORY}march.mk
 
-TF_CFLAGS   +=	$(march-directive)
+TF_CFLAGS	+=	$(march-directive)
 ASFLAGS		+=	$(march-directive)
 
 # This internal flag is common option which is set to 1 for scenarios
@@ -937,6 +937,34 @@ ifneq ($(CTX_INCLUDE_PAUTH_REGS),0)
                 $(error CTX_INCLUDE_PAUTH_REGS requires AArch64)
 	endif
 endif #(CTX_INCLUDE_PAUTH_REGS)
+
+# Check ENABLE_FEAT_PAUTH_LR
+ifneq (${ENABLE_FEAT_PAUTH_LR},0)
+
+# Make sure PAUTH is enabled
+ifeq (${ENABLE_PAUTH},0)
+	$(error Error: PAUTH_LR cannot be used without PAUTH (see BRANCH_PROTECTION))
+endif
+
+# Make sure SCTLR2 is enabled
+ifeq (${ENABLE_FEAT_SCTLR2},0)
+	$(error Error: PAUTH_LR cannot be used without ENABLE_FEAT_SCTLR2)
+endif
+
+# FEAT_PAUTH_LR is only supported in aarch64 state
+ifneq (${ARCH},aarch64)
+	$(error ENABLE_FEAT_PAUTH_LR requires AArch64)
+endif
+
+# Currently, FEAT_PAUTH_LR is only supported by arm/clang compilers
+# TODO implement for GCC when support is added
+ifeq ($($(ARCH)-cc-id),arm-clang)
+	arch-features	:= $(arch-features)+pauth-lr
+else
+	$(error Error: ENABLE_FEAT_PAUTH_LR not supported for GCC compiler)
+endif
+
+endif # ${ENABLE_FEAT_PAUTH_LR}
 
 ifeq ($(FEATURE_DETECTION),1)
         $(info FEATURE_DETECTION is an experimental feature)
@@ -1324,6 +1352,7 @@ $(eval $(call assert_numerics,\
 	ENABLE_TRBE_FOR_NS \
 	ENABLE_BTI \
 	ENABLE_PAUTH \
+	ENABLE_FEAT_PAUTH_LR \
 	ENABLE_FEAT_AMU \
 	ENABLE_FEAT_AMUv1p1 \
 	ENABLE_FEAT_CSV2_2 \
@@ -1410,6 +1439,7 @@ $(eval $(call add_defines,\
 	ENABLE_FEAT_DEBUGV8P9 \
 	ENABLE_FEAT_MPAM \
 	ENABLE_PAUTH \
+	ENABLE_FEAT_PAUTH_LR \
 	ENABLE_PIE \
 	ENABLE_PMF \
 	ENABLE_PSCI_STAT \

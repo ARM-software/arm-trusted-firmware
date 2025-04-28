@@ -405,6 +405,12 @@ Common build options
    flag can take values 0 to 2, to align  with the ``ENABLE_FEAT``
    mechanism. Default value is ``0``.
 
+-  ``ENABLE_FEAT_PAUTH_LR``: Numeric value to enable the ``FEAT_PAUTH_LR``
+   extension. ``FEAT_PAUTH_LR`` is an optional feature available from Arm v9.4
+   onwards. This feature requires PAUTH to be enabled via the
+   ``BRANCH_PROTECTION`` flag. This flag can take the values 0 to 2, to align
+   with the ``ENABLE_FEAT`` mechanism. Default value is ``0``.
+
 -  ``ENABLE_FEAT_RNG``: Numeric value to enable the ``FEAT_RNG`` extension.
    ``FEAT_RNG`` is an optional feature available on Arm v8.5 onwards. This
    flag can take the values 0 to 2, to align with the ``ENABLE_FEAT``

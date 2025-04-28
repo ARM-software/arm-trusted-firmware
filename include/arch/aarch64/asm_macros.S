@@ -351,6 +351,11 @@
 	tst	\reg, \clobber
 	.endm
 
+	.macro is_feat_sctlr2_present_asm reg:req
+	mrs	\reg, ID_AA64MMFR3_EL1
+	ands	\reg, \reg, #(ID_AA64MMFR3_EL1_SCTLR2_MASK << ID_AA64MMFR3_EL1_SCTLR2_SHIFT)
+	.endm
+
 .macro call_reset_handler
 #if !(defined(IMAGE_BL2) && ENABLE_RME)
 	/* ---------------------------------------------------------------------
