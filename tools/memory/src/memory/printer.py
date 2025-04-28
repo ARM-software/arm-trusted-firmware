@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+from typing import Any, Dict, List, Optional, Tuple
+
 from anytree import RenderTree
 from anytree.importer import DictImporter
 from prettytable import PrettyTable
@@ -17,19 +19,29 @@ class TfaPrettyPrinter:
     structured and consumed.
     """
 
-    def __init__(self, columns: int, as_decimal: bool = False):
-        self.term_size = columns
-        self._tree = None
-        self._footprint = None
-        self._symbol_map = None
-        self.as_decimal = as_decimal
+    def __init__(self, columns: int, as_decimal: bool = False) -> None:
+        self.term_size: int = columns
+        self._tree: Optional[List[str]] = None
+        self._symbol_map: Optional[List[str]] = None
+        self.as_decimal: bool = as_decimal
 
-    def format_args(self, *args, width=10, fmt=None):
+    def format_args(
+        self,
+        *args: Any,
+        width: int = 10,
+        fmt: Optional[str] = None,
+    ) -> List[Any]:
         if not fmt and type(args[0]) is int:
             fmt = f">{width}x" if not self.as_decimal else f">{width}"
         return [f"{arg:{fmt}}" if fmt else arg for arg in args]
 
-    def format_row(self, leading, *args, width=10, fmt=None):
+    def format_row(
+        self,
+        leading: str,
+        *args: Any,
+        width: int = 10,
+        fmt: Optional[str] = None,
+    ) -> str:
         formatted_args = self.format_args(*args, width=width, fmt=fmt)
         return leading + " ".join(formatted_args)
 
@@ -41,7 +53,7 @@ class TfaPrettyPrinter:
         columns: int,
         width: int,
         is_edge: bool = False,
-    ):
+    ) -> str:
         empty_col = "{:{}{}}"
 
         # Some symbols are longer than the column width, truncate them until
@@ -58,7 +70,9 @@ class TfaPrettyPrinter:
 
         return leading + sec_row_l + sec_row + sec_row_r
 
-    def print_footprint(self, app_mem_usage: dict):
+    def print_footprint(
+        self, app_mem_usage: Dict[str, Dict[str, Dict[str, int]]]
+    ) -> None:
         assert len(app_mem_usage), "Empty memory layout dictionary!"
 
         fields = ["Component", "Start", "Limit", "Size", "Free", "Total"]
@@ -86,10 +100,10 @@ class TfaPrettyPrinter:
 
     def print_symbol_table(
         self,
-        symbols: list,
-        modules: list,
+        symbols: List[Tuple[str, int, str]],
+        modules: List[str],
         start: int = 12,
-    ):
+    ) -> None:
         assert len(symbols), "Empty symbol list!"
         modules = sorted(modules)
         col_width = int((self.term_size - start) / len(modules))
@@ -125,8 +139,13 @@ class TfaPrettyPrinter:
         print("\n".join(self._symbol_map))
 
     def print_mem_tree(
-        self, mem_map_dict, modules, depth=1, min_pad=12, node_right_pad=12
-    ):
+        self,
+        mem_map_dict: Dict[str, Any],
+        modules: List[str],
+        depth: int = 1,
+        min_pad: int = 12,
+        node_right_pad: int = 12,
+    ) -> None:
         # Start column should have some padding between itself and its data
         # values.
         anchor = min_pad + node_right_pad * (depth - 1)

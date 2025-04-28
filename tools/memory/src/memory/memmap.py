@@ -81,14 +81,14 @@ def main(
     root: Path,
     platform: str,
     build_type: str,
-    footprint: str,
+    footprint: bool,
     tree: bool,
     symbols: bool,
     depth: int,
     width: int,
     d: bool,
     no_elf_images: bool,
-):
+) -> None:
     build_path = root if root else Path("build/", platform, build_type)
     click.echo(f"build-path: {build_path.resolve()}")
 

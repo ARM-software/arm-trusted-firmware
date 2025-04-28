@@ -6,9 +6,10 @@
 
 import re
 from dataclasses import asdict, dataclass
-from typing import BinaryIO
+from typing import BinaryIO, Dict, ItemsView, Iterable, List, Optional, Tuple, Union
 
 from elftools.elf.elffile import ELFFile
+from elftools.elf.sections import Section
 from elftools.elf.segments import Segment
 
 
@@ -18,7 +19,7 @@ class TfaMemObject:
     start: int
     end: int
     size: int
-    children: list
+    children: List["TfaMemObject"]
 
 
 class TfaElfParser:
@@ -29,29 +30,35 @@ class TfaElfParser:
     the contents an ELF file.
     """
 
-    def __init__(self, elf_file: BinaryIO):
-        self._segments = {}
-        self._memory_layout = {}
+    def __init__(self, elf_file: BinaryIO) -> None:
+        self._segments: Dict[int, TfaMemObject] = {}
+        self._memory_layout: Dict[str, Dict[str, int]] = {}
 
         elf = ELFFile(elf_file)
 
-        self._symbols = {
+        self._symbols: Dict[str, int] = {
             sym.name: sym.entry["st_value"]
             for sym in elf.get_section_by_name(".symtab").iter_symbols()
         }
 
         self.set_segment_section_map(elf.iter_segments(), elf.iter_sections())
         self._memory_layout = self.get_memory_layout_from_symbols()
-        self._start = elf["e_entry"]
+        self._start: int = elf["e_entry"]
+        self._size: int
+        self._free: int
         self._size, self._free = self._get_mem_usage()
-        self._end = self._start + self._size
+        self._end: int = self._start + self._size
 
     @property
-    def symbols(self):
+    def symbols(self) -> ItemsView[str, int]:
         return self._symbols.items()
 
     @staticmethod
-    def tfa_mem_obj_factory(elf_obj, name=None, children=None):
+    def tfa_mem_obj_factory(
+        elf_obj: Union[Segment, Section],
+        name: Optional[str] = None,
+        children: Optional[List[TfaMemObject]] = None,
+    ) -> TfaMemObject:
         """Converts a pyelfparser Segment or Section to a TfaMemObject."""
         # Ensure each segment is provided a name since they aren't in the
         # program header.
@@ -75,7 +82,7 @@ class TfaElfParser:
             [] if not children else children,
         )
 
-    def _get_mem_usage(self) -> (int, int):
+    def _get_mem_usage(self) -> Tuple[int, int]:
         """Get total size and free space for this component."""
         size = free = 0
 
@@ -90,7 +97,11 @@ class TfaElfParser:
 
         return size, free
 
-    def set_segment_section_map(self, segments, sections):
+    def set_segment_section_map(
+        self,
+        segments: Iterable[Segment],
+        sections: Iterable[Section],
+    ) -> None:
         """Set segment to section mappings."""
         segments = list(filter(lambda seg: seg["p_type"] == "PT_LOAD", segments))
 
@@ -104,7 +115,7 @@ class TfaElfParser:
 
                     self._segments[n].children.append(self.tfa_mem_obj_factory(sec))
 
-    def get_memory_layout_from_symbols(self) -> dict:
+    def get_memory_layout_from_symbols(self) -> Dict[str, Dict[str, int]]:
         """Retrieve information about the memory configuration from the symbol
         table.
         """
@@ -112,7 +123,7 @@ class TfaElfParser:
 
         expr = r".*(.?R.M)_REGION.*(START|END|LENGTH)"
         region_symbols = filter(lambda s: re.match(expr, s), self._symbols)
-        memory_layout = {}
+        memory_layout: Dict[str, Dict[str, int]] = {}
 
         for symbol in region_symbols:
             region, _, attr = tuple(symbol.lower().strip("__").split("_"))
@@ -124,16 +135,16 @@ class TfaElfParser:
 
         return memory_layout
 
-    def get_seg_map_as_dict(self):
+    def get_seg_map_as_dict(self) -> List[Dict[str, int]]:
         """Get a dictionary of segments and their section mappings."""
         return [asdict(v) for k, v in self._segments.items()]
 
-    def get_memory_layout(self):
+    def get_memory_layout(self) -> Dict[str, Dict[str, int]]:
         """Get the total memory consumed by this module from the memory
         configuration.
             {"rom": {"start": 0x0, "end": 0xFF, "length": ... }
         """
-        mem_dict = {}
+        mem_dict: Dict[str, Dict[str, int]] = {}
 
         for mem, attrs in self._memory_layout.items():
             limit = attrs["start"] + attrs["length"]
@@ -146,7 +157,7 @@ class TfaElfParser:
             }
         return mem_dict
 
-    def get_mod_mem_usage_dict(self):
+    def get_mod_mem_usage_dict(self) -> Dict[str, int]:
         """Get the total memory consumed by the module, this combines the
         information in the memory configuration.
         """

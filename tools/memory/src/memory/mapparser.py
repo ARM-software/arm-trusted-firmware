@@ -5,7 +5,7 @@
 #
 
 from re import match, search
-from typing import TextIO
+from typing import Dict, ItemsView, TextIO
 
 
 class TfaMapParser:
@@ -16,17 +16,17 @@ class TfaMapParser:
     are supported at this stage.
     """
 
-    def __init__(self, map_file: TextIO):
-        self._symbols = self.read_symbols(map_file)
+    def __init__(self, map_file: TextIO) -> None:
+        self._symbols: Dict[str, int] = self.read_symbols(map_file)
 
     @property
-    def symbols(self):
+    def symbols(self) -> ItemsView[str, int]:
         return self._symbols.items()
 
     @staticmethod
-    def read_symbols(file: TextIO) -> dict:
+    def read_symbols(file: TextIO) -> Dict[str, int]:
         pattern = r"\b(0x\w*)\s*(\w*)\s="
-        symbols = {}
+        symbols: Dict[str, int] = {}
 
         for line in file.readlines():
             match = search(pattern, line)
@@ -37,14 +37,14 @@ class TfaMapParser:
 
         return symbols
 
-    def get_memory_layout(self) -> dict:
+    def get_memory_layout(self) -> Dict[str, Dict[str, int]]:
         """Get the total memory consumed by this module from the memory
         configuration.
             {"rom": {"start": 0x0, "end": 0xFF, "length": ... }
         """
         assert len(self._symbols), "Symbol table is empty!"
         expr = r".*(.?R.M)_REGION.*(START|END|LENGTH)"
-        memory_layout = {}
+        memory_layout: Dict[str, Dict[str, int]] = {}
 
         region_symbols = filter(lambda s: match(expr, s), self._symbols)
 
