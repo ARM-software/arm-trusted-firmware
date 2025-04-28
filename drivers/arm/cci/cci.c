@@ -44,8 +44,9 @@ static bool validate_cci_map(const int *map)
 	for (i = 0U; i <= max_master_id; i++) {
 		slave_if_id = map[i];
 
-		if (slave_if_id < 0)
+		if (slave_if_id < 0) {
 			continue;
+		}
 
 		if (slave_if_id >= cci_num_slave_ports) {
 			ERROR("Slave interface ID is invalid\n");
