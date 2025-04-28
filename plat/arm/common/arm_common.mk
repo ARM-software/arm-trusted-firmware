@@ -456,6 +456,9 @@ ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
     ifeq (${MEASURED_BOOT},1)
          BL1_SOURCES		+= 	${EVENT_LOG_SOURCES}
          BL2_SOURCES		+= 	${EVENT_LOG_SOURCES}
+         ifeq (${SPD_tspd},1)
+             BL32_SOURCES		+= 	${EVENT_LOG_SOURCES}
+         endif
     endif
 
     ifeq (${DRTM_SUPPORT},1)

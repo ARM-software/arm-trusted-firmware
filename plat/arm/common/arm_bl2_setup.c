@@ -320,6 +320,13 @@ int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
 void arm_bl2_setup_next_ep_info(bl_mem_params_node_t *next_param_node)
 {
 	entry_point_info_t *ep __unused;
+
+	/*
+	 * Information might have been added to the TL before this (i.e. event log)
+	 * make sure the checksum is up to date.
+	 */
+	transfer_list_update_checksum(secure_tl);
+
 	ep = transfer_list_set_handoff_args(secure_tl,
 					    &next_param_node->ep_info);
 	assert(ep != NULL);

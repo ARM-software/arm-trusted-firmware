@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2023, Stephan Gerhold <stephan@gerhold.net>
+ * Copyright (c) 2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +11,8 @@
 #include "../msm8916_setup.h"
 #include <platform_def.h>
 
-void tsp_early_platform_setup(void)
+void tsp_early_platform_setup(u_register_t arg0, u_register_t arg1,
+			      u_register_t arg2, u_register_t arg3)
 {
 	msm8916_early_platform_setup();
 }

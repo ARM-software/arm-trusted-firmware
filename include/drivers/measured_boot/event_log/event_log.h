@@ -11,6 +11,7 @@
 #include <stdint.h>
 
 #include <drivers/auth/crypto_mod.h>
+#include "event_handoff.h"
 #include "tcg.h"
 
 /*

@@ -47,3 +47,8 @@ INCLUDES		+= -Iinclude/drivers/measured_boot/event_log \
 
 EVENT_LOG_SOURCES	:= ${EVENT_LOG_SRC_DIR}event_log.c		\
 			   ${EVENT_LOG_SRC_DIR}event_print.c
+
+
+ifeq (${TRANSFER_LIST}, 1)
+EVENT_LOG_SOURCES	+= ${EVENT_LOG_SRC_DIR}/event_handoff.c
+endif
