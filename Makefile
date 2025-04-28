@@ -1012,7 +1012,7 @@ ifeq (${ARCH},aarch32)
 	endif
 
 	# FEAT_RNG_TRAP is not supported in AArch32
-	ifeq (${ENABLE_FEAT_RNG_TRAP},1)
+	ifneq (${ENABLE_FEAT_RNG_TRAP},0)
                 $(error "ENABLE_FEAT_RNG_TRAP cannot be used with ARCH=aarch32")
 	endif
 

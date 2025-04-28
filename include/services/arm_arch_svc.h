@@ -95,6 +95,12 @@
 #define SCR_FEAT_AMUv1p1 (0)
 #endif
 
+#if ENABLE_FEAT_TWED
+#define SCR_FEAT_TWED SCR_TWEDEn_BIT
+#else
+#define SCR_FEAT_TWED (0)
+#endif
+
 #if ENABLE_FEAT_ECV
 #define SCR_FEAT_ECV SCR_ECVEN_BIT
 #else
@@ -119,7 +125,7 @@
 #define SCR_FEAT_CSV2_2 (0)
 #endif
 
-#if ENABLE_FEAT_RAS
+#if !RAS_TRAP_NS_ERR_REC_ACCESS
 #define SCR_FEAT_RAS SCR_TERR_BIT
 #else
 #define SCR_FEAT_RAS (0)
@@ -182,6 +188,7 @@
 	SCR_FEAT_HCX		|						\
 	SCR_FEAT_LS64_ACCDATA	|						\
 	SCR_FEAT_AMUv1p1	|						\
+	SCR_FEAT_TWED		|						\
 	SCR_FEAT_ECV		|						\
 	SCR_FEAT_FGT		|						\
 	SCR_FEAT_MTE2		|						\
@@ -289,6 +296,7 @@ CASSERT((CPTR_EL3_FLIPPED & CPTR_EL3_FEATS) == CPTR_EL3_FLIPPED, cptr_flipped_no
 	MDCR_FEAT_SPE		|						\
 	MDCR_TDOSA_BIT		|						\
 	MDCR_TDA_BIT		|						\
+	MDCR_EnPM2_BIT		|						\
 	MDCR_TPM_BIT		| /* FEAT_PMUv3 */				\
 	MDCR_PLAT_FEATS)
 #define MDCR_EL3_FLIPPED (							\
