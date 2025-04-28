@@ -1,27 +1,30 @@
 #
-# Copyright (c) 2022-2023, MediaTek Inc. All rights reserved.
+# Copyright (c) 2022-2025, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 # call add_defined_option to evaluate MTK defined value
-$(eval $(call add_defined_option,MTK_SIP_KERNEL_BOOT_ENABLE))
-$(eval $(call add_defined_option,PLAT_EXTRA_RODATA_INCLUDES))
-$(eval $(call add_defined_option,MTK_EXTRA_LINKERFILE))
-$(eval $(call add_defined_option,MTK_BL31_AS_BL2))
-$(eval $(call add_defined_option,MTK_BL33_IS_64BIT))
-$(eval $(call add_defined_option,PLAT_XLAT_TABLES_DYNAMIC))
-$(eval $(call add_defined_option,MTK_ADAPTED))
-$(eval $(call add_defined_option,MTK_PUBEVENT_ENABLE))
-$(eval $(call add_defined_option,MTK_SOC))
-$(eval $(call add_defined_option,UART_CLOCK))
-$(eval $(call add_defined_option,UART_BAUDRATE))
-$(eval $(call add_defined_option,CONFIG_MTK_MCUSYS))
-$(eval $(call add_defined_option,CONFIG_MTK_PM_SUPPORT))
-$(eval $(call add_defined_option,CONFIG_MTK_CPU_PM_SUPPORT))
-$(eval $(call add_defined_option,CONFIG_MTK_SMP_EN))
-$(eval $(call add_defined_option,CONFIG_MTK_CPU_SUSPEND_EN))
-$(eval $(call add_defined_option,CONFIG_MTK_PM_ARCH))
-$(eval $(call add_defined_option,CONFIG_MTK_CPU_PM_ARCH))
-$(eval $(call add_defined_option,CONFIG_MTK_SUPPORT_SYSTEM_SUSPEND))
-$(eval $(call add_defined_option,CONFIG_MTK_MTCMOS))
+DEFINED_OPTIONS := \
+	CONFIG_MTK_CPU_PM_ARCH \
+	CONFIG_MTK_CPU_PM_SUPPORT \
+	CONFIG_MTK_CPU_SUSPEND_EN \
+	CONFIG_MTK_MCUSYS \
+	CONFIG_MTK_MTCMOS \
+	CONFIG_MTK_PM_ARCH \
+	CONFIG_MTK_PM_SUPPORT \
+	CONFIG_MTK_SMP_EN \
+	CONFIG_MTK_SUPPORT_SYSTEM_SUSPEND \
+	MTK_ADAPTED \
+	MTK_BL31_AS_BL2 \
+	MTK_BL33_IS_64BIT \
+	MTK_EXTRA_LINKERFILE \
+	MTK_PUBEVENT_ENABLE \
+	MTK_SIP_KERNEL_BOOT_ENABLE \
+	MTK_SOC \
+	PLAT_EXTRA_RODATA_INCLUDES \
+	PLAT_XLAT_TABLES_DYNAMIC \
+	UART_BAUDRATE \
+	UART_CLOCK
+
+$(foreach opt, $(DEFINED_OPTIONS),$(eval $(call add_defined_option,$(opt))))
