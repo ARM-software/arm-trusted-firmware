@@ -6,14 +6,11 @@
 
 #define ENABLE_SMPU_PROTECT	(1)
 
-#if ENABLE_SMPU_PROTECT
-#include "emi.h"
-#endif
-
 #include <common/debug.h>
 #include <lib/mmio.h>
 
 #include <apusys_security_ctrl_plat.h>
+#include <mtk_bl31_interface.h>
 
 #define APUSYS_SEC_FW_EMI_REGION	(23)
 
@@ -71,9 +68,10 @@ void apusys_security_ctrl_init(void)
 int apusys_plat_setup_sec_mem(void)
 {
 #if ENABLE_SMPU_PROTECT
-	return sip_emi_mpu_set_protection(APU_RESERVE_MEMORY >> EMI_MPU_ALIGN_BITS,
-		(APU_RESERVE_MEMORY + APU_RESERVE_SIZE) >> EMI_MPU_ALIGN_BITS,
-		APUSYS_SEC_FW_EMI_REGION);
+	return emi_mpu_set_protection(APU_RESERVE_MEMORY >> EMI_MPU_ALIGN_BITS,
+				      (APU_RESERVE_MEMORY + APU_RESERVE_SIZE) >>
+				      EMI_MPU_ALIGN_BITS,
+				      APUSYS_SEC_FW_EMI_REGION);
 #else
 	INFO("%s: Bypass SMPU protection setup.\n", __func__);
 	return 0;

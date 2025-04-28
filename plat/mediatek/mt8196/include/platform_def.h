@@ -230,6 +230,7 @@
 #define SUB_EMI_APB_BASE		(IO_PHYS + 0x00529000)
 #define SUB_INFRA_EMI_DEBUG_CFG_BASE	(IO_PHYS + 0x00525000)
 #define SUB_INFRACFG_AO_MEM_BASE	(IO_PHYS + 0x00504000)
+#define EMI_MPU_ALIGN_BITS		12
 
 /*******************************************************************************
  * System counter frequency related constants

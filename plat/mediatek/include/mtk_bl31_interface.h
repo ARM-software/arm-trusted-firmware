@@ -8,6 +8,7 @@
 #define __MTK_BL31_INTERFACE_H__
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 enum mtk_bl31_status {
@@ -58,5 +59,26 @@ int ufs_spm_mtcmos_power(bool on);
 int ufs_phy_spm_mtcmos_power(bool on);
 bool ufs_is_clk_status_off(void);
 void ufs_set_clk_status(bool on);
+
+/* EMI interfaces */
+uint64_t emi_mpu_read_addr(unsigned int region, unsigned int offset);
+uint64_t emi_mpu_read_enable(unsigned int region);
+uint64_t emi_mpu_read_aid(unsigned int region, unsigned int aid_shift);
+uint64_t emi_mpu_check_ns_cpu(void);
+enum mtk_bl31_status emi_mpu_set_protection(uint32_t start, uint32_t end,
+					    unsigned int region);
+enum mtk_bl31_status emi_kp_set_protection(size_t start, size_t end, unsigned int region);
+enum mtk_bl31_status emi_kp_clear_violation(unsigned int emiid);
+enum mtk_bl31_status emi_clear_protection(unsigned int region);
+enum mtk_bl31_status emi_clear_md_violation(void);
+uint64_t emi_mpu_check_region_info(unsigned int region, uint64_t *sa, uint64_t *ea);
+uint64_t emi_mpu_page_base_region(void);
+uint64_t emi_mpu_smc_hp_mod_check(void);
+enum mtk_bl31_status slb_clear_violation(unsigned int id);
+enum mtk_bl31_status emi_clear_violation(unsigned int id, unsigned int type);
+enum mtk_bl31_status slc_parity_select(unsigned int id, unsigned int port);
+enum mtk_bl31_status slc_parity_clear(unsigned int id);
+enum mtk_bl31_status emi_mpu_set_aid(unsigned int region, unsigned int num);
+void emi_protection_init(void);
 
 #endif /* __MTK_BL31_INTERFACE_H__ */
