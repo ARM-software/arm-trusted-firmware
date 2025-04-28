@@ -68,8 +68,9 @@ void arm_gicv3_distif_pre_save(unsigned int rdist_proc_num)
 	 * set.
 	 */
 	if ((typer_reg & TYPER_LPIS) != 0U) {
-		while (!(gicr_read_waker(gicr_base) & WAKER_QSC_BIT))
+		while (!(gicr_read_waker(gicr_base) & WAKER_QSC_BIT)) {
 			;
+		}
 	}
 }
 
@@ -98,8 +99,9 @@ void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num)
 	 * we can exit early. This also prevents the following assert from
 	 * erroneously triggering.
 	 */
-	if (!(gicr_read_waker(gicr_base) & WAKER_SL_BIT))
+	if (!(gicr_read_waker(gicr_base) & WAKER_SL_BIT)) {
 		return;
+	}
 
 	/*
 	 * Writes to GICR_WAKER.Sleep bit are ignored if GICR_WAKER.Quiescent
@@ -117,7 +119,8 @@ void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num)
 	 * instantaneous, so we wait until the interface is not Quiescent
 	 * anymore.
 	 */
-	while (gicr_read_waker(gicr_base) & WAKER_QSC_BIT)
+	while (gicr_read_waker(gicr_base) & WAKER_QSC_BIT) {
 		;
+	}
 }
 
