@@ -515,14 +515,14 @@ ifeq (${RECLAIM_INIT_CODE}, 1)
 endif
 
 ifneq ($(COTDTPATH),)
-        cot-dt-defines = IMAGE_BL2 $(BL2_DEFINES) $(PLAT_BL_COMMON_DEFINES)
-        cot-dt-include-dirs = $(BL2_INCLUDE_DIRS) $(PLAT_BL_COMMON_INCLUDE_DIRS)
+        cot-dt-defines = IMAGE_BL2 $(BL2_DEFINES)
+        cot-dt-include-dirs = $(BL2_INCLUDE_DIRS)
 
         cot-dt-cpp-flags  = $(cot-dt-defines:%=-D%)
         cot-dt-cpp-flags += $(cot-dt-include-dirs:%=-I%)
 
-        cot-dt-cpp-flags += $(BL2_CPPFLAGS) $(PLAT_BL_COMMON_CPPFLAGS)
-        cot-dt-cpp-flags += $(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH))
+        cot-dt-cpp-flags += $(BL2_CPPFLAGS)
+        cot-dt-cpp-flags += $(CPPFLAGS) $(TF_CFLAGS_$(ARCH))
         cot-dt-cpp-flags += -c -x assembler-with-cpp -E -P -o $@ $<
 
         $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.dts): $(COTDTPATH) | $$(@D)/
