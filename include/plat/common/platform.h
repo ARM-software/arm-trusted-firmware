@@ -133,9 +133,9 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
  * Optional interrupt management functions, depending on chosen EL3 components.
  ******************************************************************************/
 unsigned int plat_ic_get_running_priority(void);
-int plat_ic_is_spi(unsigned int id);
-int plat_ic_is_ppi(unsigned int id);
-int plat_ic_is_sgi(unsigned int id);
+bool plat_ic_is_spi(unsigned int id);
+bool plat_ic_is_ppi(unsigned int id);
+bool plat_ic_is_sgi(unsigned int id);
 unsigned int plat_ic_get_interrupt_active(unsigned int id);
 void plat_ic_disable_interrupt(unsigned int id);
 void plat_ic_enable_interrupt(unsigned int id);
