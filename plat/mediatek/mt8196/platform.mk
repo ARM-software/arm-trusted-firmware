@@ -53,6 +53,7 @@ MODULES-y += $(MTK_PLAT)/drivers/mminfra
 MODULES-y += $(MTK_PLAT)/drivers/smmu
 MODULES-y += $(MTK_PLAT)/drivers/spm
 MODULES-y += $(MTK_PLAT)/drivers/timer
+MODULES-y += $(MTK_PLAT)/drivers/ufs
 MODULES-y += $(MTK_PLAT)/drivers/vcp
 MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/topology
