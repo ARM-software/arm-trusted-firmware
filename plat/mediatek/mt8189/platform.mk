@@ -52,6 +52,10 @@ BL31_SOURCES += drivers/delay_timer/delay_timer.c \
 		$(MTK_PLAT)/$(MTK_SOC)/drivers/gpio/mtgpio.c \
 		$(MTK_PLAT)/$(MTK_SOC)/plat_mmap.c
 
+ifeq (${CONFIG_MTK_DISABLE_CACHE_AS_RAM}, 1)
+BL31_SOURCES += ${MTK_PLAT}/common/cache_ops.c
+endif
+
 include plat/mediatek/build_helpers/mtk_build_helpers_epilogue.mk
 
 include lib/coreboot/coreboot.mk

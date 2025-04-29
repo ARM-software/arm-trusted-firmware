@@ -24,6 +24,9 @@
 #endif
 
 /* MTK headers */
+#if CONFIG_MTK_DISABLE_CACHE_AS_RAM
+#include <cache_ops.h>
+#endif
 #if MTK_SIP_KERNEL_BOOT_ENABLE
 #include <cold_boot.h>
 #endif
@@ -101,6 +104,9 @@ void bl31_early_platform_setup2(u_register_t from_bl2,
 				u_register_t hw_config, u_register_t plat_params_from_bl2)
 
 {
+#if CONFIG_MTK_DISABLE_CACHE_AS_RAM
+	disable_cache_as_ram();
+#endif
 #if COREBOOT
 	static console_t console;
 
