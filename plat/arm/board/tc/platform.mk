@@ -26,7 +26,16 @@ NEED_BL2U			:=	no
 ARM_PLAT_MT			:=	1
 
 # CPU setup
-ARM_ARCH_MINOR			:=	7
+# Use v9.2 for TC5 and above
+# While TC3/TC4 support v9.2, stick with v8.7 as they don't use v9 features
+ifneq ($(shell expr $(TARGET_PLATFORM) \<= 4), 0)
+	ARM_ARCH_MAJOR		:=	8
+	ARM_ARCH_MINOR		:= 	7
+else
+	ARM_ARCH_MAJOR		:=	9
+	ARM_ARCH_MINOR		:= 	3
+endif
+
 BRANCH_PROTECTION		:=	1
 ENABLE_FEAT_MPAM		:=	1 # default is 2, optimise
 ENABLE_SVE_FOR_NS		:=	2 # to show we use it
