@@ -100,6 +100,12 @@ cc-flags-gnu-gcc	+=	-Wunused-but-set-variable -Wmaybe-uninitialized	\
 				-Wlogical-op $(TF_CFLAGS_MIN_PAGE_SIZE) $(TF_CFLAGS_MHARDEN_SLS)
 cc-flags-llvm-clang	+=	-Wshift-overflow -Wshift-sign-overflow \
 				-Wlogical-op-parentheses
+# TODO: some day GCC will be able to LTO __builtin functions (i.e. the libc and
+# with it all libs). When this happens, this should become generic. This can
+# also happen when GCC14 is the oldest reasonable version we support, then this
+# can work with -ffat-lto-objects.
+cc-flags-llvm-clang	+=	$(LTO_CFLAGS)
+
 # arm-clang has the same flags
 cc-flags-arm-clang	+=	$(cc-flags-llvm-clang)
 
