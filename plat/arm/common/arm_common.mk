@@ -437,12 +437,12 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     ifeq (${COT_DESC_IN_DTB},0)
       ifeq (${COT},dualroot)
-        COTDTPATH := fdts/dualroot_cot_descriptors.dtsi
+        COTDTPATH := fdts/dualroot_cot_descriptors.dts
       else ifeq (${COT},cca)
-        COTDTPATH := fdts/cca_cot_descriptors.dtsi
+        COTDTPATH := fdts/cca_cot_descriptors.dts
       else ifeq (${COT},tbbr)
         ifneq (${PLAT},juno)
-          COTDTPATH := fdts/tbbr_cot_descriptors.dtsi
+          COTDTPATH := fdts/tbbr_cot_descriptors.dts
         endif
       endif
     endif
@@ -515,22 +515,12 @@ ifeq (${RECLAIM_INIT_CODE}, 1)
 endif
 
 ifneq ($(COTDTPATH),)
-        cot-dt-defines = IMAGE_BL2 $(BL2_DEFINES)
-        cot-dt-include-dirs = $(BL2_INCLUDE_DIRS)
+        # no custom flags
+        $(eval $(call MAKE_PRE,$(BUILD_PLAT)/$(COTDTPATH),$(COTDTPATH),$(BUILD_PLAT)/$(COTDTPATH:.dts=.o.d)))
 
-        cot-dt-cpp-flags  = $(cot-dt-defines:%=-D%)
-        cot-dt-cpp-flags += $(cot-dt-include-dirs:%=-I%)
-
-        cot-dt-cpp-flags += $(BL2_CPPFLAGS)
-        cot-dt-cpp-flags += $(CPPFLAGS) $(TF_CFLAGS_$(ARCH))
-        cot-dt-cpp-flags += -c -x assembler-with-cpp -E -P -o $@ $<
-
-        $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.dts): $(COTDTPATH) | $$(@D)/
-		$(q)$($(ARCH)-cpp) $(cot-dt-cpp-flags)
-
-        $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.c): $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.dts) | $$(@D)/
+        $(BUILD_PLAT)/$(COTDTPATH:.dts=.c): $(BUILD_PLAT)/$(COTDTPATH) | $$(@D)/
 		$(if $(host-poetry),$(q)poetry -q install --no-root)
 		$(q)$(if $(host-poetry),poetry run )cot-dt2c convert-to-c $< $@
 
-        BL2_SOURCES += $(BUILD_PLAT)/$(COTDTPATH:.dtsi=.c)
+        BL2_SOURCES += $(BUILD_PLAT)/$(COTDTPATH:.dts=.c)
 endif

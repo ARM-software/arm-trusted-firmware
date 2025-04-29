@@ -298,6 +298,5 @@ endif
 
 
 DTC_FLAGS		+=	-I dts -O dtb
-DTC_CPPFLAGS		+=	-P -nostdinc $(INCLUDES) -Ifdts -undef \
-				-x assembler-with-cpp $(DEFINES)
+DTC_CPPFLAGS		+=	-Ifdts -undef
 
