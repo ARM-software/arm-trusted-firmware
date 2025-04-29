@@ -145,3 +145,10 @@ BL31_SOURCES		+=	plat/xilinx/common/plat_fdt.c			\
 				${LIBFDT_SRCS}					\
 				${PLAT_PATH}/sip_svc_setup.c			\
 				${XLAT_TABLES_LIB_SRCS}
+
+SDEI_SUPPORT := 0
+EL3_EXCEPTION_HANDLING := $(SDEI_SUPPORT)
+ifeq (${SDEI_SUPPORT},1)
+BL31_SOURCES		+=	plat/common/aarch64/plat_ehf.c          \
+				plat/xilinx/versal_net/versal_net_sdei.c
+endif
