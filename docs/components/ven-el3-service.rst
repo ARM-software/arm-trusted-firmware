@@ -32,9 +32,13 @@ Vendor-specific EL3 monitor services are as follows:
 +-----------------------------------+ Measurement Framework | | 2 - 15 are reserved for future expansion. |
 | 0xC7000020 - 0xC700002F (SMC64)   | (PMF)                 |                                             |
 +-----------------------------------+-----------------------+---------------------------------------------+
-| 0x87000030 - 0x8700FFFF (SMC32)   | Reserved              | | reserved for future expansion             |
+| 0x87000030 - 0x8700003F (SMC32)   | ACS (Architecture     | | 0 in use.                                 |
++-----------------------------------+ Compliance Suite) SMC | | 1 - 15 are reserved for future expansion. |
+| 0xC7000030 - 0xC700003F (SMC64)   | handler               |                                             |
++-----------------------------------+-----------------------+---------------------------------------------+
+| 0x87000040 - 0x8700FFFF (SMC32)   | Reserved              | | reserved for future expansion             |
 +-----------------------------------+                       |                                             |
-| 0xC7000030 - 0xC700FFFF (SMC64)   |                       |                                             |
+| 0xC7000040 - 0xC700FFFF (SMC64)   |                       |                                             |
 +-----------------------------------+-----------------------+---------------------------------------------+
 
 Source definitions for vendor-specific EL3 Monitor Service Calls used by TF-A are located in
@@ -44,6 +48,8 @@ the ``ven_el3_svc.h`` header file.
 | VEN_EL3_SVC_VERSION_MAJOR  | VEN_EL3_SVC_VERSION_MINOR  | Changes                        |
 +============================+============================+================================+
 |                          1 |                          0 | Added Debugfs and PMF services.|
++----------------------------+----------------------------+--------------------------------+
+|                          1 |                          1 | Added ACS SMC handler services.|
 +----------------------------+----------------------------+--------------------------------+
 
 *Table 1: Showing different versions of Vendor-specific service and changes done with each version*
@@ -71,8 +77,16 @@ DebugFS interface
 The optional DebugFS interface is accessed through Vendor specific EL3 service. Refer
 to :ref:`DebugFS interface` documentation for further details and usage.
 
+Architecture Compliance Suite (ACS) SMC handler
+-----------------------------------------------
+
+The Architecture Compliance Suite (ACS) SMC handler allows callers to branch
+to their ACS EL3 code based on their respective use-cases.
+For more details on System ACS, `System ACS`_.
+
 --------------
 
-*Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.*
 
+.. _System ACS: https://developer.arm.com/Architectures/Architectural%20Compliance%20Suite
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
