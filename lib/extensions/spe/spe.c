@@ -26,12 +26,12 @@ void spe_enable(cpu_context_t *ctx)
 	 * MDCR_EL3.NSPBE: Profiling Buffer uses Non-secure Virtual Addresses.
 	 * When FEAT_RME is not implemented, this field is RES0.
 	 *
-	 * MDCR_EL3.EnPMSN (ARM v8.7): Do not trap access to PMSNEVFR_EL1
-	 * register at NS-EL1 or NS-EL2 to EL3 if FEAT_SPEv1p2 is implemented.
-	 * Setting this bit to 1 doesn't have any effect on it when
-	 * FEAT_SPEv1p2 not implemented.
+	 * MDCR_EL3.EnPMSN (ARM v8.7) and MDCR_EL3.EnPMS3: Do not trap access to
+	 * PMSNEVFR_EL1 or PMSDSFR_EL1 register at NS-EL1 or NS-EL2 to EL3 if FEAT_SPEv1p2
+	 * or FEAT_SPE_FDS are implemented. Setting these bits to 1 doesn't have any
+	 * effect on it when the features aren't implemented.
 	 */
-	mdcr_el3_val |= MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_EnPMSN_BIT;
+	mdcr_el3_val |= MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_EnPMSN_BIT | MDCR_EnPMS3_BIT;
 	mdcr_el3_val &= ~(MDCR_NSPBE_BIT);
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
@@ -46,10 +46,11 @@ void spe_disable(cpu_context_t *ctx)
 	 *  Disable access of profiling buffer control registers from lower ELs
 	 *  in any security state. Secure state owns the buffer.
 	 *
-	 * MDCR_EL3.EnPMSN (ARM v8.7): Clear the bit to trap access of PMSNEVFR_EL1
-	 * from EL2/EL1 to EL3.
+	 * MDCR_EL3.EnPMSN (ARM v8.7) and MDCR_EL3.EnPMS3: Clear the bits to trap access
+	 * of PMSNEVFR_EL1 and PMSDSFR_EL1 from EL2/EL1 to EL3.
 	 */
-	mdcr_el3_val &= ~(MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_NSPBE_BIT | MDCR_EnPMSN_BIT);
+	mdcr_el3_val &= ~(MDCR_NSPB(MDCR_NSPB_EL1) | MDCR_NSPBE_BIT | MDCR_EnPMSN_BIT |
+			  MDCR_EnPMS3_BIT);
 	write_ctx_reg(state, CTX_MDCR_EL3, mdcr_el3_val);
 }
 

@@ -669,6 +669,7 @@
 
 /* MDCR_EL3 definitions */
 #define MDCR_EBWE_BIT		(ULL(1) << 43)
+#define MDCR_EnPMS3_BIT		(ULL(1) << 42)
 #define MDCR_E3BREC_BIT		(ULL(1) << 38)
 #define MDCR_E3BREW_BIT		(ULL(1) << 37)
 #define MDCR_EnPMSN_BIT		(ULL(1) << 36)
