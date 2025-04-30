@@ -109,10 +109,11 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 include drivers/auth/mbedtls/mbedtls_crypto.mk
 include drivers/auth/mbedtls/mbedtls_x509.mk
 
-AUTH_SOURCES	:=	drivers/auth/auth_mod.c			\
-			drivers/auth/crypto_mod.c		\
-			drivers/auth/img_parser_mod.c		\
-			drivers/auth/tbbr/tbbr_cot_common.c     \
+AUTH_MK := drivers/auth/auth.mk
+$(info Including ${AUTH_MK})
+include ${AUTH_MK}
+
+AUTH_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c     \
 			drivers/auth/tbbr/tbbr_cot_bl2.c
 
 BL2_SOURCES		+=	${AUTH_SOURCES}					\
