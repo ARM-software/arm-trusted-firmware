@@ -31,4 +31,13 @@ void ufs_device_pwr_ctrl(bool vcc_on, uint64_t ufs_version);
 void ufs_mphy_ctrl(enum ufs_mtk_mphy_op op);
 void ufs_mtcmos_ctrl(bool on);
 
+/* UFS functions implemented in the public ATF repo */
+int ufs_rsc_ctrl_mem(bool hold);
+int ufs_rsc_ctrl_pmic(bool hold);
+void ufs_device_pwr_ctrl_soc(bool vcc_on, uint64_t ufs_version);
+int ufs_spm_mtcmos_power(bool on);
+int ufs_phy_spm_mtcmos_power(bool on);
+bool ufs_is_clk_status_off(void);
+void ufs_set_clk_status(bool on);
+
 #endif /* __MTK_BL31_INTERFACE_H__ */
