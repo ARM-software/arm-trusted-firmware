@@ -113,8 +113,6 @@ Trusted Boot
 :|G|: `ManishVB-Arm`_
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
-:|M|: Jimmy Brisson <jimmy.brisson@arm.com>
-:|G|: `jimmy-brisson`_
 :|F|: drivers/auth/
 
 Secure Partition Manager Core (EL3 FF-A SPMC)
@@ -241,6 +239,8 @@ Power State Coordination Interface (PSCI)
 :|G|: `madhukar-Arm`_
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: lib/psci/
 :|F|: include/lib/psci/
 
@@ -284,6 +284,8 @@ Arm CPU libraries
 :|G|: `bipinravi-arm`_
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: lib/cpus/
 :|F|: include/lib/cpus/
 
@@ -293,6 +295,8 @@ Reliability Availability Serviceabilty (RAS) framework
 :|G|: `manish-pandey-arm`_
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 :|G|: `odeprez`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: lib/extensions/ras/
 
 Activity Monitors Unit (AMU) extensions
@@ -301,24 +305,32 @@ Activity Monitors Unit (AMU) extensions
 :|G|: `AlexeiFedorov`_
 :|M|: Chris Kay <chris.kay@arm.com>
 :|G|: `CJKay`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: lib/extensions/amu/
 
 Memory Partitioning And Monitoring (MPAM) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: lib/extensions/mpam/
 
 Pointer Authentication (PAuth) and Branch Target Identification (BTI) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|G|: `AlexeiFedorov`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: lib/extensions/pauth/
 
 Statistical Profiling Extension (SPE)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Pandey <manish.pandey2@arm.com>
 :|G|: `manish-pandey-arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: lib/extensions/spe/
 
 Standard C library
@@ -361,6 +373,8 @@ GIC driver
 :|G|: `madhukar-Arm`_
 :|M|: Olivier Deprez <olivier.deprez@arm.com>
 :|G|: `odeprez`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: drivers/arm/gic/
 
 Message Handling Unit (MHU) driver
@@ -399,8 +413,8 @@ Measured Boot
 :|G|: `sandrine-bailleux-arm`_
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
-:|M|: Jimmy Brisson <jimmy.brisson@arm.com>
-:|G|: `jimmy-brisson`_
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|G|: `harrisonmutai-arm`_
 :|F|: drivers/measured_boot
 :|F|: include/drivers/measured_boot
 :|F|: docs/components/measured_boot
@@ -429,8 +443,8 @@ Platform Security Architecture (PSA) APIs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :|G|: `sandrine-bailleux-arm`_
-:|M|: Jimmy Brisson <jimmy.brisson@arm.com>
-:|G|: `jimmy-brisson`_
+:|M|: Manish Badarkhe <manish.badarkhe@arm.com>
+:|G|: `ManishVB-Arm`_
 :|F|: include/lib/psa
 :|F|: lib/psa
 
@@ -475,6 +489,8 @@ Context Management
 :|G|: `manish-pandey-arm`_
 :|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
 :|G|: `madhukar-Arm`_
+:|M|: Boyan Karatotev <boyan.karatotev@arm.com>
+:|G|: `loosper-arm`_
 :|F|: bl1/aarch32/bl1_context_mgmt.c
 :|F|: bl1/aarch64/bl1_context_mgmt.c
 :|F|: bl31/bl31_context_mgmt.c
@@ -549,6 +565,8 @@ Arm FVP Platform port
 :|G|: `manish-pandey-arm`_
 :|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
 :|G|: `madhukar-Arm`_
+:|M|: Harrison Mutai <harrison.mutai@arm.com>
+:|G|: `harrisonmutai-arm`_
 :|F|: plat/arm/board/fvp
 
 Arm Juno Platform port
@@ -989,8 +1007,6 @@ Cert_create tool
 :|G|: `ManishVB-Arm`_
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
-:|M|: Jimmy Brisson <jimmy.brisson@arm.com>
-:|G|: `jimmy-brisson`_
 :|F|: tools/cert_create/
 
 Encrypt_fw tool
@@ -1076,7 +1092,6 @@ Conventional Changelog Extensions
 .. _jcorbier: https://github.com/jcorbier
 .. _jenswi-linaro: https://github.com/jenswi-linaro
 .. _JiafeiPan: https://github.com/JiafeiPan
-.. _jimmy-brisson: https://github.com/theotherjimmy
 .. _joannafarley-arm: https://github.com/joannafarley-arm
 .. _jslater8: https://github.com/jslater8
 .. _jwerner-chromium: https://github.com/jwerner-chromium
@@ -1085,6 +1100,7 @@ Conventional Changelog Extensions
 .. _laurenw-arm: https://github.com/laurenw-arm
 .. _leon-chen-mtk: https://github.com/leon-chen-mtk
 .. _linyidi: https://github.com/linyidi
+.. _loosper-arm: https://github.com/loosper-arm
 .. _madhukar-Arm: https://github.com/madhukar-Arm
 .. _maheedhar-bollapalli: https://github.com/maheedhar-bollapalli
 .. _manish-pandey-arm: https://github.com/manish-pandey-arm
