@@ -10,7 +10,6 @@
 #define MHU_RX_COMPAT			"arm,mhuv3"
 #define MHU_OFFSET			0x10000
 #define MHU_MBOX_CELLS			3
-#define MHU_RX_INT_NUM			300
 #define MHU_RX_INT_NAME			"combined"
 
 /* If SCMI power domain control is enabled */

@@ -12,6 +12,7 @@
 
 #define MHU_TX_ADDR			46240000 /* hex */
 #define MHU_RX_ADDR			46250000 /* hex */
+#define MHU_RX_INT_NUM			300
 
 #define LIT_CPU_PMU_COMPATIBLE		"arm,c1-nano-pmu"
 #define MID_CPU_PMU_COMPATIBLE		"arm,c1-pro-pmu"

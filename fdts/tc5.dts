@@ -12,6 +12,7 @@
 
 #define MHU_TX_ADDR			46240000 /* hex */
 #define MHU_RX_ADDR			46250000 /* hex */
+#define MHU_RX_INT_NUM			396
 
 /**
  * Stub value is set for LIT_CPU_PMU_COMPATIBLE as there are no little cores in TC5
