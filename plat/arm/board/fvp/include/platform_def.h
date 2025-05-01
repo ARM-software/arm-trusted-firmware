@@ -93,15 +93,6 @@
 #define FVP_DRAM6_SIZE	ULL(0x7800000000000) /* 1920 TB */
 #define FVP_DRAM6_END	(FVP_DRAM6_BASE + FVP_DRAM6_SIZE - 1U)
 
-/* Range of kernel DTB load address */
-#define FVP_DTB_DRAM_MAP_START		ULL(0x82000000)
-#define FVP_DTB_DRAM_MAP_SIZE		ULL(0x02000000)	/* 32 MB */
-
-#define ARM_DTB_DRAM_NS			MAP_REGION_FLAT(		\
-					FVP_DTB_DRAM_MAP_START,		\
-					FVP_DTB_DRAM_MAP_SIZE,		\
-					MT_MEMORY | MT_RO | MT_NS)
-
 /*
  * On the FVP platform when using the EL3 SPMC implementation allocate the
  * datastore for tracking shared memory descriptors in the TZC DRAM section
