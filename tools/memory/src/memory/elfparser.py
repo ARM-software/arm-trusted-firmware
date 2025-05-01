@@ -9,6 +9,7 @@ from dataclasses import asdict, dataclass
 from typing import BinaryIO
 
 from elftools.elf.elffile import ELFFile
+from elftools.elf.segments import Segment
 
 
 @dataclass(frozen=True)
@@ -50,11 +51,11 @@ class TfaElfParser:
         return self._symbols.items()
 
     @staticmethod
-    def tfa_mem_obj_factory(elf_obj, name=None, children=None, segment=False):
+    def tfa_mem_obj_factory(elf_obj, name=None, children=None):
         """Converts a pyelfparser Segment or Section to a TfaMemObject."""
         # Ensure each segment is provided a name since they aren't in the
         # program header.
-        assert not (segment and name is None), (
+        assert not (isinstance(elf_obj, Segment) and name is None), (
             "Attempting to make segment without a name"
         )
 
@@ -62,12 +63,12 @@ class TfaElfParser:
             children = list()
 
         # Segment and sections header keys have different prefixes.
-        vaddr = "p_vaddr" if segment else "sh_addr"
-        size = "p_memsz" if segment else "sh_size"
+        vaddr = "p_vaddr" if isinstance(elf_obj, Segment) else "sh_addr"
+        size = "p_memsz" if isinstance(elf_obj, Segment) else "sh_size"
 
         # TODO figure out how to handle free space for sections and segments
         return TfaMemObject(
-            name if segment else elf_obj.name,
+            name if isinstance(elf_obj, Segment) else elf_obj.name,
             elf_obj[vaddr],
             elf_obj[vaddr] + elf_obj[size],
             elf_obj[size],
@@ -98,7 +99,7 @@ class TfaElfParser:
                 if seg.section_in_segment(sec):
                     if n not in self._segments.keys():
                         self._segments[n] = self.tfa_mem_obj_factory(
-                            seg, name=f"{n:#02}", segment=True
+                            seg, name=f"{n:#02}"
                         )
 
                     self._segments[n].children.append(self.tfa_mem_obj_factory(sec))
