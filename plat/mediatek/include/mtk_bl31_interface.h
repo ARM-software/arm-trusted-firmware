@@ -10,6 +10,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+enum mtk_bl31_status {
+	MTK_BL31_STATUS_SUCCESS = 0,
+	MTK_BL31_STATUS_INVALID_PARAM = -1,
+	MTK_BL31_STATUS_NOT_SUPPORTED = -2,
+	MTK_BL31_STATUS_INVALID_RANGE = -3,
+	MTK_BL31_STATUS_PERMISSION_DENY = -4,
+	MTK_BL31_STATUS_LOCK_FAIL = -5,
+};
+
+int mtk_bl31_map_to_sip_error(enum mtk_bl31_status status);
+
+enum mtk_bl31_memory_type {
+	MTK_BL31_DEV_RW_SEC = 0,
+};
+
+int mtk_bl31_mmap_add_dynamic_region(unsigned long long base_pa, size_t size,
+				     enum mtk_bl31_memory_type attr);
+int mtk_bl31_mmap_remove_dynamic_region(uintptr_t base_va, size_t size);
+
 /* UFS definitions */
 enum ufs_mtk_mphy_op {
 	UFS_MPHY_BACKUP = 0,
