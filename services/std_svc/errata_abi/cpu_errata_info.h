@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2023-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,5 +48,5 @@ struct em_cpu_list{
 	struct   em_cpu cpu_errata_list[MAX_PLAT_CPU_ERRATA_ENTRIES];
 };
 
-int32_t verify_errata_implemented(uint32_t errata_id, uint32_t forward_flag);
+int32_t verify_errata_implemented(uint32_t errata_id);
 #endif /* ERRATA_CPUSPEC_H */

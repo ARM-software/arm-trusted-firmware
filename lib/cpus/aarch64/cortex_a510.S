@@ -142,6 +142,15 @@ workaround_reset_end cortex_a510, ERRATUM(2288014)
 
 check_erratum_ls cortex_a510, ERRATUM(2288014), CPU_REV(1, 0)
 
+workaround_reset_start cortex_a510, ERRATUM(2313941), ERRATA_DSU_2313941
+	errata_dsu_2313941_wa_impl
+workaround_reset_end cortex_a510, ERRATUM(2313941)
+
+check_erratum_custom_start cortex_a510, ERRATUM(2313941)
+	check_errata_dsu_2313941_impl
+	ret
+check_erratum_custom_end cortex_a510, ERRATUM(2313941)
+
 workaround_reset_start cortex_a510, ERRATUM(2347730), ERRATA_A510_2347730
 	/*
 	 * Set CPUACTLR_EL1[17] to 1'b1, which disables
@@ -182,15 +191,6 @@ workaround_runtime_start cortex_a510, ERRATUM(2684597), ERRATA_A510_2684597, COR
 workaround_runtime_end cortex_a510, ERRATUM(2684597)
 
 check_erratum_ls cortex_a510, ERRATUM(2684597), CPU_REV(1, 2)
-
-workaround_reset_start cortex_a510, ERRATUM(2313941), ERRATA_DSU_2313941
-	errata_dsu_2313941_wa_impl
-workaround_reset_end cortex_a510, ERRATUM(2313941)
-
-check_erratum_custom_start cortex_a510, ERRATUM(2313941)
-	check_errata_dsu_2313941_impl
-	ret
-check_erratum_custom_end cortex_a510, ERRATUM(2313941)
 
 .global check_erratum_cortex_a510_2971420
 add_erratum_entry cortex_a510, ERRATUM(2971420), ERRATA_A510_2971420

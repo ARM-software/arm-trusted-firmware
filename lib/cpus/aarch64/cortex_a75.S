@@ -20,6 +20,11 @@
 
 cpu_reset_prologue cortex_a75
 
+/* Erratum entry and check function for SMCCC_ARCH_WORKAROUND_3 */
+add_erratum_entry cortex_a75, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
+
+check_erratum_chosen cortex_a75, ERRATUM(ARCH_WORKAROUND_3), WORKAROUND_CVE_2022_23960
+
 workaround_reset_start cortex_a75, ERRATUM(764081), ERRATA_A75_764081
 	sysreg_bit_set sctlr_el3, SCTLR_IESB_BIT
 workaround_reset_end cortex_a75, ERRATUM(764081)
@@ -131,11 +136,6 @@ cpu_reset_func_start cortex_a75
 #endif
 cpu_reset_func_end cortex_a75
 
-func check_smccc_arch_workaround_3
-	mov	x0, #ERRATA_APPLIES
-	ret
-endfunc check_smccc_arch_workaround_3
-
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -170,9 +170,6 @@ func cortex_a75_cpu_reg_dump
 	ret
 endfunc cortex_a75_cpu_reg_dump
 
-declare_cpu_ops_wa cortex_a75, CORTEX_A75_MIDR, \
+declare_cpu_ops cortex_a75, CORTEX_A75_MIDR, \
 	cortex_a75_reset_func, \
-	check_erratum_cortex_a75_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	check_smccc_arch_workaround_3, \
 	cortex_a75_core_pwr_dwn

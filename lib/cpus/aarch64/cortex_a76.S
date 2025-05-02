@@ -301,6 +301,29 @@ func apply_cve_2018_3639_sync_wa
 endfunc apply_cve_2018_3639_sync_wa
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
+/* Erratum entry and check function for SMCCC_ARCH_WORKAROUND_2*/
+add_erratum_entry cortex_a76, ERRATUM(ARCH_WORKAROUND_2), WORKAROUND_CVE_2018_3639
+
+check_erratum_chosen cortex_a76, ERRATUM(ARCH_WORKAROUND_2), WORKAROUND_CVE_2018_3639
+
+workaround_reset_start cortex_a76, ERRATUM(798953), ERRATA_DSU_798953
+	errata_dsu_798953_wa_impl
+workaround_reset_end cortex_a76, ERRATUM(798953)
+
+check_erratum_custom_start cortex_a76, ERRATUM(798953)
+	check_errata_dsu_798953_impl
+	ret
+check_erratum_custom_end cortex_a76, ERRATUM(798953)
+
+workaround_reset_start cortex_a76, ERRATUM(936184), ERRATA_DSU_936184
+	errata_dsu_936184_wa_impl
+workaround_reset_end cortex_a76, ERRATUM(936184)
+
+check_erratum_custom_start cortex_a76, ERRATUM(936184)
+	check_errata_dsu_936184_impl
+	ret
+check_erratum_custom_end cortex_a76, ERRATUM(936184)
+
 workaround_reset_start cortex_a76, ERRATUM(1073348), ERRATA_A76_1073348
 	sysreg_bit_set CORTEX_A76_CPUACTLR_EL1 ,CORTEX_A76_CPUACTLR_EL1_DISABLE_STATIC_PREDICTION
 workaround_reset_end cortex_a76, ERRATUM(1073348)
@@ -313,6 +336,24 @@ workaround_reset_start cortex_a76, ERRATUM(1130799), ERRATA_A76_1130799
 workaround_reset_end cortex_a76, ERRATUM(1130799)
 
 check_erratum_ls cortex_a76, ERRATUM(1130799), CPU_REV(2, 0)
+
+/* --------------------------------------------------------------
+ * Errata Workaround for Cortex A76 Errata #1165522.
+ * This applies only to revisions <= r3p0 of Cortex A76.
+ * Due to the nature of the errata it is applied unconditionally
+ * when built in, report it as applicable in this case
+ * --------------------------------------------------------------
+ */
+check_erratum_custom_start cortex_a76, ERRATUM(1165522)
+#if ERRATA_A76_1165522
+	mov	x0, #ERRATA_APPLIES
+#else
+	cpu_rev_var_ls	CPU_REV(3, 0)
+#endif
+	ret
+check_erratum_custom_end cortex_a76, ERRATUM(1165522)
+
+add_erratum_entry cortex_a76, ERRATUM(1165522), ERRATA_A76_1165522
 
 workaround_reset_start cortex_a76, ERRATUM(1220197), ERRATA_A76_1220197
 	sysreg_bit_set CORTEX_A76_CPUECTLR_EL1, CORTEX_A76_CPUECTLR_EL1_WS_THR_L2
@@ -352,6 +393,8 @@ check_erratum_custom_start cortex_a76, ERRATUM(1286807)
 #endif
 	ret
 check_erratum_custom_end cortex_a76, ERRATUM(1286807)
+
+add_erratum_entry cortex_a76, ERRATUM(1286807), ERRATA_A76_1286807
 
 workaround_reset_start cortex_a76, ERRATUM(1791580), ERRATA_A76_1791580
 	sysreg_bit_set CORTEX_A76_CPUACTLR2_EL1, CORTEX_A76_CPUACTLR2_EL1_BIT_2
@@ -411,44 +454,10 @@ func cortex_a76_disable_wa_cve_2018_3639
 	ret
 endfunc cortex_a76_disable_wa_cve_2018_3639
 
-/* --------------------------------------------------------------
- * Errata Workaround for Cortex A76 Errata #1165522.
- * This applies only to revisions <= r3p0 of Cortex A76.
- * Due to the nature of the errata it is applied unconditionally
- * when built in, report it as applicable in this case
- * --------------------------------------------------------------
- */
-check_erratum_custom_start cortex_a76, ERRATUM(1165522)
-#if ERRATA_A76_1165522
-	mov	x0, #ERRATA_APPLIES
-#else
-	cpu_rev_var_ls	CPU_REV(3, 0)
-#endif
-	ret
-check_erratum_custom_end cortex_a76, ERRATUM(1165522)
-
 check_erratum_chosen cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
 
 /* erratum has no workaround in the cpu. Generic code must take care */
 add_erratum_entry cortex_a76, CVE(2022, 23960), WORKAROUND_CVE_2022_23960
-
-workaround_reset_start cortex_a76, ERRATUM(798953), ERRATA_DSU_798953
-	errata_dsu_798953_wa_impl
-workaround_reset_end cortex_a76, ERRATUM(798953)
-
-check_erratum_custom_start cortex_a76, ERRATUM(798953)
-	check_errata_dsu_798953_impl
-	ret
-check_erratum_custom_end cortex_a76, ERRATUM(798953)
-
-workaround_reset_start cortex_a76, ERRATUM(936184), ERRATA_DSU_936184
-	errata_dsu_936184_wa_impl
-workaround_reset_end cortex_a76, ERRATUM(936184)
-
-check_erratum_custom_start cortex_a76, ERRATUM(936184)
-	check_errata_dsu_936184_impl
-	ret
-check_erratum_custom_end cortex_a76, ERRATUM(936184)
 
 cpu_reset_func_start cortex_a76
 
@@ -531,9 +540,6 @@ func cortex_a76_cpu_reg_dump
 	ret
 endfunc cortex_a76_cpu_reg_dump
 
-declare_cpu_ops_wa cortex_a76, CORTEX_A76_MIDR, \
+declare_cpu_ops cortex_a76, CORTEX_A76_MIDR, \
 	cortex_a76_reset_func, \
-	CPU_NO_EXTRA1_FUNC, \
-	cortex_a76_disable_wa_cve_2018_3639, \
-	CPU_NO_EXTRA3_FUNC, \
 	cortex_a76_core_pwr_dwn
