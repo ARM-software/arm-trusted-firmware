@@ -3,6 +3,34 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.10.16](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.15..refs/tags/lts-v2.10.16) (2025-05-02)
+
+### Miscellaneous
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - remove in-order checks ([3b9e216](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/3b9e21608bddb5fe0bc5faff96982977846d27a0))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - add missing add_erratum_entry ([d7483aa](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d7483aa8f11c845120da090d782aecf38787d9e2))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - drop unused argument forward_flag ([ab526df](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/ab526df9730e81a2bc43f351b5d11bb38cdec8f7))
+    - move errata check to common code ([a86f15f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/a86f15fb227d1caeaa88618e1b582a5d1d0ca428))
+    - optimize CVE checking ([5a1a692](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/5a1a6929faee791be507c2e425513c03cd892d91))
+
 ## [lts-2.10.15](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.10.14..refs/tags/lts-v2.10.15) (2025-04-18)
 
 ### Performance Improvements
