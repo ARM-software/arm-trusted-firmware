@@ -3,6 +3,40 @@
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+## [lts-2.8.31](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.30..refs/tags/lts-v2.8.31) (2025-05-02)
+
+### Performance Improvements
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - inline cpu_rev_var checks ([f67c3ea](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/f67c3ea9644107f1ab287eea7e3b6780ac08f3b9))
+
+### Resolved Issues
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - declare reset errata correctly ([fa4bdbb](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/fa4bdbb5725fae8b24889ad070088924fa981a4c))
+    - fix a typo in errata doc ([34614e0](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/34614e0846092105b2038a3fa0d5997430566ca5))
+    - workaround for Cortex-X4 erratum 2957258 ([30d6886](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/30d6886761313e25b2a6d0b263fc60d2c6a28638))
+    - workaround for Neoverse-V3 erratum 2970647 ([b4dd8f6](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/b4dd8f62fb9183ad661974912cb17a8e308985bb))
+
+### Code Refactoring
+
+- **Libraries**
+
+  - **CPU Support**
+
+    - convert checker functions to standard helpers ([88ca67b](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/88ca67b787a94a729be9cfce29fd831fa5e7b34e))
+    - convert the Cortex-A65 to use the errata framework ([9ec650f](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/9ec650fc78710463383298c7ab1cdef371bf746e))
+    - declare runtime errata correctly ([d1ea858](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d1ea85820b6a1d13481f2b82dd730d2bd67d9e6c))
+    - directly invoke errata reporter ([6a6b0be](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/6a6b0bed327c07ac52743008e9ce0cedd216b68e))
+    - register DSU errata with the errata framework's wrappers ([7bf485d](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/7bf485d939fb78c56f694e48e63fa01559199776))
+    - remove cpu specific errata funcs ([d54e07a](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/d54e07a25ff79a16c336f00afe2c622ac803f67d))
+
 ## [lts-2.8.30](https://review.trustedfirmware.org/plugins/gitiles/TF-A/trusted-firmware-a/+/refs/tags/lts-v2.8.29..refs/tags/lts-v2.8.30) (2025-02-21)
 
 ### Code Refactoring
