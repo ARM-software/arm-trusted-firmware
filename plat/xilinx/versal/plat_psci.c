@@ -136,6 +136,13 @@ static void versal_pwr_domain_suspend_finish(
 
 static void versal_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
+	/*
+	 * Typecasting to void to intentionally retain the variable and avoid
+	 * MISRA violation for unused parameters. This may be used in the
+	 * future if specific action is required based on CPU power state.
+	 */
+	(void)target_state;
+
 	/* Enable the gic cpu interface */
 	plat_versal_gic_pcpu_init();
 

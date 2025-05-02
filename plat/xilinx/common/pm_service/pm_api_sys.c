@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -109,7 +109,7 @@ void pm_client_set_wakeup_sources(uint32_t node_id)
  */
 enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 				       uint32_t x2, uint32_t x3, uint32_t x4,
-				       uint32_t x5, uint64_t *result)
+				       uint32_t x5, uint32_t *result)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT] = {0};
 	uint32_t module_id;
@@ -122,7 +122,7 @@ enum pm_ret_status pm_handle_eemi_call(uint32_t flag, uint32_t x0, uint32_t x1,
 	}
 
 	PM_PACK_PAYLOAD6(payload, module_id, flag, x0, x1, x2, x3, x4, x5);
-	return pm_ipi_send_sync(primary_proc, payload, (uint32_t *)result, RET_PAYLOAD_ARG_CNT);
+	return pm_ipi_send_sync(primary_proc, payload, result, RET_PAYLOAD_ARG_CNT);
 }
 
 /**
@@ -163,8 +163,7 @@ enum pm_ret_status pm_self_suspend(uint32_t nid,
 
 	/* Send request to the PLM */
 	PM_PACK_PAYLOAD6(payload, LIBPM_MODULE_ID, flag, PM_SELF_SUSPEND,
-			 proc->node_id, latency, state, address,
-			 (address >> 32));
+			 nid, latency, state, address, (address >> 32));
 	ret = pm_ipi_send_sync(proc, payload, NULL, 0);
 
 exit_label:
@@ -279,6 +278,13 @@ enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
 enum pm_ret_status pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag, uint32_t ack)
 {
 	enum pm_ret_status ret = PM_RET_SUCCESS;
+
+	/*
+	 * Typecasting to void to intentionally retain the variable and avoid
+	 * MISRA violation for unused parameters. This may be used in the
+	 * future if callbacks to a secure target are required.
+	 */
+	(void)flag;
 
 	/* Return if interrupt is not from PMU */
 	if (pm_ipi_irq_status(primary_proc) != 0U) {

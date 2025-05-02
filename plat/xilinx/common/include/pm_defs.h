@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, Xilinx, Inc. All rights reserved.
- * Copyright (c) 2022-2024, Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2022-2025, Advanced Micro Devices, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -201,28 +201,6 @@ enum pm_abort_reason {
 	ABORT_REASON_NO_PWRDN,
 	ABORT_REASON_UNKNOWN,
 };
-
-enum pm_opchar_type {
-	PM_OPCHAR_TYPE_POWER = 1,
-	PM_OPCHAR_TYPE_TEMP,
-	PM_OPCHAR_TYPE_LATENCY,
-};
-
-/*
- * Subsystem IDs
- */
-typedef enum {
-	XPM_SUBSYSID_PMC,
-	XPM_SUBSYSID_PSM,
-	XPM_SUBSYSID_APU,
-	XPM_SUBSYSID_RPU0_LOCK,
-	XPM_SUBSYSID_RPU0_0,
-	XPM_SUBSYSID_RPU0_1,
-	XPM_SUBSYSID_DDR0,
-	XPM_SUBSYSID_ME,
-	XPM_SUBSYSID_PL,
-	XPM_SUBSYSID_MAX,
-} XPm_SubsystemId;
 
 /* TODO: move pm_ret_status from device specific location to common location */
 /**
