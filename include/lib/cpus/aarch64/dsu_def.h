@@ -26,14 +26,18 @@
 #define CLUSTERIDR_VAR_SHIFT	U(4)
 #define CLUSTERIDR_VAR_BITS	U(4)
 
+#define CLUSTERREVIDR_EL1	S3_0_C15_C3_2
+
 /********************************************************************
  * DSU Cluster Auxiliary Control registers definitions
  ********************************************************************/
 #define CLUSTERACTLR_EL1	S3_0_C15_C3_3
 #define CLUSTERPWRCTLR_EL1	S3_0_C15_C3_5
 
-#define CLUSTERACTLR_EL1_DISABLE_CLOCK_GATING	(ULL(1) << 15)
-#define CLUSTERACTLR_EL1_DISABLE_SCLK_GATING	(ULL(3) << 15)
+#define CLUSTERACTLR_EL1_ASSERT_CBUSY			(ULL(1) << 8)
+#define CLUSTERACTLR_EL1_DISABLE_CLOCK_GATING		(ULL(1) << 15)
+#define CLUSTERACTLR_EL1_DISABLE_SCLK_GATING		(ULL(3) << 15)
+#define CLUSTERACTLR_EL1_IGNORE_INTERCONNECT_CBUSY	(ULL(3) << 20)
 
 /********************************************************************
  * Masks applied for DSU errata workarounds
