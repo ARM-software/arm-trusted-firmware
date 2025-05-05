@@ -201,7 +201,9 @@ void bl2_plat_arch_setup(void)
 
 	stm32_iwdg_refresh();
 
-	stm32_save_boot_info(boot_context);
+	if (stm32_save_boot_info(boot_context) != 0) {
+		panic();
+	}
 
 	if (stm32mp_uart_console_setup() != 0) {
 		goto skip_console_init;
@@ -405,7 +407,10 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 	case BL33_IMAGE_ID:
 #if PSA_FWU_SUPPORT
-		stm32_fwu_set_boot_idx();
+		err = stm32_fwu_set_boot_idx();
+		if (err != 0) {
+			panic();
+		}
 #endif /* PSA_FWU_SUPPORT */
 		break;
 

@@ -128,9 +128,9 @@ int stm32mp_map_retram(void);
 int stm32mp_unmap_retram(void);
 
 /* Function to save boot info */
-void stm32_save_boot_info(boot_api_context_t *boot_context);
+int stm32_save_boot_info(boot_api_context_t *boot_context);
 /* Function to get boot peripheral info */
-void stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
+int stm32_get_boot_interface(uint32_t *interface, uint32_t *instance);
 
 /* Display board information from the value found in OTP fuse */
 void stm32_display_board_info(uint32_t board_id);
@@ -147,10 +147,10 @@ int stm32_get_core1_branch_address_cell(struct nvmem_cell *core1_branch_address)
 #endif
 
 #if PSA_FWU_SUPPORT
-void stm32_fwu_set_boot_idx(void);
-uint32_t stm32_get_and_dec_fwu_trial_boot_cnt(void);
-void stm32_set_max_fwu_trial_boot_cnt(void);
-void stm32_clear_fwu_trial_boot_cnt(void);
+int stm32_fwu_set_boot_idx(void);
+int stm32_get_and_dec_fwu_trial_boot_cnt(uint32_t *cnt);
+int stm32_set_max_fwu_trial_boot_cnt(void);
+int stm32_clear_fwu_trial_boot_cnt(void);
 #endif /* PSA_FWU_SUPPORT */
 
 #endif /* STM32MP_COMMON_H */
