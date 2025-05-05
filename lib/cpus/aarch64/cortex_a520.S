@@ -9,6 +9,7 @@
 #include <common/bl_common.h>
 #include <cortex_a520.h>
 #include <cpu_macros.S>
+#include <dsu_macros.S>
 #include <plat_macros.S>
 
 .global check_erratum_cortex_a520_2938996
@@ -37,7 +38,16 @@ workaround_reset_end cortex_a520, ERRATUM(2858100)
 
 check_erratum_ls cortex_a520, ERRATUM(2858100), CPU_REV(0, 1)
 
-add_erratum_entry cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996, NO_APPLY_AT_RESET
+workaround_reset_start cortex_a520, ERRATUM(2900952), ERRATA_DSU_2900952
+	errata_dsu_2900952_wa_apply
+workaround_reset_end cortex_a520, ERRATUM(2900952)
+
+check_erratum_custom_start cortex_a520, ERRATUM(2900952)
+	check_errata_dsu_2900952_applies
+	ret
+check_erratum_custom_end cortex_a520, ERRATUM(2900952)
+
+add_erratum_entry cortex_a520, ERRATUM(2938996), ERRATA_A520_2938996
 
 check_erratum_ls cortex_a520, ERRATUM(2938996), CPU_REV(0, 1)
 

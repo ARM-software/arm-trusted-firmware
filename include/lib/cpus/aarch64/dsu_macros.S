@@ -94,4 +94,44 @@
 	orr	x0, x0, #CLUSTERACTLR_EL1_DISABLE_SCLK_GATING
 	msr	CLUSTERACTLR_EL1, x0
 .endm
+
+/*
+ * Check if erratum is fixed via CLUSTERREVIDR_EL1 bit (\bitpos).
+ * If not fixed (bit is clear), set x0 = ERRATA_APPLIES (from x3).
+ * If fixed (bit is set), keep x0 = ERRATA_NOT_APPLIES.
+ */
+.macro check_revidr_bit bitpos:req
+	mrs	x4, CLUSTERREVIDR_EL1
+	mov	x1, #1
+	lsl	x1, x1, #\bitpos
+	tst	x1, x4
+	csel	x0, x0, x3, NE
+.endm
+
+.macro check_errata_dsu_2900952_applies
+	mov	x0, #ERRATA_NOT_APPLIES
+	mov	x3, #ERRATA_APPLIES
+
+	/* Check if DSU revision is equal to r2p0 */
+	mrs	x1, CLUSTERIDR_EL1
+
+	/* DSU variant and revision bitfields in CLUSTERIDR are adjacent */
+	ubfx	x2, x1, #CLUSTERIDR_REV_SHIFT,\
+			#(CLUSTERIDR_REV_BITS + CLUSTERIDR_VAR_BITS)
+	cmp x2, #(0x2 << CLUSTERIDR_VAR_SHIFT)
+	b.ne	1f
+	check_revidr_bit 1
+1:
+.endm
+
+.macro errata_dsu_2900952_wa_apply
+
+	ldr	x1, =((CLUSTERACTLR_EL1_IGNORE_INTERCONNECT_CBUSY | \
+				CLUSTERACTLR_EL1_ASSERT_CBUSY))
+
+	mrs	x0, CLUSTERACTLR_EL1
+	orr	x0, x0, x1
+	msr	CLUSTERACTLR_EL1, x0
+.endm
+
 #endif /* DSU_MACROS_S */
