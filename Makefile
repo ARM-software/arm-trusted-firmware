@@ -195,8 +195,7 @@ TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 ###############################################################################
 # General warnings
 WARNINGS		:=	-Wall -Wmissing-include-dirs -Wunused	\
-				-Wdisabled-optimization -Wvla -Wshadow	\
-				-Wredundant-decls
+				-Wdisabled-optimization -Wvla -Wshadow
 # stricter warnings
 WARNINGS		+=	-Wextra -Wno-trigraphs
 # too verbose for generic build
@@ -213,11 +212,12 @@ WARNING1 += -Wtype-limits
 WARNING1 += -Wmissing-field-initializers
 
 # Level 2 - problematic warnings that we want
-# zlib, compiler-rt, coreboot, and mbdedtls blow up with these
+# Some of our dependencies blow up with these
 # TODO: disable just for them and move into default build
 WARNING2 += -Wold-style-definition
 WARNING2 += -Wmissing-prototypes
 WARNING2 += -Wmissing-format-attribute
+WARNING2 += -Wredundant-decls
 # TF-A aims to comply with this eventually. Effort too large at present
 WARNING2 += -Wundef
 # currently very involved and many platforms set this off
