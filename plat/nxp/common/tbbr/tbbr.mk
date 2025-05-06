@@ -146,9 +146,11 @@ endif #MBEDTLS_DIR
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr
 
 # Generic files for authentication framework
-TBBR_SOURCES		+=	drivers/auth/auth_mod.c		\
-				drivers/auth/crypto_mod.c	\
-				drivers/auth/img_parser_mod.c	\
+AUTH_MK := drivers/auth/auth.mk
+$(info Including ${AUTH_MK})
+include ${AUTH_MK}
+
+TBBR_SOURCES		+=	${AUTH_SOURCES}			\
 				plat/common/tbbr/plat_tbbr.c	\
 				${PLAT_TBBR_SOURCES}
 

@@ -177,9 +177,9 @@ BL2_SOURCES			+=	drivers/io/io_encrypted.c
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT},1)
-AUTH_SOURCES			:=	drivers/auth/auth_mod.c				\
-					drivers/auth/crypto_mod.c			\
-					drivers/auth/img_parser_mod.c
+AUTH_MK := drivers/auth/auth.mk
+$(info Including ${AUTH_MK})
+include ${AUTH_MK}
 
 ifeq (${GENERATE_COT},1)
 TFW_NVCTR_VAL			:=	0

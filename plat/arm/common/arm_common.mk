@@ -388,8 +388,9 @@ endif
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources
-    AUTH_SOURCES 	:= 	drivers/auth/auth_mod.c	\
-				drivers/auth/img_parser_mod.c
+    AUTH_MK := drivers/auth/auth.mk
+    $(info Including ${AUTH_MK})
+    include ${AUTH_MK}
 
     # Include the selected chain of trust sources.
     ifeq (${COT},tbbr)
@@ -466,12 +467,22 @@ ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
     endif
 endif
 
-ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
-    CRYPTO_SOURCES	:=	drivers/auth/crypto_mod.c 	\
-				lib/fconf/fconf_tbbr_getter.c
+ifneq ($(filter 1,${MEASURED_BOOT} ${DRTM_SUPPORT}),)
+ifeq (${TRUSTED_BOARD_BOOT},0)
+    CRYPTO_SOURCES	:=	drivers/auth/crypto_mod.c
     BL1_SOURCES		+=	${CRYPTO_SOURCES}
     BL2_SOURCES		+=	${CRYPTO_SOURCES}
+endif
+endif
+
+ifeq (${DRTM_SUPPORT},1)
     BL31_SOURCES	+=	drivers/auth/crypto_mod.c
+endif
+
+ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT} ${DRTM_SUPPORT}),)
+    FCONF_TBB_SOURCES	:=	lib/fconf/fconf_tbbr_getter.c
+    BL1_SOURCES		+=	${FCONF_TBB_SOURCES}
+    BL2_SOURCES		+=	${FCONF_TBB_SOURCES}
 
     # We expect to locate the *.mk files under the directories specified below
     CRYPTO_LIB_MK := drivers/auth/mbedtls/mbedtls_crypto.mk

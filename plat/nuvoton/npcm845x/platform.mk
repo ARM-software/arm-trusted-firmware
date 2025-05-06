@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
 #
 # Copyright (c) 2017-2023 Nuvoton Ltd.
 #
@@ -330,10 +330,11 @@ endif
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 # Include common TBB sources
-AUTH_SOURCES	:=	drivers/auth/auth_mod.c \
-		drivers/auth/crypto_mod.c \
-		drivers/auth/img_parser_mod.c \
-		lib/fconf/fconf_tbbr_getter.c
+AUTH_MK := drivers/auth/auth.mk
+$(info Including ${AUTH_MK})
+include ${AUTH_MK}
+
+AUTH_SOURCES	+=	lib/fconf/fconf_tbbr_getter.c
 
 # Include the selected chain of trust sources.
 ifeq (${COT},tbbr)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,6 +79,12 @@ typedef struct crypto_lib_desc_s {
 			    unsigned int key_flags, const void *iv,
 			    unsigned int iv_len, const void *tag,
 			    unsigned int tag_len);
+
+	/*
+	 * Finish using the crypto library,
+	 * anything to be done to wrap up crypto usage done here.
+	 */
+	void (*finish)(void);
 } crypto_lib_desc_t;
 
 /* Public functions */
@@ -118,9 +124,17 @@ int crypto_mod_calc_hash(enum crypto_md_algo alg, void *data_ptr,
 int crypto_mod_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
 			  void **hashed_pk_ptr, unsigned int *hashed_pk_len);
 
+#if CRYPTO_SUPPORT
+void crypto_mod_finish(void);
+#else
+static inline void crypto_mod_finish(void)
+{
+}
+#endif /* CRYPTO_SUPPORT */
+
 /* Macro to register a cryptographic library */
 #define REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash, \
-			    _calc_hash, _auth_decrypt, _convert_pk) \
+			    _calc_hash, _auth_decrypt, _convert_pk, _finish) \
 	const crypto_lib_desc_t crypto_lib_desc = { \
 		.name = _name, \
 		.init = _init, \
@@ -128,7 +142,8 @@ int crypto_mod_convert_pk(void *full_pk_ptr, unsigned int full_pk_len,
 		.verify_hash = _verify_hash, \
 		.calc_hash = _calc_hash, \
 		.auth_decrypt = _auth_decrypt, \
-		.convert_pk = _convert_pk \
+		.convert_pk = _convert_pk, \
+		.finish = _finish \
 	}
 
 extern const crypto_lib_desc_t crypto_lib_desc;

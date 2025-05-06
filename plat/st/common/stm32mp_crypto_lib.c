@@ -661,7 +661,8 @@ REGISTER_CRYPTO_LIB("stm32_crypto_lib",
 		    crypto_verify_hash,
 		    NULL,
 		    crypto_auth_decrypt,
-		    crypto_convert_pk);
+		    crypto_convert_pk,
+		    NULL);
 
 #else /* No decryption support */
 REGISTER_CRYPTO_LIB("stm32_crypto_lib",
@@ -670,5 +671,6 @@ REGISTER_CRYPTO_LIB("stm32_crypto_lib",
 		    crypto_verify_hash,
 		    NULL,
 		    NULL,
-		    crypto_convert_pk);
+		    crypto_convert_pk,
+		    NULL);
 #endif

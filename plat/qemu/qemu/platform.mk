@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -45,9 +45,11 @@ endif
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
-    AUTH_SOURCES	:=	drivers/auth/auth_mod.c			\
-				drivers/auth/img_parser_mod.c		\
-				drivers/auth/tbbr/tbbr_cot_common.c
+    AUTH_MK := drivers/auth/auth.mk
+    $(info Including ${AUTH_MK})
+    include ${AUTH_MK}
+
+    AUTH_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c
 
     BL1_SOURCES		+=	${AUTH_SOURCES}				\
 				bl1/tbbr/tbbr_img_desc.c		\
@@ -100,12 +102,16 @@ ifeq (${MEASURED_BOOT},1)
 
 endif
 
+ifeq (${MEASURED_BOOT},1)
+ifeq (${TRUSTED_BOARD_BOOT},0)
+    CRYPTO_SOURCES    :=    drivers/auth/crypto_mod.c
+
+    BL1_SOURCES        +=    ${CRYPTO_SOURCES}
+    BL2_SOURCES        +=    ${CRYPTO_SOURCES}
+endif
+endif
+
 ifneq ($(filter 1,${MEASURED_BOOT} ${TRUSTED_BOARD_BOOT}),)
-    CRYPTO_SOURCES	:=	drivers/auth/crypto_mod.c
-
-    BL1_SOURCES		+=	${CRYPTO_SOURCES}
-    BL2_SOURCES		+=	${CRYPTO_SOURCES}
-
     # We expect to locate the *.mk files under the directories specified below
     #
     include drivers/auth/mbedtls/mbedtls_crypto.mk

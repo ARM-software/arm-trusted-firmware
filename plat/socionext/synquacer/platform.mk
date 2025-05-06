@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2024, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2025, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -63,9 +63,11 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 ifeq (${TRUSTED_BOARD_BOOT},1)
 include drivers/auth/mbedtls/mbedtls_crypto.mk
 include drivers/auth/mbedtls/mbedtls_x509.mk
-BL2_SOURCES		+=	drivers/auth/auth_mod.c			\
-				drivers/auth/crypto_mod.c		\
-				drivers/auth/img_parser_mod.c		\
+AUTH_MK := drivers/auth/auth.mk
+$(info Including ${AUTH_MK})
+include ${AUTH_MK}
+
+BL2_SOURCES		+=	${AUTH_SOURCES}				\
 				drivers/auth/tbbr/tbbr_cot_common.c	\
 				drivers/auth/tbbr/tbbr_cot_bl2.c	\
 				plat/common/tbbr/plat_tbbr.c		\

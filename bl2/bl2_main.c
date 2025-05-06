@@ -110,6 +110,8 @@ void bl2_main(void)
 	/* Teardown the Measured Boot backend */
 	bl2_plat_mboot_finish();
 
+	crypto_mod_finish();
+
 #if !BL2_RUNS_AT_EL3
 #ifndef __aarch64__
 	/*
