@@ -168,7 +168,6 @@ implemented, the SPMC is located at S-EL2, and enabling secure boot:
     BL32=<path-to-hafnium-binary> \
     BL33=<path-to-bl33-binary> \
     SP_LAYOUT_FILE=sp_layout.json \
-    MBEDTLS_DIR=<path-to-mbedtls-lib> \
     TRUSTED_BOARD_BOOT=1 \
     COT=dualroot \
     ARM_ROTPK_LOCATION=devel_rsa \

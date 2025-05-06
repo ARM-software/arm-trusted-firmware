@@ -44,8 +44,6 @@ Option 1: CoT using X 509 certificates
 
 - This CoT is as provided by ARM.
 
-- To use this option user needs to specify mbedtld dir path in MBEDTLS_DIR.
-
 - To generate CSF header, path of CST repository needs to be specified as CST_DIR
 
 - CSF header is embedded to each of the BL2 image.
@@ -68,7 +66,7 @@ Option 1: CoT using X 509 certificates
 All Images
    .. code:: shell
 
-       make PLAT=$PLAT TRUSTED_BOARD_BOOT=1 GENERATE_COT=1 MBEDTLS_DIR=$MBEDTLS_PATH CST_DIR=$CST_DIR_PATH \
+       make PLAT=$PLAT TRUSTED_BOARD_BOOT=1 GENERATE_COT=1 CST_DIR=$CST_DIR_PATH \
        BOOT_MODE=<platform_supported_boot_mode> \
        RCW=$RCW_BIN \
        BL32=$TEE_BIN SPD=opteed\
@@ -79,15 +77,13 @@ All Images
 Additional FIP_DDR Image (For NXP platforms like lx2160a)
    .. code:: shell
 
-       make PLAT=$PLAT TRUSTED_BOARD_BOOT=1 GENERATE_COT=1 MBEDTLS_DIR=$MBEDTLS_PATH fip_ddr
+       make PLAT=$PLAT TRUSTED_BOARD_BOOT=1 GENERATE_COT=1 fip_ddr
 
       Note: make target 'fip_ddr' should never be combine with other make target 'fip', 'pbl' & 'bl2'.
 
 -------------------------------------------------------------------------
 Option 2: CoT using NXP CSF headers.
 -------------------------------------------------------------------------
-
-- This option is automatically selected when TRUSTED_BOARD_BOOT is set but MBEDTLS_DIR path is not specified.
 
 - CSF header is embedded to each of the BL31, BL32 and  BL33 image.
 

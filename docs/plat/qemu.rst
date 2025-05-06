@@ -122,9 +122,8 @@ For example, to test the following firmware stack:
       make CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu BL32=bl32.bin \
           BL32_EXTRA1=bl32_extra1.bin BL32_EXTRA2=bl32_extra2.bin \
           BL33=bl33.bin BL32_RAM_LOCATION=tdram SPD=opteed all fip \
-          MBEDTLS_DIR=<path-to-mbedtls-repo> TRUSTED_BOARD_BOOT=1 \
-          GENERATE_COT=1 DECRYPTION_SUPPORT=aes_gcm FW_ENC_STATUS=0 \
-          ENCRYPT_BL31=1 ENCRYPT_BL32=1
+          TRUSTED_BOARD_BOOT=1 GENERATE_COT=1 DECRYPTION_SUPPORT=aes_gcm \
+          FW_ENC_STATUS=0 ENCRYPT_BL31=1 ENCRYPT_BL32=1
 
 2.  Concatenate ``bl1.bin`` and ``fip.bin`` to create the boot ROM
 
