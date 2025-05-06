@@ -47,7 +47,6 @@ Build Procedure (TF-A only)
 
    .. code:: shell
 
-      MBEDTLS_DIR=<path_to_mbedtls_directory>  \
       TRUSTED_BOARD_BOOT=1 \
       GENERATE_COT=1 \
       ARM_ROTPK_LOCATION=devel_rsa  \

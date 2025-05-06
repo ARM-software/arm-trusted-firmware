@@ -71,7 +71,6 @@ Build Procedure (TF-A only)
 
       make \
       PLAT=rdaspen \
-      MBEDTLS_DIR=<mbedtls_dir> \
       CREATE_KEYS=1 \
       GENERATE_COT=1 \
       TRUSTED_BOARD_BOOT=1 \

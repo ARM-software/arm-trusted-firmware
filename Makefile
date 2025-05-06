@@ -26,6 +26,8 @@ include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build-rules.mk
 include ${MAKE_HELPERS_DIRECTORY}common.mk
 
+MBEDTLS_DIR := contrib/mbed-tls
+
 ################################################################################
 # Default values for build configurations, and their dependencies
 ################################################################################

@@ -52,7 +52,6 @@ Build Procedure (TF-A only)
 
       make \
       PLAT=rd1ae \
-      MBEDTLS_DIR=<mbedtls_dir> \
       ARCH=aarch64 \
       CREATE_KEYS=1 \
       GENERATE_COT=1 \
