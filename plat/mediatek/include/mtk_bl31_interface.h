@@ -85,4 +85,7 @@ void emi_protection_init(void);
 void cpu_qos_change_dcc(uint32_t on, uint32_t is_auto);
 void *cpu_qos_handle_cluster_on_event(const void *arg);
 
+/* SMMU sid interfaces */
+int smmu_sid_init(void);
+
 #endif /* __MTK_BL31_INTERFACE_H__ */

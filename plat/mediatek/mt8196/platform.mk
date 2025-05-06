@@ -61,6 +61,7 @@ MODULES-y += $(MTK_PLAT)/helpers
 MODULES-y += $(MTK_PLAT)/topology
 MODULES-$(CONFIG_MTK_CPU_PM_SUPPORT) += $(MTK_PLAT)/drivers/cpu_pm
 MODULES-$(CONFIG_MTK_PMIC) += $(MTK_PLAT)/drivers/pmic
+MODULES-$(CONFIG_MTK_SMMU_SID) += $(MTK_PLAT)/drivers/smmu_sid
 MODULES-$(CONFIG_MTK_SPMI) += $(MTK_PLAT)/drivers/spmi
 
 MODULES-$(CONFIG_MTK_MTCMOS) += $(MTK_PLAT)/drivers/mtcmos
