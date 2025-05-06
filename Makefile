@@ -99,7 +99,7 @@ endif
 
 # Variables for use with Certificate Generation Tool
 CRTTOOLPATH		?=	tools/cert_create
-CRTTOOL			?=	${CRTTOOLPATH}/cert_create$(.exe)
+CRTTOOL			?=	${BUILD_PLAT}/${CRTTOOLPATH}/cert_create$(.exe)
 
 # Variables for use with Firmware Encryption Tool
 ENCTOOLPATH		?=	tools/encrypt_fw
@@ -1366,7 +1366,8 @@ clean:
 	$(q)rm -rf $(BUILD_PLAT)
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${FIPTOOLPATH} clean
 	$(q)rm -rf ${FIPTOOLPATH}/fiptool
-	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	$(q)rm -rf ${CRTTOOLPATH}/cert_create
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	$(q)${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
@@ -1376,7 +1377,8 @@ realclean distclean:
 	$(q)rm -rf $(CURDIR)/cscope.*
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${FIPTOOLPATH} clean
 	$(q)rm -rf ${FIPTOOLPATH}/fiptool
-	$(q)${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} realclean
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	$(q)rm -rf ${CRTTOOLPATH}/cert_create
 	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=${BUILD_PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	$(q)${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
@@ -1416,7 +1418,8 @@ checkpatch:		locate-checkpatch
 certtool: ${CRTTOOL}
 
 ${CRTTOOL}: FORCE
-	$(q)${MAKE} PLAT=${PLAT} USE_TBBR_DEFS=${USE_TBBR_DEFS} COT=${COT} OPENSSL_DIR=${OPENSSL_DIR} CRTTOOL=${CRTTOOL} DEBUG=${DEBUG} --no-print-directory -C ${CRTTOOLPATH} all
+	$(q)${MAKE} PLAT=${PLAT} BUILD_PLAT=$(abspath ${BUILD_PLAT}) USE_TBBR_DEFS=${USE_TBBR_DEFS} COT=${COT} OPENSSL_DIR=${OPENSSL_DIR} DEBUG=${DEBUG} --no-print-directory -C ${CRTTOOLPATH} all
+	$(q)ln -sf ${CRTTOOL} ${CRTTOOLPATH}/cert_create
 	$(s)echo
 	$(s)echo "Built $@ successfully"
 	$(s)echo

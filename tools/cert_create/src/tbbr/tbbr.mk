@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 USE_TBBR_DEFS   := 1
-$(eval $(call add_define,USE_TBBR_DEFS))
+CRTTOOL_DEFINES	+= USE_TBBR_DEFS=${USE_TBBR_DEFS}
 
 ifeq (${USE_TBBR_DEFS},1)
 # In this case, cert_tool is platform-independent
@@ -24,6 +24,6 @@ ifeq ($(PLAT_INCLUDE),)
 endif
 endif
 
-OBJECTS += src/tbbr/tbb_cert.o \
-           src/tbbr/tbb_ext.o \
-           src/tbbr/tbb_key.o
+CRTTOOL_SOURCES +=	src/tbbr/tbb_cert.c \
+			src/tbbr/tbb_ext.c \
+			src/tbbr/tbb_key.c

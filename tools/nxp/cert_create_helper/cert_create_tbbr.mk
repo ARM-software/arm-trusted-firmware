@@ -10,22 +10,22 @@ PLAT_DEF_OID := yes
 
 ifeq (${PLAT_DEF_OID},yes)
 
-$(eval $(call add_define, PLAT_DEF_OID))
-$(eval $(call add_define, PDEF_KEYS))
-$(eval $(call add_define, PDEF_CERTS))
-$(eval $(call add_define, PDEF_EXTS))
+CRTTOOL_DEFINES += PLAT_DEF_OID
+CRTTOOL_DEFINES += PDEF_KEYS
+CRTTOOL_DEFINES += PDEF_CERTS
+CRTTOOL_DEFINES += PDEF_EXTS
 
 
-INC_DIR += -I../../plat/nxp/common/fip_handler/common/
+CRTTOOL_INCLUDE_DIRS		+=	../../plat/nxp/common/fip_handler/common/
 
 PDEF_CERT_TOOL_PATH		:=	../nxp/cert_create_helper
-PLAT_INCLUDE			+=	-I${PDEF_CERT_TOOL_PATH}/include
+CRTTOOL_INCLUDE_DIRS		+=	${PDEF_CERT_TOOL_PATH}/include
 
-PLAT_OBJECTS			+=	${PDEF_CERT_TOOL_PATH}/src/pdef_tbb_cert.o \
-					${PDEF_CERT_TOOL_PATH}/src/pdef_tbb_ext.o \
-					${PDEF_CERT_TOOL_PATH}/src/pdef_tbb_key.o
+PLAT_OBJECTS			+=	${PDEF_CERT_TOOL_PATH}/src/pdef_tbb_cert.c \
+					${PDEF_CERT_TOOL_PATH}/src/pdef_tbb_ext.c \
+					${PDEF_CERT_TOOL_PATH}/src/pdef_tbb_key.c
 
 $(shell rm ${PLAT_OBJECTS})
 
-OBJECTS				+= ${PLAT_OBJECTS}
+CRTTOOL_SOURCES			+= ${PLAT_OBJECTS}
 endif
