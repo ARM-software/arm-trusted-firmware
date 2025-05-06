@@ -214,7 +214,6 @@ endif
 endif
 
 # Include mbedtls if it can be located
-MBEDTLS_DIR ?= mbedtls
 MBEDTLS_CHECK := $(shell test -d "${MBEDTLS_DIR}" && echo "1")
 
 ifneq (${MBEDTLS_CHECK},)
